@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2019, Intel Corporation
+## Copyright(c) 2018-2019, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,43 +24,41 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-add_subdirectory(api)
-add_subdirectory(plugins/fpgad-xfpga)
-add_subdirectory(plugins/fpgad-vc)
-
-include_directories(${OPAE_INCLUDE_DIR}
-                    ${libjson-c_INCLUDE_DIRS}
-		    ${CMAKE_BINARY_DIR}/include
-		    ${OPAE_SDK_SOURCE}/libopae
-                    ${OPAE_SDK_SOURCE}/libbitstream
-                    ${OPAE_SDK_SOURCE}/tools/base)
+project(libfpgad-xfpga)
 
 set(SRC
-  command_line.c
-  config_file.c
-  event_dispatcher_thread.c
-  events_api_thread.c
-  fpgad.c
-  monitor_thread.c
-  daemonize.c
-  monitored_device.c
+  fpgad-xfpga.c
 )
-add_executable(fpgad ${SRC})
 
-set_install_rpath(fpgad)
+add_library(fpgad-xfpga MODULE ${SRC})
 
-target_link_libraries(fpgad
+target_include_directories(fpgad-xfpga PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  PRIVATE ${OPAE_SDK_SOURCE}/libopae
+  PRIVATE ${OPAE_SDK_SOURCE}/libbitstream
+  PRIVATE ${OPAE_SDK_SOURCE}/tools/base
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+  PUBLIC ${libjson-c_INCLUDE_DIRS})
+
+# Add coverage flags
+if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+  set_property(SOURCE ${SRC} APPEND PROPERTY COMPILE_FLAGS ${GCOV_COMPILE_FLAGS})
+  target_link_libraries(fpgad-xfpga ${GCOV_LINK_FLAGS})
+endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+
+# Target properties
+set_property(TARGET fpgad-xfpga PROPERTY C_STANDARD 99)
+
+target_link_libraries(fpgad-xfpga
   safestr
   opae-c
-  bitstream
   fpgad-api
-  dl
   ${CMAKE_THREAD_LIBS_INIT}
-  ${libjson-c_LIBRARIES}
-  uuid)
+  ${libjson-c_LIBRARIES})
 
 set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
-install(TARGETS fpgad
-        RUNTIME DESTINATION bin
-        COMPONENT toolfpgad)
+install(TARGETS fpgad-xfpga
+  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
+  COMPONENT toolfpgad_xfpga)

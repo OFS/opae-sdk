@@ -128,10 +128,13 @@ ldconfig
 %files tools
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/fpgaconf
-@CMAKE_INSTALL_PREFIX@/bin/fpgad
 @CMAKE_INSTALL_PREFIX@/bin/fpgainfo
 @CMAKE_INSTALL_PREFIX@/bin/fpgaport
 @CMAKE_INSTALL_PREFIX@/bin/fpgametrics
+@CMAKE_INSTALL_PREFIX@/bin/fpgad
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-api.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-xfpga.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-vc.so*
 
 
 %files tools-extra

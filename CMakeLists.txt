@@ -130,6 +130,7 @@ endif()
 ############################################################################
 
 add_subdirectory(safe_string)
+add_subdirectory(libbitstream)
 
 option(BUILD_LIBOPAE_C "Enable building of libopae-c. This is the default OPAE API implementation." ON)
 mark_as_advanced(BUILD_LIBOPAE_C)
@@ -233,10 +234,56 @@ endif()
 
 if("${CPACK_GENERATOR}" STREQUAL "DEB")
 include(packaging)
+
+#list of components to be included in the package
+set(CPACK_COMPONENTS_ALL 
+	toolfpgaconf
+	toolfpgainfo 
+	toolfpgaport
+	toolfpgametrics
+	toolfpgadiag 
+	toolfpga_dma_test 
+	toolfpgabist 
+	toolfpgadiagapps 
+	toolpackager 
+	jsonschema 
+	opaecase 
+	asertl 
+	asescripts 
+	aseextra 
+	asesw 
+	libopaeheaders 
+	dochtml 
+	doclatex 
+	docrtf 
+	docman 
+	docxml 
+	platform 
+	samplesrc 
+	safestrlib 
+	safestrheaders 
+	opaeclib 
+	opaecxxcorelib 
+	opaetoolslibs 
+	opaecxxutils 
+	opaecxxlib 
+	opaecxxnlb 
+	toolfpgaconf 
+	toolbist_app 
+	toolbist 
+	toolfpgad
+	toolfpgad_api
+	toolfpgad_xfpga
+	toolfpgad_vc
+	)
+
 # Component definition
 define_pkg(tools
   COMPONENTS
   toolfpgad
+  toolfpgad_api
+  toolfpgad_xfpga
+  toolfpgad_vc
   toolfpgaconf
   toolfpgainfo
   toolfpgaport
@@ -257,6 +304,7 @@ define_pkg(tools
   toolfpgabist
   toolfpga_dma_test
   toolbist_app
+  toolbist
   toolfpgaflash
   toolfpgadiagapps
   toolpachssiconfig

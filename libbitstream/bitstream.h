@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,30 +24,30 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGAD_SRV_H__
-#define __FPGAD_SRV_H__
-#include <stdint.h>
+#ifndef __OPAE_BITSTREAM_H__
+#define __OPAE_BITSTREAM_H__
+
 #include <opae/types.h>
 
-struct fpga_err;
+typedef struct _opae_bitstream_info {
+	const char *filename;
+	uint8_t *data;
+	size_t data_len;
+	uint8_t *rbf_data;
+	size_t rbf_len;
+	fpga_guid interface_id;
+} opae_bitstream_info;
 
-struct client_event_registry {
-	int conn_socket;
-	int fd;
-	uint64_t data;
-	fpga_event_type event;
-	uint64_t object_id;
-	struct client_event_registry *next;
-};
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
-void *server_thread(void *thread_context);
+fpga_result opae_load_bitstream(const char *file, opae_bitstream_info *info);
 
-void for_each_registered_event(
-	void (*cb)(struct client_event_registry *,
-		   uint64_t object_id,
-		   const struct fpga_err *),
-	uint64_t object_id,
-	const struct fpga_err *);
+void opae_unload_bitstream(opae_bitstream_info *info);
 
-#endif // __FPGAD_SRV_H__
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
+#endif /* __OPAE_BITSTREAM_H__ */

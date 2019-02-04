@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,42 +24,13 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGAD_LOG_H__
-#define __FPGAD_LOG_H__
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-#include "opae_int.h"
+#include "config_file.h"
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif // _GNU_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <pthread.h>
-#include <string.h>
-#include <errno.h>
 
-extern FILE *fLog;
-int open_log(const char *);
-int dlog(const char *, ...);
-void close_log(void);
 
-#define fpgad_mutex_lock(__res, __mtx_ptr)                                     \
-	({                                                                     \
-		(__res) = pthread_mutex_lock(__mtx_ptr);                       \
-		if (__res)                                                     \
-			dlog("pthread_mutex_lock failed: %s",                  \
-				strerror(errno));                              \
-		__res;                                                         \
-	})
 
-#define fpgad_mutex_unlock(__res, __mtx_ptr)                                   \
-	({                                                                     \
-		(__res) = pthread_mutex_unlock(__mtx_ptr);                     \
-		if (__res)                                                     \
-			dlog("pthread_mutex_unlock failed: %s",                \
-					strerror(errno));                      \
-		__res;                                                         \
-	})
 
-#endif
