@@ -108,6 +108,8 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libxfpga.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libbmc.so
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libmodbmc.so
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libbitstream.so*
+
 
 %files devel
 %defattr(-,root,root,-)
