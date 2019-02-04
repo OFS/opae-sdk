@@ -24,119 +24,82 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <signal.h>
-#include "test_system.h"
-
 extern "C" {
 
 #include <json-c/json.h>
 #include <uuid/uuid.h>
 
-int daemonize(void (*hndlr)(int, siginfo_t *, void *), mode_t mask, const char *dir);
-
-void test_sig_handler(int sig, siginfo_t *info, void *unused)
-{
-  UNUSED_PARAM(sig);
-  UNUSED_PARAM(info);
-  UNUSED_PARAM(unused);
-}
+#include "fpgad/api/logging.h"
 
 }
 
 #include <config.h>
 #include <opae/fpga.h>
 
-#include <cstdio>
+#include <array>
 #include <cstdlib>
 #include <cstring>
-#include <errno.h>
-#include <thread>
-#include <chrono>
-#include <unistd.h>
-#include <linux/limits.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include "gtest/gtest.h"
+#include "test_system.h"
 
 using namespace opae::testing;
 
-class fpgad_daemonize_c_p : public ::testing::TestWithParam<std::string> {
+class fpgad_log_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  fpgad_daemonize_c_p() {}
+  fpgad_log_c_p() {}
 
   virtual void SetUp() override {
-    strcpy(daemonize_result_, "daem-XXXXXX.pid");
-    close(mkstemps(daemonize_result_, 4));
     std::string platform_key = GetParam();
     ASSERT_TRUE(test_platform::exists(platform_key));
     platform_ = test_platform::get(platform_key);
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
+    strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
+    close(mkstemps(tmpfpgad_log_, 4));
+    EXPECT_GT(log_open(tmpfpgad_log_), 0);
   }
 
   virtual void TearDown() override {
+    log_close();
     system_->finalize();
 
     if (!::testing::Test::HasFatalFailure() &&
         !::testing::Test::HasNonfatalFailure()) {
-      unlink(daemonize_result_);
+      unlink(tmpfpgad_log_);
     }
   }
 
-  char daemonize_result_[20];
+  char tmpfpgad_log_[20];
   test_platform platform_;
   test_system *system_;
 };
 
 /**
- * @test       test
- * @brief      Test: daemonize
- * @details    daemonize places the process in daemon mode.<br>
+ * @test       log01
+ * @brief      Test: log_open, log_printf, log_close
+ * @details    log_printf sends the formatted output string to the log file<br>
+ *             and returns the number of bytes written.<br>
  */
-TEST_P(fpgad_daemonize_c_p, test) {
-  pid_t pid = fork();
-
-  ASSERT_NE(-1, pid);
-
-  if (!pid) {
-    // child
-    int res;
-    char cwd[PATH_MAX];
-
-    res = daemonize(test_sig_handler, 0, getcwd(cwd, sizeof(cwd)));
-
-    // pass the result of daemonize to the parent proc via the tmp file.
-    FILE *fp = fopen(daemonize_result_, "w");
-    if (fp) {
-      fprintf(fp, "%d\n", res);
-      fclose(fp);
-    }
-
-    exit(0);
-
-  } else {
-    // parent
-    int res = -1;
-    int timeout = 15;
-
-    FILE *fp = fopen(daemonize_result_, "r");
-    ASSERT_NE(nullptr, fp);
-
-    while (fscanf(fp, "%d", &res) != 1) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(250));
-      rewind(fp);
-      timeout--;
-      if (!timeout)
-	      fclose(fp);
-      ASSERT_GT(timeout, 0);
-    }
-    fclose(fp);
-
-    EXPECT_EQ(res, 0);
-  }
-
+TEST_P(fpgad_log_c_p, log01) {
+  EXPECT_EQ(3, log_printf("abc"));
 }
 
-INSTANTIATE_TEST_CASE_P(fpgad_daemonize_c, fpgad_daemonize_c_p,
+/**
+ * @test       log02
+ * @brief      Test: log_set, log_printf, log_close
+ * @details    log_set allows changing the output file to stdout.<br>
+ */
+TEST_P(fpgad_log_c_p, log02) {
+  ::testing::internal::CaptureStdout();
+
+  log_set(stdout);
+  EXPECT_EQ(3, log_printf("abc"));
+
+  std::string captured = ::testing::internal::GetCapturedStdout();
+
+  EXPECT_STREQ(captured.c_str(), "abc");
+}
+
+INSTANTIATE_TEST_CASE_P(fpgad_log_c, fpgad_log_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "skx-p","skx-p-dfl0" })));

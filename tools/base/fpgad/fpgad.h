@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2019, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,78 +24,59 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-/*
- * daemonize.c : routine to become a system daemon process.
- */
+#ifndef __FPGAD_FPGAD_H__
+#define __FPGAD_FPGAD_H__
 
+#ifndef __USE_GNU
+#define __USE_GNU
+#endif
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
+#include <pthread.h>
+#include <stdarg.h>
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <linux/limits.h>
+#include <opae/fpga.h>
+
+#include "opae_int.h"
 
 #include "safe_string/safe_string.h"
 
-int daemonize(void (*hndlr)(int, siginfo_t *, void *), mode_t mask, const char *dir)
-{
-	pid_t pid;
-	pid_t sid;
-	int res;
-	int fd;
-	struct sigaction sa;
+#include "api/logging.h"
+#include "command_line.h"
 
-	pid = fork();
-	if (pid < 0) // fork() failed.
-		return errno;
+int daemonize(void (*hndlr)(int, siginfo_t *, void *),
+	      mode_t mask,
+	      const char *dir);
 
-	// 1) Orphan the child process so that it runs in the background.
-	if (pid > 0)
-		exit(0);
 
-	// 2) Become leader of a new session and process group leader of new process
-	// group. The process is now detached from its controlling terminal.
-	sid = setsid();
-	if (sid < 0)
-		return errno;
+#define fpgad_mutex_lock(__res, __mtx_ptr)                                     \
+	({                                                                     \
+		(__res) = pthread_mutex_lock(__mtx_ptr);                       \
+		if (__res)                                                     \
+			LOG("pthread_mutex_lock failed: %s",                   \
+				strerror(errno));                              \
+		__res;                                                         \
+	})
 
-	// 3) Establish signal handler.
-	memset_s(&sa, sizeof(sa), 0);
-	sa.sa_flags     = SA_SIGINFO | SA_RESETHAND;
-	sa.sa_sigaction = hndlr;
+#define fpgad_mutex_unlock(__res, __mtx_ptr)                                   \
+	({                                                                     \
+		(__res) = pthread_mutex_unlock(__mtx_ptr);                     \
+		if (__res)                                                     \
+			LOG("pthread_mutex_unlock failed: %s",                 \
+					strerror(errno));                      \
+		__res;                                                         \
+	})
 
-	res = sigaction(SIGINT, &sa, NULL);
-	if (res < 0)
-		return errno;
-
-	res = sigaction(SIGTERM, &sa, NULL);
-	if (res < 0)
-		return errno;
-
-	// 4) Orphan the child again - the session leading process terminates.
-	// (only session leaders can request TTY).
-	pid = fork();
-	if (pid < 0) // fork() failed.
-		return errno;
-
-	if (pid > 0)
-		exit(0);
-
-	// 5) Set new file mode mask.
-	umask(mask);
-
-	// 6) change directory
-	res = chdir(dir);
-	if (res < 0)
-		return errno;
-
-	// 7) Close all open file descriptors
-	fd = sysconf(_SC_OPEN_MAX);
-	while (fd >= 0)
-		close(fd--);
-
-	return 0;
-}
-
+#endif /* __FPGAD_FPGAD_H__ */
