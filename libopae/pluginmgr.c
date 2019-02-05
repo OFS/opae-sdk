@@ -652,6 +652,7 @@ STATIC int opae_plugin_mgr_load_dflt_plugins(int *platforms_detected)
 	if (errors)
 		return errors;
 	// Load each of the native plugins that were detected.
+	*platforms_detected = 0;
 
 	for (i = 0 ; platform_data_table[i].native_plugin ; ++i) {
 		const char *native_plugin;
@@ -671,8 +672,7 @@ STATIC int opae_plugin_mgr_load_dflt_plugins(int *platforms_detected)
 			if (EOK != strcmp_s(native_plugin, strnlen_s(native_plugin, 256),
 						platform_data_table[j].native_plugin, &res)) {
 				OPAE_ERR("strcmp_s failed");
-				++errors;
-				goto out;
+				return ++errors;
 			}
 
 			if (!res &&
@@ -689,8 +689,7 @@ STATIC int opae_plugin_mgr_load_dflt_plugins(int *platforms_detected)
 
 		if (!adapter) {
 			OPAE_ERR("malloc failed");
-			++errors;
-			goto out;
+			return ++errors;
 		}
 
 		// TODO: pass serialized json for native plugin
@@ -713,7 +712,6 @@ STATIC int opae_plugin_mgr_load_dflt_plugins(int *platforms_detected)
 
 		platform_data_table[i].flags |= OPAE_PLATFORM_DATA_LOADED;
 	}
-out:
 	return errors;
 }
 
