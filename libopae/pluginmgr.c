@@ -78,21 +78,66 @@ STATIC int opae_plugin_mgr_plugin_count;
 
 #define CFG_PATHS 4
 static const char *_opae_cfg_files[CFG_PATHS] = {
-	"/etc/opae.cfg",
-	"~/.config/opae/opae.cfg",
-	"~/.local/opae/opae.cfg",
-	"~/.local/opae.cfg"
+	"/etc/opae/opae.cfg",
+	"$HOME/.config/opae/opae.cfg",
+	"$HOME/.local/opae/opae.cfg",
+	"$HOME/.local/opae.cfg"
 };
 
+STATIC int resolve_file_name(char *dst, const char *src)
+{
+	char src_cpy[PATH_MAX];
+	char *ptok = src_cpy;
+	char *pstr = src_cpy;
+	char *pdst = dst;
+	const char *dir_value = NULL;
+	size_t len = strlen(src);
+	size_t len_cpy = len;
+
+	if (strncpy_s(src_cpy, PATH_MAX, src, len)) {
+		OPAE_ERR("error copying src string");
+		return 1;
+	}
+
+	while (ptok && len_cpy) {
+		*pdst++ = '/';
+		ptok = strtok_s(NULL, &len_cpy, "/", &pstr);
+		if (ptok[0] == '$') {
+			dir_value = getenv(ptok+1);
+			if (!dir_value) {
+				OPAE_MSG("Could not find env var: '%s'", ptok+1);
+				return 1;
+			}
+		} else {
+			dir_value = ptok;
+		}
+		if (strncpy_s(pdst, len, dir_value, len)) {
+			OPAE_ERR("error copying path component");
+			return 1;
+		}
+		pdst = dst + strlen(dst);
+	}
+	*++pdst = '\0';
+	return 0;
+}
+
+// Find the canonicalized configuration file. If null, the file was not found.
+// Otherwise, it's the first configuration file found from a list of possible
+// paths. Note: The char * returned is allocated here, caller must free.
 STATIC char *find_cfg()
 {
 	int i = 0;
-	char *canon_name = NULL;
+	char *file_name = NULL;
+	char opae_cfg_files[PATH_MAX][CFG_PATHS] = { { 0 } };
 
 	for (; i < CFG_PATHS; ++i) {
-		canon_name = canonicalize_file_name(_opae_cfg_files[i]);
-		if (canon_name) {
-			return canon_name;
+		resolve_file_name(opae_cfg_files[i], _opae_cfg_files[i]);
+	}
+
+	for (i = 0; i < CFG_PATHS; ++i) {
+		file_name = canonicalize_file_name(opae_cfg_files[i]);
+		if (file_name) {
+			return file_name;
 		}
 	}
 	return NULL;
@@ -607,19 +652,22 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 	int platforms_detected = 0;
 	opae_api_adapter_table *adapter;
 	opae_plugin_mgr_plugin_count = 0;
-	char *found_cfg = find_cfg();
-
-
-	opae_plugin_mgr_parse_config(cfg_file ? cfg_file : found_cfg);
-	if (found_cfg) {
-		free(found_cfg);
-	}
+	char *found_cfg = NULL;
+	const char *use_cfg = NULL;
 
 	opae_mutex_lock(res, &adapter_list_lock);
 
 	if (initialized) { // prevent multiple init.
 		opae_mutex_unlock(res, &adapter_list_lock);
 		return 0;
+	}
+	found_cfg = find_cfg();
+	use_cfg = cfg_file ? cfg_file : found_cfg;
+	if (use_cfg) {
+		opae_plugin_mgr_parse_config(use_cfg);
+		if (found_cfg) {
+			free(found_cfg);
+		}
 	}
 
 	errors = opae_plugin_mgr_detect_platforms();
