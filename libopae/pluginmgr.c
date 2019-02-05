@@ -643,37 +643,14 @@ STATIC int opae_plugin_mgr_load_cfg_plugins(void)
 	return errors;
 }
 
-int opae_plugin_mgr_initialize(const char *cfg_file)
+STATIC int opae_plugin_mgr_load_dflt_plugins(int *platforms_detected)
 {
-	int i;
-	int j;
-	int res;
-	int errors = 0;
-	int platforms_detected = 0;
-	opae_api_adapter_table *adapter;
-	opae_plugin_mgr_plugin_count = 0;
-	char *found_cfg = NULL;
-	const char *use_cfg = NULL;
-
-	opae_mutex_lock(res, &adapter_list_lock);
-
-	if (initialized) { // prevent multiple init.
-		opae_mutex_unlock(res, &adapter_list_lock);
-		return 0;
-	}
-	found_cfg = find_cfg();
-	use_cfg = cfg_file ? cfg_file : found_cfg;
-	if (use_cfg) {
-		opae_plugin_mgr_parse_config(use_cfg);
-		if (found_cfg) {
-			free(found_cfg);
-		}
-	}
-
-	errors = opae_plugin_mgr_detect_platforms();
+	int i = 0, j = 0;
+	int res = 0;
+	opae_api_adapter_table *adapter = NULL;
+	int errors = opae_plugin_mgr_detect_platforms();
 	if (errors)
-		goto out_unlock;
-
+		return errors;
 	// Load each of the native plugins that were detected.
 
 	for (i = 0 ; platform_data_table[i].native_plugin ; ++i) {
@@ -684,7 +661,7 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 			continue; // This platform was not detected.
 
 		native_plugin = platform_data_table[i].native_plugin;
-		platforms_detected++;
+		(*platforms_detected)++;
 
 		// Iterate over the table again to prevent multiple loads
 		// of the same native plugin.
@@ -695,7 +672,7 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 						platform_data_table[j].native_plugin, &res)) {
 				OPAE_ERR("strcmp_s failed");
 				++errors;
-				goto out_unlock;
+				goto out;
 			}
 
 			if (!res &&
@@ -713,7 +690,7 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 		if (!adapter) {
 			OPAE_ERR("malloc failed");
 			++errors;
-			goto out_unlock;
+			goto out;
 		}
 
 		// TODO: pass serialized json for native plugin
@@ -736,14 +713,48 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 
 		platform_data_table[i].flags |= OPAE_PLATFORM_DATA_LOADED;
 	}
+out:
+	return errors;
+}
 
-	// TODO: load non-native plugins described in config file.
-	opae_plugin_mgr_load_cfg_plugins();
+int opae_plugin_mgr_initialize(const char *cfg_file)
+{
+	int res;
+	int errors = 0;
+	int platforms_detected = 0;
+	opae_plugin_mgr_plugin_count = 0;
+	char *found_cfg = NULL;
+	const char *use_cfg = NULL;
+
+	opae_mutex_lock(res, &adapter_list_lock);
+
+	if (initialized) { // prevent multiple init.
+		opae_mutex_unlock(res, &adapter_list_lock);
+		return 0;
+	}
+	found_cfg = find_cfg();
+	use_cfg = cfg_file ? cfg_file : found_cfg;
+	if (use_cfg) {
+		opae_plugin_mgr_parse_config(use_cfg);
+		if (found_cfg) {
+			free(found_cfg);
+		}
+	}
+
+	if (opae_plugin_mgr_plugin_count) {
+		errors = opae_plugin_mgr_load_cfg_plugins();
+	} else {
+		// fail-safe, try to detect plugins based on supported devices
+		errors = opae_plugin_mgr_load_dflt_plugins(&platforms_detected);
+	}
+
+	if (errors)
+		goto out_unlock;
 
 	// Call each plugin's initialization routine.
 	errors += opae_plugin_mgr_initialize_all();
 
-	if (!errors && platforms_detected)
+	if (!errors && (opae_plugin_mgr_plugin_count || platforms_detected))
 		initialized = 1;
 
 out_unlock:
