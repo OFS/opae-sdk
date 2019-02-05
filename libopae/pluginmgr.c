@@ -78,41 +78,57 @@ STATIC int opae_plugin_mgr_plugin_count;
 
 #define CFG_PATHS 4
 static const char *_opae_cfg_files[CFG_PATHS] = {
-	"/etc/opae.cfg",
+	"/etc/opae/opae.cfg",
 	"$HOME/.config/opae/opae.cfg",
 	"$HOME/.local/opae/opae.cfg",
 	"$HOME/.local/opae.cfg"
 };
 
-STATIC void resolve_file_name(char *dst, const char *src)
+STATIC int resolve_file_name(char *dst, const char *src)
 {
 	char src_cpy[PATH_MAX];
 	char *ptok = src_cpy;
 	char *pstr = src_cpy;
 	char *pdst = dst;
+	const char *dir_value = NULL;
 	size_t len = strlen(src);
 	size_t len_cpy = len;
 
-	strncpy_s(src_cpy, PATH_MAX, src, len);
+	if (strncpy_s(src_cpy, PATH_MAX, src, len)) {
+		OPAE_ERR("error copying src string");
+		return 1;
+	}
 
-	while(ptok && len_cpy) {
+	while (ptok && len_cpy) {
 		*pdst++ = '/';
 		ptok = strtok_s(NULL, &len_cpy, "/", &pstr);
 		if (ptok[0] == '$') {
-			strncpy_s(pdst, len, getenv(ptok+1), len);
+			dir_value = getenv(ptok+1);
+			if (!dir_value) {
+				OPAE_MSG("Could not find env var: '%s'", ptok+1);
+				return 1;
+			}
 		} else {
-			strncpy_s(pdst, len, ptok, len);
+			dir_value = ptok;
+		}
+		if (strncpy_s(pdst, len, dir_value, len)) {
+			OPAE_ERR("error copying path component");
+			return 1;
 		}
 		pdst = dst + strlen(dst);
 	}
 	*++pdst = '\0';
+	return 0;
 }
 
+// Find the canonicalized configuration file. If null, the file was not found.
+// Otherwise, it's the first configuration file found from a list of possible
+// paths. Note: The char * returned is allocated here, caller must free.
 STATIC char *find_cfg()
 {
 	int i = 0;
 	char *file_name = NULL;
-	char opae_cfg_files[PATH_MAX][CFG_PATHS] = {{0}};
+	char opae_cfg_files[PATH_MAX][CFG_PATHS] = { { 0 } };
 
 	for (; i < CFG_PATHS; ++i) {
 		resolve_file_name(opae_cfg_files[i], _opae_cfg_files[i]);
