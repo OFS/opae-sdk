@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2018, Intel Corporation
+## Copyright(c) 2017-2019, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,18 +24,42 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
+add_subdirectory(api)
+add_subdirectory(plugins/fpgad-xfpga)
+add_subdirectory(plugins/fpgad-vc)
 
 include_directories(${OPAE_INCLUDE_DIR}
                     ${libjson-c_INCLUDE_DIRS}
-                    ${OPAE_SDK_SOURCE}/tools/base
-		    ${OPAE_SDK_SOURCE}/libopae)
+		    ${CMAKE_BINARY_DIR}/include
+		    ${OPAE_SDK_SOURCE}/libopae
+                    ${OPAE_SDK_SOURCE}/libbitstream
+                    ${OPAE_SDK_SOURCE}/tools/base)
 
-set(SRC fpgad.c daemonize.c log.c errtable.c srv.c evt.c ap6.c ap_event.c)
+set(SRC
+  command_line.c
+  config_file.c
+  event_dispatcher_thread.c
+  events_api_thread.c
+  fpgad.c
+  monitor_thread.c
+  daemonize.c
+  monitored_device.c
+)
 add_executable(fpgad ${SRC})
 
 set_install_rpath(fpgad)
 
-target_link_libraries(fpgad safestr opae-c pthread ${libjson-c_LIBRARIES} uuid)
+target_link_libraries(fpgad
+  safestr
+  opae-c
+  bitstream
+  fpgad-api
+  dl
+  ${CMAKE_THREAD_LIBS_INIT}
+  ${libjson-c_LIBRARIES}
+  uuid)
+
+set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
 install(TARGETS fpgad
         RUNTIME DESTINATION bin

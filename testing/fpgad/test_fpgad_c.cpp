@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -28,19 +28,12 @@
 
 extern "C" {
 
-#include <json-c/json.h>
-#include <uuid/uuid.h>
+#include "fpgad/command_line.h"
+#include "fpgad/api/logging.h"
 
-#include "fpgad/config_int.h"
-#include "fpgad/log.h"
-
-extern struct config config;
-
-void show_help(void);
+extern struct fpgad_config global_config;
 
 void sig_handler(int sig, siginfo_t *info, void *unused);
-
-void resolve_dirs(struct config *c);
 
 int fpgad_main(int argc, char *argv[]);
 
@@ -55,6 +48,9 @@ int fpgad_main(int argc, char *argv[]);
 #include <errno.h>
 #include <unistd.h>
 #include <fstream>
+#include <vector>
+#include <thread>
+#include <chrono>
 #include "gtest/gtest.h"
 #include "test_system.h"
 
@@ -65,129 +61,81 @@ class fpgad_fpgad_c_p : public ::testing::TestWithParam<std::string> {
   fpgad_fpgad_c_p() {}
 
   virtual void SetUp() override {
-    strcpy(tmpnull_gbs_, "tmpnull-XXXXXX.gbs");
-    close(mkstemps(tmpnull_gbs_, 4));
     std::string platform_key = GetParam();
     ASSERT_TRUE(test_platform::exists(platform_key));
     platform_ = test_platform::get(platform_key);
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-    null_gbs_ = system_->assemble_gbs_header(platform_.devices[0]);
+
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+
+    log_set(stdout);
+
+    strcpy(tmpnull_gbs_, "tmpnull-XXXXXX.gbs");
+    close(mkstemps(tmpnull_gbs_, 4));
+
+    std::vector<uint8_t> gbs_hdr =
+      system_->assemble_gbs_header(platform_.devices[0]);
 
     std::ofstream gbs;
     gbs.open(tmpnull_gbs_, std::ios::out|std::ios::binary);
-    gbs.write((const char *) null_gbs_.data(), null_gbs_.size());
+    gbs.write((const char *) gbs_hdr.data(), gbs_hdr.size());
     gbs.close();
 
-    fLog = stdout;
+    memset_s(&config_, sizeof(config_), 0);
+    config_.poll_interval_usec = 100 * 1000;
+    config_.running = true;
+    config_.api_socket = "/tmp/fpga_event_socket";
+
+    global_config.poll_interval_usec = 100 * 1000;
+    global_config.running = true;
+    global_config.api_socket = "/tmp/fpga_event_socket";
+
     optind = 0;
-    config_ = config;
   }
 
   virtual void TearDown() override {
-    config = config_;
+    cmd_destroy(&config_);
+    log_close();
 
+    fpgaFinalize();
     system_->finalize();
+
+    if (!::testing::Test::HasFatalFailure() &&
+        !::testing::Test::HasNonfatalFailure()) {
+      unlink(tmpnull_gbs_);
+    }
   }
 
-  std::vector<uint8_t> null_gbs_;
   char tmpnull_gbs_[20];
-  struct config config_;
+  struct fpgad_config config_;
   test_platform platform_;
   test_system *system_;
 };
 
 /**
- * @test       help
- * @brief      Test: show_help
- * @details    show_help displays the application help message.<br>
- */
-TEST_P(fpgad_fpgad_c_p, help) {
-  show_help();
-}
-
-/**
- * @test       sig
+ * @test       sigint
  * @brief      Test: sig_handler
  * @details    When sig_handler is called with SIGINT,<br>
  *             it sets config.running to false to end the app.<br>
  */
-TEST_P(fpgad_fpgad_c_p, sig) {
-  ASSERT_NE(config.running, 0);
+TEST_P(fpgad_fpgad_c_p, sigint) {
+  ASSERT_TRUE(global_config.running);
   sig_handler(SIGINT, nullptr, nullptr);
-  EXPECT_EQ(config.running, 0);
+  EXPECT_FALSE(global_config.running);
 }
 
 /**
- * @test       resolve0
- * @brief      Test: resolve_dirs
- * @details    When the .logfile and .pidfile members of<br>
- *             the input config don't contain ".." nor "/",<br>
- *             then resolve_dirs prepends a suitable prefix.<br>
+ * @test       sigterm
+ * @brief      Test: sig_handler
+ * @details    When sig_handler is called with SIGTERM,<br>
+ *             it sets config.running to false to end the app.<br>
  */
-TEST_P(fpgad_fpgad_c_p, resolve0) {
-
-  strcpy(config.logfile, "log");
-  strcpy(config.pidfile, "pid");
-
-  mode_t filemode;
-
-  std::string dir;
-
-  if (!geteuid()) {
-    dir = "/var/lib/opae";
-    filemode = 0026;
-  } else {
-    dir = std::string(getenv("HOME")) + std::string("/.opae");
-    filemode = 0022;
-  }
-
-  std::string log = dir + std::string("/log");
-  std::string pid = dir + std::string("/pid");
-
-  resolve_dirs(&config);
-
-  EXPECT_STREQ(config.directory, dir.c_str());
-  EXPECT_STREQ(config.logfile, log.c_str());
-  EXPECT_STREQ(config.pidfile, pid.c_str());
-  EXPECT_EQ(config.filemode, filemode);
-}
-
-/**
- * @test       resolve1
- * @brief      Test: resolve_dirs
- * @details    If the .logfile and .pidfile members of<br>
- *             the input config contain ".." or "/",<br>
- *             then resolve_dirs prepends a suitable prefix
- *             and uses the default names fpgad.log and fpgad.pid.<br>
- */
-TEST_P(fpgad_fpgad_c_p, resolve1) {
-
-  strcpy(config.logfile, "../../etc/something_im_not_supposed_to_access");
-  strcpy(config.pidfile, "..");
-
-  mode_t filemode;
-
-  std::string dir;
-
-  if (!geteuid()) {
-    dir = "/var/lib/opae";
-    filemode = 0026;
-  } else {
-    dir = std::string(getenv("HOME")) + std::string("/.opae");
-    filemode = 0022;
-  }
-
-  std::string log = dir + std::string("/fpgad.log");
-  std::string pid = dir + std::string("/fpgad.pid");
-
-  resolve_dirs(&config);
-
-  EXPECT_STREQ(config.directory, dir.c_str());
-  EXPECT_STREQ(config.logfile, log.c_str());
-  EXPECT_STREQ(config.pidfile, pid.c_str());
-  EXPECT_EQ(config.filemode, filemode);
+TEST_P(fpgad_fpgad_c_p, sigterm) {
+  ASSERT_TRUE(global_config.running);
+  sig_handler(SIGTERM, nullptr, nullptr);
+  EXPECT_FALSE(global_config.running);
 }
 
 /**
@@ -240,65 +188,21 @@ TEST_P(fpgad_fpgad_c_p, main_params) {
                    ten };
 
   EXPECT_EQ(fpgad_main(11, argv), 0);
-  EXPECT_NE(config.daemon, 0);
-  EXPECT_STREQ(config.logfile, "log");
-  EXPECT_STREQ(config.pidfile, "pid");
-  EXPECT_STREQ(config.socket, "sock");
-  EXPECT_STREQ(basename(config.null_gbs[0]), tmpnull_gbs_);
-  EXPECT_EQ(config.num_null_gbs, 1);
-  free(config.null_gbs[0]);
+  EXPECT_TRUE(global_config.daemon);
+  EXPECT_STREQ(global_config.logfile, "log");
+  EXPECT_STREQ(global_config.pidfile, "pid");
+  EXPECT_STREQ(global_config.api_socket, "sock");
+  // because main goes to out_destroy:
+  EXPECT_EQ(global_config.num_null_gbs, 0);
 }
 
 /**
- * @test       invalid_nullgbs
- * @brief      Test: fpgad_main
- * @details    When fpgad_main is called with a null_gbs that is invalid<br>
- *             it fails to add the null gbs to the config struct<br>
- */
-TEST_P(fpgad_fpgad_c_p, invalid_nullgbs) {
-  char zero[20];
-  char one[20];
-  char two[20];
-  char three[20];
-  char four[20];
-  char five[20];
-  char six[20];
-  char seven[20];
-  char eight[20];
-  char nine[20];
-  char ten[20];
-  strcpy(zero, "fpgad");
-  strcpy(one, "-d");
-  strcpy(two, "-l");
-  strcpy(three, "log");
-  strcpy(four, "-p");
-  strcpy(five, "pid");
-  strcpy(six, "-s");
-  strcpy(seven, "sock");
-  strcpy(eight, "-n");
-  strcpy(nine, "no-file");
-  strcpy(ten, "-h");
-
-  char *argv[] = { zero, one, two, three, four,
-                   five, six, seven, eight, nine,
-                   ten };
-
-  EXPECT_NE(fpgad_main(11, argv), 0);
-  EXPECT_NE(config.daemon, 0);
-  EXPECT_STREQ(config.logfile, "log");
-  EXPECT_STREQ(config.pidfile, "pid");
-  EXPECT_STREQ(config.socket, "sock");
-  EXPECT_FALSE(config.null_gbs[0]);
-  EXPECT_EQ(config.num_null_gbs, 0);
-}
-
-/**
- * @test       main_invalid
+ * @test       main_invalid0
  * @brief      Test: fpgad_main
  * @details    When fpgad_main is called with an invalid command option,<br>
  *             it returns non-zero.<br>
  */
-TEST_P(fpgad_fpgad_c_p, main_invalid) {
+TEST_P(fpgad_fpgad_c_p, main_invalid0) {
   char zero[20];
   char one[20];
   strcpy(zero, "fpgad");
@@ -309,14 +213,13 @@ TEST_P(fpgad_fpgad_c_p, main_invalid) {
   EXPECT_NE(fpgad_main(2, argv), 0);
 }
 
-
 /**
- * @test       main_invalid
+ * @test       main_invalid1
  * @brief      Test: fpgad_main
  * @details    When fpgad_main is called with an invalid command option,<br>
  *             it returns 1.<br>
  */
-TEST_P(fpgad_fpgad_c_p, main_invalid_01) {
+TEST_P(fpgad_fpgad_c_p, main_invalid1) {
   char zero[32];
   char one[32];
   char two[32];
@@ -378,6 +281,37 @@ TEST_P(fpgad_fpgad_c_p, gbsarg_backtick) {
 TEST_P(fpgad_fpgad_c_p, gbsarg_non_print) {
   const char* argv[] = { "fpgad", "-n", "/one/\07/three/\21/four/five\32/null.gbs"};
   EXPECT_NE(fpgad_main(3, (char**)argv), 0);
+}
+
+static int main_returned;
+void * call_main(void *unused)
+{
+  UNUSED_PARAM(unused);
+
+  char zero[20];
+  strcpy(zero, "fpgad");
+
+  char *argv[] = { zero };
+
+  main_returned = fpgad_main(1, argv);
+
+  return NULL;
+}
+
+/**
+ * @test       main_valid
+ * @brief      Test: fpgad_main
+ * @details    When fpgad_main is called with a valid command line,<br>
+ *             it runs until signaled to stop and returns zero.<br>
+ */
+TEST_P(fpgad_fpgad_c_p, main_valid) {
+  main_returned = -1;
+  ASSERT_TRUE(global_config.running);
+  std::thread main_thr = std::thread(call_main, nullptr);
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  global_config.running = false;
+  main_thr.join();
+  EXPECT_EQ(main_returned, 0);
 }
 
 INSTANTIATE_TEST_CASE_P(fpgad_fpgad_c, fpgad_fpgad_c_p,

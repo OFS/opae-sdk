@@ -26,12 +26,6 @@
 #include <opae/fpga.h>
 
 extern "C" {
-#include "fpgad/config_int.h"
-#include "fpgad/log.h"
-#include "fpgad/srv.h"
-#include "fpgad/errtable.h"
-
-void *logger_thread(void *thread_context);
 fpga_result send_fme_event_request(fpga_handle, fpga_event_handle, int);
 fpga_result send_port_event_request(fpga_handle, fpga_event_handle, int);
 fpga_result send_uafu_event_request(fpga_handle, fpga_event_handle, uint32_t, int);
@@ -52,6 +46,7 @@ int xfpga_plugin_finalize(void);
 #include "types_int.h"
 #include "gtest/gtest.h"
 #include "test_system.h"
+#include "fpgad_control.h"
 #include "safe_string/safe_string.h"
 
 #include "error_int.h"
@@ -282,7 +277,8 @@ out_EINVAL:
   goto out;
 }
 
-class events_p : public ::testing::TestWithParam<std::string> {
+class events_p : public ::testing::TestWithParam<std::string>,
+                 public fpgad_control {
  protected:
   events_p()
       : tokens_dev_{{nullptr, nullptr}},
@@ -291,10 +287,6 @@ class events_p : public ::testing::TestWithParam<std::string> {
         handle_accel_(nullptr) {}
 
   virtual void SetUp() override {
-    strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
-    strcpy(tmpfpgad_pid_, "tmpfpgad-XXXXXX.pid");
-    close(mkstemps(tmpfpgad_log_, 4));
-    close(mkstemps(tmpfpgad_pid_, 4));
     std::string platform_key = GetParam();
     ASSERT_TRUE(test_platform::exists(platform_key));
     platform_ = test_platform::get(platform_key);
@@ -309,8 +301,8 @@ class events_p : public ::testing::TestWithParam<std::string> {
                                         platform_.devices[0].device_id), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_dev_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_dev_, 1, tokens_dev_.data(), tokens_dev_.size(),
-                            &num_matches_), FPGA_OK);
-    ASSERT_GT(num_matches_, 0);
+                            &num_matches_dev_), FPGA_OK);
+    ASSERT_GT(num_matches_dev_, 0);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_accel_, 
@@ -327,31 +319,20 @@ class events_p : public ::testing::TestWithParam<std::string> {
 
     ASSERT_EQ(xfpga_fpgaCreateEventHandle(&eh_), FPGA_OK);
 
-    config_ = {
-        .verbosity = 0,
-        .poll_interval_usec = 100 * 1000,
-        .daemon = 0,
-        .directory = { 0, },
-        .logfile = { 0, },
-        .pidfile = { 0, },
-        .filemode = 0,
-        .running = true,
-        .socket = "/tmp/fpga_event_socket",
-        .null_gbs = {0},
-        .num_null_gbs = 0,
-    };
-    strcpy(config_.logfile, tmpfpgad_log_);
-    strcpy(config_.pidfile, tmpfpgad_pid_);
+    fpgad_start();
 
-    open_log(tmpfpgad_log_);
-    fpgad_ = std::thread(server_thread, &config_);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    uint32_t i;
+    for (i = 0 ; i < num_matches_dev_ ; ++i) {
+      fpgad_watch(tokens_dev_[i]);
+    }
+    for (i = 0 ; i < num_matches_ ; ++i) {
+      fpgad_watch(tokens_accel_[i]);
+    }
   }
 
   virtual void TearDown() override {
-    config_.running = false;
-    fpgad_.join();
-    close_log();
+    fpgad_stop();
+
     EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&eh_), FPGA_OK);
 
     EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK);
@@ -382,12 +363,6 @@ class events_p : public ::testing::TestWithParam<std::string> {
     }
     xfpga_plugin_finalize();
     system_->finalize();
-
-    if (!::testing::Test::HasFatalFailure() &&
-        !::testing::Test::HasNonfatalFailure()) {
-      unlink(tmpfpgad_log_);
-      unlink(tmpfpgad_pid_);
-    }
   }
 
   fpga_properties filter_dev_;
@@ -396,13 +371,10 @@ class events_p : public ::testing::TestWithParam<std::string> {
   std::array<fpga_token, 2> tokens_accel_;
   fpga_handle handle_dev_;
   fpga_handle handle_accel_;
-  char tmpfpgad_log_[20];
-  char tmpfpgad_pid_[20];
-  struct config config_;
+  uint32_t num_matches_dev_;
   uint32_t num_matches_;
   test_platform platform_;
   test_system *system_;
-  std::thread fpgad_;
   fpga_event_handle eh_;
 };
 
@@ -1358,148 +1330,3 @@ TEST_P(events_mock_p, irq_event_03) {
 
 INSTANTIATE_TEST_CASE_P(events, events_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc" })));
-
-
-class events_handle_p : public ::testing::TestWithParam<std::string> {
- protected:
-  events_handle_p()
-      : filter_accel_(nullptr),
-        tokens_accel_{{nullptr, nullptr}},
-        handle_accel_(nullptr) {}
-
-  virtual void SetUp() override {
-    strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
-    strcpy(tmpfpgad_pid_, "tmpfpgad-XXXXXX.pid");
-    close(mkstemps(tmpfpgad_log_, 4));
-    close(mkstemps(tmpfpgad_pid_, 4));
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    ASSERT_EQ(FPGA_OK, fpgaInitialize(NULL));
-
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_accel_,
-                                        platform_.devices[0].device_id), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(),
-              tokens_accel_.size(), &num_matches_), FPGA_OK);
-
-    ASSERT_EQ(xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, 0), FPGA_OK);
-
-    ASSERT_EQ(xfpga_fpgaCreateEventHandle(&eh_), FPGA_OK);
-
-    config_ = {
-        .verbosity = 0,
-        .poll_interval_usec = 100 * 1000,
-        .daemon = 0,
-        .directory = { 0, },
-        .logfile = { 0, },
-        .pidfile = { 0, },
-        .filemode = 0,
-        .running = true,
-        .socket = "/tmp/fpga_event_socket",
-        .null_gbs = {0},
-        .num_null_gbs = 0,
-    };
-    strcpy(config_.logfile, tmpfpgad_log_);
-    strcpy(config_.pidfile, tmpfpgad_pid_);
-
-    open_log(tmpfpgad_log_);
-    fpgad_ = std::thread(server_thread, &config_);
-    logger_thread_ = std::thread(logger_thread, &config_);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-  }
-
-  virtual void TearDown() override {
-    config_.running = false;
-    logger_thread_.join();
-    fpgad_.join();
-    close_log();
-
-    EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&eh_), FPGA_OK);
-    EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
-
-    if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
-
-    for (auto &t : tokens_accel_) {
-      if (t) {
-        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
-        t = nullptr;
-      }
-    }
-    fpgaFinalize();
-    system_->finalize();
-
-    if (!::testing::Test::HasFatalFailure() &&
-        !::testing::Test::HasNonfatalFailure()) {
-      unlink(tmpfpgad_log_);
-      unlink(tmpfpgad_pid_);
-    }
-  }
-
-  fpga_properties filter_accel_;
-  std::array<fpga_token, 2> tokens_accel_;
-  fpga_handle handle_accel_;
-  char tmpfpgad_log_[20];
-  char tmpfpgad_pid_[20];
-  struct config config_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_system *system_;
-  std::thread fpgad_;
-  std::thread logger_thread_;
-  fpga_event_handle eh_;
-};
-
-/**
- * @test       manual_irq
- *
- * @brief      Given valid event handle and event type, this tests for
- *             triggering the FPGA_EVENT_POWER_THERMAL event by manually
- *             writing Ap6Event to errors.
- *
- */
-TEST_P(events_handle_p, manual_irq) {
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaRegisterEvent(handle_accel_, FPGA_EVENT_POWER_THERMAL, eh_, 0));
-  uint64_t error_csr = 1UL << 50; //Ap6Event
-  int res;
-  int fd = -1;
-  struct pollfd poll_fd;
-  int maxpolls = 20;
-
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetOSObjectFromEventHandle(eh_, &fd));
-  EXPECT_GE(fd, 0);
-
-  // Write to error file
-  std::string tmpsysfs = system_->get_root();
-  std::string path = tmpsysfs + sysfs_port + "/errors/errors";
-
-  // Write to the mock sysfs node to generate the event.
-  ASSERT_EQ(FPGA_OK, sysfs_write_u64(path.c_str(), error_csr));
-
-  poll_fd.fd = fd;
-  poll_fd.events = POLLIN | POLLPRI;
-  poll_fd.revents = 0;
-
-  do
-  {
-    res = poll(&poll_fd, 1, 1000);
-    ASSERT_GE(res, 0);
-    --maxpolls;
-    ASSERT_GT(maxpolls, 0);
-  } while(res == 0);
-
-  EXPECT_EQ(res, 1);
-  EXPECT_NE(poll_fd.revents, 0);
-
-  error_csr = 0x0;
-  ASSERT_EQ(FPGA_OK, sysfs_write_u64(path.c_str(), error_csr));
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnregisterEvent(handle_accel_, FPGA_EVENT_POWER_THERMAL, eh_));
-}
-
-INSTANTIATE_TEST_CASE_P(events, events_handle_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
