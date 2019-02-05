@@ -164,7 +164,8 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/pac_hssi_config.py
 @CMAKE_INSTALL_PREFIX@/bin/ras
 @CMAKE_INSTALL_PREFIX@/bin/userclk
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c++-nlb.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c++-utils.so*
 %dir @CMAKE_INSTALL_PREFIX@/share/opae
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/python/
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/python/*
