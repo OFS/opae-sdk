@@ -204,7 +204,7 @@ STATIC cfg_vendor_device_id *alloc_device(uint16_t vendor_id,
 }
 
 STATIC cfg_plugin_configuration *alloc_configuration(bool enabled,
-					 	     char *library,
+						     char *library,
 						     cfg_vendor_device_id *devs)
 {
 	cfg_plugin_configuration *p;
