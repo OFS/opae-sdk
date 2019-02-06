@@ -30,12 +30,15 @@ extern "C" {
 
 #include "fpgad/command_line.h"
 #include "fpgad/api/logging.h"
+#include "fpgad/monitored_device.h"
 
 extern struct fpgad_config global_config;
 
 void sig_handler(int sig, siginfo_t *info, void *unused);
 
 int fpgad_main(int argc, char *argv[]);
+
+extern fpgad_supported_device default_supported_devices_table[];
 
 }
 
@@ -83,20 +86,16 @@ class fpgad_fpgad_c_p : public ::testing::TestWithParam<std::string> {
     gbs.write((const char *) gbs_hdr.data(), gbs_hdr.size());
     gbs.close();
 
-    memset_s(&config_, sizeof(config_), 0);
-    config_.poll_interval_usec = 100 * 1000;
-    config_.running = true;
-    config_.api_socket = "/tmp/fpga_event_socket";
-
     global_config.poll_interval_usec = 100 * 1000;
     global_config.running = true;
     global_config.api_socket = "/tmp/fpga_event_socket";
+    global_config.supported_devices = default_supported_devices_table;
 
     optind = 0;
   }
 
   virtual void TearDown() override {
-    cmd_destroy(&config_);
+    cmd_destroy(&global_config);
     log_close();
 
     fpgaFinalize();
@@ -109,7 +108,6 @@ class fpgad_fpgad_c_p : public ::testing::TestWithParam<std::string> {
   }
 
   char tmpnull_gbs_[20];
-  struct fpgad_config config_;
   test_platform platform_;
   test_system *system_;
 };

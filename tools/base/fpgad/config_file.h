@@ -29,5 +29,10 @@
 
 #include "fpgad.h"
 
+// 0 on success
+int cfg_find_config_file(struct fpgad_config *c);
+
+// 0 on success
+int cfg_load_config(struct fpgad_config *c);
 
 #endif /* __FPGAD_CONFIG_FILE_H__ */
