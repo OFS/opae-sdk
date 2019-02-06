@@ -30,6 +30,8 @@
 
 #include <getopt.h>
 #include "command_line.h"
+#include "config_file.h"
+#include "monitored_device.h"
 
 #ifdef LOG
 #undef LOG
@@ -37,7 +39,9 @@
 #define LOG(format, ...) \
 log_printf("args: " format, ##__VA_ARGS__)
 
-#define OPT_STR ":hdl:p:s:n:"
+extern fpgad_supported_device default_supported_devices_table[];
+
+#define OPT_STR ":hdl:p:s:n:c:"
 
 STATIC struct option longopts[] = {
 	{ "help",           no_argument,       NULL, 'h' },
@@ -46,6 +50,7 @@ STATIC struct option longopts[] = {
 	{ "pidfile",        required_argument, NULL, 'p' },
 	{ "socket",         required_argument, NULL, 's' },
 	{ "null-bitstream", required_argument, NULL, 'n' },
+	{ "config",         required_argument, NULL, 'c' },
 
 	{ 0, 0, 0, 0 }
 };
@@ -54,6 +59,7 @@ STATIC struct option longopts[] = {
 #define DEFAULT_DIR_ROOT_SIZE 13
 #define DEFAULT_LOG           "fpgad.log"
 #define DEFAULT_PID           "fpgad.pid"
+#define DEFAULT_CFG           "fpgad.cfg"
 
 void cmd_show_help(FILE *fptr)
 {
@@ -65,6 +71,7 @@ void cmd_show_help(FILE *fptr)
 	fprintf(fptr, "\t-s,--socket <sock>          the unix domain socket [/tmp/fpga_event_socket].\n");
 	fprintf(fptr, "\t-n,--null-bitstream <file>  NULL bitstream (for AP6 handling, may be\n"
 		      "\t                            given multiple times).\n");
+	fprintf(fptr, "\t-c,--config <file>          the configuration file [%s].\n", DEFAULT_CFG);
 }
 
 STATIC bool cmd_register_null_gbs(struct fpgad_config *c, char *null_gbs_path)
@@ -167,6 +174,16 @@ int cmd_parse_args(struct fpgad_config *c, int argc, char *argv[])
 			}
 			break;
 
+		case 'c':
+			if (tmp_optarg) {
+				strncpy_s(c->cfgfile, sizeof(c->cfgfile),
+						tmp_optarg, PATH_MAX);
+			} else {
+				LOG("missing cfgfile parameter.\n");
+				return 1;
+			}
+			break;
+
 		case ':':
 			LOG("Missing option argument.\n");
 			return 1;
@@ -191,6 +208,7 @@ void cmd_canonicalize_paths(struct fpgad_config *c)
 	bool def;
 	mode_t mode;
 	struct stat stat_buf;
+	bool search = true;
 
 	if (!geteuid()) {
 		// If we're being run as root, then use DEFAULT_DIR_ROOT
@@ -294,6 +312,55 @@ void cmd_canonicalize_paths(struct fpgad_config *c)
 				"%s/%s", c->directory, tmp);
 	}
 	LOG("daemon pid file is %s\n", c->pidfile);
+
+	// Verify cfgfile doesn't contain ".."
+	def = false;
+	sub = NULL;
+	strstr_s(c->cfgfile, sizeof(c->cfgfile),
+			"..", 2, &sub);
+	if (sub)
+		def = true;
+
+	if (def || (c->cfgfile[0] == '\0')) {
+		search = true;
+	} else {
+		char *canon_path;
+
+		canon_path = canonicalize_file_name(c->cfgfile);
+		if (canon_path) {
+			strncpy_s(c->cfgfile,
+				  sizeof(c->cfgfile),
+				  canon_path,
+				  strnlen_s(canon_path, PATH_MAX));
+
+			if (!cfg_load_config(c)) {
+				LOG("daemon cfg file is %s\n",
+				    c->cfgfile);
+				search = false; // found and loaded it
+			}
+
+			free(canon_path);
+		}
+	}
+
+	if (search) {
+		c->cfgfile[0] = '\0';
+		if (cfg_find_config_file(c))
+			LOG("failed to find config file.\n");
+		else {
+			if (cfg_load_config(c))
+				LOG("failed to load config file %s\n",
+				    c->cfgfile);
+			else
+				LOG("daemon cfg file is %s\n", c->cfgfile);
+		}
+	}
+
+	if (!c->supported_devices) {
+		LOG("using default configuration.\n");
+		c->cfgfile[0] = '\0';
+		c->supported_devices = default_supported_devices_table;
+	}
 }
 
 void cmd_destroy(struct fpgad_config *c)
@@ -309,4 +376,10 @@ void cmd_destroy(struct fpgad_config *c)
 		opae_unload_bitstream(&c->null_gbs[i]);
 	}
 	c->num_null_gbs = 0;
+
+	if (c->supported_devices &&
+	    (c->supported_devices != default_supported_devices_table)) {
+		free(c->supported_devices);
+	}
+	c->supported_devices = NULL;
 }

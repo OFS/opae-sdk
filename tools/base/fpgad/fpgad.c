@@ -181,7 +181,7 @@ out_stop_event_dispatcher:
 		LOG("failed to join event_dispatcher_thread\n");
 	}
 out_destroy:
-	mon_destroy();
+	mon_destroy(&global_config);
 	cmd_destroy(&global_config);
 	log_close();
 	return res;
