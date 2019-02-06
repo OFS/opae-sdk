@@ -53,6 +53,7 @@
 // No. of Patterns
 #define PATTERN_LENGTH 32
 #define MIN_PAYLOAD_LEN 64
+#define MAX_DECIM_FACTOR (0xFFFF)
 #define CONFIG_UNINIT (0)
 #define BEAT_SIZE (64) // bytes
 
@@ -110,7 +111,7 @@ typedef union {
 	} dc;
 } decimator_config_t;
 
-int find_accelerator(struct config *config, fpga_token *afu_tok);
+int find_accelerator(const char *afu_id, struct config *config, fpga_token *afu_tok);
 fpga_result configure_numa(fpga_token afc_token, bool cpu_affinity, bool memory_affinity);
 fpga_result do_action(struct config *config, fpga_token afc_tok);
 

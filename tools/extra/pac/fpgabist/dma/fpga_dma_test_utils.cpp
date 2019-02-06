@@ -30,11 +30,10 @@
 #include <iostream>
 #include <cmath>
 #include "fpga_dma_test_utils.h"
+#include "fpga_dma_internal.h"
 #include "fpga_dma_common.h"
 
 using namespace std;
-
-#define UNUSED(x) (void)(x)
 
 static sem_t transfer_done;
 
@@ -389,6 +388,8 @@ static fpga_result non_loopback_test(fpga_handle afc_h, fpga_dma_handle_t dma_h,
 	fpga_dma_transfer_t transfer;
 	fpga_result res = FPGA_OK;
 	struct timespec start, end;
+	start = (struct timespec){ 0, 0};
+	end = (struct timespec){ 0, 0};
 
 	struct buf_attrs battrs = {
 		.va = NULL,
@@ -666,15 +667,16 @@ out:
 	return res;
 }
 
-int find_accelerator(struct config *config,
-			    fpga_token *afu_tok) {
+int find_accelerator(const char *afu_id, struct config *config,
+			fpga_token *afu_tok) {
+	UNUSED(afu_id);
 	fpga_result res;
 	fpga_guid guid;
 	uint32_t num_matches = 0;
 	fpga_properties filter = NULL;
 
 	if(config->direction == DMA_MTOM) {
- 		if(uuid_parse(MMDMA_AFU_ID, guid) < 0)
+		if(uuid_parse(MMDMA_AFU_ID, guid) < 0)
 			return 1;
 	} else {
 		if(uuid_parse(STDMA_AFU_ID, guid) < 0)
@@ -707,7 +709,7 @@ int find_accelerator(struct config *config,
 
 	res = fpgaEnumerate(&filter, 1, afu_tok, 1, &num_matches);
 	ON_ERR_GOTO(res, out_destroy_prop, "fpgaEnumerate");
-	
+
 out_destroy_prop:
 	res = fpgaDestroyProperties(&filter);
 	ON_ERR_GOTO(res, out, "fpgaDestroyProperties");

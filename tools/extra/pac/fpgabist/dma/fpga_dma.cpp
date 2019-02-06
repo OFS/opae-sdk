@@ -236,6 +236,46 @@ static fpga_result MMIORead64Blk(fpga_dma_handle_t dma_h, uint64_t device,
 	return res;
 }
 
+/**
+ * MMIORead32Blk
+ *
+ * @brief                Reads a block of 32-bit values from FPGA MMIO space
+ * @param[in] dma        Handle to the FPGA DMA object
+ * @param[in] device     FPGA address
+ * @param[in] host       Host buffer address
+ * @param[in] count      Size in bytes
+ * @return fpga_result FPGA_OK on success, return code otherwise
+ *
+ */
+static fpga_result MMIORead32Blk(fpga_dma_handle_t dma_h, uint64_t device,
+				 uint64_t host, uint64_t bytes)
+{
+	assert(IS_ALIGNED_DWORD(device));
+	assert(IS_ALIGNED_DWORD(bytes));
+
+	uint32_t *haddr = (uint32_t *)host;
+	uint64_t i;
+	fpga_result res = FPGA_OK;
+
+#ifndef USE_ASE
+	volatile uint32_t *dev_addr = HOST_MMIO_32_ADDR(dma_h, device);
+#endif
+
+	debug_print("copying %lld bytes from 0x%p to 0x%p\n",
+		    (long long int)bytes, (void *)device, haddr);
+	for (i = 0; i < bytes / sizeof(uint32_t); i++) {
+#ifdef USE_ASE
+		res = fpgaReadMMIO32(dma_h->fpga_h, dma_h->mmio_num, device,
+				     haddr);
+		ON_ERR_RETURN(res, "fpgaReadMMIO32");
+		haddr++;
+		device += sizeof(uint32_t);
+#else
+		*haddr++ = *dev_addr++;
+#endif
+	}
+	return res;
+}
 
 static void assign_hw_desc(msgdma_sw_desc_t *sw_desc,
 			msgdma_hw_descp_t *hw_descp,
@@ -357,9 +397,11 @@ static void dump_hw_desc(int i, msgdma_hw_desc_t *desc)
 }
 #endif
 
-//#if FPGA_DMA_DEBUG
 static void dump_hw_desc_log(msgdma_hw_desc_t *desc, ofstream &f)
 {
+	UNUSED(desc);
+	UNUSED(f);
+#if FPGA_DMA_DEBUG 
 	f << std::setw(10) << std::to_string(desc->format)
 	<< std::setw(10) << std::to_string(desc->block_size)
 	<< std::setw(10) << std::to_string(desc->owned_by_hw)
@@ -367,8 +409,8 @@ static void dump_hw_desc_log(msgdma_hw_desc_t *desc, ofstream &f)
 	<< std::setw(20) << std::hex << desc->dst
 	<< std::setw(20) << std::hex << desc->len
 	<< std::setw(20) << std::hex << desc->next_desc << endl;
+#endif
 }
-//#endif
 
 // Dispatcher worker thread
 // Process transfers from ingress queue. For each transfer,
@@ -578,7 +620,7 @@ fpga_result fpgaCountDMAChannels(fpga_handle fpga, size_t *count) {
 		res = fpgaReadMMIO64(fpga, mmio_no, offset + 16, &feature_uuid_hi);
 		ON_ERR_GOTO(res, out, "fpgaReadMMIO64");
 
-		cout << "UUID lo = " << feature_uuid_lo << "UUID hi = " << feature_uuid_hi << endl;
+		//cout << "UUID lo = " << feature_uuid_lo << "UUID hi = " << feature_uuid_hi << endl;
 #endif
 		if (_fpga_dma_feature_is_bbb(dfh) && (
 			((feature_uuid_lo == M2S_DMA_UUID_L) && (feature_uuid_hi == M2S_DMA_UUID_H)) ||
@@ -651,6 +693,7 @@ fpga_result fpgaDMAOpen(fpga_handle fpga, uint64_t dma_channel_index, fpga_dma_h
 
 	// walk DFH list to discover available channels
 	dfh_feature_t dfh;
+	dfh = (dfh_feature_t){ 0, 0, 0};
 	uint64_t offset;
 	offset = dma_h->mmio_offset;
 	do {
@@ -899,6 +942,12 @@ fpga_result fpgaDMAClose(fpga_dma_handle_t dma_h) {
 	}
 	fpgaDMATransferDestroy(&dummy_transfer);
 
+	// stop dispatcher
+	msgdma_ctrl_t ctrl;
+	ctrl = {0};
+	ctrl.ct.stop_dispatcher = 1;
+	res = MMIOWrite32Blk(dma_h, CSR_CONTROL(dma_h), (uint64_t)&ctrl.reg, sizeof(ctrl.reg));
+
 	// Disable prefetcher frontend before freeing descriptor
 	// memory to avoid polling non-existent host buffers
 	msgdma_prefetcher_ctrl_t prefetcher_ctrl;
@@ -908,6 +957,13 @@ fpga_result fpgaDMAClose(fpga_dma_handle_t dma_h) {
 	prefetcher_ctrl.ct.fetch_en = 0;	
 	res = MMIOWrite64Blk(dma_h, PREFETCHER_CTRL(dma_h), (uint64_t)&prefetcher_ctrl.reg, sizeof(prefetcher_ctrl.reg));
 	ON_ERR_GOTO(res, out, "disabling fetch engine");
+
+	// Poll status until DMA is stopped
+	msgdma_status_t status;
+	do {
+		res = MMIORead32Blk(dma_h, CSR_STATUS(dma_h), (uint64_t)&status.reg, sizeof(status.reg));
+		ON_ERR_GOTO(res, out, "MMIORead32Blk");		
+	} while(!status.st.stopped);
 
 	// Free block buffers
 	for(i=0; i<FPGA_DMA_MAX_BLOCKS; i++) {

@@ -48,6 +48,8 @@ using namespace tbb;
 #define FPGA_DMA_ERR(msg_str) \
 		fprintf(stderr, "Error %s: %s\n", __FUNCTION__, msg_str);
 
+#define UNUSED(x) (void)(x)
+
 #define MIN(X,Y) (X<Y)?X:Y
 
 #define QWORD_BYTES 8
