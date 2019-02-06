@@ -38,12 +38,31 @@
 #define LOG(format, ...) \
 log_printf("cfg: " format, ##__VA_ARGS__)
 
+#define CFG_TRY_FILE(__f) \
+do { \
+	canon = canonicalize_file_name(__f); \
+	if (canon) { \
+		err = strncpy_s(c->cfgfile, \
+				sizeof(c->cfgfile), \
+				canon, \
+				strnlen_s(canon, PATH_MAX)); \
+		if (err) \
+			LOG("strncpy_s failed.\n"); \
+		else { \
+			free(canon); \
+			return 0; \
+		} \
+ \
+		free(canon); \
+	} \
+} while (0)
+
 int cfg_find_config_file(struct fpgad_config *c)
 {
 	char path[PATH_MAX];
 	char *e;
 	char *canon = NULL;
-	struct stat stat_buf;
+	errno_t err;
 
 	e = getenv("HOME");
 	if (e) {
@@ -51,71 +70,11 @@ int cfg_find_config_file(struct fpgad_config *c)
 		snprintf_s_s(path, sizeof(path),
 			     "%s/.opae/fpgad.cfg", e);
 
-		canon = canonicalize_file_name(path);
-		if (canon) {
-			if (!stat(canon, &stat_buf)) {
-				errno_t err;
-				// found it
-				err = strncpy_s(c->cfgfile,
-						sizeof(c->cfgfile),
-						canon,
-						strnlen_s(canon, PATH_MAX));
-				if (err)
-					LOG("strncpy_s failed.\n");
-				else {
-					free(canon);
-					return 0;
-				}
-			}
-
-			free(canon);
-		}
-
+		CFG_TRY_FILE(path);
 	}
 
-	// try /etc/opae/fpgad.cfg
-	canon = canonicalize_file_name("/etc/opae/fpgad.cfg");
-	if (canon) {
-		if (!stat(canon, &stat_buf)) {
-			errno_t err;
-			// found it
-			err = strncpy_s(c->cfgfile,
-					sizeof(c->cfgfile),
-					canon,
-					strnlen_s(canon, PATH_MAX));
-			if (err)
-				LOG("strncpy_s failed.\n");
-			else {
-				free(canon);
-				return 0;
-			}
-
-		}
-
-		free(canon);
-	}
-
-	// try /var/lib/opae/fpgad.cfg
-	canon = canonicalize_file_name("/var/lib/opae/fpgad.cfg");
-	if (canon) {
-		if (!stat(canon, &stat_buf)) {
-			errno_t err;
-			// found it
-			err = strncpy_s(c->cfgfile,
-					sizeof(c->cfgfile),
-					canon,
-					strnlen_s(canon, PATH_MAX));
-			if (err)
-				LOG("strncpy_s failed.\n");
-			else {
-				free(canon);
-				return 0;
-			}
-
-		}
-
-		free(canon);
-	}
+	CFG_TRY_FILE("/etc/opae/fpgad.cfg");
+	CFG_TRY_FILE("/var/lib/opae/fpgad.cfg");
 
 	return 1; // not found
 }

@@ -328,17 +328,15 @@ void cmd_canonicalize_paths(struct fpgad_config *c)
 
 		canon_path = canonicalize_file_name(c->cfgfile);
 		if (canon_path) {
-			if (!stat(canon_path, &stat_buf)) {
-				strncpy_s(c->cfgfile,
-					  sizeof(c->cfgfile),
-					  canon_path,
-					  strnlen_s(canon_path, PATH_MAX));
+			strncpy_s(c->cfgfile,
+				  sizeof(c->cfgfile),
+				  canon_path,
+				  strnlen_s(canon_path, PATH_MAX));
 
-				if (!cfg_load_config(c)) {
-					LOG("daemon cfg file is %s\n",
-					    c->cfgfile);
-					search = false; // found and loaded it
-				}
+			if (!cfg_load_config(c)) {
+				LOG("daemon cfg file is %s\n",
+				    c->cfgfile);
+				search = false; // found and loaded it
 			}
 
 			free(canon_path);
