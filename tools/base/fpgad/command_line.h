@@ -30,6 +30,8 @@
 #include "fpgad.h"
 #include "bitstream.h"
 
+typedef struct _fpgad_supported_device fpgad_supported_device;
+
 #define MAX_NULL_GBS 32
 
 struct fpgad_config {
@@ -39,6 +41,7 @@ struct fpgad_config {
 	char directory[PATH_MAX];
 	char logfile[PATH_MAX];
 	char pidfile[PATH_MAX];
+	char cfgfile[PATH_MAX];
 	mode_t filemode;
 
 	bool running;
@@ -52,6 +55,8 @@ struct fpgad_config {
 	pthread_t monitor_thr;
 	pthread_t event_dispatcher_thr;
 	pthread_t events_api_thr;
+
+	fpgad_supported_device *supported_devices;
 };
 
 extern struct fpgad_config global_config;
