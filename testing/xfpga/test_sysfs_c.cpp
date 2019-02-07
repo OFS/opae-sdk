@@ -189,14 +189,12 @@ TEST_P(sysfsinit_c_p, sysfs_initialize) {
   // the size of this map should be equal to the number of devices in our
   // platform
   ASSERT_EQ(devices.size(), platform_.devices.size());
-  EXPECT_EQ(0, sysfs_initialize());
   EXPECT_EQ(GetNumFpgas(), sysfs_region_count());
   // call sysfs_foreach_region with our callback, cb
   sysfs_foreach_region(cb, &devices);
   // our devices map should be empty after this call as this callback removes
   // entries if the region structure matches a device object in the map
   EXPECT_EQ(devices.size(), 0);
-  EXPECT_EQ(0, sysfs_finalize());
 }
 
 TEST_P(sysfsinit_c_p, sysfs_get_region) {
@@ -210,7 +208,6 @@ TEST_P(sysfsinit_c_p, sysfs_get_region) {
   // the size of this map should be equal to the number of devices in our
   // platform
   ASSERT_EQ(devices.size(), platform_.devices.size());
-  EXPECT_EQ(0, sysfs_initialize());
   EXPECT_EQ(GetNumFpgas(), sysfs_region_count());
 
   // use sysfs_get_region API to count how many regions match our devices map
@@ -226,7 +223,6 @@ TEST_P(sysfsinit_c_p, sysfs_get_region) {
   }
   // our devices map should be empty after the loop above
   EXPECT_EQ(devices.size(), 0);
-  EXPECT_EQ(0, sysfs_finalize());
 }
 
 /**
@@ -241,7 +237,6 @@ TEST_P(sysfsinit_c_p, get_interface_id) {
   fpga_token fme;
   uint32_t matches = 0;
   fpga_guid parsed_guid;
-  ASSERT_EQ(sysfs_initialize(), 0);
   ASSERT_EQ(fpgaGetProperties(nullptr, &props), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesSetDeviceID(props,platform_.devices[0].device_id), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesSetVendorID(props,platform_.devices[0].vendor_id), FPGA_OK);
@@ -253,7 +248,6 @@ TEST_P(sysfsinit_c_p, get_interface_id) {
   EXPECT_EQ(uuid_compare(parsed_guid, guid), 0);
   EXPECT_EQ(xfpga_fpgaDestroyToken(&fme), FPGA_OK);
   EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
-  EXPECT_EQ(sysfs_finalize(), 0);
 }
 
 TEST(sysfsinit_c_p, sysfs_parse_pcie) {
