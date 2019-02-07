@@ -42,6 +42,13 @@ extern "C" {
 #include "types_int.h"
 #include "test_system.h"
 #include "xfpga.h"
+#include "sysfs_int.h"
+
+extern "C" {
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+}
+
 
 using namespace opae::testing;
 
@@ -63,6 +70,7 @@ class usrclk_c
     system_->initialize();
     system_->prepare_syfs(platform_);
 
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_dev_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_dev_,
                                         platform_.devices[0].device_id), FPGA_OK);
@@ -100,6 +108,7 @@ class usrclk_c
 
     if (handle_dev_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK); }
     if (handle_accel_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 
@@ -294,7 +303,7 @@ TEST_P(usrclk_c, get_user_clock) {
 }
 
 INSTANTIATE_TEST_CASE_P(usrclk, usrclk_c,
-                        ::testing::ValuesIn(test_platform::platforms()));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
 
 class usrclk_mock_c : public usrclk_c {};
 
@@ -336,4 +345,4 @@ uint64_t high = 312;
 }
 
 INSTANTIATE_TEST_CASE_P(usrclk, usrclk_hw_c,
-                        ::testing::ValuesIn(test_platform::hw_platforms()));
+                        ::testing::ValuesIn(test_platform::hw_platforms({ "skx-p","dcp-rc" })));

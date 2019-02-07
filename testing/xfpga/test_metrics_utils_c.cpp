@@ -28,10 +28,10 @@ extern "C" {
 
 #include <json-c/json.h>
 #include <uuid/uuid.h>
-#include "opae_int.h"
 #include "types_int.h"
-#include "metrics/vector.h"
 #include "metrics/metrics_int.h"
+#include "metrics/vector.h"
+#include "opae_int.h"
 }
 
 #include <config.h>
@@ -50,7 +50,12 @@ extern "C" {
 #include "test_utils.h"
 #include "token_list_int.h"
 #include "xfpga.h"
-//#include "metrics/metrics_metadata.h"
+#include "sysfs_int.h"
+
+extern "C" {
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+}
 
 using namespace opae::testing;
 
@@ -66,7 +71,7 @@ class metrics_utils_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
@@ -87,6 +92,7 @@ class metrics_utils_c_p : public ::testing::TestWithParam<std::string> {
       EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
       handle_ = nullptr;
     }
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 
@@ -661,6 +667,7 @@ class metrics_utils_dcp_c_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
 
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
@@ -681,6 +688,7 @@ class metrics_utils_dcp_c_p : public ::testing::TestWithParam<std::string> {
       EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
       handle_ = nullptr;
     }
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 
@@ -698,7 +706,7 @@ TEST_P(metrics_utils_dcp_c_p, test_metric_utils_12) {
   struct _fpga_handle *_handle = (struct _fpga_handle *)handle_;
   fpga_metric_vector vector;
 
-  _handle->bmc_handle = dlopen("liblibbmc.so", RTLD_LAZY | RTLD_LOCAL);
+  _handle->bmc_handle = dlopen("libmodbmc.so", RTLD_LAZY | RTLD_LOCAL);
 
   if (!_handle->bmc_handle) {
     OPAE_ERR("--------------------------failed to load ");
@@ -715,7 +723,7 @@ TEST_P(metrics_utils_dcp_c_p, test_metric_utils_12) {
 TEST_P(metrics_utils_dcp_c_p, test_metric_utils_13) {
   struct _fpga_handle *_handle = (struct _fpga_handle *)handle_;
 
-  _handle->bmc_handle = dlopen("liblibbmc.so", RTLD_LAZY | RTLD_LOCAL);
+  _handle->bmc_handle = dlopen("libmodbmc.so", RTLD_LAZY | RTLD_LOCAL);
 
   if (!_handle->bmc_handle) {
     OPAE_ERR("--------------------------failed to load ");
@@ -727,7 +735,7 @@ TEST_P(metrics_utils_dcp_c_p, test_metric_utils_13) {
 TEST_P(metrics_utils_dcp_c_p, test_metric_utils_14) {
   struct _fpga_handle *_handle = (struct _fpga_handle *)handle_;
 
-  _handle->bmc_handle = dlopen("liblibbmc.so", RTLD_LAZY | RTLD_LOCAL);
+  _handle->bmc_handle = dlopen("libmodbmc.so", RTLD_LAZY | RTLD_LOCAL);
 
   if (!_handle->bmc_handle) {
     OPAE_ERR("--------------------------failed to load ");
@@ -735,10 +743,16 @@ TEST_P(metrics_utils_dcp_c_p, test_metric_utils_14) {
 
   EXPECT_EQ(FPGA_OK, enum_fpga_metrics(handle_));
 
-  struct _fpga_enum_metric _fpga_enum_metric;
+  struct _fpga_enum_metric _fpga_enum_metric = {
+      "", "", "", "", "", "", 0,
+      FPGA_METRIC_DATATYPE_INT,
+      FPGA_METRIC_TYPE_POWER,
+      FPGA_HW_UNKNOWN,
+      0};
+
   struct fpga_metric fpga_metric;
 
-  get_bmc_metrics_values(handle_, &_fpga_enum_metric, &fpga_metric);
+  EXPECT_EQ(FPGA_OK, get_bmc_metrics_values(handle_, &_fpga_enum_metric, &fpga_metric));
 }
 
 INSTANTIATE_TEST_CASE_P(metrics_utils_c, metrics_utils_dcp_c_p,

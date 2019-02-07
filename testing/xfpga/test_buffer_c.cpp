@@ -28,6 +28,8 @@
 extern "C" {
     fpga_result buffer_allocate(void*,uint64_t,int);
     fpga_result buffer_release(void*,uint64_t);
+    int xfpga_plugin_initialize(void);
+    int xfpga_plugin_finalize(void);
 }
 
 #include "error_int.h"
@@ -36,6 +38,7 @@ extern "C" {
 #include "gtest/gtest.h"
 #include "test_system.h"
 #include "intel-fpga.h"
+#include "fpga-dfl.h"
 #include <linux/ioctl.h>
 #include <cstdarg>
 #include "types_int.h"
@@ -75,6 +78,8 @@ struct buffer_params {
   int flags;
 };
 #pragma pack(pop)
+
+
 
 using namespace opae::testing;
 
@@ -155,7 +160,7 @@ class buffer_prepare : public ::testing::TestWithParam<std::tuple<std::string, b
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
@@ -179,6 +184,7 @@ class buffer_prepare : public ::testing::TestWithParam<std::tuple<std::string, b
       handle_ = nullptr;
     }
 
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 
@@ -378,7 +384,7 @@ class buffer_c_mock_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
@@ -402,6 +408,7 @@ class buffer_c_mock_p : public ::testing::TestWithParam<std::string> {
       handle_ = nullptr;
     }
 
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 
@@ -421,6 +428,7 @@ TEST_P(buffer_c_mock_p, port_dma_unmap) {
   EXPECT_EQ(res, FPGA_OK);
 
   system_->register_ioctl_handler(FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1, EINVAL>);
   EXPECT_EQ(res = xfpga_fpgaReleaseBuffer(handle_, wsid), FPGA_INVALID_PARAM)
         << "result is " << fpgaErrStr(res);
 
@@ -433,6 +441,7 @@ TEST_P(buffer_c_mock_p, port_dma_map) {
   uint64_t buf_len = KiB(1);
 
   system_->register_ioctl_handler(FPGA_PORT_DMA_MAP, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_DMA_MAP, dummy_ioctl<-1, EINVAL>);
   auto res = xfpga_fpgaPrepareBuffer(handle_, buf_len, (void **)&buf_addr, &wsid, 0);
   EXPECT_EQ(res, FPGA_INVALID_PARAM) << "result is " << fpgaErrStr(res);
 }

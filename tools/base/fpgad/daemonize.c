@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -70,7 +70,9 @@ int daemonize(void (*hndlr)(int, siginfo_t *, void *), mode_t mask, const char *
 	if (res < 0)
 		return errno;
 
-	// TODO handle other signals
+	res = sigaction(SIGTERM, &sa, NULL);
+	if (res < 0)
+		return errno;
 
 	// 4) Orphan the child again - the session leading process terminates.
 	// (only session leaders can request TTY).

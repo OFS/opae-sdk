@@ -31,10 +31,11 @@ extern "C" {
 #include <memory.h>
 #include <stdio.h>
 #include <uuid/uuid.h>
-#include "opae_int.h"
 #include "types_int.h"
-#include "metrics/vector.h"
+#include "sysfs_int.h"
 #include "metrics/metrics_int.h"
+#include "metrics/vector.h"
+#include "opae_int.h"
 #include "xfpga.h"
 }
 
@@ -57,6 +58,11 @@ extern "C" {
 #undef FPGA_MSG
 #define FPGA_MSG(fmt, ...) \
 	printf("MOCK " fmt "\n", ## __VA_ARGS__)
+
+extern "C" {
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+}
 
 using namespace opae::testing;
 
@@ -122,6 +128,7 @@ class afu_metrics_c_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
 
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     num_matches_ = 0;
@@ -149,6 +156,7 @@ class afu_metrics_c_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
+    xfpga_plugin_finalize();
     system_->finalize();
   }
   uint32_t which_mmio_;
@@ -335,4 +343,4 @@ TEST_P(afu_metrics_c_p, test_afu_metrics_04) {
 }
 
 INSTANTIATE_TEST_CASE_P(afu_metrics_c, afu_metrics_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p", "dcp-rc" })));

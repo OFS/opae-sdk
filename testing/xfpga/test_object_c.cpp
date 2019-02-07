@@ -30,6 +30,12 @@
 #include "test_system.h"
 #include "types_int.h"
 #include "xfpga.h"
+#include "sysfs_int.h"
+
+extern "C" {
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+}
 
 using namespace opae::testing;
 
@@ -48,7 +54,7 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     fpga_guid fme_guid;
 
     ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, fme_guid), 0);
@@ -70,7 +76,8 @@ class sysobject_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
-      system_->finalize();
+    xfpga_plugin_finalize();
+    system_->finalize();
   }
 
   std::array<fpga_token, 2> tokens_;
@@ -155,7 +162,7 @@ TEST_P(sysobject_p, xfpga_fpgaDestroyObject) {
 }
 
 INSTANTIATE_TEST_CASE_P(sysobject_c, sysobject_p,
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
 
 
 class sysobject_mock_p : public sysobject_p{

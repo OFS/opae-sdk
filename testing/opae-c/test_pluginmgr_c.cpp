@@ -174,7 +174,7 @@ class pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     // restore the global adapter list.
     adapter_list = adapter_list_;
-    
+    fpgaFinalize();
     system_->finalize();
   }
 

@@ -24,18 +24,12 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-extern "C" {
-#include "fpgad/config_int.h"
-#include "fpgad/log.h"
-#include "fpgad/srv.h"
-#include "fpgad/errtable.h"
-}
-
 #include <chrono>
 #include <thread>
 #include <unistd.h>
 #include "gtest/gtest.h"
 #include "test_system.h"
+#include "fpgad_control.h"
 #include <opae/cxx/core/events.h>
 #include <opae/cxx/core/token.h>
 #include <opae/cxx/core/handle.h>
@@ -46,15 +40,12 @@ extern "C" {
 using namespace opae::testing;
 using namespace opae::fpga::types;
 
-class events_cxx_core : public ::testing::TestWithParam<std::string> {
+class events_cxx_core : public ::testing::TestWithParam<std::string>,
+                        public fpgad_control {
  protected:
   events_cxx_core() : handle_(nullptr) {}
 
   virtual void SetUp() override {
-    strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
-    strcpy(tmpfpgad_pid_, "tmpfpgad-XXXXXX.pid");
-    close(mkstemps(tmpfpgad_log_, 4));
-    close(mkstemps(tmpfpgad_pid_, 4));
     ASSERT_TRUE(test_platform::exists(GetParam()));
     platform_ = test_platform::get(GetParam());
     system_ = test_system::instance();
@@ -72,49 +63,20 @@ class events_cxx_core : public ::testing::TestWithParam<std::string> {
     handle_= handle::open(tokens_[0], 0);
     ASSERT_NE(nullptr, handle_.get());
 
-    config_ = {
-        .verbosity = 0,
-        .poll_interval_usec = 100 * 1000,
-        .daemon = 0,
-        .directory = { 0, },
-        .logfile = { 0, },
-        .pidfile = { 0, },
-        .filemode = 0,
-        .running = true,
-        .socket = "/tmp/fpga_event_socket",
-        .null_gbs = {0},
-        .num_null_gbs = 0,
-    };
-    strcpy(config_.logfile, tmpfpgad_log_);
-    strcpy(config_.pidfile, tmpfpgad_pid_);
-
-    open_log(tmpfpgad_log_);
-    fpgad_ = std::thread(server_thread, &config_);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    fpgad_start();
   }
 
   virtual void TearDown() override {
-    config_.running = false;
-    fpgad_.join();
+    fpgad_stop();
     handle_.reset();
     ASSERT_NO_THROW(tokens_.clear());
-    close_log();
+    fpgaFinalize();
     system_->finalize();
-
-    if (!::testing::Test::HasFatalFailure() &&
-        !::testing::Test::HasNonfatalFailure()) {
-      unlink(tmpfpgad_log_);
-      unlink(tmpfpgad_pid_);
-    }
   }
 
   std::vector<token::ptr_t> tokens_;
   handle::ptr_t handle_;
-  char tmpfpgad_log_[20];
-  char tmpfpgad_pid_[20];
-  struct config config_;
   test_platform platform_;
-  std::thread fpgad_;
   test_system *system_;
 };
 
