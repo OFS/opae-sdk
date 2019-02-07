@@ -42,15 +42,20 @@ log_printf("cfg: " format, ##__VA_ARGS__)
 do { \
 	canon = canonicalize_file_name(__f); \
 	if (canon) { \
-		err = strncpy_s(c->cfgfile, \
-				sizeof(c->cfgfile), \
-				canon, \
-				strnlen_s(canon, PATH_MAX)); \
-		if (err) \
-			LOG("strncpy_s failed.\n"); \
-		else { \
-			free(canon); \
-			return 0; \
+		stat(__f, &stat_buf); \
+ \
+		if (!S_ISLNK(stat_buf.st_mode)) { \
+ \
+			err = strncpy_s(c->cfgfile, \
+					sizeof(c->cfgfile), \
+					canon, \
+					strnlen_s(canon, PATH_MAX)); \
+			if (err) \
+				LOG("strncpy_s failed.\n"); \
+			else { \
+				free(canon); \
+				return 0; \
+			} \
 		} \
  \
 		free(canon); \
@@ -63,6 +68,7 @@ int cfg_find_config_file(struct fpgad_config *c)
 	char *e;
 	char *canon = NULL;
 	errno_t err;
+	struct stat stat_buf;
 
 	e = getenv("HOME");
 	if (e) {

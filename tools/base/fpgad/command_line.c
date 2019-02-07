@@ -328,15 +328,23 @@ void cmd_canonicalize_paths(struct fpgad_config *c)
 
 		canon_path = canonicalize_file_name(c->cfgfile);
 		if (canon_path) {
-			strncpy_s(c->cfgfile,
-				  sizeof(c->cfgfile),
-				  canon_path,
-				  strnlen_s(canon_path, PATH_MAX));
 
-			if (!cfg_load_config(c)) {
-				LOG("daemon cfg file is %s\n",
-				    c->cfgfile);
-				search = false; // found and loaded it
+			stat(c->cfgfile, &stat_buf);
+
+			// prevent symlinks
+			if (!S_ISLNK(stat_buf.st_mode)) {
+
+				strncpy_s(c->cfgfile,
+					  sizeof(c->cfgfile),
+					  canon_path,
+					  strnlen_s(canon_path, PATH_MAX));
+
+				if (!cfg_load_config(c)) {
+					LOG("daemon cfg file is %s\n",
+					    c->cfgfile);
+					search = false; // found and loaded it
+				}
+
 			}
 
 			free(canon_path);
