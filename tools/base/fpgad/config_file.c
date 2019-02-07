@@ -42,9 +42,8 @@ log_printf("cfg: " format, ##__VA_ARGS__)
 do { \
 	canon = canonicalize_file_name(__f); \
 	if (canon) { \
-		stat(__f, &stat_buf); \
  \
-		if (!S_ISLNK(stat_buf.st_mode)) { \
+		if (!cmd_path_is_symlink(__f)) { \
  \
 			err = strncpy_s(c->cfgfile, \
 					sizeof(c->cfgfile), \
@@ -68,7 +67,6 @@ int cfg_find_config_file(struct fpgad_config *c)
 	char *e;
 	char *canon = NULL;
 	errno_t err;
-	struct stat stat_buf;
 
 	e = getenv("HOME");
 	if (e) {
