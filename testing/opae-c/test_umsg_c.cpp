@@ -155,6 +155,7 @@ class umsg_c_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
+    fpgaFinalize();
     system_->finalize();
   }
 
@@ -193,7 +194,7 @@ TEST_P(umsg_c_p, set_attr) {
 }
 
 INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_p, 
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p"})));
 
 class umsg_c_mock_p: public umsg_c_p{
   protected:
@@ -232,5 +233,5 @@ TEST_P(umsg_c_mock_p, get_ptr) {
 }
 
 INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_mock_p, 
-                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p"})));
 

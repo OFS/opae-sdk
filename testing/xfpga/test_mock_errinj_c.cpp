@@ -34,10 +34,18 @@
 #include <cstdarg>
 #include <linux/ioctl.h>
 #include "xfpga.h"
+#include "fpga-dfl.h"
+#include "sysfs_int.h"
 
 #undef FPGA_MSG
 #define FPGA_MSG(fmt, ...) \
 	printf("MOCK " fmt "\n", ## __VA_ARGS__)
+
+extern "C" {
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+}
+
 
 using namespace opae::testing;
 
@@ -124,17 +132,22 @@ class err_inj_c_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
 
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_), FPGA_OK);
+    ASSERT_GT(num_matches_, 0);
     // Open port device
     ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
   }
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (handle_) { ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_)); }
+    if (handle_) { 
+      ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_)); 
+      handle_ = nullptr;
+    }
 
     for (auto &t : tokens_) {
       if (t) {
@@ -142,7 +155,7 @@ class err_inj_c_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
-
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 
@@ -207,8 +220,29 @@ TEST_P(err_inj_c_p, invalid_max_interface_num) {
 }
 
 INSTANTIATE_TEST_CASE_P(err_inj_c, err_inj_c_p, 
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                        ::testing::ValuesIn(test_platform::platforms({"skx-p","dcp-rc"})));
 
+
+class err_inj_c_usd_p : public err_inj_c_p {};
+
+/**
+ * @test       dfl_tests
+ *
+ * @brief      fpgaAssignPortToInterface Assign and Release port are not yet
+ *             supported by the latest upstream-drv. The API calls will return
+ *             FPGA_NOT_SUPPORTED.
+ */
+
+TEST_P(err_inj_c_usd_p, dfl_tests_neg) {
+  system_->register_ioctl_handler(DFL_FPGA_FME_PORT_RELEASE, dummy_ioctl<-1, ENOTSUP>);
+  EXPECT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaAssignPortToInterface(handle_, 1, 0, 0));
+
+  system_->register_ioctl_handler(DFL_FPGA_FME_PORT_ASSIGN, dummy_ioctl<-1, ENOTSUP>);
+  EXPECT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaAssignPortToInterface(handle_, 0, 0, 0));
+}
+
+INSTANTIATE_TEST_CASE_P(err_inj_c, err_inj_c_usd_p, 
+                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p-dfl0"})));
 
 class err_inj_c_mock_p : public err_inj_c_p {
  protected:
@@ -301,15 +335,15 @@ TEST_P(err_inj_c_mock_p, port_to_interface_err) {
    
   system_->register_ioctl_handler(FPGA_FME_PORT_RELEASE, dummy_ioctl<-1,EINVAL>);
   res = xfpga_fpgaAssignPortToInterface(handle_, 1, 0, 0);
-  EXPECT_EQ(FPGA_NOT_SUPPORTED, res);
+  EXPECT_EQ(FPGA_INVALID_PARAM, res);
 
   system_->register_ioctl_handler(FPGA_FME_PORT_ASSIGN, dummy_ioctl<-1,EINVAL>);
   res = xfpga_fpgaAssignPortToInterface(handle_, 0, 0, 0);
-  EXPECT_EQ(FPGA_NOT_SUPPORTED, res);
+  EXPECT_EQ(FPGA_INVALID_PARAM, res);
 }
 
 INSTANTIATE_TEST_CASE_P(err_inj_c, err_inj_c_mock_p, 
-                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc" })));
 
 /**
  * @test       invalid_handle

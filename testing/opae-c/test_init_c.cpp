@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -84,6 +84,9 @@ TEST(init, log_debug) {
   EXPECT_TRUE(log_stderr.find("Error log.") != std::string::npos);
   EXPECT_TRUE(log_stdout.find("Message log.") != std::string::npos);
   EXPECT_TRUE(log_stdout.find("Debug log.") != std::string::npos);
+
+  opae_release();
+  EXPECT_EQ(0, unsetenv("LIBOPAE_LOG"));
 }
 
 #endif
@@ -110,6 +113,9 @@ TEST(init, log_message) {
   EXPECT_TRUE(log_stderr.find("Error log.") != std::string::npos);
   EXPECT_TRUE(log_stdout.find("Message log.") != std::string::npos);
   EXPECT_FALSE(log_stdout.find("Debug log.") != std::string::npos);
+
+  opae_release();
+  EXPECT_EQ(0, unsetenv("LIBOPAE_LOG"));
 }
 
 /**
@@ -134,6 +140,9 @@ TEST(init, log_error) {
   EXPECT_TRUE(log_stderr.find("Error log.") != std::string::npos);
   EXPECT_FALSE(log_stdout.find("Message log.") != std::string::npos);
   EXPECT_FALSE(log_stdout.find("Debug log.") != std::string::npos);
+
+  opae_release();
+  EXPECT_EQ(0, unsetenv("LIBOPAE_LOG"));
 }
 
 /**
@@ -151,5 +160,9 @@ TEST(init, log_file) {
   opae_init();
 
   EXPECT_EQ(0, stat("opae_log.log", &buf));
+
+  opae_release();
+  EXPECT_EQ(0, unsetenv("LIBOPAE_LOGFILE"));
+  unlink("opae_log.log");
 }
 

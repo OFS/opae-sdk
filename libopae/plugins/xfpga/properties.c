@@ -99,6 +99,8 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	int res;
 	errno_t e;
 	int err = 0;
+	int resval = 0;
+	uint64_t value = 0;
 
 	pthread_mutex_t lock;
 
@@ -138,9 +140,8 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	p = strstr(_token->sysfspath, FPGA_SYSFS_AFU);
 	if (NULL != p) {
 		// AFU
-		result = sysfs_get_afu_id(_token->device_instance,
-					  _token->subdev_instance,
-					  _iprop.guid);
+		result = sysfs_get_guid(_token, FPGA_SYSFS_AFU_GUID,
+			 _iprop.guid);
 		if (FPGA_OK != result)
 			return result;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
@@ -175,25 +176,24 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 		_iprop.objtype = FPGA_DEVICE;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJTYPE);
 		// get bitstream id
-		result = sysfs_get_pr_id(_token->device_instance,
-					 _token->subdev_instance,
-					 _iprop.guid);
+		result = sysfs_get_interface_id(_token, _iprop.guid);
 		if (FPGA_OK != result)
 			return result;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
 
-		result = sysfs_get_slots(_token->device_instance,
-					 _token->subdev_instance,
-					 &_iprop.u.fpga.num_slots);
-		if (FPGA_OK != result)
-			return result;
+		resval = sysfs_parse_attribute64(_token->sysfspath,
+			FPGA_SYSFS_NUM_SLOTS, &value);
+		if (resval != 0) {
+			return FPGA_NOT_FOUND;
+		}
+		_iprop.u.fpga.num_slots = (uint32_t)value;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_NUM_SLOTS);
 
-		result = sysfs_get_bitstream_id(_token->device_instance,
-						_token->subdev_instance,
-						&_iprop.u.fpga.bbs_id);
-		if (FPGA_OK != result)
-			return result;
+		resval = sysfs_parse_attribute64(_token->sysfspath,
+			FPGA_SYSFS_BITSTREAM_ID, &_iprop.u.fpga.bbs_id);
+		if (resval != 0) {
+			return FPGA_NOT_FOUND;
+		}
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_BBSID);
 
 		_iprop.u.fpga.bbs_version.major =
@@ -222,11 +222,18 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_FUNCTION);
 
 	// only set socket id if we have it on sysfs
-	result = sysfs_get_socket_id(_token->device_instance,
-				     _token->subdev_instance,
-				     &_iprop.socket_id);
-	if (0 == result)
+	result = sysfs_get_fme_path(_token->device_instance,
+			_token->subdev_instance, spath);
+	if (FPGA_OK != result)
+		return result;
+
+	resval = sysfs_parse_attribute64(spath,
+		FPGA_SYSFS_SOCKET_ID, &value);
+
+	if (0 == resval) {
+		_iprop.socket_id = (uint8_t)value;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_SOCKETID);
+	}
 
 	result = sysfs_objectid_from_path(_token->sysfspath, &_iprop.object_id);
 	if (0 == result)

@@ -27,11 +27,25 @@ src_files="\
 
 for s in $src_files; do
     src="${QUARTUS_REL}/${s}"
+    if [ ! -f "${src}" ]; then
+        if [ -f "${src}.terp" ]; then
+            # Templated file
+            src="${src}.terp"
+        else
+            echo "File not found: ${src}"
+            continue
+        fi
+    fi
+
     dst=`basename "${s}" | sed -e 's/^altera/platform_utils/'`
     echo "$dst"
 
+    # Drop the suffix
+    dst_module="${dst%.*}"
+
     # The final replacement enables synchronous reset by default
-    sed -e 's/ altera_std/ platform_utils_std/g' \
+    sed -e "s/\$substitute_entity_name/${dst_module}/g" \
+        -e 's/ altera_std/ platform_utils_std/g' \
         -e 's/ altera_avalon/ platform_utils_avalon/g' \
         -e 's/ altera_dcfifo/ platform_utils_dcfifo/g' \
         -e 's/parameter SYNC_RESET \([ ]*\)= 0/parameter SYNC_RESET \1= 1/' \

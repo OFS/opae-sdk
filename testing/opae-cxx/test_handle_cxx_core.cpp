@@ -32,6 +32,7 @@
 
 #include <linux/ioctl.h>
 #include <cstdarg>
+#include "fpga-dfl.h"
 #include "intel-fpga.h"
 
 using namespace opae::testing;
@@ -91,9 +92,20 @@ class handle_cxx_core : public ::testing::TestWithParam<std::string> {
     ASSERT_TRUE(tokens_.size() > 0);
 
     system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
+    system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
   }
 
-  virtual void TearDown() override { system_->finalize(); }
+  virtual void TearDown() override {
+    tokens_.clear();
+
+    if (handle_) {
+      handle_->close();
+      handle_.reset();
+    }
+    fpgaFinalize();
+
+    system_->finalize();
+  }
 
   std::vector<token::ptr_t> tokens_;
   handle::ptr_t handle_;

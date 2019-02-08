@@ -91,3 +91,7 @@ set(SAMPLES_SRC hello_fpga.c hello_events.c object_api.c)
 install(FILES ${SAMPLES_SRC}
   DESTINATION ${OPAE_SAMPLES}
   COMPONENT samplesrc)
+
+install(TARGETS hello_fpga
+  RUNTIME DESTINATION bin
+  COMPONENT samplebin) 

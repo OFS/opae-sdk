@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -37,8 +37,8 @@
 
 // Power,Thermal & Performance definations
 
-#define IPERF                               "iperf"
-#define DPERF                               "dperf"
+#define PERF                               "*perf"
+
 
 #define PWRMGMT                             "power_mgmt"
 #define THERLGMT                            "thermal_mgmt"
@@ -48,13 +48,13 @@
 #define PERF_CACHE                          "cache"
 #define PERF_FABRIC                         "fabric"
 #define PERF_IOMMU                          "iommu"
-#define PERF                                 "performance"
-#define FPGA_LIMIT                           "fpga_limit"
-#define XEON_LIMIT                           "xeon_limit"
-#define TEMP                                 "Centigrade"
+#define PERFORMANCE                         "performance"
+#define FPGA_LIMIT                          "fpga_limit"
+#define XEON_LIMIT                          "xeon_limit"
+#define TEMP                                "Centigrade"
 
 
-#define BMC_LIB                              "libbmc.so"
+#define BMC_LIB                             "libmodbmc.so"
 
 // AFU DFH Struct
 struct DFH {

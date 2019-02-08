@@ -177,14 +177,14 @@ int fi_WaitCalDone(void)
     uint64_t u64i_I                      = 0;
     long int li_sleep_nanoseconds        = 0;
     int      res                         = 0;
-    char syfs_usrpath[SYSFS_PATH_MAX]    = {0};
+    char sysfs_usrpath[SYSFS_PATH_MAX]    = {0};
 
     // Waiting for fcr PLL calibration not to be busy
     for (u64i_I = 0; u64i_I<1000; u64i_I++)
     { // Poll with 1000 ms timeout
 
-        snprintf_s_ss(syfs_usrpath, sizeof(syfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
-        sysfs_read_u64(syfs_usrpath,  &u64i_PrtData);
+        snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
+        sysfs_read_u64(sysfs_usrpath,  &u64i_PrtData);
 
         if ((u64i_PrtData & QUCPU_UI64_STS_0_BSY_b61) == 0) break;
 

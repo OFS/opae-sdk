@@ -42,26 +42,19 @@ extern "C" {
 #include <string>
 #include <vector>
 #include <unistd.h>
-#include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock_opae.h"
 
 using namespace opae::testing;
 
-class buffer_c_p : public ::testing::TestWithParam<std::string> {
+class buffer_c_p : public mock_opae_p<2> {
  protected:
-  buffer_c_p() : tokens_{{nullptr, nullptr}} {}
+  buffer_c_p() {}
 
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
+  virtual void test_setup() override {
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, 
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_,
               platform_.devices[0].device_id), FPGA_OK);
     num_matches_ = 0;
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
@@ -72,28 +65,19 @@ class buffer_c_p : public ::testing::TestWithParam<std::string> {
     pg_size_ = (size_t) sysconf(_SC_PAGE_SIZE);
   }
 
-  virtual void TearDown() override {
+  virtual void test_teardown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     if (accel_) {
         EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
         accel_ = nullptr;
     }
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    system_->finalize();
+    fpgaFinalize();
   }
 
-  std::array<fpga_token, 2> tokens_;
   fpga_properties filter_;
   fpga_handle accel_;
   size_t pg_size_;
-  test_platform platform_;
   uint32_t num_matches_;
-  test_system *system_;
 };
 
 /**

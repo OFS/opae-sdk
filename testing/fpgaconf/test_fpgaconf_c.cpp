@@ -61,7 +61,7 @@ struct bitstream_info {
   fpga_guid interface_id;
 };
 
-fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, fpga_guid *guid);
+fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, size_t bs_len, fpga_guid *guid);
 
 int parse_metadata(struct bitstream_info *info);
 
@@ -181,7 +181,7 @@ class fpgaconf_c_p : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     config = config_;
-
+    fpgaFinalize();
     system_->finalize();
     if (!::testing::Test::HasFatalFailure() &&
         !::testing::Test::HasNonfatalFailure()) {
@@ -273,7 +273,7 @@ TEST_P(fpgaconf_c_p, parse) {
  *             the fn returns FPGA_EXCEPTION.<br>
  */
 TEST_P(fpgaconf_c_p, get_bits_err0) {
-  EXPECT_EQ(get_bitstream_ifc_id(nullptr, nullptr), FPGA_EXCEPTION);
+  EXPECT_EQ(get_bitstream_ifc_id(nullptr, 0, nullptr), FPGA_EXCEPTION);
 }
 
 /**
@@ -288,7 +288,7 @@ TEST_P(fpgaconf_c_p, get_bits_err1) {
 
   fpga_guid guid;
   system_->invalidate_malloc(0, "get_bitstream_ifc_id");
-  EXPECT_EQ(get_bitstream_ifc_id(info.data, &guid), FPGA_NO_MEMORY);
+  EXPECT_EQ(get_bitstream_ifc_id(info.data, info.data_len, &guid), FPGA_NO_MEMORY);
   free(info.data);
 }
 
@@ -305,7 +305,7 @@ TEST_P(fpgaconf_c_p, get_bits_err2) {
 
   fpga_guid guid;
   *(uint32_t *) (info.data + 16) = 0;
-  EXPECT_EQ(get_bitstream_ifc_id(info.data, &guid), FPGA_OK);
+  EXPECT_EQ(get_bitstream_ifc_id(info.data, info.data_len, &guid), FPGA_OK);
   free(info.data);
 }
 
@@ -322,7 +322,7 @@ TEST_P(fpgaconf_c_p, get_bits_err3) {
 
   fpga_guid guid;
   *(uint32_t *) (info.data + 16) = 65535;
-  EXPECT_EQ(get_bitstream_ifc_id(info.data, &guid), FPGA_EXCEPTION);
+  EXPECT_EQ(get_bitstream_ifc_id(info.data, info.data_len, &guid), FPGA_EXCEPTION);
   free(info.data);
 }
 
@@ -435,7 +435,7 @@ TEST_P(fpgaconf_c_p, parse_args1) {
   char thirteen[20];
   char fourteen[20];
   char fifteen[20];
-  char sixteen[20];
+  char sixteen[30];
   strcpy(zero, "fpgaconf");
   strcpy(one, "-v");
   strcpy(two, "-n");
@@ -702,6 +702,114 @@ TEST_P(fpgaconf_c_p, main2) {
 }
 
 /**
+ * @test       main_seg_neg
+ * @brief      Test: fpgaconf_main
+ * @details    When the command params for sement are invalid,<br>
+ *             fpgaconf_main displays an error and returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, main_seg_neg) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "--segment");
+  strcpy(two, "k");
+
+  char *argv[] = { zero, one, two };
+
+  EXPECT_NE(fpgaconf_main(3, argv), 0);
+}
+
+/**
+ * @test       main_bus_neg
+ * @brief      Test: fpgaconf_main
+ * @details    When the command params for bus are invalid,<br>
+ *             fpgaconf_main displays an error and returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, main_bus_neg) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-B");
+  strcpy(two, "k");
+
+  char *argv[] = { zero, one, two };
+
+  EXPECT_NE(fpgaconf_main(3, argv), 0);
+}
+
+/**
+ * @test       main_dev_neg
+ * @brief      Test: fpgaconf_main
+ * @details    When the command params for device are invalid,<br>
+ *             fpgaconf_main displays an error and returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, main_dev_neg) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-D");
+  strcpy(two, "k");
+
+  char *argv[] = { zero, one, two };
+
+  EXPECT_NE(fpgaconf_main(3, argv), 0);
+}
+
+/**
+ * @test       main_soc_neg
+ * @brief      Test: fpgaconf_main
+ * @details    When the command params for socket are invalid,<br>
+ *             fpgaconf_main displays an error and returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, main_soc_neg) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-S");
+  strcpy(two, "k");
+
+  char *argv[] = { zero, one, two };
+
+  EXPECT_NE(fpgaconf_main(3, argv), 0);
+}
+
+/**
+ * @test       main_missing_arg
+ * @brief      Test: fpgaconf_main
+ * @details    When the command params is missing an argument,<br>
+ *             fpgaconf_main displays an error and returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, main_missing_arg) {
+  char zero[20];
+  char one[20];
+  strcpy(zero, "fpgaconf");
+  strcpy(one, "-S");
+
+  char *argv[] = { zero, one };
+
+  EXPECT_NE(fpgaconf_main(2, argv), 0);
+}
+
+/**
+ * @test       main_missing_gbs
+ * @brief      Test: fpgaconf_main
+ * @details    When the command params is missing the gbs param,<br>
+ *             fpgaconf_main displays an error and returns non-zero.<br>
+ */
+TEST_P(fpgaconf_c_p, main_missing_gbs) {
+  char zero[20];
+  strcpy(zero, "fpgaconf");
+
+  char *argv[] = { zero };
+
+  EXPECT_NE(fpgaconf_main(1, argv), 0);
+}
+
+/**
  * @test       embed_nullchar
  * @brief      Test: fpgaconf_main
  * @details    When the command params contains nullbyte,<br>
@@ -734,7 +842,7 @@ TEST_P(fpgaconf_c_p, encoding_path) {
   char zero[32];
   char one[32];
   char two[32];
-  char three[32];
+  char three[40];
   strcpy(zero, "fpgaconf");
   strcpy(one, "-B");
   strcpy(two, "0x5e");
@@ -746,17 +854,17 @@ TEST_P(fpgaconf_c_p, encoding_path) {
   EXPECT_NE(fpgaconf_main(4, argv), 0);
 
   // File not found
-  memset(three, 0, 32);
+  memset(three, 0, sizeof(three));
   strcpy(three, "copy_bitstream..gbs");
   EXPECT_NE(fpgaconf_main(4, argv), 0);
   
   // File not found
-  memset(three, 0, 32);
+  memset(three, 0, sizeof(three));
   strcpy(three, "....copy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(4, argv), 0);
 
   // File not found
-  memset(three, 0, 32);
+  memset(three, 0, sizeof(three));
   strcpy(three, "%252E%252E%252Fcopy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(4, argv), 0);
 
@@ -788,22 +896,22 @@ TEST_P(fpgaconf_c_p, relative_path) {
   EXPECT_EQ(fpgaconf_main(5, argv), 0);
 
   // Fail not found
-  memset(four, 0, 32);
+  memset(four, 0, sizeof(four));
   strcpy(four, "../..../copy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(5, argv), 0);
 
   // Fail not found
-  memset(four, 0, 32);
+  memset(four, 0, sizeof(four));
   strcpy(four, "..%2fcopy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(5, argv), 0);
 
   // Fail not found
-  memset(four, 0, 32);
+  memset(four, 0, sizeof(four));
   strcpy(four, "%2e%2e/copy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(5, argv), 0);
 
   // Fail not found
-  memset(four, 0, 32);
+  memset(four, 0, sizeof(four));
   strcpy(four, "%2e%2e%2fcopy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(5, argv), 0);
 
@@ -927,7 +1035,7 @@ TEST_P(fpgaconf_c_p, circular_symlink) {
   char two[20];
   char three[20];
   char four[20];
-  char five[20];
+  char five[32];
   strcpy(zero, "fpgaconf");
   strcpy(one, "-v");
   strcpy(two, "-n");
@@ -952,7 +1060,7 @@ TEST_P(fpgaconf_c_p, circular_symlink) {
   strcpy(five, symlink_A.c_str());
   EXPECT_NE(fpgaconf_main(6, argv), 0);
 
-  memset(five, 0, 20);
+  memset(five, 0, sizeof(five));
   strcpy(five, symlink_B.c_str());
   EXPECT_NE(fpgaconf_main(6, argv), 0);
   
