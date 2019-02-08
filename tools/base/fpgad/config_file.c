@@ -42,15 +42,19 @@ log_printf("cfg: " format, ##__VA_ARGS__)
 do { \
 	canon = canonicalize_file_name(__f); \
 	if (canon) { \
-		err = strncpy_s(c->cfgfile, \
-				sizeof(c->cfgfile), \
-				canon, \
-				strnlen_s(canon, PATH_MAX)); \
-		if (err) \
-			LOG("strncpy_s failed.\n"); \
-		else { \
-			free(canon); \
-			return 0; \
+ \
+		if (!cmd_path_is_symlink(__f)) { \
+ \
+			err = strncpy_s(c->cfgfile, \
+					sizeof(c->cfgfile), \
+					canon, \
+					strnlen_s(canon, PATH_MAX)); \
+			if (err) \
+				LOG("strncpy_s failed.\n"); \
+			else { \
+				free(canon); \
+				return 0; \
+			} \
 		} \
  \
 		free(canon); \
