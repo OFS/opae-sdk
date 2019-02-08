@@ -27,6 +27,7 @@ quartus_tag_map = {
     '.vh':   'SYSTEMVERILOG_FILE',
     '.svh':  'SYSTEMVERILOG_FILE',
     '.vhd':  'VHDL_FILE',
+    '.vhdl': 'VHDL_FILE',
     '.sdc':  'SDC_FILE',
     '.qsys': 'QSYS_FILE',
     '.ip':   'IP_FILE',
@@ -67,6 +68,7 @@ sim_tag_map = {
     '.vh':   'SYSTEMVERILOG_FILE',
     '.svh':  'SYSTEMVERILOG_FILE',
     '.vhd':  'VHDL_FILE',
+    '.vhdl': 'VHDL_FILE',
     '.json': 'MISC_FILE'
 }
 
