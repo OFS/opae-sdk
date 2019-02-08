@@ -62,7 +62,7 @@
 #define ASSERT_NOT_NULL(__arg) ASSERT_NOT_NULL_MSG(__arg, #__arg " is NULL")
 
 #define ASSERT_NOT_NULL_RESULT(__arg, __result)                                \
-	ASSERT_NOT_NULL_MSG_RESULT(__arg, #__arg "is NULL", __result)
+	ASSERT_NOT_NULL_MSG_RESULT(__arg, #__arg " is NULL", __result)
 
 #define ASSERT_RESULT(__result)                                                \
 	do {                                                                   \

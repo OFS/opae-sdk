@@ -420,6 +420,11 @@ add_unit_test(test_opae_init_c opae-c-static
 add_unit_test(test_opae_pluginmgr_c opae-c-static
     opae-c/test_pluginmgr_c.cpp
 )
+set_tests_properties(test_opae_pluginmgr_c
+    PROPERTIES ENVIRONMENT "LD_LIBRARY_PATH=${LIBRARY_OUTPUT_PATH}")
+add_library(dummy_plugin MODULE opae-c/dummy_plugin.c)
+target_link_libraries(dummy_plugin ${libjson-c_LIBRARIES})
+add_dependencies(test_opae_pluginmgr_c dummy_plugin)
 
 ############################################################################
 # bitstream tests ##########################################################
@@ -780,7 +785,6 @@ add_custom_command(TARGET test_unit
     ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dfl0-nlb0.tar.gz
     ${CMAKE_BINARY_DIR}
     )
-
 
 ############################################################################
 # pyopae tests #############################################################
