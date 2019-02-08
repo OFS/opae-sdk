@@ -328,15 +328,20 @@ void cmd_canonicalize_paths(struct fpgad_config *c)
 
 		canon_path = canonicalize_file_name(c->cfgfile);
 		if (canon_path) {
-			strncpy_s(c->cfgfile,
-				  sizeof(c->cfgfile),
-				  canon_path,
-				  strnlen_s(canon_path, PATH_MAX));
 
-			if (!cfg_load_config(c)) {
-				LOG("daemon cfg file is %s\n",
-				    c->cfgfile);
-				search = false; // found and loaded it
+			if (!cmd_path_is_symlink(c->cfgfile)) {
+
+				strncpy_s(c->cfgfile,
+					  sizeof(c->cfgfile),
+					  canon_path,
+					  strnlen_s(canon_path, PATH_MAX));
+
+				if (!cfg_load_config(c)) {
+					LOG("daemon cfg file is %s\n",
+					    c->cfgfile);
+					search = false; // found and loaded it
+				}
+
 			}
 
 			free(canon_path);
@@ -391,4 +396,66 @@ void cmd_destroy(struct fpgad_config *c)
 		free(c->supported_devices);
 	}
 	c->supported_devices = NULL;
+}
+
+bool cmd_path_is_symlink(const char *path)
+{
+	char component[PATH_MAX];
+	errno_t res;
+	struct stat stat_buf;
+	size_t len;
+	char *pslash;
+
+	len = strnlen_s(path, PATH_MAX);
+	if (!len) // empty path
+		return false;
+
+	res = strncpy_s(component, sizeof(component),
+			path, len);
+	if (res) {
+		LOG("strncpy_s failed.\n");
+		return false;
+	}
+
+	if (lstat(component, &stat_buf)) {
+		LOG("lstat failed.\n");
+		return false;
+	}
+
+	if (S_ISLNK(stat_buf.st_mode))
+		return true;
+
+	pslash = strrchr(component, '/');
+	if (!pslash) { // no /
+		res = lstat(component, &stat_buf);
+		if (res)
+			LOG("lstat failed.\n");
+		return !res && S_ISLNK(stat_buf.st_mode);
+	}
+
+	while (pslash && (pslash > component)) {
+		*pslash = '\0';
+
+		if (lstat(component, &stat_buf)) {
+			LOG("lstat failed.\n");
+			return false;
+		}
+
+		if (S_ISLNK(stat_buf.st_mode))
+			return true;
+
+		pslash = strrchr(component, '/');
+	}
+
+	if (pslash == component) {
+		if (lstat(component, &stat_buf)) {
+			LOG("lstat failed.\n");
+			return false;
+		}
+
+		if (S_ISLNK(stat_buf.st_mode))
+			return true;
+	}
+
+	return false;
 }
