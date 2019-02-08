@@ -191,7 +191,7 @@ cfg_process_plugin_devices(const char *name,
 	int i;
 	int devs;
 	cfg_vendor_device_id *head = NULL;
-	cfg_vendor_device_id *id;
+	cfg_vendor_device_id *id = NULL;
 	uint16_t vendor_id;
 	uint16_t device_id;
 	const char *s;
