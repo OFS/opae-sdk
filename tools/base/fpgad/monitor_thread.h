@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,20 +24,27 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGAD_AP6_H__
-#define __FPGAD_AP6_H__
+#ifndef __FPGAD_MONITOR_THREAD_H__
+#define __FPGAD_MONITOR_THREAD_H__
 
-#include <semaphore.h>
-#include "config_int.h"
+#include "fpgad.h"
+#include "monitored_device.h"
 
-struct ap6_context {
-	struct config *config;
-	int socket;
-};
+typedef struct _monitor_thread_config {
+	struct fpgad_config *global;
+	int sched_policy;
+	int sched_priority;
+} monitor_thread_config;
 
-void *ap6_thread(void *thread_context);
+extern monitor_thread_config monitor_config;
 
-extern sem_t ap6_sem[MAX_SOCKETS];
+void *monitor_thread(void *);
 
-#endif // __FPGAD_AP6_H__
+// 0 on success
+int mon_enumerate(struct fpgad_config *c);
 
+void mon_destroy(void);
+
+void mon_monitor_device(fpgad_monitored_device *d);
+
+#endif /* __FPGAD_MONITOR_THREAD_H__ */

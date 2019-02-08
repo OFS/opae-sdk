@@ -28,11 +28,6 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-
-// $Id: //acds/rel/18.0/ip/merlin/altera_avalon_mm_bridge/altera_avalon_mm_bridge.v#1 $
-// $Revision: #1 $
-// $Date: 2018/02/08 $
-// $Author: psgswbuild $
 // --------------------------------------
 // Avalon-MM pipeline bridge
 //
@@ -40,7 +35,7 @@
 // --------------------------------------
 
 `timescale 1 ns / 1 ns
-module platform_utils_avalon_mm_bridge
+module platform_utils_avalon_mm_bridge 
 #(
     parameter DATA_WIDTH           = 32,
     parameter SYMBOL_WIDTH         = 8,

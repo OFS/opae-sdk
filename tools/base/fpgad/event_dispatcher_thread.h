@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,23 +24,40 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGAD_EVT_H__
-#define __FPGAD_EVT_H__
+#ifndef __FPGAD_EVENT_DISPATCHER_THREAD_H__
+#define __FPGAD_EVENT_DISPATCHER_THREAD_H__
 
-struct fpga_err;
+#include "fpgad.h"
+#include "monitored_device.h"
 
-// FPGA_EVENT_ERROR
-void evt_notify_error(uint8_t socket_id,
-		      uint64_t object_id,
-		      const struct fpga_err *);
+typedef struct _event_dispatcher_thread_config {
+	struct fpgad_config *global;
+	int sched_policy;
+	int sched_priority;
+} event_dispatcher_thread_config;
 
-// FPGA_EVENT_POWER_THERMAL
-void evt_notify_ap6(uint8_t socket_id,
-		    uint64_t object_id,
-		    const struct fpga_err *);
-void evt_notify_ap6_and_null(uint8_t socket_id,
-			     uint64_t object_id,
-			     const struct fpga_err *);
+extern event_dispatcher_thread_config event_dispatcher_config;
 
-#endif // __FPGAD_EVT_H__
+void *event_dispatcher_thread(void *);
 
+typedef struct _event_dispatch_queue_item {
+	fpgad_respond_event_t callback;
+	fpgad_monitored_device *device;
+	void *context;
+} event_dispatch_queue_item;
+
+bool evt_dispatcher_is_ready(void);
+
+bool evt_queue_response(fpgad_respond_event_t callback,
+			fpgad_monitored_device *device,
+			void *context);
+
+bool evt_queue_get(event_dispatch_queue_item *item);
+
+bool evt_queue_response_high(fpgad_respond_event_t callback,
+			     fpgad_monitored_device *device,
+			     void *context);
+
+bool evt_queue_get_high(event_dispatch_queue_item *item);
+
+#endif /* __FPGAD_EVENT_DISPATCHER_THREAD_H__ */
