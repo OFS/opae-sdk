@@ -75,4 +75,6 @@ void cmd_canonicalize_paths(struct fpgad_config *c);
 
 void cmd_destroy(struct fpgad_config *c);
 
+bool cmd_path_is_symlink(const char *path);
+
 #endif /* __FPGAD_COMMAND_LINE_H__ */
