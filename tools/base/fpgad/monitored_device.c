@@ -46,11 +46,11 @@
 log_printf("monitored_device: " format, ##__VA_ARGS__)
 
 fpgad_supported_device default_supported_devices_table[] = {
-	{ 0x8086, 0xbcc0, "libfpgad-xfpga.so", 0, NULL },
-	{ 0x8086, 0xbcc1, "libfpgad-xfpga.so", 0, NULL },
-	{ 0x8086, 0x0b30,    "libfpgad-vc.so", 0, NULL },
-	{ 0x8086, 0x0b31,    "libfpgad-vc.so", 0, NULL },
-	{      0,      0,                NULL, 0, NULL },
+	{ 0x8086, 0xbcc0, "libfpgad-xfpga.so", 0, NULL, "" },
+	{ 0x8086, 0xbcc1, "libfpgad-xfpga.so", 0, NULL, "" },
+	{ 0x8086, 0x0b30,    "libfpgad-vc.so", 0, NULL, "" },
+	{ 0x8086, 0x0b31,    "libfpgad-vc.so", 0, NULL, "" },
+	{      0,      0,                NULL, 0, NULL, "" },
 };
 
 STATIC fpgad_supported_device *mon_is_loaded(struct fpgad_config *c,
@@ -278,8 +278,7 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 				continue;
 			}
 
-			/* TODO pass configuration settings */
-			cfg(monitored, NULL);
+			cfg(monitored, d->config);
 
 			if (monitored->type == FPGAD_PLUGIN_TYPE_THREAD) {
 
