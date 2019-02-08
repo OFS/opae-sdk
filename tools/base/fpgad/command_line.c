@@ -379,6 +379,15 @@ void cmd_destroy(struct fpgad_config *c)
 
 	if (c->supported_devices &&
 	    (c->supported_devices != default_supported_devices_table)) {
+
+		for (i = 0 ; c->supported_devices[i].library_path ; ++i) {
+			fpgad_supported_device *d = &c->supported_devices[i];
+			if (d->library_path)
+				free((void *)d->library_path);
+			if (d->config)
+				free((void *)d->config);
+		}
+
 		free(c->supported_devices);
 	}
 	c->supported_devices = NULL;
