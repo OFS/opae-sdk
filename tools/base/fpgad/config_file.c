@@ -29,6 +29,8 @@
 #endif // HAVE_CONFIG_H
 
 #include "config_file.h"
+#include "monitored_device.h"
+#include "api/sysfs.h"
 
 #include <json-c/json.h>
 
@@ -144,13 +146,13 @@ typedef struct _cfg_vendor_device_id {
 } cfg_vendor_device_id;
 
 typedef struct _cfg_plugin_configuration {
+	char *configuration;
 	bool enabled;
 	char *library;
 	cfg_vendor_device_id *devices;
 	struct _cfg_plugin_configuration *next;
 } cfg_plugin_configuration;
 
-#if 0
 STATIC cfg_vendor_device_id *alloc_device(uint16_t vendor_id,
 					  uint16_t device_id)
 {
@@ -166,7 +168,8 @@ STATIC cfg_vendor_device_id *alloc_device(uint16_t vendor_id,
 	return p;
 }
 
-STATIC cfg_plugin_configuration *alloc_configuration(bool enabled,
+STATIC cfg_plugin_configuration *alloc_configuration(char *configuration,
+						     bool enabled,
 						     char *library,
 						     cfg_vendor_device_id *devs)
 {
@@ -175,6 +178,7 @@ STATIC cfg_plugin_configuration *alloc_configuration(bool enabled,
 	p = (cfg_plugin_configuration *)
 		malloc(sizeof(cfg_plugin_configuration));
 	if (p) {
+		p->configuration = configuration;
 		p->enabled = enabled;
 		p->library = library;
 		p->devices = devs;
@@ -183,7 +187,299 @@ STATIC cfg_plugin_configuration *alloc_configuration(bool enabled,
 
 	return p;
 }
-#endif
+
+STATIC cfg_vendor_device_id *
+cfg_process_plugin_devices(const char *name,
+			   json_object *j_devices)
+{
+	int i;
+	int devs;
+	cfg_vendor_device_id *head = NULL;
+	cfg_vendor_device_id *id = NULL;
+	uint16_t vendor_id;
+	uint16_t device_id;
+	const char *s;
+	char *endptr;
+
+	if (!json_object_is_type(j_devices, json_type_array)) {
+		LOG("'devices' JSON object not array.\n");
+		return NULL;
+	}
+
+	devs = json_object_array_length(j_devices);
+	for (i = 0 ; i < devs ; ++i) {
+		json_object *j_dev = json_object_array_get_idx(j_devices, i);
+		json_object *j_vid;
+		json_object *j_did;
+
+		if (!json_object_is_type(j_dev, json_type_array)) {
+			LOG("%s 'devices' entry %d not array.\n",
+				name, i);
+			goto out_free;
+		}
+
+		if (json_object_array_length(j_dev) != 2) {
+			LOG("%s 'devices' entry %d not array[2].\n",
+				name, i);
+			goto out_free;
+		}
+
+		j_vid = json_object_array_get_idx(j_dev, 0);
+		if (json_object_is_type(j_vid, json_type_string)) {
+			s = json_object_get_string(j_vid);
+			endptr = NULL;
+
+			vendor_id = (uint16_t)strtoul(s, &endptr, 0);
+			if (*endptr != '\0') {
+				LOG("%s malformed Vendor ID at devices[%d]\n",
+					name, i);
+				goto out_free;
+			}
+
+		} else if (json_object_is_type(j_vid, json_type_int)) {
+			vendor_id = (uint16_t)json_object_get_int(j_vid);
+		} else {
+			LOG("%s invalid Vendor ID at devices[%d]\n",
+				name, i);
+			goto out_free;
+		}
+
+		j_did = json_object_array_get_idx(j_dev, 1);
+		if (json_object_is_type(j_did, json_type_string)) {
+			s = json_object_get_string(j_did);
+			endptr = NULL;
+
+			device_id = (uint16_t)strtoul(s, &endptr, 0);
+			if (*endptr != '\0') {
+				LOG("%s malformed Device ID at devices[%d]\n",
+					name, i);
+				goto out_free;
+			}
+
+		} else if (json_object_is_type(j_did, json_type_int)) {
+			device_id = (uint16_t)json_object_get_int(j_did);
+		} else {
+			LOG("%s invalid Device ID at devices[%d]\n",
+				name, i);
+			goto out_free;
+		}
+
+		if (!head) {
+			head = alloc_device(vendor_id, device_id);
+			if (!head) {
+				LOG("malloc failed.\n");
+				goto out_free;
+			}
+
+			id = head;
+		} else {
+			id->next = alloc_device(vendor_id, device_id);
+			if (!id->next) {
+				LOG("malloc failed.\n");
+				goto out_free;
+			}
+
+			id = id->next;
+		}
+	}
+
+	return head;
+
+out_free:
+	for (id = head ; id ; ) {
+		cfg_vendor_device_id *trash = id;
+		id = id->next;
+		free(trash);
+	}
+	return NULL;
+}
+
+STATIC int cfg_process_plugin(const char *name,
+			      json_object *j_configurations,
+			      cfg_plugin_configuration **list)
+{
+	json_object *j_cfg_plugin = NULL;
+	json_object *j_cfg_plugin_configuration = NULL;
+	json_object *j_enabled = NULL;
+	json_object *j_plugin = NULL;
+	json_object *j_devices = NULL;
+	char *configuration = NULL;
+	bool enabled = false;
+	char *plugin = NULL;
+	cfg_plugin_configuration *c = NULL;
+
+	if (!json_object_object_get_ex(j_configurations,
+				       name,
+				       &j_cfg_plugin)) {
+		LOG("couldn't find configurations section"
+		    " for %s.\n", name);
+		return 1;
+	}
+
+	if (!json_object_object_get_ex(j_cfg_plugin,
+				       "configuration",
+				       &j_cfg_plugin_configuration)) {
+		LOG("couldn't find %s configuration section.\n", name);
+		return 1;
+	}
+
+	configuration = (char *)json_object_to_json_string_ext(
+				j_cfg_plugin_configuration,
+				JSON_C_TO_STRING_PLAIN);
+	if (!configuration) {
+		LOG("failed to parse configuration for %s.\n", name);
+		return 1;
+	}
+
+	configuration = cstr_dup(configuration);
+	if (!configuration) {
+		LOG("cstr_dup failed.\n");
+		return 1;
+	}
+
+	if (!json_object_object_get_ex(j_cfg_plugin,
+				       "enabled",
+				       &j_enabled)) {
+		LOG("couldn't find enabled key"
+		    " for %s.\n", name);
+		goto out_free;
+	}
+
+	if (!json_object_is_type(j_enabled, json_type_boolean)) {
+		LOG("enabled key for %s not boolean.\n", name);
+		goto out_free;
+	}
+
+	enabled = json_object_get_boolean(j_enabled);
+
+	if (!json_object_object_get_ex(j_cfg_plugin,
+				       "plugin",
+				       &j_plugin)) {
+		LOG("couldn't find plugin key"
+		    " for %s.\n", name);
+		goto out_free;
+	}
+
+	if (!json_object_is_type(j_plugin, json_type_string)) {
+		LOG("plugin key for %s not string.\n", name);
+		goto out_free;
+	}
+
+	plugin = cstr_dup(json_object_get_string(j_plugin));
+	if (!plugin) {
+		LOG("cstr_dup failed.\n");
+		goto out_free;
+	}
+
+	if (!json_object_object_get_ex(j_cfg_plugin,
+				       "devices",
+				       &j_devices)) {
+		LOG("couldn't find devices key"
+		    " for %s.\n", name);
+		goto out_free;
+	}
+
+	if (!(*list)) { // list is empty
+		c = alloc_configuration(configuration,
+					enabled,
+					plugin,
+					NULL);
+		if (!c) {
+			LOG("malloc failed.\n");
+			goto out_free;
+		}
+
+		*list = c;
+	} else {
+		for (c = *list ; c->next ; c = c->next)
+		/* find the end of the list */ ;
+
+		c->next = alloc_configuration(configuration,
+					      enabled,
+					      plugin,
+					      NULL);
+		if (!c->next) {
+			LOG("malloc failed.\n");
+			goto out_free;
+		}
+
+		c = c->next;
+	}
+
+	c->devices = cfg_process_plugin_devices(name, j_devices);
+
+	return 0;
+
+out_free:
+	if (configuration)
+		free(configuration);
+	if (plugin)
+		free(plugin);
+	if (c)
+		free(c);
+	return 1;
+}
+
+STATIC fpgad_supported_device *
+cfg_json_to_supported(cfg_plugin_configuration *configurations)
+{
+	cfg_plugin_configuration *c;
+	cfg_vendor_device_id *d;
+	size_t num_devices = 0;
+	fpgad_supported_device *supported;
+	int i;
+
+	// find the number of devices
+	for (c = configurations ; c ; c = c->next) {
+		if (!c->enabled) // skip it
+			continue;
+		for (d = c->devices ; d ; d = d->next) {
+			++num_devices;
+		}
+	}
+
+	++num_devices; // +1 for NULL terminator
+
+	supported = calloc(num_devices, sizeof(fpgad_supported_device));
+	if (!supported) {
+		LOG("calloc failed.\n");
+		return NULL;
+	}
+
+	i = 0;
+	for (c = configurations ; c ; c = c->next) {
+		if (!c->enabled) // skip it
+			continue;
+		for (d = c->devices ; d ; d = d->next) {
+			fpgad_supported_device *dev = &supported[i++];
+
+			dev->vendor_id = d->vendor_id;
+			dev->device_id = d->device_id;
+			dev->library_path = cstr_dup(c->library);
+			dev->config = cstr_dup(c->configuration);
+		}
+	}
+
+	for (c = configurations ; c ; ) {
+		cfg_plugin_configuration *ctrash = c;
+
+		for (d = c->devices ; d ; ) {
+			cfg_vendor_device_id *dtrash = d;
+			d = d->next;
+			free(dtrash);
+		}
+
+		c = c->next;
+
+		if (ctrash->configuration)
+			free(ctrash->configuration);
+		if (ctrash->library)
+			free(ctrash->library);
+		free(ctrash);
+	}
+
+	return supported;
+}
 
 int cfg_load_config(struct fpgad_config *c)
 {
@@ -196,8 +492,6 @@ int cfg_load_config(struct fpgad_config *c)
 	int num_plugins;
 	int i;
 	cfg_plugin_configuration *configurations = NULL;
-
-	(void)configurations;
 
 	cfg_buf = cfg_read_file(c->cfgfile);
 	if (!cfg_buf)
@@ -237,9 +531,21 @@ int cfg_load_config(struct fpgad_config *c)
 		j_plugin = json_object_array_get_idx(j_plugins, i);
 		plugin_name = json_object_get_string(j_plugin);
 
-		(void)plugin_name;
-
+		if (cfg_process_plugin(plugin_name,
+				       j_configurations,
+				       &configurations))
+			goto out_put;
 	}
+
+	if (!configurations) {
+		LOG("no configurations found in %s.\n", c->cfgfile);
+		goto out_put;
+	}
+
+	c->supported_devices = cfg_json_to_supported(configurations);
+
+	if (c->supported_devices)
+		res = 0;
 
 out_put:
 	json_object_put(root);
