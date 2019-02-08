@@ -369,8 +369,6 @@ out_err:
 	return 1;
 }
 
-
-
 STATIC int process_cfg_buffer(const char *buffer, const char *filename)
 {
 	int num_plugins = 0;
@@ -425,7 +423,6 @@ STATIC int process_cfg_buffer(const char *buffer, const char *filename)
 out_free:
 	json_object_put(root);
 	return res;
-
 }
 
 #define MAX_CFG_SIZE 4096
