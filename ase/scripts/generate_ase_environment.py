@@ -475,8 +475,8 @@ def config_qsys_sources(filelist, vlog_srcs, vhdl_srcs):
                       'hex': 'qsys_hex_sim_files.list'}
     found_qsys_file = {'vlog': False, 'vhdl': False, 'hex': False}
     with open(qsys_sim_files['vlog'], "w") as f_vlog, \
-        open(qsys_sim_files['vhdl'], "w") as f_vhdl, \
-        open(qsys_sim_files['hex'], "w") as f_hex:
+            open(qsys_sim_files['vhdl'], "w") as f_vhdl, \
+            open(qsys_sim_files['hex'], "w") as f_hex:
         for d in ip_dirs_copy:
             for dir, subdirs, files in os.walk(d):
                 for fn in files:
