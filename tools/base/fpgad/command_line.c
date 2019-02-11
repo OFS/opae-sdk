@@ -417,44 +417,50 @@ bool cmd_path_is_symlink(const char *path)
 		return false;
 	}
 
-	if (lstat(component, &stat_buf)) {
-		LOG("lstat failed.\n");
-		return false;
-	}
+	if (component[0] == '/') {
+		// absolute path
+		int indicator = -1;
 
-	if (S_ISLNK(stat_buf.st_mode))
-		return true;
+		pslash = realpath(path, component);
 
-	pslash = strrchr(component, '/');
-	if (!pslash) { // no /
-		res = lstat(component, &stat_buf);
-		if (res)
-			LOG("lstat failed.\n");
-		return !res && S_ISLNK(stat_buf.st_mode);
-	}
-
-	while (pslash && (pslash > component)) {
-		*pslash = '\0';
-
-		if (lstat(component, &stat_buf)) {
-			LOG("lstat failed.\n");
+		if (strcmp_s(component, sizeof(component),
+			     path, &indicator)) {
+			LOG("strcmp_s failed.\n");
 			return false;
 		}
 
-		if (S_ISLNK(stat_buf.st_mode))
+		if (indicator)
 			return true;
+
+	} else {
+		// relative path
 
 		pslash = strrchr(component, '/');
-	}
 
-	if (pslash == component) {
-		if (lstat(component, &stat_buf)) {
-			LOG("lstat failed.\n");
+		while (pslash) {
+
+			if (fstatat(AT_FDCWD, component,
+				    &stat_buf, AT_SYMLINK_NOFOLLOW)) {
+				LOG("fstatat failed.\n");
+				return false;
+			}
+
+			if (S_ISLNK(stat_buf.st_mode))
+				return true;
+
+			*pslash = '\0';
+			pslash = strrchr(component, '/');
+		}
+
+		if (fstatat(AT_FDCWD, component,
+			    &stat_buf, AT_SYMLINK_NOFOLLOW)) {
+			LOG("fstatat failed.\n");
 			return false;
 		}
 
 		if (S_ISLNK(stat_buf.st_mode))
 			return true;
+
 	}
 
 	return false;

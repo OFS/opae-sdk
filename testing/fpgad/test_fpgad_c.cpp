@@ -169,6 +169,8 @@ TEST_P(fpgad_fpgad_c_p, main_params) {
   char eight[20];
   char nine[20];
   char ten[20];
+  char eleven[20];
+  char twelve[20];
   strcpy(zero, "fpgad");
   strcpy(one, "-d");
   strcpy(two, "-l");
@@ -179,17 +181,20 @@ TEST_P(fpgad_fpgad_c_p, main_params) {
   strcpy(seven, "sock");
   strcpy(eight, "-n");
   strcpy(nine, tmpnull_gbs_);
-  strcpy(ten, "-h");
+  strcpy(ten, "-c");
+  strcpy(eleven, "config");
+  strcpy(twelve, "-h");
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten };
+                   ten, eleven, twelve };
 
-  EXPECT_EQ(fpgad_main(11, argv), 0);
+  EXPECT_EQ(fpgad_main(13, argv), 0);
   EXPECT_TRUE(global_config.daemon);
   EXPECT_STREQ(global_config.logfile, "log");
   EXPECT_STREQ(global_config.pidfile, "pid");
   EXPECT_STREQ(global_config.api_socket, "sock");
+  EXPECT_STREQ(global_config.cfgfile, "config");
   // because main goes to out_destroy:
   EXPECT_EQ(global_config.num_null_gbs, 0);
 }
