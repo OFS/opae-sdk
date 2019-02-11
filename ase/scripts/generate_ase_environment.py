@@ -500,9 +500,10 @@ def config_qsys_sources(filelist, vlog_srcs, vhdl_srcs):
                                 f_vlog.write(full_path + "\n")
                                 found_qsys_file['vlog'] = True
 
-    # Drop the file list for Verilog/VHDL when no files are found
+    # Drop any file lists that are empty
     for t, v in found_qsys_file.items():
         if not v:
+            os.remove(qsys_sim_files[t])
             del qsys_sim_files[t]
 
     return qsys_sim_files
