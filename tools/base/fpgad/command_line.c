@@ -421,7 +421,7 @@ bool cmd_path_is_symlink(const char *path)
 		// absolute path
 		int indicator = -1;
 
-		realpath(path, component);
+		pslash = realpath(path, component);
 
 		if (strcmp_s(component, sizeof(component),
 			     path, &indicator)) {

@@ -409,6 +409,8 @@ TEST_P(fpgad_command_line_c_p, symlink4) {
   std::string s;
   char *d = get_current_dir_name();
 
+  ASSERT_NE(d, nullptr);
+
   // /current/dir/foo -> cfg file
   ASSERT_EQ(symlink(cfg_file_, "foo"), 0);
   s = std::string(d) + std::string("/foo");
