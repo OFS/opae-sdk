@@ -314,6 +314,7 @@ TEST_P(fpgad_command_line_c_p, canonicalize4) {
   cmd_canonicalize_paths(&config_);
 
   char *d = get_current_dir_name();
+  ASSERT_NE(d, nullptr);
   std::string cfg_file = std::string(d) + std::string("/") + std::string(cfg_file_);
 
   EXPECT_STREQ(config_.cfgfile, cfg_file.c_str());
