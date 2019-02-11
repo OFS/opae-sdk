@@ -61,7 +61,7 @@ def main(args):
 
     # Display data from FPGA info
     for feature in FEATURES:
-        cmd = ['fpainfo', feature, '-B', '0x{}'.format(bdf['bus'])
+        cmd = ['fpainfo', feature, '-B', '0x{}'.format(bdf['bus'])]
         subprocess.call(cmd)
 
     gbs_paths = args.gbs_paths
