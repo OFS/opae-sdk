@@ -102,16 +102,6 @@ add_library(bmc-static STATIC
     ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmcdata.c
     ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmcinfo.c
     )
-    
-
-add_library(libbmc  SHARED
-    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmc.c
-    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmc_ioctl.c
-    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmcdata.c
-    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmcinfo.c
-    )
-    
-
   
 add_library(fpgad-static
     ${OPAE_SDK_SOURCE}/tools/base/fpgad/command_line.c
@@ -430,6 +420,11 @@ add_unit_test(test_opae_init_c opae-c-static
 add_unit_test(test_opae_pluginmgr_c opae-c-static
     opae-c/test_pluginmgr_c.cpp
 )
+set_tests_properties(test_opae_pluginmgr_c
+    PROPERTIES ENVIRONMENT "LD_LIBRARY_PATH=${LIBRARY_OUTPUT_PATH}")
+add_library(dummy_plugin MODULE opae-c/dummy_plugin.c)
+target_link_libraries(dummy_plugin ${libjson-c_LIBRARIES})
+add_dependencies(test_opae_pluginmgr_c dummy_plugin)
 
 ############################################################################
 # bitstream tests ##########################################################
@@ -570,7 +565,7 @@ target_link_libraries(test_xfpga_events_c
     safestr
     fpgad-static
     fpgad-api-static
-    libbmc
+    bmc
     ${libjson-c_LIBRARIES})
 
 add_unit_test(test_xfpga_metrics_vector_c xfpga-static
@@ -592,8 +587,10 @@ add_unit_test(test_xfpga_metrics_c xfpga-static
 add_unit_test(test_xfpga_bmc_c xfpga-static
     xfpga/test_bmc_c.cpp
 )
-target_link_libraries(test_xfpga_bmc_c bmc-static  safestr
-        ${libjson-c_LIBRARIES})
+target_link_libraries(test_xfpga_bmc_c
+    safestr
+    bmc-static
+    ${libjson-c_LIBRARIES})
 
 ############################################################################
 # fpgad tests ##############################################################
@@ -788,7 +785,6 @@ add_custom_command(TARGET test_unit
     ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dfl0-nlb0.tar.gz
     ${CMAKE_BINARY_DIR}
     )
-
 
 ############################################################################
 # pyopae tests #############################################################
