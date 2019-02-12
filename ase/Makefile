@@ -528,7 +528,7 @@ $(WORK):
 	fi
 
 ## VCS base Quartus Verilog libraries
-$(WORK)/synopsys_sim_quartus_verilog.setup: $(WORK)
+$(WORK)/synopsys_sim_quartus_verilog.setup: | $(WORK)
 	mkdir -p $(WORK)/verilog_libs
 ifeq ($(GLS_SIM), 1)
 	@# Generate the Quartus family-dependent simulation library list
@@ -541,7 +541,7 @@ else
 endif
 
 ## Questasim base Quartus Verilog libraries
-$(WORK)/quartus_msim_verilog_libs: $(WORK)
+$(WORK)/quartus_msim_verilog_libs: | $(WORK)
 	mkdir -p $(WORK)/verilog_libs
 ifeq ($(GLS_SIM), 1)
 	@# Generate the Quartus family-dependent simulation library list
