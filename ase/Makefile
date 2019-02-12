@@ -517,8 +517,18 @@ ifdef DUT_VLOG_SRC_LIST
 	cd $(WORK) ; vlog $(MENT_VLOG_OPT) $(ASE_PLATFORM_INC) -F $(DUT_VLOG_SRC_LIST) -l vlog-afu.log
 endif
 
+$(WORK):
+	mkdir -p $(WORK)
+	@# Link to HEX memory images generated and required by Qsys
+	@if [ -f qsys_hex_sim_files.list ]; then \
+	  for h in `cat qsys_hex_sim_files.list`; do \
+	    echo Linking to $${h} ; \
+	    ln -s ../$${h} work ; \
+	  done ; \
+	fi
+
 ## VCS base Quartus Verilog libraries
-$(WORK)/synopsys_sim_quartus_verilog.setup:
+$(WORK)/synopsys_sim_quartus_verilog.setup: $(WORK)
 	mkdir -p $(WORK)/verilog_libs
 ifeq ($(GLS_SIM), 1)
 	@# Generate the Quartus family-dependent simulation library list
@@ -531,7 +541,7 @@ else
 endif
 
 ## Questasim base Quartus Verilog libraries
-$(WORK)/quartus_msim_verilog_libs:
+$(WORK)/quartus_msim_verilog_libs: $(WORK)
 	mkdir -p $(WORK)/verilog_libs
 ifeq ($(GLS_SIM), 1)
 	@# Generate the Quartus family-dependent simulation library list
