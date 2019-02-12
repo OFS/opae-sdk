@@ -473,7 +473,16 @@ TEST(pluginmgr_c_p, dummy_plugin) {
   unlink("opae_log.log");
 }
 
-TEST(pluginmgr_c_p, find_cfg) {
+TEST(pluginmgr_c_p, no_cfg) {
+  opae_plugin_mgr_reset_cfg();
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
+  ASSERT_EQ(opae_plugin_mgr_initialize(nullptr), 0);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
+  auto p1 = opae_plugin_mgr_config_list;
+  ASSERT_EQ(p1, nullptr);
+}
+
+TEST(pluginmgr_c_p, find_and_parse_cfg) {
   auto cfg_dir = std::string(getenv("HOME")) + "/.local";
   struct stat st;
   if (stat(cfg_dir.c_str(), &st) != 0) {

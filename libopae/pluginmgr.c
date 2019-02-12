@@ -79,12 +79,13 @@ static pthread_mutex_t adapter_list_lock =
 STATIC plugin_cfg *opae_plugin_mgr_config_list;
 STATIC int opae_plugin_mgr_plugin_count;
 
-#define CFG_PATHS 4
+#define CFG_PATHS 5
 static const char *_opae_cfg_files[CFG_PATHS] = {
-	"/etc/opae/opae.cfg",
-	"$HOME/.config/opae/opae.cfg",
-	"$HOME/.local/opae/opae.cfg",
 	"$HOME/.local/opae.cfg"
+	"$HOME/.local/opae/opae.cfg",
+	"$HOME/.config/opae/opae.cfg",
+	"/usr/local/etc/opae/opae.cfg",
+	"/etc/opae/opae.cfg",
 };
 
 STATIC int resolve_file_name(char *dst, const char *src)
@@ -111,10 +112,12 @@ STATIC int resolve_file_name(char *dst, const char *src)
 				OPAE_MSG("Could not find env var: '%s'", ptok+1);
 				return 1;
 			}
+			len = strlen(dir_value);
 		} else {
 			dir_value = ptok;
 		}
 		if (strncpy_s(pdst, len, dir_value, len)) {
+			dst[0] = '\0';
 			OPAE_ERR("error copying path component");
 			return 1;
 		}
