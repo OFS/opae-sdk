@@ -333,4 +333,4 @@ TEST_P(hw_hello_fpga_c_p, main1) {
 }
 
 INSTANTIATE_TEST_CASE_P(hw_hello_fpga_c, hw_hello_fpga_c_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms()));
+                        ::testing::ValuesIn(test_platform::hw_platforms({"skx-p","skx-p-v"})));

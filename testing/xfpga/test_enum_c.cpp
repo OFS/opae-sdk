@@ -117,6 +117,18 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     return matches;
   }
 
+  int GetMatchedGuidFpgas() {
+    std::stringstream ss;
+    ss << std::setw(4) << std::hex << platform_.devices[0].device_id;
+    std::string deviceid (ss.str());
+
+    std::string cmd =  "lspci | grep " + deviceid + " | wc -l";
+
+    int value;
+    ExecuteCmd(cmd, value);
+    return value;
+  }
+
   void ExecuteCmd(std::string cmd, int &value) {
     std::string line;
     std::string command = cmd + " > output.txt";
@@ -689,7 +701,7 @@ TEST_P(enum_c_p, guid_port) {
   EXPECT_EQ(
       xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgas());
+  EXPECT_EQ(num_matches_, GetMatchedGuidFpgas());
 }
 
 /**

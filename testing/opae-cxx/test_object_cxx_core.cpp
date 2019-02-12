@@ -135,7 +135,8 @@ TEST_P(sysobject_cxx_p, handle_object_write) {
   std::string path = "iperf/fabric/freeze";;
 
   if (platform_.devices[0].device_id == 0x09c4 || 
-      platform_.devices[0].device_id == 0x09c5) {
+      platform_.devices[0].device_id == 0x09c5 ||
+      platform_.devices[0].device_id == 0x0b30) {
     path = "dperf/fabric/freeze";
   }
 
@@ -190,7 +191,8 @@ TEST_P(sysobject_cxx_p, handle_subobject_write) {
   std::string path = "iperf/fabric";;
 
   if (platform_.devices[0].device_id == 0x09c4 ||
-      platform_.devices[0].device_id == 0x09c5) {
+      platform_.devices[0].device_id == 0x09c5 ||
+      platform_.devices[0].device_id == 0x0b30) {
     path = "dperf/fabric";
   }
 
