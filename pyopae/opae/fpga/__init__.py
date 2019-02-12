@@ -1,8 +1,22 @@
-from _opae import (properties, token, handle, shared_buffer, event, enumerate,
-                   open, allocate_shared_buffer, register_event, error, errors)
+from _opae import (
+    properties,
+    token,
+    handle,
+    shared_buffer,
+    event,
+    enumerate,
+    open,
+    allocate_shared_buffer,
+    register_event,
+    error,
+    errors,
+    sysobject,
+    version,
+    build,
+    memory_barrier)
 from _opae import (DEVICE, ACCELERATOR, OPEN_SHARED, EVENT_ERROR,
                    EVENT_INTERRUPT, EVENT_POWER_THERMAL, ACCELERATOR_ASSIGNED,
-                   ACCELERATOR_UNASSIGNED, RECONF_FORCE)
+                   ACCELERATOR_UNASSIGNED, RECONF_FORCE, SYSOBJECT_GLOB)
 __all__ = ['properties',
            'token',
            'handle',
@@ -14,6 +28,10 @@ __all__ = ['properties',
            'register_event',
            'error',
            'errors',
+           'sysobject',
+           'version',
+           'build',
+           'memory_barrier',
            'DEVICE',
            'ACCELERATOR',
            'OPEN_SHARED',
@@ -22,5 +40,6 @@ __all__ = ['properties',
            'EVENT_POWER_THERMAL',
            'ACCELERATOR_ASSIGNED',
            'ACCELERATOR_UNASSIGNED',
-           'RECONF_FORCE'
+           'RECONF_FORCE',
+           'SYSOBJECT_GLOB'
            ]

@@ -1,1 +1,1 @@
-include_directories(@CMAKE_BINARY_DIR@/include)
+include_directories(@OPAE_INCLUDE_DIR@)

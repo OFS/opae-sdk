@@ -55,7 +55,7 @@ static int ase_pt_length_to_level(uint64_t length);
 static uint64_t ase_pt_level_to_bit_idx(int pt_level);
 static void ase_pt_delete_tree(uint64_t **pt, int pt_level);
 static bool ase_pt_check_addr(uint64_t iova, int *pt_level);
-static int ase_pt_pin_page(void *va, uint64_t *iova, int pt_level);
+static int ase_pt_pin_page(uint64_t va, uint64_t *iova, int pt_level);
 static int ase_pt_unpin_page(uint64_t iova, int pt_level);
 
 
@@ -65,19 +65,26 @@ static int ase_pt_unpin_page(uint64_t iova, int pt_level);
  */
 int ase_host_memory_pin(void *va, uint64_t *iova, uint64_t length)
 {
-	pthread_mutex_lock(&ase_pt_lock);
+	if (pthread_mutex_lock(&ase_pt_lock)) {
+		ASE_ERR("pthread_mutex_lock could not attain the lock !\n");
+		return -1;
+	}
 
 	// Map buffer length to a level in the page table.
 	int pt_level = ase_pt_length_to_level(length);
 	if (pt_level == -1)
 		return -1;
 
-	int status = ase_pt_pin_page(va, iova, pt_level);
+	int status = ase_pt_pin_page((uint64_t)va, iova, pt_level);
 	if (status == 0) {
-		note_pinned_page(va, *iova, length);
+		note_pinned_page((uint64_t)va, *iova, length);
 	}
 
-	pthread_mutex_unlock(&ase_pt_lock);
+	if (pthread_mutex_unlock(&ase_pt_lock)) {
+		ASE_ERR("pthread_mutex_lock could not unlock !\n");
+		status = -1;
+	}
+
 	return status;
 }
 
@@ -89,7 +96,10 @@ int ase_host_memory_unpin(uint64_t iova, uint64_t length)
 {
 	int status = 0;
 
-	pthread_mutex_lock(&ase_pt_lock);
+	if (pthread_mutex_lock(&ase_pt_lock)) {
+		ASE_ERR("pthread_mutex_lock could not attain lock !\n");
+		return -1;
+	}
 
 	if (ase_pt_root != NULL) {
 		int pt_level = ase_pt_length_to_level(length);
@@ -99,7 +109,10 @@ int ase_host_memory_unpin(uint64_t iova, uint64_t length)
 		status = ase_pt_unpin_page(iova, pt_level);
 	}
 
-	pthread_mutex_unlock(&ase_pt_lock);
+	if (pthread_mutex_unlock(&ase_pt_lock)) {
+		ASE_ERR("pthread_mutex_lock could not attain lock !\n");
+		status = -1;
+	}
 
 	note_unpinned_page(iova, length);
 	return status;
@@ -107,9 +120,23 @@ int ase_host_memory_unpin(uint64_t iova, uint64_t length)
 
 
 /*
+ * Generate an XOR mask that will be used to map between virtual and physical
+ * addresses.
+ */
+static uint64_t ase_host_memory_gen_xor_mask(int pt_level)
+{
+	// CCI-P (and our processors) have 48 bit byte-level addresses.
+	// The mask here inverts all but the high 48th bit. We could legally
+	// invert that bit too, except that it causes problems when simulating
+	// old architectures such as the Broadwell integrated Xeon+FPGA, which
+	// use smaller physical address ranges.
+	return 0x7fffffffffffUL & (~0UL << ase_pt_level_to_bit_idx(pt_level));
+}
+
+/*
  * Translate to simulated physical address space.
  */
-uint64_t ase_host_memory_va_to_pa(void *va, uint64_t length)
+uint64_t ase_host_memory_va_to_pa(uint64_t va, uint64_t length)
 {
 	// We use a simple transformation to generate a fake physical space, merely
 	// inverting bits of the page address. Inverting these bits forces AFUs to
@@ -118,14 +145,13 @@ uint64_t ase_host_memory_va_to_pa(void *va, uint64_t length)
 
 	// Confirm that the top virtual bits are 0. They should be non-zero only
 	// for kernel addresses.  This simulation is user space.
-	if ((uint64_t) va >> 48) {
+	if (va >> 48) {
 		ASE_ERR("Unexpected virtual address (0x" PRIx64 "), high bits set!", va);
 		raise(SIGABRT);
 	}
 
 	int pt_level = ase_pt_length_to_level(length);
-	uint64_t mask = 0xffffffffffffUL & (~0UL << ase_pt_level_to_bit_idx(pt_level));
-	return (uint64_t) va ^ mask;
+	return va ^ ase_host_memory_gen_xor_mask(pt_level);
 }
 
 /*
@@ -134,7 +160,7 @@ uint64_t ase_host_memory_va_to_pa(void *va, uint64_t length)
  * "lock" must call ase_host_memory_unlock() or subsequent calls to
  * ase_host_memory functions will deadlock.
  */
-void *ase_host_memory_pa_to_va(uint64_t pa, bool lock)
+uint64_t ase_host_memory_pa_to_va(uint64_t pa, bool lock)
 {
 	// The inverse of ase_host_memory_va_to_pa.
 	if (pa >> 48) {
@@ -142,7 +168,10 @@ void *ase_host_memory_pa_to_va(uint64_t pa, bool lock)
 		raise(SIGABRT);
 	}
 
-	pthread_mutex_lock(&ase_pt_lock);
+	if (pthread_mutex_lock(&ase_pt_lock)) {
+		ASE_ERR("pthread_mutex_lock could not attain lock !\n");
+		return 0;
+	}
 
 	// Is the page pinned?
 	int pt_level;
@@ -150,21 +179,24 @@ void *ase_host_memory_pa_to_va(uint64_t pa, bool lock)
 	found_addr = ase_pt_check_addr(pa, &pt_level);
 
 	if (!lock) {
-		pthread_mutex_unlock(&ase_pt_lock);
+		if (pthread_mutex_unlock(&ase_pt_lock)) {
+			ASE_ERR("pthread_mutex_lock could not unlock !\n");
+			return 0;
+		}
 	}
 
 	if (!found_addr) {
-		return NULL;
+		return 0;
 	}
 
-	uint64_t mask = 0xffffffffffffUL & (~0UL << ase_pt_level_to_bit_idx(pt_level));
-	return (void *) (pa ^ mask);
+	return pa ^ ase_host_memory_gen_xor_mask(pt_level);
 }
 
 
 void ase_host_memory_unlock(void)
 {
-	pthread_mutex_unlock(&ase_pt_lock);
+	if (pthread_mutex_unlock(&ase_pt_lock))
+		ASE_ERR("pthread_mutex_lock could not unlock !\n");
 }
 
 
@@ -180,12 +212,14 @@ int ase_host_memory_initialize(void)
 
 void ase_host_memory_terminate(void)
 {
-	pthread_mutex_lock(&ase_pt_lock);
+	if (pthread_mutex_lock(&ase_pt_lock))
+		ASE_ERR("pthread_mutex_lock could not attain the lock !\n");
 
 	ase_pt_delete_tree(ase_pt_root, 3);
 	ase_pt_root = NULL;
 
-	pthread_mutex_unlock(&ase_pt_lock);
+	if (pthread_mutex_unlock(&ase_pt_lock))
+		ASE_ERR("pthread_mutex_lock could not unlock !\n");
 }
 
 
@@ -357,14 +391,14 @@ static bool ase_pt_check_addr(uint64_t iova, int *pt_level)
 	return false;
 }
 
-static int ase_pt_pin_page(void *va, uint64_t *iova, int pt_level)
+static int ase_pt_pin_page(uint64_t va, uint64_t *iova, int pt_level)
 {
 	assert((pt_level >= 0) && (pt_level < 3));
 
 	// Virtual to physical mapping is just an XOR
 	*iova = ase_host_memory_va_to_pa(va, 4096 * (1UL << (9 * pt_level)));
 
-	ASE_MSG("Add pinned page VA %p, IOVA 0x%" PRIx64 ", level %d\n", va, *iova, pt_level);
+	ASE_MSG("Add pinned page VA 0x%" PRIx64 ", IOVA 0x%" PRIx64 ", level %d\n", va, *iova, pt_level);
 
 	int idx;
 	int level = 3;
@@ -390,7 +424,7 @@ static int ase_pt_pin_page(void *va, uint64_t *iova, int pt_level)
 				pt[idx] = mmap(NULL, 4096, PROT_READ | PROT_WRITE,
 							   MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 			} else {
-				pt[idx] = malloc(64);
+				pt[idx] = ase_malloc(64);
 			}
 			if ((pt[idx] == NULL) || (pt[idx] == MAP_FAILED)) {
 				ASE_ERR("Simulated page table out of memory!\n");
@@ -424,7 +458,7 @@ static int ase_pt_pin_page(void *va, uint64_t *iova, int pt_level)
 	}
 
 	if (ase_pt_enable_debug) {
-		printf("\nASE simulated page table (pinned VA %p, IOVA 0x%" PRIx64 "):\n",
+		printf("\nASE simulated page table (pinned VA 0x%" PRIx64 ", IOVA 0x%" PRIx64 "):\n",
 		       va, *iova);
 		ase_pt_dump(ase_pt_root, 0, 3);
 		printf("\n");

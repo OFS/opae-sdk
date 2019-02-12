@@ -496,7 +496,7 @@ extern "C" {
 	void send_simkill(int);
 	void send_swreset(void);
 	// Note pinned/unpinned pages
-	void note_pinned_page(void *, uint64_t, uint64_t);
+	void note_pinned_page(uint64_t, uint64_t, uint64_t);
 	void note_unpinned_page(uint64_t, uint64_t);
 	// Shared memory alloc/dealloc operations
 	void allocate_buffer(struct buffer_t *, uint64_t *);
@@ -527,7 +527,7 @@ extern "C" {
 	// Threaded watch processes
 	void *mmio_response_watcher();
 	// ASE-special malloc
-	char *ase_malloc(size_t);
+	void *ase_malloc(size_t);
 	void *umsg_watcher();
 	// void *intr_request_watcher();
 	void register_signal(int, void *);
@@ -729,7 +729,7 @@ void count_error_flag_pong(int);
 void update_glbl_dealloc(int);
 
 // Redeclaring ase_malloc, following maintainer-check issues !!! Do Not Edit !!!
-char *ase_malloc(size_t);
+void *ase_malloc(size_t);
 
 // Ready filepath
 extern char *ase_ready_filepath;
@@ -800,5 +800,17 @@ extern struct ase_capability_t ase_capability;
 #undef  ASE_ENABLE_MMIO512
 #endif
 // ------------------------------------------ //
+
+static inline int is_directory(const char *path)
+{
+	struct stat path_stat;
+
+	/* handle error, follows the symbolic link */
+	if (stat(path, &path_stat) != 0) {
+		return 0;
+	}
+
+	return S_ISDIR(path_stat.st_mode);
+}
 
 #endif	// End _ASE_COMMON_H_

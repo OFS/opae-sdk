@@ -23,10 +23,9 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif // HAVE_CONFIG_H
+#endif
 
 #include "opae/access.h"
 #include "opae/utils.h"
@@ -410,6 +409,8 @@ fpga_result __FPGA_API__ fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 	result = handle_check_and_lock(_handle);
 	if (result)
 		return result;
+	if (!ioaddr)
+		return FPGA_INVALID_PARAM;
 
 	wm = wsid_find(_handle->wsid_root, wsid);
 	if (!wm) {

@@ -49,7 +49,7 @@ endif(EXISTS ${GIT_EXECUTABLE})
 ############################################################################
 
 set(INTEL_FPGA_API_VER_MAJOR 1  CACHE STRING "Intel FPGA API major version")
-set(INTEL_FPGA_API_VER_MINOR 1  CACHE STRING "Intel FPGA API minor version")
+set(INTEL_FPGA_API_VER_MINOR 3  CACHE STRING "Intel FPGA API minor version")
 set(INTEL_FPGA_API_VER_REV   0  CACHE STRING "Intel FPGA API revision version")
 set(INTEL_FPGA_API_VERSION   ${INTEL_FPGA_API_VER_MAJOR}.${INTEL_FPGA_API_VER_MINOR}.${INTEL_FPGA_API_VER_REV})
 set(INTEL_FPGA_API_HASH      ${GIT_COMMIT_HASH})
@@ -104,8 +104,6 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib CACHE PATH "Build directory" FOR
 
 set(COMMON_DIR        ${CMAKE_CURRENT_SOURCE_DIR}/common)
 set(OPAE_INCLUDE_DIR  ${COMMON_DIR}/include CACHE PATH "Path to include directory" FORCE)
-add_custom_target(copy-common-opae-header-files ALL
-  COMMAND ${CMAKE_COMMAND} -E copy_directory ${OPAE_INCLUDE_DIR} ${CMAKE_BINARY_DIR}/include)
 
 # Install common header files
 install(DIRECTORY common/include/opae
@@ -132,6 +130,7 @@ endif()
 ############################################################################
 
 add_subdirectory(safe_string)
+add_subdirectory(libbitstream)
 
 option(BUILD_LIBOPAE_C "Enable building of libopae-c. This is the default OPAE API implementation." ON)
 mark_as_advanced(BUILD_LIBOPAE_C)
@@ -184,10 +183,17 @@ mark_as_advanced(BUILD_TESTS)
 option(BUILD_ASE_TESTS "Enable ASE test compilation." OFF)
 mark_as_advanced(BUILD_ASE_TESTS)
 
+option(ENABLE_MOCK "Enable mock driver for testing." ON)
+mark_as_advanced(ENABLE_MOCK)
+
 if(BUILD_TESTS OR BUILD_ASE_TESTS)
   enable_testing()
   include(CTest)
-  add_subdirectory(tests)
+  if (BUILD_ASE_TESTS)
+    add_subdirectory(tests)
+  else(BUILD_ASE_TESTS)
+    add_subdirectory(testing)
+  endif(BUILD_ASE_TESTS)
 endif()
 
 ############################################################################
@@ -206,6 +212,9 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 option(HASH_ARCHIVES "Add git commit hash to archive names" OFF)
 mark_as_advanced(HASH_ARCHIVES)
 
+if(CPACK_GENERATOR)
+  set(CMAKE_INSTALL_PREFIX "/usr")
+endif()
 set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Open Programmable Acceleration Engine")
 SET(CPACK_PACKAGE_VENDOR "Intel Corporation")
@@ -225,13 +234,60 @@ endif()
 
 if("${CPACK_GENERATOR}" STREQUAL "DEB")
 include(packaging)
+
+#list of components to be included in the package
+set(CPACK_COMPONENTS_ALL 
+	toolfpgaconf
+	toolfpgainfo 
+	toolfpgaport
+	toolfpgametrics
+	toolfpgadiag 
+	toolfpga_dma_test 
+	toolfpgabist 
+	toolfpgadiagapps 
+	toolpackager 
+	jsonschema 
+	opaecase 
+	asertl 
+	asescripts 
+	aseextra 
+	asesw 
+	libopaeheaders 
+	dochtml 
+	doclatex 
+	docrtf 
+	docman 
+	docxml 
+	platform 
+	samplesrc 
+	safestrlib 
+	safestrheaders 
+	opaeclib 
+	opaecxxcorelib 
+	opaetoolslibs 
+	opaecxxutils 
+	opaecxxlib 
+	opaecxxnlb 
+	toolfpgaconf 
+	toolbist_app 
+	toolbist 
+	toolfpgad
+	toolfpgad_api
+	toolfpgad_xfpga
+	toolfpgad_vc
+	)
+
 # Component definition
 define_pkg(tools
   COMPONENTS
   toolfpgad
+  toolfpgad_api
+  toolfpgad_xfpga
+  toolfpgad_vc
   toolfpgaconf
   toolfpgainfo
   toolfpgaport
+  toolfpgametrics
   GROUP "tools"
   DISPLAY_NAME "opae-tools"
   DESCRIPTION "OPAE base tool binaries"
@@ -248,12 +304,13 @@ define_pkg(tools
   toolfpgabist
   toolfpga_dma_test
   toolbist_app
-  toolfpgadiagapps
+  toolbist
   toolfpgaflash
+  toolfpgadiagapps
   toolpachssiconfig
+  opaecxxutils
   toolpackager
   jsonschema
-  opaecxxutils
   opaecxxlib
   opaecxxnlb
   hssiiolib
@@ -287,6 +344,7 @@ define_pkg(devel
   docxml
   platform
   samplesrc
+  samplebin
   safestrlib
   safestrheaders
   GROUP "devel"
@@ -299,6 +357,7 @@ define_pkg(devel
   COMPONENTS
   opaeclib
   opaecxxcorelib
+  opaetoolslibs
   GROUP "libs"
   DISPLAY_NAME "opae-libs"
   DESCRIPTION "OPAE runtime"
@@ -448,3 +507,6 @@ else()
   )
 endif()
 include(CPack)
+
+configure_file("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"
+               "${PROJECT_BINARY_DIR}/include/config.h")

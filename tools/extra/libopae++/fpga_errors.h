@@ -28,6 +28,7 @@
 #include <exception>
 #include <iostream>
 #include <opae/types_enum.h>
+#include <opae/cxx/core/errors.h>
 
 namespace intel
 {
@@ -47,13 +48,14 @@ public:
         if(this != &other) err_ = other.err_;
         return *this;
     }
-    static uint64_t read(uint8_t socket_id);
-    static uint64_t clear(uint8_t socket_id, uint64_t errs);
+    static uint64_t read(opae::fpga::types::token::ptr_t tok);
+    static uint64_t clear(opae::fpga::types::token::ptr_t tok, uint64_t errs);
 
     uint64_t value() const { return err_; }
     friend std::ostream & operator<<(std::ostream & str, const port_error &err);
 private:
     uint64_t err_;
+    opae::fpga::types::error::ptr_t port_err;
 };
 
 class fpga_error : public std::exception

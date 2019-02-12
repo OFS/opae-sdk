@@ -32,17 +32,15 @@
 #include "option_map.h"
 #include "fpga_resource.h"
 #include "log.h"
-#include "dma_buffer.h"
 #include "perf_counters.h"
-#include "mmio.h"
-#include "fpga_errors.h"
+#include <opae/cxx/core/shared_buffer.h>
 
 namespace intel
 {
 namespace fpga
 {
 
-class accelerator : public fpga_resource, public mmio
+class accelerator : public fpga_resource
 {
 public:
     virtual ~accelerator() { close(); }
@@ -81,7 +79,7 @@ public:
 
     virtual void release();
 
-    virtual dma_buffer::ptr_t allocate_buffer(std::size_t size);
+    virtual opae::fpga::types::shared_buffer::ptr_t allocate_buffer(std::size_t size);
 
     virtual uint64_t umsg_num();
 
@@ -89,9 +87,9 @@ public:
 
     virtual uint64_t * umsg_get_ptr();
 
-    fpga_cache_counters cache_counters() const;
+    fpga_cache_counters cache_counters();
 
-    fpga_fabric_counters fabric_counters() const;
+    fpga_fabric_counters fabric_counters();
 
     uint64_t port_errors() const { return port_errors_; }
 
@@ -103,13 +101,11 @@ protected:
 
 private:
 
-    accelerator(shared_token token, fpga_properties props,
-         const std::string &par_sysfs, fpga_resource::ptr_t parent);
+    accelerator(opae::fpga::types::token::ptr_t token, opae::fpga::types::properties::ptr_t props, opae::fpga::types::token::ptr_t parent);
 
     status_t status_;
-    std::string parent_sysfs_;
     uint8_t * mmio_base_;
-    fpga_event::ptr_t error_event_;
+    opae::fpga::types::event::ptr_t error_event_;
     std::atomic<uint64_t> port_errors_;
     bool throw_errors_;
 };

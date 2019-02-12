@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,69 +24,23 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-/*
- * fpgad: FPGA system daemon
- *
- * System deamon to
- *
- * - monitor FPGA status (errors, power, thermal)
- * - relay error/power/thermal events to FPGA API applications
- */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-#include "errtable.h"
-#include "srv.h"
-#include "ap6.h"
-#include "config_int.h"
-#include "log.h"
-#include "ap_event.h"
-#include <getopt.h>
+#include <signal.h>
+#include "fpgad.h"
+#include "monitor_thread.h"
+#include "event_dispatcher_thread.h"
+#include "events_api_thread.h"
 
-#include "safe_string/safe_string.h"
+#ifdef LOG
+#undef LOG
+#endif
+#define LOG(format, ...) \
+log_printf("main: " format, ##__VA_ARGS__)
 
-#define OPT_STR ":hdD:l:p:m:s:n:"
-
-struct option longopts[] = {
-	{ "help",           no_argument,       NULL, 'h' },
-	{ "daemon",         no_argument,       NULL, 'd' },
-	{ "directory",      required_argument, NULL, 'D' },
-	{ "logfile",        required_argument, NULL, 'l' },
-	{ "pidfile",        required_argument, NULL, 'p' },
-	{ "umask",          required_argument, NULL, 'm' },
-	{ "socket",         required_argument, NULL, 's' },
-	{ "null-bitstream", required_argument, NULL, 'n' },
-
-	{ 0, 0, 0, 0 }
-};
-
-void show_help(void)
-{
-	FILE *fp = stdout;
-
-	fprintf(fp, "Usage: fpgad <options>\n");
-	fprintf(fp, "\n");
-	fprintf(fp, "\t-d,--daemon                 run as daemon process.\n");
-	fprintf(fp, "\t-D,--directory <dir>        the working directory for daemon mode [/tmp].\n");
-	fprintf(fp, "\t-l,--logfile <file>         the log file for daemon mode [/tmp/fpgad.log].\n");
-	fprintf(fp, "\t-p,--pidfile <file>         the pid file for daemon mode [/tmp/fpgad.pid].\n");
-	fprintf(fp, "\t-m,--umask <mode>           the file mode for daemon mode [0].\n");
-	fprintf(fp, "\t-s,--socket <sock>          the unix domain socket [/tmp/fpga_event_socket].\n");
-	fprintf(fp, "\t-n,--null-bitstream <file>  NULL bitstream (for AP6 handling, may be\n"
-		    "\t                            given multiple times).\n");
-}
-
-struct config config = {
-	.verbosity = 0,
-	.poll_interval_usec = 100 * 1000,
-	.daemon = 0,
-	.directory = "/tmp",
-	.logfile = "/tmp/fpgad.log",
-	.pidfile = "/tmp/fpgad.pid",
-	.filemode = 0,
-	.running = true,
-	.socket = "/tmp/fpga_event_socket",
-	.null_gbs = {0},
-	.num_null_gbs = 0,
-};
+struct fpgad_config global_config;
 
 void sig_handler(int sig, siginfo_t *info, void *unused)
 {
@@ -94,150 +48,67 @@ void sig_handler(int sig, siginfo_t *info, void *unused)
 	UNUSED_PARAM(unused);
 	switch (sig) {
 	case SIGINT:
+		// Process interrupted.
+		LOG("Got SIGINT. Exiting.\n");
+		global_config.running = false;
+		break;
+	case SIGTERM:
 		// Process terminated.
-		dlog("Got SIGINT. Exiting.\n");
-		config.running = false;
+		LOG("Got SIGTERM. Exiting.\n");
+		global_config.running = false;
 		break;
 	}
 }
 
 int main(int argc, char *argv[])
 {
-	int getopt_ret;
-	int option_index;
 	int res;
-	int i;
-	int j;
-	pthread_t logger;
-	pthread_t server;
-	pthread_t apevent;
-	pthread_t ap6[MAX_SOCKETS]; /* one per socket */
-	struct ap6_context context[MAX_SOCKETS];
 
-	fLog = stdout;
+	memset_s(&global_config, sizeof(global_config), 0);
 
-	while (-1 != (getopt_ret = getopt_long(argc, argv, OPT_STR, longopts, &option_index))) {
-		const char *tmp_optarg = optarg;
+	global_config.poll_interval_usec = 100 * 1000;
+	global_config.running = true;
+	global_config.api_socket = "/tmp/fpga_event_socket";
+	global_config.num_null_gbs = 0;
 
-		if (optarg && ('=' == *tmp_optarg))
-			++tmp_optarg;
+	log_set(stdout);
 
-		if (!optarg && (NULL != argv[optind]) &&
-						('-' != argv[optind][0]))
-			tmp_optarg = argv[optind++];
-
-		switch (getopt_ret) {
-		case 'h':
-			show_help();
-			return 0;
-			break;
-
-		case 'd':
-			config.daemon = 1;
-			dlog("daemon requested\n");
-			break;
-
-		case 'D':
-			if (tmp_optarg) {
-				config.directory = tmp_optarg;
-				dlog("daemon directory is %s\n", config.directory);
-			} else {
-				fprintf(stderr, "missing directory parameter.\n");
-				return 1;
-			}
-			break;
-
-		case 'l':
-			if (tmp_optarg) {
-				config.logfile = tmp_optarg;
-				dlog("daemon log file is %s\n", config.logfile);
-			} else {
-				fprintf(stderr, "missing logfile parameter.\n");
-				return 1;
-			}
-			break;
-
-		case 'p':
-			if (tmp_optarg) {
-				config.pidfile = tmp_optarg;
-				dlog("daemon pid file is %s\n", config.pidfile);
-			} else {
-				fprintf(stderr, "missing pidfile parameter.\n");
-				return 1;
-			}
-			break;
-
-		case 'm':
-			if (tmp_optarg) {
-				config.filemode = (mode_t) strtoul(tmp_optarg, NULL, 0);
-				dlog("daemon umask is 0x%x\n", config.filemode);
-			} else {
-				fprintf(stderr, "missing filemode parameter.\n");
-				return 1;
-			}
-			break;
-
-		case 'n':
-			if (tmp_optarg) {
-				if (config.num_null_gbs < MAX_NULL_GBS) {
-					config.null_gbs[config.num_null_gbs++] = tmp_optarg;
-					dlog("registering NULL bitstream \"%s\"\n", tmp_optarg);
-					/* TODO: check NULL bitstream
-					 * compatibility */
-				} else {
-					dlog("maximum number of NULL bitstreams exceeded, ignoring -n option\n");
-				}
-			} else {
-				fprintf(stderr, "missing bitstream parameter.\n");
-				return 1;
-			}
-			break;
-
-		case 's':
-			if (tmp_optarg) {
-				config.socket = tmp_optarg;
-				dlog("daemon socket is %s\n", config.socket);
-			} else {
-				fprintf(stderr, "missing socket parameter.\n");
-				return 1;
-			}
-			break;
-
-		case ':':
-			dlog("Missing option argument.\n");
-			return 1;
-			break;
-
-		case '?':
-		default:
-			dlog("Invalid command option.\n");
-			return 1;
-			break;
-
-		}
-
+	res = cmd_parse_args(&global_config, argc, argv);
+	if (res != 0) {
+		if (res == -2)
+			res = 0;
+		else
+			LOG("error parsing command line.\n");
+		goto out_destroy;
 	}
 
-	if (config.daemon) {
+	cmd_canonicalize_paths(&global_config);
+
+	if (global_config.daemon) {
 		FILE *fp;
 
-		/* daemonize also registers sig_handler for SIGINT */
-		res = daemonize(sig_handler, config.filemode, config.directory);
+		res = daemonize(sig_handler,
+				global_config.filemode,
+				global_config.directory);
 		if (res != 0) {
-			dlog("daemonize failed: %s\n", strerror(res));
-			return 1;
+			LOG("daemonize failed: %s\n", strerror(res));
+			goto out_destroy;
 		}
 
-		fp = fopen(config.pidfile, "w");
+		fp = fopen(global_config.pidfile, "w");
 		if (NULL == fp) {
-			return 1;
+			LOG("failed to open pid file\n");
+			res = 1;
+			goto out_destroy;
 		}
 		fprintf(fp, "%d\n", getpid());
 		fclose(fp);
 
-		if (open_log(config.logfile) != 0)
-			fprintf(stderr, "failed to open logfile\n");
-
+		if (log_open(global_config.logfile) < 0) {
+			LOG("failed to open log file\n");
+			res = 1;
+			goto out_destroy;
+		}
 
 	} else {
 		struct sigaction sa;
@@ -248,71 +119,70 @@ int main(int argc, char *argv[])
 
 		res = sigaction(SIGINT, &sa, NULL);
 		if (res < 0) {
-			dlog("failed to register signal handler.\n");
-			return 1;
+			LOG("failed to register SIGINT handler.\n");
+			goto out_destroy;
 		}
 
-	}
-
-	for (i = 0; i < MAX_SOCKETS; i++) {
-		sem_init(&ap6_sem[i], 0, 0);
-
-		context[i].config = &config;
-		context[i].socket = i;
-		res = pthread_create(&ap6[i], NULL, ap6_thread, &context[i]);
-		if (res) {
-			dlog("failed to create AP6 thread #%i.\n", i);
-			config.running = false;
-			for (j = 0; j < i; j++)
-				pthread_join(ap6[j], NULL);
-			return 1;
+		res = sigaction(SIGTERM, &sa, NULL);
+		if (res < 0) {
+			LOG("failed to register SIGTERM handler.\n");
+			goto out_destroy;
 		}
 	}
 
-	res = pthread_create(&logger, NULL, logger_thread, &config);
+	res = mon_enumerate(&global_config);
 	if (res) {
-		dlog("failed to create logger thread.\n");
-		config.running = false;
-		for (i = 0; i < MAX_SOCKETS; i++)
-			pthread_join(ap6[i], NULL);
-		return 1;
+		LOG("OPAE device enumeration failed\n");
+		goto out_destroy;
 	}
 
-	res = pthread_create(&server, NULL, server_thread, &config);
+	res = pthread_create(&global_config.event_dispatcher_thr,
+			     NULL,
+			     event_dispatcher_thread,
+			     &event_dispatcher_config);
 	if (res) {
-		dlog("failed to create server thread.\n");
-		config.running = false;
-		for (i = 0; i < MAX_SOCKETS; i++)
-			pthread_join(ap6[i], NULL);
-		pthread_join(logger, NULL);
-		return 1;
+		LOG("failed to create event_dispatcher_thread\n");
+		global_config.running = false;
+		goto out_destroy;
 	}
 
-	// AP event
-	res = pthread_create(&apevent, NULL, apevent_thread, &config);
+	while (!evt_dispatcher_is_ready())
+		usleep(1);
+
+	res = pthread_create(&global_config.monitor_thr,
+			     NULL,
+			     monitor_thread,
+			     &monitor_config);
 	if (res) {
-		dlog("failed to create apevent thread.\n");
-		config.running = false;
-		for (i = 0; i < MAX_SOCKETS; i++)\
-			pthread_join(ap6[i], NULL);
-		pthread_join(logger, NULL);
-		pthread_join(server, NULL);
-		return 1;
+		LOG("failed to create monitor_thread\n");
+		global_config.running = false;
+		goto out_stop_event_dispatcher;
 	}
 
-	pthread_join(logger, NULL);
-	pthread_join(server, NULL);
-	pthread_join(apevent, NULL);
+	res = pthread_create(&global_config.events_api_thr,
+			     NULL,
+			     events_api_thread,
+			     &events_api_config);
+	if (res) {
+		LOG("failed to create events_api_thread\n");
+		global_config.running = false;
+		goto out_stop_monitor;
+	}
 
-	for (i = 0; i < MAX_SOCKETS; i++)
-		pthread_join(ap6[i], NULL);
-
-	if (stdout != fLog)
-		close_log();
-
-	if (config.daemon)
-		remove(config.pidfile);
-
-	return 0;
+	if (pthread_join(global_config.events_api_thr, NULL)) {
+		LOG("failed to join events_api_thread\n");
+	}
+out_stop_monitor:
+	if (pthread_join(global_config.monitor_thr, NULL)) {
+		LOG("failed to join monitor_thread\n");
+	}
+out_stop_event_dispatcher:
+	if (pthread_join(global_config.event_dispatcher_thr, NULL)) {
+		LOG("failed to join event_dispatcher_thread\n");
+	}
+out_destroy:
+	mon_destroy();
+	cmd_destroy(&global_config);
+	log_close();
+	return res;
 }
-

@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -39,27 +39,23 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <uuid/uuid.h>
-#include <opae/fpga.h>
-#include <safe_string/safe_string.h>
-#include <stdlib.h>
 #include <getopt.h>
 #include <poll.h>
 #include <errno.h>
-#include <stdbool.h>
 #include <sys/stat.h>
+#include <pthread.h>
 
-#include "opae/fpga.h"
-#include "types_int.h"
-#include "common_int.h"
+#include <opae/fpga.h>
+#include <safe_string/safe_string.h>
 
 int usleep(unsigned);
 
 #define FME_SYSFS_INJECT_ERROR "errors/inject_error"
 
-#define ON_ERR_GOTO(res, label, desc)                    \
+#define ON_ERR_GOTO(res, label, desc)              \
 	do {                                       \
 		if ((res) != FPGA_OK) {            \
 			print_err((desc), (res));  \
@@ -91,44 +87,71 @@ struct ras_inject_error {
 
 // Global configuration of bus, set during parse_args()
 
-struct config{
+struct events_config {
 	struct target {
 		int bus;
 	} target;
 }
 
-config = {
+events_config = {
 	.target = {
 		.bus = -1
 	}
 };
 
-static fpga_result inject_ras_fatal_error(fpga_token token, uint8_t err)
+fpga_result inject_ras_fatal_error(fpga_token fme_token, uint8_t err)
 {
-	struct _fpga_token  *_token           = NULL;
-	struct ras_inject_error  inj_error    = { {0} };
-	char sysfs_path[SYSFS_PATH_MAX]       = {0};
-	fpga_result result                    = FPGA_OK;
+	fpga_result             res1       = FPGA_OK;
+	fpga_result             res2       = FPGA_OK;
+	fpga_handle             fme_handle = NULL;
+	struct ras_inject_error inj_error  = { {0} };
+	fpga_object             inj_err_object;
 
-	_token = (struct _fpga_token *)token;
-	if (_token == NULL) {
-		printf("Token not found\n");
-		return FPGA_INVALID_PARAM;
+	res1 = fpgaOpen(fme_token, &fme_handle, FPGA_OPEN_SHARED);
+	if (res1 != FPGA_OK) {
+		OPAE_ERR("Failed to open FPGA");
+		return res1;
 	}
 
-	snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s",
-			_token->sysfspath,
-			FME_SYSFS_INJECT_ERROR);
+	res1 = fpgaHandleGetObject(fme_handle, FME_SYSFS_INJECT_ERROR, &inj_err_object, 0);
+	ON_ERR_GOTO(res1, out_close, "Failed to get Handle Object");
 
+	// Inject fatal error
 	inj_error.fatal_error = err;
 
-	result = sysfs_write_u64(sysfs_path, inj_error.csr);
-	if (result != FPGA_OK) {
-		printf("Failed to write RAS inject errors\n");
-		return result;
+	res1 = fpgaObjectWrite64(inj_err_object, inj_error.csr, 0);
+	ON_ERR_GOTO(res1, out_destroy_obj, "Failed to Read Object");
+
+out_destroy_obj:
+	res2 = fpgaDestroyObject(&inj_err_object);
+	ON_ERR_GOTO(res2, out_close, "Failed to Destroy Object");
+out_close:
+	res2 = fpgaClose(fme_handle);
+	if (res2 != FPGA_OK) {
+		OPAE_ERR("Failed to close FPGA");
 	}
 
-	return result;
+	return res1 != FPGA_OK ? res1 : res2;
+}
+
+void * error_thread(void *arg)
+{
+	fpga_token token = (fpga_token) arg;
+	fpga_result res;
+
+	usleep(5000000);
+	printf("injecting error\n");
+	res = inject_ras_fatal_error(token, 1);
+	if (res != FPGA_OK)
+		print_err("setting inject error register", res);
+
+	usleep(5000000);
+	printf("clearing error\n");
+	res = inject_ras_fatal_error(token, 0);
+	if (res != FPGA_OK)
+		print_err("clearing inject error register", res);
+
+	return NULL;
 }
 
 /*
@@ -158,7 +181,7 @@ fpga_result parse_args(int argc, char *argv[])
 		if (NULL == tmp_optarg)
 			return FPGA_EXCEPTION;
 		endptr = NULL;
-		config.target.bus = (int) strtoul(tmp_optarg, &endptr, 0);
+		events_config.target.bus = (int) strtoul(tmp_optarg, &endptr, 0);
 		if (endptr != tmp_optarg + strnlen(tmp_optarg, 100)) {
 			fprintf(stderr, "invalid bus: %s\n", tmp_optarg);
 			return FPGA_EXCEPTION;
@@ -174,23 +197,21 @@ fpga_result parse_args(int argc, char *argv[])
 	return FPGA_OK;
 }
 
-
-int find_fpga(fpga_token *fpga, uint32_t *num_matches)
+fpga_result find_fpga(fpga_token *fpga, uint32_t *num_matches)
 {
 	fpga_properties filter = NULL;
-	fpga_result 	res;
-        fpga_result     dres;
+	fpga_result res        = FPGA_OK;
+	fpga_result dres       = FPGA_OK;
 
-	/* Get number of FPGAs in system*/
+	/* Get number of FPGAs in system */
 	res = fpgaGetProperties(NULL, &filter);
 	ON_ERR_GOTO(res, out, "creating properties object");
 
 	res = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
 	ON_ERR_GOTO(res, out_destroy, "setting interface ID");
 
-
-	if (-1 != config.target.bus) {
-		res = fpgaPropertiesSetBus(filter, config.target.bus);
+	if (-1 != events_config.target.bus) {
+		res = fpgaPropertiesSetBus(filter, events_config.target.bus);
 		ON_ERR_GOTO(res, out_destroy, "setting bus");
 	}
 		
@@ -200,148 +221,130 @@ int find_fpga(fpga_token *fpga, uint32_t *num_matches)
 out_destroy:
 	dres = fpgaDestroyProperties(&filter);
 	ON_ERR_GOTO(dres, out, "destroying properties object");
-	
 out:
-   return (res == FPGA_OK) ? dres: res;
-
+	return (res == FPGA_OK) ? dres: res;
 }
 
 
-/* functions to get the bus number when there are multiple buses */
-struct bdf_info {
-	uint8_t bus;
-};
+/* function to get the bus number when there are multiple buses */
+fpga_result get_bus(fpga_token tok, uint8_t *bus)
+{
+	fpga_result res1 = FPGA_OK;
+	fpga_result res2 = FPGA_OK;
+	fpga_properties props = NULL;
 
-fpga_result get_bus_info(fpga_token tok, struct bdf_info *finfo){
-	fpga_result res = FPGA_OK;
-	fpga_properties props;
-	res = fpgaGetProperties(tok, &props);
-	ON_ERR_GOTO(res, out, "reading properties from Token");
+	res1 = fpgaGetProperties(tok, &props);
+	ON_ERR_GOTO(res1, out, "reading properties from Token");
 
-	res = fpgaPropertiesGetBus(props, &finfo->bus);
-	ON_ERR_GOTO(res, out_destroy, "Reading bus from properties");
+	res1 = fpgaPropertiesGetBus(props, bus);
+	ON_ERR_GOTO(res1, out_destroy, "Reading bus from properties");
 	
 out_destroy:
-	res = fpgaDestroyProperties(&props);
-	ON_ERR_GOTO(res, out, "fpgaDestroyProps");
-
+	res2 = fpgaDestroyProperties(&props);
+	ON_ERR_GOTO(res2, out, "fpgaDestroyProps");
 out:
-	return res;
+	return res1 != FPGA_OK ? res1 : res2;
 }
-
-void print_bus_info(struct bdf_info *info){
-	printf("Running on bus 0x%02X. \n", info->bus);
-}
-
-
-
-
-
 
 int main(int argc, char *argv[])
 {
-	fpga_token         fpga_device_token;
-	fpga_handle        fpga_device_handle;
+	fpga_token         fpga_device_token = NULL;
+	fpga_handle        fpga_device_handle = NULL;
 	uint32_t           num_matches = 1;
-	fpga_result res;
-	fpga_event_handle eh;
-	uint64_t count = 0;
-	pid_t pid;
-	struct pollfd pfd;
-	int timeout = 10000;
-	int poll_ret = 0;
-	ssize_t bytes_read = 0;
-	struct bdf_info info;
+	fpga_result        res1 = FPGA_OK;
+	fpga_result        res2 = FPGA_OK;
+	fpga_event_handle  eh;
+	uint64_t           count = 0;
+	int                res;
+	struct pollfd      pfd;
+	int                timeout = 10000;
+	int                poll_ret = 0;
+	ssize_t            bytes_read = 0;
+	uint8_t            bus = 0xff;
+	pthread_t          errthr;
 
-	res = parse_args(argc, argv);
-	ON_ERR_GOTO(res, out_exit, "parsing arguments");
+	res1 = parse_args(argc, argv);
+	ON_ERR_GOTO(res1, out_exit, "parsing arguments");
 
-
-	res = find_fpga(&fpga_device_token, &num_matches);
-	ON_ERR_GOTO(res, out_exit, "finding FPGA accelerator");
+	res1 = find_fpga(&fpga_device_token, &num_matches);
+	ON_ERR_GOTO(res1, out_exit, "finding FPGA accelerator");
 
 	if (num_matches < 1) {
-		fprintf(stderr, "No matches for bus number provided \n");
-		res = FPGA_NOT_FOUND;
+		fprintf(stderr, "No matches for bus number provided.\n");
+		res1 = FPGA_NOT_FOUND;
 		goto out_exit;
 	}
+
+	res1 = get_bus(fpga_device_token, &bus);
+	ON_ERR_GOTO(res1, out_destroy_tok, "getting bus num");	
 
 	if (num_matches > 1) {
 		fprintf(stderr, "Found more than one suitable slot. ");
-		res = get_bus_info(fpga_device_token, &info);
-		ON_ERR_GOTO(res, out_exit, "getting bus num");	
 	}
        
-	res = get_bus_info(fpga_device_token, &info); 
-        print_bus_info(&info);
+	printf("Running on bus 0x%02x.\n", bus);
 
-	pid = fork();
-	if (pid == -1) {
-		printf("Could not create a thread to inject error");
-		goto out_exit;
-	}
-	if (pid == 0) {
-		usleep(5000000);
-		res = inject_ras_fatal_error(fpga_device_token, 1);
-		ON_ERR_GOTO(res, out_destroy_tok, "setting inject error register");
+	res1 = fpgaOpen(fpga_device_token, &fpga_device_handle, FPGA_OPEN_SHARED);
+	ON_ERR_GOTO(res1, out_destroy_tok, "opening accelerator");
 
-		res = inject_ras_fatal_error(fpga_device_token, 0);
-		ON_ERR_GOTO(res, out_destroy_tok, "unsetting inject error register");
+	res1 = fpgaCreateEventHandle(&eh);
+	ON_ERR_GOTO(res1, out_close, "creating event handle");
 
-		goto out_destroy_tok;
-	} else {
-		res = fpgaOpen(fpga_device_token, &fpga_device_handle, FPGA_OPEN_SHARED);
-		ON_ERR_GOTO(res, out_destroy_tok, "opening accelerator");
+	res1 = fpgaRegisterEvent(fpga_device_handle, FPGA_EVENT_ERROR, eh, 0);
+	ON_ERR_GOTO(res1, out_destroy_eh, "registering an FME event");
 
-		res = fpgaCreateEventHandle(&eh);
-		ON_ERR_GOTO(res, out_close, "creating event handle");
-
-		res = fpgaRegisterEvent(fpga_device_handle, FPGA_EVENT_ERROR, eh, 0);
-		ON_ERR_GOTO(res, out_destroy_eh, "registering an FME event");
-
-		printf("Waiting for interrupts now...\n");
+	printf("Waiting for interrupts now...\n");
 	
-
-		res = fpgaGetOSObjectFromEventHandle(eh, &pfd.fd);
-		ON_ERR_GOTO(res, out_destroy_eh, "getting file descriptor");
-
-		pfd.events = POLLIN;
-		poll_ret = poll(&pfd, 1, timeout);
-
-		if (poll_ret < 0) {
-			printf("Poll error errno = %s\n", strerror(errno));
-			res = FPGA_EXCEPTION;
-			goto out_destroy_eh;
-		} else if (poll_ret == 0) {
-			 printf("Poll timeout occured\n");
-			 res = FPGA_EXCEPTION;
-			 goto out_destroy_eh;
-		} else {
-			 printf("FME Interrupt occured\n");
-			 bytes_read = read(pfd.fd, &count, sizeof(count));
-			 if (bytes_read <= 0)
-				 printf("WARNING: error reading from poll fd: %s\n",
-						 bytes_read < 0 ? strerror(errno) : "zero bytes read");
-		}
-
-		res = fpgaUnregisterEvent(fpga_device_handle, FPGA_EVENT_ERROR, eh);
-		ON_ERR_GOTO(res, out_destroy_eh, "unregistering an FME event");
-
-		printf("Successfully tested Register/Unregister for FME events!\n");
+	res = pthread_create(&errthr, NULL, error_thread, fpga_device_token);
+	if (res) {
+		printf("Failed to create error_thread.\n");
+		res1 = FPGA_EXCEPTION;
+		goto out_destroy_eh;
 	}
+
+
+	res1 = fpgaGetOSObjectFromEventHandle(eh, &pfd.fd);
+	ON_ERR_GOTO(res1, out_join, "getting file descriptor");
+
+	pfd.events = POLLIN;
+	poll_ret = poll(&pfd, 1, timeout);
+
+	if (poll_ret < 0) {
+		printf("Poll error errno = %s\n", strerror(errno));
+		res1 = FPGA_EXCEPTION;
+		goto out_join;
+	} else if (poll_ret == 0) {
+		 printf("Poll timeout occurred\n");
+		 res1 = FPGA_EXCEPTION;
+		 goto out_join;
+	} else {
+		 printf("FME Interrupt occurred\n");
+		 bytes_read = read(pfd.fd, &count, sizeof(count));
+		 if (bytes_read <= 0)
+			 printf("WARNING: error reading from poll fd: %s\n",
+					 bytes_read < 0 ? strerror(errno) : "zero bytes read");
+	}
+
+	res1 = fpgaUnregisterEvent(fpga_device_handle, FPGA_EVENT_ERROR, eh);
+	ON_ERR_GOTO(res1, out_join, "unregistering an FME event");
+
+	printf("Successfully tested Register/Unregister for FME events!\n");
+
+out_join:
+	pthread_join(errthr, NULL);
 
 out_destroy_eh:
-	res = fpgaDestroyEventHandle(&eh);
-	ON_ERR_GOTO(res, out_close, "deleting event handle");
+	res2 = fpgaDestroyEventHandle(&eh);
+	ON_ERR_GOTO(res2, out_close, "deleting event handle");
 
 out_close:
-	res = fpgaClose(fpga_device_handle);
-	ON_ERR_GOTO(res, out_destroy_tok, "closing accelerator");
+	res2 = fpgaClose(fpga_device_handle);
+	ON_ERR_GOTO(res2, out_destroy_tok, "closing accelerator");
 
 out_destroy_tok:
-	res = fpgaDestroyToken(&fpga_device_token);
-	ON_ERR_GOTO(res, out_exit, "destroying token");
+	res2 = fpgaDestroyToken(&fpga_device_token);
+	ON_ERR_GOTO(res2, out_exit, "destroying token");
 
 out_exit:
-	return (res == FPGA_OK) ? 0: 1;
+	return res1 != FPGA_OK ? res1 : res2;
 }

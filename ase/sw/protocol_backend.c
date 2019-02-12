@@ -228,7 +228,7 @@ void sv2c_script_dex(const char *str)
  */
 static void memline_addr_error(const char *access_type,
 			       ase_host_memory_status status,
-			       uint64_t pa, void *va)
+			       uint64_t pa, uint64_t va)
 {
 	FUNC_CALL_ENTRY;
 
@@ -259,7 +259,7 @@ static void memline_addr_error(const char *access_type,
 		"        Simulation cannot continue, please check the code.\n" \
 		"          Failure @ byte-level phys_addr = 0x%" PRIx64 "\n" \
 		"                    line-level phys_addr = 0x%" PRIx64 "\n" \
-		"                    line-level virtual_addr = %p\n" \
+		"                    line-level virtual_addr = 0x%" PRIx64 "\n" \
 		"        See ERROR log file ase_memory_error.log and timestamped\n" \
 		"        transactions in ccip_transactions.tsv.\n" \
 		"@ERROR: This most often happens when the application munmaps or frees\n" \
@@ -398,7 +398,6 @@ void rd_memline_req_dex(cci_pkt *pkt)
 
 	rd_req.req = HOST_MEM_REQ_READ_LINE;
 	rd_req.addr = phys_addr;
-
 	mqueue_send(sim2app_membus_rd_req_tx, (char *) &rd_req, sizeof(rd_req));
 
 	FUNC_CALL_EXIT;
@@ -706,7 +705,7 @@ static void *start_socket_srv(void *args)
 
 	do {
 		FD_SET(sock_fd, &readfds);
-		res = select(sock_fd+1, &readfds, NULL, NULL, &tv);
+		res = TEMP_FAILURE_RETRY(select(sock_fd+1, &readfds, NULL, NULL, &tv));
 		if (res < 0) {
 			ASE_ERR("SIM-C : select error=%s\n", strerror(errno));
 			err_cnt++;
@@ -1460,32 +1459,32 @@ void parse_ase_cfg_line(char *filename, char *line, float *f_usrclk)
 			if (ase_strncmp(parameter, "ASE_MODE", 8) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					cfg->ase_mode = atoi(pch);
+					cfg->ase_mode = strtol(pch, NULL, 10);
 				}
 			} else if (ase_strncmp(parameter, "ASE_TIMEOUT", 11) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					cfg->ase_timeout = atoi(pch);
+					cfg->ase_timeout = strtol(pch, NULL, 10);
 				}
 			} else if (ase_strncmp(parameter, "ASE_NUM_TESTS", 13) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					cfg->ase_num_tests = atoi(pch);
+					cfg->ase_num_tests = strtol(pch, NULL, 10);
 				}
 			} else if (ase_strncmp(parameter, "ENABLE_REUSE_SEED", 17) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					cfg->enable_reuse_seed = atoi(pch);
+					cfg->enable_reuse_seed = strtol(pch, NULL, 10);
 				}
 			} else if (ase_strncmp(parameter, "ASE_SEED", 8) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					cfg->ase_seed = atoi(pch);
+					cfg->ase_seed = strtol(pch, NULL, 10);
 				}
 			} else if (ase_strncmp(parameter, "ENABLE_CL_VIEW", 14) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					cfg->enable_cl_view = atoi(pch);
+					cfg->enable_cl_view = strtol(pch, NULL, 10);
 				}
 			} else if (ase_strncmp(parameter, "USR_CLK_MHZ", 11) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
@@ -1513,7 +1512,7 @@ void parse_ase_cfg_line(char *filename, char *line, float *f_usrclk)
 			} else if (ase_strncmp(parameter, "PHYS_MEMORY_AVAILABLE_GB", 24) == 0) {
 				pch = strtok_r(NULL, "", &saveptr);
 				if (pch != NULL) {
-					value = atoi(pch);
+					value = strtol(pch, NULL, 10);
 					if (value < 0) {
 						ASE_ERR("Physical memory size is negative in %s\n", filename);
 						ASE_ERR("        Reverting to default 256 GB\n");

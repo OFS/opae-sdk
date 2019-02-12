@@ -72,4 +72,9 @@ Verify that the locked memory is now set:
 ```
 $ ulimit -l 10000
 
+## Revision History ##
+
+ | Document Version |  Intel Acceleration Stack Version  | Changes  |
+ | ---------------- |------------------------------------|----------|
+ | 2018.05.21 | 1.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.) | No changes from previous release.  | 
 

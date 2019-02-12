@@ -48,6 +48,7 @@
 
 struct option longopts[] = {
 		{"help",        no_argument,       NULL, 'h'},
+		{"segment",     required_argument, NULL, 0xe},
 		{"bus",         required_argument, NULL, 'B'},
 		{"device",      required_argument, NULL, 'D'},
 		{"function",    required_argument, NULL, 'F'},
@@ -60,6 +61,7 @@ struct option longopts[] = {
 // mmlink Command line struct
 struct  MMLinkCommandLine
 {
+	int      segment;
 	int      bus;
 	int      device;
 	int      function;
@@ -68,13 +70,14 @@ struct  MMLinkCommandLine
 	char     ip[16];
 };
 
-struct MMLinkCommandLine mmlinkCmdLine = { -1, -1, -1, -1, 0, { 0, } };
+struct MMLinkCommandLine mmlinkCmdLine = { -1, -1, -1, -1, -1, 0, { 0, } };
 
 // mmlink Command line input help
 void MMLinkAppShowHelp()
 {
 	printf("Usage:\n");
-	printf("./mmlink \n");
+	printf("mmlink\n");
+	printf("<Segment>             --segment=<SEGMENT NUMBER>\n");
 	printf("<Bus>                 --bus=<BUS NUMBER>           "
 		"OR  -B <BUS NUMBER>\n");
 	printf("<Device>              --device=<DEVICE NUMBER>     "
@@ -146,25 +149,31 @@ int main( int argc, char** argv )
 			"0.0.0.0", 9);
 	}
 
-	printf(" ------- Command line Input START ---- \n \n");
+	printf(" ------- Command line Input START ----\n\n");
 
+	printf(" Segment               : %d\n", mmlinkCmdLine.segment);
 	printf(" Bus                   : %d\n", mmlinkCmdLine.bus);
 	printf(" Device                : %d\n", mmlinkCmdLine.device);
 	printf(" Function              : %d\n", mmlinkCmdLine.function);
 	printf(" Socket-id             : %d\n", mmlinkCmdLine.socket);
 	printf(" Port                  : %d\n", mmlinkCmdLine.port);
 	printf(" IP address            : %s\n", mmlinkCmdLine.ip);
-	printf(" ------- Command line Input END ---- \n\n");
+	printf(" ------- Command line Input END   ----\n\n");
 
 	// Signal Handler
 	signal(SIGINT, mmlink_sig_handler);
 
 	// Enum FPGA device
- 	result = fpgaGetProperties(NULL, &filter);
+	result = fpgaGetProperties(NULL, &filter);
 	ON_ERR_GOTO(result, out_exit, "creating properties object");
 
 	result = fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR);
 	ON_ERR_GOTO(result, out_destroy_prop, "setting object type");
+
+	if (mmlinkCmdLine.segment > -1){
+		result = fpgaPropertiesSetSegment(filter, mmlinkCmdLine.segment);
+		ON_ERR_GOTO(result, out_destroy_prop, "setting segment");
+	}
 
 	if (mmlinkCmdLine.bus > -1){
 		result = fpgaPropertiesSetBus(filter, mmlinkCmdLine.bus);
@@ -300,13 +309,13 @@ int ParseCmds(struct MMLinkCommandLine *mmlinkCmdLine, int argc, char *argv[])
 		const char *tmp_optarg = optarg;
 
 		if((optarg) &&
-				('=' == *tmp_optarg)){
+		   ('=' == *tmp_optarg)){
 			++tmp_optarg;
 		}
 
-		if((!optarg) &&
-				(NULL != argv[optind]) &&
-				('-' != argv[optind][0]) ) {
+		if((!optarg) && (optind < argc) &&
+	 	   (NULL != argv[optind]) &&
+		   ('-' != argv[optind][0]) ) {
 			tmp_optarg = argv[optind++];
 		}
 
@@ -315,6 +324,16 @@ int ParseCmds(struct MMLinkCommandLine *mmlinkCmdLine, int argc, char *argv[])
 			// Command line help
 			MMLinkAppShowHelp();
 			return -2;
+			break;
+
+		case 0xe:
+			// segment number
+			if (!tmp_optarg) {
+				PRINT_ERR("Missing required argument for --segment");
+				return -1;
+			}
+			endptr = NULL;
+			mmlinkCmdLine->segment = strtol(tmp_optarg, &endptr, 0);
 			break;
 
 		case 'B':

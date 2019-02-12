@@ -24,6 +24,6 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-install(PROGRAMS fpgaflash
+install(PROGRAMS fpgaflash	
         DESTINATION bin
         COMPONENT toolfpgaflash)

@@ -52,13 +52,11 @@ from __future__ import print_function
 import argparse
 import ase_functions
 import os
-import re
 import sys
 import subprocess
 from collections import defaultdict
 import fnmatch
 import json
-import subprocess
 from sets import Set
 import shutil
 
@@ -386,12 +384,14 @@ def config_qsys_sources(filelist, vlog_srcs):
             b = b.strip("/")
             tgt_dir = os.path.join('qsys_sim', b)
             copied_qsys_dirs[src_dir] = tgt_dir
-            print("Copying {0} to {1}...".format(src_dir, tgt_dir))
+            print("Preparing {0}:".format(q))
+            print("  Copying {0} to {1}...".format(src_dir, tgt_dir))
             try:
-                shutil.copytree(src_dir, tgt_dir)
-            except Exception:
-                errorExit("Failed to copy tree {0} to {1}".format(src_dir,
-                                                                  tgt_dir))
+                shutil.copytree(src_dir, tgt_dir, symlinks=False, ignore=None)
+            except Exception as e:
+                errorExit("Failed to copy tree {0} to "
+                          "{1}: Exception {2}".
+                          format(src_dir, tgt_dir, e))
 
         # Point to the copy
         qsys_srcs_copy.append(tgt_dir + q[len(src_dir):])
@@ -409,12 +409,15 @@ def config_qsys_sources(filelist, vlog_srcs):
             b = b.strip("/")
             tgt_dir = os.path.join('qsys_sim', b)
             copied_tcl_dirs[src_dir] = tgt_dir
-            print("Copying {0} to {1}...".format(src_dir, tgt_dir))
+            print("Preparing {0}:".format(t))
+            print("  Copying {0} to {1}...".format(src_dir, tgt_dir))
             try:
-                shutil.copytree(src_dir, tgt_dir)
-            except Exception:
-                errorExit("Failed to copy tree {0} to {1}".format(src_dir,
-                                                                  tgt_dir))
+                if not os.path.exists(tgt_dir):
+                    shutil.copytree(src_dir, tgt_dir,
+                                    symlinks=False, ignore=None)
+            except Exception as e:
+                errorExit("Failed to copy tree {0} to "
+                          "{1}: Exception = {2}".format(src_dir, tgt_dir, e))
         tcl_srcs_copy.append(tgt_dir + q[len(src_dir):])
 
     # Second step: now that the trees are copied, update the paths in
@@ -820,8 +823,15 @@ fd.close()
 # Scripts for multiple tools are written since the default tool
 # can be selected at build time.
 
-# Write Synopsys Setup file & TCL script
-open("synopsys_sim.setup", "w").write("WORK > DEFAULT\nDEFAULT : ./work\n")
+# Write Synopsys setup file & TCL script. Setup includes stub
+# files that will hold lists of Quartus simulation libraries
+# that will be populated by the ASE Makefile.
+with open("synopsys_sim.setup", "w") as fd:
+    fd.write("WORK > DEFAULT\n")
+    fd.write("DEFAULT : ./work\n")
+    fd.write("OTHERS = ./work/synopsys_sim_quartus_verilog.setup\n")
+    fd.write("OTHERS = ./work/synopsys_sim_quartus_vhdl.setup\n")
+
 open("vcs_run.tcl", "w").write('dump -depth 0 \ndump -aggregates -add /'
                                '\nrun \nquit\n')
 

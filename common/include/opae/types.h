@@ -171,4 +171,63 @@ struct fpga_error_info {
 	bool can_clear;                   /** whether error can be cleared */
 };
 
+/** Object pertaining to an FPGA resource as identified by a unique name
+ *
+ * An `fpga_object` represents either a device attribute or a container of
+ * attributes. Similar to filesystems, a '/' may be used to seperate objects in
+ * an object hierarchy. Once on object is acquired, it may be used to read or
+ * write data in a resource attribute or to query sub-objects if the object is
+ * a container object. The data in an object is buffered and will be kept
+ * around until the object is destroyed. Additionally, the data in an attribute
+ * can by synchronized from the owning resource using the FPGA_OBJECT_SYNC flag
+ * during read operations.  The name identifying the object is unique with
+ * respect to the resource that owns it. A parent resource may be identified by
+ * an `fpga_token` object, by an `fpga_handle` object, or another `fpga_object`
+ * object. If a handle object is used when opening the object, then the object
+ * is opened with read-write access. Otherwise, the object is read-only.
+ */
+typedef void *fpga_object;
+
+/** FPGA Metric string size
+ *
+ *
+ */
+#define FPGA_METRIC_STR_SIZE   256
+/** Metric value union
+ *
+ *
+ */
+typedef union {
+	uint64_t   ivalue;  // Metric integer value
+	double     dvalue;  // Metric double value
+	float      fvalue;  // Metric float value
+	bool       bvalue;  // Metric bool value
+} metric_value;
+
+
+/** Metric info struct
+ *
+ *
+ */
+typedef struct fpga_metric_info {
+	uint64_t metric_num;                         // Metric index num
+	fpga_guid metric_guid;                       // Metric guid
+	char qualifier_name[FPGA_METRIC_STR_SIZE];   // Metric full name
+	char group_name[FPGA_METRIC_STR_SIZE];       // Metric group name
+	char metric_name[FPGA_METRIC_STR_SIZE];      // Metric name
+	char metric_units[FPGA_METRIC_STR_SIZE];     // Metric units
+	enum fpga_metric_datatype metric_datatype;   // Metric data type
+	enum fpga_metric_type metric_type;           // Metric group type
+} fpga_metric_info;
+
+/** Metric struct
+ *
+ *
+ */
+typedef struct fpga_metric {
+	uint64_t metric_num;    // Metric index num
+	metric_value value;     // Metric value
+} fpga_metric;
+
+
 #endif // __FPGA_TYPES_H__

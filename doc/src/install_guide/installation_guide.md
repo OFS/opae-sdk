@@ -11,9 +11,9 @@
 
 The OPAE SDK has been tested on the following configurations.
 
-* Hardware: tightly coupled FPGA products and programmable FPGA acceleration 
-  cards for Intel&reg; Xeon&reg; processors (to be released)
-* Operating System: tested on RedHat 7.3, Linux kernels 3.10 through 4.7
+* Hardware: Tightly coupled FPGA products and programmable FPGA acceleration
+  cards for Intel&reg; Xeon&reg; processors
+* Operating System: Tested on Red Hat Enterprise Linux 7.3 and 7.4, Ubuntu 16.04, SUSE SLE 12 SP3 and CentOS 7.4, with Linux kernels 3.10 through 4.7
 * Integrated FPGA FIM (FPGA Interface Manager) version: 6.4.0
 * Arria(R) 10 GX FPGA FIM version: 1.0.3 (1.0 Production)
 
@@ -191,6 +191,22 @@ by adding `-DCMAKE_INSTALL_PREFIX=<new prefix>` to the `cmake` command above.
 Please see Quick Start Guide on how to run the hello\_fpga sample to verify
 libopae-c & driver are built correctly.
 
+## Building python distributions for tools ##
+
+The tools that can be built with python distutils are:
+ - packager
+ - fpgaflash
+ - fpgadiag
+
+```console
+$ cd opae-sdk-<release>
+$ mkdir mybuild
+$ cd mybuild
+$ cmake .. -DBUILD_PYTHON_DIST=ON
+$ make <toolname>-dist
+```
+The python distributions will be available in mybuild/<tools-directory>/<toolname>/stage/dist
+
 ## Building OPAE SDK rpm and deb packages from the source ##
 In addition to building and installation from the source, users can also
 generate rpm and deb packages for the SDK. The generated packages can then be
@@ -209,9 +225,9 @@ $ make package_rpm
 ```
 .. note::
 ```
-Note: Providing CMAKE_INSTALL_PREFIX is optional, by default the install prefix will be /usr/local.
+Note: Providing CMAKE_INSTALL_PREFIX is optional, by default the install prefix will be /usr.
 ```
-This will generate the following rpm packages. 
+This will generate the following rpm packages.
 
 ```console
 opae-<release>.x86_64.rpm               (meta package)
@@ -238,7 +254,7 @@ $ make package_deb
 ```
 .. note::
 ```
-Note: Providing CMAKE_INSTALL_PREFIX is optional, by default the install prefix will be /usr/local.
+Note: Providing CMAKE_INSTALL_PREFIX is optional, by default the install prefix will be /usr.
 ```
 This will generate the following deb packages.
 
@@ -284,7 +300,7 @@ The deb packages generated in the previous step can be installed
 using these commands:
 
 ```console
-$ sudo dpkg -i opae-libs-<release>.x86_64.deb 
+$ sudo dpkg -i opae-libs-<release>.x86_64.deb
 $ sudo dpkg -i opae-tools-<release>.x86_64.deb
 $ sudo dpkg -i opae-tools-extra-<release>.x86_64.deb
 $ sudo dpkg -i opae-devel-<release>.x86_64.deb
@@ -308,7 +324,7 @@ $ sudo dpkg -r opae-ase
 
 ## FPGA Device Access Permissions ##
 
-Access to FPGA accelerators and devices is controlled using file access permissions on the 
+Access to FPGA accelerators and devices is controlled using file access permissions on the
 Intel&reg; FPGA device files, `/dev/intel-fpga-fme.*` and `/dev/intel-fpga-port.*`, as well as to the files reachable through `/sys/class/fpga/`.
 
 In order to allow regular (non-root) users to access accelerators, you need to grant them read and write permissions on `/dev/intel/fpga-port.*` (with `*` denoting the respective socket, i.e. 0 or 1). E.g.:
@@ -354,13 +370,13 @@ modify the application's systemd service file and add the line:
 LimitMEMLOCK=infinity
 ```
 
-## Hupgepage Settings ##
+## Hugepage Settings ##
 
 Users need to configure system hugepage to reserve 2MB-hugepages or
 1GB-hugepages. For example, the 'hello\_fpga' sample requires several
 2MB-hugepages. And the _fpgadiag_ tool requires several 1GB-hugepages.
-    
-The command below reserves 20 2M-hugepages: 
+
+The command below reserves 20 2M-hugepages:
 
 ```console
 $ sudo sh -c 'echo 20 > /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages'
@@ -388,4 +404,3 @@ flags : ... pdpe1gb ...
 ```
 
 If this commands returns a non-empty string, 1GB pages are supported.
-

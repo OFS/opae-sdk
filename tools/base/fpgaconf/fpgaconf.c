@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -36,7 +36,7 @@
  *   * Auto-discovery of compatible slots for supplied bitstream
  *   * Dry-run mode ("what would happen if...?")
  */
-
+#define _GNU_SOURCE
 #include <errno.h>
 #include <getopt.h>
 #include <stdio.h>
@@ -48,19 +48,18 @@
 #include "safe_string/safe_string.h"
 
 #include "opae/fpga.h"
-#include "bitstream_int.h"
 #include "bitstream-tools.h"
 
 /*
  * macro to check FPGA return codes, print error message, and goto cleanup label
  * NOTE: this changes the program flow (uses goto)!
  */
-#define ON_ERR_GOTO(res, label, desc)              \
-	do {                                       \
-		if ((res) != FPGA_OK) {            \
-			print_err((desc), (res));  \
-			goto label;                \
-		}                                  \
+#define ON_ERR_GOTO(res, label, desc)                                          \
+	do {                                                                   \
+		if ((res) != FPGA_OK) {                                        \
+			print_err((desc), (res));                              \
+			goto label;                                            \
+		}                                                              \
 	} while (0)
 /*
  * Global configuration, set during parse_args()
@@ -69,31 +68,25 @@
 struct config {
 	unsigned int verbosity;
 	bool dry_run;
-	enum {
-		INTERACTIVE,  /* ask if ambiguous */
-		NORMAL,       /* stop if ambiguous */
-		AUTOMATIC     /* choose if ambiguous */
+	enum { INTERACTIVE, /* ask if ambiguous */
+	       NORMAL,      /* stop if ambiguous */
+	       AUTOMATIC    /* choose if ambiguous */
 	} mode;
 	int flags;
 	struct target {
+		int segment;
 		int bus;
 		int device;
 		int function;
 		int socket;
 	} target;
 	char *filename;
-} config = {
-	.verbosity = 0,
-	.dry_run = false,
-	.mode = NORMAL,
-	.flags = 0,
-	.target = {
-		.bus = -1,
-		.device = -1,
-		.function = -1,
-		.socket = -1
-	}
-};
+} config = {.verbosity = 0,
+	    .dry_run = false,
+	    .mode = NORMAL,
+	    .flags = 0,
+	    .target = {.segment = -1, .bus = -1, .device = -1, .function = -1, .socket = -1},
+	    .filename = NULL };
 
 struct bitstream_info {
 	char *filename;
@@ -104,7 +97,8 @@ struct bitstream_info {
 	fpga_guid interface_id;
 };
 
-static fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, fpga_guid *guid)
+fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, size_t bs_len,
+				 fpga_guid *guid)
 {
 	fpga_result result = FPGA_EXCEPTION;
 	char *json_metadata = NULL;
@@ -118,25 +112,31 @@ static fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, fpga_guid *gui
 	if (check_bitstream_guid(bitstream) != FPGA_OK)
 		goto out_free;
 
-	json_len = read_int_from_bitstream(bitstream + METADATA_GUID_LEN, sizeof(uint32_t));
+	json_len = read_int_from_bitstream(bitstream + METADATA_GUID_LEN,
+					   sizeof(uint32_t));
 	if (json_len == 0) {
-		PRINT_MSG("Bitstream has no metadata");
+		OPAE_MSG("Bitstream has no metadata");
 		result = FPGA_OK;
+		goto out_free;
+	}
+
+	if (json_len > bs_len) {
+		OPAE_ERR("invalid bitstream metadata size");
+		result = FPGA_EXCEPTION;
 		goto out_free;
 	}
 
 	json_metadata_ptr = bitstream + METADATA_GUID_LEN + sizeof(uint32_t);
 
-	json_metadata = (char *) malloc(json_len + 1);
+	json_metadata = (char *)malloc(json_len + 1);
 	if (json_metadata == NULL) {
-		PRINT_ERR("Could not allocate memory for metadata!");
+		OPAE_ERR("Could not allocate memory for metadata!");
 		return FPGA_NO_MEMORY;
 	}
 
-	e = memcpy_s(json_metadata, json_len+1,
-			json_metadata_ptr, json_len);
+	e = memcpy_s(json_metadata, json_len + 1, json_metadata_ptr, json_len);
 	if (EOK != e) {
-		PRINT_ERR("memcpy_s failed");
+		OPAE_ERR("memcpy_s failed");
 		result = FPGA_EXCEPTION;
 		goto out_free;
 	}
@@ -145,22 +145,25 @@ static fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, fpga_guid *gui
 	root = json_tokener_parse(json_metadata);
 
 	if (root != NULL) {
-		if (json_object_object_get_ex(root, GBS_AFU_IMAGE, &afu_image)) {
-			json_object_object_get_ex(afu_image, BBS_INTERFACE_ID, &interface_id);
+		if (json_object_object_get_ex(root, GBS_AFU_IMAGE,
+					      &afu_image)) {
+			json_object_object_get_ex(afu_image, BBS_INTERFACE_ID,
+						  &interface_id);
 
 			if (interface_id == NULL) {
-				PRINT_ERR("Invalid metadata");
+				OPAE_ERR("Invalid metadata");
 				result = FPGA_INVALID_PARAM;
 				goto out_free;
 			}
 
-			result = string_to_guid(json_object_get_string(interface_id), guid);
+			result = string_to_guid(
+				json_object_get_string(interface_id), guid);
 			if (result != FPGA_OK) {
-				PRINT_ERR("Invalid BBS interface id ");
+				OPAE_ERR("Invalid BBS interface id ");
 				goto out_free;
 			}
 		} else {
-			PRINT_ERR("Invalid metadata");
+			OPAE_ERR("Invalid metadata");
 			result = FPGA_INVALID_PARAM;
 			goto out_free;
 		}
@@ -199,30 +202,35 @@ void print_msg(unsigned int verbosity, const char *s)
  */
 void help(void)
 {
-	printf(
-"\n"
-"fpgaconf\n"
-"FPGA configuration utility\n"
-"\n"
-"Usage:\n"
-//"        fpgaconf [-hvnAIQ] [-B <bus>] [-D <device>] [-F <function>] [-S <socket-id>] <gbs>\n"
-"        fpgaconf [-hvn] [-B <bus>] [-D <device>] [-F <function>] [-S <socket-id>] <gbs>\n"
-"\n"
-"                -h,--help           Print this help\n"
-"                -v,--verbose        Increase verbosity\n"
-"                -n,--dry-run        Don't actually perform actions\n"
-"                --force             Don't try to open accelerator resource\n"
-"                -B,--bus            Set target bus number\n"
-"                -D,--device         Set target device number\n"
-"                -F,--function       Set target function number\n"
-"                -S,--socket-id      Set target socket number\n"
-/* "                -A,--auto           Automatically choose target slot if\n" */
-/* "                                    multiple valid slots are available\n" */
-/* "                -I,--interactive    Prompt user to choose target slot if\n" */
-/* "                                    multiple valid slots are available\n" */
-/* "                -Q,--quiet          Don't print any messages except errors\n" */
-"\n"
-		);
+	printf("\n"
+	       "fpgaconf\n"
+	       "FPGA configuration utility\n"
+	       "\n"
+	       "Usage:\n"
+	       //"        fpgaconf [-hvnAIQ] [-B <bus>] [-D <device>] [-F
+	       //<function>] [-S <socket-id>] <gbs>\n"
+	       "        fpgaconf [-hvn] [-B <bus>] [-D <device>] [-F <function>] [-S <socket-id>] <gbs>\n"
+	       "\n"
+	       "                -h,--help           Print this help\n"
+	       "                -v,--verbose        Increase verbosity\n"
+	       "                -n,--dry-run        Don't actually perform actions\n"
+	       "                --force             Don't try to open accelerator resource\n"
+	       "                --segment           Set target segment number\n"
+	       "                -B,--bus            Set target bus number\n"
+	       "                -D,--device         Set target device number\n"
+	       "                -F,--function       Set target function number\n"
+	       "                -S,--socket-id      Set target socket number\n"
+	       /* "                -A,--auto           Automatically choose
+		  target slot if\n" */
+	       /* "                                    multiple valid slots are
+		  available\n" */
+	       /* "                -I,--interactive    Prompt user to choose
+		  target slot if\n" */
+	       /* "                                    multiple valid slots are
+		  available\n" */
+	       /* "                -Q,--quiet          Don't print any messages
+		  except errors\n" */
+	       "\n");
 }
 
 /*
@@ -233,26 +241,27 @@ void help(void)
 int parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
-		{"help",          no_argument,       NULL, 'h'},
-		{"verbose",       no_argument,       NULL, 'v'},
-		{"dry-run",       no_argument,       NULL, 'n'},
-		{"bus",           required_argument, NULL, 'B'},
-		{"device",        required_argument, NULL, 'D'},
-		{"function",      required_argument, NULL, 'F'},
-		{"socket-id",     required_argument, NULL, 'S'},
-		{"force",         no_argument,       NULL, 0xf},
+		{"help",      no_argument,       NULL, 'h'},
+		{"verbose",   no_argument,       NULL, 'v'},
+		{"dry-run",   no_argument,       NULL, 'n'},
+		{"segment",   required_argument, NULL, 0xe},
+		{"bus",       required_argument, NULL, 'B'},
+		{"device",    required_argument, NULL, 'D'},
+		{"function",  required_argument, NULL, 'F'},
+		{"socket-id", required_argument, NULL, 'S'},
+		{"force",     no_argument,       NULL, 0xf},
 		/* {"auto",          no_argument,       NULL, 'A'}, */
 		/* {"interactive",   no_argument,       NULL, 'I'}, */
 		/* {"quiet",         no_argument,       NULL, 'Q'}, */
-		{0, 0, 0, 0}
-	};
+		{0, 0, 0, 0} };
 
 	int getopt_ret;
 	int option_index;
 	char *endptr = NULL;
 
-	while (-1 != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING,
-					      longopts, &option_index))) {
+	while (-1
+	       != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING, longopts,
+					    &option_index))) {
 		const char *tmp_optarg = optarg;
 
 		if ((optarg) && ('=' == *tmp_optarg)) {
@@ -260,84 +269,105 @@ int parse_args(int argc, char *argv[])
 		}
 
 		switch (getopt_ret) {
-		case 'h':    /* help */
+		case 'h': /* help */
 			help();
 			return -1;
 
-		case 'v':    /* verbose */
+		case 'v': /* verbose */
 			config.verbosity++;
 			break;
 
-		case 'n':    /* dry-run */
+		case 'n': /* dry-run */
 			config.dry_run = true;
 			break;
 
-		case 0xf:    /* force */
+		case 0xf: /* force */
 			config.flags |= FPGA_RECONF_FORCE;
 			break;
 
-		case 'B':    /* bus */
+		case 0xe: /* segment */
 			if (NULL == tmp_optarg)
 				break;
 			endptr = NULL;
-			config.target.bus = (int) strtoul(tmp_optarg, &endptr, 0);
+			config.target.segment =
+				(int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
-				fprintf(stderr, "invalid bus: %s\n", tmp_optarg);
+				fprintf(stderr, "invalid segment: %s\n",
+					tmp_optarg);
 				return -1;
 			}
 			break;
 
-		case 'D':    /* device */
+		case 'B': /* bus */
 			if (NULL == tmp_optarg)
 				break;
 			endptr = NULL;
-			config.target.device = (int) strtoul(tmp_optarg, &endptr, 0);
+			config.target.bus =
+				(int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
-				fprintf(stderr, "invalid device: %s\n", tmp_optarg);
+				fprintf(stderr, "invalid bus: %s\n",
+					tmp_optarg);
 				return -1;
 			}
 			break;
 
-		case 'F':    /* function */
+		case 'D': /* device */
 			if (NULL == tmp_optarg)
 				break;
 			endptr = NULL;
-			config.target.function = (int) strtoul(tmp_optarg, &endptr, 0);
+			config.target.device =
+				(int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
-				fprintf(stderr, "invalid function: %s\n", tmp_optarg);
+				fprintf(stderr, "invalid device: %s\n",
+					tmp_optarg);
 				return -1;
 			}
 			break;
 
-		case 'S':    /* socket */
+		case 'F': /* function */
 			if (NULL == tmp_optarg)
 				break;
 			endptr = NULL;
-			config.target.socket = (int) strtoul(tmp_optarg, &endptr, 0);
+			config.target.function =
+				(int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
-				fprintf(stderr, "invalid socket: %s\n", tmp_optarg);
+				fprintf(stderr, "invalid function: %s\n",
+					tmp_optarg);
 				return -1;
 			}
 			break;
 
-		case 'A':    /* auto */
+		case 'S': /* socket */
+			if (NULL == tmp_optarg)
+				break;
+			endptr = NULL;
+			config.target.socket =
+				(int)strtoul(tmp_optarg, &endptr, 0);
+			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
+				fprintf(stderr, "invalid socket: %s\n",
+					tmp_optarg);
+				return -1;
+			}
+			break;
+
+		case 'A': /* auto */
 			config.mode = AUTOMATIC;
 			break;
 
-		case 'I':    /* interactive */
+		case 'I': /* interactive */
 			config.mode = INTERACTIVE;
 			break;
 
-		case 'Q':    /* quiet */
+		case 'Q': /* quiet */
 			config.verbosity = 0;
 			break;
 
-		case ':':   /* missing option argument */
+		case ':': /* missing option argument */
 			fprintf(stderr, "Missing option argument\n");
 			return -1;
 
 		case '?':
-		default:    /* invalid option */
+		default: /* invalid option */
 			fprintf(stderr, "Invalid cmdline options\n");
 			return -1;
 		}
@@ -348,9 +378,13 @@ int parse_args(int argc, char *argv[])
 		fprintf(stderr, "No GBS file\n");
 		return -1;
 	}
-	config.filename = argv[optind];
-
-	return 0;
+	config.filename = canonicalize_file_name(argv[optind]);
+	if (config.filename) {
+		return 0;
+	} else {
+		fprintf(stderr, "Error locating GBS file specified: \"%s\"\n", strerror(errno));
+		return -1;
+	}
 }
 
 /*
@@ -379,7 +413,8 @@ int parse_metadata(struct bitstream_info *info)
 	/* reverse byte order when reading GBS */
 	for (i = 0; i < sizeof(info->interface_id); i++)
 		info->interface_id[i] =
-			info->data[MAGIC_SIZE+sizeof(info->interface_id)-1-i];
+			info->data[MAGIC_SIZE + sizeof(info->interface_id) - 1
+				   - i];
 
 	info->rbf_data = &info->data[HEADER_SIZE];
 	info->rbf_len = info->data_len - HEADER_SIZE;
@@ -388,27 +423,29 @@ int parse_metadata(struct bitstream_info *info)
 }
 
 /*
-* Prints Actual and Expected Interface id
-*/
+ * Prints Actual and Expected Interface id
+ */
 int print_interface_id(fpga_guid actual_interface_id)
 {
-	fpga_properties   filter = NULL;
-	uint32_t          num_matches = 0;
-	int               retval = -1;
-	uint64_t          intfc_id_l = 0;
-	uint64_t          intfc_id_h = 0;
-	fpga_handle       fpga_handle = NULL;
-	fpga_result       res = -1;
-	fpga_token        fpga_token = NULL;
-	fpga_guid         expt_interface_id = { 0 };
-	char              guid_str[37] = { 0 };
-
+	fpga_properties filter = NULL;
+	uint32_t num_matches = 0;
+	int retval = -1;
+	fpga_handle fpga_handle = NULL;
+	fpga_result res = -1;
+	fpga_token fpga_token = NULL;
+	fpga_guid expt_interface_id = {0};
+	char guid_str[37] = {0};
 
 	res = fpgaGetProperties(NULL, &filter);
 	ON_ERR_GOTO(res, out_err, "creating properties object");
 
 	res = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
 	ON_ERR_GOTO(res, out_destroy, "setting object type");
+
+	if (-1 != config.target.segment) {
+		res = fpgaPropertiesSetSegment(filter, config.target.segment);
+		ON_ERR_GOTO(res, out_destroy, "setting segment");
+	}
 
 	if (-1 != config.target.bus) {
 		res = fpgaPropertiesSetBus(filter, config.target.bus);
@@ -434,18 +471,17 @@ int print_interface_id(fpga_guid actual_interface_id)
 	ON_ERR_GOTO(res, out_destroy, "enumerating FPGAs");
 
 	if (num_matches > 0) {
-		retval = (int) num_matches; /* FPGA found */
+		retval = (int)num_matches; /* FPGA found */
 	} else {
 		retval = 0; /* no FPGA found */
+		goto out_destroy;
 	}
 
 	res = fpgaOpen(fpga_token, &fpga_handle, 0);
 	ON_ERR_GOTO(res, out_destroy, "opening fpga");
 
-	res = get_interface_id(fpga_handle, &intfc_id_l, &intfc_id_h);
+	res = get_fpga_interface_id(fpga_token, expt_interface_id);
 	ON_ERR_GOTO(res, out_close, "interfaceid get");
-
-	fpga_guid_to_fpga(intfc_id_h, intfc_id_l, expt_interface_id);
 
 	uuid_unparse(expt_interface_id, guid_str);
 	printf("Expected Interface id:  %s\n", guid_str);
@@ -459,6 +495,8 @@ out_close:
 	ON_ERR_GOTO(res, out_destroy, "closing fme");
 
 out_destroy:
+	if (fpga_token)
+		fpgaDestroyToken(&fpga_token);
 	res = fpgaDestroyProperties(&filter); /* not needed anymore */
 	ON_ERR_GOTO(res, out_err, "destroying properties object");
 out_err:
@@ -469,8 +507,8 @@ out_err:
 /*
  * Read bitstream from file and populate bitstream_info structure
  */
-//TODO: remove this check when all bitstreams conform to JSON
-//metadata spec.
+// TODO: remove this check when all bitstreams conform to JSON
+// metadata spec.
 static bool skip_header_checks;
 int read_bitstream(char *filename, struct bitstream_info *info)
 {
@@ -534,19 +572,18 @@ int read_bitstream(char *filename, struct bitstream_info *info)
 	}
 	if (info->data_len != (size_t)len) {
 		fprintf(stderr,
-		     "Filesize and number of bytes read don't match\n");
+			"Filesize and number of bytes read don't match\n");
 		goto out_free;
 	}
 
 	if (check_bitstream_guid(info->data) == FPGA_OK) {
 		skip_header_checks = true;
 
-		if (get_bitstream_ifc_id(info->data, &(info->interface_id))
-			!= FPGA_OK) {
+		if (get_bitstream_ifc_id(info->data, info->data_len, &(info->interface_id))
+		    != FPGA_OK) {
 			fprintf(stderr, "Invalid metadata in the bitstream\n");
 			goto out_free;
 		}
-
 	}
 
 	if (!skip_header_checks) {
@@ -573,10 +610,10 @@ out_close:
  */
 int find_fpga(fpga_guid interface_id, fpga_token *fpga)
 {
-	fpga_properties    filter = NULL;
-	uint32_t           num_matches;
-	fpga_result        res;
-	int                retval = -1;
+	fpga_properties filter = NULL;
+	uint32_t num_matches;
+	fpga_result res;
+	int retval = -1;
 
 	/* Get number of FPGAs in system */
 	res = fpgaGetProperties(NULL, &filter);
@@ -588,6 +625,10 @@ int find_fpga(fpga_guid interface_id, fpga_token *fpga)
 	res = fpgaPropertiesSetGUID(filter, interface_id);
 	ON_ERR_GOTO(res, out_destroy, "setting interface ID");
 
+	if (-1 != config.target.segment) {
+		res = fpgaPropertiesSetSegment(filter, config.target.segment);
+		ON_ERR_GOTO(res, out_destroy, "setting segment");
+	}
 
 	if (-1 != config.target.bus) {
 		res = fpgaPropertiesSetBus(filter, config.target.bus);
@@ -613,7 +654,7 @@ int find_fpga(fpga_guid interface_id, fpga_token *fpga)
 	ON_ERR_GOTO(res, out_destroy, "enumerating FPGAs");
 
 	if (num_matches > 0) {
-		retval = (int) num_matches; /* FPGA found */
+		retval = (int)num_matches; /* FPGA found */
 	} else {
 		retval = 0; /* no FPGA found */
 	}
@@ -625,8 +666,8 @@ out_err:
 	return retval;
 }
 
-int program_bitstream(fpga_token token,
-		uint32_t slot_num, struct bitstream_info *info, int flags)
+int program_bitstream(fpga_token token, uint32_t slot_num,
+		      struct bitstream_info *info, int flags)
 {
 	fpga_handle handle;
 	fpga_result res;
@@ -639,7 +680,8 @@ int program_bitstream(fpga_token token,
 	if (config.dry_run) {
 		print_msg(1, "[--dry-run] Skipping reconfiguration");
 	} else {
-		res = fpgaReconfigureSlot(handle, slot_num, info->data, info->data_len, flags);
+		res = fpgaReconfigureSlot(handle, slot_num, info->data,
+					  info->data_len, flags);
 		ON_ERR_GOTO(res, out_close, "writing bitstream to FPGA");
 	}
 
@@ -698,7 +740,7 @@ int main(int argc, char *argv[])
 	}
 	if (res > 1) {
 		fprintf(stderr,
-	       "Found more than one suitable slot, please be more specific.\n");
+			"Found more than one suitable slot, please be more specific.\n");
 		retval = 5;
 		goto out_destroy;
 	}
@@ -709,7 +751,7 @@ int main(int argc, char *argv[])
 	res = program_bitstream(token, slot_num, &info, config.flags);
 	if (res < 0) {
 		retval = 5;
-		goto out_free;
+		goto out_destroy;
 	}
 	print_msg(1, "Done");
 
@@ -719,6 +761,9 @@ out_destroy:
 out_free:
 	free(info.data);
 out_exit:
+	if (config.filename) {
+		free(config.filename);
+		config.filename = NULL;
+	}
 	return retval;
 }
-

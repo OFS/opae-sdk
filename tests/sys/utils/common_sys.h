@@ -266,7 +266,7 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port);
 /**
 * @brief set fpga user clock
 *
-* @param syfs_path  port sysfs path
+* @param sysfs_path  port sysfs path
 * @parm  high user clock
 * @parm  low user clock
 *
@@ -278,7 +278,7 @@ fpga_result set_userclock(const char* sysfs_path, uint64_t userclk_high, uint64_
 /**
 * @brief Get fpga user clock
 *
-* @param syfs_path  port sysfs path
+* @param sysfs_path  port sysfs path
 * @parm  pointer to  high user clock
 * @parm  pointer to  low user clock
 *

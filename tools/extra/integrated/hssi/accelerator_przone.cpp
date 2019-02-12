@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -44,8 +44,8 @@ enum
 };
 
 
-accelerator_przone::accelerator_przone(mmio::ptr_t mmio)
-: mmio_(mmio)
+accelerator_przone::accelerator_przone(opae::fpga::types::handle::ptr_t h)
+: handle_(h)
 {
 
 }
@@ -55,15 +55,17 @@ bool accelerator_przone::read(uint32_t address, uint32_t & value)
     // add delay to account for timing differences in AFU logic and ETH logic
     std::this_thread::sleep_for(microseconds(mmio_delay_usec));
     uint32_t msg = static_cast<uint32_t>(przone_cmd::read) | address;
-    bool success = mmio_->write_mmio32(static_cast<uint32_t>(mmio_reg::afu_ctrl), msg);
-    return success && mmio_->read_mmio32(static_cast<uint32_t>(mmio_reg::afu_rd_data), value);
+    handle_->write_csr32(static_cast<uint32_t>(mmio_reg::afu_ctrl), msg);
+    value = handle_->read_csr32(static_cast<uint32_t>(mmio_reg::afu_rd_data));
+    return true;
 }
 
 bool accelerator_przone::write(uint32_t address, uint32_t value)
 {
-    bool success = mmio_->write_mmio32(static_cast<uint32_t>(mmio_reg::afu_wr_data), value);
+    handle_->write_csr32(static_cast<uint32_t>(mmio_reg::afu_wr_data), value);
     uint32_t msg = static_cast<uint32_t>(przone_cmd::write) | address;
-    return success && mmio_->write_mmio32(static_cast<uint32_t>(mmio_reg::afu_ctrl), msg);
+    handle_->write_csr32(static_cast<uint32_t>(mmio_reg::afu_ctrl), msg);
+    return true;
 }
 
 } // end of namespace hssi

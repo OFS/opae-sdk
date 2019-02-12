@@ -68,7 +68,9 @@ endif()
 ######################################################################
 # Client application #################################################
 ######################################################################
-
+if(BUILD_ASE)
+  add_definitions(-DTEST_TIMEOUT=130000000)
+endif()
 add_executable(hello_fpga hello_fpga.c)
 if(BUILD_LIBOPAE_C)
   target_link_libraries(hello_fpga ${libjson-c_LIBRARIES} uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
@@ -79,10 +81,17 @@ endif()
 if(BUILD_LIBOPAE_C)
   add_executable(hello_events hello_events.c)
   target_link_libraries(hello_events ${libjson-c_LIBRARIES} uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
+
+  add_executable(object_api object_api.c)
+  target_link_libraries(object_api ${libjson-c_LIBRARIES} uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
 endif()
 
-set(SAMPLES_SRC hello_fpga.c hello_events.c)
+set(SAMPLES_SRC hello_fpga.c hello_events.c object_api.c)
 
 install(FILES ${SAMPLES_SRC}
   DESTINATION ${OPAE_SAMPLES}
   COMPONENT samplesrc)
+
+install(TARGETS hello_fpga
+  RUNTIME DESTINATION bin
+  COMPONENT samplebin) 

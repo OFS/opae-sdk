@@ -25,15 +25,15 @@ Summary:    Runtime libraries for OPAE applications
 Group:      libs
 Requires:   uuid , json-c
 
-%description libs 
+%description libs
 This package contains runtime libraries that support OPAE applications
 
 %package devel
 Summary:    OPAE headers, sample source and documentation
 Group:      devel
-Requires:   opae-libs , libuuid-devel , json-c 
+Requires:   opae-libs , libuuid-devel , json-c
 
-%description devel 
+%description devel
 This package contains OPAE headers, sample source and documentation
 
 %package tools
@@ -41,7 +41,7 @@ Summary:    OPAE base tools binaries
 Group:      tools
 Requires:   opae-libs , opae-devel
 
-%description tools 
+%description tools
 This package contains OPAE base tools binaries
 
 %package tools-extra
@@ -49,7 +49,7 @@ Summary:    OPAE extra tools binaries
 Group:      tools-extra
 Requires:   opae-libs , opae-devel
 
-%description tools-extra 
+%description tools-extra
 This package contains OPAE extra tools binaries
 
 
@@ -58,7 +58,7 @@ Summary:    OPAE AFU Simulation Environment
 Group:      ase
 Requires:   opae-libs , opae-devel
 
-%description ase 
+%description ase
 This package contains OPAE AFU Simulation Environment
 
 
@@ -97,7 +97,7 @@ ldconfig
 rm -f -- /etc/ld.so.conf.d/opae-c.conf
 ldconfig
 
-%files 
+%files
 %defattr(-,root,root,-)
 
 
@@ -105,12 +105,19 @@ ldconfig
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-cxx*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libxfpga.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libbmc.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libmodbmc.so
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libbitstream.so*
+
 
 %files devel
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/afu_platform_config
+@CMAKE_INSTALL_PREFIX@/bin/afu_platform_info
 @CMAKE_INSTALL_PREFIX@/bin/afu_synth_setup
 @CMAKE_INSTALL_PREFIX@/bin/rtl_src_config
+@CMAKE_INSTALL_PREFIX@/bin/hello_fpga
 %dir @CMAKE_INSTALL_PREFIX@/include/opae
 @CMAKE_INSTALL_PREFIX@/include/opae/*
 %dir @CMAKE_INSTALL_PREFIX@/include/safe_string
@@ -125,9 +132,13 @@ ldconfig
 %files tools
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/fpgaconf
-@CMAKE_INSTALL_PREFIX@/bin/fpgad
 @CMAKE_INSTALL_PREFIX@/bin/fpgainfo
 @CMAKE_INSTALL_PREFIX@/bin/fpgaport
+@CMAKE_INSTALL_PREFIX@/bin/fpgametrics
+@CMAKE_INSTALL_PREFIX@/bin/fpgad
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-api.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-xfpga.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-vc.so*
 
 
 %files tools-extra
@@ -142,24 +153,23 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/fpga_dma_test
 @CMAKE_INSTALL_PREFIX@/bin/fpgabist
 @CMAKE_INSTALL_PREFIX@/bin/fpgadiag
-@CMAKE_INSTALL_PREFIX@/bin/nlb0
-@CMAKE_INSTALL_PREFIX@/bin/nlb3
-@CMAKE_INSTALL_PREFIX@/bin/nlb7
-@CMAKE_INSTALL_PREFIX@/bin/fpgamux
 @CMAKE_INSTALL_PREFIX@/bin/fpgaflash
 @CMAKE_INSTALL_PREFIX@/bin/hssi_config
 @CMAKE_INSTALL_PREFIX@/bin/hssi_loopback
 @CMAKE_INSTALL_PREFIX@/bin/mmlink
+@CMAKE_INSTALL_PREFIX@/bin/nlb0
+@CMAKE_INSTALL_PREFIX@/bin/nlb3
+@CMAKE_INSTALL_PREFIX@/bin/nlb7
 @CMAKE_INSTALL_PREFIX@/bin/packager
 @CMAKE_INSTALL_PREFIX@/bin/pac_hssi_config.py
 @CMAKE_INSTALL_PREFIX@/bin/ras
 @CMAKE_INSTALL_PREFIX@/bin/userclk
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c++-nlb.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c++-utils.so*
 %dir @CMAKE_INSTALL_PREFIX@/share/opae
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/python/
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/python/*
 @CMAKE_INSTALL_PREFIX@/share/opae/python/*
-
 
 %files ase
 %defattr(-,root,root,-)
@@ -172,4 +182,3 @@ ldconfig
 
 
 %changelog
-
