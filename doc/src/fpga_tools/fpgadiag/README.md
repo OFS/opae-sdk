@@ -370,7 +370,7 @@ copies 57535, 57536, 57537 ... up to 65535 cache lines, one line at a time.
 The test prints output in the comma separated values (CSV) format with the
 header suppressed.
 ```console
-./fpgadiag --mode=lpbk1 --target=fpga -SV --bus-number=0x5e --begin=57535
+./fpgadiag --mode=lpbk1 --target=fpga -V --bus=0x5e --begin=57535
 --end=65535 --cache-hint=rdline-I --cache-policy=wrpush-I --multi-cl=1
 --write-vc=vl0 --read-vc=vh1 --wrfence-vc=auto
 ```
@@ -379,15 +379,15 @@ This command starts a `read` test on the FPGA located on bus `0xbe`. The test
 reads 2045 cache lines in the continuous mode with a 15-second timeout period. 
 The reads use a strided pattern with a 10-byte stride length.
 ```console
-./fpgadiag --mode=read --target=fpga -SV --bus-number=0xbe --begin=2045 --cont
---timeout-sec=15   --cache-hint=rdline-I --multi-cl=1 -a=10 
+./fpgadiag --mode=read --target=fpga -V --bus=0xbe --begin=2045 --cont
+--timeout-sec=15 --cache-hint=rdline-I --multi-cl=1 -a=10 
 --read-vc=auto --wrfence-vc=auto
 ```
 
 This command starts a `sw` test on the FPGA located on bus `0xbe`. The test
 signals completion using a CSR write.
 ```console
-./fpgadiag --mode=sw --target=fpga -SV --bus-number=0xbe --begin=4 --end=8192
+./fpgadiag --mode=sw --target=fpga -V --bus=0xbe --begin=4 --end=8192
 --cache-hint=rdline-I --cache-policy=wrline-I --notice=csr-write --write-vc=vl0
 --wrfence-vc=auto --read-vc=random 
 ```
