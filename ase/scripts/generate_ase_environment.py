@@ -479,7 +479,7 @@ def config_qsys_sources(filelist, vlog_srcs, vhdl_srcs):
             open(qsys_sim_files['hex'], "w") as f_hex:
         for d in ip_dirs_copy:
             for dir, subdirs, files in os.walk(d):
-                for fn in files:
+                for fn in sorted(files, key=sort_key_qsys_files):
                     if ((os.path.basename(dir) == 'synth') and
                             (fn.endswith('.v') or fn.endswith('.sv') or
                              fn.endswith('.vhd') or fn.endswith('.hex'))):
@@ -507,6 +507,26 @@ def config_qsys_sources(filelist, vlog_srcs, vhdl_srcs):
             del qsys_sim_files[t]
 
     return qsys_sim_files
+
+
+#
+# Sort qsys generated files since the order they are passed to the
+# simulator may matter. In synth mode, qsys-generate doesn't emit
+# any configuration files that define compilation order, so we are
+# forced to use a heuristic.
+#
+def sort_key_qsys_files(fn):
+    # Sort by prepending an ordering token
+    root, ext = os.path.splitext(fn)
+    if (root.endswith('package') or root.endswith('pkg')):
+        return '0' + fn
+    if (root.endswith('library') or root.endswith('lib')):
+        return '1' + fn
+    if (root.endswith('functions')):
+        return '2' + fn
+    if (root.endswith('components')):
+        return '3' + fn
+    return '4' + fn
 
 
 #
