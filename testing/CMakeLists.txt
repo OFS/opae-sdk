@@ -598,6 +598,13 @@ target_link_libraries(test_fpgad_command_line_c
     fpgad-api-static
     )
 
+add_unit_test(test_fpgad_config_file_c fpgad-static
+    fpgad/test_config_file_c.cpp
+)
+target_link_libraries(test_fpgad_config_file_c
+    fpgad-api-static
+    )
+
 add_unit_test(test_fpgad_fpgad_c fpgad-static
     fpgad/test_fpgad_c.cpp
 )
