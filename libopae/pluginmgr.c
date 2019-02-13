@@ -81,7 +81,7 @@ STATIC int opae_plugin_mgr_plugin_count;
 
 #define CFG_PATHS 5
 static const char *_opae_cfg_files[CFG_PATHS] = {
-	"$HOME/.local/opae.cfg"
+	"$HOME/.local/opae.cfg",
 	"$HOME/.local/opae/opae.cfg",
 	"$HOME/.config/opae/opae.cfg",
 	"/usr/local/etc/opae/opae.cfg",
@@ -116,7 +116,7 @@ STATIC int resolve_file_name(char *dst, const char *src)
 		} else {
 			dir_value = ptok;
 		}
-		if (strncpy_s(pdst, len, dir_value, len)) {
+		if (strncpy_s(pdst, PATH_MAX, dir_value, len)) {
 			dst[0] = '\0';
 			OPAE_ERR("error copying path component");
 			return 1;
