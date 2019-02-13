@@ -7,11 +7,11 @@ function finish() {
 	find testing -iname "*.gcda" -exec chmod 664 '{}' \;
 	find testing -iname "*.gcno" -exec chmod 664 '{}' \;
 
-	lcov --directory testing --capture --output-file coverage.info
+	lcov --directory testing --capture --output-file coverage.info 2> /dev/null
 
 	lcov -a coverage.base -a coverage.info --output-file coverage.total
 	lcov --remove coverage.total '/usr/**' 'tests/**' '*/**/CMakeFiles*' '/usr/*' 'safe_string/**' 'pybind11/*' 'testing/**' --output-file coverage.info.cleaned
-	genhtml --function-coverage -o coverage_report coverage.info.cleaned
+	genhtml --function-coverage -o coverage_report coverage.info.cleaned 2> /dev/null
 
 }
 trap "finish" EXIT
@@ -30,7 +30,7 @@ echo "Making tests"
 make -j4 test_unit xfpga modbmc fpgad-xfpga
 
 lcov --directory . --zerocounters
-lcov -c -i -d . -o coverage.base
+lcov -c -i -d . -o coverage.base 2> /dev/null
 
 LD_LIBRARY_PATH=${PWD}/lib \
 CTEST_OUTPUT_ON_FAILURE=1 \

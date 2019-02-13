@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,34 +23,55 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+/*
+ * mock_opae.h
+ */
+#pragma once
 
-#ifndef __OPAE_PLUGINMGR_H__
-#define __OPAE_PLUGINMGR_H__
 
-#include "adapter.h"
 
-// non-zero on failure.
-int opae_plugin_mgr_initialize(const char *cfg_file);
+#include <opae/fpga.h>
+#include "gtest/gtest.h"
+#include "test_system.h"
 
-// non-zero on failure.
-int opae_plugin_mgr_finalize_all(void);
+namespace opae {
+namespace testing {
 
-// iteration stops if callback returns non-zero.
-#define OPAE_ENUM_STOP 1
-#define OPAE_ENUM_CONTINUE 0
-int opae_plugin_mgr_for_each_adapter(
-	int (*callback)(const opae_api_adapter_table *, void *), void *context);
+template<int _T = 2>
+class mock_opae_p : public ::testing::TestWithParam<std::string> {
+ protected:
+  mock_opae_p(): tokens_{ {} } {}
 
-#define PLUGIN_SUPPORTED_DEVICES_MAX 256
-#define PLUGIN_NAME_MAX 64
-typedef struct _plugin_cfg {
-	char name[PLUGIN_NAME_MAX];
-	char plugin[PLUGIN_NAME_MAX];
-	bool enabled;
-	char *cfg;
-	size_t cfg_size;
-	uint32_t supported_devices[PLUGIN_SUPPORTED_DEVICES_MAX];
-	struct _plugin_cfg *next;
-} plugin_cfg;
+  virtual void SetUp() override {
+    ASSERT_TRUE(test_platform::exists(GetParam()));
+    platform_ = test_platform::get(GetParam());
+    system_ = test_system::instance();
+    system_->initialize();
+    system_->prepare_syfs(platform_);
+    test_setup();
+  }
 
-#endif /* __OPAE_PLUGINMGR_H__ */
+  virtual void TearDown() override {
+    for (auto &t : tokens_) {
+      if (t) {
+        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
+    }
+    test_teardown();
+    system_->finalize();
+  }
+
+  virtual void test_setup() {
+  }
+
+  virtual void test_teardown() {
+  }
+
+  std::array<fpga_token, _T> tokens_;
+  test_platform platform_;
+  test_system *system_;
+};
+
+} // end of namespace testing
+} // end of namespace opae
