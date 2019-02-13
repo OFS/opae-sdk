@@ -197,6 +197,104 @@ TEST_P(fpgad_config_file_c_p, load3) {
 }
 
 /**
+ * @test       load4
+ * @brief      Test: cfg_load_config, cfg_verify_supported_devices
+ * @details    If the given file contains valid configuration content,<br>
+ *             but a "plugin" key specifies an absolute path,<br>
+ *             then the fn returns non-zero.<br>
+ */
+TEST_P(fpgad_config_file_c_p, load4) {
+  const char *cfg = R"cfg(
+{
+  "configurations": {
+    "a": {
+      "configuration": {},
+      "enabled": true,
+      "plugin": "/my/absolute/path/liba.so",
+      "devices": [
+        [ "0x8086", "0xbcc0" ]
+      ]
+    }
+  },
+  "plugins": [
+    "a"
+  ]
+}
+)cfg";
+
+  write_cfg(cfg);
+  EXPECT_NE(cfg_load_config(&config_), 0);
+}
+
+/**
+ * @test       load5
+ * @brief      Test: cfg_load_config, cfg_verify_supported_devices
+ * @details    If the given file contains valid configuration content,<br>
+ *             but a "plugin" key specifies a path that contains ..,<br>
+ *             then the fn returns non-zero.<br>
+ */
+TEST_P(fpgad_config_file_c_p, load5) {
+  const char *cfg = R"cfg(
+{
+  "configurations": {
+    "a": {
+      "configuration": {},
+      "enabled": true,
+      "plugin": "../liba.so",
+      "devices": [
+        [ "0x8086", "0xbcc0" ]
+      ]
+    }
+  },
+  "plugins": [
+    "a"
+  ]
+}
+)cfg";
+
+  write_cfg(cfg);
+  EXPECT_NE(cfg_load_config(&config_), 0);
+}
+
+/**
+ * @test       load6
+ * @brief      Test: cfg_load_config, cfg_verify_supported_devices
+ * @details    If the given file contains valid configuration content,<br>
+ *             but a "plugin" key specifies a path that contains a symlink,<br>
+ *             then the fn returns non-zero.<br>
+ */
+TEST_P(fpgad_config_file_c_p, load6) {
+  const char *cfg = R"cfg(
+{
+  "configurations": {
+    "a": {
+      "configuration": {},
+      "enabled": true,
+      "plugin": "bar/liba.so",
+      "devices": [
+        [ "0x8086", "0xbcc0" ]
+      ]
+    }
+  },
+  "plugins": [
+    "a"
+  ]
+}
+)cfg";
+
+  write_cfg(cfg);
+
+  ASSERT_EQ(mkdir("bar", 0755), 0);
+  std::string s = std::string("../") + std::string(cfg_file_);
+  ASSERT_EQ(symlink(s.c_str(), "bar/liba.so"), 0);
+
+  EXPECT_NE(cfg_load_config(&config_), 0);
+
+  ASSERT_EQ(unlink("bar/liba.so"), 0);
+  ASSERT_EQ(rmdir("bar"), 0);
+}
+
+/**
  * @test       process_plugin0
  * @brief      Test: cfg_process_plugin
  * @details    If the given file lacks a plugin configuration,<br>
