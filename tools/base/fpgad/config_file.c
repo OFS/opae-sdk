@@ -584,14 +584,14 @@ int cfg_load_config(struct fpgad_config *c)
 			fpgad_supported_device *trash = c->supported_devices;
 
 			LOG("invalid configuration file\n");
-		
+
 			while (trash->library_path) {
 				free((void *)trash->library_path);
 				if (trash->config)
 					free((void *)trash->config);
 
 				++trash;
-			}	
+			}
 
 			free(c->supported_devices);
 			c->supported_devices = NULL;
