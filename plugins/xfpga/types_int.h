@@ -73,15 +73,13 @@
 // FME path
 #define SYSFS_FME_PATH         "*%d/*-fme.%d"
 
-// Integrated FPGA Device ID
-#define FPGA_INTEGRATED_DEVICEID 0xbcc0
+#define MCP_FPGA_BBS_VER_MAJOR(i) (((i) >> 56) & 0xf)
+#define MCP_FPGA_BBS_VER_MINOR(i) (((i) >> 52) & 0xf)
+#define MCP_FPGA_BBS_VER_PATCH(i) (((i) >> 48) & 0xf)
 
-// Discrete FPGA Device ID
-#define FPGA_DISCRETE_DEVICEID 0x09c4
-
-#define FPGA_BBS_VER_MAJOR(i) (((i) >> 56) & 0xf)
-#define FPGA_BBS_VER_MINOR(i) (((i) >> 52) & 0xf)
-#define FPGA_BBS_VER_PATCH(i) (((i) >> 48) & 0xf)
+#define DCP_FPGA_BBS_VER_MAJOR(i) (((i) >> 60) & 0xf)
+#define DCP_FPGA_BBS_VER_MINOR(i) (((i) >> 56) & 0xf)
+#define DCP_FPGA_BBS_VER_PATCH(i) (((i) >> 52) & 0xf)
 
 #define DEV_PATH_MAX 256
 
