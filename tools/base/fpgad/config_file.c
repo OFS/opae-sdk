@@ -481,6 +481,38 @@ cfg_json_to_supported(cfg_plugin_configuration *configurations)
 	return supported;
 }
 
+STATIC bool cfg_verify_supported_devices(fpgad_supported_device *d)
+{
+	while (d->library_path) {
+		char *sub = NULL;
+		errno_t err;
+
+		if (d->library_path[0] == '/') {
+			LOG("plugin library paths may not "
+			    "be absolute paths: %s\n", d->library_path);
+			return false;
+		}
+
+		if (cmd_path_is_symlink(d->library_path)) {
+			LOG("plugin library paths may not "
+			    "contain links: %s\n", d->library_path);
+			return false;
+		}
+
+		err = strstr_s((char *)d->library_path, PATH_MAX,
+			       "..", 2, &sub);
+		if (EOK == err) {
+			LOG("plugin library paths may not "
+			    "contain .. : %s\n", d->library_path);
+			return false;
+		}
+
+		++d;
+	}
+
+	return true;
+}
+
 int cfg_load_config(struct fpgad_config *c)
 {
 	char *cfg_buf;
@@ -544,8 +576,28 @@ int cfg_load_config(struct fpgad_config *c)
 
 	c->supported_devices = cfg_json_to_supported(configurations);
 
-	if (c->supported_devices)
-		res = 0;
+	if (c->supported_devices) {
+
+		if (cfg_verify_supported_devices(c->supported_devices)) {
+			res = 0;
+		} else {
+			fpgad_supported_device *trash = c->supported_devices;
+
+			LOG("invalid configuration file\n");
+
+			while (trash->library_path) {
+				free((void *)trash->library_path);
+				if (trash->config)
+					free((void *)trash->config);
+
+				++trash;
+			}
+
+			free(c->supported_devices);
+			c->supported_devices = NULL;
+		}
+
+	}
 
 out_put:
 	json_object_put(root);

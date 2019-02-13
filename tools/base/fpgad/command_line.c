@@ -441,7 +441,6 @@ bool cmd_path_is_symlink(const char *path)
 
 			if (fstatat(AT_FDCWD, component,
 				    &stat_buf, AT_SYMLINK_NOFOLLOW)) {
-				LOG("fstatat failed.\n");
 				return false;
 			}
 
@@ -454,7 +453,6 @@ bool cmd_path_is_symlink(const char *path)
 
 		if (fstatat(AT_FDCWD, component,
 			    &stat_buf, AT_SYMLINK_NOFOLLOW)) {
-			LOG("fstatat failed.\n");
 			return false;
 		}
 
