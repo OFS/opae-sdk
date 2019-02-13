@@ -104,18 +104,24 @@ STATIC int resolve_file_name(char *dst, const char *src)
 	}
 
 	while (ptok && len_cpy) {
-		*pdst++ = '/';
 		ptok = strtok_s(NULL, &len_cpy, "/", &pstr);
+		*pdst++ = '/';
 		if (ptok[0] == '$') {
 			dir_value = getenv(ptok+1);
 			if (!dir_value) {
+				dst[0] = '\0';
 				OPAE_MSG("Could not find env var: '%s'", ptok+1);
 				return 1;
 			}
-			len = strlen(dir_value);
+			// we are already including a '/' char, remove it if it
+			// starts with one
+			if (*dir_value == '/') {
+				dir_value++;
+			}
 		} else {
 			dir_value = ptok;
 		}
+		len = strlen(dir_value);
 		if (strncpy_s(pdst, PATH_MAX, dir_value, len)) {
 			dst[0] = '\0';
 			OPAE_ERR("error copying path component");
@@ -123,7 +129,7 @@ STATIC int resolve_file_name(char *dst, const char *src)
 		}
 		pdst = dst + strlen(dst);
 	}
-	*++pdst = '\0';
+	*pdst = '\0';
 	return 0;
 }
 
@@ -134,7 +140,7 @@ STATIC char *find_cfg()
 {
 	int i = 0;
 	char *file_name = NULL;
-	char opae_cfg_files[PATH_MAX][CFG_PATHS] = { { 0 } };
+	char opae_cfg_files[CFG_PATHS][PATH_MAX] = { { 0 } };
 
 	for (; i < CFG_PATHS; ++i) {
 		resolve_file_name(opae_cfg_files[i], _opae_cfg_files[i]);
