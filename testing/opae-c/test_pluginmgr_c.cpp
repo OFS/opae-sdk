@@ -500,12 +500,17 @@ class pluginmgr_cfg_p : public ::testing::TestWithParam<const char*> {
       int pos = dir.find('/', 1);
       while (pos != std::string::npos) {
         std::string sub = dir.substr(0, pos);
-        if (stat(sub.c_str(), &st)) {
-          ASSERT_EQ(mkdir(sub.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH), 0);
+        if (stat(sub.c_str(), &st) && sub != "") {
+          ASSERT_EQ(mkdir(sub.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH),
+                    0)
+              << "Error creating subdirectory (" << sub
+              << "}: " << strerror(errno);
         }
-        pos = pos < dir.size() ? dir.find('/', pos+1) : std::string::npos;
+        pos = pos < dir.size() ? dir.find('/', pos + 1) : std::string::npos;
       }
-      ASSERT_EQ(mkdir(cfg_dir_, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH), 0);
+      ASSERT_EQ(mkdir(cfg_dir_, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH), 0)
+          << "Error creating subdirectory (" << cfg_dir_
+          << "}: " << strerror(errno);
     }
 
     if (stat(cfg_file_.c_str(), &st) == 0) {
