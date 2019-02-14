@@ -55,6 +55,7 @@ extern opae_api_adapter_table *adapter_list;
 #include <memory>
 #include <string>
 #include <vector>
+#include <stack>
 #include "gtest/gtest.h"
 #include "test_system.h"
 
@@ -486,31 +487,48 @@ TEST(pluginmgr_c_p, no_cfg) {
 
 class pluginmgr_cfg_p : public ::testing::TestWithParam<const char*> {
  protected:
-  pluginmgr_cfg_p() {}
+  pluginmgr_cfg_p() : buffer_ {0} {}
 
   virtual void SetUp() override {
-    char copy_file[PATH_MAX] = {0};
-    cfg_file_ = std::string(getenv("HOME")) + std::string(GetParam());
+    // This parameterized test iterates over the possible config file paths
+    // relative to a user's home directory
 
-    std::copy(cfg_file_.begin(), cfg_file_.end(), &copy_file[0]);
-    cfg_dir_ = dirname(copy_file);
+    // let's build the full path by prepending the parameter with $HOME
+    char *home_cstr = getenv("HOME");
+    ASSERT_NE(home_cstr, nullptr) << "No home environment found";
+    std::string home = home_cstr;
+    // the parameter paths start with a '/'
+    cfg_file_ = home + std::string(GetParam());
+    // copy it to a temporary buffer that we can use dirname with
+    std::copy(cfg_file_.begin(), cfg_file_.end(), &buffer_[0]);
+    // get the directory name of the file
+    cfg_dir_ = dirname(buffer_);
     struct stat st;
+    // if the directory doesn't exist, create the entire path
     if (stat(cfg_dir_, &st)) {
       std::string dir = cfg_dir_;
-      int pos = dir.find('/', 1);
+      // find the first '/' after $HOME
+      int pos = dir.find('/', home.size());
       while (pos != std::string::npos) {
         std::string sub = dir.substr(0, pos);
+        // sub is $HOME/<dir1>, then $HOME/<dir1>/<dir2>, ...
+        // if this directory doesn't exist, create it
         if (stat(sub.c_str(), &st) && sub != "") {
           ASSERT_EQ(mkdir(sub.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH),
                     0)
               << "Error creating subdirectory (" << sub
               << "}: " << strerror(errno);
+          // keep track of directories created
+          dirs_.push(sub);
         }
         pos = pos < dir.size() ? dir.find('/', pos + 1) : std::string::npos;
       }
+      // finally, we know the entire path didn't exist, create the last
+      // directory
       ASSERT_EQ(mkdir(cfg_dir_, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH), 0)
           << "Error creating subdirectory (" << cfg_dir_
           << "}: " << strerror(errno);
+      dirs_.push(cfg_dir_);
     }
 
     if (stat(cfg_file_.c_str(), &st) == 0) {
@@ -525,10 +543,17 @@ class pluginmgr_cfg_p : public ::testing::TestWithParam<const char*> {
   virtual void TearDown() override {
     opae_plugin_mgr_finalize_all();
     unlink(cfg_file_.c_str());
+    // remove any directories we created in SetUp
+    while (!dirs_.empty()) {
+      unlink(dirs_.top().c_str());
+      dirs_.pop();
+    }
   }
 
+  char buffer_[PATH_MAX];
   std::string cfg_file_;
   char *cfg_dir_;
+  std::stack<std::string> dirs_;
 };
 
 
