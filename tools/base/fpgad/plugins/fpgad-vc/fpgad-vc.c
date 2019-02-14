@@ -29,6 +29,7 @@
 #endif // HAVE_CONFIG_H
 
 #include <glob.h>
+#include <json-c/json.h>
 
 #include "safe_string/safe_string.h"
 #include "fpgad/api/opae_events_api.h"
@@ -459,6 +460,7 @@ STATIC fpga_result vc_force_pci_rescan(void)
 }
 
 STATIC pthread_mutex_t cool_down_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+STATIC int cool_down = 30;
 
 STATIC void *monitor_fme_vc_thread(void *arg)
 {
@@ -470,7 +472,6 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 	uint32_t enum_retries = 0;
 	uint8_t *save_state_last = NULL;
 
-	const int cool_down = 30;
 	int i;
 	errno_t err;
 
@@ -527,11 +528,49 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 	return NULL;
 }
 
+// cool-down
+STATIC int vc_parse_config(const char *cfg)
+{
+	json_object *root;
+	enum json_tokener_error j_err = json_tokener_success;
+	json_object *j_cool_down = NULL;
+	int res = 1;
+
+	root = json_tokener_parse_verbose(cfg, &j_err);
+	if (!root) {
+		LOG("error parsing config: %s\n",
+		    json_tokener_error_desc(j_err));
+		return 1;
+	}
+
+	if (!json_object_object_get_ex(root,
+				       "cool-down",
+				       &j_cool_down)) {
+		LOG("failed to find cool-down key in config.\n");
+		goto out_put;
+	}
+
+	if (!json_object_is_type(j_cool_down, json_type_int)) {
+		LOG("cool-down key not integer.\n");
+		goto out_put;
+	}
+
+	cool_down = json_object_get_int(j_cool_down);
+	if (cool_down < 0)
+		cool_down = 30;
+
+	LOG("set cool-down period to %d seconds.\n", cool_down);
+
+	res = 0;
+
+out_put:
+	json_object_put(root);
+	return res;
+}
+
 int fpgad_plugin_configure(fpgad_monitored_device *d,
 			   const char *cfg)
 {
-	UNUSED_PARAM(cfg);
-
 	int res = 1;
 	vc_device *vc;
 
@@ -597,7 +636,8 @@ int fpgad_plugin_configure(fpgad_monitored_device *d,
 			d->object_type == FPGA_ACCELERATOR ?
 			"accelerator" : "device");
 
-		res = 0;
+		if (!vc_parse_config(cfg))
+			res = 0;
 	}
 
 	// Not currently monitoring the Port device
