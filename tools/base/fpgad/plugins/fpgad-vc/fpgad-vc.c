@@ -528,7 +528,6 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 	return NULL;
 }
 
-// cool-down
 STATIC int vc_parse_config(const char *cfg)
 {
 	json_object *root;
