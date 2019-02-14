@@ -28,6 +28,7 @@ extern "C" {
 
 #include <json-c/json.h>
 #include <uuid/uuid.h>
+#include <libgen.h>
 #include "opae_int.h"
 #include "pluginmgr.h"
 
@@ -370,13 +371,14 @@ const char *plugin_cfg_5 = R"plug(
 }
 )plug";
 
-
+#define HOME_CFG_PATHS 3
 extern "C" {
   void opae_plugin_mgr_reset_cfg(void);
   int opae_plugin_mgr_load_cfg_plugins(void);
+  int opae_plugin_mgr_finalize_all(void);
   extern plugin_cfg *opae_plugin_mgr_config_list;
   extern int opae_plugin_mgr_plugin_count;
-  void resolve_file_name(char *, const char *);
+  extern const char *_opae_home_cfg_files[HOME_CFG_PATHS];
 }
 
 TEST(pluginmgr_c_p, process_cfg_buffer) {
@@ -482,23 +484,60 @@ TEST(pluginmgr_c_p, no_cfg) {
   ASSERT_EQ(p1, nullptr);
 }
 
-TEST(pluginmgr_c_p, find_and_parse_cfg) {
-  auto cfg_dir = std::string(getenv("HOME")) + "/.local";
-  struct stat st;
-  if (stat(cfg_dir.c_str(), &st) != 0) {
-    ASSERT_EQ(mkdir(cfg_dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH), 0);
+class pluginmgr_cfg_p : public ::testing::TestWithParam<const char*> {
+ protected:
+  pluginmgr_cfg_p() {}
+
+  virtual void SetUp() override {
+    char copy_file[PATH_MAX] = {0};
+    cfg_file_ = std::string(getenv("HOME")) + std::string(GetParam());
+
+    std::copy(cfg_file_.begin(), cfg_file_.end(), &copy_file[0]);
+    cfg_dir_ = dirname(copy_file);
+    struct stat st;
+    if (stat(cfg_dir_, &st) != 0) {
+      std::string dir = cfg_dir_;
+      int pos = dir.find('/', 0);
+      while (pos != std::string::npos) {
+        std::string sub = dir.substr(0, pos);
+        if (stat(sub.c_str(), &st)) {
+          ASSERT_EQ(mkdir(sub.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH), 0);
+        }
+        pos = dir.find('/', pos);
+      }
+
+    }
+
+    if (stat(cfg_file_.c_str(), &st) == 0) {
+      unlink(cfg_file_.c_str());
+    }
+
+    std::ofstream cfg_stream(cfg_file_);
+    cfg_stream.write(dummy_cfg, strlen(dummy_cfg));
+    cfg_stream.close();
   }
 
-  auto cfg_file = cfg_dir + "/opae.cfg";
-  if (stat(cfg_file.c_str(), &st) == 0) {
-    unlink(cfg_file.c_str());
+  virtual void TearDown() override {
+    opae_plugin_mgr_finalize_all();
+    unlink(cfg_file_.c_str());
   }
 
-  std::ofstream cfg_stream(cfg_file);
-  cfg_stream.write(dummy_cfg, strlen(dummy_cfg));
-  cfg_stream.close();
+  std::string cfg_file_;
+  char *cfg_dir_;
+};
 
 
+/**
+ * @test       find_and_parse_cfg
+ * @brief      Test: find_and_parse_cfg
+ * @details    Given a valid configuration with one plugin<br>
+ *             And a configuration file located in one of three possible paths
+ *             in the user's home directory<br>
+ *             When I call opae_plugin_mgr_initialize
+ *             Then the call is successful<br>
+ *             And the number of plugins in the global plugin list is 1
+ */
+TEST_P(pluginmgr_cfg_p, find_and_parse_cfg) {
   opae_plugin_mgr_reset_cfg();
   EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
   ASSERT_EQ(opae_plugin_mgr_initialize(nullptr), 0);
@@ -507,5 +546,7 @@ TEST(pluginmgr_c_p, find_and_parse_cfg) {
   ASSERT_NE(p1, nullptr);
   ASSERT_EQ(p1->next, nullptr);
   EXPECT_TRUE(p1->enabled);
-  unlink(cfg_file.c_str());
 }
+
+INSTANTIATE_TEST_CASE_P(pluginmgr_cfg, pluginmgr_cfg_p,
+                        ::testing::ValuesIn(_opae_home_cfg_files));
