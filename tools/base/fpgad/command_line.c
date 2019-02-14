@@ -29,6 +29,8 @@
 #endif // HAVE_CONFIG_H
 
 #include <getopt.h>
+#include <sys/types.h>
+#include <pwd.h>
 #include "command_line.h"
 #include "config_file.h"
 #include "monitored_device.h"
@@ -202,15 +204,20 @@ int cmd_parse_args(struct fpgad_config *c, int argc, char *argv[])
 	return 0;
 }
 
-void cmd_canonicalize_paths(struct fpgad_config *c)
+int cmd_canonicalize_paths(struct fpgad_config *c)
 {
 	char *sub;
 	bool def;
 	mode_t mode;
 	struct stat stat_buf;
 	bool search = true;
+	char buf[PATH_MAX];
+	char *canon_path;
+	uid_t uid;
 
-	if (!geteuid()) {
+	uid = geteuid();
+
+	if (!uid) {
 		// If we're being run as root, then use DEFAULT_DIR_ROOT
 		// as the working directory.
 		strncpy_s(c->directory, sizeof(c->directory),
@@ -219,27 +226,21 @@ void cmd_canonicalize_paths(struct fpgad_config *c)
 		c->filemode = 0026;
 	} else {
 		// We're not root. Try to use ${HOME}/.opae
-		char *home = getenv("HOME");
-		char *canon_path = NULL;
-		int res = 1;
+		struct passwd *passwd;
 
-		// Accept ${HOME} only if it is rooted at /home.
-		if (home) {
-			canon_path = canonicalize_file_name(home);
-			int len = strnlen_s(canon_path, PATH_MAX);
-			if (len >= 5)
-				strcmp_s(canon_path, 5, "/home/", &res);
-		}
+		passwd = getpwuid(uid);
 
-		if (canon_path && !res) {
+		canon_path = canonicalize_file_name(passwd->pw_dir);
+
+		if (canon_path) {
 			snprintf_s_s(c->directory, sizeof(c->directory),
 					"%s/.opae", canon_path);
+			free(canon_path);
 		} else {
-			char cwd[PATH_MAX];
 			// ${HOME} not found or invalid - use current dir.
-			if (getcwd(cwd, sizeof(cwd))) {
+			if (getcwd(buf, sizeof(buf))) {
 				snprintf_s_s(c->directory, sizeof(c->directory),
-						"%s/.opae", cwd);
+						"%s/.opae", buf);
 			} else {
 				// Current directory not found - use /
 				strncpy_s(c->directory, sizeof(c->directory),
@@ -247,18 +248,23 @@ void cmd_canonicalize_paths(struct fpgad_config *c)
 			}
 		}
 
-		if (canon_path) {
-			free(canon_path);
-		}
 		mode = 0775;
 		c->filemode = 0022;
+	}
+
+	if (cmd_path_is_symlink(c->directory)) {
+		LOG("Aborting - working directory contains a link: %s\n.",
+		    c->directory);
+		return 1;
 	}
 	LOG("daemon working directory is %s\n", c->directory);
 
 	// Create the directory if it doesn't exist.
 	if (lstat(c->directory, &stat_buf) && (errno == ENOENT)) {
-		if (mkdir(c->directory, mode))
+		if (mkdir(c->directory, mode)) {
 			LOG("mkdir failed\n");
+			return 1;
+		}
 	}
 
 	// Verify logfile and pidfile do not contain ".."
@@ -280,11 +286,16 @@ void cmd_canonicalize_paths(struct fpgad_config *c)
 		snprintf_s_ss(c->logfile, sizeof(c->logfile),
 				"%s/%s", c->directory, DEFAULT_LOG);
 	} else {
-		char tmp[PATH_MAX];
-		strncpy_s(tmp, sizeof(tmp),
+		strncpy_s(buf, sizeof(buf),
 				c->logfile, sizeof(c->logfile));
 		snprintf_s_ss(c->logfile, sizeof(c->logfile),
-				"%s/%s", c->directory, tmp);
+				"%s/%s", c->directory, buf);
+	}
+
+	if (cmd_path_is_symlink(c->logfile)) {
+		LOG("Aborting - log file path contains a link: %s\n.",
+		    c->logfile);
+		return 1;
 	}
 	LOG("daemon log file is %s\n", c->logfile);
 
@@ -305,11 +316,16 @@ void cmd_canonicalize_paths(struct fpgad_config *c)
 		snprintf_s_ss(c->pidfile, sizeof(c->pidfile),
 				"%s/%s", c->directory, DEFAULT_PID);
 	} else {
-		char tmp[PATH_MAX];
-		strncpy_s(tmp, sizeof(tmp),
+		strncpy_s(buf, sizeof(buf),
 				c->pidfile, sizeof(c->pidfile));
 		snprintf_s_ss(c->pidfile, sizeof(c->pidfile),
-				"%s/%s", c->directory, tmp);
+				"%s/%s", c->directory, buf);
+	}
+
+	if (cmd_path_is_symlink(c->pidfile)) {
+		LOG("Aborting - pid file path contains a link: %s\n.",
+		    c->pidfile);
+		return 1;
 	}
 	LOG("daemon pid file is %s\n", c->pidfile);
 
@@ -324,8 +340,6 @@ void cmd_canonicalize_paths(struct fpgad_config *c)
 	if (def || (c->cfgfile[0] == '\0')) {
 		search = true;
 	} else {
-		char *canon_path;
-
 		canon_path = canonicalize_file_name(c->cfgfile);
 		if (canon_path) {
 
@@ -366,6 +380,8 @@ void cmd_canonicalize_paths(struct fpgad_config *c)
 		c->cfgfile[0] = '\0';
 		c->supported_devices = default_supported_devices_table;
 	}
+
+	return 0;
 }
 
 void cmd_destroy(struct fpgad_config *c)

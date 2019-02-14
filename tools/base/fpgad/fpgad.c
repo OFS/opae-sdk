@@ -82,7 +82,10 @@ int main(int argc, char *argv[])
 		goto out_destroy;
 	}
 
-	cmd_canonicalize_paths(&global_config);
+	if (cmd_canonicalize_paths(&global_config)) {
+		LOG("error with paths.\n");
+		goto out_destroy;
+	}
 
 	if (global_config.daemon) {
 		FILE *fp;
