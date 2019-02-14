@@ -28,6 +28,7 @@ extern "C" {
 
 #include <json-c/json.h>
 #include <uuid/uuid.h>
+#include <libgen.h>
 #include "opae_int.h"
 #include "pluginmgr.h"
 
@@ -54,6 +55,7 @@ extern opae_api_adapter_table *adapter_list;
 #include <memory>
 #include <string>
 #include <vector>
+#include <stack>
 #include "gtest/gtest.h"
 #include "test_system.h"
 
@@ -370,13 +372,14 @@ const char *plugin_cfg_5 = R"plug(
 }
 )plug";
 
-
+#define HOME_CFG_PATHS 3
 extern "C" {
   void opae_plugin_mgr_reset_cfg(void);
   int opae_plugin_mgr_load_cfg_plugins(void);
+  int opae_plugin_mgr_finalize_all(void);
   extern plugin_cfg *opae_plugin_mgr_config_list;
   extern int opae_plugin_mgr_plugin_count;
-  void resolve_file_name(char *, const char *);
+  extern const char *_opae_home_cfg_files[HOME_CFG_PATHS];
 }
 
 TEST(pluginmgr_c_p, process_cfg_buffer) {
@@ -473,23 +476,98 @@ TEST(pluginmgr_c_p, dummy_plugin) {
   unlink("opae_log.log");
 }
 
-TEST(pluginmgr_c_p, find_cfg) {
-  auto cfg_dir = std::string(getenv("HOME")) + "/.local";
-  struct stat st;
-  if (stat(cfg_dir.c_str(), &st) != 0) {
-    ASSERT_EQ(mkdir(cfg_dir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH), 0);
+TEST(pluginmgr_c_p, no_cfg) {
+  opae_plugin_mgr_reset_cfg();
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
+  ASSERT_EQ(opae_plugin_mgr_initialize(nullptr), 0);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
+  auto p1 = opae_plugin_mgr_config_list;
+  ASSERT_EQ(p1, nullptr);
+}
+
+class pluginmgr_cfg_p : public ::testing::TestWithParam<const char*> {
+ protected:
+  pluginmgr_cfg_p() : buffer_ {0} {}
+
+  virtual void SetUp() override {
+    // This parameterized test iterates over the possible config file paths
+    // relative to a user's home directory
+
+    // let's build the full path by prepending the parameter with $HOME
+    char *home_cstr = getenv("HOME");
+    ASSERT_NE(home_cstr, nullptr) << "No home environment found";
+    std::string home = home_cstr;
+    // the parameter paths start with a '/'
+    cfg_file_ = home + std::string(GetParam());
+    // copy it to a temporary buffer that we can use dirname with
+    std::copy(cfg_file_.begin(), cfg_file_.end(), &buffer_[0]);
+    // get the directory name of the file
+    cfg_dir_ = dirname(buffer_);
+    struct stat st;
+    // if the directory doesn't exist, create the entire path
+    if (stat(cfg_dir_, &st)) {
+      std::string dir = cfg_dir_;
+      // find the first '/' after $HOME
+      int pos = dir.find('/', home.size());
+      while (pos != std::string::npos) {
+        std::string sub = dir.substr(0, pos);
+        // sub is $HOME/<dir1>, then $HOME/<dir1>/<dir2>, ...
+        // if this directory doesn't exist, create it
+        if (stat(sub.c_str(), &st) && sub != "") {
+          ASSERT_EQ(mkdir(sub.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH),
+                    0)
+              << "Error creating subdirectory (" << sub
+              << "}: " << strerror(errno);
+          // keep track of directories created
+          dirs_.push(sub);
+        }
+        pos = pos < dir.size() ? dir.find('/', pos + 1) : std::string::npos;
+      }
+      // finally, we know the entire path didn't exist, create the last
+      // directory
+      ASSERT_EQ(mkdir(cfg_dir_, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH), 0)
+          << "Error creating subdirectory (" << cfg_dir_
+          << "}: " << strerror(errno);
+      dirs_.push(cfg_dir_);
+    }
+
+    if (stat(cfg_file_.c_str(), &st) == 0) {
+      unlink(cfg_file_.c_str());
+    }
+
+    std::ofstream cfg_stream(cfg_file_);
+    cfg_stream.write(dummy_cfg, strlen(dummy_cfg));
+    cfg_stream.close();
   }
 
-  auto cfg_file = cfg_dir + "/opae.cfg";
-  if (stat(cfg_file.c_str(), &st) == 0) {
-    unlink(cfg_file.c_str());
+  virtual void TearDown() override {
+    opae_plugin_mgr_finalize_all();
+    unlink(cfg_file_.c_str());
+    // remove any directories we created in SetUp
+    while (!dirs_.empty()) {
+      unlink(dirs_.top().c_str());
+      dirs_.pop();
+    }
   }
 
-  std::ofstream cfg_stream(cfg_file);
-  cfg_stream.write(dummy_cfg, strlen(dummy_cfg));
-  cfg_stream.close();
+  char buffer_[PATH_MAX];
+  std::string cfg_file_;
+  char *cfg_dir_;
+  std::stack<std::string> dirs_;
+};
 
 
+/**
+ * @test       find_and_parse_cfg
+ * @brief      Test: find_and_parse_cfg
+ * @details    Given a valid configuration with one plugin<br>
+ *             And a configuration file located in one of three possible paths
+ *             in the user's home directory<br>
+ *             When I call opae_plugin_mgr_initialize
+ *             Then the call is successful<br>
+ *             And the number of plugins in the global plugin list is 1
+ */
+TEST_P(pluginmgr_cfg_p, find_and_parse_cfg) {
   opae_plugin_mgr_reset_cfg();
   EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
   ASSERT_EQ(opae_plugin_mgr_initialize(nullptr), 0);
@@ -498,5 +576,7 @@ TEST(pluginmgr_c_p, find_cfg) {
   ASSERT_NE(p1, nullptr);
   ASSERT_EQ(p1->next, nullptr);
   EXPECT_TRUE(p1->enabled);
-  unlink(cfg_file.c_str());
 }
+
+INSTANTIATE_TEST_CASE_P(pluginmgr_cfg, pluginmgr_cfg_p,
+                        ::testing::ValuesIn(_opae_home_cfg_files));
