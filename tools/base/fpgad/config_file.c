@@ -28,6 +28,8 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#include <sys/types.h>
+#include <pwd.h>
 #include "config_file.h"
 #include "monitored_device.h"
 #include "api/sysfs.h"
@@ -69,6 +71,9 @@ int cfg_find_config_file(struct fpgad_config *c)
 	char *e;
 	char *canon = NULL;
 	errno_t err;
+	uid_t uid;
+
+	uid = geteuid();
 
 	e = getenv("FPGAD_CONFIG_FILE");
 	if (e) {
@@ -79,17 +84,21 @@ int cfg_find_config_file(struct fpgad_config *c)
 		CFG_TRY_FILE(path);
 	}
 
-	e = getenv("HOME");
-	if (e) {
+	if (!uid) {
+		CFG_TRY_FILE("/var/lib/opae/fpgad.cfg");
+	} else {
+		struct passwd *passwd;
+
+		passwd = getpwuid(uid);
+
 		// try $HOME/.opae/fpgad.cfg
 		snprintf_s_s(path, sizeof(path),
-			     "%s/.opae/fpgad.cfg", e);
+			     "%s/.opae/fpgad.cfg", passwd->pw_dir);
 
 		CFG_TRY_FILE(path);
 	}
 
 	CFG_TRY_FILE("/etc/opae/fpgad.cfg");
-	CFG_TRY_FILE("/var/lib/opae/fpgad.cfg");
 
 	return 1; // not found
 }

@@ -71,7 +71,8 @@ int cmd_parse_args(struct fpgad_config *c, int argc, char *argv[]);
 
 void cmd_show_help(FILE *fptr);
 
-void cmd_canonicalize_paths(struct fpgad_config *c);
+// 0 on success
+int cmd_canonicalize_paths(struct fpgad_config *c);
 
 void cmd_destroy(struct fpgad_config *c);
 
