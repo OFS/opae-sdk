@@ -70,6 +70,15 @@ int cfg_find_config_file(struct fpgad_config *c)
 	char *canon = NULL;
 	errno_t err;
 
+	e = getenv("FPGAD_CONFIG_FILE");
+	if (e) {
+		// try $FPGAD_CONFIG_FILE
+		strncpy_s(path, sizeof(path),
+			  e, strnlen_s(e, PATH_MAX));
+
+		CFG_TRY_FILE(path);
+	}
+
 	e = getenv("HOME");
 	if (e) {
 		// try $HOME/.opae/fpgad.cfg
