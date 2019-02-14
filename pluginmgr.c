@@ -36,6 +36,8 @@
 #include <dirent.h>
 #include <linux/limits.h>
 #include <pthread.h>
+#include <pwd.h>
+#include <unistd.h>
 
 #include <json-c/json.h>
 #include "safe_string/safe_string.h"
@@ -79,50 +81,18 @@ static pthread_mutex_t adapter_list_lock =
 STATIC plugin_cfg *opae_plugin_mgr_config_list;
 STATIC int opae_plugin_mgr_plugin_count;
 
-#define CFG_PATHS 4
-static const char *_opae_cfg_files[CFG_PATHS] = {
+#define HOME_CFG_PATHS 3
+STATIC const char *_opae_home_cfg_files[HOME_CFG_PATHS] = {
+	"/.local/opae.cfg",
+	"/.local/opae/opae.cfg",
+	"/.config/opae/opae.cfg",
+};
+#define SYS_CFG_PATHS 2
+STATIC const char *_opae_sys_cfg_files[SYS_CFG_PATHS] = {
+	"/usr/local/etc/opae/opae.cfg",
 	"/etc/opae/opae.cfg",
-	"$HOME/.config/opae/opae.cfg",
-	"$HOME/.local/opae/opae.cfg",
-	"$HOME/.local/opae.cfg"
 };
 
-STATIC int resolve_file_name(char *dst, const char *src)
-{
-	char src_cpy[PATH_MAX];
-	char *ptok = src_cpy;
-	char *pstr = src_cpy;
-	char *pdst = dst;
-	const char *dir_value = NULL;
-	size_t len = strlen(src);
-	size_t len_cpy = len;
-
-	if (strncpy_s(src_cpy, PATH_MAX, src, len)) {
-		OPAE_ERR("error copying src string");
-		return 1;
-	}
-
-	while (ptok && len_cpy) {
-		*pdst++ = '/';
-		ptok = strtok_s(NULL, &len_cpy, "/", &pstr);
-		if (ptok[0] == '$') {
-			dir_value = getenv(ptok+1);
-			if (!dir_value) {
-				OPAE_MSG("Could not find env var: '%s'", ptok+1);
-				return 1;
-			}
-		} else {
-			dir_value = ptok;
-		}
-		if (strncpy_s(pdst, len, dir_value, len)) {
-			OPAE_ERR("error copying path component");
-			return 1;
-		}
-		pdst = dst + strlen(dst);
-	}
-	*++pdst = '\0';
-	return 0;
-}
 
 // Find the canonicalized configuration file. If null, the file was not found.
 // Otherwise, it's the first configuration file found from a list of possible
@@ -131,14 +101,34 @@ STATIC char *find_cfg()
 {
 	int i = 0;
 	char *file_name = NULL;
-	char opae_cfg_files[PATH_MAX][CFG_PATHS] = { { 0 } };
+	char home_cfg[PATH_MAX] = {0};
+	char *home_cfg_ptr = &home_cfg[0];
+	// get the user's home directory
+	struct passwd *user_passwd = getpwuid(getuid());
 
-	for (; i < CFG_PATHS; ++i) {
-		resolve_file_name(opae_cfg_files[i], _opae_cfg_files[i]);
+	// first look in possible paths in the users home directory
+	for (i = 0; i < HOME_CFG_PATHS; ++i) {
+		if (strcpy_s(home_cfg, PATH_MAX, user_passwd->pw_dir)) {
+			OPAE_ERR("error copying pw_dir string");
+			return NULL;
+		}
+		home_cfg_ptr = home_cfg + strlen(home_cfg);
+		if (strcpy_s(home_cfg_ptr, PATH_MAX, _opae_home_cfg_files[i])) {
+			OPAE_ERR("error copying opae cfg dir string: %s",
+				 _opae_home_cfg_files[i]);
+			return NULL;
+		}
+		file_name = canonicalize_file_name(home_cfg);
+		if (file_name) {
+			return file_name;
+		} else {
+			home_cfg[0] = '\0';
+		}
 	}
-
-	for (i = 0; i < CFG_PATHS; ++i) {
-		file_name = canonicalize_file_name(opae_cfg_files[i]);
+	// now look in possible system paths
+	for (i = 0; i < SYS_CFG_PATHS; ++i) {
+		strcpy_s(home_cfg, PATH_MAX, _opae_sys_cfg_files[i]);
+		file_name = canonicalize_file_name(home_cfg);
 		if (file_name) {
 			return file_name;
 		}
