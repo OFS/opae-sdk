@@ -495,17 +495,17 @@ class pluginmgr_cfg_p : public ::testing::TestWithParam<const char*> {
     std::copy(cfg_file_.begin(), cfg_file_.end(), &copy_file[0]);
     cfg_dir_ = dirname(copy_file);
     struct stat st;
-    if (stat(cfg_dir_, &st) != 0) {
+    if (stat(cfg_dir_, &st)) {
       std::string dir = cfg_dir_;
-      int pos = dir.find('/', 0);
+      int pos = dir.find('/', 1);
       while (pos != std::string::npos) {
         std::string sub = dir.substr(0, pos);
         if (stat(sub.c_str(), &st)) {
           ASSERT_EQ(mkdir(sub.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH), 0);
         }
-        pos = dir.find('/', pos);
+        pos = pos < dir.size() ? dir.find('/', pos+1) : std::string::npos;
       }
-
+      ASSERT_EQ(mkdir(cfg_dir_, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH), 0);
     }
 
     if (stat(cfg_file_.c_str(), &st) == 0) {
