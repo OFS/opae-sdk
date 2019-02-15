@@ -64,6 +64,8 @@ typedef struct _sysfs_fpga_region {
   uint8_t function;
   uint32_t device_id;
   uint32_t vendor_id;
+  uint64_t sriov_totalvfs;
+  uint64_t sriov_numvfs;
 } sysfs_fpga_region;
 
 int sysfs_initialize(void);
