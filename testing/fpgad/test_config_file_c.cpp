@@ -125,18 +125,6 @@ TEST_P(fpgad_config_file_c_p, read_file0) {
 }
 
 /**
- * @test       read_file1
- * @brief      Test: cfg_read_file
- * @details    If malloc fails,<br>
- *             the fn returns NULL.<br>
- */
-TEST_P(fpgad_config_file_c_p, read_file1) {
-  system_->invalidate_malloc(0, "cfg_read_file");
-  write_cfg("{}");
-  EXPECT_EQ(cfg_read_file(cfg_file_), nullptr);
-}
-
-/**
  * @test       load0
  * @brief      Test: cfg_load_config
  * @details    If the given file doesn't exist,<br>
@@ -339,31 +327,6 @@ TEST_P(fpgad_config_file_c_p, process_plugin1) {
 }
 
 /**
- * @test       process_plugin2
- * @brief      Test: cfg_process_plugin
- * @details    If cstr_dup fails to clone the "configuration" key,<br>
- *             then the fn returns non-zero.<br>
- */
-TEST_P(fpgad_config_file_c_p, process_plugin2) {
-  const char *cfg = R"cfg(
-{
-  "configurations": {
-    "a": {
-      "configuration": {}
-    }
-  },
-  "plugins": [
-    "a"
-  ]
-}
-)cfg";
-
-  write_cfg(cfg);
-  system_->invalidate_malloc(0, "cstr_dup");
-  EXPECT_NE(cfg_load_config(&config_), 0);
-}
-
-/**
  * @test       process_plugin3
  * @brief      Test: cfg_process_plugin
  * @details    If a plugin section lacks the "enabled" key,<br>
@@ -463,32 +426,6 @@ TEST_P(fpgad_config_file_c_p, process_plugin6) {
   EXPECT_NE(cfg_load_config(&config_), 0);
 }
 
-/**
- * @test       process_plugin7
- * @brief      Test: cfg_process_plugin
- * @details    If cstr_dup fails to clone the "plugin" key,<br>
- *             then the fn returns non-zero.<br>
- */
-TEST_P(fpgad_config_file_c_p, process_plugin7) {
-  const char *cfg = R"cfg(
-{
-  "configurations": {
-    "a": {
-      "configuration": {},
-      "enabled": true,
-      "plugin": "liba.so"
-    }
-  },
-  "plugins": [
-    "a"
-  ]
-}
-)cfg";
-
-  write_cfg(cfg);
-  system_->invalidate_malloc(1, "cstr_dup");
-  EXPECT_NE(cfg_load_config(&config_), 0);
-}
 
 /**
  * @test       process_plugin8
@@ -513,75 +450,6 @@ TEST_P(fpgad_config_file_c_p, process_plugin8) {
 )cfg";
 
   write_cfg(cfg);
-  EXPECT_NE(cfg_load_config(&config_), 0);
-}
-
-/**
- * @test       process_plugin9
- * @brief      Test: cfg_process_plugin, alloc_configuration
- * @details    If malloc fails during alloc_configuration (empty list),<br>
- *             then the fn returns non-zero.<br>
- */
-TEST_P(fpgad_config_file_c_p, process_plugin9) {
-  const char *cfg = R"cfg(
-{
-  "configurations": {
-    "a": {
-      "configuration": {},
-      "enabled": true,
-      "plugin": "liba.so",
-      "devices": [
-        [ "0x8086", "0x0b30" ]
-      ]
-    }
-  },
-  "plugins": [
-    "a"
-  ]
-}
-)cfg";
-
-  write_cfg(cfg);
-  system_->invalidate_malloc(0, "alloc_configuration");
-  EXPECT_NE(cfg_load_config(&config_), 0);
-}
-
-/**
- * @test       process_plugin10
- * @brief      Test: cfg_process_plugin, alloc_configuration
- * @details    If malloc fails during alloc_configuration (non-empty list),<br>
- *             then the fn returns non-zero.<br>
- */
-TEST_P(fpgad_config_file_c_p, process_plugin10) {
-  const char *cfg = R"cfg(
-{
-  "configurations": {
-    "a": {
-      "configuration": {},
-      "enabled": true,
-      "plugin": "liba.so",
-      "devices": [
-        [ "0x8086", "0x0b30" ]
-      ]
-    },
-    "b": {
-      "configuration": {},
-      "enabled": true,
-      "plugin": "libb.so",
-      "devices": [
-        [ "0x8086", "0xbcc0" ]
-      ]
-    }
-  },
-  "plugins": [
-    "a",
-    "b"
-  ]
-}
-)cfg";
-
-  write_cfg(cfg);
-  system_->invalidate_malloc(1, "alloc_configuration");
   EXPECT_NE(cfg_load_config(&config_), 0);
 }
 
@@ -778,51 +646,6 @@ TEST_P(fpgad_config_file_devices_p, process_plugin_devices6) {
 }
 
 /**
- * @test       process_plugin_devices7
- * @brief      Test: cfg_process_plugin_devices
- * @details    If the form of the "devices" key is correct<br>
- *             but malloc fails (empty list),<br>
- *             then the fn returns NULL.<br>
- */
-TEST_P(fpgad_config_file_devices_p, process_plugin_devices7) {
-  const char *cfg = R"cfg(
-{
-  "devices": [
-    [ 32902, 2864 ]
-  ]
-}
-)cfg";
-
-  json_object *devices = parse(cfg);
-  ASSERT_NE(devices, nullptr);
-  system_->invalidate_malloc(0, "alloc_device");
-  EXPECT_EQ(cfg_process_plugin_devices("a", devices), nullptr);
-}
-
-/**
- * @test       process_plugin_devices8
- * @brief      Test: cfg_process_plugin_devices
- * @details    If the form of the "devices" key is correct<br>
- *             but malloc fails (non-empty list),<br>
- *             then the fn returns NULL.<br>
- */
-TEST_P(fpgad_config_file_devices_p, process_plugin_devices8) {
-  const char *cfg = R"cfg(
-{
-  "devices": [
-    [ 32902, 2864 ],
-    [ "0x8086", "0xbcc0" ]
-  ]
-}
-)cfg";
-
-  json_object *devices = parse(cfg);
-  ASSERT_NE(devices, nullptr);
-  system_->invalidate_malloc(1, "alloc_device");
-  EXPECT_EQ(cfg_process_plugin_devices("a", devices), nullptr);
-}
-
-/**
  * @test       process_plugin_devices9
  * @brief      Test: cfg_process_plugin_devices
  * @details    If the form of the "devices" key is correct<br>
@@ -858,3 +681,193 @@ TEST_P(fpgad_config_file_devices_p, process_plugin_devices9) {
 
 INSTANTIATE_TEST_CASE_P(fpgad_config_file_c, fpgad_config_file_devices_p,
                         ::testing::ValuesIn(test_platform::platforms({ "skx-p","skx-p-dfl0" })));
+
+
+class mock_fpgad_config_file_c_p : public fpgad_config_file_c_p {};
+ 
+/**
+ * @test       read_file1
+ * @brief      Test: cfg_read_file
+ * @details    If malloc fails,<br>
+ *             the fn returns NULL.<br>
+ */
+TEST_P(mock_fpgad_config_file_c_p, read_file1) {
+  system_->invalidate_malloc(0, "cfg_read_file");
+  write_cfg("{}");
+  EXPECT_EQ(cfg_read_file(cfg_file_), nullptr);
+}
+
+/**
+ * @test       process_plugin2
+ * @brief      Test: cfg_process_plugin
+ * @details    If cstr_dup fails to clone the "configuration" key,<br>
+ *             then the fn returns non-zero.<br>
+ */
+TEST_P(mock_fpgad_config_file_c_p, process_plugin2) {
+  const char *cfg = R"cfg(
+{
+  "configurations": {
+    "a": {
+      "configuration": {}
+    }
+  },
+  "plugins": [
+    "a"
+  ]
+}
+)cfg";
+
+  write_cfg(cfg);
+  system_->invalidate_malloc(0, "cstr_dup");
+  EXPECT_NE(cfg_load_config(&config_), 0);
+}
+
+/**
+ * @test       process_plugin7
+ * @brief      Test: cfg_process_plugin
+ * @details    If cstr_dup fails to clone the "plugin" key,<br>
+ *             then the fn returns non-zero.<br>
+ */
+TEST_P(mock_fpgad_config_file_c_p, process_plugin7) {
+  const char *cfg = R"cfg(
+{
+  "configurations": {
+    "a": {
+      "configuration": {},
+      "enabled": true,
+      "plugin": "liba.so"
+    }
+  },
+  "plugins": [
+    "a"
+  ]
+}
+)cfg";
+
+  write_cfg(cfg);
+  system_->invalidate_malloc(1, "cstr_dup");
+  EXPECT_NE(cfg_load_config(&config_), 0);
+}
+
+/**
+ * @test       process_plugin9
+ * @brief      Test: cfg_process_plugin, alloc_configuration
+ * @details    If malloc fails during alloc_configuration (empty list),<br>
+ *             then the fn returns non-zero.<br>
+ */
+TEST_P(mock_fpgad_config_file_c_p, process_plugin9) {
+  const char *cfg = R"cfg(
+{
+  "configurations": {
+    "a": {
+      "configuration": {},
+      "enabled": true,
+      "plugin": "liba.so",
+      "devices": [
+        [ "0x8086", "0x0b30" ]
+      ]
+    }
+  },
+  "plugins": [
+    "a"
+  ]
+}
+)cfg";
+
+  write_cfg(cfg);
+  system_->invalidate_malloc(0, "alloc_configuration");
+  EXPECT_NE(cfg_load_config(&config_), 0);
+}
+
+/**
+ * @test       process_plugin10
+ * @brief      Test: cfg_process_plugin, alloc_configuration
+ * @details    If malloc fails during alloc_configuration (non-empty list),<br>
+ *             then the fn returns non-zero.<br>
+ */
+TEST_P(mock_fpgad_config_file_c_p, process_plugin10) {
+  const char *cfg = R"cfg(
+{
+  "configurations": {
+    "a": {
+      "configuration": {},
+      "enabled": true,
+      "plugin": "liba.so",
+      "devices": [
+        [ "0x8086", "0x0b30" ]
+      ]
+    },
+    "b": {
+      "configuration": {},
+      "enabled": true,
+      "plugin": "libb.so",
+      "devices": [
+        [ "0x8086", "0xbcc0" ]
+      ]
+    }
+  },
+  "plugins": [
+    "a",
+    "b"
+  ]
+}
+)cfg";
+
+  write_cfg(cfg);
+  system_->invalidate_malloc(1, "alloc_configuration");
+  EXPECT_NE(cfg_load_config(&config_), 0);
+}
+
+INSTANTIATE_TEST_CASE_P(fpgad_config_file_c, mock_fpgad_config_file_c_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","skx-p-dfl0" })));
+
+
+class mock_fpgad_config_file_devices_p : public fpgad_config_file_devices_p {};
+
+/**
+ * @test       process_plugin_devices7
+ * @brief      Test: cfg_process_plugin_devices
+ * @details    If the form of the "devices" key is correct<br>
+ *             but malloc fails (empty list),<br>
+ *             then the fn returns NULL.<br>
+ */
+TEST_P(mock_fpgad_config_file_devices_p, process_plugin_devices7) {
+  const char *cfg = R"cfg(
+{
+  "devices": [
+    [ 32902, 2864 ]
+  ]
+}
+)cfg";
+
+  json_object *devices = parse(cfg);
+  ASSERT_NE(devices, nullptr);
+  system_->invalidate_malloc(0, "alloc_device");
+  EXPECT_EQ(cfg_process_plugin_devices("a", devices), nullptr);
+}
+
+/**
+ * @test       process_plugin_devices8
+ * @brief      Test: cfg_process_plugin_devices
+ * @details    If the form of the "devices" key is correct<br>
+ *             but malloc fails (non-empty list),<br>
+ *             then the fn returns NULL.<br>
+ */
+TEST_P(mock_fpgad_config_file_devices_p, process_plugin_devices8) {
+  const char *cfg = R"cfg(
+{
+  "devices": [
+    [ 32902, 2864 ],
+    [ "0x8086", "0xbcc0" ]
+  ]
+}
+)cfg";
+
+  json_object *devices = parse(cfg);
+  ASSERT_NE(devices, nullptr);
+  system_->invalidate_malloc(1, "alloc_device");
+  EXPECT_EQ(cfg_process_plugin_devices("a", devices), nullptr);
+}
+
+INSTANTIATE_TEST_CASE_P(fpgad_config_file_c, mock_fpgad_config_file_devices_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","skx-p-dfl0" })));
