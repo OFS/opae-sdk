@@ -65,3 +65,9 @@ set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 install(TARGETS fpgad
         RUNTIME DESTINATION bin
         COMPONENT toolfpgad)
+
+if ("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr")
+  install(FILES fpgad.cfg DESTINATION /etc/opae COMPONENT toolfpgad)
+else()
+  install(FILES fpgad.cfg DESTINATION ${CMAKE_INSTALL_PREFIX}/etc/opae COMPONENT toolfpgad)
+endif()
