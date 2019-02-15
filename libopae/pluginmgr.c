@@ -76,7 +76,6 @@ STATIC opae_api_adapter_table *adapter_list = (void *)0;
 static pthread_mutex_t adapter_list_lock =
 	PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
-
 #define MAX_PLUGINS PLUGIN_SUPPORTED_DEVICES_MAX
 STATIC plugin_cfg *opae_plugin_mgr_config_list;
 STATIC int opae_plugin_mgr_plugin_count;
