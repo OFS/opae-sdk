@@ -305,7 +305,7 @@ TEST_P(mock_hello_fpga_c_p, main1) {
 }
 
 INSTANTIATE_TEST_CASE_P(mock_hello_fpga_c, mock_hello_fpga_c_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms()));
+                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p", "dcp-rc"})));
 
 class hw_hello_fpga_c_p : public mock_hello_fpga_c_p {
  protected:
@@ -333,4 +333,4 @@ TEST_P(hw_hello_fpga_c_p, main1) {
 }
 
 INSTANTIATE_TEST_CASE_P(hw_hello_fpga_c, hw_hello_fpga_c_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms({"skx-p","skx-p-v"})));
+                        ::testing::ValuesIn(test_platform::hw_platforms({"skx-p","dcp-rc"})));

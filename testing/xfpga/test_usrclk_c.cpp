@@ -294,7 +294,7 @@ TEST_P(usrclk_c, get_user_clock) {
 }
 
 INSTANTIATE_TEST_CASE_P(usrclk, usrclk_c,
-                        ::testing::ValuesIn(test_platform::platforms()));
+                        ::testing::ValuesIn(test_platform::platforms({"skx-p", "dcp-rc"})));
 
 class usrclk_mock_c : public usrclk_c {};
 

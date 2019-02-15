@@ -967,89 +967,89 @@ TEST_P(fpgainfo_c_p, bmc_help) {
     bmc_help();
 }
 
-/**
- * @test       perf_help
- * @brief      Test: perf_help
- * @details    The function prints help message for perf subcommand.<br>
- */
-TEST_P(fpgainfo_c_p, perf_help) {
-    perf_help();
-}
+// /**
+//  * @test       perf_help
+//  * @brief      Test: perf_help
+//  * @details    The function prints help message for perf subcommand.<br>
+//  */
+// TEST_P(fpgainfo_c_p, perf_help) {
+//     perf_help();
+// }
 
-/**
- * @test       get_metrics0
- * @brief      Test: get_metrics
- * @details    When passed with valid arguments, the fn <br>
- *             retrieve required information from BMC and <br>
- *             returns FPGA_OK. <br>
- */
-TEST_P(fpgainfo_c_p, get_metrics0) {
-    fpga_properties filter = NULL;
-    fpga_token token;
-    fpga_metric_info metrics_info[64];
-    fpga_metric metrics[64];
-    uint64_t num_metrics;
-    uint32_t matches = 0;
-
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
-
-    EXPECT_EQ(get_metrics(token, ALL, metrics_info, metrics, &num_metrics), FPGA_OK);
-
-    fpgaDestroyToken(&token);
-    fpgaDestroyProperties(&filter);
-}
-
-/**
- * @test       get_metrics1
- * @brief      Test: get_metrics
- * @details    When passed with valid arguments, the fn <br>
- *             retrieve required information from BMC and <br>
- *             returns FPGA_OK. <br>
- */
-TEST_P(fpgainfo_c_p, get_metrics1) {
-    fpga_properties filter = NULL;
-    fpga_token token;
-    fpga_metric_info metrics_info[64];
-    fpga_metric metrics[64];
-    uint64_t num_metrics;
-    uint32_t matches = 0;
-
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
-
-    EXPECT_EQ(get_metrics(token, POWER, metrics_info, metrics, &num_metrics), FPGA_OK);
-
-    fpgaDestroyToken(&token);
-    fpgaDestroyProperties(&filter);
-}
-
-/**
- * @test       get_metrics2
- * @brief      Test: get_metrics
- * @details    When passed with valid arguments, the fn <br>
- *             retrieve required information from BMC and <br>
- *             returns FPGA_OK. <br>
- */
-TEST_P(fpgainfo_c_p, get_metrics2) {
-    fpga_properties filter = NULL;
-    fpga_token token;
-    fpga_metric_info metrics_info[64];
-    fpga_metric metrics[64];
-    uint64_t num_metrics;
-    uint32_t matches = 0;
-
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
-
-    EXPECT_EQ(get_metrics(token, THERMAL, metrics_info, metrics, &num_metrics), FPGA_OK);
-
-    fpgaDestroyToken(&token);
-    fpgaDestroyProperties(&filter);
-}
+// /**
+//  * @test       get_metrics0
+//  * @brief      Test: get_metrics
+//  * @details    When passed with valid arguments, the fn <br>
+//  *             retrieve required information from BMC and <br>
+//  *             returns FPGA_OK. <br>
+//  */
+// TEST_P(fpgainfo_c_p, get_metrics0) {
+//     fpga_properties filter = NULL;
+//     fpga_token token;
+//     fpga_metric_info metrics_info[64];
+//     fpga_metric metrics[64];
+//     uint64_t num_metrics;
+//     uint32_t matches = 0;
+// 
+//     ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+//     ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
+//     ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
+// 
+//     EXPECT_EQ(get_metrics(token, ALL, metrics_info, metrics, &num_metrics), FPGA_OK);
+// 
+//     fpgaDestroyToken(&token);
+//     fpgaDestroyProperties(&filter);
+// }
+// 
+// /**
+//  * @test       get_metrics1
+//  * @brief      Test: get_metrics
+//  * @details    When passed with valid arguments, the fn <br>
+//  *             retrieve required information from BMC and <br>
+//  *             returns FPGA_OK. <br>
+//  */
+// TEST_P(fpgainfo_c_p, get_metrics1) {
+//     fpga_properties filter = NULL;
+//     fpga_token token;
+//     fpga_metric_info metrics_info[64];
+//     fpga_metric metrics[64];
+//     uint64_t num_metrics;
+//     uint32_t matches = 0;
+// 
+//     ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+//     ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
+//     ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
+// 
+//     EXPECT_EQ(get_metrics(token, POWER, metrics_info, metrics, &num_metrics), FPGA_OK);
+// 
+//     fpgaDestroyToken(&token);
+//     fpgaDestroyProperties(&filter);
+// }
+// 
+// /**
+//  * @test       get_metrics2
+//  * @brief      Test: get_metrics
+//  * @details    When passed with valid arguments, the fn <br>
+//  *             retrieve required information from BMC and <br>
+//  *             returns FPGA_OK. <br>
+//  */
+// TEST_P(fpgainfo_c_p, get_metrics2) {
+//     fpga_properties filter = NULL;
+//     fpga_token token;
+//     fpga_metric_info metrics_info[64];
+//     fpga_metric metrics[64];
+//     uint64_t num_metrics;
+//     uint32_t matches = 0;
+// 
+//     ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+//     ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
+//     ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
+// 
+//     EXPECT_EQ(get_metrics(token, THERMAL, metrics_info, metrics, &num_metrics), FPGA_OK);
+// 
+//     fpgaDestroyToken(&token);
+//     fpgaDestroyProperties(&filter);
+// }
 
 /**
  * @test       fpgainfo_print_common
