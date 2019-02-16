@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -566,22 +566,66 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 	return FPGA_OK;
 }
 
-// get fpga device id
-fpga_result get_fpga_deviceid(fpga_handle handle, uint64_t *deviceid)
+enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id)
 {
-	struct _fpga_token  *_token      = NULL;
-	struct _fpga_handle  *_handle    = (struct _fpga_handle *)handle;
-	char sysfs_path[SYSFS_PATH_MAX]  = {0};
-	char *p                          = NULL;
-	fpga_result result               = FPGA_OK;
-	int err                          = 0;
+	enum fpga_hw_type hw_type = FPGA_HW_UNKNOWN;
+
+	if (vendor_id == 0x8086) {
+
+		switch (device_id) {
+		case 0xbcbc:
+		case 0xbcbd:
+		case 0xbcbe:
+		case 0xbcbf:
+		case 0xbcc0:
+		case 0xbcc1:
+		case 0x09cb:
+			hw_type = FPGA_HW_MCP;
+		break;
+
+		case 0x09c4:
+		case 0x09c5:
+			hw_type = FPGA_HW_DCP_RC;
+		break;
+
+		case 0x0b2b:
+		case 0x0b2c:
+			hw_type = FPGA_HW_DCP_DC;
+		break;
+
+		case 0x0b30:
+		case 0x0b31:
+			hw_type = FPGA_HW_DCP_VC;
+		break;
+
+		default:
+			FPGA_ERR("unknown device id: 0x%04x", device_id);
+		}
+
+	} else {
+		FPGA_ERR("unknown vendor id: 0x%04x", vendor_id);
+	}
+
+	return hw_type;
+}
+
+// get fpga hardware type from handle
+fpga_result get_fpga_hw_type(fpga_handle handle, enum fpga_hw_type *hw_type)
+{
+	struct _fpga_token *_token = NULL;
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	char sysfs_path[SYSFS_PATH_MAX] = {0};
+	fpga_result result = FPGA_OK;
+	int err = 0;
+	uint64_t vendor_id = 0;
+	uint64_t device_id = 0;
 
 	if (_handle == NULL) {
 		FPGA_ERR("Invalid handle");
 		return FPGA_INVALID_PARAM;
 	}
 
-	if (deviceid == NULL) {
+	if (hw_type == NULL) {
 		FPGA_ERR("Invalid input Parameters");
 		return FPGA_INVALID_PARAM;
 	}
@@ -598,22 +642,26 @@ fpga_result get_fpga_deviceid(fpga_handle handle, uint64_t *deviceid)
 		goto out_unlock;
 	}
 
-	p = strstr(_token->sysfspath, FPGA_SYSFS_FME);
-	if (p == NULL) {
-		FPGA_ERR("Failed to read sysfs path");
-		result = FPGA_NOT_SUPPORTED;
+	snprintf_s_s(sysfs_path, SYSFS_PATH_MAX, "%s/../device/vendor",
+		_token->sysfspath);
+
+	result = sysfs_read_u64(sysfs_path, &vendor_id);
+	if (result != 0) {
+		FPGA_ERR("Failed to read vendor ID");
 		goto out_unlock;
 	}
 
-	snprintf_s_is(sysfs_path, SYSFS_PATH_MAX,
-		 SYSFS_FPGA_CLASS_PATH SYSFS_FPGA_FMT "/%s",
-		      _token->device_instance, FPGA_SYSFS_DEVICEID);
+	snprintf_s_s(sysfs_path, SYSFS_PATH_MAX, "%s/../device/device",
+		_token->sysfspath);
 
-	result = sysfs_read_u64(sysfs_path, deviceid);
+	result = sysfs_read_u64(sysfs_path, &device_id);
 	if (result != 0) {
 		FPGA_ERR("Failed to read device ID");
 		goto out_unlock;
 	}
+
+	*hw_type = opae_id_to_hw_type((uint16_t)vendor_id,
+				      (uint16_t)device_id);
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
@@ -832,8 +880,13 @@ STATIC char *cstr_dup(const char *str)
 {
 	size_t s = strlen(str);
 	char *p = malloc(s+1);
+	if (!p) {
+		FPGA_ERR("malloc failed");
+		return NULL;
+	}
 	if (strncpy_s(p, s+1, str, s)) {
 		FPGA_ERR("Error copying string");
+		free(p);
 		return NULL;
 	}
 	p[s] = '\0';

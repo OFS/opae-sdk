@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -346,6 +346,7 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 	struct dev_list *pdev;
 	char spath[SYSFS_PATH_MAX];
 	char dpath[DEV_PATH_MAX];
+	enum fpga_hw_type hw_type = FPGA_HW_UNKNOWN;
 
 	// Make sure it's a directory.
 	if (stat(sysfspath, &stats) != 0) {
@@ -402,12 +403,23 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 	if (FPGA_OK != result)
 		return result;
 
-	pdev->fpga_bbs_version.major =
-		FPGA_BBS_VER_MAJOR(pdev->fpga_bitstream_id);
-	pdev->fpga_bbs_version.minor =
-		FPGA_BBS_VER_MINOR(pdev->fpga_bitstream_id);
-	pdev->fpga_bbs_version.patch =
-		FPGA_BBS_VER_PATCH(pdev->fpga_bitstream_id);
+	hw_type = opae_id_to_hw_type(pdev->vendor_id, pdev->device_id);
+
+	if (hw_type == FPGA_HW_MCP) {
+		pdev->fpga_bbs_version.major =
+			MCP_FPGA_BBS_VER_MAJOR(pdev->fpga_bitstream_id);
+		pdev->fpga_bbs_version.minor =
+			MCP_FPGA_BBS_VER_MINOR(pdev->fpga_bitstream_id);
+		pdev->fpga_bbs_version.patch =
+			MCP_FPGA_BBS_VER_PATCH(pdev->fpga_bitstream_id);
+	} else {
+		pdev->fpga_bbs_version.major =
+			DCP_FPGA_BBS_VER_MAJOR(pdev->fpga_bitstream_id);
+		pdev->fpga_bbs_version.minor =
+			DCP_FPGA_BBS_VER_MINOR(pdev->fpga_bitstream_id);
+		pdev->fpga_bbs_version.patch =
+			DCP_FPGA_BBS_VER_PATCH(pdev->fpga_bitstream_id);
+	}
 
 	parent->socket_id = socket_id;
 	parent->fme = pdev;

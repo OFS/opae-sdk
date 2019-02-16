@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -768,7 +768,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 {
 	fpga_result result              = FPGA_OK;
 	struct _fpga_token *_token      = NULL;
-	uint64_t deviceid               = 0;
+	enum fpga_hw_type hw_type	= FPGA_HW_UNKNOWN;
 	uint64_t mmio_offset            = 0;
 	uint64_t metric_num             = 0;
 	fpga_objtype objtype;
@@ -824,17 +824,17 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 	} else	if (objtype == FPGA_DEVICE) {
 		// enum FME
 
-		// get fpga device id.
-		result = get_fpga_deviceid(_handle, &deviceid);
+		// get fpga hw type.
+		result = get_fpga_hw_type(_handle, &hw_type);
 		if (result != FPGA_OK) {
-			FPGA_ERR("Failed to read device id.");
+			FPGA_ERR("Failed to discover hardware type.");
 			return result;
 		}
 
 
-		switch (deviceid) {
+		switch (hw_type) {
 			// MCP
-		case FPGA_INTEGRATED_DEVICEID: {
+		case FPGA_HW_MCP: {
 
 			result = enum_powermgmt_metrics(&(_handle->fpga_enum_metric_vector), &metric_num, _token->sysfspath, FPGA_HW_MCP);
 			if (result != FPGA_OK) {
@@ -855,7 +855,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 		break;
 
 		 // DCP RC
-		case FPGA_DISCRETE_DEVICEID: {
+		case FPGA_HW_DCP_RC: {
 
 			result = enum_perf_counter_metrics(&(_handle->fpga_enum_metric_vector), &metric_num, _token->sysfspath, FPGA_HW_DCP_RC);
 			if (result != FPGA_OK) {
@@ -876,8 +876,10 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 		}
 		break;
 
+		// TODO extend to DC and VC.
+
 		default:
-			FPGA_MSG("Unknown Device ID.");
+			FPGA_MSG("Unknown hardware type.");
 		}
 
 	} // if Object type

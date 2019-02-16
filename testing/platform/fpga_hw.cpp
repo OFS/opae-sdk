@@ -133,7 +133,7 @@ static platform_db MOCK_PLATFORMS = {
                        .function = 0,
                        .socket_id = 0,
                        .num_slots = 1,
-                       .bbs_id = 0x6400002fc614bb9,
+                       .bbs_id = 0x06400002fc614bb9,
                        .bbs_version = {6, 4, 0},
                        .state = FPGA_ACCELERATOR_UNASSIGNED,
                        .num_mmio = 0x2,
@@ -157,8 +157,8 @@ static platform_db MOCK_PLATFORMS = {
                        .function = 0,
                        .socket_id = 0,
                        .num_slots = 1,
-                       .bbs_id = 0x113000200000177,
-                       .bbs_version = {1, 1, 3},
+                       .bbs_id = 0x0113000200000177,
+                       .bbs_version = {0, 1, 1},
                        .state = FPGA_ACCELERATOR_UNASSIGNED,
                        .num_mmio = 0x2,
                        .num_interrupts = 0,
@@ -262,7 +262,8 @@ std::map<ven_dev_id, std::vector<std::string>> known_devices = {
   { { 0x8086, 0xbcc1}, std::vector<std::string>() },
   { { 0x8086, 0x09c4}, std::vector<std::string>() },
   { { 0x8086, 0x09c5}, std::vector<std::string>() },
-  { { 0x8086, 0x0b30}, std::vector<std::string>() }
+  { { 0x8086, 0x0b30}, std::vector<std::string>() },
+  { { 0x8086, 0x0b31}, std::vector<std::string>() },
 };
 
 static std::vector<ven_dev_id> supported_devices() {
@@ -425,7 +426,8 @@ static std::map<ven_dev_id, std::string> devid_name = {
   { { 0x8086, 0xbcc1}, "skx-p-v" },
   { { 0x8086, 0x09c4}, "dcp-rc" },
   { { 0x8086, 0x09c5}, "dcp-rc-v" },
-  { { 0x8086, 0x0b30}, "dcp-vc" }
+  { { 0x8086, 0x0b30}, "dcp-vc" },
+  { { 0x8086, 0x0b31}, "dcp-vc-v" },
 };
 
 const char *PCI_DEV_PATTERN = "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([0-9])";

@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -94,11 +94,14 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	struct _fpga_properties _iprop;
 
 	char spath[SYSFS_PATH_MAX];
+	char idpath[SYSFS_PATH_MAX];
 	char *p;
 	int s, b, d, f;
 	int res;
 	errno_t e;
 	int err = 0;
+	uint32_t x = 0;
+	enum fpga_hw_type hw_type = FPGA_HW_UNKNOWN;
 
 	pthread_mutex_t lock;
 
@@ -119,6 +122,27 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	// clear fpga_properties buffer
 	memset_s(&_iprop, sizeof(struct _fpga_properties), 0);
 	_iprop.magic = FPGA_PROPERTY_MAGIC;
+
+	// read the vendor and device ID from the 'device' path
+	snprintf_s_s(idpath, SYSFS_PATH_MAX, "%s/../device/vendor",
+		     _token->sysfspath);
+	x = 0;
+	result = sysfs_read_u32(idpath, &x);
+	if (result != FPGA_OK)
+		return result;
+	_iprop.vendor_id = (uint16_t)x;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_VENDORID);
+
+	snprintf_s_s(idpath, SYSFS_PATH_MAX, "%s/../device/device",
+		     _token->sysfspath);
+	x = 0;
+	result = sysfs_read_u32(idpath, &x);
+	if (result != FPGA_OK)
+		return result;
+	_iprop.device_id = (uint16_t)x;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICEID);
+
+	hw_type = opae_id_to_hw_type(_iprop.vendor_id, _iprop.device_id);
 
 	// The input token is either for an FME or an AFU.
 	// Go one level back to get to the dev.
@@ -196,12 +220,21 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 			return result;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_BBSID);
 
-		_iprop.u.fpga.bbs_version.major =
-			FPGA_BBS_VER_MAJOR(_iprop.u.fpga.bbs_id);
-		_iprop.u.fpga.bbs_version.minor =
-			FPGA_BBS_VER_MINOR(_iprop.u.fpga.bbs_id);
-		_iprop.u.fpga.bbs_version.patch =
-			FPGA_BBS_VER_PATCH(_iprop.u.fpga.bbs_id);
+		if (hw_type == FPGA_HW_MCP) {
+			_iprop.u.fpga.bbs_version.major =
+				MCP_FPGA_BBS_VER_MAJOR(_iprop.u.fpga.bbs_id);
+			_iprop.u.fpga.bbs_version.minor =
+				MCP_FPGA_BBS_VER_MINOR(_iprop.u.fpga.bbs_id);
+			_iprop.u.fpga.bbs_version.patch =
+				MCP_FPGA_BBS_VER_PATCH(_iprop.u.fpga.bbs_id);
+		} else {
+			_iprop.u.fpga.bbs_version.major =
+				DCP_FPGA_BBS_VER_MAJOR(_iprop.u.fpga.bbs_id);
+			_iprop.u.fpga.bbs_version.minor =
+				DCP_FPGA_BBS_VER_MINOR(_iprop.u.fpga.bbs_id);
+			_iprop.u.fpga.bbs_version.patch =
+				DCP_FPGA_BBS_VER_PATCH(_iprop.u.fpga.bbs_id);
+		}
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_BBSVERSION);
 	}
 
@@ -231,26 +264,6 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	result = sysfs_objectid_from_path(_token->sysfspath, &_iprop.object_id);
 	if (0 == result)
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJECTID);
-
-	// read the vendor and device ID from the 'device' path
-	uint32_t x = 0;
-	char vendorpath[SYSFS_PATH_MAX];
-	snprintf_s_s(vendorpath, SYSFS_PATH_MAX, "%s/../device/vendor",
-		     _token->sysfspath);
-	result = sysfs_read_u32(vendorpath, &x);
-	if (result != FPGA_OK)
-		return result;
-	_iprop.vendor_id = (uint16_t)x;
-	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_VENDORID);
-
-	char devicepath[SYSFS_PATH_MAX];
-	snprintf_s_s(devicepath, SYSFS_PATH_MAX, "%s/../device/device",
-		     _token->sysfspath);
-	result = sysfs_read_u32(devicepath, &x);
-	if (result != FPGA_OK)
-		return result;
-	_iprop.device_id = (uint16_t)x;
-	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICEID);
 
 	char errpath[SYSFS_PATH_MAX];
 	snprintf_s_s(errpath, SYSFS_PATH_MAX, "%s/errors", _token->sysfspath);
