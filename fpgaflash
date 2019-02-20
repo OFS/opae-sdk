@@ -767,6 +767,7 @@ def bmc_fw_update(ifile, spi_path, no_verify):
 
     mtd_dev = get_mtd_from_spi_path(mode_path, spi_path)
 
+
     bdata = ihex.tobinarray()
 
     SECTOR_SIZE = 0x10000
@@ -807,6 +808,7 @@ def bmc_fw_update(ifile, spi_path, no_verify):
     ver_file = os.path.join(spi_path, 'bmcfw_flash_ctrl', 'bmcfw_version')
 
     bmc_fw_wait_for_nios(ver_file)
+
 
     return ret
 
