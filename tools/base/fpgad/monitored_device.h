@@ -37,6 +37,7 @@ typedef struct _fpgad_supported_device {
 #define FPGAD_DEV_DETECTED 0x00000001
 #define FPGAD_DEV_LOADED   0x00000002
 	void *dl_handle;
+	const char *config;
 } fpgad_supported_device;
 
 typedef enum _fpgad_plugin_type {

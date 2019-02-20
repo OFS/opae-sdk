@@ -48,6 +48,8 @@ bool monitor_is_ready(void);
 bool mon_consider_device(struct fpgad_config *c,
                          fpga_token token);
 
+extern fpgad_supported_device default_supported_devices_table[];
+
 }
 
 namespace opae {
@@ -69,6 +71,7 @@ class fpgad_control {
     fpgad_config_.api_socket = "/tmp/fpga_event_socket";
     strcpy(fpgad_config_.logfile, tmpfpgad_log_);
     strcpy(fpgad_config_.pidfile, tmpfpgad_pid_);
+    fpgad_config_.supported_devices = default_supported_devices_table;
 
     log_open(tmpfpgad_log_);
 
