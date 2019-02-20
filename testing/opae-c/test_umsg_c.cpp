@@ -132,6 +132,7 @@ class umsg_c_p : public ::testing::TestWithParam<std::string> {
     filter_ = nullptr;
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, platform_.devices[0].device_id), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     num_matches_ = 0;
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
@@ -193,7 +194,7 @@ TEST_P(umsg_c_p, set_attr) {
 }
 
 INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_p, 
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                        ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
 
 class umsg_c_mock_p: public umsg_c_p{
   protected:
