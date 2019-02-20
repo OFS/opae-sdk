@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2019, Intel Corporation
+// Copyright(c) 2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,22 +24,21 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <signal.h>
-#include "test_system.h"
+#include <poll.h>
 
 extern "C" {
 
-#include <json-c/json.h>
-#include <uuid/uuid.h>
+#include "fpgad/api/logging.h"
+#include "fpgad/events_api_thread.h"
 
-int daemonize(void (*hndlr)(int, siginfo_t *, void *), mode_t mask, const char *dir);
+#define MAX_CLIENT_CONNECTIONS 1023
+#define SRV_SOCKET             0
+#define FIRST_CLIENT_SOCKET    1
 
-void test_sig_handler(int sig, siginfo_t *info, void *unused)
-{
-  UNUSED_PARAM(sig);
-  UNUSED_PARAM(info);
-  UNUSED_PARAM(unused);
-}
+extern struct pollfd pollfds[MAX_CLIENT_CONNECTIONS+1];
+extern nfds_t num_fds;
+
+void remove_client(int conn_socket);
 
 }
 
@@ -50,93 +49,79 @@ void test_sig_handler(int sig, siginfo_t *info, void *unused)
 #include <cstdlib>
 #include <cstring>
 #include <errno.h>
-#include <thread>
-#include <chrono>
 #include <unistd.h>
-#include <linux/limits.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+#include <fstream>
 #include "gtest/gtest.h"
+#include "test_system.h"
 
 using namespace opae::testing;
 
-class fpgad_daemonize_c_p : public ::testing::TestWithParam<std::string> {
+class fpgad_events_api_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  fpgad_daemonize_c_p() {}
+  fpgad_events_api_c_p() {}
 
   virtual void SetUp() override {
-    strcpy(daemonize_result_, "daem-XXXXXX.pid");
-    close(mkstemps(daemonize_result_, 4));
     std::string platform_key = GetParam();
     ASSERT_TRUE(test_platform::exists(platform_key));
     platform_ = test_platform::get(platform_key);
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
+
+    log_set(stdout);
   }
 
   virtual void TearDown() override {
-    system_->finalize();
+    log_close();
 
-    if (!::testing::Test::HasFatalFailure() &&
-        !::testing::Test::HasNonfatalFailure()) {
-      unlink(daemonize_result_);
-    }
+    system_->finalize();
   }
 
-  char daemonize_result_[20];
   test_platform platform_;
   test_system *system_;
 };
 
 /**
- * @test       test
- * @brief      Test: daemonize
- * @details    daemonize places the process in daemon mode.<br>
+ * @test       remove0
+ * @brief      Test: remove_client
+ * @details    Test the fn's ability to remove,<br>
+ *             clients from various places in the array.<br>
  */
-TEST_P(fpgad_daemonize_c_p, test) {
-  pid_t pid = fork();
+TEST_P(fpgad_events_api_c_p, remove0) {
+  int conn_socket = -1;
 
-  ASSERT_NE(-1, pid);
+  // (only one client)
+  pollfds[FIRST_CLIENT_SOCKET+0].fd = conn_socket;
+  num_fds = 2;
 
-  if (!pid) {
-    // child
-    int res;
-    char cwd[PATH_MAX];
+  remove_client(conn_socket);
+  EXPECT_EQ(num_fds, 1);
 
-    res = daemonize(test_sig_handler, 0, getcwd(cwd, sizeof(cwd)));
+  // (client in middle)
+  pollfds[FIRST_CLIENT_SOCKET+0].fd = 0;
+  pollfds[FIRST_CLIENT_SOCKET+1].fd = conn_socket;
+  pollfds[FIRST_CLIENT_SOCKET+2].fd = conn_socket;
+  pollfds[FIRST_CLIENT_SOCKET+3].fd = 3;
+  num_fds = 5;
 
-    // pass the result of daemonize to the parent proc via the tmp file.
-    FILE *fp = fopen(daemonize_result_, "w");
-    if (fp) {
-      fprintf(fp, "%d\n", res);
-      fclose(fp);
-    }
+  remove_client(conn_socket);
+  EXPECT_EQ(num_fds, 3);
+  EXPECT_EQ(pollfds[FIRST_CLIENT_SOCKET+0].fd, 0);
+  EXPECT_EQ(pollfds[FIRST_CLIENT_SOCKET+1].fd, 3);
 
-    exit(0);
+  // (client at end)
+  pollfds[FIRST_CLIENT_SOCKET+0].fd = 0;
+  pollfds[FIRST_CLIENT_SOCKET+1].fd = 1;
+  pollfds[FIRST_CLIENT_SOCKET+2].fd = conn_socket;
+  num_fds = 4;
 
-  } else {
-    // parent
-    int res = -1;
-    int timeout = 15;
+  remove_client(conn_socket);
+  EXPECT_EQ(num_fds, 3);
+  EXPECT_EQ(pollfds[FIRST_CLIENT_SOCKET+0].fd, 0);
+  EXPECT_EQ(pollfds[FIRST_CLIENT_SOCKET+1].fd, 1);
 
-    FILE *fp = fopen(daemonize_result_, "r");
-    ASSERT_NE(nullptr, fp);
-
-    while (fscanf(fp, "%d", &res) != 1) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(250));
-      rewind(fp);
-      timeout--;
-      if (!timeout)
-	      fclose(fp);
-      ASSERT_GT(timeout, 0);
-    }
-    fclose(fp);
-
-    EXPECT_EQ(res, 0);
-  }
-
+  num_fds = 1;
 }
 
-INSTANTIATE_TEST_CASE_P(fpgad_daemonize_c, fpgad_daemonize_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
+INSTANTIATE_TEST_CASE_P(fpgad_events_api_c, fpgad_events_api_c_p,
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p"/*,"skx-p-dfl0"*/ })));

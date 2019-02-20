@@ -31,7 +31,7 @@
 #include "monitored_device.h"
 
 typedef struct _monitor_thread_config {
-	struct config *global;
+	struct fpgad_config *global;
 	int sched_policy;
 	int sched_priority;
 } monitor_thread_config;
@@ -41,12 +41,9 @@ extern monitor_thread_config monitor_config;
 void *monitor_thread(void *);
 
 // 0 on success
-int mon_enumerate(struct config *c);
+int mon_enumerate(struct fpgad_config *c);
 
-// 0 on success
-int mon_enumerate_vc(struct config *c);
-
-void mon_destroy(void);
+void mon_destroy(struct fpgad_config *c);
 
 void mon_monitor_device(fpgad_monitored_device *d);
 

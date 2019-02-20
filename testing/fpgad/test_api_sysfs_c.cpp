@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -29,13 +29,14 @@ extern "C" {
 #include <json-c/json.h>
 #include <uuid/uuid.h>
 
-#include "fpgad/log.h"
+#include "fpgad/api/sysfs.h"
 
 }
 
 #include <config.h>
 #include <opae/fpga.h>
 
+#include <fstream>
 #include <array>
 #include <cstdlib>
 #include <cstring>
@@ -44,48 +45,86 @@ extern "C" {
 
 using namespace opae::testing;
 
-class fpgad_log_c_p : public ::testing::TestWithParam<std::string> {
+class fpgad_sysfs_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  fpgad_log_c_p() {}
+  fpgad_sysfs_c_p() {}
 
   virtual void SetUp() override {
-    strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
-    close(mkstemps(tmpfpgad_log_, 4));
     std::string platform_key = GetParam();
     ASSERT_TRUE(test_platform::exists(platform_key));
     platform_ = test_platform::get(platform_key);
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-
-    open_log(tmpfpgad_log_);
   }
 
   virtual void TearDown() override {
-    close_log();
-
     system_->finalize();
-
-    if (!::testing::Test::HasFatalFailure() &&
-        !::testing::Test::HasNonfatalFailure()) {
-      unlink(tmpfpgad_log_);
-    }
   }
 
-  char tmpfpgad_log_[20];
   test_platform platform_;
   test_system *system_;
 };
 
 /**
- * @test       log01
- * @brief      Test: open_log, dlog, close_log
- * @details    dlog sends the formatted output string to the log file<br>
- *             and returns the number of bytes written.<br>
+ * @test       write01
+ * @brief      Test: file_write_string
+ * @details    file_write_string writes the given string to the file.<br>
  */
-TEST_P(fpgad_log_c_p, log01) {
-  EXPECT_EQ(3, dlog("abc"));
+TEST_P(fpgad_sysfs_c_p, write01) {
+  char tmp_file[20];
+  strcpy(tmp_file, "tmp-XXXXXX.fil");
+  close(mkstemps(tmp_file, 4));
+
+  EXPECT_EQ(file_write_string(tmp_file, "hello", 5), 0);
+
+  std::ifstream f;
+  f.open(tmp_file, std::ios::in);
+  std::string s;
+  f >> s;
+  f.close();
+  unlink(tmp_file);
+
+  EXPECT_STREQ(s.c_str(), "hello");
 }
 
-INSTANTIATE_TEST_CASE_P(fpgad_log_c, fpgad_log_c_p,
-                        ::testing::Values(std::string("skx-p")));
+/**
+ * @test       write02
+ * @brief      Test: file_write_string
+ * @details    When given a length of zero, the fn returns non-zero.<br>
+ */
+TEST_P(fpgad_sysfs_c_p, write02) {
+  char tmp_file[20];
+  strcpy(tmp_file, "tmp-XXXXXX.fil");
+  close(mkstemps(tmp_file, 4));
+
+  EXPECT_NE(file_write_string(tmp_file, "hello", 0), 0);
+  unlink(tmp_file);
+}
+
+/**
+ * @test       dup01
+ * @brief      Test: cstr_dup
+ * @details    When malloc returns NULL, the fn fails with NULL.<br>
+ */
+TEST_P(fpgad_sysfs_c_p, dup01) {
+  system_->invalidate_malloc(0, "cstr_dup");
+  EXPECT_EQ(cstr_dup("blah"), (void *)NULL);
+}
+
+/**
+ * @test       dup02
+ * @brief      Test: cstr_dup
+ * @details    When successful, the fn returns a duplicate<br>
+ *             the given string.<br>
+ */
+TEST_P(fpgad_sysfs_c_p, dup02) {
+  char *s;
+  s = cstr_dup("blah");
+  ASSERT_NE(s, (void *)NULL);
+  EXPECT_STREQ(s, "blah");
+  free(s);
+}
+
+INSTANTIATE_TEST_CASE_P(fpgad_c, fpgad_sysfs_c_p,
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p"/*,"skx-p-dfl0"*/ })));

@@ -30,31 +30,36 @@
 #include "fpgad.h"
 #include "bitstream.h"
 
+typedef struct _fpgad_supported_device fpgad_supported_device;
+
 #define MAX_NULL_GBS 32
 
-struct config {
+struct fpgad_config {
 	useconds_t poll_interval_usec;
 
 	bool daemon;
 	char directory[PATH_MAX];
 	char logfile[PATH_MAX];
 	char pidfile[PATH_MAX];
+	char cfgfile[PATH_MAX];
 	mode_t filemode;
 
 	bool running;
 
 	const char *api_socket;
 
-	struct bitstream_info null_gbs[MAX_NULL_GBS];
+	opae_bitstream_info null_gbs[MAX_NULL_GBS];
 	unsigned num_null_gbs;
 
 	pthread_t bmc_monitor_thr;
 	pthread_t monitor_thr;
 	pthread_t event_dispatcher_thr;
 	pthread_t events_api_thr;
+
+	fpgad_supported_device *supported_devices;
 };
 
-extern struct config global_config;
+extern struct fpgad_config global_config;
 
 /*
 ** Returns
@@ -62,12 +67,15 @@ extern struct config global_config;
 **  -1 on parse error
 **   0 on success
 */
-int cmd_parse_args(struct config *c, int argc, char *argv[]);
+int cmd_parse_args(struct fpgad_config *c, int argc, char *argv[]);
 
 void cmd_show_help(FILE *fptr);
 
-void cmd_canonicalize_paths(struct config *c);
+// 0 on success
+int cmd_canonicalize_paths(struct fpgad_config *c);
 
-void cmd_destroy(struct config *c);
+void cmd_destroy(struct fpgad_config *c);
+
+bool cmd_path_is_symlink(const char *path);
 
 #endif /* __FPGAD_COMMAND_LINE_H__ */

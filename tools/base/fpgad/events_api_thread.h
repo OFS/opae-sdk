@@ -31,7 +31,7 @@
 #include <opae/types.h>
 
 typedef struct _events_api_thread_config {
-	struct config *global;
+	struct fpgad_config *global;
 	int sched_policy;
 	int sched_priority;
 } events_api_thread_config;

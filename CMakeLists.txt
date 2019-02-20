@@ -130,6 +130,7 @@ endif()
 ############################################################################
 
 add_subdirectory(safe_string)
+add_subdirectory(libbitstream)
 
 option(BUILD_LIBOPAE_C "Enable building of libopae-c. This is the default OPAE API implementation." ON)
 mark_as_advanced(BUILD_LIBOPAE_C)
@@ -189,7 +190,7 @@ if(BUILD_TESTS OR BUILD_ASE_TESTS)
   enable_testing()
   include(CTest)
   if (BUILD_ASE_TESTS)
-  add_subdirectory(tests)
+    add_subdirectory(tests)
   else(BUILD_ASE_TESTS)
     add_subdirectory(testing)
   endif(BUILD_ASE_TESTS)
@@ -297,7 +298,6 @@ define_pkg(tools
   toolfpgadiagapps
   toolpackager
   jsonschema
-  opaetoolslibs
   opaecxxutils
   opaecxxlib
   opaecxxnlb
@@ -342,6 +342,7 @@ define_pkg(devel
   COMPONENTS
   opaeclib
   opaecxxcorelib
+  opaetoolslibs
   GROUP "libs"
   DISPLAY_NAME "opae-libs"
   DESCRIPTION "OPAE runtime"

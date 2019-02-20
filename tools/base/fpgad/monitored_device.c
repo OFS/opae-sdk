@@ -33,6 +33,8 @@
 #include <dlfcn.h>
 #include <glob.h>
 
+#include <uuid/uuid.h>
+
 #include "monitored_device.h"
 #include "monitor_thread.h"
 #include "api/sysfs.h"
@@ -43,22 +45,23 @@
 #define LOG(format, ...) \
 log_printf("monitored_device: " format, ##__VA_ARGS__)
 
-fpgad_supported_device supported_devices_table[] = {
-	{ 0x8086, 0xbcc0, "libfpgad-xfpga.so", 0, NULL },
-	{ 0x8086, 0xbcc1, "libfpgad-xfpga.so", 0, NULL },
-	{ 0x8086, 0x0b30,    "libfpgad-vc.so", 0, NULL },
-	{ 0x8086, 0x0b31,    "libfpgad-vc.so", 0, NULL },
-	{      0,      0,                NULL, 0, NULL },
+fpgad_supported_device default_supported_devices_table[] = {
+	{ 0x8086, 0xbcc0, "libfpgad-xfpga.so", 0, NULL, "" },
+	{ 0x8086, 0xbcc1, "libfpgad-xfpga.so", 0, NULL, "" },
+	{ 0x8086, 0x0b30,    "libfpgad-vc.so", 0, NULL, "" },
+	{ 0x8086, 0x0b31,    "libfpgad-vc.so", 0, NULL, "" },
+	{      0,      0,                NULL, 0, NULL, "" },
 };
 
-STATIC fpgad_supported_device *mon_is_loaded(const char *library_path)
+STATIC fpgad_supported_device *mon_is_loaded(struct fpgad_config *c,
+					     const char *library_path)
 {
 	errno_t err;
 	unsigned i;
 	int res = 0;
 
-	for (i = 0 ; supported_devices_table[i].library_path ; ++i) {
-		fpgad_supported_device *d = &supported_devices_table[i];
+	for (i = 0 ; c->supported_devices[i].library_path ; ++i) {
+		fpgad_supported_device *d = &c->supported_devices[i];
 
 		err = strcmp_s(library_path, PATH_MAX,
 				d->library_path, &res);
@@ -74,12 +77,12 @@ STATIC fpgad_supported_device *mon_is_loaded(const char *library_path)
 }
 
 STATIC fpgad_monitored_device *
-allocate_monitored_device(struct config *config,
+allocate_monitored_device(struct fpgad_config *config,
 			  fpgad_supported_device *supported,
 			  fpga_token token,
 			  uint64_t object_id,
 			  fpga_objtype object_type,
-			  struct bitstream_info *bitstr)
+			  opae_bitstream_info *bitstr)
 {
 	fpgad_monitored_device *d;
 
@@ -101,16 +104,19 @@ allocate_monitored_device(struct config *config,
 	return d;
 }
 
-STATIC bool mon_consider_device(struct config *c, fpga_token token)
+STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 {
 	unsigned i;
 	fpga_properties props = NULL;
+	fpga_token parent = NULL;
+	fpga_properties parent_props = NULL;
 	fpga_result res;
 	uint16_t vendor_id;
 	uint16_t device_id;
 	uint64_t object_id;
 	fpga_objtype object_type;
-	struct bitstream_info *bitstr = NULL;
+	opae_bitstream_info *bitstr = NULL;
+	fpga_guid pr_ifc_id;
 	bool added = false;
 
 	res = fpgaGetProperties(token, &props);
@@ -123,48 +129,40 @@ STATIC bool mon_consider_device(struct config *c, fpga_token token)
 	res = fpgaPropertiesGetVendorID(props, &vendor_id);
 	if (res != FPGA_OK) {
 		LOG("failed to get vendor ID\n");
-		fpgaDestroyProperties(&props);
-		return false;
+		goto err_out_destroy;
 	}
 
 	device_id = 0;
 	res = fpgaPropertiesGetDeviceID(props, &device_id);
 	if (res != FPGA_OK) {
 		LOG("failed to get device ID\n");
-		fpgaDestroyProperties(&props);
-		return false;
+		goto err_out_destroy;
 	}
 
 	object_id = 0;
 	res = fpgaPropertiesGetObjectID(props, &object_id);
 	if (res != FPGA_OK) {
 		LOG("failed to get object ID\n");
-		fpgaDestroyProperties(&props);
-		return false;
+		goto err_out_destroy;
 	}
 
 	object_type = FPGA_ACCELERATOR;
 	res = fpgaPropertiesGetObjectType(props, &object_type);
 	if (res != FPGA_OK) {
 		LOG("failed to get object type\n");
-		fpgaDestroyProperties(&props);
-		return false;
+		goto err_out_destroy;
 	}
 
 	// Do we have a NULL GBS from the command line
 	// that matches this device?
 
 	if (object_type == FPGA_DEVICE) {
-		fpga_guid pr_ifc_id;
-		unsigned i;
-
 		// The token's guid is the PR interface ID.
 
 		res = fpgaPropertiesGetGUID(props, &pr_ifc_id);
 		if (res != FPGA_OK) {
-			LOG("failed to get PR interface ID\n");
-			fpgaDestroyProperties(&props);
-			return false;
+			LOG("failed to get PR interface ID\n");\
+			goto err_out_destroy;
 		}
 
 		for (i = 0 ; i < c->num_null_gbs ; ++i) {
@@ -176,33 +174,23 @@ STATIC bool mon_consider_device(struct config *c, fpga_token token)
 		}
 	} else {
 		// The parent token's guid is the PR interface ID.
-		fpga_token parent = NULL;
-		fpga_properties parent_props = NULL;
-		fpga_guid pr_ifc_id;
-		unsigned i;
 
 		res = fpgaPropertiesGetParent(props, &parent);
 		if (res != FPGA_OK) {
 			LOG("failed to get parent token\n");
-			fpgaDestroyProperties(&props);
-			return false;
+			goto err_out_destroy;
 		}
 
 		res = fpgaGetProperties(parent, &parent_props);
 		if (res != FPGA_OK) {
 			LOG("failed to get parent properties\n");
-			fpgaDestroyToken(&parent);
-			fpgaDestroyProperties(&props);
-			return false;
+			goto err_out_destroy;
 		}
 
 		res = fpgaPropertiesGetGUID(parent_props, &pr_ifc_id);
 		if (res != FPGA_OK) {
 			LOG("failed to get PR interface ID\n");
-			fpgaDestroyProperties(&parent_props);
-			fpgaDestroyToken(&parent);
-			fpgaDestroyProperties(&props);
-			return false;
+			goto err_out_destroy;
 		}
 
 		fpgaDestroyProperties(&parent_props);
@@ -219,8 +207,8 @@ STATIC bool mon_consider_device(struct config *c, fpga_token token)
 
 	fpgaDestroyProperties(&props);
 
-	for (i = 0 ; supported_devices_table[i].library_path ; ++i) {
-		fpgad_supported_device *d = &supported_devices_table[i];
+	for (i = 0 ; c->supported_devices[i].library_path ; ++i) {
+		fpgad_supported_device *d = &c->supported_devices[i];
 
 		// Do we support this device?
 		if (d->vendor_id == vendor_id &&
@@ -232,7 +220,7 @@ STATIC bool mon_consider_device(struct config *c, fpga_token token)
 			d->flags |= FPGAD_DEV_DETECTED;
 
 			// Is the fpgad plugin already loaded?
-			loaded_by = mon_is_loaded(d->library_path);
+			loaded_by = mon_is_loaded(c, d->library_path);
 
 			if (loaded_by) {
 				// The two table entries will share the
@@ -290,8 +278,7 @@ STATIC bool mon_consider_device(struct config *c, fpga_token token)
 				continue;
 			}
 
-			/* TODO pass configuration settings */
-			cfg(monitored, NULL);
+			cfg(monitored, d->config);
 
 			if (monitored->type == FPGAD_PLUGIN_TYPE_THREAD) {
 
@@ -324,9 +311,18 @@ STATIC bool mon_consider_device(struct config *c, fpga_token token)
 	}
 
 	return added;
+
+err_out_destroy:
+	if (props)
+		fpgaDestroyProperties(&props);
+	if (parent)
+		fpgaDestroyToken(&parent);
+	if (parent_props)
+		fpgaDestroyProperties(&parent_props);
+	return false;
 }
 
-int mon_enumerate(struct config *c)
+int mon_enumerate(struct fpgad_config *c)
 {
 	fpga_token *tokens = NULL;
 	fpga_result res;

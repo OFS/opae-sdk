@@ -91,9 +91,6 @@ STATIC void mon_monitor(fpgad_monitored_device *d)
 			d->detection_contexts ?
 			d->detection_contexts[i] : NULL;
 
-		if (!detect)
-			continue;
-
 		result = detect(d, detect_context);
 
 		if (result != FPGAD_STATUS_NOT_DETECTED && d->responses) {
@@ -111,6 +108,13 @@ STATIC void mon_monitor(fpgad_monitored_device *d)
 			}
 		}
 	}
+}
+
+STATIC volatile bool mon_is_ready = false;
+
+bool monitor_is_ready(void)
+{
+	return mon_is_ready;
 }
 
 void *monitor_thread(void *thread_context)
@@ -140,6 +144,8 @@ void *monitor_thread(void *thread_context)
 		}
 	}
 
+	mon_is_ready = true;
+
 	while (c->global->running) {
 		fpgad_mutex_lock(err, &mon_list_lock);
 
@@ -158,7 +164,8 @@ void *monitor_thread(void *thread_context)
 		usleep(c->global->poll_interval_usec);
 	}
 
-	mon_destroy();
+	mon_destroy(c->global);
+	mon_is_ready = false;
 
 	LOG("exiting\n");
 	return NULL;
@@ -189,8 +196,7 @@ out_unlock:
 	fpgad_mutex_unlock(err, &mon_list_lock);
 }
 
-extern fpgad_supported_device supported_devices_table[];
-void mon_destroy(void)
+void mon_destroy(struct fpgad_config *c)
 {
 	unsigned i;
 	errno_t err;
@@ -236,15 +242,19 @@ void mon_destroy(void)
 	}
 	monitored_device_list = NULL;
 
-	for (i = 0 ; supported_devices_table[i].library_path ; ++i) {
-		fpgad_supported_device *d = &supported_devices_table[i];
+	if (c->supported_devices) {
 
-		if (d->flags & FPGAD_DEV_LOADED) {
-			dlclose(d->dl_handle);
+		for (i = 0 ; c->supported_devices[i].library_path ; ++i) {
+			fpgad_supported_device *d = &c->supported_devices[i];
+
+			if (d->flags & FPGAD_DEV_LOADED) {
+				dlclose(d->dl_handle);
+			}
+
+			d->flags = 0;
+			d->dl_handle = NULL;
 		}
 
-		d->flags = 0;
-		d->dl_handle = NULL;
 	}
 
 	fpgad_mutex_unlock(err, &mon_list_lock);

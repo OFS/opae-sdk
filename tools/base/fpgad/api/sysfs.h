@@ -40,15 +40,6 @@
 // 0 on success
 int file_write_string(const char *path, const char *str, size_t len);
 
-// 0 on success
-int file_read_string(const char *path, char *str, size_t len);
-
-// 0 on success
-int file_read_u64(const char *path, uint64_t *value);
-
-// 0 on success
-int file_read_fpga_guid(const char *path, fpga_guid guid);
-
 char *cstr_dup(const char *s);
 
 #endif /* __FPGAD_API_SYSFS_H__ */

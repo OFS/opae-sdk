@@ -36,6 +36,7 @@ target_include_directories(fpgad-vc PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   PRIVATE ${OPAE_SDK_SOURCE}/libopae
+  PRIVATE ${OPAE_SDK_SOURCE}/libbitstream
   PRIVATE ${OPAE_SDK_SOURCE}/tools/base
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
   PUBLIC ${libjson-c_INCLUDE_DIRS})

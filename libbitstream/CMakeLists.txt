@@ -1,4 +1,4 @@
-## Copyright(c) 2018-2019, Intel Corporation
+## Copyright(c) 2019, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,44 +24,46 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-project(libfpgad-api)
+project(libbitstream)
 
 set(SRC
-  logging.c
-  opae_events_api.c
-  device_monitoring.c
-  sysfs.c
-)
+    bitstream.c
+    )
 
-add_library(fpgad-api SHARED ${SRC})
+add_library(bitstream SHARED ${SRC})
 
-target_include_directories(fpgad-api PUBLIC
+target_include_directories(bitstream PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-  PRIVATE ${OPAE_SDK_SOURCE}/libopae
-  PRIVATE ${OPAE_SDK_SOURCE}/libbitstream
-  PRIVATE ${OPAE_SDK_SOURCE}/tools/base
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC ${libjson-c_INCLUDE_DIRS})
+  PUBLIC ${libjson-c_INCLUDE_DIRS}
+  PUBLIC ${libuuid_INCLUDE_DIRS})
 
 # Add coverage flags
 if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
   set_property(SOURCE ${SRC} APPEND PROPERTY COMPILE_FLAGS ${GCOV_COMPILE_FLAGS})
-  target_link_libraries(fpgad-api ${GCOV_LINK_FLAGS})
 endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
 # Target properties
-set_property(TARGET fpgad-api PROPERTY C_STANDARD 99)
-set_target_properties(fpgad-api PROPERTIES
+set_property(TARGET bitstream PROPERTY C_STANDARD 99)
+set_target_properties(bitstream PROPERTIES
   VERSION ${INTEL_FPGA_API_VERSION}
   SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
 
-target_link_libraries(fpgad-api
+# Add coverage flags
+if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+  target_link_libraries(bitstream ${GCOV_LINK_FLAGS})
+endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+
+target_link_libraries(bitstream
+  safestr
+  opae-c
   ${CMAKE_THREAD_LIBS_INIT}
-  ${libjson-c_LIBRARIES})
+  ${libjson-c_LIBRARIES}
+  ${libuuid_LIBRARIES})
 
 set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
-install(TARGETS fpgad-api
+install(TARGETS bitstream
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
-  COMPONENT toolfpgad_api)
+  COMPONENT opaeclib)

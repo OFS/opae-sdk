@@ -29,7 +29,7 @@
 #endif // HAVE_CONFIG_H
 
 #include <semaphore.h>
-#include <sys/time.h>
+#include <time.h>
 #include "event_dispatcher_thread.h"
 
 #ifdef LOG

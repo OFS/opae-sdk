@@ -31,8 +31,9 @@ add_subdirectory(plugins/fpgad-vc)
 include_directories(${OPAE_INCLUDE_DIR}
                     ${libjson-c_INCLUDE_DIRS}
 		    ${CMAKE_BINARY_DIR}/include
-                    ${OPAE_SDK_SOURCE}/tools/base
-		    ${OPAE_SDK_SOURCE}/libopae)
+		    ${OPAE_SDK_SOURCE}/libopae
+                    ${OPAE_SDK_SOURCE}/libbitstream
+                    ${OPAE_SDK_SOURCE}/tools/base)
 
 set(SRC
   command_line.c
@@ -43,7 +44,6 @@ set(SRC
   monitor_thread.c
   daemonize.c
   monitored_device.c
-  bitstream.c
 )
 add_executable(fpgad ${SRC})
 
@@ -52,8 +52,10 @@ set_install_rpath(fpgad)
 target_link_libraries(fpgad
   safestr
   opae-c
+  bitstream
   fpgad-api
   dl
+  rt
   ${CMAKE_THREAD_LIBS_INIT}
   ${libjson-c_LIBRARIES}
   uuid)
@@ -63,3 +65,9 @@ set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 install(TARGETS fpgad
         RUNTIME DESTINATION bin
         COMPONENT toolfpgad)
+
+if ("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr")
+  install(FILES fpgad.cfg DESTINATION /etc/opae COMPONENT toolfpgad)
+else()
+  install(FILES fpgad.cfg DESTINATION ${CMAKE_INSTALL_PREFIX}/etc/opae COMPONENT toolfpgad)
+endif()

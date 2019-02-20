@@ -37,6 +37,7 @@ typedef struct _fpgad_supported_device {
 #define FPGAD_DEV_DETECTED 0x00000001
 #define FPGAD_DEV_LOADED   0x00000002
 	void *dl_handle;
+	const char *config;
 } fpgad_supported_device;
 
 typedef enum _fpgad_plugin_type {
@@ -63,12 +64,12 @@ typedef void * (*fpgad_plugin_thread_t)(void *context);
 typedef void (*fpgad_plugin_thread_stop_t)(void);
 
 typedef struct _fpgad_monitored_device {
-	struct config *config;
+	struct fpgad_config *config;
 	fpgad_supported_device *supported;
 	fpga_token token;
 	uint64_t object_id;
 	fpga_objtype object_type;
-	struct bitstream_info *bitstr;
+	opae_bitstream_info *bitstr;
 
 	fpgad_plugin_type type;
 
