@@ -82,7 +82,10 @@ int main(int argc, char *argv[])
 		goto out_destroy;
 	}
 
-	cmd_canonicalize_paths(&global_config);
+	if (cmd_canonicalize_paths(&global_config)) {
+		LOG("error with paths.\n");
+		goto out_destroy;
+	}
 
 	if (global_config.daemon) {
 		FILE *fp;
@@ -181,7 +184,7 @@ out_stop_event_dispatcher:
 		LOG("failed to join event_dispatcher_thread\n");
 	}
 out_destroy:
-	mon_destroy();
+	mon_destroy(&global_config);
 	cmd_destroy(&global_config);
 	log_close();
 	return res;

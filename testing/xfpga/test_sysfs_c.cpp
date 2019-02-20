@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -382,32 +382,25 @@ TEST_P(sysfs_c_p, sysfs_invalid_tests) {
 }
 
 /**
-* @test    device_invalid_test
+* @test    hw_type_invalid_test
 * @details
 */
-TEST_P(sysfs_c_p, deviceid_invalid_tests) {
-  const std::string sysfs_port =
-      "/sys/class/fpga/intel-fpga-dev/intel-fpga-port";
+TEST_P(sysfs_c_p, hw_type_invalid_tests) {
   auto h = (struct _fpga_handle *)handle_;
-  auto t = (struct _fpga_token *)h->token;
-  uint64_t device_id;
+  enum fpga_hw_type hw_type = FPGA_HW_UNKNOWN;
   fpga_token tok;
 
-  auto res = get_fpga_deviceid(handle_, NULL);
+  auto res = get_fpga_hw_type(handle_, NULL);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 
   tok = h->token;
   h->token = NULL;
-  res = get_fpga_deviceid(handle_, &device_id);
+  res = get_fpga_hw_type(handle_, &hw_type);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 
   h->token = tok;
-  res = get_fpga_deviceid(handle_, &device_id);
+  res = get_fpga_hw_type(handle_, &hw_type);
   EXPECT_EQ(FPGA_OK, res);
-
-  strncpy(t->sysfspath, sysfs_port.c_str(), sizeof(t->sysfspath));
-  res = get_fpga_deviceid(handle_, &device_id);
-  EXPECT_EQ(FPGA_NOT_SUPPORTED, res);
 }
 
 /**
@@ -512,16 +505,19 @@ TEST(sysfs_c, sysfs_sbdf_invalid_tests) {
 }
 
 /**
-* @test    get_fpga_deviceid
-* @details get_fpga_device given a valid parameters
-*          return FPGA_OK
+* @test    hw_type
+* @details get_fpga_hw_type given valid parameters
+*          returns FPGA_OK
 */
-TEST_P(sysfs_c_p, get_fpga_deviceid) {
-  uint64_t deviceid;
+TEST_P(sysfs_c_p, hw_type) {
+  enum fpga_hw_type hw_type = FPGA_HW_UNKNOWN;
+  uint64_t real_vendorid = platform_.devices[0].vendor_id;
   uint64_t real_deviceid = platform_.devices[0].device_id;
-  auto res = get_fpga_deviceid(handle_, &deviceid);
+
+  auto res = get_fpga_hw_type(handle_, &hw_type);
   EXPECT_EQ(res, FPGA_OK);
-  EXPECT_EQ(real_deviceid, deviceid);
+
+  EXPECT_EQ(hw_type, opae_id_to_hw_type(real_vendorid, real_deviceid));
 }
 
 /**
@@ -775,7 +771,6 @@ class sysfs_sockid_c_p : public sysfs_c_p { };
 *          sysfs_read_u32_pair,sysfs_read_u64
 *          sysfs_read_u64,sysfs_write_u64
 *..........get_port_sysfs,sysfs_read_guid
-*..........get_fpga_deviceid
 */
 TEST_P(sysfs_sockid_c_p, fpga_sysfs_02) {
   fpga_result result;
@@ -899,7 +894,7 @@ TEST_P(sysfs_sockid_c_p, fpga_sysfs_02) {
   EXPECT_NE(result, FPGA_OK);
 
   // NULL handle
-  result = get_fpga_deviceid(NULL, NULL);
+  result = get_fpga_hw_type(NULL, NULL);
   EXPECT_NE(result, FPGA_OK);
 }
 

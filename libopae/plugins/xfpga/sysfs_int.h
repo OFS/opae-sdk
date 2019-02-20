@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -31,6 +31,8 @@
 #include <stdint.h>
 #include <unistd.h>
 
+#include "types_int.h"
+
 #define SYSFS_PATH_MAX 256
 
 
@@ -62,6 +64,8 @@ typedef struct _sysfs_fpga_region {
   uint8_t function;
   uint32_t device_id;
   uint32_t vendor_id;
+  uint64_t sriov_totalvfs;
+  uint64_t sriov_numvfs;
 } sysfs_fpga_region;
 
 int sysfs_initialize(void);
@@ -112,7 +116,8 @@ fpga_result sysfs_get_pr_id(int dev, int subdev, fpga_guid guid);
 fpga_result sysfs_get_slots(int dev, int subdev, uint32_t *slots);
 fpga_result sysfs_get_bitstream_id(int dev, int subdev, uint64_t *id);
 fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port);
-fpga_result get_fpga_deviceid(fpga_handle handle, uint64_t *deviceid);
+enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id);
+fpga_result get_fpga_hw_type(fpga_handle handle, enum fpga_hw_type *hw_type);
 fpga_result sysfs_deviceid_from_path(const char *sysfspath,
 				uint64_t *deviceid);
 fpga_result sysfs_objectid_from_path(const char *sysfspath,
