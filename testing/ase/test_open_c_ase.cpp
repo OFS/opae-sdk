@@ -78,7 +78,6 @@ class open_c_ase_p : public testing::Test {
     struct _fpga_token _tok;
     fpga_token tok;
     fpga_handle accel_;
-    uint64_t wsid = 1;
     test_system *system_;
 };
 
