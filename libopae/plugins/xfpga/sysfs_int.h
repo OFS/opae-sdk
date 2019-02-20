@@ -41,23 +41,23 @@ extern "C" {
 #endif
 
 
-typedef struct _sysfs_fpga_region sysfs_fpga_region;
+typedef struct _sysfs_fpga_device sysfs_fpga_device;
 
-typedef struct _sysfs_fpga_resource {
-	sysfs_fpga_region *region;
-	char res_path[SYSFS_PATH_MAX];
-	char res_name[SYSFS_PATH_MAX];
+typedef struct _sysfs_fpga_region {
+	sysfs_fpga_device *device;
+	char sysfs_path[SYSFS_PATH_MAX];
+	char sysfs_name[SYSFS_PATH_MAX];
 	fpga_objtype type;
-	int num;
-} sysfs_fpga_resource;
+	int number;
+} sysfs_fpga_region;
 
 #define SYSFS_MAX_RESOURCES 4
-typedef struct _sysfs_fpga_region {
-	char region_path[SYSFS_PATH_MAX];
-	char region_name[SYSFS_PATH_MAX];
+typedef struct _sysfs_fpga_device {
+	char sysfs_path[SYSFS_PATH_MAX];
+	char sysfs_name[SYSFS_PATH_MAX];
 	int number;
-	sysfs_fpga_resource *fme;
-	sysfs_fpga_resource *port;
+	sysfs_fpga_region *fme;
+	sysfs_fpga_region *port;
   uint32_t segment;
   uint8_t bus;
   uint8_t device;
@@ -66,16 +66,16 @@ typedef struct _sysfs_fpga_region {
   uint32_t vendor_id;
   uint64_t sriov_totalvfs;
   uint64_t sriov_numvfs;
-} sysfs_fpga_region;
+} sysfs_fpga_device;
 
 int sysfs_initialize(void);
 int sysfs_finalize(void);
-int sysfs_region_count(void);
+int sysfs_device_count(void);
 
-typedef void (*region_cb)(sysfs_fpga_region *region, void *context);
-void sysfs_foreach_region(region_cb cb, void *context);
+typedef void (*device_cb)(sysfs_fpga_device *device, void *context);
+void sysfs_foreach_device(device_cb cb, void *context);
 
-const sysfs_fpga_region *sysfs_get_region(size_t num);
+const sysfs_fpga_device *sysfs_get_device(size_t num);
 int sysfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *value);
 
 fpga_result sysfs_get_fme_pr_interface_id(const char *sysfs_res_path, fpga_guid guid);
