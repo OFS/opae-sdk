@@ -41,9 +41,9 @@ fpga_result make_sysfs_group(char *, const char *, fpga_object *, int,
                              fpga_handle);
 ssize_t eintr_write(int, void *, size_t);
 char* cstr_dup(const char *str);
-int parse_pcie_info(sysfs_fpga_region *region, char *buffer);
+int parse_pcie_info(sysfs_fpga_device *device, char *buffer);
 fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid);
-sysfs_fpga_resource* make_resource(sysfs_fpga_region*, char*, int, fpga_objtype);
+sysfs_fpga_region* make_region(sysfs_fpga_device*, char*, int, fpga_objtype);
 int xfpga_plugin_initialize(void);
 int xfpga_plugin_finalize(void);
 }
@@ -82,18 +82,18 @@ class sysfsinit_c_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
     ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
-    if (sysfs_region_count() > 0) {
-      const sysfs_fpga_region *region = sysfs_get_region(0);
-      ASSERT_NE(region, nullptr);
-      if (region->fme) {
-        sysfs_fme = std::string(region->fme->res_path);
+    if (sysfs_device_count() > 0) {
+      const sysfs_fpga_device *device = sysfs_get_device(0);
+      ASSERT_NE(device, nullptr);
+      if (device->fme) {
+        sysfs_fme = std::string(device->fme->sysfs_path);
 
-        dev_fme = std::string("/dev/") + std::string(region->fme->res_name);
+        dev_fme = std::string("/dev/") + std::string(device->fme->sysfs_name);
       }
-      if (region->port) {
-        sysfs_port = std::string(region->port->res_path);
+      if (device->port) {
+        sysfs_port = std::string(device->port->sysfs_path);
 
-        dev_port = std::string("/dev/") + std::string(region->port->res_name);
+        dev_port = std::string("/dev/") + std::string(device->port->sysfs_name);
       }
     }
   }
@@ -109,7 +109,7 @@ class sysfsinit_c_p : public ::testing::TestWithParam<std::string> {
 
     int value;
     std::string cmd =
-        "(ls -l /sys/class/fpga*/region*/*fme*/dev || "
+        "(ls -l /sys/class/fpga*/device*/*fme*/dev || "
         "ls -l /sys/class/fpga*/*intel*) |  (wc -l)";
 
     ExecuteCmd(cmd, value);
@@ -166,10 +166,10 @@ uint32_t to_uint32(uint16_t segment, uint8_t bus, uint8_t device,
 TEST_P(sysfsinit_c_p, sysfs_initialize) {
   std::map<uint64_t, test_device> devices;
 
-  // define a callback to be used with sysfs_foreach_region
+  // define a callback to be used with sysfs_foreach_device
   // this callback is given a map of devices using the sbdf as the key
   // (as a 32-bit number);
-  auto cb = [](sysfs_fpga_region *r, void* data) {
+  auto cb = [](sysfs_fpga_device *r, void* data) {
     auto& devs = *reinterpret_cast<std::map<uint64_t, test_device>*>(data);
     auto id = to_uint32(r->segment, r->bus, r->device, r->function);
     auto it = devs.find(id);
@@ -189,15 +189,15 @@ TEST_P(sysfsinit_c_p, sysfs_initialize) {
   // the size of this map should be equal to the number of devices in our
   // platform
   ASSERT_EQ(devices.size(), platform_.devices.size());
-  EXPECT_EQ(GetNumFpgas(), sysfs_region_count());
-  // call sysfs_foreach_region with our callback, cb
-  sysfs_foreach_region(cb, &devices);
+  EXPECT_EQ(GetNumFpgas(), sysfs_device_count());
+  // call sysfs_foreach_device with our callback, cb
+  sysfs_foreach_device(cb, &devices);
   // our devices map should be empty after this call as this callback removes
-  // entries if the region structure matches a device object in the map
+  // entries if the device structure matches a device object in the map
   EXPECT_EQ(devices.size(), 0);
 }
 
-TEST_P(sysfsinit_c_p, sysfs_get_region) {
+TEST_P(sysfsinit_c_p, sysfs_get_device) {
   std::map<uint64_t, test_device> devices;
 
   // build a map of tests devices where the key is the sbdf as a 32-bit number
@@ -208,16 +208,16 @@ TEST_P(sysfsinit_c_p, sysfs_get_region) {
   // the size of this map should be equal to the number of devices in our
   // platform
   ASSERT_EQ(devices.size(), platform_.devices.size());
-  EXPECT_EQ(GetNumFpgas(), sysfs_region_count());
+  EXPECT_EQ(GetNumFpgas(), sysfs_device_count());
 
-  // use sysfs_get_region API to count how many regions match our devices map
-  for (int i = 0; i < sysfs_region_count(); ++i) {
-    auto region = sysfs_get_region(i);
-    ASSERT_NE(region, nullptr);
-    auto id = to_uint32(region->segment, region->bus, region->device, region->function);
+  // use sysfs_get_device API to count how many devices match our devices map
+  for (int i = 0; i < sysfs_device_count(); ++i) {
+    auto device = sysfs_get_device(i);
+    ASSERT_NE(device, nullptr);
+    auto id = to_uint32(device->segment, device->bus, device->device, device->function);
     auto it = devices.find(id);
-    if (it != devices.end() && it->second.device_id == region->device_id &&
-        it->second.vendor_id == region->vendor_id) {
+    if (it != devices.end() && it->second.device_id == device->device_id &&
+        it->second.vendor_id == device->vendor_id) {
       devices.erase(id);
     }
   }
@@ -251,21 +251,21 @@ TEST_P(sysfsinit_c_p, get_interface_id) {
 }
 
 TEST(sysfsinit_c_p, sysfs_parse_pcie) {
-  sysfs_fpga_region region;
+  sysfs_fpga_device device;
   char buffer1[] = "../../devices/pci0000:00/0000:00:02.0/0f0f:05:04.3/fpga/intel-fpga-dev.0";
-  char buffer2[] = "../../devices/pci0000:5e/a0a0:5e:02.1/fpga_region/region0";
-  auto res = parse_pcie_info(&region, buffer1);
+  char buffer2[] = "../../devices/pci0000:5e/a0a0:5e:02.1/fpga_device/device0";
+  auto res = parse_pcie_info(&device, buffer1);
   EXPECT_EQ(res, 0);
-  EXPECT_EQ(region.segment, 0x0f0f);
-  EXPECT_EQ(region.bus, 0x05);
-  EXPECT_EQ(region.device, 0x04);
-  EXPECT_EQ(region.function, 0x03);
-  res = parse_pcie_info(&region, buffer2);
+  EXPECT_EQ(device.segment, 0x0f0f);
+  EXPECT_EQ(device.bus, 0x05);
+  EXPECT_EQ(device.device, 0x04);
+  EXPECT_EQ(device.function, 0x03);
+  res = parse_pcie_info(&device, buffer2);
   EXPECT_EQ(res, 0);
-  EXPECT_EQ(region.segment, 0xa0a0);
-  EXPECT_EQ(region.bus, 0x5e);
-  EXPECT_EQ(region.device, 0x02);
-  EXPECT_EQ(region.function, 0x01);
+  EXPECT_EQ(device.segment, 0xa0a0);
+  EXPECT_EQ(device.bus, 0x5e);
+  EXPECT_EQ(device.device, 0x02);
+  EXPECT_EQ(device.function, 0x01);
 }
 
 INSTANTIATE_TEST_CASE_P(sysfsinit_c, sysfsinit_c_p,
@@ -292,18 +292,18 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
                                   &num_matches_),
               FPGA_OK);
     ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
-    if (sysfs_region_count() > 0) {
-      const sysfs_fpga_region *region = sysfs_get_region(0);
-      ASSERT_NE(region, nullptr);
-      if (region->fme) {
-        sysfs_fme = std::string(region->fme->res_path);
+    if (sysfs_device_count() > 0) {
+      const sysfs_fpga_device *device = sysfs_get_device(0);
+      ASSERT_NE(device, nullptr);
+      if (device->fme) {
+        sysfs_fme = std::string(device->fme->sysfs_path);
 
-        dev_fme = std::string("/dev/") + std::string(region->fme->res_name);
+        dev_fme = std::string("/dev/") + std::string(device->fme->sysfs_name);
       }
-      if (region->port) {
-        sysfs_port = std::string(region->port->res_path);
+      if (device->port) {
+        sysfs_port = std::string(device->port->sysfs_path);
 
-        dev_port = std::string("/dev/") + std::string(region->port->res_name);
+        dev_port = std::string("/dev/") + std::string(device->port->sysfs_name);
       }
     }
   }
@@ -899,19 +899,19 @@ TEST_P(sysfs_sockid_c_p, fpga_sysfs_02) {
 }
 
 /**
- * @test    make_resource
- * @details Given valid parameters to make_resources but failed on malloc,
- *          it returns nullptr for sysfs_fpga_resource. 
+ * @test    make_region
+ * @details Given valid parameters to make_regions but failed on malloc,
+ *          it returns nullptr for sysfs_fpga_region. 
  */
-TEST_P(sysfs_sockid_c_p, make_resources) {
-  sysfs_fpga_resource *fpga_resource;
-  sysfs_fpga_region region;
+TEST_P(sysfs_sockid_c_p, make_regions) {
+  sysfs_fpga_region *fpga_region;
+  sysfs_fpga_device device;
   std::string name = "fme";
   int num = 1;
   fpga_objtype type = FPGA_DEVICE;
   test_system::instance()->invalidate_malloc();
-  fpga_resource = make_resource(&region, const_cast<char*>(name.c_str()), num, type);
-  EXPECT_EQ(fpga_resource, nullptr);
+  fpga_region = make_region(&device, const_cast<char*>(name.c_str()), num, type);
+  EXPECT_EQ(fpga_region, nullptr);
 }
 
 /**
