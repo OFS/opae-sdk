@@ -499,43 +499,43 @@ STATIC fpga_result enum_fpga_region_resources(struct dev_list *list,
 	fpga_result result                 = FPGA_NOT_FOUND;
 	struct dev_list *pdev              = NULL;
 	int i                              = 0;
-	int region_count                   = 0 ;
-	const sysfs_fpga_region *region    = NULL;
+	int device_count                   = 0 ;
+	const sysfs_fpga_device *device    = NULL;
 
-	region_count = sysfs_region_count();
+	device_count = sysfs_device_count();
 
-	if (region_count <= 0) {
+	if (device_count <= 0) {
 		FPGA_MSG("Not found fpga region's");
 		return FPGA_NO_DRIVER;
 	}
 
-	for (i = 0; i < region_count; i++) {
+	for (i = 0; i < device_count; i++) {
 
-		region  = sysfs_get_region(i);
+		device  = sysfs_get_device(i);
 
-		if (!region) {
+		if (!device) {
 			FPGA_MSG("failed to enum region");
 			return FPGA_NO_DRIVER;
 		}
 
-		pdev = add_dev(region->region_path, "", list);
+		pdev = add_dev(device->sysfs_path, "", list);
 		if (!pdev) {
 			FPGA_MSG("Failed to allocate device");
 			return FPGA_NO_MEMORY;
 		}
 		// Assign bus, function, device
 		// segment,device_id ,vendor_id
-		pdev->function       = region->function;
-		pdev->segment        = region->segment;
-		pdev->bus            = region->bus;
-		pdev->device         = region->device;
-		pdev->device_id      = region->device_id;
-		pdev->vendor_id      = region->vendor_id;
+		pdev->function       = device->function;
+		pdev->segment        = device->segment;
+		pdev->bus            = device->bus;
+		pdev->device         = device->device;
+		pdev->device_id      = device->device_id;
+		pdev->vendor_id      = device->vendor_id;
 
 		// Enum fme
-		if (region->fme) {
-			result = enum_fme(region->fme->res_path,
-							region->fme->res_name, pdev);
+		if (device->fme) {
+			result = enum_fme(device->fme->sysfs_path,
+							device->fme->sysfs_name, pdev);
 			if (result != FPGA_OK) {
 				FPGA_ERR("Failed to enum FME");
 				break;
@@ -543,16 +543,16 @@ STATIC fpga_result enum_fpga_region_resources(struct dev_list *list,
 		}
 
 		// Enum port
-		if (region->port && include_port) {
-			result = enum_afu(region->port->res_path,
-				region->port->res_name, pdev);
+		if (device->port && include_port) {
+			result = enum_afu(device->port->sysfs_path,
+				device->port->sysfs_name, pdev);
 			if (result != FPGA_OK) {
 				FPGA_ERR("Failed to enum PORT");
 				break;
 			}
 		}
 
-	} // end of region loop
+	} // end of device loop
 
 	return result;
 }
