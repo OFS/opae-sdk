@@ -43,6 +43,7 @@
 #include "safe_string/safe_string.h"
 
 static int num_ports = 8;
+static int speed = 10;
 
 /*
  * phy command configuration, set during parse_phy_args()
@@ -65,9 +66,9 @@ void phy_help(void)
 		   "\n");
 }
 
-#define PHYGRP_DEVNAME  "phy_group"
+#define PHYGRP_DEVNAME  "eth_group"
 #define CDEV_ID_SIZE    8
-#define FPGA_PHY_GROUP_GET_INFO 0xB700
+#define FPGA_PHY_GROUP_GET_INFO 0xB702
 static void print_phy_group_info(fpga_properties props, int group_num)
 {
 	DIR *dir = NULL;
@@ -101,7 +102,7 @@ static void print_phy_group_info(fpga_properties props, int group_num)
 		if (!strncmp(dirent->d_name, PHYGRP_DEVNAME, strlen(PHYGRP_DEVNAME))) {
 			p = strrchr(dirent->d_name, '.');
 			if (NULL == p) {
-				fprintf(stderr, "Invalid phy_group name %s\n", dirent->d_name);
+				fprintf(stderr, "Invalid eth_group name %s\n", dirent->d_name);
 				continue;
 			}
 			++p;
@@ -139,28 +140,33 @@ static void print_phy_group_info(fpga_properties props, int group_num)
 		struct fpga_phy_group_info {
 			unsigned int    argsz;
 			unsigned int    flags;
-			unsigned short  speed;
-			unsigned short  num_phys;
-			unsigned short  direction;
+			unsigned char  speed;
+			unsigned char  phy_num;
+			unsigned char  mac_num;
+			unsigned char  group_id;
 		} info = {
 			.argsz = 14,
 			.flags = 0,
 			.speed = 0,
-			.num_phys = 0,
-			.direction = 0
+			.phy_num = 0,
+			.mac_num = 0,
+			.group_id = 0
 		};
 		if (0 == ioctl(fd, FPGA_PHY_GROUP_GET_INFO, &info)) {
 			printf("%-29s : %s\n", "Direction",
-				   info.direction ? "Line side" : "Fortville side");
+				   info.group_id == 0 ? "Line side" : "Fortville side");
 			printf("%-29s : %d Gbps\n", "Speed", info.speed);
-			printf("%-29s : %d\n", "Number of PHYs", info.num_phys);
+			printf("%-29s : %d\n", "Number of PHYs", info.phy_num);
 		} else {
 			printf("ioctl error\n");
 		}
-		num_ports = info.num_phys;
+		if (info.group_id == 0) {
+			num_ports = info.phy_num;
+			speed = info.speed;
+		}
 		close(fd);
 	} else {
-		fprintf(stderr, "WARNING: phy_group %d not found\n", group_num);
+		fprintf(stderr, "WARNING: eth_group %d not found\n", group_num);
 	}
 }
 
@@ -176,9 +182,10 @@ static void print_pkvl_info(fpga_properties props)
 	char *substr;
 	int found = 0;
 	int offset;
-	int ports;
+	int shift;
 	int result;
 	int fd;
+	int i;
 	ssize_t ret;
 	char mode[16] = {0};
 	char status[16] = {0};
@@ -253,15 +260,15 @@ static void print_pkvl_info(fpga_properties props)
 				printf("open %s failed\n", path);
 			}
 		}
-		ports = result == 1 ? 4 : 8;
-		strncpy_s(mode, sizeof(mode), result == 1 ? "25G" : "10G", 3);
+		strncpy_s(mode, sizeof(mode), speed == 25 ? "25G" : "10G", 3);
 
 		snprintf_s_s(path+offset, sizeof(path)-offset, "/%s", "status");
 		get_sysfs_attr(path, status, sizeof(status));
 		result = strtol(status, NULL, 16);
-		for (offset = 0; offset < ports; offset++) {
+		shift = speed == 25 ? 4 : 1;
+		for (i = 0; i < num_ports; i++) {
 			printf("%s%-2d%-23s : %s\n", "Port",
-				   offset, mode, result&(1<<offset) ? "Up" : "Down");
+				   i, mode, result&(1<<(i*shift)) ? "Up" : "Down");
 		}
 	} else {
 		fprintf(stderr, "WARNING: pkvl not found\n");

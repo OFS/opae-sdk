@@ -415,16 +415,14 @@ void print_bmc_info(const char *sysfspath)
 			} else {
 				printf("unavailable (I/O error)\n");
 			}
+			printf("Board Management Controller, MAX10 Build version ");
 			snprintf_s_s(path+off, sizeof(path)-off, "/%s", "max10_version");
 			if (get_sysfs_attr(path, buf, sizeof(buf)) > 0) {
 				max10_ver = strtoul(buf, NULL, 16);
-				printf("Board Management Controller, MAX10 version %u.%u.%u\n",
-					   (max10_ver >> 16) & 0xff, (max10_ver >> 8) & 0xff,
-					   max10_ver & 0xff);
-			}
-			snprintf_s_s(path+off, sizeof(path)-off, "/%s", "pcb_info");
-			if (get_sysfs_attr(path, buf, sizeof(buf)) > 0) {
-				printf("Board PCB version %s\n", buf);
+				printf("%u.%u.%u\n", (max10_ver >> 16) & 0xff,
+					   (max10_ver >> 8) & 0xff, max10_ver & 0xff);
+			} else {
+				printf("unavailable (I/O error)\n");
 			}
 		} else {
 			printf("unavailable\n");

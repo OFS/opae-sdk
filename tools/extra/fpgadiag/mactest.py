@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# Copyright(c) 2018, Intel Corporation
+# Copyright(c) 2019, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -30,17 +30,20 @@ import os
 import argparse
 import binascii
 import sys
-from common import FpgaFinder, exception_quit, convert_argument_str2hex
+from common import FpgaFinder, exception_quit
+from common import COMMON, convert_argument_str2hex
 
 sys_if = '/sys/class/net'
-divide = '-'*80
+divide = '-' * 80
+FVL_SIDE = 1
 
 
-class MacromCompare(object):
+class MacromCompare(COMMON):
     def __init__(self, args):
         self.args = args
         self.ethif = {}
         self.mac = []
+        self.number = 4
 
     def get_pci_common_root_path(self, path):
         link = os.readlink(path)
@@ -48,13 +51,20 @@ class MacromCompare(object):
         if len(m) > 4:
             return os.sep.join(m[:-4])
 
+    def get_netif_number(self):
+        info = self.get_eth_group_info(self.args.eth_grps)
+        for grp in info:
+            if grp == FVL_SIDE:
+                self.number, _, spd, node = info[grp]
+
     def get_if_and_mac_list(self):
+        self.get_netif_number()
         pci_root = self.get_pci_common_root_path(self.args.fpga_root)
         ifs = os.listdir(sys_if)
         # a group has 4 interfaces
         for i in ifs:
             t = [j for j in ifs if j[:-1] == i[:-1]]
-            if len(t) == 4:
+            if len(t) == self.number:
                 root = self.get_pci_common_root_path(os.path.join(sys_if, i))
                 if pci_root == root:
                     with open(os.path.join(sys_if, i, 'address')) as f:
@@ -62,23 +72,29 @@ class MacromCompare(object):
 
         if self.ethif:
             print('Found {} ethernet interfaces:'.format(len(self.ethif)))
-            ethifs = self.ethif.items()
-            ethifs.sort()
+            ethifs = sorted(self.ethif.items())
             for i in ethifs:
                 print('  {:<20} {}'.format(*i))
             print(divide)
         else:
             exception_quit('No ethernet interface found!')
 
+    def str2hex(self, c):
+        return int(binascii.b2a_hex(c), 16)
+
     def read_mac_from_nvmem(self):
+        mac_number = 0
+        mac = 0
         with open(self.args.nvmem, 'rb') as f:
             f.seek(self.args.offset, 0)
-            for i in self.ethif:
-                m = []
-                for x in xrange(6):
-                    m.append(binascii.b2a_hex(f.read(1)))
-                self.mac.append(':'.join(m))
-        print('Read {} mac addresses from NVMEM:'.format(len(self.mac)))
+            for x in [40, 32, 24, 16, 8, 0]:
+                mac |= self.str2hex(f.read(1)) << x
+            mac_number = self.str2hex(f.read(1))
+        print('Read {} mac addresses from NVMEM:'.format(mac_number))
+        vendor = '{:06x}'.format(mac >> 24)
+        for i in range(mac_number):
+            mac += 1
+            self.mac.append(vendor + '{:06x}'.format(mac & 0xffffff))
         for m in self.mac:
             print('  {}'.format(m))
         print(divide)
@@ -89,8 +105,7 @@ class MacromCompare(object):
             if m not in self.ethif.values():
                 print('{} in MAC ROM, have no relative interface!'.format(m))
                 result = 'FAIL'
-        ethifs = self.ethif.items()
-        ethifs.sort()
+        ethifs = sorted(self.ethif.items())
         for e, m in ethifs:
             if m not in self.mac:
                 print('{} mac {}, is not from MAC ROM'.format(e, m))
@@ -140,6 +155,11 @@ def main():
     if len(nvmem_path) > 1:
         print('multi nvmem found, '
               'select {} to do mactest'.format(args.nvmem))
+    args.eth_grps = f.find_node(devs[0].get('path'), 'eth_group*/dev', depth=3)
+    if not args.eth_grps:
+        exception_quit('No ethernet group found')
+    for g in args.eth_grps:
+        print('ethernet group device: {}'.format(g))
 
     m = MacromCompare(args)
     m.start()

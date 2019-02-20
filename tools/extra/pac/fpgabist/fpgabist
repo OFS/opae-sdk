@@ -87,28 +87,28 @@ def main(args):
                            '{}Mode'.format(name.capitalize()))()
             print "Running mode: {}".format(mode.name)
             mode.run(None, bdf['bus'], bist_common.VCP_ID, afu_id)
+    else:
+        gbs_paths = args.gbs_paths
+        afu_ids = {}
+        for path in gbs_paths:
+            afu_ids.update({bist_common.get_afu_id(path): path})
+        if not gbs_paths:
+            # Get the afu ID of the afu in the slot (defaut persona)
+            afu_ids.update({bist_common.get_afu_id(): ""})
 
-    gbs_paths = args.gbs_paths
-    afu_ids = {}
-    for path in gbs_paths:
-        afu_ids.update({bist_common.get_afu_id(path): path})
-    if not gbs_paths:
-        # Get the afu ID of the afu in the slot (defaut persona)
-        afu_ids.update({bist_common.get_afu_id(): ""})
-
-    for afu_id in afu_ids.keys():
-        if afu_id == bist_def.DefaultMode().afu_id.replace("-", ""):
-            mode = bist_def.DefaultMode()
-        elif afu_id == bist_nlb3.Nlb3Mode().afu_id.replace("-", ""):
-            mode = bist_nlb3.Nlb3Mode()
-        elif afu_id == bist_dma.DmaMode().afu_id.replace("-", ""):
-            mode = bist_dma.DmaMode()
-        elif afu_id == bist_app.BistMode().afu_id.replace("-", ""):
-            mode = bist_app.BistMode()
-        else:
-            sys.exit("Unknown AFU for available ID {}\n".format(afu_id))
-        print "Running mode: {}".format(mode.name)
-        mode.run(afu_ids.get(afu_id), bdf['bus'])
+        for afu_id in afu_ids.keys():
+            if afu_id == bist_def.DefaultMode().afu_id.replace("-", ""):
+                mode = bist_def.DefaultMode()
+            elif afu_id == bist_nlb3.Nlb3Mode().afu_id.replace("-", ""):
+                mode = bist_nlb3.Nlb3Mode()
+            elif afu_id == bist_dma.DmaMode().afu_id.replace("-", ""):
+                mode = bist_dma.DmaMode()
+            elif afu_id == bist_app.BistMode().afu_id.replace("-", ""):
+                mode = bist_app.BistMode()
+            else:
+                sys.exit("Unknown AFU for available ID {}\n".format(afu_id))
+            print "Running mode: {}".format(mode.name)
+            mode.run(afu_ids.get(afu_id), bdf['bus'])
 
     print "\nBuilt-in Self-Test Completed.\n"
 

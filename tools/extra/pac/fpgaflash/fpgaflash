@@ -455,7 +455,6 @@ def update_flash(update_type, ifile, mtd_dev, bdf):
     else:
         reverse_bits_in_file(ifile, ofile)
 
-    ifile.close()
     ofile.close()
 
     print "erasing flash"
@@ -503,7 +502,20 @@ def update_flash(update_type, ifile, mtd_dev, bdf):
         return 0
     else:
         print "failed to verify flash"
-        return 1
+        return 2
+
+
+def erase_flash(update_type, ifile, mtd_dev, bdf):
+    print "erasing flash"
+    if int(get_devid(bdf), 16) == VCP_ID:
+        if update_type == 'user':
+            start_addr = VCP_FLASH_PAGE1_OFFSET
+            image_len = VCP_RPD_USER_IMAGE_LENGTH
+        elif update_type == 'bmc_img':
+            start_addr = MAX10_USER_FLASH_OFFSET
+            ifile.seek(0, 2)
+            image_len = ifile.tell()
+        flash_erase(mtd_dev, start_addr, image_len)
 
 
 def fpga_update(utype, ifile, bdf, bdf_map):
@@ -528,7 +540,14 @@ def fpga_update(utype, ifile, bdf, bdf_map):
         if line != "Yes":
             return 1
 
-    return update_flash(utype, ifile, mtd_dev, bdf)
+    ret = update_flash(utype, ifile, mtd_dev, bdf)
+    if ret == 2 and utype in ['user', 'bmc_img']:
+        print "retrying flash"
+        ret = update_flash(utype, ifile, mtd_dev, bdf)
+        if ret == 2:
+            erase_flash(utype, ifile, mtd_dev, bdf)
+    ifile.close()
+    return ret
 
 
 def get_dev_bmc(bdf):
