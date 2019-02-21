@@ -1063,11 +1063,12 @@ TEST_P(enum_mock_only, remove_port) {
   EXPECT_EQ(num_matches_, 1);
   const char *sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
 
-  ASSERT_EQ(system_->remove_sysfs_dir(sysfs_port), 0)
+  EXPECT_EQ(system_->remove_sysfs_dir(sysfs_port), 0)
       << "error removing intel-fpga-port.0: " << strerror(errno);
   EXPECT_EQ(xfpga_fpgaEnumerate(&filterp, 1, tokens_.data(), 1, &num_matches_),
             FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
+  EXPECT_EQ(fpgaDestroyProperties(&filterp), FPGA_OK);
 }
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_mock_only,
