@@ -169,7 +169,7 @@ TEST_P(sysfsinit_c_p, sysfs_initialize) {
   // define a callback to be used with sysfs_foreach_device
   // this callback is given a map of devices using the sbdf as the key
   // (as a 32-bit number);
-  auto cb = [](sysfs_fpga_device *r, void* data) {
+  auto cb = [](const sysfs_fpga_device *r, void* data) -> fpga_result {
     auto& devs = *reinterpret_cast<std::map<uint64_t, test_device>*>(data);
     auto id = to_uint32(r->segment, r->bus, r->device, r->function);
     auto it = devs.find(id);
@@ -179,6 +179,7 @@ TEST_P(sysfsinit_c_p, sysfs_initialize) {
         devs.erase(id);
       }
     }
+    return FPGA_OK;
   };
 
   // build a map of tests devices where the key is the sbdf as a 32-bit number

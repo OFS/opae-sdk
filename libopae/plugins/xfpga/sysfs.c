@@ -374,17 +374,34 @@ int sysfs_device_count(void)
 	return count;
 }
 
-void sysfs_foreach_device(device_cb cb, void *context)
+fpga_result sysfs_foreach_device(device_cb cb, void *context)
 {
 	uint32_t i = 0;
 	int res = 0;
-	if (!opae_mutex_lock(res, &_sysfs_device_lock)) {
-		for ( ; i < _sysfs_device_count; ++i) {
-			cb(&_devices[i], context);
-		}
-
-		opae_mutex_unlock(res, &_sysfs_device_lock);
+	fpga_result result = FPGA_OK;
+	if (opae_mutex_lock(res, &_sysfs_device_lock)) {
+		return FPGA_EXCEPTION;
 	}
+
+	result = sysfs_finalize();
+	if (result) {
+		goto out_unlock;
+	}
+	result = sysfs_initialize();
+	if (result) {
+		goto out_unlock;
+	}
+	for (; i < _sysfs_device_count; ++i) {
+		result = cb(&_devices[i], context);
+		if (result) {
+			goto out_unlock;
+		}
+	}
+
+out_unlock:
+	opae_mutex_unlock(res, &_sysfs_device_lock);
+
+	return result;
 }
 
 int sysfs_initialize(void)
