@@ -81,7 +81,7 @@ const char *skx_mdata =
         }
       ]
      },
-     "platform-name": "MCP"}";
+     "platform-name": "MCP"}"
 )mdata";
 
 const char *rc_mdata =
@@ -100,7 +100,7 @@ const char *rc_mdata =
         }
       ]
      },
-     "platform-name": "PAC"}";
+     "platform-name": "PAC"}"
 )mdata";
 
 static platform_db MOCK_PLATFORMS = {
