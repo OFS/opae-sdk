@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -70,7 +70,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetNumMetrics(fpga_handle handle,
 	}
 
 	if (num_metrics == NULL) {
-		FPGA_ERR("Invlaid Input parameters");
+		FPGA_ERR("Invalid Input parameters");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -132,7 +132,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsInfo(fpga_handle handle,
 
 	if (metric_info == NULL ||
 		num_metrics == NULL) {
-		FPGA_ERR("Invlaid Input parameters");
+		FPGA_ERR("Invalid Input parameters");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -204,7 +204,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
 
 	if (metrics == NULL ||
 		metric_num == NULL) {
-		FPGA_ERR("Invlaid Input parameters");
+		FPGA_ERR("Invalid Input parameters");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -318,13 +318,13 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 
 	if (metrics_names == NULL ||
 		metrics == NULL) {
-		FPGA_ERR("Invlaid Input parameters");
+		FPGA_ERR("Invalid Input parameters");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
 	if (num_metric_names == 0) {
-		FPGA_ERR("Invlaid Input parameters");
+		FPGA_ERR("Invalid Input parameters");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}

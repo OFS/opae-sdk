@@ -511,7 +511,7 @@ fpga_result bmcGetFirmwareVersion(fpga_token token, uint32_t *version)
 
 	res = read_sysfs_file(token, SYSFS_DEVID_FILE, (void **)&tmp,
 			      &tot_bytes);
-	if (FPGA_OK != res || !tmp) {
+	if (FPGA_OK != res) {
 		goto out;
 	}
 
@@ -609,32 +609,38 @@ fpga_result bmcGetLastResetCause(fpga_token token, char **cause)
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_EXTRST) {
 		*cause = strdup((const char *)"External reset");
+		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_BOD_IO) {
 		*cause = strdup((const char *)"Brown-out detected");
+		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_OCD) {
 		*cause = strdup((const char *)"On-chip debug system");
+		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_POR) {
 		*cause = strdup((const char *)"Power-on-reset");
+		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_SOFT) {
 		*cause = strdup((const char *)"Software reset");
+		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_SPIKE) {
 		*cause = strdup((const char *)"Spike detected");
+		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_WDT) {
 		*cause = strdup((const char *)"Watchdog timeout");
+		goto out;
 	}
-
 
 out:
 	if (tmp) {

@@ -82,6 +82,7 @@ add_library(xfpga-static STATIC
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/version.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/wsid_list.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/usrclk/user_clk_pgm_uclock.c
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/metrics_max10.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/metrics_utils.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/afu_metrics.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/metrics.c

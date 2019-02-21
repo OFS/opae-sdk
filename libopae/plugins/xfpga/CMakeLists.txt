@@ -66,7 +66,8 @@ set(SRC
   metrics/metrics.c
   metrics/metrics_utils.c
   metrics/afu_metrics.c
-  metrics/vector.c)
+  metrics/vector.c
+  metrics/metrics_max10.c)
 
 # Define target
 add_library(xfpga MODULE ${SRC})

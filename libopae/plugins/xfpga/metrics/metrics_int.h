@@ -34,11 +34,12 @@
 
 #include "vector.h"
 #include "opae/metrics.h"
+#include "metrics_metadata.h"
 
 // Power,Thermal & Performance definations
 
-#define IPERF                               "iperf"
-#define DPERF                               "dperf"
+#define PERF                               "*perf"
+
 
 #define PWRMGMT                             "power_mgmt"
 #define THERLGMT                            "thermal_mgmt"
@@ -48,10 +49,23 @@
 #define PERF_CACHE                          "cache"
 #define PERF_FABRIC                         "fabric"
 #define PERF_IOMMU                          "iommu"
-#define PERF                                 "performance"
-#define FPGA_LIMIT                           "fpga_limit"
-#define XEON_LIMIT                           "xeon_limit"
-#define TEMP                                 "Centigrade"
+#define PERFORMANCE                         "performance"
+#define FPGA_LIMIT                          "fpga_limit"
+#define XEON_LIMIT                          "xeon_limit"
+#define TEMP                                "Centigrade"
+
+#define TEMPERATURE                         "Temperature"
+#define VOLTAGE                             "Voltage"
+#define CURRENT                             "Current"
+#define POWER                               "Power"
+
+#define MAX10_SYSFS_PATH                     "spi-altera.*.auto/spi_master/spi*/spi*.*"
+#define MAX10_SENSOR_SYSFS_PATH              "spi-altera.*.auto/spi_master/spi*/spi*.*/sensor*"
+#define SENSOR_SYSFS_NAME                    "name"
+#define SENSOR_SYSFS_TYPE                    "type"
+#define SENSOR_SYSFS_ID                      "id"
+#define SENSOR_SYSFS_VALUE                   "value"
+#define MILLI                                 1000
 
 
 #define BMC_LIB                             "libmodbmc.so"
@@ -213,5 +227,11 @@ fpga_result add_afu_metrics_vector(fpga_metric_vector *vector,
 				uint64_t metric_offset);
 
 fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset);
+
+fpga_result get_metric_data_info(const char *group_name,
+		const char *metric_name,
+		fpga_metric_metadata *metric_data_search,
+		uint64_t size,
+		fpga_metric_metadata *metric_data);
 
 #endif // __FPGA_METRICS_INT_H__
