@@ -69,16 +69,16 @@ class error_c_mock_p : public ::testing::TestWithParam<std::string> {
     system_->prepare_syfs(platform_);
     tmpsysfs_ = system_->get_root();
     ASSERT_EQ(FPGA_OK, xfpga_plugin_initialize());
-    if (sysfs_region_count() > 0) {
-      const sysfs_fpga_region *region = sysfs_get_region(0);
-      ASSERT_NE(region, nullptr);
-      if (region->fme) {
-        sysfs_fme = std::string(region->fme->res_path);
-        dev_fme = std::string("/dev/") + std::string(region->fme->res_name);
+    if (sysfs_device_count() > 0) {
+      const sysfs_fpga_device *device = sysfs_get_device(0);
+      ASSERT_NE(device, nullptr);
+      if (device->fme) {
+        sysfs_fme = std::string(device->fme->sysfs_path);
+        dev_fme = std::string("/dev/") + std::string(device->fme->sysfs_name);
       }
-      if (region->port) {
-        sysfs_port = std::string(region->port->res_path);
-        dev_port = std::string("/dev/") + std::string(region->port->res_name);
+      if (device->port) {
+        sysfs_port = std::string(device->port->sysfs_path);
+        dev_port = std::string("/dev/") + std::string(device->port->sysfs_name);
       }
     }
     strncpy_s(fake_port_token_.sysfspath, sizeof(fake_port_token_.sysfspath),
