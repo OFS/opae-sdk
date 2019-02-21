@@ -521,7 +521,7 @@ STATIC fpga_result enum_regions(const sysfs_fpga_device *device, void *context)
 				  device->fme->sysfs_name, pdev);
 		if (result != FPGA_OK) {
 			FPGA_ERR("Failed to enum FME");
-			return FPGA_EXCEPTION;
+			return result;
 		}
 	}
 
@@ -531,7 +531,7 @@ STATIC fpga_result enum_regions(const sysfs_fpga_device *device, void *context)
 				  device->port->sysfs_name, pdev);
 		if (result != FPGA_OK) {
 			FPGA_ERR("Failed to enum PORT");
-			return FPGA_EXCEPTION;
+			return result;
 		}
 	}
 	return FPGA_OK;
