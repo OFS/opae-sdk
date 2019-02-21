@@ -65,7 +65,7 @@ test_device test_device::unknown() {
 
 
 const char *skx_mdata =
-    R"mdata({"version": 640,
+    R"mdata({"version": 1,
    "afu-image":
     {"clock-frequency-high": 312,
      "clock-frequency-low": 156,
@@ -85,7 +85,7 @@ const char *skx_mdata =
 )mdata";
 
 const char *rc_mdata =
-    R"mdata({"version": 112,
+    R"mdata({"version": 1,
    "afu-image":
     {"clock-frequency-high": 312,
      "clock-frequency-low": 156,
