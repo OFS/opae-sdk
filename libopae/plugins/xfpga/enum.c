@@ -492,69 +492,58 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	return FPGA_OK;
 }
 
+#define MAX_ENUM_ERRORS 16
+typedef struct _enum_region_ctx{
+	struct dev_list *list;
+	bool include_port;
+} enum_region_ctx;
+
+STATIC fpga_result enum_regions(const sysfs_fpga_device *device, void *context)
+{
+	enum_region_ctx *ctx = (enum_region_ctx*)context;
+	fpga_result result = FPGA_OK;
+	struct dev_list *pdev = add_dev(device->sysfs_path, "", ctx->list);
+	if (!pdev) {
+		FPGA_MSG("Failed to allocate device");
+		return FPGA_NO_MEMORY;
+	}
+	// Assign bus, function, device
+	// segment,device_id ,vendor_id
+	pdev->function = device->function;
+	pdev->segment = device->segment;
+	pdev->bus = device->bus;
+	pdev->device = device->device;
+	pdev->device_id = device->device_id;
+	pdev->vendor_id = device->vendor_id;
+
+	// Enum fme
+	if (device->fme) {
+		result = enum_fme(device->fme->sysfs_path,
+				  device->fme->sysfs_name, pdev);
+		if (result != FPGA_OK) {
+			FPGA_ERR("Failed to enum FME");
+			return FPGA_EXCEPTION;
+		}
+	}
+
+	// Enum port
+	if (device->port && ctx->include_port) {
+		result = enum_afu(device->port->sysfs_path,
+				  device->port->sysfs_name, pdev);
+		if (result != FPGA_OK) {
+			FPGA_ERR("Failed to enum PORT");
+			return FPGA_EXCEPTION;
+		}
+	}
+	return FPGA_OK;
+}
 
 STATIC fpga_result enum_fpga_region_resources(struct dev_list *list,
 				bool include_port)
 {
-	fpga_result result                 = FPGA_NOT_FOUND;
-	struct dev_list *pdev              = NULL;
-	int i                              = 0;
-	int device_count                   = 0 ;
-	const sysfs_fpga_device *device    = NULL;
+	enum_region_ctx ctx = {.list = list, .include_port = include_port};
 
-	device_count = sysfs_device_count();
-
-	if (device_count <= 0) {
-		FPGA_MSG("Not found fpga region's");
-		return FPGA_NO_DRIVER;
-	}
-
-	for (i = 0; i < device_count; i++) {
-
-		device  = sysfs_get_device(i);
-
-		if (!device) {
-			FPGA_MSG("failed to enum region");
-			return FPGA_NO_DRIVER;
-		}
-
-		pdev = add_dev(device->sysfs_path, "", list);
-		if (!pdev) {
-			FPGA_MSG("Failed to allocate device");
-			return FPGA_NO_MEMORY;
-		}
-		// Assign bus, function, device
-		// segment,device_id ,vendor_id
-		pdev->function       = device->function;
-		pdev->segment        = device->segment;
-		pdev->bus            = device->bus;
-		pdev->device         = device->device;
-		pdev->device_id      = device->device_id;
-		pdev->vendor_id      = device->vendor_id;
-
-		// Enum fme
-		if (device->fme) {
-			result = enum_fme(device->fme->sysfs_path,
-							device->fme->sysfs_name, pdev);
-			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to enum FME");
-				break;
-			}
-		}
-
-		// Enum port
-		if (device->port && include_port) {
-			result = enum_afu(device->port->sysfs_path,
-				device->port->sysfs_name, pdev);
-			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to enum PORT");
-				break;
-			}
-		}
-
-	} // end of device loop
-
-	return result;
+	return sysfs_foreach_device(enum_regions, &ctx);
 }
 
 

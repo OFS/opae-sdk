@@ -122,6 +122,7 @@ class test_system {
   void finalize();
   void prepare_syfs(const test_platform &platform);
   void remove_sysfs();
+  int remove_sysfs_dir(const char *path);
   std::string get_sysfs_claass_path(const std::string &path);
 
   int open(const std::string &path, int flags);

@@ -36,10 +36,9 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "gtest/gtest.h"
-#include "test_system.h"
 #include "types_int.h"
 #include "sysfs_int.h"
+#include "mock_opae.h"
 extern "C" {
 #include "token_list_int.h"
 }
@@ -52,39 +51,22 @@ int xfpga_plugin_finalize(void);
 
 using namespace opae::testing;
 
-class enum_c_p : public ::testing::TestWithParam<std::string> {
+class enum_c_p : public mock_opae_p<2, xfpga_> {
  protected:
-  enum_c_p() : tokens_{{nullptr, nullptr}}, filter_(nullptr) {}
+  enum_c_p() : filter_(nullptr) {}
 
   virtual ~enum_c_p() {}
 
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
+  virtual void test_setup() override {
     ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     num_matches_ = 0xc01a;
-    invalid_device_ = test_device::unknown();
   }
 
-  virtual void TearDown() override {
+  virtual void test_teardown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    DestroyTokens();
     token_cleanup();
     xfpga_plugin_finalize();
-    system_->finalize();
-  }
-
-  void DestroyTokens() {
-    for (auto & t : tokens_) {
-      if (t != nullptr) {
-        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
   }
 
   // Need a concrete way to determine the number of fpgas on the system
@@ -108,7 +90,7 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     if (platform_.mock_sysfs != nullptr) {
       return 1;
     }
-    
+
     int matches = 0;
     int socket_id;
     int i;
@@ -142,12 +124,8 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     value = std::stoi(line);
   }
 
-  std::array<fpga_token, 2> tokens_;
   fpga_properties filter_;
   uint32_t num_matches_;
-  test_platform platform_;
-  test_device invalid_device_;
-  test_system *system_;
 };
 
 /**
@@ -994,6 +972,9 @@ TEST_P(enum_c_p, get_guid) {
   EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 }
 
+
+
+
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p, 
                         ::testing::ValuesIn(test_platform::platforms({})));
 
@@ -1058,3 +1039,36 @@ TEST_P(enum_socket_c_p, socket_id) {
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_socket_c_p,
                           ::testing::ValuesIn(test_platform::platforms({ "skx-p"})));
+
+class enum_mock_only : public enum_c_p {};
+
+/**
+ * @test       remove_port
+ *
+ * @brief      Given I have a system with at least one FPGA And I
+ *             enumerate with a filter of objtype of FPGA_ACCELERATOR
+ *             and I get one token for that accelerator
+ *             When I remove the port device from the system
+ *             And I enumerate again with the same filter
+ *             Then I get zero tokens as the result.
+ *
+ */
+TEST_P(enum_mock_only, remove_port) {
+  fpga_properties filterp = NULL;
+
+  ASSERT_EQ(xfpga_fpgaGetProperties(NULL, &filterp), FPGA_OK);
+  EXPECT_EQ(fpgaPropertiesSetObjectType(filterp, FPGA_ACCELERATOR), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filterp, 1, tokens_.data(), 1, &num_matches_),
+            FPGA_OK);
+  EXPECT_EQ(num_matches_, 1);
+  const char *sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
+
+  ASSERT_EQ(system_->remove_sysfs_dir(sysfs_port), 0)
+      << "error removing intel-fpga-port.0: " << strerror(errno);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filterp, 1, tokens_.data(), 1, &num_matches_),
+            FPGA_OK);
+  EXPECT_EQ(num_matches_, 0);
+}
+
+INSTANTIATE_TEST_CASE_P(enum_c, enum_mock_only,
+                          ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p"})));
