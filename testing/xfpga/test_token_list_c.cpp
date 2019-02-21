@@ -55,18 +55,18 @@ class token_list_c_p : public ::testing::TestWithParam<std::string> {
     system_->prepare_syfs(platform_);
     ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
 
-    if (sysfs_region_count() > 0) {
-      const sysfs_fpga_region* region = sysfs_get_region(0);
-      ASSERT_NE(region, nullptr);
-      if (region->fme) {
-        sysfs_fme = std::string(region->fme->res_path);
+    if (sysfs_device_count() > 0) {
+      const sysfs_fpga_device* device = sysfs_get_device(0);
+      ASSERT_NE(device, nullptr);
+      if (device->fme) {
+        sysfs_fme = std::string(device->fme->sysfs_path);
 
-        dev_fme = std::string("/dev/") + std::string(region->fme->res_name);
+        dev_fme = std::string("/dev/") + std::string(device->fme->sysfs_name);
       }
-      if (region->port) {
-        sysfs_port = std::string(region->port->res_path);
+      if (device->port) {
+        sysfs_port = std::string(device->port->sysfs_path);
 
-        dev_port = std::string("/dev/") + std::string(region->port->res_name);
+        dev_port = std::string("/dev/") + std::string(device->port->sysfs_name);
       }
     }
   }
