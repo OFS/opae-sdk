@@ -492,7 +492,6 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	return FPGA_OK;
 }
 
-#define MAX_ENUM_ERRORS 16
 typedef struct _enum_region_ctx{
 	struct dev_list *list;
 	bool include_port;
