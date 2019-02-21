@@ -314,13 +314,12 @@ fpga_result __FPGA_API__ fpgaClearProperties(fpga_properties prop)
 
 fpga_result __FPGA_API__ fpgaDestroyProperties(fpga_properties *prop)
 {
-	struct _fpga_properties *_prop;
-
 	if (NULL == prop) {
 		FPGA_ERR("Attempting to free NULL pointer");
 		return FPGA_INVALID_PARAM;
 	} else {
-		_prop = (struct _fpga_properties *)*prop;
+		struct _fpga_properties *_prop = (struct _fpga_properties *)*prop;
+
 		if (NULL == _prop) {
 			FPGA_ERR("Attempting to free NULL pointer");
 			return FPGA_INVALID_PARAM;
