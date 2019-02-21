@@ -72,6 +72,10 @@ class open_c_ase_p : public testing::Test {
     }
 
     virtual void TearDown() override {
+        if (accel_) {
+            EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
+            accel_ = nullptr; 
+        }
         system_->finalize();
     }
 
