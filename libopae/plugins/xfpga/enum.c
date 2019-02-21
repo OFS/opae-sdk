@@ -500,7 +500,7 @@ typedef struct _enum_region_ctx{
 
 STATIC fpga_result enum_regions(const sysfs_fpga_device *device, void *context)
 {
-	enum_region_ctx *ctx = (enum_region_ctx*)context;
+	enum_region_ctx *ctx = (enum_region_ctx *)context;
 	fpga_result result = FPGA_OK;
 	struct dev_list *pdev = add_dev(device->sysfs_path, "", ctx->list);
 	if (!pdev) {
