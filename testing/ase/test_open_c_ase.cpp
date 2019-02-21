@@ -51,11 +51,11 @@ static const fpga_guid ASE_GUID = {
 						0x43, 0x36, 0x83, 0xf9, 0x04, 0x0b
 };
 
-inline void token_for_afu0(struct _fpga_token* _tok)
+inline void token_for_afu0(struct _fpga_token* tok_)
 {
-    memcpy(_tok->accelerator_id,ASE_GUID, sizeof(fpga_guid));
-    _tok->magic = ASE_TOKEN_MAGIC;
-    _tok->ase_objtype=FPGA_ACCELERATOR;
+    memcpy(tok_->accelerator_id,ASE_GUID, sizeof(fpga_guid));
+    tok_->magic = ASE_TOKEN_MAGIC;
+    tok_->ase_objtype=FPGA_ACCELERATOR;
 }
 
 class open_c_ase_p : public testing::Test {
@@ -66,8 +66,8 @@ class open_c_ase_p : public testing::Test {
         system_ = test_system::instance();
         system_->initialize();
 
-        tok = &_tok;
-        token_for_afu0(&_tok);
+        tok = &tok_;
+        token_for_afu0(&tok_);
         accel_ = nullptr;
     }
 
@@ -75,7 +75,7 @@ class open_c_ase_p : public testing::Test {
         system_->finalize();
     }
 
-    struct _fpga_token _tok;
+    struct _fpga_token tok_;
     fpga_token tok;
     fpga_handle accel_;
     test_system *system_;

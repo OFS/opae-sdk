@@ -96,7 +96,7 @@ target_include_directories(xfpga-static PUBLIC
   PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga
   PRIVATE ${OPAE_SDK_SOURCE}/libopae)
 
-add_library(opae-c-ase-static STATIC
+add_library(ase-static STATIC
         ${OPAE_SDK_SOURCE}/ase/sw/tstamp_ops.c
         ${OPAE_SDK_SOURCE}/ase/sw/ase_ops.c
         ${OPAE_SDK_SOURCE}/ase/sw/ase_strings.c
@@ -118,14 +118,14 @@ add_library(opae-c-ase-static STATIC
         ${OPAE_SDK_SOURCE}/ase/api/src/wsid_list.c
         ${OPAE_SDK_SOURCE}/ase/api/src/error.c)
 
-target_include_directories(opae-c-ase-static PUBLIC
+target_include_directories(ase-static PUBLIC
     $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
     $<INSTALL_INTERFACE:include>
     PRIVATE ${OPAE_SDK_SOURCE}/ase/api/src
     PRIVATE ${OPAE_SDK_SOURCE}/ase/sw)
 
-target_link_libraries(opae-c-ase-static
+target_link_libraries(ase-static
     ${libjson-c_LIBRARIES}
     ${libuuid_LIBRARIES}
     ${librt_LIBRARIES}
@@ -376,7 +376,7 @@ macro(add_ase_test test_name)
         PRIVATE ${OPAE_SDK_SOURCE}/ase/sw
         )
     target_link_libraries(${test_name}
-        opae-c-ase-static
+        ase-static
         safestr
         test_system
         ${libjson-c_LIBRARIES}
