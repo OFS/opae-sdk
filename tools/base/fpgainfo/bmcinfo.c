@@ -395,7 +395,7 @@ void print_bmc_info(const char *sysfspath)
 	}
 
 	off = 0;
-	char buf[8];
+	char buf[16];
 	uint16_t devid = 0;
 	uint32_t bmcfw_ver = 0;
 	uint32_t max10_ver = 0;

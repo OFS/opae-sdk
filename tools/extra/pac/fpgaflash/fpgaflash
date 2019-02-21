@@ -953,7 +953,7 @@ def eeprom_update(ifile, bdf):
                                 'altera-i2c.*.auto', 'i2c-*', '*-*', 'eeprom'))
         if len(eeprom_path) == 1:
             with open(eeprom_path[0], 'wb') as wfile:
-                wfile.write(ifile.read())
+                wfile.write(ifile.read(65536))
         elif len(eeprom_path) > 1:
             print "multiple eeprom found"
             ret = 1
