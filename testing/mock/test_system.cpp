@@ -44,6 +44,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <uuid/uuid.h>
+#include <ftw.h>
 
 void *__builtin_return_address(unsigned level);
 
@@ -233,6 +234,7 @@ void test_system::prepare_syfs(const test_platform &platform) {
   return (void)result;
 }
 
+
 void test_system::remove_sysfs() {
   int result = 0;
   if (root_.find("tmpsysfs") != std::string::npos) {
@@ -248,6 +250,22 @@ void test_system::remove_sysfs() {
     }
   }
   return (void)result;
+}
+
+extern "C" {
+int process_fpath(const char *fpath, const struct stat *sb, int flag, struct FTW *ftw) {
+  (void)sb;
+  (void)ftw;
+  if (flag & FTW_DP) {
+    return rmdir(fpath);
+  }
+  return unlink(fpath);
+}
+}
+
+int test_system::remove_sysfs_dir(const char *path) {
+  auto real_path = get_sysfs_path(path);
+  return nftw(real_path.c_str(), process_fpath, 20, FTW_DEPTH);
 }
 
 void test_system::set_root(const char *root) { root_ = root; }

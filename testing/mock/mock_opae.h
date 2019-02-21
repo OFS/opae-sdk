@@ -31,16 +31,20 @@
 
 
 #include <opae/fpga.h>
+#include <dlfcn.h>
 #include "gtest/gtest.h"
 #include "test_system.h"
 
 namespace opae {
 namespace testing {
 
-template<int _T = 2>
+extern const char xfpga_[] = "xfpga_";
+extern const char none_[] = "";
+
+template<int _T = 2, const char *_P = none_>
 class mock_opae_p : public ::testing::TestWithParam<std::string> {
  protected:
-  mock_opae_p(): tokens_{ {} } {}
+  mock_opae_p(): tokens_{ {} }, plugin_prefix_(_P) {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -48,16 +52,25 @@ class mock_opae_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
+    invalid_device_ = test_device::unknown();
     test_setup();
   }
 
-  virtual void TearDown() override {
+  virtual void DestroyTokens() {
+    std::string fn_name = plugin_prefix_ + "fpgaDestroyToken";
+    auto fn = reinterpret_cast<fpga_result (*)(fpga_token *)>(
+        dlsym(nullptr, fn_name.c_str()));
+    ASSERT_NE(fn, nullptr);
     for (auto &t : tokens_) {
       if (t) {
-        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+        EXPECT_EQ(fn(&t), FPGA_OK);
         t = nullptr;
       }
     }
+  }
+
+  virtual void TearDown() override {
+    DestroyTokens();
     test_teardown();
     system_->finalize();
   }
@@ -71,6 +84,8 @@ class mock_opae_p : public ::testing::TestWithParam<std::string> {
   std::array<fpga_token, _T> tokens_;
   test_platform platform_;
   test_system *system_;
+  test_device invalid_device_;
+  std::string plugin_prefix_;
 };
 
 } // end of namespace testing
