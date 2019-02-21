@@ -72,8 +72,8 @@ int sysfs_initialize(void);
 int sysfs_finalize(void);
 int sysfs_device_count(void);
 
-typedef void (*device_cb)(sysfs_fpga_device *device, void *context);
-void sysfs_foreach_device(device_cb cb, void *context);
+typedef fpga_result (*device_cb)(const sysfs_fpga_device *device, void *context);
+fpga_result sysfs_foreach_device(device_cb cb, void *context);
 
 const sysfs_fpga_device *sysfs_get_device(size_t num);
 int sysfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *value);
