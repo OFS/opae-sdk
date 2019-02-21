@@ -866,7 +866,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 		}
 		break;
 
-		// DCP VC DC 
+		// DCP VC DC
 		case FPGA_HW_DCP_DC:
 		case FPGA_HW_DCP_VC: {
 
