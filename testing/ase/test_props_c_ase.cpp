@@ -171,6 +171,7 @@ TEST_F(properties_c_ase_p, set_parent01) {
   EXPECT_EQ(fpgaDestroyProperties(&p1), FPGA_OK);
   EXPECT_EQ(fpgaDestroyProperties(&p2), FPGA_OK);
   EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyToken(&parent), FPGA_OK);
 }
 
 /**
@@ -3357,4 +3358,5 @@ TEST_F(properties_c_ase_p, fpga_clone_properties03) {
   struct _fpga_properties * src_ = (struct _fpga_properties *)src;
   src_->magic = 0xFFFFFFFF;
   ASSERT_EQ(fpgaCloneProperties(src, &clone),  FPGA_INVALID_PARAM);
+  EXPECT_EQ(fpgaDestroyProperties(&src), FPGA_OK);
 }
