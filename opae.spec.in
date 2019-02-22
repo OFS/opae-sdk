@@ -145,6 +145,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/bist_app.py
 @CMAKE_INSTALL_PREFIX@/bin/bist_common.py
 @CMAKE_INSTALL_PREFIX@/bin/bist_dma.py
+@CMAKE_INSTALL_PREFIX@/bin/bist_def.py
 @CMAKE_INSTALL_PREFIX@/bin/bist_nlb3.py
 @CMAKE_INSTALL_PREFIX@/bin/bist_nlb0.py
 @CMAKE_INSTALL_PREFIX@/bin/fpgabist
