@@ -235,38 +235,40 @@ void test_system::prepare_syfs(const test_platform &platform) {
 }
 
 
-void test_system::remove_sysfs() {
-  int result = 0;
-  if (root_.find("tmpsysfs") != std::string::npos) {
-    struct stat st;
-    if (stat(root_.c_str(), &st)) {
-      std::cerr << "Error stat'ing root dir (" << root_
-                << "):" << strerror(errno) << "\n";
-      return;
-    }
-    if (S_ISDIR(st.st_mode)) {
-      auto cmd = "rm -rf " + root_;
-      result = std::system(cmd.c_str());
-    }
-  }
-  return (void)result;
-}
-
 extern "C" {
-int process_fpath(const char *fpath, const struct stat *sb, int flag, struct FTW *ftw) {
+int process_fpath(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftw) {
   (void)sb;
   (void)ftw;
-  if (flag & FTW_DP) {
-    return rmdir(fpath);
+  if (typeflag & FTW_DP) {
+    if (rmdir(fpath)) {
+      if (errno == ENOTDIR) {
+        goto do_unlink;
+      }
+      std::cerr << "error removing directory: " << fpath << " - " << strerror(errno) << "\n";
+      return -1;
+    }
   }
-  return unlink(fpath);
+do_unlink:
+  if (unlink(fpath) && errno != ENOENT) {
+      std::cerr << "error removing node: " << fpath << " - " << strerror(errno) << "\n";
+      return -1;
+  }
+  return 0;
 }
 }
 
 int test_system::remove_sysfs_dir(const char *path) {
-  auto real_path = get_sysfs_path(path);
-  return nftw(real_path.c_str(), process_fpath, 20, FTW_DEPTH);
+  if (root_.find("tmpsysfs") != std::string::npos) {
+    auto real_path = path == nullptr ? root_ : get_sysfs_path(path);
+    return nftw(real_path.c_str(), process_fpath, 100, FTW_DEPTH | FTW_PHYS);
+  }
+  return 0;
 }
+
+int test_system::remove_sysfs() {
+  return remove_sysfs_dir();
+}
+
 
 void test_system::set_root(const char *root) { root_ = root; }
 std::string test_system::get_root() { return root_; }
