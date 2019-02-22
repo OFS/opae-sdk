@@ -314,12 +314,16 @@ fpga_result __FPGA_API__ fpgaClearProperties(fpga_properties prop)
 
 fpga_result __FPGA_API__ fpgaDestroyProperties(fpga_properties *prop)
 {
-	struct _fpga_properties *_prop = (struct _fpga_properties *)*prop;
-
-	if (NULL == _prop) {
+	if (NULL == prop) {
 		FPGA_ERR("Attempting to free NULL pointer");
 		return FPGA_INVALID_PARAM;
 	} else {
+		struct _fpga_properties *_prop = (struct _fpga_properties *)*prop;
+
+		if (NULL == _prop) {
+			FPGA_ERR("Attempting to free NULL pointer");
+			return FPGA_INVALID_PARAM;
+		}
 		_prop->magic = FPGA_INVALID_MAGIC;
 		free(*prop);
 		*prop = NULL;
@@ -596,6 +600,13 @@ fpgaPropertiesSetFunction(fpga_properties prop, uint8_t function)
 	if (NULL == _prop) {
 		return FPGA_INVALID_PARAM;
 	}
+
+	// PCIe supports 8 functions per device.
+	if (function > 7) {
+		FPGA_MSG("Invalid function number");
+		return FPGA_INVALID_PARAM;
+	}
+
 	_prop->function = function;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_FUNCTION);
 	return FPGA_OK;
