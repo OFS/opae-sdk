@@ -47,8 +47,8 @@ using namespace opae::testing;
 // ASE ID
 #define ASE_TOKEN_MAGIC    0x46504741544f4b40
 static const fpga_guid ASE_GUID = {
-			0xd8, 0x42, 0x4d, 0xc4, 0xa4,  0xa3, 0xc4, 0x13, 0xf8,0x9e,
-						0x43, 0x36, 0x83, 0xf9, 0x04, 0x0b
+	0xd8, 0x42, 0x4d, 0xc4, 0xa4,  0xa3, 0xc4, 0x13, 0xf8,0x9e,
+	0x43, 0x36, 0x83, 0xf9, 0x04, 0x0b
 };
 
 inline void token_for_afu0(struct _fpga_token* tok_)
@@ -113,6 +113,19 @@ TEST_F(open_c_ase_p, ase_open_02) {
  *
  */
 TEST_F(open_c_ase_p, ase_open_03) {
+    EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(tok, &accel_, 42));
+}
+
+/**
+ * @test       open_04
+ *
+ * @brief      When the token magic is invalid,
+ *             fpgaOpen returns FPGA_INVALID_PARAM.
+ *
+ */
+TEST_F(open_c_ase_p, ase_open_04) {
+    struct _fpga_token *token_= (struct _fpga_token *)tok;
+    token_->magic = 0xFFFFFFFF;
     EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(tok, &accel_, 42));
 }
 
