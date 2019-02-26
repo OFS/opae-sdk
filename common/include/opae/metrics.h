@@ -112,6 +112,26 @@ fpga_result fpgaGetMetricsByName(fpga_handle handle,
 				fpga_metric *metrics);
 
 
+/**
+ * Retrieve metrics / sendor threshold information and values
+ *
+ * @param[in] handle Handle to previously opened fpga resource
+ * @param[inout] metrics_threshold pointer to array of metric thresholds
+ * user allocates threshold array memory
+ * Number of thresholds returns enumerated threholds if user pass
+ * NULL metrics_thresholds
+ * @param[inout] num_thresholds number of thresholds
+ *
+ *
+ * @returns FPGA_OK on success. FPGA_NOT_FOUND if the Metrics are not
+ * found. FPGA_NO_MEMORY if there was not enough memory to enumerates
+ * metrics.
+ *
+ */
+fpga_result fpgaGetThresholdInfo(fpga_handle handle,
+				struct metric_threshold *metric_thresholds,
+				uint32_t *num_thresholds);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus

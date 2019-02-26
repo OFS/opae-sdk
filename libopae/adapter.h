@@ -200,6 +200,10 @@ typedef struct _opae_api_adapter_table {
 					uint64_t num_metric_names,
 					fpga_metric *metrics);
 
+	fpga_result(*fpgaGetThresholdInfo)(fpga_handle handle,
+		metric_threshold *metric_thresholds,
+		uint32_t *num_thresholds);
+
 	// configuration functions
 	int (*initialize)(void);
 	int (*finalize)(void);

@@ -35,7 +35,7 @@
 #include "vector.h"
 #include "opae/metrics.h"
 #include "metrics_metadata.h"
-
+#include "metrics/bmc/bmc.h"
 // Power,Thermal & Performance definations
 
 #define PERF                               "*perf"
@@ -236,5 +236,33 @@ fpga_result get_metric_data_info(const char *group_name,
 		fpga_metric_metadata *metric_data_search,
 		uint64_t size,
 		fpga_metric_metadata *metric_data);
+
+
+fpga_result xfpga_bmcLoadSDRs(struct _fpga_handle *_handle,
+	bmc_sdr_handle *records,
+	uint32_t *num_sensors);
+
+	fpga_result xfpga_bmcDestroySDRs(struct _fpga_handle *_handle,
+		bmc_sdr_handle *records);
+
+fpga_result xfpga_bmcReadSensorValues(struct _fpga_handle *_handle,
+	bmc_sdr_handle records,
+	bmc_values_handle *values,
+	uint32_t *num_values);
+
+fpga_result xfpga_bmcDestroySensorValues(struct _fpga_handle *_handle,
+	bmc_values_handle *values);
+
+fpga_result xfpga_bmcGetSensorReading(struct _fpga_handle *_handle,
+	bmc_values_handle values,
+	uint32_t sensor_number,
+	uint32_t *is_valid,
+	double *value);
+
+fpga_result xfpga_bmcGetSDRDetails(struct _fpga_handle *_handle,
+	bmc_values_handle values,
+	uint32_t sensor_number,
+	sdr_details *details);
+
 
 #endif // __FPGA_METRICS_INT_H__

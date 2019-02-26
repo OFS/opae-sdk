@@ -133,6 +133,10 @@ fpga_result xfpga_fpgaGetMetricsByName(fpga_handle handle,
 				    uint64_t num_metric_names,
 				    fpga_metric *metrics);
 
+fpga_result xfpga_fpgaGetThresholdInfo(fpga_handle handle,
+			metric_threshold *metric_threshold,
+			uint32_t *num_thresholds);
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus

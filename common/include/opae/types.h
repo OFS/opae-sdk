@@ -231,4 +231,25 @@ typedef struct fpga_metric {
 } fpga_metric;
 
 
+/** Threshold struct
+ *
+ *
+ */
+typedef struct metric_per_threshold {
+	char threshold_name[FPGA_METRIC_STR_SIZE]; // Threshold name
+	uint32_t is_valid;                         // Threshold is valid
+	double value;                              // Threshold value
+} metric_per_threshold;
+
+typedef struct metric_threshold {
+	char metric_name[FPGA_METRIC_STR_SIZE];        // Metric Threshold name
+	metric_per_threshold upper_nr_threshold;       // Upper Non-Recoverable Threshold
+	metric_per_threshold upper_c_threshold;        // Upper Critical Threshold
+	metric_per_threshold upper_nc_threshold;       // Upper Non-Critical Threshold
+	metric_per_threshold lower_nr_threshold;       // Lower Non-Recoverable Threshold
+	metric_per_threshold lower_c_threshold;        // Lower Critical Threshold
+	metric_per_threshold lower_nc_threshold;       // Lower Non-Critical Threshold
+	metric_per_threshold hysteresis;               // Hysteresis
+} metric_threshold;
+
 #endif // __FPGA_TYPES_H__
