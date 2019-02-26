@@ -62,7 +62,7 @@ fpga_result xfpga_fpgaGetThresholdInfo(fpga_handle handle,
 	fpga_objtype objtype;
 
 
-	if (handle == NULL || 
+	if (handle == NULL ||
 		(metric_thresholds == NULL &&
 		num_thresholds == NULL)) {
 		FPGA_ERR("Invalid input parameters");
@@ -100,45 +100,44 @@ fpga_result xfpga_fpgaGetThresholdInfo(fpga_handle handle,
 	}
 
 	switch (hw_type) {
-		// MCP
-		case FPGA_HW_MCP: {
-			FPGA_ERR("Not Supported MCP thresholds.");
-			result = FPGA_EXCEPTION;
+	// MCP
+	case FPGA_HW_MCP: {
+		FPGA_ERR("Not Supported MCP thresholds.");
+		result = FPGA_EXCEPTION;
+	}
+	break;
+
+	// DCP RC
+	case FPGA_HW_DCP_RC: {
+
+		result = get_bmc_threshold_info(handle,
+			metric_thresholds, num_thresholds);
+		if (result != FPGA_OK) {
+			FPGA_ERR("Failed to get bmc thresholds.");
+			return result;
 		}
-		break;
 
-		// DCP RC
-		case FPGA_HW_DCP_RC: {
+	}
+	break;
 
-			result = get_bmc_threshold_info(handle,
-				metric_thresholds, num_thresholds);
-			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to get bmc thresholds.");
-				return result;
-			}
-
+	// VC DC
+	case FPGA_HW_DCP_DC:
+	case FPGA_HW_DCP_VC: {
+		// Max10
+		result = get_max10_threshold_info(handle,
+			metric_thresholds, num_thresholds);
+		if (result != FPGA_OK) {
+			FPGA_ERR("Failed to get max10 thresholds.");
+			return result;
 		}
-		break;
 
-		 // VC DC
-		case FPGA_HW_DCP_DC:
-		case FPGA_HW_DCP_VC: {
+	}
+	break;
 
-			// Max10 
-			result = get_max10_threshold_info(handle,
-				metric_thresholds, num_thresholds);
-			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to get max10 thresholds.");
-				return result;
-			}
-		
-		}
-		break;
-
-		default:
-			FPGA_ERR("Unknown Device ID.");
-			result = FPGA_EXCEPTION;
-		}
+	default:
+		FPGA_ERR("Unknown Device ID.");
+		result = FPGA_EXCEPTION;
+	}
 
 	return result;
 }
@@ -174,7 +173,7 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 		return result;
 	}
 
-	result = xfpga_bmcReadSensorValues(_handle,records, &values, &num_values);
+	result = xfpga_bmcReadSensorValues(_handle, records, &values, &num_values);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to read BMC sensor values.");
 		goto destroy_sdr;
@@ -192,7 +191,7 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 		for (x = 0; x < num_sensors; x++) {
 
 			// Sensor Name
-			result = xfpga_bmcGetSDRDetails(_handle,values, x, &details);
+			result = xfpga_bmcGetSDRDetails(_handle, values, x, &details);
 			if (result != FPGA_OK) {
 				FPGA_MSG("Failed to read sensor readings.");
 				continue;
@@ -287,10 +286,9 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 				metric_thresholds[x].lower_nc_threshold.is_valid = true;
 			}
 
-			
-		} // for loop end 
+		} // for loop end
 
-	} // endif 
+	} // endif
 
 destroy_values:
 	result = xfpga_bmcDestroySensorValues(_handle, &values);
@@ -443,11 +441,9 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", pglob.gl_pathv[i], SYSFS_LOW_WARN);
 		result = sysfs_read_u64(sysfspath, &value);
 		if (result == FPGA_OK) {
-	
 			metric_thresholds[i].lower_nc_threshold.value = ((double)value / MILLI);
 			metric_thresholds[i].lower_nc_threshold.is_valid = true;
 		}
-
 
 		// Lower Non-Critical Threshold
 		e = strncpy_s(metric_thresholds[i].hysteresis.threshold_name,
