@@ -1542,7 +1542,7 @@ fpga_result fpgaGetMetricsByName(fpga_handle handle,
 }
 
 
-fpga_result fpgaGetThresholdInfo(fpga_handle handle,
+fpga_result fpgaGetMetricsThresholdInfo(fpga_handle handle,
 	metric_threshold *metric_thresholds,
 	uint32_t *num_thresholds)
 {
@@ -1552,9 +1552,9 @@ fpga_result fpgaGetThresholdInfo(fpga_handle handle,
 	ASSERT_NOT_NULL(wrapped_handle);
 	ASSERT_NOT_NULL(num_thresholds);
 
-	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaGetThresholdInfo,
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaGetMetricsThresholdInfo,
 		FPGA_NOT_SUPPORTED);
 
-	return wrapped_handle->adapter_table->fpgaGetThresholdInfo(
+	return wrapped_handle->adapter_table->fpgaGetMetricsThresholdInfo(
 		wrapped_handle->opae_handle, metric_thresholds, num_thresholds);
 }

@@ -128,7 +128,7 @@ fpga_result fpgaGetMetricsByName(fpga_handle handle,
  * metrics.
  *
  */
-fpga_result fpgaGetThresholdInfo(fpga_handle handle,
+fpga_result fpgaGetMetricsThresholdInfo(fpga_handle handle,
 				struct metric_threshold *metric_thresholds,
 				uint32_t *num_thresholds);
 

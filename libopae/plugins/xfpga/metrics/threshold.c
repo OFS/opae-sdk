@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -52,7 +52,7 @@
 #include "threshold.h"
 
 
-fpga_result xfpga_fpgaGetThresholdInfo(fpga_handle handle,
+fpga_result xfpga_fpgaGetMetricsThresholdInfo(fpga_handle handle,
 					metric_threshold *metric_thresholds,
 					uint32_t *num_thresholds)
 {
@@ -147,6 +147,7 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 					uint32_t *num_thresholds)
 {
 	fpga_result result                = FPGA_OK;
+	fpga_result resval                = FPGA_OK;
 	uint32_t num_sensors              = 0;
 	uint32_t num_values               = 0;
 	uint32_t x                        = 0;
@@ -201,6 +202,8 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 				details.name, SYSFS_PATH_MAX);
 			if (EOK != e) {
 				FPGA_ERR("Failed to copy threshold name");
+				result = FPGA_EXCEPTION;
+				goto destroy_values;
 			}
 
 			// Upper Non-Recoverable Threshold
@@ -211,6 +214,8 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 					UPPER_NR_THRESHOLD, SYSFS_PATH_MAX);
 				if (EOK != e) {
 					FPGA_ERR("Failed to copy threshold name");
+					result = FPGA_EXCEPTION;
+					goto destroy_values;
 				}
 				metric_thresholds[x].upper_nr_threshold.value = details.thresholds.upper_nr_thresh.value;
 				metric_thresholds[x].upper_nr_threshold.is_valid = true;
@@ -226,6 +231,8 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 					UPPER_C_THRESHOLD, SYSFS_PATH_MAX);
 				if (EOK != e) {
 					FPGA_ERR("Failed to copy threshold name");
+					result = FPGA_EXCEPTION;
+					goto destroy_values;
 				}
 				metric_thresholds[x].upper_c_threshold.value = details.thresholds.upper_c_thresh.value;
 				metric_thresholds[x].upper_c_threshold.is_valid = true;
@@ -240,6 +247,8 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 					UPPER_NC_THRESHOLD, SYSFS_PATH_MAX);
 				if (EOK != e) {
 					FPGA_ERR("Failed to copy threshold name");
+					result = FPGA_EXCEPTION;
+					goto destroy_values;
 				}
 				metric_thresholds[x].upper_nc_threshold.value = details.thresholds.upper_nc_thresh.value;
 				metric_thresholds[x].upper_nc_threshold.is_valid = true;
@@ -254,6 +263,8 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 					LOWER_NR_THRESHOLD, SYSFS_PATH_MAX);
 				if (EOK != e) {
 					FPGA_ERR("Failed to copy threshold name");
+					result = FPGA_EXCEPTION;
+					goto destroy_values;
 				}
 				metric_thresholds[x].lower_nr_threshold.value = details.thresholds.lower_nr_thresh.value;
 				metric_thresholds[x].lower_nr_threshold.is_valid = true;
@@ -268,6 +279,8 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 					LOWER_C_THRESHOLD, SYSFS_PATH_MAX);
 				if (EOK != e) {
 					FPGA_ERR("Failed to copy threshold name");
+					result = FPGA_EXCEPTION;
+					goto destroy_values;
 				}
 				metric_thresholds[x].lower_c_threshold.value = details.thresholds.lower_c_thresh.value;
 				metric_thresholds[x].lower_c_threshold.is_valid = true;
@@ -281,6 +294,8 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 					LOWER_NC_THRESHOLD, SYSFS_PATH_MAX);
 				if (EOK != e) {
 					FPGA_ERR("Failed to copy threshold name");
+					result = FPGA_EXCEPTION;
+					goto destroy_values;
 				}
 				metric_thresholds[x].lower_nc_threshold.value = details.thresholds.lower_nc_thresh.value;
 				metric_thresholds[x].lower_nc_threshold.is_valid = true;
@@ -291,20 +306,23 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 	} // endif
 
 destroy_values:
+	resval = (result != FPGA_OK) ? result : resval;
+
 	result = xfpga_bmcDestroySensorValues(_handle, &values);
 	if (result != FPGA_OK) {
 		FPGA_MSG("Failed to Destroy Sensor value.");
 	}
 
 destroy_sdr:
+	resval = (result != FPGA_OK) ? result : resval;
+
 	result = xfpga_bmcDestroySDRs(_handle, &records);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to Destroy SDR.");
-		return result;
 	}
 
-
-	return result;
+	resval = (result != FPGA_OK) ? result : resval;
+	return resval;
 }
 
 
@@ -380,6 +398,8 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 			(char *)tmp, strnlen_s((char *)tmp, SYSFS_PATH_MAX));
 		if (EOK != e) {
 			FPGA_ERR("Failed to copy threshold name");
+			result = FPGA_EXCEPTION;
+			goto out;
 		}
 		metric_thresholds[i].metric_name[strlen(metric_thresholds[i].metric_name) - 1] = '\0';
 
@@ -390,6 +410,8 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 			UPPER_C_THRESHOLD, SYSFS_PATH_MAX);
 		if (EOK != e) {
 			FPGA_ERR("Failed to copy threshold name");
+			result = FPGA_EXCEPTION;
+			goto out;
 		}
 
 		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", pglob.gl_pathv[i], SYSFS_HIGH_FATAL);
@@ -405,6 +427,8 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 			UPPER_NC_THRESHOLD, SYSFS_PATH_MAX);
 		if (EOK != e) {
 			FPGA_ERR("Failed to copy threshold name");
+			result = FPGA_EXCEPTION;
+			goto out;
 		}
 
 		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", pglob.gl_pathv[i], SYSFS_HIGH_WARN);
@@ -421,6 +445,8 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 			LOWER_C_THRESHOLD, SYSFS_PATH_MAX);
 		if (EOK != e) {
 			FPGA_ERR("Failed to copy threshold name");
+			result = FPGA_EXCEPTION;
+			goto out;
 		}
 
 		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", pglob.gl_pathv[i], SYSFS_LOW_FATAL);
@@ -436,6 +462,8 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 			LOWER_NC_THRESHOLD, SYSFS_PATH_MAX);
 		if (EOK != e) {
 			FPGA_ERR("Failed to copy threshold name");
+			result = FPGA_EXCEPTION;
+			goto out;
 		}
 
 		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", pglob.gl_pathv[i], SYSFS_LOW_WARN);
@@ -451,6 +479,8 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 			SYSFS_HYSTERESIS, SYSFS_PATH_MAX);
 		if (EOK != e) {
 			FPGA_ERR("Failed to copy threshold name");
+			result = FPGA_EXCEPTION;
+			goto out;
 		}
 
 		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", pglob.gl_pathv[i], SYSFS_HYSTERESIS);
@@ -465,5 +495,5 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 
 out:
 	globfree(&pglob);
-	return FPGA_OK;
+	return result;
 }

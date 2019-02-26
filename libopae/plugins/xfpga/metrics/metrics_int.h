@@ -237,13 +237,12 @@ fpga_result get_metric_data_info(const char *group_name,
 		uint64_t size,
 		fpga_metric_metadata *metric_data);
 
-
 fpga_result xfpga_bmcLoadSDRs(struct _fpga_handle *_handle,
 	bmc_sdr_handle *records,
 	uint32_t *num_sensors);
 
-	fpga_result xfpga_bmcDestroySDRs(struct _fpga_handle *_handle,
-		bmc_sdr_handle *records);
+fpga_result xfpga_bmcDestroySDRs(struct _fpga_handle *_handle,
+	bmc_sdr_handle *records);
 
 fpga_result xfpga_bmcReadSensorValues(struct _fpga_handle *_handle,
 	bmc_sdr_handle records,
