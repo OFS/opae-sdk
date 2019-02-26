@@ -65,7 +65,7 @@ test_device test_device::unknown() {
 
 
 const char *skx_mdata =
-    R"mdata({"version": 640,
+    R"mdata({"version": 1,
    "afu-image":
     {"clock-frequency-high": 312,
      "clock-frequency-low": 156,
@@ -81,11 +81,11 @@ const char *skx_mdata =
         }
       ]
      },
-     "platform-name": "MCP"}";
+     "platform-name": "MCP"}"
 )mdata";
 
 const char *rc_mdata =
-    R"mdata({"version": 112,
+    R"mdata({"version": 1,
    "afu-image":
     {"clock-frequency-high": 312,
      "clock-frequency-low": 156,
@@ -100,7 +100,7 @@ const char *rc_mdata =
         }
       ]
      },
-     "platform-name": "PAC"}";
+     "platform-name": "PAC"}"
 )mdata";
 
 static platform_db MOCK_PLATFORMS = {
