@@ -734,7 +734,7 @@ TEST_P(fpgaconf_c_p, encoding_path) {
   char zero[32];
   char one[32];
   char two[32];
-  char three[32];
+  char three[34];
   strcpy(zero, "fpgaconf");
   strcpy(one, "-B");
   strcpy(two, "0x5e");
@@ -746,17 +746,17 @@ TEST_P(fpgaconf_c_p, encoding_path) {
   EXPECT_NE(fpgaconf_main(4, argv), 0);
 
   // File not found
-  memset(three, 0, 32);
+  memset(three, 0, sizeof(three));
   strcpy(three, "copy_bitstream..gbs");
   EXPECT_NE(fpgaconf_main(4, argv), 0);
   
   // File not found
-  memset(three, 0, 32);
+  memset(three, 0, sizeof(three));
   strcpy(three, "....copy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(4, argv), 0);
 
   // File not found
-  memset(three, 0, 32);
+  memset(three, 0, sizeof(three));
   strcpy(three, "%252E%252E%252Fcopy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(4, argv), 0);
 
