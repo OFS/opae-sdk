@@ -72,6 +72,8 @@ class mock_opae_p : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     DestroyTokens();
     test_teardown();
+    EXPECT_EQ(system_->remove_sysfs(), 0) << "error removing tmpsysfs: "
+                                          << strerror(errno);
     system_->finalize();
   }
 

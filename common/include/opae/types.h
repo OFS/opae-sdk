@@ -227,6 +227,7 @@ typedef struct fpga_metric_info {
 typedef struct fpga_metric {
 	uint64_t metric_num;    // Metric index num
 	metric_value value;     // Metric value
+	bool isvalid;           // Metric value is valid
 } fpga_metric;
 
 
