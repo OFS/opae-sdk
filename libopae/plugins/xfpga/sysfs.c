@@ -324,23 +324,6 @@ STATIC int make_device(sysfs_fpga_device *device, const char *sysfs_class_fpga,
 		return res;
 	}
 
-	res = sysfs_parse_attribute64(device->sysfs_path,
-				      "device/sriov_totalvfs",
-				      &device->sriov_totalvfs);
-	if (res) {
-		FPGA_MSG("Could not parse sriov_totalvfs");
-		return res;
-	}
-
-	res = sysfs_parse_attribute64(device->sysfs_path,
-				      "device/sriov_numvfs",
-				      &device->sriov_numvfs);
-	if (res) {
-		FPGA_MSG("Could not parse sriov_numvfs");
-		return res;
-	}
-
-
 	return find_regions(device);
 }
 
