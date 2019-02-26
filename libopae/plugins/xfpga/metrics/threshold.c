@@ -396,6 +396,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		if (FPGA_OK != result) {
 			if (tmp) {
 				free(tmp);
+				tmp = NULL;
 			}
 			continue;
 		}
@@ -409,7 +410,10 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 			goto out;
 		}
 		metric_thresholds[i].metric_name[strlen(metric_thresholds[i].metric_name) - 1] = '\0';
-
+		if (tmp) {
+			free(tmp);
+			tmp = NULL;
+		}
 
 		// Upper Critical Threshold
 		e = strncpy_s(metric_thresholds[i].upper_c_threshold.threshold_name,
@@ -501,6 +505,11 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 
 
 out:
+	if (tmp) {
+		free(tmp);
+		tmp = NULL;
+	}
+
 	globfree(&pglob);
 	return result;
 }
