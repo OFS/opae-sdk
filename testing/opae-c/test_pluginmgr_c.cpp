@@ -457,11 +457,15 @@ TEST(pluginmgr_c_p, dummy_plugin) {
   EXPECT_STREQ(output.c_str(), "hello plugin!\n");
 
   uint32_t matches = 0;
-  EXPECT_EQ(fpgaEnumerate(nullptr, 0, nullptr, 0, &matches), FPGA_OK);
+  fpga_properties filter = NULL;
+  uint16_t device_id = 49178;
+  EXPECT_EQ(fpgaGetProperties(nullptr, &filter), FPGA_OK);
+  EXPECT_EQ(fpgaPropertiesSetDeviceID(filter, device_id), FPGA_OK);
+  EXPECT_EQ(fpgaEnumerate(&filter, 1, nullptr, 0, &matches), FPGA_OK);
   EXPECT_EQ(matches, 99);
   std::array<fpga_token, 99> tokens = {0};
   std::array<fpga_handle, 99> handles = {0};
-  EXPECT_EQ(fpgaEnumerate(nullptr, 0, tokens.data(), tokens.size(), &matches),
+  EXPECT_EQ(fpgaEnumerate(&filter, 1, tokens.data(), tokens.size(), &matches),
             FPGA_OK);
   int i = 0;
   for (auto t : tokens) {
