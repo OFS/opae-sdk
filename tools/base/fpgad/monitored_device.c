@@ -166,7 +166,7 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 		}
 
 		for (i = 0 ; i < c->num_null_gbs ; ++i) {
-			if (!uuid_compare(c->null_gbs[i].interface_id,
+			if (!uuid_compare(c->null_gbs[i].pr_interface_id,
 					  pr_ifc_id)) {
 				bitstr = &c->null_gbs[i];
 				break;
@@ -197,7 +197,7 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 		fpgaDestroyToken(&parent);
 
 		for (i = 0 ; i < c->num_null_gbs ; ++i) {
-			if (!uuid_compare(c->null_gbs[i].interface_id,
+			if (!uuid_compare(c->null_gbs[i].pr_interface_id,
 					  pr_ifc_id)) {
 				bitstr = &c->null_gbs[i];
 				break;
