@@ -274,7 +274,7 @@ fpga_result opae_load_bitstream(const char *file, opae_bitstream_info *info)
 		opae_resolve_legacy_bitstream(info);
 		OPAE_MSG("Legacy bitstream (GBS) format detected.");
 		OPAE_MSG("Legacy GBS support is deprecated "
-			 "and wil be removed in a future release.");
+			 "and will be removed in a future release.");
 		return FPGA_OK;
 	}
 

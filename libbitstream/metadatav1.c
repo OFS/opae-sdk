@@ -31,6 +31,7 @@
 #include <uuid/uuid.h>
 #include <opae/log.h>
 
+#include "bitstream.h"
 #include "metadatav1.h"
 #include "bits_utils.h"
 #include "safe_string/safe_string.h"
@@ -66,10 +67,6 @@ out_free:
 		free(cluster->name);
 		cluster->name = NULL;
 	}
-	if (cluster->accelerator_type_uuid) {
-		free(cluster->accelerator_type_uuid);
-		cluster->accelerator_type_uuid = NULL;
-	}
 	return res;
 }
 
@@ -79,7 +76,7 @@ STATIC fpga_result opae_bits_parse_afu_image_v1(json_object *j_afu_image,
 {
 	fpga_result res;
 	json_object *j_accelerator_clusters = NULL;
-	int i;
+	int i = 0;
 
 	res = opae_bits_get_json_int(j_afu_image,
 				     "clock-frequency-high",
@@ -104,6 +101,14 @@ STATIC fpga_result opae_bits_parse_afu_image_v1(json_object *j_afu_image,
 				     &img->magic_no);
 	if (res != FPGA_OK)
 		return res;
+
+	if (img->magic_no !=
+	    OPAE_LEGACY_BITSTREAM_MAGIC) {
+		OPAE_ERR("metadata: invalid GBS magic: %d",
+			 img->magic_no);
+		res = FPGA_EXCEPTION;
+		goto out_free;
+	}
 
 	res = opae_bits_get_json_string(j_afu_image,
 					"interface-uuid",
@@ -161,6 +166,12 @@ out_free:
 		img->interface_uuid = NULL;
 	}
 	if (img->accelerator_clusters) {
+		int j;
+		for (j = 0 ; j < i ; ++j) {
+			free(img->accelerator_clusters[j].name);
+			free(img->accelerator_clusters[j].accelerator_type_uuid);
+		}
+
 		free(img->accelerator_clusters);
 		img->accelerator_clusters = NULL;
 	}
