@@ -204,6 +204,7 @@ test_system::test_system() : initialized_(false), root_("") {
       (sched_setaffinity_func)dlsym(RTLD_NEXT, "sched_setaffinity");
 
   glob_ = (glob_func)dlsym(RTLD_NEXT, "glob");
+  realpath_ = (realpath_func)dlsym(RTLD_NEXT, "realpath");
 
   hijack_sched_setaffinity_ = false;
   hijack_sched_setaffinity_return_val_ = 0;
@@ -326,6 +327,7 @@ void test_system::initialize() {
   ASSERT_FN(scandir_);
   ASSERT_FN(sched_setaffinity_);
   ASSERT_FN(glob_);
+  ASSERT_FN(realpath_);
   for (const auto &kv : default_ioctl_handlers_) {
     register_ioctl_handler(kv.first, kv.second);
   }
@@ -737,6 +739,30 @@ int test_system::glob(const char *pattern, int flags,
   return res;
 }
 
+char *test_system::realpath(const char *inp, char *dst)
+{
+  if (!initialized_ || root_.empty()) {
+    return realpath_(inp, dst);
+  }
+  bool current_inv_state = _invalidate_malloc;
+  _invalidate_malloc = false;
+  char *retvalue = realpath_(get_sysfs_path(inp).c_str(), dst);
+  if (retvalue) {
+    std::string dst_str(dst);
+    char prefix[PATH_MAX] = {0};
+    char *prefix_ptr = realpath_(root_.c_str(), prefix);
+    std::string prefix_str(prefix_ptr ? prefix_ptr : "");
+    if (prefix_str.size() && dst_str.find(prefix_str) == 0) {
+      auto cleaned_str = dst_str.substr(prefix_str.size());
+      std::copy(cleaned_str.begin(), cleaned_str.end(), &dst[0]);
+      dst[cleaned_str.size()] = '\0';
+      retvalue = &dst[0];
+    }
+  }
+  _invalidate_malloc = current_inv_state;
+  return retvalue;
+}
+
 void test_system::invalidate_malloc(uint32_t after,
                                     const char *when_called_from) {
   _invalidate_malloc = true;
@@ -821,4 +847,8 @@ int opae_test_glob(const char *pattern, int flags,
                    glob_t *pglob) {
   return opae::testing::test_system::instance()->glob(pattern, flags, errfunc,
                                                       pglob);
+}
+
+char *opae_test_realpath(const char *inp, char *dst) {
+  return opae::testing::test_system::instance()->realpath(inp, dst);
 }
