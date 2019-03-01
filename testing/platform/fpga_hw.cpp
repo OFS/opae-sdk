@@ -103,6 +103,24 @@ const char *rc_mdata =
      "platform-name": "PAC"}"
 )mdata";
 
+const char *vc_mdata =
+    R"mdata({"version": 1,
+   "afu-image":
+    {"clock-frequency-high": 312,
+     "clock-frequency-low": 156,
+     "interface-uuid": "eeeeeeee-eeee-eeee-2222-222222222222",
+     "magic-no": 488605312,
+     "accelerator-clusters":
+      [
+        {
+          "total-contexts": 1,
+          "name": "nlb3",
+          "accelerator-type-uuid": "9aeffe5f-8457-0612-c000-c9660d824272"
+        }
+      ]
+     },
+     "platform-name": "PAC"}";
+)mdata";
 static platform_db MOCK_PLATFORMS = {
     {"skx-p",
      test_platform{.mock_sysfs = "mock_sys_tmp-1socket-nlb0.tar.gz",
@@ -179,6 +197,31 @@ static platform_db MOCK_PLATFORMS = {
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
                        .mdata = skx_mdata}}}},
+	 {"dcp-vc",
+     test_platform{.mock_sysfs = "mock_sys_tmp-dcp-vc.tar.gz",
+            	   .driver = fpga_driver::linux_intel,
+                   .devices = {test_device{
+                       .fme_guid = "EEEEEEEE-EEEE-EEEE-2222-222222222222",
+                       .afu_guid = "9AEFFE5F-8457-0612-C000-C9660D824272",
+                       .segment = 0x0,
+                       .bus = 0x05,
+                       .device = 0,
+                       .function = 0,
+                       .socket_id = 0,
+                       .num_slots = 1,
+                       .bbs_id = 0x2019011800000001,
+                       .bbs_version = {2, 0, 1},
+                       .state = FPGA_ACCELERATOR_UNASSIGNED,
+                       .num_mmio = 0x2,
+                       .num_interrupts = 0,
+                       .fme_object_id = 0xf500000,
+                       .port_object_id = 0xf400000,
+                       .vendor_id = 0x8086,
+                       .device_id = 0x0b30,
+                       .fme_num_errors = 8,
+                       .port_num_errors = 3,
+                       .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                       .mdata = vc_mdata}}}}
 };
 
 
@@ -255,7 +298,9 @@ std::map<ven_dev_id, std::vector<std::string>> known_devices = {
   { { 0x8086, 0xbcc0}, std::vector<std::string>() },
   { { 0x8086, 0xbcc1}, std::vector<std::string>() },
   { { 0x8086, 0x09c4}, std::vector<std::string>() },
-  { { 0x8086, 0x09c5}, std::vector<std::string>() }
+  { { 0x8086, 0x09c5}, std::vector<std::string>() },
+  { { 0x8086, 0x0b30}, std::vector<std::string>() },
+  { { 0x8086, 0x0b31}, std::vector<std::string>() },
 };
 
 static std::vector<ven_dev_id> supported_devices() {
@@ -418,7 +463,10 @@ static std::map<platform_cfg, std::string> platform_names = {
   {  platform_cfg(0x8086, 0xbcc1, fpga_driver::linux_intel), "skx-p-v" },
   {  platform_cfg(0x8086, 0x09c4, fpga_driver::linux_intel), "dcp-rc" },
   {  platform_cfg(0x8086, 0x09c5, fpga_driver::linux_intel), "dcp-rc-v" },
-  {  platform_cfg(0x8086, 0xbcc0, fpga_driver::linux_dfl0), "skx-p-dfl0" }
+  {  platform_cfg(0x8086, 0xbcc0, fpga_driver::linux_dfl0),  "skx-p-dfl0" },
+  {  platform_cfg(0x8086, 0x0b30, fpga_driver::linux_intel), "dcp-vc" },
+  {  platform_cfg(0x8086, 0x0b31, fpga_driver::linux_intel), "dcp-vc-v" }
+  
 };
 
 const char *PCI_DEV_PATTERN = "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([0-9])";
