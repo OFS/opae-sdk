@@ -166,7 +166,6 @@ test_device test_device::unknown() {
                      .bus = 0x0A,
                      .device = 9,
                      .function = 5,
-                     .num_vfs = 9,
                      .socket_id = 9,
                      .num_slots = 9,
                      .bbs_id = 9,
