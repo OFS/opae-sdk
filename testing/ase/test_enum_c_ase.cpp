@@ -90,7 +90,8 @@ class enum_c_ase_p : public testing::Test {
 /**
  * @test       nullfilter
  *
- * @brief      When the fpga_properties * parameter to fpgaEnumerate is nullptr, the
+ * @brief      When the fpga_properties *parameter to fpgaEnumerate is nullptr 
+ *             and the number of filter is bigger than zero, the
  *             function returns FPGA_INVALID_PARAM.
  */
 TEST_F(enum_c_ase_p, nullfilter) {
@@ -117,8 +118,8 @@ TEST_F(enum_c_ase_p, nullmatches) {
 /**
  * @test       nulltokens
  *
- * @brief      When the fpga_token* parameter to fpgaEnumerate is nullptr, the
- *             function returns FPGA_INVALID_PARAM.
+ * @brief      When the fpga_token* parameter to fpgaEnumerate is nullptr with nonzero
+ *             number of tokens, the function returns FPGA_INVALID_PARAM.
  *
  */
 TEST_F(enum_c_ase_p, nulltokens) {
@@ -151,7 +152,7 @@ TEST(enum_c_ase, api_guid_to_fpga) {
  * @test       matches_filters_1
  *
  * @brief      Test internal function matches_filters(), the function returns
- *             true.
+ *             true if the property field of FPGA_PROPERTY_FUNCTION is valid.
  */
 TEST_F(enum_c_ase_p, matches_filters_1) {
   uint64_t j = 0;
@@ -168,7 +169,7 @@ TEST_F(enum_c_ase_p, matches_filters_1) {
  * @test       matches_filters_2
  *
  * @brief      Test internal function matches_filters(), the function returns
- *             true.
+ *             true if the property field of FPGA_PROPERTY_DEVICE is valid.
  */
 TEST_F(enum_c_ase_p, matches_filters_2) {
   uint64_t j = 0;
@@ -184,7 +185,7 @@ TEST_F(enum_c_ase_p, matches_filters_2) {
  * @test       matches_filters_3
  *
  * @brief      Test internal function matches_filters(), the function returns
- *             true.
+ *             true if the property field valid_fields is zero.
  */
 TEST_F(enum_c_ase_p, matches_filters_3) {
   uint64_t j = 0;
@@ -198,7 +199,8 @@ TEST_F(enum_c_ase_p, matches_filters_3) {
  * @test       matches_filters_4
  *
  * @brief      Test internal function matches_filters(), the function returns
- *             false.
+ *             false if the property field of FPGA_PROPERTY_PARENT is set but the 
+ *             _prop->parent is NULL.
  */
 TEST_F(enum_c_ase_p, matches_filters_4) {
   uint64_t j = 0;
@@ -214,7 +216,8 @@ TEST_F(enum_c_ase_p, matches_filters_4) {
  * @test       matches_filters_5
  *
  * @brief      Test internal function matches_filters(), the function returns
- *             false.
+ *             false the property field of FPGA_PROPERTY_PARENT is set but the
+ *             but the _prop->parent is not a valid token.
  */
 TEST_F(enum_c_ase_p, matches_filters_5) {
   uint64_t j = 0;
@@ -235,7 +238,7 @@ TEST_F(enum_c_ase_p, matches_filters_5) {
  * @test       matches_filters_6
  *
  * @brief      Test internal function matches_filters(), the function returns
- *             false.
+ *             false if the property's object ID is not valid.
  */
 TEST_F(enum_c_ase_p, matches_filters_6) {
   uint64_t j = 0;
@@ -259,7 +262,7 @@ TEST_F(enum_c_ase_p, matches_filters_6) {
  * @test       matches_filters_7
  *
  * @brief      Test internal function matches_filters(), the function returns
- *             false.
+ *             false if the object type is not ACCELERATOR type.
  */
 TEST_F(enum_c_ase_p, matches_filters_7) {
   uint64_t j = 0;
@@ -286,7 +289,7 @@ TEST_F(enum_c_ase_p, matches_filters_7) {
  * @test       matches_filters_8
  *
  * @brief      Test internal function matches_filters(), the function returns
- *             false.
+ *             false if the guid doesn't match.
  */
 TEST_F(enum_c_ase_p, matches_filters_8) {
   uint64_t j = 0;
@@ -317,7 +320,7 @@ TEST_F(enum_c_ase_p, matches_filters_8) {
  * @test       matches_filters_9
  *
  * @brief      Test internal function matches_filters(), the function returns
- *             true.
+ *             true if the guid id matches.
  */
 TEST_F(enum_c_ase_p, matches_filters_9) {
   uint64_t j = 0;
