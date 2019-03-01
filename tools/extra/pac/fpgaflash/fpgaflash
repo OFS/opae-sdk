@@ -41,6 +41,7 @@ from array import array
 
 VCP_ID = 0x0b30
 VCP_PF1_ID = 0x0b32
+VCP_EEPROM_SIZE = 0x10000
 VCP_RPD_USER_IMAGE_OFFSET = 0x3ff0000
 VCP_RPD_USER_IMAGE_LENGTH = 0x3800000
 VCP_FLASH_OPT_OFFSET = 0x10000
@@ -51,6 +52,8 @@ VCP_FLASH_PAGE1_OFFSET = 0x4000000
 VCP_FLASH_SECTOR_SIZE = 0x10000
 MAX10_USER_FLASH_OFFSET = 0xb8000
 MAX10_USER_FLASH_LENGTH = 0xa8000
+USER_BOOT_PAGE = 0
+FACTORY_BOOT_PAGE = 1
 
 try:
     from intelhex import IntelHex
@@ -194,8 +197,8 @@ def parse_args():
     parser.add_argument('file', type=argparse.FileType('rb'),
                         help='file to program into flash')
 
-    rsu_help = "enable remote system upgrade (RSU) feature"
-    rsu_help += ", valid only for type 'user'"
+    rsu_help = "perform remote system update after update"
+    rsu_help += " causing the board to be rebooted"
     parser.add_argument('-r', '--rsu', action='store_true', help=rsu_help)
 
     bdf_help = "bdf of device to program (e.g. 04:00.0 or 0000:04:00.0)"
@@ -351,7 +354,7 @@ def option_bits_update(mtd_dev):
     flash_read(mtd_dev, VCP_FLASH_OPT_OFFSET, VCP_FLASH_OPT_LENGTH, vfile)
     vfile.seek(0)
     ichunk = vfile.read(4096)
-    opt = [0x04,0x00,0x61,0x54,0x00,0x02,0x66,0x56]
+    opt = [0x04, 0x00, 0x61, 0x54, 0x00, 0x02, 0x66, 0x56]
     need_update = False
     for i in range(8):
         if ord(ichunk[i]) != opt[i]:
@@ -368,6 +371,7 @@ def option_bits_update(mtd_dev):
                              VCP_FLASH_OPT_LENGTH, vfile)
 
     vfile.close()
+
 
 def update_flash(update_type, ifile, mtd_dev, bdf):
 
@@ -546,6 +550,7 @@ def fpga_update(utype, ifile, bdf, bdf_map):
         ret = update_flash(utype, ifile, mtd_dev, bdf)
         if ret == 2:
             erase_flash(utype, ifile, mtd_dev, bdf)
+            print "flash update failed"
     ifile.close()
     return ret
 
@@ -911,19 +916,22 @@ def write_sysfs_node(path, value):
         return 0
 
 
-def trigger_rsu(bdf, type):
+def trigger_rsu(bdf, type, boot_page):
     spi_path = get_spi_sysfs_path(bdf)
     if not spi_path:
         return 1
     else:
         if type == 'user':
             path = os.path.join(spi_path, 'fpga_flash_ctrl', 'fpga_image_load')
+            value = 1
         elif type == 'bmc_img':
             path = os.path.join(spi_path, 'bmcimg_flash_ctrl',
                                 'bmcimg_image_load')
+            value = boot_page
         else:
+            print("WARNING: invalid type {} for rsu".format(type))
             return 1
-        return write_sysfs_node(path, 1)
+        return write_sysfs_node(path, value)
 
 
 def remove_device(bdf):
@@ -941,7 +949,8 @@ def eeprom_update(ifile, bdf):
     if not fpga_path:
         return 1
     nvmem_path = glob.glob(os.path.join(fpga_path, 'intel-fpga-fme.*',
-                           'altera-i2c.*.auto', 'i2c-*', '*-*', '*-*', 'nvmem'))
+                                        'altera-i2c.*.auto', 'i2c-*',
+                                        '*-*', '*-*', 'nvmem'))
     if len(nvmem_path) == 1:
         with open(nvmem_path[0], 'wb') as wfile:
             wfile.write(ifile.read())
@@ -953,7 +962,7 @@ def eeprom_update(ifile, bdf):
                                 'altera-i2c.*.auto', 'i2c-*', '*-*', 'eeprom'))
         if len(eeprom_path) == 1:
             with open(eeprom_path[0], 'wb') as wfile:
-                wfile.write(ifile.read(65536))
+                wfile.write(ifile.read(VCP_EEPROM_SIZE))
         elif len(eeprom_path) > 1:
             print "multiple eeprom found"
             ret = 1
@@ -977,6 +986,39 @@ def update_bdf(port):
                     ports.append('{}:{}.{}'.format(*n))
 
     return normalize_bdf(ports[-1])
+
+
+def do_rsu(type, bdf, boot_page):
+    bdf = normalize_bdf(bdf)
+    if int(get_devid(bdf), 16) == VCP_ID:
+        print "performing remote system update"
+        (ports, up_port) = read_root_ports(os.path.join('/sys/bus/pci/drivers',
+                                                        'intel-fpga-pci', bdf),
+                                           type)
+        if len(ports) > 0:
+            pf1_bdf = normalize_bdf(ports[-1])
+            for p in ports:
+                ret = disable_aer(p)
+                if ret != 0:
+                    sys.exit(ret)
+            ret = trigger_rsu(bdf, type, boot_page)
+            if ret == 0:
+                if type == 'user':
+                    ret = remove_device(bdf)
+                    if ret == 0 and pf1_bdf != bdf:
+                        ret = remove_device(pf1_bdf)
+                else:
+                    ret = remove_device(normalize_bdf(up_port))
+                time.sleep(5)
+                ret |= rescan_device()
+                if type == 'bmc_img':
+                    bdf = update_bdf(up_port)
+                    (ports, up_port) = read_root_ports(os.path.join(
+                                                       '/sys/bus/pci/drivers',
+                                                       'intel-fpga-pci', bdf),
+                                                       type)
+            for p in ports:
+                enable_aer(p)
 
 
 def main():
@@ -1016,35 +1058,8 @@ def main():
     disable_mtd(bdf)
 
     # RSU procedure
-    if args.type in ['user', 'bmc_img'] and ret == 0 and args.rsu:
-        print("reloading {}".format('fpga' if args.type == 'user' else 'max10'))
-        (ports, up_port) = read_root_ports(os.path.join('/sys/bus/pci/drivers',
-                                                        'intel-fpga-pci', bdf),
-                                                        args.type)
-        if len(ports) > 0:
-            pf1_bdf = normalize_bdf(ports[-1])
-            for p in ports:
-                ret = disable_aer(p)
-                if ret != 0:
-                    sys.exit(ret)
-            ret = trigger_rsu(bdf, args.type)
-            if ret == 0:
-                if args.type == 'user':
-                    ret = remove_device(bdf)
-                    if ret == 0 and pf1_bdf != bdf:
-                        ret = remove_device(pf1_bdf)
-                else:
-                    ret = remove_device(normalize_bdf(up_port))
-                time.sleep(10)
-                ret |= rescan_device()
-                if args.type == 'bmc_img':
-                    bdf = update_bdf(up_port)
-                    (ports, up_port) = read_root_ports(os.path.join(
-                                                       '/sys/bus/pci/drivers',
-                                                       'intel-fpga-pci', bdf),
-                                                       args.type)
-            for p in ports:
-                enable_aer(p)
+    if ret == 0 and args.rsu and args.type in ['user', 'bmc_img']:
+        do_rsu('bmc_img', bdf, USER_BOOT_PAGE)
 
     sys.exit(ret)
 

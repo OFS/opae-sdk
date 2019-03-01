@@ -396,6 +396,7 @@ void print_bmc_info(const char *sysfspath)
 
 	off = 0;
 	char buf[16];
+	uint8_t rev = 0;
 	uint16_t devid = 0;
 	uint32_t bmcfw_ver = 0;
 	uint32_t max10_ver = 0;
@@ -410,6 +411,9 @@ void print_bmc_info(const char *sysfspath)
 						 "bmcfw_flash_ctrl/bmcfw_version");
 			if (get_sysfs_attr(path, buf, sizeof(buf)) > 0) {
 				bmcfw_ver = strtoul(buf, NULL, 16);
+				rev = (bmcfw_ver >> 24) & 0xff;
+				if ((rev > 0x40) && (rev < 0x5B))	// range from 'A' to 'Z'
+					printf("%c.", rev);
 				printf("%u.%u.%u\n", (bmcfw_ver >> 16) & 0xff,
 					   (bmcfw_ver >> 8) & 0xff, bmcfw_ver & 0xff);
 			} else {
@@ -419,6 +423,9 @@ void print_bmc_info(const char *sysfspath)
 			snprintf_s_s(path+off, sizeof(path)-off, "/%s", "max10_version");
 			if (get_sysfs_attr(path, buf, sizeof(buf)) > 0) {
 				max10_ver = strtoul(buf, NULL, 16);
+				rev = (max10_ver >> 24) & 0xff;
+				if ((rev > 0x40) && (rev < 0x5B))	// range from 'A' to 'Z'
+					printf("%c.", rev);
 				printf("%u.%u.%u\n", (max10_ver >> 16) & 0xff,
 					   (max10_ver >> 8) & 0xff, max10_ver & 0xff);
 			} else {
