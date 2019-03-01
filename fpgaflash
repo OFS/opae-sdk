@@ -207,6 +207,7 @@ def parse_args():
     epi += '  rsu		Remote System Update (Board Reboot)\n'
     epi += '  dtb		Device tree blob update\n'
 
+
     epi += '  eeprom	EEPROM update\n'
     epi += '  phy_eeprom	PHY EEPROM update\n'
     epi += '  bmc_bl	%s boot loader update\n' % (RC)
