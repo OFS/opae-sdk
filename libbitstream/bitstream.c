@@ -148,7 +148,7 @@ STATIC void *opae_bits_parse_metadata(const char *metadata,
 	enum json_tokener_error j_err = json_tokener_success;
 	void *parsed = NULL;
 
-        root = json_tokener_parse_verbose(metadata, &j_err);
+	root = json_tokener_parse_verbose(metadata, &j_err);
 	if (!root) {
 		OPAE_ERR("invalid JSON metadata: %s",
 			 json_tokener_error_desc(j_err));
