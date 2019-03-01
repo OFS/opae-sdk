@@ -196,7 +196,7 @@ fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 		ase_memcpy(&aseToken[1].accelerator_id, readback_afuid, sizeof(fpga_guid));
 	}
 
-	for (i=0; i<2; i++)
+	for (i = 0; i < 2; i++)
 		ase_token[i] = &aseToken[i];
 	*num_matches = 0;
 	for (i = 0; i < 2; i++) {
