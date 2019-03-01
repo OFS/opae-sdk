@@ -29,9 +29,6 @@
 #include <config.h>
 #include <opae/fpga.h>
 
-#include <fstream>
-#include <vector>
-
 #include "gtest/gtest.h"
 #include "test_system.h"
 #include "safe_string/safe_string.h"

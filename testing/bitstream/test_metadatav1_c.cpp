@@ -41,9 +41,6 @@ fpga_result opae_bits_parse_afu_image_v1(json_object *j_afu_image,
 #include <config.h>
 #include <opae/fpga.h>
 
-#include <fstream>
-#include <vector>
-
 #include "gtest/gtest.h"
 #include "test_system.h"
 #include "safe_string/safe_string.h"
