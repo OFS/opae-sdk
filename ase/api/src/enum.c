@@ -200,11 +200,8 @@ fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 		ase_token[i] = &aseToken[i];
 	*num_matches = 0;
 	for (i = 0; i < 2; i++) {
-		//if (matches_filters(filters, num_filters, (void**)&(&aseToken[i]), &i)) {
 		if (matches_filters(filters, num_filters, &ase_token[i], &i)) {
 			if (*num_matches < max_tokens)	{
-
-
 				if (FPGA_OK != fpgaCloneToken(ase_token[i], &tokens[*num_matches]))
 					FPGA_MSG("Error cloning token");
 			}
