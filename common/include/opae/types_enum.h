@@ -196,13 +196,13 @@ typedef enum { FPGA_DMA_FEATURE = 2 } fpga_feature_type;
 typedef enum {
 	HOST_MM_TO_FPGA_ST = (1u << 0), /**< streaming, host to AFU */
 	FPGA_ST_TO_HOST_MM = (1u << 1), /**< streaming, AFU to host */
-	FPGA_MM_TO_FPGA_ST =
-		(1u << 2), /**< streaming, FPGA local mem to AFU   */
-	FPGA_ST_TO_FPGA_MM =
-		(1u << 3),	   /**< streaming, AFU to FPGA local mem   */
-	//HOST_TO_FPGA_MM = (1u << 4), /**< Memory mapped FPGA interface       */
-	//FPGA_TO_HOST_MM = (1u << 5), /**< Memory mapped FPGA interface       */
-	//FPGA_TO_FPGA_MM = (1u << 6), /**< Memory mapped FPGA interface       */
+	PEER_MM_to_FPGA_ST = (1u << 2), /**< streaming, PCIe peer device to AFU */
+	FPGA_ST_TO_PEER_MM = (1u << 3), /**< streaming, AFU to PCIe peer device */
+	FPGA_MM_TO_FPGA_ST = (1u << 4), /**< streaming, FPGA local mem to AFU */
+	FPGA_ST_TO_FPGA_MM = (1u << 5),	/**< streaming, AFU to FPGA local mem */
+	//HOST_TO_FPGA_MM = (1u << 6), /**< Memory mapped FPGA interface       */
+	//FPGA_TO_HOST_MM = (1u << 7), /**< Memory mapped FPGA interface       */
+	//FPGA_TO_FPGA_MM = (1u << 8), /**< Memory mapped FPGA interface       */
 	//FPGA_MAX_TRANSFER_TYPE = FPGA_TO_FPGA_MM,
 } fpga_dma_transfer_type;
 
