@@ -418,6 +418,18 @@ err:
   return -1;
 }
 
+template<typename T>
+static  T read_attribute(const std::string &pci_dir, const std::string &attr) {
+  std::string attr_path = pci_dir + "/" + attr;
+  struct stat st;
+
+  if (stat(attr_path.c_str(), &st)) {
+    std::cerr << std::string("WARNING: stat:") + attr_path <<  ":" << strerror(errno) << "\n";
+    return 0;
+  }
+  return parse_file<T>(attr_path);
+}
+
 static uint16_t read_device_id(const std::string &pci_dir) {
   std::string device_path = pci_dir + "/device";
   struct stat st;
@@ -511,7 +523,7 @@ test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &pla
     dev.bus = std::stoi(m->group(2), nullptr, 16);
     dev.device = std::stoi(m->group(3), nullptr, 10);
     dev.function = std::stoi(m->group(4), nullptr, 10);
-    dev.num_vfs = 0;
+    dev.num_vfs = read_attribute<uint8_t>(pci_path, "sriov_numvfs");
     dev.vendor_id = ven_id;
     dev.device_id = dev_id;
 
