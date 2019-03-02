@@ -28,15 +28,15 @@
 
 extern "C" {
 
-fpga_result opae_bits_read_file(const char *file,
-				uint8_t **buf,
-				size_t *len);
+fpga_result opae_bitstream_read_file(const char *file,
+				     uint8_t **buf,
+				     size_t *len);
 
 void opae_resolve_legacy_bitstream(opae_bitstream_info *info);
 
-void *opae_bits_parse_metadata(const char *metadata,
-                               fpga_guid pr_interface_id,
-                               int *version);
+void *opae_bitstream_parse_metadata(const char *metadata,
+				    fpga_guid pr_interface_id,
+				    int *version);
 
 fpga_result opae_resolve_bitstream(opae_bitstream_info *info);
 
@@ -110,14 +110,15 @@ class bitstream_c_p : public ::testing::TestWithParam<std::string> {
 
 /**
  * @test       read_err0
- * @brief      Test: opae_bits_read_file
+ * @brief      Test: opae_bitstream_read_file
  * @details    If the given file doesn't exist,<br>
  *             the fn returns FPGA_EXCEPTION.<br>
  */
 TEST_P(bitstream_c_p, read_err0) {
   uint8_t *buf = nullptr;
   size_t len = 0;
-  EXPECT_EQ(opae_bits_read_file("doesntexist", &buf, &len), FPGA_EXCEPTION);
+  EXPECT_EQ(opae_bitstream_read_file("doesntexist", &buf, &len),
+	    FPGA_EXCEPTION);
 }
 
 /**
@@ -172,7 +173,7 @@ TEST_P(bitstream_c_p, resolve_legacy) {
 
 /**
  * @test       parse_err0
- * @brief      Test: opae_bits_parse_metadata
+ * @brief      Test: opae_bitstream_parse_metadata
  * @details    If the given metadata string is not valid JSON,<br>
  *             the fn returns NULL.<br>
  */
@@ -183,12 +184,12 @@ TEST_P(bitstream_c_p, parse_err0) {
   fpga_guid guid;
   int ver = 0;
 
-  EXPECT_EQ(opae_bits_parse_metadata(mdata, guid, &ver), nullptr);
+  EXPECT_EQ(opae_bitstream_parse_metadata(mdata, guid, &ver), nullptr);
 }
 
 /**
  * @test       parse_err1
- * @brief      Test: opae_bits_parse_metadata
+ * @brief      Test: opae_bitstream_parse_metadata
  * @details    If the given metadata string contains no version key,<br>
  *             the fn returns NULL.<br>
  */
@@ -199,12 +200,12 @@ TEST_P(bitstream_c_p, parse_err1) {
   fpga_guid guid;
   int ver = 0;
 
-  EXPECT_EQ(opae_bits_parse_metadata(mdata, guid, &ver), nullptr);
+  EXPECT_EQ(opae_bitstream_parse_metadata(mdata, guid, &ver), nullptr);
 }
 
 /**
  * @test       parse_err2
- * @brief      Test: opae_bits_parse_metadata
+ * @brief      Test: opae_bitstream_parse_metadata
  * @details    If the given metadata string contains a version key,<br>
  *             the type of which is not integer,<br>
  *             the fn returns NULL.<br>
@@ -217,12 +218,12 @@ TEST_P(bitstream_c_p, parse_err2) {
   fpga_guid guid;
   int ver = 0;
 
-  EXPECT_EQ(opae_bits_parse_metadata(mdata, guid, &ver), nullptr);
+  EXPECT_EQ(opae_bitstream_parse_metadata(mdata, guid, &ver), nullptr);
 }
 
 /**
  * @test       parse_err3
- * @brief      Test: opae_bits_parse_metadata
+ * @brief      Test: opae_bitstream_parse_metadata
  * @details    If the given metadata string contains a version key<br>
  *             which matches no valid metadata version,<br>
  *             the fn returns NULL.<br>
@@ -235,7 +236,7 @@ TEST_P(bitstream_c_p, parse_err3) {
   fpga_guid guid;
   int ver = 0;
 
-  EXPECT_EQ(opae_bits_parse_metadata(mdata, guid, &ver), nullptr);
+  EXPECT_EQ(opae_bitstream_parse_metadata(mdata, guid, &ver), nullptr);
 }
 
 /**
@@ -366,15 +367,15 @@ class mock_bitstream_c_p : public bitstream_c_p {};
 
 /**
  * @test       read_err1
- * @brief      Test: opae_bits_read_file
+ * @brief      Test: opae_bitstream_read_file
  * @details    If malloc fails,<br>
  *             the fn returns FPGA_NO_MEMORY.<br>
  */
 TEST_P(mock_bitstream_c_p, read_err1) {
   uint8_t *buf = nullptr;
   size_t len = 0;
-  system_->invalidate_malloc(0, "opae_bits_read_file");
-  EXPECT_EQ(opae_bits_read_file(tmpnull_gbs_, &buf, &len), FPGA_NO_MEMORY);
+  system_->invalidate_malloc(0, "opae_bitstream_read_file");
+  EXPECT_EQ(opae_bitstream_read_file(tmpnull_gbs_, &buf, &len), FPGA_NO_MEMORY);
 }
 
 /**

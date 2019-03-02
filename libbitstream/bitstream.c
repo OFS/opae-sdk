@@ -43,9 +43,9 @@
 #include <opae/properties.h>
 #include <opae/sysobject.h>
 
-STATIC fpga_result opae_bits_read_file(const char *file,
-				       uint8_t **buf,
-				       size_t *len)
+STATIC fpga_result opae_bitstream_read_file(const char *file,
+					    uint8_t **buf,
+					    size_t *len)
 {
 	FILE *fp;
 	fpga_result res = FPGA_EXCEPTION;
@@ -139,9 +139,9 @@ STATIC void opae_resolve_legacy_bitstream(opae_bitstream_info *info)
 	info->rbf_len = info->data_len - sizeof(opae_legacy_bitstream_header);
 }
 
-STATIC void *opae_bits_parse_metadata(const char *metadata,
-				      fpga_guid pr_interface_id,
-				      int *version)
+STATIC void *opae_bitstream_parse_metadata(const char *metadata,
+					   fpga_guid pr_interface_id,
+					   int *version)
 {
 	json_object *root = NULL;
 	json_object *j_version = NULL;
@@ -244,9 +244,9 @@ STATIC fpga_result opae_resolve_bitstream(opae_bitstream_info *info)
 	buf[hdr->metadata_length] = '\0';
 
 	info->parsed_metadata =
-		opae_bits_parse_metadata(buf,
-					 info->pr_interface_id,
-					 &info->metadata_version);
+		opae_bitstream_parse_metadata(buf,
+					      info->pr_interface_id,
+					      &info->metadata_version);
 
 	free(buf);
 
@@ -262,7 +262,7 @@ fpga_result opae_load_bitstream(const char *file, opae_bitstream_info *info)
 
 	memset_s(info, sizeof(opae_bitstream_info), 0);
 
-	res = opae_bits_read_file(file, &info->data, &info->data_len);
+	res = opae_bitstream_read_file(file, &info->data, &info->data_len);
 	if (res != FPGA_OK) {
 		OPAE_ERR("error loading \"%s\"", file);
 		return res;

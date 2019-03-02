@@ -34,9 +34,9 @@
 #include "bits_utils.h"
 #include "safe_string/safe_string.h"
 
-fpga_result opae_bits_get_json_string(json_object *parent,
-				      const char *name,
-				      char **value)
+fpga_result opae_bitstream_get_json_string(json_object *parent,
+					   const char *name,
+					   char **value)
 {
 	json_object *obj = NULL;
 	const char *s;
@@ -76,9 +76,9 @@ fpga_result opae_bits_get_json_string(json_object *parent,
 	return FPGA_OK;
 }
 
-fpga_result opae_bits_get_json_int(json_object *parent,
-				   const char *name,
-				   int *value)
+fpga_result opae_bitstream_get_json_int(json_object *parent,
+					const char *name,
+					int *value)
 {
 	json_object *obj = NULL;
 

@@ -37,26 +37,26 @@
 #include "safe_string/safe_string.h"
 
 STATIC fpga_result
-opae_bits_parse_accelerator_cluster_v1(json_object *j_cluster,
+opae_bitstream_parse_accelerator_cluster_v1(json_object *j_cluster,
 			    opae_metadata_accelerator_cluster_v1 *cluster)
 {
 	fpga_result res;
 
-	res = opae_bits_get_json_int(j_cluster,
-				     "total-contexts",
-				     &cluster->total_contexts);
+	res = opae_bitstream_get_json_int(j_cluster,
+					  "total-contexts",
+					  &cluster->total_contexts);
 	if (res != FPGA_OK)
 		return res;
 
-	res = opae_bits_get_json_string(j_cluster,
-					"name",
-					&cluster->name);
+	res = opae_bitstream_get_json_string(j_cluster,
+					     "name",
+					     &cluster->name);
 	if (res != FPGA_OK)
 		goto out_free;
 
-	res = opae_bits_get_json_string(j_cluster,
-					"accelerator-type-uuid",
-					&cluster->accelerator_type_uuid);
+	res = opae_bitstream_get_json_string(j_cluster,
+					     "accelerator-type-uuid",
+					     &cluster->accelerator_type_uuid);
 	if (res != FPGA_OK)
 		goto out_free;
 
@@ -70,35 +70,35 @@ out_free:
 	return res;
 }
 
-STATIC fpga_result opae_bits_parse_afu_image_v1(json_object *j_afu_image,
-						opae_metadata_afu_image_v1 *img,
-						fpga_guid pr_interface_id)
+STATIC fpga_result opae_bitstream_parse_afu_image_v1(json_object *j_afu_image,
+					opae_metadata_afu_image_v1 *img,
+					fpga_guid pr_interface_id)
 {
 	fpga_result res;
 	json_object *j_accelerator_clusters = NULL;
 	int i = 0;
 
-	res = opae_bits_get_json_int(j_afu_image,
-				     "clock-frequency-high",
-				     &img->clock_frequency_high);
+	res = opae_bitstream_get_json_int(j_afu_image,
+					  "clock-frequency-high",
+					  &img->clock_frequency_high);
 	if (res != FPGA_OK)
 		return res;
 
-	res = opae_bits_get_json_int(j_afu_image,
-				     "clock-frequency-low",
-				     &img->clock_frequency_low);
+	res = opae_bitstream_get_json_int(j_afu_image,
+					  "clock-frequency-low",
+					  &img->clock_frequency_low);
 	if (res != FPGA_OK)
 		return res;
 
-	res = opae_bits_get_json_int(j_afu_image,
-				     "power",
-				     &img->power);
+	res = opae_bitstream_get_json_int(j_afu_image,
+					  "power",
+					  &img->power);
 	if (res != FPGA_OK)
 		return res;
 
-	res = opae_bits_get_json_int(j_afu_image,
-				     "magic-no",
-				     &img->magic_no);
+	res = opae_bitstream_get_json_int(j_afu_image,
+					  "magic-no",
+					  &img->magic_no);
 	if (res != FPGA_OK)
 		return res;
 
@@ -110,9 +110,9 @@ STATIC fpga_result opae_bits_parse_afu_image_v1(json_object *j_afu_image,
 		goto out_free;
 	}
 
-	res = opae_bits_get_json_string(j_afu_image,
-					"interface-uuid",
-					&img->interface_uuid);
+	res = opae_bitstream_get_json_string(j_afu_image,
+					     "interface-uuid",
+					     &img->interface_uuid);
 	if (res != FPGA_OK)
 		goto out_free;
 
@@ -152,7 +152,7 @@ STATIC fpga_result opae_bits_parse_afu_image_v1(json_object *j_afu_image,
 		json_object *j_cluster =
 			json_object_array_get_idx(j_accelerator_clusters, i);
 
-		res = opae_bits_parse_accelerator_cluster_v1(j_cluster,
+		res = opae_bitstream_parse_accelerator_cluster_v1(j_cluster,
 					&img->accelerator_clusters[i]);
 		if (res != FPGA_OK)
 			goto out_free;
@@ -194,9 +194,9 @@ opae_bitstream_parse_metadata_v1(json_object *root,
 
 	md->version = 1;
 
-	res = opae_bits_get_json_string(root,
-					"platform-name",
-					&md->platform_name);
+	res = opae_bitstream_get_json_string(root,
+					     "platform-name",
+					     &md->platform_name);
 	if (res != FPGA_OK)
 		goto out_free;
 
@@ -207,9 +207,9 @@ opae_bitstream_parse_metadata_v1(json_object *root,
 		goto out_free;
 	}
 
-	res = opae_bits_parse_afu_image_v1(j_afu_image,
-					   &md->afu_image,
-					   pr_interface_id);
+	res = opae_bitstream_parse_afu_image_v1(j_afu_image,
+						&md->afu_image,
+						pr_interface_id);
 	if (res != FPGA_OK)
 		goto out_free;
 

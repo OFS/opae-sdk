@@ -58,9 +58,9 @@ extern "C" {
  * on success must be tracked and freed when no longer
  * needed.
  */
-fpga_result opae_bits_get_json_string(json_object *parent,
-				      const char *name,
-				      char **value);
+fpga_result opae_bitstream_get_json_string(json_object *parent,
+					   const char *name,
+					   char **value);
 
 /**
  * Populate integer value from JSON object.
@@ -72,9 +72,9 @@ fpga_result opae_bits_get_json_string(json_object *parent,
  * @returns FPGA_OK on success. FPGA_EXCEPTION if `name`
  * is not found or if `name` is not a key of type integer.
  */ 
-fpga_result opae_bits_get_json_int(json_object *parent,
-				   const char *name,
-				   int *value);
+fpga_result opae_bitstream_get_json_int(json_object *parent,
+					const char *name,
+					int *value);
 
 #ifdef __cplusplus
 }

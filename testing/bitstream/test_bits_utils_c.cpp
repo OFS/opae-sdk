@@ -70,7 +70,7 @@ class bits_utils_c_p : public ::testing::TestWithParam<std::string> {
 
 /**
  * @test       string_err0
- * @brief      Test: opae_bits_get_json_string
+ * @brief      Test: opae_bitstream_get_json_string
  * @details    If the given name doesn't exist,<br>
  *             the fn returns FPGA_EXCEPTION.<br>
  */
@@ -85,16 +85,16 @@ TEST_P(bits_utils_c_p, string_err0) {
   root = parse(mdata);
   ASSERT_NE(root, nullptr);
 
-  EXPECT_EQ(opae_bits_get_json_string(root,
-                                      "b",
-                                      &value),
+  EXPECT_EQ(opae_bitstream_get_json_string(root,
+					   "b",
+					   &value),
             FPGA_EXCEPTION);
   EXPECT_EQ(value, nullptr);
 }
 
 /**
  * @test       string_err1
- * @brief      Test: opae_bits_get_json_string
+ * @brief      Test: opae_bitstream_get_json_string
  * @details    If the given name exists,<br>
  *             but isn't a string,<br>
  *             the fn returns FPGA_EXCEPTION.<br>
@@ -110,16 +110,16 @@ TEST_P(bits_utils_c_p, string_err1) {
   root = parse(mdata);
   ASSERT_NE(root, nullptr);
 
-  EXPECT_EQ(opae_bits_get_json_string(root,
-                                      "a",
-                                      &value),
+  EXPECT_EQ(opae_bitstream_get_json_string(root,
+					   "a",
+					   &value),
             FPGA_EXCEPTION);
   EXPECT_EQ(value, nullptr);
 }
 
 /**
  * @test       int_err0
- * @brief      Test: opae_bits_get_json_int
+ * @brief      Test: opae_bitstream_get_json_int
  * @details    If the given name doesn't exist,<br>
  *             the fn returns FPGA_EXCEPTION.<br>
  */
@@ -134,16 +134,16 @@ TEST_P(bits_utils_c_p, int_err0) {
   root = parse(mdata);
   ASSERT_NE(root, nullptr);
 
-  EXPECT_EQ(opae_bits_get_json_int(root,
-                                   "b",
-                                   &value),
+  EXPECT_EQ(opae_bitstream_get_json_int(root,
+					"b",
+					&value),
             FPGA_EXCEPTION);
   EXPECT_EQ(value, 0);
 }
 
 /**
  * @test       int_err1
- * @brief      Test: opae_bits_get_json_int
+ * @brief      Test: opae_bitstream_get_json_int
  * @details    If the given name exists,<br>
  *             but isn't of type integer,<br>
  *             the fn returns FPGA_EXCEPTION.<br>
@@ -159,9 +159,9 @@ TEST_P(bits_utils_c_p, int_err1) {
   root = parse(mdata);
   ASSERT_NE(root, nullptr);
 
-  EXPECT_EQ(opae_bits_get_json_int(root,
-                                   "a",
-                                   &value),
+  EXPECT_EQ(opae_bitstream_get_json_int(root,
+					"a",
+					&value),
             FPGA_EXCEPTION);
   EXPECT_EQ(value, 0);
 }
@@ -174,7 +174,7 @@ class mock_bits_utils_c_p : public bits_utils_c_p {};
 
 /**
  * @test       string_err2
- * @brief      Test: opae_bits_get_json_string
+ * @brief      Test: opae_bitstream_get_json_string
  * @details    If malloc fails,<br>
  *             the fn returns FPGA_NO_MEMORY.<br>
  */
@@ -189,10 +189,10 @@ TEST_P(mock_bits_utils_c_p, string_err2) {
   root = parse(mdata);
   ASSERT_NE(root, nullptr);
 
-  system_->invalidate_malloc(0, "opae_bits_get_json_string");
-  EXPECT_EQ(opae_bits_get_json_string(root,
-                                      "a",
-                                      &value),
+  system_->invalidate_malloc(0, "opae_bitstream_get_json_string");
+  EXPECT_EQ(opae_bitstream_get_json_string(root,
+					   "a",
+					   &value),
             FPGA_NO_MEMORY);
   EXPECT_EQ(value, nullptr);
 }
