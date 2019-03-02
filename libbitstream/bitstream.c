@@ -209,7 +209,7 @@ STATIC fpga_result opae_resolve_bitstream(opae_bitstream_info *info)
 	hdr = (opae_bitstream_header *)info->data;
 
 	if (uuid_compare(hdr->valid_gbs_guid, valid_GBS_guid) != 0) {
-		OPAE_ERR("valid GBS guid mismatch: \"%s\"", info->filename);
+		OPAE_ERR("GBS guid is invalid: \"%s\"", info->filename);
 		return FPGA_INVALID_PARAM;
 	}
 
