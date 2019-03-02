@@ -255,8 +255,7 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_FUNCTION);
 
 	// only set socket id if we have it on sysfs
-	result = sysfs_get_fme_path(_token->device_instance,
-			_token->subdev_instance, spath);
+	result = sysfs_get_fme_path(_token->sysfspath, spath);
 	if (FPGA_OK != result)
 		return result;
 

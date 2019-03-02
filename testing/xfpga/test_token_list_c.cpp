@@ -55,20 +55,27 @@ class token_list_c_p : public ::testing::TestWithParam<std::string> {
     system_->prepare_syfs(platform_);
     ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
 
-    if (sysfs_device_count() > 0) {
-      const sysfs_fpga_device* device = sysfs_get_device(0);
-      ASSERT_NE(device, nullptr);
-      if (device->fme) {
-        sysfs_fme = std::string(device->fme->sysfs_path);
-
-        dev_fme = std::string("/dev/") + std::string(device->fme->sysfs_name);
-      }
-      if (device->port) {
-        sysfs_port = std::string(device->port->sysfs_path);
-
-        dev_port = std::string("/dev/") + std::string(device->port->sysfs_name);
+    ASSERT_GT(sysfs_device_count(), 0);
+    sysfs_fpga_region *fme = nullptr;
+    sysfs_fpga_region *port = nullptr;
+    if (sysfs_device_count() == 1 && platform_.devices[0].num_vfs == 0) {
+      fme = sysfs_get_device(0)->fme;
+      port = sysfs_get_device(0)->port;
+    } else if (sysfs_device_count() == 2 && platform_.devices[0].num_vfs > 0) {
+      fme = sysfs_get_device(0)->fme;
+      port = sysfs_get_device(1)->port;
+      if (!fme && !port) {
+        fme = sysfs_get_device(1)->fme;
+        port = sysfs_get_device(0)->port;
       }
     }
+    ASSERT_NE(fme, nullptr);
+    ASSERT_NE(port, nullptr);
+
+    sysfs_fme = std::string(fme->sysfs_path);
+    dev_fme = std::string("/dev/") + std::string(fme->sysfs_name);
+    sysfs_port = std::string(port->sysfs_path);
+    dev_port = std::string("/dev/") + std::string(port->sysfs_name);
   }
   virtual void TearDown() override {
     xfpga_plugin_finalize();
@@ -146,7 +153,7 @@ TEST_P(token_list_c_p, invalid_paths) {
 
   // invalidate malloc
 
-  test_system::instance()->invalidate_malloc();
+  test_system::instance()->invalidate_malloc(0, "token_add");
   fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
   ASSERT_EQ(fme, nullptr);
 }
