@@ -89,7 +89,7 @@ static sysfs_formats sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
 	 .sysfs_device_glob = "intel-fpga-dev.*",
 	 .sysfs_fme_glob = "intel-fpga-fme.*",
 	 .sysfs_port_glob = "intel-fpga-port.*",
-	 .sysfs_compat_id = "pr/interface_id"}};
+	 .sysfs_compat_id = "pr/interface_id"} };
 
 #define RE_DEVICE_GROUPS 3
 #define RE_DEVICE_GROUP_PREFIX 1
@@ -339,7 +339,7 @@ STATIC int find_regions(sysfs_fpga_device *device)
 	char type[8];
 	fpga_result res = FPGA_OK;
 	fpga_result match_res = FPGA_NOT_FOUND;
-	fpga_objtype region_type;
+	fpga_objtype region_type = FPGA_DEVICE;
 	sysfs_fpga_region **region_ptr = NULL;
 	struct dirent *dirent = NULL;
 	DIR *dir = opendir(device->sysfs_path);
