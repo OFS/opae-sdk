@@ -59,6 +59,7 @@ extern "C" {
   int opae_test_glob(const char *pattern, int flags,
                 int (*errfunc) (const char *epath, int eerrno),
                 glob_t *pglob);
+  char *opae_test_realpath(const char *inp, char *dst);
 
 #ifdef __cplusplus
 }
