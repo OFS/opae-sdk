@@ -945,7 +945,10 @@ def dc_vc_reconfigure(bdf, ld_path, boot_page):
     orig_aer = get_aer(upstream_bdf)
 
     set_aer(upstream_bdf, 0xffffffff, 0xffffffff)
+<<<<<<< HEAD
 
+=======
+>>>>>>> opae: tools: fix RSU failure in fpgaflash
 
     rm_path = os.path.join('/sys/bus/pci/devices', target_bdf, 'remove')
 
