@@ -46,6 +46,8 @@ fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid);
 sysfs_fpga_region* make_region(sysfs_fpga_device*, char*, int, fpga_objtype);
 int xfpga_plugin_initialize(void);
 int xfpga_plugin_finalize(void);
+fpga_result re_match_region(const char *fmt, char *inpstr, char type[], size_t,
+                            int *num);
 }
 
 #include <fstream>
@@ -959,3 +961,49 @@ TEST_P(sysfs_sockid_c_p, get_port_sysfs) {
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_sockid_c_p,
                        ::testing::ValuesIn(test_platform::platforms({"skx-p","dcp-rc"})));
+
+/**
+ * @test    match_region
+ * @details Given an input string that matches the format used<br>
+ *          by the kernel driver when making region (platform) devices.
+ *          When I call re_match_region with the input string
+ *          Then the return code is FPGA_OK
+ *          And the output parameters match the "fme" string portion<br>
+ *          and the number portion.
+ */
+TEST(sysfs_regex, match_region)
+{
+  const char *fmt = "intel-fpga-(fme|port)\\.([0-9]+)";
+  char buffer[8];
+  int num = -1;
+  char inpstr[] = "intel-fpga-fme.9";
+  EXPECT_EQ(re_match_region(fmt, inpstr, buffer, sizeof(buffer), &num),
+            FPGA_OK);
+  EXPECT_STREQ(buffer, "fme");
+  EXPECT_EQ(num, 9);
+}
+
+/**
+ * @test    match_region_neg
+ * @details Given an input string that does not match the format used<br>
+ *          by the kernel driver when making region (platform) devices.
+ *          When I call re_match_region with the input string or an invalid<br>
+ *          parameter
+ *          Then the return code is either FPGA_NOT_FOUND or FPGA_INVALID_PARAM
+ */
+TEST(sysfs_regex, match_region_neg)
+{
+  const char *fmt = "intel-fpga-(fme|port)\\.([0-9]+)";
+  char buffer[8];
+  int num = -1;
+  char badstr[] = "intel-fpga-abc.0";
+  EXPECT_EQ(re_match_region(fmt, badstr, buffer, sizeof(buffer), &num),
+            FPGA_NOT_FOUND);
+  EXPECT_EQ(re_match_region(nullptr, badstr, buffer, sizeof(buffer), &num),
+            FPGA_INVALID_PARAM);
+  EXPECT_EQ(re_match_region(fmt, nullptr, buffer, sizeof(buffer), &num),
+            FPGA_INVALID_PARAM);
+  EXPECT_EQ(re_match_region(fmt, badstr, nullptr, 0, &num), FPGA_INVALID_PARAM);
+  EXPECT_EQ(re_match_region(fmt, badstr, buffer, sizeof(buffer), nullptr),
+            FPGA_INVALID_PARAM);
+}
