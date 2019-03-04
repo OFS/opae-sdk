@@ -69,15 +69,32 @@ typedef struct _sysfs_formats {
 
 static sysfs_formats sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
 	// upstream driver sysfs formats
-	{"/sys/class/fpga_region", "region([0-9])+",
+	{"/sys/class/fpga_region", "(region)([0-9])+",
 	 "dfl-(fme|port)\\.([0-9]+)", "/dfl-fme-region.*/fpga_region/region*/compat_id"},
 	// intel driver sysfs formats
-	{"/sys/class/fpga", "intel-fpga-dev\\.([0-9]+)",
+	{"/sys/class/fpga", "(intel-fpga-dev\\.)([0-9]+)",
 	 "intel-fpga-(fme|port)\\.([0-9]+)", "pr/interface_id"} };
 
+// RE_MATCH_STRING is index 0 in a regex match array
+#define RE_MATCH_STRING 0
+// RE_DEVICE_GROUPS is the matching groups for the device regex in the
+// sysfs_path_table above.
+// Currently this only has three groups:
+// * The matching string itself - group 0
+// * The prefix (either 'region' or 'intel-fpga-dev.') - group 1
+// * The number - group 2
+// These indices are used when indexing a regex match object
 #define RE_DEVICE_GROUPS 3
 #define RE_DEVICE_GROUP_PREFIX 1
 #define RE_DEVICE_GROUP_NUM 2
+
+// RE_REGION_GROUPS is the matching groups for the region regex in the
+// sysfs_path_table above.
+// Currently this only has three groups:
+// * The matching string itself - group 0
+// * The type ('fme' or 'port') - gropu 1
+// * The number - group 2
+// These indices are used when indexing a regex match object
 #define RE_REGION_GROUPS 3
 #define RE_REGION_GROUP_TYPE 1
 #define RE_REGION_GROUP_NUM 2
@@ -222,6 +239,25 @@ STATIC sysfs_fpga_region *make_region(sysfs_fpga_device *device, char *name,
 	return region;
 }
 
+/**
+ * @brief Match a device node given a format pattern
+ *
+ * @param fmt A regex pattern for the device node
+ * @param inpstr A sysfs path to a potential device node
+ * @param(out) prefix[] A prefix string for the device node
+ * @param prefix_len capacity of prefix (max length)
+ * @param(out) num The sysfs number encoded in the name
+ *
+ * @note fmt is expected to be a regex pattern in our sysfs_format_table
+ *       Matching input strings could could look like:
+ *       * region0 where 'region' is the prefix and 0 is the num
+ *       * intel-fpga-dev.0 where 'intel-fpga-dev.' is the prefix and 0 is the
+ *       num
+ *
+ *
+ * @return FPGA_OK if a match is found, FPGA_NOT_FOUND it no match is found,
+ *         FPGA_EXCEPTION if an error is encountered
+ */
 STATIC fpga_result re_match_device(const char *fmt, char *inpstr, char prefix[],
 				   size_t prefix_len, int *num)
 {
@@ -240,35 +276,54 @@ STATIC fpga_result re_match_device(const char *fmt, char *inpstr, char prefix[],
 	reg_res = regcomp(&re, fmt, REG_EXTENDED);
 	if (reg_res) {
 		regerror(reg_res, &re, err, sizeof(err));
-		FPGA_MSG("Error compiling regex: %s", err);
+		FPGA_ERR("Error compiling regex: %s", err);
 		return FPGA_EXCEPTION;
 	}
 	reg_res = regexec(&re, inpstr, RE_DEVICE_GROUPS, matches, 0);
-	if (!reg_res) {
-		ptr = inpstr + matches[RE_DEVICE_GROUP_PREFIX].rm_so;
-		end = inpstr + matches[RE_DEVICE_GROUP_PREFIX].rm_eo;
-		if (strncpy_s(prefix, prefix_len, ptr, end - ptr)) {
-			FPGA_MSG("Error copying prefix from string: %s",
-				 inpstr);
-			goto out_free;
-		}
-		*(prefix + (ptr - end)) = '\0';
-		ptr = inpstr + matches[RE_DEVICE_GROUP_NUM].rm_so;
-		errno = 0;
-		*num = strtoul(ptr, NULL, 10);
-		if (errno) {
-			FPGA_MSG("Error parsing number: %s", inpstr);
-			goto out_free;
-		}
-		res = FPGA_OK;
-	} else {
-		res = FPGA_NOT_FOUND;
+	if (reg_res) {
+		return FPGA_NOT_FOUND;
 	}
+
+	ptr = inpstr + matches[RE_DEVICE_GROUP_PREFIX].rm_so;
+	end = inpstr + matches[RE_DEVICE_GROUP_PREFIX].rm_eo;
+	if (strncpy_s(prefix, prefix_len, ptr, end - ptr)) {
+		FPGA_ERR("Error copying prefix from string: %s", inpstr);
+		goto out_free;
+	}
+	*(prefix + (ptr - end)) = '\0';
+	ptr = inpstr + matches[RE_DEVICE_GROUP_NUM].rm_so;
+	errno = 0;
+	*num = strtoul(ptr, NULL, 10);
+	if (errno) {
+		FPGA_ERR("Error parsing number: %s", inpstr);
+		goto out_free;
+	}
+	res = FPGA_OK;
 out_free:
 	regfree(&re);
 	return res;
 }
 
+/**
+ * @brief Match a device node given a format pattern
+ *
+ * @param fmt A regex pattern for the device node
+ * @param inpstr A sysfs path to a potential device node
+ * @param(out) type[] A type string for the device node
+ * @param type_len capacity of type (max length)
+ * @param(out) num The sysfs number encoded in the name
+ *
+ * @note fmt is expected to be a regex pattern in our sysfs_format_table
+ *       Matching input strings could could look like:
+ *       * dfl-fme.0 where 'fme' is the type and 0 is the num
+ *       * dfl-port.1 where 'port' is the type and 1 is the num
+ *       * intel-fpga-fme.0 where 'fme' is the type and 0 is the num
+ *       * intel-fpga-port.1 where 'port' is the type and 1 is the num
+ *
+ *
+ * @return FPGA_OK if a match is found, FPGA_NOT_FOUND it no match is found,
+ *         FPGA_EXCEPTION if an error is encountered
+ */
 STATIC fpga_result re_match_region(const char *fmt, char *inpstr, char type[],
 				   size_t type_len, int *num)
 {
@@ -287,30 +342,29 @@ STATIC fpga_result re_match_region(const char *fmt, char *inpstr, char type[],
 	reg_res = regcomp(&re, fmt, REG_EXTENDED);
 	if (reg_res) {
 		regerror(reg_res, &re, err, sizeof(err));
-		FPGA_MSG("Error compiling regex: %s", err);
+		FPGA_ERR("Error compiling regex: %s", err);
 		return FPGA_EXCEPTION;
 	}
 	reg_res = regexec(&re, inpstr, RE_REGION_GROUPS, matches, 0);
-	if (!reg_res) {
-		ptr = inpstr + matches[RE_REGION_GROUP_TYPE].rm_so;
-		end = inpstr + matches[RE_REGION_GROUP_TYPE].rm_eo;
-		if (strncpy_s(type, type_len, ptr, end-ptr)) {
-			FPGA_MSG("Error copying type from string: %s", inpstr);
-			goto out_free;
-
-		}
-		*(type + (ptr - end)) = '\0';
-		ptr = inpstr + matches[RE_REGION_GROUP_NUM].rm_so;
-		errno = 0;
-		*num = strtoul(ptr, NULL, 10);
-		if (errno) {
-			FPGA_MSG("Error parsing number: %s", inpstr);
-			goto out_free;
-		}
-		res = FPGA_OK;
-	} else {
-		res = FPGA_NOT_FOUND;
+	if (reg_res) {
+		goto out_free;
 	}
+
+	ptr = inpstr + matches[RE_REGION_GROUP_TYPE].rm_so;
+	end = inpstr + matches[RE_REGION_GROUP_TYPE].rm_eo;
+	if (strncpy_s(type, type_len, ptr, end - ptr)) {
+		FPGA_ERR("Error copying type from string: %s", inpstr);
+		goto out_free;
+	}
+	*(type + (ptr - end)) = '\0';
+	ptr = inpstr + matches[RE_REGION_GROUP_NUM].rm_so;
+	errno = 0;
+	*num = strtoul(ptr, NULL, 10);
+	if (errno) {
+		FPGA_ERR("Error parsing number: %s", inpstr);
+		goto out_free;
+	}
+	res = FPGA_OK;
 out_free:
 	regfree(&re);
 	return res;
@@ -328,7 +382,7 @@ STATIC int find_regions(sysfs_fpga_device *device)
 	struct dirent *dirent = NULL;
 	DIR *dir = opendir(device->sysfs_path);
 	if (!dir) {
-		FPGA_MSG("failed to open device path: %s", device->sysfs_path);
+		FPGA_ERR("failed to open device path: %s", device->sysfs_path);
 		return FPGA_EXCEPTION;
 	}
 
@@ -363,7 +417,7 @@ STATIC int find_regions(sysfs_fpga_device *device)
 	if (dir)
 		closedir(dir);
 	if (!device->fme && !device->port) {
-		FPGA_MSG("did not find fme/port in device: %s", device->sysfs_path);
+		FPGA_ERR("did not find fme/port in device: %s", device->sysfs_path);
 		return FPGA_NOT_FOUND;
 	}
 
