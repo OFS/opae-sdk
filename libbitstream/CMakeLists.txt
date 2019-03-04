@@ -28,6 +28,8 @@ project(libbitstream)
 
 set(SRC
     bitstream.c
+    bits_utils.c
+    metadatav1.c
     )
 
 add_library(bitstream SHARED ${SRC})

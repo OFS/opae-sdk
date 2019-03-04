@@ -29,6 +29,8 @@ target_include_directories(opae-c-static PUBLIC
 
 add_library(bitstream-static
     ${OPAE_SDK_SOURCE}/libbitstream/bitstream.c
+    ${OPAE_SDK_SOURCE}/libbitstream/bits_utils.c
+    ${OPAE_SDK_SOURCE}/libbitstream/metadatav1.c
     )
 target_include_directories(bitstream-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
@@ -434,6 +436,14 @@ add_dependencies(test_opae_pluginmgr_c dummy_plugin)
 
 add_unit_test(test_bitstream_bitstream_c bitstream-static
     bitstream/test_bitstream_c.cpp
+)
+
+add_unit_test(test_bitstream_bits_utils_c bitstream-static
+    bitstream/test_bits_utils_c.cpp
+)
+
+add_unit_test(test_bitstream_metadatav1_c bitstream-static
+    bitstream/test_metadatav1_c.cpp
 )
 
 ############################################################################
