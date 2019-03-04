@@ -92,7 +92,7 @@ static sysfs_formats sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
 // sysfs_path_table above.
 // Currently this only has three groups:
 // * The matching string itself - group 0
-// * The type ('fme' or 'port') - gropu 1
+// * The type ('fme' or 'port') - group 1
 // * The number - group 2
 // These indices are used when indexing a regex match object
 #define RE_REGION_GROUPS 3
