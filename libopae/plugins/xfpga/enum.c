@@ -423,7 +423,7 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	uint64_t value = 0;
 	// Make sure it's a directory.
 	if (stat(sysfspath, &stats) != 0) {
-		FPGA_MSG("stat failed: %s", strerror(errno));
+		FPGA_ERR("stat failed: %s", strerror(errno));
 		return FPGA_NOT_FOUND;
 	}
 
@@ -435,7 +435,7 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 
 	pdev = add_dev(sysfspath, dpath, parent);
 	if (!pdev) {
-		FPGA_MSG("Failed to allocate device");
+		FPGA_ERR("Failed to allocate device");
 		return FPGA_NO_MEMORY;
 	}
 

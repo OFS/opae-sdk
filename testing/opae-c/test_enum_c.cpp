@@ -279,12 +279,14 @@ TEST_P(enum_c_p, function) {
       FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumFpgas() * (device.num_vfs == 0 ? 2 : 1));
   num_matches_ = 0;
+  DestroyTokens();
   for (int i = 1; i < device.num_vfs+1; ++i) {
     ASSERT_EQ(fpgaPropertiesSetFunction(filter_, i), FPGA_OK);
     EXPECT_EQ(
         fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
         FPGA_OK);
     EXPECT_EQ(num_matches_, 1);
+    DestroyTokens();
   }
 }
 

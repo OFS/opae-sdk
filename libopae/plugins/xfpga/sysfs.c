@@ -612,7 +612,19 @@ int sysfs_filter(const struct dirent *de)
 	return de->d_name[0] != '.';
 }
 
-fpga_result sysfs_get_fme_path(const char *rpath, char *sysfs_fme)
+
+/**
+ * @brief Get a path to an fme node given a path to a port node
+ *
+ * @param sysfs_port sysfs path to a port node
+ * @param(out) sysfs_fme realpath to an fme node in sysfs
+ *
+ * @return FPGA_OK if able to find the path to the fme
+ *         FPGA_EXCEPTION if errors encountered during copying,
+ *         formatting strings
+ *         FPGA_NOT_FOUND if unable to find fme path or any relevant paths
+ */
+fpga_result sysfs_get_fme_path(const char *sysfs_port, char *sysfs_fme)
 {
 	fpga_result result = FPGA_EXCEPTION;
 	char sysfs_path[SYSFS_PATH_MAX]   = {0};
@@ -625,10 +637,10 @@ fpga_result sysfs_get_fme_path(const char *rpath, char *sysfs_fme)
 	int i = 0;
 
 	// now try globbing fme resource sysfs path + a candidate
-	// rpath is expected to be the sysfs path to a port
+	// sysfs_port is expected to be the sysfs path to a port
 	for (; fpga_globs[i]; ++i) {
 		if (snprintf_s_ss(sysfs_path, SYSFS_PATH_MAX, "%s/../%s",
-				  rpath, fpga_globs[i])
+				  sysfs_port, fpga_globs[i])
 		    < 0) {
 			FPGA_ERR("Error formatting sysfs path");
 			return FPGA_EXCEPTION;
@@ -644,14 +656,14 @@ fpga_result sysfs_get_fme_path(const char *rpath, char *sysfs_fme)
 
 	if (!fpga_globs[i]) {
 		FPGA_ERR("Could not find path to port device/fpga*");
-		return FPGA_EXCEPTION;
+		return FPGA_NOT_FOUND;
 	}
 
 
 	// format a string to look for in the subdirectory of the "fpga*" node
 	// this subdirectory should include glob patterns for the current
 	// driver
-	// -- inte-fgga-dev.*/intel-fpga-fme.*
+	// -- intel-fgga-dev.*/intel-fpga-fme.*
 	// -- region*/dfl-fme.*
 	if (snprintf_s_ss(fpga_path, SYSFS_PATH_MAX, "/%s/%s",
 			  SYSFS_FORMAT(sysfs_device_glob),
@@ -1184,7 +1196,17 @@ fpga_result sysfs_get_bitstream_id(int dev, int subdev, uint64_t *id)
 	return sysfs_read_u64(spath, id);
 }
 
-// Get port syfs path
+/**
+ * @brief Get a path to a port node given a handle to an resource
+ *
+ * @param handle Open handle to an fme resource (FPGA_DEVICE)
+ * @param(out) sysfs_port realpath to a port node in sysfs
+ *
+ * @return FPGA_OK if able to find the path to the port
+ *         FPGA_EXCEPTION if errors encountered during copying,
+ *         formatting strings
+ *         FPGA_NOT_FOUND if unable to find fme path or any relevant paths
+ */
 fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 {
 
@@ -1245,7 +1267,7 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 	// format a string to look for in the subdirectory of the "fpga*" node
 	// this subdirectory should include glob patterns for the current
 	// driver
-	// -- inte-fgga-dev.*/intel-fpga-port.*
+	// -- intel-fgga-dev.*/intel-fpga-port.*
 	// -- region*/dfl-port.*
 	if (snprintf_s_ss(fpga_path, SYSFS_PATH_MAX, "/%s/%s",
 			  SYSFS_FORMAT(sysfs_device_glob),
