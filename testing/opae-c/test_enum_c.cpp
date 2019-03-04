@@ -332,7 +332,7 @@ TEST_P(enum_c_p, device_id) {
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumDeviceID() * (device.num_vfs == 0 ? 2 : 1));
-
+  DestroyTokens();
   num_matches_ = 0;
   for (int i = 1; i < device.num_vfs+1; ++i) {
     ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, device.device_id+i), FPGA_OK);
@@ -340,6 +340,7 @@ TEST_P(enum_c_p, device_id) {
         fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
         FPGA_OK);
     EXPECT_EQ(num_matches_, 1);
+    DestroyTokens();
   }
 }
 

@@ -445,6 +445,7 @@ TEST_P(enum_c_p, device_id) {
       xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
   EXPECT_EQ(num_matches_, platform_.devices.size() * 2 - device.num_vfs);
+  DestroyTokens();
 
   for (int i = 0; i < device.num_vfs; ++i) {
     num_matches_ = 0;
@@ -453,6 +454,7 @@ TEST_P(enum_c_p, device_id) {
                                   &num_matches_),
               FPGA_OK);
     EXPECT_EQ(num_matches_, 1);
+    DestroyTokens();
   }
 }
 

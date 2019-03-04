@@ -663,7 +663,7 @@ fpga_result sysfs_get_fme_path(const char *sysfs_port, char *sysfs_fme)
 	// format a string to look for in the subdirectory of the "fpga*" node
 	// this subdirectory should include glob patterns for the current
 	// driver
-	// -- intel-fgga-dev.*/intel-fpga-fme.*
+	// -- intel-fpga-dev.*/intel-fpga-fme.*
 	// -- region*/dfl-fme.*
 	if (snprintf_s_ss(fpga_path, SYSFS_PATH_MAX, "/%s/%s",
 			  SYSFS_FORMAT(sysfs_device_glob),
