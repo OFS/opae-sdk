@@ -347,6 +347,7 @@ STATIC fpga_result re_match_region(const char *fmt, char *inpstr, char type[],
 	}
 	reg_res = regexec(&re, inpstr, RE_REGION_GROUPS, matches, 0);
 	if (reg_res) {
+		res = FPGA_NOT_FOUND;
 		goto out_free;
 	}
 
