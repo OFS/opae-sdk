@@ -272,6 +272,8 @@ TEST_P(fpgad_config_file_c_p, load6) {
 
   write_cfg(cfg);
 
+  std::system("rm -rf bar");
+
   ASSERT_EQ(mkdir("bar", 0755), 0);
   std::string s = std::string("../") + std::string(cfg_file_);
   ASSERT_EQ(symlink(s.c_str(), "bar/liba.so"), 0);
