@@ -658,7 +658,7 @@ Specify the environment variable ```ASE_WORKDIR``` Terminal 1.
 
 You can close Terminal 1 ```make sim```by issuing a ```SIGTERM``` to the relevant ```ase_simv``` process or by typing  ```CTRL-C```.
 
-* Terminal: First set the environment variable ```ASE_WORKDIR``` as specified in Terminal 1. In this example ```ASE_WORKDIR```
+* Terminal 2: First set the environment variable ```ASE_WORKDIR``` as specified in Terminal 1. In this example ```ASE_WORKDIR```
 is set to ```/tmp/opae/ase/work```.  Then, start the software application.
 
 ```{.bash}
@@ -669,6 +669,10 @@ is set to ```/tmp/opae/ase/work```.  Then, start the software application.
     # Run the application
     $ export LD_LIBRARY_PATH=/tmp/opae/myinst/lib/
     $ LD_PRELOAD=libopae-c-ase.so ./hello_fpga
+
+    # Run the application through with ```with_ase``` instead of ```LD_PRELOAD```
+    $ with_ase ./hello_fpga
+
 
 ```
 
