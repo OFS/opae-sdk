@@ -65,9 +65,8 @@ parse_fpgainfo_output() {
          fi 
          ;;
     *"phy"*)
-         if [[ $2 =~ "Port0" && $2 =~ "Port1" && $2 =~ "Port2" && 
-               $2 =~ "Port3" && $2 =~ "Port4" && $2 =~ "Port5" && 
-               $2 =~ "Port6" && $2 =~ "Port7" ]]; then
+         if [[ $2 =~ "PHY GROUP 0" && $2 =~ "PHY GROUP 1" && $2 =~ "PKVL" && 
+               $2 =~ "Port0" && $2 =~ "Port1" ]]; then
              parse_ec=0
          else
              parse_ec=1
@@ -129,10 +128,6 @@ tool_tests=(
 "fpgalpbk -G 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --side=line --direction=local --disable"
 "fpgalpbk -G 9AEFFE5F-8457-0612-C000-C9660D824272 -I 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --side=line --direction=local --enable"
 "fpgalpbk -G 9AEFFE5F-8457-0612-C000-C9660D824272 -I 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --side=line --direction=local --disable"
-"fpgalpbk -G 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --side=line --direction=remote --type=postcdr --enable"
-"fpgalpbk -G 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --side=line --direction=remote --type=postcdr --disable"
-"fpgalpbk -G 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --side=host --direction=local --type=precdr --enable"
-"fpgalpbk -G 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --side=host --direction=local --type=precdr --disable"
 "fpgalpbk -G 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --side=host --direction=remote --enable"
 "fpgalpbk -G 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --side=host --direction=remote --disable"
 "fpga_dma_test 0 -G 9AEFFE5F-8457-0612-C000-C9660D824272 -D 0 -S 0x100000000"
