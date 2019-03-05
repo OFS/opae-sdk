@@ -85,16 +85,10 @@ class sysfsinit_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_GT(sysfs_device_count(), 0);
     sysfs_fpga_region *fme = nullptr;
     sysfs_fpga_region *port = nullptr;
-    if (sysfs_device_count() == 1 && platform_.devices[0].num_vfs == 0) {
-      fme = sysfs_get_device(0)->fme;
-      port = sysfs_get_device(0)->port;
-    } else if (sysfs_device_count() == 2 && platform_.devices[0].num_vfs > 0) {
-      fme = sysfs_get_device(0)->fme;
-      port = sysfs_get_device(1)->port;
-      if (!fme && !port) {
-        fme = sysfs_get_device(1)->fme;
-        port = sysfs_get_device(0)->port;
-      }
+    for (int i = 0; i < sysfs_device_count(); ++i) {
+      fme = (fme == nullptr) ? sysfs_get_device(i)->fme : fme;
+      port = (port == nullptr) ? sysfs_get_device(i)->port : port;
+      if (fme && port) break;
     }
     ASSERT_NE(fme, nullptr);
     ASSERT_NE(port, nullptr);
