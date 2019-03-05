@@ -35,6 +35,12 @@
 #include <iomanip>
 #include <sstream>
 
+#define VC_25G_BBS_ID 0x2000000200000000
+#define VC_10G_BBS_ID 0x2019011800000001
+#define DCP_FPGA_BBS_VER_MAJOR(i) (((i) >> 60) & 0xf)
+#define DCP_FPGA_BBS_VER_MINOR(i) (((i) >> 56) & 0xf)
+#define DCP_FPGA_BBS_VER_PATCH(i) (((i) >> 52) & 0xf)
+
 namespace opae {
 namespace testing {
 
@@ -285,7 +291,7 @@ static T parse_file(const std::string &path) {
   std::string value_string;
   T value;
   df >> value_string;
-  value = std::stoi(value_string, nullptr, 0);
+  value = std::stol(value_string, nullptr, 0);
   return value;
 }
 
@@ -372,6 +378,17 @@ static uint16_t read_vendor_id(const std::string &pci_dir) {
   return parse_file<uint16_t>(device_path);
 }
 
+static uint64_t read_bitstream_id(const std::string &pci_dir) {
+  std::string device_path = pci_dir + "/fpga/intel-fpga-dev.0/intel-fpga-fme.0/bitstream_id";
+  struct stat st;
+
+  if (stat(device_path.c_str(), &st)) {
+    std::cerr << std::string("WARNING: stat:") + device_path <<  ":" << strerror(errno) << "\n";
+    return 0;
+  }
+  return parse_file<uint64_t>(device_path);
+}
+
 int filter_fpga(const struct dirent *ent) {
   std::string ename(ent->d_name);
   if (ename[0] == '.') {
@@ -446,6 +463,18 @@ test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &pla
 
     std::string device_string = make_path(dev.segment, dev.bus, dev.device, dev.function);
     dev.socket_id = read_socket_id(device_string);
+
+    // If the device is vista creek, accept both 25g and 10g bbs id.
+    if (dev_id == MOCK_PLATFORMS["dcp-vc"].devices[0].device_id) {
+      uint64_t bitstream_id = read_bitstream_id(pci_path);
+      // Expect 25g or 10g bitstream ids only.
+      if (bitstream_id == VC_25G_BBS_ID || bitstream_id == VC_10G_BBS_ID) {
+        dev.bbs_id = bitstream_id;
+        dev.bbs_version = {(uint8_t)DCP_FPGA_BBS_VER_MAJOR(bitstream_id),
+                           (uint8_t)DCP_FPGA_BBS_VER_MINOR(bitstream_id),
+                           (uint16_t)DCP_FPGA_BBS_VER_PATCH(bitstream_id)};
+      }
+    }
   } else {
     std::cerr << "error matching pci dev pattern (" << pci_path << ")\n";
   }
