@@ -88,7 +88,8 @@ add_library(xfpga-static STATIC
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/metrics_utils.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/afu_metrics.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/metrics.c
-              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/vector.c)
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/vector.c
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/threshold.c)
 
 target_include_directories(xfpga-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
@@ -588,6 +589,16 @@ add_unit_test(test_xfpga_metrics_c xfpga-static
 add_unit_test(test_xfpga_bmc_c xfpga-static
     xfpga/test_bmc_c.cpp
 )
+
+add_unit_test(test_xfpga_max10_c xfpga-static
+    xfpga/test_metrics_max10_c.cpp
+)
+
+add_unit_test(test_xfpga_threshold_c xfpga-static
+    xfpga/test_thresold_c.cpp
+)
+
+
 target_link_libraries(test_xfpga_bmc_c
     safestr
     bmc-static
