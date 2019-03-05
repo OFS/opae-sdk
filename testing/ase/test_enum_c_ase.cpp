@@ -105,6 +105,8 @@ TEST_F(enum_c_ase_p, nullfilter) {
  *
  * @brief      When the uint32_t *num_matches parameter to fpgaEnumerate is nullptr, the
  *             function returns FPGA_INVALID_PARAM.
+ *             If the fpga_properties *filters parameter is not null, but the num_filters
+ *             is zero, the function returns FPGA_INVALID_PARAM.
  */
 TEST_F(enum_c_ase_p, nullmatches) {
   uint32_t matches = 0;
