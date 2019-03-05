@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -349,6 +349,8 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 	char dpath[DEV_PATH_MAX];
 	int resval                = 0;
 	uint64_t value            = 0;
+	enum fpga_hw_type hw_type = FPGA_HW_UNKNOWN;
+
 	// Make sure it's a directory.
 	if (stat(sysfspath, &stats) != 0) {
 		FPGA_MSG("stat failed: %s", strerror(errno));
@@ -357,7 +359,6 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 
 	if (!S_ISDIR(stats.st_mode))
 		return FPGA_OK;
-
 
 	snprintf_s_s(dpath, sizeof(dpath), FPGA_DEV_PATH "/%s", name);
 
@@ -406,13 +407,23 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 		return FPGA_NOT_FOUND;
 	}
 
-	pdev->fpga_bbs_version.major =
-		FPGA_BBS_VER_MAJOR(pdev->fpga_bitstream_id);
-	pdev->fpga_bbs_version.minor =
-		FPGA_BBS_VER_MINOR(pdev->fpga_bitstream_id);
-	pdev->fpga_bbs_version.patch =
-		FPGA_BBS_VER_PATCH(pdev->fpga_bitstream_id);
+	hw_type = opae_id_to_hw_type(pdev->vendor_id, pdev->device_id);
 
+	if (hw_type == FPGA_HW_MCP) {
+		pdev->fpga_bbs_version.major =
+			MCP_FPGA_BBS_VER_MAJOR(pdev->fpga_bitstream_id);
+		pdev->fpga_bbs_version.minor =
+			MCP_FPGA_BBS_VER_MINOR(pdev->fpga_bitstream_id);
+		pdev->fpga_bbs_version.patch =
+			MCP_FPGA_BBS_VER_PATCH(pdev->fpga_bitstream_id);
+	} else {
+		pdev->fpga_bbs_version.major =
+			DCP_FPGA_BBS_VER_MAJOR(pdev->fpga_bitstream_id);
+		pdev->fpga_bbs_version.minor =
+			DCP_FPGA_BBS_VER_MINOR(pdev->fpga_bitstream_id);
+		pdev->fpga_bbs_version.patch =
+			DCP_FPGA_BBS_VER_PATCH(pdev->fpga_bitstream_id);
+	}
 
 	parent->fme = pdev;
 	return FPGA_OK;
@@ -481,69 +492,57 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	return FPGA_OK;
 }
 
+typedef struct _enum_region_ctx{
+	struct dev_list *list;
+	bool include_port;
+} enum_region_ctx;
+
+STATIC fpga_result enum_regions(const sysfs_fpga_device *device, void *context)
+{
+	enum_region_ctx *ctx = (enum_region_ctx *)context;
+	fpga_result result = FPGA_OK;
+	struct dev_list *pdev = add_dev(device->sysfs_path, "", ctx->list);
+	if (!pdev) {
+		FPGA_MSG("Failed to allocate device");
+		return FPGA_NO_MEMORY;
+	}
+	// Assign bus, function, device
+	// segment,device_id ,vendor_id
+	pdev->function = device->function;
+	pdev->segment = device->segment;
+	pdev->bus = device->bus;
+	pdev->device = device->device;
+	pdev->device_id = device->device_id;
+	pdev->vendor_id = device->vendor_id;
+
+	// Enum fme
+	if (device->fme) {
+		result = enum_fme(device->fme->sysfs_path,
+				  device->fme->sysfs_name, pdev);
+		if (result != FPGA_OK) {
+			FPGA_ERR("Failed to enum FME");
+			return result;
+		}
+	}
+
+	// Enum port
+	if (device->port && ctx->include_port) {
+		result = enum_afu(device->port->sysfs_path,
+				  device->port->sysfs_name, pdev);
+		if (result != FPGA_OK) {
+			FPGA_ERR("Failed to enum PORT");
+			return result;
+		}
+	}
+	return FPGA_OK;
+}
 
 STATIC fpga_result enum_fpga_region_resources(struct dev_list *list,
 				bool include_port)
 {
-	fpga_result result                 = FPGA_NOT_FOUND;
-	struct dev_list *pdev              = NULL;
-	int i                              = 0;
-	int region_count                   = 0 ;
-	const sysfs_fpga_region *region    = NULL;
+	enum_region_ctx ctx = {.list = list, .include_port = include_port};
 
-	region_count = sysfs_region_count();
-
-	if (region_count <= 0) {
-		FPGA_MSG("Not found fpga region's");
-		return FPGA_NO_DRIVER;
-	}
-
-	for (i = 0; i < region_count; i++) {
-
-		region  = sysfs_get_region(i);
-
-		if (!region) {
-			FPGA_MSG("failed to enum region");
-			return FPGA_NO_DRIVER;
-		}
-
-		pdev = add_dev(region->region_path, "", list);
-		if (!pdev) {
-			FPGA_MSG("Failed to allocate device");
-			return FPGA_NO_MEMORY;
-		}
-		// Assign bus, function, device
-		// segment,device_id ,vendor_id
-		pdev->function       = region->function;
-		pdev->segment        = region->segment;
-		pdev->bus            = region->bus;
-		pdev->device         = region->device;
-		pdev->device_id      = region->device_id;
-		pdev->vendor_id      = region->vendor_id;
-
-		// Enum fme
-		if (region->fme) {
-			result = enum_fme(region->fme->res_path,
-							region->fme->res_name, pdev);
-			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to enum FME");
-				break;
-			}
-		}
-
-		// Enum port
-		if (region->port && include_port) {
-			result = enum_afu(region->port->res_path,
-				region->port->res_name, pdev);
-			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to enum PORT");
-				break;
-			}
-		}
-
-	} // end of region loop
-
-	return result;
+	return sysfs_foreach_device(enum_regions, &ctx);
 }
 
 

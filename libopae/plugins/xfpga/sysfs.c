@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -62,8 +62,8 @@
 
 typedef struct _sysfs_formats {
 	const char *sysfs_class_path;
+	const char *sysfs_device_fmt;
 	const char *sysfs_region_fmt;
-	const char *sysfs_resource_fmt;
 	const char *sysfs_compat_id;
 } sysfs_formats;
 
@@ -76,15 +76,15 @@ static sysfs_formats sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
 	 "intel-fpga-(fme|port)\\.([0-9]+)", "pr/interface_id"} };
 
 static sysfs_formats *_sysfs_format_ptr;
-static uint32_t _sysfs_region_count;
-/* mutex to protect sysfs region data structures */
-pthread_mutex_t _sysfs_region_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+static uint32_t _sysfs_device_count;
+/* mutex to protect sysfs device data structures */
+pthread_mutex_t _sysfs_device_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 #define SYSFS_FORMAT(s) (_sysfs_format_ptr ? _sysfs_format_ptr->s : NULL)
 
 
-#define SYSFS_MAX_REGIONS 128
-static sysfs_fpga_region _regions[SYSFS_MAX_REGIONS];
+#define SYSFS_MAX_DEVICES 128
+static sysfs_fpga_device _devices[SYSFS_MAX_DEVICES];
 
 #define PCIE_PATH_PATTERN "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([0-9])/fpga"
 #define PCIE_PATH_PATTERN_GROUPS 5
@@ -99,7 +99,7 @@ static sysfs_fpga_region _regions[SYSFS_MAX_REGIONS];
 		}                                                              \
 	} while (0);
 
-STATIC int parse_pcie_info(sysfs_fpga_region *region, char *buffer)
+STATIC int parse_pcie_info(sysfs_fpga_device *device, char *buffer)
 {
 	char err[128] = {0};
 	regex_t re;
@@ -118,10 +118,10 @@ STATIC int parse_pcie_info(sysfs_fpga_region *region, char *buffer)
 		res = FPGA_EXCEPTION;
 		goto out;
 	} else {
-		PARSE_MATCH_INT(buffer, matches[1], region->segment, 16, out);
-		PARSE_MATCH_INT(buffer, matches[2], region->bus, 16, out);
-		PARSE_MATCH_INT(buffer, matches[3], region->device, 16, out);
-		PARSE_MATCH_INT(buffer, matches[4], region->function, 10, out);
+		PARSE_MATCH_INT(buffer, matches[1], device->segment, 16, out);
+		PARSE_MATCH_INT(buffer, matches[2], device->bus, 16, out);
+		PARSE_MATCH_INT(buffer, matches[3], device->device, 16, out);
+		PARSE_MATCH_INT(buffer, matches[4], device->function, 10, out);
 	}
 	res = FPGA_OK;
 
@@ -163,65 +163,59 @@ int sysfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *v
 	return FPGA_OK;
 }
 
-STATIC int parse_device_vendor_id(sysfs_fpga_region *region)
+STATIC int parse_device_vendor_id(sysfs_fpga_device *device)
 {
 	uint64_t value = 0;
-	int res = sysfs_parse_attribute64(region->region_path, "device/device", &value);
+	int res = sysfs_parse_attribute64(device->sysfs_path, "device/device", &value);
 	if (res) {
-		FPGA_MSG("Error parsing device_id for region: %s",
-			 region->region_path);
+		FPGA_MSG("Error parsing device_id for device: %s",
+			 device->sysfs_path);
 		return res;
 	}
-	region->device_id = value;
+	device->device_id = value;
 
-	res = sysfs_parse_attribute64(region->region_path, "device/vendor", &value);
+	res = sysfs_parse_attribute64(device->sysfs_path, "device/vendor", &value);
 
 	if (res) {
-		FPGA_ERR("Error parsing vendor_id for region: %s",
-			 region->region_path);
+		FPGA_ERR("Error parsing vendor_id for device: %s",
+			 device->sysfs_path);
 		return res;
 	}
-	region->vendor_id = value;
+	device->vendor_id = value;
 
 	return FPGA_OK;
 }
 
-STATIC sysfs_fpga_resource *make_resource(sysfs_fpga_region *region, char *name,
-					  int num, fpga_objtype type)
+STATIC sysfs_fpga_region *make_region(sysfs_fpga_device *device, char *name,
+				      int num, fpga_objtype type)
 {
-	sysfs_fpga_resource *resource = malloc(sizeof(sysfs_fpga_resource));
-	if (resource == NULL) {
-		FPGA_ERR("error creating resource");
+	sysfs_fpga_region *region = malloc(sizeof(sysfs_fpga_region));
+	if (region == NULL) {
+		FPGA_ERR("error creating region");
 		return NULL;
 	}
-	resource->region = region;
-	resource->type = type;
-	resource->num = num;
-	// copy the full path to the parent region object
-	strcpy_s(resource->res_path, SYSFS_PATH_MAX, region->region_path);
-	// add a trailing path seperator '/'
-	int len = strlen(resource->res_path);
-	char *ptr = resource->res_path + len;
-	*ptr = '/';
-	ptr++;
-	*ptr = '\0';
-	// append the name to get the full path to the resource
-	if (cat_sysfs_path(resource->res_path, name)) {
-		FPGA_ERR("error concatenating path");
-		free(resource);
+	region->device = device;
+	region->type = type;
+	region->number = num;
+	// sysfs path of region is sysfs path of device + / + name
+	if (snprintf_s_ss(region->sysfs_path, sizeof(region->sysfs_path),
+			  "%s/%s", device->sysfs_path, name)
+	    < 0) {
+		FPGA_ERR("error formatting path");
+		free(region);
 		return NULL;
 	}
 
-	if (snprintf_s_s(resource->res_name, SYSFS_PATH_MAX, "%s", name) < 0) {
-		FPGA_ERR("Error formatting sysfs name");
-		free(resource);
+	if (strcpy_s(region->sysfs_name, sizeof(region->sysfs_name),  name)) {
+		FPGA_ERR("Error copying sysfs name");
+		free(region);
 		return NULL;
 	}
 
-	return resource;
+	return region;
 }
 
-STATIC int find_resources(sysfs_fpga_region *region)
+STATIC int find_regions(sysfs_fpga_device *device)
 {
 	DIR *dir = NULL;
 	struct dirent *dirent = NULL;
@@ -231,9 +225,9 @@ STATIC int find_resources(sysfs_fpga_region *region)
 	char err[128] = {0};
 	regmatch_t matches[SYSFS_MAX_RESOURCES];
 
-	if (SYSFS_FORMAT(sysfs_resource_fmt)) {
+	if (SYSFS_FORMAT(sysfs_region_fmt)) {
 
-		reg_res = regcomp(&re, SYSFS_FORMAT(sysfs_resource_fmt), REG_EXTENDED);
+		reg_res = regcomp(&re, SYSFS_FORMAT(sysfs_region_fmt), REG_EXTENDED);
 		if (reg_res) {
 			regerror(reg_res, &re, err, 128);
 			FPGA_MSG("Error compiling regex: %s", err);
@@ -241,9 +235,9 @@ STATIC int find_resources(sysfs_fpga_region *region)
 		}
 	}
 
-	dir = opendir(region->region_path);
+	dir = opendir(device->sysfs_path);
 	if (!dir) {
-		FPGA_MSG("failed to open region path: %s", region->region_path);
+		FPGA_MSG("failed to open device path: %s", device->sysfs_path);
 		regfree(&re);
 		return FPGA_EXCEPTION;
 	}
@@ -267,14 +261,15 @@ STATIC int find_resources(sysfs_fpga_region *region)
 			num = strtoul(dirent->d_name + num_beg, NULL, 10);
 			if (!strncmp(FPGA_SYSFS_FME, dirent->d_name + type_beg,
 				     FPGA_SYSFS_FME_LEN)) {
-				region->fme = make_resource(
-					region, dirent->d_name, num, FPGA_DEVICE);
+				device->fme =
+					make_region(device, dirent->d_name, num,
+						    FPGA_DEVICE);
 			} else if (!strncmp(FPGA_SYSFS_PORT,
 					    dirent->d_name + type_beg,
 					    FPGA_SYSFS_PORT_LEN)) {
-				region->port =
-					make_resource(region, dirent->d_name,
-						      num, FPGA_ACCELERATOR);
+				device->port =
+					make_region(device, dirent->d_name, num,
+						    FPGA_ACCELERATOR);
 			}
 		}
 	}
@@ -282,8 +277,8 @@ STATIC int find_resources(sysfs_fpga_region *region)
 	regfree(&re);
 	if (dir)
 		closedir(dir);
-	if (!region->fme && !region->port) {
-		FPGA_MSG("did not find fme/port in region: %s", region->region_path);
+	if (!device->fme && !device->port) {
+		FPGA_MSG("did not find fme/port in device: %s", device->sysfs_path);
 		return FPGA_NOT_FOUND;
 	}
 
@@ -291,88 +286,105 @@ STATIC int find_resources(sysfs_fpga_region *region)
 }
 
 
-STATIC int make_region(sysfs_fpga_region *region, const char *sysfs_class_fpga,
+STATIC int make_device(sysfs_fpga_device *device, const char *sysfs_class_fpga,
 		       char *dir_name, int num)
 {
 	int res = FPGA_OK;
 	char buffer[SYSFS_PATH_MAX] = {0};
 	ssize_t sym_link_len = 0;
-	if (snprintf_s_ss(region->region_path, SYSFS_PATH_MAX, "%s/%s",
+	if (snprintf_s_ss(device->sysfs_path, SYSFS_PATH_MAX, "%s/%s",
 			  sysfs_class_fpga, dir_name)
 	    < 0) {
 		FPGA_ERR("Error formatting sysfs paths");
 		return FPGA_EXCEPTION;
 	}
 
-	if (snprintf_s_s(region->region_name, SYSFS_PATH_MAX, "%s", dir_name) < 0) {
+	if (snprintf_s_s(device->sysfs_name, SYSFS_PATH_MAX, "%s", dir_name) < 0) {
 		FPGA_ERR("Error formatting sysfs name");
 		return FPGA_EXCEPTION;
 	}
 
-	sym_link_len = readlink(region->region_path, buffer, SYSFS_PATH_MAX);
+	sym_link_len = readlink(device->sysfs_path, buffer, SYSFS_PATH_MAX);
 	if (sym_link_len < 0) {
-		FPGA_ERR("Error reading sysfs link: %s", region->region_path);
+		FPGA_ERR("Error reading sysfs link: %s", device->sysfs_path);
 		return FPGA_EXCEPTION;
 	}
 
-	region->number = num;
-	res = parse_pcie_info(region, buffer);
+	device->number = num;
+	res = parse_pcie_info(device, buffer);
 
 	if (res) {
 		FPGA_ERR("Could not parse symlink");
 		return res;
 	}
 
-	res = parse_device_vendor_id(region);
+	res = parse_device_vendor_id(device);
 	if (res) {
 		FPGA_MSG("Could not parse vendor/device id");
 		return res;
 	}
 
-	return find_resources(region);
+	return find_regions(device);
 }
 
 
 
-STATIC int sysfs_region_destroy(sysfs_fpga_region *region)
+STATIC int sysfs_device_destroy(sysfs_fpga_device *device)
 {
-	ASSERT_NOT_NULL(region);
-	if (region->fme) {
-		free(region->fme);
-		region->fme = NULL;
+	ASSERT_NOT_NULL(device);
+	if (device->fme) {
+		free(device->fme);
+		device->fme = NULL;
 	}
-	if (region->port) {
-		free(region->port);
-		region->port = NULL;
+	if (device->port) {
+		free(device->port);
+		device->port = NULL;
 	}
 	return FPGA_OK;
 }
 
-int sysfs_region_count(void)
+int sysfs_device_count(void)
 {
 	int res = 0, count = 0;
-	if (!opae_mutex_lock(res, &_sysfs_region_lock)) {
-		count = _sysfs_region_count;
+	if (!opae_mutex_lock(res, &_sysfs_device_lock)) {
+		count = _sysfs_device_count;
 	}
 
-	if (opae_mutex_unlock(res, &_sysfs_region_lock)) {
+	if (opae_mutex_unlock(res, &_sysfs_device_lock)) {
 		count = 0;
 	}
 
 	return count;
 }
 
-void sysfs_foreach_region(region_cb cb, void *context)
+fpga_result sysfs_foreach_device(device_cb cb, void *context)
 {
 	uint32_t i = 0;
 	int res = 0;
-	if (!opae_mutex_lock(res, &_sysfs_region_lock)) {
-		for ( ; i < _sysfs_region_count; ++i) {
-			cb(&_regions[i], context);
-		}
-
-		opae_mutex_unlock(res, &_sysfs_region_lock);
+	fpga_result result = FPGA_OK;
+	if (opae_mutex_lock(res, &_sysfs_device_lock)) {
+		return FPGA_EXCEPTION;
 	}
+
+	result = sysfs_finalize();
+	if (result) {
+		goto out_unlock;
+	}
+	result = sysfs_initialize();
+	if (result) {
+		goto out_unlock;
+	}
+	for (; i < _sysfs_device_count; ++i) {
+		result = cb(&_devices[i], context);
+		if (result) {
+			goto out_unlock;
+		}
+	}
+
+out_unlock:
+	opae_mutex_unlock(res, &_sysfs_device_lock);
+
+	return result;
 }
 
 int sysfs_initialize(void)
@@ -385,8 +397,8 @@ int sysfs_initialize(void)
 	DIR *dir = NULL;
 	char err[128] = {0};
 	struct dirent *dirent = NULL;
-	regex_t region_re;
-	regmatch_t matches[SYSFS_MAX_REGIONS];
+	regex_t device_re;
+	regmatch_t matches[SYSFS_MAX_DEVICES];
 
 	for (i = 0; i < OPAE_KERNEL_DRIVERS; ++i) {
 		errno = 0;
@@ -407,14 +419,14 @@ int sysfs_initialize(void)
 		return FPGA_NO_DRIVER;
 	}
 
-	_sysfs_region_count = 0;
+	_sysfs_device_count = 0;
 
-	if (SYSFS_FORMAT(sysfs_region_fmt)) {
+	if (SYSFS_FORMAT(sysfs_device_fmt)) {
 
-		reg_res = regcomp(&region_re, SYSFS_FORMAT(sysfs_region_fmt),
+		reg_res = regcomp(&device_re, SYSFS_FORMAT(sysfs_device_fmt),
 			REG_EXTENDED);
 		if (reg_res) {
-			regerror(reg_res, &region_re, err, 128);
+			regerror(reg_res, &device_re, err, 128);
 			FPGA_ERR("Error compling regex: %s", err);
 			return FPGA_EXCEPTION;
 		}
@@ -428,10 +440,10 @@ int sysfs_initialize(void)
 	}
 
 	// open the root sysfs class directory
-	// look in the directory and get region (device) objects
+	// look in the directory and get device objects
 	dir = opendir(sysfs_class_fpga);
 	if (!dir) {
-		FPGA_MSG("failed to open region path: %s", sysfs_class_fpga);
+		FPGA_MSG("failed to open device path: %s", sysfs_class_fpga);
 		res = FPGA_EXCEPTION;
 		goto out_free;
 	}
@@ -441,8 +453,8 @@ int sysfs_initialize(void)
 			continue;
 		if (!strcmp(dirent->d_name, ".."))
 			continue;
-		// if the current directory matches the region (device) regex
-		reg_res = regexec(&region_re, dirent->d_name, SYSFS_MAX_REGIONS,
+		// if the current directory matches the device regex
+		reg_res = regexec(&device_re, dirent->d_name, SYSFS_MAX_DEVICES,
 				  matches, 0);
 		if (!reg_res) {
 			int num_begin = matches[1].rm_so;
@@ -451,30 +463,30 @@ int sysfs_initialize(void)
 				continue;
 			}
 			int num = strtoul(dirent->d_name + num_begin, NULL, 10);
-			// increment our region count after filling out details
-			// of the discovered region in our _regions array
-			if (opae_mutex_lock(res, &_sysfs_region_lock)) {
+			// increment our device count after filling out details
+			// of the discovered device in our _devices array
+			if (opae_mutex_lock(res, &_sysfs_device_lock)) {
 				goto out_free;
 			}
-			if (make_region(&_regions[_sysfs_region_count++],
+			if (make_device(&_devices[_sysfs_device_count++],
 					sysfs_class_fpga, dirent->d_name,
 					num)) {
-				FPGA_MSG("Error processing region: %s",
+				FPGA_MSG("Error processing device: %s",
 					 dirent->d_name);
-				_sysfs_region_count--;
+				_sysfs_device_count--;
 			}
-			if (opae_mutex_unlock(res, &_sysfs_region_lock)) {
+			if (opae_mutex_unlock(res, &_sysfs_device_lock)) {
 				goto out_free;
 			}
 		}
 	}
 
-	if (!_sysfs_region_count) {
-		FPGA_ERR("Error discovering fpga regions");
+	if (!_sysfs_device_count) {
+		FPGA_ERR("Error discovering fpga devices");
 		res = FPGA_NO_DRIVER;
 	}
 out_free:
-	regfree(&region_re);
+	regfree(&device_re);
 	if (dir)
 		closedir(dir);
 	return res;
@@ -484,33 +496,33 @@ int sysfs_finalize(void)
 {
 	uint32_t i = 0;
 	int res = 0;
-	if (opae_mutex_lock(res, &_sysfs_region_lock)) {
+	if (opae_mutex_lock(res, &_sysfs_device_lock)) {
 		FPGA_ERR("Error locking mutex");
 		return FPGA_EXCEPTION;
 	}
-	for (; i < _sysfs_region_count; ++i) {
-		sysfs_region_destroy(&_regions[i]);
+	for (; i < _sysfs_device_count; ++i) {
+		sysfs_device_destroy(&_devices[i]);
 	}
-	_sysfs_region_count = 0;
+	_sysfs_device_count = 0;
 	_sysfs_format_ptr = NULL;
-	if (opae_mutex_unlock(res, &_sysfs_region_lock)) {
+	if (opae_mutex_unlock(res, &_sysfs_device_lock)) {
 		FPGA_ERR("Error unlocking mutex");
 		return FPGA_EXCEPTION;
 	}
 	return FPGA_OK;
 }
 
-const sysfs_fpga_region *sysfs_get_region(size_t num)
+const sysfs_fpga_device *sysfs_get_device(size_t num)
 {
-	const sysfs_fpga_region *ptr = NULL;
+	const sysfs_fpga_device *ptr = NULL;
 	int res = 0;
-	if (!opae_mutex_lock(res, &_sysfs_region_lock)) {
-		if (num >= _sysfs_region_count) {
-			FPGA_ERR("No such region with index: %d", num);
+	if (!opae_mutex_lock(res, &_sysfs_device_lock)) {
+		if (num >= _sysfs_device_count) {
+			FPGA_ERR("No such device with index: %d", num);
 		} else {
-			ptr = &_regions[num];
+			ptr = &_devices[num];
 		}
-		if (opae_mutex_unlock(res, &_sysfs_region_lock)) {
+		if (opae_mutex_unlock(res, &_sysfs_device_lock)) {
 			ptr = NULL;
 		}
 	}
@@ -536,16 +548,16 @@ fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid)
 }
 
 
-fpga_result sysfs_get_fme_pr_interface_id(const char *sysfs_res_path, fpga_guid guid)
+fpga_result sysfs_get_fme_pr_interface_id(const char *sysfs_sysfs_path, fpga_guid guid)
 {
 	fpga_result res = FPGA_OK;
 	char sysfs_path[SYSFS_PATH_MAX];
 
 	int len = snprintf_s_ss(sysfs_path, SYSFS_PATH_MAX, "%s/%s",
-		sysfs_res_path, SYSFS_FORMAT(sysfs_compat_id));
+		sysfs_sysfs_path, SYSFS_FORMAT(sysfs_compat_id));
 	if (len < 0) {
 		FPGA_ERR("error concatenating strings (%s, %s)",
-			sysfs_res_path, sysfs_path);
+			sysfs_sysfs_path, sysfs_path);
 		return FPGA_EXCEPTION;
 	}
 
@@ -1173,22 +1185,66 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 	return FPGA_OK;
 }
 
-// get fpga device id
-fpga_result get_fpga_deviceid(fpga_handle handle, uint64_t *deviceid)
+enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id)
+{
+	enum fpga_hw_type hw_type = FPGA_HW_UNKNOWN;
+
+	if (vendor_id == 0x8086) {
+
+		switch (device_id) {
+		case 0xbcbc:
+		case 0xbcbd:
+		case 0xbcbe:
+		case 0xbcbf:
+		case 0xbcc0:
+		case 0xbcc1:
+		case 0x09cb:
+			hw_type = FPGA_HW_MCP;
+		break;
+
+		case 0x09c4:
+		case 0x09c5:
+			hw_type = FPGA_HW_DCP_RC;
+		break;
+
+		case 0x0b2b:
+		case 0x0b2c:
+			hw_type = FPGA_HW_DCP_DC;
+		break;
+
+		case 0x0b30:
+		case 0x0b31:
+			hw_type = FPGA_HW_DCP_VC;
+		break;
+
+		default:
+			FPGA_ERR("unknown device id: 0x%04x", device_id);
+		}
+
+	} else {
+		FPGA_ERR("unknown vendor id: 0x%04x", vendor_id);
+	}
+
+	return hw_type;
+}
+
+// get fpga hardware type from handle
+fpga_result get_fpga_hw_type(fpga_handle handle, enum fpga_hw_type *hw_type)
 {
 	struct _fpga_token *_token = NULL;
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
 	char sysfs_path[SYSFS_PATH_MAX] = {0};
-	char *p = NULL;
 	fpga_result result = FPGA_OK;
 	int err = 0;
+	uint64_t vendor_id = 0;
+	uint64_t device_id = 0;
 
 	if (_handle == NULL) {
 		FPGA_ERR("Invalid handle");
 		return FPGA_INVALID_PARAM;
 	}
 
-	if (deviceid == NULL) {
+	if (hw_type == NULL) {
 		FPGA_ERR("Invalid input Parameters");
 		return FPGA_INVALID_PARAM;
 	}
@@ -1205,21 +1261,26 @@ fpga_result get_fpga_deviceid(fpga_handle handle, uint64_t *deviceid)
 		goto out_unlock;
 	}
 
-	p = strstr(_token->sysfspath, FPGA_SYSFS_FME);
-	if (p == NULL) {
-		FPGA_ERR("Failed to read sysfs path");
-		result = FPGA_NOT_SUPPORTED;
+	snprintf_s_s(sysfs_path, SYSFS_PATH_MAX, "%s/../device/vendor",
+		_token->sysfspath);
+
+	result = sysfs_read_u64(sysfs_path, &vendor_id);
+	if (result != 0) {
+		FPGA_ERR("Failed to read vendor ID");
 		goto out_unlock;
 	}
 
 	snprintf_s_s(sysfs_path, SYSFS_PATH_MAX, "%s/../device/device",
 		_token->sysfspath);
 
-	result = sysfs_read_u64(sysfs_path, deviceid);
+	result = sysfs_read_u64(sysfs_path, &device_id);
 	if (result != 0) {
 		FPGA_ERR("Failed to read device ID");
 		goto out_unlock;
 	}
+
+	*hw_type = opae_id_to_hw_type((uint16_t)vendor_id,
+				      (uint16_t)device_id);
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
@@ -1400,8 +1461,13 @@ STATIC char *cstr_dup(const char *str)
 {
 	size_t s = strlen(str);
 	char *p = malloc(s+1);
+	if (!p) {
+		FPGA_ERR("malloc failed");
+		return NULL;
+	}
 	if (strncpy_s(p, s+1, str, s)) {
 		FPGA_ERR("Error copying string");
+		free(p);
 		return NULL;
 	}
 	p[s] = '\0';
@@ -1472,8 +1538,6 @@ fpga_result sync_object(fpga_object obj)
 	}
 	bytes_read = eintr_read(fd, _obj->buffer, _obj->max_size);
 	if (bytes_read < 0) {
-		FPGA_ERR("Error reading from %s: %s", _obj->path,
-			 strerror(errno));
 		close(fd);
 		return FPGA_EXCEPTION;
 	}

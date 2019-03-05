@@ -28,6 +28,7 @@ extern "C" {
 
 #include <json-c/json.h>
 #include <uuid/uuid.h>
+#include <libgen.h>
 #include "opae_int.h"
 #include "pluginmgr.h"
 
@@ -39,8 +40,9 @@ int opae_plugin_mgr_for_each_adapter
 	(int (*callback)(const opae_api_adapter_table *, void *), void *context);
 int opae_plugin_mgr_configure_plugin(opae_api_adapter_table *adapter,
 				     const char *config);
-
+int process_cfg_buffer(const char *buffer, const char *filename);
 extern opae_api_adapter_table *adapter_list;
+
 }
 
 #include <config.h>
@@ -48,10 +50,12 @@ extern opae_api_adapter_table *adapter_list;
 
 #include <array>
 #include <cstdlib>
+#include <fstream>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
+#include <stack>
 #include "gtest/gtest.h"
 #include "test_system.h"
 
@@ -231,3 +235,352 @@ TEST_P(pluginmgr_c_p, bad_final_all) {
 }
 
 INSTANTIATE_TEST_CASE_P(pluginmgr_c, pluginmgr_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+
+const char *plugin_cfg_1 = R"plug(
+{
+    "configurations": {
+        "plugin1": {
+            "configuration": {
+                "key1a": 10,
+                "key1b": "hello"
+            },
+            "enabled": true,
+            "plugin": "libplugin1.so"
+        },
+        "plugin2": {
+            "configuration": {
+                "key1a": 20,
+                "key1b": "goodbye"
+            },
+            "enabled": false,
+            "plugin": "libplugin2.so"
+        }
+    },
+    "plugins": [
+        "plugin1",
+        "plugin2"
+    ]
+}
+)plug";
+
+// missing comma (,) on line 272
+const char *plugin_cfg_2 = R"plug(
+{
+    "configurations": {
+        "plugin1": {
+            "configuration": {
+                "key1a": 10,
+                "key1b": "hello"
+            },
+            "enabled": true,
+            "plugin": "libplugin1.so"
+        }
+        "plugin2": {
+            "configuration": {
+                "key1a": 20,
+                "key1b": "goodbye"
+            },
+            "enabled": false,
+            "plugin": "libplugin2.so"
+        }
+    },
+    "plugins": [
+        "plugin1",
+        "plugin2
+    ]
+}
+)plug";
+
+// keyword enabled misspelled on line 298
+const char *plugin_cfg_3 = R"plug(
+{
+    "configurations": {
+        "plugin1": {
+            "configuration": {
+                "key1a": 10,
+                "key1b": "hello"
+            },
+            "enable": true,
+            "plugin": "libplugin1.so"
+        },
+        "plugin2": {
+            "configuration": {
+                "key1a": 20,
+                "key1b": "goodbye"
+            },
+            "enabled": false,
+            "plugin": "libplugin2.so"
+        }
+    },
+    "plugins": [
+        "plugin1",
+        "plugin2"
+    ]
+}
+)plug";
+
+// plugin name different on line 321
+const char *plugin_cfg_4 = R"plug(
+{
+    "configurations": {
+        "plugin10": {
+            "configuration": {
+                "key1a": 10,
+                "key1b": "hello"
+            },
+            "enabled": true,
+            "plugin": "libplugin1.so"
+        },
+        "plugin2": {
+            "configuration": {
+                "key1a": 20,
+                "key1b": "goodbye"
+            },
+            "enabled": false,
+            "plugin": "libplugin2.so"
+        }
+    },
+    "plugins": [
+        "plugin1",
+        "plugin2"
+    ]
+}
+)plug";
+
+// plugins not array type
+const char *plugin_cfg_5 = R"plug(
+{
+    "configurations": {
+        "plugin1": {
+            "configuration": {
+                "key1a": 10,
+                "key1b": "hello"
+            },
+            "enabled": true,
+            "plugin": "libplugin1.so"
+        },
+        "plugin2": {
+            "configuration": {
+                "key1a": 20,
+                "key1b": "goodbye"
+            },
+            "enabled": false,
+            "plugin": "libplugin2.so"
+        }
+    },
+    "plugins": 0
+}
+)plug";
+
+#define HOME_CFG_PATHS 3
+extern "C" {
+  void opae_plugin_mgr_reset_cfg(void);
+  int opae_plugin_mgr_load_cfg_plugins(void);
+  int opae_plugin_mgr_finalize_all(void);
+  extern plugin_cfg *opae_plugin_mgr_config_list;
+  extern int opae_plugin_mgr_plugin_count;
+  extern const char *_opae_home_cfg_files[HOME_CFG_PATHS];
+}
+
+TEST(pluginmgr_c_p, process_cfg_buffer) {
+  opae_plugin_mgr_reset_cfg();
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
+  ASSERT_EQ(process_cfg_buffer(plugin_cfg_1, "plugin1.json"), 0);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 2);
+  auto p1 = opae_plugin_mgr_config_list;
+  ASSERT_NE(p1, nullptr);
+  auto p2 = p1->next;
+  ASSERT_NE(p2, nullptr);
+  EXPECT_TRUE(p1->enabled);
+  EXPECT_FALSE(p2->enabled);
+  ASSERT_EQ(p2->next, nullptr);
+}
+
+
+TEST(pluginmgr_c_p, process_cfg_buffer_err) {
+  opae_plugin_mgr_reset_cfg();
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
+  ASSERT_NE(process_cfg_buffer(plugin_cfg_2, "plugin2.json"), 0);
+
+  opae_plugin_mgr_reset_cfg();
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
+  ASSERT_NE(process_cfg_buffer(plugin_cfg_3, "plugin3.json"), 0);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 1);
+
+  opae_plugin_mgr_reset_cfg();
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
+  ASSERT_NE(process_cfg_buffer(plugin_cfg_4, "plugin4.json"), 0);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 1);
+
+  opae_plugin_mgr_reset_cfg();
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
+  ASSERT_NE(process_cfg_buffer(plugin_cfg_5, "plugin5.json"), 0);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
+}
+
+const char *dummy_cfg = R"plug(
+{
+    "configurations": {
+        "dummy": {
+            "configuration": {
+                "key1": "hello",
+                "key2": "plugin",
+                "fake_tokens": 99
+            },
+            "enabled": true,
+            "plugin": "libdummy_plugin.so"
+        }
+    },
+    "plugins": [
+        "dummy"
+    ]
+}
+)plug";
+
+const char *err_contains = "wrapped_handle->adapter_table->fpgaReset is NULL";
+
+TEST(pluginmgr_c_p, dummy_plugin) {
+  auto ldl_path = getenv("LD_LIBRARY_PATH");
+  opae_plugin_mgr_reset_cfg();
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
+  ASSERT_EQ(process_cfg_buffer(dummy_cfg, "dummy.json"), 0);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 1);
+  auto p1 = opae_plugin_mgr_config_list;
+  ASSERT_NE(p1, nullptr);
+  auto p2 = p1->next;
+  ASSERT_EQ(p2, nullptr);
+  EXPECT_TRUE(p1->enabled);
+  testing::internal::CaptureStdout();
+  ASSERT_EQ(opae_plugin_mgr_load_cfg_plugins(), 0) << "LD_LIBRARY_PATH: '"
+                                                   << ldl_path << "'";
+  std::string output = testing::internal::GetCapturedStdout();
+  EXPECT_STREQ(output.c_str(), "hello plugin!\n");
+
+  uint32_t matches = 0;
+  fpga_properties filter = NULL;
+  uint16_t device_id = 49178;
+  EXPECT_EQ(fpgaGetProperties(nullptr, &filter), FPGA_OK);
+  EXPECT_EQ(fpgaPropertiesSetDeviceID(filter, device_id), FPGA_OK);
+  EXPECT_EQ(fpgaEnumerate(&filter, 1, nullptr, 0, &matches), FPGA_OK);
+  EXPECT_EQ(matches, 99);
+  std::array<fpga_token, 99> tokens = {0};
+  std::array<fpga_handle, 99> handles = {0};
+  EXPECT_EQ(fpgaEnumerate(&filter, 1, tokens.data(), tokens.size(), &matches),
+            FPGA_OK);
+  int i = 0;
+  for (auto t : tokens) {
+    EXPECT_EQ(fpgaOpen(t, &handles[i], i), FPGA_OK);
+    testing::internal::CaptureStderr();
+    EXPECT_EQ(fpgaReset(handles[i]), FPGA_NOT_SUPPORTED);
+    std::string err = testing::internal::GetCapturedStderr();
+    EXPECT_NE(err.find(err_contains), std::string::npos);
+    EXPECT_EQ(fpgaClose(handles[i++]), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+  }
+  unlink("opae_log.log");
+}
+
+TEST(pluginmgr_c_p, no_cfg) {
+  opae_plugin_mgr_reset_cfg();
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
+  ASSERT_EQ(opae_plugin_mgr_initialize(nullptr), 0);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
+  auto p1 = opae_plugin_mgr_config_list;
+  ASSERT_EQ(p1, nullptr);
+}
+
+class pluginmgr_cfg_p : public ::testing::TestWithParam<const char*> {
+ protected:
+  pluginmgr_cfg_p() : buffer_ {0} {}
+
+  virtual void SetUp() override {
+    // This parameterized test iterates over the possible config file paths
+    // relative to a user's home directory
+
+    // let's build the full path by prepending the parameter with $HOME
+    char *home_cstr = getenv("HOME");
+    ASSERT_NE(home_cstr, nullptr) << "No home environment found";
+    std::string home = home_cstr;
+    // the parameter paths start with a '/'
+    cfg_file_ = home + std::string(GetParam());
+    // copy it to a temporary buffer that we can use dirname with
+    std::copy(cfg_file_.begin(), cfg_file_.end(), &buffer_[0]);
+    // get the directory name of the file
+    cfg_dir_ = dirname(buffer_);
+    struct stat st;
+    // if the directory doesn't exist, create the entire path
+    if (stat(cfg_dir_, &st)) {
+      std::string dir = cfg_dir_;
+      // find the first '/' after $HOME
+      int pos = dir.find('/', home.size());
+      while (pos != std::string::npos) {
+        std::string sub = dir.substr(0, pos);
+        // sub is $HOME/<dir1>, then $HOME/<dir1>/<dir2>, ...
+        // if this directory doesn't exist, create it
+        if (stat(sub.c_str(), &st) && sub != "") {
+          ASSERT_EQ(mkdir(sub.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH),
+                    0)
+              << "Error creating subdirectory (" << sub
+              << "}: " << strerror(errno);
+          // keep track of directories created
+          dirs_.push(sub);
+        }
+        pos = pos < dir.size() ? dir.find('/', pos + 1) : std::string::npos;
+      }
+      // finally, we know the entire path didn't exist, create the last
+      // directory
+      ASSERT_EQ(mkdir(cfg_dir_, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH), 0)
+          << "Error creating subdirectory (" << cfg_dir_
+          << "}: " << strerror(errno);
+      dirs_.push(cfg_dir_);
+    }
+
+    if (stat(cfg_file_.c_str(), &st) == 0) {
+      unlink(cfg_file_.c_str());
+    }
+
+    std::ofstream cfg_stream(cfg_file_);
+    cfg_stream.write(dummy_cfg, strlen(dummy_cfg));
+    cfg_stream.close();
+  }
+
+  virtual void TearDown() override {
+    opae_plugin_mgr_finalize_all();
+    unlink(cfg_file_.c_str());
+    // remove any directories we created in SetUp
+    while (!dirs_.empty()) {
+      unlink(dirs_.top().c_str());
+      dirs_.pop();
+    }
+  }
+
+  char buffer_[PATH_MAX];
+  std::string cfg_file_;
+  char *cfg_dir_;
+  std::stack<std::string> dirs_;
+};
+
+
+/**
+ * @test       find_and_parse_cfg
+ * @brief      Test: find_and_parse_cfg
+ * @details    Given a valid configuration with one plugin<br>
+ *             And a configuration file located in one of three possible paths
+ *             in the user's home directory<br>
+ *             When I call opae_plugin_mgr_initialize
+ *             Then the call is successful<br>
+ *             And the number of plugins in the global plugin list is 1
+ */
+TEST_P(pluginmgr_cfg_p, find_and_parse_cfg) {
+  opae_plugin_mgr_reset_cfg();
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
+  ASSERT_EQ(opae_plugin_mgr_initialize(nullptr), 0);
+  EXPECT_EQ(opae_plugin_mgr_plugin_count, 1);
+  auto p1 = opae_plugin_mgr_config_list;
+  ASSERT_NE(p1, nullptr);
+  ASSERT_EQ(p1->next, nullptr);
+  EXPECT_TRUE(p1->enabled);
+}
+
+INSTANTIATE_TEST_CASE_P(pluginmgr_cfg, pluginmgr_cfg_p,
+                        ::testing::ValuesIn(_opae_home_cfg_files));

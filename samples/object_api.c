@@ -320,7 +320,7 @@ out_free:
 	if (metrics)
 		free(metrics);
 
-	while (--cleanup_size > 0) {
+	while (cleanup_size-- > 0) {
 		if ((res = cleanup[cleanup_size].fn(
 			     cleanup[cleanup_size].param))
 		    != FPGA_OK) {

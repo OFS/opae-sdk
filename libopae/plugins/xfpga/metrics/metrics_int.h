@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,8 @@
 
 #include "vector.h"
 #include "opae/metrics.h"
-
+#include "metrics_metadata.h"
+#include "metrics/bmc/bmc.h"
 // Power,Thermal & Performance definations
 
 #define PERF                               "*perf"
@@ -53,8 +54,24 @@
 #define XEON_LIMIT                          "xeon_limit"
 #define TEMP                                "Centigrade"
 
+#define TEMPERATURE                         "Temperature"
+#define VOLTAGE                             "Voltage"
+#define CURRENT                             "Current"
+#define POWER                               "Power"
 
-#define BMC_LIB                              "libbmc.so"
+#define MAX10_SYSFS_PATH                     "spi-altera.*.auto/spi_master/spi*/spi*.*"
+#define MAX10_SENSOR_SYSFS_PATH              "spi-altera.*.auto/spi_master/spi*/spi*.*/sensor*"
+#define SENSOR_SYSFS_NAME                    "name"
+#define SENSOR_SYSFS_TYPE                    "type"
+#define SENSOR_SYSFS_ID                      "id"
+#define SENSOR_SYSFS_VALUE                   "value"
+#define MILLI                                 1000
+
+#define  FPGA_DISCRETE_VC_DEVICEID           0x0B30
+
+#define  FPGA_DISCRETE_DC_DEVICEID           0x0B2B
+
+#define BMC_LIB                             "libmodbmc.so"
 
 // AFU DFH Struct
 struct DFH {
@@ -213,5 +230,38 @@ fpga_result add_afu_metrics_vector(fpga_metric_vector *vector,
 				uint64_t metric_offset);
 
 fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset);
+
+fpga_result get_metric_data_info(const char *group_name,
+		const char *metric_name,
+		fpga_metric_metadata *metric_data_search,
+		uint64_t size,
+		fpga_metric_metadata *metric_data);
+
+fpga_result xfpga_bmcLoadSDRs(struct _fpga_handle *_handle,
+	bmc_sdr_handle *records,
+	uint32_t *num_sensors);
+
+fpga_result xfpga_bmcDestroySDRs(struct _fpga_handle *_handle,
+	bmc_sdr_handle *records);
+
+fpga_result xfpga_bmcReadSensorValues(struct _fpga_handle *_handle,
+	bmc_sdr_handle records,
+	bmc_values_handle *values,
+	uint32_t *num_values);
+
+fpga_result xfpga_bmcDestroySensorValues(struct _fpga_handle *_handle,
+	bmc_values_handle *values);
+
+fpga_result xfpga_bmcGetSensorReading(struct _fpga_handle *_handle,
+	bmc_values_handle values,
+	uint32_t sensor_number,
+	uint32_t *is_valid,
+	double *value);
+
+fpga_result xfpga_bmcGetSDRDetails(struct _fpga_handle *_handle,
+	bmc_values_handle values,
+	uint32_t sensor_number,
+	sdr_details *details);
+
 
 #endif // __FPGA_METRICS_INT_H__

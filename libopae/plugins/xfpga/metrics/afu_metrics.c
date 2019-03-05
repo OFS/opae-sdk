@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -68,7 +68,7 @@ fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset)
 	memset_s(&feature_def, sizeof(feature_def), 0);
 
 	if (offset == NULL) {
-		FPGA_ERR("Invlaid Input Paramters");
+		FPGA_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -141,7 +141,7 @@ fpga_result get_afu_metric_value(fpga_handle handle,
 	if (handle == NULL ||
 		enum_vector == NULL ||
 		fpga_metric == NULL) {
-		FPGA_ERR("Invlaid Input Paramters");
+		FPGA_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -189,7 +189,7 @@ fpga_result add_afu_metrics_vector(fpga_metric_vector *vector,
 
 	if (metric_id == NULL ||
 		vector == NULL) {
-		FPGA_ERR("Invlaid Input Paramters");
+		FPGA_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -228,7 +228,7 @@ fpga_result enum_afu_metrics(fpga_handle handle,
 	if (handle == NULL ||
 		vector == NULL ||
 		metric_id == NULL) {
-		FPGA_ERR("Invlaid Input Paramters");
+		FPGA_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 

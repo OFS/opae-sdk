@@ -25,14 +25,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 extern "C" {
-
 #include <json-c/json.h>
 #include <uuid/uuid.h>
-#include "opae_int.h"
-#include "fpgad/config_int.h"
-#include "fpgad/log.h"
-#include "fpgad/srv.h"
-
 }
 
 #include <opae/fpga.h>
@@ -44,22 +38,22 @@ extern "C" {
 #include <cstring>
 #include <chrono>
 #include <thread>
+#include <fstream>
 #include <unistd.h>
+#include <poll.h>
 #include "gtest/gtest.h"
 #include "test_system.h"
+#include "fpgad_control.h"
 
 using namespace opae::testing;
 
-class event_c_p : public ::testing::TestWithParam<std::string> {
+class event_c_p : public ::testing::TestWithParam<std::string>,
+                  public fpgad_control {
  protected:
   event_c_p()
     : tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
-    strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
-    strcpy(tmpfpgad_pid_, "tmpfpgad-XXXXXX.pid");
-    close(mkstemps(tmpfpgad_log_, 4));
-    close(mkstemps(tmpfpgad_pid_, 4));
     ASSERT_TRUE(test_platform::exists(GetParam()));
     platform_ = test_platform::get(GetParam());
     system_ = test_system::instance();
@@ -80,29 +74,10 @@ class event_c_p : public ::testing::TestWithParam<std::string> {
     event_handle_ = nullptr;
     EXPECT_EQ(fpgaCreateEventHandle(&event_handle_), FPGA_OK);
 
-    config_ = {
-        .verbosity = 0,
-        .poll_interval_usec = 100 * 1000,
-        .daemon = 0,
-        .directory = { 0, },
-        .logfile = { 0, },
-        .pidfile = { 0, },
-        .filemode = 0,
-        .running = true,
-        .socket = "/tmp/fpga_event_socket",
-        .null_gbs = {0},
-        .num_null_gbs = 0,
-    };
-    strcpy(config_.logfile, tmpfpgad_log_);
-    strcpy(config_.pidfile, tmpfpgad_pid_);
-
-    open_log(tmpfpgad_log_);
-    fpgad_ = std::thread(server_thread, &config_);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    fpgad_start();
   }
 
   virtual void TearDown() override {
-    config_.running = false;
     EXPECT_EQ(fpgaDestroyEventHandle(&event_handle_), FPGA_OK);
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     if (accel_) {
@@ -115,22 +90,12 @@ class event_c_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
-    fpgad_.join();
-    close_log();
+    fpgad_stop();
     fpgaFinalize();
     system_->finalize();
-    if (!::testing::Test::HasFatalFailure() &&
-        !::testing::Test::HasNonfatalFailure()) {
-      unlink(tmpfpgad_log_);
-      unlink(tmpfpgad_pid_);
-    }
   }
 
   std::array<fpga_token, 2> tokens_;
-  char tmpfpgad_log_[20];
-  char tmpfpgad_pid_[20];
-  struct config config_;
-  std::thread fpgad_;
   fpga_properties filter_;
   fpga_handle accel_;
   fpga_event_handle event_handle_;
@@ -262,3 +227,126 @@ TEST_P(event_c_p, destroy_err) {
 
 INSTANTIATE_TEST_CASE_P(event_c, event_c_p, 
                         ::testing::ValuesIn(test_platform::platforms({})));
+
+
+class events_handle_p : public ::testing::TestWithParam<std::string>,
+                        public fpgad_control {
+ protected:
+  events_handle_p()
+      : filter_accel_(nullptr),
+        tokens_accel_{{nullptr, nullptr}},
+        handle_accel_(nullptr) {}
+
+  virtual void SetUp() override {
+    std::string platform_key = GetParam();
+    ASSERT_TRUE(test_platform::exists(platform_key));
+    platform_ = test_platform::get(platform_key);
+    system_ = test_system::instance();
+    system_->initialize();
+    system_->prepare_syfs(platform_);
+
+    ASSERT_EQ(FPGA_OK, fpgaInitialize(NULL));
+
+    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_accel_,
+                                        platform_.devices[0].device_id), FPGA_OK);
+    ASSERT_EQ(fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(),
+              tokens_accel_.size(), &num_matches_), FPGA_OK);
+
+    ASSERT_EQ(fpgaOpen(tokens_accel_[0], &handle_accel_, 0), FPGA_OK);
+
+    ASSERT_EQ(fpgaCreateEventHandle(&eh_), FPGA_OK);
+
+    fpgad_start();
+    uint32_t i;
+    for (i = 0 ; i < num_matches_ ; ++i) {
+      fpgad_watch(tokens_accel_[i]);
+    }
+  }
+
+  virtual void TearDown() override {
+    fpgad_stop();
+
+    EXPECT_EQ(fpgaDestroyEventHandle(&eh_), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
+
+    if (handle_accel_) { EXPECT_EQ(fpgaClose(handle_accel_), FPGA_OK); }
+
+/* Don't destroy the tokens, because fpgad's monitor_thread() will
+   destroy them by calling mon_destroy() when it is exiting.
+    for (auto &t : tokens_accel_) {
+      if (t) {
+        EXPECT_EQ(FPGA_OK, fpgaDestroyToken(&t));
+        t = nullptr;
+      }
+    }
+*/
+    fpgaFinalize();
+    system_->finalize();
+  }
+
+  fpga_properties filter_accel_;
+  std::array<fpga_token, 2> tokens_accel_;
+  fpga_handle handle_accel_;
+  uint32_t num_matches_;
+  test_platform platform_;
+  test_system *system_;
+  fpga_event_handle eh_;
+};
+
+/**
+ * @test       manual_ap6
+ *
+ * @brief      Given valid event handle and event type, this tests for
+ *             triggering the FPGA_EVENT_POWER_THERMAL event by manually
+ *             writing Ap6Event to errors.
+ *
+ */
+TEST_P(events_handle_p, manual_ap6) {
+  std::string error_csr("0x0004000000000000"); //Ap6Event
+  std::string zero_csr("0x0000000000000000");
+  int res;
+  int fd = -1;
+  struct pollfd poll_fd;
+  int maxpolls = 20;
+
+  ASSERT_EQ(FPGA_OK, fpgaRegisterEvent(handle_accel_, FPGA_EVENT_POWER_THERMAL, eh_, 0));
+  EXPECT_EQ(FPGA_OK, fpgaGetOSObjectFromEventHandle(eh_, &fd));
+  EXPECT_GE(fd, 0);
+
+  // Write to error file
+  std::string tmpsysfs = system_->get_root();
+  std::string sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
+  std::string path = tmpsysfs + sysfs_port + "/errors/errors";
+
+  // Write to the mock sysfs node to generate the event.
+  std::ofstream f;
+  f.open(path.c_str(), std::ios::out);
+  f << error_csr;
+  f.close();
+
+  poll_fd.fd = fd;
+  poll_fd.events = POLLIN | POLLPRI;
+  poll_fd.revents = 0;
+
+  do
+  {
+    res = poll(&poll_fd, 1, 1000);
+    ASSERT_GE(res, 0);
+    --maxpolls;
+    ASSERT_GT(maxpolls, 0);
+  } while(res == 0);
+
+  EXPECT_EQ(res, 1);
+  EXPECT_NE(poll_fd.revents, 0);
+
+  f.open(path.c_str(), std::ios::out);
+  f << zero_csr;
+  f.close();
+
+  EXPECT_EQ(FPGA_OK, fpgaUnregisterEvent(handle_accel_, FPGA_EVENT_POWER_THERMAL, eh_));
+}
+
+INSTANTIATE_TEST_CASE_P(events, events_handle_p,
+                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
