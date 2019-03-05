@@ -783,6 +783,12 @@ add_custom_command(TARGET test_unit
 add_custom_command(TARGET test_unit
     PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-1socket-nlb0-vf.tar.gz
+    ${CMAKE_BINARY_DIR})
+
+add_custom_command(TARGET test_unit
+    PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
     ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dcp-rc-nlb3.tar.gz
     ${CMAKE_BINARY_DIR}
     )

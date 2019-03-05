@@ -80,8 +80,8 @@ class usrclk_c
     ASSERT_GT(num_matches_, 0);
 
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_accel_,
-                                        platform_.devices[0].device_id), FPGA_OK);
+    auto devid = platform_.devices[0].device_id + platform_.devices[0].num_vfs;
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_accel_, devid), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(),
               tokens_accel_.size(), &num_matches_), FPGA_OK);

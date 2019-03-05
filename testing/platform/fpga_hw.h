@@ -39,6 +39,7 @@ struct test_device {
   uint8_t bus;
   uint8_t device;
   uint8_t function;
+  uint32_t num_vfs;
   uint8_t socket_id;
   uint32_t num_slots;
   uint64_t bbs_id;

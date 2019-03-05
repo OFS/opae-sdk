@@ -54,8 +54,12 @@ class buffer_c_p : public mock_opae_p<2> {
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_,
-              platform_.devices[0].device_id), FPGA_OK);
+    auto device_id = platform_.devices[0].device_id;
+    if (platform_.devices[0].num_vfs) {
+      device_id++;
+    }
+
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, device_id), FPGA_OK);
     num_matches_ = 0;
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
                             &num_matches_), FPGA_OK);
