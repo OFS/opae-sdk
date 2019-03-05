@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2018, Intel Corporation
+## Copyright(c) 2017-2019, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -25,13 +25,19 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 include_directories(${OPAE_INCLUDE_DIR}
+                    ${OPAE_SDK_SOURCE}
                     ${libjson-c_INCLUDE_DIRS})
-
 
 add_executable(fpgaconf fpgaconf.c)
 set_install_rpath(fpgaconf)
 
-target_link_libraries(fpgaconf opae-c ${libjson-c_LIBRARIES} uuid ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(fpgaconf
+  safestr
+  bitstream
+  opae-c
+  ${libjson-c_LIBRARIES}
+  uuid
+  ${CMAKE_THREAD_LIBS_INIT})
 
 install(TARGETS fpgaconf
         RUNTIME DESTINATION bin

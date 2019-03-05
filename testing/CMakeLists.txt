@@ -199,7 +199,8 @@ target_compile_definitions(fpgaconf-static PRIVATE main=fpgaconf_main)
 target_include_directories(fpgaconf-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
+  $<INSTALL_INTERFACE:include>
+  PRIVATE ${OPAE_SDK_SOURCE})
 
 add_library(ras-static
     ${OPAE_SDK_SOURCE}/tools/extra/ras/main.c)
@@ -312,6 +313,7 @@ macro(add_unit_test test_name static_lib)
         ${ARGN})
     target_include_directories(${test_name} PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        PRIVATE ${OPAE_SDK_SOURCE}
         PRIVATE ${OPAE_SDK_SOURCE}/libbitstream
         )
     target_link_libraries(${test_name}
@@ -724,6 +726,10 @@ add_unit_test(test_ras_c ras-static
 add_unit_test(test_fpgaconf_fpgaconf_c fpgaconf-static
     fpgaconf/test_fpgaconf_c.cpp
 )
+target_link_libraries(test_fpgaconf_fpgaconf_c
+    safestr
+    bitstream
+    )
 
 ############################################################################
 # coreidle tests ###########################################################

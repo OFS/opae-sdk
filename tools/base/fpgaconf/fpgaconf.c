@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -45,10 +45,12 @@
 #include <stdbool.h>
 #include <sys/stat.h>
 
+#include <uuid/uuid.h>
+
 #include "safe_string/safe_string.h"
 
-#include "opae/fpga.h"
-#include "bitstream-tools.h"
+#include <opae/fpga.h>
+#include <libbitstream/bitstream.h>
 
 /*
  * macro to check FPGA return codes, print error message, and goto cleanup label
@@ -87,97 +89,6 @@ struct config {
 	    .flags = 0,
 	    .target = {.segment = -1, .bus = -1, .device = -1, .function = -1, .socket = -1},
 	    .filename = NULL };
-
-struct bitstream_info {
-	char *filename;
-	uint8_t *data;
-	size_t data_len;
-	uint8_t *rbf_data;
-	size_t rbf_len;
-	fpga_guid interface_id;
-};
-
-fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, size_t bs_len,
-				 fpga_guid *guid)
-{
-	fpga_result result = FPGA_EXCEPTION;
-	char *json_metadata = NULL;
-	uint32_t json_len = 0;
-	const uint8_t *json_metadata_ptr = NULL;
-	json_object *root = NULL;
-	json_object *afu_image = NULL;
-	json_object *interface_id = NULL;
-	errno_t e;
-
-	if (check_bitstream_guid(bitstream) != FPGA_OK)
-		goto out_free;
-
-	json_len = read_int_from_bitstream(bitstream + METADATA_GUID_LEN,
-					   sizeof(uint32_t));
-	if (json_len == 0) {
-		OPAE_MSG("Bitstream has no metadata");
-		result = FPGA_OK;
-		goto out_free;
-	}
-
-	if (json_len > bs_len) {
-		OPAE_ERR("invalid bitstream metadata size");
-		result = FPGA_EXCEPTION;
-		goto out_free;
-	}
-
-	json_metadata_ptr = bitstream + METADATA_GUID_LEN + sizeof(uint32_t);
-
-	json_metadata = (char *)malloc(json_len + 1);
-	if (json_metadata == NULL) {
-		OPAE_ERR("Could not allocate memory for metadata!");
-		return FPGA_NO_MEMORY;
-	}
-
-	e = memcpy_s(json_metadata, json_len + 1, json_metadata_ptr, json_len);
-	if (EOK != e) {
-		OPAE_ERR("memcpy_s failed");
-		result = FPGA_EXCEPTION;
-		goto out_free;
-	}
-	json_metadata[json_len] = '\0';
-
-	root = json_tokener_parse(json_metadata);
-
-	if (root != NULL) {
-		if (json_object_object_get_ex(root, GBS_AFU_IMAGE,
-					      &afu_image)) {
-			json_object_object_get_ex(afu_image, BBS_INTERFACE_ID,
-						  &interface_id);
-
-			if (interface_id == NULL) {
-				OPAE_ERR("Invalid metadata");
-				result = FPGA_INVALID_PARAM;
-				goto out_free;
-			}
-
-			result = string_to_guid(
-				json_object_get_string(interface_id), guid);
-			if (result != FPGA_OK) {
-				OPAE_ERR("Invalid BBS interface id ");
-				goto out_free;
-			}
-		} else {
-			OPAE_ERR("Invalid metadata");
-			result = FPGA_INVALID_PARAM;
-			goto out_free;
-		}
-	}
-
-out_free:
-	if (root)
-		json_object_put(root);
-	if (json_metadata)
-		free(json_metadata);
-
-	return result;
-}
-
 
 /*
  * Print readable error message for fpga_results
@@ -387,39 +298,56 @@ int parse_args(int argc, char *argv[])
 	}
 }
 
-/*
- * Check for bitstream header and fill out bistream_info fields
- */
-#define MAGIC 0x1d1f8680
-#define MAGIC_SIZE 4
-#define HEADER_SIZE 20
-int parse_metadata(struct bitstream_info *info)
+fpga_result get_fpga_interface_id(fpga_token token, fpga_guid interface_id)
 {
-	unsigned i = 0;
+	fpga_result result = FPGA_OK;
+	fpga_result resval = FPGA_OK;
+	fpga_properties filter = NULL;
+	fpga_objtype objtype;
+	fpga_guid guid;
+	errno_t e;
 
-	if (!info)
-		return -EINVAL;
-
-	if (info->data_len < HEADER_SIZE) {
-		fprintf(stderr, "File too small to be GBS\n");
-		return -1;
+	result = fpgaGetProperties(token, &filter);
+	if (result != FPGA_OK) {
+		OPAE_ERR("Failed to get Token Properties Object \n");
+		goto out;
 	}
 
-	if (((uint32_t *)info->data)[0] != MAGIC) {
-		fprintf(stderr, "No valid GBS header\n");
-		return -1;
+	result = fpgaPropertiesGetObjectType(filter, &objtype);
+	if (result != FPGA_OK) {
+		OPAE_ERR("Failed to get Token Properties Object \n");
+		goto out_destroy;
 	}
 
-	/* reverse byte order when reading GBS */
-	for (i = 0; i < sizeof(info->interface_id); i++)
-		info->interface_id[i] =
-			info->data[MAGIC_SIZE + sizeof(info->interface_id) - 1
-				   - i];
+	if (objtype != FPGA_DEVICE) {
+		OPAE_ERR("Invalid FPGA object type \n");
+		result = FPGA_EXCEPTION;
+		goto out_destroy;
+	}
 
-	info->rbf_data = &info->data[HEADER_SIZE];
-	info->rbf_len = info->data_len - HEADER_SIZE;
+	result = fpgaPropertiesGetGUID(filter, &guid);
+	if (result != FPGA_OK) {
+		OPAE_ERR("Failed to get PR guid \n");
+		goto out_destroy;
+	}
 
-	return 0;
+	e = memcpy_s(interface_id, sizeof(fpga_guid),
+		guid, sizeof(guid));
+	if (EOK != e) {
+		OPAE_ERR("memcpy_s failed");
+		goto out_destroy;
+	}
+
+out_destroy:
+	resval = (result != FPGA_OK) ? result : resval;
+	result = fpgaDestroyProperties(&filter);
+	if (result != FPGA_OK) {
+		OPAE_ERR("Failed to destroy properties \n");
+	}
+
+out:
+	resval = (result != FPGA_OK) ? result : resval;
+	return resval;
 }
 
 /*
@@ -503,106 +431,6 @@ out_err:
 	return retval;
 }
 
-
-/*
- * Read bitstream from file and populate bitstream_info structure
- */
-// TODO: remove this check when all bitstreams conform to JSON
-// metadata spec.
-static bool skip_header_checks;
-int read_bitstream(char *filename, struct bitstream_info *info)
-{
-	FILE *f;
-	long len;
-	int ret;
-	struct stat file_mode;
-	memset_s(&file_mode, sizeof(file_mode), 0);
-
-	if (!filename || !info)
-		return -EINVAL;
-
-	info->filename = filename;
-
-	/* open file */
-	f = fopen(filename, "rb");
-	if (!f) {
-		perror(filename);
-		return -1;
-	}
-
-	if (fstat(fileno(f), &file_mode) != 0) {
-		perror(filename);
-		goto out_close;
-	}
-
-	if (S_ISREG(file_mode.st_mode) == 0) {
-		fprintf(stderr, "Invalid input GBS file\n");
-		goto out_close;
-	}
-
-	/* get filesize */
-	ret = fseek(f, 0, SEEK_END);
-	if (ret < 0) {
-		perror(filename);
-		goto out_close;
-	}
-	len = ftell(f);
-	if (len < 0) {
-		perror(filename);
-		goto out_close;
-	}
-
-	/* allocate memory */
-	info->data = (uint8_t *)malloc(len);
-	if (!info->data) {
-		perror("malloc");
-		goto out_close;
-	}
-
-	/* read bistream data */
-	ret = fseek(f, 0, SEEK_SET);
-	if (ret < 0) {
-		perror(filename);
-		goto out_free;
-	}
-	info->data_len = fread(info->data, 1, len, f);
-	if (ferror(f)) {
-		perror(filename);
-		goto out_free;
-	}
-	if (info->data_len != (size_t)len) {
-		fprintf(stderr,
-			"Filesize and number of bytes read don't match\n");
-		goto out_free;
-	}
-
-	if (check_bitstream_guid(info->data) == FPGA_OK) {
-		skip_header_checks = true;
-
-		if (get_bitstream_ifc_id(info->data, info->data_len, &(info->interface_id))
-		    != FPGA_OK) {
-			fprintf(stderr, "Invalid metadata in the bitstream\n");
-			goto out_free;
-		}
-	}
-
-	if (!skip_header_checks) {
-		/* populate remaining bitstream_info fields */
-		ret = parse_metadata(info);
-		if (ret < 0)
-			goto out_free;
-	}
-
-	fclose(f);
-	return 0;
-
-out_free:
-	free((void *)info->data);
-out_close:
-	fclose(f);
-	return -1;
-}
-
 /*
  * Find first FPGA matching the interface ID of the GBS
  *
@@ -667,7 +495,7 @@ out_err:
 }
 
 int program_bitstream(fpga_token token, uint32_t slot_num,
-		      struct bitstream_info *info, int flags)
+		      opae_bitstream_info *info, int flags)
 {
 	fpga_handle handle;
 	fpga_result res;
@@ -701,8 +529,9 @@ out_err:
 int main(int argc, char *argv[])
 {
 	int res;
+	fpga_result result;
 	int retval = 0;
-	struct bitstream_info info;
+	opae_bitstream_info info;
 	fpga_token token;
 	uint32_t slot_num = 0; /* currently, we don't support multiple slots */
 
@@ -718,15 +547,15 @@ int main(int argc, char *argv[])
 
 	/* allocate memory and read bitstream data */
 	print_msg(1, "Reading bitstream");
-	res = read_bitstream(config.filename, &info);
-	if (res < 0) {
+	result = opae_load_bitstream(config.filename, &info);
+	if (result != FPGA_OK) {
 		retval = 2;
 		goto out_exit;
 	}
 
 	/* find suitable slot */
 	print_msg(1, "Looking for slot");
-	res = find_fpga(info.interface_id, &token);
+	res = find_fpga(info.pr_interface_id, &token);
 	if (res < 0) {
 		retval = 3;
 		goto out_free;
@@ -735,7 +564,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "No suitable slots found.\n");
 		retval = 4;
 		if (config.verbosity > 0)
-			print_interface_id(info.interface_id);
+			print_interface_id(info.pr_interface_id);
 		goto out_free;
 	}
 	if (res > 1) {
@@ -759,7 +588,7 @@ int main(int argc, char *argv[])
 out_destroy:
 	fpgaDestroyToken(&token);
 out_free:
-	free(info.data);
+	opae_unload_bitstream(&info);
 out_exit:
 	if (config.filename) {
 		free(config.filename);
