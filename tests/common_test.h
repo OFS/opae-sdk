@@ -52,7 +52,6 @@
 #include "types_int.h"
 #include <sys/mman.h>
 #include "safe_string/safe_string.h"
-//#include "error_int.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 #define UNUSED_PARAM(x) ((void)x)
