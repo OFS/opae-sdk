@@ -1,5 +1,5 @@
 // ***************************************************************************
-// Copyright (c) 2016, Intel Corporation
+// Copyright (c) 2016-2019, Intel Corporation
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -29,17 +29,6 @@
 
 // Date: 03/2019
 // Compliant with CCI-P spec v0.8
-
-//
-// Preprocessor flags indicating available CCI-P flags, useful for driving
-// conditional compilation.
-//
-
-// Speculation fields ("speculate" on requests and "error" on responses) added
-// and some rsvd1 fields dropped on RspMemHdr.
-`define CCIP_IF_SUPPORTS_SPECULATE 1
-
-
 package ccip_if_pkg;
 //=====================================================================
 // CCI-P interface defines
@@ -85,7 +74,13 @@ typedef logic [2:0]                     t_ccip_qwIdx;
 // Channel 0
 typedef enum logic [3:0] {
     eREQ_RDLINE_I  = 4'h0,      // Memory Read with FPGA Cache Hint=Invalid
-    eREQ_RDLINE_S  = 4'h1       // Memory Read with FPGA Cache Hint=Shared
+    eREQ_RDLINE_S  = 4'h1,      // Memory Read with FPGA Cache Hint=Shared
+
+    // Speculative reads behave like normal reads except that address
+    // translation errors return responses with the t_ccip_c0_RspMemHdr
+    // error bit set instead of raising global errors.
+    eREQ_RDLSPEC_I = 4'h2,      // Speculative Memory Read with FPGA Cache Hint=Invalid
+    eREQ_RDLSPEC_S = 4'h3       // Speculative Memory Read with FPGA Cache Hint=Shared
 } t_ccip_c0_req;
 
 // Channel 1
@@ -137,8 +132,7 @@ typedef enum logic [1:0] {
 //----------------------------------------------------------------------
 typedef struct packed {
     t_ccip_vc       vc_sel;    // [73:72]
-    logic           rsvd1;     // [71]      reserved, drive 0
-    logic           speculate; // [70]      no error on IOMMU translation error
+    logic [1:0]     rsvd1;     // [71:70]   reserved, drive 0
     t_ccip_clLen    cl_len;    // [69:68]
     t_ccip_c0_req   req_type;  // [67:64]
     logic [5:0]     rsvd0;     // [63:58]   reserved, drive 0
@@ -151,11 +145,10 @@ typedef struct packed {
     logic [5:0]     rsvd2;      // [79:74]  reserved, drive 0
     t_ccip_vc       vc_sel;     // [73:72]
     logic           sop;        // [71]
-    logic           speculate;  // [70]     no error on IOMMU translation error
+    logic           rsvd1;      // [70]     reserved, drive 0
     t_ccip_clLen    cl_len;     // [69:68]
     t_ccip_c1_req   req_type;   // [67:64]
-    logic           rsvd1;      // [63]     reserved, drive 0
-    logic [4:0]     rsvd0;      // [62:58]  reserved, drive 0
+    logic [5:0]     rsvd0;      // [63:58]  reserved, drive 0
     t_ccip_clAddr   address;    // [57:16]
     t_ccip_mdata    mdata;      // [15:0]
 } t_ccip_c1_ReqMemHdr;
@@ -181,7 +174,7 @@ typedef struct packed {
 
 typedef struct packed {
     t_ccip_vc       vc_used;    // [27:26]
-    logic           error;      // [25]     non-fatal error (e.g. failure with speculate set)
+    logic           error;      // [25]     currently set only for failed speculative reads
     logic           hit_miss;   // [24]
     logic           rsvd1;      // [23]     reserved, don't care
     logic           rsvd0;      // [22]     reserved, don't care
@@ -193,7 +186,7 @@ parameter CCIP_C0RX_HDR_WIDTH = $bits(t_ccip_c0_RspMemHdr);
 
 typedef struct packed {
     t_ccip_vc       vc_used;   // [27:26]
-    logic           error;     // [25]      non-fatal error (e.g. failure with speculate set)
+    logic           rsvd1;     // [25]      reserved, don't care
     logic           hit_miss;  // [24]
     logic           format;    // [23]
     logic           rsvd0;     // [22]      reserved, don't care
