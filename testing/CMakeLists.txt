@@ -890,6 +890,14 @@ add_ase_test(test_props_c_ase
     ase/test_props_c_ase.cpp
 )
 
+add_ase_test(test_enum_c_ase
+    ase/test_enum_c_ase.cpp
+)
+
+add_ase_test(test_mmio_c_ase
+    ase/test_mmio_c_ase.cpp
+)
+
 ############################################################################
 # pyopae tests #############################################################
 ############################################################################
