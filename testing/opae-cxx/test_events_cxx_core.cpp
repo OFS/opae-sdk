@@ -55,7 +55,12 @@ class events_cxx_core : public ::testing::TestWithParam<std::string>,
     ASSERT_EQ(fpgaInitialize(nullptr), FPGA_OK);
 
     properties::ptr_t props = properties::get(FPGA_ACCELERATOR);
-    props->device_id = platform_.devices[0].device_id;
+
+    auto device_id = platform_.devices[0].device_id;
+    if (platform_.devices[0].num_vfs) {
+      device_id++;
+    }
+    props->device_id = device_id;
 
     tokens_ = token::enumerate({props});
     ASSERT_TRUE(tokens_.size() > 0);
