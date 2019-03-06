@@ -174,9 +174,9 @@ typedef struct packed {
 
 typedef struct packed {
     t_ccip_vc       vc_used;    // [27:26]
-    logic           error;      // [25]     currently set only for failed speculative reads
+    logic           rsvd1;      // [25]     reserved, don't care
     logic           hit_miss;   // [24]
-    logic           rsvd1;      // [23]     reserved, don't care
+    logic           error;      // [23]     currently set only for failed speculative reads
     logic           rsvd0;      // [22]     reserved, don't care
     t_ccip_clNum    cl_num;     // [21:20]
     t_ccip_c0_rsp   resp_type;  // [19:16]
