@@ -62,18 +62,58 @@
 
 typedef struct _sysfs_formats {
 	const char *sysfs_class_path;
+	const char *sysfs_pcidrv_fpga;
 	const char *sysfs_device_fmt;
 	const char *sysfs_region_fmt;
+	const char *sysfs_device_glob;
+	const char *sysfs_fme_glob;
+	const char *sysfs_port_glob;
 	const char *sysfs_compat_id;
 } sysfs_formats;
 
 static sysfs_formats sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
 	// upstream driver sysfs formats
-	{"/sys/class/fpga_region", "region([0-9])+",
-	 "dfl-(fme|port)\\.([0-9]+)", "/dfl-fme-region.*/fpga_region/region*/compat_id"},
+	{.sysfs_class_path = "/sys/class/fpga_region",
+	 .sysfs_pcidrv_fpga = "fpga_region",
+	 .sysfs_device_fmt = "(region)([0-9])+",
+	 .sysfs_region_fmt = "dfl-(fme|port)\\.([0-9]+)",
+	 .sysfs_device_glob = "region*",
+	 .sysfs_fme_glob = "dfl-fme.*",
+	 .sysfs_port_glob = "dfl-port.*",
+	 .sysfs_compat_id = "/dfl-fme-region.*/fpga_region/region*/compat_id"},
 	// intel driver sysfs formats
-	{"/sys/class/fpga", "intel-fpga-dev\\.([0-9]+)",
-	 "intel-fpga-(fme|port)\\.([0-9]+)", "pr/interface_id"} };
+	{.sysfs_class_path = "/sys/class/fpga",
+	 .sysfs_pcidrv_fpga = "fpga",
+	 .sysfs_device_fmt = "(intel-fpga-dev\\.)([0-9]+)",
+	 .sysfs_region_fmt = "intel-fpga-(fme|port)\\.([0-9]+)",
+	 .sysfs_device_glob = "intel-fpga-dev.*",
+	 .sysfs_fme_glob = "intel-fpga-fme.*",
+	 .sysfs_port_glob = "intel-fpga-port.*",
+	 .sysfs_compat_id = "pr/interface_id"} };
+
+// RE_MATCH_STRING is index 0 in a regex match array
+#define RE_MATCH_STRING 0
+// RE_DEVICE_GROUPS is the matching groups for the device regex in the
+// sysfs_path_table above.
+// Currently this only has three groups:
+// * The matching string itself - group 0
+// * The prefix (either 'region' or 'intel-fpga-dev.') - group 1
+// * The number - group 2
+// These indices are used when indexing a regex match object
+#define RE_DEVICE_GROUPS 3
+#define RE_DEVICE_GROUP_PREFIX 1
+#define RE_DEVICE_GROUP_NUM 2
+
+// RE_REGION_GROUPS is the matching groups for the region regex in the
+// sysfs_path_table above.
+// Currently this only has three groups:
+// * The matching string itself - group 0
+// * The type ('fme' or 'port') - group 1
+// * The number - group 2
+// These indices are used when indexing a regex match object
+#define RE_REGION_GROUPS 3
+#define RE_REGION_GROUP_TYPE 1
+#define RE_REGION_GROUP_NUM 2
 
 static sysfs_formats *_sysfs_format_ptr;
 static uint32_t _sysfs_device_count;
@@ -215,74 +255,190 @@ STATIC sysfs_fpga_region *make_region(sysfs_fpga_device *device, char *name,
 	return region;
 }
 
-STATIC int find_regions(sysfs_fpga_device *device)
+/**
+ * @brief Match a device node given a format pattern
+ *
+ * @param fmt A regex pattern for the device node
+ * @param inpstr A sysfs path to a potential device node
+ * @param(out) prefix[] A prefix string for the device node
+ * @param prefix_len capacity of prefix (max length)
+ * @param(out) num The sysfs number encoded in the name
+ *
+ * @note fmt is expected to be a regex pattern in our sysfs_format_table
+ *       Matching input strings could could look like:
+ *       * region0 where 'region' is the prefix and 0 is the num
+ *       * intel-fpga-dev.0 where 'intel-fpga-dev.' is the prefix and 0 is the
+ *       num
+ *
+ *
+ * @return FPGA_OK if a match is found, FPGA_NOT_FOUND it no match is found,
+ *         FPGA_EXCEPTION if an error is encountered
+ */
+STATIC fpga_result re_match_device(const char *fmt, char *inpstr, char prefix[],
+				   size_t prefix_len, int *num)
 {
-	DIR *dir = NULL;
-	struct dirent *dirent = NULL;
+	int reg_res = 0;
+	fpga_result res = FPGA_EXCEPTION;
+	regmatch_t matches[RE_DEVICE_GROUPS];
+	char err[128];
+	char *ptr = NULL;
+	char *end = NULL;
 	regex_t re;
-	int reg_res = -1;
-	int num = -1;
-	char err[128] = {0};
-	regmatch_t matches[SYSFS_MAX_RESOURCES];
 
-	if (SYSFS_FORMAT(sysfs_region_fmt)) {
-
-		reg_res = regcomp(&re, SYSFS_FORMAT(sysfs_region_fmt), REG_EXTENDED);
-		if (reg_res) {
-			regerror(reg_res, &re, err, 128);
-			FPGA_MSG("Error compiling regex: %s", err);
-			return FPGA_EXCEPTION;
-		}
+	ASSERT_NOT_NULL(fmt);
+	ASSERT_NOT_NULL(inpstr);
+	ASSERT_NOT_NULL(prefix);
+	ASSERT_NOT_NULL(num);
+	reg_res = regcomp(&re, fmt, REG_EXTENDED);
+	if (reg_res) {
+		regerror(reg_res, &re, err, sizeof(err));
+		FPGA_ERR("Error compiling regex: %s", err);
+		return FPGA_EXCEPTION;
+	}
+	reg_res = regexec(&re, inpstr, RE_DEVICE_GROUPS, matches, 0);
+	if (reg_res) {
+		return FPGA_NOT_FOUND;
 	}
 
-	dir = opendir(device->sysfs_path);
+	ptr = inpstr + matches[RE_DEVICE_GROUP_PREFIX].rm_so;
+	end = inpstr + matches[RE_DEVICE_GROUP_PREFIX].rm_eo;
+	if (strncpy_s(prefix, prefix_len, ptr, end - ptr)) {
+		FPGA_ERR("Error copying prefix from string: %s", inpstr);
+		goto out_free;
+	}
+	*(prefix + (end - ptr)) = '\0';
+	ptr = inpstr + matches[RE_DEVICE_GROUP_NUM].rm_so;
+	errno = 0;
+	*num = strtoul(ptr, NULL, 10);
+	if (errno) {
+		FPGA_ERR("Error parsing number: %s", inpstr);
+		goto out_free;
+	}
+	res = FPGA_OK;
+out_free:
+	regfree(&re);
+	return res;
+}
+
+/**
+ * @brief Match a device node given a format pattern
+ *
+ * @param fmt A regex pattern for the device node
+ * @param inpstr A sysfs path to a potential device node
+ * @param(out) type[] A type string for the device node
+ * @param type_len capacity of type (max length)
+ * @param(out) num The sysfs number encoded in the name
+ *
+ * @note fmt is expected to be a regex pattern in our sysfs_format_table
+ *       Matching input strings could could look like:
+ *       * dfl-fme.0 where 'fme' is the type and 0 is the num
+ *       * dfl-port.1 where 'port' is the type and 1 is the num
+ *       * intel-fpga-fme.0 where 'fme' is the type and 0 is the num
+ *       * intel-fpga-port.1 where 'port' is the type and 1 is the num
+ *
+ *
+ * @return FPGA_OK if a match is found, FPGA_NOT_FOUND it no match is found,
+ *         FPGA_EXCEPTION if an error is encountered
+ */
+STATIC fpga_result re_match_region(const char *fmt, char *inpstr, char type[],
+				   size_t type_len, int *num)
+{
+	int reg_res = 0;
+	fpga_result res = FPGA_EXCEPTION;
+	regmatch_t matches[RE_REGION_GROUPS];
+	char err[128];
+	char *ptr = NULL;
+	char *end = NULL;
+	regex_t re;
+
+	ASSERT_NOT_NULL(fmt);
+	ASSERT_NOT_NULL(inpstr);
+	ASSERT_NOT_NULL(type);
+	ASSERT_NOT_NULL(num);
+	reg_res = regcomp(&re, fmt, REG_EXTENDED);
+	if (reg_res) {
+		regerror(reg_res, &re, err, sizeof(err));
+		FPGA_ERR("Error compiling regex: %s", err);
+		return FPGA_EXCEPTION;
+	}
+	reg_res = regexec(&re, inpstr, RE_REGION_GROUPS, matches, 0);
+	if (reg_res) {
+		res = FPGA_NOT_FOUND;
+		goto out_free;
+	}
+
+	ptr = inpstr + matches[RE_REGION_GROUP_TYPE].rm_so;
+	end = inpstr + matches[RE_REGION_GROUP_TYPE].rm_eo;
+	if (strncpy_s(type, type_len, ptr, end - ptr)) {
+		FPGA_ERR("Error copying type from string: %s", inpstr);
+		goto out_free;
+	}
+	*(type + (end - ptr)) = '\0';
+	ptr = inpstr + matches[RE_REGION_GROUP_NUM].rm_so;
+	errno = 0;
+	*num = strtoul(ptr, NULL, 10);
+	if (errno) {
+		FPGA_ERR("Error parsing number: %s", inpstr);
+		goto out_free;
+	}
+	res = FPGA_OK;
+out_free:
+	regfree(&re);
+	return res;
+}
+
+
+STATIC int find_regions(sysfs_fpga_device *device)
+{
+	int num = -1;
+	char type[8];
+	fpga_result res = FPGA_OK;
+	fpga_result match_res = FPGA_NOT_FOUND;
+	fpga_objtype region_type = FPGA_DEVICE;
+	sysfs_fpga_region **region_ptr = NULL;
+	struct dirent *dirent = NULL;
+	DIR *dir = opendir(device->sysfs_path);
 	if (!dir) {
-		FPGA_MSG("failed to open device path: %s", device->sysfs_path);
-		regfree(&re);
+		FPGA_ERR("failed to open device path: %s", device->sysfs_path);
 		return FPGA_EXCEPTION;
 	}
 
 	while ((dirent = readdir(dir)) != NULL) {
+		res = FPGA_OK;
 		if (!strcmp(dirent->d_name, "."))
 			continue;
 		if (!strcmp(dirent->d_name, ".."))
 			continue;
-		reg_res = regexec(&re, dirent->d_name, SYSFS_MAX_RESOURCES,
-				  matches, 0);
-		if (!reg_res) {
-			int type_beg = matches[1].rm_so;
-			// int type_end = matches[1].rm_eo;
-			int num_beg = matches[2].rm_so;
-			// int num_end = matches[2].rm_eo;
-			if (type_beg < 1 || num_beg < 1) {
-				FPGA_MSG("Invalid sysfs resource format");
-				continue;
-			}
-			num = strtoul(dirent->d_name + num_beg, NULL, 10);
-			if (!strncmp(FPGA_SYSFS_FME, dirent->d_name + type_beg,
+
+		match_res = re_match_region(SYSFS_FORMAT(sysfs_region_fmt),
+					    dirent->d_name, type, sizeof(type),
+					    &num);
+		if (match_res == FPGA_OK) {
+			if (!strncmp(FPGA_SYSFS_FME, type,
 				     FPGA_SYSFS_FME_LEN)) {
-				device->fme =
-					make_region(device, dirent->d_name, num,
-						    FPGA_DEVICE);
-			} else if (!strncmp(FPGA_SYSFS_PORT,
-					    dirent->d_name + type_beg,
+				region_type = FPGA_DEVICE;
+				region_ptr = &device->fme;
+			} else if (!strncmp(FPGA_SYSFS_PORT, type,
 					    FPGA_SYSFS_PORT_LEN)) {
-				device->port =
-					make_region(device, dirent->d_name, num,
-						    FPGA_ACCELERATOR);
+				region_type = FPGA_ACCELERATOR;
+				region_ptr = &device->port;
 			}
+			*region_ptr = make_region(device, dirent->d_name, num,
+						  region_type);
+		} else if (match_res != FPGA_NOT_FOUND) {
+			res = match_res;
+			break;
 		}
 	}
 
-	regfree(&re);
 	if (dir)
 		closedir(dir);
 	if (!device->fme && !device->port) {
-		FPGA_MSG("did not find fme/port in device: %s", device->sysfs_path);
+		FPGA_ERR("did not find fme/port in device: %s", device->sysfs_path);
 		return FPGA_NOT_FOUND;
 	}
 
-	return FPGA_OK;
+	return res;
 }
 
 
@@ -390,15 +546,13 @@ out_unlock:
 int sysfs_initialize(void)
 {
 	int stat_res = -1;
-	int reg_res = -1;
 	int res = FPGA_OK;
 	uint32_t i = 0;
 	struct stat st;
 	DIR *dir = NULL;
-	char err[128] = {0};
 	struct dirent *dirent = NULL;
-	regex_t device_re;
-	regmatch_t matches[SYSFS_MAX_DEVICES];
+	int num = -1;
+	char prefix[64] = {0};
 
 	for (i = 0; i < OPAE_KERNEL_DRIVERS; ++i) {
 		errno = 0;
@@ -421,17 +575,6 @@ int sysfs_initialize(void)
 
 	_sysfs_device_count = 0;
 
-	if (SYSFS_FORMAT(sysfs_device_fmt)) {
-
-		reg_res = regcomp(&device_re, SYSFS_FORMAT(sysfs_device_fmt),
-			REG_EXTENDED);
-		if (reg_res) {
-			regerror(reg_res, &device_re, err, 128);
-			FPGA_ERR("Error compling regex: %s", err);
-			return FPGA_EXCEPTION;
-		}
-	}
-
 	const char *sysfs_class_fpga = SYSFS_FORMAT(sysfs_class_path);
 	if (!sysfs_class_fpga) {
 		FPGA_ERR("Invalid fpga class path: %s", sysfs_class_fpga);
@@ -453,16 +596,10 @@ int sysfs_initialize(void)
 			continue;
 		if (!strcmp(dirent->d_name, ".."))
 			continue;
-		// if the current directory matches the device regex
-		reg_res = regexec(&device_re, dirent->d_name, SYSFS_MAX_DEVICES,
-				  matches, 0);
-		if (!reg_res) {
-			int num_begin = matches[1].rm_so;
-			if (num_begin < 0) {
-				FPGA_ERR("sysfs format invalid: %s", dirent->d_name);
-				continue;
-			}
-			int num = strtoul(dirent->d_name + num_begin, NULL, 10);
+		res = re_match_device(SYSFS_FORMAT(sysfs_device_fmt),
+				      dirent->d_name, prefix, sizeof(prefix),
+				      &num);
+		if (res == FPGA_OK) {
 			// increment our device count after filling out details
 			// of the discovered device in our _devices array
 			if (opae_mutex_lock(res, &_sysfs_device_lock)) {
@@ -486,7 +623,6 @@ int sysfs_initialize(void)
 		res = FPGA_NO_DRIVER;
 	}
 out_free:
-	regfree(&device_re);
 	if (dir)
 		closedir(dir);
 	return res;
@@ -596,35 +732,84 @@ int sysfs_filter(const struct dirent *de)
 	return de->d_name[0] != '.';
 }
 
-fpga_result sysfs_get_fme_path(int dev, int subdev, char *path)
-{
-	fpga_result result = FPGA_OK;
-	char spath[SYSFS_PATH_MAX];
-	char sysfs_path[SYSFS_PATH_MAX];
-	errno_t e;
 
-	int len = snprintf_s_ss(sysfs_path, SYSFS_PATH_MAX, "%s/%s",
-		SYSFS_FORMAT(sysfs_class_path), SYSFS_FME_PATH);
-	if (len < 0) {
+/**
+ * @brief Get a path to an fme node given a path to a port node
+ *
+ * @param sysfs_port sysfs path to a port node
+ * @param(out) sysfs_fme realpath to an fme node in sysfs
+ *
+ * @return FPGA_OK if able to find the path to the fme
+ *         FPGA_EXCEPTION if errors encountered during copying,
+ *         formatting strings
+ *         FPGA_NOT_FOUND if unable to find fme path or any relevant paths
+ */
+fpga_result sysfs_get_fme_path(const char *sysfs_port, char *sysfs_fme)
+{
+	fpga_result result = FPGA_EXCEPTION;
+	char sysfs_path[SYSFS_PATH_MAX]   = {0};
+	char fpga_path[SYSFS_PATH_MAX]    = {0};
+	// subdir candidates to look for when locating "fpga*" node in sysfs
+	// order is important here because a physfn node is the exception
+	// (will only exist when a port is on a VF) and will be used to point
+	// to the PF that the FME is on
+	const char *fpga_globs[] = {"device/physfn/fpga*", "device/fpga*", NULL};
+	int i = 0;
+
+	// now try globbing fme resource sysfs path + a candidate
+	// sysfs_port is expected to be the sysfs path to a port
+	for (; fpga_globs[i]; ++i) {
+		if (snprintf_s_ss(sysfs_path, SYSFS_PATH_MAX, "%s/../%s",
+				  sysfs_port, fpga_globs[i])
+		    < 0) {
+			FPGA_ERR("Error formatting sysfs path");
+			return FPGA_EXCEPTION;
+		}
+		result = opae_glob_path(sysfs_path);
+		if (result == FPGA_OK) {
+			// we've found a path to the "fpga*" node
+			break;
+		} else if (result != FPGA_NOT_FOUND) {
+			return result;
+		}
+	}
+
+	if (!fpga_globs[i]) {
+		FPGA_ERR("Could not find path to port device/fpga*");
+		return FPGA_NOT_FOUND;
+	}
+
+
+	// format a string to look for in the subdirectory of the "fpga*" node
+	// this subdirectory should include glob patterns for the current
+	// driver
+	// -- intel-fpga-dev.*/intel-fpga-fme.*
+	// -- region*/dfl-fme.*
+	if (snprintf_s_ss(fpga_path, SYSFS_PATH_MAX, "/%s/%s",
+			  SYSFS_FORMAT(sysfs_device_glob),
+			  SYSFS_FORMAT(sysfs_fme_glob))
+	    < 0) {
 		FPGA_ERR("Error formatting sysfs path");
 		return FPGA_EXCEPTION;
 	}
 
-	snprintf_s_ii(spath, SYSFS_PATH_MAX,
-		sysfs_path, dev, subdev);
+	// now concatenate the subdirectory to the "fpga*" node
+	if (strcat_s(sysfs_path, sizeof(sysfs_path), fpga_path)) {
+		FPGA_ERR("Error concatenating path to fpga node");
+		return FPGA_EXCEPTION;
+	}
 
-	result = opae_glob_path(spath);
+	result = opae_glob_path(sysfs_path);
 	if (result) {
 		return result;
 	}
 
-	e = strncpy_s(path, SYSFS_PATH_MAX,
-		spath, SYSFS_PATH_MAX);
-	if (EOK != e) {
+	// copy the assembled and verified path to the output param
+	if (!realpath(sysfs_path, sysfs_fme)) {
 		return FPGA_EXCEPTION;
 	}
 
-	return result;
+	return FPGA_OK;
 }
 
 //
@@ -1131,17 +1316,31 @@ fpga_result sysfs_get_bitstream_id(int dev, int subdev, uint64_t *id)
 	return sysfs_read_u64(spath, id);
 }
 
-// Get port syfs path
+/**
+ * @brief Get a path to a port node given a handle to an resource
+ *
+ * @param handle Open handle to an fme resource (FPGA_DEVICE)
+ * @param(out) sysfs_port realpath to a port node in sysfs
+ *
+ * @return FPGA_OK if able to find the path to the port
+ *         FPGA_EXCEPTION if errors encountered during copying,
+ *         formatting strings
+ *         FPGA_NOT_FOUND if unable to find fme path or any relevant paths
+ */
 fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 {
 
 	struct _fpga_token *_token;
 	struct _fpga_handle *_handle      = (struct _fpga_handle *)handle;
-	char *p                           = 0;
 	char sysfs_path[SYSFS_PATH_MAX]   = {0};
+	char fpga_path[SYSFS_PATH_MAX]    = {0};
 	fpga_result result                = FPGA_OK;
-	errno_t e;
-
+	int i = 0;
+	// subdir candidates to look for when locating "fpga*" node in sysfs
+	// order is important here because a virtfn* node is the exception
+	// (will only exist when a port is on a VF) and will be used to point
+	// to the VF that the port is on
+	const char *fpga_globs[] = {"device/virtfn*/fpga*", "device/fpga*", NULL};
 	if (sysfs_port == NULL) {
 		FPGA_ERR("Invalid output pointer");
 		return FPGA_INVALID_PARAM;
@@ -1158,16 +1357,49 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 		return FPGA_INVALID_PARAM;
 	}
 
-	p = strstr(_token->sysfspath, FPGA_SYSFS_FME);
-	if (NULL == p) {
+	if (!strstr(_token->sysfspath, FPGA_SYSFS_FME)) {
 		FPGA_ERR("Invalid sysfspath in token");
 		return FPGA_INVALID_PARAM;
 	}
 
-	int len  = snprintf_s_s(sysfs_path, SYSFS_PATH_MAX, "%s/../*-port.*",
-		_token->sysfspath);
-	if (len < 0) {
+	// now try globbing fme token's sysfs path + a candidate
+	for (; fpga_globs[i]; ++i) {
+		if (snprintf_s_ss(sysfs_path, SYSFS_PATH_MAX, "%s/../%s",
+				  _token->sysfspath, fpga_globs[i])
+		    < 0) {
+			FPGA_ERR("Error formatting sysfs path");
+			return FPGA_EXCEPTION;
+		}
+		result = opae_glob_path(sysfs_path);
+		if (result == FPGA_OK) {
+			// we've found a path to the "fpga*" node
+			break;
+		} else if (result != FPGA_NOT_FOUND) {
+			return result;
+		}
+	}
+
+	if (!fpga_globs[i]) {
+		FPGA_ERR("Could not find path to port device/fpga");
+		return FPGA_EXCEPTION;
+	}
+
+	// format a string to look for in the subdirectory of the "fpga*" node
+	// this subdirectory should include glob patterns for the current
+	// driver
+	// -- intel-fgga-dev.*/intel-fpga-port.*
+	// -- region*/dfl-port.*
+	if (snprintf_s_ss(fpga_path, SYSFS_PATH_MAX, "/%s/%s",
+			  SYSFS_FORMAT(sysfs_device_glob),
+			  SYSFS_FORMAT(sysfs_port_glob))
+	    < 0) {
 		FPGA_ERR("Error formatting sysfs path");
+		return FPGA_EXCEPTION;
+	}
+
+	// now concatenate the subdirectory to the "fpga*" node
+	if (strcat_s(sysfs_path, sizeof(sysfs_path), fpga_path)) {
+		FPGA_ERR("Error concatenating path to fpga node");
 		return FPGA_EXCEPTION;
 	}
 
@@ -1176,9 +1408,9 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 		return result;
 	}
 
-	e = strncpy_s(sysfs_port, SYSFS_PATH_MAX,
-		sysfs_path, SYSFS_PATH_MAX);
-	if (EOK != e) {
+
+	// copy the assembled and verified path to the output param
+	if (!realpath(sysfs_path, sysfs_port)) {
 		return FPGA_EXCEPTION;
 	}
 

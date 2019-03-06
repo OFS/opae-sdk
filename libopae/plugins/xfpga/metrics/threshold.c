@@ -70,10 +70,6 @@ fpga_result xfpga_fpgaGetMetricsThresholdInfo(fpga_handle handle,
 	}
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	if (_handle == NULL) {
-		FPGA_ERR("Invalid handle");
-		return FPGA_INVALID_PARAM;
-	}
 
 	_token = (struct _fpga_token *)_handle->token;
 	if (_token == NULL) {
@@ -338,6 +334,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 					uint32_t *num_thresholds)
 {
 	fpga_result result                     = FPGA_OK;
+	fpga_result resval                     = FPGA_OK;
 	char sysfspath[SYSFS_PATH_MAX]         = { 0 };
 	size_t i                               = 0;
 	struct _fpga_token *_token             = NULL;
@@ -346,7 +343,6 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 	uint64_t value                         = 0;
 	errno_t e                              = 0;
 	glob_t pglob;
-
 
 	if (handle == NULL ||
 		num_thresholds == NULL) {
@@ -426,8 +422,8 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		}
 
 		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", pglob.gl_pathv[i], SYSFS_HIGH_FATAL);
-		result = sysfs_read_u64(sysfspath, &value);
-		if (result == FPGA_OK) {
+		resval = sysfs_read_u64(sysfspath, &value);
+		if (resval == FPGA_OK) {
 			metric_thresholds[i].upper_c_threshold.value = ((double)value / MILLI);
 			metric_thresholds[i].upper_c_threshold.is_valid = true;
 		}
@@ -443,12 +439,11 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		}
 
 		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", pglob.gl_pathv[i], SYSFS_HIGH_WARN);
-		result = sysfs_read_u64(sysfspath, &value);
-		if (result == FPGA_OK) {
+		resval = sysfs_read_u64(sysfspath, &value);
+		if (resval == FPGA_OK) {
 			metric_thresholds[i].upper_nc_threshold.value = ((double)value / MILLI);
 			metric_thresholds[i].upper_nc_threshold.is_valid = true;
 		}
-
 
 		// Lower Critical Threshold
 		e = strncpy_s(metric_thresholds[i].upper_nc_threshold.threshold_name,
@@ -461,8 +456,8 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		}
 
 		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", pglob.gl_pathv[i], SYSFS_LOW_FATAL);
-		result = sysfs_read_u64(sysfspath, &value);
-		if (result == FPGA_OK) {
+		resval = sysfs_read_u64(sysfspath, &value);
+		if (resval == FPGA_OK) {
 			metric_thresholds[i].lower_c_threshold.value = ((double)value / MILLI);
 			metric_thresholds[i].lower_c_threshold.is_valid = true;
 		}
@@ -478,8 +473,8 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		}
 
 		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", pglob.gl_pathv[i], SYSFS_LOW_WARN);
-		result = sysfs_read_u64(sysfspath, &value);
-		if (result == FPGA_OK) {
+		resval = sysfs_read_u64(sysfspath, &value);
+		if (resval == FPGA_OK) {
 			metric_thresholds[i].lower_nc_threshold.value = ((double)value / MILLI);
 			metric_thresholds[i].lower_nc_threshold.is_valid = true;
 		}
@@ -495,14 +490,13 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		}
 
 		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", pglob.gl_pathv[i], SYSFS_HYSTERESIS);
-		result = sysfs_read_u64(sysfspath, &value);
-		if (result == FPGA_OK) {
+		resval = sysfs_read_u64(sysfspath, &value);
+		if (resval == FPGA_OK) {
 			metric_thresholds[i].hysteresis.value = ((double)value / MILLI);
 			metric_thresholds[i].hysteresis.is_valid = true;
 		}
 
 	} //end for loop
-
 
 out:
 	if (tmp) {
