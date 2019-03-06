@@ -306,7 +306,7 @@ STATIC fpga_result re_match_device(const char *fmt, char *inpstr, char prefix[],
 		FPGA_ERR("Error copying prefix from string: %s", inpstr);
 		goto out_free;
 	}
-	*(prefix + (ptr - end)) = '\0';
+	*(prefix + (end - ptr)) = '\0';
 	ptr = inpstr + matches[RE_DEVICE_GROUP_NUM].rm_so;
 	errno = 0;
 	*num = strtoul(ptr, NULL, 10);
@@ -373,7 +373,7 @@ STATIC fpga_result re_match_region(const char *fmt, char *inpstr, char type[],
 		FPGA_ERR("Error copying type from string: %s", inpstr);
 		goto out_free;
 	}
-	*(type + (ptr - end)) = '\0';
+	*(type + (end - ptr)) = '\0';
 	ptr = inpstr + matches[RE_REGION_GROUP_NUM].rm_so;
 	errno = 0;
 	*num = strtoul(ptr, NULL, 10);
