@@ -77,7 +77,7 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 	struct _fpga_properties *_filter = (struct _fpga_properties *)filter;
 	bool res = true;
 	int err = 0;
-	char buffer[SYSFS_PATH_MAX] = {0};
+	char buffer[PATH_MAX] = {0};
 
 	if (pthread_mutex_lock(&_filter->lock)) {
 		FPGA_MSG("Failed to lock filter mutex");
@@ -87,7 +87,7 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_PARENT)) {
 		struct _fpga_token *_parent_tok =
 			(struct _fpga_token *)_filter->parent;
-		char spath[SYSFS_PATH_MAX] = {0};
+		char spath[PATH_MAX] = {0};
 
 		if (FPGA_ACCELERATOR != attr->objtype) {
 			res = false; // Only accelerator can have a parent
@@ -418,7 +418,7 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	int resval = 0;
 	struct stat stats;
 	struct dev_list *pdev;
-	char spath[SYSFS_PATH_MAX];
+	char spath[PATH_MAX];
 	char dpath[DEV_PATH_MAX];
 	uint64_t value = 0;
 	// Make sure it's a directory.
