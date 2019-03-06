@@ -309,25 +309,25 @@ fpga_result get_fpga_interface_id(fpga_token token, fpga_guid interface_id)
 
 	result = fpgaGetProperties(token, &filter);
 	if (result != FPGA_OK) {
-		OPAE_ERR("Failed to get Token Properties Object \n");
+		OPAE_ERR("Failed to get Token Properties Object");
 		goto out;
 	}
 
 	result = fpgaPropertiesGetObjectType(filter, &objtype);
 	if (result != FPGA_OK) {
-		OPAE_ERR("Failed to get Token Properties Object \n");
+		OPAE_ERR("Failed to get Token Properties Object");
 		goto out_destroy;
 	}
 
 	if (objtype != FPGA_DEVICE) {
-		OPAE_ERR("Invalid FPGA object type \n");
+		OPAE_ERR("Invalid FPGA object type");
 		result = FPGA_EXCEPTION;
 		goto out_destroy;
 	}
 
 	result = fpgaPropertiesGetGUID(filter, &guid);
 	if (result != FPGA_OK) {
-		OPAE_ERR("Failed to get PR guid \n");
+		OPAE_ERR("Failed to get PR guid");
 		goto out_destroy;
 	}
 
@@ -342,7 +342,7 @@ out_destroy:
 	resval = (result != FPGA_OK) ? result : resval;
 	result = fpgaDestroyProperties(&filter);
 	if (result != FPGA_OK) {
-		OPAE_ERR("Failed to destroy properties \n");
+		OPAE_ERR("Failed to destroy properties");
 	}
 
 out:
