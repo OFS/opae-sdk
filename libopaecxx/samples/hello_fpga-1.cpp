@@ -108,7 +108,7 @@ int main(__attribute__((unused)) int argc,
   // temporarily "borrow" a raw pointer to the buffer
   // status_ptr can be dangling pointer if dsm is the only reference
   // and it is reset or goes out of scope before status_ptr
-  volatile uint8_t *status_ptr = dsm->c_type() + DSM_STATUS_TEST_COMPLETE;
+  volatile uint8_t* status_ptr = dsm->c_type() + DSM_STATUS_TEST_COMPLETE;
   // start the test
   accel->write_csr32(CSR_CTL, 3);
 
