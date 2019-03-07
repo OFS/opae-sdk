@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <limits.h>
 #include <sys/types.h>
 
 #include "safe_string/safe_string.h"
@@ -188,10 +189,10 @@ free_props:
 // clears port errors
 STATIC fpga_result clear_port_errors(fpga_handle handle)
 {
-	char sysfs_path[SYSFS_PATH_MAX]    = {0};
+	char sysfs_path[PATH_MAX]          = {0};
 	char sysfs_errpath[SYSFS_PATH_MAX] = {0};
-	fpga_result result                = FPGA_OK;
-	uint64_t error                    = 0 ;
+	fpga_result result                 = FPGA_OK;
+	uint64_t error                     = 0 ;
 
 	result = get_port_sysfs(handle, sysfs_path);
 	if (result != FPGA_OK) {
@@ -223,7 +224,7 @@ fpga_result set_afu_userclock(fpga_handle handle,
 				uint64_t usrlclock_high,
 				uint64_t usrlclock_low)
 {
-	char sysfs_path[SYSFS_PATH_MAX]    = {0};
+	char sysfs_path[PATH_MAX]         = {0};
 	fpga_result result                = FPGA_OK;
 	uint64_t userclk_high             = 0;
 	uint64_t userclk_low              = 0;
