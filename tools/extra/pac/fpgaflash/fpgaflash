@@ -42,6 +42,7 @@ from array import array
 VCP_ID = 0x0b30
 VCP_PF1_ID = 0x0b32
 VCP_EEPROM_SIZE = 0x10000
+VCP_RPD_IMAGE_LENGTH = 0x77f0000
 VCP_RPD_USER_IMAGE_OFFSET = 0x3ff0000
 VCP_RPD_USER_IMAGE_LENGTH = 0x3800000
 VCP_FLASH_OPT_OFFSET = 0x10000
@@ -54,6 +55,12 @@ MAX10_USER_FLASH_OFFSET = 0xb8000
 MAX10_USER_FLASH_LENGTH = 0xa8000
 USER_BOOT_PAGE = 0
 FACTORY_BOOT_PAGE = 1
+
+VCP_IMAGE_MAGIC_NUM1 = 0x2000862A
+VCP_IMAGE_MAGIC_NUM2 = 0x0040666A
+DTB_IMAGE_MAGIC_NUM = 0xd00dfeed
+MAX10_IMAGE_MAGIC_NUM = 0x56565656
+
 
 try:
     from intelhex import IntelHex
@@ -118,7 +125,6 @@ def get_flash_size(dev):
 
 def flash_erase(dev, start, nbytes):
     MEMERASE = 0x40084d02
-
     ioctl_data = struct.pack('II', start, nbytes)
     with os.fdopen(os.open(dev, os.O_SYNC | os.O_RDWR), 'w') as file_:
         fcntl.ioctl(file_.fileno(), MEMERASE, ioctl_data)
@@ -243,39 +249,48 @@ def get_spi_sysfs_path(bdf):
         return paths[0]
 
 
-def set_flash_mode(bdf, type, value):
+def get_flash_mode(bdf):
     spi_path = get_spi_sysfs_path(bdf)
     if not spi_path:
-        return
+        return 0
     else:
-        if type == 'user' or type == 'dtb':
-            path = os.path.join(spi_path, 'fpga_flash_ctrl', 'fpga_flash_mode')
-        elif type == 'bmc_fw':
-            path = os.path.join(spi_path, 'bmcfw_flash_ctrl',
-                                'bmcfw_flash_mode')
-        elif type == 'bmc_img':
-            path = os.path.join(spi_path, 'bmcimg_flash_ctrl',
-                                'bmcimg_flash_mode')
+        mode = []
+        for prefix in ['fpga', 'bmcfw', 'bmcimg']:
+            path = os.path.join(spi_path, '{}_flash_ctrl'.format(prefix),
+                                '{}_flash_mode'.format(prefix))
+            if os.path.exists(path):
+                with open(path, 'r') as fd:
+                    mode.append(int(fd.read(1)))
+        return 1 if any(mode) else 0
+
+
+def set_flash_mode(bdf, utype, value):
+    spi_path = get_spi_sysfs_path(bdf)
+    if spi_path:
+        if utype == 'user' or utype == 'dtb':
+            prefix = 'fpga'
+        elif utype == 'bmc_fw':
+            prefix = 'bmcfw'
+        elif utype == 'bmc_img':
+            prefix = 'bmcimg'
         else:
             return
-        if not os.path.exists(path):
-            print("WARNING: {} not found".format(path))
-            return
-        with open(path, 'w') as fd:
-            fd.write(str(value))
+        path = os.path.join(spi_path, '{}_flash_ctrl'.format(prefix),
+                            '{}_flash_mode'.format(prefix))
+
+        if os.path.exists(path):
+            with open(path, 'w') as fd:
+                fd.write(str(value))
 
 
-def enable_mtd(bdf, type):
-    if int(get_devid(bdf), 16) == VCP_ID:
-        set_flash_mode(bdf, type, 1)
-        time.sleep(1)
+def enable_mtd(bdf, utype):
+    set_flash_mode(bdf, utype, 1)
+    time.sleep(1)
 
 
 def disable_mtd(bdf):
-    if int(get_devid(bdf), 16) == VCP_ID:
-        set_flash_mode(bdf, 'user', 0)
-        set_flash_mode(bdf, 'bmc_fw', 0)
-        set_flash_mode(bdf, 'bmc_img', 0)
+    for utype in ['user', 'bmc_fw', 'bmc_img']:
+        set_flash_mode(bdf, utype, 0)
 
 
 def get_mtd(bdf):
@@ -300,15 +315,15 @@ def get_mtd(bdf):
         return mtd
 
 
-def get_bdf_mtd_mapping(type):
+def get_bdf_mtd_mapping(utype, sbdf=None):
     bdf_map = dict()
     for fpga in glob.glob('/sys/class/fpga/*'):
         bdf = os.path.basename(os.readlink(os.path.join(fpga, "device")))
-        if not bdf:
+        if not bdf or (sbdf and sbdf != bdf):
             continue
 
         if int(get_devid(bdf), 16) == VCP_ID:
-            enable_mtd(bdf, type)
+            enable_mtd(bdf, utype)
             mtd = get_mtd(bdf)
             if not mtd:
                 disable_mtd(bdf)
@@ -322,8 +337,6 @@ def get_bdf_mtd_mapping(type):
                     bdf_map[bdf] = os.path.join('/dev', os.path.basename(mtd))
                     break
 
-    if len(bdf_map) == 0:
-        print "No flash devices found for FPGA"
     return bdf_map
 
 
@@ -332,7 +345,6 @@ def print_bdf_mtd_mapping(bdf_map):
 
     for key in bdf_map.keys():
         print "    {}".format(key)
-        disable_mtd(key)
 
     print
 
@@ -340,7 +352,6 @@ def print_bdf_mtd_mapping(bdf_map):
 
 
 def normalize_bdf(bdf):
-
     pat = r'[0-9a-fA-F]{4,}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.[0-9a-fA-F]$'
     if re.match(pat, bdf):
         return bdf
@@ -381,6 +392,18 @@ def update_flash(update_type, ifile, mtd_dev, bdf):
 
     if int(get_devid(bdf), 16) == VCP_ID:
         if update_type == 'user':
+            ifile.seek(0)
+            data = ifile.read(8)
+            bin_hdr = struct.unpack('>II', data)
+            if bin_hdr[0] != VCP_IMAGE_MAGIC_NUM1 or \
+                bin_hdr[1] != VCP_IMAGE_MAGIC_NUM2:
+                print "invalid image file"
+                return 1
+            ifile.seek(0, 2)
+            image_len = ifile.tell()
+            if image_len != VCP_RPD_IMAGE_LENGTH:
+                print "invalid image length"
+                return 1
             start_addr = VCP_RPD_USER_IMAGE_OFFSET
             image_len = VCP_RPD_USER_IMAGE_LENGTH
             option_bits_update(mtd_dev)
@@ -391,20 +414,17 @@ def update_flash(update_type, ifile, mtd_dev, bdf):
             ifile.seek(0)
             data = ifile.read(8)
             dtb_hdr = struct.unpack('>II', data)
-            if dtb_hdr[0] != 0xd00dfeed:
+            if dtb_hdr[0] != DTB_IMAGE_MAGIC_NUM:
                 print "invalid dtb file"
-                disable_mtd(bdf)
                 return 1
             if dtb_hdr[1] != image_len:
                 print "invalid dtb length"
-                disable_mtd(bdf)
                 return 1
         elif update_type == 'bmc_fw':
             try:
                 ihex = IntelHex(ifile)
             except Exception as ex:
                 print ex
-                disable_mtd(bdf)
                 return 1
             for (start, size) in ihex.segments():
                 print "segment: start 0x%x, size 0x%x" % (start, size)
@@ -417,14 +437,12 @@ def update_flash(update_type, ifile, mtd_dev, bdf):
             image_len = ifile.tell()
             if image_len != MAX10_USER_FLASH_LENGTH:
                 print "invalid rpd length"
-                disable_mtd(bdf)
                 return 1
             ifile.seek(0x8c)
             data = ifile.read(4)
             rpd_hdr = struct.unpack('I', data)
-            if rpd_hdr[0] != 0x56565656:
+            if rpd_hdr[0] != MAX10_IMAGE_MAGIC_NUM:
                 print "invalid rpd file"
-                disable_mtd(bdf)
                 return 1
     else:
         try:
@@ -526,7 +544,7 @@ def fpga_update(utype, ifile, bdf, bdf_map):
     mtd_dev = bdf_map[bdf]
 
     if not mtd_dev:
-        print_bdf_mtd_mapping(bdf_map)
+        return 1
 
     try:
         mode = os.stat(mtd_dev).st_mode
@@ -892,11 +910,15 @@ def read_root_ports(path, type):
 
 
 def set_aer(port, mask):
-    r = os.system("sudo setpci -s {} ECAP_AER+0x08.L={:#x}".format(port, mask))
-    if r != 0:
-        return r
-    r = os.system("sudo setpci -s {} ECAP_AER+0x14.L={:#x}".format(port, mask))
-    return r
+    r = os.system("sudo setpci -s {} ECAP_AER+0x08.L={:#x} > /dev/null 2>&1".
+                  format(port, mask))
+    if r != 0 and r != 256: # value 256 means AER capability is not support
+        return 1
+    r = os.system("sudo setpci -s {} ECAP_AER+0x14.L={:#x} > /dev/null 2>&1".
+                  format(port, mask))
+    if r != 0 and r != 256: # value 256 means AER capability is not support
+        return 1
+    return 0
 
 
 def disable_aer(port):
@@ -953,19 +975,17 @@ def eeprom_update(ifile, bdf):
                                         '*-*', '*-*', 'nvmem'))
     if len(nvmem_path) == 1:
         with open(nvmem_path[0], 'wb') as wfile:
-            wfile.write(ifile.read())
+            wfile.write(ifile.read(VCP_EEPROM_SIZE))
     elif len(nvmem_path) > 1:
         print "multiple nvmem found"
         ret = 1
     else:
         eeprom_path = glob.glob(os.path.join(fpga_path, 'intel-fpga-fme.*',
-                                'altera-i2c.*.auto', 'i2c-*', '*-*', 'eeprom'))
-        if len(eeprom_path) == 1:
+                                             'altera-i2c.*.auto', 'i2c-*',
+                                             '*-*', 'eeprom'))
+        if len(eeprom_path) >= 1:
             with open(eeprom_path[0], 'wb') as wfile:
                 wfile.write(ifile.read(VCP_EEPROM_SIZE))
-        elif len(eeprom_path) > 1:
-            print "multiple eeprom found"
-            ret = 1
         else:
             print "no nvmem or eeprom found"
             ret = 1
@@ -1021,39 +1041,76 @@ def do_rsu(type, bdf, boot_page):
                 enable_aer(p)
 
 
+def fpgaflash_in_progress():
+    bdfs = []
+    for fpga in glob.glob('/sys/class/fpga/*'):
+        bdf = os.path.basename(os.readlink(os.path.join(fpga, "device")))
+        if not bdf:
+            continue
+        if int(get_devid(bdf), 16) == VCP_ID:
+            if get_flash_mode(bdf):
+                bdfs.append(bdf)
+    return bdfs
+
+
 def main():
     args = parse_args()
 
-    if args.type == 'eeprom':
-        ret = eeprom_update(args.file, args.bdf)
-        sys.exit(ret)
-
-    bdf_map = get_bdf_mtd_mapping(args.type)
-
-    if len(bdf_map) == 0:
-        sys.exit(1)
-
     bdf = args.bdf
 
+    if args.type == 'eeprom':
+        if bdf:
+            try:
+                ret = eeprom_update(args.file, normalize_bdf(bdf))
+            except Exception as ex:
+                print ex
+                ret = 1
+        else:
+            print "Must specify bdf of FPGA which eeprom connects to"
+            ret = 1
+        sys.exit(ret)
+
+    bdfs_in_progress = fpgaflash_in_progress()
+
     if not bdf:
-        if len(bdf_map) > 1:
+        bdf_map = get_bdf_mtd_mapping(args.type)
+        if len(bdf_map) == 0:
+            print "No flash device found for FPGA"
+            sys.exit(1)
+        if len(bdf_map) == 1:
+            bdf = bdf_map.keys()[0]
+        else:
+            for key in bdf_map.keys():
+                if not key in bdfs_in_progress:
+                    disable_mtd(key)
             print "Must specify a bdf. More than one device found."
             print_bdf_mtd_mapping(bdf_map)
-        else:
-            bdf = bdf_map.keys()[0]
     else:
         bdf = normalize_bdf(bdf)
         if not bdf:
             print "{} is an invalid bdf".format(args.bdf)
-            print_bdf_mtd_mapping(bdf_map)
-        elif bdf not in bdf_map.keys():
-            print "Could not find flash device for {}".format(bdf)
-            print_bdf_mtd_mapping(bdf_map)
+            sys.exit(1)
+        else:
+            bdf_map = get_bdf_mtd_mapping(args.type, bdf)
+            if len(bdf_map) == 0:
+                print "No flash device found for FPGA"
+                sys.exit(1)
+            if len(bdf_map) > 1:
+                print "ERROR: multiple flash devices found for FPGA"
+                sys.exit(1)
+
+    if bdf in bdfs_in_progress:
+        print "fpgaflash on {} is in progress, please try later".format(bdf)
+        sys.exit(1)
 
     if (args.type == 'bmc_bl') or (args.type == 'bmc_app'):
         ret = bmc_update(args.type, args.file, bdf)
     else:
-        ret = fpga_update(args.type, args.file, bdf, bdf_map)
+        try:
+            ret = fpga_update(args.type, args.file, bdf, bdf_map)
+        except Exception as ex:
+            print ex
+            ret = 1
 
     disable_mtd(bdf)
 

@@ -148,9 +148,9 @@ def main():
     args.fpga_root = devs[0].get('path')
     nvmem_path = f.find_node(devs[0].get('path'), 'nvmem', depth=7)
     if not nvmem_path:
+        nvmem_path = f.find_node(devs[0].get('path'), 'eeprom', depth=7)
+    if not nvmem_path:
         exception_quit('No nvmem found at {}'.format(devs[0].get('path')))
-    for p in nvmem_path:
-        print('found nvmem: {}'.format(p))
     args.nvmem = nvmem_path[0]
     if len(nvmem_path) > 1:
         print('multi nvmem found, '
