@@ -87,6 +87,10 @@ class shared_buffer {
   void release();
 
   /** Retrieve the virtual address of the buffer base.
+   *
+   *  @note assiging this to a variable should be done in limited scopes
+   *  as the variable can outlive the shared_buffer object creating the danger
+   *  of a dangling pointer
    */
   volatile uint8_t *c_type() const { return virt_; }
 
