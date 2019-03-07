@@ -189,10 +189,10 @@ free_props:
 // clears port errors
 STATIC fpga_result clear_port_errors(fpga_handle handle)
 {
-	char sysfs_path[PATH_MAX]         = {0};
-	char sysfs_errpath[SYSFS_PATH_MAX]= {0};
-	fpga_result result                = FPGA_OK;
-	uint64_t error                    = 0 ;
+	char sysfs_path[PATH_MAX]          = {0};
+	char sysfs_errpath[SYSFS_PATH_MAX] = {0};
+	fpga_result result                 = FPGA_OK;
+	uint64_t error                     = 0 ;
 
 	result = get_port_sysfs(handle, sysfs_path);
 	if (result != FPGA_OK) {
