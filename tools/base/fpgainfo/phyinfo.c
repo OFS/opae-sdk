@@ -172,25 +172,30 @@ static void print_phy_group_info(fpga_properties props, int group_num)
 
 #define PKVL_NAME	"pkvl"
 #define SPI_NAME	"spi"
+#define MAX_PORTS	8
 
 static void print_pkvl_info(fpga_properties props)
 {
 	DIR *dir = NULL;
 	struct dirent *dirent = NULL;
 	char path[SYSFS_PATH_MAX] = {0};
-	const char *sysfspath = get_sysfs_path(props, FPGA_DEVICE, NULL);
+	struct dev_list *lptr = NULL;
+	const char *sysfspath = get_sysfs_path(props, FPGA_DEVICE, &lptr);
 	char *substr;
 	int found = 0;
 	int offset;
-	int shift;
+	int mask = 0;
+	int fpga_mode = 0 ;
 	int result;
 	int fd;
-	int i;
+	int i,j;
 	ssize_t ret;
 	char mode[16] = {0};
 	char status[16] = {0};
 
 	printf("//****** PKVL ******//\n");
+
+	fpga_mode = (lptr->fme->fpga_bitstream_id >> 32)&0xf;
 
 	if (sysfspath == NULL)
 		return;
@@ -265,10 +270,31 @@ static void print_pkvl_info(fpga_properties props)
 		snprintf_s_s(path+offset, sizeof(path)-offset, "/%s", "status");
 		get_sysfs_attr(path, status, sizeof(status));
 		result = strtol(status, NULL, 16);
-		shift = speed == 25 ? 4 : 1;
-		for (i = 0; i < num_ports; i++) {
-			printf("%s%-2d%-23s : %s\n", "Port",
-				   i, mode, result&(1<<(i*shift)) ? "Up" : "Down");
+		if (speed==10) {
+			/* 8x10g */
+			mask = 0xff;
+		} else if (speed == 25) {
+			if (num_ports == 4) {
+				switch(fpga_mode) {
+				case 1: /* 4x25g */
+				case 3: /* 6x25g */
+					mask = 0xf;
+					break;
+
+				case 4: /* 2x2x25g */
+					mask = 0x33;
+					break;
+				}
+			} else {
+				/* 2*1*25g */
+				mask = 0x11;
+			}
+		}
+		for (i = 0, j = 0; i < MAX_PORTS; i++) {
+			if (mask&(1<<i)) {
+				printf("Port%-2d%-23s : %s\n", j, mode, result&(1<<i) ? "Up" : "Down");
+				j++;
+			}
 		}
 	} else {
 		fprintf(stderr, "WARNING: pkvl not found\n");
