@@ -38,6 +38,8 @@
 
 #include <json-c/json.h>
 #include <opae/types.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -75,6 +77,28 @@ fpga_result opae_bitstream_get_json_string(json_object *parent,
 fpga_result opae_bitstream_get_json_int(json_object *parent,
 					const char *name,
 					int *value);
+
+#define OPAE_BITSTREAM_PATH_NO_PARENT  0x00000001
+#define OPAE_BITSTREAM_PATH_NO_SYMLINK 0x00000002
+/**
+ * Verify the given file path.
+ *
+ * Basic verification involves searching for invalid characters
+ * and character sequences. See `flags` for additional options.
+ *
+ * @param[in] path The path in question.
+ * @param[in] flags Require additional checks (bit mask).
+ * If `flags` contains `OPAE_BITSTREAM_PATH_NO_PARENT`,
+ * then `path` is rejected if it contains `..`. If `flags`
+ * contains `OPAE_BITSTREAM_PATH_NO_SYMLINK`, then `path`
+ * is rejected if a component of the path is a symbolic
+ * link.
+ *
+ * @returns true if `path` is accepted, or false is `path`
+ * is rejected, based on the requested checks.
+ */ 
+bool opae_bitstream_path_is_valid(const char *path,
+				  uint32_t flags);
 
 #ifdef __cplusplus
 }
