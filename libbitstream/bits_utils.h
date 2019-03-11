@@ -94,7 +94,7 @@ fpga_result opae_bitstream_get_json_int(json_object *parent,
  * is rejected if a component of the path is a symbolic
  * link.
  *
- * @returns true if `path` is accepted, or false is `path`
+ * @returns true if `path` is accepted, or false if `path`
  * is rejected, based on the requested checks.
  */ 
 bool opae_bitstream_path_is_valid(const char *path,
