@@ -283,7 +283,7 @@ TEST_P(bits_utils_c_p, dotdot1) {
  * @test       symlink0
  * @brief      Test: opae_bitstream_path_contains_symlink
  * @details    If the given path string is empty,<br>
- *             then the fn returns false.<br>
+ *             then the fn returns true.<br>
  */
 TEST_P(bits_utils_c_p, symlink0) {
   EXPECT_TRUE(opae_bitstream_path_contains_symlink("", 0));
