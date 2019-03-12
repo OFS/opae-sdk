@@ -36,6 +36,7 @@
 #include <uuid/uuid.h>
 #include <json-c/json.h>
 #include "bitstream.h"
+#include "bits_utils.h"
 #include "metadatav1.h"
 
 #include "safe_string/safe_string.h"
@@ -259,6 +260,12 @@ fpga_result opae_load_bitstream(const char *file, opae_bitstream_info *info)
 
 	if (!file || !info)
 		return FPGA_INVALID_PARAM;
+
+	if (!opae_bitstream_path_is_valid(file,
+					  OPAE_BITSTREAM_PATH_NO_SYMLINK)) {
+		OPAE_ERR("invalid bitstream path \"%s\"", file);
+		return FPGA_INVALID_PARAM;
+	}
 
 	memset_s(info, sizeof(opae_bitstream_info), 0);
 
