@@ -26,6 +26,20 @@
 
 #include "bits_utils.h"
 
+extern "C" {
+
+bool opae_bitstream_path_invalid_chars(const char *path,
+				       size_t len);
+
+bool opae_bitstream_path_not_file(const char *path);
+
+bool opae_bitstream_path_contains_dotdot(const char *path,
+					 size_t len);
+
+bool opae_bitstream_path_contains_symlink(const char *path,
+					  size_t len);
+}
+
 #include <config.h>
 #include <opae/fpga.h>
 
@@ -164,6 +178,371 @@ TEST_P(bits_utils_c_p, int_err1) {
 					&value),
             FPGA_EXCEPTION);
   EXPECT_EQ(value, 0);
+}
+
+/**
+ * @test       invalid_chars0
+ * @brief      Test: opae_bitstream_path_invalid_chars
+ * @details    Given a path that contains non-printable chars,<br>
+ *             the fn returns true.<br>
+ */
+TEST_P(bits_utils_c_p, invalid_chars0) {
+  const char *p;
+  p = "\x01\x05xyz.gbs";
+  EXPECT_TRUE(opae_bitstream_path_invalid_chars(p, strlen(p)));
+}
+
+/**
+ * @test       invalid_chars1
+ * @brief      Test: opae_bitstream_path_invalid_chars
+ * @details    Given a path that contains URL encoding,<br>
+ *             the fn returns true.<br>
+ */
+TEST_P(bits_utils_c_p, invalid_chars1) {
+  const char *p;
+  p = "my%2E.gbs";
+  EXPECT_TRUE(opae_bitstream_path_invalid_chars(p, strlen(p)));
+}
+
+/**
+ * @test       invalid_chars2
+ * @brief      Test: opae_bitstream_path_invalid_chars
+ * @details    Given a path that contains no invalid chars,<br>
+ *             the fn returns false.<br>
+ */
+TEST_P(bits_utils_c_p, invalid_chars2) {
+  const char *p;
+  p = "abc.gbs";
+  EXPECT_FALSE(opae_bitstream_path_invalid_chars(p, strlen(p)));
+}
+
+/**
+ * @test       not_file0
+ * @brief      Test: opae_bitstream_path_not_file
+ * @details    Given a path to a file that doesn't exist,<br>
+ *             the fn returns true.<br>
+ */
+TEST_P(bits_utils_c_p, not_file0) {
+  EXPECT_TRUE(opae_bitstream_path_not_file("doesntexist"));
+}
+
+/**
+ * @test       not_file1
+ * @brief      Test: opae_bitstream_path_not_file
+ * @details    Given a path to a directory,<br>
+ *             the fn returns true.<br>
+ */
+TEST_P(bits_utils_c_p, not_file1) {
+  EXPECT_TRUE(opae_bitstream_path_not_file("/"));
+}
+
+/**
+ * @test       not_file2
+ * @brief      Test: opae_bitstream_path_not_file
+ * @details    Given a path to valid file,<br>
+ *             the fn returns false.<br>
+ */
+TEST_P(bits_utils_c_p, not_file2) {
+  char tmpfile[20];
+
+  strcpy(tmpfile, "tmp-XXXXXX.gbs");
+  close(mkstemps(tmpfile, 4));
+
+  EXPECT_FALSE(opae_bitstream_path_not_file(tmpfile));
+
+  unlink(tmpfile);
+}
+
+/**
+ * @test       dotdot0
+ * @brief      Test: opae_bitstream_path_contains_dotdot
+ * @details    Given a path that contains a reference to<br>
+ *             the special directory designator ..<br>
+ *             the fn returns true.<br>
+ */
+TEST_P(bits_utils_c_p, dotdot0) {
+  EXPECT_TRUE(opae_bitstream_path_contains_dotdot("..", 2));
+  EXPECT_TRUE(opae_bitstream_path_contains_dotdot("../", 3));
+  EXPECT_TRUE(opae_bitstream_path_contains_dotdot("../abc.gbs", 10));
+  EXPECT_TRUE(opae_bitstream_path_contains_dotdot("my/../abc.gbs", 13));
+  EXPECT_TRUE(opae_bitstream_path_contains_dotdot("my/..", 5));
+}
+
+/**
+ * @test       dotdot1
+ * @brief      Test: opae_bitstream_path_contains_dotdot
+ * @details    Given a path that contains the character sequence '..',<br>
+ *             if that character sequence does not designate the parent dir,<br>
+ *             the fn returns false.<br>
+ */
+TEST_P(bits_utils_c_p, dotdot1) {
+  EXPECT_FALSE(opae_bitstream_path_contains_dotdot("my..gbs", 7));
+}
+
+/**
+ * @test       symlink0
+ * @brief      Test: opae_bitstream_path_contains_symlink
+ * @details    If the given path string is empty,<br>
+ *             then the fn returns true.<br>
+ */
+TEST_P(bits_utils_c_p, symlink0) {
+  EXPECT_TRUE(opae_bitstream_path_contains_symlink("", 0));
+}
+
+/**
+ * @test       symlink1
+ * @brief      Test: opae_bitstream_path_contains_symlink
+ * @details    If the given file name doesn't exist,<br>
+ *             then the fn returns true.<br>
+ */
+TEST_P(bits_utils_c_p, symlink1) {
+  EXPECT_TRUE(opae_bitstream_path_contains_symlink("doesntexist", 11));
+}
+
+/**
+ * @test       symlink2
+ * @brief      Test: opae_bitstream_path_contains_symlink
+ * @details    If the given file name exists,<br>
+ *             and it does not contain any / characters,<br>
+ *             and it is a symlink,<br>
+ *             then the fn returns true.<br>
+ */
+TEST_P(bits_utils_c_p, symlink2) {
+  char tmpfile[20];
+
+  strcpy(tmpfile, "tmp-XXXXXX.gbs");
+  close(mkstemps(tmpfile, 4));
+
+  ASSERT_EQ(symlink(tmpfile, "mylink"), 0);
+  EXPECT_TRUE(opae_bitstream_path_contains_symlink("mylink", 6));
+  unlink("mylink");
+  unlink(tmpfile);
+}
+
+/**
+ * @test       symlink3
+ * @brief      Test: opae_bitstream_path_contains_symlink
+ * @details    If the given file name exists,<br>
+ *             and it does not contain a / character in position 0,<br>
+ *             and there is a symlink in any of the path components,<br>
+ *             then the fn returns true.<br>
+ */
+TEST_P(bits_utils_c_p, symlink3) {
+  char tmpfile[20];
+
+  strcpy(tmpfile, "tmp-XXXXXX.gbs");
+  close(mkstemps(tmpfile, 4));
+      
+  std::string s;
+
+  std::system("rm -rf bar");
+
+  // bar/baz/foo -> tmpfile
+  ASSERT_EQ(mkdir("bar", 0755), 0);
+  ASSERT_EQ(mkdir("bar/baz", 0755), 0);
+  s = std::string("../../") + std::string(tmpfile);
+  ASSERT_EQ(symlink(s.c_str(), "bar/baz/foo"), 0);
+  EXPECT_TRUE(opae_bitstream_path_contains_symlink("bar/baz/foo", 11));
+  ASSERT_EQ(unlink("bar/baz/foo"), 0);
+  ASSERT_EQ(rmdir("bar/baz"), 0);
+  ASSERT_EQ(rmdir("bar"), 0);
+
+  // bar/baz -> ../
+  ASSERT_EQ(mkdir("bar", 0755), 0);
+  ASSERT_EQ(symlink("..", "bar/baz"), 0);
+  s = std::string("bar/baz/") + std::string(tmpfile);
+  EXPECT_TRUE(opae_bitstream_path_contains_symlink(s.c_str(), strlen(s.c_str())));
+  ASSERT_EQ(unlink("bar/baz"), 0);
+  ASSERT_EQ(rmdir("bar"), 0);
+
+  // bar -> blah which contains baz, which contains the config file
+  ASSERT_EQ(mkdir("blah", 0755), 0); 
+  ASSERT_EQ(mkdir("blah/baz", 0755), 0);
+  s = std::string("blah/baz/") + std::string(tmpfile);
+  ASSERT_EQ(rename(tmpfile, s.c_str()), 0);
+  ASSERT_EQ(symlink("blah", "bar"), 0);
+  s = std::string("bar/baz/") + std::string(tmpfile);
+  EXPECT_TRUE(opae_bitstream_path_contains_symlink(s.c_str(), strlen(s.c_str())));
+  ASSERT_EQ(rename(s.c_str(), tmpfile), 0);
+  ASSERT_EQ(rmdir("blah/baz"), 0);
+  ASSERT_EQ(rmdir("blah"), 0);
+  ASSERT_EQ(unlink("bar"), 0);
+  ASSERT_EQ(unlink(tmpfile), 0);
+}
+
+/**
+ * @test       symlink4
+ * @brief      Test: opae_bitstream_path_contains_symlink
+ * @details    If the given file name exists,<br>
+ *             and it contains a / character in position 0,<br>
+ *             and there is a symlink in any of the path components,<br>
+ *             then the fn returns true.<br>
+ */
+TEST_P(bits_utils_c_p, symlink4) {
+  char tmpfile[20];
+
+  strcpy(tmpfile, "tmp-XXXXXX.gbs");
+  close(mkstemps(tmpfile, 4));
+      
+  std::string s;
+  char *d = get_current_dir_name();
+
+  ASSERT_NE(d, nullptr);
+
+  // /current/dir/foo -> cfg file
+  ASSERT_EQ(symlink(tmpfile, "foo"), 0);
+  s = std::string(d) + std::string("/foo");
+  EXPECT_TRUE(opae_bitstream_path_contains_symlink(s.c_str(), strlen(s.c_str())));
+  ASSERT_EQ(unlink("foo"), 0);
+  ASSERT_EQ(unlink(tmpfile), 0);
+
+  free(d);
+}
+
+/**
+ * @test       symlink5
+ * @brief      Test: opae_bitstream_path_contains_symlink
+ * @details    If the given file name exists and is a regular file,<br>
+ *             then the fn returns false.<br>
+ */
+TEST_P(bits_utils_c_p, symlink5) {
+  char tmpfile[20];
+
+  strcpy(tmpfile, "tmp-XXXXXX.gbs");
+  close(mkstemps(tmpfile, 4));
+
+  EXPECT_FALSE(opae_bitstream_path_contains_symlink(tmpfile, strlen(tmpfile)));
+
+  ASSERT_EQ(unlink(tmpfile), 0);
+}
+
+/**
+ * @test       is_valid0
+ * @brief      Test: opae_bitstream_path_is_valid
+ * @details    If the given path pointer is NULL or<br>
+ *             points to the empty string,<br>
+ *             then the fn returns false.<br>
+ */
+TEST_P(bits_utils_c_p, is_valid0) {
+  EXPECT_FALSE(opae_bitstream_path_is_valid(NULL, 0));
+  EXPECT_FALSE(opae_bitstream_path_is_valid("", 0));
+}
+
+/**
+ * @test       is_valid1
+ * @brief      Test: opae_bitstream_path_is_valid
+ * @details    If the given path contains non-printable characters,<br>
+ *             then the fn returns false.<br>
+ */
+TEST_P(bits_utils_c_p, is_valid1) {
+  const char *p = "\x01ijk.gbs";
+  EXPECT_FALSE(opae_bitstream_path_is_valid(p, 0));
+}
+
+/**
+ * @test       is_valid2
+ * @brief      Test: opae_bitstream_path_is_valid
+ * @details    If the given path doesn't exist,<br>
+ *             then the fn returns false.<br>
+ */
+TEST_P(bits_utils_c_p, is_valid2) {
+  EXPECT_FALSE(opae_bitstream_path_is_valid("doesntexist", 0));
+}
+
+/**
+ * @test       is_valid3
+ * @brief      Test: opae_bitstream_path_is_valid
+ * @details    If the given flags parameter does not contain<br>
+ *             OPAE_BITSTREAM_PATH_NO_PARENT,<br>
+ *             and the special parent directory indicator ..<br>
+ *             appears in the path, then the fn returns true.<br>
+ */
+TEST_P(bits_utils_c_p, is_valid3) {
+  char tmpfile[32];
+
+  std::system("rm -rf bar");
+
+  ASSERT_EQ(mkdir("bar", 0755), 0); 
+  strcpy(tmpfile, "tmp-XXXXXX.gbs");
+  close(mkstemps(tmpfile, 4));
+
+  std::string s = std::string("bar/../") + std::string(tmpfile);
+
+  EXPECT_TRUE(opae_bitstream_path_is_valid(s.c_str(), 0));
+
+  ASSERT_EQ(unlink(tmpfile), 0);
+  ASSERT_EQ(rmdir("bar"), 0);
+}
+
+/**
+ * @test       is_valid4
+ * @brief      Test: opae_bitstream_path_is_valid
+ * @details    If the given flags parameter contains<br>
+ *             OPAE_BITSTREAM_PATH_NO_PARENT,<br>
+ *             and the special parent directory indicator ..<br>
+ *             appears in the path, then the fn returns false.<br>
+ */
+TEST_P(bits_utils_c_p, is_valid4) {
+  char tmpfile[32];
+
+  std::system("rm -rf bar");
+
+  ASSERT_EQ(mkdir("bar", 0755), 0); 
+  strcpy(tmpfile, "tmp-XXXXXX.gbs");
+  close(mkstemps(tmpfile, 4));
+
+  std::string s = std::string("bar/../") + std::string(tmpfile);
+
+  EXPECT_FALSE(opae_bitstream_path_is_valid(s.c_str(),
+                                            OPAE_BITSTREAM_PATH_NO_PARENT));
+
+  ASSERT_EQ(unlink(tmpfile), 0);
+  ASSERT_EQ(rmdir("bar"), 0);
+}
+
+/**
+ * @test       is_valid5
+ * @brief      Test: opae_bitstream_path_is_valid
+ * @details    If the given flags parameter does not contain<br>
+ *             OPAE_BITSTREAM_PATH_NO_SYMLINK,<br>
+ *             and the path contains a symlink component,<br>
+ *             then the fn returns true.<br>
+ */
+TEST_P(bits_utils_c_p, is_valid5) {
+  char tmpfile[20];
+
+  strcpy(tmpfile, "tmp-XXXXXX.gbs");
+  close(mkstemps(tmpfile, 4));
+
+  ASSERT_EQ(symlink(tmpfile, "foo"), 0);
+
+  EXPECT_TRUE(opae_bitstream_path_is_valid("foo", 0));
+
+  ASSERT_EQ(unlink("foo"), 0);
+  ASSERT_EQ(unlink(tmpfile), 0);
+}
+
+/**
+ * @test       is_valid6
+ * @brief      Test: opae_bitstream_path_is_valid
+ * @details    If the given flags parameter contains<br>
+ *             OPAE_BITSTREAM_PATH_NO_SYMLINK,<br>
+ *             and the path contains a symlink component,<br>
+ *             then the fn returns false.<br>
+ */
+TEST_P(bits_utils_c_p, is_valid6) {
+  char tmpfile[20];
+
+  strcpy(tmpfile, "tmp-XXXXXX.gbs");
+  close(mkstemps(tmpfile, 4));
+
+  ASSERT_EQ(symlink(tmpfile, "foo"), 0);
+
+  EXPECT_FALSE(opae_bitstream_path_is_valid("foo",
+                                            OPAE_BITSTREAM_PATH_NO_SYMLINK));
+
+  ASSERT_EQ(unlink("foo"), 0);
+  ASSERT_EQ(unlink(tmpfile), 0);
 }
 
 INSTANTIATE_TEST_CASE_P(bits_utils_c, bits_utils_c_p,

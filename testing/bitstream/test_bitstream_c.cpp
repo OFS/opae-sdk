@@ -293,11 +293,11 @@ TEST_P(bitstream_c_p, load_err0) {
  * @test       load_err1
  * @brief      Test: opae_load_bitstream
  * @details    If the given file name doesn't exist,<br>
- *             the fn returns FPGA_EXCEPTION.<br>
+ *             the fn returns FPGA_INVALID_PARAM.<br>
  */
 TEST_P(bitstream_c_p, load_err1) {
   opae_bitstream_info info;
-  EXPECT_EQ(opae_load_bitstream("doesntexist", &info), FPGA_EXCEPTION);
+  EXPECT_EQ(opae_load_bitstream("doesntexist", &info), FPGA_INVALID_PARAM);
 }
 
 /**
