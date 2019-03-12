@@ -508,7 +508,7 @@ TEST(sim_sw_ase, ase_app_02) {
 *             ase_host_memory_va_to_pa() raise a signal
 *
 */
-using namespace ::testing::internal;
+
 #define KB 1024
 #define MB (1024 * KB)
 #define GB (1024UL * MB)
@@ -521,9 +521,3 @@ TEST(sim_sw_ase, ase_app_03) {
 	EXPECT_EQ(2, ase_pt_length_to_level(GB));
 	EXPECT_EQ(-1, ase_pt_length_to_level(3*1024*1024));
 }
-/*
-TEST(sim_sw_ase, ase_app_04) {
-	//ASSERT_EXIT(ase_host_memory_unpin(0, 0), ::testing::KilledBySignal(SIGSEGV), "");
-	ASSERT_EXIT(ase_host_memory_unlock(), ::testing::KilledBySignal(SIGSEGV), "");
-	//ASSERT_EXIT(ase_host_memory_terminate(), ::testing::KilledBySignal(SIGSEGV), "");
-} */
