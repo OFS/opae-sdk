@@ -87,6 +87,18 @@ class shared_buffer {
   void release();
 
   /** Retrieve the virtual address of the buffer base.
+   *
+   *  @note Instances of a shared buffer can only be created using either
+   *  'allocate' or 'attach' static factory function. Because these
+   *  functions return a shared pointer (std::shared_ptr) to the instance,
+   *  references to an instance are counted automatically by design of the
+   *  shared_ptr class. Calling 'c_type()' function is provided to get access
+   *  to the raw data but isn't used in tracking its reference count.
+   *  Assigning this to a variable should be done in limited scopes as this
+   *  variable can be defined in an outer scope and may outlive the
+   *  shared_buffer object. Once the reference count in the shared_ptr reaches
+   *  zero, the shared_buffer object will be released and deallocated, turning
+   *  any variables assigned from a call to 'c_type()' into dangling pointers.
    */
   volatile uint8_t *c_type() const { return virt_; }
 
