@@ -130,6 +130,19 @@ TEST_F(open_c_ase_p, ase_open_04) {
 }
 
 /**
+* @test    open_05
+* @brief   When the fpga_handle is nullptr,
+*          fpgaOpen returns FPGA_INVALID_PARAM
+*
+*/
+TEST(sim_sw_ase, ase_open_05) {
+	struct _fpga_token _token;
+	fpga_token token = (fpga_token)&_token;
+
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(token, nullptr, 0));
+}
+
+/**
  * @test       mallocfails
  *
  * @brief      When the malloc function called by fpgaOpen() failed, the function returns
@@ -141,4 +154,15 @@ TEST_F(open_c_ase_p, mallocfails) {
     ASSERT_EQ(fpgaOpen(tok, &accel_, 0), FPGA_NO_MEMORY);
     EXPECT_EQ(accel_, nullptr);
 }
+
+/**
+ * @test       close_nullhandle
+ *
+ * @brief      When the malloc function called by fpgaOpen() failed, the function returns
+ *             FPGA_INVALID_PARAM.
+ */
+TEST(open_c_ase, close_nullhandle) {
+	EXPECT_EQ(fpgaClose(nullptr), FPGA_INVALID_PARAM);
+}
+
 
