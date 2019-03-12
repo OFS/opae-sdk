@@ -53,6 +53,7 @@ nohup ./samples/intg_xeon_nlb/hw/ase_server.sh > samples/intg_xeon_nlb/hw/ase-se
 export ASE_WORKDIR=${PWD}/samples/intg_xeon_nlb/hw
 sleep 30
 LD_PRELOAD=./lib/libopae-c-ase.so ./bin/hello_fpga 2> /dev/null
+sleep 10
 
 if [ -d "./samples/hello_intr_afu" ]; then
 	nohup ./samples/hello_intr_afu/hw/ase_server.sh > samples/hello_intr_afu/hw/ase-server-intr.log 2>&1 &
