@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# Copyright(c) 2017, Intel Corporation
+# Copyright(c) 2017-2019, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -207,6 +207,10 @@ def parse_args():
     rsu_help += " causing the board to be rebooted"
     parser.add_argument('-r', '--rsu', action='store_true', help=rsu_help)
 
+    no_verify_help = "do not read back flash and verify after writing"
+    parser.add_argument('-n', '--no-verify', default=False,
+                        action='store_true', help=no_verify_help)
+
     bdf_help = "bdf of device to program (e.g. 04:00.0 or 0000:04:00.0)"
     bdf_help += " optional when one device in system"
 
@@ -384,7 +388,7 @@ def option_bits_update(mtd_dev):
     vfile.close()
 
 
-def update_flash(update_type, ifile, mtd_dev, bdf):
+def update_flash(update_type, ifile, mtd_dev, bdf, no_verify):
 
     flash_size = get_flash_size(mtd_dev)
 
@@ -505,27 +509,31 @@ def update_flash(update_type, ifile, mtd_dev, bdf):
     with open(ofile.name, 'rw+') as rfile:
         rfile.truncate(nbytes)
 
-    vfile = tempfile.NamedTemporaryFile(mode='wb', delete=False)
+    if not no_verify:
+        vfile = tempfile.NamedTemporaryFile(mode='wb', delete=False)
 
-    print "reading back flash"
-    flash_read(mtd_dev, start_addr, nbytes, vfile)
+        print "reading back flash"
+        flash_read(mtd_dev, start_addr, nbytes, vfile)
 
-    vfile.close()
+        vfile.close()
 
-    print "verifying flash"
+        print "verifying flash"
 
-    retval = filecmp.cmp(ofile.name, vfile.name)
+        retval = filecmp.cmp(ofile.name, vfile.name)
+        os.remove(ofile.name)
+        os.remove(vfile.name)
+
+        if retval:
+            print "flash successfully verified"
+            return 0
+        else:
+            print "failed to verify flash"
+            return 2
 
     os.remove(ofile.name)
-    os.remove(vfile.name)
 
-    if retval:
-        print "flash successfully verified"
-        return 0
-    else:
-        print "failed to verify flash"
-        return 2
-
+    print "flash successfully written"
+    return 0
 
 def erase_flash(update_type, ifile, mtd_dev, bdf):
     print "erasing flash"
@@ -540,7 +548,7 @@ def erase_flash(update_type, ifile, mtd_dev, bdf):
         flash_erase(mtd_dev, start_addr, image_len)
 
 
-def fpga_update(utype, ifile, bdf, bdf_map):
+def fpga_update(utype, ifile, bdf, bdf_map, no_verify):
     mtd_dev = bdf_map[bdf]
 
     if not mtd_dev:
@@ -562,10 +570,10 @@ def fpga_update(utype, ifile, bdf, bdf_map):
         if line != "Yes":
             return 1
 
-    ret = update_flash(utype, ifile, mtd_dev, bdf)
+    ret = update_flash(utype, ifile, mtd_dev, bdf, no_verify)
     if ret == 2 and utype in ['user', 'bmc_img']:
         print "retrying flash"
-        ret = update_flash(utype, ifile, mtd_dev, bdf)
+        ret = update_flash(utype, ifile, mtd_dev, bdf, no_verify)
         if ret == 2:
             erase_flash(utype, ifile, mtd_dev, bdf)
             print "flash update failed"
@@ -1107,7 +1115,7 @@ def main():
         ret = bmc_update(args.type, args.file, bdf)
     else:
         try:
-            ret = fpga_update(args.type, args.file, bdf, bdf_map)
+            ret = fpga_update(args.type, args.file, bdf, bdf_map, args.no_verify)
         except Exception as ex:
             print ex
             ret = 1
