@@ -164,11 +164,11 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 	pthread_mutex_lock(&_handle->lock);
 	if (_handle->bmc_handle == NULL)
 		_handle->bmc_handle = dlopen(BMC_LIB, RTLD_LAZY | RTLD_LOCAL);
-		if (!_handle->bmc_handle) {
-			FPGA_ERR("Failed to load BMC module %s", dlerror());
-			pthread_mutex_unlock(&_handle->lock);
-			return FPGA_EXCEPTION;
-		}
+	if (!_handle->bmc_handle) {
+		FPGA_ERR("Failed to load BMC module %s", dlerror());
+		pthread_mutex_unlock(&_handle->lock);
+		return FPGA_EXCEPTION;
+	}
 	pthread_mutex_unlock(&_handle->lock);
 
 	result = xfpga_bmcLoadSDRs(_handle, &records, &num_sensors);
