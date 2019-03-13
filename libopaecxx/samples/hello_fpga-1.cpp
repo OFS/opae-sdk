@@ -64,11 +64,11 @@ int main(__attribute__((unused)) int argc,
   std::cout << "Using OPAE C++ Core library version '" << version::as_string()
             << "' build '" << version::build() << "'\n";
   // look for accelerator with NLB0_AFUID
-  auto filter = properties::get();
+  properties::ptr_t filter = properties::get();
   filter->guid.parse(NLB0_AFUID);
   filter->type = FPGA_ACCELERATOR;
 
-  auto tokens = token::enumerate({filter});
+  std::vector<token::ptr_t> tokens = token::enumerate({filter});
 
   // assert we have found at least one
   if (tokens.size() < 1) {
@@ -78,12 +78,14 @@ int main(__attribute__((unused)) int argc,
   token::ptr_t tok = tokens[0];
 
   // open accelerator and map MMIO
-  auto accel = handle::open(tok, FPGA_OPEN_SHARED);
+  handle::ptr_t accel = handle::open(tok, FPGA_OPEN_SHARED);
 
   // allocate buffers
-  auto dsm = shared_buffer::allocate(accel, LPBK1_DSM_SIZE);
-  auto inp = shared_buffer::allocate(accel, LPBK1_BUFFER_ALLOCATION_SIZE);
-  auto out = shared_buffer::allocate(accel, LPBK1_BUFFER_ALLOCATION_SIZE);
+  shared_buffer::ptr_t dsm = shared_buffer::allocate(accel, LPBK1_DSM_SIZE);
+  shared_buffer::ptr_t inp =
+      shared_buffer::allocate(accel, LPBK1_BUFFER_ALLOCATION_SIZE);
+  shared_buffer::ptr_t out =
+      shared_buffer::allocate(accel, LPBK1_BUFFER_ALLOCATION_SIZE);
 
   std::cout << "Running Test\n";
 
@@ -103,7 +105,10 @@ int main(__attribute__((unused)) int argc,
   accel->write_csr32(CSR_CFG, 0x42000);
 
   // get ptr to device status memory - test complete
-  auto status_ptr = dsm->c_type() + DSM_STATUS_TEST_COMPLETE;
+  // temporarily "borrow" a raw pointer to the buffer
+  // status_ptr can be dangling pointer if dsm is the only reference
+  // and it is reset or goes out of scope before status_ptr
+  volatile uint8_t* status_ptr = dsm->c_type() + DSM_STATUS_TEST_COMPLETE;
   // start the test
   accel->write_csr32(CSR_CTL, 3);
 
@@ -116,8 +121,8 @@ int main(__attribute__((unused)) int argc,
   accel->write_csr32(CSR_CTL, 7);
 
   // check output buffer contents
-  auto mm = std::mismatch(inp->c_type(), inp->c_type() + LPBK1_BUFFER_SIZE,
-                          out->c_type());
+  std::pair<volatile uint8_t*, volatile uint8_t*> mm = std::mismatch(
+      inp->c_type(), inp->c_type() + LPBK1_BUFFER_SIZE, out->c_type());
   if (mm.second < out->c_type() + LPBK1_BUFFER_SIZE) {
     std::cerr << "output does NOT match input at offset: "
               << (mm.second - out->c_type()) << "\n";
