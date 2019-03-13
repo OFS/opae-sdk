@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2018, Intel Corporation
+## Copyright(c) 2017-2019, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,10 +24,9 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-
 include_directories(${OPAE_INCLUDE_DIR}
-                    ${libjson-c_INCLUDE_DIRS}
-                    ${OPAE_SDK_SOURCE}/tools/base)
+                    ${OPAE_SDK_SOURCE}
+                    ${libjson-c_INCLUDE_DIRS})
 
 set(SRC main.c
         coreidle.c)
@@ -35,7 +34,14 @@ set(SRC main.c
 add_executable(coreidle ${SRC})
 set_install_rpath(coreidle)
 
-target_link_libraries(coreidle opae-c ${libjson-c_LIBRARIES} ${libuuid_LIBRARIES} pthread m)
+target_link_libraries(coreidle
+  safestr
+  bitstream
+  opae-c
+  ${libjson-c_LIBRARIES}
+  ${libuuid_LIBRARIES}
+  ${CMAKE_THREAD_LIBS_INIT}
+  m)
 
 install(TARGETS coreidle
         RUNTIME DESTINATION bin

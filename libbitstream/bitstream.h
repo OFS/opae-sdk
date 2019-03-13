@@ -88,6 +88,9 @@ typedef struct _opae_bitstream_info {
 	void *parsed_metadata;		/**< the expanded metadata */
 } opae_bitstream_info;
 
+#define OPAE_BITSTREAM_INFO_INITIALIZER \
+{ NULL, NULL, 0, NULL, 0, { 0, }, 0, NULL }
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
