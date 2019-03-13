@@ -60,6 +60,7 @@
 #define FPGA_SYSFS_PORT_LEN 4
 #define OPAE_KERNEL_DRIVERS 2
 
+
 typedef struct _sysfs_formats {
 	const char *sysfs_class_path;
 	const char *sysfs_pcidrv_fpga;
@@ -1756,6 +1757,49 @@ fpga_result opae_glob_path(char *path)
 	return res;
 }
 
+
+fpga_result opae_glob_paths(const char *path, size_t found_max, max_path_t found[],
+			    size_t *num_found)
+{
+	fpga_result res = FPGA_OK;
+	glob_t pglob;
+	pglob.gl_pathc = 0;
+	pglob.gl_pathv = NULL;
+	int globres = glob(path, 0, NULL, &pglob);
+	size_t i = 0;
+	size_t to_copy = 0;
+
+	if (!globres) {
+		*num_found = pglob.gl_pathc;
+		to_copy = *num_found < found_max ? *num_found : found_max;
+		while (found && i < to_copy) {
+			if (strcpy_s(found[i], PATH_MAX, pglob.gl_pathv[i])) {
+				FPGA_ERR("Could not copy globbed path");
+				res = FPGA_EXCEPTION;
+				break;
+			}
+			i++;
+		}
+
+		globfree(&pglob);
+	} else {
+		switch (globres) {
+		case GLOB_NOSPACE:
+			res = FPGA_NO_MEMORY;
+			break;
+		case GLOB_NOMATCH:
+			res = FPGA_NOT_FOUND;
+			break;
+		default:
+			res = FPGA_EXCEPTION;
+		}
+		if (pglob.gl_pathv) {
+			globfree(&pglob);
+		}
+	}
+	return res;
+}
+
 fpga_result sync_object(fpga_object obj)
 {
 	struct _fpga_object *_obj;
@@ -1874,6 +1918,54 @@ out_free_namelist:
 	return res;
 }
 
+
+fpga_result make_sysfs_array(char *sysfspath, const char *name,
+			     fpga_object *object, int flags, fpga_handle handle,
+			     max_path_t objects[], size_t num_objects)
+{
+	fpga_result res = FPGA_OK;
+	size_t i = 0;
+	struct _fpga_object *array = alloc_fpga_object(sysfspath, name);
+	char *oname = NULL;
+	if (!array) {
+		FPGA_ERR(
+			"Error allocating memory for container of fpga_objects");
+		return FPGA_NO_MEMORY;
+	}
+	array->objects = calloc(num_objects, sizeof(fpga_object));
+	if (!array->objects) {
+		FPGA_ERR("Error allocating memory for array of fpga_objects");
+		return FPGA_NO_MEMORY;
+	}
+
+	array->handle = handle;
+	array->type = FPGA_SYSFS_LIST;
+	array->size = num_objects;
+	for (i = 0; i < num_objects; ++i) {
+		oname = strrchr(objects[i], '/');
+		if (!oname) {
+			FPGA_ERR("Error with sysfs path: %s", objects[i]);
+			res = FPGA_EXCEPTION;
+			goto out_err;
+		}
+		res = make_sysfs_object(objects[i], oname+1, &array->objects[i],
+					flags & ~FPGA_OBJECT_GLOB, handle);
+		if (res) {
+			goto out_err;
+		}
+	}
+	*object = (fpga_object)array;
+	return res;
+out_err:
+	if (array->objects) {
+		free(array->objects);
+		array->objects = NULL;
+	}
+	return res;
+}
+
+
+#define MAX_SYSOBJECT_GLOB 128
 fpga_result make_sysfs_object(char *sysfspath, const char *name,
 			      fpga_object *object, int flags,
 			      fpga_handle handle)
@@ -1883,8 +1975,27 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	struct stat objstat;
 	int statres;
 	fpga_result res = FPGA_OK;
+	max_path_t object_paths[MAX_SYSOBJECT_GLOB];
+	size_t found = 0;
 	if (flags & FPGA_OBJECT_GLOB) {
-		res = opae_glob_path(sysfspath);
+		res = opae_glob_paths(sysfspath, MAX_SYSOBJECT_GLOB,
+				      object_paths, &found);
+		if (res) {
+			return res;
+		}
+		if (found == 1) {
+			if (strncpy_s(sysfspath, SYSFS_PATH_MAX,
+				      object_paths[0], PATH_MAX)) {
+				FPGA_ERR("error copying glob result");
+				return FPGA_EXCEPTION;
+			}
+			return make_sysfs_object(
+				sysfspath, name, object,
+				flags & ~FPGA_OBJECT_GLOB, handle);
+		} else {
+			return make_sysfs_array(sysfspath, name, object, flags,
+						handle, object_paths, found);
+		}
 	}
 	statres = stat(sysfspath, &objstat);
 	if (statres < 0) {

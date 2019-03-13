@@ -96,6 +96,7 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectGetObject(fpga_object parent, const cha
 	fpga_result res = FPGA_EXCEPTION;
 	ASSERT_NOT_NULL(parent);
 	ASSERT_NOT_NULL(name);
+	ASSERT_NOT_NULL(object);
 	VALIDATE_NAME(name);
 	struct _fpga_object *_obj = (struct _fpga_object *)parent;
 	if (_obj->type == FPGA_SYSFS_FILE) {
@@ -117,6 +118,23 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectGetObject(fpga_object parent, const cha
 
 
 	return make_sysfs_object(objpath, name, object, flags, _obj->handle);
+}
+
+fpga_result __FPGA_API__ xfpga_fpgaObjectGetObjectAt(fpga_object parent,
+						     size_t idx,
+						     fpga_object *object)
+{
+	ASSERT_NOT_NULL(parent);
+	ASSERT_NOT_NULL(object);
+	struct _fpga_object *_obj = (struct _fpga_object *)parent;
+	if (_obj->type == FPGA_SYSFS_FILE) {
+		return FPGA_INVALID_PARAM;
+	}
+	if (idx >= _obj->size) {
+		return FPGA_INVALID_PARAM;
+	}
+	*object = _obj->objects[idx];
+	return FPGA_OK;
 }
 
 fpga_result __FPGA_API__ xfpga_fpgaDestroyObject(fpga_object *obj)
@@ -262,6 +280,41 @@ out_unlock:
 		&((struct _fpga_handle *)_obj->handle)->lock);
 	if (err) {
 		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(errno));
+		res = FPGA_EXCEPTION;
+	}
+	return res;
+}
+
+fpga_result __FPGA_API__ xfpga_fpgaObjectGetType(fpga_object obj,
+						 enum fpga_sysobject_type *type)
+{
+	fpga_result res = FPGA_OK;
+	struct _fpga_object *_obj = (struct _fpga_object *)obj;
+	ASSERT_NOT_NULL(obj);
+	ASSERT_NOT_NULL(type);
+	switch (_obj->type) {
+	case FPGA_SYSFS_DIR:
+	case FPGA_SYSFS_LIST:
+		*type = FPGA_OBJECT_CONTAINER;
+		break;
+	case FPGA_SYSFS_FILE:
+		*type = FPGA_OBJECT_ATTRIBUTE;
+		break;
+	default:
+		res = FPGA_INVALID_PARAM;
+	}
+	return res;
+}
+
+fpga_result __FPGA_API__ xfpga_fpgaObjectGetName(fpga_object obj, char *name,
+						 size_t max_len)
+{
+	fpga_result res = FPGA_OK;
+	struct _fpga_object *_obj = (struct _fpga_object *)obj;
+	ASSERT_NOT_NULL(obj);
+	ASSERT_NOT_NULL(name);
+	ASSERT_NOT_NULL(_obj->name);
+	if (strncpy_s(name, max_len, _obj->name, strlen(_obj->name))) {
 		res = FPGA_EXCEPTION;
 	}
 	return res;

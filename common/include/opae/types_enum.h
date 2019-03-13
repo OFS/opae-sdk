@@ -145,13 +145,25 @@ enum fpga_reconf_flags {
 };
 
 enum fpga_sysobject_flags {
-  FPGA_OBJECT_SYNC = (1u << 0), /**< Synchronize data from driver */
-  FPGA_OBJECT_GLOB = (1u << 1), /**< Treat names as glob expressions */
-  FPGA_OBJECT_RAW  = (1u << 2), /**< Read or write object data as raw bytes */
-  FPGA_OBJECT_RECURSE_ONE = (1u << 3), /**< Create subobjects one level down from containers */
-  FPGA_OBJECT_RECURSE_ALL = (1u << 4) /**< Create subobjects all levels from from containers */
+	FPGA_OBJECT_SYNC = (1u << 0), /**< Synchronize data from driver */
+	FPGA_OBJECT_GLOB = (1u << 1), /**< Treat names as glob expressions */
+	FPGA_OBJECT_RAW =
+		(1u << 2), /**< Read or write object data as raw bytes */
+	FPGA_OBJECT_RECURSE_ONE =
+		(1u
+		 << 3), /**< Create subobjects one level down from containers */
+	FPGA_OBJECT_RECURSE_ALL =
+		(1u
+		 << 4) /**< Create subobjects all levels from from containers */
 };
 
+enum fpga_sysobject_type {
+	FPGA_OBJECT_CONTAINER =
+		(1u << 0), /** represents a group of objects */
+	FPGA_OBJECT_ATTRIBUTE =
+		(1u << 1) /** an object with an attribute value that can be
+			       read/written */
+};
 
 /** fpga metrics types
 * opae defines power,thermal, performance counter
