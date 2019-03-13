@@ -179,7 +179,7 @@ struct _fpga_token *token_get_parent(struct _fpga_token *_t)
 {
 	char *p;
 	char spath[SYSFS_PATH_MAX];
-	char rpath[SYSFS_PATH_MAX];
+	char rpath[PATH_MAX];
 	struct token_map *itr;
 	int err = 0;
 	char *rptr = NULL;

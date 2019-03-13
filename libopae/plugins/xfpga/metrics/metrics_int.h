@@ -36,6 +36,7 @@
 #include "opae/metrics.h"
 #include "metrics_metadata.h"
 #include "metrics/bmc/bmc.h"
+#include "types_int.h"
 // Power,Thermal & Performance definations
 
 #define PERF                               "*perf"
