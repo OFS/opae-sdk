@@ -155,16 +155,27 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectGetObjectAt(fpga_object parent,
 						     size_t idx,
 						     fpga_object *object)
 {
+	fpga_result res = FPGA_OK;
 	ASSERT_NOT_NULL(parent);
 	ASSERT_NOT_NULL(object);
 	struct _fpga_object *_obj = (struct _fpga_object *)parent;
+	if (pthread_mutex_lock(&_obj->lock)) {
+		FPGA_ERR("pthread_mutex_lock() failed");
+		return FPGA_EXCEPTION;
+	}
+
 	if (_obj->type == FPGA_SYSFS_FILE) {
 		return FPGA_INVALID_PARAM;
 	}
 	if (idx >= _obj->size) {
 		return FPGA_INVALID_PARAM;
 	}
-	return xfpga_fpgaCloneObject(_obj->objects[idx], object);
+	res = xfpga_fpgaCloneObject(_obj->objects[idx], object);
+	if (pthread_mutex_unlock(&_obj->lock)) {
+		FPGA_ERR("pthread_mutex_unlock() failed");
+	}
+	return res;
+
 }
 
 fpga_result __FPGA_API__ xfpga_fpgaDestroyObject(fpga_object *obj)
