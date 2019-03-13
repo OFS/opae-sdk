@@ -702,17 +702,20 @@ TEST_P(sysfs_c_mock_p, glob_bitstream_objs) {
                                      FPGA_OBJECT_GLOB),
             FPGA_OK);
   enum fpga_sysobject_type type;
-  ASSERT_EQ(xfpga_fpgaObjectGetType(container, &type), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaObjectGetType(container, &type), FPGA_OK);
   EXPECT_EQ(type, FPGA_OBJECT_CONTAINER);
   uint32_t sz = 0;
-  ASSERT_EQ(xfpga_fpgaObjectGetSize(container, &sz, 0), FPGA_OK);
-  ASSERT_EQ(sz, 2);
+  EXPECT_EQ(xfpga_fpgaObjectGetSize(container, &sz, 0), FPGA_OK);
+  EXPECT_EQ(sz, 2);
   EXPECT_EQ(xfpga_fpgaObjectGetObjectAt(container, 0, &bitstream1), FPGA_OK);
   EXPECT_EQ(xfpga_fpgaObjectGetObjectAt(container, 1, &bitstream2), FPGA_OK);
   char name1[64] = {'\0'};
   char name2[64] = {'\0'};
   EXPECT_EQ(xfpga_fpgaObjectGetName(bitstream1, name1, sizeof(name1)), FPGA_OK);
   EXPECT_EQ(xfpga_fpgaObjectGetName(bitstream2, name2, sizeof(name2)), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&bitstream1), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&bitstream2), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&container), FPGA_OK);
 }
 
 /**
