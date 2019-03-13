@@ -159,9 +159,9 @@ enum fpga_sysobject_flags {
 
 enum fpga_sysobject_type {
 	FPGA_OBJECT_CONTAINER =
-		(1u << 0), /** represents a group of objects */
+		(1u << 0), /**< Represents a group of objects */
 	FPGA_OBJECT_ATTRIBUTE =
-		(1u << 1) /** an object with an attribute value that can be
+		(1u << 1) /**< An object with an attribute value that can be
 			       read/written */
 };
 

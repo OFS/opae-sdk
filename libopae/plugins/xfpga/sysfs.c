@@ -140,6 +140,14 @@ static sysfs_fpga_device _devices[SYSFS_MAX_DEVICES];
 		}                                                              \
 	} while (0);
 
+#define FREE_IF(var)                                                           \
+	do {                                                                   \
+		if (var) {                                                     \
+			free(var);                                             \
+			var = NULL;                                            \
+		}                                                              \
+	} while (false);
+
 STATIC int parse_pcie_info(sysfs_fpga_device *device, char *buffer)
 {
 	char err[128] = {0};
@@ -1711,6 +1719,22 @@ struct _fpga_object *alloc_fpga_object(const char *sysfspath, const char *name)
 {
 	struct _fpga_object *obj = calloc(1, sizeof(struct _fpga_object));
 	if (obj) {
+		pthread_mutexattr_t mattr;
+		if (pthread_mutexattr_init(&mattr)) {
+			FPGA_ERR("pthread_mutexattr_init() failed");
+			goto out_err;
+		}
+		if (pthread_mutexattr_settype(&mattr,
+					      PTHREAD_MUTEX_RECURSIVE)) {
+			FPGA_ERR("pthread_mutexattr_settype() failed");
+			goto out_err;
+		}
+		if (pthread_mutex_init(&obj->lock, &mattr)) {
+			FPGA_ERR("pthread_mutex_init() failed");
+			goto out_err;
+		}
+
+		pthread_mutexattr_destroy(&mattr);
 		obj->handle = NULL;
 		obj->path = cstr_dup(sysfspath);
 		obj->name = cstr_dup(name);
@@ -1721,6 +1745,31 @@ struct _fpga_object *alloc_fpga_object(const char *sysfspath, const char *name)
 		obj->objects = NULL;
 	}
 	return obj;
+out_err:
+	if (obj) {
+		free(obj);
+		obj = NULL;
+	}
+	return obj;
+}
+
+fpga_result destroy_fpga_object(struct _fpga_object *obj)
+{
+	FREE_IF(obj->path);
+	FREE_IF(obj->name);
+	FREE_IF(obj->buffer);
+	while (obj->size && obj->objects) {
+		if (destroy_fpga_object((struct _fpga_object *)
+						obj->objects[--obj->size])) {
+			FPGA_ERR("Error freeing subobject");
+		}
+	}
+	FREE_IF(obj->objects);
+	if (pthread_mutex_destroy(&obj->lock)) {
+		FPGA_ERR("Error destroying mutex");
+	}
+	free(obj);
+	return FPGA_OK;
 }
 
 fpga_result opae_glob_path(char *path)
@@ -1904,11 +1953,9 @@ fpga_result make_sysfs_group(char *sysfspath, const char *name,
 	return FPGA_OK;
 
 out_free_group:
-	if (group->path)
-		free(group->path);
-	if (group->name)
-		free(group->name);
-	free(group);
+	if (destroy_fpga_object(group)) {
+		FPGA_ERR("Error destroying object");
+	}
 
 out_free_namelist:
 	while (n--)
@@ -1935,6 +1982,7 @@ fpga_result make_sysfs_array(char *sysfspath, const char *name,
 	array->objects = calloc(num_objects, sizeof(fpga_object));
 	if (!array->objects) {
 		FPGA_ERR("Error allocating memory for array of fpga_objects");
+		free(array);
 		return FPGA_NO_MEMORY;
 	}
 
@@ -1957,9 +2005,8 @@ fpga_result make_sysfs_array(char *sysfspath, const char *name,
 	*object = (fpga_object)array;
 	return res;
 out_err:
-	if (array->objects) {
-		free(array->objects);
-		array->objects = NULL;
+	if (destroy_fpga_object(array)) {
+		FPGA_ERR("Error destroying object");
 	}
 	return res;
 }

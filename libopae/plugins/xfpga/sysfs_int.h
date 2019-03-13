@@ -128,6 +128,7 @@ fpga_result cat_sysfs_path(char *dest, const char *path);
 fpga_result cat_handle_sysfs_path(char *dest, fpga_handle handle,
 				  const char *path);
 struct _fpga_object *alloc_fpga_object(const char *sysfspath, const char *name);
+fpga_result destroy_fpga_object(struct _fpga_object *obj);
 fpga_result sync_object(fpga_object object);
 fpga_result make_sysfs_group(char *sysfspath, const char *name,
 			     fpga_object *object, int flags, fpga_handle handle);
