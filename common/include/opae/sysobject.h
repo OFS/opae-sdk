@@ -41,8 +41,8 @@ extern "C" {
 
 /**
  * @brief Create an `fpga_object` data structures. An `fpga_object`
- * is a handle to an FPGA resource which can be an attribute or register or
- * driver attribute. This object is read-only.
+ * is a handle to an FPGA resource which can be an attribute, register or
+ * a container. This object is read-only.
  *
  * @param[in] token Token identifying a resource (accelerator or device)
  * @param[in] name A key identifying an object belonging to a resource.
@@ -68,8 +68,8 @@ fpga_result fpgaTokenGetObject(fpga_token token, const char *name,
 
 /**
  * @brief Create an `fpga_object` data structure from a handle.
- * An `fpga_object` is a handle to an FPGA resource which can be an attribute
- * or register.  This object has read/write access..
+ * An `fpga_object` is a handle to an FPGA resource which can be an attribute,
+ * register, or container.  This object has read/write access..
  *
  * @param[in] handle Handle identifying a resource (accelerator or device)
  * @param[in] name A key identifying an object belonging to a resource.
@@ -95,7 +95,7 @@ fpga_result fpgaHandleGetObject(fpga_handle handle, const char *name,
 
 /**
  * @brief Create an `fpga_object` data structure from a parent object.  An
- * `fpga_object` is a handle to an FPGA resource which can be an attribute or,
+ * `fpga_object` is a handle to an FPGA resource which can be an attribute,
  * register, or container.  If the parent object was created with a handle,
  * then the new object will inherit the handle allowing it to have read-write
  * access to the object data.
@@ -126,9 +126,9 @@ fpga_result fpgaObjectGetObject(fpga_object parent, const char *name,
 /**
  * @brief Create an `fpga_object` data structure from a parent object using a
  * given index.  An `fpga_object` is a handle to an FPGA resource which can be
- * an attribute or, register, or container.  If the parent object was created
- * with a handle, then the new object will inherit the handle allowing it to
- * have read-write access to the object data.
+ * an attribute, register, or container.  If the parent object was created with
+ * a handle, then the new object will inherit the handle allowing it to have
+ * read-write access to the object data.
  *
  * @param[in] parent A parent container 'fpga_object'
  * @param[in] idx A positive index less than the size reported by the parent.
