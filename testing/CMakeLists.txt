@@ -222,7 +222,12 @@ target_compile_definitions(coreidle-static PRIVATE main=coreidle_main)
 target_include_directories(coreidle-static PUBLIC
     $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-    $<INSTALL_INTERFACE:include>)
+    $<INSTALL_INTERFACE:include>
+    PRIVATE ${OPAE_SDK_SOURCE})
+
+target_link_libraries(coreidle-static
+    safestr
+    bitstream)
 
 add_library(userclk-static
     ${OPAE_SDK_SOURCE}/tools/extra/userclk/main.c
