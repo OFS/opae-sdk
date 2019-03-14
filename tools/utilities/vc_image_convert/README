@@ -1,13 +1,72 @@
-How to generate A10 flash file
-1. change QUARTUS_ROOT in sof_conver.sh to your quartus installation directory
-2. generate flash file
-   # ./sof_convert.sh -u [a10_sof_file] -o [flash_file_name]
-3. check generated flash file
-   # ls -l ./output_files/[flash_file_name]
+This the tool used to generate BIN file for FPGA Image Flash chip pre-programming.
 
-How to generate NIOS flash file
-1. generate flash file 
-   # ./fw_convert.sh [nios_bin_file]
-2. check generated flash file
-   # ls -l ./output_files/[nios_ihex_file]
 
+Environment
+-----------
+Make sure quartus tools are installed and accessible.
+
+Add the tools bin to PATH environment, example:
+
+export PATH=/root/intelFPGA_pro/18.0/nios2eds/bin/gnu/H-x86_64-pc-linux-gnu/bin/:/root/intelFPGA_pro/18.0/quartus/bin/:$PATH
+
+or add to startup rc file.
+
+
+Input Files
+-----------
+Input files required for BIN file generation includes:
+
+1) input_files/vc_dtb.bin
+
+This is device tree table file. An default vc_dtb.bin copied from vc_max10_dtb_alpha_ww02_3.bin is included. Its location and name can be different, you can use -d option to specify it.
+
+2) input_files/chip.sof
+
+This is SOF file from FPGA release. You can copy a chip.sof file to this folder or just use -u option to specify one to use.
+
+
+Output Files
+------------
+Output files could be found in output_files folder.
+
+1) output_files/vcp_a10_flash.bin
+
+This is the origin bin file converted from sof file. Its size is 125763584.
+
+2) output_files/vcp_a10_flash-[current_date].bin
+
+This is the bin file for fpgaflash tool to use. Its name can be changed by using -o option. Its size is 134217728.
+
+3) output_files/vc_reverse.bin
+
+This is the bin file with bit reversed from 1).
+
+4) output_files/vc_flash_reverse.bin
+
+This is the bin file with bit reversed from 2).
+
+Above reverse version could be used for factory image pre-programming.
+
+
+Instruction
+-----------
+
+1) ./sof_convert.sh
+
+This command generate target bin files by using input_files/chip.sof as factory and user image, and using input_files/vc_dtb.bin as device tree table.
+
+2) ./sof_convert.sh -u [a10_sof_file]
+
+This command generate target bin files by using [a10_sof_file] as factory and user image, and using input_files/vc_dtb.bin as device tree table.
+
+3) ./sof_convert.sh -u [a10_sof_file] -d [vc_dtb_file]
+
+This command generate target bin files by using [a10_sof_file] as factory and user image, and using [vc_dtb_file] as device tree table.
+
+4) ./sof_convert.sh --help
+
+This command print the help information.
+
+5) ./fw_convert.sh [nios_bin_file]
+
+This command generate ihex file of NIOS FW for fpgaflash tool.
