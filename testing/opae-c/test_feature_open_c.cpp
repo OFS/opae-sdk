@@ -32,7 +32,7 @@ extern "C" {
 #include <json-c/json.h>
 #include <opae/fpga.h>
 #include <uuid/uuid.h>
-#include "feature_int.h"
+#include "opae_int.h"
 #include "safe_string/safe_string.h"
 
 #include "types_int.h"
@@ -96,9 +96,9 @@ out_EINVAL:
 	return retval;
 }
 
-class feature_open_c_p : public ::testing::TestWithParam<std::string> {
+class opae_feature_open_c_p : public ::testing::TestWithParam<std::string> {
 	protected:
-	feature_open_c_p() : filter_(nullptr), tokens_{{nullptr, nullptr}} {}
+	opae_feature_open_c_p() : filter_(nullptr), tokens_{{nullptr, nullptr}} {}
 
 	virtual void SetUp() override {
 		ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -108,15 +108,16 @@ class feature_open_c_p : public ::testing::TestWithParam<std::string> {
 		system_->prepare_syfs(platform_);
 		invalid_device_ = test_device::unknown();
 
-		ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+		ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+		ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
 		ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
 		num_matches_ = 0;
-		ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+		ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
 			  &num_matches_),
 			  FPGA_OK);
 		EXPECT_EQ(num_matches_, platform_.devices.size());
 		accel_ = nullptr;
-		ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
+		ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
 		system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
 		which_mmio_ = 0;
 
@@ -129,7 +130,7 @@ class feature_open_c_p : public ::testing::TestWithParam<std::string> {
 	void DestroyTokens() {
 		for (auto &t : tokens_) {
 			if (t) {
-				EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
+				EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
 				t = nullptr;
 			}
 		}
@@ -138,7 +139,7 @@ class feature_open_c_p : public ::testing::TestWithParam<std::string> {
 
 	virtual void TearDown() override {
 		if (accel_) {
-			EXPECT_EQ(xfpga_fpgaClose(accel_), FPGA_OK);
+			EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
 			accel_ = nullptr;
 		}
 		DestroyTokens();
@@ -162,24 +163,18 @@ class feature_open_c_p : public ::testing::TestWithParam<std::string> {
 	test_system *system_;
 };
 
-void dma_cb(dma_transfer_list *xfer_list, void *context)
-{
-	UNUSED_PARAM(xfer_list);
-	UNUSED_PARAM(context);
-}
-
 /**
  * @test       test_feature_functions
- * @brief      Tests: xfpga_fpgaFeatureOpen, xfpga_fpgaFeaturePropertiesGet 
- *                    xfpga_fpgaDMAPropertiesGet, xfpga_fpgaDMATransferSync
- *                    xfpga_fpgaFeatureClose, xfpga_fpgaDestroyFeatureToken
- * @details    When xfpga_fpgaFeatureOpen() is called with a valid param,<br>
+ * @brief      Tests: fpgaFeatureOpen, fpgaFeaturePropertiesGet 
+ *                    fpgaDMAPropertiesGet, fpgaDMATransferSync
+ *                    fpgaFeatureClose, fpgaDestroyFeatureToken
+ * @details    When fpgaFeatureOpen() is called with a valid param,<br>
  *             then it creates the accelerateor feature handle for the feature<br>
  *             token given in the parameter.<br>
- *             When xfpga_fpgaFeatureClose() is called with a valid feature<br>
+ *             When fpgaFeatureClose() is called with a valid feature<br>
  *             handle, it will close the feature handle.<br>
  */
-TEST_P(feature_open_c_p, test_feature_functions) {
+TEST_P(opae_feature_open_c_p, test_feature_functions) {
 
 	struct DFH dfh ;
 	dfh.id = 0x1;
@@ -190,9 +185,9 @@ TEST_P(feature_open_c_p, test_feature_functions) {
 	dfh.type = 0x1;
 
 	// Write to AFU's CSR and GUID registers
-	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x0, dfh.csr));
-	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x8, 0xf89e433683f9040b));
-	EXPECT_EQ(FPGA_OK,xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x10, 0xd8424dc4a4a3c413));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x0, dfh.csr));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x8, 0xf89e433683f9040b));
+	EXPECT_EQ(FPGA_OK,fpgaWriteMMIO64(accel_, which_mmio_, 0x10, 0xd8424dc4a4a3c413));
 
 	struct DFH dfh_bbb = { 0 };
 
@@ -204,38 +199,30 @@ TEST_P(feature_open_c_p, test_feature_functions) {
 	dfh_bbb.reserved = 0;
 
 	// Write to DMA BBB's CSR and GUID registers
-	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
-	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x108, 0x9D73E8F258E9E3E7));
-	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x110, 0x87816958C1484CE0));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x108, 0x9D73E8F258E9E3E7));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x110, 0x87816958C1484CE0));
 
-	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
+	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
 		ftokens_.size(), &num_matches_), FPGA_OK);
 	EXPECT_EQ(num_matches_, 1);
 
 	fpga_feature_properties feature_prop;
-	EXPECT_EQ(xfpga_fpgaFeaturePropertiesGet(ftokens_[0], &feature_prop), FPGA_OK);
+	EXPECT_EQ(fpgaFeaturePropertiesGet(ftokens_[0], &feature_prop), FPGA_OK);
 
-	wrapped_feature_token *wt = (wrapped_feature_token *)ftokens_[0];
-	fpga_feature_token tmp = wt->feature_token;
-	((struct _fpga_feature_token *)tmp)->magic = FPGA_FEATURE_TOKEN_MAGIC + 1;
-	EXPECT_EQ(xfpga_fpgaFeaturePropertiesGet(ftokens_[0], &feature_prop), FPGA_INVALID_PARAM);
-
-	((struct _fpga_feature_token *)tmp)->magic = FPGA_FEATURE_TOKEN_MAGIC;
-	EXPECT_EQ(xfpga_fpgaFeatureOpen(ftokens_[0], 0, nullptr, &feature_h), FPGA_OK);
-
+	EXPECT_EQ(fpgaFeatureOpen(ftokens_[0], 0, nullptr, &feature_h), FPGA_OK);
+	
 	fpga_dma_properties dma_prop;
-	EXPECT_EQ(xfpga_fpgaDMAPropertiesGet(ftokens_[0], &dma_prop), FPGA_OK);
-
+	EXPECT_EQ(fpgaDMAPropertiesGet(ftokens_[0], &dma_prop), FPGA_OK);
+	
 	dma_transfer_list t_list;
-	EXPECT_EQ(xfpga_fpgaDMATransferSync(feature_h, &t_list), FPGA_OK);
+	EXPECT_EQ(fpgaDMATransferSync(feature_h, &t_list), FPGA_OK);
 
-	uint64_t context = 0;
-	EXPECT_EQ(xfpga_fpgaDMATransferAsync(feature_h, &t_list, dma_cb, (void*)&context), FPGA_OK);
-	EXPECT_EQ(xfpga_fpgaFeatureClose(feature_h), FPGA_OK);
+	EXPECT_EQ(fpgaFeatureClose(feature_h), FPGA_OK);
 
 	for (auto &ft : ftokens_) {
 		if (ft) {
-			EXPECT_EQ(xfpga_fpgaDestroyFeatureToken(&ft), FPGA_OK);
+			EXPECT_EQ(fpgaDestroyFeatureToken(&ft), FPGA_OK);
 			ft = nullptr;
 		}
 	}
@@ -243,33 +230,33 @@ TEST_P(feature_open_c_p, test_feature_functions) {
 
 /**
  * @test       nulltokens
- * @brief      Tests: xfpga_fpgaFeatureOpen
- * @details    When xfpga_fpgaFeatureOpen() is called with nullptr for<br>
+ * @brief      Tests: fpgaFeatureOpen
+ * @details    When fpgaFeatureOpen() is called with nullptr for<br>
  *             feature token, it will return FPGA_INVALID_PARAM.<br>
  */
-TEST_P(feature_open_c_p, nulltokens) {
-	EXPECT_EQ(xfpga_fpgaFeatureOpen(nullptr, 0, nullptr, &feature_h),
-		FPGA_INVALID_PARAM);
+TEST_P(opae_feature_open_c_p, nulltokens) {
+	EXPECT_EQ(fpgaFeatureOpen(nullptr, 0, nullptr, &feature_h),
+	FPGA_INVALID_PARAM);
  }
 
  /**
  * @test       nullhandle
- * @brief      Tests: xfpga_fpgaFeatureOpen
- * @details    When xfpga_fpgaFeatureOpen() is called with nullptr for<br>
+ * @brief      Tests: fpgaFeatureOpen
+ * @details    When fpgaFeatureOpen() is called with nullptr for<br>
  *             the feature handle, it will return FPGA_INVALID_PARAM.<br>
  */
-TEST_P(feature_open_c_p, nullhandle) {
-	EXPECT_EQ(xfpga_fpgaFeatureOpen(ftokens_[0], 0, nullptr, nullptr),
-		FPGA_INVALID_PARAM);
+TEST_P(opae_feature_open_c_p, nullhandle) {
+	EXPECT_EQ(fpgaFeatureOpen(ftokens_[0], 0, nullptr, nullptr),
+	FPGA_INVALID_PARAM);
 }
 
  /**
  * @test       mallocfail
- * @brief      Tests: xfpga_fpgaFeatureOpen
- * @details    When the system is running out of memory, xfpga_fpgaFeatureOpen()<br>
+ * @brief      Tests: fpgaFeatureOpen
+ * @details    When the system is running out of memory, fpgaFeatureOpen()<br>
  *             will return FPGA_NO_MEMORY.<br>
  */
-TEST_P(feature_open_c_p, mallocfail) {
+TEST_P(opae_feature_open_c_p, mallocfail) {
 	system_->invalidate_malloc(0, "allocate_wrapped_feature_handle");
 
 	struct DFH dfh ;
@@ -280,10 +267,10 @@ TEST_P(feature_open_c_p, mallocfail) {
 	dfh.reserved = 0;
 	dfh.type = 0x1;
 
-	// Write to DMA AFU's CSR and GUID registers
-	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x0, dfh.csr));
-	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x8, 0xf89e433683f9040b));
-	EXPECT_EQ(FPGA_OK,xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x10, 0xd8424dc4a4a3c413));
+	// Write to AFU's CSR and GUID registers
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x0, dfh.csr));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x8, 0xf89e433683f9040b));
+	EXPECT_EQ(FPGA_OK,fpgaWriteMMIO64(accel_, which_mmio_, 0x10, 0xd8424dc4a4a3c413));
 
 	struct DFH dfh_bbb = { 0 };
 
@@ -295,25 +282,25 @@ TEST_P(feature_open_c_p, mallocfail) {
 	dfh_bbb.reserved = 0;
 
 	// Write to DMA BBB's CSR and GUID registers
-	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
-	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x108, 0x9D73E8F258E9E3E7));
-	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x110, 0x87816958C1484CE0));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x108, 0x9D73E8F258E9E3E7));
+	EXPECT_EQ(FPGA_OK, fpgaWriteMMIO64(accel_, which_mmio_, 0x110, 0x87816958C1484CE0));
 
-	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
+	EXPECT_EQ(fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
 		ftokens_.size(), &num_matches_), FPGA_OK);
 
-	EXPECT_EQ(num_matches_, 1);
-	ASSERT_EQ(xfpga_fpgaFeatureOpen(ftokens_[0], 0, nullptr, &feature_h),
-	  FPGA_NO_MEMORY);
-	EXPECT_EQ(feature_h, nullptr);
+	ASSERT_EQ(num_matches_, 1);
+
+	ASSERT_EQ(fpgaFeatureOpen(ftokens_[0], 0, nullptr, &feature_h),
+		FPGA_NO_MEMORY);
 
 	for (auto &ft : ftokens_) {
-		if (ft) {
-			EXPECT_EQ(xfpga_fpgaDestroyFeatureToken(&ft), FPGA_OK);
+		if (ft && &ft) {
+			EXPECT_EQ(fpgaDestroyFeatureToken(&ft), FPGA_OK);
 			ft = nullptr;
 		}
 	}
 }
 
-INSTANTIATE_TEST_CASE_P(feature_open_c, feature_open_c_p,
+INSTANTIATE_TEST_CASE_P(opae_feature_open_c, opae_feature_open_c_p,
                         ::testing::ValuesIn(test_platform::keys(true)));

@@ -246,6 +246,9 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
 		if (filter_ != nullptr) {
 			EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
 		}
+
+		EXPECT_EQ(feature_plugin_mgr_finalize_all(), 0);
+
 		// Restore the global adapter list.
 		feature_adapter_list = feature_adapter_list_;
 
@@ -264,7 +267,7 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
 
 	std::array<fpga_token, 2> tokens_;
 	uint32_t which_mmio_;
-	std::array<fpga_feature_token, 2> ftokens_;
+	std::array<fpga_feature_token, 1> ftokens_;
 	fpga_properties filter_;  
 	fpga_handle accel_;
 	fpga_feature_properties feature_filter_;
@@ -293,8 +296,8 @@ TEST_P(feature_pluginmgr_c_p, get_feature_plugin_adapter) {
 	dfh.reserved = 0;
 	dfh.type = 0x1;
 
+	// Write to AFU's CSR and GUID registers
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x0, dfh.csr));
-
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x8, 0xf89e433683f9040b));
 	EXPECT_EQ(FPGA_OK,xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x10, 0xd8424dc4a4a3c413));
 
@@ -307,18 +310,26 @@ TEST_P(feature_pluginmgr_c_p, get_feature_plugin_adapter) {
 	dfh_bbb.eol = 1;
 	dfh_bbb.reserved = 0;
 
+	// Write to DMA BBB's CSR and GUID registers
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
-
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x108, 0x9D73E8F258E9E3E7));
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x110, 0x87816958C1484CE0));
 
 
 	EXPECT_EQ(xfpga_fpgaFeatureEnumerate(accel_, &feature_filter_, ftokens_.data(),
 		ftokens_.size(), &num_matches_), FPGA_OK);
+	EXPECT_EQ(num_matches_, 1);
 
 	fpga_guid bad_guid = {0xFF, 0xE3, 0xE9, 0x58, 0xF2, 0xE8, 0x73, 0x9D, 
 					0xE0, 0x4C, 0x48, 0xC1, 0x58, 0x69, 0x81, 0x87};
 	EXPECT_EQ(nullptr, get_feature_plugin_adapter(bad_guid));
+
+	for (auto &ft : ftokens_) {
+		if (ft && &ft) {
+			EXPECT_EQ(xfpga_fpgaDestroyFeatureToken(&ft), FPGA_OK);
+			ft = nullptr;
+		}
+	}
 } 
 
 /**
@@ -339,8 +350,8 @@ TEST_P(feature_pluginmgr_c_p, bad_init_all) {
 	dfh.reserved = 0;
 	dfh.type = 0x1;
 
+	// Write to DMA AFU's CSR and GUID registers
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x0, dfh.csr));
-
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x8, 0xf89e433683f9040b));
 	EXPECT_EQ(FPGA_OK,xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x10, 0xd8424dc4a4a3c413));
 
@@ -353,8 +364,8 @@ TEST_P(feature_pluginmgr_c_p, bad_init_all) {
 	dfh_bbb.eol = 1;
 	dfh_bbb.reserved = 0;
 
+	// Write to DMA BBB's CSR and GUID registers
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x100, dfh_bbb.csr));
-
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x108, 0x9D73E8F258E9E3E7));
 	EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, which_mmio_, 0x110, 0x87816958C1484CE0));
 
