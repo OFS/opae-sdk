@@ -52,12 +52,7 @@ extern "C" {
  * Output of fpgaDMAPropertiesGet.
  */
 typedef struct {
-	uint64_t max_channel_num; /**< Max number of channels that the DMA engine supports */
-	uint64_t max_ring_size;   /**< Max number of buffers that the DMA can hold */
-	uint64_t max_buffer_size; /**< Max size of one buffer */
-	uint64_t addr_alignment_for_dma;    /**< Address alignment requirement for DMA */
-	uint64_t minimum_xfer_size_for_dma; /**< DMA tranfer size should be multiples of this size */
-	uint64_t capabilities_mask;         /**< Bit mask of fpga_dma_transfer_type */
+	uint64_t channel_num; /**< Number of channels that the DMA engine supports */
 	fpga_guid tx_endp_guid[FPGA_DMA_MAX_CLIENT_NUM]; /**< A table of guid of the connected IP to a Tx channels */
 	fpga_guid rx_endp_guid[FPGA_DMA_MAX_CLIENT_NUM]; /**< A table of guid of the connected IP to a Rx channels */
 	uint32_t tx_client_num; /**< Number of tx clients that the DMA is connected to */
