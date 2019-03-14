@@ -513,6 +513,7 @@ typedef struct _Values {
 
 typedef struct _sensor_attr {
 	struct _sensor_attr *next;
+	int raw_flag;
 	int flag;
 	int id;
 	int type;

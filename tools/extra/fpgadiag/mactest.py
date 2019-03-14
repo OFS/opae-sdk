@@ -64,7 +64,7 @@ class MacromCompare(COMMON):
         # a group has 4 interfaces
         for i in ifs:
             t = [j for j in ifs if j[:-1] == i[:-1]]
-            if len(t) == self.number:
+            if len(t) == self.number / 2:
                 root = self.get_pci_common_root_path(os.path.join(sys_if, i))
                 if pci_root == root:
                     with open(os.path.join(sys_if, i, 'address')) as f:
@@ -94,7 +94,10 @@ class MacromCompare(COMMON):
         vendor = '{:06x}'.format(mac >> 24)
         for i in range(mac_number):
             mac += 1
-            self.mac.append(vendor + '{:06x}'.format(mac & 0xffffff))
+            mac_str = '{}{:06x}'.format(vendor, (mac & 0xffffff))
+            fmt_str = ':'.join([mac_str[x:x + 2]
+                                for x in range(0, len(mac_str), 2)])
+            self.mac.append(fmt_str)
         for m in self.mac:
             print('  {}'.format(m))
         print(divide)

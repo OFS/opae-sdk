@@ -55,7 +55,8 @@ def main(args):
     bdf = bist_common.get_all_fpga_bdfs(args)
     if not bdf:
         if vars(args)['device_id'] == '09c4':
-            sys.exit("Please use '-i' option to specify FPGA device ID")
+            sys.exit("Please use '-i' option to specify FPGA device ID "
+                     "other than 09c4")
         else:
             sys.exit("No FPGA devices of device ID {} found"
                      .format(vars(args)['device_id']))

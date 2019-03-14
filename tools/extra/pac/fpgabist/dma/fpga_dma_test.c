@@ -62,6 +62,10 @@ extern double buf_full_count;
 char cbuf[2048];
 #endif
 
+#define DMA_BUF_SIZE_MAX    (1023 * 1024)
+#define DMA_BUF_SIZE_MIN    128
+extern uint64_t fpga_dma_buf_size;
+
 static char *verify_buf = NULL;
 static uint64_t verify_buf_size = 0;
 
@@ -111,13 +115,14 @@ config = {
 /*
  *  *  * Parse command line arguments
  *   *   */
-#define GETOPT_STRING ":B:D:S:G:mpc2nayCM"
+#define GETOPT_STRING ":B:D:S:s:G:mpc2nayCM"
 fpga_result parse_args(int argc, char *argv[])
 {
     struct option longopts[] = {
         {"bus", required_argument, NULL, 'B'},
         {"dma", required_argument, NULL, 'D'},
         {"size", required_argument, NULL, 'S'},
+        {"bufsize", required_argument, NULL, 's'},
         {"guid", required_argument, NULL, 'G'}
     };
 
@@ -172,6 +177,28 @@ fpga_result parse_args(int argc, char *argv[])
                 return FPGA_EXCEPTION;
             }
             break;
+		case 's':   /* bufsize */
+			if (NULL == tmp_optarg)
+				break;
+			endptr = NULL;
+			fpga_dma_buf_size = (unsigned long long)strtoull(tmp_optarg,
+															 &endptr, 0);
+			if (endptr != tmp_optarg + strnlen(tmp_optarg, 16)) {
+				fprintf(stderr, "invalid bufsize: %s\n", tmp_optarg);
+				return FPGA_EXCEPTION;
+			}
+			if ((fpga_dma_buf_size < DMA_BUF_SIZE_MIN) ||
+				(fpga_dma_buf_size > DMA_BUF_SIZE_MAX)) {
+				fpga_dma_buf_size = DMA_BUF_SIZE_MAX;
+				printf("DMA buffer size out of range (%d~%d), %zu is used\n",
+					   DMA_BUF_SIZE_MIN, DMA_BUF_SIZE_MAX, fpga_dma_buf_size);
+			}
+			if (fpga_dma_buf_size & 0x7f) {
+			    fpga_dma_buf_size &= ~0x7f;
+				printf("DMA buffer size must be multiple of 128, %zu is used\n",
+					   fpga_dma_buf_size);
+			}
+			break;
         case 'G':   /* AFU ID */
             if (tmp_optarg)
                 memcpy_s(config.target.guid, buf_size, tmp_optarg, buf_size);

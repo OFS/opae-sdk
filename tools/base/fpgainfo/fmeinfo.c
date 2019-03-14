@@ -28,9 +28,13 @@
 #include "fpgainfo.h"
 #include "sysinfo.h"
 #include "fmeinfo.h"
+#include "safe_string/safe_string.h"
 #include <opae/fpga.h>
 #include <uuid/uuid.h>
 #include <inttypes.h>
+#include <dirent.h>
+#include <fcntl.h>
+#include <sys/types.h>
 
 /*
  * Print help
@@ -43,9 +47,85 @@ void fme_help(void)
 	       "\n");
 }
 
+static int get_flash_ctrl_path(const char *start_path, char *out_path, int size)
+{
+	DIR *dir = NULL;
+	struct dirent *dirent = NULL;
+	char *path_pattern = "spi";
+	char *node_name = "fpga_flash_ctrl";
+	char path[SYSFS_PATH_MAX] = {0};
+	char *substr;
+	int ret = -1;
+	int result;
+
+	if (start_path == NULL || out_path == NULL)
+		return ret;
+	strncpy_s(path, sizeof(path), start_path, strlen(start_path));
+
+	while (1) {
+		dir = opendir(path);
+		if (NULL == dir) {
+			break;
+		}
+		while (NULL != (dirent = readdir(dir))) {
+			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
+								".", &result)) {
+				if (result == 0)
+					continue;
+			}
+			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
+								"..", &result)) {
+				if (result == 0)
+					continue;
+			}
+
+			if (EOK == strstr_s(dirent->d_name, strlen(dirent->d_name),
+								node_name, strlen(node_name), &substr)) {
+				strncpy_s(out_path, size, path, strlen(path));
+				ret = 0;
+				break;
+			}
+			if (EOK == strstr_s(dirent->d_name, strlen(dirent->d_name),
+								path_pattern, strlen(path_pattern), &substr)) {
+				snprintf_s_s(path+strlen(path), sizeof(path)-strlen(path),
+							 "/%s", dirent->d_name);
+				break;
+			}
+		}
+		closedir(dir);
+		if (dirent == NULL || ret == 0)
+			break;
+	}
+	return ret;
+}
+
 static void print_fme_info(fpga_properties props)
 {
+	fpga_result result;
+	char path[SYSFS_PATH_MAX];
+	uint32_t page = 0;
+	int offset = 0;
+	const char *sysfspath = get_sysfs_path(props, FPGA_DEVICE, NULL);
+
 	fpgainfo_print_common("//****** FME ******//", props);
+	if (!sysfspath) {
+		fprintf(stderr, "WARNING: sysfs path not found\n");
+		return;
+	}
+	if (0 != get_flash_ctrl_path(sysfspath, path, SYSFS_PATH_MAX)) {
+		fprintf(stderr, "WARNING: fpga_flash_ctrl not found\n");
+		return;
+	}
+
+	offset = strlen(path);
+	snprintf_s_s(path+offset, sizeof(path)-offset, "/%s",
+				 "fpga_flash_ctrl/fpga_image_load");
+	result = fpgainfo_sysfs_read_u32(path, &page);
+	if (FPGA_OK != result) {
+		fpgainfo_print_err("getting boot page of FPGA", result);
+		return;
+	}
+	printf("%-29s : %s\n", "Boot Page", page == 0 ? "factory" : "user");
 }
 
 fpga_result fme_filter(fpga_properties *filter, int argc, char *argv[])

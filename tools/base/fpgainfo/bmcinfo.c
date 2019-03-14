@@ -698,13 +698,17 @@ void print_sensor_verbose_value(sensor_attr *sensors, BMC_TYPE type)
 				printf("\tNo threshold provided\n");
 			}
 
-			printf("\tSensor reading:\n");
-			printf("\t\tRaw value: 0x%x\n", attr->value.r_val);
-			if (attr->type == SENSOR_TYPE_CLOCK ||
-				attr->type == SENSOR_TYPE_OTHER) {
-				printf("\t\t\tScaled value is %d\n", attr->value.i_val);
+			if (attr->raw_flag & SENSOR_FLAG_VALUE) {
+				printf("\tSensor reading:\n");
+				printf("\t\tRaw value: 0x%x\n", attr->value.r_val);
+				if (attr->type == SENSOR_TYPE_CLOCK ||
+					attr->type == SENSOR_TYPE_OTHER) {
+					printf("\t\t\tScaled value is %d\n", attr->value.i_val);
+				} else {
+					printf("\t\t\tScaled value is %.6f\n", attr->value.f_val);
+				}
 			} else {
-				printf("\t\t\tScaled value is %.6f\n", attr->value.f_val);
+				printf("\tNo value provided\n");
 			}
 		}
 	}
@@ -753,8 +757,8 @@ void print_sensor_value(sensor_attr *sensors, BMC_TYPE type)
 #define THERMAL_LOW_LIMIT	-273.00
 #define POWER_HIGH_LIMIT	1000.00
 #define POWER_LOW_LIMIT		0.00
-#define VOLTAMP_HIGH_LIMIT	100.00
-#define VOLTAMP_LOW_LIMIT	-100.00
+#define VOLTAMP_HIGH_LIMIT	500.00
+#define VOLTAMP_LOW_LIMIT	0.00
 
 static void convert_sensor_value(sensor_attr *attr, char *value, int flag)
 {
@@ -797,6 +801,7 @@ static void convert_sensor_value(sensor_attr *attr, char *value, int flag)
 		return;
 	}
 
+	attr->raw_flag |= flag;
 	*r_val = atoi(value);
 	if (attr->type == SENSOR_TYPE_THERMAL) {
 		*f_val = (*r_val) * 0.001;
