@@ -28,6 +28,8 @@
 extern "C" {
     fpga_result buffer_allocate(void*,uint64_t,int);
     fpga_result buffer_release(void*,uint64_t);
+    int xfpga_plugin_initialize(void);
+    int xfpga_plugin_finalize(void);
 }
 
 #include "error_int.h"
@@ -36,6 +38,7 @@ extern "C" {
 #include "gtest/gtest.h"
 #include "test_system.h"
 #include "intel-fpga.h"
+#include "fpga-dfl.h"
 #include <linux/ioctl.h>
 #include <cstdarg>
 #include "types_int.h"
@@ -68,12 +71,15 @@ extern "C" {
 #define FPGA_MSG(fmt, ...) \
 	printf("MOCK " fmt "\n", ## __VA_ARGS__)
 
-
+#pragma pack(push, 1)
 struct buffer_params {
   fpga_result result;
   size_t size;
   int flags;
 };
+#pragma pack(pop)
+
+
 
 using namespace opae::testing;
 
@@ -140,8 +146,7 @@ out_EINVAL:
 }
 
 
-class buffer_prepare
-    : public ::testing::TestWithParam<std::tuple<std::string, buffer_params>> {
+class buffer_prepare : public ::testing::TestWithParam<std::tuple<std::string, buffer_params>> {
  protected:
   buffer_prepare()
   : tokens_{{nullptr, nullptr}},
@@ -155,12 +160,12 @@ class buffer_prepare
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_),
-              FPGA_OK);
+                            &num_matches_), FPGA_OK);
+    ASSERT_GT(num_matches_, 0);
     ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
   }
 
@@ -174,7 +179,12 @@ class buffer_prepare
         }
     }
 
-    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
+    if (handle_ != nullptr) { 
+      EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); 
+      handle_ = nullptr;
+    }
+
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 
@@ -197,8 +207,8 @@ class buffer_prepare
  */
 TEST_P(buffer_prepare, PrepPre2MB01) {
   uint64_t buf_len;
-  uint64_t* buf_addr;
-  uint64_t wsid = 1;
+  uint64_t* buf_addr = nullptr;
+  uint64_t wsid;
 
   // Allocate buffer in MB range
   buf_len = 2 * 1024 * 1024;
@@ -210,23 +220,23 @@ TEST_P(buffer_prepare, PrepPre2MB01) {
   EXPECT_EQ(FPGA_OK, xfpga_fpgaReleaseBuffer(handle_, wsid));
 
   // buf_addr was preallocated, do not touch it
-  ASSERT_NE(buf_addr, (void*)NULL);
+  ASSERT_NE(buf_addr, (void*)nullptr);
   munmap(buf_addr, buf_len);
 }
 
 TEST_P(buffer_prepare, prepare_buf_err) {
   uint64_t buf_len = 1024;
-  uint64_t* buf_addr;
-  uint64_t wsid = 1;
+  uint64_t* buf_addr = nullptr;
+  uint64_t wsid;
   int flags = 0;
-  uint64_t *ioaddr = NULL;
-  uint64_t* invalid_buf_addr = NULL;
+  uint64_t *ioaddr = nullptr;
+  uint64_t* invalid_buf_addr = nullptr;
 
   // NULL Handle
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaPrepareBuffer(NULL, 0, (void**) &buf_addr, &wsid, 0));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaPrepareBuffer(nullptr, 0, (void**) &buf_addr, &wsid, 0));
 
   // NULL wsid
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaPrepareBuffer(handle_, 0, (void**) &buf_addr, NULL, flags));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaPrepareBuffer(handle_, 0, (void**) &buf_addr, nullptr, flags));
 
   // Invlaid Flags
   flags = 0x100;
@@ -245,32 +255,31 @@ TEST_P(buffer_prepare, prepare_buf_err) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaPrepareBuffer(handle_, buf_len, (void**) &invalid_buf_addr, &wsid, flags));
 
   // special test case
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaPrepareBuffer(handle_, 0, (void**) NULL, &wsid, flags));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaPrepareBuffer(handle_, 0, (void**) nullptr, &wsid, flags));
 
   // Buffer lenth is zero
   flags = FPGA_BUF_QUIET;
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaPrepareBuffer(handle_, 0, (void**) NULL, &wsid, flags));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaPrepareBuffer(handle_, 0, (void**) nullptr, &wsid, flags));
 
   // Invalid Handle
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetIOAddress(NULL, wsid, ioaddr));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetIOAddress(nullptr, wsid, ioaddr));
 
   // Invalid workspace id
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetIOAddress(handle_, 0x10000, ioaddr));
 
   // NULL Handle
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReleaseBuffer(NULL, wsid));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReleaseBuffer(nullptr, wsid));
 
   // Invalid workspace id
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReleaseBuffer(handle_, 0x10001));
-
 }
 
 TEST_P(buffer_prepare, xfpga_fpgaPrepareBuffer) {
   buffer_params params = std::get<1>(GetParam());
-  void *buf_addr = 0;
+  void *buf_addr = nullptr;
   uint64_t wsid = 0;
   uint64_t ioaddr = 0;
-  auto res = xfpga_fpgaPrepareBuffer(handle_, params.size, &buf_addr, &wsid, params.flags);
+  auto res = xfpga_fpgaPrepareBuffer(handle_, params.size, (void **)&buf_addr, &wsid, params.flags);
 
   EXPECT_EQ(res, params.result) << "result is " << fpgaErrStr(res);
   if (params.size > 0 && params.result == FPGA_OK) {
@@ -290,7 +299,7 @@ TEST_P(buffer_prepare, xfpga_fpgaPrepareBuffer) {
  *
  */
 TEST_P(buffer_prepare, release_neg) {
-  uint64_t wsid = 1;
+  uint64_t wsid= 1;
 
   EXPECT_EQ(xfpga_fpgaReleaseBuffer(handle_, wsid), FPGA_INVALID_PARAM);
 }
@@ -306,7 +315,7 @@ TEST_P(buffer_prepare, release_neg) {
  */
 TEST_P(buffer_prepare, not_aligned) {
   uint64_t buf_len = (4 * 1024) - 1;
-  void *buf_addr = 0;
+  void *buf_addr = nullptr;
   uint64_t wsid = 1;
   int flags = 0;
 
@@ -325,7 +334,7 @@ TEST_P(buffer_prepare, not_aligned) {
  */
 TEST_P(buffer_prepare, write_read) {
   uint64_t buf_len = NLB_DSM_SIZE;
-  void *buf_addr = 0;
+  void *buf_addr = nullptr;
   uint64_t wsid = 2;
   int flags = 0;
   uint64_t offset;
@@ -359,13 +368,11 @@ std::vector<buffer_params> params{
     buffer_params{FPGA_INVALID_PARAM, 11247, FPGA_BUF_PREALLOCATED}};
 }
 
-INSTANTIATE_TEST_CASE_P(
-    buffer_c, buffer_prepare,
-    ::testing::Combine(::testing::ValuesIn(test_platform::keys()),
-                       ::testing::ValuesIn(params)));
+INSTANTIATE_TEST_CASE_P(buffer_c, buffer_prepare,
+                        ::testing::Combine(::testing::ValuesIn(test_platform::keys()),
+                                           ::testing::ValuesIn(params)));
 
-class buffer_c_mock_p
-    : public ::testing::TestWithParam<std::string> {
+class buffer_c_mock_p : public ::testing::TestWithParam<std::string> {
  protected:
   buffer_c_mock_p()
   : tokens_{{nullptr, nullptr}},
@@ -377,12 +384,12 @@ class buffer_c_mock_p
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_),
-              FPGA_OK);
+                            &num_matches_), FPGA_OK);
+    ASSERT_GT(num_matches_, 0);
     ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
   }
 
@@ -396,7 +403,12 @@ class buffer_c_mock_p
       }
     }
 
-    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
+    if (handle_ != nullptr) { 
+      EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); 
+      handle_ = nullptr;
+    }
+
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 
@@ -409,24 +421,28 @@ class buffer_c_mock_p
 };
 
 TEST_P(buffer_c_mock_p, port_dma_unmap) {
-  void *buf_addr = 0;
+  void *buf_addr = nullptr;
   uint64_t wsid = 0;
   uint64_t buf_len = KiB(1);
-  auto res = xfpga_fpgaPrepareBuffer(handle_, buf_len, &buf_addr, &wsid, 0);
+  auto res = xfpga_fpgaPrepareBuffer(handle_, buf_len, (void **)&buf_addr, &wsid, 0);
   EXPECT_EQ(res, FPGA_OK);
 
   system_->register_ioctl_handler(FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1, EINVAL>);
   EXPECT_EQ(res = xfpga_fpgaReleaseBuffer(handle_, wsid), FPGA_INVALID_PARAM)
         << "result is " << fpgaErrStr(res);
+
+  buf_addr = nullptr;
 }
 
 TEST_P(buffer_c_mock_p, port_dma_map) {
-  void *buf_addr = 0;
+  void *buf_addr = nullptr;
   uint64_t wsid = 0;
   uint64_t buf_len = KiB(1);
 
   system_->register_ioctl_handler(FPGA_PORT_DMA_MAP, dummy_ioctl<-1,EINVAL>);
-  auto res = xfpga_fpgaPrepareBuffer(handle_, buf_len, &buf_addr, &wsid, 0);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_DMA_MAP, dummy_ioctl<-1, EINVAL>);
+  auto res = xfpga_fpgaPrepareBuffer(handle_, buf_len, (void **)&buf_addr, &wsid, 0);
   EXPECT_EQ(res, FPGA_INVALID_PARAM) << "result is " << fpgaErrStr(res);
 }
 

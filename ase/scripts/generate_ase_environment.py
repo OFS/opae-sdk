@@ -255,23 +255,25 @@ def config_sources(fd, filelist):
             if (sl.endswith('.json')):
                 json_srcs.append(s)
 
-    qsys_sim_files = config_qsys_sources(filelist, vlog_srcs)
+    qsys_sim_files = config_qsys_sources(filelist, vlog_srcs, vhdl_srcs)
 
     # List Verilog & SystemVerilog sources in a file
-    if (vlog_found or qsys_sim_files):
+    if (vlog_found or ('vlog' in qsys_sim_files)):
         fd.write("DUT_VLOG_SRC_LIST = " + VLOG_FILE_LIST + " \n\n")
         with open(VLOG_FILE_LIST, "w") as f:
             for s in vlog_srcs:
                 f.write(s + "\n")
-            if (qsys_sim_files):
-                f.write("-F " + qsys_sim_files + "\n")
+            if ('vlog' in qsys_sim_files):
+                f.write("-F " + qsys_sim_files['vlog'] + "\n")
 
     # List VHDL sources in a file
-    if (vhdl_found):
+    if (vhdl_found or ('vhdl' in qsys_sim_files)):
         fd.write("DUT_VHD_SRC_LIST = " + VHDL_FILE_LIST + " \n\n")
         with open(VHDL_FILE_LIST, "w") as f:
             for s in vhdl_srcs:
                 f.write(s + "\n")
+            if ('vhdl' in qsys_sim_files):
+                f.write("-f " + qsys_sim_files['vhdl'] + "\n")
 
     # Is there a JSON file describing the AFU?
     json_file = None
@@ -314,7 +316,7 @@ def remove_prefix(text, prefix):
 # sources, compile them, and include the generated Verilog in the
 # simulation.
 #
-def config_qsys_sources(filelist, vlog_srcs):
+def config_qsys_sources(filelist, vlog_srcs, vhdl_srcs):
     # Get all the sources.  rtl_src_config will emit all relevant source
     # files, one per line.
     try:
@@ -360,7 +362,7 @@ def config_qsys_sources(filelist, vlog_srcs):
 
     # Any Qsys files found?
     if (not qsys_srcs):
-        return None
+        return dict()
 
     # First step: copy the trees holding Qsys sources to a temporary tree
     # inside the simulator environment.  We do this to avoid polluting the
@@ -387,10 +389,11 @@ def config_qsys_sources(filelist, vlog_srcs):
             print("Preparing {0}:".format(q))
             print("  Copying {0} to {1}...".format(src_dir, tgt_dir))
             try:
-                shutil.copytree(src_dir, tgt_dir)
-            except Exception:
-                errorExit("Failed to copy tree {0} to {1}".format(src_dir,
-                                                                  tgt_dir))
+                shutil.copytree(src_dir, tgt_dir, symlinks=False, ignore=None)
+            except Exception as e:
+                errorExit("Failed to copy tree {0} to "
+                          "{1}: Exception {2}".
+                          format(src_dir, tgt_dir, e))
 
         # Point to the copy
         qsys_srcs_copy.append(tgt_dir + q[len(src_dir):])
@@ -411,10 +414,12 @@ def config_qsys_sources(filelist, vlog_srcs):
             print("Preparing {0}:".format(t))
             print("  Copying {0} to {1}...".format(src_dir, tgt_dir))
             try:
-                shutil.copytree(src_dir, tgt_dir)
-            except Exception:
-                errorExit("Failed to copy tree {0} to {1}".format(src_dir,
-                                                                  tgt_dir))
+                if not os.path.exists(tgt_dir):
+                    shutil.copytree(src_dir, tgt_dir,
+                                    symlinks=False, ignore=None)
+            except Exception as e:
+                errorExit("Failed to copy tree {0} to "
+                          "{1}: Exception = {2}".format(src_dir, tgt_dir, e))
         tcl_srcs_copy.append(tgt_dir + q[len(src_dir):])
 
     # Second step: now that the trees are copied, update the paths in
@@ -461,15 +466,23 @@ def config_qsys_sources(filelist, vlog_srcs):
     sim_files_found = Set()
     for s in vlog_srcs:
         sim_files_found.add(os.path.basename(s))
+    for s in vhdl_srcs:
+        sim_files_found.add(os.path.basename(s))
 
-    # Find all generated Verilog/SystemVerilog sources
-    qsys_sim_files = 'qsys_sim_files.list'
-    with open(qsys_sim_files, "w") as f:
+    # Find all generated Verilog/SystemVerilog/VHDL sources
+    qsys_sim_files = {'vlog': 'qsys_vlog_sim_files.list',
+                      'vhdl': 'qsys_vhdl_sim_files.list',
+                      'hex': 'qsys_hex_sim_files.list'}
+    found_qsys_file = {'vlog': False, 'vhdl': False, 'hex': False}
+    with open(qsys_sim_files['vlog'], "w") as f_vlog, \
+            open(qsys_sim_files['vhdl'], "w") as f_vhdl, \
+            open(qsys_sim_files['hex'], "w") as f_hex:
         for d in ip_dirs_copy:
             for dir, subdirs, files in os.walk(d):
-                for fn in files:
+                for fn in sorted(files, key=sort_key_qsys_files):
                     if ((os.path.basename(dir) == 'synth') and
-                            (fn.endswith('.v') or fn.endswith('.sv'))):
+                            (fn.endswith('.v') or fn.endswith('.sv') or
+                             fn.endswith('.vhd') or fn.endswith('.hex'))):
                         full_path = os.path.join(dir, fn)
                         # Is the module (file) name new?
                         if (fn not in sim_files_found and
@@ -477,9 +490,43 @@ def config_qsys_sources(filelist, vlog_srcs):
                             sim_files_found.add(fn)
                             # Escape spaces in pathnames
                             full_path = full_path.replace(' ', '\\ ')
-                            f.write(full_path + "\n")
+                            if (fn.endswith('.hex')):
+                                f_hex.write(full_path + "\n")
+                                found_qsys_file['hex'] = True
+                            elif (fn.endswith('.vhd')):
+                                f_vhdl.write(full_path + "\n")
+                                found_qsys_file['vhdl'] = True
+                            else:
+                                f_vlog.write(full_path + "\n")
+                                found_qsys_file['vlog'] = True
+
+    # Drop any file lists that are empty
+    for t, v in found_qsys_file.items():
+        if not v:
+            os.remove(qsys_sim_files[t])
+            del qsys_sim_files[t]
 
     return qsys_sim_files
+
+
+#
+# Sort qsys generated files since the order they are passed to the
+# simulator may matter. In synth mode, qsys-generate doesn't emit
+# any configuration files that define compilation order, so we are
+# forced to use a heuristic.
+#
+def sort_key_qsys_files(fn):
+    # Sort by prepending an ordering token
+    root, ext = os.path.splitext(fn)
+    if (root.endswith('package') or root.endswith('pkg')):
+        return '0' + fn
+    if (root.endswith('library') or root.endswith('lib')):
+        return '1' + fn
+    if (root.endswith('functions')):
+        return '2' + fn
+    if (root.endswith('components')):
+        return '3' + fn
+    return '4' + fn
 
 
 #

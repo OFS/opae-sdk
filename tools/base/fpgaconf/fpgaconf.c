@@ -97,7 +97,7 @@ struct bitstream_info {
 	fpga_guid interface_id;
 };
 
-fpga_result get_bitstream_ifc_id(const uint8_t *bitstream,
+fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, size_t bs_len,
 				 fpga_guid *guid)
 {
 	fpga_result result = FPGA_EXCEPTION;
@@ -117,6 +117,12 @@ fpga_result get_bitstream_ifc_id(const uint8_t *bitstream,
 	if (json_len == 0) {
 		OPAE_MSG("Bitstream has no metadata");
 		result = FPGA_OK;
+		goto out_free;
+	}
+
+	if (json_len > bs_len) {
+		OPAE_ERR("invalid bitstream metadata size");
+		result = FPGA_EXCEPTION;
 		goto out_free;
 	}
 
@@ -424,8 +430,6 @@ int print_interface_id(fpga_guid actual_interface_id)
 	fpga_properties filter = NULL;
 	uint32_t num_matches = 0;
 	int retval = -1;
-	uint64_t intfc_id_l = 0;
-	uint64_t intfc_id_h = 0;
 	fpga_handle fpga_handle = NULL;
 	fpga_result res = -1;
 	fpga_token fpga_token = NULL;
@@ -476,10 +480,8 @@ int print_interface_id(fpga_guid actual_interface_id)
 	res = fpgaOpen(fpga_token, &fpga_handle, 0);
 	ON_ERR_GOTO(res, out_destroy, "opening fpga");
 
-	res = get_fpga_interface_id(fpga_token, &intfc_id_l, &intfc_id_h);
+	res = get_fpga_interface_id(fpga_token, expt_interface_id);
 	ON_ERR_GOTO(res, out_close, "interfaceid get");
-
-	fpga_guid_to_fpga(intfc_id_h, intfc_id_l, expt_interface_id);
 
 	uuid_unparse(expt_interface_id, guid_str);
 	printf("Expected Interface id:  %s\n", guid_str);
@@ -493,6 +495,8 @@ out_close:
 	ON_ERR_GOTO(res, out_destroy, "closing fme");
 
 out_destroy:
+	if (fpga_token)
+		fpgaDestroyToken(&fpga_token);
 	res = fpgaDestroyProperties(&filter); /* not needed anymore */
 	ON_ERR_GOTO(res, out_err, "destroying properties object");
 out_err:
@@ -575,7 +579,7 @@ int read_bitstream(char *filename, struct bitstream_info *info)
 	if (check_bitstream_guid(info->data) == FPGA_OK) {
 		skip_header_checks = true;
 
-		if (get_bitstream_ifc_id(info->data, &(info->interface_id))
+		if (get_bitstream_ifc_id(info->data, info->data_len, &(info->interface_id))
 		    != FPGA_OK) {
 			fprintf(stderr, "Invalid metadata in the bitstream\n");
 			goto out_free;
@@ -747,7 +751,7 @@ int main(int argc, char *argv[])
 	res = program_bitstream(token, slot_num, &info, config.flags);
 	if (res < 0) {
 		retval = 5;
-		goto out_free;
+		goto out_destroy;
 	}
 	print_msg(1, "Done");
 

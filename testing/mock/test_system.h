@@ -121,7 +121,9 @@ class test_system {
   void initialize();
   void finalize();
   void prepare_syfs(const test_platform &platform);
-  void remove_sysfs();
+  int remove_sysfs();
+  int remove_sysfs_dir(const char *path = nullptr);
+  std::string get_sysfs_claass_path(const std::string &path);
 
   int open(const std::string &path, int flags);
   int open(const std::string &path, int flags, mode_t m);
@@ -148,6 +150,8 @@ class test_system {
   int glob(const char *pattern, int flags,
                 int (*errfunc) (const char *epath, int eerrno),
                 glob_t *pglob);
+
+  char *realpath(const char *inp, char *dst);
                 
   void hijack_sched_setaffinity(int return_val, uint32_t after=0,
                                 const char *when_called_from=nullptr);
@@ -190,12 +194,11 @@ class test_system {
                               compare_func);
   typedef int (*sched_setaffinity_func)(pid_t pid, size_t cpusetsize,
                                         const cpu_set_t *mask);
-                                        
+  typedef char *(*realpath_func)(const char *, char *);
 
-typedef  int (*glob_func)(const char *pattern, int flags,
-                int (*errfunc) (const char *epath, int eerrno),
-                glob_t *pglob);
-
+  typedef int (*glob_func)(const char *pattern, int flags,
+                           int (*errfunc)(const char *epath, int eerrno),
+                           glob_t *pglob);
 
   open_func open_;
   open_create_func open_create_;
@@ -211,7 +214,8 @@ typedef  int (*glob_func)(const char *pattern, int flags,
   __xstat_func lstat_;
   scandir_func scandir_;
   sched_setaffinity_func sched_setaffinity_;
-   glob_func glob_;
+  glob_func glob_;
+  realpath_func realpath_;
 
   bool hijack_sched_setaffinity_;
   int hijack_sched_setaffinity_return_val_;
