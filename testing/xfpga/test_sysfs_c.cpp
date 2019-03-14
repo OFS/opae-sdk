@@ -38,7 +38,7 @@ fpga_result sysfs_get_bitstream_id(int, int, uint64_t *);
 fpga_result sysfs_sbdf_from_path(const char *, int *, int *, int *, int *);
 fpga_result opae_glob_path(char *);
 fpga_result opae_glob_paths(const char *path, size_t found_max,
-                            max_path_t found[], size_t *num_found);
+                            char *found[], size_t *num_found);
 fpga_result make_sysfs_group(char *, const char *, fpga_object *, int,
                              fpga_handle);
 ssize_t eintr_write(int, void *, size_t);
@@ -432,12 +432,17 @@ TEST_P(sysfs_c_p, glob_tests) {
 }
 
 TEST_P(sysfs_c_p, glob_paths) {
-  max_path_t paths[16];
+  char *paths[16];
   auto bitstream_glob = sysfs_fme + "/bitstream*";
   size_t found = 0;
   ASSERT_EQ(opae_glob_paths(bitstream_glob.c_str(), 16, paths, &found),
             FPGA_OK);
   EXPECT_EQ(found, 2);
+  // opae_glob_paths allocates memory for each path found
+  // let's free it here since we don't need it any longer
+  for (int i = 0; i < found; ++i) {
+    free(paths[i]);
+  }
 }
 
 /**

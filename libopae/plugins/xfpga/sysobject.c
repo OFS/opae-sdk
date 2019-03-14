@@ -134,6 +134,10 @@ fpga_result __FPGA_API__ xfpga_fpgaCloneObject(fpga_object src, fpga_object *dst
 	} else {
 		_dst->buffer = NULL;
 		_dst->objects = calloc(_src->size, sizeof(fpga_object));
+		if (!_dst->objects) {
+			res = FPGA_NO_MEMORY;
+			goto out_err;
+		}
 		for (i = 0; i < _src->size; ++i) {
 			res = xfpga_fpgaCloneObject(_src->objects[i],
 						    &_dst->objects[i]);
