@@ -1832,7 +1832,7 @@ fpga_result opae_glob_paths(const char *path, size_t found_max, char *found[],
 			if (!found[i]) {
 				// we had an error duplicating the string
 				// undo what we've duplicated so far
-				while(i) {
+				while (i) {
 					free(found[--i]);
 					found[i] = NULL;
 				}
