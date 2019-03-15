@@ -1760,7 +1760,7 @@ fpga_result destroy_fpga_object(struct _fpga_object *obj)
 	fpga_result res = FPGA_OK;
 	if (pthread_mutex_destroy(&obj->lock)) {
 		FPGA_ERR("Error destroying mutex");
-		return FPGA_EXCEPTION;
+		res = FPGA_EXCEPTION;
 	}
 	FREE_IF(obj->path);
 	FREE_IF(obj->name);
@@ -1775,7 +1775,7 @@ fpga_result destroy_fpga_object(struct _fpga_object *obj)
 	}
 	FREE_IF(obj->objects);
 	free(obj);
-	return FPGA_OK;
+	return res;
 }
 
 fpga_result opae_glob_path(char *path)

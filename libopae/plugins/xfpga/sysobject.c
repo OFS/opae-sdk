@@ -179,7 +179,6 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectGetObjectAt(fpga_object parent,
 		FPGA_ERR("pthread_mutex_unlock() failed");
 	}
 	return res;
-
 }
 
 fpga_result __FPGA_API__ xfpga_fpgaDestroyObject(fpga_object *obj)
@@ -328,6 +327,11 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectGetType(fpga_object obj,
 	struct _fpga_object *_obj = (struct _fpga_object *)obj;
 	ASSERT_NOT_NULL(obj);
 	ASSERT_NOT_NULL(type);
+	if (pthread_mutex_lock(&_obj->lock)) {
+		FPGA_ERR("pthread_mutex_lock() failed");
+		return FPGA_EXCEPTION;
+	}
+
 	switch (_obj->type) {
 	case FPGA_SYSFS_DIR:
 	case FPGA_SYSFS_LIST:
@@ -339,6 +343,11 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectGetType(fpga_object obj,
 	default:
 		res = FPGA_INVALID_PARAM;
 	}
+
+	if (pthread_mutex_unlock(&_obj->lock)) {
+		FPGA_ERR("pthread_mutex_unlock() failed");
+	}
+
 	return res;
 }
 
@@ -349,9 +358,19 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectGetName(fpga_object obj, char *name,
 	struct _fpga_object *_obj = (struct _fpga_object *)obj;
 	ASSERT_NOT_NULL(obj);
 	ASSERT_NOT_NULL(name);
+	if (pthread_mutex_lock(&_obj->lock)) {
+		FPGA_ERR("pthread_mutex_lock() failed");
+		return FPGA_EXCEPTION;
+	}
+
 	ASSERT_NOT_NULL(_obj->name);
 	if (strncpy_s(name, max_len, _obj->name, strlen(_obj->name))) {
 		res = FPGA_EXCEPTION;
 	}
+
+	if (pthread_mutex_unlock(&_obj->lock)) {
+		FPGA_ERR("pthread_mutex_unlock() failed");
+	}
+
 	return res;
 }
