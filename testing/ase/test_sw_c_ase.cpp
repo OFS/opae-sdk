@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,33 +24,47 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <opae/access.h>
-#include <opae/fpga.h>
-#include <opae/properties.h>
-#include <opae/types_enum.h>
-#include <opae/error.h>
-#include <pthread.h>
+extern "C" {
+#include <json-c/json.h>
+#include <uuid/uuid.h>
+#include <opae/types.h>
 #include "types_int.h"
 #include "ase_common.h"
+#include "ase_host_memory.h"
+
+int ase_pt_length_to_level(uint64_t length);
+ase_host_memory_status membus_op_status(uint64_t va, uint64_t pa);
+}
+
+#include <opae/fpga.h>
+
 #include "gtest/gtest.h"
+#include "test_system.h"
 
 #define ASE_UNIT
 #define FPGA_EVENT_INVALID 0x64
 #define ESBADFMT -1
 #define ESFMTTYP -2
 
-const uint HUGE_NUM = 1000000000;
+#define KB 1024
+#define MB (1024 * KB)
+#define GB (1024UL * MB)
 
-static const fpga_guid ASE_GUID = {
-	0xd8, 0x42, 0x4d, 0xc4, 0xa4,  0xa3, 0xc4, 0x13, 0xf8,0x9e,
-	0x43, 0x36, 0x83, 0xf9, 0x04, 0x0b
-};
+using namespace opae::testing;
 
-inline void token_for_afu0(struct _fpga_token* _tok) {
-	memcpy(_tok->accelerator_id, ASE_GUID, sizeof(fpga_guid));
-	_tok->magic = ASE_TOKEN_MAGIC;
-	_tok->ase_objtype = FPGA_ACCELERATOR;
-};
+typedef struct mmio_s {
+	// MMIO Mutex Lock, initilize it here
+	pthread_mutex_t mmio_port_lock;
+
+	struct buffer_t *mmio_region;      // CSR map storage
+
+	// MMIO Read response watcher
+	int glbl_mmio_tid;       	       // MMIO Tid
+
+	pthread_t mmio_watch_tid;	       // Tracker thread Id
+	mmio_t *mmio_rsp_pkt;              // MMIO Response packet handoff control
+} MMIO_S;
+extern MMIO_S io_s;
 
 /**
 * @test       ase_rm_sp
@@ -59,7 +73,7 @@ inline void token_for_afu0(struct _fpga_token* _tok) {
 *             remove_spaces() function should remove all the whilte space
 *
 */
-TEST(LibopaecAseOps, ase_rm_sp) {
+TEST(sim_sw_ase, ase_rm_sp) {
 	char str1[128] = " This is a test string with spaces";
 	char *str2 = NULL;
 
@@ -76,7 +90,7 @@ TEST(LibopaecAseOps, ase_rm_sp) {
 *             remove_tabs() function should remove all the tabs
 *
 */
-TEST(LibopaecAseOps, ase_rm_tab) {
+TEST(sim_sw_ase, ase_rm_tab) {
 	char str1[128] = "		This is a test string with tabs		";
 	char *str2 = NULL;
 
@@ -93,67 +107,31 @@ TEST(LibopaecAseOps, ase_rm_tab) {
 *             ase_buffer_oneline(struct buffer_t *) function should be called
 *
 */
-TEST(LibopaecAseOps, ase_ops_01) {
+TEST(sim_sw_ase, ase_ops_01) {
 	struct buffer_t b1, b2;
 	b1.valid = ASE_BUFFER_VALID;
 	b2.valid = ASE_BUFFER_INVALID;
-	
+
 	ase_buffer_oneline(&b1);
 	ase_buffer_oneline(&b2);
 }
 
 /**
-* @test       ase_ops_02
+* @test       ase_mallocafail
 *
-* @brief      When the parameters are valid and libopae-ase-c is loaded:
-*             ase_malloc(size_t) function should be called
-*
-*/
-TEST(LibopaecAseOps, ase_ops_02) {
-	uint size1 = HUGE_NUM;
-	
-	ase_malloc(size1);
-}
-
-
-/**
-* @test       ase_ops_03
-*
-* @brief      When the parameters are valid and libopae-ase-c is loaded:
-*             register_signal() function should be called
+* @brief      When ase_malloc() failed, ase_malloc(size_t) function should
+*             return NULL
 *
 */
-TEST(LibopaecAseOps, ase_ops_03) {
+TEST(sim_sw_ase, ase_mallocafail) {
+	test_system *system_;
+	system_ = test_system::instance();
+	system_->initialize();
 
-	register_signal(SIGINT, NULL);
-}
-
-/**
-* @test       ase_ops_04
-*
-* @brief      When the parameters are valid and libopae-ase-c is loaded:
-*             ase_read_lock_file(const char *) function should be calle
-*
-*/
-TEST(LibopaecAseOps, ase_ops_04) {
-	char * workdir = getenv("ASE_WORKDIR");
-
-	ase_read_lock_file(workdir);
-}
-
-/**
-* @test       ase_mq_01
-*
-* @brief      When the parameters are valid and libopae-ase-c is loaded:
-*             mqueue_create()/mqueue_destroy()  function should create the
-*             named pipes
-*
-*/
-TEST(LibopaecAseMq, ase_mq_01) {
-	char name_suffix[] = "testmq";
-
-	mqueue_create(name_suffix);
-	mqueue_destroy(name_suffix);
+    // Invalidate the memory allocation.
+    system_->invalidate_malloc(0, "ase_malloc");
+    EXPECT_EQ(ase_malloc(100), (char*)NULL);
+	system_->finalize();
 }
 
 /**
@@ -163,7 +141,7 @@ TEST(LibopaecAseMq, ase_mq_01) {
 *            sscanf_s_ii() function should read from a string
 *
 */
-TEST(LibopaecAseStr, ase_str_01) {
+TEST(sim_sw_ase, ase_str_01) {
 	char str1[128] = "Read two integers 345 234";
 	char format[128] = "Read two integers %d %d";
 	int a, b;
@@ -180,7 +158,7 @@ TEST(LibopaecAseStr, ase_str_01) {
 *             parse_format() function should parse the format of a string
 *
 */
-TEST(LibopaecAseStr, ase_str_02) {
+TEST(sim_sw_ase, ase_str_02) {
 	char format[128];
 	char pformatList[32];
 	int numformat = 0;
@@ -363,7 +341,7 @@ TEST(LibopaecAseStr, ase_str_02) {
 *             fscanf_s_i() function should read an integer from a file
 *
 */
-TEST(LibopaecAseStr, ase_str_03) {
+TEST(sim_sw_ase, ase_str_03) {
 	int a = 0;
 	int b = 2018;
 	FILE *fp = fopen("str_test.txt", "w+");
@@ -383,7 +361,7 @@ TEST(LibopaecAseStr, ase_str_03) {
 * @details Buffer functions returns FPGA_INVALID_PARAM for
 *..........invalid input
 */
-TEST(LibopaecAseApi, ase_buffer_01) {
+TEST(sim_sw_ase, ase_buffer_01) {
 	uint64_t* buf_addr;
 	uint64_t wsid = 1;
 
@@ -401,7 +379,7 @@ TEST(LibopaecAseApi, ase_buffer_01) {
 * @details This function returns different message for
 *          different errors
 */
-TEST(LibopaecAseApi, ase_com_01) {
+TEST(sim_sw_ase, ase_com_01) {
 	// NULL Handle
 	EXPECT_STREQ("success", fpgaErrStr(FPGA_OK));
 	EXPECT_STREQ("invalid parameter", fpgaErrStr(FPGA_INVALID_PARAM));
@@ -421,7 +399,7 @@ TEST(LibopaecAseApi, ase_com_01) {
 * @details These functions returns FPGA_NOT_SUPPORTED
 *
 */
-TEST(LibopaecAseApi, ase_err_01) {
+TEST(sim_sw_ase, ase_err_01) {
 	struct _fpga_token _token;
 	fpga_token t = &_token;
 
@@ -439,7 +417,7 @@ TEST(LibopaecAseApi, ase_err_01) {
 * @details These functions returns FPGA_INVALID_PARAM or FPGA_NOT_SUPPORTED
 *
 */
-TEST(LibopaecAseApi, ase_eve_01) {
+TEST(sim_sw_ase, ase_eve_01) {
 	int fd;
 
 	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaCreateEventHandle(NULL));
@@ -459,7 +437,7 @@ TEST(LibopaecAseApi, ase_eve_01) {
 * @details These functions returns FPGA_NOT_SUPPORTED
 *
 */
-TEST(LibopaecAseApi, ase_mmio_01) {
+TEST(sim_sw_ase, ase_mmio_01) {
 	struct _fpga_handle _handle;
 	uint32_t value;
 	uint64_t value1;
@@ -487,27 +465,13 @@ TEST(LibopaecAseApi, ase_mmio_01) {
 }
 
 /**
-* @test    ase_open_01
-* @brief   Tests: fpgaOpen
-* @details These functions returns FPGA_INVALID_PARAM
-*
-*/
-TEST(LibopaecAseApi, ase_open_01) {
-	struct _fpga_token _token;
-	fpga_token token = (fpga_token)&_token;
-
-	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(token, NULL, 0));
-}
-
-
-/**
 * @test       ase_err_021
 *
 * @brief      When the parameters are valid and libopae-ase-c is loaded:
 *             ase_error_report() function should print out the errors
 *
 */
-TEST(LibopaecAseErr, ase_err_01) {	
+TEST(sim_sw_ase, ase_err_02) {
 
 	ase_error_report("ase_init", 1, ASE_USR_CAPCM_NOINIT);
 	ase_error_report("ase_init", 1, ASE_OS_MQUEUE_ERR);
@@ -518,7 +482,6 @@ TEST(LibopaecAseErr, ase_err_01) {
 	ase_error_report("ase_init", 1, ASE_OS_MALLOC_ERR);
 	ase_error_report("ase_init", 1, ASE_IPCKILL_CATERR);
 	ase_error_report("ase_init", 1, 100);
-	backtrace_handler(SIGSEGV);
 }
 
 /**
@@ -528,7 +491,7 @@ TEST(LibopaecAseErr, ase_err_01) {
 *             failure_cleanup(const char *) function should be called
 *
 */
-TEST(LibopaecAseOps, ase_app_01) {
+TEST(sim_sw_ase, ase_app_01) {
 	FILE *file = fopen("app_test.txt", "w");
 	fprintf(file, "%d\n", getpid() + 1);
 	fclose(file);
@@ -541,4 +504,76 @@ TEST(LibopaecAseOps, ase_app_01) {
 
 	remove_existing_lock_file("app_test2.txt");
 }
+
+/**
+* @test       ase_app_02
+*
+* @brief      When the parameters are nullptr,
+*             is_directory function returns 0;
+*
+*/
+TEST(sim_sw_ase, ase_app_02) {
+	EXPECT_EQ(0, is_directory(nullptr));
+}
+
+/**
+* @test       ase_app_03
+*
+* @brief      When the parameters of va 0x1000000000000 is bigger than 48 bit address,
+*             ase_host_memory_va_to_pa() raise a signal
+*
+*/
+TEST(sim_sw_ase, ase_app_03) {
+	ASSERT_EXIT(ase_host_memory_pin(nullptr, nullptr, 0), ::testing::KilledBySignal(SIGSEGV), "");
+	ASSERT_EXIT(ase_host_memory_va_to_pa(0x1000000000000, 48), ::testing::KilledBySignal(SIGABRT),"");
+	ASSERT_EXIT(ase_host_memory_pa_to_va(0x1000000000000, true), ::testing::KilledBySignal(SIGABRT),"");
+
+	EXPECT_EQ(2, ase_pt_length_to_level(GB));
+	EXPECT_EQ(-1, ase_pt_length_to_level(3*1024*1024));
+}
+
+/**
+* @test       ase_app_04
+*
+* @brief      When the parameter offset to mmio_write/read() functions is invalid,
+*             it raises a signal
+*
+*/
+TEST(sim_sw_ase, ase_app_04) {
+	uint32_t val32;
+	uint64_t val64;
+	ASSERT_EXIT(mmio_write32(-4, 48), ::testing::KilledBySignal(SIGABRT),"");
+	ASSERT_EXIT(mmio_read32(-4, &val32), ::testing::KilledBySignal(SIGABRT),"");
+	ASSERT_EXIT(mmio_write64(-4, 48), ::testing::KilledBySignal(SIGABRT),"");
+	ASSERT_EXIT(mmio_read64(-4, &val64), ::testing::KilledBySignal(SIGABRT),"");
+}
+
+/**
+* @test       ase_app_05
+*
+* @brief      When the parameter of pa to membus_op_status() is invalid,
+*             it returns HOST_MEM_STATUS_ILLEGAL
+*             When the parameter of va to membus_op_status() is zero
+*             it returns HOST_MEM_STATUS_ILLEGAL
+*
+*/
+TEST(sim_sw_ase, ase_app_05) {
+	EXPECT_EQ(HOST_MEM_STATUS_ILLEGAL, membus_op_status(0x100, 0104));
+	EXPECT_EQ(HOST_MEM_STATUS_NOT_PINNED, membus_op_status(0x0, 0100));
+}
+
+/**
+* @test       ase_app_06
+*
+* @brief      When the parameter of pa to membus_op_status() is invalid,
+*             it returns HOST_MEM_STATUS_ILLEGAL
+*             When the parameter of va to membus_op_status() is zero
+*             it returns HOST_MEM_STATUS_ILLEGAL
+*
+*/
+TEST(sim_sw_ase, ase_app_06) {
+	EXPECT_EQ(HOST_MEM_STATUS_ILLEGAL, membus_op_status(0x100, 0104));
+	EXPECT_EQ(HOST_MEM_STATUS_NOT_PINNED, membus_op_status(0x0, 0100));
+}
+
 
