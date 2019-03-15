@@ -576,8 +576,4 @@ TEST(sim_sw_ase, ase_app_06) {
 	EXPECT_EQ(HOST_MEM_STATUS_NOT_PINNED, membus_op_status(0x0, 0100));
 }
 
-TEST(sim_sw_ase, ase_app_07) {
-	backtrace_handler(SIGSEGV);
-}
-
 
