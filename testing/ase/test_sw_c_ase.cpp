@@ -46,6 +46,10 @@ ase_host_memory_status membus_op_status(uint64_t va, uint64_t pa);
 #define ESBADFMT -1
 #define ESFMTTYP -2
 
+#define KB 1024
+#define MB (1024 * KB)
+#define GB (1024UL * MB)
+
 using namespace opae::testing;
 
 typedef struct mmio_s {
@@ -512,9 +516,6 @@ TEST(sim_sw_ase, ase_app_02) {
 	EXPECT_EQ(0, is_directory(nullptr));
 }
 
-#define KB 1024
-#define MB (1024 * KB)
-#define GB (1024UL * MB)
 /**
 * @test       ase_app_03
 *
