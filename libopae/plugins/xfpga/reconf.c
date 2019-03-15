@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <limits.h>
 #include <sys/types.h>
 
 #include "safe_string/safe_string.h"
@@ -39,7 +40,7 @@
 #include "xfpga.h"
 #include "bitstream_int.h"
 #include "common_int.h"
-#include "intel-fpga.h"
+#include "opae_drv.h"
 #include "usrclk/user_clk_pgm_uclock.h"
 
 #include "reconf_int.h"
@@ -188,28 +189,28 @@ free_props:
 // clears port errors
 STATIC fpga_result clear_port_errors(fpga_handle handle)
 {
-	char syfs_path[SYSFS_PATH_MAX]    = {0};
-	char syfs_errpath[SYSFS_PATH_MAX] = {0};
-	fpga_result result                = FPGA_OK;
-	uint64_t error                    = 0 ;
+	char sysfs_path[PATH_MAX]          = {0};
+	char sysfs_errpath[SYSFS_PATH_MAX] = {0};
+	fpga_result result                 = FPGA_OK;
+	uint64_t error                     = 0 ;
 
-	result = get_port_sysfs(handle, syfs_path);
+	result = get_port_sysfs(handle, sysfs_path);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to get port syfs path");
 		return result;
 	}
 
-	snprintf_s_ss(syfs_errpath, sizeof(syfs_errpath), "%s/%s", syfs_path, PORT_SYSFS_ERRORS);
+	snprintf_s_ss(sysfs_errpath, sizeof(sysfs_errpath), "%s/%s", sysfs_path, PORT_SYSFS_ERRORS);
 	// Read port error.
-	result = sysfs_read_u64(syfs_errpath, &error);
+	result = sysfs_read_u64(sysfs_errpath, &error);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to get port errors");
 		return result;
 	}
 
-	snprintf_s_ss(syfs_errpath, sizeof(syfs_errpath), "%s/%s", syfs_path, PORT_SYSFS_ERR_CLEAR);
+	snprintf_s_ss(sysfs_errpath, sizeof(sysfs_errpath), "%s/%s", sysfs_path, PORT_SYSFS_ERR_CLEAR);
 	// Clear port error.
-	result = sysfs_write_u64(syfs_errpath, error);
+	result = sysfs_write_u64(sysfs_errpath, error);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to clear port errors");
 		return result;
@@ -223,27 +224,27 @@ fpga_result set_afu_userclock(fpga_handle handle,
 				uint64_t usrlclock_high,
 				uint64_t usrlclock_low)
 {
-	char syfs_path[SYSFS_PATH_MAX]    = {0};
+	char sysfs_path[PATH_MAX]         = {0};
 	fpga_result result                = FPGA_OK;
 	uint64_t userclk_high             = 0;
 	uint64_t userclk_low              = 0;
 
 	// Read port sysfs path
-	result = get_port_sysfs(handle, syfs_path);
+	result = get_port_sysfs(handle, sysfs_path);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to get port syfs path");
 		return result;
 	}
 
 	// set user clock
-	result = set_userclock(syfs_path, usrlclock_high, usrlclock_low);
+	result = set_userclock(sysfs_path, usrlclock_high, usrlclock_low);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to set user clock");
 		return result;
 	}
 
 	// read user clock
-	result = get_userclock(syfs_path, &userclk_high, &userclk_low);
+	result = get_userclock(sysfs_path, &userclk_high, &userclk_low);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to get user clock");
 		return result;
@@ -314,11 +315,9 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 {
 	struct _fpga_handle *_handle    = (struct _fpga_handle *)fpga;
 	fpga_result result              = FPGA_OK;
-	struct fpga_fme_port_pr port_pr = {0};
 	struct reconf_error  error      = { {0} };
 	struct gbs_metadata  metadata;
 	int bitstream_header_len        = 0;
-	uint64_t deviceid               = 0;
 	int err                         = 0;
 	fpga_handle accel               = NULL;
 
@@ -356,6 +355,7 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 	}
 
 	if (get_bitstream_json_len(bitstream) > 0) {
+		enum fpga_hw_type hw_type = FPGA_HW_UNKNOWN;
 
 		// Read GBS json metadata
 		memset_s(&metadata, sizeof(metadata), 0);
@@ -393,14 +393,14 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 		}
 
 		// get fpga device id.
-		result = get_fpga_deviceid(fpga, &deviceid);
+		result = get_fpga_hw_type(fpga, &hw_type);
 		if (result != FPGA_OK) {
-			FPGA_ERR("Failed to read device id.");
+			FPGA_ERR("Failed to discover hardware type.");
 			goto out_unlock;
 		}
 
 		// Set power threshold for integrated fpga.
-		if (deviceid == FPGA_INTEGRATED_DEVICEID) {
+		if (hw_type == FPGA_HW_MCP) {
 
 			result = set_fpga_pwr_threshold(fpga, metadata.afu_image.power);
 			if (result != FPGA_OK) {
@@ -412,13 +412,9 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 
 	}
 
-	port_pr.flags                 = 0;
-	port_pr.argsz                 = sizeof(struct fpga_fme_port_pr);
-	port_pr.buffer_address        = (__u64)bitstream + bitstream_header_len;
-	port_pr.buffer_size           = (__u32) bitstream_len - bitstream_header_len;
-	port_pr.port_id               = slot;
-
-	result = ioctl(_handle->fddev, FPGA_FME_PORT_PR, &port_pr);
+	result = opae_fme_port_pr(
+		_handle->fddev, 0, slot, bitstream_len - bitstream_header_len,
+		(uint64_t)bitstream + bitstream_header_len, &error.csr);
 	if (result != 0) {
 		FPGA_ERR("Failed to reconfigure bitstream: %s",
 			  strerror(errno));
@@ -429,9 +425,6 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 			result = FPGA_EXCEPTION;
 		}
 	}
-
-	// PR error
-	error.csr = port_pr.status;
 
 	if (error.reconf_operation_error == 0x1) {
 		FPGA_ERR("PR operation error detected");

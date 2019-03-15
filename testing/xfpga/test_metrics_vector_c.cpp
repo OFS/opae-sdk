@@ -28,10 +28,9 @@ extern "C" {
 
 #include <json-c/json.h>
 #include <uuid/uuid.h>
+#include "metrics/vector.h"
 #include "opae_int.h"
 #include "types_int.h"
-#include "metrics/vector.h"
-
 }
 
 #include <config.h>
@@ -46,9 +45,7 @@ extern "C" {
 #include "gtest/gtest.h"
 #include "test_system.h"
 
-
 using namespace opae::testing;
-
 
 /**
  * @test       opaec
@@ -58,35 +55,33 @@ using namespace opae::testing;
  *             from config.h.<br>
  */
 TEST(metric_vector, test_metric_vector_01) {
-	fpga_metric_vector vector;
+  fpga_metric_vector vector;
 
-	// NULL Input parameters 
-	EXPECT_NE(FPGA_OK, fpga_vector_init(NULL));
+  // NULL Input parameters
+  EXPECT_NE(FPGA_OK, fpga_vector_init(NULL));
 
-	// NULL Input parameters 
-	EXPECT_NE(FPGA_OK, fpga_vector_free(NULL));
+  // NULL Input parameters
+  EXPECT_NE(FPGA_OK, fpga_vector_free(NULL));
 
-	// NULL Input parameters 
-	EXPECT_NE(FPGA_OK, fpga_vector_total(NULL,NULL));
+  // NULL Input parameters
+  EXPECT_NE(FPGA_OK, fpga_vector_total(NULL, NULL));
 
-	// NULL Input parameters 
-	EXPECT_NE(FPGA_OK, fpga_vector_resize(NULL,20));
+  // NULL Input parameters
+  EXPECT_NE(FPGA_OK, fpga_vector_resize(NULL, 20));
 
-	// Init vector
-	EXPECT_EQ(FPGA_OK, fpga_vector_init(&vector));
+  // Init vector
+  EXPECT_EQ(FPGA_OK, fpga_vector_init(&vector));
 
-	// NULL Input parameters 
-	EXPECT_NE(FPGA_OK, fpga_vector_push(&vector, NULL));
+  // NULL Input parameters
+  EXPECT_NE(FPGA_OK, fpga_vector_push(&vector, NULL));
 
-	// NULL Input parameters 
-	EXPECT_NE(FPGA_OK, fpga_vector_push(NULL, NULL));
+  // NULL Input parameters
+  EXPECT_NE(FPGA_OK, fpga_vector_push(NULL, NULL));
 
+  // Delete with NULL
+  EXPECT_NE(FPGA_OK, fpga_vector_delete(NULL, 0));
 
-	// Delete with NULL
-	EXPECT_NE(FPGA_OK, fpga_vector_delete(NULL, 0));
-
-	EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
-
+  EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
 }
 
 /**
@@ -97,32 +92,30 @@ TEST(metric_vector, test_metric_vector_01) {
  *             from config.h.<br>
  */
 TEST(metric_vector, test_metric_vector_02) {
+  fpga_metric_vector metric_vector;
+  struct _fpga_enum_metric *fpga_metric = NULL;
 
-	fpga_metric_vector metric_vector;
-	struct _fpga_enum_metric *fpga_metric = NULL;
+  fpga_metric = (struct _fpga_enum_metric *)malloc(sizeof(struct _fpga_enum_metric));
+  EXPECT_EQ(NULL, !fpga_metric);
 
-	fpga_metric = (struct _fpga_enum_metric *)malloc(sizeof(struct _fpga_enum_metric));
-	EXPECT_EQ(NULL, !fpga_metric);
+  // Init vector
+  EXPECT_EQ(FPGA_OK, fpga_vector_init(&metric_vector));
 
-	// Init vector
-	EXPECT_EQ(FPGA_OK, fpga_vector_init(&metric_vector));
+  // push item to vector
+  EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, fpga_metric));
 
-	// push item to vector
-	EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, fpga_metric));
+  // Delete vector
+  EXPECT_NE(FPGA_OK, fpga_vector_delete(NULL, 0));
+  EXPECT_NE(FPGA_OK, fpga_vector_delete(&metric_vector, 200));
 
-	// Delete vector
-	EXPECT_NE(FPGA_OK, fpga_vector_delete(NULL, 0));
-	EXPECT_NE(FPGA_OK, fpga_vector_delete(&metric_vector, 200));
+  // Get NULL vector
+  EXPECT_EQ(NULL, fpga_vector_get(NULL, 200));
 
-	// Get NULL vector
-	EXPECT_EQ(NULL, fpga_vector_get(NULL, 200));
+  // Get item from vector
+  EXPECT_EQ(NULL, fpga_vector_get(&metric_vector, 200));
 
-	// Get item from vector
-	EXPECT_EQ(NULL, fpga_vector_get(&metric_vector, 200));
-
-	// fre vector
-	EXPECT_EQ(FPGA_OK, fpga_vector_free(&metric_vector));
-
+  // free vector
+  EXPECT_EQ(FPGA_OK, fpga_vector_free(&metric_vector));
 }
 
 /**
@@ -133,35 +126,32 @@ TEST(metric_vector, test_metric_vector_02) {
  *             from config.h.<br>
  */
 TEST(metric_vector, test_metric_vector_03) {
+  fpga_metric_vector metric_vector;
+  uint64_t total;
+  // Init vector
+  EXPECT_EQ(FPGA_OK, fpga_vector_init(&metric_vector));
 
-	fpga_metric_vector metric_vector;
-	uint64_t  total;
-	// Init vector
-	EXPECT_EQ(FPGA_OK, fpga_vector_init(&metric_vector));
+  struct _fpga_enum_metric *fpga_enum_metric = NULL;
+  fpga_enum_metric = (struct _fpga_enum_metric *)malloc(sizeof(struct _fpga_enum_metric));
+  EXPECT_EQ(NULL, !fpga_enum_metric);
 
-	struct _fpga_enum_metric *fpga_enum_metric = NULL ;
-	fpga_enum_metric = (struct _fpga_enum_metric *)malloc(sizeof(struct _fpga_enum_metric));
-	EXPECT_EQ(NULL, !fpga_enum_metric);
+  EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, fpga_enum_metric));
 
-	EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, fpga_enum_metric));
+  EXPECT_EQ(FPGA_OK, fpga_vector_total(&metric_vector, &total));
 
-	EXPECT_EQ(FPGA_OK, fpga_vector_total(&metric_vector,&total));
+  struct _fpga_enum_metric *fpga_metric_next = NULL;
+  fpga_metric_next = (struct _fpga_enum_metric *)calloc(sizeof(struct _fpga_enum_metric), 1);
+  EXPECT_EQ(NULL, !fpga_metric_next);
 
-	struct _fpga_enum_metric *fpga_metric_next = NULL;
-	fpga_metric_next = (struct _fpga_enum_metric*)calloc(sizeof(struct _fpga_enum_metric), 1);
-	EXPECT_EQ(NULL, !fpga_metric_next);
-	// push item to vector
-	EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, fpga_metric_next));
+  // push item to vector
+  EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, fpga_metric_next));
 
-	
-	// Get vector
-	fpga_vector_get(&metric_vector, 0);
+  // Get vector
+  fpga_vector_get(&metric_vector, 0);
 
-	// Resize vector
-	EXPECT_EQ(FPGA_OK, fpga_vector_resize(&metric_vector, 200));
+  // Resize vector
+  EXPECT_EQ(FPGA_OK, fpga_vector_resize(&metric_vector, 200));
 
-	// fre vector
-	EXPECT_EQ(FPGA_OK, fpga_vector_free(&metric_vector));
-
+  // free vector
+  EXPECT_EQ(FPGA_OK, fpga_vector_free(&metric_vector));
 }
-

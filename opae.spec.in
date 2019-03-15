@@ -106,6 +106,10 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-cxx*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libxfpga.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libbmc.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libmodbmc.so
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libbitstream.so*
+
 
 %files devel
 %defattr(-,root,root,-)
@@ -113,6 +117,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/afu_platform_info
 @CMAKE_INSTALL_PREFIX@/bin/afu_synth_setup
 @CMAKE_INSTALL_PREFIX@/bin/rtl_src_config
+@CMAKE_INSTALL_PREFIX@/bin/hello_fpga
 %dir @CMAKE_INSTALL_PREFIX@/include/opae
 @CMAKE_INSTALL_PREFIX@/include/opae/*
 %dir @CMAKE_INSTALL_PREFIX@/include/safe_string
@@ -127,10 +132,13 @@ ldconfig
 %files tools
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/fpgaconf
-@CMAKE_INSTALL_PREFIX@/bin/fpgad
 @CMAKE_INSTALL_PREFIX@/bin/fpgainfo
 @CMAKE_INSTALL_PREFIX@/bin/fpgaport
 @CMAKE_INSTALL_PREFIX@/bin/fpgametrics
+@CMAKE_INSTALL_PREFIX@/bin/fpgad
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-api.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-xfpga.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-vc.so*
 
 
 %files tools-extra
@@ -156,7 +164,9 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/pac_hssi_config.py
 @CMAKE_INSTALL_PREFIX@/bin/ras
 @CMAKE_INSTALL_PREFIX@/bin/userclk
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libhssi*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c++-nlb.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c++-utils.so*
 %dir @CMAKE_INSTALL_PREFIX@/share/opae
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/python/
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/python/*

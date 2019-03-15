@@ -41,9 +41,9 @@ class BistMode(bc.BistMode):
         bc.load_gbs(gbs_path, bus_num)
         for func, param in self.executables.items():
             print "Running {} test...\n".format(func)
-            cmd = "{} {}".format(func, param)
+            cmd = [func, param]
             try:
-                subprocess.check_call(cmd, shell=True)
+                subprocess.check_call(cmd)
             except subprocess.CalledProcessError as e:
                 print "Failed Test: {}".format(func)
                 print e

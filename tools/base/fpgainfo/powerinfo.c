@@ -49,8 +49,8 @@ void power_help(void)
 static void print_power_info(fpga_token token)
 {
 	fpga_properties props;
-        fpga_metric_info metrics_info[METRICS_MAX_NUM];
-        fpga_metric metrics[METRICS_MAX_NUM];
+        fpga_metric_info metrics_info[METRICS_MAX_NUM] = {{0}};
+        fpga_metric metrics[METRICS_MAX_NUM] = {{0}};
         uint64_t num_metrics;
         fpga_result res = FPGA_OK;
 

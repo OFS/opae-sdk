@@ -36,42 +36,37 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "gtest/gtest.h"
-#include "test_system.h"
 #include "types_int.h"
+#include "sysfs_int.h"
+#include "mock_opae.h"
+extern "C" {
+#include "token_list_int.h"
+}
 #include "xfpga.h"
+
+extern "C" {
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+}
 
 using namespace opae::testing;
 
-class enum_c_p : public ::testing::TestWithParam<std::string> {
+class enum_c_p : public mock_opae_p<2, xfpga_> {
  protected:
-  enum_c_p() : tokens_{{nullptr, nullptr}} {}
+  enum_c_p() : filter_(nullptr) {}
 
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
+  virtual ~enum_c_p() {}
 
+  virtual void test_setup() override {
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     num_matches_ = 0xc01a;
-    invalid_device_ = test_device::unknown();
   }
 
-  virtual void TearDown() override {
+  virtual void test_teardown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    DestroyTokens();
-    system_->finalize();
-  }
-
-  void DestroyTokens() {
-    for (auto & t : tokens_) {
-      if (t != nullptr) {
-        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
+    token_cleanup();
+    xfpga_plugin_finalize();
   }
 
   // Need a concrete way to determine the number of fpgas on the system
@@ -83,8 +78,9 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     }
 
     int value;
-    std::string cmd = "ls -l /sys/class/fpga/intel-fpga-dev* | "
-                      "wc -l";
+    std::string cmd =
+        "(ls -l /sys/class/fpga*/region*/*fme*/dev || "
+        "ls -l /sys/class/fpga*/*intel*) |  (wc -l)";
 
     ExecuteCmd(cmd, value);
     return value;
@@ -94,13 +90,13 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     if (platform_.mock_sysfs != nullptr) {
       return 1;
     }
-    
+
     int matches = 0;
     int socket_id;
     int i;
     for (i = 0; i < GetNumFpgas(); i++) {
-      std::string cmd = "cat /sys/class/fpga/intel-fpga-dev." + std::to_string(i) +
-                        "/intel-fpga-fme." + std::to_string(i) + "/socket_id";
+      std::string cmd = "cat /sys/class/fpga*/*" + std::to_string(i) +
+                        "/*fme." + std::to_string(i) + "/socket_id";
 
       ExecuteCmd(cmd, socket_id);
       if (socket_id == (int)platform_.devices[0].socket_id) {
@@ -128,12 +124,8 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     value = std::stoi(line);
   }
 
-  std::array<fpga_token, 2> tokens_;
   fpga_properties filter_;
   uint32_t num_matches_;
-  test_platform platform_;
-  test_device invalid_device_;
-  test_system *system_;
 };
 
 /**
@@ -231,13 +223,14 @@ TEST_P(enum_c_p, parent) {
 
   ASSERT_EQ(fpgaClearProperties(filter_), FPGA_OK);
 
-  fpga_token token;
+  fpga_token token = nullptr;
 
   EXPECT_EQ(fpgaPropertiesSetParent(filter_, tokens_[0]), FPGA_OK);
   EXPECT_EQ(
       xfpga_fpgaEnumerate(&filter_, 1, &token, 1, &num_matches_),
       FPGA_OK);
   EXPECT_EQ(num_matches_, 1);
+  ASSERT_NE(token, nullptr);
   EXPECT_EQ(xfpga_fpgaDestroyToken(&token), FPGA_OK);
 }
 
@@ -250,11 +243,11 @@ TEST_P(enum_c_p, parent) {
  */
 TEST_P(enum_c_p, parent_neg) {
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), 0, &num_matches_),
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), 1, &num_matches_),
             FPGA_OK);
   EXPECT_GT(num_matches_, 0);
 
-  EXPECT_EQ(fpgaPropertiesSetParent(filter_, &tokens_[0]), FPGA_OK);
+  EXPECT_EQ(fpgaPropertiesSetParent(filter_, tokens_[0]), FPGA_OK);
 
   EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, NULL, 0, &num_matches_), FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
@@ -363,7 +356,17 @@ TEST_P(enum_c_p, function) {
   EXPECT_EQ(
       xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgas() * 2);
+  EXPECT_EQ(num_matches_, GetNumFpgas() * 2 - device.num_vfs);
+  DestroyTokens();
+  for (int i = 0; i < device.num_vfs; ++i) {
+    num_matches_ = 0;
+    ASSERT_EQ(fpgaPropertiesSetFunction(filter_, device.function+i), FPGA_OK);
+    EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                  &num_matches_),
+              FPGA_OK);
+    EXPECT_EQ(num_matches_, 1);
+    DestroyTokens();
+  }
 }
 
 /**
@@ -381,21 +384,6 @@ TEST_P(enum_c_p, function_neg) {
   EXPECT_EQ(num_matches_, 0);
 }
 
-/**
- * @test       socket_id
- *
- * @brief      When the filter socket_id is set and it is valid,
- *             the function returns the number of resources that
- *             match that socket_id.
- */
-TEST_P(enum_c_p, socket_id) {
-  auto device = platform_.devices[0];
-  ASSERT_EQ(fpgaPropertiesSetSocketID(filter_, device.socket_id), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumMatchedFpga() * 2);
-}
 
 /**
  * @test       socket_id_neg
@@ -456,7 +444,18 @@ TEST_P(enum_c_p, device_id) {
   EXPECT_EQ(
       xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, platform_.devices.size() * 2);
+  EXPECT_EQ(num_matches_, platform_.devices.size() * 2 - device.num_vfs);
+  DestroyTokens();
+
+  for (int i = 0; i < device.num_vfs; ++i) {
+    num_matches_ = 0;
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, device.device_id+i), FPGA_OK);
+    EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+                                  &num_matches_),
+              FPGA_OK);
+    EXPECT_EQ(num_matches_, 1);
+    DestroyTokens();
+  }
 }
 
 /**
@@ -564,22 +563,6 @@ TEST_P(enum_c_p, object_id_port_neg) {
   EXPECT_EQ(num_matches_, 0);
 }
 
-/**
- * @test       num_errors_fme
- *
- * @brief      When the filter num_errors for fme is set and it is
- *             valid, the function returns the number of resources
- *             that match that number of errors for fme.
- */
-TEST_P(enum_c_p, num_errors_fme) {
-  auto device = platform_.devices[0];
-
-  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors), FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgas());
-}
 
 /**
  * @test       num_errors_fme_neg
@@ -596,23 +579,6 @@ TEST_P(enum_c_p, num_errors_fme_neg) {
   EXPECT_EQ(num_matches_, 0);
 }
 
-/**
- * @test       num_errors_port
- *
- * @brief      When the filter num_errors for port is set and it is
- *             valid, the function returns the number of resources
- *             that match that number of errors for port.
- */
-TEST_P(enum_c_p, num_errors_port) {
-  auto device = platform_.devices[0];
-
-  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.port_num_errors),
-            FPGA_OK);
-  EXPECT_EQ(
-      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
-      FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgas());
-}
 
 /**
  * @test       num_errors_port_neg
@@ -762,7 +728,8 @@ TEST_P(enum_c_p, destroy_token_neg) {
   EXPECT_EQ(xfpga_fpgaDestroyToken(nullptr), FPGA_INVALID_PARAM);
 
   _fpga_token *dummy = new _fpga_token;
-  EXPECT_EQ(xfpga_fpgaDestroyToken((fpga_token *)dummy), FPGA_INVALID_PARAM);
+  memset(dummy, 0, sizeof(*dummy));
+  EXPECT_EQ(xfpga_fpgaDestroyToken((fpga_token *)&dummy), FPGA_INVALID_PARAM);
   delete dummy;
 }
 
@@ -1027,5 +994,104 @@ TEST_P(enum_c_p, get_guid) {
   EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 }
 
+
+
+
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p, 
                         ::testing::ValuesIn(test_platform::platforms({})));
+
+class enum_err_c_p : public enum_c_p {};
+/**
+ * @test       num_errors_fme
+ *
+ * @brief      When the filter num_errors for fme is set and it is
+ *             valid, the function returns the number of resources
+ *             that match that number of errors for fme.
+ */
+TEST_P(enum_err_c_p, num_errors_fme) {
+  auto device = platform_.devices[0];
+
+  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors),
+      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+      &num_matches_),
+      FPGA_OK);
+  EXPECT_EQ(num_matches_, GetNumFpgas());
+}
+
+
+/**
+ * @test       num_errors_port
+ *
+ * @brief      When the filter num_errors for port is set and it is
+ *             valid, the function returns the number of resources
+ *             that match that number of errors for port.
+ */
+TEST_P(enum_err_c_p, num_errors_port) {
+  auto device = platform_.devices[0];
+
+  ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.port_num_errors),
+      FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+      &num_matches_),
+      FPGA_OK);
+  EXPECT_EQ(num_matches_, GetNumFpgas());
+}
+
+INSTANTIATE_TEST_CASE_P(enum_c, enum_err_c_p,
+                       ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+
+class enum_socket_c_p : public enum_c_p {};
+
+/**
+ * @test       socket_id
+ *
+ * @brief      When the filter socket_id is set and it is valid,
+ *             the function returns the number of resources that
+ *             match that socket_id.
+ */
+TEST_P(enum_socket_c_p, socket_id) {
+  auto device = platform_.devices[0];
+  ASSERT_EQ(fpgaPropertiesSetSocketID(filter_, device.socket_id), FPGA_OK);
+  EXPECT_EQ(
+      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      FPGA_OK);
+  EXPECT_EQ(num_matches_, GetNumMatchedFpga() * 2);
+}
+
+INSTANTIATE_TEST_CASE_P(enum_c, enum_socket_c_p,
+                          ::testing::ValuesIn(test_platform::platforms({ "skx-p"})));
+
+class enum_mock_only : public enum_c_p {};
+
+/**
+ * @test       remove_port
+ *
+ * @brief      Given I have a system with at least one FPGA And I
+ *             enumerate with a filter of objtype of FPGA_ACCELERATOR
+ *             and I get one token for that accelerator
+ *             When I remove the port device from the system
+ *             And I enumerate again with the same filter
+ *             Then I get zero tokens as the result.
+ *
+ */
+TEST_P(enum_mock_only, remove_port) {
+  fpga_properties filterp = NULL;
+
+  ASSERT_EQ(xfpga_fpgaGetProperties(NULL, &filterp), FPGA_OK);
+  EXPECT_EQ(fpgaPropertiesSetObjectType(filterp, FPGA_ACCELERATOR), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filterp, 1, tokens_.data(), 1, &num_matches_),
+            FPGA_OK);
+  EXPECT_EQ(num_matches_, 1);
+  const char *sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
+
+  EXPECT_EQ(system_->remove_sysfs_dir(sysfs_port), 0)
+      << "error removing intel-fpga-port.0: " << strerror(errno);
+  EXPECT_EQ(xfpga_fpgaEnumerate(&filterp, 1, tokens_.data(), 1, &num_matches_),
+            FPGA_OK);
+  EXPECT_EQ(num_matches_, 0);
+  EXPECT_EQ(fpgaDestroyProperties(&filterp), FPGA_OK);
+}
+
+INSTANTIATE_TEST_CASE_P(enum_c, enum_mock_only,
+                          ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p"})));

@@ -87,7 +87,7 @@ class userclk_c_p : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     userclkCmdLine = cmd_line_;
-
+    fpgaFinalize();
     system_->finalize();
   }
 
@@ -791,6 +791,6 @@ TEST_P(userclk_c_mock_p, main6) {
 }
 
 INSTANTIATE_TEST_CASE_P(userclk_c, userclk_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p", "dcp-rc"})));
 
 

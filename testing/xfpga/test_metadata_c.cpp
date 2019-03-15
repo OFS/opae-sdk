@@ -27,6 +27,8 @@
 extern "C" {
 #include "token_list_int.h"
 fpga_result get_interface_id(fpga_handle, uint64_t*, uint64_t*);
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
 }
 
 #include <uuid/uuid.h>
@@ -35,6 +37,7 @@ fpga_result get_interface_id(fpga_handle, uint64_t*, uint64_t*);
 #include "gtest/gtest.h"
 #include "test_system.h"
 #include "xfpga.h"
+#include "sysfs_int.h"
 
 using namespace opae::testing;
 
@@ -51,12 +54,11 @@ class metadata_c
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
 
-    fpga_guid fme_guid;
-
-    ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, fme_guid), 0);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetGUID(filter_, fme_guid), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetVendorID(filter_, platform_.devices[0].vendor_id), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, platform_.devices[0].device_id), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
 						&num_matches_),  FPGA_OK);
@@ -73,6 +75,7 @@ class metadata_c
         t = nullptr;
       }
     }
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 
@@ -240,19 +243,30 @@ TEST_P(metadata_c, read_gbs_metadata) {
 }
 
 /**
-* @test    validate_metadata
-* @brief   Tests: validate_bitstream_metadata
-* @details validate_bitstream_metadata validates BS metadata
-*          Returns FPGA_OK if metadata is valid
-*/
+ * @test    validate_bitstream_metadata
+ * @brief   Tests: validate_bitstream_metadata
+ * @details validate_bitstream_metadata validates BS metadata
+ *          Returns FPGA_OK if metadata is valid
+ */
 TEST_P(metadata_c, validate_bitstream_metadata) {
   fpga_result result;
 
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
 
-  // Valid metadata
   result = validate_bitstream_metadata(handle_, bitstream_valid_.data());
   EXPECT_EQ(result, FPGA_OK);
+}
+
+/**
+* @test    validate_bitstream_metadata_neg
+* @brief   Tests: validate_bitstream_metadata
+* @details validate_bitstream_metadata validates BS metadata
+*          Returns FPGA_OK if metadata is valid
+*/
+TEST_P(metadata_c, validate_bitstream_metadata_neg) {
+  fpga_result result;
+
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
 
   test_system::instance()->invalidate_malloc();
 
@@ -394,6 +408,5 @@ TEST_P(metadata_c, get_interface_id_03) {
   auto res = get_interface_id(handle_, &id_l, &id_h);
   EXPECT_EQ(res, FPGA_EXCEPTION);
 }
-
 
 INSTANTIATE_TEST_CASE_P(metadata, metadata_c, ::testing::ValuesIn(test_platform::keys(true)));

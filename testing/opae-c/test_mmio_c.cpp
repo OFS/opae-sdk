@@ -33,6 +33,7 @@ extern "C" {
 }
 
 #include <opae/fpga.h>
+#include "fpga-dfl.h"
 #include "intel-fpga.h"
 #include <linux/ioctl.h>
 
@@ -107,6 +108,7 @@ class mmio_c_p : public ::testing::TestWithParam<std::string> {
     accel_ = nullptr;
     ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
     system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
+    system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
 
     which_mmio_ = 0;
     uint64_t *mmio_ptr = nullptr;
@@ -127,6 +129,7 @@ class mmio_c_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
+    fpgaFinalize();
     system_->finalize();
   }
 

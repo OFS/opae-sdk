@@ -27,6 +27,7 @@
 
 
 #include "intel-fpga.h"
+#include "fpga-dfl.h"
 #include "gtest/gtest.h"
 #include "test_system.h"
 #include <opae/access.h>
@@ -37,10 +38,16 @@
 
 #include "xfpga.h"
 #include "types_int.h"
+#include "sysfs_int.h"
 
 #undef FPGA_MSG
 #define FPGA_MSG(fmt, ...) \
 	printf("MOCK " fmt "\n", ## __VA_ARGS__)
+
+extern "C" {
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+}
 
 using namespace opae::testing;
 
@@ -124,6 +131,7 @@ class mmio_c_p
     system_->initialize();
     system_->prepare_syfs(platform_);
 
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
@@ -131,6 +139,7 @@ class mmio_c_p
               FPGA_OK);
     ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
     system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
+    system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
   }
 
   virtual void TearDown() override {
@@ -142,6 +151,7 @@ class mmio_c_p
       }
     }
     if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 
