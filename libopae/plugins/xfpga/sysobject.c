@@ -189,6 +189,10 @@ fpga_result __FPGA_API__ xfpga_fpgaDestroyObject(fpga_object *obj)
 		return FPGA_INVALID_PARAM;
 	}
 	struct _fpga_object *_obj = (struct _fpga_object *)*obj;
+	if (pthread_mutex_lock(&_obj->lock)) {
+		FPGA_ERR("pthread_mutex_lock() failed");
+	}
+
 	res = destroy_fpga_object(_obj);
 	*obj = NULL;
 	return res;

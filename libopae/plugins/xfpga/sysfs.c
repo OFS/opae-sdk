@@ -1758,10 +1758,6 @@ out_err:
 fpga_result destroy_fpga_object(struct _fpga_object *obj)
 {
 	fpga_result res = FPGA_OK;
-	if (pthread_mutex_destroy(&obj->lock)) {
-		FPGA_ERR("Error destroying mutex");
-		res = FPGA_EXCEPTION;
-	}
 	FREE_IF(obj->path);
 	FREE_IF(obj->name);
 	FREE_IF(obj->buffer);
@@ -1774,6 +1770,15 @@ fpga_result destroy_fpga_object(struct _fpga_object *obj)
 		}
 	}
 	FREE_IF(obj->objects);
+
+	if (pthread_mutex_unlock(&obj->lock)) {
+		FPGA_MSG("pthread_mutex_unlock() failed");
+	}
+
+	if (pthread_mutex_destroy(&obj->lock)) {
+		FPGA_ERR("Error destroying mutex");
+		res = FPGA_EXCEPTION;
+	}
 	free(obj);
 	return res;
 }
