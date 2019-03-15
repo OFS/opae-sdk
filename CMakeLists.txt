@@ -180,20 +180,13 @@ add_subdirectory(samples)
 option(BUILD_TESTS "Enable tests compilation" OFF)
 mark_as_advanced(BUILD_TESTS)
 
-option(BUILD_ASE_TESTS "Enable ASE test compilation." OFF)
-mark_as_advanced(BUILD_ASE_TESTS)
-
 option(ENABLE_MOCK "Enable mock driver for testing." ON)
 mark_as_advanced(ENABLE_MOCK)
 
-if(BUILD_TESTS OR BUILD_ASE_TESTS)
+if(BUILD_TESTS)
   enable_testing()
   include(CTest)
-  if (BUILD_ASE_TESTS)
-    add_subdirectory(tests)
-  else(BUILD_ASE_TESTS)
-    add_subdirectory(testing)
-  endif(BUILD_ASE_TESTS)
+  add_subdirectory(testing)
 endif()
 
 ############################################################################

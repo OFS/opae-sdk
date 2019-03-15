@@ -86,7 +86,7 @@ class open_c_ase_p : public testing::Test {
 };
 
 /**
- * @test       open_01
+ * @test       ase_open_01
  *
  * @brief      When the fpga_handle * parameter to fpgaOpen is nullptr, the
  *             function returns FPGA_INVALID_PARAM.
@@ -96,7 +96,7 @@ TEST_F(open_c_ase_p, ase_open_01) {
 }
 
 /**
- * @test       open_02
+ * @test       ase_open_02
  *
  * @brief      When the fpga_token parameter to fpgaOpen is nullptr, the
  *             function returns FPGA_INVALID_PARAM.
@@ -106,7 +106,7 @@ TEST_F(open_c_ase_p, ase_open_02) {
 }
 
 /**
- * @test       open_03
+ * @test       ase_open_03
  *
  * @brief      When the flags parameter to fpgaOpen is invalid, the
  *             function returns FPGA_INVALID_PARAM.
@@ -117,7 +117,7 @@ TEST_F(open_c_ase_p, ase_open_03) {
 }
 
 /**
- * @test       open_04
+ * @test       ase_open_04
  *
  * @brief      When the token magic is invalid,
  *             fpgaOpen returns FPGA_INVALID_PARAM.
@@ -127,6 +127,19 @@ TEST_F(open_c_ase_p, ase_open_04) {
     struct _fpga_token *token_= (struct _fpga_token *)tok;
     token_->magic = 0xFFFFFFFF;
     EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(tok, &accel_, 42));
+}
+
+/**
+* @test    ase_open_05
+* @brief   When the fpga_handle is nullptr,
+*          fpgaOpen returns FPGA_INVALID_PARAM
+*
+*/
+TEST(sim_sw_ase, ase_open_05) {
+	struct _fpga_token _token;
+	fpga_token token = (fpga_token)&_token;
+
+	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(token, nullptr, 0));
 }
 
 /**
@@ -141,4 +154,15 @@ TEST_F(open_c_ase_p, mallocfails) {
     ASSERT_EQ(fpgaOpen(tok, &accel_, 0), FPGA_NO_MEMORY);
     EXPECT_EQ(accel_, nullptr);
 }
+
+/**
+ * @test       close_nullhandle
+ *
+ * @brief      When the nullptr parameter is passed to fpgaClose(), the function returns
+ *             FPGA_INVALID_PARAM.
+ */
+TEST(open_c_ase, close_nullhandle) {
+	EXPECT_EQ(fpgaClose(nullptr), FPGA_INVALID_PARAM);
+}
+
 

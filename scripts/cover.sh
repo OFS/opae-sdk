@@ -10,7 +10,7 @@ function finish() {
 	lcov --directory testing --capture --output-file coverage.info 2> /dev/null
 
 	lcov -a coverage.base -a coverage.info --output-file coverage.total
-	lcov --remove coverage.total '/usr/**' 'tests/**' '*/**/CMakeFiles*' '/usr/*' 'safe_string/**' 'pybind11/*' 'testing/**' --output-file coverage.info.cleaned
+	lcov --remove coverage.total '/usr/**' 'tests/**' '*/**/CMakeFiles*' '/usr/*' 'safe_string/**' 'pybind11/*' 'testing/**' 'ase/**' --output-file coverage.info.cleaned
 	genhtml --function-coverage -o coverage_report coverage.info.cleaned 2> /dev/null
 
 }
@@ -27,7 +27,7 @@ mkdir -p coverage_files
 rm -rf coverage_files/*
 
 echo "Making tests"
-make -j4 test_unit xfpga modbmc fpgad-xfpga
+make -j4 test_unit xfpga modbmc fpgad-xfpga test_ase
 
 lcov --directory . --zerocounters
 lcov -c -i -d . -o coverage.base 2> /dev/null
