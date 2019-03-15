@@ -72,6 +72,9 @@ class fpgad_command_line_c_p : public ::testing::TestWithParam<std::string> {
     strcpy(invalid_gbs_, "invalid-XXXXXX.gbs");
     close(mkstemps(invalid_gbs_, 4));
 
+    strcpy(cfg_file_, "fpgad-XXXXXX.cfg");
+    close(mkstemps(cfg_file_, 4));
+
     std::vector<uint8_t> gbs_hdr =
       system_->assemble_gbs_header(platform_.devices[0]);
 
@@ -79,6 +82,11 @@ class fpgad_command_line_c_p : public ::testing::TestWithParam<std::string> {
     gbs.open(tmpnull_gbs_, std::ios::out|std::ios::binary);
     gbs.write((const char *) gbs_hdr.data(), gbs_hdr.size());
     gbs.close();
+
+    std::ofstream cfg;
+    cfg.open(cfg_file_, std::ios::out);
+    cfg.write("{}\n", 3);
+    cfg.close();
 
     memset_s(&config_, sizeof(config_), 0);
     config_.poll_interval_usec = 100 * 1000;
@@ -95,12 +103,14 @@ class fpgad_command_line_c_p : public ::testing::TestWithParam<std::string> {
     if (!::testing::Test::HasFatalFailure() &&
         !::testing::Test::HasNonfatalFailure()) {
       unlink(tmpnull_gbs_);
+      unlink(cfg_file_);
     }
     unlink(invalid_gbs_);
   }
 
   char tmpnull_gbs_[20];
   char invalid_gbs_[20];
+  char cfg_file_[20];
   struct fpgad_config config_;
   test_platform platform_;
   test_system *system_;
@@ -232,6 +242,183 @@ TEST_P(fpgad_command_line_c_p, canonicalize1) {
   EXPECT_STREQ(config_.pidfile, pid.c_str());
   EXPECT_EQ(config_.filemode, filemode);
   config_.daemon = true;
+}
+
+/**
+ * @test       canonicalize2
+ * @brief      Test: cmd_canonicalize_paths
+ * @details    If the .cfgfile member of<br>
+ *             the input config contains "..",<br>
+ *             then the fn falls back to searching<br>
+ *             for a config file.<br>
+ */
+TEST_P(fpgad_command_line_c_p, canonicalize2) {
+  strcpy(config_.cfgfile, "../some.cfg");
+
+  cmd_canonicalize_paths(&config_);
+
+  EXPECT_EQ(config_.cfgfile[0], '\0');
+}
+
+/**
+ * @test       canonicalize3
+ * @brief      Test: cmd_canonicalize_paths
+ * @details    If the .cfgfile member of<br>
+ *             the input config is a valid file,<br>
+ *             but it has invalid configuration contents,<br>
+ *             then the fn attempts to use it to load<br>
+ *             the configuration, but fails over to searching.<br>
+ */
+TEST_P(fpgad_command_line_c_p, canonicalize3) {
+  strcpy(config_.cfgfile, cfg_file_);
+
+  cmd_canonicalize_paths(&config_);
+
+  EXPECT_STREQ(config_.cfgfile, "");
+}
+
+/**
+ * @test       canonicalize4
+ * @brief      Test: cmd_canonicalize_paths
+ * @details    If the .cfgfile member of<br>
+ *             the input config is a valid file,<br>
+ *             and it has valid configuration contents,<br>
+ *             then the fn attempts to use it to load<br>
+ *             the configuration and succeeds.<br>
+ */
+TEST_P(fpgad_command_line_c_p, canonicalize4) {
+  const char *valid_cfg = R"cfg(
+{
+  "configurations": {
+    "a": {
+      "configuration": {},
+      "enabled": true,
+      "plugin": "liba.so",
+      "devices": [
+        [ "0x8086", "0x0b30" ]
+      ]
+    }
+  },
+  "plugins": [
+    "a"
+  ]
+}
+)cfg";
+
+  strcpy(config_.cfgfile, cfg_file_);
+  std::ofstream cfg;
+  cfg.open(cfg_file_, std::ios::out);
+  cfg.write(valid_cfg, strlen(valid_cfg));
+  cfg.close();
+
+  cmd_canonicalize_paths(&config_);
+
+  char *d = get_current_dir_name();
+  ASSERT_NE(d, nullptr);
+  std::string cfg_file = std::string(d) + std::string("/") + std::string(cfg_file_);
+
+  EXPECT_STREQ(config_.cfgfile, cfg_file.c_str());
+  free(d);
+}
+
+/**
+ * @test       symlink0
+ * @brief      Test: cmd_path_is_symlink
+ * @details    If the given path string is empty,<br>
+ *             then the fn returns false.<br>
+ */
+TEST_P(fpgad_command_line_c_p, symlink0) {
+  EXPECT_FALSE(cmd_path_is_symlink(""));
+}
+
+/**
+ * @test       symlink1
+ * @brief      Test: cmd_path_is_symlink
+ * @details    If the given file name doesn't exist,<br>
+ *             then the fn returns false.<br>
+ */
+TEST_P(fpgad_command_line_c_p, symlink1) {
+  EXPECT_FALSE(cmd_path_is_symlink("doesntexist"));
+}
+
+/**
+ * @test       symlink2
+ * @brief      Test: cmd_path_is_symlink
+ * @details    If the given file name exists,<br>
+ *             and it does not contain any / characters,<br>
+ *             and it is a symlink,<br>
+ *             then the fn returns true.<br>
+ */
+TEST_P(fpgad_command_line_c_p, symlink2) {
+  ASSERT_EQ(symlink(cfg_file_, "mylink"), 0);
+  EXPECT_TRUE(cmd_path_is_symlink("mylink"));
+  unlink("mylink");
+}
+
+/**
+ * @test       symlink3
+ * @brief      Test: cmd_path_is_symlink
+ * @details    If the given file name exists,<br>
+ *             and it does not contain a / character in position 0,<br>
+ *             and there is a symlink in any of the path components,<br>
+ *             then the fn returns true.<br>
+ */
+TEST_P(fpgad_command_line_c_p, symlink3) {
+  std::string s;
+
+  // bar/baz/foo -> cfg_file_
+  ASSERT_EQ(mkdir("bar", 0755), 0);
+  ASSERT_EQ(mkdir("bar/baz", 0755), 0);
+  s = std::string("../../") + std::string(cfg_file_);
+  ASSERT_EQ(symlink(s.c_str(), "bar/baz/foo"), 0);
+  EXPECT_TRUE(cmd_path_is_symlink("bar/baz/foo"));
+  ASSERT_EQ(unlink("bar/baz/foo"), 0);
+  ASSERT_EQ(rmdir("bar/baz"), 0);
+  ASSERT_EQ(rmdir("bar"), 0);
+
+  // bar/baz -> ../
+  ASSERT_EQ(mkdir("bar", 0755), 0);
+  ASSERT_EQ(symlink("..", "bar/baz"), 0);
+  s = std::string("bar/baz/") + std::string(cfg_file_);
+  EXPECT_TRUE(cmd_path_is_symlink(s.c_str()));
+  ASSERT_EQ(unlink("bar/baz"), 0);
+  ASSERT_EQ(rmdir("bar"), 0);
+
+  // bar -> blah which contains baz, which contains the config file
+  ASSERT_EQ(mkdir("blah", 0755), 0); 
+  ASSERT_EQ(mkdir("blah/baz", 0755), 0);
+  s = std::string("blah/baz/") + std::string(cfg_file_);
+  ASSERT_EQ(rename(cfg_file_, s.c_str()), 0);
+  ASSERT_EQ(symlink("blah", "bar"), 0);
+  s = std::string("bar/baz/") + std::string(cfg_file_);
+  EXPECT_TRUE(cmd_path_is_symlink(s.c_str()));
+  ASSERT_EQ(rename(s.c_str(), cfg_file_), 0);
+  ASSERT_EQ(rmdir("blah/baz"), 0);
+  ASSERT_EQ(rmdir("blah"), 0);
+  ASSERT_EQ(unlink("bar"), 0);
+}
+
+/**
+ * @test       symlink4
+ * @brief      Test: cmd_path_is_symlink
+ * @details    If the given file name exists,<br>
+ *             and it contains a / character in position 0,<br>
+ *             and there is a symlink in any of the path components,<br>
+ *             then the fn returns true.<br>
+ */
+TEST_P(fpgad_command_line_c_p, symlink4) {
+  std::string s;
+  char *d = get_current_dir_name();
+
+  ASSERT_NE(d, nullptr);
+
+  // /current/dir/foo -> cfg file
+  ASSERT_EQ(symlink(cfg_file_, "foo"), 0);
+  s = std::string(d) + std::string("/foo");
+  EXPECT_TRUE(cmd_path_is_symlink(s.c_str()));
+  ASSERT_EQ(unlink("foo"), 0);
+
+  free(d);
 }
 
 INSTANTIATE_TEST_CASE_P(fpgad_command_line_c, fpgad_command_line_c_p,

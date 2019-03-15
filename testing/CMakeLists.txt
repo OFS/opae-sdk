@@ -84,10 +84,12 @@ add_library(xfpga-static STATIC
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/version.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/wsid_list.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/usrclk/user_clk_pgm_uclock.c
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/metrics_max10.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/metrics_utils.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/afu_metrics.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/metrics.c
-              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/vector.c)
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/vector.c
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/threshold.c)
 
 target_include_directories(xfpga-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
@@ -587,6 +589,16 @@ add_unit_test(test_xfpga_metrics_c xfpga-static
 add_unit_test(test_xfpga_bmc_c xfpga-static
     xfpga/test_bmc_c.cpp
 )
+
+add_unit_test(test_xfpga_max10_c xfpga-static
+    xfpga/test_metrics_max10_c.cpp
+)
+
+add_unit_test(test_xfpga_threshold_c xfpga-static
+    xfpga/test_thresold_c.cpp
+)
+
+
 target_link_libraries(test_xfpga_bmc_c
     safestr
     bmc-static
@@ -600,6 +612,13 @@ add_unit_test(test_fpgad_command_line_c fpgad-static
     fpgad/test_command_line_c.cpp
 )
 target_link_libraries(test_fpgad_command_line_c
+    fpgad-api-static
+    )
+
+add_unit_test(test_fpgad_config_file_c fpgad-static
+    fpgad/test_config_file_c.cpp
+)
+target_link_libraries(test_fpgad_config_file_c
     fpgad-api-static
     )
 
@@ -775,6 +794,12 @@ add_custom_command(TARGET test_unit
 add_custom_command(TARGET test_unit
     PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-1socket-nlb0-vf.tar.gz
+    ${CMAKE_BINARY_DIR})
+
+add_custom_command(TARGET test_unit
+    PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
     ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dcp-rc-nlb3.tar.gz
     ${CMAKE_BINARY_DIR}
     )
@@ -783,6 +808,13 @@ add_custom_command(TARGET test_unit
     PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
     ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dfl0-nlb0.tar.gz
+    ${CMAKE_BINARY_DIR}
+    )
+
+add_custom_command(TARGET test_unit
+    PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dcp-vc.tar.gz
     ${CMAKE_BINARY_DIR}
     )
 

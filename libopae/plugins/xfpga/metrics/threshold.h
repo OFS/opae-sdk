@@ -23,16 +23,41 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+/*
+ * @file fmeinfo.h
+ *
+ * @brief
+ */
+#ifndef FPGA_THRESHOLD_H
+#define FPGA_THRESHOLD_H
 
-#ifndef __FPGAD_CONFIG_FILE_H__
-#define __FPGAD_CONFIG_FILE_H__
+#include <opae/fpga.h>
+#include "bmc/bmc_types.h"
 
-#include "fpgad.h"
 
-// 0 on success
-int cfg_find_config_file(struct fpgad_config *c);
+#define  UPPER_NR_THRESHOLD                     "Upper Non-Recoverable Threshold"
+#define  UPPER_C_THRESHOLD                      "Upper Critical Threshold"
+#define  UPPER_NC_THRESHOLD                     "Upper Non-Critical Threshold"
 
-// 0 on success
-int cfg_load_config(struct fpgad_config *c);
+#define  LOWER_NR_THRESHOLD                     "Lower Non-Recoverable Threshold"
+#define  LOWER_C_THRESHOLD                      "Lower Critical Threshold"
+#define  LOWER_NC_THRESHOLD                     "Lower Non-Critical Threshold"
 
-#endif /* __FPGAD_CONFIG_FILE_H__ */
+#define  HYSTERESIS                             "Hysteresis"
+
+#define  SYSFS_HIGH_FATAL                       "high_fatal"
+#define  SYSFS_HIGH_WARN                        "high_warn"
+#define  SYSFS_HYSTERESIS                       "hysteresis"
+#define  SYSFS_LOW_FATAL                        "low_fatal"
+#define  SYSFS_LOW_WARN                         "low_warn"
+
+
+fpga_result get_bmc_threshold_info(fpga_handle handle,
+	metric_threshold *metric_thresholds,
+	uint32_t *num_thresholds);
+
+fpga_result get_max10_threshold_info(fpga_handle handle,
+	metric_threshold *metric_thresholds,
+	uint32_t *num_thresholds);
+
+#endif /* !FPGA_THRESHOLD_H */

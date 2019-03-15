@@ -24,15 +24,20 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGAD_CONFIG_FILE_H__
-#define __FPGAD_CONFIG_FILE_H__
+/**
+* \file metrics_max10.h
+* \brief fpga metrics max10 functions
+*/
 
-#include "fpgad.h"
+#ifndef __FPGA_METRICS_MAX10_H__
+#define __FPGA_METRICS_MAX10_H__
 
-// 0 on success
-int cfg_find_config_file(struct fpgad_config *c);
+fpga_result read_sensor_sysfs_file(char *sysfs, const char *file,
+			void **buf, uint32_t *tot_bytes_ret);
 
-// 0 on success
-int cfg_load_config(struct fpgad_config *c);
+fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
+			fpga_metric_vector *vector,
+			uint64_t *metric_num,
+			enum fpga_hw_type  hw_type);
 
-#endif /* __FPGAD_CONFIG_FILE_H__ */
+#endif // __FPGA_METRICS_MAX10_H__

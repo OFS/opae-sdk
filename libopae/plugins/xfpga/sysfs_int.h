@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -31,6 +31,8 @@
 #include <stdint.h>
 #include <unistd.h>
 
+#include "types_int.h"
+
 #define SYSFS_PATH_MAX 256
 
 
@@ -39,46 +41,46 @@ extern "C" {
 #endif
 
 
-typedef struct _sysfs_fpga_region sysfs_fpga_region;
+typedef struct _sysfs_fpga_device sysfs_fpga_device;
 
-typedef struct _sysfs_fpga_resource {
-	sysfs_fpga_region *region;
-	char res_path[SYSFS_PATH_MAX];
-	char res_name[SYSFS_PATH_MAX];
+typedef struct _sysfs_fpga_region {
+	sysfs_fpga_device *device;
+	char sysfs_path[SYSFS_PATH_MAX];
+	char sysfs_name[SYSFS_PATH_MAX];
 	fpga_objtype type;
-	int num;
-} sysfs_fpga_resource;
+	int number;
+} sysfs_fpga_region;
 
 #define SYSFS_MAX_RESOURCES 4
-typedef struct _sysfs_fpga_region {
-	char region_path[SYSFS_PATH_MAX];
-	char region_name[SYSFS_PATH_MAX];
+typedef struct _sysfs_fpga_device {
+	char sysfs_path[SYSFS_PATH_MAX];
+	char sysfs_name[SYSFS_PATH_MAX];
 	int number;
-	sysfs_fpga_resource *fme;
-	sysfs_fpga_resource *port;
+	sysfs_fpga_region *fme;
+	sysfs_fpga_region *port;
   uint32_t segment;
   uint8_t bus;
   uint8_t device;
   uint8_t function;
   uint32_t device_id;
   uint32_t vendor_id;
-} sysfs_fpga_region;
+} sysfs_fpga_device;
 
 int sysfs_initialize(void);
 int sysfs_finalize(void);
-int sysfs_region_count(void);
+int sysfs_device_count(void);
 
-typedef void (*region_cb)(sysfs_fpga_region *region, void *context);
-void sysfs_foreach_region(region_cb cb, void *context);
+typedef fpga_result (*device_cb)(const sysfs_fpga_device *device, void *context);
+fpga_result sysfs_foreach_device(device_cb cb, void *context);
 
-const sysfs_fpga_region *sysfs_get_region(size_t num);
+const sysfs_fpga_device *sysfs_get_device(size_t num);
 int sysfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *value);
 
 fpga_result sysfs_get_fme_pr_interface_id(const char *sysfs_res_path, fpga_guid guid);
 
 fpga_result sysfs_get_guid(fpga_token token, const char *sysfspath, fpga_guid guid);
 
-fpga_result sysfs_get_fme_path(int dev, int subdev, char *path);
+fpga_result sysfs_get_fme_path(const char *rpath, char *fpath);
 
 fpga_result sysfs_path_is_valid(const char *root, const char *attr_path);
 
@@ -112,7 +114,8 @@ fpga_result sysfs_get_pr_id(int dev, int subdev, fpga_guid guid);
 fpga_result sysfs_get_slots(int dev, int subdev, uint32_t *slots);
 fpga_result sysfs_get_bitstream_id(int dev, int subdev, uint64_t *id);
 fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port);
-fpga_result get_fpga_deviceid(fpga_handle handle, uint64_t *deviceid);
+enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id);
+fpga_result get_fpga_hw_type(fpga_handle handle, enum fpga_hw_type *hw_type);
 fpga_result sysfs_deviceid_from_path(const char *sysfspath,
 				uint64_t *deviceid);
 fpga_result sysfs_objectid_from_path(const char *sysfspath,

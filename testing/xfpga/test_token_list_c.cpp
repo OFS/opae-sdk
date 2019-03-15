@@ -55,20 +55,21 @@ class token_list_c_p : public ::testing::TestWithParam<std::string> {
     system_->prepare_syfs(platform_);
     ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
 
-    if (sysfs_region_count() > 0) {
-      const sysfs_fpga_region* region = sysfs_get_region(0);
-      ASSERT_NE(region, nullptr);
-      if (region->fme) {
-        sysfs_fme = std::string(region->fme->res_path);
-
-        dev_fme = std::string("/dev/") + std::string(region->fme->res_name);
-      }
-      if (region->port) {
-        sysfs_port = std::string(region->port->res_path);
-
-        dev_port = std::string("/dev/") + std::string(region->port->res_name);
-      }
+    ASSERT_GT(sysfs_device_count(), 0);
+    sysfs_fpga_region *fme = nullptr;
+    sysfs_fpga_region *port = nullptr;
+    for (int i = 0; i < sysfs_device_count(); ++i) {
+      fme = (fme == nullptr) ? sysfs_get_device(i)->fme : fme;
+      port = (port == nullptr) ? sysfs_get_device(i)->port : port;
+      if (fme && port) break;
     }
+    ASSERT_NE(fme, nullptr);
+    ASSERT_NE(port, nullptr);
+
+    sysfs_fme = std::string(fme->sysfs_path);
+    dev_fme = std::string("/dev/") + std::string(fme->sysfs_name);
+    sysfs_port = std::string(port->sysfs_path);
+    dev_port = std::string("/dev/") + std::string(port->sysfs_name);
   }
   virtual void TearDown() override {
     xfpga_plugin_finalize();
@@ -146,7 +147,7 @@ TEST_P(token_list_c_p, invalid_paths) {
 
   // invalidate malloc
 
-  test_system::instance()->invalidate_malloc();
+  test_system::instance()->invalidate_malloc(0, "token_add");
   fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
   ASSERT_EQ(fme, nullptr);
 }

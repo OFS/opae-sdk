@@ -43,7 +43,7 @@ void *monitor_thread(void *);
 // 0 on success
 int mon_enumerate(struct fpgad_config *c);
 
-void mon_destroy(void);
+void mon_destroy(struct fpgad_config *c);
 
 void mon_monitor_device(fpgad_monitored_device *d);
 

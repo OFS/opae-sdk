@@ -44,6 +44,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <uuid/uuid.h>
+#include <ftw.h>
 
 void *__builtin_return_address(unsigned level);
 
@@ -165,6 +166,7 @@ test_device test_device::unknown() {
                      .bus = 0x0A,
                      .device = 9,
                      .function = 5,
+                     .num_vfs = 8,
                      .socket_id = 9,
                      .num_slots = 9,
                      .bbs_id = 9,
@@ -202,6 +204,7 @@ test_system::test_system() : initialized_(false), root_("") {
       (sched_setaffinity_func)dlsym(RTLD_NEXT, "sched_setaffinity");
 
   glob_ = (glob_func)dlsym(RTLD_NEXT, "glob");
+  realpath_ = (realpath_func)dlsym(RTLD_NEXT, "realpath");
 
   hijack_sched_setaffinity_ = false;
   hijack_sched_setaffinity_return_val_ = 0;
@@ -233,22 +236,41 @@ void test_system::prepare_syfs(const test_platform &platform) {
   return (void)result;
 }
 
-void test_system::remove_sysfs() {
-  int result = 0;
-  if (root_.find("tmpsysfs") != std::string::npos) {
-    struct stat st;
-    if (stat(root_.c_str(), &st)) {
-      std::cerr << "Error stat'ing root dir (" << root_
-                << "):" << strerror(errno) << "\n";
-      return;
-    }
-    if (S_ISDIR(st.st_mode)) {
-      auto cmd = "rm -rf " + root_;
-      result = std::system(cmd.c_str());
+
+extern "C" {
+int process_fpath(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftw) {
+  (void)sb;
+  (void)ftw;
+  if (typeflag & FTW_DP) {
+    if (rmdir(fpath)) {
+      if (errno == ENOTDIR) {
+        goto do_unlink;
+      }
+      std::cerr << "error removing directory: " << fpath << " - " << strerror(errno) << "\n";
+      return -1;
     }
   }
-  return (void)result;
+do_unlink:
+  if (unlink(fpath) && errno != ENOENT) {
+      std::cerr << "error removing node: " << fpath << " - " << strerror(errno) << "\n";
+      return -1;
+  }
+  return 0;
 }
+}
+
+int test_system::remove_sysfs_dir(const char *path) {
+  if (root_.find("tmpsysfs") != std::string::npos) {
+    auto real_path = path == nullptr ? root_ : get_sysfs_path(path);
+    return nftw(real_path.c_str(), process_fpath, 100, FTW_DEPTH | FTW_PHYS);
+  }
+  return 0;
+}
+
+int test_system::remove_sysfs() {
+  return remove_sysfs_dir();
+}
+
 
 void test_system::set_root(const char *root) { root_ = root; }
 std::string test_system::get_root() { return root_; }
@@ -305,6 +327,7 @@ void test_system::initialize() {
   ASSERT_FN(scandir_);
   ASSERT_FN(sched_setaffinity_);
   ASSERT_FN(glob_);
+  ASSERT_FN(realpath_);
   for (const auto &kv : default_ioctl_handlers_) {
     register_ioctl_handler(kv.first, kv.second);
   }
@@ -716,6 +739,30 @@ int test_system::glob(const char *pattern, int flags,
   return res;
 }
 
+char *test_system::realpath(const char *inp, char *dst)
+{
+  if (!initialized_ || root_.empty()) {
+    return realpath_(inp, dst);
+  }
+  bool current_inv_state = _invalidate_malloc;
+  _invalidate_malloc = false;
+  char *retvalue = realpath_(get_sysfs_path(inp).c_str(), dst);
+  if (retvalue) {
+    std::string dst_str(dst);
+    char prefix[PATH_MAX] = {0};
+    char *prefix_ptr = realpath_(root_.c_str(), prefix);
+    std::string prefix_str(prefix_ptr ? prefix_ptr : "");
+    if (prefix_str.size() && dst_str.find(prefix_str) == 0) {
+      auto cleaned_str = dst_str.substr(prefix_str.size());
+      std::copy(cleaned_str.begin(), cleaned_str.end(), &dst[0]);
+      dst[cleaned_str.size()] = '\0';
+      retvalue = &dst[0];
+    }
+  }
+  _invalidate_malloc = current_inv_state;
+  return retvalue;
+}
+
 void test_system::invalidate_malloc(uint32_t after,
                                     const char *when_called_from) {
   _invalidate_malloc = true;
@@ -800,4 +847,8 @@ int opae_test_glob(const char *pattern, int flags,
                    glob_t *pglob) {
   return opae::testing::test_system::instance()->glob(pattern, flags, errfunc,
                                                       pglob);
+}
+
+char *opae_test_realpath(const char *inp, char *dst) {
+  return opae::testing::test_system::instance()->realpath(inp, dst);
 }

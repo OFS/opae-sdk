@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <limits.h>
 #include <sys/types.h>
 
 #include "safe_string/safe_string.h"
@@ -188,10 +189,10 @@ free_props:
 // clears port errors
 STATIC fpga_result clear_port_errors(fpga_handle handle)
 {
-	char sysfs_path[SYSFS_PATH_MAX]    = {0};
+	char sysfs_path[PATH_MAX]          = {0};
 	char sysfs_errpath[SYSFS_PATH_MAX] = {0};
-	fpga_result result                = FPGA_OK;
-	uint64_t error                    = 0 ;
+	fpga_result result                 = FPGA_OK;
+	uint64_t error                     = 0 ;
 
 	result = get_port_sysfs(handle, sysfs_path);
 	if (result != FPGA_OK) {
@@ -223,7 +224,7 @@ fpga_result set_afu_userclock(fpga_handle handle,
 				uint64_t usrlclock_high,
 				uint64_t usrlclock_low)
 {
-	char sysfs_path[SYSFS_PATH_MAX]    = {0};
+	char sysfs_path[PATH_MAX]         = {0};
 	fpga_result result                = FPGA_OK;
 	uint64_t userclk_high             = 0;
 	uint64_t userclk_low              = 0;
@@ -317,7 +318,6 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 	struct reconf_error  error      = { {0} };
 	struct gbs_metadata  metadata;
 	int bitstream_header_len        = 0;
-	uint64_t deviceid               = 0;
 	int err                         = 0;
 	fpga_handle accel               = NULL;
 
@@ -355,6 +355,7 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 	}
 
 	if (get_bitstream_json_len(bitstream) > 0) {
+		enum fpga_hw_type hw_type = FPGA_HW_UNKNOWN;
 
 		// Read GBS json metadata
 		memset_s(&metadata, sizeof(metadata), 0);
@@ -392,14 +393,14 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 		}
 
 		// get fpga device id.
-		result = get_fpga_deviceid(fpga, &deviceid);
+		result = get_fpga_hw_type(fpga, &hw_type);
 		if (result != FPGA_OK) {
-			FPGA_ERR("Failed to read device id.");
+			FPGA_ERR("Failed to discover hardware type.");
 			goto out_unlock;
 		}
 
 		// Set power threshold for integrated fpga.
-		if (deviceid == FPGA_INTEGRATED_DEVICEID) {
+		if (hw_type == FPGA_HW_MCP) {
 
 			result = set_fpga_pwr_threshold(fpga, metadata.afu_image.power);
 			if (result != FPGA_OK) {
