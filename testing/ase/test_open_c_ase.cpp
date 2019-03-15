@@ -86,7 +86,7 @@ class open_c_ase_p : public testing::Test {
 };
 
 /**
- * @test       open_01
+ * @test       ase_open_01
  *
  * @brief      When the fpga_handle * parameter to fpgaOpen is nullptr, the
  *             function returns FPGA_INVALID_PARAM.
@@ -96,7 +96,7 @@ TEST_F(open_c_ase_p, ase_open_01) {
 }
 
 /**
- * @test       open_02
+ * @test       ase_open_02
  *
  * @brief      When the fpga_token parameter to fpgaOpen is nullptr, the
  *             function returns FPGA_INVALID_PARAM.
@@ -106,7 +106,7 @@ TEST_F(open_c_ase_p, ase_open_02) {
 }
 
 /**
- * @test       open_03
+ * @test       ase_open_03
  *
  * @brief      When the flags parameter to fpgaOpen is invalid, the
  *             function returns FPGA_INVALID_PARAM.
@@ -117,7 +117,7 @@ TEST_F(open_c_ase_p, ase_open_03) {
 }
 
 /**
- * @test       open_04
+ * @test       ase_open_04
  *
  * @brief      When the token magic is invalid,
  *             fpgaOpen returns FPGA_INVALID_PARAM.
@@ -130,7 +130,7 @@ TEST_F(open_c_ase_p, ase_open_04) {
 }
 
 /**
-* @test    open_05
+* @test    ase_open_05
 * @brief   When the fpga_handle is nullptr,
 *          fpgaOpen returns FPGA_INVALID_PARAM
 *
@@ -158,7 +158,7 @@ TEST_F(open_c_ase_p, mallocfails) {
 /**
  * @test       close_nullhandle
  *
- * @brief      When the malloc function called by fpgaOpen() failed, the function returns
+ * @brief      When the nullptr parameter is passed to fpgaClose(), the function returns
  *             FPGA_INVALID_PARAM.
  */
 TEST(open_c_ase, close_nullhandle) {

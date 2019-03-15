@@ -28,10 +28,11 @@ extern "C" {
 #include <json-c/json.h>
 #include <uuid/uuid.h>
 #include <opae/types.h>
+#include <pthread.h>
 #include "types_int.h"
 #include "ase_common.h"
 #include "common_int.h"
-#include <pthread.h>
+#include "wsid_list_int.h"
 }
 
 #include <opae/fpga.h>
@@ -62,7 +63,7 @@ TEST(sim_sw_ase, ase_common_01) {
 /**
 * @test       ase_common_02
 *
-* @brief      When the property's magic is invalid and libopae-ase-c is loaded:
+* @brief      When the FPGA handle's magic is invalid and libopae-ase-c is loaded:
 *             prop_check_and_lock() function should return FPGA_INVALID_PARAM
 *
 */
@@ -77,7 +78,7 @@ TEST(sim_sw_ase, ase_common_02) {
 /**
 * @test       ase_common_03
 *
-* @brief      When the property's magic is invalid and libopae-ase-c is loaded:
+* @brief      When the event handle's magic is invalid and libopae-ase-c is loaded:
 *             prop_check_and_lock() function should return FPGA_INVALID_PARAM
 *
 */
@@ -118,7 +119,7 @@ TEST(open_c_ase, fpga_version) {
  */
 TEST(open_c_ase, ase_wsid_1) {
 	EXPECT_EQ(NULL, wsid_tracker_init(0));
-	EXPECT_EQ(NULL, wsid_tracker_init(16385));
+	EXPECT_EQ(NULL, wsid_tracker_init(MAX_WSID_TRACKER_BUCKETS+1));
 
 }
 
@@ -142,71 +143,6 @@ TEST(sim_sw_ase, ase_wsid_2) {
     EXPECT_EQ(wsid_tracker_init(1000), (struct wsid_tracker*)NULL);
 
 	system_->finalize();
-}
-
-/**
- * @test       ase_umsg_1
- *
- * @brief      When ase_capability's umsg feature is zero, 
- *             fpgaGetNumUmsg function returns FPGA_NOT_SUPPORTED. 
- *             When ase_capability's umsg feature is nonzero,
- *             fpgaGetNumUmsg function returns FPGA_OK.
- */
-TEST(open_c_ase, ase_umsg_1) {
-	ase_capability.umsg_feature = 2;
-	struct _fpga_handle handle_;
-	fpga_handle accel_ = &handle_;
-
-	uint64_t value;
-
-	EXPECT_EQ(FPGA_OK, fpgaGetNumUmsg(accel_, &value));
-
-	ase_capability.umsg_feature = 0;
-	EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaGetNumUmsg(accel_, &value));
-}
-
-/**
- * @test       ase_umsg_2
- *
- * @brief      When ase_capability's umsg feature is zero, 
- *             fpgaSetUmsgAttributes function returns FPGA_NOT_SUPPORTED. 
- *             When ase_capability's umsg feature is nonzero,
- *             fpgaSetUmsgAttributes function returns FPGA_OK.
- */
-TEST(open_c_ase, ase_umsg_2) {
-	struct _fpga_handle handle_;
-	fpga_handle accel_ = &handle_;
-
-	uint64_t value = 0x10;
-
-	ase_capability.umsg_feature = 0;
-	EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaSetUmsgAttributes(accel_, value));
-}
-
-/**
- * @test       ase_umsg_3
- *
- * @brief      When ase_capability's umsg feature is zero, 
- *             fpgaGetUmsgPtr function returns FPGA_NOT_SUPPORTED. 
- *             When ase_capability's umsg feature is nonzero,
- *             fpgaGetUmsgPtr function returns FPGA_OK.
- */
-TEST(open_c_ase, ase_umsg_3) {
-	ase_capability.umsg_feature = 2;
-
-	struct _fpga_handle handle_;
-	fpga_handle accel_ = &handle_;
-
-	uint64_t umsg[10];
-	uint64_t **umsg_ptr = (uint64_t **)&umsg;
-
-	EXPECT_EQ(FPGA_NO_MEMORY, fpgaGetUmsgPtr(accel_, umsg_ptr));
-
-	umsg_umas_vbase = (uint64_t*)0x100;
-	EXPECT_EQ(FPGA_OK, fpgaGetUmsgPtr(accel_, umsg_ptr));
-
-	ase_capability.umsg_feature = 0;
-	EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaGetUmsgPtr(accel_, umsg_ptr));
 }
 
 

@@ -33,6 +33,7 @@ extern "C" {
 #include "ase_host_memory.h"
 
 int ase_pt_length_to_level(uint64_t length);
+ase_host_memory_status membus_op_status(uint64_t va, uint64_t pa);
 }
 
 #include <opae/fpga.h>
@@ -45,10 +46,21 @@ int ase_pt_length_to_level(uint64_t length);
 #define ESBADFMT -1
 #define ESFMTTYP -2
 
-const uint HUGE_NUM = 1000000000;
-
 using namespace opae::testing;
 
+typedef struct mmio_s {
+	// MMIO Mutex Lock, initilize it here
+	pthread_mutex_t mmio_port_lock;
+
+	struct buffer_t *mmio_region;      // CSR map storage
+
+	// MMIO Read response watcher
+	int glbl_mmio_tid;       	       // MMIO Tid
+
+	pthread_t mmio_watch_tid;	       // Tracker thread Id
+	mmio_t *mmio_rsp_pkt;              // MMIO Response packet handoff control
+} MMIO_S;
+extern MMIO_S io_s;
 
 /**
 * @test       ase_rm_sp
@@ -101,21 +113,20 @@ TEST(sim_sw_ase, ase_ops_01) {
 }
 
 /**
-* @test       ase_ops_02
+* @test       ase_mallocafail
 *
-* @brief      When the parameters are valid and libopae-ase-c is loaded:
-*             ase_malloc(size_t) function should return NULL
+* @brief      When ase_malloc() failed, ase_malloc(size_t) function should
+*             return NULL
 *
 */
-TEST(sim_sw_ase, ase_ops_02) {
-	uint size1 = HUGE_NUM;
+TEST(sim_sw_ase, ase_mallocafail) {
 	test_system *system_;
 	system_ = test_system::instance();
 	system_->initialize();
 
-    // Invalidate the memory allocation .
+    // Invalidate the memory allocation.
     system_->invalidate_malloc(0, "ase_malloc");
-    EXPECT_EQ(ase_malloc(size1), (char*)NULL);
+    EXPECT_EQ(ase_malloc(100), (char*)NULL);
 	system_->finalize();
 }
 
@@ -501,18 +512,16 @@ TEST(sim_sw_ase, ase_app_02) {
 	EXPECT_EQ(0, is_directory(nullptr));
 }
 
-/**
-* @test       ase_app_03
-*
-* @brief      When the parameters of va is bigger than 48
-*             ase_host_memory_va_to_pa() raise a signal
-*
-*/
-
 #define KB 1024
 #define MB (1024 * KB)
 #define GB (1024UL * MB)
-
+/**
+* @test       ase_app_03
+*
+* @brief      When the parameters of va 0x1000000000000 is bigger than 48 bit address,
+*             ase_host_memory_va_to_pa() raise a signal
+*
+*/
 TEST(sim_sw_ase, ase_app_03) {
 	ASSERT_EXIT(ase_host_memory_pin(nullptr, nullptr, 0), ::testing::KilledBySignal(SIGSEGV), "");
 	ASSERT_EXIT(ase_host_memory_va_to_pa(0x1000000000000, 48), ::testing::KilledBySignal(SIGABRT),"");
@@ -521,3 +530,53 @@ TEST(sim_sw_ase, ase_app_03) {
 	EXPECT_EQ(2, ase_pt_length_to_level(GB));
 	EXPECT_EQ(-1, ase_pt_length_to_level(3*1024*1024));
 }
+
+/**
+* @test       ase_app_04
+*
+* @brief      When the parameter offset to mmio_write/read() functions is invalid,
+*             it raises a signal
+*
+*/
+TEST(sim_sw_ase, ase_app_04) {
+	uint32_t val32;
+	uint64_t val64;
+	ASSERT_EXIT(mmio_write32(-4, 48), ::testing::KilledBySignal(SIGABRT),"");
+	ASSERT_EXIT(mmio_read32(-4, &val32), ::testing::KilledBySignal(SIGABRT),"");
+	ASSERT_EXIT(mmio_write64(-4, 48), ::testing::KilledBySignal(SIGABRT),"");
+	ASSERT_EXIT(mmio_read64(-4, &val64), ::testing::KilledBySignal(SIGABRT),"");
+}
+
+/**
+* @test       ase_app_05
+*
+* @brief      When the parameter of pa to membus_op_status() is invalid,
+*             it returns HOST_MEM_STATUS_ILLEGAL
+*             When the parameter of va to membus_op_status() is zero
+*             it returns HOST_MEM_STATUS_ILLEGAL
+*
+*/
+TEST(sim_sw_ase, ase_app_05) {
+	EXPECT_EQ(HOST_MEM_STATUS_ILLEGAL, membus_op_status(0x100, 0104));
+	EXPECT_EQ(HOST_MEM_STATUS_NOT_PINNED, membus_op_status(0x0, 0100));
+}
+
+/**
+* @test       ase_app_06
+*
+* @brief      When the parameter of pa to membus_op_status() is invalid,
+*             it returns HOST_MEM_STATUS_ILLEGAL
+*             When the parameter of va to membus_op_status() is zero
+*             it returns HOST_MEM_STATUS_ILLEGAL
+*
+*/
+TEST(sim_sw_ase, ase_app_06) {
+	EXPECT_EQ(HOST_MEM_STATUS_ILLEGAL, membus_op_status(0x100, 0104));
+	EXPECT_EQ(HOST_MEM_STATUS_NOT_PINNED, membus_op_status(0x0, 0100));
+}
+
+TEST(sim_sw_ase, ase_app_07) {
+	backtrace_handler(SIGSEGV);
+}
+
+

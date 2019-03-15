@@ -30,6 +30,8 @@
 #include "opae/utils.h"
 #include "types_int.h"
 
+#define MAX_WSID_TRACKER_BUCKETS 16384
+
 /*
  * WSID tracking structure manipulation functions
  */

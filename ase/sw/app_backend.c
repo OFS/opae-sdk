@@ -24,7 +24,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 // **************************************************************************
-
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 #define _GNU_SOURCE
 
 #include <unistd.h>
@@ -1553,7 +1555,7 @@ void *umsg_watcher(void *arg)
 	return 0;
 }
 
-static ase_host_memory_status membus_op_status(uint64_t va, uint64_t pa)
+STATIC ase_host_memory_status membus_op_status(uint64_t va, uint64_t pa)
 {
 	ase_host_memory_status st;
 
