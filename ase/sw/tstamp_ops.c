@@ -49,6 +49,18 @@ static __inline__ unsigned long long rdtsc(void)
 	return ((unsigned long long) lo) | (((unsigned long long) hi) <<
 					    32);
 }
+#elif defined(__aarch64__)
+static __inline__ unsigned long long rdtsc(void)
+{
+	// copied from https://github.com/google/benchmark/blob/eec9a8e4976a397988c15e5a4b71a542375a2240/src/cycleclock.h#L127
+	// System timer of ARMv8 runs at a different frequency than the CPU's.
+	// The frequency is fixed, typically in the range 1-50MHz.  It can be
+	// read at CNTFRQ special register.  We assume the OS has set up
+	// the virtual timer properly.
+	int64_t virtual_timer_value;
+	__asm__ volatile("mrs %0, cntvct_el0" : "=r"(virtual_timer_value));
+	return virtual_timer_value;
+}
 #else
 #error "Host Architecture unidentified, timestamp wont work"
 #endif

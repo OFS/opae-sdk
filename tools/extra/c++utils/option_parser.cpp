@@ -172,7 +172,7 @@ bool option_parser::parse_args(int argc, char* argv[], option_map & known_option
     optarray.push_back({nullptr,0,nullptr,0});
 
     int longidx;
-    char c;
+    int c;
     while(true)
     {
         c = getopt_long(argc, argv, argstr.c_str(), optarray.data(), &longidx);
