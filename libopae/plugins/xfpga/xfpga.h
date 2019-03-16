@@ -104,7 +104,13 @@ fpga_result xfpga_fpgaHandleGetObject(fpga_token handle, const char *name,
 				      fpga_object *object, int flags);
 fpga_result xfpga_fpgaObjectGetObject(fpga_object parent, const char *name,
 				      fpga_object *object, int flags);
+fpga_result xfpga_fpgaObjectGetObjectAt(fpga_object parent, size_t idx,
+					fpga_object *object);
 fpga_result xfpga_fpgaDestroyObject(fpga_object *obj);
+fpga_result xfpga_fpgaObjectGetType(fpga_object obj,
+				    enum fpga_sysobject_type *type);
+fpga_result xfpga_fpgaObjectGetName(fpga_object obj, char *name,
+				    size_t max_len);
 fpga_result xfpga_fpgaObjectGetSize(fpga_object obj, uint32_t *value,
 				    int flags);
 fpga_result xfpga_fpgaObjectRead(fpga_object obj, uint8_t *buffer,

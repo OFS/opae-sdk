@@ -41,8 +41,8 @@ extern "C" {
 
 /**
  * @brief Create an `fpga_object` data structures. An `fpga_object`
- * is a handle to an FPGA resource which can be an attribute or register or
- * driver attribute. This object is read-only.
+ * is a handle to an FPGA resource which can be an attribute, register or
+ * a container. This object is read-only.
  *
  * @param[in] token Token identifying a resource (accelerator or device)
  * @param[in] name A key identifying an object belonging to a resource.
@@ -68,8 +68,8 @@ fpga_result fpgaTokenGetObject(fpga_token token, const char *name,
 
 /**
  * @brief Create an `fpga_object` data structure from a handle.
- * An `fpga_object` is a handle to an FPGA resource which can be an attribute
- * or register.  This object has read/write access..
+ * An `fpga_object` is a handle to an FPGA resource which can be an attribute,
+ * register, or container.  This object has read/write access..
  *
  * @param[in] handle Handle identifying a resource (accelerator or device)
  * @param[in] name A key identifying an object belonging to a resource.
@@ -94,11 +94,11 @@ fpga_result fpgaHandleGetObject(fpga_handle handle, const char *name,
 				fpga_object *object, int flags);
 
 /**
- * @brief Create an `fpga_object` data structure from a parent object.
- * An `fpga_object` is a handle to an FPGA resource which can be an attribute
- * or a register. If the parent object was created with a handle, then the new
- * object will inherit the handle allowing it to have read-write access to the
- * object data.
+ * @brief Create an `fpga_object` data structure from a parent object.  An
+ * `fpga_object` is a handle to an FPGA resource which can be an attribute,
+ * register, or container.  If the parent object was created with a handle,
+ * then the new object will inherit the handle allowing it to have read-write
+ * access to the object data.
  *
  * @param[in] parent A parent container `fpga_object`.
  * @param[in] name A key identifying a sub-object of the parent container.
@@ -122,6 +122,38 @@ fpga_result fpgaHandleGetObject(fpga_handle handle, const char *name,
  */
 fpga_result fpgaObjectGetObject(fpga_object parent, const char *name,
 				fpga_object *object, int flags);
+
+/**
+ * @brief Create an `fpga_object` data structure from a parent object using a
+ * given index.  An `fpga_object` is a handle to an FPGA resource which can be
+ * an attribute, register, or container.  If the parent object was created with
+ * a handle, then the new object will inherit the handle allowing it to have
+ * read-write access to the object data.
+ *
+ * @param[in] parent A parent container 'fpga_object'
+ * @param[in] idx A positive index less than the size reported by the parent.
+ * @param[out] object Pointer to memory to store the object in.
+ *
+ * @return FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
+ * parameters is invalid - this includes a parent object that is not a
+ * container object. FPGA_NOT_FOUND if an object cannot be found with the given
+ * key. FPGA_NOT_SUPPORTED if this function is not supported by the current
+ * implementation of this API.
+ */
+fpga_result fpgaObjectGetObjectAt(fpga_object parent, size_t idx,
+				  fpga_object *object);
+/**
+ * @brief Get the sysobject type (container or attribute)
+ *
+ * @param[in] obj An fpga_object instance
+ * @param[out] type The type of object (FPGA_OBJECT_CONTAINER or
+ * FPGA_OBJECT_ATTRIBUTE)
+ *
+ * @return FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied
+ * parameters are null or invalid
+ */
+fpga_result fpgaObjectGetType(fpga_object obj, enum fpga_sysobject_type *type);
+
 /**
  * @brief Free memory used for the fpga_object data structure
  *

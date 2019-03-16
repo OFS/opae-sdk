@@ -37,6 +37,8 @@ fpga_result sysfs_get_slots(int, int, uint32_t *);
 fpga_result sysfs_get_bitstream_id(int, int, uint64_t *);
 fpga_result sysfs_sbdf_from_path(const char *, int *, int *, int *, int *);
 fpga_result opae_glob_path(char *);
+fpga_result opae_glob_paths(const char *path, size_t found_max,
+                            char *found[], size_t *num_found);
 fpga_result make_sysfs_group(char *, const char *, fpga_object *, int,
                              fpga_handle);
 ssize_t eintr_write(int, void *, size_t);
@@ -429,6 +431,20 @@ TEST_P(sysfs_c_p, glob_tests) {
   EXPECT_EQ(FPGA_NOT_FOUND, res);
 }
 
+TEST_P(sysfs_c_p, glob_paths) {
+  char *paths[16];
+  auto bitstream_glob = sysfs_fme + "/bitstream*";
+  size_t found = 0;
+  ASSERT_EQ(opae_glob_paths(bitstream_glob.c_str(), 16, paths, &found),
+            FPGA_OK);
+  EXPECT_EQ(found, 2);
+  // opae_glob_paths allocates memory for each path found
+  // let's free it here since we don't need it any longer
+  for (int i = 0; i < found; ++i) {
+    free(paths[i]);
+  }
+}
+
 /**
 * @test    cat_sysfs_path_errors
 * @details
@@ -683,6 +699,28 @@ TEST_P(sysfs_c_mock_p, make_object_glob) {
                               FPGA_OBJECT_GLOB, 0),
             FPGA_OK);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
+}
+
+TEST_P(sysfs_c_mock_p, glob_bitstream_objs) {
+  fpga_object container, bitstream1, bitstream2;
+  ASSERT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], "bitstream*", &container,
+                                     FPGA_OBJECT_GLOB),
+            FPGA_OK);
+  enum fpga_sysobject_type type;
+  EXPECT_EQ(xfpga_fpgaObjectGetType(container, &type), FPGA_OK);
+  EXPECT_EQ(type, FPGA_OBJECT_CONTAINER);
+  uint32_t sz = 0;
+  EXPECT_EQ(xfpga_fpgaObjectGetSize(container, &sz, 0), FPGA_OK);
+  EXPECT_EQ(sz, 2);
+  EXPECT_EQ(xfpga_fpgaObjectGetObjectAt(container, 0, &bitstream1), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaObjectGetObjectAt(container, 1, &bitstream2), FPGA_OK);
+  char name1[64] = {'\0'};
+  char name2[64] = {'\0'};
+  EXPECT_EQ(xfpga_fpgaObjectGetName(bitstream1, name1, sizeof(name1)), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaObjectGetName(bitstream2, name2, sizeof(name2)), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&bitstream1), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&bitstream2), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&container), FPGA_OK);
 }
 
 /**

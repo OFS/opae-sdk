@@ -35,6 +35,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <limits.h>
 #include <pthread.h>
 #include <opae/types.h>
 #include <opae/sysobject.h>
@@ -220,7 +221,11 @@ struct token_map {
 	struct token_map *next;
 };
 
-typedef enum { FPGA_SYSFS_DIR = 0, FPGA_SYSFS_FILE } fpga_sysfs_type;
+typedef enum {
+	FPGA_SYSFS_DIR = 0,
+	FPGA_SYSFS_LIST,
+	FPGA_SYSFS_FILE
+} fpga_sysfs_type;
 
 struct _fpga_object {
 	pthread_mutex_t lock;
@@ -235,6 +240,7 @@ struct _fpga_object {
 	fpga_object *objects;
 };
 
+typedef char max_path_t[PATH_MAX];
 
 #ifdef __cplusplus
 }
