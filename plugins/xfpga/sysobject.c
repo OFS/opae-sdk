@@ -39,13 +39,6 @@
 #include <opae/sysobject.h>
 #include <opae/log.h>
 
-#define FREE_IF(var)                                                           \
-	do {                                                                   \
-		if (var) {                                                     \
-			free(var);                                             \
-			var = NULL;                                            \
-		}                                                              \
-	} while (false);
 
 #define VALIDATE_NAME(_N)                                                      \
 	do {                                                                   \
@@ -96,6 +89,7 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectGetObject(fpga_object parent, const cha
 	fpga_result res = FPGA_EXCEPTION;
 	ASSERT_NOT_NULL(parent);
 	ASSERT_NOT_NULL(name);
+	ASSERT_NOT_NULL(object);
 	VALIDATE_NAME(name);
 	struct _fpga_object *_obj = (struct _fpga_object *)parent;
 	if (_obj->type == FPGA_SYSFS_FILE) {
@@ -119,26 +113,89 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectGetObject(fpga_object parent, const cha
 	return make_sysfs_object(objpath, name, object, flags, _obj->handle);
 }
 
+fpga_result __FPGA_API__ xfpga_fpgaCloneObject(fpga_object src, fpga_object *dst)
+{
+	size_t i = 0;
+	fpga_result res = FPGA_OK;
+	ASSERT_NOT_NULL(src);
+	ASSERT_NOT_NULL(dst);
+	struct _fpga_object *_src = (struct _fpga_object *)src;
+	struct _fpga_object *_dst = alloc_fpga_object(_src->path, _src->name);
+	if (!_dst) {
+		return FPGA_NO_MEMORY;
+	}
+	_dst->handle = _src->handle;
+	_dst->perm = _src->perm;
+	_dst->size = _src->size;
+	_dst->max_size = _src->max_size;
+	if (_src->type == FPGA_SYSFS_FILE) {
+		memcpy_s(_dst->buffer, _dst->max_size, _src->buffer,
+			 _src->max_size);
+	} else {
+		_dst->buffer = NULL;
+		_dst->objects = calloc(_src->size, sizeof(fpga_object));
+		if (!_dst->objects) {
+			res = FPGA_NO_MEMORY;
+			goto out_err;
+		}
+		for (i = 0; i < _src->size; ++i) {
+			res = xfpga_fpgaCloneObject(_src->objects[i],
+						    &_dst->objects[i]);
+			if (res) {
+				_dst->size = i;
+				goto out_err;
+			}
+		}
+	}
+	*dst = _dst;
+	return res;
+out_err:
+	destroy_fpga_object(_dst);
+	*dst = NULL;
+	return res;
+}
+
+fpga_result __FPGA_API__ xfpga_fpgaObjectGetObjectAt(fpga_object parent,
+						     size_t idx,
+						     fpga_object *object)
+{
+	fpga_result res = FPGA_OK;
+	ASSERT_NOT_NULL(parent);
+	ASSERT_NOT_NULL(object);
+	struct _fpga_object *_obj = (struct _fpga_object *)parent;
+	if (pthread_mutex_lock(&_obj->lock)) {
+		FPGA_ERR("pthread_mutex_lock() failed");
+		return FPGA_EXCEPTION;
+	}
+
+	if (_obj->type == FPGA_SYSFS_FILE) {
+		return FPGA_INVALID_PARAM;
+	}
+	if (idx >= _obj->size) {
+		return FPGA_INVALID_PARAM;
+	}
+	res = xfpga_fpgaCloneObject(_obj->objects[idx], object);
+	if (pthread_mutex_unlock(&_obj->lock)) {
+		FPGA_ERR("pthread_mutex_unlock() failed");
+	}
+	return res;
+}
+
 fpga_result __FPGA_API__ xfpga_fpgaDestroyObject(fpga_object *obj)
 {
+	fpga_result res = FPGA_OK;
 	if (NULL == obj || NULL == *obj) {
 		FPGA_MSG("Invalid object pointer");
 		return FPGA_INVALID_PARAM;
 	}
 	struct _fpga_object *_obj = (struct _fpga_object *)*obj;
-
-	FREE_IF(_obj->path);
-	FREE_IF(_obj->name);
-	FREE_IF(_obj->buffer);
-	while (_obj->size && _obj->objects) {
-		if (xfpga_fpgaDestroyObject(&_obj->objects[--_obj->size])) {
-			FPGA_ERR("Error freeing subobject");
-		}
+	if (pthread_mutex_lock(&_obj->lock)) {
+		FPGA_ERR("pthread_mutex_lock() failed");
 	}
-	FREE_IF(_obj->objects);
-	free(_obj);
+
+	res = destroy_fpga_object(_obj);
 	*obj = NULL;
-	return FPGA_OK;
+	return res;
 }
 
 fpga_result __FPGA_API__ xfpga_fpgaObjectGetSize(fpga_object obj,
@@ -264,5 +321,60 @@ out_unlock:
 		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(errno));
 		res = FPGA_EXCEPTION;
 	}
+	return res;
+}
+
+fpga_result __FPGA_API__ xfpga_fpgaObjectGetType(fpga_object obj,
+						 enum fpga_sysobject_type *type)
+{
+	fpga_result res = FPGA_OK;
+	struct _fpga_object *_obj = (struct _fpga_object *)obj;
+	ASSERT_NOT_NULL(obj);
+	ASSERT_NOT_NULL(type);
+	if (pthread_mutex_lock(&_obj->lock)) {
+		FPGA_ERR("pthread_mutex_lock() failed");
+		return FPGA_EXCEPTION;
+	}
+
+	switch (_obj->type) {
+	case FPGA_SYSFS_DIR:
+	case FPGA_SYSFS_LIST:
+		*type = FPGA_OBJECT_CONTAINER;
+		break;
+	case FPGA_SYSFS_FILE:
+		*type = FPGA_OBJECT_ATTRIBUTE;
+		break;
+	default:
+		res = FPGA_INVALID_PARAM;
+	}
+
+	if (pthread_mutex_unlock(&_obj->lock)) {
+		FPGA_ERR("pthread_mutex_unlock() failed");
+	}
+
+	return res;
+}
+
+fpga_result __FPGA_API__ xfpga_fpgaObjectGetName(fpga_object obj, char *name,
+						 size_t max_len)
+{
+	fpga_result res = FPGA_OK;
+	struct _fpga_object *_obj = (struct _fpga_object *)obj;
+	ASSERT_NOT_NULL(obj);
+	ASSERT_NOT_NULL(name);
+	if (pthread_mutex_lock(&_obj->lock)) {
+		FPGA_ERR("pthread_mutex_lock() failed");
+		return FPGA_EXCEPTION;
+	}
+
+	ASSERT_NOT_NULL(_obj->name);
+	if (strncpy_s(name, max_len, _obj->name, strlen(_obj->name))) {
+		res = FPGA_EXCEPTION;
+	}
+
+	if (pthread_mutex_unlock(&_obj->lock)) {
+		FPGA_ERR("pthread_mutex_unlock() failed");
+	}
+
 	return res;
 }

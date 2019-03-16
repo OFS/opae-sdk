@@ -60,6 +60,7 @@
 #define FPGA_SYSFS_PORT_LEN 4
 #define OPAE_KERNEL_DRIVERS 2
 
+
 typedef struct _sysfs_formats {
 	const char *sysfs_class_path;
 	const char *sysfs_pcidrv_fpga;
@@ -137,7 +138,15 @@ static sysfs_fpga_device _devices[SYSFS_MAX_DEVICES];
 			FPGA_MSG("error parsing int");                         \
 			goto _l;                                               \
 		}                                                              \
-	} while (0);
+	} while (0)
+
+#define FREE_IF(var)                                                           \
+	do {                                                                   \
+		if (var) {                                                     \
+			free(var);                                             \
+			var = NULL;                                            \
+		}                                                              \
+	} while (0)
 
 STATIC int parse_pcie_info(sysfs_fpga_device *device, char *buffer)
 {
@@ -1710,6 +1719,24 @@ struct _fpga_object *alloc_fpga_object(const char *sysfspath, const char *name)
 {
 	struct _fpga_object *obj = calloc(1, sizeof(struct _fpga_object));
 	if (obj) {
+		pthread_mutexattr_t mattr;
+		if (pthread_mutexattr_init(&mattr)) {
+			FPGA_ERR("pthread_mutexattr_init() failed");
+			goto out_err;
+		}
+		if (pthread_mutexattr_settype(&mattr,
+					      PTHREAD_MUTEX_RECURSIVE)) {
+			FPGA_ERR("pthread_mutexattr_settype() failed");
+			pthread_mutexattr_destroy(&mattr);
+			goto out_err;
+		}
+		if (pthread_mutex_init(&obj->lock, &mattr)) {
+			FPGA_ERR("pthread_mutex_init() failed");
+			pthread_mutexattr_destroy(&mattr);
+			goto out_err;
+		}
+
+		pthread_mutexattr_destroy(&mattr);
 		obj->handle = NULL;
 		obj->path = cstr_dup(sysfspath);
 		obj->name = cstr_dup(name);
@@ -1720,6 +1747,40 @@ struct _fpga_object *alloc_fpga_object(const char *sysfspath, const char *name)
 		obj->objects = NULL;
 	}
 	return obj;
+out_err:
+	if (obj) {
+		free(obj);
+		obj = NULL;
+	}
+	return obj;
+}
+
+fpga_result destroy_fpga_object(struct _fpga_object *obj)
+{
+	fpga_result res = FPGA_OK;
+	FREE_IF(obj->path);
+	FREE_IF(obj->name);
+	FREE_IF(obj->buffer);
+	while (obj->size && obj->objects) {
+		res = destroy_fpga_object(
+			(struct _fpga_object *)obj->objects[--obj->size]);
+		if (res) {
+			FPGA_ERR("Error freeing subobject");
+			return res;
+		}
+	}
+	FREE_IF(obj->objects);
+
+	if (pthread_mutex_unlock(&obj->lock)) {
+		FPGA_MSG("pthread_mutex_unlock() failed");
+	}
+
+	if (pthread_mutex_destroy(&obj->lock)) {
+		FPGA_ERR("Error destroying mutex");
+		res = FPGA_EXCEPTION;
+	}
+	free(obj);
+	return res;
 }
 
 fpga_result opae_glob_path(char *path)
@@ -1752,6 +1813,56 @@ fpga_result opae_glob_path(char *path)
 		if (pglob.gl_pathv) {
 			globfree(&pglob);
 		}
+	}
+	return res;
+}
+
+
+fpga_result opae_glob_paths(const char *path, size_t found_max, char *found[],
+			    size_t *num_found)
+{
+	fpga_result res = FPGA_OK;
+	glob_t pglob;
+	pglob.gl_pathc = 0;
+	pglob.gl_pathv = NULL;
+	int globres = glob(path, 0, NULL, &pglob);
+	size_t i = 0;
+	size_t to_copy = 0;
+
+	if (!globres) {
+		*num_found = pglob.gl_pathc;
+		to_copy = *num_found < found_max ? *num_found : found_max;
+		while (found && i < to_copy) {
+			found[i] = cstr_dup(pglob.gl_pathv[i]);
+			if (!found[i]) {
+				// we had an error duplicating the string
+				// undo what we've duplicated so far
+				while (i) {
+					free(found[--i]);
+					found[i] = NULL;
+				}
+				FPGA_ERR("Could not copy globbed path");
+				res = FPGA_EXCEPTION;
+				goto out_free;
+			}
+			i++;
+		}
+
+	} else {
+		switch (globres) {
+		case GLOB_NOSPACE:
+			res = FPGA_NO_MEMORY;
+			break;
+		case GLOB_NOMATCH:
+			res = FPGA_NOT_FOUND;
+			break;
+		default:
+			res = FPGA_EXCEPTION;
+		}
+	}
+out_free:
+	if (pglob.gl_pathv) {
+		globfree(&pglob);
 	}
 	return res;
 }
@@ -1860,11 +1971,9 @@ fpga_result make_sysfs_group(char *sysfspath, const char *name,
 	return FPGA_OK;
 
 out_free_group:
-	if (group->path)
-		free(group->path);
-	if (group->name)
-		free(group->name);
-	free(group);
+	if (destroy_fpga_object(group)) {
+		FPGA_ERR("Error destroying object");
+	}
 
 out_free_namelist:
 	while (n--)
@@ -1874,6 +1983,54 @@ out_free_namelist:
 	return res;
 }
 
+
+fpga_result make_sysfs_array(char *sysfspath, const char *name,
+			     fpga_object *object, int flags, fpga_handle handle,
+			     char *objects[], size_t num_objects)
+{
+	fpga_result res = FPGA_OK;
+	size_t i = 0;
+	struct _fpga_object *array = alloc_fpga_object(sysfspath, name);
+	char *oname = NULL;
+	if (!array) {
+		FPGA_ERR(
+			"Error allocating memory for container of fpga_objects");
+		return FPGA_NO_MEMORY;
+	}
+	array->objects = calloc(num_objects, sizeof(fpga_object));
+	if (!array->objects) {
+		FPGA_ERR("Error allocating memory for array of fpga_objects");
+		destroy_fpga_object(array);
+		return FPGA_NO_MEMORY;
+	}
+
+	array->handle = handle;
+	array->type = FPGA_SYSFS_LIST;
+	array->size = num_objects;
+	for (i = 0; i < num_objects; ++i) {
+		oname = strrchr(objects[i], '/');
+		if (!oname) {
+			FPGA_ERR("Error with sysfs path: %s", objects[i]);
+			res = FPGA_EXCEPTION;
+			goto out_err;
+		}
+		res = make_sysfs_object(objects[i], oname+1, &array->objects[i],
+					flags & ~FPGA_OBJECT_GLOB, handle);
+		if (res) {
+			goto out_err;
+		}
+	}
+	*object = (fpga_object)array;
+	return res;
+out_err:
+	if (destroy_fpga_object(array)) {
+		FPGA_ERR("Error destroying object");
+	}
+	return res;
+}
+
+
+#define MAX_SYSOBJECT_GLOB 128
 fpga_result make_sysfs_object(char *sysfspath, const char *name,
 			      fpga_object *object, int flags,
 			      fpga_handle handle)
@@ -1883,8 +2040,34 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	struct stat objstat;
 	int statres;
 	fpga_result res = FPGA_OK;
+	char *object_paths[MAX_SYSOBJECT_GLOB] = { '\0' };
+	size_t found = 0;
 	if (flags & FPGA_OBJECT_GLOB) {
-		res = opae_glob_path(sysfspath);
+		res = opae_glob_paths(sysfspath, MAX_SYSOBJECT_GLOB,
+				      object_paths, &found);
+		if (res) {
+			return res;
+		}
+		if (found == 1) {
+			if (strncpy_s(sysfspath, SYSFS_PATH_MAX,
+				      object_paths[0], PATH_MAX)) {
+				FPGA_ERR("error copying glob result");
+				res = FPGA_EXCEPTION;
+				goto out_free;
+			}
+			res = make_sysfs_object(sysfspath, name, object,
+						flags & ~FPGA_OBJECT_GLOB,
+						handle);
+		} else {
+			res = make_sysfs_array(sysfspath, name, object, flags,
+					       handle, object_paths, found);
+		}
+		// opae_glob_paths allocates memory for each path found
+		// let's free it here since we don't need it any longer
+		while (found) {
+			free(object_paths[--found]);
+		}
+		return res;
 	}
 	statres = stat(sysfspath, &objstat);
 	if (statres < 0) {
@@ -1930,8 +2113,9 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	}
 
 	return FPGA_OK;
-
 out_free:
+
+
 	free(obj);
 	return res;
 }
