@@ -61,14 +61,11 @@ class MacromCompare(COMMON):
         self.get_netif_number()
         pci_root = self.get_pci_common_root_path(self.args.fpga_root)
         ifs = os.listdir(sys_if)
-        # a group has 4 interfaces
         for i in ifs:
-            t = [j for j in ifs if j[:-1] == i[:-1]]
-            if len(t) == self.number / 2:
-                root = self.get_pci_common_root_path(os.path.join(sys_if, i))
-                if pci_root == root:
-                    with open(os.path.join(sys_if, i, 'address')) as f:
-                        self.ethif[i] = f.read().strip()
+            root = self.get_pci_common_root_path(os.path.join(sys_if, i))
+            if pci_root == root:
+                with open(os.path.join(sys_if, i, 'address')) as f:
+                    self.ethif[i] = f.read().strip()
 
         if self.ethif:
             print('Found {} ethernet interfaces:'.format(len(self.ethif)))
