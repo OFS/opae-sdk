@@ -140,6 +140,7 @@ class fpgainfo_c_p : public ::testing::TestWithParam<std::string> {
         }
 
         virtual void TearDown() override {
+            fpgaFinalize();
             system_->finalize();
         }
 
@@ -1170,7 +1171,7 @@ TEST(fpgainfo_c, upcase_first1) {
  * @brief      Test: upcase_first
  */
 TEST(fpgainfo_c, upcase_first2) {
-    char input[256];
+    char input[256] = { 0 };
     strcpy(input, "");
     upcase_first(input);
     EXPECT_STREQ(input, "");
@@ -1200,4 +1201,4 @@ TEST(fpgainfo_c, str_in_list0) {
 
 
 INSTANTIATE_TEST_CASE_P(fpgainfo_c, fpgainfo_c_p,
-        ::testing::ValuesIn(test_platform::keys(true)));
+        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));

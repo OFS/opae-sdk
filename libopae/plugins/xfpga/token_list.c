@@ -33,6 +33,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <dirent.h>
+#include <sys/stat.h>
 
 #include "safe_string/safe_string.h"
 #include "error_int.h"
@@ -178,67 +179,20 @@ struct _fpga_token *token_get_parent(struct _fpga_token *_t)
 {
 	char *p;
 	char spath[SYSFS_PATH_MAX];
+	char rpath[PATH_MAX];
 	struct token_map *itr;
 	int err = 0;
-	errno_t e;
-	DIR *dir;
-	struct dirent *dirent;
-	int i;
-	int found;
+	char *rptr = NULL;
+	fpga_result res = FPGA_OK;
 
 	p = strstr(_t->sysfspath, FPGA_SYSFS_AFU);
 	if (!p) // FME objects have no parent.
 		return NULL;
 
-	// Find the parent FME device of the specified Port device.
-	e = strncpy_s(spath, sizeof(spath),
-			_t->sysfspath, sizeof(_t->sysfspath));
-	if (EOK != e) {
-		FPGA_ERR("strncpy_s failed");
-		return NULL;
-	}
-
-	p = strrchr(spath, '/');
-	if (!p) {
-		FPGA_ERR("Invalid token sysfs path %s", spath);
-		return NULL;
-	}
-	*(p+1) = 0;
-
-	dir = opendir(spath);
-	if (!dir) {
-		FPGA_ERR("can't open directory: %s", spath);
-		return NULL;
-	}
-
-	found = 0;
-	while ((dirent = readdir(dir)) != NULL) {
-		e = strcmp_s(dirent->d_name, sizeof(dirent->d_name),
-				".", &i);
-		if (e != EOK || i == 0)
-			continue;
-		e = strcmp_s(dirent->d_name, sizeof(dirent->d_name),
-				"..", &i);
-		if (e != EOK || i == 0)
-			continue;
-
-		if (strstr(dirent->d_name, FPGA_SYSFS_FME)) {
-			e = strcat_s(spath, sizeof(spath),
-					dirent->d_name);
-			if (e != EOK) {
-				FPGA_ERR("strcat_s failed");
-				closedir(dir);
-				return NULL;
-			}
-			found = 1;
-			break;
-		}
-	}
-
-	closedir(dir);
-
-	if (!found) {
-		FPGA_ERR("can't find parent in: %s", spath);
+	res = sysfs_get_fme_path(_t->sysfspath, spath);
+	if (res) {
+		FPGA_ERR("Could not find fme path for token: %s",
+			 _t->sysfspath);
 		return NULL;
 	}
 
@@ -248,8 +202,8 @@ struct _fpga_token *token_get_parent(struct _fpga_token *_t)
 	}
 
 	for (itr = token_root ; NULL != itr ; itr = itr->next) {
-		if (0 == strncmp(spath, itr->_token.sysfspath,
-					SYSFS_PATH_MAX)) {
+		rptr = realpath(itr->_token.sysfspath, rpath);
+		if (rptr && !strncmp(spath, rptr, SYSFS_PATH_MAX)) {
 			err = pthread_mutex_unlock(&global_lock);
 			if (err) {
 				FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));

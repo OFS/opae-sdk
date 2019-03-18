@@ -1574,6 +1574,23 @@ fpga_result fpgaGetMetricsByName(fpga_handle handle,
 		wrapped_handle->opae_handle, metrics_names, num_metric_names, metrics);
 }
 
+fpga_result fpgaGetMetricsThresholdInfo(fpga_handle handle,
+	metric_threshold *metric_thresholds,
+	uint32_t *num_thresholds)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL(num_thresholds);
+
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaGetMetricsThresholdInfo,
+		FPGA_NOT_SUPPORTED);
+
+	return wrapped_handle->adapter_table->fpgaGetMetricsThresholdInfo(
+		wrapped_handle->opae_handle, metric_thresholds, num_thresholds);
+}
+
 fpga_result fpgaFeatureEnumerate(fpga_handle handle, fpga_feature_properties *prop,
 						fpga_feature_token *tokens, uint32_t max_tokens,
 						uint32_t *num_matches)

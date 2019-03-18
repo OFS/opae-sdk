@@ -53,6 +53,7 @@ set(SRC
   event.c
   properties.c
   init.c
+  opae_drv.c
   sysfs.c
   wsid_list.c
   token_list.c
@@ -67,13 +68,15 @@ set(SRC
   metrics/metrics_utils.c
   metrics/afu_metrics.c
   metrics/vector.c
+  metrics/metrics_max10.c
+  metrics/threshold.c
   feature_plugins/feature_pluginmgr.c
   feature_plugins/feature_token_list.c
   feature_plugins/feature_api.c)
 
 # Define target
 add_library(xfpga MODULE ${SRC})
-#add_dependencies(xfpga copy-common-opae-header-files)
+
 target_link_libraries(xfpga
   m
   safestr
@@ -103,9 +106,6 @@ endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
 # Target properties
 set_property(TARGET xfpga PROPERTY C_STANDARD 99)
-set_target_properties(xfpga PROPERTIES
-  VERSION ${INTEL_FPGA_API_VERSION}
-  SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
 
 # Add coverage flags
 if(CMAKE_BUILD_TYPE STREQUAL "Coverage")

@@ -35,26 +35,7 @@
 `ifndef __DEVICE_IF_VH__
 `define __DEVICE_IF_VH__
 
-import ccip_if_pkg::*;
+`include "ccip_if.vh"
 `include "avalon_mem_if.vh"
-
-//
-// Because CCI-P's clocks are passed as separate wires to ccip_std_afu
-// we can't simply change the primary clock for CCI-P traffic.  Here
-// we guarantee that the macro `PLATFORM_PARAM_CCI_P_CLOCK matches the
-// CCI-P clock coming out of the Platform Interface Manager.  By
-// default it is pClk.  It will only change when an AFU's JSON database
-// requests CCI-P on a different clock.
-//
-`ifndef PLATFORM_PARAM_CCI_P_CLOCK
-    `define PLATFORM_PARAM_CCI_P_CLOCK pClk
-`elsif PLATFORM_PARAM_CCI_P_CLOCK_IS_DEFAULT
-    `undef PLATFORM_PARAM_CCI_P_CLOCK
-    `define PLATFORM_PARAM_CCI_P_CLOCK pClk
-`endif
-
-// The standard reset signal is moved to the `PLATFORM_PARAM_CCI_P_CLOCK
-// domain.  Provide a macro for reset for symmetry.
-`define PLATFORM_PARAM_CCI_P_RESET pck_cp2af_softReset
 
 `endif // __DEVICE_IF_VH__

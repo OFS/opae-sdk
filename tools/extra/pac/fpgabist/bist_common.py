@@ -35,6 +35,7 @@ BIST_MODES = ['bist_afu', 'dma_afu', 'nlb_mode_3']
 REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf', 'fpgadiag', 'fpga_dma_test',
             'bist_app']
 
+
 def find_exec(cmd, paths):
     for p in paths:
         f = os.path.join(p, cmd)
@@ -60,7 +61,7 @@ def get_all_fpga_bdfs():
         m = bdf_pattern.match(symlink)
         data = m.groupdict() if m else {}
         if data:
-            bdf_list.append(dict([(k, hex(int(v,16)).lstrip("0x"))
+            bdf_list.append(dict([(k, hex(int(v, 16)).lstrip("0x"))
                             for (k, v) in data.iteritems()]))
     return bdf_list
 
@@ -94,9 +95,9 @@ def get_mode_from_path(gbs_path):
 
 def load_gbs(gbs_file, bus_num):
     print "Attempting Partial Reconfiguration:"
-    cmd = "{} -B 0x{} -v {}".format('fpgaconf', bus_num, gbs_file)
+    cmd = ['fpgaconf', '-B', '0x{}'.format(bus_num), '-v', gbs_file]
     try:
-        subprocess.check_call(cmd, shell=True)
+        subprocess.check_call(cmd)
     except subprocess.CalledProcessError as e:
         print "Failed to load gbs file: {}".format(gbs_file)
         print "Please try a different gbs"

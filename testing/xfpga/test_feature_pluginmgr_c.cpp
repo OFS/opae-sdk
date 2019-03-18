@@ -37,6 +37,9 @@ extern "C" {
 #include "feature_int.h"
 #include "feature_pluginmgr.h"
 
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+
 int feature_plugin_mgr_initialize_all(void);
 feature_adapter_table *feature_plugin_mgr_alloc_adapter(const char *lib_path, fpga_guid guid);
 int feature_plugin_mgr_free_adapter(feature_adapter_table *adapter);
@@ -203,6 +206,7 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
 		system_->prepare_syfs(platform_);
 		invalid_device_ = test_device::unknown();
 
+		ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
 		ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
 		ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
 		num_matches_ = 0;
@@ -242,7 +246,6 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
 	} 
 
 	virtual void TearDown() override {
-
 		if (filter_ != nullptr) {
 			EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
 		}
@@ -262,6 +265,7 @@ class feature_pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
 				t = nullptr;
 			}
 		}
+		xfpga_plugin_finalize();
 		system_->finalize();
 	}
 
@@ -380,4 +384,5 @@ TEST_P(feature_pluginmgr_c_p, bad_init_all) {
 	EXPECT_EQ(2, test_feature_plugin_finalize_called);
  }
 
-INSTANTIATE_TEST_CASE_P(feature_pluginmgr_c, feature_pluginmgr_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(feature_pluginmgr_c, feature_pluginmgr_c_p, 
+                ::testing::ValuesIn(test_platform::platforms({ "skx-p", "dcp-rc" })));

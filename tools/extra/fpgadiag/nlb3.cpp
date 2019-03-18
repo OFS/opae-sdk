@@ -32,6 +32,7 @@
 #include <chrono>
 #include <thread>
 #include "diag_utils.h"
+#include <unistd.h>
 
 using namespace opae::fpga::types;
 using namespace intel::fpga::nlb;
@@ -115,6 +116,8 @@ bool nlb3::setup()
     else if (target_ == "ase")
     {
         dsm_timeout_ = ASE_DSM_TIMEOUT;
+        // Statistics aren't available in ASE (no driver)
+        suppress_stats_ = true;
     }
     else
     {
@@ -612,6 +615,23 @@ bool nlb3::run()
         {
             // if we suppress stats, add the current dsm stats to the rolling tuple
             dsm_tpl += dsm_tuple(dsm_);
+        }
+
+        // Wait for the AFU's read/write traffic to complete. Give up after 100
+        // tries.
+        uint32_t afu_traffic_trips = 0;
+        while (afu_traffic_trips < 100)
+        {
+            // CSR_STATUS1 holds two 32 bit values: num pending reads and writes.
+            // Wait for it to be 0.
+            uint64_t s1 = accelerator_->read_csr64(static_cast<uint32_t>(nlb3_csr::status1));
+            if (s1 == 0)
+            {
+                break;
+            }
+
+            afu_traffic_trips += 1;
+            usleep(1000);
         }
     }
     dsm_tpl.put(dsm_);

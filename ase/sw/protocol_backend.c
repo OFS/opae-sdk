@@ -705,7 +705,7 @@ static void *start_socket_srv(void *args)
 
 	do {
 		FD_SET(sock_fd, &readfds);
-		res = select(sock_fd+1, &readfds, NULL, NULL, &tv);
+		res = TEMP_FAILURE_RETRY(select(sock_fd+1, &readfds, NULL, NULL, &tv));
 		if (res < 0) {
 			ASE_ERR("SIM-C : select error=%s\n", strerror(errno));
 			err_cnt++;
