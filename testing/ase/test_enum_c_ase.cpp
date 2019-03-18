@@ -30,7 +30,10 @@ extern "C" {
 #include <opae/types.h>
 #include "types_int.h"
 #include "properties_int.h"
-#include "common_int.h"
+
+void api_guid_to_fpga(uint64_t guidh, uint64_t guidl, uint8_t *guid);
+bool matches_filters(const fpga_properties *filter, uint32_t num_filter,
+		fpga_token *token, uint64_t *j);
 }
 
 #include <opae/fpga.h>
@@ -45,6 +48,11 @@ extern "C" {
 static const fpga_guid ASE_GUID = {
     0xd8, 0x42, 0x4d, 0xc4, 0xa4,  0xa3, 0xc4, 0x13, 0xf8,0x9e,
     0x43, 0x36, 0x83, 0xf9, 0x04, 0x0b
+};
+
+static const fpga_guid FPGA_FME_GUID = {
+	0xbf, 0xaf, 0x2a, 0xe9, 0x4a, 0x52, 0x46, 0xe3, 0x82, 0xfe,
+	0x38, 0xf0, 0xf9, 0xe1, 0x77, 0x64
 };
 
 inline void token_for_fme(struct _fpga_token* tok_)
