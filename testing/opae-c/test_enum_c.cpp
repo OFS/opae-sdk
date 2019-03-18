@@ -46,22 +46,15 @@ extern "C" {
 #include <memory>
 #include <string>
 #include <vector>
-#include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock_opae.h"
 
 using namespace opae::testing;
 
-class enum_c_p : public ::testing::TestWithParam<std::string> {
+class enum_c_p : public mock_opae_p<2, none_> {
  protected:
-  enum_c_p() : filter_(nullptr), tokens_{{nullptr, nullptr}} {}
+  enum_c_p() {}
 
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-    invalid_device_ = test_device::unknown();
+  virtual void test_setup() override {
 
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     filter_ = nullptr;
@@ -69,29 +62,19 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     num_matches_ = 0;
   }
 
-  void DestroyTokens() {
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    num_matches_ = 0;
-  }
 
-  virtual void TearDown() override {
-    DestroyTokens();
+  virtual void test_teardown() override {
+    num_matches_ = 0;
     if (filter_ != nullptr) {
       EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     }
     fpgaFinalize();
-    system_->finalize();
   }
 
   // Need a concrete way to determine the number of fpgas on the system
   // without relying on fpgaEnumerate() since that is the function that
   // is under test.
-  int GetNumFpgas() {
+  virtual int GetNumFpgas() {
     if (platform_.mock_sysfs != nullptr) {
       return platform_.devices.size();
     }
@@ -105,11 +88,11 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     return value;
   }
 
-  int GetNumMatchedFpga () {
+  virtual int GetNumMatchedFpga () {
     if (platform_.mock_sysfs != nullptr) {
       return 1;
     }
-    
+
     int matches = 0;
     int socket_id;
     int i;
@@ -126,7 +109,7 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     return matches;
   }
 
-  int GetNumDeviceID() {
+  virtual int GetNumDeviceID() {
     if (platform_.mock_sysfs != nullptr) {
       return 1;
     }
@@ -147,7 +130,7 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
     return value;
   }
 
-  void ExecuteCmd(std::string cmd, int &value) {
+  virtual void ExecuteCmd(std::string cmd, int &value) {
     std::string line;
     std::string command = cmd + " > output.txt";
 
@@ -165,11 +148,7 @@ class enum_c_p : public ::testing::TestWithParam<std::string> {
   }
 
   fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_;
   uint32_t num_matches_;
-  test_platform platform_;
-  test_device invalid_device_;
-  test_system *system_;
 };
 
 TEST_P(enum_c_p, nullfilter) {
@@ -298,9 +277,21 @@ TEST_P(enum_c_p, function) {
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgas() * 2);
-
+  EXPECT_EQ(num_matches_, GetNumFpgas() * (device.num_vfs == 0 ? 2 : 1));
+  num_matches_ = 0;
   DestroyTokens();
+  for (int i = 1; i < device.num_vfs+1; ++i) {
+    ASSERT_EQ(fpgaPropertiesSetFunction(filter_, i), FPGA_OK);
+    EXPECT_EQ(
+        fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+        FPGA_OK);
+    EXPECT_EQ(num_matches_, 1);
+    DestroyTokens();
+  }
+}
+
+
+TEST_P(enum_c_p, invalid_function) {
 
   ASSERT_EQ(fpgaPropertiesSetFunction(filter_, invalid_device_.function),
             FPGA_OK);
@@ -319,8 +310,11 @@ TEST_P(enum_c_p, vendor_id) {
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
   EXPECT_EQ(num_matches_, GetNumFpgas() * 2);
+}
 
-  DestroyTokens();
+
+TEST_P(enum_c_p, invalid_vendor_id) {
+
 
   ASSERT_EQ(fpgaPropertiesSetVendorID(filter_, invalid_device_.vendor_id),
             FPGA_OK);
@@ -337,9 +331,20 @@ TEST_P(enum_c_p, device_id) {
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumDeviceID() * 2);
-
+  EXPECT_EQ(num_matches_, GetNumDeviceID() * (device.num_vfs == 0 ? 2 : 1));
   DestroyTokens();
+  num_matches_ = 0;
+  for (int i = 1; i < device.num_vfs+1; ++i) {
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, device.device_id+i), FPGA_OK);
+    EXPECT_EQ(
+        fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+        FPGA_OK);
+    EXPECT_EQ(num_matches_, 1);
+    DestroyTokens();
+  }
+}
+
+TEST_P(enum_c_p, invalid_device_id) {
 
   ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, invalid_device_.device_id),
             FPGA_OK);

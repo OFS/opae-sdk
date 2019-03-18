@@ -77,6 +77,7 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 	struct _fpga_properties *_filter = (struct _fpga_properties *)filter;
 	bool res = true;
 	int err = 0;
+	char buffer[PATH_MAX] = {0};
 
 	if (pthread_mutex_lock(&_filter->lock)) {
 		FPGA_MSG("Failed to lock filter mutex");
@@ -86,10 +87,7 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_PARENT)) {
 		struct _fpga_token *_parent_tok =
 			(struct _fpga_token *)_filter->parent;
-		char spath[SYSFS_PATH_MAX];
-		char *p;
-		int subdev_instance;
-		int device_instance;
+		char spath[PATH_MAX] = {0};
 
 		if (FPGA_ACCELERATOR != attr->objtype) {
 			res = false; // Only accelerator can have a parent
@@ -101,33 +99,17 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 			goto out_unlock;
 		}
 
-		// Find the FME/Port sub-device instance.
-		p = strrchr(attr->sysfspath, '.');
-
-		if (NULL == p) {
+		if (sysfs_get_fme_path(attr->sysfspath, spath) != FPGA_OK) {
 			res = false;
 			goto out_unlock;
 		}
-
-		subdev_instance = (int)strtoul(p + 1, NULL, 10);
-
-		// Find the device instance.
-		p = strchr(attr->sysfspath, '.');
-
-		if (NULL == p) {
+		// sysfs_get_fme_path returns the real path
+		// compare that agains the realpath of the parent_tok
+		if (!realpath(_parent_tok->sysfspath, buffer)) {
 			res = false;
 			goto out_unlock;
 		}
-
-		device_instance = (int)strtoul(p + 1, NULL, 10);
-
-		if (sysfs_get_fme_path(device_instance, subdev_instance, spath)
-			!= FPGA_OK) {
-			res = false;
-			goto out_unlock;
-		}
-
-		if (strcmp(spath, _parent_tok->sysfspath)) {
+		if (strcmp(spath, buffer)) {
 			res = false;
 			goto out_unlock;
 		}
@@ -309,7 +291,7 @@ STATIC bool matches_filters(const struct dev_list *attr, const fpga_properties *
 }
 
 STATIC struct dev_list *add_dev(const char *sysfspath, const char *devpath,
-			 struct dev_list *parent)
+				struct dev_list *parent)
 {
 	struct dev_list *pdev;
 	errno_t e;
@@ -341,7 +323,7 @@ out_free:
 }
 
 STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
-		     struct dev_list *parent)
+			    struct dev_list *parent)
 {
 	fpga_result result;
 	struct stat stats;
@@ -430,17 +412,18 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 }
 
 STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
-		     struct dev_list *parent)
+			    struct dev_list *parent)
 {
 	fpga_result result;
+	int resval = 0;
 	struct stat stats;
 	struct dev_list *pdev;
-	char spath[SYSFS_PATH_MAX];
+	char spath[PATH_MAX];
 	char dpath[DEV_PATH_MAX];
-
+	uint64_t value = 0;
 	// Make sure it's a directory.
 	if (stat(sysfspath, &stats) != 0) {
-		FPGA_MSG("stat failed: %s", strerror(errno));
+		FPGA_ERR("stat failed: %s", strerror(errno));
 		return FPGA_NOT_FOUND;
 	}
 
@@ -452,7 +435,7 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 
 	pdev = add_dev(sysfspath, dpath, parent);
 	if (!pdev) {
-		FPGA_MSG("Failed to allocate device");
+		FPGA_ERR("Failed to allocate device");
 		return FPGA_NO_MEMORY;
 	}
 
@@ -464,6 +447,18 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	pdev->function = parent->function;
 	pdev->vendor_id = parent->vendor_id;
 	pdev->device_id = parent->device_id;
+	pdev->socket_id = parent->socket_id = 0;
+	// get the socket id from the fme
+	result = sysfs_get_fme_path(sysfspath, spath);
+	if (FPGA_OK != result)
+		return result;
+
+	resval = sysfs_parse_attribute64(spath, FPGA_SYSFS_SOCKET_ID, &value);
+	if (resval) {
+		FPGA_MSG("error reading socket_id");
+	} else {
+		pdev->socket_id = parent->socket_id = value;
+	}
 
 	res = open(pdev->devpath, O_RDWR);
 	if (-1 == res) {
@@ -492,69 +487,57 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	return FPGA_OK;
 }
 
+typedef struct _enum_region_ctx{
+	struct dev_list *list;
+	bool include_port;
+} enum_region_ctx;
+
+STATIC fpga_result enum_regions(const sysfs_fpga_device *device, void *context)
+{
+	enum_region_ctx *ctx = (enum_region_ctx *)context;
+	fpga_result result = FPGA_OK;
+	struct dev_list *pdev = add_dev(device->sysfs_path, "", ctx->list);
+	if (!pdev) {
+		FPGA_MSG("Failed to allocate device");
+		return FPGA_NO_MEMORY;
+	}
+	// Assign bus, function, device
+	// segment,device_id ,vendor_id
+	pdev->function = device->function;
+	pdev->segment = device->segment;
+	pdev->bus = device->bus;
+	pdev->device = device->device;
+	pdev->device_id = device->device_id;
+	pdev->vendor_id = device->vendor_id;
+
+	// Enum fme
+	if (device->fme) {
+		result = enum_fme(device->fme->sysfs_path,
+				  device->fme->sysfs_name, pdev);
+		if (result != FPGA_OK) {
+			FPGA_ERR("Failed to enum FME");
+			return result;
+		}
+	}
+
+	// Enum port
+	if (device->port && ctx->include_port) {
+		result = enum_afu(device->port->sysfs_path,
+				  device->port->sysfs_name, pdev);
+		if (result != FPGA_OK) {
+			FPGA_ERR("Failed to enum PORT");
+			return result;
+		}
+	}
+	return FPGA_OK;
+}
 
 STATIC fpga_result enum_fpga_region_resources(struct dev_list *list,
 				bool include_port)
 {
-	fpga_result result                 = FPGA_NOT_FOUND;
-	struct dev_list *pdev              = NULL;
-	int i                              = 0;
-	int device_count                   = 0 ;
-	const sysfs_fpga_device *device    = NULL;
+	enum_region_ctx ctx = {.list = list, .include_port = include_port};
 
-	device_count = sysfs_device_count();
-
-	if (device_count <= 0) {
-		FPGA_MSG("Not found fpga region's");
-		return FPGA_NO_DRIVER;
-	}
-
-	for (i = 0; i < device_count; i++) {
-
-		device  = sysfs_get_device(i);
-
-		if (!device) {
-			FPGA_MSG("failed to enum region");
-			return FPGA_NO_DRIVER;
-		}
-
-		pdev = add_dev(device->sysfs_path, "", list);
-		if (!pdev) {
-			FPGA_MSG("Failed to allocate device");
-			return FPGA_NO_MEMORY;
-		}
-		// Assign bus, function, device
-		// segment,device_id ,vendor_id
-		pdev->function       = device->function;
-		pdev->segment        = device->segment;
-		pdev->bus            = device->bus;
-		pdev->device         = device->device;
-		pdev->device_id      = device->device_id;
-		pdev->vendor_id      = device->vendor_id;
-
-		// Enum fme
-		if (device->fme) {
-			result = enum_fme(device->fme->sysfs_path,
-							device->fme->sysfs_name, pdev);
-			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to enum FME");
-				break;
-			}
-		}
-
-		// Enum port
-		if (device->port && include_port) {
-			result = enum_afu(device->port->sysfs_path,
-				device->port->sysfs_name, pdev);
-			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to enum PORT");
-				break;
-			}
-		}
-
-	} // end of device loop
-
-	return result;
+	return sysfs_foreach_device(enum_regions, &ctx);
 }
 
 

@@ -22,33 +22,42 @@
 // INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
-// POSSIBILITY OF SUCH DAMAG
+// POSSIBILITY OF SUCH DAMAGE.
+/*
+ * @file fmeinfo.h
+ *
+ * @brief
+ */
+#ifndef FPGA_THRESHOLD_H
+#define FPGA_THRESHOLD_H
 
-/**
-* \file metrics_metadata.h
-* \brief fpga metrics metadata
-*/
+#include <opae/fpga.h>
+#include "bmc/bmc_types.h"
 
-#ifndef __FPGA_METRICS_METADATA_H__
-#define __FPGA_METRICS_METADATA_H__
 
-#include <stdio.h>
-#include <string.h>
-#include "opae/fpga.h"
+#define  UPPER_NR_THRESHOLD                     "Upper Non-Recoverable Threshold"
+#define  UPPER_C_THRESHOLD                      "Upper Critical Threshold"
+#define  UPPER_NC_THRESHOLD                     "Upper Non-Critical Threshold"
 
-typedef struct fpga_metric_metadata {
+#define  LOWER_NR_THRESHOLD                     "Lower Non-Recoverable Threshold"
+#define  LOWER_C_THRESHOLD                      "Lower Critical Threshold"
+#define  LOWER_NC_THRESHOLD                     "Lower Non-Critical Threshold"
 
-	char group_name[FPGA_METRIC_STR_SIZE];
-	char metric_name[FPGA_METRIC_STR_SIZE];
-	char qualifier_name[FPGA_METRIC_STR_SIZE];
+#define  HYSTERESIS                             "Hysteresis"
 
-	enum fpga_metric_datatype data_type;
-	enum fpga_metric_type metric_type;
-	char metric_units[FPGA_METRIC_STR_SIZE];
-	uint64_t mmio_offset;
+#define  SYSFS_HIGH_FATAL                       "high_fatal"
+#define  SYSFS_HIGH_WARN                        "high_warn"
+#define  SYSFS_HYSTERESIS                       "hysteresis"
+#define  SYSFS_LOW_FATAL                        "low_fatal"
+#define  SYSFS_LOW_WARN                         "low_warn"
 
-	uint32_t range_start;
-	uint32_t range_end;
 
-} fpga_metric_metadata;
-#endif //__FPGA_METRICS_METADATA_H__
+fpga_result get_bmc_threshold_info(fpga_handle handle,
+	metric_threshold *metric_thresholds,
+	uint32_t *num_thresholds);
+
+fpga_result get_max10_threshold_info(fpga_handle handle,
+	metric_threshold *metric_thresholds,
+	uint32_t *num_thresholds);
+
+#endif /* !FPGA_THRESHOLD_H */

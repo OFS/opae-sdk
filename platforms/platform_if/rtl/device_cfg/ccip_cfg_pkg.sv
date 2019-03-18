@@ -52,7 +52,9 @@ package ccip_cfg_pkg;
     typedef enum
     {
         C0_REQ_RDLINE_S = 1,
-        C0_REQ_RDLINE_I = 2
+        C0_REQ_RDLINE_I = 2,
+        C0_REQ_RDLSPEC_S = 4,
+        C0_REQ_RDLSPEC_I = 8
     }
     e_c0_req;
 

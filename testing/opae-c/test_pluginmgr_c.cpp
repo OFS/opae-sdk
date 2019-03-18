@@ -396,7 +396,6 @@ TEST(pluginmgr_c_p, process_cfg_buffer) {
   ASSERT_EQ(p2->next, nullptr);
 }
 
-
 TEST(pluginmgr_c_p, process_cfg_buffer_err) {
   opae_plugin_mgr_reset_cfg();
   EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
@@ -439,7 +438,8 @@ const char *dummy_cfg = R"plug(
 
 const char *err_contains = "wrapped_handle->adapter_table->fpgaReset is NULL";
 
-TEST(pluginmgr_c_p, dummy_plugin) {
+
+TEST_P(pluginmgr_c_p, dummy_plugin) {
   auto ldl_path = getenv("LD_LIBRARY_PATH");
   opae_plugin_mgr_reset_cfg();
   EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
@@ -457,11 +457,15 @@ TEST(pluginmgr_c_p, dummy_plugin) {
   EXPECT_STREQ(output.c_str(), "hello plugin!\n");
 
   uint32_t matches = 0;
-  EXPECT_EQ(fpgaEnumerate(nullptr, 0, nullptr, 0, &matches), FPGA_OK);
+  fpga_properties filter = NULL;
+  uint16_t device_id = 49178;
+  EXPECT_EQ(fpgaGetProperties(nullptr, &filter), FPGA_OK);
+  EXPECT_EQ(fpgaPropertiesSetDeviceID(filter, device_id), FPGA_OK);
+  EXPECT_EQ(fpgaEnumerate(&filter, 1, nullptr, 0, &matches), FPGA_OK);
   EXPECT_EQ(matches, 99);
   std::array<fpga_token, 99> tokens = {0};
   std::array<fpga_handle, 99> handles = {0};
-  EXPECT_EQ(fpgaEnumerate(nullptr, 0, tokens.data(), tokens.size(), &matches),
+  EXPECT_EQ(fpgaEnumerate(&filter, 1, tokens.data(), tokens.size(), &matches),
             FPGA_OK);
   int i = 0;
   for (auto t : tokens) {
@@ -473,10 +477,12 @@ TEST(pluginmgr_c_p, dummy_plugin) {
     EXPECT_EQ(fpgaClose(handles[i++]), FPGA_OK);
     EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
   }
+
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
   unlink("opae_log.log");
 }
 
-TEST(pluginmgr_c_p, no_cfg) {
+TEST_P(pluginmgr_c_p, no_cfg) {
   opae_plugin_mgr_reset_cfg();
   EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
   ASSERT_EQ(opae_plugin_mgr_initialize(nullptr), 0);

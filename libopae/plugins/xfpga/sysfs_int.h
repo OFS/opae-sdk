@@ -64,16 +64,14 @@ typedef struct _sysfs_fpga_device {
   uint8_t function;
   uint32_t device_id;
   uint32_t vendor_id;
-  uint64_t sriov_totalvfs;
-  uint64_t sriov_numvfs;
 } sysfs_fpga_device;
 
 int sysfs_initialize(void);
 int sysfs_finalize(void);
 int sysfs_device_count(void);
 
-typedef void (*device_cb)(sysfs_fpga_device *device, void *context);
-void sysfs_foreach_device(device_cb cb, void *context);
+typedef fpga_result (*device_cb)(const sysfs_fpga_device *device, void *context);
+fpga_result sysfs_foreach_device(device_cb cb, void *context);
 
 const sysfs_fpga_device *sysfs_get_device(size_t num);
 int sysfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *value);
@@ -82,7 +80,7 @@ fpga_result sysfs_get_fme_pr_interface_id(const char *sysfs_res_path, fpga_guid 
 
 fpga_result sysfs_get_guid(fpga_token token, const char *sysfspath, fpga_guid guid);
 
-fpga_result sysfs_get_fme_path(int dev, int subdev, char *path);
+fpga_result sysfs_get_fme_path(const char *rpath, char *fpath);
 
 fpga_result sysfs_path_is_valid(const char *root, const char *attr_path);
 
@@ -130,6 +128,7 @@ fpga_result cat_sysfs_path(char *dest, const char *path);
 fpga_result cat_handle_sysfs_path(char *dest, fpga_handle handle,
 				  const char *path);
 struct _fpga_object *alloc_fpga_object(const char *sysfspath, const char *name);
+fpga_result destroy_fpga_object(struct _fpga_object *obj);
 fpga_result sync_object(fpga_object object);
 fpga_result make_sysfs_group(char *sysfspath, const char *name,
 			     fpga_object *object, int flags, fpga_handle handle);
