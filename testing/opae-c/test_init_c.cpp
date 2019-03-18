@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -58,5 +58,111 @@ TEST(init, opae_init_rel) {
   opae_print(OPAE_LOG_MESSAGE, "OPAE_LOG_MESSAGE from test opae_init_rel\n");
   opae_print(OPAE_LOG_DEBUG, "OPAE_LOG_DEBUG from test opae_init_rel\n");
   opae_release();
+}
+
+#ifdef LIBOPAE_DEBUG
+
+/**
+ * @test       log_debug
+ *
+ * @brief      When the log level is set to debug, then all errors,
+ *             messages, and debug info are logged.
+ */
+TEST(init, log_debug) {
+  ASSERT_EQ(0, putenv((char*)"LIBOPAE_LOG=2"));
+  opae_init();
+  testing::internal::CaptureStdout();
+  testing::internal::CaptureStderr();
+
+  OPAE_ERR("Error log.");
+  OPAE_MSG("Message log.");
+  OPAE_DBG("Debug log.");
+
+  std::string log_stdout = testing::internal::GetCapturedStdout();
+  std::string log_stderr = testing::internal::GetCapturedStderr();
+
+  EXPECT_TRUE(log_stderr.find("Error log.") != std::string::npos);
+  EXPECT_TRUE(log_stdout.find("Message log.") != std::string::npos);
+  EXPECT_TRUE(log_stdout.find("Debug log.") != std::string::npos);
+
+  opae_release();
+  EXPECT_EQ(0, unsetenv("LIBOPAE_LOG"));
+}
+
+#endif
+
+/**
+ * @test       log_message
+ *
+ * @brief      When the log level is set to message, then all errors
+ *             and messages are logged.
+ */
+TEST(init, log_message) {
+  ASSERT_EQ(0, putenv((char*)"LIBOPAE_LOG=1"));
+  opae_init();
+  testing::internal::CaptureStdout();
+  testing::internal::CaptureStderr();
+
+  OPAE_ERR("Error log.");
+  OPAE_MSG("Message log.");
+  OPAE_DBG("Debug log.");
+
+  std::string log_stdout = testing::internal::GetCapturedStdout();
+  std::string log_stderr = testing::internal::GetCapturedStderr();
+
+  EXPECT_TRUE(log_stderr.find("Error log.") != std::string::npos);
+  EXPECT_TRUE(log_stdout.find("Message log.") != std::string::npos);
+  EXPECT_FALSE(log_stdout.find("Debug log.") != std::string::npos);
+
+  opae_release();
+  EXPECT_EQ(0, unsetenv("LIBOPAE_LOG"));
+}
+
+/**
+ * @test       log_error
+ *
+ * @brief      When the log level is set to error, then only errors
+ *             are logged.
+ */
+TEST(init, log_error) {
+  ASSERT_EQ(0, putenv((char*)"LIBOPAE_LOG=0"));
+  opae_init();
+  testing::internal::CaptureStdout();
+  testing::internal::CaptureStderr();
+
+  OPAE_ERR("Error log.");
+  OPAE_MSG("Message log.");
+  OPAE_DBG("Debug log.");
+
+  std::string log_stdout = testing::internal::GetCapturedStdout();
+  std::string log_stderr = testing::internal::GetCapturedStderr();
+
+  EXPECT_TRUE(log_stderr.find("Error log.") != std::string::npos);
+  EXPECT_FALSE(log_stdout.find("Message log.") != std::string::npos);
+  EXPECT_FALSE(log_stdout.find("Debug log.") != std::string::npos);
+
+  opae_release();
+  EXPECT_EQ(0, unsetenv("LIBOPAE_LOG"));
+}
+
+/**
+ * @test       log_file
+ *
+ * @brief      When LIBOPAE_LOGFILE is specified, then the logger
+ *             will log to the specified file.
+ */
+TEST(init, log_file) {
+  struct stat buf;
+
+  EXPECT_NE(0, stat("opae_log.log", &buf));
+
+  ASSERT_EQ(0, putenv((char*)"LIBOPAE_LOGFILE=opae_log.log"));
+  opae_init();
+
+  EXPECT_EQ(0, stat("opae_log.log", &buf));
+
+  opae_release();
+  EXPECT_EQ(0, unsetenv("LIBOPAE_LOGFILE"));
+  unlink("opae_log.log");
 }
 

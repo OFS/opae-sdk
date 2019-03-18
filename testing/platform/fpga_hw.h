@@ -39,6 +39,7 @@ struct test_device {
   uint8_t bus;
   uint8_t device;
   uint8_t function;
+  uint32_t num_vfs;
   uint8_t socket_id;
   uint32_t num_slots;
   uint64_t bbs_id;
@@ -80,15 +81,18 @@ private:
 #define COUNT_DEVICES_STR(P, F, V) \
   P.count_devices([V](const test_device &td) { return strcmp(td.F, V) == 0;})
 
+enum class fpga_driver { linux_any, linux_dfl0, linux_intel, none};
+
 struct test_platform {
   const char *mock_sysfs;
+  fpga_driver driver;
   std::vector<test_device> devices;
   static test_platform get(const std::string &key);
   static bool exists(const std::string &key);
   static std::vector<std::string> keys(bool sorted = false);
-  static std::vector<std::string> platforms(std::initializer_list<std::string> names = {});
-  static std::vector<std::string> mock_platforms(std::initializer_list<std::string> names = {});
-  static std::vector<std::string> hw_platforms(std::initializer_list<std::string> names = {});
+  static std::vector<std::string> platforms(std::initializer_list<std::string> names = {}, fpga_driver drv = fpga_driver::linux_any);
+  static std::vector<std::string> mock_platforms(std::initializer_list<std::string> names = {}, fpga_driver drv = fpga_driver::linux_any);
+  static std::vector<std::string> hw_platforms(std::initializer_list<std::string> names = {}, fpga_driver drv = fpga_driver::linux_any);
   template<class P>
   int count_devices(P op) {
     int count = 0;

@@ -36,11 +36,17 @@ fpga_result event_handle_check_and_lock(struct _fpga_event_handle*);
 #include "test_system.h"
 #include "gtest/gtest.h"
 #include "types_int.h"
+#include "sysfs_int.h"
 #include "intel-fpga.h"
 #include <opae/fpga.h>
 #include "xfpga.h"
 #include <cstdarg>
 
+
+extern "C" {
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+}
 
 using namespace opae::testing;
 
@@ -58,6 +64,7 @@ class common_c_p
     system_->initialize();
     system_->prepare_syfs(platform_);
 
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
@@ -79,6 +86,7 @@ class common_c_p
 
     EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&eh_), FPGA_OK);
     if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 
@@ -128,6 +136,9 @@ TEST(common, prop_check_and_lock) {
   prop->magic = 0x123;
   res = prop_check_and_lock(prop);
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
+
+  free(prop);
+  prop = nullptr;
 }
 
 /**

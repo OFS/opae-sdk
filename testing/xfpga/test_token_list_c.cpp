@@ -1,4 +1,3 @@
-
 // Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -25,18 +24,19 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef __cplusplus
 
 extern "C" {
-#endif
 #include "token_list_int.h"
-
-#ifdef __cplusplus
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
 }
-#endif
 
-#include "test_system.h"
 #include "gtest/gtest.h"
+#include "sysfs_int.h"
+#include "test_system.h"
+#include "types_int.h"
+#include "sysfs_int.h"
+
 
 extern pthread_mutex_t global_lock;
 
@@ -45,6 +45,7 @@ using namespace opae::testing;
 class token_list_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   token_list_c_p() {}
+  virtual ~token_list_c_p() {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -52,51 +53,58 @@ class token_list_c_p : public ::testing::TestWithParam<std::string> {
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
-  }
+    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
 
+    ASSERT_GT(sysfs_device_count(), 0);
+    sysfs_fpga_region *fme = nullptr;
+    sysfs_fpga_region *port = nullptr;
+    for (int i = 0; i < sysfs_device_count(); ++i) {
+      fme = (fme == nullptr) ? sysfs_get_device(i)->fme : fme;
+      port = (port == nullptr) ? sysfs_get_device(i)->port : port;
+      if (fme && port) break;
+    }
+    ASSERT_NE(fme, nullptr);
+    ASSERT_NE(port, nullptr);
+
+    sysfs_fme = std::string(fme->sysfs_path);
+    dev_fme = std::string("/dev/") + std::string(fme->sysfs_name);
+    sysfs_port = std::string(port->sysfs_path);
+    dev_port = std::string("/dev/") + std::string(port->sysfs_name);
+  }
   virtual void TearDown() override {
+    xfpga_plugin_finalize();
+    token_cleanup();
     system_->finalize();
   }
 
   test_platform platform_;
-  test_system *system_;
+  test_system* system_;
+  std::string sysfs_fme;
+  std::string dev_fme;
+  std::string sysfs_port;
+  std::string dev_port;
 };
 
-TEST_P(token_list_c_p, simple_case)
-{
-  const char *sysfs_fme = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0";
-  const char *dev_fme = "/dev/intel-fpga-fme.0";
-  const char *sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
-  const char *dev_port = "/dev/intel-fpga-port.0";
-  auto fme = token_add(sysfs_fme, dev_fme);
+TEST_P(token_list_c_p, simple_case) {
+  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
   ASSERT_NE(fme, nullptr);
-  auto port = token_add(sysfs_port, dev_port);
+  auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
   ASSERT_NE(port, nullptr);
+
   auto parent = token_get_parent(port);
   EXPECT_EQ(parent, fme);
 
   parent = token_get_parent(fme);
   EXPECT_EQ(nullptr, parent);
-
-  token_cleanup();
-
-  parent = token_get_parent(port);
-  EXPECT_EQ(nullptr, parent);
 }
 
-TEST_P(token_list_c_p, invalid_mutex)
-{
-  const char *sysfs_fme = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0";
-  const char *dev_fme = "/dev/intel-fpga-fme.0";
-  const char *sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
-  const char *dev_port = "/dev/intel-fpga-port.0";
-
+TEST_P(token_list_c_p, invalid_mutex) {
   pthread_mutex_destroy(&global_lock);
-  auto fme = token_add(sysfs_fme, dev_fme);
+  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
   EXPECT_EQ(fme, nullptr);
   pthread_mutex_init(&global_lock, NULL);
 
-  auto port = token_add(sysfs_port, dev_port);
+  auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
   ASSERT_NE(port, nullptr);
 
   pthread_mutex_destroy(&global_lock);
@@ -109,45 +117,39 @@ TEST_P(token_list_c_p, invalid_mutex)
   pthread_mutex_init(&global_lock, NULL);
   parent = token_get_parent(port);
   EXPECT_EQ(parent, fme);
-
-  token_cleanup();
-
-  parent = token_get_parent(port);
-  EXPECT_EQ(nullptr, parent);
 }
 
-TEST_P(token_list_c_p, invalid_paths)
-{
+TEST_P(token_list_c_p, invalid_paths) {
   // paths missing dot
-  std::string sysfs_fme = "/sys/class/fpga/intel-fpga-dev/intel-fpga-fme";
-  std::string dev_fme = "/dev/intel-fpga-fme";
-  std::string sysfs_port = "/sys/class/fpga/intel-fpga-dev/intel-fpga-port";
-  std::string dev_port = "/dev/intel-fpga-port";
-  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
+  std::string sysfs_fme_invalid =
+      "/sys/class/fpga/intel-fpga-dev/intel-fpga-fme";
+  std::string dev_fme_invalid = "/dev/intel-fpga-fme";
+  std::string sysfs_port_invalid =
+      "/sys/class/fpga/intel-fpga-dev/intel-fpga-port";
+  std::string dev_port_invalid = "/dev/intel-fpga-port";
+  auto fme = token_add(sysfs_fme_invalid.c_str(), dev_fme_invalid.c_str());
   EXPECT_EQ(fme, nullptr);
 
   // paths with dot, but non-decimal character afterwards
-  sysfs_fme += ".z";
-  sysfs_port += ".z";
-  fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
+  sysfs_fme_invalid += ".z";
+  sysfs_port_invalid += ".z";
+  fme = token_add(sysfs_fme_invalid.c_str(), dev_fme_invalid.c_str());
   EXPECT_EQ(fme, nullptr);
 
   // get a parent of a bogus token
-  auto port = new _fpga_token;
-  std::copy(sysfs_port.begin(), sysfs_port.end(), &port->sysfspath[0]);
+  _fpga_token *port = new struct _fpga_token;
+  memset(port, 0, sizeof(struct _fpga_token));
+  std::copy(sysfs_port_invalid.begin(), sysfs_port_invalid.end(),
+            &port->sysfspath[0]);
   auto parent = token_get_parent(port);
   EXPECT_EQ(parent, nullptr);
+  delete port;
 
   // invalidate malloc
 
-  sysfs_fme = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0";
-  dev_fme = "/dev/intel-fpga-fme.0";
-
-  test_system::instance()->invalidate_malloc();
+  test_system::instance()->invalidate_malloc(0, "token_add");
   fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
   ASSERT_EQ(fme, nullptr);
-
-  token_cleanup();
 }
 
 INSTANTIATE_TEST_CASE_P(token_list_c, token_list_c_p,

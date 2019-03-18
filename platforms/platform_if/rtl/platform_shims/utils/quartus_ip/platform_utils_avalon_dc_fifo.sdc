@@ -1,7 +1,7 @@
-# $File: //acds/rel/18.0/ip/sopc/components/altera_avalon_dc_fifo/altera_avalon_dc_fifo.sdc $
-# $Revision: #1 $
-# $Date: 2018/02/08 $
-# $Author: psgswbuild $
+# $File: //acds/rel/18.1/ip/sopc/components/altera_avalon_dc_fifo/altera_avalon_dc_fifo.sdc $
+# $Revision: #2 $
+# $Date: 2018/08/03 $
+# $Author: kknagar $
 
 #-------------------------------------------------------------------------------
 # TimeQuest constraints to constrain the timing across asynchronous clock domain crossings.
@@ -15,7 +15,7 @@
 # Do not declare the FIFO clocks as asynchronous at the top level, or false path these crossings,
 # because that will override these constraints.
 #-------------------------------------------------------------------------------
-
+set all_dc_fifo [get_entity_instances platform_utils_avalon_dc_fifo]
 
 set_max_delay -from [get_registers {*|in_wr_ptr_gray[*]}] -to [get_registers {*|platform_utils_dcfifo_synchronizer_bundle:write_crosser|platform_utils_std_synchronizer_nocut:sync[*].u|din_s1}] 200
 set_min_delay -from [get_registers {*|in_wr_ptr_gray[*]}] -to [get_registers {*|platform_utils_dcfifo_synchronizer_bundle:write_crosser|platform_utils_std_synchronizer_nocut:sync[*].u|din_s1}] -200
@@ -25,6 +25,18 @@ set_min_delay -from [get_registers {*|out_rd_ptr_gray[*]}] -to [get_registers {*
 
 set_net_delay -max -get_value_from_clock_period dst_clock_period -value_multiplier 0.8 -from [get_pins -compatibility_mode {*|in_wr_ptr_gray[*]*}] -to [get_registers {*|platform_utils_dcfifo_synchronizer_bundle:write_crosser|platform_utils_std_synchronizer_nocut:sync[*].u|din_s1}] 
 set_net_delay -max -get_value_from_clock_period dst_clock_period -value_multiplier 0.8 -from [get_pins -compatibility_mode {*|out_rd_ptr_gray[*]*}] -to [get_registers {*|platform_utils_dcfifo_synchronizer_bundle:read_crosser|platform_utils_std_synchronizer_nocut:sync[*].u|din_s1}]
+
+
+foreach dc_fifo_inst $all_dc_fifo {
+   if { [ llength [query_collection -report -all [get_registers $dc_fifo_inst|in_wr_ptr_gray[*]]]] > 0  } {
+      set_max_skew -get_skew_value_from_clock_period src_clock_period -skew_value_multiplier 0.8  -from [get_registers $dc_fifo_inst|in_wr_ptr_gray[*]] -to [get_registers $dc_fifo_inst|write_crosser|sync[*].u|din_s1] 
+   }
+
+   if { [ llength [query_collection -report -all [get_registers $dc_fifo_inst|out_rd_ptr_gray[*]]]] > 0 } {
+      set_max_skew -get_skew_value_from_clock_period src_clock_period -skew_value_multiplier 0.8  -from [get_registers $dc_fifo_inst|out_rd_ptr_gray[*]] -to [get_registers $dc_fifo_inst|read_crosser|sync[*].u|din_s1] 
+   }
+}
+
 
 # add in timing constraints across asynchronous clock domain crossings for simple dual clock memory inference
 

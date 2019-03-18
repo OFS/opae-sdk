@@ -114,7 +114,7 @@ The software side is contained entirely in [sw/hello_afu.c](sw/hello_afu.c):
   `README` file:
 
 ```console
-    $ afu_synth_setup --source hw/sources.txt --json hw/hello_afu.json build_synth
+    $ afu_synth_setup --source hw/sources.txt build_synth
     $ cd build_synth
     $ ${OPAE_PLATFORM_ROOT}/bin/run.sh
 ```

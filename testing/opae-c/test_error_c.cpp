@@ -75,6 +75,7 @@ class error_c_p : public ::testing::TestWithParam<std::string> {
         t = nullptr;
       }
     }
+    fpgaFinalize();
     system_->finalize();
   }
 
@@ -106,7 +107,7 @@ TEST_P(error_c_p, read) {
  *             and the fn returns FPGA_OK.<br>
  */
 TEST_P(error_c_p, get_info) {
-  fpga_properties props;
+  fpga_properties props = nullptr;
   uint32_t num_errors = 0;
   ASSERT_EQ(fpgaGetProperties(tokens_[0], &props), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesGetNumErrors(props, &num_errors), FPGA_OK);
@@ -122,6 +123,7 @@ TEST_P(error_c_p, get_info) {
     EXPECT_EQ(info.can_clear, knows_errors[info.name]);
   }
 
+  EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&props));
 }
 
 /**
@@ -158,4 +160,4 @@ TEST_P(error_c_p, clear_all) {
 }
 
 INSTANTIATE_TEST_CASE_P(error_c, error_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));

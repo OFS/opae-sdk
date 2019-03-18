@@ -227,6 +227,7 @@ typedef struct fpga_metric_info {
 typedef struct fpga_metric {
 	uint64_t metric_num;    // Metric index num
 	metric_value value;     // Metric value
+	bool isvalid;           // Metric value is valid
 } fpga_metric;
 
 /**
@@ -251,5 +252,26 @@ typedef void *fpga_feature_token;
  * calling fpgaFeatureClose(), which will render the underlying handle invalid.
  */
 typedef void *fpga_feature_handle;
+
+/** Threshold struct
+ *
+ *
+ */
+typedef struct threshold {
+	char threshold_name[FPGA_METRIC_STR_SIZE]; // Threshold name
+	uint32_t is_valid;                         // Threshold is valid
+	double value;                              // Threshold value
+} threshold;
+
+typedef struct metric_threshold {
+	char metric_name[FPGA_METRIC_STR_SIZE];        // Metric Threshold name
+	threshold upper_nr_threshold;                  // Upper Non-Recoverable Threshold
+	threshold upper_c_threshold;                   // Upper Critical Threshold
+	threshold upper_nc_threshold;                  // Upper Non-Critical Threshold
+	threshold lower_nr_threshold;                  // Lower Non-Recoverable Threshold
+	threshold lower_c_threshold;                   // Lower Critical Threshold
+	threshold lower_nc_threshold;                  // Lower Non-Critical Threshold
+	threshold hysteresis;                          // Hysteresis
+} metric_threshold;
 
 #endif // __FPGA_TYPES_H__
