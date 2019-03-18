@@ -287,6 +287,7 @@ fpga_result __FPGA_API__ xfpga_fpgaFeatureOpen(fpga_feature_token token, int fla
 
 	ASSERT_NOT_NULL(wrapped_token);
 	ASSERT_NOT_NULL(handle);
+	ASSERT_NOT_NULL(wrapped_token->ftr_adapter_table);
 	ASSERT_NOT_NULL_RESULT(wrapped_token->ftr_adapter_table->fpgaFeatureOpen,
 					FPGA_NOT_SUPPORTED);
 	ASSERT_NOT_NULL_RESULT(wrapped_token->ftr_adapter_table->fpgaFeatureClose,
@@ -318,6 +319,7 @@ fpga_result __FPGA_API__ xfpga_fpgaFeatureClose(fpga_feature_handle handle)
 		validate_wrapped_feature_handle(handle);
 
 	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL(wrapped_handle->ftr_adapter_table);
 
 	if (wrapped_handle->ftr_adapter_table->fpgaFeatureClose == NULL) {
 		res = FPGA_NOT_SUPPORTED;
@@ -342,6 +344,7 @@ xfpga_fpgaDMAPropertiesGet(fpga_feature_token token, fpga_dma_properties *prop)
 	ASSERT_NOT_NULL(token);
 	ASSERT_NOT_NULL(prop);
 	ASSERT_NOT_NULL(wrapped_token);
+	ASSERT_NOT_NULL(wrapped_token->ftr_adapter_table);
 	ASSERT_NOT_NULL_RESULT(wrapped_token->ftr_adapter_table->fpgaDMAPropertiesGet,
 					FPGA_NOT_SUPPORTED);
 
@@ -357,6 +360,7 @@ xfpga_fpgaDMATransferSync(fpga_feature_handle dma_h, dma_transfer_list *xfer_lis
 
 	ASSERT_NOT_NULL(xfer_list);
 	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL(wrapped_handle->ftr_adapter_table);
 	ASSERT_NOT_NULL_RESULT(wrapped_handle->ftr_adapter_table->fpgaDMATransferSync,
 					FPGA_NOT_SUPPORTED);
 
@@ -376,6 +380,7 @@ xfpga_fpgaDMATransferAsync(fpga_feature_handle dma_h, dma_transfer_list *dma_xfe
 	ASSERT_NOT_NULL(cb);
 	ASSERT_NOT_NULL(context);
 	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL(wrapped_handle->ftr_adapter_table);
 	ASSERT_NOT_NULL_RESULT(wrapped_handle->ftr_adapter_table->fpgaDMATransferAsync,
 					FPGA_NOT_SUPPORTED);
 
