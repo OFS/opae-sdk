@@ -909,6 +909,34 @@ add_ase_test(test_sw_c_ase
 )
 
 ############################################################################
+# ase tests #######################################################
+############################################################################
+
+add_ase_test(test_open_c_ase
+    ase/test_open_c_ase.cpp
+)
+
+add_ase_test(test_props_c_ase
+    ase/test_props_c_ase.cpp
+)
+
+add_ase_test(test_enum_c_ase
+    ase/test_enum_c_ase.cpp
+)
+
+add_ase_test(test_mmio_c_ase
+    ase/test_mmio_c_ase.cpp
+)
+
+add_ase_test(test_api_c_ase
+    ase/test_api_c_ase.cpp
+)
+
+add_ase_test(test_sw_c_ase
+    ase/test_sw_c_ase.cpp
+)
+
+############################################################################
 # pyopae tests #############################################################
 ############################################################################
 try_compile(SUPPORTS_EMBEDDED_PYTHON
