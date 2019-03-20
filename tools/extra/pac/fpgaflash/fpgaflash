@@ -877,7 +877,7 @@ def bmc_update(utype, ifile, bdf):
     return 0
 
 
-def read_root_ports(path, type):
+def read_root_ports(path):
     p = re.compile(r'\d{4}:(?P<bus>\w{2}):(?P<device>\d{2})\.(?P<function>\d)')
     try:
         symlink = os.readlink(path)
@@ -897,12 +897,11 @@ def read_root_ports(path, type):
         for devpath in paths:
             with open(devpath, 'r') as fd:
                 devid = fd.read().strip()
-                if type == 'bmc_img' or int(devid, 16) == VCP_PF1_ID:
-                    m = p.findall(devpath)
-                    for n in m:
-                        port = '{}:{}.{}'.format(*n)
-                        if port not in ports:
-                            ports.append(port)
+                m = p.findall(devpath)
+                for n in m:
+                    port = '{}:{}.{}'.format(*n)
+                    if port not in ports:
+                        ports.append(port)
 
     return (ports, up_port)
 
@@ -936,24 +935,13 @@ def write_sysfs_node(path, value):
         return 0
 
 
-def trigger_rsu(bdf, type, boot_page):
+def trigger_rsu(bdf, boot_page):
     spi_path = get_spi_sysfs_path(bdf)
     if not spi_path:
         return 1
     else:
-        if type == 'factory':
-            path = os.path.join(spi_path, 'fpga_flash_ctrl', 'fpga_image_load')
-            value = 0
-        elif type == 'user':
-            path = os.path.join(spi_path, 'fpga_flash_ctrl', 'fpga_image_load')
-            value = 1
-        elif type == 'bmc_img':
-            path = os.path.join(spi_path, 'bmcimg_flash_ctrl',
-                                'bmcimg_image_load')
-            value = boot_page
-        else:
-            print("WARNING: invalid type {} for rsu".format(type))
-            return 1
+        path = os.path.join(spi_path, 'bmcimg_flash_ctrl', 'bmcimg_image_load')
+        value = 0 if boot_page == USER_BOOT_PAGE else 1
         return write_sysfs_node(path, value)
 
 
@@ -1034,7 +1022,7 @@ def release_rsu_lock():
         f_lock.close()
 
 
-def do_rsu(type, bdf, boot_page):
+def do_rsu(bdf, boot_page):
     ret = acquire_rsu_lock()
     if ret == 1:
         print "failed to get rsu lock, please reboot board to complete rsu"
@@ -1046,31 +1034,23 @@ def do_rsu(type, bdf, boot_page):
     if int(devid, 16) == VCP_ID:
         print "performing remote system update"
         (ports, up_port) = read_root_ports(os.path.join('/sys/bus/pci/drivers',
-                                                        'intel-fpga-pci', bdf),
-                                           type)
+                                                        'intel-fpga-pci', bdf))
         if len(ports) > 0:
             pf1_bdf = normalize_bdf(ports[-1])
             for p in ports:
                 ret = disable_aer(p)
                 if ret != 0:
                     sys.exit(ret)
-            ret = trigger_rsu(bdf, type, boot_page)
+            ret = trigger_rsu(bdf, boot_page)
             if ret == 0:
-                if type in ['factory', 'user']:
-                    ret = remove_device(bdf)
-                    if ret == 0 and pf1_bdf != bdf:
-                        ret = remove_device(pf1_bdf)
-                else:
-                    ret = remove_device(normalize_bdf(up_port))
+                ret = remove_device(normalize_bdf(up_port))
                 time.sleep(10)
                 ret |= rescan_device(ports[ports.index(up_port)-1])
-                if type == 'bmc_img':
-                    bdf = update_bdf(up_port)
-                    if bdf:
-                        (ports, _) = read_root_ports(os.path.join(
+                bdf = update_bdf(up_port)
+                if bdf:
+                    (ports, _) = read_root_ports(os.path.join(
                                                         '/sys/bus/pci/drivers',
-                                                        'intel-fpga-pci', bdf),
-                                                     type)
+                                                        'intel-fpga-pci', bdf))
             for p in ports:
                 enable_aer(p)
         else:
@@ -1103,7 +1083,7 @@ def main():
 
     if args.type == 'rsu':
         if bdf:
-            ret = do_rsu('bmc_img', bdf, USER_BOOT_PAGE)
+            ret = do_rsu(bdf, USER_BOOT_PAGE)
         else:
             print "Must specify bdf of FPGA in the board"
             ret = 1
@@ -1167,7 +1147,7 @@ def main():
 
     # RSU procedure
     if ret == 0 and args.rsu and args.type in ['factory', 'user', 'bmc_img']:
-        ret = do_rsu('bmc_img', bdf, USER_BOOT_PAGE)
+        ret = do_rsu(bdf, USER_BOOT_PAGE)
 
     sys.exit(ret)
 
