@@ -100,6 +100,41 @@ target_include_directories(xfpga-static PUBLIC
   PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga
   PRIVATE ${OPAE_SDK_SOURCE}/libopae)
 
+add_library(ase-static STATIC
+        ${OPAE_SDK_SOURCE}/ase/sw/tstamp_ops.c
+        ${OPAE_SDK_SOURCE}/ase/sw/ase_ops.c
+        ${OPAE_SDK_SOURCE}/ase/sw/ase_strings.c
+        ${OPAE_SDK_SOURCE}/ase/sw/ase_host_memory.c
+        ${OPAE_SDK_SOURCE}/ase/sw/app_backend.c
+        ${OPAE_SDK_SOURCE}/ase/sw/mqueue_ops.c
+        ${OPAE_SDK_SOURCE}/ase/sw/error_report.c
+        ${OPAE_SDK_SOURCE}/ase/api/src/common.c
+        ${OPAE_SDK_SOURCE}/ase/api/src/buffer.c
+        ${OPAE_SDK_SOURCE}/ase/api/src/close.c
+        ${OPAE_SDK_SOURCE}/ase/api/src/enum.c
+        ${OPAE_SDK_SOURCE}/ase/api/src/event.c
+        ${OPAE_SDK_SOURCE}/ase/api/src/manage.c
+        ${OPAE_SDK_SOURCE}/ase/api/src/reconf.c
+        ${OPAE_SDK_SOURCE}/ase/api/src/mmio.c
+        ${OPAE_SDK_SOURCE}/ase/api/src/open.c
+        ${OPAE_SDK_SOURCE}/ase/api/src/umsg.c
+        ${OPAE_SDK_SOURCE}/ase/api/src/version.c
+        ${OPAE_SDK_SOURCE}/ase/api/src/wsid_list.c
+        ${OPAE_SDK_SOURCE}/ase/api/src/error.c)
+
+target_include_directories(ase-static PUBLIC
+    $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+    PRIVATE ${OPAE_SDK_SOURCE}/ase/api/src
+    PRIVATE ${OPAE_SDK_SOURCE}/ase/sw)
+
+target_link_libraries(ase-static
+    ${libjson-c_LIBRARIES}
+    ${libuuid_LIBRARIES}
+    ${librt_LIBRARIES}
+    )
+
 add_library(bmc-static STATIC 
     ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmc.c
     ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmc_ioctl.c
@@ -320,6 +355,7 @@ macro(add_unit_test test_name static_lib)
     target_include_directories(${test_name} PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         PRIVATE ${OPAE_SDK_SOURCE}
+        PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga
         PRIVATE ${OPAE_SDK_SOURCE}/libbitstream
         )
     target_link_libraries(${test_name}
@@ -340,7 +376,32 @@ macro(add_unit_test test_name static_lib)
 
 endmacro(add_unit_test test_name)
 
+macro(add_ase_test test_name)
+    add_executable(${test_name}
+        ${ARGN})
+    target_include_directories(${test_name} PUBLIC
+        $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+        PRIVATE ${OPAE_SDK_SOURCE}/ase/api/src
+        PRIVATE ${OPAE_SDK_SOURCE}/ase/sw
+        )
+    target_link_libraries(${test_name}
+        ase-static
+        safestr
+        test_system
+        ${libjson-c_LIBRARIES}
+        ${libuuid_LIBRARIES}
+        ${GTEST_BOTH_LIBRARIES}
+        ${CMAKE_THREAD_LIBS_INIT})
+    add_test(
+        NAME ${test_name}
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMAND $<TARGET_FILE:${test_name}>
+        )
+    add_dependencies(test_unit ${test_name})
 
+endmacro(add_ase_test test_name)
 ############################################################################
 ############################################################################
 ############################################################################
@@ -350,7 +411,6 @@ include_directories(
     ${OPAE_SDK_SOURCE}/common/include
     ${PROJECT_BINARY_DIR}/include
     ${OPAE_SDK_SOURCE}/libopae
-    ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga
     ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc
     ${OPAE_SDK_SOURCE}/tools/base
     mock
@@ -838,6 +898,26 @@ add_custom_command(TARGET test_unit
     ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dcp-vc.tar.gz
     ${CMAKE_BINARY_DIR}
     )
+
+############################################################################
+# ase tests #######################################################
+############################################################################
+
+add_ase_test(test_open_c_ase
+    ase/test_open_c_ase.cpp
+)
+
+add_ase_test(test_props_c_ase
+    ase/test_props_c_ase.cpp
+)
+
+add_ase_test(test_enum_c_ase
+    ase/test_enum_c_ase.cpp
+)
+
+add_ase_test(test_mmio_c_ase
+    ase/test_mmio_c_ase.cpp
+)
 
 ############################################################################
 # pyopae tests #############################################################
