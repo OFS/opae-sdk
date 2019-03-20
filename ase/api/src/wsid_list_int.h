@@ -30,6 +30,8 @@
 #include "opae/utils.h"
 #include "types_int.h"
 
+#define MAX_WSID_TRACKER_BUCKETS 16384
+
 /*
  * WSID tracking structure manipulation functions
  */
@@ -48,6 +50,5 @@ bool wsid_del(struct wsid_tracker *root, uint64_t wsid);
 uint64_t wsid_gen(void);
 
 struct wsid_map *wsid_find(struct wsid_tracker *root, uint64_t wsid);
-struct wsid_map *wsid_find_by_index(struct wsid_tracker *root, uint32_t index);
 
 #endif // ___FPGA_COMMON_INT_H__
