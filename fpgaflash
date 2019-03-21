@@ -363,7 +363,7 @@ def update_flash(ifile, mtd_dev, target_offset, input_offset, erase_len,
         print "%s verifying flash" % (datetime.datetime.now())
 
         retval = filecmp.cmp(ofile.name, vfile.name)
-    
+
         os.remove(ofile.name)
         os.remove(vfile.name)
 
@@ -767,6 +767,7 @@ def bmc_fw_update(ifile, spi_path, no_verify):
         ret = 1
 
 
+
     write_file(mode_path, "0")
 
     ver_file = os.path.join(spi_path, 'bmcfw_flash_ctrl', 'bmcfw_version')
@@ -1151,6 +1152,7 @@ def validate_bdf(bdf, bdf_pvid_map):
         elif bdf not in bdf_pvid_map.keys():
             print "Could not find fpga device for {}".format(bdf)
             print_bdf_mtd_mapping(bdf_pvid_map)
+
 
 
 
