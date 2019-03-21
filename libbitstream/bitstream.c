@@ -172,9 +172,11 @@ STATIC void *opae_bitstream_parse_metadata(const char *metadata,
 
 	switch (*version) {
 
-	// Some invalid GBS's around the BBS 6.4.0 era
-	// incorrectly set the metadata version to 640.
-	// Allow 640 to serve as an alias for 1.
+	// Some invalid GBS's around the BBS 6.4.0 and
+	// BBS 6.5.0 eras incorrectly set the metadata
+	// version to 640/650 respectively.
+	// Allow 640/650 to serve as an alias for 1.
+	case 650:
 	case 640:
 		*version = 1;
 	case 1:
