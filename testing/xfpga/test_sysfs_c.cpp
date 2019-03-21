@@ -37,6 +37,8 @@ fpga_result sysfs_get_slots(int, int, uint32_t *);
 fpga_result sysfs_get_bitstream_id(int, int, uint64_t *);
 fpga_result sysfs_sbdf_from_path(const char *, int *, int *, int *, int *);
 fpga_result opae_glob_path(char *);
+fpga_result opae_glob_paths(const char *path, size_t found_max,
+                            char *found[], size_t *num_found);
 fpga_result make_sysfs_group(char *, const char *, fpga_object *, int,
                              fpga_handle);
 ssize_t eintr_write(int, void *, size_t);
@@ -46,6 +48,8 @@ fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid);
 sysfs_fpga_region* make_region(sysfs_fpga_device*, char*, int, fpga_objtype);
 int xfpga_plugin_initialize(void);
 int xfpga_plugin_finalize(void);
+fpga_result re_match_region(const char *fmt, char *inpstr, char type[], size_t,
+                            int *num);
 }
 
 #include <fstream>
@@ -82,20 +86,21 @@ class sysfsinit_c_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
     ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
-    if (sysfs_device_count() > 0) {
-      const sysfs_fpga_device *device = sysfs_get_device(0);
-      ASSERT_NE(device, nullptr);
-      if (device->fme) {
-        sysfs_fme = std::string(device->fme->sysfs_path);
-
-        dev_fme = std::string("/dev/") + std::string(device->fme->sysfs_name);
-      }
-      if (device->port) {
-        sysfs_port = std::string(device->port->sysfs_path);
-
-        dev_port = std::string("/dev/") + std::string(device->port->sysfs_name);
-      }
+    ASSERT_GT(sysfs_device_count(), 0);
+    sysfs_fpga_region *fme = nullptr;
+    sysfs_fpga_region *port = nullptr;
+    for (int i = 0; i < sysfs_device_count(); ++i) {
+      fme = (fme == nullptr) ? sysfs_get_device(i)->fme : fme;
+      port = (port == nullptr) ? sysfs_get_device(i)->port : port;
+      if (fme && port) break;
     }
+    ASSERT_NE(fme, nullptr);
+    ASSERT_NE(port, nullptr);
+
+    sysfs_fme = std::string(fme->sysfs_path);
+    dev_fme = std::string("/dev/") + std::string(fme->sysfs_name);
+    sysfs_port = std::string(port->sysfs_path);
+    dev_port = std::string("/dev/") + std::string(port->sysfs_name);
   }
   virtual void TearDown() override {
     xfpga_plugin_finalize();
@@ -186,11 +191,17 @@ TEST_P(sysfsinit_c_p, sysfs_initialize) {
   for (const auto &d : platform_.devices) {
     devices[to_uint32(d.segment, d.bus, d.device, d.function)] = d;
   }
-
+  if (platform_.devices[0].num_vfs) {
+    auto d = platform_.devices[0];
+    d.function = 1;
+    d.device_id++;
+    devices[to_uint32(d.segment, d.bus, d.device, 1)] = d;
+  }
+  auto num_vfs = platform_.devices[0].num_vfs;
   // the size of this map should be equal to the number of devices in our
   // platform
-  ASSERT_EQ(devices.size(), platform_.devices.size());
-  EXPECT_EQ(GetNumFpgas(), sysfs_device_count());
+  ASSERT_EQ(devices.size(), platform_.devices.size() + num_vfs);
+  EXPECT_EQ(GetNumFpgas(), sysfs_device_count() - num_vfs);
   // call sysfs_foreach_device with our callback, cb
   sysfs_foreach_device(cb, &devices);
   // our devices map should be empty after this call as this callback removes
@@ -209,7 +220,8 @@ TEST_P(sysfsinit_c_p, sysfs_get_device) {
   // the size of this map should be equal to the number of devices in our
   // platform
   ASSERT_EQ(devices.size(), platform_.devices.size());
-  EXPECT_EQ(GetNumFpgas(), sysfs_device_count());
+  auto num_vfs = platform_.devices[0].num_vfs;
+  EXPECT_EQ(GetNumFpgas(), sysfs_device_count() - num_vfs);
 
   // use sysfs_get_device API to count how many devices match our devices map
   for (int i = 0; i < sysfs_device_count(); ++i) {
@@ -293,20 +305,21 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
                                   &num_matches_),
               FPGA_OK);
     ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
+    sysfs_fpga_region *fme = nullptr;
+    sysfs_fpga_region *port = nullptr;
     if (sysfs_device_count() > 0) {
-      const sysfs_fpga_device *device = sysfs_get_device(0);
-      ASSERT_NE(device, nullptr);
-      if (device->fme) {
-        sysfs_fme = std::string(device->fme->sysfs_path);
-
-        dev_fme = std::string("/dev/") + std::string(device->fme->sysfs_name);
-      }
-      if (device->port) {
-        sysfs_port = std::string(device->port->sysfs_path);
-
-        dev_port = std::string("/dev/") + std::string(device->port->sysfs_name);
+      for (int i = 0; i < sysfs_device_count(); ++i) {
+        fme = fme == nullptr ? sysfs_get_device(i)->fme : fme;
+        port = port == nullptr ? sysfs_get_device(i)->port : port;
       }
     }
+    ASSERT_NE(fme, nullptr);
+    ASSERT_NE(port, nullptr);
+
+    sysfs_fme = std::string(fme->sysfs_path);
+    dev_fme = std::string("/dev/") + std::string(fme->sysfs_name);
+    sysfs_port = std::string(port->sysfs_path);
+    dev_port = std::string("/dev/") + std::string(port->sysfs_name);
   }
 
   virtual void TearDown() override {
@@ -416,6 +429,20 @@ TEST_P(sysfs_c_p, glob_tests) {
 
   res = opae_glob_path(const_cast<char *>(invalid_filename.c_str()));
   EXPECT_EQ(FPGA_NOT_FOUND, res);
+}
+
+TEST_P(sysfs_c_p, glob_paths) {
+  char *paths[16];
+  auto bitstream_glob = sysfs_fme + "/bitstream*";
+  size_t found = 0;
+  ASSERT_EQ(opae_glob_paths(bitstream_glob.c_str(), 16, paths, &found),
+            FPGA_OK);
+  EXPECT_EQ(found, 2);
+  // opae_glob_paths allocates memory for each path found
+  // let's free it here since we don't need it any longer
+  for (int i = 0; i < found; ++i) {
+    free(paths[i]);
+  }
 }
 
 /**
@@ -543,6 +570,35 @@ TEST_P(sysfs_c_p, cstr_dup_1) {
   EXPECT_EQ(dup, nullptr);
 }
 
+/**
+* @test    get_fme_path
+* @details Given a valid sysfs path to a port node
+*          When I call sysfs_get_fme_path with the path
+*          Then the return value is FPGA_OK
+*          And I get a sysfs path to the fme node
+*          And its realpath is equal to the realpath of the SUT
+*/
+TEST_P(sysfs_c_p, get_fme_path) {
+  char found_fme[PATH_MAX];
+  char rpath1[PATH_MAX];
+  char rpath2[PATH_MAX];
+  ASSERT_EQ(sysfs_get_fme_path(sysfs_port.c_str(), found_fme), FPGA_OK);
+  ASSERT_NE(realpath(sysfs_fme.c_str(), rpath1), nullptr);
+  ASSERT_NE(realpath(found_fme, rpath2), nullptr);
+  ASSERT_STREQ(rpath1, rpath2);
+}
+
+/**
+* @test    get_fme_path_neg
+* @details Given an invalid sysfs path to a port node
+*          When I call sysfs_get_fme_path with the path
+*          Then the return value is not FPGA_OK
+*/
+TEST_P(sysfs_c_p, get_fme_path_neg) {
+  char found_fme[PATH_MAX];
+  ASSERT_NE(sysfs_get_fme_path("/a/b/c", found_fme), FPGA_OK);
+}
+
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));
 
@@ -643,6 +699,28 @@ TEST_P(sysfs_c_mock_p, make_object_glob) {
                               FPGA_OBJECT_GLOB, 0),
             FPGA_OK);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
+}
+
+TEST_P(sysfs_c_mock_p, glob_bitstream_objs) {
+  fpga_object container, bitstream1, bitstream2;
+  ASSERT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], "bitstream*", &container,
+                                     FPGA_OBJECT_GLOB),
+            FPGA_OK);
+  enum fpga_sysobject_type type;
+  EXPECT_EQ(xfpga_fpgaObjectGetType(container, &type), FPGA_OK);
+  EXPECT_EQ(type, FPGA_OBJECT_CONTAINER);
+  uint32_t sz = 0;
+  EXPECT_EQ(xfpga_fpgaObjectGetSize(container, &sz, 0), FPGA_OK);
+  EXPECT_EQ(sz, 2);
+  EXPECT_EQ(xfpga_fpgaObjectGetObjectAt(container, 0, &bitstream1), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaObjectGetObjectAt(container, 1, &bitstream2), FPGA_OK);
+  char name1[64] = {'\0'};
+  char name2[64] = {'\0'};
+  EXPECT_EQ(xfpga_fpgaObjectGetName(bitstream1, name1, sizeof(name1)), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaObjectGetName(bitstream2, name2, sizeof(name2)), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&bitstream1), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&bitstream2), FPGA_OK);
+  EXPECT_EQ(xfpga_fpgaDestroyObject(&container), FPGA_OK);
 }
 
 /**
@@ -959,3 +1037,49 @@ TEST_P(sysfs_sockid_c_p, get_port_sysfs) {
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_sockid_c_p,
                        ::testing::ValuesIn(test_platform::platforms({"skx-p","dcp-rc"})));
+
+/**
+ * @test    match_region
+ * @details Given an input string that matches the format used<br>
+ *          by the kernel driver when making region (platform) devices.
+ *          When I call re_match_region with the input string
+ *          Then the return code is FPGA_OK
+ *          And the output parameters match the "fme" string portion<br>
+ *          and the number portion.
+ */
+TEST(sysfs_regex, match_region)
+{
+  const char *fmt = "intel-fpga-(fme|port)\\.([0-9]+)";
+  char buffer[8];
+  int num = -1;
+  char inpstr[] = "intel-fpga-fme.9";
+  EXPECT_EQ(re_match_region(fmt, inpstr, buffer, sizeof(buffer), &num),
+            FPGA_OK);
+  EXPECT_STREQ(buffer, "fme");
+  EXPECT_EQ(num, 9);
+}
+
+/**
+ * @test    match_region_neg
+ * @details Given an input string that does not match the format used<br>
+ *          by the kernel driver when making region (platform) devices.
+ *          When I call re_match_region with the input string or an invalid<br>
+ *          parameter
+ *          Then the return code is either FPGA_NOT_FOUND or FPGA_INVALID_PARAM
+ */
+TEST(sysfs_regex, match_region_neg)
+{
+  const char *fmt = "intel-fpga-(fme|port)\\.([0-9]+)";
+  char buffer[8];
+  int num = -1;
+  char badstr[] = "intel-fpga-abc.0";
+  EXPECT_EQ(re_match_region(fmt, badstr, buffer, sizeof(buffer), &num),
+            FPGA_NOT_FOUND);
+  EXPECT_EQ(re_match_region(nullptr, badstr, buffer, sizeof(buffer), &num),
+            FPGA_INVALID_PARAM);
+  EXPECT_EQ(re_match_region(fmt, nullptr, buffer, sizeof(buffer), &num),
+            FPGA_INVALID_PARAM);
+  EXPECT_EQ(re_match_region(fmt, badstr, nullptr, 0, &num), FPGA_INVALID_PARAM);
+  EXPECT_EQ(re_match_region(fmt, badstr, buffer, sizeof(buffer), nullptr),
+            FPGA_INVALID_PARAM);
+}

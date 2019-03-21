@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,46 +23,41 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#ifndef _C_TEST_SYSTEM_H
-#define _C_TEST_SYSTEM_H
+/*
+ * @file fmeinfo.h
+ *
+ * @brief
+ */
+#ifndef FPGA_THRESHOLD_H
+#define FPGA_THRESHOLD_H
 
-#include <stdio.h>
-#include <dirent.h>
-#include <sched.h>
-#include <glob.h>
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <opae/fpga.h>
+#include "bmc/bmc_types.h"
 
-  typedef int (*filter_func)(const struct dirent *);
-  typedef int (*compare_func)(const struct dirent **, const struct dirent **);
-  int opae_test_open(const char *path, int flags);
-  int opae_test_open_create(const char *path, int flags, mode_t mode);
-  ssize_t opae_test_read(int fd, void *buf, size_t count);
 
-  FILE * opae_test_fopen(const char *path, const char *mode);
+#define  UPPER_NR_THRESHOLD                     "Upper Non-Recoverable Threshold"
+#define  UPPER_C_THRESHOLD                      "Upper Critical Threshold"
+#define  UPPER_NC_THRESHOLD                     "Upper Non-Critical Threshold"
 
-  FILE * opae_test_popen(const char *cmd, const char *type);
-  int opae_test_pclose(FILE *stream);
+#define  LOWER_NR_THRESHOLD                     "Lower Non-Recoverable Threshold"
+#define  LOWER_C_THRESHOLD                      "Lower Critical Threshold"
+#define  LOWER_NC_THRESHOLD                     "Lower Non-Critical Threshold"
 
-  int opae_test_close(int fd);
-  int opae_test_ioctl(int fd, unsigned long request, va_list argp);
+#define  HYSTERESIS                             "Hysteresis"
 
-  DIR *opae_test_opendir(const char *name);
-  ssize_t opae_test_readlink(const char *path, char *buf, size_t bufsize);
-  int opae_test_xstat(int ver, const char *path, struct stat *buf);
-  int opae_test_lstat(int ver, const char *path, struct stat *buf);
-  int opae_test_scandir(const char *dirp, struct dirent ***namelist, filter_func filter, compare_func cmp);
+#define  SYSFS_HIGH_FATAL                       "high_fatal"
+#define  SYSFS_HIGH_WARN                        "high_warn"
+#define  SYSFS_HYSTERESIS                       "hysteresis"
+#define  SYSFS_LOW_FATAL                        "low_fatal"
+#define  SYSFS_LOW_WARN                         "low_warn"
 
-  int opae_test_sched_setaffinity(pid_t pid, size_t cpusetsize, const cpu_set_t *mask);
-  
-  int opae_test_glob(const char *pattern, int flags,
-                int (*errfunc) (const char *epath, int eerrno),
-                glob_t *pglob);
-  char *opae_test_realpath(const char *inp, char *dst);
 
-#ifdef __cplusplus
-}
-#endif
+fpga_result get_bmc_threshold_info(fpga_handle handle,
+	metric_threshold *metric_thresholds,
+	uint32_t *num_thresholds);
 
-#endif /* !_TEST_SYSTEM_H */
+fpga_result get_max10_threshold_info(fpga_handle handle,
+	metric_threshold *metric_thresholds,
+	uint32_t *num_thresholds);
+
+#endif /* !FPGA_THRESHOLD_H */

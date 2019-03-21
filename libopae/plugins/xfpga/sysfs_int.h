@@ -80,7 +80,7 @@ fpga_result sysfs_get_fme_pr_interface_id(const char *sysfs_res_path, fpga_guid 
 
 fpga_result sysfs_get_guid(fpga_token token, const char *sysfspath, fpga_guid guid);
 
-fpga_result sysfs_get_fme_path(int dev, int subdev, char *path);
+fpga_result sysfs_get_fme_path(const char *rpath, char *fpath);
 
 fpga_result sysfs_path_is_valid(const char *root, const char *attr_path);
 
@@ -128,6 +128,7 @@ fpga_result cat_sysfs_path(char *dest, const char *path);
 fpga_result cat_handle_sysfs_path(char *dest, fpga_handle handle,
 				  const char *path);
 struct _fpga_object *alloc_fpga_object(const char *sysfspath, const char *name);
+fpga_result destroy_fpga_object(struct _fpga_object *obj);
 fpga_result sync_object(fpga_object object);
 fpga_result make_sysfs_group(char *sysfspath, const char *name,
 			     fpga_object *object, int flags, fpga_handle handle);

@@ -41,9 +41,14 @@ using namespace opae::testing;
 
 class properties_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  properties_c_p () 
-    : tokens_accel_{{nullptr, nullptr}},
-      tokens_dev_{{nullptr, nullptr}} {}
+  properties_c_p()
+      : tokens_accel_{{nullptr, nullptr}},
+        tokens_dev_{{nullptr, nullptr}},
+        prop_(nullptr),
+        filter_accel_(nullptr),
+        filter_dev_(nullptr),
+        handle_accel_(nullptr),
+        handle_dev_(nullptr) {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -53,8 +58,8 @@ class properties_c_p : public ::testing::TestWithParam<std::string> {
     system_->prepare_syfs(platform_);
     ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_accel_, 
-                                        platform_.devices[0].device_id), FPGA_OK);
+    auto accel_dev_id = platform_.devices[0].device_id + platform_.devices[0].num_vfs;
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_accel_, accel_dev_id), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(), tokens_accel_.size(),
                             &num_matches_), FPGA_OK);
@@ -80,10 +85,10 @@ class properties_c_p : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     if (prop_) { EXPECT_EQ(fpgaDestroyProperties(&prop_), FPGA_OK); };
 
-    EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
-    EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK);
-    EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK);
-    EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK);
+    if (filter_accel_) EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
+    if (filter_dev_) EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK);
+    if (handle_accel_) EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK);
+    if (handle_dev_) EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK);
 
     for (auto &t : tokens_accel_) {
       if (t) {
@@ -170,7 +175,8 @@ TEST_P(properties_c_p, device_id_afu) {
   uint16_t x = 0;
   ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(handle_accel_, &prop_), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesGetDeviceID(prop_, &x), FPGA_OK);
-  EXPECT_EQ(static_cast<uint32_t>(x), device.device_id);
+  auto expected_id = device.device_id + (device.num_vfs > 0 ? 1 : 0);
+  EXPECT_EQ(static_cast<uint32_t>(x), expected_id);
 #endif
 }
 
@@ -243,4 +249,3 @@ TEST(properties_c, invalid_handle) {
   fpga_properties prop = NULL;
   EXPECT_EQ(xfpga_fpgaGetPropertiesFromHandle(nullptr, &prop), FPGA_INVALID_PARAM);
 }
-
