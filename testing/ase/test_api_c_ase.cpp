@@ -119,7 +119,7 @@ TEST(open_c_ase, fpga_version) {
  */
 TEST(open_c_ase, ase_wsid_1) {
 	EXPECT_EQ(NULL, wsid_tracker_init(0));
-	EXPECT_EQ(NULL, wsid_tracker_init(MAX_WSID_TRACKER_BUCKETS+1));
+	EXPECT_EQ(NULL, wsid_tracker_init(NUM_WSID_TRACKER_BUCKETS+1));
 
 }
 
