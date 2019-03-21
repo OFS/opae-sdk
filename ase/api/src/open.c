@@ -92,7 +92,7 @@ fpga_result __FPGA_API__ fpgaOpen(fpga_token token, fpga_handle *handle, int fla
 	_handle->mmio_root = NULL;
 
 	// Init workspace table
-	_handle->wsid_root = wsid_tracker_init(16384);
+	_handle->wsid_root = wsid_tracker_init(NUM_WSID_TRACKER_BUCKETS);
 
 	// set handle return value
 	*handle = (void *)_handle;

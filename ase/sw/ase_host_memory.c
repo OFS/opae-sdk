@@ -31,7 +31,9 @@
 // thus allowing the application to update share any page at any point
 // in a run.
 //
-
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 #include <stdio.h>
 #include <stdint.h>
 #include <inttypes.h>
@@ -51,7 +53,7 @@ static pthread_mutex_t ase_pt_lock = PTHREAD_MUTEX_INITIALIZER;
 static uint64_t **ase_pt_root;
 static bool ase_pt_enable_debug;
 
-static int ase_pt_length_to_level(uint64_t length);
+STATIC int ase_pt_length_to_level(uint64_t length);
 static uint64_t ase_pt_level_to_bit_idx(int pt_level);
 static void ase_pt_delete_tree(uint64_t **pt, int pt_level);
 static bool ase_pt_check_addr(uint64_t iova, int *pt_level);
@@ -249,7 +251,7 @@ void ase_host_memory_terminate(void)
  * Page size to level in the table. Level 3 is the root, though we never
  * return 3 since the hardware won't allocated 512GB huge pages.
  */
-static int ase_pt_length_to_level(uint64_t length)
+STATIC int ase_pt_length_to_level(uint64_t length)
 {
 	int pt_level;
 
