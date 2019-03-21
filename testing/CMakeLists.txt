@@ -339,11 +339,13 @@ target_include_directories(object_api-static PUBLIC
   $<INSTALL_INTERFACE:include>)
 
 
-
 set(CMAKE_C_FLAGS "-DSTATIC='' -DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
 add_custom_target(test_unit)
 add_dependencies(test_unit xfpga)
+
+add_custom_target(test_ase)
+add_dependencies(test_ase opae-c-ase)
 if (ENABLE_MOCK)
     set(MOCK_C mock/mock.c)
 endif(ENABLE_MOCK)
@@ -399,7 +401,7 @@ macro(add_ase_test test_name)
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         COMMAND $<TARGET_FILE:${test_name}>
         )
-    add_dependencies(test_unit ${test_name})
+    add_dependencies(test_ase ${test_name})
 
 endmacro(add_ase_test test_name)
 ############################################################################
@@ -917,6 +919,14 @@ add_ase_test(test_enum_c_ase
 
 add_ase_test(test_mmio_c_ase
     ase/test_mmio_c_ase.cpp
+)
+
+add_ase_test(test_api_c_ase
+    ase/test_api_c_ase.cpp
+)
+
+add_ase_test(test_sw_c_ase
+    ase/test_sw_c_ase.cpp
 )
 
 ############################################################################
