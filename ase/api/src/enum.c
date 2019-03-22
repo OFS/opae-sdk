@@ -95,7 +95,7 @@ struct dev_list {
 	struct dev_list *fme;
 };
 
-bool matches_filters(const fpga_properties *filter, uint32_t num_filter,
+STATIC bool matches_filters(const fpga_properties *filter, uint32_t num_filter,
 		fpga_token *token, uint64_t *j)
 {
 	uint32_t i;
