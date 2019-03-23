@@ -32,7 +32,7 @@
 #ifndef __FPGA_DMA_COM_H__
 #define __FPGA_DMA_COM_H__
 
-#define FPGA_DMA_ST_ERR(msg_str) \
+#define FPGA_DMA_ERR(msg_str) \
 		fprintf(stderr, "Error %s: %s\n", __FUNCTION__, msg_str);
 
 

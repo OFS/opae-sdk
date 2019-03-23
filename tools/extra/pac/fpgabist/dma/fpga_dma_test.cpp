@@ -32,8 +32,6 @@
 #include <unistd.h>
 #include <string>
 #include <cstring>
-#include <errno.h>
-#include <limits>
 #include "fpga_dma_test_utils.h"
 #include "fpga_dma_internal.h"
 
@@ -107,7 +105,6 @@ static void parse_args(struct config *config, int argc, char *argv[])
 		};
 		char *endptr;
 		const char *tmp_optarg;
-		uint64_t value;
 
 		c = getopt_long(argc, argv, "hB:D:F:S:s:p:r:l:f:t:a:", options, NULL);
 		if (c == -1) {
@@ -235,18 +232,12 @@ static void parse_args(struct config *config, int argc, char *argv[])
 		case 'f':    /* decimation factor */
 			if (NULL == tmp_optarg)
 				break;
-			errno = 0;
-			value = strtoull(tmp_optarg, &endptr, 0);
-			if(errno != 0){
-				fprintf(stderr, "failed parsing decim factor");
+			config->decim_factor = (uint64_t) strtoull(tmp_optarg, &endptr, 0);
+			/*
+			if(config->decim_factor > 65535) {
+				fprintf(stderr, "Maximum decimation factor = %d bytes\n", 65535);
 				printUsage();
-			}
-			if(value > MAX_DECIM_FACTOR){
-				fprintf(stderr, "Maximum decimation factor = %d bytes\n", MAX_DECIM_FACTOR);
-				printUsage();
-			} else {
-				config->decim_factor = value;
-			}
+			}*/
 			debug_print("decimation factor = %ld bytes\n", (uint64_t)config->decim_factor);
 			break;
 
@@ -270,17 +261,17 @@ int main(int argc, char *argv[]) {
 	fpga_token afc_tok;
 
 	struct config config = {
-		bus : CONFIG_UNINIT,
-		device : CONFIG_UNINIT,
-		function : CONFIG_UNINIT,
-		segment : CONFIG_UNINIT,
-		data_size : CONFIG_UNINIT,
-		payload_size : CONFIG_UNINIT,
-		direction : DMA_INVAL_DIRECTION,
-		transfer_type : DMA_INVAL_TRANSFER_TYPE,
-		loopback : DMA_INVAL_LOOPBACK,
-		decim_factor : CONFIG_UNINIT,
-		fpga_addr : CONFIG_UNINIT
+		.bus = CONFIG_UNINIT,
+		.device = CONFIG_UNINIT,
+		.function = CONFIG_UNINIT,
+		.segment = CONFIG_UNINIT,
+		.data_size = CONFIG_UNINIT,
+		.payload_size = CONFIG_UNINIT,
+	 	.direction = DMA_INVAL_DIRECTION,
+	 	.transfer_type = DMA_INVAL_TRANSFER_TYPE,
+	 	.loopback = DMA_INVAL_LOOPBACK,
+		.decim_factor = CONFIG_UNINIT,
+		.fpga_addr = CONFIG_UNINIT,
 	};
 
 	parse_args(&config, argc, argv);
@@ -312,7 +303,7 @@ int main(int argc, char *argv[]) {
 		printUsage();
 		exit(1);
 	}
-
+	
 	string afu_id_to_look;
 	if(config.direction == DMA_MTOM)
 		afu_id_to_look = MMDMA_AFU_ID;
@@ -337,7 +328,7 @@ int main(int argc, char *argv[]) {
 		ON_ERR_GOTO(res, out, "error do_action");
 	}
 
-out:
+out:	
 	fpgaDestroyToken(&afc_tok);
 	return res;
 }

@@ -130,13 +130,13 @@ fpga_result wait_for_checker_complete(fpga_handle fpga_h) {
 	
 	if(wait_time == 0) {
 		res = FPGA_EXCEPTION;
-		FPGA_DMA_ST_ERR("checker timed out\n");
+		FPGA_DMA_ERR("checker timed out\n");
 	} else if(status.st.err == 0) {
 		res = FPGA_OK;
 		debug_print("checker verified success!\n");
 	} else {
 		res = FPGA_EXCEPTION;
-		FPGA_DMA_ST_ERR("data verification error\n");
+		FPGA_DMA_ERR("data verification error\n");
 	}
 
 out:

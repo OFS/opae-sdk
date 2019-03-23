@@ -30,7 +30,6 @@
 #include <iostream>
 #include <cmath>
 #include "fpga_dma_test_utils.h"
-#include "fpga_dma_internal.h"
 #include "fpga_dma_common.h"
 
 using namespace std;
@@ -38,6 +37,9 @@ using namespace std;
 static sem_t transfer_done;
 
 static int err_cnt = 0;
+
+#define UNUSED(x) (void)(x)
+
 #define ON_ERR_GOTO(res, label, desc)\
 	do {\
 		if ((res) != FPGA_OK) {\
@@ -388,8 +390,10 @@ static fpga_result non_loopback_test(fpga_handle afc_h, fpga_dma_handle_t dma_h,
 	fpga_dma_transfer_t transfer;
 	fpga_result res = FPGA_OK;
 	struct timespec start, end;
-	start = (struct timespec){ 0, 0};
-	end = (struct timespec){ 0, 0};
+	memset((void *)&start, 0, sizeof(timespec));
+	memset((void *)&end, 0, sizeof(timespec));
+	//start = (struct timespec){ 0 };
+	//end = (struct timespec){ 0 };
 
 	struct buf_attrs battrs = {
 		.va = NULL,
@@ -488,7 +492,7 @@ static fpga_result non_loopback_test(fpga_handle afc_h, fpga_dma_handle_t dma_h,
 	if(config->direction == DMA_MTOS) {
 		fill_buffer((unsigned char *)battrs.va, config->data_size);
 		debug_print("filled test buffer\n");
-		
+
 		fpga_dma_tx_ctrl_t tx_ctrl;
 		if(config->transfer_type == DMA_TRANSFER_FIXED)
 			tx_ctrl = TX_NO_PACKET;
@@ -529,13 +533,13 @@ static fpga_result non_loopback_test(fpga_handle afc_h, fpga_dma_handle_t dma_h,
 			tid--;
 		}
 		clock_gettime(CLOCK_MONOTONIC, &end);
-		
+
 		#if !EMU_MODE
 		res = wait_checker(afc_h);
 		ON_ERR_GOTO(res, free_transfer, "checker verify failed");
 		#endif
 
-	} 
+	}
 	if(config->direction == DMA_STOM) {
 		fpga_dma_rx_ctrl_t rx_ctrl;
 		if(config->transfer_type == DMA_TRANSFER_FIXED)
@@ -586,7 +590,7 @@ static fpga_result non_loopback_test(fpga_handle afc_h, fpga_dma_handle_t dma_h,
 	std::cout << "PASS! Bandwidth = " << getBandwidth(config->data_size, getTime(start,end)) << " MB/s" << std::endl;
 
 free_transfer:
-	if(battrs.va) {
+	if(transfer) {
 		debug_print("destroying transfer\n");
 		res = fpgaDMATransferDestroy(&transfer);
 		ON_ERR_GOTO(res, out, "destroy transfer");
@@ -668,7 +672,7 @@ out:
 }
 
 int find_accelerator(const char *afu_id, struct config *config,
-			fpga_token *afu_tok) {
+			    fpga_token *afu_tok) {
 	UNUSED(afu_id);
 	fpga_result res;
 	fpga_guid guid;
@@ -676,7 +680,7 @@ int find_accelerator(const char *afu_id, struct config *config,
 	fpga_properties filter = NULL;
 
 	if(config->direction == DMA_MTOM) {
-		if(uuid_parse(MMDMA_AFU_ID, guid) < 0)
+ 		if(uuid_parse(MMDMA_AFU_ID, guid) < 0)
 			return 1;
 	} else {
 		if(uuid_parse(STDMA_AFU_ID, guid) < 0)
@@ -709,7 +713,7 @@ int find_accelerator(const char *afu_id, struct config *config,
 
 	res = fpgaEnumerate(&filter, 1, afu_tok, 1, &num_matches);
 	ON_ERR_GOTO(res, out_destroy_prop, "fpgaEnumerate");
-
+	
 out_destroy_prop:
 	res = fpgaDestroyProperties(&filter);
 	ON_ERR_GOTO(res, out, "fpgaDestroyProperties");
@@ -762,7 +766,7 @@ fpga_result do_action(struct config *config, fpga_token afc_tok)
 
 	if(config->direction == DMA_MTOM) {
 		res = fpgaDMAOpen(afc_h, 0, &dma_h);
-		ON_ERR_GOTO(res, out_unmap, "fpgaDMAOpen");
+		ON_ERR_GOTO(res, out_dma_close, "fpgaDMAOpen");
 		debug_print("opened memory to memory channel\n");
 
 		// Run test
@@ -774,12 +778,12 @@ fpga_result do_action(struct config *config, fpga_token afc_tok)
 			if(config->direction == DMA_MTOS) {
 				// Memory to stream -> Channel 0
 				res = fpgaDMAOpen(afc_h, 0, &dma_h);
-				ON_ERR_GOTO(res, out_unmap, "fpgaDMAOpen");
+				ON_ERR_GOTO(res, out_dma_close, "fpgaDMAOpen");
 				debug_print("opened memory to stream channel\n");
 			} else {
 				// Stream to memory -> Channel 1
 				res = fpgaDMAOpen(afc_h, 1, &dma_h);
-				ON_ERR_GOTO(res, out_unmap, "fpgaDMAOpen");
+				ON_ERR_GOTO(res, out_dma_close, "fpgaDMAOpen");
 				debug_print("opened stream to memory channel\n");
 			}
 
@@ -789,16 +793,30 @@ fpga_result do_action(struct config *config, fpga_token afc_tok)
 			debug_print("non loopback test success\n");
 		} else {
 			res = fpgaDMAOpen(afc_h, 0, &tx_dma_h);
-			ON_ERR_GOTO(res, out_unmap, "fpgaDMAOpen tx");
+			ON_ERR_GOTO(res, out_tx_close, "fpgaDMAOpen tx");
 
 			res = fpgaDMAOpen(afc_h, 1, &rx_dma_h);
-			ON_ERR_GOTO(res, out_unmap, "fpgaDMAOpen rx");
+			ON_ERR_GOTO(res, out_rx_close, "fpgaDMAOpen rx");
 
 			// Run test
 			res = loopback_test(afc_h, tx_dma_h, rx_dma_h, config);
-			ON_ERR_GOTO(res, out_unmap, "loopback test failed");
+			ON_ERR_GOTO(res, out_rx_close, "loopback test failed");
 			debug_print("loopback test success\n");
 		}
+	}
+
+out_rx_close:
+	if(rx_dma_h) {
+		res = fpgaDMAClose(rx_dma_h);
+		ON_ERR_GOTO(res, out_tx_close, "fpgaDMAClose");
+		debug_print("closed rx channel\n");
+	}
+
+out_tx_close:
+	if(tx_dma_h) {
+		res = fpgaDMAClose(tx_dma_h);
+		ON_ERR_GOTO(res, out_dma_close, "fpgaDMAClose");
+		debug_print("closed tx channel\n");
 	}
 
 out_dma_close:

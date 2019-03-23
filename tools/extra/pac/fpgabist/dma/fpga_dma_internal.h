@@ -48,8 +48,6 @@ using namespace tbb;
 #define FPGA_DMA_ERR(msg_str) \
 		fprintf(stderr, "Error %s: %s\n", __FUNCTION__, msg_str);
 
-#define UNUSED(x) (void)(x)
-
 #define MIN(X,Y) (X<Y)?X:Y
 
 #define QWORD_BYTES 8
@@ -200,8 +198,8 @@ typedef union {
 } msgdma_desc_ctrl_t;
 
 typedef union {
-	uint32_t reg;
-	struct {
+	uint32_t volatile reg;
+	volatile struct {
 		uint32_t busy:1;
 		uint32_t desc_buf_empty:1;
 		uint32_t desc_buf_full:1;
@@ -361,6 +359,8 @@ struct fpga_dma_handle {
 	pthread_t pending_id;
 	pthread_mutex_t dma_mutex;
 	sem_t dma_init;
+	volatile bool invalidate;
+	volatile bool terminate;
 };
 
 // Prefetcher ctrl register
@@ -379,13 +379,17 @@ typedef union {
 
 // MSGDMA status register
 typedef union {
-	uint64_t reg;
-	struct {
+	uint64_t volatile reg;
+	volatile struct {
 		uint64_t irq:1;
 		uint64_t fetch_idle:1;
-		uint64_t rsvd1:14;
+		uint64_t store_idle:1;
+		uint64_t rsvd1:5;
+		uint64_t fetch_state:3;
+		uint64_t store_state:2;
+		uint64_t rsvd2:3;
 		uint64_t outstanding_fetches:16;
-		uint64_t rsvd2:32;
+		uint64_t rsvd3:32;
 	} st;
 } msgdma_prefetcher_status_t;
 
