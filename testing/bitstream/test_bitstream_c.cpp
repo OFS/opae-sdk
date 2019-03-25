@@ -28,15 +28,19 @@
 
 extern "C" {
 
-int parse_metadata(opae_bitstream_info *info);
+fpga_result opae_bitstream_read_file(const char *file,
+				     uint8_t **buf,
+				     size_t *len);
 
-fpga_result string_to_guid(const char *guid, fpga_guid *result);
+void opae_resolve_legacy_bitstream(opae_bitstream_info *info);
 
-fpga_result get_bitstream_ifc_id(const uint8_t *bitstream,
-				 size_t bs_len,
-				 fpga_guid *guid);
+void *opae_bitstream_parse_metadata(const char *metadata,
+				    fpga_guid pr_interface_id,
+				    int *version);
 
-fpga_result read_bitstream(const char *filename, opae_bitstream_info *info);
+fpga_result opae_resolve_bitstream(opae_bitstream_info *info);
+
+extern fpga_guid valid_GBS_guid;
 
 }
 
@@ -50,14 +54,27 @@ fpga_result read_bitstream(const char *filename, opae_bitstream_info *info);
 #include "test_system.h"
 #include "safe_string/safe_string.h"
 
+const fpga_guid guid = {
+  0x02, 0x7f, 0x3a, 0x1a,
+  0xcb, 0x3b,
+  0x0c, 0x87,
+  0x53, 0x4b,
+  0x56, 0x7d, 0x4a, 0xf6, 0x93, 0xe9
+};
+const fpga_guid guid_reversed = {
+  0xe9, 0x93, 0xf6, 0x4a,
+  0x7d, 0x56,
+  0x4b, 0x53,
+  0x87, 0x0c,
+  0x3b, 0xcb, 0x1a, 0x3a, 0x7f, 0x02
+};
+
 using namespace opae::testing;
 
 class bitstream_c_p : public ::testing::TestWithParam<std::string> {
  protected:
 
   virtual void SetUp() override {
-    strcpy(tmpnull_gbs_, "tmpnull-XXXXXX.gbs");
-    close(mkstemps(tmpnull_gbs_, 4));
     std::string platform_key = GetParam();
     ASSERT_TRUE(test_platform::exists(platform_key));
     platform_ = test_platform::get(platform_key);
@@ -65,19 +82,15 @@ class bitstream_c_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
 
-    null_gbs_ = system_->assemble_gbs_header(platform_.devices[0]);
+    strcpy(tmpnull_gbs_, "tmpnull-XXXXXX.gbs");
+    close(mkstemps(tmpnull_gbs_, 4));
 
-    uint8_t *zeros = new uint8_t[4096];
-    ASSERT_NE(zeros, nullptr);
-    memset_s(zeros, 4096, 0);
+    null_gbs_ = system_->assemble_gbs_header(platform_.devices[0]);
 
     std::ofstream gbs;
     gbs.open(tmpnull_gbs_, std::ios::out|std::ios::binary);
     gbs.write((const char *) null_gbs_.data(), null_gbs_.size());
-    gbs.write((const char *) zeros, 4096);
     gbs.close();
-
-    delete[] zeros;
   }
 
   virtual void TearDown() override {
@@ -96,347 +109,294 @@ class bitstream_c_p : public ::testing::TestWithParam<std::string> {
 };
 
 /**
+ * @test       read_err0
+ * @brief      Test: opae_bitstream_read_file
+ * @details    If the given file doesn't exist,<br>
+ *             the fn returns FPGA_EXCEPTION.<br>
+ */
+TEST_P(bitstream_c_p, read_err0) {
+  uint8_t *buf = nullptr;
+  size_t len = 0;
+  EXPECT_EQ(opae_bitstream_read_file("doesntexist", &buf, &len),
+	    FPGA_EXCEPTION);
+}
+
+/**
+ * @test       is_legacy
+ * @brief      Test: opae_is_legacy_bitstream
+ * @details    If the given info pointer is that for a<br>
+ *             legacy format bitstream,<br>
+ *             the fn returns true.<br>
+ */
+TEST_P(bitstream_c_p, is_legacy) {
+  opae_legacy_bitstream_header hdr;
+  hdr.legacy_magic = OPAE_LEGACY_BITSTREAM_MAGIC;
+
+  opae_bitstream_info info;
+  info.data = (uint8_t *)&hdr;
+  info.data_len = sizeof(hdr);
+
+  EXPECT_TRUE(opae_is_legacy_bitstream(&info));
+}
+
+/**
+ * @test       resolve_legacy
+ * @brief      Test: opae_resolve_legacy_bitstream
+ * @details    Given an opae_bitstream_info with data and<br>
+ *             data_len fields populated,<br>
+ *             opae_resolve_legacy_bitstream fills the<br>
+ *             pr_interface_id, rbf_data, and rbf_len<br>
+ *             fields appropriately.<br>
+ */
+TEST_P(bitstream_c_p, resolve_legacy) {
+  char buf[sizeof(opae_legacy_bitstream_header) + sizeof(uint32_t)];
+
+  opae_legacy_bitstream_header *hdr = 
+    (opae_legacy_bitstream_header *)buf;
+  hdr->legacy_magic = OPAE_LEGACY_BITSTREAM_MAGIC;
+  memcpy(hdr->legacy_pr_ifc_id, guid, sizeof(guid));
+
+  opae_bitstream_info info;
+  info.data = (uint8_t *)hdr;
+  info.data_len = sizeof(buf);
+  info.metadata_version = 0;
+  info.parsed_metadata = nullptr;
+
+  opae_resolve_legacy_bitstream(&info);
+
+  EXPECT_EQ(info.rbf_data, (uint8_t *)&buf[sizeof(opae_legacy_bitstream_header)]);
+  EXPECT_EQ(info.rbf_len, sizeof(uint32_t));
+  EXPECT_EQ(memcmp(info.pr_interface_id, guid_reversed, sizeof(guid_reversed)), 0);
+  EXPECT_EQ(info.metadata_version, 0);
+  EXPECT_EQ(info.parsed_metadata, nullptr);
+}
+
+/**
  * @test       parse_err0
- * @brief      Test: parse_metadata
- * @details    When parse_metadata is given a null pointer,<br>
- *             the fn returns a negative value.<br>
+ * @brief      Test: opae_bitstream_parse_metadata
+ * @details    If the given metadata string is not valid JSON,<br>
+ *             the fn returns NULL.<br>
  */
 TEST_P(bitstream_c_p, parse_err0) {
-  EXPECT_LT(parse_metadata(nullptr), 0);
+    const char *mdata =
+    R"mdata({
+)mdata";
+  fpga_guid guid;
+  int ver = 0;
+
+  EXPECT_EQ(opae_bitstream_parse_metadata(mdata, guid, &ver), nullptr);
 }
 
 /**
  * @test       parse_err1
- * @brief      Test: parse_metadata
- * @details    When the parameter to parse_metadata has a data_len field,<br>
- *             that is less than the size of a gbs header,<br>
- *             the fn returns a negative value.<br>
+ * @brief      Test: opae_bitstream_parse_metadata
+ * @details    If the given metadata string contains no version key,<br>
+ *             the fn returns NULL.<br>
  */
 TEST_P(bitstream_c_p, parse_err1) {
-  opae_bitstream_info info;
-  info.data_len = 3;
-  EXPECT_LT(parse_metadata(&info), 0);
+    const char *mdata =
+    R"mdata({
+})mdata";
+  fpga_guid guid;
+  int ver = 0;
+
+  EXPECT_EQ(opae_bitstream_parse_metadata(mdata, guid, &ver), nullptr);
 }
 
 /**
  * @test       parse_err2
- * @brief      Test: parse_metadata
- * @details    When the parameter to parse_metadata has a data field<br>
- *             with an invalid gbs magic value in the first 32 bits,<br>
- *             the fn returns a negative value.<br>
+ * @brief      Test: opae_bitstream_parse_metadata
+ * @details    If the given metadata string contains a version key,<br>
+ *             the type of which is not integer,<br>
+ *             the fn returns NULL.<br>
  */
 TEST_P(bitstream_c_p, parse_err2) {
-  opae_bitstream_info info;
-  uint32_t blah = 0;
-  info.data_len = 20;
-  info.data = (uint8_t *) &blah;
-  EXPECT_LT(parse_metadata(&info), 0);
+    const char *mdata =
+    R"mdata({
+  "version": "ver"
+})mdata";
+  fpga_guid guid;
+  int ver = 0;
+
+  EXPECT_EQ(opae_bitstream_parse_metadata(mdata, guid, &ver), nullptr);
 }
 
 /**
- * @test       parse
- * @brief      Test: parse_metadata
- * @details    When parse_metadata is called with valid input<br>
- *             the fn returns zero.<br>
+ * @test       parse_err3
+ * @brief      Test: opae_bitstream_parse_metadata
+ * @details    If the given metadata string contains a version key<br>
+ *             which matches no valid metadata version,<br>
+ *             the fn returns NULL.<br>
  */
-TEST_P(bitstream_c_p, parse) {
-  opae_bitstream_info info;
-  ASSERT_EQ(read_bitstream(tmpnull_gbs_, &info), FPGA_OK);
-  *(uint32_t *) info.data = 0x1d1f8680;
-  EXPECT_EQ(parse_metadata(&info), 0);
-  free(info.data);
+TEST_P(bitstream_c_p, parse_err3) {
+    const char *mdata =
+    R"mdata({
+  "version": 99
+})mdata";
+  fpga_guid guid;
+  int ver = 0;
+
+  EXPECT_EQ(opae_bitstream_parse_metadata(mdata, guid, &ver), nullptr);
 }
 
 /**
- * @test       get_bits_err0
- * @brief      Test: get_bitstream_ifc_id
- * @details    When get_bitstream_ifc_id is passed a NULL bitstream buffer,<br>
+ * @test       resolve_err0
+ * @brief      Test: opae_resolve_bitstream
+ * @details    Given an opae_bitstream_info that has a guid<br>
+ *             that does not match the valid GBS guid,<br>
+ *             the fn returns FPGA_INVALID_PARAM.<br>
+ */
+TEST_P(bitstream_c_p, resolve_err0) {
+  opae_bitstream_header hdr;
+  memcpy(hdr.valid_gbs_guid, valid_GBS_guid, sizeof(fpga_guid));
+  hdr.valid_gbs_guid[0] = ~hdr.valid_gbs_guid[0];
+  hdr.metadata_length = 1;
+
+  opae_bitstream_info info;
+  info.data = (uint8_t *)&hdr;
+  info.data_len = sizeof(hdr);
+
+  EXPECT_EQ(opae_resolve_bitstream(&info), FPGA_INVALID_PARAM);
+}
+
+/**
+ * @test       resolve_err1
+ * @brief      Test: opae_resolve_bitstream
+ * @details    Given an opae_bitstream_info that has a metadata_length<br>
+ *             field that causes the header size to exceed the file size,<br>
+ *             the fn returns FPGA_INVALID_PARAM.<br>
+ */
+TEST_P(bitstream_c_p, resolve_err1) {
+  opae_bitstream_header hdr;
+  memcpy(hdr.valid_gbs_guid, valid_GBS_guid, sizeof(fpga_guid));
+  hdr.metadata_length = 2;
+
+  opae_bitstream_info info;
+  info.filename = tmpnull_gbs_;
+  info.data = (uint8_t *)&hdr;
+  info.data_len = sizeof(hdr);
+
+  EXPECT_EQ(opae_resolve_bitstream(&info), FPGA_INVALID_PARAM);
+}
+
+/**
+ * @test       load_err0
+ * @brief      Test: opae_load_bitstream
+ * @details    If either of the parameters is NULL,<br>
+ *             the fn returns FPGA_INVALID_PARAM.<br>
+ */
+TEST_P(bitstream_c_p, load_err0) {
+  EXPECT_EQ(opae_load_bitstream(tmpnull_gbs_, nullptr), FPGA_INVALID_PARAM);
+}
+
+/**
+ * @test       load_err1
+ * @brief      Test: opae_load_bitstream
+ * @details    If the given file name doesn't exist,<br>
+ *             the fn returns FPGA_INVALID_PARAM.<br>
+ */
+TEST_P(bitstream_c_p, load_err1) {
+  opae_bitstream_info info;
+  EXPECT_EQ(opae_load_bitstream("doesntexist", &info), FPGA_INVALID_PARAM);
+}
+
+/**
+ * @test       load_ok0
+ * @brief      Test: opae_load_bitstream
+ * @details    If the given opae_bitstream_info represents a<br>
+ *             legacy formatted bitstream,<br>
+ *             the fn resolve it and returns FPGA_OK.<br>
+ */
+TEST_P(bitstream_c_p, load_ok0) {
+  opae_legacy_bitstream_header hdr;
+  hdr.legacy_magic = OPAE_LEGACY_BITSTREAM_MAGIC;
+  memcpy(hdr.legacy_pr_ifc_id, guid, sizeof(fpga_guid));
+
+  std::ofstream gbs;
+  gbs.open(tmpnull_gbs_, std::ios::out|std::ios::binary);
+  gbs.write((const char *)&hdr, sizeof(hdr));
+  gbs.close();
+
+  opae_bitstream_info info;
+  EXPECT_EQ(opae_load_bitstream(tmpnull_gbs_, &info), FPGA_OK);
+  EXPECT_STREQ(tmpnull_gbs_, info.filename);
+  ASSERT_NE(info.data, nullptr);
+  EXPECT_EQ(info.data_len, sizeof(hdr));
+  EXPECT_EQ(info.rbf_data, info.data + sizeof(hdr));
+  EXPECT_EQ(info.rbf_len, 0);
+  EXPECT_EQ(memcmp(info.pr_interface_id, guid_reversed, sizeof(fpga_guid)), 0);
+  EXPECT_EQ(info.metadata_version, 0);
+  EXPECT_EQ(info.parsed_metadata, nullptr);
+  EXPECT_EQ(opae_unload_bitstream(&info), FPGA_OK);
+}
+
+/**
+ * @test       unload_err0
+ * @brief      Test: opae_unload_bitstream
+ * @details    When passed NULL,<br>
+ *             the fn returns FPGA_INVALID_PARAM.<br>
+ */
+TEST_P(bitstream_c_p, unload_err0) {
+  EXPECT_EQ(opae_unload_bitstream(nullptr), FPGA_INVALID_PARAM);
+}
+
+/**
+ * @test       unload_err1
+ * @brief      Test: opae_unload_bitstream
+ * @details    When passed an opae_bitstream_info that<br>
+ *             has an unsupported metadata version,
  *             the fn returns FPGA_EXCEPTION.<br>
  */
-TEST_P(bitstream_c_p, get_bits_err0) {
-  EXPECT_EQ(get_bitstream_ifc_id(nullptr, 0, nullptr), FPGA_EXCEPTION);
-}
-
-/**
- * @test       get_bits_err1
- * @brief      Test: get_bitstream_ifc_id
- * @details    When malloc fails,<br>
- *             get_bitstream_ifc_id returns FPGA_NO_MEMORY.<br>
- */
-TEST_P(bitstream_c_p, get_bits_err1) {
+TEST_P(bitstream_c_p, unload_err1) {
   opae_bitstream_info info;
-  ASSERT_EQ(read_bitstream(tmpnull_gbs_, &info), FPGA_OK);
+  info.data = nullptr;
+  info.parsed_metadata = malloc(4);
+  uint8_t *save = (uint8_t *)info.parsed_metadata;
+  info.metadata_version = 99;
 
-  fpga_guid guid;
-  system_->invalidate_malloc(0, "get_bitstream_ifc_id");
-  EXPECT_EQ(get_bitstream_ifc_id(info.data, info.data_len, &guid), FPGA_NO_MEMORY);
-  free(info.data);
-}
+  EXPECT_EQ(opae_unload_bitstream(&info), FPGA_EXCEPTION);
 
-/**
- * @test       get_bits_err2
- * @brief      Test: get_bitstream_ifc_id
- * @details    When get_bitstream_ifc_id is passed a bitstream buffer,<br>
- *             and that buffer has a json data length field of zero,
- *             then the fn returns FPGA_OK.<br>
- */
-TEST_P(bitstream_c_p, get_bits_err2) {
-  opae_bitstream_info info;
-  ASSERT_EQ(read_bitstream(tmpnull_gbs_, &info), FPGA_OK);
-
-  fpga_guid guid;
-  *(uint32_t *) (info.data + 16) = 0;
-  EXPECT_EQ(get_bitstream_ifc_id(info.data, info.data_len, &guid), FPGA_OK);
-  free(info.data);
-}
-
-/**
- * @test       get_bits_err3
- * @brief      Test: get_bitstream_ifc_id
- * @details    When get_bitstream_ifc_id is passed a bitstream buffer,<br>
- *             and that buffer has a json data length field of that is invalid,
- *             then the fn returns FPGA_EXCEPTION.<br>
- */
-TEST_P(bitstream_c_p, get_bits_err3) {
-  opae_bitstream_info info;
-  EXPECT_EQ(read_bitstream(tmpnull_gbs_, &info), 0);
-
-  fpga_guid guid;
-  *(uint32_t *) (info.data + 16) = 65535;
-  EXPECT_EQ(get_bitstream_ifc_id(info.data, info.data_len, &guid), FPGA_EXCEPTION);
-  free(info.data);
-}
-
-/**
- * @test       read_bits_err0
- * @brief      Test: read_bitstream
- * @details    When given a NULL filename,<br>
- *             read_bitstream returns FPGA_INVALID_PARAM.<br>
- */
-TEST_P(bitstream_c_p, read_bits_err0) {
-  opae_bitstream_info info;
-  EXPECT_EQ(read_bitstream(nullptr, &info), FPGA_INVALID_PARAM);
-}
-
-/**
- * @test       read_bits_err1
- * @brief      Test: read_bitstream
- * @details    When the filename is not found,<br>
- *             read_bitstream returns FPGA_EXCEPTION.<br>
- */
-TEST_P(bitstream_c_p, read_bits_err1) {
-  opae_bitstream_info info;
-  EXPECT_EQ(read_bitstream("/doesnt/exist", &info), FPGA_EXCEPTION);
-}
-
-/**
- * @test       read_bits_err2
- * @brief      Test: read_bitstream
- * @details    When malloc fails,<br>
- *             read_bitstream returns FPGA_EXCEPTION.<br>
- */
-TEST_P(bitstream_c_p, read_bits_err2) {
-  opae_bitstream_info info;
-  system_->invalidate_malloc(0, "read_bitstream");
-  EXPECT_EQ(read_bitstream(tmpnull_gbs_, &info), FPGA_EXCEPTION);
-}
-
-/**
- * @test       read_bits
- * @brief      Test: read_bitstream
- * @details    When the parameters to read_bitstream are valid,<br>
- *             the function loads the given gbs file into the bitstream_info.<br>
- */
-TEST_P(bitstream_c_p, read_bits) {
-  opae_bitstream_info info;
-  ASSERT_EQ(read_bitstream(tmpnull_gbs_, &info), FPGA_OK);
-  free(info.data);
-}
-
-/**
- * @test       load_unload
- * @brief      Test: opae_load_bitstream, opae_unload_bitstream
- * @details    When the parameters to opae_load_bitstream are valid,<br>
- *             the function loads the given gbs file.<br>
- *             opae_unload_bitstream releases the gbs file.<br>
- */
-TEST_P(bitstream_c_p, load_unload) {
-  opae_bitstream_info info;
-  ASSERT_EQ(opae_load_bitstream(tmpnull_gbs_, &info), FPGA_OK);
-  opae_unload_bitstream(&info);
-}
-
-/**
- * @test       string_err
- * @brief      Test: string_to_guid
- * @details    When given an invalid guid string,<br>
- *             the function returns FPGA_INVALID_PARAM.<br>
- */
-TEST_P(bitstream_c_p, string_err) {
-  fpga_guid guid;
-  EXPECT_EQ(string_to_guid("blah", &guid), FPGA_INVALID_PARAM);
+  free(save);
 }
 
 INSTANTIATE_TEST_CASE_P(bitstream_c, bitstream_c_p,
     ::testing::ValuesIn(test_platform::platforms({})));
 
-class skx_p_bitstream_c_p : public ::testing::TestWithParam<std::string> {
- protected:
 
-  virtual void SetUp() override {
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-  }
-
-  virtual void TearDown() override {
-    system_->finalize();
-  }
-
-  std::vector<uint8_t> bitstream_no_uuid()
-  {
-#if 0
-    const char *skx_mdata =
-    R"mdata({"version": 640,
-   "afu-image":
-    {"clock-frequency-high": 312,
-     "clock-frequency-low": 156,
-     "power": 50,
-     "interface-uuid": "1a422218-6dba-448e-b302-425cbcde1406",
-     "magic-no": 488605312,
-     "accelerator-clusters":
-      [
-        {
-          "total-contexts": 1,
-          "name": "nlb_400",
-          "accelerator-type-uuid": "d8424dc4-a4a3-c413-f89e-433683f9040b"
-        }
-      ]
-     },
-     "platform-name": "MCP"}";
-)mdata";
-#endif
-
-    const char *skx_mdata_no_uuid =
-    R"mdata({"version": 640,
-   "afu-image":
-    {"clock-frequency-high": 312,
-     "clock-frequency-low": 156,
-     "power": 50,
-     "magic-no": 488605312,
-     "accelerator-clusters":
-      [
-        {
-          "total-contexts": 1,
-          "name": "nlb_400",
-          "accelerator-type-uuid": "d8424dc4-a4a3-c413-f89e-433683f9040b"
-        }
-      ]
-     },
-     "platform-name": "MCP"}";
-)mdata";
-
-    return system_->assemble_gbs_header(platform_.devices[0],
-					skx_mdata_no_uuid);
-  }
-
-  std::vector<uint8_t> bitstream_bad_uuid()
-  {
-    const char *skx_mdata_bad_uuid =
-    R"mdata({"version": 640,
-   "afu-image":
-    {"clock-frequency-high": 312,
-     "clock-frequency-low": 156,
-     "power": 50,
-     "interface-uuid": "wrong",
-     "magic-no": 488605312,
-     "accelerator-clusters":
-      [
-        {
-          "total-contexts": 1,
-          "name": "nlb_400",
-          "accelerator-type-uuid": "d8424dc4-a4a3-c413-f89e-433683f9040b"
-        }
-      ]
-     },
-     "platform-name": "MCP"}";
-)mdata";
-
-    return system_->assemble_gbs_header(platform_.devices[0],
-					skx_mdata_bad_uuid);
-  }
-
-  std::vector<uint8_t> bitstream_no_afu_image()
-  {
-    const char *skx_mdata_smafu =
-    R"mdata({"version": 640,
-   "smafu-image":
-    {"clock-frequency-high": 312,
-     "clock-frequency-low": 156,
-     "power": 50,
-     "interface-uuid": "1a422218-6dba-448e-b302-425cbcde1406",
-     "magic-no": 488605312,
-     "accelerator-clusters":
-      [
-        {
-          "total-contexts": 1,
-          "name": "nlb_400",
-          "accelerator-type-uuid": "d8424dc4-a4a3-c413-f89e-433683f9040b"
-        }
-      ]
-     },
-     "platform-name": "MCP"}";
-)mdata";
-
-    return system_->assemble_gbs_header(platform_.devices[0],
-					skx_mdata_smafu);
-  }
-
-  test_platform platform_;
-  test_system *system_;
-};
+class mock_bitstream_c_p : public bitstream_c_p {};
 
 /**
- * @test       missing_interface_uuid
- * @brief      Test: get_bitstream_ifc_id
- * @details    When given a bitstream that lacks an,<br>
- *             interface uuid, the function returns FPGA_INVALID_PARAM.<br>
+ * @test       read_err1
+ * @brief      Test: opae_bitstream_read_file
+ * @details    If malloc fails,<br>
+ *             the fn returns FPGA_NO_MEMORY.<br>
  */
-TEST_P(skx_p_bitstream_c_p, missing_interface_uuid) {
-  std::vector<uint8_t> bits = bitstream_no_uuid();
-  fpga_guid guid;
-  EXPECT_EQ(get_bitstream_ifc_id(bits.data(), bits.size(), &guid),
-            FPGA_INVALID_PARAM);
+TEST_P(mock_bitstream_c_p, read_err1) {
+  uint8_t *buf = nullptr;
+  size_t len = 0;
+  system_->invalidate_malloc(0, "opae_bitstream_read_file");
+  EXPECT_EQ(opae_bitstream_read_file(tmpnull_gbs_, &buf, &len), FPGA_NO_MEMORY);
 }
 
 /**
- * @test       bad_interface_uuid
- * @brief      Test:get_bitstream_ifc_id
- * @details    When given a bitstream that has an invalid<br>
- *             interface uuid, the function returns FPGA_INVALID_PARAM.<br>
+ * @test       resolve_err2
+ * @brief      Test: opae_resolve_bitstream
+ * @details    When malloc fails<br>
+ *             the fn returns FPGA_NO_MEMORY.<br>
  */
-TEST_P(skx_p_bitstream_c_p, bad_interface_uuid) {
-  std::vector<uint8_t> bits = bitstream_bad_uuid();
-  fpga_guid guid;
-  EXPECT_EQ(get_bitstream_ifc_id(bits.data(), bits.size(), &guid),
-            FPGA_INVALID_PARAM);
+TEST_P(mock_bitstream_c_p, resolve_err2) {
+  opae_bitstream_header hdr;
+  memcpy(hdr.valid_gbs_guid, valid_GBS_guid, sizeof(fpga_guid));
+  hdr.metadata_length = 1;
+
+  opae_bitstream_info info;
+  info.filename = tmpnull_gbs_;
+  info.data = (uint8_t *)&hdr;
+  info.data_len = sizeof(hdr);
+
+  system_->invalidate_malloc(0, "opae_resolve_bitstream");
+  EXPECT_EQ(opae_resolve_bitstream(&info), FPGA_NO_MEMORY);
 }
 
-/**
- * @test       no_afu_image
- * @brief      Test:get_bitstream_ifc_id
- * @details    When given a bitstream that has no<br>
- *             afu-image section, the function returns FPGA_INVALID_PARAM.<br>
- */
-TEST_P(skx_p_bitstream_c_p, no_afu_image) {
-  std::vector<uint8_t> bits = bitstream_no_afu_image();
-  fpga_guid guid;
-  EXPECT_EQ(get_bitstream_ifc_id(bits.data(), bits.size(), &guid),
-            FPGA_INVALID_PARAM);
-}
-
-INSTANTIATE_TEST_CASE_P(bitstream_c, skx_p_bitstream_c_p,
-    ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
+INSTANTIATE_TEST_CASE_P(bitstream_c, mock_bitstream_c_p,
+    ::testing::ValuesIn(test_platform::mock_platforms({})));

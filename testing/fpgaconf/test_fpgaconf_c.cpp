@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -25,6 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <opae/fpga.h>
+#include <libbitstream/bitstream.h>
 #include "gtest/gtest.h"
 #include "test_system.h"
 #include "test_utils.h"
@@ -52,21 +53,6 @@ struct config {
 };
 extern struct config config;
 
-struct bitstream_info {
-  char *filename;
-  uint8_t *data;
-  size_t data_len;
-  uint8_t *rbf_data;
-  size_t rbf_len;
-  fpga_guid interface_id;
-};
-
-fpga_result get_bitstream_ifc_id(const uint8_t *bitstream, size_t bs_len, fpga_guid *guid);
-
-int parse_metadata(struct bitstream_info *info);
-
-int read_bitstream(char *filename, struct bitstream_info *info);
-
 void help(void);
 
 void print_err(const char *s, fpga_result res);
@@ -80,42 +66,10 @@ int print_interface_id(fpga_guid actual_interface_id);
 int find_fpga(fpga_guid interface_id, fpga_token *fpga);
 
 int program_bitstream(fpga_token token, uint32_t slot_num,
-                      struct bitstream_info *info, int flags);
+                      opae_bitstream_info *info, int flags);
 
 int fpgaconf_main(int argc, char *argv[]);
 
-uint64_t read_int_from_bitstream(const uint8_t *bitstream, uint8_t size);
-
-fpga_result string_to_guid(const char *guid, fpga_guid *result);
-
-fpga_result check_bitstream_guid(const uint8_t *bitstream);
-
-#define GUID_LEN      36
-#define AFU_NAME_LEN 512
-
-struct gbs_metadata {
-  double version;                             // version
-
-  struct afu_image_content {
-
-    uint64_t magic_num;                 // Magic number
-    char interface_uuid[GUID_LEN + 1];  // Interface id
-    int clock_frequency_high;           // user clock frequency hi
-    int clock_frequency_low;            // user clock frequency low
-    int power;                          // power
-
-    struct afu_clusters_content {
-      char name[AFU_NAME_LEN];     // AFU Name
-      int  total_contexts;         // total contexts
-      char afu_uuid[GUID_LEN + 1]; // afu guid
-    } afu_clusters;
-
-  } afu_image;
-
-};
-
-fpga_result read_gbs_metadata(const uint8_t *bitstream,
-                              struct gbs_metadata *gbs_metadata);
 }
 
 fpga_guid test_guid = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
@@ -153,8 +107,11 @@ class fpgaconf_c_p : public ::testing::TestWithParam<std::string> {
     auto afu_guid = platform_.devices[0].afu_guid;
 
     auto bitstream_j = jobject
-    ("version", "640")
+    ("version", int32_t(1))
     ("afu-image", jobject
+                  ("clock-frequency-high", int32_t(312))
+		  ("clock-frequency-low", int32_t(156))
+		  ("power", int32_t(50))
                   ("interface-uuid", fme_guid)
                   ("magic-no", int32_t(488605312))
                   ("accelerator-clusters", {
@@ -165,7 +122,7 @@ class fpgaconf_c_p : public ::testing::TestWithParam<std::string> {
                                             }
                   )
     )
-    ("platform-name", "");
+    ("platform-name", "platformX");
 
     bitstream_valid_ = system_->assemble_gbs_header(platform_.devices[0], bitstream_j.c_str());
     bitstream_j.put();
@@ -215,118 +172,6 @@ TEST_P(fpgaconf_c_p, help) {
 }
 
 /**
- * @test       parse_err0
- * @brief      Test: parse_metadata
- * @details    When parse_metadata is given a null pointer,<br>
- *             the fn returns a negative value.<br>
- */
-TEST_P(fpgaconf_c_p, parse_err0) {
-  EXPECT_LT(parse_metadata(nullptr), 0);
-}
-
-/**
- * @test       parse_err1
- * @brief      Test: parse_metadata
- * @details    When the parameter to parse_metadata has a data_len field,<br>
- *             that is less than the size of a gbs header,<br>
- *             the fn returns a negative value.<br>
- */
-TEST_P(fpgaconf_c_p, parse_err1) {
-  struct bitstream_info info;
-  info.data_len = 3;
-  EXPECT_LT(parse_metadata(&info), 0);
-}
-
-/**
- * @test       parse_err2
- * @brief      Test: parse_metadata
- * @details    When the parameter to parse_metadata has a data field<br>
- *             with an invalid gbs magic value in the first 32 bits,<br>
- *             the fn returns a negative value.<br>
- */
-TEST_P(fpgaconf_c_p, parse_err2) {
-  struct bitstream_info info;
-  uint32_t blah = 0;
-  info.data_len = 20;
-  info.data = (uint8_t *) &blah;
-  EXPECT_LT(parse_metadata(&info), 0);
-}
-
-/**
- * @test       parse
- * @brief      Test: parse_metadata
- * @details    When parse_metadata is called with valid input<br>
- *             the fn returns zero.<br>
- */
-TEST_P(fpgaconf_c_p, parse) {
-  struct bitstream_info info;
-  EXPECT_EQ(read_bitstream(tmp_gbs_, &info), 0);
-  *(uint32_t *) info.data = 0x1d1f8680;
-  EXPECT_EQ(parse_metadata(&info), 0);
-  free(info.data);
-}
-
-/**
- * @test       get_bits_err0
- * @brief      Test: get_bitstream_ifc_id
- * @details    When get_bitstream_ifc_id is passed a NULL bitstream buffer,<br>
- *             the fn returns FPGA_EXCEPTION.<br>
- */
-TEST_P(fpgaconf_c_p, get_bits_err0) {
-  EXPECT_EQ(get_bitstream_ifc_id(nullptr, 0, nullptr), FPGA_EXCEPTION);
-}
-
-/**
- * @test       get_bits_err1
- * @brief      Test: get_bitstream_ifc_id
- * @details    When malloc fails,<br>
- *             get_bitstream_ifc_id returns FPGA_NO_MEMORY.<br>
- */
-TEST_P(fpgaconf_c_p, get_bits_err1) {
-  struct bitstream_info info;
-  EXPECT_EQ(read_bitstream(tmp_gbs_, &info), 0);
-
-  fpga_guid guid;
-  system_->invalidate_malloc(0, "get_bitstream_ifc_id");
-  EXPECT_EQ(get_bitstream_ifc_id(info.data, info.data_len, &guid), FPGA_NO_MEMORY);
-  free(info.data);
-}
-
-/**
- * @test       get_bits_err2
- * @brief      Test: get_bitstream_ifc_id
- * @details    When get_bitstream_ifc_id is passed a bitstream buffer,<br>
- *             and that buffer has a json data length field of zero,
- *             then the fn returns FPGA_OK.<br>
- */
-TEST_P(fpgaconf_c_p, get_bits_err2) {
-  struct bitstream_info info;
-  EXPECT_EQ(read_bitstream(tmp_gbs_, &info), 0);
-
-  fpga_guid guid;
-  *(uint32_t *) (info.data + 16) = 0;
-  EXPECT_EQ(get_bitstream_ifc_id(info.data, info.data_len, &guid), FPGA_OK);
-  free(info.data);
-}
-
-/**
- * @test       get_bits_err3
- * @brief      Test: get_bitstream_ifc_id
- * @details    When get_bitstream_ifc_id is passed a bitstream buffer,<br>
- *             and that buffer has a json data length field of that is invalid,
- *             then the fn returns FPGA_EXCEPTION.<br>
- */
-TEST_P(fpgaconf_c_p, get_bits_err3) {
-  struct bitstream_info info;
-  EXPECT_EQ(read_bitstream(tmp_gbs_, &info), 0);
-
-  fpga_guid guid;
-  *(uint32_t *) (info.data + 16) = 65535;
-  EXPECT_EQ(get_bitstream_ifc_id(info.data, info.data_len, &guid), FPGA_EXCEPTION);
-  free(info.data);
-}
-
-/**
  * @test       print_err
  * @brief      Test: print_err
  * @details    print_err sends the given string and a decoding of the fpga_result<br>
@@ -344,52 +189,6 @@ TEST_P(fpgaconf_c_p, print_err) {
  */
 TEST_P(fpgaconf_c_p, print_msg) {
   print_msg(0, "msg");
-}
-
-/**
- * @test       read_bits_err0
- * @brief      Test: read_bitstream
- * @details    When given a NULL filename,<br>
- *             read_bitstream returns a negative value.<br>
- */
-TEST_P(fpgaconf_c_p, read_bits_err0) {
-  struct bitstream_info info;
-  EXPECT_LT(read_bitstream(nullptr, &info), 0);
-}
-
-/**
- * @test       read_bits_err1
- * @brief      Test: read_bitstream
- * @details    When the filename is not found,<br>
- *             read_bitstream returns a negative value.<br>
- */
-TEST_P(fpgaconf_c_p, read_bits_err1) {
-  struct bitstream_info info;
-  EXPECT_LT(read_bitstream((char *) "/doesnt/exist", &info), 0);
-}
-
-/**
- * @test       read_bits_err2
- * @brief      Test: read_bitstream
- * @details    When malloc fails,<br>
- *             read_bitstream returns a negative value.<br>
- */
-TEST_P(fpgaconf_c_p, read_bits_err2) {
-  struct bitstream_info info;
-  system_->invalidate_malloc(0, "read_bitstream");
-  EXPECT_LT(read_bitstream(tmp_gbs_, &info), 0);
-}
-
-/**
- * @test       read_bits
- * @brief      Test: read_bitstream
- * @details    When the parameters to read_bitstream are valid,<br>
- *             the function loads the given gbs file into the bitstream_info.<br>
- */
-TEST_P(fpgaconf_c_p, read_bits) {
-  struct bitstream_info info;
-  EXPECT_EQ(read_bitstream(tmp_gbs_, &info), 0);
-  free(info.data);
 }
 
 /**
@@ -1071,198 +870,6 @@ TEST_P(fpgaconf_c_p, circular_symlink) {
   remove("link2");
 }
 
-/**
- * @test       str_to_guid
- * @brief      Test: string_to_guid
- * @details    When the given string does not represent a valid GUID,<br>
- *             string_to_guid returns FPGA_INVALID_PARAM.<br>
- */
-TEST_P(fpgaconf_c_p, str_to_guid) {
-  fpga_guid guid;
-  EXPECT_EQ(string_to_guid("abc", &guid), FPGA_INVALID_PARAM);
-}
-
-/**
- * @test       read_int
- * @brief      Test: read_int_from_bitstream
- * @details    Verifies read_int_from_bitstream for all valid size.<br>
- *             Also attempts an invalid size.<br>
- */
-TEST_P(fpgaconf_c_p, read_int) {
-  uint64_t data = 0xdeadbeefdecafbad;
-  EXPECT_EQ(read_int_from_bitstream((const uint8_t *) &data, 1), 0xad);
-  EXPECT_EQ(read_int_from_bitstream((const uint8_t *) &data, 2), 0xfbad);
-  EXPECT_EQ(read_int_from_bitstream((const uint8_t *) &data, 4), 0xdecafbad);
-  EXPECT_EQ(read_int_from_bitstream((const uint8_t *) &data, 8), 0xdeadbeefdecafbad);
-  EXPECT_EQ(read_int_from_bitstream((const uint8_t *) &data, 7), 0);
-}
-
-/**
- * @test       check_guid
- * @brief      Test: check_bitstream_guid
- * @details    When the given bitstream pointer has a GUID<br>
- *             that does not match the GBS Metadata GUID,<br>
- *             the fn returns FPGA_INVALID_PARAM.<br>
- */
-TEST_P(fpgaconf_c_p, check_guid) {
-  fpga_guid zero = { 0, 0, 0, 0, 0, 0, 0, 0,
-                     0, 0, 0, 0, 0, 0, 0, 0 };
-  EXPECT_EQ(check_bitstream_guid((const uint8_t *) zero), FPGA_INVALID_PARAM);
-}
-
-uint8_t bitstream_null[10] = "abcd";
-uint8_t bitstream_invalid_guid[] = "Xeon·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\":\
-      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
-      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
-      \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\":1,\
-      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
-      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_metadata_size[] = "XeonFPGA·GBSv001S";
-uint8_t bitstream_empty[] = "XeonFPGA·GBSv001";
-uint8_t bitstream_metadata_length[] = "XeonFPGA·GBSv001S {\"version/\": 640, \"afu-image\":  \
-      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156,\
-      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
-      \"magic-no\": 488605312, \"accelerator-clusters\"\
-      : [{\"total-contexts\": 1, \"name\": \"nlb_400\", \"accelerator-type-uuid\": \
-      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_no_gbs_version[] = "XeonFPGA·GBSv001\53\02\00\00{\"version99\": 640, \"afu-image\": \
-      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
-      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
-      \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1, \
-      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
-      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_no_afu_image[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640 }, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_no_interface_id[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
-      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156,\
-      \"power\": 50,  \"magic-no\": 488605312, \"accelerator-clusters\": \
-      [{\"total-contexts\": 1, \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
-      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_invalid_interface_id[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
-      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
-      \"power\": 50, \"interface-uuid\": \"a422218-6dba-448e-b302-425cbcde1406\", \
-      \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1,\
-      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
-      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_mismatch_interface_id[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
-      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
-      \"power\": 50, \"interface-uuid\": \"00000000-6dba-448e-b302-425cbcde1406\", \
-      \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1,\
-      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
-      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_error_interface_id[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
-      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
-      \"power\": 50, \"interface-uuid\": \"00000000-6dba-448e-b302-425cbcde1406\", \
-      \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1,\
-      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
-      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_no_accelerator_id[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
-      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
-      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
-      \"magic-no\": 488605312, \"accelerator-clusters\":\
-      [{\"total-contexts\": 1, \"name\": \"nlb_400\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_invalid_length[] = "XeonFPGA·GBSv001\00\00\00\00{\"version\": 640, \"afu-image\":\
-      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
-      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
-      \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\":1,\
-      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
-      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_no_accelerator[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\":\
-      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
-      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
-      \"magic-no\": 488605312}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_no_magic_no[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
-      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
-      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
-      \"magic-no99\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1,\
-      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
-      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_invalid_magic_no[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
-      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
-      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
-      \"magic-no\": 000000000, \"accelerator-clusters\": [{\"total-contexts\": 1,\
-      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
-      \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_invalid_json[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": \"afu-image\":\
-      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
-      \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
-      \"magic-no\": 488605312}, \"platform-name\": \"MCP\"}";
-
-/**
-* @test    read_gbs_metadata
-* @brief   Tests: read_gbs_metadata
-* @details read_gbs_metadata returns BS metadata
-*          Then the return value is FPGA_OK
-*/
-TEST_P(fpgaconf_c_p, read_gbs_metadata) {
-  struct gbs_metadata gbs_metadata;
-
-  // Invalid input parameters - null bitstream and metadata
-  fpga_result result = read_gbs_metadata(NULL, NULL);
-  EXPECT_NE(result, FPGA_OK);
-
-  // Invalid input parameter - null bitstream
-  result = read_gbs_metadata(NULL, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-
-  // Invalid input parameter - null metadata
-  result = read_gbs_metadata(bitstream_null, NULL);
-  EXPECT_NE(result, FPGA_OK);
-
-  // Invalid input bitstream
-  result = read_gbs_metadata(bitstream_null, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-
-  // Invalid bitstream metadata size
-  result = read_gbs_metadata(bitstream_metadata_size, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-
-  // Zero metadata length with no data
-  result = read_gbs_metadata(bitstream_empty, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-
-  // Invalid metadata length
-  result = read_gbs_metadata(bitstream_metadata_length, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-
-  // Invalid input bitstream - no GBS version
-  result = read_gbs_metadata(bitstream_no_gbs_version, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-
-  // Valid metadata
-  result = read_gbs_metadata(bitstream_valid_.data(), &gbs_metadata);
-  EXPECT_EQ(result, FPGA_OK);
-
-  system_->invalidate_malloc();
-
-  // Valid metadata - malloc fail
-  result = read_gbs_metadata(bitstream_valid_.data(), &gbs_metadata);
-  EXPECT_EQ(result, FPGA_NO_MEMORY);
-
-  // Invalid metadata afu-image node
-  result = read_gbs_metadata(bitstream_no_afu_image, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-
-  // Invalid metadata interface-uuid
-  result = read_gbs_metadata(bitstream_no_interface_id, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-
-  // Invalid metadata afu-uuid
-  result = read_gbs_metadata(bitstream_no_accelerator_id, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-
-  // Invalid input bitstream
-  result = read_gbs_metadata(bitstream_invalid_length, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-
-  // Invalid input bitstream - no accelerator clusters
-  result = read_gbs_metadata(bitstream_no_accelerator, &gbs_metadata);
-  EXPECT_NE(result, FPGA_OK);
-
-  // Invalid input bitstream - invalid json
-  result = read_gbs_metadata(bitstream_invalid_json, &gbs_metadata);
-  EXPECT_EQ(result, FPGA_INVALID_PARAM);
-}
-
 INSTANTIATE_TEST_CASE_P(fpgaconf_c, fpgaconf_c_p,
                         ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
 
@@ -1333,8 +940,8 @@ TEST_P(fpgaconf_c_mock_p, prog_bs0) {
   fpga_guid pr_ifc_id;
   ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, pr_ifc_id), 0);
 
-  struct bitstream_info info;
-  ASSERT_EQ(read_bitstream(tmp_gbs_, &info), 0);
+  opae_bitstream_info info;
+  ASSERT_EQ(opae_load_bitstream(tmp_gbs_, &info), FPGA_OK);
 
   fpga_token tok = nullptr;
   EXPECT_EQ(find_fpga(pr_ifc_id, &tok), 1);
@@ -1342,7 +949,7 @@ TEST_P(fpgaconf_c_mock_p, prog_bs0) {
 
   EXPECT_EQ(program_bitstream(tok, 0, &info, 0), 1);
 
-  free(info.data);
+  EXPECT_EQ(opae_unload_bitstream(&info), FPGA_OK);
   EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
 }
 
@@ -1351,8 +958,8 @@ TEST_P(fpgaconf_c_mock_p, prog_bs0) {
  * @brief      Test: program_bitstream
  * @details    When config.dry_run is set to false,<br>
  *             program_bitstream attempts the PR,<br>
- *             and succeeds with a valid bitstream,<br>
- *             causing the function to return 1.<br>
+ *             but fails to set user clocks,<br>
+ *             causing the function to return -1.<br>
  */
 TEST_P(fpgaconf_c_mock_p, prog_bs1) {
   config.target.segment = platform_.devices[0].segment;
@@ -1366,16 +973,16 @@ TEST_P(fpgaconf_c_mock_p, prog_bs1) {
   fpga_guid pr_ifc_id;
   ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, pr_ifc_id), 0);
 
-  struct bitstream_info info;
-  ASSERT_EQ(read_bitstream(tmp_gbs_, &info), 0);
+  opae_bitstream_info info;
+  ASSERT_EQ(opae_load_bitstream(tmp_gbs_, &info), FPGA_OK);
 
   fpga_token tok = nullptr;
   EXPECT_EQ(find_fpga(pr_ifc_id, &tok), 1);
   ASSERT_NE(tok, nullptr);
 
-  EXPECT_EQ(program_bitstream(tok, 0, &info, 0), 1);
+  EXPECT_EQ(program_bitstream(tok, 0, &info, 0), -1);
 
-  free(info.data);
+  EXPECT_EQ(opae_unload_bitstream(&info), FPGA_OK);
   EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
 }
 
@@ -1405,8 +1012,8 @@ TEST_P(fpgaconf_c_mock_p, prog_bs2) {
   fpga_guid pr_ifc_id;
   ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, pr_ifc_id), 0);
 
-  struct bitstream_info info;
-  ASSERT_EQ(read_bitstream(tmp_gbs_, &info), 0);
+  opae_bitstream_info info;
+  ASSERT_EQ(opae_load_bitstream(tmp_gbs_, &info), FPGA_OK);
 
   fpga_token tok = nullptr;
   EXPECT_EQ(find_fpga(pr_ifc_id, &tok), 1);
@@ -1414,7 +1021,7 @@ TEST_P(fpgaconf_c_mock_p, prog_bs2) {
 
   EXPECT_EQ(program_bitstream(tok, 0, &info, 0), -1);
 
-  free(info.data);
+  EXPECT_EQ(opae_unload_bitstream(&info), FPGA_OK);
   EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
 }
 

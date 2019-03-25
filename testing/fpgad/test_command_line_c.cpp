@@ -366,6 +366,8 @@ TEST_P(fpgad_command_line_c_p, symlink2) {
 TEST_P(fpgad_command_line_c_p, symlink3) {
   std::string s;
 
+  std::system("rm -rf bar");
+
   // bar/baz/foo -> cfg_file_
   ASSERT_EQ(mkdir("bar", 0755), 0);
   ASSERT_EQ(mkdir("bar/baz", 0755), 0);
