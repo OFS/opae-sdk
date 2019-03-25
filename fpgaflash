@@ -220,6 +220,7 @@ def parse_args():
     epi += 'example usages:\n\n'
 
 
+
     parser.add_argument('file', type=argparse.FileType('rb'),
                         help='file to program into flash')
 
@@ -936,7 +937,10 @@ def dc_rc_reconfigure_bmc(bdf, spi_path):
 
 def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> fpgaflash: implement bmc_factory option
     if utype in ['bmc_img', 'bmc_factory']:
         mode_path = os.path.join(spi_path,
                                  'bmcimg_flash_ctrl', 'bmcimg_flash_mode')
@@ -978,6 +982,7 @@ def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
         target_offset = 0x3820000
         input_offset = 0
         erase_len = VC_DC_DTB_BLOCK_SIZE
+
 
 
 
@@ -1086,6 +1091,7 @@ def check_file(ifile, utype):
         if image_len == VC_FPGA_IMAGE_LENGTH:
             ifile.seek(0)
             data = ifile.read(8)
+
         else:
             print "invalid max10 image length {}".format(image_len)
             ret = 1
@@ -1197,6 +1203,7 @@ def validate_bdf(bdf, bdf_pvid_map):
 
     if not args.yes and \
        args.type in ['factory', 'factory_only', 'bmc_factory']:
+
         msg = "Are you sure you want to perform a factory update? [Yes/No]"
         line = raw_input(msg)
         if line != "Yes":
@@ -1248,7 +1255,6 @@ def validate_bdf(bdf, bdf_pvid_map):
                     sys.exit(ret)
 
             if args.type in ['bmc_img', 'bmc_factory']:
-
 
                 sfile = tempfile.NamedTemporaryFile(mode='wb+', delete=False)
                 a = array("I", args.file.read())
