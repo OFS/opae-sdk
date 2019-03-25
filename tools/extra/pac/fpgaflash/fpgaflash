@@ -63,6 +63,8 @@ VC_FPGA_IMAGE_LENGTH = 0x77f0000
 VC_MAX10_IMAGE_MAGIC_NUM = 0x56565656
 VC_MAX10_IMAGE_LENGTH = 0xa8000
 
+BMC_FW_HEAD_SIZE = 256
+
 
 def check_rpd(ifile):
     data = ifile.read(0x20)
@@ -735,20 +737,32 @@ def bmc_fw_update(ifile, spi_path, no_verify):
         flash_erase(mtd_dev, i, SECTOR_SIZE)
 
     ret = 0
-    with os.fdopen(os.open(mtd_dev, os.O_SYNC | os.O_RDWR), 'a') as file_:
-        os.lseek(file_.fileno(), start, os.SEEK_SET)
-        print "%s writing 0x%08x bytes to 0x%08x" % (datetime.datetime.now(),
-                                                     size, start)
-        os.write(file_.fileno(), bdata)
-        if not no_verify:
+    try:
+        with os.fdopen(os.open(mtd_dev, os.O_SYNC | os.O_RDWR), 'a') as file_:
+            # write from offset 256 bytes to end
+            os.lseek(file_.fileno(), start + BMC_FW_HEAD_SIZE, os.SEEK_SET)
+            print "%s writing 0x%08x bytes to 0x%08x" % \
+                  (datetime.datetime.now(), size - BMC_FW_HEAD_SIZE,
+                   start + BMC_FW_HEAD_SIZE)
+            os.write(file_.fileno(), bdata[BMC_FW_HEAD_SIZE:])
+            # write first 256 bytes
             os.lseek(file_.fileno(), start, os.SEEK_SET)
-            read_back_data = os.read(file_.fileno(), size)
-            if read_back_data != ihex.tobinstr():
-                print "failed to verify data"
-                ret = 1
-            else:
-                print "%s flash successfully verified" % \
-                      (datetime.datetime.now())
+            print "%s writing 0x%08x bytes to 0x%08x" % \
+                  (datetime.datetime.now(), BMC_FW_HEAD_SIZE, start)
+            os.write(file_.fileno(), bdata[:BMC_FW_HEAD_SIZE])
+
+            if not no_verify:
+                os.lseek(file_.fileno(), start, os.SEEK_SET)
+                read_back_data = os.read(file_.fileno(), size)
+                if read_back_data != ihex.tobinstr():
+                    print "failed to verify data"
+                    ret = 1
+                else:
+                    print "%s flash successfully verified" % \
+                          (datetime.datetime.now())
+    except (Exception, KeyboardInterrupt), ex:
+        print ex
+        ret = 1
 
     write_file(mode_path, "0")
 
@@ -964,7 +978,7 @@ def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
     try:
         ret = fpga_update(ifile, mtd_dev, target_offset, input_offset,
                           erase_len, no_verify)
-    except Exception as ex:
+    except (Exception, KeyboardInterrupt), ex:
         print ex
         ret = 1
 
