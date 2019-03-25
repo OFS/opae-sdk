@@ -196,7 +196,8 @@ def parse_args():
     epi += '  bmc_bl	%s boot loader update\n' % (RC)
     epi += '  bmc_app	%s application update\n' % (RC)
     epi += '  bmc_fw	BMC firmware update\n'
-    epi += '  bmc_img	BMC image update\n\n'
+    epi += '  bmc_img	BMC user image update\n'
+    epi += '  bmc_factory	BMC factory image update\n\n'
     epi += 'example usage:\n\n'
     epi += '    fpgaflash user new_image.rpd 0000:04:00.0\n\n'
 
@@ -206,7 +207,8 @@ def parse_args():
 
     parser.add_argument('type', help='type of flash programming',
                         choices=['user', 'factory', 'rsu', 'eeprom',
-                                 'bmc_bl', 'bmc_app', 'bmc_fw', 'bmc_img'])
+                                 'bmc_bl', 'bmc_app', 'bmc_fw', 'bmc_img',
+                                 'bmc_factory'])
     parser.add_argument('file', type=argparse.FileType('rb'),
                         help='file to program into flash')
 
@@ -915,7 +917,7 @@ def board_rsu(bdf, spi_path, boot_page):
 
 def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
 
-    if utype == 'bmc_img':
+    if utype in ['bmc_img', 'bmc_factory']:
         mode_path = os.path.join(spi_path,
                                  'bmcimg_flash_ctrl', 'bmcimg_flash_mode')
     else:
@@ -930,21 +932,30 @@ def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
 
     print mtd_dev
 
+    pvid = get_pvid(bdf)
     if utype == 'factory':
         target_offset = 0x10000
         input_offset = 0
         erase_len = 0x7ff0000
     elif utype == 'bmc_img':
         input_offset = 0
-        if boot_page == "1":
+        if pvid == DC_PVID:
             target_offset = 0x10000
             erase_len = 0x60000
             flash_erase(mtd_dev, 0x70000, 0x48000)
-        elif boot_page == "0":
+        elif pvid == VC_PVID:
             target_offset = 0xb8000
             erase_len = 0xa8000
         else:
-            raise Exception("bad boot page %s" % (boot_page))
+            raise Exception("{} not supported on {}".format(utype, pvid))
+    elif utype == 'bmc_factory':
+        input_offset = 0
+        if pvid == VC_PVID:
+            target_offset = 0x10000
+            erase_len = 0x60000
+            flash_erase(mtd_dev, 0x70000, 0x48000)
+        else:
+            raise Exception("{} not supported on {}".format(utype, pvid))
     else:
         target_offset = 0x4000000
         input_offset = 0x3ff0000
@@ -1037,7 +1048,7 @@ def check_file(ifile, utype):
         else:
             print "invalid fpga image length {}".format(image_len)
             ret = 1
-    elif utype == 'bmc_img':
+    elif utype in ['bmc_img', 'bmc_factory']:
         if image_len == VC_MAX10_IMAGE_LENGTH:
             ifile.seek(0x8c)
             data = ifile.read(4)
@@ -1087,14 +1098,14 @@ def main():
             print "{} only supported on {}".format(args.type, RC_PVID)
             sys.exit(1)
 
-    if args.type == 'factory':
+    if args.type in ['factory', 'bmc_factory']:
         msg = "Are you sure you want to perform a factory update? [Yes/No]"
         line = raw_input(msg)
         if line != "Yes":
             sys.exit(1)
 
     if bdf_pvid_map[bdf] == RC_PVID:
-        if args.type in ['rsu', 'bmc_img', 'eeprom', 'bmc_rsu']:
+        if args.type in ['rsu', 'bmc_img', 'eeprom', 'bmc_factory']:
             print "%s not supported on %s" % (args.type, RC)
             sys.exit(1)
 
@@ -1125,7 +1136,7 @@ def main():
                 if ret != 0:
                     sys.exit(ret)
 
-            if args.type == 'bmc_img':
+            if args.type in ['bmc_img', 'bmc_factory']:
                 sfile = tempfile.NamedTemporaryFile(mode='wb+', delete=False)
                 a = array("I", args.file.read())
                 for elem in a:
