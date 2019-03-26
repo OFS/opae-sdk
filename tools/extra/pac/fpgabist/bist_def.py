@@ -41,6 +41,7 @@ class DefaultMode(bc.BistMode):
     def run(self, gbs_path, bus_num):
         if gbs_path:
             bc.load_gbs(gbs_path, bus_num)
+        ret = 0
         for func, param in self.executables.items():
             print "Running Built-in Self test...\n"
             cmd = "{} {}".format(func, param)
@@ -49,4 +50,6 @@ class DefaultMode(bc.BistMode):
             except subprocess.CalledProcessError as e:
                 print "Failed Test: {}".format(func)
                 print e
+                ret += 1
         print "Finished Executing BIST\n"
+        return ret

@@ -45,15 +45,19 @@ class DmaMode(bc.BistMode):
         self.executables = {'fpga_dma_test': '0'}
 
     def run_cmd(self, cmd):
+        ret = 0
         try:
             subprocess.check_call(cmd, shell=True)
         except subprocess.CalledProcessError as e:
             print "Failed Test: {}".format(cmd)
             print e
+            ret = 1
+        return ret
 
     def run(self, gbs_path, bus_num, bd_id=0, guid=''):
         if gbs_path:
             bc.load_gbs(gbs_path, bus_num)
+        ret = 0
         for func, param in self.executables.items():
             if bd_id in dma_list:
                 for i, c in dma_list[bd_id].items():
@@ -63,10 +67,11 @@ class DmaMode(bc.BistMode):
                     if guid:
                         cmd += ' -G {}'.format(guid)
                     print "Running {} test on {}...\n".format(func, name)
-                    self.run_cmd(cmd)
+                    ret += self.run_cmd(cmd)
             else:
                 print "Running {} test...\n".format(func)
                 cmd = "{} {} {}".format(func, param, bus_num)
-                self.run_cmd(cmd)
+                ret += self.run_cmd(cmd)
 
         print "Finished Executing DMA Tests\n"
+        return ret

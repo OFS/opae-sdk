@@ -76,9 +76,10 @@ def main(args):
     # Display data from FPGA info
     dev_id = int(vars(args)['device_id'], 16)
     afu_id = get_afu_id(bdf['bus'])
+    ret = 0
     for feature in (FEATURES + PRIVATE_FEATURES.get(dev_id, [])):
         cmd = "fpgainfo {} -B 0x{}".format(feature, bdf['bus'])
-        subprocess.call(cmd, shell=True)
+        ret += subprocess.call(cmd, shell=True)
         print("\n")
 
     if dev_id == bist_common.VCP_ID:
@@ -87,7 +88,7 @@ def main(args):
             mode = getattr(sys.modules.get(module),
                            '{}Mode'.format(name.capitalize()))()
             print "Running mode: {}".format(mode.name)
-            mode.run(None, bdf['bus'], bist_common.VCP_ID, afu_id)
+            ret += mode.run(None, bdf['bus'], bist_common.VCP_ID, afu_id)
     else:
         gbs_paths = args.gbs_paths
         afu_ids = {}
@@ -109,9 +110,10 @@ def main(args):
             else:
                 sys.exit("Unknown AFU for available ID {}\n".format(afu_id))
             print "Running mode: {}".format(mode.name)
-            mode.run(afu_ids.get(afu_id), bdf['bus'])
+            ret += mode.run(afu_ids.get(afu_id), bdf['bus'])
 
     print "\nBuilt-in Self-Test Completed.\n"
+    sys.exit(ret)
 
 
 if __name__ == "__main__":

@@ -48,6 +48,7 @@ class Nlb0Mode(bc.BistMode):
     def run(self, path, bus_num, bd_id=0, guid=''):
         tp = self.executables.items()
         tp.sort()
+        ret = 0
         for test, param in tp:
             print "Running fpgadiag lpbk1 {} test...".format(test)
             cmd = "fpgadiag -B 0x{} {}".format(bus_num, param)
@@ -60,4 +61,6 @@ class Nlb0Mode(bc.BistMode):
             except subprocess.CalledProcessError as e:
                 print "Failed Test: {}".format(test)
                 print e
+                ret += 1
         print "Finished Executing NLB (FPGA DIAG) Tests\n"
+        return ret
