@@ -194,6 +194,74 @@ static fpga_result buffer_release(void *addr, uint64_t len)
 	return FPGA_OK;
 }
 
+
+#define MAPS_BUF_SZ 4096
+/*
+ * Confirm that a page is mapped at vaddr and that it is at least
+ * req_page_bytes.
+ */
+static fpga_result check_mapped_page(void* vaddr, size_t req_page_bytes)
+{
+	char line[MAPS_BUF_SZ];
+	uint64_t addr = (uint64_t)vaddr;
+
+	FILE *f = fopen("/proc/self/smaps", "r");
+	// Deallocate the file buffer. This hurts performance, but is important for
+	// accuracy since the buffer will be allocated within the address space
+	// being checked.
+	setvbuf(f, (char *)NULL, _IONBF, 0);
+	if (f == NULL) {
+		return FPGA_EXCEPTION;
+	}
+
+	while (fgets(line, MAPS_BUF_SZ, f)) {
+		unsigned long long start, end;
+		char* tmp0;
+		char* tmp1;
+
+		// Range entries begin with <start addr>-<end addr>
+		start = strtoll(line, &tmp0, 16);
+		// Was a number found and is the next character a dash?
+		if ((tmp0 == line) || (*tmp0 != '-')) {
+			// No -- not a range
+			continue;
+		}
+
+		end = strtoll(++tmp0, &tmp1, 16);
+		// Keep search if not a number or the address isn't in range.
+		if ((tmp0 == tmp1) || (start > addr) || (end <= addr)) {
+			continue;
+		}
+
+		while (fgets(line, MAPS_BUF_SZ, f))
+		{
+			// Look for KernelPageSize
+			unsigned page_kb;
+			int ret = sscanf_s_u(line, "KernelPageSize: %d kB", &page_kb);
+			if (ret == 0)
+				continue;
+
+			fclose(f);
+
+			if (ret < 1 || page_kb == 0) {
+				return FPGA_EXCEPTION;
+			}
+
+			// Is the page large enough?
+			if (1024 * page_kb < req_page_bytes) {
+				return FPGA_EXCEPTION;
+			}
+
+			return FPGA_OK;
+		}
+	}
+
+	// We couldn't find an entry for this addr in smaps.
+	fclose(f);
+	return FPGA_NOT_FOUND;
+}
+
+
 fpga_result __FPGA_API__ fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 					   void **buf_addr, uint64_t *wsid,
 					   int flags)
@@ -250,6 +318,12 @@ fpga_result __FPGA_API__ fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 		/* check length */
 		if (!len || (len & (pg_size - 1))) {
 			FPGA_MSG("Preallocated buffer size is not a non-zero multiple of page size");
+			result = FPGA_INVALID_PARAM;
+			goto out_unlock;
+		}
+        /* Does the page exist? */
+		if (FPGA_OK != check_mapped_page(*buf_addr, len)) {
+			FPGA_MSG("Preallocated buffer does not exist or the page is too small");
 			result = FPGA_INVALID_PARAM;
 			goto out_unlock;
 		}
