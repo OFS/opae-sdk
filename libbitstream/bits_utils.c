@@ -52,7 +52,6 @@ fpga_result opae_bitstream_get_json_string(json_object *parent,
 	if (!json_object_object_get_ex(parent,
 				       name,
 				       &obj)) {
-		OPAE_ERR("metadata: failed to find \"%s\" key", name);
 		return FPGA_EXCEPTION;
 	}
 
@@ -91,7 +90,6 @@ fpga_result opae_bitstream_get_json_int(json_object *parent,
 	if (!json_object_object_get_ex(parent,
 				       name,
 				       &obj)) {
-		OPAE_ERR("metadata: failed to find \"%s\" key", name);
 		return FPGA_EXCEPTION;
 	}
 
