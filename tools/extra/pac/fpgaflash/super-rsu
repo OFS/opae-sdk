@@ -1,0 +1,914 @@
+#! /usr/bin/env python
+# Copyright(c) 2019, Intel Corporation
+#
+# Redistribution  and  use  in source  and  binary  forms,  with  or  without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of  source code  must retain the  above copyright notice,
+#   this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# * Neither the name  of Intel Corporation  nor the names of its contributors
+#   may be used to  endorse or promote  products derived  from this  software
+#   without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+# IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+# LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+# CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+# SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+# INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+# CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+import glob
+import json
+import logging
+import math
+import os
+import re
+import subprocess
+import sys
+import time
+
+from contextlib import contextmanager
+from ctypes import c_uint64, LittleEndianStructure, Union
+from threading import Thread
+
+PCI_ADDRESS_PATTERN = (r'(?P<pci_address>'
+                       r'(?P<segment>[\da-f]{4}):(?P<bdf>(?P<bus>[\da-f]{2}):'
+                       r'(?P<device>[\da-f]{2})\.(?P<function>\d)))')
+PCI_ADDRESS_RE = re.compile(PCI_ADDRESS_PATTERN, re.IGNORECASE)
+
+LSOF_PATTERN = (r'^(?P<command>\w+)\s+(?P<pid>\d+)\s+(?P<user>\w+)\s+'
+                r'(?P<fd>\w+)\s+(?P<type>[A-Z]+)\s+(?P<device>\d,\d)\s+'
+                r'(?P<szoff>(?:0[tx])?\d+)\s+(?P<node>\d+)\s+(?P<name>\w+)$')
+LSOF_RE = re.compile(LSOF_PATTERN, re.MULTILINE)
+
+CLASS_ROOT = '/sys/class/fpga'
+
+
+AER_OFF = 0xFFFFFFFF
+AER_ON = 0x00000000
+
+DRY_RUN = False
+
+FLASH_TIMEOUT = 120.0
+
+NULL_CMD = 'sleep 11'
+
+LOG = logging.getLogger(__name__)
+TRACE = logging.DEBUG - 5
+logging.addLevelName(TRACE, 'TRACE')
+
+
+def trace(msg, *args, **kwargs):
+    LOG.log(TRACE, msg, *args, **kwargs)
+
+
+def call_process(cmd):
+    if DRY_RUN:
+        print(cmd)
+        return '0x0' if 'setpci' in cmd else ''
+
+    try:
+        return subprocess.check_output(cmd.split(),
+                                       stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as err:
+        LOG.error('calling %s returned %d', cmd, err.returncode)
+        LOG.debug('process output: %s', err.output)
+
+
+class update_thread(Thread):
+    def __init__(self, board, fn, *args, **kwargs):
+        super(update_thread, self).__init__(target=fn,
+                                            name=board.pci_node.bdf,
+                                            args=args,
+                                            kwargs=kwargs)
+        self._board = board
+
+    @property
+    def board(self):
+        return self._board
+
+    def terminate(self):
+        self._board.terminate_update()
+
+
+class process_task(object):
+    def __init__(self, cmd, **kwargs):
+        self._cmd = cmd
+        self._kwargs = kwargs
+        self._start_time = None
+
+    @property
+    def cmd(self):
+        return self._cmd
+
+    @property
+    def start_time(self):
+        return self._start_time
+
+    def __call__(self):
+        LOG.debug('starting task: %s', self._cmd)
+        self._start_time = time.time()
+        if DRY_RUN:
+            print(self._cmd)
+            return subprocess.Popen(NULL_CMD, shell=True)
+        return subprocess.Popen(self._cmd.split(),
+                                stdin=self._kwargs.get('stdin'),
+                                stdout=self._kwargs.get('stdout'),
+                                stderr=self._kwargs.get('stderr'))
+
+
+@contextmanager
+def aer_disabled(*nodes):
+    """aer_disabled Context manager used to disable AER on a set of pci nodes
+                    The exit function will re-enable AER on the nodes
+    :param *nodes(pci_node): A list of pci nodes to disable AER on
+    """
+    original_aer = [(node, node.aer) for node in nodes]
+    for node in nodes:
+        node.aer = (AER_OFF, AER_OFF)
+    try:
+        yield True if nodes and all(nodes) else None
+    finally:
+        for n, v in original_aer:
+            n.aer = (AER_ON, AER_ON) if DRY_RUN else v
+
+
+def find_subdevices(node):
+    """find_subdevices find a list of (vendor, device) tuples in children
+                       and grandchildren
+
+    :param node: parent node to find subdevices
+
+    :return a set of (vendor, device) tuples
+    """
+    try:
+        devices = [n.pci_id for n in node.children]
+    except NameError:
+        return set()
+
+    for c in node.children:
+        devices.extend(find_subdevices(c))
+    return set(devices)
+
+
+class sysfs_node(object):
+    """sysfs_node is a base class representing a sysfs object in sysfs """
+    def __init__(self, sysfs_path):
+        self._sysfs_path = sysfs_path
+
+    def read_node(self, *nodes):
+        """read_node function to read sysfs attributes relative to self
+
+        :param *nodes: list of subdirectory/file objects to append
+        """
+        path = os.path.join(self._sysfs_path, *nodes)
+        if not os.path.exists(path):
+            raise NameError("Could not find sysfs node: {}".format(path))
+        with open(path, 'r') as fd:
+            value = fd.read().strip()
+        trace('read %s from %s', value, path)
+        return value
+
+    def write_node(self, value, *nodes):
+        global DRY_RUN
+        path = os.path.join(self._sysfs_path, *nodes)
+        if not os.path.exists(path):
+            raise NameError("Could not find sysfs node: {}".format(path))
+        trace('writing %s to %s', value, path)
+        if DRY_RUN:
+            print('echo {} > {}'.format(value, path))
+        else:
+            with open(path, 'w') as fd:
+                fd.write('{}\n'.format(value))
+
+    @property
+    def sysfs_path(self):
+        return self._sysfs_path
+
+
+class pci_node(sysfs_node):
+    PCI_BUS_SYSFS = '/sys/bus/pci/devices'
+    """pci_node is a class used to encapsulate a node on the pci bus
+       that can be found in /sys/bus/pci/devices and can have a parent
+       node and one or more children nodes
+       This can be used to represent a PCIe tree or subtree"""
+    def __init__(self, pci_address, parent=None, **kwargs):
+        """__init__ initialize a pci_node object
+
+        :param pci_address: The pci address of the node using following format
+                            [segment:]bus:device.function
+        :param parent(pci_node): Another pci_node object that is the parent of
+                                 this node in the PCIe tree
+        :param **kwargs: optional arguments
+            class_node: Path to device in /sys/class/fpga(_region)
+        """
+        node_path = os.path.join(self.PCI_BUS_SYSFS,
+                                 pci_address['pci_address'])
+        super(pci_node, self).__init__(node_path)
+        self._pci_address = pci_address
+        self._parent = parent
+        self._class_node = kwargs.get('class_node')
+        self._children = []
+        self._aer_cmd1 = 'setpci -s {} ECAP_AER+0x08.L'.format(
+            pci_address['pci_address'])
+        self._aer_cmd2 = 'setpci -s {} ECAP_AER+0x14.L'.format(
+            pci_address['pci_address'])
+
+    def __str__(self):
+        return '[pci_address({}), pci_id({})]'.format(self.pci_address,
+                                                      self.pci_id)
+
+    def __repr__(self):
+        return str(self)
+
+    def _find_children(self):
+        children = []
+        for f in os.listdir(self.sysfs_path):
+            if not f.startswith(self.pci_address):
+                m = PCI_ADDRESS_RE.match(f)
+                if m:
+                    children.append(pci_node(m.groupdict(), self))
+        return children
+
+    def tree(self, level=0):
+        text = '{}{}\n'.format(' ' * level*4, self)
+        for n in self.children:
+            text += n.tree(level+1)
+        return text
+
+    @property
+    def root(self):
+        if self.parent is None:
+            return self
+        return self.parent.root
+
+    @property
+    def pci_address(self):
+        """pci_address get the pci address of the node"""
+        return self._pci_address['pci_address']
+
+    @property
+    def bdf(self):
+        """pci_address get the pci address of the node"""
+        return self._pci_address['bdf']
+
+    @property
+    def segment(self):
+        """segment get the pci segment or domain of the node"""
+        return self._pci_address['segment']
+
+    @property
+    def domain(self):
+        """segment get the pci segment or domain of the node"""
+        return self._pci_address['segment']
+
+    @property
+    def bus(self):
+        """bus get the pci bus of the node"""
+        return self._pci_address['bus']
+
+    @property
+    def device(self):
+        """device get the pci device of the node"""
+        return self._pci_address['device']
+
+    @property
+    def function(self):
+        """function get the pci function of the node"""
+        return self._pci_address['function']
+
+    @property
+    def parent(self):
+        """parent get the parent (pci_node) of this node"""
+        return self._parent
+
+    @parent.setter
+    def parent(self, value):
+        """parent set the parent (pci_node) of this node
+
+        :param value: set the parent (pci_node) to this value
+        """
+        self._parent = value
+
+    @property
+    def children(self):
+        """children get the children pci_node objects"""
+        if not self._children:
+            self._children = self._find_children()
+        return self._children
+
+    @property
+    def all_children(self):
+        nodes = self.children
+        for n in nodes:
+            nodes.extend(n.all_children)
+        return list(set(nodes))
+
+    @property
+    def vendor_id(self):
+        return self.read_node('vendor')
+
+    @property
+    def device_id(self):
+        return self.read_node('device')
+
+    @property
+    def pci_id(self):
+        return (int(self.vendor_id, 16),
+                int(self.device_id, 16))
+
+    def remove(self):
+        LOG.debug('removing device at %s', self.pci_address)
+        self.write_node('1', 'remove')
+
+    def rescan(self):
+        LOG.debug('rescanning device at %s', self.pci_address)
+        self.write_node('1', 'rescan')
+
+    def rescan_bus(self, bus, power_on=True):
+        if power_on:
+            power = self.read_node('power', 'control')
+            if power != 'on':
+                self.write_node('on', 'power', 'control')
+        LOG.debug('rescanning bus %s under %s', bus, self.pci_address)
+        self.write_node('1', 'pci_bus', bus, 'rescan')
+
+    @property
+    def aer(self):
+        return (int(call_process(self._aer_cmd1), 16),
+                int(call_process(self._aer_cmd2), 16))
+
+    @aer.setter
+    def aer(self, values):
+        call_process('{}={:#08x}'.format(self._aer_cmd1, values[0]))
+        call_process('{}={:#08x}'.format(self._aer_cmd2, values[1]))
+
+
+class spi_bus(sysfs_node):
+    def __init__(self, sysfs_path):
+        super(spi_bus, self).__init__(sysfs_path)
+
+
+class fpga_device(sysfs_node):
+    SPI_ALIAS = 'spi:intel-max10'
+
+    def __init__(self, sysfs_path):
+        super(fpga_device, self).__init__(sysfs_path)
+        self._fme = None
+        self._port = None
+        self._spi = None
+
+    @property
+    def fme(self):
+        if self._fme is None:
+            self._fme = self._find_fme()
+        return self._fme
+
+    def _find_fme(self):
+        fme_pattern = os.path.join(self.sysfs_path, "*fme*")
+        glob_results = glob.glob(fme_pattern)
+        if len(glob_results) == 1:
+            return sysfs_node(glob_results[0])
+        LOG.warning("Could not find FME device")
+
+    @property
+    def port(self):
+        if self._port is None:
+            self._port = self._find_port()
+        return self._port
+
+    def _find_port(self):
+        port_pattern = os.path.join(self.sysfs_path, "*port*")
+        glob_results = glob.glob(port_pattern)
+        if len(glob_results) == 1:
+            return glob_results[0]
+        LOG.warning("Could not find FME device")
+
+    @property
+    def spi_bus(self):
+        if self._spi is None:
+            self._spi = self._find_spi()
+        return self._spi
+
+    def _find_spi(self):
+        for root, dirs, files in os.walk(self.fme.sysfs_path):
+            basename = os.path.basename(root)
+            if basename.startswith('spi') and 'modalias' in files:
+                with open(os.path.join(root, 'modalias'), 'r') as fd:
+                    if fd.read().strip() == self.SPI_ALIAS:
+                        return spi_bus(root)
+        LOG.warning('Could not find SPI bus')
+        raise NameError('Could not find SPI bus')
+
+
+# VERSION PARSING STRUCTS
+class bitstream_id_bits(LittleEndianStructure):
+    _fields_ = [
+                    ("githash", c_uint64, 32),
+                    ("hssi", c_uint64, 4),
+                    ("reserved36", c_uint64, 12),
+                    ("debug", c_uint64, 4),
+                    ("patch", c_uint64, 4),
+                    ("minor", c_uint64, 4),
+                    ("major", c_uint64, 4),
+    ]
+
+
+class vc_bitstream_id_bits(LittleEndianStructure):
+    _fields_ = [
+                    ("githash", c_uint64, 32),
+                    ("interface", c_uint64, 4),
+                    ("reserved36", c_uint64, 12),
+                    ("debug", c_uint64, 4),
+                    ("patch", c_uint64, 4),
+                    ("minor", c_uint64, 4),
+                    ("major", c_uint64, 4),
+    ]
+
+
+class fme_version(Union):
+    _fields_ = [("bits", bitstream_id_bits),
+                ("value", c_uint64)]
+
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        val = '{}.{}.{}'.format(self.bits.major,
+                                self.bits.minor,
+                                self.bits.patch)
+        return val
+
+    def __repr__(self):
+        return str(self)
+
+    def __eq__(self, other):
+        return str(self) == str(other)
+
+    def __ne__(self, other):
+        return str(self) != str(other)
+
+    @property
+    def major(self):
+        return self.bits.major
+
+    @property
+    def minor(self):
+        return self.bits.minor
+
+    @property
+    def patch(self):
+        return self.bits.patch
+
+
+class vc_fme_version(fme_version):
+    _fields_ = [("bits", vc_bitstream_id_bits),
+                ("value", c_uint64)]
+
+
+class spi_version_bits(LittleEndianStructure):
+    _fields_ = [
+                    ("patch", c_uint64, 8),
+                    ("minor", c_uint64, 8),
+                    ("major", c_uint64, 8),
+                    ("revision", c_uint64, 8),
+                    ("reserved", c_uint64, 32),
+    ]
+
+
+class spi_version(Union):
+    _fields_ = [("bits", spi_version_bits),
+                ("value", c_uint64)]
+
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        val = '{}.{}.{}'.format(self.bits.major,
+                                self.bits.minor,
+                                self.bits.patch)
+        return val
+
+    def __repr__(self):
+        rev = chr(self.bits.revision)
+        val = str(self)
+        if rev.isalpha():
+            val += ' Revision {} '.format(rev)
+        return val
+
+    def __eq__(self, other):
+        return str(self) == str(other)
+
+    def __ne__(self, other):
+        return str(self) != str(other)
+
+    @property
+    def major(self):
+        return self.bits.major
+
+    @property
+    def minor(self):
+        return self.bits.minor
+
+    @property
+    def patch(self):
+        return self.bits.patch
+
+    @property
+    def revision(self):
+        rev = chr(self.bits.revision)
+        if not rev.isalpha():
+            return ''
+        return rev
+
+
+# pac classes
+class pac(object):
+    boot_page = 0
+    supported_flash = ('user', 'bmc_fw', 'bmc_img')
+
+    def __init__(self, pci_node, fpga, **kwargs):
+        self._pci_node = pci_node
+        self._fpga = fpga
+        self._other_pci = kwargs.get('other_pci', [])
+        self._other_nodes = None
+        self._common_root = None
+        self._common_tree = None
+        self._update_thread = None
+        self._terminate = False
+
+    @property
+    def pci_node(self):
+        return self._pci_node
+
+    @property
+    def fpga(self):
+        return self._fpga
+
+    @property
+    def common_root(self):
+        if self._common_root is None:
+            self._common_root = self._find_common_root()
+        return self._common_root
+
+    def _find_common_root(self):
+        if not self._other_pci:
+            return self.pci_node.parent
+        node = self.pci_node.parent
+        other = set(self._other_pci)
+        while node:
+            devices = find_subdevices(node)
+            if other <= devices:
+                return node
+            else:
+                node = node.parent
+        return self.pci_node.parent
+
+    @property
+    def other_nodes(self):
+        if self._other_nodes is None:
+            self._other_nodes = self._find_others()
+        return self._other_nodes
+
+    def _find_others(self):
+        nodes = []
+        # go to the root node
+        root = self.pci_node
+        while root.parent is not None:
+            root = root.parent
+        # now iterate over all children (and grandchildren) from the root
+        # and add the nodes with a pci_id in our list of other_pci ids
+        for node in root.all_children:
+            if node.pci_id in self._other_pci:
+                nodes.append(node)
+        return nodes
+
+    def flash_task(self, flash_dir, flash_info, args):
+        flash_type = flash_info['type']
+        if flash_type not in self.supported_flash:
+            LOG.warning('%s is invalid or not supported', flash_type)
+            return None
+
+        version = flash_info['version']
+        rev = flash_info.get('revision', '').lower()
+        filename = flash_info['filename']
+        force = flash_info.get('force', args.force_flash)
+
+        if os.path.exists(os.path.join(flash_dir, filename)):
+            filename = os.path.join(flash_dir, filename)
+
+        if not os.path.exists(filename):
+            LOG.error('filename %s does not exist', filename)
+            return None
+
+        cmd = 'fpgaflash {} {} {}'.format(flash_type,
+                                          filename,
+                                          self.pci_node.pci_address)
+
+        try:
+            current_version = getattr(self, '{}_version'.format(flash_type))
+        except AttributeError:
+            LOG.error('invalid type in rsu config: %s', flash_type)
+            return None
+
+        LOG.debug('%s current_version is "%s" - update version is "%s"',
+                  flash_type, current_version, version)
+
+        current_rev = getattr(current_version, 'revision', '').lower()
+        rev_supported = rev and current_rev in rev
+        if force or (current_version != version and rev_supported):
+            return process_task(cmd)
+
+        LOG.info('nothing to do for %s image, already up to date', flash_type)
+
+    def _update(self, flash_dir, rsu_config, args):
+        LOG.debug('update of board at %s started', self.pci_node)
+        tasks = []
+        for flash_info in rsu_config['flash']:
+            task = self.flash_task(flash_dir, flash_info, args)
+            if task is not None:
+                tasks.append((task, flash_info['filename']))
+
+        while tasks:
+            task, flashfile = tasks.pop(0)
+            p = task()
+            while p.poll() is None:
+                if self._terminate:
+                    timeout = time.time() + FLASH_TIMEOUT
+                    while time.time() < timeout and p.poll() is None:
+                        time.sleep(0.1)
+                    if p.poll() is None:
+                        LOG.warning('terminating flash command: %s',
+                                    task.cmd)
+                        p.terminate()
+                    # stop processing next tasks
+                    break
+                time.sleep(0.1)
+            if p.returncode:
+                LOG.warning('%s exited with code: %s', task.cmd, p.returncode)
+            LOG.debug('task completed in %f seconds',
+                      time.time() - task.start_time)
+            # go on to the next task...
+
+    def update(self, flash_dir, rsu_config, args):
+        t = update_thread(self, self._update, flash_dir, rsu_config, args)
+        t.start()
+        return t
+
+    def rsu(self, boot_page=None):
+        page = self.boot_page if boot_page is None else boot_page
+        self.fpga.spi_bus.write_node(str(page),
+                                     'bmcimg_flash_ctrl', 'bmcimg_image_load')
+
+    def terminate_update(self):
+        self._terminate = True
+
+    @property
+    def user_version(self):
+        value = int(self.fpga.fme.read_node('bitstream_id'), 16)
+        return fme_version(value)
+
+    @property
+    def bmc_img_version(self):
+        value = int(self.fpga.spi_bus.read_node('max10_version'), 16)
+        return spi_version(value)
+
+    @property
+    def bmc_fw_version(self):
+        value = int(self.fpga.spi_bus.read_node('bmcfw_flash_ctrl',
+                                                'bmcfw_version'), 16)
+        return spi_version(value)
+
+
+class vc(pac):
+    boot_page = 0
+
+    @property
+    def user_version(self):
+        value = int(self.fpga.fme.read_node('bitstream_id'), 16)
+        return vc_fme_version(value)
+
+
+class dc(pac):
+    boot_page = 1
+
+
+def make_pac(node, fpga, **kwargs):
+    pacs = {(0x8086, 0x0b30): vc}
+    pac_class = pacs.get(node.pci_id)
+    if pac_class:
+        return pac_class(node, fpga, **kwargs)
+    LOG.error('could not find pac with id: (%x, %x)',
+              node.pci_id[0], node.pci_id[1])
+
+
+def discover_boards(rsu_config):
+    """discover_boards discover FPGA devices in sysfs given a config
+
+    :param rsu_config(dict): A dictionary describing the product to discover.
+                             This config should be made up of a product name
+                             and a list of files to flash. The product will be
+                             mapped to a PCI identifer to match. This file will
+                             be passed to 'fpgaboard' for loading flash
+                             binaries.
+    """
+    product_name = rsu_config.get('product')
+    if product_name is None:
+        LOG.warning("RSU config file missing 'product' key")
+        return []
+
+    product_vendor = rsu_config.get('vendor')
+    if product_vendor is None:
+        LOG.warning("RSU config file missing 'vendor' key")
+        return []
+
+    product_device = rsu_config.get('device')
+    if product_device is None:
+        LOG.warning("RSU config file missing 'device' key")
+        return []
+
+    additional = [(int(vid, 16), int(did, 16))
+                  for (vid, did) in rsu_config.get('additional_devices', [])]
+
+    # The sysfs nodes in the fpga class path (/sys/class/fpga)
+    # are symlinks to fpga/intel.*dev.* under the sysfs tree rooted at
+    # a /sys/devices/pci<segment>:<bus> node. Find all sys class nodes.
+    fpga_devices = glob.glob(os.path.join(CLASS_ROOT, "*"))
+    boards = []
+    for dev_path in fpga_devices:
+        fpga = fpga_device(dev_path)
+        # read the device/vendor nodes under the device node
+        vendor_id = fpga.read_node('device', 'vendor')
+        device_id = fpga.read_node('device', 'device')
+        if vendor_id == product_vendor and device_id == product_device:
+            # The fpga device can be behind many PCIe devices.
+            # example: /sys/devices/pci<segment>:<bus>/(PCI_ADDRESS_PATTERN)+
+            # Read the link and parse it using the PCI_ADDRESS_PATTERN regex
+            link = os.readlink(dev_path)
+            match_iter = PCI_ADDRESS_RE.finditer(link)
+            # After parsing it, build the path in the PCIe tree as represented
+            # in the sysfs tree.
+            # The first match is the root of this path and has no parent.
+            # Iterate over all matches in the symlink creating a new node
+            # for each match, setting the parent to the previous node.
+            node = None
+            path = []
+            for match in match_iter:
+                node = pci_node(match.groupdict(),
+                                parent=node,
+                                class_node=fpga)
+                path.append(node)
+            # the last node is the fpga node
+            logging.debug('found fpga device at %s -tree is\n %s',
+                          node.pci_address,
+                          path[0].tree())
+            boards.append(make_pac(node, fpga, other_pci=additional))
+
+    return boards
+
+
+def do_rsu(boards, args, config):
+    """do_rsu
+
+    :param boards:
+    :param args:
+    :param config:
+    """
+
+    targets = [b.common_root for b in boards]
+    # targets are the first common ancestor of the device and
+    # any additional devices specified
+
+    parents = [t.parent for t in targets]
+    # parents are the parent nodes of the targets
+
+    # disable AER on parent devices
+    with aer_disabled(*parents):
+        for (t, p, b) in zip(targets, parents, boards):
+            try:
+                b.rsu()
+            except (NameError, AttributeError) as err:
+                LOG.error('%s: could not find spi bus or spi device for %s',
+                          err, b.pci_node)
+                continue
+            except IOError:
+                time.sleep(5)
+                b.rsu(1)
+
+            t.remove()
+            logging.info('waiting for FPGA reconfiguration')
+            time.sleep(10)
+            p.rescan_bus('{}:{}'.format(t.segment, t.bus))
+            time.sleep(1)
+
+
+def do_update(boards, args, rsu_config):
+    """do_update
+
+    :param boards:
+    :param args:
+    :param rsu_config:
+    """
+    flash_dir = os.path.dirname(args.rsu_config.name)
+    complete = []
+    threads = []
+    for b in boards:
+        threads.append(b.update(flash_dir, rsu_config, args))
+
+    expire = time.time() + args.timeout
+    remaining = args.timeout
+    while time.time() < expire and threads:
+        remaining = expire - time.time()
+        t = threads.pop(0)
+        if not t.is_alive():
+            complete.append(t.board)
+        else:
+            threads.append(t)
+            if math.fmod(remaining, 60.0) < 1:
+                LOG.debug('waiting (%d sec) for thread: %s',
+                          remaining, t.name)
+        time.sleep(0.5)
+
+    if threads:
+        LOG.warning('timing out, some boards not complete: %s',
+                    [t.board.pci_node for t in threads])
+        for t in threads:
+            t.terminate()
+
+    return (complete, [t.board for t in threads])
+
+
+def run_tests(boards, args):
+    # TODO: run self tests - perhaps fpgadiag
+    return os.EX_OK
+
+
+def main():
+    global DRY_RUN
+    import argparse
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawTextHelpFormatter)
+    parser.add_argument('rsu_config', type=argparse.FileType('r'),
+                        help='path to config file listing what components '
+                             'to update and their versions')
+    parser.add_argument('-n', '--dry-run',
+                        default=False,
+                        action='store_true',
+                        help="Don't perform any updates, just a dry run")
+    parser.add_argument('--loglevel', choices=['trace',
+                                               'debug',
+                                               'error',
+                                               'warn',
+                                               'info',
+                                               'notset'], default='info',
+                        help='log level to use')
+    parser.add_argument('--rsu-only', default=False, action='store_true',
+                        help='only perform the RSU command')
+    parser.add_argument('--skip-rsu', default=False, action='store_true',
+                        help='do not perform the RSU command')
+    parser.add_argument('--force-flash', default=False, action='store_true',
+                        help='flash all images regardless of versions matching'
+                             'or not')
+    parser.add_argument('--timeout', default=1800.0, type=float,
+                        help='maximum amount of time to wait before beginning'
+                             'termination sequence')
+
+    args = parser.parse_args()
+    DRY_RUN = args.dry_run
+    logfmt = ('[%(asctime)-15s] [%(levelname)-8s] [%(threadName)-12s] - '
+              '%(message)s')
+    level = TRACE if args.loglevel == 'trace' else logging.NOTSET
+    logging.basicConfig(format=logfmt,
+                        level=getattr(logging, args.loglevel.upper(), level))
+
+    rsu_config = json.load(args.rsu_config)
+    if not rsu_config:
+        logging.error('invalid rsu config: %s', args.rsu_config.name)
+        sys.exit(os.EX_USAGE)
+    boards = discover_boards(rsu_config)
+    if not boards:
+        logging.error('Could not find boards for given product %s',
+                      rsu_config['product'])
+        sys.exit(os.EX_UNAVAILABLE)
+
+    if args.rsu_only:
+        (updated, failed) = (boards, [])
+    else:
+        (updated, failed) = do_update(boards, args, rsu_config)
+
+    if not args.skip_rsu:
+        do_rsu(updated, args, rsu_config)
+
+    exit_code = os.EX_IOERR if failed else run_tests(boards, args)
+    sys.exit(exit_code)
+
+
+if __name__ == '__main__':
+    main()
