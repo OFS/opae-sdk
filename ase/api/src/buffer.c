@@ -200,7 +200,7 @@ static fpga_result buffer_release(void *addr, uint64_t len)
  * Confirm that a page is mapped at vaddr and that it is at least
  * req_page_bytes.
  */
-static fpga_result check_mapped_page(void* vaddr, size_t req_page_bytes)
+static fpga_result check_mapped_page(void *vaddr, size_t req_page_bytes)
 {
 	char line[MAPS_BUF_SZ];
 	uint64_t addr = (uint64_t)vaddr;
@@ -216,8 +216,8 @@ static fpga_result check_mapped_page(void* vaddr, size_t req_page_bytes)
 
 	while (fgets(line, MAPS_BUF_SZ, f)) {
 		unsigned long long start, end;
-		char* tmp0;
-		char* tmp1;
+		char *tmp0;
+		char *tmp1;
 
 		// Range entries begin with <start addr>-<end addr>
 		start = strtoll(line, &tmp0, 16);
@@ -233,8 +233,7 @@ static fpga_result check_mapped_page(void* vaddr, size_t req_page_bytes)
 			continue;
 		}
 
-		while (fgets(line, MAPS_BUF_SZ, f))
-		{
+		while (fgets(line, MAPS_BUF_SZ, f)) {
 			// Look for KernelPageSize
 			unsigned page_kb;
 			int ret = sscanf_s_u(line, "KernelPageSize: %d kB", &page_kb);
@@ -321,7 +320,7 @@ fpga_result __FPGA_API__ fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 			result = FPGA_INVALID_PARAM;
 			goto out_unlock;
 		}
-        /* Does the page exist? */
+		/* Does the page exist? */
 		if (FPGA_OK != check_mapped_page(*buf_addr, len)) {
 			FPGA_MSG("Preallocated buffer does not exist or the page is too small");
 			result = FPGA_INVALID_PARAM;
