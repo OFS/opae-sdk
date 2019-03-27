@@ -296,6 +296,12 @@ static void print_pkvl_info(fpga_properties props)
 				j++;
 			}
 		}
+		snprintf_s_s(path+offset, sizeof(path)-offset, "/%s", "pkvl_a_version");
+		get_sysfs_attr(path, status, sizeof(status));
+		printf("%-29s : %s\n", "Parkvale A Version", status);
+		snprintf_s_s(path+offset, sizeof(path)-offset, "/%s", "pkvl_b_version");
+		get_sysfs_attr(path, status, sizeof(status));
+		printf("%-29s : %s\n", "Parkvale B Version", status);
 	} else {
 		fprintf(stderr, "WARNING: pkvl not found\n");
 	}

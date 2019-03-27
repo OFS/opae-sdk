@@ -201,6 +201,7 @@ def parse_args():
     epi += '  rsu		Remote System Update (Board Reboot)\n'
     epi += '  dtb		Device tree blob update\n'
     epi += '  eeprom	EEPROM update\n'
+    epi += '  pkvl		Parkvale EEPROM update\n'
     epi += '  bmc_bl	%s boot loader update\n' % (RC)
     epi += '  bmc_app	%s application update\n' % (RC)
     epi += '  bmc_fw	BMC firmware update\n'
@@ -214,7 +215,7 @@ def parse_args():
                                      formatter_class=fc_)
 
     parser.add_argument('type', help='type of flash programming',
-                        choices=['user', 'factory', 'rsu', 'eeprom',
+                        choices=['user', 'factory', 'rsu', 'eeprom', 'pkvl',
                                  'bmc_bl', 'bmc_app', 'bmc_fw', 'bmc_img',
                                  'bmc_factory', 'dtb'])
     parser.add_argument('file', type=argparse.FileType('rb'),
@@ -1097,6 +1098,25 @@ def check_file(ifile, utype):
     return ret
 
 
+def pkvl_update(ifile, spi_path, no_verify):
+    ret = bmc_fw_update(ifile, spi_path, no_verify)
+    if ret == 0:
+        print "%s updating parkvale eeprom" % (datetime.datetime.now())
+        load_path = os.path.join(spi_path, 'pkvl', 'eeprom_load')
+        try:
+            write_file(load_path, "1")
+        except (Exception, KeyboardInterrupt):
+            ret = 1
+        if ret == 0:
+            print "%s successful" % (datetime.datetime.now())
+        else:
+            print "%s failed" % (datetime.datetime.now())
+    else:
+        print "%s abort updating parkvale eeprom" % (datetime.datetime.now())
+
+    return ret
+
+
 def main():
     args = parse_args()
 
@@ -1127,6 +1147,12 @@ def main():
             sys.exit(bmc_update(args.type, args.file, bdf))
         else:
             print "{} only supported on {}".format(args.type, RC_PVID)
+            sys.exit(1)
+    elif args.type == 'pkvl':
+        if bdf_pvid_map[bdf] == VC_PVID:
+            sys.exit(pkvl_update(args.file, spi_path, args.no_verify))
+        else:
+            print "{} only supported on {}".format(args.type, VC_PVID)
             sys.exit(1)
 
     if args.type in ['factory', 'bmc_factory']:
