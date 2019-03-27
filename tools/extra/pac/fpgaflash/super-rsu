@@ -642,7 +642,7 @@ class pac(object):
         current_rev = getattr(current_version, 'revision', '').lower()
         rev_supported = rev and current_rev in rev
         if force or (current_version != version):
-            if not rev_supported:
+            if rev and not rev_supported:
                 LOG.warning('rev %s is not supported by platform', rev)
             else:
                 return process_task(cmd, stderr=subprocess.PIPE)
