@@ -78,6 +78,7 @@ BMC_FW_HEAD_SIZE = 256
 
 
 
+
 def check_rpd(ifile):
     data = ifile.read(0x20)
     pof_hdr = struct.unpack('IIIIIIII', data)
@@ -769,6 +770,7 @@ def bmc_fw_update(ifile, spi_path, no_verify):
 
 
 
+
     write_file(mode_path, "0")
 
     ver_file = os.path.join(spi_path, 'bmcfw_flash_ctrl', 'bmcfw_version')
@@ -937,10 +939,7 @@ def dc_rc_reconfigure_bmc(bdf, spi_path):
 
 def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
 
-<<<<<<< HEAD
 
-=======
->>>>>>> fpgaflash: implement bmc_factory option
     if utype in ['bmc_img', 'bmc_factory']:
         mode_path = os.path.join(spi_path,
                                  'bmcimg_flash_ctrl', 'bmcimg_flash_mode')
