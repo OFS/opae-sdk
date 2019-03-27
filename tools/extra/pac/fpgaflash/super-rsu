@@ -30,6 +30,7 @@ import logging
 import math
 import os
 import re
+import signal
 import subprocess
 import sys
 import time
@@ -56,7 +57,7 @@ AER_ON = 0x00000000
 
 DRY_RUN = False
 
-FLASH_TIMEOUT = 120.0
+FLASH_TIMEOUT = 10.0
 
 NULL_CMD = 'sleep 11'
 
@@ -103,6 +104,7 @@ class process_task(object):
         self._cmd = cmd
         self._kwargs = kwargs
         self._start_time = None
+        self._process = None
 
     @property
     def cmd(self):
@@ -112,16 +114,32 @@ class process_task(object):
     def start_time(self):
         return self._start_time
 
+    def terminate(self, timeout=None):
+        if self._process is None:
+            LOG.warning('called terminate on a process that has not started')
+            return
+        p = self._process
+        if timeout is not None:
+            timeout = time.time() + timeout
+            while time.time() < timeout and p.poll() is None:
+                time.sleep(0.1)
+        if p.poll() is None:
+            LOG.warning('terminating task command: %s', self.cmd)
+        p.terminate()
+        _, stderr = p.communicate()
+
     def __call__(self):
         LOG.debug('starting task: %s', self._cmd)
         self._start_time = time.time()
         if DRY_RUN:
             print(self._cmd)
-            return subprocess.Popen(NULL_CMD, shell=True)
-        return subprocess.Popen(self._cmd.split(),
-                                stdin=self._kwargs.get('stdin'),
-                                stdout=self._kwargs.get('stdout'),
-                                stderr=self._kwargs.get('stderr'))
+            self._process = subprocess.Popen(NULL_CMD, shell=True)
+        else:
+            self._process = subprocess.Popen(self._cmd.split(),
+                                             stdin=subprocess.PIPE,
+                                             stdout=self._kwargs.get('stdout'),
+                                             stderr=self._kwargs.get('stderr'))
+        return self._process
 
 
 @contextmanager
@@ -623,10 +641,14 @@ class pac(object):
 
         current_rev = getattr(current_version, 'revision', '').lower()
         rev_supported = rev and current_rev in rev
-        if force or (current_version != version and rev_supported):
-            return process_task(cmd)
+        if force or (current_version != version):
+            if not rev_supported:
+                LOG.warning('rev %s is not supported by platform', rev)
+            else:
+                return process_task(cmd, stderr=subprocess.PIPE)
 
-        LOG.info('nothing to do for %s image, already up to date', flash_type)
+        LOG.info('nothing to do for %s image, '
+                 'already up to date or not supported', flash_type)
 
     def _update(self, flash_dir, rsu_config, args):
         LOG.debug('update of board at %s started', self.pci_node)
@@ -637,25 +659,24 @@ class pac(object):
                 tasks.append((task, flash_info['filename']))
 
         while tasks:
+            # get the next task...
             task, flashfile = tasks.pop(0)
             p = task()
             while p.poll() is None:
                 if self._terminate:
-                    timeout = time.time() + FLASH_TIMEOUT
-                    while time.time() < timeout and p.poll() is None:
-                        time.sleep(0.1)
-                    if p.poll() is None:
-                        LOG.warning('terminating flash command: %s',
-                                    task.cmd)
-                        p.terminate()
+                    task.terminate(FLASH_TIMEOUT)
                     # stop processing next tasks
+                    tasks = []
                     break
                 time.sleep(0.1)
             if p.returncode:
                 LOG.warning('%s exited with code: %s', task.cmd, p.returncode)
             LOG.debug('task completed in %f seconds',
                       time.time() - task.start_time)
-            # go on to the next task...
+
+    def reset_flash_mode(self):
+        self.fpga.spi_bus.write_node("0", 'bmcimg_flash_ctrl',
+                                     'bmcimg_flash_mode')
 
     def update(self, flash_dir, rsu_config, args):
         t = update_thread(self, self._update, flash_dir, rsu_config, args)
@@ -709,7 +730,7 @@ def make_pac(node, fpga, **kwargs):
               node.pci_id[0], node.pci_id[1])
 
 
-def discover_boards(rsu_config):
+def discover_boards(rsu_config, args):
     """discover_boards discover FPGA devices in sysfs given a config
 
     :param rsu_config(dict): A dictionary describing the product to discover.
@@ -769,7 +790,8 @@ def discover_boards(rsu_config):
             logging.debug('found fpga device at %s -tree is\n %s',
                           node.pci_address,
                           path[0].tree())
-            boards.append(make_pac(node, fpga, other_pci=additional))
+            if args.bus is None or args.bus == node.bus:
+                boards.append(make_pac(node, fpga, other_pci=additional))
 
     return boards
 
@@ -800,13 +822,12 @@ def do_rsu(boards, args, config):
                 continue
             except IOError:
                 time.sleep(5)
-                b.rsu(1)
-
-            t.remove()
-            logging.info('waiting for FPGA reconfiguration')
-            time.sleep(10)
-            p.rescan_bus('{}:{}'.format(t.segment, t.bus))
-            time.sleep(1)
+            finally:
+                t.remove()
+                logging.info('waiting for FPGA reconfiguration')
+                time.sleep(10)
+                p.rescan_bus('{}:{}'.format(t.segment, t.bus))
+                time.sleep(1)
 
 
 def do_update(boards, args, rsu_config):
@@ -824,25 +845,31 @@ def do_update(boards, args, rsu_config):
 
     expire = time.time() + args.timeout
     remaining = args.timeout
-    while time.time() < expire and threads:
-        remaining = expire - time.time()
-        t = threads.pop(0)
-        if not t.is_alive():
-            complete.append(t.board)
-        else:
-            threads.append(t)
-            if math.fmod(remaining, 60.0) < 1:
-                LOG.debug('waiting (%d sec) for thread: %s',
-                          remaining, t.name)
-        time.sleep(0.5)
 
-    if threads:
-        LOG.warning('timing out, some boards not complete: %s',
-                    [t.board.pci_node for t in threads])
-        for t in threads:
-            t.terminate()
-
-    return (complete, [t.board for t in threads])
+    try:
+        while time.time() < expire and threads:
+            remaining = expire - time.time()
+            t = threads.pop(0)
+            if not t.is_alive():
+                complete.append(t.board)
+            else:
+                threads.append(t)
+                if math.fmod(remaining, 60.0) < 1:
+                    LOG.debug('waiting (%d sec) for thread: %s',
+                              remaining, t.name)
+            time.sleep(0.5)
+    except (KeyboardInterrupt, SystemExit):
+        LOG.warning('update process interrupted')
+    finally:
+        if threads:
+            LOG.warning('timed out or interrupted,'
+                        'some boards not complete: %s',
+                        [t.board.pci_node for t in threads])
+            for t in threads:
+                t.terminate()
+                t.board.reset_flash_mode()
+            raise RuntimeError('not all boards updated: %s',
+                               [t.board.pci_node for t in threads])
 
 
 def run_tests(boards, args):
@@ -850,14 +877,23 @@ def run_tests(boards, args):
     return os.EX_OK
 
 
+def sighandler(signum, frame):
+    raise KeyboardInterrupt('interrupt signal received')
+
+
 def main():
     global DRY_RUN
     import argparse
+    signal.signal(signal.SIGINT, sighandler)
+    signal.signal(signal.SIGTERM, sighandler)
+
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('rsu_config', type=argparse.FileType('r'),
                         help='path to config file listing what components '
                              'to update and their versions')
+    parser.add_argument('--bus',
+                        help=argparse.SUPPRESS)
     parser.add_argument('-n', '--dry-run',
                         default=False,
                         action='store_true',
@@ -873,6 +909,8 @@ def main():
                         help='only perform the RSU command')
     parser.add_argument('--skip-rsu', default=False, action='store_true',
                         help='do not perform the RSU command')
+    parser.add_argument('--rsu-on-failure', default=False, type=bool,
+                        help='indicates whether to perform RSU on failure')
     parser.add_argument('--force-flash', default=False, action='store_true',
                         help='flash all images regardless of versions matching'
                              'or not')
@@ -892,19 +930,28 @@ def main():
     if not rsu_config:
         logging.error('invalid rsu config: %s', args.rsu_config.name)
         sys.exit(os.EX_USAGE)
-    boards = discover_boards(rsu_config)
+    boards = discover_boards(rsu_config, args)
     if not boards:
         logging.error('Could not find boards for given product %s',
                       rsu_config['product'])
         sys.exit(os.EX_UNAVAILABLE)
 
-    if args.rsu_only:
-        (updated, failed) = (boards, [])
-    else:
-        (updated, failed) = do_update(boards, args, rsu_config)
+    failed = False
+    run_rsu = not args.skip_rsu
+    if not args.rsu_only:
+        try:
+            do_update(boards, args, rsu_config)
+        except RuntimeError:
+            failed = True
+            if args.rsu_on_failure:
+                LOG.info('running rsu on failure')
+                run_rsu = True
+            else:
+                run_rsu = False
+            LOG.error('error updatng boards')
 
-    if not args.skip_rsu:
-        do_rsu(updated, args, rsu_config)
+    if run_rsu:
+        do_rsu(boards, args, rsu_config)
 
     exit_code = os.EX_IOERR if failed else run_tests(boards, args)
     sys.exit(exit_code)
