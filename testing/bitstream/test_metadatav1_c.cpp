@@ -175,7 +175,7 @@ TEST_P(metadatav1_c_p, cluster_err2) {
  * @brief      Test: opae_bitstream_parse_afu_image_v1
  * @details    If the given json_object contains no,<br>
  *             "clock-frequency-high" key,<br>
- *             the fn returns FPGA_EXCEPTION.<br>
+ *             the fn returns FPGA_OK.<br>
  */
 TEST_P(metadatav1_c_p, image_err0) {
     const char *mdata =
@@ -206,10 +206,12 @@ TEST_P(metadatav1_c_p, image_err0) {
   EXPECT_EQ(opae_bitstream_parse_afu_image_v1(j_afu_image,
 					      &img,
 					      ifc_id),
-            FPGA_EXCEPTION);
+            FPGA_OK);
 
-  EXPECT_EQ(img.interface_uuid, nullptr);
-  EXPECT_EQ(img.accelerator_clusters, nullptr);
+  free(img.interface_uuid);
+  free(img.accelerator_clusters[0].name);
+  free(img.accelerator_clusters[0].accelerator_type_uuid);
+  free(img.accelerator_clusters);
 }
 
 /**
@@ -217,7 +219,7 @@ TEST_P(metadatav1_c_p, image_err0) {
  * @brief      Test: opae_bitstream_parse_afu_image_v1
  * @details    If the given json_object contains no,<br>
  *             "clock-frequency-low" key,<br>
- *             the fn returns FPGA_EXCEPTION.<br>
+ *             the fn returns FPGA_OK.<br>
  */
 TEST_P(metadatav1_c_p, image_err1) {
     const char *mdata =
@@ -248,10 +250,12 @@ TEST_P(metadatav1_c_p, image_err1) {
   EXPECT_EQ(opae_bitstream_parse_afu_image_v1(j_afu_image,
 					      &img,
 					      ifc_id),
-            FPGA_EXCEPTION);
+            FPGA_OK);
 
-  EXPECT_EQ(img.interface_uuid, nullptr);
-  EXPECT_EQ(img.accelerator_clusters, nullptr);
+  free(img.interface_uuid);
+  free(img.accelerator_clusters[0].name);
+  free(img.accelerator_clusters[0].accelerator_type_uuid);
+  free(img.accelerator_clusters);
 }
 
 /**
@@ -259,7 +263,7 @@ TEST_P(metadatav1_c_p, image_err1) {
  * @brief      Test: opae_bitstream_parse_afu_image_v1
  * @details    If the given json_object contains no,<br>
  *             "power" key,<br>
- *             the fn returns FPGA_EXCEPTION.<br>
+ *             the fn returns FPGA_OK.<br>
  */
 TEST_P(metadatav1_c_p, image_err2) {
     const char *mdata =
@@ -290,10 +294,12 @@ TEST_P(metadatav1_c_p, image_err2) {
   EXPECT_EQ(opae_bitstream_parse_afu_image_v1(j_afu_image,
 					      &img,
 					      ifc_id),
-            FPGA_EXCEPTION);
+            FPGA_OK);
 
-  EXPECT_EQ(img.interface_uuid, nullptr);
-  EXPECT_EQ(img.accelerator_clusters, nullptr);
+  free(img.interface_uuid);
+  free(img.accelerator_clusters[0].name);
+  free(img.accelerator_clusters[0].accelerator_type_uuid);
+  free(img.accelerator_clusters);
 }
 
 /**
@@ -593,7 +599,7 @@ TEST_P(metadatav1_c_p, image_err10) {
  * @brief      Test: opae_bitstream_parse_metadata_v1
  * @details    If the given json_object has no<br>
  *             "platform-name" key,<br>
- *             the fn returns NULL.<br>
+ *             the fn returns a valid v1 metadata object.<br>
  */
 TEST_P(metadatav1_c_p, parse_v1_err1) {
     const char *mdata =
@@ -623,9 +629,11 @@ TEST_P(metadatav1_c_p, parse_v1_err1) {
 
   fpga_guid ifc_id;
 
-  EXPECT_EQ(opae_bitstream_parse_metadata_v1(root,
-                                             ifc_id),
-            nullptr);
+  opae_bitstream_metadata_v1 *md =
+    opae_bitstream_parse_metadata_v1(root, ifc_id);
+
+  ASSERT_NE(md, nullptr);
+  opae_bitstream_release_metadata_v1(md);
 }
 
 /**
