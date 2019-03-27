@@ -537,6 +537,7 @@ extern "C" {
 	void remove_spaces(char *);
 	void remove_tabs(char *);
 	void remove_newline(char *);
+	int sscanf_s_u(const char *, const char *, unsigned *);
 	int sscanf_s_ii(const char *, const char *, int *, int *);
 	int fscanf_s_i(FILE *, const char *, int *);
 	unsigned int parse_format(const char *format, char pformatList[], unsigned int maxFormats);

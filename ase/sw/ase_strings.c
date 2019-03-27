@@ -337,6 +337,27 @@ check_integer_format(const char format)
 }
 
 
+int sscanf_s_u(const char *src, const char *format, unsigned *a)
+{
+	char pformatList[MAX_FORMAT_ELEMENTS];
+	unsigned int index = 0;
+
+	// Determine the number of format options in the format string
+	unsigned int  nfo = parse_format(format, &pformatList[0], MAX_FORMAT_ELEMENTS);
+
+	// Check that there are not too many format options
+	if (nfo != 1) {
+		return ESBADFMT;
+	}
+	// Check that the format is for an integer type
+	if (check_integer_format(pformatList[index]) == 0) {
+		return ESFMTTYP;
+	}
+
+	return sscanf(src, format, a);
+}
+
+
 int sscanf_s_ii(const char *src, const char *format, int *a, int *b)
 {
 	char pformatList[MAX_FORMAT_ELEMENTS];
