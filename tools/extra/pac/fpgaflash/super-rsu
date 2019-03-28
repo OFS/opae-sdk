@@ -615,7 +615,7 @@ class pac(object):
             return None
 
         version = flash_info['version']
-        rev = flash_info.get('revision', '').lower()
+        rev = flash_info.get('revision')
         filename = flash_info['filename']
         force = flash_info.get('force', args.force_flash)
 
@@ -639,16 +639,25 @@ class pac(object):
         LOG.debug('%s current_version is "%s" - update version is "%s"',
                   flash_type, current_version, version)
 
-        current_rev = getattr(current_version, 'revision', '').lower()
-        rev_supported = rev and current_rev in rev
+        current_rev = getattr(current_version, 'revision', None)
+        # if either the current rev (as reported by the system) is None
+        # or if no rev is in the manifest, the rev is supported
+        if rev is None or current_rev is None:
+            rev_supported = True
+        else:
+            # otherwise, the rev is supported in the current rev is a subset
+            # of the rev in the manifest ( 'a' in 'ab' )
+            rev_supported = current_rev.lower() in rev.lower()
+
         if force or (current_version != version):
             if rev and not rev_supported:
                 LOG.warning('rev %s is not supported by platform', rev)
             else:
                 return process_task(cmd, stderr=subprocess.PIPE)
 
-        LOG.info('nothing to do for %s image, '
-                 'already up to date or not supported', flash_type)
+        LOG.info('nothing to do for %s image, %s',
+                 (flash_type, version, rev),
+                 'not supported' if not rev_supported else 'up to date')
 
     def _update(self, tasks):
         LOG.debug('update of board at %s started', self.pci_node)
