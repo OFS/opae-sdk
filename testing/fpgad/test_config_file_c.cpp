@@ -272,7 +272,7 @@ TEST_P(fpgad_config_file_c_p, load6) {
 
   write_cfg(cfg);
 
-  std::system("rm -rf bar");
+  EXPECT_EQ(std::system("rm -rf bar"), 0);
 
   ASSERT_EQ(mkdir("bar", 0755), 0);
   std::string s = std::string("../") + std::string(cfg_file_);
