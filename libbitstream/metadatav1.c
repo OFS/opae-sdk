@@ -81,20 +81,29 @@ STATIC fpga_result opae_bitstream_parse_afu_image_v1(json_object *j_afu_image,
 	res = opae_bitstream_get_json_int(j_afu_image,
 					  "clock-frequency-high",
 					  &img->clock_frequency_high);
-	if (res != FPGA_OK)
-		return res;
+	if (res != FPGA_OK) {
+		// Some errant bitstreams omit the "clock-frequency-high" key.
+		// Allow it to be optional for now.
+		OPAE_MSG("metadata: missing \"clock-frequency-high\" key");
+	}
 
 	res = opae_bitstream_get_json_int(j_afu_image,
 					  "clock-frequency-low",
 					  &img->clock_frequency_low);
-	if (res != FPGA_OK)
-		return res;
+	if (res != FPGA_OK) {
+		// Some errant bitstreams omit the "clock-frequency-low" key.
+		// Allow it to be optional for now.
+		OPAE_MSG("metadata: missing \"clock-frequency-low\" key");
+	}
 
 	res = opae_bitstream_get_json_int(j_afu_image,
 					  "power",
 					  &img->power);
-	if (res != FPGA_OK)
-		return res;
+	if (res != FPGA_OK) {
+		// Some errant bitstreams omit the "power" key.
+		// Allow it to be optional for now.
+		OPAE_MSG("metadata: missing \"power\" key");
+	}
 
 	res = opae_bitstream_get_json_int(j_afu_image,
 					  "magic-no",
@@ -197,8 +206,11 @@ opae_bitstream_parse_metadata_v1(json_object *root,
 	res = opae_bitstream_get_json_string(root,
 					     "platform-name",
 					     &md->platform_name);
-	if (res != FPGA_OK)
-		goto out_free;
+	if (res != FPGA_OK) {
+		// Some errant bitstreams omit the "platform-name" key.
+		// Allow it to be optional for now.
+		OPAE_MSG("metadata: missing \"platform-name\" key");
+	}
 
 	if (!json_object_object_get_ex(root,
 				       "afu-image",
