@@ -335,7 +335,7 @@ TEST_P(bits_utils_c_p, symlink3) {
       
   std::string s;
 
-  std::system("rm -rf bar");
+  EXPECT_EQ(std::system("rm -rf bar"), 0);
 
   // bar/baz/foo -> tmpfile
   ASSERT_EQ(mkdir("bar", 0755), 0);
@@ -460,7 +460,7 @@ TEST_P(bits_utils_c_p, is_valid2) {
 TEST_P(bits_utils_c_p, is_valid3) {
   char tmpfile[32];
 
-  std::system("rm -rf bar");
+  EXPECT_EQ(std::system("rm -rf bar"), 0);
 
   ASSERT_EQ(mkdir("bar", 0755), 0); 
   strcpy(tmpfile, "tmp-XXXXXX.gbs");
@@ -485,7 +485,7 @@ TEST_P(bits_utils_c_p, is_valid3) {
 TEST_P(bits_utils_c_p, is_valid4) {
   char tmpfile[32];
 
-  std::system("rm -rf bar");
+  EXPECT_EQ(std::system("rm -rf bar"), 0);
 
   ASSERT_EQ(mkdir("bar", 0755), 0); 
   strcpy(tmpfile, "tmp-XXXXXX.gbs");
