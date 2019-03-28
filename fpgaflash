@@ -72,6 +72,7 @@ DTB_REVERSED_MAGIC_NUM = 0x0bb07fb7
 VC_DC_FACTORY_BLOCK_OFFSET = 0x10000
 VC_DC_FACTORY_BLOCK_SIZE = 0x3800000
 
+
 BMC_FW_HEAD_SIZE = 256
 
 
@@ -210,7 +211,6 @@ def parse_args():
     epi += '  rsu		Remote System Update (Board Reboot)\n'
     epi += '  dtb		Device tree blob update\n'
 
-
     epi += '  eeprom	EEPROM update\n'
     epi += '  phy_eeprom	PHY EEPROM update\n'
     epi += '  bmc_bl	%s boot loader update\n' % (RC)
@@ -219,6 +219,7 @@ def parse_args():
     epi += '  bmc_img	BMC user image update\n'
     epi += '  bmc_factory	BMC factory image update\n\n'
     epi += 'example usages:\n\n'
+
 
 
 
@@ -982,9 +983,6 @@ def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
         input_offset = 0
         erase_len = VC_DC_DTB_BLOCK_SIZE
 
-
-
-
     else:
         target_offset = 0x4000000
         input_offset = 0x3ff0000
@@ -1090,6 +1088,7 @@ def check_file(ifile, utype):
         if image_len == VC_FPGA_IMAGE_LENGTH:
             ifile.seek(0)
             data = ifile.read(8)
+
 
         else:
             print "invalid max10 image length {}".format(image_len)
@@ -1275,6 +1274,7 @@ def validate_bdf(bdf, bdf_pvid_map):
                 sfile.write(block)
                 sfile.close()
                 sfile = open(sfile.name, 'rb')
+
             else:
                 sfile = args.file
 
