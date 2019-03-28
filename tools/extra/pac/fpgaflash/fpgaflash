@@ -1099,10 +1099,10 @@ def check_file(ifile, utype):
     return ret
 
 
-def vc_pkvl_update(ifile, spi_path, no_verify):
+def vc_phy_eeprom_update(ifile, spi_path, no_verify):
     ret = bmc_fw_update(ifile, spi_path, no_verify)
     if ret == 0:
-        print "%s updating parkvale eeprom" % (datetime.datetime.now())
+        print "%s updating phy eeprom" % (datetime.datetime.now())
         load_path = os.path.join(spi_path, 'pkvl', 'eeprom_load')
         try:
             write_file(load_path, "1")
@@ -1113,7 +1113,7 @@ def vc_pkvl_update(ifile, spi_path, no_verify):
         else:
             print "%s failed" % (datetime.datetime.now())
     else:
-        print "%s abort updating parkvale eeprom" % (datetime.datetime.now())
+        print "%s abort updating phy eeprom" % (datetime.datetime.now())
 
     return ret
 
@@ -1151,7 +1151,7 @@ def main():
             sys.exit(1)
     elif args.type == 'phy_eeprom':
         if bdf_pvid_map[bdf] == VC_PVID:
-            sys.exit(vc_pkvl_update(args.file, spi_path, args.no_verify))
+            sys.exit(vc_phy_eeprom_update(args.file, spi_path, args.no_verify))
         else:
             print "{} only supported on {}".format(args.type, VC_PVID)
             sys.exit(1)
