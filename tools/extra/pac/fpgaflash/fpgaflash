@@ -63,6 +63,11 @@ VC_FPGA_IMAGE_LENGTH = 0x77f0000
 VC_MAX10_IMAGE_MAGIC_NUM = 0x56565656
 VC_MAX10_IMAGE_LENGTH = 0xa8000
 
+VC_DC_DTB_BLOCK_OFFSET = 0x3810000
+VC_DC_DTB_BLOCK_SIZE = 0x7e0000
+
+DTB_REVERSED_MAGIC_NUM = 0x0bb07fb7
+
 BMC_FW_HEAD_SIZE = 256
 
 
@@ -194,6 +199,7 @@ def parse_args():
     epi += '  user		FPGA user image update\n'
     epi += '  factory	FPGA factory image update\n'
     epi += '  rsu		Remote System Update (Board Reboot)\n'
+    epi += '  dtb		Device tree blob update\n'
     epi += '  eeprom	EEPROM update\n'
     epi += '  bmc_bl	%s boot loader update\n' % (RC)
     epi += '  bmc_app	%s application update\n' % (RC)
@@ -210,7 +216,7 @@ def parse_args():
     parser.add_argument('type', help='type of flash programming',
                         choices=['user', 'factory', 'rsu', 'eeprom',
                                  'bmc_bl', 'bmc_app', 'bmc_fw', 'bmc_img',
-                                 'bmc_factory'])
+                                 'bmc_factory', 'dtb'])
     parser.add_argument('file', type=argparse.FileType('rb'),
                         help='file to program into flash')
 
@@ -970,6 +976,10 @@ def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
             flash_erase(mtd_dev, 0x70000, 0x48000)
         else:
             raise Exception("{} not supported on {}".format(utype, pvid))
+    elif utype == 'dtb':
+        target_offset = 0x3820000
+        input_offset = 0
+        erase_len = VC_DC_DTB_BLOCK_SIZE
     else:
         target_offset = 0x4000000
         input_offset = 0x3ff0000
@@ -1050,7 +1060,7 @@ def check_file(ifile, utype):
     ret = 0
 
     image_len = os.path.getsize(ifile.name)
-    if utype in ['factory', 'user']:
+    if utype in ['factory', 'user', 'dtb']:
         if image_len == VC_FPGA_IMAGE_LENGTH:
             ifile.seek(0)
             data = ifile.read(8)
@@ -1059,6 +1069,13 @@ def check_file(ifile, utype):
                bin_hdr[1] != VC_FPGA_IMAGE_MAGIC_NUM2:
                 print "invalid fpga image file"
                 ret = 1
+            if utype == 'dtb':
+                ifile.seek(VC_DC_DTB_BLOCK_OFFSET)
+                data = ifile.read(4)
+                dtb_hdr = struct.unpack('>I', data)
+                if dtb_hdr[0] != DTB_REVERSED_MAGIC_NUM:
+                    print "invalid dtb magic number"
+                    ret = 1
         else:
             print "invalid fpga image length {}".format(image_len)
             ret = 1
@@ -1155,6 +1172,13 @@ def main():
                 a = array("I", args.file.read())
                 for elem in a:
                     sfile.write(struct.pack('>I', elem))
+                sfile.close()
+                sfile = open(sfile.name, 'rb')
+            elif args.type == 'dtb':
+                sfile = tempfile.NamedTemporaryFile(mode='wb+', delete=False)
+                args.file.seek(VC_DC_DTB_BLOCK_OFFSET)
+                block = args.file.read(VC_DC_DTB_BLOCK_SIZE)
+                sfile.write(block)
                 sfile.close()
                 sfile = open(sfile.name, 'rb')
             else:
