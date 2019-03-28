@@ -650,13 +650,8 @@ class pac(object):
         LOG.info('nothing to do for %s image, '
                  'already up to date or not supported', flash_type)
 
-    def _update(self, flash_dir, rsu_config, args):
+    def _update(self, tasks):
         LOG.debug('update of board at %s started', self.pci_node)
-        tasks = []
-        for flash_info in rsu_config['flash']:
-            task = self.flash_task(flash_dir, flash_info, args)
-            if task is not None:
-                tasks.append((task, flash_info['filename']))
 
         while tasks:
             # get the next task...
@@ -679,9 +674,16 @@ class pac(object):
                                      'bmcimg_flash_mode')
 
     def update(self, flash_dir, rsu_config, args):
-        t = update_thread(self, self._update, flash_dir, rsu_config, args)
-        t.start()
-        return t
+        tasks = []
+        for flash_info in rsu_config['flash']:
+            task = self.flash_task(flash_dir, flash_info, args)
+            if task is not None:
+                tasks.append((task, flash_info['filename']))
+        if tasks:
+            t = update_thread(self, self._update, tasks)
+            t.start()
+            return t
+        return None
 
     def rsu(self, boot_page=None):
         page = self.boot_page if boot_page is None else boot_page
@@ -839,13 +841,16 @@ def do_update(boards, args, rsu_config):
     """
     flash_dir = os.path.dirname(args.rsu_config.name)
     complete = []
+    terminated = []
     threads = []
     for b in boards:
-        threads.append(b.update(flash_dir, rsu_config, args))
+        update_thread = b.update(flash_dir, rsu_config, args)
+        if update_thread is not None:
+            threads.append(update_thread)
 
     expire = time.time() + args.timeout
     remaining = args.timeout
-
+    interrupted = False
     try:
         while time.time() < expire and threads:
             remaining = expire - time.time()
@@ -868,8 +873,9 @@ def do_update(boards, args, rsu_config):
             for t in threads:
                 t.terminate()
                 t.board.reset_flash_mode()
-            raise RuntimeError('not all boards updated: %s',
-                               [t.board.pci_node for t in threads])
+                terminated.append(t.board)
+            interrupted = True
+    return (complete, terminated, interrupted)
 
 
 def run_tests(boards, args):
@@ -909,8 +915,6 @@ def main():
                         help='only perform the RSU command')
     parser.add_argument('--skip-rsu', default=False, action='store_true',
                         help='do not perform the RSU command')
-    parser.add_argument('--rsu-on-failure', default=False, type=bool,
-                        help='indicates whether to perform RSU on failure')
     parser.add_argument('--force-flash', default=False, action='store_true',
                         help='flash all images regardless of versions matching'
                              'or not')
@@ -936,24 +940,17 @@ def main():
                       rsu_config['product'])
         sys.exit(os.EX_UNAVAILABLE)
 
-    failed = False
-    run_rsu = not args.skip_rsu
-    if not args.rsu_only:
-        try:
-            do_update(boards, args, rsu_config)
-        except RuntimeError:
-            failed = True
-            if args.rsu_on_failure:
-                LOG.info('running rsu on failure')
-                run_rsu = True
-            else:
-                run_rsu = False
-            LOG.error('error updatng boards')
+    terminated = []
+    interrupted = False
+    if args.rsu_only:
+        to_rsu = boards
+    else:
+        to_rsu, terminated, interrupted = do_update(boards, args, rsu_config)
 
-    if run_rsu:
-        do_rsu(boards, args, rsu_config)
+    if not args.skip_rsu:
+        do_rsu(to_rsu, args, rsu_config)
 
-    exit_code = os.EX_IOERR if failed else run_tests(boards, args)
+    exit_code = os.EX_IOERR if interrupted else run_tests(boards, args)
     sys.exit(exit_code)
 
 
