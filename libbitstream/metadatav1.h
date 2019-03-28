@@ -53,9 +53,9 @@ typedef struct _opae_metadata_accelerator_cluster_v1 {
  * and Partial Reconfiguration interface.
  */
 typedef struct _opae_metadata_afu_image_v1 {
-	int clock_frequency_high;
-	int clock_frequency_low;
-	int power;
+	double clock_frequency_high;
+	double clock_frequency_low;
+	double power;
 	char *interface_uuid;
 	int magic_no;
 	int num_clusters;

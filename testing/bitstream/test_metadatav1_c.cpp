@@ -224,7 +224,7 @@ TEST_P(metadatav1_c_p, image_err0) {
 TEST_P(metadatav1_c_p, image_err1) {
     const char *mdata =
     R"mdata({
-"clock-frequency-high": 312,
+"clock-frequency-high": 31.2,
 "power": 50,
 "interface-uuid": "01234567-89AB-CDEF-0123-456789ABCDEF",
 "magic-no": 488605312,
@@ -252,6 +252,9 @@ TEST_P(metadatav1_c_p, image_err1) {
 					      ifc_id),
             FPGA_OK);
 
+  EXPECT_EQ(img.clock_frequency_high, 31.2);
+  EXPECT_EQ(img.power, 50.0);
+
   free(img.interface_uuid);
   free(img.accelerator_clusters[0].name);
   free(img.accelerator_clusters[0].accelerator_type_uuid);
@@ -268,8 +271,8 @@ TEST_P(metadatav1_c_p, image_err1) {
 TEST_P(metadatav1_c_p, image_err2) {
     const char *mdata =
     R"mdata({
-"clock-frequency-high": 312,
-"clock-frequency-low": 156,
+"clock-frequency-high": 3.12,
+"clock-frequency-low": 1.56,
 "interface-uuid": "01234567-89AB-CDEF-0123-456789ABCDEF",
 "magic-no": 488605312,
 
@@ -295,6 +298,9 @@ TEST_P(metadatav1_c_p, image_err2) {
 					      &img,
 					      ifc_id),
             FPGA_OK);
+
+  EXPECT_EQ(img.clock_frequency_high, 3.12);
+  EXPECT_EQ(img.clock_frequency_low, 1.56);
 
   free(img.interface_uuid);
   free(img.accelerator_clusters[0].name);
@@ -715,9 +721,9 @@ TEST_P(metadatav1_c_p, parse_v1_ok) {
     R"mdata({
   "version": 1,
   "afu-image": {
-    "clock-frequency-high": 312,
+    "clock-frequency-high": 312.0,
     "clock-frequency-low": 156,
-    "power": 50,
+    "power": 50.2,
     "interface-uuid": "01234567-89AB-CDEF-0123-456789ABCDEF",
     "magic-no": 488605312,
 
@@ -768,9 +774,9 @@ TEST_P(metadatav1_c_p, parse_v1_ok) {
   ASSERT_NE(md->platform_name, nullptr);
   EXPECT_STREQ(md->platform_name, "DCP");
 
-  EXPECT_EQ(md->afu_image.clock_frequency_high, 312);
-  EXPECT_EQ(md->afu_image.clock_frequency_low, 156);
-  EXPECT_EQ(md->afu_image.power, 50);
+  EXPECT_EQ(md->afu_image.clock_frequency_high, 312.0);
+  EXPECT_EQ(md->afu_image.clock_frequency_low, 156.0);
+  EXPECT_EQ(md->afu_image.power, 50.2);
 
   ASSERT_NE(md->afu_image.interface_uuid, nullptr);
   EXPECT_STREQ(md->afu_image.interface_uuid, "01234567-89AB-CDEF-0123-456789ABCDEF");
