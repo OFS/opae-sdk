@@ -139,4 +139,4 @@ TEST_P(fpgad_daemonize_c_p, test) {
 }
 
 INSTANTIATE_TEST_CASE_P(fpgad_daemonize_c, fpgad_daemonize_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
+                        ::testing::ValuesIn(test_platform::platforms({"skx-p" /*,"skx-p-dfl0"*/})));
