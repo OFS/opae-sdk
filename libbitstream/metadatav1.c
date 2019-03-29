@@ -77,32 +77,59 @@ STATIC fpga_result opae_bitstream_parse_afu_image_v1(json_object *j_afu_image,
 	fpga_result res;
 	json_object *j_accelerator_clusters = NULL;
 	int i = 0;
+	int ival;
 
-	res = opae_bitstream_get_json_int(j_afu_image,
-					  "clock-frequency-high",
-					  &img->clock_frequency_high);
+	res = opae_bitstream_get_json_double(j_afu_image,
+					     "clock-frequency-high",
+					     &img->clock_frequency_high);
 	if (res != FPGA_OK) {
-		// Some errant bitstreams omit the "clock-frequency-high" key.
-		// Allow it to be optional for now.
-		OPAE_MSG("metadata: missing \"clock-frequency-high\" key");
+		ival = 0;
+		res = opae_bitstream_get_json_int(j_afu_image,
+						  "clock-frequency-high",
+						  &ival);
+		img->clock_frequency_high = (double)ival;
+		if (res != FPGA_OK) {
+			// Some errant bitstreams omit
+			// the "clock-frequency-high" key.
+			// Allow it to be optional for now.
+			OPAE_MSG("metadata: missing "
+				 "\"clock-frequency-high\" key");
+		}
 	}
 
-	res = opae_bitstream_get_json_int(j_afu_image,
-					  "clock-frequency-low",
-					  &img->clock_frequency_low);
+	res = opae_bitstream_get_json_double(j_afu_image,
+					     "clock-frequency-low",
+					     &img->clock_frequency_low);
 	if (res != FPGA_OK) {
-		// Some errant bitstreams omit the "clock-frequency-low" key.
-		// Allow it to be optional for now.
-		OPAE_MSG("metadata: missing \"clock-frequency-low\" key");
+		ival = 0;
+		res = opae_bitstream_get_json_int(j_afu_image,
+						  "clock-frequency-low",
+						  &ival);
+		img->clock_frequency_low = (double)ival;
+		if (res != FPGA_OK) {
+			// Some errant bitstreams omit
+			// the "clock-frequency-low" key.
+			// Allow it to be optional for now.
+			OPAE_MSG("metadata: missing "
+				 "\"clock-frequency-low\" key");
+		}
 	}
 
-	res = opae_bitstream_get_json_int(j_afu_image,
-					  "power",
-					  &img->power);
+	res = opae_bitstream_get_json_double(j_afu_image,
+					     "power",
+					     &img->power);
 	if (res != FPGA_OK) {
-		// Some errant bitstreams omit the "power" key.
-		// Allow it to be optional for now.
-		OPAE_MSG("metadata: missing \"power\" key");
+		ival = 0;
+		res = opae_bitstream_get_json_int(j_afu_image,
+						  "power",
+						  &ival);
+		img->power = (double)ival;
+		if (res != FPGA_OK) {
+			// Some errant bitstreams
+			// omit the "power" key.
+			// Allow it to be optional for now.
+			OPAE_MSG("metadata: missing \"power\" key");
+		}
 	}
 
 	res = opae_bitstream_get_json_int(j_afu_image,

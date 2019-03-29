@@ -94,11 +94,30 @@ fpga_result opae_bitstream_get_json_int(json_object *parent,
 	}
 
 	if (!json_object_is_type(obj, json_type_int)) {
-		OPAE_ERR("metadata: \"%s\" key not int", name);
 		return FPGA_EXCEPTION;
 	}
 
 	*value = json_object_get_int(obj);
+	return FPGA_OK;
+}
+
+fpga_result opae_bitstream_get_json_double(json_object *parent,
+					   const char *name,
+					   double *value)
+{
+	json_object *obj = NULL;
+
+	if (!json_object_object_get_ex(parent,
+				       name,
+				       &obj)) {
+		return FPGA_EXCEPTION;
+	}
+
+	if (!json_object_is_type(obj, json_type_double)) {
+		return FPGA_EXCEPTION;
+	}
+
+	*value = json_object_get_double(obj);
 	return FPGA_OK;
 }
 

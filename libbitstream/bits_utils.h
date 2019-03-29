@@ -28,7 +28,8 @@
  * @file bits_utils.h
  * @brief Utility functions for GBS metadata parsing.
  *
- * These functions extract basic types (strings, integers)
+ * These functions extract basic types (strings,
+ * integers, doubles)
  * from the given JSON object.
  *
  */
@@ -77,6 +78,20 @@ fpga_result opae_bitstream_get_json_string(json_object *parent,
 fpga_result opae_bitstream_get_json_int(json_object *parent,
 					const char *name,
 					int *value);
+
+/**
+ * Populate double value from JSON object.
+ *
+ * @param[in] parent The JSON object in which to search for `name`.
+ * @param[in] name The search key.
+ * @param[out] value Receives the double value.
+ *
+ * @returns FPGA_OK on success. FPGA_EXCEPTION if `name`
+ * is not found or if `name` is not a key of type double.
+ */ 
+fpga_result opae_bitstream_get_json_double(json_object *parent,
+					   const char *name,
+					   double *value);
 
 #define OPAE_BITSTREAM_PATH_NO_PARENT  0x00000001
 #define OPAE_BITSTREAM_PATH_NO_SYMLINK 0x00000002

@@ -181,6 +181,80 @@ TEST_P(bits_utils_c_p, int_err1) {
 }
 
 /**
+ * @test       double_err0
+ * @brief      Test: opae_bitstream_get_json_double
+ * @details    If the given name doesn't exist,<br>
+ *             the fn returns FPGA_EXCEPTION.<br>
+ */
+TEST_P(bits_utils_c_p, double_err0) {
+    const char *mdata =
+    R"mdata({
+"a": 3.14
+})mdata";
+  json_object *root;
+  double value = 0.0;
+
+  root = parse(mdata);
+  ASSERT_NE(root, nullptr);
+
+  EXPECT_EQ(opae_bitstream_get_json_double(root,
+					   "b",
+					   &value),
+            FPGA_EXCEPTION);
+  EXPECT_EQ(value, 0.0);
+}
+
+/**
+ * @test       double_err1
+ * @brief      Test: opae_bitstream_get_json_double
+ * @details    If the given name exists,<br>
+ *             but isn't of type double,<br>
+ *             the fn returns FPGA_EXCEPTION.<br>
+ */
+TEST_P(bits_utils_c_p, double_err1) {
+    const char *mdata =
+    R"mdata({
+"a": "str"
+})mdata";
+  json_object *root;
+  double value = 0.0;
+
+  root = parse(mdata);
+  ASSERT_NE(root, nullptr);
+
+  EXPECT_EQ(opae_bitstream_get_json_double(root,
+					   "a",
+					   &value),
+            FPGA_EXCEPTION);
+  EXPECT_EQ(value, 0.0);
+}
+
+/**
+ * @test       double_err2
+ * @brief      Test: opae_bitstream_get_json_double
+ * @details    If the given name exists,<br>
+ *             but isn't of type double,<br>
+ *             the fn returns FPGA_EXCEPTION.<br>
+ */
+TEST_P(bits_utils_c_p, double_err2) {
+    const char *mdata =
+    R"mdata({
+"a": 42
+})mdata";
+  json_object *root;
+  double value = 0.0;
+
+  root = parse(mdata);
+  ASSERT_NE(root, nullptr);
+
+  EXPECT_EQ(opae_bitstream_get_json_double(root,
+					   "a",
+					   &value),
+            FPGA_EXCEPTION);
+  EXPECT_EQ(value, 0.0);
+}
+
+/**
  * @test       invalid_chars0
  * @brief      Test: opae_bitstream_path_invalid_chars
  * @details    Given a path that contains non-printable chars,<br>
