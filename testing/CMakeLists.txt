@@ -348,6 +348,7 @@ macro(add_unit_test test_name static_lib)
         ${ARGN})
     target_include_directories(${test_name} PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+		PRIVATE ${OPAE_SDK_SOURCE}
         PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga
         PRIVATE ${OPAE_SDK_SOURCE}/libbitstream
         )
