@@ -1120,6 +1120,7 @@ def check_file_extension(ifile, utype):
 
     return ret
 
+
 def vc_phy_eeprom_update(ifile, spi_path, no_verify):
     ret = bmc_fw_update(ifile, spi_path, no_verify)
     if ret == 0:
@@ -1172,6 +1173,7 @@ def validate_bdf(bdf, bdf_pvid_map):
         elif bdf not in bdf_pvid_map.keys():
             print "Could not find fpga device for {}".format(bdf)
             print_bdf_mtd_mapping(bdf_pvid_map)
+
 
 
 
