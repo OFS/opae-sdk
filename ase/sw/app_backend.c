@@ -24,7 +24,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 // **************************************************************************
-
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 #define _GNU_SOURCE
 
 #include <unistd.h>
@@ -300,11 +302,6 @@ void *mmio_response_watcher(void *arg)
 #endif
 			}
 		}
-	}
-
-	if (io_s.mmio_rsp_pkt) {
-		free(io_s.mmio_rsp_pkt);
-		io_s.mmio_rsp_pkt = NULL;
 	}
 
 	return 0;
@@ -754,11 +751,17 @@ void session_deinit(void)
 	if (pthread_mutex_unlock(&io_s.mmio_port_lock) != 0) {
 		ASE_MSG("Trying to shutdown mutex unlock\n");
 	}
+
 	// Stop running threads
 	pthread_cancel(umas_s.umsg_watch_tid);
 	pthread_join(umas_s.umsg_watch_tid, NULL);
 	pthread_cancel(io_s.mmio_watch_tid);
 	pthread_join(io_s.mmio_watch_tid, NULL);
+
+	if (io_s.mmio_rsp_pkt) {
+		free(io_s.mmio_rsp_pkt);
+		io_s.mmio_rsp_pkt = NULL;
+	}
 
 	// End Clock snapshot
 	clock_gettime(CLOCK_MONOTONIC, &end_time_snapshot);
@@ -1404,57 +1407,6 @@ void append_buf(struct buffer_t *buf)
 }
 
 /*
- * deallocate_buffer_by_index:
- * Find a workspace by ID and then call deallocate_buffer
- */
-bool deallocate_buffer_by_index(int search_index)
-{
-	FUNC_CALL_ENTRY;
-	bool value;
-	struct buffer_t *bufptr = (struct buffer_t *) NULL;
-	struct buffer_t *ptr;
-
-	ASE_MSG("Deallocate request index = %d ... \n", search_index);
-
-	// Traverse buffer list
-	ptr = buf_head;
-	while (ptr != NULL) {
-		if (ptr->index == search_index) {
-			bufptr = ptr;
-			ASE_DBG("FOUND\n");
-			break;
-		} else {
-			ptr = ptr->next;
-		}
-	}
-
-	// Call deallocate
-	if ((bufptr != NULL) && (bufptr->valid == ASE_BUFFER_VALID)) {
-		deallocate_buffer((struct buffer_t *) bufptr);
-		value = true;
-	} else {
-		ASE_MSG("Buffer pointer was returned as NULL\n");
-		value = false;
-	}
-
-#ifdef ASE_DEBUG
-
-	ASE_DBG("Buffer traversal START =>\n");
-	ptr = buf_head;
-	while (ptr != NULL) {
-		ASE_DBG("\t%d %p %d\n", ptr->index,
-			ptr, ptr->valid);
-		ptr = ptr->next;
-	}
-	ASE_DBG("Buffer traversal END\n");
-
-#endif
-
-	FUNC_CALL_EXIT;
-	return value;
-}
-
-/*
  * Clean up the memory allocated for buffer_t
  */
 void free_buffers(void)
@@ -1480,32 +1432,6 @@ void free_buffers(void)
 	ase_host_memory_terminate();
 
 	FUNC_CALL_EXIT;
-}
-
-/*
- * Traverse buffer array and find buffer by ID
- */
-struct buffer_t *find_buffer_by_index(uint64_t wsid)
-{
-	struct buffer_t *bufptr = (struct buffer_t *) NULL;
-	struct buffer_t *trav_ptr;
-
-	trav_ptr = buf_head;
-	while (trav_ptr != NULL) {
-		if ((uint64_t)(trav_ptr->index) == wsid) {
-		bufptr = trav_ptr;
-		break;
-		} else {
-			trav_ptr = trav_ptr->next;
-		}
-	}
-
-	if (bufptr == (struct buffer_t *) NULL) {
-	ASE_ERR
-		("find_buffer_by_index: Couldn't find buffer by WSID\n");
-	}
-
-	return bufptr;
 }
 
 /*
@@ -1629,7 +1555,7 @@ void *umsg_watcher(void *arg)
 	return 0;
 }
 
-static ase_host_memory_status membus_op_status(uint64_t va, uint64_t pa)
+STATIC ase_host_memory_status membus_op_status(uint64_t va, uint64_t pa)
 {
 	ase_host_memory_status st;
 

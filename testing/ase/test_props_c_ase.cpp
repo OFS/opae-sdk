@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,35 +24,303 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef __cplusplus
+#include <algorithm>
 
-extern "C" {
-#endif
-#include <opae/enum.h>
+#include <opae/fpga.h>
+#include <opae/types.h>
+#include "types_int.h"
 #include <opae/properties.h>
 #include "properties_int.h"
 
-#ifdef __cplusplus
-}
-#endif
-
-#include "common_test.h"
 #include "gtest/gtest.h"
-#include "types_int.h"
+#include "test_system.h"
 
-#define DECLARE_GUID(var, ...) uint8_t var[16] = {__VA_ARGS__};
+using namespace opae::testing;
 
-using namespace common_test;
+// ASE ID
+#define ASE_TOKEN_MAGIC    0x46504741544f4b40
+
+static const fpga_guid FPGA_FME_GUID = {
+	0xbf, 0xaf, 0x2a, 0xe9, 0x4a, 0x52, 0x46, 0xe3, 0x82, 0xfe,
+	0x38, 0xf0, 0xf9, 0xe1, 0x77, 0x64
+};
+static const fpga_guid ASE_GUID = {
+	0xd8, 0x42, 0x4d, 0xc4, 0xa4,  0xa3, 0xc4, 0x13, 0xf8,0x9e,
+	0x43, 0x36, 0x83, 0xf9, 0x04, 0x0b
+};
+fpga_guid known_guid = {0xc5, 0x14, 0x92, 0x82, 0xe3, 0x4f, 0x11, 0xe6,
+                        0x8e, 0x3a, 0x13, 0xcc, 0x9d, 0x38, 0xca, 0x28};
+
+inline void token_for_fme(struct _fpga_token* tok_)
+{
+    memcpy(tok_->accelerator_id,FPGA_FME_GUID, sizeof(fpga_guid));
+    tok_->magic = ASE_TOKEN_MAGIC;
+    tok_->ase_objtype=FPGA_DEVICE;
+}
+
+inline void token_for_afu0(struct _fpga_token* tok_)
+{
+    memcpy(tok_->accelerator_id,ASE_GUID, sizeof(fpga_guid));
+    tok_->magic = ASE_TOKEN_MAGIC;
+    tok_->ase_objtype=FPGA_ACCELERATOR;
+}
+
+class properties_c_ase_p : public testing::Test{
+ protected:
+  properties_c_ase_p()
+  : tok_dev_(nullptr),
+    tok_accel_(nullptr) {}
+
+  virtual void SetUp() override {
+    system_ = test_system::instance();
+    system_->initialize();
+
+    tok_accel_ = &tok_;
+    token_for_afu0(&tok_);
+    tok_dev_ = &tok1_;
+    token_for_fme(&tok1_);
+    filter_ = nullptr;
+    accel_ = nullptr;
+    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
+  }
+
+  virtual void TearDown() override {
+    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    system_->finalize();
+  }
+
+  struct _fpga_token tok_, tok1_;
+  fpga_token tok_dev_;
+  fpga_token tok_accel_;
+  fpga_properties filter_;
+  fpga_handle accel_;
+  test_system* system_;
+};
 
 /**
- * @test    nodrv_prop_001
- * @brief   Tests: fpgaCreateProperties
+ * @test    property_01
+ * @brief   Tests: fpgaClearProperties
+ * @details Given a non-null fpga_properties* object<br>
+ *          Then the return value is FPGA_OK<br>
+ *          And the field in the token object is set to the known value<br>
+ * */
+TEST_F(properties_c_ase_p, property_01) {
+  fpga_properties prop = nullptr;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &prop), FPGA_OK);
+  EXPECT_EQ(fpgaPropertiesSetObjectType(prop, FPGA_DEVICE), FPGA_OK);
+  EXPECT_EQ(fpgaClearProperties(prop), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
+}
+
+/**
+ * @test    get_parent02
+ * @brief   Tests: fpgaPropertiesGetParent
+ * @details Given a non-null fpga_properties* object<br>
+ *          And it does NOT have the parent field set<br>
+ *          When I call fpgaPropertiesGetParent with a pointer to a token
+ *          object<br>
+ *          Then the return value is FPGA_NOT_FOUND<br>
+ * */
+TEST_F(properties_c_ase_p, get_parent02) {
+  fpga_properties prop = nullptr;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &prop), FPGA_OK);
+
+  struct _fpga_properties* prop_ = (struct _fpga_properties*)prop;
+  fpga_token tok = nullptr;
+
+  // make sure the FPGA_PROPERTY_PARENT bit is zero
+  EXPECT_EQ((prop_->valid_fields >> FPGA_PROPERTY_PARENT) & 1, 0);
+
+  EXPECT_EQ(fpgaPropertiesGetParent(prop_, &tok), FPGA_NOT_FOUND);
+  EXPECT_EQ(tok, nullptr);
+
+  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
+}
+
+/**
+ * @test    set_parent01
+ * @brief   Tests: fpgaPropertiesSetParent
+ * @details Given a non-null fpga_properties* object<br>
+ *          And a fpga_token* object with a known value<br>
+ *          When I call fpgaPropertiesSetParent with the property and the
+ *          token<br>
+ *          Then the parent object in the properties object is the token<br>
+ */
+TEST_F(properties_c_ase_p, set_parent01) {
+  fpga_properties prop = nullptr;
+  fpga_token parent = nullptr;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &prop), FPGA_OK);
+  EXPECT_EQ(fpgaPropertiesSetObjectType(prop, FPGA_DEVICE), FPGA_OK);
+  EXPECT_EQ(fpgaClearProperties(prop), FPGA_OK);
+
+  // now get the parent token from the prop structure
+  EXPECT_EQ(fpgaPropertiesSetParent(prop, tok_dev_), FPGA_OK);
+  // now get the parent token from the prop structure
+  EXPECT_EQ(fpgaPropertiesGetParent(prop, &parent), FPGA_OK);
+  // GetParent clones the token so compare object_id of the two
+  fpga_properties p1 = nullptr, p2 = nullptr;
+  ASSERT_EQ(fpgaGetProperties(tok_dev_, &p1), FPGA_OK);
+  ASSERT_EQ(fpgaGetProperties(parent, &p2), FPGA_OK);
+  EXPECT_EQ(((_fpga_properties*)p1)->object_id,
+            ((_fpga_properties*)p2)->object_id);
+
+  EXPECT_EQ(fpgaDestroyProperties(&p1), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&p2), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyToken(&parent), FPGA_OK);
+}
+
+/**
+ * @test    set_parent02
+ * @brief   Tests: fpgaPropertiesSetParent
+ * @details When setting the parent token in a properties object<br>
+ *          that has a wrapped parent token resulting from fpgaGetProperties[FromParent]<br>
+ *          or fpgaUpdateProperties,<br>
+ *          fpgaPropertiesSetParent will free the token wrapper.<br>
+ */
+TEST_F(properties_c_ase_p, set_parent02) {
+  fpga_properties prop = nullptr;
+  // The accelerator token will have a parent token set.
+  ASSERT_EQ(fpgaGetProperties(tok_accel_, &prop), FPGA_OK);
+  // When this parent is set explicitly, the parent token wrapper is freed.
+  EXPECT_EQ(fpgaPropertiesSetParent(prop, tok_dev_), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
+}
+
+/**
+ * @test    from_handle01
+ * @brief   Tests: fpgaGetPropertiesFromHandle
+ * @details When the input handle is NULL<br>
+ *          fpgaGetPropertiesFromHandle returns FPGA_INVALID_PARAM.<br>
+ */
+TEST_F(properties_c_ase_p, from_handle01) {
+  fpga_properties prop = nullptr;
+  EXPECT_EQ(fpgaGetPropertiesFromHandle(accel_, &prop), FPGA_INVALID_PARAM);
+}
+
+/**
+ * @test    from_handle02
+ * @brief   Tests: fpgaGetPropertiesFromHandle
+ * @details When the input handle is valid<br>
+ *          fpgaGetPropertiesFromHandle returns FPGA_OK.<br>
+ */
+TEST_F(properties_c_ase_p, from_handle02) {
+  fpga_properties prop = nullptr;
+  struct _fpga_handle  handle;
+  handle.token = tok_accel_;
+  accel_ = &handle;  
+  EXPECT_EQ(fpgaGetPropertiesFromHandle(accel_, &prop), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
+}
+
+/**
+ * @test    from_token03
+ * @brief   Tests: fpgaGetProperties
+ * @details When the input token is valid<br>
+ *          and the call is successful,<br>
+ *          fpgaGetProperties returns FPGA_OK.<br>
+ */
+TEST_F(properties_c_ase_p, from_token03) {
+  fpga_properties prop = nullptr;
+  EXPECT_EQ(fpgaGetProperties(tok_accel_, &prop), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
+}
+
+/**
+ * @test    update01
+ * @brief   Tests: fpgaUpdateProperties
+ * @details When the input properties object has a parent token set,<br>
+ *          fpgaUpdateProperties re-uses the wrapper object.<br>
+ *          If a subsequent call to fpgaUpdateProperties results in a properites<br>
+ *          object without a parent token,<br>
+ *          then the wrapper object is freed.<br>
+ */
+TEST_F(properties_c_ase_p, update01) {
+  fpga_properties props = nullptr;
+  ASSERT_EQ(fpgaGetProperties(NULL, &props), FPGA_OK);
+  EXPECT_EQ(fpgaUpdateProperties(tok_accel_, props), FPGA_OK);
+  // The output properties for the accelerator will have a parent token.
+
+  // Updating the properties again (accelerator)
+  EXPECT_EQ(fpgaUpdateProperties(tok_accel_, props), FPGA_OK);
+
+  // Updating the properties for a device token will not result in
+  // a parent token. 
+  EXPECT_EQ(fpgaUpdateProperties(tok_dev_, props), FPGA_OK);
+
+  EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
+}
+
+/**
+ * @test    update02
+ * @brief   Tests: fpgaUpdateProperties
+ * @details When the input properties object has a parent token set,<br>
+ *          
+ *          If a subsequent call to fpgaUpdateProperties results in a properites<br>
+ *          object without a parent token,<br>
+ *          then the wrapper object is freed.<br>
+ */
+TEST_F(properties_c_ase_p, update02) {
+  fpga_properties props = nullptr;
+  ASSERT_EQ(fpgaGetProperties(NULL, &props), FPGA_OK);
+  EXPECT_EQ(fpgaUpdateProperties(NULL, props), FPGA_INVALID_PARAM);
+
+  struct _fpga_properties *prop_ = (struct _fpga_properties *)props;
+  prop_->magic = 0xFFFFFFFF;
+  EXPECT_EQ(fpgaUpdateProperties(tok_accel_, props), FPGA_INVALID_PARAM);
+
+  struct _fpga_token *token_ = (struct _fpga_token *)tok_accel_;
+  token_->magic = 0xFFFFFFFF;
+  EXPECT_EQ(fpgaUpdateProperties(tok_accel_, props), FPGA_INVALID_PARAM);
+
+  EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
+}
+
+/**
+ * @test    get_parent_null_props
+ * @brief   Tests: fpgaPropertiesGetParent
+ * @details Given a null fpga_properties* object<br>
+ *          When I call fpgaPropertiesGetParent with the null object<br>
+ *          Then the return value is FPGA_INVALID_PARAM<br>
+ **/
+TEST(properties, get_parent_null_props) {
+  fpga_properties prop = NULL;
+
+  fpga_token token;
+  fpga_result result = fpgaPropertiesGetParent(prop, &token);
+  EXPECT_EQ(FPGA_INVALID_PARAM, result);
+}
+
+/**
+ * @test    set_parent_null_token
+ * @brief   Tests: fpgaPropertiesSetParent
+ * @details Given a null fpga_properties* object<br>
+ *          When I call fpgaPropertiesSetParent with the null object<br>
+ *          Then the result is FPGA_INVALID_PARAM<br>
+ */
+TEST(properties, set_parent_null_token) {
+  fpga_properties prop = NULL;
+
+  // Call the API to set the token on the property
+  fpga_token token = nullptr;
+  fpga_result result = fpgaPropertiesSetParent(prop, &token);
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, result);
+}
+
+/**
+ * @test    create
+ * @brief   Tests: fpgaGetProperties
  * @details Given a null fpga_properties object<br>
- *          When I call fpgaCreateProperties with the object<br>
+ *          When I call fpgaGetProperties with the object<br>
  *          Then the return value is FPGA_OK<br>
  *          And the fpga_properties object is non-null<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_001) {
+TEST_F(properties_c_ase_p, create) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -62,14 +330,14 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_001) {
 }
 
 /**
- * @test    nodrv_prop_002
+ * @test    destroy01
  * @brief   Tests: fpgaDestroyProperties
  * @details Given a non-null fpga_properties object<br>
  *          When I call fpgaDestroyProperties with that object<br>
  *          Then the result is FPGA_OK<br>
  *          And that object is null<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_002) {
+TEST_F(properties_c_ase_p, destroy01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -82,13 +350,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_002) {
 }
 
 /**
- * @test    nodrv_prop_003
+ * @test    destroy02
  * @brief   Tests: fpgaDestroyProperties
  * @details Given a null fpga_properties object<br>
  *          When I call fpgaDestroyProperties with that object<br>
  *          Then the result is FPGA_INVALID_PARAM<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_003) {
+TEST(properties, destroy02) {
   fpga_properties prop = NULL;
 
   fpga_result result = fpgaDestroyProperties(&prop);
@@ -97,14 +365,14 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_003) {
 }
 
 /**
- * @test    nodrv_prop_004
+ * @test    clear01
  * @brief   Tests: fpgaClearProperties
  * @details Given a non-null fpga_properties object<br>
  *          When I call fpgaClearProperties with the object<br>
  *          Then the result is FPGA_OK<br>
  *          And the properties object is cleared<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_004) {
+TEST_F(properties_c_ase_p, clear01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -128,13 +396,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_004) {
 }
 
 /**
- * @test    nodrv_prop_005
+ * @test    clear02
  * @brief   Tests: fpgaClearProperties
  * @details Given a null fpga_properties object<br>
  *          When I call fpgaClearProperties with the object<br>
  *          Then the result is FPGA_INVALID_PARAM<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_005) {
+TEST(properties, clear02) {
   fpga_properties prop = NULL;
 
   fpga_result result = fpgaClearProperties(prop);
@@ -142,140 +410,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_005) {
 }
 
 /**
- * @test    nodrv_prop_010
- * @brief   Tests: fpgaPropertiesGetParent
- * @details Given a non-null fpga_properties* object<br>
- *          And it has the parent field set<br>
- *          And a field in its parent object is a known value<br>
- *          When I call fpgaPropertiesGetParent with a pointer to a token
- *          object<br>
- *          Then the return value is FPGA_OK<br>
- *          And the field in the token object is set to the known value<br>
- * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_010) {
-  fpga_properties prop = NULL;
-  struct _fpga_token a_parent ;
-
-  fpga_result result = fpgaGetProperties(NULL, &prop);
-
-  ASSERT_EQ(result, FPGA_OK);
-  ASSERT_FALSE(NULL == prop);
-
-  struct _fpga_properties* _prop = (struct _fpga_properties*)prop;
-
-  // set the token to a known value
-  token_for_afu0(&a_parent);
-  SET_FIELD_VALID(_prop, FPGA_PROPERTY_PARENT);
-  _prop->parent = &a_parent;
-
-  // now get the parent token from the prop structure
-  fpga_token token;
-  result = fpgaPropertiesGetParent(prop, &token);
-  EXPECT_EQ(result, FPGA_OK);
-  // Assert it is set to what we set it to above
-  EXPECT_TRUE(token_is_afu0(token));
-  EXPECT_EQ(FPGA_OK, fpgaDestroyToken(&token));
-
-  result = fpgaDestroyProperties(&prop);
-  ASSERT_EQ(NULL, prop);
-}
-
-/**
- * @test    nodrv_prop_011
- * @brief   Tests: fpgaPropertiesGetParent
- * @details Given a non-null fpga_properties* object<br>
- *          And it does NOT have the parent field set<br>
- *          When I call fpgaPropertiesGetParent with a pointer to a token
- *          object<br>
- *          Then the return value is FPGA_NOT_FOUND<br>
- * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_011) {
-  fpga_properties prop = NULL;
-  fpga_result result = fpgaGetProperties(NULL, &prop);
-
-  ASSERT_EQ(result, FPGA_OK);
-  ASSERT_TRUE(NULL != prop);
-
-  struct _fpga_properties* _prop = (struct _fpga_properties*)prop;
-
-  // make sure the FPGA_PROPERTY_PARENT bit is zero
-  EXPECT_EQ((_prop->valid_fields >> FPGA_PROPERTY_PARENT) & 1, 0);
-
-  fpga_token token;
-  result = fpgaPropertiesGetParent(_prop, &token);
-  EXPECT_EQ(FPGA_NOT_FOUND, result);
-
-  result = fpgaDestroyProperties(&prop);
-  ASSERT_EQ(NULL, prop);
-}
-
-/**
- * @test    nodrv_prop_012
- * @brief   Tests: fpgaPropertiesSetParent
- * @details Given a non-null fpga_properties* object<br>
- *          And a fpga_token* object with a known value<br>
- *          When I call fpgaPropertiesSetParent with the property and the
- *          token<br>
- *          Then the parent object in the properties object is the token<br>
- */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_012) {
-  fpga_properties prop = NULL;
-  fpga_result result = fpgaGetProperties(NULL, &prop);
-  ASSERT_EQ(result, FPGA_OK);
-  ASSERT_FALSE(NULL == prop);
-
-  // create a token object on the stack
-  struct _fpga_token _tok;
-  fpga_token token = &_tok;
-  // set a field in the token to a known value
-  token_for_afu0(&_tok);
-
-  // Call the API to set the token on the property
-  result = fpgaPropertiesSetParent(prop, &token);
-
-  EXPECT_EQ(result, FPGA_OK);
-  // Assert it is set to what we set it to above
-  EXPECT_TRUE(token_is_afu0(token));
-
-  result = fpgaDestroyProperties(&prop);
-  ASSERT_EQ(NULL, prop);
-}
-
-/**
- * @test    nodrv_prop_013
- * @brief   Tests: fpgaPropertiesGetParent
- * @details Given a null fpga_properties* object<br>
- *          When I call fpgaPropertiesGetParent with the null object<br>
- *          Then the return value is FPGA_INVALID_PARAM<br>
- * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_013) {
-  fpga_properties prop = NULL;
-
-  fpga_token token;
-  fpga_result result = fpgaPropertiesGetParent(prop, &token);
-  EXPECT_EQ(FPGA_INVALID_PARAM, result);
-}
-
-/**
- * @test    nodrv_prop_014
- * @brief   Tests: fpgaPropertiesSetParent
- * @details Given a null fpga_properties* object<br>
- *          When I call fpgaPropertiesSetParent with the null object<br>
- *          Then the result is FPGA_INVALID_PARAM<br>
- */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_014) {
-  fpga_properties prop = NULL;
-
-  // Call the API to set the token on the property
-  fpga_token token;
-  fpga_result result = fpgaPropertiesSetParent(prop, &token);
-
-  EXPECT_EQ(FPGA_INVALID_PARAM, result);
-}
-
-// * ObjectType *//
-/**
- * @test    nodrv_prop_015
+ * @test    get_object_type01
  * @brief   Tests: fpgaPropertiesGetObjectType
  * @details Given a non-null fpga_properties* object<br>
  *          And it has the objtype field set<br>
@@ -285,7 +420,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_014) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_015) {
+TEST_F(properties_c_ase_p, get_object_type01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -310,7 +445,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_015) {
 }
 
 /**
- * @test    nodrv_prop_016
+ * @test    get_object_type02
  * @brief   Tests: fpgaPropertiesGetObjectType
  * @details Given a non-null fpga_properties* object<br>
  *          And it does NOT have the objtype field set<br>
@@ -318,7 +453,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_015) {
  *          fpga_objtype<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_016) {
+TEST_F(properties_c_ase_p, get_object_type02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -339,15 +474,16 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_016) {
 }
 
 /**
- * @test    nodrv_prop_017
+ * @test    set_object_type01
  * @brief   Tests: fpgaPropertiesSetObjectType
  * @details Given a non-null fpga_properties* object<br>
  *          And a fpga_objtype object set to a known value<br>
- *          When I call fpgaPropertiesSetObjectType with the properties object
+ *          When I call fpgaPropertiesSetObjectType with the properties
+ object
  *          and the objtype<br>
  *          Then the objtype in the properties object is the known value<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_017) {
+TEST_F(properties_c_ase_p, set_object_type01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -367,13 +503,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_017) {
 }
 
 /**
- * @test    nodrv_prop_018
+ * @test    get_object_type03
  * @brief   Tests: fpgaPropertiesGetObjectType
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesGetObjectType with the null object<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_018) {
+TEST(properties, get_object_type03) {
   fpga_properties prop = NULL;
 
   fpga_objtype objtype;
@@ -382,13 +518,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_018) {
 }
 
 /**
- * @test    nodrv_prop_019
+ * @test    set_object_type02
  * @brief   Tests: fpgaPropertiesSetObjectType
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesSetObjectType with the null object<br>
  *          Then the result is FPGA_INVALID_PARAM<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_019) {
+TEST(properties, set_object_type02) {
   fpga_properties prop = NULL;
 
   // Call the API to set the objtype on the property
@@ -400,16 +536,17 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_019) {
 
 // * Segment field tests *//
 /**
- * @test    nodrv_prop_225
+ * @test    get_segment01
  * @brief   Tests: fpgaPropertiesGetSegment
  * @details Given a non-null fpga_properties* object<br>
  *          And it has the bus field set<br>
  *          And it is set to a known value<br>
- *          When I call fpgaPropertiesGetSegment with a pointer to an integer<br>
+ *          When I call fpgaPropertiesGetSegment with a pointer to an
+ integer<br>
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_225) {
+TEST_F(properties_c_ase_p, get_segment01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -435,14 +572,15 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_225) {
 }
 
 /**
- * @test    nodrv_prop_226
+ * @test    get_segment02
  * @brief   Tests: fpgaPropertiesGetSegment
  * @details Given a non-null fpga_properties* object<br>
  *          And it does NOT have the bus field set<br>
- *          When I call fpgaPropertiesGetSegment with a pointer to an integer<br>
+ *          When I call fpgaPropertiesGetSegment with a pointer to an
+ integer<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_226) {
+TEST_F(properties_c_ase_p, get_segment02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -463,15 +601,17 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_226) {
 }
 
 /**
- * @test    nodrv_prop_227
+ * @test    set_segment01
  * @brief   Tests: fpgaPropertiesSetSegment
  * @details Given a non-null fpga_properties* object<br>
  *          And segment variable set to a known value<br>
- *          When I call fpgaPropertiesSetSegment with the properties object and
+ *          When I call fpgaPropertiesSetSegment with the properties object
+ and
  *          the segment variable<br>
- *          Then the segment field in the properties object is the known value<br>
+ *          Then the segment field in the properties object is the known
+ value<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_227) {
+TEST_F(properties_c_ase_p, set_segment01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -498,13 +638,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_227) {
 }
 
 /**
- * @test    nodrv_prop_228
+ * @test    get_segment03
  * @brief   Tests: fpgaPropertiesGetSegment
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesGetSegment with the null object<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_228) {
+TEST(properties, get_segment03) {
   fpga_properties prop = NULL;
 
   uint16_t segment;
@@ -513,13 +653,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_228) {
 }
 
 /**
- * @test    nodrv_prop_229
+ * @test    set_segment02
  * @brief   Tests: fpgaPropertiesSetSegment
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesSetSegment with the null object<br>
  *          Then the result is FPGA_INVALID_PARAM<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_229) {
+TEST(properties, set_segment02) {
   fpga_properties prop = NULL;
 
   // Call the API to set the segment on the property
@@ -530,7 +670,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_229) {
 
 // * Bus field tests *//
 /**
- * @test    nodrv_prop_020
+ * @test    get_bus01
  * @brief   Tests: fpgaPropertiesGetBus
  * @details Given a non-null fpga_properties* object<br>
  *          And it has the bus field set<br>
@@ -539,7 +679,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_229) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_020) {
+TEST_F(properties_c_ase_p, get_bus01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -565,14 +705,14 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_020) {
 }
 
 /**
- * @test    nodrv_prop_021
+ * @test    get_bus02
  * @brief   Tests: fpgaPropertiesGetBus
  * @details Given a non-null fpga_properties* object<br>
  *          And it does NOT have the bus field set<br>
  *          When I call fpgaPropertiesGetBus with a pointer to an integer<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_021) {
+TEST_F(properties_c_ase_p, get_bus02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -593,15 +733,16 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_021) {
 }
 
 /**
- * @test    nodrv_prop_022
+ * @test    set_bus01
  * @brief   Tests: fpgaPropertiesSetBus
  * @details Given a non-null fpga_properties* object<br>
  *          And bus variable set to a known value<br>
  *          When I call fpgaPropertiesSetBus with the properties object and
  *          the bus variable<br>
- *          Then the bus field in the properties object is the known value<br>
+ *          Then the bus field in the properties object is the known
+ value<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_022) {
+TEST_F(properties_c_ase_p, set_bus01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -628,13 +769,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_022) {
 }
 
 /**
- * @test    nodrv_prop_023
+ * @test    get_bus03
  * @brief   Tests: fpgaPropertiesGetBus
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesGetBus with the null object<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_023) {
+TEST(properties, get_bus03) {
   fpga_properties prop = NULL;
 
   uint8_t bus;
@@ -643,13 +784,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_023) {
 }
 
 /**
- * @test    nodrv_prop_024
+ * @test    set_bus02
  * @brief   Tests: fpgaPropertiesSetBus
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesSetBus with the null object<br>
  *          Then the result is FPGA_INVALID_PARAM<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_024) {
+TEST(properties, set_bus02) {
   fpga_properties prop = NULL;
 
   // Call the API to set the objtype on the property
@@ -660,7 +801,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_024) {
 
 // * Device field tests *//
 /**
- * @test    nodrv_prop_025
+ * @test    get_device01
  * @brief   Tests: fpgaPropertiesGetDevice
  * @details Given a non-null fpga_properties* object<br>
  *          And it has the device field set<br>
@@ -670,7 +811,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_024) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_025) {
+TEST_F(properties_c_ase_p, get_device01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -696,7 +837,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_025) {
 }
 
 /**
- * @test    nodrv_prop_026
+ * @test    get_device02
  * @brief   Tests: fpgaPropertiesGetDevice
  * @details Given a non-null fpga_properties* object<br>
  *          And it does NOT have the device field set<br>
@@ -704,7 +845,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_025) {
  *          integer<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_026) {
+TEST_F(properties_c_ase_p, get_device02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -725,7 +866,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_026) {
 }
 
 /**
- * @test    nodrv_prop_027
+ * @test    set_device01
  * @brief   Tests: fpgaPropertiesSetDevice
  * @details Given a non-null fpga_properties* object<br>
  *          And device variable set to a known value<br>
@@ -734,7 +875,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_026) {
  *          Then the device field in the properties object is the known
  *          value<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_027) {
+TEST_F(properties_c_ase_p, set_device01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -763,13 +904,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_027) {
 }
 
 /**
- * @test    nodrv_prop_028
+ * @test    get_device03
  * @brief   Tests: fpgaPropertiesGetDevice
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesGetDevice with the null object<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_028) {
+TEST(properties, get_device03) {
   fpga_properties prop = NULL;
 
   uint8_t device;
@@ -778,13 +919,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_028) {
 }
 
 /**
- * @test    nodrv_prop_029
+ * @test    set_device02
  * @brief   Tests: fpgaPropertiesSetDevice
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesSetDevice with the null object<br>
  *          Then the result is FPGA_INVALID_PARAM<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_029) {
+TEST(properties, set_device02) {
   fpga_properties prop = NULL;
 
   // Call the API to set the objtype on the property
@@ -795,7 +936,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_029) {
 
 // * Function field tests *//
 /**
- * @test    nodrv_prop_030
+ * @test    get_function01
  * @brief   Tests: fpgaPropertiesGetFunction
  * @details Given a non-null fpga_properties* object<br>
  *          And it has the function field set<br>
@@ -805,7 +946,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_029) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_030) {
+TEST_F(properties_c_ase_p, get_function01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -831,7 +972,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_030) {
 }
 
 /**
- * @test    nodrv_prop_031
+ * @test    get_function02
  * @brief   Tests: fpgaPropertiesGetFunction
  * @details Given a non-null fpga_properties* object<br>
  *          And it does NOT have the function field set<br>
@@ -839,7 +980,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_030) {
  *          integer<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_031) {
+TEST_F(properties_c_ase_p, get_function02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -860,7 +1001,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_031) {
 }
 
 /**
- * @test    nodrv_prop_032
+ * @test    set_function01
  * @brief   Tests: fpgaPropertiesSetFunction
  * @details Given a non-null fpga_properties* object<br>
  *          And function variable set to a known value<br>
@@ -869,7 +1010,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_031) {
  *          Then the function field in the properties object is the known
  *          value<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_032) {
+TEST_F(properties_c_ase_p, set_function01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -898,13 +1039,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_032) {
 }
 
 /**
- * @test    nodrv_prop_033
+ * @test    get_function03
  * @brief   Tests: fpgaPropertiesGetFunction
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesGetFunction with the null object<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_033) {
+TEST(properties, get_function03) {
   fpga_properties prop = NULL;
 
   uint8_t function;
@@ -913,13 +1054,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_033) {
 }
 
 /**
- * @test    nodrv_prop_034
+ * @test    set_function02
  * @brief   Tests: fpgaPropertiesSetFunction
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesSetFunction with the null object<br>
  *          Then the result is FPGA_INVALID_PARAM<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_034) {
+TEST(properties, set_function02) {
   fpga_properties prop = NULL;
 
   // Call the API to set the objtype on the property
@@ -928,9 +1069,21 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_034) {
   EXPECT_EQ(FPGA_INVALID_PARAM, result);
 }
 
+/**
+ * @test    set_function03
+ * @brief   Tests: fpgaPropertiesSetFunction
+ * @details When fpgaPropertiesSetFunction is called with an invalid<br>
+ *          PCIe function number,<br>
+ *          Then the result is FPGA_INVALID_PARAM.<br>
+ */
+TEST_F(properties_c_ase_p, set_function03) {
+  // Call the API to set the objtype on the property
+  EXPECT_EQ(fpgaPropertiesSetFunction(filter_, 8), FPGA_INVALID_PARAM);
+}
+
 // * SocketID field tests *//
 /**
- * @test    nodrv_prop_040
+ * @test    get_socket_id01
  * @brief   Tests: fpgaPropertiesGetSocketID
  * @details Given a non-null fpga_properties* object<br>
  *          And it has the socket_id field set<br>
@@ -940,7 +1093,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_034) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_040) {
+TEST_F(properties_c_ase_p, get_socket_id01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -966,7 +1119,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_040) {
 }
 
 /**
- * @test    nodrv_prop_041
+ * @test    get_socket_id02
  * @brief   Tests: fpgaPropertiesGetSocketID
  * @details Given a non-null fpga_properties* object<br>
  *          And it does NOT have the socket_id field set<br>
@@ -974,7 +1127,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_040) {
  *          integer<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_041) {
+TEST_F(properties_c_ase_p, get_socket_id02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -995,7 +1148,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_041) {
 }
 
 /**
- * @test    nodrv_prop_042
+ * @test    set_socket_id01
  * @brief   Tests: fpgaPropertiesSetSocketID
  * @details Given a non-null fpga_properties* object<br>
  *          And socket_id variable set to a known value<br>
@@ -1004,7 +1157,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_041) {
  *          Then the socket_id field in the properties object is the known
  *          value<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_042) {
+TEST_F(properties_c_ase_p, set_socket_id01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -1033,13 +1186,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_042) {
 }
 
 /**
- * @test    nodrv_prop_043
+ * @test    get_socket_id03
  * @brief   Tests: fpgaPropertiesGetSocketID
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesGetSocketID with the null object<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_043) {
+TEST(properties, get_socket_id03) {
   fpga_properties prop = NULL;
 
   uint8_t socket_id;
@@ -1048,13 +1201,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_043) {
 }
 
 /**
- * @test    nodrv_prop_044
+ * @test    set_socket_id02
  * @brief   Tests: fpgaPropertiesSetSocketID
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesSetSocketID with the null object<br>
  *          Then the result is FPGA_INVALID_PARAM<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_044) {
+TEST(properties, set_socket_id02) {
   fpga_properties prop = NULL;
 
   // Call the API to set the objtype on the property
@@ -1063,41 +1216,20 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_044) {
   EXPECT_EQ(FPGA_INVALID_PARAM, result);
 }
 
-/**
- * @test    nodrv_prop_203
- * @brief   Tests: fpgaPropertiesSetDeviceID
- * @details fpgaPropertiesSetDeviceID is not currently supported.
- *
- */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_203) {
-  EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaPropertiesSetDeviceID(NULL, 0));
-}
-
-/**
- * @test    nodrv_prop_204
- * @brief   Tests: fpgaPropertiesGetDeviceID
- * @details fpgaPropertiesGetDeviceID is not currently supported.
- *
- */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_204) {
-#ifndef BUILD_ASE
-  EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaPropertiesGetDeviceID(NULL, NULL));
-#endif
-}
-
 /** fpga.num_slots field tests **/
 /**
- * @test    nodrv_prop_061
+ * @test    get_num_slots01
  * @brief   Tests: fpgaPropertiesGetNumSlots
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is FPGA
  *          And it has the num_slots field set to a known value<br>
- *          When I call fpgaPropertiesGetNumSlots with a pointer to an integer
+ *          When I call fpgaPropertiesGetNumSlots with a pointer to an
+ integer
  *          variable<br>
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_061) {
+TEST_F(properties_c_ase_p, get_num_slots01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1132,15 +1264,16 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_061) {
 }
 
 /**
- * @test    nodrv_prop_062
+ * @test    get_num_slots02
  * @brief   Tests: fpgaPropertiesGetNumSlots
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is NOT of type FPGA
- *          When I call fpgaPropertiesGetNumSlots with a pointer to an integer
+ *          When I call fpgaPropertiesGetNumSlots with a pointer to an
+ integer
  *          variable<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_062) {
+TEST_F(properties_c_ase_p, get_num_slots02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1163,7 +1296,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_062) {
 }
 
 /**
- * @test    nodrv_prop_063
+ * @test    get_num_slots03
  * @brief   Tests: fpgaPropertiesGetNumSlots
  * @details Given a non-null fpga_properties* object<br>
  *          And its type is FPGA_DEVICE
@@ -1172,7 +1305,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_062) {
  *          and a pointer to bool variable<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_063) {
+TEST_F(properties_c_ase_p, get_num_slots03) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1196,7 +1329,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_063) {
 }
 
 /**
- * @test    nodrv_prop_064
+ * @test    set_num_slots01
  * @brief   Tests: fpgaPropertiesSetNumSlots
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is of type FPGA<br>
@@ -1206,7 +1339,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_063) {
  *          Then the return value is FPGA_OK
  *          And the num_slots in the properties object is the known value<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_064) {
+TEST_F(properties_c_ase_p, set_num_slots01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -1239,7 +1372,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_064) {
 }
 
 /**
- * @test    nodrv_prop_065
+ * @test    set_num_slots02
  * @brief   Tests: fpgaPropertiesSetNumSlots
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is NOT of type FPGA_DEVICE<br>
@@ -1247,7 +1380,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_064) {
  *          and a num_slots variable<br>
  *          Then the return value is FPGA_INVALID_PARAM
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_065) {
+TEST_F(properties_c_ase_p, set_num_slots02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -1268,13 +1401,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_065) {
 }
 
 /**
- * @test    nodrv_prop_066
+ * @test    get_num_slots04
  * @brief   Tests: fpgaPropertiesGetNumSlots
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesGetNumSlots with the null object<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_066) {
+TEST(properties, get_num_slots04) {
   fpga_properties prop = NULL;
 
   uint32_t num_slots;
@@ -1283,13 +1416,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_066) {
 }
 
 /**
- * @test    nodrv_prop_067
+ * @test    set_num_slots03
  * @brief   Tests: fpgaPropertiesSetNumSlots
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesSetNumSlots with the null object<br>
  *          Then the result is FPGA_INVALID_PARAM<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_067) {
+TEST(properties, set_num_slots03) {
   fpga_properties prop = NULL;
 
   // Call the API to set the num_slots on the property
@@ -1300,7 +1433,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_067) {
 
 /** fpga.bbs_id field tests **/
 /**
- * @test    nodrv_prop_068
+ * @test    get_bbs_id01
  * @brief   Tests: fpgaPropertiesGetBBSID
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is FPGA
@@ -1310,7 +1443,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_067) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_068) {
+TEST_F(properties_c_ase_p, get_bbs_id01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1345,7 +1478,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_068) {
 }
 
 /**
- * @test    nodrv_prop_069
+ * @test    get_bbs_id02
  * @brief   Tests: fpgaPropertiesGetBBSID
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is NOT of type FPGA
@@ -1353,7 +1486,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_068) {
  *          variable<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_069) {
+TEST_F(properties_c_ase_p, get_bbs_id02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1376,7 +1509,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_069) {
 }
 
 /**
- * @test    nodrv_prop_070
+ * @test    get_bbs_id03
  * @brief   Tests: fpgaPropertiesGetBBSID
  * @details Given a non-null fpga_properties* object<br>
  *          And its type is FPGA_DEVICE
@@ -1385,7 +1518,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_069) {
  *          and a pointer to bool variable<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_070) {
+TEST_F(properties_c_ase_p, get_bbs_id03) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1409,7 +1542,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_070) {
 }
 
 /**
- * @test    nodrv_prop_071
+ * @test    set_bbs_id01
  * @brief   Tests: fpgaPropertiesSetBBSID
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is of type FPGA<br>
@@ -1419,7 +1552,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_070) {
  *          Then the return value is FPGA_OK
  *          And the bbs_id in the properties object is the known value<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_071) {
+TEST_F(properties_c_ase_p, set_bbs_id01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -1440,20 +1573,12 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_071) {
   result = fpgaPropertiesSetBBSID(prop, bbs_id);
   EXPECT_EQ(result, FPGA_OK);
 
-#ifndef BUILD_ASE
-  // make sure the FPGA_PROPERTY_BBSID bit is one
-  EXPECT_EQ((_prop->valid_fields >> FPGA_PROPERTY_BBSID) & 1, 1);
-
-  // Assert it is set to what we set it to above
-  EXPECT_EQ(0xCAFE, _prop->u.fpga.bbs_id);
-#endif
-
   result = fpgaDestroyProperties(&prop);
   ASSERT_EQ(NULL, prop);
 }
 
 /**
- * @test    nodrv_prop_072
+ * @test    set_bbs_id02
  * @brief   Tests: fpgaPropertiesSetBBSID
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is NOT of type FPGA_DEVICE<br>
@@ -1461,7 +1586,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_071) {
  *          and a bbs_id variable<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_072) {
+TEST_F(properties_c_ase_p, set_bbs_id02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -1483,13 +1608,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_072) {
 }
 
 /**
- * @test    nodrv_prop_073
+ * @test    get_bbs_id04
  * @brief   Tests: fpgaPropertiesGetBBSID
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesGetBBSID with the null object<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_073) {
+TEST(properties, get_bbs_id04) {
   fpga_properties prop = NULL;
 
   uint64_t bbs_id;
@@ -1498,13 +1623,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_073) {
 }
 
 /**
- * @test    nodrv_prop_074
+ * @test    set_bbs_id03
  * @brief   Tests: fpgaPropertiesSetBBSID
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesSetBBSID with the null object<br>
  *          Then the result is FPGA_INVALID_PARAM<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_074) {
+TEST(properties, set_bbs_id03) {
   fpga_properties prop = NULL;
 
   // Call the API to set the bbs_id on the property
@@ -1515,7 +1640,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_074) {
 
 /** fpga.bbs_version field tests **/
 /**
- * @test    nodrv_prop_075
+ * @test    get_bbs_version01
  * @brief   Tests: fpgaPropertiesGetBBSVersion
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is FPGA
@@ -1525,7 +1650,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_074) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_075) {
+TEST_F(properties_c_ase_p, get_bbs_version01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1552,10 +1677,10 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_075) {
   // assert the result was ok
   EXPECT_EQ(FPGA_OK, result);
 
-  // assert it is set to what we set it to above
-  #ifndef BUILD_ASE
+// assert it is set to what we set it to above
+#ifndef BUILD_ASE
   EXPECT_EQ(0, memcmp(&v, &bbs_version, sizeof(fpga_version)));
-  #endif
+#endif
 
   // now delete the properties object
   result = fpgaDestroyProperties(&prop);
@@ -1563,7 +1688,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_075) {
 }
 
 /**
- * @test    nodrv_prop_076
+ * @test    get_bbs_version02
  * @brief   Tests: fpgaPropertiesGetBBSVersion
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is NOT of type FPGA
@@ -1571,7 +1696,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_075) {
  *          fpga_version variable<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_076) {
+TEST_F(properties_c_ase_p, get_bbs_version02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1594,7 +1719,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_076) {
 }
 
 /**
- * @test    nodrv_prop_077
+ * @test    get_bbs_version03
  * @brief   Tests: fpgaPropertiesGetBBSVersion
  * @details Given a non-null fpga_properties* object<br>
  *          And its type is FPGA_DEVICE
@@ -1603,7 +1728,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_076) {
  *          and a pointer to an fpga_version variable<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_077) {
+TEST_F(properties_c_ase_p, get_bbs_version03) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1627,17 +1752,19 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_077) {
 }
 
 /**
- * @test    nodrv_prop_078
+ * @test    set_bbs_version01
  * @brief   Tests: fpgaPropertiesSetBBSVersion
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is of type FPGA<br>
  *          And an fpga_version variable set to a known value<br>
- *          When I call fpgaPropertiesSetBBSVersion with the properties object
+ *          When I call fpgaPropertiesSetBBSVersion with the properties
+ object
  *          and the fpga_version variable<br>
  *          Then the return value is FPGA_OK
- *          And the bbs_version in the properties object is the known value<br>
+ *          And the bbs_version in the properties object is the known
+ value<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_078) {
+TEST_F(properties_c_ase_p, set_bbs_version01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -1671,15 +1798,16 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_078) {
 }
 
 /**
- * @test    nodrv_prop_079
+ * @test    set_bbs_version02
  * @brief   Tests: fpgaPropertiesSetBBSVersion
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is NOT of type FPGA_DEVICE<br>
- *          When I call fpgaPropertiesSetBBSVersion with the properties object
+ *          When I call fpgaPropertiesSetBBSVersion with the properties
+ object
  *          and a bbs_version variable<br>
  *          Then the return value is FPGA_INVALID_PARAM
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_079) {
+TEST_F(properties_c_ase_p, set_bbs_version02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -1702,13 +1830,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_079) {
 }
 
 /**
- * @test    nodrv_prop_080
+ * @test    get_bbs_version04
  * @brief   Tests: fpgaPropertiesGetBBSVersion
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesGetBBSVersion with the null object<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_080) {
+TEST(properties, get_bbs_version04) {
   fpga_properties prop = NULL;
 
   fpga_version bbs_version;
@@ -1717,13 +1845,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_080) {
 }
 
 /**
- * @test    nodrv_prop_081
+ * @test    set_bbs_version03
  * @brief   Tests: fpgaPropertiesSetBBSVersion
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesSetBBSVersion with the null object<br>
  *          Then the result is FPGA_INVALID_PARAM<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_081) {
+TEST(properties, set_bbs_version03) {
   fpga_properties prop = NULL;
 
   // Call the API to set the bbs_version on the property
@@ -1734,14 +1862,15 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_081) {
 }
 
 /**
- * @test    nodrv_prop_082
+ * @test    fpga_clone_properties01
  * @brief   Tests: fpgaClonePoperties
- * @details Given a fpga_properties object cloned with fpgaCloneProperties<br>
+ * @details Given a fpga_properties object cloned with
+ fpgaCloneProperties<br>
  *          When I call fpgaDestroyProperties with the cloned object<br>
  *          Then the result is FPGA_OK<br>
  *          And the properties object is destroyed appropriately<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_082) {
+TEST_F(properties_c_ase_p, fpga_clone_properties01) {
   fpga_properties prop = NULL;
   fpga_properties clone = NULL;
   uint8_t s1 = 0xEF, s2 = 0;
@@ -1756,118 +1885,68 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_082) {
 }
 
 /**
- * @test    nodrv_prop_207
+ * @test    set_model01
  * @brief   Tests: fpgaPropertiesSetModel
  * @details fpgaPropertiesSetModel is not currently supported.
  *
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_207) {
+TEST(properties, set_model01) {
   EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaPropertiesSetModel(NULL, 0));
 }
 
 /**
- * @test    nodrv_prop_208
+ * @test    get_model01
  * @brief   Tests: fpgaPropertiesGetModel
  * @details fpgaPropertiesGetModel is not currently supported.
  *
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_208) {
+TEST(properties, get_model01) {
   EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaPropertiesGetModel(NULL, NULL));
 }
 
 /**
- * @test    nodrv_prop_211
+ * @test    get_lms01
+ * @brief   Tests: fpgaPropertiesGetLocalMemorySize
+ * @details fpgaPropertiesGetLocalMemorySize is not currently supported.
+ *
+ */
+TEST(properties, get_lms01) {
+  EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaPropertiesGetLocalMemorySize(NULL, NULL));
+}
+
+/**
+ * @test    set_lms01
+ * @brief   Tests: fpgaPropertiesSetLocalMemorySize
+ * @details fpgaPropertiesSetLocalMemorySize is not currently supported.
+ *
+ */
+TEST(properties, set_lms01) {
+  EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaPropertiesSetLocalMemorySize(NULL, 0));
+}
+
+/**
+ * @test    set_capabilities01
  * @brief   Tests: fpgaPropertiesSetCapabilities
  * @details fpgaPropertiesSetCapabilities is not currently supported.
  *
- */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_211) {
+ */ 
+TEST(properties, set_capabilities01) {
   EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaPropertiesSetCapabilities(NULL, 0));
 }
 
 /**
- * @test    nodrv_prop_212
+ * @test    get_capabilities01
  * @brief   Tests: fpgaPropertiesGetCapabilities
  * @details fpgaPropertiesGetCapabilities is not currently supported.
  *
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_212) {
+TEST(properties, get_capabilities01) {
   EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaPropertiesGetCapabilities(NULL, NULL));
-}
-
-/**
- * @test    drv_get_prop_w_token_1
- * @brief   Tests: fpgaGetProperties
- * @details Given a null fpga_properties* object<br>
- *          When I call fpgaGetProperties with a valid token
- *          expected result is FPGA_OK<br>
- */
-TEST(LibopaecPropertiesCommonALL, drv_get_prop_w_token_1) {
-  fpga_properties prop = NULL;
-  struct _fpga_token _tok;
-  fpga_token token = &_tok;
-
-  fpga_result result = FPGA_OK;
-
-  token_for_fme0(&_tok);
-
-  result = fpgaGetProperties(token, &prop);
-  ASSERT_EQ(result, FPGA_OK);
-  ASSERT_FALSE(NULL == prop);
-
-  result = fpgaDestroyProperties(&prop);
-  ASSERT_EQ(FPGA_OK, result);
-  ASSERT_EQ(NULL, prop);
-}
-
-/**
- * @test    drv_get_prop_w_token_2
- * @brief   Tests: fpgaGetProperties
- * @details Given a null fpga_properties* object<br>
- *          When I call fpgaGetProperties with an invalid token,
- *          expected result is FPGA_INVALID_PARAM.<br>
- */
-TEST(LibopaecPropertiesCommonALL, drv_get_prop_w_token_2) {
-  fpga_properties prop = NULL;
-  struct _fpga_token _tok;
-  fpga_token token = &_tok;
-
-  fpga_result result = FPGA_OK;
-
-  token_for_invalid(&_tok);
-
-  result = fpgaGetProperties(token, &prop);
-  EXPECT_EQ(FPGA_INVALID_PARAM, result);
-}
-
-/**
- * @test    drv_get_prop_w_token_4
- * @brief   Tests: fpgaGetProperties
- * @details Given a null fpga_properties* object<br>
- *          When I call fpgaGetProperties with a valid token (AFU)
- *          expected result is FPGA_OK<br>
- */
-TEST(LibopaecPropertiesCommonALL, drv_get_prop_w_token_4) {
-  fpga_properties prop = NULL;
-  struct _fpga_token _tok;
-  fpga_token token = &_tok;
-
-  fpga_result result = FPGA_OK;
-
-  token_for_afu0(&_tok);
-
-  result = fpgaGetProperties(token, &prop);
-  ASSERT_EQ(result, FPGA_OK);
-  ASSERT_FALSE(NULL == prop);
-
-  result = fpgaDestroyProperties(&prop);
-  ASSERT_EQ(FPGA_OK, result);
-  ASSERT_EQ(NULL, prop);
 }
 
 /** (afu | accelerator).guid field tests **/
 /**
- * @test    nodrv_prop_131
+ * @test    get_guid01
  * @brief   Tests: fpgaPropertiesGetGUID
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is FPGA_ACCELERATOR
@@ -1877,7 +1956,7 @@ TEST(LibopaecPropertiesCommonALL, drv_get_prop_w_token_4) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_131) {
+TEST_F(properties_c_ase_p, get_guid01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1892,12 +1971,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_131) {
 
   // set the object type field
   _prop->objtype = FPGA_ACCELERATOR;
-
-  // set the guid to a known value
-  DECLARE_GUID(known_guid, 0xc5, 0x14, 0x92, 0x82, 0xe3, 0x4f, 0x11, 0xe6, 0x8e,
-               0x3a, 0x13, 0xcc, 0x9d, 0x38, 0xca, 0x28);
-
-  memcpy_s(_prop->guid, sizeof(fpga_guid), known_guid, 16);
+  std::copy(&known_guid[0], &known_guid[16], _prop->guid);
 
   // now get the guid from the prop structure
   fpga_guid guid;
@@ -1915,7 +1989,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_131) {
 }
 
 /**
- * @test    nodrv_prop_132
+ * @test    get_guid02
  * @brief   Tests: fpgaPropertiesGetGUID
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is FPGA_ACCELERATOR
@@ -1925,7 +1999,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_131) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_132) {
+TEST_F(properties_c_ase_p, get_guid02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1942,10 +2016,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_132) {
   _prop->objtype = FPGA_ACCELERATOR;
 
   // set the guid to a known value
-  DECLARE_GUID(known_guid, 0xc5, 0x14, 0x92, 0x82, 0xe3, 0x4f, 0x11, 0xe6, 0x8e,
-               0x3a, 0x13, 0xcc, 0x9d, 0x38, 0xca, 0x28);
-
-  memcpy_s(_prop->guid, sizeof(fpga_guid), known_guid, 16);
+  std::copy(&known_guid[0], &known_guid[16], _prop->guid);
 
   // now get the guid from the prop structure
   fpga_guid guid = {0};
@@ -1963,7 +2034,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_132) {
 }
 
 /**
- * @test    nodrv_prop_133
+ * @test    get_guid03
  * @brief   Tests: fpgaPropertiesGetGUID
  * @details Given a non-null fpga_properties* object<br>
  *          And its type is FPGA_DEVICE<br>
@@ -1972,7 +2043,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_132) {
  *          object and a pointer to an integer variable<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_133) {
+TEST_F(properties_c_ase_p, get_guid03) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -1997,7 +2068,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_133) {
 }
 
 /**
- * @test    nodrv_prop_134
+ * @test    get_guid04
  * @brief   Tests: fpgaPropertiesGetGUID
  * @details Given a non-null fpga_properties* object<br>
  *          And its type is FPGA_ACCELERATOR<br>
@@ -2006,7 +2077,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_133) {
  *          object and a pointer to an integer variable<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_134) {
+TEST_F(properties_c_ase_p, get_guid04) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2031,7 +2102,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_134) {
 }
 
 /**
- * @test    nodrv_prop_135
+ * @test    get_guid05
  * @brief   Tests: fpgaPropertiesGetGUID
  * @details Given a non-null fpga_properties* object<br>
  *          And its type is FPGA_ACCELERATOR<br>
@@ -2040,7 +2111,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_134) {
  *          object and a pointer to an integer variable<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_135) {
+TEST_F(properties_c_ase_p, get_guid05) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2065,7 +2136,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_135) {
 }
 
 /**
- * @test    nodrv_prop_136
+ * @test    set_guid01
  * @brief   Tests: fpgaPropertiesSetGUID
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is of type FPGA_ACCELERATOR<br>
@@ -2076,7 +2147,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_135) {
  *          And the guid in the properties object is the known
  *          value<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_136) {
+TEST_F(properties_c_ase_p, set_guid01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2091,9 +2162,8 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_136) {
 
   // make sure the FPGA_PROPERTY_GUID bit is zero
   EXPECT_EQ((_prop->valid_fields >> FPGA_PROPERTY_GUID) & 1, 0);
-
-  DECLARE_GUID(guid, 0xc5, 0x14, 0x92, 0x82, 0xe3, 0x4f, 0x11, 0xe6, 0x8e, 0x3a,
-               0x13, 0xcc, 0x9d, 0x38, 0xca, 0x28);
+  fpga_guid guid;
+  std::copy(&known_guid[0], &known_guid[16], guid);
   // Call the API to set the token on the property
   result = fpgaPropertiesSetGUID(prop, guid);
   EXPECT_EQ(result, FPGA_OK);
@@ -2109,7 +2179,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_136) {
 }
 
 /**
- * @test    nodrv_prop_137
+ * @test    set_guid02
  * @brief   Tests: fpgaPropertiesSetGUID
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is of type FPGA_ACCELERATOR<br>
@@ -2120,7 +2190,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_136) {
  *          And the guid in the properties object is the known
  *          value<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_137) {
+TEST_F(properties_c_ase_p, set_guid02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2136,8 +2206,8 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_137) {
   // make sure the FPGA_PROPERTY_GUID bit is zero
   EXPECT_EQ((_prop->valid_fields >> FPGA_PROPERTY_GUID) & 1, 0);
 
-  DECLARE_GUID(guid, 0xc5, 0x14, 0x92, 0x82, 0xe3, 0x4f, 0x11, 0xe6, 0x8e, 0x3a,
-               0x13, 0xcc, 0x9d, 0x38, 0xca, 0x28);
+  fpga_guid guid;
+  std::copy(&known_guid[0], &known_guid[16], guid);
   // Call the API to set the token on the property
   result = fpgaPropertiesSetGUID(prop, guid);
   EXPECT_EQ(result, FPGA_OK);
@@ -2153,7 +2223,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_137) {
 }
 
 /**
- * @test    nodrv_prop_138
+ * @test    set_guid03
  * @brief   Tests: fpgaPropertiesSetGUID
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is of type FPGA_DEVICE<br>
@@ -2164,7 +2234,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_137) {
  *          And the guid in the properties object is the known
  *          value<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_138) {
+TEST_F(properties_c_ase_p, set_guid03) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2179,9 +2249,8 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_138) {
 
   // make sure the FPGA_PROPERTY_GUID bit is zero
   EXPECT_EQ((_prop->valid_fields >> FPGA_PROPERTY_GUID) & 1, 0);
-
-  DECLARE_GUID(guid, 0xc5, 0x14, 0x92, 0x82, 0xe3, 0x4f, 0x11, 0xe6, 0x8e, 0x3a,
-               0x13, 0xcc, 0x9d, 0x38, 0xca, 0x28);
+  fpga_guid guid;
+  std::copy(&known_guid[0], &known_guid[16], guid);
   // Call the API to set the token on the property
   result = fpgaPropertiesSetGUID(prop, guid);
   EXPECT_EQ(result, FPGA_OK);
@@ -2197,13 +2266,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_138) {
 }
 
 /**
- * @test    nodrv_prop_139
+ * @test    get_guid06
  * @brief   Tests: fpgaPropertiesGetGUID
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesGetGUID with the null object<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_139) {
+TEST(properties, get_guid06) {
   fpga_properties prop = NULL;
 
   fpga_guid guid;
@@ -2212,13 +2281,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_139) {
 }
 
 /**
- * @test    nodrv_prop_140
+ * @test    get_guid07
  * @brief   Tests: fpgaPropertiesGetGUID
  * @details Given a non-null fpga_properties* object<br>
  *          When I call fpgaPropertiesGetGUID with a null guid parameter<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_140) {
+TEST_F(properties_c_ase_p, get_guid07) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2233,13 +2302,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_140) {
 }
 
 /**
- * @test    nodrv_prop_141
+ * @test    set_guid04
  * @brief   Tests: fpgaPropertiesSetGUID
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesSetGUID with the null object<br>
  *          Then the result is FPGA_INVALID_PARAM<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_141) {
+TEST(properties, set_guid04) {
   fpga_properties prop = NULL;
   fpga_guid guid;
   // Call the API to set the guid on the property
@@ -2250,7 +2319,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_141) {
 
 /** accelerator.mmio_spaces field tests **/
 /**
- * @test    nodrv_prop_156
+ * @test    get_num_mmio01
  * @brief   Tests: fpgaPropertiesGetNumMMIO
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is FPGA_ACCELERATOR
@@ -2260,7 +2329,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_141) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_156) {
+TEST_F(properties_c_ase_p, get_num_mmio01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2294,7 +2363,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_156) {
 }
 
 /**
- * @test    nodrv_prop_157
+ * @test    get_num_mmio02
  * @brief   Tests: fpgaPropertiesGetNumMMIO
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is NOT of type FPGA_ACCELERATOR<br>
@@ -2302,7 +2371,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_156) {
  *          integer variable<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_157) {
+TEST_F(properties_c_ase_p, get_num_mmio02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2325,7 +2394,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_157) {
 }
 
 /**
- * @test    nodrv_prop_158
+ * @test    get_num_mmio03
  * @brief   Tests: fpgaPropertiesGetNumMMIO
  * @details Given a non-null fpga_properties* object<br>
  *          And its type is FPGA_ACCELERATOR<br>
@@ -2334,7 +2403,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_157) {
  *          object and a pointer to an integer variable<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_158) {
+TEST_F(properties_c_ase_p, get_num_mmio03) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2359,7 +2428,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_158) {
 }
 
 /**
- * @test    nodrv_prop_159
+ * @test    set_num_mmio01
  * @brief   Tests: fpgaPropertiesSetNumMMIO
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is of type FPGA_ACCELERATOR<br>
@@ -2369,7 +2438,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_158) {
  *          And the mmio_spaces in the properties object is the known
  *          value<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_159) {
+TEST_F(properties_c_ase_p, set_num_mmio01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2400,7 +2469,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_159) {
 }
 
 /**
- * @test    nodrv_prop_160
+ * @test    set_num_mmio02
  * @brief   Tests: fpgaPropertiesSetNumMMIO
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is NOT of type FPGA_ACCELERATOR<br>
@@ -2408,7 +2477,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_159) {
  *          object<br>
  *          Then the return value is FPGA_INVALID_PARAM
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_160) {
+TEST_F(properties_c_ase_p, set_num_mmio02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2430,13 +2499,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_160) {
 }
 
 /**
- * @test    nodrv_prop_161
+ * @test    get_num_mmio04
  * @brief   Tests: fpgaPropertiesGetNumMMIO
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesGetNumMMIO with the null object<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_161) {
+TEST(properties, get_num_mmio04) {
   fpga_properties prop = NULL;
 
   uint32_t mmio_spaces;
@@ -2445,13 +2514,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_161) {
 }
 
 /**
- * @test    nodrv_prop_162
+ * @test    set_num_mmio03
  * @brief   Tests: fpgaPropertiesSetNumMMIO
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesSetNumMMIO with the null object<br>
  *          Then the result is FPGA_INVALID_PARAM<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_162) {
+TEST(properties, set_num_mmio03) {
   fpga_properties prop = NULL;
   // Call the API to set the mmio_spaces on the property
   fpga_result result = fpgaPropertiesSetNumMMIO(prop, 0);
@@ -2461,17 +2530,18 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_162) {
 
 /** accelerator.state field tests **/
 /**
- * @test    nodrv_prop_172
+ * @test    get_accelerator_state01
  * @brief   Tests: fpgaPropertiesGetAcceleratorState
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is FPGA_ACCELERATOR
  *          And it has the state field set to a known value<br>
- *          When I call fpgaPropertiesGetAcceleratorState with a pointer to an
+ *          When I call fpgaPropertiesGetAcceleratorState with a pointer to
+ an
  *          fpga_accelerator_state variable<br>
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_172) {
+TEST_F(properties_c_ase_p, get_accelerator_state01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2505,15 +2575,16 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_172) {
 }
 
 /**
- * @test    nodrv_prop_173
+ * @test    get_accelerator_state02
  * @brief   Tests: fpgaPropertiesGetAcceleratorState
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is NOT of type FPGA_ACCELERATOR<br>
- *          When I call fpgaPropertiesGetAcceleratorState with a pointer to an
+ *          When I call fpgaPropertiesGetAcceleratorState with a pointer to
+ an
  *          fpga_accelerator_state variable<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_173) {
+TEST_F(properties_c_ase_p, get_accelerator_state02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2536,7 +2607,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_173) {
 }
 
 /**
- * @test    nodrv_prop_174
+ * @test    get_accelerator_state03
  * @brief   Tests: fpgaPropertiesGetAcceleratorState
  * @details Given a non-null fpga_properties* object<br>
  *          And its type is FPGA_ACCELERATOR<br>
@@ -2545,7 +2616,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_173) {
  *          object and a pointer to an integer variable<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_174) {
+TEST_F(properties_c_ase_p, get_accelerator_state03) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2570,7 +2641,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_174) {
 }
 
 /**
- * @test    nodrv_prop_175
+ * @test    set_accelerator_state01
  * @brief   Tests: fpgaPropertiesSetAcceleratorState
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is of type FPGA_ACCELERATOR<br>
@@ -2580,7 +2651,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_174) {
  *          And the state in the properties object is the known
  *          value<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_175) {
+TEST_F(properties_c_ase_p, set_accelerator_state01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2611,7 +2682,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_175) {
 }
 
 /**
- * @test    nodrv_prop_176
+ * @test    set_accelerator_state02
  * @brief   Tests: fpgaPropertiesSetAcceleratorState
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is NOT of type FPGA_ACCELERATOR<br>
@@ -2619,7 +2690,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_175) {
  *          object and a state variable<br>
  *          Then the return value is FPGA_INVALID_PARAM
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_176) {
+TEST_F(properties_c_ase_p, set_accelerator_state02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2642,14 +2713,14 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_176) {
 }
 
 /**
- * @test    nodrv_prop_177
+ * @test    get_accelerator_state04
  * @brief   Tests: fpgaPropertiesGetAcceleratorState
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesGetAcceleratorState with the null
  * object<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_177) {
+TEST(properties, get_accelerator_state04) {
   fpga_properties prop = NULL;
 
   fpga_accelerator_state state;
@@ -2658,14 +2729,14 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_177) {
 }
 
 /**
- * @test    nodrv_prop_178
+ * @test    get_accelerator_state05
  * @brief   Tests: fpgaPropertiesGetAcceleratorState
  * @details Given a non-null fpga_properties* object<br>
  *          When I call fpgaPropertiesGetAcceleratorState with a null state
  * pointer<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_178) {
+TEST_F(properties_c_ase_p, get_accelerator_state05) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2673,17 +2744,18 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_178) {
 
   result = fpgaPropertiesGetAcceleratorState(prop, NULL);
   EXPECT_EQ(FPGA_INVALID_PARAM, result);
+  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 }
 
 /**
- * @test    nodrv_prop_179
+ * @test    set_accelerator_state03
  * @brief   Tests: fpgaPropertiesSetAcceleratorState
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesSetAcceleratorState with the null
  * object<br>
  *          Then the result is FPGA_INVALID_PARAM<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_179) {
+TEST(properties, set_accelerator_state03) {
   fpga_properties prop = NULL;
   // Call the API to set the state on the property
   fpga_result result =
@@ -2694,7 +2766,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_179) {
 
 /** accelerator.num_interrupts field tests **/
 /**
- * @test    nodrv_prop_196
+ * @test    get_num_interrupts01
  * @brief   Tests: fpgaPropertiesGetNumInterrupts
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is FPGA_ACCELERATOR<br>
@@ -2704,7 +2776,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_179) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_196) {
+TEST_F(properties_c_ase_p, get_num_interrupts01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2738,7 +2810,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_196) {
 }
 
 /**
- * @test    nodrv_prop_197
+ * @test    get_num_interrupts02
  * @brief   Tests: fpgaPropertiesGetNumInterrupts
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is NOT of type FPGA_ACCELERATOR<br>
@@ -2746,7 +2818,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_196) {
  *          integer variable<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_197) {
+TEST_F(properties_c_ase_p, get_num_interrupts02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2769,7 +2841,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_197) {
 }
 
 /**
- * @test    nodrv_prop_198
+ * @test    get_num_interrupts03
  * @brief   Tests: fpgaPropertiesGetNumInterrupts
  * @details Given a non-null fpga_properties* object<br>
  *          And its type is FPGA_ACCELERATOR<br>
@@ -2778,7 +2850,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_197) {
  *          object and a pointer to an integer variable<br>
  *          Then the return value is FPGA_NOT_FOUND<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_198) {
+TEST_F(properties_c_ase_p, get_num_interrupts03) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -2801,7 +2873,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_198) {
 }
 
 /**
- * @test    nodrv_prop_199
+ * @test    set_num_interrupts01
  * @brief   Tests: fpgaPropertiesSetNumInterrupts
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is of type FPGA_ACCELERATOR<br>
@@ -2811,7 +2883,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_198) {
  *          And the num_interrupts in the properties object is the known
  *          value<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_199) {
+TEST_F(properties_c_ase_p, set_num_interrupts01) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2842,7 +2914,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_199) {
 }
 
 /**
- * @test    nodrv_prop_200
+ * @test    set_num_interrupts02
  * @brief   Tests: fpgaPropertiesSetNumInterrupts
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is NOT of type FPGA_ACCELERATOR<br>
@@ -2850,7 +2922,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_199) {
  *          object<br>
  *          Then the return value is FPGA_INVALID_PARAM
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_200) {
+TEST_F(properties_c_ase_p, set_num_interrupts02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   ASSERT_EQ(result, FPGA_OK);
@@ -2872,13 +2944,14 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_200) {
 }
 
 /**
- * @test    nodrv_prop_201
+ * @test    get_num_interrupts04
  * @brief   Tests: fpgaPropertiesGetNumInterrupts
  * @details Given a null fpga_properties* object<br>
- *          When I call fpgaPropertiesGetNumInterrupts with the null object<br>
+ *          When I call fpgaPropertiesGetNumInterrupts with the null
+ object<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_201) {
+TEST(properties, get_num_interrupts04) {
   fpga_properties prop = NULL;
 
   uint32_t num_interrupts;
@@ -2887,13 +2960,14 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_201) {
 }
 
 /**
- * @test    nodrv_prop_202
+ * @test    set_num_interrupts03
  * @brief   Tests: fpgaPropertiesSetNumInterrupts
  * @details Given a null fpga_properties* object<br>
- *          When I call fpgaPropertiesSetNumInterrupts with the null object<br>
+ *          When I call fpgaPropertiesSetNumInterrupts with the null
+ object<br>
  *          Then the result is FPGA_INVALID_PARAM<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_202) {
+TEST(properties, set_num_interrupts03) {
   fpga_properties prop = NULL;
   // Call the API to set the num_interrupts on the property
   fpga_result result = fpgaPropertiesSetNumInterrupts(prop, 0);
@@ -2902,12 +2976,12 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_202) {
 }
 
 /**
- * @test    nodrv_prop_213
+ * @test    prop_213
  * @brief   Tests: fpgaGetProperties
  * @details When creating a properties object<br>
  *          Then the internal magic should be set to FPGA_PROPERTY_MAGIC<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_213) {
+TEST_F(properties_c_ase_p, prop_213) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
   EXPECT_EQ(FPGA_OK, result);
@@ -2915,29 +2989,30 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_213) {
   struct _fpga_properties* _prop = (struct _fpga_properties*)prop;
 
   EXPECT_EQ(FPGA_PROPERTY_MAGIC, _prop->magic);
+  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 }
 
 /**
- * @test    nodrv_prop_214
+ * @test    prop_214
  * @brief   Tests: fpgaGetProperties
  * @details When creating a properties object with a null properties
  * argument<br>
  *          Then the result is FPGA_INVALID_PARAM<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_214) {
+TEST(properties, prop_214) {
   fpga_result result = FPGA_OK;
   ASSERT_NO_THROW(result = fpgaGetProperties(NULL, NULL));
   EXPECT_EQ(FPGA_INVALID_PARAM, result);
 }
 
 /**
- * @test    nodrv_prop_215
+ * @test    get_vendor_id01
  * @brief   Tests: fpgaPropertiesGetVendorID
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesGetVendorID with the null object<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_215) {
+TEST(properties, get_vendor_id01) {
   fpga_properties prop = NULL;
 
   uint16_t vendor_id;
@@ -2946,13 +3021,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_215) {
 }
 
 /**
- * @test    nodrv_prop_216
+ * @test    set_vendor_id01
  * @brief   Tests: fpgaPropertiesSetVendorID
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesSetVendorID with the null object<br>
  *          Then the result is FPGA_INVALID_PARAM<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_216) {
+TEST(properties, set_vendor_id01) {
   fpga_properties prop = NULL;
   // Call the API to set the vendor_id on the property
   fpga_result result = fpgaPropertiesSetVendorID(prop, 0);
@@ -2961,7 +3036,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_216) {
 }
 
 /**
- * @test    nodrv_prop_217
+ * @test    get_vendor_id02
  * @brief   Tests: fpgaPropertiesGetVendorID
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is FPGA_ACCELERATOR<br>
@@ -2971,7 +3046,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_216) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_217) {
+TEST_F(properties_c_ase_p, get_vendor_id02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -3005,13 +3080,28 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_217) {
 }
 
 /**
- * @test    nodrv_prop_218
+ * @test    get_vendor_id03
+ * @brief   Tests: fpgaPropertiesGetVendorID
+ * @details Given a non-null fpga_properties* object<br>
+ *          And its object type is FPGA_ACCELERATOR<br>
+ *          But the vendor_id field is not set,<br>
+ *          When I call fpgaPropertiesGetVendorID with a pointer to an
+ *          16-bit integer variable<br>
+ *          Then the return value is FPGA_NOT_FOUND.<br>
+ */
+TEST_F(properties_c_ase_p, get_vendor_id03) {
+  uint16_t vendor = 0;
+  EXPECT_EQ(fpgaPropertiesGetVendorID(filter_, &vendor), FPGA_NOT_FOUND);
+}
+
+/**
+ * @test    get_device_id01
  * @brief   Tests: fpgaPropertiesGetDeviceID
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesGetDeviceID with the null object<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_218) {
+TEST(properties, get_device_id01) {
   fpga_properties prop = NULL;
 
   uint16_t device_id;
@@ -3019,25 +3109,16 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_218) {
   EXPECT_EQ(FPGA_INVALID_PARAM, result);
 }
 
-/**
- * @test    nodrv_prop_219
- * @brief   Tests: fpgaPropertiesSetDeviceID
- * @details Given a null fpga_properties* object<br>
- *          When I call fpgaPropertiesSetDeviceID with the null object<br>
- *          Then the result is FPGA_INVALID_PARAM<br>
- */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_219) {
-#ifndef BUILD_ASE
+TEST(properties, set_device_id01) {
   fpga_properties prop = NULL;
   // Call the API to set the device_id on the property
   fpga_result result = fpgaPropertiesSetDeviceID(prop, 0);
 
-  EXPECT_EQ(FPGA_INVALID_PARAM, result);
-#endif
+  EXPECT_EQ(FPGA_NOT_SUPPORTED, result);
 }
 
 /**
- * @test    nodrv_prop_220
+ * @test    get_device_id02
  * @brief   Tests: fpgaPropertiesGetDeviceID
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is FPGA_ACCELERATOR<br>
@@ -3047,7 +3128,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_219) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_220) {
+TEST_F(properties_c_ase_p, get_device_id02) {
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
 
@@ -3081,13 +3162,28 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_220) {
 }
 
 /**
- * @test    nodrv_prop_221
+ * @test    get_device_id03
+ * @brief   Tests: fpgaPropertiesGetDeviceID
+ * @details Given a non-null fpga_properties* object<br>
+ *          And its object type is FPGA_ACCELERATOR<br>
+ *          But the device_id field is not set,<br>
+ *          When I call fpgaPropertiesGetDeviceID with a pointer to an
+ *          16-bit integer variable<br>
+ *          Then the return value is FPGA_NOT_FOUND.<br>
+ */
+TEST_F(properties_c_ase_p, get_device_id03) {
+  uint16_t devid = 0;
+  EXPECT_EQ(fpgaPropertiesGetDeviceID(filter_, &devid), FPGA_NOT_FOUND);
+}
+
+/**
+ * @test    get_object_id01
  * @brief   Tests: fpgaPropertiesGetObjectID
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesGetObjectID with the null object<br>
  *          Then the return value is FPGA_INVALID_PARAM<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_221) {
+TEST(properties, get_object_id01) {
   fpga_properties prop = NULL;
 
   uint64_t object_id;
@@ -3096,13 +3192,13 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_221) {
 }
 
 /**
- * @test    nodrv_prop_222
+ * @test    set_object_id01
  * @brief   Tests: fpgaPropertiesSetObjectID
  * @details Given a null fpga_properties* object<br>
  *          When I call fpgaPropertiesSetObjectID with the null object<br>
  *          Then the result is FPGA_INVALID_PARAM<br>
  */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_222) {
+TEST(properties, set_object_id01) {
   fpga_properties prop = NULL;
   // Call the API to set the object_id on the property
   fpga_result result = fpgaPropertiesSetObjectID(prop, 0);
@@ -3111,7 +3207,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_222) {
 }
 
 /**
- * @test    nodrv_prop_223
+ * @test    get_object_id02
  * @brief   Tests: fpgaPropertiesGetObjectID
  * @details Given a non-null fpga_properties* object<br>
  *          And its object type is FPGA_ACCELERATOR<br>
@@ -3121,7 +3217,7 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_222) {
  *          Then the return value is FPGA_OK<br>
  *          And the output value is the known value<br>
  * */
-TEST(LibopaecPropertiesCommonALL, nodrv_prop_223) {
+TEST_F(properties_c_ase_p, get_object_id02) {
   uint64_t object_id = 0x8000000000000000UL;
   fpga_properties prop = NULL;
   fpga_result result = fpgaGetProperties(NULL, &prop);
@@ -3156,15 +3252,111 @@ TEST(LibopaecPropertiesCommonALL, nodrv_prop_223) {
 }
 
 /**
- * @test    prop_224
+ * @test    get_object_id03
+ * @brief   Tests: fpgaPropertiesGetObjectID
+ * @details Given a non-null fpga_properties* object<br>
+ *          And its object type is FPGA_ACCELERATOR<br>
+ *          But it has no object_id field set,<br>
+ *          When I call fpgaPropertiesGetObjectID with a pointer to an
+ *          64-bit integer variable<br>
+ *          Then the return value is FPGA_NOT_FOUND.<br>
+ */
+TEST_F(properties_c_ase_p, get_object_id03) {
+  uint64_t objid = 0;
+  EXPECT_EQ(fpgaPropertiesGetObjectID(filter_, &objid), FPGA_NOT_FOUND);
+}
+
+/**
+ * @test    fpga_destroy_properties01
  * @brief   Tests: fpgaDestroyProperties
  * @details When the fpga_properties* object<br>
  *          to fpgaDestroyProperties is NULL<br>
  *          Then the function returns FPGA_INVALID_PARAM<br>
  *
  */
-TEST(LibopaecPropertiesCommonALL, prop_224) {
-#ifndef BUILD_ASE
+TEST(properties, fpga_destroy_properties01) {
   EXPECT_EQ(FPGA_INVALID_PARAM, fpgaDestroyProperties(NULL));
-#endif
+}
+
+TEST_F(properties_c_ase_p, get_num_errors01)
+{
+  fpga_properties prop = nullptr;
+  fpga_result result = fpgaGetProperties(NULL, &prop);
+  EXPECT_EQ(result, FPGA_OK);
+  auto _prop = (_fpga_properties*)prop;
+  SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_ERRORS);
+  
+  uint32_t num_errors = 0;
+  // now get the parent token from the prop structure
+  EXPECT_EQ(fpgaPropertiesGetNumErrors(prop, &num_errors), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
+}
+
+/**
+ * @test    get_num_errors02
+ * @brief   Tests: fpgaPropertiesGetNumErrors
+ * @details When the number of errors field is not set<br>
+ *          in the properties object,<br>
+ *          Then fpgaPropertiesGetNumErrors returns FPGA_NOT_FOUND.<br>
+ *
+ */
+TEST_F(properties_c_ase_p, get_num_errors02) {
+  uint32_t errors = 0;
+  EXPECT_EQ(fpgaPropertiesGetNumErrors(filter_, &errors), FPGA_OK);
+}
+
+/**
+ * @test    from_token02
+ * @brief   Tests: fpgaGetProperties
+ * @details When the input token is valid<br>
+ *          and the call to opae_allocate_wrapped_token() fails,<br>
+ *          fpgaGetProperties returns FPGA_NO_MEMORY<br>
+ */
+TEST_F(properties_c_ase_p, from_token) {
+  fpga_properties props = nullptr;
+  // Invalidate the allocation of the wrapped token.
+  system_->invalidate_malloc(0, "ase_malloc");
+  EXPECT_EQ(fpgaGetProperties(tok_accel_, &props), FPGA_NO_MEMORY);
+}
+
+/**
+ * @test    update03
+ * @brief   Tests: fpgaUpdateProperties
+ * @details When the resulting properties object has a parent token set,<br>
+ *          but malloc fails during wrapper allocation,<br>
+ *          fpgaUpdateProperties returns FPGA_NO_MEMORY.<br>
+ */
+TEST_F(properties_c_ase_p, update03) {
+  fpga_properties props = nullptr;
+  ASSERT_EQ(fpgaGetProperties(NULL, &props), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
+}
+
+/**
+ * @test    fpga_clone_properties02
+ * @brief   Tests: fpgaCloneProperties
+ * @details When calloc fails to allocate the new properties object,<br>
+ *          fpgaClonePropeties returns FPGA_EXCEPTION.<br>
+ */
+TEST_F(properties_c_ase_p, fpga_clone_properties02) {
+  fpga_properties clone = NULL;
+  system_->invalidate_malloc(0, "ase_malloc");
+  ASSERT_EQ(fpgaCloneProperties(filter_, &clone),  FPGA_NO_MEMORY);
+}
+
+/**
+ * @test    fpga_clone_properties03
+ * @brief   Tests: fpgaCloneProperties
+ * @details When property's magic is invalid,<br>
+ *          fpgaClonePropeties returns FPGA_INVALID_PARAM.<br>
+ */
+TEST_F(properties_c_ase_p, fpga_clone_properties03) {
+  fpga_properties src = NULL;
+  fpga_properties clone = NULL;
+  
+  ASSERT_EQ(fpgaGetProperties(nullptr, &src), FPGA_OK);
+  struct _fpga_properties * src_ = (struct _fpga_properties *)src;
+  src_->magic = 0xFFFFFFFF;
+  ASSERT_EQ(fpgaCloneProperties(src, &clone),  FPGA_INVALID_PARAM);
+  EXPECT_EQ(fpgaDestroyProperties(&src), FPGA_OK);
 }

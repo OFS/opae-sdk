@@ -126,4 +126,5 @@ fpga_result event_handle_check_and_lock(struct _fpga_event_handle *eh);
 void fpga_print(int loglevel, char *fmt, ...);
 struct _fpga_token *token_get_parent(struct _fpga_token *);
 fpga_result objectid_for_ase(uint64_t *object_id);
+
 #endif // ___FPGA_COMMON_INT_H__
