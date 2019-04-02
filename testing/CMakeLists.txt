@@ -94,7 +94,7 @@ add_library(xfpga-static STATIC
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/threshold.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins/feature_pluginmgr.c
               ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins/feature_token_list.c
-			  ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins/feature_api.c)
+              ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins/feature_api.c)
 
 target_include_directories(xfpga-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
@@ -367,7 +367,7 @@ macro(add_unit_test test_name static_lib)
         PRIVATE ${OPAE_SDK_SOURCE}
         PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga
         PRIVATE ${OPAE_SDK_SOURCE}/libbitstream
-		PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins
+        PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins
         )
     target_link_libraries(${test_name}
         ${static_lib}
@@ -693,8 +693,6 @@ add_unit_test(test_xfpga_feature_pluginmgr_c xfpga-static
 add_unit_test(test_xfpga_feature_token_list_c xfpga-static
     xfpga/test_feature_token_list_c.cpp
 )
-target_link_libraries(test_xfpga_events_c fpgad-static safestr libbmc
-        ${libjson-c_LIBRARIES})
 
 add_unit_test(test_xfpga_max10_c xfpga-static
     xfpga/test_metrics_max10_c.cpp
