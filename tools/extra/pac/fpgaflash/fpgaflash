@@ -68,6 +68,9 @@ VC_DC_DTB_BLOCK_SIZE = 0x7e0000
 
 DTB_REVERSED_MAGIC_NUM = 0x0bb07fb7
 
+VC_DC_FACTORY_BLOCK_OFFSET = 0x10000
+VC_DC_FACTORY_BLOCK_SIZE = 0x3800000
+
 BMC_FW_HEAD_SIZE = 256
 
 
@@ -198,6 +201,7 @@ def parse_args():
     epi = 'flash programming types:\n\n'
     epi += '  user		FPGA user image update\n'
     epi += '  factory	FPGA factory image update\n'
+    epi += '  factory_only	FPGA factory image (only) update\n'
     epi += '  rsu		Remote System Update (Board Reboot)\n'
     epi += '  dtb		Device tree blob update\n'
     epi += '  eeprom	EEPROM update\n'
@@ -207,18 +211,19 @@ def parse_args():
     epi += '  bmc_fw	BMC firmware update\n'
     epi += '  bmc_img	BMC user image update\n'
     epi += '  bmc_factory	BMC factory image update\n\n'
-    epi += 'example usage:\n\n'
+    epi += 'example usages:\n\n'
     epi += '    fpgaflash user new_image.rpd 0000:04:00.0\n\n'
+    epi += '    fpgaflash rsu dcp_2_0.bin 0000:08:00.0\n\n'
 
     fc_ = argparse.RawDescriptionHelpFormatter
     parser = argparse.ArgumentParser(description=descr, epilog=epi,
                                      formatter_class=fc_)
 
     parser.add_argument('type', help='type of flash programming',
-                        choices=['user', 'factory', 'rsu', 'eeprom',
-                                 'phy_eeprom',
-                                 'bmc_bl', 'bmc_app', 'bmc_fw', 'bmc_img',
-                                 'bmc_factory', 'dtb'])
+                        choices=['user', 'factory', 'factory_only', 'rsu',
+                                 'eeprom', 'phy_eeprom', 'bmc_bl', 'bmc_app',
+                                 'bmc_fw', 'bmc_img', 'bmc_factory', 'dtb'])
+
     parser.add_argument('file', type=argparse.FileType('rb'),
                         help='file to program into flash')
 
@@ -312,11 +317,13 @@ def print_bdf_mtd_mapping(bdf_map):
 
 def normalize_bdf(bdf):
 
-    pat = r'[0-9a-fA-F]{4}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.[0-9a-fA-F]$'
+    bdf = bdf.lower()
+
+    pat = r'[0-9a-f]{4}:[0-9a-f]{2}:[0-9a-f]{2}\.[0-9a-f]$'
     if re.match(pat, bdf):
         return bdf
 
-    if re.match(r'[0-9a-fA-F]{2}:[0-9a-fA-F]{2}\.[0-9a-fA-F]$', bdf):
+    if re.match(r'[0-9a-f]{2}:[0-9a-f]{2}\.[0-9a-f]$', bdf):
         return "0000:{}".format(bdf)
 
 
@@ -959,6 +966,10 @@ def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
         target_offset = 0x10000
         input_offset = 0
         erase_len = 0x7ff0000
+    elif utype == 'factory_only':
+        target_offset = 0x20000
+        input_offset = 0
+        erase_len = VC_DC_FACTORY_BLOCK_SIZE
     elif utype == 'bmc_img':
         input_offset = 0
         if pvid == DC_PVID:
@@ -1062,7 +1073,7 @@ def check_file(ifile, utype):
     ret = 0
 
     image_len = os.path.getsize(ifile.name)
-    if utype in ['factory', 'user', 'dtb']:
+    if utype in ['factory', 'factory_only', 'user', 'dtb']:
         if image_len == VC_FPGA_IMAGE_LENGTH:
             ifile.seek(0)
             data = ifile.read(8)
@@ -1156,7 +1167,7 @@ def main():
             print "{} only supported on {}".format(args.type, VC_PVID)
             sys.exit(1)
 
-    if args.type in ['factory', 'bmc_factory']:
+    if args.type in ['factory', 'factory_only', 'bmc_factory']:
         msg = "Are you sure you want to perform a factory update? [Yes/No]"
         line = raw_input(msg)
         if line != "Yes":
@@ -1205,6 +1216,13 @@ def main():
                 sfile = tempfile.NamedTemporaryFile(mode='wb+', delete=False)
                 args.file.seek(VC_DC_DTB_BLOCK_OFFSET)
                 block = args.file.read(VC_DC_DTB_BLOCK_SIZE)
+                sfile.write(block)
+                sfile.close()
+                sfile = open(sfile.name, 'rb')
+            elif args.type == 'factory_only':
+                sfile = tempfile.NamedTemporaryFile(mode='wb+', delete=False)
+                args.file.seek(VC_DC_FACTORY_BLOCK_OFFSET)
+                block = args.file.read(VC_DC_FACTORY_BLOCK_SIZE)
                 sfile.write(block)
                 sfile.close()
                 sfile = open(sfile.name, 'rb')
