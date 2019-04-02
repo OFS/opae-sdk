@@ -677,8 +677,6 @@ add_unit_test(test_xfpga_metrics_c xfpga-static
 add_unit_test(test_xfpga_bmc_c xfpga-static
     xfpga/test_bmc_c.cpp
 )
-<<<<<<< HEAD
-=======
 
 add_unit_test(test_xfpga_feature_enum_c xfpga-static
     xfpga/test_feature_enum_c.cpp
@@ -697,7 +695,6 @@ add_unit_test(test_xfpga_feature_token_list_c xfpga-static
 )
 target_link_libraries(test_xfpga_events_c fpgad-static safestr libbmc
         ${libjson-c_LIBRARIES})
->>>>>>> 4fa25fc... Created a new feature/dma2 branch from the master branch
 
 add_unit_test(test_xfpga_max10_c xfpga-static
     xfpga/test_metrics_max10_c.cpp

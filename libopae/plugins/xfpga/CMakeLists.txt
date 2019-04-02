@@ -69,7 +69,7 @@ set(SRC
   metrics/afu_metrics.c
   metrics/vector.c
   metrics/metrics_max10.c
-  metrics/threshold.c)
+  metrics/threshold.c
   feature_plugins/feature_pluginmgr.c
   feature_plugins/feature_token_list.c
   feature_plugins/feature_api.c)
