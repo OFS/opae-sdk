@@ -145,13 +145,10 @@ add_library(bmc-static STATIC
     ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmcdata.c
     ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/metrics/bmc/bmcinfo.c
     )
-<<<<<<< HEAD
-=======
     
 add_library(intel-dma-static
     ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins/dma_sav/intel-dma/plugin.c
     ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins/dma_sav/intel-dma/init.c)
->>>>>>> 4fa25fc... Created a new feature/dma2 branch from the master branch
   
 add_library(fpgad-static
     ${OPAE_SDK_SOURCE}/tools/base/fpgad/command_line.c
@@ -367,13 +364,10 @@ macro(add_unit_test test_name static_lib)
         ${ARGN})
     target_include_directories(${test_name} PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-<<<<<<< HEAD
         PRIVATE ${OPAE_SDK_SOURCE}
         PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga
         PRIVATE ${OPAE_SDK_SOURCE}/libbitstream
-=======
 		PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga/feature_plugins
->>>>>>> 4fa25fc... Created a new feature/dma2 branch from the master branch
         )
     target_link_libraries(${test_name}
         ${static_lib}
