@@ -72,7 +72,10 @@ DTB_REVERSED_MAGIC_NUM = 0x0bb07fb7
 VC_DC_FACTORY_BLOCK_OFFSET = 0x10000
 VC_DC_FACTORY_BLOCK_SIZE = 0x3800000
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> fpgaflash: add factory_only flash type
 BMC_FW_HEAD_SIZE = 256
 
 
@@ -222,7 +225,6 @@ def parse_args():
 
 
 
-    parser.add_argument('file', type=argparse.FileType('rb'),
                         help='file to program into flash')
 
     bdf_help += " optional when one device in system"
@@ -1293,7 +1295,10 @@ def validate_bdf(bdf, bdf_pvid_map):
                 sfile.write(block)
                 sfile.close()
                 sfile = open(sfile.name, 'rb')
+<<<<<<< HEAD
 
+=======
+>>>>>>> fpgaflash: add factory_only flash type
             else:
                 sfile = args.file
 
