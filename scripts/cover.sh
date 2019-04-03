@@ -10,7 +10,7 @@ function finish() {
 	lcov --directory testing --capture --output-file coverage.info 2> /dev/null
 
 	lcov -a coverage.base -a coverage.info --output-file coverage.total
-	lcov --remove coverage.total '/usr/**' 'tests/**' '*/**/CMakeFiles*' '/usr/*' 'safe_string/**' 'pybind11/*' 'testing/**' 'ase/**' --output-file coverage.info.cleaned
+	lcov --remove coverage.total '/usr/**' '*/**/CMakeFiles*' '/usr/*' 'safe_string/**' 'pybind11/*' 'testing/**' 'ase/api/src/*' 'ase/sw/*' --output-file coverage.info.cleaned
 	genhtml --function-coverage -o coverage_report coverage.info.cleaned 2> /dev/null
 
 }
