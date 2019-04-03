@@ -245,7 +245,6 @@ def parse_args():
                         action='store_true', help=yes_help)
 
 
-
     return parser.parse_args()
 
 
@@ -1221,7 +1220,6 @@ def validate_bdf(bdf, bdf_pvid_map):
 
     if not args.yes and \
        args.type in ['factory', 'factory_only', 'bmc_factory']:
-
 
         msg = "Are you sure you want to perform a factory update? [Yes/No]"
         line = raw_input(msg)
