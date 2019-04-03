@@ -70,14 +70,10 @@ install(TARGETS fpgad
 
 if ("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr")
   install(FILES fpgad.cfg DESTINATION /etc/opae COMPONENT toolfpgad)
-
-  if (IS_DIRECTORY /usr/lib/systemd/system)
-    install(FILES fpgad.conf DESTINATION /etc/sysconfig COMPONENT toolfpgad)
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/fpgad.service DESTINATION /usr/lib/systemd/system COMPONENT toolfpgad)
-  endif()
-
+  install(FILES fpgad.conf DESTINATION /etc/sysconfig COMPONENT toolfpgad)
 else()
   install(FILES fpgad.cfg DESTINATION ${CMAKE_INSTALL_PREFIX}/etc/opae COMPONENT toolfpgad)
   install(FILES fpgad.conf DESTINATION ${CMAKE_INSTALL_PREFIX}/etc/sysconfig COMPONENT toolfpgad)
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/fpgad.service DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/systemd/system COMPONENT toolfpgad)
 endif()
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/fpgad.service DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/systemd/system COMPONENT toolfpgad)

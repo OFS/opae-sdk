@@ -136,6 +136,9 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/fpgaport
 @CMAKE_INSTALL_PREFIX@/bin/fpgametrics
 @CMAKE_INSTALL_PREFIX@/bin/fpgad
+/etc/opae/fpgad.cfg
+/etc/sysconfig/fpgad.conf
+@CMAKE_INSTALL_PREFIX@/lib/systemd/system/fpgad.service
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-api.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-xfpga.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-vc.so*
@@ -144,11 +147,9 @@ ldconfig
 %files tools-extra
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/afu_json_mgr
-@CMAKE_INSTALL_PREFIX@/bin/bist
 @CMAKE_INSTALL_PREFIX@/bin/bist_app
 @CMAKE_INSTALL_PREFIX@/bin/bist_app.py
 @CMAKE_INSTALL_PREFIX@/bin/bist_common.py
-@CMAKE_INSTALL_PREFIX@/bin/bist_def.py
 @CMAKE_INSTALL_PREFIX@/bin/bist_dma.py
 @CMAKE_INSTALL_PREFIX@/bin/bist_nlb3.py
 @CMAKE_INSTALL_PREFIX@/bin/coreidle
