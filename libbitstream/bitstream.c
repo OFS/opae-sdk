@@ -36,306 +36,293 @@
 #include <uuid/uuid.h>
 #include <json-c/json.h>
 #include "bitstream.h"
+#include "bits_utils.h"
+#include "metadatav1.h"
 
 #include "safe_string/safe_string.h"
 #include <opae/log.h>
 #include <opae/properties.h>
 #include <opae/sysobject.h>
 
-/*
- * TODO: is this expected to change?
- */
-#define METADATA_GUID     "58656F6E-4650-4741-B747-425376303031"
-#define METADATA_GUID_LEN 16
-#define GBS_AFU_IMAGE     "afu-image"
-#define BBS_INTERFACE_ID  "interface-uuid"
-
-/*
- * Check for bitstream header and fill out bistream_info fields
- */
-#define MAGIC       0x1d1f8680
-#define MAGIC_SIZE  4
-#define HEADER_SIZE 20
-STATIC int parse_metadata(opae_bitstream_info *info)
+STATIC fpga_result opae_bitstream_read_file(const char *file,
+					    uint8_t **buf,
+					    size_t *len)
 {
-	unsigned i;
+	FILE *fp;
+	fpga_result res = FPGA_EXCEPTION;
+	long pos;
+	size_t sz;
 
-	if (!info)
-		return -EINVAL;
-
-	if (info->data_len < HEADER_SIZE) {
-		OPAE_ERR("File too small to be GBS.");
-		return -1;
-	}
-
-	if (((uint32_t *)info->data)[0] != MAGIC) {
-		OPAE_ERR("No valid GBS header.");
-		return -1;
-	}
-
-	/*
-	 * TODO: Is this 128-bit?
-	 * TODO: Is this really reversed like this or should
-	 * it be bswap64 on the two components?
-	 */
-
-	/* reverse byte order when reading GBS */
-	for (i = 0; i < sizeof(info->interface_id); i++)
-		info->interface_id[i] =
-			info->data[MAGIC_SIZE+sizeof(info->interface_id)-1-i];
-
-	info->rbf_data = &info->data[HEADER_SIZE];
-	// TODO: does this length include the metadata?
-	info->rbf_len = info->data_len - HEADER_SIZE;
-
-	return 0;
-}
-
-STATIC fpga_result string_to_guid(const char *guid, fpga_guid *result)
-{
-	if (uuid_parse(guid, *result) < 0) {
-		OPAE_ERR("Error parsing guid: %s.", guid);
-		return FPGA_INVALID_PARAM;
-	}
-
-	return FPGA_OK;
-}
-
-STATIC fpga_result check_bitstream_guid(const uint8_t *bitstream)
-{
-	fpga_guid bitstream_guid;
-	fpga_guid expected_guid;
-	errno_t e;
-
-	e = memcpy_s(bitstream_guid, sizeof(bitstream_guid), bitstream,
-		     sizeof(fpga_guid));
-	if (EOK != e) {
-		OPAE_ERR("memcpy_s failed.");
+	fp = fopen(file, "rb");
+	if (!fp) {
+		OPAE_ERR("fopen failed");
 		return FPGA_EXCEPTION;
 	}
 
-	/*
-	 * TODO: Would it make sense to encode the metadata
-	 * guid as raw bytes?
-	 */
-	if (string_to_guid(METADATA_GUID, &expected_guid) != FPGA_OK)
-		return FPGA_INVALID_PARAM;
+	if (fseek(fp, 0, SEEK_END) < 0) {
+		OPAE_ERR("fseek failed");
+		goto out_close;
+	}
 
-	if (uuid_compare(bitstream_guid, expected_guid) != 0)
-		return FPGA_INVALID_PARAM;
+	pos = ftell(fp);
+	if (pos < 0) {
+		OPAE_ERR("ftell failed");
+		goto out_close;
+	}
 
+	*len = (size_t)pos;
+
+	*buf = (uint8_t *)malloc(*len);
+	if (!*buf) {
+		OPAE_ERR("malloc failed");
+		res = FPGA_NO_MEMORY;
+		*len = 0;
+		goto out_close;
+	}
+
+	if (fseek(fp, 0, SEEK_SET) < 0) {
+		OPAE_ERR("fseek failed");
+		goto out_free;
+	}
+
+	sz = fread(*buf, 1, *len, fp);
+	if (ferror(fp)) {
+		OPAE_ERR("ferror after read");
+		goto out_free;
+	}
+
+	if (sz != *len) {
+		OPAE_ERR("file size and number "
+			 "of bytes read mismatch");
+		goto out_free;
+	}
+
+	fclose(fp);
 	return FPGA_OK;
+
+out_free:
+	free(*buf);
+	*buf = NULL;
+	*len = 0;
+out_close:
+	fclose(fp);
+	return res;
 }
 
-STATIC fpga_result get_bitstream_ifc_id(const uint8_t *bitstream,
-					size_t bs_len,
-					fpga_guid *guid)
+bool opae_is_legacy_bitstream(opae_bitstream_info *info)
 {
-	fpga_result result = FPGA_EXCEPTION;
-	char *json_metadata = NULL;
-	uint32_t json_len = 0;
-	const uint8_t *json_metadata_ptr = NULL;
+	opae_legacy_bitstream_header *hdr;
+
+	if (info->data_len < sizeof(opae_legacy_bitstream_header))
+		return false;
+
+	hdr = (opae_legacy_bitstream_header *)info->data;
+	if (hdr->legacy_magic == OPAE_LEGACY_BITSTREAM_MAGIC)
+		return true;
+
+	return false;
+}
+
+STATIC void opae_resolve_legacy_bitstream(opae_bitstream_info *info)
+{
+	opae_legacy_bitstream_header *hdr =
+		(opae_legacy_bitstream_header *)info->data;
+	uint8_t *p = &hdr->legacy_pr_ifc_id[15];
+	int i = 0;
+
+	// The guid is encoded backwards.
+	// Reverse it.
+	while (p >= hdr->legacy_pr_ifc_id) {
+		info->pr_interface_id[i++] = *p--;
+	}
+
+	info->rbf_data = info->data + sizeof(opae_legacy_bitstream_header);
+	info->rbf_len = info->data_len - sizeof(opae_legacy_bitstream_header);
+}
+
+STATIC void *opae_bitstream_parse_metadata(const char *metadata,
+					   fpga_guid pr_interface_id,
+					   int *version)
+{
 	json_object *root = NULL;
-	json_object *afu_image = NULL;
-	json_object *interface_id = NULL;
-	errno_t e;
+	json_object *j_version = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	void *parsed = NULL;
 
-	result = check_bitstream_guid(bitstream);
-	if (result != FPGA_OK)
-		return result;
-
-	json_len = *((uint32_t *)(bitstream + METADATA_GUID_LEN));
-	if (json_len == 0) {
-		OPAE_MSG("Bitstream has no metadata.");
-		result = FPGA_OK;
-		goto out_free;
+	root = json_tokener_parse_verbose(metadata, &j_err);
+	if (!root) {
+		OPAE_ERR("invalid JSON metadata: %s",
+			 json_tokener_error_desc(j_err));
+		return NULL;
+	}
+	
+	if (!json_object_object_get_ex(root,
+				       "version",
+				       &j_version)) {
+		OPAE_ERR("metadata: failed to find \"version\" key");
+		goto out_put;
 	}
 
-	if (json_len > bs_len) {
-		OPAE_ERR("invalid bitstream metadata size.");
-		result = FPGA_EXCEPTION;
-		goto out_free;
+	if (!json_object_is_type(j_version, json_type_int)) {
+		OPAE_ERR("metadata: \"version\" key not integer");
+		goto out_put;
 	}
 
-	/*
-	 * TODO: METADATA_GUID_LEN + sizeof(uint32_t) == HEADER_SIZE?
-	 */
-	json_metadata_ptr = bitstream + METADATA_GUID_LEN + sizeof(uint32_t);
+	*version = json_object_get_int(j_version);
 
-	json_metadata = (char *)malloc(json_len + 1);
-	if (json_metadata == NULL) {
-		OPAE_ERR("Could not allocate memory for metadata!");
+	switch (*version) {
+
+	// Some invalid GBS's around the BBS 6.4.0 and
+	// BBS 6.5.0 eras incorrectly set the metadata
+	// version to 640/650 respectively.
+	// Allow 640/650 to serve as an alias for 1.
+	case 650:
+	case 640:
+		*version = 1;
+	case 1:
+		parsed = opae_bitstream_parse_metadata_v1(root,
+							  pr_interface_id);
+	break;
+
+	default:
+		OPAE_ERR("metadata: unsupported version: %d", *version);
+	}
+
+out_put:
+	json_object_put(root);
+
+	return parsed;
+}
+
+STATIC fpga_guid valid_GBS_guid = {
+0x58, 0x65, 0x6f, 0x6e,
+0x46, 0x50,
+0x47, 0x41,
+0xb7, 0x47,
+0x42, 0x53, 0x76, 0x30, 0x30, 0x31
+};
+STATIC fpga_result opae_resolve_bitstream(opae_bitstream_info *info)
+{
+	opae_bitstream_header *hdr;
+	size_t sz;
+	char *buf;
+	errno_t err;
+
+	if (info->data_len < sizeof(opae_bitstream_header)) {
+		OPAE_ERR("file length smaller than bitstream header: "
+			 "\"%s\"", info->filename);
+		return FPGA_INVALID_PARAM;
+	}
+
+	hdr = (opae_bitstream_header *)info->data;
+
+	if (uuid_compare(hdr->valid_gbs_guid, valid_GBS_guid) != 0) {
+		OPAE_ERR("GBS guid is invalid: \"%s\"", info->filename);
+		return FPGA_INVALID_PARAM;
+	}
+
+	// Check that metadata_length makes sense
+	// given that we know the total file size.
+
+	sz = sizeof(fpga_guid) + sizeof(uint32_t);
+	sz += (size_t)hdr->metadata_length;
+
+	if (sz > info->data_len) {
+		OPAE_ERR("invalid metadata length in \"%s\"", info->filename);
+		return FPGA_INVALID_PARAM;
+	}
+
+	info->rbf_data = info->data + sz;
+	info->rbf_len = info->data_len - sz;
+
+	buf = (char *)malloc(hdr->metadata_length + 1);
+	if (!buf) {
+		OPAE_ERR("malloc failed");
 		return FPGA_NO_MEMORY;
 	}
 
-	e = memcpy_s(json_metadata, json_len + 1, json_metadata_ptr, json_len);
-	if (EOK != e) {
-		OPAE_ERR("memcpy_s failed.");
-		result = FPGA_EXCEPTION;
-		goto out_free;
-	}
-	json_metadata[json_len] = '\0';
-
-	/*
-	 * TODO: Here, we're calling json_tokener_parse just to get the
-	 * interface id. Would it make sense to parse this once and stash
-	 * (in the opae_bitstream_info struct) either of these?
-	 * 1. The resulting root json_object structure.
-	 * 2. A metadata struct that encapsulates the metadata fields.
-	 *
-	 * Just a parsing optimization to think about.
-	 */
-	root = json_tokener_parse(json_metadata);
-
-	if (root != NULL) {
-		if (json_object_object_get_ex(root, GBS_AFU_IMAGE,
-					      &afu_image)) {
-
-			if (!json_object_object_get_ex(afu_image,
-						       BBS_INTERFACE_ID,
-						       &interface_id) ||
-			    (interface_id == NULL)) {
-				OPAE_ERR("Invalid metadata.");
-				result = FPGA_INVALID_PARAM;
-				goto out_free;
-			}
-
-			result = string_to_guid(
-				json_object_get_string(interface_id), guid);
-			if (result != FPGA_OK) {
-				OPAE_ERR("Invalid BBS interface id.");
-				goto out_free;
-			}
-		} else {
-			OPAE_ERR("Invalid metadata.");
-			result = FPGA_INVALID_PARAM;
-			goto out_free;
-		}
+	err = memcpy_s(buf, hdr->metadata_length,
+			hdr->metadata, hdr->metadata_length);
+	if (err != EOK) {
+		OPAE_ERR("memcpy_s failed");
+		free(buf);
+		return FPGA_EXCEPTION;
 	}
 
-out_free:
-	if (root)
-		json_object_put(root);
-	if (json_metadata)
-		free(json_metadata);
+	buf[hdr->metadata_length] = '\0';
 
-	return result;
-}
+	info->parsed_metadata =
+		opae_bitstream_parse_metadata(buf,
+					      info->pr_interface_id,
+					      &info->metadata_version);
 
-/*
- * Read bitstream from file and populate opae_bitstream_info structure
- */
-//TODO: remove this check when all bitstreams conform to JSON
-//metadata spec.
-static bool skip_header_checks;
-STATIC fpga_result read_bitstream(const char *filename, opae_bitstream_info *info)
-{
-	FILE *f;
-	long len;
-	int ret;
-	fpga_result res = FPGA_EXCEPTION;
-	struct stat file_mode;
+	free(buf);
 
-	if (!filename || !info)
-		return FPGA_INVALID_PARAM;
-
-	memset_s(&file_mode, sizeof(file_mode), 0);
-
-	if (stat(filename, &file_mode) != 0) {
-		OPAE_ERR("stat failed for \"%s\"", filename);
-		return res;
-	}
-
-	if (S_ISREG(file_mode.st_mode) == 0) {
-		OPAE_ERR("Invalid input GBS file \"%s\"", filename);
-		return res;
-	}
-
-	/* open file */
-	f = fopen(filename, "rb");
-	if (!f) {
-		OPAE_ERR("fopen failed for \"%s\"", filename);
-		return res;
-	}
-	info->filename = filename;
-
-	/* get filesize */
-	ret = fseek(f, 0, SEEK_END);
-	if (ret < 0) {
-		OPAE_ERR("fseek failed for \"%s\"", filename);
-		goto out_close;
-	}
-	len = ftell(f);
-	if (len < 0) {
-		OPAE_ERR("ftell failed for \"%s\"", filename);
-		goto out_close;
-	}
-
-	/* allocate memory */
-	info->data = (uint8_t *)malloc(len);
-	if (!info->data) {
-		OPAE_ERR("malloc failed.");
-		goto out_close;
-	}
-
-	/* read bistream data */
-	ret = fseek(f, 0, SEEK_SET);
-	if (ret < 0) {
-		OPAE_ERR("fseek failed for \"%s\"", filename);
-		goto out_free;
-	}
-	info->data_len = fread(info->data, 1, len, f);
-	if (ferror(f)) {
-		OPAE_ERR("ferror \"%s\"", filename);
-		goto out_free;
-	}
-	if (info->data_len != (size_t)len) {
-		OPAE_ERR(
-			 "File size and number of bytes "
-			 "read don't match for \"%s\"", filename);
-		goto out_free;
-	}
-
-	if (check_bitstream_guid(info->data) == FPGA_OK) {
-		skip_header_checks = true;
-
-		res = get_bitstream_ifc_id(info->data,
-					   info->data_len,
-					   &(info->interface_id));
-		if (res != FPGA_OK) {
-			OPAE_ERR("Invalid metadata in the "
-				 "bitstream \"%s\"", filename);
-			goto out_free;
-		}
-	}
-
-	if (!skip_header_checks) {
-		/* populate remaining bitstream_info fields */
-		ret = parse_metadata(info);
-		if (ret < 0)
-			goto out_free;
-	}
-
-	fclose(f);
-	return FPGA_OK;
-
-out_free:
-	free((void *)info->data);
-out_close:
-	fclose(f);
-	return res;
+	return info->parsed_metadata ? FPGA_OK : FPGA_EXCEPTION;
 }
 
 fpga_result opae_load_bitstream(const char *file, opae_bitstream_info *info)
 {
-	return read_bitstream(file, info);
+	fpga_result res;
+
+	if (!file || !info)
+		return FPGA_INVALID_PARAM;
+
+	if (!opae_bitstream_path_is_valid(file,
+					  OPAE_BITSTREAM_PATH_NO_SYMLINK)) {
+		OPAE_ERR("invalid bitstream path \"%s\"", file);
+		return FPGA_INVALID_PARAM;
+	}
+
+	memset_s(info, sizeof(opae_bitstream_info), 0);
+
+	res = opae_bitstream_read_file(file, &info->data, &info->data_len);
+	if (res != FPGA_OK) {
+		OPAE_ERR("error loading \"%s\"", file);
+		return res;
+	}
+
+	info->filename = file;
+
+	if (opae_is_legacy_bitstream(info)) {
+		opae_resolve_legacy_bitstream(info);
+		OPAE_MSG("Legacy bitstream (GBS) format detected.");
+		OPAE_MSG("Legacy GBS support is deprecated "
+			 "and will be removed in a future release.");
+		return FPGA_OK;
+	}
+
+	return opae_resolve_bitstream(info);
 }
 
-void opae_unload_bitstream(opae_bitstream_info *info)
+fpga_result opae_unload_bitstream(opae_bitstream_info *info)
 {
-	if (info) {
-		if (info->data)
-			free(info->data);
-		memset_s(info, sizeof(*info), 0);
+	fpga_result res = FPGA_OK;
+
+	if (!info)
+		return FPGA_INVALID_PARAM;
+
+	if (info->data)
+		free(info->data);
+
+	if (info->parsed_metadata) {
+
+		switch (info->metadata_version) {
+
+		case 1:
+			opae_bitstream_release_metadata_v1(
+			(opae_bitstream_metadata_v1 *)info->parsed_metadata);
+		break;
+
+		default:
+			OPAE_ERR("metadata: unsupported version: %d",
+				 info->metadata_version);
+			res = FPGA_EXCEPTION;
+		}
+
 	}
+
+	memset_s(info, sizeof(opae_bitstream_info), 0);
+
+	return res;
 }

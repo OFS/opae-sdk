@@ -29,6 +29,8 @@ target_include_directories(opae-c-static PUBLIC
 
 add_library(bitstream-static
     ${OPAE_SDK_SOURCE}/libbitstream/bitstream.c
+    ${OPAE_SDK_SOURCE}/libbitstream/bits_utils.c
+    ${OPAE_SDK_SOURCE}/libbitstream/metadatav1.c
     )
 target_include_directories(bitstream-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
@@ -195,7 +197,8 @@ target_compile_definitions(fpgaconf-static PRIVATE main=fpgaconf_main)
 target_include_directories(fpgaconf-static PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
+  $<INSTALL_INTERFACE:include>
+  PRIVATE ${OPAE_SDK_SOURCE})
 
 add_library(ras-static
     ${OPAE_SDK_SOURCE}/tools/extra/ras/main.c)
@@ -217,7 +220,12 @@ target_compile_definitions(coreidle-static PRIVATE main=coreidle_main)
 target_include_directories(coreidle-static PUBLIC
     $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-    $<INSTALL_INTERFACE:include>)
+    $<INSTALL_INTERFACE:include>
+    PRIVATE ${OPAE_SDK_SOURCE})
+
+target_link_libraries(coreidle-static
+    safestr
+    bitstream)
 
 add_library(userclk-static
     ${OPAE_SDK_SOURCE}/tools/extra/userclk/main.c
@@ -311,6 +319,7 @@ macro(add_unit_test test_name static_lib)
         ${ARGN})
     target_include_directories(${test_name} PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        PRIVATE ${OPAE_SDK_SOURCE}
         PRIVATE ${OPAE_SDK_SOURCE}/libbitstream
         )
     target_link_libraries(${test_name}
@@ -425,6 +434,14 @@ add_unit_test(test_opae_pluginmgr_c opae-c-static
 
 add_unit_test(test_bitstream_bitstream_c bitstream-static
     bitstream/test_bitstream_c.cpp
+)
+
+add_unit_test(test_bitstream_bits_utils_c bitstream-static
+    bitstream/test_bits_utils_c.cpp
+)
+
+add_unit_test(test_bitstream_metadatav1_c bitstream-static
+    bitstream/test_metadatav1_c.cpp
 )
 
 ############################################################################
@@ -703,6 +720,10 @@ add_unit_test(test_ras_c ras-static
 add_unit_test(test_fpgaconf_fpgaconf_c fpgaconf-static
     fpgaconf/test_fpgaconf_c.cpp
 )
+target_link_libraries(test_fpgaconf_fpgaconf_c
+    safestr
+    bitstream
+    )
 
 ############################################################################
 # coreidle tests ###########################################################

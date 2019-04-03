@@ -28,17 +28,9 @@
 #define __PACD_RESET_BMC_H__
 
 #include <semaphore.h>
+#include "bitstream.h"
 #include "config_int.h"
 #include "bmc/bmc.h"
-
-struct bitstream_info {
-	const char *filename;
-	uint8_t *data;
-	size_t data_len;
-	uint8_t *rbf_data;
-	size_t rbf_len;
-	fpga_guid interface_id;
-};
 
 typedef struct {
 	uint8_t *last_state; // bit vector
@@ -48,7 +40,7 @@ typedef struct {
 typedef struct {
 	struct bmc_thermal_context *c;
 	fpga_token fme_token;
-	struct bitstream_info null_gbs_info;
+	opae_bitstream_info null_gbs_info;
 	uint32_t gbs_found;
 	uint32_t gbs_index;
 	bmc_sdr_handle records;

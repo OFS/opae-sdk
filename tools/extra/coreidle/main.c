@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -35,11 +35,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <linux/limits.h>
 
 #include "safe_string/safe_string.h"
 #include <opae/fpga.h>
-
-#include "fpgaconf/bitstream-tools.h"
+#include <libbitstream/bitstream.h>
+#include <libbitstream/metadatav1.h>
 
 #define GETOPT_STRING ":hB:D:F:S:G"
 
@@ -62,13 +63,12 @@ struct  CoreIdleCommandLine
 	int      device;
 	int      function;
 	int      socket;
-	char     filename[512];
-	uint8_t *gbs_data;
-	size_t   gbs_len;
-
+	char     filename[PATH_MAX];
+	opae_bitstream_info bitstr;
 };
 
-struct CoreIdleCommandLine coreidleCmdLine = { -1, -1, -1, -1, -1, "", NULL, 0 };
+struct CoreIdleCommandLine coreidleCmdLine =
+{ -1, -1, -1, -1, -1, { 0, }, OPAE_BITSTREAM_INFO_INITIALIZER };
 
 // core idle Command line input help
 void CoreidleAppShowHelp()
@@ -107,8 +107,8 @@ void print_err(const char *s, fpga_result res)
 	fprintf(stderr, "Error %s: %s\n", s, fpgaErrStr(res));
 }
 
-int read_bitstream(struct CoreIdleCommandLine *coreidleCmdLine);
 int ParseCmds(struct CoreIdleCommandLine *coreidleCmdLine, int argc, char *argv[]);
+fpga_result get_fpga_interface_id(fpga_token token, fpga_guid *interface_id);
 extern fpga_result set_cpu_core_idle(fpga_handle handle,uint64_t gbs_power);
 
 int main(int argc, char *argv[])
@@ -117,13 +117,10 @@ int main(int argc, char *argv[])
 	uint32_t num_matches               = 1;
 	fpga_result result                 = FPGA_OK;
 	fpga_token fme_token               = NULL;
-	fpga_handle  fme_handle            = NULL;
-	struct gbs_metadata  metadata;
+	fpga_handle fme_handle             = NULL;
 	fpga_result res                    = FPGA_OK;
-	uint64_t intfc_id_l                = 0;
-	uint64_t intfc_id_h                = 0;
-	fpga_guid expt_interface_id        = { 0 };
-	fpga_guid act_interface_id         = { 0 };
+	fpga_guid expt_interface_id        = { 0, };
+	int power                          = 0;
 
 	// Parse command line
 	if ( argc < 2 ) {
@@ -144,15 +141,14 @@ int main(int argc, char *argv[])
 
 	printf(" ------- Command line Input END   ----\n\n");
 
-	if(read_bitstream(&coreidleCmdLine) !=0) {
-                res = FPGA_INVALID_PARAM;
+	result = opae_load_bitstream(coreidleCmdLine.filename,
+				     &coreidleCmdLine.bitstr);
+	if (result != FPGA_OK) {
+                res = result;
 		ON_ERR_GOTO(res, out_exit, "Invalid Input bitstream");
 	}
 
 	// Enum FPGA device
-	res = fpgaInitialize(NULL);
-	ON_ERR_GOTO(res, out_exit, "Failed to initilize ");
-
 	result = fpgaGetProperties(NULL, &filter);
 	ON_ERR_GOTO(result, out_exit, "creating properties object");
 
@@ -189,9 +185,8 @@ int main(int argc, char *argv[])
 
 	if (num_matches < 1) {
 		fprintf(stderr, "FPGA Resource not found.\n");
-		fpgaDestroyProperties(&filter);
 		res = FPGA_NOT_FOUND;
-		goto out_destroy_tok;
+		goto out_destroy_prop;
 	}
 	fprintf(stderr, "FME Resource found.\n");
 
@@ -199,36 +194,27 @@ int main(int argc, char *argv[])
 	result = fpgaOpen(fme_token, &fme_handle, 0);
 	ON_ERR_GOTO(result, out_destroy_tok, "opening FME");
 
-	// Verify bitstream GUID
-	result = check_bitstream_guid(coreidleCmdLine.gbs_data);
-	ON_ERR_GOTO(result, out_close, "closing FME");
+	// Read FPGA PR Interface GUID
+	res = get_fpga_interface_id(fme_token, &expt_interface_id);
+	ON_ERR_GOTO(res, out_close, "PR interface GUID get");
 
-	// Read bitstream meata data
-	memset_s(&metadata, sizeof(metadata), 0);
-	result = read_gbs_metadata(coreidleCmdLine.gbs_data, &metadata);
-	ON_ERR_GOTO(result, out_close, "closing FME");
-
-	// Read FPGA Interafce id
-	res = get_fpga_interface_id(fme_token, &intfc_id_l, &intfc_id_h);
-	ON_ERR_GOTO(res, out_close, "interfaceid get");
-	fpga_guid_to_fpga(intfc_id_h, intfc_id_l, expt_interface_id);
-
-	// Verify bitstream metadata
-	if (uuid_parse(metadata.afu_image.interface_uuid, act_interface_id) < 0) {
+	if (uuid_compare(coreidleCmdLine.bitstr.pr_interface_id,
+			 expt_interface_id) < 0) {
 		res = FPGA_EXCEPTION;
 	}
-	ON_ERR_GOTO(res, out_close, "parsing guid");
+	ON_ERR_GOTO(res, out_close, "PR Interface GUID doesn't match");
 
-	if (uuid_compare(act_interface_id, expt_interface_id) < 0) {
-		res = FPGA_EXCEPTION;
+	if (coreidleCmdLine.bitstr.metadata_version == 1) {
+		opae_bitstream_metadata_v1 *mdata = (opae_bitstream_metadata_v1 *)
+			coreidleCmdLine.bitstr.parsed_metadata;
+		power = mdata->afu_image.power;
 	}
-	ON_ERR_GOTO(res, out_close, "Interface id doesn't match");
 
-	printf(" GBS Power :%d watts \n", metadata.afu_image.power);
+	printf(" GBS Power :%d watts \n", power);
 
 	// Idle CPU cores
-	if (metadata.afu_image.power >= 0) {
-		 res = set_cpu_core_idle(fme_handle, metadata.afu_image.power);
+	if (power >= 0) {
+		 res = set_cpu_core_idle(fme_handle, power);
 	}
 
 out_close:
@@ -248,74 +234,8 @@ out_destroy_prop:
 	ON_ERR_GOTO(result, out_exit, "destroying properties object");
 
 out_exit:
-	if (coreidleCmdLine.gbs_data)
-		free(coreidleCmdLine.gbs_data);
+	opae_unload_bitstream(&coreidleCmdLine.bitstr);
 	return res != FPGA_OK ? res : result;
-}
-
-// Read file name
-int read_bitstream(struct CoreIdleCommandLine *coreidleCmdLine)
-{
-	FILE *f         = NULL;
-	long len        = 0;
-	int ret         = 0;
-
-	if ( !coreidleCmdLine || !coreidleCmdLine->filename )
-		return -EINVAL;
-
-	/* open file */
-	f = fopen(coreidleCmdLine->filename, "rb");
-	if (!f) {
-		perror(coreidleCmdLine->filename);
-		return -1;
-	}
-
-	/* get filesize */
-	ret = fseek(f, 0, SEEK_END);
-	if (ret < 0) {
-		perror(coreidleCmdLine->filename);
-		goto out_close;
-	}
-	len = ftell(f);
-	if (len < 0) {
-		perror(coreidleCmdLine->filename);
-		goto out_close;
-	}
-
-	/* allocate memory */
-	coreidleCmdLine->gbs_data = (uint8_t *)malloc(len);
-	if (!coreidleCmdLine->gbs_data) {
-		perror("malloc");
-		goto out_close;
-	}
-
-	/* read bistream data */
-	ret = fseek(f, 0, SEEK_SET);
-	if (ret < 0) {
-		perror(coreidleCmdLine->filename);
-		goto out_free;
-	}
-
-	coreidleCmdLine->gbs_len = fread(coreidleCmdLine->gbs_data, 1, len, f);
-	if (ferror(f)) {
-		perror(coreidleCmdLine->filename);
-		goto out_free;
-	}
-	if (coreidleCmdLine->gbs_len != (size_t)len) {
-		fprintf(stderr,
-		     "Filesize and number of bytes read don't match\n");
-		goto out_free;
-	}
-
-	fclose(f);
-	return 0;
-
-out_free:
-	free((void*)coreidleCmdLine->gbs_data);
-	coreidleCmdLine->gbs_data = NULL;
-out_close:
-	fclose(f);
-	return -1;
 }
 
 #define MAX_CMD_OPT 256
@@ -413,4 +333,47 @@ int ParseCmds(struct CoreIdleCommandLine *coreidleCmdLine,
 		}
 	}
 	return 0;
+}
+
+fpga_result get_fpga_interface_id(fpga_token token, fpga_guid *interface_id)
+{
+	fpga_result result = FPGA_OK;
+	fpga_result resval = FPGA_OK;
+	fpga_properties filter = NULL;
+	fpga_objtype objtype;
+
+	result = fpgaGetProperties(token, &filter);
+	if (result != FPGA_OK) {
+		OPAE_ERR("Failed to get Token Properties Object");
+		goto out;
+	}
+
+	result = fpgaPropertiesGetObjectType(filter, &objtype);
+	if (result != FPGA_OK) {
+		OPAE_ERR("Failed to get Token Properties Object");
+		goto out_destroy;
+	}
+
+	if (objtype != FPGA_DEVICE) {
+		OPAE_ERR("Invalid FPGA object type");
+		result = FPGA_EXCEPTION;
+		goto out_destroy;
+	}
+
+	result = fpgaPropertiesGetGUID(filter, interface_id);
+	if (result != FPGA_OK) {
+		OPAE_ERR("Failed to get PR interface guid");
+		goto out_destroy;
+	}
+
+out_destroy:
+	resval = (result != FPGA_OK) ? result : resval;
+	result = fpgaDestroyProperties(&filter);
+	if (result != FPGA_OK) {
+		OPAE_ERR("Failed to destroy properties");
+	}
+
+out:
+	resval = (result != FPGA_OK) ? result : resval;
+	return resval;
 }

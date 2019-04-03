@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -25,6 +25,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <opae/fpga.h>
+#include <linux/limits.h>
+#include <libbitstream/bitstream.h>
 
 extern "C" {
 
@@ -38,10 +40,8 @@ struct  CoreIdleCommandLine
         int      device;
         int      function;
         int      socket;
-        char     filename[512];
-        uint8_t *gbs_data;
-        size_t   gbs_len;
-
+        char     filename[PATH_MAX];
+	opae_bitstream_info bitstr;
 };
 extern struct CoreIdleCommandLine coreidleCmdLine;
 
@@ -55,7 +55,6 @@ int ParseCmds(struct CoreIdleCommandLine *coreidleCmdLine,
 	      int argc,
 	      char *argv[]);
 
-int read_bitstream(struct CoreIdleCommandLine *cmdline);
 }
 
 #include <sys/types.h>
@@ -88,6 +87,8 @@ class coreidle_main_c_p : public ::testing::TestWithParam<std::string> {
     system_->initialize();
     system_->prepare_syfs(platform_);
 
+    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+
     std::vector<uint8_t> gbs_file = system_->assemble_gbs_header(platform_.devices[0]);
     std::ofstream gbs;
     gbs.open(tmp_gbs_, std::ios::out|std::ios::binary);
@@ -101,6 +102,7 @@ class coreidle_main_c_p : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     coreidleCmdLine = cmd_line_;
 
+    EXPECT_EQ(fpgaFinalize(), FPGA_OK);
     system_->finalize();
 
     if (!::testing::Test::HasFatalFailure() &&
@@ -293,7 +295,8 @@ TEST_P(coreidle_main_c_p, parse1) {
                    five, six, seven, eight, nine,
                    ten, eleven, twelve };
 
-  struct CoreIdleCommandLine cmd = { -1, -1, -1, -1, -1, {0,}, NULL, 0 };
+  struct CoreIdleCommandLine cmd =
+  { -1, -1, -1, -1, -1, {0,}, OPAE_BITSTREAM_INFO_INITIALIZER };
   EXPECT_EQ(ParseCmds(&cmd, 13, argv), 0);
 
   EXPECT_EQ(cmd.segment, 0x1234);
@@ -566,56 +569,6 @@ TEST_P(coreidle_main_c_p, absolute_path) {
 
   free(current_path);
   unlink(copy_gbs_.c_str());
-}
-
-/**
- * @test       read_bits0
- * @brief      Test: read_bitstream
- * @details    When read_bitstream is given a NULL pointer,<br>
- *             the fn returns a negative value.<br>
- */
-TEST_P(coreidle_main_c_p, read_bits0) {
-  EXPECT_LT(read_bitstream(nullptr), 0);
-}
-
-/**
- * @test       read_bits1
- * @brief      Test: read_bitstream
- * @details    When read_bitstream is given a command line struct<br>
- *             with a filename field that names a non-existent file,<br>
- *             the fn returns a negative value.<br>
- */
-TEST_P(coreidle_main_c_p, read_bits1) {
-  struct CoreIdleCommandLine cmd;
-  strcpy(cmd.filename, "/doesnt/exist");
-  EXPECT_LT(read_bitstream(&cmd), 0);
-}
-
-/**
- * @test       read_bits2
- * @brief      Test: read_bitstream
- * @details    When malloc fails,<br>
- *             read_bitstream returns a negative value.<br>
- */
-TEST_P(coreidle_main_c_p, read_bits2) {
-  struct CoreIdleCommandLine cmd;
-  strcpy(cmd.filename, tmp_gbs_);
-  system_->invalidate_malloc(0, "read_bitstream");
-  EXPECT_LT(read_bitstream(&cmd), 0);
-}
-
-/**
- * @test       read_bits3
- * @brief      Test: read_bitstream
- * @details    When successful,<br>
- *             read_bitstream loads the bitstream into the gbs_data field<br>
- *             and the fn returns 0.<br>
- */
-TEST_P(coreidle_main_c_p, read_bits3) {
-  struct CoreIdleCommandLine cmd;
-  strcpy(cmd.filename, tmp_gbs_);
-  EXPECT_EQ(read_bitstream(&cmd), 0);
-  free(cmd.gbs_data);
 }
 
 /**
