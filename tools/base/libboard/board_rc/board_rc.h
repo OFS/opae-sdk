@@ -33,19 +33,21 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#define SDR_HEADER_LEN    3
+#define SDR_MSG_LEN       4
 
 typedef struct _powerdown_cause {
-	uint8_t _header[3]; // Ignored
+	uint8_t _header[SDR_HEADER_LEN];
 	uint8_t completion_code;
-	uint8_t iana[3];
+	uint8_t iana[SDR_HEADER_LEN];
 	uint8_t count;
-	uint8_t message[40];
+	uint8_t message[SDR_MSG_LEN];
 } powerdown_cause;
 
 typedef struct _reset_cause {
-	uint8_t _header[3];// Ignored
+	uint8_t _header[SDR_HEADER_LEN];
 	uint8_t completion_code;
-	uint8_t iana[3];
+	uint8_t iana[SDR_HEADER_LEN];
 	uint8_t reset_cause;
 } reset_cause;
 
@@ -61,7 +63,7 @@ typedef enum {
 } ResetCauses;
 
 typedef struct _device_id {
-	uint8_t _header[3]; // Ignored
+	uint8_t _header[SDR_HEADER_LEN];
 	uint8_t completion_code;
 	uint8_t device_id;
 	union {
@@ -105,13 +107,49 @@ typedef struct _device_id {
 	uint8_t aux_fw_rev_24_31;
 } device_id;
 
-
+ /**
+ * Get Baseboard Management Controller version.
+ *
+ * @param[in] token           fpga_token object for device (FPGA_DEVICE type)
+ * @param[inout] version      pointer to BMC version
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if BMC sysfs not found.
+* FPGA_INVALID_PARAM if invalid parameters were provide
+  *
+  */
 fpga_result read_bmc_version(fpga_token token, int *version);
 
+/**
+* Get BMC power down root cause
+*
+* @param[in] token                    fpga_token object for device (FPGA_DEVICE type)
+* @param[inout] pwr_down_cause        pointer to power down root cause string.
+*                                     user allocates memory and fee input string
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if BMC sysfs not found.
+* FPGA_INVALID_PARAM if invalid parameters were provided
+ *
+ */
 fpga_result read_bmc_pwr_down_cause(fpga_token token, char *pwr_down_cause);
 
+/**
+* Get BMC last reset root cause
+*
+* @param[in] token                    fpga_token object for device (FPGA_DEVICE type)
+* @param[inout] reset_causee          pointer to reset root cause string.
+*                                     user allocates memory and fee input string
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if BMC sysfs not found.
+* FPGA_INVALID_PARAM if invalid parameters were provided
+ *
+ */
 fpga_result read_bmc_reset_cause(fpga_token token, char *reset_causee);
 
+/**
+* Prints BMC version, Power down cause and Reset cause
+*
+* @param[in] token              fpga_token object for device (FPGA_DEVICE type)
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if BMC sysfs not found.
+* FPGA_INVALID_PARAM if invalid parameters were provided
+ *
+ */
 fpga_result print_borad_info(fpga_token token);
 
 #ifdef __cplusplus

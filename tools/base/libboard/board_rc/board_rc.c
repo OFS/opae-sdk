@@ -43,7 +43,7 @@
 
 #define FPGA_STR_SIZE   256
 
-// read bmc version
+// Read bmc version
 fpga_result read_bmc_version(fpga_token token, int *version)
 {
 	fpga_result res               = FPGA_OK;
@@ -70,6 +70,8 @@ fpga_result read_bmc_version(fpga_token token, int *version)
 		resval = res;
 		goto out_close;
 	}
+
+	memset_s(&dev, sizeof(dev), 0);
 
 	res = fpgaObjectRead(bmc_object, (uint8_t*)(&dev), 0, sizeof(dev), 0);
 	if (res != FPGA_OK) {
@@ -102,7 +104,7 @@ out:
 	return resval;
 }
 
-// read power down cause
+// Read power down cause
 fpga_result read_bmc_pwr_down_cause(fpga_token token, char *pwr_down_cause)
 {
 	fpga_result res               = FPGA_OK;
@@ -130,6 +132,7 @@ fpga_result read_bmc_pwr_down_cause(fpga_token token, char *pwr_down_cause)
 		goto out_close;
 	}
 
+	memset_s(&pd, sizeof(pd), 0);
 
 	res = fpgaObjectRead(bmc_object, (uint8_t*)(&pd), 0, sizeof(pd), 0);
 	if (res != FPGA_OK) {
@@ -165,7 +168,7 @@ out:
 }
 
 
-// read reset cause
+// Read reset cause
 fpga_result read_bmc_reset_cause(fpga_token token, char *reset_cause_str)
 {
 	fpga_result res              = FPGA_OK;
@@ -193,6 +196,7 @@ fpga_result read_bmc_reset_cause(fpga_token token, char *reset_cause_str)
 		goto out_close;
 	}
 
+	memset_s(&rc, sizeof(rc), 0);
 
 	res = fpgaObjectRead(bmc_object, (uint8_t*)(&rc), 0, sizeof(rc), 0);
 	if (res != FPGA_OK) {
@@ -202,7 +206,7 @@ fpga_result read_bmc_reset_cause(fpga_token token, char *reset_cause_str)
 	}
 
 	if (rc.completion_code != 0) {
-		printf("Failed to Read Reset cause \n");
+		OPAE_ERR("Failed to Read Reset cause \n");
 		resval = FPGA_EXCEPTION;
 		goto out_destroy;
 	}
@@ -260,7 +264,7 @@ out:
 	return resval;
 }
 
-// print board info
+// Print BMC version, Power down cause and Reset cause
 fpga_result print_borad_info(fpga_token token)
 {
 	fpga_result res                         = FPGA_OK;
@@ -283,6 +287,7 @@ fpga_result print_borad_info(fpga_token token)
 		OPAE_ERR("Failed to read reset cause");
 	}
 
+	// Print BMC info
 	printf("Board Management Controller, microcontroller FW version: %d\n", version);
 	printf("Last Power down cause:%s\n", pwr_down_cause);
 	printf("Last Reset cause: %s\n", reset_cause);
