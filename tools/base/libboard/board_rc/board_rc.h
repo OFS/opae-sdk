@@ -112,42 +112,42 @@ typedef struct _device_id {
  *
  * @param[in] token           fpga_token object for device (FPGA_DEVICE type)
  * @param[inout] version      pointer to BMC version
-* @returns FPGA_OK on success. FPGA_NOT_FOUND if BMC sysfs not found.
-* FPGA_INVALID_PARAM if invalid parameters were provide
-  *
-  */
+ * @returns FPGA_OK on success. FPGA_NOT_FOUND if BMC sysfs not found.
+ * FPGA_INVALID_PARAM if invalid parameters were provide
+ *
+ */
 fpga_result read_bmc_version(fpga_token token, int *version);
 
 /**
-* Get BMC power down root cause
-*
-* @param[in] token                    fpga_token object for device (FPGA_DEVICE type)
-* @param[inout] pwr_down_cause        pointer to power down root cause string.
-*                                     user allocates memory and fee input string
-* @returns FPGA_OK on success. FPGA_NOT_FOUND if BMC sysfs not found.
-* FPGA_INVALID_PARAM if invalid parameters were provided
+ * Get BMC power down root cause
+ *
+ * @param[in] token                    fpga_token object for device (FPGA_DEVICE type)
+ * @param[inout] pwr_down_cause        pointer to power down root cause string.
+ *                                     user allocates memory and fee input string
+ * @returns FPGA_OK on success. FPGA_NOT_FOUND if BMC sysfs not found.
+ * FPGA_INVALID_PARAM if invalid parameters were provided
  *
  */
 fpga_result read_bmc_pwr_down_cause(fpga_token token, char *pwr_down_cause);
 
 /**
-* Get BMC last reset root cause
-*
-* @param[in] token                    fpga_token object for device (FPGA_DEVICE type)
-* @param[inout] reset_causee          pointer to reset root cause string.
-*                                     user allocates memory and fee input string
-* @returns FPGA_OK on success. FPGA_NOT_FOUND if BMC sysfs not found.
-* FPGA_INVALID_PARAM if invalid parameters were provided
+ * Get BMC last reset root cause
+ *
+ * @param[in] token                    fpga_token object for device (FPGA_DEVICE type)
+ * @param[inout] reset_causee          pointer to reset root cause string.
+ *                                     user allocates memory and fee input string
+ * @returns FPGA_OK on success. FPGA_NOT_FOUND if BMC sysfs not found.
+ * FPGA_INVALID_PARAM if invalid parameters were provided
  *
  */
 fpga_result read_bmc_reset_cause(fpga_token token, char *reset_causee);
 
 /**
-* Prints BMC version, Power down cause and Reset cause
-*
-* @param[in] token              fpga_token object for device (FPGA_DEVICE type)
-* @returns FPGA_OK on success. FPGA_NOT_FOUND if BMC sysfs not found.
-* FPGA_INVALID_PARAM if invalid parameters were provided
+ * Prints BMC version, Power down cause and Reset cause
+ *
+ * @param[in] token              fpga_token object for device (FPGA_DEVICE type)
+ * @returns FPGA_OK on success. FPGA_NOT_FOUND if BMC sysfs not found.
+ * FPGA_INVALID_PARAM if invalid parameters were provided
  *
  */
 fpga_result print_borad_info(fpga_token token);
