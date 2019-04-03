@@ -117,6 +117,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
   else()
       set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector-all")
   endif()
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-strict-overflow -fno-delete-null-pointer-checks -fwrapv")
 
   ## C++ options
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat -Wformat-security")
@@ -127,6 +128,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
   else()
       set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fstack-protector-all")
   endif()
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-strict-overflow -fno-delete-null-pointer-checks -fwrapv")
 
   set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pie")
 
