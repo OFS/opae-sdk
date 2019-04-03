@@ -241,6 +241,10 @@ def parse_args():
     parser.add_argument('-n', '--no-verify', default=False,
                         action='store_true', help=no_verify_help)
 
+    yes_help = "answer Yes to all confirmation prompts"
+    parser.add_argument('-y', '--yes', default=False,
+                        action='store_true', help=yes_help)
+
     return parser.parse_args()
 
 
@@ -1167,7 +1171,8 @@ def main():
             print "{} only supported on {}".format(args.type, VC_PVID)
             sys.exit(1)
 
-    if args.type in ['factory', 'factory_only', 'bmc_factory']:
+    if not args.yes and \
+       args.type in ['factory', 'factory_only', 'bmc_factory']:
         msg = "Are you sure you want to perform a factory update? [Yes/No]"
         line = raw_input(msg)
         if line != "Yes":
