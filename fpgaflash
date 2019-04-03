@@ -41,6 +41,7 @@ import re
 import time
 import datetime
 from array import array
+from subprocess import check_output, CalledProcessError
 
 try:
     from intelhex import IntelHex
@@ -72,14 +73,8 @@ DTB_REVERSED_MAGIC_NUM = 0x0bb07fb7
 VC_DC_FACTORY_BLOCK_OFFSET = 0x10000
 VC_DC_FACTORY_BLOCK_SIZE = 0x3800000
 
-<<<<<<< HEAD
 
-=======
->>>>>>> fpgaflash: add factory_only flash type
 BMC_FW_HEAD_SIZE = 256
-
-
-
 
 
 
@@ -1197,6 +1192,9 @@ def validate_bdf(bdf, bdf_pvid_map):
             sys.exit(1)
         if check_file_extension(args.file, args.type) == 1:
             sys.exit(1)
+
+    if args.type != 'eeprom':
+        assert_not_running(["pacd", "fpgad", "fpgainfo"])
 
     if args.type == 'bmc_fw':
         if (bdf_pvid_map[bdf] == DC_PVID) or (bdf_pvid_map[bdf] == VC_PVID):
