@@ -209,3 +209,31 @@ struct wsid_map *wsid_find(struct wsid_tracker *root, uint64_t wsid)
 	return tmp;
 }
 
+/**
+ * @ brief Find entry in linked list
+ *
+ * @param root
+ * @param index
+ *
+ * @return
+ */
+struct wsid_map *wsid_find_by_index(struct wsid_tracker *root, uint32_t index)
+{
+    /*
+     * The hash table isn't set up for finding by index, but this search is
+     * used only for MMIO spaces, which should have a small number of entries.
+     */
+	uint32_t idx;
+	for (idx = 0; idx < root->n_hash_buckets; idx += 1) {
+		struct wsid_map *tmp = root->table[idx];
+
+		while (tmp && tmp->index != index)
+			tmp = tmp->next;
+
+		if (tmp)
+			return tmp;
+	}
+
+	return NULL;
+}
+

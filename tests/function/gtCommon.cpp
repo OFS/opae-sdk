@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,30 +24,30 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGA_WSID_LIST_INT_H__
-#define __FPGA_WSID_LIST_INT_H__
+#include <opae/types_enum.h>
+#include <opae/utils.h>
 
-#include "opae/utils.h"
-#include "types_int.h"
+#include "common_test.h"
+#include "gtest/gtest.h"
 
-/*
- * WSID tracking structure manipulation functions
+using namespace common_test;
+
+/**
+ * @test       common_01
+ *
+ * @brief      Verifies the string returned by fpgaErrStr() for each
+ *             fpga_result enumeration value.
  */
-struct wsid_tracker *wsid_tracker_init(uint32_t n_hash_buckets);
-void wsid_tracker_cleanup(struct wsid_tracker *root, void (*clean)(struct wsid_map *));
-
-bool wsid_add(struct wsid_tracker *root,
-	      uint64_t wsid,
-	      uint64_t addr,
-	      uint64_t phys,
-	      uint64_t len,
-	      uint64_t offset,
-	      uint64_t index,
-	      int      flags);
-bool wsid_del(struct wsid_tracker *root, uint64_t wsid);
-uint64_t wsid_gen(void);
-
-struct wsid_map *wsid_find(struct wsid_tracker *root, uint64_t wsid);
-struct wsid_map *wsid_find_by_index(struct wsid_tracker *root, uint32_t index);
-
-#endif // ___FPGA_COMMON_INT_H__
+TEST(LibopaecErrorCommonALL, common_01) {
+  EXPECT_STREQ("success",                 fpgaErrStr(FPGA_OK));
+  EXPECT_STREQ("invalid parameter",       fpgaErrStr(FPGA_INVALID_PARAM));
+  EXPECT_STREQ("resource busy",           fpgaErrStr(FPGA_BUSY));
+  EXPECT_STREQ("exception",               fpgaErrStr(FPGA_EXCEPTION));
+  EXPECT_STREQ("not found",               fpgaErrStr(FPGA_NOT_FOUND));
+  EXPECT_STREQ("no memory",               fpgaErrStr(FPGA_NO_MEMORY));
+  EXPECT_STREQ("not supported",           fpgaErrStr(FPGA_NOT_SUPPORTED));
+  EXPECT_STREQ("no driver available",     fpgaErrStr(FPGA_NO_DRIVER));
+  EXPECT_STREQ("no fpga daemon running",  fpgaErrStr(FPGA_NO_DAEMON));
+  EXPECT_STREQ("insufficient privileges", fpgaErrStr(FPGA_NO_ACCESS));
+  EXPECT_STREQ("reconfiguration error",   fpgaErrStr(FPGA_RECONF_ERROR));
+}

@@ -24,30 +24,57 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGA_WSID_LIST_INT_H__
-#define __FPGA_WSID_LIST_INT_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include <opae/access.h>
 
-#include "opae/utils.h"
+#ifdef __cplusplus
+}
+#endif
+
+#include "common_test.h"
+#include "gtest/gtest.h"
 #include "types_int.h"
 
-/*
- * WSID tracking structure manipulation functions
+using namespace common_test;
+
+/**
+ * @test       open_01
+ *
+ * @brief      When the fpga_handle * parameter to fpgaOpen is NULL, the
+ *             function returns FPGA_INVALID_PARAM.
  */
-struct wsid_tracker *wsid_tracker_init(uint32_t n_hash_buckets);
-void wsid_tracker_cleanup(struct wsid_tracker *root, void (*clean)(struct wsid_map *));
+TEST(LibopaecOpenCommonALL, open_01) {
+  fpga_token tok = NULL;
 
-bool wsid_add(struct wsid_tracker *root,
-	      uint64_t wsid,
-	      uint64_t addr,
-	      uint64_t phys,
-	      uint64_t len,
-	      uint64_t offset,
-	      uint64_t index,
-	      int      flags);
-bool wsid_del(struct wsid_tracker *root, uint64_t wsid);
-uint64_t wsid_gen(void);
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(tok, NULL, 0));
+}
 
-struct wsid_map *wsid_find(struct wsid_tracker *root, uint64_t wsid);
-struct wsid_map *wsid_find_by_index(struct wsid_tracker *root, uint32_t index);
+/**
+ * @test       open_06
+ *
+ * @brief      When the fpga_token parameter to fpgaOpen is NULL, the
+ *             function returns FPGA_INVALID_PARAM.
+ */
+TEST(LibopaecOpenCommonALL, open_06) {
+  fpga_handle h;
 
-#endif // ___FPGA_COMMON_INT_H__
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(NULL, &h, 0));
+}
+
+/**
+ * @test       open_08
+ *
+ * @brief      When the flags parameter to fpgaOpen is invalid, the
+ *             function returns FPGA_INVALID_PARAM.
+ *
+ */
+TEST(LibopaecOpenCommonALL, open_08) {
+  struct _fpga_token _tok;
+  fpga_token tok = &_tok;
+  fpga_handle h;
+
+  token_for_afu0(&_tok);
+  EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(tok, &h, 42));
+}

@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,30 +24,42 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGA_WSID_LIST_INT_H__
-#define __FPGA_WSID_LIST_INT_H__
+#include <opae/access.h>
+#include <opae/mmio.h>
+#include <opae/properties.h>
+#include <opae/types_enum.h>
+#include <sys/mman.h>
 
-#include "opae/utils.h"
-#include "types_int.h"
+#include "common_sys.h"
+#include "common_utils.h"
+#include "gtest/gtest.h"
+
+
+#define FLAGS 0
+
+using namespace common_utils;
+using namespace std;
+
+class StressLibopaecTPFCommonHW : public BaseFixture, public ::testing::Test {};
 
 /*
- * WSID tracking structure manipulation functions
+ * @test       01
+ *
+ * @brief      Load to be used for the AP6 portion of the maunal RAS
+ *             test.
  */
-struct wsid_tracker *wsid_tracker_init(uint32_t n_hash_buckets);
-void wsid_tracker_cleanup(struct wsid_tracker *root, void (*clean)(struct wsid_map *));
 
-bool wsid_add(struct wsid_tracker *root,
-	      uint64_t wsid,
-	      uint64_t addr,
-	      uint64_t phys,
-	      uint64_t len,
-	      uint64_t offset,
-	      uint64_t index,
-	      int      flags);
-bool wsid_del(struct wsid_tracker *root, uint64_t wsid);
-uint64_t wsid_gen(void);
+TEST_F(StressLibopaecTPFCommonHW, 01) {
+    auto functor = [=]() -> void {
 
-struct wsid_map *wsid_find(struct wsid_tracker *root, uint64_t wsid);
-struct wsid_map *wsid_find_by_index(struct wsid_tracker *root, uint32_t index);
+      sayHello(tokens[index]);
 
-#endif // ___FPGA_COMMON_INT_H__
+    };
+
+  while (true) {
+    // pass test code to enumerator
+    TestAllFPGA(FPGA_ACCELERATOR,  // object type
+                false,             // reconfig default NLB0
+                functor);          // test code
+  }
+}

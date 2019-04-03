@@ -24,30 +24,34 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGA_WSID_LIST_INT_H__
-#define __FPGA_WSID_LIST_INT_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include "opae/fpga.h"
 
-#include "opae/utils.h"
+#ifdef __cplusplus
+}
+#endif
+
+#include "gtest/gtest.h"
 #include "types_int.h"
+#include "accelerator.h"
+using namespace intel::fpga;
 
-/*
- * WSID tracking structure manipulation functions
+/**
+ * @test       fx_open_01
+ *
+ * @brief      Given an environment with at least one accelerator<br>
+ *             And accelerator::enumerate returns at least one
+ *             accelerator<br> When I call accelerator::open with one
+ *             accelerator<br> Then the result is true<br>
+ *
  */
-struct wsid_tracker *wsid_tracker_init(uint32_t n_hash_buckets);
-void wsid_tracker_cleanup(struct wsid_tracker *root, void (*clean)(struct wsid_map *));
-
-bool wsid_add(struct wsid_tracker *root,
-	      uint64_t wsid,
-	      uint64_t addr,
-	      uint64_t phys,
-	      uint64_t len,
-	      uint64_t offset,
-	      uint64_t index,
-	      int      flags);
-bool wsid_del(struct wsid_tracker *root, uint64_t wsid);
-uint64_t wsid_gen(void);
-
-struct wsid_map *wsid_find(struct wsid_tracker *root, uint64_t wsid);
-struct wsid_map *wsid_find_by_index(struct wsid_tracker *root, uint32_t index);
-
-#endif // ___FPGA_COMMON_INT_H__
+TEST(LibopaecCppOpenCommonMOCKHW, fx_open_01)
+{
+    auto accelerator_list = accelerator::enumerate({});
+    ASSERT_GT(accelerator_list.size() , 0);
+    EXPECT_TRUE(accelerator_list[0]->open(false));
+    accelerator_list[0]->close();
+    ASSERT_NO_THROW(accelerator_list.clear());
+}

@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,30 +24,60 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGA_WSID_LIST_INT_H__
-#define __FPGA_WSID_LIST_INT_H__
+#ifdef __cplusplus
 
-#include "opae/utils.h"
+extern "C" {
+#endif
+#include <opae/enum.h>
+#include <opae/properties.h>
+#undef  _GNU_SOURCE
+#include "usrclk/user_clk_pgm_uclock.h"
+
+#ifdef __cplusplus
+}
+#endif
+
+#include "common_test.h"
+#include "gtest/gtest.h"
 #include "types_int.h"
 
-/*
- * WSID tracking structure manipulation functions
- */
-struct wsid_tracker *wsid_tracker_init(uint32_t n_hash_buckets);
-void wsid_tracker_cleanup(struct wsid_tracker *root, void (*clean)(struct wsid_map *));
+#define DECLARE_GUID(var, ...) uint8_t var[16] = {__VA_ARGS__};
 
-bool wsid_add(struct wsid_tracker *root,
-	      uint64_t wsid,
-	      uint64_t addr,
-	      uint64_t phys,
-	      uint64_t len,
-	      uint64_t offset,
-	      uint64_t index,
-	      int      flags);
-bool wsid_del(struct wsid_tracker *root, uint64_t wsid);
-uint64_t wsid_gen(void);
+using namespace common_test;
 
-struct wsid_map *wsid_find(struct wsid_tracker *root, uint64_t wsid);
-struct wsid_map *wsid_find_by_index(struct wsid_tracker *root, uint32_t index);
+/**
+* @test    afu_usrclk_01
+* @brief   Tests: fpac_GetErrMsg and fv_BugLog
+* @details fpac_GetErrMsg returns error string
+*          fv_BugLog sets bug log
+*/
+TEST(LibopaecUsrclkCommonMOCKHW, afu_usrclk_01) {
 
-#endif // ___FPGA_COMMON_INT_H__
+	//Get error string
+	const char * pmsg = fpac_GetErrMsg(1);
+	EXPECT_EQ(NULL, !pmsg);
+
+	//Get error string
+	pmsg = fpac_GetErrMsg(5);
+	EXPECT_EQ(NULL, !pmsg);
+	
+	//Get error string
+	pmsg = fpac_GetErrMsg(16);
+	EXPECT_EQ(NULL, !pmsg);
+
+	//Get error string for invlaid index
+	pmsg = NULL;
+	pmsg = fpac_GetErrMsg(17);
+	EXPECT_STREQ("ERROR: MSG INDEX OUT OF RANGE", pmsg);
+
+	//Get error string for invlaid index
+	pmsg = NULL;
+	pmsg = fpac_GetErrMsg(-1);
+	EXPECT_STREQ("ERROR: MSG INDEX OUT OF RANGE", pmsg);
+
+
+	fv_BugLog(1);
+
+	fv_BugLog(2);
+
+}

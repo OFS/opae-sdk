@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,31 +23,45 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#include "gtest/gtest.h"
 
-#ifndef __FPGA_WSID_LIST_INT_H__
-#define __FPGA_WSID_LIST_INT_H__
+#include "opae/cxx/core/errors.h"
+#include "opae/cxx/core/handle.h"
+#include "opae/cxx/core/token.h"
 
-#include "opae/utils.h"
-#include "types_int.h"
 
-/*
- * WSID tracking structure manipulation functions
+using namespace opae::fpga::types;
+
+class LibopaecppErrorsCommonALL_f1 : public ::testing::Test {
+ protected:
+  LibopaecppErrorsCommonALL_f1() {}
+
+  virtual void SetUp() override {
+    tokens_ = token::enumerate({properties::get(FPGA_ACCELERATOR)});
+    ASSERT_GT(tokens_.size(), 0);
+  }
+
+  virtual void TearDown() override {
+    ASSERT_NO_THROW(tokens_.clear());
+  }
+
+  std::vector<token::ptr_t> tokens_;
+};
+
+/**
+ * @test get_errors
+ * Given an OPAE resource token<br>
+ * When I call error::get() with that token<br>
+ * Then I get a non-null
+ * And I am able to read information about the error
  */
-struct wsid_tracker *wsid_tracker_init(uint32_t n_hash_buckets);
-void wsid_tracker_cleanup(struct wsid_tracker *root, void (*clean)(struct wsid_map *));
+TEST_F(LibopaecppErrorsCommonALL_f1, get_errors) {
+  for (auto t : tokens_) {
+    auto props = properties::get(t);
+    for (int i = 0; i < static_cast<uint32_t>(props->num_errors); ++i) {
+      auto err = error::get(t, i);
+      std::cout << "Error [" << err->name() << "]: " << err->read_value() << "\n";
+    }
+  }
+}
 
-bool wsid_add(struct wsid_tracker *root,
-	      uint64_t wsid,
-	      uint64_t addr,
-	      uint64_t phys,
-	      uint64_t len,
-	      uint64_t offset,
-	      uint64_t index,
-	      int      flags);
-bool wsid_del(struct wsid_tracker *root, uint64_t wsid);
-uint64_t wsid_gen(void);
-
-struct wsid_map *wsid_find(struct wsid_tracker *root, uint64_t wsid);
-struct wsid_map *wsid_find_by_index(struct wsid_tracker *root, uint32_t index);
-
-#endif // ___FPGA_COMMON_INT_H__

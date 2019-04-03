@@ -24,30 +24,56 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGA_WSID_LIST_INT_H__
-#define __FPGA_WSID_LIST_INT_H__
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include "opae/fpga.h"
 
-#include "opae/utils.h"
+#ifdef __cplusplus
+}
+#endif
+
+#include "accelerator.h"
+#include "gtest/gtest.h"
+#include "option_map.h"
 #include "types_int.h"
 
-/*
- * WSID tracking structure manipulation functions
+using namespace intel::fpga;
+using namespace intel::utils;
+
+/**
+ * @test       NoFilters01
+ *
+ * @brief      Given an environment with at least one accelerator<br>
+ *             When I call accelerator::enumerate with no filters<br>
+ *             Then I get at least one accelerator object in the return
+ *             list<br> And no exceptions are thrown
+ *
  */
-struct wsid_tracker *wsid_tracker_init(uint32_t n_hash_buckets);
-void wsid_tracker_cleanup(struct wsid_tracker *root, void (*clean)(struct wsid_map *));
+TEST(LibopaecCppEnumCommonMOCKHW, NoFilters01) {
+  auto accelerator_list = accelerator::enumerate({});
+  EXPECT_TRUE(accelerator_list.size() > 0);
+  ASSERT_NO_THROW(accelerator_list.clear());
+}
 
-bool wsid_add(struct wsid_tracker *root,
-	      uint64_t wsid,
-	      uint64_t addr,
-	      uint64_t phys,
-	      uint64_t len,
-	      uint64_t offset,
-	      uint64_t index,
-	      int      flags);
-bool wsid_del(struct wsid_tracker *root, uint64_t wsid);
-uint64_t wsid_gen(void);
-
-struct wsid_map *wsid_find(struct wsid_tracker *root, uint64_t wsid);
-struct wsid_map *wsid_find_by_index(struct wsid_tracker *root, uint32_t index);
-
-#endif // ___FPGA_COMMON_INT_H__
+/**
+ * @test       BusFilter02
+ *
+ * @brief      Given an environment with at least one accelerator<br>
+ *             When I call accelerator::enumerate with the bus number as
+ *             the filter<br> Then I get at exactly one accelerator
+ *             object in the return list<br> And no exceptions are
+ *             thrown
+ *
+ */
+TEST(LibopaecCppEnumCommonMOCKHW, BusFilter02) {
+  option_map::ptr_t opts(new option_map());
+  // add an option with a default
+  opts->add_option<uint8_t>("bus-number", option::with_argument, "bus number",
+                            0x0);
+  // set the options to a value (make sure tye types match)
+  *(*opts)["bus-number"] = static_cast<uint8_t>(0x5e);
+  auto accelerator_list = accelerator::enumerate({opts});
+  EXPECT_EQ(accelerator_list.size(), 1);
+  ASSERT_NO_THROW(accelerator_list.clear());
+}

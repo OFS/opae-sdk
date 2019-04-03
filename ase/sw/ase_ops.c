@@ -290,7 +290,7 @@ void *ase_malloc(size_t size)
 		start_simkill_countdown();
 		exit(1);	// Klocwork fix
 #else
-		return buffer;
+		exit(1);
 #endif
 	} else {
 		ase_memset(buffer, 0, size);

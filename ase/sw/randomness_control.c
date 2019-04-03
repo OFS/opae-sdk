@@ -40,3 +40,15 @@ uint32_t generate_ase_seed(void)
 
 	return seed;
 }
+
+
+/*
+ * Generate 64-bit random number
+ */
+uint64_t ase_rand64(void)
+{
+	uint64_t random;
+	random = rand();
+	random = (random << 32) | rand();
+	return random;
+}

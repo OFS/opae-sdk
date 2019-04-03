@@ -438,6 +438,7 @@ void ase_buffer_info(struct buffer_t *);
 void ase_buffer_t_to_str(struct buffer_t *, char *);
 void ase_str_to_buffer_t(char *, struct buffer_t *);
 int ase_dump_to_file(struct buffer_t *, char *);
+uint64_t ase_rand64(void);
 void ase_eval_session_directory(void);
 int ase_instance_running(void);
 
@@ -500,6 +501,7 @@ extern "C" {
 	// Shared memory alloc/dealloc operations
 	void allocate_buffer(struct buffer_t *, uint64_t *);
 	void deallocate_buffer(struct buffer_t *);
+	bool deallocate_buffer_by_index(int);
 	void append_buf(struct buffer_t *);
 	void free_buffers(void);
 	// MMIO activity
@@ -513,6 +515,8 @@ extern "C" {
 	void mmio_write64(int, uint64_t);
 	void mmio_read32(int, uint32_t *);
 	void mmio_read64(int, uint64_t *);
+	// GET IOVA
+	struct buffer_t *find_buffer_by_index(uint64_t);
 
 	// UMSG functions
 	// uint64_t *umsg_get_address(int);

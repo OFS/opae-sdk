@@ -95,14 +95,15 @@ struct dev_list {
 	struct dev_list *fme;
 };
 
-STATIC bool matches_filters(const fpga_properties *filter, uint32_t num_filter,
+static bool
+matches_filters(const fpga_properties *filter, uint32_t num_filter,
 		fpga_token *token, uint64_t *j)
 {
 	uint32_t i;
 	if (filter == NULL)
 		return true;
 	struct _fpga_properties *_filter = (struct _fpga_properties *)*filter;
-	struct _fpga_token *_tok = (struct _fpga_token *)*token;
+	struct _fpga_token *_tok = (struct _fpga_token *)token;
 	if (!num_filter)	// no filter == match everything
 		return true;
 
@@ -138,7 +139,6 @@ STATIC bool matches_filters(const fpga_properties *filter, uint32_t num_filter,
 		}
 		if (_filter->objtype != _tok->ase_objtype)
 			return false;
-
 		if (FIELD_VALID(_filter, FPGA_PROPERTY_GUID)) {
 			if (0 != memcmp(_tok->accelerator_id, _filter->guid,
 					sizeof(fpga_guid))) {
@@ -161,10 +161,8 @@ fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 	      uint32_t *num_matches)
 {
 	uint64_t i;
-	fpga_token ase_token[2];
 	aseToken[0].ase_objtype = FPGA_DEVICE;
 	aseToken[1].ase_objtype = FPGA_ACCELERATOR;
-
 	if ((num_filters > 0) && (NULL == (filters))) {
 		return FPGA_INVALID_PARAM;
 	}
@@ -196,13 +194,13 @@ fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
 		ase_memcpy(&aseToken[1].accelerator_id, readback_afuid, sizeof(fpga_guid));
 	}
 
-	for (i = 0; i < 2; i++)
-		ase_token[i] = &aseToken[i];
 	*num_matches = 0;
 	for (i = 0; i < 2; i++) {
-		if (matches_filters(filters, num_filters, &ase_token[i], &i)) {
+		if (matches_filters(filters, num_filters, (void **)&aseToken[i], &i)) {
 			if (*num_matches < max_tokens)	{
-				if (FPGA_OK != fpgaCloneToken(ase_token[i], &tokens[*num_matches]))
+
+
+				if (FPGA_OK != fpgaCloneToken(&aseToken[i], &tokens[*num_matches]))
 					FPGA_MSG("Error cloning token");
 			}
 			++*num_matches;
@@ -316,16 +314,12 @@ fpga_result __FPGA_API__ fpgaClearProperties(fpga_properties prop)
 
 fpga_result __FPGA_API__ fpgaDestroyProperties(fpga_properties *prop)
 {
-	if (NULL == prop) {
+	struct _fpga_properties *_prop = (struct _fpga_properties *)*prop;
+
+	if (NULL == _prop) {
 		FPGA_ERR("Attempting to free NULL pointer");
 		return FPGA_INVALID_PARAM;
 	} else {
-		struct _fpga_properties *_prop = (struct _fpga_properties *)*prop;
-
-		if (NULL == _prop) {
-			FPGA_ERR("Attempting to free NULL pointer");
-			return FPGA_INVALID_PARAM;
-		}
 		_prop->magic = FPGA_INVALID_MAGIC;
 		free(*prop);
 		*prop = NULL;
@@ -602,13 +596,6 @@ fpgaPropertiesSetFunction(fpga_properties prop, uint8_t function)
 	if (NULL == _prop) {
 		return FPGA_INVALID_PARAM;
 	}
-
-	// PCIe supports 8 functions per device.
-	if (function > 7) {
-		FPGA_MSG("Invalid function number");
-		return FPGA_INVALID_PARAM;
-	}
-
 	_prop->function = function;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_FUNCTION);
 	return FPGA_OK;
