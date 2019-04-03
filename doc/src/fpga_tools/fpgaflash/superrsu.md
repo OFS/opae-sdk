@@ -35,7 +35,7 @@ At a high level, the flow of super-rsu should be:
    * The version of the image.
    * An optional "force" indicator
 4. Using the data in the "flash" section, the update routine involves:
-  1. For each spec in the "flash" section:
+  * For each spec in the "flash" section:
     1. Locate the file on the file system to use to flash.
     2. Compare the version listed in the "flash spec" to version reported by
        the target component.
@@ -45,7 +45,7 @@ At a high level, the flow of super-rsu should be:
        * The version in the spec does not match the version reported by the
          system and a revision is included in the spec and the revision matches
 	 the revision reported by the system.
-  2. For each task created from the "flash" section:
+  * For each task created from the "flash" section:
     1. Call fpgaflash with the command line arguments that correspond to the
        flash type and the file name in the spec used to create the task.
        This opens and controls the execution of fpgaflash in another process.
