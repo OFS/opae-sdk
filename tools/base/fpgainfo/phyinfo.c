@@ -293,7 +293,8 @@ static void print_pkvl_info(fpga_properties props)
 		}
 		for (i = 0, j = 0; i < MAX_PORTS; i++) {
 			if (mask&(1<<i)) {
-				printf("Port%-2d%-23s : %s\n", j, mode, result&(1<<i) ? "Up" : "Down");
+				printf("Port%-2d%-23s : %s\n", j, mode,
+					   result&(1<<i) ? "Up" : "Down");
 				j++;
 			}
 		}
