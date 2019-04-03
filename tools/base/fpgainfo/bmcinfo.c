@@ -607,7 +607,7 @@ int get_sysfs_attr(const char *attr_path, char *buf, int size)
 
 	fd = open(attr_path, O_RDONLY);
 	if (fd < 0) {
-		fprintf(stderr, "Open %s failed\n", attr_path);
+		fprintf(stderr, "Open %s failed %d\n", attr_path, fd);
 		return -1;
 	}
 	sz = read(fd, buf, size);
