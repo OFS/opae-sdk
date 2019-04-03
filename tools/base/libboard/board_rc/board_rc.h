@@ -123,7 +123,7 @@ fpga_result read_bmc_version(fpga_token token, int *version);
  *
  * @param[in] token                    fpga_token object for device (FPGA_DEVICE type)
  * @param[inout] pwr_down_cause        pointer to power down root cause string.
- *                                     user allocates memory and fee input string
+ *                                     user allocates memory and free input string
  * @returns FPGA_OK on success. FPGA_NOT_FOUND if BMC sysfs not found.
  * FPGA_INVALID_PARAM if invalid parameters were provided
  *
@@ -135,7 +135,7 @@ fpga_result read_bmc_pwr_down_cause(fpga_token token, char *pwr_down_cause);
  *
  * @param[in] token                    fpga_token object for device (FPGA_DEVICE type)
  * @param[inout] reset_causee          pointer to reset root cause string.
- *                                     user allocates memory and fee input string
+ *                                     user allocates memory and free input string
  * @returns FPGA_OK on success. FPGA_NOT_FOUND if BMC sysfs not found.
  * FPGA_INVALID_PARAM if invalid parameters were provided
  *
