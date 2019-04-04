@@ -41,14 +41,88 @@
 #define SYSFS_RESET_FILE "avmmi-bmc.*.auto/bmc_info/reset_cause"
 #define SYSFS_PWRDN_FILE "avmmi-bmc.*.auto/bmc_info/power_down_cause"
 
-#define FPGA_STR_SIZE   256
+#define FPGA_STR_SIZE     256
+#define SDR_HEADER_LEN    3
+#define SDR_MSG_LEN       4
+
+typedef struct _bmc_powerdown_cause {
+	uint8_t _header[SDR_HEADER_LEN];
+	uint8_t completion_code;
+	uint8_t iana[SDR_HEADER_LEN];
+	uint8_t count;
+	uint8_t message[SDR_MSG_LEN];
+} bmc_powerdown_cause;
+
+typedef struct _bmc_reset_cause {
+	uint8_t _header[SDR_HEADER_LEN];
+	uint8_t completion_code;
+	uint8_t iana[SDR_HEADER_LEN];
+	uint8_t reset_cause;
+} bmc_reset_cause;
+
+
+typedef enum {
+	CHIP_RESET_CAUSE_POR = 0x01,
+	CHIP_RESET_CAUSE_EXTRST = 0x02,
+	CHIP_RESET_CAUSE_BOD_IO = 0x04,
+	CHIP_RESET_CAUSE_WDT = 0x08,
+	CHIP_RESET_CAUSE_OCD = 0x10,
+	CHIP_RESET_CAUSE_SOFT = 0x20,
+	CHIP_RESET_CAUSE_SPIKE = 0x40,
+} bmc_ResetCauses;
+
+typedef struct _bmc_device_id {
+	uint8_t _header[SDR_HEADER_LEN];
+	uint8_t completion_code;
+	uint8_t device_id;
+	union {
+		struct {
+			uint8_t device_revision : 3;
+			uint8_t _unused : 3;
+			uint8_t provides_sdrs : 2;
+		} bits;
+		uint8_t _value;
+	} device_revision;
+	union {
+		struct {
+			uint8_t device_available : 7;
+			uint8_t major_fw_revision : 1;
+		} bits;
+		uint8_t _value;
+	} firmware_revision_1;
+	uint8_t firmware_revision_2;
+	uint8_t ipmi_version;
+	union {
+		struct {
+			uint8_t sensor_device : 1;
+			uint8_t sdr_repository_device : 1;
+			uint8_t sel_device : 1;
+			uint8_t fru_inventory_device : 1;
+			uint8_t ipmb_event_receiver : 1;
+			uint8_t ipmb_event_generator : 1;
+			uint8_t bridge : 1;
+			uint8_t chassis_device : 1;
+		} bits;
+		uint8_t _value;
+	} additional_device_support;
+	uint8_t manufacturer_id_0_7;
+	uint8_t manufacturer_id_8_15;
+	uint8_t manufacturer_id_16_23;
+	uint8_t product_id_0_7;
+	uint8_t product_id_8_15;
+	uint8_t aux_fw_rev_0_7;
+	uint8_t aux_fw_rev_8_15;
+	uint8_t aux_fw_rev_16_23;
+	uint8_t aux_fw_rev_24_31;
+} bmc_device_id;
+
 
 // Read bmc version
 fpga_result read_bmc_version(fpga_token token, int *version)
 {
 	fpga_result res               = FPGA_OK;
 	fpga_result resval            = FPGA_OK;
-	device_id dev;
+	bmc_device_id bmc_dev;
 	fpga_object bmc_object;
 	fpga_handle handle;
 
@@ -71,33 +145,31 @@ fpga_result read_bmc_version(fpga_token token, int *version)
 		goto out_close;
 	}
 
-	memset_s(&dev, sizeof(dev), 0);
+	memset_s(&bmc_dev, sizeof(bmc_dev), 0);
 
-	res = fpgaObjectRead(bmc_object, (uint8_t*)(&dev), 0, sizeof(dev), 0);
+	res = fpgaObjectRead(bmc_object, (uint8_t*)(&bmc_dev), 0, sizeof(bmc_dev), 0);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to Read object ");
 		resval = res;
 		goto out_destroy;
 	}
 
-	*version = dev.aux_fw_rev_0_7
-		| (dev.aux_fw_rev_8_15 << 8)
-		| (dev.aux_fw_rev_16_23 << 16)
-		| (dev.aux_fw_rev_24_31 << 24);
+	*version = bmc_dev.aux_fw_rev_0_7
+		| (bmc_dev.aux_fw_rev_8_15 << 8)
+		| (bmc_dev.aux_fw_rev_16_23 << 16)
+		| (bmc_dev.aux_fw_rev_24_31 << 24);
 
 
 out_destroy:
 	res = fpgaDestroyObject(&bmc_object);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to Destroy Object");
-		resval = res;
 	}
 
 out_close:
 	res = fpgaClose(handle);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to close handle");
-		resval = res;
 	}
 
 out:
@@ -111,7 +183,7 @@ fpga_result read_bmc_pwr_down_cause(fpga_token token, char *pwr_down_cause)
 	fpga_result resval            = FPGA_OK;
 	fpga_object bmc_object;
 	fpga_handle  handle;
-	powerdown_cause pd;
+	bmc_powerdown_cause bmc_pd;
 
 	if (pwr_down_cause == NULL) {
 		OPAE_ERR("Invalid input parameter");
@@ -132,19 +204,19 @@ fpga_result read_bmc_pwr_down_cause(fpga_token token, char *pwr_down_cause)
 		goto out_close;
 	}
 
-	memset_s(&pd, sizeof(pd), 0);
+	memset_s(&bmc_pd, sizeof(bmc_pd), 0);
 
-	res = fpgaObjectRead(bmc_object, (uint8_t*)(&pd), 0, sizeof(pd), 0);
+	res = fpgaObjectRead(bmc_object, (uint8_t*)(&bmc_pd), 0, sizeof(bmc_pd), 0);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to Read object ");
 		resval = res;
 		goto out_destroy;
 	}
 
-	if (pd.completion_code == 0) {
-		snprintf_s_s(pwr_down_cause, pd.count, "%s", (char*)pd.message);
+	if (bmc_pd.completion_code == 0) {
+		snprintf_s_s(pwr_down_cause, bmc_pd.count, "%s", (char*)bmc_pd.message);
 	} else {
-		OPAE_ERR("unavailable read power down cause: %d ", pd.completion_code);
+		OPAE_ERR("unavailable read power down cause: %d ", bmc_pd.completion_code);
 		resval = FPGA_EXCEPTION;
 	}
 
@@ -175,7 +247,7 @@ fpga_result read_bmc_reset_cause(fpga_token token, char *reset_cause_str)
 	fpga_result resval           = FPGA_OK;
 	fpga_object bmc_object;
 	fpga_handle  handle;
-	reset_cause rc;
+	bmc_reset_cause bmc_rc;
 
 	if (reset_cause_str == NULL) {
 		OPAE_ERR("Invalid input parameter");
@@ -196,52 +268,52 @@ fpga_result read_bmc_reset_cause(fpga_token token, char *reset_cause_str)
 		goto out_close;
 	}
 
-	memset_s(&rc, sizeof(rc), 0);
+	memset_s(&bmc_rc, sizeof(bmc_rc), 0);
 
-	res = fpgaObjectRead(bmc_object, (uint8_t*)(&rc), 0, sizeof(rc), 0);
+	res = fpgaObjectRead(bmc_object, (uint8_t*)(&bmc_rc), 0, sizeof(bmc_rc), 0);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		resval = res;
 		goto out_destroy;
 	}
 
-	if (rc.completion_code != 0) {
+	if (bmc_rc.completion_code != 0) {
 		OPAE_ERR("Failed to Read Reset cause \n");
 		resval = FPGA_EXCEPTION;
 		goto out_destroy;
 	}
 
-	if (0 == rc.reset_cause) {
+	if (0 == bmc_rc.reset_cause) {
 		snprintf_s_s(reset_cause_str, 256, "%s", "None");
 		goto out_destroy;
 	}
 
 
-	if (rc.reset_cause & CHIP_RESET_CAUSE_EXTRST) {
+	if (bmc_rc.reset_cause & CHIP_RESET_CAUSE_EXTRST) {
 		snprintf_s_s(reset_cause_str, 256, "%s", "External reset");
 	}
 
-	if (rc.reset_cause & CHIP_RESET_CAUSE_BOD_IO) {
+	if (bmc_rc.reset_cause & CHIP_RESET_CAUSE_BOD_IO) {
 		snprintf_s_s(reset_cause_str, 256, "%s", "Brown-out detected");
 	}
 
-	if (rc.reset_cause & CHIP_RESET_CAUSE_OCD) {
+	if (bmc_rc.reset_cause & CHIP_RESET_CAUSE_OCD) {
 		snprintf_s_s(reset_cause_str, 256, "%s", "On-chip debug system");
 	}
 
-	if (rc.reset_cause & CHIP_RESET_CAUSE_POR) {
+	if (bmc_rc.reset_cause & CHIP_RESET_CAUSE_POR) {
 		snprintf_s_s(reset_cause_str, 256, "%s", "Power-on-reset");
 	}
 
-	if (rc.reset_cause & CHIP_RESET_CAUSE_SOFT) {
+	if (bmc_rc.reset_cause & CHIP_RESET_CAUSE_SOFT) {
 		snprintf_s_s(reset_cause_str, 256, "%s", "Software reset");
 	}
 
-	if (rc.reset_cause & CHIP_RESET_CAUSE_SPIKE) {
+	if (bmc_rc.reset_cause & CHIP_RESET_CAUSE_SPIKE) {
 		snprintf_s_s(reset_cause_str, 256, "%s", "Spike detected");
 	}
 
-	if (rc.reset_cause & CHIP_RESET_CAUSE_WDT) {
+	if (bmc_rc.reset_cause & CHIP_RESET_CAUSE_WDT) {
 		snprintf_s_s(reset_cause_str, 256, "%s", "Watchdog timeout");
 	}
 
@@ -250,14 +322,12 @@ out_destroy:
 	res = fpgaDestroyObject(&bmc_object);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to Destroy Object");
-		resval = res;
 	}
 
 out_close:
 	res = fpgaClose(handle);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to close handle");
-		resval = res;
 	}
 
 out:
@@ -265,7 +335,7 @@ out:
 }
 
 // Print BMC version, Power down cause and Reset cause
-fpga_result print_borad_info(fpga_token token)
+fpga_result print_board_info(fpga_token token)
 {
 	fpga_result res                         = FPGA_OK;
 	int version                             = 0;

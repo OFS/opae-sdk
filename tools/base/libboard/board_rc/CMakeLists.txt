@@ -30,7 +30,7 @@ set(SRC
     board_rc.c
     )
 
-add_library(board_rc SHARED ${SRC})
+add_library(board_rc MODULE ${SRC})
 
 target_include_directories(board_rc PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
