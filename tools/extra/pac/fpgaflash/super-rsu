@@ -547,11 +547,83 @@ class spi_version(Union):
         return rev
 
 
+# flashable classes
+# classes here represent parts on the FPGA that can be flashed
+class flashable(object):
+    def __init__(self, fpga, is_factory=False):
+        self._fpga = fpga
+        self._is_factory = is_factory
+
+    def needs_flash(self, flash_info):
+        return self.version != flash_info['version']
+
+    def is_supported(self, flash_info):
+        return True
+
+    def command(self, flash_type, filename, pci_address):
+        cmd = 'fpgaflash {} {} {}'.format(flash_type, filename, pci_address)
+        if self.is_factory:
+            cmd += ' -y'
+        return cmd
+
+    @property
+    def version(self):
+        raise NotImplementedError
+
+    @property
+    def is_factory(self):
+        return self._is_factory
+
+
+class bmc_flashable(flashable):
+    _version_path = None
+
+    @property
+    def version(self):
+        value = self._fpga.spi_bus.read_node(self._version_path)
+        return spi_version(int(value, 16))
+
+    def is_supported(self, flash_info):
+        current_rev = self.version.revision.lower()
+        flash_rev = flash_info.get('revision', '').lower()
+        if current_rev == '' or flash_rev == '':
+            return True
+        LOG.debug('current_rev: "%s", flash_rev: "%s"', current_rev, flash_rev)
+        return bool(current_rev in flash_rev)
+
+
+class bmc_fw(bmc_flashable):
+    _version_path = 'bmcfw_flash_ctrl/bmcfw_version'
+
+
+class bmc_img(bmc_flashable):
+    _version_path = 'max10_version'
+
+
+class a10(flashable):
+    @property
+    def version(self):
+        int_value = int(self._fpga.fme.read_node('bitstream_id'), 16)
+        return '{:016x}'.format(int_value)
+
+
+class pkvl(flashable):
+    @property
+    def version(self):
+        pkvl_a = self._fpga.spi_bus.read_node('pkvl', 'pkvl_a_version')
+        pkvl_b = self._fpga.spi_bus.rebd_node('pkvl', 'pkvl_b_version')
+        return (pkvl_a, pkvl_b)
+
+    def needs_flash(self, flash_info):
+        a_ver, b_ver = self.version
+        if a_ver != b_ver:
+            return True
+        return a_ver != flash_info['version']
+
+
 # pac classes
 class pac(object):
     boot_page = 0
-    supported_user = ('user', 'bmc_fw', 'bmc_img')
-    supported_factory = ()
 
     def __init__(self, pci_node, fpga, **kwargs):
         self._pci_node = pci_node
@@ -562,6 +634,23 @@ class pac(object):
         self._common_tree = None
         self._update_thread = None
         self._terminate = False
+        self._flashables = {}
+        self.add_flashables(user=a10(fpga),
+                            factory=a10(fpga, True),
+                            factory_only=a10(fpga, True),
+                            bmc_fw=bmc_fw(fpga),
+                            bmc_factory=bmc_img(fpga, True),
+                            bmc_img=bmc_img(fpga))
+
+    def add_flashables(self, **kwargs):
+        for k, v in kwargs.iteritems():
+            if isinstance(v, flashable):
+                self._flashables[k] = v
+            else:
+                LOG.warning('%s is not a flashable', type(v))
+
+    def get_flashable(self, flash_type):
+        return self._flashables.get(flash_type)
 
     @property
     def pci_node(self):
@@ -609,43 +698,14 @@ class pac(object):
                 nodes.append(node)
         return nodes
 
-    def _version_check(self, flash_info):
-        # return if versions match and if rev is compatible
-        flash_type = flash_info['type']
-        version = flash_info['version']
-        rev = flash_info.get('revision')
-        try:
-            current_version = getattr(self, '{}_version'.format(flash_type))
-        except AttributeError:
-            LOG.error('invalid type in rsu config: %s', flash_type)
-            return None, None
-
-        LOG.debug('%s current_version is "%s" - update version is "%s"',
-                  flash_type, current_version, version)
-
-        current_rev = getattr(current_version, 'revision', None)
-        # if either the current rev (as reported by the system) is None
-        # or if no rev is in the manifest, the rev is supported
-        if rev is None or current_rev is None:
-            rev_supported = True
-        else:
-            # otherwise, the rev is supported in the current rev is a subset
-            # of the rev in the manifest ( 'a' in 'ab' )
-            rev_supported = bool(rev) and current_rev.lower() in rev.lower()
-
-        return (current_version == version, rev_supported)
-
     def flash_task(self, flash_dir, flash_info, args):
+        if not flash_info.get('enabled', True):
+            return None
+
         flash_type = flash_info['type']
-        version = flash_info['version']
-        rev = flash_info.get('revision')
+        flash_rev = flash_info.get('revision', '')
         filename = flash_info['filename']
         force = flash_info.get('force', args.force_flash)
-        is_user = flash_type in self.supported_user
-        is_factory = flash_type in self.supported_factory
-        if not is_user and not is_factory:
-            LOG.warning('%s is invalid or not supported', flash_type)
-            return None
 
         if os.path.exists(os.path.join(flash_dir, filename)):
             filename = os.path.join(flash_dir, filename)
@@ -654,24 +714,24 @@ class pac(object):
             LOG.error('filename %s does not exist', filename)
             return None
 
-        cmd = 'fpgaflash {} {} {}'.format(flash_type,
-                                          filename,
-                                          self.pci_node.pci_address)
-
-        task = process_task(cmd, stderr=subprocess.PIPE)
-        (versions_match, rev_supported) = self._version_check(flash_info)
-        if versions_match is None or rev_supported is None:
-            LOG.warning('could not determin version for %s', flash_type)
+        to_flash = self.get_flashable(flash_type)
+        if to_flash is None:
+            LOG.info('flash type %s is not recognized or supported',
+                     flash_type)
             return None
 
-        if force or (is_factory or (is_user and not versions_match)):
-            if not rev_supported:
-                LOG.warning('rev %s is not supported by plaform', rev)
-            else:
-                return task
-        LOG.info('nothing to do for %s - %s',
-                 (flash_type, version, rev),
-                 'rev not supported' if not rev_supported else 'up to date')
+        if not to_flash.is_supported(flash_info):
+            LOG.info('%s is not supported by current component',
+                     (flash_type, flash_rev))
+            return None
+
+        if to_flash.is_factory or force or to_flash.needs_flash(flash_info):
+            if force:
+                LOG.debug('%s is being force flashed', flash_type)
+            cmd = to_flash.command(flash_type, filename,
+                                   self.pci_node.pci_address)
+
+            return process_task(cmd, stderr=subprocess.PIPE)
 
     def _update(self, tasks):
         LOG.debug('update of board at %s started', self.pci_node)
@@ -702,6 +762,7 @@ class pac(object):
             task = self.flash_task(flash_dir, flash_info, args)
             if task is not None:
                 tasks.append((task, flash_info['filename']))
+
         if tasks:
             t = update_thread(self, self._update, tasks)
             t.start()
@@ -716,35 +777,13 @@ class pac(object):
     def terminate_update(self):
         self._terminate = True
 
-    @property
-    def user_version(self):
-        value = int(self.fpga.fme.read_node('bitstream_id'), 16)
-        return fme_version(value)
-
-    @property
-    def bmc_img_version(self):
-        value = int(self.fpga.spi_bus.read_node('max10_version'), 16)
-        return spi_version(value)
-
-    @property
-    def bmc_fw_version(self):
-        value = int(self.fpga.spi_bus.read_node('bmcfw_flash_ctrl',
-                                                'bmcfw_version'), 16)
-        return spi_version(value)
-
-    @property
-    def factory_version(self):
-        return self.user_version
-
-    @property
-    def bmc_factory_version(self):
-        return self.bmc_img_version
-
 
 class vc(pac):
     boot_page = 0
-    supported_user = ('user', 'bmc_fw', 'bmc_img')
-    supported_factory = ('factory', 'bmc_factory')
+
+    def __init__(self, pci_node, fpga, **kwargs):
+        super(vc, self).__init__(pci_node, fpga, **kwargs)
+        self.add_flashables(phy_eeprom=pkvl(fpga))
 
     @property
     def user_version(self):
