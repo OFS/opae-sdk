@@ -635,6 +635,7 @@ class pac(object):
         self._update_thread = None
         self._terminate = False
         self._flashables = {}
+        self._errors = 0
         self.add_flashables(user=a10(fpga),
                             factory=a10(fpga, True),
                             factory_only=a10(fpga, True),
@@ -651,6 +652,10 @@ class pac(object):
 
     def get_flashable(self, flash_type):
         return self._flashables.get(flash_type)
+
+    @property
+    def errors(self):
+        return self._errors
 
     @property
     def pci_node(self):
@@ -749,6 +754,8 @@ class pac(object):
                 time.sleep(0.1)
             if p.returncode:
                 LOG.warning('%s exited with code: %s', task.cmd, p.returncode)
+                self._errors += 1
+
             LOG.debug('task completed in %f seconds',
                       time.time() - task.start_time)
 
@@ -1002,6 +1009,10 @@ def main():
     logging.basicConfig(format=logfmt,
                         level=getattr(logging, args.loglevel.upper(), level))
 
+    if not DRY_RUN and os.getuid():
+        LOG.error('must run as root')
+        sys.exit(os.EX_NOPERM)
+
     rsu_config = json.load(args.rsu_config)
     if not rsu_config:
         logging.error('invalid rsu config: %s', args.rsu_config.name)
@@ -1022,8 +1033,12 @@ def main():
     if not args.skip_rsu:
         do_rsu(to_rsu, args, rsu_config)
 
-    exit_code = os.EX_IOERR if interrupted else run_tests(boards, args)
-    sys.exit(exit_code)
+    if any([b.errors for b in to_rsu]):
+        sys.exit(os.EX_SOFTWARE)
+    elif interrupted:
+        sys.exit(os.EX_IOERR)
+    else:
+        sys.exit(run_tests(to_rsu, args))
 
 
 if __name__ == '__main__':
