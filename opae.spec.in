@@ -144,11 +144,9 @@ ldconfig
 %files tools-extra
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/afu_json_mgr
-@CMAKE_INSTALL_PREFIX@/bin/bist
 @CMAKE_INSTALL_PREFIX@/bin/bist_app
 @CMAKE_INSTALL_PREFIX@/bin/bist_app.py
 @CMAKE_INSTALL_PREFIX@/bin/bist_common.py
-@CMAKE_INSTALL_PREFIX@/bin/bist_def.py
 @CMAKE_INSTALL_PREFIX@/bin/bist_dma.py
 @CMAKE_INSTALL_PREFIX@/bin/bist_nlb3.py
 @CMAKE_INSTALL_PREFIX@/bin/coreidle
