@@ -35,8 +35,6 @@
 #include <iomanip>
 #include <sstream>
 
-#define VC_25G_BBS_ID 0x2000000200000000
-#define VC_10G_BBS_ID 0x2019011800000001
 #define DCP_FPGA_BBS_VER_MAJOR(i) (((i) >> 60) & 0xf)
 #define DCP_FPGA_BBS_VER_MINOR(i) (((i) >> 56) & 0xf)
 #define DCP_FPGA_BBS_VER_PATCH(i) (((i) >> 52) & 0xf)
@@ -113,7 +111,7 @@ const char *vc_mdata =
    "afu-image":
     {"clock-frequency-high": 312,
      "clock-frequency-low": 156,
-     "interface-uuid": "eeeeeeee-eeee-eeee-2222-222222222222",
+     "interface-uuid": "cf9b1c50-37c9-45e9-8030-f921b17d2b3a",
      "magic-no": 488605312,
      "accelerator-clusters":
       [
@@ -179,7 +177,7 @@ static platform_db MOCK_PLATFORMS = {
     {"dcp-vc",
      test_platform{.mock_sysfs = "mock_sys_tmp-dcp-vc.tar.gz",
                    .devices = {test_device{
-                       .fme_guid = "EEEEEEEE-EEEE-EEEE-2222-222222222222",
+                       .fme_guid = "CF9B1C50-37C9-45E9-8030-F921B17D2B3A",
                        .afu_guid = "9AEFFE5F-8457-0612-C000-C9660D824272",
                        .segment = 0x0,
                        .bus = 0x05,
@@ -187,8 +185,8 @@ static platform_db MOCK_PLATFORMS = {
                        .function = 0,
                        .socket_id = 0,
                        .num_slots = 1,
-                       .bbs_id = 0x2019011800000001,
-                       .bbs_version = {2, 0, 1},
+                       .bbs_id = 0x222000200567bd1,
+                       .bbs_version = {0, 2, 2},
                        .state = FPGA_ACCELERATOR_UNASSIGNED,
                        .num_mmio = 0x2,
                        .num_interrupts = 0,
@@ -464,16 +462,13 @@ test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &pla
     std::string device_string = make_path(dev.segment, dev.bus, dev.device, dev.function);
     dev.socket_id = read_socket_id(device_string);
 
-    // If the device is vista creek, accept both 25g and 10g bbs id.
+    // If the device is vista creek, read in the bbs_id.
     if (dev_id == MOCK_PLATFORMS["dcp-vc"].devices[0].device_id) {
       uint64_t bitstream_id = read_bitstream_id(pci_path);
-      // Expect 25g or 10g bitstream ids only.
-      if (bitstream_id == VC_25G_BBS_ID || bitstream_id == VC_10G_BBS_ID) {
-        dev.bbs_id = bitstream_id;
-        dev.bbs_version = {(uint8_t)DCP_FPGA_BBS_VER_MAJOR(bitstream_id),
-                           (uint8_t)DCP_FPGA_BBS_VER_MINOR(bitstream_id),
-                           (uint16_t)DCP_FPGA_BBS_VER_PATCH(bitstream_id)};
-      }
+      dev.bbs_id = bitstream_id;
+      dev.bbs_version = {(uint8_t)DCP_FPGA_BBS_VER_MAJOR(bitstream_id),
+                         (uint8_t)DCP_FPGA_BBS_VER_MINOR(bitstream_id),
+                         (uint16_t)DCP_FPGA_BBS_VER_PATCH(bitstream_id)};
     }
   } else {
     std::cerr << "error matching pci dev pattern (" << pci_path << ")\n";

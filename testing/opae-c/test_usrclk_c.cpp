@@ -130,5 +130,5 @@ TEST_P(usrclk_c_hw_p, set) {
 }
 
 INSTANTIATE_TEST_CASE_P(usrclk_c, usrclk_c_hw_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms({})));
+                        ::testing::ValuesIn(test_platform::hw_platforms({"skx-p", "dcp-rc"})));
 

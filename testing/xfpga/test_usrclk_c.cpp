@@ -336,4 +336,4 @@ uint64_t high = 312;
 }
 
 INSTANTIATE_TEST_CASE_P(usrclk, usrclk_hw_c,
-                        ::testing::ValuesIn(test_platform::hw_platforms()));
+                        ::testing::ValuesIn(test_platform::hw_platforms({"skx-p", "dcp-rc"})));
