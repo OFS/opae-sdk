@@ -60,9 +60,8 @@ import json
 from sets import Set
 import shutil
 
-if sys.version[0] == '2':
-    reload(sys)
-    sys.setdefaultencoding('utf8')
+#reload(sys)
+#sys.setdefaultencoding('utf8')
 
 # Supported file extensions
 # USERs may modify this if needed
