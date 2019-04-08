@@ -193,11 +193,7 @@ mark_as_advanced(ENABLE_MOCK)
 if(BUILD_TESTS OR BUILD_ASE_TESTS)
   enable_testing()
   include(CTest)
-  if (BUILD_ASE_TESTS)
-    add_subdirectory(tests)
-  else(BUILD_ASE_TESTS)
-    add_subdirectory(testing)
-  endif(BUILD_ASE_TESTS)
+  add_subdirectory(testing)
 endif()
 
 ############################################################################
