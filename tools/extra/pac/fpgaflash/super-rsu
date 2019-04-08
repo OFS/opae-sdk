@@ -885,16 +885,23 @@ def do_rsu(boards, args, config):
     :param config:
     """
 
-    targets = [b.common_root for b in boards]
-    # targets are the first common ancestor of the device and
-    # any additional devices specified
+    # roots are the root ports of the boards
+    roots = []
+    # targets are the devices to remove
+    targets = []
 
-    parents = [t.parent for t in targets]
-    # parents are the parent nodes of the targets
+    for b in boards:
+        node = b.pci_node
+        root = node.root
+        while node.parent is not root:
+            node = node.parent
+        targets.append(node)
+        roots.append(root)
 
-    # disable AER on parent devices
-    with aer_disabled(*parents):
-        for (t, p, b) in zip(targets, parents, boards):
+
+    # disable AER on root devices
+    with aer_disabled(*roots):
+        for (t, r, b) in zip(targets, roots, boards):
             try:
                 b.rsu()
             except (NameError, AttributeError) as err:
@@ -907,7 +914,7 @@ def do_rsu(boards, args, config):
                 t.remove()
                 logging.info('waiting for FPGA reconfiguration')
                 time.sleep(10)
-                p.rescan_bus('{}:{}'.format(t.segment, t.bus))
+                r.rescan_bus('{}:{}'.format(t.segment, t.bus))
                 time.sleep(1)
 
 
