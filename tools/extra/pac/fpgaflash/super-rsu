@@ -604,7 +604,7 @@ class a10(flashable):
     @property
     def version(self):
         int_value = int(self._fpga.fme.read_node('bitstream_id'), 16)
-        return '{:016x}'.format(int_value)
+        return '0x{:016x}'.format(int_value)
 
 
 class pkvl(flashable):
