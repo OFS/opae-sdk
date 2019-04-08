@@ -215,14 +215,14 @@ fpga_result board_rc_c_p::write_sysfs_file(const char *file, void *buf,
   fd = open(pglob.gl_pathv[0], O_WRONLY);
   globfree(&pglob);
   if (fd < 0) {
-    printf("open faild \n");
+    printf("open failed \n");
     return FPGA_NOT_FOUND;
   }
 
   ssize_t total_written = eintr_write(fd, buf, count);
   if (total_written == 0) {
     close(fd);
-    printf("total_written faild \n");
+    printf("total_written failed \n");
     return FPGA_INVALID_PARAM;
   }
 
