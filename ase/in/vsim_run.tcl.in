@@ -1,3 +1,0 @@
-@vsim_coverage_header@
-add wave -r /*
-run -all
