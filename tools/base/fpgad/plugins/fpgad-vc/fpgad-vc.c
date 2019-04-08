@@ -228,9 +228,18 @@ STATIC fpga_result vc_sensor_get_u64(vc_sensor *sensor,
 	return res;
 }
 
+// The percentage by which we adjust the power trip
+// points so that we catch anomolies before the hw does.
+#define VC_PERCENT_ADJUST_PWR 5
+// The number of degrees by which we adjust the
+// temperature trip points so that we catch anomolies
+// before the hw does.
+#define VC_DEGREES_ADJUST_TEMP 5
 STATIC fpga_result vc_sensor_get(vc_sensor *s)
 {
 	fpga_result res;
+	bool is_temperature;
+	int indicator = -1;
 
 	if (s->name) {
 		free(s->name);
@@ -258,28 +267,51 @@ STATIC fpga_result vc_sensor_get(vc_sensor *s)
 	if (res != FPGA_OK)
 		return res;
 
+	strcmp_s(s->type, 11, "Temperature", &indicator);
+	is_temperature = (indicator == 0);
+
 	res = vc_sensor_get_u64(s, "high_fatal", &s->high_fatal);
-	if (res == FPGA_OK)
+	if (res == FPGA_OK) {
 		s->flags |= FPGAD_SENSOR_VC_HIGH_FATAL_VALID;
-	else
+		if (is_temperature)
+			s->high_fatal -= VC_DEGREES_ADJUST_TEMP;
+		else
+			s->high_fatal -=
+				(s->high_fatal * VC_PERCENT_ADJUST_PWR) / 100;
+	} else
 		s->flags &= ~FPGAD_SENSOR_VC_HIGH_FATAL_VALID;
 
 	res = vc_sensor_get_u64(s, "high_warn", &s->high_warn);
-	if (res == FPGA_OK)
+	if (res == FPGA_OK) {
 		s->flags |= FPGAD_SENSOR_VC_HIGH_WARN_VALID;
-	else
+		if (is_temperature)
+			s->high_warn -= VC_DEGREES_ADJUST_TEMP;
+		else
+			s->high_warn -=
+				(s->high_warn * VC_PERCENT_ADJUST_PWR) / 100;
+	} else
 		s->flags &= ~FPGAD_SENSOR_VC_HIGH_WARN_VALID;
 
 	res = vc_sensor_get_u64(s, "low_fatal", &s->low_fatal);
-	if (res == FPGA_OK)
+	if (res == FPGA_OK) {
 		s->flags |= FPGAD_SENSOR_VC_LOW_FATAL_VALID;
-	else
+		if (is_temperature)
+			s->low_fatal += VC_DEGREES_ADJUST_TEMP;
+		else
+			s->low_fatal +=
+				(s->low_fatal * VC_PERCENT_ADJUST_PWR) / 100;
+	} else
 		s->flags &= ~FPGAD_SENSOR_VC_LOW_FATAL_VALID;
 
 	res = vc_sensor_get_u64(s, "low_warn", &s->low_warn);
-	if (res == FPGA_OK)
+	if (res == FPGA_OK) {
 		s->flags |= FPGAD_SENSOR_VC_LOW_WARN_VALID;
-	else
+		if (is_temperature)
+			s->low_warn += VC_DEGREES_ADJUST_TEMP;
+		else
+			s->low_warn +=
+				(s->low_warn * VC_PERCENT_ADJUST_PWR) / 100;
+	} else
 		s->flags &= ~FPGAD_SENSOR_VC_LOW_WARN_VALID;
 
 	return FPGA_OK;
