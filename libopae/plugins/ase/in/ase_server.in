@@ -1,0 +1,6 @@
+#!/bin/bash -e
+
+pushd @ASE_WORKDIR@
+trap "popd" EXIT
+
+@QUESTA_VSIM_EXECUTABLE@ @vsim_flags@ +CONFIG=@ASE_CONFIG@ +SCRIPT=@ASE_REGRESS_SCRIPT@ @ASE_TOP_ENTITY@
