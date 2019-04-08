@@ -62,12 +62,32 @@ target_link_libraries(fpgad
 
 set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
+configure_file(fpgad.service.in fpgad.service @ONLY NEWLINE_STYLE UNIX)
+
 install(TARGETS fpgad
         RUNTIME DESTINATION bin
         COMPONENT toolfpgad)
 
+if ("${CPACK_GENERATOR}" STREQUAL "RPM")
+
+  if ("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr")
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/fpgad.service DESTINATION /etc/systemd/system COMPONENT toolfpgad)
+  else()
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/fpgad.service DESTINATION ${CMAKE_INSTALL_PREFIX}/etc/systemd/system COMPONENT toolfpgad)
+  endif()
+
+else()
+
+  # DEB
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/fpgad.service DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/systemd/system COMPONENT toolfpgad)
+
+endif()
+
 if ("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr")
   install(FILES fpgad.cfg DESTINATION /etc/opae COMPONENT toolfpgad)
+  install(FILES fpgad.conf DESTINATION /etc/sysconfig COMPONENT toolfpgad)
 else()
   install(FILES fpgad.cfg DESTINATION ${CMAKE_INSTALL_PREFIX}/etc/opae COMPONENT toolfpgad)
+  install(FILES fpgad.conf DESTINATION ${CMAKE_INSTALL_PREFIX}/etc/sysconfig COMPONENT toolfpgad)
 endif()
+
