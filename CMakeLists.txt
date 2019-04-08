@@ -90,6 +90,10 @@ else()
     set_cached_variable(OPAE_LIB_INSTALL_DIR "lib")
 endif()
 
+if(CPACK_GENERATOR)
+  set(CMAKE_INSTALL_PREFIX "/usr")
+endif()
+
 ############################################################################
 ## Target configuration ####################################################
 ############################################################################
@@ -208,9 +212,6 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 option(HASH_ARCHIVES "Add git commit hash to archive names" OFF)
 mark_as_advanced(HASH_ARCHIVES)
 
-if(CPACK_GENERATOR)
-  set(CMAKE_INSTALL_PREFIX "/usr")
-endif()
 set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Open Programmable Acceleration Engine")
 SET(CPACK_PACKAGE_VENDOR "Intel Corporation")
