@@ -576,11 +576,13 @@ class flashable(object):
 
 
 class bmc_flashable(flashable):
-    _version_path = None
+    @property
+    def version_path(self):
+        raise NotImplementedError()
 
     @property
     def version(self):
-        value = self._fpga.spi_bus.read_node(self._version_path)
+        value = self._fpga.spi_bus.read_node(self.version_path)
         return spi_version(int(value, 16))
 
     def is_supported(self, flash_info):
@@ -593,11 +595,15 @@ class bmc_flashable(flashable):
 
 
 class bmc_fw(bmc_flashable):
-    _version_path = 'bmcfw_flash_ctrl/bmcfw_version'
+    @property
+    def version_path(self):
+        return 'bmcfw_flash_ctrl/bmcfw_version'
 
 
 class bmc_img(bmc_flashable):
-    _version_path = 'max10_version'
+    @property
+    def version_path(self):
+        return 'max10_version'
 
 
 class a10(flashable):
@@ -607,18 +613,9 @@ class a10(flashable):
         return '0x{:016x}'.format(int_value)
 
 
-class pkvl(flashable):
-    @property
-    def version(self):
-        pkvl_a = self._fpga.spi_bus.read_node('pkvl', 'pkvl_a_version')
-        pkvl_b = self._fpga.spi_bus.rebd_node('pkvl', 'pkvl_b_version')
-        return (pkvl_a, pkvl_b)
-
-    def needs_flash(self, flash_info):
-        a_ver, b_ver = self.version
-        if a_ver != b_ver:
-            return True
-        return a_ver != flash_info['version']
+class bmc_fw_pkvl(bmc_fw):
+    def command(self, flash_type, filename, pci_address):
+        return 'fpgaflash phy_eeprom {} {}'.format(filename, pci_address)
 
 
 # pac classes
@@ -790,7 +787,11 @@ class vc(pac):
 
     def __init__(self, pci_node, fpga, **kwargs):
         super(vc, self).__init__(pci_node, fpga, **kwargs)
-        self.add_flashables(phy_eeprom=pkvl(fpga))
+        # vista creek bmc fw and pkvl eeprom is integrated
+        # and versioned using bmc_fw version
+        # override the flashable for bmc_fw from pac class
+        # with bmc_fw_pkvl which uses 'phy_eeprom' when calling fpgaflash
+        self.add_flashables(bmc_fw=bmc_fw_pkvl(fpga))
 
     @property
     def user_version(self):
@@ -897,7 +898,6 @@ def do_rsu(boards, args, config):
             node = node.parent
         targets.append(node)
         roots.append(root)
-
 
     # disable AER on root devices
     with aer_disabled(*roots):
