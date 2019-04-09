@@ -37,6 +37,7 @@ import time
 
 from contextlib import contextmanager
 from ctypes import c_uint64, LittleEndianStructure, Union
+from datetime import timedelta
 from threading import Thread
 
 PCI_ADDRESS_PATTERN = (r'(?P<pci_address>'
@@ -44,13 +45,7 @@ PCI_ADDRESS_PATTERN = (r'(?P<pci_address>'
                        r'(?P<device>[\da-f]{2})\.(?P<function>\d)))')
 PCI_ADDRESS_RE = re.compile(PCI_ADDRESS_PATTERN, re.IGNORECASE)
 
-LSOF_PATTERN = (r'^(?P<command>\w+)\s+(?P<pid>\d+)\s+(?P<user>\w+)\s+'
-                r'(?P<fd>\w+)\s+(?P<type>[A-Z]+)\s+(?P<device>\d,\d)\s+'
-                r'(?P<szoff>(?:0[tx])?\d+)\s+(?P<node>\d+)\s+(?P<name>\w+)$')
-LSOF_RE = re.compile(LSOF_PATTERN, re.MULTILINE)
-
 CLASS_ROOT = '/sys/class/fpga'
-
 
 AER_OFF = 0xFFFFFFFF
 AER_ON = 0x00000000
@@ -240,8 +235,8 @@ class pci_node(sysfs_node):
             pci_address['pci_address'])
 
     def __str__(self):
-        return '[pci_address({}), pci_id({})]'.format(self.pci_address,
-                                                      self.pci_id)
+        return '[pci_address({}), pci_id(0x{:04x}, 0x{:04x})]'.format(
+            self.pci_address, *self.pci_id)
 
     def __repr__(self):
         return str(self)
@@ -723,8 +718,8 @@ class pac(object):
             return None
 
         if not to_flash.is_supported(flash_info):
-            LOG.info('%s is not supported by current component',
-                     (flash_type, flash_rev))
+            LOG.info('[%s] %s is not supported by current component',
+                     self.pci_node.bdf, (flash_type, flash_rev))
             return None
 
         if to_flash.is_factory or force or to_flash.needs_flash(flash_info):
@@ -734,6 +729,10 @@ class pac(object):
                                    self.pci_node.pci_address)
 
             return process_task(cmd, stderr=subprocess.PIPE)
+
+        if to_flash.version == flash_info['version']:
+            LOG.debug('[%s] version (%s) up to date for %s', self.pci_node.bdf,
+                      to_flash.version, flash_type)
 
     def _update(self, tasks):
         LOG.debug('update of board at %s started', self.pci_node)
@@ -753,8 +752,8 @@ class pac(object):
                 LOG.warning('%s exited with code: %s', task.cmd, p.returncode)
                 self._errors += 1
 
-            LOG.debug('task completed in %f seconds',
-                      time.time() - task.start_time)
+            LOG.debug('task completed in %s', timedelta(
+                      seconds=time.time() - task.start_time))
 
     def reset_flash_mode(self):
         self.fpga.spi_bus.write_node("0", 'bmcimg_flash_ctrl',
@@ -946,8 +945,8 @@ def do_update(boards, args, rsu_config):
             else:
                 threads.append(t)
                 if math.fmod(remaining, 60.0) < 1:
-                    LOG.debug('waiting (%d sec) for thread: %s',
-                              remaining, t.name)
+                    LOG.debug('waiting (%s) for thread: %s',
+                              timedelta(seconds=remaining), t.name)
             time.sleep(0.5)
     except (KeyboardInterrupt, SystemExit):
         LOG.warning('update process interrupted')
@@ -1005,8 +1004,7 @@ def main():
                         help='flash all images regardless of versions matching'
                              'or not')
     parser.add_argument('--timeout', default=1800.0, type=float,
-                        help='maximum amount of time to wait before beginning'
-                             'termination sequence')
+                        help=argparse.SUPPRESS)
 
     args = parser.parse_args()
     DRY_RUN = args.dry_run
