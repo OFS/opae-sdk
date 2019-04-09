@@ -285,6 +285,17 @@ target_include_directories(argsfilter-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
+add_library(board-rc-static
+    ${OPAE_SDK_SOURCE}/tools/base/libboard/board_rc/board_rc.c
+    )
+
+target_include_directories(board-rc-static PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  PRIVATE ${OPAE_SDK_SOURCE}/tools/base
+  PRIVATE ${OPAE_SDK_SOURCE}
+  $<INSTALL_INTERFACE:include>)
+
 add_library(fpgainfo-static
     ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/bmcdata.c
     ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/bmcinfo.c
@@ -859,6 +870,13 @@ target_link_libraries(test_hello_events_c
     fpgad-static
     fpgad-api-static
     )
+############################################################################
+# board tests ##########################################################
+############################################################################
+
+add_unit_test(test_board_rc_c board-rc-static
+    board/test_board_rc.cpp
+)
 
 ############################################################################
 # object_api tests #######################################################
