@@ -63,6 +63,7 @@ void sig_handler(int sig, siginfo_t *info, void *unused)
 int main(int argc, char *argv[])
 {
 	int res;
+	FILE *fp;
 
 	memset_s(&global_config, sizeof(global_config), 0);
 
@@ -88,7 +89,6 @@ int main(int argc, char *argv[])
 	}
 
 	if (global_config.daemon) {
-		FILE *fp;
 
 		res = daemonize(sig_handler,
 				global_config.filemode,
@@ -98,20 +98,6 @@ int main(int argc, char *argv[])
 			goto out_destroy;
 		}
 
-		fp = fopen(global_config.pidfile, "w");
-		if (NULL == fp) {
-			LOG("failed to open pid file\n");
-			res = 1;
-			goto out_destroy;
-		}
-		fprintf(fp, "%d\n", getpid());
-		fclose(fp);
-
-		if (log_open(global_config.logfile) < 0) {
-			LOG("failed to open log file\n");
-			res = 1;
-			goto out_destroy;
-		}
 
 	} else {
 		struct sigaction sa;
@@ -132,6 +118,21 @@ int main(int argc, char *argv[])
 			goto out_destroy;
 		}
 	}
+
+	if (log_open(global_config.logfile) < 0) {
+		LOG("failed to open log file\n");
+		res = 1;
+		goto out_destroy;
+	}
+
+	fp = fopen(global_config.pidfile, "w");
+	if (NULL == fp) {
+		LOG("failed to open pid file\n");
+		res = 1;
+		goto out_destroy;
+	}
+	fprintf(fp, "%d\n", getpid());
+	fclose(fp);
 
 	res = mon_enumerate(&global_config);
 	if (res) {

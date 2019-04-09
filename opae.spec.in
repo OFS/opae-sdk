@@ -132,6 +132,9 @@ ldconfig
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/fpgainfo
 @CMAKE_INSTALL_PREFIX@/bin/fpgad
+/etc/opae/fpgad.cfg
+/etc/sysconfig/fpgad.conf
+/etc/systemd/system/fpgad.service
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-api.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-xfpga.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-vc.so*
