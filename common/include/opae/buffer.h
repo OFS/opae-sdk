@@ -82,7 +82,8 @@ extern "C" {
  *                        with other functions
  * @param[in]  flags      Flags. FPGA_BUF_PREALLOCATED indicates that memory
  *                        pointed at in '*buf_addr' is already allocated an
- *                        mapped into virtual memory.
+ *                        mapped into virtual memory. FPGA_BUF_READ_ONLY
+ *                        pins pages with only read access from the FPGA.
  * @returns FPGA_OK on success. FPGA_NO_MEMORY if the requested memory could
  * not be allocated. FPGA_INVALID_PARAM if invalid parameters were provided, or
  * if the parameter combination is not valid. FPGA_EXCEPTION if an internal
