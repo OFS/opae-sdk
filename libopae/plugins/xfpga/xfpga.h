@@ -143,6 +143,10 @@ fpga_result xfpga_fpgaGetMetricsThresholdInfo(fpga_handle handle,
 			metric_threshold *metric_threshold,
 			uint32_t *num_thresholds);
 
+fpga_result xfpga_fpgaTokenSysfsPath(fpga_token token,
+		char *sysfs_path);
+
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus

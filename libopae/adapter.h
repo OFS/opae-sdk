@@ -204,6 +204,8 @@ typedef struct _opae_api_adapter_table {
 		metric_threshold *metric_thresholds,
 		uint32_t *num_thresholds);
 
+	fpga_result(*fpgaTokenSysfsPath)(fpga_token token, char *sysfs_path);
+
 	// configuration functions
 	int (*initialize)(void);
 	int (*finalize)(void);

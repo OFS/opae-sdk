@@ -285,6 +285,9 @@ target_include_directories(argsfilter-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
+add_library(board-vc-static
+    ${OPAE_SDK_SOURCE}/tools/base/libboard/board_vc/board_vc.c
+    )
 add_library(board-rc-static
     ${OPAE_SDK_SOURCE}/tools/base/libboard/board_rc/board_rc.c
     )
@@ -876,6 +879,9 @@ target_link_libraries(test_hello_events_c
 
 add_unit_test(test_board_rc_c board-rc-static
     board/test_board_rc.cpp
+)
+add_unit_test(test_board_vc_c board-vc-static
+    board/test_board_vc.cpp
 )
 
 ############################################################################

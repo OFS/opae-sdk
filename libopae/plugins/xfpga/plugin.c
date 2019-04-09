@@ -197,6 +197,9 @@ int __FPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 	adapter->fpgaGetMetricsThresholdInfo =
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetMetricsThresholdInfo");
 
+	adapter->fpgaTokenSysfsPath =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaTokenSysfsPath");
+
 	return 0;
 }
 

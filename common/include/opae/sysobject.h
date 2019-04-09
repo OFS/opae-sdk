@@ -235,6 +235,19 @@ fpga_result fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags);
  */
 fpga_result fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags);
 
+/**
+ * @brief Get FPGA resource accelerator or device sysfs path
+ *
+ * @param[in] token Token identifying a resource (accelerator or device)
+ * @param[out] sysfs_path resource sysfs path
+ * @return FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied
+ * parameters is invalid
+ *
+ * @note The sysfs path of fpga token resource.
+ */
+fpga_result fpgaTokenSysfsPath(fpga_token token, char *sysfs_path);
+
+
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus

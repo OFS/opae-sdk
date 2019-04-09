@@ -378,3 +378,22 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectGetName(fpga_object obj, char *name,
 
 	return res;
 }
+
+fpga_result __FPGA_API__ xfpga_fpgaTokenSysfsPath(fpga_token token, char *sysfs_path)
+{
+
+	if (token == NULL ||
+		sysfs_path == NULL) {
+		FPGA_ERR("Invalid input parameters");
+		return FPGA_INVALID_PARAM;
+	}
+
+	struct _fpga_token *_token = (struct _fpga_token *)token;
+
+	if (strcpy_s(sysfs_path, SYSFS_PATH_MAX, _token->sysfspath)) {
+		FPGA_ERR("Error in copying sysfs path");
+		return FPGA_EXCEPTION;
+	}
+
+	return FPGA_OK;
+}
