@@ -1100,6 +1100,7 @@ def main():
 
     fh = logging.FileHandler(args.log_file, mode='w')
     fh.setLevel(logging.DEBUG)
+    fh.setFormatter(logging.Formatter(fmt=logfmt))
     LOG.addHandler(fh)
 
     terminated = []
