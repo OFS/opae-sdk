@@ -94,8 +94,8 @@ fpga_result perf_command(fpga_token *tokens, int num_tokens, int argc,
 void perf_help(void);
 
 fpga_result get_metrics(fpga_token token, metrics_inquiry inquiry,
-                        fpga_metric_info *metrics_info, fpga_metric *metrics,
-                        uint64_t *num_metrics);
+                        fpga_metric_info *metrics_info, uint64_t *num_metrics_info,
+                        fpga_metric *metrics,uint64_t *num_metrics);
 
 void replace_chars(char *str, char match, char rep);
 
@@ -984,19 +984,21 @@ TEST_P(fpgainfo_c_p, perf_help) {
  *             retrieve required information from BMC and <br>
  *             returns FPGA_OK. <br>
  */
+
 TEST_P(fpgainfo_c_p, get_metrics0) {
     fpga_properties filter = NULL;
     fpga_token token;
     fpga_metric_info metrics_info[64];
     fpga_metric metrics[64];
     uint64_t num_metrics;
+    uint64_t num_metrics_info;
     uint32_t matches = 0;
 
     ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
 
-    EXPECT_EQ(get_metrics(token, ALL, metrics_info, metrics, &num_metrics), FPGA_OK);
+    EXPECT_EQ(get_metrics(token, ALL, metrics_info, &num_metrics_info, metrics, &num_metrics), FPGA_OK);
 
     fpgaDestroyToken(&token);
     fpgaDestroyProperties(&filter);
@@ -1015,13 +1017,14 @@ TEST_P(fpgainfo_c_p, get_metrics1) {
     fpga_metric_info metrics_info[64];
     fpga_metric metrics[64];
     uint64_t num_metrics;
+    uint64_t num_metrics_info;
     uint32_t matches = 0;
 
     ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
 
-    EXPECT_EQ(get_metrics(token, POWER, metrics_info, metrics, &num_metrics), FPGA_OK);
+    EXPECT_EQ(get_metrics(token, POWER, metrics_info, &num_metrics_info, metrics, &num_metrics), FPGA_OK);
 
     fpgaDestroyToken(&token);
     fpgaDestroyProperties(&filter);
@@ -1040,13 +1043,14 @@ TEST_P(fpgainfo_c_p, get_metrics2) {
     fpga_metric_info metrics_info[64];
     fpga_metric metrics[64];
     uint64_t num_metrics;
+    uint64_t num_metrics_info;
     uint32_t matches = 0;
 
     ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
 
-    EXPECT_EQ(get_metrics(token, THERMAL, metrics_info, metrics, &num_metrics), FPGA_OK);
+    EXPECT_EQ(get_metrics(token, THERMAL, metrics_info, &num_metrics_info, metrics, &num_metrics), FPGA_OK);
 
     fpgaDestroyToken(&token);
     fpgaDestroyProperties(&filter);
