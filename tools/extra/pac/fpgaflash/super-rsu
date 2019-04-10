@@ -560,7 +560,8 @@ class flashable(object):
     def is_supported(self, flash_info):
         return True
 
-    def command(self, flash_type, filename, pci_address):
+    def command(self, flash_info, filename, pci_address):
+        flash_type = flash_info['type']
         cmd = 'fpgaflash {} {} {}'.format(flash_type, filename, pci_address)
         if self.is_factory:
             cmd += ' -y'
@@ -619,8 +620,10 @@ class a10(flashable):
 
 
 class bmc_fw_pkvl(bmc_fw):
-    def command(self, flash_type, filename, pci_address):
-        return 'fpgaflash phy_eeprom {} {}'.format(filename, pci_address)
+    def command(self, flash_info, filename, pci_address):
+        integrated = flash_info.get('integrated', False)
+        flash_cmd = 'phy_eeprom' if integrated else 'bmc_fw'
+        return 'fpgaflash {} {} {}'.format(flash_cmd, filename, pci_address)
 
 
 # pac classes
@@ -740,7 +743,7 @@ class pac(object):
         if needs_flash:
             if force:
                 LOG.debug('%s is being force flashed', flash_type)
-            if to_flash:
+            if to_flash.is_factory:
                 LOG.debug('%s is a factory type flash', flash_type)
             if to_flash.image_load == self.FACTORY_IMAGE:
                 LOG.debug('%s (%s) is booted from factory bank', flash_type,
@@ -748,7 +751,7 @@ class pac(object):
             if to_flash.needs_flash(flash_info):
                 LOG.debug('%s versions not equal (system:%s != manifest:%s)',
                           flash_type, to_flash.version, flash_info['version'])
-            cmd = to_flash.command(flash_type, filename,
+            cmd = to_flash.command(flash_info, filename,
                                    self.pci_node.pci_address)
 
             return process_task(cmd, stderr=subprocess.PIPE)
