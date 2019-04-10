@@ -43,7 +43,7 @@
 
 #define FPGA_STR_SIZE     256
 #define SDR_HEADER_LEN    3
-#define SDR_MSG_LEN       4
+#define SDR_MSG_LEN       40
 
 typedef struct _bmc_powerdown_cause {
 	uint8_t _header[SDR_HEADER_LEN];
@@ -124,25 +124,16 @@ fpga_result read_bmc_version(fpga_token token, int *version)
 	fpga_result resval            = FPGA_OK;
 	bmc_device_id bmc_dev;
 	fpga_object bmc_object;
-	fpga_handle handle;
 
 	if (version == NULL) {
 		OPAE_ERR("Invalid input parameter");
 		return FPGA_INVALID_PARAM;
 	}
 
-	res = fpgaOpen(token, &handle, FPGA_OPEN_SHARED);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to open fpga device");
-		resval = res;
-		goto out;
-	}
-
-	res = fpgaHandleGetObject(handle, SYSFS_DEVID_FILE, &bmc_object, FPGA_OBJECT_GLOB);
+	res = fpgaTokenGetObject(token, SYSFS_DEVID_FILE, &bmc_object, FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get handle Object");
-		resval = res;
-		goto out_close;
+		return res;
 	}
 
 	memset_s(&bmc_dev, sizeof(bmc_dev), 0);
@@ -166,23 +157,17 @@ out_destroy:
 		OPAE_ERR("Failed to Destroy Object");
 	}
 
-out_close:
-	res = fpgaClose(handle);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to close handle");
-	}
 
-out:
 	return resval;
 }
 
 // Read power down cause
 fpga_result read_bmc_pwr_down_cause(fpga_token token, char *pwr_down_cause)
 {
+
 	fpga_result res               = FPGA_OK;
 	fpga_result resval            = FPGA_OK;
 	fpga_object bmc_object;
-	fpga_handle  handle;
 	bmc_powerdown_cause bmc_pd;
 
 	if (pwr_down_cause == NULL) {
@@ -190,18 +175,10 @@ fpga_result read_bmc_pwr_down_cause(fpga_token token, char *pwr_down_cause)
 		return FPGA_INVALID_PARAM;
 	}
 
-	res = fpgaOpen(token, &handle, FPGA_OPEN_SHARED);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to open fpga device");
-		resval = res;
-		goto out;
-	}
-
-	res = fpgaHandleGetObject(handle, SYSFS_PWRDN_FILE, &bmc_object, FPGA_OBJECT_GLOB);
+	res = fpgaTokenGetObject(token, SYSFS_PWRDN_FILE, &bmc_object, FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get handle Object");
-		resval = res;
-		goto out_close;
+		return res;
 	}
 
 	memset_s(&bmc_pd, sizeof(bmc_pd), 0);
@@ -228,14 +205,6 @@ out_destroy:
 		resval = res;
 	}
 
-out_close:
-	res = fpgaClose(handle);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to close handle");
-		resval = res;
-	}
-
-out:
 	return resval;
 }
 
@@ -246,7 +215,6 @@ fpga_result read_bmc_reset_cause(fpga_token token, char *reset_cause_str)
 	fpga_result res              = FPGA_OK;
 	fpga_result resval           = FPGA_OK;
 	fpga_object bmc_object;
-	fpga_handle  handle;
 	bmc_reset_cause bmc_rc;
 
 	if (reset_cause_str == NULL) {
@@ -254,18 +222,10 @@ fpga_result read_bmc_reset_cause(fpga_token token, char *reset_cause_str)
 		return FPGA_INVALID_PARAM;
 	}
 
-	res = fpgaOpen(token, &handle, FPGA_OPEN_SHARED);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to open fpga device");
-		resval = res;
-		goto out;
-	}
-
-	res = fpgaHandleGetObject(handle, SYSFS_RESET_FILE, &bmc_object, FPGA_OBJECT_GLOB);
+	res = fpgaTokenGetObject(token, SYSFS_RESET_FILE, &bmc_object, FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get handle Object");
-		resval = res;
-		goto out_close;
+		return res;
 	}
 
 	memset_s(&bmc_rc, sizeof(bmc_rc), 0);
@@ -324,18 +284,11 @@ out_destroy:
 		OPAE_ERR("Failed to Destroy Object");
 	}
 
-out_close:
-	res = fpgaClose(handle);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to close handle");
-	}
-
-out:
 	return resval;
 }
 
 // Print BMC version, Power down cause and Reset cause
-fpga_result print_board_info(fpga_token token)
+fpga_result  print_board_info(fpga_token token)
 {
 	fpga_result res                         = FPGA_OK;
 	int version                             = 0;

@@ -41,10 +41,12 @@ typedef enum metrics_inquiry { ALL, POWER, THERMAL, PERF } metrics_inquiry;
 fpga_result get_metrics(fpga_token token, 
                         metrics_inquiry inquiry,
                         fpga_metric_info *metrics_info,
+                        uint64_t *num_metrics_info,
                         fpga_metric *metrics, 
                         uint64_t *num_metrics);
 
 void print_metrics(const fpga_metric_info *metrics_info,
+                   uint64_t num_metrics_info,
                    const fpga_metric *metrics, uint64_t num);
 
 #ifdef __cplusplus
