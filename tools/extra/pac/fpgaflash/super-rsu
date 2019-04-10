@@ -76,6 +76,7 @@ def call_process(cmd):
     except subprocess.CalledProcessError as err:
         LOG.error('calling %s returned %d', cmd, err.returncode)
         LOG.debug('process output: %s', err.output)
+        raise
 
 
 class update_thread(Thread):
@@ -549,6 +550,10 @@ class flashable(object):
         self._fpga = fpga
         self._is_factory = is_factory
 
+    @property
+    def image_load(self):
+        return None
+
     def needs_flash(self, flash_info):
         return self.version != flash_info['version']
 
@@ -603,6 +608,11 @@ class bmc_img(bmc_flashable):
 
 class a10(flashable):
     @property
+    def image_load(self):
+        return int(self._fpga.spi_bus.read_node('fpga_flash_ctrl',
+                                                'fpga_image_load'))
+
+    @property
     def version(self):
         int_value = int(self._fpga.fme.read_node('bitstream_id'), 16)
         return '0x{:016x}'.format(int_value)
@@ -616,6 +626,8 @@ class bmc_fw_pkvl(bmc_fw):
 # pac classes
 class pac(object):
     boot_page = 0
+    FACTORY_IMAGE = 0
+    USER_IMAGE = 1
 
     def __init__(self, pci_node, fpga, **kwargs):
         self._pci_node = pci_node
@@ -722,9 +734,20 @@ class pac(object):
                      self.pci_node.bdf, (flash_type, flash_rev))
             return None
 
-        if to_flash.is_factory or force or to_flash.needs_flash(flash_info):
+        needs_flash = (force or to_flash.is_factory or
+                       to_flash.image_load == self.FACTORY_IMAGE or
+                       to_flash.needs_flash(flash_info))
+        if needs_flash:
             if force:
                 LOG.debug('%s is being force flashed', flash_type)
+            if to_flash:
+                LOG.debug('%s is a factory type flash', flash_type)
+            if to_flash.image_load == self.FACTORY_IMAGE:
+                LOG.debug('%s (%s) is booted from factory bank', flash_type,
+                          self.pci_node)
+            if to_flash.needs_flash(flash_info):
+                LOG.debug('%s versions not equal (system:%s != manifest:%s)',
+                          flash_type, to_flash.version, flash_info['version'])
             cmd = to_flash.command(flash_type, filename,
                                    self.pci_node.pci_address)
 
@@ -780,9 +803,36 @@ class pac(object):
     def terminate_update(self):
         self._terminate = True
 
+    def verify(self, rsu_config, args):
+        unflashed = []
+        for flash_info in rsu_config['flash']:
+            if flash_info.get('enabled', True):
+                flash_type = flash_info['type']
+                flashed = self.get_flashable(flash_type)
+                if flashed.is_factory:
+                    # can't verify factory flashes
+                    continue
+                if not flashed.is_supported(flash_info):
+                    # skip if not supported
+                    continue
+
+                if flashed.image_load == self.FACTORY_IMAGE:
+                    LOG.error('%s (%s) booted from factory bank', flash_type,
+                              self.pci_node)
+                    unflashed.append(flash_info)
+                # we should've flashed this, check if versions match
+                elif flashed.version != flash_info['version']:
+                    LOG.error('[%s] %s (%s) not updated',
+                              self.pci_node.bdf, flash_info['type'],
+                              flashed.version)
+                    unflashed.append(flash_info)
+        return len(unflashed) == 0 and not self.errors
+
 
 class vc(pac):
     boot_page = 0
+    FACTORY_IMAGE = 0
+    USER_IMAGE = 1
 
     def __init__(self, pci_node, fpga, **kwargs):
         super(vc, self).__init__(pci_node, fpga, **kwargs)
@@ -963,6 +1013,10 @@ def do_update(boards, args, rsu_config):
     return (complete, terminated, interrupted)
 
 
+def do_verify(boards, args, rsu_config):
+    return [b for b in boards if b.verify(rsu_config, args)]
+
+
 def run_tests(boards, args):
     # TODO: run self tests - perhaps fpgadiag
     return os.EX_OK
@@ -1005,6 +1059,9 @@ def main():
                              'or not')
     parser.add_argument('--timeout', default=1800.0, type=float,
                         help=argparse.SUPPRESS)
+    parser.add_argument('--verify', default=False, action='store_true',
+                        help='verify if versions on system match versions in'
+                             'manifest')
 
     args = parser.parse_args()
     DRY_RUN = args.dry_run
@@ -1028,6 +1085,13 @@ def main():
                       rsu_config['product'])
         sys.exit(os.EX_UNAVAILABLE)
 
+    if args.verify:
+        updated = do_verify(boards, args, rsu_config)
+        if len(updated) < len(boards):
+            LOG.error('%s boards not up to date', len(boards) - len(updated))
+            sys.exit(os.EX_SOFTWARE)
+        sys.exit(os.EX_OK)
+
     terminated = []
     interrupted = False
     if args.rsu_only:
@@ -1037,8 +1101,11 @@ def main():
 
     if not args.skip_rsu:
         do_rsu(to_rsu, args, rsu_config)
+        to_test = do_verify(to_rsu, args, rsu_config)
+    else:
+        to_test = boards
 
-    if any([b.errors for b in to_rsu]):
+    if len(to_test) < len(to_rsu):
         sys.exit(os.EX_SOFTWARE)
     elif interrupted:
         sys.exit(os.EX_IOERR)
