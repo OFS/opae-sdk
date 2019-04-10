@@ -331,7 +331,6 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 	char dpath[DEV_PATH_MAX];
 	int resval                = 0;
 	uint64_t value            = 0;
-	enum fpga_hw_type hw_type = FPGA_HW_UNKNOWN;
 
 	// Make sure it's a directory.
 	if (stat(sysfspath, &stats) != 0) {
@@ -389,23 +388,12 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 		return FPGA_NOT_FOUND;
 	}
 
-	hw_type = opae_id_to_hw_type(pdev->vendor_id, pdev->device_id);
-
-	if (hw_type == FPGA_HW_MCP) {
-		pdev->fpga_bbs_version.major =
-			MCP_FPGA_BBS_VER_MAJOR(pdev->fpga_bitstream_id);
-		pdev->fpga_bbs_version.minor =
-			MCP_FPGA_BBS_VER_MINOR(pdev->fpga_bitstream_id);
-		pdev->fpga_bbs_version.patch =
-			MCP_FPGA_BBS_VER_PATCH(pdev->fpga_bitstream_id);
-	} else {
-		pdev->fpga_bbs_version.major =
-			DCP_FPGA_BBS_VER_MAJOR(pdev->fpga_bitstream_id);
-		pdev->fpga_bbs_version.minor =
-			DCP_FPGA_BBS_VER_MINOR(pdev->fpga_bitstream_id);
-		pdev->fpga_bbs_version.patch =
-			DCP_FPGA_BBS_VER_PATCH(pdev->fpga_bitstream_id);
-	}
+	pdev->fpga_bbs_version.major =
+			FPGA_BBS_VER_MAJOR(pdev->fpga_bitstream_id);
+	pdev->fpga_bbs_version.minor =
+			FPGA_BBS_VER_MINOR(pdev->fpga_bitstream_id);
+	pdev->fpga_bbs_version.patch =
+			FPGA_BBS_VER_PATCH(pdev->fpga_bitstream_id);
 
 	parent->fme = pdev;
 	return FPGA_OK;
