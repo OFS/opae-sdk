@@ -1046,13 +1046,16 @@ def main():
                         default=False,
                         action='store_true',
                         help="Don't perform any updates, just a dry run")
-    parser.add_argument('--loglevel', choices=['trace',
-                                               'debug',
-                                               'error',
-                                               'warn',
-                                               'info',
-                                               'notset'], default='info',
+    parser.add_argument('--log-level', choices=['trace',
+                                                'debug',
+                                                'error',
+                                                'warn',
+                                                'info',
+                                                'notset'], default='info',
                         help='log level to use')
+    parser.add_argument('--log-file', default='/tmp/super-rsu.log',
+                        help='destination logfile - default is '
+                             '/tmp/super-rsu.log')
     parser.add_argument('--rsu-only', default=False, action='store_true',
                         help='only perform the RSU command')
     parser.add_argument('--skip-rsu', default=False, action='store_true',
@@ -1070,9 +1073,9 @@ def main():
     DRY_RUN = args.dry_run
     logfmt = ('[%(asctime)-15s] [%(levelname)-8s] [%(threadName)-12s] - '
               '%(message)s')
-    level = TRACE if args.loglevel == 'trace' else logging.NOTSET
+    level = TRACE if args.log_level == 'trace' else logging.NOTSET
     logging.basicConfig(format=logfmt,
-                        level=getattr(logging, args.loglevel.upper(), level))
+                        level=getattr(logging, args.log_level.upper(), level))
 
     if not DRY_RUN and os.getuid():
         LOG.error('must run as root')
@@ -1094,6 +1097,10 @@ def main():
             LOG.error('%s boards not up to date', len(boards) - len(updated))
             sys.exit(os.EX_SOFTWARE)
         sys.exit(os.EX_OK)
+
+    fh = logging.FileHandler(args.log_file, mode='w')
+    fh.setLevel(logging.DEBUG)
+    LOG.addHandler(fh)
 
     terminated = []
     interrupted = False
