@@ -402,7 +402,7 @@ class fpga_device(sysfs_node):
         port_pattern = os.path.join(self.sysfs_path, "*port*")
         glob_results = glob.glob(port_pattern)
         if len(glob_results) == 1:
-            return glob_results[0]
+            return sysfs_node(glob_results[0])
         LOG.warning("Could not find FME device")
 
     @property
@@ -831,11 +831,15 @@ class pac(object):
                     unflashed.append(flash_info)
         return len(unflashed) == 0 and not self.errors
 
+    def run_tests(self):
+        return os.EX_OK
+
 
 class vc(pac):
     boot_page = 0
     FACTORY_IMAGE = 0
     USER_IMAGE = 1
+    VRAN_AFU_ID = 'a10be880b6ac4abfa43534c9d7395956'
 
     def __init__(self, pci_node, fpga, **kwargs):
         super(vc, self).__init__(pci_node, fpga, **kwargs)
@@ -849,6 +853,11 @@ class vc(pac):
     def user_version(self):
         value = int(self.fpga.fme.read_node('bitstream_id'), 16)
         return vc_fme_version(value)
+
+    def run_tests(self):
+        if self._fpga.port.read_node('afu_id') == self.VRAN_AFU_ID:
+            return os.EX_OK
+        return os.EX_SOFTWARE
 
 
 class dc(pac):
@@ -1021,8 +1030,41 @@ def do_verify(boards, args, rsu_config):
 
 
 def run_tests(boards, args):
-    # TODO: run self tests - perhaps fpgadiag
+    results = []
+    for b in boards:
+        result = b.run_tests()
+        if result:
+            LOG.debug('[%s] test failed', b.pci_node.bdf)
+        results.append(result)
+    if any(results):
+        return os.EX_SOFTWARE
+    LOG.debug('all tests pass')
     return os.EX_OK
+
+
+def check_files(args, rsu_config):
+    missing = []
+    callables = ['fpgaflash']
+    if 'nvmupdate' in rsu_config:
+        callables.append('nvmupdate64e')
+
+    for exe in callables:
+        if subprocess.check_call(['which', exe],
+                                 stdout=subprocess.PIPE):
+            LOG.warn("missing '%s'", exe)
+            missing.append(exe)
+
+    flash_dir = os.path.dirname(args.rsu_config.name)
+    for item in rsu_config['flash']+rsu_config.get('nvmupdate', []):
+        args.rsu_config.name
+        filename = item['filename']
+        flashfile = os.path.join(flash_dir, filename)
+        if not os.path.exists(flashfile) and not os.path.exists(filename):
+            missing.append(filename)
+    if missing:
+        LOG.debug('missing %s', ','.join(missing))
+        return False
+    return True
 
 
 def sighandler(signum, frame):
@@ -1096,12 +1138,17 @@ def main():
         if len(updated) < len(boards):
             LOG.error('%s boards not up to date', len(boards) - len(updated))
             sys.exit(os.EX_SOFTWARE)
-        sys.exit(os.EX_OK)
+        LOG.debug('all boards up to date')
+        sys.exit(run_tests(boards, args))
 
     fh = logging.FileHandler(args.log_file, mode='w')
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(logging.Formatter(fmt=logfmt))
     LOG.addHandler(fh)
+
+    if not check_files(args, rsu_config):
+        LOG.error('missing one or more files listed in rsu config')
+        sys.exit(os.EX_CONFIG)
 
     terminated = []
     interrupted = False
