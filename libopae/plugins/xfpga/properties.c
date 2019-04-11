@@ -101,7 +101,6 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	errno_t e;
 	int err = 0;
 	uint32_t x = 0;
-	enum fpga_hw_type hw_type = FPGA_HW_UNKNOWN;
 
 	pthread_mutex_t lock;
 
@@ -141,8 +140,6 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 		return result;
 	_iprop.device_id = (uint16_t)x;
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICEID);
-
-	hw_type = opae_id_to_hw_type(_iprop.vendor_id, _iprop.device_id);
 
 	// The input token is either for an FME or an AFU.
 	// Go one level back to get to the dev.
@@ -220,21 +217,12 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 			return result;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_BBSID);
 
-		if (hw_type == FPGA_HW_MCP) {
-			_iprop.u.fpga.bbs_version.major =
-				MCP_FPGA_BBS_VER_MAJOR(_iprop.u.fpga.bbs_id);
-			_iprop.u.fpga.bbs_version.minor =
-				MCP_FPGA_BBS_VER_MINOR(_iprop.u.fpga.bbs_id);
-			_iprop.u.fpga.bbs_version.patch =
-				MCP_FPGA_BBS_VER_PATCH(_iprop.u.fpga.bbs_id);
-		} else {
-			_iprop.u.fpga.bbs_version.major =
-				DCP_FPGA_BBS_VER_MAJOR(_iprop.u.fpga.bbs_id);
-			_iprop.u.fpga.bbs_version.minor =
-				DCP_FPGA_BBS_VER_MINOR(_iprop.u.fpga.bbs_id);
-			_iprop.u.fpga.bbs_version.patch =
-				DCP_FPGA_BBS_VER_PATCH(_iprop.u.fpga.bbs_id);
-		}
+		_iprop.u.fpga.bbs_version.major =
+				FPGA_BBS_VER_MAJOR(_iprop.u.fpga.bbs_id);
+		_iprop.u.fpga.bbs_version.minor =
+				FPGA_BBS_VER_MINOR(_iprop.u.fpga.bbs_id);
+		_iprop.u.fpga.bbs_version.patch =
+				FPGA_BBS_VER_PATCH(_iprop.u.fpga.bbs_id);
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_BBSVERSION);
 	}
 

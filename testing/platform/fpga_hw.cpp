@@ -35,9 +35,9 @@
 #include <iomanip>
 #include <sstream>
 
-#define DCP_FPGA_BBS_VER_MAJOR(i) (((i) >> 60) & 0xf)
-#define DCP_FPGA_BBS_VER_MINOR(i) (((i) >> 56) & 0xf)
-#define DCP_FPGA_BBS_VER_PATCH(i) (((i) >> 52) & 0xf)
+#define FPGA_BBS_VER_MAJOR(i) (((i) >> 56) & 0xf)
+#define FPGA_BBS_VER_MINOR(i) (((i) >> 52) & 0xf)
+#define FPGA_BBS_VER_PATCH(i) (((i) >> 48) & 0xf)
 
 namespace opae {
 namespace testing {
@@ -162,7 +162,7 @@ static platform_db MOCK_PLATFORMS = {
                        .socket_id = 0,
                        .num_slots = 1,
                        .bbs_id = 0x0113000200000177,
-                       .bbs_version = {0, 1, 1},
+                       .bbs_version = {1, 1, 3},
                        .state = FPGA_ACCELERATOR_UNASSIGNED,
                        .num_mmio = 0x2,
                        .num_interrupts = 0,
@@ -186,7 +186,7 @@ static platform_db MOCK_PLATFORMS = {
                        .socket_id = 0,
                        .num_slots = 1,
                        .bbs_id = 0x222000200567bd1,
-                       .bbs_version = {0, 2, 2},
+                       .bbs_version = {2, 2, 2},
                        .state = FPGA_ACCELERATOR_UNASSIGNED,
                        .num_mmio = 0x2,
                        .num_interrupts = 0,
@@ -466,9 +466,9 @@ test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &pla
     if (dev_id == MOCK_PLATFORMS["dcp-vc"].devices[0].device_id) {
       uint64_t bitstream_id = read_bitstream_id(pci_path);
       dev.bbs_id = bitstream_id;
-      dev.bbs_version = {(uint8_t)DCP_FPGA_BBS_VER_MAJOR(bitstream_id),
-                         (uint8_t)DCP_FPGA_BBS_VER_MINOR(bitstream_id),
-                         (uint16_t)DCP_FPGA_BBS_VER_PATCH(bitstream_id)};
+      dev.bbs_version = {(uint8_t)FPGA_BBS_VER_MAJOR(bitstream_id),
+                         (uint8_t)FPGA_BBS_VER_MINOR(bitstream_id),
+                         (uint16_t)FPGA_BBS_VER_PATCH(bitstream_id)};
     }
   } else {
     std::cerr << "error matching pci dev pattern (" << pci_path << ")\n";
