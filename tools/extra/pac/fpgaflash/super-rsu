@@ -546,9 +546,14 @@ class spi_version(Union):
 # flashable classes
 # classes here represent parts on the FPGA that can be flashed
 class flashable(object):
-    def __init__(self, fpga, is_factory=False):
+    def __init__(self, fpga, is_factory=False, **kwargs):
         self._fpga = fpga
         self._is_factory = is_factory
+        self._can_verify = kwargs.get('can_verify', True)
+
+    @property
+    def can_verify(self):
+        return self._can_verify
 
     @property
     def image_load(self):
@@ -619,6 +624,11 @@ class a10(flashable):
         return '0x{:016x}'.format(int_value)
 
 
+class dtb(a10):
+    def needs_flash(self, flash_info):
+        return True
+
+
 class bmc_fw_pkvl(bmc_fw):
     def command(self, flash_info, filename, pci_address):
         integrated = flash_info.get('integrated', False)
@@ -648,7 +658,8 @@ class pac(object):
                             factory_only=a10(fpga, True),
                             bmc_fw=bmc_fw(fpga),
                             bmc_factory=bmc_img(fpga, True),
-                            bmc_img=bmc_img(fpga))
+                            bmc_img=bmc_img(fpga),
+                            dtb=dtb(fpga, can_verify=False))
 
     def add_flashables(self, **kwargs):
         for k, v in kwargs.iteritems():
@@ -812,7 +823,7 @@ class pac(object):
             if flash_info.get('enabled', True):
                 flash_type = flash_info['type']
                 flashed = self.get_flashable(flash_type)
-                if flashed.is_factory:
+                if flashed.is_factory or not flashed.can_verify:
                     # can't verify factory flashes
                     continue
                 if not flashed.is_supported(flash_info):
