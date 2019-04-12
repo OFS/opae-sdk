@@ -97,6 +97,7 @@ OPAE_NVMUPDATE_EXE = os.path.join(OPAE_SHARE, 'bin', NVMUPDATE_EXE)
 LOG = logging.getLogger(__name__)
 TRACE = logging.DEBUG - 5
 logging.addLevelName(TRACE, 'TRACE')
+RSU_TMP_LOG = '/tmp/super-rsu.log'
 
 
 def sys_exit(code):
@@ -691,6 +692,8 @@ class eth_instance(object):
         self._device = int(node.get('dev'))
         self._function = int(node.get('func'))
         self._version = node.find('Module[@version]').get('version')
+        mac = node.find('MAC[@address]')
+        self._address = mac.get('address') if mac else None
         # for now use enp{bus}s{subdevice}f{func} as the interface name
         # TODO (RR): replace with better method to map to bdf
         self._interface = 'enp{bus}s{subdevice}f{func}'.format(**node.attrib)
@@ -699,18 +702,16 @@ class eth_instance(object):
     def version(self):
         return self._version
 
-    def test(self, mode='all'):
-        if mode == 'all':
-            results = [self.test(m) for m in self.TEST_MODES]
-            if any(results):
-                return os.EX_SOFTWARE
-            return os.EX_OK
-        if mode in self.TEST_MODES:
-            try:
-                return subprocess.call(['ethtool', '-t',
-                                        self._interface, mode])
-            except OSError:
-                LOG.warn("could not call 'ethtool'")
+    def check(self):
+        LOG.debug('checking eth: %s', self._interface)
+        iface = sysfs_node(os.path.join('/sys/class/net', self._interface))
+        read_addr = iface.read_node('address').lower().replace(':', '')
+        if read_addr:
+            LOG.debug('address read: %s', read_addr)
+            return True
+        else:
+            LOG.warn('could not get address')
+            return False
 
 
 class nvm_updater(object):
@@ -1223,10 +1224,8 @@ def do_nvmupdate(args, rsu_config, **kwargs):
                    if eth.version != nvm_cfg.get('version')]
 
     if kwargs.get('verify'):
-        # eth.test() may teturn 'None' if ethtool can't be found
-        # this expression won't treat any 'None' as failures
-        results = [eth.test('offline') for eth in eth_instances]
-        test_ok = os.EX_SOFTWARE if any(results) else os.EX_OK
+        results = [eth.check() for eth in eth_instances]
+        test_ok = os.EX_SOFTWARE if not all(results) else os.EX_OK
         return (len(need_update), test_ok)
 
     if not need_update and not args.force_flash:
@@ -1334,9 +1333,9 @@ def main():
                                                 'info',
                                                 'notset'], default='info',
                         help='log level to use')
-    parser.add_argument('--log-file', default='/tmp/super-rsu.log',
-                        help='destination logfile - default is '
-                             '/tmp/super-rsu.log')
+    parser.add_argument('--log-file', default=RSU_TMP_LOG,
+                        help='destination logfile'
+                             '- default is {}'.format(RSU_TMP_LOG))
     parser.add_argument('--rsu-only', default=False, action='store_true',
                         help='only perform the RSU command')
     parser.add_argument('--skip-rsu', default=False, action='store_true',
@@ -1402,9 +1401,14 @@ def main():
                 sys_exit(os.EX_SOFTWARE)
         sys_exit(os.EX_OK)
 
-    fh = logging.handlers.RotatingFileHandler(args.log_file, mode='w',
-                                              backupCount=10)
-    fh.doRollover()
+    if args.log_file == RSU_TMP_LOG:
+        fh = logging.handlers.RotatingFileHandler(args.log_file,
+                                                  backupCount=50)
+
+        fh.doRollover()
+    else:
+        fh = logging.FileHandler(args.log_file)
+
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(logging.Formatter(fmt=logfmt))
     LOG.addHandler(fh)
