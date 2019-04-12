@@ -79,6 +79,10 @@ RESET TYPE: POWER
 END DEVICE
 '''
 
+OPAE_SHARE = '/usr/share/opae'
+NVMUPDATE_EXE = 'nvmupdate64e'
+OPAE_NVMUPDATE_EXE = os.path.join(OPAE_SHARE, 'bin', NVMUPDATE_EXE)
+
 LOG = logging.getLogger(__name__)
 TRACE = logging.DEBUG - 5
 logging.addLevelName(TRACE, 'TRACE')
@@ -620,7 +624,8 @@ class bmc_flashable(flashable):
         flash_rev = flash_info.get('revision', '').lower()
         if current_rev == '' or flash_rev == '':
             return True
-        LOG.debug('current_rev: "%s", flash_rev: "%s"', current_rev, flash_rev)
+        LOG.debug('%s - current_rev: "%s", flash_rev: "%s"',
+                  flash_info['type'], current_rev, flash_rev)
         return bool(current_rev in flash_rev)
 
 
@@ -686,9 +691,10 @@ class nvm_updater(object):
         f = tempfile.NamedTemporaryFile()
         LOG.debug("running nvmupdate inventory")
         try:
-            call_process('nvmupdate64e -i -o {}'.format(f.name), no_dry=True)
+            call_process('{} -i -o {}'.format(OPAE_NVMUPDATE_EXE, f.name),
+                         no_dry=True)
         except (subprocess.CalledProcessError, OSError):
-            LOG.error('nvmupdate64e may not be installed')
+            LOG.error('%s may not be installed', NVMUPDATE_EXE)
             return []
         tree = ET.parse(f.name)
         root = tree.getroot()
@@ -1148,7 +1154,7 @@ def do_nvmupdate(args, rsu_config, **kwargs):
             fd.write(NVM_CFG_DEVICE.format(EEPID=nvm_cfg['version'],
                                            REPLACES=old_version,
                                            FILENAME=nvm_file))
-        cmd = 'nvmupdate64e -u -c {}'.format(fd.name)
+        cmd = '{} -u -c {}'.format(OPAE_NVMUPDATE_EXE, fd.name)
 
     if args.force_flash:
         cmd += ' -f'
@@ -1180,12 +1186,14 @@ def check_files(args, rsu_config):
     missing = []
     callables = ['fpgaflash']
     if 'nvmupdate' in rsu_config:
-        callables.append('nvmupdate64e')
+        if not os.path.exists(OPAE_NVMUPDATE_EXE):
+            LOG.debug("missing '%s'", NVMUPDATE_EXE)
+            missing.append(NVMUPDATE_EXE)
 
     for exe in callables:
         if subprocess.check_call(['which', exe],
                                  stdout=subprocess.PIPE):
-            LOG.warn("missing '%s'", exe)
+            LOG.debug("missing '%s'", exe)
             missing.append(exe)
 
     flash_dir = os.path.dirname(args.rsu_config.name)
@@ -1202,7 +1210,7 @@ def check_files(args, rsu_config):
         if not os.path.exists(flashfile) and not os.path.exists(filename):
             missing.append(filename)
     if missing:
-        LOG.debug('missing %s', ','.join(missing))
+        LOG.warn('missing %s', ','.join(missing))
         return False
     return True
 
@@ -1273,6 +1281,10 @@ def main():
                       rsu_config['product'])
         sys.exit(os.EX_UNAVAILABLE)
 
+    if not check_files(args, rsu_config):
+        LOG.error('missing one or more files required by rsu config')
+        sys.exit(os.EX_CONFIG)
+
     if args.verify:
         updated = do_verify(boards, args, rsu_config)
         verified = True
@@ -1296,10 +1308,6 @@ def main():
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(logging.Formatter(fmt=logfmt))
     LOG.addHandler(fh)
-
-    if not check_files(args, rsu_config):
-        LOG.error('missing one or more files listed in rsu config')
-        sys.exit(os.EX_CONFIG)
 
     terminated = []
     interrupted = False
