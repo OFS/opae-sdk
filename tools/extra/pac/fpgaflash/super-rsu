@@ -704,8 +704,12 @@ class eth_instance(object):
 
     def check(self):
         LOG.debug('checking eth: %s', self._interface)
-        iface = sysfs_node(os.path.join('/sys/class/net', self._interface))
-        read_addr = iface.read_node('address').lower().replace(':', '')
+        try:
+            iface = sysfs_node(os.path.join('/sys/class/net', self._interface))
+            read_addr = iface.read_node('address').lower().replace(':', '')
+        except NameError:
+            read_addr = None
+
         if read_addr:
             LOG.debug('address read: %s', read_addr)
             return True
