@@ -56,7 +56,6 @@ if (BUILD_PYTHON_DIST)
 endif()
 add_subdirectory(extra/pac/pac_hssi_config)
 add_subdirectory(extra/pac/fpgabist)
-add_subdirectory(extra/pac/pacd)
 
 # samples
 add_subdirectory(samples/bmc_test)
