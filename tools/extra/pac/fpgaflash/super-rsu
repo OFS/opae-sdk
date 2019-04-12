@@ -54,7 +54,7 @@ BMC_SENSOR_RE = re.compile(BMC_SENSOR_PATTERN, re.MULTILINE)
 
 BMC_NORMAL_RANGES = {
     'FPGA Die Temperature': (1.0, 85.0),
-    'Board Temperature': (1.0, 85.0)
+    'Board Power': (1.0, 85.0)
 }
 
 CLASS_ROOT = '/sys/class/fpga'
@@ -1126,6 +1126,10 @@ def do_rsu(boards, args, config):
     targets = []
 
     for b in boards:
+        if b.errors:
+            LOG.warn('[%s] %s errors detected, skipping rsu', b.errors,
+                     b.pci_node.bdf)
+            continue
         node = b.pci_node
         root = node.root
         while node.parent is not root:
