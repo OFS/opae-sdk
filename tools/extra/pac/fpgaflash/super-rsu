@@ -27,6 +27,7 @@
 import glob
 import json
 import logging
+import logging.handlers
 import os
 import re
 import signal
@@ -40,11 +41,21 @@ from contextlib import contextmanager
 from ctypes import c_uint64, LittleEndianStructure, Union
 from datetime import timedelta
 from threading import Thread
+from uuid import UUID
 
 PCI_ADDRESS_PATTERN = (r'(?P<pci_address>'
                        r'(?P<segment>[\da-f]{4}):(?P<bdf>(?P<bus>[\da-f]{2}):'
                        r'(?P<device>[\da-f]{2})\.(?P<function>\d)))')
 PCI_ADDRESS_RE = re.compile(PCI_ADDRESS_PATTERN, re.IGNORECASE)
+
+BMC_SENSOR_PATTERN = (r'^\(\s*(?P<num>\d+)\)\s*(?P<name>[\w \.]+)\s*:\s*'
+                      r'(?P<value>[\d\.]+)\s+(?P<units>\w+)$')
+BMC_SENSOR_RE = re.compile(BMC_SENSOR_PATTERN, re.MULTILINE)
+
+BMC_NORMAL_RANGES = {
+    'Board Power': (1.0, 85.0),
+    'Board Temperature': (1.0, 85.0)
+}
 
 CLASS_ROOT = '/sys/class/fpga'
 
@@ -86,6 +97,11 @@ OPAE_NVMUPDATE_EXE = os.path.join(OPAE_SHARE, 'bin', NVMUPDATE_EXE)
 LOG = logging.getLogger(__name__)
 TRACE = logging.DEBUG - 5
 logging.addLevelName(TRACE, 'TRACE')
+
+
+def sys_exit(code):
+    LOG.info("%s exiting with code '%s'", os.path.basename(__file__), code)
+    sys.exit(code)
 
 
 def trace(msg, *args, **kwargs):
@@ -666,17 +682,35 @@ class bmc_fw_pkvl(bmc_fw):
 
 
 class eth_instance(object):
+    TEST_MODES = ['offline', 'online', 'external_lb']
+
     def __init__(self, node):
         self._vendor_id = node.get('vendor')
         self._device_id = node.get('device')
         self._bus = int(node.get('bus'))
         self._device = int(node.get('dev'))
         self._function = int(node.get('func'))
-        self._version = node.find('Module').get('version')
+        self._version = node.find('Module[@version]').get('version')
+        # for now use enp{bus}s{subdevice}f{func} as the interface name
+        # TODO (RR): replace with better method to map to bdf
+        self._interface = 'enp{bus}s{subdevice}f{func}'.format(**node.attrib)
 
     @property
     def version(self):
         return self._version
+
+    def test(self, mode='all'):
+        if mode == 'all':
+            results = [self.test(m) for m in self.TEST_MODES]
+            if any(results):
+                return os.EX_SOFTWARE
+            return os.EX_OK
+        if mode in self.TEST_MODES:
+            try:
+                return subprocess.call(['ethtool', '-t',
+                                        self._interface, mode])
+            except OSError:
+                LOG.warn("could not call 'ethtool'")
 
 
 class nvm_updater(object):
@@ -917,7 +951,40 @@ class pac(object):
                     unflashed.append(flash_info)
         return len(unflashed) == 0 and not self.errors
 
-    def run_tests(self):
+    def _validate_sensors(self):
+        cmd = 'fpgainfo bmc --bus 0x{}'.format(self.pci_node.bus)
+        try:
+            LOG.debug('[%s] reading sensor data', self.pci_node.bdf)
+            output = call_process(cmd)
+        except (subprocess.CalledProcessError, OSError):
+            return os.EX_SOFTWARE
+        sensors = {}
+        for m in BMC_SENSOR_RE.finditer(output):
+            sensors[m.group('name').strip()] = m.groupdict()
+        if not sensors:
+            LOG.error('no sensor data found')
+            return os.EX_SOFTWARE
+
+        errors = 0
+        for (k, (lo, hi)) in BMC_NORMAL_RANGES.iteritems():
+            sensor = sensors.get(k)
+            if not sensor:
+                LOG.debug("sensor '%s' not found in sensor data", k)
+                errors += 1
+                continue
+            str_value = sensors[k]['value']
+            value = float(str_value)
+            if value < lo or value > hi:
+                LOG.debug('[%s] sensor (%s) value (%s) out of range',
+                          self.pci_node.bdf, k, value)
+                errors += 1
+        return errors
+
+    def run_tests(self, rsu_config):
+        sensor_errors = self._validate_sensors()
+        if sensor_errors:
+            LOG.error("error validating sensors")
+            return os.EX_SOFTWARE
         return os.EX_OK
 
 
@@ -925,7 +992,7 @@ class vc(pac):
     boot_page = 0
     FACTORY_IMAGE = 0
     USER_IMAGE = 1
-    VRAN_AFU_ID = 'a10be880b6ac4abfa43534c9d7395956'
+    PKVL_STATUS_UP = 0x11
 
     def __init__(self, pci_node, fpga, **kwargs):
         super(vc, self).__init__(pci_node, fpga, **kwargs)
@@ -940,10 +1007,29 @@ class vc(pac):
         value = int(self.fpga.fme.read_node('bitstream_id'), 16)
         return vc_fme_version(value)
 
-    def run_tests(self):
-        if self._fpga.port.read_node('afu_id') == self.VRAN_AFU_ID:
-            return os.EX_OK
-        return os.EX_SOFTWARE
+    def run_tests(self, rsu_config):
+        failures = super(vc, self).run_tests(rsu_config)
+
+        expected_afu_id = rsu_config.get('afu_id')
+        if expected_afu_id is not None:
+            try:
+                read_afu_id = self._fpga.port.read_node('afu_id')
+            except ValueError:
+                LOG.error('[%s] could not read afu_id from system',
+                          self.pci_node.bdf)
+                failures += 1
+            else:
+                if UUID(expected_afu_id) != UUID(read_afu_id):
+                    LOG.warn('[%s] afu_id read not equal to expected one',
+                             self.pci_node.bdf)
+                    failures += 1
+
+        pkvl_status = self._fpga.spi_bus.read_node('pkvl', 'status')
+        if int(pkvl_status, 16) != self.PKVL_STATUS_UP:
+            LOG.warn('pkvl status (%s) not up', pkvl_status)
+            failures += 1
+
+        return failures
 
 
 class dc(pac):
@@ -1129,18 +1215,23 @@ def do_nvmupdate(args, rsu_config, **kwargs):
         return 0
 
     nvmu = nvm_updater()
-    items = nvmu.enumerate(vendor='8086', device='D58', func='0')
-    if not items:
+    eth_instances = nvmu.enumerate(vendor='8086', device='D58', func='0')
+    if not eth_instances:
         LOG.warn('could not enumerate ETH interfaces')
-        return 1
-    need_update = [item for item in items
-                   if item.version != nvm_cfg.get('version')]
+        return (os.EX_UNAVAILABLE, os.EX_UNAVAILABLE)
+    need_update = [eth for eth in eth_instances
+                   if eth.version != nvm_cfg.get('version')]
+
+    if kwargs.get('verify'):
+        # eth.test() may teturn 'None' if ethtool can't be found
+        # this expression won't treat any 'None' as failures
+        results = [eth.test('offline') for eth in eth_instances]
+        test_ok = os.EX_SOFTWARE if any(results) else os.EX_OK
+        return (len(need_update), test_ok)
+
     if not need_update and not args.force_flash:
         LOG.debug('no eth interfaces to update')
         return 0
-
-    if kwargs.get('verify'):
-        return len(need_update)
 
     old_versions = set([item.version for item in need_update])
     nvm_file = os.path.abspath(os.path.join(flash_dir, nvm_cfg['filename']))
@@ -1169,16 +1260,16 @@ def do_nvmupdate(args, rsu_config, **kwargs):
     return result
 
 
-def run_tests(boards, args):
+def run_tests(boards, args, rsu_config):
     results = []
     for b in boards:
-        result = b.run_tests()
+        result = b.run_tests(rsu_config)
         if result:
-            LOG.debug('[%s] test failed', b.pci_node.bdf)
+            LOG.debug('[%s] self-test failed', b.pci_node.bdf)
         results.append(result)
     if any(results):
         return os.EX_SOFTWARE
-    LOG.debug('all tests pass')
+    LOG.info('all board tests pass')
     return os.EX_OK
 
 
@@ -1269,21 +1360,21 @@ def main():
 
     if not DRY_RUN and os.getuid():
         LOG.error('must run as root')
-        sys.exit(os.EX_NOPERM)
+        sys_exit(os.EX_NOPERM)
 
     rsu_config = json.load(args.rsu_config)
     if not rsu_config:
         logging.error('invalid rsu config: %s', args.rsu_config.name)
-        sys.exit(os.EX_USAGE)
+        sys_exit(os.EX_USAGE)
     boards = discover_boards(rsu_config, args)
     if not boards:
         logging.error('Could not find boards for given product %s',
                       rsu_config['product'])
-        sys.exit(os.EX_UNAVAILABLE)
+        sys_exit(os.EX_UNAVAILABLE)
 
     if not check_files(args, rsu_config):
         LOG.error('missing one or more files required by rsu config')
-        sys.exit(os.EX_CONFIG)
+        sys_exit(os.EX_CONFIG)
 
     if args.verify:
         updated = do_verify(boards, args, rsu_config)
@@ -1296,15 +1387,24 @@ def main():
             verified = False
         else:
             LOG.debug('all boards up to date')
-        check_nvmupdate = do_nvmupdate(args, rsu_config, verify=True)
-        if check_nvmupdate:
-            LOG.debug('need to run nvmupdate on %s interfaces',
-                      check_nvmupdate)
-        if verified and not check_nvmupdate and not run_tests(boards, args):
-            sys.exit(os.EX_SOFTWARE)
-        sys.exit(os.EX_OK)
+        if 'nvmupdate' in rsu_config:
+            (need_update, eth_results) = do_nvmupdate(args, rsu_config,
+                                                      verify=True)
+            if need_update and need_update != os.EX_UNAVAILABLE:
+                LOG.warn('need to run nvmupdate on %s interfaces', need_update)
+            if eth_results:
+                LOG.warn('eth tests failed')
+            test_result = run_tests(boards, args, rsu_config)
+            if not verified or need_update or test_result or eth_results:
+                sys_exit(os.EX_SOFTWARE)
+        else:
+            if not verified or test_result:
+                sys_exit(os.EX_SOFTWARE)
+        sys_exit(os.EX_OK)
 
-    fh = logging.FileHandler(args.log_file, mode='w')
+    fh = logging.handlers.RotatingFileHandler(args.log_file, mode='w',
+                                              backupCount=10)
+    fh.doRollover()
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(logging.Formatter(fmt=logfmt))
     LOG.addHandler(fh)
@@ -1323,17 +1423,28 @@ def main():
         to_test = boards
 
     if len(to_test) < len(to_rsu):
-        sys.exit(os.EX_SOFTWARE)
+        sys_exit(os.EX_SOFTWARE)
     elif interrupted:
-        sys.exit(os.EX_IOERR)
+        sys_exit(os.EX_IOERR)
     else:
-        test_result = run_tests(to_rsu, args)
-        nvm_verify = do_nvmupdate(args, rsu_config, verify=True)
+        test_result = run_tests(to_rsu, args, rsu_config)
         if test_result:
-            LOG.error('self tests failed')
-        if nvm_verify:
-            LOG.error("nvmupdate didn't update all ETH interfaces")
-        sys.exit(test_result or nvm_verify)
+            LOG.error('board self tests failed')
+            exit_code = os.EX_SOFTWARE
+        else:
+            exit_code = os.EX_OK
+
+        if 'nvmupdate' in rsu_config:
+            (need_update, eth_results) = do_nvmupdate(args, rsu_config,
+                                                      verify=True)
+            if need_update:
+                LOG.error("nvmupdate didn't update all ETH interfaces")
+            if eth_results:
+                LOG.error("one ore more ETH interfaces failed testing")
+            if need_update or eth_results:
+                exit_code = os.EX_SOFTWARE
+
+        sys_exit(exit_code)
 
 
 if __name__ == '__main__':
