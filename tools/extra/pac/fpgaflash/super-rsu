@@ -53,7 +53,7 @@ BMC_SENSOR_PATTERN = (r'^\(\s*(?P<num>\d+)\)\s*(?P<name>[\w \.]+)\s*:\s*'
 BMC_SENSOR_RE = re.compile(BMC_SENSOR_PATTERN, re.MULTILINE)
 
 BMC_NORMAL_RANGES = {
-    'Board Power': (1.0, 85.0),
+    'FPGA Die Temperature': (1.0, 85.0),
     'Board Temperature': (1.0, 85.0)
 }
 
@@ -864,7 +864,7 @@ class pac(object):
             if to_flash.image_load == self.FACTORY_IMAGE:
                 LOG.debug('%s (%s) is booted from factory bank', flash_type,
                           self.pci_node)
-            if to_flash.needs_flash(flash_info):
+            if to_flash.needs_flash(flash_info) and to_flash.can_verify:
                 LOG.debug('%s versions not equal (system:%s != manifest:%s)',
                           flash_type, to_flash.version, flash_info['version'])
             cmd = to_flash.command(flash_info, filename,
