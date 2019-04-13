@@ -2,8 +2,8 @@
 
 ## SYNOPSIS ##
 ```console
-super-rsu [-h] [-n] [--loglevel {trace,debug,error,warn,info,notset}]
-          [--rsu-only] [--skip-rsu] [--force-flash] [--timeout TIMEOUT]
+super-rsu [-h] [-n] [--verify] | [ [--log-level {trace,debug,error,warn,info,notset}]
+          [--log-file <filename>] [--rsu-only] [--skip-rsu] [--force-flash] ]
  	  rsu_config
 ```
 
@@ -40,11 +40,17 @@ At a high level, the flow of super-rsu should be:
     2. Compare the version listed in the "flash spec" to version reported by
        the target component.
     3. Create a task to call fpgaflash if either of the following conditions is
-       met:
-       * The "force" indicator is present and set to true
+       met (and the revision specified is compatible):
+       * The "force" indicator is present and set to true.
        * The version in the spec does not match the version reported by the
-         system and a revision is included in the spec and the revision matches
-	 the revision reported by the system.
+         system OR the flash type is factory type.
+
+_NOTE_: If the system reports a revision for one of the components
+being flashed, this revision must be in the set of revisions listed
+in the manifest.
+Example: if the system reports 'a' for bmc_img and the manifest includes
+'ab', then the image will be flashed.
+
   * For each task created from the "flash" section:
     1. Call fpgaflash with the command line arguments that correspond to the
        flash type and the file name in the spec used to create the task.
@@ -73,15 +79,27 @@ format)
 
    Print usage information.
 
+`--verify`
+
+  Compare versions of flashable components on the system against the manifest.
+  Return non-zero exit if compatible components are not up to date.
+
 `-n, --dry-run`
 
   Don't perform any updates, just a dry run.
   This will print out commands that can be executed
   in a Linux shell.
 
-`--loglevel {trace,debug,error,warn,info,notset}`
+`--log-level {trace,debug,error,warn,info,notset}`
 
   Log level to use. Default is 'info'.
+
+`--log-file <filename> (default: /tmp/super-rsu.log)
+
+  Emit log messages (with DEBUG level) to filename
+  _NOTE_: The default log file (/tmp/super-rsu.log) is set to rollover every
+  time super-rsu is executed. This will create numbered backups before
+  truncating the log file. The maximum number of backups is 50.
 
 `--rsu-only`
 
@@ -94,11 +112,6 @@ format)
 `--force-flash`
 
   Flash all images regardless of versions matching or not.
-
-`--timeout TIMEOUT`
-
-  Maximum amount of time (sec) to wait before beginning termination
-  sequence. Default is 1800.0 seconds (30 minutes).
 
 
 ## CONFIGURATION ##
