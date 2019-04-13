@@ -54,7 +54,7 @@ BMC_SENSOR_RE = re.compile(BMC_SENSOR_PATTERN, re.MULTILINE)
 
 BMC_NORMAL_RANGES = {
     'FPGA Die Temperature': (1.0, 85.0),
-    'Board Power': (1.0, 85.0)
+    'Board Power': (1.0, 150.0)
 }
 
 CLASS_ROOT = '/sys/class/fpga'
@@ -703,19 +703,8 @@ class eth_instance(object):
         return self._version
 
     def check(self):
-        LOG.debug('checking eth: %s', self._interface)
-        try:
-            iface = sysfs_node(os.path.join('/sys/class/net', self._interface))
-            read_addr = iface.read_node('address').lower().replace(':', '')
-        except NameError:
-            read_addr = None
-
-        if read_addr:
-            LOG.debug('address read: %s', read_addr)
-            return True
-        else:
-            LOG.warn('could not get address')
-            return False
+        # TODO (RR): implement ethernet testing
+        return True
 
 
 class nvm_updater(object):
@@ -1029,9 +1018,11 @@ class vc(pac):
                              self.pci_node.bdf)
                     failures += 1
 
-        pkvl_status = self._fpga.spi_bus.read_node('pkvl', 'status')
-        if int(pkvl_status, 16) != self.PKVL_STATUS_UP:
-            LOG.warn('pkvl status (%s) not up', pkvl_status)
+        try:
+            self._fpga.spi_bus.read_node('pkvl', 'pkvl_a_version')
+            self._fpga.spi_bus.read_node('pkvl', 'pkvl_b_version')
+        except NameError:
+            LOG.warn('error reading pkvl versions')
             failures += 1
 
         return failures
@@ -1236,7 +1227,7 @@ def do_nvmupdate(args, rsu_config, **kwargs):
         test_ok = os.EX_SOFTWARE if not all(results) else os.EX_OK
         return (len(need_update), test_ok)
 
-    if not need_update and not args.force_flash:
+    if not need_update:
         LOG.debug('no eth interfaces to update')
         return 0
 
@@ -1253,9 +1244,6 @@ def do_nvmupdate(args, rsu_config, **kwargs):
                                            REPLACES=old_version,
                                            FILENAME=nvm_file))
         cmd = '{} -u -c {}'.format(OPAE_NVMUPDATE_EXE, fd.name)
-
-    if args.force_flash:
-        cmd += ' -f'
 
     task = process_task(cmd)
     p = task()
