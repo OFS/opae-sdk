@@ -971,6 +971,9 @@ def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
             target_offset = 0x10000
             erase_len = 0x60000
             flash_erase(mtd_dev, 0x70000, 0x48000)
+        elif pvid == DC_PVID:
+            target_offset = 0xb8000
+            erase_len = 0xa8000
         else:
             raise Exception("{} not supported on {}".format(utype, pvid))
     elif utype == 'dtb':
