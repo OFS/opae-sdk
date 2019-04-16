@@ -85,8 +85,6 @@ typedef struct _vc_device {
 	uint64_t max_sensor_id;
 	uint8_t *state_tripped; // bit set
 	uint8_t *state_last;    // bit set
-	char drv_rm_path[SYSFS_PATH_MAX];
-	char drv_rescan_path[SYSFS_PATH_MAX];
 } vc_device;
 
 #define BIT_SET_MASK(__n)  (1 << ((__n) % 8))
@@ -471,8 +469,54 @@ STATIC bool vc_monitor_sensors(vc_device *vc)
 	return res;
 }
 
-STATIC fpga_result vc_unload_driver(const char *path)
+STATIC fpga_result vc_unload_driver(vc_device *vc)
 {
+	fpga_token token;
+	fpga_result res;
+	fpga_properties prop = NULL;
+	char path[SYSFS_PATH_MAX];
+
+	uint16_t seg = 0;
+	uint8_t bus = 0;
+	uint8_t dev = 0;
+	uint8_t fn = 0;
+
+	token = vc->base_device->token;
+
+	res = fpgaGetProperties(token, &prop);
+	if (res != FPGA_OK) {
+		LOG("failed to get fpga properties.\n");
+		return res;
+	}
+
+	if ((fpgaPropertiesGetSegment(prop, &seg) != FPGA_OK) ||
+	    (fpgaPropertiesGetBus(prop, &bus) != FPGA_OK) ||
+	    (fpgaPropertiesGetDevice(prop, &dev) != FPGA_OK) ||
+	    (fpgaPropertiesGetFunction(prop, &fn) != FPGA_OK)) {
+		LOG("failed to get PCI attributes.\n");
+		fpgaDestroyProperties(&prop);
+		return res;
+	}
+
+	fpgaDestroyProperties(&prop);
+
+	//           11111111112222222222333
+	// 012345678901234567890123456789012
+	// /sys/bus/pci/devices/ssss:bb:dd.f
+
+	snprintf_s_i(path, SYSFS_PATH_MAX,
+		     "/sys/bus/pci/devices/%04x:",
+		     (int)seg);
+
+	snprintf_s_i(&path[26], SYSFS_PATH_MAX - 26,
+		     "%02x:", (int)bus);
+
+	snprintf_s_i(&path[29], SYSFS_PATH_MAX - 29,
+		     "%02x.", (int)dev);
+
+	snprintf_s_i(&path[32], SYSFS_PATH_MAX - 32,
+		     "%d/remove", (int)fn);
+
 	LOG("writing 1 to %s to remove driver.\n", path);
 	if (file_write_string(path, "1\n", 2)) {
 		LOG("failed to write \"%s\"\n", path);
@@ -481,8 +525,9 @@ STATIC fpga_result vc_unload_driver(const char *path)
 	return FPGA_OK;
 }
 
-STATIC fpga_result vc_force_pci_rescan(const char *path)
+STATIC fpga_result vc_force_pci_rescan(void)
 {
+	const char *path = "/sys/bus/pci/rescan";
 	LOG("writing 1 to %s to rescan the device.\n", path);
 	if (file_write_string(path, "1\n", 2)) {
 		LOG("failed to write \"%s\"\n", path);
@@ -540,7 +585,7 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 
 		fpgad_mutex_lock(err, &cool_down_lock);
 
-		if (vc_unload_driver(vc->drv_rm_path) == FPGA_OK) {
+		if (vc_unload_driver(vc) == FPGA_OK) {
 
 			for (i = 0 ; i < cool_down ; ++i) {
 				if (!vc_threads_running) {
@@ -551,7 +596,7 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 				sleep(1);
 			}
 
-			if (vc_force_pci_rescan(vc->drv_rescan_path) != FPGA_OK)
+			if (vc_force_pci_rescan() != FPGA_OK)
 				LOG("failed to force PCI bus rescan.\n");
 		}
 
@@ -611,12 +656,6 @@ int fpgad_plugin_configure(fpgad_monitored_device *d,
 	d->type = FPGAD_PLUGIN_TYPE_THREAD;
 
 	if (d->object_type == FPGA_DEVICE) {
-		uint16_t seg = 0;
-		uint8_t bus = 0;
-		uint8_t dev = 0;
-		uint8_t fn = 0;
-		fpga_properties prop = NULL;
-		fpga_result fpga_res;
 
 		d->thread_fn = monitor_fme_vc_thread;
 		d->thread_stop_fn = stop_vc_threads;
@@ -627,54 +666,6 @@ int fpgad_plugin_configure(fpgad_monitored_device *d,
 
 		vc->base_device = d;
 		d->thread_context = vc;
-
-		fpga_res = fpgaGetProperties(d->token, &prop);
-		if (fpga_res != FPGA_OK) {
-			LOG("failed to get fpga properties.\n");
-			return res;
-		}
-
-		if ((fpgaPropertiesGetSegment(prop, &seg) != FPGA_OK) ||
-		    (fpgaPropertiesGetBus(prop, &bus) != FPGA_OK) ||
-		    (fpgaPropertiesGetDevice(prop, &dev) != FPGA_OK) ||
-		    (fpgaPropertiesGetFunction(prop, &fn) != FPGA_OK)) {
-			LOG("failed to get PCI attributes.\n");
-			fpgaDestroyProperties(&prop);
-			return res;
-		}
-
-		fpgaDestroyProperties(&prop);
-
-		//           11111111112222222222333
-		// 012345678901234567890123456789012
-		// /sys/bus/pci/devices/ssss:bb:dd.f
-
-		snprintf_s_i(vc->drv_rm_path, SYSFS_PATH_MAX,
-				"/sys/bus/pci/devices/%04x:",
-				(int)seg);
-
-		snprintf_s_i(&vc->drv_rm_path[26], SYSFS_PATH_MAX - 26,
-				"%02x:", (int)bus);
-
-		snprintf_s_i(&vc->drv_rm_path[29], SYSFS_PATH_MAX - 29,
-				"%02x.", (int)dev);
-
-		snprintf_s_i(&vc->drv_rm_path[32], SYSFS_PATH_MAX - 32,
-				"%d/remove", (int)fn);
-
-
-		snprintf_s_i(vc->drv_rescan_path, SYSFS_PATH_MAX,
-				"/sys/bus/pci/devices/%04x:",
-				(int)seg);
-
-		snprintf_s_i(&vc->drv_rescan_path[26], SYSFS_PATH_MAX - 26,
-				"%02x:", (int)bus);
-
-		snprintf_s_i(&vc->drv_rescan_path[29], SYSFS_PATH_MAX - 29,
-				"%02x.", (int)dev);
-
-		snprintf_s_i(&vc->drv_rescan_path[32], SYSFS_PATH_MAX - 32,
-				"%d/rescan", (int)fn);
 
 		LOG("monitoring vid=0x%04x did=0x%04x (%s)\n",
 			d->supported->vendor_id,
