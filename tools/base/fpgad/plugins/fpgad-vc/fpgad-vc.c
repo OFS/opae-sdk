@@ -86,6 +86,7 @@ typedef struct _vc_device {
 	uint8_t *state_tripped; // bit set
 	uint8_t *state_last;    // bit set
 	char drv_rm_path[SYSFS_PATH_MAX];
+	char drv_rescan_path[SYSFS_PATH_MAX];
 } vc_device;
 
 #define BIT_SET_MASK(__n)  (1 << ((__n) % 8))
@@ -480,10 +481,9 @@ STATIC fpga_result vc_unload_driver(const char *path)
 	return FPGA_OK;
 }
 
-STATIC fpga_result vc_force_pci_rescan(void)
+STATIC fpga_result vc_force_pci_rescan(const char *path)
 {
-	const char *path = "/sys/bus/pci/rescan";
-	LOG("writing 1 to %s to rescan PCI.\n", path);
+	LOG("writing 1 to %s to rescan the device.\n", path);
 	if (file_write_string(path, "1\n", 2)) {
 		LOG("failed to write \"%s\"\n", path);
 		return FPGA_EXCEPTION;
@@ -544,13 +544,14 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 
 			for (i = 0 ; i < cool_down ; ++i) {
 				if (!vc_threads_running) {
-					fpgad_mutex_unlock(err, &cool_down_lock);
+					fpgad_mutex_unlock(err,
+							   &cool_down_lock);
 					return NULL;
 				}
 				sleep(1);
 			}
 
-			if (vc_force_pci_rescan() != FPGA_OK)
+			if (vc_force_pci_rescan(vc->drv_rescan_path) != FPGA_OK)
 				LOG("failed to force PCI bus rescan.\n");
 		}
 
@@ -660,6 +661,20 @@ int fpgad_plugin_configure(fpgad_monitored_device *d,
 
 		snprintf_s_i(&vc->drv_rm_path[32], SYSFS_PATH_MAX - 32,
 				"%d/remove", (int)fn);
+
+
+		snprintf_s_i(vc->drv_rescan_path, SYSFS_PATH_MAX,
+				"/sys/bus/pci/devices/%04x:",
+				(int)seg);
+
+		snprintf_s_i(&vc->drv_rescan_path[26], SYSFS_PATH_MAX - 26,
+				"%02x:", (int)bus);
+
+		snprintf_s_i(&vc->drv_rescan_path[29], SYSFS_PATH_MAX - 29,
+				"%02x.", (int)dev);
+
+		snprintf_s_i(&vc->drv_rescan_path[32], SYSFS_PATH_MAX - 32,
+				"%d/rescan", (int)fn);
 
 		LOG("monitoring vid=0x%04x did=0x%04x (%s)\n",
 			d->supported->vendor_id,
