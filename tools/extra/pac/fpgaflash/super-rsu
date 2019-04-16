@@ -57,6 +57,9 @@ BMC_NORMAL_RANGES = {
     'Board Power': (1.0, 150.0)
 }
 
+TIMEDELTA_PATTERN = r'(?P<number>\d+)?(?P<fraction>\.\d+)?(?P<units>[dhms])'
+TIMEDELTA_RE = re.compile(TIMEDELTA_PATTERN)
+
 CLASS_ROOT = '/sys/class/fpga'
 
 AER_OFF = 0xFFFFFFFF
@@ -100,6 +103,30 @@ logging.addLevelName(TRACE, 'TRACE')
 RSU_TMP_LOG = '/tmp/super-rsu.log'
 
 
+def parse_timedelta(inp):
+    data = {'d': 0.0, 'h': 0.0, 'm': 0.0, 's': 0.0}
+    for m in TIMEDELTA_RE.finditer(inp):
+        number = m.group('number')
+        fraction = m.group('fraction')
+        value = 0.0
+        if number:
+            value += int(number)
+        if fraction:
+            value += float(fraction)
+        units = m.group('units')
+        data[units] += value
+
+    if not all(data.values()):
+        LOG.warn("could not parse timedelta string: '%s'", inp)
+        return 0.0
+
+    td = timedelta(days=data['d'],
+                   hours=data['h'],
+                   minutes=data['m'],
+                   seconds=data['s'])
+    return td.total_seconds()
+
+
 def sys_exit(code):
     LOG.info("%s exiting with code '%s'", os.path.basename(__file__), code)
     sys.exit(code)
@@ -125,6 +152,7 @@ def call_process(cmd, no_dry=False):
 
 class update_thread(Thread):
     def __init__(self, board, fn, *args, **kwargs):
+        self._timeout = kwargs.pop('timeout', 0.0)
         thread_name = kwargs.pop('name', board.pci_node.bdf if board else None)
         super(update_thread, self).__init__(target=fn,
                                             name=thread_name,
@@ -135,6 +163,10 @@ class update_thread(Thread):
     @property
     def board(self):
         return self._board
+
+    @property
+    def timeout(self):
+        return self._timeout
 
     def terminate(self):
         self._board.terminate_update()
@@ -896,13 +928,16 @@ class pac(object):
 
     def update(self, flash_dir, rsu_config, args):
         tasks = []
+        timeout = 0.0
         for flash_info in rsu_config['flash']:
             task = self.flash_task(flash_dir, flash_info, args)
             if task is not None:
+                task_timeout = flash_info.get('timeout', '0')
+                timeout += parse_timedelta(task_timeout)
                 tasks.append((task, flash_info['filename']))
-
+        LOG.debug('[%s] update timeout set to: %s', self.pci_node.bdf, timeout)
         if tasks:
-            t = update_thread(self, self._update, tasks)
+            t = update_thread(self, self._update, tasks, timeout=timeout)
             t.start()
             return t
         return None
@@ -1167,12 +1202,21 @@ def do_update(boards, args, rsu_config):
         if update_thr is not None:
             threads.append(update_thr)
 
-    nvm_update_thr = update_thread(None, do_nvmupdate, args, rsu_config,
-                                   name='nvmupdate')
-    nvm_update_thr.start()
-    threads.append(nvm_update_thr)
-    expire = time.time() + args.timeout
-    remaining = args.timeout
+    if 'nvmupdate' in rsu_config:
+        nvm_timeout = parse_timedelta(
+            rsu_config['nvmupdate'].get('timeout', '00:10:0'))
+        nvm_update_thr = update_thread(None, do_nvmupdate, args, rsu_config,
+                                       name='nvmupdate', timeout=nvm_timeout)
+        nvm_update_thr.start()
+        threads.append(nvm_update_thr)
+
+    if rsu_config.get('version', 1) == 1:
+        timeout = args.timeout
+    else:
+        timeout = max([t.timeout for t in threads])
+    LOG.debug('max timeout set to: %s', timedelta(seconds=timeout))
+    expire = time.time() + timeout
+    remaining = timeout
     interrupted = False
     try:
         while time.time() < expire and threads:
@@ -1339,7 +1383,7 @@ def main():
     parser.add_argument('--force-flash', default=False, action='store_true',
                         help='flash all images regardless of versions matching'
                              'or not')
-    parser.add_argument('--timeout', default=1800.0, type=float,
+    parser.add_argument('--timeout', default=3600.0, type=float,
                         help=argparse.SUPPRESS)
     parser.add_argument('--verify', default=False, action='store_true',
                         help='verify if versions on system match versions in'
