@@ -758,11 +758,27 @@ class nvm_updater(object):
             return []
         tree = ET.parse(f.name)
         root = tree.getroot()
-        attr = ''.join(["[@{}='{}']".format(k, v)
-                        for k, v in kwargs.iteritems()])
+        attr = ''.join(["[@{}]".format(k)
+                        for k in kwargs.keys()])
         xpath = './Instance{}'.format(attr)
         LOG.debug('searching %s', xpath)
-        nodes = root.findall(xpath)
+
+        def filter_attrib(node):
+            for k, v in kwargs.iteritems():
+                if k not in node.attrib:
+                    return False
+                if k in ['vendor', 'device', 'bus']:
+                    attrib_value = int(node.get(k), 16)
+                else:
+                    try:
+                        attrib_value = type(v)(node.get(k))
+                    except ValueError:
+                        attrib_value = None
+                if attrib_value != v:
+                    return False
+            return True
+
+        nodes = filter(filter_attrib, root.findall(xpath))
         LOG.debug('found %s nodes in inventory', len(nodes))
         return nodes
 
@@ -1252,6 +1268,30 @@ def do_verify(boards, args, rsu_config):
     return [b for b in boards if b.verify(rsu_config, args)]
 
 
+def do_nvmverify(boards, args, rsu_config):
+    nvm_cfg = rsu_config.get('nvmupdate')
+    if not nvm_cfg:
+        return True
+
+    nvmu = nvm_updater()
+    if int(rsu_config.get('version', 1)) == 1:
+        vendor_id = 0x8086
+        device_id = 0x0d58
+        total_count = 2
+    else:
+        vendor_id = int(nvm_cfg['vendor'], 16)
+        device_id = int(nvm_cfg['device'], 16)
+        total_count = nvm_cfg.get('interfaces', 1)
+    eth_instances = nvmu.enumerate(vendor=vendor_id, device=device_id, func=0)
+    updated_count = len(eth_instances)
+
+    if updated_count != total_count:
+        LOG.warn('Only %s/%s ETH interfaces updated',
+                 updated_count, total_count)
+        return False
+    return True
+
+
 def do_nvmupdate(args, rsu_config, **kwargs):
     flash_dir = os.path.dirname(args.rsu_config.name)
     nvm_cfg = rsu_config.get('nvmupdate')
@@ -1259,17 +1299,18 @@ def do_nvmupdate(args, rsu_config, **kwargs):
         return 0
 
     nvmu = nvm_updater()
-    eth_instances = nvmu.enumerate(vendor='8086', device='D58', func='0')
+    if rsu_config['version'] == 1:
+        vendor_id = 0x8086
+        device_id = 0x0d58
+    else:
+        vendor_id = int(nvm_cfg['vendor'], 16)
+        device_id = int(nvm_cfg['device'], 16)
+    eth_instances = nvmu.enumerate(vendor=vendor_id, device=device_id, func=0)
     if not eth_instances:
         LOG.warn('could not enumerate ETH interfaces')
         return (os.EX_UNAVAILABLE, os.EX_UNAVAILABLE)
     need_update = [eth for eth in eth_instances
                    if eth.version != nvm_cfg.get('version')]
-
-    if kwargs.get('verify'):
-        results = [eth.check() for eth in eth_instances]
-        test_ok = os.EX_SOFTWARE if not all(results) else os.EX_OK
-        return (len(need_update), test_ok)
 
     if not need_update:
         LOG.debug('no eth interfaces to update')
@@ -1282,11 +1323,11 @@ def do_nvmupdate(args, rsu_config, **kwargs):
     with tempfile.NamedTemporaryFile('w', delete=False) as fd:
         LOG.debug('generating nvmupdate cfg: %s', fd.name)
         fd.write(NVM_CFG_HEAD)
-        for old_version in old_versions:
-            LOG.debug('adding old version to nvmupdate cfg: %s', old_version)
-            fd.write(NVM_CFG_DEVICE.format(EEPID=nvm_cfg['version'],
-                                           REPLACES=old_version,
-                                           FILENAME=nvm_file))
+        replaces_str = ' '.join(old_versions)
+        LOG.debug("adding old versions to nvmupdate cfg: '%s'", replaces_str)
+        fd.write(NVM_CFG_DEVICE.format(EEPID=nvm_cfg['version'],
+                                       REPLACES=replaces_str,
+                                       FILENAME=nvm_file))
         cmd = '{} -u -c {}'.format(OPAE_NVMUPDATE_EXE, fd.name)
 
     task = process_task(cmd)
@@ -1427,18 +1468,13 @@ def main():
         else:
             LOG.debug('all boards up to date')
         if 'nvmupdate' in rsu_config:
-            (need_update, eth_results) = do_nvmupdate(args, rsu_config,
-                                                      verify=True)
-            if need_update and need_update != os.EX_UNAVAILABLE:
-                LOG.warn('need to run nvmupdate on %s interfaces', need_update)
-            if eth_results:
-                LOG.warn('eth tests failed')
-            test_result = run_tests(boards, args, rsu_config)
-            if not verified or need_update or test_result or eth_results:
-                sys_exit(os.EX_SOFTWARE)
+            nvm_verified = do_nvmverify(boards, args, rsu_config)
         else:
-            if not verified or test_result:
-                sys_exit(os.EX_SOFTWARE)
+            nvm_verified = True
+
+        test_result = run_tests(boards, args, rsu_config)
+        if not verified or not nvm_verified or test_result:
+            sys_exit(os.EX_SOFTWARE)
         sys_exit(os.EX_OK)
 
     if args.log_file == RSU_TMP_LOG:
@@ -1466,29 +1502,26 @@ def main():
     else:
         to_test = boards
 
-    if len(to_test) < len(to_rsu):
-        sys_exit(os.EX_SOFTWARE)
-    elif interrupted:
+    if interrupted:
+        LOG.info('some or all updates were interrupted, skipping self tests')
         sys_exit(os.EX_IOERR)
-    else:
-        test_result = run_tests(to_rsu, args, rsu_config)
-        if test_result:
-            LOG.error('board self tests failed')
+
+    exit_code = os.EX_OK
+
+    if len(to_test) < len(to_rsu):
+        LOG.warn('not all boards updated, testing only those that were')
+        exit_code = os.EX_SOFTWARE
+
+    test_result = run_tests(to_test, args, rsu_config)
+    if test_result:
+        LOG.error('board self tests failed')
+        exit_code = os.EX_SOFTWARE
+
+    if 'nvmupdate' in rsu_config:
+        if not do_nvmverify(boards, args, rsu_config):
             exit_code = os.EX_SOFTWARE
-        else:
-            exit_code = os.EX_OK
 
-        if 'nvmupdate' in rsu_config:
-            (need_update, eth_results) = do_nvmupdate(args, rsu_config,
-                                                      verify=True)
-            if need_update:
-                LOG.error("nvmupdate didn't update all ETH interfaces")
-            if eth_results:
-                LOG.error("one ore more ETH interfaces failed testing")
-            if need_update or eth_results:
-                exit_code = os.EX_SOFTWARE
-
-        sys_exit(exit_code)
+    sys_exit(exit_code)
 
 
 if __name__ == '__main__':
