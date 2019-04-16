@@ -430,6 +430,7 @@ class pci_node(sysfs_node):
                 self.write_node('on', 'power', 'control')
         LOG.debug('rescanning bus %s under %s', bus, self.pci_address)
         self.write_node('1', 'pci_bus', bus, 'rescan')
+        self._children = []
 
     @property
     def aer(self):
@@ -960,8 +961,13 @@ class pac(object):
 
     def rsu(self, boot_page=None):
         page = self.boot_page if boot_page is None else boot_page
-        self.fpga.spi_bus.write_node(str(page),
-                                     'bmcimg_flash_ctrl', 'bmcimg_image_load')
+        try:
+            self.fpga.spi_bus.write_node(str(page),
+                                         'bmcimg_flash_ctrl',
+                                         'bmcimg_image_load')
+        except IOError:
+            LOG.debug('[%s] anticipated error writing to bmcimg_image_load',
+                      self.pci_node.bdf)
 
     def terminate_update(self):
         self._terminate = True
@@ -1194,12 +1200,24 @@ def do_rsu(boards, args, config):
                 continue
             except IOError:
                 time.sleep(5)
-            finally:
+            else:
                 t.remove()
                 logging.info('waiting for FPGA reconfiguration')
                 time.sleep(10)
                 r.rescan_bus('{}:{}'.format(t.segment, t.bus))
                 time.sleep(1)
+    # because bdf can change, update our board objects
+    for b in boards:
+        old_pci_id = b.pci_node.pci_id
+        old_pci_bdf = b.pci_node.bdf
+        for node in b.root.all_children:
+            # look at all children from the root port
+            if node.pci_id == old_pci_id:
+                # we've found our board pci node
+                if node.bdf != old_pci_bdf:
+                    LOG.info('updating new BDF, %s -> %s', old_pci_bdf,
+                             node.bdf)
+                    b.pci_node = node
 
 
 def do_update(boards, args, rsu_config):
