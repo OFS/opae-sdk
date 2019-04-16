@@ -945,7 +945,7 @@ class pac(object):
                     unflashed.append(flash_info)
         return len(unflashed) == 0 and not self.errors
 
-    def _validate_sensors(self):
+    def _validate_bmc(self, bmc_sensors):
         cmd = 'fpgainfo bmc --bus 0x{}'.format(self.pci_node.bus)
         try:
             LOG.debug('[%s] reading sensor data', self.pci_node.bdf)
@@ -960,7 +960,8 @@ class pac(object):
             return os.EX_SOFTWARE
 
         errors = 0
-        for (k, (lo, hi)) in BMC_NORMAL_RANGES.iteritems():
+
+        for (k, (lo, hi)) in bmc_sensors['ranges'].iteritems():
             sensor = sensors.get(k)
             if not sensor:
                 LOG.debug("sensor '%s' not found in sensor data", k)
@@ -968,16 +969,34 @@ class pac(object):
                 continue
             str_value = sensors[k]['value']
             value = float(str_value)
+            LOG.debug('[%s] - %s = %s', self.pci_node.bdf,
+                      k, value)
             if value < lo or value > hi:
-                LOG.debug('[%s] sensor (%s) value (%s) out of range',
-                          self.pci_node.bdf, k, value)
+                LOG.warn('[%s] sensor (%s) value (%s) out of range: %s',
+                         self.pci_node.bdf, k, value, (lo, hi))
                 errors += 1
         return errors
 
     def run_tests(self, rsu_config):
-        sensor_errors = self._validate_sensors()
-        if sensor_errors:
-            LOG.error("error validating sensors")
+        err = 0
+        if rsu_config.get('version', 0) <= 1:
+            return os.EX_OK
+
+        sensors_validated = False
+        for sv in rsu_config.get('sensor validation', []):
+            if sv['type'] == 'bmc':
+                bmc = self.get_flashable('bmc_fw')
+                if bmc.version.revision.lower() == sv['revision'].lower():
+                    LOG.debug("[%s] validating sensors for rev '%s'",
+                              self.pci_node.bdf, sv['revision'])
+                    err += self._validate_bmc(sv)
+                    sensors_validated = True
+                    break
+
+        if not sensors_validated:
+            LOG.warn('[%s] did not validate sensors', self.pci_node.bdf)
+        elif err:
+            LOG.error('[%s] error validating sensors', self.pci_node.bdf)
             return os.EX_SOFTWARE
         return os.EX_OK
 
