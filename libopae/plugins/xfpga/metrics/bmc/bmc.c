@@ -564,7 +564,8 @@ fpga_result bmcGetLastPowerdownCause(fpga_token token, char **cause)
 		goto out;
 	}
 
-	*cause = strdup((const char *)tmp->message);
+	*cause = strndup((const char *)tmp->message,
+		strnlen_s((const char *)tmp->message, SYSFS_PATH_MAX));
 
 out:
 	if (tmp) {
@@ -598,49 +599,61 @@ fpga_result bmcGetLastResetCause(fpga_token token, char **cause)
 
 	if (tmp->completion_code != 0) {
 		res = FPGA_NOT_FOUND;
-		*cause = strdup((const char *)"Unavailable");
+		*cause = strndup((const char *)"Unavailable",
+			strnlen_s((const char *)"Unavailable", SYSFS_PATH_MAX));
 		goto out;
 	}
 
 	if (0 == tmp->reset_cause) {
-		*cause = strdup((const char *)"None");
+		*cause = strndup((const char *)"None",
+			strnlen_s((const char *)"None", SYSFS_PATH_MAX));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_EXTRST) {
-		*cause = strdup((const char *)"External reset");
+		*cause = strndup((const char *)"External reset",
+			strnlen_s((const char *)"External reset", SYSFS_PATH_MAX));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_BOD_IO) {
-		*cause = strdup((const char *)"Brown-out detected");
+		*cause = strndup((const char *)"Brown-out detected",
+			strnlen_s((const char *)"Brown-out detected", SYSFS_PATH_MAX));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_OCD) {
-		*cause = strdup((const char *)"On-chip debug system");
+		*cause = strndup((const char *)"On-chip debug system",
+			strnlen_s((const char *)"On-chip debug system", SYSFS_PATH_MAX));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_POR) {
-		*cause = strdup((const char *)"Power-on-reset");
+		*cause = strndup((const char *)"Power-on-reset",
+			strnlen_s((const char *)"Power-on-reset", SYSFS_PATH_MAX));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_SOFT) {
-		*cause = strdup((const char *)"Software reset");
+		*cause = strndup((const char *)"Software reset",
+			strnlen_s((const char *)"Software reset", SYSFS_PATH_MAX));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_SPIKE) {
-		*cause = strdup((const char *)"Spike detected");
+		*cause = strndup((const char *)"Spike detected",
+			strnlen_s((const char *)"Spike detected", SYSFS_PATH_MAX));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_WDT) {
-		*cause = strdup((const char *)"Watchdog timeout");
+		*cause = strndup((const char *)"Watchdog timeout",
+			strnlen_s((const char *)"Watchdog timeout", SYSFS_PATH_MAX));
 		goto out;
 	}
+
+	*cause = strndup((const char *)"Unknown",
+		strnlen_s((const char *)"Unknown", SYSFS_PATH_MAX));
 
 out:
 	if (tmp) {
