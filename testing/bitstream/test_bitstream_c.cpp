@@ -255,6 +255,7 @@ TEST_P(bitstream_c_p, resolve_err0) {
   opae_bitstream_info info;
   info.data = (uint8_t *)&hdr;
   info.data_len = sizeof(hdr);
+  info.filename = (char*)"dummy_file.txt";
 
   EXPECT_EQ(opae_resolve_bitstream(&info), FPGA_INVALID_PARAM);
 }
