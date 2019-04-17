@@ -156,6 +156,7 @@ TEST_P(fpgad_evt_c_p, normal_dispatch) {
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
   fpgad_monitored_device d;
+  d.object_id = platform_.devices[0].fme_object_id;
   EXPECT_TRUE(evt_queue_response(stop_running_response,
                                  &d,
                                  NULL));
