@@ -39,7 +39,7 @@ import xml.etree.cElementTree as ET
 
 from contextlib import contextmanager
 from ctypes import c_uint64, LittleEndianStructure, Union
-from datetime import timedelta
+from datetime import datetime, timedelta
 from threading import Thread
 from uuid import UUID
 
@@ -56,6 +56,9 @@ BMC_NORMAL_RANGES = {
     'FPGA Die Temperature': (1.0, 85.0),
     'Board Power': (1.0, 150.0)
 }
+
+TIMEDELTA_PATTERN = r'(?P<number>\d+)?(?P<fraction>\.\d+)?(?P<units>[dhms])'
+TIMEDELTA_RE = re.compile(TIMEDELTA_PATTERN)
 
 CLASS_ROOT = '/sys/class/fpga'
 
@@ -100,6 +103,30 @@ logging.addLevelName(TRACE, 'TRACE')
 RSU_TMP_LOG = '/tmp/super-rsu.log'
 
 
+def parse_timedelta(inp):
+    data = {'d': 0.0, 'h': 0.0, 'm': 0.0, 's': 0.0}
+    for m in TIMEDELTA_RE.finditer(inp):
+        number = m.group('number')
+        fraction = m.group('fraction')
+        value = 0.0
+        if number:
+            value += int(number)
+        if fraction:
+            value += float(fraction)
+        units = m.group('units')
+        data[units] += value
+
+    if sum(data.values()) == 0.0:
+        LOG.warn("did not find positive values in timedelta string: '%s'", inp)
+        return 0.0
+
+    td = timedelta(days=data['d'],
+                   hours=data['h'],
+                   minutes=data['m'],
+                   seconds=data['s'])
+    return td.total_seconds()
+
+
 def sys_exit(code):
     LOG.info("%s exiting with code '%s'", os.path.basename(__file__), code)
     sys.exit(code)
@@ -125,6 +152,7 @@ def call_process(cmd, no_dry=False):
 
 class update_thread(Thread):
     def __init__(self, board, fn, *args, **kwargs):
+        self._timeout = kwargs.pop('timeout', 0.0)
         thread_name = kwargs.pop('name', board.pci_node.bdf if board else None)
         super(update_thread, self).__init__(target=fn,
                                             name=thread_name,
@@ -135,6 +163,10 @@ class update_thread(Thread):
     @property
     def board(self):
         return self._board
+
+    @property
+    def timeout(self):
+        return self._timeout
 
     def terminate(self):
         self._board.terminate_update()
@@ -398,6 +430,7 @@ class pci_node(sysfs_node):
                 self.write_node('on', 'power', 'control')
         LOG.debug('rescanning bus %s under %s', bus, self.pci_address)
         self.write_node('1', 'pci_bus', bus, 'rescan')
+        self._children = []
 
     @property
     def aer(self):
@@ -726,11 +759,27 @@ class nvm_updater(object):
             return []
         tree = ET.parse(f.name)
         root = tree.getroot()
-        attr = ''.join(["[@{}='{}']".format(k, v)
-                        for k, v in kwargs.iteritems()])
+        attr = ''.join(["[@{}]".format(k)
+                        for k in kwargs.keys()])
         xpath = './Instance{}'.format(attr)
         LOG.debug('searching %s', xpath)
-        nodes = root.findall(xpath)
+
+        def filter_attrib(node):
+            for k, v in kwargs.iteritems():
+                if k not in node.attrib:
+                    return False
+                if k in ['vendor', 'device', 'bus']:
+                    attrib_value = int(node.get(k), 16)
+                else:
+                    try:
+                        attrib_value = type(v)(node.get(k))
+                    except ValueError:
+                        attrib_value = None
+                if attrib_value != v:
+                    return False
+            return True
+
+        nodes = filter(filter_attrib, root.findall(xpath))
         LOG.debug('found %s nodes in inventory', len(nodes))
         return nodes
 
@@ -777,6 +826,13 @@ class pac(object):
     @property
     def pci_node(self):
         return self._pci_node
+
+    @pci_node.setter
+    def pci_node(self, node):
+        if isinstance(node, pci_node):
+            self._pci_node = node
+        else:
+            LOG.warn('pci_node value not compatible')
 
     @property
     def fpga(self):
@@ -896,21 +952,29 @@ class pac(object):
 
     def update(self, flash_dir, rsu_config, args):
         tasks = []
+        timeout = 0.0
         for flash_info in rsu_config['flash']:
             task = self.flash_task(flash_dir, flash_info, args)
             if task is not None:
+                task_timeout = flash_info.get('timeout', '0')
+                timeout += parse_timedelta(task_timeout)
                 tasks.append((task, flash_info['filename']))
-
+        LOG.debug('[%s] update timeout set to: %s', self.pci_node.bdf, timeout)
         if tasks:
-            t = update_thread(self, self._update, tasks)
+            t = update_thread(self, self._update, tasks, timeout=timeout)
             t.start()
             return t
         return None
 
     def rsu(self, boot_page=None):
         page = self.boot_page if boot_page is None else boot_page
-        self.fpga.spi_bus.write_node(str(page),
-                                     'bmcimg_flash_ctrl', 'bmcimg_image_load')
+        try:
+            self.fpga.spi_bus.write_node(str(page),
+                                         'bmcimg_flash_ctrl',
+                                         'bmcimg_image_load')
+        except IOError:
+            LOG.debug('[%s] anticipated error writing to bmcimg_image_load',
+                      self.pci_node.bdf)
 
     def terminate_update(self):
         self._terminate = True
@@ -1162,12 +1226,24 @@ def do_rsu(boards, args, config):
                 continue
             except IOError:
                 time.sleep(5)
-            finally:
+            else:
                 t.remove()
                 logging.info('waiting for FPGA reconfiguration')
                 time.sleep(10)
                 r.rescan_bus('{}:{}'.format(t.segment, t.bus))
                 time.sleep(1)
+    # because bdf can change, update our board objects
+    for b in boards:
+        old_pci_id = b.pci_node.pci_id
+        old_pci_bdf = b.pci_node.bdf
+        for node in b.pci_node.root.all_children:
+            # look at all children from the root port
+            if node.pci_id == old_pci_id:
+                # we've found our board pci node
+                if node.bdf != old_pci_bdf:
+                    LOG.info('updating new BDF, %s -> %s', old_pci_bdf,
+                             node.bdf)
+                    b.pci_node = node
 
 
 def do_update(boards, args, rsu_config):
@@ -1186,12 +1262,21 @@ def do_update(boards, args, rsu_config):
         if update_thr is not None:
             threads.append(update_thr)
 
-    nvm_update_thr = update_thread(None, do_nvmupdate, args, rsu_config,
-                                   name='nvmupdate')
-    nvm_update_thr.start()
-    threads.append(nvm_update_thr)
-    expire = time.time() + args.timeout
-    remaining = args.timeout
+    if 'nvmupdate' in rsu_config:
+        nvm_timeout = parse_timedelta(
+            rsu_config['nvmupdate'].get('timeout', '00:10:0'))
+        nvm_update_thr = update_thread(None, do_nvmupdate, args, rsu_config,
+                                       name='nvmupdate', timeout=nvm_timeout)
+        nvm_update_thr.start()
+        threads.append(nvm_update_thr)
+
+    if rsu_config.get('version', 1) == 1:
+        timeout = args.timeout
+    else:
+        timeout = max([t.timeout for t in threads])
+    LOG.debug('max timeout set to: %s', timedelta(seconds=timeout))
+    expire = time.time() + timeout
+    remaining = timeout
     interrupted = False
     try:
         while time.time() < expire and threads:
@@ -1227,6 +1312,30 @@ def do_verify(boards, args, rsu_config):
     return [b for b in boards if b.verify(rsu_config, args)]
 
 
+def do_nvmverify(boards, args, rsu_config):
+    nvm_cfg = rsu_config.get('nvmupdate')
+    if not nvm_cfg:
+        return True
+
+    nvmu = nvm_updater()
+    if int(rsu_config.get('version', 1)) <= 1:
+        vendor_id = 0x8086
+        device_id = 0x0d58
+        total_count = 2
+    else:
+        vendor_id = int(nvm_cfg['vendor'], 16)
+        device_id = int(nvm_cfg['device'], 16)
+        total_count = nvm_cfg.get('interfaces', 1) * len(boards)
+    eth_instances = nvmu.enumerate(vendor=vendor_id, device=device_id, func=0)
+    updated_count = len(eth_instances)
+
+    if updated_count != total_count:
+        LOG.warn('Only %s/%s ETH interfaces updated',
+                 updated_count, total_count)
+        return False
+    return True
+
+
 def do_nvmupdate(args, rsu_config, **kwargs):
     flash_dir = os.path.dirname(args.rsu_config.name)
     nvm_cfg = rsu_config.get('nvmupdate')
@@ -1234,17 +1343,18 @@ def do_nvmupdate(args, rsu_config, **kwargs):
         return 0
 
     nvmu = nvm_updater()
-    eth_instances = nvmu.enumerate(vendor='8086', device='D58', func='0')
+    if rsu_config['version'] == 1:
+        vendor_id = 0x8086
+        device_id = 0x0d58
+    else:
+        vendor_id = int(nvm_cfg['vendor'], 16)
+        device_id = int(nvm_cfg['device'], 16)
+    eth_instances = nvmu.enumerate(vendor=vendor_id, device=device_id, func=0)
     if not eth_instances:
         LOG.warn('could not enumerate ETH interfaces')
         return (os.EX_UNAVAILABLE, os.EX_UNAVAILABLE)
     need_update = [eth for eth in eth_instances
                    if eth.version != nvm_cfg.get('version')]
-
-    if kwargs.get('verify'):
-        results = [eth.check() for eth in eth_instances]
-        test_ok = os.EX_SOFTWARE if not all(results) else os.EX_OK
-        return (len(need_update), test_ok)
 
     if not need_update:
         LOG.debug('no eth interfaces to update')
@@ -1257,11 +1367,11 @@ def do_nvmupdate(args, rsu_config, **kwargs):
     with tempfile.NamedTemporaryFile('w', delete=False) as fd:
         LOG.debug('generating nvmupdate cfg: %s', fd.name)
         fd.write(NVM_CFG_HEAD)
-        for old_version in old_versions:
-            LOG.debug('adding old version to nvmupdate cfg: %s', old_version)
-            fd.write(NVM_CFG_DEVICE.format(EEPID=nvm_cfg['version'],
-                                           REPLACES=old_version,
-                                           FILENAME=nvm_file))
+        replaces_str = ' '.join(old_versions)
+        LOG.debug("adding old versions to nvmupdate cfg: '%s'", replaces_str)
+        fd.write(NVM_CFG_DEVICE.format(EEPID=nvm_cfg['version'],
+                                       REPLACES=replaces_str,
+                                       FILENAME=nvm_file))
         cmd = '{} -u -c {}'.format(OPAE_NVMUPDATE_EXE, fd.name)
 
     task = process_task(cmd)
@@ -1358,7 +1468,7 @@ def main():
     parser.add_argument('--force-flash', default=False, action='store_true',
                         help='flash all images regardless of versions matching'
                              'or not')
-    parser.add_argument('--timeout', default=1800.0, type=float,
+    parser.add_argument('--timeout', default=3600.0, type=float,
                         help=argparse.SUPPRESS)
     parser.add_argument('--verify', default=False, action='store_true',
                         help='verify if versions on system match versions in'
@@ -1390,6 +1500,8 @@ def main():
         LOG.error('missing one or more files required by rsu config')
         sys_exit(os.EX_CONFIG)
 
+    begin = datetime.now()
+
     if args.verify:
         updated = do_verify(boards, args, rsu_config)
         verified = True
@@ -1402,18 +1514,16 @@ def main():
         else:
             LOG.debug('all boards up to date')
         if 'nvmupdate' in rsu_config:
-            (need_update, eth_results) = do_nvmupdate(args, rsu_config,
-                                                      verify=True)
-            if need_update and need_update != os.EX_UNAVAILABLE:
-                LOG.warn('need to run nvmupdate on %s interfaces', need_update)
-            if eth_results:
-                LOG.warn('eth tests failed')
-            test_result = run_tests(boards, args, rsu_config)
-            if not verified or need_update or test_result or eth_results:
-                sys_exit(os.EX_SOFTWARE)
+            nvm_verified = do_nvmverify(boards, args, rsu_config)
         else:
-            if not verified or test_result:
-                sys_exit(os.EX_SOFTWARE)
+            nvm_verified = True
+
+        test_result = run_tests(boards, args, rsu_config)
+        total_elapsed = datetime.now() - begin
+        LOG.info('%s verification completed in: %s',
+                 os.path.basename(__file__), total_elapsed)
+        if not verified or not nvm_verified or test_result:
+            sys_exit(os.EX_SOFTWARE)
         sys_exit(os.EX_OK)
 
     if args.log_file == RSU_TMP_LOG:
@@ -1441,29 +1551,28 @@ def main():
     else:
         to_test = boards
 
-    if len(to_test) < len(to_rsu):
-        sys_exit(os.EX_SOFTWARE)
-    elif interrupted:
+    if interrupted:
+        LOG.info('some or all updates were interrupted, skipping self tests')
         sys_exit(os.EX_IOERR)
-    else:
-        test_result = run_tests(to_rsu, args, rsu_config)
-        if test_result:
-            LOG.error('board self tests failed')
+
+    exit_code = os.EX_OK
+
+    if len(to_test) < len(to_rsu):
+        LOG.warn('not all boards updated, testing only those that were')
+        exit_code = os.EX_SOFTWARE
+
+    test_result = run_tests(to_test, args, rsu_config)
+    if test_result:
+        LOG.error('board self tests failed')
+        exit_code = os.EX_SOFTWARE
+
+    if 'nvmupdate' in rsu_config:
+        if not do_nvmverify(boards, args, rsu_config):
             exit_code = os.EX_SOFTWARE
-        else:
-            exit_code = os.EX_OK
-
-        if 'nvmupdate' in rsu_config:
-            (need_update, eth_results) = do_nvmupdate(args, rsu_config,
-                                                      verify=True)
-            if need_update:
-                LOG.error("nvmupdate didn't update all ETH interfaces")
-            if eth_results:
-                LOG.error("one ore more ETH interfaces failed testing")
-            if need_update or eth_results:
-                exit_code = os.EX_SOFTWARE
-
-        sys_exit(exit_code)
+    total_elapsed = datetime.now() - begin
+    LOG.info('%s update completed in: %s', os.path.basename(__file__),
+             total_elapsed)
+    sys_exit(exit_code)
 
 
 if __name__ == '__main__':
