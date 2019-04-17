@@ -827,6 +827,13 @@ class pac(object):
     def pci_node(self):
         return self._pci_node
 
+    @pci_node.setter
+    def pci_node(self, node):
+        if isinstance(node, pci_node):
+            self._pci_node = node
+        else:
+            LOG.warn('pci_node value not compatible')
+
     @property
     def fpga(self):
         return self._fpga
