@@ -116,8 +116,8 @@ def parse_timedelta(inp):
         units = m.group('units')
         data[units] += value
 
-    if not all(data.values()):
-        LOG.warn("could not parse timedelta string: '%s'", inp)
+    if sum(data.values()) == 0.0:
+        LOG.warn("did not find positive values in timedelta string: '%s'", inp)
         return 0.0
 
     td = timedelta(days=data['d'],
@@ -1229,7 +1229,7 @@ def do_rsu(boards, args, config):
     for b in boards:
         old_pci_id = b.pci_node.pci_id
         old_pci_bdf = b.pci_node.bdf
-        for node in b.root.all_children:
+        for node in b.pci_node.root.all_children:
             # look at all children from the root port
             if node.pci_id == old_pci_id:
                 # we've found our board pci node
