@@ -39,7 +39,7 @@ import xml.etree.cElementTree as ET
 
 from contextlib import contextmanager
 from ctypes import c_uint64, LittleEndianStructure, Union
-from datetime import timedelta
+from datetime import datetime, timedelta
 from threading import Thread
 from uuid import UUID
 
@@ -1500,6 +1500,8 @@ def main():
         LOG.error('missing one or more files required by rsu config')
         sys_exit(os.EX_CONFIG)
 
+    begin = datetime.now()
+
     if args.verify:
         updated = do_verify(boards, args, rsu_config)
         verified = True
@@ -1517,6 +1519,9 @@ def main():
             nvm_verified = True
 
         test_result = run_tests(boards, args, rsu_config)
+        total_elapsed = datetime.now() - begin
+        LOG.info('%s verification completed in: %s',
+                 os.path.basename(__file__), total_elapsed)
         if not verified or not nvm_verified or test_result:
             sys_exit(os.EX_SOFTWARE)
         sys_exit(os.EX_OK)
@@ -1564,6 +1569,9 @@ def main():
     if 'nvmupdate' in rsu_config:
         if not do_nvmverify(boards, args, rsu_config):
             exit_code = os.EX_SOFTWARE
+    total_elapsed = datetime.now() - begin
+    LOG.info('%s update completed in: %s', os.path.basename(__file__),
+             total_elapsed)
     sys_exit(exit_code)
 
 
