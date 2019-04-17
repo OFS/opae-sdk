@@ -1318,14 +1318,14 @@ def do_nvmverify(boards, args, rsu_config):
         return True
 
     nvmu = nvm_updater()
-    if int(rsu_config.get('version', 1)) == 1:
+    if int(rsu_config.get('version', 1)) <= 1:
         vendor_id = 0x8086
         device_id = 0x0d58
         total_count = 2
     else:
         vendor_id = int(nvm_cfg['vendor'], 16)
         device_id = int(nvm_cfg['device'], 16)
-        total_count = nvm_cfg.get('interfaces', 1)
+        total_count = nvm_cfg.get('interfaces', 1) * len(boards)
     eth_instances = nvmu.enumerate(vendor=vendor_id, device=device_id, func=0)
     updated_count = len(eth_instances)
 
@@ -1564,7 +1564,6 @@ def main():
     if 'nvmupdate' in rsu_config:
         if not do_nvmverify(boards, args, rsu_config):
             exit_code = os.EX_SOFTWARE
-
     sys_exit(exit_code)
 
 
