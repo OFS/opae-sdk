@@ -722,13 +722,24 @@ def write_file(fname, data):
         wfile.write(data)
 
 
-def get_mtd_from_spi_path(spi_path):
-    mtds = glob.glob(os.path.join(spi_path, '*.*.auto',
-                                  'mtd', 'mtd*'))
+def get_mtd_from_spi_path(mode_path, spi_path):
 
-    for mtd in mtds:
-        if not fnmatch.fnmatchcase(mtd, "*ro"):
-            return os.path.join('/dev', os.path.basename(mtd))
+    write_file(mode_path, "1")
+
+    for i in range(20):
+
+        time.sleep(1)
+
+        mtds = glob.glob(os.path.join(spi_path, '*.*.auto',
+                                      'mtd', 'mtd*'))
+
+        for mtd in mtds:
+            if not fnmatch.fnmatchcase(mtd, "*ro"):
+                mtd_dev = os.path.join('/dev', os.path.basename(mtd))
+                print "using %s" % (mtd_dev) 
+                return mtd_dev
+
+    raise Exception("no mtd node found for mode %s" % (mode_path))
 
 
 def bmc_fw_update(ifile, spi_path, no_verify):
@@ -742,11 +753,7 @@ def bmc_fw_update(ifile, spi_path, no_verify):
 
     start, size = ihex.segments()[0]
 
-    write_file(mode_path, "1")
-
-    time.sleep(1)
-
-    mtd_dev = get_mtd_from_spi_path(spi_path)
+    mtd_dev = get_mtd_from_spi_path(mode_path, spi_path)
 
     bdata = ihex.tobinarray()
 
@@ -957,13 +964,7 @@ def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
         mode_path = os.path.join(spi_path,
                                  'fpga_flash_ctrl', 'fpga_flash_mode')
 
-    write_file(mode_path, "1")
-
-    time.sleep(1)
-
-    mtd_dev = get_mtd_from_spi_path(spi_path)
-
-    print mtd_dev
+    mtd_dev = get_mtd_from_spi_path(mode_path, spi_path)
 
     pvid = get_pvid(bdf)
     if utype == 'factory':
