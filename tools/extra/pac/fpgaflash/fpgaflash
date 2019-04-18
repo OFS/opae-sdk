@@ -736,7 +736,7 @@ def get_mtd_from_spi_path(mode_path, spi_path):
         for mtd in mtds:
             if not fnmatch.fnmatchcase(mtd, "*ro"):
                 mtd_dev = os.path.join('/dev', os.path.basename(mtd))
-                print "using %s" % (mtd_dev) 
+                print "using %s" % (mtd_dev)
                 return mtd_dev
 
     raise Exception("no mtd node found for mode %s" % (mode_path))
