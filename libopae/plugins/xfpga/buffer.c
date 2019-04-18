@@ -31,6 +31,7 @@
 #include "opae/access.h"
 #include "opae/utils.h"
 #include "common_int.h"
+#include "intel-fpga.h"
 
 #include "opae_drv.h"
 
@@ -158,6 +159,9 @@ fpga_result __FPGA_API__ xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t le
 	bool preallocated = (flags & FPGA_BUF_PREALLOCATED);
 	bool quiet = (flags & FPGA_BUF_QUIET);
 
+	bool read_only = (flags & FPGA_BUF_READ_ONLY);
+	uint32_t map_flags = (read_only ? FPGA_DMA_TO_DEV : 0);
+
 	uint64_t pg_size;
 
 	result = handle_check_and_lock(_handle);
@@ -171,7 +175,8 @@ fpga_result __FPGA_API__ xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t le
 		goto out_unlock;
 	}
 
-	if (flags & (~(FPGA_BUF_PREALLOCATED | FPGA_BUF_QUIET))) {
+	if (flags & (~(FPGA_BUF_PREALLOCATED | FPGA_BUF_QUIET |
+		       FPGA_BUF_READ_ONLY))) {
 		FPGA_MSG("Unrecognized flags");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
@@ -231,7 +236,7 @@ fpga_result __FPGA_API__ xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t le
 		}
 	}
 
-	if (opae_port_map(_handle->fddev, addr, len, &io_addr)) {
+	if (opae_port_map(_handle->fddev, addr, len, map_flags, &io_addr)) {
 		if (!preallocated) {
 			buffer_release(addr, len);
 		}

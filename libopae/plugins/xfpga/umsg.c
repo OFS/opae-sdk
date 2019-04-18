@@ -149,7 +149,7 @@ xfpga_fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 	}
 
 	// Map Umsg Buffer
-	result = opae_port_map(_handle->fddev, umsg_virt, umsg_size, &io_addr);
+	result = opae_port_map(_handle->fddev, umsg_virt, umsg_size, 0, &io_addr);
 	if (result != 0) {
 		OPAE_ERR("Failed to map UMSG buffer");
 		goto umsg_exit;
