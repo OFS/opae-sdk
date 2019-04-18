@@ -123,12 +123,21 @@ struct fpga_port_region_info {
  * Map the dma memory per user_addr and length which are provided by caller.
  * Driver fills the iova in provided struct afu_port_dma_map.
  * This interface only accepts page-size aligned user memory for dma mapping.
+ *
+ * Setting only one of FPGA_DMA_TO_DEV or FPGA_DMA_FROM_DEV limits
+ * FPGA-initiated DMA requests to only reads or only writes. In order
+ * to support legacy drivers that lacked these flags, setting neither
+ * flag is equivalent to setting both flags: both read and write are
+ * requests permitted.
+ *
  * Return: 0 on success, -errno on failure.
  */
 struct fpga_port_dma_map {
 	/* Input */
 	__u32 argsz;		/* Structure length */
 	__u32 flags;		/* Zero for now */
+#define FPGA_DMA_TO_DEV		(1 << 0)	/* Region is readable by FPGA */
+#define FPGA_DMA_FROM_DEV	(1 << 1)	/* Region is writable by FPGA */
 	__u64 user_addr;        /* Process virtual address */
 	__u64 length;           /* Length of mapping (bytes)*/
 	/* Output */
