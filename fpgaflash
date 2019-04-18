@@ -219,8 +219,7 @@ def parse_args():
     epi += 'example usages:\n\n'
 
 
-
-                        help='file to program into flash')
+    help='file to program into flash')
 
     bdf_help += " optional when one device in system"
 
