@@ -58,7 +58,8 @@ fpga_result opae_get_port_info(int fd, opae_port_info *info);
 fpga_result opae_get_port_region_info(int fd, uint32_t index,
 				      opae_port_region_info *info);
 
-fpga_result opae_port_map(int fd, void *addr, uint64_t len, uint64_t *io_addr);
+fpga_result opae_port_map(int fd, void *addr, uint64_t len, uint32_t flags,
+			  uint64_t *io_addr);
 fpga_result opae_port_unmap(int fd, uint64_t io_addr);
 
 fpga_result opae_port_umsg_cfg(int fd, uint32_t flags, uint32_t hint_bitmap);
