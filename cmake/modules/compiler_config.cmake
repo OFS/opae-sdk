@@ -50,6 +50,7 @@ endfunction(SET_CACHED_VARIABLE)
 # Default flags to compiler when build user-space programs.
 # Should come before enabling language.
 
+CHECK_C_COMPILER_FLAG(-Werror=implicit-fallthrough=3 COMPILER_SUPPORTS_IMPLICIT_FALLTHROUGH3)
 
 set(CMAKE_C_FLAGS_DEBUG            "-g -O0 -Wall -Wextra -Werror")
 set(CMAKE_CXX_FLAGS_DEBUG          "-g -O0 -Wall -Wextra -Werror")
@@ -62,6 +63,13 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -Wall -Wextra -Werror")
 
 set(CMAKE_C_FLAGS_MINSIZEREL       "-Os -Wall -Wextra -Werror")
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -Wall -Wextra -Werror")
+
+if(COMPILER_SUPPORTS_IMPLICIT_FALLTHROUGH3)
+  set(CMAKE_C_FLAGS_DEBUG          "${CMAKE_C_FLAGS_DEBUG} -Werror=implicit-fallthrough=3")
+  set(CMAKE_C_FLAGS_RELEASE        "${CMAKE_C_FLAGS_RELEASE} -Werror=implicit-fallthrough=3")
+  set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -Werror=implicit-fallthrough=3")
+  set(CMAKE_C_FLAGS_MINSIZEREL     "${CMAKE_C_FLAGS_MINSIZEREL} -Werror=implicit-fallthrough=3")
+endif()
 
 # Check if support for C++ 11 is available
 check_cxx_compiler_flag("-std=c++14" COMPILER_SUPPORTS_CXX14)
