@@ -46,7 +46,7 @@ typedef struct _ioctl_ops {
 					    opae_port_region_info *info);
 
 	fpga_result (*port_map)(int fd, void *addr, uint64_t len,
-				uint64_t *io_addr);
+				uint32_t flags, uint64_t *io_addr);
 	fpga_result (*port_unmap)(int fd, uint64_t io_addr);
 
 	fpga_result (*port_umsg_cfg)(int fd, uint32_t flags,
@@ -154,14 +154,15 @@ fpga_result intel_get_port_region_info(int fd, uint32_t index,
 }
 
 
-fpga_result intel_port_map(int fd, void *addr, uint64_t len, uint64_t *io_addr)
+fpga_result intel_port_map(int fd, void *addr, uint64_t len, uint32_t flags,
+			   uint64_t *io_addr)
 {
 	int res = 0;
 	int req = 0;
 	void *msg = NULL;
 	/* Set ioctl fpga_port_dma_map struct parameters */
 	struct fpga_port_dma_map dma_map = {.argsz = sizeof(dma_map),
-					    .flags = 0,
+					    .flags = flags,
 					    .user_addr = (__u64)addr,
 					    .length = (__u64)len,
 					    .iova = 0};
@@ -369,12 +370,13 @@ fpga_result dfl_get_port_region_info(int fd, uint32_t index,
 	return res;
 }
 
-fpga_result dfl_port_map(int fd, void *addr, uint64_t len, uint64_t *io_addr)
+fpga_result dfl_port_map(int fd, void *addr, uint64_t len, uint32_t flags,
+			 uint64_t *io_addr)
 {
 	int res = 0;
 	/* Set ioctl fpga_port_dma_map struct parameters */
 	struct dfl_fpga_port_dma_map dma_map = {.argsz = sizeof(dma_map),
-						.flags = 0,
+						.flags = flags,
 						.user_addr = (__u64)addr,
 						.length = (__u64)len,
 						.iova = 0};
@@ -523,9 +525,10 @@ fpga_result opae_get_port_region_info(int fd, uint32_t index,
 	IOCTL(get_port_region_info, fd, index, info);
 }
 
-fpga_result opae_port_map(int fd, void *addr, uint64_t len, uint64_t *io_addr)
+fpga_result opae_port_map(int fd, void *addr, uint64_t len, uint32_t flags,
+			  uint64_t *io_addr)
 {
-	IOCTL(port_map, fd, addr, len, io_addr);
+	IOCTL(port_map, fd, addr, len, flags, io_addr);
 }
 
 fpga_result opae_port_unmap(int fd, uint64_t io_addr)
