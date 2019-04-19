@@ -85,9 +85,13 @@ STATIC bool cmd_register_null_gbs(struct fpgad_config *c, char *null_gbs_path)
 
 		if (canon_path) {
 
+			memset_s(&c->null_gbs[c->num_null_gbs],
+				 sizeof(opae_bitstream_info), 0);
+
 			if (opae_load_bitstream(canon_path,
 						&c->null_gbs[c->num_null_gbs])) {
 				LOG("failed to load NULL GBS \"%s\"\n", canon_path);
+				opae_unload_bitstream(&c->null_gbs[c->num_null_gbs]);
 				free(canon_path);
 				return false;
 			}
