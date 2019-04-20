@@ -1315,6 +1315,8 @@ def do_nvmverify(boards, args, rsu_config):
         device_id = int(nvm_cfg['device'], 16)
         total_count = nvm_cfg.get('interfaces', 1) * len(boards)
     eth_instances = nvmu.enumerate(vendor=vendor_id, device=device_id, func=0)
+    eth_instances = [eth for eth in eth_instances
+                   if eth.version == nvm_cfg.get('version')]
     updated_count = len(eth_instances)
 
     if updated_count != total_count:
