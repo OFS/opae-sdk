@@ -1232,18 +1232,6 @@ def do_rsu(boards, args, config):
                 time.sleep(10)
                 r.rescan_bus('{}:{}'.format(t.segment, t.bus))
                 time.sleep(1)
-    # because bdf can change, update our board objects
-    for b in boards:
-        old_pci_id = b.pci_node.pci_id
-        old_pci_bdf = b.pci_node.bdf
-        for node in b.pci_node.root.all_children:
-            # look at all children from the root port
-            if node.pci_id == old_pci_id:
-                # we've found our board pci node
-                if node.bdf != old_pci_bdf:
-                    LOG.info('updating new BDF, %s -> %s', old_pci_bdf,
-                             node.bdf)
-                    b.pci_node = node
 
 
 def do_update(boards, args, rsu_config):
@@ -1544,10 +1532,25 @@ def main():
         to_rsu = boards
     else:
         to_rsu, terminated, interrupted = do_update(boards, args, rsu_config)
+        not_updated = len(to_rsu) != len(boards) or any([b.errors for b in to_rsu])
+        if not_updated or terminated or interrupted:
+            LOG.error('not all boards updated, failing now')
+            total_elapsed = datetime.now() - begin
+            LOG.info('%s update completed in: %s', os.path.basename(__file__),
+                     total_elapsed)
+            sys_exit(os.EX_SOFTWARE)
 
     if not args.skip_rsu:
         do_rsu(to_rsu, args, rsu_config)
-        to_test = do_verify(to_rsu, args, rsu_config)
+        to_verify = discover_boards(rsu_config, args)
+        if len(to_verify) != len(to_rsu):
+            LOG.error('did not rediscover same number of boards')
+            total_elapsed = datetime.now() - begin
+            LOG.info('%s update completed in: %s', os.path.basename(__file__),
+                     total_elapsed)
+            sys_exit(os.EX_SOFTWARE)
+
+        to_test = do_verify(to_verify, args, rsu_config)
     else:
         to_test = boards
 
