@@ -38,15 +38,17 @@ class DefaultMode(bc.BistMode):
     def __init__(self):
         self.executables = {'bist': ''}
 
-    def run(self, gbs_path, bus_num):
+    def run(self, gbs_path, bdf):
         if gbs_path:
-            bc.load_gbs(gbs_path, bus_num)
-        ret = 0
+            bc.load_gbs(gbs_path, bdf)
         for func, param in self.executables.items():
             print "Running Built-in Self test...\n"
-            cmd = "{} {}".format(func, param)
+            cmd = [func, '-B', hex(bdf['bus']),
+                   '-D', hex(bdf['device']),
+                   '-F', hex(bdf['function'])]
+            cmd.extend(param.split())
             try:
-                subprocess.check_call(cmd, shell=True)
+                subprocess.check_call(cmd)
             except subprocess.CalledProcessError as e:
                 print "Failed Test: {}".format(func)
                 print e

@@ -91,7 +91,11 @@ def main(args):
     ret = 0
     bist_common.dev_id = dev_id
     for feature in (FEATURES + PRIVATE_FEATURES.get(dev_id, [])):
-        cmd = "fpgainfo {} -B {}".format(feature, hex(bdf['bus']))
+        cmd = ['fpgainfo']
+        cmd.extend(feature)
+        cmd.extend(['-B', hex(bdf['bus']),
+                    '-D', hex(bdf['device']),
+                    '-F', hex(bdf['function'])])
         ret += subprocess.call(cmd, shell=True)
         print("\n")
 
@@ -110,7 +114,7 @@ def main(args):
             afu_ids.update({bist_common.get_afu_id(path): path})
         if not gbs_paths:
             # Get the afu ID of the afu in the slot (defaut persona)
-            afu_ids.update({bist_common.get_afu_id(): ""})
+            afu_ids.update({bist_common.get_afu_id(bdf=bdf): ""})
 
         for afu_id in afu_ids.keys():
             if afu_id == bist_def.DefaultMode().afu_id.replace("-", ""):
@@ -124,7 +128,7 @@ def main(args):
             else:
                 sys.exit("Unknown AFU for available ID {}\n".format(afu_id))
             print "Running mode: {}".format(mode.name)
-            ret += mode.run(afu_ids.get(afu_id), hex(bdf['bus'])[2:])
+            ret += mode.run(afu_ids.get(afu_id), bdf)
 
     print "\nBuilt-in Self-Test Completed.\n"
     sys.exit(ret)

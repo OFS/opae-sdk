@@ -44,6 +44,8 @@ int usleep(unsigned);
 # define MB(x)			     ((x) * 1024 * 1024)
 #endif // MB
 
+#define CONFIG_UNINIT (0)
+
 /**************** BIST #defines ***************/
 #define ENABLE_DDRA_BIST	      0x08000000
 #define ENABLE_DDRB_BIST	      0x10000000
@@ -89,66 +91,175 @@ int usleep(unsigned);
 		}				   \
 	} while (0)
 
+static void printUsage()
+{
+	printf(
+"Usage:\n"
+"     bist [-h] [-B <bus>] [-D <device>] [-F <function>] \n"
+"         -h,--help           Print this help\n"
+"         -B,--bus            Set target bus number\n"
+"         -D,--device         Set target device number\n"
+"         -F,--function       Set target function number\n\n"
+);
+
+	exit(1);
+}
+
 /* Type definitions */
 
 typedef struct {
 	uint32_t uint[16];
 } cache_line;
 
+struct config {
+	int bus;
+	int device;
+	int function;
+};
+
+/* Helper function definitions */
+
 void print_err(const char *s, fpga_result res)
 {
 	fprintf(stderr, "Error %s: %s\n", s, fpgaErrStr(res));
 }
 
+int find_accelerator(const char *afu_id, struct config *config,
+			    fpga_token *afu_tok) {
+	fpga_result res;
+	fpga_guid guid;
+	uint32_t num_matches = 0;
+	fpga_properties filter = NULL;
+
+	if(uuid_parse(afu_id, guid) < 0){
+	}
+	res = fpgaGetProperties(NULL, &filter);
+	ON_ERR_GOTO(res, out, "fpgaGetProperties");
+
+	res = fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR);
+	ON_ERR_GOTO(res, out_destroy_prop, "fpgaPropertiesSetObjectType");
+
+	res = fpgaPropertiesSetGUID(filter, guid);
+	ON_ERR_GOTO(res, out_destroy_prop, "fpgaPropertiesSetGUID");
+
+	if (CONFIG_UNINIT != config->bus) {
+		res = fpgaPropertiesSetBus(filter, config->bus);
+		ON_ERR_GOTO(res, out_destroy_prop, "setting bus");
+	}
+
+	if (CONFIG_UNINIT != config->device) {
+		res = fpgaPropertiesSetDevice(filter, config->device);
+		ON_ERR_GOTO(res, out_destroy_prop, "setting device");
+	}
+
+	if (CONFIG_UNINIT != config->function) {
+		res = fpgaPropertiesSetFunction(filter, config->function);
+		ON_ERR_GOTO(res, out_destroy_prop, "setting function");
+	}
+
+	res = fpgaEnumerate(&filter, 1, afu_tok, 1, &num_matches);
+	ON_ERR_GOTO(res, out_destroy_prop, "fpgaEnumerate");
+
+out_destroy_prop:
+	res = fpgaDestroyProperties(&filter);
+	ON_ERR_GOTO(res, out, "fpgaDestroyProperties");
+
+out:
+	if (num_matches > 0)
+		return (int)num_matches;
+	else
+		return 0;
+}
+
+static void parse_args(struct config *config, int argc, char *argv[])
+{
+	int c;
+	if(argc <= 1) {
+		//TODO: REmove this
+		printf("too few args");
+		printUsage();
+		return;
+	}
+	do {
+		static const struct option options[] = {
+			{"help", no_argument, 0, 'h'},
+			{"bus", required_argument, NULL, 'B'},
+			{"device", required_argument, NULL, 'D'},
+			{"function", required_argument, NULL, 'F'},
+			{0, 0, 0, 0}
+		};
+		char *endptr;
+		const char *tmp_optarg;
+
+		c = getopt_long(argc, argv, "hB:D:F:", options, NULL);
+		if (c == -1) {
+			break;
+		}
+
+		endptr = NULL;
+		tmp_optarg = optarg;
+		if ((optarg) && ('=' == *tmp_optarg)) {
+			++tmp_optarg;
+		}
+
+		switch (c) {
+		case 'h':
+			printUsage();
+			break;
+
+		case 'B':    /* bus */
+			if (NULL == tmp_optarg)
+				break;
+			config->bus = (int) strtoul(tmp_optarg, &endptr, 0);
+			//debug_print("bus = %x\n", config->bus);
+			break;
+
+		case 'D':    /* device */
+			if (NULL == tmp_optarg)
+				break;
+			config->device = (int) strtoul(tmp_optarg, &endptr, 0);
+			//debug_print("device = %x\n", config->device);
+			break;
+
+		case 'F':    /* function */
+			if (NULL == tmp_optarg)
+				break;
+			config->function = (int)strtoul(tmp_optarg, &endptr, 0);
+			//debug_print("function = %x\n", config->function);
+			break;
+		default:
+			fprintf(stderr, "unknown op %c\n", c);
+			printUsage();
+			break;
+		} //end case
+	} while(1);
+}
+
 int main(int argc, char *argv[])
 {
-	fpga_properties    filter = NULL;
 	fpga_token	   accelerator_token;
 	fpga_handle	   accelerator_handle;
-	fpga_guid	   guid;
-	uint32_t	   num_matches;
+	int open_flags = 0;
+	//fpga_guid	   guid;
+	//uint32_t	   num_matches;
 
 	fpga_result	res = FPGA_OK;
 
-	int opt;
-	int open_flags = 0;
+	struct config config = {
+		.bus = CONFIG_UNINIT,
+		.device = CONFIG_UNINIT,
+		.function = CONFIG_UNINIT,
+	};
 
-	/* Parse command line for exclusive or shared access */
-	while ((opt = getopt(argc, argv, "s")) != -1) {
-		switch (opt) {
-		case 's':
-			open_flags |= FPGA_OPEN_SHARED;
-			break;
-		default:
-			printf("USAGE: %s [-s]\n", argv[0]);
-			exit(1);
-		}
+	parse_args(&config, argc, argv);
+
+	int ret = find_accelerator(BIST_AFUID, &config, &accelerator_token);
+	if (ret < 0) {
+		ON_ERR_GOTO(ret, out_exit, "failed to find accelerator");
+	} else if (ret > 1){
+		ON_ERR_GOTO(ret, out_exit, "Found more than one suitable slot");
 	}
 
-	if (uuid_parse(BIST_AFUID, guid) < 0) {
-		fprintf(stderr, "Error parsing guid '%s'\n", BIST_AFUID);
-		goto out_exit;
-	}
-
-	/* Look for accelerator with MY_ACCELERATOR_ID */
-	res = fpgaGetProperties(NULL, &filter);
-	ON_ERR_GOTO(res, out_exit, "creating properties object");
-
-	res = fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR);
-	ON_ERR_GOTO(res, out_destroy_prop, "setting object type");
-
-	res = fpgaPropertiesSetGUID(filter, guid);
-	ON_ERR_GOTO(res, out_destroy_prop, "setting GUID");
-	/* TODO: Add selection via BDF / device ID */
-
-	res = fpgaEnumerate(&filter, 1, &accelerator_token, 1, &num_matches);
-	ON_ERR_GOTO(res, out_destroy_prop, "enumerating accelerators");
-
-	if (num_matches < 1) {
-		fprintf(stderr, "accelerator not found.\n");
-		res = fpgaDestroyProperties(&filter);
-		return FPGA_INVALID_PARAM;
-	}
 
 	/* Open accelerator and map MMIO */
 	res = fpgaOpen(accelerator_token, &accelerator_handle, open_flags);
@@ -233,7 +344,7 @@ int main(int argc, char *argv[])
 
 
        //Bank C
-       	bist_mask = ENABLE_DDRC_BIST;
+      	bist_mask = ENABLE_DDRC_BIST;
 	count = 0;
 	res = fpgaWriteMMIO32(accelerator_handle, 0, DDR_BIST_CTRL_ADDR, bist_mask);
 	ON_ERR_GOTO(res, out_close, "writing CSR_BIST");
@@ -299,12 +410,7 @@ out_close:
 	/* Destroy token */
 out_destroy_tok:
 	res = fpgaDestroyToken(&accelerator_token);
-	ON_ERR_GOTO(res, out_destroy_prop, "destroying token");
-
-	/* Destroy properties object */
-out_destroy_prop:
-	res = fpgaDestroyProperties(&filter);
-	ON_ERR_GOTO(res, out_exit, "destroying properties object");
+	ON_ERR_GOTO(res, out_exit, "destroying token");
 
 out_exit:
 	return res;

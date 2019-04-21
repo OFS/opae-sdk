@@ -54,7 +54,7 @@ def check_required_cmds():
         sys.exit("Failed to find required BIST commands\nTerminating BIST")
 
 
-def get_afu_id(gbs_path=""):
+def get_afu_id(gbs_path="", bdf=None):
     if os.path.isfile(gbs_path):
         cmd = ["packager", "gbs-info", "--gbs={}".format(gbs_path)]
         output = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -63,12 +63,17 @@ def get_afu_id(gbs_path=""):
         uuid = accel_data[0]["accelerator-type-uuid"].encode("ascii")
         return uuid.lower().replace("-", "")
     else:
-        bdf_pattern = re.compile(BDF_PATTERN)
-        for fpga in glob.glob('/sys/class/fpga/*'):
+        pattern = '{:x}:{:x}.{:x}'.format(bdf['bus'], bdf['device'],
+                                          bdf['function'])
+        fpgas = glob.glob('/sys/class/fpga/*')
+        for fpga in fpgas:
             slink = os.path.basename(os.readlink(os.path.join(fpga, "device")))
-            m = bdf_pattern.match(slink)
+            m = re.findall(pattern, slink)
             if m:
-                id_path = os.path.join(fpga, 'intel-fpga-port.0', 'afu_id')
+                id_path = os.path.join(fpga,
+                                       'intel-fpga-port.{}'
+                                       .format(fpgas.index(fpga)),
+                                       'afu_id')
                 with open(id_path) as f:
                     uuid = f.read().rstrip("\n")
                     return uuid.lower()
@@ -120,9 +125,11 @@ def get_mode_from_path(gbs_path):
     return None
 
 
-def load_gbs(gbs_file, bus_num):
+def load_gbs(gbs_file, bdf):
     print "Attempting Partial Reconfiguration:"
-    cmd = "{} -B 0x{} -v {}".format('fpgaconf', bus_num, gbs_file)
+    cmd = ['fpgaconf', '-B', hex(bdf['bus']), '-D',
+           hex(bdf['device']), '-F', hex(bdf['function']),
+           '-v', gbs_file]
     try:
         subprocess.check_call(cmd, shell=True)
     except subprocess.CalledProcessError as e:

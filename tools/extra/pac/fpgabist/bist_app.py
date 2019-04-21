@@ -38,9 +38,9 @@ class BistMode(bc.BistMode):
     def __init__(self):
         self.executables = {'bist_app': ''}
 
-    def run(self, gbs_path, bus_num):
+    def run(self, gbs_path, bdf):
         if gbs_path:
-            bc.load_gbs(gbs_path, bus_num)
+            bc.load_gbs(gbs_path, bdf)
         for func, param in self.executables.items():
             print "Running {} test...\n".format(func)
             cmd = "{} {}".format(func, param)
