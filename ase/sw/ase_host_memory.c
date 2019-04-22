@@ -466,7 +466,7 @@ static int ase_pt_pin_page(uint64_t va, uint64_t *iova, int pt_level)
 	//
 	// The result can be ignored since ASE will continue to work whether
 	// or not the lock succeeds.
-	mlock((void*)va, length);
+	mlock((void *)va, length);
 
 	if (ase_pt_enable_debug) {
 		printf("\nASE simulated page table (pinned VA 0x%" PRIx64 ", IOVA 0x%" PRIx64 "):\n",
@@ -491,7 +491,7 @@ static int ase_pt_unpin_page(uint64_t iova, int pt_level)
 
 	uint64_t va = iova ^ ase_host_memory_gen_xor_mask(pt_level);
 	if (va) {
-		munlock((void*)va, length);
+		munlock((void *)va, length);
 	}
 
 	while (level != pt_level) {
