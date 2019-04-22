@@ -82,9 +82,6 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	res = fpgaPropertiesGetFunction(props, &function);
 	fpgainfo_print_err("reading function from properties", res);
 
-	res = fpgaPropertiesGetSocketID(props, &socket_id);
-	fpgainfo_print_err("reading socket_id from properties", res);
-
 	res = fpgaPropertiesGetDeviceID(props, &device_id);
 	fpgainfo_print_err("reading device_id from properties", res);
 
@@ -95,6 +92,11 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 		res = fpgaPropertiesGetGUID(props, &port_guid);
 		fpgainfo_print_err("reading guid from properties", res);
 		is_accelerator = 1;
+	}
+
+	if (objtype == FPGA_DEVICE) {
+		res = fpgaPropertiesGetSocketID(props, &socket_id);
+		fpgainfo_print_err("reading socket_id from properties", res);
 	}
 
 	// Go up the tree until we find the device
@@ -128,14 +130,18 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	res = fpgaPropertiesGetGUID(pprops, &guid);
 	fpgainfo_print_err("reading guid from properties", res);
 
-	res = fpgaPropertiesGetNumSlots(pprops, &num_slots);
-	fpgainfo_print_err("reading num_slots from properties", res);
+	// BB version, ID & num slots are valid only for fme
+	if (has_parent) {
 
-	res = fpgaPropertiesGetBBSID(pprops, &bbs_id);
-	fpgainfo_print_err("reading bbs_id from properties", res);
+		res = fpgaPropertiesGetNumSlots(pprops, &num_slots);
+		fpgainfo_print_err("reading num_slots from properties", res);
 
-	res = fpgaPropertiesGetBBSVersion(pprops, &bbs_version);
-	fpgainfo_print_err("reading bbs_version from properties", res);
+		res = fpgaPropertiesGetBBSID(pprops, &bbs_id);
+		fpgainfo_print_err("reading bbs_id from properties", res);
+
+		res = fpgaPropertiesGetBBSVersion(pprops, &bbs_version);
+		fpgainfo_print_err("reading bbs_version from properties", res);
+	}
 
 	// TODO: Implement once model and capabilities accessors are
 	// implemented
@@ -158,21 +164,23 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	}
 
 	printf("%s\n", hdr);
-	printf("%-29s : 0x%2" PRIX64 "\n", "Object Id", object_id);
-	printf("%-29s : %04x:%02x:%02x.%01x\n", "PCIe s:b:d.f", segment, bus,
+	printf("%-35s : 0x%2" PRIX64 "\n", "Object Id", object_id);
+	printf("%-35s : %04X:%02X:%02X.%01X\n", "PCIe s:b:d.f", segment, bus,
 	       device, function);
-	printf("%-29s : 0x%04x\n", "Device Id", device_id);
-	printf("%-29s : 0x%02x\n", "Socket Id", socket_id);
-	printf("%-29s : %02d\n", "Ports Num", num_slots);
-	printf("%-29s : 0x%" PRIX64 "\n", "Bitstream Id", bbs_id);
-	printf("%-29s : %d.%d.%d\n", "Bitstream Version",
-	       bbs_version.major, bbs_version.minor, bbs_version.patch);
-	uuid_unparse(guid, guid_str);
-	printf("%-29s : %s\n", "Pr Interface Id", guid_str);
+	printf("%-35s : 0x%04X\n", "Device Id", device_id);
 
+	if (has_parent) {
+		printf("%-35s : 0x%02X\n", "Socket Id", socket_id);
+		printf("%-35s : %02d\n", "Ports Num", num_slots);
+		printf("%-35s : 0x%" PRIX64 "\n", "Bitstream Id", bbs_id);
+		printf("%-35s : %d.%d.%d\n", "Bitstream Version", bbs_version.major,
+			bbs_version.minor, bbs_version.patch);
+		uuid_unparse(guid, guid_str);
+		printf("%-35s : %s\n", "Pr Interface Id", guid_str);
+	}
 	if (is_accelerator) {
 		uuid_unparse(port_guid, guid_str);
-		printf("%-29s : %s\n", "Accelerator Id", guid_str);
+		printf("%-35s : %s\n", "Accelerator Id", guid_str);
 	}
 }
 
