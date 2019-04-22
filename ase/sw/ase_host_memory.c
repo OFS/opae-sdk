@@ -398,7 +398,8 @@ static int ase_pt_pin_page(uint64_t va, uint64_t *iova, int pt_level)
 	assert((pt_level >= 0) && (pt_level < 3));
 
 	// Virtual to physical mapping is just an XOR
-	*iova = ase_host_memory_va_to_pa(va, 4096 * (1UL << (9 * pt_level)));
+	uint64_t length = 4096 * (1UL << (9 * pt_level));
+	*iova = ase_host_memory_va_to_pa(va, length);
 
 	ASE_MSG("Add pinned page VA 0x%" PRIx64 ", IOVA 0x%" PRIx64 ", level %d\n", va, *iova, pt_level);
 
@@ -459,6 +460,14 @@ static int ase_pt_pin_page(uint64_t va, uint64_t *iova, int pt_level)
 		pt[idx / 64] = (uint64_t *)((uint64_t)pt[idx / 64] | (1UL << (idx & 63)));
 	}
 
+	// Lock the "pinned" page so it more closely resembles the behavior of
+	// pages pinned by the FPGA driver. This is valuable for code that is
+	// tracking address map changes, such as the MPF building block.
+	//
+	// The result can be ignored since ASE will continue to work whether
+	// or not the lock succeeds.
+	mlock((void *)va, length);
+
 	if (ase_pt_enable_debug) {
 		printf("\nASE simulated page table (pinned VA 0x%" PRIx64 ", IOVA 0x%" PRIx64 "):\n",
 		       va, *iova);
@@ -478,6 +487,12 @@ static int ase_pt_unpin_page(uint64_t iova, int pt_level)
 	int idx;
 	int level = 3;
 	uint64_t **pt = ase_pt_root;
+	uint64_t length = 4096 * (1UL << (9 * pt_level));
+
+	uint64_t va = iova ^ ase_host_memory_gen_xor_mask(pt_level);
+	if (va) {
+		munlock((void *)va, length);
+	}
 
 	while (level != pt_level) {
 		idx = ase_pt_idx(iova, level);
