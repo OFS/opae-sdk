@@ -178,7 +178,7 @@ STATIC void *opae_bitstream_parse_metadata(const char *metadata,
 	// Allow 640/650 to serve as an alias for 1.
 	case 650:
 	case 640:
-		*version = 1;
+		*version = 1; /* FALLTHROUGH */
 	case 1:
 		parsed = opae_bitstream_parse_metadata_v1(root,
 							  pr_interface_id);
