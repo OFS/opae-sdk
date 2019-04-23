@@ -1559,7 +1559,9 @@ fpga_result fpgaGetMetricsThresholdInfo(fpga_handle handle,
 		wrapped_handle->opae_handle, metric_thresholds, num_thresholds);
 }
 
-fpga_result fpgaTokenSysfsPath(fpga_token token, char *sysfs_path)
+fpga_result fpgaTokenSysfsPath(fpga_token token,
+		char *sysfs_path,
+		size_t len)
 {
 	opae_wrapped_token *wrapped_token = opae_validate_wrapped_token(token);
 
@@ -1570,5 +1572,5 @@ fpga_result fpgaTokenSysfsPath(fpga_token token, char *sysfs_path)
 		FPGA_NOT_SUPPORTED);
 
 	return wrapped_token->adapter_table->fpgaTokenSysfsPath(
-		wrapped_token->opae_token, sysfs_path);
+		wrapped_token->opae_token, sysfs_path, len);
 }

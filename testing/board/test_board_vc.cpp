@@ -40,13 +40,8 @@ extern "C" {
 #include "intel-fpga.h"
 #include <linux/ioctl.h>
 
-#include <array>
 #include <cstdlib>
-#include <cstdarg>
-#include <map>
-#include <memory>
 #include <string>
-#include <vector>
 #include "gtest/gtest.h"
 #include "test_system.h"
 #include "libboard/board_vc/board_vc.h"
@@ -132,7 +127,7 @@ ssize_t board_vc_c_p::eintr_write(int fd, void *buf, size_t count)
 fpga_result board_vc_c_p::write_sysfs_file(const char *file,
 	void *buf, size_t count) {
 	fpga_result res = FPGA_OK;
-	char sysfspath[256];
+	char sysfspath[SYFS_MAX_SIZE];
 	int fd = 0;
 
 	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", file);
@@ -141,7 +136,6 @@ fpga_result board_vc_c_p::write_sysfs_file(const char *file,
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if ((gres) || (1 != pglob.gl_pathc)) {
 		globfree(&pglob);
-		printf("-----------FAIL ---gres = %d\n", gres);
 		return FPGA_NOT_FOUND;
 	}
 	fd = open(pglob.gl_pathv[0], O_WRONLY);
@@ -154,7 +148,7 @@ fpga_result board_vc_c_p::write_sysfs_file(const char *file,
 	ssize_t total_written = eintr_write(fd, buf, count);
 	if (total_written == 0) {
 		close(fd);
-		printf("total_written faild \n");
+		printf("total_written failed \n");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -164,7 +158,7 @@ fpga_result board_vc_c_p::write_sysfs_file(const char *file,
 
 fpga_result board_vc_c_p::delete_sysfs_file(const char *file) {
 	fpga_result res = FPGA_OK;
-	char sysfspath[256];
+	char sysfspath[SYFS_MAX_SIZE];
 	int status = 0;
 
 	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", file);
@@ -179,75 +173,105 @@ fpga_result board_vc_c_p::delete_sysfs_file(const char *file) {
 
 	globfree(&pglob);
 	if (status < 0) {
-		printf("deleter faild = %d \n", status);
+		printf("delete failed = %d \n", status);
 		return FPGA_NOT_FOUND;
 	}
 
 	return res;
 }
 
+/**
+* @test       board_vc_1
+* @brief      Tests: read_bmcfw_version
+* @details    Validates bmc firmware version  <br>
+*/
+TEST_P(board_vc_c_p, board_vc_1) {
+
+	char bmcfw_ver[SYFS_MAX_SIZE];
+
+	EXPECT_EQ(read_bmcfw_version(tokens_[0], bmcfw_ver, SYFS_MAX_SIZE), FPGA_OK);
+
+	EXPECT_NE(read_bmcfw_version(tokens_[0], NULL, SYFS_MAX_SIZE), FPGA_OK);
+
+	EXPECT_NE(read_bmcfw_version(NULL, bmcfw_ver, SYFS_MAX_SIZE), FPGA_OK);
+}
 
 /**
- * @test       pr
- * @brief      Test: fpgaReconfigureSlot
- * @details    When fpgaReconfigureSlot is called with invalid params,<br>
- *             then the fn returns FPGA_INVALID_PARAM.<br>
- */
-TEST_P(board_vc_c_p, board_vc_1) {
-	
-	char bmcfw_ver[256];
-	EXPECT_EQ(read_bmcfw_version(tokens_[0], bmcfw_ver), FPGA_OK);
-
-	EXPECT_NE(read_bmcfw_version(tokens_[0], NULL), FPGA_OK);
-	EXPECT_NE(read_bmcfw_version(NULL, bmcfw_ver), FPGA_OK);
-}
+* @test       board_vc_2
+* @brief      Tests: read_max10fw_version
+* @details    Validates max10 firmware version  <br>
+*/
 TEST_P(board_vc_c_p, board_vc_2) {
 
-	char max10fw_ver[256];
-	EXPECT_EQ(read_max10fw_version(tokens_[0], max10fw_ver), FPGA_OK);
+	char max10fw_ver[SYFS_MAX_SIZE];
 
-	EXPECT_NE(read_max10fw_version(tokens_[0], NULL), FPGA_OK);
-	EXPECT_NE(read_max10fw_version(NULL, max10fw_ver), FPGA_OK);
+	EXPECT_EQ(read_max10fw_version(tokens_[0], max10fw_ver, SYFS_MAX_SIZE), FPGA_OK);
+
+	EXPECT_NE(read_max10fw_version(tokens_[0], NULL, SYFS_MAX_SIZE), FPGA_OK);
+
+	EXPECT_NE(read_max10fw_version(NULL, max10fw_ver, SYFS_MAX_SIZE), FPGA_OK);
 }
 
+/**
+* @test       board_vc_3
+* @brief      Tests: read_pcb_info
+* @details    Validates pcb information  <br>
+*/
 TEST_P(board_vc_c_p, board_vc_3) {
 
-	char pcb_info[256];
-	EXPECT_EQ(read_pcb_info(tokens_[0], pcb_info), FPGA_OK);
+	char pcb_info[SYFS_MAX_SIZE];
 
-	EXPECT_NE(read_pcb_info(tokens_[0], NULL), FPGA_OK);
-	EXPECT_NE(read_pcb_info(NULL, pcb_info), FPGA_OK);
+	EXPECT_EQ(read_pcb_info(tokens_[0], pcb_info, SYFS_MAX_SIZE), FPGA_OK);
+
+	EXPECT_NE(read_pcb_info(tokens_[0], NULL, SYFS_MAX_SIZE), FPGA_OK);
+
+	EXPECT_NE(read_pcb_info(NULL, pcb_info, SYFS_MAX_SIZE), FPGA_OK);
 }
 
-fpga_result read_pkvl_info(fpga_token token, struct fpga_pkvl_info *pkvl_info, int *fpga_mode);
-
+/**
+* @test       board_vc_4
+* @brief      Tests: read_pkvl_info
+* @details    Validates pkvl information  <br>
+*/
 TEST_P(board_vc_c_p, board_vc_4) {
 
 	struct fpga_pkvl_info pkvl_info;
 	int fpga_mode;
+
 	EXPECT_EQ(read_pkvl_info(tokens_[0], &pkvl_info, &fpga_mode), FPGA_OK);
 
-
 	EXPECT_NE(read_pkvl_info(tokens_[0], &pkvl_info, NULL), FPGA_OK);
+
 	EXPECT_NE(read_pkvl_info(tokens_[0], NULL, &fpga_mode), FPGA_OK);
 
 	EXPECT_NE(read_pkvl_info(NULL, &pkvl_info, &fpga_mode), FPGA_OK);
-
 }
 
+/**
+* @test       board_vc_5
+* @brief      Tests: read_mac_info
+* @details    Validates fpga pkvl mac information  <br>
+*/
 TEST_P(board_vc_c_p, board_vc_5) {
 
 	unsigned char buf[8] = { 0 };
-	EXPECT_EQ(read_mac_info(tokens_[0], buf), FPGA_OK);
 
-	EXPECT_NE(read_mac_info(NULL, buf), FPGA_OK);
+	EXPECT_EQ(read_mac_info(tokens_[0], buf, SYFS_MAX_SIZE), FPGA_OK);
 
-	EXPECT_NE(read_mac_info(tokens_[0], NULL), FPGA_OK);
+	EXPECT_NE(read_mac_info(NULL, buf, SYFS_MAX_SIZE), FPGA_OK);
+
+	EXPECT_NE(read_mac_info(tokens_[0], NULL, SYFS_MAX_SIZE), FPGA_OK);
 }
 
+/**
+* @test       board_vc_6
+* @brief      Tests: read_phy_group_info
+* @details    Validates fpga phy group information  <br>
+*/
 TEST_P(board_vc_c_p, board_vc_6) {
 
 	int group_num = 0;
+
 	EXPECT_EQ(read_phy_group_info(tokens_[0], NULL, &group_num), FPGA_OK);
 
 	EXPECT_NE(read_phy_group_info(tokens_[0], NULL, NULL), FPGA_OK);
@@ -255,69 +279,77 @@ TEST_P(board_vc_c_p, board_vc_6) {
 	EXPECT_NE(read_phy_group_info(NULL, NULL, &group_num), FPGA_OK);
 }
 
-
+/**
+* @test       board_vc_7
+* @brief      Tests: print_board_info
+* @details    Validates fpga board info  <br>
+*/
 TEST_P(board_vc_c_p, board_vc_7) {
 
-
 	EXPECT_EQ(print_board_info(tokens_[0]), FPGA_OK);
+
 	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
 
 	EXPECT_EQ(print_phy_info(tokens_[0]), FPGA_OK);
-
-
 }
 
-
+/**
+* @test       board_vc_8
+* @brief      Tests: read_max10fw_version
+*             read_bmcfw_version,
+* @details    Validates fpga invalid fpga firmware version  <br>
+*/
 TEST_P(board_vc_c_p, board_vc_8) {
-
-
 
 	char buf[10] = { 0 };
 	write_sysfs_file((const char *)"spi-altera.0.auto/spi_master/spi0/spi0.0/bmcfw_flash_ctrl/bmcfw_version", (void*)buf, sizeof(buf));
 
-	char bmcfw_ver[256];
-	EXPECT_NE(read_bmcfw_version(tokens_[0], bmcfw_ver), FPGA_OK);
-
+	char bmcfw_ver[SYFS_MAX_SIZE];
+	EXPECT_NE(read_bmcfw_version(tokens_[0], bmcfw_ver, SYFS_MAX_SIZE), FPGA_OK);
 
 	write_sysfs_file((const char *)"spi-altera.0.auto/spi_master/spi0/spi0.0/max10_version", (void*)buf, sizeof(buf));
 
-	char max10fw_ver[256];
-	EXPECT_NE(read_max10fw_version(tokens_[0], max10fw_ver), FPGA_OK);
-
-
+	char max10fw_ver[SYFS_MAX_SIZE];
+	EXPECT_NE(read_max10fw_version(tokens_[0], max10fw_ver, SYFS_MAX_SIZE), FPGA_OK);
 }
-
-
 INSTANTIATE_TEST_CASE_P(baord_vc_c, board_vc_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-vc" })));
 
-
+// test invalid sysfs attributes
 class board_vc_invalid_c_p : public board_vc_c_p { };
 
+/**
+* @test       board_vc_9
+* @brief      Tests: read_max10fw_version
+*             read_max10fw_version,read_pcb_info
+*             read_pkvl_info,read_mac_info
+*             read_phy_group_info,print_board_info
+*             print_phy_info,print_mac_info
+* @details    Validates function with invalid sysfs <br>
+*/
+TEST_P(board_vc_invalid_c_p, board_vc_9) {
 
-TEST_P(board_vc_invalid_c_p, board_vc_20) {
+	char bmcfw_ver[SYFS_MAX_SIZE];
+	EXPECT_NE(read_bmcfw_version(tokens_[0], bmcfw_ver, SYFS_MAX_SIZE), FPGA_OK);
 
-	char bmcfw_ver[256];
-	EXPECT_NE(read_bmcfw_version(tokens_[0], bmcfw_ver), FPGA_OK);
+	char max10fw_ver[SYFS_MAX_SIZE];
+	EXPECT_NE(read_max10fw_version(tokens_[0], max10fw_ver, SYFS_MAX_SIZE), FPGA_OK);
 
-	char max10fw_ver[256];
-	EXPECT_NE(read_max10fw_version(tokens_[0], max10fw_ver), FPGA_OK);
-
-	char pcb_info[256];
-	EXPECT_NE(read_pcb_info(tokens_[0], pcb_info), FPGA_OK);
+	char pcb_info[SYFS_MAX_SIZE];
+	EXPECT_NE(read_pcb_info(tokens_[0], pcb_info, SYFS_MAX_SIZE), FPGA_OK);
 
 	struct fpga_pkvl_info pkvl_info;
 	int fpga_mode;
 	EXPECT_NE(read_pkvl_info(tokens_[0], &pkvl_info, &fpga_mode), FPGA_OK);
 
-
 	unsigned char buf[8] = { 0 };
-	EXPECT_NE(read_mac_info(tokens_[0], buf), FPGA_OK);
+	EXPECT_NE(read_mac_info(tokens_[0], buf, 8), FPGA_OK);
 
 	int group_num = 0;
 	EXPECT_NE(read_phy_group_info(tokens_[0], NULL, &group_num), FPGA_OK);
 
 	EXPECT_NE(print_board_info(tokens_[0]), FPGA_OK);
+
 	EXPECT_NE(print_mac_info(tokens_[0]), FPGA_OK);
 
 	EXPECT_NE(print_phy_info(tokens_[0]), FPGA_OK);

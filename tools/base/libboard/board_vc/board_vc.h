@@ -56,7 +56,7 @@ struct fpga_phy_group_info {
 union {
 	unsigned int dword;
 	unsigned char byte[MAC_BYTE_SIZE];
-} mac;
+} pkvl_mac;
 
 /**
 * Prints BMC, MAX10 and NIOS version.
@@ -95,11 +95,12 @@ fpga_result print_mac_info(fpga_token token);
 * @param[in] token           fpga_token object for device (FPGA_DEVICE type)
 * @param[inout] mac_info     pointer to mac info struct or char string
 *                            user allocates memory and free mac info
+* @param[in] len             length of char mac_info string
 * @returns FPGA_OK on success. FPGA_NOT_FOUND if mac sysfs not found.
 * FPGA_INVALID_PARAM if invalid parameters were provide
 *
 */
-fpga_result read_mac_info(fpga_token token, unsigned char *mac_info);
+fpga_result read_mac_info(fpga_token token, unsigned char *mac_info, size_t len);
 
 /**
 * Get PHY group information.
@@ -137,11 +138,12 @@ fpga_result read_pkvl_info(fpga_token token,
 * @param[in] token           fpga_token object for device (FPGA_DEVICE type)
 * @param[inout] pcb_info     pointer to char pcb_info string
 *                            user allocates memory and free input string
+* @param[in] len             length of char pcb_info string
 * @returns FPGA_OK on success. FPGA_NOT_FOUND if pcb sysfs not found.
 * FPGA_INVALID_PARAM if invalid parameters were provide
 *
 */
-fpga_result read_pcb_info(fpga_token token, char *pcb_info);
+fpga_result read_pcb_info(fpga_token token, char *pcb_info, size_t len);
 
 /**
 * Get Max10 firmware version.
@@ -149,11 +151,12 @@ fpga_result read_pcb_info(fpga_token token, char *pcb_info);
 * @param[in] token           fpga_token object for device (FPGA_DEVICE type)
 * @param[inout] max10fw_var  pointer to char pcb_info string
 *                            user allocates memory and free input string
+* @param[in] len             length of char max10fw_var string
 * @returns FPGA_OK on success. FPGA_NOT_FOUND if MAX10  sysfs not found.
 * FPGA_INVALID_PARAM if invalid parameters were provide
 *
 */
-fpga_result read_max10fw_version(fpga_token token, char *max10fw_var);
+fpga_result read_max10fw_version(fpga_token token, char *max10fw_var, size_t len);
 
 /**
 * Get BMC/NIOS firmware version.
@@ -161,11 +164,12 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_var);
 * @param[in] token           fpga_token object for device (FPGA_DEVICE type)
 * @param[inout] bmcfw_var    pointer to char bmcfw_var string
 *                            user allocates memory and free input string
+* @param[in] len             length of char bmcfw_var string
 * @returns FPGA_OK on success. FPGA_NOT_FOUND if NIOS sysfs not found.
 * FPGA_INVALID_PARAM if invalid parameters were provide
 *
 */
-fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_var);
+fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_var, size_t len);
 
 #ifdef __cplusplus
 }

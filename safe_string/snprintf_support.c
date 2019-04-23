@@ -642,3 +642,49 @@ inline int snprintf_s_iiii(char *dest, rsize_t dmax, const char *format, int a, 
 
 	return snprintf(dest, dmax, format, a, b, c, d);
 }
+
+
+inline int snprintf_s_ciii(char *dest, rsize_t dmax, const char *format, const char s, int a, int b, int c)
+{
+	char pformatList[MAX_FORMAT_ELEMENTS];
+	unsigned int index = 0;
+
+	// Determine the number of format options in the format string
+	unsigned int  nfo = parse_format(format, &pformatList[0], MAX_FORMAT_ELEMENTS);
+
+
+	// Check that there are not too many format options
+	if ( nfo != 4 ) {
+		dest[0] = '\0';
+		return SNPRFNEGATE(ESBADFMT);
+	}
+    
+ 	// Check first format is of string type
+	if ( CHK_FORMAT(FMT_CHAR, pformatList[index]) == 0) {
+		dest[0] = '\0';
+		return SNPRFNEGATE(ESFMTTYP);
+	}
+	index++;
+
+	// Check that the format is for an integer type
+	if ( check_integer_format(pformatList[index]) == 0) {
+		dest[0] = '\0';
+		return SNPRFNEGATE(ESFMTTYP);
+	}
+	index++;
+ 
+	// Check that the format is for an integer type
+	if ( check_integer_format(pformatList[index]) == 0) {
+		dest[0] = '\0';
+		return SNPRFNEGATE(ESFMTTYP);
+	}
+	index++;
+ 
+	// Check that the format is for an integer type
+	if ( check_integer_format(pformatList[index]) == 0) {
+		dest[0] = '\0';
+		return SNPRFNEGATE(ESFMTTYP);
+	}
+
+	return snprintf(dest, dmax, format, s, a, b, c);
+}
