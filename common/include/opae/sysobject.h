@@ -246,7 +246,7 @@ fpga_result fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags);
  *
  * @note The sysfs path of fpga token resource.
  */
-fpga_result fpgaTokenSysfsPath(fpga_token token, 
+fpga_result fpgaTokenSysfsPath(fpga_token token,
 		char *sysfs_path,
 		size_t len);
 
