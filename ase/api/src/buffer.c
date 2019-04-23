@@ -442,7 +442,7 @@ fpga_result __FPGA_API__ fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 		FPGA_MSG("FPGA_PORT_DMA_UNMAP ioctl failed: %s",
 			 strerror(errno));
 		result = FPGA_INVALID_PARAM;
-	goto ws_free;
+		goto ws_free;
 	}
 
 	/* If the buffer was allocated in fpgaPrepareBuffer() (i.e. it was not
