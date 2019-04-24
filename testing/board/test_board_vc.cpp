@@ -235,7 +235,7 @@ TEST_P(board_vc_c_p, board_vc_3) {
 */
 TEST_P(board_vc_c_p, board_vc_4) {
 
-	struct fpga_pkvl_info pkvl_info;
+	fpga_pkvl_info pkvl_info;
 	int fpga_mode;
 
 	EXPECT_EQ(read_pkvl_info(tokens_[0], &pkvl_info, &fpga_mode), FPGA_OK);
@@ -338,7 +338,7 @@ TEST_P(board_vc_invalid_c_p, board_vc_9) {
 	char pcb_info[SYFS_MAX_SIZE];
 	EXPECT_NE(read_pcb_info(tokens_[0], pcb_info, SYFS_MAX_SIZE), FPGA_OK);
 
-	struct fpga_pkvl_info pkvl_info;
+	fpga_pkvl_info pkvl_info;
 	int fpga_mode;
 	EXPECT_NE(read_pkvl_info(tokens_[0], &pkvl_info, &fpga_mode), FPGA_OK);
 

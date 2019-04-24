@@ -39,21 +39,21 @@ extern "C" {
 #define MAC_BYTE_SIZE          4
 #define VER_BUF_SIZE           16
 
-struct fpga_pkvl_info {
+typedef struct _fpga_pkvl_info {
 	uint32_t polling_mode;
 	uint32_t status;
-};
+}fpga_pkvl_info;
 
-struct fpga_phy_group_info {
+typedef struct _fpga_phy_group_info {
 	unsigned int    argsz;
 	unsigned int    flags;
 	unsigned char  speed;
 	unsigned char  phy_num;
 	unsigned char  mac_num;
 	unsigned char  group_id;
-};
+}fpga_phy_group_info;
 
-union {
+typedef union _pkvl_mac {
 	unsigned int dword;
 	unsigned char byte[MAC_BYTE_SIZE];
 } pkvl_mac;
@@ -114,7 +114,7 @@ fpga_result read_mac_info(fpga_token token, unsigned char *mac_info, size_t len)
 *
 */
 fpga_result read_phy_group_info(fpga_token token,
-				struct fpga_phy_group_info *group_info,
+				fpga_phy_group_info *group_info,
 				int *group_num);
 
 /**
@@ -129,7 +129,7 @@ fpga_result read_phy_group_info(fpga_token token,
 *
 */
 fpga_result read_pkvl_info(fpga_token token,
-				struct fpga_pkvl_info *pkvl_info,
+				fpga_pkvl_info *pkvl_info,
 				int *fpga_mode);
 
 /**

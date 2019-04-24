@@ -102,7 +102,17 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 
 	var = strtoul(buf, NULL, VER_BUF_SIZE);
 
-	// BMC FW version format reading
+	/* BMC FW version format reading
+	NIOS II Firmware Build	0x0	32	RW[23:0]	24’hFFFFFF	Build version of NIOS II Firmware
+	NIOS FW is up e.g. 1.0.1 for first release
+	[31:24]	8’hFF	Firmware Support Revision - ASCII code
+	0xFF is the default value without NIOS FW, will be changed after NIOS FW is up
+	0x41(A)-For RevA
+	0x42(B)-For RevB
+	0x43(C)-For RevC
+	0x44(D)-For RevD
+	*/
+
 	rev = (var >> 24) & 0xff;
 	if ((rev > 0x40) && (rev < 0x5B)) {// range from 'A' to 'Z'
 		snprintf_s_ciii(bmcfw_ver, len, "%c.%u.%u.%u", (char)rev, (var >> VER_BUF_SIZE) & 0xff, (var >> 8) & 0xff, var & 0xff);
@@ -165,7 +175,18 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 
 	var = strtoul(buf, NULL, VER_BUF_SIZE);
 
-	// MAX10 FW version format reading
+
+	/* MAX10 FW version format reading
+	BMC MAX10 Firmware Build	0x0	32	RW[23:0]
+	BMC MAX10 build version.0xFFFFxx is reserved for factory build,
+	each byte stands for different version number of user image,
+	e.g. 1.0.1 for first release user image
+	[31:24]	8’hFF	PCB info ASCII code
+	0x41(A) - Compatible for both RevA and RevB
+	0x43(C) - For RevC
+	0x44(D) - For RevD
+	*/
+
 	rev = (var >> 24) & 0xff;
 	if ((rev > 0x40) && (rev < 0x5B)) {// range from 'A' to 'Z'
 		 snprintf_s_ciii(max10fw_ver, len, "%c.%u.%u.%u", (char)rev, (var >> VER_BUF_SIZE) & 0xff, (var >> 8) & 0xff, var & 0xff);
@@ -234,7 +255,7 @@ out_destroy:
 
 // Read PKVL information
 fpga_result read_pkvl_info(fpga_token token,
-			struct fpga_pkvl_info *pkvl_info,
+			fpga_pkvl_info *pkvl_info,
 			int *fpga_mode)
 {
 	fpga_result res                    = FPGA_OK;
@@ -321,7 +342,7 @@ out_destroy_bsid:
 
 // Read PHY group information
 fpga_result read_phy_group_info(fpga_token token,
-			struct fpga_phy_group_info *group_info,
+			fpga_phy_group_info *group_info,
 			int *group_num)
 {
 	fpga_result res                = FPGA_OK;
@@ -334,7 +355,7 @@ fpga_result read_phy_group_info(fpga_token token,
 	ssize_t sz                     = 0;
 	int gres                       = 0;
 	glob_t pglob;
-	struct fpga_phy_group_info info;
+	fpga_phy_group_info info;
 
 	if (group_num == NULL ) {
 		FPGA_ERR("Invalid Input parameters");
@@ -486,7 +507,7 @@ fpga_result print_mac_info(fpga_token token)
 	unsigned char buf[8]          = { 0 };
 	int i                         = 0;
 	int n                         = 0;
-	union pkvl_mac;
+	pkvl_mac mac;
 
 	res = read_mac_info(token, buf, SYFS_MAX_SIZE);
 	if (res != FPGA_OK) {
@@ -496,15 +517,15 @@ fpga_result print_mac_info(fpga_token token)
 
 	n = (int)buf[6];
 	printf("%-29s : %d\n", "Number of MACs", n);
-	pkvl_mac.byte[0] = buf[5];
-	pkvl_mac.byte[1] = buf[4];
-	pkvl_mac.byte[2] = buf[3];
-	pkvl_mac.byte[3] = 0;
+	mac.byte[0] = buf[5];
+	mac.byte[1] = buf[4];
+	mac.byte[2] = buf[3];
+	mac.byte[3] = 0;
 	for (i = 0; i < n; ++i) {
 		printf("%s %-17d : %02X:%02X:%02X:%02X:%02X:%02X\n",
 			"MAC address", i, buf[0], buf[1], buf[2],
-			pkvl_mac.byte[2], pkvl_mac.byte[1], pkvl_mac.byte[0]);
-		pkvl_mac.dword += 1;
+			mac.byte[2], mac.byte[1], mac.byte[0]);
+		mac.dword += 1;
 	}
 
 	return res;
@@ -545,13 +566,13 @@ fpga_result print_board_info(fpga_token token)
 fpga_result print_phy_info(fpga_token token)
 {
 	fpga_result res                            = FPGA_OK;
-	struct fpga_phy_group_info* phy_info_array = NULL;
+	fpga_phy_group_info* phy_info_array        = NULL;
 	int group_num                              = 0;
 	int fpga_mode                              = 0;
 	int i                                      = 0;
 	int j                                      = 0;
 	char mode[VER_BUF_SIZE]                    = { 0 };
-	struct fpga_pkvl_info pkvl_info;
+	fpga_pkvl_info pkvl_info;
 
 
 	res = read_phy_group_info(token, NULL, &group_num);
@@ -560,7 +581,7 @@ fpga_result print_phy_info(fpga_token token)
 		return res;
 	}
 
-	phy_info_array = calloc(sizeof(struct fpga_phy_group_info), group_num);
+	phy_info_array = calloc(sizeof(fpga_phy_group_info), group_num);
 	if (phy_info_array == NULL) {
 		OPAE_ERR(" Failed to allocate memory");
 		return FPGA_NO_MEMORY;

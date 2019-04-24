@@ -240,7 +240,7 @@ fpga_result fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags);
  *
  * @param[in] token Token identifying a resource (accelerator or device)
  * @param[out] sysfs_path resource sysfs path
- * @param[in] size string length
+ * @param[in] len sysfs path length
  * @return FPGA_OK on success, FPGA_INVALID_PARAM if any of the supplied
  * parameters is invalid
  *
