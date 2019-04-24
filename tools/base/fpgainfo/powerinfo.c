@@ -62,7 +62,7 @@ static void print_power_info(fpga_token token)
         fpgainfo_board_info(token);
         fpgainfo_print_common("//****** POWER ******//", props);
 
-        res = get_metrics(token, POWER, metrics_info, &num_metrics_info, metrics, &num_metrics);
+        res = get_metrics(token, FPGA_POWER, metrics_info, &num_metrics_info, metrics, &num_metrics);
         ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading metrics from BMC");
 
         print_metrics(metrics_info, num_metrics_info, metrics, num_metrics);

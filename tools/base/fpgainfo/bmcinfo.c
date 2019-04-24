@@ -86,7 +86,7 @@ static void print_bmc_info(fpga_token token)
         fpgainfo_board_info(token);
         fpgainfo_print_common("//****** BMC SENSORS ******//", props);
 
-        res = get_metrics(token, ALL, metrics_info, &num_metrics_info, metrics, &num_metrics);
+        res = get_metrics(token, FPGA_ALL, metrics_info, &num_metrics_info, metrics, &num_metrics);
         ON_FPGAINFO_ERR_GOTO(res, out_destroy,
                              "reading metrics from BMC");
 
@@ -116,7 +116,7 @@ static void print_perf_info(fpga_token token)
         fpgainfo_board_info(token);
         fpgainfo_print_common("//****** PERFORMANCE COUNTERS ******//", props);
 
-        res = get_metrics(token, PERF, metrics_info, &num_metrics_info, metrics, &num_metrics);
+        res = get_metrics(token, FPGA_PERF, metrics_info, &num_metrics_info, metrics, &num_metrics);
         ON_FPGAINFO_ERR_GOTO(res, out_destroy,
                              "reading metrics from BMC");
 

@@ -36,7 +36,7 @@
 extern "C" {
 #endif
 
-typedef enum metrics_inquiry { ALL, POWER, THERMAL, PERF } metrics_inquiry;
+typedef enum metrics_inquiry { FPGA_ALL, FPGA_POWER, FPGA_THERMAL, FPGA_PERF } metrics_inquiry;
 
 fpga_result get_metrics(fpga_token token, 
                         metrics_inquiry inquiry,

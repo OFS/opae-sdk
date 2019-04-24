@@ -132,7 +132,7 @@ fpga_result read_bmc_version(fpga_token token, int *version)
 
 	res = fpgaTokenGetObject(token, SYSFS_DEVID_FILE, &bmc_object, FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get handle Object");
+		OPAE_ERR("Failed to get token Object");
 		return res;
 	}
 
@@ -164,7 +164,6 @@ out_destroy:
 // Read power down cause
 fpga_result read_bmc_pwr_down_cause(fpga_token token, char *pwr_down_cause)
 {
-
 	fpga_result res               = FPGA_OK;
 	fpga_result resval            = FPGA_OK;
 	fpga_object bmc_object;
@@ -177,7 +176,7 @@ fpga_result read_bmc_pwr_down_cause(fpga_token token, char *pwr_down_cause)
 
 	res = fpgaTokenGetObject(token, SYSFS_PWRDN_FILE, &bmc_object, FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get handle Object");
+		OPAE_ERR("Failed to get token Object");
 		return res;
 	}
 
@@ -224,7 +223,7 @@ fpga_result read_bmc_reset_cause(fpga_token token, char *reset_cause_str)
 
 	res = fpgaTokenGetObject(token, SYSFS_RESET_FILE, &bmc_object, FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get handle Object");
+		OPAE_ERR("Failed to get token Object");
 		return res;
 	}
 
@@ -288,7 +287,7 @@ out_destroy:
 }
 
 // Print BMC version, Power down cause and Reset cause
-fpga_result  print_board_info(fpga_token token)
+fpga_result print_board_info(fpga_token token)
 {
 	fpga_result res                         = FPGA_OK;
 	int version                             = 0;

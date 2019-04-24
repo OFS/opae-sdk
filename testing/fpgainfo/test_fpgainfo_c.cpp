@@ -33,7 +33,7 @@ typedef fpga_result (*filter_fn)(fpga_properties *, int, char **);
 typedef fpga_result (*command_fn)(fpga_token *, int, int, char **);
 typedef void (*help_fn)(void);
 
-typedef enum metrics_inquiry { ALL, POWER, THERMAL } metrics_inquiry;
+typedef enum metrics_inquiry { FPGA_ALL, FPGA_POWER, FPGA_THERMAL } metrics_inquiry;
 
 struct command_handler {
     const char *command;
@@ -998,7 +998,7 @@ TEST_P(fpgainfo_c_p, get_metrics0) {
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
 
-    EXPECT_EQ(get_metrics(token, ALL, metrics_info, &num_metrics_info, metrics, &num_metrics), FPGA_OK);
+    EXPECT_EQ(get_metrics(token, FPGA_ALL, metrics_info, &num_metrics_info, metrics, &num_metrics), FPGA_OK);
 
     fpgaDestroyToken(&token);
     fpgaDestroyProperties(&filter);
@@ -1024,7 +1024,7 @@ TEST_P(fpgainfo_c_p, get_metrics1) {
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
 
-    EXPECT_EQ(get_metrics(token, POWER, metrics_info, &num_metrics_info, metrics, &num_metrics), FPGA_OK);
+    EXPECT_EQ(get_metrics(token, FPGA_POWER, metrics_info, &num_metrics_info, metrics, &num_metrics), FPGA_OK);
 
     fpgaDestroyToken(&token);
     fpgaDestroyProperties(&filter);
@@ -1050,7 +1050,7 @@ TEST_P(fpgainfo_c_p, get_metrics2) {
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
     ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
 
-    EXPECT_EQ(get_metrics(token, THERMAL, metrics_info, &num_metrics_info, metrics, &num_metrics), FPGA_OK);
+    EXPECT_EQ(get_metrics(token, FPGA_THERMAL, metrics_info, &num_metrics_info, metrics, &num_metrics), FPGA_OK);
 
     fpgaDestroyToken(&token);
     fpgaDestroyProperties(&filter);

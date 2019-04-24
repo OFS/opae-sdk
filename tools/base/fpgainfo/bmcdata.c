@@ -63,26 +63,26 @@ fpga_result get_metrics(fpga_token token,
         uint64_t i = 0;
         uint64_t j = 0;
         switch (inquiry) {
-        case ALL:
+        case FPGA_ALL:
             for (i = 0; i < *num_metrics_info; ++i) {
                 id_array[j++] = i;
             }
             break;
-        case POWER:
+        case FPGA_POWER:
             for (i = 0; i < *num_metrics_info; ++i) {
                 if (metrics_info[i].metric_type == FPGA_METRIC_TYPE_POWER) {
                     id_array[j++] = i;
                 }
             }
             break;
-        case THERMAL:
+        case FPGA_THERMAL:
             for (i = 0; i < *num_metrics_info; ++i) {
                 if (metrics_info[i].metric_type == FPGA_METRIC_TYPE_THERMAL) {
                     id_array[j++] = i;
                 }
             }
             break;
-        case PERF:
+        case FPGA_PERF:
             for (i = 0; i < *num_metrics_info; ++i) {
                 if (metrics_info[i].metric_type == FPGA_METRIC_TYPE_PERFORMANCE_CTR) {
                     id_array[j++] = i;

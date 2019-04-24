@@ -25,6 +25,13 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 
+#ifndef __USE_GNU
+#define __USE_GNU
+#endif
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
 #include <getopt.h>
 #include "fpgainfo.h"
 #include <opae/fpga.h>
@@ -37,25 +44,24 @@
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <dlfcn.h>
+#include <pthread.h>
+
 #include "safe_string/safe_string.h"
 
 #include "board.h"
 
 
+static pthread_mutex_t board_plugin_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+
 // Board plug-in table
 static platform_data platform_data_table[] = {
-	{ 0x8086, 0xbcbd, "", NULL },
-	{ 0x8086, 0xbcc0, "", NULL },
-	{ 0x8086, 0xbcc1, "", NULL },
 	{ 0x8086, 0x09c4, "libboard_rc.so", NULL },
 	{ 0x8086, 0x09c5, "libboard_rc.so", NULL },
 	{ 0,      0,          NULL, NULL },
 };
 
 
-
-
-fpga_result load_board_plugin(fpga_token token, void** dl_hanlde)
+fpga_result load_board_plugin(fpga_token token, void** dl_handle)
 {
 	fpga_result res                = FPGA_OK;
 	fpga_properties props          = NULL;
@@ -63,14 +69,15 @@ fpga_result load_board_plugin(fpga_token token, void** dl_hanlde)
 	uint16_t device_id             = 0;
 	int i                          = 0;
 
-	if (token == NULL || dl_hanlde == NULL) {
+	if (token == NULL || dl_handle == NULL) {
 		OPAE_ERR("Invalid input parameter");
+		return FPGA_INVALID_PARAM;
 	}
 
 	res = fpgaGetProperties(token, &props);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get properties\n");
-		return false;
+		return FPGA_INVALID_PARAM;
 	}
 
 	res = fpgaPropertiesGetDeviceID(props, &device_id);
@@ -85,33 +92,49 @@ fpga_result load_board_plugin(fpga_token token, void** dl_hanlde)
 		goto err_out_destroy;
 	}
 
-	for (i = 0; platform_data_table[i].baord_plugin; ++i) {
+	if (pthread_mutex_lock(&board_plugin_lock) != 0 ) {
+		OPAE_ERR("pthread mutex lock failed \n");
+
+		if (props)
+			fpgaDestroyProperties(&props);
+		return FPGA_EXCEPTION;
+	}
+
+	for (i = 0; platform_data_table[i].board_plugin; ++i) {
 
 		if (platform_data_table[i].device_id == device_id &&
 			platform_data_table[i].vendor_id == vendor_id) {
 
 			// Loaded lib or found
 			if (platform_data_table[i].dl_handle) {
-				dl_hanlde = platform_data_table[i].dl_handle;
+				*dl_handle = platform_data_table[i].dl_handle;
 				goto err_out_destroy;
 			}
 
-			platform_data_table[i].dl_handle = dlopen(platform_data_table[i].baord_plugin, RTLD_LAZY | RTLD_LOCAL);
+			platform_data_table[i].dl_handle = dlopen(platform_data_table[i].board_plugin, RTLD_LAZY | RTLD_LOCAL);
 			if (!platform_data_table[i].dl_handle) {
 				char *err = dlerror();
-				OPAE_ERR("Failed to load \"%s\" %s", platform_data_table[i].baord_plugin, err ? err : "");
+				OPAE_ERR("Failed to load \"%s\" %s", platform_data_table[i].board_plugin, err ? err : "");
 				goto err_out_destroy;
 			} else {
-				*dl_hanlde = platform_data_table[i].dl_handle;
+				*dl_handle = platform_data_table[i].dl_handle;
 				goto err_out_destroy;
 			}
 		} //end if
 
 	} // end for
 
+
+
 err_out_destroy:
 	if (props)
 		fpgaDestroyProperties(&props);
+
+
+	if (pthread_mutex_lock(&board_plugin_lock) != 0) {
+		OPAE_ERR("pthread mutex unlock failed \n");
+		res = FPGA_EXCEPTION;
+	}
 
 	return res;
 }
@@ -121,7 +144,12 @@ int unload_board_plugin(void)
 	int i            = 0;
 	int res          = 0;
 
-	for (i = 0; platform_data_table[i].baord_plugin; ++i) {
+	if (pthread_mutex_lock(&board_plugin_lock) != 0) {
+		OPAE_ERR("pthread mutex lock failed \n");
+		return FPGA_EXCEPTION;
+	}
+
+	for (i = 0; platform_data_table[i].board_plugin; ++i) {
 
 		if (platform_data_table[i].dl_handle) {
 
@@ -129,10 +157,17 @@ int unload_board_plugin(void)
 			if (res) {
 				char *err = dlerror();
 				OPAE_ERR("dlclose failed with %d %s", res, err ? err : "");
+			} else {
+				platform_data_table[i].dl_handle = NULL;
 			}
 		} //end if
 
 	} // end for
+
+	if (pthread_mutex_lock(&board_plugin_lock) != 0) {
+		OPAE_ERR("pthread mutex unlock failed \n");
+		res = FPGA_EXCEPTION;
+	}
 
 	return res;
 }
@@ -204,24 +239,14 @@ fpga_result mac_command(fpga_token *tokens, int num_tokens, int argc,
 {
 	(void)argc;
 	(void)argv;
-	fpga_result res = FPGA_OK;
-	fpga_properties props;
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
-		res = fpgaGetProperties(tokens[i], &props);
-		ON_FPGAINFO_ERR_GOTO(res, out_destroy, "Reading properties from token");
-
-		//print_mac_info(props);
 		mac_info(tokens[i]);
-		fpgaDestroyProperties(&props);
+
 	}
 
-	return res;
-
-out_destroy:
-	fpgaDestroyProperties(&props);
-	return res;
+	return FPGA_OK;
 }
 
 
@@ -265,8 +290,8 @@ int parse_phy_args(int argc, char *argv[])
 
 		switch (getopt_ret) {
 		case 'G':
-			if (NULL == tmp_optarg)
-				break;
+			if (NULL == tmp_optarg) 
+				return 0;
 			if (!strcmp("0", tmp_optarg)) {
 				group_num = 0;
 			}
@@ -319,23 +344,14 @@ fpga_result phy_command(fpga_token *tokens, int num_tokens, int argc,
 {
 	(void)argc;
 	(void)argv;
-	fpga_result res = FPGA_OK;
-	fpga_properties props;
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
-		res = fpgaGetProperties(tokens[i], &props);
-		ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading properties from token");
-
 		phy_group_info(tokens[i]);
-		fpgaDestroyProperties(&props);
+
 	}
 
-	return res;
-
-out_destroy:
-	fpgaDestroyProperties(&props);
-	return res;
+	return FPGA_OK;
 }
 
 
@@ -343,20 +359,23 @@ out_destroy:
 fpga_result fpgainfo_board_info(fpga_token token)
 {
 	fpga_result res        = FPGA_OK;
-	void* dl_hanlde        = NULL;
+	void* dl_handle = NULL;
 
 	// Board version
 	fpga_result(*print_board_info)(fpga_token token);
 
-	res = load_board_plugin(token, &dl_hanlde);
+	res = load_board_plugin(token, &dl_handle);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to load board plugin\n");
 		goto out;
 	}
 
-	print_board_info = dlsym(dl_hanlde, "print_board_info");
+	print_board_info = dlsym(dl_handle, "print_board_info");
 	if (print_board_info) {
 		res = print_board_info(token);
+	} else {
+		OPAE_ERR("%s\n", dlerror());
+		res = FPGA_NOT_FOUND;
 	}
 
 out:
@@ -367,20 +386,23 @@ out:
 fpga_result mac_info(fpga_token token)
 {
 	fpga_result res       = FPGA_OK;
-	void* dl_hanlde       = NULL;
+	void* dl_handle       = NULL;
 
 	// mack
 	fpga_result(*print_mac_info)(fpga_token token);
 
-	res = load_board_plugin(token, &dl_hanlde);
+	res = load_board_plugin(token, &dl_handle);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to load board plugin\n");
 		goto out;
 	}
 
-	print_mac_info = dlsym(dl_hanlde, "print_mac_info");
+	print_mac_info = dlsym(dl_handle, "print_mac_info");
 	if (print_mac_info) {
 		res = print_mac_info(token);
+	} else {
+		OPAE_ERR("%s\n", dlerror());
+		res = FPGA_NOT_FOUND;
 	}
 
 out:
@@ -391,20 +413,23 @@ out:
 fpga_result phy_group_info(fpga_token token)
 {
 	fpga_result res         = FPGA_OK;
-	void* dl_hanlde         = NULL;
+	void* dl_handle = NULL;
 
 	// phy group info
 	fpga_result(*print_phy_info)(fpga_token token);
 
-	res = load_board_plugin(token, &dl_hanlde);
+	res = load_board_plugin(token, &dl_handle);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to load board plugin\n");
 		goto out;
 	}
 
-	print_phy_info = dlsym(dl_hanlde, "print_phy_info");
+	print_phy_info = dlsym(dl_handle, "print_phy_info");
 	if (print_phy_info) {
 		res = print_phy_info(token);
+	} else {
+		OPAE_ERR("%s\n", dlerror());
+		res = FPGA_NOT_FOUND;
 	}
 
 out:

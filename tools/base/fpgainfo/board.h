@@ -41,11 +41,11 @@ extern "C" {
 typedef struct _platform_data {
 	uint16_t vendor_id;
 	uint16_t device_id;
-	char *baord_plugin;
+	char *board_plugin;
 	void *dl_handle;
 } platform_data;
 
-fpga_result load_board_plugin(fpga_token token, void** dl_hanlde);
+fpga_result load_board_plugin(fpga_token token, void** dl_handle);
 int unload_board_plugin(void);
 
 // Board info
