@@ -29,11 +29,11 @@ extern "C" {
 #include <uuid/uuid.h>
 #include <opae/types.h>
 #include "types_int.h"
+
 }
 
-#include <opae/fpga.h>
-
 #include "gtest/gtest.h"
+#include "ase.h"
 
 #define MMIO_AFU_OFFSET            (256*1024)
 #define FPGA_HANDLE_MAGIC   0x46504741484e444c
@@ -49,25 +49,25 @@ TEST(mmio_c_ase, nullhandle) {
   uint32_t value = 0;
   uint64_t value2 = 0;
   uint64_t *addr = nullptr;
-  EXPECT_EQ(fpgaWriteMMIO32(nullptr, 1, 0x4, 0xff),
+  EXPECT_EQ(ase_fpgaWriteMMIO32(nullptr, 1, 0x4, 0xff),
             FPGA_INVALID_PARAM);
 
-  EXPECT_EQ(fpgaReadMMIO32(nullptr, 1, 0x4, &value),
+  EXPECT_EQ(ase_fpgaReadMMIO32(nullptr, 1, 0x4, &value),
             FPGA_INVALID_PARAM);
 
-  EXPECT_EQ(fpgaWriteMMIO64(nullptr, 1, 0x4, 0xff),
+  EXPECT_EQ(ase_fpgaWriteMMIO64(nullptr, 1, 0x4, 0xff),
             FPGA_INVALID_PARAM);
 
-  EXPECT_EQ(fpgaReadMMIO64(nullptr, 1, 0x4, &value2),
+  EXPECT_EQ(ase_fpgaReadMMIO64(nullptr, 1, 0x4, &value2),
             FPGA_INVALID_PARAM);
 
-  EXPECT_EQ(fpgaMapMMIO(nullptr, 1, &addr),
+  EXPECT_EQ(ase_fpgaMapMMIO(nullptr, 1, &addr),
             FPGA_INVALID_PARAM);
 
-  EXPECT_EQ(fpgaUnmapMMIO(nullptr, 1),
+  EXPECT_EQ(ase_fpgaUnmapMMIO(nullptr, 1),
             FPGA_INVALID_PARAM);
 
-  EXPECT_EQ(fpgaReset(nullptr),
+  EXPECT_EQ(ase_fpgaReset(nullptr),
             FPGA_INVALID_PARAM);
 }
 
@@ -85,13 +85,13 @@ TEST(mmio_c_ase, mmio_afu_vbase_null) {
   
   handle_.fpgaMMIO_is_mapped = 0;
   mmio_afu_vbase = nullptr;
-  EXPECT_EQ(fpgaWriteMMIO32(accel_, 1, 0x4, 0xff),
+  EXPECT_EQ(ase_fpgaWriteMMIO32(accel_, 1, 0x4, 0xff),
             FPGA_NOT_FOUND);
-  EXPECT_EQ(fpgaReadMMIO32(accel_, 1, 0x4, &value),
+  EXPECT_EQ(ase_fpgaReadMMIO32(accel_, 1, 0x4, &value),
             FPGA_NOT_FOUND);
-  EXPECT_EQ(fpgaWriteMMIO64(accel_, 1, 0x4, 0xff),
+  EXPECT_EQ(ase_fpgaWriteMMIO64(accel_, 1, 0x4, 0xff),
             FPGA_NOT_FOUND);
-  EXPECT_EQ(fpgaReadMMIO64(accel_, 1, 0x4, &value2),
+  EXPECT_EQ(ase_fpgaReadMMIO64(accel_, 1, 0x4, &value2),
             FPGA_NOT_FOUND);
 }
 
@@ -111,13 +111,13 @@ TEST(mmio_c_ase, offset_misaligned) {
   
   handle_.fpgaMMIO_is_mapped = 0;
   mmio_afu_vbase = mmio_data;
-  EXPECT_EQ(fpgaWriteMMIO32(accel_, 1, 0x3, 0xff),
+  EXPECT_EQ(ase_fpgaWriteMMIO32(accel_, 1, 0x3, 0xff),
             FPGA_INVALID_PARAM);
-  EXPECT_EQ(fpgaReadMMIO32(accel_, 1, 0x3, &value),
+  EXPECT_EQ(ase_fpgaReadMMIO32(accel_, 1, 0x3, &value),
             FPGA_INVALID_PARAM);
-  EXPECT_EQ(fpgaWriteMMIO64(accel_, 1, 0x3, 0xff),
+  EXPECT_EQ(ase_fpgaWriteMMIO64(accel_, 1, 0x3, 0xff),
             FPGA_INVALID_PARAM);
-  EXPECT_EQ(fpgaReadMMIO64(accel_, 1, 0x3, &value2),
+  EXPECT_EQ(ase_fpgaReadMMIO64(accel_, 1, 0x3, &value2),
             FPGA_INVALID_PARAM);
 }
 
@@ -137,13 +137,13 @@ TEST(mmio_c_ase, offset_overflow) {
   
   handle_.fpgaMMIO_is_mapped = 0;
   mmio_afu_vbase = mmio_data;
-  EXPECT_EQ(fpgaWriteMMIO32(accel_, 1, MMIO_AFU_OFFSET + 4, 0xff),
+  EXPECT_EQ(ase_fpgaWriteMMIO32(accel_, 1, MMIO_AFU_OFFSET + 4, 0xff),
             FPGA_INVALID_PARAM);
-  EXPECT_EQ(fpgaReadMMIO32(accel_, 1, MMIO_AFU_OFFSET + 4, &value),
+  EXPECT_EQ(ase_fpgaReadMMIO32(accel_, 1, MMIO_AFU_OFFSET + 4, &value),
             FPGA_INVALID_PARAM);
-  EXPECT_EQ(fpgaWriteMMIO64(accel_, 1, MMIO_AFU_OFFSET + 4, 0xff),
+  EXPECT_EQ(ase_fpgaWriteMMIO64(accel_, 1, MMIO_AFU_OFFSET + 4, 0xff),
             FPGA_INVALID_PARAM);
-  EXPECT_EQ(fpgaReadMMIO64(accel_, 1, MMIO_AFU_OFFSET + 4, &value2),
+  EXPECT_EQ(ase_fpgaReadMMIO64(accel_, 1, MMIO_AFU_OFFSET + 4, &value2),
             FPGA_INVALID_PARAM);
 }
 
@@ -162,8 +162,8 @@ TEST(mmio_c_ase, mmio_nullptr) {
   fpga_handle accel_ = &handle_;
   
   handle_.fpgaMMIO_is_mapped = 0;
-  EXPECT_EQ(fpgaMapMMIO(accel_, 1, &addr), FPGA_NOT_SUPPORTED);
-  EXPECT_EQ(fpgaMapMMIO(accel_, 1, nullptr), FPGA_OK);
+  EXPECT_EQ(ase_fpgaMapMMIO(accel_, 1, &addr), FPGA_NOT_SUPPORTED);
+  EXPECT_EQ(ase_fpgaMapMMIO(accel_, 1, nullptr), FPGA_OK);
 }
 
 /**
@@ -178,14 +178,14 @@ TEST(mmio_c_ase, invalid_handle) {
   handle_.magic = 0xFFFFFFFF;
   fpga_handle accel_ = &handle_;  
 
-  EXPECT_EQ(fpgaUnmapMMIO(accel_, 1), FPGA_INVALID_PARAM);
+  EXPECT_EQ(ase_fpgaUnmapMMIO(accel_, 1), FPGA_INVALID_PARAM);
 
   handle_.magic = FPGA_HANDLE_MAGIC;
   handle_.fpgaMMIO_is_mapped = true;
-  EXPECT_EQ(fpgaUnmapMMIO(accel_, 1), FPGA_OK);
+  EXPECT_EQ(ase_fpgaUnmapMMIO(accel_, 1), FPGA_OK);
   
   handle_.fpgaMMIO_is_mapped = false;
-  EXPECT_EQ(fpgaUnmapMMIO(accel_, 1), FPGA_INVALID_PARAM);
+  EXPECT_EQ(ase_fpgaUnmapMMIO(accel_, 1), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -199,8 +199,8 @@ TEST(mmio_c_ase, reset) {
   handle_.magic = 0xFFFFFFFF;
   fpga_handle accel_ = &handle_;  
 
-  EXPECT_EQ(fpgaReset(nullptr), FPGA_INVALID_PARAM);
+  EXPECT_EQ(ase_fpgaReset(nullptr), FPGA_INVALID_PARAM);
 
-  EXPECT_EQ(fpgaReset(accel_), FPGA_INVALID_PARAM);
+  EXPECT_EQ(ase_fpgaReset(accel_), FPGA_INVALID_PARAM);
 }
 

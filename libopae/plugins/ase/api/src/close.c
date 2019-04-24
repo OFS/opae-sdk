@@ -35,7 +35,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-fpga_result __FPGA_API__ fpgaClose(fpga_handle handle)
+fpga_result __FPGA_API__ ase_fpgaClose(fpga_handle handle)
 {
 	fpga_result result;
 	if (NULL == handle) {

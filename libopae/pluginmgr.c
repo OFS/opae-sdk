@@ -231,6 +231,8 @@ STATIC int opae_plugin_mgr_initialize_all(void)
 	int res;
 	opae_api_adapter_table *aptr;
 	int errors = 0;
+	
+	int count = 0;
 
 	for (aptr = adapter_list; aptr; aptr = aptr->next) {
 
@@ -242,6 +244,7 @@ STATIC int opae_plugin_mgr_initialize_all(void)
 				++errors;
 			}
 		}
+		count++;
 	}
 
 	return errors;

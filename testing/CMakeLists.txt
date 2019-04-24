@@ -129,7 +129,8 @@ target_include_directories(ase-static PUBLIC
     $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
     $<INSTALL_INTERFACE:include>
     PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/ase/api/src
-    PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/ase/sw)
+    PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/ase/sw
+    PRIVATE ${OPAE_SDK_SOURCE}/libopae)
 
 target_link_libraries(ase-static
     ${libjson-c_LIBRARIES}
@@ -389,9 +390,11 @@ macro(add_ase_test test_name)
         $<INSTALL_INTERFACE:include>
         PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/ase/api/src
         PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/ase/sw
+        PRIVATE ${OPAE_SDK_SOURCE}/libopae
         )
     target_link_libraries(${test_name}
         ase-static
+        opae-c
         safestr
         test_system
         ${libjson-c_LIBRARIES}
@@ -911,9 +914,9 @@ add_ase_test(test_open_c_ase
     ase/test_open_c_ase.cpp
 )
 
-add_ase_test(test_props_c_ase
-    ase/test_props_c_ase.cpp
-)
+#add_ase_test(test_props_c_ase
+#    ase/test_props_c_ase.cpp
+#)
 
 add_ase_test(test_enum_c_ase
     ase/test_enum_c_ase.cpp

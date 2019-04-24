@@ -39,7 +39,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-fpga_result __FPGA_API__ fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
+fpga_result __FPGA_API__ ase_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 {
 	fpga_result result = FPGA_NOT_FOUND;
 	struct _fpga_handle *_handle;

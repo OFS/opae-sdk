@@ -88,11 +88,11 @@ struct _fpga_handle {
 
 /** Object property struct
   Intent is for property struct to be created dynamically */
-struct _fpga_properties {
+/*struct _fpga_properties {
 	pthread_mutex_t lock;
 	uint64_t magic;
-	/* Common properties */
-	uint64_t valid_fields; // bitmap of valid fields
+	*//* Common properties */
+/*	uint64_t valid_fields; // bitmap of valid fields
 	// valid here means the field has been set using the API
 	// bit 0x00 - parent field is valid
 	// bit 0x01 - objtype field is valid
@@ -110,15 +110,15 @@ struct _fpga_properties {
 	uint16_t device_id;
 	uint16_t vendor_id;
 	uint64_t object_id;
-
+*/
 	/* Object-specific properties
 	 * bitfields start as 0x20
 	 */
-	union {
+//	union {
 
 		/* fpga object properties
 		 * */
-		struct {
+/*		struct {
 			uint32_t num_slots;
 			uint64_t bbs_id;
 			fpga_version bbs_version;
@@ -126,10 +126,10 @@ struct _fpga_properties {
 			// TODO uint64_t local_memory_size;
 			// TODO uint64_t capabilities; #<{(| bitfield (HSSI, iommu, ...) |)}>#
 		} fpga;
-
+*/
 		/* accelerator object properties
 		 * */
-		struct {
+/*		struct {
 			fpga_accelerator_state state;
 			uint32_t num_mmio;
 			uint32_t num_interrupts;
@@ -137,7 +137,7 @@ struct _fpga_properties {
 
 	} u;
 
-};
+}; */
 
 /*
  * Event handle struct to perform
