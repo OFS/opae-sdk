@@ -348,7 +348,7 @@ add_custom_target(test_unit)
 add_dependencies(test_unit xfpga)
 
 add_custom_target(test_ase)
-add_dependencies(test_ase opae-c-ase)
+add_dependencies(test_ase ase)
 if (ENABLE_MOCK)
     set(MOCK_C mock/mock.c)
 endif(ENABLE_MOCK)
@@ -913,10 +913,6 @@ add_custom_command(TARGET test_unit
 add_ase_test(test_open_c_ase
     ase/test_open_c_ase.cpp
 )
-
-#add_ase_test(test_props_c_ase
-#    ase/test_props_c_ase.cpp
-#)
 
 add_ase_test(test_enum_c_ase
     ase/test_enum_c_ase.cpp

@@ -75,7 +75,6 @@ enum fpga_loglevel {
 	FPGA_LOG_DEBUG           /* debugging (also needs #define DEBUG 1) */
 };
 
-//#define FPGA_DEFAULT_LOGLEVEL 0
 /*
  * Convenience macros for printing messages and errors.
  */
