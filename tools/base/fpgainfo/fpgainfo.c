@@ -65,7 +65,9 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	fpga_properties pprops = props;
 	fpga_token par = NULL;
 	int is_accelerator = 0;
-        bool has_parent = true;
+	bool has_parent = true;
+	char path[SYSFS_PATH_MAX];
+	uint32_t numa_node = 0;
 
 	res = fpgaPropertiesGetObjectID(props, &object_id);
 	fpgainfo_print_err("reading object_id from properties", res);
@@ -164,23 +166,33 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	}
 
 	printf("%s\n", hdr);
-	printf("%-35s : 0x%2" PRIX64 "\n", "Object Id", object_id);
-	printf("%-35s : %04X:%02X:%02X.%01X\n", "PCIe s:b:d.f", segment, bus,
+	printf("%-29s : 0x%2" PRIX64 "\n", "Object Id", object_id);
+	printf("%-29s : %04x:%02x:%02x.%01x\n", "PCIe s:b:d.f", segment, bus,
 	       device, function);
-	printf("%-35s : 0x%04X\n", "Device Id", device_id);
+	printf("%-29s : 0x%04x\n", "Device Id", device_id);
 
 	if (has_parent) {
-		printf("%-35s : 0x%02X\n", "Socket Id", socket_id);
-		printf("%-35s : %02d\n", "Ports Num", num_slots);
-		printf("%-35s : 0x%" PRIX64 "\n", "Bitstream Id", bbs_id);
-		printf("%-35s : %d.%d.%d\n", "Bitstream Version", bbs_version.major,
+		if (device_id == FPGA_INTEGRATED_DEVICEID) {
+			printf("%-29s : 0x%02X\n", "Socket Id", socket_id);
+		} else {
+			snprintf_s_ss(path, sizeof(path), "%s/%s",
+						  get_sysfs_path(pprops, FPGA_DEVICE, NULL),
+						  "../device/numa_node");
+			res = fpgainfo_sysfs_read_u32(path, &numa_node);
+			if (res == FPGA_OK) {
+				printf("%-29s : %u\n", "Numa Node", numa_node);
+			}
+		}
+		printf("%-29s : %02d\n", "Ports Num", num_slots);
+		printf("%-29s : 0x%" PRIX64 "\n", "Bitstream Id", bbs_id);
+		printf("%-29s : %d.%d.%d\n", "Bitstream Version", bbs_version.major,
 			bbs_version.minor, bbs_version.patch);
 		uuid_unparse(guid, guid_str);
-		printf("%-35s : %s\n", "Pr Interface Id", guid_str);
+		printf("%-29s : %s\n", "Pr Interface Id", guid_str);
 	}
 	if (is_accelerator) {
 		uuid_unparse(port_guid, guid_str);
-		printf("%-35s : %s\n", "Accelerator Id", guid_str);
+		printf("%-29s : %s\n", "Accelerator Id", guid_str);
 	}
 }
 
