@@ -101,33 +101,35 @@ target_include_directories(xfpga-static PUBLIC
   PRIVATE ${OPAE_SDK_SOURCE}/libopae)
 
 add_library(ase-static STATIC
-        ${OPAE_SDK_SOURCE}/ase/sw/tstamp_ops.c
-        ${OPAE_SDK_SOURCE}/ase/sw/ase_ops.c
-        ${OPAE_SDK_SOURCE}/ase/sw/ase_strings.c
-        ${OPAE_SDK_SOURCE}/ase/sw/ase_host_memory.c
-        ${OPAE_SDK_SOURCE}/ase/sw/app_backend.c
-        ${OPAE_SDK_SOURCE}/ase/sw/mqueue_ops.c
-        ${OPAE_SDK_SOURCE}/ase/sw/error_report.c
-        ${OPAE_SDK_SOURCE}/ase/api/src/common.c
-        ${OPAE_SDK_SOURCE}/ase/api/src/buffer.c
-        ${OPAE_SDK_SOURCE}/ase/api/src/close.c
-        ${OPAE_SDK_SOURCE}/ase/api/src/enum.c
-        ${OPAE_SDK_SOURCE}/ase/api/src/event.c
-        ${OPAE_SDK_SOURCE}/ase/api/src/manage.c
-        ${OPAE_SDK_SOURCE}/ase/api/src/reconf.c
-        ${OPAE_SDK_SOURCE}/ase/api/src/mmio.c
-        ${OPAE_SDK_SOURCE}/ase/api/src/open.c
-        ${OPAE_SDK_SOURCE}/ase/api/src/umsg.c
-        ${OPAE_SDK_SOURCE}/ase/api/src/version.c
-        ${OPAE_SDK_SOURCE}/ase/api/src/wsid_list.c
-        ${OPAE_SDK_SOURCE}/ase/api/src/error.c)
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/sw/tstamp_ops.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/sw/ase_ops.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/sw/ase_strings.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/sw/ase_host_memory.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/sw/app_backend.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/sw/mqueue_ops.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/sw/error_report.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/api/src/common.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/api/src/buffer.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/api/src/close.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/api/src/enum.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/api/src/event.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/api/src/manage.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/api/src/reconf.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/api/src/mmio.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/api/src/open.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/api/src/umsg.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/api/src/version.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/api/src/wsid_list.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/api/src/error.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/api/src/plugin.c
+        ${OPAE_SDK_SOURCE}/libopae/plugins/ase/api/src/init.c)
 
 target_include_directories(ase-static PUBLIC
     $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
     $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
     $<INSTALL_INTERFACE:include>
-    PRIVATE ${OPAE_SDK_SOURCE}/ase/api/src
-    PRIVATE ${OPAE_SDK_SOURCE}/ase/sw)
+    PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/ase/api/src
+    PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/ase/sw)
 
 target_link_libraries(ase-static
     ${libjson-c_LIBRARIES}
@@ -396,8 +398,8 @@ macro(add_ase_test test_name)
         $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         $<INSTALL_INTERFACE:include>
-        PRIVATE ${OPAE_SDK_SOURCE}/ase/api/src
-        PRIVATE ${OPAE_SDK_SOURCE}/ase/sw
+        PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/ase/api/src
+        PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/ase/sw
         )
     target_link_libraries(${test_name}
         ase-static
