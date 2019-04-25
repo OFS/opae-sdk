@@ -55,7 +55,6 @@ target_link_libraries(fpgad
   bitstream
   fpgad-api
   dl
-  pthread
   rt
   ${CMAKE_THREAD_LIBS_INIT}
   ${libjson-c_LIBRARIES}
