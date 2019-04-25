@@ -31,7 +31,7 @@
 #include <opae/manage.h>
 #include "common_int.h"
 
-fpga_result __FPGA_API__ fpgaAssignToInterface(fpga_handle fpga, fpga_token accelerator,
+fpga_result __FPGA_API__ ase_fpgaAssignToInterface(fpga_handle fpga, fpga_token accelerator,
 					       uint32_t host_interface, int flags)
 {
 	UNUSED_PARAM(fpga);
@@ -44,7 +44,7 @@ fpga_result __FPGA_API__ fpgaAssignToInterface(fpga_handle fpga, fpga_token acce
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaReleaseFromInterface(fpga_handle fpga, fpga_token accelerator)
+fpga_result __FPGA_API__ ase_fpgaReleaseFromInterface(fpga_handle fpga, fpga_token accelerator)
 {
 	UNUSED_PARAM(fpga);
 	UNUSED_PARAM(accelerator);
@@ -54,7 +54,7 @@ fpga_result __FPGA_API__ fpgaReleaseFromInterface(fpga_handle fpga, fpga_token a
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaReconfigureContext(fpga_handle accelerator,
+fpga_result __FPGA_API__ ase_fpgaReconfigureContext(fpga_handle accelerator,
 						const uint8_t *bitstream,
 						size_t bitstream_len, int flags)
 {
