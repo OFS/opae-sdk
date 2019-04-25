@@ -131,7 +131,7 @@ err_out_destroy:
 		fpgaDestroyProperties(&props);
 
 
-	if (pthread_mutex_lock(&board_plugin_lock) != 0) {
+	if (pthread_mutex_unlock(&board_plugin_lock) != 0) {
 		OPAE_ERR("pthread mutex unlock failed \n");
 		res = FPGA_EXCEPTION;
 	}
@@ -164,7 +164,7 @@ int unload_board_plugin(void)
 
 	} // end for
 
-	if (pthread_mutex_lock(&board_plugin_lock) != 0) {
+	if (pthread_mutex_unlock(&board_plugin_lock) != 0) {
 		OPAE_ERR("pthread mutex unlock failed \n");
 		res = FPGA_EXCEPTION;
 	}
@@ -290,8 +290,10 @@ int parse_phy_args(int argc, char *argv[])
 
 		switch (getopt_ret) {
 		case 'G':
-			if (NULL == tmp_optarg) 
-				return 0;
+			if (NULL == tmp_optarg) {
+				fprintf(stderr, "Invalid argument group\n");
+				return -1;
+			}
 			if (!strcmp("0", tmp_optarg)) {
 				group_num = 0;
 			}
