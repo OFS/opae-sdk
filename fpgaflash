@@ -740,8 +740,6 @@ def bmc_fw_wait_for_nios(ver_file):
     raise Exception("NIOS FW version not found")
 
 
-
-
 def bmc_fw_update(ifile, spi_path, no_verify):
     mode_path = os.path.join(spi_path, 'bmcfw_flash_ctrl', 'bmcfw_flash_mode')
 
@@ -773,7 +771,10 @@ def bmc_fw_update(ifile, spi_path, no_verify):
 
     bmc_fw_wait_for_nios(ver_file)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> fpgaflash: poll for valid bmc_fw version
     return ret
 
 
