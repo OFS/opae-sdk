@@ -40,7 +40,7 @@
 
 
 // Get number of Umsgs
-fpga_result __FPGA_API__ fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
+fpga_result __FPGA_API__ ase_fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 {
     fpga_result result = FPGA_OK;
 	UNUSED_PARAM(handle);
@@ -57,7 +57,7 @@ fpga_result __FPGA_API__ fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 }
 
 // Set Umsg Attributes
-fpga_result __FPGA_API__ fpgaSetUmsgAttributes(fpga_handle handle, uint64_t value)
+fpga_result __FPGA_API__ ase_fpgaSetUmsgAttributes(fpga_handle handle, uint64_t value)
 {
     fpga_result result;
 	UNUSED_PARAM(handle);
@@ -74,7 +74,7 @@ fpga_result __FPGA_API__ fpgaSetUmsgAttributes(fpga_handle handle, uint64_t valu
 }
 
 // Gets Umsg address
-fpga_result __FPGA_API__ fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
+fpga_result __FPGA_API__ ase_fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 {
     fpga_result result = FPGA_OK;
 	UNUSED_PARAM(handle);
@@ -95,14 +95,14 @@ fpga_result __FPGA_API__ fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 
 
 // Trigger umsg
-fpga_result fpgaTriggerUmsg(fpga_handle handle, uint64_t value)
+fpga_result ase_fpgaTriggerUmsg(fpga_handle handle, uint64_t value)
 {
 	fpga_result result            = FPGA_OK;
 	uint64_t *umsg_ptr            = NULL;
 
 	// TODO: make thread-safe and check for errors
 
-	result = fpgaGetUmsgPtr(handle, &umsg_ptr);
+	result = ase_fpgaGetUmsgPtr(handle, &umsg_ptr);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to get UMsg buffer");
 		return result;
