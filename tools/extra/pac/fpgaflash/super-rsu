@@ -127,8 +127,10 @@ def parse_timedelta(inp):
     return td.total_seconds()
 
 
-def sys_exit(code):
+def sys_exit(code, msg=None):
     LOG.info("%s exiting with code '%s'", os.path.basename(__file__), code)
+    if msg is not None:
+        print(msg)
     sys.exit(code)
 
 
@@ -718,15 +720,14 @@ class bmc_fw_pkvl(bmc_fw):
 class eth_instance(object):
     TEST_MODES = ['offline', 'online', 'external_lb']
 
-    def __init__(self, node):
+    def __init__(self, node, version, address):
         self._vendor_id = node.get('vendor')
         self._device_id = node.get('device')
         self._bus = int(node.get('bus'))
         self._device = int(node.get('dev'))
         self._function = int(node.get('func'))
-        self._version = node.find('Module[@version]').get('version')
-        mac = node.find('MAC[@address]')
-        self._address = mac.get('address') if mac else None
+        self._version = version
+        self._address = address
         # for now use enp{bus}s{subdevice}f{func} as the interface name
         # TODO (RR): replace with better method to map to bdf
         self._interface = 'enp{bus}s{subdevice}f{func}'.format(**node.attrib)
@@ -746,7 +747,18 @@ class nvm_updater(object):
 
     def enumerate(self, **kwargs):
         nodes = self._run_inventory(**kwargs)
-        return [eth_instance(node) for node in nodes]
+        instances = []
+        for node in nodes:
+            module = node.find('Module[@version]')
+            mac = node.find('MACAddresses/MAC[@address]')
+            fail = node.find('Status[@result="fail"]')
+            version = None if module is None else module.get('version')
+            address = None if mac is None else mac.get('address')
+            if version is None or address is None and fail:
+                LOG.warn('could not get all attributes from xml: %s',
+                         fail.text)
+            instances.append(eth_instance(node, version, address))
+        return instances
 
     def _run_inventory(self, **kwargs):
         f = tempfile.NamedTemporaryFile()
@@ -1234,16 +1246,15 @@ def do_rsu(boards, args, config):
                 time.sleep(1)
 
 
-def do_update(boards, args, rsu_config):
-    """do_update
+def get_update_threads(boards, args, rsu_config):
+    """get_update_threads Get a list of threads to manage updating flash
+       components
 
-    :param boards:
-    :param args:
-    :param rsu_config:
+    :param boards: A list of discovered boards
+    :param args: Command line arguments
+    :param rsu_config: Parsed super-rsu manifest
     """
     flash_dir = os.path.dirname(args.rsu_config.name)
-    complete = []
-    terminated = []
     threads = []
     for b in boards:
         update_thr = b.update(flash_dir, rsu_config, args)
@@ -1257,7 +1268,12 @@ def do_update(boards, args, rsu_config):
                                        name='nvmupdate', timeout=nvm_timeout)
         nvm_update_thr.start()
         threads.append(nvm_update_thr)
+    return threads
 
+
+def update_wait(threads, args, rsu_config):
+    complete = []
+    terminated = []
     if rsu_config.get('version', 1) == 1:
         timeout = args.timeout
     else:
@@ -1316,7 +1332,7 @@ def do_nvmverify(boards, args, rsu_config):
         total_count = nvm_cfg.get('interfaces', 1) * len(boards)
     eth_instances = nvmu.enumerate(vendor=vendor_id, device=device_id, func=0)
     eth_instances = [eth for eth in eth_instances
-                   if eth.version == nvm_cfg.get('version')]
+                     if eth.version == nvm_cfg.get('version')]
     updated_count = len(eth_instances)
 
     if updated_count != total_count:
@@ -1343,8 +1359,13 @@ def do_nvmupdate(args, rsu_config, **kwargs):
     if not eth_instances:
         LOG.warn('could not enumerate ETH interfaces')
         return (os.EX_UNAVAILABLE, os.EX_UNAVAILABLE)
-    need_update = [eth for eth in eth_instances
-                   if eth.version != nvm_cfg.get('version')]
+
+    need_update = []
+    for eth in eth_instances:
+        if eth.version is None:
+            LOG.warn('Could not get version for ETH interface: %s', eth.bus)
+        elif eth.version != nvm_cfg.get('version'):
+            need_update.append(eth)
 
     if not need_update:
         LOG.debug('no eth interfaces to update')
@@ -1453,7 +1474,7 @@ def main():
                              '- default is {}'.format(RSU_TMP_LOG))
     parser.add_argument('--rsu-only', default=False, action='store_true',
                         help='only perform the RSU command')
-    parser.add_argument('--skip-rsu', default=False, action='store_true',
+    parser.add_argument('--with-rsu', default=False, action='store_true',
                         help='do not perform the RSU command')
     parser.add_argument('--force-flash', default=False, action='store_true',
                         help='flash all images regardless of versions matching'
@@ -1533,33 +1554,45 @@ def main():
     if args.rsu_only:
         to_rsu = boards
     else:
-        to_rsu, terminated, interrupted = do_update(boards, args, rsu_config)
-        not_updated = len(to_rsu) != len(boards) or any([b.errors for b in to_rsu])
-        if not_updated or terminated or interrupted:
-            LOG.error('not all boards updated, failing now')
-            total_elapsed = datetime.now() - begin
-            LOG.info('%s update completed in: %s', os.path.basename(__file__),
-                     total_elapsed)
-            sys_exit(os.EX_SOFTWARE)
+        threads = get_update_threads(boards, args, rsu_config)
+        if not threads:
+            LOG.info('Nothing to update')
+            to_rsu = []
+        else:
+            to_rsu, terminated, interrupted = update_wait(threads, args,
+                                                          rsu_config)
+            have_errors = any([b.errors for b in to_rsu])
+            if have_errors or terminated or interrupted:
+                LOG.error('not all boards updated, failing now')
+                total_elapsed = datetime.now() - begin
+                LOG.info('%s update completed in: %s',
+                         os.path.basename(__file__),
+                         total_elapsed)
+                sys_exit(os.EX_SOFTWARE)
 
-    if not args.skip_rsu:
-        do_rsu(to_rsu, args, rsu_config)
-        to_verify = discover_boards(rsu_config, args)
-        if len(to_verify) != len(to_rsu):
-            LOG.error('did not rediscover same number of boards')
-            total_elapsed = datetime.now() - begin
-            LOG.info('%s update completed in: %s', os.path.basename(__file__),
-                     total_elapsed)
-            sys_exit(os.EX_SOFTWARE)
+    if not args.with_rsu and not args.rsu_only:
+        total_elapsed = datetime.now() - begin
+        count = len(to_rsu)
+        if count:
+            msg = '{} board{} updated. A power-cycle is required.'.format(
+                count, 's' if count > 1 else '')
+        else:
+            msg = 'No boards updated'
+        LOG.info(msg)
+        LOG.info('%s completed in: %s', os.path.basename(__file__),
+                 total_elapsed)
+        sys_exit(os.EX_OK, msg)
 
-        to_test = do_verify(to_verify, args, rsu_config)
-    else:
-        to_test = boards
+    do_rsu(to_rsu, args, rsu_config)
+    to_verify = discover_boards(rsu_config, args)
+    if len(to_verify) != len(to_rsu):
+        LOG.error('did not rediscover same number of boards')
+        total_elapsed = datetime.now() - begin
+        LOG.info('%s update completed in: %s', os.path.basename(__file__),
+                 total_elapsed)
+        sys_exit(os.EX_SOFTWARE)
 
-    if interrupted:
-        LOG.info('some or all updates were interrupted, skipping self tests')
-        sys_exit(os.EX_IOERR)
-
+    to_test = do_verify(to_verify, args, rsu_config)
     exit_code = os.EX_OK
 
     if len(to_test) < len(to_rsu):
