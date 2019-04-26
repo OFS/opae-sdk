@@ -57,7 +57,7 @@ shared_buffer::ptr_t shared_buffer::allocate(handle::ptr_t handle, size_t len,
   }
 
   fpga_result res = fpgaPrepareBuffer(
-      handle->c_type(), len, reinterpret_cast<void **>(&virt), &wsid, flags);
+    handle->c_type(), len, reinterpret_cast<void **>(&virt), &wsid, flags);
   ASSERT_FPGA_OK(res);
   res = fpgaGetIOAddress(handle->c_type(), wsid, &io_address);
   ASSERT_FPGA_OK(res);
