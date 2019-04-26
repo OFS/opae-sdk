@@ -35,7 +35,8 @@ namespace types {
 
 shared_buffer::~shared_buffer() { release(); }
 
-shared_buffer::ptr_t shared_buffer::allocate(handle::ptr_t handle, size_t len) {
+shared_buffer::ptr_t shared_buffer::allocate(handle::ptr_t handle, size_t len,
+                                             bool read_only) {
   ptr_t p;
 
   if (!handle) {
@@ -50,8 +51,13 @@ shared_buffer::ptr_t shared_buffer::allocate(handle::ptr_t handle, size_t len) {
   uint64_t io_address = 0;
   uint64_t wsid = 0;
 
+  int flags = 0;
+  if (read_only) {
+    flags |= FPGA_BUF_READ_ONLY;
+  }
+
   fpga_result res = fpgaPrepareBuffer(
-      handle->c_type(), len, reinterpret_cast<void **>(&virt), &wsid, 0);
+      handle->c_type(), len, reinterpret_cast<void **>(&virt), &wsid, flags);
   ASSERT_FPGA_OK(res);
   res = fpgaGetIOAddress(handle->c_type(), wsid, &io_address);
   ASSERT_FPGA_OK(res);
@@ -61,16 +67,20 @@ shared_buffer::ptr_t shared_buffer::allocate(handle::ptr_t handle, size_t len) {
 }
 
 shared_buffer::ptr_t shared_buffer::attach(handle::ptr_t handle, uint8_t *base,
-                                           size_t len) {
+                                           size_t len, bool read_only) {
   ptr_t p;
 
   uint8_t *virt = base;
   uint64_t io_address = 0;
   uint64_t wsid = 0;
 
-  fpga_result res =
-      fpgaPrepareBuffer(handle->c_type(), len, reinterpret_cast<void **>(&virt),
-                        &wsid, FPGA_BUF_PREALLOCATED);
+  int flags = FPGA_BUF_PREALLOCATED;
+  if (read_only) {
+    flags |= FPGA_BUF_READ_ONLY;
+  }
+
+  fpga_result res = fpgaPrepareBuffer(
+      handle->c_type(), len, reinterpret_cast<void **>(&virt), &wsid, flags);
 
   ASSERT_FPGA_OK(res);
   res = fpgaGetIOAddress(handle->c_type(), wsid, &io_address);
