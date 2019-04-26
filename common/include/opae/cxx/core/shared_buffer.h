@@ -78,8 +78,7 @@ class shared_buffer {
    * empty smart pointer on failure.
    */
   static shared_buffer::ptr_t attach(handle::ptr_t handle, uint8_t *base,
-                                     size_t len,
-                                     bool read_only = false);
+                                     size_t len, bool read_only = false);
 
   /**
    * @brief Disassociate the shared_buffer object from the resource used to
