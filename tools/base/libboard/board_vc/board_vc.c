@@ -103,9 +103,9 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 	var = strtoul(buf, NULL, VER_BUF_SIZE);
 
 	/* BMC FW version format reading
-	NIOS II Firmware Build	0x0	32	RW[23:0]	24’hFFFFFF	Build version of NIOS II Firmware
+	NIOS II Firmware Build 0x0 32 RW[23:0] 24 hFFFFFF Build version of NIOS II Firmware
 	NIOS FW is up e.g. 1.0.1 for first release
-	[31:24]	8’hFF	Firmware Support Revision - ASCII code
+	[31:24] 8hFF Firmware Support Revision - ASCII code
 	0xFF is the default value without NIOS FW, will be changed after NIOS FW is up
 	0x41(A)-For RevA
 	0x42(B)-For RevB
@@ -177,11 +177,11 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 
 
 	/* MAX10 FW version format reading
-	BMC MAX10 Firmware Build	0x0	32	RW[23:0]
+	BMC MAX10 Firmware Build 0x0 32 RW[23:0]
 	BMC MAX10 build version.0xFFFFxx is reserved for factory build,
 	each byte stands for different version number of user image,
 	e.g. 1.0.1 for first release user image
-	[31:24]	8’hFF	PCB info ASCII code
+	[31:24] 8hFF PCB info ASCII code
 	0x41(A) - Compatible for both RevA and RevB
 	0x43(C) - For RevC
 	0x44(D) - For RevD
@@ -495,7 +495,7 @@ fpga_result read_mac_info(fpga_token token, unsigned char *mac_info, size_t len)
 		return FPGA_EXCEPTION;
 	}
 
-	memcpy_s(mac_info, sizeof(buf), buf, sizeof(buf));
+	memcpy_s(mac_info, len, buf, sizeof(buf));
 
 	return res;
 }
@@ -621,12 +621,19 @@ fpga_result print_phy_info(fpga_token token)
 		if (phy_info_array[i].phy_num == 4) {
 			switch (fpga_mode) {
 			case 1: /* 4x25g */
+				mask = 0xf;
+				break;
+
 			case 3: /* 6x25g */
 				mask = 0xf;
 				break;
 
 			case 4: /* 2x2x25g */
 				mask = 0x33;
+				break;
+
+			default:
+				mask = 0xff;
 				break;
 			}
 		}

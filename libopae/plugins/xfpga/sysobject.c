@@ -396,7 +396,7 @@ fpga_result __FPGA_API__ xfpga_fpgaTokenSysfsPath(fpga_token token, char *sysfs_
 		return FPGA_EXCEPTION;
 	}
 
-	if (strcpy_s(sysfs_path, SYSFS_PATH_MAX, _token->sysfspath)) {
+	if (strcpy_s(sysfs_path, len, _token->sysfspath)) {
 		FPGA_ERR("Error in copying sysfs path");
 		return FPGA_EXCEPTION;
 	}
