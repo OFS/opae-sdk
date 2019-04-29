@@ -65,7 +65,8 @@ class shared_buffer {
    * @return A valid shared_buffer smart pointer on success, or an
    * empty smart pointer on failure.
    */
-  static shared_buffer::ptr_t allocate(handle::ptr_t handle, size_t len);
+  static shared_buffer::ptr_t allocate(handle::ptr_t handle, size_t len,
+                                       bool read_only = false);
 
   /** Attach a pre-allocated buffer to a shared_buffer object.
    *
@@ -77,7 +78,7 @@ class shared_buffer {
    * empty smart pointer on failure.
    */
   static shared_buffer::ptr_t attach(handle::ptr_t handle, uint8_t *base,
-                                     size_t len);
+                                     size_t len, bool read_only = false);
 
   /**
    * @brief Disassociate the shared_buffer object from the resource used to
