@@ -1298,7 +1298,7 @@ def update_wait(threads, args, rsu_config):
             time.sleep(0.5)
     except (KeyboardInterrupt, SystemExit):
         LOG.warning('update process interrupted')
-    else:
+    finally:
         if threads:
             LOG.warning('timed out or interrupted,'
                         'some boards not complete: %s',
@@ -1493,6 +1493,27 @@ def main():
     logging.basicConfig(format=logfmt,
                         level=getattr(logging, args.log_level.upper(), level))
 
+    if args.log_file == RSU_TMP_LOG:
+        try:
+            fh = logging.handlers.RotatingFileHandler(args.log_file,
+                                                      backupCount=50)
+            fh.doRollover()
+        except IOError:
+            sys.stderr.write('Could not rollover log file: {}\n'.format(
+                RSU_TMP_LOG))
+            fh = None
+    else:
+        try:
+            fh = logging.FileHandler(args.log_file)
+        except IOError:
+            sys.stderr.write('Could not write to logfile: %s', args.log_file)
+            fh = None
+
+    if fh is not None:
+        fh.setLevel(logging.DEBUG)
+        fh.setFormatter(logging.Formatter(fmt=logfmt))
+        LOG.addHandler(fh)
+
     if not DRY_RUN and os.getuid():
         LOG.error('must run as root')
         sys_exit(os.EX_NOPERM)
@@ -1536,18 +1557,6 @@ def main():
         if not verified or not nvm_verified or test_result:
             sys_exit(os.EX_SOFTWARE)
         sys_exit(os.EX_OK)
-
-    if args.log_file == RSU_TMP_LOG:
-        fh = logging.handlers.RotatingFileHandler(args.log_file,
-                                                  backupCount=50)
-
-        fh.doRollover()
-    else:
-        fh = logging.FileHandler(args.log_file)
-
-    fh.setLevel(logging.DEBUG)
-    fh.setFormatter(logging.Formatter(fmt=logfmt))
-    LOG.addHandler(fh)
 
     terminated = []
     interrupted = False
