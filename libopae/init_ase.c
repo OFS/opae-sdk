@@ -102,11 +102,18 @@ STATIC char *find_ase_cfg()
 
 __attribute__((constructor)) STATIC void opae_ase_init(void)
 {
+	fpga_result res;
 	char *cfg_path = find_ase_cfg();
+	
+	if (cfg_path == NULL)
+		OPAE_ERR("Could not find opae_ase.cfg file");
 
 	setenv("OPAE_EXPLICIT_INITIALIZE", "yes", 0);
 
-	fpgaInitialize(cfg_path);
+	res = fpgaInitialize(cfg_path);
+	if (res != FPGA_OK)
+		OPAE_ERR("fpgaInitialize: %s", fpgaErrStr(res));
+
 	free(cfg_path);
 }
 
