@@ -51,15 +51,13 @@ __attribute__((constructor)) STATIC void opae_ase_init(void)
 {
 	char cfg_path[PATH_MAX];
 	char *opae_path = getenv("OPAE_PLATFORM_ROOT");
-	if (strcpy_s(cfg_path, PATH_MAX, opae_path) != EOK)
-	{
+	if (strcpy_s(cfg_path, PATH_MAX, opae_path) != EOK) {
 		fprintf(stderr,
 				"Could not copy the opae_path successfully.\n");
 		return;
 	}
 
-	if(strcat_s(cfg_path, PATH_MAX, "/include/opae_ase.cfg") != EOK)
-	{
+	if (strcat_s(cfg_path, PATH_MAX, "/include/opae_ase.cfg") != EOK) {
 		fprintf(stderr,
 				"Could not copy the cfg_path successfully.\n");
 		return;
