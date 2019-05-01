@@ -82,6 +82,10 @@ install(FILES ${EXTRA_ASE_FILES}
   DESTINATION ${ASE_INST_SHARE_DIR}
   COMPONENT aseextra)
 
+install(FILES opae_ase.cfg
+  DESTINATION $ENV{HOME}/.local/opae
+  COMPONENT aseextra)
+
 ## Some ASE scripts are installed in bin
 set(PLATFORM_SCRIPTS
   afu_sim_setup
