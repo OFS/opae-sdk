@@ -29,7 +29,7 @@ project(opae)
 
 ############################################################################
 ## Get git hash info, if available #########################################
-############################################################################
+############################################################################env
 find_program(GIT_EXECUTABLE git)
 if(EXISTS ${GIT_EXECUTABLE})
   execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
@@ -113,6 +113,10 @@ install(DIRECTORY common/include/opae
 install(DIRECTORY common/include/safe_string
   DESTINATION include
   COMPONENT safestrheaders)
+  
+install(FILES libopae/plugins/ase/opae_ase.cfg     
+  DESTINATION include
+  COMPONENT asescripts)
 
 ############################################################################
 ## Add 'documentation' target ##############################################
