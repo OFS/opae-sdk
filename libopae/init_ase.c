@@ -104,7 +104,7 @@ __attribute__((constructor)) STATIC void opae_ase_init(void)
 {
 	fpga_result res;
 	char *cfg_path = find_ase_cfg();
-	
+
 	if (cfg_path == NULL)
 		OPAE_ERR("Could not find opae_ase.cfg file");
 
