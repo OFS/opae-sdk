@@ -67,7 +67,7 @@ STATIC char *find_ase_cfg()
 	int i = 0;
 	char *file_name = NULL;
 	char *opae_path = NULL;
-	char cfg_path[PATH_MAX]; 
+	char cfg_path[PATH_MAX];
 	char home_cfg[PATH_MAX] = {0};
 	char *home_cfg_ptr = &home_cfg[0];
 	// get the user's home directory
