@@ -113,7 +113,7 @@ install(DIRECTORY common/include/opae
 install(DIRECTORY common/include/safe_string
   DESTINATION include
   COMPONENT safestrheaders)
-  
+
 ############################################################################
 ## Add 'documentation' target ##############################################
 ############################################################################
