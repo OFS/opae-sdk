@@ -1475,7 +1475,8 @@ def main():
     parser.add_argument('--rsu-only', default=False, action='store_true',
                         help='only perform the RSU command')
     parser.add_argument('--with-rsu', default=False, action='store_true',
-                        help='do not perform the RSU command')
+                        help='perform RSU after updating flash components'
+                             '(experimental)')
     parser.add_argument('--force-flash', default=False, action='store_true',
                         help='flash all images regardless of versions matching'
                              'or not')
