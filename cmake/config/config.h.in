@@ -226,6 +226,8 @@
 #cmakedefine INTEL_FPGA_API_VERSION "@INTEL_FPGA_API_VERSION@"
 #cmakedefine INTEL_FPGA_API_HASH    "@INTEL_FPGA_API_HASH@"
 
+#define OPAE_ASE_CFG_SRC_PATH "@CMAKE_CURRENT_SOURCE_DIR@/libopae/plugins/ase/opae_ase.cfg"
+
 #ifndef STATIC
 #define STATIC static
 #endif

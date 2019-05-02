@@ -47,6 +47,7 @@
 #include "opae_int.h"
 
 #define HOME_CFG_PATHS 3
+
 STATIC const char *_opae_home_cfg_files[HOME_CFG_PATHS] = {
 	"/.local/opae_ase.cfg",
 	"/.local/opae/opae_ase.cfg",
@@ -65,12 +66,33 @@ STATIC char *find_ase_cfg()
 {
 	int i = 0;
 	char *file_name = NULL;
+	char *opae_path = NULL;
+	char cfg_path[PATH_MAX]; 
 	char home_cfg[PATH_MAX] = {0};
 	char *home_cfg_ptr = &home_cfg[0];
 	// get the user's home directory
 	struct passwd *user_passwd = getpwuid(getuid());
 
-	// first look in possible paths in the users home directory
+	// first look in the OPAE source directory
+	file_name = canonicalize_file_name(OPAE_ASE_CFG_SRC_PATH);
+	if (file_name)
+		return file_name;
+
+	// second look in the release directory
+	opae_path = getenv("OPAE_PLATFORM_ROOT");
+	if (strcpy_s(cfg_path, PATH_MAX, opae_path) != EOK) {
+		OPAE_ERR("error copying opae platform root string: %s", opae_path);
+			return NULL;
+	}
+	if (strcat_s(cfg_path, PATH_MAX, "/share/opae/ase/opae_ase.cfg") != EOK) {
+		OPAE_ERR("error string concatenation : %s", cfg_path);
+			return NULL;
+	}
+	file_name = canonicalize_file_name(cfg_path);
+	if (file_name)
+		return file_name;
+
+	// third look in possible paths in the users home directory
 	for (i = 0; i < HOME_CFG_PATHS; ++i) {
 		if (strcpy_s(home_cfg, PATH_MAX, user_passwd->pw_dir)) {
 			OPAE_ERR("error copying pw_dir string");
