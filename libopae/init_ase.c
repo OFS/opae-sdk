@@ -46,6 +46,7 @@
 #include "pluginmgr.h"
 #include "opae_int.h"
 
+#define ASE_PRIORITY 110
 #define HOME_CFG_PATHS 3
 
 STATIC const char *_opae_home_cfg_files[HOME_CFG_PATHS] = {
@@ -129,7 +130,7 @@ STATIC char *find_ase_cfg()
 	return NULL;
 }
 
-__attribute__((constructor)) STATIC void opae_ase_init(void)
+__attribute__((constructor(ASE_PRIORITY))) STATIC void opae_ase_init(void)
 {
 	fpga_result res;
 	char *cfg_path = find_ase_cfg();
