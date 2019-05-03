@@ -27,6 +27,7 @@
 add_subdirectory(api)
 add_subdirectory(plugins/fpgad-xfpga)
 add_subdirectory(plugins/fpgad-vc)
+add_subdirectory(plugins/fpgad-dc)
 
 include_directories(${OPAE_INCLUDE_DIR}
                     ${libjson-c_INCLUDE_DIRS}
