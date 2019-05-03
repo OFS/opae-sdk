@@ -98,22 +98,24 @@ STATIC char *find_ase_cfg()
 		return file_name;
 
 	// fourth look in possible paths in the users home directory
-	for (i = 0; i < HOME_CFG_PATHS; ++i) {
-		if (strcpy_s(home_cfg, PATH_MAX, user_passwd->pw_dir)) {
-			OPAE_ERR("error copying pw_dir string");
-			return NULL;
-		}
-		home_cfg_ptr = home_cfg + strlen(home_cfg);
-		if (strcpy_s(home_cfg_ptr, PATH_MAX, _opae_home_cfg_files[i])) {
-			OPAE_ERR("error copying opae cfg dir string: %s",
-				 _opae_home_cfg_files[i]);
-			return NULL;
-		}
-		file_name = canonicalize_file_name(home_cfg);
-		if (file_name) {
-			return file_name;
-		} else {
-			home_cfg[0] = '\0';
+	if (user_passwd != NULL) {
+		for (i = 0; i < HOME_CFG_PATHS; ++i) {
+			if (strcpy_s(home_cfg, PATH_MAX, user_passwd->pw_dir)) {
+				OPAE_ERR("error copying pw_dir string");
+				return NULL;
+			}
+			home_cfg_ptr = home_cfg + strlen(home_cfg);
+			if (strcpy_s(home_cfg_ptr, PATH_MAX, _opae_home_cfg_files[i])) {
+				OPAE_ERR("error copying opae cfg dir string: %s",
+					 _opae_home_cfg_files[i]);
+				return NULL;
+			}
+			file_name = canonicalize_file_name(home_cfg);
+			if (file_name) {
+				return file_name;
+			} else {
+				home_cfg[0] = '\0';
+			}
 		}
 	}
 	// now look in possible system paths
