@@ -75,10 +75,15 @@ add_subdirectory(rtl)
 set(EXTRA_ASE_FILES
   Makefile
   ase.cfg
-  ase_regress.sh)
+  ase_regress.sh
+  opae_ase.cfg)
 
 install(FILES ${EXTRA_ASE_FILES}
   DESTINATION ${ASE_INST_SHARE_DIR}
+  COMPONENT aseextra)
+
+install(FILES opae_ase.cfg
+  DESTINATION $ENV{HOME}/.local/opae
   COMPONENT aseextra)
 
 ## Some ASE scripts are installed in bin
