@@ -78,7 +78,12 @@ STATIC char *find_ase_cfg()
 	if (file_name)
 		return file_name;
 
-	// second look in the release directory
+	// second look in OPAE installation directory
+	file_name = canonicalize_file_name(OPAE_ASE_CFG_INST_PATH);
+	if (file_name)
+		return file_name;
+
+	// third look in the release directory
 	opae_path = getenv("OPAE_PLATFORM_ROOT");
 	if (strcpy_s(cfg_path, PATH_MAX, opae_path) != EOK) {
 		OPAE_ERR("error copying opae platform root string: %s", opae_path);
@@ -92,7 +97,7 @@ STATIC char *find_ase_cfg()
 	if (file_name)
 		return file_name;
 
-	// third look in possible paths in the users home directory
+	// fourth look in possible paths in the users home directory
 	for (i = 0; i < HOME_CFG_PATHS; ++i) {
 		if (strcpy_s(home_cfg, PATH_MAX, user_passwd->pw_dir)) {
 			OPAE_ERR("error copying pw_dir string");
