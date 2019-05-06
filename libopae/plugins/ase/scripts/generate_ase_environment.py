@@ -60,9 +60,6 @@ import json
 from sets import Set
 import shutil
 
-# reload(sys)
-# sys.setdefaultencoding('utf8')
-
 # Supported file extensions
 # USERs may modify this if needed
 VLOG_EXTENSIONS = [".svh", ".sv", ".vs", ".v"]
