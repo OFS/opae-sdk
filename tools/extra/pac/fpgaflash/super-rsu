@@ -233,6 +233,24 @@ def aer_disabled(*nodes):
             n.aer = (AER_ON, AER_ON) if DRY_RUN else v
 
 
+@contextmanager
+def ignore_signals(*signals):
+    handlers = {}
+
+    for s in signals:
+        try:
+            signal.signal(s, signal.SIG_IGN)
+        except ValueError:
+            LOG.warn('signal (%s) cannot be ignored', s)
+        else:
+            handlers[s] = signal.getsignal(s)
+    try:
+        yield handlers
+    finally:
+        for k, v in handlers.iteritems():
+            signal.signal(k, v)
+
+
 def find_subdevices(node):
     """find_subdevices find a list of (vendor, device) tuples in children
                        and grandchildren
@@ -1239,11 +1257,15 @@ def do_rsu(boards, args, config):
             except IOError:
                 time.sleep(5)
             else:
-                t.remove()
-                logging.info('waiting for FPGA reconfiguration')
-                time.sleep(10)
-                r.rescan_bus('{}:{}'.format(t.segment, t.bus))
-                time.sleep(1)
+                # ignore signals for now (the signals are ignored, not
+                # deferred)
+                with ignore_signals(signal.SIGINT, signal.SIGHUP,
+                                    signal.SIGTERM, signal.SIGABRT):
+                    t.remove()
+                    logging.info('waiting for FPGA reconfiguration')
+                    time.sleep(10)
+                    r.rescan_bus('{}:{}'.format(t.segment, t.bus))
+                    time.sleep(1)
 
 
 def get_update_threads(boards, args, rsu_config):
