@@ -110,9 +110,18 @@ if [[ $found -lt 1 ]]; then
 fi
 
 found=$(lspci | grep 0b30)
-bus_num=${found:0:2}
-if [[ $bus_num -gt 0 ]]; then
-    echo "Bus number found: "$bus_num
+if [ "$1" != "" ]; then
+  bus_num=$1
+  if [[ $found != *"$bus_num"* ]]; then
+      echo "Invalid bus number param: "$bus_num
+      exit 1
+  fi
+else
+  bus_num=${found:0:2}
+  if [[ $((16#$bus_num)) -lt 0 ]]; then
+      echo "Invalid bus number: "$bus_num
+      exit 1
+  fi
 fi
 
 tool_tests=(
@@ -130,18 +139,18 @@ tool_tests=(
 "fpgalpbk -G 9AEFFE5F-8457-0612-C000-C9660D824272 -I 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --side=line --direction=local --disable"
 "fpgalpbk -G 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --side=host --direction=remote --enable"
 "fpgalpbk -G 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --side=host --direction=remote --disable"
-"fpga_dma_test 0 -G 9AEFFE5F-8457-0612-C000-C9660D824272 -D 0 -S 0x100000000"
-"fpga_dma_test 0 -G 9AEFFE5F-8457-0612-C000-C9660D824272 -D 1 -S 0x100000000"
-"fpga_dma_test 0 -G 9AEFFE5F-8457-0612-C000-C9660D824272 -D 2 -S 0x40000000"
-"fpga_dma_test 0 -G 9AEFFE5F-8457-0612-C000-C9660D824272 -D 3 -S 0x1000000"
+"fpga_dma_test 0 -B 0x$bus_num -G 9AEFFE5F-8457-0612-C000-C9660D824272 -D 0 -S 0x100000000"
+"fpga_dma_test 0 -B 0x$bus_num -G 9AEFFE5F-8457-0612-C000-C9660D824272 -D 1 -S 0x100000000"
+"fpga_dma_test 0 -B 0x$bus_num -G 9AEFFE5F-8457-0612-C000-C9660D824272 -D 2 -S 0x40000000"
+"fpga_dma_test 0 -B 0x$bus_num -G 9AEFFE5F-8457-0612-C000-C9660D824272 -D 3 -S 0x1000000"
 "nlb0 --guid 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --multi-cl=4 --begin=1024 --end=1024 --timeout-sec=1 --cont" 
-"nlb0 --guid 9AEFFE5F-8457-0612-C000-C9660D824272"
-"nlb0 --guid 9AEFFE5F-8457-0612-C000-C9660D824272 --cont"
-"nlb0 --guid 9AEFFE5F-8457-0612-C000-C9660D824272 --begin 10 --end 1000"
-"nlb0 --guid 9AEFFE5F-8457-0612-C000-C9660D824272 --begin 10 --end 100 --suppress-hdr -V"
-"nlb0 --guid 9AEFFE5F-8457-0612-C000-C9660D824272 --begin 10 --end 100 --suppress-stats -V"
-"nlb0 --guid 9AEFFE5F-8457-0612-C000-C9660D824272 --multi-cl 2 --begin 10 --end 1000"
-"nlb0 --guid 9AEFFE5F-8457-0612-C000-C9660D824272 --begin 2050 --cont --timeout-sec 5"
+"nlb0 --guid 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num"
+"nlb0 --guid 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --cont"
+"nlb0 --guid 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --begin 10 --end 1000"
+"nlb0 --guid 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --begin 10 --end 100 --suppress-hdr -V"
+"nlb0 --guid 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --begin 10 --end 100 --suppress-stats -V"
+"nlb0 --guid 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --multi-cl 2 --begin 10 --end 1000"
+"nlb0 --guid 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --begin 2050 --cont --timeout-sec 5"
 "nlb0 -V --guid 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --begin=57535 --end=65535 --cache-hint=rdline-I --cache-policy=wrpush-I --write-vc=vl0 --read-vc=vh1 --wrfence-vc=random"
 "nlb0 -V --guid 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num --begin=57532 --end=65532 --multi-cl 4 --cache-hint=rdline-I --cache-policy=wrline-I --write-vc=vh0 --read-vc=vl0 --wrfence-vc=auto"
 "fpgastats --guid 9AEFFE5F-8457-0612-C000-C9660D824272 -B 0x$bus_num"
