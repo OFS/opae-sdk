@@ -26,7 +26,7 @@
 
 cmake_minimum_required(VERSION 2.8.12)
 
-project("opae-c-ase")
+project("ase")
 find_package(Threads REQUIRED)
 
 add_definitions(-DHAVE_CONFIG_H=1)
@@ -51,10 +51,12 @@ set(ASEAPI_SRC
   ${API_DIR}/src/umsg.c
   ${API_DIR}/src/version.c
   ${API_DIR}/src/wsid_list.c
-  ${API_DIR}/src/error.c)
+  ${API_DIR}/src/error.c
+  ${API_DIR}/src/plugin.c
+  ${API_DIR}/src/init.c)
 
-add_library(opae-c-ase SHARED ${ASEAPI_SRC})
-target_link_libraries(opae-c-ase
+add_library(ase SHARED ${ASEAPI_SRC})
+target_link_libraries(ase
   ${libjson-c_LIBRARIES}
   ${libuuid_LIBRARIES}
   ${librt_LIBRARIES})
@@ -62,17 +64,18 @@ target_link_libraries(opae-c-ase
 # Define headers for this library. PUBLIC headers are used for
 # compiling the library, and will be added to consumers' build
 # paths. Keep current directory private.
-target_include_directories(opae-c-ase PUBLIC
+target_include_directories(ase PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<INSTALL_INTERFACE:include>
   PRIVATE src
   $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/../include>
-  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/../sw>)
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/../sw>
+  PRIVATE ${OPAE_SDK_SOURCE}/libopae)
 
-set_target_properties(opae-c-ase PROPERTIES
+set_target_properties(ase PROPERTIES
   VERSION ${INTEL_FPGA_API_VERSION}
   SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
 
-install(TARGETS opae-c-ase
+install(TARGETS ase
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
   COMPONENT opaecase)

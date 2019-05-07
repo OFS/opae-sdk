@@ -23,46 +23,35 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif // HAVE_CONFIG_H
+#endif
 
-#include <opae/manage.h>
+#include <opae/access.h>
 #include "common_int.h"
+#include <ase_common.h>
 
-fpga_result __FPGA_API__ fpgaAssignToInterface(fpga_handle fpga, fpga_token accelerator,
-					       uint32_t host_interface, int flags)
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+fpga_result __FPGA_API__ ase_fpgaClose(fpga_handle handle)
 {
-	UNUSED_PARAM(fpga);
-	UNUSED_PARAM(accelerator);
-	UNUSED_PARAM(host_interface);
-	UNUSED_PARAM(flags);
-	FPGA_MSG("fpgaAssignToInterface not supported");
-	fpga_result result = FPGA_NOT_SUPPORTED;
+	fpga_result result;
+	if (NULL == handle) {
+		FPGA_MSG("Handle is NULL");
+		return FPGA_INVALID_PARAM;
+	}
 
-	return result;
-}
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 
-fpga_result __FPGA_API__ fpgaReleaseFromInterface(fpga_handle fpga, fpga_token accelerator)
-{
-	UNUSED_PARAM(fpga);
-	UNUSED_PARAM(accelerator);
-	FPGA_MSG("fpgaReleaseFromInterface not supported");
-	fpga_result result = FPGA_NOT_SUPPORTED;
+	// ASE Release
+	session_deinit();
 
-	return result;
-}
+	wsid_tracker_cleanup(_handle->wsid_root, NULL);
 
-fpga_result __FPGA_API__ fpgaReconfigureContext(fpga_handle accelerator,
-						const uint8_t *bitstream,
-						size_t bitstream_len, int flags)
-{
-	UNUSED_PARAM(accelerator);
-	UNUSED_PARAM(bitstream);
-	UNUSED_PARAM(bitstream_len);
-	UNUSED_PARAM(flags);
-	fpga_result result = FPGA_NOT_FOUND;
-
+	free(_handle);
+	_handle = NULL;
+	result = FPGA_OK;
 	return result;
 }

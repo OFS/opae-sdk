@@ -42,9 +42,12 @@
 #include "opae/utils.h"
 #include "types_int.h"
 #include "wsid_list_int.h"
+#include "props.h"
 
 /* Macro for defining symbol visibility */
 #define __FPGA_API__ __attribute__((visibility("default")))
+#ifdef ASSERT_NOT_NULL_MSG
+#undef ASSERT_NOT_NULL_MSG
 #define ASSERT_NOT_NULL_MSG(arg, msg)              \
 	do {                                       \
 		if (!arg) {                        \
@@ -53,8 +56,10 @@
 		}                                  \
 	} while (0);
 
+#undef ASSERT_NOT_NULL
 #define ASSERT_NOT_NULL(arg) \
 	ASSERT_NOT_NULL_MSG(arg, #arg " is NULL")
+#endif
 static const fpga_guid FPGA_FME_GUID = {
 	0xbf, 0xaf, 0x2a, 0xe9, 0x4a, 0x52, 0x46, 0xe3, 0x82, 0xfe,
 	0x38, 0xf0, 0xf9, 0xe1, 0x77, 0x64
@@ -70,7 +75,6 @@ enum fpga_loglevel {
 	FPGA_LOG_DEBUG           /* debugging (also needs #define DEBUG 1) */
 };
 
-#define FPGA_DEFAULT_LOGLEVEL 0
 /*
  * Convenience macros for printing messages and errors.
  */
