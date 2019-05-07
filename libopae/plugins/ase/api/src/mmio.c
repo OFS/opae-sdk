@@ -45,7 +45,7 @@
 #include <sys/time.h>		/* struct timeval */
 
 
-fpga_result __FPGA_API__ fpgaWriteMMIO32(fpga_handle handle,
+fpga_result __FPGA_API__ ase_fpgaWriteMMIO32(fpga_handle handle,
 					 uint32_t mmio_num,
 					 uint64_t offset, uint32_t value)
 {
@@ -81,7 +81,7 @@ fpga_result __FPGA_API__ fpgaWriteMMIO32(fpga_handle handle,
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ fpgaReadMMIO32(fpga_handle handle,
+fpga_result __FPGA_API__ ase_fpgaReadMMIO32(fpga_handle handle,
 					uint32_t mmio_num, uint64_t offset,
 					uint32_t *value)
 {
@@ -116,7 +116,7 @@ fpga_result __FPGA_API__ fpgaReadMMIO32(fpga_handle handle,
 }
 
 
-fpga_result __FPGA_API__ fpgaWriteMMIO64(fpga_handle handle,
+fpga_result __FPGA_API__ ase_fpgaWriteMMIO64(fpga_handle handle,
 					 uint32_t mmio_num,
 					 uint64_t offset, uint64_t value)
 {
@@ -149,7 +149,7 @@ fpga_result __FPGA_API__ fpgaWriteMMIO64(fpga_handle handle,
 
 }
 
-fpga_result __FPGA_API__ fpgaReadMMIO64(fpga_handle handle,
+fpga_result __FPGA_API__ ase_fpgaReadMMIO64(fpga_handle handle,
 					uint32_t mmio_num, uint64_t offset,
 					uint64_t *value)
 {
@@ -182,7 +182,7 @@ fpga_result __FPGA_API__ fpgaReadMMIO64(fpga_handle handle,
 
 }
 
-fpga_result __FPGA_API__ fpgaMapMMIO(fpga_handle handle, uint32_t mmio_num,
+fpga_result __FPGA_API__ ase_fpgaMapMMIO(fpga_handle handle, uint32_t mmio_num,
 				     uint64_t **mmio_ptr)
 {
 	UNUSED_PARAM(mmio_num);
@@ -213,7 +213,7 @@ fpga_result __FPGA_API__ fpgaMapMMIO(fpga_handle handle, uint32_t mmio_num,
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaUnmapMMIO(fpga_handle handle,
+fpga_result __FPGA_API__ ase_fpgaUnmapMMIO(fpga_handle handle,
 				       uint32_t mmio_num)
 {
 	UNUSED_PARAM(handle);
@@ -239,7 +239,7 @@ fpga_result __FPGA_API__ fpgaUnmapMMIO(fpga_handle handle,
 	}
 }
 
-fpga_result __FPGA_API__ fpgaReset(fpga_handle handle)
+fpga_result __FPGA_API__ ase_fpgaReset(fpga_handle handle)
 {
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
 	if (_handle == NULL) {

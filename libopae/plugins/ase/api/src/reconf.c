@@ -30,7 +30,7 @@
 
 #include "common_int.h"
 
-fpga_result __FPGA_API__ fpgaReconfigureSlot(fpga_handle fpga,
+fpga_result __FPGA_API__ ase_fpgaReconfigureSlot(fpga_handle fpga,
 					     uint32_t slot,
 					     const uint8_t *bitstream,
 					     size_t bitstream_len,
