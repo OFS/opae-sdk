@@ -305,9 +305,6 @@ add_library(fpgainfo-static
     ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/portinfo.c
     ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/powerinfo.c
     ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/tempinfo.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/phyinfo.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/macinfo.c
-    ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/sysinfo.c
     ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/main.c
     )
 
