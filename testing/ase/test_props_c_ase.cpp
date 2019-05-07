@@ -30,7 +30,7 @@
 #include <opae/types.h>
 #include "types_int.h"
 #include <opae/properties.h>
-#include "properties_int.h"
+#include "props.h"
 
 #include "gtest/gtest.h"
 #include "test_system.h"

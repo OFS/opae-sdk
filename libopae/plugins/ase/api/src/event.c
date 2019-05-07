@@ -33,7 +33,7 @@
 #include "common_int.h"
 #include "ase_common.h"
 
-fpga_result __FPGA_API__ fpgaCreateEventHandle(fpga_event_handle *handle)
+fpga_result __FPGA_API__ ase_fpgaCreateEventHandle(fpga_event_handle *handle)
 {
 	struct _fpga_event_handle *_eh;
 
@@ -59,7 +59,7 @@ fpga_result __FPGA_API__ fpgaCreateEventHandle(fpga_event_handle *handle)
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ fpgaDestroyEventHandle(fpga_event_handle *handle)
+fpga_result __FPGA_API__ ase_fpgaDestroyEventHandle(fpga_event_handle *handle)
 {
 	struct _fpga_event_handle *_eh;
 	if (!handle)
@@ -85,7 +85,7 @@ fpga_result __FPGA_API__ fpgaDestroyEventHandle(fpga_event_handle *handle)
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ fpgaGetOSObjectFromEventHandle(const fpga_event_handle eh,
+fpga_result __FPGA_API__ ase_fpgaGetOSObjectFromEventHandle(const fpga_event_handle eh,
 						int *fd)
 {
 	struct _fpga_event_handle *_eh = (struct _fpga_event_handle *) eh;
@@ -99,7 +99,7 @@ fpga_result __FPGA_API__ fpgaGetOSObjectFromEventHandle(const fpga_event_handle 
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ fpgaRegisterEvent(fpga_handle handle,
+fpga_result __FPGA_API__ ase_fpgaRegisterEvent(fpga_handle handle,
 					   fpga_event_type type,
 					   fpga_event_handle event_handle,
 					   uint32_t flags)
@@ -117,7 +117,7 @@ fpga_result __FPGA_API__ fpgaRegisterEvent(fpga_handle handle,
 		return FPGA_EXCEPTION;
 }
 
-fpga_result __FPGA_API__ fpgaUnregisterEvent(fpga_handle handle,
+fpga_result __FPGA_API__ ase_fpgaUnregisterEvent(fpga_handle handle,
 					     fpga_event_type event_type,
 					     fpga_event_handle event_handle)
 {

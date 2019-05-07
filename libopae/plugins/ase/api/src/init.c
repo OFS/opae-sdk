@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,35 +23,23 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
+#endif // HAVE_CONFIG_H
 
-#include <opae/access.h>
 #include "common_int.h"
-#include <ase_common.h>
 
 #include <stdio.h>
-#include <string.h>
+#include <stdarg.h>
 #include <stdlib.h>
 
-fpga_result __FPGA_API__ fpgaClose(fpga_handle handle)
+__attribute__((constructor))
+STATIC void ase_init(void)
 {
-	fpga_result result;
-	if (NULL == handle) {
-		FPGA_MSG("Handle is NULL");
-		return FPGA_INVALID_PARAM;
-	}
+}
 
-	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
-
-	// ASE Release
-	session_deinit();
-
-	wsid_tracker_cleanup(_handle->wsid_root, NULL);
-
-	free(_handle);
-	_handle = NULL;
-	result = FPGA_OK;
-	return result;
+__attribute__((destructor))
+STATIC void ase_release(void)
+{
 }

@@ -41,6 +41,13 @@ target_include_directories(opae-c PUBLIC
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
   PUBLIC ${libjson-c_INCLUDE_DIRS})
 
+add_library(opae-c-ase SHARED init_ase.c)
+
+target_include_directories(opae-c-ase PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
 include_directories(${libjson-c_INCLUDE_DIRS})
 
 # Add coverage flags
@@ -65,10 +72,20 @@ target_link_libraries(opae-c
   safestr
   ${libjson-c_LIBRARIES})
 
+target_link_libraries(opae-c-ase
+  opae-c
+  safestr
+  ${CMAKE_THREAD_LIBS_INIT}  
+  )
+
 set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
 add_subdirectory(plugins)
 
 install(TARGETS opae-c
+  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
+  COMPONENT opaeclib)
+  
+install(TARGETS opae-c-ase
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
   COMPONENT opaeclib)

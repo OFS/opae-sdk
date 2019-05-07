@@ -86,59 +86,6 @@ struct _fpga_handle {
 	bool fpgaMMIO_is_mapped;  // is MMIO mapped?
 };
 
-/** Object property struct
-  Intent is for property struct to be created dynamically */
-struct _fpga_properties {
-	pthread_mutex_t lock;
-	uint64_t magic;
-	/* Common properties */
-	uint64_t valid_fields; // bitmap of valid fields
-	// valid here means the field has been set using the API
-	// bit 0x00 - parent field is valid
-	// bit 0x01 - objtype field is valid
-	// bit 0x02 - bus field is valid
-	// ...
-	// up to bit 0x1F
-	fpga_guid guid;		// Applies only to accelerator types
-	fpga_token parent;
-	fpga_objtype objtype;
-	uint16_t segment;
-	uint8_t bus;
-	uint8_t device;
-	uint8_t function;
-	uint8_t socket_id;
-	uint16_t device_id;
-	uint16_t vendor_id;
-	uint64_t object_id;
-
-	/* Object-specific properties
-	 * bitfields start as 0x20
-	 */
-	union {
-
-		/* fpga object properties
-		 * */
-		struct {
-			uint32_t num_slots;
-			uint64_t bbs_id;
-			fpga_version bbs_version;
-			// TODO char model[FPGA_MODEL_LENGTH];
-			// TODO uint64_t local_memory_size;
-			// TODO uint64_t capabilities; #<{(| bitfield (HSSI, iommu, ...) |)}>#
-		} fpga;
-
-		/* accelerator object properties
-		 * */
-		struct {
-			fpga_accelerator_state state;
-			uint32_t num_mmio;
-			uint32_t num_interrupts;
-		} accelerator;
-
-	} u;
-
-};
-
 /*
  * Event handle struct to perform
  * event operations

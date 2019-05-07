@@ -261,7 +261,7 @@ static fpga_result check_mapped_page(void *vaddr, size_t req_page_bytes)
 }
 
 
-fpga_result __FPGA_API__ fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
+fpga_result __FPGA_API__ ase_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 					   void **buf_addr, uint64_t *wsid,
 					   int flags)
 {
@@ -405,7 +405,7 @@ out_unlock:
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
+fpga_result __FPGA_API__ ase_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 {
 	void *buf_addr;
 	uint64_t iova;
@@ -471,7 +471,7 @@ out_unlock:
 	return result;
 }
 
-fpga_result __FPGA_API__ fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
+fpga_result __FPGA_API__ ase_fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 					  uint64_t *ioaddr)
 {
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;

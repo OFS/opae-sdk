@@ -313,9 +313,9 @@ function(ase_module_finalize_modelsim_linking m)
   endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
   # Create ASE scripts
-  configure_file(${CMAKE_BINARY_DIR}/ase/rtl/sources_ase_server.txt
+  configure_file(${CMAKE_BINARY_DIR}/libopae/plugins/ase/rtl/sources_ase_server.txt
     ${ASE_WORKDIR}/sources_ase_server.txt)
-  configure_file(${CMAKE_BINARY_DIR}/ase/rtl/sources_quartus_libs.txt
+  configure_file(${CMAKE_BINARY_DIR}/libopae/plugins/ase/rtl/sources_quartus_libs.txt
     ${ASE_WORKDIR}/sources_quartus_libs.txt)
   configure_file(${ASE_SCRIPTS_IN}/ase.cfg.in
     ${ASE_CONFIG})
