@@ -259,7 +259,7 @@ TEST_P(object_c_p, obj_get_size) {
 }
 
 INSTANTIATE_TEST_CASE_P(object_c, object_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));
 
 class object_c_mock_p : public object_c_p {
   protected:
@@ -316,5 +316,5 @@ TEST_P(object_c_mock_p, obj_get_obj_err) {
 }
 
 INSTANTIATE_TEST_CASE_P(object_c, object_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc","dcp-vc"  })));
 
