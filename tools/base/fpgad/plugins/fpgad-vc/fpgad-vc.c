@@ -86,6 +86,7 @@ typedef struct _vc_device {
 	uint8_t *state_tripped; // bit set
 	uint8_t *state_last;    // bit set
 	char power_path[PATH_MAX];
+	uint64_t tripped_count;
 } vc_device;
 
 #define BIT_SET_MASK(__n)  (1 << ((__n) % 8))
@@ -393,8 +394,6 @@ STATIC fpga_result vc_enum_sensors(vc_device *vc)
 	return FPGA_NOT_FOUND;
 }
 
-STATIC int tripped_count;
-
 STATIC bool vc_monitor_sensors(vc_device *vc)
 {
 	uint32_t i;
@@ -440,7 +439,7 @@ STATIC bool vc_monitor_sensors(vc_device *vc)
 
 		if (BIT_IS_SET(vc->state_last, s->id) &&
 		    BIT_IS_SET(vc->state_tripped, s->id)) {
-			LOG_MOD(tripped_count,
+			LOG_MOD(vc->tripped_count,
 				"sensor '%s' still tripped.\n", s->name);
 		}
 	}
@@ -453,7 +452,7 @@ STATIC bool vc_monitor_sensors(vc_device *vc)
 
 		if (i == vc->num_sensors) {
 			// no remaining tripped sensors
-			tripped_count = 0;
+			vc->tripped_count = 0;
 		}
 	}
 
@@ -520,24 +519,6 @@ STATIC fpga_result vc_unload_driver(vc_device *vc)
 	//
 	// ../../../devices/pci0000:ae/0000:ae:00.0/0000:af:00.0/
 	// 0000:b0:09.0/0000:b2:00.0
-
-	err = strstr_s(rlpath, sizeof(rlpath),
-		       "devices", 7, &p);
-	if (err != EOK) {
-		LOG("error: no \"devices\" in path \"%s\"\n", rlpath);
-		return FPGA_EXCEPTION;
-	}
-
-	// /sys/devices/pci0000:ae/0000:ae:00.0/0000:af:00.0/
-	// 0000:b0:09.0/0000:b2:00.0/reset
-	snprintf_s_s(path, PATH_MAX,
-		      "/sys/%s/reset", p);
-
-	LOG("writing 1 to \"%s\" to reset the device.\n", path);
-	res = file_write_string(path, "1\n", 2);
-	if (res != FPGA_OK) {
-		LOG("failed to write \"%s\"\n", path);
-	}
 
 	p = strrchr(rlpath, '/');
 	if (!p) {
@@ -646,7 +627,6 @@ STATIC fpga_result vc_force_pci_rescan(vc_device *vc)
 	return res;
 }
 
-STATIC pthread_mutex_t cool_down_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 STATIC int cool_down = 30;
 
 STATIC void *monitor_fme_vc_thread(void *arg)
@@ -660,9 +640,6 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 	uint8_t *save_state_last = NULL;
 
 	int i;
-	errno_t err;
-
-	tripped_count = 0;
 
 	while (vc_threads_running) {
 
@@ -696,14 +673,10 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 
 		vc_destroy_sensors(vc);
 
-		fpgad_mutex_lock(err, &cool_down_lock);
-
 		if (vc_unload_driver(vc) == FPGA_OK) {
 
 			for (i = 0 ; i < cool_down ; ++i) {
 				if (!vc_threads_running) {
-					fpgad_mutex_unlock(err,
-							   &cool_down_lock);
 					return NULL;
 				}
 				sleep(1);
@@ -713,7 +686,6 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 				LOG("failed to force PCI bus rescan.\n");
 		}
 
-		fpgad_mutex_unlock(err, &cool_down_lock);
 	}
 
 	return NULL;
