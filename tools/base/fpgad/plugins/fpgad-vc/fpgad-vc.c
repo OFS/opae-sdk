@@ -85,6 +85,7 @@ typedef struct _vc_device {
 	uint64_t max_sensor_id;
 	uint8_t *state_tripped; // bit set
 	uint8_t *state_last;    // bit set
+	char power_path[PATH_MAX];
 } vc_device;
 
 #define BIT_SET_MASK(__n)  (1 << ((__n) % 8))
@@ -474,7 +475,11 @@ STATIC fpga_result vc_unload_driver(vc_device *vc)
 	fpga_token token;
 	fpga_result res;
 	fpga_properties prop = NULL;
-	char path[SYSFS_PATH_MAX];
+	char path[PATH_MAX];
+	char rlpath[PATH_MAX];
+	char *p_seg_bus;
+	char *p;
+	errno_t err;
 
 	uint16_t seg = 0;
 	uint8_t bus = 0;
@@ -500,40 +505,145 @@ STATIC fpga_result vc_unload_driver(vc_device *vc)
 
 	fpgaDestroyProperties(&prop);
 
-	//           11111111112222222222333
-	// 012345678901234567890123456789012
-	// /sys/bus/pci/devices/ssss:bb:dd.f
+	snprintf_s_iiii(path, PATH_MAX,
+			"/sys/bus/pci/devices/%04x:%02x:%02x.%d",
+			(int)seg, (int)bus, (int)dev, (int)fn);
 
-	snprintf_s_i(path, SYSFS_PATH_MAX,
-		     "/sys/bus/pci/devices/%04x:",
-		     (int)seg);
+	memset_s(rlpath, sizeof(rlpath), 0);
 
-	snprintf_s_i(&path[26], SYSFS_PATH_MAX - 26,
-		     "%02x:", (int)bus);
-
-	snprintf_s_i(&path[29], SYSFS_PATH_MAX - 29,
-		     "%02x.", (int)dev);
-
-	snprintf_s_i(&path[32], SYSFS_PATH_MAX - 32,
-		     "%d/remove", (int)fn);
-
-	LOG("writing 1 to %s to remove driver.\n", path);
-	if (file_write_string(path, "1\n", 2)) {
-		LOG("failed to write \"%s\"\n", path);
+	if (readlink(path, rlpath, sizeof(rlpath)) < 0) {
+		LOG("readlink \"%s\" failed.\n", path);
 		return FPGA_EXCEPTION;
 	}
-	return FPGA_OK;
+
+	// (rlpath)
+	//
+	// ../../../devices/pci0000:ae/0000:ae:00.0/0000:af:00.0/
+	// 0000:b0:09.0/0000:b2:00.0
+
+	err = strstr_s(rlpath, sizeof(rlpath),
+		       "devices", 7, &p);
+	if (err != EOK) {
+		LOG("error: no \"devices\" in path \"%s\"\n", rlpath);
+		return FPGA_EXCEPTION;
+	}
+
+	// /sys/devices/pci0000:ae/0000:ae:00.0/0000:af:00.0/
+	// 0000:b0:09.0/0000:b2:00.0/reset
+	snprintf_s_s(path, PATH_MAX,
+		      "/sys/%s/reset", p);
+
+	LOG("writing 1 to \"%s\" to reset the device.\n", path);
+	res = file_write_string(path, "1\n", 2);
+	if (res != FPGA_OK) {
+		LOG("failed to write \"%s\"\n", path);
+	}
+
+	p = strrchr(rlpath, '/');
+	if (!p) {
+		LOG("error parsing path \"%s\"\n", rlpath);
+		return FPGA_EXCEPTION;
+	}
+	*p = '\0';
+
+	p = strrchr(rlpath, '/');
+	if (!p) {
+		LOG("error parsing path \"%s\"\n", rlpath);
+		return FPGA_EXCEPTION;
+	}
+	*p = '\0';
+
+	// (rplath)                                -------------
+	//                                         1111
+	//                                         3210987654321p
+	// ../../../devices/pci0000:ae/0000:ae:00.0/0000:af:00.0
+
+	p_seg_bus = p - 12;
+
+	err = strstr_s(rlpath, sizeof(rlpath),
+		       "devices", 7, &p);
+	if (err != EOK) {
+		LOG("error: no \"devices\" in path \"%s\"\n", rlpath);
+		return FPGA_EXCEPTION;
+	}
+
+	// (path)
+	//
+	// /sys/devices/pci0000:ae/0000:ae:00.0/0000:af:00.0/remove
+	snprintf_s_s(path, PATH_MAX,
+		      "/sys/%s/remove", p);
+
+	LOG("writing 1 to \"%s\" to remove driver.\n", path);
+	res = file_write_string(path, "1\n", 2);
+	if (res != FPGA_OK) {
+		LOG("failed to write \"%s\"\n", path);
+	}
+
+	// capture the segment and bus needed for the power/control
+	// and for the rescan path.
+
+	*(p_seg_bus + 7) = '\0';
+
+	p = strrchr(path, '/');
+	if (!p) {
+		LOG("error parsing path \"%s\"\n", path);
+		return FPGA_EXCEPTION;
+	}
+	*p = '\0';
+
+	p = strrchr(path, '/');
+	if (!p) {
+		LOG("error parsing path \"%s\"\n", path);
+		return FPGA_EXCEPTION;
+	}
+	*p = '\0';
+
+	// (path)
+	//
+	// /sys/devices/pci0000:ae/0000:ae:00.0
+
+	snprintf_s_s(p, PATH_MAX - strnlen_s(path, PATH_MAX),
+		     "/pci_bus/%s/power/control", p_seg_bus);
+
+	// (path)
+	//
+	// /sys/devices/pci0000:ae/0000:ae:00.0/pci_bus/0000:af/power/control
+	strncpy_s(vc->power_path, sizeof(vc->power_path),
+		  path, sizeof(path));
+
+	return res;
 }
 
-STATIC fpga_result vc_force_pci_rescan(void)
+STATIC fpga_result vc_force_pci_rescan(vc_device *vc)
 {
-	const char *path = "/sys/bus/pci/rescan";
-	LOG("writing 1 to %s to rescan the device.\n", path);
-	if (file_write_string(path, "1\n", 2)) {
-		LOG("failed to write \"%s\"\n", path);
+	fpga_result res = FPGA_OK;
+	char *p;
+	errno_t err;
+
+	LOG("writing \"on\" to \"%s\" to power the device.\n", vc->power_path);
+	if (file_write_string(vc->power_path, "on\n", 3)) {
+		LOG("failed to write \"%s\"\n", vc->power_path);
+		res = FPGA_EXCEPTION;
+	}
+
+	err = strstr_s(vc->power_path, sizeof(vc->power_path),
+		       "power/control", 13, &p);
+	if (err != EOK) {
+		LOG("error: no \"power/control\" in path \"%s\"\n", vc->power_path);
 		return FPGA_EXCEPTION;
 	}
-	return FPGA_OK;
+
+	strncpy_s(p, sizeof(vc->power_path) - 13,
+		  "rescan", 6);
+	*(p + 6) = '\0';
+
+	LOG("writing 1 to \"%s\" to rescan the device.\n", vc->power_path);
+	if (file_write_string(vc->power_path, "1\n", 2)) {
+		LOG("failed to write \"%s\"\n", vc->power_path);
+		res = FPGA_EXCEPTION;
+	}
+
+	return res;
 }
 
 STATIC pthread_mutex_t cool_down_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
@@ -561,6 +671,9 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 			if (!vc_threads_running)
 				return NULL;
 			sleep(1);
+
+			if (vc->power_path[0])
+				file_write_string(vc->power_path, "1\n", 2);
 		}
 
 		if (save_state_last) {
@@ -596,7 +709,7 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 				sleep(1);
 			}
 
-			if (vc_force_pci_rescan() != FPGA_OK)
+			if (vc_force_pci_rescan(vc) != FPGA_OK)
 				LOG("failed to force PCI bus rescan.\n");
 		}
 
