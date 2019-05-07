@@ -137,7 +137,8 @@ TEST_P(sysobject_cxx_p, handle_object_write) {
   std::string path = "iperf/fabric/freeze";;
 
   if (platform_.devices[0].device_id == 0x09c4 || 
-      platform_.devices[0].device_id == 0x09c5) {
+      platform_.devices[0].device_id == 0x09c5 ||
+      platform_.devices[0].device_id == 0x0b30) {
     path = "dperf/fabric/freeze";
   }
 
@@ -192,7 +193,8 @@ TEST_P(sysobject_cxx_p, handle_subobject_write) {
   std::string path = "iperf/fabric";;
 
   if (platform_.devices[0].device_id == 0x09c4 ||
-      platform_.devices[0].device_id == 0x09c5) {
+      platform_.devices[0].device_id == 0x09c5 ||
+      platform_.devices[0].device_id == 0x0b30) {
     path = "dperf/fabric";
   }
 
@@ -242,5 +244,5 @@ TEST_P(sysobject_cxx_p, read_bytes) {
 }
 
 INSTANTIATE_TEST_CASE_P(sysobject_cxx, sysobject_cxx_p,
-         ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+         ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));
 

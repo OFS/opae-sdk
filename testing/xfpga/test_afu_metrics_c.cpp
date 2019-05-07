@@ -343,4 +343,4 @@ TEST_P(afu_metrics_c_p, test_afu_metrics_04) {
 }
 
 INSTANTIATE_TEST_CASE_P(afu_metrics_c, afu_metrics_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p", "dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p", "dcp-rc","dcp-vc" })));

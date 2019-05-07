@@ -1039,7 +1039,7 @@ TEST_P(enum_err_c_p, num_errors_port) {
 }
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_err_c_p,
-                       ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+                       ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));
 
 class enum_socket_c_p : public enum_c_p {};
 

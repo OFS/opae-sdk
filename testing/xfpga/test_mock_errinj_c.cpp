@@ -343,7 +343,7 @@ TEST_P(err_inj_c_mock_p, port_to_interface_err) {
 }
 
 INSTANTIATE_TEST_CASE_P(err_inj_c, err_inj_c_mock_p, 
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc","dcp-vc" })));
 
 /**
  * @test       invalid_handle
