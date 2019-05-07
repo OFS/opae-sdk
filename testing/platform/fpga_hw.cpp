@@ -36,6 +36,10 @@
 #include <iomanip>
 #include <sstream>
 
+#define FPGA_BBS_VER_MAJOR(i) (((i) >> 56) & 0xf)
+#define FPGA_BBS_VER_MINOR(i) (((i) >> 52) & 0xf)
+#define FPGA_BBS_VER_PATCH(i) (((i) >> 48) & 0xf)
+
 namespace opae {
 namespace testing {
 
@@ -109,7 +113,7 @@ const char *vc_mdata =
    "afu-image":
     {"clock-frequency-high": 312,
      "clock-frequency-low": 156,
-     "interface-uuid": "eeeeeeee-eeee-eeee-2222-222222222222",
+     "interface-uuid": "cf9b1c50-37c9-45e9-8030-f921b17d2b3a",
      "magic-no": 488605312,
      "accelerator-clusters":
       [
@@ -231,7 +235,7 @@ static platform_db MOCK_PLATFORMS = {
      test_platform{.mock_sysfs = "mock_sys_tmp-dcp-vc.tar.gz",
             	   .driver = fpga_driver::linux_intel,
                    .devices = {test_device{
-                       .fme_guid = "EEEEEEEE-EEEE-EEEE-2222-222222222222",
+                       .fme_guid = "CF9B1C50-37C9-45E9-8030-F921B17D2B3A",
                        .afu_guid = "9AEFFE5F-8457-0612-C000-C9660D824272",
                        .segment = 0x0,
                        .bus = 0x05,
@@ -240,8 +244,8 @@ static platform_db MOCK_PLATFORMS = {
                        .num_vfs = 0,
                        .socket_id = 0,
                        .num_slots = 1,
-                       .bbs_id = 0x2019011800000001,
-                       .bbs_version = {0, 1, 9},
+                       .bbs_id = 0x222000200567bd1,
+                       .bbs_version = {2, 2, 2},
                        .state = FPGA_ACCELERATOR_UNASSIGNED,
                        .num_mmio = 0x2,
                        .num_interrupts = 0,
@@ -353,7 +357,7 @@ static T parse_file(const std::string &path) {
   std::string value_string;
   T value;
   df >> value_string;
-  value = std::stoi(value_string, nullptr, 0);
+  value = std::stol(value_string, nullptr, 0);
   return value;
 }
 
@@ -452,6 +456,50 @@ static uint16_t read_vendor_id(const std::string &pci_dir) {
   return parse_file<uint16_t>(device_path);
 }
 
+static uint64_t read_bitstream_id(const std::string devices) {
+
+   std::string glob_path = PCI_DEVICES + "/" + devices +  "/fpga/intel-fpga-dev.*/intel-fpga-fme.*/bitstream_id";
+  std::string bbsi_path;
+
+  glob_t glob_buf;
+  glob_buf.gl_pathc = 0;
+  glob_buf.gl_pathv = NULL;
+  int globres = glob(glob_path.c_str(), 0, NULL, &glob_buf);
+
+  if (!globres){
+    if (glob_buf.gl_pathc > 1) {
+        std::cerr << std::string("Ambiguous object key - using first one") << "\n";
+    }
+    bbsi_path = std::string(glob_buf.gl_pathv[0]);
+    globfree(&glob_buf);
+  }
+  else {
+        switch (globres) {
+        case GLOB_NOSPACE:
+            std::cerr << std::string("FPGA No Memory found.") << "\n";
+            break;
+        case GLOB_NOMATCH:
+            std::cerr << std::string("FPGA Not found.") << "\n";
+            break;
+        }
+        goto err;
+  }
+
+  struct stat st;
+  if (stat(bbsi_path.c_str(), &st)) {
+    std::cerr << "Failed to get file stat." << "\n";
+    goto err;
+  }
+  return parse_file<uint64_t>(bbsi_path);
+
+err:
+  if (glob_buf.gl_pathc && glob_buf.gl_pathv) {
+      globfree(&glob_buf);
+  }
+  return -1;
+
+}
+
 int filter_fpga(const struct dirent *ent) {
   std::string ename(ent->d_name);
   if (ename[0] == '.') {
@@ -529,6 +577,11 @@ test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &pla
 
     std::string device_string = make_path(dev.segment, dev.bus, dev.device, dev.function);
     dev.socket_id = read_socket_id(device_string);
+	uint64_t bitstream_id = read_bitstream_id(pci_path);
+	dev.bbs_id = bitstream_id;
+    dev.bbs_version = {(uint8_t)FPGA_BBS_VER_MAJOR(bitstream_id),
+                         (uint8_t)FPGA_BBS_VER_MINOR(bitstream_id),
+                         (uint16_t)FPGA_BBS_VER_PATCH(bitstream_id)};
   } else {
     std::cerr << "error matching pci dev pattern (" << pci_path << ")\n";
   }

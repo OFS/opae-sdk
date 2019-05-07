@@ -64,6 +64,7 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
     filter_ = nullptr;
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, platform_.devices[0].device_id), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
     num_matches_accel_ = 0;
     ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_accel_.data(), tokens_accel_.size(),
@@ -259,7 +260,7 @@ TEST_P(object_c_p, obj_get_size) {
 }
 
 INSTANTIATE_TEST_CASE_P(object_c, object_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));
 
 class object_c_mock_p : public object_c_p {
   protected:
@@ -316,5 +317,5 @@ TEST_P(object_c_mock_p, obj_get_obj_err) {
 }
 
 INSTANTIATE_TEST_CASE_P(object_c, object_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc","dcp-vc"  })));
 

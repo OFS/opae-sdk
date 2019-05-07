@@ -106,6 +106,18 @@ class enum_c_p : public mock_opae_p<2, xfpga_> {
 
     return matches;
   }
+  int GetMatchedGuidFpgas() {
+    if (platform_.mock_sysfs != nullptr) {
+      return platform_.devices.size();
+    }
+    std::stringstream ss;
+    ss << std::setw(4) << std::hex << platform_.devices[0].device_id;
+    std::string deviceid (ss.str());
+    std::string cmd =  "lspci | grep " + deviceid + " | wc -l";
+    int value;
+    ExecuteCmd(cmd, value);
+    return value;
+  }
 
   void ExecuteCmd(std::string cmd, int &value) {
     std::string line;
@@ -649,7 +661,7 @@ TEST_P(enum_c_p, guid_port) {
   EXPECT_EQ(
       xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgas());
+  EXPECT_EQ(num_matches_, GetMatchedGuidFpgas());
 }
 
 /**
@@ -1039,7 +1051,7 @@ TEST_P(enum_err_c_p, num_errors_port) {
 }
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_err_c_p,
-                       ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+                       ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));
 
 class enum_socket_c_p : public enum_c_p {};
 

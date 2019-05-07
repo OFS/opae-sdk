@@ -1201,4 +1201,4 @@ TEST(fpgainfo_c, str_in_list0) {
 
 
 INSTANTIATE_TEST_CASE_P(fpgainfo_c, fpgainfo_c_p,
-        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));
