@@ -357,7 +357,7 @@ static T parse_file(const std::string &path) {
   std::string value_string;
   T value;
   df >> value_string;
-  value = std::stoi(value_string, nullptr, 0);
+  value = std::stol(value_string, nullptr, 0);
   return value;
 }
 
