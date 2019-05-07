@@ -59,7 +59,8 @@ int log_open(const char *filename)
 		asctime_r(&tm, timebuf);
 
 		len = strnlen_s(timebuf, sizeof(timebuf));
-		timebuf[len-1] = '\0'; /* erase \n */
+		if ((len > 0) && (len <= (int)sizeof(timebuf)))
+			timebuf[len-1] = '\0'; /* erase \n */
 
 		res = fprintf(log_file, "----- %s -----\n", timebuf);
 		fflush(log_file);
