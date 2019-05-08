@@ -250,10 +250,6 @@ TEST_P(metadata_c, validate_bitstream_metadata) {
 
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
 
-  // Valid metadata
-  result = validate_bitstream_metadata(handle_, bitstream_valid_.data());
-  EXPECT_EQ(result, FPGA_OK);
-
   test_system::instance()->invalidate_malloc();
 
   // Valid metadata - malloc fail
@@ -397,3 +393,43 @@ TEST_P(metadata_c, get_interface_id_03) {
 
 
 INSTANTIATE_TEST_CASE_P(metadata, metadata_c, ::testing::ValuesIn(test_platform::keys(true)));
+
+class metadata_mock_c : public metadata_c {};
+
+/**
+* @test    validate_metadata
+* @brief   Tests: validate_bitstream_metadata
+* @details validate_bitstream_metadata validates BS metadata
+*          Returns FPGA_OK if metadata is valid
+*/
+TEST_P(metadata_mock_c, validate_bitstream_metadata) {
+  fpga_result result;
+
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+
+  result = validate_bitstream_metadata(handle_, bitstream_valid_.data());
+  EXPECT_EQ(result, FPGA_OK);
+}
+
+INSTANTIATE_TEST_CASE_P(metadata, metadata_mock_c,
+                        ::testing::ValuesIn(test_platform::mock_platforms()));
+
+class metadata_hw_c : public metadata_c {};
+
+/**
+* @test    validate_metadata
+* @brief   Tests: validate_bitstream_metadata
+* @details validate_bitstream_metadata validates BS metadata
+*          Returns FPGA_OK if metadata is valid
+*/
+TEST_P(metadata_hw_c, validate_bitstream_metadata) {
+  fpga_result result;
+
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+
+  result = validate_bitstream_metadata(handle_, bitstream_valid_.data());
+  EXPECT_EQ(result, FPGA_OK);
+}
+
+INSTANTIATE_TEST_CASE_P(metadata, metadata_hw_c,
+                        ::testing::ValuesIn(test_platform::hw_platforms({"skx-p", "dcp-rc"})));
