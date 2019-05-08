@@ -328,29 +328,39 @@ bool nlb0::setup()
     uint64_t nlb0_hi = swap64(uint64_t, n);
     uint64_t nlb0_lo = swap64(uint64_t, n+8);
 
-    do {
-        uint64_t feature_uuid_lo, feature_uuid_hi;
-        // Read the next feature header
-        dfh = accelerator_->read_csr64(static_cast<uint32_t>(offset));
-        feature_uuid_lo = accelerator_->read_csr64(static_cast<uint32_t>(offset+8));
-        feature_uuid_hi = accelerator_->read_csr64(static_cast<uint32_t>(offset+16));
-        if ((nlb0_lo == feature_uuid_lo)&&(nlb0_hi == feature_uuid_hi)) {
-            offset_ = offset;
-            printf("found the NLB offset=0x%x\n", offset);
-            break;
-        }
-        offset += NEXT_DFH_OFFSET(dfh);
-    } while (!DFH_EOL(dfh));
+    // enumerate dfh if input id arguement 
+    if (options_.find("id")) {
+
+        do {
+             uint64_t feature_uuid_lo, feature_uuid_hi;
+             // Read the next feature header
+             dfh = accelerator_->read_csr64(static_cast<uint32_t>(offset));
+             feature_uuid_lo = accelerator_->read_csr64(static_cast<uint32_t>(offset + 8));
+             feature_uuid_hi = accelerator_->read_csr64(static_cast<uint32_t>(offset + 16));
+             if ((nlb0_lo == feature_uuid_lo) && (nlb0_hi == feature_uuid_hi)) {
+                  offset_ = offset;
+                  printf("found the NLB offset=0x%x\n", offset);
+                  break;
+             }
+
+             if (NEXT_DFH_OFFSET(dfh) == 0) {
+                 std::cerr << "Not found:" << nlb0_id_ << std::endl;
+                 return false;
+             }
+
+            offset += NEXT_DFH_OFFSET(dfh);
+        } while (!DFH_EOL(dfh));
+    }
 
     // TODO: Infer pclock from the device id
     // For now, get the pclock frequency from status2 register
     // that frequency (MHz) is encoded in bits [47:32]
-    uint64_t s2 = accelerator_->read_csr64(static_cast<uint32_t>(nlb0_csr::status2)+offset_);
-      uint32_t freq = (s2 >> 32) & 0xffff;
-      if (freq > 0){
-        // frequency_ is in Hz
-        frequency_ = freq * 1E6;
-      }
+    uint64_t s2 = accelerator_->read_csr64(static_cast<uint32_t>(nlb0_csr::status2) + offset_);
+    uint32_t freq = (s2 >> 32) & 0xffff;
+    if (freq > 0) {
+         // frequency_ is in Hz
+         frequency_ = freq * 1E6;
+    }
 
     // FIXME: use actual size for dsm size
     dsm_ = shared_buffer::allocate(accelerator_, dsm_size_);

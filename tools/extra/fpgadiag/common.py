@@ -37,8 +37,8 @@ import fcntl
 import stat
 import struct
 
-pattern = (r'.*/\d+:(?P<bus>\w{2}):'
-           r'(?P<dev>\d{2})\.(?P<func>\d).*')
+pattern = (r'.*/\d+:(?P<bus>[\da-f]{2}):'
+           r'(?P<dev>[\da-f]{2})\.(?P<func>\d).*')
 
 bdf_pattern = re.compile(pattern)
 
@@ -59,7 +59,7 @@ def convert_argument_str2hex(args, arg_list):
                     setattr(args, i, int(getattr(args, i), 16))
             except BaseException:
                 exception_quit(
-                    'Invlid argument {}: {}'.format(
+                    'Invalid input argument {}: {}'.format(
                         i, getattr(
                             args, i)))
     return args

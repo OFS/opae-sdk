@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# Copyright(c) 2018, Intel Corporation
+# Copyright(c) 2019, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -127,7 +127,6 @@ class FPGASTATS(COMMON):
                 v = self.fpga_eth_reg_read(handler, comp, dev, addr)
                 data += (0xffffffff & v) << (32 * l)
             print("{0: <12}".format(data), end=' | ')
-        print()
 
     def print_stats(self, info):
         for w in info:
@@ -137,7 +136,7 @@ class FPGASTATS(COMMON):
             print("{0: <30}".format('stats'), end=' | ')
             for i in range(self.mac_number):
                 print('mac {:<8}'.format(i), end=' | ')
-            print()
+
             with open(node, 'rw') as handler:
                 stats, fifo_regs = ((self.stats_25_40g, self.fifo_stats_25_40g)
                                     if spd in [25, 40] else
