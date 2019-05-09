@@ -331,6 +331,8 @@ bool nlb0::setup()
     // enumerate dfh if input id arguement 
     if (options_.find("id")) {
 
+        bool found = false;
+
         do {
              uint64_t feature_uuid_lo, feature_uuid_hi;
              // Read the next feature header
@@ -339,17 +341,19 @@ bool nlb0::setup()
              feature_uuid_hi = accelerator_->read_csr64(static_cast<uint32_t>(offset + 16));
              if ((nlb0_lo == feature_uuid_lo) && (nlb0_hi == feature_uuid_hi)) {
                   offset_ = offset;
+                  found = true;
                   printf("found the NLB offset=0x%x\n", offset);
                   break;
              }
 
-             if (NEXT_DFH_OFFSET(dfh) == 0) {
-                 std::cerr << "Not found:" << nlb0_id_ << std::endl;
-                 return false;
-             }
-
             offset += NEXT_DFH_OFFSET(dfh);
         } while (!DFH_EOL(dfh));
+
+        if (!found) {
+            std::cerr << "Not found NLB:" << nlb0_id_ << std::endl;
+            return false;
+        }
+
     }
 
     // TODO: Infer pclock from the device id
