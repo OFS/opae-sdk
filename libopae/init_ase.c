@@ -30,21 +30,23 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdarg.h>
-
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <linux/limits.h>
-#include <pthread.h>
 #include <pwd.h>
 #include <unistd.h>
-
-#include "safe_string/safe_string.h"
+#ifndef __USE_GNU
+#define __USE_GNU
+#endif // __USE_GNU
+#include <pthread.h>
 
 #include <opae/init.h>
 #include <opae/utils.h>
 #include "pluginmgr.h"
 #include "opae_int.h"
+
+#include "safe_string/safe_string.h"
 
 #define ASE_PRIORITY 110
 #define HOME_CFG_PATHS 3
@@ -60,9 +62,45 @@ STATIC const char *_opae_sys_cfg_files[SYS_CFG_PATHS] = {
 	"/etc/opae/opae_ase.cfg",
 };
 
-// Find the canonicalized configuration file. If null, the file was not found.
-// Otherwise, it's the first configuration file found from a list of possible
-// paths. Note: The char * returned is allocated here, caller must free.
+/* global loglevel */
+static int g_loglevel = OPAE_DEFAULT_LOGLEVEL;
+static FILE *g_logfile;
+/* mutex to protect against garbled log output */
+static pthread_mutex_t log_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+
+void /* __FIXME_MAKE_VISIBLE__ */ opae_print(int loglevel, const char *fmt, ...)
+{
+	FILE *fp;
+	int err;
+	va_list argp;
+
+	if (loglevel > g_loglevel)
+		return;
+
+	if (loglevel == OPAE_LOG_ERROR)
+		fp = stderr;
+	else
+		fp = g_logfile == NULL ? stdout : g_logfile;
+
+	va_start(argp, fmt);
+	err = pthread_mutex_lock(
+		&log_lock); /* ignore failure and print anyway */
+	if (err)
+		fprintf(stderr, "pthread_mutex_lock() failed: %s",
+			strerror(err));
+	vfprintf(fp, fmt, argp);
+	err = pthread_mutex_unlock(&log_lock);
+	if (err)
+		fprintf(stderr, "pthread_mutex_unlock() failed: %s",
+			strerror(err));
+	va_end(argp);
+}
+
+/* Find the canonicalized configuration file opae_ase.cfg. If null, the file
+	was not found. Otherwise, it's the first configuration file found from a
+	list of possiblepaths. Note: The char * returned is allocated here, caller
+	must free.
+*/
 STATIC char *find_ase_cfg()
 {
 	int i = 0;
@@ -133,7 +171,37 @@ STATIC char *find_ase_cfg()
 __attribute__((constructor(ASE_PRIORITY))) STATIC void opae_ase_init(void)
 {
 	fpga_result res;
-	char *cfg_path = find_ase_cfg();
+	g_logfile = NULL;
+	char *cfg_path = NULL;
+
+	/* try to read loglevel from environment */
+	char *s = getenv("LIBOPAE_LOG");
+	if (s) {
+		g_loglevel = atoi(s);
+#ifndef LIBOPAE_DEBUG
+		if (g_loglevel >= OPAE_LOG_DEBUG)
+			fprintf(stderr,
+				"WARNING: Environment variable LIBOPAE_LOG is "
+				"set to output debug\nmessages, "
+				"but libopae-c was not built with debug "
+				"information.\n");
+#endif
+	}
+
+	s = getenv("LIBOPAE_LOGFILE");
+	if (s) {
+		g_logfile = fopen(s, "w");
+		if (g_logfile == NULL) {
+			fprintf(stderr,
+				"Could not open log file for writing: %s. ", s);
+			fprintf(stderr, "Error is: %s\n", strerror(errno));
+		}
+	}
+
+	if (g_logfile == NULL)
+		g_logfile = stdout;
+
+	cfg_path = find_ase_cfg();
 
 	if (cfg_path == NULL) {
 		OPAE_ERR("Could not find opae_ase.cfg file");
@@ -156,4 +224,9 @@ __attribute__((destructor)) STATIC void opae_ase_release(void)
 	res = fpgaFinalize();
 	if (res != FPGA_OK)
 		OPAE_ERR("fpgaFinalize: %s", fpgaErrStr(res));
+
+	if (g_logfile != NULL && g_logfile != stdout) {
+		fclose(g_logfile);
+	}
+	g_logfile = NULL;
 }
