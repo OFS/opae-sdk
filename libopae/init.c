@@ -205,6 +205,7 @@ __attribute__((constructor)) STATIC void opae_init(void)
 
 		if (cfg_path == NULL) {
 			OPAE_ERR("WITH_ASE was set, but could not find opae_ase.cfg file");
+			return;
 		}
 
 		res = fpgaInitialize(cfg_path);
