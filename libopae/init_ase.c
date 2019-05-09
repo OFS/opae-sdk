@@ -96,10 +96,10 @@ void /* __FIXME_MAKE_VISIBLE__ */ opae_print(int loglevel, const char *fmt, ...)
 	va_end(argp);
 }
 
-/*  Find the canonicalized configuration file opae_ase.cfg. If null, the file
-	was not found. Otherwise, it's the first configuration file found from a
-	list of possible paths. Note: The char * returned is allocated here, caller
-	must free. */
+/* Find the canonicalized configuration file opae_ase.cfg. If null, the file
+   was not found. Otherwise, it's the first configuration file found from a
+   list of possible paths. Note: The char * returned is allocated here, caller
+   must free. */
 STATIC char *find_ase_cfg()
 {
 	int i = 0;

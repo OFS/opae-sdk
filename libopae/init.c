@@ -94,10 +94,10 @@ void /* __FIXME_MAKE_VISIBLE__ */ opae_print(int loglevel, const char *fmt, ...)
 	va_end(argp);
 }
 
-/*  Find the canonicalized configuration file opae_ase.cfg. If null, the file
-	was not found. Otherwise, it's the first configuration file found from a
-	list of possible paths. Note: The char * returned is allocated here, caller
-	must free. */
+/* Find the canonicalized configuration file opae_ase.cfg. If null, the file
+   was not found. Otherwise, it's the first configuration file found from a
+   list of possible paths. Note: The char * returned is allocated here, caller
+   must free. */
 STATIC char *find_ase_cfg()
 {
 	int i = 0;
@@ -204,8 +204,7 @@ __attribute__((constructor)) STATIC void opae_init(void)
 		cfg_path = find_ase_cfg();
 
 		if (cfg_path == NULL) {
-			OPAE_ERR("Could not find opae_ase.cfg file");
-			return;
+			OPAE_ERR("WITH_ASE was set, but could not find opae_ase.cfg file");
 		}
 
 		res = fpgaInitialize(cfg_path);
