@@ -49,8 +49,8 @@
 #include "safe_string/safe_string.h"
 
 #define ASE_PRIORITY 110
-#define HOME_CFG_PATHS 3
 
+#define HOME_CFG_PATHS 3
 STATIC const char *_opae_home_cfg_files[HOME_CFG_PATHS] = {
 	"/.local/opae_ase.cfg",
 	"/.local/opae/opae_ase.cfg",
@@ -96,11 +96,10 @@ void /* __FIXME_MAKE_VISIBLE__ */ opae_print(int loglevel, const char *fmt, ...)
 	va_end(argp);
 }
 
-/* Find the canonicalized configuration file opae_ase.cfg. If null, the file
+/*  Find the canonicalized configuration file opae_ase.cfg. If null, the file
 	was not found. Otherwise, it's the first configuration file found from a
-	list of possiblepaths. Note: The char * returned is allocated here, caller
-	must free.
-*/
+	list of possible paths. Note: The char * returned is allocated here, caller
+	must free. */
 STATIC char *find_ase_cfg()
 {
 	int i = 0;
@@ -183,7 +182,7 @@ __attribute__((constructor(ASE_PRIORITY))) STATIC void opae_ase_init(void)
 			fprintf(stderr,
 				"WARNING: Environment variable LIBOPAE_LOG is "
 				"set to output debug\nmessages, "
-				"but libopae-c was not built with debug "
+				"but libopae-c-ase was not built with debug "
 				"information.\n");
 #endif
 	}
