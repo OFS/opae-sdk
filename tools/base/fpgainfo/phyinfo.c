@@ -154,7 +154,7 @@ static void print_phy_group_info(fpga_properties props, int group_num)
 		};
 		if (0 == ioctl(fd, FPGA_PHY_GROUP_GET_INFO, &info)) {
 			printf("%-29s : %s\n", "Direction",
-				   info.group_id == 0 ? "Line side" : "Fortville side");
+				   info.group_id == 0 ? "Line side" : "Host side");
 			printf("%-29s : %d Gbps\n", "Speed", info.speed);
 			printf("%-29s : %d\n", "Number of PHYs", info.phy_num);
 		} else {
@@ -194,7 +194,7 @@ static void print_pkvl_info(fpga_properties props)
 	char status[16] = {0};
 	char version[16] = {0};
 
-	printf("//****** PKVL ******//\n");
+	printf("//****** Intel C827 Retimer ******//\n");
 
 	fpga_mode = (lptr->fme->fpga_bitstream_id >> 32)&0xf;
 
@@ -300,10 +300,10 @@ static void print_pkvl_info(fpga_properties props)
 		}
 		snprintf_s_s(path+offset, sizeof(path)-offset, "/%s", "pkvl_a_version");
 		get_sysfs_attr(path, version, sizeof(status));
-		printf("%-29s : %s\n", "Parkvale A Version", version);
+		printf("%-29s : %s\n", "Retimer A Version", version);
 		snprintf_s_s(path+offset, sizeof(path)-offset, "/%s", "pkvl_b_version");
 		get_sysfs_attr(path, version, sizeof(status));
-		printf("%-29s : %s\n", "Parkvale B Version", version);
+		printf("%-29s : %s\n", "Retimer B Version", version);
 	} else {
 		fprintf(stderr, "WARNING: pkvl not found\n");
 	}
