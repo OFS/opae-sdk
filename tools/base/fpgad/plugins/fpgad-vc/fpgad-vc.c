@@ -76,6 +76,15 @@ typedef struct _vc_sensor {
 #define FPGAD_SENSOR_VC_MAX_READ_ERRORS  25
 } vc_sensor;
 
+typedef struct _vc_config_sensor {
+	uint64_t id;
+	uint64_t high_fatal;
+	uint64_t high_warn;
+	uint64_t low_fatal;
+	uint64_t low_warn;
+	uint32_t flags;
+} vc_config_sensor;
+
 #define MAX_VC_SENSORS 128
 typedef struct _vc_device {
 	fpgad_monitored_device *base_device;
@@ -87,6 +96,8 @@ typedef struct _vc_device {
 	uint8_t *state_last;    // bit set
 	char power_path[PATH_MAX];
 	uint64_t tripped_count;
+	uint32_t num_config_sensors;
+	vc_config_sensor *config_sensors;
 } vc_device;
 
 #define BIT_SET_MASK(__n)  (1 << ((__n) % 8))
@@ -144,7 +155,10 @@ STATIC void vc_destroy_sensor(vc_sensor *sensor)
 		free(sensor->type);
 		sensor->type = NULL;
 	}
-	fpgaDestroyObject(&sensor->value_object);
+	if (sensor->value_object) {
+		fpgaDestroyObject(&sensor->value_object);
+		sensor->value_object = NULL;
+	}
 	sensor->flags = 0;
 	sensor->read_errors = 0;
 }
@@ -159,7 +173,10 @@ STATIC void vc_destroy_sensors(vc_device *vc)
 	vc->num_sensors = 0;
 	vc->max_sensor_id = 0;
 
-	fpgaDestroyObject(&vc->group_object);
+	if (vc->group_object) {
+		fpgaDestroyObject(&vc->group_object);
+		vc->group_object = NULL;
+	}
 
 	if (vc->state_tripped) {
 		free(vc->state_tripped);
@@ -169,6 +186,16 @@ STATIC void vc_destroy_sensors(vc_device *vc)
 	if (vc->state_last) {
 		free(vc->state_last);
 		vc->state_last = NULL;
+	}
+}
+
+STATIC void vc_destroy_device(vc_device *vc)
+{
+	vc_destroy_sensors(vc);
+	if (vc->config_sensors) {
+		free(vc->config_sensors);
+		vc->config_sensors = NULL;
+		vc->num_config_sensors = 0;
 	}
 }
 
@@ -236,11 +263,13 @@ STATIC fpga_result vc_sensor_get_u64(vc_sensor *sensor,
 // temperature trip points so that we catch anomolies
 // before the hw does.
 #define VC_DEGREES_ADJUST_TEMP 5
-STATIC fpga_result vc_sensor_get(vc_sensor *s)
+STATIC fpga_result vc_sensor_get(vc_device *vc, vc_sensor *s)
 {
 	fpga_result res;
 	bool is_temperature;
 	int indicator = -1;
+	vc_config_sensor *cfg_sensor = NULL;
+	uint32_t i;
 
 	if (s->name) {
 		free(s->name);
@@ -315,6 +344,72 @@ STATIC fpga_result vc_sensor_get(vc_sensor *s)
 	} else
 		s->flags &= ~FPGAD_SENSOR_VC_LOW_WARN_VALID;
 
+	/* Do we have a user override (via the config) for
+	 * this sensor? If so, then honor it.
+	 */
+	for (i = 0 ; i < vc->num_config_sensors ; ++i) {
+		if (vc->config_sensors[i].flags &
+		    FPGAD_SENSOR_VC_IGNORE)
+			continue;
+		if (vc->config_sensors[i].id == s->id) {
+			cfg_sensor = &vc->config_sensors[i];
+			break;
+		}
+	}
+
+	if (cfg_sensor) {
+
+		if (cfg_sensor->flags & FPGAD_SENSOR_VC_HIGH_FATAL_VALID) {
+			// Cap the sensor at the adjusted max
+			// allowed by the hardware.
+			if ((s->flags & FPGAD_SENSOR_VC_HIGH_FATAL_VALID) &&
+			    (cfg_sensor->high_fatal > s->high_fatal))
+				/* nothing */ ;
+			else
+				s->high_fatal = cfg_sensor->high_fatal;
+
+			s->flags |= FPGAD_SENSOR_VC_HIGH_FATAL_VALID;
+		} else
+			s->flags &= ~FPGAD_SENSOR_VC_HIGH_FATAL_VALID;
+
+		if (cfg_sensor->flags & FPGAD_SENSOR_VC_HIGH_WARN_VALID) {
+
+			if ((s->flags & FPGAD_SENSOR_VC_HIGH_WARN_VALID) &&
+			    (cfg_sensor->high_warn > s->high_warn))
+				/* nothing */ ;
+			else
+				s->high_warn = cfg_sensor->high_warn;
+
+			s->flags |= FPGAD_SENSOR_VC_HIGH_WARN_VALID;
+		} else
+			s->flags &= ~FPGAD_SENSOR_VC_HIGH_WARN_VALID;
+
+		if (cfg_sensor->flags & FPGAD_SENSOR_VC_LOW_FATAL_VALID) {
+
+			if ((s->flags & FPGAD_SENSOR_VC_LOW_FATAL_VALID) &&
+			    (cfg_sensor->low_fatal < s->low_fatal))
+				/* nothing */ ;
+			else
+				s->low_fatal = cfg_sensor->low_fatal;
+
+			s->flags |= FPGAD_SENSOR_VC_LOW_FATAL_VALID;
+		} else
+			s->flags &= ~FPGAD_SENSOR_VC_LOW_FATAL_VALID;
+
+		if (cfg_sensor->flags & FPGAD_SENSOR_VC_LOW_WARN_VALID) {
+
+			if ((s->flags & FPGAD_SENSOR_VC_LOW_WARN_VALID) &&
+			    (cfg_sensor->low_warn < s->low_warn))
+				/* nothing */ ;
+			else
+				s->low_warn = cfg_sensor->low_warn;
+
+			s->flags |= FPGAD_SENSOR_VC_LOW_WARN_VALID;
+		} else
+			s->flags &= ~FPGAD_SENSOR_VC_LOW_WARN_VALID;
+
+	}
+
 	return FPGA_OK;
 }
 
@@ -350,7 +445,7 @@ STATIC fpga_result vc_enum_sensor(vc_device *vc,
 		return res;
 	}
 
-	res = vc_sensor_get(s);
+	res = vc_sensor_get(vc, s);
 	if (res == FPGA_OK)
 		++vc->num_sensors;
 	else {
@@ -691,12 +786,16 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 	return NULL;
 }
 
-STATIC int vc_parse_config(const char *cfg)
+STATIC int vc_parse_config(vc_device *vc, const char *cfg)
 {
 	json_object *root;
 	enum json_tokener_error j_err = json_tokener_success;
 	json_object *j_cool_down = NULL;
+	json_object *j_config_sensors_enabled = NULL;
+	json_object *j_sensors = NULL;
 	int res = 1;
+	int sensor_entries;
+	int i;
 
 	root = json_tokener_parse_verbose(cfg, &j_err);
 	if (!root) {
@@ -724,6 +823,148 @@ STATIC int vc_parse_config(const char *cfg)
 	LOG("set cool-down period to %d seconds.\n", cool_down);
 
 	res = 0;
+
+	if (!json_object_object_get_ex(root,
+				       "config-sensors-enabled",
+				       &j_config_sensors_enabled)) {
+		LOG("failed to find config-sensors-enabled key in config.\n"
+		    "Skipping user sensor config.\n");
+		goto out_put;
+	}
+
+	if (!json_object_is_type(j_config_sensors_enabled, json_type_boolean)) {
+		LOG("config-sensors-enabled key not Boolean.\n"
+		    "Skipping user sensor config.\n");
+		goto out_put;
+	}
+
+	if (!json_object_get_boolean(j_config_sensors_enabled)) {
+		LOG("config-sensors-enabled key set to false.\n"
+		    "Skipping user sensor config.\n");
+		goto out_put;
+	}
+
+	if (!json_object_object_get_ex(root,
+				       "sensors",
+				       &j_sensors)) {
+		LOG("failed to find sensors key in config.\n"
+		    "Skipping user sensor config.\n");
+		goto out_put;
+	}
+
+	if (!json_object_is_type(j_sensors, json_type_array)) {
+		LOG("sensors key not array.\n"
+		    "Skipping user sensor config.\n");
+		goto out_put;
+	}
+
+	sensor_entries = json_object_array_length(j_sensors);
+	if (!sensor_entries) {
+		LOG("sensors key is empty array.\n"
+		    "Skipping user sensor config.\n");
+		goto out_put;
+	}
+
+	vc->config_sensors = calloc(sensor_entries, sizeof(vc_config_sensor));
+	if (!vc->config_sensors) {
+		LOG("calloc failed. Skipping user sensor config.\n");
+		goto out_put;
+	}
+
+	vc->num_config_sensors = (uint32_t)sensor_entries;
+
+	for (i = 0 ; i < sensor_entries ; ++i) {
+		json_object *j_sensor_sub_i = json_object_array_get_idx(j_sensors, i);
+		json_object *j_id;
+		json_object *j_high_fatal;
+		json_object *j_high_warn;
+		json_object *j_low_fatal;
+		json_object *j_low_warn;
+
+		if (!json_object_object_get_ex(j_sensor_sub_i,
+					       "id",
+					       &j_id)) {
+			LOG("failed to find id key in config sensors[%d].\n"
+			    "Skipping entry %d.\n", i, i);
+			vc->config_sensors[i].id = MAX_VC_SENSORS;
+			vc->config_sensors[i].flags = FPGAD_SENSOR_VC_IGNORE;
+			continue;
+		}
+
+		if (!json_object_is_type(j_id, json_type_int)) {
+			LOG("sensors[%d].id key not int.\n"
+			    "Skipping entry %d.\n", i, i);
+			vc->config_sensors[i].id = MAX_VC_SENSORS;
+			vc->config_sensors[i].flags = FPGAD_SENSOR_VC_IGNORE;
+			continue;
+		}
+
+		vc->config_sensors[i].id = json_object_get_int(j_id);
+
+		if (json_object_object_get_ex(j_sensor_sub_i,
+					      "high-fatal",
+					      &j_high_fatal)) {
+			if (json_object_is_type(j_high_fatal,
+						json_type_double)) {
+				vc->config_sensors[i].high_fatal =
+				(uint64_t)(json_object_get_double(j_high_fatal)
+					* 1000.0);
+				vc->config_sensors[i].flags |=
+					FPGAD_SENSOR_VC_HIGH_FATAL_VALID;
+				LOG("user sensor%u high-fatal: %f\n",
+				    vc->config_sensors[i].id,
+				    json_object_get_double(j_high_fatal));
+			}
+		}
+
+		if (json_object_object_get_ex(j_sensor_sub_i,
+					      "high-warn",
+					      &j_high_warn)) {
+			if (json_object_is_type(j_high_warn,
+						json_type_double)) {
+				vc->config_sensors[i].high_warn =
+				(uint64_t)(json_object_get_double(j_high_warn)
+					* 1000.0);
+				vc->config_sensors[i].flags |=
+					FPGAD_SENSOR_VC_HIGH_WARN_VALID;
+				LOG("user sensor%u high-warn: %f\n",
+				    vc->config_sensors[i].id,
+				    json_object_get_double(j_high_warn));
+			}
+		}
+
+		if (json_object_object_get_ex(j_sensor_sub_i,
+					      "low-fatal",
+					      &j_low_fatal)) {
+			if (json_object_is_type(j_low_fatal,
+						json_type_double)) {
+				vc->config_sensors[i].low_fatal =
+				(uint64_t)(json_object_get_double(j_low_fatal)
+					* 1000.0);
+				vc->config_sensors[i].flags |=
+					FPGAD_SENSOR_VC_LOW_FATAL_VALID;
+				LOG("user sensor%u low-fatal: %f\n",
+				    vc->config_sensors[i].id,
+				    json_object_get_double(j_low_fatal));
+			}
+		}
+
+		if (json_object_object_get_ex(j_sensor_sub_i,
+					      "low-warn",
+					      &j_low_warn)) {
+			if (json_object_is_type(j_low_warn,
+						json_type_double)) {
+				vc->config_sensors[i].low_warn =
+				(uint64_t)(json_object_get_double(j_low_warn)
+					* 1000.0);
+				vc->config_sensors[i].flags |=
+					FPGAD_SENSOR_VC_LOW_WARN_VALID;
+				LOG("user sensor%u low-warn: %f\n",
+				    vc->config_sensors[i].id,
+				    json_object_get_double(j_low_warn));
+			}
+		}
+	}
 
 out_put:
 	json_object_put(root);
@@ -758,8 +999,8 @@ int fpgad_plugin_configure(fpgad_monitored_device *d,
 			d->object_type == FPGA_ACCELERATOR ?
 			"accelerator" : "device");
 
-		if (!vc_parse_config(cfg))
-			res = 0;
+		res = vc_parse_config(vc, cfg);
+
 	}
 
 	// Not currently monitoring the Port device
@@ -776,6 +1017,7 @@ void fpgad_plugin_destroy(fpgad_monitored_device *d)
 			"accelerator" : "device");
 
 	if (d->thread_context) {
+		vc_destroy_device((vc_device *)d->thread_context);
 		free(d->thread_context);
 		d->thread_context = NULL;
 	}
