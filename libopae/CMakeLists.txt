@@ -44,6 +44,7 @@ target_include_directories(opae-c PUBLIC
 set(SRC_ASE
     pluginmgr.c
     api-shell.c
+    init.c
     init_ase.c
     props.c
     )
