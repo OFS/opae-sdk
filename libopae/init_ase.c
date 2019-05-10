@@ -173,6 +173,8 @@ __attribute__((constructor(ASE_PRIORITY))) STATIC void opae_ase_init(void)
 	g_logfile = NULL;
 	char *cfg_path = NULL;
 
+	setenv("WITH_ASE", "1", 0);
+
 	/* try to read loglevel from environment */
 	char *s = getenv("LIBOPAE_LOG");
 	if (s) {
