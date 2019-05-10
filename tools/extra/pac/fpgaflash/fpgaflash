@@ -1130,6 +1130,28 @@ def check_file(ifile, utype):
     return ret
 
 
+def check_file_extension(ifile, utype):
+    ret = 0
+
+    extension = ifile.name.split('.')[-1].lower()
+    if utype in ['factory', 'factory_only', 'user', 'dtb']:
+        if extension != 'bin':
+            print "invalid fpga image file extension"
+            ret = 1
+    elif utype in ['bmc_img', 'bmc_factory']:
+        if extension != 'rpd':
+            print "invalid max10 image file extension"
+            ret = 1
+    elif utype in ['bmc_fw']:
+        if extension != 'ihex':
+            print "invalid nios firmware file extension"
+            ret = 1
+    else:
+        ret = 0
+
+    return ret
+
+
 def vc_phy_eeprom_update(ifile, spi_path, no_verify):
     ret = bmc_fw_update(ifile, spi_path, no_verify)
     if ret == 0:
@@ -1166,6 +1188,8 @@ def main():
         spi_path = bdf_map[bdf]
         if get_flash_mode(spi_path) == 1:
             print "fpgaflash on {} is in progress, try later".format(bdf)
+            sys.exit(1)
+        if check_file_extension(args.file, args.type) == 1:
             sys.exit(1)
 
     if args.type == 'bmc_fw':
