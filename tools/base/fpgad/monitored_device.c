@@ -216,6 +216,7 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 			fpgad_supported_device *loaded_by;
 			fpgad_monitored_device *monitored;
 			fpgad_plugin_configure_t cfg;
+			int res;
 
 			d->flags |= FPGAD_DEV_DETECTED;
 
@@ -278,7 +279,15 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 				continue;
 			}
 
-			cfg(monitored, d->config);
+			res = cfg(monitored, d->config);
+			if (res) {
+				LOG("%s for \"%s\" returned %d.\n",
+				    FPGAD_PLUGIN_CONFIGURE,
+				    d->library_path,
+				    res);
+				free(monitored);
+				continue;
+			}
 
 			if (monitored->type == FPGAD_PLUGIN_TYPE_THREAD) {
 
