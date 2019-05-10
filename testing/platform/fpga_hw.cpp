@@ -346,18 +346,45 @@ static std::vector<ven_dev_id> supported_devices() {
   return devs;
 }
 
-template<typename T>
-static T parse_file(const std::string &path) {
+static std::string read_file(const std::string &path) {
   std::ifstream df;
+  struct stat st;
+  std::string value_string;
+
+  if (stat(path.c_str(), &st)) {
+    std::cerr << std::string("WARNING: stat:") + path <<  ":" << strerror(errno) << "\n";
+    return "";
+  }
+
   df.open(path);
   if (!df.is_open()) {
     std::cerr << std::string("WARNING: could not open file ") + path << "\n";
+    return "";
+  }
+  df >> value_string;
+  return value_string;
+}
+template<typename T>
+static T parse_file_int(const std::string &path) {
+  std::string value_string = read_file(path);
+
+  if (value_string.empty())
+    return 0;
+
+  T value;
+
+  try {
+    value = std::stol(value_string, nullptr, 0);
+  }
+  catch (std::invalid_argument& e) {
+    std::cerr << "WARNING: unable to convert integer from file: " << path << std::endl;
     return 0;
   }
-  std::string value_string;
-  T value;
-  df >> value_string;
-  value = std::stol(value_string, nullptr, 0);
+  catch (std::out_of_range& e) {
+    std::cerr << "WARNING: value too large from file: " << path << std::endl;
+    return 0;
+  }
+
   return value;
 }
 
@@ -380,46 +407,45 @@ static std::string make_path(int seg, int bus, int dev, int func){
     return device_string;
 }
 
-static uint16_t read_socket_id(const std::string devices) {
-  std::string glob_path = PCI_DEVICES + "/" + devices + "/fpga/intel-fpga-dev.*/intel-fpga-fme.*/socket_id";
-  std::string socket_path;
-
+static std::string glob_first_path(const std::string path) {
   glob_t glob_buf;
   glob_buf.gl_pathc = 0;
   glob_buf.gl_pathv = NULL;
-  int globres = glob(glob_path.c_str(), 0, NULL, &glob_buf);
+  int globres = glob(path.c_str(), 0, NULL, &glob_buf);
+  std::string found_path;
 
   if (!globres){
     if (glob_buf.gl_pathc > 1) {
-        std::cerr << std::string("Ambiguous object key - using first one") << "\n";
+        std::cerr << "Ambiguous object key - using first one" << std::endl;
     }
-    socket_path = std::string(glob_buf.gl_pathv[0]);
-    globfree(&glob_buf);
+    found_path = std::string(glob_buf.gl_pathv[0]);
   }
   else {
-        switch (globres) {
-        case GLOB_NOSPACE:
-            std::cerr << std::string("FPGA No Memory found.") << "\n";
-            break;
-        case GLOB_NOMATCH:
-            std::cerr << std::string("FPGA Not found.") << "\n";
-            break;
-        }
-        goto err;
+    switch (globres) {
+    case GLOB_NOSPACE:
+        std::cerr << "FPGA No Memory found." << std::endl;
+        break;
+    case GLOB_NOMATCH:
+        std::cerr << "FPGA Not found." << std::endl;
+        break;
+    }
   }
 
-  struct stat st;
-  if (stat(socket_path.c_str(), &st)) {
-    std::cerr << "Failed to get file stat." << "\n";
-    goto err;
-  }
-  return parse_file<uint16_t>(socket_path);
-
-err:
   if (glob_buf.gl_pathc && glob_buf.gl_pathv) {
-      globfree(&glob_buf);
+    globfree(&glob_buf);
   }
-  return -1;
+
+  return found_path;
+}
+
+static std::string format_uuid(const std::string &uuid) {
+  std::string formatted_uuid = uuid;
+  formatted_uuid.insert(8, "-");
+  formatted_uuid.insert(13, "-");
+  formatted_uuid.insert(18, "-");
+  formatted_uuid.insert(23, "-");
+  std::transform(formatted_uuid.begin(), formatted_uuid.end(), formatted_uuid.begin(), ::toupper);
+  return formatted_uuid;
 }
 
 template<typename T>
@@ -427,77 +453,47 @@ static  T read_attribute(const std::string &pci_dir, const std::string &attr) {
   std::string attr_path = pci_dir + "/" + attr;
   struct stat st;
 
+
   if (stat(attr_path.c_str(), &st)) {
     std::cerr << std::string("WARNING: stat:") + attr_path <<  ":" << strerror(errno) << "\n";
     return 0;
   }
-  return parse_file<T>(attr_path);
+   return parse_file_int<T>(attr_path);
 }
+
+static uint16_t read_socket_id(const std::string devices) {
+  std::string glob_path = PCI_DEVICES + "/" + devices + "/fpga/intel-fpga-dev.*/intel-fpga-fme.*/socket_id";
+  std::string socket_path = glob_first_path(glob_path);
+  return parse_file_int<uint16_t>(socket_path);
+}
+
+
 
 static uint16_t read_device_id(const std::string &pci_dir) {
   std::string device_path = pci_dir + "/device";
-  struct stat st;
-
-  if (stat(device_path.c_str(), &st)) {
-    std::cerr << std::string("WARNING: stat:") + device_path <<  ":" << strerror(errno) << "\n";
-    return 0;
-  }
-  return parse_file<uint16_t>(device_path);
+  return parse_file_int<uint16_t>(device_path);
 }
 
 static uint16_t read_vendor_id(const std::string &pci_dir) {
-  std::string device_path = pci_dir + "/vendor";
-  struct stat st;
-
-  if (stat(device_path.c_str(), &st)) {
-    std::cerr << std::string("WARNING: stat:") + device_path <<  ":" << strerror(errno) << "\n";
-    return 0;
-  }
-  return parse_file<uint16_t>(device_path);
+  std::string vendor_path = pci_dir + "/vendor";
+  return parse_file_int<uint16_t>(vendor_path);
 }
 
-static uint64_t read_bitstream_id(const std::string devices) {
+static uint64_t read_bitstream_id(const std::string &pci_dir) {
+  std::string bitstream_path = pci_dir + "/fpga/intel-fpga-dev.*/intel-fpga-fme.*/bitstream_id";
+  bitstream_path = glob_first_path(bitstream_path);
+  return parse_file_int<uint64_t>(bitstream_path);
+}
+static std::string read_afu_id(const std::string &pci_dir) {
+  std::string afu_path = pci_dir + "/fpga/intel-fpga-dev.*/intel-fpga-port.*/afu_id";
+  afu_path = glob_first_path(afu_path);
+  return format_uuid(read_file(afu_path));
+}
 
-   std::string glob_path = PCI_DEVICES + "/" + devices +  "/fpga/intel-fpga-dev.*/intel-fpga-fme.*/bitstream_id";
-  std::string bbsi_path;
-
-  glob_t glob_buf;
-  glob_buf.gl_pathc = 0;
-  glob_buf.gl_pathv = NULL;
-  int globres = glob(glob_path.c_str(), 0, NULL, &glob_buf);
-
-  if (!globres){
-    if (glob_buf.gl_pathc > 1) {
-        std::cerr << std::string("Ambiguous object key - using first one") << "\n";
-    }
-    bbsi_path = std::string(glob_buf.gl_pathv[0]);
-    globfree(&glob_buf);
-  }
-  else {
-        switch (globres) {
-        case GLOB_NOSPACE:
-            std::cerr << std::string("FPGA No Memory found.") << "\n";
-            break;
-        case GLOB_NOMATCH:
-            std::cerr << std::string("FPGA Not found.") << "\n";
-            break;
-        }
-        goto err;
-  }
-
-  struct stat st;
-  if (stat(bbsi_path.c_str(), &st)) {
-    std::cerr << "Failed to get file stat." << "\n";
-    goto err;
-  }
-  return parse_file<uint64_t>(bbsi_path);
-
-err:
-  if (glob_buf.gl_pathc && glob_buf.gl_pathv) {
-      globfree(&glob_buf);
-  }
-  return -1;
-
+static std::string read_pr_interface_id(const std::string &pci_dir) {
+  std::string pr_interface_path = pci_dir + "/fpga/intel-fpga-dev.*/intel-fpga-fme.*/pr/interface_id";
+  pr_interface_path = glob_first_path(pr_interface_path);
+  return format_uuid(read_file(pr_interface_path));
 }
 
 int filter_fpga(const struct dirent *ent) {
@@ -582,6 +578,8 @@ test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &pla
     dev.bbs_version = {(uint8_t)FPGA_BBS_VER_MAJOR(bitstream_id),
                          (uint8_t)FPGA_BBS_VER_MINOR(bitstream_id),
                          (uint16_t)FPGA_BBS_VER_PATCH(bitstream_id)};
+      strcpy(dev.fme_guid, read_pr_interface_id(pci_path).c_str());
+      strcpy(dev.afu_guid, read_afu_id(pci_path).c_str());
   } else {
     std::cerr << "error matching pci dev pattern (" << pci_path << ")\n";
   }
