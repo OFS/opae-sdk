@@ -1121,6 +1121,28 @@ def check_file_extension(ifile, utype):
     return ret
 
 
+def check_file_extension(ifile, utype):
+    ret = 0
+
+    extension = ifile.name.split('.')[-1].lower()
+    if utype in ['factory', 'factory_only', 'user', 'dtb']:
+        if extension != 'bin':
+            print "invalid fpga image file extension"
+            ret = 1
+    elif utype in ['bmc_img', 'bmc_factory']:
+        if extension != 'rpd':
+            print "invalid max10 image file extension"
+            ret = 1
+    elif utype in ['bmc_fw']:
+        if extension != 'ihex':
+            print "invalid nios firmware file extension"
+            ret = 1
+    else:
+        ret = 0
+
+    return ret
+
+
 def vc_phy_eeprom_update(ifile, spi_path, no_verify):
     ret = bmc_fw_update(ifile, spi_path, no_verify)
     if ret == 0:
