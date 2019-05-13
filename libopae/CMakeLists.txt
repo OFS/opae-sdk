@@ -41,12 +41,20 @@ target_include_directories(opae-c PUBLIC
   PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
   PUBLIC ${libjson-c_INCLUDE_DIRS})
 
-add_library(opae-c-ase SHARED init_ase.c)
+set(SRC_ASE
+    pluginmgr.c
+    api-shell.c
+    init.c
+    init_ase.c
+    props.c
+    )
+add_library(opae-c-ase SHARED ${SRC_ASE})
 
 target_include_directories(opae-c-ase PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+  PUBLIC ${libjson-c_INCLUDE_DIRS})
 
 include_directories(${libjson-c_INCLUDE_DIRS})
 
@@ -73,10 +81,10 @@ target_link_libraries(opae-c
   ${libjson-c_LIBRARIES})
 
 target_link_libraries(opae-c-ase
-  opae-c
+  dl
+  ${CMAKE_THREAD_LIBS_INIT}
   safestr
-  ${CMAKE_THREAD_LIBS_INIT}  
-  )
+  ${libjson-c_LIBRARIES})
 
 set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
