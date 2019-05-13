@@ -27,3 +27,7 @@
 install(PROGRAMS fpgaflash	
         DESTINATION bin
         COMPONENT toolfpgaflash)
+
+install(PROGRAMS super-rsu
+        DESTINATION bin
+        COMPONENT toolfpgaflash)
