@@ -664,4 +664,4 @@ TEST_P(reconf_c_hw_p, fpga_reconf_slot_inv_len) {
 }
 
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c_hw_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms()));
+	::testing::ValuesIn(test_platform::hw_platforms({ "skx-p", "dcp-rc" })));

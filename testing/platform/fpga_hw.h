@@ -29,12 +29,14 @@
 #include <map>
 #include <vector>
 
+#define UUID_LENGTH 37
+
 namespace opae {
 namespace testing {
 
 struct test_device {
-  const char *fme_guid;
-  const char *afu_guid;
+  char fme_guid[UUID_LENGTH];
+  char afu_guid[UUID_LENGTH];
   uint16_t segment;
   uint8_t bus;
   uint8_t device;
