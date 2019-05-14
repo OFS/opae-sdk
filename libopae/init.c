@@ -121,18 +121,20 @@ STATIC char *find_ase_cfg()
 
 	// third look in the release directory
 	opae_path = getenv("OPAE_PLATFORM_ROOT");
-	if (strcpy_s(cfg_path, PATH_MAX, opae_path) != EOK) {
-		OPAE_ERR("error copying opae platform root string: %s", opae_path);
-			return NULL;
-	}
-	if (strcat_s(cfg_path, PATH_MAX, "/share/opae/ase/opae_ase.cfg") != EOK) {
-		OPAE_ERR("error string concatenation : %s", cfg_path);
-			return NULL;
-	}
-	file_name = canonicalize_file_name(cfg_path);
-	if (file_name)
-		return file_name;
+	if (opae_path) {
+		if (strcpy_s(cfg_path, PATH_MAX, opae_path) != EOK) {
+			OPAE_ERR("error copying opae platform root string: %s", opae_path);
+				return NULL;
+		}
+		if (strcat_s(cfg_path, PATH_MAX, "/share/opae/ase/opae_ase.cfg") != EOK) {
+			OPAE_ERR("error string concatenation : %s", cfg_path);
+				return NULL;
+		}
 
+		file_name = canonicalize_file_name(cfg_path);
+		if (file_name)
+			return file_name;
+	}
 	// fourth look in possible paths in the users home directory
 	if (user_passwd != NULL) {
 		for (i = 0; i < HOME_CFG_PATHS; ++i) {
