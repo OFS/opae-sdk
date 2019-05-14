@@ -43,6 +43,7 @@ extern const char *_ase_home_cfg_files[HOME_CFG_PATHS];
 
 #include <array>
 #include <cstdlib>
+#include <fstream>
 #include <map>
 #include <memory>
 #include <string>
@@ -189,6 +190,25 @@ TEST(init, find_ase_cfg) {
   EXPECT_EQ(0, unsetenv("WITH_ASE"));
 }
 
+const char *dummy_cfg = R"plug(
+{
+    "configurations": {
+        "dummy": {
+            "configuration": {
+                "key1": "hello",
+                "key2": "plugin",
+                "fake_tokens": 99
+            },
+            "enabled": true,
+            "plugin": "libdummy_plugin.so"
+        }
+    },
+    "plugins": [
+        "dummy"
+    ]
+}
+)plug";
+
 class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
  protected:
   init_ase_cfg_p() : buffer_ {0} {}
@@ -250,6 +270,10 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
     if (stat(cfg_file_.c_str(), &st) == 0) {
       unlink(cfg_file_.c_str());
     }
+
+    std::ofstream cfg_stream(cfg_file_);
+    cfg_stream.write(dummy_cfg, strlen(dummy_cfg));
+    cfg_stream.close();
 
     setenv("WITH_ASE", "1", 0);
   }
