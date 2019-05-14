@@ -240,6 +240,10 @@ set(CPACK_COMPONENTS_ALL
 	toolfpgabist 
 	toolfpgadiagapps 
 	toolpackager 
+	tooluserclk 
+	toolras 
+	toolcoreidle 
+	toolmmlink 
 	jsonschema 
 	opaecase 
 	asertl 
