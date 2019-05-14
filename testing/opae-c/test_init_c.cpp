@@ -217,12 +217,12 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
     // let's rename the opae_ase.cfg in OPAE_ASE_CFG_SRC_PATH and OPAE_ASE_CFG_INST_PATH
 
     // copy it to a temporary buffer that we can use dirname with
-    std::string src_cfg_path = OPAE_ASE_CFG_SRC_PATH;
+    std::string src_cfg_path = (OPAE_ASE_CFG_SRC_PATH? OPAE_ASE_CFG_SRC_PATH : "");
     std::copy(src_cfg_path.begin(), src_cfg_path.end(), &buffer_[0]);
     char *src_cfg_dir = dirname(buffer_);
     char *src_cfg_file = basename(buffer_);
 
-    std::string cfg_dir = src_cfg_dir;
+    std::string cfg_dir = (src_cfg_dir? src_cfg_dir : "");
     src_cfg_file_ = cfg_dir + std::string(src_cfg_file) + std::string(".backup");
     rename(OPAE_ASE_CFG_SRC_PATH, src_cfg_file_.c_str());
 
@@ -316,13 +316,13 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_2) {
     EXPECT_NE(cfg_file, nullptr);
 
     // copy it to a temporary buffer that we can use dirname with
-    std::string inst_cfg_path = OPAE_ASE_CFG_INST_PATH;
+    std::string inst_cfg_path = (OPAE_ASE_CFG_INST_PATH? OPAE_ASE_CFG_INST_PATH : "");
     std::copy(inst_cfg_path.begin(), inst_cfg_path.end(), &buffer_[0]);
     char *inst_cfg_dir = dirname(buffer_);
     char *inst_cfg_file = basename(buffer_);
 
    // rename opae_ase.cfg under releae directory
-    std::string cfg_dir = inst_cfg_dir;
+    std::string cfg_dir = (inst_cfg_dir? inst_cfg_dir : "");
     inst_cfg_file_ = cfg_dir + std::string(inst_cfg_file) + std::string(".backup");
     rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str());
 
@@ -347,17 +347,18 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
     std::string  rel_cfg_file_, rel_cfg_file2_;
 
     // copy it to a temporary buffer that we can use dirname with
-    std::string inst_cfg_path = OPAE_ASE_CFG_INST_PATH;
+    std::string inst_cfg_path = (OPAE_ASE_CFG_INST_PATH? OPAE_ASE_CFG_INST_PATH : "");
     std::copy(inst_cfg_path.begin(), inst_cfg_path.end(), &buffer_[0]);
     char *inst_cfg_dir = dirname(buffer_);
     char *inst_cfg_file = basename(buffer_);
-    std::string cfg_dir = inst_cfg_dir;
+
+    std::string cfg_dir = (inst_cfg_dir? inst_cfg_dir : "");
     inst_cfg_file_ = cfg_dir + std::string(inst_cfg_file) + std::string(".backup");
     rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str());
 
     // rename opae_ase.cfg under releae directory
     opae_path = getenv("OPAE_PLATFORM_ROOT");
-    std::string rel_cfg_path = opae_path;
+    std::string rel_cfg_path = (opae_path? opae_path: "");
     rel_cfg_file_ = rel_cfg_path + std::string("/share/opae/ase/opae_ase.cfg");
     rel_cfg_file2_ = rel_cfg_path + std::string("/share/opae/ase/opae_ase.cfg.backup");
     rename(rel_cfg_file_.c_str(), rel_cfg_file2_.c_str());
@@ -385,17 +386,18 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
     std::string  rel_cfg_file_, rel_cfg_file2_;
 
     // copy it to a temporary buffer that we can use dirname with
-    std::string inst_cfg_path = OPAE_ASE_CFG_INST_PATH;
+    std::string inst_cfg_path = (OPAE_ASE_CFG_INST_PATH? OPAE_ASE_CFG_INST_PATH : "");
     std::copy(inst_cfg_path.begin(), inst_cfg_path.end(), &buffer_[0]);
     char *inst_cfg_dir = dirname(buffer_);
     char *inst_cfg_file = basename(buffer_);
-    std::string cfg_dir = inst_cfg_dir;
+
+    std::string cfg_dir = (inst_cfg_dir? inst_cfg_dir : "");
     inst_cfg_file_ = cfg_dir + std::string(inst_cfg_file) + std::string(".backup");
     rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str());
 
     // rename the opae_ase.cfg under release directory 
     opae_path = getenv("OPAE_PLATFORM_ROOT");
-    std::string rel_cfg_path = opae_path;
+    std::string rel_cfg_path = (opae_path? opae_path: "");
     rel_cfg_file_ = rel_cfg_path + std::string("/share/opae/ase/opae_ase.cfg");
     rel_cfg_file2_ = rel_cfg_path + std::string("/share/opae/ase/opae_ase.cfg.backup");
     rename(rel_cfg_file_.c_str(), rel_cfg_file2_.c_str());
