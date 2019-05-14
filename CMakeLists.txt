@@ -240,7 +240,8 @@ set(CPACK_COMPONENTS_ALL
 	toolfpgametrics
 	toolfpgadiag 
 	toolfpga_dma_test 
-	toolfpgabist 
+	toolfpgabist
+	toolfpgaflash
 	toolfpgadiagapps 
 	toolpackager 
 	jsonschema 
