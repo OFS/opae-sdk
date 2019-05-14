@@ -247,6 +247,7 @@ set(CPACK_COMPONENTS_ALL
 	tooluserclk 
 	toolras 
 	toolcoreidle 
+	toolmmlink 
 	jsonschema 
 	opaecase 
 	asertl 
