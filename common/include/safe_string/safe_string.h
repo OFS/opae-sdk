@@ -713,7 +713,7 @@ int snprintf_s_iis(char *dest, rsize_t dmax, const char *format, int a, int b, c
 
 int snprintf_s_iiii(char *dest, rsize_t dmax, const char *format, int a, int b, int c, int d);
 
-int snprintf_s_ciii(char *dest, rsize_t dmax, const char *format, const char s, int a, int b, int c);
+int snprintf_s_ciii(char *dest, rsize_t dmax, const char *format, char s, int a, int b, int c);
 
 #if defined(__cplusplus)
 }

@@ -644,7 +644,7 @@ inline int snprintf_s_iiii(char *dest, rsize_t dmax, const char *format, int a, 
 }
 
 
-inline int snprintf_s_ciii(char *dest, rsize_t dmax, const char *format, const char s, int a, int b, int c)
+inline int snprintf_s_ciii(char *dest, rsize_t dmax, const char *format, char s, int a, int b, int c)
 {
 	char pformatList[MAX_FORMAT_ELEMENTS];
 	unsigned int index = 0;

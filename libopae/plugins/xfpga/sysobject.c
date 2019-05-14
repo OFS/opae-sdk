@@ -381,8 +381,7 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectGetName(fpga_object obj, char *name,
 
 fpga_result __FPGA_API__ xfpga_fpgaTokenSysfsPath(fpga_token token, char *sysfs_path, size_t len)
 {
-	if (token == NULL ||
-		sysfs_path == NULL) {
+	if (token == NULL || sysfs_path == NULL) {
 		FPGA_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
