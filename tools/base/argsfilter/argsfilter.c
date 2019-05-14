@@ -142,7 +142,7 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			}
 			found_opts[next_found++] = optind - 2;
 			break;
-                case 0xe: /* segment */
+        case 0xe: /* segment */
 			if (NULL == tmp_optarg)
 				break;
 			endptr = NULL;

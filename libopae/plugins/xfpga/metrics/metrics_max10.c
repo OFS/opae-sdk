@@ -78,7 +78,6 @@ fpga_result read_sensor_sysfs_file(const char *sysfs, const char *file,
 	*buf = NULL;
 	*tot_bytes_ret = 0;
 
-
 	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", sysfs, file);
 
 	glob_t pglob;
@@ -227,7 +226,7 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 		}
 
 		// Metrics group name and qualifier name
-		if (strstr(tmp, VOLTAGE) || strstr(tmp, CURRENT) || strstr(tmp, POWER)) {
+		if (tmp && (strstr(tmp, VOLTAGE) || strstr(tmp, CURRENT) || strstr(tmp, POWER))) {
 			metric_type = FPGA_METRIC_TYPE_POWER;
 
 			// group name
@@ -241,7 +240,7 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 			//qualifier name
 			snprintf_s_ss(qualifier_name, sizeof(qualifier_name), "%s:%s", PWRMGMT, metric_name);
 
-		} else if (strstr(tmp, TEMPERATURE)) {
+		} else if (tmp && strstr(tmp, TEMPERATURE)) {
 			metric_type = FPGA_METRIC_TYPE_THERMAL;
 
 			// group name
