@@ -35,7 +35,7 @@ extern "C" {
 
 #define CDEV_ID_SIZE           8
 #define MAX_PORTS              8
-#define SYFS_MAX_SIZE          256
+#define SYSFS_MAX_SIZE         256
 #define MAC_BYTE_SIZE          4
 #define VER_BUF_SIZE           16
 

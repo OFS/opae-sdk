@@ -127,7 +127,7 @@ ssize_t board_vc_c_p::eintr_write(int fd, void *buf, size_t count)
 fpga_result board_vc_c_p::write_sysfs_file(const char *file,
 	void *buf, size_t count) {
 	fpga_result res = FPGA_OK;
-	char sysfspath[SYFS_MAX_SIZE];
+	char sysfspath[SYSFS_MAX_SIZE];
 	int fd = 0;
 
 	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", file);
@@ -158,7 +158,7 @@ fpga_result board_vc_c_p::write_sysfs_file(const char *file,
 
 fpga_result board_vc_c_p::delete_sysfs_file(const char *file) {
 	fpga_result res = FPGA_OK;
-	char sysfspath[SYFS_MAX_SIZE];
+	char sysfspath[SYSFS_MAX_SIZE];
 	int status = 0;
 
 	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", file);
@@ -187,13 +187,13 @@ fpga_result board_vc_c_p::delete_sysfs_file(const char *file) {
 */
 TEST_P(board_vc_c_p, board_vc_1) {
 
-	char bmcfw_ver[SYFS_MAX_SIZE];
+	char bmcfw_ver[SYSFS_MAX_SIZE];
 
-	EXPECT_EQ(read_bmcfw_version(tokens_[0], bmcfw_ver, SYFS_MAX_SIZE), FPGA_OK);
+	EXPECT_EQ(read_bmcfw_version(tokens_[0], bmcfw_ver, SYSFS_MAX_SIZE), FPGA_OK);
 
-	EXPECT_NE(read_bmcfw_version(tokens_[0], NULL, SYFS_MAX_SIZE), FPGA_OK);
+	EXPECT_NE(read_bmcfw_version(tokens_[0], NULL, SYSFS_MAX_SIZE), FPGA_OK);
 
-	EXPECT_NE(read_bmcfw_version(NULL, bmcfw_ver, SYFS_MAX_SIZE), FPGA_OK);
+	EXPECT_NE(read_bmcfw_version(NULL, bmcfw_ver, SYSFS_MAX_SIZE), FPGA_OK);
 }
 
 /**
@@ -203,13 +203,13 @@ TEST_P(board_vc_c_p, board_vc_1) {
 */
 TEST_P(board_vc_c_p, board_vc_2) {
 
-	char max10fw_ver[SYFS_MAX_SIZE];
+	char max10fw_ver[SYSFS_MAX_SIZE];
 
-	EXPECT_EQ(read_max10fw_version(tokens_[0], max10fw_ver, SYFS_MAX_SIZE), FPGA_OK);
+	EXPECT_EQ(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_MAX_SIZE), FPGA_OK);
 
-	EXPECT_NE(read_max10fw_version(tokens_[0], NULL, SYFS_MAX_SIZE), FPGA_OK);
+	EXPECT_NE(read_max10fw_version(tokens_[0], NULL, SYSFS_MAX_SIZE), FPGA_OK);
 
-	EXPECT_NE(read_max10fw_version(NULL, max10fw_ver, SYFS_MAX_SIZE), FPGA_OK);
+	EXPECT_NE(read_max10fw_version(NULL, max10fw_ver, SYSFS_MAX_SIZE), FPGA_OK);
 }
 
 /**
@@ -219,13 +219,13 @@ TEST_P(board_vc_c_p, board_vc_2) {
 */
 TEST_P(board_vc_c_p, board_vc_3) {
 
-	char pcb_info[SYFS_MAX_SIZE];
+	char pcb_info[SYSFS_MAX_SIZE];
 
-	EXPECT_EQ(read_pcb_info(tokens_[0], pcb_info, SYFS_MAX_SIZE), FPGA_OK);
+	EXPECT_EQ(read_pcb_info(tokens_[0], pcb_info, SYSFS_MAX_SIZE), FPGA_OK);
 
-	EXPECT_NE(read_pcb_info(tokens_[0], NULL, SYFS_MAX_SIZE), FPGA_OK);
+	EXPECT_NE(read_pcb_info(tokens_[0], NULL, SYSFS_MAX_SIZE), FPGA_OK);
 
-	EXPECT_NE(read_pcb_info(NULL, pcb_info, SYFS_MAX_SIZE), FPGA_OK);
+	EXPECT_NE(read_pcb_info(NULL, pcb_info, SYSFS_MAX_SIZE), FPGA_OK);
 }
 
 /**
@@ -256,11 +256,11 @@ TEST_P(board_vc_c_p, board_vc_5) {
 
 	unsigned char buf[8] = { 0 };
 
-	EXPECT_EQ(read_mac_info(tokens_[0], buf, SYFS_MAX_SIZE), FPGA_OK);
+	EXPECT_EQ(read_mac_info(tokens_[0], buf, SYSFS_MAX_SIZE), FPGA_OK);
 
-	EXPECT_NE(read_mac_info(NULL, buf, SYFS_MAX_SIZE), FPGA_OK);
+	EXPECT_NE(read_mac_info(NULL, buf, SYSFS_MAX_SIZE), FPGA_OK);
 
-	EXPECT_NE(read_mac_info(tokens_[0], NULL, SYFS_MAX_SIZE), FPGA_OK);
+	EXPECT_NE(read_mac_info(tokens_[0], NULL, SYSFS_MAX_SIZE), FPGA_OK);
 }
 
 /**
@@ -304,13 +304,13 @@ TEST_P(board_vc_c_p, board_vc_8) {
 	char buf[10] = { 0 };
 	write_sysfs_file((const char *)"spi-altera.0.auto/spi_master/spi0/spi0.0/bmcfw_flash_ctrl/bmcfw_version", (void*)buf, sizeof(buf));
 
-	char bmcfw_ver[SYFS_MAX_SIZE];
-	EXPECT_NE(read_bmcfw_version(tokens_[0], bmcfw_ver, SYFS_MAX_SIZE), FPGA_OK);
+	char bmcfw_ver[SYSFS_MAX_SIZE];
+	EXPECT_NE(read_bmcfw_version(tokens_[0], bmcfw_ver, SYSFS_MAX_SIZE), FPGA_OK);
 
 	write_sysfs_file((const char *)"spi-altera.0.auto/spi_master/spi0/spi0.0/max10_version", (void*)buf, sizeof(buf));
 
-	char max10fw_ver[SYFS_MAX_SIZE];
-	EXPECT_NE(read_max10fw_version(tokens_[0], max10fw_ver, SYFS_MAX_SIZE), FPGA_OK);
+	char max10fw_ver[SYSFS_MAX_SIZE];
+	EXPECT_NE(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_MAX_SIZE), FPGA_OK);
 }
 INSTANTIATE_TEST_CASE_P(baord_vc_c, board_vc_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-vc" })));
@@ -329,14 +329,14 @@ class board_vc_invalid_c_p : public board_vc_c_p { };
 */
 TEST_P(board_vc_invalid_c_p, board_vc_9) {
 
-	char bmcfw_ver[SYFS_MAX_SIZE];
-	EXPECT_NE(read_bmcfw_version(tokens_[0], bmcfw_ver, SYFS_MAX_SIZE), FPGA_OK);
+	char bmcfw_ver[SYSFS_MAX_SIZE];
+	EXPECT_NE(read_bmcfw_version(tokens_[0], bmcfw_ver, SYSFS_MAX_SIZE), FPGA_OK);
 
-	char max10fw_ver[SYFS_MAX_SIZE];
-	EXPECT_NE(read_max10fw_version(tokens_[0], max10fw_ver, SYFS_MAX_SIZE), FPGA_OK);
+	char max10fw_ver[SYSFS_MAX_SIZE];
+	EXPECT_NE(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_MAX_SIZE), FPGA_OK);
 
-	char pcb_info[SYFS_MAX_SIZE];
-	EXPECT_NE(read_pcb_info(tokens_[0], pcb_info, SYFS_MAX_SIZE), FPGA_OK);
+	char pcb_info[SYSFS_MAX_SIZE];
+	EXPECT_NE(read_pcb_info(tokens_[0], pcb_info, SYSFS_MAX_SIZE), FPGA_OK);
 
 	fpga_pkvl_info pkvl_info;
 	int fpga_mode;

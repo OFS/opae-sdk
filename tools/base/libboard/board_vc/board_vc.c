@@ -74,7 +74,7 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 
 	res = fpgaTokenGetObject(token, SYSFS_BMCFW_VER, &bmcfw_object, FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get token object");
+		OPAE_MSG("Failed to get token object");
 		return res;
 	}
 
@@ -85,7 +85,7 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 		goto out_destroy;
 	}
 
-	// Return error if input sysfs path lenth smaller then object size
+	// Return error if input sysfs path length smaller then object size
 	if (len < size) {
 		FPGA_ERR("Invalid Input sysfs path size");
 		resval = FPGA_EXCEPTION;
@@ -148,7 +148,7 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 
 	res = fpgaTokenGetObject(token, SYSFS_MAX10_VER, &max10fw_object, FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get token object");
+		OPAE_MSG("Failed to get token object");
 		return res;
 	}
 
@@ -166,7 +166,7 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 		goto out_destroy;
 	}
 
-	// Return error if input sysfs path lenth smaller then object size
+	// Return error if input sysfs path length smaller then object size
 	if (len < size) {
 		FPGA_ERR("Invalid Input sysfs path size");
 		resval = FPGA_EXCEPTION;
@@ -230,7 +230,7 @@ fpga_result read_pcb_info(fpga_token token, char *pcb_info, size_t len)
 		goto out_destroy;
 	}
 
-	// Return error if input sysfs path lenth smaller then object size
+	// Return error if input sysfs path length smaller then object size
 	if (len < size) {
 		FPGA_ERR("Invalid Input sysfs path size");
 		resval = FPGA_EXCEPTION;
@@ -345,15 +345,15 @@ fpga_result read_phy_group_info(fpga_token token,
 			fpga_phy_group_info *group_info,
 			int *group_num)
 {
-	fpga_result res                = FPGA_OK;
-	char sysfspath[SYFS_MAX_SIZE]  = { 0 };
-	char token_path[SYFS_MAX_SIZE] = { 0 };
-	char path[SYFS_MAX_SIZE]       = { 0 };
-	char cdevid[CDEV_ID_SIZE]      = { 0 };
-	size_t i                       = 0;
-	int fd                         = 0;
-	ssize_t sz                     = 0;
-	int gres                       = 0;
+	fpga_result res                 = FPGA_OK;
+	char sysfspath[SYSFS_MAX_SIZE]  = { 0 };
+	char token_path[SYSFS_MAX_SIZE] = { 0 };
+	char path[SYSFS_MAX_SIZE]       = { 0 };
+	char cdevid[CDEV_ID_SIZE]       = { 0 };
+	size_t i                        = 0;
+	int fd                          = 0;
+	ssize_t sz                      = 0;
+	int gres                        = 0;
 	glob_t pglob;
 	fpga_phy_group_info info;
 
@@ -362,7 +362,7 @@ fpga_result read_phy_group_info(fpga_token token,
 		return FPGA_INVALID_PARAM;
 	}
 
-	res = fpgaTokenSysfsPath(token, token_path, SYFS_MAX_SIZE);
+	res = fpgaTokenSysfsPath(token, token_path, SYSFS_MAX_SIZE);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to token sysfs path");
 		return FPGA_NOT_FOUND;
@@ -378,7 +378,7 @@ fpga_result read_phy_group_info(fpga_token token,
 
 	globfree(&pglob);
 
-	snprintf_s_ss(path, SYFS_MAX_SIZE, "%s/%s", token_path, SYSFS_PHY_GROUP_INFO_DEV);
+	snprintf_s_ss(path, SYSFS_MAX_SIZE, "%s/%s", token_path, SYSFS_PHY_GROUP_INFO_DEV);
 	gres = glob(path, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		OPAE_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
@@ -443,21 +443,21 @@ fpga_result read_phy_group_info(fpga_token token,
 // Read mac information
 fpga_result read_mac_info(fpga_token token, unsigned char *mac_info, size_t len)
 {
-	fpga_result res                = FPGA_OK;
-	unsigned char buf[8]           = {0};
-	char sysfspath[SYFS_MAX_SIZE]  = { 0 };
-	char token_path[SYFS_MAX_SIZE] = { 0 };
-	int fd                         = 0;
-	ssize_t sz                     = 0;
-	int gres                       = 0;
+	fpga_result res                 = FPGA_OK;
+	unsigned char buf[8]            = {0};
+	char sysfspath[SYSFS_MAX_SIZE]  = { 0 };
+	char token_path[SYSFS_MAX_SIZE] = { 0 };
+	int fd                          = 0;
+	ssize_t sz                      = 0;
+	int gres                        = 0;
 	glob_t pglob;
 
 	if (mac_info == NULL) {
-		FPGA_ERR("Invalid input parameters");
+		FPGA_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
-	res = fpgaTokenSysfsPath(token, token_path, SYFS_MAX_SIZE);
+	res = fpgaTokenSysfsPath(token, token_path, SYSFS_MAX_SIZE);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get token sysfs path");
 		return res;
@@ -489,7 +489,7 @@ fpga_result read_mac_info(fpga_token token, unsigned char *mac_info, size_t len)
 
 	globfree(&pglob);
 
-	// Return error if input sysfs path lenth smaller then read size
+	// Return error if input sysfs path length smaller then read size
 	if (len < (size_t) sz) {
 		FPGA_ERR("Invalid Input mac info size");
 		return FPGA_EXCEPTION;
@@ -509,7 +509,7 @@ fpga_result print_mac_info(fpga_token token)
 	int n                         = 0;
 	pkvl_mac mac;
 
-	res = read_mac_info(token, buf, SYFS_MAX_SIZE);
+	res = read_mac_info(token, buf, SYSFS_MAX_SIZE);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to mac address");
 		return res;
@@ -534,30 +534,29 @@ fpga_result print_mac_info(fpga_token token)
 // print board information
 fpga_result print_board_info(fpga_token token)
 {
-	fpga_result res                     = FPGA_OK;
-	char bmc_ver[SYFS_MAX_SIZE]         = { 0 };
-	char max10_ver[SYFS_MAX_SIZE]       = { 0 };
-	char pcb_ver[SYFS_MAX_SIZE]         = { 0 };
+	fpga_result res                      = FPGA_OK;
+	char bmc_ver[SYSFS_MAX_SIZE]         = { 0 };
+	char max10_ver[SYSFS_MAX_SIZE]       = { 0 };
+	char pcb_ver[SYSFS_MAX_SIZE]         = { 0 };
 
-	res = read_bmcfw_version(token, bmc_ver, SYFS_MAX_SIZE);
+	res = read_bmcfw_version(token, bmc_ver, SYSFS_MAX_SIZE);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed bmc version");
+		OPAE_MSG("Failed to read bmc version");
 	}
 
-	res = read_max10fw_version(token, max10_ver, SYFS_MAX_SIZE);
+	res = read_max10fw_version(token, max10_ver, SYSFS_MAX_SIZE);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to Destroy Object");
+		OPAE_MSG("Failed to max10 version");
 	}
 
-	res = read_pcb_info(token, pcb_ver, SYFS_MAX_SIZE);
+	res = read_pcb_info(token, pcb_ver, SYSFS_MAX_SIZE);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to Destroy Object");
+		OPAE_MSG("Failed to pcb version");
 	}
 
-
-	printf("Max10 version: %s \n", max10_ver);
-	printf("BMC version: %s \n", bmc_ver);
-	printf("PCB version: %s \n", pcb_ver);
+	printf("Board Management Controller, MAX10 NIOS FW version: %s \n", max10_ver);
+	printf("Board Management Controller, MAX10 Build version: %s \n", bmc_ver);
+	printf("PCB version: %s \n", pcb_ver);;
 
 	return res;
 }
