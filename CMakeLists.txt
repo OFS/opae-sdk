@@ -244,6 +244,10 @@ set(CPACK_COMPONENTS_ALL
 	toolfpgaflash
 	toolfpgadiagapps 
 	toolpackager 
+	tooluserclk 
+	toolras 
+	toolcoreidle 
+	toolmmlink 
 	jsonschema 
 	opaecase 
 	asertl 
