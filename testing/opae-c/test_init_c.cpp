@@ -290,7 +290,9 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
       dirs_.pop();
     }
     // restore the opae_ase.cfg file at OPAE_ASE_CFG_SRC_PATH
-    rename(tmpfile, (char *)OPAE_ASE_CFG_SRC_PATH);
+    if (rename(src_cfg_file_.c_str(), (char *)OPAE_ASE_CFG_SRC_PATH)) {
+        OPAE_ERR("Rename failed. Need to manully remove the opae_ase.cfg.XXXXXX files");
+    }    
   }
 
   char buffer_[PATH_MAX];
@@ -339,7 +341,9 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_2) {
     EXPECT_NE(cfg_file, nullptr);
     if (cfg_file)
         free(cfg_file);
-    rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH);
+    if (rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH)) {
+        OPAE_ERR("Rename failed. Need to manully remove the opae_ase.cfg.XXXXXX files");
+    }
 }
 
 /**
@@ -385,9 +389,13 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
     if (cfg_file)
         free(cfg_file);
 
-    if (opae_path)
-        rename(rel_cfg_file2_.c_str(), rel_cfg_file_.c_str());
-    rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH);  // restore file
+    if (opae_path) {
+        if (rename(rel_cfg_file2_.c_str(), rel_cfg_file_.c_str()))
+            OPAE_ERR("Rename failed. Need to manully remove the opae_ase.cfg.XXXXXX files");
+    }
+    if (rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH)) {
+        OPAE_ERR("Rename failed. Need to manully remove the opae_ase.cfg.XXXXXX files");
+    }
 }
 
 /**
@@ -436,9 +444,13 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
 
     opae_init();
 
-    if (opae_path)
-        rename(rel_cfg_file2_.c_str(), rel_cfg_file_.c_str());
-    rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH);  // restore file
+    if (opae_path) {
+        if (rename(rel_cfg_file2_.c_str(), rel_cfg_file_.c_str()))
+            OPAE_ERR("Rename failed. Need to manully remove the opae_ase.cfg.XXXXXX files");
+    }
+    if (rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH)) {
+        OPAE_ERR("Rename failed. Need to manully remove the opae_ase.cfg.XXXXXX files");
+    }
 }
 
 INSTANTIATE_TEST_CASE_P(init_ase_cfg, init_ase_cfg_p,
