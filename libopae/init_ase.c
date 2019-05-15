@@ -33,6 +33,6 @@
 
 __attribute__((constructor(ASE_PRIORITY))) STATIC void opae_ase_init(void)
 {
-    // Force ASE mode in opae_init()
+	// Force ASE mode in opae_init()
 	setenv("WITH_ASE", "1", 0);
 }
