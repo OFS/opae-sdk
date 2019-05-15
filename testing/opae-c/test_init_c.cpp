@@ -224,9 +224,9 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
     std::string cfg_dir = (src_cfg_dir? src_cfg_dir : "");
 
     // rename opae_ase.cfg under installation directory
-    strcpy(tmpfile, "opae_ase.cfg.XXXXXX");
-    close(mkstemp(tmpfile));
-    src_cfg_file_ = cfg_dir + std::string("/") + std::string(tmpfile);
+    strcpy(tmpfile_, "opae_ase.cfg.XXXXXX");
+    close(mkstemp(tmpfile_));
+    src_cfg_file_ = cfg_dir + std::string("/") + std::string(tmpfile_);
     struct stat st;
     // check if the file exists or not
     if (!stat(OPAE_ASE_CFG_SRC_PATH, &st)) {
@@ -304,8 +304,8 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
         }
     }
     struct stat st;
-    if (stat(tmpfile, &st) == 0)
-      unlink(tmpfile);
+    if (stat(tmpfile_, &st) == 0)
+      unlink(tmpfile_);
   }
 
   char buffer_[PATH_MAX];
@@ -313,7 +313,7 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
   char *cfg_dir_;
   std::stack<std::string> dirs_;
   std::string src_cfg_file_;
-  char tmpfile[32];
+  char tmpfile_[32];
   int rename_f;
 };
 
@@ -330,7 +330,7 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
 TEST_P(init_ase_cfg_p, find_ase_cfg_2) {
     char *cfg_file = nullptr;
     std::string inst_cfg_file_;
-    char tmpfile2[32];
+    char tmpfile2_[32];
     int rename_fail = 0;
 
     // find_ase_cfg at OPAE_ASE_CFG_INST_PATH
@@ -346,9 +346,9 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_2) {
     std::string cfg_dir = (inst_cfg_dir? inst_cfg_dir : "");
 
     // rename opae_ase.cfg under installation directory
-    strcpy(tmpfile2, "opae_ase.cfg.XXXXXX");
-    close(mkstemp(tmpfile2));
-    inst_cfg_file_ = cfg_dir + std::string("/") + std::string(tmpfile2);
+    strcpy(tmpfile2_, "opae_ase.cfg.XXXXXX");
+    close(mkstemp(tmpfile2_));
+    inst_cfg_file_ = cfg_dir + std::string("/") + std::string(tmpfile2_);
     struct stat st;
     // check if the file exists or not
     if (!stat(OPAE_ASE_CFG_INST_PATH, &st)) {
@@ -370,8 +370,8 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_2) {
             OPAE_ERR("Rename failed with error code %d.", errno);
         }
     }
-    if (stat(tmpfile2, &st) == 0)
-      unlink(tmpfile2);
+    if (stat(tmpfile2_, &st) == 0)
+      unlink(tmpfile2_);
 }
 
 /**
@@ -387,8 +387,8 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
     char *opae_path;
     std::string  inst_cfg_file_;
     std::string  rel_cfg_file_, rel_cfg_file2_;
-    char tmpfile2[32];
-    char tmpfile3[32];
+    char tmpfile2_[32];
+    char tmpfile3_[32];
     int rename_fail = 0;
     int rename_fail2 = 0;
 
@@ -399,9 +399,9 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
     std::string cfg_dir = (inst_cfg_dir? inst_cfg_dir : "");
 
     // rename opae_ase.cfg under installation directory
-    strcpy(tmpfile2, "opae_ase.cfg.XXXXXX");
-    close(mkstemp(tmpfile2));
-    inst_cfg_file_ = cfg_dir + std::string("/") + std::string(tmpfile2);
+    strcpy(tmpfile2_, "opae_ase.cfg.XXXXXX");
+    close(mkstemp(tmpfile2_));
+    inst_cfg_file_ = cfg_dir + std::string("/") + std::string(tmpfile2_);
     struct stat st;
     // check if the file exists or not
     if (!stat(OPAE_ASE_CFG_INST_PATH, &st)) {
@@ -417,10 +417,10 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
     opae_path = getenv("OPAE_PLATFORM_ROOT");
     if (opae_path) {
         std::string rel_cfg_path = (opae_path? opae_path: "");
-        strcpy(tmpfile3, "opae_ase.cfg.XXXXXX");
-        close(mkstemp(tmpfile3));        
+        strcpy(tmpfile3_, "opae_ase.cfg.XXXXXX");
+        close(mkstemp(tmpfile3_));        
         rel_cfg_file_ = rel_cfg_path + std::string("/share/opae/ase/opae_ase.cfg");
-        rel_cfg_file2_ = rel_cfg_path + std::string("/share/opae/ase/") + std::string(tmpfile3);
+        rel_cfg_file2_ = rel_cfg_path + std::string("/share/opae/ase/") + std::string(tmpfile3_);
         // check if the file exists or not
         if (!stat(rel_cfg_file_.c_str(), &st)) {
             if (rename(rel_cfg_file_.c_str(), rel_cfg_file2_.c_str())) {
@@ -446,10 +446,10 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
             OPAE_ERR("Rename failed with error code %d.", errno);
         }
     }
-    if (stat(tmpfile2, &st) == 0)
-      unlink(tmpfile2);
-    if (stat(tmpfile3, &st) == 0)
-      unlink(tmpfile3);
+    if (stat(tmpfile2_, &st) == 0)
+      unlink(tmpfile2_);
+    if (stat(tmpfile3_, &st) == 0)
+      unlink(tmpfile3_);
 }
 
 /**
@@ -465,8 +465,8 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
     char *opae_path;
     std::string  inst_cfg_file_;
     std::string  rel_cfg_file_, rel_cfg_file2_;
-    char tmpfile2[32];
-    char tmpfile3[32];
+    char tmpfile2_[32];
+    char tmpfile3_[32];
     int rename_fail = 0;
     int rename_fail2 = 0;
 
@@ -477,9 +477,9 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
     std::string cfg_dir = (inst_cfg_dir? inst_cfg_dir : "");
 
     // rename opae_ase.cfg under installation directory
-    strcpy(tmpfile2, "opae_ase.cfg.XXXXXX");
-    close(mkstemp(tmpfile2));
-    inst_cfg_file_ = cfg_dir + std::string("/") + std::string(tmpfile2);
+    strcpy(tmpfile2_, "opae_ase.cfg.XXXXXX");
+    close(mkstemp(tmpfile2_));
+    inst_cfg_file_ = cfg_dir + std::string("/") + std::string(tmpfile2_);
     struct stat st;
     // check if the file exists or not
     if (!stat(OPAE_ASE_CFG_INST_PATH, &st)) {
@@ -495,10 +495,10 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
     opae_path = getenv("OPAE_PLATFORM_ROOT");
     if (opae_path) {
         std::string rel_cfg_path = (opae_path? opae_path: "");
-        strcpy(tmpfile3, "opae_ase.cfg.XXXXXX");
-        close(mkstemp(tmpfile3));        
+        strcpy(tmpfile3_, "opae_ase.cfg.XXXXXX");
+        close(mkstemp(tmpfile3_));        
         rel_cfg_file_ = rel_cfg_path + std::string("/share/opae/ase/opae_ase.cfg");
-        rel_cfg_file2_ = rel_cfg_path + std::string("/share/opae/ase/") + std::string(tmpfile3);
+        rel_cfg_file2_ = rel_cfg_path + std::string("/share/opae/ase/") + std::string(tmpfile3_);
         // check if the file exists or not
         if (!stat(rel_cfg_file_.c_str(), &st)) {
             if (rename(rel_cfg_file_.c_str(), rel_cfg_file2_.c_str())) {
@@ -527,10 +527,10 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
             OPAE_ERR("Rename failed with error code %d.", errno);
         }
     }
-    if (stat(tmpfile2, &st) == 0)
-      unlink(tmpfile2);
-    if (stat(tmpfile3, &st) == 0)
-      unlink(tmpfile3);
+    if (stat(tmpfile2_, &st) == 0)
+      unlink(tmpfile2_);
+    if (stat(tmpfile3_, &st) == 0)
+      unlink(tmpfile3_);
 }
 
 INSTANTIATE_TEST_CASE_P(init_ase_cfg, init_ase_cfg_p,
