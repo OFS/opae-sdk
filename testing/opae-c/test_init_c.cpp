@@ -230,11 +230,9 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
     struct stat st;
     // check if the file exists or not
     if (!stat(OPAE_ASE_CFG_SRC_PATH, &st)) {
-        if (rename(OPAE_ASE_CFG_SRC_PATH, src_cfg_file_.c_str())) {
-            rename_f = 1;
-            OPAE_ERR("Rename failed with error code %d.", errno);
-        }
-    }
+        rename_f = rename(OPAE_ASE_CFG_SRC_PATH, src_cfg_file_.c_str());
+        EXPECT_EQ(rename_f, 0);
+     }
     else
         rename_f = 1;
 
@@ -299,9 +297,8 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
     }
     // restore the opae_ase.cfg file at OPAE_ASE_CFG_SRC_PATH
     if (!rename_f) {
-        if (rename(src_cfg_file_.c_str(), (char *)OPAE_ASE_CFG_SRC_PATH)) {
-            OPAE_ERR("Rename failed with error code %d.", errno);
-        }
+        int ret = rename(src_cfg_file_.c_str(), (char *)OPAE_ASE_CFG_SRC_PATH);
+        EXPECT_EQ(ret, 0);
     }
     struct stat st;
     if (stat(tmpfile_, &st) == 0)
@@ -352,10 +349,8 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_2) {
     struct stat st;
     // check if the file exists or not
     if (!stat(OPAE_ASE_CFG_INST_PATH, &st)) {
-        if (rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str())) {
-            rename_fail = 1;
-            OPAE_ERR("Renaming failed with error code %d.", errno);
-        }
+        rename_fail = rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str());
+        EXPECT_EQ(rename_fail, 0);
     }
     else
         rename_fail = 1;
@@ -366,9 +361,8 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_2) {
     if (cfg_file)
         free(cfg_file);
     if (!rename_fail) {
-        if(rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH)) {
-            OPAE_ERR("Rename failed with error code %d.", errno);
-        }
+        int ret = rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH);
+        EXPECT_EQ(ret, 0);
     }
     if (stat(tmpfile2_, &st) == 0)
       unlink(tmpfile2_);
@@ -391,6 +385,7 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
     char tmpfile3_[32];
     int rename_fail = 0;
     int rename_fail2 = 0;
+    int ret;
 
     // copy it to a temporary buffer that we can use dirname with
     std::string inst_cfg_path = (OPAE_ASE_CFG_INST_PATH? OPAE_ASE_CFG_INST_PATH : "");
@@ -405,10 +400,8 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
     struct stat st;
     // check if the file exists or not
     if (!stat(OPAE_ASE_CFG_INST_PATH, &st)) {
-        if (rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str())) {
-            rename_fail = 1;
-            OPAE_ERR("Renaming failed with error code %d.", errno);
-        }
+        rename_fail = rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str());
+        EXPECT_EQ(rename_fail, 0);
     }
     else
         rename_fail = 1;
@@ -423,10 +416,8 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
         rel_cfg_file2_ = rel_cfg_path + std::string("/share/opae/ase/") + std::string(tmpfile3_);
         // check if the file exists or not
         if (!stat(rel_cfg_file_.c_str(), &st)) {
-            if (rename(rel_cfg_file_.c_str(), rel_cfg_file2_.c_str())) {
-                OPAE_ERR("Renaming file failed with error code %d.", errno);
-                rename_fail2 = 1;
-            }
+            rename_fail2 = rename(rel_cfg_file_.c_str(), rel_cfg_file2_.c_str());
+            EXPECT_EQ(rename_fail2, 0);
         }
         else
             rename_fail2 = 1;
@@ -438,13 +429,12 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
         free(cfg_file);
 
     if (opae_path && !rename_fail2) {
-        if (rename(rel_cfg_file2_.c_str(), rel_cfg_file_.c_str()))
-            OPAE_ERR("Renaming file failed with error code %d.", errno);
+        ret = rename(rel_cfg_file2_.c_str(), rel_cfg_file_.c_str());
+        EXPECT_EQ(ret, 0);
     }
     if (!rename_fail) {
-        if(rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH)) {
-            OPAE_ERR("Rename failed with error code %d.", errno);
-        }
+        ret = rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH);
+        EXPECT_EQ(ret, 0);
     }
     if (stat(tmpfile2_, &st) == 0)
       unlink(tmpfile2_);
@@ -469,6 +459,7 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
     char tmpfile3_[32];
     int rename_fail = 0;
     int rename_fail2 = 0;
+    int ret;
 
     // copy it to a temporary buffer that we can use dirname with
     std::string inst_cfg_path = (OPAE_ASE_CFG_INST_PATH? OPAE_ASE_CFG_INST_PATH : "");
@@ -483,10 +474,8 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
     struct stat st;
     // check if the file exists or not
     if (!stat(OPAE_ASE_CFG_INST_PATH, &st)) {
-        if (rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str())) {
-            rename_fail = 1;
-            OPAE_ERR("Renaming failed with error code %d.", errno);
-        }
+        rename_fail = rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str());
+        EXPECT_EQ(rename_fail, 0);
     }
     else
         rename_fail = 1;
@@ -501,10 +490,8 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
         rel_cfg_file2_ = rel_cfg_path + std::string("/share/opae/ase/") + std::string(tmpfile3_);
         // check if the file exists or not
         if (!stat(rel_cfg_file_.c_str(), &st)) {
-            if (rename(rel_cfg_file_.c_str(), rel_cfg_file2_.c_str())) {
-                OPAE_ERR("Renaming file failed with error code %d.", errno);
-                rename_fail2 = 1;
-            }
+            rename_fail2 = rename(rel_cfg_file_.c_str(), rel_cfg_file2_.c_str());
+            EXPECT_EQ(rename_fail2, 0);
         }
         else
             rename_fail2 = 1;
@@ -519,13 +506,12 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
     opae_init();
 
     if (opae_path && !rename_fail2) {
-        if (rename(rel_cfg_file2_.c_str(), rel_cfg_file_.c_str()))
-            OPAE_ERR("Renaming file failed with error code %d.", errno);
+        ret = rename(rel_cfg_file2_.c_str(), rel_cfg_file_.c_str());
+        EXPECT_EQ(ret, 0);
     }
     if (!rename_fail) {
-        if(rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH)) {
-            OPAE_ERR("Rename failed with error code %d.", errno);
-        }
+        ret = rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH);
+        EXPECT_EQ(ret, 0);
     }
     if (stat(tmpfile2_, &st) == 0)
       unlink(tmpfile2_);
