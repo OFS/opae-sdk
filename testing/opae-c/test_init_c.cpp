@@ -291,7 +291,7 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
     }
     // restore the opae_ase.cfg file at OPAE_ASE_CFG_SRC_PATH
     if (rename(src_cfg_file_.c_str(), (char *)OPAE_ASE_CFG_SRC_PATH)) {
-        OPAE_ERR("Rename failed. Need to manully remove the opae_ase.cfg.XXXXXX files");
+        OPAE_ERR("Rename failed. Might need to manully remove the opae_ase.cfg.XXXXXX files");
     }    
   }
 
@@ -342,7 +342,7 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_2) {
     if (cfg_file)
         free(cfg_file);
     if (rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH)) {
-        OPAE_ERR("Rename failed. Need to manully remove the opae_ase.cfg.XXXXXX files");
+        OPAE_ERR("Rename failed. Might need to manully remove the opae_ase.cfg.XXXXXX files");
     }
 }
 
@@ -391,10 +391,10 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
 
     if (opae_path) {
         if (rename(rel_cfg_file2_.c_str(), rel_cfg_file_.c_str()))
-            OPAE_ERR("Rename failed. Need to manully remove the opae_ase.cfg.XXXXXX files");
+            OPAE_ERR("Rename failed. Might need to manully remove the opae_ase.cfg.XXXXXX files");
     }
     if (rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH)) {
-        OPAE_ERR("Rename failed. Need to manully remove the opae_ase.cfg.XXXXXX files");
+        OPAE_ERR("Rename failed. Might need to manully remove the opae_ase.cfg.XXXXXX files");
     }
 }
 
@@ -446,10 +446,10 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
 
     if (opae_path) {
         if (rename(rel_cfg_file2_.c_str(), rel_cfg_file_.c_str()))
-            OPAE_ERR("Rename failed. Need to manully remove the opae_ase.cfg.XXXXXX files");
+            OPAE_ERR("Rename failed. Might need to manully remove the opae_ase.cfg.XXXXXX files");
     }
     if (rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH)) {
-        OPAE_ERR("Rename failed. Need to manully remove the opae_ase.cfg.XXXXXX files");
+        OPAE_ERR("Rename failed. Might need to manully remove the opae_ase.cfg.XXXXXX files");
     }
 }
 
