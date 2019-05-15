@@ -64,6 +64,7 @@ static platform_data platform_data_table[] = {
 fpga_result load_board_plugin(fpga_token token, void** dl_handle)
 {
 	fpga_result res                = FPGA_OK;
+	fpga_result resval             = FPGA_OK;
 	fpga_properties props          = NULL;
 	uint16_t vendor_id             = 0;
 	uint16_t device_id             = 0;
@@ -83,21 +84,21 @@ fpga_result load_board_plugin(fpga_token token, void** dl_handle)
 	res = fpgaPropertiesGetDeviceID(props, &device_id);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get device ID\n");
-		goto err_out_destroy;
+		resval = res;
+		goto destroy;
 	}
 
 	res = fpgaPropertiesGetVendorID(props, &vendor_id);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get vendor ID\n");
-		goto err_out_destroy;
+		resval = res;
+		goto destroy;
 	}
 
 	if (pthread_mutex_lock(&board_plugin_lock) != 0 ) {
 		OPAE_ERR("pthread mutex lock failed \n");
-
-		if (props)
-			fpgaDestroyProperties(&props);
-		return FPGA_EXCEPTION;
+		resval = FPGA_EXCEPTION;
+		goto destroy;
 	}
 
 	for (i = 0; platform_data_table[i].board_plugin; ++i) {
@@ -108,35 +109,41 @@ fpga_result load_board_plugin(fpga_token token, void** dl_handle)
 			// Loaded lib or found
 			if (platform_data_table[i].dl_handle) {
 				*dl_handle = platform_data_table[i].dl_handle;
-				goto err_out_destroy;
+				resval = FPGA_OK;
+				goto unlock_destroy;
 			}
 
 			platform_data_table[i].dl_handle = dlopen(platform_data_table[i].board_plugin, RTLD_LAZY | RTLD_LOCAL);
 			if (!platform_data_table[i].dl_handle) {
 				char *err = dlerror();
 				OPAE_ERR("Failed to load \"%s\" %s", platform_data_table[i].board_plugin, err ? err : "");
-				goto err_out_destroy;
+				resval = FPGA_EXCEPTION;
+				goto unlock_destroy;
 			} else {
+				// Dynamically loaded board module
 				*dl_handle = platform_data_table[i].dl_handle;
-				goto err_out_destroy;
+				resval = FPGA_OK;
+				goto unlock_destroy;
 			}
 		} //end if
 
 	} // end for
 
 
-
-err_out_destroy:
-	if (props)
-		fpgaDestroyProperties(&props);
-
+unlock_destroy:
 
 	if (pthread_mutex_unlock(&board_plugin_lock) != 0) {
 		OPAE_ERR("pthread mutex unlock failed \n");
-		res = FPGA_EXCEPTION;
+		resval = FPGA_EXCEPTION;
 	}
 
-	return res;
+destroy:
+	res = fpgaDestroyProperties(&props);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to Destroy Object");
+	}
+
+	return resval;
 }
 
 int unload_board_plugin(void)
@@ -157,6 +164,7 @@ int unload_board_plugin(void)
 			if (res) {
 				char *err = dlerror();
 				OPAE_ERR("dlclose failed with %d %s", res, err ? err : "");
+				res = FPGA_EXCEPTION;
 			} else {
 				platform_data_table[i].dl_handle = NULL;
 			}
