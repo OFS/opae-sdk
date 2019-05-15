@@ -192,21 +192,20 @@ TEST(init, find_ase_cfg) {
     free(cfg_path);
 }
 
-const char *dummy_cfg = R"plug(
+const char *ase_cfg = R"plug(
 {
     "configurations": {
-        "dummy": {
+        "ase": {
             "configuration": {
-                "key1": "hello",
-                "key2": "plugin",
-                "fake_tokens": 99
+                "key1a": 10,
+                "key1b": "hello"
             },
-            "enabled": true,
-            "plugin": "libdummy_plugin.so"
-        }
+        "enabled": true,
+        "plugin": "libase.so"
+        },
     },
     "plugins": [
-        "dummy"
+        "ase"
     ]
 }
 )plug";
@@ -276,7 +275,7 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
     }
 
     std::ofstream cfg_stream(cfg_file_);
-    cfg_stream.write(dummy_cfg, strlen(dummy_cfg));
+    cfg_stream.write(ase_cfg, strlen(ase_cfg));
     cfg_stream.close();
 
     setenv("WITH_ASE", "1", 0);
