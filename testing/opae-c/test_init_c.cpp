@@ -212,7 +212,7 @@ const char *ase_cfg = R"plug(
 
 class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
  protected:
-  init_ase_cfg_p() : buffer_ {0} {}
+  init_ase_cfg_p() : buffer_ {0}, rename_f(0) {}
 
   virtual void SetUp() override {
     // let's rename the opae_ase.cfg in OPAE_ASE_CFG_SRC_PATH and OPAE_ASE_CFG_INST_PATH
@@ -227,7 +227,16 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
     strcpy(tmpfile, "opae_ase.cfg.XXXXXX");
     close(mkstemp(tmpfile));
     src_cfg_file_ = cfg_dir + std::string("/") + std::string(tmpfile);
-    rename(OPAE_ASE_CFG_SRC_PATH, src_cfg_file_.c_str());
+    struct stat st;
+    // check if the file exists or not
+    if (!stat(OPAE_ASE_CFG_SRC_PATH, &st)) {
+        if (rename(OPAE_ASE_CFG_SRC_PATH, src_cfg_file_.c_str())) {
+            rename_f = 1;
+            OPAE_ERR("Rename failed with error code %d.", errno);
+        }
+    }
+    else
+        rename_f = 1;
 
     // This parameterized test iterates over the possible config file paths
     // relative to a user's home directory
@@ -242,7 +251,6 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
     std::copy(cfg_file_.begin(), cfg_file_.end(), &buffer_[0]);
     // get the directory name of the file
     cfg_dir_ = dirname(buffer_);
-    struct stat st;
     // if the directory doesn't exist, create the entire path
     if (stat(cfg_dir_, &st)) {
       std::string dir = cfg_dir_;
@@ -290,9 +298,14 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
       dirs_.pop();
     }
     // restore the opae_ase.cfg file at OPAE_ASE_CFG_SRC_PATH
-    if (rename(src_cfg_file_.c_str(), (char *)OPAE_ASE_CFG_SRC_PATH)) {
-        OPAE_ERR("Rename failed. Might need to manully remove the opae_ase.cfg.XXXXXX files");
-    }    
+    if (!rename_f) {
+        if (rename(src_cfg_file_.c_str(), (char *)OPAE_ASE_CFG_SRC_PATH)) {
+            OPAE_ERR("Rename failed with error code %d.", errno);
+        }
+    }
+    struct stat st;
+    if (stat(tmpfile, &st) == 0)
+      unlink(tmpfile);
   }
 
   char buffer_[PATH_MAX];
@@ -301,6 +314,7 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
   std::stack<std::string> dirs_;
   std::string src_cfg_file_;
   char tmpfile[32];
+  int rename_f;
 };
 
 
@@ -317,6 +331,7 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_2) {
     char *cfg_file = nullptr;
     std::string inst_cfg_file_;
     char tmpfile2[32];
+    int rename_fail = 0;
 
     // find_ase_cfg at OPAE_ASE_CFG_INST_PATH
     cfg_file = find_ase_cfg();
@@ -334,16 +349,29 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_2) {
     strcpy(tmpfile2, "opae_ase.cfg.XXXXXX");
     close(mkstemp(tmpfile2));
     inst_cfg_file_ = cfg_dir + std::string("/") + std::string(tmpfile2);
-    rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str());
+    struct stat st;
+    // check if the file exists or not
+    if (!stat(OPAE_ASE_CFG_INST_PATH, &st)) {
+        if (rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str())) {
+            rename_fail = 1;
+            OPAE_ERR("Renaming failed with error code %d.", errno);
+        }
+    }
+    else
+        rename_fail = 1;
 
     // find_ase_cfg at release directory
     cfg_file = find_ase_cfg();
     EXPECT_NE(cfg_file, nullptr);
     if (cfg_file)
         free(cfg_file);
-    if (rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH)) {
-        OPAE_ERR("Rename failed. Might need to manully remove the opae_ase.cfg.XXXXXX files");
+    if (!rename_fail) {
+        if(rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH)) {
+            OPAE_ERR("Rename failed with error code %d.", errno);
+        }
     }
+    if (stat(tmpfile2, &st) == 0)
+      unlink(tmpfile2);
 }
 
 /**
@@ -360,6 +388,9 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
     std::string  inst_cfg_file_;
     std::string  rel_cfg_file_, rel_cfg_file2_;
     char tmpfile2[32];
+    char tmpfile3[32];
+    int rename_fail = 0;
+    int rename_fail2 = 0;
 
     // copy it to a temporary buffer that we can use dirname with
     std::string inst_cfg_path = (OPAE_ASE_CFG_INST_PATH? OPAE_ASE_CFG_INST_PATH : "");
@@ -371,17 +402,34 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
     strcpy(tmpfile2, "opae_ase.cfg.XXXXXX");
     close(mkstemp(tmpfile2));
     inst_cfg_file_ = cfg_dir + std::string("/") + std::string(tmpfile2);
-    rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str());
+    struct stat st;
+    // check if the file exists or not
+    if (!stat(OPAE_ASE_CFG_INST_PATH, &st)) {
+        if (rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str())) {
+            rename_fail = 1;
+            OPAE_ERR("Renaming failed with error code %d.", errno);
+        }
+    }
+    else
+        rename_fail = 1;
 
     // rename opae_ase.cfg under releae directory
     opae_path = getenv("OPAE_PLATFORM_ROOT");
     if (opae_path) {
         std::string rel_cfg_path = (opae_path? opae_path: "");
-        strcpy(tmpfile2, "opae_ase.cfg.XXXXXX");
-        close(mkstemp(tmpfile2));        
+        strcpy(tmpfile3, "opae_ase.cfg.XXXXXX");
+        close(mkstemp(tmpfile3));        
         rel_cfg_file_ = rel_cfg_path + std::string("/share/opae/ase/opae_ase.cfg");
-        rel_cfg_file2_ = rel_cfg_path + std::string("/share/opae/ase/") + std::string(tmpfile2);
-        rename(rel_cfg_file_.c_str(), rel_cfg_file2_.c_str());
+        rel_cfg_file2_ = rel_cfg_path + std::string("/share/opae/ase/") + std::string(tmpfile3);
+        // check if the file exists or not
+        if (!stat(rel_cfg_file_.c_str(), &st)) {
+            if (rename(rel_cfg_file_.c_str(), rel_cfg_file2_.c_str())) {
+                OPAE_ERR("Renaming file failed with error code %d.", errno);
+                rename_fail2 = 1;
+            }
+        }
+        else
+            rename_fail2 = 1;
     }
     // find_ase_cfg at HOME directory
     cfg_file = find_ase_cfg();
@@ -389,13 +437,19 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
     if (cfg_file)
         free(cfg_file);
 
-    if (opae_path) {
+    if (opae_path && !rename_fail2) {
         if (rename(rel_cfg_file2_.c_str(), rel_cfg_file_.c_str()))
-            OPAE_ERR("Rename failed. Might need to manully remove the opae_ase.cfg.XXXXXX files");
+            OPAE_ERR("Renaming file failed with error code %d.", errno);
     }
-    if (rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH)) {
-        OPAE_ERR("Rename failed. Might need to manully remove the opae_ase.cfg.XXXXXX files");
+    if (!rename_fail) {
+        if(rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH)) {
+            OPAE_ERR("Rename failed with error code %d.", errno);
+        }
     }
+    if (stat(tmpfile2, &st) == 0)
+      unlink(tmpfile2);
+    if (stat(tmpfile3, &st) == 0)
+      unlink(tmpfile3);
 }
 
 /**
@@ -412,6 +466,9 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
     std::string  inst_cfg_file_;
     std::string  rel_cfg_file_, rel_cfg_file2_;
     char tmpfile2[32];
+    char tmpfile3[32];
+    int rename_fail = 0;
+    int rename_fail2 = 0;
 
     // copy it to a temporary buffer that we can use dirname with
     std::string inst_cfg_path = (OPAE_ASE_CFG_INST_PATH? OPAE_ASE_CFG_INST_PATH : "");
@@ -423,17 +480,34 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
     strcpy(tmpfile2, "opae_ase.cfg.XXXXXX");
     close(mkstemp(tmpfile2));
     inst_cfg_file_ = cfg_dir + std::string("/") + std::string(tmpfile2);
-    rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str());
+    struct stat st;
+    // check if the file exists or not
+    if (!stat(OPAE_ASE_CFG_INST_PATH, &st)) {
+        if (rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str())) {
+            rename_fail = 1;
+            OPAE_ERR("Renaming failed with error code %d.", errno);
+        }
+    }
+    else
+        rename_fail = 1;
 
     // rename the opae_ase.cfg under release directory 
     opae_path = getenv("OPAE_PLATFORM_ROOT");
     if (opae_path) {
         std::string rel_cfg_path = (opae_path? opae_path: "");
-        strcpy(tmpfile2, "opae_ase.cfg.XXXXXX");
-        close(mkstemp(tmpfile2));        
+        strcpy(tmpfile3, "opae_ase.cfg.XXXXXX");
+        close(mkstemp(tmpfile3));        
         rel_cfg_file_ = rel_cfg_path + std::string("/share/opae/ase/opae_ase.cfg");
-        rel_cfg_file2_ = rel_cfg_path + std::string("/share/opae/ase/") + std::string(tmpfile2);
-        rename(rel_cfg_file_.c_str(), rel_cfg_file2_.c_str());
+        rel_cfg_file2_ = rel_cfg_path + std::string("/share/opae/ase/") + std::string(tmpfile3);
+        // check if the file exists or not
+        if (!stat(rel_cfg_file_.c_str(), &st)) {
+            if (rename(rel_cfg_file_.c_str(), rel_cfg_file2_.c_str())) {
+                OPAE_ERR("Renaming file failed with error code %d.", errno);
+                rename_fail2 = 1;
+            }
+        }
+        else
+            rename_fail2 = 1;
     }
 
     // find_ase_cfg at HOME directory
@@ -444,13 +518,19 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
 
     opae_init();
 
-    if (opae_path) {
+    if (opae_path && !rename_fail2) {
         if (rename(rel_cfg_file2_.c_str(), rel_cfg_file_.c_str()))
-            OPAE_ERR("Rename failed. Might need to manully remove the opae_ase.cfg.XXXXXX files");
+            OPAE_ERR("Renaming file failed with error code %d.", errno);
     }
-    if (rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH)) {
-        OPAE_ERR("Rename failed. Might need to manully remove the opae_ase.cfg.XXXXXX files");
+    if (!rename_fail) {
+        if(rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH)) {
+            OPAE_ERR("Rename failed with error code %d.", errno);
+        }
     }
+    if (stat(tmpfile2, &st) == 0)
+      unlink(tmpfile2);
+    if (stat(tmpfile3, &st) == 0)
+      unlink(tmpfile3);
 }
 
 INSTANTIATE_TEST_CASE_P(init_ase_cfg, init_ase_cfg_p,
