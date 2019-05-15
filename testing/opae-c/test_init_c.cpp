@@ -222,12 +222,12 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
     std::string src_cfg_path = (OPAE_ASE_CFG_SRC_PATH? OPAE_ASE_CFG_SRC_PATH : "");
     std::copy(src_cfg_path.begin(), src_cfg_path.end(), &buffer_[0]);
     char *src_cfg_dir = dirname(buffer_);
-    ASSERT_TRUE(src_cfg_dir != nullptr);
-    char *src_cfg_file = basename(buffer_);
-    ASSERT_TRUE(src_cfg_file != nullptr);
-
     std::string cfg_dir = (src_cfg_dir? src_cfg_dir : "");
-    src_cfg_file_ = cfg_dir + std::string(src_cfg_file) + std::string(".backup");
+
+    // rename opae_ase.cfg under installation directory
+    strcpy(tmpfile, "opae_ase.cfg.XXXXXX");
+    close(mkstemp(tmpfile));
+    src_cfg_file_ = cfg_dir + std::string("/") + std::string(tmpfile);
     rename(OPAE_ASE_CFG_SRC_PATH, src_cfg_file_.c_str());
 
     // This parameterized test iterates over the possible config file paths
@@ -291,7 +291,7 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
       dirs_.pop();
     }
     // restore the opae_ase.cfg file at OPAE_ASE_CFG_SRC_PATH
-    rename(src_cfg_file_.c_str(), (char *)OPAE_ASE_CFG_SRC_PATH);
+    rename(tmpfile, (char *)OPAE_ASE_CFG_SRC_PATH);
   }
 
   char buffer_[PATH_MAX];
@@ -299,6 +299,7 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
   char *cfg_dir_;
   std::stack<std::string> dirs_;
   std::string src_cfg_file_;
+  char tmpfile[32];
 };
 
 
@@ -314,6 +315,7 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
 TEST_P(init_ase_cfg_p, find_ase_cfg_2) {
     char *cfg_file = nullptr;
     std::string inst_cfg_file_;
+    char tmpfile2[32];
 
     // find_ase_cfg at OPAE_ASE_CFG_INST_PATH
     cfg_file = find_ase_cfg();
@@ -325,13 +327,12 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_2) {
     std::string inst_cfg_path = (OPAE_ASE_CFG_INST_PATH? OPAE_ASE_CFG_INST_PATH : "");
     std::copy(inst_cfg_path.begin(), inst_cfg_path.end(), &buffer_[0]);
     char *inst_cfg_dir = dirname(buffer_);
-    ASSERT_TRUE(inst_cfg_dir != nullptr);
-    char *inst_cfg_file = basename(buffer_);
-    ASSERT_TRUE(inst_cfg_file != nullptr);
+    std::string cfg_dir = (inst_cfg_dir? inst_cfg_dir : "");
 
     // rename opae_ase.cfg under installation directory
-    std::string cfg_dir = (inst_cfg_dir? inst_cfg_dir : "");
-    inst_cfg_file_ = cfg_dir + std::string(inst_cfg_file) + std::string(".backup");
+    strcpy(tmpfile2, "opae_ase.cfg.XXXXXX");
+    close(mkstemp(tmpfile2));
+    inst_cfg_file_ = cfg_dir + std::string("/") + std::string(tmpfile2);
     rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str());
 
     // find_ase_cfg at release directory
@@ -353,28 +354,31 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_2) {
 TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
     char *cfg_file = nullptr;
     char *opae_path;
-    std::string  inst_cfg_file_, opae_cfg_file_;
+    std::string  inst_cfg_file_;
     std::string  rel_cfg_file_, rel_cfg_file2_;
+    char tmpfile2[32];
 
     // copy it to a temporary buffer that we can use dirname with
     std::string inst_cfg_path = (OPAE_ASE_CFG_INST_PATH? OPAE_ASE_CFG_INST_PATH : "");
     std::copy(inst_cfg_path.begin(), inst_cfg_path.end(), &buffer_[0]);
     char *inst_cfg_dir = dirname(buffer_);
-    ASSERT_TRUE(inst_cfg_dir != nullptr);
-    char *inst_cfg_file = basename(buffer_);
-    ASSERT_TRUE(inst_cfg_file != nullptr);
-
     std::string cfg_dir = (inst_cfg_dir? inst_cfg_dir : "");
-    inst_cfg_file_ = cfg_dir + std::string(inst_cfg_file) + std::string(".backup");
+
+    // rename opae_ase.cfg under installation directory
+    strcpy(tmpfile2, "opae_ase.cfg.XXXXXX");
+    close(mkstemp(tmpfile2));
+    inst_cfg_file_ = cfg_dir + std::string("/") + std::string(tmpfile2);
     rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str());
 
     // rename opae_ase.cfg under releae directory
     opae_path = getenv("OPAE_PLATFORM_ROOT");
     if (opae_path) {
-		std::string rel_cfg_path = (opae_path? opae_path: "");
-		rel_cfg_file_ = rel_cfg_path + std::string("/share/opae/ase/opae_ase.cfg");
-		rel_cfg_file2_ = rel_cfg_path + std::string("/share/opae/ase/opae_ase.cfg.backup");
-		rename(rel_cfg_file_.c_str(), rel_cfg_file2_.c_str());
+        std::string rel_cfg_path = (opae_path? opae_path: "");
+        strcpy(tmpfile2, "opae_ase.cfg.XXXXXX");
+        close(mkstemp(tmpfile2));        
+        rel_cfg_file_ = rel_cfg_path + std::string("/share/opae/ase/opae_ase.cfg");
+        rel_cfg_file2_ = rel_cfg_path + std::string("/share/opae/ase/") + std::string(tmpfile2);
+        rename(rel_cfg_file_.c_str(), rel_cfg_file2_.c_str());
     }
     // find_ase_cfg at HOME directory
     cfg_file = find_ase_cfg();
@@ -398,26 +402,31 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
 TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
     char *cfg_file = nullptr;
     char *opae_path;
-    std::string  inst_cfg_file_, opae_cfg_file_;
+    std::string  inst_cfg_file_;
     std::string  rel_cfg_file_, rel_cfg_file2_;
+    char tmpfile2[32];
 
     // copy it to a temporary buffer that we can use dirname with
     std::string inst_cfg_path = (OPAE_ASE_CFG_INST_PATH? OPAE_ASE_CFG_INST_PATH : "");
     std::copy(inst_cfg_path.begin(), inst_cfg_path.end(), &buffer_[0]);
     char *inst_cfg_dir = dirname(buffer_);
-    char *inst_cfg_file = basename(buffer_);
-
     std::string cfg_dir = (inst_cfg_dir? inst_cfg_dir : "");
-    inst_cfg_file_ = cfg_dir + std::string(inst_cfg_file) + std::string(".backup");
+
+    // rename opae_ase.cfg under installation directory
+    strcpy(tmpfile2, "opae_ase.cfg.XXXXXX");
+    close(mkstemp(tmpfile2));
+    inst_cfg_file_ = cfg_dir + std::string("/") + std::string(tmpfile2);
     rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str());
 
     // rename the opae_ase.cfg under release directory 
     opae_path = getenv("OPAE_PLATFORM_ROOT");
     if (opae_path) {
-		std::string rel_cfg_path = (opae_path? opae_path: "");
-		rel_cfg_file_ = rel_cfg_path + std::string("/share/opae/ase/opae_ase.cfg");
-		rel_cfg_file2_ = rel_cfg_path + std::string("/share/opae/ase/opae_ase.cfg.backup");
-		rename(rel_cfg_file_.c_str(), rel_cfg_file2_.c_str());
+        std::string rel_cfg_path = (opae_path? opae_path: "");
+        strcpy(tmpfile2, "opae_ase.cfg.XXXXXX");
+        close(mkstemp(tmpfile2));        
+        rel_cfg_file_ = rel_cfg_path + std::string("/share/opae/ase/opae_ase.cfg");
+        rel_cfg_file2_ = rel_cfg_path + std::string("/share/opae/ase/") + std::string(tmpfile2);
+        rename(rel_cfg_file_.c_str(), rel_cfg_file2_.c_str());
     }
 
     // find_ase_cfg at HOME directory
