@@ -64,6 +64,7 @@ fpga_result re_match_region(const char *fmt, char *inpstr, char type[], size_t,
 #include <fcntl.h>
 #include "gtest/gtest.h"
 #include "test_system.h"
+#include "support/sysfs.h"
 
 const std::string single_sysfs_fme =
     "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0";
@@ -101,6 +102,15 @@ class sysfsinit_c_p : public ::testing::TestWithParam<std::string> {
     dev_fme = std::string("/dev/") + std::string(fme->sysfs_name);
     sysfs_port = std::string(port->sysfs_path);
     dev_port = std::string("/dev/") + std::string(port->sysfs_name);
+
+    struct stat st;
+    for (const char *p : { "/sys/class/fpga",
+                           "/sys/class/fpga_region" }) {
+      if (!stat(p, &st)) {
+        sysfs_class_fpga = p + strlen("/sys/class/");
+        break;
+      }
+    }
   }
   virtual void TearDown() override {
     xfpga_plugin_finalize();
@@ -160,6 +170,7 @@ class sysfsinit_c_p : public ::testing::TestWithParam<std::string> {
   std::string dev_fme;
   std::string sysfs_port;
   std::string dev_port;
+  std::string sysfs_class_fpga;
 };
 
 // convert segment, bus, device, function to a 32 bit number
@@ -320,6 +331,14 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
     dev_fme = std::string("/dev/") + std::string(fme->sysfs_name);
     sysfs_port = std::string(port->sysfs_path);
     dev_port = std::string("/dev/") + std::string(port->sysfs_name);
+    struct stat st;
+    for (const char *p : { "/sys/class/fpga",
+                           "/sys/class/fpga_region" }) {
+      if (!stat(p, &st)) {
+        sysfs_class_fpga = p + strlen("/sys/class/");
+        break;
+      }
+    }
   }
 
   virtual void TearDown() override {
@@ -349,6 +368,7 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
   std::string dev_fme;
   std::string sysfs_port;
   std::string dev_port;
+  std::string sysfs_class_fpga;
 };
 
 
@@ -371,6 +391,23 @@ TEST(sysfs_c, eintr_write_tests) {
   EXPECT_EQ(std::system("rm empty_file.txt"), 0);
 }
 
+TEST_P(sysfs_c_p, sysfs_enum_class) {
+  std::cout << GetParam() << "\n";
+  std::vector<sysfs_object> objects(0);
+  auto count = sysfs_enum_class(sysfs_class_fpga.c_str(), objects.data(),
+                                objects.size());
+  ASSERT_NE(count, 0);
+  objects.resize(count);
+  ASSERT_EQ(count, sysfs_enum_class(sysfs_class_fpga.c_str(), objects.data(),
+                                    objects.size()));
+  for (auto &o : objects) {
+    std::cout << "object: " << o.sysfs_path << " -> " << o.pci_object->pci_bus_path << "\n";
+    auto root = sysfs_root_port(&o);
+    printf("root port: %04X:%02X:%02X.%d\n", root->segment, root->bus, root->device, root->function);
+  }
+
+  std::cout << "done\n";
+}
 
 /**
 * @test    sysfs_invalid_tests

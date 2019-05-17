@@ -98,7 +98,10 @@ target_include_directories(xfpga-static PUBLIC
   $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>
   PRIVATE ${OPAE_SDK_SOURCE}/libopae/plugins/xfpga
+  PRIVATE ${OPAE_SDK_SOURCE}/libopae
   PRIVATE ${OPAE_SDK_SOURCE}/libopae)
+
+target_link_libraries(xfpga-static sysfs-c)
 
 add_library(ase-static STATIC
         ${OPAE_SDK_SOURCE}/libopae/plugins/ase/sw/tstamp_ops.c

@@ -88,12 +88,14 @@ target_link_libraries(opae-c-ase
 
 set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
+add_subdirectory(support)
 add_subdirectory(plugins)
 
 install(TARGETS opae-c
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
   COMPONENT opaeclib)
-  
+
+
 install(TARGETS opae-c-ase
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
   COMPONENT opaeclib)
