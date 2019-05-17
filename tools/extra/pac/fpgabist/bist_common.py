@@ -25,6 +25,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import glob
+import json
 import os
 import re
 import subprocess
@@ -32,8 +33,11 @@ import sys
 
 # TODO: Use AFU IDs vs. names of AFUs
 BIST_MODES = ['bist_afu', 'dma_afu', 'nlb_mode_3']
-REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf', 'fpgadiag', 'fpga_dma_test',
+REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf','fpgadiag', 'fpga_dma_test', 'fpga_dma_vc_test'
             'bist_app']
+BDF_PATTERN = (r'\d+:(?P<bus>[a-fA-F0-9]{2}):'
+               r'(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9])')
+VCP_ID = 0x0b30
 
 
 def find_exec(cmd, paths):
@@ -50,26 +54,50 @@ def check_required_cmds():
         sys.exit("Failed to find required BIST commands\nTerminating BIST")
 
 
+def get_afu_id(gbs_path=""):
+    if os.path.isfile(gbs_path):
+        cmd = ["packager", "gbs-info", "--gbs={}".format(gbs_path)]
+        output = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        json_data = json.loads(output.communicate()[0])
+        accel_data = json_data["afu-image"]["accelerator-clusters"]
+        uuid = accel_data[0]["accelerator-type-uuid"].encode("ascii")
+        return uuid.lower().replace("-", "")
+    else:
+        bdf_pattern = re.compile(BDF_PATTERN)
+        for fpga in glob.glob('/sys/class/fpga/*'):
+            slink = os.path.basename(os.readlink(os.path.join(fpga, "device")))
+            m = bdf_pattern.match(slink)
+            if m:
+                id_path = os.path.join(fpga, 'intel-fpga-port.0', 'afu_id')
+                with open(id_path) as f:
+                    uuid = f.read().rstrip("\n")
+                    return uuid.lower()
+    return None
+
+
 # Return a list of all available bus numbers
-def get_all_fpga_bdfs():
-    pattern = (r'\d+:(?P<bus>[a-fA-F0-9]{2}):'
-               r'(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9])')
-    bdf_pattern = re.compile(pattern)
+def get_all_fpga_bdfs(args):
+    bdf_pattern = re.compile(BDF_PATTERN)
     bdf_list = []
     for fpga in glob.glob('/sys/class/fpga/*'):
-        symlink = os.path.basename(os.readlink(os.path.join(fpga, "device")))
+        devpath = os.path.join(fpga, "device")
+        symlink = os.path.basename(os.readlink(devpath))
         m = bdf_pattern.match(symlink)
         data = m.groupdict() if m else {}
         if data:
-            bdf_list.append(dict([(k, hex(int(v, 16)).lstrip("0x"))
-                            for (k, v) in data.iteritems()]))
+            with open(os.path.join(devpath, "device"), 'r') as fd:
+                device_id = fd.read().strip()
+            if int(device_id, 16) == int(vars(args)['device_id'], 16):
+                bdf_list.append(dict([(k, hex(int(v, 16)).lstrip("0x"))
+                                for (k, v) in data.iteritems()]))
     return bdf_list
 
 
 def get_bdf_from_args(args):
     pattern = (r'(?P<bus>[a-fA-F0-9]{2}):'
                r'(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9]).*?.')
-    bdf_pattern = re.compile(pattern)
+    dev_id = r'{:04x}'.format(int(vars(args)['device_id'], 16))
+    bdf_pattern = re.compile(pattern+dev_id)
     bdf_list = []
     param = ':{}:{}.{}'.format(
             hex(int(vars(args)['bus'], 16))
@@ -81,8 +109,7 @@ def get_bdf_from_args(args):
     host = subprocess.check_output(['lspci', '-s', param])
     matches = re.findall(bdf_pattern, host)
     for bus, device, function in matches:
-        bdf_list.append({'bus': bus, 'device': device,
-                        'function': function})
+        bdf_list.append({'bus': bus, 'device': device, 'function': function})
     return bdf_list
 
 
@@ -95,9 +122,9 @@ def get_mode_from_path(gbs_path):
 
 def load_gbs(gbs_file, bus_num):
     print "Attempting Partial Reconfiguration:"
-    cmd = ['fpgaconf', '-B', '0x{}'.format(bus_num), '-v', gbs_file]
+    cmd = "{} -B 0x{} -v {}".format('fpgaconf', bus_num, gbs_file)
     try:
-        subprocess.check_call(cmd)
+        subprocess.check_call(cmd, shell=True)
     except subprocess.CalledProcessError as e:
         print "Failed to load gbs file: {}".format(gbs_file)
         print "Please try a different gbs"
@@ -106,6 +133,7 @@ def load_gbs(gbs_file, bus_num):
 
 class BistMode(object):
     name = ""
+    afu_id = ""
     executables = {}
     dir_path = ""
 
@@ -127,5 +155,5 @@ def global_arguments(parser):
     parser.add_argument('-F', '--function', type=str,
                         help='Function number for specific FPGA')
 
-    parser.add_argument('gbs_paths', nargs='+', type=str,
+    parser.add_argument('gbs_paths', nargs='*', type=str,
                         help='Paths for the gbs files for BIST')

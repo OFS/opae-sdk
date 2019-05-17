@@ -30,21 +30,48 @@ import subprocess
 
 import bist_common as bc
 
+dma_list = {bc.VCP_ID: {0: ('DDR4_A', 4*1024*1024*1024),
+                        1: ('DDR4_B', 4*1024*1024*1024),
+                        2: ('DDR4_C', 1*1024*1024*1024),
+                        3: ('QDR', 16*1024*1024)}
+            }
+
 
 class DmaMode(bc.BistMode):
     name = "dma_afu"
+    afu_id = "331db30c-9885-41ea-9081-f88b8f655caa"
 
     def __init__(self):
-        self.executables = {'fpga_dma_test': ' 0'}
+        self.executables = {'fpga_dma_test': '0','fpga_dma_vc_test': '0x0b30'}
 
-    def run(self, gbs_path, bus_num):
-        bc.load_gbs(gbs_path, bus_num)
+    def run_cmd(self, cmd):
+        ret = 0
+        try:
+            subprocess.check_call(cmd, shell=True)
+        except subprocess.CalledProcessError as e:
+            print "Failed Test: {}".format(cmd)
+            print e
+            ret = 1
+        return ret
+
+    def run(self, gbs_path, bus_num, bd_id=0, guid=''):
+        if gbs_path:
+            bc.load_gbs(gbs_path, bus_num)
+        ret = 0
         for func, param in self.executables.items():
-            print "Running {} test...\n".format(func)
-            cmd = [func, param, bus_num]
-            try:
-                subprocess.check_call(cmd)
-            except subprocess.CalledProcessError as e:
-                print "Failed Test: {}".format(func)
-                print e
+            if bd_id in dma_list:
+                for i, c in dma_list[bd_id].items():
+                    name, size = c
+                    cmd = "{} {} -B 0x{} -D {} -S {}".format(func, param,
+                                                             bus_num, i, size)
+                    if guid:
+                        cmd += ' -G {}'.format(guid)
+                    print "Running {} test on {}...\n".format(func, name)
+                    ret += self.run_cmd(cmd)
+            else:
+                print "Running {} test...\n".format(func)
+                cmd = "{} {} {}".format(func, param, bus_num)
+                ret += self.run_cmd(cmd)
+
         print "Finished Executing DMA Tests\n"
+        return ret

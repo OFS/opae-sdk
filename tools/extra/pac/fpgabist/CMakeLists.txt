@@ -28,11 +28,14 @@
 set(PYTHON_SRC
      bist_app.py
      bist_common.py
+     bist_def.py
      bist_dma.py
+     bist_nlb0.py
      bist_nlb3.py
      fpgabist)
 
  add_subdirectory(dma)
+ add_subdirectory(dma_vc)
  add_subdirectory(bist)
 
 install(PROGRAMS ${PYTHON_SRC}

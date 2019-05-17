@@ -29,56 +29,91 @@ import argparse
 import sys
 import subprocess
 import os
+import re
 
 import bist_app
 import bist_common
+import bist_def
 import bist_dma
 import bist_nlb3
+import bist_nlb0
 
 FEATURES = ['fme', 'port', 'temp', 'power', 'errors all']
+PRIVATE_FEATURES = {bist_common.VCP_ID: ['phy', 'mac']}
+
+
+def get_afu_id(bus):
+    cmd = 'fpgainfo port -B 0x{}'.format(bus)
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+    output, _ = p.communicate()
+    m = re.search('Accelerator Id\s+:\s(\S+)', output)
+    afu_id = (m.group(1) if m else m)
+    return afu_id
 
 
 def main(args):
-    bdf = bist_common.get_all_fpga_bdfs()
+    bdf = bist_common.get_all_fpga_bdfs(args)
     if not bdf:
-        sys.exit("No FPGA devices found")
+        if vars(args)['device_id'] == '09c4':
+            sys.exit("Please use '-i' option to specify FPGA device ID "
+                     "other than 09c4")
+        else:
+            sys.exit("No FPGA devices of device ID {} found"
+                     .format(vars(args)['device_id']))
     elif len(bdf) > 1 and not any([args.bus, args.device, args.function]):
         sys.exit("Multiple cards found. Specify a bus, device or function")
     elif any([vars(args)['bus'], vars(args)['device'],
               vars(args)['function']]):
         bdf = bist_common.get_bdf_from_args(args)
         if len(bdf) > 1 or not bdf:
-            sys.exit("Could not find fpga, please try again")
+            sys.exit("Could not find specified FPGA, please try again")
     bdf = bdf[0]
     start = "==========================================================\n\n" \
             "Beginning FPGA Built-In Self-Test\n\n"\
             "=========================================================="
     print start
 
-    # TODO: Add Opae version information
-    print "Device: bus = {}, device = {}, func = {}".format(
-            bdf['bus'], bdf['device'], bdf['function'])
-
     # Display data from FPGA info
-    for feature in FEATURES:
-        cmd = ['fpgainfo', feature, '-B', '0x{}'.format(bdf['bus'])]
-        subprocess.call(cmd)
+    dev_id = int(vars(args)['device_id'], 16)
+    afu_id = get_afu_id(bdf['bus'])
+    ret = 0
+    for feature in (FEATURES + PRIVATE_FEATURES.get(dev_id, [])):
+        cmd = "fpgainfo {} -B 0x{}".format(feature, bdf['bus'])
+        ret += subprocess.call(cmd, shell=True)
+        print("\n")
 
-    gbs_paths = args.gbs_paths
-    for path in gbs_paths:
-        mode_name = bist_common.get_mode_from_path(path)
-        if mode_name == 'nlb_mode_3':
-            mode = bist_nlb3.Nlb3Mode()
-        elif mode_name == 'dma_afu':
-            mode = bist_dma.DmaMode()
-        elif mode_name == 'bist_afu':
-            mode = bist_app.BistMode()
-        else:
-            sys.exit("Unknown AFU for available BIST Modes: {}\n".format(path))
-        print "Running mode: {}".format(mode.name)
-        mode.run(path, bdf['bus'])
+    if dev_id == bist_common.VCP_ID:
+        for name in ['nlb0', 'dma']:
+            module = 'bist_{}'.format(name)
+            mode = getattr(sys.modules.get(module),
+                           '{}Mode'.format(name.capitalize()))()
+            print "Running mode: {}".format(mode.name)
+            ret += mode.run(None, bdf['bus'], bist_common.VCP_ID, afu_id)
+    else:
+        gbs_paths = args.gbs_paths
+        afu_ids = {}
+        for path in gbs_paths:
+            afu_ids.update({bist_common.get_afu_id(path): path})
+        if not gbs_paths:
+            # Get the afu ID of the afu in the slot (defaut persona)
+            afu_ids.update({bist_common.get_afu_id(): ""})
+
+        for afu_id in afu_ids.keys():
+            if afu_id == bist_def.DefaultMode().afu_id.replace("-", ""):
+                mode = bist_def.DefaultMode()
+            elif afu_id == bist_nlb3.Nlb3Mode().afu_id.replace("-", ""):
+                mode = bist_nlb3.Nlb3Mode()
+            elif afu_id == bist_dma.DmaMode().afu_id.replace("-", ""):
+                mode = bist_dma.DmaMode()
+            elif afu_id == bist_app.BistMode().afu_id.replace("-", ""):
+                mode = bist_app.BistMode()
+            else:
+                sys.exit("Unknown AFU for available ID {}\n".format(afu_id))
+            print "Running mode: {}".format(mode.name)
+            ret += mode.run(afu_ids.get(afu_id), bdf['bus'])
 
     print "\nBuilt-in Self-Test Completed.\n"
+    sys.exit(ret)
 
 
 if __name__ == "__main__":
