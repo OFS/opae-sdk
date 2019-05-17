@@ -325,8 +325,7 @@ bool nlb0::setup()
     uint32_t offset = 0;
     uint64_t dfh = 0;
 
-    uint8_t* n = static_cast<uint8_t *>(&nlb0_id)
-    //uint8_t* n = (uint8_t *)&nlb0_id;
+    uint8_t* n = static_cast<uint8_t *>(&nlb0_id[0]);
     uint64_t nlb0_hi = bswap_64(*n);
     uint64_t nlb0_lo = bswap_64(*(n+8));
 
