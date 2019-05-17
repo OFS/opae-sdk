@@ -46,7 +46,7 @@ def get_afu_id(bus):
     cmd = 'fpgainfo port -B 0x{}'.format(bus)
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     output, _ = p.communicate()
-    m = re.search('Accelerator Id\s+:\s(\S+)', output)
+    m = re.search('Accelerator Id\\s+:\\s(\S+)', output)
     afu_id = (m.group(1) if m else m)
     return afu_id
 

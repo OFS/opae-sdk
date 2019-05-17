@@ -33,8 +33,8 @@ import sys
 
 # TODO: Use AFU IDs vs. names of AFUs
 BIST_MODES = ['bist_afu', 'dma_afu', 'nlb_mode_3']
-REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf','fpgadiag', 'fpga_dma_test', 'fpga_dma_vc_test'
-            'bist_app']
+REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf', 'fpgadiag', 'fpga_dma_test',
+            'fpga_dma_vc_test', 'bist_app']
 BDF_PATTERN = (r'\d+:(?P<bus>[a-fA-F0-9]{2}):'
                r'(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9])')
 VCP_ID = 0x0b30
