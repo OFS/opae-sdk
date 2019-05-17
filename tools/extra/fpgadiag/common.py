@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # Copyright(c) 2019, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -37,8 +36,8 @@ import fcntl
 import stat
 import struct
 
-pattern = (r'.*/\d+:(?P<bus>[\da-f]{2}):'
-           r'(?P<dev>[\da-f]{2})\.(?P<func>\d).*')
+pattern = (r'.*(?P<segment>\w{4}):(?P<bus>\w{2}):'
+           r'(?P<dev>\w{2})\.(?P<func>\d).*')
 
 bdf_pattern = re.compile(pattern)
 
@@ -66,7 +65,8 @@ def convert_argument_str2hex(args, arg_list):
 
 
 class FpgaFinder(object):
-    def __init__(self, bus, dev, func):
+    def __init__(self, segment, bus, dev, func):
+        self.segment = segment
         self.bus = bus
         self.dev = dev
         self.func = func
@@ -126,26 +126,32 @@ class COMMON(object):
     rd_len = struct.calcsize(rd_fmt)
     wr_len = struct.calcsize(wr_fmt)
 
-    def ioctl(self, handler, op, data):
-        if isinstance(handler, str):
-            with open(handler, 'rw') as f:
+    def ioctl(self, file, op, data):
+        if isinstance(file, str):
+            with open(file, 'rw') as f:
                 ret = self._ioctl(f, op, data)
         else:
-            ret = self._ioctl(handler, op, data)
+            ret = self._ioctl(file, op, data)
         return ret
 
-    def _ioctl(self, handler, op, data):
+    def _ioctl(self, file, op, data):
         try:
-            ret = fcntl.ioctl(handler, op, data)
+            ret = fcntl.ioctl(file, op, data)
+        except IOError:
+            traceback.print_exc()
+            file.close()
+            exception_quit('ioctl IOError: {}'.format(e))
         except Exception as e:
             traceback.print_exc()
-            handler.close()
+            file.close()
             exception_quit('ioctl fail: {}'.format(e))
         return ret
 
-    # f: fpga handler
+    # f: fpga file
     # phy: phy index
     # reg: fpga register offset
+    # comp: ethernet array index
+    # dev: device handle
     # idx: propose to change the register field lowest bit index
     # width: propose to change register field length
     # value: propose to change register field value
@@ -232,12 +238,14 @@ class COMMON(object):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--segment')
     parser.add_argument('--bus')
     parser.add_argument('--device')
     parser.add_argument('--function')
     args, left = parser.parse_known_args()
-    args = convert_argument_str2hex(args, ['bus', 'device', 'function'])
-    finder = FpgaFinder(args.bus, args.device, args.function)
+    args = convert_argument_str2hex(
+        args, ['segment', 'bus', 'device', 'function'])
+    finder = FpgaFinder(args.segment, args.bus, args.device, args.function)
     finder.find()
     print('find {} node'.format(len(finder.match_dev)))
     for n in finder.match_dev:

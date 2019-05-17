@@ -31,19 +31,13 @@
 #include "csr.h"
 #include "log.h"
 #include <chrono>
+#include <byteswap.h>
 
 #define AFU_DFH_EOL_OFFSET 40
 #define NEXT_DFH_OFFSET(dfh) ((dfh >> 16) & 0xffffff)
 #define DFH_EOL(dfh) ((((dfh >> AFU_DFH_EOL_OFFSET) & 1) == 1) || \
                         (NEXT_DFH_OFFSET(dfh)==0))
-#define swap64(type, ptr) (((type)(*(ptr))<<56)  | \
-                          ((type)(*(ptr+1))<<48) | \
-                          ((type)(*(ptr+2))<<40) | \
-                          ((type)(*(ptr+3))<<32) | \
-                          ((type)(*(ptr+4))<<24) | \
-                          ((type)(*(ptr+5))<<16) | \
-                          ((type)(*(ptr+6))<<8)  | \
-                          ((type)(*(ptr+7))))
+                        
 
 namespace intel
 {
@@ -73,6 +67,31 @@ public:
     virtual uint64_t                   cachelines()     const override { return cachelines_; }
 
     void show_help(std::ostream &os);
+    
+    template<typename T>
+    uint32_t read_csr32(T address)
+    {
+    	return accelerator_->read_csr32(static_cast<uint32_t>(address) + offset_);
+    }
+    
+    template<typename T>
+    uint64_t read_csr64(T address)
+    {
+    	return accelerator_->read_csr32(static_cast<uint32_t>(address) + offset_);
+    }
+    
+    template<typename T>
+    void write_csr32(T address, uint32_t value)
+    {
+    	accelerator_->write_csr32(static_cast<uint32_t>(address) + offset_, value);
+    }
+    
+    template<typename T>
+    void write_csr64(T address, uint64_t value)
+    {
+    	accelerator_->write_csr64(static_cast<uint32_t>(address) + offset_, value);
+    }
+
 
 
 private:

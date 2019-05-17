@@ -324,9 +324,11 @@ bool nlb0::setup()
 
     uint32_t offset = 0;
     uint64_t dfh = 0;
-    uint8_t* n = (uint8_t *)&nlb0_id;
-    uint64_t nlb0_hi = swap64(uint64_t, n);
-    uint64_t nlb0_lo = swap64(uint64_t, n+8);
+
+    uint8_t* n = static_cast<uint8_t *>(&nlb0_id)
+    //uint8_t* n = (uint8_t *)&nlb0_id;
+    uint64_t nlb0_hi = bswap_64(*n);
+    uint64_t nlb0_lo = bswap_64(*(n+8));
 
     // enumerate dfh if input id arguement 
     if (options_.find("id")) {
@@ -359,7 +361,7 @@ bool nlb0::setup()
     // TODO: Infer pclock from the device id
     // For now, get the pclock frequency from status2 register
     // that frequency (MHz) is encoded in bits [47:32]
-    uint64_t s2 = accelerator_->read_csr64(static_cast<uint32_t>(nlb0_csr::status2) + offset_);
+    uint64_t s2 = accelerator_->read_csr64(static_cast<uint32_t>(nlb0_csr::status2));
     uint32_t freq = (s2 >> 32) & 0xffff;
     if (freq > 0) {
          // frequency_ is in Hz
@@ -420,17 +422,17 @@ bool nlb0::run()
     accelerator_->reset();
 
     // set dsm base, high then low
-    accelerator_->write_csr64(static_cast<uint32_t>(nlb0_dsm::basel)+offset_, reinterpret_cast<uint64_t>(dsm_->io_address()));
+    accelerator_->write_csr64(static_cast<uint32_t>(nlb0_dsm::basel), reinterpret_cast<uint64_t>(dsm_->io_address()));
     // assert afu reset
-    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl)+offset_, 0);
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 0);
     // de-assert afu reset
-    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl)+offset_, 1);
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 1);
     // set input workspace address
-    accelerator_->write_csr64(static_cast<uint32_t>(nlb0_csr::src_addr)+offset_, CACHELINE_ALIGNED_ADDR(inp->io_address()));
+    accelerator_->write_csr64(static_cast<uint32_t>(nlb0_csr::src_addr), CACHELINE_ALIGNED_ADDR(inp->io_address()));
     // set output workspace address
-    accelerator_->write_csr64(static_cast<uint32_t>(nlb0_csr::dst_addr)+offset_, CACHELINE_ALIGNED_ADDR(out->io_address()));
+    accelerator_->write_csr64(static_cast<uint32_t>(nlb0_csr::dst_addr), CACHELINE_ALIGNED_ADDR(out->io_address()));
     // set the test mode
-    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::cfg)+offset_, cfg_.value());
+    accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::cfg), cfg_.value());
 
     for (size_t i = 0; i < inp->size(); ++i)
     {
@@ -444,12 +446,12 @@ bool nlb0::run()
         out->fill(0);
 
         // assert afu reset
-        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl)+offset_, 0);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 0);
         // de-assert afu reset
-        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl)+offset_, 1);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 1);
 
         // set number of cache lines for test
-        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::num_lines)+offset_, i);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::num_lines), i);
 
         // Read perf counters.
         fpga_cache_counters  start_cache_ctrs;
@@ -460,13 +462,13 @@ bool nlb0::run()
             start_fabric_ctrs = fpga_fabric_counters(fme_token);
         }
         // start the test
-        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl)+offset_, 3);
+        accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 3);
 
         if (cont_)
         {
             std::this_thread::sleep_for(cont_timeout_);
             // stop the device
-            accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl)+offset_, 7);
+            accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
             if (!buffer_wait(dsm_, static_cast<size_t>(nlb0_dsm::test_complete),
                            std::chrono::microseconds(10), dsm_timeout_, 0x1, 1))
             {
@@ -485,7 +487,7 @@ bool nlb0::run()
                 return false;
             }
             // stop the device
-            accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl)+offset_, 7);
+            accelerator_->write_csr32(static_cast<uint32_t>(nlb0_csr::ctl), 7);
         }
         cachelines_ += i;
         // if we don't suppress stats then we show them at the end of each iteration
@@ -525,7 +527,7 @@ bool nlb0::run()
         {
             // CSR_STATUS1 holds two 32 bit values: num pending reads and writes.
             // Wait for it to be 0.
-            uint64_t s1 = accelerator_->read_csr64(static_cast<uint32_t>(nlb0_csr::status1)+offset_);
+            uint64_t s1 = accelerator_->read_csr64(static_cast<uint32_t>(nlb0_csr::status1));
             if (s1 == 0)
             {
                 break;

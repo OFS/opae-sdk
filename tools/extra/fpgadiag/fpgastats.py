@@ -32,15 +32,15 @@ import argparse
 
 
 class FPGASTATS(COMMON):
-    stats_10g = (('tx_stats_framesOK', 0x142, 1),
-                 ('rx_stats_framesOK', 0x1c2, 1),
-                 ('tx_stats_pauseMACCtrl_Frames', 0x14a, 1),
-                 ('rx_stats_pauseMACCtrl_Frames', 0x1ca, 1),
-                 ('tx_stats_framesErr', 0x144, 1),
-                 ('rx_stats_framesErr', 0x1c4, 1),
-                 ('rx_stats_framesCRCErr', 0x1c6, 1),
-                 ('tx_stats_ifErrors', 0x14c, 1),
-                 ('rx_stats_ifErrors', 0x1cc, 1))
+    stats_10g = (('TX_STATS_FRAMESOK', 0x142, 1),
+                 ('RX_STATS_FRAMESOK', 0x1c2, 1),
+                 ('TX_STATS_PAUSEMACCTRL_FRAMES', 0x14a, 1),
+                 ('RX_STATS_PAUSEMACCTRL_FRAMES', 0x1ca, 1),
+                 ('TX_STATS_FRAMESERR', 0x144, 1),
+                 ('RX_STATS_FRAMESERR', 0x1c4, 1),
+                 ('RX_STATS_FRAMESCRCERR', 0x1c6, 1),
+                 ('TX_STATS_FRAMESIFERR', 0x14c, 1),
+                 ('RX_STATS_FRAMESIFERR', 0x1cc, 1))
     stats_25_40g = (('CNTR_TX_FRAGMENTS', 0x800, 2),
                     ('CNTR_TX_JABBERS', 0x802, 2),
                     ('CNTR_TX_FCS', 0x804, 2),
@@ -153,6 +153,8 @@ class FPGASTATS(COMMON):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--segment', '-S',
+                        help='Segment number of PCIe device')
     parser.add_argument('--bus', '-B',
                         help='Bus number of PCIe device')
     parser.add_argument('--device', '-D',
@@ -161,12 +163,13 @@ def main():
                         help='Function number of PCIe device')
     args, left = parser.parse_known_args()
 
-    args = convert_argument_str2hex(args, ['bus', 'device', 'function'])
+    args = convert_argument_str2hex(
+        args, ['segment', 'bus', 'device', 'function'])
 
-    f = FpgaFinder(args.bus, args.device, args.function)
+    f = FpgaFinder(args.segment, args.bus, args.device, args.function)
     devs = f.find()
     for d in devs:
-        print('bus:{bus:#x} device:{dev:#x} function:{func:#x}'.format(**d))
+        print('bdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))
     if len(devs) > 1:
         exception_quit('{} FPGAs are found\nplease choose '
                        'one FPGA'.format(len(devs)))
