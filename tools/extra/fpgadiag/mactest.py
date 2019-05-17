@@ -120,6 +120,8 @@ class MacromCompare(COMMON):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--segment', '-S',
+                        help='Segment number of PCIe device')
     parser.add_argument('--bus', '-B',
                         help='Bus number of PCIe device')
     parser.add_argument('--device', '-D',
@@ -132,13 +134,13 @@ def main():
     args, left = parser.parse_known_args()
 
     args = convert_argument_str2hex(
-        args, ['bus', 'device', 'function', 'offset'])
+        args, ['segment', 'bus', 'device', 'function', 'offset'])
 
-    f = FpgaFinder(args.bus, args.device, args.function)
+    f = FpgaFinder(args.segment, args.bus, args.device, args.function)
     devs = f.find()
     for d in devs:
         print(
-            'bus:0x{bus:x} device:0x{dev:x} function:0x{func:x}'.format(
+            'bdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(
                 **d))
     if len(devs) > 1:
         exception_quit('{} FPGAs are found\nplease choose '

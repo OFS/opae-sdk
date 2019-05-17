@@ -158,6 +158,8 @@ class FPGALPBK(COMMON):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--segment', '-S',
+                        help='Segment number of PCIe device')
     parser.add_argument('--bus', '-B',
                         help='Bus number of PCIe device')
     parser.add_argument('--device', '-D',
@@ -197,7 +199,8 @@ def main():
         op = 'enable' if args.en else 'disable'
         print('{} fpga loopback'.format(op))
 
-    args = convert_argument_str2hex(args, ['bus', 'device', 'function'])
+    args = convert_argument_str2hex(
+        args, ['segment', 'bus', 'device', 'function'])
 
     if not args.type:
         if ((args.side == 'line' and args.direction == 'local') or
@@ -207,10 +210,10 @@ def main():
             exception_quit(
                 'missing argument --type [serial | precdr | postcdr]')
 
-    f = FpgaFinder(args.bus, args.device, args.function)
+    f = FpgaFinder(args.segment, args.bus, args.device, args.function)
     devs = f.find()
     for d in devs:
-        print('bus:0x{bus:x} device:0x{dev:x} function:0x{func:x}'.format(**d))
+        print('bdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))
     if len(devs) > 1:
         exception_quit('{} FPGAs are found\nplease choose '
                        'one FPGA'.format(len(devs)))

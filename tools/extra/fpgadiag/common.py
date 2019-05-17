@@ -37,8 +37,8 @@ import fcntl
 import stat
 import struct
 
-pattern = (r'.*/\d+:(?P<bus>\w{2}):'
-           r'(?P<dev>\d{2})\.(?P<func>\d).*')
+pattern = (r'.*(?P<segment>\w{4}):(?P<bus>\w{2}):'
+           r'(?P<dev>\w{2})\.(?P<func>\d).*')
 
 bdf_pattern = re.compile(pattern)
 
@@ -66,7 +66,8 @@ def convert_argument_str2hex(args, arg_list):
 
 
 class FpgaFinder(object):
-    def __init__(self, bus, dev, func):
+    def __init__(self, segment, bus, dev, func):
+        self.segment = segment
         self.bus = bus
         self.dev = dev
         self.func = func
@@ -232,12 +233,14 @@ class COMMON(object):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--segment')
     parser.add_argument('--bus')
     parser.add_argument('--device')
     parser.add_argument('--function')
     args, left = parser.parse_known_args()
-    args = convert_argument_str2hex(args, ['bus', 'device', 'function'])
-    finder = FpgaFinder(args.bus, args.device, args.function)
+    args = convert_argument_str2hex(
+        args, ['segment', 'bus', 'device', 'function'])
+    finder = FpgaFinder(args.segment, args.bus, args.device, args.function)
     finder.find()
     print('find {} node'.format(len(finder.match_dev)))
     for n in finder.match_dev:

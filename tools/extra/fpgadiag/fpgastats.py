@@ -154,6 +154,8 @@ class FPGASTATS(COMMON):
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--segment', '-S',
+                        help='Segment number of PCIe device')
     parser.add_argument('--bus', '-B',
                         help='Bus number of PCIe device')
     parser.add_argument('--device', '-D',
@@ -162,12 +164,13 @@ def main():
                         help='Function number of PCIe device')
     args, left = parser.parse_known_args()
 
-    args = convert_argument_str2hex(args, ['bus', 'device', 'function'])
+    args = convert_argument_str2hex(
+        args, ['segment', 'bus', 'device', 'function'])
 
-    f = FpgaFinder(args.bus, args.device, args.function)
+    f = FpgaFinder(args.segment, args.bus, args.device, args.function)
     devs = f.find()
     for d in devs:
-        print('bus:{bus:#x} device:{dev:#x} function:{func:#x}'.format(**d))
+        print('bdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))
     if len(devs) > 1:
         exception_quit('{} FPGAs are found\nplease choose '
                        'one FPGA'.format(len(devs)))
