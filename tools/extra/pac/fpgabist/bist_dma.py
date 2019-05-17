@@ -42,7 +42,8 @@ class DmaMode(bc.BistMode):
     afu_id = "331db30c-9885-41ea-9081-f88b8f655caa"
 
     def __init__(self):
-        self.executables = {'fpga_dma_test': '0','fpga_dma_vc_test': '0x0b30'}
+        self.executables = {'fpga_dma_test': '0',
+                            'fpga_dma_vc_test': '0x0b30'}
 
     def run_cmd(self, cmd):
         ret = 0
