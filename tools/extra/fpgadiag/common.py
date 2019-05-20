@@ -87,7 +87,7 @@ class FpgaFinder(object):
 
     def get_fpga_device_list(self):
         if os.path.exists(FPGA_ROOT_PATH):
-            paths = glob.glob(os.path.join(root_path, 'intel-fpga-dev.*'))
+            paths = glob.glob(os.path.join(FPGA_ROOT_PATH, 'intel-fpga-dev.*'))
             for p in paths:
                 bdf = self.read_bdf(os.path.join(p, 'device'))
                 if bdf:
