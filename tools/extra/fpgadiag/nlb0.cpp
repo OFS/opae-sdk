@@ -329,7 +329,7 @@ bool nlb0::setup()
     uint64_t nlb0_hi = bswap_64(*n);
     uint64_t nlb0_lo = bswap_64(*(n+8));
 
-    // enumerate dfh if input id arguement 
+    // enumerate dfh if input id argument 
     if (options_.find("id")) {
 
         bool found = false;

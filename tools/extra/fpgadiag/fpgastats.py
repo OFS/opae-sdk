@@ -127,7 +127,8 @@ class FPGASTATS(COMMON):
                 v = self.fpga_eth_reg_read(handler, comp, dev, addr)
                 data += (0xffffffff & v) << (32 * l)
             print("{0: <12}".format(data), end=' | ')
-
+        # Output prints in new line
+        print()
     def print_stats(self, info):
         for w in info:
             _, self.mac_number, spd, node = info[w]
@@ -136,7 +137,8 @@ class FPGASTATS(COMMON):
             print("{0: <30}".format('stats'), end=' | ')
             for i in range(self.mac_number):
                 print('mac {:<8}'.format(i), end=' | ')
-
+            # Output prints in new line
+            print()
             with open(node, 'rw') as handler:
                 stats, fifo_regs = ((self.stats_25_40g, self.fifo_stats_25_40g)
                                     if spd in [25, 40] else
@@ -169,7 +171,7 @@ def main():
     f = FpgaFinder(args.segment, args.bus, args.device, args.function)
     devs = f.find()
     for d in devs:
-        print('bdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))
+        print('bdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(*d))
     if len(devs) > 1:
         exception_quit('{} FPGAs are found\nplease choose '
                        'one FPGA'.format(len(devs)))

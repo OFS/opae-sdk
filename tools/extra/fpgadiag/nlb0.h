@@ -37,7 +37,7 @@
 #define NEXT_DFH_OFFSET(dfh) ((dfh >> 16) & 0xffffff)
 #define DFH_EOL(dfh) ((((dfh >> AFU_DFH_EOL_OFFSET) & 1) == 1) || \
                         (NEXT_DFH_OFFSET(dfh)==0))
-                        
+
 
 namespace intel
 {
