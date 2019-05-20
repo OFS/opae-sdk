@@ -41,7 +41,7 @@ pattern = (r'.*(?P<segment>\w{4}):(?P<bus>\w{2}):'
 
 bdf_pattern = re.compile(pattern)
 
-ROOT_PATH = '/sys/class/fpga'
+root_path = '/sys/class/fpga'
 char_dev = '/dev/char'
 
 
@@ -56,6 +56,11 @@ def convert_argument_str2hex(args, arg_list):
             try:
                 if getattr(args, i) is not None:
                     setattr(args, i, int(getattr(args, i), 16))
+            except AttributeError:
+               exception_quit(
+                   'Attribute is not found {}: {}'.format(
+                       i, getattr(
+                           args, i)))
             except BaseException:
                 exception_quit(
                     'Invalid input argument {}: {}'.format(
@@ -82,7 +87,7 @@ class FpgaFinder(object):
 
     def get_fpga_device_list(self):
         if os.path.exists(ROOT_PATH):
-            paths = glob.glob(os.path.join(ROOT_PATH, 'intel-fpga-dev.*'))
+            paths = glob.glob(os.path.join(root_path, 'intel-fpga-dev.*'))
             for p in paths:
                 bdf = self.read_bdf(os.path.join(p, 'device'))
                 if bdf:
@@ -91,7 +96,7 @@ class FpgaFinder(object):
 
     def find(self):
         if not self.all_devs:
-            print('No FPGA device find at {}'.format(ROOT_PATH))
+            print('No FPGA device find at {}'.format(root_path))
         for dev in self.all_devs:
             r = True
             for i in dev:
@@ -238,10 +243,14 @@ class COMMON(object):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--segment')
-    parser.add_argument('--bus')
-    parser.add_argument('--device')
-    parser.add_argument('--function')
+    parser.add_argument('--segment', '-S',
+                        help='Segment number of PCIe device')
+    parser.add_argument('--bus', '-B',
+                        help='Bus number of PCIe device')
+    parser.add_argument('--device', '-D',
+                        help='Device number of PCIe device')
+    parser.add_argument('--function', '-F',
+                        help='Function number of PCIe device')
     args, left = parser.parse_known_args()
     args = convert_argument_str2hex(
         args, ['segment', 'bus', 'device', 'function'])

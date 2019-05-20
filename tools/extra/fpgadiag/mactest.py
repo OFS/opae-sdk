@@ -35,7 +35,7 @@ from common import COMMON, convert_argument_str2hex
 
 sys_if = '/sys/class/net'
 divide = '-' * 80
-FVL_SIDE = 1
+fvl_side = 1
 
 
 class MacromCompare(COMMON):
@@ -54,7 +54,7 @@ class MacromCompare(COMMON):
     def get_netif_number(self):
         info = self.get_eth_group_info(self.args.eth_grps)
         for grp in info:
-            if grp == FVL_SIDE:
+            if grp == fvl_side:
                 self.number, _, spd, node = info[grp]
 
     def get_if_and_mac_list(self):
