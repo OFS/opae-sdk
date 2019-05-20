@@ -36,13 +36,13 @@ import fcntl
 import stat
 import struct
 
-pattern = (r'.*(?P<segment>\w{4}):(?P<bus>\w{2}):'
+PATTERN = (r'.*(?P<segment>\w{4}):(?P<bus>\w{2}):'
            r'(?P<dev>\w{2})\.(?P<func>\d).*')
 
-bdf_pattern = re.compile(pattern)
+BDF_PATTERN = re.compile(PATTERN)
 
-root_path = '/sys/class/fpga'
-char_dev = '/dev/char'
+FPGA_ROOT_PATH = '/sys/class/fpga'
+CHAR_DEV = '/dev/char'
 
 
 def exception_quit(msg, retcode=-1):
@@ -57,10 +57,10 @@ def convert_argument_str2hex(args, arg_list):
                 if getattr(args, i) is not None:
                     setattr(args, i, int(getattr(args, i), 16))
             except AttributeError:
-               exception_quit(
-                   'Attribute is not found {}: {}'.format(
-                       i, getattr(
-                           args, i)))
+                exception_quit(
+                    'Attribute is not found {}: {}'.format(
+                        i, getattr(
+                            args, i)))
             except BaseException:
                 exception_quit(
                     'Invalid input argument {}: {}'.format(
@@ -81,12 +81,12 @@ class FpgaFinder(object):
 
     def read_bdf(self, path):
         symlink = os.readlink(path)
-        m = bdf_pattern.match(symlink)
+        m = BDF_PATTERN.match(symlink)
         data = m.groupdict() if m else {}
         return dict([(k, int(v, 16)) for (k, v) in data.items()])
 
     def get_fpga_device_list(self):
-        if os.path.exists(ROOT_PATH):
+        if os.path.exists(FPGA_ROOT_PATH):
             paths = glob.glob(os.path.join(root_path, 'intel-fpga-dev.*'))
             for p in paths:
                 bdf = self.read_bdf(os.path.join(p, 'device'))
@@ -96,7 +96,7 @@ class FpgaFinder(object):
 
     def find(self):
         if not self.all_devs:
-            print('No FPGA device find at {}'.format(root_path))
+            print('No FPGA device find at {}'.format(FPGA_ROOT_PATH))
         for dev in self.all_devs:
             r = True
             for i in dev:
@@ -193,11 +193,11 @@ class COMMON(object):
         info = {}
         for eth_grp in eth_grps:
             with open(eth_grp, 'r') as f:
-                node = os.path.join(char_dev, f.readline().strip())
+                node = os.path.join(CHAR_DEV, f.readline().strip())
             data = struct.pack(self.if_fmt, self.if_len, *[0] * 5)
             ret = self.ioctl(
                 os.path.join(
-                    char_dev,
+                    CHAR_DEV,
                     node),
                 self.ETH_GROUP_GET_INFO,
                 data)

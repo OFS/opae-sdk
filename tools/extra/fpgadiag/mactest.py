@@ -33,10 +33,9 @@ import sys
 from common import FpgaFinder, exception_quit
 from common import COMMON, convert_argument_str2hex
 
-sys_if = '/sys/class/net'
-divide = '-' * 80
-fvl_side = 1
-
+SYS_IF = '/sys/class/net'
+DIVIDE = '-' * 80
+HOST_SIDE = 1
 
 class MacromCompare(COMMON):
     def __init__(self, args):
@@ -54,17 +53,17 @@ class MacromCompare(COMMON):
     def get_netif_number(self):
         info = self.get_eth_group_info(self.args.eth_grps)
         for grp in info:
-            if grp == fvl_side:
+            if grp == HOST_SIDE:
                 self.number, _, spd, node = info[grp]
 
     def get_if_and_mac_list(self):
         self.get_netif_number()
         pci_root = self.get_pci_common_root_path(self.args.fpga_root)
-        ifs = os.listdir(sys_if)
+        ifs = os.listdir(SYS_IF)
         for i in ifs:
-            root = self.get_pci_common_root_path(os.path.join(sys_if, i))
+            root = self.get_pci_common_root_path(os.path.join(SYS_IF, i))
             if pci_root == root:
-                with open(os.path.join(sys_if, i, 'address')) as f:
+                with open(os.path.join(SYS_IF, i, 'address')) as f:
                     self.ethif[i] = f.read().strip()
 
         if self.ethif:
@@ -72,7 +71,7 @@ class MacromCompare(COMMON):
             ethifs = sorted(self.ethif.items())
             for i in ethifs:
                 print('  {:<20} {}'.format(*i))
-            print(divide)
+            print(DIVIDE)
         else:
             exception_quit('No ethernet interface found!')
 
@@ -97,7 +96,7 @@ class MacromCompare(COMMON):
             self.mac.append(fmt_str)
         for m in self.mac:
             print('  {}'.format(m))
-        print(divide)
+        print(DIVIDE)
 
     def compare_eth_mac_with_macrom(self):
         result = 'PASS'
