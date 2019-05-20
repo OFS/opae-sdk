@@ -130,7 +130,6 @@ class FPGASTATS(COMMON):
         # Output prints in new line
         print()
 
-
     def print_stats(self, info):
         for w in info:
             _, self.mac_number, spd, node = info[w]

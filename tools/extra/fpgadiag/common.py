@@ -49,6 +49,7 @@ def exception_quit(msg, retcode=-1):
     print(msg)
     sys.exit(retcode)
 
+
 def hexint(val):
     return int(val, 16)
 
@@ -229,7 +230,7 @@ def main():
                         help='Bus number of PCIe device')
     parser.add_argument('--device', '-D', type=hexint,
                         help='Device number of PCIe device')
-    parser.add_argument('--function', '-F',type=hexint,
+    parser.add_argument('--function', '-F', type=hexint,
                         help='Function number of PCIe device')
     args, left = parser.parse_known_args()
 
