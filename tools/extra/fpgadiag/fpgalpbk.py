@@ -31,7 +31,7 @@ import time
 import struct
 import os
 from common import FpgaFinder, exception_quit, COMMON
-from common import convert_argument_str2hex
+from common import hexint
 
 FPGA_PHY_GROUP_ID = {'host': 1, 'line': 0}
 
@@ -158,13 +158,13 @@ class FPGALPBK(COMMON):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--segment', '-S',
+    parser.add_argument('--segment', '-S', type=hexint,
                         help='Segment number of PCIe device')
-    parser.add_argument('--bus', '-B',
+    parser.add_argument('--bus', '-B', type=hexint,
                         help='Bus number of PCIe device')
-    parser.add_argument('--device', '-D',
+    parser.add_argument('--device', '-D', type=hexint,
                         help='Device number of PCIe device')
-    parser.add_argument('--function', '-F',
+    parser.add_argument('--function', '-F', type=hexint,
                         help='Function number of PCIe device')
     parser.add_argument('--direction',
                         required=True,
@@ -198,9 +198,6 @@ def main():
     else:
         op = 'enable' if args.en else 'disable'
         print('{} fpga loopback'.format(op))
-
-    args = convert_argument_str2hex(
-        args, ['segment', 'bus', 'device', 'function'])
 
     if not args.type:
         if ((args.side == 'line' and args.direction == 'local') or

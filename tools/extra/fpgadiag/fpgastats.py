@@ -27,7 +27,7 @@
 
 from __future__ import print_function
 from common import exception_quit, FpgaFinder, COMMON
-from common import convert_argument_str2hex
+from common import hexint
 import argparse
 
 
@@ -129,6 +129,8 @@ class FPGASTATS(COMMON):
             print("{0: <12}".format(data), end=' | ')
         # Output prints in new line
         print()
+
+
     def print_stats(self, info):
         for w in info:
             _, self.mac_number, spd, node = info[w]
@@ -155,23 +157,20 @@ class FPGASTATS(COMMON):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--segment', '-S',
+    parser.add_argument('--segment', '-S', type=hexint,
                         help='Segment number of PCIe device')
-    parser.add_argument('--bus', '-B',
+    parser.add_argument('--bus', '-B', type=hexint,
                         help='Bus number of PCIe device')
-    parser.add_argument('--device', '-D',
+    parser.add_argument('--device', '-D', type=hexint,
                         help='Device number of PCIe device')
-    parser.add_argument('--function', '-F',
+    parser.add_argument('--function', '-F', type=hexint,
                         help='Function number of PCIe device')
     args, left = parser.parse_known_args()
-
-    args = convert_argument_str2hex(
-        args, ['segment', 'bus', 'device', 'function'])
 
     f = FpgaFinder(args.segment, args.bus, args.device, args.function)
     devs = f.find()
     for d in devs:
-        print('bdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(*d))
+        print('bdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))
     if len(devs) > 1:
         exception_quit('{} FPGAs are found\nplease choose '
                        'one FPGA'.format(len(devs)))
