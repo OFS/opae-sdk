@@ -37,6 +37,7 @@ SYS_IF = '/sys/class/net'
 DIVIDE = '-' * 80
 HOST_SIDE = 1
 
+
 class MacromCompare(COMMON):
     def __init__(self, args):
         self.args = args
