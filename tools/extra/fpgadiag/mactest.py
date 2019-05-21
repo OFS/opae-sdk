@@ -31,7 +31,7 @@ import argparse
 import binascii
 import sys
 from common import FpgaFinder, exception_quit
-from common import COMMON, convert_argument_str2hex
+from common import COMMON, hexint
 
 SYS_IF = '/sys/class/net'
 DIVIDE = '-' * 80
@@ -120,21 +120,18 @@ class MacromCompare(COMMON):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--segment', '-S',
+    parser.add_argument('--segment', '-S',  type=hexint,
                         help='Segment number of PCIe device')
-    parser.add_argument('--bus', '-B',
+    parser.add_argument('--bus', '-B',  type=hexint,
                         help='Bus number of PCIe device')
-    parser.add_argument('--device', '-D',
+    parser.add_argument('--device', '-D',  type=hexint,
                         help='Device number of PCIe device')
-    parser.add_argument('--function', '-F',
+    parser.add_argument('--function', '-F',  type=hexint,
                         help='Function number of PCIe device')
     parser.add_argument('--offset',
-                        default='0',
+                        default='0',  type=hexint,
                         help='read mac address from a offset address')
     args, left = parser.parse_known_args()
-
-    args = convert_argument_str2hex(
-        args, ['segment', 'bus', 'device', 'function', 'offset'])
 
     f = FpgaFinder(args.segment, args.bus, args.device, args.function)
     devs = f.find()

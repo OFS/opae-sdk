@@ -130,7 +130,7 @@ class COMMON(object):
         except IOError:
             traceback.print_exc()
             file.close()
-            exception_quit('ioctl IOError: {}'.format(e))
+            exception_quit('ioctl IOError: {}'.format(IOError))
         return ret
 
     # f: fpga file
