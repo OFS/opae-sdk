@@ -35,7 +35,7 @@ include_directories(${OPAE_INCLUDE_DIR}
   ${PROJECT_BINARY_DIR}/hw/include)
 
 add_executable(hello_mpf_afu
-  ${OPAE_SHARE_DIR}/samples/base/sw/opae_svc_wrapper.cpp
+  ${OPAE_SDK_SOURCE}/samples/base/sw/opae_svc_wrapper.cpp
   hello_mpf_afu.cpp)
 if(BUILD_LIBOPAE_C)
   target_link_libraries(hello_mpf_afu ${libjson-c_LIBRARIES} uuid MPF ${CMAKE_THREAD_LIBS_INIT} opae-c)

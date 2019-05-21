@@ -34,12 +34,12 @@ extern "C" {
 
 int ase_pt_length_to_level(uint64_t length);
 ase_host_memory_status membus_op_status(uint64_t va, uint64_t pa);
+const char *fpgaErrStr(fpga_result e);
 }
-
-#include <opae/fpga.h>
 
 #include "gtest/gtest.h"
 #include "test_system.h"
+#include "ase.h"
 
 #define ASE_UNIT
 #define FPGA_EVENT_INVALID 0x64
@@ -365,11 +365,11 @@ TEST(sim_sw_ase, ase_buffer_01) {
 	uint64_t* buf_addr;
 	uint64_t wsid = 1;
 
-	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaPrepareBuffer(NULL, 0, (void**)&buf_addr, &wsid, 0));
+	EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaPrepareBuffer(NULL, 0, (void**)&buf_addr, &wsid, 0));
 
-	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReleaseBuffer(NULL, 0x10001));
+	EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaReleaseBuffer(NULL, 0x10001));
 
-	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaGetIOAddress(NULL, 0x10001, NULL));
+	EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaGetIOAddress(NULL, 0x10001, NULL));
 }
 
 /**
@@ -404,10 +404,10 @@ TEST(sim_sw_ase, ase_err_01) {
 	fpga_token t = &_token;
 
 	// NULL Handle
-	EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaReadError(t, 0, NULL));
-	EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaClearError(t, 0));
-	EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaClearAllErrors(t));
-	EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaGetErrorInfo(t, 0, NULL));
+	EXPECT_EQ(FPGA_NOT_SUPPORTED, ase_fpgaReadError(t, 0, NULL));
+	EXPECT_EQ(FPGA_NOT_SUPPORTED, ase_fpgaClearError(t, 0));
+	EXPECT_EQ(FPGA_NOT_SUPPORTED, ase_fpgaClearAllErrors(t));
+	EXPECT_EQ(FPGA_NOT_SUPPORTED, ase_fpgaGetErrorInfo(t, 0, NULL));
 }
 
 /**
@@ -420,14 +420,14 @@ TEST(sim_sw_ase, ase_err_01) {
 TEST(sim_sw_ase, ase_eve_01) {
 	int fd;
 
-	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaCreateEventHandle(NULL));
-	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaDestroyEventHandle(NULL));
+	EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaCreateEventHandle(NULL));
+	EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaDestroyEventHandle(NULL));
 	fpga_event_handle handle = NULL;
-	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaDestroyEventHandle(&handle));
-	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaGetOSObjectFromEventHandle(NULL, &fd));
-	EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaRegisterEvent(NULL, (fpga_event_type)FPGA_EVENT_INVALID, NULL, 1));
-	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaRegisterEvent(NULL, FPGA_EVENT_INTERRUPT, NULL, MAX_USR_INTRS));
-	EXPECT_EQ(FPGA_NOT_SUPPORTED, fpgaUnregisterEvent(NULL, (fpga_event_type)FPGA_EVENT_INVALID, NULL));
+	EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaDestroyEventHandle(&handle));
+	EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaGetOSObjectFromEventHandle(NULL, &fd));
+	EXPECT_EQ(FPGA_NOT_SUPPORTED, ase_fpgaRegisterEvent(NULL, (fpga_event_type)FPGA_EVENT_INVALID, NULL, 1));
+	EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaRegisterEvent(NULL, FPGA_EVENT_INTERRUPT, NULL, MAX_USR_INTRS));
+	EXPECT_EQ(FPGA_NOT_SUPPORTED, ase_fpgaUnregisterEvent(NULL, (fpga_event_type)FPGA_EVENT_INVALID, NULL));
 }
 
 /**
@@ -444,24 +444,24 @@ TEST(sim_sw_ase, ase_mmio_01) {
 	_handle.fpgaMMIO_is_mapped = 0;
 	fpga_handle handle = &_handle;
 
-	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaWriteMMIO32(NULL, 0, 0x10, 0));
-	EXPECT_EQ(FPGA_NOT_FOUND, fpgaWriteMMIO32(handle, 0, 0x10, 0));
+	EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaWriteMMIO32(NULL, 0, 0x10, 0));
+	EXPECT_EQ(FPGA_NOT_FOUND, ase_fpgaWriteMMIO32(handle, 0, 0x10, 0));
 
-	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReadMMIO32(NULL, 0, 0x10, &value));
-	EXPECT_EQ(FPGA_NOT_FOUND, fpgaReadMMIO32(handle, 0, 0x10, &value));
+	EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaReadMMIO32(NULL, 0, 0x10, &value));
+	EXPECT_EQ(FPGA_NOT_FOUND, ase_fpgaReadMMIO32(handle, 0, 0x10, &value));
 
-	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaWriteMMIO64(NULL, 0, 0x10, 0));
-	EXPECT_EQ(FPGA_NOT_FOUND, fpgaWriteMMIO64(handle, 0, 0x10, 0));
+	EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaWriteMMIO64(NULL, 0, 0x10, 0));
+	EXPECT_EQ(FPGA_NOT_FOUND, ase_fpgaWriteMMIO64(handle, 0, 0x10, 0));
 
-	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaReadMMIO64(NULL, 0, 0x10, &value1));
-	EXPECT_EQ(FPGA_NOT_FOUND, fpgaReadMMIO64(handle, 0, 0x10, &value1));
+	EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaReadMMIO64(NULL, 0, 0x10, &value1));
+	EXPECT_EQ(FPGA_NOT_FOUND, ase_fpgaReadMMIO64(handle, 0, 0x10, &value1));
 
-	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaMapMMIO(NULL, 0, NULL));
-	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaUnmapMMIO(NULL, 0));
+	EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaMapMMIO(NULL, 0, NULL));
+	EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaUnmapMMIO(NULL, 0));
 	_handle.magic = FPGA_HANDLE_MAGIC;
-	EXPECT_EQ(FPGA_OK, fpgaUnmapMMIO(handle, 0));
+	EXPECT_EQ(FPGA_OK, ase_fpgaUnmapMMIO(handle, 0));
 	_handle.magic = FPGA_HANDLE_MAGIC - 1;
-	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaUnmapMMIO(handle, 0));
+	EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaUnmapMMIO(handle, 0));
 }
 
 /**
