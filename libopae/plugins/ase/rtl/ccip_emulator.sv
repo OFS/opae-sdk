@@ -52,13 +52,13 @@ import ccip_if_pkg::*;
 module ccip_emulator
    (
     // CCI-P Clocks and Resets
-    output logic       pClk,                   // 400MHz - CCI-P clock domain. Primary interface clock
-    output logic       pClkDiv2,               // 200MHz - CCI-P clock domain
-    output logic       pClkDiv4,               // 100MHz - CCI-P clock domain
+    input  logic       pClk,                   // CCI-P clock domain. Primary interface clock
+    input  logic       pClkDiv2,
+    input  logic       pClkDiv4,
    
     // User clocks
-    output logic       uClk_usr,               // User clock domain. Refer to clock programming guide
-    output logic       uClk_usrDiv2,           // User clock domain. Half the programmed frequency
+    input  logic       uClk_usr,               // User clock domain. Refer to clock programming guide
+    input  logic       uClk_usrDiv2,           // User clock domain. Half the programmed frequency
    
     // Power & error states
     output logic       pck_cp2af_softReset,    // CCI-P ACTIVE HIGH Soft Reset
@@ -74,10 +74,7 @@ module ccip_emulator
     assign pck_cp2af_pwrState = 2'b0;
     assign pck_cp2af_error    = 1'b0;
 
-    // Clock/reset
-    logic          Clk16UI ;
-    logic          Clk32UI ;
-    logic          Clk64UI ;
+    // reset
     logic          SoftReset;
 
     // Tx0 & bookkeeper
@@ -111,9 +108,6 @@ module ccip_emulator
     logic                              C0TxAlmFull;
     logic                              C1TxAlmFull;
 
-
-    // Internal 800 Mhz clock (for creating synchronized clocks)
-    logic                              Clk8UI;
     logic                              clk;
 
     // Real Full ch2as
@@ -252,10 +246,6 @@ module ccip_emulator
     /*
      * Remapping ASE CCIP to cvl_pkg struct
      */
-    // Clocks 16ui, 32ui, 64ui
-    assign pClk = Clk16UI;
-    assign pClkDiv2 = Clk32UI;
-    assign pClkDiv4 = Clk64UI;
 
     // Reset out
     assign pck_cp2af_softReset = SoftReset;
@@ -499,34 +489,8 @@ module ccip_emulator
     logic             tx0_overflow;
     logic             tx1_overflow;
 
-    /*
-     * Fabric Clock, pClk{*}
-     */
-    logic [2:0]        ase_clk_rollover = 3'b111;
-
     // ASE clock
-    assign clk = Clk16UI;
-    assign Clk16UI = ase_clk_rollover[0];
-    assign Clk32UI = ase_clk_rollover[1];
-    assign Clk64UI = ase_clk_rollover[2];
-
-    // 800 Mhz internal reference clock
-    initial begin : clk8ui_proc
-        begin
-            Clk8UI = 0;
-            forever begin
-                #(`CLK_8UI_TIME/2);
-                Clk8UI = 0;
-                #(`CLK_8UI_TIME/2);
-                Clk8UI = 1;
-            end
-        end
-    end
-
-    // 200 Mhz clock
-    always @(posedge Clk8UI) begin : clk_rollover_ctr
-        ase_clk_rollover <= ase_clk_rollover - 1;
-    end
+    assign clk = pClk;
 
     // Reset management
     logic             sw_reset_trig = 1;
@@ -649,42 +613,6 @@ module ccip_emulator
             endcase
         end
     end
-
-
-    /*
-     * User clock, uclk{*}
-     */
-    logic        usrClk;
-    logic        usrClkDiv2 = 0;
-    int          usrClk_delay = 3200;
-
-    // Function: Update usrclk_delay
-    function void update_usrclk_delay(int delay);
-    begin
-        usrClk_delay = delay;
-    end
-    endfunction
-
-    // User clock process
-    initial begin : usrclk_proc
-        begin
-            usrClk = 0;
-            forever begin
-                #(usrClk_delay/2);
-                usrClk = ~usrClk;
-            end
-        end
-    end
-
-
-    // Div2 output
-    always @(posedge usrClk) begin : usrclkdiv2_proc
-        usrClkDiv2 = ~usrClkDiv2;
-    end
-
-    // UCLK interface
-    assign uClk_usr     = usrClk;
-    assign uClk_usrDiv2 = usrClkDiv2;
 
 
     /*
@@ -1384,9 +1312,6 @@ module ccip_emulator
         cfg.enable_cl_view           = cfg_in.enable_cl_view           ;
         cfg.usr_tps                  = cfg_in.usr_tps                  ;
         cfg.phys_memory_available_gb = cfg_in.phys_memory_available_gb ;
-
-        // Set UsrClk
-        update_usrclk_delay( cfg.usr_tps );
     end
     endtask
 

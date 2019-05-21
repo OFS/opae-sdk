@@ -474,6 +474,20 @@ def getSearchPath(env_name, default_dir):
     return path
 
 
+#
+# Does the release define platform components?
+#
+def getOfsPlatIfPath():
+    # Documented variable, pointing to a platform release
+    if ('OPAE_PLATFORM_ROOT' in os.environ):
+        plat_dir = os.path.join(os.environ['OPAE_PLATFORM_ROOT'].rstrip('/'),
+                                'hw/lib/build/platform/ofs_plat_if')
+        if (os.path.isdir(plat_dir)):
+            return plat_dir
+
+    return None
+
+
 def main():
     # Users can extend the AFU and platform database search paths beyond
     # the OPAE SDK defaults using environment variables.
@@ -553,11 +567,21 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
         help="""The default top-level interface class if no interface is
                 specified in the AFU's JSON descriptor.""")
 
+    # --ofs_plat_if points to a release-specific platform interface tree
+    # under $OPAE_PLATFORM_ROOT.
+    ofs_plat_if_default = getOfsPlatIfPath()
+    parser.add_argument(
+        "--ofs_plat_if", default=ofs_plat_if_default,
+        help="""The platform-specific directory containing AFU top-level
+                SystemVerilog interfaces, used by AFU ofs_plat interface
+                classes. (Default: """ + str(ofs_plat_if_default) + ")")
+
     if_default = os.path.join(getDBRootPath(), "platform_if")
     parser.add_argument(
         "--platform_if", default=if_default,
         help="""The directory containing AFU top-level SystemVerilog
-                interfaces. (Default: """ + if_default + ")")
+                interfaces, used by AFU interface classes other than
+                ofs_plat. (Default: """ + if_default + ")")
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--sim",
@@ -579,6 +603,17 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
     group.add_argument(
         "-q", "--quiet", action="store_true", help="Reduce output")
     args = parser.parse_args()
+
+    if (args.sim):
+        args.qsf = False
+
+    # Now that arguments are parsed, canonicalize the ofs_plat_if. If it
+    # hasn't been changed from the default then make the path relative
+    # to the build directory. The tree will be copied into the AFU's build
+    # tree. Using the local copy makes the AFU build tree easier to package.
+    if (args.qsf and args.ofs_plat_if and
+        (args.ofs_plat_if == ofs_plat_if_default)):
+        args.ofs_plat_if = './platform/ofs_plat_if'
 
     # Get the AFU top-level interface request, either from the command
     # line or from the AFU source's JSON descriptor.
@@ -603,6 +638,13 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
         emitDebugJsonDb(args, 'afu_ifc_db', afu_ifc)
         emitDebugJsonDb(args, 'platform_db', platform)
         emitDebugJsonDb(args, 'platform_defaults_db', platform_defaults)
+
+    # Use platform RTL from either a release-specific ofs_plat_if tree or
+    # from the generic platform_if tree, but not both.
+    if (args.ofs_plat_if and (afu_ifc_req['class'][:8] == 'ofs_plat')):
+        args.platform_if = None
+    else:
+        args.ofs_plat_if = None
 
     # Match AFU port requirements to platform offerings
     afu_port_list = matchAfuPorts(args, afu_ifc.db, platform.db)

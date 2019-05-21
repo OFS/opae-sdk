@@ -1,0 +1,14 @@
+{
+   "version": 1,
+   "module-name": "ofs_plat_afu",
+   "platform-shim-module-name": "afu_top_ofs_plat",
+   "description": "OFS platform top-level AFU module",
+
+   "module-ports" :
+      [
+         {
+            "class": "ofs_plat_if",
+            "interface": "afu"
+         }
+      ]
+}
