@@ -127,10 +127,10 @@ class COMMON(object):
     def _ioctl(self, file, op, data):
         try:
             ret = fcntl.ioctl(file, op, data)
-        except IOError:
+        except IOError as e:
             traceback.print_exc()
             file.close()
-            exception_quit('ioctl IOError: {}'.format(IOError))
+            exception_quit('ioctl IOError: {}'.format(e))
         return ret
 
     # f: fpga file

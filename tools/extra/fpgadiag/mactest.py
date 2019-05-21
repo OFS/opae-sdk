@@ -138,7 +138,7 @@ def main():
     for d in devs:
         print(
             'bdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(
-                *d))
+                **d))
     if len(devs) > 1:
         exception_quit('{} FPGAs are found\nplease choose '
                        'one FPGA to do mactest'.format(len(devs)))
