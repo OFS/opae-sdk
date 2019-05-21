@@ -128,8 +128,8 @@ void print_metrics(const fpga_metric_info *metrics_info,
 					case FPGA_METRIC_DATATYPE_INT:
 						printf("%" PRId64 "", metrics[i].value.ivalue);
 						break;
-					case FPGA_METRIC_DATATYPE_DOUBLE: 
-					case FPGA_METRIC_DATATYPE_FLOAT:
+					case FPGA_METRIC_DATATYPE_DOUBLE: /* metric data type double*/
+					case FPGA_METRIC_DATATYPE_FLOAT: /* metric data type float*/
 						printf("%0.2f", metrics[i].value.dvalue);
 						break;
 					case FPGA_METRIC_DATATYPE_BOOL:
