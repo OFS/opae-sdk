@@ -459,7 +459,6 @@ def emitSimConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
             args.platform_if))
 
     # Does the specific target platform provide ASE sources?
-    print(ofs_plat_path)
     if (ofs_plat_path):
         ofs_plat_addenda = os.path.join(ofs_plat_path,
                                         "sim/platform_if_addenda.txt")
