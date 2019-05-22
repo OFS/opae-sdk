@@ -2,13 +2,13 @@
 
 ## SYNOPSIS ##
 ```console
-fpgainfo [-h | --help] <command> [<args>]
+fpgainfo [-h | --help] [<args>] <command> [<command-args>]
 ```
 
 
 ## DESCRIPTION ##
 fpgainfo displays FPGA information derived from sysfs files. The command argument is one of the following:
-`errors`, `power`, `temp`, `port` or `fme`. 
+`errors`, `power`, `temp`, `port`, `fme`, `bmc`, `phy` or `mac`.
 Some commands may also have other arguments or options that control their behavior.
 
 For systems with multiple FPGA devices, you can specify the BDF to limit the output to the FPGA resource
@@ -37,6 +37,18 @@ Show information about the port such as the AFU ID of currently loaded AFU.
 
 Show information about the FPGA platform including the partial reconfiguration (PR) Interface ID, the OPAE version,
 and the FPGA Interface Manager (FIM) ID.
+
+`bmc`
+
+Show all Board Management Controller sensor values for the FPGA resource, if available.
+
+`phy`
+
+Show information about the PHY integrated in the FPGA, if available.
+
+`mac`
+
+Show information about the MAC address in ROM attached to the FPGA, if available.
 
 ## OPTIONAL ARGUMENTS ##
 `--help, -h`
@@ -78,18 +90,28 @@ The first argument to the `errors` command specifies the resource type. It must 
 
 Show/clear errors for all resources.
 
+The optional `<command-args>` arguments are:
+
 `--clear, -c`
 
 Clear errors for the given FPGA resource.
 
 
+### PHY ARGUMENTS ###
+The optional `<command-args>` argument is:
+
+`--group, -G`
+
+Select which PHY group(s) information to show.
+
+
 ## EXAMPLES ##
-This command shows the current power consumption:
+This command shows the current power telemetry:
 ```console
 ./fpgainfo power
 ```
 
-This command shows the current temperature reading:
+This command shows the current temperature readings:
 ```console
 ./fpgainfo temp
 ```
@@ -104,7 +126,7 @@ This command clears all errors on all resources:
 ```
 This command shows information of the FME on bus 0x5e
 ```console
-./fpgainfo fme -b 0x5e
+./fpgainfo fme -B 0x5e
 ```
 
 ## Revision History ##
