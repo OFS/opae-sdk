@@ -138,6 +138,9 @@ module ase_top();
 
 endmodule
 
+
+`ifndef OFS_PLAT_PROVIDES_ASE_TOP
+
 //
 // Generic implementation of top-level interface, used when the target platform
 // doesn't provide one.
@@ -289,3 +292,5 @@ module ase_top_generic
    assign DBG_C0RxMMIO  = t_ccip_c0_ReqMmioHdr'(pck_cp2af_sRx.c0.hdr);
 
 endmodule // ase_top
+
+`endif //  `ifndef OFS_PLAT_PROVIDES_ASE_TOP
