@@ -61,7 +61,7 @@ find_program(AFU_JSON_MGR
 ############################################################################
 
 # Default directory and model variables
-set(ASE_SHARE_DIR              ${OPAE_SHARE_DIR}/ase CACHE STRING "Directory containing shared ASE files")
+set(ASE_SHARE_DIR              ${OPAE_SDK_SOURCE}/libopae/plugins/ase CACHE STRING "Directory containing shared ASE files")
 set(ASE_SAMPLES                ${OPAE_SHARE_DIR}/samples)
 set(ASE_SCRIPTS_IN             ${ASE_SHARE_DIR}/in)
 set(ASE_SERVER_RTL             ${ASE_SHARE_DIR}/rtl               CACHE STRING "Location of ASE server SystemVerilog code")

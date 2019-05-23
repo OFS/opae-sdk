@@ -72,11 +72,8 @@ if(BUILD_ASE)
   add_definitions(-DTEST_TIMEOUT=130000000)
 endif()
 add_executable(hello_fpga hello_fpga.c)
-if(BUILD_LIBOPAE_C)
-  target_link_libraries(hello_fpga ${libjson-c_LIBRARIES} uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
-elseif(BUILD_ASE)
-  target_link_libraries(hello_fpga ${libjson-c_LIBRARIES} uuid ${CMAKE_THREAD_LIBS_INIT} opae-c-ase)
-endif()
+
+target_link_libraries(hello_fpga ${libjson-c_LIBRARIES} uuid ${CMAKE_THREAD_LIBS_INIT} opae-c)
 
 if(BUILD_LIBOPAE_C)
   add_executable(hello_events hello_events.c)

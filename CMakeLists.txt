@@ -162,9 +162,6 @@ add_subdirectory(tools)
 
 option(BUILD_ASE "Enable ASE compilation" ON)
 mark_as_advanced(BUILD_ASE)
-if(BUILD_ASE)
-  add_subdirectory(ase)
-endif()
 
 if (NOT BUILD_ASE AND NOT BUILD_LIBOPAE_C)
   message(FATAL_ERROR "Not building any OPAE libraries")
