@@ -31,14 +31,17 @@ extern "C" {
 #include <pthread.h>
 #include "types_int.h"
 #include "ase_common.h"
-#include "common_int.h"
 #include "wsid_list_int.h"
-}
+#include "props.h"
 
-#include <opae/fpga.h>
+fpga_result prop_check_and_lock(struct _fpga_properties *prop);
+fpga_result handle_check_and_lock(struct _fpga_handle *handle);
+fpga_result event_handle_check_and_lock(struct _fpga_event_handle *eh);
+}
 
 #include "gtest/gtest.h"
 #include "test_system.h"
+#include "ase.h"
 
 /**
 * @test       ase_common_01
