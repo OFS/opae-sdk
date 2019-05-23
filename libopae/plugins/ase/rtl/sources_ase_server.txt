@@ -10,4 +10,5 @@
 @ASE_SHARE_DIR@/rtl/ccip_logger.sv
 @ASE_SHARE_DIR@/rtl/ccip_checker.sv
 @ASE_SHARE_DIR@/rtl/ase_sim_local_mem.sv
+@ASE_SHARE_DIR@/rtl/ase_sim_local_mem_avmm_bridge.v
 @ASE_SHARE_DIR@/rtl/ase_top.sv

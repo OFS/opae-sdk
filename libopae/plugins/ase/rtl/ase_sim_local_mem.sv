@@ -60,6 +60,20 @@ module ase_sim_local_mem_avmm
       #10000 ddr_reset_n = 1;
    end
 
+   // Number of bytes in a data line
+   localparam DATA_N_BYTES = (local_mem[0].DATA_WIDTH + 7) / 8;
+
+   logic emul_waitrequest[NUM_BANKS];
+   logic [local_mem[0].DATA_WIDTH-1:0] emul_readdata[NUM_BANKS];
+   logic emul_readdatavalid[NUM_BANKS];
+
+   logic [local_mem[0].BURST_CNT_WIDTH-1:0] emul_burstcount[NUM_BANKS];
+   logic [local_mem[0].DATA_WIDTH-1:0] emul_writedata[NUM_BANKS];
+   logic [local_mem[0].ADDR_WIDTH-1:0] emul_address[NUM_BANKS];
+   logic emul_write[NUM_BANKS];
+   logic emul_read[NUM_BANKS];
+   logic [DATA_N_BYTES-1:0] emul_byteenable[NUM_BANKS];
+
    // emif model
    genvar b;
    generate
@@ -75,35 +89,81 @@ module ase_sim_local_mem_avmm
             )
           emif_ddr4
           (
-            .ddr4a_avmm_waitrequest                (local_mem[b].waitrequest),
-            .ddr4a_avmm_readdata                   (local_mem[b].readdata),
-            .ddr4a_avmm_readdatavalid              (local_mem[b].readdatavalid),
-            .ddr4a_avmm_burstcount                 (local_mem[b].burstcount),
-            .ddr4a_avmm_writedata                  (local_mem[b].writedata),
-            .ddr4a_avmm_address                    (local_mem[b].address),
-            .ddr4a_avmm_write                      (local_mem[b].write),
-            .ddr4a_avmm_read                       (local_mem[b].read),
-            .ddr4a_avmm_byteenable                 (local_mem[b].byteenable),
+            .ddr4a_avmm_waitrequest                (emul_waitrequest[b]),
+            .ddr4a_avmm_readdata                   (emul_readdata[b]),
+            .ddr4a_avmm_readdatavalid              (emul_readdatavalid[b]),
+            .ddr4a_avmm_burstcount                 (emul_burstcount[b]),
+            .ddr4a_avmm_writedata                  (emul_writedata[b]),
+            .ddr4a_avmm_address                    (emul_address[b]),
+            .ddr4a_avmm_write                      (emul_write[b]),
+            .ddr4a_avmm_read                       (emul_read[b]),
+            .ddr4a_avmm_byteenable                 (emul_byteenable[b]),
             .ddr4a_avmm_clk_clk                    (clks[b]),
 
             .ddr4a_global_reset_reset_sink_reset_n (ddr_reset_n),
             .ddr4a_pll_ref_clk_clock_sink_clk      (ddr_pll_ref_clk[b]),
 
-            .ddr4b_avmm_waitrequest                (local_mem[b+1].waitrequest),
-            .ddr4b_avmm_readdata                   (local_mem[b+1].readdata),
-            .ddr4b_avmm_readdatavalid              (local_mem[b+1].readdatavalid),
-            .ddr4b_avmm_burstcount                 (local_mem[b+1].burstcount),
-            .ddr4b_avmm_writedata                  (local_mem[b+1].writedata),
-            .ddr4b_avmm_address                    (local_mem[b+1].address),
-            .ddr4b_avmm_write                      (local_mem[b+1].write),
-            .ddr4b_avmm_read                       (local_mem[b+1].read),
-            .ddr4b_avmm_byteenable                 (local_mem[b+1].byteenable),
+            .ddr4b_avmm_waitrequest                (emul_waitrequest[b+1]),
+            .ddr4b_avmm_readdata                   (emul_readdata[b+1]),
+            .ddr4b_avmm_readdatavalid              (emul_readdatavalid[b+1]),
+            .ddr4b_avmm_burstcount                 (emul_burstcount[b+1]),
+            .ddr4b_avmm_writedata                  (emul_writedata[b+1]),
+            .ddr4b_avmm_address                    (emul_address[b+1]),
+            .ddr4b_avmm_write                      (emul_write[b+1]),
+            .ddr4b_avmm_read                       (emul_read[b+1]),
+            .ddr4b_avmm_byteenable                 (emul_byteenable[b+1]),
             .ddr4b_avmm_clk_clk                    (clks[b+1])
          );
+      end
+   endgenerate
+
+   //
+   // Add a bridge between the emulator and the DUT in order to eliminate
+   // timing glitches induces by the DDR model. The model's waitrequest isn't
+   // quite aligned to the clock, leading to random failures in some RTL
+   // emulators.
+   //
+   generate
+      for (b = 0; b < NUM_BANKS; b = b + 1)
+      begin : b_bridge
+         ase_sim_local_mem_avmm_bridge
+          #(
+            .DATA_WIDTH(local_mem[b].DATA_WIDTH),
+            .HDL_ADDR_WIDTH(local_mem[b].ADDR_WIDTH),
+            .BURSTCOUNT_WIDTH(local_mem[b].BURST_CNT_WIDTH)
+            )
+          bridge
+           (
+            .clk(local_mem[b].clk),
+            .reset(local_mem[b].reset),
+
+            .s0_waitrequest(local_mem[b].waitrequest),
+            .s0_readdata(local_mem[b].readdata),
+            .s0_readdatavalid(local_mem[b].readdatavalid),
+            .s0_response(),
+            .s0_burstcount(local_mem[b].burstcount),
+            .s0_writedata(local_mem[b].writedata),
+            .s0_address(local_mem[b].address),
+            .s0_write(local_mem[b].write),
+            .s0_read(local_mem[b].read),
+            .s0_byteenable(local_mem[b].byteenable),
+            .s0_debugaccess(1'b0),
+
+            .m0_waitrequest(emul_waitrequest[b]),
+            .m0_readdata(emul_readdata[b]),
+            .m0_readdatavalid(emul_readdatavalid[b]),
+            .m0_response('x),
+            .m0_burstcount(emul_burstcount[b]),
+            .m0_writedata(emul_writedata[b]),
+            .m0_address(emul_address[b]),
+            .m0_write(emul_write[b]),
+            .m0_read(emul_read[b]),
+            .m0_byteenable(emul_byteenable[b]),
+            .m0_debugaccess()
+            );
 
          // Mostly used for debugging
          assign local_mem[b].bank_number = b;
-         assign local_mem[b+1].bank_number = b+1;
       end
    endgenerate
 
