@@ -31,6 +31,13 @@
 #include "csr.h"
 #include "log.h"
 #include <chrono>
+#include <byteswap.h>
+
+#define AFU_DFH_EOL_OFFSET 40
+#define NEXT_DFH_OFFSET(dfh) ((dfh >> 16) & 0xffffff)
+#define DFH_EOL(dfh) ((((dfh >> AFU_DFH_EOL_OFFSET) & 1) == 1) || \
+                        (NEXT_DFH_OFFSET(dfh)==0))
+
 
 namespace intel
 {
@@ -60,6 +67,31 @@ public:
     virtual uint64_t                   cachelines()     const override { return cachelines_; }
 
     void show_help(std::ostream &os);
+    
+    template<typename T>
+    uint32_t read_csr32(T address)
+    {
+    	return accelerator_->read_csr32(static_cast<uint32_t>(address) + offset_);
+    }
+    
+    template<typename T>
+    uint64_t read_csr64(T address)
+    {
+    	return accelerator_->read_csr32(static_cast<uint32_t>(address) + offset_);
+    }
+    
+    template<typename T>
+    void write_csr32(T address, uint32_t value)
+    {
+    	accelerator_->write_csr32(static_cast<uint32_t>(address) + offset_, value);
+    }
+    
+    template<typename T>
+    void write_csr64(T address, uint64_t value)
+    {
+    	accelerator_->write_csr64(static_cast<uint32_t>(address) + offset_, value);
+    }
+
 
 
 private:
@@ -67,6 +99,7 @@ private:
     std::string config_;
     std::string target_;
     std::string afu_id_;
+    std::string nlb0_id_;
 
     std::size_t dsm_size_;
     uint32_t step_;
@@ -89,6 +122,7 @@ private:
     bool csv_format_;
     bool suppress_stats_;
     uint64_t cachelines_;
+    uint32_t offset_;
 };
 
 } // end of namespace diag

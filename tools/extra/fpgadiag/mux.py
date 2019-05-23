@@ -39,16 +39,16 @@ max_stride = 4294967295  # 32 bit
 
 class nlb_options(object):
     all_options = {
-        "begin":  range(1, 65535),
-        "end":  range(2, 65535),
+        "begin": range(1, 65535),
+        "end": range(2, 65535),
         "cont": [True, False],
         "timeout-sec": range(1, 11),
         "mode": ["read", "write"],
-        "multi-cl":  [1, 2, 4],
-        "cache-policy":  ["wrline-I", "wrline-M", "wrpush-I"],
+        "multi-cl": [1, 2, 4],
+        "cache-policy": ["wrline-I", "wrline-M", "wrpush-I"],
         "cache-hint": ["rdline-I", "rdline-S"],
-        "read-vc":    ["vh0", "vh1", "vl0"],
-        "write-vc":   ["vh0", "vh1"],
+        "read-vc": ["vh0", "vh1", "vl0"],
+        "write-vc": ["vh0", "vh1"],
         "wrfence-vc": ["vh0", "vh1"],
         "strided-access": range(1, 65),
         "threads": range(1, 65),
