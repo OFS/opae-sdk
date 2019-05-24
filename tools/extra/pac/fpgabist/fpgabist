@@ -77,6 +77,7 @@ def main(args):
     dev_id = int(vars(args)['device_id'], 16)
     afu_id = get_afu_id(bdf['bus'])
     ret = 0
+    bist_common.dev_id = dev_id
     for feature in (FEATURES + PRIVATE_FEATURES.get(dev_id, [])):
         cmd = "fpgainfo {} -B 0x{}".format(feature, bdf['bus'])
         ret += subprocess.call(cmd, shell=True)

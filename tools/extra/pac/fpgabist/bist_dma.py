@@ -63,6 +63,8 @@ class DmaMode(bc.BistMode):
             if bd_id in dma_list:
                 for i, c in dma_list[bd_id].items():
                     name, size = c
+                    if bc.dev_id != int(param,16):
+						continue
                     cmd = "{} {} -B 0x{} -D {} -S {}".format(func, param,
                                                              bus_num, i, size)
                     if guid:
