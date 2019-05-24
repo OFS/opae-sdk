@@ -485,6 +485,13 @@ def getOfsPlatIfPath():
         if (os.path.isdir(plat_dir)):
             return plat_dir
 
+    # Alternate method
+    if ('BBS_LIB_PATH' in os.environ):
+        plat_dir = os.path.join(os.environ['BBS_LIB_PATH'].rstrip('/'),
+                                'build/platform/ofs_plat_if')
+        if (os.path.isdir(plat_dir)):
+            return plat_dir
+
     return None
 
 
