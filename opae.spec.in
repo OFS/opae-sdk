@@ -185,7 +185,8 @@ ldconfig
 %files ase
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/afu_sim_setup
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c-ase*
+@CMAKE_INSTALL_PREFIX@/bin/with_ase
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libase*
 %dir @CMAKE_INSTALL_PREFIX@/share/opae
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/ase/
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/ase/*

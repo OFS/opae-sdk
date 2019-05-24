@@ -3,6 +3,6 @@
 ## manager used by multiple examples in the tutorial.
 ##
 
-+incdir+@OPAE_SHARE_DIR@/samples/base/hw/rtl
-@OPAE_SHARE_DIR@/samples/base/hw/rtl/cci_afu_with_mpf.sv
-@OPAE_SHARE_DIR@/samples/base/hw/rtl/csr_mgr.sv
++incdir+@OPAE_SDK_SOURCE@/samples/base/hw/rtl
+@OPAE_SDK_SOURCE@/samples/base/hw/rtl/cci_afu_with_mpf.sv
+@OPAE_SDK_SOURCE@/samples/base/hw/rtl/csr_mgr.sv

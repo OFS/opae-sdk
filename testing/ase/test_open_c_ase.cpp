@@ -29,9 +29,9 @@ extern "C" {
 #include <uuid/uuid.h>
 #include <opae/types.h>
 #include "types_int.h"
+fpga_result ase_fpgaOpen(fpga_token token, fpga_handle *handle, int flags);
+fpga_result ase_fpgaClose(fpga_handle handle);
 }
-
-#include <opae/fpga.h>
 
 #include <array>
 #include <cstdlib>
@@ -73,7 +73,7 @@ class open_c_ase_p : public testing::Test {
 
     virtual void TearDown() override {
         if (accel_) {
-            EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
+            EXPECT_EQ(ase_fpgaClose(accel_), FPGA_OK);
             accel_ = nullptr; 
         }
         system_->finalize();
@@ -92,7 +92,7 @@ class open_c_ase_p : public testing::Test {
  *             function returns FPGA_INVALID_PARAM.
  */
 TEST_F(open_c_ase_p, ase_open_01) {
-    EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(tok, nullptr, 0));
+    EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaOpen(tok, nullptr, 0));
 }
 
 /**
@@ -102,7 +102,7 @@ TEST_F(open_c_ase_p, ase_open_01) {
  *             function returns FPGA_INVALID_PARAM.
  */
 TEST_F(open_c_ase_p, ase_open_02) {
-    EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(nullptr, &accel_, 0));
+    EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaOpen(nullptr, &accel_, 0));
 }
 
 /**
@@ -113,7 +113,7 @@ TEST_F(open_c_ase_p, ase_open_02) {
  *
  */
 TEST_F(open_c_ase_p, ase_open_03) {
-    EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(tok, &accel_, 42));
+    EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaOpen(tok, &accel_, 42));
 }
 
 /**
@@ -126,7 +126,7 @@ TEST_F(open_c_ase_p, ase_open_03) {
 TEST_F(open_c_ase_p, ase_open_04) {
     struct _fpga_token *token_= (struct _fpga_token *)tok;
     token_->magic = 0xFFFFFFFF;
-    EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(tok, &accel_, 42));
+    EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaOpen(tok, &accel_, 42));
 }
 
 /**
@@ -139,7 +139,7 @@ TEST(sim_sw_ase, ase_open_05) {
 	struct _fpga_token _token;
 	fpga_token token = (fpga_token)&_token;
 
-	EXPECT_EQ(FPGA_INVALID_PARAM, fpgaOpen(token, nullptr, 0));
+	EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaOpen(token, nullptr, 0));
 }
 
 /**
@@ -151,7 +151,7 @@ TEST(sim_sw_ase, ase_open_05) {
 TEST_F(open_c_ase_p, mallocfails) {
     // Invalidate the allocation of the wrapped handle.
     system_->invalidate_malloc(0, "ase_malloc");
-    ASSERT_EQ(fpgaOpen(tok, &accel_, 0), FPGA_NO_MEMORY);
+    ASSERT_EQ(ase_fpgaOpen(tok, &accel_, 0), FPGA_NO_MEMORY);
     EXPECT_EQ(accel_, nullptr);
 }
 
@@ -162,7 +162,7 @@ TEST_F(open_c_ase_p, mallocfails) {
  *             FPGA_INVALID_PARAM.
  */
 TEST(open_c_ase, close_nullhandle) {
-	EXPECT_EQ(fpgaClose(nullptr), FPGA_INVALID_PARAM);
+	EXPECT_EQ(ase_fpgaClose(nullptr), FPGA_INVALID_PARAM);
 }
 
 

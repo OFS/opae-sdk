@@ -29,7 +29,7 @@ extern "C" {
 #include <uuid/uuid.h>
 #include <opae/types.h>
 #include "types_int.h"
-#include "properties_int.h"
+#include "props.h"
 
 void api_guid_to_fpga(uint64_t guidh, uint64_t guidl, uint8_t *guid);
 bool matches_filters(const fpga_properties *filter, uint32_t num_filter,
@@ -37,10 +37,10 @@ bool matches_filters(const fpga_properties *filter, uint32_t num_filter,
 }
 
 #include <opae/fpga.h>
-
 #include <cstdlib>
 #include <memory>
 #include "gtest/gtest.h"
+#include "ase.h"
 
 // ASE ID
 #define ASE_TOKEN_MAGIC    0x46504741544f4b40
@@ -81,7 +81,7 @@ class enum_c_ase_p : public testing::Test {
         tok = &tok_;
 
         filter_ = nullptr;
-        ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+        ASSERT_EQ(ase_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     }
 
     virtual void TearDown() override {
@@ -104,7 +104,7 @@ class enum_c_ase_p : public testing::Test {
  */
 TEST_F(enum_c_ase_p, nullfilter) {
   uint32_t matches = 0;
-  EXPECT_EQ(fpgaEnumerate(nullptr, 1, &tok, 1, &matches),
+  EXPECT_EQ(ase_fpgaEnumerate(nullptr, 1, &tok, 1, &matches),
             FPGA_INVALID_PARAM);
 }
 
@@ -118,10 +118,10 @@ TEST_F(enum_c_ase_p, nullfilter) {
  */
 TEST_F(enum_c_ase_p, nullmatches) {
   uint32_t matches = 0;
-  EXPECT_EQ(fpgaEnumerate(&filter_, 1, &tok, 1, NULL),
+  EXPECT_EQ(ase_fpgaEnumerate(&filter_, 1, &tok, 1, NULL),
             FPGA_INVALID_PARAM);
   EXPECT_EQ(
-      fpgaEnumerate(&filter_, 0, &tok, 1, &matches),
+      ase_fpgaEnumerate(&filter_, 0, &tok, 1, &matches),
       FPGA_INVALID_PARAM);
 }
 
@@ -134,7 +134,7 @@ TEST_F(enum_c_ase_p, nullmatches) {
  */
 TEST_F(enum_c_ase_p, nulltokens) {
   uint32_t matches = 0;
-  EXPECT_EQ(fpgaEnumerate(&filter_, 0, NULL, 1, &matches),
+  EXPECT_EQ(ase_fpgaEnumerate(&filter_, 0, NULL, 1, &matches),
             FPGA_INVALID_PARAM);
 }
 
@@ -387,7 +387,7 @@ TEST_F(enum_c_ase_p, matches_filters_11) {
  *             the function returns FPGA_INVALID_PARAM.
  */
 TEST(enum_c_ase, destroy_token_1) {
-  EXPECT_EQ(fpgaDestroyToken(nullptr), FPGA_INVALID_PARAM);
+  EXPECT_EQ(ase_fpgaDestroyToken(nullptr), FPGA_INVALID_PARAM);
   fpga_token token = nullptr;
-  EXPECT_EQ(fpgaDestroyToken(&token), FPGA_INVALID_PARAM);
+  EXPECT_EQ(ase_fpgaDestroyToken(&token), FPGA_INVALID_PARAM);
 }

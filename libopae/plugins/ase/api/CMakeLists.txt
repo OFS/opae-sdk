@@ -24,76 +24,58 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-project(libopae-c)
+cmake_minimum_required(VERSION 2.8.12)
 
-set(SRC
-    pluginmgr.c
-    api-shell.c
-    init.c
-    props.c
-    )
+project("ase")
+find_package(Threads REQUIRED)
 
-add_library(opae-c SHARED ${SRC})
+add_definitions(-DHAVE_CONFIG_H=1)
+set(API_DIR ${PROJECT_SOURCE_DIR})
+set(ASEAPI_SRC
+  ${API_DIR}/../sw/tstamp_ops.c
+  ${API_DIR}/../sw/ase_ops.c
+  ${API_DIR}/../sw/ase_strings.c
+  ${API_DIR}/../sw/ase_host_memory.c
+  ${API_DIR}/../sw/app_backend.c
+  ${API_DIR}/../sw/mqueue_ops.c
+  ${API_DIR}/../sw/error_report.c
+  ${API_DIR}/src/common.c
+  ${API_DIR}/src/buffer.c
+  ${API_DIR}/src/close.c
+  ${API_DIR}/src/enum.c
+  ${API_DIR}/src/event.c
+  ${API_DIR}/src/manage.c
+  ${API_DIR}/src/reconf.c
+  ${API_DIR}/src/mmio.c
+  ${API_DIR}/src/open.c
+  ${API_DIR}/src/umsg.c
+  ${API_DIR}/src/version.c
+  ${API_DIR}/src/wsid_list.c
+  ${API_DIR}/src/error.c
+  ${API_DIR}/src/plugin.c
+  ${API_DIR}/src/init.c)
 
-target_include_directories(opae-c PUBLIC
+add_library(ase SHARED ${ASEAPI_SRC})
+target_link_libraries(ase
+  ${libjson-c_LIBRARIES}
+  ${libuuid_LIBRARIES}
+  ${librt_LIBRARIES})
+
+# Define headers for this library. PUBLIC headers are used for
+# compiling the library, and will be added to consumers' build
+# paths. Keep current directory private.
+target_include_directories(ase PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC ${libjson-c_INCLUDE_DIRS})
+  $<INSTALL_INTERFACE:include>
+  PRIVATE src
+  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/../include>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/../sw>
+  PRIVATE ${OPAE_SDK_SOURCE}/libopae)
 
-set(SRC_ASE
-    pluginmgr.c
-    api-shell.c
-    init.c
-    init_ase.c
-    props.c
-    )
-add_library(opae-c-ase SHARED ${SRC_ASE})
-
-target_include_directories(opae-c-ase PUBLIC
-  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC ${libjson-c_INCLUDE_DIRS})
-
-include_directories(${libjson-c_INCLUDE_DIRS})
-
-# Add coverage flags
-if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-  set_property(SOURCE ${SRC} APPEND PROPERTY COMPILE_FLAGS ${GCOV_COMPILE_FLAGS})
-endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-
-# Target properties
-set_property(TARGET opae-c PROPERTY C_STANDARD 99)
-set_target_properties(opae-c PROPERTIES
+set_target_properties(ase PROPERTIES
   VERSION ${INTEL_FPGA_API_VERSION}
   SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
 
-# Add coverage flags
-if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-  target_link_libraries(opae-c ${GCOV_LINK_FLAGS})
-endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-
-target_link_libraries(opae-c
-  dl
-  ${CMAKE_THREAD_LIBS_INIT}
-  safestr
-  ${libjson-c_LIBRARIES})
-
-target_link_libraries(opae-c-ase
-  dl
-  ${CMAKE_THREAD_LIBS_INIT}
-  safestr
-  ${libjson-c_LIBRARIES})
-
-set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
-
-add_subdirectory(plugins)
-
-install(TARGETS opae-c
+install(TARGETS ase
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
-  COMPONENT opaeclib)
-  
-install(TARGETS opae-c-ase
-  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
-  COMPONENT opaeclib)
+  COMPONENT opaecase)
