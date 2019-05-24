@@ -770,6 +770,18 @@ class eth_instance(object):
     def version(self):
         return self._version
 
+    @property
+    def bus(self):
+        return self._bus
+
+    @property
+    def device(self):
+        return self._device
+
+    @property
+    def function(self):
+        return self._function
+
     def check(self):
         # TODO (RR): implement ethernet testing
         return True
