@@ -136,6 +136,7 @@ class BistMode(object):
     afu_id = ""
     executables = {}
     dir_path = ""
+    dev_id = 0
 
     def run(self, gbs_path, bus_num):
         raise NotImplementedError
