@@ -245,10 +245,13 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
     std::string home = home_cstr;
     // the parameter paths start with a '/'
     cfg_file_ = home + std::string(GetParam());
+    memset(buffer_, 0, sizeof(buffer_));
     // copy it to a temporary buffer that we can use dirname with
     std::copy(cfg_file_.begin(), cfg_file_.end(), &buffer_[0]);
     // get the directory name of the file
     cfg_dir_ = dirname(buffer_);
+    std::cout << "cfg_file_: " << cfg_file_ << std::endl;
+    std::cout << "cfg_dir_: " << cfg_dir_ << std::endl;
     // if the directory doesn't exist, create the entire path
     if (stat(cfg_dir_, &st)) {
       std::string dir = cfg_dir_;
