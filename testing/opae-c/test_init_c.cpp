@@ -277,6 +277,7 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
     }
 
     if (stat(cfg_file_.c_str(), &st) == 0) {
+      EXPECT_EQ(rmdir(cfg_file_.c_str())), 0);
       EXPECT_EQ(unlink(cfg_file_.c_str()), 0);
     }
 
