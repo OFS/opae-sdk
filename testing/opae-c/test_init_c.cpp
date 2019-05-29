@@ -277,6 +277,12 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
     }
 
     if (stat(cfg_file_.c_str(), &st) == 0) {
+      std::string cmd = "ls -l " + cfg_file_;
+      system(cmd.c_str());
+      cmd = cfg_file_ + "/libopae/plugins";
+      EXPECT_EQ(rmdir(cmd.c_str()), 0);
+      cmd = cfg_file_ + "/libopae";
+      EXPECT_EQ(rmdir(cmd.c_str()), 0);
       EXPECT_EQ(rmdir(cfg_file_.c_str()), 0);
       EXPECT_EQ(unlink(cfg_file_.c_str()), 0);
     }
