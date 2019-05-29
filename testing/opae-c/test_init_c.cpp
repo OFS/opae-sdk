@@ -277,7 +277,7 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
     }
 
     if (stat(cfg_file_.c_str(), &st) == 0) {
-      unlink(cfg_file_.c_str());
+      EXPECT_EQ(unlink(cfg_file_.c_str()), 0);
     }
 
     std::ofstream cfg_stream(cfg_file_);
@@ -289,10 +289,10 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
 
   virtual void TearDown() override {
     unsetenv("WITH_ASE");
-    unlink(cfg_file_.c_str());
+    EXPECT_EQ(unlink(cfg_file_.c_str()), 0);
     // remove any directories we created in SetUp
     while (!dirs_.empty()) {
-      unlink(dirs_.top().c_str());
+      EXPECT_EQ(rmdir(dirs_.top().c_str()), 0);
       dirs_.pop();
     }
     // restore the opae_ase.cfg file at OPAE_ASE_CFG_SRC_PATH
@@ -302,7 +302,7 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
     }
     struct stat st;
     if (stat(tmpfile_, &st) == 0)
-      unlink(tmpfile_);
+      EXPECT_EQ(unlink(tmpfile_), 0);
   }
 
   char buffer_[PATH_MAX];
@@ -365,7 +365,7 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_2) {
         EXPECT_EQ(ret, 0);
     }
     if (stat(tmpfile2_, &st) == 0)
-      unlink(tmpfile2_);
+      EXPECT_EQ(unlink(tmpfile2_), 0);
 }
 
 /**
@@ -438,7 +438,7 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
     }
     if (stat(tmpfile2_, &st) == 0)
       unlink(tmpfile2_);
-    if (stat(tmpfile3_, &st) == 0)
+    if (opae_path && stat(tmpfile3_, &st) == 0)
       unlink(tmpfile3_);
 }
 
@@ -515,7 +515,7 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
     }
     if (stat(tmpfile2_, &st) == 0)
       unlink(tmpfile2_);
-    if (stat(tmpfile3_, &st) == 0)
+    if (opae_path && stat(tmpfile3_, &st) == 0)
       unlink(tmpfile3_);
 }
 
