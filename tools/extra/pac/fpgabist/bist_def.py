@@ -31,22 +31,25 @@ import subprocess
 import bist_common as bc
 
 
-class BistMode(bc.BistMode):
-    name = "bist_afu"
-    afu_id = "9caef53d-2fcf-43ea-84b9-aad98993fe41"
+class DefaultMode(bc.BistMode):
+    name = "BIST"
+    afu_id = "f7df405c-bd7a-cf72-22f1-44b0b93acd18"
 
     def __init__(self):
-        self.executables = {'bist_app': ''}
+        self.executables = {'bist': ''}
 
     def run(self, gbs_path, bus_num):
         if gbs_path:
             bc.load_gbs(gbs_path, bus_num)
+        ret = 0
         for func, param in self.executables.items():
-            print "Running {} test...\n".format(func)
+            print "Running Built-in Self test...\n"
             cmd = "{} {}".format(func, param)
             try:
                 subprocess.check_call(cmd, shell=True)
             except subprocess.CalledProcessError as e:
                 print "Failed Test: {}".format(func)
                 print e
-        print "Finished Executing BIST application\n"
+                ret += 1
+        print "Finished Executing BIST\n"
+        return ret

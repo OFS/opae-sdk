@@ -24,20 +24,19 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
+enable_language(C ASM)
+
+set(ASM_OPTIONS "-x assembler-with-cpp")
+set(CMAKE_ASM_FLAGS "${CFLAGS} ${ASM_OPTIONS}")
+
 include_directories(${OPAE_INCLUDE_DIR})
 
-add_executable(bist_app bist_afu.c)
-add_executable(bist bist_dc.c)
-set_install_rpath(bist_app)
-set_install_rpath(bist)
+file(GLOB CSources *.c *.S)
+add_executable(fpga_dma_vc_test ${CSources})
+set_install_rpath(fpga_dma_vc_test)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
-target_link_libraries(bist_app opae-c ${libjson-c_LIBRARIES} uuid rt ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(bist opae-c ${libjson-c_LIBRARIES} uuid rt ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(fpga_dma_vc_test opae-c ${libjson-c_LIBRARIES} uuid rt hwloc ${CMAKE_THREAD_LIBS_INIT})
 
-install(TARGETS bist_app
+install(TARGETS fpga_dma_vc_test
         RUNTIME DESTINATION bin
-        COMPONENT toolbist_app)
-install(TARGETS bist
-        RUNTIME DESTINATION bin
-        COMPONENT toolbist)
+        COMPONENT toolfpga_dma_vc_test)
