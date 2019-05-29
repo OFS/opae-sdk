@@ -148,8 +148,9 @@ destroy:
 
 int unload_board_plugin(void)
 {
-	int i            = 0;
-	int res          = 0;
+	int i              = 0;
+	fpga_result res    = FPGA_OK;
+	fpga_result resval = FPGA_OK;
 
 	if (pthread_mutex_lock(&board_plugin_lock) != 0) {
 		OPAE_ERR("pthread mutex lock failed \n");
@@ -164,7 +165,7 @@ int unload_board_plugin(void)
 			if (res) {
 				char *err = dlerror();
 				OPAE_ERR("dlclose failed with %d %s", res, err ? err : "");
-				res = FPGA_EXCEPTION;
+				resval = FPGA_EXCEPTION;
 			} else {
 				platform_data_table[i].dl_handle = NULL;
 			}
@@ -174,10 +175,10 @@ int unload_board_plugin(void)
 
 	if (pthread_mutex_unlock(&board_plugin_lock) != 0) {
 		OPAE_ERR("pthread mutex unlock failed \n");
-		res = FPGA_EXCEPTION;
+		resval = FPGA_EXCEPTION;
 	}
 
-	return res;
+	return resval;
 }
 
 /*
