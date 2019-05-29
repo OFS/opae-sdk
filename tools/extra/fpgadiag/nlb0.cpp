@@ -360,7 +360,7 @@ bool nlb0::setup()
     // TODO: Infer pclock from the device id
     // For now, get the pclock frequency from status2 register
     // that frequency (MHz) is encoded in bits [47:32]
-    uint64_t s2 = accelerator_->read_csr64(static_cast<uint32_t>(nlb0_csr::status2));
+    uint64_t s2 = read_csr64(static_cast<uint32_t>(nlb0_csr::status2));
     uint32_t freq = (s2 >> 32) & 0xffff;
     if (freq > 0) {
          // frequency_ is in Hz
