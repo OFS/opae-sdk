@@ -265,6 +265,7 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
               << "}: " << strerror(errno);
           // keep track of directories created
           dirs_.push(sub);
+          std::cout << "Creating dir: " << sub << std::endl;
         }
         pos = pos < dir.size() ? dir.find('/', pos + 1) : std::string::npos;
       }
@@ -274,16 +275,18 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
           << "Error creating subdirectory (" << cfg_dir_
           << "}: " << strerror(errno);
       dirs_.push(cfg_dir_);
+      std::cout << "Creating dir: " << cfg_dir_ << std::endl;
     }
 
     if (stat(cfg_file_.c_str(), &st) == 0) {
-      std::string cmd = "ls -l " + cfg_file_;
-      system(cmd.c_str());
-      cmd = cfg_file_ + "/libopae/plugins";
-      EXPECT_EQ(rmdir(cmd.c_str()), 0);
-      cmd = cfg_file_ + "/libopae";
-      EXPECT_EQ(rmdir(cmd.c_str()), 0);
-      EXPECT_EQ(rmdir(cfg_file_.c_str()), 0);
+//      std::string cmd = "ls -l " + cfg_file_;
+//      system(cmd.c_str());
+//      cmd = cfg_file_ + "/libopae/plugins";
+//      EXPECT_EQ(rmdir(cmd.c_str()), 0);
+//      cmd = cfg_file_ + "/libopae";
+//      EXPECT_EQ(rmdir(cmd.c_str()), 0);
+//      EXPECT_EQ(rmdir(cfg_file_.c_str()), 0);
+      std::cout << "Removing cfg_file_: " << cfg_file_ << std::endl;
       EXPECT_EQ(unlink(cfg_file_.c_str()), 0);
     }
 
@@ -299,6 +302,7 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
     EXPECT_EQ(unlink(cfg_file_.c_str()), 0);
     // remove any directories we created in SetUp
     while (!dirs_.empty()) {
+      std::cout << "Removing dirs_.top(): " << dirs_.top() << std::endl;
       EXPECT_EQ(rmdir(dirs_.top().c_str()), 0);
       dirs_.pop();
     }
