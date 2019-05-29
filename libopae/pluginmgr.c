@@ -323,7 +323,7 @@ STATIC int process_plugin(const char *name, json_object *j_config)
 		return 1;
 	}
 
-	cfg->cfg_size = strlen(stringified);
+	cfg->cfg_size = strlen(stringified) + 1;
 	cfg->cfg = malloc(cfg->cfg_size);
 	if (!cfg->cfg) {
 		OPAE_ERR("error allocating memory for plugin configuration");
