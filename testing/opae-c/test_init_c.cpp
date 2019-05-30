@@ -245,6 +245,7 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
     std::string home = home_cstr;
     // the parameter paths start with a '/'
     cfg_file_ = home + std::string(GetParam());
+    memset(buffer_, 0, sizeof(buffer_));
     // copy it to a temporary buffer that we can use dirname with
     std::copy(cfg_file_.begin(), cfg_file_.end(), &buffer_[0]);
     // get the directory name of the file
