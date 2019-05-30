@@ -2,24 +2,17 @@
 
 import argparse
 from array import array
-import logging
-
-logging.basicConfig(level=0)  # display all logger messages
-LOGGER = logging.getLogger(__name__)
 
 
 def reverse_bits(x, n):
     result = 0
-    for i in xrange(n):
+    for i in range(n):
         if (x >> i) & 1:
             result |= 1 << (n - 1 - i)
     return result
 
 
 def reverse_bits_in_file(ifile, ofile):
-
-    LOGGER.info("Reading input file: %s" % ifile)
-    LOGGER.info("Writing output file: %s" % ofile)
     bit_rev = array('B')
     for i in range(0, 256):
         bit_rev.append(reverse_bits(i, 8))
@@ -29,12 +22,16 @@ def reverse_bits_in_file(ifile, ofile):
         if not ichunk:
             break
 
-        ochunk = ''
-        for b in ichunk:
-            ochunk += chr(bit_rev[ord(b)])
-        ofile.write(ochunk)
-
-    LOGGER.info("Finished")
+        if isinstance(ichunk, str):
+            ochunk = ''
+            for b in ichunk:
+                ochunk += chr(bit_rev[ord(b)])
+            ofile.write(ochunk)
+        elif isinstance(ichunk, bytes):
+            ochunk = []
+            for b in ichunk:
+                ochunk.append(bit_rev[b])
+            ofile.write(bytes(ochunk))
 
 
 def main():
@@ -50,6 +47,4 @@ def main():
 
 
 if __name__ == '__main__':
-
-    LOGGER.info("---Reverse Bits---")
     main()
