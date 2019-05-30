@@ -57,6 +57,8 @@ static pthread_mutex_t board_plugin_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_N
 static platform_data platform_data_table[] = {
 	{ 0x8086, 0x09c4, "libboard_rc.so", NULL },
 	{ 0x8086, 0x09c5, "libboard_rc.so", NULL },
+	{ 0x8086, 0x0b30, "libboard_vc.so", NULL },
+	{ 0x8086, 0x0b31, "libboard_vc.so", NULL },
 	{ 0,      0,          NULL, NULL },
 };
 
@@ -251,6 +253,7 @@ fpga_result mac_command(fpga_token *tokens, int num_tokens, int argc,
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
+		fpgainfo_board_info(tokens[i]);
 		mac_info(tokens[i]);
 
 	}
@@ -358,6 +361,7 @@ fpga_result phy_command(fpga_token *tokens, int num_tokens, int argc,
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
+		fpgainfo_board_info(tokens[i]);
 		phy_group_info(tokens[i]);
 
 	}

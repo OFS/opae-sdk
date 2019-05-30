@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2018, Intel Corporation
+## Copyright(c) 2019, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,39 +24,43 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
+project(libboard_vc)
 
-# board lib
-add_subdirectory(base/libboard/board_rc)
-add_subdirectory(base/libboard/board_vc)
+set(SRC
+    board_vc.c
+    )
 
-# base
-add_subdirectory(base/fpgaconf)
-add_subdirectory(base/fpgad)
-add_subdirectory(base/argsfilter)
-add_subdirectory(base/fpgainfo)
-add_subdirectory(base/fpgaport)
-add_subdirectory(base/fpgametrics)
+add_library(board_vc MODULE ${SRC})
 
-# extra
-add_subdirectory(extra/coreidle)
-add_subdirectory(extra/userclk)
-add_subdirectory(extra/packager)
-if (BUILD_PYTHON_DIST)
-    add_subdirectory(extra/pypackager)
-	add_subdirectory(extra/pyfpgadiag)
-endif()
-add_subdirectory(extra/c++utils)
-add_subdirectory(extra/fpgadiag)
-add_subdirectory(extra/mmlink)
-add_subdirectory(extra/ras)
+target_include_directories(board_rc PUBLIC
+  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-# integrated
-add_subdirectory(extra/integrated/hssi)
+# Add coverage flags
+if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+  set_property(SOURCE ${SRC} APPEND PROPERTY COMPILE_FLAGS ${GCOV_COMPILE_FLAGS})
+endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 
-# pac
-add_subdirectory(extra/pac/fpgaflash)
-if (BUILD_PYTHON_DIST)
-    add_subdirectory(extra/pac/pyfpgaflash)
-endif()
-add_subdirectory(extra/pac/pac_hssi_config)
-add_subdirectory(extra/pac/fpgabist)
+# Target properties
+set_property(TARGET board_vc PROPERTY C_STANDARD 99)
+set_target_properties(board_vc PROPERTIES
+  VERSION ${INTEL_FPGA_API_VERSION}
+  SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
+
+# Add coverage flags
+if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+  target_link_libraries(board_vc ${GCOV_LINK_FLAGS})
+endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+
+target_link_libraries(board_vc
+  safestr
+  opae-c
+  ${CMAKE_THREAD_LIBS_INIT})
+
+set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
+
+install(TARGETS board_vc
+  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
+  COMPONENT opaeclib)
+
