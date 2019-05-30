@@ -164,6 +164,9 @@ typedef struct _opae_api_adapter_table {
 	fpga_result (*fpgaObjectGetObject)(fpga_object parent, const char *name,
 					   fpga_object *object, int flags);
 
+	fpga_result (*fpgaObjectGetObjectAt)(fpga_object parent, size_t index,
+					   fpga_object *object);
+
 	fpga_result (*fpgaDestroyObject)(fpga_object *obj);
 
 	fpga_result (*fpgaObjectRead)(fpga_object obj, uint8_t *buffer,

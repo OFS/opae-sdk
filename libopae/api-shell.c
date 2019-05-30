@@ -1329,6 +1329,44 @@ fpga_result fpgaHandleGetObject(fpga_handle handle, const char *name,
 	return res != FPGA_OK ? res : dres;
 }
 
+fpga_result fpgaObjectGetObjectAt(fpga_object parent, size_t index,
+				  fpga_object *object)
+{
+	fpga_result res;
+	fpga_result dres = FPGA_OK;
+	fpga_object obj = NULL;
+	opae_wrapped_object *wrapped_child_object;
+	opae_wrapped_object *wrapped_object =
+		opae_validate_wrapped_object(parent);
+
+	ASSERT_NOT_NULL(wrapped_object);
+	ASSERT_NOT_NULL(object);
+	ASSERT_NOT_NULL_RESULT(
+		wrapped_object->adapter_table->fpgaObjectGetObjectAt,
+		FPGA_NOT_SUPPORTED);
+	ASSERT_NOT_NULL_RESULT(wrapped_object->adapter_table->fpgaDestroyObject,
+			       FPGA_NOT_SUPPORTED);
+
+	res = wrapped_object->adapter_table->fpgaObjectGetObjectAt(
+		wrapped_object->opae_object, index, &obj);
+
+	ASSERT_RESULT(res);
+
+	wrapped_child_object = opae_allocate_wrapped_object(
+		obj, wrapped_object->adapter_table);
+
+	if (!wrapped_child_object) {
+		OPAE_ERR("malloc failed");
+		res = FPGA_NO_MEMORY;
+		dres = wrapped_object->adapter_table->fpgaDestroyObject(&obj);
+	}
+
+	*object = wrapped_child_object;
+
+	return res != FPGA_OK ? res : dres;
+
+}
+
 fpga_result fpgaObjectGetObject(fpga_object parent, const char *name,
 				fpga_object *object, int flags)
 {

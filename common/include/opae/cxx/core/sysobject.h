@@ -102,6 +102,16 @@ class sysobject {
    */
   sysobject::ptr_t get(const std::string &name, int flags = 0);
 
+  /**
+   * @brief Get a sysobject from a container object. This will be read-write if its
+   * parent was created from a handle..
+   *
+   * @param[in] index An index number to get.
+   *
+   * @return A shared_ptr to a sysobject instance.
+   */
+  sysobject::ptr_t get(int index);
+
   virtual ~sysobject();
 
   /**

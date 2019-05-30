@@ -110,6 +110,10 @@ sysobject::ptr_t sysobject_get_sysobject(sysobject::ptr_t o, const std::string &
   return o->get(name, 0);
 }
 
+sysobject::ptr_t sysobject_get_sysobject(sysobject::ptr_t o, int i) {
+  return o->get(i);
+}
+
 sysobject::ptr_t token_find_sysobject(token::ptr_t tok, const std::string &name,
                                      int flags) {
   return sysobject::get(tok, name, flags);
