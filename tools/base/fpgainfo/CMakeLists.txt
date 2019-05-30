@@ -29,11 +29,12 @@ add_executable(fpgainfo main.c
 	          fpgainfo.c
 			  errors.c
 			  fmeinfo.c
-                          bmcinfo.c
-                          bmcdata.c
+			  bmcinfo.c
+			  bmcdata.c
 			  powerinfo.c
 			  tempinfo.c
-			  portinfo.c)
+			  portinfo.c
+			  board.c)
 
 set_install_rpath(fpgainfo)
 target_link_libraries(fpgainfo opae-c argsfilter uuid)
