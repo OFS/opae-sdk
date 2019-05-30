@@ -33,6 +33,7 @@
 #endif // _GNU_SOURCE
 
 #include <opae/properties.h>
+#include <opae/types_enum.h>
 
 #include "safe_string/safe_string.h"
 
@@ -1451,6 +1452,19 @@ fpga_result fpgaObjectGetSize(fpga_object obj, uint64_t *value, int flags)
 
 	return wrapped_object->adapter_table->fpgaObjectGetSize(
 		wrapped_object->opae_object, value, flags);
+}
+
+fpga_result fpgaObjectGetType(fpga_object obj, enum fpga_sysobject_type *type)
+{
+	opae_wrapped_object *wrapped_object = opae_validate_wrapped_object(obj);
+
+	ASSERT_NOT_NULL(wrapped_object);
+	ASSERT_NOT_NULL(type);
+	ASSERT_NOT_NULL_RESULT(wrapped_object->adapter_table->fpgaObjectGetType,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_object->adapter_table->fpgaObjectGetType(
+		wrapped_object->opae_object, type);
 }
 
 fpga_result fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags)
