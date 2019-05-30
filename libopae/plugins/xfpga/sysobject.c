@@ -202,16 +202,16 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectGetSize(fpga_object obj,
 						 uint32_t *size,
 						 int flags)
 {
+	struct _fpga_object *_obj = (struct _fpga_object *)obj;
 	fpga_result res = FPGA_OK;
 	ASSERT_NOT_NULL(obj);
 	ASSERT_NOT_NULL(size);
-	if (flags & FPGA_OBJECT_SYNC) {
+	if (flags & FPGA_OBJECT_SYNC && _obj->type != FPGA_SYSFS_FILE) {
 		res = sync_object(obj);
 		if (res) {
 			return res;
 		}
 	}
-	struct _fpga_object *_obj = (struct _fpga_object *)obj;
 	*size = _obj->size;
 	return res;
 }
