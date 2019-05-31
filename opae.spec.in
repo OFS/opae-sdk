@@ -110,7 +110,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libmodbmc.so
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libbitstream.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libboard_rc.so*
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-vc.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libboard_vc.so*
 
 %files devel
 %defattr(-,root,root,-)
