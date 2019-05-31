@@ -52,6 +52,8 @@
 #define SYSFS_PHY_GROUP_INFO_DEV            "misc/eth_group*/dev"
 #define SYSFS_EEPROM                        "*i2c*/i2c*/*/eeprom"
 #define SYSFS_NVMEM                         "*i2c*/i2c*/*/nvmem"
+#define SYSFS_PKVL_A_VER                    "spi-altera.*.auto/spi_master/spi*/spi*.*/pkvl/pkvl_a_version"
+#define SYSFS_PKVL_B_VER                    "spi-altera.*.auto/spi_master/spi*/spi*.*/pkvl/pkvl_b_version"
 
 // driver ioctl id
 #define FPGA_PHY_GROUP_GET_INFO               0xB702
@@ -499,6 +501,78 @@ out_destroy_mac:
 	return resval;
 }
 
+// Read pkvl versoin
+fpga_result print_pkvl_version(fpga_token token)
+{
+	fpga_result res                 = FPGA_OK;
+	fpga_result resval              = FPGA_OK;
+	char ver_a_buf[VER_BUF_SIZE]    = { 0 };
+	char ver_b_buf[VER_BUF_SIZE]    = { 0 };
+	uint32_t size                   = 0;
+	fpga_object pkvl_a_object;
+	fpga_object pkvl_b_object;
+
+
+	res = fpgaTokenGetObject(token, SYSFS_PKVL_A_VER, &pkvl_a_object, FPGA_OBJECT_GLOB);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to get token object");
+		return res;
+	}
+
+	res = fpgaTokenGetObject(token, SYSFS_PKVL_B_VER, &pkvl_b_object, FPGA_OBJECT_GLOB);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to get token object");
+		resval = res;
+		goto out_destroy_obj_a;
+	}
+
+
+	res = fpgaObjectGetSize(pkvl_a_object, &size, FPGA_OBJECT_GLOB);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get token object size");
+		resval = res;
+		goto out_destroy_obj_b;
+	}
+
+	res = fpgaObjectRead(pkvl_a_object, (uint8_t *)ver_a_buf, 0, size, 0);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to read object ");
+		resval = res;
+		goto out_destroy_obj_b;
+	}
+
+	res = fpgaObjectGetSize(pkvl_b_object, &size, FPGA_OBJECT_GLOB);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get token object size");
+		resval = res;
+		goto out_destroy_obj_b;
+	}
+
+	res = fpgaObjectRead(pkvl_b_object, (uint8_t *)ver_b_buf, 0, size, 0);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to read object ");
+		resval = res;
+		goto out_destroy_obj_b;
+	}
+
+	printf("%-29s : %s", "Retimer A Version", ver_a_buf);
+	printf("%-29s : %s", "Retimer B Version", ver_b_buf);
+
+out_destroy_obj_b:
+	res = fpgaDestroyObject(&pkvl_b_object);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to destroy object");
+	}
+
+out_destroy_obj_a:
+	res = fpgaDestroyObject(&pkvl_a_object);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to destroy object");
+	}
+
+	return resval;
+}
+
 // print mac information
 fpga_result print_mac_info(fpga_token token)
 {
@@ -652,6 +726,11 @@ fpga_result print_phy_info(fpga_token token)
 		}
 	}
 
+	res = print_pkvl_version(token);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to read pkvl version");
+		goto out_free;
+	}
 
 out_free:
 	if (phy_info_array)
