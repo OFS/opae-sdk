@@ -87,6 +87,19 @@ sysobject::ptr_t sysobject::get(const std::string &path, int flags) {
   return obj;
 }
 
+sysobject::ptr_t sysobject::get(int i) {
+  fpga_object sysobj;
+  sysobject::ptr_t obj;
+
+  auto res = fpgaObjectGetObjectAt(sysobject_, i, &sysobj);
+  if (!res) {
+    obj.reset(new sysobject(sysobj, token_, handle_));
+  } else if (res != FPGA_NOT_FOUND) {
+    ASSERT_FPGA_OK(res);
+  }
+  return obj;
+}
+
 uint64_t sysobject::read64(int flags) const {
   uint64_t value = 0;
   ASSERT_FPGA_OK(fpgaObjectRead64(sysobject_, &value, flags));
