@@ -477,6 +477,11 @@ fpga_result read_mac_info(fpga_token token, unsigned char *mac_info, size_t len)
 	unsigned char buf[8]            = {0};
 	fpga_object mac_object;
 
+	if (mac_info == NULL) {
+		FPGA_ERR("Invalid Input parameters");
+		return FPGA_INVALID_PARAM;
+	}
+
 	res = fpgaTokenGetObject(token, SYSFS_EEPROM, &mac_object, FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get token object");
