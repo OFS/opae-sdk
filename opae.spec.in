@@ -109,7 +109,8 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libbmc.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libmodbmc.so
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libbitstream.so*
-
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libboard_rc.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-vc.so*
 
 %files devel
 %defattr(-,root,root,-)
@@ -156,6 +157,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/bist_nlb0.py
 @CMAKE_INSTALL_PREFIX@/bin/coreidle
 @CMAKE_INSTALL_PREFIX@/bin/fpga_dma_test
+@CMAKE_INSTALL_PREFIX@/bin/fpga_dma_vc_test
 @CMAKE_INSTALL_PREFIX@/bin/fpgabist
 @CMAKE_INSTALL_PREFIX@/bin/fpgadiag
 @CMAKE_INSTALL_PREFIX@/bin/fpgaflash
