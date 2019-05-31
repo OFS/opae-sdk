@@ -560,8 +560,8 @@ fpga_result print_pkvl_version(fpga_token token)
 		goto out_destroy_obj_b;
 	}
 
-	printf("%-29s : %s", "Retimer A Version", ver_a_buf);
-	printf("%-29s : %s", "Retimer B Version", ver_b_buf);
+	printf("%-32s : %s", "Retimer A Version", ver_a_buf);
+	printf("%-32s : %s", "Retimer B Version", ver_b_buf);
 
 out_destroy_obj_b:
 	res = fpgaDestroyObject(&pkvl_b_object);
@@ -594,13 +594,13 @@ fpga_result print_mac_info(fpga_token token)
 	}
 
 	n = (int)buf[6];
-	printf("%-29s : %d\n", "Number of MACs", n);
+	printf("%-32s : %d\n", "Number of MACs", n);
 	mac.byte[0] = buf[5];
 	mac.byte[1] = buf[4];
 	mac.byte[2] = buf[3];
 	mac.byte[3] = 0;
 	for (i = 0; i < n; ++i) {
-		printf("%s %-17d : %02X:%02X:%02X:%02X:%02X:%02X\n",
+		printf("%s %-20d : %02X:%02X:%02X:%02X:%02X:%02X\n",
 			"MAC address", i, buf[0], buf[1], buf[2],
 			mac.byte[2], mac.byte[1], mac.byte[0]);
 		mac.dword += 1;
@@ -681,10 +681,10 @@ fpga_result print_phy_info(fpga_token token)
 	for (i = 0; i < group_num; i++) {
 
 		printf("//****** PHY GROUP %d ******//\n", i);
-		printf("%-29s : %s\n", "Direction",
+		printf("%-32s : %s\n", "Direction",
 			phy_info_array[i].group_id == 0 ? "Line side" : "Fortville side");
-		printf("%-29s : %d Gbps\n", "Speed", phy_info_array[i].speed);
-		printf("%-29s : %d\n", "Number of PHYs", phy_info_array[i].phy_num);
+		printf("%-32s : %d Gbps\n", "Speed", phy_info_array[i].speed);
+		printf("%-32s : %d\n", "Number of PHYs", phy_info_array[i].phy_num);
 	}
 
 	//TODO
@@ -726,7 +726,7 @@ fpga_result print_phy_info(fpga_token token)
 	strncpy_s(mode, sizeof(mode), phy_info_array[0].speed == 25 ? "25G" : "10G", 3);
 	for (i = 0, j = 0; i < MAX_PORTS; i++) {
 		if (mask&(1 << i)) {
-			printf("Port%-2d%-23s : %s\n", j, mode, pkvl_info.status&(1 << i) ? "Up" : "Down");
+			printf("Port%-2d%-26s : %s\n", j, mode, pkvl_info.status&(1 << i) ? "Up" : "Down");
 			j++;
 		}
 	}

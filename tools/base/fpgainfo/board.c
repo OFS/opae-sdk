@@ -250,9 +250,20 @@ fpga_result mac_command(fpga_token *tokens, int num_tokens, int argc,
 {
 	(void)argc;
 	(void)argv;
+	fpga_result res = FPGA_OK;
+	fpga_properties props;
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
+
+		res = fpgaGetProperties(tokens[i], &props);
+		if (res != FPGA_OK) {
+			OPAE_ERR("Failed to get properties\n");
+			continue;
+		}
+
+		fpgainfo_board_info(tokens[i]);
+		fpgainfo_print_common("//****** MAC ******//", props);
 		mac_info(tokens[i]);
 
 	}
@@ -357,9 +368,19 @@ fpga_result phy_command(fpga_token *tokens, int num_tokens, int argc,
 {
 	(void)argc;
 	(void)argv;
+	fpga_result res = FPGA_OK;
+	fpga_properties props;
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
+		res = fpgaGetProperties(tokens[i], &props);
+		if (res != FPGA_OK) {
+			OPAE_ERR("Failed to get properties\n");
+			continue;
+		}
+
+		fpgainfo_board_info(tokens[i]);
+		fpgainfo_print_common("//****** PHY ******//", props);
 		phy_group_info(tokens[i]);
 
 	}

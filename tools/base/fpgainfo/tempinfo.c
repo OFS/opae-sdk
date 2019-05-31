@@ -66,7 +66,7 @@ static void print_temp_info(fpga_token token)
 	res = fpgaObjectRead64(obj, &pkg_temp, FPGA_OBJECT_SYNC);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "Failure reading package temperature value");
 
-	printf("%-29s : %02ld %s\n", "Package Temperature", pkg_temp, "Centigrade");
+	printf("%-32s : %02ld %s\n", "Package Temperature", pkg_temp, "Centigrade");
 
 	res = get_metrics(token, FPGA_THERMAL, metrics_info, &num_metrics_info, metrics, &num_metrics);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading metrics from BMC");
