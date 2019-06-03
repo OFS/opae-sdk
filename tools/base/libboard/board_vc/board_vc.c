@@ -63,8 +63,6 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 {
 	fpga_result res                = FPGA_OK;
 	fpga_result resval             = FPGA_OK;
-	uint8_t rev                    = 0;
-	uint32_t var                   = 0;
 	uint32_t size                  = 0;
 	char buf[VER_BUF_SIZE]         = { 0 };
 	fpga_object bmcfw_object;
@@ -101,8 +99,35 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 		goto out_destroy;
 	}
 
+	res = parse_fw_ver(buf, bmcfw_ver, len);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to parse version ");
+		resval = res;
+		goto out_destroy;
+	}
 
-	var = strtoul(buf, NULL, VER_BUF_SIZE);
+
+out_destroy:
+	res = fpgaDestroyObject(&bmcfw_object);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to destroy object");
+	}
+
+	return resval;
+}
+
+fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
+{
+	uint8_t rev       = 0;
+	uint32_t var      = 0;
+	fpga_result res   = FPGA_OK;
+
+	if (buf == NULL ||
+		fw_ver == NULL) {
+		FPGA_ERR("Invalid Input parameters");
+		return FPGA_INVALID_PARAM;
+	}
+
 
 	/* BMC FW version format reading
 	NIOS II Firmware Build 0x0 32 RW[23:0] 24 hFFFFFF Build version of NIOS II Firmware
@@ -115,21 +140,18 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 	0x44(D)-For RevD
 	*/
 
+	var = strtoul(buf, NULL, VER_BUF_SIZE);
+
 	rev = (var >> 24) & 0xff;
 	if ((rev > 0x40) && (rev < 0x5B)) {// range from 'A' to 'Z'
-		snprintf_s_ciii(bmcfw_ver, len, "%c.%u.%u.%u", (char)rev, (var >> VER_BUF_SIZE) & 0xff, (var >> 8) & 0xff, var & 0xff);
-	} else {
+		snprintf_s_ciii(fw_ver, len, "%c.%u.%u.%u", (char)rev, (var >> VER_BUF_SIZE) & 0xff, (var >> 8) & 0xff, var & 0xff);
+	}
+	else {
 		OPAE_ERR("Invalid BMC firmware version");
-		resval = FPGA_EXCEPTION;
+		res = FPGA_EXCEPTION;
 	}
 
-out_destroy:
-	res = fpgaDestroyObject(&bmcfw_object);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to destroy object");
-	}
-
-	return resval;
+	return res;
 }
 
 // Read MAX10 firmware version
@@ -137,8 +159,6 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 {
 	fpga_result res                      = FPGA_OK;
 	fpga_result resval                   = FPGA_OK;
-	uint8_t rev                          = 0;
-	uint32_t var                         = 0;
 	uint32_t size                        = 0;
 	char buf[VER_BUF_SIZE]               = { 0 };
 	fpga_object max10fw_object;
@@ -175,26 +195,11 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 		goto out_destroy;
 	}
 
-	var = strtoul(buf, NULL, VER_BUF_SIZE);
-
-
-	/* MAX10 FW version format reading
-	BMC MAX10 Firmware Build 0x0 32 RW[23:0]
-	BMC MAX10 build version.0xFFFFxx is reserved for factory build,
-	each byte stands for different version number of user image,
-	e.g. 1.0.1 for first release user image
-	[31:24] 8hFF PCB info ASCII code
-	0x41(A) - Compatible for both RevA and RevB
-	0x43(C) - For RevC
-	0x44(D) - For RevD
-	*/
-
-	rev = (var >> 24) & 0xff;
-	if ((rev > 0x40) && (rev < 0x5B)) {// range from 'A' to 'Z'
-		 snprintf_s_ciii(max10fw_ver, len, "%c.%u.%u.%u", (char)rev, (var >> VER_BUF_SIZE) & 0xff, (var >> 8) & 0xff, var & 0xff);
-	} else {
-		OPAE_ERR("Invalid MAX10 firmware version");
-		resval = FPGA_EXCEPTION;
+	res = parse_fw_ver(buf, max10fw_ver, len);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to parse version ");
+		resval = res;
+		goto out_destroy;
 	}
 
 out_destroy:
@@ -389,9 +394,7 @@ fpga_result read_phy_group_info(fpga_token token,
 	}
 
 	// Return number of group.
-	if (group_info == NULL &&
-		group_num != NULL) {
-
+	if (group_info == NULL) {
 		*group_num = group_dev_count;
 		resval = FPGA_OK;
 		goto out_destroy_group_dev;
