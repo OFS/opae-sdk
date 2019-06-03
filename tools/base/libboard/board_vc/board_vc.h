@@ -174,7 +174,7 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_var, size_t len);
 /**
 * Parse bmc/max10 version.
 *
-* @param[in] buf             pointer to firmaware version
+* @param[in] buf             pointer to firmware version
 * @param[inout] fw_ver       pointer to char firmware string
 * @param[in] len             length of char fw var string
 * @returns FPGA_OK on success. FPGA_EXCEPTION if FW version is invlaid.
