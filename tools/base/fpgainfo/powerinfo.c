@@ -28,6 +28,7 @@
 #include "fpgainfo.h"
 #include "powerinfo.h"
 #include "bmcdata.h"
+#include "board.h"
 #include <opae/fpga.h>
 #include <uuid/uuid.h>
 
@@ -48,21 +49,23 @@ void power_help(void)
 
 static void print_power_info(fpga_token token)
 {
-	fpga_properties props;
+        fpga_properties props;
         fpga_metric_info metrics_info[METRICS_MAX_NUM] = {{0}};
         fpga_metric metrics[METRICS_MAX_NUM] = {{0}};
         uint64_t num_metrics;
+         uint64_t num_metrics_info;
         fpga_result res = FPGA_OK;
 
         res = fpgaGetProperties(token, &props);
         ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading properties from token");
 
-	fpgainfo_print_common("//****** POWER ******//", props);
+        fpgainfo_board_info(token);
+        fpgainfo_print_common("//****** POWER ******//", props);
 
-        res = get_metrics(token, POWER, metrics_info, metrics, &num_metrics);
+        res = get_metrics(token, FPGA_POWER, metrics_info, &num_metrics_info, metrics, &num_metrics);
         ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading metrics from BMC");
 
-        print_metrics(metrics_info, metrics, num_metrics);
+        print_metrics(metrics_info, num_metrics_info, metrics, num_metrics);
 
 out_destroy:
 	res = fpgaDestroyProperties(&props);
