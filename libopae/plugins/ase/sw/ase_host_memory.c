@@ -333,7 +333,7 @@ static void ase_pt_delete_tree(uint64_t **pt, int pt_level)
 		// Drop sub-trees and then release this node.
 		int idx;
 		for (idx = 0; idx < 512; idx++) {
-			ase_pt_delete_tree((uint64_t **)pt[idx], pt_level -1);
+			ase_pt_delete_tree((uint64_t **)pt[idx], pt_level - 1);
 		}
 		munmap(pt, 4096);
 	} else {
@@ -452,7 +452,7 @@ static int ase_pt_pin_page(uint64_t va, uint64_t *iova, int pt_level)
 		if (pt[idx] != NULL) {
 			// The page is already pinned. What should we do? mmap() allows overwriting
 			// existing mappings, so we behave like it for now.
-			ase_pt_delete_tree((uint64_t **)pt[idx], level);
+			ase_pt_delete_tree((uint64_t **)pt[idx], level - 1);
 		}
 
 		pt[idx] = (uint64_t *) -1;

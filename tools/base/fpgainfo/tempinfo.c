@@ -28,6 +28,8 @@
 #include "fpgainfo.h"
 #include "tempinfo.h"
 #include "bmcdata.h"
+#include "board.h"
+
 #include <opae/fpga.h>
 #include <wchar.h>
 
@@ -51,6 +53,7 @@ static void print_temp_info(fpga_token token)
 	fpga_metric_info metrics_info[METRICS_MAX_NUM];
 	fpga_metric metrics[METRICS_MAX_NUM];
 	uint64_t num_metrics;
+	uint64_t num_metrics_info;
 	fpga_result res = FPGA_OK;
 	uint64_t pkg_temp;
 
@@ -65,10 +68,10 @@ static void print_temp_info(fpga_token token)
 
 	printf("%-29s : %02ld %s\n", "Package Temperature", pkg_temp, "Centigrade");
 
-	res = get_metrics(token, THERMAL, metrics_info, metrics, &num_metrics);
+	res = get_metrics(token, FPGA_THERMAL, metrics_info, &num_metrics_info, metrics, &num_metrics);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading metrics from BMC");
 
-	print_metrics(metrics_info, metrics, num_metrics);
+	print_metrics(metrics_info, num_metrics_info, metrics, num_metrics);
 
 out_destroy:
 	res = fpgaDestroyObject(&obj);

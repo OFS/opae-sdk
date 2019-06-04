@@ -127,8 +127,10 @@ fpga_result __FPGA_API__ xfpga_fpgaCloneObject(fpga_object src, fpga_object *dst
 	_dst->handle = _src->handle;
 	_dst->perm = _src->perm;
 	_dst->size = _src->size;
+	_dst->type = _src->type;
 	_dst->max_size = _src->max_size;
 	if (_src->type == FPGA_SYSFS_FILE) {
+		_dst->buffer = calloc(_dst->max_size, sizeof(uint8_t));
 		memcpy_s(_dst->buffer, _dst->max_size, _src->buffer,
 			 _src->max_size);
 	} else {
@@ -202,16 +204,16 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectGetSize(fpga_object obj,
 						 uint32_t *size,
 						 int flags)
 {
+	struct _fpga_object *_obj = (struct _fpga_object *)obj;
 	fpga_result res = FPGA_OK;
 	ASSERT_NOT_NULL(obj);
 	ASSERT_NOT_NULL(size);
-	if (flags & FPGA_OBJECT_SYNC) {
+	if (flags & FPGA_OBJECT_SYNC && _obj->type == FPGA_SYSFS_FILE) {
 		res = sync_object(obj);
 		if (res) {
 			return res;
 		}
 	}
-	struct _fpga_object *_obj = (struct _fpga_object *)obj;
 	*size = _obj->size;
 	return res;
 }
