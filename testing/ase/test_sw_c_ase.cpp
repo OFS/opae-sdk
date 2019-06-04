@@ -352,6 +352,7 @@ TEST(sim_sw_ase, ase_str_03) {
 	EXPECT_EQ(2018, a);
 
 	fclose(fp);
+	EXPECT_EQ(unlink("str_test.txt"), 0);
 }
 
 /**
@@ -503,6 +504,7 @@ TEST(sim_sw_ase, ase_app_01) {
 	fclose(file);
 
 	remove_existing_lock_file("app_test2.txt");
+	EXPECT_EQ(unlink("app_test2.txt"), 0);
 }
 
 /**
