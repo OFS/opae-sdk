@@ -65,7 +65,8 @@ parse_fpgainfo_output() {
          fi 
          ;;
     *"phy"*)
-         if [[ $2 =~ "PHY GROUP 0" && $2 =~ "PHY GROUP 1" && $2 =~ "PKVL" && 
+         if [[ $2 =~ "PHY GROUP 0" && $2 =~ "PHY GROUP 1" && 
+               $2 =~ "Intel C827 Retimer" && 
                $2 =~ "Port0" && $2 =~ "Port1" ]]; then
              parse_ec=0
          else
