@@ -388,7 +388,7 @@ fpga_result read_phy_group_info(fpga_token token,
 
 	res = fpgaObjectGetSize(group_dev_object, &group_dev_count, FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get token object size");
+		OPAE_ERR("Failed to get object size");
 		resval = res;
 		goto out_destroy_group_dev;
 	}
@@ -405,13 +405,13 @@ fpga_result read_phy_group_info(fpga_token token,
 
 		res = fpgaObjectGetObjectAt(group_dev_object, i, &dev_obj[i]);
 		if (res != FPGA_OK) {
-			OPAE_ERR("Failed to get token object from array");
+			OPAE_ERR("Failed to get object from array of objects");
 			resval = res;
 			continue;
 		}
 		res = fpgaObjectGetSize(dev_obj[i], &obj_size, 0);
 		if (res != FPGA_OK) {
-			OPAE_ERR("Failed to get token object size");
+			OPAE_ERR("Failed to get object size");
 			resval = res;
 			res = fpgaDestroyObject(&dev_obj[i]);
 			if (res != FPGA_OK) {
@@ -421,7 +421,7 @@ fpga_result read_phy_group_info(fpga_token token,
 
 		res = fpgaObjectRead(dev_obj[i], (uint8_t *)cdevid, 0, obj_size, 0);
 		if (res != FPGA_OK) {
-			OPAE_ERR("Failed to get token object read FAIL");
+			OPAE_ERR("Failed to read device node");
 			resval = res;
 		}
 
@@ -537,7 +537,7 @@ fpga_result print_pkvl_version(fpga_token token)
 
 	res = fpgaObjectGetSize(pkvl_a_object, &size, FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get token object size");
+		OPAE_ERR("Failed to get object size");
 		resval = res;
 		goto out_destroy_obj_b;
 	}
@@ -551,7 +551,7 @@ fpga_result print_pkvl_version(fpga_token token)
 
 	res = fpgaObjectGetSize(pkvl_b_object, &size, FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get token object size");
+		OPAE_ERR("Failed to get object size");
 		resval = res;
 		goto out_destroy_obj_b;
 	}
@@ -592,7 +592,7 @@ fpga_result print_mac_info(fpga_token token)
 
 	res = read_mac_info(token, buf, SYSFS_MAX_SIZE);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to mac address");
+		OPAE_ERR("Failed to read mac information");
 		return res;
 	}
 
@@ -627,12 +627,12 @@ fpga_result print_board_info(fpga_token token)
 
 	res = read_max10fw_version(token, max10_ver, SYSFS_MAX_SIZE);
 	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to max10 version");
+		OPAE_MSG("Failed to read max10 version");
 	}
 
 	res = read_pcb_info(token, pcb_ver, SYSFS_MAX_SIZE);
 	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to pcb version");
+		OPAE_MSG("Failed to read pcb version");
 	}
 
 	printf("Board Management Controller, MAX10 NIOS FW version: %s \n", max10_ver);
@@ -657,7 +657,7 @@ fpga_result print_phy_info(fpga_token token)
 
 	res = read_phy_group_info(token, NULL, &group_num);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to phy group count");
+		OPAE_ERR("Failed to read phy group count");
 		return res;
 	}
 
@@ -670,7 +670,7 @@ fpga_result print_phy_info(fpga_token token)
 
 	res = read_phy_group_info(token, phy_info_array, &group_num);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to phy group array");
+		OPAE_ERR("Failed to read phy group array");
 		goto out_free;
 	}
 
