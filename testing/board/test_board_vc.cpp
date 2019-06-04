@@ -141,7 +141,7 @@ fpga_result board_vc_c_p::write_sysfs_file(const char *file,
 	fd = open(pglob.gl_pathv[0], O_WRONLY);
 	globfree(&pglob);
 	if (fd < 0) {
-		printf("open faild \n");
+		printf("open failed \n");
 		return FPGA_NOT_FOUND;
 	}
 
