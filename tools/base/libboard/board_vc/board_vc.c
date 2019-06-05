@@ -126,9 +126,8 @@ out_destroy:
 fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 {
 	uint8_t rev                = 0;
-	unsigned long int var      = 0;
+	uint32_t var               = 0;
 	fpga_result res            = FPGA_OK;
-	char *endptr               = NULL;
 
 	if (buf == NULL ||
 		fw_ver == NULL) {
@@ -149,7 +148,7 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 	*/
 
 	errno = 0;
-	var = strtoul(buf, &endptr, 16);
+	var = strtoul(buf, NULL, 16);
 	if (var == 0  &&
 		errno != 0) {
 		OPAE_ERR("Failed to covert buffer to integer: %s", strerror(errno));
@@ -159,8 +158,7 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 	rev = (var >> 24) & 0xff;
 	if ((rev >= 'A') && (rev <= 'Z')) {// range from 'A' to 'Z'
 		snprintf_s_ciii(fw_ver, len, "%c.%u.%u.%u", (char)rev, (var >> 16) & 0xff, (var >> 8) & 0xff, var & 0xff);
-	}
-	else {
+	} else {
 		OPAE_ERR("Invalid firmware version");
 		res = FPGA_EXCEPTION;
 	}
@@ -276,8 +274,8 @@ out_destroy:
 
 // Read PKVL information
 fpga_result read_pkvl_info(fpga_token token,
-				fpga_pkvl_info *pkvl_info,
-				int *fpga_mode)
+			   fpga_pkvl_info *pkvl_info,
+			   int *fpga_mode)
 {
 	fpga_result res                    = FPGA_OK;
 	fpga_result resval                 = FPGA_OK;
@@ -767,7 +765,6 @@ fpga_result print_phy_info(fpga_token token)
 		if (phy_info_array[0].phy_num == 4) {
 			switch (fpga_mode) {
 			case FPGA_PHYGROUP_MODE_4_25G: /* 4x25g */
-				mask = 0xf;
 				/* FALLTHROUGH */
 			case FPGA_PHYGROUP_MODE_6_25G: /* 6x25g */
 				mask = 0xf;
