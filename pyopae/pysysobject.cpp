@@ -134,9 +134,16 @@ std::string sysobject_bytes(sysobject::ptr_t obj) {
   return std::string(bytes.begin(), bytes.end());
 }
 
-uint8_t sysobject_getitem(sysobject::ptr_t obj, uint32_t offset) {
-  auto bytes = obj->bytes(offset, 1, FPGA_OBJECT_SYNC);
-  return bytes[0];
+py::object sysobject_getitem(sysobject::ptr_t obj, uint32_t offset) {
+  switch(obj->type()) {
+    case FPGA_OBJECT_ATTRIBUTE:
+      return py::cast(obj->bytes(offset, 1, FPGA_OBJECT_SYNC)[0]);
+      break;
+    case FPGA_OBJECT_CONTAINER:
+      return py::cast(obj->get(offset));
+      break;
+  }
+  return py::object();
 }
 
 std::string sysobject_getslice(sysobject::ptr_t obj, py::slice slice) {
