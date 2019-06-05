@@ -422,7 +422,7 @@ fpga_result mac_info(fpga_token token)
 	fpga_result res       = FPGA_OK;
 	void* dl_handle       = NULL;
 
-	// mack
+	// mac information
 	fpga_result(*print_mac_info)(fpga_token token);
 
 	res = load_board_plugin(token, &dl_handle);

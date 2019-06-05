@@ -58,13 +58,20 @@
 // driver ioctl id
 #define FPGA_PHY_GROUP_GET_INFO               0xB702
 
+#define FPGA_BSID_SIZE                        32
+
+// fpga phy group mode
+#define FPGA_PHYGROUP_MODE_4_25G              1
+#define FPGA_PHYGROUP_MODE_6_25G              3
+#define FPGA_PHYGROUP_MODE_2_2_25G            4
+
 // Read BMC firmware version
 fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 {
 	fpga_result res                = FPGA_OK;
 	fpga_result resval             = FPGA_OK;
 	uint32_t size                  = 0;
-	char buf[VER_BUF_SIZE]         = { 0 };
+	char buf[FPGA_VAR_BUF_LEN]     = { 0 };
 	fpga_object bmcfw_object;
 
 	if (bmcfw_ver == NULL) {
@@ -85,9 +92,9 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 		goto out_destroy;
 	}
 
-	// Return error if input sysfs path length smaller then object size
-	if (len < size) {
-		FPGA_ERR("Invalid Input sysfs path size");
+	// Return error if object size bigger then buffer size
+	if (size > FPGA_VAR_BUF_LEN) {
+		FPGA_ERR("object size bigger then buffer size");
 		resval = FPGA_EXCEPTION;
 		goto out_destroy;
 	}
@@ -118,9 +125,10 @@ out_destroy:
 
 fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 {
-	uint8_t rev       = 0;
-	uint32_t var      = 0;
-	fpga_result res   = FPGA_OK;
+	uint8_t rev                = 0;
+	unsigned long int var      = 0;
+	fpga_result res            = FPGA_OK;
+	char *endptr               = NULL;
 
 	if (buf == NULL ||
 		fw_ver == NULL) {
@@ -140,14 +148,20 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 	0x44(D)-For RevD
 	*/
 
-	var = strtoul(buf, NULL, VER_BUF_SIZE);
+	errno = 0;
+	var = strtoul(buf, &endptr, 16);
+	if (var == 0  &&
+		errno != 0) {
+		OPAE_ERR("Failed to covert buffer to integer: %s", strerror(errno));
+		return FPGA_EXCEPTION;
+	}
 
 	rev = (var >> 24) & 0xff;
-	if ((rev > 0x40) && (rev < 0x5B)) {// range from 'A' to 'Z'
-		snprintf_s_ciii(fw_ver, len, "%c.%u.%u.%u", (char)rev, (var >> VER_BUF_SIZE) & 0xff, (var >> 8) & 0xff, var & 0xff);
+	if ((rev >= 'A') && (rev <= 'Z')) {// range from 'A' to 'Z'
+		snprintf_s_ciii(fw_ver, len, "%c.%u.%u.%u", (char)rev, (var >> 16) & 0xff, (var >> 8) & 0xff, var & 0xff);
 	}
 	else {
-		OPAE_ERR("Invalid BMC firmware version");
+		OPAE_ERR("Invalid firmware version");
 		res = FPGA_EXCEPTION;
 	}
 
@@ -160,7 +174,7 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 	fpga_result res                      = FPGA_OK;
 	fpga_result resval                   = FPGA_OK;
 	uint32_t size                        = 0;
-	char buf[VER_BUF_SIZE]               = { 0 };
+	char buf[FPGA_VAR_BUF_LEN]           = { 0 };
 	fpga_object max10fw_object;
 
 	if (max10fw_ver == NULL) {
@@ -181,17 +195,17 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 		goto out_destroy;
 	}
 
+	// Return error if object size bigger then buffer size
+	if (size > FPGA_VAR_BUF_LEN) {
+		FPGA_ERR("object size bigger then buffer size");
+		resval = FPGA_EXCEPTION;
+		goto out_destroy;
+	}
+
 	res = fpgaObjectRead(max10fw_object, (uint8_t *)buf, 0, size, 0);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to read object ");
 		resval = res;
-		goto out_destroy;
-	}
-
-	// Return error if input sysfs path length smaller then object size
-	if (len < size) {
-		FPGA_ERR("Invalid Input sysfs path size");
-		resval = FPGA_EXCEPTION;
 		goto out_destroy;
 	}
 
@@ -237,9 +251,9 @@ fpga_result read_pcb_info(fpga_token token, char *pcb_info, size_t len)
 		goto out_destroy;
 	}
 
-	// Return error if input sysfs path length smaller then object size
-	if (len < size) {
-		FPGA_ERR("Invalid Input sysfs path size");
+	// Return error if object size bigger then pcb info length
+	if (size > len) {
+		FPGA_ERR("object size bigger then pcb info size");
 		resval = FPGA_EXCEPTION;
 		goto out_destroy;
 	}
@@ -262,8 +276,8 @@ out_destroy:
 
 // Read PKVL information
 fpga_result read_pkvl_info(fpga_token token,
-			fpga_pkvl_info *pkvl_info,
-			int *fpga_mode)
+				fpga_pkvl_info *pkvl_info,
+				int *fpga_mode)
 {
 	fpga_result res                    = FPGA_OK;
 	fpga_result resval                 = FPGA_OK;
@@ -307,7 +321,7 @@ fpga_result read_pkvl_info(fpga_token token,
 		goto out_destroy_status;
 	}
 
-	*fpga_mode = (bs_id >> 32) & 0xf;
+	*fpga_mode = (bs_id >> FPGA_BSID_SIZE) & 0xf;
 
 	res = fpgaObjectRead64(poll_mode_object, &poll_mode, 0);
 	if (res != FPGA_OK) {
@@ -349,24 +363,22 @@ out_destroy_bsid:
 
 // Read PHY group information
 fpga_result read_phy_group_info(fpga_token token,
-			fpga_phy_group_info *group_info,
-			int *group_num)
+				fpga_phy_group_info *group_info,
+				uint32_t *group_num)
 {
-	fpga_result res                 = FPGA_OK;
-	fpga_result resval              = FPGA_OK;
-	char path[SYSFS_MAX_SIZE]       = { 0 };
-	char cdevid[CDEV_ID_SIZE]       = { 0 };
-	size_t i                        = 0;
-	int fd                          = 0;
-	uint32_t group_dev_count        = 0;
-	uint32_t obj_size               = 0;
-	fpga_object dev_obj[SYSFS_MAX_SIZE];
-	fpga_phy_group_info info;
+	fpga_result res = FPGA_OK;
+	fpga_result resval = FPGA_OK;
+	char path[SYSFS_MAX_SIZE] = { 0 };
+	char cdevid[CDEV_ID_SIZE] = { 0 };
+	size_t i = 0;
+	uint32_t group_dev_count = 0;
+	uint32_t obj_size = 0;
+	fpga_object dev_obj;
 	fpga_object group_object;
 	fpga_object group_dev_object;
 
 
-	if (group_num == NULL ) {
+	if (group_num == NULL) {
 		FPGA_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
@@ -400,33 +412,57 @@ fpga_result read_phy_group_info(fpga_token token,
 		goto out_destroy_group_dev;
 	}
 
+	// Return error if group device count bigger then group info array size
+	if (group_dev_count > *group_num) {
+		FPGA_ERR("group device count bigger then group info array size");
+		resval = FPGA_EXCEPTION;
+		goto out_destroy_group_dev;
+	}
 
 	for (i = 0; i < group_dev_count; i++) {
 
-		res = fpgaObjectGetObjectAt(group_dev_object, i, &dev_obj[i]);
+		res = fpgaObjectGetObjectAt(group_dev_object, i, &dev_obj);
 		if (res != FPGA_OK) {
-			OPAE_ERR("Failed to get object from array of objects");
+			OPAE_ERR("Failed to get device node object from group device object");
 			resval = res;
 			continue;
 		}
-		res = fpgaObjectGetSize(dev_obj[i], &obj_size, 0);
+
+		res = fpgaObjectGetSize(dev_obj, &obj_size, 0);
 		if (res != FPGA_OK) {
 			OPAE_ERR("Failed to get object size");
 			resval = res;
-			res = fpgaDestroyObject(&dev_obj[i]);
+			res = fpgaDestroyObject(&dev_obj);
 			if (res != FPGA_OK) {
 				OPAE_ERR("Failed to destroy object");
 			}
+			continue;
 		}
 
-		res = fpgaObjectRead(dev_obj[i], (uint8_t *)cdevid, 0, obj_size, 0);
+
+		if (obj_size > CDEV_ID_SIZE) {
+			OPAE_ERR("Device node obj size size bigger then buffer ");
+			resval = FPGA_EXCEPTION;
+			res = fpgaDestroyObject(&dev_obj);
+			if (res != FPGA_OK) {
+				OPAE_ERR("Failed to destroy object");
+			}
+			continue;
+		}
+
+		res = fpgaObjectRead(dev_obj, (uint8_t *)cdevid, 0, obj_size, 0);
 		if (res != FPGA_OK) {
 			OPAE_ERR("Failed to read device node");
 			resval = res;
+			res = fpgaDestroyObject(&dev_obj);
+			if (res != FPGA_OK) {
+				OPAE_ERR("Failed to destroy object");
+			}
+			continue;
 		}
 
 
-		res = fpgaDestroyObject(&dev_obj[i]);
+		res = fpgaDestroyObject(&dev_obj);
 		if (res != FPGA_OK) {
 			resval = res;
 			OPAE_ERR("Failed to destroy object");
@@ -434,25 +470,13 @@ fpga_result read_phy_group_info(fpga_token token,
 
 		// append null char
 		cdevid[obj_size - 1] = '\0';
-
 		snprintf_s_s(path, sizeof(path), "/dev/char/%s", cdevid);
 
-		fd = open(path, O_RDWR);
-		if (fd < 0) {
-			OPAE_ERR("Open %s failed\n", path);
-			continue;
+		res = get_phy_info(path, &group_info[i]);
+		if (res != FPGA_OK) {
+			OPAE_ERR("Failed to get phy group info");
+			resval = res;
 		}
-
-		memset_s(&info, sizeof(info), 0);
-		info.argsz = 14;
-
-		if (0 == ioctl(fd, FPGA_PHY_GROUP_GET_INFO, &info)) {
-			group_info[i] = info;
-		} else {
-			OPAE_ERR("ioctl error\n");
-		}
-
-		close(fd);
 
 	} // end for loop
 
@@ -470,6 +494,36 @@ out_destroy_group:
 
 	return resval;
 
+}
+
+// get pyh group information
+fpga_result get_phy_info(char *dev_path, fpga_phy_group_info *info)
+{
+	fpga_result res = FPGA_OK;
+	int fd          = 0;
+
+	if (dev_path == NULL ||
+		info == NULL) {
+		FPGA_ERR("Invalid Input parameters");
+		return FPGA_INVALID_PARAM;
+	}
+
+	fd = open(dev_path, O_RDWR);
+	if (fd < 0) {
+		OPAE_ERR("Open %s failed\n", dev_path);
+		return FPGA_INVALID_PARAM;
+	}
+
+	memset_s(info, sizeof(fpga_phy_group_info), 0);
+	info->argsz = sizeof(fpga_phy_group_info);
+
+	if (0 != ioctl(fd, FPGA_PHY_GROUP_GET_INFO, info)) {
+		OPAE_ERR("ioctl  FPGA_PHY_GROUP_GET_INFO error\n");
+	}
+
+	close(fd);
+
+	return res;
 }
 
 // Read mac information
@@ -512,11 +566,11 @@ out_destroy_mac:
 // Read pkvl versoin
 fpga_result print_pkvl_version(fpga_token token)
 {
-	fpga_result res                 = FPGA_OK;
-	fpga_result resval              = FPGA_OK;
-	char ver_a_buf[VER_BUF_SIZE]    = { 0 };
-	char ver_b_buf[VER_BUF_SIZE]    = { 0 };
-	uint32_t size                   = 0;
+	fpga_result res                     = FPGA_OK;
+	fpga_result resval                  = FPGA_OK;
+	char ver_a_buf[FPGA_VAR_BUF_LEN]    = { 0 };
+	char ver_b_buf[FPGA_VAR_BUF_LEN]    = { 0 };
+	uint32_t size                       = 0;
 	fpga_object pkvl_a_object;
 	fpga_object pkvl_b_object;
 
@@ -534,11 +588,16 @@ fpga_result print_pkvl_version(fpga_token token)
 		goto out_destroy_obj_a;
 	}
 
-
 	res = fpgaObjectGetSize(pkvl_a_object, &size, FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get object size");
 		resval = res;
+		goto out_destroy_obj_b;
+	}
+
+	if (size > FPGA_VAR_BUF_LEN) {
+		OPAE_ERR("pkvl A version buffer bigger then version buffer");
+		resval = FPGA_EXCEPTION;
 		goto out_destroy_obj_b;
 	}
 
@@ -555,6 +614,13 @@ fpga_result print_pkvl_version(fpga_token token)
 		resval = res;
 		goto out_destroy_obj_b;
 	}
+
+	if (size > FPGA_VAR_BUF_LEN) {
+		OPAE_ERR("pkvl B version buffer bigger then version buffer");
+		resval = FPGA_EXCEPTION;
+		goto out_destroy_obj_b;
+	}
+
 
 	res = fpgaObjectRead(pkvl_b_object, (uint8_t *)ver_b_buf, 0, size, 0);
 	if (res != FPGA_OK) {
@@ -584,13 +650,13 @@ out_destroy_obj_a:
 // print mac information
 fpga_result print_mac_info(fpga_token token)
 {
-	fpga_result res               = FPGA_OK;
-	unsigned char buf[8]          = { 0 };
-	int i                         = 0;
-	int n                         = 0;
+	fpga_result res                  = FPGA_OK;
+	unsigned char buf[MAC_BUF_SIZE]  = { 0 };
+	int i                            = 0;
+	int n                            = 0;
 	pkvl_mac mac;
 
-	res = read_mac_info(token, buf, SYSFS_MAX_SIZE);
+	res = read_mac_info(token, buf, MAC_BUF_SIZE);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to read mac information");
 		return res;
@@ -616,27 +682,27 @@ fpga_result print_mac_info(fpga_token token)
 fpga_result print_board_info(fpga_token token)
 {
 	fpga_result res                      = FPGA_OK;
-	char bmc_ver[SYSFS_MAX_SIZE]         = { 0 };
-	char max10_ver[SYSFS_MAX_SIZE]       = { 0 };
-	char pcb_ver[SYSFS_MAX_SIZE]         = { 0 };
+	char bmc_ver[FPGA_VAR_BUF_LEN]       = { 0 };
+	char max10_ver[FPGA_VAR_BUF_LEN]     = { 0 };
+	char pcb_ver[FPGA_VAR_BUF_LEN]       = { 0 };
 
-	res = read_bmcfw_version(token, bmc_ver, SYSFS_MAX_SIZE);
+	res = read_bmcfw_version(token, bmc_ver, FPGA_VAR_BUF_LEN);
 	if (res != FPGA_OK) {
 		OPAE_MSG("Failed to read bmc version");
 	}
 
-	res = read_max10fw_version(token, max10_ver, SYSFS_MAX_SIZE);
+	res = read_max10fw_version(token, max10_ver, FPGA_VAR_BUF_LEN);
 	if (res != FPGA_OK) {
 		OPAE_MSG("Failed to read max10 version");
 	}
 
-	res = read_pcb_info(token, pcb_ver, SYSFS_MAX_SIZE);
+	res = read_pcb_info(token, pcb_ver, FPGA_VAR_BUF_LEN);
 	if (res != FPGA_OK) {
 		OPAE_MSG("Failed to read pcb version");
 	}
 
-	printf("Board Management Controller, MAX10 NIOS FW version: %s \n", max10_ver);
-	printf("Board Management Controller, MAX10 Build version: %s \n", bmc_ver);
+	printf("Board Management Controller, MAX10 NIOS FW version: %s \n", bmc_ver );
+	printf("Board Management Controller, MAX10 Build version: %s \n", max10_ver);
 	printf("PCB version: %s \n", pcb_ver);;
 
 	return res;
@@ -647,9 +713,9 @@ fpga_result print_phy_info(fpga_token token)
 {
 	fpga_result res                            = FPGA_OK;
 	fpga_phy_group_info* phy_info_array        = NULL;
-	int group_num                              = 0;
+	uint32_t group_num                         = 0;
 	int fpga_mode                              = 0;
-	int i                                      = 0;
+	uint32_t i                                 = 0;
 	int j                                      = 0;
 	char mode[VER_BUF_SIZE]                    = { 0 };
 	fpga_pkvl_info pkvl_info;
@@ -680,7 +746,7 @@ fpga_result print_phy_info(fpga_token token)
 		goto out_free;
 	}
 
-	//TODO
+
 	for (i = 0; i < group_num; i++) {
 
 		printf("//****** PHY GROUP %d ******//\n", i);
@@ -690,7 +756,7 @@ fpga_result print_phy_info(fpga_token token)
 		printf("%-32s : %d\n", "Number of PHYs", phy_info_array[i].phy_num);
 	}
 
-	//TODO
+
 	int mask = 0;
 	if (phy_info_array[0].speed == 10) {
 		mask = 0xff;
@@ -700,15 +766,14 @@ fpga_result print_phy_info(fpga_token token)
 
 		if (phy_info_array[0].phy_num == 4) {
 			switch (fpga_mode) {
-			case 1: /* 4x25g */
+			case FPGA_PHYGROUP_MODE_4_25G: /* 4x25g */
+				mask = 0xf;
+				/* FALLTHROUGH */
+			case FPGA_PHYGROUP_MODE_6_25G: /* 6x25g */
 				mask = 0xf;
 				break;
 
-			case 3: /* 6x25g */
-				mask = 0xf;
-				break;
-
-			case 4: /* 2x2x25g */
+			case FPGA_PHYGROUP_MODE_2_2_25G: /* 2x2x25g */
 				mask = 0x33;
 				break;
 

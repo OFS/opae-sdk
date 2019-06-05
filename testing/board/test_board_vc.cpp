@@ -191,9 +191,9 @@ TEST_P(board_vc_c_p, board_vc_1) {
 
 	EXPECT_EQ(read_bmcfw_version(tokens_[0], bmcfw_ver, SYSFS_MAX_SIZE), FPGA_OK);
 
-	EXPECT_NE(read_bmcfw_version(tokens_[0], NULL, SYSFS_MAX_SIZE), FPGA_OK);
+	EXPECT_EQ(read_bmcfw_version(tokens_[0], NULL, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
 
-	EXPECT_NE(read_bmcfw_version(NULL, bmcfw_ver, SYSFS_MAX_SIZE), FPGA_OK);
+	EXPECT_EQ(read_bmcfw_version(NULL, bmcfw_ver, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -207,9 +207,9 @@ TEST_P(board_vc_c_p, board_vc_2) {
 
 	EXPECT_EQ(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_MAX_SIZE), FPGA_OK);
 
-	EXPECT_NE(read_max10fw_version(tokens_[0], NULL, SYSFS_MAX_SIZE), FPGA_OK);
+	EXPECT_EQ(read_max10fw_version(tokens_[0], NULL, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
 
-	EXPECT_NE(read_max10fw_version(NULL, max10fw_ver, SYSFS_MAX_SIZE), FPGA_OK);
+	EXPECT_EQ(read_max10fw_version(NULL, max10fw_ver, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -223,9 +223,9 @@ TEST_P(board_vc_c_p, board_vc_3) {
 
 	EXPECT_EQ(read_pcb_info(tokens_[0], pcb_info, SYSFS_MAX_SIZE), FPGA_OK);
 
-	EXPECT_NE(read_pcb_info(tokens_[0], NULL, SYSFS_MAX_SIZE), FPGA_OK);
+	EXPECT_EQ(read_pcb_info(tokens_[0], NULL, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
 
-	EXPECT_NE(read_pcb_info(NULL, pcb_info, SYSFS_MAX_SIZE), FPGA_OK);
+	EXPECT_EQ(read_pcb_info(NULL, pcb_info, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -240,11 +240,11 @@ TEST_P(board_vc_c_p, board_vc_4) {
 
 	EXPECT_EQ(read_pkvl_info(tokens_[0], &pkvl_info, &fpga_mode), FPGA_OK);
 
-	EXPECT_NE(read_pkvl_info(tokens_[0], &pkvl_info, NULL), FPGA_OK);
+	EXPECT_EQ(read_pkvl_info(tokens_[0], &pkvl_info, NULL), FPGA_INVALID_PARAM);
 
-	EXPECT_NE(read_pkvl_info(tokens_[0], NULL, &fpga_mode), FPGA_OK);
+	EXPECT_EQ(read_pkvl_info(tokens_[0], NULL, &fpga_mode), FPGA_INVALID_PARAM);
 
-	EXPECT_NE(read_pkvl_info(NULL, &pkvl_info, &fpga_mode), FPGA_OK);
+	EXPECT_EQ(read_pkvl_info(NULL, &pkvl_info, &fpga_mode), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -258,9 +258,9 @@ TEST_P(board_vc_c_p, board_vc_5) {
 
 	EXPECT_EQ(read_mac_info(tokens_[0], buf, SYSFS_MAX_SIZE), FPGA_OK);
 
-	EXPECT_NE(read_mac_info(NULL, buf, SYSFS_MAX_SIZE), FPGA_OK);
+	EXPECT_EQ(read_mac_info(NULL, buf, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
 
-	EXPECT_NE(read_mac_info(tokens_[0], NULL, SYSFS_MAX_SIZE), FPGA_OK);
+	EXPECT_EQ(read_mac_info(tokens_[0], NULL, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -270,13 +270,13 @@ TEST_P(board_vc_c_p, board_vc_5) {
 */
 TEST_P(board_vc_c_p, board_vc_6) {
 
-	int group_num = 0;
+	uint32_t group_num = 0;
 
 	EXPECT_EQ(read_phy_group_info(tokens_[0], NULL, &group_num), FPGA_OK);
 
-	EXPECT_NE(read_phy_group_info(tokens_[0], NULL, NULL), FPGA_OK);
+	EXPECT_EQ(read_phy_group_info(tokens_[0], NULL, NULL), FPGA_INVALID_PARAM);
 
-	EXPECT_NE(read_phy_group_info(NULL, NULL, &group_num), FPGA_OK);
+	EXPECT_EQ(read_phy_group_info(NULL, NULL, &group_num), FPGA_NOT_FOUND);
 }
 
 /**
@@ -290,7 +290,6 @@ TEST_P(board_vc_c_p, board_vc_7) {
 
 	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
 
-	EXPECT_EQ(print_phy_info(tokens_[0]), FPGA_OK);
 }
 
 /**
@@ -330,29 +329,29 @@ class board_vc_invalid_c_p : public board_vc_c_p { };
 TEST_P(board_vc_invalid_c_p, board_vc_9) {
 
 	char bmcfw_ver[SYSFS_MAX_SIZE];
-	EXPECT_NE(read_bmcfw_version(tokens_[0], bmcfw_ver, SYSFS_MAX_SIZE), FPGA_OK);
+	EXPECT_EQ(read_bmcfw_version(tokens_[0], bmcfw_ver, SYSFS_MAX_SIZE), FPGA_NOT_FOUND);
 
 	char max10fw_ver[SYSFS_MAX_SIZE];
-	EXPECT_NE(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_MAX_SIZE), FPGA_OK);
+	EXPECT_EQ(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_MAX_SIZE), FPGA_NOT_FOUND);
 
 	char pcb_info[SYSFS_MAX_SIZE];
-	EXPECT_NE(read_pcb_info(tokens_[0], pcb_info, SYSFS_MAX_SIZE), FPGA_OK);
+	EXPECT_EQ(read_pcb_info(tokens_[0], pcb_info, SYSFS_MAX_SIZE), FPGA_NOT_FOUND);
 
 	fpga_pkvl_info pkvl_info;
 	int fpga_mode;
-	EXPECT_NE(read_pkvl_info(tokens_[0], &pkvl_info, &fpga_mode), FPGA_OK);
+	EXPECT_EQ(read_pkvl_info(tokens_[0], &pkvl_info, &fpga_mode), FPGA_NOT_FOUND);
 
 	unsigned char buf[8] = { 0 };
-	EXPECT_NE(read_mac_info(tokens_[0], buf, 8), FPGA_OK);
+	EXPECT_EQ(read_mac_info(tokens_[0], buf, 8), FPGA_NOT_FOUND);
 
-	int group_num = 0;
-	EXPECT_NE(read_phy_group_info(tokens_[0], NULL, &group_num), FPGA_OK);
+	uint32_t group_num = 0;
+	EXPECT_EQ(read_phy_group_info(tokens_[0], NULL, &group_num), FPGA_NOT_FOUND);
 
-	EXPECT_NE(print_board_info(tokens_[0]), FPGA_OK);
+	EXPECT_EQ(print_board_info(tokens_[0]), FPGA_NOT_FOUND);
 
-	EXPECT_NE(print_mac_info(tokens_[0]), FPGA_OK);
+	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_NOT_FOUND);
 
-	EXPECT_NE(print_phy_info(tokens_[0]), FPGA_OK);
+	EXPECT_EQ(print_phy_info(tokens_[0]), FPGA_NOT_FOUND);
 }
 INSTANTIATE_TEST_CASE_P(board_vc_invalid_c, board_vc_invalid_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));

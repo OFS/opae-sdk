@@ -59,6 +59,8 @@ static void print_temp_info(fpga_token token)
 
 	res = fpgaGetProperties(token, &props);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "Failure reading properties from token");
+
+	fpgainfo_board_info(token);
 	fpgainfo_print_common("//****** TEMP ******//", props);
 
 	res = fpgaTokenGetObject(token, PKG_TEMP_NAME, &obj, FPGA_OBJECT_GLOB);

@@ -38,6 +38,9 @@ extern "C" {
 #define SYSFS_MAX_SIZE         256
 #define MAC_BYTE_SIZE          4
 #define VER_BUF_SIZE           16
+#define FPGA_VAR_BUF_LEN       256
+#define FPGA_PHYGROUP_SIZE     256
+#define MAC_BUF_SIZE           8
 
 typedef struct _fpga_pkvl_info {
 	uint32_t polling_mode;
@@ -115,7 +118,7 @@ fpga_result read_mac_info(fpga_token token, unsigned char *mac_info, size_t len)
 */
 fpga_result read_phy_group_info(fpga_token token,
 				fpga_phy_group_info *group_info,
-				int *group_num);
+				uint32_t *group_num);
 
 /**
 * Get PKVL information.
@@ -181,6 +184,16 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_var, size_t len);
 *
 */
 fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len);
+
+/**
+* get phy group info from driver.
+*
+* @param[in] dev_path        pointer to device path
+* @param[inout] fw_ver       pointer to fpga_phy_group_info
+* @returns FPGA_OK on success. FPGA_EXCEPTION if FW version is invlaid.
+*
+*/
+fpga_result get_phy_info(char *dev_path, fpga_phy_group_info *info);
 
 #ifdef __cplusplus
 }
