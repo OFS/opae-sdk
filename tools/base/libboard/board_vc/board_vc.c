@@ -128,6 +128,7 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 	uint8_t rev                = 0;
 	uint32_t var               = 0;
 	fpga_result res            = FPGA_OK;
+	int retval                 = 0;
 
 	if (buf == NULL ||
 		fw_ver == NULL) {
@@ -157,7 +158,11 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 
 	rev = (var >> 24) & 0xff;
 	if ((rev >= 'A') && (rev <= 'Z')) {// range from 'A' to 'Z'
-		snprintf_s_ciii(fw_ver, len, "%c.%u.%u.%u", (char)rev, (var >> 16) & 0xff, (var >> 8) & 0xff, var & 0xff);
+		retval = snprintf_s_ciii(fw_ver, len, "%c.%u.%u.%u", (char)rev, (var >> 16) & 0xff, (var >> 8) & 0xff, var & 0xff);
+		if (retval < 0) {
+			FPGA_ERR("error in formatting version" );
+			return FPGA_EXCEPTION;
+		}
 	} else {
 		OPAE_ERR("Invalid firmware version");
 		res = FPGA_EXCEPTION;
