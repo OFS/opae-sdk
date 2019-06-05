@@ -57,7 +57,7 @@ opae::fpga::types::sysobject::ptr_t sysobject_find_sysobject(
     opae::fpga::types::sysobject::ptr_t tok, const std::string &name,
     int flags = 0);
 std::string sysobject_bytes(opae::fpga::types::sysobject::ptr_t obj);
-uint8_t sysobject_getitem(opae::fpga::types::sysobject::ptr_t obj,
+pybind11::object sysobject_getitem(opae::fpga::types::sysobject::ptr_t obj,
                           uint32_t offset);
 std::string sysobject_getslice(opae::fpga::types::sysobject::ptr_t obj,
                                     pybind11::slice slice);
