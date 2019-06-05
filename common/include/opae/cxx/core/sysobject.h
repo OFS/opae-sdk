@@ -176,6 +176,10 @@ class sysobject {
   std::vector<uint8_t> bytes(uint32_t offset, uint32_t size,
                              int flags = 0) const;
 
+  /** Get the object type (attribute or container)
+   */
+  enum fpga_sysobject_type type() const;
+
   /** Retrieve the underlying fpga_object primitive.
    */
   fpga_object c_type() const { return sysobject_; }
