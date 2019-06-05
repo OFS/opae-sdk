@@ -232,7 +232,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
 						metric_num[i],
 						&metrics[i]);
 			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to get metric value  at Index = %ld", metric_num[i]);
+				FPGA_MSG("Failed to get metric value  at Index = %ld", metric_num[i]);
 				metrics[i].metric_num = metric_num[i];
 				continue;
 			} else {
@@ -257,7 +257,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
 							metric_num[i],
 							&metrics[i]);
 			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to get metric value  at Index = %ld", metric_num[i]);
+				FPGA_MSG("Failed to get metric value  at Index = %ld", metric_num[i]);
 				metrics[i].metric_num = metric_num[i];
 				continue;
 			} else {
@@ -351,7 +351,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 							&(_handle->fpga_enum_metric_vector),
 							&metric_num);
 			if (result != FPGA_OK) {
-				FPGA_ERR("Invalid input metrics string= %s", metrics_names[i]);
+				FPGA_MSG("Invalid input metrics string= %s", metrics_names[i]);
 				metrics[i].metric_num = METRIC_ARRAY_INVALID_INDEX;
 				continue;
 			}
@@ -360,7 +360,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 				metric_num,
 				&metrics[i]);
 			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to get metric value  for metric = %s", metrics_names[i]);
+				FPGA_MSG("Failed to get metric value  for metric = %s", metrics_names[i]);
 				metrics[i].metric_num = METRIC_ARRAY_INVALID_INDEX;
 				continue;
 			} else {
