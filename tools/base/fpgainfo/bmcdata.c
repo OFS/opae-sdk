@@ -150,3 +150,4 @@ void print_metrics(const fpga_metric_info *metrics_info,
 
 	}
 }
+
