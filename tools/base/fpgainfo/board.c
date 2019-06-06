@@ -57,6 +57,8 @@ static pthread_mutex_t board_plugin_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_N
 static platform_data platform_data_table[] = {
 	{ 0x8086, 0x09c4, "libboard_rc.so", NULL },
 	{ 0x8086, 0x09c5, "libboard_rc.so", NULL },
+	{ 0x8086, 0x0b30, "libboard_vc.so", NULL },
+	{ 0x8086, 0x0b31, "libboard_vc.so", NULL },
 	{ 0,      0,          NULL, NULL },
 };
 
@@ -248,9 +250,20 @@ fpga_result mac_command(fpga_token *tokens, int num_tokens, int argc,
 {
 	(void)argc;
 	(void)argv;
+	fpga_result res = FPGA_OK;
+	fpga_properties props;
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
+
+		res = fpgaGetProperties(tokens[i], &props);
+		if (res != FPGA_OK) {
+			OPAE_ERR("Failed to get properties\n");
+			continue;
+		}
+
+		fpgainfo_board_info(tokens[i]);
+		fpgainfo_print_common("//****** MAC ******//", props);
 		mac_info(tokens[i]);
 
 	}
@@ -355,9 +368,19 @@ fpga_result phy_command(fpga_token *tokens, int num_tokens, int argc,
 {
 	(void)argc;
 	(void)argv;
+	fpga_result res = FPGA_OK;
+	fpga_properties props;
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
+		res = fpgaGetProperties(tokens[i], &props);
+		if (res != FPGA_OK) {
+			OPAE_ERR("Failed to get properties\n");
+			continue;
+		}
+
+		fpgainfo_board_info(tokens[i]);
+		fpgainfo_print_common("//****** PHY ******//", props);
 		phy_group_info(tokens[i]);
 
 	}
@@ -399,7 +422,7 @@ fpga_result mac_info(fpga_token token)
 	fpga_result res       = FPGA_OK;
 	void* dl_handle       = NULL;
 
-	// mack
+	// mac information
 	fpga_result(*print_mac_info)(fpga_token token);
 
 	res = load_board_plugin(token, &dl_handle);
@@ -446,4 +469,5 @@ fpga_result phy_group_info(fpga_token token)
 out:
 	return res;
 }
+
 

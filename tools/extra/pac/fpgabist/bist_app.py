@@ -33,17 +33,19 @@ import bist_common as bc
 
 class BistMode(bc.BistMode):
     name = "bist_afu"
+    afu_id = "9caef53d-2fcf-43ea-84b9-aad98993fe41"
 
     def __init__(self):
         self.executables = {'bist_app': ''}
 
     def run(self, gbs_path, bus_num):
-        bc.load_gbs(gbs_path, bus_num)
+        if gbs_path:
+            bc.load_gbs(gbs_path, bus_num)
         for func, param in self.executables.items():
             print "Running {} test...\n".format(func)
-            cmd = [func, param]
+            cmd = "{} {}".format(func, param)
             try:
-                subprocess.check_call(cmd)
+                subprocess.check_call(cmd, shell=True)
             except subprocess.CalledProcessError as e:
                 print "Failed Test: {}".format(func)
                 print e

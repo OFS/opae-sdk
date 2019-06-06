@@ -338,7 +338,7 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 			res = fpgaReadError(token, i, &error_value);
 			fpgainfo_print_err("reading error for FME", res);
 
-			printf("%-29s : 0x%" PRIX64 "\n", errinfos[i].name,
+			printf("%-32s : 0x%" PRIX64 "\n", errinfos[i].name,
 			       error_value);
 
 			int cmp = 0;
@@ -392,7 +392,7 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 			res = fpgaReadError(token, i, &error_value);
 			fpgainfo_print_err("reading error for PORT", res);
 
-			printf("%-29s : 0x%" PRIX64 "\n", errinfos[i].name,
+			printf("%-32s : 0x%" PRIX64 "\n", errinfos[i].name,
 			       error_value);
 
 			int cmp = 0;
