@@ -177,5 +177,28 @@ TEST_P(mmio_c_p, mmio32) {
   EXPECT_EQ(val_written, val_read);
 }
 
+/**
+ * @test       mmio512
+ * @brief      Test: fpgaWriteMMIO512
+ * @details    Write the scratchpad register with fpgaWriteMMIO512,<br>
+ *             read the register back with fpgaReadMMIO64.<br>
+ *             Value written should equal value read.<br>
+ */
+TEST_P(mmio_c_p, mmio512) {
+  uint64_t val_written[8];
+  int i;
+  for (i = 0; i < 8; i++) {
+    val_written[i] = 0xdeadbeefdecafbad << (i + 1);
+  }
+  EXPECT_EQ(fpgaWriteMMIO512(accel_, which_mmio_,
+                            CSR_SCRATCHPAD0, val_written), FPGA_OK);
+  for (i = 0; i < 8; i++) {
+    uint64_t val_read = 0;
+    EXPECT_EQ(fpgaReadMMIO64(accel_, which_mmio_,
+                             CSR_SCRATCHPAD0, &val_read), FPGA_OK);
+    EXPECT_EQ(val_written[i], val_read);
+  }
+}
+
 INSTANTIATE_TEST_CASE_P(mmio_c, mmio_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));

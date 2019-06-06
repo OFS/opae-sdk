@@ -413,4 +413,83 @@ TEST_P (mmio_c_p, test_neg_read_write_64) {
 }
 
 
+/**
+* @test       mmio_c_p
+* @brief      Test: test_pos_read_write_512
+* @details    When the parameters are valid and the drivers are loaded:
+*             xfpga_fpgaWriteMMIO512 must write correct value at given MMIO
+*             offset.  xfpga_fpgaReadMMIO64 must read correct value at given
+*             MMIO offset.
+*/
+TEST_P (mmio_c_p, test_pos_read_write_512) {
+  uint64_t* mmio_ptr = NULL;
+  uint64_t read_value = 0;
+
+  uint64_t value[8];
+  uint64_t i;
+  for (i = 0; i < 8; i++) {
+    val_written[i] = 0xdeadbeefdecafbad << (i + 1);
+  }
+
+  // Open  port device
+#ifndef BUILD_ASE
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
+  EXPECT_NE(mmio_ptr,nullptr);
+#else
+  ASSERT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
+  EXPECT_EQ(mmio_ptr,nullptr);
+#endif
+
+  // Write value and check correctness
+  for (i = 0; i < 100; i += 10) {
+    value[0] += i;
+    value[7] += i;
+    EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO512(handle_, 0, CSR_SCRATCHPAD0, value));
+    EXPECT_EQ(FPGA_OK, xfpga_fpgaReadMMIO64(handle_, 0, CSR_SCRATCHPAD0, &read_value));
+    EXPECT_EQ(read_value, value[0]);
+    EXPECT_EQ(FPGA_OK, xfpga_fpgaReadMMIO64(handle_, 0, CSR_SCRATCHPAD0 + 56, &read_value));
+    EXPECT_EQ(read_value, value[7]);
+  }
+
+// Unmap memory range otherwise, will not accept open from same process
+#ifndef BUILD_ASE
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnmapMMIO(handle_, 0));
+#endif
+}
+
+
+/**
+* @test       mmio_c_p
+* @brief      Test: test_neg_read_write_512
+* @details    When the parameters are valid and the drivers are loaded:
+*             xfpga_fpgaWriteMMIO512 must write correct value at given MMIO
+*             offset.  xfpga_fpgaReadMMIO64 must read correct value at given
+*             MMIO offset.
+*/
+TEST_P (mmio_c_p, test_neg_read_write_512) {
+  uint64_t* mmio_ptr = NULL;
+  int64_t value[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+  uint64_t read_value = 0;
+
+  // Open  port device
+#ifndef BUILD_ASE
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
+  EXPECT_NE(mmio_ptr,nullptr);
+#else
+  ASSERT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
+  EXPECT_EQ(mmio_ptr,nullptr);
+#endif
+
+  // Check errors for misaligned or out of boundary memory accesses
+  EXPECT_NE(FPGA_OK, xfpga_fpgaWriteMMIO512(handle_, 0, CSR_SCRATCHPAD0 + 1, value));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaWriteMMIO512(handle_, 0, MMIO_OUT_REGION_ADDRESS, value));
+
+// Unmap memory range otherwise, will not accept open from same process
+#ifndef BUILD_ASE
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaWriteMMIO512(NULL, 0, MMIO_OUT_REGION_ADDRESS, value));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnmapMMIO(handle_, 0));
+#endif
+}
+
+
 INSTANTIATE_TEST_CASE_P(mmio_c, mmio_c_p, ::testing::ValuesIn(test_platform::keys(true)));

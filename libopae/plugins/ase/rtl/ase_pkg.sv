@@ -351,6 +351,7 @@ package ase_pkg;
    // Length
    parameter int  MMIO_WIDTH_32 = 32;
    parameter int  MMIO_WIDTH_64 = 64;
+   parameter int  MMIO_WIDTH_512 = 512;
 
 
    /*

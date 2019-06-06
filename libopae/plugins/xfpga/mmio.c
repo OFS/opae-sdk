@@ -319,6 +319,53 @@ out_unlock:
 	return result;
 }
 
+static inline void copy512(void *src, void *dst)
+{
+    asm volatile("vmovdqu64 (%0), %%zmm0;"
+                 "vmovdqu64 %%zmm0, (%1);"
+                 :
+                 : "r"(src), "r"(dst));
+}
+
+fpga_result __FPGA_API__ xfpga_fpgaWriteMMIO512(fpga_handle handle,
+					 uint32_t mmio_num,
+					 uint64_t offset,
+					 void *value)
+{
+	int err;
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
+	struct wsid_map *wm = NULL;
+	fpga_result result = FPGA_OK;
+
+	if (offset % 64 != 0) {
+		FPGA_MSG("Misaligned MMIO access");
+		return FPGA_INVALID_PARAM;
+	}
+
+	result = handle_check_and_lock(_handle);
+	if (result)
+		return result;
+
+	result = find_or_map_wm(handle, mmio_num, &wm);
+	if (result)
+		goto out_unlock;
+
+	if (offset > wm->len) {
+		FPGA_MSG("offset out of bounds");
+		result = FPGA_INVALID_PARAM;
+		goto out_unlock;
+	}
+
+	copy512(value, (uint8_t *)wm->offset + offset);
+
+out_unlock:
+	err = pthread_mutex_unlock(&_handle->lock);
+	if (err) {
+		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+	}
+	return result;
+}
+
 fpga_result __FPGA_API__ xfpga_fpgaMapMMIO(fpga_handle handle,
 				     uint32_t mmio_num,
 				     uint64_t **mmio_ptr)

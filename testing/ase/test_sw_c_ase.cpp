@@ -434,7 +434,7 @@ TEST(sim_sw_ase, ase_eve_01) {
 /**
 * @test    ase_mmio_01
 * @brief   Tests: fpgaWriteMMIO32 fpgaReadMMIO32 fpgaWriteMMIO64
-*                 fpgaReadMMIO64 fpgaMapMMIO fpgaUnmapMMIO
+*                 fpgaReadMMIO64 fpgaWriteMMIO512 fpgaMapMMIO fpgaUnmapMMIO
 * @details These functions returns FPGA_NOT_SUPPORTED
 *
 */
@@ -442,6 +442,7 @@ TEST(sim_sw_ase, ase_mmio_01) {
 	struct _fpga_handle _handle;
 	uint32_t value;
 	uint64_t value1;
+	uint64_t value512[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 	_handle.fpgaMMIO_is_mapped = 0;
 	fpga_handle handle = &_handle;
 
@@ -456,6 +457,9 @@ TEST(sim_sw_ase, ase_mmio_01) {
 
 	EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaReadMMIO64(NULL, 0, 0x10, &value1));
 	EXPECT_EQ(FPGA_NOT_FOUND, ase_fpgaReadMMIO64(handle, 0, 0x10, &value1));
+
+	EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaWriteMMIO512(NULL, 0, 0x40, value512));
+	EXPECT_EQ(FPGA_NOT_FOUND, ase_fpgaWriteMMIO512(handle, 0, 0x40, value512));
 
 	EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaMapMMIO(NULL, 0, NULL));
 	EXPECT_EQ(FPGA_INVALID_PARAM, ase_fpgaUnmapMMIO(NULL, 0));
