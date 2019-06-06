@@ -469,7 +469,6 @@ TEST_P (mmio_c_p, test_pos_read_write_512) {
 TEST_P (mmio_c_p, test_neg_read_write_512) {
   uint64_t* mmio_ptr = NULL;
   int64_t value[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-  uint64_t read_value = 0;
 
   // Open  port device
 #ifndef BUILD_ASE
