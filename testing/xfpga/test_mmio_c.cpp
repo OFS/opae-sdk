@@ -428,7 +428,7 @@ TEST_P (mmio_c_p, test_pos_read_write_512) {
   uint64_t value[8];
   uint64_t i;
   for (i = 0; i < 8; i++) {
-    val_written[i] = 0xdeadbeefdecafbad << (i + 1);
+    value[i] = 0xdeadbeefdecafbad << (i + 1);
   }
 
   // Open  port device

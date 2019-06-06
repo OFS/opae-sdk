@@ -322,9 +322,9 @@ out_unlock:
 static inline void copy512(void *src, void *dst)
 {
     asm volatile("vmovdqu64 (%0), %%zmm0;"
-                 "vmovdqu64 %%zmm0, (%1);"
-                 :
-                 : "r"(src), "r"(dst));
+		 "vmovdqu64 %%zmm0, (%1);"
+		 :
+		 : "r"(src), "r"(dst));
 }
 
 fpga_result __FPGA_API__ xfpga_fpgaWriteMMIO512(fpga_handle handle,
