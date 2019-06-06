@@ -421,6 +421,7 @@ TEST_P (mmio_c_p, test_neg_read_write_64) {
 *             offset.  xfpga_fpgaReadMMIO64 must read correct value at given
 *             MMIO offset.
 */
+#ifdef TEST_SUPPORTS_AVX512
 TEST_P (mmio_c_p, test_pos_read_write_512) {
   uint64_t* mmio_ptr = NULL;
   uint64_t read_value = 0;
@@ -456,6 +457,7 @@ TEST_P (mmio_c_p, test_pos_read_write_512) {
   EXPECT_EQ(FPGA_OK, xfpga_fpgaUnmapMMIO(handle_, 0));
 #endif
 }
+#endif // TEST_SUPPORTS_AVX512
 
 
 /**

@@ -184,6 +184,7 @@ TEST_P(mmio_c_p, mmio32) {
  *             read the register back with fpgaReadMMIO64.<br>
  *             Value written should equal value read.<br>
  */
+#ifdef TEST_SUPPORTS_AVX512
 TEST_P(mmio_c_p, mmio512) {
   uint64_t val_written[8];
   int i;
@@ -199,6 +200,7 @@ TEST_P(mmio_c_p, mmio512) {
     EXPECT_EQ(val_written[i], val_read);
   }
 }
+#endif // TEST_SUPPORTS_AVX512
 
 INSTANTIATE_TEST_CASE_P(mmio_c, mmio_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));
