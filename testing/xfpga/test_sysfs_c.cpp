@@ -650,7 +650,7 @@ TEST_P(sysfs_c_hw_p, make_object_glob) {
 }
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_hw_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms({ "skx-p","dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::hw_platforms({ "skx-p","dcp-rc","dcp-vc" })));
 
 class sysfs_c_mock_p : public sysfs_c_p {
  protected:
@@ -749,7 +749,7 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_03) {
 }
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc", "dcp-vc" })));
 
 class sysfs_c_mock_no_drv_p : public ::testing::TestWithParam<std::string> {
  protected:
@@ -839,7 +839,7 @@ TEST_P(sysfs_sockid_c_mock_p, fpga_sysfs_02) {
 }
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_sockid_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc","dcp-vc" })));
 
 
 class sysfs_sockid_c_p : public sysfs_c_p { };
@@ -1036,7 +1036,7 @@ TEST_P(sysfs_sockid_c_p, get_port_sysfs) {
 }
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_sockid_c_p,
-                       ::testing::ValuesIn(test_platform::platforms({"skx-p","dcp-rc"})));
+                       ::testing::ValuesIn(test_platform::platforms({"skx-p","dcp-rc","dcp-vc"})));
 
 /**
  * @test    match_region

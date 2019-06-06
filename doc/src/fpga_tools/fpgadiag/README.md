@@ -70,6 +70,22 @@ on the platform.
 * The sw test requires the nlb mode 7 AF. This AF is only available for the integrated FPGA platform.
      You cannot run it on the PCIe accelerator card (PAC).
 
+
+**fpgalpbk**
+
+This enable/disable FPGA loopback.
+
+
+**fpgastats**
+
+This get fpga mac statistics.
+
+
+**mactest**
+
+This compare mac addresses that read from MAC ROM with mac addresses read from Host side.
+
+
 ## OPTIONS ##
 ### Common options ###
 `--help, -h`
@@ -345,7 +361,7 @@ on the platform.
 
 `--cache-hint= -i`
 
-    Can be rdline-I or rdline-S. The ddfault=rdline-I. 
+    Can be rdline-I or rdline-S. The default=rdline-I. 
 
 `--read-vc=, -r`
 
@@ -362,6 +378,38 @@ on the platform.
 `--notice=, -N`
 
     Can be poll or csr-write. The default=poll. 
+
+
+### **fpgalpbk** test options ###
+`--enable`
+
+    Enable fpga phy loopback.
+
+`--disable`
+
+    Disable fpga phy loopback.
+
+`--direction`
+
+    Can be local, remote.
+
+`--type`
+
+    Can be serial, precdr, postcdr.
+
+`--side`
+
+    Can be line, host.
+
+`--port`
+
+    0 <= port <= 7, the default is all.
+
+
+### **mactest** test options ###
+`--offset`
+
+    Read mac addresses from an offset, The default=0.
 
 
 ## EXAMPLES ##
@@ -390,6 +438,19 @@ signals completion using a CSR write.
 ./fpgadiag --mode=sw --target=fpga -V --bus=0xbe --begin=4 --end=8192
 --cache-hint=rdline-I --cache-policy=wrline-I --notice=csr-write --write-vc=vl0
 --wrfence-vc=auto --read-vc=random 
+```
+
+
+This command enable a `fpgalpbk` on the FPGA located on bus `0xbe`.
+```console
+./fpgadiag -m fpgalpbk --bus 0xbe --enable --direction local --type postcdr
+--side host
+```
+
+
+This command show `fpgastats` on the FPGA located on bus `0xbe`.
+```console
+./fpgadiag -m fpgastats --bus 0xbe
 ```
 
 

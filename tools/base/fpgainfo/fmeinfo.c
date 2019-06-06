@@ -27,6 +27,7 @@
 #include <getopt.h>
 #include "fpgainfo.h"
 #include "fmeinfo.h"
+#include "board.h"
 #include <opae/fpga.h>
 #include <uuid/uuid.h>
 #include <inttypes.h>
@@ -49,6 +50,8 @@ static void print_fme_info(fpga_token token)
         res = fpgaGetProperties(token, &props);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
                              "Failure reading properties from token");
+
+	fpgainfo_board_info(token);
 	fpgainfo_print_common("//****** FME ******//", props);
 
 out_destroy:

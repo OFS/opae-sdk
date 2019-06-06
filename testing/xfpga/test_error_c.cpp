@@ -597,7 +597,7 @@ TEST_P(error_c_mock_p, error_12) {
 }
 
 INSTANTIATE_TEST_CASE_P(error_c, error_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc","dcp-vc" })));
 
 class error_c_p : public error_c_mock_p {};
 
@@ -675,7 +675,7 @@ TEST_P(error_c_p, error_13) {
 }
 
 INSTANTIATE_TEST_CASE_P(error_c, error_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc"  })));
 
 /**
  * @test       error_01

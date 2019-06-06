@@ -27,11 +27,17 @@
 include_directories(${OPAE_INCLUDE_DIR})
 
 add_executable(bist_app bist_afu.c)
+add_executable(bist bist_dc.c)
 set_install_rpath(bist_app)
+set_install_rpath(bist)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
 target_link_libraries(bist_app opae-c ${libjson-c_LIBRARIES} uuid rt ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(bist opae-c ${libjson-c_LIBRARIES} uuid rt ${CMAKE_THREAD_LIBS_INIT})
 
 install(TARGETS bist_app
         RUNTIME DESTINATION bin
         COMPONENT toolbist_app)
+install(TARGETS bist
+        RUNTIME DESTINATION bin
+        COMPONENT toolbist)

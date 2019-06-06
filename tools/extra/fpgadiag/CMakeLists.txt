@@ -73,6 +73,30 @@ set(binaries nlb0
              nlb3
              nlb7)
 
+set(fpgalpbksrc common.py
+                fpgalpbk.py)
+
+set(mactestsrc common.py
+               mactest.py)
+
+set(fpgastatssrc common.py
+               fpgastats.py)
+
+CREATE_PYTHON_EXE(fpgalpbk fpgalpbk ${fpgalpbksrc})
+install(PROGRAMS ${PACKAGER_BIN}
+    DESTINATION bin
+    COMPONENT toolfpgadiagapps)
+
+CREATE_PYTHON_EXE(mactest mactest ${mactestsrc})
+install(PROGRAMS ${PACKAGER_BIN}
+    DESTINATION bin
+    COMPONENT toolfpgadiagapps)
+
+CREATE_PYTHON_EXE(fpgastats fpgastats ${fpgastatssrc})
+install(PROGRAMS ${PACKAGER_BIN}
+    DESTINATION bin
+    COMPONENT toolfpgadiagapps)
+
 install(PROGRAMS fpgadiag
     DESTINATION bin
     COMPONENT toolfpgadiag)

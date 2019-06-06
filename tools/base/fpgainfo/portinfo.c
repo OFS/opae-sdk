@@ -56,7 +56,7 @@ static void print_port_info(fpga_token token)
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
 	                     "reading guid from properties");
 	uuid_unparse(guid, guid_str);
-	printf("%-29s : %s\n", "Accelerator GUID", guid_str);
+	printf("%-32s : %s\n", "Accelerator GUID", guid_str);
 
 out_destroy:
 	res = fpgaDestroyProperties(&props);
