@@ -204,8 +204,8 @@ fpga_result add_afu_metrics_vector(fpga_metric_vector *vector,
 
 	*metric_id = *metric_id + 1;
 
-	add_metric_vector(vector, *metric_id, qualifier_name, group_name, "",
-		metric_name, "", metric_units, FPGA_METRIC_DATATYPE_INT, FPGA_METRIC_TYPE_AFU, FPGA_HW_MCP, metric_offset);
+	result = add_metric_vector(vector, *metric_id, qualifier_name, group_name, "",
+			metric_name, "", metric_units, FPGA_METRIC_DATATYPE_INT, FPGA_METRIC_TYPE_AFU, FPGA_HW_MCP, metric_offset);
 
 	return result;
 }
