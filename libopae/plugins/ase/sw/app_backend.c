@@ -998,7 +998,7 @@ void mmio_write64(int offset, uint64_t data)
 /*
  * MMIO Write 512-bit
  */
-void mmio_write512(int offset, void *data)
+void mmio_write512(int offset, const void *data)
 {
 	FUNC_CALL_ENTRY;
 

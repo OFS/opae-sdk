@@ -319,7 +319,7 @@ out_unlock:
 	return result;
 }
 
-static inline void copy512(void *src, void *dst)
+static inline void copy512(const void *src, void *dst)
 {
     asm volatile("vmovdqu64 (%0), %%zmm0;"
 		 "vmovdqu64 %%zmm0, (%1);"
@@ -330,7 +330,7 @@ static inline void copy512(void *src, void *dst)
 fpga_result __FPGA_API__ xfpga_fpgaWriteMMIO512(fpga_handle handle,
 					 uint32_t mmio_num,
 					 uint64_t offset,
-					 void *value)
+					 const void *value)
 {
 	int err;
 	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;

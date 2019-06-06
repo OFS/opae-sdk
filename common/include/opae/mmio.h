@@ -136,7 +136,7 @@ fpga_result fpgaReadMMIO32(fpga_handle handle,
  */
 fpga_result fpgaWriteMMIO512(fpga_handle handle,
 			    uint32_t mmio_num, uint64_t offset,
-			    void *value);
+			    const void *value);
 
 /**
  * Map MMIO space

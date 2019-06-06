@@ -52,7 +52,7 @@ fpga_result ase_fpgaWriteMMIO32(fpga_handle handle, uint32_t mmio_num,
 fpga_result ase_fpgaReadMMIO32(fpga_handle handle, uint32_t mmio_num,
 				 uint64_t offset, uint32_t *value);
 fpga_result ase_fpgaWriteMMIO512(fpga_handle handle, uint32_t mmio_num,
-				  uint64_t offset, void *value);
+				  uint64_t offset, const void *value);
 fpga_result ase_fpgaMapMMIO(fpga_handle handle, uint32_t mmio_num,
 			      uint64_t **mmio_ptr);
 fpga_result ase_fpgaUnmapMMIO(fpga_handle handle, uint32_t mmio_num);

@@ -514,7 +514,7 @@ extern "C" {
 	void mmio_write64(int, uint64_t);
 	void mmio_read32(int, uint32_t *);
 	void mmio_read64(int, uint64_t *);
-	void mmio_write512(int, void *);
+	void mmio_write512(int, const void *);
 
 	// UMSG functions
 	// uint64_t *umsg_get_address(int);

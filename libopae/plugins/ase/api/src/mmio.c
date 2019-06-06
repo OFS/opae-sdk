@@ -184,7 +184,7 @@ fpga_result __FPGA_API__ ase_fpgaReadMMIO64(fpga_handle handle,
 
 fpga_result __FPGA_API__ ase_fpgaWriteMMIO512(fpga_handle handle,
 					 uint32_t mmio_num,
-					 uint64_t offset, void *value)
+					 uint64_t offset, const void *value)
 {
 	UNUSED_PARAM(mmio_num);
 
