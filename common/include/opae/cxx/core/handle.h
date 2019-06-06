@@ -115,7 +115,7 @@ class handle {
   uint64_t read_csr64(uint64_t offset, uint32_t csr_space = 0) const;
 
   /**
-   * @brief Write 64 bit to a CSR belonging to a resource associated
+   * @brief Write 64 bits to a CSR belonging to a resource associated
    * with a handle.
    *
    * @param[in] offset The register offset.
@@ -126,7 +126,7 @@ class handle {
   void write_csr64(uint64_t offset, uint64_t value, uint32_t csr_space = 0);
 
   /**
-   * @brief Write 512 bit to a CSR belonging to a resource associated
+   * @brief Write 512 bits to a CSR belonging to a resource associated
    * with a handle.
    *
    * @param[in] offset The register offset.
