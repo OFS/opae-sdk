@@ -64,6 +64,7 @@ int log_open(const char *filename)
 		if (len < BUF_TIME_LEN) {
 			timebuf[len - 1] = '\0'; /* erase \n */
 		} else {
+			printf(" Invalid time stamp buffer size \n");
 			fpgad_mutex_unlock(err, &log_lock);
 			return -1;
 		}

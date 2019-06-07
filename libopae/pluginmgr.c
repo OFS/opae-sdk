@@ -304,11 +304,11 @@ STATIC int process_plugin(const char *name, json_object *j_config)
 	json_object *j_plugin_cfg = NULL;
 	json_object *j_enabled = NULL;
 	const char *stringified = NULL;
-	
+
 	JSON_GET(j_config, "plugin", &j_plugin);
 	JSON_GET(j_config, "configuration", &j_plugin_cfg);
 	JSON_GET(j_config, "enabled", &j_enabled);
-	
+
 	plugin_cfg *cfg = malloc(sizeof(plugin_cfg));
 	if (!cfg) {
 		OPAE_ERR("Could not allocate memory for plugin cfg");
