@@ -34,10 +34,11 @@
 fpga_result get_metrics(fpga_token token, 
                         metrics_inquiry inquiry,
                         fpga_metric_info *metrics_info,
+                        uint64_t *num_metrics_info,
                         fpga_metric *metrics, 
                         uint64_t *num_metrics)
 {
-        if (!metrics_info || !metrics || !num_metrics) {
+        if (!metrics_info || !metrics || !num_metrics || !num_metrics_info) {
             return FPGA_INVALID_PARAM;
         }
 
@@ -49,11 +50,11 @@ fpga_result get_metrics(fpga_token token,
         res = fpgaOpen(token, &handle, FPGA_OPEN_SHARED);
         ON_FPGAINFO_ERR_GOTO(res, out_close, "opening FPGA");
 
-        res = fpgaGetNumMetrics(handle, num_metrics);
+        res = fpgaGetNumMetrics(handle, num_metrics_info);
         ON_FPGAINFO_ERR_GOTO(res, out_close, 
                             "getting number of metrics");
 
-        res = fpgaGetMetricsInfo(handle, metrics_info, num_metrics);
+        res = fpgaGetMetricsInfo(handle, metrics_info, num_metrics_info);
         ON_FPGAINFO_ERR_GOTO(res, out_close, 
                             "getting metrics info");
 
@@ -62,27 +63,27 @@ fpga_result get_metrics(fpga_token token,
         uint64_t i = 0;
         uint64_t j = 0;
         switch (inquiry) {
-        case ALL:
-            for (i = 0; i < *num_metrics; ++i) {
+        case FPGA_ALL:
+            for (i = 0; i < *num_metrics_info; ++i) {
                 id_array[j++] = i;
             }
             break;
-        case POWER:
-            for (i = 0; i < *num_metrics; ++i) {
+        case FPGA_POWER:
+            for (i = 0; i < *num_metrics_info; ++i) {
                 if (metrics_info[i].metric_type == FPGA_METRIC_TYPE_POWER) {
                     id_array[j++] = i;
                 }
             }
             break;
-        case THERMAL:
-            for (i = 0; i < *num_metrics; ++i) {
+        case FPGA_THERMAL:
+            for (i = 0; i < *num_metrics_info; ++i) {
                 if (metrics_info[i].metric_type == FPGA_METRIC_TYPE_THERMAL) {
                     id_array[j++] = i;
                 }
             }
             break;
-        case PERF:
-            for (i = 0; i < *num_metrics; ++i) {
+        case FPGA_PERF:
+            for (i = 0; i < *num_metrics_info; ++i) {
                 if (metrics_info[i].metric_type == FPGA_METRIC_TYPE_PERFORMANCE_CTR) {
                     id_array[j++] = i;
                 }
@@ -111,24 +112,42 @@ out_exit:
 }
 
 void print_metrics(const fpga_metric_info *metrics_info,
+                    uint64_t num_metrics_info,
                    const fpga_metric *metrics, uint64_t num_metrics)
 {
-    uint64_t i = 0;
-    for (i = 0; i < num_metrics; ++i) {
-        uint64_t idx = metrics[i].metric_num;
-        
-        if (idx < num_metrics) {
-            printf("%-29s : ", metrics_info[idx].metric_name);
+	uint64_t i = 0;
+	for (i = 0; i < num_metrics; ++i) {
+		uint64_t idx = metrics[i].metric_num;
 
-            if (metrics_info[i].metric_datatype == FPGA_METRIC_DATATYPE_INT) {
-                printf("%" PRId64 "", metrics[i].value.ivalue);
-            } else if (metrics_info[i].metric_datatype == FPGA_METRIC_DATATYPE_FLOAT ||
-                    metrics_info[i].metric_datatype == FPGA_METRIC_DATATYPE_DOUBLE) {
-                printf("%0.2f", metrics[i].value.dvalue);
-            }
+		if (metrics[i].isvalid) {
 
-            printf(" %s\n", metrics_info[idx].metric_units);
-        }
-    }
+			if (idx < num_metrics_info) {
+				printf("(%2ld) %-27s : ", i + 1, metrics_info[idx].metric_name);
+
+				switch (metrics_info[idx].metric_datatype) {
+					case FPGA_METRIC_DATATYPE_INT:
+						printf("%" PRId64 "", metrics[i].value.ivalue);
+						break;
+					case FPGA_METRIC_DATATYPE_DOUBLE:
+						/* FALLTHROUGH */
+					case FPGA_METRIC_DATATYPE_FLOAT:
+						printf("%0.2f", metrics[i].value.dvalue);
+						break;
+					case FPGA_METRIC_DATATYPE_BOOL:
+						printf("%d", metrics[i].value.bvalue);
+						break;
+					default:
+						OPAE_ERR(" Metrics Invalid datatype");
+						break;
+				}
+
+				printf(" %s\n", metrics_info[idx].metric_units);
+			}
+		} else {
+			// Failed to read metric value
+			fprintf(stdout, "(%2ld) %-27s : %s\n", i + 1, metrics_info[idx].metric_name, "N/A");
+		}
+
+	}
 }
 

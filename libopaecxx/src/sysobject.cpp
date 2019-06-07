@@ -49,6 +49,12 @@ uint32_t sysobject::size() const {
   return size;
 }
 
+enum fpga_sysobject_type sysobject::type() const {
+  enum fpga_sysobject_type _type;
+  ASSERT_FPGA_OK(fpgaObjectGetType(sysobject_, &_type));
+  return _type;
+}
+
 sysobject::ptr_t sysobject::get(token::ptr_t tok, const std::string &path,
                                 int flags) {
   fpga_object sysobj;
@@ -79,6 +85,19 @@ sysobject::ptr_t sysobject::get(const std::string &path, int flags) {
   fpga_object sysobj;
   sysobject::ptr_t obj;
   auto res = fpgaObjectGetObject(sysobject_, path.c_str(), &sysobj, flags);
+  if (!res) {
+    obj.reset(new sysobject(sysobj, token_, handle_));
+  } else if (res != FPGA_NOT_FOUND) {
+    ASSERT_FPGA_OK(res);
+  }
+  return obj;
+}
+
+sysobject::ptr_t sysobject::get(int i) {
+  fpga_object sysobj;
+  sysobject::ptr_t obj;
+
+  auto res = fpgaObjectGetObjectAt(sysobject_, i, &sysobj);
   if (!res) {
     obj.reset(new sysobject(sysobj, token_, handle_));
   } else if (res != FPGA_NOT_FOUND) {

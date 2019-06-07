@@ -117,8 +117,11 @@ typedef struct
 Response read_response_queue_slave[`NUM_SLAVES][$];
 
 // ddr user clock frequency = 266.666.. Mhz
-assign ddr4a_avmm_clk_clk = ddr4a_pll_ref_clk_clock_sink_clk;
-assign ddr4b_avmm_clk_clk = ddr4a_pll_ref_clk_clock_sink_clk;
+// We shift the clock because altera_avalon_mm_slave_bfm shifts
+// its monitor_request() task #1, which leads to glitches in
+// waitrequest and causes random errors in simulation.
+assign #10 ddr4a_avmm_clk_clk = ddr4a_pll_ref_clk_clock_sink_clk;
+assign #10 ddr4b_avmm_clk_clk = ddr4a_pll_ref_clk_clock_sink_clk;
 
 altera_avalon_mm_slave_bfm #(
 	.AV_ADDRESS_W               (DDR_ADDR_WIDTH),

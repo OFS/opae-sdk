@@ -109,7 +109,8 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libbmc.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libmodbmc.so
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libbitstream.so*
-
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libboard_rc.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libboard_vc.so*
 
 %files devel
 %defattr(-,root,root,-)
@@ -151,9 +152,12 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/bist_app.py
 @CMAKE_INSTALL_PREFIX@/bin/bist_common.py
 @CMAKE_INSTALL_PREFIX@/bin/bist_dma.py
+@CMAKE_INSTALL_PREFIX@/bin/bist_def.py
 @CMAKE_INSTALL_PREFIX@/bin/bist_nlb3.py
+@CMAKE_INSTALL_PREFIX@/bin/bist_nlb0.py
 @CMAKE_INSTALL_PREFIX@/bin/coreidle
 @CMAKE_INSTALL_PREFIX@/bin/fpga_dma_test
+@CMAKE_INSTALL_PREFIX@/bin/fpga_dma_vc_test
 @CMAKE_INSTALL_PREFIX@/bin/fpgabist
 @CMAKE_INSTALL_PREFIX@/bin/fpgadiag
 @CMAKE_INSTALL_PREFIX@/bin/fpgaflash
@@ -163,7 +167,12 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/nlb0
 @CMAKE_INSTALL_PREFIX@/bin/nlb3
 @CMAKE_INSTALL_PREFIX@/bin/nlb7
+@CMAKE_INSTALL_PREFIX@/bin/fpgaflash
+@CMAKE_INSTALL_PREFIX@/bin/super-rsu
 @CMAKE_INSTALL_PREFIX@/bin/packager
+@CMAKE_INSTALL_PREFIX@/bin/mactest
+@CMAKE_INSTALL_PREFIX@/bin/fpgalpbk
+@CMAKE_INSTALL_PREFIX@/bin/fpgastats
 @CMAKE_INSTALL_PREFIX@/bin/pac_hssi_config.py
 @CMAKE_INSTALL_PREFIX@/bin/ras
 @CMAKE_INSTALL_PREFIX@/bin/userclk

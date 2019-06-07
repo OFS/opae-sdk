@@ -107,6 +107,40 @@ class enum_c_p : public mock_opae_p<2, xfpga_> {
     return matches;
   }
 
+  int GetMatchedGuidFpgas() {
+    if (platform_.mock_sysfs != nullptr) {
+      return platform_.devices.size();
+    }
+
+    int matches = 0;
+    std::string afu_id;
+    std::string afu_id_expected = platform_.devices[0].afu_guid;
+
+    afu_id_expected.erase(std::remove(afu_id_expected.begin(),
+                                      afu_id_expected.end(), '-'),
+                          afu_id_expected.end());
+    transform(afu_id_expected.begin(), afu_id_expected.end(),
+              afu_id_expected.begin(), ::tolower);
+
+    int i;
+    for (i = 0; i < GetNumFpgas(); i++) {
+      std::string cmd = "cat /sys/class/fpga*/*" + std::to_string(i) +
+                        "/*port." + std::to_string(i) + "/afu_id > output.txt";
+      EXPECT_EQ(std::system(cmd.c_str()), 0);
+      std::ifstream file("output.txt");
+      EXPECT_TRUE(file.is_open());
+      EXPECT_TRUE(std::getline(file, afu_id));
+      file.close();
+      EXPECT_EQ(std::system("rm output.txt"), 0);
+
+      if (afu_id == afu_id_expected) {
+          matches++;
+      }
+    }
+
+    return matches;
+  }
+
   void ExecuteCmd(std::string cmd, int &value) {
     std::string line;
     std::string command = cmd + " > output.txt";
@@ -649,7 +683,7 @@ TEST_P(enum_c_p, guid_port) {
   EXPECT_EQ(
       xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgas());
+  EXPECT_EQ(num_matches_, GetMatchedGuidFpgas());
 }
 
 /**
@@ -1039,7 +1073,7 @@ TEST_P(enum_err_c_p, num_errors_port) {
 }
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_err_c_p,
-                       ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+                       ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));
 
 class enum_socket_c_p : public enum_c_p {};
 

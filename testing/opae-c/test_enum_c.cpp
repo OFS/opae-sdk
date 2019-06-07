@@ -109,6 +109,21 @@ class enum_c_p : public mock_opae_p<2, none_> {
     return matches;
   }
 
+  int GetMatchedGuidFpgas() {
+    if (platform_.mock_sysfs != nullptr) {
+      return platform_.devices.size();
+    }
+
+    std::stringstream ss;
+    ss << std::setw(4) << std::hex << platform_.devices[0].device_id;
+    std::string deviceid (ss.str());
+
+    std::string cmd =  "lspci | grep " + deviceid + " | wc -l";
+
+    int value;
+    ExecuteCmd(cmd, value);
+    return value;
+  }
   virtual int GetNumDeviceID() {
     if (platform_.mock_sysfs != nullptr) {
       return 1;
@@ -684,4 +699,4 @@ TEST_P(enum_c_socket_p, socket_id) {
 }
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_socket_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));

@@ -151,21 +151,21 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	}
 
 	printf("%s\n", hdr);
-	printf("%-29s : 0x%2" PRIX64 "\n", "Object Id", object_id);
-	printf("%-29s : %04X:%02X:%02X:%01X\n", "PCIe s:b:d:f", segment, bus,
+	printf("%-32s : 0x%2" PRIX64 "\n", "Object Id", object_id);
+	printf("%-32s : %04X:%02X:%02X:%01X\n", "PCIe s:b:d:f", segment, bus,
 	       device, function);
-	printf("%-29s : 0x%04X\n", "Device Id", device_id);
-	printf("%-29s : 0x%02X\n", "Socket Id", socket_id);
-	printf("%-29s : %02d\n", "Ports Num", num_slots);
-	printf("%-29s : 0x%" PRIX64 "\n", "Bitstream Id", bbs_id);
-	printf("%-29s : %d.%d.%d\n", "Bitstream Version",
+	printf("%-32s : 0x%04X\n", "Device Id", device_id);
+	printf("%-32s : 0x%02X\n", "Socket Id", socket_id);
+	printf("%-32s : %02d\n", "Ports Num", num_slots);
+	printf("%-32s : 0x%" PRIX64 "\n", "Bitstream Id", bbs_id);
+	printf("%-32s : %d.%d.%d\n", "Bitstream Version",
 	       bbs_version.major, bbs_version.minor, bbs_version.patch);
 	uuid_unparse(guid, guid_str);
-	printf("%-29s : %s\n", "Pr Interface Id", guid_str);
+	printf("%-32s : %s\n", "Pr Interface Id", guid_str);
 
 	if (is_accelerator) {
 		uuid_unparse(port_guid, guid_str);
-		printf("%-29s : %s\n", "Accelerator Id", guid_str);
+		printf("%-32s : %s\n", "Accelerator Id", guid_str);
 	}
 }
 
