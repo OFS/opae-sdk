@@ -1,6 +1,9 @@
 #! /usr/bin/env python
 # Copyright(c) 2019, Intel Corporation
+<<<<<<< HEAD
 
+=======
+>>>>>>> Fix rebase conflicts vc (#865)
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -710,7 +713,6 @@ def write_file(fname, data):
 
 def get_mtd_from_spi_path(mode_path, spi_path):
 
-
     write_file(mode_path, "1")
 
     for i in range(20):
@@ -1199,6 +1201,9 @@ def validate_bdf(bdf, bdf_pvid_map):
 
 
 
+def main():
+    args = parse_args()
+
 
     bdf_pvid_map = get_bdf_pvid_mapping()
 
@@ -1268,7 +1273,10 @@ def validate_bdf(bdf, bdf_pvid_map):
         else:
             raise Exception("bad pvid %s" % (bdf_pvid_map[bdf]))
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> Fix rebase conflicts vc (#865)
         if bdf_pvid_map[bdf] == DC_PVID:
             boot_page = "1"
         elif bdf_pvid_map[bdf] == VC_PVID:
