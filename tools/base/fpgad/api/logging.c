@@ -40,6 +40,8 @@ log_printf("logging: " format, ##__VA_ARGS__)
 STATIC pthread_mutex_t log_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 STATIC FILE *log_file;
 
+#define BUF_TIME_LEN    256
+
 int log_open(const char *filename)
 {
 	int res;
@@ -51,15 +53,21 @@ int log_open(const char *filename)
 	if (log_file) {
 		time_t raw;
 		struct tm tm;
-		char timebuf[256];
-		int len;
+		char timebuf[BUF_TIME_LEN];
+		size_t len;
 
 		time(&raw);
 		localtime_r(&raw, &tm);
 		asctime_r(&tm, timebuf);
 
 		len = strnlen_s(timebuf, sizeof(timebuf));
-		timebuf[len-1] = '\0'; /* erase \n */
+		if (len < BUF_TIME_LEN) {
+			timebuf[len - 1] = '\0'; /* erase \n */
+		} else {
+			printf(" Invalid time stamp buffer size \n");
+			fpgad_mutex_unlock(err, &log_lock);
+			return -1;
+		}
 
 		res = fprintf(log_file, "----- %s -----\n", timebuf);
 		fflush(log_file);
