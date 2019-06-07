@@ -378,6 +378,7 @@ static fpga_result _send_descriptor(fpga_dma_handle dma_h,
 	bool first = true;
 #endif
 	do {
+		status.st.desc_buf_full = 0;
 		res = MMIORead32Blk(dma_h, CSR_STATUS(dma_h),
 				    (uint64_t)&status.reg, sizeof(status.reg));
 		ON_ERR_GOTO(res, out, "MMIORead32Blk");
