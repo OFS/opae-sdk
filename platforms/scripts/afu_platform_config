@@ -646,12 +646,9 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
         emitDebugJsonDb(args, 'platform_db', platform)
         emitDebugJsonDb(args, 'platform_defaults_db', platform_defaults)
 
-    # Use platform RTL from either a release-specific ofs_plat_if tree or
-    # from the generic platform_if tree, but not both.
+    # Disable the generic platform_if if ofs_plat is in use.
     if (args.ofs_plat_if and (afu_ifc_req['class'][:8] == 'ofs_plat')):
         args.platform_if = None
-    else:
-        args.ofs_plat_if = None
 
     # Match AFU port requirements to platform offerings
     afu_port_list = matchAfuPorts(args, afu_ifc.db, platform.db)

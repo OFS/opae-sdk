@@ -436,7 +436,10 @@ def emitSimConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
     if (args.tgt):
         f_prefix = args.tgt
 
-    ofs_plat_path = args.ofs_plat_if
+    # Use platform_if or ofs_plat_if, but not both.
+    ofs_plat_path = None
+    if (not args.platform_if):
+        ofs_plat_path = args.ofs_plat_if
 
     #
     # platform_if_addenda.txt imports the platform configuration into
