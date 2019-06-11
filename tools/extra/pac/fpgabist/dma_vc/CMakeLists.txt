@@ -29,7 +29,9 @@ enable_language(C ASM)
 set(ASM_OPTIONS "-x assembler-with-cpp")
 set(CMAKE_ASM_FLAGS "${CFLAGS} ${ASM_OPTIONS}")
 
-include_directories(${OPAE_INCLUDE_DIR})
+include_directories(${OPAE_INCLUDE_DIR}
+                    ${libjson-c_INCLUDE_DIRS}
+                    ${HWLOC_INCLUDE_DIRS})
 
 file(GLOB CSources *.c *.S)
 add_executable(fpga_dma_vc_test ${CSources})
