@@ -93,6 +93,7 @@ matrix:
       apt:
        packages:
         - libjson-c-dev
+        - libhwloc-dev
         - uuid-dev
         - doxygen
         - lcov
@@ -114,6 +115,7 @@ matrix:
       apt:
        packages:
         - libjson-c-dev
+        - libhwloc-dev
         - uuid-dev
         - doxygen
         - lcov
