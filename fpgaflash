@@ -1,9 +1,5 @@
 #! /usr/bin/env python
 # Copyright(c) 2019, Intel Corporation
-<<<<<<< HEAD
-
-=======
->>>>>>> Fix rebase conflicts vc (#865)
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -76,9 +72,18 @@ DTB_REVERSED_MAGIC_NUM = 0x0bb07fb7
 VC_DC_FACTORY_BLOCK_OFFSET = 0x10000
 VC_DC_FACTORY_BLOCK_SIZE = 0x3800000
 
-
 BMC_FW_HEAD_SIZE = 256
 
+
+def assert_not_running(programs):
+    try:
+        check_output(["pidof"] + programs)
+    except CalledProcessError:
+        return 0
+
+    errmsg = "\nERROR: Please shut down {} before running fpgaflash\n".format(
+        ", ".join(programs))
+    raise SystemExit(errmsg)
 
 
 def check_rpd(ifile):
@@ -211,7 +216,6 @@ def parse_args():
     epi += '  factory_only	FPGA factory image (only) update\n'
     epi += '  rsu		Remote System Update (Board Reboot)\n'
     epi += '  dtb		Device tree blob update\n'
-
     epi += '  eeprom	EEPROM update\n'
     epi += '  phy_eeprom	PHY EEPROM update\n'
     epi += '  bmc_bl	%s boot loader update\n' % (RC)
@@ -220,10 +224,21 @@ def parse_args():
     epi += '  bmc_img	BMC user image update\n'
     epi += '  bmc_factory	BMC factory image update\n\n'
     epi += 'example usages:\n\n'
+    epi += '    fpgaflash user new_image.rpd 0000:04:00.0\n\n'
+    epi += '    fpgaflash rsu dcp_2_0.bin 0000:08:00.0\n\n'
 
+    fc_ = argparse.RawDescriptionHelpFormatter
+    parser = argparse.ArgumentParser(description=descr, epilog=epi,
+                                     formatter_class=fc_)
 
-    help='file to program into flash')
+    parser.add_argument('type', help='type of flash programming',
+                        choices=['user', 'factory', 'factory_only', 'rsu',
+                                 'eeprom', 'phy_eeprom', 'bmc_bl', 'bmc_app',
+                                 'bmc_fw', 'bmc_img', 'bmc_factory', 'dtb'])
+    parser.add_argument('file', type=argparse.FileType('rb'),
+                        help='file to program into flash')
 
+    bdf_help = "bdf of device to program (e.g. 04:00.0 or 0000:04:00.0)"
     bdf_help += " optional when one device in system"
 
     parser.add_argument('bdf', nargs='?', help=bdf_help)
@@ -241,7 +256,6 @@ def parse_args():
     parser.add_argument('-y', '--yes', default=False,
                         action='store_true', help=yes_help)
 
-
     return parser.parse_args()
 
 
@@ -255,7 +269,6 @@ def get_pvid(bdf):
         device = fd.read().strip()
 
     return "{}:{}".format(vendor, device)
-
 
 
 def get_bdf_pvid_mapping():
@@ -349,7 +362,6 @@ def update_flash(ifile, mtd_dev, target_offset, input_offset, erase_len,
     with open(ofile.name, 'rb') as rfile:
         nbytes = flash_write(mtd_dev, target_offset, nbytes, rfile)
 
-
     with open(ofile.name, 'rb+') as rfile:
         rfile.truncate(nbytes)
 
@@ -418,6 +430,16 @@ def get_dev_bmc(bdf):
 
     return dev
 
+
+class BittwareBmc(object):
+
+    BMC_IOCTL = 0xc0187600
+
+    BW_ACT_APP_MAIN = 0x01
+    BW_ACT_APP_BL = 0x02
+
+    BW_DEV_FLASH = 0x00
+    BW_DEV_EEPROM = 0x01
 
     BW_BL_CMD_HDR = [0xB8, 0x00, 0x64, 0x18, 0x7b, 0x00]
     BW_BL_MIN_RSP_LEN = 8  # includes completion code and BL result code
@@ -712,7 +734,6 @@ def write_file(fname, data):
 
 
 def get_mtd_from_spi_path(mode_path, spi_path):
-
     write_file(mode_path, "1")
 
     for i in range(20):
@@ -755,17 +776,40 @@ def bmc_fw_update(ifile, spi_path, no_verify):
 
     mtd_dev = get_mtd_from_spi_path(mode_path, spi_path)
 
-
     bdata = ihex.tobinarray()
 
     SECTOR_SIZE = 0x10000
 
+    for i in range(0, size, SECTOR_SIZE):
+        flash_erase(mtd_dev, i, SECTOR_SIZE)
+
+    ret = 0
+    try:
+        with os.fdopen(os.open(mtd_dev, os.O_SYNC | os.O_RDWR), 'a') as file_:
+            # write from offset 256 bytes to end
+            os.lseek(file_.fileno(), start + BMC_FW_HEAD_SIZE, os.SEEK_SET)
+            print "%s writing 0x%08x bytes to 0x%08x" % \
+                  (datetime.datetime.now(), size - BMC_FW_HEAD_SIZE,
+                   start + BMC_FW_HEAD_SIZE)
+            os.write(file_.fileno(), bdata[BMC_FW_HEAD_SIZE:])
+            # write first 256 bytes
+            os.lseek(file_.fileno(), start, os.SEEK_SET)
+            print "%s writing 0x%08x bytes to 0x%08x" % \
+                  (datetime.datetime.now(), BMC_FW_HEAD_SIZE, start)
+            os.write(file_.fileno(), bdata[:BMC_FW_HEAD_SIZE])
+
+            if not no_verify:
+                os.lseek(file_.fileno(), start, os.SEEK_SET)
+                read_back_data = os.read(file_.fileno(), size)
+                if read_back_data != ihex.tobinstr():
+                    print "failed to verify data"
+                    ret = 1
+                else:
+                    print "%s flash successfully verified" % \
+                          (datetime.datetime.now())
     except (Exception, KeyboardInterrupt), ex:
         print ex
         ret = 1
-
-
-
 
     write_file(mode_path, "0")
 
@@ -773,10 +817,6 @@ def bmc_fw_update(ifile, spi_path, no_verify):
 
     bmc_fw_wait_for_nios(ver_file)
 
-<<<<<<< HEAD
-
-=======
->>>>>>> fpgaflash: poll for valid bmc_fw version
     return ret
 
 
@@ -801,10 +841,7 @@ def validate_bdf(bdf, bdf_pvid_map):
             bdf, bdf_pvid_map[bdf])
         sys.exit(1)
 
-
     return bdf
-
-
 
 
 def rc_fpga_update(ifile, utype, bdf, no_verify):
@@ -830,15 +867,12 @@ def get_aer(bdf):
     output = subprocess.check_output(cmd, shell=True)
     val1 = int(output, 16)
 
-
-
     cmd = 'setpci -s {} ECAP_AER+0x14.l'.format(bdf)
 
     output = subprocess.check_output(cmd, shell=True)
     val2 = int(output, 16)
 
     return [val1, val2]
-
 
 
 def set_aer(bdf, val1, val2):
@@ -900,12 +934,11 @@ def rescan_pci_bus(bdf, bus):
     rescan_path = '/sys/bus/pci/devices/{}/pci_bus/{}/rescan'.format(bdf, bus)
     write_file(rescan_path, "1")
 
-
     if ctrl != "on":    # revert power control
         write_file(power_path, ctrl)
 
-def dc_vc_reconfigure(bdf, ld_path, boot_page):
 
+def dc_vc_reconfigure(bdf, ld_path, boot_page):
     print "%s performing remote system update" % (datetime.datetime.now())
 
     (upstream_bdf, target_bdf) = get_upstream_bdf(bdf)
@@ -914,8 +947,6 @@ def dc_vc_reconfigure(bdf, ld_path, boot_page):
 
     set_aer(upstream_bdf, 0xffffffff, 0xffffffff)
 
-
-
     rm_path = os.path.join('/sys/bus/pci/devices', target_bdf, 'remove')
 
     try:
@@ -923,21 +954,33 @@ def dc_vc_reconfigure(bdf, ld_path, boot_page):
     except Exception:
         time.sleep(5)
 
-
     write_file(rm_path, "1")
 
     print "%s waiting for FPGA reconfiguration" % (datetime.datetime.now())
 
     time.sleep(10)
-def dc_rc_reconfigure_bmc(bdf, spi_path):
+
+    rescan_pci_bus(upstream_bdf, target_bdf[:7])
+
+    time.sleep(1)
+
+    cmd = 'setpci -s %s ECAP_AER+0x10.l=0x00002000' % (bdf)
+
+    subprocess.check_call(cmd, shell=True)
+
+    set_aer(upstream_bdf, 0, 0)
+
+    print "%s pci bus rescanned" % (datetime.datetime.now())
+
+    return 0
 
 
+def board_rsu(bdf, spi_path, boot_page):
     ld_path = os.path.join(spi_path, 'bmcimg_flash_ctrl', 'bmcimg_image_load')
     return dc_vc_reconfigure(bdf, ld_path, boot_page)
 
 
 def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
-
 
     if utype in ['bmc_img', 'bmc_factory']:
         mode_path = os.path.join(spi_path,
@@ -983,7 +1026,6 @@ def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
         target_offset = 0x3820000
         input_offset = 0
         erase_len = VC_DC_DTB_BLOCK_SIZE
-
     else:
         target_offset = 0x4000000
         input_offset = 0x3ff0000
@@ -993,7 +1035,6 @@ def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
         ret = fpga_update(ifile, mtd_dev, target_offset, input_offset,
                           erase_len, no_verify)
     except (Exception, KeyboardInterrupt), ex:
-
         print ex
         ret = 1
 
@@ -1001,26 +1042,6 @@ def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
 
     if not ret and rsu:
         ret = board_rsu(bdf, spi_path, boot_page)
-
-
-    return ret
-
-
-def vc_update_eeprom(ifile, bdf):
-    ret = 0
-
-    eeprom_path = glob.glob(os.path.join('/sys/bus/pci/devices', bdf,
-                                         'fpga', 'intel-fpga-dev.*',
-                                         'intel-fpga-fme.*',
-                                         'altera-i2c.*.auto', 'i2c-*',
-                                         '*-*', 'eeprom'))
-
-    if len(eeprom_path) != 1:
-        print "eeprom_path length %d != 1" % (len(eeprom_path))
-        ret = 1
-    else:
-        with open(eeprom_path[0], 'wb') as wfile:
-            wfile.write(ifile.read(VC_EEPROM_SIZE))
 
     return ret
 
@@ -1089,37 +1110,36 @@ def check_file(ifile, utype):
         if image_len == VC_FPGA_IMAGE_LENGTH:
             ifile.seek(0)
             data = ifile.read(8)
-
-
+            bin_hdr = struct.unpack('>II', data)
+            if bin_hdr[0] != VC_FPGA_IMAGE_MAGIC_NUM1 or \
+               bin_hdr[1] != VC_FPGA_IMAGE_MAGIC_NUM2:
+                print "invalid fpga image file"
+                ret = 1
+            if utype == 'dtb':
+                ifile.seek(VC_DC_DTB_BLOCK_OFFSET)
+                data = ifile.read(4)
+                dtb_hdr = struct.unpack('>I', data)
+                if dtb_hdr[0] != DTB_REVERSED_MAGIC_NUM:
+                    print "invalid dtb magic number"
+                    ret = 1
+        else:
+            print "invalid fpga image length {}".format(image_len)
+            ret = 1
+    elif utype in ['bmc_img', 'bmc_factory']:
+        if image_len == VC_MAX10_IMAGE_LENGTH:
+            ifile.seek(0x8c)
+            data = ifile.read(4)
+            rpd_hdr = struct.unpack('I', data)
+            if rpd_hdr[0] != VC_MAX10_IMAGE_MAGIC_NUM:
+                print "invalid max10 image file"
+                ret = 1
         else:
             print "invalid max10 image length {}".format(image_len)
             ret = 1
     else:
-
-    ifile.seek(0)
-    return ret
-
-
-def check_file_extension(ifile, utype):
-    ret = 0
-
-    extension = ifile.name.split('.')[-1].lower()
-    if utype in ['factory', 'factory_only', 'user', 'dtb']:
-        if extension != 'bin':
-            print "invalid fpga image file extension"
-            ret = 1
-    elif utype in ['bmc_img', 'bmc_factory']:
-        if extension != 'rpd':
-            print "invalid max10 image file extension"
-            ret = 1
-    elif utype in ['bmc_fw']:
-        if extension != 'ihex':
-            print "invalid nios firmware file extension"
-
-            ret = 1
-    else:
         ret = 0
 
+    ifile.seek(0)
     return ret
 
 
@@ -1162,6 +1182,8 @@ def vc_phy_eeprom_update(ifile, spi_path, no_verify):
         print "%s abort updating phy eeprom" % (datetime.datetime.now())
 
     return ret
+
+
 
 def vc_phy_eeprom_update(ifile, spi_path, no_verify):
     ret = bmc_fw_update(ifile, spi_path, no_verify)
@@ -1199,14 +1221,11 @@ def validate_bdf(bdf, bdf_pvid_map):
             print_bdf_mtd_mapping(bdf_pvid_map)
 
 
-
-
 def main():
     args = parse_args()
 
 
     bdf_pvid_map = get_bdf_pvid_mapping()
-
 
     if len(bdf_pvid_map) == 0:
         print "No FPGA devices found"
@@ -1230,7 +1249,6 @@ def main():
     if args.type == 'bmc_fw':
         if (bdf_pvid_map[bdf] == DC_PVID) or (bdf_pvid_map[bdf] == VC_PVID):
             sys.exit(bmc_fw_update(args.file, spi_path, args.no_verify))
-
         else:
             print "bmc_fw only supported on {} and {}".format(DC_PVID, VC_PVID)
             sys.exit(1)
@@ -1249,7 +1267,6 @@ def main():
 
     if not args.yes and \
        args.type in ['factory', 'factory_only', 'bmc_factory']:
-
         msg = "Are you sure you want to perform a factory update? [Yes/No]"
         line = raw_input(msg)
         if line != "Yes":
@@ -1258,10 +1275,6 @@ def main():
     if bdf_pvid_map[bdf] == RC_PVID:
         if args.type in ['rsu', 'bmc_img', 'eeprom', 'bmc_factory']:
             print "%s not supported on %s" % (args.type, RC)
-
-
-
-
             sys.exit(1)
 
         ret = rc_fpga_update(args.file, args.type, bdf, args.no_verify)
@@ -1273,10 +1286,6 @@ def main():
         else:
             raise Exception("bad pvid %s" % (bdf_pvid_map[bdf]))
 
-<<<<<<< HEAD
-
-=======
->>>>>>> Fix rebase conflicts vc (#865)
         if bdf_pvid_map[bdf] == DC_PVID:
             boot_page = "1"
         elif bdf_pvid_map[bdf] == VC_PVID:
@@ -1295,7 +1304,6 @@ def main():
                 print "eeprom only supported on {} and {}".format(DC_PVID,
                                                                   VC_PVID)
                 ret = 1
-
         else:
             # file validation check for Vista Creek
             if bdf_pvid_map[bdf] == VC_PVID:
@@ -1304,7 +1312,6 @@ def main():
                     sys.exit(ret)
 
             if args.type in ['bmc_img', 'bmc_factory']:
-
                 sfile = tempfile.NamedTemporaryFile(mode='wb+', delete=False)
                 a = array("I", args.file.read())
                 for elem in a:
@@ -1325,18 +1332,11 @@ def main():
                 sfile.write(block)
                 sfile.close()
                 sfile = open(sfile.name, 'rb')
-<<<<<<< HEAD
-
-=======
->>>>>>> fpgaflash: add factory_only flash type
             else:
                 sfile = args.file
 
             ret = dc_vc_fpga_update(sfile, args.type, bdf, spi_path,
                                     args.rsu, boot_page, args.no_verify)
-
-
-
 
     sys.exit(ret)
 
