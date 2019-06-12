@@ -271,7 +271,7 @@ fpga_result mac_command(fpga_token *tokens, int num_tokens, int argc,
 		fpgainfo_print_common("//****** MAC ******//", props);
 		res = mac_info(tokens[i]);
 		if (res != FPGA_OK) {
-			printf("phy group info is not supported\n");
+			printf("mac info is not supported\n");
 		}
 
 	}
