@@ -59,6 +59,14 @@
 #include "metrics/metrics_metadata.h"
 #include "metrics/max10_metadata.h"
 
+// Max10 Metric limits
+#define THERMAL_HIGH_LIMIT             300.00
+#define THERMAL_LOW_LIMIT              -273.00
+#define POWER_HIGH_LIMIT               1000.00
+#define POWER_LOW_LIMIT                0.00
+#define VOLTAMP_HIGH_LIMIT             500.00
+#define VOLTAMP_LOW_LIMIT              0.00
+
 
 fpga_result read_sensor_sysfs_file(const char *sysfs, const char *file,
 			void **buf, uint32_t *tot_bytes_ret)
@@ -148,9 +156,9 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 	char group_name[SYSFS_PATH_MAX]                = { 0 };
 	char group_sysfs[SYSFS_PATH_MAX]               = { 0 };
 	char qualifier_name[SYSFS_PATH_MAX]            = { 0 };
+	char metric_units[SYSFS_PATH_MAX]              = { 0 };
 	errno_t e                                      = 0;
-
-	fpga_metric_metadata metric_data;
+	char *substr                                   = NULL;
 	glob_t pglob;
 
 	if (_handle == NULL ||
@@ -258,23 +266,68 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 			metric_type = FPGA_METRIC_TYPE_UNKNOWN;
 		}
 
-		result = get_metric_data_info(group_name, metric_name, fpga_max10_metric_metadata, MAX10_MDATA_SIZE, &metric_data);
-		if (result != FPGA_OK) {
-			FPGA_MSG("Failed to get metric metadata ");
-			if (tmp) {
-				free(tmp);
-			}
-			continue;
-		}
-
 		if (tmp) {
 			free(tmp);
+		}
+
+		// Metric Units
+		if (EOK == strstr_s(metric_name, strlen(metric_name),
+				POWER, strlen(POWER), &substr)) {
+
+			e = strncpy_s(metric_units, sizeof(metric_units),
+				POWER_UNITS, SYSFS_PATH_MAX);
+				if (EOK != e) {
+				continue;
+				}
+
+		} else if (EOK == strstr_s(metric_name, strlen(metric_name),
+				VOLTAGE, strlen(VOLTAGE), &substr)) {
+
+			e = strncpy_s(metric_units, sizeof(metric_units),
+				VOLTAGE_UNITS, SYSFS_PATH_MAX);
+				if (EOK != e) {
+				continue;
+				}
+
+		} else if (EOK == strstr_s(metric_name, strlen(metric_name),
+					CURRENT, strlen(CURRENT), &substr)) {
+
+			e = strncpy_s(metric_units, sizeof(metric_units),
+				CURRENT_UNITS, SYSFS_PATH_MAX);
+				if (EOK != e) {
+				continue;
+				}
+
+		} else if (EOK == strstr_s(metric_name, strlen(metric_name),
+				TEMPERATURE, strlen(TEMPERATURE), &substr)) {
+
+			e = strncpy_s(metric_units, sizeof(metric_units),
+				TEMPERATURE_UNITS, SYSFS_PATH_MAX);
+				if (EOK != e) {
+				continue;
+				}
+
+		} else if (EOK == strstr_s(metric_name, strlen(metric_name),
+					CLCOK, strlen(CLCOK), &substr)) {
+
+			e = strncpy_s(metric_units, sizeof(metric_units),
+				CLCOK_UNITS, SYSFS_PATH_MAX);
+				if (EOK != e) {
+				continue;
+				}
+
+		} else {
+			e = strncpy_s(metric_units, sizeof(metric_units),
+				"N/A", SYSFS_PATH_MAX);
+				if (EOK != e) {
+				continue;
+				}
 		}
 
 		// value sysfs path
 		snprintf_s_ss(metrics_sysfs_path, sizeof(metrics_sysfs_path), "%s/%s", pglob.gl_pathv[i], SENSOR_SYSFS_VALUE);
 
-		result = add_metric_vector(vector, *metric_num, qualifier_name, group_name, group_sysfs, metric_name, metrics_sysfs_path, metric_data.metric_units,
+		result = add_metric_vector(vector, *metric_num, qualifier_name, group_name, group_sysfs, metric_name, metrics_sysfs_path, metric_units,
 			FPGA_METRIC_DATATYPE_DOUBLE, metric_type, hw_type, 0);
 		if (result != FPGA_OK) {
 			FPGA_ERR("Failed to add metrics");
@@ -287,5 +340,66 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 
 out:
 	globfree(&pglob);
+	return result;
+}
+
+
+
+fpga_result read_max10_value(struct _fpga_enum_metric *_fpga_enum_metric,
+					double *dvalue)
+{
+	fpga_result result     = FPGA_OK;
+	char *substr           = NULL;
+	uint64_t value         = 0;
+
+	if (_fpga_enum_metric == NULL ||
+		dvalue == NULL) {
+		FPGA_ERR("Invalid Input Paramters");
+		return FPGA_INVALID_PARAM;
+	}
+
+	result = sysfs_read_u64(_fpga_enum_metric->metric_sysfs, &value);
+	if (result != FPGA_OK) {
+		FPGA_MSG("Failed to read Metrics values");
+		return result;
+	}
+
+	*dvalue = ((double)value / MILLI);
+
+	// Check for limits
+	if (EOK == strstr_s(_fpga_enum_metric->metric_name,
+				strlen(_fpga_enum_metric->metric_name),
+				POWER,
+				strlen(POWER), &substr)) {
+
+		if (*dvalue  < POWER_LOW_LIMIT || *dvalue  > POWER_HIGH_LIMIT)
+			result = FPGA_EXCEPTION;
+
+	} else if (EOK == strstr_s(_fpga_enum_metric->metric_name,
+				strlen(_fpga_enum_metric->metric_name),
+				VOLTAGE,
+				strlen(VOLTAGE), &substr)) {
+
+		if (*dvalue < VOLTAMP_LOW_LIMIT || *dvalue > VOLTAMP_HIGH_LIMIT)
+			result = FPGA_EXCEPTION;
+
+	} else if (EOK == strstr_s(_fpga_enum_metric->metric_name,
+				strlen(_fpga_enum_metric->metric_name),
+				CURRENT,
+				strlen(CURRENT), &substr)) {
+
+		if (*dvalue < VOLTAMP_LOW_LIMIT || *dvalue > VOLTAMP_HIGH_LIMIT)
+			result = FPGA_EXCEPTION;
+
+	} else if (EOK == strstr_s(_fpga_enum_metric->metric_name,
+				strlen(_fpga_enum_metric->metric_name),
+				TEMPERATURE,
+				strlen(TEMPERATURE), &substr)) {
+
+		if (*dvalue < THERMAL_LOW_LIMIT || *dvalue > THERMAL_HIGH_LIMIT)
+			result = FPGA_EXCEPTION;
+
+	}
+
 	return result;
 }

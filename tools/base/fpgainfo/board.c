@@ -145,6 +145,11 @@ destroy:
 		OPAE_ERR("Failed to Destroy Object");
 	}
 
+	if (*dl_handle == NULL) {
+		OPAE_MSG("Failed to load board module");
+		resval = FPGA_EXCEPTION;
+	}
+
 	return resval;
 }
 
@@ -400,7 +405,7 @@ fpga_result fpgainfo_board_info(fpga_token token)
 
 	res = load_board_plugin(token, &dl_handle);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to load board plugin\n");
+		OPAE_MSG("Failed to load board plugin\n");
 		goto out;
 	}
 
@@ -427,7 +432,7 @@ fpga_result mac_info(fpga_token token)
 
 	res = load_board_plugin(token, &dl_handle);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to load board plugin\n");
+		OPAE_MSG("Failed to load board plugin\n");
 		goto out;
 	}
 
@@ -454,7 +459,7 @@ fpga_result phy_group_info(fpga_token token)
 
 	res = load_board_plugin(token, &dl_handle);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to load board plugin\n");
+		OPAE_MSG("Failed to load board plugin\n");
 		goto out;
 	}
 
