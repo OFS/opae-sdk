@@ -35,9 +35,12 @@
 fpga_result read_sensor_sysfs_file(char *sysfs, const char *file,
 			void **buf, uint32_t *tot_bytes_ret);
 
-fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
+fpga_result enum_max10_metrics_info(struct _fpga_handle *_handle,
 			fpga_metric_vector *vector,
 			uint64_t *metric_num,
 			enum fpga_hw_type  hw_type);
+
+fpga_result read_max10_value(struct _fpga_enum_metric *_fpga_enum_metric,
+				double *dvalue);
 
 #endif // __FPGA_METRICS_MAX10_H__
