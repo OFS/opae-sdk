@@ -277,7 +277,8 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 			e = strncpy_s(metric_units, sizeof(metric_units),
 				POWER_UNITS, SYSFS_PATH_MAX);
 				if (EOK != e) {
-				continue;
+					FPGA_ERR("Failed to copy metric units");
+					continue;
 				}
 
 		} else if (EOK == strstr_s(metric_name, strlen(metric_name),
@@ -286,7 +287,8 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 			e = strncpy_s(metric_units, sizeof(metric_units),
 				VOLTAGE_UNITS, SYSFS_PATH_MAX);
 				if (EOK != e) {
-				continue;
+					FPGA_ERR("Failed to copy metric units");
+					continue;
 				}
 
 		} else if (EOK == strstr_s(metric_name, strlen(metric_name),
@@ -295,7 +297,8 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 			e = strncpy_s(metric_units, sizeof(metric_units),
 				CURRENT_UNITS, SYSFS_PATH_MAX);
 				if (EOK != e) {
-				continue;
+					FPGA_ERR("Failed to copy metric units");
+					continue;
 				}
 
 		} else if (EOK == strstr_s(metric_name, strlen(metric_name),
@@ -304,23 +307,26 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 			e = strncpy_s(metric_units, sizeof(metric_units),
 				TEMPERATURE_UNITS, SYSFS_PATH_MAX);
 				if (EOK != e) {
-				continue;
+					FPGA_ERR("Failed to copy metric units");
+					continue;
 				}
 
 		} else if (EOK == strstr_s(metric_name, strlen(metric_name),
-					CLCOK, strlen(CLCOK), &substr)) {
+					CLOCK, strlen(CLOCK), &substr)) {
 
 			e = strncpy_s(metric_units, sizeof(metric_units),
-				CLCOK_UNITS, SYSFS_PATH_MAX);
+				CLOCK_UNITS, SYSFS_PATH_MAX);
 				if (EOK != e) {
-				continue;
+					FPGA_ERR("Failed to copy metric units");
+					continue;
 				}
 
 		} else {
 			e = strncpy_s(metric_units, sizeof(metric_units),
 				"N/A", SYSFS_PATH_MAX);
 				if (EOK != e) {
-				continue;
+					FPGA_ERR("Failed to copy metric units");
+					continue;
 				}
 		}
 
@@ -354,7 +360,7 @@ fpga_result read_max10_value(struct _fpga_enum_metric *_fpga_enum_metric,
 
 	if (_fpga_enum_metric == NULL ||
 		dvalue == NULL) {
-		FPGA_ERR("Invalid Input Paramters");
+		FPGA_ERR("Invalid Input Parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
