@@ -141,7 +141,7 @@ class pci_node(sysfs_node):
 
     @property
     def bdf(self):
-        """pci_address get the pci address of the node"""
+        """bdf get the bus, device, function of the node"""
         return self._pci_address['bdf']
 
     @property
