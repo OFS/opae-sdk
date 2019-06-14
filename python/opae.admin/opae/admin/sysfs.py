@@ -39,6 +39,7 @@ PCI_ADDRESS_RE = re.compile(PCI_ADDRESS_PATTERN, re.IGNORECASE)
 
 class sysfs_node(loggable):
     """sysfs_node is a base class representing a sysfs object in sysfs """
+
     def __init__(self, sysfs_path):
         super(sysfs_node, self).__init__()
         self._sysfs_path = sysfs_path
@@ -75,7 +76,6 @@ class sysfs_node(loggable):
             with self._open('w') as fd:
                 fd.write(val)
 
-
     @property
     def sysfs_path(self):
         return self._sysfs_path
@@ -87,6 +87,7 @@ class pci_node(sysfs_node):
        that can be found in /sys/bus/pci/devices and can have a parent
        node and one or more children nodes
        This can be used to represent a PCIe tree or subtree"""
+
     def __init__(self, pci_address, parent=None, **kwargs):
         """__init__ initialize a pci_node object
 
@@ -191,7 +192,7 @@ class pci_node(sysfs_node):
 
     @property
     def all_children(self):
-        """all_children get all children under the subtree rooted at pci_node"""
+        """all_children get all nodes under the subtree rooted at pci_node"""
         nodes = self.children
         for n in nodes:
             nodes.extend(n.all_children)
@@ -265,8 +266,8 @@ class class_node(sysfs_node):
             path.append(node)
         # the last node is the fpga node
         LOG('enum_class').debug('found device at %s -tree is\n %s',
-                        node.pci_address,
-                        path[0].tree())
+                                node.pci_address,
+                                path[0].tree())
         return node
 
     @classmethod
@@ -275,7 +276,11 @@ class class_node(sysfs_node):
         log = LOG(cls.__name__)
         log.debug(sysfs_class_name)
         nodes = []
-        class_paths = glob.glob(os.path.join('/sys/class', sysfs_class_name, '*'))
+        class_paths = glob.glob(
+            os.path.join(
+                '/sys/class',
+                sysfs_class_name,
+                '*'))
         log.debug('glob returned: %s', class_paths)
         for path in class_paths:
             nodes.append(sysfs_class(path))

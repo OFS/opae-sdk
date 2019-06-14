@@ -28,6 +28,7 @@ import logging
 TRACE = logging.DEBUG - 5
 logging.addLevelName(TRACE, 'TRACE')
 
+
 def trace(self, msg, *args, **kwargs):
     self.log(TRACE, msg, *args, **kwargs)
 

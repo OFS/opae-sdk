@@ -29,15 +29,16 @@ import sys
 
 # pylint: disable=E0602, E0603
 
-
-
 logging.basicConfig(level=logging.NOTSET,
                     stream=sys.stdout)
+
+
 def test_enum_class():
     for o in sysfs.class_node.enum('fpga'):
         print(o.pci_node)
         o.pci_node.rescan()
         print(o.pci_node.root.tree())
+
 
 if __name__ == '__main__':
     test_enum_class()
