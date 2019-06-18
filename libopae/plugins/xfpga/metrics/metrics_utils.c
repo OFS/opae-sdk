@@ -1254,7 +1254,7 @@ fpga_result  get_fme_metric_value(fpga_handle handle,
 			}
 
 			// Read power theraml values from Max10
-			if (((_fpga_enum_metric->hw_type == FPGA_HW_DCP_VC) ||
+			if (((_fpga_enum_metric->hw_type == FPGA_HW_DCP_DC) ||
 				(_fpga_enum_metric->hw_type == FPGA_HW_DCP_VC)) &&
 				((_fpga_enum_metric->metric_type == FPGA_METRIC_TYPE_POWER) ||
 				(_fpga_enum_metric->metric_type == FPGA_METRIC_TYPE_THERMAL))) {
