@@ -195,6 +195,9 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len);
 */
 fpga_result get_phy_info(char *dev_path, fpga_phy_group_info *info);
 
+fpga_result print_pkvl_version(fpga_token token);
+
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

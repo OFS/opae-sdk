@@ -291,6 +291,11 @@ target_include_directories(argsfilter-static PUBLIC
 add_library(board-vc-static
     ${OPAE_SDK_SOURCE}/tools/base/libboard/board_vc/board_vc.c
     )
+    
+add_library(board-dc-static
+    ${OPAE_SDK_SOURCE}/tools/base/libboard/board_dc/board_dc.c
+    )
+
 add_library(board-rc-static
     ${OPAE_SDK_SOURCE}/tools/base/libboard/board_rc/board_rc.c
     )
@@ -890,6 +895,10 @@ add_unit_test(test_board_vc_c board-vc-static
     board/test_board_vc.cpp
 )
 
+add_unit_test(test_board_dc_c board-dc-static
+    board/test_board_dc.cpp
+)
+
 ############################################################################
 # object_api tests #######################################################
 ############################################################################
@@ -928,6 +937,12 @@ add_custom_command(TARGET test_unit
     PRE_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
     ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dcp-vc.tar.gz
+    ${CMAKE_BINARY_DIR}
+    )
+add_custom_command(TARGET test_unit
+    PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dcp-dc.tar.gz
     ${CMAKE_BINARY_DIR}
     )
 

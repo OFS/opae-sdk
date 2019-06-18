@@ -28,6 +28,7 @@
 # board lib
 add_subdirectory(base/libboard/board_rc)
 add_subdirectory(base/libboard/board_vc)
+add_subdirectory(base/libboard/board_dc)
 
 # base
 add_subdirectory(base/fpgaconf)
