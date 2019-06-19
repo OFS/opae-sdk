@@ -157,7 +157,7 @@ def main():
     if len(nvmem_path) > 1:
         print('multi nvmem found, '
               'select {} to do mactest'.format(args.nvmem))
-    args.eth_grps = f.find_node(devs[0].get('path'), 'eth_group*/dev', depth=3)
+    args.eth_grps = f.find_node(devs[0].get('path'), 'eth_group*/dev', depth=4)
     if not args.eth_grps:
         exception_quit('No ethernet group found')
     for g in args.eth_grps:

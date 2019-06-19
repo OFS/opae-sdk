@@ -66,17 +66,93 @@ void phy_help(void)
 		   "\n");
 }
 
+#define PATH1_KEYWORD   "pac"
+#define PATH2_KEYWORD   "misc"
 #define PHYGRP_DEVNAME  "eth_group"
 #define CDEV_ID_SIZE    8
 #define FPGA_PHY_GROUP_GET_INFO 0xB702
-static void print_phy_group_info(fpga_properties props, int group_num)
+static bool get_eth_group_path(const char *in_path, int pac_net_index,
+							   int group_num, char *out_path, int size)
 {
 	DIR *dir = NULL;
 	struct dirent *dirent = NULL;
+	char path[SYSFS_PATH_MAX] = {0};
+	char *p;
+	char *substr;
+	int i = 0;
+	int pac_net_found_count = 0;
+	int result;
+	bool found = false;
+
+	if (in_path == NULL || out_path == NULL)
+		return found;
+	strncpy_s(path, sizeof(path), in_path, strlen(in_path));
+
+	while (1) {
+		dir = opendir(path);
+		if (NULL == dir) {
+			break;
+		}
+		while (NULL != (dirent = readdir(dir))) {
+			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
+								".", &result)) {
+				if (result == 0)
+					continue;
+			}
+			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
+								"..", &result)) {
+				if (result == 0)
+					continue;
+			}
+			if (EOK == strstr_s(dirent->d_name, strlen(dirent->d_name),
+								PATH2_KEYWORD, strlen(PATH2_KEYWORD),
+								&substr)) {
+				snprintf_s_s(path+strlen(path), sizeof(path)-strlen(path),
+							 			 "/%s", dirent->d_name);
+				break;
+			}
+			if (EOK == strstr_s(dirent->d_name, strlen(dirent->d_name),
+								PATH1_KEYWORD, strlen(PATH1_KEYWORD),
+								&substr)) {
+				if (pac_net_found_count == pac_net_index) {
+					snprintf_s_s(path+strlen(path), sizeof(path)-strlen(path),
+							 	 "/%s", dirent->d_name);
+					break;
+				} else {
+					pac_net_found_count += 1;
+					continue;
+				}
+			}
+
+			if (!strncmp(dirent->d_name, PHYGRP_DEVNAME,
+				 strlen(PHYGRP_DEVNAME))) {
+				p = strrchr(dirent->d_name, '.');
+				if (NULL == p) {
+					fprintf(stderr, "Invalid eth_group name %s\n",
+							dirent->d_name);
+					continue;
+				}
+				++p;
+				sscanf_s_i(p, "%d", &i);
+				if (group_num == i) {
+					snprintf_s_ss(out_path, size, "%s/%s/dev", path,
+								  dirent->d_name);
+					found = true;
+					break;
+				}
+			}
+		}
+		closedir(dir);
+		if (dirent == NULL || found)
+			break;
+	}
+	return found;
+}
+
+static void print_phy_group_info(fpga_properties props, int group_num)
+{
 	char path[SYSFS_PATH_MAX];
 	const char *sysfspath = get_sysfs_path(props, FPGA_DEVICE, NULL);
-	char *p;
-	int i = 0;
 	bool found = false;
 	int fd;
 	ssize_t sz;
@@ -84,39 +160,12 @@ static void print_phy_group_info(fpga_properties props, int group_num)
 
 	printf("//****** PHY GROUP %d ******//\n", group_num);
 
-	// Open misc directory under FME device
-	snprintf_s_s(path, sizeof(path), "%s/misc/", sysfspath);
-	dir = opendir(path);
-	if (NULL == dir) {
-		fprintf(stderr, "Can not open directory %s\n", path);
-		return;
-	}
-
 	// Search specified PHY group
-	while (NULL != (dirent = readdir(dir))) {
-		if (!strcmp(dirent->d_name, "."))
-			continue;
-		if (!strcmp(dirent->d_name, ".."))
-			continue;
-
-		if (!strncmp(dirent->d_name, PHYGRP_DEVNAME, strlen(PHYGRP_DEVNAME))) {
-			p = strrchr(dirent->d_name, '.');
-			if (NULL == p) {
-				fprintf(stderr, "Invalid eth_group name %s\n", dirent->d_name);
-				continue;
-			}
-			++p;
-			sscanf_s_i(p, "%d", &i);
-			if (group_num == i) {
-				strcat_s(path, sizeof(path), dirent->d_name);
-				strcat_s(path, sizeof(path), "/dev");
-				found = true;
-				break;
-			}
-		}
+	found = get_eth_group_path(sysfspath, 0, group_num, path, SYSFS_PATH_MAX);
+	if (!found) {
+		found = get_eth_group_path(sysfspath, 1, group_num, path,
+								   SYSFS_PATH_MAX);
 	}
-
-	closedir(dir);
 
 	if (found) {
 		// Get char device ID from PHY group sysfs device

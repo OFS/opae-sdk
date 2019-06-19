@@ -219,7 +219,7 @@ def main():
                        'one FPGA'.format(len(devs)))
     if not devs:
         exception_quit('no FPGA found')
-    args.eth_grps = f.find_node(devs[0].get('path'), 'eth_group*/dev', depth=3)
+    args.eth_grps = f.find_node(devs[0].get('path'), 'eth_group*/dev', depth=4)
     if not args.eth_grps:
         exception_quit('No ethernet group found')
     for g in args.eth_grps:
