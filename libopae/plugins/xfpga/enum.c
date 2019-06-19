@@ -437,15 +437,13 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	pdev->device_id = parent->device_id;
 	pdev->socket_id = parent->socket_id = 0;
 	// get the socket id from the fme
-	result = sysfs_get_fme_path(sysfspath, spath);
-	if (FPGA_OK != result)
-		return result;
-
-	resval = sysfs_parse_attribute64(spath, FPGA_SYSFS_SOCKET_ID, &value);
-	if (resval) {
-		FPGA_MSG("error reading socket_id");
-	} else {
-		pdev->socket_id = parent->socket_id = value;
+	if (sysfs_get_fme_path(sysfspath, spath) == FPGA_OK) {
+		resval = sysfs_parse_attribute64(spath, FPGA_SYSFS_SOCKET_ID, &value);
+		if (resval) {
+			FPGA_MSG("error reading socket_id");
+		} else {
+			pdev->socket_id = parent->socket_id = value;
+		}
 	}
 
 	res = open(pdev->devpath, O_RDWR);
