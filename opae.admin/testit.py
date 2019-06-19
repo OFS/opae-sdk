@@ -24,6 +24,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 from opae.admin import sysfs
+from opae.admin.fpga import fpga
 import logging
 import sys
 
@@ -34,11 +35,21 @@ logging.basicConfig(level=logging.NOTSET,
 
 
 def test_enum_class():
-    for o in sysfs.class_node.enum('fpga'):
+    for o in sysfs.class_node.enum_class('fpga'):
         print(o.pci_node)
         o.pci_node.rescan()
         print(o.pci_node.root.tree())
 
 
+def test_enum_fpga():
+    for o in fpga.enum([{'pci_node.device_id': 0xb30}]):
+        print(o.pci_node)
+        print(o.pci_node.root.tree())
+        print(o.fme.devpath)
+        print(o.fme.i2c_bus.sysfs_path)
+        print(o.fme.spi_bus.sysfs_path)
+        print(o.port.devpath)
+
+
 if __name__ == '__main__':
-    test_enum_class()
+    test_enum_fpga()

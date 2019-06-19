@@ -27,8 +27,8 @@ import glob
 import os
 import re
 from contextlib import contextmanager
-from opae.utils.process import call_process, DRY_RUN
-from opae.utils.log import loggable, LOG
+from opae.admin.utils.process import call_process, DRY_RUN
+from opae.admin.utils.log import loggable, LOG
 
 
 PCI_ADDRESS_PATTERN = (r'(?P<pci_address>'
@@ -53,6 +53,18 @@ class sysfs_node(loggable):
     def find(self, pattern):
         for p in glob.glob(os.path.join(self._sysfs_path, pattern)):
             yield sysfs_node(p)
+
+    def find_all(self, pattern):
+        return [item for item in self.find(pattern)]
+
+    def find_one(self, pattern):
+        items = self.find_all(pattern)
+        if not items:
+            self.log.warn('could not find: "%s"', pattern)
+            return None
+        if len(items) > 1:
+            self.log.warn('found more than one: "%s"', pattern)
+        return items[0]
 
     @contextmanager
     def _open(self, mode):
@@ -200,16 +212,15 @@ class pci_node(sysfs_node):
 
     @property
     def vendor_id(self):
-        return self.node('vendor').value
+        return int(self.node('vendor').value, 16)
 
     @property
     def device_id(self):
-        return self.node('device').value
+        return int(self.node('device').value, 16)
 
     @property
     def pci_id(self):
-        return (int(self.vendor_id, 16),
-                int(self.device_id, 16))
+        return (self.vendor_id, self.device_id)
 
     def remove(self):
         self.log.debug('removing device at %s', self.pci_address)
@@ -241,7 +252,7 @@ class pci_node(sysfs_node):
 
 class class_node(sysfs_node):
     def __init__(self, path):
-        super(class_node, self).__init__(self)
+        super(class_node, self).__init__(path)
         self._pci_node = self._parse_class_path(path)
 
     @property
@@ -271,7 +282,7 @@ class class_node(sysfs_node):
         return node
 
     @classmethod
-    def enum(cls, sysfs_class_name, sysfs_class=None):
+    def enum_class(cls, sysfs_class_name, sysfs_class=None):
         sysfs_class = sysfs_class or cls
         log = LOG(cls.__name__)
         log.debug(sysfs_class_name)
@@ -285,3 +296,30 @@ class class_node(sysfs_node):
         for path in class_paths:
             nodes.append(sysfs_class(path))
         return nodes
+
+    @classmethod
+    def enum(cls, filt=[]):
+        log = LOG(cls.__name__)
+
+        def func(obj):
+            for f in filt:
+                for k, v in f.iteritems():
+                    attrs = k.split('.')
+                    while len(attrs) > 1:
+                        try:
+                            attr = attrs.pop(0)
+                            obj = getattr(obj, attr)
+                        except AttributeError:
+                            log.warn('"%s" is not an attribute of "%s"',
+                                     attr, obj)
+                            attrs = ['NO_ATTRIBUTE']
+                            break
+                    if hasattr(obj, attrs[0]):
+                        attr_value = getattr(obj, attrs[0])
+                        if isinstance(attr_value, str):
+                            attr_value = attr_value.lower()
+                            v = v.lower()
+                        if attr_value != v:
+                            return False
+            return True
+        return filter(func, cls.enum_class(cls.__name__, cls))
