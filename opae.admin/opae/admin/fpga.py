@@ -76,6 +76,10 @@ class port(region):
         return self.node('afu_id').value
 
 
+class secure_dev(region):
+    pass
+
+
 class fpga(class_node):
     FME_PATTERN = 'intel-fpga-fme.*'
     PORT_PATTERN = 'intel-fpga-port.*'
@@ -92,6 +96,20 @@ class fpga(class_node):
             self.log.warning('could not find FME')
         if len(items) > 1:
             self.log.warning('found more than one FME')
+
+    @property
+    def secure_dev(self):
+        f = self.fme
+        if not f:
+            self.log.error('no FME found')
+            return None
+        spi = f.spi_bus
+        if not spi:
+            self.log.error('no spi bus')
+            return None
+        sec = spi.find_one('ifpga_sec_mgr/ifpga_sec*')
+        if sec:
+            return secure_dev(sec.sysfs_path, self.pci_node)
 
     @property
     def port(self):
