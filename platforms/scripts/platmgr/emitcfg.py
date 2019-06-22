@@ -419,10 +419,6 @@ def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
         f.write(
             "set_global_assignment -name SOURCE_TCL_SCRIPT_FILE " +
             "{0}/par/platform_if_addenda.qsf\n".format(args.platform_if))
-    if (args.ofs_plat_if):
-        f.write(
-            "set_global_assignment -name SOURCE_TCL_SCRIPT_FILE " +
-            "{0}/par/ofs_plat.qsf\n".format(args.ofs_plat_if))
     f.close()
 
 
@@ -435,11 +431,6 @@ def emitSimConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
     f_prefix = ""
     if (args.tgt):
         f_prefix = args.tgt
-
-    # Use platform_if or ofs_plat_if, but not both.
-    ofs_plat_path = None
-    if (not args.platform_if):
-        ofs_plat_path = args.ofs_plat_if
 
     #
     # platform_if_addenda.txt imports the platform configuration into
@@ -456,17 +447,10 @@ def emitSimConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
     emitHeader(f, afu_ifc_db, platform_db)
 
-    # Import generic platform interface components (usually from OPAE SDK)
+    # Import platform interface components
     if (args.platform_if):
         f.write("-F {0}/sim/platform_if_addenda.txt\n".format(
             args.platform_if))
-
-    # Does the specific target platform provide ASE sources?
-    if (ofs_plat_path):
-        ofs_plat_addenda = os.path.join(ofs_plat_path,
-                                        "sim/platform_if_addenda.txt")
-        if (os.path.isfile(ofs_plat_addenda)):
-            f.write("-F {0}\n".format(ofs_plat_addenda))
 
     f.close()
 
@@ -485,17 +469,10 @@ def emitSimConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
     emitHeader(f, afu_ifc_db, platform_db)
 
-    # Import generic platform interface components (usually from OPAE SDK)
+    # Import platform interface components
     if (args.platform_if):
         f.write("-F {0}/sim/platform_if_includes.txt\n".format(
             args.platform_if))
-
-    # Does the specific target platform provide ASE sources?
-    if (ofs_plat_path):
-        ofs_plat_includes = os.path.join(ofs_plat_path,
-                                         "sim/platform_if_includes.txt")
-        if (os.path.isfile(ofs_plat_includes)):
-            f.write("-F {0}\n".format(ofs_plat_includes))
 
     # Legacy AFUs may need INCLUDE_DDR4 defined without having to include
     # platform_if.vh.  If INCLUDE_DDR4 is defined, then force it here.
