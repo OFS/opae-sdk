@@ -58,6 +58,8 @@ The main documentation for the site is organized into following sections:
    docs/fpga_tools/fpgad/fpgad
    docs/fpga_tools/fpgadiag/README
    docs/fpga_tools/fpgaflash/fpgaflash
+   docs/fpga_tools/fpgaflash/superrsu
+   docs/fpga_tools/super-rsu/super-rsu
    docs/fpga_tools/fpgamux/fpgamux
    docs/fpga_tools/fpgaport/fpgaport
    docs/fpga_tools/mmlink/mmlink
