@@ -48,19 +48,113 @@
 // Most preprocessor variables used in this file come from this.
 //
 `include "platform_if.vh"
+`include "platform.vh"
+
+import ase_pkg::*;
 
 `timescale 1ps/1ps
 
 module ase_top();
 
+    //
+    // Generate clocks
+    //
 
-   logic pClkDiv4;
-   logic pClkDiv2;
-   logic pClk;
+    logic [2:0] ase_clk_rollover = 3'b111;
+
+    reg pClk, pClkDiv2, pClkDiv4;
+    assign pClk = ase_clk_rollover[0];
+    assign pClkDiv2 = ase_clk_rollover[1];
+    assign pClkDiv4 = ase_clk_rollover[2];
+
+    // Internal pClkx2 clock (for creating synchronized clocks)
+    logic pClkx2;
+    initial
+    begin : pclk_x2_proc
+        pClkx2 = 0;
+
+        forever
+        begin
+            #(`PCLK_TIME / 4);
+            pClkx2 = 0;
+            #(`PCLK_TIME / 4);
+            pClkx2 = 1;
+        end
+    end
+
+    always @(posedge pClkx2)
+    begin : clk_rollover_ctr
+        ase_clk_rollover <= ase_clk_rollover - 1;
+    end
+
+    // User clock
+    logic usrClk;
+    logic usrClkDiv2 = 0;
+
+    initial
+    begin : usrclk_proc
+        usrClk = 0;
+        forever begin
+            #(cfg.usr_tps / 2);
+            usrClk = ~usrClk;
+        end
+    end
+
+
+    // Div2 output
+    always @(posedge usrClk)
+    begin : usrclkdiv2_proc
+        usrClkDiv2 = ~usrClkDiv2;
+    end
+
+    // UCLK interface
+    reg uClk_usr, uClk_usrDiv2;
+    assign uClk_usr     = usrClk;
+    assign uClk_usrDiv2 = usrClkDiv2;
+
+
+    //
+    // Instantiate the platform interface. If OFS_PLAT_PROVIDES_ASE_TOP, the
+    // configured platform release provides an ASE module that generates
+    // the top-level interface. If not defined, ASE provides a generic version.
+    //
+
+`ifdef OFS_PLAT_PROVIDES_ASE_TOP
+
+    `OFS_PLAT_PROVIDES_ASE_TOP ase_top_plat(.*);
+
+`else
+
+    ase_top_generic ase_top_generic
+       (
+        .pClk,
+        .pClkDiv2,
+        .pClkDiv4,
+        .uClk_usr,
+        .uClk_usrDiv2
+        );
+
+`endif
+
+endmodule
+
+
+`ifndef OFS_PLAT_PROVIDES_ASE_TOP
+
+//
+// Generic implementation of top-level interface, used when the target platform
+// doesn't provide one.
+//
+module ase_top_generic
+  (
+   input  logic pClk,
+   input  logic pClkDiv2,
+   input  logic pClkDiv4,
+   input  logic uClk_usr,
+   input  logic uClk_usrDiv2
+   );
+
    logic pck_cp2af_softReset;
-
-   logic uClk_usr;
-   logic uClk_usrDiv2;
 
    t_if_ccip_Tx pck_af2cp_sTx;
    t_if_ccip_Rx pck_cp2af_sRx;
@@ -88,9 +182,6 @@ module ase_top();
    // Interfaces for all DDR memory banks
    avalon_mem_if#(.ENABLE_LOG(1), .NUM_BANKS(NUM_LOCAL_MEM_BANKS))
       ddr4[NUM_ALLOC_MEM_BANKS](ddr4_avmm_clk, pck_cp2af_softReset);
-
-   logic ddr_reset_n;
-   logic ddr_pll_ref_clk;
 `else
    localparam NUM_LOCAL_MEM_BANKS = 0;
 `endif
@@ -186,61 +277,23 @@ module ase_top();
    // assign DBG_C0RxAtomic = t_ccip_c0_RspAtomicHdr'(pck_cp2af_sRx.c0.hdr);
 
 `ifdef PLATFORM_PROVIDES_LOCAL_MEMORY
-   initial begin
-      #0     ddr_reset_n = 0;
-             ddr_pll_ref_clk = 0;
-      #10000 ddr_reset_n = 1;
-   end
-   always #1875 ddr_pll_ref_clk = ~ddr_pll_ref_clk; // 266.666.. Mhz
-
-   // emif model
-   genvar b;
-   generate
-      for (b = 0; b < NUM_LOCAL_MEM_BANKS; b = b + 2)
-      begin : b_emul
-         emif_ddr4
-          #(
-            .DDR_ADDR_WIDTH(`PLATFORM_PARAM_LOCAL_MEMORY_ADDR_WIDTH),
-            .DDR_DATA_WIDTH(`PLATFORM_PARAM_LOCAL_MEMORY_DATA_WIDTH),
-            .INSTANCE_ID(b)
-            )
-          emif_ddr4
-          (
-            .ddr4a_avmm_waitrequest                (ddr4[b].waitrequest),
-            .ddr4a_avmm_readdata                   (ddr4[b].readdata),
-            .ddr4a_avmm_readdatavalid              (ddr4[b].readdatavalid),
-            .ddr4a_avmm_burstcount                 (ddr4[b].burstcount),
-            .ddr4a_avmm_writedata                  (ddr4[b].writedata),
-            .ddr4a_avmm_address                    (ddr4[b].address),
-            .ddr4a_avmm_write                      (ddr4[b].write),
-            .ddr4a_avmm_read                       (ddr4[b].read),
-            .ddr4a_avmm_byteenable                 (ddr4[b].byteenable),
-            .ddr4a_avmm_clk_clk                    (ddr4_avmm_clk[b]),
-
-            .ddr4a_global_reset_reset_sink_reset_n (ddr_reset_n),
-            .ddr4a_pll_ref_clk_clock_sink_clk      (ddr_pll_ref_clk),
-
-            .ddr4b_avmm_waitrequest                (ddr4[b+1].waitrequest),
-            .ddr4b_avmm_readdata                   (ddr4[b+1].readdata),
-            .ddr4b_avmm_readdatavalid              (ddr4[b+1].readdatavalid),
-            .ddr4b_avmm_burstcount                 (ddr4[b+1].burstcount),
-            .ddr4b_avmm_writedata                  (ddr4[b+1].writedata),
-            .ddr4b_avmm_address                    (ddr4[b+1].address),
-            .ddr4b_avmm_write                      (ddr4[b+1].write),
-            .ddr4b_avmm_read                       (ddr4[b+1].read),
-            .ddr4b_avmm_byteenable                 (ddr4[b+1].byteenable),
-            .ddr4b_avmm_clk_clk                    (ddr4_avmm_clk[b+1])
-         );
-
-         // Mostly used for debugging
-         assign ddr4[b].bank_number = b;
-         assign ddr4[b+1].bank_number = b+1;
-      end
-   endgenerate
-
+   ase_sim_local_mem_avmm
+    #(
+      .NUM_BANKS(NUM_LOCAL_MEM_BANKS),
+      .ADDR_WIDTH(`PLATFORM_PARAM_LOCAL_MEMORY_ADDR_WIDTH),
+      .DATA_WIDTH(`PLATFORM_PARAM_LOCAL_MEMORY_DATA_WIDTH),
+      .BURST_CNT_WIDTH(`PLATFORM_PARAM_LOCAL_MEMORY_BURST_CNT_WIDTH)
+      )
+    local_mem_model
+     (
+      .local_mem(ddr4),
+      .clks(ddr4_avmm_clk)
+      );
 `endif
 
    t_ccip_c0_ReqMmioHdr DBG_C0RxMMIO;
    assign DBG_C0RxMMIO  = t_ccip_c0_ReqMmioHdr'(pck_cp2af_sRx.c0.hdr);
 
 endmodule // ase_top
+
+`endif //  `ifndef OFS_PLAT_PROVIDES_ASE_TOP
