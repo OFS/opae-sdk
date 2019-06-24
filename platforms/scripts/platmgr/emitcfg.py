@@ -369,7 +369,7 @@ def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
         f_prefix = args.tgt
 
     #
-    # platform_if_addenda.txt imports the platform configuration into
+    # platform_if_addenda.qsf imports the platform configuration into
     # the simulator.
     #
     fn = os.path.join(f_prefix, "platform_if_addenda.qsf")
@@ -415,9 +415,10 @@ def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
             f.write("{0}\n".format(port['num-entries']))
     f.write('}\n\n')
 
-    f.write(
-        "set_global_assignment -name SOURCE_TCL_SCRIPT_FILE " +
-        "{0}/par/platform_if_addenda.qsf\n".format(args.platform_if))
+    if (args.platform_if):
+        f.write(
+            "set_global_assignment -name SOURCE_TCL_SCRIPT_FILE " +
+            "{0}/par/platform_if_addenda.qsf\n".format(args.platform_if))
     f.close()
 
 
@@ -446,7 +447,11 @@ def emitSimConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
     emitHeader(f, afu_ifc_db, platform_db)
 
-    f.write("-F {0}/sim/platform_if_addenda.txt\n".format(args.platform_if))
+    # Import platform interface components
+    if (args.platform_if):
+        f.write("-F {0}/sim/platform_if_addenda.txt\n".format(
+            args.platform_if))
+
     f.close()
 
     #
@@ -464,7 +469,10 @@ def emitSimConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
     emitHeader(f, afu_ifc_db, platform_db)
 
-    f.write("-F {0}/sim/platform_if_includes.txt\n".format(args.platform_if))
+    # Import platform interface components
+    if (args.platform_if):
+        f.write("-F {0}/sim/platform_if_includes.txt\n".format(
+            args.platform_if))
 
     # Legacy AFUs may need INCLUDE_DDR4 defined without having to include
     # platform_if.vh.  If INCLUDE_DDR4 is defined, then force it here.

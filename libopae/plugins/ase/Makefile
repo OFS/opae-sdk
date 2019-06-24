@@ -324,7 +324,7 @@ MENT_VCOM_OPT+= -nologo -work $(WORK)
 ## VLOG compile
 # MENT_VLOG_OPT = -64
 MENT_VLOG_OPT?=
-MENT_VLOG_OPT+= -nologo +librescan -work $(WORK) +define+$(SIMULATOR) -novopt
+MENT_VLOG_OPT+= -nologo +librescan -work $(WORK) +define+$(SIMULATOR)
 MENT_VLOG_OPT+= -dpiheader work/dpiheader.h +incdir+$(DUT_INCDIR)+$(WORK)
 MENT_VLOG_OPT+= -sv -timescale $(TIMESCALE) -l vlog.log
 MENT_VLOG_OPT+= +define+$(ASE_PLATFORM)
@@ -335,10 +335,12 @@ endif
 ## VSIM elaboration, and run options
 # MENT_VSIM_OPT = -64
 MENT_VSIM_OPT?=
-MENT_VSIM_OPT+= -c -l run.log -dpioutoftheblue 1 -novopt
+MENT_VSIM_OPT+= -c -l run.log -dpioutoftheblue 1
 MENT_VSIM_OPT+= -sv_lib $(ASE_SHOBJ_NAME) -do $(PWD)/vsim_run.tcl
 MENT_VSIM_OPT+= -sv_seed 1234
-# -voptargs="+acc"
+# Wires driven by multiple sources should be an error!
+MENT_VSIM_OPT+= -error 3839
+MENT_VSIM_OPT+= -voptargs="+acc"
 
 
 #########################################################################
