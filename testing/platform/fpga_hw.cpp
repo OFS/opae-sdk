@@ -94,7 +94,7 @@ const char *rc_mdata =
    "afu-image":
     {"clock-frequency-high": 312,
      "clock-frequency-low": 156,
-     "interface-uuid": "9926ab6d-6c92-5a68-aabc-a7d84c545738",
+     "interface-uuid": "f64e598b-ea11-517f-a28e-7bc65d885104",
      "magic-no": 488605312,
      "accelerator-clusters":
       [
@@ -183,7 +183,7 @@ static platform_db MOCK_PLATFORMS = {
      test_platform{.mock_sysfs = "mock_sys_tmp-dcp-rc-nlb3.tar.gz",
                    .driver = fpga_driver::linux_intel,
                    .devices = {test_device{
-                       .fme_guid = "9926AB6D-6C92-5A68-AABC-A7D84C545738",
+                       .fme_guid = "F64E598B-EA11-517F-A28E-7BC65D885104",
                        .afu_guid = "D8424DC4-A4A3-C413-F89E-433683F9040B",
                        .segment = 0x0,
                        .bus = 0x05,
