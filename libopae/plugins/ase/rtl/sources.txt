@@ -14,4 +14,6 @@ ccip_emulator.sv
 ase_svfifo.sv
 ccip_logger.sv
 ccip_checker.sv
+ase_sim_local_mem.sv
+ase_sim_local_mem_avmm_bridge.v
 ase_top.sv

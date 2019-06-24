@@ -82,10 +82,7 @@
  * CCI-P Clock, reset, and links
  */
  `define INITIAL_SYSTEM_RESET_DURATION         20
- `define CLK_64UI_TIME                         10000
- `define CLK_32UI_TIME                         5000
- `define CLK_16UI_TIME                         2500
- `define CLK_8UI_TIME                          1250
+ `define PCLK_TIME                             2500
  `define LP_INITDONE_READINESS_LATENCY         5
  `define NUM_VL_LINKS                          1
  `define NUM_VH_LINKS                          2
