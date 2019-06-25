@@ -217,7 +217,10 @@ class COMMON(object):
             ports = []
             for p in argport:
                 if p.isdigit():
-                    ports.append(int(p))
+                    if int(p) < total:
+                        ports.append(int(p))
+                    else:
+                        exception_quit('Invalid argument port {}'.format(p))
                 elif '-' in p:
                     s, e = p.split('-')
                     s = s.strip()
