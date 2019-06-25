@@ -25,6 +25,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 import fcntl
 import os
+import errno
 from opae.admin.sysfs import class_node, sysfs_node
 
 
@@ -32,6 +33,7 @@ class region(sysfs_node):
     def __init__(self, sysfs_path, pci_node):
         super(region, self).__init__(sysfs_path)
         self._pci_node = pci_node
+        self._fd = -1
 
     @property
     def pci_node(self):
@@ -54,6 +56,13 @@ class region(sysfs_node):
                 raise
             else:
                 return data
+
+    def __enter__(self):
+        self._fd = os.open(self.devpath, os.O_SYNC | os.O_RDWR | os.O_EXCL)
+        return self._fd
+
+    def __exit__(self, ex_type, ex_val, ex_traceback):
+        os.close(self._fd)
 
 
 class fme(region):
