@@ -880,7 +880,7 @@ open("vcs_run.tcl", "w").write('dump -depth 0 \ndump -aggregates -add /'
 with open("vsim_run.tcl", "w") as fd:
     fd.write("# Remove \"Memory\" from WildcardFilter so that unpacked\n")
     fd.write("# arrays will be included in the collected data.\n")
-    fd.write("set WildcardFilter [lsearch -not -all -inline " +
+    fd.write("quietly set WildcardFilter [lsearch -not -all -inline " +
              "$WildcardFilter Memory]\n\n")
     fd.write("add wave -r /* \n")
     fd.write("run -all\n")
