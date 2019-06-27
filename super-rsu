@@ -1174,7 +1174,7 @@ class dc(pac):
 
 
 def make_pac(node, fpga, **kwargs):
-    pacs = {(0x8086, 0x0b30): vc}
+    pacs = {(0x8086, 0x0b30): vc, (0x8086, 0x0b2b): dc}
     pac_class = pacs.get(node.pci_id)
     if pac_class:
         return pac_class(node, fpga, **kwargs)
