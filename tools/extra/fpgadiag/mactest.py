@@ -39,11 +39,20 @@ FVL_SIDE = 1
 
 
 class MacromCompare(COMMON):
+    mode = 0
+    mode_list = {0: 8,  # 8x10g
+                 1: 4,  # 4x25g
+                 2: 2,  # 2x1x25g
+                 3: 4,  # 4x25g+2x25g
+                 4: 4  # 2x2x25g
+                 }
+
     def __init__(self, args):
         self.args = args
         self.ethif = {}
         self.mac = []
         self.number = 4
+        self.bitstream_id = args.bitstream_id
 
     def get_pci_common_root_path(self, path):
         link = os.readlink(path)
@@ -79,22 +88,26 @@ class MacromCompare(COMMON):
     def str2hex(self, c):
         return int(binascii.b2a_hex(c), 16)
 
+    def read_bitstream_id(self):
+        with open(self.bitstream_id, 'rb') as f:
+            f.seek(4, 0)
+            self.mode = f.read(1)
+
     def read_mac_from_nvmem(self):
-        mac_number = 0
+        mac_number = self.mode_list.get(self.mode)
         mac = 0
         with open(self.args.nvmem, 'rb') as f:
             f.seek(self.args.offset, 0)
             for x in [40, 32, 24, 16, 8, 0]:
                 mac |= self.str2hex(f.read(1)) << x
-            mac_number = self.str2hex(f.read(1))
         print('Read {} mac addresses from NVMEM:'.format(mac_number))
         vendor = '{:06x}'.format(mac >> 24)
         for i in range(mac_number):
-            mac += 1
             mac_str = '{}{:06x}'.format(vendor, (mac & 0xffffff))
             fmt_str = ':'.join([mac_str[x:x + 2]
                                 for x in range(0, len(mac_str), 2)])
             self.mac.append(fmt_str)
+            mac += 1
         for m in self.mac:
             print('  {}'.format(m))
         print(divide)
@@ -114,6 +127,7 @@ class MacromCompare(COMMON):
 
     def start(self):
         self.get_if_and_mac_list()
+        self.read_bitstream_id()
         self.read_mac_from_nvmem()
         self.compare_eth_mac_with_macrom()
 
@@ -148,6 +162,8 @@ def main():
     if not devs:
         exception_quit('no FPGA found')
     args.fpga_root = devs[0].get('path')
+    args.bitstream_id = f.find_node(devs[0].get('path'),
+                                    'bitstream_id', depth=3)
     nvmem_path = f.find_node(devs[0].get('path'), 'nvmem', depth=7)
     if not nvmem_path:
         nvmem_path = f.find_node(devs[0].get('path'), 'eeprom', depth=7)
