@@ -89,9 +89,9 @@ class MacromCompare(COMMON):
         return int(binascii.b2a_hex(c), 16)
 
     def read_bitstream_id(self):
-        with open(self.bitstream_id, 'rb') as f:
-            f.seek(4, 0)
-            self.mode = f.read(1)
+        with open(self.bitstream_id[0], 'r') as f:
+            v = f.read()
+            self.mode = (int(v, 16) >> 32) & 0xF
 
     def read_mac_from_nvmem(self):
         mac_number = self.mode_list.get(self.mode)
