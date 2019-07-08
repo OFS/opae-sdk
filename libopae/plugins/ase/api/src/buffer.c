@@ -208,21 +208,20 @@ static fpga_result check_mapped_page(void *vaddr, size_t req_page_bytes)
 	bool test_huge_page = (req_page_bytes > 4096);
 
 	FILE *f;
-	if (! test_huge_page) {
+	if (!test_huge_page) {
 		// maps is simple and quick to read. Use it when checking only that a
 		// region is mapped. The test is still expensive and just proving that
 		// the page is mapped, which will eventually trigger a SEGV anyway.
 		// As a simulator performance compromise, we test the first 200
 		// requests and then back off, testing only 1% after that.
-		static uint64_t n_tested = 0;
+		static uint64_t n_tested;
 		n_tested += 1;
 		if ((n_tested > 200) && ((n_tested % 100) != 0)) {
 			return FPGA_OK;
 		}
 
 		f = fopen("/proc/self/maps", "r");
-	}
-	else {
+	} else {
 		// smaps can tell use the page size. Use it when confirming that the
 		// page is mapped as a huge page.
 		f = fopen("/proc/self/smaps", "r");
@@ -257,7 +256,7 @@ static fpga_result check_mapped_page(void *vaddr, size_t req_page_bytes)
 
 		// Found the region. The test is successful if all we needed was
 		// proof that the 4KB page is mapped.
-		if (! test_huge_page) {
+		if (!test_huge_page) {
 			fclose(f);
 			return FPGA_OK;
 		}
