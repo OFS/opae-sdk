@@ -94,10 +94,11 @@ typedef struct _vc_device {
 	uint64_t max_sensor_id;
 	uint8_t *state_tripped; // bit set
 	uint8_t *state_last;    // bit set
-	char power_path[PATH_MAX];
 	uint64_t tripped_count;
 	uint32_t num_config_sensors;
 	vc_config_sensor *config_sensors;
+	bool aer_disabled;
+	uint32_t previous_ecap_aer[2];
 } vc_device;
 
 #define BIT_SET_MASK(__n)  (1 << ((__n) % 8))
@@ -312,14 +313,9 @@ STATIC fpga_result vc_sensor_get(vc_device *vc, vc_sensor *s)
 		s->flags &= ~FPGAD_SENSOR_VC_HIGH_FATAL_VALID;
 
 	res = vc_sensor_get_u64(s, "high_warn", &s->high_warn);
-	if (res == FPGA_OK) {
+	if (res == FPGA_OK)
 		s->flags |= FPGAD_SENSOR_VC_HIGH_WARN_VALID;
-		if (is_temperature)
-			s->high_warn -= VC_DEGREES_ADJUST_TEMP;
-		else
-			s->high_warn -=
-				(s->high_warn * VC_PERCENT_ADJUST_PWR) / 100;
-	} else
+	else
 		s->flags &= ~FPGAD_SENSOR_VC_HIGH_WARN_VALID;
 
 	res = vc_sensor_get_u64(s, "low_fatal", &s->low_fatal);
@@ -334,14 +330,9 @@ STATIC fpga_result vc_sensor_get(vc_device *vc, vc_sensor *s)
 		s->flags &= ~FPGAD_SENSOR_VC_LOW_FATAL_VALID;
 
 	res = vc_sensor_get_u64(s, "low_warn", &s->low_warn);
-	if (res == FPGA_OK) {
+	if (res == FPGA_OK)
 		s->flags |= FPGAD_SENSOR_VC_LOW_WARN_VALID;
-		if (is_temperature)
-			s->low_warn += VC_DEGREES_ADJUST_TEMP;
-		else
-			s->low_warn +=
-				(s->low_warn * VC_PERCENT_ADJUST_PWR) / 100;
-	} else
+	else
 		s->flags &= ~FPGAD_SENSOR_VC_LOW_WARN_VALID;
 
 	/* Do we have a user override (via the config) for
@@ -489,9 +480,249 @@ STATIC fpga_result vc_enum_sensors(vc_device *vc)
 	return FPGA_NOT_FOUND;
 }
 
+STATIC fpga_result vc_disable_aer(vc_device *vc)
+{
+	fpga_token token;
+	fpga_result res;
+	fpga_properties prop = NULL;
+	char path[PATH_MAX];
+	char rlpath[PATH_MAX];
+	char *p;
+	errno_t err;
+	char cmd[256];
+	char output[256];
+	FILE *fp;
+	size_t sz;
+
+	uint16_t seg = 0;
+	uint8_t bus = 0;
+	uint8_t dev = 0;
+	uint8_t fn = 0;
+
+	token = vc->base_device->token;
+
+	res = fpgaGetProperties(token, &prop);
+	if (res != FPGA_OK) {
+		LOG("failed to get fpga properties.\n");
+		return res;
+	}
+
+	if ((fpgaPropertiesGetSegment(prop, &seg) != FPGA_OK) ||
+	    (fpgaPropertiesGetBus(prop, &bus) != FPGA_OK) ||
+	    (fpgaPropertiesGetDevice(prop, &dev) != FPGA_OK) ||
+	    (fpgaPropertiesGetFunction(prop, &fn) != FPGA_OK)) {
+		LOG("failed to get PCI attributes.\n");
+		fpgaDestroyProperties(&prop);
+		return FPGA_EXCEPTION;
+	}
+
+	fpgaDestroyProperties(&prop);
+
+	snprintf_s_iiii(path, PATH_MAX,
+			"/sys/bus/pci/devices/%04x:%02x:%02x.%d",
+			(int)seg, (int)bus, (int)dev, (int)fn);
+
+	memset_s(rlpath, sizeof(rlpath), 0);
+
+	if (readlink(path, rlpath, sizeof(rlpath)) < 0) {
+		LOG("readlink \"%s\" failed.\n", path);
+		return FPGA_EXCEPTION;
+	}
+
+	// (rlpath)
+	//                    1111111111
+	//          01234567890123456789
+	// ../../../devices/pci0000:ae/0000:ae:00.0/0000:af:00.0/
+	// 0000:b0:09.0/0000:b2:00.0
+
+	err = strstr_s(rlpath, sizeof(rlpath),
+		       "devices/pci", 11, &p);
+	if (err != EOK) {
+		LOG("error: no \"devices/pci\" in path \"%s\"\n", rlpath);
+		return FPGA_EXCEPTION;
+	}
+
+	p += 19;
+	*(p + 12) = '\0';
+
+	// Save the current ECAP_AER values.
+
+	snprintf_s_s(cmd, sizeof(cmd),
+		      "setpci -s %s ECAP_AER+0x08.L", p);
+
+	fp = popen(cmd, "r");
+	if (!fp) {
+		LOG("failed to read ECAP_AER+0x08 for %s\n", p);
+		return FPGA_EXCEPTION;
+	}
+
+	sz = fread(output, 1, sizeof(output), fp);
+
+	if (sz >= sizeof(output))
+		sz = sizeof(output) - 1;
+	output[sz] = '\0';
+
+	pclose(fp);
+
+	vc->previous_ecap_aer[0] = strtoul(output, NULL, 16);
+
+	LOG("saving previous ECAP_AER+0x08 value 0x%08x for %s\n",
+	    vc->previous_ecap_aer[0], p);
+
+
+	snprintf_s_s(cmd, sizeof(cmd),
+		      "setpci -s %s ECAP_AER+0x14.L", p);
+
+	fp = popen(cmd, "r");
+	if (!fp) {
+		LOG("failed to read ECAP_AER+0x14 for %s\n", p);
+		return FPGA_EXCEPTION;
+	}
+
+	sz = fread(output, 1, sizeof(output), fp);
+
+	if (sz >= sizeof(output))
+		sz = sizeof(output) - 1;
+	output[sz] = '\0';
+
+	pclose(fp);
+
+	vc->previous_ecap_aer[1] = strtoul(output, NULL, 16);
+
+	LOG("saving previous ECAP_AER+0x14 value 0x%08x for %s\n",
+	    vc->previous_ecap_aer[1], p);
+
+
+	// Disable AER.
+
+	snprintf_s_s(cmd, sizeof(cmd),
+		      "setpci -s %s ECAP_AER+0x08.L=0xffffffff", p);
+
+	fp = popen(cmd, "r");
+	if (!fp) {
+		LOG("failed to write ECAP_AER+0x08 for %s\n", p);
+		return FPGA_EXCEPTION;
+	}
+
+	pclose(fp);
+
+	snprintf_s_s(cmd, sizeof(cmd),
+		      "setpci -s %s ECAP_AER+0x14.L=0xffffffff", p);
+
+	fp = popen(cmd, "r");
+	if (!fp) {
+		LOG("failed to write ECAP_AER+0x14 for %s\n", p);
+		return FPGA_EXCEPTION;
+	}
+
+	pclose(fp);
+
+	return FPGA_OK;
+}
+
+STATIC fpga_result vc_enable_aer(vc_device *vc)
+{
+	fpga_token token;
+	fpga_result res;
+	fpga_properties prop = NULL;
+	char path[PATH_MAX];
+	char rlpath[PATH_MAX];
+	char *p;
+	errno_t err;
+	char cmd[256];
+	FILE *fp;
+
+	uint16_t seg = 0;
+	uint8_t bus = 0;
+	uint8_t dev = 0;
+	uint8_t fn = 0;
+
+	token = vc->base_device->token;
+
+	res = fpgaGetProperties(token, &prop);
+	if (res != FPGA_OK) {
+		LOG("failed to get fpga properties.\n");
+		return res;
+	}
+
+	if ((fpgaPropertiesGetSegment(prop, &seg) != FPGA_OK) ||
+	    (fpgaPropertiesGetBus(prop, &bus) != FPGA_OK) ||
+	    (fpgaPropertiesGetDevice(prop, &dev) != FPGA_OK) ||
+	    (fpgaPropertiesGetFunction(prop, &fn) != FPGA_OK)) {
+		LOG("failed to get PCI attributes.\n");
+		fpgaDestroyProperties(&prop);
+		return FPGA_EXCEPTION;
+	}
+
+	fpgaDestroyProperties(&prop);
+
+	snprintf_s_iiii(path, PATH_MAX,
+			"/sys/bus/pci/devices/%04x:%02x:%02x.%d",
+			(int)seg, (int)bus, (int)dev, (int)fn);
+
+	memset_s(rlpath, sizeof(rlpath), 0);
+
+	if (readlink(path, rlpath, sizeof(rlpath)) < 0) {
+		LOG("readlink \"%s\" failed.\n", path);
+		return FPGA_EXCEPTION;
+	}
+
+	// (rlpath)
+	//                    1111111111
+	//          01234567890123456789
+	// ../../../devices/pci0000:ae/0000:ae:00.0/0000:af:00.0/
+	// 0000:b0:09.0/0000:b2:00.0
+
+	err = strstr_s(rlpath, sizeof(rlpath),
+		       "devices/pci", 11, &p);
+	if (err != EOK) {
+		LOG("error: no \"devices/pci\" in path \"%s\"\n", rlpath);
+		return FPGA_EXCEPTION;
+	}
+
+	p += 19;
+	*(p + 12) = '\0';
+
+	// Write the saved ECAP_AER values to enable AER.
+
+	snprintf_s_si(cmd, sizeof(cmd),
+		      "setpci -s %s ECAP_AER+0x08.L=0x%08x",
+		      p, vc->previous_ecap_aer[0]);
+
+	fp = popen(cmd, "r");
+	if (!fp) {
+		LOG("failed to write ECAP_AER+0x08 for %s\n", p);
+		return FPGA_EXCEPTION;
+	}
+
+	pclose(fp);
+
+	LOG("restored previous ECAP_AER+0x08 value 0x%08x for %s\n",
+	    vc->previous_ecap_aer[0], p);
+
+
+	snprintf_s_si(cmd, sizeof(cmd),
+		      "setpci -s %s ECAP_AER+0x14.L=0x%08x",
+		      p, vc->previous_ecap_aer[1]);
+
+	fp = popen(cmd, "r");
+	if (!fp) {
+		LOG("failed to write ECAP_AER+0x14 for %s\n", p);
+		return FPGA_EXCEPTION;
+	}
+
+	pclose(fp);
+
+	LOG("restored previous ECAP_AER+0x14 value 0x%08x for %s\n",
+	    vc->previous_ecap_aer[1], p);
+
+	return FPGA_OK;
+}
+
 STATIC bool vc_monitor_sensors(vc_device *vc)
 {
 	uint32_t i;
+	uint32_t monitoring = 0;
 	bool negative_trans = false;
 	bool res = true;
 
@@ -500,6 +731,10 @@ STATIC bool vc_monitor_sensors(vc_device *vc)
 
 		if (s->flags & FPGAD_SENSOR_VC_IGNORE)
 			continue;
+
+		if (s->flags & (FPGAD_SENSOR_VC_HIGH_WARN_VALID|
+				FPGAD_SENSOR_VC_LOW_WARN_VALID))
+			++monitoring;
 
 		if (fpgaObjectRead64(s->value_object,
 				     &s->value,
@@ -510,18 +745,15 @@ STATIC bool vc_monitor_sensors(vc_device *vc)
 			continue;
 		}
 
-		if (HIGH_FATAL(s) || LOW_FATAL(s)) {
-			opae_api_send_EVENT_POWER_THERMAL(vc->base_device);
-			BIT_SET_SET(vc->state_tripped, s->id);
-			if (!BIT_IS_SET(vc->state_last, s->id)) {
-				LOG("sensor '%s' fatal.\n", s->name);
-			}
-			res = false;
-		} else if (HIGH_WARN(s) || LOW_WARN(s)) {
+		if (HIGH_WARN(s) || LOW_WARN(s)) {
 			opae_api_send_EVENT_POWER_THERMAL(vc->base_device);
 			BIT_SET_SET(vc->state_tripped, s->id);
 			if (!BIT_IS_SET(vc->state_last, s->id)) {
 				LOG("sensor '%s' warning.\n", s->name);
+				if (!vc->aer_disabled) {
+					if (FPGA_OK == vc_disable_aer(vc))
+						vc->aer_disabled = true;
+				}
 			}
 		}
 
@@ -548,8 +780,23 @@ STATIC bool vc_monitor_sensors(vc_device *vc)
 		if (i == vc->num_sensors) {
 			// no remaining tripped sensors
 			vc->tripped_count = 0;
+			if (vc->aer_disabled) {
+				if (FPGA_OK == vc_enable_aer(vc))
+					vc->aer_disabled = false;
+			}
 		}
 	}
+
+	/*
+	** Are we still monitoring any sensor that has a valid
+	** high/low warn threshold? If not, then this fn should
+	** return false so that we wait for sensor enumeration
+	** in the caller. It's possible that we're ignoring all
+	** of the sensors because they became unavailable due to
+	** driver removal, eg.
+	*/
+	if (!monitoring)
+		res = false;
 
 	for (i = 0 ; i < vc->num_sensors ; ++i) {
 		vc_sensor *s = &vc->sensors[i];
@@ -560,164 +807,6 @@ STATIC bool vc_monitor_sensors(vc_device *vc)
 	}
 
 	memset_s(vc->state_tripped, (vc->max_sensor_id + 7) / 8, 0);
-
-	return res;
-}
-
-STATIC fpga_result vc_unload_driver(vc_device *vc)
-{
-	fpga_token token;
-	fpga_result res;
-	fpga_properties prop = NULL;
-	char path[PATH_MAX];
-	char rlpath[PATH_MAX];
-	char *p_seg_bus;
-	char *p;
-	errno_t err;
-
-	uint16_t seg = 0;
-	uint8_t bus = 0;
-	uint8_t dev = 0;
-	uint8_t fn = 0;
-
-	token = vc->base_device->token;
-
-	res = fpgaGetProperties(token, &prop);
-	if (res != FPGA_OK) {
-		LOG("failed to get fpga properties.\n");
-		return res;
-	}
-
-	if ((fpgaPropertiesGetSegment(prop, &seg) != FPGA_OK) ||
-	    (fpgaPropertiesGetBus(prop, &bus) != FPGA_OK) ||
-	    (fpgaPropertiesGetDevice(prop, &dev) != FPGA_OK) ||
-	    (fpgaPropertiesGetFunction(prop, &fn) != FPGA_OK)) {
-		LOG("failed to get PCI attributes.\n");
-		fpgaDestroyProperties(&prop);
-		return res;
-	}
-
-	fpgaDestroyProperties(&prop);
-
-	snprintf_s_iiii(path, PATH_MAX,
-			"/sys/bus/pci/devices/%04x:%02x:%02x.%d",
-			(int)seg, (int)bus, (int)dev, (int)fn);
-
-	memset_s(rlpath, sizeof(rlpath), 0);
-
-	if (readlink(path, rlpath, sizeof(rlpath)) < 0) {
-		LOG("readlink \"%s\" failed.\n", path);
-		return FPGA_EXCEPTION;
-	}
-
-	// (rlpath)
-	//
-	// ../../../devices/pci0000:ae/0000:ae:00.0/0000:af:00.0/
-	// 0000:b0:09.0/0000:b2:00.0
-
-	p = strrchr(rlpath, '/');
-	if (!p) {
-		LOG("error parsing path \"%s\"\n", rlpath);
-		return FPGA_EXCEPTION;
-	}
-	*p = '\0';
-
-	p = strrchr(rlpath, '/');
-	if (!p) {
-		LOG("error parsing path \"%s\"\n", rlpath);
-		return FPGA_EXCEPTION;
-	}
-	*p = '\0';
-
-	// (rplath)                                -------------
-	//                                         1111
-	//                                         3210987654321p
-	// ../../../devices/pci0000:ae/0000:ae:00.0/0000:af:00.0
-
-	p_seg_bus = p - 12;
-
-	err = strstr_s(rlpath, sizeof(rlpath),
-		       "devices", 7, &p);
-	if (err != EOK) {
-		LOG("error: no \"devices\" in path \"%s\"\n", rlpath);
-		return FPGA_EXCEPTION;
-	}
-
-	// (path)
-	//
-	// /sys/devices/pci0000:ae/0000:ae:00.0/0000:af:00.0/remove
-	snprintf_s_s(path, PATH_MAX,
-		      "/sys/%s/remove", p);
-
-	LOG("writing 1 to \"%s\" to remove driver.\n", path);
-	res = file_write_string(path, "1\n", 2);
-	if (res != FPGA_OK) {
-		LOG("failed to write \"%s\"\n", path);
-	}
-
-	// capture the segment and bus needed for the power/control
-	// and for the rescan path.
-
-	*(p_seg_bus + 7) = '\0';
-
-	p = strrchr(path, '/');
-	if (!p) {
-		LOG("error parsing path \"%s\"\n", path);
-		return FPGA_EXCEPTION;
-	}
-	*p = '\0';
-
-	p = strrchr(path, '/');
-	if (!p) {
-		LOG("error parsing path \"%s\"\n", path);
-		return FPGA_EXCEPTION;
-	}
-	*p = '\0';
-
-	// (path)
-	//
-	// /sys/devices/pci0000:ae/0000:ae:00.0
-
-	snprintf_s_s(p, PATH_MAX - strnlen_s(path, PATH_MAX),
-		     "/pci_bus/%s/power/control", p_seg_bus);
-
-	// (path)
-	//
-	// /sys/devices/pci0000:ae/0000:ae:00.0/pci_bus/0000:af/power/control
-	strncpy_s(vc->power_path, sizeof(vc->power_path),
-		  path, sizeof(path));
-
-	return res;
-}
-
-STATIC fpga_result vc_force_pci_rescan(vc_device *vc)
-{
-	fpga_result res = FPGA_OK;
-	char *p;
-	errno_t err;
-
-	LOG("writing \"on\" to \"%s\" to power the device.\n", vc->power_path);
-	if (file_write_string(vc->power_path, "on\n", 3)) {
-		LOG("failed to write \"%s\"\n", vc->power_path);
-		res = FPGA_EXCEPTION;
-	}
-
-	err = strstr_s(vc->power_path, sizeof(vc->power_path),
-		       "power/control", 13, &p);
-	if (err != EOK) {
-		LOG("error: no \"power/control\" in path \"%s\"\n", vc->power_path);
-		return FPGA_EXCEPTION;
-	}
-
-	strncpy_s(p, sizeof(vc->power_path) - 13,
-		  "rescan", 6);
-	*(p + 6) = '\0';
-
-	LOG("writing 1 to \"%s\" to rescan the device.\n", vc->power_path);
-	if (file_write_string(vc->power_path, "1\n", 2)) {
-		LOG("failed to write \"%s\"\n", vc->power_path);
-		res = FPGA_EXCEPTION;
-	}
 
 	return res;
 }
@@ -734,8 +823,6 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 	uint32_t enum_retries = 0;
 	uint8_t *save_state_last = NULL;
 
-	int i;
-
 	while (vc_threads_running) {
 
 		while (vc_enum_sensors(vc) != FPGA_OK) {
@@ -743,9 +830,6 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 			if (!vc_threads_running)
 				return NULL;
 			sleep(1);
-
-			if (vc->power_path[0])
-				file_write_string(vc->power_path, "1\n", 2);
 		}
 
 		if (save_state_last) {
@@ -767,19 +851,6 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 		vc->state_last = NULL;
 
 		vc_destroy_sensors(vc);
-
-		if (vc_unload_driver(vc) == FPGA_OK) {
-
-			for (i = 0 ; i < cool_down ; ++i) {
-				if (!vc_threads_running) {
-					return NULL;
-				}
-				sleep(1);
-			}
-
-			if (vc_force_pci_rescan(vc) != FPGA_OK)
-				LOG("failed to force PCI bus rescan.\n");
-		}
 
 	}
 
