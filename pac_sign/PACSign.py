@@ -3,182 +3,213 @@
 # Main entry to the tool
 #
 ##########################
+from logger import log
+import logging
+import importlib
+import argparse
 import os
 import sys
 path = "%s/source/" % os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, path)
+path = "%s/hsm_managers/" % os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, path)
+import reader
+import database
 import common_util
-import argparser
-import bitstream
-import sign
 
-ARG_DB = {
-            "arguments"     : [
-                                argparser.ARGUMENT("permission",      "p",  argparser.ARGUMENT_TYPE.INT,  "permission value",
-                                                    "Permission to authenticate"),
-                                argparser.ARGUMENT("cancel",          "c",  argparser.ARGUMENT_TYPE.INT,  "cancel ID",
-                                                    "Cancel ID"),
-                                argparser.ARGUMENT("no_passphrase",   "s",  argparser.ARGUMENT_TYPE.BOOL, "",
-                                                    "Disable passphrase for private PEM file"),
-                                argparser.ARGUMENT("previous_qky",    "y",  argparser.ARGUMENT_TYPE.STR,  "previous QKY",
-                                                    "Last entry of input QKY file"),
-                                argparser.ARGUMENT("qky",             "q",  argparser.ARGUMENT_TYPE.STR,  "current QKY",
-                                                    "Input QKY file"),
-                                argparser.ARGUMENT("previous_pem",    "i",  argparser.ARGUMENT_TYPE.STR,  "previous PEM",
-                                                    "Input PEM file of last entry of input QKY"),
-                                argparser.ARGUMENT("pem",             "u",  argparser.ARGUMENT_TYPE.STR,  "current PEM",
-                                                    "Input PEM file"),
-                                argparser.ARGUMENT("curve",           "e",  argparser.ARGUMENT_TYPE.STR,  "secp256r1|secp384r1",
-                                                    "Elliptic curve type"),
-                                argparser.ARGUMENT("type",            "t",  argparser.ARGUMENT_TYPE.STR,  "FIM|BMC_FW|AFU",
-                                                    "Bitstream content type")
-                                ],
-            "operations"    :   [
-                                    argparser.OPERATION("MAKE_RAW_DATA", 
-                                                        "generate raw content data file. The input is HEX string for example 0123456789ABCDEF",
-                                                        [],
-                                                        [],
-                                                        2, 2, "<input HEX string> <output binary file>"),
-                                    argparser.OPERATION("MAKE_PRIVATE_PEM", 
-                                                        "generate private key",
-                                                        ["curve"],
-                                                        ["no_passphrase"],
-                                                        1, 1, "<output PEM>"),
-                                    argparser.OPERATION("MAKE_PUBLIC_PEM",
-                                                        "generate public key",
-                                                        [],
-                                                        [],
-                                                        2, 2, "<input private PEM> <output public PEM>"),
-                                    argparser.OPERATION("MAKE_ROOT",
-                                                        "generate root key which is QKY from a public root PEM file",
-                                                        [],
-                                                        [],
-                                                        2, 2, "<public root PEM> <output QKY>"),
-                                    argparser.OPERATION("APPEND_KEY",
-                                                        "append new public key to QKY, which last entry private key must be known",
-                                                        ["previous_pem", "previous_qky", "permission", "cancel"],
-                                                        [],
-                                                        2, 2, "<public PEM for new entry> <output QKY>"),
-                                    argparser.OPERATION("INSERT_DATA",
-                                                        "insert descriptor and signature block into input file",
-                                                        ["type"],
-                                                        [],
-                                                        2, 2, "<input> <output>"),
-                                    argparser.OPERATION("SIGN",
-                                                        "sign bitstream with QKY, which last entry private key must be known",
-                                                        ["qky", "pem"],
-                                                        [],
-                                                        2, 2, "<input> <output>"),
-                                    argparser.OPERATION("INSERT_DATA_AND_SIGN",
-                                                        "insert descriptor and signature block into input file, sign file with QKY, which last entry private key must be known",
-                                                        ["type", "qky", "pem"],
-                                                        [],
-                                                        2, 2, "<input> <output>"),
-                                    argparser.OPERATION("MAKE_AND_SIGN_CANCELLATION_CERT",
-                                                        "generate cancellation cert with the specified cancel ID (4 Bytes) and sign with root QKY which private key must be known",
-                                                        ["type", "qky", "pem", "cancel"],
-                                                        [],
-                                                        1, 1, "<output cert>"),
-                                    argparser.OPERATION("ROOT_KEY_HASH",
-                                                        "extract Root Key Hash information from QKY",
-                                                        [],
-                                                        [],
-                                                        2, 2, "<input QKY> <output fuse text>"),
-                                    argparser.OPERATION("CHECK_INTEGRITY",
-                                                        "check the integrity of the file",
-                                                        [],
-                                                        [],
-                                                        1, 1, "<input>")
-                                ]
-        }
 
-def main() :
+def add_common_options(parser):
+    parser.add_argument("-t",
+                        "--cert_type",
+                        type=str.upper,
+                        help="Type of certificate to generate",
+                        required=True,
+                        choices=["UPDATE", "CANCEL", "RK_256", "RK_384"])
+    parser.add_argument("-H",
+                        "--HSM_manager",
+                        help="Module name for key / signing manager",
+                        required=True)
+    parser.add_argument(
+        "-C",
+        "--HSM_config",
+        help="Config file name for key / signing manager (optional)")
+    parser.add_argument(
+        "-r",
+        "--root_key",
+        help="Identifier for the root key. Provided as-is to the key manager")
+    parser.add_argument(
+        "-k",
+        "--code_signing_key",
+        help="Identifier for the CSK. Provided as-is to the key manager")
+    parser.add_argument(
+        "-d",
+        "--csk_id",
+        type=int,
+        help="CSK number.  Only required for cancellation certificate")
+    parser.add_argument("-i",
+                        "--input_file",
+                        help="File name for the image to be acted upon")
+    parser.add_argument("-o",
+                        "--output_file",
+                        help="File name in which the result is to be stored")
+    parser.add_argument("-y",
+                        "--yes",
+                        help="Answer all questions with \"yes\"",
+                        action='store_true')
+    parser.add_argument(
+        '-v',
+        '--verbose',
+        help="Increase verbosity.  Can be specified multiple times",
+        action='count')
 
-    (operation, permission, cancel, no_passphrase, previous_qky, qky, previous_pem, pem, curve, type, help, args) = argparser.get_argument(ARG_DB)
-    
-    status = None
-    if help :
-    
-        # argparser will print for you
+
+def answer_y_n(args, question):
+    if args.yes:
+        return True
+    ans = False
+    while True:
+        overwrite = input('{}? Y = yes, N = no: '.format(question))
+        if overwrite.lower() == 'y':
+            ans = True
+            break
+        if overwrite.lower() == 'n':
+            break
+    return ans
+
+
+LOGLEVELS = [logging.WARNING, logging.INFO, logging.DEBUG]
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Sign PAC bitstreams")
+    subparsers = parser.add_subparsers(title="Commands",
+                                       description="Image types",
+                                       help="Allowable image types",
+                                       dest="main_command")
+    parser_sr = subparsers.add_parser("SR",
+                                      aliases=["FIM", "BBS"],
+                                      help="Static FPGA image")
+    parser_bmc = subparsers.add_parser("BMC",
+                                       aliases=["BMC_FW"],
+                                       help="BMC image")
+    parser_pr = subparsers.add_parser("PR",
+                                      aliases=["AFU", "GBS"],
+                                      help="Reconfigurable FPGA image")
+
+    add_common_options(parser_sr)
+    add_common_options(parser_bmc)
+    add_common_options(parser_pr)
+
+    args = parser.parse_args()
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit()
+
+    if not args.verbose:
+        args.verbose = 0
+    if args.verbose > 2:
+        args.verbose = 2
+
+    log.handlers[0].setLevel(LOGLEVELS[args.verbose])
+
+    # Load HSM handler
+    try:
+        hsm_manager = importlib.import_module(args.HSM_manager)
+    except ImportError as err:
+        common_util.assert_in_error(
+            False,
+            "Error '{}' importing module {}".format(err, args.HSM_manager))
+    try:
+        importlib.invalidate_caches()
+    except AttributeError:
         pass
-    
-    else :
-    
-        if operation == "MAKE_RAW_DATA" :
-            data = common_util.BYTE_ARRAY("HEXSTRING", args[0])
-            file = open(args[1], "wb")
-            data.data.tofile(file)
-            file.close()
-            del data
-            status = True
-        else :
-            signer = sign.SIGNER("PAC_CARD")
-            if operation == "MAKE_PRIVATE_PEM" :
-                if len(args) == 1 and curve != None :
-                    common_util.assert_in_error((curve == "secp256r1" or curve == "secp384r1"), "--curve must be secp256r1 or secp384r1")
-                    common_util.assert_in_error(common_util.check_extension(args[0], ".pem"), "Output file %s extension must be \".pem\"" % args[0])
-                    status = signer.make_private_pem(curve, args[0], no_passphrase == None)
-            elif operation == "MAKE_PUBLIC_PEM" :
-                if len(args) == 2 :
-                    common_util.assert_in_error(common_util.check_extension(args[0], ".pem"), "Input file %s extension must be \".pem\"" % args[0])
-                    common_util.assert_in_error(common_util.check_extension(args[1], ".pem"), "Output file %s extension must be \".pem\"" % args[1])
-                    common_util.assert_in_error(os.path.exists(args[0]), "File %s does not exist" % args[0])
-                    status = signer.make_public_pem(args[0], args[1])
-            elif operation == "MAKE_ROOT" :
-                if len(args) == 2 :
-                    common_util.assert_in_error(common_util.check_extension(args[0], ".pem"), "Input file %s extension must be \".pem\"" % args[0])
-                    common_util.assert_in_error(common_util.check_extension(args[1], ".qky"), "Output file %s extension must be \".qky\"" % args[1])
-                    common_util.assert_in_error(os.path.exists(args[0]), "File %s does not exist" % args[0])
-                    status = signer.make_root(args[0], args[1])
-            elif operation == "APPEND_KEY" :
-                if len(args) == 2 and previous_pem != None and previous_qky != None :
-                    common_util.assert_in_error(common_util.check_extension(previous_pem, ".pem"), "--previous_pem file %s extension must be \".pem\"" % previous_pem)
-                    common_util.assert_in_error(common_util.check_extension(previous_qky, ".qky"), "--previous_qky file %s extension must be \".qky\"" % previous_qky)
-                    common_util.assert_in_error(common_util.check_extension(args[0], ".pem"), "Input file %s extension must be \".pem\"" % args[0])
-                    common_util.assert_in_error(common_util.check_extension(args[1], ".qky"), "Output file %s extension must be \".qky\"" % args[1])
-                    common_util.assert_in_error(os.path.exists(previous_pem), "File %s does not exist" % previous_pem)
-                    common_util.assert_in_error(os.path.exists(previous_qky), "File %s does not exist" % previous_qky)
-                    common_util.assert_in_error(os.path.exists(args[0]), "File %s does not exist" % args[0])
-                    status = signer.append_key(previous_qky, previous_pem, args[0], args[1], permission, cancel)
-            elif operation == "INSERT_DATA" :
-                if len(args) == 2 :
-                    common_util.assert_in_error(os.path.exists(args[0]), "File %s does not exist" % args[0])
-                    status = signer.insert_data(args[0], args[1], type)
-            elif operation == "SIGN" or operation == "INSERT_DATA_AND_SIGN" :
-                if len(args) == 2 and qky != None and pem != None :
-                    common_util.assert_in_error(common_util.check_extension(qky, ".qky"), "--qky file %s extension must be \".qky\"" % qky)
-                    common_util.assert_in_error(common_util.check_extension(pem, ".pem"), "--pem file %s extension must be \".pem\"" % pem)
-                    common_util.assert_in_error(os.path.exists(qky), "File %s does not exist" % qky)
-                    common_util.assert_in_error(os.path.exists(pem), "File %s does not exist" % pem)
-                    common_util.assert_in_error(os.path.exists(args[0]), "File %s does not exist" % args[0])
-                    status = signer.sign(args[0], qky, pem, args[1], operation == "INSERT_DATA_AND_SIGN", type, None)
-            elif operation == "MAKE_AND_SIGN_CANCELLATION_CERT" :
-                if len(args) == 1 and type != None and qky != None and pem != None and cancel != None:
-                    common_util.assert_in_error(common_util.check_extension(qky, ".qky"), "--qky file %s extension must be \".qky\"" % qky)
-                    common_util.assert_in_error(common_util.check_extension(pem, ".pem"), "--pem file %s extension must be \".pem\"" % pem)
-                    common_util.assert_in_error(common_util.check_extension(args[0], ".cert"), "Output cert %s extension must be \".cert\"" % args[0])
-                    common_util.assert_in_error(os.path.exists(qky), "File %s does not exist" % qky)
-                    common_util.assert_in_error(os.path.exists(pem), "File %s does not exist" % pem)
-                    status = signer.sign(None, qky, pem, args[0], True, type, cancel)
-            elif operation == "ROOT_KEY_HASH" :
-                if len(args) == 2 :
-                    common_util.assert_in_error(common_util.check_extension(args[0], ".qky"), "Input file %s extension must be \".qky\"" % args[0])
-                    common_util.assert_in_error(common_util.check_extension(args[1], ".txt"), "Output file %s extension must be \".txt\"" % args[1])
-                    common_util.assert_in_error(os.path.exists(args[0]), "File %s does not exist" % args[0])
-                    status = signer.root_key_hash(args[0], args[1])
-            elif operation == "CHECK_INTEGRITY" :
-                if len(args) == 1 :
-                    common_util.assert_in_error(os.path.exists(args[0]), "File %s does not exist" % args[0])
-                    reader = bitstream.get_family_reader("PAC_CARD", args[0], signer.openssl, False, None, True, None)
-                    status = True
-            else :
-                common_util.assert_in_error(False, "Invalid specified operation %s" % operation)
-            del signer
+    try:
+        _method = getattr(hsm_manager, 'HSM_MANAGER')
+    except AttributeError:
+        common_util.assert_in_error(
+            False, "Invalid key manager module %s" % args.HSM_manager)
 
-    if status == True :
-        return 0
-    else :
-        return (-1)        
+    if args.cert_type == "RK_384":
+        common_util.assert_in_error(False, "384-bit keys not supported")
+
+    # Validate arguments
+    if args.cert_type == "UPDATE":
+        common_util.assert_in_error(
+            args.input_file is not None and args.output_file is not None,
+            "Update requires both an input and output file")
+        if os.path.isfile(args.output_file):
+            common_util.assert_in_error(
+                answer_y_n(
+                    args, "Output file {} exists. Overwrite".format(
+                        args.output_file)), "Aborting.")
+        if args.root_key is None:
+            common_util.assert_in_error(
+                answer_y_n(
+                    args,
+                    "No root key specified.  Generate unsigned bitstream"),
+                "Aborting.")
+        if args.code_signing_key is None:
+            common_util.assert_in_error(
+                answer_y_n(args,
+                           "No CSK specified.  Generate unsigned bitstream"),
+                "Aborting.")
+        if args.csk_id is not None:
+            common_util.assert_in_error(
+                False, "CSK ID cannot be specified for update types")
+
+        maker = reader.UPDATE_reader(args, hsm_manager, args.HSM_config)
+    elif args.cert_type == "CANCEL":
+        common_util.assert_in_error(args.root_key is not None,
+                                    "Cancellation type requires a root key")
+        if args.code_signing_key is not None:
+            common_util.assert_in_error(
+                answer_y_n(args, "CSK specified but not required.  Continue"),
+                "Aborting.")
+        common_util.assert_in_error(
+            args.csk_id is not None,
+            "CSK ID must be specified for cancellation types")
+        common_util.assert_in_error(
+            args.input_file is None,
+            "Cancellation not allowed with input file.")
+        common_util.assert_in_error(args.output_file is not None,
+                                    "No output file specified")
+        if os.path.isfile(args.output_file):
+            common_util.assert_in_error(
+                answer_y_n(
+                    args, "Output file {} exists. Overwrite".format(
+                        args.output_file)), "Aborting.")
+
+        maker = reader.CANCEL_reader(args, hsm_manager, args.HSM_config)
+    elif args.cert_type in ["RK_256", "RK_384"]:
+        common_util.assert_in_error(
+            args.root_key is not None,
+            "Root hash programming requires a root key")
+        if args.code_signing_key is not None:
+            common_util.assert_in_error(
+                answer_y_n(args,
+                           "CSK specified and will be ignored.  Continue"),
+                "Aborting.")
+        if args.csk_id is not None:
+            common_util.assert_in_error(
+                answer_y_n(args,
+                           "CSK ID specified and will be ignored.  Continue"),
+                "Aborting.")
+        common_util.assert_in_error(
+            args.input_file is None,
+            "Root hash programming not allowed with input file.")
+        common_util.assert_in_error(args.output_file is not None,
+                                    "No output file specified")
+        if os.path.isfile(args.output_file):
+            common_util.assert_in_error(
+                answer_y_n(
+                    args, "Output file {} exists. Overwrite".format(
+                        args.output_file)), "Aborting.")
+
+        maker = reader.RHP_reader(args, hsm_manager, args.HSM_config)
+
+    logging.shutdown()
+    return maker.run()
+
 
 if __name__ == "__main__":
     main()
