@@ -25,7 +25,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from __future__ import print_function
 from common import exception_quit, FpgaFinder, COMMON
 from common import convert_argument_str2hex
 from fpgastats import FPGASTATS
@@ -51,20 +50,26 @@ DFH_ID_SHIFT = 0
 DFH_ID_MASK = 0xfff
 DFH_ID_UPL = 0x1f
 
+UPL_UUID_L = 0xA013D76F19C4D8D1
+UPL_UUID_H = 0xFA00A55CCA8C4C4B
+
+UUID_L_OFFSET_REG = 0x08
+UUID_H_OFFSET_REG = 0x10
 NEXT_AFU_OFFSET_REG = 0x18
 NEXT_AFU_OFFSET_MASK = 0xffffff
 
-VC_MODE_8x10G_BYPASS = 5
-VC_MODE_2x1x25G_BYPASS = 6
-VC_MODE_2x2x25G_BYPASS = 7
+VC_MODE_8x10G = 0
+VC_MODE_2x1x25G = 2
+VC_MODE_2x2x25G = 4
+
 vc_mode_name = {0: '8x10G',
                 1: '4x25G',
                 2: '2x1x25G',
                 3: '6x25G',
-                4: '2x2x25G',
-                5: '8x10G BYPASS',
-                6: '2x1x25G BYPASS',
-                7: '2x2x25G BYPASS'}
+                4: '2x2x25G'}
+
+INDIRECT_CTRL_REG = 0x3
+INDIRECT_DATA_REG = 0x4
 
 MIN_TEST_PKT_NUM = 1
 MAX_TEST_PKT_NUM = 100000000
@@ -132,21 +137,21 @@ def indir_rw_data(*args):
     rdata = 0
     if len(args) == 3:      # read
         cmd = 0x4 << 60
-        rw_data(args[0], 0x0, 0x2, cmd | addr, 0)   # indirect read
+        rw_data(args[0], 0x0, INDIRECT_CTRL_REG, cmd | addr, 0)
         while (rdata >> 32) != 0x1:     # waiting for read valid
-            rdata = rw_data(args[0], 0x0, 0x3)      # rdata valid
+            rdata = rw_data(args[0], 0x0, INDIRECT_DATA_REG)      # rdata valid
         return rdata & 0xffffffff
     elif len(args) == 5:    # write
         cmd = 0x8 << 60
-        rw_data(args[0], 0x0, 0x2, cmd | addr | args[3], 0)  # indirect write
+        rw_data(args[0], 0x0, INDIRECT_CTRL_REG, cmd | addr | args[3], 0)
         while (rdata >> 32) != 0x1:     # waiting for write complete
-            rdata = rw_data(args[0], 0x0, 0x3)      # rdata valid
+            rdata = rw_data(args[0], 0x0, INDIRECT_DATA_REG)      # rdata valid
         rdata = 0
         if args[4]:
             cmd = 0x4 << 60
-            rw_data(args[0], 0x0, 0x002, cmd | addr, 0)     # indirect read
+            rw_data(args[0], 0x0, INDIRECT_CTRL_REG, cmd | addr, 0)
             while (rdata >> 32) != 0x1:     # waiting for read valid
-                rdata = rw_data(args[0], 0x0, 0x3)  # rdata valid
+                rdata = rw_data(args[0], 0x0, INDIRECT_DATA_REG)  # rdata valid
             if args[3] != (rdata & 0xffffffff):
                 print('{:#x} {:#x}'.format(args[3], rdata))
                 exception_quit("Error: failed comparison of wrote data", 8)
@@ -168,38 +173,32 @@ def get_sbdf_mode_mapping(sbdf, args):
     vc_info['mode'] = (int(bitstream_id, 16) >> 32) & 0xf
     print('Mode: {}'.format(vc_mode_name.get(vc_info['mode'], 'unknown')))
 
-    if vc_info['mode'] == VC_MODE_8x10G_BYPASS:
+    if vc_info['mode'] == VC_MODE_8x10G:
         vc_info['total_mac'] = 8
         vc_info['demux_offset'] = 0x100
-    elif vc_info['mode'] == VC_MODE_2x1x25G_BYPASS:
+    elif vc_info['mode'] == VC_MODE_2x1x25G:
         vc_info['total_mac'] = 2
         vc_info['demux_offset'] = 0x40
-    elif vc_info['mode'] == VC_MODE_2x2x25G_BYPASS:
+    elif vc_info['mode'] == VC_MODE_2x2x25G:
         vc_info['total_mac'] = 4
         vc_info['demux_offset'] = 0x80
     else:
-        exception_quit("FPGA {} is not in bypass mode".format(sbdf), 5)
+        exception_quit("FPGA {} not support bypass mode".format(sbdf), 5)
 
     c = COMMON()
     args.ports = c.get_port_list(args.port, vc_info.get('total_mac'))
 
-    if args.debug:
-        sysfs_path = glob.glob(os.path.join('/sys/bus/pci/devices', sbdf,
-                                            'fpga', 'intel-fpga-dev.*',
-                                            'intel-fpga-fme.*',
-                                            'bitstream_metadata'))
-        if len(sysfs_path) > 0:
-            with open(sysfs_path[0], 'r') as f:
-                bitstream_md = int(f.read().strip(), 16)
-            day = (bitstream_md >> 20) & 0xff
-            month = (bitstream_md >> 28) & 0xff
-            year = (bitstream_md >> 36) & 0xff
-            hour = (bitstream_md >> 12) & 0xff
-            minute = (bitstream_md >> 4) & 0xff
-            seed = bitstream_md & 0xf
-            print("Build date: {}/{}/{}, Time: {}:{}".format(day, month, year,
-                                                             hour, minute))
-            print("Seed: {:#x}".format(seed))
+    sysfs_path = glob.glob(os.path.join('/sys/bus/pci/devices', sbdf,
+                                        'fpga', 'intel-fpga-dev.*',
+                                        'intel-fpga-fme.*',
+                                        'bitstream_metadata'))
+    if len(sysfs_path) == 0:
+        exception_quit("Error: bitstream_id not found", 4)
+
+    with open(sysfs_path[0], 'r') as f:
+        bitstream_md = int(f.read().strip(), 16)
+    seed = (bitstream_md >> 4) & 0xfff
+    print("Seed: {:#x}".format(seed))
 
 
 def get_sbdf_upl_mapping(sbdf):
@@ -212,8 +211,13 @@ def get_sbdf_upl_mapping(sbdf):
         feature_type = (header >> DFH_TYPE_SHIFT) & DFH_TYPE_MASK
         feature_id = (header >> DFH_ID_SHIFT) & DFH_ID_MASK
         if feature_type == DFH_TYPE_AFU and feature_id == DFH_ID_UPL:
-            vc_info['upl_base'] = addr
-            break
+            uuid_l = pci_read(pci_dev_path, addr+UUID_L_OFFSET_REG)
+            uuid_h = pci_read(pci_dev_path, addr+UUID_H_OFFSET_REG)
+            if uuid_l == UPL_UUID_L and uuid_h == UPL_UUID_H:
+                vc_info['upl_base'] = addr
+                break
+            else:
+                exception_quit("FPGA {} is not bypass mode".format(sbdf), 5)
         if feature_type in [DFH_TYPE_AFU, DFH_TYPE_FIU]:
             next_afu_offset = pci_read(pci_dev_path, addr+NEXT_AFU_OFFSET_REG)
             next_afu_offset &= NEXT_AFU_OFFSET_MASK
@@ -239,7 +243,7 @@ def clear_stats(f, info, args):
             _, mac_total, _, node = info[w]
             with open(node, 'rw') as fd:
                 for i in args.ports:
-                    if vc_mode == VC_MODE_8x10G_BYPASS:
+                    if vc_mode == VC_MODE_8x10G:
                         f.fpga_eth_reg_write(fd, 'mac', i, 0x140, 0x1)
                         f.fpga_eth_reg_write(fd, 'mac', i, 0x1C0, 0x1)
                     else:
