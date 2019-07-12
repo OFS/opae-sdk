@@ -23,21 +23,4 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from setuptools import setup, find_packages
-
-setup(
-    name="opae.admin",
-    version="@INTEL_FPGA_API_VERSION@",
-    packages=find_packages(),
-    entry_points={
-        'console_scripts': [
-            'fpgasupdate = opae.admin.tools.fpgasupdate:main'
-        ]
-    },
-    install_requires=[],
-    description="opae.admin provides Python classes for interfacing with"
-                "OPAE kernel drivers",
-    license="BSD3",
-    keywords="OPAE accelerator fpga kernel sysfs",
-    url="https://01.org/OPAE",
-)
+__path__ = __import__('pkgutil').extend_path(__path__, __name__)

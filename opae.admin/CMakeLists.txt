@@ -35,7 +35,7 @@ file(COPY opae DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/stage)
 add_custom_target(opae.admin
     COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
     COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_rpm
-    COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_wheel
+    COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_wheel --universal
     WORKING_DIRECTORY ${ADMIN_STAGE_DIR}
     COMMENT "Building opae.admin Python distributions"
     )
