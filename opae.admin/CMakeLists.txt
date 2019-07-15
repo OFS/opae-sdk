@@ -29,13 +29,29 @@ cmake_minimum_required (VERSION 2.8)
 project(opae.admin)
 
 set (ADMIN_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
+find_program (RPM_BUILD
+    rpmbuild
+    )
 
 configure_file(setup.py ${ADMIN_STAGE_DIR}/setup.py @ONLY)
 file(COPY opae DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/stage)
-add_custom_target(opae.admin
+
+
+add_custom_target(opae.admin.src
     COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
-    COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_rpm
+    WORKING_DIRECTORY ${ADMIN_STAGE_DIR}
+    COMMENT "Building opae.admin Python source distribution"
+    )
+add_custom_target(opae.admin.wheel
     COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_wheel --universal
     WORKING_DIRECTORY ${ADMIN_STAGE_DIR}
-    COMMENT "Building opae.admin Python distributions"
+    COMMENT "Building opae.admin Python wheel distribution"
     )
+
+if (RPM_BUILD)
+    add_custom_target(opae.admin.rpm
+        COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_rpm
+        WORKING_DIRECTORY ${ADMIN_STAGE_DIR}
+        COMMENT "Building opae.admin Python RPM distribution"
+        )
+endif (RPM_BUILD)
