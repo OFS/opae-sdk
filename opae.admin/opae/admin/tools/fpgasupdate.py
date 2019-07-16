@@ -42,6 +42,7 @@ import uuid
 import subprocess
 import time
 import signal
+import logging
 from opae.admin.fpga import fpga
 
 DEFAULT_BDF = 'ssss:bb:dd.f'
@@ -89,6 +90,8 @@ IFPGA_SEC_STATUS_TO_STR = {
     0x86: "IFPGA_STAT_FPGA_FLASH_ERR"
 }
 
+LOG = logging.getLogger()
+
 
 def parse_args():
     """Parses command line arguments
@@ -101,6 +104,9 @@ def parse_args():
     bdf_help = 'bdf of device to program (e.g. 04:00.0 or 0000:04:00.0).' \
                ' Optional when one device in system.'
     parser.add_argument('bdf', nargs='?', default=DEFAULT_BDF, help=bdf_help)
+
+    parser.add_argument('-v', '--verbose', default=False,
+                        action='store_true', help='display verbose output')
 
     return parser.parse_args()
 
@@ -122,8 +128,9 @@ def decode_gbs_header(infile):
     hdr_size = 20
 
     if file_size < hdr_size:
-        print('{} does not meet the minimum '
-              'file size requirement of {}'.format(infile.name, hdr_size))
+        LOG.warning('{} does not meet the minimum '
+                    'file size requirement of {}'.format(
+                        infile.name, hdr_size))
         infile.seek(orig_pos, os.SEEK_SET)
         return None
 
@@ -151,42 +158,43 @@ def decode_gbs_header(infile):
         else:
             pretty_valid_gbs = pretty_valid_gbs + '?'
 
-    print('GBS guid: {}'.format(valid_gbs_guid))
-    print('pretty GBS guid: {}'.format(pretty_valid_gbs))
+    LOG.debug('GBS guid: {}'.format(valid_gbs_guid))
+    LOG.debug('pretty GBS guid: {}'.format(pretty_valid_gbs))
 
     metadata_length = unpacked_hdr[4]
     hdr_size += metadata_length
 
     if file_size < hdr_size:
-        print('{} does not meet the minimum '
-              'file size requirement of {}'.format(infile.name, hdr_size))
+        LOG.warning('{} does not meet the minimum '
+                    'file size requirement of {}'.format(
+                        infile.name, hdr_size))
         infile.seek(orig_pos, os.SEEK_SET)
         return None
 
     metadata = infile.read(metadata_length)
-    print('metadata: {}'.format(metadata))
+    LOG.debug('metadata: {}'.format(metadata))
 
     try:
         json_obj = json.loads(metadata)
     except ValueError as exc:
-        print(exc)
+        LOG.info(exc)
         infile.seek(orig_pos, os.SEEK_SET)
         return None
 
     if 'afu-image' not in json_obj:
-        print('No "afu-image" key in JSON')
+        LOG.error('No "afu-image" key in JSON')
         infile.seek(orig_pos, os.SEEK_SET)
         return None
 
     afu_image = json_obj['afu-image']
 
     if 'interface-uuid' not in afu_image:
-        print('No "interface-uuid" key in JSON')
+        LOG.error('No "interface-uuid" key in JSON')
         infile.seek(orig_pos, os.SEEK_SET)
         return None
 
     interface_uuid = afu_image['interface-uuid']
-    print('interface-uuid: {}'.format(interface_uuid))
+    LOG.debug('interface-uuid: {}'.format(interface_uuid))
 
     return {'valid_gbs_guid': valid_gbs_guid,
             'pretty_gbs_guid': pretty_valid_gbs,
@@ -207,7 +215,7 @@ def do_partial_reconf(addr, filename):
                  '--device', '0x' + addr[8:10],
                  '--function', '0x' + addr[11:], filename]
 
-    print('command: {}'.format(' '.join(conf_args)))
+    LOG.debug('command: {}'.format(' '.join(conf_args)))
 
     try:
         output = subprocess.check_output(conf_args)
@@ -232,14 +240,14 @@ def decode_auth_block0(infile):
 
     block0_size = 128
     block0_magic = 0xb6eafd19
-    payload_offset = 1024
 
     #                          block1 payload
     min_file_size = block0_size + 896 + 128
 
     if file_size < min_file_size:
-        print('{} does not meet the minimum '
-              'file size requirement of {}'.format(infile.name, min_file_size))
+        LOG.warning('{} does not meet the minimum file size '
+                    'requirement of {}'.format(
+                        infile.name, min_file_size))
         infile.seek(orig_pos, os.SEEK_SET)
         return None
 
@@ -273,17 +281,17 @@ def decode_auth_block0(infile):
            'Hash256': h256,
            'Hash384': h384}
 
-    print('hash256: {}'.format(res['Hash256']))
-    print('hash384: {}'.format(res['Hash384']))
+    LOG.debug('hash256: {}'.format(res['Hash256']))
+    LOG.debug('hash384: {}'.format(res['Hash384']))
 
     contype = res['ConType'] & BLOCK0_CONTYPE_MASK
 
     if contype == BLOCK0_STATIC_REGION:
-        print('file type: Static Region')
+        LOG.debug('file type: Static Region')
     elif contype == BLOCK0_BMC:
-        print('file type: BMC Image')
+        LOG.debug('file type: BMC Image')
     elif contype == BLOCK0_GBS:
-        print('file type: Green BitStream')
+        LOG.debug('file type: Green BitStream')
 
     return res
 
@@ -348,7 +356,7 @@ def fw_update_status(fd_dev, dbgpr=False):
                else IFPGA_SEC_STATUS_TO_STR[status]
 
     if dbgpr:
-        print('{} / {}'.format(prog_str, stat_str))
+        LOG.debug('{} / {}'.format(prog_str, stat_str))
 
     return (prog_str, stat_str)
 
@@ -404,38 +412,46 @@ def update_fw(fd_dev, infile):
 
             if exc_prog and p_s[0] in exc_prog:
                 if dbgpr:
-                    print('except poll [ {} in {} ]'.format(p_s[0], exc_prog))
+                    LOG.debug(
+                        'except poll [ {} in {} ]'.format(
+                            p_s[0], exc_prog))
                 raise SecureUpdateError(
                     (1, 'Secure update failed: {}'.format(p_s)))
 
             if exc_stat and p_s[1] in exc_stat:
                 if dbgpr:
-                    print('except poll [ {} in {} ]'.format(p_s[1], exc_stat))
+                    LOG.debug(
+                        'except poll [ {} in {} ]'.format(
+                            p_s[1], exc_stat))
                 raise SecureUpdateError(
                     (1, 'Secure update failed: {}'.format(p_s)))
 
             if while_prog and p_s[0] not in while_prog:
                 if dbgpr:
-                    print(
+                    LOG.debug(
                         'break poll [ {} not in {} ]'.format(
                             p_s[0], while_prog))
                 break
 
             if until_prog and p_s[0] in until_prog:
                 if dbgpr:
-                    print('break poll [ {} in {} ]'.format(p_s[0], until_prog))
+                    LOG.debug(
+                        'break poll [ {} in {} ]'.format(
+                            p_s[0], until_prog))
                 break
 
             if while_stat and p_s[1] not in while_stat:
                 if dbgpr:
-                    print(
+                    LOG.debug(
                         'break poll [ {} not in {} ]'.format(
                             p_s[1], while_stat))
                 break
 
             if until_stat and p_s[1] in until_stat:
                 if dbgpr:
-                    print('break poll [ {} in {} ]'.format(p_s[1], until_stat))
+                    LOG.debug(
+                        'break poll [ {} in {} ]'.format(
+                            p_s[1], until_stat))
                 break
 
             time.sleep(0.1)
@@ -476,13 +492,13 @@ def update_fw(fd_dev, infile):
 
     dbgpr = True
 
-    print('payload size: {}'.format(payload_size))
+    LOG.debug('payload size: {}'.format(payload_size))
 
     try:
         fcntl.ioctl(fd_dev, IOCTL_IFPGA_SECURE_UPDATE_START)
     except IOError as exc:
         return exc.errno, exc.strerror
-    print('IOCTL ==> SECURE_UPDATE_START')
+    LOG.debug('IOCTL ==> SECURE_UPDATE_START')
 
     poll(fd_dev, dbgpr=dbgpr,
          until_prog=["IFPGA_PROG_READY"],
@@ -499,10 +515,8 @@ def update_fw(fd_dev, infile):
         buf = array.array('B')
         buf.fromfile(infile, to_transfer)
 
-        # print('payload: {}'.format(buf.tostring()))
-
         buf_addr, buf_len = buf.buffer_info()
-        print('buf virt: 0x{:x} size: {}'.format(buf_addr, buf_len))
+        LOG.debug('buf virt: 0x{:x} offset: {}'.format(buf_addr, offset))
 
         if buf_len != to_transfer:
             to_transfer = buf_len
@@ -511,7 +525,7 @@ def update_fw(fd_dev, infile):
             fw_write_block(fd_dev, offset, to_transfer, buf_addr)
         except IOError as exc:
             return exc.errno, exc.strerror
-        print('IOCTL ==> SECURE_UPDATE_WRITE_BLK')
+        LOG.debug('IOCTL ==> SECURE_UPDATE_WRITE_BLK')
 
         payload_size -= to_transfer
         offset += to_transfer
@@ -527,7 +541,7 @@ def update_fw(fd_dev, infile):
         fcntl.ioctl(fd_dev, IOCTL_IFPGA_SECURE_UPDATE_DATA_SENT)
     except IOError as exc:
         return exc.errno, exc.strerror
-    print('IOCTL ==> SECURE_UPDATE_DATA_SENT')
+    LOG.debug('IOCTL ==> SECURE_UPDATE_DATA_SENT')
 
     poll(fd_dev, dbgpr=dbgpr,
          until_prog=["IFPGA_PROG_READY"],
@@ -564,10 +578,23 @@ def sig_handler(signum, frame):
 def main():
     args = parse_args()
 
+    LOG.setLevel(logging.NOTSET)
+    log_fmt = ('[%(asctime)-15s] [%(levelname)-8s] '
+               '%(message)s')
+    log_hndlr = logging.StreamHandler(sys.stdout)
+    log_hndlr.setFormatter(logging.Formatter(log_fmt))
+
+    if args.verbose:
+        log_hndlr.setLevel(logging.DEBUG)
+    else:
+        log_hndlr.setLevel(logging.INFO)
+
+    LOG.addHandler(log_hndlr)
+
     signal.signal(signal.SIGTERM, sig_handler)
 
-    print('fw file: {}'.format(args.file.name))
-    print('addr: {}'.format(args.bdf))
+    LOG.debug('fw file: {}'.format(args.file.name))
+    LOG.debug('addr: {}'.format(args.bdf))
 
     stat = 1
     mesg = 'Secure update failed'
@@ -577,7 +604,8 @@ def main():
     if b0 is None:
         gbs_hdr = decode_gbs_header(args.file)
         if gbs_hdr is None:
-            sys.exit('Unknown file format in {}'.format(args.file.name))
+            LOG.error('Unknown file format in {}'.format(args.file.name))
+            sys.exit(1)
 
     pac = None
     if args.bdf == DEFAULT_BDF:
@@ -589,21 +617,25 @@ def main():
             pacs = fpga.enum()
 
         if not pacs:
-            sys.exit('No suitable PAC found.')
+            LOG.error('No suitable PAC found.')
+            sys.exit(1)
         elif len(pacs) > 1:
-            sys.exit('More than one PAC found. '
-                     'Please specify an {}'.format(DEFAULT_BDF))
+            LOG.error('More than one PAC found. '
+                      'Please specify an {}'.format(DEFAULT_BDF))
+            sys.exit(1)
         pac = pacs[0]
     else:
         # Enumerate for a specific device.
         canon_bdf = canonicalize_bdf(args.bdf)
         if not canon_bdf:
-            sys.exit('{} is not a valid PCIe address. '
-                     'Use {}'.format(args.bdf, DEFAULT_BDF))
+            LOG.error('{} is not a valid PCIe address. '
+                      'Use {}'.format(args.bdf, DEFAULT_BDF))
+            sys.exit(1)
 
         pacs = fpga.enum([{'pci_node.pci_address': canon_bdf}])
         if not pacs:
-            sys.exit('Failed to find PAC at {}'.format(canon_bdf))
+            LOG.error('Failed to find PAC at {}'.format(canon_bdf))
+            sys.exit(1)
 
         pac = pacs[0]
 
@@ -613,7 +645,8 @@ def main():
             if fme:
                 pr_guid = gbs_hdr['interface-uuid'].replace('-', '')
                 if fme.pr_interface_id.replace('-', '') != pr_guid:
-                    sys.exit('PR interface uuid mismatch.')
+                    LOG.error('PR interface uuid mismatch.')
+                    sys.exit(1)
 
     if gbs_hdr is not None:
         args.file.close()
@@ -622,11 +655,12 @@ def main():
     elif b0 is not None:
         sec_dev = pac.secure_dev
         if not sec_dev:
-            sys.exit('Failed to find secure '
-                     'device for PAC {}'.format(pac.pci_node.pci_address))
+            LOG.error('Failed to find secure '
+                      'device for PAC {}'.format(pac.pci_node.pci_address))
+            sys.exit(1)
 
-        print('Found secure device for PAC '
-              '{} : {}'.format(pac.pci_node.pci_address, sec_dev.devpath))
+        LOG.debug('Found secure device for PAC '
+                  '{} : {}'.format(pac.pci_node.pci_address, sec_dev.devpath))
 
         try:
             with sec_dev as fd:
@@ -638,7 +672,10 @@ def main():
                 fcntl.ioctl(fd, IOCTL_IFPGA_SECURE_UPDATE_CANCEL)
             stat, mesg = 1, 'Interrupted'
 
-    print(mesg)
+    if stat:
+        LOG.error(mesg)
+    else:
+        LOG.info(mesg)
     sys.exit(stat)
 
 
