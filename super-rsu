@@ -111,6 +111,8 @@ TRACE = logging.DEBUG - 5
 logging.addLevelName(TRACE, 'TRACE')
 RSU_TMP_LOG = '/tmp/super-rsu.log'
 
+SECURE_UPDATE_VERSION = 4
+
 
 def parse_version(ver_str):
     m = VERSION_RE.match(ver_str)
@@ -681,9 +683,14 @@ class flashable(object):
 
     def command(self, flash_info, filename, pci_address):
         flash_type = flash_info['type']
-        cmd = 'fpgaflash {} {} {}'.format(flash_type, filename, pci_address)
-        if self.is_factory:
-            cmd += ' -y'
+        if flash_info.get('secure', False):
+            cmd = 'fpgasupdate {} {}'.format(filename, pci_address)
+        else:
+            cmd = 'fpgaflash {} {} {}'.format(flash_type, filename,
+                                              pci_address)
+            if self.is_factory:
+                cmd += ' -y'
+
         return cmd
 
     @property
@@ -725,6 +732,21 @@ class bmc_img(bmc_flashable):
     @property
     def version_path(self):
         return 'max10_version'
+
+
+class bmc_pkg(flashable):
+    def __init__(self, fpga, is_factory=False, **kwargs):
+        super(bmc_pkg, self).__init__(fpga, is_factory, **kwargs)
+        self._img = bmc_img(fpga, is_factory, **kwargs)
+        self._fw = bmc_fw(fpga, is_factory, **kwargs)
+
+    @property
+    def version(self):
+        return (self._img.version, self._fw.version)
+
+    def is_supported(self, flash_info):
+        return self._img.is_supported(flash_info) and self._fw.is_supported(
+            flash_info)
 
 
 class a10(flashable):
@@ -865,6 +887,7 @@ class pac(object):
                             bmc_fw=bmc_fw(fpga),
                             bmc_factory=bmc_img(fpga, True),
                             bmc_img=bmc_img(fpga),
+                            bmc_pkg=bmc_pkg(fpga),
                             dtb=dtb(fpga, can_verify=False))
 
     def add_flashables(self, **kwargs):
@@ -1011,7 +1034,9 @@ class pac(object):
     def update(self, flash_dir, rsu_config, args):
         tasks = []
         timeout = 0.0
+        is_secure = rsu_config.get('version') >= SECURE_UPDATE_VERSION
         for flash_info in rsu_config['flash']:
+            flash_info['secure'] = is_secure
             task = self.flash_task(flash_dir, flash_info, args)
             if task is not None:
                 task_timeout = flash_info.get('timeout', '0')
@@ -1121,6 +1146,11 @@ class pac(object):
             LOG.error('[%s] error validating sensors', self.pci_node.bdf)
             return os.EX_SOFTWARE
         return os.EX_OK
+
+    @property
+    def is_secure(self):
+        return 1 == len(glob.glob(
+            os.path.join(self.fme.sysfs_path, 'ifpga_sec_mgr/ifpga_sec*')))
 
 
 class vc(pac):
@@ -1499,6 +1529,17 @@ def need_requires(boards, flash_spec, req_type, op_str, req_version):
 
 
 def check_requirements(boards, args, rsu_config):
+    # check if manifest version is secure updates only
+    m_version = rsu_config.get('version', 0)
+    non_secure = 0
+    for b in boards:
+        if not b.is_secure and m_version >= SECURE_UPDATE_VERSION:
+            non_secure += 1
+            LOG.warn('[%s] does not support secure update',
+                     b.pci_node.pci_address)
+    if non_secure:
+        return False
+
     missing = []
     callables = ['fpgaflash']
     if 'nvmupdate' in rsu_config:
