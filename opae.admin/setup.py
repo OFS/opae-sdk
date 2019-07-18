@@ -32,6 +32,7 @@ setup(
     entry_points={
         'console_scripts': [
             'fpgasupdate = opae.admin.tools.fpgasupdate:main'
+            'rsu = opae.admin.tools.rsu:main'
         ]
     },
     install_requires=[],
