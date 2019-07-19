@@ -31,7 +31,7 @@ setup(
     packages=find_packages(),
     entry_points={
         'console_scripts': [
-            'fpgasupdate = opae.admin.tools.fpgasupdate:main'
+            'fpgasupdate = opae.admin.tools.fpgasupdate:main',
             'rsu = opae.admin.tools.rsu:main'
         ]
     },
