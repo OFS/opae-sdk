@@ -91,13 +91,13 @@ CONFIG VERSION: 1.14.0
 NVM_CFG_DEVICE = '''
 BEGIN DEVICE
 DEVICENAME: XXV710
-VENDOR: 8086
-DEVICE: 0D58
+VENDOR: {VENDOR}
+DEVICE: {DEVICE}
 NVM IMAGE: {FILENAME}
 SKIP OROM: TRUE
 EEPID: {EEPID}
 REPLACES: {REPLACES}
-;Family identifies 911df775-6f66-4e3e-b433-125068d4eb81
+;Family identifies 1ea696de-c026-45ba-bfed-d1022f611d90
 RESET TYPE: POWER
 END DEVICE
 '''
@@ -1460,9 +1460,13 @@ def do_nvmupdate(args, rsu_config, **kwargs):
         fd.write(NVM_CFG_HEAD)
         replaces_str = ' '.join(old_versions)
         LOG.debug("adding old versions to nvmupdate cfg: '%s'", replaces_str)
+        nvmupdate_vendor = '{:X}'.format(int(nvm_cfg['vendor'], 16))
+        nvmupdate_device = '{:X}'.format(int(nvm_cfg['device'], 16))
         fd.write(NVM_CFG_DEVICE.format(EEPID=nvm_cfg['version'],
                                        REPLACES=replaces_str,
-                                       FILENAME=nvm_file))
+                                       FILENAME=nvm_file,
+                                       VENDOR=nvmupdate_vendor,
+                                       DEVICE=nvmupdate_device))
         cmd = '{} -u -c {}'.format(OPAE_NVMUPDATE_EXE, fd.name)
 
     task = process_task(cmd)
