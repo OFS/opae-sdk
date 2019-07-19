@@ -888,9 +888,11 @@ out:
 	if (dma_h->block_mem)
 		free(dma_h->block_mem);
 
-	if (!dma_found)
+	if (!dma_found) {
 		delete dma_h;
 		res = FPGA_NOT_FOUND;
+	}
+
 	return res;
 }
 
