@@ -1150,7 +1150,9 @@ class pac(object):
     @property
     def is_secure(self):
         return 1 == len(glob.glob(
-            os.path.join(self.fme.sysfs_path, 'ifpga_sec_mgr/ifpga_sec*')))
+            os.path.join(self.fpga.fme.sysfs_path,
+                         'ifpga_sec_mgr/ifpga_sec*')))
+
 
 
 class vc(pac):
