@@ -25,7 +25,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 import fcntl
 import os
-import errno
+import time
+
 from opae.admin.sysfs import class_node, sysfs_node
 
 
@@ -92,6 +93,7 @@ class secure_dev(region):
 class fpga(class_node):
     FME_PATTERN = 'intel-fpga-fme.*'
     PORT_PATTERN = 'intel-fpga-port.*'
+    BOOT_TYPES = ['bmcimg', 'fpga']
 
     def __init__(self, path):
         super(fpga, self).__init__(path)
@@ -129,3 +131,49 @@ class fpga(class_node):
             self.log.warning('could not find PORT')
         if len(items) > 1:
             self.log.warning('found more than one PORT')
+
+    def rsu_boot(self, page, **kwargs):
+        boot_type = kwargs.get('type', 'bmcimg')
+        if boot_type not in fpga.BOOT_TYPES:
+            raise TypeError('type: {} not recognized'.format(boot_type))
+
+        node_path = '{boot_type}_flash_ctrl/{boot_type}_image_load'.format(
+            boot_type=boot_type)
+        node = self.fme.spi_bus.node(node_path)
+        node.value = page
+
+    def safe_rsu_boot(self, page, **kwargs):
+        wait_time = kwargs.pop('wait', 10)
+        boot_type = kwargs.get('type', 'bmcimg')
+        if boot_type not in fpga.BOOT_TYPES:
+            raise TypeError('type: {} not recognized'.format(boot_type))
+
+        if boot_type == 'fpga':
+            to_remove = self.pci_node.root.endpoints
+            to_disable = [ep.parent for ep in to_remove]
+        else:
+            to_remove = [self.pci_node.branch[1]]
+            to_disable = [self.pci_node.root]
+
+        aer_values = []
+        for node in to_disable:
+            # save original aer values for each node
+            aer_values.append((node, node.aer))
+            # disable aer
+            node.aer = (0xFFFFFFFF, 0xFFFFFFFF)
+
+        self.rsu_boot(page, **kwargs)
+
+        to_rescan = []
+        for node in to_remove:
+            to_rescan.append((node.parent, '{}:{}'.format(node.domain,
+                                                          node.bus)))
+            node.remove()
+        time.sleep(wait_time)
+
+        for node, bus in to_rescan:
+            node.rescan_bus(bus)
+
+        # restore aer values
+        for node, value in aer_values:
+            node.aer = value

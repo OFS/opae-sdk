@@ -86,7 +86,7 @@ class sysfs_node(loggable):
             print('echo {} > {}'.format(val, self._sysfs_path))
         else:
             with self._open('w') as fd:
-                fd.write(val)
+                fd.write(str(val))
 
     @property
     def sysfs_path(self):
@@ -113,7 +113,9 @@ class pci_node(sysfs_node):
         super(pci_node, self).__init__(node_path)
         self._pci_address = pci_address
         self._parent = parent
+        self._branch = []
         self._children = []
+        self._endpoints = []
         self._aer_cmd1 = 'setpci -s {} ECAP_AER+0x08.L'.format(
             pci_address['pci_address'])
         self._aer_cmd2 = 'setpci -s {} ECAP_AER+0x14.L'.format(
@@ -146,6 +148,29 @@ class pci_node(sysfs_node):
         if self.parent is None:
             return self
         return self.parent.root
+
+    @property
+    def branch(self):
+        if not self._branch:
+            node = self
+            while node:
+                self._branch.insert(0, node)
+                node = node.parent
+        return self._branch
+
+    @property
+    def endpoints(self):
+        if not self._endpoints:
+            self._endpoints = self._find_endpoints()
+        return self._endpoints
+
+    def _find_endpoints(self):
+        if not self.children:
+            return [self]
+        endpoints = []
+        for child in self.children:
+            endpoints.extend(child._find_endpoints())
+        return endpoints
 
     @property
     def pci_address(self):
