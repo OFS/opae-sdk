@@ -43,6 +43,13 @@
 // Speculative loads: eREQ_RDLSPEC and the error flag in t_ccip_c0_RspMemHdr
 `define CCIP_RDLSPEC_AVAIL 1
 
+// Byte enable, controlling which bytes in a line are updated.
+// Be careful! This flag only indicates whether the CCI-P data structures
+// can encode byte enable. The flag does not indicate whether the platform
+// actually honors the encoding. For that, AFUs must check the value of
+// ccip_cfg_pkg::BYTE_EN_SUPPORTED.
+`define CCIP_BYTE_EN_AVAIL 1
+
 
 import ccip_if_pkg::*;
 
