@@ -142,6 +142,13 @@ ROOT_ENTRY_MAGIC_NUM = 0xA757A046
 CODE_SIGNING_KEY_ENTRY_MAGIC_NUM = 0x14711C2F
 BLOCK0_MAGIC_NUM = 0x15364367
 
+DC_PLATFORM_NUM = 0x97566593
+DC_CSK_MAGIC_NUM = 0x92540917
+DC_SIGNATURE_MAGIC_NUM = 0x74881520
+DC_ROOT_ENTRY_MAGIC = 0x89259036
+DC_XY_KEY_MAGIC = 0x58700660
+PR_IDENTIFIER = 0x5250
+
 NID_X9_62_prime256v1 = 415
 NID_secp384r1 = 715
 
@@ -154,6 +161,8 @@ class CURVE_INFO:
             openssl_name,
             size,
             curve_magic_num,
+            dc_curve_magic_num,
+            dc_sig_hash_magic_num,
             sha_magic_num,
             supported_families,
     ):
@@ -163,6 +172,8 @@ class CURVE_INFO:
         self.openssl_name = openssl_name
         self.size = size
         self.curve_magic_num = curve_magic_num
+        self.dc_curve_magic_num = dc_curve_magic_num
+        self.dc_sig_hash_magic_num = dc_sig_hash_magic_num
         self.sha_magic_num = sha_magic_num
         self.supported_families = supported_families
 
@@ -175,6 +186,8 @@ CURVE_INFO_DATABASE = [
         "prime256v1",
         32,
         0xC7B88C74,
+        0x21339360,
+        0x00113305,
         0xDE64437D,
         ["PAC_CARD"],
     ),
@@ -184,6 +197,8 @@ CURVE_INFO_DATABASE = [
         "secp384r1",
         48,
         0x08F07B47,
+        0x54326648,
+        0x30548820,
         0xEA2A50E9,
         ["PAC_CARD"],
     ),

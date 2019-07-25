@@ -20,6 +20,7 @@ import common_util
 import database
 from hashlib import sha256, sha384
 import json
+import zlib
 
 from logger import log
 
@@ -48,7 +49,16 @@ class _READER_BASE(object):
         self.s10_root_hash = common_util.BYTE_ARRAY()
         cinfo = database.get_curve_info_from_name("secp256r1")
         self.curve_magic_num = cinfo.curve_magic_num
+        self.dc_curve_magic_num = cinfo.dc_curve_magic_num
+        self.dc_sig_hash_magic_num = cinfo.dc_sig_hash_magic_num
         self.sig_magic_num = cinfo.sha_magic_num
+
+    def is_Darby_PR(self, contents, offset):
+		#TODO: Write function to read dword and determine RC or VC
+        val = contents.get_dword(offset)
+        log.info("platform value is '{}' ".format(val))
+        type = contents.get_word(offset + int(0xC))
+        return val == database.DC_PLATFORM_NUM and type == database.PR_IDENTIFIER
 
     def finalize(self, fd, block0, block1, payload):
         log.info("Writing blocks to file")
@@ -110,6 +120,15 @@ class _READER_BASE(object):
         #     b0.tofile(f)
 
         return b0
+    # Creates the descriptor block for DC PR
+    def make_block0_dc(self, payload, payload_size):
+        b0 = common_util.BYTE_ARRAY()
+        for i in range(0, int(0x1000),4):
+            data = payload.get_dword(i)
+            b0.append_dword(data)
+        log.info("Done with Block 0 for DC PR")
+        log.debug("".join("{:02x} ".format(x) for x in b0.data))
+        return b0
 
     def make_root_entry(self, pub_key):
         log.info("Starting Root Entry creation")
@@ -166,6 +185,72 @@ class _READER_BASE(object):
             self.s10_root_hash.tofile(f)
 
         return root_entry
+    
+    def make_root_entry_dc(self, pub_key):
+
+        log.info("Starting Root Key Entry generation for DC")
+        root_entry = common_util.BYTE_ARRAY()
+        xy_body = common_util.BYTE_ARRAY()
+        xy_body.append_data(pub_key.data[:32])
+        xy_body.append_data(pub_key.data[-32:])
+
+        log.info("Calculating Root Entry SHA256 for DC PR")
+        sha = sha256(pub_key.data).digest()
+        self.s10_root_hash.append_data(sha)
+        sha_msb = sha[0:4] # get first 4 bytes
+        del sha
+        
+        with open("root_hash_s10.bin", "wb") as f:
+            self.s10_root_hash.tofile(f)
+
+
+        # Root Entry Magic (ND)
+        root_entry.append_dword(database.DC_ROOT_ENTRY_MAGIC)
+        # Length (offset to next entry)
+        # TODO: hardcoded length (should be 0x78)
+        # root_entry.append_dword(int(0x38+length(xy)))
+        root_entry.append_dword(int(0x78))
+        # Data Length (should be 0x60)
+        #root_entry.append_dword(int(0x20 + length(xy)))
+        root_entry.append_dword(int(0x60))
+        # Signature Length (0)
+        root_entry.append_dword(0)
+        # SHA length (0)
+        root_entry.append_dword(0)
+        # Reserved (0's)
+        # TODO: This shows a value of 0x1 for dword
+        root_entry.append_dword(0)
+
+        # Most Significant word of SHA hash of public key
+        #root_entry.append_dword(sha_msb)
+        root_entry.append_data(sha_msb)
+
+        # Reserved
+        root_entry.append_dword(0)
+
+        # Public key magic (if XY is hashed)
+        root_entry.append_dword(database.DC_XY_KEY_MAGIC)
+
+        # X size  
+        # TODO: Should be 0x20 
+        root_entry.append_dword(len(pub_key.data[:32]))
+        # Y size
+        root_entry.append_dword(len(pub_key.data[-32:]))
+
+        # Public curve magic
+        root_entry.append_dword(self.dc_curve_magic_num)
+        # Public key permissions (reserved, 0xFFFFFFFF)
+        common_util.assert_in_error(
+            self.pub_root_key_perm == 0xFFFFFFFF,
+            "Root public key permissions should be 0xFFFFFFFF, got 0x%08X" %
+            self.pub_root_key_perm,
+        )
+        root_entry.append_dword(0xFFFFFFFF)
+        # Public key cancellation (reserved, -1)
+        root_entry.append_dword(0xFFFFFFFF)
+        # Hashed XY
+        root_entry.append_data(xy_body.data)
+        return root_entry
 
     def make_csk_entry(self, root_key, CSK_pub_key):
         log.info("Starting Code Signing Key Entry creation")
@@ -215,6 +300,96 @@ class _READER_BASE(object):
 
         return csk_entry
 
+    def make_csk_entry_dc(self, root_key, CSK_pub_key):
+        log.info("Starting Code Signing Key Entry creation")
+        csk_body = common_util.BYTE_ARRAY()
+        
+
+        # Public key magic (no enablement)
+        csk_body.append_dword(database.DC_XY_KEY_MAGIC)
+
+        # Reserved if no enablement (write x size)
+        # SHA256 is 32 bytes
+        csk_body.append_dword(int(0x20))
+        # Reserved if no enablement (write y size)
+        csk_body.append_dword(int(0x20))
+
+        # Public key curve magic
+        csk_body.append_dword(self.dc_curve_magic_num)
+
+        # Public key permissions
+        # TODO: This should be 2 for DC PR
+        #csk_body.append_dword(self.pub_CSK_perm)
+        csk_body.append_dword(0x2)
+
+        # Public key cancellation
+        csk_body.append_dword(0)
+
+        # Public Key XY
+        csk_body.append_data(CSK_pub_key.data[:32])
+        # TODO: REMOVE THIS if no padding needed
+        # Offset 0x018 - 0x048 key x
+        # while csk_body.size() < 0x48:
+        #    csk_body.append_byte(0)
+
+        csk_body.append_data(CSK_pub_key.data[-32:])
+        # TODO: REMOVE THIS if no padding needed
+        # Offset 0x048 - 0x078 key Y
+        # while csk_body.size() < 0x78:
+        #    csk_body.append_byte(0)
+        # E Size is 0 (skipping)
+
+        csk_entry = common_util.BYTE_ARRAY()
+        # Public Entry Magic Number
+        csk_entry.append_dword(database.DC_CSK_MAGIC_NUM)
+        # Length (to next entry)
+        # TODO: is this hardcoded
+        csk_entry.append_dword(int(0xC0))
+
+        # Data length (0x18 + XSIZE + YSIZE)
+        csk_entry.append_dword(int(0x58))
+        # Signature Length (0x10 + RSIZE + SSIZE)
+        csk_entry.append_dword(int(0x50))
+
+        # SHA Length (0)
+        csk_entry.append_dword(0)
+        # Reserved 0s
+        csk_entry.append_dword(0)
+
+        csk_entry.append_data(csk_body.data)
+        csk_entry.append_dword(database.DC_SIGNATURE_MAGIC_NUM)
+        # Reserved if no enablement (write r size)
+        csk_entry.append_dword(int(0x20))
+        # Reserved if no enablement (write s size)
+        csk_entry.append_dword(int(0x20))
+        # DC Signature Hash Magic
+        csk_entry.append_dword(self.dc_sig_hash_magic_num)
+
+        log.info("Calculating Code Signing Key Entry SHA256")
+        if root_key is not None:
+            sha = sha256(csk_body.data).digest()
+
+            rs = self.hsm_manager.sign(sha, root_key)
+            del sha
+
+            csk_entry.append_data(rs.data[:32])
+            # TODO: REMOVE THIS if no padding needed
+            # Offset 0x088 - 0x0B7 signature R
+            # while csk_entry.size() < 0xD0:
+            #    csk_entry.append_byte(0)
+
+            csk_entry.append_data(rs.data[-32:])
+
+            del rs
+        # TODO: REMOVE THIS if no padding needed
+        while csk_entry.size() < 0xC0:
+            csk_entry.append_byte(0)
+
+        log.info("Code Signing Key Entry done")
+
+        return csk_entry
+
+
     def make_block0_entry(self, block0, CSK_key):
         b0_entry = common_util.BYTE_ARRAY()
         log.info("Starting Block 0 Entry creation")
@@ -237,13 +412,59 @@ class _READER_BASE(object):
             b0_entry.append_data(rs.data[-32:])
 
             del rs
-
+        # TODO: Check these offset values.  v5 says 0x38 - 0x58
         # Offset 0x038 - 0x0067 signature S
         while b0_entry.size() < 0x68:
             b0_entry.append_byte(0)
 
         log.info("Block 0 Entry done")
 
+        return b0_entry
+
+    # Make block 0 entry for DC
+    def make_block0_entry_dc(self, block0, CSK_key):
+        b0_entry = common_util.BYTE_ARRAY()
+        log.info("Starting Block 0 Entry Creation DC PR")
+        # Block 0 magic number
+        b0_entry.append_dword(database.BLOCK0_MAGIC_NUM)
+        # Length (to next entry)
+        #b0_entry.append_dword(int(0x28 + rs.size()))
+        b0_entry.append_dword(int(0x68))
+        # Data Length(0)
+        b0_entry.append_dword(0)
+        # Signature Length (0x10 + RSIZE + SSIZE)
+        #b0_entry.append_dword(int(0x10 + rs.size()))
+        b0_entry.append_dword(int(0x50))
+        # SHA length (0)
+        b0_entry.append_dword(0)
+        # Reserved (0)
+        b0_entry.append_dword(0)
+
+        # Signature Magic
+        b0_entry.append_dword(database.DC_SIGNATURE_MAGIC_NUM)
+        # R size (x)
+        #b0_entry.append_dword(int(rs.size()/2))
+        b0_entry.append_dword(0x20)
+        # S size (x)
+        #b0_entry.append_dword(int(rs.size()/2))
+        b0_entry.append_dword(0x20)
+        # Signature hash Magic
+        # TODO: Right now only supports secp256r1
+        b0_entry.append_dword(self.dc_sig_hash_magic_num)
+
+        # Signature R & S
+        if CSK_key is not None:
+            sha = sha256(block0.data).digest()
+            rs = self.hsm_manager.sign(sha, CSK_key)
+            del sha
+            b0_entry.append_data(rs.data[:32])
+            b0_entry.append_data(rs.data[-32:])
+            del rs
+
+        while b0_entry.size() < 0x68:
+            b0_entry.append_byte(0)
+
+        log.info("Block 0 Entry done")
         return b0_entry
 
     def make_block1(self, root_entry=None, block0_entry=None, CSK=None):
@@ -269,6 +490,43 @@ class _READER_BASE(object):
 
         return b1
 
+    #Signature Block, Size (0x1000)
+    def make_block1_dc(self, block0, root_entry=None, block0_entry=None, CSK=None):
+        b1 = common_util.BYTE_ARRAY()
+        log.info("Starting Block 1 creation for DC PR")
+        # SHA384 over block 0
+        # TODO: First 64 bytes are same from unsigned block (verify match)
+        sha = sha384(block0.data).digest()
+        b1.append_data(sha)
+        # Padding to make sha384, 64 bits
+        b1.append_qword(0x0)
+        b1.append_qword(0x0)
+        # 1st signature  # of entries
+        # TODO: 3 entries. root, csk, b0
+        b1.append_dword(int(0x3))
+        # Offset to first entry (start of signature block)
+        b1.append_dword(int(0x60))
+        # 2nd-4th signature chains (Do not use)
+        b1.append_qword(0)
+        b1.append_qword(0)
+        b1.append_qword(0)
+        # Signature Chains
+        if root_entry is not None:
+            b1.append_data(root_entry.data)
+        if CSK is not None:
+            b1.append_data(CSK.data)
+        if block0_entry is not None:
+            b1.append_data(block0_entry.data)
+        # TODO:  Main image pointer area?
+        # Pointer to main image
+        while (b1.size() < 0xFFC):
+            b1.append_byte(0)
+        # CRC32 over 0 to SIZE-4 TODO: add the right data
+        crc = zlib.crc32(b1.data) & 0xffffffff
+        b1.append_dword(crc)
+        log.info("Block 1 done")
+
+        return b1
 
 class CANCEL_reader(_READER_BASE):
     def __init__(self, args, hsm_manager, config):
@@ -420,6 +678,9 @@ class UPDATE_reader(_READER_BASE):
         log.debug("".join("{:02x} ".format(x) for x in json_string.data))
         log.debug(bytearray(json_string.data).decode("utf-8"))
 
+        # Determine if platform is RC or DC
+        dc_pr = self.is_Darby_PR(payload_content, sig_offset)
+
         if has_json:
             j_data = json.loads(bytearray(json_string.data).decode("utf-8"))
             log.debug(json.dumps(j_data, sort_keys=True, indent=4))
@@ -438,15 +699,27 @@ class UPDATE_reader(_READER_BASE):
 
         log.debug("Payload size is {}".format(payload.size()))
         # Create block 0, root entry, and block 0 entry
-        block0 = self.make_block0(payload, payload.size())
-        root_entry = self.make_root_entry(self.pub_root_key)
-        CSK = self.make_csk_entry(self.root_key, self.pub_CSK)
-        block0_entry = self.make_block0_entry(block0, self.CSK)
+        if dc_pr:
+            block0 = self.make_block0_dc(payload, payload.size())
+            # Remove first 0x2000 bytes.
+            payload = payload.data[int(0x2000):]
+            root_entry = self.make_root_entry_dc(self.pub_root_key)
+            CSK = self.make_csk_entry_dc(self.root_key, self.pub_CSK)
+            block0_entry = self.make_block0_entry_dc(block0, self.CSK)
+            block1 = self.make_block1_dc(block0=block0,
+                                      root_entry=root_entry,
+                                      CSK=CSK,
+                                      block0_entry=block0_entry)
 
-        # Make block 1 using the "keychain" we just made components for
-        block1 = self.make_block1(root_entry=root_entry,
-                                  CSK=CSK,
-                                  block0_entry=block0_entry)
+        else:    
+            block0 = self.make_block0(payload, payload.size())
+            root_entry = self.make_root_entry(self.pub_root_key)
+            CSK = self.make_csk_entry(self.root_key, self.pub_CSK)
+            block0_entry = self.make_block0_entry(block0, self.CSK)
+            # Make block 1 using the "keychain" we just made components for
+            block1 = self.make_block1(root_entry=root_entry,
+                                      CSK=CSK,
+                                      block0_entry=block0_entry)
 
         output_fd = open(self.output_file_name, "wb")
         # Write to the output file
