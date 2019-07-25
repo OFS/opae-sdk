@@ -42,6 +42,7 @@ import uuid
 import subprocess
 import time
 import signal
+import errno
 import logging
 from opae.admin.fpga import fpga
 
@@ -68,9 +69,10 @@ IFPGA_SEC_PROGRESS_TO_STR = {
     3: "IFPGA_PROG_READY",
     4: "IFPGA_PROG_AUTHENTICATING",
     5: "IFPGA_PROG_COPYING",
-    6: "IFPGA_PROG_UPDATE_CANCEL",
-    7: "IFPGA_PROG_RSU_DONE",
-    8: "IFPGA_PROG_CANCEL_DONE"
+    6: "IFPGA_PROG_SETTING_CANCELLATION_BIT",
+    7: "IFPGA_PROG_PROGRAM_KEY_HASH",
+    8: "IFPGA_PROG_RSU_DONE",
+    9: "IFPGA_PROG_PKVL_PROM_DONE"
 }
 
 IFPGA_SEC_STATUS_TO_STR = {
@@ -475,8 +477,6 @@ def update_fw(fd_dev, infile):
                          "IFPGA_STAT_PKVL_REJECT",
                          "IFPGA_STAT_NON_INC",
                          "IFPGA_STAT_NIOS_OK",
-                         "IFPGA_STAT_USER_OK",
-                         "IFPGA_STAT_FACTORY_OK",
                          "IFPGA_STAT_USER_FAIL",
                          "IFPGA_STAT_FACTORY_FAIL",
                          "IFPGA_STAT_NIOS_FLASH_ERR",
@@ -491,18 +491,21 @@ def update_fw(fd_dev, infile):
 
     LOG.debug('payload size: %d', payload_size)
 
-    try:
-        fcntl.ioctl(fd_dev, IOCTL_IFPGA_SECURE_UPDATE_START)
-    except IOError as exc:
-        return exc.errno, exc.strerror
-    LOG.debug('IOCTL ==> SECURE_UPDATE_START')
+    retries = 65
+    while True:
+        try:
+            fcntl.ioctl(fd_dev, IOCTL_IFPGA_SECURE_UPDATE_START)
+            LOG.debug('IOCTL ==> SECURE_UPDATE_START')
+            break
+        except IOError as exc:
+            if exc.errno != errno.EAGAIN or \
+               retries == 0:
+                return exc.errno, exc.strerror
+            retries -= 1
+            time.sleep(1.0)
 
     poll(fd_dev, interval=0.1,
          until_prog=["IFPGA_PROG_READY"],
-         exc_stat=error_status)
-
-    poll(fd_dev, interval=0.1,
-         while_prog=["IFPGA_PROG_PREPARE"],
          exc_stat=error_status)
 
     to_transfer = block_size if block_size <= payload_size \
@@ -541,27 +544,7 @@ def update_fw(fd_dev, infile):
     LOG.debug('IOCTL ==> SECURE_UPDATE_DATA_SENT')
 
     poll(fd_dev, interval=0.1,
-         until_prog=["IFPGA_PROG_READY"],
-         exc_prog=["IFPGA_PROG_IDLE"],
-         exc_stat=not_normal_status)
-
-    poll(fd_dev, interval=0.1,
-         while_prog=["IFPGA_PROG_READY"],
-         exc_prog=["IFPGA_PROG_IDLE"],
-         exc_stat=not_normal_status)
-
-    poll(fd_dev, interval=0.1,
-         while_prog=["IFPGA_PROG_AUTHENTICATING"],
-         exc_prog=["IFPGA_PROG_IDLE"],
-         exc_stat=not_normal_status)
-
-    poll(fd_dev, interval=0.1,
-         while_prog=["IFPGA_PROG_COPYING"],
-         exc_prog=["IFPGA_PROG_IDLE"],
-         exc_stat=not_normal_status)
-
-    poll(fd_dev, interval=0.1,
-         while_prog=["IFPGA_PROG_RSU_DONE"],
+         until_prog=["IFPGA_PROG_RSU_DONE"],
          exc_prog=["IFPGA_PROG_IDLE"],
          exc_stat=not_normal_status)
 
