@@ -59,10 +59,12 @@ class region(sysfs_node):
                 return data
 
     def __enter__(self):
-        self._fd = os.open(self.devpath, os.O_SYNC | os.O_RDWR | os.O_EXCL)
+        self._fd = os.open(self.devpath, os.O_SYNC | os.O_RDWR)
+        fcntl.lockf(self._fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
         return self._fd
 
     def __exit__(self, ex_type, ex_val, ex_traceback):
+        fcntl.lockf(self._fd, fcntl.LOCK_UN)
         os.close(self._fd)
 
 
