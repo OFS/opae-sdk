@@ -1185,42 +1185,6 @@ def vc_phy_eeprom_update(ifile, spi_path, no_verify):
 
 
 
-def vc_phy_eeprom_update(ifile, spi_path, no_verify):
-    ret = bmc_fw_update(ifile, spi_path, no_verify)
-    if ret == 0:
-        print "%s updating phy eeprom" % (datetime.datetime.now())
-        load_path = os.path.join(spi_path, 'pkvl', 'eeprom_load')
-        try:
-            write_file(load_path, "1")
-        except (Exception, KeyboardInterrupt):
-            ret = 1
-        if ret == 0:
-            print "%s successful" % (datetime.datetime.now())
-        else:
-            print "%s failed" % (datetime.datetime.now())
-    else:
-        print "%s abort updating phy eeprom" % (datetime.datetime.now())
-
-    return ret
-
-
-def validate_bdf(bdf, bdf_pvid_map):
-    if not bdf:
-        if len(bdf_pvid_map) > 1:
-            print "Must specify a bdf. More than one device found."
-            print_bdf_mtd_mapping(bdf_pvid_map)
-        else:
-            bdf = bdf_pvid_map.keys()[0]
-    else:
-        bdf = normalize_bdf(bdf)
-        if not bdf:
-            print "{} is an invalid bdf".format(bdf)
-            sys.exit(1)
-        elif bdf not in bdf_pvid_map.keys():
-            print "Could not find fpga device for {}".format(bdf)
-            print_bdf_mtd_mapping(bdf_pvid_map)
-
-
 def main():
     args = parse_args()
 
