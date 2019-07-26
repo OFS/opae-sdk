@@ -27,4 +27,16 @@ cmake_minimum_required (VERSION 2.8)
 
 # projectname is the same as the main-executable
 project(python)
+############################################################################
+## Find Python by version     ##############################################
+############################################################################
+set(OPAE_PYTHON_VERSION 2.7 CACHE STRING "Python version to use for building/distributing pyopae")
+set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3.6 3.5 3.4 3.3)
+
+
+find_package(PythonInterp ${OPAE_PYTHON_VERSION})
+find_package(PythonLibs ${OPAE_PYTHON_VERSION})
+
+set(INTEL_SECURITY_TOOLS_VERSION 1.3.3 CACHE STRING "Security Tools Version string")
+
 add_subdirectory(opae.admin)
