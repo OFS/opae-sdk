@@ -93,6 +93,18 @@ IFPGA_SEC_STATUS_TO_STR = {
 }
 
 LOG = logging.getLogger()
+LOG_IOCTL = logging.DEBUG - 1
+LOG_STATE = logging.DEBUG - 2
+
+LOG_NAMES_TO_LEVELS = {
+    'state': LOG_STATE,
+    'ioctl': LOG_IOCTL,
+    'debug': logging.DEBUG,
+    'info': logging.INFO,
+    'warning': logging.WARNING,
+    'error': logging.ERROR,
+    'critical': logging.CRITICAL
+}
 
 
 def parse_args():
@@ -107,8 +119,10 @@ def parse_args():
                ' Optional when one device in system.'
     parser.add_argument('bdf', nargs='?', default=DEFAULT_BDF, help=bdf_help)
 
-    parser.add_argument('-v', '--verbose', default=False,
-                        action='store_true', help='display verbose output')
+    log_levels = ['state', 'ioctl', 'debug', 'info',
+                  'warning', 'error', 'critical']
+    parser.add_argument('--log-level', choices=log_levels,
+                        default='state', help='log level to use')
 
     return parser.parse_args()
 
@@ -357,7 +371,7 @@ def fw_update_status(fd_dev):
     stat_str = '<unknown>' if status not in IFPGA_SEC_STATUS_TO_STR \
                else IFPGA_SEC_STATUS_TO_STR[status]
 
-    LOG.debug('%s / %s', prog_str, stat_str)
+    LOG.log(LOG_STATE, '%s / %s', prog_str, stat_str)
 
     return (prog_str, stat_str)
 
@@ -418,39 +432,39 @@ def update_fw(fd_dev, infile):
             p_s = fw_update_status(fd_dev)
 
             if exc_prog and p_s[0] in exc_prog:
-                LOG.debug(
+                LOG.log(LOG_STATE,
                     'except poll [ %s in %s ]',
                     p_s[0], str(exc_prog))
                 raise SecureUpdateError(
                     (1, 'Secure update failed: {}'.format(p_s)))
 
             if exc_stat and p_s[1] in exc_stat:
-                LOG.debug(
+                LOG.log(LOG_STATE,
                     'except poll [ %s in %s ]',
                     p_s[1], str(exc_stat))
                 raise SecureUpdateError(
                     (1, 'Secure update failed: {}'.format(p_s)))
 
             if while_prog and p_s[0] not in while_prog:
-                LOG.debug(
+                LOG.log(LOG_STATE,
                     'break poll [ %s not in %s ]',
                     p_s[0], str(while_prog))
                 break
 
             if until_prog and p_s[0] in until_prog:
-                LOG.debug(
+                LOG.log(LOG_STATE,
                     'break poll [ %s in %s ]',
                     p_s[0], str(until_prog))
                 break
 
             if while_stat and p_s[1] not in while_stat:
-                LOG.debug(
+                LOG.log(LOG_STATE,
                     'break poll [ %s not in %s ]',
                     p_s[1], str(while_stat))
                 break
 
             if until_stat and p_s[1] in until_stat:
-                LOG.debug(
+                LOG.log(LOG_STATE,
                     'break poll [ %s in %s ]',
                     p_s[1], str(until_stat))
                 break
@@ -487,6 +501,7 @@ def update_fw(fd_dev, infile):
     orig_pos = infile.tell()
     infile.seek(0, os.SEEK_END)
     payload_size = infile.tell() - orig_pos
+    orig_payload_size = payload_size
     infile.seek(orig_pos, os.SEEK_SET)
 
     LOG.debug('payload size: %d', payload_size)
@@ -494,8 +509,8 @@ def update_fw(fd_dev, infile):
     retries = 65
     while True:
         try:
+            LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_START')
             fcntl.ioctl(fd_dev, IOCTL_IFPGA_SECURE_UPDATE_START)
-            LOG.debug('IOCTL ==> SECURE_UPDATE_START')
             break
         except IOError as exc:
             if exc.errno != errno.EAGAIN or \
@@ -516,7 +531,9 @@ def update_fw(fd_dev, infile):
         buf.fromfile(infile, to_transfer)
 
         buf_addr, buf_len = buf.buffer_info()
-        LOG.debug('buf virt: 0x{:x} offset: {}'.format(buf_addr, offset))
+        LOG.debug('buf virt: 0x%x offset: %d  %3.0f%%',
+                  buf_addr, offset,
+                  (offset / float(orig_payload_size)) * 100.0)
 
         if buf_len != to_transfer:
             to_transfer = buf_len
@@ -525,14 +542,14 @@ def update_fw(fd_dev, infile):
             fw_write_block(fd_dev, offset, to_transfer, buf_addr)
         except IOError as exc:
             return exc.errno, exc.strerror
-        LOG.debug('IOCTL ==> SECURE_UPDATE_WRITE_BLK')
+        LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_WRITE_BLK')
 
         payload_size -= to_transfer
         offset += to_transfer
         to_transfer = block_size if block_size <= payload_size \
             else payload_size
 
-        poll(fd_dev, interval=0.01,
+        poll(fd_dev, interval=0.000001,
              until_prog=["IFPGA_PROG_READY"],
              exc_prog=["IFPGA_PROG_IDLE"],
              exc_stat=not_normal_status)
@@ -541,7 +558,7 @@ def update_fw(fd_dev, infile):
         fcntl.ioctl(fd_dev, IOCTL_IFPGA_SECURE_UPDATE_DATA_SENT)
     except IOError as exc:
         return exc.errno, exc.strerror
-    LOG.debug('IOCTL ==> SECURE_UPDATE_DATA_SENT')
+    LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_DATA_SENT')
 
     poll(fd_dev, interval=0.1,
          until_prog=["IFPGA_PROG_RSU_DONE"],
@@ -561,15 +578,15 @@ def main():
     args = parse_args()
 
     LOG.setLevel(logging.NOTSET)
+    logging.addLevelName(LOG_IOCTL, 'IOCTL')
+    logging.addLevelName(LOG_STATE, 'STATE')
+
     log_fmt = ('[%(asctime)-15s] [%(levelname)-8s] '
                '%(message)s')
     log_hndlr = logging.StreamHandler(sys.stdout)
     log_hndlr.setFormatter(logging.Formatter(log_fmt))
 
-    if args.verbose:
-        log_hndlr.setLevel(logging.DEBUG)
-    else:
-        log_hndlr.setLevel(logging.INFO)
+    log_hndlr.setLevel(LOG_NAMES_TO_LEVELS[args.log_level])
 
     LOG.addHandler(log_hndlr)
 
