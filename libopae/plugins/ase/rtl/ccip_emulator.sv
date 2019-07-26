@@ -1674,7 +1674,11 @@ module ccip_emulator
         // Interrupt ID set
         ccip_intr_txhdr = t_ccip_c1_ReqIntrHdr'(txhdr);
         pkt.intr_id  = ccip_intr_txhdr.id;
-        // Response enable
+
+        // Byte range
+        pkt.byte_en = (txhdr.mode == eMOD_BYTE);
+        pkt.byte_start = int'(txhdr.byte_start);
+        pkt.byte_len = int'(txhdr.byte_len);
     end
     endfunction
 
