@@ -27,15 +27,17 @@ from setuptools import setup, find_packages
 
 setup(
     name="opae.admin",
-    version="@INTEL_FPGA_API_VERSION@",
+    version="@INTEL_SECURITY_TOOLS_VERSION@",
     packages=find_packages(),
     entry_points={
         'console_scripts': [
             'fpgasupdate = opae.admin.tools.fpgasupdate:main',
-            'rsu = opae.admin.tools.rsu:main'
+            'rsu = opae.admin.tools.rsu:main',
+            'super-rsu = opae.admin.tools.super_rsu:main',
+            'fpgaflash = opae.admin.tools.fpgaflash:main'
         ]
     },
-    install_requires=[],
+    install_requires=['intelhex'],
     description="opae.admin provides Python classes for interfacing with"
                 "OPAE kernel drivers",
     license="BSD3",
