@@ -92,6 +92,13 @@ typedef struct {
 	uint64_t addr;
 	uint8_t data[CL_BYTE_WIDTH];
 	ase_host_memory_req req;
+
+	// Byte range
+	uint8_t byte_en;         // Access limited to byte range within line when non-zero
+	uint8_t byte_start;      // Index of first byte update
+	uint8_t byte_len;        // Number of bytes to update, starting with byte_start
+
+	uint32_t dummy;          // Force alignment to 64 bits
 } ase_host_memory_write_req;
 
 //
