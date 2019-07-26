@@ -945,7 +945,7 @@ def n3000_fpga_update(fpga,fpga_cfg_data):
     # First FLASH
     # Erase from 0x7FFB0000 to 0x7FFFFFF (end) of FPGA flash
     LOG.debug('Erase Flash from 0x%08x to 0x%08x',
-             FPGA_VC_ERASE_FLASH1_START,FPGA_VC_ERASE_FLASH1_END)
+             FPGA_N3000_ERASE_FLASH1_START,FPGA_N3000_ERASE_FLASH1_END)
 
     try:
         mtd.erase(mtd_dev_list[1],
