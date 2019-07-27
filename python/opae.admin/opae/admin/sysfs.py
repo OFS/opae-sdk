@@ -329,18 +329,19 @@ class class_node(sysfs_node):
         def func(obj):
             for f in filt:
                 for k, v in f.iteritems():
+                    cur_obj = obj
                     attrs = k.split('.')
                     while len(attrs) > 1:
                         try:
                             attr = attrs.pop(0)
-                            obj = getattr(obj, attr)
+                            cur_obj = getattr(cur_obj, attr)
                         except AttributeError:
                             log.warn('"%s" is not an attribute of "%s"',
                                      attr, obj)
                             attrs = ['NO_ATTRIBUTE']
                             break
-                    if hasattr(obj, attrs[0]):
-                        attr_value = getattr(obj, attrs[0])
+                    if hasattr(cur_obj, attrs[0]):
+                        attr_value = getattr(cur_obj, attrs[0])
                         if isinstance(attr_value, str):
                             attr_value = attr_value.lower()
                             v = v.lower()
