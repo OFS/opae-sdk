@@ -45,7 +45,7 @@ from threading import Thread
 from uuid import UUID
 
 from opae.admin.fpga import fpga as fpga_device
-from opae.admin.sysfs import pci_node, sysfs_node
+from opae.admin.sysfs import pci_node
 from opae.admin.utils.process import call_process
 
 BMC_SENSOR_PATTERN = (r'^\(\s*(?P<num>\d+)\)\s*(?P<name>[\w \.]+)\s*:\s*'
@@ -220,21 +220,6 @@ class process_task(object):
         return self._process
 
 
-@contextmanager
-def aer_disabled(*nodes):
-    """aer_disabled Context manager used to disable AER on a set of pci nodes
-                    The exit function will re-enable AER on the nodes
-    :param *nodes(pci_node): A list of pci nodes to disable AER on
-    """
-    original_aer = [(node, node.aer) for node in nodes]
-    for node in nodes:
-        node.aer = (AER_OFF, AER_OFF)
-    try:
-        yield True if nodes and all(nodes) else None
-    finally:
-        for n, v in original_aer:
-            n.aer = (AER_ON, AER_ON) if DRY_RUN else v
-
 
 @contextmanager
 def ignore_signals(*signals):
@@ -270,7 +255,6 @@ def find_subdevices(node):
     for c in node.children:
         devices.extend(find_subdevices(c))
     return set(devices)
-
 
 
 # VERSION PARSING STRUCTS
@@ -788,7 +772,7 @@ class pac(object):
         page = self.boot_page if boot_page is None else boot_page
         try:
             self.fpga.fme.spi_bus.node('bmcimg_flash_ctrl',
-                                   'bmcimg_image_load').value = page
+                                       'bmcimg_image_load').value = page
         except IOError:
             LOG.debug('[%s] anticipated error writing to bmcimg_image_load',
                       self.pci_node.bdf)
@@ -990,45 +974,10 @@ def do_rsu(boards, args, config):
     :param args:
     :param config:
     """
-
-    # roots are the root ports of the boards
-    roots = []
-    # targets are the devices to remove
-    targets = []
-
     for b in boards:
-        if b.errors:
-            LOG.warn('[%s] %s errors detected, skipping rsu', b.errors,
-                     b.pci_node.bdf)
-            continue
-        node = b.pci_node
-        root = node.root
-        while node.parent is not root:
-            node = node.parent
-        targets.append(node)
-        roots.append(root)
-
-    # disable AER on root devices
-    with aer_disabled(*roots):
-        for (t, r, b) in zip(targets, roots, boards):
-            try:
-                b.rsu()
-            except (NameError, AttributeError) as err:
-                LOG.error('%s: could not find spi bus or spi device for %s',
-                          err, b.pci_node)
-                continue
-            except IOError:
-                time.sleep(5)
-            else:
-                # ignore signals for now (the signals are ignored, not
-                # deferred)
-                with ignore_signals(signal.SIGINT, signal.SIGHUP,
-                                    signal.SIGTERM, signal.SIGABRT):
-                    t.remove()
-                    logging.info('waiting for FPGA reconfiguration')
-                    time.sleep(10)
-                    r.rescan_bus('{}:{}'.format(t.segment, t.bus))
-                    time.sleep(1)
+        with ignore_signals(signal.SIGINT, signal.SIGHUP,
+                            signal.SIGTERM, signal.SIGABRT):
+            b.fpga.safe_rsu_boot(b.boot_page)
 
 
 def get_update_threads(boards, args, rsu_config):

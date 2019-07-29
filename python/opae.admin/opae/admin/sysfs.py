@@ -27,6 +27,7 @@ import glob
 import os
 import re
 from contextlib import contextmanager
+from subprocess import CalledProcessError
 from opae.admin.utils.process import call_process, DRY_RUN
 from opae.admin.utils.log import loggable, LOG
 
@@ -266,13 +267,19 @@ class pci_node(sysfs_node):
 
     @property
     def aer(self):
-        return (int(call_process(self._aer_cmd1), 16),
-                int(call_process(self._aer_cmd2), 16))
+        try:
+            return (int(call_process(self._aer_cmd1), 16),
+                    int(call_process(self._aer_cmd2), 16))
+        except CalledProcessError as err:
+            self.log.exception('error getting aer: %s', err)
 
     @aer.setter
     def aer(self, values):
-        call_process('{}={:#08x}'.format(self._aer_cmd1, values[0]))
-        call_process('{}={:#08x}'.format(self._aer_cmd2, values[1]))
+        try:
+            call_process('{}={:#08x}'.format(self._aer_cmd1, values[0]))
+            call_process('{}={:#08x}'.format(self._aer_cmd2, values[1]))
+        except CalledProcessError as err:
+            self.log.exception('error setting aer: %s', err)
 
 
 class class_node(sysfs_node):
