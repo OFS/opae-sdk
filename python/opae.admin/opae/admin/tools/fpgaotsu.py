@@ -36,6 +36,7 @@ import sys
 import tempfile
 import os
 import fcntl
+import binascii
 import filecmp
 import stat
 import subprocess
@@ -47,9 +48,6 @@ import shutil
 import logging
 import logging.handlers
 from array import array
-sys.path.append('../../../../opae.admin')
-sys.path.append('../../../../opae.admin.tools')
-
 from opae.admin.fpga import fpga
 from opae.admin.tools import rsu
 from opae.admin.tools.rsu import do_rsu
@@ -109,8 +107,7 @@ OPAE_SHARE = '/usr/share/opae'
 
 
 # class MTD
-class mtd:
-
+class mtd(object):
     @staticmethod
     def size(dev):
         # meminfo ioctl
@@ -128,7 +125,6 @@ class mtd:
         ioctl_odata = struct.unpack_from('BIIIIIQ', ret)
         return ioctl_odata[2]
 
-
     @staticmethod
     def erase(dev, start, nbytes):
         LOG.debug('erasing 0x%08x bytes starting at 0x%08x',nbytes, start)
@@ -136,7 +132,6 @@ class mtd:
         ioctl_data = struct.pack('II', start, nbytes)
         with os.fdopen(os.open(dev, os.O_SYNC | os.O_RDWR), 'w') as file_:
             fcntl.ioctl(file_.fileno(), IOCTL_MTD_MEMERASE, ioctl_data)
-
 
     @staticmethod
     def read(dev, start, nbytes, ofile):
@@ -194,7 +189,6 @@ class mtd:
         LOG.debug('actual bytes written 0x%x - 0x%x = 0x%x',last_write_position, start, bytes_written)
 
         return bytes_written
-
 # end of MTD
 
 
@@ -202,13 +196,13 @@ def write_file(fname, data):
     with open(fname, 'wb') as wfile:
         wfile.write(data)
 
-
 def update_flash_verify(dev, filename, intput_offset, len):
     with open(filename, 'rb') as fd:
         file_size = os.path.getsize(fd.name)
         if file_size > len:
             LOG.error('Invalid file size:%s',filename)
             return -1
+
         fd.seek(0)
         bytes_written  = mtd.write(dev,intput_offset,file_size,fd)
         LOG.debug('bytes written to flash 0x%x',bytes_written)
@@ -269,8 +263,6 @@ class fpga_cfg_data(object):
         self.nios_user_header = flash_data()
         self.nios_user = flash_data()
 
-
-
     @classmethod
     def print_json_cfg(self):
         LOG.debug('\n\n')
@@ -292,7 +284,6 @@ class fpga_cfg_data(object):
         LOG.debug(self.nios_user_header)
         LOG.debug(self.nios_user)
         LOG.debug('\n \n ')
-
 
     @classmethod
     def check_fpga_images(self):
@@ -519,6 +510,7 @@ def d5005_fpga_update(fpga,fpga_cfg_data):
         write_file(mode_path, "0")
         return -1
 
+    #NIOS Header
     LOG.debug('Updates NIOS factory header %s from 0x%08x to 0x%08x',fpga_cfg_data.nios_factory_header.file,
             fpga_cfg_data.nios_factory_header.start, fpga_cfg_data.nios_factory_header.end)
 
@@ -817,7 +809,7 @@ def d5005_fpga_update(fpga,fpga_cfg_data):
 
 
 
-def check_vc_max10_temporary(bdf):
+def check_n3000_max10_temporary(bdf):
     sysfs_path = os.path.join('/sys/bus/pci/devices/', bdf,
             'fpga/intel-fpga-dev.*/intel-fpga-fme.*',
             'spi-*/spi_master/spi*/spi*/intel-generic-qspi*.auto')
@@ -863,7 +855,7 @@ def n3000_fpga_update(fpga,fpga_cfg_data):
  
     LOG.debug('----n3000 update start-------')
 
-    retval = check_vc_max10_temporary(fpga.pci_node.pci_address)
+    retval = check_n3000_max10_temporary(fpga.pci_node.pci_address)
     if retval != 0:
         LOG.error('Not Updated with temporary Max10 user image')
         return -1
@@ -940,7 +932,6 @@ def n3000_fpga_update(fpga,fpga_cfg_data):
         LOG.error('Failed update & verify NIOS factory header')
         write_file(mode_path, "0")
         return -1
-
 
     # First FLASH
     # Erase from 0x7FFB0000 to 0x7FFFFFF (end) of FPGA flash
@@ -1264,13 +1255,19 @@ def do_rsu_fpga(fpga_cfg_data,pci_address):
     if(pci_address is None):
         inst = dict({'pci_node.device_id': int(fpga_cfg_data.device,16)})
 
+    if(pci_address is not None):
+        inst = dict({'pci_node.pci_address': pci_address})
+        LOG.debug('inst=%s',inst)
+
+
     for o in fpga.enum([inst]):
-        LOG.debug('------FPGA INFO----------')
+        LOG.debug('------FPGA RSU INFO----------')
         LOG.debug('pci_node.pci_address:%s',o.pci_node.pci_address)
         LOG.debug('pci_node.bdf:%s',o.pci_node.bdf)
 
         if o.pci_node.device_id == D5005_DEV_ID:
-            LOG.debug('RSU Not Supported to VC')
+            LOG.debug('RSU Not Supported for FPGA D5005')
+            return -1
 
         if o.pci_node.device_id == N3000_DEV_ID:
             LOG.debug('Boot to BMC Start')
@@ -1278,7 +1275,7 @@ def do_rsu_fpga(fpga_cfg_data,pci_address):
             LOG.debug('Boot to BMC END')
 
             LOG.debug('Boot to FPGA Start')
-            #do_rsu('fpga',o.pci_node.pci_address,'factory');
+            do_rsu('fpga',o.pci_node.pci_address,'factory');
             LOG.debug('Boot to FPGA END')
 
 
@@ -1286,12 +1283,13 @@ def do_rsu_fpga(fpga_cfg_data,pci_address):
             inst = dict({'pci_node.pci_address': pci_address})
 
             for o in fpga.enum([inst]):
-                LOG.debug('------FPGA INFO----------')
+                LOG.debug('------FPGA RSU INFO----------')
                 LOG.debug('pci_node.pci_address:%s',o.pci_node.pci_address)
                 LOG.debug('pci_node.bdf:%s',o.pci_node.bdf)
         
             if o.pci_node.device_id == D5005_DEV_ID:
-                LOG.debug('RSU Not Supported to VC')
+                LOG.debug('RSU Not Supported for FPGA D5005')
+                return -1
 
             if o.pci_node.device_id == N3000_DEV_ID:
                 LOG.debug('Boot to BMC Start')
@@ -1299,7 +1297,7 @@ def do_rsu_fpga(fpga_cfg_data,pci_address):
                 LOG.debug('Boot to BMC END')
 
                 LOG.debug('Boot to FPGA Start')
-                #do_rsu('fpga',o.pci_node.pci_address,'factory');
+                do_rsu('fpga',o.pci_node.pci_address,'factory');
                 LOG.debug('Boot to FPGA END')
 
 
@@ -1339,6 +1337,7 @@ def fpga_update(path, rsu,rsu_only):
 
     LOG.debug('path: %s', path)
     LOG.debug('rsu: %s', rsu)
+    LOG.debug('rsu_only: %s', rsu_only)
 
     if not os.path.exists(path):
            LOG.error('Invalid input path:%s',path)
@@ -1393,24 +1392,64 @@ def fpga_update(path, rsu,rsu_only):
         LOG.debug('pci_node.pci_address:%s',o.pci_node.pci_address)
         LOG.debug('pci_node.bdf:%s',o.pci_node.bdf)
 
-
+        # D5005
         if o.pci_node.device_id == D5005_DEV_ID:
-            LOG.debug('Found FPGA DC Card')
+            LOG.debug('Found FPGA D5005 Card')
 
             try:
-                    retval = d5005_fpga_update(o,fpga_cfg_instance)
-            except:
-                   LOG.debug('Failed to update DC FPGA')
+                retval = d5005_fpga_update(o,fpga_cfg_instance)
+                if retval == 0:
+                    LOG.debug('Successfully update & verified D5005 FPGA')
+                else:
+                    LOG.error('Failed to update D5005 FPGA ')
+                    continue
+
+            except Exception as e:
+                LOG.debug('Failed to update D5005 FPGA')
+                LOG.debug(e.message,e.args)
+                continue
+
+            try:
+                retval = do_rsu_fpga(fpga_cfg_instance,o.pci_node.pci_address)
+                if retval == 0:
+                    LOG.debug('Successfully Done RSU')
+                else:
+                    LOG.error('Failed to do RSU ')
+
+            except Exception as e:
+                LOG.debug('Failed to do RSU')
+                LOG.debug(e.message,e.args)
 
 
 
+        #N3000
         if o.pci_node.device_id == N3000_DEV_ID:
-            LOG.debug('Found FPGA VC Card')
+            LOG.debug('Found FPGA FPGA N3000 Card')
+
             try:
-                     retval = n3000_fpga_update(o,fpga_cfg_instance)
-                     retval = do_rsu_fpga(fpga_cfg_instance,o.pci_node.pci_address)
-            except:
-                   LOG.debug('Failed to update VC FPGA')
+                retval = n3000_fpga_update(o,fpga_cfg_instance)
+                if retval == 0:
+                    LOG.debug('Successfully update & verified N3000 FPGA')
+                else:
+                    LOG.error('Failed to update N3000 FPGA ')
+                    continue
+
+            except Exception as e:
+                LOG.debug('Failed to update N3000 FPGA')
+                LOG.debug(e.message,e.args)
+                continue
+
+            # RSU
+            try:
+                retval = do_rsu_fpga(fpga_cfg_instance,o.pci_node.pci_address)
+                if retval == 0:
+                    LOG.debug('Successfully Done RSU')
+                else:
+                    LOG.error('Failed to do RSU ')
+
+            except Exception as e:
+                LOG.debug('Failed to do RSU')
+                LOG.debug(e.message,e.args)
 
 
     return 0
