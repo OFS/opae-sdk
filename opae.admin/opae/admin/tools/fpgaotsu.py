@@ -1405,8 +1405,8 @@ def fpga_update(path, rsu,rsu_only):
                     continue
 
             except Exception as e:
-                LOG.debug('Failed to update D5005 FPGA')
-                LOG.debug(e.message,e.args)
+                LOG.exception('Failed to update D5005 FPGA')
+                LOG.exception(e.message,e.args)
                 continue
 
             try:
@@ -1417,8 +1417,8 @@ def fpga_update(path, rsu,rsu_only):
                     LOG.error('Failed to do RSU ')
 
             except Exception as e:
-                LOG.debug('Failed to do RSU')
-                LOG.debug(e.message,e.args)
+                LOG.exception('Failed to do RSU')
+                LOG.exception(e.message,e.args)
 
 
 
@@ -1435,8 +1435,8 @@ def fpga_update(path, rsu,rsu_only):
                     continue
 
             except Exception as e:
-                LOG.debug('Failed to update N3000 FPGA')
-                LOG.debug(e.message,e.args)
+                LOG.exception('Failed to update N3000 FPGA')
+                LOG.exception(e.message,e.args)
                 continue
 
             # RSU
@@ -1448,8 +1448,8 @@ def fpga_update(path, rsu,rsu_only):
                     LOG.error('Failed to do RSU ')
 
             except Exception as e:
-                LOG.debug('Failed to do RSU')
-                LOG.debug(e.message,e.args)
+                LOG.exception('Failed to do RSU')
+                LOG.exception(e.message,e.args)
 
 
     return 0
