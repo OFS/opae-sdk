@@ -27,6 +27,7 @@ import fcntl
 import os
 import time
 
+from contextlib import contextmanager
 from opae.admin.sysfs import class_node, sysfs_node
 
 
@@ -144,6 +145,19 @@ class fpga(class_node):
         node = self.fme.spi_bus.node(node_path)
         node.value = page
 
+    @contextmanager
+    def disable_aer(self, *nodes):
+        aer_values = []
+        to_disable = nodes or self.pci_node.root
+        try:
+            for node in to_disable:
+                aer_values.append((node, node.aer))
+                node.aer = (0xFFFFFFFF, 0xFFFFFFFF)
+            yield True if aer_values else None
+        finally:
+            for n, v in aer_values:
+                n.aer = v
+
     def safe_rsu_boot(self, page, **kwargs):
         wait_time = kwargs.pop('wait', 10)
         boot_type = kwargs.get('type', 'bmcimg')
@@ -157,25 +171,15 @@ class fpga(class_node):
             to_remove = [self.pci_node.branch[1]]
             to_disable = [self.pci_node.root]
 
-        aer_values = []
-        for node in to_disable:
-            # save original aer values for each node
-            aer_values.append((node, node.aer))
-            # disable aer
-            node.aer = (0xFFFFFFFF, 0xFFFFFFFF)
+        with self.disable_aer(*to_disable):
+            self.rsu_boot(page, **kwargs)
 
-        self.rsu_boot(page, **kwargs)
+            to_rescan = []
+            for node in to_remove:
+                to_rescan.append((node.parent, '{}:{}'.format(node.domain,
+                                                              node.bus)))
+                node.remove()
+            time.sleep(wait_time)
 
-        to_rescan = []
-        for node in to_remove:
-            to_rescan.append((node.parent, '{}:{}'.format(node.domain,
-                                                          node.bus)))
-            node.remove()
-        time.sleep(wait_time)
-
-        for node, bus in to_rescan:
-            node.rescan_bus(bus)
-
-        # restore aer values
-        for node, value in aer_values:
-            node.aer = value
+            for node, bus in to_rescan:
+                node.rescan_bus(bus)
