@@ -228,11 +228,11 @@ def update_flash_verify(dev, filename, intput_offset, len):
 
 class flash_data(object):
     def __init__(self,data,path):
-        self.filename = data.get('filename')
-        self.file = os.path.join(path, data.get('filename'))
-        self.type = data.get('type')
-        self.start = int(data.get('start'),16)
-        self.end = int(data.get('end'),16)
+        self.filename = data.get('filename',None)
+        self.file = os.path.join(path, data.get('filename',None))
+        self.type = data.get('type',None)
+        self.start = int(data.get('start',0),16)
+        self.end = int(data.get('end',0),16)
 
     def __str__(self):
         return 'type: {:25s}  filename: {:60s} start: {:0x}  end: {:0x} '.format(
@@ -288,51 +288,63 @@ class fpga_cfg_data(object):
 
     @classmethod
     def check_fpga_images(self):
-        if(not os.path.isfile(self.bmc_root_key_hash.file)):
+        if(self.bmc_root_key_hash.file is not None and 
+            not os.path.isfile(self.bmc_root_key_hash.file)):
             LOG.error('file does not exist:%s',self.bmc_root_key_hash.file)
             return False
 
-        if(not os.path.isfile(self.bmc_root_key_program.file)):
+        if(self.bmc_root_key_program.file is not None and 
+            not os.path.isfile(self.bmc_root_key_program.file)):
             LOG.error('file does not exist:%s',self.bmc_root_key_program.file)
             return False
 
-        if(not os.path.isfile(self.sr_root_key_hash.file)):
+        if(self.sr_root_key_hash.file is not None and 
+            not os.path.isfile(self.sr_root_key_hash.file)):
             LOG.error('file does not exist:%s',self.sr_root_key_hash.file)
             return False
 
-        if(not os.path.isfile(self.sr_root_key_program.file)):
+        if(self.sr_root_key_program.file is not None and 
+            not os.path.isfile(self.sr_root_key_program.file)):
             LOG.error('file does not exist:%s',self.sr_root_key_program.file)
             return False
 
-        if(not os.path.isfile(self.bmc_dts.file)):
+        if(self.bmc_dts.file is not None and 
+            not os.path.isfile(self.bmc_dts.file)):
             LOG.error('file does not exist:%s',self.bmc_dts.file)
             return False
 
-        if(not os.path.isfile(self.nios_factory_header.file)):
+        if(self.nios_factory_header.file is not None and 
+            not os.path.isfile(self.nios_factory_header.file)):
             LOG.error('file does not exist:%s',self.nios_factory_header.file)
             return False
 
-        if(not os.path.isfile(self.fpga_factory.file)):
+        if(self.fpga_factory.file is not None and 
+            not os.path.isfile(self.fpga_factory.file)):
             LOG.error('file does not exist:%s',self.fpga_factory.file)
             return False
 
-        if(not os.path.isfile(self.nios_bootloader.file)):
+        if(self.nios_bootloader.file is not None and 
+            not os.path.isfile(self.nios_bootloader.file)):
             LOG.error('file does not exist:%s',self.nios_bootloader.file)
             return False
 
-        if(not os.path.isfile(self.max10_factory.file)):
+        if(self.max10_factory.file is not None and 
+            not os.path.isfile(self.max10_factory.file)):
             LOG.error('file does not exist:%s',self.max10_factory.file)
             return False
 
-        if(not os.path.isfile(self.max10_user.file)):
+        if(self.max10_user.file is not None and 
+            not os.path.isfile(self.max10_user.file)):
             LOG.error('file does not exist:%s',self.max10_user.file)
             return False
 
-        if(not os.path.isfile(self.nios_user_header.file)):
+        if(self.nios_user_header.file is not None and 
+            not os.path.isfile(self.nios_user_header.file)):
             LOG.error('file does not exist:%s',self.nios_user_header.file)
             return False
 
-        if(not os.path.isfile(self.nios_user.file)):
+        if(self.nios_user.file is not None and 
+            not os.path.isfile(self.nios_user.file)):
             LOG.error('file does not exist:%s',self.nios_user.file)
             return False
 
@@ -450,6 +462,8 @@ def get_flash_mode(spi_path):
 def d5005_fpga_update(fpga,fpga_cfg_data):
 
     LOG.debug('---------------FPGA D5005 RoT update starts-------------')
+    mode_path = None
+    retval = 0
 
     # check for ROT 
     sec_dev = fpga.secure_dev
@@ -460,353 +474,363 @@ def d5005_fpga_update(fpga,fpga_cfg_data):
     LOG.debug('FPGA Firmware Not Updated to secure')
     LOG.debug('spi path:%s',fpga.fme.spi_bus.sysfs_path)
 
-
-    # Check for flash status
-    if get_flash_mode(fpga.fme.spi_bus.sysfs_path) ==1:
-        LOG.error('fpgaflash on %s is in progress, try later', fpga.fme.spi_bus.sysfs_path)
-        return -1
-
-
-    mode_path = os.path.join(fpga.fme.spi_bus.sysfs_path,
-                         'fpga_flash_ctrl', 'fpga_flash_mode')
-
-
-    # Enable fpga_flash_mode
-    mtd_dev = get_mtd_from_spi_path(mode_path, fpga.fme.spi_bus.sysfs_path)
-
-    LOG.debug('mode_path:%s',mode_path)
-    LOG.debug('spi mtd_dev:%s',mtd_dev)
-
-
-    # FLASH SIZE 
-    ret_size = mtd.size(mtd_dev)
-    LOG.debug('Flash size:0x%08x',ret_size)
-
-
-    # Erase from 0x780.0000 to 0xfff.ffff
-    LOG.debug('Erase Flash from 0x%08x to 0x%08x',
-             FPGA_D5005_ERASE_START,FPGA_D5005_ERASE_END)
-
     try:
-        mtd.erase(mtd_dev,
-                        FPGA_D5005_ERASE_START ,
-                        (FPGA_D5005_ERASE_END -FPGA_D5005_ERASE_START)+1 )
-    except IOError:
+        # Check for flash status
+        if get_flash_mode(fpga.fme.spi_bus.sysfs_path) ==1:
+            LOG.error('fpgaflash on %s is in progress, try later', fpga.fme.spi_bus.sysfs_path)
+            return -1
+
+
+        mode_path = os.path.join(fpga.fme.spi_bus.sysfs_path,
+                             'fpga_flash_ctrl', 'fpga_flash_mode')
+
+
+        # Enable fpga_flash_mode
+        mtd_dev = get_mtd_from_spi_path(mode_path, fpga.fme.spi_bus.sysfs_path)
+
+        LOG.debug('mode_path:%s',mode_path)
+        LOG.debug('spi mtd_dev:%s',mtd_dev)
+
+
+        # FLASH SIZE 
+        ret_size = mtd.size(mtd_dev)
+        LOG.debug('Flash size:0x%08x',ret_size)
+
+
+        # Erase from 0x780.0000 to 0xfff.ffff
+        LOG.debug('Erase Flash from 0x%08x to 0x%08x',
+                 FPGA_D5005_ERASE_START,FPGA_D5005_ERASE_END)
+
+        try:
+            mtd.erase(mtd_dev,
+                            FPGA_D5005_ERASE_START ,
+                            (FPGA_D5005_ERASE_END -FPGA_D5005_ERASE_START)+1 )
+        except IOError:
+            write_file(mode_path, "0")
+            raise Exception("Failed to Erase Flash")
+
+
+        # NIOS factory
+        LOG.debug('Updates NIOS factory  %s from 0x%08x to 0x%08x',fpga_cfg_data.nios_factory.file,
+                fpga_cfg_data.nios_factory.start, fpga_cfg_data.nios_factory.end)
+
+        retval = update_flash_verify(mtd_dev,
+                                    fpga_cfg_data.nios_factory.file,
+                                    fpga_cfg_data.nios_factory.start,
+                                    (fpga_cfg_data.nios_factory.end - fpga_cfg_data.nios_factory.start) +1 )
+        if retval == 0:
+              LOG.debug('Successfully update & verified NIOS factory')
+        else:
+            LOG.error('Failed update & verify NIOS factory')
+            write_file(mode_path, "0")
+            return -1
+
+        #NIOS Header
+        LOG.debug('Updates NIOS factory header %s from 0x%08x to 0x%08x',fpga_cfg_data.nios_factory_header.file,
+                fpga_cfg_data.nios_factory_header.start, fpga_cfg_data.nios_factory_header.end)
+
+        retval = update_flash_verify(mtd_dev,
+                                    fpga_cfg_data.nios_factory_header.file,
+                                    fpga_cfg_data.nios_factory_header.start,
+                                    ( fpga_cfg_data.nios_factory_header.end- fpga_cfg_data.nios_factory_header.start) +1 )
+        if retval == 0:
+            LOG.debug('Successfully update & verified NIOS factory header')
+        else:
+            LOG.error('Failed update & verify NIOS factory header')
+            write_file(mode_path, "0")
+            return -1
+
+
+        #BMC ROOT KEY HASH
+        LOG.debug('Updates bmc root key hash %s from 0x%08x to 0x%08x ',fpga_cfg_data.bmc_root_key_hash.file,
+                fpga_cfg_data.bmc_root_key_hash.start, fpga_cfg_data.bmc_root_key_hash.end)
+
+        retval = update_flash_verify(mtd_dev,
+                                    fpga_cfg_data.bmc_root_key_hash.file,
+                                    fpga_cfg_data.bmc_root_key_hash.start,
+                                    (fpga_cfg_data.bmc_root_key_hash.end - fpga_cfg_data.bmc_root_key_hash.start) +1 )
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified bmc key hash')
+        else:
+            LOG.error('Failed update & verify bmc key hash')
+            write_file(mode_path, "0")
+            return -1
+
+        LOG.debug('Updates bmc root key program %s from 0x%08x to 0x%08x ',fpga_cfg_data.bmc_root_key_program.file,
+                fpga_cfg_data.bmc_root_key_program.start, fpga_cfg_data.sr_root_key_program.end)
+
+        retval = update_flash_verify(mtd_dev,
+                                    fpga_cfg_data.bmc_root_key_program.file,
+                                    fpga_cfg_data.bmc_root_key_program.start,
+                                    (fpga_cfg_data.sr_root_key_program.end - fpga_cfg_data.bmc_root_key_program.start) +1 )
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified bmc key program')
+        else:
+            LOG.error('Failed update & verify bmc key program')
+            write_file(mode_path, "0")
+            return -1
+
+
+        #SR ROOT KEY HASH
+        LOG.debug('Updates SR root key hash %s from 0x%08x to 0x%08x ', fpga_cfg_data.sr_root_key_hash.file,
+                 fpga_cfg_data.sr_root_key_hash.start, fpga_cfg_data.sr_root_key_hash.end)
+
+        retval = update_flash_verify(mtd_dev,
+                                    fpga_cfg_data.sr_root_key_hash.file,
+                                    fpga_cfg_data.sr_root_key_hash.start,
+                                    (fpga_cfg_data.sr_root_key_hash.end - fpga_cfg_data.sr_root_key_hash.start) +1 )
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified Updates SR root key hash')
+        else:
+            LOG.error('Failed update & verify Updates SR root key hash')
+            write_file(mode_path, "0")
+            return -1
+
+        LOG.debug('Updates SR root key program %s from 0x%08x to 0x%08x ', fpga_cfg_data.sr_root_key_program.file,
+                 fpga_cfg_data.sr_root_key_program.start, fpga_cfg_data.sr_root_key_program.end)
+
+        retval = update_flash_verify(mtd_dev,
+                                    fpga_cfg_data.sr_root_key_program.file,
+                                    fpga_cfg_data.sr_root_key_program.start,
+                                    (fpga_cfg_data.sr_root_key_program.end - fpga_cfg_data.sr_root_key_program.start) +1 )
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified Updates SR root key program')
+        else:
+            LOG.error('Failed update & verify Updates SR root key program')
+            write_file(mode_path, "0")
+            return -1
+
+
+        #Erase/Write/Verify DTS 0x382.0000 - 3FF.FFFF
+        LOG.debug('Updates device tree %s from 0x%08x to 0x%08x',fpga_cfg_data.bmc_dts.file,
+                 fpga_cfg_data.bmc_dts.start, fpga_cfg_data.bmc_dts.end)
+
+
+        try:
+             mtd.erase(mtd_dev,
+                         fpga_cfg_data.bmc_dts.start,
+                          (fpga_cfg_data.bmc_dts.end - fpga_cfg_data.bmc_dts.start)+1)
+        except IOError:
+            write_file(mode_path, "0")
+            raise Exception("Failed to Erase Flash")
+
+
+        retval = update_flash_verify(mtd_dev,
+                                    fpga_cfg_data.bmc_dts.file,
+                                    fpga_cfg_data.bmc_dts.start,
+                                    (fpga_cfg_data.bmc_dts.end - fpga_cfg_data.bmc_dts.start) +1 )
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified  device tree')
+        else:
+            LOG.error('Failed update & verify  device tree')
+            write_file(mode_path, "0")
+            return -1
+
+
+        #Erase/Write/Verify FPGA image
+        LOG.debug('Updates FPGA image %s from 0x%08x to 0x%08x',fpga_cfg_data.fpga_factory.file,
+                 fpga_cfg_data.fpga_factory.start, fpga_cfg_data.fpga_factory.end)
+
+        try:
+             mtd.erase(mtd_dev,
+                          FPGA_D5005_FPGA_FACTORY_START,
+                         (FPGA_D5005_FPGA_FACTORY_END - FPGA_D5005_FPGA_FACTORY_START)+1)
+        except IOError:
+            write_file(mode_path, "0")
+            raise Exception("Failed to Erase Flash")
+
+        retval = update_flash_verify(mtd_dev,
+                                    fpga_cfg_data.fpga_factory.file,
+                                    fpga_cfg_data.fpga_factory.start,
+                                    (fpga_cfg_data.fpga_factory.end - fpga_cfg_data.fpga_factory.start) +1 )
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified  FPGA Image')
+        else:
+            LOG.error('Failed update & verify  FPGA Image')
+            write_file(mode_path, "0")
+            return -1
+
+        # Disable fpga_flash_mode
         write_file(mode_path, "0")
-        raise Exception("Failed to Erase Flash")
 
 
-    # NIOS factory
-    LOG.debug('Updates NIOS factory  %s from 0x%08x to 0x%08x',fpga_cfg_data.nios_factory.file,
-            fpga_cfg_data.nios_factory.start, fpga_cfg_data.nios_factory.end)
+         # Enable bmcimg_flash_mode
+        if get_flash_mode(fpga.fme.spi_bus.sysfs_path) == 1:
+            LOG.error('fpgaflash on %s is in progress, try later', fpga.fme.spi_bus.sysfs_path)
+            return -1
 
-    retval = update_flash_verify(mtd_dev,
-                                fpga_cfg_data.nios_factory.file,
-                                fpga_cfg_data.nios_factory.start,
-                                (fpga_cfg_data.nios_factory.end - fpga_cfg_data.nios_factory.start) +1 )
-    if retval == 0:
-          LOG.debug('Successfully update & verified NIOS factory')
-    else:
-        LOG.error('Failed update & verify NIOS factory')
-        write_file(mode_path, "0")
-        return -1
+        mode_path = os.path.join(fpga.fme.spi_bus.sysfs_path,
+                             'bmcimg_flash_ctrl', 'bmcimg_flash_mode')
 
-    #NIOS Header
-    LOG.debug('Updates NIOS factory header %s from 0x%08x to 0x%08x',fpga_cfg_data.nios_factory_header.file,
-            fpga_cfg_data.nios_factory_header.start, fpga_cfg_data.nios_factory_header.end)
+        mtd_dev = get_mtd_from_spi_path(mode_path, fpga.fme.spi_bus.sysfs_path)
 
-    retval = update_flash_verify(mtd_dev,
-                                fpga_cfg_data.nios_factory_header.file,
-                                fpga_cfg_data.nios_factory_header.start,
-                                ( fpga_cfg_data.nios_factory_header.end- fpga_cfg_data.nios_factory_header.start) +1 )
-    if retval == 0:
-        LOG.debug('Successfully update & verified NIOS factory header')
-    else:
-        LOG.error('Failed update & verify NIOS factory header')
-        write_file(mode_path, "0")
-        return -1
+        LOG.debug('mode_path:%s',mode_path)
+        LOG.debug('spi mtd_dev:%s',mtd_dev)
 
+        # UFM1 / NIOS Bootloader
+        LOG.debug('Updates max10 UFM1 fw %s from 0x%08x to 0x%08x ',fpga_cfg_data.nios_bootloader.file,
+                  fpga_cfg_data.nios_bootloader.start, fpga_cfg_data.nios_bootloader.end)
 
-    #BMC ROOT KEY HASH
-    LOG.debug('Updates bmc root key hash %s from 0x%08x to 0x%08x ',fpga_cfg_data.bmc_root_key_hash.file,
-            fpga_cfg_data.bmc_root_key_hash.start, fpga_cfg_data.bmc_root_key_hash.end)
-
-    retval = update_flash_verify(mtd_dev,
-                                fpga_cfg_data.bmc_root_key_hash.file,
-                                fpga_cfg_data.bmc_root_key_hash.start,
-                                (fpga_cfg_data.bmc_root_key_hash.end - fpga_cfg_data.bmc_root_key_hash.start) +1 )
-
-    if retval == 0:
-        LOG.debug('Successfully update & verified bmc key hash')
-    else:
-        LOG.error('Failed update & verify bmc key hash')
-        write_file(mode_path, "0")
-        return -1
-
-    LOG.debug('Updates bmc root key program %s from 0x%08x to 0x%08x ',fpga_cfg_data.bmc_root_key_program.file,
-            fpga_cfg_data.bmc_root_key_program.start, fpga_cfg_data.sr_root_key_program.end)
-
-    retval = update_flash_verify(mtd_dev,
-                                fpga_cfg_data.bmc_root_key_program.file,
-                                fpga_cfg_data.bmc_root_key_program.start,
-                                (fpga_cfg_data.sr_root_key_program.end - fpga_cfg_data.bmc_root_key_program.start) +1 )
-
-    if retval == 0:
-        LOG.debug('Successfully update & verified bmc key program')
-    else:
-        LOG.error('Failed update & verify bmc key program')
-        write_file(mode_path, "0")
-        return -1
-
-
-    #SR ROOT KEY HASH
-    LOG.debug('Updates SR root key hash %s from 0x%08x to 0x%08x ', fpga_cfg_data.sr_root_key_hash.file,
-             fpga_cfg_data.sr_root_key_hash.start, fpga_cfg_data.sr_root_key_hash.end)
-
-    retval = update_flash_verify(mtd_dev,
-                                fpga_cfg_data.sr_root_key_hash.file,
-                                fpga_cfg_data.sr_root_key_hash.start,
-                                (fpga_cfg_data.sr_root_key_hash.end - fpga_cfg_data.sr_root_key_hash.start) +1 )
-
-    if retval == 0:
-        LOG.debug('Successfully update & verified Updates SR root key hash')
-    else:
-        LOG.error('Failed update & verify Updates SR root key hash')
-        write_file(mode_path, "0")
-        return -1
-
-    LOG.debug('Updates SR root key program %s from 0x%08x to 0x%08x ', fpga_cfg_data.sr_root_key_program.file,
-             fpga_cfg_data.sr_root_key_program.start, fpga_cfg_data.sr_root_key_program.end)
-
-    retval = update_flash_verify(mtd_dev,
-                                fpga_cfg_data.sr_root_key_program.file,
-                                fpga_cfg_data.sr_root_key_program.start,
-                                (fpga_cfg_data.sr_root_key_program.end - fpga_cfg_data.sr_root_key_program.start) +1 )
-
-    if retval == 0:
-        LOG.debug('Successfully update & verified Updates SR root key program')
-    else:
-        LOG.error('Failed update & verify Updates SR root key program')
-        write_file(mode_path, "0")
-        return -1
-
-
-    #Erase/Write/Verify DTS 0x382.0000 - 3FF.FFFF
-    LOG.debug('Updates device tree %s from 0x%08x to 0x%08x',fpga_cfg_data.bmc_dts.file,
-             fpga_cfg_data.bmc_dts.start, fpga_cfg_data.bmc_dts.end)
-
-
-    try:
-         mtd.erase(mtd_dev,
-                     fpga_cfg_data.bmc_dts.start,
-                      (fpga_cfg_data.bmc_dts.end - fpga_cfg_data.bmc_dts.start)+1)
-    except IOError:
-        write_file(mode_path, "0")
-        raise Exception("Failed to Erase Flash")
-
-
-    retval = update_flash_verify(mtd_dev,
-                                fpga_cfg_data.bmc_dts.file,
-                                fpga_cfg_data.bmc_dts.start,
-                                (fpga_cfg_data.bmc_dts.end - fpga_cfg_data.bmc_dts.start) +1 )
-
-    if retval == 0:
-        LOG.debug('Successfully update & verified  device tree')
-    else:
-        LOG.error('Failed update & verify  device tree')
-        write_file(mode_path, "0")
-        return -1
-
-
-    #Erase/Write/Verify FPGA image
-    LOG.debug('Updates FPGA image %s from 0x%08x to 0x%08x',fpga_cfg_data.fpga_factory.file,
-             fpga_cfg_data.fpga_factory.start, fpga_cfg_data.fpga_factory.end)
-
-    try:
-         mtd.erase(mtd_dev,
-                      FPGA_D5005_FPGA_FACTORY_START,
-                     (FPGA_D5005_FPGA_FACTORY_END - FPGA_D5005_FPGA_FACTORY_START)+1)
-    except IOError:
-        write_file(mode_path, "0")
-        raise Exception("Failed to Erase Flash")
-
-    retval = update_flash_verify(mtd_dev,
-                                fpga_cfg_data.fpga_factory.file,
-                                fpga_cfg_data.fpga_factory.start,
-                                (fpga_cfg_data.fpga_factory.end - fpga_cfg_data.fpga_factory.start) +1 )
-
-    if retval == 0:
-        LOG.debug('Successfully update & verified  FPGA Image')
-    else:
-        LOG.error('Failed update & verify  FPGA Image')
-        write_file(mode_path, "0")
-        return -1
-
-    # Disable fpga_flash_mode
-    write_file(mode_path, "0")
-
-
-     # Enable bmcimg_flash_mode
-    if get_flash_mode(fpga.fme.spi_bus.sysfs_path) == 1:
-        LOG.error('fpgaflash on %s is in progress, try later', fpga.fme.spi_bus.sysfs_path)
-        return -1
-
-    mode_path = os.path.join(fpga.fme.spi_bus.sysfs_path,
-                         'bmcimg_flash_ctrl', 'bmcimg_flash_mode')
-
-    mtd_dev = get_mtd_from_spi_path(mode_path, fpga.fme.spi_bus.sysfs_path)
-
-    LOG.debug('mode_path:%s',mode_path)
-    LOG.debug('spi mtd_dev:%s',mtd_dev)
-
-    # UFM1 / NIOS Bootloader
-    LOG.debug('Updates max10 UFM1 fw %s from 0x%08x to 0x%08x ',fpga_cfg_data.nios_bootloader.file,
-              fpga_cfg_data.nios_bootloader.start, fpga_cfg_data.nios_bootloader.end)
-
-    try:
-         mtd.erase(mtd_dev,
-                      fpga_cfg_data.nios_bootloader.start ,
-                     (fpga_cfg_data.nios_bootloader.end - fpga_cfg_data.nios_bootloader.start )+1)
-    except IOError:
-        write_file(mode_path, "0")
-        raise Exception("Failed to Erase Flash")
+        try:
+             mtd.erase(mtd_dev,
+                          fpga_cfg_data.nios_bootloader.start ,
+                         (fpga_cfg_data.nios_bootloader.end - fpga_cfg_data.nios_bootloader.start )+1)
+        except IOError:
+            write_file(mode_path, "0")
+            raise Exception("Failed to Erase Flash")
 
 
 
-    retval = update_flash_verify(mtd_dev,
-                                fpga_cfg_data.nios_bootloader.file,
-                                fpga_cfg_data.nios_bootloader.start,
-                                (fpga_cfg_data.nios_bootloader.end - fpga_cfg_data.nios_bootloader.start )+1)
+        retval = update_flash_verify(mtd_dev,
+                                    fpga_cfg_data.nios_bootloader.file,
+                                    fpga_cfg_data.nios_bootloader.start,
+                                    (fpga_cfg_data.nios_bootloader.end - fpga_cfg_data.nios_bootloader.start )+1)
 
-    if retval == 0:
-        LOG.debug('Successfully update & verified max10 UFM1 fw')
-    else:
-        LOG.error('Failed update & verify Updates max10 UFM1 fw')
-        write_file(mode_path, "0")
-        return -1
-
-
-
-    #CFM1 User
-    LOG.debug('Updates MAX10 CFM1/User %s from 0x%08x to 0x%08x ',fpga_cfg_data.max10_user.file,
-              fpga_cfg_data.max10_user.start, fpga_cfg_data.max10_user.end)
-
-    try:
-        mtd.erase(mtd_dev,
-                    FPGA_D5005_CFM1_ERASE_START,
-                    (FPGA_D5005_CFM1_ERASE_END -FPGA_D5005_CFM1_ERASE_START)+1)
-
-        mtd.erase(mtd_dev,
-                  FPGA_D5005_CFM2_ERASE_START,
-                  (FPGA_D5005_CFM2_ERASE_END - FPGA_D5005_CFM2_ERASE_START )+1)
-    except IOError:
-        write_file(mode_path, "0")
-        raise Exception("Failed to Erase Flash")
-
-    retval = update_flash_verify(mtd_dev,
-                                fpga_cfg_data.max10_user.file,
-                                fpga_cfg_data.max10_user.start,
-                               (fpga_cfg_data.max10_user.end - fpga_cfg_data.max10_user.start)+1)
-
-    if retval == 0:
-        LOG.debug('Successfully update & verified max10 user fw')
-    else:
-        LOG.error('Failed update & verify Updates max10 user fw')
-        write_file(mode_path, "0")
-        return -1
+        if retval == 0:
+            LOG.debug('Successfully update & verified max10 UFM1 fw')
+        else:
+            LOG.error('Failed update & verify Updates max10 UFM1 fw')
+            write_file(mode_path, "0")
+            return -1
 
 
-    # MAX10 FACTORY
-    LOG.debug('Updates MAX10 factory fw %s from 0x%08x to 0x%08x ',fpga_cfg_data.max10_factory.file,
-              fpga_cfg_data.max10_factory.start, fpga_cfg_data.max10_factory.end)
 
-    try:
-        mtd.erase(mtd_dev,
-                            fpga_cfg_data.max10_factory.start ,
-                            (fpga_cfg_data.max10_factory.end - fpga_cfg_data.max10_factory.start)+1)
-    except IOError:
-        write_file(mode_path, "0")
-        raise Exception("Failed to Erase Flash")
+        #CFM1 User
+        LOG.debug('Updates MAX10 CFM1/User %s from 0x%08x to 0x%08x ',fpga_cfg_data.max10_user.file,
+                  fpga_cfg_data.max10_user.start, fpga_cfg_data.max10_user.end)
 
-    retval = update_flash_verify(mtd_dev,
-                                fpga_cfg_data.max10_factory.file,
-                                fpga_cfg_data.max10_factory.start,
+        try:
+            mtd.erase(mtd_dev,
+                        FPGA_D5005_CFM1_ERASE_START,
+                        (FPGA_D5005_CFM1_ERASE_END -FPGA_D5005_CFM1_ERASE_START)+1)
+
+            mtd.erase(mtd_dev,
+                      FPGA_D5005_CFM2_ERASE_START,
+                      (FPGA_D5005_CFM2_ERASE_END - FPGA_D5005_CFM2_ERASE_START )+1)
+        except IOError:
+            write_file(mode_path, "0")
+            raise Exception("Failed to Erase Flash")
+
+        retval = update_flash_verify(mtd_dev,
+                                    fpga_cfg_data.max10_user.file,
+                                    fpga_cfg_data.max10_user.start,
+                                   (fpga_cfg_data.max10_user.end - fpga_cfg_data.max10_user.start)+1)
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified max10 user fw')
+        else:
+            LOG.error('Failed update & verify Updates max10 user fw')
+            write_file(mode_path, "0")
+            return -1
+
+
+        # MAX10 FACTORY
+        LOG.debug('Updates MAX10 factory fw %s from 0x%08x to 0x%08x ',fpga_cfg_data.max10_factory.file,
+                  fpga_cfg_data.max10_factory.start, fpga_cfg_data.max10_factory.end)
+
+        try:
+            mtd.erase(mtd_dev,
+                                fpga_cfg_data.max10_factory.start ,
                                 (fpga_cfg_data.max10_factory.end - fpga_cfg_data.max10_factory.start)+1)
+        except IOError:
+            write_file(mode_path, "0")
+            raise Exception("Failed to Erase Flash")
 
-    if retval == 0:
-        LOG.debug('Successfully update & verified MAX10 factory')
-    else:
-        LOG.error('Failed update & verify Updates MAX10 factory')
+        retval = update_flash_verify(mtd_dev,
+                                    fpga_cfg_data.max10_factory.file,
+                                    fpga_cfg_data.max10_factory.start,
+                                    (fpga_cfg_data.max10_factory.end - fpga_cfg_data.max10_factory.start)+1)
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified MAX10 factory')
+        else:
+            LOG.error('Failed update & verify Updates MAX10 factory')
+            write_file(mode_path, "0")
+            return -1
+
+
+        # Disable bmcimg_flash_mode
         write_file(mode_path, "0")
-        return -1
 
 
-    # Disable bmcimg_flash_mode
-    write_file(mode_path, "0")
+        # Enable bmcfw_flash_mode
+        if get_flash_mode(fpga.fme.spi_bus.sysfs_path) == 1:
+            LOG.error('fpgaflash on %s is in progress, try later', fpga.fme.spi_bus.sysfs_path)
+            return -1
 
 
-    # Enable bmcfw_flash_mode
-    if get_flash_mode(fpga.fme.spi_bus.sysfs_path) == 1:
-        LOG.error('fpgaflash on %s is in progress, try later', fpga.fme.spi_bus.sysfs_path)
-        return -1
+        mode_path = os.path.join(fpga.fme.spi_bus.sysfs_path,
+                             'bmcfw_flash_ctrl', 'bmcfw_flash_mode')
+
+        mtd_dev = get_mtd_from_spi_path(mode_path, fpga.fme.spi_bus.sysfs_path)
+
+        LOG.debug('mode_path:%s',mode_path)
+        LOG.debug('spi mtd_dev:%s',mtd_dev)
+
+        try:
+            mtd.erase(mtd_dev,
+                      FPGA_D5005_NIOS_USER_ERASE_START,
+                      FPGA_D5005_NIOS_USER_ERASE_END)
+        except IOError:
+            write_file(mode_path, "0")
+            raise Exception("Failed to Erase Flash")
+
+        #NIOS USER
+        LOG.debug('Updates NIOS user  %s from 0x%08x to 0x%08x ',fpga_cfg_data.nios_user.file,
+                  fpga_cfg_data.nios_user.start, fpga_cfg_data.nios_user.end)
+
+        retval = update_flash_verify(mtd_dev,
+                                    fpga_cfg_data.nios_user.file,
+                                    fpga_cfg_data.nios_user.start,
+                                    (fpga_cfg_data.nios_user.end - fpga_cfg_data.nios_user.start)+1)\
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified NIOS user')
+        else:
+            LOG.error('Failed update & verify Updates NIOS user')
+            write_file(mode_path, "0")
+            return -1
 
 
-    mode_path = os.path.join(fpga.fme.spi_bus.sysfs_path,
-                         'bmcfw_flash_ctrl', 'bmcfw_flash_mode')
+        #NIOS USER Header
+        LOG.debug('Updates NIOS user header %s from 0x%08x to 0x%08x',fpga_cfg_data.nios_user_header.file,
+             fpga_cfg_data.nios_user_header.start, fpga_cfg_data.nios_user_header.end)
 
-    mtd_dev = get_mtd_from_spi_path(mode_path, fpga.fme.spi_bus.sysfs_path)
+        retval = update_flash_verify(mtd_dev,
+                                    fpga_cfg_data.nios_user_header.file,
+                                    fpga_cfg_data.nios_user_header.start,
+                                    (fpga_cfg_data.nios_user_header.end - fpga_cfg_data.nios_user_header.start)+1)
 
-    LOG.debug('mode_path:%s',mode_path)
-    LOG.debug('spi mtd_dev:%s',mtd_dev)
+        if retval == 0:
+            LOG.debug('Successfully update & verified NIOS user header ')
+        else:
+            LOG.error('Failed update & verify Updates NIOS user header ')
+            write_file(mode_path, "0")
+            return -1
 
-    try:
-        mtd.erase(mtd_dev,
-                  FPGA_D5005_NIOS_USER_ERASE_START,
-                  FPGA_D5005_NIOS_USER_ERASE_END)
-    except IOError:
+
+         # Disable bmcfw_flash_mode
         write_file(mode_path, "0")
-        raise Exception("Failed to Erase Flash")
 
-    #NIOS USER
-    LOG.debug('Updates NIOS user  %s from 0x%08x to 0x%08x ',fpga_cfg_data.nios_user.file,
-              fpga_cfg_data.nios_user.start, fpga_cfg_data.nios_user.end)
+    except Exception as e:
+        LOG.debug('---------END OF UPDATE-Ananda----------------- ')
+        LOG.exception('Failed to update D5005 FPGA')
+        LOG.exception(e.message,e.args)
+        retval = -1
 
-    retval = update_flash_verify(mtd_dev,
-                                fpga_cfg_data.nios_user.file,
-                                fpga_cfg_data.nios_user.start,
-                                (fpga_cfg_data.nios_user.end - fpga_cfg_data.nios_user.start)+1)\
-
-    if retval == 0:
-        LOG.debug('Successfully update & verified NIOS user')
-    else:
-        LOG.error('Failed update & verify Updates NIOS user')
-        write_file(mode_path, "0")
-        return -1
-
-
-    #NIOS USER Header
-    LOG.debug('Updates NIOS user header %s from 0x%08x to 0x%08x',fpga_cfg_data.nios_user_header.file,
-         fpga_cfg_data.nios_user_header.start, fpga_cfg_data.nios_user_header.end)
-
-    retval = update_flash_verify(mtd_dev,
-                                fpga_cfg_data.nios_user_header.file,
-                                fpga_cfg_data.nios_user_header.start,
-                                (fpga_cfg_data.nios_user_header.end - fpga_cfg_data.nios_user_header.start)+1)
-
-    if retval == 0:
-        LOG.debug('Successfully update & verified NIOS user header ')
-    else:
-        LOG.error('Failed update & verify Updates NIOS user header ')
-        write_file(mode_path, "0")
-        return -1
-
-
-     # Disable bmcfw_flash_mode
-    write_file(mode_path, "0")
-
+    finally:
+        LOG.debug('---------END OF UPDATE-FINAL----------------- ')
+        if mode_path is not None:
+            write_file(mode_path, "0")
 
     LOG.debug('---------END OF UPDATE------------------ ')
-    return 0
+    return retval
 
 
 
@@ -872,406 +896,416 @@ def get_mtd_list_from_spi_path(mode_path, spi_path):
 def n3000_fpga_update(fpga,fpga_cfg_data):
  
     LOG.debug('----n3000 update start-------')
-
-    retval = check_n3000_max10_temporary(fpga.pci_node.pci_address)
-    if retval != 0:
-        LOG.error('Not Updated with temporary Max10 user image')
-        return -1
-
-
-    second_mtd_dev = get_mtd_from_spi(os.path.join(fpga.fme.spi_bus.sysfs_path,
-                                                'intel-generic-qspi*.*.auto'))
-
-    LOG.debug('second_mtd_dev:%s',second_mtd_dev)
-
-    # Check for flash status
-    if get_flash_mode(fpga.fme.spi_bus.sysfs_path) == 1:
-        LOG.error('fpgaflash on %s is in progress, try later', fpga.fme.spi_bus.sysfs_path)
-        return -1
-
-    LOG.debug('fpga.fme.spi_bus.sysfs_path:%s',fpga.fme.spi_bus.sysfs_path)
-
-    mode_path = os.path.join(fpga.fme.spi_bus.sysfs_path,
-                         'fpga_flash_ctrl', 'fpga_flash_mode')
-
-    mtd_dev_list = get_mtd_list_from_spi_path(mode_path, fpga.fme.spi_bus.sysfs_path)
-
-    LOG.debug('mode_path:%s',mode_path)
-    LOG.debug('spi mtd_dev:%s',mtd_dev_list)
-
-    if len(mtd_dev_list) != 2:
-        LOG.error('Invalid flash devices')
-        return -1
-
-    for i in range(len(mtd_dev_list)): 
-        if mtd_dev_list[i] != second_mtd_dev:
-            first_mtd_dev = mtd_dev_list[i]
-
-    LOG.debug('first_mtd_dev:%s',first_mtd_dev)
-
-
-    # FLASH SIZE 
-    ret_size = mtd.size(second_mtd_dev)
-    LOG.debug('second_mtd_dev:%s',second_mtd_dev)
-    LOG.debug('Flash size:0x%08x',ret_size)
-
-    ret_size = mtd.size(first_mtd_dev)
-    LOG.debug('first_mtd_dev:%s',first_mtd_dev)
-    LOG.debug('Flash size:0x%08x',ret_size)
-
-
-    # Second FLASH
-    LOG.debug('Erase Flash from 0x%08x to 0x%08x',
-             FPGA_N3000_ERASE_FLASH2_START,FPGA_N3000_ERASE_FLASH2_END)
-    try:
-        mtd.erase(second_mtd_dev,
-                  FPGA_N3000_ERASE_FLASH2_START,
-                   FPGA_N3000_ERASE_FLASH2_END)
-    except IOError:
-        write_file(mode_path, "0")
-        raise Exception("Failed to Erase Flash")
-
-    # Write/Verify NIOS factory firmware to 0x3800000  0x3a00fff of Second FPGA flash
-    LOG.debug('Updates NIOS factory  %s from 0x%08x to 0x%08x',fpga_cfg_data.nios_factory.file,
-            fpga_cfg_data.nios_factory.start, fpga_cfg_data.nios_factory.end)
-
-    retval = update_flash_verify(second_mtd_dev,
-                                fpga_cfg_data.nios_factory.file,
-                                fpga_cfg_data.nios_factory.start ,
-                                (fpga_cfg_data.nios_factory.end - fpga_cfg_data.nios_factory.start)+1 )
-    
-    if retval == 0:
-         LOG.debug('Successfully update & verified NIOS factory')
-    else:
-        LOG.error('Failed update & verify NIOS factory')
-        write_file(mode_path, "0")
-        return -1
-
-    #NIOS Header
-    LOG.debug('Updates NIOS factory header %s from 0x%08x to 0x%08x',fpga_cfg_data.nios_factory_header.file,
-            fpga_cfg_data.nios_factory_header.start, fpga_cfg_data.nios_factory_header.end)
-
-    retval = update_flash_verify(second_mtd_dev,
-                                fpga_cfg_data.nios_factory_header.file,
-                                fpga_cfg_data.nios_factory_header.start,
-                                (fpga_cfg_data.nios_factory_header.end - fpga_cfg_data.nios_factory_header.start) +1)
-
-    if retval == 0:
-        LOG.debug('Successfully update & verified NIOS factory header')
-    else:
-        LOG.error('Failed update & verify NIOS factory header')
-        write_file(mode_path, "0")
-        return -1
-
-    # First FLASH
-    # Erase from 0x7FFB0000 to 0x7FFFFFF (end) of FPGA flash
-    LOG.debug('Erase Flash from 0x%08x to 0x%08x',
-             FPGA_N3000_ERASE_FLASH1_START,FPGA_N3000_ERASE_FLASH1_END)
+    mode_path = None
+    retval = 0
 
     try:
-        mtd.erase(first_mtd_dev,
-                 FPGA_N3000_ERASE_FLASH1_START,
-                 (FPGA_N3000_ERASE_FLASH1_END - FPGA_N3000_ERASE_FLASH1_START )+1)
-    except IOError:
-        write_file(mode_path, "0")
-        raise Exception("Failed to Erase Flash")
-
-    #BMC ROOT KEY HASH
-    # Write/Verify BMC key material to First FPGA flash?
-    LOG.debug('Updates bmc root key hash %s from 0x%08x to 0x%08x ',fpga_cfg_data.bmc_root_key_hash.file,
-            fpga_cfg_data.bmc_root_key_hash.start, fpga_cfg_data.bmc_root_key_hash.end)
-
-    retval = update_flash_verify(first_mtd_dev,
-                                fpga_cfg_data.bmc_root_key_hash.file,
-                                fpga_cfg_data.bmc_root_key_hash.start,
-                                (fpga_cfg_data.bmc_root_key_hash.end - fpga_cfg_data.bmc_root_key_hash.start ) +1 )
-
-    if retval == 0:
-        LOG.debug('Successfully update & verified bmc key hash')
-    else:
-        LOG.error('Failed update & verify bmc key hash')
-        write_file(mode_path, "0")
-        return -1
-
-    LOG.debug('Updates bmc root key program %s from 0x%08x to 0x%08x ',fpga_cfg_data.bmc_root_key_program.file,
-            fpga_cfg_data.bmc_root_key_program.start, fpga_cfg_data.sr_root_key_program.end)
-
-    retval = update_flash_verify(first_mtd_dev,
-                                fpga_cfg_data.bmc_root_key_program.file,
-                                fpga_cfg_data.bmc_root_key_program.start,
-                                (fpga_cfg_data.sr_root_key_program.end - fpga_cfg_data.bmc_root_key_program.start) +1 )
-
-    if retval == 0:
-        LOG.debug('Successfully update & verified bmc key program')
-    else:
-        LOG.debug('Failed update & verify bmc key program')
-        write_file(mode_path, "0")
-        return -1
-
-     #SR ROOT KEY HASH
-    LOG.debug('Updates SR root key hash %s from 0x%08x to 0x%08x ', fpga_cfg_data.sr_root_key_hash.file,
-             fpga_cfg_data.sr_root_key_hash.start, fpga_cfg_data.sr_root_key_hash.end)
-
-    retval = update_flash_verify(first_mtd_dev,
-                                fpga_cfg_data.sr_root_key_hash.file,
-                                fpga_cfg_data.sr_root_key_hash.start,
-                                (fpga_cfg_data.sr_root_key_hash.end - fpga_cfg_data.sr_root_key_hash.start) +1 )
-
-    if retval == 0:
-        LOG.debug('Successfully update & verified Updates SR root key hash')
-    else:
-        LOG.error('Failed update & verify Updates SR root key hash')
-        write_file(mode_path, "0")
-        return -1
-
-    LOG.debug('Updates SR root key program %s from 0x%08x to 0x%08x ', fpga_cfg_data.sr_root_key_program.file,
-             fpga_cfg_data.sr_root_key_program.start, fpga_cfg_data.sr_root_key_program.end)
-
-    retval = update_flash_verify(first_mtd_dev,
-                                fpga_cfg_data.sr_root_key_program.file,
-                                fpga_cfg_data.sr_root_key_program.start,
-                                (fpga_cfg_data.sr_root_key_program.end - fpga_cfg_data.sr_root_key_program.start) +1 )
-
-    if retval == 0:
-        LOG.debug('Successfully update & verified Updates SR root key program')
-    else:
-        LOG.error('Failed update & verify Updates SR root key program')
-        write_file(mode_path, "0")
-        return -1
+        retval = check_n3000_max10_temporary(fpga.pci_node.pci_address)
+        if retval != 0:
+            LOG.error('Not Updated with temporary Max10 user image')
+            return -1
 
 
-    #Erase/Write/Verify DTS 0x382.0000 - 3FF.FFFF
-    LOG.debug('Updates device tree %s from 0x%08x to 0x%08x',fpga_cfg_data.bmc_dts.file,
-             fpga_cfg_data.bmc_dts.start, fpga_cfg_data.bmc_dts.end)
+        second_mtd_dev = get_mtd_from_spi(os.path.join(fpga.fme.spi_bus.sysfs_path,
+                                                    'intel-generic-qspi*.*.auto'))
 
+        LOG.debug('second_mtd_dev:%s',second_mtd_dev)
 
-    try:
-         mtd.erase(first_mtd_dev,
-                    fpga_cfg_data.bmc_dts.start,
-                    (fpga_cfg_data.bmc_dts.end - fpga_cfg_data.bmc_dts.start)+1)
-    except IOError:
-        write_file(mode_path, "0")
-        raise Exception("Failed to Erase Flash")
+        # Check for flash status
+        if get_flash_mode(fpga.fme.spi_bus.sysfs_path) == 1:
+            LOG.error('fpgaflash on %s is in progress, try later', fpga.fme.spi_bus.sysfs_path)
+            return -1
 
+        LOG.debug('fpga.fme.spi_bus.sysfs_path:%s',fpga.fme.spi_bus.sysfs_path)
 
-    retval = update_flash_verify(first_mtd_dev,
-                                fpga_cfg_data.bmc_dts.file,
-                                fpga_cfg_data.bmc_dts.start,
-                                (fpga_cfg_data.bmc_dts.end - fpga_cfg_data.bmc_dts.start) +1 )
+        mode_path = os.path.join(fpga.fme.spi_bus.sysfs_path,
+                             'fpga_flash_ctrl', 'fpga_flash_mode')
 
-    if retval == 0:
-        LOG.debug('Successfully update & verified  device tree')
-    else:
-        LOG.error('Failed update & verify  device tree')
-        write_file(mode_path, "0")
-        return -1
+        mtd_dev_list = get_mtd_list_from_spi_path(mode_path, fpga.fme.spi_bus.sysfs_path)
 
-    LOG.debug('Updates FPGA image %s from 0x%08x to 0x%08x',fpga_cfg_data.fpga_factory.file,
-             fpga_cfg_data.fpga_factory.start, fpga_cfg_data.fpga_factory.end)
+        LOG.debug('mode_path:%s',mode_path)
+        LOG.debug('spi mtd_dev:%s',mtd_dev_list)
 
-    try:
-        mtd.erase(first_mtd_dev,
-                    FPGA_N3000_FPGA_FACTORY_START,
-                   (FPGA_N3000_FPGA_FACTORY_END -  FPGA_N3000_FPGA_FACTORY_START)+1)
-    except IOError:
-        write_file(mode_path, "0")
-        raise Exception("Failed to Erase Flash")
+        if len(mtd_dev_list) != 2:
+            LOG.error('Invalid flash devices')
+            return -1
 
-    retval = update_flash_verify(first_mtd_dev,
-                               fpga_cfg_data.fpga_factory.file,
-                               fpga_cfg_data.fpga_factory.start,
-                               (fpga_cfg_data.fpga_factory.end - fpga_cfg_data.fpga_factory.start) +1 )
-
-    if retval == 0:
-        LOG.debug('Successfully update & verified  FPGA Image')
-    else:
-        LOG.error('Failed update & verify  FPGA Imag')
-        write_file(mode_path, "0")
-        return -1
-
-    # Disable bmcfw_flash_mode
-    write_file(mode_path, "0")
-
-
-    # Enable bmcimg_flash_mode
-    if get_flash_mode(fpga.fme.spi_bus.sysfs_path) == 1:
-        LOG.error('fpgaflash on %s is in progress, try later', fpga.fme.spi_bus.sysfs_path)
-        return -1
-
-    mode_path = os.path.join(fpga.fme.spi_bus.sysfs_path,
-                         'bmcimg_flash_ctrl', 'bmcimg_flash_mode')
-
-    mtd_dev_list = get_mtd_list_from_spi_path(mode_path, fpga.fme.spi_bus.sysfs_path)
-
-    LOG.debug('mode_path:%s',mode_path)
-    LOG.debug('spi mtd_dev:%s',mtd_dev_list)
-
-    if len(mtd_dev_list) != 2:
-        LOG.error('Invalid flash devices')
-        return -1
-
-    first_mtd_dev = get_mtd_from_spi(os.path.join(fpga.fme.spi_bus.sysfs_path,
-                                                        'intel-on-chip-flash*.*.auto'))
-    LOG.debug('first_mtd_dev:%s',first_mtd_dev)
-
-    # UFM1 / NIOS Bootloader
-    LOG.debug('Updates max10 UFM1 fw %s from 0x%08x to 0x%08x ',fpga_cfg_data.nios_bootloader.file,
-              fpga_cfg_data.nios_bootloader.start, fpga_cfg_data.nios_bootloader.end)
-
-    try:
-        mtd.erase(first_mtd_dev,
-                       fpga_cfg_data.nios_bootloader.start ,
-                       (fpga_cfg_data.nios_bootloader.end - fpga_cfg_data.nios_bootloader.start )+1)
-    except IOError:
-        write_file(mode_path, "0")
-        raise Exception("Failed to Erase Flash")
-
-
-    retval = update_flash_verify(first_mtd_dev,
-                                fpga_cfg_data.nios_bootloader.file,
-                                fpga_cfg_data.nios_bootloader.start ,
-                               (fpga_cfg_data.nios_bootloader.end - fpga_cfg_data.nios_bootloader.start )+1)
-
-    if retval == 0:
-        LOG.debug('Successfully update & verified max10 UFM1 fw')
-    else:
-        LOG.error('Failed update & verify Updates max10 UFM1 fw')
-        write_file(mode_path, "0")
-        return -1
-
-    #CFM1  FACTORY
-    LOG.debug('Updates MAX10 CFM1/Factory %s from 0x%08x to 0x%08x ',fpga_cfg_data.max10_factory.file,
-              fpga_cfg_data.max10_factory.start, fpga_cfg_data.max10_factory.end)
-
-    try:
-        mtd.erase(first_mtd_dev,
-                  FPGA_N3000_CFM1_ERASE_START,
-                  (FPGA_N3000_CFM1_ERASE_END - FPGA_N3000_CFM1_ERASE_START)+1)
-
-        mtd.erase(first_mtd_dev,
-                  FPGA_N3000_CFM2_ERASE_START ,
-                  (FPGA_N3000_CFM2_ERASE_END - FPGA_N3000_CFM2_ERASE_START )+1)
-    except IOError:
-        write_file(mode_path, "0")
-        raise Exception("Failed to Erase Flash")
-
-    retval = update_flash_verify(first_mtd_dev,
-                                fpga_cfg_data.max10_factory.file,
-                               fpga_cfg_data.max10_factory.start,
-                               ( fpga_cfg_data.max10_factory.end - fpga_cfg_data.max10_factory.start ) +1)
-
-    if retval == 0:
-        LOG.debug('Successfully update & verified MAX10 factory')
-    else:
-        LOG.debug('Failed update & verify Updates MAX10 factory')
-        write_file(mode_path, "0")
-        return -1
-
-
-    # MAX10 User
-    LOG.debug('Updates MAX10 CFM1/User %s from 0x%08x to 0x%08x ',fpga_cfg_data.max10_user.file,
-              fpga_cfg_data.max10_user.start, fpga_cfg_data.max10_user.end)
-
-    try:
-        mtd.erase(first_mtd_dev,
-                 fpga_cfg_data.max10_user.start,
-                 (fpga_cfg_data.max10_user.end - fpga_cfg_data.max10_user.start)+1)
-
-    except IOError:
-        write_file(mode_path, "0")
-        raise Exception("Failed to Erase Flash")
-
-    retval = update_flash_verify(first_mtd_dev,
-                                fpga_cfg_data.max10_user.file,
-                                fpga_cfg_data.max10_user.start,
-                                (fpga_cfg_data.max10_user.end - fpga_cfg_data.max10_user.start ) +1)
-
-    if retval == 0:
-        LOG.debug('Successfully update & verified max10 CFM1 fw')
-    else:
-        LOG.error('Failed update & verify Updates max10 CFM1 fw')
-        write_file(mode_path, "0")
-        return -1
-
-
-    # Disable bmcimg_flash_mode
-    write_file(mode_path, "0")
-
-    # Enable bmcfw_flash_mode
-    if get_flash_mode(fpga.fme.spi_bus.sysfs_path) == 1:
-        LOG.error('fpgaflash on %s is in progress, try later', fpga.fme.spi_bus.sysfs_path)
-        return -1
-
-    mode_path = os.path.join(fpga.fme.spi_bus.sysfs_path,
-                         'bmcfw_flash_ctrl', 'bmcfw_flash_mode')
-
-    mtd_dev_list = get_mtd_list_from_spi_path(mode_path, fpga.fme.spi_bus.sysfs_path)
-
-    LOG.debug('mode_path:%s',mode_path)
-    LOG.debug('spi mtd_dev:%s',mtd_dev_list)
-
-    if len(mtd_dev_list) != 2:
-        LOG.error('Invalid flash devices')
-        return -1
-
-
-    for i in range(len(mtd_dev_list)):
-        if mtd_dev_list[i] != second_mtd_dev:
+        for i in range(len(mtd_dev_list)): 
+            if mtd_dev_list[i] != second_mtd_dev:
                 first_mtd_dev = mtd_dev_list[i]
 
-    LOG.debug('first_mtd_dev:%s',first_mtd_dev)
+        LOG.debug('first_mtd_dev:%s',first_mtd_dev)
 
 
-    LOG.debug('Erase Flash from 0x%08x to 0x%08x',
-             FPGA_N3000_NIOS_USER_ERASE_START,FPGA_N3000_NIOS_USER_ERASE_END)
+        # FLASH SIZE 
+        ret_size = mtd.size(second_mtd_dev)
+        LOG.debug('second_mtd_dev:%s',second_mtd_dev)
+        LOG.debug('Flash size:0x%08x',ret_size)
 
-    try:
-        mtd.erase(first_mtd_dev,
-                  FPGA_N3000_NIOS_USER_ERASE_START,
-                   FPGA_N3000_NIOS_USER_ERASE_END)
-    except IOError:
+        ret_size = mtd.size(first_mtd_dev)
+        LOG.debug('first_mtd_dev:%s',first_mtd_dev)
+        LOG.debug('Flash size:0x%08x',ret_size)
+
+
+        # Second FLASH
+        LOG.debug('Erase Flash from 0x%08x to 0x%08x',
+                 FPGA_N3000_ERASE_FLASH2_START,FPGA_N3000_ERASE_FLASH2_END)
+        try:
+            mtd.erase(second_mtd_dev,
+                      FPGA_N3000_ERASE_FLASH2_START,
+                       FPGA_N3000_ERASE_FLASH2_END)
+        except IOError:
+            write_file(mode_path, "0")
+            raise Exception("Failed to Erase Flash")
+
+        # Write/Verify NIOS factory firmware to 0x3800000  0x3a00fff of Second FPGA flash
+        LOG.debug('Updates NIOS factory  %s from 0x%08x to 0x%08x',fpga_cfg_data.nios_factory.file,
+                fpga_cfg_data.nios_factory.start, fpga_cfg_data.nios_factory.end)
+
+        retval = update_flash_verify(second_mtd_dev,
+                                    fpga_cfg_data.nios_factory.file,
+                                    fpga_cfg_data.nios_factory.start ,
+                                    (fpga_cfg_data.nios_factory.end - fpga_cfg_data.nios_factory.start)+1 )
+    
+        if retval == 0:
+             LOG.debug('Successfully update & verified NIOS factory')
+        else:
+            LOG.error('Failed update & verify NIOS factory')
+            write_file(mode_path, "0")
+            return -1
+
+        #NIOS Header
+        LOG.debug('Updates NIOS factory header %s from 0x%08x to 0x%08x',fpga_cfg_data.nios_factory_header.file,
+                fpga_cfg_data.nios_factory_header.start, fpga_cfg_data.nios_factory_header.end)
+
+        retval = update_flash_verify(second_mtd_dev,
+                                    fpga_cfg_data.nios_factory_header.file,
+                                    fpga_cfg_data.nios_factory_header.start,
+                                    (fpga_cfg_data.nios_factory_header.end - fpga_cfg_data.nios_factory_header.start) +1)
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified NIOS factory header')
+        else:
+            LOG.error('Failed update & verify NIOS factory header')
+            write_file(mode_path, "0")
+            return -1
+
+        # First FLASH
+        # Erase from 0x7FFB0000 to 0x7FFFFFF (end) of FPGA flash
+        LOG.debug('Erase Flash from 0x%08x to 0x%08x',
+                 FPGA_N3000_ERASE_FLASH1_START,FPGA_N3000_ERASE_FLASH1_END)
+
+        try:
+            mtd.erase(first_mtd_dev,
+                     FPGA_N3000_ERASE_FLASH1_START,
+                     (FPGA_N3000_ERASE_FLASH1_END - FPGA_N3000_ERASE_FLASH1_START )+1)
+        except IOError:
+            write_file(mode_path, "0")
+            raise Exception("Failed to Erase Flash")
+
+        #BMC ROOT KEY HASH
+        # Write/Verify BMC key material to First FPGA flash?
+        LOG.debug('Updates bmc root key hash %s from 0x%08x to 0x%08x ',fpga_cfg_data.bmc_root_key_hash.file,
+                fpga_cfg_data.bmc_root_key_hash.start, fpga_cfg_data.bmc_root_key_hash.end)
+
+        retval = update_flash_verify(first_mtd_dev,
+                                    fpga_cfg_data.bmc_root_key_hash.file,
+                                    fpga_cfg_data.bmc_root_key_hash.start,
+                                    (fpga_cfg_data.bmc_root_key_hash.end - fpga_cfg_data.bmc_root_key_hash.start ) +1 )
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified bmc key hash')
+        else:
+            LOG.error('Failed update & verify bmc key hash')
+            write_file(mode_path, "0")
+            return -1
+
+        LOG.debug('Updates bmc root key program %s from 0x%08x to 0x%08x ',fpga_cfg_data.bmc_root_key_program.file,
+                fpga_cfg_data.bmc_root_key_program.start, fpga_cfg_data.sr_root_key_program.end)
+
+        retval = update_flash_verify(first_mtd_dev,
+                                    fpga_cfg_data.bmc_root_key_program.file,
+                                    fpga_cfg_data.bmc_root_key_program.start,
+                                    (fpga_cfg_data.sr_root_key_program.end - fpga_cfg_data.bmc_root_key_program.start) +1 )
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified bmc key program')
+        else:
+            LOG.debug('Failed update & verify bmc key program')
+            write_file(mode_path, "0")
+            return -1
+
+         #SR ROOT KEY HASH
+        LOG.debug('Updates SR root key hash %s from 0x%08x to 0x%08x ', fpga_cfg_data.sr_root_key_hash.file,
+                 fpga_cfg_data.sr_root_key_hash.start, fpga_cfg_data.sr_root_key_hash.end)
+
+        retval = update_flash_verify(first_mtd_dev,
+                                    fpga_cfg_data.sr_root_key_hash.file,
+                                    fpga_cfg_data.sr_root_key_hash.start,
+                                    (fpga_cfg_data.sr_root_key_hash.end - fpga_cfg_data.sr_root_key_hash.start) +1 )
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified Updates SR root key hash')
+        else:
+            LOG.error('Failed update & verify Updates SR root key hash')
+            write_file(mode_path, "0")
+            return -1
+
+        LOG.debug('Updates SR root key program %s from 0x%08x to 0x%08x ', fpga_cfg_data.sr_root_key_program.file,
+                 fpga_cfg_data.sr_root_key_program.start, fpga_cfg_data.sr_root_key_program.end)
+
+        retval = update_flash_verify(first_mtd_dev,
+                                    fpga_cfg_data.sr_root_key_program.file,
+                                    fpga_cfg_data.sr_root_key_program.start,
+                                    (fpga_cfg_data.sr_root_key_program.end - fpga_cfg_data.sr_root_key_program.start) +1 )
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified Updates SR root key program')
+        else:
+            LOG.error('Failed update & verify Updates SR root key program')
+            write_file(mode_path, "0")
+            return -1
+
+
+        #Erase/Write/Verify DTS 0x382.0000 - 3FF.FFFF
+        LOG.debug('Updates device tree %s from 0x%08x to 0x%08x',fpga_cfg_data.bmc_dts.file,
+                 fpga_cfg_data.bmc_dts.start, fpga_cfg_data.bmc_dts.end)
+
+
+        try:
+             mtd.erase(first_mtd_dev,
+                        fpga_cfg_data.bmc_dts.start,
+                        (fpga_cfg_data.bmc_dts.end - fpga_cfg_data.bmc_dts.start)+1)
+        except IOError:
+            write_file(mode_path, "0")
+            raise Exception("Failed to Erase Flash")
+
+
+        retval = update_flash_verify(first_mtd_dev,
+                                    fpga_cfg_data.bmc_dts.file,
+                                    fpga_cfg_data.bmc_dts.start,
+                                    (fpga_cfg_data.bmc_dts.end - fpga_cfg_data.bmc_dts.start) +1 )
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified  device tree')
+        else:
+            LOG.error('Failed update & verify  device tree')
+            write_file(mode_path, "0")
+            return -1
+
+        LOG.debug('Updates FPGA image %s from 0x%08x to 0x%08x',fpga_cfg_data.fpga_factory.file,
+                 fpga_cfg_data.fpga_factory.start, fpga_cfg_data.fpga_factory.end)
+
+        try:
+            mtd.erase(first_mtd_dev,
+                        FPGA_N3000_FPGA_FACTORY_START,
+                       (FPGA_N3000_FPGA_FACTORY_END -  FPGA_N3000_FPGA_FACTORY_START)+1)
+        except IOError:
+            write_file(mode_path, "0")
+            raise Exception("Failed to Erase Flash")
+
+        retval = update_flash_verify(first_mtd_dev,
+                                   fpga_cfg_data.fpga_factory.file,
+                                   fpga_cfg_data.fpga_factory.start,
+                                   (fpga_cfg_data.fpga_factory.end - fpga_cfg_data.fpga_factory.start) +1 )
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified  FPGA Image')
+        else:
+            LOG.error('Failed update & verify  FPGA Imag')
+            write_file(mode_path, "0")
+            return -1
+
+        # Disable bmcfw_flash_mode
         write_file(mode_path, "0")
-        raise Exception("Failed to Erase Flash")
 
-    #NIOS USER
-    LOG.debug('Updates NIOS user  %s from 0x%08x to 0x%08x ',fpga_cfg_data.nios_user.file,
-              fpga_cfg_data.nios_user.start, fpga_cfg_data.nios_user.end)
 
-    retval = update_flash_verify(first_mtd_dev,
-                                fpga_cfg_data.nios_user.file,
-                                fpga_cfg_data.nios_user.start,
-                                (fpga_cfg_data.nios_user.end - fpga_cfg_data.nios_user.start) +1)
+        # Enable bmcimg_flash_mode
+        if get_flash_mode(fpga.fme.spi_bus.sysfs_path) == 1:
+            LOG.error('fpgaflash on %s is in progress, try later', fpga.fme.spi_bus.sysfs_path)
+            return -1
 
-    if retval == 0:
-        LOG.debug('Successfully update & verified NIOS user')
-    else:
-        LOG.error('Failed update & verify Updates NIOS user')
+        mode_path = os.path.join(fpga.fme.spi_bus.sysfs_path,
+                             'bmcimg_flash_ctrl', 'bmcimg_flash_mode')
+
+        mtd_dev_list = get_mtd_list_from_spi_path(mode_path, fpga.fme.spi_bus.sysfs_path)
+
+        LOG.debug('mode_path:%s',mode_path)
+        LOG.debug('spi mtd_dev:%s',mtd_dev_list)
+
+        if len(mtd_dev_list) != 2:
+            LOG.error('Invalid flash devices')
+            return -1
+
+        first_mtd_dev = get_mtd_from_spi(os.path.join(fpga.fme.spi_bus.sysfs_path,
+                                                            'intel-on-chip-flash*.*.auto'))
+        LOG.debug('first_mtd_dev:%s',first_mtd_dev)
+
+        # UFM1 / NIOS Bootloader
+        LOG.debug('Updates max10 UFM1 fw %s from 0x%08x to 0x%08x ',fpga_cfg_data.nios_bootloader.file,
+                  fpga_cfg_data.nios_bootloader.start, fpga_cfg_data.nios_bootloader.end)
+
+        try:
+            mtd.erase(first_mtd_dev,
+                           fpga_cfg_data.nios_bootloader.start ,
+                           (fpga_cfg_data.nios_bootloader.end - fpga_cfg_data.nios_bootloader.start )+1)
+        except IOError:
+            write_file(mode_path, "0")
+            raise Exception("Failed to Erase Flash")
+
+
+        retval = update_flash_verify(first_mtd_dev,
+                                    fpga_cfg_data.nios_bootloader.file,
+                                    fpga_cfg_data.nios_bootloader.start ,
+                                   (fpga_cfg_data.nios_bootloader.end - fpga_cfg_data.nios_bootloader.start )+1)
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified max10 UFM1 fw')
+        else:
+            LOG.error('Failed update & verify Updates max10 UFM1 fw')
+            write_file(mode_path, "0")
+            return -1
+
+        #CFM1  FACTORY
+        LOG.debug('Updates MAX10 CFM1/Factory %s from 0x%08x to 0x%08x ',fpga_cfg_data.max10_factory.file,
+                  fpga_cfg_data.max10_factory.start, fpga_cfg_data.max10_factory.end)
+
+        try:
+            mtd.erase(first_mtd_dev,
+                      FPGA_N3000_CFM1_ERASE_START,
+                      (FPGA_N3000_CFM1_ERASE_END - FPGA_N3000_CFM1_ERASE_START)+1)
+
+            mtd.erase(first_mtd_dev,
+                      FPGA_N3000_CFM2_ERASE_START ,
+                      (FPGA_N3000_CFM2_ERASE_END - FPGA_N3000_CFM2_ERASE_START )+1)
+        except IOError:
+            write_file(mode_path, "0")
+            raise Exception("Failed to Erase Flash")
+
+        retval = update_flash_verify(first_mtd_dev,
+                                    fpga_cfg_data.max10_factory.file,
+                                   fpga_cfg_data.max10_factory.start,
+                                   ( fpga_cfg_data.max10_factory.end - fpga_cfg_data.max10_factory.start ) +1)
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified MAX10 factory')
+        else:
+            LOG.debug('Failed update & verify Updates MAX10 factory')
+            write_file(mode_path, "0")
+            return -1
+
+
+        # MAX10 User
+        LOG.debug('Updates MAX10 CFM1/User %s from 0x%08x to 0x%08x ',fpga_cfg_data.max10_user.file,
+                  fpga_cfg_data.max10_user.start, fpga_cfg_data.max10_user.end)
+
+        try:
+            mtd.erase(first_mtd_dev,
+                     fpga_cfg_data.max10_user.start,
+                     (fpga_cfg_data.max10_user.end - fpga_cfg_data.max10_user.start)+1)
+
+        except IOError:
+            write_file(mode_path, "0")
+            raise Exception("Failed to Erase Flash")
+
+        retval = update_flash_verify(first_mtd_dev,
+                                    fpga_cfg_data.max10_user.file,
+                                    fpga_cfg_data.max10_user.start,
+                                    (fpga_cfg_data.max10_user.end - fpga_cfg_data.max10_user.start ) +1)
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified max10 CFM1 fw')
+        else:
+            LOG.error('Failed update & verify Updates max10 CFM1 fw')
+            write_file(mode_path, "0")
+            return -1
+
+
+        # Disable bmcimg_flash_mode
         write_file(mode_path, "0")
-        return -1
 
-    #NIOS USER Header
-    LOG.debug('Updates NIOS user header %s from 0x%08x to 0x%08x',fpga_cfg_data.nios_user_header.file,
-         fpga_cfg_data.nios_user_header.start, fpga_cfg_data.nios_user_header.end)
+        # Enable bmcfw_flash_mode
+        if get_flash_mode(fpga.fme.spi_bus.sysfs_path) == 1:
+            LOG.error('fpgaflash on %s is in progress, try later', fpga.fme.spi_bus.sysfs_path)
+            return -1
 
-    retval = update_flash_verify(first_mtd_dev,
-                                fpga_cfg_data.nios_user_header.file,
-                                fpga_cfg_data.nios_user_header.start,
-                               ( fpga_cfg_data.nios_user_header.end - fpga_cfg_data.nios_user_header.start ) +1)
+        mode_path = os.path.join(fpga.fme.spi_bus.sysfs_path,
+                             'bmcfw_flash_ctrl', 'bmcfw_flash_mode')
 
-    if retval == 0:
-        LOG.debug('Successfully update & verified NIOS user header ')
-    else:
-        LOG.error('Failed update & verify Updates NIOS user header ')
+        mtd_dev_list = get_mtd_list_from_spi_path(mode_path, fpga.fme.spi_bus.sysfs_path)
+
+        LOG.debug('mode_path:%s',mode_path)
+        LOG.debug('spi mtd_dev:%s',mtd_dev_list)
+
+        if len(mtd_dev_list) != 2:
+            LOG.error('Invalid flash devices')
+            return -1
+
+
+        for i in range(len(mtd_dev_list)):
+            if mtd_dev_list[i] != second_mtd_dev:
+                    first_mtd_dev = mtd_dev_list[i]
+
+        LOG.debug('first_mtd_dev:%s',first_mtd_dev)
+
+
+        LOG.debug('Erase Flash from 0x%08x to 0x%08x',
+                 FPGA_N3000_NIOS_USER_ERASE_START,FPGA_N3000_NIOS_USER_ERASE_END)
+
+        try:
+            mtd.erase(first_mtd_dev,
+                      FPGA_N3000_NIOS_USER_ERASE_START,
+                       FPGA_N3000_NIOS_USER_ERASE_END)
+        except IOError:
+            write_file(mode_path, "0")
+            raise Exception("Failed to Erase Flash")
+
+        #NIOS USER
+        LOG.debug('Updates NIOS user  %s from 0x%08x to 0x%08x ',fpga_cfg_data.nios_user.file,
+                  fpga_cfg_data.nios_user.start, fpga_cfg_data.nios_user.end)
+
+        retval = update_flash_verify(first_mtd_dev,
+                                    fpga_cfg_data.nios_user.file,
+                                    fpga_cfg_data.nios_user.start,
+                                    (fpga_cfg_data.nios_user.end - fpga_cfg_data.nios_user.start) +1)
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified NIOS user')
+        else:
+            LOG.error('Failed update & verify Updates NIOS user')
+            write_file(mode_path, "0")
+            return -1
+
+        #NIOS USER Header
+        LOG.debug('Updates NIOS user header %s from 0x%08x to 0x%08x',fpga_cfg_data.nios_user_header.file,
+             fpga_cfg_data.nios_user_header.start, fpga_cfg_data.nios_user_header.end)
+
+        retval = update_flash_verify(first_mtd_dev,
+                                    fpga_cfg_data.nios_user_header.file,
+                                    fpga_cfg_data.nios_user_header.start,
+                                   ( fpga_cfg_data.nios_user_header.end - fpga_cfg_data.nios_user_header.start ) +1)
+
+        if retval == 0:
+            LOG.debug('Successfully update & verified NIOS user header ')
+        else:
+            LOG.error('Failed update & verify Updates NIOS user header ')
+            write_file(mode_path, "0")
+            return -1
+
+        # Disable bmcfw_flash_mode
         write_file(mode_path, "0")
-        return -1
+    except Exception as e:
+        LOG.exception('Failed to update D5005 FPGA')
+        LOG.exception(e.message,e.args)
+        retval = -1
 
-     # Disable bmcfw_flash_mode
-    write_file(mode_path, "0")
-
+    finally:
+        if mode_path is not None:
+            write_file(mode_path, "0")
 
     LOG.debug('---------------- END  -------------------------- ')
 
-    return 0
+    return retval
 
 
 
@@ -1296,7 +1330,7 @@ def do_rsu_fpga(fpga_cfg_data,pci_address):
 
         if o.pci_node.device_id == D5005_DEV_ID:
             LOG.debug('RSU Not Supported for FPGA D5005')
-            return -1
+            return 0
 
         if o.pci_node.device_id == N3000_DEV_ID:
             LOG.debug('Boot to BMC Start')
@@ -1306,29 +1340,6 @@ def do_rsu_fpga(fpga_cfg_data,pci_address):
             LOG.debug('Boot to FPGA Start')
             do_rsu('fpga',o.pci_node.pci_address,'factory');
             LOG.debug('Boot to FPGA END')
-
-
-    if(pci_address):
-            inst = dict({'pci_node.pci_address': pci_address})
-
-            for o in fpga.enum([inst]):
-                LOG.debug('------FPGA RSU INFO----------')
-                LOG.debug('pci_node.pci_address:%s',o.pci_node.pci_address)
-                LOG.debug('pci_node.bdf:%s',o.pci_node.bdf)
-        
-            if o.pci_node.device_id == D5005_DEV_ID:
-                LOG.debug('RSU Not Supported for FPGA D5005')
-                return -1
-
-            if o.pci_node.device_id == N3000_DEV_ID:
-                LOG.debug('Boot to BMC Start')
-                do_rsu('bmcimg',o.pci_node.pci_address,'factory');
-                LOG.debug('Boot to BMC END')
-
-                LOG.debug('Boot to FPGA Start')
-                do_rsu('fpga',o.pci_node.pci_address,'factory');
-                LOG.debug('Boot to FPGA END')
-
 
     return 0
 
@@ -1430,7 +1441,7 @@ def fpga_update(path, rsu,rsu_only):
                 if retval == 0:
                     LOG.debug('Successfully update & verified D5005 FPGA')
                 else:
-                    LOG.error('Failed to update D5005 FPGA ')
+                    LOG.error('Failed to update D5005 FPGA')
                     continue
 
             except Exception as e:
