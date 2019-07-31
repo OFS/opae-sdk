@@ -460,7 +460,7 @@ class bmc_pkg(flashable):
 
     @property
     def version(self):
-        return (self._img.version, self._fw.version)
+        return [str(self._img.version), str(self._fw.version)]
 
     def is_supported(self, flash_info):
         return self._img.is_supported(flash_info) and self._fw.is_supported(
