@@ -220,7 +220,6 @@ class process_task(object):
         return self._process
 
 
-
 @contextmanager
 def ignore_signals(*signals):
     handlers = {}
@@ -868,7 +867,7 @@ class pac(object):
     @property
     def is_secure(self):
         return 1 == len(glob.glob(
-            os.path.join(self.fpga.fme.sysfs_path,
+            os.path.join(self.fpga.fme.spi_bus.sysfs_path,
                          'ifpga_sec_mgr/ifpga_sec*')))
 
 
