@@ -220,7 +220,6 @@ class process_task(object):
         return self._process
 
 
-
 @contextmanager
 def ignore_signals(*signals):
     handlers = {}
@@ -461,7 +460,7 @@ class bmc_pkg(flashable):
 
     @property
     def version(self):
-        return (self._img.version, self._fw.version)
+        return [str(self._img.version), str(self._fw.version)]
 
     def is_supported(self, flash_info):
         return self._img.is_supported(flash_info) and self._fw.is_supported(
@@ -683,7 +682,7 @@ class pac(object):
         flash_type = flash_info['type']
         flash_rev = flash_info.get('revision', '')
         filename = flash_info['filename']
-        force = flash_info.get('force', args.force_flash)
+        force = flash_info.get('force', False) or args.force_flash
 
         if os.path.exists(os.path.join(flash_dir, filename)):
             filename = os.path.join(flash_dir, filename)
@@ -868,7 +867,7 @@ class pac(object):
     @property
     def is_secure(self):
         return 1 == len(glob.glob(
-            os.path.join(self.fpga.fme.sysfs_path,
+            os.path.join(self.fpga.fme.spi_bus.sysfs_path,
                          'ifpga_sec_mgr/ifpga_sec*')))
 
 
