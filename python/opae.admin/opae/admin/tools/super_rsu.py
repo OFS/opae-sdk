@@ -742,6 +742,9 @@ class pac(object):
                 LOG.warning('%s exited with code: %s', task.cmd, p.returncode)
                 self._errors += 1
 
+            if self.is_secure:
+                self.fpga.safe_rsu_boot(self.boot_page)
+
             LOG.debug('task completed in %s', timedelta(
                       seconds=time.time() - task.start_time))
 
