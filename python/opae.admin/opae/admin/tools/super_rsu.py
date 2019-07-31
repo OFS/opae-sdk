@@ -682,7 +682,7 @@ class pac(object):
         flash_type = flash_info['type']
         flash_rev = flash_info.get('revision', '')
         filename = flash_info['filename']
-        force = flash_info.get('force', args.force_flash)
+        force = flash_info.get('force', False) or args.force_flash
 
         if os.path.exists(os.path.join(flash_dir, filename)):
             filename = os.path.join(flash_dir, filename)
