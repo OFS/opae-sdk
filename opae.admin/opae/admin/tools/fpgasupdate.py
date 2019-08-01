@@ -62,34 +62,11 @@ IOCTL_IFPGA_SECURE_UPDATE_DATA_SENT = 0xb902
 IOCTL_IFPGA_SECURE_UPDATE_GET_STATUS = 0xb903
 IOCTL_IFPGA_SECURE_UPDATE_CANCEL = 0xb904
 
-IFPGA_SEC_PROGRESS_TO_STR = {
-    0: "IFPGA_PROG_IDLE",
-    1: "IFPGA_PROG_PREPARE",
-    2: "IFPGA_PROG_SLEEPING",
-    3: "IFPGA_PROG_READY",
-    4: "IFPGA_PROG_AUTHENTICATING",
-    5: "IFPGA_PROG_COPYING",
-    6: "IFPGA_PROG_SETTING_CANCELLATION_BIT",
-    7: "IFPGA_PROG_PROGRAM_KEY_HASH",
-    8: "IFPGA_PROG_RSU_DONE",
-    9: "IFPGA_PROG_PKVL_PROM_DONE"
-}
-
 IFPGA_SEC_STATUS_TO_STR = {
-    0: "IFPGA_STAT_NORMAL",
-    1: "IFPGA_STAT_TIMEOUT",
-    2: "IFPGA_STAT_AUTH_FAIL",
-    3: "IFPGA_STAT_COPY_FAIL",
-    4: "IFPGA_STAT_FATAL",
-    5: "IFPGA_STAT_PKVL_REJECT",
-    6: "IFPGA_STAT_NON_INC",
-    0x80: "IFPGA_STAT_NIOS_OK",
-    0x81: "IFPGA_STAT_USER_OK",
-    0x82: "IFPGA_STAT_FACTORY_OK",
-    0x83: "IFPGA_STAT_USER_FAIL",
-    0x84: "IFPGA_STAT_FACTORY_FAIL",
-    0x85: "IFPGA_STAT_NIOS_FLASH_ERR",
-    0x86: "IFPGA_STAT_FPGA_FLASH_ERR"
+    0: "IFPGA_STAT_IDLE",
+    1: "IFPGA_STAT_AWAIT_DATA",
+    2: "IFPGA_STAT_BUSY",
+    0xffffffff: "IFPGA_STAT_ERROR"
 }
 
 LOG = logging.getLogger()
@@ -346,16 +323,15 @@ def fw_update_status(fd_dev):
     fd_dev - an integer file descriptor to the os.open()'ed secure
              device file.
 
-    returns a 2-tuple of the progress and status as strings.
+    returns the status as a string.
     """
     buf = array.array('B', '\x00' * 32)
-    sizeof_ifpga_secure_status = 16
+    sizeof_ifpga_secure_status = 12
 
     # offset size name
     # 0x000     4 argsz
     # 0x004     4 flags
-    # 0x008     4 progress
-    # 0x00c     4 status
+    # 0x008     4 status
 
     # set argsz and flags
     struct.pack_into('II', buf, 0, sizeof_ifpga_secure_status, 0)
@@ -363,17 +339,14 @@ def fw_update_status(fd_dev):
     fcntl.ioctl(fd_dev, IOCTL_IFPGA_SECURE_UPDATE_GET_STATUS,
                 buf, True)
 
-    _, _, progress, status = struct.unpack_from('IIII', buf)
-
-    prog_str = '<unknown>' if progress not in IFPGA_SEC_PROGRESS_TO_STR \
-               else IFPGA_SEC_PROGRESS_TO_STR[progress]
+    _, _, status = struct.unpack_from('III', buf)
 
     stat_str = '<unknown>' if status not in IFPGA_SEC_STATUS_TO_STR \
                else IFPGA_SEC_STATUS_TO_STR[status]
 
-    LOG.log(LOG_STATE, '%s / %s', prog_str, stat_str)
+    LOG.log(LOG_STATE, '%s', stat_str)
 
-    return (prog_str, stat_str)
+    return stat_str
 
 
 def fw_write_block(fd_dev, offset, size, addr):
@@ -421,80 +394,6 @@ def update_fw(fd_dev, infile):
 
     returns a 2-tuple of the process exit status and a message.
     """
-
-    def poll(fd_dev, interval=0.1,
-             while_prog=None, until_prog=None,
-             while_stat=None, until_stat=None,
-             exc_prog=None, exc_stat=None):
-        """Poll on secure update status
-        """
-        while True:
-            p_s = fw_update_status(fd_dev)
-
-            if exc_prog and p_s[0] in exc_prog:
-                LOG.log(LOG_STATE,
-                    'except poll [ %s in %s ]',
-                    p_s[0], str(exc_prog))
-                raise SecureUpdateError(
-                    (1, 'Secure update failed: {}'.format(p_s)))
-
-            if exc_stat and p_s[1] in exc_stat:
-                LOG.log(LOG_STATE,
-                    'except poll [ %s in %s ]',
-                    p_s[1], str(exc_stat))
-                raise SecureUpdateError(
-                    (1, 'Secure update failed: {}'.format(p_s)))
-
-            if while_prog and p_s[0] not in while_prog:
-                LOG.log(LOG_STATE,
-                    'break poll [ %s not in %s ]',
-                    p_s[0], str(while_prog))
-                break
-
-            if until_prog and p_s[0] in until_prog:
-                LOG.log(LOG_STATE,
-                    'break poll [ %s in %s ]',
-                    p_s[0], str(until_prog))
-                break
-
-            if while_stat and p_s[1] not in while_stat:
-                LOG.log(LOG_STATE,
-                    'break poll [ %s not in %s ]',
-                    p_s[1], str(while_stat))
-                break
-
-            if until_stat and p_s[1] in until_stat:
-                LOG.log(LOG_STATE,
-                    'break poll [ %s in %s ]',
-                    p_s[1], str(until_stat))
-                break
-
-            time.sleep(interval)
-
-        return p_s
-
-    error_status = ["IFPGA_STAT_TIMEOUT",
-                    "IFPGA_STAT_AUTH_FAIL",
-                    "IFPGA_STAT_COPY_FAIL",
-                    "IFPGA_STAT_FATAL",
-                    "IFPGA_STAT_PKVL_REJECT",
-                    "IFPGA_STAT_NON_INC",
-                    "IFPGA_STAT_USER_FAIL",
-                    "IFPGA_STAT_FACTORY_FAIL",
-                    "IFPGA_STAT_NIOS_FLASH_ERR",
-                    "IFPGA_STAT_FPGA_FLASH_ERR"]
-
-    not_normal_status = ["IFPGA_STAT_TIMEOUT",
-                         "IFPGA_STAT_AUTH_FAIL",
-                         "IFPGA_STAT_COPY_FAIL",
-                         "IFPGA_STAT_FATAL",
-                         "IFPGA_STAT_PKVL_REJECT",
-                         "IFPGA_STAT_NON_INC",
-                         "IFPGA_STAT_NIOS_OK",
-                         "IFPGA_STAT_USER_FAIL",
-                         "IFPGA_STAT_FACTORY_FAIL",
-                         "IFPGA_STAT_NIOS_FLASH_ERR",
-                         "IFPGA_STAT_FPGA_FLASH_ERR"]
     block_size = 4096
     offset = 0
 
@@ -508,20 +407,16 @@ def update_fw(fd_dev, infile):
 
     retries = 65
     while True:
+        LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_START')
         try:
-            LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_START')
             fcntl.ioctl(fd_dev, IOCTL_IFPGA_SECURE_UPDATE_START)
             break
         except IOError as exc:
             if exc.errno != errno.EAGAIN or \
                retries == 0:
                 return exc.errno, exc.strerror
-            retries -= 1
-            time.sleep(1.0)
-
-    poll(fd_dev, interval=0.1,
-         until_prog=["IFPGA_PROG_READY"],
-         exc_stat=error_status)
+        retries -= 1
+        time.sleep(1.0)
 
     to_transfer = block_size if block_size <= payload_size \
         else payload_size
@@ -531,39 +426,41 @@ def update_fw(fd_dev, infile):
         buf.fromfile(infile, to_transfer)
 
         buf_addr, buf_len = buf.buffer_info()
-        LOG.debug('buf virt: 0x%x offset: %d  %3.0f%%',
-                  buf_addr, offset,
-                  (offset / float(orig_payload_size)) * 100.0)
 
         if buf_len != to_transfer:
             to_transfer = buf_len
 
+        LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_WRITE_BLK')
         try:
             fw_write_block(fd_dev, offset, to_transfer, buf_addr)
         except IOError as exc:
             return exc.errno, exc.strerror
-        LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_WRITE_BLK')
 
         payload_size -= to_transfer
         offset += to_transfer
         to_transfer = block_size if block_size <= payload_size \
             else payload_size
 
-        poll(fd_dev, interval=0.000001,
-             until_prog=["IFPGA_PROG_READY"],
-             exc_prog=["IFPGA_PROG_IDLE"],
-             exc_stat=not_normal_status)
+        LOG.debug('offset: %d  %3.0f%%',
+                  offset,
+                  (offset / float(orig_payload_size)) * 100.0)
 
+    LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_DATA_SENT')
     try:
         fcntl.ioctl(fd_dev, IOCTL_IFPGA_SECURE_UPDATE_DATA_SENT)
     except IOError as exc:
         return exc.errno, exc.strerror
-    LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_DATA_SENT')
 
-    poll(fd_dev, interval=0.1,
-         until_prog=["IFPGA_PROG_RSU_DONE"],
-         exc_prog=["IFPGA_PROG_IDLE"],
-         exc_stat=not_normal_status)
+    while True:
+        try:
+            status = fw_update_status(fd_dev)
+        except IOError as exc:
+            return exc.errno, exc.strerror
+        if status == 'IFPGA_STAT_IDLE':
+            break
+        elif status == 'IFPGA_STAT_ERROR':
+            return 1, 'Secure update failed'
+        time.sleep(0.5)
 
     return 0, 'Secure update OK'
 
@@ -668,7 +565,11 @@ def main():
             stat, mesg = exc.errno, exc.strerror
         except KeyboardInterrupt as exc:
             with sec_dev as descr:
-                fcntl.ioctl(descr, IOCTL_IFPGA_SECURE_UPDATE_CANCEL)
+                try:
+                    fcntl.ioctl(descr, IOCTL_IFPGA_SECURE_UPDATE_CANCEL)
+                except IOError as exc:
+                    if exc.errno != errno.EBUSY:
+                        raise
             stat, mesg = 1, 'Interrupted'
 
     if stat:
