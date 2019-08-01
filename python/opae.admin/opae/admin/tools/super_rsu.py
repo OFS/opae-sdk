@@ -730,20 +730,26 @@ class pac(object):
         while tasks:
             # get the next task...
             task, flashfile = tasks.pop(0)
-            p = task()
-            while p.poll() is None:
-                if self._terminate:
-                    task.terminate(FLASH_TIMEOUT)
-                    # stop processing next tasks
-                    tasks = []
-                    break
-                time.sleep(0.1)
-            if p.returncode:
-                LOG.warning('%s exited with code: %s', task.cmd, p.returncode)
+            try:
+                p = task()
+            except OSError as err:
+                LOG.error('Error (%s) calling process: %s', err, task.cmd)
                 self._errors += 1
+            else:
+                while p.poll() is None:
+                    if self._terminate:
+                        task.terminate(FLASH_TIMEOUT)
+                        # stop processing next tasks
+                        tasks = []
+                        break
+                    time.sleep(0.1)
+                if p.returncode:
+                    LOG.warning('%s exited with code: %s', task.cmd,
+                                p.returncode)
+                    self._errors += 1
 
-            LOG.debug('task completed in %s', timedelta(
-                      seconds=time.time() - task.start_time))
+                LOG.debug('task completed in %s', timedelta(
+                          seconds=time.time() - task.start_time))
 
     def reset_flash_mode(self):
         self.fpga.fme.spi_bus.node('bmcimg_flash_ctrl',
@@ -1198,7 +1204,7 @@ def check_requirements(boards, args, rsu_config):
         return False
 
     missing = []
-    callables = ['fpgaflash']
+    callables = ['fpgaflash', 'fpgasupdate']
     if 'nvmupdate' in rsu_config:
         if not os.path.exists(OPAE_NVMUPDATE_EXE):
             LOG.debug("missing '%s'", NVMUPDATE_EXE)
