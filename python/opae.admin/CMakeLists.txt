@@ -33,7 +33,8 @@ find_program (RPM_BUILD
     rpmbuild
     )
 
-configure_file(setup.py ${ADMIN_STAGE_DIR}/setup.py @ONLY)
+configure_file(setup.py.in ${CMAKE_CURRENT_SOURCE_DIR}/setup.py @ONLY)
+configure_file(setup.py.in ${ADMIN_STAGE_DIR}/setup.py @ONLY)
 file(COPY opae DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/stage)
 
 

@@ -37,7 +37,7 @@ setup(
             'fpgaflash = opae.admin.tools.fpgaflash:main'
         ]
     },
-    install_requires=['intelhex'],
+    install_requires=[],
     description="opae.admin provides Python classes for interfacing with"
                 "OPAE kernel drivers",
     license="BSD3",
