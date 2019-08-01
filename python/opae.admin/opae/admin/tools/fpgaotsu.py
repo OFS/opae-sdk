@@ -1168,7 +1168,6 @@ class fpgaotsu_n3000(fpgaotsu):
                         fpgaotsu_n3000.cfm2_erase_start ,
                         (fpgaotsu_n3000.cfm2_erase_end - fpgaotsu_n3000.cfm2_erase_start )+1)
 
-
             retval = mtd.update_verify(first_mtd_dev,
                                         self._fpga_cfg_data.max10_factory.file,
                                        self._fpga_cfg_data.max10_factory.start,
@@ -1179,7 +1178,6 @@ class fpgaotsu_n3000(fpgaotsu):
             else:
                 LOG.exception('Failed update & verify Updates MAX10 factory')
                 raise Exception("Failed update & verify Updates MAX10 factory")
-
 
             # MAX10 User
             LOG.info('Updates MAX10 CFM1/User %s from 0x%08x to 0x%08x ',self._fpga_cfg_data.max10_user.file,
@@ -1400,11 +1398,11 @@ def fpga_update(path, rsu,rsu_only):
                 d5005 = fpgaotsu_d5005(o,fpga_cfg_instance)
                 retval = d5005.d5005_fpga_update()
                 if retval == 0:
-                    LOG.info('Successfully updated with RoT')
+                    LOG.info('One time udpate successfully updated to RoT')
                 else:
-                    LOG.error('Failed to update D5005 FPGA')
+                    LOG.error('One time udpate failed update RoT')
             except Exception as e:
-                LOG.exception('Failed to update D5005 FPGA')
+                LOG.exception('One time udpate failed update RoT')
                 LOG.exception(e.message,e.args)
                 retval = -1
 
@@ -1416,13 +1414,13 @@ def fpga_update(path, rsu,rsu_only):
                 n3000 = fpgaotsu_n3000(o,fpga_cfg_instance)
                 retval = n3000.n3000_fpga_update()
                 if retval == 0:
-                    LOG.info('Successfully update & verified N3000 FPGA')
+                    LOG.info('One time udpate successfully updated to RoT')
                 else:
-                    LOG.error('Failed to update N3000 FPGA ')
+                    LOG.error('One time udpate failed update RoT')
                     continue
 
             except Exception as e:
-                LOG.exception('Failed to update N3000 FPGA')
+                LOG.exception('One time udpate failed update RoT')
                 LOG.exception(e.message,e.args)
                 retval = -1
                 continue
@@ -1431,12 +1429,12 @@ def fpga_update(path, rsu,rsu_only):
             try:
                 retval = n3000.do_rsu_only(o.pci_node.pci_address)
                 if retval == 0:
-                    LOG.info('Successfully Done RSU')
+                    LOG.info('One time udpate successfully updated to RoT')
                 else:
-                    LOG.error('Failed to do RSU ')
+                    LOG.error('One time udpate failed update RoT')
 
             except Exception as e:
-                LOG.exception('Failed to do RSU')
+                LOG.exception('One time udpate failed update RoT')
                 LOG.exception(e.message,e.args)
                 retval = -1
 
@@ -1449,10 +1447,8 @@ def sig_handler(signum, frame):
     LOG.error('fpgaotsu update interrupted')
 
 def parse_args():
-
     """Parses fpgaotsu command line arguments
     """
-
     parser = argparse.ArgumentParser(
              formatter_class=argparse.RawTextHelpFormatter)
 
