@@ -66,7 +66,7 @@ D5005_DEV_ID = 0x0b2b
 N3000_DEV_ID = 0x0b30
 
 # Json config file & Binary path
-OPAE_SHARE = '/usr/share/opae'
+OPAE_SHARE = '/usr/share/opae/*/one-time-update'
 
 # class MTD
 class mtd(object):
@@ -154,13 +154,12 @@ class mtd(object):
 
                 if all([c == '\xFF' for c in ichunk]):
                       os.lseek(file_.fileno(), rbytes, os.SEEK_CUR)
-                      position = file_.tell()
                 else:
                     os.write(file_.fileno(), ichunk)
                     last_write_position = file_.tell()
-                    position = file_.tell()
 
                 # print Write progress
+                position = file_.tell()
                 progress = int(((position - start) / float(file_size)) * 100.00)
                 LOG.debug('Wrote bytes:0x%08x  progress: %3.0f%%',position - start,progress)
                 if progress >last_progress:
@@ -175,10 +174,10 @@ class mtd(object):
         return bytes_written
 
     @staticmethod
-    def update_verify(dev, filename, intput_offset, len):
+    def update_verify(dev, filename, intput_offset, input_len):
         with open(filename, 'rb') as fd:
             file_size = os.path.getsize(fd.name)
-            if file_size > len:
+            if file_size > input_len:
                 LOG.error('Invalid file size:%s',filename)
                 return -1
 
@@ -252,19 +251,19 @@ class fpga_cfg_data(object):
         LOG.info('product:%s',self.product)
         LOG.info('vendor:%s',self.vendor)
         LOG.info('device:%s',self.device)
-        LOG.info(self.bmc_root_key_hash)
-        LOG.info(self.bmc_root_key_program)
-        LOG.info(self.sr_root_key_hash)
-        LOG.info(self.sr_root_key_program)
-        LOG.info(self.bmc_dts)
-        LOG.info(self.nios_factory_header)
-        LOG.info(self.nios_factory)
-        LOG.info(self.fpga_factory)
-        LOG.info(self.nios_bootloader)
-        LOG.info(self.max10_factory)
-        LOG.info(self.max10_user)
-        LOG.info(self.nios_user_header)
-        LOG.info(self.nios_user)
+        LOG.info(str(self.bmc_root_key_hash))
+        LOG.info(str(self.bmc_root_key_program))
+        LOG.info(str(self.sr_root_key_hash))
+        LOG.info(str(self.sr_root_key_program))
+        LOG.info(str(self.bmc_dts))
+        LOG.info(str(self.nios_factory_header))
+        LOG.info(str(self.nios_factory))
+        LOG.info(str(self.fpga_factory))
+        LOG.info(str(self.nios_bootloader))
+        LOG.info(str(self.max10_factory))
+        LOG.info(str(self.max10_user))
+        LOG.info(str(self.nios_user_header))
+        LOG.info(str(self.nios_user))
         LOG.info('\n \n ')
 
     @classmethod
@@ -827,27 +826,27 @@ class fpgaotsu_d5005(fpgaotsu):
         if retval == 0:
             LOG.debug('Successfully updated FPGA flash')
         else:
-            LOG.error('Faild to update FPGA flash')
+            LOG.error('Failed to update FPGA flash')
             return retval
 
         retval = self.d5005_max10_update()
         if retval == 0:
             LOG.debug('Successfully updated Max10')
         else:
-            LOG.error('Faild to update max10')
+            LOG.error('Failed to update max10')
             return retval
 
         retval = self.d5005_nios_user_update()
         if retval == 0:
             LOG.debug('Successfully updated Nios user')
         else:
-            LOG.error('Faild to update NIOS user')
+            LOG.error('Failed to update NIOS user')
             return retval
 
         return retval
 # end class fpgaotsu_d5005
 
-# stat class fpgaotsu_n3000
+# start class fpgaotsu_n3000
 class fpgaotsu_n3000(fpgaotsu):
     def __init__(self, fpga,fpga_cfg_data):
         fpgaotsu.__init__(self, fpga,fpga_cfg_data)
@@ -889,7 +888,7 @@ class fpgaotsu_n3000(fpgaotsu):
         if(pci_address is None):
             inst = dict({'pci_node.device_id': int(self._fpga_cfg_data.device,16)})
 
-        if(pci_address is not None):
+        if(pci_address):
             inst = dict({'pci_node.pci_address': pci_address})
             LOG.debug('inst=%s',inst)
 
@@ -994,7 +993,7 @@ class fpgaotsu_n3000(fpgaotsu):
                 LOG.error('Invalid flash devices')
                 return -1
 
-            for i in range(len(mtd_dev_list)): 
+            for i in range(len(mtd_dev_list)):
                 if mtd_dev_list[i] != self._second_mtd_dev:
                     first_mtd_dev = mtd_dev_list[i]
 
@@ -1133,7 +1132,7 @@ class fpgaotsu_n3000(fpgaotsu):
                 LOG.error('Invalid flash devices')
                 return -1
 
-            for i in range(len(mtd_dev_list)): 
+            for i in range(len(mtd_dev_list)):
                 if mtd_dev_list[i] != self._second_mtd_dev:
                     first_mtd_dev = mtd_dev_list[i]
             LOG.info('first_mtd_dev:%s',first_mtd_dev)
@@ -1225,7 +1224,7 @@ class fpgaotsu_n3000(fpgaotsu):
                 LOG.error('Invalid flash devices')
                 return -1
 
-            for i in range(len(mtd_dev_list)): 
+            for i in range(len(mtd_dev_list)):
                 if mtd_dev_list[i] != self._second_mtd_dev:
                     first_mtd_dev = mtd_dev_list[i]
 
@@ -1325,6 +1324,7 @@ def fpga_update(path, rsu,rsu_only):
     LOG.debug('rsu: %s', rsu)
     LOG.debug('rsu_only: %s', rsu_only)
 
+    retval = 0
     if not os.path.exists(path):
            LOG.error('Invalid input path:%s',path)
 
@@ -1403,12 +1403,10 @@ def fpga_update(path, rsu,rsu_only):
                     LOG.info('Successfully updated with RoT')
                 else:
                     LOG.error('Failed to update D5005 FPGA')
-                    continue
-
             except Exception as e:
                 LOG.exception('Failed to update D5005 FPGA')
                 LOG.exception(e.message,e.args)
-                continue
+                retval = -1
 
         #N3000
         if o.pci_node.device_id == N3000_DEV_ID:
@@ -1426,6 +1424,7 @@ def fpga_update(path, rsu,rsu_only):
             except Exception as e:
                 LOG.exception('Failed to update N3000 FPGA')
                 LOG.exception(e.message,e.args)
+                retval = -1
                 continue
 
             # RSU
@@ -1439,9 +1438,10 @@ def fpga_update(path, rsu,rsu_only):
             except Exception as e:
                 LOG.exception('Failed to do RSU')
                 LOG.exception(e.message,e.args)
+                retval = -1
 
 
-    return 0
+    return retval
 
 def sig_handler(signum, frame):
     """raise exception for SIGTERM
@@ -1522,7 +1522,7 @@ def main():
 
         path = os.path.dirname(glob_results[0])
 
-        retval = fpga_update(path,args.rsu,None)
+        retval = fpga_update(path,True,None)
         if( retval == 0 ):
             sys.exit(0)
         else:
