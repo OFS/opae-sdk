@@ -1314,32 +1314,21 @@ class fpgaotsu_n3000(fpgaotsu):
         return retval
 #end class fpgaotsu_n3000
 
-def fpga_update(path, rsu,rsu_only):
+def fpga_update(path_json, rsu,rsu_only):
     """ Program fpga flash
         Update fpga flash with ROT image
     """
-    LOG.debug('path: %s', path)
+    LOG.debug('path_json: %s', path_json)
     LOG.debug('rsu: %s', rsu)
     LOG.debug('rsu_only: %s', rsu_only)
 
-    retval = 0
-    if not os.path.exists(path):
-           LOG.error('Invalid input path:%s',path)
 
-    # Json config file
-    json_cfg_path = os.path.join(path, 'fpgaotsu*.json')
-    glob_results = glob.glob(json_cfg_path)
-    if len(glob_results) != 1:
-           LOG.error('No found config json file:%s',path)
-           sys.exit(1)
-
-    LOG.info('Found config json file:%s',glob_results[0])
-
+    path = os.path.dirname(path_json)
     # Parse input config json file
-    fpga_cfg_instance = fpga_cfg_data.parse_json_cfg(glob_results[0],path)
+    fpga_cfg_instance = fpga_cfg_data.parse_json_cfg(path_json,path)
 
     if fpga_cfg_instance is None:
-        LOG.error('Invalid Input json config:',glob_results[0])
+        LOG.error('Invalid Input json config:',path_json)
         return -1
 
     fpga_cfg_instance.print_json_cfg()
@@ -1398,11 +1387,11 @@ def fpga_update(path, rsu,rsu_only):
                 d5005 = fpgaotsu_d5005(o,fpga_cfg_instance)
                 retval = d5005.d5005_fpga_update()
                 if retval == 0:
-                    LOG.info('One time udpate successfully updated to RoT')
+                    LOG.info('One time udpate tool successfully updated RoT')
                 else:
-                    LOG.error('One time udpate failed update RoT')
+                    LOG.error('One time udpate tool failed to update RoT')
             except Exception as e:
-                LOG.exception('One time udpate failed update RoT')
+                LOG.exception('One time udpate tool failed to update RoT')
                 LOG.exception(e.message,e.args)
                 retval = -1
 
@@ -1414,13 +1403,13 @@ def fpga_update(path, rsu,rsu_only):
                 n3000 = fpgaotsu_n3000(o,fpga_cfg_instance)
                 retval = n3000.n3000_fpga_update()
                 if retval == 0:
-                    LOG.info('One time udpate successfully updated to RoT')
+                    LOG.info('One time udpate tool successfully updated RoT')
                 else:
-                    LOG.error('One time udpate failed update RoT')
+                    LOG.error('One time udpate tool failed to update RoT')
                     continue
 
             except Exception as e:
-                LOG.exception('One time udpate failed update RoT')
+                LOG.exception('One time udpate tool failed to update RoT')
                 LOG.exception(e.message,e.args)
                 retval = -1
                 continue
@@ -1429,12 +1418,12 @@ def fpga_update(path, rsu,rsu_only):
             try:
                 retval = n3000.do_rsu_only(o.pci_node.pci_address)
                 if retval == 0:
-                    LOG.info('One time udpate successfully updated to RoT')
+                    LOG.info('Done RSU')
                 else:
-                    LOG.error('One time udpate failed update RoT')
+                    LOG.error('Failed RSU')
 
             except Exception as e:
-                LOG.exception('One time udpate failed update RoT')
+                LOG.exception('Failed RSU')
                 LOG.exception(e.message,e.args)
                 retval = -1
 
@@ -1452,8 +1441,9 @@ def parse_args():
     parser = argparse.ArgumentParser(
              formatter_class=argparse.RawTextHelpFormatter)
 
-    parser.add_argument('path', help='path to fpgaotsu json and flash images \
-                       (e.g /usr/share/opae/d5005 or /usr/share/opae/n3000 )' )
+    parser.add_argument('fpagostu_json', help='path to config file \
+                       (e.g /usr/share/opae/d5005/one-time-update/fpgaotsu_d5005.json\
+                        or /usr/share/opae/n3000one-time-update/fpgaotsu_n3000.json )')
 
     parser.add_argument('--rsu-only', default=False, action='store_true',
                         help='only perform the RSU command')
@@ -1485,44 +1475,27 @@ def main():
     LOG.info('Input arguments count: %d', len(sys.argv))
 
     # Command line args parse
-    if ( len(sys.argv) >= 2 ):
-        args = parse_args()
 
-        if args.verbose:
-           log_hndlr.setLevel(logging.DEBUG)
-        else:
-           log_hndlr.setLevel(logging.INFO)
+    args = parse_args()
 
-        LOG.debug('fpgaotsu Command line arguments')
-        LOG.info('%s',args)
-
-        retval = fpga_update(args.path,args.rsu,args.rsu_only)
-        if( retval == 0 ):
-            sys.exit(0)
-        else:
-            sys.exit(1)
-
+    if args.verbose:
+        log_hndlr.setLevel(logging.DEBUG)
     else:
-        LOG.debug('No input command line args')
-
         log_hndlr.setLevel(logging.INFO)
 
-        json_cfg_path = os.path.join(OPAE_SHARE, "fpgaotsu*.json")
+    LOG.debug('fpgaotsu Command line arguments')
+    LOG.info('%s',args)
 
-        glob_results = glob.glob(json_cfg_path)
-        if len(glob_results) != 1:
-            LOG.error('No found config json file:%s',OPAE_SHARE)
-            sys.exit(1)
+    if not os.path.isfile(args.fpagostu_json):
+        LOG.error('Invalid input path')
+        sys.exit(1)
 
-        LOG.debug('Found config json file:%s',glob_results[0])
 
-        path = os.path.dirname(glob_results[0])
-
-        retval = fpga_update(path,True,None)
-        if( retval == 0 ):
-            sys.exit(0)
-        else:
-            sys.exit(1)
+    retval = fpga_update(args.fpagostu_json,args.rsu,args.rsu_only)
+    if( retval == 0 ):
+        sys.exit(0)
+    else:
+        sys.exit(1)
 
     # Exit
     sys.exit(0)
