@@ -238,6 +238,7 @@ class fpga_cfg_data(object):
         self.nios_factory_header = flash_data()
         self.nios_factory = flash_data()
         self.fpga_factory = flash_data()
+        self.fpga_user = flash_data()
         self.nios_bootloader = flash_data()
         self.max10_factory = flash_data()
         self.max10_user = flash_data()
@@ -258,8 +259,9 @@ class fpga_cfg_data(object):
         LOG.info(str(self.bmc_dts))
         LOG.info(str(self.nios_factory_header))
         LOG.info(str(self.nios_factory))
-        LOG.info(str(self.fpga_factory))
+        LOG.info(str(self.fpga_user))
         LOG.info(str(self.nios_bootloader))
+        LOG.info(str(self.max10_factory))
         LOG.info(str(self.max10_factory))
         LOG.info(str(self.max10_user))
         LOG.info(str(self.nios_user_header))
@@ -365,6 +367,9 @@ class fpga_cfg_data(object):
 
                 if(fd.get('type') =='fpga_factory'):
                    o.fpga_factory=flash_data(fd,path_bin)
+
+                if(fd.get('type') =='fpga_user'):
+                   o.fpga_user=flash_data(fd,path_bin)
 
                 if(fd.get('type') =='max10_factory'):
                    o.max10_factory=flash_data(fd,path_bin)
@@ -570,6 +575,48 @@ class fpgaotsu_d5005(fpgaotsu):
 
         return retval
 
+    # fpga user update
+    def d5005_fpga_user(self):
+        try:
+            if super(fpgaotsu_d5005,self).get_flash_mode() ==1:
+                LOG.error('fpgaflash on %s is in progress, try later', self._fpga.fme.spi_bus.sysfs_path)
+                return -1
+
+            # Enable fpga_flash_mode
+            mtd_dev = super(fpgaotsu_d5005,self).get_mtd('fpga_flash_ctrl', 'fpga_flash_mode')
+            LOG.debug('spi mtd_dev:%s',mtd_dev)
+
+            #Erase/Write/Verify FPGA user iamge
+            LOG.info('Erase Flash from 0x%08x to 0x%08x',
+                     self._fpga_cfg_data.fpga_user.start,self._fpga_cfg_data.fpga_user.end)
+
+            mtd.erase(mtd_dev,
+                        self._fpga_cfg_data.fpga_user.start,
+                        (self._fpga_cfg_data.fpga_user.end - self._fpga_cfg_data.fpga_user.start)+1)
+
+            LOG.info('Updates FPGA user image %s from 0x%08x to 0x%08x',self._fpga_cfg_data.fpga_user.file,
+                     self._fpga_cfg_data.fpga_user.start, self._fpga_cfg_data.fpga_user.end)
+
+            retval = mtd.update_verify(mtd_dev,
+                                        self._fpga_cfg_data.fpga_user.file,
+                                        self._fpga_cfg_data.fpga_user.start,
+                                        (self._fpga_cfg_data.fpga_user.end - self._fpga_cfg_data.fpga_user.start) +1 )
+
+            if retval == 0:
+                LOG.info('Successfully update & verified  FPGA user Image')
+            else:
+                LOG.exception('Failed update & verify  FPGA user Image')
+                raise Exception("Failed update & verify  FPGA user Image")
+
+        except Exception as e:
+            LOG.exception('Failed to update D5005 FPGA')
+            LOG.exception(e.message,e.args)
+            retval = -1
+        finally:
+            super(fpgaotsu_d5005,self).set_mtd('fpga_flash_ctrl', 'fpga_flash_mode')
+
+        return retval
+
     # max10 update
     def d5005_max10_update(self):
         try:
@@ -721,7 +768,7 @@ class fpgaotsu_d5005(fpgaotsu):
                 LOG.info('Successfully update & verified bmc key hash')
             else:
                 LOG.exception('Failed update & verify bmc key hash')
-                raise Exception("Failed update & verify NIOS factory header")
+                raise Exception("Failed update & verify bmc key hash")
 
             LOG.info('Updates bmc root key program %s from 0x%08x to 0x%08x ',self._fpga_cfg_data.bmc_root_key_program.file,
                     self._fpga_cfg_data.bmc_root_key_program.start, self._fpga_cfg_data.sr_root_key_program.end)
@@ -735,7 +782,7 @@ class fpgaotsu_d5005(fpgaotsu):
                 LOG.info('Successfully update & verified bmc key program')
             else:
                 LOG.error('Failed update & verify bmc key program')
-                raise Exception("Failed update & verify NIOS factory header")
+                raise Exception("Failed update & verify bmc key program")
 
             #SR ROOT KEY HASH
             LOG.info('Updates SR root key hash %s from 0x%08x to 0x%08x ', self._fpga_cfg_data.sr_root_key_hash.file,
@@ -750,7 +797,7 @@ class fpgaotsu_d5005(fpgaotsu):
                 LOG.info('Successfully update & verified Updates SR root key hash')
             else:
                 LOG.exception('Failed update & verify Updates SR root key hash')
-                raise Exception("Failed update & verify NIOS factory header")
+                raise Exception("Failed update & verify bmc key program")
 
             LOG.info('Updates SR root key program %s from 0x%08x to 0x%08x ', self._fpga_cfg_data.sr_root_key_program.file,
                      self._fpga_cfg_data.sr_root_key_program.start, self._fpga_cfg_data.sr_root_key_program.end)
@@ -764,7 +811,7 @@ class fpgaotsu_d5005(fpgaotsu):
                 LOG.info('Successfully update & verified Updates SR root key program')
             else:
                 LOG.error('Failed update & verify Updates SR root key program')
-                raise Exception("Failed update & verify NIOS factory header")
+                raise Exception("Failed update & verify bmc key program")
 
             #Erase/Write/Verify DTS 0x382.0000 - 3FF.FFFF
             LOG.info('Updates device tree %s from 0x%08x to 0x%08x',self._fpga_cfg_data.bmc_dts.file,
@@ -783,7 +830,7 @@ class fpgaotsu_d5005(fpgaotsu):
                 LOG.info('Successfully update & verified  device tree')
             else:
                 LOG.exception('Failed update & verify  device tree')
-                raise Exception("Failed update & verify NIOS factory header")
+                raise Exception("Failed update & verify  device tree")
 
             #Erase/Write/Verify FPGA image
             LOG.info('Erase Flash from 0x%08x to 0x%08x',
@@ -805,7 +852,7 @@ class fpgaotsu_d5005(fpgaotsu):
                 LOG.info('Successfully update & verified  FPGA Image')
             else:
                 LOG.exception('Failed update & verify  FPGA Image')
-                raise Exception("Failed update & verify NIOS factory header")
+                raise Exception("Failed update & verify  FPGA Image")
 
         except Exception as e:
             LOG.exception('Failed to update D5005 FPGA')
@@ -841,6 +888,13 @@ class fpgaotsu_d5005(fpgaotsu):
             LOG.debug('Successfully updated Nios user')
         else:
             LOG.error('Failed to update NIOS user')
+            return retval
+
+        retval = self.d5005_fpga_user()
+        if retval == 0:
+            LOG.debug('Successfully updated FPGA user')
+        else:
+            LOG.error('Failed to update FPGA user')
             return retval
 
         return retval
@@ -908,6 +962,56 @@ class fpgaotsu_n3000(fpgaotsu):
                 LOG.info('RSU FPGA END')
 
         return 0
+
+    # fpga user update
+    def n3000_fpga_user(self):
+        try:
+            if super(fpgaotsu_n3000,self).get_flash_mode() ==1:
+                LOG.error('fpgaflash on %s is in progress, try later', self._fpga.fme.spi_bus.sysfs_path)
+                return false
+
+            mtd_dev_list = super(fpgaotsu_n3000,self).get_mtd_list('fpga_flash_ctrl', 'fpga_flash_mode')
+            LOG.debug('mtd_dev_list:%s',mtd_dev_list)
+
+            if len(mtd_dev_list) != 2:
+                LOG.error('Invalid flash devices')
+                return -1
+
+            for i in range(len(mtd_dev_list)):
+                if mtd_dev_list[i] != self._second_mtd_dev:
+                    first_mtd_dev = mtd_dev_list[i]
+            LOG.info('first_mtd_dev:%s',first_mtd_dev)
+
+            #Erase/Write/Verify FPGA user iamge
+            LOG.info('Erase Flash from 0x%08x to 0x%08x',
+                     self._fpga_cfg_data.fpga_user.start,self._fpga_cfg_data.fpga_user.end)
+
+            mtd.erase(first_mtd_dev,
+                        self._fpga_cfg_data.fpga_user.start,
+                        (self._fpga_cfg_data.fpga_user.end - self._fpga_cfg_data.fpga_user.start)+1)
+
+            LOG.info('Updates FPGA user image %s from 0x%08x to 0x%08x',self._fpga_cfg_data.fpga_user.file,
+                     self._fpga_cfg_data.fpga_user.start, self._fpga_cfg_data.fpga_user.end)
+
+            retval = mtd.update_verify(first_mtd_dev,
+                                        self._fpga_cfg_data.fpga_user.file,
+                                        self._fpga_cfg_data.fpga_user.start,
+                                        (self._fpga_cfg_data.fpga_user.end - self._fpga_cfg_data.fpga_user.start) +1 )
+
+            if retval == 0:
+                LOG.info('Successfully update & verified  FPGA user Image')
+            else:
+                LOG.exception('Failed update & verify  FPGA user Image')
+                raise Exception("Failed update & verify  FPGA user Image")
+
+        except Exception as e:
+            LOG.exception('Failed to update D5005 FPGA')
+            LOG.exception(e.message,e.args)
+            retval = -1
+        finally:
+            super(fpgaotsu_n3000,self).set_mtd('fpga_flash_ctrl', 'fpga_flash_mode')
+
+        return retval
 
     # update second flash with nios
     def n3000_second_flash_update(self):
@@ -1309,6 +1413,13 @@ class fpgaotsu_n3000(fpgaotsu):
             LOG.debug('Successfully updated Nios user')
         else:
             LOG.error('Failed to update Nios user')
+            return retval
+
+        retval = self.n3000_fpga_user()
+        if retval == 0:
+            LOG.debug('Successfully updated FPGA user')
+        else:
+            LOG.error('Failed to update FPGA user')
             return retval
 
         return retval
