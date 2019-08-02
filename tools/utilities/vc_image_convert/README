@@ -58,11 +58,14 @@ This command generate target bin files by using input_files/vc_factory.sof as fa
 2) ./sof_convert.sh -u [user_sof_file] -f [factory_sof_file] -d [vc_dtb_file]
 This command generate target bin files by using [factory_sof_file] as factory image and [user_sof_file] as user image, and using [vc_dtb_file] as device tree table.
 
-3) ./sof_convert.sh -h
+3) ./sof_convert.sh -u [user_sof_file] -f [factory_sof_file] -r
+This command generate target bin files by using [factory_sof_file] as factory image and [user_sof_file] as user image, and generate reversed bin file for factory.
+
+4) ./sof_convert.sh -h
 This command print the help information.
 
-4) ./sof_convert.sh -v
+5) ./sof_convert.sh -v
 This command print the publish date information of this tool.
 
-5) ./fw_convert.sh [nios_bin_file]
+6) ./fw_convert.sh [nios_bin_file]
 This command generate ihex file of NIOS FW for fpgaflash tool.

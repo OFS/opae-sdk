@@ -18,16 +18,18 @@ bin_file=vc.bin
 dest_file=vc_flash.bin
 dest_reversed_file=vc_reverse.bin
 dest_reversed_lite_file=vc_reverse_flash.bin
+generate_reverse_bin=0
 
-while getopts f:u:d:o:vh opt
+while getopts f:u:d:o:vrh opt
 do
 	case "$opt" in
 	f) factory_sof=$OPTARG;;
 	u) user_sof=$OPTARG;;
 	d) dtb_bin=$OPTARG;;
 	o) dest_file=$OPTARG;;
-	h) echo -e "Usage: $0 -u [sof_file] -o [bin_file]\n\t-f\tSet factory image file\n\t-u\tSet user image file\n\t-d\tSet device tree table file name\n\t-o\tSet output file name\n\t-v\tShow publish date of this tool";exit 0;;
-	v) echo "2019.05.23";exit 0;;
+	h) echo -e "Usage: $0 -u [sof_file] -o [bin_file]\n\t-f\tSet factory image file\n\t-u\tSet user image file\n\t-d\tSet device tree table file name\n\t-o\tSet output file name\n\t-v\tShow publish date of this tool\n\t-r\tGenerate reversed bin file";exit 0;;
+	v) echo "2019.07.23";exit 0;;
+	r) generate_reverse_bin=1;;
 	*) exit 0;;
 	esac
 done
@@ -60,6 +62,11 @@ then
 	exit 0
 fi
 
+if [ ! -d "$OUTPUT_PATH" ]
+then
+	mkdir -p $OUTPUT_PATH
+fi
+
 sed "s!factory_image.sof!$factory_sof!" $COF_FILE > $cof_file
 sed -i "s#user_image.sof#$user_sof#" $cof_file
 
@@ -79,11 +86,17 @@ python merge_device_table.py $OUTPUT_PATH/$bin_file
 echo "Step5: generate target bin"
 python extract_fpga_image.py $OUTPUT_PATH/$bin_file $OUTPUT_PATH/$dest_file
 
-echo "Step6: generate reversed target bin for factory pre-programming"
-python reverse.py $OUTPUT_PATH/$bin_file $OUTPUT_PATH/$dest_reversed_file
-python reverse.py $OUTPUT_PATH/$dest_file $OUTPUT_PATH/$dest_reversed_lite_file
-rm $OUTPUT_PATH/temp.*
-rm $cof_file
+if [ $generate_reverse_bin == 1 ]
+then
+    echo "Step6: generate reversed target bin for factory pre-programming"
+    python reverse.py $OUTPUT_PATH/$bin_file $OUTPUT_PATH/$dest_reversed_file
+fi
+
 echo "========================================================================="
 echo "$dest_file for fpgaflash generated successfully"
-echo "$dest_reversed_file and $dest_reversed_lite_file for factory pre-programming generated successfully"
+if [ $generate_reverse_bin == 1 ]
+then
+    echo "$dest_reversed_file for factory pre-programming generated successfully"
+fi
+rm $OUTPUT_PATH/temp.*
+rm $cof_file
