@@ -1,4 +1,5 @@
 {
+    "program": "super-rsu",
     "product": "n3000",
     "vendor": "0x8086",
     "device": "0x0b30",
