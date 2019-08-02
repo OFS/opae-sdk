@@ -1252,6 +1252,40 @@ def sighandler(signum, frame):
     raise KeyboardInterrupt('interrupt signal received')
 
 
+def find_config(program='super-rsu'):
+    candidates = []
+    for root, dirs, files in os.walk('/usr/share/opae'):
+        for f in glob.glob(os.path.join(root, '*.json')):
+            try:
+                with open(f, 'r') as fp:
+                    data = json.load(fp)
+                cfg_pgm = data.get('program')
+                cfg_vid = int(data.get('vendor', '0'), 0)
+                cfg_did = int(data.get('device', '0'), 0)
+            except IOError:
+                LOG.warn('could not open file: %s', f)
+            except ValueError:
+                LOG.warn('could not decode JSON file: %s', f)
+            except AttributeError:
+                LOG.debug('%s not a recognized schema', f)
+            else:
+                # check if program is either in the manifest data
+                # or at least it is in the file path
+                if cfg_pgm == program or program in f:
+                    if fpga_device.enum([{'pci_node.vendor_id': cfg_vid,
+                                          'pci_node.device_id': cfg_did}]):
+                        LOG.debug('found possible config: %s', f)
+                        candidates.append(f)
+
+    if len(candidates) == 1:
+        try:
+            return open(candidates[0], 'r')
+        except IOError:
+            pass
+
+    LOG.warn('could not find or open suitable super-rsu manifest')
+
+
 def main():
     global DRY_RUN
     import argparse
@@ -1260,9 +1294,12 @@ def main():
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument('rsu_config', type=argparse.FileType('r'),
+    parser.add_argument('rsu_config', type=argparse.FileType('r'), nargs='?',
                         help='path to config file listing what components '
                              'to update and their versions')
+    parser.add_argument('--program', default='super-rsu',
+                        help=('program to look for in rsu config. '
+                              'Default is "super-rsu"'))
     parser.add_argument('--bus',
                         help=argparse.SUPPRESS)
     parser.add_argument('-n', '--dry-run',
@@ -1326,10 +1363,18 @@ def main():
         LOG.error('must run as root')
         sys_exit(os.EX_NOPERM)
 
-    rsu_config = json.load(args.rsu_config)
-    if not rsu_config:
+    if args.rsu_config is None:
+        args.rsu_config = find_config(args.program)
+
+    try:
+        rsu_config = json.load(args.rsu_config)
+    except AttributeError:
+        logging.error('no rsu config specified or found')
+        sys_exit(os.EX_USAGE)
+    except ValueError:
         logging.error('invalid rsu config: %s', args.rsu_config.name)
         sys_exit(os.EX_USAGE)
+
     boards = discover_boards(rsu_config, args)
     if not boards:
         logging.error('Could not find boards for given product %s',
