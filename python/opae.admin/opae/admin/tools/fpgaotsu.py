@@ -262,7 +262,6 @@ class fpga_cfg_data(object):
         LOG.info(str(self.fpga_user))
         LOG.info(str(self.nios_bootloader))
         LOG.info(str(self.max10_factory))
-        LOG.info(str(self.max10_factory))
         LOG.info(str(self.max10_user))
         LOG.info(str(self.nios_user_header))
         LOG.info(str(self.nios_user))
