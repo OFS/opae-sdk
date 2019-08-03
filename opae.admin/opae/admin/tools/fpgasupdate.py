@@ -418,6 +418,8 @@ def update_fw(fd_dev, infile):
         retries -= 1
         time.sleep(1.0)
 
+    percentage = [False] * 101
+
     to_transfer = block_size if block_size <= payload_size \
         else payload_size
 
@@ -441,9 +443,10 @@ def update_fw(fd_dev, infile):
         to_transfer = block_size if block_size <= payload_size \
             else payload_size
 
-        LOG.debug('offset: %d  %3.0f%%',
-                  offset,
-                  (offset / float(orig_payload_size)) * 100.0)
+        perc = int((offset / float(orig_payload_size)) * 100.0)
+        if not percentage[perc]:
+            LOG.debug('offset: %d  %3d%%', offset, perc)
+            percentage[perc] = True
 
     LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_DATA_SENT')
     try:
