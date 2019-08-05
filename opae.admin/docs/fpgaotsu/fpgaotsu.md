@@ -62,7 +62,7 @@ No need to power cycle system, fpga card reset loads to Root of Trust firmware.
       * /usr/share/opae/n3000/one-time-update
       * /usr/share/opae/d5005/one-time-update
 
-   3. Update FPGA N3000 card with tempoery max10 image to accees second flash.
+   3. Update FPGA N3000 card with temporary max10 image to accees second flash.
       1. sudo fpgaflash bmc_img usr/share/opae/n3000/max10_system_revd_dual_v111.1.13_temporary_cfm0_auto.rpd --rsu
       2. Verify sysfs attributes /sys/class/fpga/intel-fpga-dev.*/intel-fpga-fme.*/spi-altera.*.auto/spi_master/spi*/spi*.*/intel-generic-qspi.*.auto
 
