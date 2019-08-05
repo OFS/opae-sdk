@@ -645,6 +645,10 @@ fpga_result fpgaDmaOpen(fpga_handle fpga, int dma_idx, fpga_dma_handle *dma_p)
 		end_of_list = _fpga_dma_feature_eol(dfh.dfh);
 
 		// Move to the next feature header
+		if (_fpga_dma_feature_next(dfh.dfh) == 0xffff) {
+			dma_found = false;
+			break;
+		}
 		offset = offset + _fpga_dma_feature_next(dfh.dfh);
 	} while (!end_of_list);
 

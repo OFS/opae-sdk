@@ -339,6 +339,10 @@ bool nlb0::setup()
             printf("found the NLB offset=0x%x\n", offset);
             break;
         }
+        if (NEXT_DFH_OFFSET(dfh) == 0xffff) {
+        	printf("AFU NLB not found\n");
+        	return false;
+        }
         offset += NEXT_DFH_OFFSET(dfh);
     } while (!DFH_EOL(dfh));
 

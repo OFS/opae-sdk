@@ -236,9 +236,7 @@ static void print_pkvl_info(fpga_properties props)
 	int mask = 0;
 	int fpga_mode = 0 ;
 	int result;
-	int fd;
 	int i,j;
-	ssize_t ret;
 	char mode[16] = {0};
 	char status[16] = {0};
 	char version[16] = {0};
@@ -291,32 +289,6 @@ static void print_pkvl_info(fpga_properties props)
 
 	if (found) {
 		offset = strlen(path);
-		snprintf_s_s(path+offset, sizeof(path)-offset, "/%s", "polling_mode");
-		get_sysfs_attr(path, mode, sizeof(mode));
-		result = strtol(mode, NULL, 16);
-		if (result == 0) {
-			if (num_ports == 4) {
-				result = 1;
-			} else {
-				result = 3;
-			}
-			/* set polling mode */
-			fd = open(path, O_WRONLY);
-			if (fd >= 0) {
-				snprintf_s_i(mode, sizeof(mode), "%d", result);
-				ret = write(fd, mode, strlen(mode));
-				close(fd);
-				if (ret > 0) {
-					sleep(1);	// wait for polling
-				} else {
-					printf("write %s to %s failed\n", mode, path);
-				}
-			} else {
-				printf("open %s failed\n", path);
-			}
-		}
-		strncpy_s(mode, sizeof(mode), speed == 25 ? "25G" : "10G", 3);
-
 		snprintf_s_s(path+offset, sizeof(path)-offset, "/%s", "status");
 		get_sysfs_attr(path, status, sizeof(status));
 		result = strtol(status, NULL, 16);
@@ -340,6 +312,7 @@ static void print_pkvl_info(fpga_properties props)
 				mask = 0x11;
 			}
 		}
+		strncpy_s(mode, sizeof(mode), speed == 25 ? "25G" : "10G", 3);
 		for (i = 0, j = 0; i < MAX_PORTS; i++) {
 			if (mask&(1<<i)) {
 				printf("Port%-2d%-23s : %s\n", j, mode,
