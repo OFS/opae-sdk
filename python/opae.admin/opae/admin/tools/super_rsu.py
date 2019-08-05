@@ -145,7 +145,8 @@ def parse_timedelta(inp):
 
 
 def sys_exit(code, msg=None):
-    LOG.info("%s exiting with code '%s'", os.path.basename(__file__), code)
+    LOG.info("%s exiting with code '%s'",
+             os.path.basename(sys.argv[0]), code)
     if msg is not None:
         print(msg)
     sys.exit(code)
