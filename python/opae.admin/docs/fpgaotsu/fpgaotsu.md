@@ -45,7 +45,7 @@ Specifies the input json file or manifest.
 User has to power cycle system after updating Root of Trust with one-time update tool.
 
 #### FPGA N3000 card:####
-One-time update tool reset fpga pcie card two times after udpating RoT firmware, Boot to Max10 factory image after first reset and boot to FPGA factory image after second reset.
+One-time update tool reset fpga pcie card two times after updating RoT firmware, Boot to Max10 factory image after first reset and boot to FPGA factory image after second reset.
 No need to power cycle system, fpga card reset loads to Root of Trust firmware.
 
 
@@ -62,7 +62,7 @@ No need to power cycle system, fpga card reset loads to Root of Trust firmware.
       * /usr/share/opae/n3000/one-time-update
       * /usr/share/opae/d5005/one-time-update
 
-   3. Update FPGA N3000 card with temporary max10 image to accees second flash.
+   3. Update FPGA N3000 card with temporary max10 image to access second flash.
       1. sudo fpgaflash bmc_img usr/share/opae/n3000/one-time-update/max10_system_revd_dual_v111.1.13_temporary_cfm0_auto.rpd --rsu
       2. Verify sysfs attributes /sys/class/fpga/intel-fpga-dev.*/intel-fpga-fme.*/spi-altera.*.auto/spi_master/spi*/spi*.*/intel-generic-qspi.*.auto
 
