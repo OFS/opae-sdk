@@ -2,14 +2,14 @@
 
 ## SYNOPSIS ##
 
-`fpgaotsu.py [-h] [--rsu-only] [--rsu] [-v] fpgaostu.json`
+`fpgaotsu.py [-h] [--rsu-only] [--rsu] [-v] fpgaotsu_json`
 
 ## DESCRIPTION ##
 One-time update tool updates non Root of Trust PCIe FPGA cards to Root of Trust (RoT) PCIe FPGA cards. Tool updates NIOS factory, NIOS user, BMC root key hash, SR key hash, MAX10 device tree, FPGA factory image, FPGA user, NIOS boot loader, MAX10 factory and MAX10 user to Root of Trust firmware.
 
 
 ### POSITIONAL ARGUMENTS ###
-`{fpgaostu.json}`
+`{fpgaotsu_json}`
 
 Specifies the input json file or manifest.
 

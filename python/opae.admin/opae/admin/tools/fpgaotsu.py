@@ -1551,9 +1551,9 @@ def parse_args():
     parser = argparse.ArgumentParser(
              formatter_class=argparse.RawTextHelpFormatter)
 
-    parser.add_argument('fpgaotsu.json', help='path to config file \
+    parser.add_argument('fpgaotsu_json', help='path to config file \
                        (e.g /usr/share/opae/d5005/one-time-update/fpgaotsu_d5005.json\
-                        or /usr/share/opae/n3000one-time-update/fpgaotsu_n3000.json )')
+                        or /usr/share/opae/n3000/one-time-update/fpgaotsu_n3000.json )')
 
     parser.add_argument('--rsu-only', default=False, action='store_true',
                         help='only perform the RSU command')
@@ -1596,12 +1596,12 @@ def main():
     LOG.debug('fpgaotsu Command line arguments')
     LOG.info('%s',args)
 
-    if not os.path.isfile(args.fpgaotsu.json):
+    if not os.path.isfile(args.fpgaotsu_json):
         LOG.error('Invalid input path')
         sys.exit(1)
 
 
-    retval = fpga_update(args.fpgaotsu.json,args.rsu,args.rsu_only)
+    retval = fpga_update(args.fpgaotsu_json,args.rsu,args.rsu_only)
     if( retval == 0 ):
         sys.exit(0)
     else:
