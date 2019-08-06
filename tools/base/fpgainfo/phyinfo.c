@@ -225,13 +225,9 @@ static void print_phy_group_info(fpga_properties props, int group_num)
 
 static void print_pkvl_info(fpga_properties props)
 {
-	DIR *dir = NULL;
-	struct dirent *dirent = NULL;
 	char path[SYSFS_PATH_MAX] = {0};
 	struct dev_list *lptr = NULL;
 	const char *sysfspath = get_sysfs_path(props, FPGA_DEVICE, &lptr);
-	char *substr;
-	int found = 0;
 	int offset;
 	int mask = 0;
 	int fpga_mode = 0 ;
@@ -247,88 +243,52 @@ static void print_pkvl_info(fpga_properties props)
 
 	if (sysfspath == NULL)
 		return;
-	strncpy_s(path, sizeof(path), sysfspath, strlen(sysfspath));
+	snprintf_s_s(path, sizeof(path),
+				 "%s/spi-altera.*.auto/spi_master/spi*/spi*.*/pkvl",
+				 sysfspath);
+	if (glob_sysfs_path(path) != FPGA_OK) {
+		fprintf(stderr, "WARNING: pkvl not found\n");
+		return;
+	}
 
-	while (1) {
-		dir = opendir(path);
-		if (NULL == dir) {
-			break;
-		}
-		while (NULL != (dirent = readdir(dir))) {
-			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
-								".", &result)) {
-				if (result == 0)
-					continue;
-			}
-			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
-								"..", &result)) {
-				if (result == 0)
-					continue;
-			}
+	offset = strlen(path);
+	snprintf_s_s(path+offset, sizeof(path)-offset, "/%s", "status");
+	get_sysfs_attr(path, status, sizeof(status));
+	result = strtol(status, NULL, 16);
+	if (speed==10) {
+		/* 8x10g */
+		mask = 0xff;
+	} else if (speed == 25) {
+		if (num_ports == 4) {
+			switch(fpga_mode) {
+			case 1: /* 4x25g */
+			case 3: /* 6x25g */
+				mask = 0xf;
+				break;
 
-			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
-								PKVL_NAME, &result)) {
-				if (result == 0) {
-					snprintf_s_s(path+strlen(path), sizeof(path)-strlen(path),
-								 "/%s", PKVL_NAME);
-					found = 1;
-					break;
-				}
-			}
-			if (EOK == strstr_s(dirent->d_name, strlen(dirent->d_name),
-								SPI_NAME, strlen(SPI_NAME), &substr)) {
-				snprintf_s_s(path+strlen(path), sizeof(path)-strlen(path),
-							 "/%s", dirent->d_name);
+			case 4: /* 2x2x25g */
+				mask = 0x33;
 				break;
 			}
+		} else {
+			/* 2*1*25g */
+			mask = 0x11;
 		}
-		closedir(dir);
-		if (dirent == NULL || found == 1)
-			break;
 	}
-
-	if (found) {
-		offset = strlen(path);
-		snprintf_s_s(path+offset, sizeof(path)-offset, "/%s", "status");
-		get_sysfs_attr(path, status, sizeof(status));
-		result = strtol(status, NULL, 16);
-		if (speed==10) {
-			/* 8x10g */
-			mask = 0xff;
-		} else if (speed == 25) {
-			if (num_ports == 4) {
-				switch(fpga_mode) {
-				case 1: /* 4x25g */
-				case 3: /* 6x25g */
-					mask = 0xf;
-					break;
-
-				case 4: /* 2x2x25g */
-					mask = 0x33;
-					break;
-				}
-			} else {
-				/* 2*1*25g */
-				mask = 0x11;
-			}
+	strncpy_s(mode, sizeof(mode), speed == 25 ? "25G" : "10G", 3);
+	for (i = 0, j = 0; i < MAX_PORTS; i++) {
+		if (mask&(1<<i)) {
+			printf("Port%-2d%-23s : %s\n", j, mode,
+				   result&(1<<i) ? "Up" : "Down");
+			j++;
 		}
-		strncpy_s(mode, sizeof(mode), speed == 25 ? "25G" : "10G", 3);
-		for (i = 0, j = 0; i < MAX_PORTS; i++) {
-			if (mask&(1<<i)) {
-				printf("Port%-2d%-23s : %s\n", j, mode,
-					   result&(1<<i) ? "Up" : "Down");
-				j++;
-			}
-		}
-		snprintf_s_s(path+offset, sizeof(path)-offset, "/%s", "pkvl_a_version");
-		get_sysfs_attr(path, version, sizeof(status));
-		printf("%-29s : %s\n", "Retimer A Version", version);
-		snprintf_s_s(path+offset, sizeof(path)-offset, "/%s", "pkvl_b_version");
-		get_sysfs_attr(path, version, sizeof(status));
-		printf("%-29s : %s\n", "Retimer B Version", version);
-	} else {
-		fprintf(stderr, "WARNING: pkvl not found\n");
 	}
+	snprintf_s_s(path+offset, sizeof(path)-offset, "/%s", "pkvl_a_version");
+	get_sysfs_attr(path, version, sizeof(status));
+	printf("%-29s : %s\n", "Retimer A Version", version);
+	snprintf_s_s(path+offset, sizeof(path)-offset, "/%s", "pkvl_b_version");
+	get_sysfs_attr(path, version, sizeof(status));
+	printf("%-29s : %s\n", "Retimer B Version", version);
 }
 
 static void print_phy_info(fpga_properties props, struct _phy_config *config)

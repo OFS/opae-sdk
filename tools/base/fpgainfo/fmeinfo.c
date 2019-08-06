@@ -49,54 +49,16 @@ void fme_help(void)
 
 static int get_flash_ctrl_path(const char *start_path, char *out_path, int size)
 {
-	DIR *dir = NULL;
-	struct dirent *dirent = NULL;
-	char *path_pattern = "spi";
-	char *node_name = "fpga_flash_ctrl";
-	char path[SYSFS_PATH_MAX] = {0};
-	char *substr;
-	int ret = -1;
-	int result;
-
 	if (start_path == NULL || out_path == NULL)
-		return ret;
-	strncpy_s(path, sizeof(path), start_path, strlen(start_path));
-
-	while (1) {
-		dir = opendir(path);
-		if (NULL == dir) {
-			break;
-		}
-		while (NULL != (dirent = readdir(dir))) {
-			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
-								".", &result)) {
-				if (result == 0)
-					continue;
-			}
-			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
-								"..", &result)) {
-				if (result == 0)
-					continue;
-			}
-
-			if (EOK == strstr_s(dirent->d_name, strlen(dirent->d_name),
-								node_name, strlen(node_name), &substr)) {
-				strncpy_s(out_path, size, path, strlen(path));
-				ret = 0;
-				break;
-			}
-			if (EOK == strstr_s(dirent->d_name, strlen(dirent->d_name),
-								path_pattern, strlen(path_pattern), &substr)) {
-				snprintf_s_s(path+strlen(path), sizeof(path)-strlen(path),
-							 "/%s", dirent->d_name);
-				break;
-			}
-		}
-		closedir(dir);
-		if (dirent == NULL || ret == 0)
-			break;
+		return -1;
+	snprintf_s_s(out_path, size,
+				 "%s/spi-altera.*.auto/spi_master/spi*/spi*.*/fpga_flash_ctrl",
+				 start_path);
+	if (glob_sysfs_path(out_path) != FPGA_OK) {
+		return -2;
 	}
-	return ret;
+
+	return 0;
 }
 
 static void print_fme_info(fpga_properties props)
@@ -119,7 +81,7 @@ static void print_fme_info(fpga_properties props)
 
 	offset = strlen(path);
 	snprintf_s_s(path+offset, sizeof(path)-offset, "/%s",
-				 "fpga_flash_ctrl/fpga_image_load");
+				 "fpga_image_load");
 	result = fpgainfo_sysfs_read_u32(path, &page);
 	if (FPGA_OK != result) {
 		fpgainfo_print_err("getting boot page of FPGA", result);

@@ -404,7 +404,7 @@ void print_bmc_info(const char *sysfspath)
 	get_sysfs_attr(path, buf, sizeof(buf));
 	devid = strtoul(buf, NULL, 16);
 	if (devid != FPGA_DISCRETE_DEVICEID && devid != FPGA_INTEGRATED_DEVICEID) {
-		if (0 == get_bmc_path(sysfspath, "spi", path, SYSFS_PATH_MAX)) {
+		if (0 == get_bmc_path(sysfspath, path, SYSFS_PATH_MAX)) {
 			printf("Board Management Controller, MAX10 NIOS FW version ");
 			off = strlen(path);
 			snprintf_s_s(path+off, sizeof(path)-off, "/%s",
@@ -548,55 +548,17 @@ void print_bmc_info(const char *sysfspath)
 
 #define BMC_FW_NAME 	"bmcfw"
 
-int get_bmc_path(const char *in_path, const char *key_str, char *out_path,
-				 int size)
+int get_bmc_path(const char *in_path, char *out_path, int size)
 {
-	DIR *dir = NULL;
-	struct dirent *dirent = NULL;
-	char path[SYSFS_PATH_MAX] = {0};
-	char *substr;
-	int ret = -1;
-	int result;
-
-	if (in_path == NULL || key_str == NULL || out_path == NULL)
-		return ret;
-	strncpy_s(path, sizeof(path), in_path, strlen(in_path));
-
-	while (1) {
-		dir = opendir(path);
-		if (NULL == dir) {
-			break;
-		}
-		while (NULL != (dirent = readdir(dir))) {
-			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
-								".", &result)) {
-				if (result == 0)
-					continue;
-			}
-			if (EOK == strcmp_s(dirent->d_name, strlen(dirent->d_name),
-								"..", &result)) {
-				if (result == 0)
-					continue;
-			}
-
-			if (EOK == strstr_s(dirent->d_name, strlen(dirent->d_name),
-								BMC_FW_NAME, strlen(BMC_FW_NAME), &substr)) {
-				strncpy_s(out_path, size, path, strlen(path));
-				ret = 0;
-				break;
-			}
-			if (EOK == strstr_s(dirent->d_name, strlen(dirent->d_name),
-								key_str, strlen(key_str), &substr)) {
-				snprintf_s_s(path+strlen(path), sizeof(path)-strlen(path),
-							 "/%s", dirent->d_name);
-				break;
-			}
-		}
-		closedir(dir);
-		if (dirent == NULL || ret == 0)
-			break;
+	if (in_path == NULL || out_path == NULL)
+		return -1;
+	snprintf_s_s(out_path, size, "%s/spi-altera.*.auto/spi_master/spi*/spi*.*",
+				 in_path);
+	if (glob_sysfs_path(out_path) != FPGA_OK) {
+		return -2;
 	}
-	return ret;
+
+	return 0;
 }
 
 
@@ -939,8 +901,8 @@ void print_sensor_info(const char *sysfspath, BMC_TYPE type, int verbose)
 	if (!sysfspath) {
 		return;
 	}
-	if (0 != get_bmc_path(sysfspath, "spi", path, SYSFS_PATH_MAX)) {
-		fprintf(stderr, "WARNING: bmc not found\n");
+	if (0 != get_bmc_path(sysfspath, path, SYSFS_PATH_MAX)) {
+		fprintf(stderr, "WARNING: bmc spi path not found\n");
 		return;
 	}
 

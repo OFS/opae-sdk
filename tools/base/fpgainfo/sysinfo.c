@@ -35,6 +35,7 @@
 #include <inttypes.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <glob.h>
 
 #include "safe_string/safe_string.h"
 #include "opae/fpga.h"
@@ -523,4 +524,26 @@ const char *get_sysfs_path(fpga_properties props, fpga_objtype type,
 	}
 
 	return lptr ? (const char *)lptr->fme->sysfspath : NULL;
+}
+
+fpga_result glob_sysfs_path(char *path)
+{
+	glob_t pglob;
+	pglob.gl_pathc = 0;
+	pglob.gl_pathv = NULL;
+	fpga_result ret = FPGA_OK;
+
+	if (glob(path, 0, NULL, &pglob) == 0) {
+		if (pglob.gl_pathc > 0) {
+			/* using first one */
+			if (strcpy_s(path, PATH_MAX, pglob.gl_pathv[0]))
+				ret = FPGA_EXCEPTION;
+		}
+		globfree(&pglob);
+	} else {
+		if (pglob.gl_pathv)
+			globfree(&pglob);
+		ret = FPGA_NOT_FOUND;
+	}
+	return ret;
 }
