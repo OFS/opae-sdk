@@ -94,12 +94,12 @@ class MacromCompare(COMMON):
             self.mode = (int(v, 16) >> 32) & 0xF
 
     def read_mac_from_nvmem(self):
-        mac_number = self.mode_list.get(self.mode)
         mac = 0
         with open(self.args.nvmem, 'rb') as f:
             f.seek(self.args.offset, 0)
             for x in [40, 32, 24, 16, 8, 0]:
                 mac |= self.str2hex(f.read(1)) << x
+            mac_number = self.str2hex(f.read(1))
         print('Read {} mac addresses from NVMEM:'.format(mac_number))
         vendor = '{:06x}'.format(mac >> 24)
         for i in range(mac_number):
@@ -116,8 +116,7 @@ class MacromCompare(COMMON):
         result = 'PASS'
         for m in self.mac:
             if m not in self.ethif.values():
-                print('{} in MAC ROM, have no relative interface!'.format(m))
-                result = 'FAIL'
+                print('{} in MAC ROM, is not used!'.format(m))
         ethifs = sorted(self.ethif.items())
         for e, m in ethifs:
             if m not in self.mac:
