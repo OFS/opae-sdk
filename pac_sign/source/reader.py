@@ -591,7 +591,7 @@ class UPDATE_reader(_READER_BASE):
         self.pub_root_key_perm = 0xFFFFFFFF
         self.pub_root_key_id = 0xFFFFFFFF
         self.pub_CSK_perm = 0xFFFFFFFF
-        self.pub_CSK_id = 0xFFFFFFFF
+        self.pub_CSK_id = 0
         self.pub_root_key_type = None
         self.pub_CSK_type = None
         if self.root_key is not None:
