@@ -60,6 +60,7 @@ class mtd(loggable):
             self.log.warn('device is currently open, closing')
             self._fp.close()
         self._fp = open(self._devpath, mode)
+        return self
 
     def close(self):
         """close Close an open mtd device."""
