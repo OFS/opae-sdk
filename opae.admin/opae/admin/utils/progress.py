@@ -48,6 +48,8 @@ class progress(object):
                 stream: File stream to write progress to.
                         Default is sys.stdout
                 log: log function to call. If None, will write to stream.
+                null: If set to True, the progress reporting function becomes a
+                      'noop' function.
         """
         self._total_size = kwargs.get('bytes')
         self._total_time = kwargs.get('time')
@@ -57,9 +59,16 @@ class progress(object):
         self._stream = kwargs.get('stream', sys.stdout)
         self._logfn = kwargs.get('log')
         self._start_time = time.time()
+        if kwargs.get('null', False):
+            self.update_percent = self._noop
+        else:
+            self.update_percent = self._update_percent
 
-    def update_percent(self, pct, ratio=None):
-        """update_percent Update progress bar based on the percent given.
+    def _noop(self, *args, **kwargs):
+        pass
+
+    def _update_percent(self, pct, ratio=None):
+        """_update_percent Update progress bar based on the percent given.
 
         Args:
             pct (float): A percent ratio [0..1]

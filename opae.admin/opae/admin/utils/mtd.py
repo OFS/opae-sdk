@@ -28,14 +28,15 @@ import shutil
 import struct
 
 from opae.admin.utils.log import loggable
+from opae.admin.utils.progress import progress
 
 
 class mtd(loggable):
+    """mtd encapsulates an mtd (flash) device"""
     IOCTL_MTD_MEMGETINFO = 0x80204d01
     IOCTL_MTD_MEMERASE = 0x40084d02
     IOCTL_MTD_MEMUNLOCK = 0x40084d06
 
-    """mtd encapsulates an mtd (flash) device"""
     def __init__(self, devpath):
         super(mtd, self).__init__()
         self._devpath = devpath
@@ -116,13 +117,14 @@ class mtd(loggable):
         """
         self._fp.write(data)
 
-    def copy_to(self, dest_fp, nbytes, start=0):
+    def copy_to(self, dest_fp, nbytes, start=0, **kwargs):
         """copy_to Copy given number of bytes from this mtd device
                    to an open file object.
 
         :param fp: File object to copy to.
         :param nbytes: Number of bytes to copy from mtd device.
         :param start: Offset to start copying from.
+        :param **kwargs: configuration of copy operation
         """
         if self._fp is None:
             self.log.exception('mtd device is not open: %s', self._devpath)
@@ -136,9 +138,16 @@ class mtd(loggable):
             raise IOError(msg)
         self.log.debug('copying %d bytes from mtd device: %s', nbytes,
                        self._fp.name)
-        shutil.copyfileobj(self._fp, dest_fp, nbytes)
 
-    def copy_from(self, src_fp, nbytes, start=0):
+        chunked = kwargs.get('chunked')
+
+        if chunked:
+            self._copy_chunked(self._fp, dest_fp,
+                               nbytes, chunked, kwargs.get('progress'))
+        else:
+            shutil.copyfileobj(self._fp, dest_fp, nbytes)
+
+    def copy_from(self, src_fp, nbytes, start=0, **kwargs):
         """copy_from Copy given number of bytes from an file object to this
                      mtd device.
 
@@ -156,4 +165,36 @@ class mtd(loggable):
                                                                  self._fp.name)
             self.log.exception(msg)
             raise IOError(msg)
-        shutil.copyfileobj(src_fp, self._fp, nbytes)
+
+        chunked = kwargs.get('chunked')
+
+        if chunked:
+            self._copy_chunked(src_fp, self._fp,
+                               nbytes, chunked, kwargs.get('progress'))
+        else:
+            shutil.copyfileobj(src_fp, self._fp, nbytes)
+
+    def _copy_chunked(self, src, dest, size, chunk_size, prg_writer=None):
+        offset = 0
+
+        cfg = {'bytes':size}
+        if callable(prg_writer):
+            cfg['log'] = prg_writer
+        elif type(prg_writer) is file:
+            cfg['stream'] = prg_writer
+        else:
+            cfg['null'] = True
+
+        prg = progress(**cfg)
+
+        with prg:
+            while offset < size:
+                n_bytes = min(chunk_size, size-offset)
+                chunk = src.read(n_bytes)
+                dest.write(chunk)
+                n_read = len(chunk)
+                if n_read < n_bytes:
+                    self.log.warn('read %d less bytes than requested',
+                                  n_bytes - n_read)
+                offset += n_read
+                prg.update(offset)
