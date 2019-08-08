@@ -27,7 +27,7 @@ cmake_minimum_required (VERSION 2.8)
 
 # projectname is the same as the main-executable
 project(opae.admin)
-
+set(OPAE_ADMIN_RPM_RELEASE 1)
 set (ADMIN_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
 find_program (RPM_BUILD
     rpmbuild
@@ -51,7 +51,7 @@ add_custom_target(opae.admin.wheel
 
 if (RPM_BUILD)
     add_custom_target(opae.admin.rpm
-        COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_rpm
+        COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_rpm --release ${OPAE_ADMIN_RPM_RELEASE}
         WORKING_DIRECTORY ${ADMIN_STAGE_DIR}
         COMMENT "Building opae.admin Python RPM distribution"
         )
