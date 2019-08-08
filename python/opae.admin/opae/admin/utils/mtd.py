@@ -26,9 +26,15 @@
 import fcntl
 import shutil
 import struct
+import sys
 
 from opae.admin.utils.log import loggable
 from opae.admin.utils.progress import progress
+
+if sys.version_info[0] == 3:
+    from io import IOBase as _ftype
+else:
+    _ftype = file  # noqa (Python 3 will report this as an error)
 
 
 class mtd(loggable):
@@ -178,10 +184,10 @@ class mtd(loggable):
     def _copy_chunked(self, src, dest, size, chunk_size, prg_writer=None):
         offset = 0
 
-        cfg = {'bytes':size}
+        cfg = {'bytes': size}
         if callable(prg_writer):
             cfg['log'] = prg_writer
-        elif type(prg_writer) is file:
+        elif isinstance(prg_writer, _ftype):
             cfg['stream'] = prg_writer
         else:
             cfg['null'] = True
