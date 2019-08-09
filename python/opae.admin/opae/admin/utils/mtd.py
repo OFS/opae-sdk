@@ -24,6 +24,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 import fcntl
+import os
 import shutil
 import struct
 import sys
@@ -146,13 +147,9 @@ class mtd(loggable):
         self.log.debug('copying %d bytes from mtd device: %s', nbytes,
                        self._fp.name)
 
-        chunked = kwargs.get('chunked')
-
-        if chunked:
-            self._copy_chunked(self._fp, dest_fp,
-                               nbytes, chunked, kwargs.get('progress'))
-        else:
-            shutil.copyfileobj(self._fp, dest_fp, nbytes)
+        self._copy_chunked(self._fp, dest_fp, nbytes,
+                           kwargs.get('chunked', nbytes),
+                           kwargs.get('progress'))
 
     def copy_from(self, src_fp, nbytes, start=0, **kwargs):
         """copy_from Copy given number of bytes from an file object to this
@@ -173,13 +170,9 @@ class mtd(loggable):
             self.log.exception(msg)
             raise IOError(msg)
 
-        chunked = kwargs.get('chunked')
-
-        if chunked:
-            self._copy_chunked(src_fp, self._fp,
-                               nbytes, chunked, kwargs.get('progress'))
-        else:
-            shutil.copyfileobj(src_fp, self._fp, nbytes)
+        self._copy_chunked(src_fp, self._fp, nbytes,
+                           kwargs.get('chunked', nbytes),
+                           kwargs.get('progress'))
 
     def _copy_chunked(self, src, dest, size, chunk_size, prg_writer=None):
         offset = 0
@@ -205,3 +198,57 @@ class mtd(loggable):
                                   n_bytes - n_read)
                 offset += n_read
                 prg.update(offset)
+
+    def dump(self, filename, offset=0):
+        """dump Dump the contents of the mtd device to a file.
+
+           Args:
+               filename: Filename to write the contents to.
+               offset: Offset to start transfer from mtd device.
+                       Default is 0.
+
+           Note:
+               This opens the mtd device as another file object independent of
+               its internal file object.
+
+        """
+        if not os.path.exists(os.path.basename(filename)):
+            msg = 'Directory path does not exist for {}'.format(filename)
+            self.log.exception(msg)
+            raise OSError(msg)
+
+        self.log.debug('dumping mtd data from %s to %s',
+                       self._devpath, filename)
+        with open(self._devpath, 'rb') as src:
+            src.seek(offset)
+            with open(filename, 'wb') as dst:
+                shutil.copyfileobj(src, dst)
+        self.log.debug('transfer complete')
+
+    def load(self, filename, offset=0):
+        """load Load the contents of a file into the mtd device.
+
+           Args:
+               filename: Filename to read the contents from.
+               offset: Offset to start transfer to mtd device.
+                       Default is 0.
+
+           Note:
+               This opens the mtd device as another file object and tries to
+               lock it as exclusive mode. An IOError will be raised if it fails
+               to lock.
+
+        """
+        if not os.path.exists(filename):
+            msg = 'Input file does not exist: {}'.format(filename)
+            self.log.exception(msg)
+            raise OSError(msg)
+
+        self.log.debug('writing mtd data from %s to %s',
+                       filename, self._devpath)
+        with open(self._devpath, 'wb') as dst:
+            fcntl.flock(dst.fileno(), fcntl.LOCK_EX)
+            dst.seek(offset)
+            with open(filename, 'rb') as src:
+                shutil.copyfileobj(src, dst)
+        self.log.debug('transfer complete')
