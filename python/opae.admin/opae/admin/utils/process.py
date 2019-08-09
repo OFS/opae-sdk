@@ -41,3 +41,10 @@ def call_process(cmd, no_dry=False):
         LOG('process').error('calling %s returned %d', cmd, err.returncode)
         LOG('process').debug('process output: %s', err.output)
         raise
+
+def assert_not_running(programs):
+    try:
+        subprocess.check_output(["pidof"] + programs)
+    except subprocess.CalledProcessError:
+        return True
+    return False
