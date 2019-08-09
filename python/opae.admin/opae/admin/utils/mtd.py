@@ -39,12 +39,18 @@ else:
 
 
 class mtd(loggable):
-    """mtd encapsulates an mtd (flash) device"""
+    """mtd encapsulates an mtd (flash) device."""
     IOCTL_MTD_MEMGETINFO = 0x80204d01
     IOCTL_MTD_MEMERASE = 0x40084d02
     IOCTL_MTD_MEMUNLOCK = 0x40084d06
 
     def __init__(self, devpath):
+        """__init__ Initalizes a new mtd object and holds a reference
+                    to the device path which is used in most member methods.
+
+           Args:
+               devpath: Path to mtd device (example: '/dev/mtd0')
+        """
         super(mtd, self).__init__()
         self._devpath = devpath
         self._fp = None
@@ -61,7 +67,14 @@ class mtd(loggable):
     def open(self, mode='rb'):
         """open Open an mtd device.
 
-        :param mode: Mode to open device. Defaults to 'rb'
+        Args:
+            mode: Mode to open device. Defaults to 'rb'.
+
+        Raises:
+            IOError: If call to lock failed.
+
+        Note: If the internal file object is currently open, it will log a
+              warning and close the current file object.
         """
         if self._fp is not None:
             self.log.warn('device is currently open, closing')
@@ -76,7 +89,11 @@ class mtd(loggable):
         self._fp = None
 
     def fileno(self):
-        """fileno Get the file descriptor of the open mtd device."""
+        """fileno Get the file descriptor of the open mtd device.
+
+        Returns: The file descriptor of open device.
+                 -1 if the device currently isn't open.
+        """
         if self._fp is not None:
             return self._fp.fileno()
         self.log.warn('mtd device (%s) is not open', self._devpath)
@@ -84,8 +101,25 @@ class mtd(loggable):
 
     @property
     def size(self):
-        """size Get the size of the this mtd device"""
+        """size Get the size of the this mtd device by calling the appropriate
+                ioctl request.
 
+        Returns:
+            The size of the mtd device as reported by the driver.
+
+        Raises:
+            IOError: If the ioctl raises an IOError.
+
+        Note:
+            This will only call the ioctl request (IOCTL_MTD_MEMGETINFO) once
+            and cache the size in an internal member variable.
+            The cached value will be returned subsequent times. This assumes
+            that the device represented by the devpath hasn't been hot-removed.
+
+        """
+        # TODO (rrojo): Determine if it is safer to not cache the size
+        #               as there is no guarantee that the same devpath will
+        #               be used if device is hot-removed/hot-plugged.
         if self._size is None:
             iodata = struct.pack('BIIIIIQ', 0, 0, 0, 0, 0, 0, 0)
             with open(self._devpath, 'rb') as fp:
@@ -102,8 +136,12 @@ class mtd(loggable):
     def erase(self, start, nbytes):
         """erase Erase parts of the mtd device.
 
-        :param start: Offset to start erasing at.
-        :param nbytes: Number of bytes to erase.
+        Args:
+            start: Offset to start erasing at.
+            nbytes: Number of bytes to erase.
+
+        Notes:
+            This calls the ioctl request (IOCTL_MTD_MEMERASE).
         """
         self.log.debug('erasing %d bytes starting at 0x%08x', nbytes, start)
         iodata = struct.pack('II', start, nbytes)
@@ -113,7 +151,8 @@ class mtd(loggable):
     def read(self, size=-1):
         """read Read <size> number of bytes from an open mtd device.
 
-        :param size: Number of bytes to read from device.
+        Args:
+            size: Number of bytes to read from device.
                      If size is negative one or omitted, read until EOF.
         """
         return self._fp.read(size)
@@ -121,7 +160,8 @@ class mtd(loggable):
     def write(self, data):
         """write Write a buffer to an open mtd device.
 
-        :param data: The data to write to the device.
+        Args:
+            data: The data to write to the device.
         """
         self._fp.write(data)
 
@@ -129,10 +169,14 @@ class mtd(loggable):
         """copy_to Copy given number of bytes from this mtd device
                    to an open file object.
 
-        :param fp: File object to copy to.
-        :param nbytes: Number of bytes to copy from mtd device.
-        :param start: Offset to start copying from.
-        :param **kwargs: configuration of copy operation
+        Args:
+            fp: File object to copy to.
+            nbytes: Number of bytes to copy from mtd device to open file.
+            start: Offset to start copying from.
+            **kwargs: configuration of copy operation
+
+        Raises:
+            IOError: if the device is not open or seek operation failed.
         """
         if self._fp is None:
             self.log.exception('mtd device is not open: %s', self._devpath)
@@ -152,12 +196,16 @@ class mtd(loggable):
                            kwargs.get('progress'))
 
     def copy_from(self, src_fp, nbytes, start=0, **kwargs):
-        """copy_from Copy given number of bytes from an file object to this
+        """copy_from Copy given number of bytes from an open file to this
                      mtd device.
 
-        :param src_fp: File object to copy from.
-        :param nbytes: Number of bytes to copy.
-        :param start: Offset to start copying to. Defaults to 0.
+        Args:
+            src_fp: File object to copy from.
+            nbytes: Number of bytes to copy.
+            start: Offset on mtd device to start copying to. Defaults to 0.
+
+        Raises:
+            IOError: if the device is not open or seek operation failed.
         """
         if self._fp is None:
             self.log.exception('mtd device is not open: %s', self._devpath)
@@ -228,15 +276,17 @@ class mtd(loggable):
     def load(self, filename, offset=0):
         """load Load the contents of a file into the mtd device.
 
-           Args:
-               filename: Filename to read the contents from.
-               offset: Offset to start transfer to mtd device.
-                       Default is 0.
+        Args:
+            filename: Filename to read the contents from.
+            offset: Offset to start transfer to mtd device.
+                    Default is 0.
+        Raises:
+            OSError: If the source file does not exist.
+            IOError: If the flock call fails.
 
-           Note:
-               This opens the mtd device as another file object and tries to
-               lock it as exclusive mode. An IOError will be raised if it fails
-               to lock.
+        Note:
+            This opens the mtd device as another file object and tries to
+            lock it as exclusive mode.
 
         """
         if not os.path.exists(filename):
@@ -247,8 +297,19 @@ class mtd(loggable):
         self.log.debug('writing mtd data from %s to %s',
                        filename, self._devpath)
         with open(self._devpath, 'wb') as dst:
-            fcntl.flock(dst.fileno(), fcntl.LOCK_EX)
+            try:
+                fcntl.flock(dst.fileno(), fcntl.LOCK_EX)
+            except IOError as err:
+                self.log.exception('failed to lock device for writing: %s',
+                                   err)
+                raise
             dst.seek(offset)
             with open(filename, 'rb') as src:
                 shutil.copyfileobj(src, dst)
+            try:
+                fcntl.flock(dst.fileno(), fcntl.LOCK_UN)
+            except IOError as err:
+                self.log.exception('failed to unlock device after writing: %s',
+                                   err)
+                raise
         self.log.debug('transfer complete')
