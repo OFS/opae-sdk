@@ -29,6 +29,7 @@ import time
 
 from contextlib import contextmanager
 from opae.admin.sysfs import class_node, sysfs_node
+from opae.admin.utils.log import loggable
 
 
 class region(sysfs_node):
@@ -69,6 +70,92 @@ class region(sysfs_node):
         os.close(self._fd)
 
 
+class flash_control(loggable):
+    def __init__(self, name='flash', mtd_dev=None, control_node=None):
+        super(flash_control, self).__init__()
+        self._name = name
+        self._mtd_dev = mtd_dev
+        self._control_node = control_node
+        self._enabled = False
+        self._dev_path = None
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def enabled(self):
+        return self._enabled
+
+    def _devpath(self, interval, retries):
+        if self._dev_path:
+            return self._dev_path
+
+        sysfs_path = os.path.dirname(self._control_node.sysfs_path)
+        sysfs_path = os.path.dirname(sysfs_path)
+
+        pattern = 'intel-*.*.auto/mtd/mtd*'
+
+        while retries:
+            mtds = sysfs_node(sysfs_path).find_all(pattern)
+
+            if not len(mtds):
+                time.sleep(interval)
+                retries -= 1
+                continue
+
+            mtd = [m for m in mtds if m.sysfs_path[-2:] != 'ro']
+            if len(mtd) > 1:
+                self.log.warn('found more than one: "/mtd/mtdX"')
+ 
+            return os.path.join('/dev', 
+                                os.path.basename(mtd[0].sysfs_path))
+
+        msg = 'timeout waiting for %s to appear' % (pattern)
+        self.log.error(msg)
+        raise IOError(msg)
+
+    def enable(self):
+        if self._control_node:
+            if not isinstance(self._control_node, sysfs_node):
+                raise ValueError('%s not a sysfs_node' % str(sysfs_node))
+            self._control_node.value = 1
+        self._enabled = True
+        self._dev_path = self.devpath
+
+    def disable(self, interval=0.1, retries=100):
+        if not self._enabled:
+            raise IOError('attempt to disable when not enabled')
+        if self._control_node:
+            self._control_node.value = 0
+            while os.path.exists(self._dev_path):
+                time.sleep(interval)
+                retries -= 1
+                if not retries:
+                    msg = 'timeout waiting for %s to vanish' % (self._dev_path)
+                    raise IOError(msg)
+            self._dev_path = None
+        self._enabled = False
+
+    @property
+    def devpath(self):
+        if not self._enabled:
+            raise IOError('cannot query devpath attribute outside context')
+        if not self._mtd_dev:
+            return self._devpath(0.1, 100)
+        dev_path = os.path.join('/dev', self._mtd_dev)
+        if not os.path.exists(dev_path):
+            raise AttributeError('no device found: %s' % dev_path)
+        return dev_path
+
+    def __enter__(self):
+        self.enable()
+        return self
+
+    def __exit__(self, ex_type, ex_val, ex_traceback):
+        self.disable()
+
+
 class fme(region):
     @property
     def pr_interface_id(self):
@@ -81,6 +168,31 @@ class fme(region):
     @property
     def spi_bus(self):
         return self.find_one('spi*/spi_master/spi*/spi*')
+
+    @property
+    def altr_asmip(self):
+        return self.find_one('altr-asmip*.*.auto')
+
+    def flash_controls(self):
+        if self.spi_bus:
+            sec = self.spi_bus.find_one('ifpga_sec_mgr/ifpga_sec*')
+            if sec:
+                return []
+            return [flash_control(name='fpga', mtd_dev=None,
+                                  control_node=self.spi_bus.node(
+                                      'fpga_flash_ctrl/fpga_flash_mode')),
+                    flash_control(name='bmcfw', mtd_dev=None,
+                                  control_node=self.spi_bus.node(
+                                      'bmcfw_flash_ctrl/bmcfw_flash_mode')),
+                    flash_control(name='bmcimg', mtd_dev=None,
+                                  control_node=self.spi_bus.node(
+                                      'bmcimg_flash_ctrl/bmcimg_flash_mode'))]
+        elif self.altr_asmip:
+            mtds = self.altr_asmip.find_all('mtd/mtd*')
+            mtd = [m for m in mtds if m.sysfs_path[-2:] != 'ro']
+            if len(mtd) > 1:
+                self.log.warn('found more than one: "/mtd/mtdX"')
+            return [flash_control(mtd_dev=os.path.basename(mtd[0].sysfs_path))]
 
 
 class port(region):
