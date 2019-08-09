@@ -46,7 +46,7 @@ from uuid import UUID
 
 from opae.admin.fpga import fpga as fpga_device
 from opae.admin.sysfs import pci_node
-from opae.admin.utils.process import call_process
+from opae.admin.utils.process import call_process, assert_not_running
 
 BMC_SENSOR_PATTERN = (r'^\(\s*(?P<num>\d+)\)\s*(?P<name>[\w \.]+)\s*:\s*'
                       r'(?P<value>[\d\.]+)\s+(?P<units>\w+)$')
@@ -1359,6 +1359,13 @@ def main():
         fh.setLevel(logging.DEBUG)
         fh.setFormatter(logging.Formatter(fmt=logfmt))
         LOG.addHandler(fh)
+
+    procs = ['pacd', 'fpgad', 'fpgainfo']
+    if not assert_not_running(procs):
+        LOG.error('One of %s is detected. '
+                  'Please end that task before attempting %s' %
+                  (str(procs), os.path.basename(sys.argv[0])))
+        sys.exit(1)
 
     if not DRY_RUN and os.getuid():
         LOG.error('must run as root')

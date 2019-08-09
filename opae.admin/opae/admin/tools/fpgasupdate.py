@@ -45,6 +45,7 @@ import signal
 import errno
 import logging
 from opae.admin.fpga import fpga
+from opae.admin.utils import process
 
 DEFAULT_BDF = 'ssss:bb:dd.f'
 
@@ -498,6 +499,13 @@ def main():
     stat = 1
     mesg = 'Secure update failed'
     gbs_hdr = None
+
+    procs = ['pacd', 'fpgad', 'fpgainfo']
+    if not process.assert_not_running(procs):
+        LOG.error('One of %s is detected. '
+                  'Please end that task before attempting %s' %
+                  (str(procs), os.path.basename(sys.argv[0])))
+        sys.exit(1)
 
     blk0 = decode_auth_block0(args.file)
     if blk0 is None:

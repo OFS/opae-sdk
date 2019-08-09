@@ -52,6 +52,7 @@ from array import array
 from opae.admin.fpga import fpga
 from opae.admin.tools import rsu
 from opae.admin.tools.rsu import do_rsu
+from opae.admin.utils import process
 
 LOG = logging.getLogger()
 
@@ -1592,6 +1593,13 @@ def main():
         log_hndlr.setLevel(logging.DEBUG)
     else:
         log_hndlr.setLevel(logging.INFO)
+
+    procs = ['pacd', 'fpgad', 'fpgainfo']
+    if not process.assert_not_running(procs):
+        LOG.error('One of %s is detected. '
+                  'Please end that task before attempting %s' %
+                  (str(procs), os.path.basename(sys.argv[0])))
+        sys.exit(1)
 
     LOG.debug('fpgaotsu Command line arguments')
     LOG.info('%s',args)
