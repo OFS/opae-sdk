@@ -109,7 +109,7 @@ def do_rsu(rsu_type, bdf, boot_page):
                      device.pci_node)
         raise SystemExit(os.EX_SOFTWARE)
     else:
-        device.safe_rsu_boot(boot_number, boot_type=rsu_type)
+        device.safe_rsu_boot(boot_number, type=rsu_type)
 
 
 def main():
