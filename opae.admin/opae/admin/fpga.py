@@ -107,8 +107,8 @@ class flash_control(loggable):
             mtd = [m for m in mtds if m.sysfs_path[-2:] != 'ro']
             if len(mtd) > 1:
                 self.log.warn('found more than one: "/mtd/mtdX"')
- 
-            return os.path.join('/dev', 
+
+            return os.path.join('/dev',
                                 os.path.basename(mtd[0].sysfs_path))
 
         msg = 'timeout waiting for %s to appear' % (pattern)
@@ -248,7 +248,10 @@ class fpga(class_node):
             self.log.warning('found more than one PORT')
 
     def rsu_boot(self, page, **kwargs):
-        boot_type = kwargs.get('type', 'bmcimg')
+        boot_type = kwargs.pop('type', 'bmcimg')
+        if kwargs:
+            self.log.exception('unrecognized kwargs: %s', kwargs)
+            raise ValueError('unrecognized kwargs: {}'.format(kwargs))
         if boot_type not in fpga.BOOT_TYPES:
             raise TypeError('type: {} not recognized'.format(boot_type))
 
