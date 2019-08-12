@@ -46,6 +46,7 @@ import errno
 import logging
 from opae.admin.fpga import fpga
 from opae.admin.utils import process
+from opae.admin.utils.progress import progress
 
 DEFAULT_BDF = 'ssss:bb:dd.f'
 
@@ -69,6 +70,8 @@ IFPGA_SEC_STATUS_TO_STR = {
     2: "IFPGA_STAT_BUSY",
     0xffffffff: "IFPGA_STAT_ERROR"
 }
+
+APPLY_BPS = 41000
 
 LOG = logging.getLogger()
 LOG_IOCTL = logging.DEBUG - 1
@@ -100,7 +103,7 @@ def parse_args():
     log_levels = ['state', 'ioctl', 'debug', 'info',
                   'warning', 'error', 'critical']
     parser.add_argument('--log-level', choices=log_levels,
-                        default='state', help='log level to use')
+                        default='info', help='log level to use')
 
     return parser.parse_args()
 
@@ -401,10 +404,15 @@ def update_fw(fd_dev, infile):
     orig_pos = infile.tell()
     infile.seek(0, os.SEEK_END)
     payload_size = infile.tell() - orig_pos
-    orig_payload_size = payload_size
     infile.seek(orig_pos, os.SEEK_SET)
-
-    LOG.debug('payload size: %d', payload_size)
+    LOG.info('updating from file %s with size %d',
+             infile.name, payload_size)
+    progress_cfg = {}
+    level = min([l.level for l in LOG.handlers])
+    if level < logging.INFO:
+        progress_cfg['log'] = LOG.debug
+    else:
+        progress_cfg['stream'] = sys.stdout
 
     retries = 65
     while True:
@@ -419,52 +427,49 @@ def update_fw(fd_dev, infile):
         retries -= 1
         time.sleep(1.0)
 
-    percentage = [False] * 101
-
     to_transfer = block_size if block_size <= payload_size \
         else payload_size
+    LOG.info('writing to staging area')
+    apply_time = payload_size/APPLY_BPS
+    with progress(bytes=payload_size, **progress_cfg) as prg:
+        while to_transfer:
+            buf = array.array('B')
+            buf.fromfile(infile, to_transfer)
 
-    while to_transfer:
-        buf = array.array('B')
-        buf.fromfile(infile, to_transfer)
+            buf_addr, buf_len = buf.buffer_info()
 
-        buf_addr, buf_len = buf.buffer_info()
+            if buf_len != to_transfer:
+                to_transfer = buf_len
 
-        if buf_len != to_transfer:
-            to_transfer = buf_len
+            LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_WRITE_BLK')
+            try:
+                fw_write_block(fd_dev, offset, to_transfer, buf_addr)
+            except IOError as exc:
+                return exc.errno, exc.strerror
 
-        LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_WRITE_BLK')
-        try:
-            fw_write_block(fd_dev, offset, to_transfer, buf_addr)
-        except IOError as exc:
-            return exc.errno, exc.strerror
-
-        payload_size -= to_transfer
-        offset += to_transfer
-        to_transfer = block_size if block_size <= payload_size \
-            else payload_size
-
-        perc = int((offset / float(orig_payload_size)) * 100.0)
-        if not percentage[perc]:
-            LOG.debug('offset: %d  %3d%%', offset, perc)
-            percentage[perc] = True
-
+            payload_size -= to_transfer
+            offset += to_transfer
+            to_transfer = block_size if block_size <= payload_size \
+                else payload_size
+            prg.update(offset)
     LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_DATA_SENT')
     try:
         fcntl.ioctl(fd_dev, IOCTL_IFPGA_SECURE_UPDATE_DATA_SENT)
     except IOError as exc:
         return exc.errno, exc.strerror
-
-    while True:
-        try:
-            status = fw_update_status(fd_dev)
-        except IOError as exc:
-            return exc.errno, exc.strerror
-        if status == 'IFPGA_STAT_IDLE':
-            break
-        elif status == 'IFPGA_STAT_ERROR':
-            return 1, 'Secure update failed'
-        time.sleep(0.5)
+    LOG.info('applying update')
+    with progress(time=apply_time, **progress_cfg) as prg:
+        while True:
+            try:
+                status = fw_update_status(fd_dev)
+            except IOError as exc:
+                return exc.errno, exc.strerror
+            prg.tick()
+            if status == 'IFPGA_STAT_IDLE':
+                break
+            elif status == 'IFPGA_STAT_ERROR':
+                return 1, 'Secure update failed'
+            time.sleep(0.5)
 
     return 0, 'Secure update OK'
 
