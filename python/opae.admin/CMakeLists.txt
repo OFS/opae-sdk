@@ -35,6 +35,7 @@ find_program (RPM_BUILD
 
 configure_file(setup.py.in ${CMAKE_CURRENT_SOURCE_DIR}/setup.py @ONLY)
 configure_file(setup.py.in ${ADMIN_STAGE_DIR}/setup.py @ONLY)
+configure_file(tox.ini ${ADMIN_STAGE_DIR}/tox.ini @ONLY)
 file(COPY opae DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/stage)
 
 
@@ -47,6 +48,11 @@ add_custom_target(opae.admin.wheel
     COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_wheel --universal
     WORKING_DIRECTORY ${ADMIN_STAGE_DIR}
     COMMENT "Building opae.admin Python wheel distribution"
+    )
+add_custom_target(opae.admin.tox
+    COMMAND ${PYTHON_EXECUTABLE} -m tox opae
+    WORKING_DIRECTORY ${ADMIN_STAGE_DIR}
+    COMMENT "Running tox on opae.admin"
     )
 
 if (RPM_BUILD)
