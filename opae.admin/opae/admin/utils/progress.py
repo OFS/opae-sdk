@@ -59,6 +59,7 @@ class progress(object):
         self._stream = kwargs.get('stream', sys.stdout)
         self._logfn = kwargs.get('log')
         self._start_time = time.time()
+        self._last_pct = None
         if kwargs.get('null', False):
             self.update_percent = self._noop
         else:
@@ -88,13 +89,16 @@ class progress(object):
         if ratio is not None and len(ratio) == 2:
             text += u' [{}/{} {}]'.format(ratio[0], ratio[1], self._units)
 
-        if self._logfn is not None:
-            self._logfn(text)
-        elif self._stream is not None:
-            self._stream.write(u'{}\r'.format(text))
-            self._stream.flush()
-        else:
+        if self._logfn is None and self._stream is None:
             return text
+
+        if percent > self._last_pct:
+            self._last_pct = percent
+            if self._logfn is not None:
+                self._logfn(text)
+            else:
+                self._stream.write(u'{}\r'.format(text))
+                self._stream.flush()
 
     def update(self, n_bytes):
         """update Update the total number of bytes.
