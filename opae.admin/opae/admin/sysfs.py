@@ -42,23 +42,71 @@ class sysfs_node(loggable):
     """sysfs_node is a base class representing a sysfs object in sysfs """
 
     def __init__(self, sysfs_path):
+        """__init__ Initializes a new sysfs_node object with a sysfs path.
+
+        Args:
+            sysfs_path: sysfs path to a 'file' or 'directory' object.
+        """
         super(sysfs_node, self).__init__()
         self._sysfs_path = sysfs_path
 
     def node(self, *nodes):
+        """node Gets a new sysfs_node object using the given paths.
+
+        Args:
+            *nodes: A list of paths to join with the first one being relative
+            to the path of this node.
+
+        Returns:
+            A sysfs_node object representing the final path derived from
+            joining the path of this node and the paths given in *nodes.
+
+        Raises:
+            NameError: If the final path does not exist.
+        """
         path = os.path.join(self._sysfs_path, *nodes)
         if not os.path.exists(path):
             raise NameError("Could not find sysfs node: {}".format(path))
         return sysfs_node(path)
 
     def find(self, pattern):
+        """find Find sysfs_node objects using a given glob pattern.
+
+        Args:
+            pattern(str): A glob pattern relative to the path of this node.
+
+        Returns:
+            A generator object that yields a sysfs_node object found when
+            iterated.
+        """
         for p in glob.glob(os.path.join(self._sysfs_path, pattern)):
             yield sysfs_node(p)
 
     def find_all(self, pattern):
+        """find_all Find sysfs_node objects using a given glob pattern.
+
+        Args:
+            pattern(str): A glob pattern relative to the path of this node.
+
+        Returns:
+            A list of all sysfs_node objects using the given pattern.
+        """
         return [item for item in self.find(pattern)]
 
     def find_one(self, pattern):
+        """find_one Find one sysfs_node object using the given glob pattern.
+
+        Args:
+            pattern(str): A glob pattern relative to the path of this node.
+
+        Returns:
+            None if no sysfs_node object are found with the given pattern.
+            One sysfs_node object if it finds one or more sysfs_node objects.
+
+        Notes:
+            This will return the first object found if more than one is found.
+            It will log a warning message if zero or more than one is found.
+        """
         items = self.find_all(pattern)
         if not items:
             self.log.warn('could not find: "%s"', pattern)
@@ -78,8 +126,25 @@ class sysfs_node(loggable):
 
     @property
     def value(self):
-        with self._open('r') as fd:
-            return fd.read().strip()
+        """value Read the value of a sysfs attribute
+
+        Returns: The string returned (trimmed of whitespace) from reading the
+                 attribute.
+
+        Raises:
+            IOError: If an IOError is caught while attempting to open the path
+                     object represented by this node.
+
+        Note:
+            Attempting to get a value from a sysfs path that is a directory
+            will result in an IOError being raised.
+        """
+        try:
+            with self._open('r') as fd:
+                return fd.read().strip()
+        except IOError as err:
+            self.log.exception('error opening: %s - %s', self.sysfs_path, err)
+            raise
 
     @value.setter
     def value(self, val):
@@ -104,10 +169,12 @@ class pci_node(sysfs_node):
     def __init__(self, pci_address, parent=None, **kwargs):
         """__init__ initialize a pci_node object
 
-        :param pci_address: The pci address of the node using following format
-                            [segment:]bus:device.function
-        :param parent(pci_node): Another pci_node object that is the parent of
-                                 this node in the PCIe tree
+        Args:
+            pci_address(dict): The pci address as a dictionary that contains
+                               the following keys:
+                               segment, bus, device, function.
+            parent(pci_node): Another pci_node object that is the parent of
+                              this node in the PCIe tree.
         """
         node_path = os.path.join(self.PCI_BUS_SYSFS,
                                  pci_address['pci_address'])
@@ -139,6 +206,16 @@ class pci_node(sysfs_node):
         return children
 
     def tree(self, level=0):
+        """tree Gets a tree representation of this node and any child nodes.
+
+        Args:
+            level: The level of this node. Default is 0. This is used to pad
+            spaces to the left.
+
+        Notes:
+            This function is recursively called with any children found in
+            this node, incrementing the level every recursive call.
+        """
         text = '{}{}\n'.format(' ' * level*4, self)
         for n in self.children:
             text += n.tree(level+1)
@@ -146,12 +223,34 @@ class pci_node(sysfs_node):
 
     @property
     def root(self):
+        """root Gets the root pci_node object.
+
+        Returns:
+            None if this node does not have a parent.
+            A pci_node object representing the root node by following the
+            parent up the tree until no parent is found.
+
+        Notes:
+            This relies on the parent given during initialization. This means
+            that it is possible for a root not be found even though the device
+            represented by this object is not a root port.
+        """
         if self.parent is None:
             return self
         return self.parent.root
 
     @property
     def branch(self):
+        """branch Gets the list of nodes from the root to this node.
+
+           Returns:
+               A list of nodes starting from the root port to this node.
+
+           Notes:
+               This relies on the parent given during initialization of this
+               node and its ancestors.
+
+        """
         if not self._branch:
             node = self
             while node:
@@ -161,6 +260,15 @@ class pci_node(sysfs_node):
 
     @property
     def endpoints(self):
+        """endpoints Gets a list of endpoints (or leaf nodes) in a PCIe tree
+           rooted at this node.
+
+        Returns:
+            A list of endpoints with this node as the root.
+
+        Notes:
+            If no children are found, this node is the list of endpoints.
+        """
         if not self._endpoints:
             self._endpoints = self._find_endpoints()
         return self._endpoints
@@ -217,7 +325,8 @@ class pci_node(sysfs_node):
     def parent(self, value):
         """parent set the parent (pci_node) of this node
 
-        :param value: set the parent (pci_node) to this value
+        Args:
+            value: set the parent (pci_node) to this value
         """
         self._parent = value
 
@@ -238,25 +347,57 @@ class pci_node(sysfs_node):
 
     @property
     def vendor_id(self):
+        """vendor_id Gets the vendor id of the PCIe device represented by this
+                     pci_node object.
+            Returns:
+                The vendor id of the device as an integer.
+        """
         return int(self.node('vendor').value, 16)
 
     @property
     def device_id(self):
+        """device_id Gets the device id of the PCIe device represented by this
+                     pci_node object.
+            Returns:
+                The device id of the device as an integer.
+        """
         return int(self.node('device').value, 16)
 
     @property
     def pci_id(self):
+        """pci_id Gets the vendor and device id of the PCIe device
+                  represented by this pci_node object.
+
+        Returns:
+            A two-element tuple made up of the vendor and device id,
+            as integers.
+        """
         return (self.vendor_id, self.device_id)
 
     def remove(self):
+        """remove Perform a hot-remove of the PCIe device represented by
+           this pci_node object.
+        """
         self.log.debug('removing device at %s', self.pci_address)
         self.node('remove').value = '1'
 
     def rescan(self):
+        """remove Perform a pci rescan of the PCIe device represented by
+                  this pci_node object.
+        """
         self.log.debug('rescanning device at %s', self.pci_address)
         self.node('rescan').value = '1'
 
     def rescan_bus(self, bus, power_on=True):
+        """rescan_bus Perform a pci rescan of the bus under this device
+                      represented by this pci_node object.
+
+        Args:
+            bus(str): The bus (including the segment or domain) to rescan.
+                      Example: 0000:5e
+            power_on(boolean): A boolean flag indicating whether or not power
+                               control should be set to 'on'
+        """
         if power_on:
             power = self.node('power', 'control')
             if power.value != 'on':
@@ -267,6 +408,17 @@ class pci_node(sysfs_node):
 
     @property
     def aer(self):
+        """aer Gets the current AER settings of the device represented by this
+               pci_node object.
+
+        Returns:
+            A two-element tuple (of integers) of the current AER mask
+            values.
+
+        Notes:
+            This relies on calling 'setpci' and will log an exception if an
+            error was encountered while calling 'setpci'.
+        """
         try:
             return (int(call_process(self._aer_cmd1), 16),
                     int(call_process(self._aer_cmd2), 16))
@@ -275,6 +427,16 @@ class pci_node(sysfs_node):
 
     @aer.setter
     def aer(self, values):
+        """aer Sets the AER settings of the device represented by this pci_node
+               object.
+
+        Args:
+            values(tuple:int): A two-element tuple of integers.
+
+        Notes:
+            This relies on calling 'setpci' and will log an exception if an
+            error was encountered while calling 'setpci'.
+        """
         try:
             call_process('{}={:#08x}'.format(self._aer_cmd1, values[0]))
             call_process('{}={:#08x}'.format(self._aer_cmd2, values[1]))
@@ -283,12 +445,41 @@ class pci_node(sysfs_node):
 
 
 class class_node(sysfs_node):
+    """class_node A class_node object represents a sysfs object directly
+                  under '/sys/class' directory.
+    """
     def __init__(self, path):
+        """__init__ Initializes a new class_node object found in /sys/class/..
+
+        Args:
+            path(str): Path to the sysfs class object represented by this path.
+
+        Notes:
+            Linux Kernel pci drivers typically place symbolic links to a sysfs
+            path of a pci device in /sys/class/<class name>/*.These links
+            typically point to paths found with this pattern:
+                '/sys/devices/pci*:*'
+            This initialization will resolve these links and parse the resolved
+            paths to determine the PCIe branch from the root port to the
+            device represented by this class_node object. Once the ancestors
+            are determined, the whole PCIe tree topology can be derived from
+            the root port.
+
+            This class is designed to be inherited from and contains a lot
+            of the boiler-plate code that sub-classes get for free.
+        """
         super(class_node, self).__init__(path)
         self._pci_node = self._parse_class_path(path)
 
     @property
     def pci_node(self):
+        """pci_node Gets the pci_node object this class_node points to.
+
+
+        Returns:
+            A pci_node object representing the PCIe device pointed to by the
+            symbolic link under /sys/class/<class name>
+        """
         return self._pci_node
 
     def _parse_class_path(self, sysfs_class_path):
@@ -315,6 +506,18 @@ class class_node(sysfs_node):
 
     @classmethod
     def enum_class(cls, sysfs_class_name, sysfs_class=None):
+        """enum_class Discover class_node objects under a given "class".
+
+        Args:
+            sysfs_class_name: The name of the class under /sys/class to look
+                              at.
+            sysfs_class(class_node): The class_node or deriving class to use
+                                     when creating class_node objects.
+
+        Notes:
+            If 'sysfs_class' is not specified, it will use this class.
+            This is meant so that classes deriving from this can omit this.
+        """
         sysfs_class = sysfs_class or cls
         log = LOG(cls.__name__)
         log.debug(sysfs_class_name)
@@ -331,6 +534,35 @@ class class_node(sysfs_node):
 
     @classmethod
     def enum(cls, filt=[]):
+        """enum Discover and return a list of class_node-derived objects given
+                a filter.
+
+        Args:
+            filt(list): A list of dictionaries that will be used as a filter.
+                        If an object matches all items in any one of these
+                        dictionaries, it will be added to the list of objects
+                        returned.
+
+        Notes:
+            The dictionary keys should contain a dot seperated list of
+            attributes where the first item is applied to the class discovered
+            and the following attributes are applied to the result of the
+            preceding result.
+            Examples:
+                class fpga(class_node):
+                    pass
+
+                fpga.enum([
+                    { 'pci_node.vendor_id': 0x8086 }
+                ])
+
+                This example finds all devices pointed to by symbolic links
+                under '/sys/class/fpga/*'
+
+                While finding these nodes, the root port will also be found by
+                processing the path under: /sys/devices/pci0000:XX/...
+
+        """
         log = LOG(cls.__name__)
 
         def func(obj):
