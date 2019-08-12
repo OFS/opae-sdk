@@ -954,13 +954,8 @@ class fpgaotsu_n3000(fpgaotsu):
 
             if o.pci_node.device_id == N3000_DEV_ID:
                 LOG.info('RSU BMC Start')
-                do_rsu('bmcimg',o.pci_node.pci_address,'factory');
+                do_rsu('bmcimg',o.pci_node.pci_address,'user');
                 LOG.info('RSU BMC END')
-
-                LOG.info('RSU FPGA Start')
-                do_rsu('fpga',o.pci_node.pci_address,'factory');
-                LOG.info('RSU FPGA END')
-
         return 0
 
     # fpga user update
@@ -1284,7 +1279,7 @@ class fpgaotsu_n3000(fpgaotsu):
                 raise Exception("Failed update & verify Updates MAX10 factory")
 
             # MAX10 User
-            LOG.info('Updates MAX10 CFM1/User %s from 0x%08x to 0x%08x ',self._fpga_cfg_data.max10_user.file,
+            LOG.info('Updates MAX10 CFM0/User %s from 0x%08x to 0x%08x ',self._fpga_cfg_data.max10_user.file,
                       self._fpga_cfg_data.max10_user.start, self._fpga_cfg_data.max10_user.end)
 
             mtd.erase(first_mtd_dev,
@@ -1462,7 +1457,6 @@ def fpga_update(path_json, rsu,rsu_only):
     inst = dict({'pci_node.device_id': int(fpga_cfg_instance.device,16)})
 
     if(rsu_only):
-        retval = do_rsu_fpga(fpga_cfg_instance,None)
         for o in fpga.enum([inst]):
             if o.pci_node.device_id == N3000_DEV_ID:
                 LOG.debug('Found FPGA FPGA N3000 Card')
