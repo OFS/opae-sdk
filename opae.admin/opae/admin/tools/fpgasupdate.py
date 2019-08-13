@@ -71,7 +71,7 @@ IFPGA_SEC_STATUS_TO_STR = {
     0xffffffff: "IFPGA_STAT_ERROR"
 }
 
-APPLY_BPS = 41000
+APPLY_BPS = 41000.0
 
 LOG = logging.getLogger()
 LOG_IOCTL = logging.DEBUG - 1
