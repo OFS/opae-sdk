@@ -24,11 +24,20 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+import codecs
+import os
 import sys
 import time
 
+from opae.admin.utils.log import loggable
 
-class progress(object):
+if sys.version_info[0] == 3:
+    from io import IOBase as _ftype
+else:
+    _ftype = file  # noqa (Python 3 will report this as an error)
+
+
+class progress(loggable):
     """progress is a class to show a progress bar on a stream or callback"""
     BAR = u'\u2588'
 
@@ -51,15 +60,27 @@ class progress(object):
                 null: If set to True, the progress reporting function becomes a
                       'noop' function.
         """
+        super(progress, self).__init__()
         self._total_size = kwargs.get('bytes')
         self._total_time = kwargs.get('time')
         self._total_bars = kwargs.get('bars', 20)
         self._units = kwargs.get('units', 'bytes')
         self._bar = kwargs.get('bar', self.BAR)
-        self._stream = kwargs.get('stream', sys.stdout)
         self._logfn = kwargs.get('log')
         self._start_time = time.time()
         self._last_pct = None
+        self._line_ending = '\r'
+        stream = kwargs.get('stream', sys.stdout)
+        utf_writer = codecs.getwriter('UTF-8')
+        if stream is not None:
+            if isinstance(stream, _ftype):
+                self._stream = utf_writer(stream)
+                if not os.isatty(stream.fileno()):
+                    self._line_ending = '\n'
+            else:
+                self.log.error('stream object is not writable')
+                self._stream = utf_writer(sys.stdout)
+
         if kwargs.get('null', False):
             self.update_percent = self._noop
         else:
@@ -97,7 +118,7 @@ class progress(object):
             if self._logfn is not None:
                 self._logfn(text)
             else:
-                self._stream.write(u'{}\r'.format(text))
+                self._stream.write(u'{}{}'.format(text, self._line_ending))
                 self._stream.flush()
 
     def update(self, n_bytes):
