@@ -178,11 +178,11 @@ class _READER_BASE(object):
         # with open("root_entry.bin", "wb") as f:
         #     root_entry.tofile(f)
 
-        with open("root_hash.bin", "wb") as f:
-            self.root_hash.tofile(f)
+        #with open("root_hash.bin", "wb") as f:
+        #    self.root_hash.tofile(f)
 
-        with open("root_hash_s10.bin", "wb") as f:
-            self.s10_root_hash.tofile(f)
+        #with open("root_hash_s10.bin", "wb") as f:
+        #    self.s10_root_hash.tofile(f)
 
         return root_entry
     
@@ -200,8 +200,8 @@ class _READER_BASE(object):
         sha_msb = sha[0:4] # get first 4 bytes
         del sha
         
-        with open("root_hash_s10.bin", "wb") as f:
-            self.s10_root_hash.tofile(f)
+        #with open("root_hash_s10.bin", "wb") as f:
+        #    self.s10_root_hash.tofile(f)
 
 
         # Root Entry Magic (ND)
