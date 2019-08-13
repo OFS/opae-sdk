@@ -329,7 +329,7 @@ def fw_update_status(fd_dev):
 
     returns the status as a string.
     """
-    buf = array.array('B', '\x00' * 32)
+    buf = array.array('B', [0] * 32)
     sizeof_ifpga_secure_status = 12
 
     # offset size name
@@ -362,7 +362,7 @@ def fw_write_block(fd_dev, offset, size, addr):
     size - the size of the memory buffer in bytes.
     addr - the user virtual address of the buffer.
     """
-    buf = array.array('B', '\x00' * 32)
+    buf = array.array('B', [0] * 32)
     sizeof_ifpga_secure_write = 24
 
     # offset size name
