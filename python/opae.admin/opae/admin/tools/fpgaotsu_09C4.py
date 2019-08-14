@@ -253,7 +253,8 @@ class otsu_updater(object):
             verify = obj.get('verify', False)
 
             with open(filename, 'rb') as infile:
-                LOG.info('Updating flash with %s', filename)
+                LOG.info('Updating flash@0x%x for %d bytes with %s',
+                         start, (end + 1) - start, filename)
 
                 infile.seek(seek)
                 if infile.tell() != seek:
@@ -294,7 +295,8 @@ class otsu_updater(object):
         src_bits.close()
 
         flash_bits = tempfile.NamedTemporaryFile(mode='wb', delete=False)
-        LOG.info("reading back flash for verification")
+        LOG.info('reading flash@0x%x for %d bytes for verification',
+                 start, (end + 1) - start)
         mtd_dev.copy_to(flash_bits,
                         (end + 1) - start,
                         start,
@@ -308,10 +310,10 @@ class otsu_updater(object):
         os.remove(flash_bits.name)
 
         if compare:
-            LOG.info('%s successfully verified', filename)
+            LOG.info('%s successfully verified @0x%x', filename, start)
             return (0, SUCCESS)
 
-        return (1, 'verification of %s failed' % filename)
+        return (1, 'verification of %s @0x%x failed' % (filename, start))
 
     def update(self):
         """Apply the update described by each 'flash' entry."""
