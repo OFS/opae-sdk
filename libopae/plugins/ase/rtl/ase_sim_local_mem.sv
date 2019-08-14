@@ -44,7 +44,7 @@ module ase_sim_local_mem_avmm
   (
    // Local memory as Avalon master
 `ifdef OFS_PLAT_PROVIDES_ASE_TOP
-   ofs_plat_local_mem_avalon_if.to_afu local_mem[NUM_BANKS],
+   ofs_plat_avalon_mem_if.to_master local_mem[NUM_BANKS],
 `else
    avalon_mem_if.to_afu local_mem[NUM_BANKS],
 `endif
@@ -166,7 +166,11 @@ module ase_sim_local_mem_avmm
             );
 
          // Mostly used for debugging
+`ifdef OFS_PLAT_PROVIDES_ASE_TOP
+         assign local_mem[b].instance_number = b;
+`else
          assign local_mem[b].bank_number = b;
+`endif
       end
    endgenerate
 
