@@ -31,10 +31,17 @@ import time
 
 from opae.admin.utils.log import loggable
 
-if sys.version_info[0] == 3:
+if sys.version_info[0] == 3:  # pragma: no cover
     from io import IOBase as _ftype
+
+    def wrap_stream(stream):
+        return stream
 else:
     _ftype = file  # noqa pylint: disable=E0602
+
+    def wrap_stream(stream):
+        utf_writer = codecs.getwriter('UTF-8')
+        return utf_writer(stream)
 
 
 class progress(loggable):
@@ -68,18 +75,20 @@ class progress(loggable):
         self._bar = kwargs.get('bar', self.BAR)
         self._logfn = kwargs.get('log')
         self._start_time = time.time()
-        self._last_pct = None
+        self._last_pct = 0
         self._line_ending = '\r'
         stream = kwargs.get('stream', sys.stdout)
-        utf_writer = codecs.getwriter('UTF-8')
+        if self._total_time == 0:
+            self._total_time = 1.0
+
         if stream is not None:
-            if isinstance(stream, _ftype):
-                self._stream = utf_writer(stream)
+            if hasattr(stream, 'write'):
+                self._stream = wrap_stream(stream)
                 if not os.isatty(stream.fileno()):
                     self._line_ending = '\n'
             else:
                 self.log.error('stream object is not writable')
-                self._stream = utf_writer(sys.stdout)
+                self._stream = wrap_stream(sys.stdout)
 
         if kwargs.get('null', False):
             self.update_percent = self._noop
@@ -156,4 +165,4 @@ class progress(loggable):
     def __exit__(self, ex_type, ex_value, ex_tb):
         if ex_type is None:
             self.end()
-        self._stream.write('\n')
+        self._stream.write(u'\n')

@@ -44,6 +44,11 @@ LOG = logging.getLogger()
 SUCCESS = 'One-Time Secure Update OK'
 FAILURE = 'One-Time Secure Update failed'
 
+if sys.version_info[0] == 3:
+    str_type = str
+else:
+    str_type = basestring  # noqa pylint: disable=E0602
+
 
 def to_int(value):
     """Can value be converted to an integer?
@@ -56,7 +61,7 @@ def to_int(value):
            and the converted number or (False, -1) if
            conversion is not possible.
     """
-    if isinstance(value, (str, unicode)):
+    if isinstance(value, str_type):
         try:
             res = int(value, 0)
         except ValueError:

@@ -23,38 +23,32 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-import mock
 import tempfile
+import time
+import sys
 import unittest
-import struct
 
-from nose2.tools import params
-from opae_mocks import mock_ioctl
-from opae.admin.tools import fpgasupdate
+from opae.admin.utils.progress import progress
 
+if sys.version_info[0] == 3:
+    temp_cfg = {'encoding': 'utf-8'}
+else:
+    temp_cfg = {}
 
-class test_ioctl_calls(unittest.TestCase):
-    def setUp(self):
-        self.temp_file = tempfile.TemporaryFile()
-        self.ioctl_handler = mock_ioctl()
+class test_progress(unittest.TestCase):
+    def test_notty(self):
+        with tempfile.NamedTemporaryFile(mode='w+',
+                                         **temp_cfg) as stream:
+            with progress(time=10, stream=stream) as prg:
+                for _ in range(100):
+                    prg.tick()
+                    time.sleep(0.1)
+            stream.seek(0)
+            print(stream.read())
 
-    def tearDown(self):
-        pass
+    def test_time0(self):
+        with progress(time=0) as prg:
+            for _ in range(10):
+                prg.tick()
+                time.sleep(0.1)
 
-    @params((0, 'IFPGA_STAT_IDLE'),
-            (1, 'IFPGA_STAT_AWAIT_DATA'),
-            (2, 'IFPGA_STAT_BUSY'),
-            (0xffffffff, 'IFPGA_STAT_ERROR'))
-    def test_fw_update_status(self, stat_int, stat_str):
-        def cb(fd, req, buf, *args):
-            self.assertEqual(fd, self.temp_file.fileno())
-            self.assertEqual(req,
-                             fpgasupdate.IOCTL_IFPGA_SECURE_UPDATE_GET_STATUS)
-            struct.pack_into('I', buf, 8, stat_int)
-
-        with self.ioctl_handler.register(
-                fpgasupdate.IOCTL_IFPGA_SECURE_UPDATE_GET_STATUS, cb) as ioctl:
-            with mock.patch('fcntl.ioctl', new=ioctl):
-                status = fpgasupdate.fw_update_status(self.temp_file.fileno())
-
-        self.assertEquals(status, stat_str)

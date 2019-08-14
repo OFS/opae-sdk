@@ -121,7 +121,7 @@ class mtd(loggable):
         #               as there is no guarantee that the same devpath will
         #               be used if device is hot-removed/hot-plugged.
         if self._size is None:
-            iodata = struct.pack('BIIIIIQ', 0, 0, 0, 0, 0, 0, 0)
+            iodata = struct.pack('BIQIIQ', 0, 0, 0, 0, 0, 0)
             with open(self._devpath, 'rb') as fp:
                 try:
                     res = fcntl.ioctl(fp.fileno(),
