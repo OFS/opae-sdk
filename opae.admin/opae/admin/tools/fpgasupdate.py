@@ -579,12 +579,12 @@ def main():
                 stat, mesg = update_fw(descr, args.file)
         except SecureUpdateError as exc:
             stat, mesg = exc.errno, exc.strerror
-        except KeyboardInterrupt as exc:
+        except KeyboardInterrupt as kb_interrupt:
             with sec_dev as descr:
                 try:
                     fcntl.ioctl(descr, IOCTL_IFPGA_SECURE_UPDATE_CANCEL)
-                except IOError as exc:
-                    if exc.errno != errno.EBUSY:
+                except IOError as io_err:
+                    if io_err.errno != errno.EBUSY:
                         raise
             stat, mesg = 1, 'Interrupted'
 

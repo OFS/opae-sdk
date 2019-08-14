@@ -47,6 +47,9 @@ try:
 except ImportError:
     sys.exit('Missing intelhex. Install by: sudo pip install intelhex')
 
+if sys.version_info[0] == 3:
+    raw_input = input
+
 RC_PVID = '0x8086:0x09c4'
 DC_PVID = '0x8086:0x0b2b'
 VC_PVID = '0x8086:0x0b30'
@@ -91,11 +94,11 @@ def check_rpd(ifile):
     pof_hdr = struct.unpack('IIIIIIII', data)
     for i in range(0, 3):
         if pof_hdr[i] != 0xffffffff:
-            print "invalid rpd file"
+            print("invalid rpd file")
             raise Exception
 
     if pof_hdr[3] != 0x6a6a6a6a:
-        print "invalid rpd file"
+        print("invalid rpd file")
         raise Exception
 
     return pof_hdr[4]
@@ -103,7 +106,7 @@ def check_rpd(ifile):
 
 def reverse_bits(x, n):
     result = 0
-    for i in xrange(n):
+    for i in range(n):
         if (x >> i) & 1:
             result |= 1 << (n - 1 - i)
     return result
@@ -142,8 +145,8 @@ def get_flash_size(dev):
 def flash_erase(dev, start, nbytes):
     MEMERASE = 0x40084d02
 
-    print "%s erasing 0x%08x bytes starting at 0x%08x" % (
-        datetime.datetime.now(), nbytes, start)
+    print("%s erasing 0x%08x bytes starting at 0x%08x" % (
+        datetime.datetime.now(), nbytes, start))
 
     ioctl_data = struct.pack('II', start, nbytes)
     with os.fdopen(os.open(dev, os.O_SYNC | os.O_RDWR), 'w') as file_:
@@ -151,8 +154,8 @@ def flash_erase(dev, start, nbytes):
 
 
 def flash_write(dev, start, nbytes, ifile):
-    print "%s writing 0x%08x bytes to 0x%08x" % (
-        datetime.datetime.now(), nbytes, start)
+    print("%s writing 0x%08x bytes to 0x%08x" % (
+        datetime.datetime.now(), nbytes, start))
 
     last_write_position = start
     with os.fdopen(os.open(dev, os.O_SYNC | os.O_RDWR), 'a') as file_:
@@ -178,15 +181,15 @@ def flash_write(dev, start, nbytes, ifile):
             nbytes -= rbytes
 
     bytes_written = last_write_position - start
-    print "%s actual bytes written 0x%x - 0x%x = 0x%x" % (
-        datetime.datetime.now(), last_write_position, start, bytes_written)
+    print("%s actual bytes written 0x%x - 0x%x = 0x%x" % (
+        datetime.datetime.now(), last_write_position, start, bytes_written))
 
     return bytes_written
 
 
 def flash_read(dev, start, nbytes, ofile):
-    print "%s reading 0x%08x bytes from 0x%08x" % (
-        datetime.datetime.now(), nbytes, start)
+    print("%s reading 0x%08x bytes from 0x%08x" % (
+        datetime.datetime.now(), nbytes, start))
 
     with os.fdopen(os.open(dev, os.O_RDONLY), 'r') as file_:
         os.lseek(file_.fileno(), start, os.SEEK_SET)
@@ -320,12 +323,12 @@ def get_bdf_spi_mapping():
 
 
 def print_bdf_mtd_mapping(bdf_map):
-    print "\nFPGA cards available for flashing:"
+    print("\nFPGA cards available for flashing:")
 
     for key in bdf_map.keys():
-        print "    {}".format(key)
+        print("    {}".format(key))
 
-    print
+    print()
 
     sys.exit(1)
 
@@ -349,7 +352,7 @@ def update_flash(ifile, mtd_dev, target_offset, input_offset, erase_len,
 
     ifile.seek(input_offset)
 
-    print "%s reversing bits" % (datetime.datetime.now())
+    print("%s reversing bits" % (datetime.datetime.now()))
     reverse_bits_in_file(ifile, ofile)
 
     ifile.close()
@@ -372,7 +375,7 @@ def update_flash(ifile, mtd_dev, target_offset, input_offset, erase_len,
 
         vfile.close()
 
-        print "%s verifying flash" % (datetime.datetime.now())
+        print("%s verifying flash" % (datetime.datetime.now()))
 
         retval = filecmp.cmp(ofile.name, vfile.name)
 
@@ -380,9 +383,9 @@ def update_flash(ifile, mtd_dev, target_offset, input_offset, erase_len,
         os.remove(vfile.name)
 
         if retval:
-            print "%s flash successfully verified" % (datetime.datetime.now())
+            print("%s flash successfully verified" % (datetime.datetime.now()))
         else:
-            print "failed to verify flash"
+            print("failed to verify flash")
             raise Exception
 
 
@@ -395,11 +398,11 @@ def fpga_update(ifile, mtd_dev, target_offset, input_offset, erase_len,
     try:
         mode = os.stat(mtd_dev).st_mode
     except Exception as ex:
-        print ex
+        print(ex)
         return 1
 
     if not stat.S_ISCHR(mode):
-        print "{} is not a device file.".format(mtd_dev)
+        print("{} is not a device file.".format(mtd_dev))
         return 1
 
     update_flash(ifile, mtd_dev, target_offset, input_offset, erase_len,
@@ -413,12 +416,12 @@ def get_dev_bmc(bdf):
                         'avmmi-bmc.*.auto')
     dirs = glob.glob(path)
     if len(dirs) < 1:
-        print "The avmmi-bmc driver was not found."
-        print "Driver or FIM may need to be upgraded."
+        print("The avmmi-bmc driver was not found.")
+        print("Driver or FIM may need to be upgraded.")
         sys.exit(1)
 
     if len(dirs) > 1:
-        print "Catastrophic error! More than one avmmi-bmc driver found."
+        print("Catastrophic error! More than one avmmi-bmc driver found.")
         sys.exit(1)
 
     dev = os.path.join('/dev', os.path.basename(dirs[0]))
@@ -495,9 +498,9 @@ class BittwareBmc(object):
         self.ihex.padding = 0xff
 
     def verify_segments(self, utype):
-        print self.ihex.segments()
+        print(self.ihex.segments())
         for (start, size) in self.ihex.segments():
-            print "0x%x 0x%x" % (start, size)
+            print("0x%x 0x%x" % (start, size))
 
     def bw_xact(self, txarray, rxlen):
         tx_buf = array('B', txarray)
@@ -561,7 +564,7 @@ class BittwareBmc(object):
         if active != app:
             raise Exception("failed to jump to app {}".format(app))
         else:
-            print "successfully jumped to app {}".format(active)
+            print("successfully jumped to app {}".format(active))
 
     def bl_read(self, device, offset, count):
         if count > self.BW_BL_READ_MAX:
@@ -614,9 +617,9 @@ class BittwareBmc(object):
                             (tx_cnt, count))
 
     def verify_partition(self, part):
-        print "verifying %s from 0x%x to 0x%x" % (
+        print("verifying %s from 0x%x to 0x%x" % (
             part['name'], part['start'],
-            part['hdr_start'] + self.BW_BL_HDR_SIZE)
+            part['hdr_start'] + self.BW_BL_HDR_SIZE))
 
         valid = True
         for offset in range(part['start'],
@@ -628,8 +631,8 @@ class BittwareBmc(object):
 
             for i in range(self.BW_BL_READ_MAX):
                 if rx_buf[i] != self.ihex[offset+i]:
-                    print "mismatch at offset 0x%x 0x%x != 0x%x" % (
-                        offset+i, rx_buf[i], self.ihex[offset+i])
+                    print("mismatch at offset 0x%x 0x%x != 0x%x" % (
+                        offset+i, rx_buf[i], self.ihex[offset+i]))
                     valid = False
 
         return valid
@@ -650,8 +653,8 @@ class BittwareBmc(object):
             for i in range(offset, offset+self.BW_BL_WRITE_MAX):
                 data.append(ih[i])
 
-            print "    0x%x - 0x%x %d" % (
-                offset, offset + self.BW_BL_WRITE_MAX, len(data))
+            print("    0x%x - 0x%x %d" % (
+                offset, offset + self.BW_BL_WRITE_MAX, len(data)))
 
             valid = False
             j = 0
@@ -684,9 +687,9 @@ class BittwareBmc(object):
         for part in self.partitions:
             if part['app'] == utype:
                 start = part['start']
-                print "updating %s from 0x%x to 0x%x" % (
+                print("updating %s from 0x%x to 0x%x" % (
                     part['name'], start,
-                    part['hdr_start'] + self.BW_BL_HDR_SIZE)
+                    part['hdr_start'] + self.BW_BL_HDR_SIZE))
 
                 if part['start'] == 0:
                     self.write_page0()
@@ -706,7 +709,7 @@ def bmc_update(utype, ifile, bdf):
 
     ver, active = bw_bmc.bl_version()
 
-    print "ver %d act %d" % (ver, active)
+    print("ver %d act %d" % (ver, active))
 
     if utype == 'bmc_bl':
         bw_bmc.verify_segments(bw_bmc.BW_ACT_APP_BL)
@@ -746,7 +749,7 @@ def get_mtd_from_spi_path(mode_path, spi_path):
         for mtd in mtds:
             if not fnmatch.fnmatchcase(mtd, "*ro"):
                 mtd_dev = os.path.join('/dev', os.path.basename(mtd))
-                print "using %s" % (mtd_dev)
+                print("using %s" % (mtd_dev))
                 return mtd_dev
 
     raise Exception("no mtd node found for mode %s" % (mode_path))
@@ -788,27 +791,27 @@ def bmc_fw_update(ifile, spi_path, no_verify):
         with os.fdopen(os.open(mtd_dev, os.O_SYNC | os.O_RDWR), 'a') as file_:
             # write from offset 256 bytes to end
             os.lseek(file_.fileno(), start + BMC_FW_HEAD_SIZE, os.SEEK_SET)
-            print "%s writing 0x%08x bytes to 0x%08x" % \
+            print("%s writing 0x%08x bytes to 0x%08x" %
                   (datetime.datetime.now(), size - BMC_FW_HEAD_SIZE,
-                   start + BMC_FW_HEAD_SIZE)
+                   start + BMC_FW_HEAD_SIZE))
             os.write(file_.fileno(), bdata[BMC_FW_HEAD_SIZE:])
             # write first 256 bytes
             os.lseek(file_.fileno(), start, os.SEEK_SET)
-            print "%s writing 0x%08x bytes to 0x%08x" % \
-                  (datetime.datetime.now(), BMC_FW_HEAD_SIZE, start)
+            print("%s writing 0x%08x bytes to 0x%08x" %
+                  (datetime.datetime.now(), BMC_FW_HEAD_SIZE, start))
             os.write(file_.fileno(), bdata[:BMC_FW_HEAD_SIZE])
 
             if not no_verify:
                 os.lseek(file_.fileno(), start, os.SEEK_SET)
                 read_back_data = os.read(file_.fileno(), size)
                 if read_back_data != ihex.tobinstr():
-                    print "failed to verify data"
+                    print("failed to verify data")
                     ret = 1
                 else:
-                    print "%s flash successfully verified" % \
-                          (datetime.datetime.now())
-    except (Exception, KeyboardInterrupt), ex:
-        print ex
+                    print("%s flash successfully verified" %
+                          (datetime.datetime.now()))
+    except (Exception, KeyboardInterrupt) as ex:
+        print(ex)
         ret = 1
 
     write_file(mode_path, "0")
@@ -823,22 +826,22 @@ def bmc_fw_update(ifile, spi_path, no_verify):
 def validate_bdf(bdf, bdf_pvid_map):
     if not bdf:
         if len(bdf_pvid_map) > 1:
-            print "Must specify a bdf. More than one device found."
+            print("Must specify a bdf. More than one device found.")
             print_bdf_mtd_mapping(bdf_pvid_map)
         else:
             bdf = bdf_pvid_map.keys()[0]
     else:
         bdf = normalize_bdf(bdf)
         if not bdf:
-            print "{} is an invalid bdf".format(bdf)
+            print("{} is an invalid bdf".format(bdf))
             sys.exit(1)
         elif bdf not in bdf_pvid_map.keys():
-            print "Could not find fpga device for {}".format(bdf)
+            print("Could not find fpga device for {}".format(bdf))
             print_bdf_mtd_mapping(bdf_pvid_map)
 
     if bdf_pvid_map[bdf] not in KNOWN_PVIDS:
-        print "{} is unsupported PCIE device: {}".format(
-            bdf, bdf_pvid_map[bdf])
+        print("{} is unsupported PCIE device: {}".format(
+            bdf, bdf_pvid_map[bdf]))
         sys.exit(1)
 
     return bdf
@@ -939,7 +942,7 @@ def rescan_pci_bus(bdf, bus):
 
 
 def dc_vc_reconfigure(bdf, ld_path, boot_page):
-    print "%s performing remote system update" % (datetime.datetime.now())
+    print("%s performing remote system update" % (datetime.datetime.now()))
 
     (upstream_bdf, target_bdf) = get_upstream_bdf(bdf)
 
@@ -956,7 +959,7 @@ def dc_vc_reconfigure(bdf, ld_path, boot_page):
 
     write_file(rm_path, "1")
 
-    print "%s waiting for FPGA reconfiguration" % (datetime.datetime.now())
+    print("%s waiting for FPGA reconfiguration" % (datetime.datetime.now()))
 
     time.sleep(10)
 
@@ -970,7 +973,7 @@ def dc_vc_reconfigure(bdf, ld_path, boot_page):
 
     set_aer(upstream_bdf, 0, 0)
 
-    print "%s pci bus rescanned" % (datetime.datetime.now())
+    print("%s pci bus rescanned" % (datetime.datetime.now()))
 
     return 0
 
@@ -1034,8 +1037,8 @@ def dc_vc_fpga_update(ifile, utype, bdf, spi_path, rsu, boot_page, no_verify):
     try:
         ret = fpga_update(ifile, mtd_dev, target_offset, input_offset,
                           erase_len, no_verify)
-    except (Exception, KeyboardInterrupt), ex:
-        print ex
+    except (Exception, KeyboardInterrupt) as ex:
+        print(ex)
         ret = 1
 
     write_file(mode_path, "0")
@@ -1056,7 +1059,7 @@ def vc_update_eeprom(ifile, bdf):
                                          '*-*', 'eeprom'))
 
     if len(eeprom_path) != 1:
-        print "eeprom_path length %d != 1" % (len(eeprom_path))
+        print("eeprom_path length %d != 1" % (len(eeprom_path)))
         ret = 1
     else:
         with open(eeprom_path[0], 'wb') as wfile:
@@ -1075,10 +1078,10 @@ def dc_update_eeprom(ifile, spi_path):
     time.sleep(1)
 
     eeprom_path = glob.glob(os.path.join(spi_path, 'altera-i2c*auto',
-                            'i2c-*', '*-0057/', 'eeprom'))
+                                         'i2c-*', '*-0057/', 'eeprom'))
 
     if len(eeprom_path) != 1:
-        print "eeprom_path length %d != 1" % (len(eeprom_path))
+        print("eeprom_path length %d != 1" % (len(eeprom_path)))
         ret = 1
     else:
         with open(eeprom_path[0], 'wb') as wfile:
@@ -1113,17 +1116,17 @@ def check_file(ifile, utype):
             bin_hdr = struct.unpack('>II', data)
             if bin_hdr[0] != VC_FPGA_IMAGE_MAGIC_NUM1 or \
                bin_hdr[1] != VC_FPGA_IMAGE_MAGIC_NUM2:
-                print "invalid fpga image file"
+                print("invalid fpga image file")
                 ret = 1
             if utype == 'dtb':
                 ifile.seek(VC_DC_DTB_BLOCK_OFFSET)
                 data = ifile.read(4)
                 dtb_hdr = struct.unpack('>I', data)
                 if dtb_hdr[0] != DTB_REVERSED_MAGIC_NUM:
-                    print "invalid dtb magic number"
+                    print("invalid dtb magic number")
                     ret = 1
         else:
-            print "invalid fpga image length {}".format(image_len)
+            print("invalid fpga image length {}".format(image_len))
             ret = 1
     elif utype in ['bmc_img', 'bmc_factory']:
         if image_len == VC_MAX10_IMAGE_LENGTH:
@@ -1131,10 +1134,10 @@ def check_file(ifile, utype):
             data = ifile.read(4)
             rpd_hdr = struct.unpack('I', data)
             if rpd_hdr[0] != VC_MAX10_IMAGE_MAGIC_NUM:
-                print "invalid max10 image file"
+                print("invalid max10 image file")
                 ret = 1
         else:
-            print "invalid max10 image length {}".format(image_len)
+            print("invalid max10 image length {}".format(image_len))
             ret = 1
     else:
         ret = 0
@@ -1149,15 +1152,15 @@ def check_file_extension(ifile, utype):
     extension = ifile.name.split('.')[-1].lower()
     if utype in ['factory', 'factory_only', 'user', 'dtb']:
         if extension != 'bin':
-            print "invalid fpga image file extension"
+            print("invalid fpga image file extension")
             ret = 1
     elif utype in ['bmc_img', 'bmc_factory']:
         if extension != 'rpd':
-            print "invalid max10 image file extension"
+            print("invalid max10 image file extension")
             ret = 1
     elif utype in ['bmc_fw']:
         if extension != 'ihex':
-            print "invalid nios firmware file extension"
+            print("invalid nios firmware file extension")
             ret = 1
     else:
         ret = 0
@@ -1168,31 +1171,29 @@ def check_file_extension(ifile, utype):
 def vc_phy_eeprom_update(ifile, spi_path, no_verify):
     ret = bmc_fw_update(ifile, spi_path, no_verify)
     if ret == 0:
-        print "%s updating phy eeprom" % (datetime.datetime.now())
+        print("%s updating phy eeprom" % (datetime.datetime.now()))
         load_path = os.path.join(spi_path, 'pkvl', 'eeprom_load')
         try:
             write_file(load_path, "1")
         except (Exception, KeyboardInterrupt):
             ret = 1
         if ret == 0:
-            print "%s successful" % (datetime.datetime.now())
+            print("%s successful" % (datetime.datetime.now()))
         else:
-            print "%s failed" % (datetime.datetime.now())
+            print("%s failed" % (datetime.datetime.now()))
     else:
-        print "%s abort updating phy eeprom" % (datetime.datetime.now())
+        print("%s abort updating phy eeprom" % (datetime.datetime.now()))
 
     return ret
-
 
 
 def main():
     args = parse_args()
 
-
     bdf_pvid_map = get_bdf_pvid_mapping()
 
     if len(bdf_pvid_map) == 0:
-        print "No FPGA devices found"
+        print("No FPGA devices found")
         sys.exit(1)
 
     bdf = validate_bdf(args.bdf, bdf_pvid_map)
@@ -1202,7 +1203,7 @@ def main():
         bdf_map = get_bdf_spi_mapping()
         spi_path = bdf_map[bdf]
         if get_flash_mode(spi_path) == 1:
-            print "fpgaflash on {} is in progress, try later".format(bdf)
+            print("fpgaflash on {} is in progress, try later".format(bdf))
             sys.exit(1)
         if check_file_extension(args.file, args.type) == 1:
             sys.exit(1)
@@ -1214,19 +1215,19 @@ def main():
         if (bdf_pvid_map[bdf] == DC_PVID) or (bdf_pvid_map[bdf] == VC_PVID):
             sys.exit(bmc_fw_update(args.file, spi_path, args.no_verify))
         else:
-            print "bmc_fw only supported on {} and {}".format(DC_PVID, VC_PVID)
+            print("bmc_fw only supported on {} and {}".format(DC_PVID, VC_PVID))
             sys.exit(1)
     elif (args.type == 'bmc_bl') or (args.type == 'bmc_app'):
         if bdf_pvid_map[bdf] == RC_PVID:
             sys.exit(bmc_update(args.type, args.file, bdf))
         else:
-            print "{} only supported on {}".format(args.type, RC_PVID)
+            print("{} only supported on {}".format(args.type, RC_PVID))
             sys.exit(1)
     elif args.type == 'phy_eeprom':
         if bdf_pvid_map[bdf] == VC_PVID:
             sys.exit(vc_phy_eeprom_update(args.file, spi_path, args.no_verify))
         else:
-            print "{} only supported on {}".format(args.type, VC_PVID)
+            print("{} only supported on {}".format(args.type, VC_PVID))
             sys.exit(1)
 
     if not args.yes and \
@@ -1238,7 +1239,7 @@ def main():
 
     if bdf_pvid_map[bdf] == RC_PVID:
         if args.type in ['rsu', 'bmc_img', 'eeprom', 'bmc_factory']:
-            print "%s not supported on %s" % (args.type, RC)
+            print("%s not supported on %s" % (args.type, RC))
             sys.exit(1)
 
         ret = rc_fpga_update(args.file, args.type, bdf, args.no_verify)
@@ -1265,8 +1266,8 @@ def main():
             elif bdf_pvid_map[bdf] == VC_PVID:
                 ret = vc_update_eeprom(args.file, bdf)
             else:
-                print "eeprom only supported on {} and {}".format(DC_PVID,
-                                                                  VC_PVID)
+                print("eeprom only supported on {} and {}".format(DC_PVID,
+                                                                  VC_PVID))
                 ret = 1
         else:
             # file validation check for Vista Creek

@@ -235,7 +235,7 @@ def ignore_signals(*signals):
     try:
         yield handlers
     finally:
-        for k, v in handlers.iteritems():
+        for k, v in handlers.items():
             signal.signal(k, v)
 
 
@@ -564,7 +564,7 @@ class nvm_updater(object):
         LOG.debug('searching %s', xpath)
 
         def filter_attrib(node):
-            for k, v in kwargs.iteritems():
+            for k, v in kwargs.items():
                 if k not in node.attrib:
                     return False
                 if k in ['vendor', 'device', 'bus']:
@@ -610,7 +610,7 @@ class pac(object):
                             dtb=dtb(fpga, can_verify=False))
 
     def add_flashables(self, **kwargs):
-        for k, v in kwargs.iteritems():
+        for k, v in kwargs.items():
             if isinstance(v, flashable):
                 self._flashables[k] = v
             else:
@@ -832,7 +832,7 @@ class pac(object):
 
         errors = 0
 
-        for (k, (lo, hi)) in bmc_sensors['ranges'].iteritems():
+        for (k, (lo, hi)) in bmc_sensors['ranges'].items():
             sensor = sensors.get(k)
             if not sensor:
                 LOG.debug("sensor '%s' not found in sensor data", k)
