@@ -23,38 +23,43 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-import mock
+import contextlib
 import tempfile
-import unittest
-import struct
+import sys
 
-from nose2.tools import params
-from opae_mocks import mock_ioctl
-from opae.admin.tools import fpgasupdate
+if sys.version_info[0] == 3:
+    open_string = 'builtins.open'
+else:
+    open_string = '__builtin__.open'
 
 
-class test_ioctl_calls(unittest.TestCase):
-    def setUp(self):
-        self.temp_file = tempfile.TemporaryFile()
-        self.ioctl_handler = mock_ioctl()
+class mock_open(object):
+    real_open = open
 
-    def tearDown(self):
-        pass
+    def __init__(self, path):
+        self._path = path
 
-    @params((0, 'IFPGA_STAT_IDLE'),
-            (1, 'IFPGA_STAT_AWAIT_DATA'),
-            (2, 'IFPGA_STAT_BUSY'),
-            (0xffffffff, 'IFPGA_STAT_ERROR'))
-    def test_fw_update_status(self, stat_int, stat_str):
-        def cb(fd, req, buf, *args):
-            self.assertEqual(fd, self.temp_file.fileno())
-            self.assertEqual(req,
-                             fpgasupdate.IOCTL_IFPGA_SECURE_UPDATE_GET_STATUS)
-            struct.pack_into('I', buf, 8, stat_int)
+    def __call__(self, path, *args, **kwargs):
+        if path == self._path:
+            return tempfile.NamedTemporaryFile(prefix='opae_mock_')
+        else:
+            return self.real_open(path, *args, **kwargs)
 
-        with self.ioctl_handler.register(
-                fpgasupdate.IOCTL_IFPGA_SECURE_UPDATE_GET_STATUS, cb) as ioctl:
-            with mock.patch('fcntl.ioctl', new=ioctl):
-                status = fpgasupdate.fw_update_status(self.temp_file.fileno())
 
-        self.assertEquals(status, stat_str)
+class mock_ioctl(object):
+    def __init__(self):
+        self._requests = {}
+
+    @contextlib.contextmanager
+    def register(self, req, cb):
+        self._requests[req] = cb
+        try:
+            yield self
+        finally:
+            del(self._requests[req])
+
+    def __call__(self, fd, opt, arg=0, mutate=False):
+        if opt in self._requests:
+            return self._requests[opt](fd, opt, arg, mutate)
+        else:
+            raise KeyError('request not registered: {}'.format(opt))
