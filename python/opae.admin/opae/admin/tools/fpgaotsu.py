@@ -229,7 +229,8 @@ class flash_data(object):
     def __str__(self):
         return ('type: {:25s}  filename: {:60s} '
                 'start: {:0x}  end: {:0x} ').format(
-            self.type, self.filename, self.start, self.end)
+                    self.type, self.filename, self.start, self.end)
+
 
     def print_data(self):
         LOG.debug('file :%s', self.filename)
@@ -282,63 +283,63 @@ class fpga_cfg_data(object):
 
     def check_fpga_images(self):
         if(self.bmc_root_key_hash.file is not None and
-                not os.path.isfile(self.bmc_root_key_hash.file)):
-            LOG.error('file does not exist:%s', self.bmc_root_key_hash.file)
+            not os.path.isfile(self.bmc_root_key_hash.file)):
+            LOG.error('file does not exist:%s',self.bmc_root_key_hash.file)
             return False
 
         if(self.bmc_root_key_program.file is not None and
-                not os.path.isfile(self.bmc_root_key_program.file)):
-            LOG.error('file does not exist:%s', self.bmc_root_key_program.file)
+            not os.path.isfile(self.bmc_root_key_program.file)):
+            LOG.error('file does not exist:%s',self.bmc_root_key_program.file)
             return False
 
         if(self.sr_root_key_hash.file is not None and
-                not os.path.isfile(self.sr_root_key_hash.file)):
-            LOG.error('file does not exist:%s', self.sr_root_key_hash.file)
+            not os.path.isfile(self.sr_root_key_hash.file)):
+            LOG.error('file does not exist:%s',self.sr_root_key_hash.file)
             return False
 
         if(self.sr_root_key_program.file is not None and
-                not os.path.isfile(self.sr_root_key_program.file)):
-            LOG.error('file does not exist:%s', self.sr_root_key_program.file)
+            not os.path.isfile(self.sr_root_key_program.file)):
+            LOG.error('file does not exist:%s',self.sr_root_key_program.file)
             return False
 
         if(self.bmc_dts.file is not None and
-                not os.path.isfile(self.bmc_dts.file)):
-            LOG.error('file does not exist:%s', self.bmc_dts.file)
+            not os.path.isfile(self.bmc_dts.file)):
+            LOG.error('file does not exist:%s',self.bmc_dts.file)
             return False
 
         if(self.nios_factory_header.file is not None and
-                not os.path.isfile(self.nios_factory_header.file)):
-            LOG.error('file does not exist:%s', self.nios_factory_header.file)
+            not os.path.isfile(self.nios_factory_header.file)):
+            LOG.error('file does not exist:%s',self.nios_factory_header.file)
             return False
 
         if(self.fpga_factory.file is not None and
-                not os.path.isfile(self.fpga_factory.file)):
-            LOG.error('file does not exist:%s', self.fpga_factory.file)
+            not os.path.isfile(self.fpga_factory.file)):
+            LOG.error('file does not exist:%s',self.fpga_factory.file)
             return False
 
         if(self.nios_bootloader.file is not None and
-                not os.path.isfile(self.nios_bootloader.file)):
-            LOG.error('file does not exist:%s', self.nios_bootloader.file)
+            not os.path.isfile(self.nios_bootloader.file)):
+            LOG.error('file does not exist:%s',self.nios_bootloader.file)
             return False
 
         if(self.max10_factory.file is not None and
-                not os.path.isfile(self.max10_factory.file)):
-            LOG.error('file does not exist:%s', self.max10_factory.file)
+            not os.path.isfile(self.max10_factory.file)):
+            LOG.error('file does not exist:%s',self.max10_factory.file)
             return False
 
         if(self.max10_user.file is not None and
-                not os.path.isfile(self.max10_user.file)):
-            LOG.error('file does not exist:%s', self.max10_user.file)
+            not os.path.isfile(self.max10_user.file)):
+            LOG.error('file does not exist:%s',self.max10_user.file)
             return False
 
         if(self.nios_user_header.file is not None and
-                not os.path.isfile(self.nios_user_header.file)):
-            LOG.error('file does not exist:%s', self.nios_user_header.file)
+            not os.path.isfile(self.nios_user_header.file)):
+            LOG.error('file does not exist:%s',self.nios_user_header.file)
             return False
 
         if(self.nios_user.file is not None and
-                not os.path.isfile(self.nios_user.file)):
-            LOG.error('file does not exist:%s', self.nios_user.file)
+            not os.path.isfile(self.nios_user.file)):
+            LOG.error('file does not exist:%s',self.nios_user.file)
             return False
 
         return True
@@ -598,9 +599,8 @@ class fpgaotsu_d5005(fpgaotsu):
                 LOG.exception('Failed update & verify Nios user header')
                 raise Exception("Failed update & verify Nios user header")
 
-        except Exception as e:
-            LOG.exception('Failed to update D5005 FPGA')
-            LOG.exception(e.message, e.args)
+        except Exception as err:
+            LOG.exception('Failed to update D5005 FPGA: %s', err)
             retval = -1
 
         finally:
@@ -659,9 +659,8 @@ class fpgaotsu_d5005(fpgaotsu):
                 LOG.exception('Failed update & verify  FPGA user Image')
                 raise Exception("Failed update & verify  FPGA user Image")
 
-        except Exception as e:
-            LOG.exception('Failed to update D5005 FPGA')
-            LOG.exception(e.message, e.args)
+        except Exception as err:
+            LOG.exception('Failed to update D5005 FPGA: %s', err)
             retval = -1
         finally:
             super(
@@ -787,9 +786,8 @@ class fpgaotsu_d5005(fpgaotsu):
                 LOG.exception('Failed update & verify max10 user')
                 raise Exception("Failed update & verify max10 user")
 
-        except Exception as e:
-            LOG.exception('Failed to update D5005 FPGA')
-            LOG.exception(e.message, e.args)
+        except Exception as err:
+            LOG.exception('Failed to update D5005 FPGA: %s', err)
             retval = -1
 
         finally:
@@ -811,12 +809,8 @@ class fpgaotsu_d5005(fpgaotsu):
                 return -1
 
             # Enable fpga_flash_mode
-            mtd_dev = super(
-                fpgaotsu_d5005,
-                self).get_mtd(
-                'fpga_flash_ctrl',
-                'fpga_flash_mode')
-            LOG.debug('spi mtd_dev:%s', mtd_dev)
+            mtd_dev = super(fpgaotsu_d5005,self).get_mtd('fpga_flash_ctrl', 'fpga_flash_mode')
+            LOG.debug('spi mtd_dev:%s',mtd_dev)
 
             # FLASH SIZE
             ret_size = mtd.size(mtd_dev)
@@ -1019,9 +1013,8 @@ class fpgaotsu_d5005(fpgaotsu):
                 LOG.exception('Failed update & verify  FPGA Image')
                 raise Exception("Failed update & verify  FPGA Image")
 
-        except Exception as e:
-            LOG.exception('Failed to update D5005 FPGA')
-            LOG.exception(e.message, e.args)
+        except Exception as err:
+            LOG.exception('Failed to update D5005 FPGA: %s', err)
             retval = -1
         finally:
             super(
@@ -1187,9 +1180,8 @@ class fpgaotsu_n3000(fpgaotsu):
                 LOG.exception('Failed update & verify  FPGA user Image')
                 raise Exception("Failed update & verify  FPGA user Image")
 
-        except Exception as e:
-            LOG.exception('Failed to update D5005 FPGA')
-            LOG.exception(e.message, e.args)
+        except Exception as err:
+            LOG.exception('Failed to update D5005 FPGA: %s', err)
             retval = -1
         finally:
             super(
@@ -1282,9 +1274,8 @@ class fpgaotsu_n3000(fpgaotsu):
                 LOG.exception('Failed update & verify NIOS factory header')
                 raise Exception("Failed update & verify NIOS factory header")
 
-        except Exception as e:
-            LOG.exception('Failed to update D5005 FPGA')
-            LOG.exception(e.message, e.args)
+        except Exception as err:
+            LOG.exception('Failed to update D5005 FPGA: %s', err)
             retval = -1
 
         finally:
@@ -1482,9 +1473,8 @@ class fpgaotsu_n3000(fpgaotsu):
                 LOG.exception('Failed update & verify  FPGA Image')
                 raise Exception("Failed update & verify  FPGA Image")
 
-        except Exception as e:
-            LOG.exception('Failed to update D5005 FPGA')
-            LOG.exception(e.message, e.args)
+        except Exception as err:
+            LOG.exception('Failed to update D5005 FPGA: %s', err)
             retval = -1
 
         finally:
@@ -1609,9 +1599,8 @@ class fpgaotsu_n3000(fpgaotsu):
                 LOG.exception('Failed update & verify Updates max10 user')
                 raise Exception("Failed update & verify Updates max10 user")
 
-        except Exception as e:
-            LOG.exception('Failed to update D5005 FPGA')
-            LOG.exception(e.message, e.args)
+        except Exception as err:
+            LOG.exception('Failed to update D5005 FPGA: %s', err)
             retval = -1
 
         finally:
@@ -1697,9 +1686,8 @@ class fpgaotsu_n3000(fpgaotsu):
                 raise Exception(
                     "Failed update & verify Updates NIOS user header")
 
-        except Exception as e:
-            LOG.exception('Failed to update D5005 FPGA')
-            LOG.exception(e.message, e.args)
+        except Exception as err:
+            LOG.exception('Failed to update D5005 FPGA: %s', err)
             retval = -1
 
         finally:
@@ -1811,9 +1799,8 @@ def fpga_update(path_json, rsu, rsu_only):
                     else:
                         LOG.error('Failed to do RSU ')
 
-                except Exception as e:
-                    LOG.exception('Failed to do RSU')
-                    LOG.exception(e.message, e.args)
+                except Exception as err:
+                    LOG.exception('Failed to do RSU: %s', err)
 
         return retval
 
@@ -1835,12 +1822,12 @@ def fpga_update(path_json, rsu, rsu_only):
                 d5005 = fpgaotsu_d5005(o, fpga_cfg_instance)
                 retval = d5005.d5005_fpga_update()
                 if retval == 0:
-                    LOG.info('One time udpate tool successfully updated RoT')
+                    LOG.info('One time update tool successfully updated RoT')
                 else:
-                    LOG.error('One time udpate tool failed to update RoT')
-            except Exception as e:
-                LOG.exception('One time udpate tool failed to update RoT')
-                LOG.exception(e.message, e.args)
+                    LOG.error('One time update tool failed to update RoT')
+            except Exception as err:
+                LOG.exception('One time update tool failed to update RoT: %s',
+                              err)
                 retval = -1
 
         # N3000
@@ -1851,14 +1838,14 @@ def fpga_update(path_json, rsu, rsu_only):
                 n3000 = fpgaotsu_n3000(o, fpga_cfg_instance)
                 retval = n3000.n3000_fpga_update()
                 if retval == 0:
-                    LOG.info('One time udpate tool successfully updated RoT')
+                    LOG.info('One time update tool successfully updated RoT')
                 else:
-                    LOG.error('One time udpate tool failed to update RoT')
+                    LOG.error('One time update tool failed to update RoT')
                     continue
 
-            except Exception as e:
-                LOG.exception('One time udpate tool failed to update RoT')
-                LOG.exception(e.message, e.args)
+            except Exception as err:
+                LOG.exception('One time update tool failed to update RoT: %s',
+                              err)
                 retval = -1
                 continue
 
@@ -1870,9 +1857,8 @@ def fpga_update(path_json, rsu, rsu_only):
                 else:
                     LOG.error('Failed RSU')
 
-            except Exception as e:
-                LOG.exception('Failed RSU')
-                LOG.exception(e.message, e.args)
+            except Exception as err:
+                LOG.exception('Failed RSU: %s', err)
                 retval = -1
 
     return retval

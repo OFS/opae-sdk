@@ -35,7 +35,7 @@ from opae.admin.utils.progress import progress
 if sys.version_info[0] == 3:
     from io import IOBase as _ftype
 else:
-    _ftype = file  # noqa (Python 3 will report this as an error)
+    _ftype = file  # noqa pylint: disable=E0602
 
 
 class mtd(loggable):

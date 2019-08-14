@@ -42,6 +42,7 @@ RC = 'Intel PAC with Arria 10 GX FPGA'
 BOOTLOADER_ID = [1, 0, 0, 0]
 BMC_APP_ID = [2, 0, 0, 0]
 
+
 def parse_args():
     """ Parse command-line arguments """
     descr = 'A tool to convert Rush Creek BMC ihex into a sequence of IPMI '
@@ -166,7 +167,7 @@ class BittwareBmc(object):
             for i in range(offset, offset+self.BW_BL_WRITE_MAX):
                 data.append(ihfile[i])
 
-            #print "    0x%x - 0x%x %d" % (
+            # print "    0x%x - 0x%x %d" % (
             #    offset, offset + self.BW_BL_WRITE_MAX, len(data))
 
             if self.ofile:
@@ -186,9 +187,9 @@ class BittwareBmc(object):
         for part in self.partitions:
             if part['app'] == utype:
                 start = part['start']
-                print "updating %s from 0x%x to 0x%x" % (
+                print("updating %s from 0x%x to 0x%x" % (
                     part['name'], start,
-                    part['hdr_start'] + self.BW_BL_HDR_SIZE)
+                    part['hdr_start'] + self.BW_BL_HDR_SIZE))
 
                 if part['start'] == 0:
                     self.write_page0()
@@ -209,24 +210,27 @@ class BittwareBmc(object):
         contents = struct.unpack('B' * len(filecontent), filecontent)
         if ctype == 'bmc_app':
             for index_ in range(len(self.jump_bl_instrs)):
-                if contents[index_+self.BW_BL_HDR_SIZE] != self.jump_bl_instrs[index_]:
-                    print "addr %x diff: file=%x, const=%x" % (index_,
-                                                               contents[index_+self.BW_BL_HDR_SIZE],
-                                                               self.jump_bl_instrs[index_])
+                c_value = contents[index_+self.BW_BL_HDR_SIZE]
+                j_value = self.jump_bl_instrs[index_]
+                if c_value != j_value:
+                    print("addr %x diff: file=%x, const=%x" %
+                          (index_, c_value, j_value))
 
             start_ = self.BW_BL_HDR_SIZE + self.BW_BL_PAGE_SIZE
         else:
             start_ = 0
 
-        for block_ in range(start_, len(filecontent)-1, self.BW_BL_HDR_SIZE + self.BW_BL_PAGE_SIZE):
+        for block_ in range(start_, len(filecontent)-1,
+                            self.BW_BL_HDR_SIZE + self.BW_BL_PAGE_SIZE):
             addr_ = contents[block_+10] + (contents[block_+11] << 8) + \
                 (contents[block_+12] << 16) + (contents[block_+13] << 24)
             len_ = contents[block_+14] + (contents[block_+15] << 8)
 
             for index_ in range(len_):
                 if self.ihex[addr_+index_] != contents[block_+index_+16]:
-                    print "addr %x diff: ihex=%x, ipmi=%x" % (addr_+index_, self.ihex[addr_+index_],
-                                                              contents[block_+index_+16])
+                    print("addr %x diff: ihex=%x, ipmi=%x" %
+                          (addr_+index_, self.ihex[addr_+index_],
+                           contents[block_+index_+16]))
 
 
 def bmc_convert(ctype, ifile, ofile):
@@ -247,7 +251,7 @@ def bmc_convert(ctype, ifile, ofile):
         padding = [0x0 for _ in range(pad_bytes)]
         ofile.write(bytearray(padding))
 
-    print "Validating"
+    print("Validating")
     bw_bmc.validate(ctype)
 
     return 0
@@ -258,7 +262,7 @@ def main():
     args = parse_args()
 
     bmc_convert(args.type, args.ifile, args.ofile)
-    
+
     # Insert type header into file
     with open(args.ofile.name, "rb") as ipmifile:
         filecontent = ipmifile.read()

@@ -37,9 +37,9 @@ from opae.admin.fpga import fpga
 from opae.admin.sysfs import pci_node, PCI_ADDRESS_RE
 
 if sys.version_info[0] == 2:
-    import cPickle as pickle
+    import cPickle as pickle  # pylint: disable=E0401
 else:
-    import pickle
+    import pickle  # pylint: disable=E0401
 
 
 RSU_LOCK_FILE = "/tmp/rsu_lock"

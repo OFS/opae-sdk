@@ -587,4 +587,4 @@ class class_node(sysfs_node):
                         if attr_value != v:
                             return False
             return True
-        return filter(func, cls.enum_class(cls.__name__, cls))
+        return list(filter(func, cls.enum_class(cls.__name__, cls)))
