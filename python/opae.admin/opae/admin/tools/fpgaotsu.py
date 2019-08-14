@@ -603,31 +603,31 @@ class fpgaotsu_d5005(fpgaotsu):
             LOG.exception('Failed to update D5005 FPGA: %s', err)
             retval = -1
 
-        finally:
-            super(
-                fpgaotsu_d5005,
-                self).set_mtd(
-                'bmcfw_flash_ctrl',
-                'bmcfw_flash_mode')
-
         return retval
 
     # fpga user update
     def d5005_fpga_user(self):
         try:
-            if super(fpgaotsu_d5005, self).get_flash_mode() == 1:
-                LOG.error(
-                    'fpgaflash on %s is in progress, try later',
-                    self._fpga.fme.spi_bus.sysfs_path)
-                return -1
+            nios_usr_mtd_dev = super(
+                fpgaotsu_d5005, self).get_mtd_from_path(
+                'intel-generic-qspi*.*.auto')
+            LOG.debug('nios_usr_mtd_dev:%s', nios_usr_mtd_dev)
 
-            # Enable fpga_flash_mode
-            mtd_dev = super(
+            mtd_dev_list = super(
                 fpgaotsu_d5005,
-                self).get_mtd(
+                self).get_mtd_list(
                 'fpga_flash_ctrl',
                 'fpga_flash_mode')
-            LOG.debug('spi mtd_dev:%s', mtd_dev)
+            LOG.debug('mtd_dev_list:%s', mtd_dev_list)
+
+            if len(mtd_dev_list) != 2:
+                LOG.error('Invalid flash devices')
+                return -1
+
+            for i in range(len(mtd_dev_list)):
+                if mtd_dev_list[i] != nios_usr_mtd_dev:
+                    mtd_dev = mtd_dev_list[i]
+            LOG.info('mtd_dev:%s', mtd_dev)
 
             # Erase/Write/Verify FPGA user iamge
             fpga_user = self._fpga_cfg_data.fpga_user
