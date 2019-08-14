@@ -109,7 +109,7 @@ class sysfs_node(loggable):
         """
         items = self.find_all(pattern)
         if not items:
-            self.log.warn('could not find: "%s"', pattern)
+            self.log.debug('could not find: "%s"', pattern)
             return None
         if len(items) > 1:
             self.log.warn('found more than one: "%s"', pattern)

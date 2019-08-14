@@ -230,12 +230,15 @@ class fpga(class_node):
             self.log.error('no FME found')
             return None
         spi = f.spi_bus
-        if not spi:
-            self.log.error('no spi bus')
-            return None
-        sec = spi.find_one('ifpga_sec_mgr/ifpga_sec*')
-        if sec:
-            return secure_dev(sec.sysfs_path, self.pci_node)
+        alt = f.altr_asmip
+        if spi:
+            sec = spi.find_one('ifpga_sec_mgr/ifpga_sec*')
+            if sec:
+                return secure_dev(sec.sysfs_path, self.pci_node)
+        elif alt:
+            sec = alt.find_one('ifpga_sec_mgr/ifpga_sec*')
+            if sec:
+                return secure_dev(sec.sysfs_path, self.pci_node)
 
     @property
     def port(self):
