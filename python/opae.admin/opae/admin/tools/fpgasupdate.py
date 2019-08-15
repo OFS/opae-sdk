@@ -400,13 +400,16 @@ def update_fw(fd_dev, infile):
     """
     block_size = 4096
     offset = 0
+    max_retries = 65
 
     orig_pos = infile.tell()
     infile.seek(0, os.SEEK_END)
     payload_size = infile.tell() - orig_pos
     infile.seek(orig_pos, os.SEEK_SET)
+
     LOG.info('updating from file %s with size %d',
              infile.name, payload_size)
+
     progress_cfg = {}
     level = min([l.level for l in LOG.handlers])
     if level < logging.INFO:
@@ -414,9 +417,12 @@ def update_fw(fd_dev, infile):
     else:
         progress_cfg['stream'] = sys.stdout
 
-    retries = 65
+    retries = max_retries
     while True:
-        LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_START')
+        if retries < max_retries:
+            LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_START (%d)', retries)
+        else:
+            LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_START')
         try:
             fcntl.ioctl(fd_dev, IOCTL_IFPGA_SECURE_UPDATE_START)
             break
@@ -429,7 +435,9 @@ def update_fw(fd_dev, infile):
 
     to_transfer = block_size if block_size <= payload_size \
         else payload_size
+
     LOG.info('writing to staging area')
+
     apply_time = payload_size/APPLY_BPS
     with progress(bytes=payload_size, **progress_cfg) as prg:
         while to_transfer:
@@ -441,22 +449,36 @@ def update_fw(fd_dev, infile):
             if buf_len != to_transfer:
                 to_transfer = buf_len
 
-            LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_WRITE_BLK')
-            try:
-                fw_write_block(fd_dev, offset, to_transfer, buf_addr)
-            except IOError as exc:
-                return exc.errno, exc.strerror
+            retries = max_retries
+            while True:
+                if retries < max_retries:
+                    LOG.log(LOG_IOCTL,
+                            'IOCTL ==> SECURE_UPDATE_WRITE_BLK (%d)', retries)
+                else:
+                    LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_WRITE_BLK')
+                try:
+                    fw_write_block(fd_dev, offset, to_transfer, buf_addr)
+                    break
+                except IOError as exc:
+                    if exc.errno != errno.EAGAIN or \
+                       retries == 0:
+                        return exc.errno, exc.strerror
+                retries -= 1
+                time.sleep(1.0)
 
             payload_size -= to_transfer
             offset += to_transfer
             to_transfer = block_size if block_size <= payload_size \
                 else payload_size
+
             prg.update(offset)
+
     LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_DATA_SENT')
     try:
         fcntl.ioctl(fd_dev, IOCTL_IFPGA_SECURE_UPDATE_DATA_SENT)
     except IOError as exc:
         return exc.errno, exc.strerror
+
     LOG.info('applying update')
     with progress(time=apply_time, **progress_cfg) as prg:
         while True:
