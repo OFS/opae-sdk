@@ -36,7 +36,18 @@ find_program (RPM_BUILD
 configure_file(setup.py.in ${CMAKE_CURRENT_SOURCE_DIR}/setup.py @ONLY)
 configure_file(setup.py.in ${ADMIN_STAGE_DIR}/setup.py @ONLY)
 configure_file(tox.ini ${ADMIN_STAGE_DIR}/tox.ini @ONLY)
-file(COPY opae DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/stage)
+configure_file(py27-nose2.cfg ${ADMIN_STAGE_DIR}/py27-nose2.cfg @ONLY)
+configure_file(py36-nose2.cfg ${ADMIN_STAGE_DIR}/py36-nose2.cfg @ONLY)
+
+add_custom_target(opae.admin)
+
+add_custom_command(TARGET opae.admin PRE_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${CMAKE_CURRENT_SOURCE_DIR}/opae ${CMAKE_CURRENT_BINARY_DIR}/stage/opae
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory
+                   ${CMAKE_CURRENT_SOURCE_DIR}/tests ${CMAKE_CURRENT_BINARY_DIR}/stage/tests
+                   DEPENDS opae tests
+                   COMMENT "Setting up staging area")
 
 
 add_custom_target(opae.admin.src
@@ -51,6 +62,7 @@ add_custom_target(opae.admin.wheel
     )
 add_custom_target(opae.admin.tox
     COMMAND ${PYTHON_EXECUTABLE} -m tox opae
+    DEPENDS opae.admin
     WORKING_DIRECTORY ${ADMIN_STAGE_DIR}
     COMMENT "Running tox on opae.admin"
     )
@@ -62,3 +74,4 @@ if (RPM_BUILD)
         COMMENT "Building opae.admin Python RPM distribution"
         )
 endif (RPM_BUILD)
+
