@@ -35,6 +35,7 @@ import os
 import tempfile
 import filecmp
 import errno
+import signal
 from opae.admin.fpga import fpga
 from opae.admin.utils.mtd import mtd
 from opae.admin.utils import process
@@ -362,6 +363,11 @@ def parse_args():
     return parser.parse_args()
 
 
+def sig_handler(signum, frame):
+    """Registered signals become KeyboardInterrupt."""
+    raise KeyboardInterrupt('interrupt signal received')
+
+
 def main():
     """The main entry point"""
     args = parse_args()
@@ -381,6 +387,9 @@ def main():
                   'Please end that task before attempting %s',
                   str(procs), os.path.basename(sys.argv[0]))
         sys.exit(1)
+
+    signal.signal(signal.SIGINT, sig_handler)
+    signal.signal(signal.SIGTERM, sig_handler)
 
     loader = otsu_manifest_loader(args.manifest)
     json_cfg = loader.load()
@@ -412,7 +421,7 @@ def main():
             status, msg = updater.update()
             if status:
                 errors += 1
-        except (IOError, AttributeError) as exc:
+        except (IOError, AttributeError, KeyboardInterrupt) as exc:
             msg = '%s' % (str(exc))
             LOG.exception(msg)
             errors += 1
