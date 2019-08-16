@@ -235,6 +235,8 @@ class otsu_updater(object):
         if obj.get('erase_start') is not None:
             erase_start = to_int(obj['erase_start'])[1]
             erase_end = to_int(obj['erase_end'])[1]
+            LOG.info('Erasing flash@0x%x for %d bytes',
+                     erase_start, (erase_end + 1) - erase_start)
             mtd_dev.erase(erase_start,
                           (erase_end + 1) - erase_start)
 
@@ -254,7 +256,7 @@ class otsu_updater(object):
             verify = obj.get('verify', False)
 
             with open(filename, 'rb') as infile:
-                LOG.info('Updating flash@0x%x for %d bytes with %s',
+                LOG.info('Writing flash@0x%x for %d bytes (%s)',
                          start, (end + 1) - start, filename)
 
                 infile.seek(seek)
@@ -262,10 +264,15 @@ class otsu_updater(object):
                     raise IOError('failed to seek in input file %s: 0x%x' %
                                   (filename, seek))
 
+                if min([l.level for l in LOG.handlers]) < logging.INFO:
+                    prog = LOG.debug
+                else:
+                    prog = sys.stdout
+
                 mtd_dev.copy_from(infile,
                                   (end + 1) - start,
                                   start,
-                                  progress=LOG.info,
+                                  progress=prog,
                                   chunked=self._chunk_size)
 
                 if verify:
@@ -296,12 +303,18 @@ class otsu_updater(object):
         src_bits.close()
 
         flash_bits = tempfile.NamedTemporaryFile(mode='wb', delete=False)
-        LOG.info('reading flash@0x%x for %d bytes for verification',
+        LOG.info('Reading flash@0x%x for %d bytes for verification',
                  start, (end + 1) - start)
+
+        if min([l.level for l in LOG.handlers]) < logging.INFO:
+            prog = LOG.debug
+        else:
+            prog = sys.stdout
+
         mtd_dev.copy_to(flash_bits,
                         (end + 1) - start,
                         start,
-                        progress=LOG.info,
+                        progress=prog,
                         chunked=self._chunk_size)
         flash_bits.close()
 
@@ -311,15 +324,18 @@ class otsu_updater(object):
         os.remove(flash_bits.name)
 
         if compare:
-            LOG.info('%s successfully verified @0x%x', filename, start)
+            LOG.info('Verified flash@0x%x for %d bytes (%s)',
+                     start, (end + 1) - start, filename)
             return (0, SUCCESS)
 
-        return (1, 'verification of %s @0x%x failed' % (filename, start))
+        return (1, 'Verification of %s @0x%x failed' % (filename, start))
 
     def update(self):
         """Apply the update described by each 'flash' entry."""
 
-        LOG.info('Updating %s', self._config['product'])
+        LOG.info('Updating %s : %s',
+                 self._config['product'],
+                 self._pac.pci_node.pci_address)
 
         status = 1
         msg = FAILURE
@@ -358,7 +374,7 @@ def parse_args():
 
     log_levels = ['debug', 'info', 'warning', 'error', 'critical']
     parser.add_argument('--log-level', choices=log_levels,
-                        default='debug', help='log level to use')
+                        default='info', help='log level to use')
 
     return parser.parse_args()
 
