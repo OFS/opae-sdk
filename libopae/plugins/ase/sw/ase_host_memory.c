@@ -78,13 +78,14 @@ int ase_host_memory_pin(void *va, uint64_t *iova, uint64_t length)
 		return -1;
 
 	int status = ase_pt_pin_page((uint64_t)va, iova, pt_level);
-	if (status == 0) {
-		note_pinned_page((uint64_t)va, *iova, length);
-	}
 
 	if (pthread_mutex_unlock(&ase_pt_lock)) {
 		ASE_ERR("pthread_mutex_lock could not unlock !\n");
 		status = -1;
+	}
+
+	if (status == 0) {
+		note_pinned_page((uint64_t)va, *iova, length);
 	}
 
 	return status;
