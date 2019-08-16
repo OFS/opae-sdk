@@ -78,6 +78,20 @@ class test_mtd(unittest.TestCase):
                 dev.open('rb')
                 self.assertEquals(dev.size, dummy_size)
 
+    @mock.patch(open_string, new=mock_open('/dev/mtd0'))
+    def test_erase(self):
+
+        def mtd_info(fd, req, buf, *args):
+            return struct.pack('BIQIIQ', 0, 0, 0x101011, 0, 0, 0)
+
+        with self.ioctl_handler.register(mtd.IOCTL_MTD_MEMGETINFO,
+                                         mtd_info) as ioctl:
+            with mock.patch('fcntl.ioctl', new=ioctl):
+                with self.assertRaises(KeyError):
+                    dev = mtd('/dev/mtd0')
+                    dev.open('wb')
+                    dev.erase(0, self.TEST_SIZE) 
+
     def test_copy_from(self):
         self.random_io.seek(0)
         self.assertNotEqual(get_buffer(self.empty_io),
@@ -91,6 +105,14 @@ class test_mtd(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self.empty_io.read(1)
 
+    def test_copy_from_opened(self):
+        with mock.patch(open_string, return_value=self.empty_io):
+            with mtd('/dev/mtd0').open('rb') as dev:
+                pass
+            with self.assertRaises(IOError):
+                dev.copy_from(self.random_io, self.TEST_SIZE, chunked=32,
+                            progress=sys.stdout)
+
     def test_copy_to(self):
         self.assertNotEqual(get_buffer(self.empty_io),
                             get_buffer(self.random_io))
@@ -102,3 +124,53 @@ class test_mtd(unittest.TestCase):
                                  get_buffer(self.empty_io))
             with self.assertRaises(ValueError):
                 self.random_io.read(1)
+
+    def test_copy_to_opened(self):
+        with mock.patch(open_string, return_value=self.random_io):
+            with mtd('/dev/mtd0').open('wb') as dev:
+                pass
+            with self.assertRaises(IOError):
+                dev.copy_to(self.empty_io, self.TEST_SIZE, chunked=32,
+                            progress=sys.stdout)
+
+    def test_dump(self):
+        with mock.patch(open_string, return_value=self.empty_io):
+            with mtd('/dev/mtd0').open('rb') as dev:
+                with tempfile.NamedTemporaryFile() as tmp_file:
+                    dev.dump(tmp_file.name)
+                    pass
+
+    def test_dump_no_file(self):
+        with mock.patch(open_string, return_value=self.empty_io):
+            with mtd('/dev/mtd0').open('rb') as dev:
+                with self.assertRaises(OSError):
+                    dev.dump("invalid_file")
+                    pass
+
+    def test_load(self):
+        with mock.patch(open_string, return_value=self.empty_io):
+            with mtd('/dev/mtd0').open('rb') as dev:
+                with tempfile.NamedTemporaryFile() as tmp_file:
+                    with self.assertRaises(ValueError):
+                        dev.load(tmp_file.name)
+                        pass
+
+    def test_load_no_file(self):
+        with mock.patch(open_string, return_value=self.empty_io):
+            with mtd('/dev/mtd0').open('rb') as dev:
+                with self.assertRaises(OSError):
+                    dev.load("invalid_file")
+                    pass
+
+    def test_fileno(self):
+        with mock.patch(open_string, return_value=self.empty_io):
+            with mtd('/dev/mtd0').open('rb') as dev:
+                fno = dev.fileno()
+                self.assertNotEqual(fno, -1)
+
+    def test_fileno_opened(self):
+        with mock.patch(open_string, return_value=self.empty_io):
+            with mtd('/dev/mtd0') as dev:
+                pass
+            fno = dev.fileno()
+            self.assertEqual(fno, -1)
