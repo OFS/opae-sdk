@@ -248,6 +248,7 @@ bool probe_for_ase()
 	fpgaEnumerate(&filter, 1, &fme_token, 1, &num_matches);
 	if (0 != num_matches) {
 		/* Retrieve the device ID of the FME */
+		fpgaDestroyProperties(&filter);
 		fpgaGetProperties(fme_token, &filter);
 		r = fpgaPropertiesGetDeviceID(filter, &device_id);
 		fpgaDestroyToken(&fme_token);
