@@ -169,7 +169,8 @@ class otsu_manifest_loader(object):
 
             stat_info = os.stat(flash_file)
             if obj.get('end') is None:
-                obj['end'] = '0x%x' % (stat_info.st_size - 1)
+                begin = to_int(start)[1]
+                obj['end'] = '0x%x' % (begin + stat_info.st_size - 1)
 
             size = (to_int(obj['end'])[1] + 1) - to_int(obj['start'])[1]
             seek = 0 if not obj.get('seek') else to_int(obj['seek'])[1]
@@ -177,6 +178,9 @@ class otsu_manifest_loader(object):
                 raise ValueError('seek + size > file_size : '
                                  '0x%x + 0x%x > 0x%x' %
                                  (seek, size, stat_info.st_size))
+
+        for nested in obj.get('flash', []):
+            self.validate_flash_section(nested, directory)
 
     def load_and_validate(self):
         """Load and Verify contents
@@ -345,21 +349,27 @@ class otsu_updater(object):
         for flash in self._config['flash']:
             # Find the flash_control object that matches the
             # 'type' encoded in the flash entry.
-            ctrls = [c for c in controls if c.name == flash['type']]
-
-            if not ctrls:
-                raise AttributeError('flash type "%s" not found' %
-                                     (flash['type']))
-
-            with ctrls[0] as ctrl:
-                with mtd(ctrl.devpath).open('w+b') as mtd_dev:
-                    try:
-                        self.erase(flash, mtd_dev)
-                        status, msg = self.write(flash, mtd_dev)
-                    except IOError as eexc:
-                        return (eexc.errno, str(eexc))
-
+            status, msg = self.process_flash_item(controls, flash)
         return (status, msg)
+
+    def process_flash_item(self, controls, flash):
+        ctrls = [c for c in controls if c.name == flash['type']]
+
+        if not ctrls:
+            raise AttributeError('flash type "%s" not found' % (flash['type']))
+
+        with ctrls[0] as ctrl:
+            with mtd(ctrl.devpath).open('w+b') as mtd_dev:
+                try:
+                    self.erase(flash, mtd_dev)
+                    status, msg = self.write(flash, mtd_dev)
+                except IOError as eexc:
+                    return (eexc.errno, str(eexc))
+
+            for nested in flash.get('flash', []):
+                self.process_flash_item(controls, nested)
+
+        return status, msg
 
 
 def parse_args():
