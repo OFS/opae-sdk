@@ -78,6 +78,7 @@ class flash_control(loggable):
         self._control_node = control_node
         self._enabled = False
         self._dev_path = None
+        self._enabled_count = 0
 
     @property
     def name(self):
@@ -116,6 +117,10 @@ class flash_control(loggable):
         raise IOError(msg)
 
     def enable(self):
+        if self._enabled and self._enabled_count:
+            self._enabled_count += 1
+            return
+
         if self._control_node:
             if not isinstance(self._control_node, sysfs_node):
                 raise ValueError('%s not a sysfs_node' % str(sysfs_node))
@@ -124,18 +129,21 @@ class flash_control(loggable):
         self._dev_path = self.devpath
 
     def disable(self, interval=0.1, retries=100):
-        if not self._enabled:
+        if not self._enabled or self._enabled_count < 0:
             raise IOError('attempt to disable when not enabled')
-        if self._control_node:
-            self._control_node.value = 0
-            while os.path.exists(self._dev_path):
-                time.sleep(interval)
-                retries -= 1
-                if not retries:
-                    msg = 'timeout waiting for %s to vanish' % (self._dev_path)
-                    raise IOError(msg)
-            self._dev_path = None
-        self._enabled = False
+        self._enabled_count -= 1
+        if self._enabled_count < 1:
+            if self._control_node:
+                self._control_node.value = 0
+                while os.path.exists(self._dev_path):
+                    time.sleep(interval)
+                    retries -= 1
+                    if not retries:
+                        msg = 'timeout waiting for {} to vanish'.format(
+                            self._dev_path)
+                        raise IOError(msg)
+                self._dev_path = None
+            self._enabled = False
 
     @property
     def devpath(self):
