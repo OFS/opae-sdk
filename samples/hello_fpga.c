@@ -83,6 +83,7 @@ int usleep(unsigned);
 #define CSR_SRC_ADDR                 0x0120
 #define CSR_DST_ADDR                 0x0128
 #define CSR_CTL                      0x0138
+#define CSR_STATUS1                  0x0168
 #define CSR_CFG                      0x0140
 #define CSR_NUM_LINES                0x0130
 #define DSM_STATUS_TEST_COMPLETE     0x40
@@ -230,6 +231,34 @@ out:
 	return res1 != FPGA_OK ? res1 : res2;
 }
 
+/* Is the FPGA simulated with ASE? */
+bool probe_for_ase()
+{
+	fpga_result r = FPGA_OK;
+	uint16_t device_id = 0;
+	fpga_properties filter = NULL;
+	uint32_t num_matches = 1;
+	fpga_token fme_token;
+
+	/* Connect to the FPGA management engine */
+	fpgaGetProperties(NULL, &filter);
+	fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
+
+	/* Connecting to one is sufficient to find ASE */
+	fpgaEnumerate(&filter, 1, &fme_token, 1, &num_matches);
+	if (0 != num_matches) {
+		/* Retrieve the device ID of the FME */
+		fpgaDestroyProperties(&filter);
+		fpgaGetProperties(fme_token, &filter);
+		r = fpgaPropertiesGetDeviceID(filter, &device_id);
+		fpgaDestroyToken(&fme_token);
+	}
+	fpgaDestroyProperties(&filter);
+
+	/* ASE's device ID is 0xa5e */
+	return ((FPGA_OK == r) && (0xa5e == device_id));
+}
+
 int main(int argc, char *argv[])
 {
 	char               library_version[FPGA_VERSION_STR_MAX];
@@ -238,6 +267,7 @@ int main(int argc, char *argv[])
 	fpga_handle        accelerator_handle;
 	fpga_guid          guid;
 	uint32_t           num_matches_accelerators = 0;
+	uint32_t           use_ase;
 
 	volatile uint64_t *dsm_ptr    = NULL;
 	volatile uint64_t *status_ptr = NULL;
@@ -253,7 +283,6 @@ int main(int argc, char *argv[])
 	fpga_result        res1 = FPGA_OK;
 	fpga_result        res2 = FPGA_OK;
 
-
 	/* Print version information of the underlying library */
 	fpgaGetOPAECVersionString(library_version, sizeof(library_version));
 	fpgaGetOPAECBuildString(library_build, sizeof(library_build));
@@ -268,6 +297,10 @@ int main(int argc, char *argv[])
 	}
 	ON_ERR_GOTO(res1, out_exit, "parsing guid");
 
+	use_ase = probe_for_ase();
+	if (use_ase) {
+		printf("Running in ASE mode\n");
+	}
 
 	/* Look for accelerator with NLB0_AFUID */
 	res1 = find_fpga(guid, &accelerator_token, &num_matches_accelerators);
@@ -370,7 +403,7 @@ int main(int argc, char *argv[])
 	timeout = TEST_TIMEOUT;
 	while (0 == ((*status_ptr) & 0x1)) {
 		usleep(100);
-		if (--timeout == 0) {
+		if (!use_ase && (--timeout == 0)) {
 			res1 = FPGA_EXCEPTION;
 			ON_ERR_GOTO(res1, out_free_output, "test timed out");
 		}
@@ -380,6 +413,23 @@ int main(int argc, char *argv[])
 	res1 = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CTL, 7);
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_CFG");
 
+	/* Wait for the AFU's read/write traffic to complete */
+	uint32_t afu_traffic_trips = 0;
+	while (afu_traffic_trips < 100) {
+		/*
+		 * CSR_STATUS1 holds two 32 bit values: num pending reads and writes.
+		 * Wait for it to be 0.
+		 */
+		uint64_t s1;
+		res1 = fpgaReadMMIO64(accelerator_handle, 0, CSR_STATUS1, &s1);
+		ON_ERR_GOTO(res1, out_free_output, "reading CSR_STATUS1");
+		if (s1 == 0) {
+			break;
+		}
+
+		afu_traffic_trips += 1;
+		usleep(1000);
+	}
 
 	/* Check output buffer contents */
 	for (i = 0; i < LPBK1_BUFFER_SIZE; i++) {
