@@ -167,13 +167,14 @@ class otsu_manifest_loader(object):
             if not os.path.isfile(flash_file):
                 raise OSError(errno.ENOENT, '"%s" not found' % (flash_file))
 
+            seek = to_int(obj.get('seek', 0))[1]
             stat_info = os.stat(flash_file)
+
             if obj.get('end') is None:
                 begin = to_int(start)[1]
-                obj['end'] = '0x%x' % (begin + stat_info.st_size - 1)
+                obj['end'] = '0x%x' % (begin + (stat_info.st_size - seek) - 1)
 
             size = (to_int(obj['end'])[1] + 1) - to_int(obj['start'])[1]
-            seek = 0 if not obj.get('seek') else to_int(obj['seek'])[1]
             if seek + size > stat_info.st_size:
                 raise ValueError('seek + size > file_size : '
                                  '0x%x + 0x%x > 0x%x' %
