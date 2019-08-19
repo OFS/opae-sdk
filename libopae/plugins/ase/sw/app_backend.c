@@ -1431,6 +1431,9 @@ void free_buffers(void)
 
 	ase_host_memory_terminate();
 
+	asebuf_index_count = 0;
+	userbuf_index_count = 0;
+
 	FUNC_CALL_EXIT;
 }
 
