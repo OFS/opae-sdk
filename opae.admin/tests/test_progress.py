@@ -41,8 +41,10 @@ class test_progress(unittest.TestCase):
 
     def test_notty(self):
         """test_notty
-           Given the progress object time is set to a valid time and out stream
-           The tool runs successfully with output stream to stdout
+           Given a valid progress object 
+           When the time is set to a valid integer and stream is set to a file pointer
+           Then it outputs progress bar stream to file
+           And it prints to stdout with python built-in print
         """
         with tempfile.NamedTemporaryFile(mode='w+',
                                          **temp_cfg) as stream:
@@ -55,8 +57,9 @@ class test_progress(unittest.TestCase):
 
     def test_time0(self):
         """test_time0
-           Given the progress object time is set to a valid time
-           The tool runs successfully with output stream to stdout
+           Given a valid progress object 
+           When time is set to a valid integer
+           Then it outputs progress bar stream to stdout
         """
         with progress(time=0) as prg:
             for _ in range(10):
@@ -65,8 +68,9 @@ class test_progress(unittest.TestCase):
 
     def test_noop(self):
         """test_noop
-           Given the progress object null is set to True
-           The progress reporting tool becomes a 'noop' method
+           Given a valid progress object 
+           When time is set to a valid integer and null is set to True
+           Then progress reporting tool becomes a 'noop' method
         """
         with progress(time=0, null=True) as prg:
             for _ in range(10):
@@ -75,8 +79,10 @@ class test_progress(unittest.TestCase):
 
     def test_stream_readonly(self):
         """test_stream_readonly
-           Given the progress object with read-only stream
-           The tool prints Error but runs successfully and redirect stream to stdout
+           Given a valid progress object 
+           When time is set to a valid integer 
+           And stream is set with read-only object
+           Then it prints Error and redirects stream to stdout
         """
         stream = io.IOBase()
         with progress(time=10, stream=stream) as prg:
@@ -86,8 +92,9 @@ class test_progress(unittest.TestCase):
 
     def test_time_set_none(self):
         """test_time_set_none
-           Given the progress object time is set to none
-           The tool fails with RunTimeError
+           Given a valid progress object 
+           When I set time to none
+           Then it exits with RunTimeError exception
         """
         with progress(time=None) as prg:
             for _ in range(10):
@@ -97,8 +104,9 @@ class test_progress(unittest.TestCase):
 
     def test_bytes_set_none(self):
         """test_bytes_set_none
-           Given the progress object bytes is set to none
-           The tool fails with RunTimeError
+           Given a valid progress object 
+           When I set bytes to none
+           Then it exits with RunTimeError exception
         """
         with progress(bytes=None) as prg:
             for _ in range(10):
