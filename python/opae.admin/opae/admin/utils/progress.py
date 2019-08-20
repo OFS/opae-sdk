@@ -28,6 +28,7 @@ import codecs
 import os
 import sys
 import time
+from datetime import timedelta
 
 from opae.admin.utils.log import loggable
 
@@ -118,6 +119,9 @@ class progress(loggable):
         text = u'({percent:3}%) [{bars}{spaces}]'.format(**locals())
         if ratio is not None and len(ratio) == 2:
             text += u' [{}/{} {}]'.format(ratio[0], ratio[1], self._units)
+
+        elapsed = timedelta(seconds=time.time() - self._start_time)
+        text += u'[Time:{}]'.format(elapsed)
 
         if self._logfn is None and self._stream is None:
             return text
