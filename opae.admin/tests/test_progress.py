@@ -28,6 +28,7 @@ import time
 import sys
 import unittest
 import io
+import re
 
 from opae.admin.utils.progress import progress
 
@@ -35,6 +36,21 @@ if sys.version_info[0] == 3:
     temp_cfg = {'encoding': 'utf-8'}
 else:
     temp_cfg = {}
+
+def get_percent(line):
+    """
+       Args:
+          line: A progress string containing percent complete 
+
+       Return:
+          integer of current percent value if found, otherwise None
+    """
+    m = re.search(r'\d+', line)
+    if m:
+        try:
+            return int(m.group())
+        except ValueError:
+            return None
 
 class test_progress(unittest.TestCase):
     TEST_SIZE = 4096*100
@@ -44,7 +60,11 @@ class test_progress(unittest.TestCase):
            Given a valid progress object 
            When the time is set to a valid integer and stream is set to a file pointer
            Then it outputs progress bar stream to file
-           And it prints to stdout with python built-in print
+           When I read the file by line
+           And get the current percentage
+           Then the current percentage is greater than the previous percentage
+           When the current pertagtage exceeds 100
+           Then it stops reading and exits the file
         """
         with tempfile.NamedTemporaryFile(mode='w+',
                                          **temp_cfg) as stream:
@@ -52,14 +72,25 @@ class test_progress(unittest.TestCase):
                 for _ in range(100):
                     prg.tick()
                     time.sleep(0.1)
+
             stream.seek(0)
-            print(stream.read())
+            line = stream.readline().strip('\n')
+            p_percent = 0
+            while line:
+                c_percent = get_percent(line)
+                if c_percent is not None:
+                    self.assertGreater(c_percent, p_percent)
+                    p_percent = c_percent
+                    line = stream.readline()
+                else:
+                    break
 
     def test_time0(self):
         """test_time0
            Given a valid progress object 
-           When time is set to a valid integer
-           Then it outputs progress bar stream to stdout
+           When time is set to zero
+           Then the progress bar is streamed to stdout
+           And the test succeeds
         """
         with progress(time=0) as prg:
             for _ in range(10):
