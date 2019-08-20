@@ -386,6 +386,8 @@ def parse_args():
     log_levels = ['debug', 'info', 'warning', 'error', 'critical']
     parser.add_argument('--log-level', choices=log_levels,
                         default='info', help='log level to use')
+    parser.add_argument('--verify', action='store_true', default=False,
+                        help='verify whether PACs need updating and exit')
 
     return parser.parse_args()
 
@@ -393,6 +395,26 @@ def parse_args():
 def sig_handler(signum, frame):
     """Registered signals become KeyboardInterrupt."""
     raise KeyboardInterrupt('interrupt signal received')
+
+
+def run_updaters(args, updaters):
+    msg = SUCCESS
+    errors = 0
+    for updater in updaters:
+        try:
+            status, msg = updater.update()
+            if status:
+                errors += 1
+        except (IOError, AttributeError, KeyboardInterrupt) as exc:
+            msg = '%s' % (str(exc))
+            LOG.exception(msg)
+            errors += 1
+
+    if errors > 0:
+        LOG.error(msg)
+    else:
+        LOG.info(msg)
+    return errors
 
 
 def main():
@@ -434,29 +456,26 @@ def main():
                   json_cfg['vendor'], json_cfg['device'])
         sys.exit(1)
 
-    errors = 0
-    msg = SUCCESS
+    updaters = []
     for pac in pacs:
         if pac.secure_dev:
-            LOG.info('PAC %s is already secure.', pac.pci_node.pci_address)
+            LOG.info('%s %s is already secure.', json_cfg['product'],
+                     pac.pci_node.pci_address)
             continue
+
+        LOG.info('%s %s is not secure.', json_cfg['product'],
+                 pac.pci_node.pci_address)
 
         updater = otsu_updater(os.path.dirname(args.manifest.name),
                                pac,
                                json_cfg)
-        try:
-            status, msg = updater.update()
-            if status:
-                errors += 1
-        except (IOError, AttributeError, KeyboardInterrupt) as exc:
-            msg = '%s' % (str(exc))
-            LOG.exception(msg)
-            errors += 1
+        updaters.append(updater)
 
-    if errors > 0:
-        LOG.error(msg)
+    if not args.verify:
+        errors = run_updaters(args, updaters)
     else:
-        LOG.info(msg)
+        errors = len(updaters)
+
     sys.exit(errors)
 
 
