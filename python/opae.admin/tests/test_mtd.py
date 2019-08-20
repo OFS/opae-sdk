@@ -58,6 +58,13 @@ class test_mtd(unittest.TestCase):
 
     @mock.patch(open_string, new=mock_open('/dev/mtd0'))
     def test_open(self):
+        """test_open
+           Given a valid mtd device and file pointer
+           When I try to read from file pointer
+           Then I get a valid file pointer returned
+           When I try to read from an invalid mtd device
+           Then I get an IOError
+        """
         with mtd('/dev/mtd0').open('rb') as dev:
             self.assertIsNotNone(dev)
         with self.assertRaises(IOError):
@@ -66,6 +73,11 @@ class test_mtd(unittest.TestCase):
 
     @mock.patch(open_string, new=mock_open('/dev/mtd0'))
     def test_size(self):
+        """test_size
+           Given a valid registered ioctl
+           When I open the mtd device
+           Then the read device size equals to the registered dummy size
+        """
         dummy_size = 0x101011
 
         def mtd_info(fd, req, buf, *args):
@@ -78,7 +90,39 @@ class test_mtd(unittest.TestCase):
                 dev.open('rb')
                 self.assertEquals(dev.size, dummy_size)
 
+    @mock.patch(open_string, new=mock_open('/dev/mtd0'))
+    def test_erase(self):
+        """test_erase
+           Given a valid registered ioctl 
+           When I open the mtd device
+           Then I try erasing bytes from the mtd device
+           And the packed data equals to the unpacked data from the erase
+        """
+        erase_data = 0x101011
+        def mtd_erase(fd, req, buf, *args):
+            self.assertEqual(req,
+                             mtd.IOCTL_MTD_MEMERASE)
+            data = struct.unpack('II', buf)
+            self.assertEquals(data, (0, erase_data))
+
+        with self.ioctl_handler.register(mtd.IOCTL_MTD_MEMERASE,
+                                         mtd_erase) as ioctl:
+            with mock.patch('fcntl.ioctl', new=ioctl):
+                dev = mtd('/dev/mtd0')
+                dev.open('wb')
+                dev.erase(0, erase_data)
+
+
     def test_copy_from(self):
+        """test_copy_from
+           Given a valid open mtd device and its file pointer
+           And a non-empy data file
+           When I copy the entire content of the file to the mtd device
+           Then the buffer copied to the mtd file pointer equals the buffer from the src file pointer
+           When I close the device
+           And I try to read from its file pointer
+           I get a ValueError exception
+        """
         self.random_io.seek(0)
         self.assertNotEqual(get_buffer(self.empty_io),
                             get_buffer(self.random_io))
@@ -91,7 +135,29 @@ class test_mtd(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self.empty_io.read(1)
 
+    def test_copy_from_closed_fd(self):
+        """test_copy_from_closed_fd
+           Given a valid mtd open and close of mtd device
+           When I copy the entire content of the file to the mtd device
+           It returns IOError exception
+        """
+        with mock.patch(open_string, return_value=self.empty_io):
+            with mtd('/dev/mtd0').open('rb') as dev:
+                pass
+            with self.assertRaises(IOError):
+                dev.copy_from(self.random_io, self.TEST_SIZE, chunked=32,
+                            progress=sys.stdout)
+
     def test_copy_to(self):
+        """test_copy_to
+           Given a valid open mtd device and its file pointer
+           And a non-empy data file
+           When I copy the content of the mtd device to an object file
+           Then the buffer copied from the mtd file pointer equals the buffer to the src file pointer
+           When I close the device
+           And I try to read from its file pointer
+           I get a ValueError exception
+        """
         self.assertNotEqual(get_buffer(self.empty_io),
                             get_buffer(self.random_io))
         with mock.patch(open_string, return_value=self.random_io):
@@ -102,3 +168,102 @@ class test_mtd(unittest.TestCase):
                                  get_buffer(self.empty_io))
             with self.assertRaises(ValueError):
                 self.random_io.read(1)
+
+    def test_copy_to_closed_fd(self):
+        """test_copy_to_closed_fd
+           Given a valid mtd device and its file pointer
+           When I close of mtd device
+           When I copy the content of the mtd device to an object file
+           It returns IOError exception
+        """
+        with mock.patch(open_string, return_value=self.random_io):
+            with mtd('/dev/mtd0').open('wb') as dev:
+                pass
+            with self.assertRaises(IOError):
+                dev.copy_to(self.empty_io, self.TEST_SIZE, chunked=32,
+                            progress=sys.stdout)
+
+    def test_dump(self):
+        """test_dump
+           Given a valid mtd device and its file pointer
+           When I created a tempfile
+           Then I try to dump the content of the mtd device to an object file
+           And buffer copied from mtd device equals the buffer of the dumped file
+        """
+   #     TO DO: dump function opens mtd device as another file object. File IO 
+   #            will be closed before second read and buffer assertion
+
+   #     self.random_io.seek(0)
+   #     self.assertNotEqual(get_buffer(tmp_file),
+   #                         get_buffer(self.random_io))
+   #     with mock.patch(open_string, return_value=self.random_io):
+   #         with mtd('/dev/mtd0').open('rb') as dev:
+   #             with tempfile.NamedTemporaryFile() as tmp_file:
+   #                 tmp_file.seek(0)
+   #                 dev.dump(tmp_file.name)
+   #                 tmp_file.seek(0)
+   #                 self.random_io.seek(0)
+   #                 self.assertEqual(get_buffer(tmp_file),
+   #                                  get_buffer(self.random_io))
+
+    def test_dump_no_file(self):
+        """test_dump_no_file
+           Given a valid mtd device and its file pointer
+           When I try to dump content of mtd to a non-exist file
+           Then it fails to locate file 
+           And I get an OSError exception
+        """
+        with mock.patch(open_string, return_value=self.empty_io):
+            with mtd('/dev/mtd0').open('rb') as dev:
+                with self.assertRaises(OSError):
+                    dev.dump("invalid_file")
+                    pass
+
+    def test_load(self):
+        """test_load
+           Given a valid mtd device and its file pointer
+           When I try to load the empty new file into the mtd device
+           Then I get a ValueError exception
+        """
+        with mock.patch(open_string, return_value=self.empty_io):
+            with mtd('/dev/mtd0').open('rb') as dev:
+                with tempfile.NamedTemporaryFile() as tmp_file:
+                    with self.assertRaises(ValueError):
+                        dev.load(tmp_file.name)
+                        pass
+
+    def test_load_no_file(self):
+        """test_load_no_file
+           Given a valid mtd device and its file pointer
+           When I try to load a non-exist file to the mtd device
+           Then it fails to locate file to extract the content
+           And I get an OSError exception
+        """
+        with mock.patch(open_string, return_value=self.empty_io):
+            with mtd('/dev/mtd0').open('rb') as dev:
+                with self.assertRaises(OSError):
+                    dev.load("invalid_file")
+                    pass
+
+    def test_fileno(self):
+        """test_fileno
+           Given a valid mtd device and its file pointer 
+           When I retrieve the fileno from the file object
+           Then the returned fileno equals to an empty file pointer
+        """
+        with mock.patch(open_string, return_value=self.empty_io):
+            with mtd('/dev/mtd0').open('rb') as dev:
+                self.assertEqual(dev.fileno(), self.empty_io.fileno())
+
+    def test_fileno_closed(self):
+        """test_fileno_closed
+           Given a valid mtd device and its file pointer
+           When I exit the context manager and close the file pointer
+           Then I try to retrieve the same file pointer
+           It returns -1
+        """
+        with mock.patch(open_string, return_value=self.empty_io):
+            with mtd('/dev/mtd0') as dev:
+                pass
+            fno = dev.fileno()
+            self.assertEqual(fno, -1)

@@ -260,7 +260,7 @@ class mtd(loggable):
                its internal file object.
 
         """
-        if not os.path.exists(os.path.basename(filename)):
+        if not os.path.exists(os.path.dirname(filename)):
             msg = 'Directory path does not exist for {}'.format(filename)
             self.log.exception(msg)
             raise OSError(msg)
