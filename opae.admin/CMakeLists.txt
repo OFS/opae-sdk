@@ -70,6 +70,7 @@ add_custom_target(opae.admin.tox
 if (RPM_BUILD)
     add_custom_target(opae.admin.rpm
         COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_rpm --release ${OPAE_ADMIN_RPM_RELEASE}
+        DEPENDS opae.admin
         WORKING_DIRECTORY ${ADMIN_STAGE_DIR}
         COMMENT "Building opae.admin Python RPM distribution"
         )
