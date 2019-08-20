@@ -219,7 +219,8 @@ class _READER_BASE(object):
         root_entry.append_dword(0)
         # Reserved (0's)
         # TODO: This shows a value of 0x1 for dword
-        root_entry.append_dword(0)
+        # in the quartus signed blocks. should it be 0's?
+        root_entry.append_dword(int(0x1))
 
         # Most Significant word of SHA hash of public key
         #root_entry.append_dword(sha_msb)
@@ -303,7 +304,6 @@ class _READER_BASE(object):
     def make_csk_entry_dc(self, root_key, CSK_pub_key):
         log.info("Starting Code Signing Key Entry creation")
         csk_body = common_util.BYTE_ARRAY()
-        
 
         # Public key magic (no enablement)
         csk_body.append_dword(database.DC_XY_KEY_MAGIC)
@@ -365,25 +365,26 @@ class _READER_BASE(object):
         # DC Signature Hash Magic
         csk_entry.append_dword(self.dc_sig_hash_magic_num)
 
-        log.info("Calculating Code Signing Key Entry SHA256")
-        if root_key is not None:
-            sha = sha256(csk_body.data).digest()
+        log.info("Inserting Code Signing Key Entry SHA256")
 
-            rs = self.hsm_manager.sign(sha, root_key)
-            del sha
-
-            csk_entry.append_data(rs.data[:32])
-            # TODO: REMOVE THIS if no padding needed
-            # Offset 0x088 - 0x0B7 signature R
-            # while csk_entry.size() < 0xD0:
-            #    csk_entry.append_byte(0)
-
-            csk_entry.append_data(rs.data[-32:])
-
-            del rs
-        # TODO: REMOVE THIS if no padding needed
-        while csk_entry.size() < 0xC0:
-            csk_entry.append_byte(0)
+        # TODO: Hardcoded the 32 byte block that was reserved
+        # for the signature hash R/S in public key
+        csk_entry.append_dword(database.PUBKEY_R_BLOCK0)
+        csk_entry.append_dword(database.PUBKEY_R_BLOCK1)
+        csk_entry.append_dword(database.PUBKEY_R_BLOCK2)
+        csk_entry.append_dword(database.PUBKEY_R_BLOCK3)
+        csk_entry.append_dword(database.PUBKEY_R_BLOCK4)
+        csk_entry.append_dword(database.PUBKEY_R_BLOCK5)
+        csk_entry.append_dword(database.PUBKEY_R_BLOCK6)
+        csk_entry.append_dword(database.PUBKEY_R_BLOCK7)
+        csk_entry.append_dword(database.PUBKEY_S_BLOCK0)
+        csk_entry.append_dword(database.PUBKEY_S_BLOCK1)
+        csk_entry.append_dword(database.PUBKEY_S_BLOCK2)
+        csk_entry.append_dword(database.PUBKEY_S_BLOCK3)
+        csk_entry.append_dword(database.PUBKEY_S_BLOCK4)
+        csk_entry.append_dword(database.PUBKEY_S_BLOCK5)
+        csk_entry.append_dword(database.PUBKEY_S_BLOCK6)
+        csk_entry.append_dword(database.PUBKEY_S_BLOCK7)
 
         log.info("Code Signing Key Entry done")
 
@@ -699,6 +700,7 @@ class UPDATE_reader(_READER_BASE):
 
         log.debug("Payload size is {}".format(payload.size()))
         # Create block 0, root entry, and block 0 entry
+
         if dc_pr:
             block0 = self.make_block0_dc(payload, payload.size())
             # Remove first 0x2000 bytes.
