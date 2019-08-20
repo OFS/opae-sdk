@@ -71,13 +71,16 @@ class region(sysfs_node):
 
 
 class flash_control(loggable):
+    _mtd_pattern = 'intel-*.*.auto/mtd/mtd*'
+
     def __init__(self, name='flash', mtd_dev=None, control_node=None,
-                 existing=[]):
+                 spi=None):
         super(flash_control, self).__init__()
         self._name = name
         self._mtd_dev = mtd_dev
         self._control_node = control_node
-        self._existing = set(existing)
+        self._spi = spi
+        self._existing = []
         self._always_on = mtd_dev is not None
         self._enabled = False
         self._dev_path = None
@@ -91,22 +94,21 @@ class flash_control(loggable):
     def enabled(self):
         return self._always_on or self._enabled
 
-    def _find_new_mtd(self, pattern):
-        sysfs_path = os.path.dirname(self._control_node.sysfs_path)
-        sysfs_path = os.path.dirname(sysfs_path)
-        mtds = set([os.path.basename(mtd.sysfs_path)
-                    for mtd in sysfs_node(sysfs_path).find_all(pattern)
-                    if not mtd.sysfs_path.endswith('ro')])
-        return list(mtds.difference(self._existing))
+    def _find_mtds(self):
+        if self._spi:
+            mtds = [os.path.basename(mtd.sysfs_path)
+                    for mtd in self._spi.find_all(self._mtd_pattern)
+                    if not mtd.sysfs_path.endswith('ro')]
+            return mtds
+        return []
 
     def _wait_devpath(self, interval, retries):
         if self._dev_path:
             return self._dev_path
 
-        pattern = 'intel-*.*.auto/mtd/mtd*'
-
         while retries:
-            mtds = self._find_new_mtd(pattern)
+            current_mtds = self._find_mtds()
+            mtds = list(set(current_mtds).difference(set(self._existing)))
 
             if not len(mtds):
                 time.sleep(interval)
@@ -118,7 +120,7 @@ class flash_control(loggable):
 
             return os.path.join('/dev', mtds[0])
 
-        msg = 'timeout waiting for %s to appear' % (pattern)
+        msg = 'timeout waiting for %s to appear' % (self._mtd_pattern)
         self.log.error(msg)
         raise IOError(msg)
 
@@ -133,6 +135,7 @@ class flash_control(loggable):
         if self._control_node:
             if not isinstance(self._control_node, sysfs_node):
                 raise ValueError('%s not a sysfs_node' % str(sysfs_node))
+            self._existing = self._find_mtds()
             self._control_node.value = 1
         self._enabled = True
         self._dev_path = self.devpath
@@ -209,7 +212,8 @@ class fme(region):
                 if not mtd.sysfs_path.endswith('ro'):
                     devname = os.path.basename(mtd.sysfs_path)
                     current.append(devname)
-            controls = [flash_control(mtd_dev=name) for name in current]
+            controls = [flash_control(mtd_dev=name, spi=self.spi_bus)
+                        for name in current]
             for name in ['fpga', 'bmcimg', 'bmcfw']:
                 node_path = '{name}_flash_ctrl/{name}_flash_mode'.format(
                     name=name)
@@ -219,7 +223,7 @@ class fme(region):
                         flash_control(
                             name=name, mtd_dev=None,
                             control_node=control_node,
-                            existing=current)
+                            spi=self.spi_bus)
                         )
                 else:
                     self.log.warning('skipping control %s (already enabled)',
