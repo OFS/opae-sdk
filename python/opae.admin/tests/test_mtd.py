@@ -223,7 +223,7 @@ class test_mtd(unittest.TestCase):
         """test_load
            Given a valid mtd device and its file pointer
            When I try to load the empty new file into the mtd device
-           Then I get a ValueEroor exception
+           Then I get a ValueError exception
         """
         with mock.patch(open_string, return_value=self.empty_io):
             with mtd('/dev/mtd0').open('rb') as dev:
