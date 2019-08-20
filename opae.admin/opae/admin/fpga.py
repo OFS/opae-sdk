@@ -71,11 +71,14 @@ class region(sysfs_node):
 
 
 class flash_control(loggable):
-    def __init__(self, name='flash', mtd_dev=None, control_node=None):
+    def __init__(self, name='flash', mtd_dev=None, control_node=None,
+                 existing=[]):
         super(flash_control, self).__init__()
         self._name = name
         self._mtd_dev = mtd_dev
         self._control_node = control_node
+        self._existing = set(existing)
+        self._always_on = mtd_dev is not None
         self._enabled = False
         self._dev_path = None
         self._enabled_count = 0
@@ -86,37 +89,43 @@ class flash_control(loggable):
 
     @property
     def enabled(self):
-        return self._enabled
+        return self._always_on or self._enabled
 
-    def _devpath(self, interval, retries):
-        if self._dev_path:
-            return self._dev_path
-
+    def _find_new_mtd(self, pattern):
         sysfs_path = os.path.dirname(self._control_node.sysfs_path)
         sysfs_path = os.path.dirname(sysfs_path)
+        mtds = set([os.path.basename(mtd.sysfs_path)
+                    for mtd in sysfs_node(sysfs_path).find_all(pattern)
+                    if not mtd.sysfs_path.endswith('ro')])
+        return list(mtds.difference(self._existing))
+
+    def _wait_devpath(self, interval, retries):
+        if self._dev_path:
+            return self._dev_path
 
         pattern = 'intel-*.*.auto/mtd/mtd*'
 
         while retries:
-            mtds = sysfs_node(sysfs_path).find_all(pattern)
+            mtds = self._find_new_mtd(pattern)
 
             if not len(mtds):
                 time.sleep(interval)
                 retries -= 1
                 continue
 
-            mtd = [m for m in mtds if m.sysfs_path[-2:] != 'ro']
-            if len(mtd) > 1:
+            if len(mtds) > 1:
                 self.log.warn('found more than one: "/mtd/mtdX"')
 
-            return os.path.join('/dev',
-                                os.path.basename(mtd[0].sysfs_path))
+            return os.path.join('/dev', mtds[0])
 
         msg = 'timeout waiting for %s to appear' % (pattern)
         self.log.error(msg)
         raise IOError(msg)
 
     def enable(self):
+        if self._always_on:
+            return
+
         if self._enabled and self._enabled_count:
             self._enabled_count += 1
             return
@@ -127,15 +136,21 @@ class flash_control(loggable):
             self._control_node.value = 1
         self._enabled = True
         self._dev_path = self.devpath
+        self._enabled_count += 1
 
     def disable(self, interval=0.1, retries=100):
-        if not self._enabled or self._enabled_count < 0:
-            raise IOError('attempt to disable when not enabled')
+        if self._always_on:
+            return
+
+        if not self._enabled or self._enabled_count < 1:
+            raise IOError('attempt to disable when not enabled: {}'.format(
+                self.name))
+
         self._enabled_count -= 1
         if self._enabled_count < 1:
             if self._control_node:
                 self._control_node.value = 0
-                while os.path.exists(self._dev_path):
+                while self._dev_path and os.path.exists(self._dev_path):
                     time.sleep(interval)
                     retries -= 1
                     if not retries:
@@ -147,14 +162,16 @@ class flash_control(loggable):
 
     @property
     def devpath(self):
+        if self._always_on and self._mtd_dev:
+            dev_path = os.path.join('/dev', self._mtd_dev)
+            if not os.path.exists(dev_path):
+                raise AttributeError('no device found: %s' % dev_path)
+            return dev_path
+
         if not self._enabled:
             raise IOError('cannot query devpath attribute outside context')
         if not self._mtd_dev:
-            return self._devpath(0.1, 100)
-        dev_path = os.path.join('/dev', self._mtd_dev)
-        if not os.path.exists(dev_path):
-            raise AttributeError('no device found: %s' % dev_path)
-        return dev_path
+            return self._wait_devpath(0.1, 100)
 
     def __enter__(self):
         self.enable()
@@ -186,15 +203,28 @@ class fme(region):
             sec = self.spi_bus.find_one('ifpga_sec_mgr/ifpga_sec*')
             if sec:
                 return []
-            return [flash_control(name='fpga', mtd_dev=None,
-                                  control_node=self.spi_bus.node(
-                                      'fpga_flash_ctrl/fpga_flash_mode')),
-                    flash_control(name='bmcfw', mtd_dev=None,
-                                  control_node=self.spi_bus.node(
-                                      'bmcfw_flash_ctrl/bmcfw_flash_mode')),
-                    flash_control(name='bmcimg', mtd_dev=None,
-                                  control_node=self.spi_bus.node(
-                                      'bmcimg_flash_ctrl/bmcimg_flash_mode'))]
+            pattern = 'intel-*.*.auto/mtd/mtd*'
+            current = []
+            for mtd in self.spi_bus.find_all(pattern):
+                if not mtd.sysfs_path.endswith('ro'):
+                    devname = os.path.basename(mtd.sysfs_path)
+                    current.append(devname)
+            controls = [flash_control(mtd_dev=name) for name in current]
+            for name in ['fpga', 'bmcimg', 'bmcfw']:
+                node_path = '{name}_flash_ctrl/{name}_flash_mode'.format(
+                    name=name)
+                control_node = self.spi_bus.node(node_path)
+                if control_node.value == '0':
+                    controls.append(
+                        flash_control(
+                            name=name, mtd_dev=None,
+                            control_node=control_node,
+                            existing=current)
+                        )
+                else:
+                    self.log.warning('skipping control %s (already enabled)',
+                                     node_path)
+            return controls
         elif self.altr_asmip:
             mtds = self.altr_asmip.find_all('mtd/mtd*')
             mtd = [m for m in mtds if m.sysfs_path[-2:] != 'ro']
