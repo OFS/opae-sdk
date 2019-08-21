@@ -27,7 +27,7 @@ import os
 import tempfile
 import unittest
 
-from opae.admin.tools import fpgaotsu_09C4
+from opae.admin.tools import fpgaotsu
 
 DUMMY_FILE = 'dcp_1_2_rot_19_1_b170_reversed.rpd'
 DUMMY_SIZE = 0x1800000
@@ -84,7 +84,7 @@ class test_09C4(unittest.TestCase):
         self.dummy_file_path = os.path.join(
             os.path.dirname(self.valid_manifest.name), DUMMY_FILE)
         self.dummy_file = open(self.dummy_file_path, 'wb+')
-        self.manifest_loader = fpgaotsu_09C4.otsu_manifest_loader(
+        self.manifest_loader = fpgaotsu.otsu_manifest_loader(
             self.valid_manifest)
         with open('/dev/urandom', 'rb') as fp:
             self.dummy_file.write(fp.read(DUMMY_SIZE))
