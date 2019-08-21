@@ -1001,13 +1001,21 @@ def get_update_threads(boards, args, rsu_config):
         if update_thr is not None:
             threads.append(update_thr)
 
-    if 'nvmupdate' in rsu_config:
-        nvm_timeout = parse_timedelta(
-            rsu_config['nvmupdate'].get('timeout', '00:10:0'))
-        nvm_update_thr = update_thread(None, do_nvmupdate, args, rsu_config,
-                                       name='nvmupdate', timeout=nvm_timeout)
-        nvm_update_thr.start()
-        threads.append(nvm_update_thr)
+    if rsu_config.get('version', 1) < SECURE_UPDATE_VERSION:
+        # managing nvmupdate is only supported in older versions
+        if 'nvmupdate' in rsu_config:
+            LOG.warn('nvmupdate in super-rsu is being deprecated')
+            nvm_timeout = parse_timedelta(
+                rsu_config['nvmupdate'].get('timeout', '00:10:0'))
+            nvm_update_thr = update_thread(
+                None,
+                do_nvmupdate,
+                args,
+                rsu_config,
+                name='nvmupdate',
+                timeout=nvm_timeout)
+            nvm_update_thr.start()
+            threads.append(nvm_update_thr)
     return threads
 
 
