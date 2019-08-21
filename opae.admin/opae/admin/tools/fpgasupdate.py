@@ -25,8 +25,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-"""Program PAC firmware
-"""
+"""Program PAC firmware"""
 
 import argparse
 import os
@@ -52,11 +51,17 @@ DEFAULT_BDF = 'ssss:bb:dd.f'
 
 VALID_GBS_GUID = uuid.UUID('31303076-5342-47b7-4147-50466e6f6558')
 
-BLOCK0_STATIC_REGION = 0
-BLOCK0_BMC = 1
-BLOCK0_GBS = 2
+BLOCK0_TYPE_STATIC_REGION = 0
+BLOCK0_TYPE_BMC = 1
+BLOCK0_TYPE_GBS = 2
 
-BLOCK0_CONTYPE_MASK = 0xff
+BLOCK0_SUBTYPE_UPDATE = 0x0000
+BLOCK0_SUBTYPE_CANCELLATION = 0x0100
+BLOCK0_SUBTYPE_ROOT_KEY_HASH_256 = 0x0200
+BLOCK0_SUBTYPE_ROOT_KEY_HASH_384 = 0x0300
+
+BLOCK0_CONTYPE_MASK = 0x00ff
+BLOCK0_CONSUBTYPE_MASK = 0xff00
 
 IOCTL_IFPGA_SECURE_UPDATE_START = 0xb900
 IOCTL_IFPGA_SECURE_UPDATE_WRITE_BLK = 0xb901
@@ -282,13 +287,19 @@ def decode_auth_block0(infile):
     LOG.debug('hash384: %s', res['Hash384'])
 
     contype = res['ConType'] & BLOCK0_CONTYPE_MASK
+    contypes = {BLOCK0_TYPE_STATIC_REGION: 'Static Region',
+                BLOCK0_TYPE_BMC: 'BMC Image',
+                BLOCK0_TYPE_GBS: 'Green BitStream'}
 
-    if contype == BLOCK0_STATIC_REGION:
-        LOG.debug('file type: Static Region')
-    elif contype == BLOCK0_BMC:
-        LOG.debug('file type: BMC Image')
-    elif contype == BLOCK0_GBS:
-        LOG.debug('file type: Green BitStream')
+    consubtype = res['ConType'] & BLOCK0_CONSUBTYPE_MASK
+    consubtypes = {BLOCK0_SUBTYPE_UPDATE: 'Update',
+                   BLOCK0_SUBTYPE_CANCELLATION: 'Key Cancellation',
+                   BLOCK0_SUBTYPE_ROOT_KEY_HASH_256: 'Root Key Hash 256',
+                   BLOCK0_SUBTYPE_ROOT_KEY_HASH_384: 'Root Key Hash 384'}
+
+    LOG.debug('file type: %s (%s)',
+              contypes.get(contype, '<unknown>'),
+              consubtypes.get(consubtype, '<unknown>'))
 
     return res
 
