@@ -27,6 +27,7 @@
 import codecs
 import os
 import sys
+import threading
 import time
 from datetime import timedelta
 
@@ -67,6 +68,8 @@ class progress(loggable):
                 log: log function to call. If None, will write to stream.
                 null: If set to True, the progress reporting function becomes a
                       'noop' function.
+                label: use a label at exit of context. If label is '<thread>',
+                       use the current thread name.
         """
         super(progress, self).__init__()
         self._total_size = kwargs.get('bytes')
@@ -78,6 +81,12 @@ class progress(loggable):
         self._start_time = time.time()
         self._last_pct = 0
         self._line_ending = '\r'
+        label = kwargs.get('label', '')
+        if label == '<thread>':
+            self._label = threading.current_thread().name
+        else:
+            self._label = label
+
         stream = kwargs.get('stream', sys.stdout)
         if self._total_time == 0:
             self._total_time = 1.0
@@ -160,6 +169,8 @@ class progress(loggable):
 
     def end(self):
         """end Complete the progress bar (set percent to 1.0)"""
+        if self._total_size:
+            return self.update(self._total_size)
         return self.update_percent(1)
 
     def __enter__(self):
@@ -169,4 +180,5 @@ class progress(loggable):
     def __exit__(self, ex_type, ex_value, ex_tb):
         if ex_type is None:
             self.end()
-        self._stream.write(u'\n')
+
+        self._stream.write(u'{} \n'.format(self._label))
