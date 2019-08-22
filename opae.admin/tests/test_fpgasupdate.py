@@ -40,21 +40,3 @@ class test_ioctl_calls(unittest.TestCase):
 
     def tearDown(self):
         pass
-
-    @params((0, 'IFPGA_STAT_IDLE'),
-            (1, 'IFPGA_STAT_AWAIT_DATA'),
-            (2, 'IFPGA_STAT_BUSY'),
-            (0xffffffff, 'IFPGA_STAT_ERROR'))
-    def test_fw_update_status(self, stat_int, stat_str):
-        def cb(fd, req, buf, *args):
-            self.assertEqual(fd, self.temp_file.fileno())
-            self.assertEqual(req,
-                             fpgasupdate.IOCTL_IFPGA_SECURE_UPDATE_GET_STATUS)
-            struct.pack_into('I', buf, 8, stat_int)
-
-        with self.ioctl_handler.register(
-                fpgasupdate.IOCTL_IFPGA_SECURE_UPDATE_GET_STATUS, cb) as ioctl:
-            with mock.patch('fcntl.ioctl', new=ioctl):
-                status = fpgasupdate.fw_update_status(self.temp_file.fileno())
-
-        self.assertEquals(status, stat_str)
