@@ -158,8 +158,6 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/nlb0
 @CMAKE_INSTALL_PREFIX@/bin/nlb3
 @CMAKE_INSTALL_PREFIX@/bin/nlb7
-@CMAKE_INSTALL_PREFIX@/bin/fpgaflash
-@CMAKE_INSTALL_PREFIX@/bin/super-rsu
 @CMAKE_INSTALL_PREFIX@/bin/packager
 @CMAKE_INSTALL_PREFIX@/bin/mactest
 @CMAKE_INSTALL_PREFIX@/bin/fpgalpbk

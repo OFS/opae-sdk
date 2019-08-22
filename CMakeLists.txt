@@ -242,7 +242,6 @@ set(CPACK_COMPONENTS_ALL
 	toolfpgadiag 
 	toolfpga_dma_test 
 	toolfpgabist
-	toolfpgaflash
 	toolfpgadiagapps 
 	toolpackager 
 	jsonschema 
@@ -299,7 +298,6 @@ define_pkg(tools
   toolfpga_dma_test
   toolbist_app
   toolbist
-  toolfpgaflash
   toolfpgadiagapps
   toolpackager
   jsonschema

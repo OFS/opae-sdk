@@ -195,7 +195,6 @@ libopae-c & driver are built correctly.
 
 The tools that can be built with python distutils are:
  - packager
- - fpgaflash
  - fpgadiag
 
 ```console

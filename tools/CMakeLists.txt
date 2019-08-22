@@ -50,10 +50,6 @@ add_subdirectory(extra/ras)
 add_subdirectory(extra/integrated/hssi)
 
 # pac
-add_subdirectory(extra/pac/fpgaflash)
-if (BUILD_PYTHON_DIST)
-    add_subdirectory(extra/pac/pyfpgaflash)
-endif()
 add_subdirectory(extra/pac/pac_hssi_config)
 add_subdirectory(extra/pac/fpgabist)
 
