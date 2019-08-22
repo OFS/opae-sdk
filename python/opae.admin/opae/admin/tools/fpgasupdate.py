@@ -66,15 +66,8 @@ BLOCK0_CONSUBTYPE_MASK = 0xff00
 IOCTL_IFPGA_SECURE_UPDATE_START = 0xb900
 IOCTL_IFPGA_SECURE_UPDATE_WRITE_BLK = 0xb901
 IOCTL_IFPGA_SECURE_UPDATE_DATA_SENT = 0xb902
-IOCTL_IFPGA_SECURE_UPDATE_GET_STATUS = 0xb903
+IOCTL_IFPGA_SECURE_UPDATE_CHECK_COMPLETE = 0xb903
 IOCTL_IFPGA_SECURE_UPDATE_CANCEL = 0xb904
-
-IFPGA_SEC_STATUS_TO_STR = {
-    0: "IFPGA_STAT_IDLE",
-    1: "IFPGA_STAT_AWAIT_DATA",
-    2: "IFPGA_STAT_BUSY",
-    0xffffffff: "IFPGA_STAT_ERROR"
-}
 
 APPLY_BPS = 41000.0
 
@@ -332,38 +325,6 @@ def canonicalize_bdf(bdf):
     return None
 
 
-def fw_update_status(fd_dev):
-    """Issues the IOCTL_IFPGA_SECURE_UPDATE_GET_STATUS and returns the result
-
-    fd_dev - an integer file descriptor to the os.open()'ed secure
-             device file.
-
-    returns the status as a string.
-    """
-    buf = array.array('B', [0] * 32)
-    sizeof_ifpga_secure_status = 12
-
-    # offset size name
-    # 0x000     4 argsz
-    # 0x004     4 flags
-    # 0x008     4 status
-
-    # set argsz and flags
-    struct.pack_into('II', buf, 0, sizeof_ifpga_secure_status, 0)
-
-    fcntl.ioctl(fd_dev, IOCTL_IFPGA_SECURE_UPDATE_GET_STATUS,
-                buf, True)
-
-    _, _, status = struct.unpack_from('III', buf)
-
-    stat_str = '<unknown>' if status not in IFPGA_SEC_STATUS_TO_STR \
-               else IFPGA_SEC_STATUS_TO_STR[status]
-
-    LOG.log(LOG_STATE, '%s', stat_str)
-
-    return stat_str
-
-
 def fw_write_block(fd_dev, offset, size, addr):
     """Write firmware block to staging area.
 
@@ -494,14 +455,12 @@ def update_fw(fd_dev, infile):
     with progress(time=apply_time, **progress_cfg) as prg:
         while True:
             try:
-                status = fw_update_status(fd_dev)
-            except IOError as exc:
-                return exc.errno, exc.strerror
-            prg.tick()
-            if status == 'IFPGA_STAT_IDLE':
+                fcntl.ioctl(fd_dev, IOCTL_IFPGA_SECURE_UPDATE_CHECK_COMPLETE)
                 break
-            elif status == 'IFPGA_STAT_ERROR':
-                return 1, 'Secure update failed'
+            except IOError as exc:
+                if exc.errno != errno.EAGAIN:
+                    return exc.errno, exc.strerror
+            prg.tick()
             time.sleep(0.5)
 
     return 0, 'Secure update OK'
