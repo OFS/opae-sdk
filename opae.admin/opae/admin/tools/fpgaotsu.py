@@ -228,6 +228,15 @@ class otsu_updater(object):
         self._pac = pac
         self._config = config
         self._chunk_size = chunk_size
+        self._success = False
+
+    @property
+    def success(self):
+        return self._success
+
+    @property
+    def pac(self):
+        return self._pac
 
     def erase(self, obj, mtd_dev):
         """Erase the flash range described in obj.
@@ -351,6 +360,10 @@ class otsu_updater(object):
             # Find the flash_control object that matches the
             # 'type' encoded in the flash entry.
             status, msg = self.process_flash_item(controls, flash)
+            if status:
+                self._success = False
+                break
+
         return (status, msg)
 
     def process_flash_item(self, controls, flash):
@@ -358,6 +371,8 @@ class otsu_updater(object):
 
         if not ctrls:
             raise AttributeError('flash type "%s" not found' % (flash['type']))
+
+        status, msg = 1, FAILURE
 
         with ctrls[0] as ctrl:
             with mtd(ctrl.devpath).open('w+b') as mtd_dev:
@@ -368,7 +383,9 @@ class otsu_updater(object):
                     return (eexc.errno, str(eexc))
 
             for nested in flash.get('flash', []):
-                self.process_flash_item(controls, nested)
+                status, msg = self.process_flash_item(controls, nested)
+                if status:
+                    break
 
         return status, msg
 
@@ -388,6 +405,8 @@ def parse_args():
                         default='info', help='log level to use')
     parser.add_argument('--verify', action='store_true', default=False,
                         help='verify whether PACs need updating and exit')
+    parser.add_argument('--rsu', action='store_true', default=False,
+                        help='perform "RSU" operation after update')
 
     return parser.parse_args()
 
@@ -475,6 +494,11 @@ def main():
         errors = run_updaters(args, updaters)
     else:
         errors = len(updaters)
+
+    if args.rsu:
+        for updater in updaters:
+            if updater.success:
+                updater.pac.safe_rsu_boot()
 
     sys.exit(errors)
 

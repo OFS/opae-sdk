@@ -251,6 +251,10 @@ class fpga(class_node):
     FME_PATTERN = 'intel-fpga-fme.*'
     PORT_PATTERN = 'intel-fpga-port.*'
     BOOT_TYPES = ['bmcimg', 'fpga']
+    BOOT_PAGES = {(0x8086, 0x0b30): {'fpga': {'user': 1,
+                                              'factory': 0},
+                                     'bmcimg': {'user': 0,
+                                                'factory': 1}}}
 
     def __init__(self, path):
         super(fpga, self).__init__(path)
@@ -317,9 +321,17 @@ class fpga(class_node):
             for n, v in aer_values:
                 n.aer = v
 
-    def safe_rsu_boot(self, page, **kwargs):
+    def safe_rsu_boot(self, page=None, **kwargs):
         wait_time = kwargs.pop('wait', 10)
         boot_type = kwargs.get('type', 'bmcimg')
+        if page is None:
+            page = self.BOOT_PAGES.get(self.pci_node.pci_id, {}).get(boot_type)
+
+        if page is None:
+            self.log.warn('rsu not supported by device: %s',
+                          self.pci_node.pci_id)
+            return
+
         if boot_type not in fpga.BOOT_TYPES:
             raise TypeError('type: {} not recognized'.format(boot_type))
 
