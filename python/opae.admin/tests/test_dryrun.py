@@ -23,5 +23,33 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from opae.admin.utils.utils import dry_run
-__all__ = ['dry_run']
+import math
+import os
+from opae.admin.utils import dry_run
+
+
+class example_cb(object):
+    def __init__(self):
+        self._msg = None
+
+    def __call__(self, msg):
+        self._msg = msg
+
+
+def test_dry_run():
+
+    cb = example_cb()
+    assert cb._msg is None
+    assert dry_run(math.factorial, enabled=True,
+                   basename=True, log=cb)(10) is None
+    assert cb._msg == 'factorial(10)'
+    cb = example_cb()
+    assert cb._msg is None
+    assert dry_run(math.factorial, enabled=False, log=cb)(10) == 3628800
+    assert cb._msg is None
+    assert dry_run(os.path.exists,
+                   basename=True, log=cb)('/tmp/_abcd') is None
+    assert cb._msg == 'exists("_abcd")'
+    assert dry_run(os.path.exists,
+                   basename=False, log=cb)('/tmp/_abcd') is None
+    assert cb._msg == 'exists("/tmp/_abcd")'
