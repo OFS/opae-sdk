@@ -25,7 +25,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-"""Perform One-Time Secure Update for 0x09C4 PAC devices."""
+"""Perform One-Time Secure Update for PAC devices."""
 
 import argparse
 import sys
@@ -36,6 +36,7 @@ import tempfile
 import filecmp
 import errno
 import signal
+import threading
 from opae.admin.fpga import fpga
 from opae.admin.utils.mtd import mtd
 from opae.admin.utils import process
@@ -221,21 +222,24 @@ class otsu_manifest_loader(object):
 
 
 class otsu_updater(object):
-    """Applies One-Time Secure Update per the given manifest
-    """
+    """Applies One-Time Secure Update per the given manifest"""
     def __init__(self, fw_dir, pac, config, chunk_size=64*1024):
         self._fw_dir = fw_dir
         self._pac = pac
         self._config = config
         self._chunk_size = chunk_size
-        self._success = False
+        self._timeout = 3600
+        self._status = (1, FAILURE)
+        self._thread = None
 
     @property
     def success(self):
-        return self._success
+        """Return whether this update was successful"""
+        return self._status[0] == 0
 
     @property
     def pac(self):
+        """Retrieve the PAC associated with this updater"""
         return self._pac
 
     def erase(self, obj, mtd_dev):
@@ -344,7 +348,23 @@ class otsu_updater(object):
 
         return (1, 'Verification of %s @0x%x failed' % (filename, start))
 
+    def wait(self):
+        """Wait for this update's thread to terminate
+
+        Returns:
+            0 if the thread completed within the given timeout.
+            non-zero if thread timed out or if the update failed.
+        """
+        self._thread.join(timeout=self._timeout)
+        return 1 if self._thread.isAlive() else self._status[0]
+
     def update(self):
+        """Begin this update in a separate thread"""
+        self._thread = threading.Thread(target=self._update,
+                                        name=self._pac.pci_node.pci_address)
+        self._thread.start()
+
+    def _update(self):
         """Apply the update described by each 'flash' entry."""
 
         LOG.info('Updating %s : %s',
@@ -357,16 +377,16 @@ class otsu_updater(object):
         controls = self._pac.fme.flash_controls()
 
         for flash in self._config['flash']:
-            # Find the flash_control object that matches the
-            # 'type' encoded in the flash entry.
             status, msg = self.process_flash_item(controls, flash)
+            self._status = (status, msg)
             if status:
-                self._success = False
                 break
 
         return (status, msg)
 
     def process_flash_item(self, controls, flash):
+        # Find the flash_control object that matches the
+        # 'type' encoded in the flash entry.
         ctrls = [c for c in controls if c.name == flash['type']]
 
         if not ctrls:
@@ -416,23 +436,35 @@ def sig_handler(signum, frame):
     raise KeyboardInterrupt('interrupt signal received')
 
 
-def run_updaters(args, updaters):
+def run_updaters(updaters):
+    """Run each of the updates found in updaters
+
+    Args:
+        updaters: a list of otsu_updater objects.
+
+    Returns:
+        0 on success.
+        The non-zero number of errors on failure.
+    """
     msg = SUCCESS
     errors = 0
+
     for updater in updaters:
         try:
-            status, msg = updater.update()
-            if status:
-                errors += 1
+            updater.update()
         except (IOError, AttributeError, KeyboardInterrupt) as exc:
             msg = '%s' % (str(exc))
             LOG.exception(msg)
             errors += 1
 
+    for updater in updaters:
+        errors += updater.wait()
+
     if errors > 0:
-        LOG.error(msg)
+        LOG.error(FAILURE)
     else:
         LOG.info(msg)
+
     return errors
 
 
@@ -441,7 +473,8 @@ def main():
     args = parse_args()
 
     LOG.setLevel(logging.NOTSET)
-    log_fmt = ('[%(asctime)-15s] [%(levelname)-8s] %(message)s')
+    log_fmt = ('[%(asctime)-15s] [%(levelname)-8s] '
+               '[%(threadName)s] %(message)s')
     log_hndlr = logging.StreamHandler(sys.stdout)
     log_hndlr.setFormatter(logging.Formatter(log_fmt))
 
@@ -491,7 +524,7 @@ def main():
         updaters.append(updater)
 
     if not args.verify:
-        errors = run_updaters(args, updaters)
+        errors = run_updaters(updaters)
     else:
         errors = len(updaters)
 
