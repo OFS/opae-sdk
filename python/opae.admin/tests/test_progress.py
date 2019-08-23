@@ -40,7 +40,7 @@ else:
 def get_percent(line):
     """
        Args:
-          line: A progress string containing percent complete 
+          line: A progress string containing percent complete
 
        Return:
           integer of current percent value if found, otherwise None
@@ -57,7 +57,7 @@ class test_progress(unittest.TestCase):
 
     def test_notty(self):
         """test_notty
-           Given a valid progress object 
+           Given a valid progress object
            When the time is set to a valid integer and stream is set to a file pointer
            Then it outputs progress bar stream to file
            When I read the file by line
@@ -87,7 +87,7 @@ class test_progress(unittest.TestCase):
 
     def test_time0(self):
         """test_time0
-           Given a valid progress object 
+           Given a valid progress object
            When time is set to zero
            Then the progress bar is streamed to stdout
            And the test succeeds
@@ -97,9 +97,22 @@ class test_progress(unittest.TestCase):
                 prg.tick()
                 time.sleep(0.1)
 
+    def test_label(self):
+        """test_label
+           Given a valid progress object with a label
+           When time is set to zero
+           Then the progress bar is streamed to stdout
+           And the label is shown
+           And the test succeeds
+        """
+        with progress(time=0, label='Writing') as prg:
+            for _ in range(10):
+                prg.tick()
+                time.sleep(0.1)
+
     def test_noop(self):
         """test_noop
-           Given a valid progress object 
+           Given a valid progress object
            When time is set to a valid integer and null is set to True
            Then progress reporting tool becomes a 'noop' method
         """
@@ -110,8 +123,8 @@ class test_progress(unittest.TestCase):
 
     def test_stream_readonly(self):
         """test_stream_readonly
-           Given a valid progress object 
-           When time is set to a valid integer 
+           Given a valid progress object
+           When time is set to a valid integer
            And stream is set with read-only object
            Then it prints Error and redirects stream to stdout
         """
@@ -123,7 +136,7 @@ class test_progress(unittest.TestCase):
 
     def test_time_set_none(self):
         """test_time_set_none
-           Given a valid progress object 
+           Given a valid progress object
            When I set time to none
            Then it exits with RunTimeError exception
         """
@@ -135,7 +148,7 @@ class test_progress(unittest.TestCase):
 
     def test_bytes_set_none(self):
         """test_bytes_set_none
-           Given a valid progress object 
+           Given a valid progress object
            When I set bytes to none
            Then it exits with RunTimeError exception
         """
