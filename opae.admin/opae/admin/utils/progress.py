@@ -131,6 +131,8 @@ class progress(loggable):
 
         elapsed = timedelta(seconds=time.time() - self._start_time)
         text += u'[Time:{}]'.format(elapsed)
+        if self._label:
+            text += u'[{}]'.format(self._label)
 
         if self._logfn is None and self._stream is None:
             return text
@@ -140,7 +142,7 @@ class progress(loggable):
             if self._logfn is not None:
                 self._logfn(text)
             else:
-                self._stream.write(u'{}{}'.format(text, self._line_ending))
+                self._stream.write(u'{:80}{}'.format(text, self._line_ending))
                 self._stream.flush()
 
     def update(self, n_bytes):
@@ -180,5 +182,4 @@ class progress(loggable):
     def __exit__(self, ex_type, ex_value, ex_tb):
         if ex_type is None:
             self.end()
-
-        self._stream.write(u'{} \n'.format(self._label))
+        self._stream.write(u'\n')
