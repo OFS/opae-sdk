@@ -253,8 +253,8 @@ class otsu_updater(object):
         if obj.get('erase_start') is not None:
             erase_start = to_int(obj['erase_start'])[1]
             erase_end = to_int(obj['erase_end'])[1]
-            LOG.info('Erasing flash@0x%x for %d bytes',
-                     erase_start, (erase_end + 1) - erase_start)
+            LOG.info('Erasing %s@0x%x for %d bytes',
+                     obj['type'], erase_start, (erase_end + 1) - erase_start)
             mtd_dev.erase(erase_start,
                           (erase_end + 1) - erase_start)
 
@@ -274,8 +274,9 @@ class otsu_updater(object):
             verify = obj.get('verify', False)
 
             with open(filename, 'rb') as infile:
-                LOG.info('Writing flash@0x%x for %d bytes (%s)',
-                         start, (end + 1) - start, filename)
+                LOG.info('Writing %s@0x%x for %d bytes (%s)',
+                         obj['type'], start, (end + 1) - start,
+                         os.path.basename(filename))
 
                 infile.seek(seek)
                 if infile.tell() != seek:
@@ -342,11 +343,13 @@ class otsu_updater(object):
         os.remove(flash_bits.name)
 
         if compare:
-            LOG.info('Verified flash@0x%x for %d bytes (%s)',
-                     start, (end + 1) - start, filename)
+            LOG.info('Verified %s@0x%x for %d bytes (%s)',
+                     obj['type'], start, (end + 1) - start,
+                     os.path.basename(filename))
             return (0, SUCCESS)
 
-        return (1, 'Verification of %s @0x%x failed' % (filename, start))
+        return (1, 'Verification of %s @0x%x failed' %
+                (os.path.basename(filename), start))
 
     def wait(self):
         """Wait for this update's thread to terminate
