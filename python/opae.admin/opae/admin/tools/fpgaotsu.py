@@ -37,6 +37,7 @@ import filecmp
 import errno
 import signal
 import threading
+from datetime import datetime
 from opae.admin.fpga import fpga
 from opae.admin.utils.mtd import mtd
 from opae.admin.utils import process
@@ -526,6 +527,8 @@ def main():
                                json_cfg)
         updaters.append(updater)
 
+    start = datetime.now()
+
     if not args.verify:
         errors = run_updaters(updaters)
     else:
@@ -536,6 +539,7 @@ def main():
             if updater.success:
                 updater.pac.safe_rsu_boot()
 
+    LOG.info('Total time: %s', datetime.now() - start)
     sys.exit(errors)
 
 
