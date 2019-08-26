@@ -343,6 +343,18 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 
 	snprintf_s_s(dpath, sizeof(dpath), FPGA_DEV_PATH "/%s", name);
 
+	// Make device node exists
+	if (stat(dpath, &stats) != 0) {
+		FPGA_MSG("stat failed: %s", strerror(errno));
+		return FPGA_OK;
+	}
+
+	// In ideal case we need to check that device that we open is really an
+	// FPGA device, but that will prevent easy unittesting
+	//
+	// if (!S_ISCHR(stats.st_mode))
+	// 	return FPGA_OK;
+
 	pdev = add_dev(sysfspath, dpath, parent);
 	if (!pdev) {
 		FPGA_MSG("Failed to allocate device");
@@ -420,6 +432,18 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	int res;
 
 	snprintf_s_s(dpath, sizeof(dpath), FPGA_DEV_PATH "/%s", name);
+
+	// Make device node exists
+	if (stat(dpath, &stats) != 0) {
+		FPGA_MSG("stat failed: %s", strerror(errno));
+		return FPGA_OK;
+	}
+
+	// In ideal case we need to check that device that we open is really an
+	// FPGA device, but that will prevent easy unittesting
+	//
+	// if (!S_ISCHR(stats.st_mode))
+	// 	return FPGA_OK;
 
 	pdev = add_dev(sysfspath, dpath, parent);
 	if (!pdev) {

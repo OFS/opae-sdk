@@ -48,6 +48,7 @@ fpga_cache_counters::fpga_cache_counters(token::ptr_t fme)
 : fme_(fme)
 , perf_feature_rev_(-1)
 {
+    if (!fme) return;
     auto rev = sysobject::get(fme_, "*perf/revision", FPGA_OBJECT_GLOB);
     if (rev) {
         perf_feature_rev_ = rev->read64();
@@ -218,6 +219,7 @@ fpga_fabric_counters::fpga_fabric_counters(token::ptr_t fme)
 : fme_(fme)
 , perf_feature_rev_(-1)
 {
+   if (!fme) return;
     auto rev = sysobject::get(fme_, "*perf/revision", FPGA_OBJECT_GLOB);
     if (rev) {
         perf_feature_rev_ = rev->read64();
