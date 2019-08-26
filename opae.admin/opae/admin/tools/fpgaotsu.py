@@ -293,8 +293,9 @@ class otsu_updater(object):
                 data = infile.read()
                 if not data:
                     raise IOError('failed to read file %s' %(filename))
-                mtd_dev.replace((erase_end +1) - erase_start,
-                                data,start)
+                mtd_dev.replace(data,
+                                (erase_end +1) - erase_start,
+                                start)
 
                 if verify:
                     return self.verify(obj, mtd_dev, infile)
