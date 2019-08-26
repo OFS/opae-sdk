@@ -38,8 +38,6 @@ import errno
 import signal
 import threading
 from datetime import datetime
-sys.path.append('/storage/shared/home_directories/aravuri/ananda/rojo/Security-Tools/python/opae.admin')
-sys.path.append('/storage/shared/home_directories/aravuri/ananda/rojo/Security-Tools//python/opae.admin.tools')
 from opae.admin.fpga import fpga
 from opae.admin.utils.mtd import mtd
 from opae.admin.utils import process
