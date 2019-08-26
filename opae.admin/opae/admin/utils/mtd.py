@@ -222,6 +222,28 @@ class mtd(loggable):
                            kwargs.get('chunked', nbytes),
                            kwargs.get('progress'))
 
+    def replace(self, nbytes,data, start=0):
+        """replace erase and copy given number of bytes from data to this
+                     mtd device.
+
+        Args:
+            nbytes: Number of bytes to copy.
+            start: Offset on mtd device to start copying to. Defaults to 0.
+            data: buffer to copy into mtd device.
+
+        Raises:
+          IOError: if the device is not erase or write operation failed.
+        """
+        with open(self._devpath, 'wa') as fp:
+            try:
+                iodata = struct.pack('II', start, nbytes)
+                fcntl.ioctl(fp.fileno(), self.IOCTL_MTD_MEMERASE, iodata)
+                fp.seek(start)
+                os.write(fp.fileno(), data)
+            except IOError as err:
+                    self.log.exception('failed to replace data: %s', err)
+                    raise
+
     def _copy_chunked(self, src, dest, size, chunk_size, prg_writer=None):
         offset = 0
 
