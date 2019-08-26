@@ -373,7 +373,7 @@ def update_fw(fd_dev, infile):
     """
     block_size = 4096
     offset = 0
-    max_retries = 65
+    max_retries = 120
 
     orig_pos = infile.tell()
     infile.seek(0, os.SEEK_END)
