@@ -40,6 +40,7 @@ import json
 import uuid
 import subprocess
 import time
+from datetime import datetime
 import signal
 import errno
 import logging
@@ -552,6 +553,8 @@ def main():
                     LOG.error('PR interface uuid mismatch.')
                     sys.exit(1)
 
+    start = datetime.now()
+
     if gbs_hdr is not None:
         args.file.close()
         stat, mesg = do_partial_reconf(pac.pci_node.pci_address,
@@ -584,6 +587,8 @@ def main():
         LOG.error(mesg)
     else:
         LOG.info(mesg)
+
+    LOG.info('Total time: %s', datetime.now() - start)
     sys.exit(stat)
 
 
