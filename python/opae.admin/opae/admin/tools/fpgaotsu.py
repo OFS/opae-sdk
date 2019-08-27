@@ -259,8 +259,8 @@ class otsu_updater(object):
             mtd_dev.erase(erase_start,
                           (erase_end + 1) - erase_start)
 
-    def quick_write(self, obj, mtd_dev):
-        """qucik write the flash range described in obj.
+    def read_modify_write(self, obj, mtd_dev):
+        """read modify write the flash range described in obj.
 
         Args:
             obj: an object for one of the parsed "flash" sections
@@ -283,8 +283,8 @@ class otsu_updater(object):
                          filename)
                     return (0, SUCCESS)
 
-                LOG.info('Quick Writing flash@0x%x for %d bytes (%s)',
-                         start, (end + 1) - start, filename)
+                LOG.info('Read/Modify/Writing %s@0x%x for %d bytes (%s)',
+                         obj['type'], start, (end + 1) - start, filename)
 
                 infile.seek(seek)
                 if infile.tell() != seek:
@@ -444,8 +444,8 @@ class otsu_updater(object):
         with ctrls[0] as ctrl:
             with mtd(ctrl.devpath).open('w+b') as mtd_dev:
                 try:
-                    if flash.get('critical',False):
-                        status, msg = self.quick_write(flash, mtd_dev)
+                    if flash.get('read-modify-write',False):
+                        status, msg = self.read_modify_write(flash, mtd_dev)
                     else:
                         self.erase(flash, mtd_dev)
                         status, msg = self.write(flash, mtd_dev)
