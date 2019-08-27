@@ -47,6 +47,7 @@ from uuid import UUID
 from opae.admin.fpga import fpga as fpga_device
 from opae.admin.sysfs import pci_node
 from opae.admin.utils.process import call_process, assert_not_running
+from opae.admin.utils.utils import max10_or_nios_version, get_fme_version
 
 BMC_SENSOR_PATTERN = (r'^\(\s*(?P<num>\d+)\)\s*(?P<name>[\w \.]+)\s*:\s*'
                       r'(?P<value>[\d\.]+)\s+(?P<units>\w+)$')
@@ -257,127 +258,6 @@ def find_subdevices(node):
     return set(devices)
 
 
-# VERSION PARSING STRUCTS
-class bitstream_id_bits(LittleEndianStructure):
-    _fields_ = [
-                    ("githash", c_uint64, 32),
-                    ("hssi", c_uint64, 4),
-                    ("reserved36", c_uint64, 12),
-                    ("debug", c_uint64, 4),
-                    ("patch", c_uint64, 4),
-                    ("minor", c_uint64, 4),
-                    ("major", c_uint64, 4),
-    ]
-
-
-class vc_bitstream_id_bits(LittleEndianStructure):
-    _fields_ = [
-                    ("githash", c_uint64, 32),
-                    ("interface", c_uint64, 4),
-                    ("reserved36", c_uint64, 12),
-                    ("debug", c_uint64, 4),
-                    ("patch", c_uint64, 4),
-                    ("minor", c_uint64, 4),
-                    ("major", c_uint64, 4),
-    ]
-
-
-class fme_version(Union):
-    _fields_ = [("bits", bitstream_id_bits),
-                ("value", c_uint64)]
-
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        val = '{}.{}.{}'.format(self.bits.major,
-                                self.bits.minor,
-                                self.bits.patch)
-        return val
-
-    def __repr__(self):
-        return str(self)
-
-    def __eq__(self, other):
-        return str(self) == str(other)
-
-    def __ne__(self, other):
-        return str(self) != str(other)
-
-    @property
-    def major(self):
-        return self.bits.major
-
-    @property
-    def minor(self):
-        return self.bits.minor
-
-    @property
-    def patch(self):
-        return self.bits.patch
-
-
-class vc_fme_version(fme_version):
-    _fields_ = [("bits", vc_bitstream_id_bits),
-                ("value", c_uint64)]
-
-
-class spi_version_bits(LittleEndianStructure):
-    _fields_ = [
-                    ("patch", c_uint64, 8),
-                    ("minor", c_uint64, 8),
-                    ("major", c_uint64, 8),
-                    ("revision", c_uint64, 8),
-                    ("reserved", c_uint64, 32),
-    ]
-
-
-class spi_version(Union):
-    _fields_ = [("bits", spi_version_bits),
-                ("value", c_uint64)]
-
-    def __init__(self, value):
-        self.value = value
-
-    def __str__(self):
-        val = '{}.{}.{}'.format(self.bits.major,
-                                self.bits.minor,
-                                self.bits.patch)
-        return val
-
-    def __repr__(self):
-        rev = chr(self.bits.revision)
-        val = str(self)
-        if rev.isalpha():
-            val += ' Revision {} '.format(rev)
-        return val
-
-    def __eq__(self, other):
-        return str(self) == str(other)
-
-    def __ne__(self, other):
-        return str(self) != str(other)
-
-    @property
-    def major(self):
-        return self.bits.major
-
-    @property
-    def minor(self):
-        return self.bits.minor
-
-    @property
-    def patch(self):
-        return self.bits.patch
-
-    @property
-    def revision(self):
-        rev = chr(self.bits.revision)
-        if not rev.isalpha():
-            return ''
-        return rev
-
-
 # flashable classes
 # classes here represent parts on the FPGA that can be flashed
 class flashable(object):
@@ -429,7 +309,7 @@ class bmc_flashable(flashable):
     @property
     def version(self):
         value = self._fpga.fme.spi_bus.node(self.version_path).value
-        return spi_version(int(value, 16))
+        return max10_or_nios_version(int(value, 16))
 
     def is_supported(self, flash_info):
         current_rev = self.version.revision.lower()
@@ -895,7 +775,9 @@ class vc(pac):
     @property
     def user_version(self):
         value = int(self.fpga.fme.node('bitstream_id').value, 16)
-        return vc_fme_version(value)
+        return get_fme_version((self.pci_node.vendor_id,
+                                self.pci_node.device_id),
+                                value)
 
     def run_tests(self, rsu_config):
         failures = super(vc, self).run_tests(rsu_config)
