@@ -259,6 +259,49 @@ class otsu_updater(object):
             mtd_dev.erase(erase_start,
                           (erase_end + 1) - erase_start)
 
+    def read_modify_write(self, obj, mtd_dev):
+        """read modify write the flash range described in obj.
+
+        Args:
+            obj: an object for one of the parsed "flash" sections
+                from the manifest.
+            mtd_dev: an mtd object for the open flash device.
+        """
+        if obj.get('filename') is not None:
+            seek = 0 if obj.get('seek') is None else to_int(obj['seek'])[1]
+            start = to_int(obj['start'])[1]
+            end = to_int(obj['end'])[1]
+            erase_start = to_int(obj['erase_start'])[1]
+            erase_end = to_int(obj['erase_end'])[1]
+            filename = os.path.join(self._fw_dir, obj['filename'])
+            verify = obj.get('verify', False)
+
+            with open(filename, 'rb') as infile:
+                status, msg =self.verify(obj, mtd_dev, infile)
+                if status == 0:
+                    LOG.info('Flash content matches with file %s',
+                         filename)
+                    return (0, SUCCESS)
+
+                LOG.info('Read/Modify/Writing %s@0x%x for %d bytes (%s)',
+                         obj['type'], start, (end + 1) - start, filename)
+
+                infile.seek(seek)
+                if infile.tell() != seek:
+                    raise IOError('failed to seek in input file %s: 0x%x' %
+                                  (filename, seek))
+                data = infile.read()
+                if not data:
+                    raise IOError('failed to read file %s' %(filename))
+                mtd_dev.replace(data,
+                                (erase_end +1) - erase_start,
+                                start)
+
+                if verify:
+                    return self.verify(obj, mtd_dev, infile)
+
+        return (0, SUCCESS)
+
     def write(self, obj, mtd_dev):
         """Write the flash range described in obj.
 
@@ -401,8 +444,11 @@ class otsu_updater(object):
         with ctrls[0] as ctrl:
             with mtd(ctrl.devpath).open('w+b') as mtd_dev:
                 try:
-                    self.erase(flash, mtd_dev)
-                    status, msg = self.write(flash, mtd_dev)
+                    if flash.get('read-modify-write',False):
+                        status, msg = self.read_modify_write(flash, mtd_dev)
+                    else:
+                        self.erase(flash, mtd_dev)
+                        status, msg = self.write(flash, mtd_dev)
                 except IOError as eexc:
                     return (eexc.errno, str(eexc))
 
