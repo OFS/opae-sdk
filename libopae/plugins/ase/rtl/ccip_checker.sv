@@ -521,6 +521,14 @@ module ccip_checker
            print_message_and_log(0, log_str);
         end
 
+          // C1Tx - byte range set but request isn't eMOD_BYTE
+          SNIFF_C1TX_BYTE_EN_WRONG_MODE:
+        begin
+           error_code_q[code] = 1'b1;
+           $sformat(log_str, "[%s] C1TxHdr byte range requested on non-eMOD_BYTE request!\n", errcode_str);
+           print_message_and_log(0, log_str);
+        end
+
           // C0TX - 3CL Request check
           SNIFF_C1TX_3CL_REQUEST:
         begin
@@ -1119,6 +1127,15 @@ module ccip_checker
       end
       else
             error_code_q[SNIFF_C1TX_BYTE_EN_NON_WRITE]=1'b0;
+
+      // ----------------------------------------- //
+      // Byte range set on normal write?
+      if ((ccip_tx.c1.hdr.mode == eMOD_CL) && ccip_tx.c1.valid && isCCIPWriteRequest(ccip_tx.c1.hdr) &&
+          ((ccip_tx.c1.hdr.byte_start != 0) || (ccip_tx.c1.hdr.byte_len != 0))) begin
+            decode_error_code(0, SNIFF_C1TX_BYTE_EN_WRONG_MODE);
+      end
+      else
+            error_code_q[SNIFF_C1TX_BYTE_EN_WRONG_MODE]=1'b0;
 
       // ----------------------------------------- //
       // Check various properties of byte ranges

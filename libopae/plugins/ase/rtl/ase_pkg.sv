@@ -923,7 +923,7 @@ package ase_pkg;
     * ASE protocol sniff codes
     */
    // parameter SNIFF_CODE_WIDTH = 5;
-   parameter SNIFF_VECTOR_WIDTH = 35;
+   parameter SNIFF_VECTOR_WIDTH = 36;
  // 2**SNIFF_CODE_WIDTH;
 
    // Error code indices
@@ -965,7 +965,8 @@ package ase_pkg;
 		   SNIFF_C1TX_BYTE_EN_NON_WRITE	 = 31,
 		   SNIFF_C1TX_BYTE_EN_MULTI_LINE = 32,
 		   SNIFF_C1TX_BYTE_EN_BAD_RANGE  = 33,
-		   SNIFF_C1TX_BYTE_EN_NOT_IMPL   = 34
+		   SNIFF_C1TX_BYTE_EN_NOT_IMPL   = 34,
+		   SNIFF_C1TX_BYTE_EN_WRONG_MODE = 35
 		   // --------------------------------- //
 		   } sniff_code_t;
 
