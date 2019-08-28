@@ -28,7 +28,6 @@ import glob
 import json
 import logging
 import logging.handlers
-import operator
 import os
 import re
 import signal
@@ -39,7 +38,6 @@ import time
 import xml.etree.cElementTree as ET
 
 from contextlib import contextmanager
-from ctypes import c_uint64, LittleEndianStructure, Union
 from datetime import datetime, timedelta
 from threading import Thread
 from uuid import UUID
@@ -764,7 +762,7 @@ class vc(pac):
         value = int(self.fpga.fme.node('bitstream_id').value, 16)
         return get_fme_version((self.pci_node.vendor_id,
                                 self.pci_node.device_id),
-                                value)
+                               value)
 
     def run_tests(self, rsu_config):
         failures = super(vc, self).run_tests(rsu_config)
@@ -1045,7 +1043,7 @@ def need_requires(boards, flash_spec, comparator):
             if not version_comparator.to_int_tuple(str(cur.version)):
                 LOG.error('could not compare versions : %s',
                           '{} {} {}'.format(cur.version, comparator.operator,
-                              comparator.version))
+                                            comparator.version))
                 result = False
             else:
                 result = comparator.compare(str(cur.version))
@@ -1136,7 +1134,7 @@ def find_config(program='super-rsu'):
             else:
                 # check if program is either in the manifest data
                 # or at least it is in the file path
-                if cfg_pgm == program or program in f:
+                if cfg_pgm == program or (cfg_pgm is None and program in f):
                     if fpga_device.enum([{'pci_node.vendor_id': cfg_vid,
                                           'pci_node.device_id': cfg_did}]):
                         LOG.debug('found possible config: %s', f)
