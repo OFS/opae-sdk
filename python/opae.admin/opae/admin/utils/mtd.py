@@ -234,14 +234,15 @@ class mtd(loggable):
         Raises:
           IOError: if the device is not erase or write operation failed.
         """
-        try:
-            iodata = struct.pack('II', start, nbytes)
-            fcntl.ioctl(self._fp.fileno(), self.IOCTL_MTD_MEMERASE, iodata)
-            self._fp.seek(start)
-            os.write(self._fp.fileno(), data)
-        except IOError as err:
-            self.log.exception('failed to replace data: %s', err)
-            raise
+        with open(self._devpath, 'wa') as fp:
+            try:
+                iodata = struct.pack('II', start, nbytes)
+                fcntl.ioctl(fp.fileno(), self.IOCTL_MTD_MEMERASE, iodata)
+                fp.seek(start)
+                os.write(fp.fileno(), data)
+            except IOError as err:
+                self.log.exception('failed to replace data: %s', err)
+                raise
 
     def _copy_chunked(self, src, dest, size, chunk_size, prg_writer=None):
         offset = 0
