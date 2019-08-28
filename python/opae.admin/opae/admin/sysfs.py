@@ -567,7 +567,7 @@ class class_node(sysfs_node):
 
         def func(obj):
             for f in filt:
-                for k, v in f.iteritems():
+                for k, v in f.items():
                     cur_obj = obj
                     attrs = k.split('.')
                     while len(attrs) > 1:
