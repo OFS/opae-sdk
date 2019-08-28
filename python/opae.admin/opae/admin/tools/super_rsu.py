@@ -47,19 +47,13 @@ from uuid import UUID
 from opae.admin.fpga import fpga as fpga_device
 from opae.admin.sysfs import pci_node
 from opae.admin.utils.process import call_process, assert_not_running
-from opae.admin.utils.utils import max10_or_nios_version, get_fme_version
+from opae.admin.utils import (get_fme_version,
+                              max10_or_nios_version,
+                              version_comparator)
 
 BMC_SENSOR_PATTERN = (r'^\(\s*(?P<num>\d+)\)\s*(?P<name>[\w \.]+)\s*:\s*'
                       r'(?P<value>[\d\.]+)\s+(?P<units>\w+)$')
 BMC_SENSOR_RE = re.compile(BMC_SENSOR_PATTERN, re.MULTILINE)
-
-VERSION_OP_PATTERN = (r'(?P<type>\w+[-\w]+)\s*(?P<op>(?:(?:[><!=])?=)|[<>])\s*'
-                      r'(?P<version>.*)')
-VERSION_OP_RE = re.compile(VERSION_OP_PATTERN)
-
-VERSION_PATTERN = (r'(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?'
-                   r'(?:\s+(?P<rest>.*))?')
-VERSION_RE = re.compile(VERSION_PATTERN)
 
 BMC_NORMAL_RANGES = {
     'FPGA Die Temperature': (1.0, 85.0),
@@ -112,13 +106,6 @@ logging.addLevelName(TRACE, 'TRACE')
 RSU_TMP_LOG = '/tmp/super-rsu.log'
 
 SECURE_UPDATE_VERSION = 4
-
-
-def parse_version(ver_str):
-    m = VERSION_RE.match(ver_str)
-    if m:
-        return m.groups()
-    return ver_str
 
 
 def parse_timedelta(inp):
@@ -1042,14 +1029,7 @@ def run_tests(boards, args, rsu_config):
     return os.EX_OK
 
 
-def need_requires(boards, flash_spec, req_type, op_str, req_version):
-    ops = {'=': operator.eq,
-           '==': operator.eq,
-           '<=': operator.le,
-           '>=': operator.ge,
-           '>': operator.gt,
-           '<': operator.lt,
-           '!=': operator.ne}
+def need_requires(boards, flash_spec, comparator):
     missing = []
     if not flash_spec.get('enabled'):
         return missing
@@ -1057,28 +1037,26 @@ def need_requires(boards, flash_spec, req_type, op_str, req_version):
         spec_type = flash_spec['type']
         if not b.get_flashable(spec_type).is_supported(flash_spec):
             continue
-        cur = b.get_flashable(req_type)
+        cur = b.get_flashable(comparator.label)
         if cur is None or cur.is_factory:
-            LOG.warn('could not get component of type: %s', req_type)
-            missing.append('[{}] {}'.format(b.pci_node.bdf, req_type))
+            LOG.warn('could not get component of type: %s', comparator.label)
+            missing.append('[{}] {}'.format(b.pci_node.bdf, comparator.label))
         else:
-            op = ops[op_str]
-            cur_version = str(cur.version)
-            try:
-                result = op(parse_version(cur_version),
-                            parse_version(req_version))
-            except TypeError:
-                LOG.error('could not compare versions of different type : %s',
-                          '{} {} {}'.format(cur_version, op_str, req_version))
+            if not version_comparator.to_int_tuple(str(cur.version)):
+                LOG.error('could not compare versions : %s',
+                          '{} {} {}'.format(cur.version, comparator.operator,
+                              comparator.version))
                 result = False
+            else:
+                result = comparator.compare(str(cur.version))
 
             if not result:
                 missing.append('[{}] {} {}'.format(b.pci_node.bdf,
-                                                   req_type,
-                                                   req_version))
+                                                   comparator.label,
+                                                   comparator.version))
                 LOG.warn('[%s] %s (%s) does not meet requirement (%s)',
-                         b.pci_node.bdf, req_type, cur.version,
-                         req_version)
+                         b.pci_node.bdf, comparator.label, cur.version,
+                         comparator.version)
     return missing
 
 
@@ -1122,16 +1100,12 @@ def check_requirements(boards, args, rsu_config):
             missing.append(filename)
 
         for req in item.get('requires', []):
-            m = VERSION_OP_RE.match(req)
-            if m is None:
+            c = version_comparator(req)
+            if not c.parse():
                 LOG.error('requires spec invalid: %s', req)
                 missing.append(req)
                 continue
-            version = m.groupdict()['version']
-            op = m.groupdict()['op']
-            flash_type = m.groupdict()['type']
-            missing.extend(need_requires(boards,
-                                         item, flash_type, op, version))
+            missing.extend(need_requires(boards, item, c))
 
     if missing:
         LOG.warn('missing %s', ','.join(missing))
