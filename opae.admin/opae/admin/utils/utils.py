@@ -25,6 +25,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 import os
 import sys
+import re
+import operator
 from ctypes import c_uint64, LittleEndianStructure, Union
 from opae.admin.utils.log import LOG
 
@@ -240,3 +242,76 @@ def get_fme_version(vid_did, value):
     except KeyError as exc:
         LOG().exception('Unsupported platform: %s', vid_did)
         raise
+
+
+VERSION_PATTERN = r'(?:(\d+)\.)?(?:(\d+)\.)?(\d+)'
+VERSION_RE = re.compile(VERSION_PATTERN)
+
+VERSION_EXPR_PATTERN = (r'(?P<label>\w+[-\w]*)\s*(?P<op>(?:(?:[><!=])?=)|[<>])\s*'
+                        r'(?P<version>.*)')
+VERSION_EXPR_RE = re.compile(VERSION_EXPR_PATTERN)
+
+class version_comparator(object):
+    """Parse and manipulate a version expression
+
+    The form of version expression expected by a version_comparator
+    is:
+
+        <label> <operator> <version>
+
+    Where <label> is the set of alpha-numeric characters, plus
+    '-' and '_'. <operator> is one of <, >, ==, !=, <=, or >=.
+    <version> is in the common Major.minor.path version scheme,
+    eg
+
+        foo >= 1.2.3
+    """
+
+    @staticmethod
+    def to_int_tuple(version):
+        """Convert a dotted version string to a tuple of ints."""
+        if VERSION_RE.match(version):
+            return tuple(int(n) for n in version.split('.'))
+        return None
+
+    def __init__(self, expr):
+        self._expr = expr
+        self._groupdict = None
+        self._oper_fn = None
+
+    def parse(self):
+        """Parse the expression
+
+        Returns:
+            The groupdict() of the match instance, or None
+            if the expression is not of the correct form.
+        """
+        group = VERSION_EXPR_RE.match(self._expr)
+        if group:
+            self._groupdict = group.groupdict()
+            ops = {'=': operator.eq,
+                   '==': operator.eq,
+                   '<=': operator.le,
+                   '>=': operator.ge,
+                   '>': operator.gt,
+                   '<': operator.lt,
+                   '!=': operator.ne}
+            self._oper_fn = ops[self._groupdict['op']]
+        return self._groupdict
+
+    @property
+    def label(self):
+        return None if self._groupdict is None else self._groupdict['label']
+
+    @property
+    def operator(self):
+        return None if self._groupdict is None else self._groupdict['op']
+
+    @property
+    def version(self):
+        return None if self._groupdict is None else self._groupdict['version']
+
+    def compare(self, lhs):
+        lhs_tup = version_comparator.to_int_tuple(lhs)
+        rhs_tup = version_comparator.to_int_tuple(self.version)
+        return self._oper_fn(lhs_tup, rhs_tup)
