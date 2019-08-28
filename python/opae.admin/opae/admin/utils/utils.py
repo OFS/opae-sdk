@@ -28,6 +28,7 @@ import sys
 import re
 import operator
 from ctypes import c_uint64, LittleEndianStructure, Union
+from datetime import timedelta
 from opae.admin.utils.log import LOG
 
 if sys.version_info[0] == 3:
@@ -315,3 +316,50 @@ class version_comparator(object):
         lhs_tup = version_comparator.to_int_tuple(lhs)
         rhs_tup = version_comparator.to_int_tuple(self.version)
         return self._oper_fn(lhs_tup, rhs_tup)
+
+
+TIMEDELTA_PATTERN = r'(?P<number>\d+)?(?P<fraction>\.\d+)?(?P<units>[dhms])'
+TIMEDELTA_RE = re.compile(TIMEDELTA_PATTERN)
+
+
+def parse_timedelta(inp):
+    """parse_timedelta Parse a short time delta string.
+
+    Args:
+        inp: The input string representing a time delta.
+        A time delta string format has one or more float numbers followed by
+        time units.
+        's' -> seconds
+        'm' -> minutes
+        'h' -> hours
+        'd' -> days
+
+        Examples: (given 86400 seconds in a day)
+            1d23h59m59s returns 172799.0
+            1m60s2m returns 240.0 seconds
+    Returns(float):
+        The total number of seconds represented by the input string.
+        0.0 if it could not parse the string.
+    """
+    data = {'d': 0.0, 'h': 0.0, 'm': 0.0, 's': 0.0}
+    for m in TIMEDELTA_RE.finditer(inp):
+        number = m.group('number')
+        fraction = m.group('fraction')
+        value = 0.0
+        if number:
+            value += int(number)
+        if fraction:
+            value += float(fraction)
+        units = m.group('units')
+        data[units] += value
+
+    if sum(data.values()) == 0.0:
+        LOG('parse_timedelta').warn(
+            "did not find positive values in timedelta string: '%s'", inp)
+        return 0.0
+
+    td = timedelta(days=data['d'],
+                   hours=data['h'],
+                   minutes=data['m'],
+                   seconds=data['s'])
+    return td.total_seconds()

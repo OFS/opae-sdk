@@ -26,7 +26,8 @@
 from opae.admin.utils.utils import (dry_run,
                                     max10_or_nios_version,
                                     get_fme_version,
-                                    version_comparator)
+                                    version_comparator,
+                                    parse_timedelta)
 __all__ = ['dry_run', 'max10_or_nios_version', 'get_fme_version',
-    'version_comparator'
-]
+           'version_comparator', 'parse_timedelta'
+           ]

@@ -47,7 +47,8 @@ from opae.admin.sysfs import pci_node
 from opae.admin.utils.process import call_process, assert_not_running
 from opae.admin.utils import (get_fme_version,
                               max10_or_nios_version,
-                              version_comparator)
+                              version_comparator,
+                              parse_timedelta)
 
 BMC_SENSOR_PATTERN = (r'^\(\s*(?P<num>\d+)\)\s*(?P<name>[\w \.]+)\s*:\s*'
                       r'(?P<value>[\d\.]+)\s+(?P<units>\w+)$')
@@ -57,9 +58,6 @@ BMC_NORMAL_RANGES = {
     'FPGA Die Temperature': (1.0, 85.0),
     'Board Power': (1.0, 150.0)
 }
-
-TIMEDELTA_PATTERN = r'(?P<number>\d+)?(?P<fraction>\.\d+)?(?P<units>[dhms])'
-TIMEDELTA_RE = re.compile(TIMEDELTA_PATTERN)
 
 CLASS_ROOT = '/sys/class/fpga'
 
@@ -104,30 +102,6 @@ logging.addLevelName(TRACE, 'TRACE')
 RSU_TMP_LOG = '/tmp/super-rsu.log'
 
 SECURE_UPDATE_VERSION = 4
-
-
-def parse_timedelta(inp):
-    data = {'d': 0.0, 'h': 0.0, 'm': 0.0, 's': 0.0}
-    for m in TIMEDELTA_RE.finditer(inp):
-        number = m.group('number')
-        fraction = m.group('fraction')
-        value = 0.0
-        if number:
-            value += int(number)
-        if fraction:
-            value += float(fraction)
-        units = m.group('units')
-        data[units] += value
-
-    if sum(data.values()) == 0.0:
-        LOG.warn("did not find positive values in timedelta string: '%s'", inp)
-        return 0.0
-
-    td = timedelta(days=data['d'],
-                   hours=data['h'],
-                   minutes=data['m'],
-                   seconds=data['s'])
-    return td.total_seconds()
 
 
 def sys_exit(code, msg=None):
