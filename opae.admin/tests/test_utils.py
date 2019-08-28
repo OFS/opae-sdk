@@ -24,8 +24,9 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 import unittest
+from nose2.tools import params
+from opae.admin.utils import version_comparator, parse_timedelta
 
-from opae.admin.utils import version_comparator
 
 class test_utils(unittest.TestCase):
     def test_version_comparator_parse(self):
@@ -48,9 +49,9 @@ class test_utils(unittest.TestCase):
 
     def test_version_comparator_compare(self):
         """test_version_comparator_compare
-           When a version_comparator has successfully parsed its given expression,
-           then calling the compare method executes the described comparison,
-           returning a boolean value.
+           When a version_comparator has successfully parsed its given
+           expression,then calling the compare method executes the described
+           comparison, returning a boolean value.
         """
         c = version_comparator('foo == 1.2.3')
         self.assertIsNotNone(c.parse())
@@ -60,7 +61,7 @@ class test_utils(unittest.TestCase):
 
         c = version_comparator('foo < 1.2.3')
         self.assertIsNotNone(c.parse())
- 
+
         self.assertTrue(c.compare('1.2.2'))
         self.assertTrue(c.compare('1.1.3'))
         self.assertTrue(c.compare('0.2.3'))
@@ -77,3 +78,25 @@ class test_utils(unittest.TestCase):
         self.assertTrue(c.compare('1.2.10'))
         self.assertFalse(c.compare('1.2.2'))
         self.assertTrue(c.compare('1.10.3'))
+
+    @params(('1d23h59m59s', 172799.0),
+           ('1m60s2m', 240.0),
+           ('1h', 3600.0),
+           ('1h60m1s', 7201.0),
+           ('59m1.1s', 3541.1),
+           ('0.5h', 1800.0))
+    def test_parse_timedelta(self, inp_str, sec):
+        '''test_parse_timedelta
+        Given a valid timedelta string
+        When I call parse_timedelta with it
+        I get the total number of seconds represented by it
+        '''
+        self.assertEqual(parse_timedelta(inp_str), sec)
+
+    def test_parse_timedelta_neg(self):
+        '''test_parse_timedelta_neg
+        Given an invalid timedelta string
+        When I call parse_timedelta with it
+        I get 0.0
+        '''
+        self.assertEqual(parse_timedelta('abc'), 0.0)
