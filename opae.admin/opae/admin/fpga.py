@@ -311,7 +311,7 @@ class fpga(class_node):
     @contextmanager
     def disable_aer(self, *nodes):
         aer_values = []
-        to_disable = nodes or self.pci_node.root
+        to_disable = nodes or [self.pci_node.root]
         try:
             for node in to_disable:
                 aer_values.append((node, node.aer))
