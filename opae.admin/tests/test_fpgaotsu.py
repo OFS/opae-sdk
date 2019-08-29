@@ -85,7 +85,7 @@ CSV_CFG = '''
 "","Erase/Wr/Vfy 0x10000-0x17fffff of Gold Factory POF.","0x17fffff",
 "dcp_1_2_rot_19_1_b170_reversed.rpd","0x10000","0x10000","0x17fffff","0x10000","flash","True",
 "","",""
-'''.strip().format(DUMMY_FILE=DUMMY_FILE)
+'''
 
 def modify_manifest(data, to_dict=False, to_super_rsu=False, delete_key=None):
     mandatory_keys = ['product', 'vendor', 'device',
