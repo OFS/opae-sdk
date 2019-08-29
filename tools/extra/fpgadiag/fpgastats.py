@@ -149,6 +149,10 @@ class FPGASTATS(COMMON):
 
     def start(self):
         info = self.get_eth_group_info(self.eth_grps)
+        if self.lightweight:
+            exception_quit(
+                'It is lightweight image, fpgastats is not supported!',
+                retcode=0)
         self.print_stats(info)
 
 

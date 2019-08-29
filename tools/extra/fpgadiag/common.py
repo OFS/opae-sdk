@@ -112,6 +112,7 @@ class FpgaFinder(object):
 
 
 class COMMON(object):
+    lightweight = False
     eth_comp = {'phy': 1,
                 'mac': 2,
                 'eth': 3}
@@ -191,9 +192,14 @@ class COMMON(object):
                     node),
                 self.ETH_GROUP_GET_INFO,
                 data)
-            _, _, spd, phy, mac, grp = struct.unpack(self.if_fmt, ret)
+            _, flags, spd, phy, mac, grp = struct.unpack(self.if_fmt, ret)
+            self.lightweight = self.lightweight or (flags & 1) == 1
             info[grp] = [phy, mac, spd, node]
         return info
+
+    def is_lightweight_image(self, eth_grps):
+        self.get_eth_group_info(eth_grps)
+        return self.lightweight
 
     def is_char_device(self, dev):
         m = os.stat(dev).st_mode
