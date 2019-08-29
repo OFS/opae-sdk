@@ -1104,7 +1104,8 @@ def find_config(program='super-rsu'):
             except ValueError:
                 LOG.warn('could not decode JSON file: %s', f)
             except AttributeError:
-                LOG.debug('%s not a recognized schema', f)
+                # not a recognized schema
+                pass
             else:
                 # check if program is either in the manifest data
                 # or at least it is in the file path
