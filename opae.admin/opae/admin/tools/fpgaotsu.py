@@ -442,9 +442,11 @@ class otsu_updater(object):
         status, msg = 1, FAILURE
 
         with ctrls[0] as ctrl:
-            with mtd(ctrl.devpath).open('w+b') as mtd_dev:
+            rd_modify = flash.get('read-modify-write', False)
+            open_mode = 'wa+' if rd_modify else 'w+b'
+            with mtd(ctrl.devpath).open(open_mode) as mtd_dev:
                 try:
-                    if flash.get('read-modify-write',False):
+                    if rd_modify:
                         status, msg = self.read_modify_write(flash, mtd_dev)
                     else:
                         self.erase(flash, mtd_dev)
