@@ -269,9 +269,9 @@ class test_other_functions(unittest.TestCase):
     def test_all_or_none(self):
         """test_all_or_none
         Given an valid flash json/dict object
-        When I call all_or_none with invalid keys
+        When I call all_or_none with invalid keys args
         Then I get KeyError exception
-        When I call all_or_none with valid keys
+        When I call all_or_none with valid keys args
         Then no exception is raised
         """
         obj = {"seek": "0x1800000",
@@ -284,4 +284,4 @@ class test_other_functions(unittest.TestCase):
         try:
             fpgaotsu.all_or_none(obj, 'type', 'start')
         except ExceptionType:
-            self.fail("all_or_none rasied ExceptionType unexpectedly")
+            self.fail("all_or_none raised ExceptionType unexpectedly")
