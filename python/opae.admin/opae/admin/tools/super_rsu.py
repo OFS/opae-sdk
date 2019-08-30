@@ -28,7 +28,6 @@ import glob
 import json
 import logging
 import logging.handlers
-import operator
 import os
 import re
 import signal
@@ -39,7 +38,6 @@ import time
 import xml.etree.cElementTree as ET
 
 from contextlib import contextmanager
-from ctypes import c_uint64, LittleEndianStructure, Union
 from datetime import datetime, timedelta
 from threading import Thread
 from uuid import UUID
@@ -47,27 +45,19 @@ from uuid import UUID
 from opae.admin.fpga import fpga as fpga_device
 from opae.admin.sysfs import pci_node
 from opae.admin.utils.process import call_process, assert_not_running
-from opae.admin.utils.utils import max10_or_nios_version, get_fme_version
+from opae.admin.utils import (get_fme_version,
+                              max10_or_nios_version,
+                              version_comparator,
+                              parse_timedelta)
 
 BMC_SENSOR_PATTERN = (r'^\(\s*(?P<num>\d+)\)\s*(?P<name>[\w \.]+)\s*:\s*'
                       r'(?P<value>[\d\.]+)\s+(?P<units>\w+)$')
 BMC_SENSOR_RE = re.compile(BMC_SENSOR_PATTERN, re.MULTILINE)
 
-VERSION_OP_PATTERN = (r'(?P<type>\w+[-\w]+)\s*(?P<op>(?:(?:[><!=])?=)|[<>])\s*'
-                      r'(?P<version>.*)')
-VERSION_OP_RE = re.compile(VERSION_OP_PATTERN)
-
-VERSION_PATTERN = (r'(?P<major>\d+)(?:\.(?P<minor>\d+)(?:\.(?P<patch>\d+))?)?'
-                   r'(?:\s+(?P<rest>.*))?')
-VERSION_RE = re.compile(VERSION_PATTERN)
-
 BMC_NORMAL_RANGES = {
     'FPGA Die Temperature': (1.0, 85.0),
     'Board Power': (1.0, 150.0)
 }
-
-TIMEDELTA_PATTERN = r'(?P<number>\d+)?(?P<fraction>\.\d+)?(?P<units>[dhms])'
-TIMEDELTA_RE = re.compile(TIMEDELTA_PATTERN)
 
 CLASS_ROOT = '/sys/class/fpga'
 
@@ -112,37 +102,6 @@ logging.addLevelName(TRACE, 'TRACE')
 RSU_TMP_LOG = '/tmp/super-rsu.log'
 
 SECURE_UPDATE_VERSION = 4
-
-
-def parse_version(ver_str):
-    m = VERSION_RE.match(ver_str)
-    if m:
-        return m.groups()
-    return ver_str
-
-
-def parse_timedelta(inp):
-    data = {'d': 0.0, 'h': 0.0, 'm': 0.0, 's': 0.0}
-    for m in TIMEDELTA_RE.finditer(inp):
-        number = m.group('number')
-        fraction = m.group('fraction')
-        value = 0.0
-        if number:
-            value += int(number)
-        if fraction:
-            value += float(fraction)
-        units = m.group('units')
-        data[units] += value
-
-    if sum(data.values()) == 0.0:
-        LOG.warn("did not find positive values in timedelta string: '%s'", inp)
-        return 0.0
-
-    td = timedelta(days=data['d'],
-                   hours=data['h'],
-                   minutes=data['m'],
-                   seconds=data['s'])
-    return td.total_seconds()
 
 
 def sys_exit(code, msg=None):
@@ -777,7 +736,7 @@ class vc(pac):
         value = int(self.fpga.fme.node('bitstream_id').value, 16)
         return get_fme_version((self.pci_node.vendor_id,
                                 self.pci_node.device_id),
-                                value)
+                               value)
 
     def run_tests(self, rsu_config):
         failures = super(vc, self).run_tests(rsu_config)
@@ -1042,14 +1001,7 @@ def run_tests(boards, args, rsu_config):
     return os.EX_OK
 
 
-def need_requires(boards, flash_spec, req_type, op_str, req_version):
-    ops = {'=': operator.eq,
-           '==': operator.eq,
-           '<=': operator.le,
-           '>=': operator.ge,
-           '>': operator.gt,
-           '<': operator.lt,
-           '!=': operator.ne}
+def need_requires(boards, flash_spec, comparator):
     missing = []
     if not flash_spec.get('enabled'):
         return missing
@@ -1057,28 +1009,26 @@ def need_requires(boards, flash_spec, req_type, op_str, req_version):
         spec_type = flash_spec['type']
         if not b.get_flashable(spec_type).is_supported(flash_spec):
             continue
-        cur = b.get_flashable(req_type)
+        cur = b.get_flashable(comparator.label)
         if cur is None or cur.is_factory:
-            LOG.warn('could not get component of type: %s', req_type)
-            missing.append('[{}] {}'.format(b.pci_node.bdf, req_type))
+            LOG.warn('could not get component of type: %s', comparator.label)
+            missing.append('[{}] {}'.format(b.pci_node.bdf, comparator.label))
         else:
-            op = ops[op_str]
-            cur_version = str(cur.version)
-            try:
-                result = op(parse_version(cur_version),
-                            parse_version(req_version))
-            except TypeError:
-                LOG.error('could not compare versions of different type : %s',
-                          '{} {} {}'.format(cur_version, op_str, req_version))
+            if not version_comparator.to_int_tuple(str(cur.version)):
+                LOG.error('could not compare versions : %s',
+                          '{} {} {}'.format(cur.version, comparator.operator,
+                                            comparator.version))
                 result = False
+            else:
+                result = comparator.compare(str(cur.version))
 
             if not result:
                 missing.append('[{}] {} {}'.format(b.pci_node.bdf,
-                                                   req_type,
-                                                   req_version))
+                                                   comparator.label,
+                                                   comparator.version))
                 LOG.warn('[%s] %s (%s) does not meet requirement (%s)',
-                         b.pci_node.bdf, req_type, cur.version,
-                         req_version)
+                         b.pci_node.bdf, comparator.label, cur.version,
+                         comparator.version)
     return missing
 
 
@@ -1122,16 +1072,12 @@ def check_requirements(boards, args, rsu_config):
             missing.append(filename)
 
         for req in item.get('requires', []):
-            m = VERSION_OP_RE.match(req)
-            if m is None:
+            c = version_comparator(req)
+            if not c.parse():
                 LOG.error('requires spec invalid: %s', req)
                 missing.append(req)
                 continue
-            version = m.groupdict()['version']
-            op = m.groupdict()['op']
-            flash_type = m.groupdict()['type']
-            missing.extend(need_requires(boards,
-                                         item, flash_type, op, version))
+            missing.extend(need_requires(boards, item, c))
 
     if missing:
         LOG.warn('missing %s', ','.join(missing))
@@ -1158,11 +1104,12 @@ def find_config(program='super-rsu'):
             except ValueError:
                 LOG.warn('could not decode JSON file: %s', f)
             except AttributeError:
-                LOG.debug('%s not a recognized schema', f)
+                # not a recognized schema
+                pass
             else:
                 # check if program is either in the manifest data
                 # or at least it is in the file path
-                if cfg_pgm == program or program in f:
+                if cfg_pgm == program or (cfg_pgm is None and program in f):
                     if fpga_device.enum([{'pci_node.vendor_id': cfg_vid,
                                           'pci_node.device_id': cfg_did}]):
                         LOG.debug('found possible config: %s', f)

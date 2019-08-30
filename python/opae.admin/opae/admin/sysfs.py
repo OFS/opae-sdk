@@ -520,14 +520,13 @@ class class_node(sysfs_node):
         """
         sysfs_class = sysfs_class or cls
         log = LOG(cls.__name__)
-        log.debug(sysfs_class_name)
         nodes = []
         class_paths = glob.glob(
             os.path.join(
                 '/sys/class',
                 sysfs_class_name,
                 '*'))
-        log.debug('glob returned: %s', class_paths)
+        log.debug('found %s objects: %s', sysfs_class_name, class_paths)
         for path in class_paths:
             nodes.append(sysfs_class(path))
         return nodes
@@ -567,7 +566,7 @@ class class_node(sysfs_node):
 
         def func(obj):
             for f in filt:
-                for k, v in f.iteritems():
+                for k, v in f.items():
                     cur_obj = obj
                     attrs = k.split('.')
                     while len(attrs) > 1:

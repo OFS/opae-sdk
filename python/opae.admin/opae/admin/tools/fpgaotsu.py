@@ -40,7 +40,7 @@ import threading
 from datetime import datetime
 from opae.admin.fpga import fpga
 from opae.admin.utils.mtd import mtd
-from opae.admin.utils import process
+from opae.admin.utils import process, version_comparator
 
 LOG = logging.getLogger()
 
@@ -90,6 +90,9 @@ def all_or_none(obj, *keys):
 
 class otsu_manifest_loader(object):
     """Loads an fpgaotsu manifest """
+
+    REQUIRES_LABELS = ['max10', 'bmcfw']
+
     def __init__(self, fp):
         self._fp = fp
         self._json_obj = None
@@ -114,6 +117,23 @@ class otsu_manifest_loader(object):
         if obj['program'] != 'one-time-update':
             raise ValueError('expected one-time-update for "program" key '
                              'but received: %s' % (obj['program']))
+
+    def validate_requires_section(self, obj):
+        """Verify an optional "requires" array, when present."""
+        requires = obj.get('requires')
+        if not requires:
+            return
+        if not isinstance(requires, list):
+            raise TypeError('"requires" key must be a list of expressions')
+        for req in requires:
+            if not isinstance(req, str_type):
+                raise TypeError('"requires" entry not a string: %s' % (req))
+            comp = version_comparator(req)
+            if not comp.parse():
+                raise ValueError('invalid "requires" expression: %s' % (req))
+            if comp.label not in otsu_manifest_loader.REQUIRES_LABELS:
+                raise ValueError('%s is not a valid "requires" label' %
+                                 (comp.label))
 
     def validate_flash_section(self, obj, directory):
         """Verify a single "flash" object from the manifest."""
@@ -201,6 +221,7 @@ class otsu_manifest_loader(object):
 
         try:
             self.validate_mandatory_keys(obj)
+            self.validate_requires_section(obj)
         except (KeyError, TypeError, ValueError) as exc:
             LOG.exception(exc)
             return None
@@ -242,6 +263,20 @@ class otsu_updater(object):
     def pac(self):
         """Retrieve the PAC associated with this updater"""
         return self._pac
+
+    def check_requires(self):
+        """Verify the (optional) "requires" expressions."""
+        requires = self._config.get('requires')
+        if not requires:
+            return True
+        for req in requires:
+            comp = version_comparator(req)
+            comp.parse()
+            version = getattr(self._pac.fme, comp.label + '_version')
+            if not comp.compare(str(version)):
+                LOG.warning('"requires" expression %s failed' % (req))
+                return False
+        return True
 
     def erase(self, obj, mtd_dev):
         """Erase the flash range described in obj.
@@ -366,8 +401,8 @@ class otsu_updater(object):
         src_bits.close()
 
         flash_bits = tempfile.NamedTemporaryFile(mode='wb', delete=False)
-        LOG.info('Reading flash@0x%x for %d bytes for verification',
-                 start, (end + 1) - start)
+        LOG.info('Reading %s@0x%x for %d bytes for verification',
+                 obj['type'], start, (end + 1) - start)
 
         if min([l.level for l in LOG.handlers]) < logging.INFO:
             prog = LOG.debug
@@ -510,11 +545,6 @@ def run_updaters(updaters):
     for updater in updaters:
         errors += updater.wait()
 
-    if errors > 0:
-        LOG.error(FAILURE)
-    else:
-        LOG.info(msg)
-
     return errors
 
 
@@ -558,6 +588,7 @@ def main():
                   json_cfg['vendor'], json_cfg['device'])
         sys.exit(1)
 
+    errors = 0
     updaters = []
     for pac in pacs:
         if pac.secure_dev:
@@ -571,14 +602,21 @@ def main():
         updater = otsu_updater(os.path.dirname(args.manifest.name),
                                pac,
                                json_cfg)
-        updaters.append(updater)
+        if updater.check_requires():
+            updaters.append(updater)
+        else:
+            errors += 1
+            LOG.warning('%s %s one or more prerequisite checks '
+                        'failed. Skipping this device.',
+                        json_cfg['product'],
+                        pac.pci_node.pci_address)
 
     start = datetime.now()
 
     if not args.verify:
-        errors = run_updaters(updaters)
+        errors += run_updaters(updaters)
     else:
-        errors = len(updaters)
+        errors += len(updaters)
 
     if args.rsu:
         for updater in updaters:
@@ -586,6 +624,11 @@ def main():
                 updater.pac.safe_rsu_boot()
 
     LOG.info('Total time: %s', datetime.now() - start)
+
+    if errors > 0:
+        LOG.error(FAILURE)
+    else:
+        LOG.info(SUCCESS)
     sys.exit(errors)
 
 
