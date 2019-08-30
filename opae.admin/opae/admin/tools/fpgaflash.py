@@ -104,28 +104,25 @@ def check_rpd(ifile):
     return pof_hdr[4]
 
 
-def reverse_bits(x, n):
-    result = 0
-    for i in range(n):
-        if (x >> i) & 1:
-            result |= 1 << (n - 1 - i)
-    return result
+if sys.version_info[0] == 2:
+    def reverse_bits(val):
+        return int('{:08b}'.format(ord(val))[::-1], 2)
+else:
+    def reverse_bits(val):
+        return int('{:08b}'.format(val)[::-1], 2)
 
 
 def reverse_bits_in_file(ifile, ofile):
-    bit_rev = array('B')
-    for i in range(0, 256):
-        bit_rev.append(reverse_bits(i, 8))
-
     while True:
         ichunk = ifile.read(4096)
         if not ichunk:
             break
 
-        ochunk = ''
+        bit_reversed = array('B')
         for b in ichunk:
-            ochunk += chr(bit_rev[ord(b)])
-        ofile.write(ochunk)
+            bb = reverse_bits(b)
+            bit_reversed.append(bb)
+        ofile.write(bit_reversed)
 
 
 def get_flash_size(dev):
@@ -732,7 +729,7 @@ def bmc_update(utype, ifile, bdf):
 
 
 def write_file(fname, data):
-    with open(fname, 'wb') as wfile:
+    with open(fname, 'w') as wfile:
         wfile.write(data)
 
 
