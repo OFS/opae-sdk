@@ -238,7 +238,7 @@ class mtd(loggable):
             iodata = struct.pack('II', start, nbytes)
             fcntl.ioctl(self._fp.fileno(), self.IOCTL_MTD_MEMERASE, iodata)
             self._fp.seek(start)
-            os.write(self._fp.fileno(), data)
+            self._fp.write(data)
         except IOError as err:
             self.log.exception('failed to replace data: %s', err)
             raise
