@@ -87,6 +87,9 @@ set(fvlbypasssrc common.py
                fpgalpbk.py
                fvlbypass.py)
 
+set(fecmodesrc common.py
+               fecmode.py)
+
 CREATE_PYTHON_EXE(fpgalpbk fpgalpbk ${fpgalpbksrc})
 install(PROGRAMS ${PACKAGER_BIN}
     DESTINATION bin
@@ -103,6 +106,11 @@ install(PROGRAMS ${PACKAGER_BIN}
     COMPONENT toolfpgadiagapps)
 
 CREATE_PYTHON_EXE(fvlbypass fvlbypass ${fvlbypasssrc})
+install(PROGRAMS ${PACKAGER_BIN}
+    DESTINATION bin
+    COMPONENT toolfpgadiagapps)
+
+CREATE_PYTHON_EXE(fecmode fecmode ${fecmodesrc})
 install(PROGRAMS ${PACKAGER_BIN}
     DESTINATION bin
     COMPONENT toolfpgadiagapps)
