@@ -44,9 +44,6 @@ from opae.admin.utils import process, version_comparator
 
 LOG = logging.getLogger()
 
-SUCCESS = 'One-Time Secure Update OK'
-FAILURE = 'One-Time Secure Update failed'
-
 if sys.version_info[0] == 3:
     str_type = str
 else:
@@ -216,7 +213,8 @@ class otsu_manifest_loader(object):
         try:
             obj = json.load(self._fp)
         except ValueError:
-            LOG.exception('Invalid JSON format in %s', self._fp.name)
+            msg = 'Invalid JSON format in {}'.format(self._fp.name)
+            LOG.exception(msg)
             return None
 
         try:
@@ -251,13 +249,23 @@ class otsu_updater(object):
         self._config = config
         self._chunk_size = chunk_size
         self._timeout = 3600
-        self._status = (1, FAILURE)
         self._thread = None
+        self._errors = []
 
     @property
-    def success(self):
-        """Return whether this update was successful"""
-        return self._status[0] == 0
+    def error_count(self):
+        """Return the current number of errors."""
+        return len(self._errors)
+
+    def error(self, msg):
+        msg = '{} {}: {}'.format(self._config['product'],
+                                 self._pac.pci_node.pci_address,
+                                 msg)
+        self._errors.append(msg)
+
+    def log_errors(self, logfn):
+        for error in self._errors:
+            logfn(error)
 
     @property
     def pac(self):
@@ -312,22 +320,24 @@ class otsu_updater(object):
             verify = obj.get('verify', False)
 
             with open(filename, 'rb') as infile:
-                status, msg =self.verify(obj, mtd_dev, infile)
-                if status == 0:
+                status = self.verify(obj, mtd_dev, infile, report_fail=False)
+                if status:
                     LOG.info('Flash content matches with file %s',
-                         filename)
-                    return (0, SUCCESS)
+                             os.path.basename(filename))
+                    return True
 
                 LOG.info('Read/Modify/Writing %s@0x%x for %d bytes (%s)',
-                         obj['type'], start, (end + 1) - start, filename)
+                         obj['type'], start, (end + 1) - start,
+                         os.path.basename(filename))
 
                 infile.seek(seek)
                 if infile.tell() != seek:
                     raise IOError('failed to seek in input file %s: 0x%x' %
-                                  (filename, seek))
+                                  (os.path.basename(filename), seek))
                 data = infile.read()
                 if not data:
-                    raise IOError('failed to read file %s' %(filename))
+                    raise IOError('failed to read file %s' %
+                                  (os.path.basename(filename)))
                 mtd_dev.replace(data,
                                 (erase_end +1) - erase_start,
                                 start)
@@ -335,7 +345,7 @@ class otsu_updater(object):
                 if verify:
                     return self.verify(obj, mtd_dev, infile)
 
-        return (0, SUCCESS)
+        return True
 
     def write(self, obj, mtd_dev):
         """Write the flash range described in obj.
@@ -375,9 +385,10 @@ class otsu_updater(object):
 
                 if verify:
                     return self.verify(obj, mtd_dev, infile)
-        return (0, SUCCESS)
 
-    def verify(self, obj, mtd_dev, infile):
+        return True
+
+    def verify(self, obj, mtd_dev, infile, report_fail=True):
         """Verify the flash range described in obj.
 
         Args:
@@ -425,20 +436,24 @@ class otsu_updater(object):
             LOG.info('Verified %s@0x%x for %d bytes (%s)',
                      obj['type'], start, (end + 1) - start,
                      os.path.basename(filename))
-            return (0, SUCCESS)
+            return True
+            
+        if report_fail:
+            msg = 'Verification of {} @0x{} failed'.format(
+                  os.path.basename(filename), start)
+            self.error(msg)
 
-        return (1, 'Verification of %s @0x%x failed' %
-                (os.path.basename(filename), start))
+        return False
 
     def wait(self):
-        """Wait for this update's thread to terminate
+        """Wait for this updater's thread to terminate
 
         Returns:
             0 if the thread completed within the given timeout.
             non-zero if thread timed out or if the update failed.
         """
         self._thread.join(timeout=self._timeout)
-        return 1 if self._thread.isAlive() else self._status[0]
+        return 1 if self._thread.isAlive() else self.error_count
 
     def update(self):
         """Begin this update in a separate thread"""
@@ -453,18 +468,13 @@ class otsu_updater(object):
                  self._config['product'],
                  self._pac.pci_node.pci_address)
 
-        status = 1
-        msg = FAILURE
-
         controls = self._pac.fme.flash_controls()
 
         for flash in self._config['flash']:
-            status, msg = self.process_flash_item(controls, flash)
-            self._status = (status, msg)
-            if status:
-                break
+            if not self.process_flash_item(controls, flash):
+                return False
 
-        return (status, msg)
+        return self.error_count == 0
 
     def process_flash_item(self, controls, flash):
         # Find the flash_control object that matches the
@@ -472,27 +482,28 @@ class otsu_updater(object):
         ctrls = [c for c in controls if c.name == flash['type']]
 
         if not ctrls:
-            raise AttributeError('flash type "%s" not found' % (flash['type']))
-
-        status, msg = 1, FAILURE
+            msg = 'flash type "{}" not found'.format(flash['type'])
+            self.error(msg)
+            raise AttributeError(msg)
 
         with ctrls[0] as ctrl:
             with mtd(ctrl.devpath).open('r+b') as mtd_dev:
                 try:
                     if flash.get('read-modify-write', False):
-                        status, msg = self.read_modify_write(flash, mtd_dev)
+                        self.read_modify_write(flash, mtd_dev)
                     else:
                         self.erase(flash, mtd_dev)
-                        status, msg = self.write(flash, mtd_dev)
+                        self.write(flash, mtd_dev)
                 except IOError as eexc:
-                    return (eexc.errno, str(eexc))
+                    LOG.exception(eexc)
+                    self.error(eexc)
+                    return False
 
             for nested in flash.get('flash', []):
-                status, msg = self.process_flash_item(controls, nested)
-                if status:
-                    break
+                if not self.process_flash_item(controls, nested):
+                    return False
 
-        return status, msg
+        return self.error_count == 0
 
 
 def parse_args():
@@ -531,17 +542,15 @@ def run_updaters(updaters):
         0 on success.
         The non-zero number of errors on failure.
     """
-    msg = SUCCESS
-    errors = 0
 
     for updater in updaters:
         try:
             updater.update()
         except (IOError, AttributeError, KeyboardInterrupt) as exc:
-            msg = '%s' % (str(exc))
-            LOG.exception(msg)
-            errors += 1
+            LOG.exception(exc)
+            updater.error(exc)
 
+    errors = 0
     for updater in updaters:
         errors += updater.wait()
 
@@ -620,15 +629,17 @@ def main():
 
     if args.rsu:
         for updater in updaters:
-            if updater.success:
+            if updater.error_count == 0:
                 updater.pac.safe_rsu_boot()
 
     LOG.info('Total time: %s', datetime.now() - start)
 
     if errors > 0:
-        LOG.error(FAILURE)
+        for updater in updaters:
+            updater.log_errors(LOG.error)
+        LOG.error('One-Time Secure Update failed')
     else:
-        LOG.info(SUCCESS)
+        LOG.info('One-Time Secure Update OK')
     sys.exit(errors)
 
 
