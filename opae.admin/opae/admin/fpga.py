@@ -342,7 +342,7 @@ class fpga(class_node):
         wait_time = kwargs.pop('wait', 10)
         boot_type = kwargs.get('type', 'bmcimg')
         if page is None:
-            page = self.BOOT_PAGES.get(self.pci_node.pci_id, {}).get(boot_type)
+            page = self.BOOT_PAGES.get(self.pci_node.pci_id, {}).get(boot_type, {}).get('user')
 
         if page is None:
             self.log.warn('rsu not supported by device: %s',
