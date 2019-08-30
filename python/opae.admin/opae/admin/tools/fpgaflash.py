@@ -62,7 +62,13 @@ VC_EEPROM_SIZE = 65536
 
 VC_FPGA_IMAGE_MAGIC_NUM1 = 0x2000862a
 VC_FPGA_IMAGE_MAGIC_NUM2 = 0x0040666a
-VC_FPGA_IMAGE_LENGTH = 0x77f0000
+
+DC_FPGA_IMAGE_MAGIC_NUM0 = 0x00800000
+DC_FPGA_IMAGE_MAGIC_NUM1 = 0xff7fe000
+DC_FPGA_IMAGE_MAGIC_NUM2 = 0x00000001
+DC_FPGA_IMAGE_MAGIC_NUM3 = 0xffffdf01
+
+VC_DC_IMAGE_LENGTH = 0x77f0000
 
 VC_MAX10_IMAGE_MAGIC_NUM = 0x56565656
 VC_MAX10_IMAGE_LENGTH = 0xa8000
@@ -1102,12 +1108,31 @@ def get_flash_mode(spi_path):
     return 1 if any(modes) else 0
 
 
+def check_file_dc(ifile):
+    image_len = os.path.getsize(ifile.name)
+    if image_len != VC_DC_IMAGE_LENGTH:
+        print("invalid fpga image length {}".format(image_len))
+        return 1
+
+    ifile.seek(0)
+    data = ifile.read(16)
+    hdr = struct.unpack('>IIII', data)
+    if hdr[0] != DC_FPGA_IMAGE_MAGIC_NUM0 or \
+       hdr[1] != DC_FPGA_IMAGE_MAGIC_NUM1 or \
+       hdr[2] != DC_FPGA_IMAGE_MAGIC_NUM2 or \
+       hdr[3] != DC_FPGA_IMAGE_MAGIC_NUM3:
+        print("invalid fpga image file")
+        return 1
+
+    return 0
+
+ 
 def check_file(ifile, utype):
     ret = 0
 
     image_len = os.path.getsize(ifile.name)
     if utype in ['factory', 'factory_only', 'user', 'dtb']:
-        if image_len == VC_FPGA_IMAGE_LENGTH:
+        if image_len == VC_DC_IMAGE_LENGTH:
             ifile.seek(0)
             data = ifile.read(8)
             bin_hdr = struct.unpack('>II', data)
@@ -1270,6 +1295,10 @@ def main():
             # file validation check for Vista Creek
             if bdf_pvid_map[bdf] == VC_PVID:
                 ret = check_file(args.file, args.type)
+                if ret != 0:
+                    sys.exit(ret)
+            elif args.type in ['factory', 'factory_only', 'user']:
+                ret = check_file_dc(args.file)
                 if ret != 0:
                     sys.exit(ret)
 
