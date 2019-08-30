@@ -30,6 +30,7 @@ import time
 from contextlib import contextmanager
 from opae.admin.sysfs import class_node, sysfs_node
 from opae.admin.utils.log import loggable
+from opae.admin.utils import max10_or_nios_version
 
 
 class region(sysfs_node):
@@ -201,6 +202,22 @@ class fme(region):
     def altr_asmip(self):
         return self.find_one('altr-asmip*.*.auto')
 
+    @property
+    def max10_version(self):
+        spi = self.spi_bus
+        if spi:
+            node = spi.find_one('max10_version')
+            value = int(node.value, 16)
+            return max10_or_nios_version(value)
+
+    @property
+    def bmcfw_version(self):
+        spi = self.spi_bus
+        if spi:
+            node = spi.find_one('bmcfw_flash_ctrl/bmcfw_version')
+            value = int(node.value, 16)
+            return max10_or_nios_version(value)
+
     def flash_controls(self):
         if self.spi_bus:
             sec = self.spi_bus.find_one('ifpga_sec_mgr/ifpga_sec*')
@@ -311,7 +328,7 @@ class fpga(class_node):
     @contextmanager
     def disable_aer(self, *nodes):
         aer_values = []
-        to_disable = nodes or self.pci_node.root
+        to_disable = nodes or [self.pci_node.root]
         try:
             for node in to_disable:
                 aer_values.append((node, node.aer))

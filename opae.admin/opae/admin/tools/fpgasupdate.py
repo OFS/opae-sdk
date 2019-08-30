@@ -48,6 +48,9 @@ from opae.admin.fpga import fpga
 from opae.admin.utils import process
 from opae.admin.utils.progress import progress
 
+if sys.version_info[0] == 2:
+    input = raw_input # noqa pylint: disable=E0602
+
 DEFAULT_BDF = 'ssss:bb:dd.f'
 
 VALID_GBS_GUID = uuid.UUID('31303076-5342-47b7-4147-50466e6f6558')
@@ -103,6 +106,9 @@ def parse_args():
                   'warning', 'error', 'critical']
     parser.add_argument('--log-level', choices=log_levels,
                         default='info', help='log level to use')
+
+    parser.add_argument('-y', '--yes', default=False, action='store_true',
+                        help='answer Yes to all confirmation prompts')
 
     return parser.parse_args()
 
@@ -222,7 +228,7 @@ def do_partial_reconf(addr, filename):
     return (0, output + '\nPartial Reconfiguration OK')
 
 
-def decode_auth_block0(infile):
+def decode_auth_block0(infile, prompt):
     """Reads and decodes an authentication block 0.
 
     infile - a valid, open file object specified on the command line.
@@ -288,12 +294,26 @@ def decode_auth_block0(infile):
     consubtype = res['ConType'] & BLOCK0_CONSUBTYPE_MASK
     consubtypes = {BLOCK0_SUBTYPE_UPDATE: 'Update',
                    BLOCK0_SUBTYPE_CANCELLATION: 'Key Cancellation',
-                   BLOCK0_SUBTYPE_ROOT_KEY_HASH_256: 'Root Key Hash 256',
-                   BLOCK0_SUBTYPE_ROOT_KEY_HASH_384: 'Root Key Hash 384'}
+                   BLOCK0_SUBTYPE_ROOT_KEY_HASH_256: 'Root Entry Hash 256',
+                   BLOCK0_SUBTYPE_ROOT_KEY_HASH_384: 'Root Entry Hash 384'}
 
     LOG.debug('file type: %s (%s)',
               contypes.get(contype, '<unknown>'),
               consubtypes.get(consubtype, '<unknown>'))
+
+    warn_on = [BLOCK0_SUBTYPE_CANCELLATION,
+               BLOCK0_SUBTYPE_ROOT_KEY_HASH_256,
+               BLOCK0_SUBTYPE_ROOT_KEY_HASH_384]
+
+    while consubtype in warn_on and prompt:
+        msg = '*** Programming a Root Entry Hash or Key Cancellation ' \
+              'cannot be undone! Continue? [yes/No]> '
+        ans = input(msg)
+        if ans.lower().startswith('yes'):
+            break
+        elif len(ans) == 0 or ans.lower().startswith('n'):
+            LOG.info('Operation canceled by user.')
+            sys.exit(1)
 
     return res
 
@@ -505,7 +525,7 @@ def main():
                   (str(procs), os.path.basename(sys.argv[0])))
         sys.exit(1)
 
-    blk0 = decode_auth_block0(args.file)
+    blk0 = decode_auth_block0(args.file, not args.yes)
     if blk0 is None:
         gbs_hdr = decode_gbs_header(args.file)
         if gbs_hdr is None:

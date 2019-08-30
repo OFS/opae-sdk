@@ -23,5 +23,11 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from opae.admin.utils.utils import dry_run
-__all__ = ['dry_run']
+from opae.admin.utils.utils import (dry_run,
+                                    max10_or_nios_version,
+                                    get_fme_version,
+                                    version_comparator,
+                                    parse_timedelta)
+__all__ = ['dry_run', 'max10_or_nios_version', 'get_fme_version',
+           'version_comparator', 'parse_timedelta'
+           ]

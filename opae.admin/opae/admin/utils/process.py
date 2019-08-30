@@ -35,12 +35,15 @@ def call_process(cmd, no_dry=False):
         return '0x0' if 'setpci' in cmd else ''
 
     try:
-        return subprocess.check_output(cmd.split(),
-                                       stderr=subprocess.STDOUT)
+        output = subprocess.check_output(cmd.split(),
+                                         stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as err:
         LOG('process').error('calling %s returned %d', cmd, err.returncode)
         LOG('process').debug('process output: %s', err.output)
         raise
+    else:
+        return output.decode('UTF-8')
+
 
 def assert_not_running(programs):
     try:
