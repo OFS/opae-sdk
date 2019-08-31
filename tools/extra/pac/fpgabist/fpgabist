@@ -43,7 +43,7 @@ PRIVATE_FEATURES = {bist_common.VCP_ID: ['phy', 'mac']}
 
 
 def get_afu_id(bus):
-    cmd = 'fpgainfo port -B 0x{}'.format(bus)
+    cmd = 'fpgainfo port -B {}'.format(hex(bus))
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     output, _ = p.communicate()
     m = re.search('Accelerator Id\\s+:\\s(\\S+)', output)
@@ -51,22 +51,34 @@ def get_afu_id(bus):
     return afu_id
 
 
+def print_cards(bdf):
+    sys.stderr.write("\nAvailable cards:\n")
+    for fpga in sorted(bdf):
+        m = "bus {0}, device {1}, function {2}, device id {3}".format(
+            hex(fpga['bus']), hex(fpga['device']), hex(fpga['function']),
+            hex(fpga['device_id']))
+        sys.stderr.write('  ' + m + '\n')
+
+
 def main(args):
-    bdf = bist_common.get_all_fpga_bdfs(args)
+    all_bdfs = bist_common.get_all_fpga_bdfs(args)
+    if not all_bdfs:
+        sys.exit("No FPGA devices found")
+
+    # Filter the list based on command line arguments
+    bdf = bist_common.get_bdf_from_args(all_bdfs, args)
+    if len(bdf) > 1:
+        sys.stderr.write("Multiple cards found. "
+                         "Specify a bus, device or function.\n")
+        print_cards(bdf)
+        sys.exit(1)
+
     if not bdf:
-        if vars(args)['device_id'] == '09c4':
-            sys.exit("Please use '-i' option to specify FPGA device ID "
-                     "other than 09c4")
-        else:
-            sys.exit("No FPGA devices of device ID {} found"
-                     .format(vars(args)['device_id']))
-    elif len(bdf) > 1 and not any([args.bus, args.device, args.function]):
-        sys.exit("Multiple cards found. Specify a bus, device or function")
-    elif any([vars(args)['bus'], vars(args)['device'],
-              vars(args)['function']]):
-        bdf = bist_common.get_bdf_from_args(args)
-        if len(bdf) > 1 or not bdf:
-            sys.exit("Could not find specified FPGA, please try again")
+        sys.stderr.write("Could not find specified FPGA.\n")
+        print_cards(all_bdfs)
+        sys.exit(1)
+
+    # Down to a single device...
     bdf = bdf[0]
     start = "==========================================================\n\n" \
             "Beginning FPGA Built-In Self-Test\n\n"\
@@ -74,12 +86,12 @@ def main(args):
     print start
 
     # Display data from FPGA info
-    dev_id = int(vars(args)['device_id'], 16)
+    dev_id = bdf['device_id']
     afu_id = get_afu_id(bdf['bus'])
     ret = 0
     bist_common.dev_id = dev_id
     for feature in (FEATURES + PRIVATE_FEATURES.get(dev_id, [])):
-        cmd = "fpgainfo {} -B 0x{}".format(feature, bdf['bus'])
+        cmd = "fpgainfo {} -B {}".format(feature, hex(bdf['bus']))
         ret += subprocess.call(cmd, shell=True)
         print("\n")
 
@@ -89,7 +101,8 @@ def main(args):
             mode = getattr(sys.modules.get(module),
                            '{}Mode'.format(name.capitalize()))()
             print "Running mode: {}".format(mode.name)
-            ret += mode.run(None, bdf['bus'], bist_common.VCP_ID, afu_id)
+            ret += mode.run(None, hex(bdf['bus'])[2:],
+                            bist_common.VCP_ID, afu_id)
     else:
         gbs_paths = args.gbs_paths
         afu_ids = {}
@@ -111,7 +124,7 @@ def main(args):
             else:
                 sys.exit("Unknown AFU for available ID {}\n".format(afu_id))
             print "Running mode: {}".format(mode.name)
-            ret += mode.run(afu_ids.get(afu_id), bdf['bus'])
+            ret += mode.run(afu_ids.get(afu_id), hex(bdf['bus'])[2:])
 
     print "\nBuilt-in Self-Test Completed.\n"
     sys.exit(ret)
@@ -120,6 +133,6 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     bist_common.global_arguments(parser)
-    args = parser.parse_args()
+    args = bist_common.parse_args(parser)
     bist_common.check_required_cmds()
     main(args)

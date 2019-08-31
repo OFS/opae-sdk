@@ -87,29 +87,29 @@ def get_all_fpga_bdfs(args):
         if data:
             with open(os.path.join(devpath, "device"), 'r') as fd:
                 device_id = fd.read().strip()
-            if int(device_id, 16) == int(vars(args)['device_id'], 16):
-                bdf_list.append(dict([(k, hex(int(v, 16)).lstrip("0x"))
-                                for (k, v) in data.iteritems()]))
+
+            # Add device ID to the data dictionary
+            data['device_id'] = device_id
+
+            # Add this BDF/device to the list
+            bdf_list.append(dict([(k, int(v, 16))
+                                  for (k, v) in data.iteritems()]))
+
     return bdf_list
 
 
-def get_bdf_from_args(args):
-    pattern = (r'(?P<bus>[a-fA-F0-9]{2}):'
-               r'(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9]).*?.')
-    dev_id = r'{:04x}'.format(int(vars(args)['device_id'], 16))
-    bdf_pattern = re.compile(pattern+dev_id)
+# Given a list of all available FPGAs, return a list filtered by
+# the command line arguments.
+def get_bdf_from_args(all_bdfs, args):
     bdf_list = []
-    param = ':{}:{}.{}'.format(
-            hex(int(vars(args)['bus'], 16))
-            if vars(args)['bus'] else '',
-            hex(int(vars(args)['device'], 16))
-            if vars(args)['device'] else '',
-            hex(int(vars(args)['function'], 16))
-            if vars(args)['function'] else '')
-    host = subprocess.check_output(['lspci', '-s', param])
-    matches = re.findall(bdf_pattern, host)
-    for bus, device, function in matches:
-        bdf_list.append({'bus': bus, 'device': device, 'function': function})
+
+    for tgt in all_bdfs:
+        if (not args.bus or (args.bus == tgt['bus'])) and \
+           (not args.device or (args.device == tgt['device'])) and \
+           (not args.function or (args.function == tgt['function'])) and \
+           (not args.device_id or (args.device_id == tgt['device_id'])):
+            bdf_list.append(tgt)
+
     return bdf_list
 
 
@@ -143,9 +143,9 @@ class BistMode(object):
 
 
 def global_arguments(parser):
-    parser.add_argument('-i', '--device-id', default='09c4',
+    parser.add_argument('-i', '--device-id',
                         type=str,
-                        help='Device Id for Intel FPGA default: 09c4')
+                        help='Device Id for Intel FPGA')
 
     parser.add_argument('-B', '--bus', type=str,
                         help='Bus number for specific FPGA')
@@ -158,3 +158,21 @@ def global_arguments(parser):
 
     parser.add_argument('gbs_paths', nargs='*', type=str,
                         help='Paths for the gbs files for BIST')
+
+
+# Parse and then canonicalize the arguments
+def parse_args(parser):
+    args = parser.parse_args()
+
+    # Bist defaulted to hex values for BDF. Interpret the strings and
+    # replace them with integers.
+    if args.device_id:
+        args.device_id = int(args.device_id, 16)
+    if args.bus:
+        args.bus = int(args.bus, 16)
+    if args.device:
+        args.device = int(args.device, 16)
+    if args.function:
+        args.function = int(args.function, 16)
+
+    return args
