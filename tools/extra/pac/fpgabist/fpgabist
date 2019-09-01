@@ -91,11 +91,9 @@ def main(args):
     ret = 0
     bist_common.dev_id = dev_id
     for feature in (FEATURES + PRIVATE_FEATURES.get(dev_id, [])):
-        cmd = ['fpgainfo']
-        cmd.extend(feature)
-        cmd.extend(['-B', hex(bdf['bus']),
-                    '-D', hex(bdf['device']),
-                    '-F', hex(bdf['function'])])
+        cmd = "fpgainfo {} -B {} -D {} -F {}".format(feature, hex(bdf['bus']),
+                                                     hex(bdf['device']),
+                                                     hex(bdf['function']))
         ret += subprocess.call(cmd, shell=True)
         print("\n")
 

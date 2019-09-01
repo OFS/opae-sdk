@@ -62,9 +62,9 @@ def get_afu_id(gbs_path="", bdf=None):
         accel_data = json_data["afu-image"]["accelerator-clusters"]
         uuid = accel_data[0]["accelerator-type-uuid"].encode("ascii")
         return uuid.lower().replace("-", "")
-    else:
-        pattern = '{:x}:{:x}.{:x}'.format(bdf['bus'], bdf['device'],
-                                          bdf['function'])
+    elif bdf:
+        pattern = '{:02x}:{:02x}.{:x}'.format(bdf['bus'], bdf['device'],
+                                              bdf['function'])
         fpgas = glob.glob('/sys/class/fpga/*')
         for fpga in fpgas:
             slink = os.path.basename(os.readlink(os.path.join(fpga, "device")))
@@ -131,7 +131,7 @@ def load_gbs(gbs_file, bdf):
            hex(bdf['device']), '-F', hex(bdf['function']),
            '-v', gbs_file]
     try:
-        subprocess.check_call(cmd, shell=True)
+        subprocess.check_call(cmd)
     except subprocess.CalledProcessError as e:
         print "Failed to load gbs file: {}".format(gbs_file)
         print "Please try a different gbs"

@@ -41,6 +41,7 @@ class DefaultMode(bc.BistMode):
     def run(self, gbs_path, bdf):
         if gbs_path:
             bc.load_gbs(gbs_path, bdf)
+        ret = 0
         for func, param in self.executables.items():
             print "Running Built-in Self test...\n"
             cmd = [func, '-B', hex(bdf['bus']),

@@ -73,9 +73,8 @@ class DmaMode(bc.BistMode):
                     print "Running {} test on {}...\n".format(func, name)
                     ret += self.run_cmd(cmd)
             else:
-                cmd = [func, '-B', hex(bdf['bus']),
-                       '-D', hex(bdf['device']),
-                       '-F', hex(bdf['function'])]
+                print "Running {} test...\n".format(func)
+                cmd = [func, '-B', hex(bdf['bus'])]
                 cmd.extend(param.split())
                 try:
                     subprocess.check_call(cmd)
