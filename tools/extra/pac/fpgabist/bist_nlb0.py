@@ -34,7 +34,7 @@ afu_clk_freqs = {bc.VCP_ID: 200000000}
 
 
 class Nlb0Mode(bc.BistMode):
-    name = "nlb"
+    name = "nlb_0"
 
     def __init__(self):
         channel = [('vh0', 'vh0'), ('vh1', 'vh1'),
@@ -45,13 +45,16 @@ class Nlb0Mode(bc.BistMode):
         self.executables = {'-'.join(ch): params.format(rvc=ch[0], wvc=ch[1])
                             for ch in channel}
 
-    def run(self, path, bus_num, bd_id=0, guid=''):
+    def run(self, path, bdf, bd_id=0, guid=''):
         tp = self.executables.items()
         tp.sort()
         ret = 0
         for test, param in tp:
             print "Running fpgadiag lpbk1 {} test...".format(test)
-            cmd = "fpgadiag -B 0x{} {}".format(bus_num, param)
+            cmd = "fpgadiag -B {} -D {} -F {} {}".format(hex(bdf['bus']),
+                                                         hex(bdf['device']),
+                                                         hex(bdf['function']),
+                                                         param)
             if guid:
                 cmd += ' -G {}'.format(guid)
             if bd_id != 0:
