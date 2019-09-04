@@ -24,13 +24,20 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-include_directories(${OPAE_INCLUDE_DIR})
+enable_language(C ASM)
 
-file(GLOB CSources *.c)
+set(ASM_OPTIONS "-x assembler-with-cpp")
+set(CMAKE_ASM_FLAGS "${CFLAGS} ${ASM_OPTIONS}")
+
+include_directories(${OPAE_INCLUDE_DIR}
+                    ${libjson-c_INCLUDE_DIRS}
+                    ${HWLOC_INCLUDE_DIRS})
+
+file(GLOB CSources *.c *.S)
 add_executable(fpga_dma_test ${CSources})
 set_install_rpath(fpga_dma_test)
 
-target_link_libraries(fpga_dma_test opae-c ${libjson-c_LIBRARIES} uuid rt hwloc ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(fpga_dma_test opae-c ${libjson-c_LIBRARIES} uuid rt ${HWLOC_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 install(TARGETS fpga_dma_test
         RUNTIME DESTINATION bin
