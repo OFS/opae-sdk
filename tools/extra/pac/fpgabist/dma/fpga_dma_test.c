@@ -464,9 +464,9 @@ out_destroy_tok:
    res = fpgaDestroyToken(&afc_token);
    ON_ERR_GOTO(res, out, "fpgaDestroyToken");
 
-out_exit:
-   return 1;
-
 out:
    return 0;
+
+out_exit:
+   return 1;
 }
