@@ -897,6 +897,8 @@ out:
 }
 
 fpga_result fpgaDMAClose(fpga_dma_handle_t dma_h) {
+	msgdma_prefetcher_status_t pre_status;
+	msgdma_status_t status;
 	fpga_result res = FPGA_OK;
 	int i = 0;
 	if (!dma_h) {
@@ -981,7 +983,6 @@ fpga_result fpgaDMAClose(fpga_dma_handle_t dma_h) {
 	ON_ERR_GOTO(res, out, "disabling fetch engine");
 
 	// wait for prefetcher idle
-	msgdma_prefetcher_status_t pre_status;
 	do {
 		res = MMIORead32Blk(dma_h, PREFETCHER_STATUS(dma_h), (uint64_t)&pre_status.reg, sizeof(pre_status.reg));
 		ON_ERR_GOTO(res, out, "MMIORead32Blk");		
@@ -994,7 +995,6 @@ fpga_result fpgaDMAClose(fpga_dma_handle_t dma_h) {
 	} while(!pre_status.st.store_idle);
 
 	// Poll status until DMA is stopped
-	msgdma_status_t status;
 	do {
 		res = MMIORead32Blk(dma_h, CSR_STATUS(dma_h), (uint64_t)&status.reg, sizeof(status.reg));
 		ON_ERR_GOTO(res, out, "MMIORead32Blk");		
