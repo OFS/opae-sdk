@@ -573,6 +573,8 @@ def main():
                     LOG.error('PR interface uuid mismatch.')
                     sys.exit(1)
 
+    LOG.warning('Update starting. Please do not interrupt.')
+
     start = datetime.now()
 
     if gbs_hdr is not None:
