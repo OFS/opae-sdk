@@ -620,6 +620,8 @@ def main():
                         json_cfg['product'],
                         pac.pci_node.pci_address)
 
+    LOG.warning('Update starting. Please do not interrupt.')
+
     start = datetime.now()
 
     if not args.verify:

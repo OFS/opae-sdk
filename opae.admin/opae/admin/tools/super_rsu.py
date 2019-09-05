@@ -1230,6 +1230,8 @@ def main():
         LOG.error('missing one or more items required by rsu config')
         sys_exit(os.EX_CONFIG)
 
+    LOG.warning('Update starting. Please do not interrupt.')
+
     begin = datetime.now()
 
     if args.verify:
