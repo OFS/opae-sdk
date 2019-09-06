@@ -45,5 +45,9 @@ find_path(TBB_INCLUDE_DIRS
           ${PC_TBB_INCLUDE_DIRS}
           ${TBB_INCLUDE_DIRS})
 
+if(TBB_LIBRARIES AND TBB_INCLUDE_DIRS)
+  set(TBB_FOUND true)
+endif(TBB_LIBRARIES AND TBB_INCLUDE_DIRS)
+
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(TBB REQUIRED_VARS TBB_INCLUDE_DIRS TBB_LIBRARIES)
