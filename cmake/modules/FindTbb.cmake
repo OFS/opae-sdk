@@ -40,7 +40,7 @@ if(NOT TBB_INCLUDE_DIRS)
   set(TBB_INCLUDE_DIRS "")
 endif()
 find_path(TBB_INCLUDE_DIRS
-    NAMES tbb.h
+    NAMES tbb/tbb.h
     HINTS ${PC_TBB_INCLUDEDIR}
           ${PC_TBB_INCLUDE_DIRS}
           ${TBB_INCLUDE_DIRS})
