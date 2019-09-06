@@ -34,11 +34,11 @@ set(PYTHON_SRC
      bist_nlb3.py
      fpgabist)
 
-if(TBB_LIBRARIES)
+if(TBB_FOUND)
   add_subdirectory(dma)
-else(TBB_LIBRARIES)
+else(TBB_FOUND)
   message(WARNING "Thread Building Blocks not found: not building fpgabist/dma.")
-endif(TBB_LIBRARIES)
+endif(TBB_FOUND)
 
 add_subdirectory(dma_vc)
 add_subdirectory(bist)

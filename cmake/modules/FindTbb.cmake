@@ -36,14 +36,14 @@ find_library(TBB_LIBRARIES
           ${PC_TBB_LIBRARY_DIRS}
           ${TBB_LIBRARY_DIRS})
 
-if(NOT TBB_INCLUDE_DIRS)
-  set(TBB_INCLUDE_DIRS "")
+if(NOT TBB_INCLUDE)
+  set(TBB_INCLUDE "")
 endif()
 find_path(TBB_INCLUDE_DIRS
     NAMES tbb/tbb.h
     HINTS ${PC_TBB_INCLUDEDIR}
           ${PC_TBB_INCLUDE_DIRS}
-          ${TBB_INCLUDE_DIRS})
+          ${TBB_INCLUDE})
 
 if(TBB_LIBRARIES AND TBB_INCLUDE_DIRS)
   set(TBB_FOUND true)
