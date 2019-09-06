@@ -170,6 +170,11 @@ def get_sbdf_mode_mapping(sbdf, args):
 
     with open(sysfs_path[0], 'r') as f:
         bitstream_id = f.read().strip()
+
+    build_flags = (int(bitstream_id, 16) >> 24) & 0xff
+    if (build_flags & 0x01) == 0x00:
+        exception_quit("FPGA {} does not support bypass mode".format(sbdf), 5)
+
     vc_info['mode'] = (int(bitstream_id, 16) >> 32) & 0xf
     print('Mode: {}'.format(vc_mode_name.get(vc_info['mode'], 'unknown')))
 
@@ -217,7 +222,8 @@ def get_sbdf_upl_mapping(sbdf):
                 vc_info['upl_base'] = addr
                 break
             else:
-                exception_quit("FPGA {} is not bypass mode".format(sbdf), 5)
+                msg = "FPGA {} has no packet generator for test".format(sbdf)
+                exception_quit(msg, 6)
         if feature_type in [DFH_TYPE_AFU, DFH_TYPE_FIU]:
             next_afu_offset = pci_read(pci_dev_path, addr+NEXT_AFU_OFFSET_REG)
             next_afu_offset &= NEXT_AFU_OFFSET_MASK
