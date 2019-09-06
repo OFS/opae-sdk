@@ -90,6 +90,91 @@ static void print_fme_info(fpga_properties props)
 	printf("%-29s : %s\n", "Boot Page", page == 0 ? "factory" : "user");
 }
 
+#define FPGA_BSID_REVISION(id)	(((id) >> 36) & 0xfff)
+#define FPGA_BSID_INTERFACE(id)	(((id) >> 32) & 0xf)
+#define FPGA_BSID_FLAGS(id)		(((id) >> 24) & 0xff)
+#define FPGA_BSID_BUILD_VER(id)	(((id) >> 0) & 0xffffff)
+#define FPGA_BSID_FLAG_FVL_BYPASS		0x01
+#define FPGA_BSID_FLAG_MAC_LIGHTWEIGHT	0x02
+#define FPGA_BSID_FLAG_DISAGGREGATE		0x04
+#define FPGA_BSID_FLAG_LIGHTWEIGHT		0x08
+#define FPGA_BSID_FLAG_SEU				0x10
+#define FPGA_BSID_FLAG_PTP1588			0x20
+
+static void print_fme_verbose_info(fpga_properties props)
+{
+	fpga_result result;
+	char path[SYSFS_PATH_MAX];
+	uint32_t major = 0;
+	uint32_t val = 0;
+	uint64_t bitstream_id = 0;
+	const char *sysfspath = get_sysfs_path(props, FPGA_DEVICE, NULL);
+
+	if (!sysfspath) {
+		fprintf(stderr, "WARNING: sysfs path not found\n");
+		return;
+	}
+	snprintf_s_s(path, sizeof(path), "%s/bitstream_id", sysfspath);
+	result = fpgainfo_sysfs_read_u64(path, &bitstream_id);
+	if (FPGA_OK != result) {
+		fpgainfo_print_err("getting bitstream ID of FPGA", result);
+		return;
+	}
+
+	char *platform[] = {"Vista Creek", "Rush Creek", "Darby Creek",
+						"Lightning Creek"};
+	major = FPGA_BBS_VER_MAJOR(bitstream_id);
+	printf("%-29s : ", "Platform");
+	if (major < sizeof(platform)/sizeof(char*))
+		printf("%s\n", platform[major]);
+	else
+		printf("unknown\n");
+
+	val = FPGA_BBS_VER_MINOR(bitstream_id);
+	printf("%-29s : 1.%u\n", "DCP Version", val);
+
+	char *phase[] = {"Pre-Alpha", "Alpha", "Beta", "PV"};
+	val = FPGA_BBS_VER_PATCH(bitstream_id);
+	printf("%-29s : ", "Phase");
+	if (val < sizeof(phase)/sizeof(char*))
+		printf("%s\n", phase[val]);
+	else
+		printf("unknown\n");
+
+	val = FPGA_BSID_REVISION(bitstream_id);
+	printf("%-29s : %03x\n", "Revision", val);
+
+	val = FPGA_BSID_INTERFACE(bitstream_id);
+	if (major == 0) {	// Vista Creek
+		char *intf[] = {"8x10G", "4x25G", "2x1x25G", "4x25G+2x25G", "2x2x25G"};
+		printf("%-29s : ", "Interface");
+		if (val < sizeof(intf)/sizeof(char*))
+			printf("%s\n", intf[val]);
+		else
+			printf("unknown\n");
+	} else {
+		printf("%-29s : %x", "HSSI Id", val);
+	}
+
+	val = FPGA_BSID_FLAGS(bitstream_id);
+	printf("%-29s : %s\n", "Bypass Mode",
+		   val & FPGA_BSID_FLAG_FVL_BYPASS ? "enabled" : "disabled");
+	printf("%-29s : %s\n", "MAC Lightweight Mode",
+		   val & FPGA_BSID_FLAG_MAC_LIGHTWEIGHT ? "enabled" : "disabled");
+	printf("%-29s : %s\n", "Disaggregate Mode",
+		   val & FPGA_BSID_FLAG_DISAGGREGATE ? "enabled" : "disabled");
+	printf("%-29s : %s\n", "Lightweight Mode",
+		   val & FPGA_BSID_FLAG_LIGHTWEIGHT ? "enabled" : "disabled");
+	printf("%-29s : %s\n", "SEU detection",
+		   val & FPGA_BSID_FLAG_SEU ? "enabled" : "disabled");
+	printf("%-29s : %s\n", "PTP functionality",
+		   val & FPGA_BSID_FLAG_PTP1588 ? "enabled" : "disabled");
+
+	val = FPGA_BSID_BUILD_VER(bitstream_id);
+	printf("%-29s : %d.%d.%d\n", "Build Version",
+		   (val >> 16) & 0xff, (val >> 8) & 0xff, val & 0xff);
+}
+
 fpga_result fme_filter(fpga_properties *filter, int argc, char *argv[])
 {
 	(void)argc;
@@ -110,10 +195,12 @@ fpga_result fme_command(fpga_token *tokens, int num_tokens, int argc,
 
 	fpga_result res = FPGA_OK;
 	fpga_properties props;
+	int verbose_opt = 0;
 
 	optind = 0;
 	struct option longopts[] = {
 		{"help", no_argument, NULL, 'h'},
+		{"verbose", no_argument, NULL, 'v'}, // **UNDOCUMENTED**
 		{0, 0, 0, 0},
 	};
 
@@ -134,6 +221,10 @@ fpga_result fme_command(fpga_token *tokens, int num_tokens, int argc,
 			fme_help();
 			return res;
 
+		case 'v': /* verbose - UNDOCUMENTED */
+			verbose_opt = 1;
+			break;
+
 		case ':': /* missing option argument */
 			fprintf(stderr, "Missing option argument\n");
 			fme_help();
@@ -153,6 +244,9 @@ fpga_result fme_command(fpga_token *tokens, int num_tokens, int argc,
 		ON_FPGAINFO_ERR_GOTO(res, out_destroy,
 				     "reading properties from token");
 		print_fme_info(props);
+		if (verbose_opt) {
+			print_fme_verbose_info(props);
+		}
 		fpgaDestroyProperties(&props);
 	}
 

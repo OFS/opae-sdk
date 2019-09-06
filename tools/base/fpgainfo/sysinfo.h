@@ -169,6 +169,7 @@ extern "C" {
 
 fpga_result fpgainfo_enumerate_devices(struct dev_list *head);
 fpga_result fpgainfo_sysfs_read_u32(const char *path, uint32_t *u);
+fpga_result fpgainfo_sysfs_read_u64(const char *path, uint64_t *u);
 const char *get_sysfs_path(fpga_properties props, fpga_objtype objtype,
 			   struct dev_list **item);
 fpga_result glob_sysfs_path(char *path);
