@@ -145,22 +145,13 @@ In the simulation environment, complete the following steps to create an AF bits
 The OPAE software release includes the ASE. The current OPAE ASE release supports both Acceleration Stack for the Intel Xeon Processor
 with Integrated FPGA and Acceleration Stack for the Intel PAC card.
 
-The ASE is available only on 64-bit Linux Operating Systems. ASE performance is better on a 64-bit RTL simulator; however,
-the ASE also supports for 32-bit ModelSim. Consult your RTL simulator vendor for Synopsys or Mentor Graphics for
-specific simulation requirements.
-
-The current ASE version supports the following RTL Simulators:
-
-* Synopsys VCS-MX (tested versions)
-    * VCS-MX H2013.06-SP1
-    * VCS-MX J2014.12-SP3
-    * VCS-MX K2015.09-SP1
-    * VCS-MX L2016.06
-
-* Mentor Graphics Modelsim-SE and Questasim (tested versions)
-    * QuestaSim 10.5b
-    * ModelSim-SE 10.5a
-    * QuestaSim 10.4d
+The ASE is available only on 64-bit Linux operating systems with one of the following simulators:
+* 64-bit Synopsys* RTL Simulator (up to VCS-MX-2018.09-SP2)
+* 32 and 64-bit Mentor Graphics* Modelsim SE Simulator (up to version 10.6c)
+* 64-bit Mentor Graphics* QuestaSim Simulator (up to version 10.6c)
+ 
+ASE performance is better on a 64-bit RTL simulator.
+Consult your RTL simulator vendor for Synopsys or Mentor Graphics for specific simulation requirements.
 
 The ASE uses Inter-Process Communication (IPC) constructs. Under most circumstances these constructs operate without glitches.
 The following Linux locations should exist and be writeable. In most Linux distributions, ```/dev/shm``` comes pre-mounted as a
