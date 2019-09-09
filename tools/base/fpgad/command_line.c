@@ -46,7 +46,7 @@ log_printf("args: " format, ##__VA_ARGS__)
 
 extern fpgad_supported_device default_supported_devices_table[];
 
-#define OPT_STR ":hdl:p:s:n:c:"
+#define OPT_STR ":hdl:p:s:n:c:v"
 
 STATIC struct option longopts[] = {
 	{ "help",           no_argument,       NULL, 'h' },
@@ -56,6 +56,7 @@ STATIC struct option longopts[] = {
 	{ "socket",         required_argument, NULL, 's' },
 	{ "null-bitstream", required_argument, NULL, 'n' },
 	{ "config",         required_argument, NULL, 'c' },
+	{ "version",        no_argument,       NULL, 'v' },
 
 	{ 0, 0, 0, 0 }
 };
@@ -77,6 +78,7 @@ void cmd_show_help(FILE *fptr)
 	fprintf(fptr, "\t-n,--null-bitstream <file>  NULL bitstream (for AP6 handling, may be\n"
 		      "\t                            given multiple times).\n");
 	fprintf(fptr, "\t-c,--config <file>          the configuration file [%s].\n", DEFAULT_CFG);
+	fprintf(fptr, "\t-v,--version                display the version and exit.\n");
 }
 
 STATIC bool cmd_register_null_gbs(struct fpgad_config *c, char *null_gbs_path)
@@ -191,6 +193,14 @@ int cmd_parse_args(struct fpgad_config *c, int argc, char *argv[])
 				LOG("missing cfgfile parameter.\n");
 				return 1;
 			}
+			break;
+
+		case 'v':
+			fprintf(stdout, "fpgad %s %s%s\n",
+					INTEL_FPGA_API_VERSION,
+					INTEL_FPGA_API_HASH,
+					INTEL_FPGA_TREE_DIRTY ? "*":"");
+			return -2;
 			break;
 
 		case ':':
