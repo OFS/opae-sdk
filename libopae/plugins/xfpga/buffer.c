@@ -111,6 +111,56 @@ STATIC fpga_result buffer_allocate(void **addr, uint64_t len, int flags)
 	return FPGA_OK;
 }
 
+#define MAPS_BUF_SZ 4096
+#define UP_ALIGN(a, n) ((a + n-1) & (~(n -1)))
+
+static unsigned long long get_mapping_page_size(void *p)
+{
+	FILE *f;
+	char line[MAPS_BUF_SZ];
+	char *tmp;
+	unsigned long addr = (unsigned long)p;
+
+	f = fopen("/proc/self/smaps", "r");
+	if (!f) {
+		FPGA_MSG("Unable to open /proc/self/smaps\n");
+		return 0;
+	}
+
+	while ((tmp = fgets(line, MAPS_BUF_SZ, f))) {
+		unsigned long start, end, dummy;
+		char map_name[256];
+		char buf[64];
+		int ret;
+
+		ret = sscanf(line, "%lx-%lx %s %lx %s %ld %s", &start, &end,
+				buf, &dummy, buf, &dummy, map_name);
+		if (ret < 6 || start > addr || end <= addr)
+			continue;
+
+		while ((tmp = fgets(line, MAPS_BUF_SZ, f))) {
+			unsigned long long page_size;
+
+			ret = sscanf(line, "KernelPageSize: %lld kB",
+					&page_size);
+			if (ret == 0)
+				continue;
+			if (ret < 1 || page_size <= 0) {
+				FPGA_MSG("Cannot parse /proc/self/smaps\n");
+				page_size = 0;
+			}
+
+			fclose(f);
+			/* KernelPageSize is reported in kB */
+			return page_size * 1024;
+		}
+	}
+
+	/* find an entry for this addr in smaps */
+	fclose(f);
+	return 0;
+}
+
 /*
  * Release (unmap) allocated buffer
  */
@@ -120,20 +170,16 @@ STATIC fpga_result buffer_release(void *addr, uint64_t len)
 	 * len must be rounded up to the nearest hugepage size,
 	 * otherwise munmap will fail.
 	 *
-	 * Buffer with size larger than 2MB is backed by 1GB page(s),
-	 * round up the size to the nearest GB boundary.
+	 * we get the KernelPageSize from /proc/self/smaps, and we need
+	 * to round up by KernelPageSize.
 	 *
-	 * Buffer with size smaller than 2MB but larger than 4KB is
-	 * backed by a 2MB pages, round up the size to 2MB.
-	 *
-	 * Buffer with size smaller than 4KB is backed by a 4KB page,
-	 * and its size is already 4KB aligned.
 	 */
 
-	if (len > 2 * MB)
-		len = (len + (1 * GB - 1)) & (~(1 * GB - 1));
-	else if (len > 4 * KB)
-		len = 2 * MB;
+	unsigned long long page_size;
+
+	page_size = get_mapping_page_size(addr);
+	if (page_size > 0)
+		len = UP_ALIGN(len, page_size);
 
 	if (munmap(addr, len)) {
 		FPGA_MSG("FPGA buffer munmap failed: %s",
