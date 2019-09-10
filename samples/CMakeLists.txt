@@ -1,4 +1,4 @@
-## Copyright(c) 2014-2018, Intel Corporation
+## Copyright(c) 2014-2019, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -39,7 +39,7 @@ endif()
 
 # Prefer GNU99
 if ((CMAKE_C_COMPILER_ID STREQUAL "GNU") OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DHAVE_CONFIG_H -std=gnu99")
 elseif (NOT CMAKE_VERSION VERSION_LESS "3.1")
     set (CMAKE_C_STANDARD_REQUIRED TRUE)
     set (CMAKE_C_STANDARD "99")
