@@ -24,6 +24,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 import json
+import mock
 import os
 import tempfile
 import unittest
@@ -34,6 +35,10 @@ DUMMY_SIZE = 0x1800000
 
 VALID_09C4_CFG = '''
 {{
+    "requires": [
+        "max10 == 111.1.13",
+        "bmcfw == 255.255.255"
+    ],
     "device": "0x09C4",
     "flash": [
         {{
@@ -87,6 +92,8 @@ CSV_CFG = '''
 "","",""
 '''
 
+OTSU_UPDATER_PATH = 'test_fpgaotsu.fpgaotsu.otsu_updater'
+
 def modify_manifest(data, to_dict=False, to_super_rsu=False, delete_key=None):
     mandatory_keys = ['product', 'vendor', 'device',
                       'program', 'flash']
@@ -107,7 +114,8 @@ def modify_manifest(data, to_dict=False, to_super_rsu=False, delete_key=None):
     return data
 
 
-class test_09C4(unittest.TestCase):
+class test_BaseClass(unittest.TestCase):
+    __test__ = False
     def setUp(self):
         self.valid_manifest = tempfile.NamedTemporaryFile(mode='w+',
                                                           prefix='otsu09C4-')
@@ -127,6 +135,8 @@ class test_09C4(unittest.TestCase):
         if os.path.exists(self.dummy_file_path):
             os.unlink(self.dummy_file_path)
 
+class test_09C4(test_BaseClass):
+    __test__ = True
     def test_load(self):
         """test_load
         Given a valid manifest file
@@ -250,6 +260,89 @@ class test_09C4(unittest.TestCase):
             with self.assertRaises(ValueError):
                 manifest_loader.validate_mandatory_keys(new_data)
 
+    def test_otsu_updater_pac(self):
+        """test_otsu_updater_pac
+        Given a valid manifest file
+        When I call load and otsu_updater
+        Then I get a valid otsu_updater as returned object
+        When I try to read the pac property of the otsu_updater
+        Then I get the correct returned property
+        """
+        cfg = self.manifest_loader.load()
+        with mock.patch(OTSU_UPDATER_PATH+'.pac', new_callable=mock.PropertyMock,
+                        return_value='123') as mock_otsu:
+            otsu_obj = fpgaotsu.otsu_updater(os.path.dirname(self.valid_manifest.name),
+                                             [], cfg)
+            self.assertEqual(otsu_obj.pac, '123')
+            mock_otsu.assert_called_once()
+
+    def test_otsu_updater_error_count(self):
+        """test_otsu_updater_error_count
+        Given a valid manifest file
+        When I call load and otsu_updater
+        Then I get a valid otsu_updater as returned object
+        When I try to read the error_count property of otsu_updater
+        Then I get 3 as the returned value
+        """
+        cfg = self.manifest_loader.load()
+        with mock.patch(OTSU_UPDATER_PATH+'.error_count', new_callable=mock.PropertyMock,
+                        return_value=3) as mock_otsu:
+            otsu_obj = fpgaotsu.otsu_updater(os.path.dirname(self.valid_manifest.name),
+                                             [], cfg)
+            self.assertEqual(otsu_obj.error_count, 3)
+            mock_otsu.assert_called_once()
+
+    def test_otsu_updater_check_requires(self):
+        """test_otsu_updater_check_requires
+        Given a valid manifest file
+        When I call load and otsu_updater with empty pac
+        Then I get a valid otsu_updater as returned object
+        When I try to call check_requires method of otsu_updater
+        Then I get False as the returned value
+        """
+        mock_pac = mock.Mock()
+        cfg = self.manifest_loader.load()
+        otsu_obj = fpgaotsu.otsu_updater(os.path.dirname(self.valid_manifest.name),
+                                         mock_pac, cfg)
+        ret_val = otsu_obj.check_requires()
+        self.assertFalse(ret_val)
+
+class test_updaters(test_BaseClass):
+    __test__ = True
+    def setUp(self):
+        super(test_updaters, self).setUp()
+        self.mock_update = mock.patch(OTSU_UPDATER_PATH+'.update',
+                                      autospec=True, side_effect=IOError).start()
+        self.mock_wait = mock.patch(OTSU_UPDATER_PATH+'.wait',
+                                    autospec=True, return_value=1).start()
+
+    def tearDown(self):
+        mock.patch.stopall()
+
+    def test_run_updaters(self):
+        """test_run_updaters
+        Given a valid manifest file
+        When I call load_and_validate and otsu_updater
+        Then I get a valid otsu_updater as returned object
+        When I call run_updaters to begin update
+        Then I get number of errors as the returned value
+        """
+        cfg = self.manifest_loader.load_and_validate()
+        self.assertIsInstance(cfg, dict)
+        otsu_obj = fpgaotsu.otsu_updater(os.path.dirname(self.valid_manifest.name),
+                                         [], cfg)
+        self.assertIsNotNone(otsu_obj)
+        updaters = [otsu_obj]
+        updaters.append(otsu_obj)
+
+        # empty pac list returns AttributeError when calling .error method for logging
+        with mock.patch(OTSU_UPDATER_PATH+'.error', autospec=True):
+            err = fpgaotsu.run_updaters(updaters)
+        self.assertEqual(err, len(updaters))
+
+        self.mock_update.assert_called()
+        self.mock_wait.assert_called()
+
 
 class test_other_functions(unittest.TestCase):
     def test_load_csv(self):
@@ -265,6 +358,7 @@ class test_other_functions(unittest.TestCase):
         manifest_loader = fpgaotsu.otsu_manifest_loader(valid_manifest)
         cfg = manifest_loader.load_and_validate()
         self.assertIsNone(cfg)
+        self.assertNotIsInstance(cfg, dict)
 
     def test_all_or_none(self):
         """test_all_or_none
