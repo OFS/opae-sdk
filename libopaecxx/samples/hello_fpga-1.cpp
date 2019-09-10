@@ -63,7 +63,7 @@ static inline uint64_t cacheline_aligned_addr(uint64_t num) {
   return num >> LOG2_CL;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   if ((argc > 1) && ((std::string(argv[1]) == std::string("-v")) ||
                      (std::string(argv[1]) == std::string("--version")))) {
     std::cout << "hello_cxxcore " << INTEL_FPGA_API_VERSION << " "
