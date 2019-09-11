@@ -35,6 +35,8 @@ find_program (RPM_BUILD
 
 configure_file(setup.py.in ${CMAKE_CURRENT_SOURCE_DIR}/setup.py @ONLY)
 configure_file(setup.py.in ${ADMIN_STAGE_DIR}/setup.py @ONLY)
+configure_file(opae/admin/version.py.in ${CMAKE_CURRENT_SOURCE_DIR}/opae/admin/version.py @ONLY)
+configure_file(opae/admin/version.py.in ${ADMIN_STAGE_DIR}/opae/admin/version.py @ONLY)
 configure_file(tox.ini ${ADMIN_STAGE_DIR}/tox.ini @ONLY)
 configure_file(py27-nose2.cfg ${ADMIN_STAGE_DIR}/py27-nose2.cfg @ONLY)
 configure_file(py36-nose2.cfg ${ADMIN_STAGE_DIR}/py36-nose2.cfg @ONLY)
