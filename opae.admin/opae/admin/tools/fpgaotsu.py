@@ -41,6 +41,7 @@ from datetime import datetime
 from opae.admin.fpga import fpga
 from opae.admin.utils.mtd import mtd
 from opae.admin.utils import process, version_comparator
+from opae.admin.version import pretty_version
 
 LOG = logging.getLogger()
 
@@ -523,6 +524,8 @@ def parse_args():
                         help='verify whether PACs need updating and exit')
     parser.add_argument('--rsu', action='store_true', default=False,
                         help='perform "RSU" operation after update')
+    parser.add_argument('-v', '--version', action='store_true', default=False,
+                        help='display version information and exit')
 
     return parser.parse_args()
 
@@ -560,6 +563,10 @@ def run_updaters(updaters):
 def main():
     """The main entry point"""
     args = parse_args()
+
+    if args.version:
+        print('fpgaotsu {}'.format(pretty_version()))
+        sys.exit(1)
 
     LOG.setLevel(logging.NOTSET)
     log_fmt = ('[%(asctime)-15s] [%(levelname)-8s] '

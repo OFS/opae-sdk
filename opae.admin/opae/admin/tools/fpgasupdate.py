@@ -47,6 +47,7 @@ import logging
 from opae.admin.fpga import fpga
 from opae.admin.utils import process
 from opae.admin.utils.progress import progress
+from opae.admin.version import pretty_version
 
 if sys.version_info[0] == 2:
     input = raw_input # noqa pylint: disable=E0602
@@ -109,6 +110,9 @@ def parse_args():
 
     parser.add_argument('-y', '--yes', default=False, action='store_true',
                         help='answer Yes to all confirmation prompts')
+
+    parser.add_argument('-v', '--version', default=False, action='store_true',
+                        help='display version information and exit')
 
     return parser.parse_args()
 
@@ -495,6 +499,10 @@ def sig_handler(signum, frame):
 
 def main():
     args = parse_args()
+
+    if args.version:
+        print('fpgasupdate {}'.format(pretty_version()))
+        sys.exit(1)
 
     LOG.setLevel(logging.NOTSET)
     logging.addLevelName(LOG_IOCTL, 'IOCTL')

@@ -49,6 +49,7 @@ from opae.admin.utils import (get_fme_version,
                               max10_or_nios_version,
                               version_comparator,
                               parse_timedelta)
+from opae.admin.version import pretty_version
 
 BMC_SENSOR_PATTERN = (r'^\(\s*(?P<num>\d+)\)\s*(?P<name>[\w \.]+)\s*:\s*'
                       r'(?P<value>[\d\.]+)\s+(?P<units>\w+)$')
@@ -1167,8 +1168,15 @@ def main():
     parser.add_argument('--verify', default=False, action='store_true',
                         help='verify if versions on system match versions in'
                              'manifest')
+    parser.add_argument('-v', '--version', default=False, action='store_true',
+                        help='display version information and exit')
 
     args = parser.parse_args()
+
+    if args.version:
+        print('super-rsu {}'.format(pretty_version()))
+        sys.exit(1)
+
     DRY_RUN = args.dry_run
     logfmt = ('[%(asctime)-15s] [%(levelname)-8s] [%(threadName)-12s] - '
               '%(message)s')
