@@ -254,6 +254,9 @@ def parse_args():
 
     parser.add_argument('-r', '--rsu', action='store_true', help=rsu_help)
 
+    no_nios_help = "leave nios in reset after fw update"
+    parser.add_argument('--no-nios-release', default=False, action='store_true', help=no_nios_help)
+
     no_verify_help = "do not read back flash and verify after writing"
     parser.add_argument('-n', '--no-verify', default=False,
                         action='store_true', help=no_verify_help)
@@ -769,7 +772,7 @@ def bmc_fw_wait_for_nios(ver_file):
     raise Exception("NIOS FW version not found")
 
 
-def bmc_fw_update(ifile, spi_path, no_verify):
+def bmc_fw_update(ifile, spi_path, no_verify, no_nios_release):
     mode_path = os.path.join(spi_path, 'bmcfw_flash_ctrl', 'bmcfw_flash_mode')
 
     ihex = IntelHex(ifile)
@@ -817,7 +820,8 @@ def bmc_fw_update(ifile, spi_path, no_verify):
         print(ex)
         ret = 1
 
-    write_file(mode_path, "0")
+    if not no_nios_release:
+        write_file(mode_path, "0")
 
     ver_file = os.path.join(spi_path, 'bmcfw_flash_ctrl', 'bmcfw_version')
 
@@ -1190,8 +1194,8 @@ def check_file_extension(ifile, utype):
     return ret
 
 
-def vc_phy_eeprom_update(ifile, spi_path, no_verify):
-    ret = bmc_fw_update(ifile, spi_path, no_verify)
+def vc_phy_eeprom_update(ifile, spi_path, no_verify, no_nios_release):
+    ret = bmc_fw_update(ifile, spi_path, no_verify, no_nios_release)
     if ret == 0:
         print("%s updating phy eeprom" % (datetime.datetime.now()))
         load_path = os.path.join(spi_path, 'pkvl', 'eeprom_load')
@@ -1235,7 +1239,7 @@ def main():
 
     if args.type == 'bmc_fw':
         if (bdf_pvid_map[bdf] == DC_PVID) or (bdf_pvid_map[bdf] == VC_PVID):
-            sys.exit(bmc_fw_update(args.file, spi_path, args.no_verify))
+            sys.exit(bmc_fw_update(args.file, spi_path, args.no_verify, args.no_nios_release))
         else:
             print("bmc_fw only supported on {} and {}".format(DC_PVID, VC_PVID))
             sys.exit(1)
@@ -1247,7 +1251,7 @@ def main():
             sys.exit(1)
     elif args.type == 'phy_eeprom':
         if bdf_pvid_map[bdf] == VC_PVID:
-            sys.exit(vc_phy_eeprom_update(args.file, spi_path, args.no_verify))
+            sys.exit(vc_phy_eeprom_update(args.file, spi_path, args.no_verify, False))
         else:
             print("{} only supported on {}".format(args.type, VC_PVID))
             sys.exit(1)
