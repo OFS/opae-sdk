@@ -1274,7 +1274,7 @@ def main():
         threads = get_update_threads(boards, args, rsu_config)
         if not threads:
             LOG.info('Nothing to update')
-            to_rsu = []
+            sys_exit(os.EX_OK)
         else:
             to_rsu, terminated, interrupted = update_wait(threads, args,
                                                           rsu_config)
