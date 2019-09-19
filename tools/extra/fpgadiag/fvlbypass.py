@@ -75,8 +75,8 @@ MIN_TEST_PKT_NUM = 1
 MAX_TEST_PKT_NUM = 100000000
 DEFAULT_TEST_PKT_NUM = 100000
 
-MIN_TEST_PKT_LEN = 64
-MAX_TEST_PKT_LEN = 1448
+MIN_TEST_PKT_LEN = 46
+MAX_TEST_PKT_LEN = 1500
 DEFAULT_TEST_PKT_LEN = 128
 
 vc_info = {}
@@ -327,7 +327,7 @@ def fvl_bypass_mode_test(sbdf, args):
     mac_total = vc_info.get('total_mac', 2)
     if 'all' in args.port:
         pkt_num = mac_total * args.number   # packets num to be sent on all mac
-        wait_time = pkt_num * args.length / 2e9
+        wait_time = pkt_num * args.length / 1e9
         if args.debug:
             print('Timeout is set to {}s'.format(wait_time))
         print('Sending packets to all ports ...')
