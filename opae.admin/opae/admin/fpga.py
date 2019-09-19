@@ -218,6 +218,14 @@ class fme(region):
             value = int(node.value, 16)
             return max10_or_nios_version(value)
 
+    @property
+    def fpga_image_load(self):
+        spi = self.spi_bus
+        if spi:
+            node = spi.find_one('fpga_flash_ctrl/fpga_image_load')
+            if node:
+                return node.value
+
     def flash_controls(self):
         if self.spi_bus:
             sec = self.spi_bus.find_one('ifpga_sec_mgr/ifpga_sec*')

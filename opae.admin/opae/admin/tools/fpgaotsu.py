@@ -89,7 +89,11 @@ def all_or_none(obj, *keys):
 class otsu_manifest_loader(object):
     """Loads an fpgaotsu manifest """
 
-    REQUIRES_LABELS = ['max10', 'bmcfw']
+    MANIFEST_VERSION = 2
+
+    REQUIRES_LABELS = ['max10_version',
+                       'bmcfw_version',
+                       'fpga_image_load']
 
     def __init__(self, fp):
         self._fp = fp
@@ -101,7 +105,7 @@ class otsu_manifest_loader(object):
         Verify format and content.
         """
         mandatory_keys = ['product', 'vendor', 'device',
-                          'program', 'flash']
+                          'program', 'flash', 'version']
         for key in mandatory_keys:
             if obj.get(key) is None:
                 raise KeyError('"%s" key not found in manifest' % (key))
@@ -116,6 +120,14 @@ class otsu_manifest_loader(object):
             raise ValueError('expected one-time-update for "program" key '
                              'but received: %s' % (obj['program']))
 
+        res = to_int(obj['version'])
+        if not res[0]:
+            raise TypeError('"version" key not in integer format: %s' %
+                            (obj['version']))
+        if res[1] != self.MANIFEST_VERSION:
+            raise ValueError('expected %d for "version" key '
+                             'but found: %s' %(self.MANIFEST_VERSION, res[1]))
+
     def validate_requires_section(self, obj):
         """Verify an optional "requires" array, when present."""
         requires = obj.get('requires')
@@ -129,7 +141,7 @@ class otsu_manifest_loader(object):
             comp = version_comparator(req)
             if not comp.parse():
                 raise ValueError('invalid "requires" expression: %s' % (req))
-            if comp.label not in otsu_manifest_loader.REQUIRES_LABELS:
+            if comp.label not in self.REQUIRES_LABELS:
                 raise ValueError('%s is not a valid "requires" label' %
                                  (comp.label))
 
@@ -281,7 +293,7 @@ class otsu_updater(object):
         for req in requires:
             comp = version_comparator(req)
             comp.parse()
-            version = getattr(self._pac.fme, comp.label + '_version')
+            version = getattr(self._pac.fme, comp.label)
             if not comp.compare(str(version)):
                 LOG.warning('"requires" expression %s failed' % (req))
                 return False
