@@ -36,8 +36,8 @@ DUMMY_SIZE = 0x1800000
 VALID_09C4_CFG = '''
 {{
     "requires": [
-        "max10 == 111.1.13",
-        "bmcfw == 255.255.255"
+        "max10_version == 111.1.13",
+        "bmcfw_version == 255.255.255"
     ],
     "device": "0x09C4",
     "flash": [
@@ -75,6 +75,7 @@ VALID_09C4_CFG = '''
     ],
     "product": "Intel PAC with Intel Arria 10 GX FPGA",
     "program": "one-time-update",
+    "version": 2,
     "vendor": "0x8086"
 }}
 '''.strip().format(DUMMY_FILE=DUMMY_FILE)
@@ -96,7 +97,7 @@ OTSU_UPDATER_PATH = 'test_fpgaotsu.fpgaotsu.otsu_updater'
 
 def modify_manifest(data, to_dict=False, to_super_rsu=False, delete_key=None):
     mandatory_keys = ['product', 'vendor', 'device',
-                      'program', 'flash']
+                      'program', 'flash', 'version']
 
     if to_dict:
         data.update(vendor=dict(vendor=0))
@@ -164,7 +165,8 @@ class test_09C4(test_BaseClass):
         self.assertIsInstance(cfg, dict)
         self.assertDictContainsSubset({"vendor": "0x8086",
                                        "device": "0x09C4",
-                                       "program": "one-time-update"}, cfg)
+                                       "program": "one-time-update",
+                                       "version": 2}, cfg)
 
     def test_load_missing_flash_file(self):
         """test_load_missing_flash_file
