@@ -1268,6 +1268,7 @@ def main():
 
     terminated = []
     interrupted = False
+    no_update = []
     if args.rsu_only:
         to_rsu = boards
     else:
@@ -1276,6 +1277,8 @@ def main():
             LOG.info('Nothing to update')
             sys_exit(os.EX_OK)
         else:
+            to_update = [t.board for t in threads if t.board]
+            no_update = [b for b in boards if b not in to_update]
             to_rsu, terminated, interrupted = update_wait(threads, args,
                                                           rsu_config)
             have_errors = any([b.errors for b in to_rsu])
@@ -1301,9 +1304,12 @@ def main():
         sys_exit(os.EX_OK, msg)
 
     do_rsu(to_rsu, args, rsu_config)
-    to_verify = discover_boards(rsu_config, args)
+    LOG.info('rediscovering boards to verify after RSU')
+    to_verify = [b for b in discover_boards(rsu_config, args)
+                 if b not in no_update]
     if len(to_verify) != len(to_rsu):
-        LOG.error('did not rediscover same number of boards')
+        LOG.error('boards to verify (%d) different from boards updated (%d)',
+                  len(to_verify), len(to_rsu))
         total_elapsed = datetime.now() - begin
         LOG.info('%s update completed in: %s', os.path.basename(__file__),
                  total_elapsed)
