@@ -180,6 +180,7 @@ def reload_driver(fec_mode, debug):
 def check_fec_mode(sbdf, fec_mode, debug):
     mode = get_fec_mode(sbdf, debug)
     if mode != fec_mode:
+        print("failed change to {} fec mode".format(fec_mode))
         return 1
     return 0
 
