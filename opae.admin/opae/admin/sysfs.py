@@ -33,7 +33,8 @@ from opae.admin.utils.log import loggable, LOG
 
 
 PCI_ADDRESS_PATTERN = (r'(?P<pci_address>'
-                       r'(?P<segment>[\da-f]{4}):(?P<bdf>(?P<bus>[\da-f]{2}):'
+                       r'(?:(?P<segment>[\da-f]{4}):)?'
+                       r'(?P<bdf>(?P<bus>[\da-f]{2}):'
                        r'(?P<device>[\da-f]{2})\.(?P<function>\d)))')
 PCI_ADDRESS_RE = re.compile(PCI_ADDRESS_PATTERN, re.IGNORECASE)
 
@@ -204,6 +205,34 @@ class pci_node(sysfs_node):
                 if m:
                     children.append(pci_node(m.groupdict(), self))
         return children
+
+    @staticmethod
+    def parse_address(inpstr):
+        """parse_address Parse a pci_address from the input string
+
+        Args:
+            inpstr: A string to parse
+        Returns:
+            A dictionary of the pci_address fields (segment, bus, device, etc.)
+            If the parsing failed, an empty dictionary is returned.
+        Note:
+            If the input string does not contain a segment number, this will
+            set it to 0000 in the returned dictionary.
+
+        """
+        data = {}
+        try:
+            m = PCI_ADDRESS_RE.match(inpstr)
+        except TypeError as err:
+            LOG('parse_address').warn(err)
+        else:
+            if m:
+                data = m.groupdict()
+                if data['segment'] is None:
+                    data['segment'] = '0000'
+                    pci_address = '{segment}:{pci_address}'.format(**data)
+                    data['pci_address'] = pci_address
+        return data
 
     def tree(self, level=0):
         """tree Gets a tree representation of this node and any child nodes.
@@ -442,6 +471,34 @@ class pci_node(sysfs_node):
             call_process('{}={:#08x}'.format(self._aer_cmd2, values[1]))
         except CalledProcessError as err:
             self.log.exception('error setting aer: %s', err)
+
+    @property
+    def sriov_totalvfs(self):
+        """sriov_totalvfs Get total number of VFs supported"""
+        return int(self.node('sriov_totalvfs').value)
+
+    @property
+    def sriov_numvfs(self):
+        """sriov_numvfs Get the current number of VFs created"""
+        return int(self.node('sriov_numvfs').value)
+
+    @sriov_numvfs.setter
+    def sriov_numvfs(self, value):
+        """sriov_numvfs Create a number of VFs as indicated by the argument.
+
+        Args:
+            value(int): The number of VFs to create
+
+        Raises:
+            ValueError: If the number of VFs to create is greater than the
+                        total VFs supported.
+        """
+        if value > self.sriov_totalvfs:
+            msg = 'does not support VFs creater than: {}'.format(
+                self.sriov_totalvfs)
+            self.log.warn(msg)
+            raise ValueError(msg)
+        self.node('sriov_numvfs').value = value
 
 
 class class_node(sysfs_node):

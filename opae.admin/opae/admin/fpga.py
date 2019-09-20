@@ -54,7 +54,7 @@ class region(sysfs_node):
     def ioctl(self, req, data, mutate_flag=True):
         with open(self.devpath, 'rwb') as fd:
             try:
-                fcntl.ioctl(fd, req, data, mutate_flag)
+                fcntl.ioctl(fd.fileno(), req, data, mutate_flag)
             except IOError as err:
                 self.log.exception('error calling ioctl: %s', err)
                 raise
@@ -350,7 +350,8 @@ class fpga(class_node):
         wait_time = kwargs.pop('wait', 10)
         boot_type = kwargs.get('type', 'bmcimg')
         if page is None:
-            page = self.BOOT_PAGES.get(self.pci_node.pci_id, {}).get(boot_type, {}).get('user')
+            page = self.BOOT_PAGES.get(self.pci_node.pci_id,
+                                       {}).get(boot_type, {}).get('user')
 
         if page is None:
             self.log.warn('rsu not supported by device: %s',

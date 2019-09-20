@@ -35,7 +35,8 @@ setup(
             'rsu = opae.admin.tools.rsu:main',
             'super-rsu = opae.admin.tools.super_rsu:main',
             'fpgaflash = opae.admin.tools.fpgaflash:main',
-            'fpgaotsu = opae.admin.tools.fpgaotsu:main'
+            'fpgaotsu = opae.admin.tools.fpgaotsu:main',
+            'fpgaport = opae.admin.tools.fpgaport:main'
         ]
     },
     install_requires=[],
