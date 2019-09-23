@@ -32,6 +32,9 @@ set (ADMIN_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
 find_program (RPM_BUILD
     rpmbuild
     )
+find_program (DEB_BUILD
+    debuild
+    )
 
 configure_file(setup.py.in ${CMAKE_CURRENT_SOURCE_DIR}/setup.py @ONLY)
 configure_file(setup.py.in ${ADMIN_STAGE_DIR}/setup.py @ONLY)
@@ -78,3 +81,43 @@ if (RPM_BUILD)
         )
 endif (RPM_BUILD)
 
+if (DEB_BUILD)
+    add_custom_target(opae.admin.deb.tarball)
+    add_custom_command(TARGET opae.admin.deb.tarball PRE_BUILD
+                       COMMAND ${CMAKE_COMMAND} -E copy_directory
+                       ${CMAKE_CURRENT_SOURCE_DIR}/opae ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/opae
+                       COMMAND ${CMAKE_COMMAND} -E copy_directory
+                       ${CMAKE_CURRENT_SOURCE_DIR}/tests ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/tests
+                       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/setup.py ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/setup.py
+                       COMMAND find ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION} -type f -name '*.pyc' -delete
+                       COMMAND find ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION} -type d -name '__pycache__' -delete
+                       COMMAND find ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION} -type f -name 'version.py.in' -delete
+                       COMMAND tar -C ${CMAKE_CURRENT_BINARY_DIR}/deb -zcf ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin_${INTEL_SECURITY_TOOLS_VERSION}.orig.tar.gz opae.admin-${INTEL_SECURITY_TOOLS_VERSION}
+                       DEPENDS opae tests
+                       COMMENT "Setting up debian tarball for Python")
+
+    # This is for the use of @INTEL_SECURITY_TOOLS_VERSION@ in the below sed command.
+    cmake_policy(SET CMP0053 NEW)
+
+    add_custom_target(opae.admin.deb.debian
+                      DEPENDS opae.admin.deb.tarball)
+    add_custom_command(TARGET opae.admin.deb.debian PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/debian
+        COMMAND sed -e 's/@INTEL_SECURITY_TOOLS_VERSION@/${INTEL_SECURITY_TOOLS_VERSION}/' <${CMAKE_CURRENT_SOURCE_DIR}/debian/changelog.in >${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/debian/changelog
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/debian/compat ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/debian/compat
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/debian/control ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/debian/control
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/debian/copyright ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/debian/copyright
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/debian/rules ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/debian/rules
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/debian/source
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/debian/format ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/debian/source/format
+        DEPENDS debian/changelog.in debian/compat debian/control debian/copyright debian/rules debian/format
+        COMMENT "Setting up debuild directory")
+
+    add_custom_target(opae.admin.deb
+        COMMAND ${DEB_BUILD} -us -uc
+        DEPENDS opae.admin.deb.debian
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}
+        COMMENT "Building opae.admin Python DEB distribution"
+        )
+
+endif (DEB_BUILD)
