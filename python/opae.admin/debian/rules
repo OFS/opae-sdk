@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+
+export PYBUILD_NAME = opae.admin
+
+%:
+	dh $@ --with python2,python3 --buildsystem=pybuild
+
+clean:
+
+.PHONY: clean

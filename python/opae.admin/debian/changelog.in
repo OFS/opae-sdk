@@ -1,0 +1,5 @@
+opae.admin (@INTEL_SECURITY_TOOLS_VERSION@) experimental; urgency=medium
+
+  * Initial release.
+
+ -- OPAE_Development_Team <opae@lists.01.org>  Fri, 20 Sep 2019 10:36:45 -0700
