@@ -42,25 +42,37 @@ class DmaMode(bc.BistMode):
     afu_id = "331db30c-9885-41ea-9081-f88b8f655caa"
 
     def __init__(self):
-        self.executables = {'fpga_dma_test':
-                            ' -s 1073741824 -p 1048576 -r mtom',
-                            'fpga_dma_vc_test': '0x0b30'}
+        # Specify the test(s) for a given architecture or the default (0)
+        self.executables = \
+            {0:
+             {'fpga_dma_test': ' -s 1073741824 -p 1048576 -r mtom'},
+             bc.VCP_ID:
+             {'fpga_dma_test': ' -s 1073741824 -p 1048576 -r mtom',
+              'fpga_dma_vc_test': '0x0b30'}
+             }
 
     def run_cmd(self, cmd):
         ret = 0
         try:
             subprocess.check_call(cmd, shell=True)
         except subprocess.CalledProcessError as e:
-            print "Failed Test: {}".format(cmd)
-            print e
+            print("Failed Test: {}".format(cmd))
+            print(e)
             ret = 1
         return ret
 
     def run(self, gbs_path, bdf, bd_id=0, guid=''):
         if gbs_path:
             bc.load_gbs(gbs_path, bdf)
+
+        # Does a set of tests exist for the requested bd_id?
+        if bd_id not in self.executables:
+            print("No DMA tests for bd_id {}".format(bd_id))
+            return 1
+
         ret = 0
-        for func, param in self.executables.items():
+        # Pick the set of tests to run based on bd_id
+        for func, param in self.executables[bd_id].items():
             if bd_id in dma_list:
                 for i, c in dma_list[bd_id].items():
                     name, size = c
@@ -71,18 +83,21 @@ class DmaMode(bc.BistMode):
                                                            i, size)
                     if guid:
                         cmd += ' -G {}'.format(guid)
-                    print "Running {} test on {}...\n".format(func, name)
+                    print("Running {} test on {}...\n".format(func, name))
                     ret += self.run_cmd(cmd)
             else:
-                print "Running {} test...\n".format(func)
-                cmd = [func, '-B', hex(bdf['bus'])]
+                print("Running {} test...\n".format(func))
+                cmd = [func, '-B', hex(bdf['bus']),
+                       '-D', hex(bdf['device']),
+                       '-F', hex(bdf['function'])]
                 cmd.extend(param.split())
+                print("  " + ' '.join(cmd) + '\n')
                 try:
                     subprocess.check_call(cmd)
                 except subprocess.CalledProcessError as e:
-                    print "Failed Test: {}".format(func)
-                    print e
+                    print("Failed Test: {}".format(func))
+                    print(e)
                     ret += 1
 
-        print "Finished Executing DMA Tests\n"
+        print("Finished Executing DMA Tests\n")
         return ret
