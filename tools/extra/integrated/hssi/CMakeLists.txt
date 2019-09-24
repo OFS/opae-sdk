@@ -50,7 +50,7 @@ set_install_rpath(hssi-io)
 set_target_properties(hssi-io PROPERTIES
   VERSION ${INTEL_FPGA_API_VERSION}
   SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
-target_link_libraries(hssi-io opae-cxx-core opae-c++-utils)
+target_link_libraries(hssi-io opae-cxx-core opae-c++-utils opae-c)
 
 add_executable(hssi_loopback loopback_main.cpp
                              loopback_app.h
