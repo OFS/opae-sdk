@@ -146,9 +146,9 @@ The OPAE software release includes the ASE. The current OPAE ASE release support
 with Integrated FPGA and Acceleration Stack for the Intel PAC card.
 
 The ASE is available only on 64-bit Linux operating systems with one of the following simulators:
-* 64-bit Synopsys* RTL Simulator (up to VCS-MX-2018.09-SP2)
-* 32 and 64-bit Mentor Graphics* Modelsim SE Simulator (up to version 10.6c)
-* 64-bit Mentor Graphics* QuestaSim Simulator (up to version 10.6c)
+* 64-bit Synopsys* RTL Simulator (minimum version VCS-MX H2013.06-SP1)
+* 32 and 64-bit Mentor Graphics* Modelsim SE Simulator (minimum version 10.5a)
+* 64-bit Mentor Graphics* QuestaSim Simulator (minimum version 10.4d)
  
 ASE performance is better on a 64-bit RTL simulator.
 Consult your RTL simulator vendor for Synopsys or Mentor Graphics for specific simulation requirements.
