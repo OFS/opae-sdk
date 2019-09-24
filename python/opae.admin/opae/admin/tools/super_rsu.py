@@ -45,8 +45,7 @@ from uuid import UUID
 from opae.admin.fpga import fpga as fpga_device
 from opae.admin.sysfs import pci_node
 from opae.admin.utils.process import call_process, assert_not_running
-from opae.admin.utils import (get_fme_version,
-                              max10_or_nios_version,
+from opae.admin.utils import (max10_or_nios_version,
                               version_comparator,
                               parse_timedelta)
 from opae.admin.version import pretty_version
@@ -55,15 +54,6 @@ BMC_SENSOR_PATTERN = (r'^\(\s*(?P<num>\d+)\)\s*(?P<name>[\w \.]+)\s*:\s*'
                       r'(?P<value>[\d\.]+)\s+(?P<units>\w+)$')
 BMC_SENSOR_RE = re.compile(BMC_SENSOR_PATTERN, re.MULTILINE)
 
-BMC_NORMAL_RANGES = {
-    'FPGA Die Temperature': (1.0, 85.0),
-    'Board Power': (1.0, 150.0)
-}
-
-CLASS_ROOT = '/sys/class/fpga'
-
-AER_OFF = 0xFFFFFFFF
-AER_ON = 0x00000000
 
 DRY_RUN = False
 
@@ -732,13 +722,6 @@ class vc(pac):
         # with bmc_fw_pkvl which uses 'phy_eeprom' when calling fpgaflash
         self.add_flashables(bmc_fw=bmc_fw_pkvl(fpga))
 
-    @property
-    def user_version(self):
-        value = int(self.fpga.fme.node('bitstream_id').value, 16)
-        return get_fme_version((self.pci_node.vendor_id,
-                                self.pci_node.device_id),
-                               value)
-
     def run_tests(self, rsu_config):
         failures = super(vc, self).run_tests(rsu_config)
 
@@ -770,8 +753,14 @@ class dc(pac):
     boot_page = 1
 
 
+class rc(pac):
+    pass
+
+
 def make_pac(node, fpga, **kwargs):
-    pacs = {(0x8086, 0x0b30): vc, (0x8086, 0x0b2b): dc}
+    pacs = {(0x8086, 0x0b30): vc,
+            (0x8086, 0x0b2b): dc,
+            (0x8086, 0x09c4): rc}
     pac_class = pacs.get(node.pci_id)
     if pac_class:
         return pac_class(node, fpga, **kwargs)
