@@ -25,6 +25,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 import fcntl
 import os
+import struct
 import time
 
 from contextlib import contextmanager
@@ -51,10 +52,11 @@ class region(sysfs_node):
             raise AttributeError('no device found: {}'.format(dev_path))
         return dev_path
 
-    def ioctl(self, req, data, mutate_flag=True):
-        with open(self.devpath, 'rwb') as fd:
+    def ioctl(self, req, data, **kwargs):
+        mode = kwargs.get('mode', 'w')
+        with open(self.devpath, mode) as fd:
             try:
-                fcntl.ioctl(fd.fileno(), req, data, mutate_flag)
+                fcntl.ioctl(fd.fileno(), req, data)
             except IOError as err:
                 self.log.exception('error calling ioctl: %s', err)
                 raise
@@ -186,6 +188,9 @@ class flash_control(loggable):
 
 
 class fme(region):
+    FPGA_FME_PORT_ASSIGN = 0xB582
+    FPGA_FME_PORT_RELEASE = 0xB581
+
     @property
     def pr_interface_id(self):
         return self.node('pr/interface_id').value
@@ -261,6 +266,54 @@ class fme(region):
                 self.log.warn('found more than one: "/mtd/mtdX"')
             return [flash_control(mtd_dev=os.path.basename(mtd[0].sysfs_path))]
 
+    @property
+    def num_ports(self):
+        """num_ports Get the number of ports supported by FME"""
+        if self.have_node('ports_num'):
+            return int(self.node('ports_num').value)
+
+    def release_port(self, port_num):
+        """release_port Release port device (enable SR-IOV).
+                        This will "release" the port device and allow
+                        VFs to be created.
+
+        Args:
+            port_num: The port number to release.
+        Raises:
+            ValueError: If the port number is invalid.
+            OSError: If current process is unable to open FME.
+            IOError: If an error occurred with the IOCTL request.
+        """
+        if port_num >= self.num_ports:
+            msg = 'port number is invalid: {}'.format(port_num)
+            self.log.error(msg)
+            raise ValueError(msg)
+        data = struct.pack('III', 12, 0, port_num)
+        self.ioctl(self.FPGA_FME_PORT_RELEASE, data)
+
+    def assign_port(self, port_num):
+        """assign_port Assign port device (disable SR-IOV).
+                        This will "assign" the port device back to the FME.
+                        SR-IOV will be disabled.
+
+        Args:
+            port_num: The port number to assign.
+        Raises:
+            ValueError: If the port number is invalid.
+            ValueError: If the pci device has VFs created.
+            OSError: If current process is unable to open FME.
+            IOError: If an error occurred with the IOCTL request.
+        """
+        if port_num >= self.num_ports:
+            msg = 'port number is invalid: {}'.format(port_num)
+            self.log.error(msg)
+            raise ValueError(msg)
+        if self.pci_node.sriov_numvfs:
+            msg = 'Cannot assign a port while VFs exist'
+            raise ValueError(msg)
+        data = struct.pack('III', 12, 0, port_num)
+        self.ioctl(self.FPGA_FME_PORT_ASSIGN, data)
+
 
 class port(region):
     @property
@@ -289,7 +342,9 @@ class fpga(class_node):
         items = self.find_all(self.FME_PATTERN)
         if len(items) == 1:
             return fme(items[0].sysfs_path, self.pci_node)
-        if not items:
+        # if I can't find FME and I am not a VF
+        # (as indicated by the presence of 'physfn')
+        if not items and not self.have_node('physfn'):
             self.log.warning('could not find FME')
         if len(items) > 1:
             self.log.warning('found more than one FME')

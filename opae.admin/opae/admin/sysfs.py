@@ -70,6 +70,17 @@ class sysfs_node(loggable):
             raise NameError("Could not find sysfs node: {}".format(path))
         return sysfs_node(path)
 
+    def have_node(self, name):
+        """have_node Determine if child node exists.
+
+        Args:
+            name: Name of child node to look for.
+
+        Returns:
+            True if node with given name exists, False otherwise.
+        """
+        return os.path.exists(os.path.join(self._sysfs_path, name))
+
     def find(self, pattern):
         """find Find sysfs_node objects using a given glob pattern.
 
@@ -475,12 +486,16 @@ class pci_node(sysfs_node):
     @property
     def sriov_totalvfs(self):
         """sriov_totalvfs Get total number of VFs supported"""
-        return int(self.node('sriov_totalvfs').value)
+        name = 'sriov_totalvfs'
+        if self.have_node(name):
+            return int(self.node(name).value)
 
     @property
     def sriov_numvfs(self):
         """sriov_numvfs Get the current number of VFs created"""
-        return int(self.node('sriov_numvfs').value)
+        name = 'sriov_numvfs'
+        if self.have_node(name):
+            return int(self.node(name).value)
 
     @sriov_numvfs.setter
     def sriov_numvfs(self, value):
@@ -492,13 +507,27 @@ class pci_node(sysfs_node):
         Raises:
             ValueError: If the number of VFs to create is greater than the
                         total VFs supported.
+            AttributeError: If this pci_node does not support SR-IOV (e.g. VFs)
         """
+        if not self.supports_sriov:
+            msg = 'do not support SR-IOV'
+            self.log.error(msg)
+            raise AttributeError(msg)
         if value > self.sriov_totalvfs:
             msg = 'does not support VFs creater than: {}'.format(
                 self.sriov_totalvfs)
             self.log.warn(msg)
             raise ValueError(msg)
         self.node('sriov_numvfs').value = value
+
+    @property
+    def supports_sriov(self):
+        """supports_sriov Determine if pci_node supports SR-IOV
+
+        Returns:
+            True if this pci_node supports SR-IOV functions.
+        """
+        return bool(self.sriov_totalvfs)
 
 
 class class_node(sysfs_node):
