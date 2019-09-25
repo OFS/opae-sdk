@@ -24,46 +24,32 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 import argparse
-import fcntl
 import logging
 import os
 import sys
-import struct
 
 from opae.admin.fpga import fpga
 from opae.admin.sysfs import pci_node
 
 
-FPGA_FME_PORT_ASSIGN = 0xB582
-FPGA_FME_PORT_RELEASE = 0xB581
-
 LOG = logging.getLogger('fpgaport')
 
 
 def fpga_filter(inp):
+    filt = {'pci_node.supports_sriov': True}
     if inp == 'all':
-        return {}
-    if inp.startswith('/dev'):
-        return {'sysfspath':
-                inp.replace('/dev', '/sys/class/fpga')}
-    pci_info = pci_node.parse_address(inp)
-    if pci_info:
-        pci_address = pci_info['pci_address']
-        return {'pci_node.pci_address': pci_address}
-    raise TypeError('{} is not valid device pattern')
-
-
-def call_ioctl(fme, req, data):
-    try:
-        with fme as fmedev:
-            try:
-                fcntl.ioctl(fmedev, req, data)
-            except IOError as err:
-                LOG.warn('ioctl() failed: "%s"', err)
-                sys.exit(os.EX_IOERR)
-    except OSError as err:
-        LOG.error('open() failed: "%s"', err)
-        sys.exit(os.EX_NOPERM)
+        return filt
+    if inp.startswith('/dev') and os.path.exists(inp):
+        filt.update({'sysfs_path':
+                     inp.replace('/dev', '/sys/class/fpga')})
+    else:
+        pci_info = pci_node.parse_address(inp)
+        if pci_info:
+            pci_address = pci_info['pci_address']
+            filt.update({'pci_node.pci_address': pci_address})
+        else:
+            raise TypeError('{} is not valid device pattern')
+    return filt
 
 
 def set_numvfs(device, value):
@@ -73,18 +59,54 @@ def set_numvfs(device, value):
         LOG.warn('error setting num_sriov: "%s"', err)
 
 
+def assign(args, device):
+    destroy_vfs = args.numvfs == 0 or args.destroy_vfs
+    if not destroy_vfs and device.pci_node.sriov_numvfs:
+        LOG.warn('Device (%s) has VFs, skipping...', device.pci_node)
+        return
+    numvfs = device.pci_node.sriov_numvfs
+    set_numvfs(device, 0)
+    try:
+        device.fme.assign_port(args.port)
+    except (OSError, IOError) as err:
+        LOG.warn('assiging port %d for device %s: %s', args.port,
+                 device.pci_node, err)
+        set_numvfs(device, numvfs)
+
+
+def release(args, device):
+    if args.destroy_vfs:
+        LOG.warn('--destroy-vfs only applicable with "assign"')
+    try:
+        device.fme.release_port(args.port)
+    except (OSError, IOError) as err:
+        LOG.warn('releasing port %d for device %s: %s', args.port,
+                 device.pci_node, err)
+    else:
+        if args.numvfs:
+            set_numvfs(device, args.numvfs)
+
+
 def main():
+    actions = {'assign': assign,
+               'release': release}
     # parse command line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('action', action='store',
-                        choices=['assign', 'release'],
-                        help='action to perform - ("assign", "release")')
-    parser.add_argument('device', type=fpga_filter,
-                        help='the FPGA (FME) device')
+                        choices=sorted(actions.keys()),
+                        help='Action to perform - {}'.format(actions.keys()))
+    parser.add_argument('device',
+                        help=('The FPGA (FME) device.'
+                              'Can be identified by dev path (/dev/*fme.0) '
+                              'or by PCIe address: '
+                              '([<segment>:]<bus>:<device>.<function>'))
     parser.add_argument('port', type=int, default=0, nargs='?',
-                        help='The port number')
-    parser.add_argument('--numvfs', type=int,
+                        help='The port number.')
+    parser.add_argument('-N', '--numvfs', type=int,
                         help='Create VFs from the argument given.')
+    parser.add_argument('-X', '--destroy-vfs', action='store_true',
+                        default=False,
+                        help='Destroy all VFs prior to assigning.')
     parser.add_argument('--debug', action='store_true', default=False,
                         help='Set logging to DEBUG if verbose selected')
 
@@ -92,44 +114,16 @@ def main():
 
     level = logging.DEBUG if args.debug else logging.INFO
     logging.basicConfig(level=level,
-                        format=('[%(asctime)-15s] [%(levelname)-8s]'
+                        format=('[%(asctime)-15s] [%(levelname)-8s] '
                                 '%(message)s'))
-
-    requests = {'assign': FPGA_FME_PORT_ASSIGN,
-                'release': FPGA_FME_PORT_RELEASE}
-
-    devices = fpga.enum([args.device])
+    devices = fpga.enum([fpga_filter(args.device)])
 
     if not devices:
-        LOG.error('Could not find device using pattern')
+        LOG.error('Could not find device using pattern: "%s"', args.device)
         sys.exit(os.EX_USAGE)
-
-    try:
-        req = requests[args.action]
-    except IndexError:
-        LOG.error('Invalid action: %s', args.action)
-        sys.exit(os.EX_USAGE)
-
-    ioctl_data = struct.pack('III', 12, 0, args.port)
 
     for device in devices:
-        items = list(device.find('*-fpga-fme.*'))
-        if not items:
-            LOG.debug('Device has no FME: "%s"', device.pci_node.sysfspath)
-            continue
-
-        fme = device.fme
-
-        if args.action == 'assign':
-            if args.numvfs != 0 and device.pci_node.sriov_numvfs:
-                LOG.warn('Device has VFs, skipping...')
-                continue
-            set_numvfs(device, args.numvfs)
-
-        call_ioctl(fme, req, ioctl_data)
-
-        if args.action == 'release' and args.numvfs:
-            set_numvfs(device, args.numvfs)
+        actions[args.action](args, device)
 
 
 if __name__ == "__main__":
