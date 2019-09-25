@@ -111,6 +111,65 @@ STATIC fpga_result buffer_allocate(void **addr, uint64_t len, int flags)
 	return FPGA_OK;
 }
 
+#define LINE_BUFFER_SIZE 4096
+#define UP_ALIGN(a, n) ((a + n-1) & (~(n -1)))
+
+/*
+ * Parse the kernel page size from smap for a virtual address.
+ *
+ * Return the page size (KB) of the mapping address.
+ */
+static unsigned long parse_kernel_page_size(void *p)
+{
+	FILE *file;
+	char buffer[LINE_BUFFER_SIZE];
+	char *line;
+	unsigned long addr;
+	unsigned long start_addr;
+	unsigned long end_addr;
+	unsigned long offset;
+	unsigned long file_num;
+	char attribute[64];
+	char device[64];
+	char mapping_name[256];
+	unsigned long page_size;
+	int ret;
+
+	addr = (unsigned long)p;
+
+	file = fopen("/proc/self/smaps", "r");
+	if (!file) {
+		FPGA_MSG("Open /proc/self/smaps failed\n");
+		return 0;
+	}
+
+	while ((line = fgets(buffer, LINE_BUFFER_SIZE, file))) {
+		ret = sscanf(buffer, "%lx-%lx %63s %lx %63s %lu %255s",
+				&start_addr, &end_addr, attribute, &offset,
+				device, &file_num, mapping_name);
+		if (ret < 6 || start_addr > addr || end_addr <= addr)
+			continue;
+
+		while ((line = fgets(buffer, LINE_BUFFER_SIZE, file))) {
+			ret = sscanf(buffer, "KernelPageSize: %lu kB",
+					&page_size);
+			if (ret == 0)
+				continue;
+			if (ret < 1 || page_size <= 0) {
+				FPGA_MSG("Get KernelPageSize failed\n");
+				page_size = 0;
+			}
+
+			fclose(file);
+
+			return page_size;
+		}
+	}
+
+	fclose(file);
+	return 0;
+}
+
 /*
  * Release (unmap) allocated buffer
  */
@@ -120,20 +179,16 @@ STATIC fpga_result buffer_release(void *addr, uint64_t len)
 	 * len must be rounded up to the nearest hugepage size,
 	 * otherwise munmap will fail.
 	 *
-	 * Buffer with size larger than 2MB is backed by 1GB page(s),
-	 * round up the size to the nearest GB boundary.
+	 * we get the KernelPageSize from /proc/self/smaps, and we need
+	 * to round up by KernelPageSize.
 	 *
-	 * Buffer with size smaller than 2MB but larger than 4KB is
-	 * backed by a 2MB pages, round up the size to 2MB.
-	 *
-	 * Buffer with size smaller than 4KB is backed by a 4KB page,
-	 * and its size is already 4KB aligned.
 	 */
 
-	if (len > 2 * MB)
-		len = (len + (1 * GB - 1)) & (~(1 * GB - 1));
-	else if (len > 4 * KB)
-		len = 2 * MB;
+	unsigned long page_size;
+
+	page_size = parse_kernel_page_size(addr);
+	if (page_size > 0)
+		len = UP_ALIGN(len, page_size * KB);
 
 	if (munmap(addr, len)) {
 		FPGA_MSG("FPGA buffer munmap failed: %s",
