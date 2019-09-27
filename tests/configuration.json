@@ -1,8 +1,0 @@
-{
- "config_elements":
-    {
-        "bitstream0": "bitstream0.gbs",
-        "installpath": "/usr/local",
-        "num_sockets": "1"
-    }
-}

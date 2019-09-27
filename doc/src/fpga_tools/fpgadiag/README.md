@@ -11,8 +11,7 @@ Includes several tests to diagnose, test, and report on the FPGA hardware.
 
 ```<mode>``` chooses which test to run. 
 ```<target>``` specifies the platform that runs the test.
-```<target>``` can be either ```fpga``` or ```ase``` where ```ase```. 
-```<ase>``` is the abbreviation for Accelerator Simulation Environment.
+```<target>``` can be either ```fpga``` 
 
 The ```<mode>``` selects from the  following tests:
 
@@ -94,7 +93,7 @@ This compare mac addresses that read from MAC ROM with mac addresses read from F
 
 `--target=, -t`
 
-    This switch specifies fpga (hardware) or ase (simulation). The default=fpga.
+    This switch specifies fpga (hardware) . The default=fpga.
 
 `--mode=, -m`
 

@@ -18,7 +18,6 @@ The main documentation for the site is organized into following sections:
    docs/fpga_api/quick_start/readme
    docs/install_guide/installation_guide
    docs/fpga_api/prog_guide/readme
-   docs/ase_userguide/ase_userguide
    docs/README
 
 .. _api-docs:

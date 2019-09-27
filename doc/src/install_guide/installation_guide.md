@@ -28,7 +28,7 @@ The various componentes of OPAE are available via the following compressed tar f
 * Source packages for the SDK and the drivers
 
 ```console
-opae-sdk-<release>.tar.gz                   (BSD License)   (all src for libopae-c, tools, samples, headers and ASE)
+opae-sdk-<release>.tar.gz                   (BSD License)   (all src for libopae-c, tools, samples, headers )
 opae-sdk-<release>.zip                      (BSD License)   (ZIP archive, same content as opae-sdk-<release>.tar.gz)
 opae-intel-fpga-driver-<release>.tar.gz     (GPLv2 License) (driver sources)
 ```
@@ -168,14 +168,13 @@ Following directory shall be created at the working directory where the above co
 
 * `opae-sdk-<release>`
 
-Build the OPAE C library (libopae-c), samples, tools, and the AFU Simulation Environment (ASE)
-library (libopae-c-ase) with the following commands:
+Build the OPAE C library (libopae-c), samples, tools with the following commands:
 
 ```console
 $ cd opae-sdk-<release>
 $ mkdir mybuild
 $ cd mybuild
-$ cmake .. -DBUILD_ASE=1
+$ cmake .. 
 $ make
 ```
 
@@ -219,7 +218,7 @@ systems to install the OPAE SDK.
 $ cd opae-sdk-<release>
 $ mkdir mybuild
 $ cd mybuild
-$ cmake .. -DBUILD_ASE=1 -DCPACK_GENERATOR=RPM -DCMAKE_INSTALL_PREFIX=<desired install loacation>
+$ cmake ..  -DCPACK_GENERATOR=RPM -DCMAKE_INSTALL_PREFIX=<desired install loacation>
 $ make package_rpm
 ```
 .. note::
@@ -234,7 +233,6 @@ opae-libs-<release>.x86_64.rpm          (libopae-c and samples)
 opae-tools-<release>.x86_64.rpm         (base tools)
 opae-tools-extra-<release>.x86_64.rpm   (extra tools)
 opae-devel-<release>.x86_64.rpm         (headers)
-opae-ase-<release>.x86_64.rpm           (libopae-c-ase)
 ```
 
 * To build deb packages follow these steps:
@@ -248,7 +246,7 @@ opae-ase-<release>.x86_64.rpm           (libopae-c-ase)
 $ cd opae-sdk-<release>
 $ mkdir mybuild
 $ cd mybuild
-$ cmake .. -DBUILD_ASE=1 -DCPACK_GENERATOR=DEB -DCMAKE_INSTALL_PREFIX=<desired install loacation>
+$ cmake ..  -DCPACK_GENERATOR=DEB -DCMAKE_INSTALL_PREFIX=<desired install loacation>
 $ make package_deb
 ```
 .. note::
@@ -262,7 +260,6 @@ opae-libs-<release>.x86_64.deb          (libopae-c and samples)
 opae-tools-<release>.x86_64.deb         (tools)
 opae-tools-extra-<release>.x86_64.deb   (tools)
 opae-devel-<release>.x86_64.deb         (headers)
-opae-ase-<release>.x86_64.deb           (libopae-c-ase)
 ```
 
 ## OPAE SDK installation with rpm packages ##
@@ -275,7 +272,6 @@ $ sudo yum install opae-libs-<release>.x86_64.rpm
 $ sudo yum install opae-tools-<release>.x86_64.rpm
 $ sudo yum install opae-tools-extra-<release>.x86_64.rpm
 $ sudo yum install opae-devel-<release>.x86_64.rpm
-$ sudo yum install opae-ase-<release>.x86_64.rpm
 ```
 
 ```eval_rst
@@ -291,7 +287,6 @@ $ sudo yum remove opae-libs
 $ sudo yum remove opae-tools
 $ sudo yum remove opae-tools-extra
 $ sudo yum remove opae-devel
-$ sudo yum remove opae-ase
 ```
 
 ## OPAE SDK installation with deb packages ##
@@ -303,7 +298,6 @@ $ sudo dpkg -i opae-libs-<release>.x86_64.deb
 $ sudo dpkg -i opae-tools-<release>.x86_64.deb
 $ sudo dpkg -i opae-tools-extra-<release>.x86_64.deb
 $ sudo dpkg -i opae-devel-<release>.x86_64.deb
-$ sudo dpkg -i opae-ase-<release>.x86_64.deb
 ```
 
 ```eval_rst
@@ -318,7 +312,6 @@ $ sudo dpkg -r opae-libs
 $ sudo dpkg -r opae-tools
 $ sudo dpkg -r opae-tools-extra
 $ sudo dpkg -r opae-devel
-$ sudo dpkg -r opae-ase
 ```
 
 ## FPGA Device Access Permissions ##

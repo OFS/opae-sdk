@@ -246,8 +246,7 @@ fpgadiag [-m | --mode=] <mode> [-t | --target=] <target> [options]
 _fpgadiag_ includes several tests to diagnose, test and report on the FPGA hardware.
 
 `<mode>` chooses which test to run. `<target>` specifies on what platform to
-run the test. `<target>` can be either `fpga` or `ase`, where `ase` stands for
-"AFU Simulation Environment".
+run the test. `<target>` can be `fpga` 
 
 The tests that can be selected by `<mode>` include:
 
@@ -313,7 +312,7 @@ on the platform.
 
 `--target=, -t`
 
-    Values accepted for this switch are fpga or ase. Default=fpga
+    Values accepted for this switch is fpga. Default=fpga
 
 `--mode=, -m`
 
