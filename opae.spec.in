@@ -9,7 +9,7 @@ License:        @CPACK_RPM_PACKAGE_LICENSE@
 Group:          @CPACK_META_GROUP_NAME@
 Vendor:         @CPACK_PACKAGE_VENDOR@
 Prefix:         @CMAKE_INSTALL_PREFIX@
-Requires:       opae-libs , opae-devel , opae-tools, opae-tools-extra, opae-ase
+Requires:       opae-libs , opae-devel , opae-tools, opae-tools-extra
 Source0:        @CPACK_PACKAGE_NAME@.tar.gz
 
 %description
@@ -52,14 +52,6 @@ Requires:   opae-libs , opae-devel
 %description tools-extra
 This package contains OPAE extra tools binaries
 
-
-%package ase
-Summary:    OPAE AFU Simulation Environment
-Group:      ase
-Requires:   opae-libs , opae-devel
-
-%description ase
-This package contains OPAE AFU Simulation Environment
 
 
 # This is a shortcutted spec file generatCed by CMake RPM generator
@@ -169,15 +161,6 @@ ldconfig
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/python/	
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/python/*	
 @CMAKE_INSTALL_PREFIX@/share/opae/python/*
-
-%files ase
-%defattr(-,root,root,-)
-@CMAKE_INSTALL_PREFIX@/bin/afu_sim_setup
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c-ase*
-%dir @CMAKE_INSTALL_PREFIX@/share/opae
-%dir @CMAKE_INSTALL_PREFIX@/share/opae/ase/
-%dir @CMAKE_INSTALL_PREFIX@/share/opae/ase/*
-@CMAKE_INSTALL_PREFIX@/share/opae/ase/*
 
 
 %changelog
