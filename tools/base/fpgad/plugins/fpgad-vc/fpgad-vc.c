@@ -841,12 +841,6 @@ STATIC void vc_handle_err_event(vc_device *vc)
 	uint8_t fn = 0;
 	int i;
 
-	uint64_t count = 0;
-	ssize_t bytes_read = read(vc->event_fd.fd, &count, sizeof(count));
-	if (bytes_read > 0) {
-		LOG("poll count = %zu.\n", count);
-	}
-
 	if (fpgaGetProperties(d->token, &props) != FPGA_OK) {
 		LOG("failed to get FPGA properties.\n");
 		return;
@@ -874,22 +868,24 @@ STATIC void vc_handle_err_event(vc_device *vc)
 	for (i = 0; i < (int)num_errors; i++) {
 		uint64_t error_value = 0;
 		fpgaGetErrorInfo(d->token, i, &errinfo);
+		fpgaReadError(d->token, i, &error_value);
+		if (error_value != 0) {
+			LOG("detect %s 0x%zx @ %s\n", errinfo.name, error_value, vc->sbdf);
+		}
 		if (!strcmp(errinfo.name, FME_ERR_NAME)) {
-			fpgaReadError(d->token, i, &error_value);
 			if (error_value & (1 << FPGA_SEU_ERR_BIT)) {
 				vc->fpga_seu_err = true;
 				LOG("SEU error occurred on fpga @ %s\n", vc->sbdf);
 			}
 		}
 		if (!strcmp(errinfo.name, CATFATAL_ERR_NAME)) {
-			fpgaReadError(d->token, i, &error_value);
 			if (error_value & (1 << BMC_SEU_ERR_BIT)) {
 				vc->bmc_seu_err = true;
 				LOG("SEU error occurred on bmc @ %s\n", vc->sbdf);
 			}
 		}
-		fpgaClearError(d->token, i);
 	}
+	fpgaClearAllErrors(d->token);
 
 	fpgaDestroyProperties(&props);
 
@@ -968,6 +964,7 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 
 	while (vc_threads_running) {
 		vc_register_err_event(vc);
+		vc_handle_err_event(vc);  // handle error occurred before running fpgad
 		while (vc_enum_sensors(vc) != FPGA_OK) {
 			LOG_MOD(enum_retries, "waiting to enumerate sensors.\n");
 			if (!vc_threads_running)
@@ -985,8 +982,14 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 			if (vc->poll_seu_event) {
 				int poll_ret = poll(&vc->event_fd, 1, vc->poll_timeout_msec);
 				if (poll_ret > 0) {
+						LOG("error interrupt event received.\n");
+						uint64_t count = 0;
+						ssize_t bytes_read = read(vc->event_fd.fd, &count,
+												  sizeof(count));
+						if (bytes_read > 0) {
+							LOG("poll count = %zu.\n", count);
+						}
 					vc_handle_err_event(vc);
-					break;
 				} else if (poll_ret < 0) {
 					LOG("poll error, errno = %s.\n", strerror(errno));
 				}
