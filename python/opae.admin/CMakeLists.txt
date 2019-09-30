@@ -96,14 +96,11 @@ if (DEB_BUILD)
                        DEPENDS opae tests
                        COMMENT "Setting up debian tarball for Python")
 
-    # This is for the use of @INTEL_SECURITY_TOOLS_VERSION@ in the below sed command.
-    cmake_policy(SET CMP0053 NEW)
-
     add_custom_target(opae.admin.deb.debian
                       DEPENDS opae.admin.deb.tarball)
     add_custom_command(TARGET opae.admin.deb.debian PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/debian
-        COMMAND sed -e 's/@INTEL_SECURITY_TOOLS_VERSION@/${INTEL_SECURITY_TOOLS_VERSION}/' <${CMAKE_CURRENT_SOURCE_DIR}/debian/changelog.in >${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/debian/changelog
+        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/debian/deb-changelog ${INTEL_SECURITY_TOOLS_VERSION} >${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/debian/changelog
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/debian/compat ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/debian/compat
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/debian/control ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/debian/control
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/debian/copyright ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/debian/copyright
