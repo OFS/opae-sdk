@@ -255,7 +255,8 @@ def parse_args():
     parser.add_argument('-r', '--rsu', action='store_true', help=rsu_help)
 
     no_nios_help = "leave nios in reset after fw update"
-    parser.add_argument('--no-nios-release', default=False, action='store_true', help=no_nios_help)
+    parser.add_argument('--no-nios-release', default=False,
+                        action='store_true', help=no_nios_help)
 
     no_verify_help = "do not read back flash and verify after writing"
     parser.add_argument('-n', '--no-verify', default=False,
@@ -872,27 +873,27 @@ def rc_fpga_update(ifile, utype, bdf, no_verify):
 
 
 def get_aer(bdf):
-    cmd = 'setpci -s {} ECAP_AER+0x08.l'.format(bdf)
+    cmd = ['setpci', '-s', '{}'.format(bdf), 'ECAP_AER+0x08.l']
 
-    output = subprocess.check_output(cmd, shell=True)
+    output = subprocess.check_output(cmd)
     val1 = int(output, 16)
 
-    cmd = 'setpci -s {} ECAP_AER+0x14.l'.format(bdf)
+    cmd = ['setpci', '-s', '{}'.format(bdf), 'ECAP_AER+0x14.l']
 
-    output = subprocess.check_output(cmd, shell=True)
+    output = subprocess.check_output(cmd)
     val2 = int(output, 16)
 
     return [val1, val2]
 
 
 def set_aer(bdf, val1, val2):
-    cmd = 'setpci -s %s ECAP_AER+0x08.l=0x%x' % (bdf, val1)
+    cmd = ['setpci', '-s', '%s' % (bdf), 'ECAP_AER+0x08.l=0x%x' % (val1)]
 
-    output = subprocess.check_output(cmd, shell=True)
+    output = subprocess.check_output(cmd)
 
-    cmd = 'setpci -s %s ECAP_AER+0x14.l=0x%x' % (bdf, val2)
+    cmd = ['setpci', '-s', '%s' % (bdf), 'ECAP_AER+0x14.l=0x%x' % (val2)]
 
-    output = subprocess.check_output(cmd, shell=True)
+    output = subprocess.check_output(cmd)
 
 
 def get_upstream_bdf(bdf):
@@ -974,9 +975,9 @@ def dc_vc_reconfigure(bdf, ld_path, boot_page):
 
     time.sleep(1)
 
-    cmd = 'setpci -s %s ECAP_AER+0x10.l=0x00002000' % (bdf)
+    cmd = ['setpci', '-s', '%s' % (bdf), 'ECAP_AER+0x10.l=0x00002000']
 
-    subprocess.check_call(cmd, shell=True)
+    subprocess.check_call(cmd)
 
     set_aer(upstream_bdf, 0, 0)
 
@@ -1130,7 +1131,7 @@ def check_file_dc(ifile):
 
     return 0
 
- 
+
 def check_file(ifile, utype):
     ret = 0
 
@@ -1239,9 +1240,11 @@ def main():
 
     if args.type == 'bmc_fw':
         if (bdf_pvid_map[bdf] == DC_PVID) or (bdf_pvid_map[bdf] == VC_PVID):
-            sys.exit(bmc_fw_update(args.file, spi_path, args.no_verify, args.no_nios_release))
+            sys.exit(bmc_fw_update(args.file, spi_path,
+                     args.no_verify, args.no_nios_release))
         else:
-            print("bmc_fw only supported on {} and {}".format(DC_PVID, VC_PVID))
+            msg = 'bmc_fw only supported on'
+            print("{} {} and {}".format(msg, DC_PVID, VC_PVID))
             sys.exit(1)
     elif (args.type == 'bmc_bl') or (args.type == 'bmc_app'):
         if bdf_pvid_map[bdf] == RC_PVID:
@@ -1251,7 +1254,8 @@ def main():
             sys.exit(1)
     elif args.type == 'phy_eeprom':
         if bdf_pvid_map[bdf] == VC_PVID:
-            sys.exit(vc_phy_eeprom_update(args.file, spi_path, args.no_verify, False))
+            sys.exit(vc_phy_eeprom_update(args.file, spi_path,
+                                          args.no_verify, False))
         else:
             print("{} only supported on {}".format(args.type, VC_PVID))
             sys.exit(1)
