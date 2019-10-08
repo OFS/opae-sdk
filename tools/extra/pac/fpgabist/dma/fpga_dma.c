@@ -619,6 +619,7 @@ fpga_result fpgaDmaOpen(fpga_handle fpga, int dma_idx, fpga_dma_handle *dma_p)
 #endif
 
 	uint64_t offset = dma_h->mmio_offset;
+	uint64_t next_offset = 0;
 	dfh_feature_t dfh = {0, 0, 0};
 	do {
 		// Read the next feature header
@@ -645,7 +646,9 @@ fpga_result fpgaDmaOpen(fpga_handle fpga, int dma_idx, fpga_dma_handle *dma_p)
 		end_of_list = _fpga_dma_feature_eol(dfh.dfh);
 
 		// Move to the next feature header
-		if (_fpga_dma_feature_next(dfh.dfh) == 0xffff) {
+		next_offset = _fpga_dma_feature_next(dfh.dfh);
+		if ((next_offset == 0xffff) || (next_offset == 0)) {
+			printf("AFU DMA not found\n");
 			dma_found = false;
 			break;
 		}

@@ -329,7 +329,7 @@ bool nlb0::setup()
     uint64_t nlb0_lo = swap64(uint64_t, n+8);
 
     do {
-        uint64_t feature_uuid_lo, feature_uuid_hi;
+        uint64_t feature_uuid_lo, feature_uuid_hi, next_offset;
         // Read the next feature header
         dfh = accelerator_->read_csr64(static_cast<uint32_t>(offset));
         feature_uuid_lo = accelerator_->read_csr64(static_cast<uint32_t>(offset+8));
@@ -339,7 +339,8 @@ bool nlb0::setup()
             printf("found the NLB offset=0x%x\n", offset);
             break;
         }
-        if (NEXT_DFH_OFFSET(dfh) == 0xffff) {
+        next_offset = NEXT_DFH_OFFSET(dfh);
+        if ((next_offset == 0xffff) || (next_offset == 0)) {
         	printf("AFU NLB not found\n");
         	return false;
         }
