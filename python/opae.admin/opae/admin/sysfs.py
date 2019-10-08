@@ -660,11 +660,11 @@ class class_node(sysfs_node):
                             attr = attrs.pop(0)
                             cur_obj = getattr(cur_obj, attr)
                         except AttributeError:
-                            log.warn('"%s" is not an attribute of "%s"',
-                                     attr, obj)
-                            attrs = ['NO_ATTRIBUTE']
+                            log.debug('"%s" is not an attribute of "%s"',
+                                      attr, obj)
+                            attrs = []
                             break
-                    if hasattr(cur_obj, attrs[0]):
+                    if attrs and hasattr(cur_obj, attrs[0]):
                         attr_value = getattr(cur_obj, attrs[0])
                         if isinstance(attr_value, str):
                             attr_value = attr_value.lower()
