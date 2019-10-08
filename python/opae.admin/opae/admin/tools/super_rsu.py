@@ -59,7 +59,7 @@ DRY_RUN = False
 
 FLASH_TIMEOUT = 10.0
 
-NULL_CMD = 'sleep 11'
+NULL_CMD = ['sleep', '11']
 
 NVM_CFG_HEAD = '''
 CURRENT FAMILY: 1.0.0
@@ -163,7 +163,7 @@ class process_task(object):
         self._start_time = time.time()
         if DRY_RUN:
             print(self._cmd)
-            self._process = subprocess.Popen(NULL_CMD, shell=True)
+            self._process = subprocess.Popen(NULL_CMD)
         else:
             self._process = subprocess.Popen(self._cmd.split(),
                                              stdin=subprocess.PIPE,
