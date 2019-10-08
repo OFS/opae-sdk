@@ -40,8 +40,7 @@ def fpga_filter(inp):
     if inp == 'all':
         return filt
     if inp.startswith('/dev') and os.path.exists(inp):
-        filt.update({'sysfs_path':
-                     inp.replace('/dev', '/sys/class/fpga')})
+        filt.update({'fme.devpath', inp})
     else:
         pci_info = pci_node.parse_address(inp)
         if pci_info:

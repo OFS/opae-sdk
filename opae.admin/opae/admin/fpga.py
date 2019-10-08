@@ -344,7 +344,7 @@ class fpga(class_node):
             return fme(items[0].sysfs_path, self.pci_node)
         # if I can't find FME and I am not a VF
         # (as indicated by the presence of 'physfn')
-        if not items and not self.have_node('physfn'):
+        if not items and not self.pci_node.have_node('physfn'):
             self.log.warning('could not find FME')
         if len(items) > 1:
             self.log.warning('found more than one FME')
