@@ -529,13 +529,6 @@ def main():
     mesg = 'Secure update failed'
     gbs_hdr = None
 
-    procs = ['pacd', 'fpgad', 'fpgainfo']
-    if not process.assert_not_running(procs):
-        LOG.error('One of %s is detected. '
-                  'Please end that task before attempting %s' %
-                  (str(procs), os.path.basename(sys.argv[0])))
-        sys.exit(1)
-
     blk0 = decode_auth_block0(args.file, not args.yes)
     if blk0 is None:
         gbs_hdr = decode_gbs_header(args.file)
@@ -593,6 +586,13 @@ def main():
         stat, mesg = do_partial_reconf(pac.pci_node.pci_address,
                                        args.file.name)
     elif blk0 is not None:
+        procs = ['pacd', 'fpgad', 'fpgainfo']
+        if not process.assert_not_running(procs):
+            LOG.error('One of %s is detected. '
+                      'Please end that task before attempting %s' %
+                      (str(procs), os.path.basename(sys.argv[0])))
+            sys.exit(1)
+
         sec_dev = pac.secure_dev
         if not sec_dev:
             LOG.error('Failed to find secure '
