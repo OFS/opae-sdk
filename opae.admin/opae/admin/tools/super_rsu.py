@@ -1157,14 +1157,11 @@ def main():
     parser.add_argument('--verify', default=False, action='store_true',
                         help='verify if versions on system match versions in'
                              'manifest')
-    parser.add_argument('-v', '--version', default=False, action='store_true',
+    parser.add_argument('-v', '--version', action='version',
+                        version='%(prog)s {}'.format(pretty_version()),
                         help='display version information and exit')
 
     args = parser.parse_args()
-
-    if args.version:
-        print('super-rsu {}'.format(pretty_version()))
-        sys.exit(1)
 
     DRY_RUN = args.dry_run
     logfmt = ('[%(asctime)-15s] [%(levelname)-8s] [%(threadName)-12s] - '

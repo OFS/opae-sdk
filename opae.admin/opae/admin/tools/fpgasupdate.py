@@ -97,7 +97,8 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     file_help = 'self-describing, signed file to update PAC card.'
-    parser.add_argument('file', type=argparse.FileType('rb'), help=file_help)
+    parser.add_argument('file', type=argparse.FileType('rb'), nargs='?',
+                        help=file_help)
 
     bdf_help = 'bdf of device to program (e.g. 04:00.0 or 0000:04:00.0).' \
                ' Optional when one device in system.'
@@ -111,10 +112,11 @@ def parse_args():
     parser.add_argument('-y', '--yes', default=False, action='store_true',
                         help='answer Yes to all confirmation prompts')
 
-    parser.add_argument('-v', '--version', default=False, action='store_true',
+    parser.add_argument('-v', '--version', action='version',
+                        version='%(prog)s {}'.format(pretty_version()),
                         help='display version information and exit')
 
-    return parser.parse_args()
+    return parser, parser.parse_args()
 
 
 def decode_gbs_header(infile):
@@ -498,10 +500,11 @@ def sig_handler(signum, frame):
 
 
 def main():
-    args = parse_args()
+    parser, args = parse_args()
 
-    if args.version:
-        print('fpgasupdate {}'.format(pretty_version()))
+    if args.file is None:
+        print('Error: file is a required argument\n')
+        parser.print_help(sys.stderr)
         sys.exit(1)
 
     LOG.setLevel(logging.NOTSET)

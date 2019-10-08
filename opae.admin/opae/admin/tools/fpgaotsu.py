@@ -527,7 +527,7 @@ def parse_args():
     manifest_help = 'The configuration file describing ' \
                     'the One-Time Secure Update'
     parser.add_argument('manifest', type=argparse.FileType('r'),
-                        help=manifest_help)
+                        nargs='?', help=manifest_help)
 
     log_levels = ['debug', 'info', 'warning', 'error', 'critical']
     parser.add_argument('--log-level', choices=log_levels,
@@ -536,10 +536,11 @@ def parse_args():
                         help='verify whether PACs need updating and exit')
     parser.add_argument('--rsu', action='store_true', default=False,
                         help='perform "RSU" operation after update')
-    parser.add_argument('-v', '--version', action='store_true', default=False,
+    parser.add_argument('-v', '--version', action='version',
+                        version='%(prog)s {}'.format(pretty_version()),
                         help='display version information and exit')
 
-    return parser.parse_args()
+    return parser, parser.parse_args()
 
 
 def sig_handler(signum, frame):
@@ -574,10 +575,11 @@ def run_updaters(updaters):
 
 def main():
     """The main entry point"""
-    args = parse_args()
+    parser, args = parse_args()
 
-    if args.version:
-        print('fpgaotsu {}'.format(pretty_version()))
+    if args.manifest is None:
+        print('Error: manifest is a required argument\n')
+        parser.print_help(sys.stderr)
         sys.exit(1)
 
     LOG.setLevel(logging.NOTSET)
