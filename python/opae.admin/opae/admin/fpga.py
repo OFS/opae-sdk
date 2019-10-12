@@ -420,18 +420,12 @@ class fpga(class_node):
             to_remove = self.pci_node.root.endpoints
             to_disable = [ep.parent for ep in to_remove]
         else:
-            to_remove = [self.pci_node.branch[1]]
+            to_remove = [self.pci_node.root]
             to_disable = [self.pci_node.root]
 
         with self.disable_aer(*to_disable):
             self.rsu_boot(page, **kwargs)
-
-            to_rescan = []
             for node in to_remove:
-                to_rescan.append((node.parent, '{}:{}'.format(node.domain,
-                                                              node.bus)))
                 node.remove()
             time.sleep(wait_time)
-
-            for node, bus in to_rescan:
-                node.rescan_bus(bus)
+            sysfs_node('/sys/bus/pci/rescan').value = 1
