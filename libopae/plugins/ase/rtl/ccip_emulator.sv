@@ -2201,8 +2201,8 @@ module ccip_emulator
             C0RxMmioRdValid <= 0;
             C0RxRdValid     <= 0;
             C0RxUMsgValid   <= 0;
-            C0RxHdr         <= RxHdr_t'({CCIP_RX_HDR_WIDTH{1'b0}});
-            C0RxData        <= {CCIP_DATA_WIDTH{1'b0}};
+            C0RxHdr         <= RxHdr_t'('x);
+            C0RxData        <= {CCIP_DATA_WIDTH{'x}};
         end
         else if (mmioreq_valid) begin
             C0RxMmioWrValid <= mmio_wrvalid;
@@ -2235,8 +2235,8 @@ module ccip_emulator
             C0RxMmioRdValid <= 0;
             C0RxRdValid     <= 0;
             C0RxUMsgValid   <= 0;
-            C0RxHdr         <= RxHdr_t'({CCIP_RX_HDR_WIDTH{1'b0}});
-            C0RxData        <= {CCIP_DATA_WIDTH{1'b0}};
+            C0RxHdr         <= RxHdr_t'('x);
+            C0RxData        <= {CCIP_DATA_WIDTH{'x}};
         end
     end
 
