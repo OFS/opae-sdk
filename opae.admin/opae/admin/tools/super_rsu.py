@@ -1091,8 +1091,8 @@ def find_config(program='super-rsu'):
                 cfg_did = int(data.get('device', '0'), 0)
             except IOError:
                 LOG.warn('could not open file: %s', f)
-            except ValueError:
-                LOG.warn('could not decode JSON file: %s', f)
+            except ValueError as err:
+                LOG.warn('could not decode JSON file, %s: %s', f, err)
             except AttributeError:
                 # not a recognized schema
                 pass
@@ -1210,8 +1210,8 @@ def main():
     except AttributeError:
         logging.error('no rsu config specified or found')
         sys_exit(os.EX_USAGE)
-    except ValueError:
-        logging.error('invalid rsu config: %s', args.rsu_config.name)
+    except ValueError as err:
+        logging.error('invalid rsu config, %s: %s', args.rsu_config.name, err)
         sys_exit(os.EX_USAGE)
 
     boards = discover_boards(rsu_config, args)
