@@ -1079,7 +1079,7 @@ def sighandler(signum, frame):
     raise KeyboardInterrupt('interrupt signal received')
 
 
-def find_config(program='super-rsu'):
+def find_config(program='super-rsu', configuration=None):
     candidates = []
     for root, dirs, files in os.walk('/usr/share/opae'):
         for f in glob.glob(os.path.join(root, '*.json')):
@@ -1089,6 +1089,7 @@ def find_config(program='super-rsu'):
                 cfg_pgm = data.get('program')
                 cfg_vid = int(data.get('vendor', '0'), 0)
                 cfg_did = int(data.get('device', '0'), 0)
+                cfg_cfg = data.get('configuration')
             except IOError:
                 LOG.warn('could not open file: %s', f)
             except ValueError as err:
@@ -1103,7 +1104,8 @@ def find_config(program='super-rsu'):
                     if fpga_device.enum([{'pci_node.vendor_id': cfg_vid,
                                           'pci_node.device_id': cfg_did}]):
                         LOG.debug('found possible config: %s', f)
-                        candidates.append(f)
+                        if configuration is None or (cfg_cfg == configuration):
+                            candidates.append(f)
 
     if len(candidates) == 1:
         try:
@@ -1128,6 +1130,8 @@ def main():
     parser.add_argument('--program', default='super-rsu',
                         help=('program to look for in rsu config. '
                               'Default is "super-rsu"'))
+    parser.add_argument('--configuration',
+                        help='configuration to look for in rsu config.')
     parser.add_argument('--bus',
                         help=argparse.SUPPRESS)
     parser.add_argument('-n', '--dry-run',
@@ -1203,7 +1207,7 @@ def main():
         sys_exit(os.EX_NOPERM)
 
     if args.rsu_config is None:
-        args.rsu_config = find_config(args.program)
+        args.rsu_config = find_config(args.program, args.configuration)
 
     try:
         rsu_config = json.load(args.rsu_config)
