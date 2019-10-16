@@ -74,8 +74,6 @@ IOCTL_IFPGA_SECURE_UPDATE_DATA_SENT = 0xb902
 IOCTL_IFPGA_SECURE_UPDATE_CHECK_COMPLETE = 0xb903
 IOCTL_IFPGA_SECURE_UPDATE_CANCEL = 0xb904
 
-APPLY_BPS = 41000.0
-
 LOG = logging.getLogger()
 LOG_IOCTL = logging.DEBUG - 1
 LOG_STATE = logging.DEBUG - 2
@@ -437,7 +435,7 @@ def update_fw(fd_dev, infile):
 
     LOG.info('writing to staging area')
 
-    apply_time = payload_size/APPLY_BPS
+    begin = datetime.now()
     with progress(bytes=payload_size, **progress_cfg) as prg:
         while to_transfer:
             buf = array.array('B')
@@ -471,7 +469,9 @@ def update_fw(fd_dev, infile):
                 else payload_size
 
             prg.update(offset)
-
+    end = datetime.now()
+    # better to overestimate than under, use 1.5 as multiplier
+    apply_time = (end - begin).total_seconds() * 1.5
     LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_DATA_SENT')
     try:
         fcntl.ioctl(fd_dev, IOCTL_IFPGA_SECURE_UPDATE_DATA_SENT)
