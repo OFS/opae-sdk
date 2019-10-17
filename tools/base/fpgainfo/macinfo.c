@@ -28,6 +28,7 @@
 #include "fpgainfo.h"
 #include "sysinfo.h"
 #include "macinfo.h"
+#include "bmcinfo.h"
 #include <opae/fpga.h>
 #include <wchar.h>
 #include <dirent.h>
@@ -127,13 +128,16 @@ static int get_mac_rom_path(const char *in_path, const char *key_str,
 	return ret;
 }
 
+#define SYSFS_MAC_ADDR_NAME	"mac_address"
+#define SYSFS_MAC_CNT_NAME	"mac_count"
+
 static void print_mac_rom_info(fpga_properties props)
 {
 	char path[SYSFS_PATH_MAX];
 	get_sysfs_path(props, FPGA_DEVICE, NULL);
 	const char *sysfspath = get_sysfs_path(props, FPGA_DEVICE, NULL);
 	int fd;
-	int i, n;
+	int i, n = 0;
 	ssize_t sz;
 	unsigned char buf[8];
 	union {
@@ -146,24 +150,47 @@ static void print_mac_rom_info(fpga_properties props)
 		fprintf(stderr, "WARNING: sysfs path not found\n");
 		return;
 	}
-	if (0 != get_mac_rom_path(sysfspath, I2C_DEVNAME, path, SYSFS_PATH_MAX)) {
-		fprintf(stderr, "WARNING: nvmem not found\n");
-		return;
+	
+	// If sysfs node mac_address and mac_count exist, use them instead of nvmem
+	snprintf_s_ss(path, sizeof(path),
+				  "%s/spi-altera.*.auto/spi_master/spi*/spi*.*/%s",
+				  sysfspath, SYSFS_MAC_ADDR_NAME);
+	if (glob_sysfs_path(path) == FPGA_OK) {
+		char mac_info[18];
+		int mac_byte[6] = {0};
+		if (get_sysfs_attr(path, mac_info, sizeof(mac_info)) > 0) {
+			sscanf(mac_info, "%x:%x:%x:%x:%x:%x", &mac_byte[0], &mac_byte[1],
+				   &mac_byte[2], &mac_byte[3], &mac_byte[4], &mac_byte[5]);
+		}
+		for (i = 0; i < 6; i++)
+			buf[i] = (unsigned char)mac_byte[i];	
+
+		i = strlen(path) - strlen(SYSFS_MAC_ADDR_NAME);
+		snprintf_s_s(path+i, sizeof(path)-i, "%s", SYSFS_MAC_CNT_NAME);
+		if (get_sysfs_attr(path, mac_info, sizeof(mac_info)) > 0) {
+			n = strtol(mac_info, NULL, 10);
+		}
+	} else {
+		if (0 != get_mac_rom_path(sysfspath, I2C_DEVNAME, path, SYSFS_PATH_MAX)) {
+			fprintf(stderr, "WARNING: nvmem not found\n");
+			return;
+		}
+	
+		fd = open(path, O_RDONLY);
+		if (fd < 0) {
+			fprintf(stderr, "Open %s failed\n", path);
+			return;
+		}
+		sz = read(fd, buf, sizeof(buf));
+		close(fd);
+	
+		if (sz == 0) {
+			fprintf(stderr, "Read %s failed\n", path);
+			return;
+		}
+		n = (int)buf[6];
 	}
 
-	fd = open(path, O_RDONLY);
-	if (fd < 0) {
-		fprintf(stderr, "Open %s failed\n", path);
-		return;
-	}
-	sz = read(fd, buf, sizeof(buf));
-	close(fd);
-
-	if (sz == 0) {
-		fprintf(stderr, "Read %s failed\n", path);
-		return;
-	}
-	n = (int)buf[6];
 	printf("%-29s : %d\n", "Number of MACs", n);
 	mac.byte[0] = buf[5];
 	mac.byte[1] = buf[4];
