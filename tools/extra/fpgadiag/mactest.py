@@ -30,6 +30,7 @@ import os
 import argparse
 import binascii
 import sys
+import glob
 from common import FpgaFinder, exception_quit
 from common import COMMON, convert_argument_str2hex
 
@@ -93,14 +94,30 @@ class MacromCompare(COMMON):
             v = f.read()
             self.mode = (int(v, 16) >> 32) & 0xF
 
-    def read_mac_from_nvmem(self):
+    def read_mac_info(self):
         mac = 0
-        with open(self.args.nvmem, 'rb') as f:
-            f.seek(self.args.offset, 0)
-            for x in [40, 32, 24, 16, 8, 0]:
-                mac |= self.str2hex(f.read(1)) << x
-            mac_number = self.str2hex(f.read(1))
-        print('Read {} mac addresses from NVMEM:'.format(mac_number))
+        byte_offset = [40, 32, 24, 16, 8, 0]
+        if self.args.mac_addr and self.args.mac_cnt:
+            location = 'sysfs'
+            with open(self.args.mac_addr, 'r') as f:
+                mac_addr = f.read().strip()
+            with open(self.args.mac_cnt, 'r') as f:
+                cnt = f.read().strip()
+                mac_number = int(cnt)
+            m = mac_addr.split(':')
+            if len(m) != 6:
+                exception_quit('MAC address {} is invalid'.format(mac_addr))
+            for i, x in enumerate(byte_offset):
+                mac |= int(m[i], 16) << x
+        else:
+            location = 'NVMEM'
+            with open(self.args.nvmem, 'rb') as f:
+                f.seek(self.args.offset, 0)
+                for x in byte_offset:
+                    mac |= self.str2hex(f.read(1)) << x
+                mac_number = self.str2hex(f.read(1))
+
+        print('Read {} mac addresses from {}:'.format(mac_number, location))
         vendor = '{:06x}'.format(mac >> 24)
         for i in range(mac_number):
             mac_str = '{}{:06x}'.format(vendor, (mac & 0xffffff))
@@ -127,7 +144,7 @@ class MacromCompare(COMMON):
     def start(self):
         self.get_if_and_mac_list()
         self.read_bitstream_id()
-        self.read_mac_from_nvmem()
+        self.read_mac_info()
         self.compare_eth_mac_with_macrom()
 
 
@@ -144,6 +161,8 @@ def main():
     parser.add_argument('--offset',
                         default='0',
                         help='read mac address from a offset address')
+    parser.add_argument('--debug', '-d', action='store_true',
+                        help='Output debug information')
     args, left = parser.parse_known_args()
 
     args = convert_argument_str2hex(
@@ -152,9 +171,9 @@ def main():
     f = FpgaFinder(args.segment, args.bus, args.device, args.function)
     devs = f.find()
     for d in devs:
-        print(
-            'bdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(
-                **d))
+        if args.debug:
+            s = 'bdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d)
+            print(s)
     if len(devs) > 1:
         exception_quit('{} FPGAs are found\nplease choose '
                        'one FPGA to do mactest'.format(len(devs)))
@@ -163,20 +182,41 @@ def main():
     args.fpga_root = devs[0].get('path')
     args.bitstream_id = f.find_node(devs[0].get('path'),
                                     'bitstream_id', depth=3)
-    nvmem_path = f.find_node(devs[0].get('path'), 'nvmem', depth=7)
-    if not nvmem_path:
-        nvmem_path = f.find_node(devs[0].get('path'), 'eeprom', depth=7)
-    if not nvmem_path:
-        exception_quit('No nvmem found at {}'.format(devs[0].get('path')))
-    args.nvmem = nvmem_path[0]
-    if len(nvmem_path) > 1:
-        print('multi nvmem found, '
-              'select {} to do mactest'.format(args.nvmem))
+
+    mac_addrs = glob.glob(os.path.join(devs[0].get('path'),
+                                       'intel-fpga-fme.*', 'spi-altera*',
+                                       'spi_master', 'spi*', 'spi*',
+                                       'mac_address'))
+    args.mac_addr = None
+    if len(mac_addrs) > 0:
+        args.mac_addr = mac_addrs[0]
+    mac_cnts = glob.glob(os.path.join(devs[0].get('path'),
+                                      'intel-fpga-fme.*', 'spi-altera*',
+                                      'spi_master', 'spi*', 'spi*',
+                                      'mac_count'))
+    args.mac_cnt = None
+    if len(mac_cnts) > 0:
+        args.mac_cnt = mac_cnts[0]
+
+    if args.mac_addr is None or args.mac_cnt is None:
+        nvmem_path = f.find_node(devs[0].get('path'), 'nvmem', depth=7)
+        if not nvmem_path:
+            nvmem_path = f.find_node(devs[0].get('path'), 'eeprom', depth=7)
+        if not nvmem_path:
+            exception_quit('No nvmem found at {}'.format(devs[0].get('path')))
+        args.nvmem = None
+        if len(nvmem_path) > 0:
+            args.nvmem = nvmem_path[0]
+        if len(nvmem_path) > 1 and args.debug:
+            s = 'multi nvmem found, select {} to do mactest'.format(args.nvmem)
+            print(s)
+
     args.eth_grps = f.find_node(devs[0].get('path'), 'eth_group*/dev', depth=4)
     if not args.eth_grps:
         exception_quit('No ethernet group found')
     for g in args.eth_grps:
-        print('ethernet group device: {}'.format(g))
+        if args.debug:
+            print('ethernet group device: {}'.format(g))
 
     m = MacromCompare(args)
     m.start()
