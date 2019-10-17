@@ -28,18 +28,11 @@
 import argparse
 import fcntl
 import logging
-import sys
-import glob
 import os
 import re
+import sys
 
 from opae.admin.fpga import fpga
-from opae.admin.sysfs import pci_node, PCI_ADDRESS_RE
-
-if sys.version_info[0] == 2:
-    import cPickle as pickle  # pylint: disable=E0401
-else:
-    import pickle  # pylint: disable=E0401
 
 
 RSU_LOCK_FILE = "/tmp/rsu_lock"
@@ -58,25 +51,53 @@ BOOT_PAGE = {0x0b30: {'fpga': {'user': 1,
 
 logger = logging.getLogger('rsu')
 
+DESCRIPTION = '''
+Perform RSU (remote system update) operation on PAC device
+given its PCIe address.
+An RSU operation sends an instruction to the device to trigger
+a power cycle of the card only. This will force reconfiguration
+from flash for either BMC image (on devices that support it) or the
+FPGA'''
+
+EPILOG = '''
+Example usage:
+
+     %(prog)s bmcimg 25:00.0
+     This will trigger a boot of the BMC image for a device with a pci address
+     of 25:00.0.
+     NOTE: Both BMC and FPGA images will be reconfigured from user bank.
+
+     %(prog)s bmcimg 25:00.0 -f
+     This will trigger a factory boot of the BMC image for a device with a
+     pci address of 25:00.0.
+     NOTE: Both BMC image will be reconfigured from factory bank and the
+           FPGA image will be reconfigured from the user bank.
+
+     %(prog)s fpga 25:00.0
+     This will trigger a reconfiguration of the FPGA only for a device with a
+     pci address of 25:00.0.
+     NOTE: The FPGA image will be reconfigured from user bank.
+
+     %(prog)s fpga 25:00.0 -f
+     This will trigger a factory reconfiguration of the FPGA only for a device
+     with a pci address of 25:00.0.
+     NOTE: The FPGA image will be reconfigured from the factory bank.
+'''
+
 
 def parse_args():
-    descr = 'A tool to test RSU.'
-
-    epi = 'example usage:\n\n'
-    epi += '    rsu.py fpga 25:00.0\n\n'
-
     fc_ = argparse.RawDescriptionHelpFormatter
-    parser = argparse.ArgumentParser(description=descr, epilog=epi,
+    parser = argparse.ArgumentParser(description=DESCRIPTION, epilog=EPILOG,
                                      formatter_class=fc_)
     parser.add_argument('type', help='type of operation',
-                        choices=fpga.BOOT_TYPES + ['disable-card',
-                                                   'enable-card'])
-    bdf_help = "bdf of device to do rsu (e.g. 04:00.0 or 0000:04:00.0)"
-    parser.add_argument('bdf', nargs='?', help=bdf_help)
-    opt_help = "reload from factory image"
-    parser.add_argument('-f', '--factory', action='store_true', help=opt_help)
+                        choices=fpga.BOOT_TYPES)
+    parser.add_argument('bdf', nargs='?',
+                        help=('PCIe address of device to do rsu '
+                              '(e.g. 04:00.0 or 0000:04:00.0)'))
+    parser.add_argument('-f', '--factory', action='store_true',
+                        help='reload from factory bank')
     parser.add_argument('-d', '--debug', action='store_true',
-                        help='debug mode')
+                        help='log debug statements')
     return parser.parse_args()
 
 
@@ -91,19 +112,11 @@ def normalize_bdf(bdf):
     raise SystemExit(os.EX_USAGE)
 
 
-def do_rsu(rsu_type, bdf, boot_page):
-    devices = fpga.enum([{'pci_node.pci_address': bdf}])
-    if not devices:
-        logger.error('Could not locate device at {}'.format(bdf))
-        raise SystemExit(os.EX_UNAVAILABLE)
-    if len(devices) > 1:
-        logger.error('Found more than one device at: {}'.format(bdf))
-        raise SystemExit(os.EX_SOFTWARE)
+def do_rsu(rsu_type, device, boot_page):
+    dev_id = device.pci_node.pci_id
 
-    device = devices[0]
-    dev_id = device.pci_node.device_id
     try:
-        boot_number = BOOT_PAGE[dev_id][rsu_type][boot_page]
+        boot_number = fpga.BOOT_PAGES[dev_id][rsu_type][boot_page]
     except KeyError:
         logger.error('could not determine boot page for given device: %s',
                      device.pci_node)
@@ -117,41 +130,38 @@ def main():
     level = logging.DEBUG if args.debug else logging.INFO
     logging.basicConfig(level=level,
                         format='%(asctime)s - %(message)s')
+    compatible = fpga.enum([{'supports_rsu': True}])
+    if not compatible:
+        sys.stderr.write('No compatible devices found\n')
+        raise SystemExit(os.EX_USAGE)
+
     if args.bdf is None:
-        if args.type == 'enable-card':
-            paths = glob.glob(os.path.join('/tmp/*:*:*.*'))
-            if len(paths) == 1:
-                args.bdf = os.path.basename(paths[0])
-        if args.bdf is None:
-            logger.warn("Please specify bdf as [bus]:[device].[function]")
-            raise SystemError(os.EX_USAGE)
+        if len(compatible) == 1:
+            args.bdf = compatible[0].pci_node.pci_address
+        elif len(compatible) > 1:
+            prog = os.path.basename(sys.argv[0])
+            sys.stderr.write(('Please specify PCIe address as '
+                              '[<segment>:]<bus>:<device>.<function>\n'))
+            sys.stderr.write('Acceptable commands:\n')
+            for dev in compatible:
+                sys.stderr.write('>{} {} {}\n'.format(prog,
+                                                      args.type,
+                                                      dev.pci_node.bdf))
+            raise SystemExit(os.EX_USAGE)
+
     bdf = normalize_bdf(args.bdf)
     boot_page = FACTORY_BOOT_PAGE if args.factory else USER_BOOT_PAGE
 
-    if args.type in fpga.BOOT_TYPES:
-        with open(RSU_LOCK_FILE, 'w') as flock:
-            fcntl.flock(flock.fileno(), fcntl.LOCK_EX)
-            do_rsu(args.type, bdf, boot_page)
-    elif args.type == 'disable-card':
-        devices = fpga.enum([{'pci_node.pci_address': bdf}])
-        device = devices[0]
-        root = device.pci_node.root
-        to_remove = device.pci_node.branch[1]
-        with open(os.path.join("/tmp/", bdf), 'w') as f:
-            pickle.dump({'root': root.pci_address,
-                         'domain': to_remove.domain,
-                         'bus': to_remove.bus,
-                         'aer': root.aer}, f)
-        root.aer = (0xFFFFFFFF, 0xFFFFFFFF)
-        to_remove.remove()
-    elif args.type == 'enable-card':
-        with open(os.path.join("/tmp", bdf), 'r') as f:
-            data = pickle.load(f)
+    for device in compatible:
+        if device.pci_node.pci_address == bdf:
+            with open(RSU_LOCK_FILE, 'w') as flock:
+                fcntl.flock(flock.fileno(), fcntl.LOCK_EX)
+                do_rsu(args.type, device, boot_page)
+            logging.info('RSU operation complete')
+            raise SystemExit(os.EX_OK)
 
-        root_info = PCI_ADDRESS_RE.match(data['root']).groupdict()
-        root = pci_node(root_info)
-        root.rescan_bus('{domain}:{bus}'.format(**data))
-        root.aer = data['aer']
+    logging.error(('PCIe address (%s) is invalid or does not identify a'
+                   'compatible device'), args.bdf)
 
 
 if __name__ == "__main__":
