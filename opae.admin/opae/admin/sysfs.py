@@ -414,6 +414,20 @@ class pci_node(sysfs_node):
         """
         return (self.vendor_id, self.device_id)
 
+    @property
+    def pci_bus(self):
+        """pci_bus Gets the pci_bus node for the root port segment and bus.
+                   pci bus nodes are rooted at /sys/devices/pci<segment>:<bus>.
+
+        Returns: a sysfs_node representing the pci bus
+        """
+        path = ('/sys/devices/pci{segment}:{bus}/pci_bus'
+                '/{segment}:{bus}').format(segment=self.root.segment,
+                                           bus=self.root.bus)
+        if os.path.exists(path):
+            return sysfs_node(path)
+        self.log.warn('pci_bus not found at %s', path)
+
     def remove(self):
         """remove Perform a hot-remove of the PCIe device represented by
            this pci_node object.

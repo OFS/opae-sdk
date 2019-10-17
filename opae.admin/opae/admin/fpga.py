@@ -430,6 +430,13 @@ class fpga(class_node):
         else:
             to_remove = [self.pci_node.root]
             to_disable = [self.pci_node.root]
+        # rescan at the pci bus, if found
+        # if for some reason it can't be found, do a full system rescan
+        to_rescan = self.pci_node.pci_bus
+        if not to_rescan:
+            self.log.warn(('cannot find pci bus to rescan, will do a '
+                           'system pci rescan'))
+            to_rescan = sysfs_node('/sys/bus/pci')
 
         with self.disable_aer(*to_disable):
             self.log.info('[%s] performing RSU operation', self.pci_node)
@@ -439,5 +446,5 @@ class fpga(class_node):
                 node.remove()
             self.log.info('waiting %s seconds for boot', wait_time)
             time.sleep(wait_time)
-            self.log.info('rescanning PCIe bus')
-            sysfs_node('/sys/bus/pci/rescan').value = 1
+            self.log.info('rescanning PCIe bus: %s', to_rescan.sysfs_path)
+            to_rescan.node('rescan').value = 1
