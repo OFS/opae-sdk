@@ -92,6 +92,7 @@ typedef struct _vc_config_sensor {
 	uint32_t flags;
 } vc_config_sensor;
 
+#define MAX_SENSORS_ENUM_RETRIES	5
 #define MAX_VC_SENSORS 128
 typedef struct _vc_device {
 	fpgad_monitored_device *base_device;
@@ -744,6 +745,10 @@ STATIC bool vc_monitor_sensors(vc_device *vc)
 	bool negative_trans = false;
 	bool res = true;
 
+	if (vc->num_sensors == 0) {		// no sensor found
+		return true;
+	}
+
 	for (i = 0 ; i < vc->num_sensors ; ++i) {
 		vc_sensor *s = &vc->sensors[i];
 
@@ -967,6 +972,11 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 		vc_handle_err_event(vc);  // handle error occurred before running fpgad
 		while (vc_enum_sensors(vc) != FPGA_OK) {
 			LOG_MOD(enum_retries, "waiting to enumerate sensors.\n");
+			if (enum_retries > MAX_SENSORS_ENUM_RETRIES) {
+				LOG("no sensors are found.\n");
+				enum_retries = 0;
+				break;
+			}
 			if (!vc_threads_running)
 				return NULL;
 			sleep(1);
@@ -982,13 +992,13 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 			if (vc->poll_seu_event) {
 				int poll_ret = poll(&vc->event_fd, 1, vc->poll_timeout_msec);
 				if (poll_ret > 0) {
-						LOG("error interrupt event received.\n");
-						uint64_t count = 0;
-						ssize_t bytes_read = read(vc->event_fd.fd, &count,
-												  sizeof(count));
-						if (bytes_read > 0) {
-							LOG("poll count = %zu.\n", count);
-						}
+					LOG("error interrupt event received.\n");
+					uint64_t count = 0;
+					ssize_t bytes_read = read(vc->event_fd.fd, &count,
+											  sizeof(count));
+					if (bytes_read > 0) {
+						LOG("poll count = %zu.\n", count);
+					}
 					vc_handle_err_event(vc);
 				} else if (poll_ret < 0) {
 					LOG("poll error, errno = %s.\n", strerror(errno));
