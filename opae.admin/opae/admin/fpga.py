@@ -375,6 +375,14 @@ class fpga(class_node):
         if len(items) > 1:
             self.log.warning('found more than one PORT')
 
+    @property
+    def supports_rsu(self):
+        """supports_rsu Indicates if device supports RSU
+
+        Returns: True if device supports RSU, false otherwise.
+        """
+        return self.pci_node.pci_id in self.BOOT_PAGES
+
     def rsu_boot(self, page, **kwargs):
         boot_type = kwargs.pop('type', 'bmcimg')
         if kwargs:
@@ -424,8 +432,12 @@ class fpga(class_node):
             to_disable = [self.pci_node.root]
 
         with self.disable_aer(*to_disable):
+            self.log.info('[%s] performing RSU operation', self.pci_node)
             self.rsu_boot(page, **kwargs)
             for node in to_remove:
+                self.log.info('[%s] removing device from PCIe bus', node)
                 node.remove()
+            self.log.info('waiting %s seconds for boot', wait_time)
             time.sleep(wait_time)
+            self.log.info('rescanning PCIe bus')
             sysfs_node('/sys/bus/pci/rescan').value = 1
