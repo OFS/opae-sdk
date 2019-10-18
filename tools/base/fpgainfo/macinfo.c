@@ -157,7 +157,7 @@ static void print_mac_rom_info(fpga_properties props)
 				  sysfspath, SYSFS_MAC_ADDR_NAME);
 	if (glob_sysfs_path(path) == FPGA_OK) {
 		char mac_info[18];
-		int mac_byte[6] = {0};
+		unsigned int mac_byte[6] = {0};
 		if (get_sysfs_attr(path, mac_info, sizeof(mac_info)) > 0) {
 			sscanf(mac_info, "%x:%x:%x:%x:%x:%x", &mac_byte[0], &mac_byte[1],
 				   &mac_byte[2], &mac_byte[3], &mac_byte[4], &mac_byte[5]);
@@ -189,6 +189,11 @@ static void print_mac_rom_info(fpga_properties props)
 			return;
 		}
 		n = (int)buf[6];
+	}
+	/* validate number of mac address */
+	if ((n < 0) || (n > 8)) {
+		fprintf(stderr, "WARNING: count of mac addresses is invalid\n");
+		return;
 	}
 
 	printf("%-29s : %d\n", "Number of MACs", n);
