@@ -100,7 +100,7 @@ if (DEB_BUILD)
                       DEPENDS opae.admin.deb.tarball)
     add_custom_command(TARGET opae.admin.deb.debian PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/debian
-        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/debian/deb-changelog ${INTEL_SECURITY_TOOLS_VERSION} >${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/debian/changelog
+        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/debian/deb-changelog.py ${INTEL_SECURITY_TOOLS_VERSION} >${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/debian/changelog
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/debian/compat ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/debian/compat
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/debian/control ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/debian/control
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/debian/copyright ${CMAKE_CURRENT_BINARY_DIR}/deb/opae.admin-${INTEL_SECURITY_TOOLS_VERSION}/debian/copyright

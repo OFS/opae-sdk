@@ -1,5 +1,0 @@
-#!/bin/bash
-git --no-pager log `git describe --tags --abbrev=0`..HEAD \
-    --format="opae.admin ($1) stable; urgency=medium%n%n  * %h %s%n%n -- %cn <%aE>  %ad%n" \
-    --date=format:"%a, %d %b %Y %H:%M:%S %z"
-exit $?
