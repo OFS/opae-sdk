@@ -896,6 +896,8 @@ STATIC void vc_handle_err_event(vc_device *vc)
 
 	if (vc->fpga_seu_err || vc->bmc_seu_err) {
 		opae_api_send_EVENT_ERROR(d);
+		vc->fpga_seu_err = false;
+		vc->bmc_seu_err = false;
 	}
 }
 
