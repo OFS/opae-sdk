@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -47,6 +47,9 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -133,13 +136,14 @@ config = {
 	.open_flags = 0
 };
 
-#define GETOPT_STRING "B:s"
+#define GETOPT_STRING "B:sv"
 fpga_result parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
-		{ "bus",    required_argument, NULL, 'B' },
-		{ "shared", no_argument,       NULL, 's' },
-		{ NULL,     0,                 NULL,  0  }
+		{ "bus",     required_argument, NULL, 'B' },
+		{ "shared",  no_argument,       NULL, 's' },
+		{ "version", no_argument,       NULL, 'v' },
+		{ NULL,      0,                 NULL,  0  }
 	};
 
 	int getopt_ret;
@@ -169,6 +173,13 @@ fpga_result parse_args(int argc, char *argv[])
 		case 's':
 			config.open_flags |= FPGA_OPEN_SHARED;
 			break;
+
+		case 'v':
+			printf("hello_fpga %s %s%s\n",
+			       INTEL_FPGA_API_VERSION,
+			       INTEL_FPGA_API_HASH,
+			       INTEL_FPGA_TREE_DIRTY ? "*":"");
+			return -1;
 
 		default: /* invalid option */
 			fprintf(stderr, "Invalid cmdline option \n");
@@ -261,8 +272,6 @@ bool probe_for_ase()
 
 int main(int argc, char *argv[])
 {
-	char               library_version[FPGA_VERSION_STR_MAX];
-	char               library_build[FPGA_BUILD_STR_MAX];
 	fpga_token         accelerator_token;
 	fpga_handle        accelerator_handle;
 	fpga_guid          guid;
@@ -283,13 +292,9 @@ int main(int argc, char *argv[])
 	fpga_result        res1 = FPGA_OK;
 	fpga_result        res2 = FPGA_OK;
 
-	/* Print version information of the underlying library */
-	fpgaGetOPAECVersionString(library_version, sizeof(library_version));
-	fpgaGetOPAECBuildString(library_build, sizeof(library_build));
-	printf("Using OPAE C library version '%s' build '%s'\n", library_version,
-	       library_build);
-
 	res1 = parse_args(argc, argv);
+	if ((int)res1 < 0)
+		goto out_exit;
 	ON_ERR_GOTO(res1, out_exit, "parsing arguments");
 
 	if (uuid_parse(NLB0_AFUID, guid) < 0) {

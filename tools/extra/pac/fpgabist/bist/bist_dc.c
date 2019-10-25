@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,6 +24,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,	EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -97,6 +100,7 @@ static void printUsage()
 "Usage:\n"
 "     bist [-h] [-B <bus>] [-D <device>] [-F <function>] \n"
 "         -h,--help           Print this help\n"
+"         -v,--version        Print version and exit\n"
 "         -B,--bus            Set target bus number\n"
 "         -D,--device         Set target device number\n"
 "         -F,--function       Set target function number\n\n"
@@ -186,12 +190,13 @@ static void parse_args(struct config *config, int argc, char *argv[])
 			{"bus", required_argument, NULL, 'B'},
 			{"device", required_argument, NULL, 'D'},
 			{"function", required_argument, NULL, 'F'},
+			{"version", no_argument, NULL, 'v'},
 			{0, 0, 0, 0}
 		};
 		char *endptr;
 		const char *tmp_optarg;
 
-		c = getopt_long(argc, argv, "hB:D:F:", options, NULL);
+		c = getopt_long(argc, argv, "hB:D:F:v", options, NULL);
 		if (c == -1) {
 			break;
 		}
@@ -227,6 +232,13 @@ static void parse_args(struct config *config, int argc, char *argv[])
 			config->function = (int)strtoul(tmp_optarg, &endptr, 0);
 			//debug_print("function = %x\n", config->function);
 			break;
+		case 'v':    /* version */
+			printf("bist %s %s%s\n",
+			       INTEL_FPGA_API_VERSION,
+			       INTEL_FPGA_API_HASH,
+			       INTEL_FPGA_TREE_DIRTY ? "*":"");
+			exit(0);
+
 		default:
 			fprintf(stderr, "unknown op %c\n", c);
 			printUsage();

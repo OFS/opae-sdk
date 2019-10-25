@@ -23,6 +23,9 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 #include <errno.h>
 #include <getopt.h>
 #include <stdlib.h>
@@ -107,11 +110,12 @@ static struct command_handler {
 /*
  * Parse command line arguments
  */
-#define MAIN_GETOPT_STRING "+h"
+#define MAIN_GETOPT_STRING "+hv"
 int parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
 		{"help", no_argument, NULL, 'h'},
+		{"version", no_argument, NULL, 'v'},
 		{0, 0, 0, 0},
 	};
 
@@ -133,6 +137,13 @@ int parse_args(int argc, char *argv[])
 		switch (getopt_ret) {
 		case 'h': /* help */
 			help();
+			return EX_TEMPFAIL;
+
+		case 'v': /* version */
+			printf("fpgainfo %s %s%s\n",
+			       INTEL_FPGA_API_VERSION,
+			       INTEL_FPGA_API_HASH,
+			       INTEL_FPGA_TREE_DIRTY ? "*":"");
 			return EX_TEMPFAIL;
 
 		case ':': /* missing option argument */
@@ -185,6 +196,7 @@ void help(void)
 	}
 	printf("}\n\n"
 	       "                -h,--help           Print this help\n"
+	       "                -v,--version        Print version and exit\n"
 	       "                -B,--bus            Set target bus number\n"
 	       "                -D,--device         Set target device number\n"
 	       "                -F,--function       Set target function number\n"

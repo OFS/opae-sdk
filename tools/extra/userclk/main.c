@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,6 +24,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 #include <errno.h>
 #include <stdbool.h>
 #include <malloc.h>
@@ -39,7 +42,7 @@
 
 
 
-#define GETOPT_STRING ":hB:D:F:S:H:L:"
+#define GETOPT_STRING ":hB:D:F:S:H:L:v"
 
 struct option longopts[] = {
 	{ "help",      no_argument,       NULL, 'h' },
@@ -50,6 +53,7 @@ struct option longopts[] = {
 	{ "socket-id", required_argument, NULL, 'S' },
 	{ "freq-high", required_argument, NULL, 'H' },
 	{ "freq-low",  required_argument, NULL, 'L' },
+	{ "version",   no_argument,       NULL, 'v' },
 	{ NULL, 0, NULL, 0 }
 };
 
@@ -80,6 +84,7 @@ void UserClkAppShowHelp(void)
 	printf("<Socket-id>           --socket-id=<socket NUMBER>  OR  -S=<SOCKET NUMBER>\n");
 	printf("<freq high>           --freq-high                  OR  -H=<User clock high>\n");
 	printf("<freq low>            --freq-low                   OR  -L=<User clock low>\n");
+	printf("<version>             -v,--version\n");
 	printf("\n");
 
 }
@@ -322,6 +327,13 @@ int ParseCmds(struct UserClkCommandLine *userclkCmdLine, int argc, char *argv[])
 			endptr = NULL;
 			userclkCmdLine->freq_low = strtol(tmp_optarg, &endptr, 0);
 			break;
+
+		case 'v':
+			printf("userclk %s %s%s\n",
+			       INTEL_FPGA_API_VERSION,
+			       INTEL_FPGA_API_HASH,
+			       INTEL_FPGA_TREE_DIRTY ? "*":"");
+			return -2;
 
 		case '?':
 		default:    /* invalid option */

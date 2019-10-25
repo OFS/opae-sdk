@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -144,6 +144,7 @@ config_app::config_app()
     options_.add_option<bool>("c-header",          'C', option::no_argument,   "Generate a C header file to integrate into BIOS", false);
     options_.add_option<uint32_t>("byte-address-size", option::with_argument,  "Byte address width (in bytes) of I2C devices", byte_addr_size_);
     options_.add_option<bool>("help",              'h', option::no_argument,   "Show help message", false);
+    options_.add_option<bool>("version",           'v', option::no_argument,   "Show version", false);
 
     using std::placeholders::_1;
 
