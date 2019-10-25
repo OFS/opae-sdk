@@ -208,6 +208,25 @@ def show_fec_mode(sbdf):
     return 0
 
 
+def fec_is_fixed(sbdf, debug):
+    fpga_path = get_fpga_sysfs_path(sbdf)
+    if fpga_path:
+        paths = glob.glob(os.path.join(fpga_path, 'intel-fpga-fme.*',
+                                       'bitstream_id'))
+        if paths and len(paths) >= 1:
+            with open(paths[0], 'r') as fd:
+                bitstream_id = fd.read().strip()
+            if debug:
+                print("{} -> {}".format(paths[0], bitstream_id))
+            vc_type = (int(bitstream_id, 16) >> 32) & 0xf
+            if vc_type in [0, 2]:   # 8x10G and 2x1x25G
+                return True
+            else:
+                return False
+
+    return True
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--segment', '-S',
@@ -249,6 +268,10 @@ def main():
         else:
             ret = show_fec_mode(sbdf)
         sys.exit(ret)
+
+    if fec_is_fixed(sbdf, args.debug):
+        print('fec mode is not configurable in card {}'.format(sbdf))
+        sys.exit(2)
 
     with open(CONF_FILE, 'w') as f:
         option_line = OPTION_LINE + '"{}"'.format(args.mode)
