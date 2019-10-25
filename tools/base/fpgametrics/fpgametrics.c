@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -31,6 +31,9 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -97,7 +100,7 @@ void FpgaMetricsAppShowHelp()
 
 }
 
-#define GETOPT_STRING "B:FAs"
+#define GETOPT_STRING "B:FAsv"
 fpga_result parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
@@ -105,6 +108,7 @@ fpga_result parse_args(int argc, char *argv[])
 		{"fme-metrics"  ,no_argument, NULL, 'F'},
 		{"afu-metrics"  ,no_argument, NULL, 'A'},
 		{"shared", no_argument,       NULL, 's'},
+		{"version", no_argument,      NULL, 'v'},
 		{NULL,     0,                 NULL,  0 },
 	};
 	
@@ -143,6 +147,13 @@ fpga_result parse_args(int argc, char *argv[])
 			config.target.afu_metrics = true;
 			config.target.fme_metrics = false;
 			break;
+
+		case 'v':
+			fprintf(stdout, "fpgametrics %s %s%s\n",
+					INTEL_FPGA_API_VERSION,
+					INTEL_FPGA_API_HASH,
+					INTEL_FPGA_TREE_DIRTY ? "*":"");
+			return -2;
 
 		default: /* invalid option */
 			fprintf(stderr, "Invalid cmdline option \n");
@@ -190,8 +201,6 @@ void print_bus_info(struct bdf_info *info){
 
 int main(int argc, char *argv[])
 {
-	char               library_version[FPGA_VERSION_STR_MAX];
-	char               library_build[FPGA_BUILD_STR_MAX];
 	fpga_token         fpga_token;
 	fpga_handle        fpga_handle;
 
@@ -206,18 +215,14 @@ int main(int argc, char *argv[])
 	struct fpga_metric  *metric_array          = NULL;
 	fpga_properties filter                     = NULL;
 
-	/* Print version information of the underlying library */
-	fpgaGetOPAECVersionString(library_version, sizeof(library_version));
-	fpgaGetOPAECBuildString(library_build, sizeof(library_build));
-	printf("Using OPAE C library version '%s' build '%s'\n", library_version,
-	       library_build);
-
 	if (argc < 2) {
 		FpgaMetricsAppShowHelp();
 		return 1;
 	}
-	else if (0 != parse_args(argc, argv)) {
-		OPAE_ERR("Error scanning command line \n.");
+	else if (0 != (res = parse_args(argc, argv))) {
+		if ((int)res > 0) {
+			OPAE_ERR("Error scanning command line \n.");
+		}
 		return 2;
 	}
 

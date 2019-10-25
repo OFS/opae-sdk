@@ -37,6 +37,9 @@
  *   * Dry-run mode ("what would happen if...?")
  */
 #define _GNU_SOURCE
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 #include <errno.h>
 #include <getopt.h>
 #include <stdio.h>
@@ -123,7 +126,7 @@ void help(void)
 	       "        fpgaconf [-hvn] [-B <bus>] [-D <device>] [-F <function>] [-S <socket-id>] <gbs>\n"
 	       "\n"
 	       "                -h,--help           Print this help\n"
-	       "                -v,--verbose        Increase verbosity\n"
+	       "                -V,--verbose        Increase verbosity\n"
 	       "                -n,--dry-run        Don't actually perform actions\n"
 	       "                --force             Don't try to open accelerator resource\n"
 	       "                --segment           Set target segment number\n"
@@ -148,12 +151,12 @@ void help(void)
  * Parse command line arguments
  * TODO: uncomment options as they are implemented
  */
-#define GETOPT_STRING ":hvnB:D:F:S:AIQ"
+#define GETOPT_STRING ":hVnB:D:F:S:AIQv"
 int parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
 		{"help",      no_argument,       NULL, 'h'},
-		{"verbose",   no_argument,       NULL, 'v'},
+		{"verbose",   no_argument,       NULL, 'V'},
 		{"dry-run",   no_argument,       NULL, 'n'},
 		{"segment",   required_argument, NULL, 0xe},
 		{"bus",       required_argument, NULL, 'B'},
@@ -161,6 +164,7 @@ int parse_args(int argc, char *argv[])
 		{"function",  required_argument, NULL, 'F'},
 		{"socket-id", required_argument, NULL, 'S'},
 		{"force",     no_argument,       NULL, 0xf},
+		{"version",   no_argument,       NULL, 'v'},
 		/* {"auto",          no_argument,       NULL, 'A'}, */
 		/* {"interactive",   no_argument,       NULL, 'I'}, */
 		/* {"quiet",         no_argument,       NULL, 'Q'}, */
@@ -184,7 +188,7 @@ int parse_args(int argc, char *argv[])
 			help();
 			return -1;
 
-		case 'v': /* verbose */
+		case 'V': /* verbose */
 			config.verbosity++;
 			break;
 
@@ -272,6 +276,13 @@ int parse_args(int argc, char *argv[])
 		case 'Q': /* quiet */
 			config.verbosity = 0;
 			break;
+
+		case 'v': /* version */
+			fprintf(stdout, "fpgaconf %s %s%s\n",
+					INTEL_FPGA_API_VERSION,
+					INTEL_FPGA_API_HASH,
+					INTEL_FPGA_TREE_DIRTY ? "*":"");
+			return -1;
 
 		case ':': /* missing option argument */
 			fprintf(stderr, "Missing option argument\n");

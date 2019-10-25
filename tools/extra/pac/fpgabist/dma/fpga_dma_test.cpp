@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and	use  in source	and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -28,6 +28,9 @@
  * \brief DMA test
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 #include <getopt.h>
 #include <unistd.h>
 #include <string>
@@ -55,6 +58,7 @@ static void printUsage()
 "                   -r <transfer direction> -t <transfer type> [-f <decimation factor>]\n"
 "                   -a <FPGA local memory address>\n\n"
 "         -h,--help           Print this help\n"
+"         -v,--version        Print version and exit\n"
 "         -B,--bus            Set target bus number\n"
 "         -D,--device         Set target device number\n"
 "         -F,--function       Set target function number\n"
@@ -101,12 +105,13 @@ static void parse_args(struct config *config, int argc, char *argv[])
 			{"loopback", required_argument, 0, 'l'},
 			{"decim_factor", required_argument, 0, 'f'},
 			{"fpga_addr", required_argument, 0, 'a'},
+      {"version", no_argument, 0, 'v'},
 			{0, 0, 0, 0}
 		};
 		char *endptr;
 		const char *tmp_optarg;
 
-		c = getopt_long(argc, argv, "hB:D:F:S:s:p:r:l:f:t:a:", options, NULL);
+		c = getopt_long(argc, argv, "hB:D:F:S:s:p:r:l:f:t:a:v", options, NULL);
 		if (c == -1) {
 			break;
 		}
@@ -247,6 +252,14 @@ static void parse_args(struct config *config, int argc, char *argv[])
 			config->fpga_addr = (uint64_t) strtoull(tmp_optarg, &endptr, 0);
 			debug_print("fpga local memory address = %lx\n", (uint64_t)config->fpga_addr);
 			break;
+
+    case 'v':    /* version */
+        cout << "fpga_dma_test " << INTEL_FPGA_API_VERSION
+             << " " << INTEL_FPGA_API_HASH;
+        if (INTEL_FPGA_TREE_DIRTY)
+            cout << "*";
+        cout << endl;
+        exit(0);
 
 		default:
 			fprintf(stderr, "unknown op %c\n", c);

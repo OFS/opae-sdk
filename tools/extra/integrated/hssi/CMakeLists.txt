@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017-2019, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -25,6 +25,8 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 include_directories(${OPAE_INCLUDE_DIR}
                     ${OPAE_SDK_SOURCE}/tools/extra/c++utils)
+
+set(CMAKE_CXX_FLAGS "-DHAVE_CONFIG_H ${CMAKE_CXX_FLAGS}")
 
 add_library(hssi-io SHARED przone.h
                            accelerator_przone.h

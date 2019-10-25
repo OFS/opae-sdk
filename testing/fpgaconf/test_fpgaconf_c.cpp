@@ -236,7 +236,7 @@ TEST_P(fpgaconf_c_p, parse_args1) {
   char fifteen[20];
   char sixteen[30];
   strcpy(zero, "fpgaconf");
-  strcpy(one, "-v");
+  strcpy(one, "-V");
   strcpy(two, "-n");
   strcpy(three, "--force");
   strcpy(four, "--segment");
@@ -798,7 +798,7 @@ TEST_P(fpgaconf_c_p, main_symlink_bs) {
   char four[20];
   char five[20];
   strcpy(zero, "fpgaconf");
-  strcpy(one, "-v");
+  strcpy(one, "-V");
   strcpy(two, "-n");
   strcpy(three, "-B");
   strcpy(four, "0x5e");
