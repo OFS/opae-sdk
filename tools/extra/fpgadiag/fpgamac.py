@@ -76,6 +76,8 @@ class FPGAMAC(COMMON):
         if isinstance(self.mtu, int) and (self.mtu < 1 or self.mtu > 65535):
             s = 'mtu size {} is out of range 1~65535'.format(self.mtu)
             exception_quit(s, 5)
+        if self.mac_group_dev == '':
+            exception_quit('{} side mac not found'.format(self.side), 6)
         if self.speed not in MTU_REG_OFFSET:
             exception_quit('unknown speed {}'.format(self.speed), 6)
 
@@ -150,11 +152,12 @@ def main():
     parser.add_argument('--mtu', nargs='?', const='',
                         help='maximum allowable ethernet frame length')
     parser.add_argument('--port', nargs='*', default='all',
-                        help='select specific port')
+                        help='select specific port (default: %(default)s)')
     parser.add_argument('--direction', choices=['tx', 'rx', 'both'],
-                        default='both', help='select direction of port')
+                        default='both',
+                        help='select direction of port (default: %(default)s)')
     parser.add_argument('--side', choices=['line', 'host'], default='host',
-                        help='select mac on which side')
+                        help='select mac on which side (default: %(default)s)')
     parser.add_argument('--debug', '-d', action='store_true',
                         help='Output debug information')
     args, left = parser.parse_known_args()
