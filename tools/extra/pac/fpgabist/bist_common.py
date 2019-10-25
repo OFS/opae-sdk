@@ -35,8 +35,7 @@ import sys
 BIST_MODES = ['bist_afu', 'dma_afu', 'nlb_mode_3']
 REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf', 'fpgadiag', 'fpga_dma_test',
             'fpga_dma_vc_test', 'bist_app']
-BDF_PATTERN = (r'\d+:(?P<bus>[a-fA-F0-9]{2}):'
-               r'(?P<device>[a-fA-F0-9]{2})\.(?P<function>[a-fA-F0-9])')
+BDF_PATTERN = r'{:02x}:{:02x}.{:x}'
 VCP_ID = 0x0b30
 
 
@@ -63,8 +62,8 @@ def get_afu_id(gbs_path="", bdf=None):
         uuid = accel_data[0]["accelerator-type-uuid"].encode("ascii")
         return uuid.lower().replace("-", "")
     elif bdf:
-        pattern = '{:02x}:{:02x}.{:x}'.format(bdf['bus'], bdf['device'],
-                                              bdf['function'])
+        pattern = BDF_PATTERN.format(bdf['bus'], bdf['device'],
+                                     bdf['function'])
         fpgas = glob.glob('/sys/class/fpga/*')
         for fpga in fpgas:
             slink = os.path.basename(os.readlink(os.path.join(fpga, "device")))
@@ -82,12 +81,14 @@ def get_afu_id(gbs_path="", bdf=None):
 
 # Return a list of all available bus numbers
 def get_all_fpga_bdfs(args):
-    bdf_pattern = re.compile(BDF_PATTERN)
+    pattern = re.compile(r'\d+:(?P<bus>[a-fA-F0-9]{2}):'
+                         r'(?P<device>[a-fA-F0-9]{2})\.'
+                         r'(?P<function>[a-fA-F0-9])')
     bdf_list = []
     for fpga in glob.glob('/sys/class/fpga/*'):
         devpath = os.path.join(fpga, "device")
         symlink = os.path.basename(os.readlink(devpath))
-        m = bdf_pattern.match(symlink)
+        m = pattern.match(symlink)
         data = m.groupdict() if m else {}
         if data:
             with open(os.path.join(devpath, "device"), 'r') as fd:

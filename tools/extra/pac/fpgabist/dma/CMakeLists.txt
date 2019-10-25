@@ -31,6 +31,7 @@ set(CMAKE_ASM_FLAGS "${CFLAGS} ${ASM_OPTIONS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_CONFIG_H -std=c++11 -DFPGA_DMA_MAX_BLOCKS=256 -DFPGA_DMA_BLOCK_SIZE=64")
 
 include_directories(${OPAE_INCLUDE_DIR}
+                    ${libjson-c_INCLUDE_DIRS}
                     ${OPAE_SDK_SOURCE}/libopae/src
                     ${HWLOC_INCLUDE_DIRS}
                     ${TBB_INCLUDE_DIRS})
