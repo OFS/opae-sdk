@@ -979,6 +979,10 @@ def do_nvmupdate(args, rsu_config, **kwargs):
 
 
 def run_tests(boards, args, rsu_config):
+    if not rsu_config.get('self-test', True):
+        LOG.debug('self-test disabled in configuration')
+        return os.EX_OK
+
     results = []
     for b in boards:
         result = b.run_tests(rsu_config)
