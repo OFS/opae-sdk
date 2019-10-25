@@ -134,6 +134,7 @@ void help(void)
 	       "                -D,--device         Set target device number\n"
 	       "                -F,--function       Set target function number\n"
 	       "                -S,--socket-id      Set target socket number\n"
+	       "                 -v,--version       Print version info and exit\n"
 	       /* "                -A,--auto           Automatically choose
 		  target slot if\n" */
 	       /* "                                    multiple valid slots are
