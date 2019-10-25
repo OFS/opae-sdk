@@ -155,9 +155,7 @@ module ase_sim_local_mem_avmm
             );
 
          // Mostly used for debugging
-`ifdef OFS_PLAT_PROVIDES_ASE_TOP
-         assign local_mem[b].instance_number = b;
-`else
+`ifndef OFS_PLAT_PROVIDES_ASE_TOP
          assign local_mem[b].bank_number = b;
 `endif
       end
