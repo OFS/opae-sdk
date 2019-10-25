@@ -170,18 +170,12 @@ module ase_top_generic
    localparam NUM_LOCAL_MEM_BANKS = `AFU_TOP_REQUIRES_LOCAL_MEMORY_AVALON_MM;
  `endif
 
-   // The ddr4 array size must be an even number, whether or not NUM_LOCAL_MEM_BANKS
-   // is even.  This is due to the way the emulator is structured in emif_ddr4
-   // below.  When NUM_LOCAL_MEM_BANKS is odd an extra slot will be instantiated
-   // but not passed to the AFU.
-   localparam NUM_ALLOC_MEM_BANKS = (((NUM_LOCAL_MEM_BANKS + 1) >> 1) << 1);
-
    // DDR clock will come from the memory emulator
-   logic ddr4_avmm_clk[NUM_ALLOC_MEM_BANKS];
+   logic ddr4_avmm_clk[NUM_LOCAL_MEM_BANKS];
 
    // Interfaces for all DDR memory banks
    avalon_mem_if#(.ENABLE_LOG(1), .NUM_BANKS(NUM_LOCAL_MEM_BANKS))
-      ddr4[NUM_ALLOC_MEM_BANKS](ddr4_avmm_clk, pck_cp2af_softReset);
+      ddr4[NUM_LOCAL_MEM_BANKS](ddr4_avmm_clk, pck_cp2af_softReset);
 `else
    localparam NUM_LOCAL_MEM_BANKS = 0;
 `endif

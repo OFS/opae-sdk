@@ -80,7 +80,7 @@ module ase_sim_local_mem_avmm
    // emif model
    genvar b;
    generate
-      for (b = 0; b < NUM_BANKS; b = b + 2)
+      for (b = 0; b < NUM_BANKS; b = b + 1)
       begin : b_emul
          // Slightly different clock on each bank
          always #(delay+b) ddr_pll_ref_clk[b] = ~ddr_pll_ref_clk[b];
@@ -92,37 +92,26 @@ module ase_sim_local_mem_avmm
             )
           emif_ddr4
           (
-            .ddr4a_avmm_waitrequest                (emul_waitrequest[b]),
-            .ddr4a_avmm_readdata                   (emul_readdata[b]),
-            .ddr4a_avmm_readdatavalid              (emul_readdatavalid[b]),
-            .ddr4a_avmm_burstcount                 (emul_burstcount[b]),
-            .ddr4a_avmm_writedata                  (emul_writedata[b]),
-            .ddr4a_avmm_address                    (emul_address[b]),
-            .ddr4a_avmm_write                      (emul_write[b]),
-            .ddr4a_avmm_read                       (emul_read[b]),
-            .ddr4a_avmm_byteenable                 (emul_byteenable[b]),
-            .ddr4a_avmm_clk_clk                    (clks[b]),
+            .ddr_avmm_waitrequest                (emul_waitrequest[b]),
+            .ddr_avmm_readdata                   (emul_readdata[b]),
+            .ddr_avmm_readdatavalid              (emul_readdatavalid[b]),
+            .ddr_avmm_burstcount                 (emul_burstcount[b]),
+            .ddr_avmm_writedata                  (emul_writedata[b]),
+            .ddr_avmm_address                    (emul_address[b]),
+            .ddr_avmm_write                      (emul_write[b]),
+            .ddr_avmm_read                       (emul_read[b]),
+            .ddr_avmm_byteenable                 (emul_byteenable[b]),
+            .ddr_avmm_clk_clk                    (clks[b]),
 
-            .ddr4a_global_reset_reset_sink_reset_n (ddr_reset_n),
-            .ddr4a_pll_ref_clk_clock_sink_clk      (ddr_pll_ref_clk[b]),
-
-            .ddr4b_avmm_waitrequest                (emul_waitrequest[b+1]),
-            .ddr4b_avmm_readdata                   (emul_readdata[b+1]),
-            .ddr4b_avmm_readdatavalid              (emul_readdatavalid[b+1]),
-            .ddr4b_avmm_burstcount                 (emul_burstcount[b+1]),
-            .ddr4b_avmm_writedata                  (emul_writedata[b+1]),
-            .ddr4b_avmm_address                    (emul_address[b+1]),
-            .ddr4b_avmm_write                      (emul_write[b+1]),
-            .ddr4b_avmm_read                       (emul_read[b+1]),
-            .ddr4b_avmm_byteenable                 (emul_byteenable[b+1]),
-            .ddr4b_avmm_clk_clk                    (clks[b+1])
+            .ddr_global_reset_reset_sink_reset_n (ddr_reset_n),
+            .ddr_pll_ref_clk_clock_sink_clk      (ddr_pll_ref_clk[b])
          );
       end
    endgenerate
 
    //
    // Add a bridge between the emulator and the DUT in order to eliminate
-   // timing glitches induces by the DDR model. The model's waitrequest isn't
+   // timing glitches induces by the DDR model. Some model signals aren't
    // quite aligned to the clock, leading to random failures in some RTL
    // emulators.
    //
@@ -166,9 +155,7 @@ module ase_sim_local_mem_avmm
             );
 
          // Mostly used for debugging
-`ifdef OFS_PLAT_PROVIDES_ASE_TOP
-         assign local_mem[b].instance_number = b;
-`else
+`ifndef OFS_PLAT_PROVIDES_ASE_TOP
          assign local_mem[b].bank_number = b;
 `endif
       end
