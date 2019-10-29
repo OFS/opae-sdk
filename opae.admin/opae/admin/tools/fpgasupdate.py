@@ -40,7 +40,7 @@ import json
 import uuid
 import subprocess
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import signal
 import errno
 import logging
@@ -50,7 +50,7 @@ from opae.admin.utils.progress import progress
 from opae.admin.version import pretty_version
 
 if sys.version_info[0] == 2:
-    input = raw_input # noqa pylint: disable=E0602
+    input = raw_input  # noqa pylint: disable=E0602
 
 DEFAULT_BDF = 'ssss:bb:dd.f'
 
@@ -109,6 +109,12 @@ def parse_args():
 
     parser.add_argument('-y', '--yes', default=False, action='store_true',
                         help='answer Yes to all confirmation prompts')
+
+    parser.add_argument('-t', '--time', type=float, default=0.50,
+                        help=argparse.SUPPRESS)
+
+    parser.add_argument('-p', '--percentage', type=int, default=5,
+                        help=argparse.SUPPRESS)
 
     parser.add_argument('-v', '--version', action='version',
                         version='%(prog)s {}'.format(pretty_version()),
@@ -377,27 +383,112 @@ def fw_write_block(fd_dev, offset, size, addr):
 
 
 class SecureUpdateError(Exception):
-    """Secure update exception
-    """
+    """Secure update exception"""
     def __init__(self, arg):
         super(SecureUpdateError, self).__init__(self)
         self.errno, self.strerror = arg
 
 
-def update_fw(fd_dev, infile):
+class write_block_tuner(object):
+    """'Tunes' the transfer block size
+
+    Given a target execution time (self._target_time) for one iteration
+    of fw_write_block, measure the actual time and use that as an estimate
+    to adjust the block size. This is done so that the user receives
+    an update by the progress meter within a defined interval.
+    """
+
+    MAX_TIMEDELTA = timedelta(days=999999999,
+                              hours=23,
+                              minutes=59,
+                              seconds=59,
+                              microseconds=999999)
+
+    def __init__(self, fn, start_block_size, target_time, percent):
+        self._fn = fn
+        self._block_size = start_block_size
+        self._min_block_size = 64 * 1024
+        self._max_block_size = 4 * 1024 * 1024
+        self._new_block_size = self._block_size
+        self._total_transfer_size = 0
+        self._target_time = target_time
+        self._percent = percent
+        self._override = False
+        self._last_delta = timedelta(seconds=1)
+        self._total_time = timedelta(seconds=0)
+
+    def within_percentage(self, delta):
+        """Is the given timedelta within self._percent of target?"""
+        delta_secs = delta.total_seconds()
+        target_secs = self._target_time.total_seconds()
+        low = target_secs - (target_secs * self._percent)
+        high = target_secs + (target_secs * self._percent)
+        return delta_secs >= low and delta_secs <= high
+
+    def __call__(self, fd_dev, offset, buf_addr):
+        begin = datetime.now()
+        self._fn(fd_dev, offset, self._block_size, buf_addr)
+        end = datetime.now()
+
+        delta = end - begin
+        self._last_delta = delta
+
+        if self._override:
+            return
+
+        if self.within_percentage(delta):
+            pass
+        elif delta < self._target_time:
+            increase_by = (self._target_time.total_seconds() /
+                           delta.total_seconds())
+            block_size = int(self._block_size * increase_by) & ~3
+            if block_size <= self._max_block_size:
+                self._new_block_size = block_size
+        elif delta > self._target_time:
+            decrease_by = (delta.total_seconds() /
+                           self._target_time.total_seconds())
+            block_size = int(self._block_size / decrease_by) & ~3
+            if block_size >= self._min_block_size:
+                self._new_block_size = block_size
+
+    @property
+    def to_transfer(self):
+        """Retrieve the current estimated block size."""
+        return self._block_size
+
+    @to_transfer.setter
+    def to_transfer(self, size):
+        """Override the estimated block size with the given size."""
+        self._block_size = size
+        self._override = True
+
+    def accept(self):
+        """Accept the currently-calculated estimate as the new estimate."""
+        self._total_transfer_size += self._block_size
+        self._total_time += self._last_delta
+        self._block_size = self._new_block_size
+
+    @property
+    def total_seconds(self):
+        """Retrieve the total time in seconds for all measurements."""
+        return self._total_time.total_seconds()
+
+
+def update_fw(fd_dev, args):
     """Writes firmware to secure device.
 
     fd_dev - an integer file descriptor to the os.open()'ed secure
              device file.
 
-    infile - an open file object whose current position is set to
-             the beginning of the payload to send to the device.
+    args - the object resulting from command-line parsing.
 
     returns a 2-tuple of the process exit status and a message.
     """
-    block_size = 4096
+    init_block_size = 64 * 1024
     offset = 0
     max_retries = 120
+
+    infile = args.file
 
     orig_pos = infile.tell()
     infile.seek(0, os.SEEK_END)
@@ -430,12 +521,16 @@ def update_fw(fd_dev, infile):
         retries -= 1
         time.sleep(1.0)
 
-    to_transfer = block_size if block_size <= payload_size \
-        else payload_size
-
     LOG.info('writing to staging area')
 
-    begin = datetime.now()
+    wbt = write_block_tuner(fw_write_block, init_block_size,
+                            timedelta(seconds=args.time),
+                            float(args.percentage) / 100.0)
+
+    to_transfer = (init_block_size
+                   if init_block_size <= payload_size
+                   else payload_size)
+
     with progress(bytes=payload_size, **progress_cfg) as prg:
         while to_transfer:
             buf = array.array('B')
@@ -446,6 +541,9 @@ def update_fw(fd_dev, infile):
             if buf_len != to_transfer:
                 to_transfer = buf_len
 
+            if to_transfer < wbt.to_transfer:
+                wbt.to_transfer = to_transfer
+
             retries = max_retries
             while True:
                 if retries < max_retries:
@@ -454,7 +552,7 @@ def update_fw(fd_dev, infile):
                 else:
                     LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_WRITE_BLK')
                 try:
-                    fw_write_block(fd_dev, offset, to_transfer, buf_addr)
+                    wbt(fd_dev, offset, buf_addr)
                     break
                 except IOError as exc:
                     if exc.errno != errno.EAGAIN or \
@@ -463,15 +561,16 @@ def update_fw(fd_dev, infile):
                 retries -= 1
                 time.sleep(1.0)
 
+            wbt.accept()
+
             payload_size -= to_transfer
             offset += to_transfer
-            to_transfer = block_size if block_size <= payload_size \
-                else payload_size
+            to_transfer = (wbt.to_transfer
+                           if wbt.to_transfer <= payload_size
+                           else payload_size)
 
             prg.update(offset)
-    end = datetime.now()
-    # better to overestimate than under, use 1.5 as multiplier
-    apply_time = (end - begin).total_seconds() * 1.5
+
     LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_DATA_SENT')
     try:
         fcntl.ioctl(fd_dev, IOCTL_IFPGA_SECURE_UPDATE_DATA_SENT)
@@ -479,16 +578,18 @@ def update_fw(fd_dev, infile):
         return exc.errno, exc.strerror
 
     LOG.info('applying update')
+    apply_time = wbt.total_seconds * 1.5
     with progress(time=apply_time, **progress_cfg) as prg:
         while True:
             try:
+                LOG.log(LOG_IOCTL, 'IOCTL ==> SECURE_UPDATE_CHECK_COMPLETE')
                 fcntl.ioctl(fd_dev, IOCTL_IFPGA_SECURE_UPDATE_CHECK_COMPLETE)
                 break
             except IOError as exc:
                 if exc.errno != errno.EAGAIN:
                     return exc.errno, exc.strerror
             prg.tick()
-            time.sleep(0.5)
+            time.sleep(1.0)
 
     return 0, 'Secure update OK'
 
@@ -500,6 +601,7 @@ def sig_handler(signum, frame):
 
 
 def main():
+    """The main entry point."""
     parser, args = parse_args()
 
     if args.file is None:
@@ -589,8 +691,8 @@ def main():
         procs = ['pacd', 'fpgad', 'fpgainfo']
         if not process.assert_not_running(procs):
             LOG.error('One of %s is detected. '
-                      'Please end that task before attempting %s' %
-                      (str(procs), os.path.basename(sys.argv[0])))
+                      'Please end that task before attempting %s',
+                      str(procs), os.path.basename(sys.argv[0]))
             sys.exit(1)
 
         sec_dev = pac.secure_dev
@@ -604,7 +706,7 @@ def main():
 
         try:
             with sec_dev as descr:
-                stat, mesg = update_fw(descr, args.file)
+                stat, mesg = update_fw(descr, args)
         except SecureUpdateError as exc:
             stat, mesg = exc.errno, exc.strerror
         except KeyboardInterrupt as kb_interrupt:
