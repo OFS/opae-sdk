@@ -156,6 +156,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/fpgastats
 @CMAKE_INSTALL_PREFIX@/bin/fvlbypass
 @CMAKE_INSTALL_PREFIX@/bin/fecmode
+@CMAKE_INSTALL_PREFIX@/bin/fpgamac
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/*
 %dir @CMAKE_INSTALL_PREFIX@/share/opae
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/python/	
