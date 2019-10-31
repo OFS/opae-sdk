@@ -208,6 +208,10 @@ class fme(region):
         return self.find_one('altr-asmip*.*.auto')
 
     @property
+    def avmmi_bmc(self):
+        return self.find_one('avmmi-bmc.*.auto')
+
+    @property
     def max10_version(self):
         spi = self.spi_bus
         if spi:
@@ -230,6 +234,13 @@ class fme(region):
             node = spi.find_one('fpga_flash_ctrl/fpga_image_load')
             if node:
                 return node.value
+
+    @property
+    def bmc_aux_fw_rev(self):
+        bmc = self.avmmi_bmc
+        if bmc:
+            node = bmc.find_one('bmc_info/device_id')
+            return struct.unpack_from('<15BL', node.value)[15]
 
     def flash_controls(self):
         if self.spi_bus:
