@@ -93,7 +93,8 @@ class otsu_manifest_loader(object):
 
     REQUIRES_LABELS = ['max10_version',
                        'bmcfw_version',
-                       'fpga_image_load']
+                       'fpga_image_load',
+                       'bmc_aux_fw_rev']
 
     def __init__(self, fp):
         self._fp = fp
