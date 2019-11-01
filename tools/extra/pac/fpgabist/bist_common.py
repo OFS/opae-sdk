@@ -130,7 +130,7 @@ def load_gbs(gbs_file, bdf):
     print "Attempting Partial Reconfiguration:"
     cmd = ['fpgaconf', '-B', hex(bdf['bus']), '-D',
            hex(bdf['device']), '-F', hex(bdf['function']),
-           '-v', gbs_file]
+           gbs_file]
     try:
         subprocess.check_call(cmd)
     except subprocess.CalledProcessError as e:
