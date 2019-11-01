@@ -23,6 +23,7 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+import errno
 import fcntl
 import os
 import struct
@@ -451,7 +452,15 @@ class fpga(class_node):
 
         with self.disable_aer(*to_disable):
             self.log.info('[%s] performing RSU operation', self.pci_node)
-            self.rsu_boot(page, **kwargs)
+            try:
+                self.rsu_boot(page, **kwargs)
+            except IOError as err:
+                if err.errno == errno.EBUSY:
+                    self.log.warn('device busy, cannot perform RSU operation')
+                else:
+                    self.log.error('error triggering RSU operation: %s', err)
+                raise
+
             for node in to_remove:
                 self.log.info('[%s] removing device from PCIe bus', node)
                 node.remove()

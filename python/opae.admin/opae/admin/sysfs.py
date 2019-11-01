@@ -133,7 +133,7 @@ class sysfs_node(loggable):
             with open(self._sysfs_path, mode) as fd:
                 yield fd
         except IOError as ioerr:
-            self.log.exception(ioerr)
+            self.log.warn(ioerr)
             raise
 
     @property

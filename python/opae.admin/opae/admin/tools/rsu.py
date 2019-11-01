@@ -154,11 +154,19 @@ def main():
 
     for device in compatible:
         if device.pci_node.pci_address == bdf:
+            exit_code = os.EX_IOERR
             with open(RSU_LOCK_FILE, 'w') as flock:
                 fcntl.flock(flock.fileno(), fcntl.LOCK_EX)
-                do_rsu(args.type, device, boot_page)
-            logging.info('RSU operation complete')
-            raise SystemExit(os.EX_OK)
+                try:
+                    do_rsu(args.type, device, boot_page)
+                except IOError:
+                    logging.error('RSU operation failed')
+                else:
+                    exit_code = os.EX_OK
+                    logging.info('RSU operation complete')
+                finally:
+                    fcntl.flock(flock.fileno(), fcntl.LOCK_UN)
+            raise SystemExit(exit_code)
 
     logging.error(('PCIe address (%s) is invalid or does not identify a'
                    'compatible device'), args.bdf)
