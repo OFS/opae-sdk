@@ -37,7 +37,8 @@
 extern "C" {
 #endif
 
-#define PKG_TEMP_NAME "thermal_mgmt/temperature"
+#define PKG_TEMP_NAME               "thermal_mgmt/temperature"
+#define PKG_TEMP_UPS_DRV_NAME       "hwmon/hwmon*/temp*_input"
 
 fpga_result temp_filter(fpga_properties *filter, int argc, char *argv[]);
 fpga_result temp_command(fpga_token *tokens, int num_tokens, int argc,

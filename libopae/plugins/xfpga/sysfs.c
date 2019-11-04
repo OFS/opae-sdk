@@ -70,6 +70,11 @@ typedef struct _sysfs_formats {
 	const char *sysfs_fme_glob;
 	const char *sysfs_port_glob;
 	const char *sysfs_compat_id;
+	const char *sysfs_fme_pwr_glob;
+	const char *sysfs_fme_temp_glob;
+	const char *sysfs_fme_perf_glob;
+	const char *sysfs_port_err;
+	const char *sysfs_port_err_clear;
 } sysfs_formats;
 
 static sysfs_formats sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
@@ -81,7 +86,12 @@ static sysfs_formats sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
 	 .sysfs_device_glob = "region*",
 	 .sysfs_fme_glob = "dfl-fme.*",
 	 .sysfs_port_glob = "dfl-port.*",
-	 .sysfs_compat_id = "/dfl-fme-region.*/fpga_region/region*/compat_id"},
+	 .sysfs_compat_id = "/dfl-fme-region.*/fpga_region/region*/compat_id",
+	 .sysfs_fme_temp_glob = "hwmon/hwmon*/temp*_*",
+	 .sysfs_fme_pwr_glob = "hwmon/hwmon*/power*_*",
+	 .sysfs_port_err = "errors/errors",
+	 .sysfs_port_err_clear = "errors/errors"
+	},
 	// intel driver sysfs formats
 	{.sysfs_class_path = "/sys/class/fpga",
 	 .sysfs_pcidrv_fpga = "fpga",
@@ -90,7 +100,12 @@ static sysfs_formats sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
 	 .sysfs_device_glob = "intel-fpga-dev.*",
 	 .sysfs_fme_glob = "intel-fpga-fme.*",
 	 .sysfs_port_glob = "intel-fpga-port.*",
-	 .sysfs_compat_id = "pr/interface_id"} };
+	 .sysfs_compat_id = "pr/interface_id",
+	 .sysfs_fme_temp_glob = "thermal_mgmt",
+	 .sysfs_fme_pwr_glob = "power_mgmt",
+	 .sysfs_fme_perf_glob = "perf",
+	 .sysfs_port_err = "errors/errors",
+	 .sysfs_port_err_clear = "errors/clear"} };
 
 // RE_MATCH_STRING is index 0 in a regex match array
 #define RE_MATCH_STRING 0
@@ -691,6 +706,84 @@ fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid)
 	}
 	return sysfs_read_guid(path, guid);
 }
+
+
+
+fpga_result sysfs_get_fme_pwr_path(fpga_token token, char *sysfs_pwr)
+{
+	fpga_result res = FPGA_OK;
+	struct _fpga_token *_token = (struct _fpga_token *)token;
+	ASSERT_NOT_NULL(_token);
+	res = cat_token_sysfs_path(sysfs_pwr, token, SYSFS_FORMAT(sysfs_fme_pwr_glob));
+
+	return res;
+}
+
+fpga_result sysfs_get_fme_temp_path(fpga_token token, char *sysfs_temp)
+{
+	fpga_result res = FPGA_OK;
+	struct _fpga_token *_token = (struct _fpga_token *)token;
+	ASSERT_NOT_NULL(_token);
+	res = cat_token_sysfs_path(sysfs_temp, token, SYSFS_FORMAT(sysfs_fme_temp_glob));
+
+	return res;
+}
+
+fpga_result sysfs_get_fme_perf_path(fpga_token token, char *sysfs_perf)
+{
+	fpga_result res = FPGA_OK;
+	struct _fpga_token *_token = (struct _fpga_token *)token;
+	ASSERT_NOT_NULL(_token);
+	res = cat_token_sysfs_path(sysfs_perf, token, SYSFS_FORMAT(sysfs_fme_perf_glob));
+
+	return res;
+}
+
+fpga_result sysfs_get_port_error_path(fpga_handle handle, char *sysfs_port_error)
+{
+	fpga_result result = FPGA_OK;
+	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
+
+	result = get_port_sysfs(handle, sysfs_path);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Failed to get port syfs path");
+		return result;
+	}
+
+	int len = snprintf_s_ss(sysfs_port_error, SYSFS_PATH_MAX,
+		"%s/%s", sysfs_path, SYSFS_FORMAT(sysfs_port_err));
+
+	if (len < 0) {
+		FPGA_ERR("error concatenating strings (%s, %s)",
+			sysfs_path,"port error");
+		return FPGA_EXCEPTION;
+	}
+
+	return result;
+}
+
+fpga_result sysfs_get_port_clr_err_path(fpga_handle handle, char *sysfs_port_clrerr)
+{
+	fpga_result result = FPGA_OK;
+	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
+
+	result = get_port_sysfs(handle, sysfs_path);
+	if (result != FPGA_OK) {
+		FPGA_ERR("Failed to get port syfs path");
+		return result;
+	}
+
+	int len = snprintf_s_ss(sysfs_port_clrerr, SYSFS_PATH_MAX,
+		"%s/%s", sysfs_path, SYSFS_FORMAT(sysfs_port_err_clear));
+	if (len < 0) {
+		FPGA_ERR("error concatenating strings (%s, %s)",
+			sysfs_path, "port clear error");
+		return FPGA_EXCEPTION;
+	}
+
+	return result;
+}
+
 
 
 fpga_result sysfs_get_fme_pr_interface_id(const char *sysfs_sysfs_path, fpga_guid guid)

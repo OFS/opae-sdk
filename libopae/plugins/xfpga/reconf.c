@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <limits.h>
 #include <sys/types.h>
-
+#include <sys/stat.h>
 #include "safe_string/safe_string.h"
 
 #include "xfpga.h"
@@ -189,28 +189,31 @@ free_props:
 // clears port errors
 STATIC fpga_result clear_port_errors(fpga_handle handle)
 {
-	char sysfs_path[PATH_MAX]          = {0};
-	char sysfs_errpath[SYSFS_PATH_MAX] = {0};
-	fpga_result result                 = FPGA_OK;
-	uint64_t error                     = 0 ;
+	char sysfs_path[PATH_MAX] = {0};
+	fpga_result result        = FPGA_OK;
+	uint64_t error            = 0 ;
 
-	result = get_port_sysfs(handle, sysfs_path);
+	result = sysfs_get_port_error_path(handle, sysfs_path);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get port syfs path");
+		FPGA_ERR(" Failed to get port errors path");
 		return result;
 	}
 
-	snprintf_s_ss(sysfs_errpath, sizeof(sysfs_errpath), "%s/%s", sysfs_path, PORT_SYSFS_ERRORS);
 	// Read port error.
-	result = sysfs_read_u64(sysfs_errpath, &error);
+	result = sysfs_read_u64(sysfs_path, &error);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get port errors");
+		FPGA_ERR("ANANA Failed to get port errors");
 		return result;
 	}
 
-	snprintf_s_ss(sysfs_errpath, sizeof(sysfs_errpath), "%s/%s", sysfs_path, PORT_SYSFS_ERR_CLEAR);
+	result = sysfs_get_port_clr_err_path(handle, sysfs_path);
+	if (result != FPGA_OK) {
+		FPGA_ERR(" Failed to get port errors path");
+		return result;
+	}
+	
 	// Clear port error.
-	result = sysfs_write_u64(sysfs_errpath, error);
+	result = sysfs_write_u64(sysfs_path, error);
 	if (result != FPGA_OK) {
 		FPGA_ERR("Failed to clear port errors");
 		return result;
@@ -320,6 +323,7 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 	int bitstream_header_len        = 0;
 	int err                         = 0;
 	fpga_handle accel               = NULL;
+	struct stat st;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -400,8 +404,8 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 		}
 
 		// Set power threshold for integrated fpga.
-		if (hw_type == FPGA_HW_MCP) {
-
+		if (hw_type == FPGA_HW_MCP &&
+			!stat("/sys/class/fpga", &st)) {
 			result = set_fpga_pwr_threshold(fpga, metadata.afu_image.power);
 			if (result != FPGA_OK) {
 				FPGA_ERR("Failed to set threshold.");

@@ -137,6 +137,11 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 
 fpga_result sysfs_write_u64_decimal(const char *path, uint64_t u);
 
+fpga_result sysfs_get_port_error_path(fpga_handle handle, char *sysfs_port_error);
+fpga_result sysfs_get_port_clr_err_path(fpga_handle handle, char *sysfs_port_clrerr);
+fpga_result sysfs_get_fme_pwr_path(fpga_token token, char *sysfs_pwr);
+fpga_result sysfs_get_fme_temp_path(fpga_token token, char *sysfs_temp);
+fpga_result sysfs_get_fme_perf_path(fpga_token token, char *sysfs_perf);
 #ifdef __cplusplus
 }
 #endif
