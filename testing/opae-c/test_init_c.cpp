@@ -302,8 +302,9 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
         EXPECT_EQ(ret, 0);
     }
     struct stat st;
-    if (stat(tmpfile_, &st) == 0)
+    if (stat(tmpfile_, &st) == 0) {
       EXPECT_EQ(unlink(tmpfile_), 0);
+    }
   }
 
   char buffer_[PATH_MAX];
@@ -365,8 +366,9 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_2) {
         int ret = rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH);
         EXPECT_EQ(ret, 0);
     }
-    if (stat(tmpfile2_, &st) == 0)
+    if (stat(tmpfile2_, &st) == 0) {
       EXPECT_EQ(unlink(tmpfile2_), 0);
+    }
 }
 
 /**
