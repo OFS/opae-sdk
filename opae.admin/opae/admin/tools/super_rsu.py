@@ -46,6 +46,7 @@ from opae.admin.fpga import fpga as fpga_device
 from opae.admin.sysfs import pci_node
 from opae.admin.utils.process import call_process, assert_not_running
 from opae.admin.utils import (max10_or_nios_version,
+                              hex_version,
                               version_comparator,
                               parse_timedelta)
 from opae.admin.version import pretty_version
@@ -208,6 +209,13 @@ def find_subdevices(node):
     return set(devices)
 
 
+def spec_version(inp):
+    try:
+        return int(inp, 0)
+    except (ValueError, TypeError):
+        return inp
+
+
 # flashable classes
 # classes here represent parts on the FPGA that can be flashed
 class flashable(object):
@@ -225,7 +233,7 @@ class flashable(object):
         return None
 
     def needs_flash(self, flash_info):
-        return self.version != flash_info['version']
+        return spec_version(flash_info['version']) != self.version
 
     def is_supported(self, flash_info):
         return True
@@ -301,13 +309,16 @@ class bmc_pkg(flashable):
 class a10(flashable):
     @property
     def image_load(self):
-        return int(self._fpga.fme.spi_bus.node('fpga_flash_ctrl',
-                                               'fpga_image_load').value)
+        try:
+            return int(self._fpga.fme.spi_bus.node('fpga_flash_ctrl',
+                                                   'fpga_image_load').value)
+        except AttributeError:
+            pass
 
     @property
     def version(self):
         int_value = int(self._fpga.fme.node('bitstream_id').value, 16)
-        return '0x{:016x}'.format(int_value)
+        return hex_version(int_value)
 
 
 class dtb(a10):
@@ -320,6 +331,43 @@ class bmc_fw_pkvl(bmc_fw):
         integrated = flash_info.get('integrated', False)
         flash_cmd = 'phy_eeprom' if integrated else 'bmc_fw'
         return 'fpgaflash {} {} {}'.format(flash_cmd, filename, pci_address)
+
+
+class bbs(flashable):
+    @property
+    def version(self):
+        int_value = int(self._fpga.fme.node('bitstream_id').value, 16)
+        return hex_version(int_value)
+
+
+class tcm_bmcfw(flashable):
+    @property
+    def version(self):
+        int_value = int(
+            self._fpga.fme.node('tcm').node('bmcfw_version').value, 16)
+        return hex_version(int_value)
+
+
+class bmc_bootloader(flashable):
+    @property
+    def version(self):
+        return None
+
+    @property
+    def can_verify(self):
+        return False
+
+    @property
+    def is_supported(self, flash_info):
+        return True
+
+    @property
+    def needs_flash(self, flash_info):
+        return True
+
+    @property
+    def is_factory(self):
+        return True
 
 
 class eth_instance(object):
@@ -418,6 +466,7 @@ class pac(object):
     boot_page = 0
     FACTORY_IMAGE = 0
     USER_IMAGE = 1
+    SEC_PATTERN = 'ifpga_sec_mgr/ifpga_sec*'
 
     def __init__(self, pci_node, fpga, **kwargs):
         self._pci_node = pci_node
@@ -430,14 +479,6 @@ class pac(object):
         self._terminate = False
         self._flashables = {}
         self._errors = 0
-        self.add_flashables(user=a10(fpga),
-                            factory=a10(fpga, True),
-                            factory_only=a10(fpga, True),
-                            bmc_fw=bmc_fw(fpga),
-                            bmc_factory=bmc_img(fpga, True),
-                            bmc_img=bmc_img(fpga),
-                            bmc_pkg=bmc_pkg(fpga),
-                            dtb=dtb(fpga, can_verify=False))
 
     def add_flashables(self, **kwargs):
         for k, v in kwargs.items():
@@ -551,7 +592,7 @@ class pac(object):
                                    self.pci_node.pci_address)
             return process_task(cmd, stderr=subprocess.PIPE)
 
-        if to_flash.version == flash_info['version']:
+        if spec_version(flash_info['version']) == to_flash.version:
             LOG.debug('[%s] version (%s) up to date for %s', self.pci_node.bdf,
                       to_flash.version, flash_type)
 
@@ -639,7 +680,7 @@ class pac(object):
                               self.pci_node)
                     unflashed.append(flash_info)
                 # we should've flashed this, check if versions match
-                elif flashed.version != flash_info['version']:
+                elif flashed.version != spec_version(flash_info['version']):
                     LOG.debug('[%s] %s (%s) not at version in spec (%s)',
                               self.pci_node.bdf, flash_info['type'],
                               flashed.version, flash_info['version'])
@@ -685,9 +726,10 @@ class pac(object):
 
         sensors_validated = False
         for sv in rsu_config.get('sensor validation', []):
-            if sv['type'] == 'bmc':
+            if sv['type'] == 'bmc' and self.fpga.fme.spi_bus:
                 bmc = self.get_flashable('bmc_fw')
-                if bmc.version.revision.lower() == sv['revision'].lower():
+                rev_match = bmc.version.revision.lower() == sv['revision'].lower()
+                if bmc.version.major > 1 or rev_match:
                     LOG.debug("[%s] validating sensors for rev '%s'",
                               self.pci_node.bdf, sv['revision'])
                     err += self._validate_bmc(sv)
@@ -703,9 +745,11 @@ class pac(object):
 
     @property
     def is_secure(self):
-        return 1 == len(glob.glob(
-            os.path.join(self.fpga.fme.spi_bus.sysfs_path,
-                         'ifpga_sec_mgr/ifpga_sec*')))
+        if self.fpga.fme.spi_bus:
+            sec_mgr = self.fpga.fme.spi_bus.find_one(self.SEC_PATTERN)
+            return sec_mgr is not None
+        LOG.warn('Could not find spi_bus')
+        return False
 
 
 class vc(pac):
@@ -720,7 +764,14 @@ class vc(pac):
         # and versioned using bmc_fw version
         # override the flashable for bmc_fw from pac class
         # with bmc_fw_pkvl which uses 'phy_eeprom' when calling fpgaflash
-        self.add_flashables(bmc_fw=bmc_fw_pkvl(fpga))
+        self.add_flashables(user=a10(fpga),
+                            factory=a10(fpga, True),
+                            factory_only=a10(fpga, True),
+                            bmc_fw=bmc_fw(fpga),
+                            bmc_factory=bmc_img(fpga, True),
+                            bmc_img=bmc_img(fpga),
+                            dtb=dtb(fpga, can_verify=False),
+                            bmc_pkg=bmc_pkg(fpga))
 
     def run_tests(self, rsu_config):
         failures = super(vc, self).run_tests(rsu_config)
@@ -752,9 +803,23 @@ class vc(pac):
 class dc(pac):
     boot_page = 1
 
+    def __init__(self, pci_node, fpga, **kwargs):
+        super(dc, self).__init__(pci_node, fpga, **kwargs)
+        self.add_flashables(sr=bbs(fpga),
+                            bmc_pkg=bmc_pkg(fpga))
+
 
 class rc(pac):
-    pass
+    def __init__(self, pci_node, fpga, **kwargs):
+        super(rc, self).__init__(pci_node, fpga, **kwargs)
+        self.add_flashables(sr=bbs(fpga),
+                            bootloader=bmc_bootloader(fpga),
+                            bmc_fw=tcm_bmcfw(fpga))
+
+    @property
+    def is_secure(self):
+        sec_mgr = self.fpga.fme.find_one(self.SEC_PATTERN)
+        return sec_mgr is not None
 
 
 def make_pac(node, fpga, **kwargs):

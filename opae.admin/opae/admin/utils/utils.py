@@ -92,6 +92,20 @@ def dry_run(obj, enabled=True, **kwargs):
     return obj
 
 
+class hex_version(object):
+    def __init__(self, value):
+        self._value = value
+
+    def __eq__(self, other):
+        return self._value == other
+
+    def __ne__(self, other):
+        return self._value != other
+
+    def __str__(self):
+        return '0x{:016x}'.format(self._value)
+
+
 class max10_or_nios_version_bits(LittleEndianStructure):
     _fields_ = [
                    ("patch", c_uint64, 8),
