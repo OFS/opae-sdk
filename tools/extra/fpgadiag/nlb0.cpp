@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -66,6 +66,7 @@ nlb0::nlb0()
 , offset_(0)
 {
     options_.add_option<bool>("help",                'h', option::no_argument,   "Show help", false);
+    options_.add_option<bool>("version",             'v', option::no_argument,   "Show version", false);
     options_.add_option<std::string>("config",       'c', option::with_argument, "Path to test config file", config_);
     options_.add_option<std::string>("target",       't', option::with_argument, "one of {fpga, ase}", target_);
     options_.add_option<uint32_t>("begin",           'b', option::with_argument, "where 1 <= <value> <= 65535", begin_);
@@ -360,7 +361,7 @@ bool nlb0::setup()
     // TODO: Infer pclock from the device id
     // For now, get the pclock frequency from status2 register
     // that frequency (MHz) is encoded in bits [47:32]
-    uint64_t s2 = read_csr64(static_cast<uint32_t>(nlb0_csr::status2));
+    uint64_t s2 = accelerator_->read_csr64(static_cast<uint32_t>(nlb0_csr::status2));
     uint32_t freq = (s2 >> 32) & 0xffff;
     if (freq > 0) {
          // frequency_ is in Hz

@@ -123,7 +123,7 @@ static void *sim_huge_mmap(void *addr, size_t length, int prot, int flags)
 /*
  * Allocate (mmap) new buffer
  */
-static fpga_result buffer_allocate(void **addr, uint64_t len, int flags)
+static fpga_result buffer_allocate(void **addr, uint64_t *len, int flags)
 {
 	void *addr_local = NULL;
 
@@ -134,18 +134,22 @@ static fpga_result buffer_allocate(void **addr, uint64_t len, int flags)
 	/* ! FPGA_BUF_PREALLOCATED, allocate memory using huge pages
 	   For buffer > 2M, use 1G-hugepage to ensure pages are
 	   contiguous */
-	if (len > 2 * MB)
-		addr_local = sim_huge_mmap(ADDR, len, PROTECTION, FLAGS_1G);
-	else if (len > 4 * KB)
-		addr_local = sim_huge_mmap(ADDR, len, PROTECTION, FLAGS_2M);
-	else
-		addr_local = mmap(ADDR, len, PROTECTION, FLAGS_4K, 0, 0);
+	if (*len > 2 * MB) {
+		// Round up length to GB pages
+		*len = (*len + (1 * GB - 1)) & (~(1 * GB - 1));
+		addr_local = sim_huge_mmap(ADDR, *len, PROTECTION, FLAGS_1G);
+	} else if (*len > 4 * KB) {
+		// Round up length to a full 2MB page
+		*len = 2 * MB;
+		addr_local = sim_huge_mmap(ADDR, *len, PROTECTION, FLAGS_2M);
+	} else
+		addr_local = mmap(ADDR, *len, PROTECTION, FLAGS_4K, 0, 0);
 	if (addr_local == MAP_FAILED) {
 		if (errno == ENOMEM) {
-			if (len > 2 * MB)
+			if (*len > 2 * MB)
 				FPGA_MSG("Could not allocate buffer (no free 1 "
 					 "GiB huge pages)");
-			if (len > 4 * KB)
+			if (*len > 4 * KB)
 				FPGA_MSG("Could not allocate buffer (no free 2 "
 					 "MiB huge pages)");
 			else
@@ -204,15 +208,36 @@ static fpga_result check_mapped_page(void *vaddr, size_t req_page_bytes)
 {
 	char line[MAPS_BUF_SZ];
 	uint64_t addr = (uint64_t)vaddr;
+	// Need to test for huge pages? 4KB page tests are easier.
+	bool test_huge_page = (req_page_bytes > 4096);
 
-	FILE *f = fopen("/proc/self/smaps", "r");
+	FILE *f;
+	if (!test_huge_page) {
+		// maps is simple and quick to read. Use it when checking only that a
+		// region is mapped. The test is still expensive and just proving that
+		// the page is mapped, which will eventually trigger a SEGV anyway.
+		// As a simulator performance compromise, we test the first 200
+		// requests and then back off, testing only 1% after that.
+		static uint64_t n_tested;
+		n_tested += 1;
+		if ((n_tested > 200) && ((n_tested % 100) != 0)) {
+			return FPGA_OK;
+		}
+
+		f = fopen("/proc/self/maps", "r");
+	} else {
+		// smaps can tell use the page size. Use it when confirming that the
+		// page is mapped as a huge page.
+		f = fopen("/proc/self/smaps", "r");
+	}
+	if (f == NULL) {
+		return FPGA_EXCEPTION;
+	}
+
 	// Deallocate the file buffer. This hurts performance, but is important for
 	// accuracy since the buffer will be allocated within the address space
 	// being checked.
 	setvbuf(f, (char *)NULL, _IONBF, 0);
-	if (f == NULL) {
-		return FPGA_EXCEPTION;
-	}
 
 	while (fgets(line, MAPS_BUF_SZ, f)) {
 		unsigned long long start, end;
@@ -231,6 +256,13 @@ static fpga_result check_mapped_page(void *vaddr, size_t req_page_bytes)
 		// Keep search if not a number or the address isn't in range.
 		if ((tmp0 == tmp1) || (start > addr) || (end <= addr)) {
 			continue;
+		}
+
+		// Found the region. The test is successful if all we needed was
+		// proof that the 4KB page is mapped.
+		if (!test_huge_page) {
+			fclose(f);
+			return FPGA_OK;
 		}
 
 		while (fgets(line, MAPS_BUF_SZ, f)) {
@@ -346,7 +378,7 @@ fpga_result __FPGA_API__ ase_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 			len = pg_size + (len & ~(pg_size - 1));
 		}
 
-		result = buffer_allocate(&addr, len, flags);
+		result = buffer_allocate(&addr, &len, flags);
 		if (result != FPGA_OK) {
 			goto out_unlock;
 		}

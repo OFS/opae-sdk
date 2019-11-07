@@ -1,4 +1,4 @@
-## Copyright(c) 2018, Intel Corporation
+## Copyright(c) 2018-2019, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -45,7 +45,7 @@ set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 find_package(Threads)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_CONFIG_H -pthread")
 
 set(OPAECXXCORE_SRC src/properties.cpp
                     src/token.cpp
@@ -58,7 +58,7 @@ set(OPAECXXCORE_SRC src/properties.cpp
                     src/version.cpp)
 
 add_library(opae-cxx-core SHARED ${OPAECXXCORE_SRC})
-target_link_libraries(opae-cxx-core opae-c uuid)
+target_link_libraries(opae-cxx-core uuid)
 
 add_executable(hello_cxxcore samples/hello_fpga-1.cpp)
 target_link_libraries(hello_cxxcore opae-c ${CMAKE_THREAD_LIBS_INIT} opae-cxx-core )

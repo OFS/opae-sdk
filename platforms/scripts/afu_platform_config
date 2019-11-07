@@ -474,6 +474,27 @@ def getSearchPath(env_name, default_dir):
     return path
 
 
+#
+# Does the release define platform components?
+#
+def getOfsPlatIfPath():
+    # Documented variable, pointing to a platform release
+    if ('OPAE_PLATFORM_ROOT' in os.environ):
+        plat_dir = os.path.join(os.environ['OPAE_PLATFORM_ROOT'].rstrip('/'),
+                                'hw/lib/build/platform/ofs_plat_if')
+        if (os.path.isdir(plat_dir)):
+            return plat_dir
+
+    # Alternate method
+    if ('BBS_LIB_PATH' in os.environ):
+        plat_dir = os.path.join(os.environ['BBS_LIB_PATH'].rstrip('/'),
+                                'build/platform/ofs_plat_if')
+        if (os.path.isdir(plat_dir)):
+            return plat_dir
+
+    return None
+
+
 def main():
     # Users can extend the AFU and platform database search paths beyond
     # the OPAE SDK defaults using environment variables.
@@ -553,7 +574,16 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
         help="""The default top-level interface class if no interface is
                 specified in the AFU's JSON descriptor.""")
 
-    if_default = os.path.join(getDBRootPath(), "platform_if")
+    # Pick a default platform interface RTL tree. Start by looking for
+    # the OFS platform tree in the currently configured release.
+    ofs_plat_if_default = getOfsPlatIfPath()
+    # If there is no current release or the release is old and does not
+    # provide an OFS platform interface tree then resort to the interface
+    # defined in the OPAE SDK.
+    if_default = ofs_plat_if_default
+    if not if_default:
+        if_default = os.path.join(getDBRootPath(), "platform_if")
+
     parser.add_argument(
         "--platform_if", default=if_default,
         help="""The directory containing AFU top-level SystemVerilog
@@ -580,9 +610,31 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
         "-q", "--quiet", action="store_true", help="Reduce output")
     args = parser.parse_args()
 
+    if (args.sim):
+        args.qsf = False
+
     # Get the AFU top-level interface request, either from the command
     # line or from the AFU source's JSON descriptor.
     afu_ifc_req = getAfuIfc(args)
+
+    # If the AFU interface is ofs_plat_if then there must be a platform
+    # defined and that platform must provide an ofs_plat_if tree.
+    if (afu_ifc_req['class'] == 'ofs_plat_afu' and not ofs_plat_if_default):
+        errorExit("AFU is type 'ofs_plat_afu' but the release is either " +
+                  "not defined or does not provide\n" +
+                  "       an ofs_plat_if.\n\n" +
+                  "   *** Either OPAE_PLATFORM_ROOT is not set correctly " +
+                  "or the release at\n" +
+                  "   *** $OPAE_PLATFORM_ROOT is missing the directory " +
+                  "hw/lib/build/platform/ofs_plat_if.")
+
+    # Now that arguments are parsed, canonicalize the ofs_plat_if. If it
+    # hasn't been changed from the default then make the path relative
+    # to the build directory. The tree will be copied into the AFU's build
+    # tree. Using the local copy makes the AFU build tree easier to package.
+    if (args.qsf and args.platform_if and
+            (args.platform_if == ofs_plat_if_default)):
+        args.platform_if = 'platform/ofs_plat_if'
 
     # Load the platform database
     platform = jsondb(args.platform, platform_db_path, 'platform', args.quiet)

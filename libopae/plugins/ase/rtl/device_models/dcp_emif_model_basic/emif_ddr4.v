@@ -29,12 +29,6 @@
 import verbosity_pkg::*;
 import avalon_mm_pkg::*;
 
-// Position in the hierarchy
-`define SLAVE_PREFIX $root.ase_top.b_emul
-
-// emif_ddr4 implements two banks per instance
-`define NUM_SLAVES 2
-
 //---------------------------------------------------
 // Constants
 //---------------------------------------------------
@@ -50,34 +44,21 @@ module emif_ddr4 #(
 	parameter DDR_ADDR_WIDTH = 26,
 	parameter DDR_DATA_WIDTH = 512,
 	parameter SYMBOL_WIDTH = 8,
-	parameter NUM_SYMBOLS = (DDR_DATA_WIDTH + SYMBOL_WIDTH - 1) / SYMBOL_WIDTH,
-	// Used to index the slave
-	parameter INSTANCE_ID = 0
+	parameter NUM_SYMBOLS = (DDR_DATA_WIDTH + SYMBOL_WIDTH - 1) / SYMBOL_WIDTH
 ) (
-	output wire         ddr4a_avmm_waitrequest,
-	output wire [DDR_DATA_WIDTH-1:0] ddr4a_avmm_readdata,
-	output wire         ddr4a_avmm_readdatavalid,
-	input  wire [BURST_W-1:0]   ddr4a_avmm_burstcount,
-	input  wire [DDR_DATA_WIDTH-1:0] ddr4a_avmm_writedata,
-	input  wire [DDR_ADDR_WIDTH-1:0]  ddr4a_avmm_address,
-	input  wire         ddr4a_avmm_write,
-	input  wire         ddr4a_avmm_read,
-	input  wire [NUM_SYMBOLS-1:0]  ddr4a_avmm_byteenable,
-	output wire         ddr4a_avmm_clk_clk,
+	output wire         ddr_avmm_waitrequest,
+	output wire [DDR_DATA_WIDTH-1:0] ddr_avmm_readdata,
+	output wire         ddr_avmm_readdatavalid,
+	input  wire [BURST_W-1:0]   ddr_avmm_burstcount,
+	input  wire [DDR_DATA_WIDTH-1:0] ddr_avmm_writedata,
+	input  wire [DDR_ADDR_WIDTH-1:0]  ddr_avmm_address,
+	input  wire         ddr_avmm_write,
+	input  wire         ddr_avmm_read,
+	input  wire [NUM_SYMBOLS-1:0]  ddr_avmm_byteenable,
+	output wire         ddr_avmm_clk_clk,
 
-	input  wire         ddr4a_global_reset_reset_sink_reset_n,
-	input  wire         ddr4a_pll_ref_clk_clock_sink_clk,
-
-	output wire         ddr4b_avmm_waitrequest,
-	output wire [DDR_DATA_WIDTH-1:0] ddr4b_avmm_readdata,
-	output wire         ddr4b_avmm_readdatavalid,
-	input  wire [BURST_W-1:0]   ddr4b_avmm_burstcount,
-	input  wire [DDR_DATA_WIDTH-1:0] ddr4b_avmm_writedata,
-	input  wire [DDR_ADDR_WIDTH-1:0]  ddr4b_avmm_address,
-	input  wire         ddr4b_avmm_write,
-	input  wire         ddr4b_avmm_read,
-	input  wire [NUM_SYMBOLS-1:0]  ddr4b_avmm_byteenable,
-	output wire         ddr4b_avmm_clk_clk
+	input  wire         ddr_global_reset_reset_sink_reset_n,
+	input  wire         ddr_pll_ref_clk_clock_sink_clk
 );
 
 //---------------------------------------------------
@@ -98,7 +79,7 @@ typedef enum bit
 } Burstmode;
 
 // model memory banks as associative arrays
-logic [DDR_DATA_WIDTH-1:0] memory[`NUM_SLAVES][*];
+logic [DDR_DATA_WIDTH-1:0] memory[*];
 
 typedef struct
 {
@@ -119,14 +100,9 @@ typedef struct
 } Response;
 
 // slave response queue
-Response read_response_queue_slave[`NUM_SLAVES][$];
+Response read_response_queue_slave[$];
 
-// ddr user clock frequency = 266.666.. Mhz
-// We shift the clock because altera_avalon_mm_slave_bfm shifts
-// its monitor_request() task #1, which leads to glitches in
-// waitrequest and causes random errors in simulation.
-assign #10 ddr4a_avmm_clk_clk = ddr4a_pll_ref_clk_clock_sink_clk;
-assign #10 ddr4b_avmm_clk_clk = ddr4a_pll_ref_clk_clock_sink_clk;
+assign ddr_avmm_clk_clk = ddr_pll_ref_clk_clock_sink_clk;
 
 altera_avalon_mm_slave_bfm #(
 	.AV_ADDRESS_W               (DDR_ADDR_WIDTH),
@@ -143,105 +119,54 @@ altera_avalon_mm_slave_bfm #(
 	.USE_CLKEN                  (0),
 	.AV_BURST_LINEWRAP          (0),
 	.AV_BURST_BNDR_ONLY         (0),
-	.AV_MAX_PENDING_READS       (9),
+	.AV_MAX_PENDING_READS       (0),
 	.AV_MAX_PENDING_WRITES      (0),
 	.AV_FIX_READ_LATENCY        (0),
 	.AV_READ_WAIT_TIME          (1),
 	.AV_WRITE_WAIT_TIME         (0),
 	.REGISTER_WAITREQUEST       (0),
 	.AV_REGISTERINCOMINGSIGNALS (0),
+	.AV_WAITREQUEST_ALLOWANCE   (1),
 	.VHDL_ID                    (0),
 	.PRINT_HELLO                (0)
-)  avs_bfm_inst_ddra (
-	.clk                  	(ddr4a_pll_ref_clk_clock_sink_clk),
-	.reset                	(~ddr4a_global_reset_reset_sink_reset_n),
+)  avs_bfm_inst (
+	.clk                  	(ddr_pll_ref_clk_clock_sink_clk),
+	.reset                	(~ddr_global_reset_reset_sink_reset_n),
 
-	.avs_writedata        	(ddr4a_avmm_writedata),
-	.avs_readdata         	(ddr4a_avmm_readdata),
-	.avs_address          	(ddr4a_avmm_address),
-	.avs_waitrequest      	(ddr4a_avmm_waitrequest),
-	.avs_write            	(ddr4a_avmm_write),
-	.avs_read             	(ddr4a_avmm_read),
-	.avs_byteenable       	(ddr4a_avmm_byteenable),
-	.avs_readdatavalid    	(ddr4a_avmm_readdatavalid),
-	.avs_burstcount       	(ddr4a_avmm_burstcount)
+	.avs_writedata        	(ddr_avmm_writedata),
+	.avs_readdata         	(ddr_avmm_readdata),
+	.avs_address          	(ddr_avmm_address),
+	.avs_waitrequest      	(ddr_avmm_waitrequest),
+	.avs_write            	(ddr_avmm_write && !ddr_avmm_waitrequest),
+	.avs_read             	(ddr_avmm_read && !ddr_avmm_waitrequest),
+	.avs_byteenable       	(ddr_avmm_byteenable),
+	.avs_readdatavalid    	(ddr_avmm_readdatavalid),
+	.avs_burstcount       	(ddr_avmm_burstcount)
 );
 
-altera_avalon_mm_slave_bfm #(
-	.AV_ADDRESS_W               (DDR_ADDR_WIDTH),
-	.AV_NUMSYMBOLS              (NUM_SYMBOLS),
-	.AV_BURSTCOUNT_W            (BURST_W),
-	.AV_READRESPONSE_W          (1),
-	.AV_WRITERESPONSE_W         (1),
-	.USE_BEGIN_TRANSFER         (0),
-	.USE_BEGIN_BURST_TRANSFER   (0),
-	.USE_WAIT_REQUEST           (1),
-	.USE_TRANSACTIONID          (0),
-	.USE_WRITERESPONSE          (1),
-	.USE_READRESPONSE           (1),
-	.USE_CLKEN                  (0),
-	.AV_BURST_LINEWRAP          (0),
-	.AV_BURST_BNDR_ONLY         (0),
-	.AV_MAX_PENDING_READS       (9),
-	.AV_MAX_PENDING_WRITES      (0),
-	.AV_FIX_READ_LATENCY        (0),
-	.AV_READ_WAIT_TIME          (1),
-	.AV_WRITE_WAIT_TIME         (0),
-	.REGISTER_WAITREQUEST       (0),
-	.AV_REGISTERINCOMINGSIGNALS (0),
-	.VHDL_ID                    (0),
-	.PRINT_HELLO                (0)
-)  avs_bfm_inst_ddrb (
-	.clk                  	(ddr4a_pll_ref_clk_clock_sink_clk),
-	.reset                	(~ddr4a_global_reset_reset_sink_reset_n),
 
-	.avs_writedata        	(ddr4b_avmm_writedata),
-	.avs_readdata         	(ddr4b_avmm_readdata),
-	.avs_address          	(ddr4b_avmm_address),
-	.avs_waitrequest      	(ddr4b_avmm_waitrequest),
-	.avs_write            	(ddr4b_avmm_write),
-	.avs_read             	(ddr4b_avmm_read),
-	.avs_byteenable       	(ddr4b_avmm_byteenable),
-	.avs_readdatavalid    	(ddr4b_avmm_readdatavalid),
-	.avs_burstcount       	(ddr4b_avmm_burstcount)
-);
+function automatic Command get_command_from_slave();
+	Command cmd;
 
-// Macros
-`define SLAVE0 `SLAVE_PREFIX[INSTANCE_ID].emif_ddr4.avs_bfm_inst_ddra
-`define SLAVE1 `SLAVE_PREFIX[INSTANCE_ID].emif_ddr4.avs_bfm_inst_ddrb
+	avs_bfm_inst.pop_command();
+	cmd.burstcount          = avs_bfm_inst.get_command_burst_count();
+	cmd.addr                = avs_bfm_inst.get_command_address();
 
-`define MACRO_PENDING_READ_CYCLES(SLAVE_ID) \
-	int pending_read_cycles_slave_``SLAVE_ID = 0; \
-	always @(posedge `SLAVE``SLAVE_ID.clk) begin \
-		if (pending_read_cycles_slave_``SLAVE_ID > 0) begin \
-			pending_read_cycles_slave_``SLAVE_ID--; \
-		end \
+	if (avs_bfm_inst.get_command_request() == REQ_WRITE) begin
+		cmd.trans = WRITE;
+		for(int i = 0; i < cmd.burstcount; i++) begin
+			cmd.data[i]       =avs_bfm_inst.get_command_data(i);
+			cmd.byteenable[i] =avs_bfm_inst.get_command_byte_enable(i);
+		end
+	end else begin
+		cmd.trans = READ;
+		for(int i = 0; i < cmd.burstcount; i++) begin
+			cmd.byteenable[i] =avs_bfm_inst.get_command_byte_enable(i);
+		end
 	end
 
-`define MACRO_GET_COMMAND_FROM_SLAVE(SLAVE_ID) \
-	function automatic Command get_command_from_slave_``SLAVE_ID (); \
-\
-	Command cmd; \
-\
-	`SLAVE``SLAVE_ID.pop_command(); \
-	cmd.burstcount          = `SLAVE``SLAVE_ID.get_command_burst_count(); \
-	cmd.addr                = `SLAVE``SLAVE_ID.get_command_address(); \
-\
-	if (`SLAVE``SLAVE_ID.get_command_request() == REQ_WRITE) begin \
-		cmd.trans = WRITE; \
-		for(int i = 0; i < cmd.burstcount; i++) begin \
-			cmd.data[i]       =`SLAVE``SLAVE_ID.get_command_data(i); \
-			cmd.byteenable[i] =`SLAVE``SLAVE_ID.get_command_byte_enable(i); \
-		end \
-	end else begin \
-		cmd.trans = READ; \
-		for(int i = 0; i < cmd.burstcount; i++) begin \
-			cmd.byteenable[i] =`SLAVE``SLAVE_ID.get_command_byte_enable(i); \
-		end \
-	end \
-\
-	return cmd; \
-	endfunction
+	return cmd;
+endfunction
 
 // Functions
 function automatic Response create_response (
@@ -268,92 +193,80 @@ function automatic logic [DDR_DATA_WIDTH-1:0] get_mask (logic [NUM_SYMBOLS-1:0] 
 	return mask;
 endfunction
 
-function automatic Response memory_response (Command cmd, int SLAVE_ID);
+function automatic Response memory_response (Command cmd);
 	Response rsp;
 	
 	rsp.burstcount = (cmd.trans == READ) ? cmd.burstcount : 1;
 	for(int idx = 0; idx < cmd.burstcount; idx++) begin
 		if(cmd.trans == READ) begin
-			rsp.data[idx] = memory[SLAVE_ID][cmd.addr+idx] & get_mask(cmd.byteenable[0]);
+			rsp.data[idx] = memory[cmd.addr+idx] & get_mask(cmd.byteenable[0]);
 			rsp.latency[idx] = $urandom_range(0,MAX_LATENCY); // set a random memory response latency
 		end
 	end
 	return rsp;
 endfunction
 
-`define MACRO_SLAVE_THREAD(SLAVE_ID) \
-	always @(`SLAVE``SLAVE_ID.signal_command_received) begin \
-\
-	Command     actual_cmd, exp_cmd; \
-	Response    rsp; \
-	logic [DDR_DATA_WIDTH-1:0] mask; \
-\
-	automatic int backpressure_cycles; \
-\
-	// set random backpressure cycles for next command \
-	for (int i = 0; i < MAX_BURST; i++) begin \
-		backpressure_cycles = $urandom_range(0, MAX_COMMAND_BACKPRESSURE); \
-		`SLAVE``SLAVE_ID.set_interface_wait_time(backpressure_cycles, i); \
-	end \
-\
-	actual_cmd = get_command_from_slave_``SLAVE_ID(); \
-\
-	// set read response \
-	if (actual_cmd.trans == READ) begin \
-		rsp = memory_response(actual_cmd, SLAVE_ID); \
-		configure_and_push_response_to_slave_``SLAVE_ID(rsp); \
-		read_response_queue_slave[``SLAVE_ID].push_back(rsp); \
-	end \
-\
-	if (actual_cmd.trans == WRITE) begin \
-		for(int idx = 0; idx < actual_cmd.burstcount; idx++) begin\
-			if(memory[SLAVE_ID].exists(actual_cmd.addr+idx)) begin\
-				mask = get_mask(actual_cmd.byteenable[idx]); \
-				memory[SLAVE_ID][actual_cmd.addr+idx] = ((memory[SLAVE_ID][actual_cmd.addr+idx] & ~mask) | \
-					                                     (actual_cmd.data[idx] & mask));\
-			end\
-			else begin\
-				memory[SLAVE_ID][actual_cmd.addr+idx] = actual_cmd.data[idx];\
-			end\
-		end \
-	end \
+// Simple waitrequest emulation: assert waitrequest 80% of the time
+always @(posedge avs_bfm_inst.clk) begin
+	avs_bfm_inst.set_waitrequest(($urandom_range(0, 100) > 80));
 end
 
-`define MACRO_CONFIGURE_AND_PUSH_RESPONSE_TO_SLAVE(SLAVE_ID) \
-task automatic configure_and_push_response_to_slave_``SLAVE_ID ( \
-	Response rsp \
-); \
-\
-	int read_response_latency; \
-\
-	`SLAVE``SLAVE_ID.set_response_request(REQ_READ); \
-	`SLAVE``SLAVE_ID.set_response_burst_size(rsp.burstcount); \
-	for (int i = 0; i < rsp.burstcount; i++) begin \
-		`SLAVE``SLAVE_ID.set_response_data(rsp.data[i], i); \
-\
-		if (i == 0) begin \
-			`SLAVE``SLAVE_ID.set_response_latency(rsp.latency[i] + pending_read_cycles_slave_``SLAVE_ID, i); \
-			read_response_latency = rsp.latency[i]; \
-		end else begin \
-			`SLAVE``SLAVE_ID.set_response_latency(rsp.latency[i], i); \
-			read_response_latency = rsp.latency[i] + read_response_latency; \
-		end \
-\
-	end \
-	`SLAVE``SLAVE_ID.push_response(); \
-	pending_read_cycles_slave_``SLAVE_ID = pending_read_cycles_slave_``SLAVE_ID + read_response_latency + rsp.burstcount + 2; \
+always @(avs_bfm_inst.signal_command_received) begin
+	Command     actual_cmd, exp_cmd;
+	Response    rsp;
+	logic [DDR_DATA_WIDTH-1:0] mask;
+
+	actual_cmd = get_command_from_slave();
+
+	// set read response
+	if (actual_cmd.trans == READ) begin
+		rsp = memory_response(actual_cmd);
+		configure_and_push_response_to_slave(rsp);
+		read_response_queue_slave.push_back(rsp);
+	end
+
+	if (actual_cmd.trans == WRITE) begin
+		for(int idx = 0; idx < actual_cmd.burstcount; idx++) begin
+			if(memory.exists(actual_cmd.addr+idx)) begin
+				mask = get_mask(actual_cmd.byteenable[idx]);
+				memory[actual_cmd.addr+idx] = ((memory[actual_cmd.addr+idx] & ~mask) |
+					                       (actual_cmd.data[idx] & mask));
+			end
+			else begin
+				memory[actual_cmd.addr+idx] = actual_cmd.data[idx];
+			end
+		end
+	end
+end
+
+int pending_read_cycles_slave = 0;
+always @(posedge avs_bfm_inst.clk) begin
+	if (pending_read_cycles_slave > 0) begin
+		pending_read_cycles_slave--;
+	end
+end
+
+task automatic configure_and_push_response_to_slave(
+	Response rsp
+);
+	int read_response_latency;
+
+	avs_bfm_inst.set_response_request(REQ_READ);
+	avs_bfm_inst.set_response_burst_size(rsp.burstcount);
+	for (int i = 0; i < rsp.burstcount; i++) begin
+		avs_bfm_inst.set_response_data(rsp.data[i], i);
+
+		if (i == 0) begin
+			avs_bfm_inst.set_response_latency(rsp.latency[i] + pending_read_cycles_slave, i);
+			read_response_latency = rsp.latency[i];
+		end else begin
+			avs_bfm_inst.set_response_latency(rsp.latency[i], i);
+			read_response_latency = rsp.latency[i] + read_response_latency;
+		end
+
+	end
+	avs_bfm_inst.push_response();
+	pending_read_cycles_slave = pending_read_cycles_slave + read_response_latency + rsp.burstcount + 2;
 endtask
-
-// slave 0
-`MACRO_SLAVE_THREAD(0)
-`MACRO_GET_COMMAND_FROM_SLAVE(0)
-`MACRO_PENDING_READ_CYCLES(0)
-`MACRO_CONFIGURE_AND_PUSH_RESPONSE_TO_SLAVE(0)
-
-// slave 1
-`MACRO_SLAVE_THREAD(1)
-`MACRO_GET_COMMAND_FROM_SLAVE(1)
-`MACRO_PENDING_READ_CYCLES(1)
-`MACRO_CONFIGURE_AND_PUSH_RESPONSE_TO_SLAVE(1)
 
 endmodule

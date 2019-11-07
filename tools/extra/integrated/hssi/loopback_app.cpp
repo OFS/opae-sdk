@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -66,6 +66,7 @@ loopback_app::loopback_app()
     options_.add_option<uint32_t>("packet-length", 'l', option::with_argument, "Length of packets (in bytes)");
     options_.add_option<bool>    ("random-length", 'r', option::no_argument, "Choose random packet length", false);
     options_.add_option<bool>("help"                  , option::no_argument, "Show help message", false);
+    options_.add_option<bool>("version",           'v', option::no_argument, "Show version", false);
 
     using std::placeholders::_1;
 

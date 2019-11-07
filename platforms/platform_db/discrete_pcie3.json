@@ -9,6 +9,18 @@
          "using either the preferred avalon_mm_if SystemVerilog interface object",
          "or with the legacy two-bank collection of Avalon wires."
       ],
+
+   "comment":
+      [
+         "These will be defined as Verilog preprocessor macros and may be",
+         "tested in RTL after platform_if.vh is loaded. Pick a default",
+         "family here because some tools require one."
+      ],
+   "define":
+      [
+         "PLATFORM_FPGA_FAMILY_A10"
+      ],
+
    "module-ports-offered" :
       [
          {

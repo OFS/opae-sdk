@@ -324,7 +324,7 @@ MENT_VCOM_OPT+= -nologo -work $(WORK)
 ## VLOG compile
 # MENT_VLOG_OPT = -64
 MENT_VLOG_OPT?=
-MENT_VLOG_OPT+= -nologo +librescan -work $(WORK) +define+$(SIMULATOR) -novopt
+MENT_VLOG_OPT+= -nologo +librescan -work $(WORK) +define+$(SIMULATOR)
 MENT_VLOG_OPT+= -dpiheader work/dpiheader.h +incdir+$(DUT_INCDIR)+$(WORK)
 MENT_VLOG_OPT+= -sv -timescale $(TIMESCALE) -l vlog.log
 MENT_VLOG_OPT+= +define+$(ASE_PLATFORM)
@@ -335,10 +335,12 @@ endif
 ## VSIM elaboration, and run options
 # MENT_VSIM_OPT = -64
 MENT_VSIM_OPT?=
-MENT_VSIM_OPT+= -c -l run.log -dpioutoftheblue 1 -novopt
+MENT_VSIM_OPT+= -c -l run.log -dpioutoftheblue 1
 MENT_VSIM_OPT+= -sv_lib $(ASE_SHOBJ_NAME) -do $(PWD)/vsim_run.tcl
 MENT_VSIM_OPT+= -sv_seed 1234
-# -voptargs="+acc"
+# Wires driven by multiple sources should be an error!
+MENT_VSIM_OPT+= -error 3839
+MENT_VSIM_OPT+= -voptargs="+acc"
 
 
 #########################################################################
@@ -535,7 +537,7 @@ ifeq ($(GLS_SIM), 1)
 	cd $(WORK); quartus_sh --simlib_comp -family $(FPGA_FAMILY) -tool vcsmx -language verilog -gen_only -cmd_file quartus_vcs_verilog.sh; chmod a+x quartus_vcs_verilog.sh
 	@# Compile the libraries
 	cd $(WORK); ./quartus_vcs_verilog.sh
-	ls -1d $(WORK)/verilog_libs/* | awk -F / '{print $$NF ": " $$0}' > $@
+	find $(WORK)/verilog_libs -mindepth 1 -maxdepth 1 -type d -printf '%f: %p\n' > $@
 else
 	@echo > $@
 endif
@@ -549,7 +551,7 @@ ifeq ($(GLS_SIM), 1)
 	@# Compile the libraries
 	cd $(WORK); vsim -c -do quartus_msim_verilog.do
 	@# Generate an -L command to load these libraries in vsim
-	cd $(WORK)/verilog_libs; libs=`echo *_ver`; echo -L $${libs// / -L } > ../quartus_msim_verilog_libs
+	cd $(WORK)/verilog_libs; find . -mindepth 1 -maxdepth 1 -type d -printf '-L %f ' > ../quartus_msim_verilog_libs
 else
 	@echo > $@
 endif
@@ -563,7 +565,7 @@ ifdef DUT_VHD_SRC_LIST
 	cd $(WORK); quartus_sh --simlib_comp -family $(FPGA_FAMILY) -tool vcsmx -language vhdl -gen_only -cmd_file quartus_vcs_vhdl.sh; chmod a+x quartus_vcs_vhdl.sh
 	@# Compile the libraries
 	cd $(WORK); ./quartus_vcs_vhdl.sh
-	ls -1d $(WORK)/vhdl_libs/* | awk -F / '{print $$NF ": " $$0}' > $@
+	find $(WORK)/vhdl_libs -mindepth 1 -maxdepth 1 -type d -printf '%f: %p\n' > $@
   else
 	@echo > $@
   endif
