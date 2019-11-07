@@ -930,6 +930,12 @@ add_custom_command(TARGET test_unit
     ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dcp-vc.tar.gz
     ${CMAKE_BINARY_DIR}
     )
+add_custom_command(TARGET test_unit
+    PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dfl0_patchset2-nlb0.tar.gz
+    ${CMAKE_BINARY_DIR}
+    )
 
 ############################################################################
 # ase tests #######################################################
