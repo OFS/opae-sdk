@@ -777,12 +777,13 @@ fpga_result sysfs_get_port_error_path(fpga_handle handle, char *sysfs_port_error
 
 	if (len < 0) {
 		FPGA_ERR("error concatenating strings (%s, %s)",
-			sysfs_path,"port error");
+			sysfs_path, "port error");
 		return FPGA_EXCEPTION;
 	}
 
 	return result;
 }
+
 fpga_result sysfs_get_port_error_clear_path(fpga_handle handle, char *sysfs_port_error_clear)
 {
 	fpga_result result = FPGA_OK;

@@ -211,7 +211,7 @@ STATIC fpga_result clear_port_errors(fpga_handle handle)
 		FPGA_ERR(" Failed to get port errors clear path");
 		return result;
 	}
-	
+
 	// Clear port error.
 	result = sysfs_write_u64(sysfs_path, error);
 	if (result != FPGA_OK) {
