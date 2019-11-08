@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -86,11 +86,11 @@ TEST_P(argsfilter_c_p, bdf) {
                      six, seven, eight, nine, ten, eleven };
     int argc = 12;
     fpga_result result;
-    char bus[2];
-    char device[2];
-    char function[2];
-    char socket_id[2];
-    char segment[2];
+    char bus[4];
+    char device[4];
+    char function[4];
+    char socket_id[4];
+    char segment[4];
 
     sprintf(bus, "0x%x", platform_.devices[0].bus);
     sprintf(device, "0x%x", platform_.devices[0].device);
@@ -132,7 +132,7 @@ TEST_P(argsfilter_c_p, bus) {
     char *argv[] = { zero, one, two, three };
     int argc = 4;
     fpga_result result;
-    char bus[2];
+    char bus[4];
 
     sprintf(bus, "0x%x", platform_.devices[0].bus);
 
@@ -145,6 +145,7 @@ TEST_P(argsfilter_c_p, bus) {
     strcpy(three, bus);
     EXPECT_EQ(set_properties_from_args(filter, &result, &argc, argv), 0);
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    EXPECT_EQ(result, 0);
 }
 
 /**
@@ -187,7 +188,7 @@ TEST_P(argsfilter_c_p, device) {
     char *argv[] = { zero, one, two, three };
     int argc = 4;
     fpga_result result;
-    char device[2];
+    char device[4];
 
     sprintf(device, "0x%x", platform_.devices[0].device);
 
@@ -200,6 +201,7 @@ TEST_P(argsfilter_c_p, device) {
     strcpy(three, device);
     EXPECT_EQ(set_properties_from_args(filter, &result, &argc, argv), 0);
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    EXPECT_EQ(result, 0);
 }
 
 /**
@@ -242,7 +244,7 @@ TEST_P(argsfilter_c_p, function) {
     char *argv[] = { zero, one, two, three };
     int argc = 4;
     fpga_result result;
-    char function[2];
+    char function[4];
 
     sprintf(function, "0x%x", platform_.devices[0].function);
 
@@ -255,6 +257,7 @@ TEST_P(argsfilter_c_p, function) {
     strcpy(three, function);
     EXPECT_EQ(set_properties_from_args(filter, &result, &argc, argv), 0);
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    EXPECT_EQ(result, 0);
 }
 
 /**
@@ -297,7 +300,7 @@ TEST_P(argsfilter_c_p, socket_id) {
     char *argv[] = { zero, one, two, three };
     int argc = 4;
     fpga_result result;
-    char socket_id[2];
+    char socket_id[4];
 
     sprintf(socket_id, "0x%x", platform_.devices[0].socket_id);
 
@@ -310,6 +313,7 @@ TEST_P(argsfilter_c_p, socket_id) {
     strcpy(three, socket_id);
     EXPECT_EQ(set_properties_from_args(filter, &result, &argc, argv), 0);
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    EXPECT_EQ(result, 0);
 }
 
 /**
@@ -352,7 +356,7 @@ TEST_P(argsfilter_c_p, segment) {
     char *argv[] = { zero, one, two, three };
     int argc = 4;
     fpga_result result;
-    char segment[2];
+    char segment[4];
 
     sprintf(segment, "0x%x", platform_.devices[0].segment);
 
@@ -361,10 +365,11 @@ TEST_P(argsfilter_c_p, segment) {
 
     strcpy(zero, "fpgainfo");
     strcpy(one, "fme");
-    strcpy(two, "-s");
+    strcpy(two, "--segment");
     strcpy(three, segment);
     EXPECT_EQ(set_properties_from_args(filter, &result, &argc, argv), 0);
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    EXPECT_EQ(result, 0);
 }
 
 /**
