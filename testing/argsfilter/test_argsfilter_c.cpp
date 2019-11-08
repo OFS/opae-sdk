@@ -86,11 +86,11 @@ TEST_P(argsfilter_c_p, bdf) {
                      six, seven, eight, nine, ten, eleven };
     int argc = 12;
     fpga_result result;
-    char bus[4];
-    char device[4];
-    char function[4];
-    char socket_id[4];
-    char segment[4];
+    char bus[10];
+    char device[10];
+    char function[10];
+    char socket_id[10];
+    char segment[10];
 
     sprintf(bus, "0x%x", platform_.devices[0].bus);
     sprintf(device, "0x%x", platform_.devices[0].device);
@@ -132,7 +132,7 @@ TEST_P(argsfilter_c_p, bus) {
     char *argv[] = { zero, one, two, three };
     int argc = 4;
     fpga_result result;
-    char bus[4];
+    char bus[10];
 
     sprintf(bus, "0x%x", platform_.devices[0].bus);
 
@@ -188,7 +188,7 @@ TEST_P(argsfilter_c_p, device) {
     char *argv[] = { zero, one, two, three };
     int argc = 4;
     fpga_result result;
-    char device[4];
+    char device[10];
 
     sprintf(device, "0x%x", platform_.devices[0].device);
 
@@ -244,7 +244,7 @@ TEST_P(argsfilter_c_p, function) {
     char *argv[] = { zero, one, two, three };
     int argc = 4;
     fpga_result result;
-    char function[4];
+    char function[10];
 
     sprintf(function, "0x%x", platform_.devices[0].function);
 
@@ -300,7 +300,7 @@ TEST_P(argsfilter_c_p, socket_id) {
     char *argv[] = { zero, one, two, three };
     int argc = 4;
     fpga_result result;
-    char socket_id[4];
+    char socket_id[10];
 
     sprintf(socket_id, "0x%x", platform_.devices[0].socket_id);
 
@@ -356,7 +356,7 @@ TEST_P(argsfilter_c_p, segment) {
     char *argv[] = { zero, one, two, three };
     int argc = 4;
     fpga_result result;
-    char segment[4];
+    char segment[10];
 
     sprintf(segment, "0x%x", platform_.devices[0].segment);
 
