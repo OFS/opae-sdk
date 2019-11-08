@@ -748,8 +748,66 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_03) {
   EXPECT_EQ(result, FPGA_OK);
 }
 
+TEST_P(sysfs_c_mock_p, fpga_sysfs_04) {
+	fpga_result result;
+	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
+
+	result =  sysfs_get_port_error_path(handle_, sysfs_path);
+	EXPECT_EQ(result, FPGA_OK);
+
+	result = sysfs_get_port_error_path(handle_, NULL);
+	EXPECT_EQ(result, FPGA_INVALID_PARAM);
+}
+
+TEST_P(sysfs_c_mock_p, fpga_sysfs_05) {
+	fpga_result result;
+	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
+
+	result = sysfs_get_port_error_clear_path(handle_, sysfs_path);
+	EXPECT_EQ(result, FPGA_OK);
+
+	result = sysfs_get_port_error_clear_path(handle_, NULL);
+	EXPECT_EQ(result, FPGA_INVALID_PARAM);
+}
+
+TEST_P(sysfs_c_mock_p, fpga_sysfs_06) {
+	fpga_result result;
+	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
+
+	result = sysfs_get_fme_pwr_path(handle_, sysfs_path);
+	EXPECT_EQ(result, FPGA_OK);
+
+	result = sysfs_get_fme_pwr_path(handle_, NULL);
+	EXPECT_EQ(result, FPGA_INVALID_PARAM);
+}
+
+
+TEST_P(sysfs_c_mock_p, fpga_sysfs_07) {
+	fpga_result result;
+	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
+
+	result = sysfs_get_fme_temp_path(handle_, sysfs_path);
+	EXPECT_EQ(result, FPGA_OK);
+
+	result = sysfs_get_fme_temp_path(handle_, NULL);
+	EXPECT_EQ(result, FPGA_INVALID_PARAM);
+}
+
+TEST_P(sysfs_c_mock_p, fpga_sysfs_08) {
+	fpga_result result;
+	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
+
+	result = sysfs_get_fme_perf_path(handle_, sysfs_path);
+	EXPECT_EQ(result, FPGA_OK);
+
+	result = sysfs_get_fme_perf_path(handle_, NULL);
+	EXPECT_EQ(result, FPGA_INVALID_PARAM);
+}
+
+
+
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc", "dcp-vc" })));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc", "dcp-vc","skx-p-dfl0_patchset2" })));
 
 class sysfs_c_mock_no_drv_p : public ::testing::TestWithParam<std::string> {
  protected:
