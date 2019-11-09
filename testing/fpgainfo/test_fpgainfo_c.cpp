@@ -325,7 +325,7 @@ TEST_P(fpgainfo_c_p, main_5) {
     char two[20];
     char three[20];
     char *argv[] = { zero, one, two, three };
-    char bus[2];
+    char bus[10];
 
     sprintf(bus, "0x%x", platform_.devices[0].bus);
 
