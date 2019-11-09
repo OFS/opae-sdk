@@ -111,7 +111,7 @@ TEST_P(argsfilter_c_p, bdf) {
     strcpy(seven, function);
     strcpy(eight, "-S");
     strcpy(nine, socket_id);
-    strcpy(ten, "-s");
+    strcpy(ten, "--segment");
     strcpy(eleven, segment);
     EXPECT_EQ(set_properties_from_args(filter, &result, &argc, argv), 0);
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
@@ -370,6 +370,32 @@ TEST_P(argsfilter_c_p, segment) {
     EXPECT_EQ(set_properties_from_args(filter, &result, &argc, argv), 0);
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
     EXPECT_EQ(result, 0);
+}
+
+/**
+ * @test       segment_neg
+ * @brief      Test: set_properties_from_args
+ * @details    When passed with valid argument for the segment, <br>
+ *             the function returns 0. <br>
+ */
+TEST_P(argsfilter_c_p, segment_neg) {
+    char zero[20];
+    char one[20];
+    char two[20];
+    char three[20];
+    char *argv[] = { zero, one, two, three };
+    int argc = 4;
+    fpga_result result;
+
+    fpga_properties filter = NULL;
+    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "fme");
+    strcpy(two, "--segment");
+    strcpy(three, "zxyw");
+    EXPECT_NE(set_properties_from_args(filter, &result, &argc, argv), 0);
+    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
