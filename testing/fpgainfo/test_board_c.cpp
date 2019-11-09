@@ -23,27 +23,10 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include <opae/fpga.h>
-#include <limits.h>
-#include <config.h>
-
-#include <iostream>
-#include <array>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <errno.h>
-#include <unistd.h>
 #include "gtest/gtest.h"
 #include "test_system.h"
-#include "safe_string/safe_string.h"
 
 extern "C" {
-
-#include <json-c/json.h>
-#include <stdlib.h>
-#include "opae_int.h"
-#include "types_int.h"
 fpga_result load_board_plugin(fpga_token token, void** dl_handle);
 int unload_board_plugin(void);
 int parse_mac_args(int argc, char *argv[]);
