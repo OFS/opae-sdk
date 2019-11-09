@@ -195,7 +195,7 @@ STATIC fpga_result clear_port_errors(fpga_handle handle)
 
 	result = sysfs_get_port_error_path(handle, sysfs_path);
 	if (result != FPGA_OK) {
-		FPGA_ERR(" Failed to get port errors path");
+		FPGA_ERR("Failed to get port errors path");
 		return result;
 	}
 
@@ -208,7 +208,7 @@ STATIC fpga_result clear_port_errors(fpga_handle handle)
 
 	result = sysfs_get_port_error_clear_path(handle, sysfs_path);
 	if (result != FPGA_OK) {
-		FPGA_ERR(" Failed to get port errors clear path");
+		FPGA_ERR("Failed to get port errors clear path");
 		return result;
 	}
 
