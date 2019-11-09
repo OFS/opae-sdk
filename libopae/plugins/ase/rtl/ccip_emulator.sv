@@ -146,7 +146,7 @@ module ccip_emulator
     endfunction
 
     // ccip_tx1_to_ase_tx1: Convert from CCIP -> ASE Tx1
-    function ASETxHdr_t ccip_tx1_to_ase_tx1(t_ccip_c1_ReqMemHdr inhdr);
+    function ASETxHdr_t ccip_tx1_to_ase_tx1(t_ccip_c1_ReqMemHdr inhdr, logic valid);
         ASETxHdr_t        txasehdr;
         logic [41:0]      c1tx_mcl_baseaddr;
         ccip_reqtype_t c1tx_mcl_basetype;
@@ -172,7 +172,7 @@ module ccip_emulator
              || (txasehdr.txhdr.reqtype == ASE_WRLINE_M)
              || (txasehdr.txhdr.reqtype == ASE_WRPUSH) )
         begin
-            if (inhdr.sop)
+            if (inhdr.sop && valid)
             begin
                 c1tx_mcl_baseaddr  = txasehdr.txhdr.addr;
                 c1tx_mcl_basetype  = txasehdr.txhdr.reqtype;
@@ -278,7 +278,8 @@ module ccip_emulator
         C0TxValid                    <= pck_af2cp_sTx.c0.valid;
 
         // Tx OUT (CH1)
-        ASE_C1TxHdr                  <= ccip_tx1_to_ase_tx1(pck_af2cp_sTx.c1.hdr);
+        ASE_C1TxHdr                  <= ccip_tx1_to_ase_tx1(pck_af2cp_sTx.c1.hdr,
+                                                            pck_af2cp_sTx.c1.valid);
         C1TxHdr                      <= ASE_C1TxHdr.txhdr;
         C1TxData                     <= pck_af2cp_sTx.c1.data;
         C1TxValid                    <= pck_af2cp_sTx.c1.valid;
