@@ -346,6 +346,11 @@ fpga_result __FPGA_API__ xfpga_fpgaWriteMMIO512(fpga_handle handle,
 	if (result)
 		return result;
 
+	if (!(_handle->flags & OPAE_FLAG_HAS_MMX512)) {
+		result = FPGA_NOT_SUPPORTED;
+		goto out_unlock;
+	}
+
 	result = find_or_map_wm(handle, mmio_num, &wm);
 	if (result)
 		goto out_unlock;
