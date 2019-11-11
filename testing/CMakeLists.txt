@@ -697,7 +697,7 @@ add_unit_test(test_xfpga_threshold_c xfpga-static
     xfpga/test_thresold_c.cpp
 )
 
-add_unit_test(test_plugin_c xfpga-static
+add_unit_test(test_xfpga_plugin_c xfpga-static
     xfpga/test_plugin_c.cpp
 )
 
