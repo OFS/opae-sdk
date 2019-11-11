@@ -55,9 +55,9 @@
 /* Macro for defining symbol visibility */
 #define __FPGA_API__ __attribute__((visibility("default")))
 #define __FIXME_MAKE_VISIBLE__ __attribute__((visibility("default")))
-#define GCC_VERSION (__GNUC__ * 10000 \
-                     + __GNUC_MINOR__ * 100 \
-                     + __GNUC_PATCHLEVEL__)
+#define GCC_VERSION (__GNUC__       * 10000 \
+		   + __GNUC_MINOR__ * 100 \
+		   + __GNUC_PATCHLEVEL__)
 
 /* Check validity of various objects */
 fpga_result prop_check_and_lock(struct _fpga_properties *prop);
