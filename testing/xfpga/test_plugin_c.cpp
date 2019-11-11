@@ -30,30 +30,22 @@ extern "C" {
 #include "types_int.h"
 #include "adapter.h"
 
-	bool  xfpga_plugin_supports_device(const char *device_type);
-	int xfpga_plugin_initialize(void);
-	int xfpga_plugin_finalize(void);
-	bool  xfpga_plugin_supports_host(const char *hostname);
-	int opae_plugin_configure(opae_api_adapter_table *adapter,
-		const char *jsonConfig);
+bool xfpga_plugin_supports_device(const char *device_type);
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+bool xfpga_plugin_supports_host(const char *hostname);
+int opae_plugin_configure(opae_api_adapter_table *adapter,
+	const char *jsonConfig);
 }
 
 #include <opae/enum.h>
 #include <opae/fpga.h>
-#include <opae/properties.h>
-#include <sys/types.h>
-#include <uuid/uuid.h>
-#include <string>
-#include <vector>
+#include <dlfcn.h>
 #include "xfpga.h"
 #include <fcntl.h>
 #include "gtest/gtest.h"
 #include "test_system.h"
 #include "adapter.h"
-#include <dlfcn.h>
-#include <sys/types.h>
-#include <dirent.h>
-
 
 using namespace opae::testing;
 
@@ -132,8 +124,8 @@ protected:
 * @test       plugin
 * @brief      Tests: xfpga_plugin_supports_device
 *                    xfpga_plugin_supports_host
- @details    When passed with valid argument return 0 <br>
-*            When passed with invalid argument return -1 <br>
+ @details    When passed with valid argument,the fn returns true <br>
+*            When passed with invalid argument,the fn returns false <br>
 */
 TEST_P(xfpga_plugin_c_p, test_plugin_1) {
 	EXPECT_EQ(xfpga_plugin_supports_device(NULL), true);
@@ -143,7 +135,8 @@ TEST_P(xfpga_plugin_c_p, test_plugin_1) {
 /*
 * @test       plugin
 * @brief      Tests:xfpga_plugin_initialize
-* @details    When passed with NULL argument returns -1 <br>
+* @details    When passed with NULL argument,the fn returns -1 <br>
+*             When passed with valid argument,the fn returns 0 <br>
 */
 TEST_P(xfpga_plugin_c_p, test_plugin_2) {
 
@@ -153,18 +146,19 @@ TEST_P(xfpga_plugin_c_p, test_plugin_2) {
 
 	EXPECT_EQ(opae_plugin_configure(adapter_table, NULL), 0);
 
-	opae_api_adapter_table *adapter_table_invlaid = opae_plugin_mgr_alloc_adapter_test("libxfpga_test.so");
+	opae_api_adapter_table *adapter_table_invalid = opae_plugin_mgr_alloc_adapter_test("libxfpga_test.so");
 
-	EXPECT_EQ(opae_plugin_configure(adapter_table_invlaid, NULL), -1);
+	EXPECT_EQ(opae_plugin_configure(adapter_table_invalid, NULL), -1);
 }
 INSTANTIATE_TEST_CASE_P(xfpga_plugin_c, xfpga_plugin_c_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc" })));
+	::testing::ValuesIn(test_platform::mock_platforms({"skx-p","dcp-rc"})));
 
 /*
 * @test       plugin
 * @brief      Tests:xfpga_plugin_initialize
 *                   xfpga_plugin_finalize
-* @details    When passed valid argument return 0 <br>
+* @details    When passed valid argument,the fn initializes plugin <br>
+*             returns FPGA_OK <br>
 */
 TEST(xfpga_plugin_c, test_plugin) {
 	EXPECT_NE(xfpga_plugin_initialize(), FPGA_OK);
