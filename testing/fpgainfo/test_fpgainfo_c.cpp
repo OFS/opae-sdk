@@ -107,6 +107,18 @@ int str_in_list(const char *key, const char *list[], size_t size);
 
 int fpgainfo_main(int argc, char *argv[]);
 
+enum verbs_index { VERB_ALL = 0, VERB_FME, VERB_PORT, VERB_MAX };
+
+struct errors_config {
+    bool clear;
+    int force_count;
+    enum verbs_index which;
+    int help_only;
+};
+extern struct errors_config errors_config;
+
+int parse_error_args(int argc, char *argv[]);
+
 }
 
 #include <iostream>
@@ -409,6 +421,8 @@ TEST_P(fpgainfo_c_p, errors_command0) {
     char *argv3[] = { zero, one, two };
     char *argv4[] = { zero, one, two, three };
 
+    errors_config.help_only = false;
+
     fpga_properties filter = NULL;
     fpga_token *tokens = NULL;
     uint32_t matches = 0, num_tokens = 0;;
@@ -491,6 +505,39 @@ TEST_P(fpgainfo_c_p, errors_command0) {
  */
 TEST_P(fpgainfo_c_p, errors_help) {
     errors_help();
+}
+
+/**
+ * @test       parse_error_args
+ * @brief      Test: parse_error_args
+ * @details    When passed the help option, the function prints <br>
+ *             help message for errors subcommand.<br>
+ */
+TEST_P(fpgainfo_c_p, parse_error_args) {
+    char zero[20];
+    char one[20];
+    char *argv[] = { zero, one };
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "-h");
+    EXPECT_NE(parse_error_args(2, argv), 0);
+}
+
+/**
+ * @test       parse_error_args_neg
+ * @brief      Test: parse_error_args
+ * @details    When passed an invalid option, the function prints <br>
+ *             help message for errors subcommand and returns
+ *             an error.<br>
+ */
+TEST_P(fpgainfo_c_p, parse_error_args_neg) {
+    char zero[20];
+    char one[20];
+    char *argv[] = { zero, one };
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "-k");
+    EXPECT_NE(parse_error_args(2, argv), 0);
 }
 
 /**
