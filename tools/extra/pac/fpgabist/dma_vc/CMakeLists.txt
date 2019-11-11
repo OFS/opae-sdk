@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017-2019, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -28,14 +28,17 @@ enable_language(C ASM)
 
 set(ASM_OPTIONS "-x assembler-with-cpp")
 set(CMAKE_ASM_FLAGS "${CFLAGS} ${ASM_OPTIONS}")
+set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS}")
 
-include_directories(${OPAE_INCLUDE_DIR})
+include_directories(${OPAE_INCLUDE_DIR}
+                    ${libjson-c_INCLUDE_DIRS}
+                    ${HWLOC_INCLUDE_DIRS})
 
 file(GLOB CSources *.c *.S)
 add_executable(fpga_dma_vc_test ${CSources})
 set_install_rpath(fpga_dma_vc_test)
 
-target_link_libraries(fpga_dma_vc_test opae-c ${libjson-c_LIBRARIES} uuid rt hwloc ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(fpga_dma_vc_test opae-c ${libjson-c_LIBRARIES} uuid rt ${HWLOC_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
 install(TARGETS fpga_dma_vc_test
         RUNTIME DESTINATION bin

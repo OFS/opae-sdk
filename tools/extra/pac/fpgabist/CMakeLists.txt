@@ -34,9 +34,14 @@ set(PYTHON_SRC
      bist_nlb3.py
      fpgabist)
 
- add_subdirectory(dma)
- add_subdirectory(dma_vc)
- add_subdirectory(bist)
+if(TBB_FOUND)
+  add_subdirectory(dma)
+else(TBB_FOUND)
+  message(WARNING "Thread Building Blocks not found: not building fpgabist/dma.")
+endif(TBB_FOUND)
+
+add_subdirectory(dma_vc)
+add_subdirectory(bist)
 
 install(PROGRAMS ${PYTHON_SRC}
     DESTINATION bin

@@ -661,12 +661,16 @@ extern struct ase_cfg_t *cfg;
 typedef struct {
 	int       mode;
 	int       qw_start;
-	long      mdata;
+	int       mdata;
+	int       intr_id;
 	long long cl_addr;
 	long long qword[8];
 	int       resp_channel;
-	int       intr_id;
 	int       success;
+
+	int       byte_en;         // Access limited to byte range within line when non-zero
+	int       byte_start;      // Index of first byte update
+	int       byte_len;        // Number of bytes to update, starting with byte_start
 } cci_pkt;
 
 #define CCIPKT_WRITE_MODE    0x1010

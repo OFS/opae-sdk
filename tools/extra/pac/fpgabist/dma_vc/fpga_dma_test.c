@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,6 +24,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 #include <string.h>
 #include <ctype.h>
 #include <uuid/uuid.h>
@@ -115,7 +118,7 @@ config = {
 /*
  *  *  * Parse command line arguments
  *   *   */
-#define GETOPT_STRING ":B:D:S:s:G:mpc2nayCM"
+#define GETOPT_STRING ":B:D:S:s:G:mpc2nayCMv"
 fpga_result parse_args(int argc, char *argv[])
 {
     struct option longopts[] = {
@@ -123,7 +126,9 @@ fpga_result parse_args(int argc, char *argv[])
         {"dma", required_argument, NULL, 'D'},
         {"size", required_argument, NULL, 'S'},
         {"bufsize", required_argument, NULL, 's'},
-        {"guid", required_argument, NULL, 'G'}
+        {"guid", required_argument, NULL, 'G'},
+	{"version", no_argument, NULL, 'v'},
+	{NULL, 0, NULL, 0}
     };
 
 	int getopt_ret;
@@ -230,6 +235,13 @@ fpga_result parse_args(int argc, char *argv[])
 		case 'M':
 			memory_affinity = true;
 			break;
+
+		case 'v':
+			printf("fpga_dma_vc_test %s %s%s\n",
+			       INTEL_FPGA_API_VERSION,
+			       INTEL_FPGA_API_HASH,
+			       INTEL_FPGA_TREE_DIRTY ? "*":"");
+			return -2;
 
 		default: /* invalid option */
 			fprintf(stderr, "Invalid cmdline options\n");
@@ -628,7 +640,7 @@ int main(int argc, char *argv[])
 	}
 
 	res = parse_args(argc, argv);
-	if (res == FPGA_EXCEPTION) {
+	if (res == FPGA_EXCEPTION || ((int)res < 0)) {
 		return 1;
 	}
 

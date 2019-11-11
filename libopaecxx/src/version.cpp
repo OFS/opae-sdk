@@ -29,10 +29,6 @@
 #include <opae/types.h>
 #include <opae/version.h>
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif  // HAVE_CONFIG_H
-
 namespace opae {
 namespace fpga {
 namespace types {

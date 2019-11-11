@@ -24,6 +24,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 #include <errno.h>
 #include <malloc.h>
 #include <stdlib.h>
@@ -42,7 +45,7 @@
 #include <libbitstream/bitstream.h>
 #include <libbitstream/metadatav1.h>
 
-#define GETOPT_STRING ":hB:D:F:S:G"
+#define GETOPT_STRING ":hB:D:F:S:Gv"
 
 struct option longopts[] = {
 	{ "help",      no_argument,       NULL, 'h' },
@@ -52,6 +55,7 @@ struct option longopts[] = {
 	{ "function",  required_argument, NULL, 'F' },
 	{ "socket-id", required_argument, NULL, 'S' },
 	{ "gbs",       required_argument, NULL, 'G' },
+	{ "version",   no_argument,       NULL, 'v' },
 	{ NULL, 0, NULL, 0 }
 };
 
@@ -81,11 +85,12 @@ void CoreidleAppShowHelp()
 	printf("<Device>              --device=<DEVICE NUMBER>    "
 			" OR  -D=<DEVICE NUMBER>\n");
 	printf("<Function>            --function=<FUNCTION NUMBER> "
-			"OR  -F=<FUNCTION NUMBER>\n");
+			"OR   -F=<FUNCTION NUMBER>\n");
 	printf("<Socket-id>           --socket-id=<SOCKET NUMBER> "
 			" OR  -S=<SOCKET NUMBER>\n");
 	printf("<GBS Bitstream>       --gbs=<GBS FILE>            "
 			" OR  -G=<GBS FILE>\n");
+	printf("-v,--version  Print version and exit\n");
 	printf("\n");
 
 }
@@ -325,6 +330,13 @@ int ParseCmds(struct CoreIdleCommandLine *coreidleCmdLine,
 			}
 			coreidleCmdLine->filename[sizeof(coreidleCmdLine->filename)-1] = 0;
 			} break;
+
+		case 'v':
+			printf("coreidle %s %s%s\n",
+			       INTEL_FPGA_API_VERSION,
+			       INTEL_FPGA_API_HASH,
+			       INTEL_FPGA_TREE_DIRTY ? "*":"");
+			return -2;
 
 		case '?':
 		default:    /* invalid option */

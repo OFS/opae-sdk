@@ -1489,6 +1489,9 @@ void free_buffers(void)
 
 	ase_host_memory_terminate();
 
+	asebuf_index_count = 0;
+	userbuf_index_count = 0;
+
 	FUNC_CALL_EXIT;
 }
 
@@ -1700,7 +1703,22 @@ static void *membus_wr_watcher(void *arg)
 			wr_rsp.va = ase_host_memory_pa_to_va(wr_req.addr, true);
 			wr_rsp.status = membus_op_status(wr_rsp.va, wr_rsp.pa);
 			if (wr_rsp.status == HOST_MEM_STATUS_VALID) {
-				ase_memcpy((char *) wr_rsp.va, wr_req.data, CL_BYTE_WIDTH);
+				char *dst = (char *) wr_rsp.va;
+				char *src = (char *) wr_req.data;
+				size_t len = CL_BYTE_WIDTH;
+
+				// Partial write? Figure out the region to copy.
+				if (wr_req.byte_en) {
+					dst += wr_req.byte_start;
+					src += wr_req.byte_start;
+					len = wr_req.byte_len;
+					if ((src + len - (char *) wr_req.data) > CL_BYTE_WIDTH) {
+						ASE_ERR("Byte range is outside of cache line!");
+						ase_exit();
+					}
+				}
+
+				ase_memcpy(dst, src, len);
 			}
 			ase_host_memory_unlock();
 

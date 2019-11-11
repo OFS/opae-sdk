@@ -142,16 +142,15 @@ package ase_pkg;
    // TxHdr
    typedef struct packed {
       //--------- CCIP standard header --------- //
-      logic [79:77]   qword_idx; // 79:77  // Qword start (no end, sets a cmp QW index)
-      logic [76:74]   rsvd76_74; // 76:74  // X
-      ccip_vc_t       vc;        // 73:72  // Virtual channel select
-      logic 	      sop;       // 71     // Start of packet
-      logic 	      rsvd70;    // 70     // X
-      ccip_len_t      len;       // 69:68  // Length
-      ccip_reqtype_t  reqtype;   // 67:64  // Request Type
-      logic [5:0]     rsvd63_58; // 63:58  // X
-      logic [41:0]    addr;      // 57:16  // Address
-      logic [15:0]    mdata;     // 15:0   // Metadata
+      t_ccip_clByteIdx       byte_len;    // 79:74
+      ccip_vc_t              vc;          // 73:72  // Virtual channel select
+      logic                  sop;         // 71     // Start of packet
+      t_ccip_mem_access_mode mode;        // 70
+      ccip_len_t             len;         // 69:68  // Length
+      ccip_reqtype_t         reqtype;     // 67:64  // Request Type
+      t_ccip_clByteIdx       byte_start;  // 63:58
+      logic [41:0]           addr;        // 57:16  // Address
+      logic [15:0]           mdata;       // 15:0   // Metadata
    } TxHdr_t;
    parameter CCIP_TX_HDR_WIDTH     = $bits(TxHdr_t);
 
@@ -302,11 +301,15 @@ package ase_pkg;
       int 	  mode;
       int 	  qw_start;
       int 	  mdata;
+      int         intr_id;
       longint 	  cl_addr;
       longint     qword[8];
       int 	  resp_channel;
-      int         intr_id;
       int 	  success;
+
+      int         byte_en;         // Access limited to byte range within line when non-zero
+      int         byte_start;      // Index of first byte update
+      int         byte_len;        // Number of bytes to update, starting with byte_start
    } cci_pkt;
 
    parameter CCIPKT_WRITE_MODE   = 32'h1010;
@@ -921,7 +924,7 @@ package ase_pkg;
     * ASE protocol sniff codes
     */
    // parameter SNIFF_CODE_WIDTH = 5;
-   parameter SNIFF_VECTOR_WIDTH = 32;
+   parameter SNIFF_VECTOR_WIDTH = 36;
  // 2**SNIFF_CODE_WIDTH;
 
    // Error code indices
@@ -959,7 +962,12 @@ package ase_pkg;
 		   SNIFF_C1TX_3CL_REQUEST        = 27,
 		   SNIFF_C1TX_WRFENCE_IN_MCL1TO3 = 28,
 		   SNIFF_C1TX_ADDR_ZERO_WARN     = 29,
-		   SNIFF_C1TX_WRFENCE_SOP_SET	 = 30
+		   SNIFF_C1TX_WRFENCE_SOP_SET	 = 30,
+		   SNIFF_C1TX_BYTE_EN_NON_WRITE	 = 31,
+		   SNIFF_C1TX_BYTE_EN_MULTI_LINE = 32,
+		   SNIFF_C1TX_BYTE_EN_BAD_RANGE  = 33,
+		   SNIFF_C1TX_BYTE_EN_NOT_IMPL   = 34,
+		   SNIFF_C1TX_BYTE_EN_WRONG_MODE = 35
 		   // --------------------------------- //
 		   } sniff_code_t;
 

@@ -42,6 +42,7 @@ target_link_libraries(coreidle
   ${libuuid_LIBRARIES}
   ${CMAKE_THREAD_LIBS_INIT}
   m)
+set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS}")
 
 install(TARGETS coreidle
         RUNTIME DESTINATION bin

@@ -73,3 +73,9 @@ find_package(UUID REQUIRED)
 # json-c check
 find_package(json-c REQUIRED)
 
+# hwloc check
+find_package(Hwloc REQUIRED)
+
+# tbb check
+find_package(Tbb REQUIRED)
+
