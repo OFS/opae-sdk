@@ -73,7 +73,7 @@ int __FPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 {
 	UNUSED_PARAM(jsonConfig);
 
-	if (adapter == NULL || adapter->plugin.dl_handle == NULL)
+	if (adapter == NULL)
 		return -1;
 
 	adapter->fpgaOpen = dlsym(adapter->plugin.dl_handle, "xfpga_fpgaOpen");

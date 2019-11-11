@@ -118,6 +118,23 @@ protected:
 
 		return adapter;
 	}
+
+	int opae_plugin_mgr_free_adapter_test(opae_api_adapter_table *adapter)
+	{
+		int res;
+		char *err;
+
+		res = dlclose(adapter->plugin.dl_handle);
+
+		if (res) {
+			err = dlerror();
+			OPAE_ERR("dlclose failed with %d %s", res, err ? err : "");
+		}
+
+		free(adapter);
+
+		return res;
+	}
 };
 
 /*
@@ -146,9 +163,15 @@ TEST_P(xfpga_plugin_c_p, test_plugin_2) {
 
 	EXPECT_EQ(opae_plugin_configure(adapter_table, NULL), 0);
 
+	if (adapter_table)
+		opae_plugin_mgr_free_adapter_test(adapter_table);
+
 	opae_api_adapter_table *adapter_table_invalid = opae_plugin_mgr_alloc_adapter_test("libxfpga_test.so");
 
 	EXPECT_EQ(opae_plugin_configure(adapter_table_invalid, NULL), -1);
+
+	if (adapter_table_invalid)
+		opae_plugin_mgr_free_adapter_test(adapter_table_invalid);
 }
 INSTANTIATE_TEST_CASE_P(xfpga_plugin_c, xfpga_plugin_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({"skx-p","dcp-rc"})));
