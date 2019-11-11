@@ -697,6 +697,10 @@ add_unit_test(test_xfpga_threshold_c xfpga-static
     xfpga/test_thresold_c.cpp
 )
 
+add_unit_test(test_xfpga_plugin_c xfpga-static
+    xfpga/test_plugin_c.cpp
+)
+
 
 target_link_libraries(test_xfpga_bmc_c
     safestr
