@@ -905,6 +905,26 @@ TEST_P(fpgainfo_c_p, bmc_command1) {
 }
 
 /**
+ * @test       bmc_command2
+ * @brief      Test: bmc_command
+ * @details    When passed with invalid '-xyz', the fn prints <br>
+ *             bmc help message and returns FPGA_OK. <br>
+ */
+TEST_P(fpgainfo_c_p, bmc_command2) {
+    char zero[20];
+    char one[20];
+    char two[20];
+    char *argv[] = { zero, one, two };
+
+    fpga_token *tokens = NULL;
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "bmc");
+    strcpy(two, "-xyz");
+    EXPECT_EQ(bmc_command(tokens, 0, 3, argv), FPGA_INVALID_PARAM);
+}
+
+/**
  * @test       perf_command0
  * @brief      Test: perf_command
  * @details    When passed with valid arguments, the fn prints <br>
@@ -930,7 +950,7 @@ TEST_P(fpgainfo_c_p, perf_command0) {
 
     strcpy(zero, "fpgainfo");
     strcpy(one, "perf");
-    EXPECT_EQ(bmc_command(tokens, num_tokens, 2, argv), FPGA_OK);
+    EXPECT_EQ(perf_command(tokens, num_tokens, 2, argv), FPGA_OK);
 
     for (uint32_t i = 0; i < num_tokens; ++i) {
         fpgaDestroyToken(&tokens[i]);
@@ -956,7 +976,27 @@ TEST_P(fpgainfo_c_p, perf_command1) {
     strcpy(zero, "fpgainfo");
     strcpy(one, "perf");
     strcpy(two, "-h");
-    EXPECT_EQ(bmc_command(tokens, 0, 3, argv), FPGA_OK);
+    EXPECT_EQ(perf_command(tokens, 0, 3, argv), FPGA_OK);
+}
+
+/**
+ * @test       perf_command2
+ * @brief      Test: perf_command
+ * @details    When passed with invalid '-xyz' param, the fn prints <br>
+ *             bmc help message and returns FPGA_OK. <br>
+ */
+TEST_P(fpgainfo_c_p, perf_command2) {
+    char zero[20];
+    char one[20];
+    char two[20];
+    char *argv[] = { zero, one, two };
+
+    fpga_token *tokens = NULL;
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "perf");
+    strcpy(two, "-xyz");
+    EXPECT_EQ(perf_command(tokens, 0, 3, argv), FPGA_INVALID_PARAM);
 }
 
 /**
