@@ -157,8 +157,6 @@ TEST_P(xfpga_plugin_c_p, test_plugin_1) {
 */
 TEST_P(xfpga_plugin_c_p, test_plugin_2) {
 
-	EXPECT_EQ(opae_plugin_configure(NULL, NULL), -1);
-
 	opae_api_adapter_table *adapter_table = opae_plugin_mgr_alloc_adapter_test("libxfpga.so");
 
 	EXPECT_EQ(opae_plugin_configure(adapter_table, NULL), 0);
@@ -166,12 +164,6 @@ TEST_P(xfpga_plugin_c_p, test_plugin_2) {
 	if (adapter_table)
 		opae_plugin_mgr_free_adapter_test(adapter_table);
 
-	opae_api_adapter_table *adapter_table_invalid = opae_plugin_mgr_alloc_adapter_test("libxfpga_test.so");
-
-	EXPECT_EQ(opae_plugin_configure(adapter_table_invalid, NULL), -1);
-
-	if (adapter_table_invalid)
-		opae_plugin_mgr_free_adapter_test(adapter_table_invalid);
 }
 INSTANTIATE_TEST_CASE_P(xfpga_plugin_c, xfpga_plugin_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({"skx-p","dcp-rc"})));
