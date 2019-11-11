@@ -828,7 +828,7 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_07) {
 * @test       sysfs
 * @brief      Tests: sysfs_get_fme_perf_path
  @details    When passed with valid argument return 0
-*            and fme pef sysfs path <br>
+*            and fme perf sysfs path <br>
 *            When passed with invalid argument return
 *            FPGA_INVALID_PARAM <br>
 */
