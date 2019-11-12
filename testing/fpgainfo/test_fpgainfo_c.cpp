@@ -908,7 +908,7 @@ TEST_P(fpgainfo_c_p, bmc_command1) {
  * @test       bmc_command2
  * @brief      Test: bmc_command
  * @details    When passed with invalid '-xyz', the fn prints <br>
- *             bmc help message and returns FPGA_OK. <br>
+ *             bmc help message and returns FPGA_INVALID_PARAM. <br>
  */
 TEST_P(fpgainfo_c_p, bmc_command2) {
     char zero[20];
@@ -983,7 +983,7 @@ TEST_P(fpgainfo_c_p, perf_command1) {
  * @test       perf_command2
  * @brief      Test: perf_command
  * @details    When passed with invalid '-xyz' param, the fn prints <br>
- *             perf help message and returns FPGA_OK. <br>
+ *             perf help message and returns FPGA_INVALID_PARAM. <br>
  */
 TEST_P(fpgainfo_c_p, perf_command2) {
     char zero[20];
