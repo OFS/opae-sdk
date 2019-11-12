@@ -405,7 +405,7 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 
 		// Set power threshold for integrated fpga.
 		if (hw_type == FPGA_HW_MCP &&
-			!stat(FPGA_SYSFS_CLASS_PATH_INTERNAL, &st)) {
+			!stat(FPGA_SYSFS_CLASS_PATH_INTEL, &st)) {
 			result = set_fpga_pwr_threshold(fpga, metadata.afu_image.power);
 			if (result != FPGA_OK) {
 				FPGA_ERR("Failed to set threshold.");
