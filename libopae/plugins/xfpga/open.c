@@ -135,6 +135,14 @@ xfpga_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 
 	pthread_mutexattr_destroy(&mattr);
 
+	_handle->flags = 0;
+#if GCC_VERSION >= 40900
+	__builtin_cpu_init();
+	if (__builtin_cpu_supports("avx512f")) {
+		_handle->flags |= OPAE_FLAG_HAS_MMX512;
+	}
+#endif
+
 	// set handle return value
 	*handle = (void *)_handle;
 

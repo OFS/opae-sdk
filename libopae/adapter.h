@@ -68,6 +68,9 @@ typedef struct _opae_api_adapter_table {
 	fpga_result (*fpgaReadMMIO32)(fpga_handle handle, uint32_t mmio_num,
 				      uint64_t offset, uint32_t *value);
 
+	fpga_result (*fpgaWriteMMIO512)(fpga_handle handle, uint32_t mmio_num,
+				       uint64_t offset, void *value);
+
 	fpga_result (*fpgaMapMMIO)(fpga_handle handle, uint32_t mmio_num,
 				   uint64_t **mmio_ptr);
 
