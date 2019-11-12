@@ -74,6 +74,11 @@ IOCTL_IFPGA_SECURE_UPDATE_DATA_SENT = 0xb902
 IOCTL_IFPGA_SECURE_UPDATE_CHECK_COMPLETE = 0xb903
 IOCTL_IFPGA_SECURE_UPDATE_CANCEL = 0xb904
 
+FLASH_COPY_BPS = 43000.0   # bytes/sec when staging is flash
+DRAM_COPY_BPS = 92000.0  # bytes/sec staging area is dram
+DRAM_COPY_OFFSET = 42.0
+
+
 LOG = logging.getLogger()
 LOG_IOCTL = logging.DEBUG - 1
 LOG_STATE = logging.DEBUG - 2
@@ -87,6 +92,16 @@ LOG_NAMES_TO_LEVELS = {
     'error': logging.ERROR,
     'critical': logging.CRITICAL
 }
+
+
+def linear_est_apply_tm(tcm, size):
+    # apply_bps is speed (bytes/sec) it takes to transfer from staging area
+    if tcm:
+        est = size/DRAM_COPY_BPS + DRAM_COPY_OFFSET
+    else:
+        est = size/FLASH_COPY_BPS
+    # Let's over-estimate by 1.5 to account for flash performance degradation
+    return 1.5*est
 
 
 def parse_args():
@@ -474,7 +489,7 @@ class write_block_tuner(object):
         return self._total_time.total_seconds()
 
 
-def update_fw(fd_dev, args):
+def update_fw(fd_dev, args, pac):
     """Writes firmware to secure device.
 
     fd_dev - an integer file descriptor to the os.open()'ed secure
@@ -497,6 +512,9 @@ def update_fw(fd_dev, args):
 
     LOG.info('updating from file %s with size %d',
              infile.name, payload_size)
+
+    # staging area is either DRAM or FLASH device
+    apply_time = linear_est_apply_tm(pac.fme.have_node('tcm'), payload_size)
 
     progress_cfg = {}
     level = min([l.level for l in LOG.handlers])
@@ -578,7 +596,6 @@ def update_fw(fd_dev, args):
         return exc.errno, exc.strerror
 
     LOG.info('applying update')
-    apply_time = wbt.total_seconds * 1.5
     with progress(time=apply_time, **progress_cfg) as prg:
         while True:
             try:
@@ -706,7 +723,7 @@ def main():
 
         try:
             with sec_dev as descr:
-                stat, mesg = update_fw(descr, args)
+                stat, mesg = update_fw(descr, args, pac)
         except SecureUpdateError as exc:
             stat, mesg = exc.errno, exc.strerror
         except KeyboardInterrupt as kb_interrupt:
