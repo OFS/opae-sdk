@@ -963,7 +963,7 @@ TEST_P(fpgainfo_c_p, perf_command0) {
  * @test       perf_command1
  * @brief      Test: perf_command
  * @details    When passed with '-h', the fn prints <br>
- *             bmc help message and returns FPGA_OK. <br>
+ *             perf help message and returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, perf_command1) {
     char zero[20];
@@ -983,7 +983,7 @@ TEST_P(fpgainfo_c_p, perf_command1) {
  * @test       perf_command2
  * @brief      Test: perf_command
  * @details    When passed with invalid '-xyz' param, the fn prints <br>
- *             bmc help message and returns FPGA_OK. <br>
+ *             perf help message and returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, perf_command2) {
     char zero[20];
