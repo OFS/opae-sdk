@@ -302,7 +302,7 @@ target_include_directories(board-rc-static PUBLIC
   PRIVATE ${OPAE_SDK_SOURCE}
   $<INSTALL_INTERFACE:include>)
 
-add_library(fpgainfo-static STATIC
+add_library(fpgainfo-static
     ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/bmcdata.c
     ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/bmcinfo.c
     ${OPAE_SDK_SOURCE}/tools/base/fpgainfo/errors.c

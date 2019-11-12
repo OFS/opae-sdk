@@ -107,16 +107,6 @@ int str_in_list(const char *key, const char *list[], size_t size);
 
 int fpgainfo_main(int argc, char *argv[]);
 
-enum verbs_index { VERB_ALL = 0, VERB_FME, VERB_PORT, VERB_MAX };
-
-struct errors_config {
-    bool clear;
-    int force_count;
-    enum verbs_index which;
-    int help_only;
-};
-extern struct errors_config errors_config;
-
 int parse_error_args(int argc, char *argv[]);
 
 }
@@ -421,8 +411,6 @@ TEST_P(fpgainfo_c_p, errors_command0) {
     char *argv3[] = { zero, one, two };
     char *argv4[] = { zero, one, two, three };
 
-    errors_config.help_only = false;
-
     fpga_properties filter = NULL;
     fpga_token *tokens = NULL;
     uint32_t matches = 0, num_tokens = 0;;
@@ -508,12 +496,12 @@ TEST_P(fpgainfo_c_p, errors_help) {
 }
 
 /**
- * @test       parse_error_args
+ * @test       parse_error_args_help
  * @brief      Test: parse_error_args
  * @details    When passed the help option, the function prints <br>
  *             help message for errors subcommand.<br>
  */
-TEST_P(fpgainfo_c_p, parse_error_args) {
+TEST_P(fpgainfo_c_p, parse_error_args_help) {
     char zero[20];
     char one[20];
     char *argv[] = { zero, one };
@@ -521,6 +509,46 @@ TEST_P(fpgainfo_c_p, parse_error_args) {
     strcpy(zero, "fpgainfo");
     strcpy(one, "-h");
     EXPECT_NE(parse_error_args(2, argv), 0);
+}
+
+/**
+ * @test       parse_error_args_errors_clear
+ * @brief      Test: parse_error_args
+ * @details    When passed the clear errors option, the function <br>
+ *             prints and clears errors.<br>
+ */
+TEST_P(fpgainfo_c_p, parse_error_args_errors_clear) {
+    char zero[20];
+    char one[20];
+    char two[20];
+    char three[20];
+    char *argv[] = { zero, one, two, three };
+
+    fpga_properties filter = NULL;
+    fpga_token *tokens = NULL;
+    uint32_t matches = 0, num_tokens = 0;;
+
+    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+    ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
+    ASSERT_GT(matches, 0);
+    tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
+
+    num_tokens = matches;
+    ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "errors");
+    strcpy(two, "all");
+    strcpy(three, "-c");
+    EXPECT_EQ(parse_error_args(4, argv), 0);
+
+    EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv), FPGA_OK);
+
+    for (uint32_t i = 0; i < num_tokens; ++i) {
+        fpgaDestroyToken(&tokens[i]);
+    }
+    free(tokens);
+    fpgaDestroyProperties(&filter);
 }
 
 /**

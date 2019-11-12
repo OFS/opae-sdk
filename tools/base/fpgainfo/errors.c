@@ -180,11 +180,11 @@ static const char *const PORT_ERROR[PORT_ERROR_COUNT] = {
 /*
  * errors command configuration, set during parse_args()
  */
-STATIC struct errors_config {
+static struct errors_config {
 	bool clear;
 	int force_count;
 	enum verbs_index which;
-	int help_only;
+	bool help_only;
 } errors_config = {.clear = false, .which = VERB_ALL, .help_only = false};
 
 /*
