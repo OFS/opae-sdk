@@ -165,6 +165,7 @@ int __attribute__((visibility("default"))) opae_plugin_configure(opae_api_adapte
 	adapter->fpgaReadMMIO64 = NULL;
 	adapter->fpgaWriteMMIO32 = NULL;
 	adapter->fpgaReadMMIO32 = NULL;
+	adapter->fpgaWriteMMIO512 = NULL;
 	adapter->fpgaMapMMIO = NULL;
 	adapter->fpgaUnmapMMIO = NULL;
 	adapter->fpgaCloneToken = NULL;
