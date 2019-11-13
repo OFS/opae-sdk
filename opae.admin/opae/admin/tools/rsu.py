@@ -115,14 +115,17 @@ def normalize_bdf(bdf):
 def do_rsu(rsu_type, device, boot_page):
     dev_id = device.pci_node.pci_id
 
-    try:
-        boot_number = fpga.BOOT_PAGES[dev_id][rsu_type][boot_page]
-    except KeyError:
-        logger.error('could not determine boot page for given device: %s',
-                     device.pci_node)
+    region = fpga.BOOT_PAGES[dev_id].get(rsu_type, {})
+    if not region:
+        logger.error('%s not supported by device', rsu_type)
         raise SystemExit(os.EX_SOFTWARE)
-    else:
-        device.safe_rsu_boot(boot_number, type=rsu_type)
+
+    boot_number = region.get(boot_page)
+    if boot_number is None:
+        logger.error('%s not supported by device', boot_page)
+        raise SystemExit(os.EX_SOFTWARE)
+
+    device.safe_rsu_boot(boot_number, type=rsu_type)
 
 
 def main():
