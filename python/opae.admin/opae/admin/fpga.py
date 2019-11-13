@@ -29,6 +29,7 @@ import os
 import struct
 import time
 
+from array import array
 from contextlib import contextmanager
 from opae.admin.sysfs import class_node, sysfs_node
 from opae.admin.utils.log import loggable
@@ -210,7 +211,9 @@ class fme(region):
 
     @property
     def avmmi_bmc(self):
-        return self.find_one('avmmi-bmc.*.auto')
+        node = self.find_one('avmmi-bmc.*.auto')
+        if node is not None:
+            return avmmi_bmc(node.sysfs_path, self.pci_node)
 
     @property
     def max10_version(self):
@@ -337,14 +340,42 @@ class secure_dev(region):
     pass
 
 
+class avmmi_bmc(region):
+    BMC_BOOT_REQ = 0xc0187600
+
+    def reboot(self):
+        """reboot Issue a boot request via IOCTL to trigger a board reboot.
+
+        Raises:
+            IOError: If IOCTL was not successful or if completion code is
+            non-zero.
+        """
+
+        tx = array('B', [0xB8, 0x00, 0x09, 0x18, 0x7B, 0x00, 0x01, 0x05])
+        rx = array('B', [0, 0, 0, 0, 0, 0, 0])
+        data = struct.pack('IHHQQ', 24,
+                           tx.buffer_info()[1], rx.buffer_info()[1],
+                           tx.buffer_info()[0], rx.buffer_info()[0])
+
+        with self as dev:
+            fcntl.ioctl(dev, self.BMC_BOOT_REQ, data)
+
+        ccode = rx.pop(3)
+        if ccode:
+            raise IOError('bad completion code: 0x{:8x}'.format(ccode))
+
+
 class fpga(class_node):
     FME_PATTERN = 'intel-fpga-fme.*'
     PORT_PATTERN = 'intel-fpga-port.*'
     BOOT_TYPES = ['bmcimg', 'fpga']
-    BOOT_PAGES = {(0x8086, 0x0b30): {'fpga': {'user': 1,
-                                              'factory': 0},
-                                     'bmcimg': {'user': 0,
-                                                'factory': 1}}}
+    BOOT_PAGES = {
+        (0x8086, 0x0b30): {'fpga': {'user': 1,
+                                    'factory': 0},
+                           'bmcimg': {'user': 0,
+                                      'factory': 1}},
+        (0x8086, 0x09c4): {'fpga': {'user': 0}}
+    }
 
     def __init__(self, path):
         super(fpga, self).__init__(path)
@@ -396,6 +427,18 @@ class fpga(class_node):
         return self.pci_node.pci_id in self.BOOT_PAGES
 
     def rsu_boot(self, page, **kwargs):
+        # look for non-max10 solution
+        fme = self.fme
+        if fme:
+            bmc = fme.avmmi_bmc
+            if bmc is None:
+                self._rsu_boot_sysfs(page, **kwargs)
+            else:
+                bmc.reboot()
+        else:
+            self.log.warn('do not have FME device')
+
+    def _rsu_boot_sysfs(self, page, **kwargs):
         boot_type = kwargs.pop('type', 'bmcimg')
         if kwargs:
             self.log.exception('unrecognized kwargs: %s', kwargs)
