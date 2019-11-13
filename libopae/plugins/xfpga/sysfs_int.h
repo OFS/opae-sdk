@@ -35,6 +35,9 @@
 
 #define SYSFS_PATH_MAX 256
 
+#define FPGA_SYSFS_CLASS_PATH_INTEL   "/sys/class/fpga"
+#define FPGA_SYSFS_CLASS_PATH_DFL     "/sys/class/fpga_region"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -137,6 +140,11 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 
 fpga_result sysfs_write_u64_decimal(const char *path, uint64_t u);
 
+fpga_result sysfs_get_port_error_path(fpga_handle handle, char *sysfs_port_error);
+fpga_result sysfs_get_port_error_clear_path(fpga_handle handle, char *sysfs_port_error_clear);
+fpga_result sysfs_get_fme_pwr_path(fpga_token token, char *sysfs_pwr);
+fpga_result sysfs_get_fme_temp_path(fpga_token token, char *sysfs_temp);
+fpga_result sysfs_get_fme_perf_path(fpga_token token, char *sysfs_perf);
 #ifdef __cplusplus
 }
 #endif
