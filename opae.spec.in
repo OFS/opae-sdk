@@ -90,10 +90,12 @@ rm -f -- /etc/ld.so.conf.d/opae-c.conf
 ldconfig
 
 %files
+%license @CMAKE_INSTALL_PREFIX@/LICENSE
 %defattr(-,root,root,-)
 
 
 %files libs
+%license @CMAKE_INSTALL_PREFIX@/LICENSE
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-cxx*
@@ -104,6 +106,7 @@ ldconfig
 
 
 %files devel
+%license @CMAKE_INSTALL_PREFIX@/LICENSE
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/afu_platform_config
 @CMAKE_INSTALL_PREFIX@/bin/afu_platform_info
@@ -121,6 +124,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/src/opae/*
 
 %files tools
+%license @CMAKE_INSTALL_PREFIX@/LICENSE
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/fpgainfo
 @CMAKE_INSTALL_PREFIX@/bin/fpgad
@@ -133,6 +137,7 @@ ldconfig
 
 
 %files tools-extra
+%license @CMAKE_INSTALL_PREFIX@/LICENSE
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/afu_json_mgr
 @CMAKE_INSTALL_PREFIX@/bin/bist_app

@@ -202,6 +202,8 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 option(HASH_ARCHIVES "Add git commit hash to archive names" OFF)
 mark_as_advanced(HASH_ARCHIVES)
+install(FILES LICENSE DESTINATION ${CMAKE_INSTALL_PREFIX} 
+COMPONENT licensefile)
 
 set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Open Programmable Acceleration Engine")
@@ -254,7 +256,8 @@ set(CPACK_COMPONENTS_ALL
 	toolfpgad
 	toolfpgad_api
 	toolfpgad_xfpga
-	toolfpgad_vc
+  toolfpgad_vc
+  licensefile
 	)
 
 # Component definition
@@ -266,6 +269,7 @@ define_pkg(tools
   toolfpgad_vc
   toolfpgaconf
   toolfpgainfo
+  licensefile
   GROUP "tools"
   DISPLAY_NAME "opae-tools"
   DESCRIPTION "OPAE base tool binaries"
@@ -286,6 +290,7 @@ define_pkg(tools
   opaecxxutils
   opaecxxlib
   opaecxxnlb
+  licensefile
   GROUP "tools-extra"
   DISPLAY_NAME "opae-tools-extra"
   DESCRIPTION "OPAE extra tool binaries"
@@ -304,6 +309,7 @@ define_pkg(devel
   samplesrc
   safestrlib
   safestrheaders
+  licensefile
   GROUP "devel"
   DISPLAY_NAME "opae-devel"
   DESCRIPTION "OPAE headers, sample source, and documentation"
@@ -315,6 +321,7 @@ define_pkg(devel
   opaeclib
   opaecxxcorelib
   opaetoolslibs
+  licensefile
   GROUP "libs"
   DISPLAY_NAME "opae-libs"
   DESCRIPTION "OPAE runtime"
