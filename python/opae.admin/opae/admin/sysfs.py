@@ -496,7 +496,7 @@ class pci_node(sysfs_node):
             call_process('{}={:#08x}'.format(self._aer_cmd1, values[0]))
             call_process('{}={:#08x}'.format(self._aer_cmd2, values[1]))
         except CalledProcessError as err:
-            self.log.exception('error setting aer: %s', err)
+            self.log.warn('error setting aer: %s', err)
 
     @property
     def sriov_totalvfs(self):
