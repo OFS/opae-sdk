@@ -411,9 +411,24 @@ TEST_P(fpgainfo_c_p, parse_error_args_help) {
     char one[20];
     char *argv[] = { zero, one };
 
+    std::string expected = "\nPrint and clear errors\n"
+                      "        fpgainfo errors [-h] [-c] {all,fme,port}\n\n"
+                      "                -h,--help           Print this help\n"
+                      "                -c,--clear          Clear all errors\n"
+                      "                --force             Retry clearing errors 64 times\n"
+                      "                                    to clear certain error conditions\n"
+                      "\n";
+
     strcpy(zero, "fpgainfo");
     strcpy(one, "-h");
+
+    testing::internal::CaptureStdout();
+
     EXPECT_NE(parse_error_args(2, argv), 0);
+
+    std::string log_stdout = testing::internal::GetCapturedStdout();
+
+    EXPECT_TRUE(log_stdout.find(expected) != std::string::npos);
 }
 
 /**
