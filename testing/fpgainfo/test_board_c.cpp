@@ -39,7 +39,6 @@ fpga_result mac_info(fpga_token token);
 fpga_result phy_group_info(fpga_token token);
 }
 
-
 using namespace opae::testing;
 
 class fpgainfo_board_c_p : public ::testing::TestWithParam<std::string> {
@@ -48,9 +47,8 @@ class fpgainfo_board_c_p : public ::testing::TestWithParam<std::string> {
 
     virtual void SetUp() override 
     {
-        std::string platform_key = GetParam();
-        ASSERT_TRUE(test_platform::exists(platform_key));
-        platform_ = test_platform::get(platform_key);
+        ASSERT_TRUE(test_platform::exists(GetParam()));
+        platform_ = test_platform::get(GetParam());
         system_ = test_system::instance();
         system_->initialize();
         system_->prepare_syfs(platform_);
@@ -76,7 +74,7 @@ class fpgainfo_board_c_p : public ::testing::TestWithParam<std::string> {
  *                     the fn returns FPGA_INVALID_PARAM
  *                     unload_board_plugin return FPGA_OK
  */  
-TEST(fpgainfo_board_c_p, invalid_loading_tests) {
+TEST(fpgainfo_board_c, invalid_loading_tests) {
     EXPECT_EQ(load_board_plugin(NULL, NULL), FPGA_INVALID_PARAM);
 
     EXPECT_EQ(unload_board_plugin(), FPGA_OK);
@@ -91,25 +89,17 @@ TEST(fpgainfo_board_c_p, invalid_loading_tests) {
 TEST_P(fpgainfo_board_c_p, load_board_plugin) {
     void* dl_handle = NULL;
     fpga_properties filter = NULL;
-    fpga_token *tokens = NULL;
-    uint32_t matches = 0, num_tokens = 0;;
+    fpga_token tokens = NULL;
+    uint32_t matches = 0;
 
     ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter, FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
+    ASSERT_EQ(fpgaEnumerate(&filter, 1, &tokens, 1, &matches), FPGA_OK);
     ASSERT_GT(matches, 0);
-    tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
 
-    num_tokens = matches;
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
+    EXPECT_EQ(load_board_plugin(&tokens, &dl_handle), FPGA_INVALID_PARAM);
 
-    EXPECT_EQ(load_board_plugin(tokens, &dl_handle), FPGA_INVALID_PARAM);
-
-    for (uint32_t i = 0; i < num_tokens; ++i) {
-        fpgaDestroyToken(&tokens[i]);
-    }
-    free(tokens);
-    fpgaDestroyProperties(&filter);
+    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyToken(&tokens), FPGA_OK);
 }
 
 /**
@@ -153,12 +143,12 @@ TEST_P(fpgainfo_board_c_p, mac_filter) {
 }
 
 /**
-* @test       mac_command
+* @test       mac_command0
 * @brief      Test: mac_command
 * @details    When passed with invalid token, <br>
 *             the fn returns FPGA_INVALID_PARAM. <br>
 */
-TEST_P(fpgainfo_board_c_p, mac_command) {
+TEST_P(fpgainfo_board_c_p, mac_command0) {
     char *argv[] = { };
 
     fpga_token tokens = NULL;
@@ -166,7 +156,7 @@ TEST_P(fpgainfo_board_c_p, mac_command) {
 }
 
 /**
-* @test       mac_command
+* @test       mac_command1
 * @brief      Test: mac_command
 * @details    When passed with valid token and fails to get properties, <br>
 *             the fn returns FPGA_INVALID_PARAM. <br>
@@ -175,24 +165,17 @@ TEST_P(fpgainfo_board_c_p, mac_command1) {
     char *argv[] = { };
 
     fpga_properties filter = NULL;
-    fpga_token *tokens = NULL;
-    uint32_t matches = 0, num_tokens = 0;;
+    fpga_token tokens = NULL;
+    uint32_t matches = 0, num_tokens = 0;
 
     ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
+    ASSERT_EQ(fpgaEnumerate(&filter, 1, &tokens, 1, &matches), FPGA_OK);
     ASSERT_GT(matches, 0);
-    tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
 
-    num_tokens = matches;
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
+    EXPECT_EQ(mac_command(&tokens, num_tokens, 0, argv), FPGA_OK);
 
-    EXPECT_EQ(mac_command(tokens, num_tokens, 0, argv), FPGA_OK);
-
-    for (uint32_t i = 0; i < num_tokens; ++i) {
-        fpgaDestroyToken(&tokens[i]);
-    }
-    free(tokens);
-    fpgaDestroyProperties(&filter);
+    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyToken(&tokens), FPGA_OK);
 }
 
 /**
@@ -277,11 +260,11 @@ TEST_P(fpgainfo_board_c_p, phy_filter) {
 }
 
 /**
-* @test       phy_command
+* @test       phy_command0
 * @brief      Test: phy_command
 * @details    The phy_command fn always returen FPGA_OK <br>
 */
-TEST_P(fpgainfo_board_c_p, phy_command) {
+TEST_P(fpgainfo_board_c_p, phy_command0) {
     char *argv[] = { };
 
     fpga_token tokens = NULL;
@@ -289,7 +272,7 @@ TEST_P(fpgainfo_board_c_p, phy_command) {
 }
 
 /**
-* @test       phy_command
+* @test       phy_command1
 * @brief      Test: phy_command
 * @details    The phy_command fn always returen FPGA_OK <br>
 */
@@ -297,25 +280,17 @@ TEST_P(fpgainfo_board_c_p, phy_command1) {
     char *argv[] = { };
 
     fpga_properties filter = NULL;
-    fpga_token *tokens = NULL;
-    uint32_t matches = 0, num_tokens = 0;;
+    fpga_token tokens = NULL;
+    uint32_t matches = 0, num_tokens = 0;
 
     ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
+    ASSERT_EQ(fpgaEnumerate(&filter, 1, &tokens, 1, &matches), FPGA_OK);
     ASSERT_GT(matches, 0);
-    tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
 
-    num_tokens = matches;
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
+    EXPECT_EQ(phy_command(&tokens, num_tokens, 0, argv), FPGA_OK);
 
-    EXPECT_EQ(phy_command(tokens, num_tokens, 0, argv), FPGA_OK);
-
-    for (uint32_t i = 0; i < num_tokens; ++i) {
-        fpgaDestroyToken(&tokens[i]);
-    }
-    free(tokens);
-    fpgaDestroyProperties(&filter);
-
+    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyToken(&tokens), FPGA_OK);
 }
 
 /**
