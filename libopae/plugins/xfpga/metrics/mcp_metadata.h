@@ -109,10 +109,9 @@ fpga_metric_metadata mcp_metric_metadata[] = {
 
 	{ .group_name = "thermal_mgmt", .metric_name = "temp1_max_alarm",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "" },
- 
- 
- 	{ .group_name = "thermal_mgmt", .metric_name = "temp1_max_policy",
-	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "" }, 
+
+	{ .group_name = "thermal_mgmt", .metric_name = "temp1_max_policy",
+	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "" },
 
 
 	// THERMAL
