@@ -257,11 +257,13 @@ fpga_result enum_thermalmgmt_metrics(fpga_metric_vector *vector,
 			FPGA_METRIC_DATATYPE_INT, FPGA_METRIC_TYPE_THERMAL, hw_type, 0);
 		if (result != FPGA_OK) {
 			FPGA_MSG("Failed to add metrics");
+			globfree(&pglob);
 			return result;
 		}
 		*metric_num = *metric_num + 1;
 	}
 
+	globfree(&pglob);
 	return result;
 }
 
@@ -311,12 +313,13 @@ fpga_result enum_powermgmt_metrics(fpga_metric_vector *vector,
 			FPGA_METRIC_DATATYPE_INT, FPGA_METRIC_TYPE_POWER, hw_type, 0);
 		if (result != FPGA_OK) {
 			FPGA_MSG("Failed to add metrics");
+			globfree(&pglob);
 			return result;
 		}
 		*metric_num = *metric_num + 1;
 	}
 
-
+	globfree(&pglob);
 	return result;
 }
 
@@ -823,7 +826,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 
 				result = enum_powermgmt_metrics(&(_handle->fpga_enum_metric_vector), &metric_num, metrics_path, FPGA_HW_MCP);
 				if (result != FPGA_OK) {
-					FPGA_MSG("Failed to Enum Power metrics.");
+					FPGA_ERR("Failed to Enum Power metrics.");
 				}
 			}
 
@@ -832,7 +835,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 
 				result = enum_thermalmgmt_metrics(&(_handle->fpga_enum_metric_vector), &metric_num, metrics_path, FPGA_HW_MCP);
 				if (result != FPGA_OK) {
-					FPGA_MSG("Failed to Enum Thermal metrics.");
+					FPGA_ERR("Failed to Enum Thermal metrics.");
 				}
 			}
 
@@ -841,7 +844,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 
 				result = enum_perf_counter_metrics(&(_handle->fpga_enum_metric_vector), &metric_num, metrics_path, FPGA_HW_MCP);
 				if (result != FPGA_OK) {
-					FPGA_MSG("Failed to Enum Perforamnce metrics.");
+					FPGA_ERR("Failed to Enum Performance metrics.");
 				}
 			}
 
@@ -856,7 +859,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 
 				result = enum_perf_counter_metrics(&(_handle->fpga_enum_metric_vector), &metric_num, metrics_path, FPGA_HW_DCP_RC);
 				if (result != FPGA_OK) {
-					FPGA_MSG("Failed to Enum Perforamnce metrics.");
+					FPGA_ERR("Failed to Enum Performance metrics.");
 				}
 			}
 
@@ -869,7 +872,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 				if (_handle->bmc_handle) {
 					result = enum_bmc_metrics_info(_handle, &(_handle->fpga_enum_metric_vector), &metric_num, FPGA_HW_DCP_RC);
 					if (result != FPGA_OK) {
-						FPGA_MSG("Failed to enumerate BMC metrics.");
+						FPGA_ERR("Failed to enumerate BMC metrics.");
 					}
 
 				}
@@ -891,7 +894,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 					&metric_num,
 					hw_type);
 				if (result != FPGA_OK) {
-					FPGA_MSG("Failed to Enum Power and Thermal metrics.");
+					FPGA_ERR("Failed to Enum Power and Thermal metrics.");
 				}
 			}
 
@@ -901,7 +904,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 				// Perf Counters
 				result = enum_perf_counter_metrics(&(_handle->fpga_enum_metric_vector), &metric_num, _token->sysfspath, hw_type);
 				if (result != FPGA_OK) {
-					FPGA_MSG("Failed to Enum Performance metrics.");
+					FPGA_ERR("Failed to Enum Performance metrics.");
 				}
 			}
 		}

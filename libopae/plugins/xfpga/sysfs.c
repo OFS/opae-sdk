@@ -729,11 +729,14 @@ fpga_result sysfs_get_fme_pwr_path(fpga_token token, char *sysfs_pwr)
 		return FPGA_INVALID_PARAM;
 	}
 	res = cat_token_sysfs_path(sysfs_pwr, token, SYSFS_FORMAT(sysfs_fme_pwr_glob));
+	if (res != FPGA_OK) {
+		return res;
+	}
 
 	// check for path is valid
 	int gres = glob(sysfs_pwr, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
-		FPGA_MSG("Failed pattern match %s: %s", sysfs_pwr, strerror(errno));
+		FPGA_ERR("Failed pattern match %s: %s", sysfs_pwr, strerror(errno));
 		globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
@@ -755,11 +758,14 @@ fpga_result sysfs_get_fme_temp_path(fpga_token token, char *sysfs_temp)
 	}
 
 	res = cat_token_sysfs_path(sysfs_temp, token, SYSFS_FORMAT(sysfs_fme_temp_glob));
+	if (res != FPGA_OK) {
+		return res;
+	}
 
 	// check for path is valid
 	int gres = glob(sysfs_temp, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
-		FPGA_MSG("Failed pattern match %s: %s", sysfs_temp, strerror(errno));
+		FPGA_ERR("Failed pattern match %s: %s", sysfs_temp, strerror(errno));
 		globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
@@ -781,11 +787,14 @@ fpga_result sysfs_get_fme_perf_path(fpga_token token, char *sysfs_perf)
 	}
 
 	res = cat_token_sysfs_path(sysfs_perf, token, SYSFS_FORMAT(sysfs_fme_perf_glob));
+	if (res != FPGA_OK) {
+		return res;
+	}
 
 	// check for path is valid
 	int gres = glob(sysfs_perf, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
-		FPGA_MSG("Failed pattern match %s: %s", sysfs_perf, strerror(errno));
+		FPGA_ERR("Failed pattern match %s: %s", sysfs_perf, strerror(errno));
 		globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
@@ -861,13 +870,11 @@ fpga_result sysfs_get_bmc_path(fpga_token token, char *sysfs_bmc)
 	}
 
 	res = cat_token_sysfs_path(sysfs_bmc, token, SYSFS_FORMAT(sysfs_bmc_glob));
-
-	res = opae_glob_path(sysfs_bmc);
-	if (res) {
+	if (res != FPGA_OK) {
 		return res;
 	}
 
-	return res;
+	return opae_glob_path(sysfs_bmc);
 }
 
 fpga_result sysfs_get_max10_path(fpga_token token, char *sysfs_max10)
@@ -882,13 +889,11 @@ fpga_result sysfs_get_max10_path(fpga_token token, char *sysfs_max10)
 	}
 
 	res = cat_token_sysfs_path(sysfs_max10, token, SYSFS_FORMAT(sysfs_max10_glob));
-
-	res = opae_glob_path(sysfs_max10);
-	if (res) {
+	if (res != FPGA_OK) {
 		return res;
 	}
 
-	return res;
+	return opae_glob_path(sysfs_max10);
 }
 
 fpga_result sysfs_get_fme_pr_interface_id(const char *sysfs_sysfs_path, fpga_guid guid)
