@@ -730,7 +730,7 @@ fpga_result sysfs_get_fme_pwr_path(fpga_token token, char *sysfs_pwr)
 	}
 	res = cat_token_sysfs_path(sysfs_pwr, token, SYSFS_FORMAT(sysfs_fme_pwr_glob));
 
-	// check for path is valid 
+	// check for path is valid
 	int gres = glob(sysfs_pwr, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		FPGA_MSG("Failed pattern match %s: %s", sysfs_pwr, strerror(errno));
@@ -756,7 +756,7 @@ fpga_result sysfs_get_fme_temp_path(fpga_token token, char *sysfs_temp)
 
 	res = cat_token_sysfs_path(sysfs_temp, token, SYSFS_FORMAT(sysfs_fme_temp_glob));
 
-	// check for path is valid 
+	// check for path is valid
 	int gres = glob(sysfs_temp, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		FPGA_MSG("Failed pattern match %s: %s", sysfs_temp, strerror(errno));
@@ -782,7 +782,7 @@ fpga_result sysfs_get_fme_perf_path(fpga_token token, char *sysfs_perf)
 
 	res = cat_token_sysfs_path(sysfs_perf, token, SYSFS_FORMAT(sysfs_fme_perf_glob));
 
-	// check for path is valid 
+	// check for path is valid
 	int gres = glob(sysfs_perf, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		FPGA_MSG("Failed pattern match %s: %s", sysfs_perf, strerror(errno));

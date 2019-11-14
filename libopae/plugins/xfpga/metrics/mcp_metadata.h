@@ -65,60 +65,56 @@ fpga_metric_metadata mcp_metric_metadata[] = {
 	{ .group_name = "power_mgmt", .metric_name = "xeon_limit",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "Watts" },
 
- 	{ .group_name = "power_mgmt", .metric_name = "power1_crit",
+	{ .group_name = "power_mgmt", .metric_name = "power1_crit",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "Micro Watts" },
- 
-  	{ .group_name = "power_mgmt", .metric_name = "power1_crit_alarm",
+
+	{ .group_name = "power_mgmt", .metric_name = "power1_crit_alarm",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "" },
- 
-  	{ .group_name = "power_mgmt", .metric_name = "power1_fpga_limit",
+
+	{ .group_name = "power_mgmt", .metric_name = "power1_fpga_limit",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "Micro Watts" },
-  
-   	{ .group_name = "power_mgmt", .metric_name = "power1_input",
+
+	{ .group_name = "power_mgmt", .metric_name = "power1_input",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "Micro Watts" },
- 
-   	{ .group_name = "power_mgmt", .metric_name = "power1_ltr",
+
+	{ .group_name = "power_mgmt", .metric_name = "power1_ltr",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "" },
- 
-    	{ .group_name = "power_mgmt", .metric_name = "power1_max",
+
+	{ .group_name = "power_mgmt", .metric_name = "power1_max",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "Micro Watts" },
-  
-    	{ .group_name = "power_mgmt", .metric_name = "power1_max_alarm",
+
+	{ .group_name = "power_mgmt", .metric_name = "power1_max_alarm",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "" },
-  
-     	{ .group_name = "power_mgmt", .metric_name = "power1_xeon_limit",
+
+	{ .group_name = "power_mgmt", .metric_name = "power1_xeon_limit",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "Micro Watts" },
- 
-  
- 	{ .group_name = "thermal_mgmt", .metric_name = "temp1_crit",
+
+	{ .group_name = "thermal_mgmt", .metric_name = "temp1_crit",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "Milli Centigrade" },
-  
- 
- 	{ .group_name = "thermal_mgmt", .metric_name = "temp1_crit_alarm",
+
+	{ .group_name = "thermal_mgmt", .metric_name = "temp1_crit_alarm",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "" },
-  
- 	{ .group_name = "thermal_mgmt", .metric_name = "temperature",
+
+	{ .group_name = "thermal_mgmt", .metric_name = "temperature",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "Milli Centigrade" },
-  
- 	{ .group_name = "thermal_mgmt", .metric_name = "temp1_emergency",
+
+	{ .group_name = "thermal_mgmt", .metric_name = "temp1_emergency",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "" },
-  
- 	{ .group_name = "thermal_mgmt", .metric_name = "temp1_input",
+
+	{ .group_name = "thermal_mgmt", .metric_name = "temp1_input",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "Milli Centigrade" },
- 
- 
- 	{ .group_name = "thermal_mgmt", .metric_name = "temp1_max",
+
+	{ .group_name = "thermal_mgmt", .metric_name = "temp1_max",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "Milli Centigrade" },
- 
- 
- 	{ .group_name = "thermal_mgmt", .metric_name = "temp1_max_alarm",
+
+	{ .group_name = "thermal_mgmt", .metric_name = "temp1_max_alarm",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "" },
  
  
  	{ .group_name = "thermal_mgmt", .metric_name = "temp1_max_policy",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "" }, 
- 
- 
+
+
 	// THERMAL
 	{ .group_name = "thermal_mgmt", .metric_name = "temperature",
 	.data_type = FPGA_METRIC_DATATYPE_INT, .metric_units = "Centigrade" },
