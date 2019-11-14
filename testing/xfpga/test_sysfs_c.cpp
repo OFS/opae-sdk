@@ -835,8 +835,11 @@ class sysfs_dfl_c_mock_p : public sysfs_c_mock_p { };
 * @brief      Tests: sysfs_get_fme_perf_path
  @details    When passed with valid argument return 0
 *            and fme perf sysfs path <br>
-*            When passed with invalid argument return
+*            When passed with invalid argument returns
 *            FPGA_INVALID_PARAM <br>
+*            When passed with valid argument on
+*            unsupported plaform returns
+*            FPGA_NOT_FOUND <br>
 */
 TEST_P(sysfs_dfl_c_mock_p, fpga_sysfs_08) {
 	fpga_result result;
@@ -857,8 +860,11 @@ class sysfs_power_mock_p : public sysfs_c_mock_p { };
 * @brief      Tests: sysfs_get_fme_pwr_path
  @details    When passed with valid argument return 0
 *            and fme power sysfs path <br>
-*            When passed with invalid argument return
+*            When passed with invalid argument returns
 *            FPGA_INVALID_PARAM <br>
+*            When passed with valid argument on
+*            unsupported plaform returns
+*            FPGA_NOT_FOUND <br>
 */
 TEST_P(sysfs_power_mock_p, fpga_sysfs_09) {
 	fpga_result result;

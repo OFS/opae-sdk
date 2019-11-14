@@ -234,7 +234,9 @@ fpga_result enum_thermalmgmt_metrics(fpga_metric_vector *vector,
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		FPGA_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
-		globfree(&pglob);
+		if (pglob.gl_pathv) {
+			globfree(&pglob);
+		}
 		return FPGA_NOT_FOUND;
 	}
 
@@ -290,7 +292,9 @@ fpga_result enum_powermgmt_metrics(fpga_metric_vector *vector,
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		FPGA_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
-		globfree(&pglob);
+		if (pglob.gl_pathv) {
+			globfree(&pglob);
+		}
 		return FPGA_NOT_FOUND;
 	}
 
@@ -418,11 +422,13 @@ fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
 	}
 
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
-	if ((gres) || (1 != pglob.gl_pathc)) {
-		globfree(&pglob);
-		printf("NOT FOUND sysfs_path:%s \n", sysfs_path);
+	if (gres) {
+		if (pglob.gl_pathv) {
+			globfree(&pglob);
+		}
 		return FPGA_NOT_FOUND;
 	}
+
 	snprintf_s_s(sysfs_path, sizeof(sysfs_path), "%s", pglob.gl_pathv[0]);
 	globfree(&pglob);
 
@@ -823,7 +829,6 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 			memset_s(metrics_path, SYSFS_PATH_MAX, 0);
 
 			if (sysfs_get_fme_pwr_path(_token, metrics_path) == FPGA_OK) {
-
 				result = enum_powermgmt_metrics(&(_handle->fpga_enum_metric_vector), &metric_num, metrics_path, FPGA_HW_MCP);
 				if (result != FPGA_OK) {
 					FPGA_ERR("Failed to Enum Power metrics.");
@@ -832,7 +837,6 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 
 			memset_s(metrics_path, SYSFS_PATH_MAX, 0);
 			if (sysfs_get_fme_temp_path(_token, metrics_path) == FPGA_OK) {
-
 				result = enum_thermalmgmt_metrics(&(_handle->fpga_enum_metric_vector), &metric_num, metrics_path, FPGA_HW_MCP);
 				if (result != FPGA_OK) {
 					FPGA_ERR("Failed to Enum Thermal metrics.");
@@ -841,7 +845,6 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 
 			memset_s(metrics_path, SYSFS_PATH_MAX, 0);
 			if (sysfs_get_fme_perf_path(_token, metrics_path) == FPGA_OK) {
-
 				result = enum_perf_counter_metrics(&(_handle->fpga_enum_metric_vector), &metric_num, metrics_path, FPGA_HW_MCP);
 				if (result != FPGA_OK) {
 					FPGA_ERR("Failed to Enum Performance metrics.");
@@ -917,6 +920,8 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 
 	} // if Object type
 
+	if (result != FPGA_OK)
+		free_fpga_enum_metrics_vector(_handle);
 
 	_handle->metric_enum_status = true;
 
