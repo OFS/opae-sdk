@@ -168,6 +168,11 @@ TEST_P(xfpga_plugin_c_p, test_plugin_2) {
 INSTANTIATE_TEST_CASE_P(xfpga_plugin_c, xfpga_plugin_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({"skx-p","dcp-rc"})));
 
+class xfpga_plugin_mock_c_p : public ::testing::TestWithParam<std::string> {
+protected:
+    xfpga_plugin_mock_c_p() {};
+};
+
 /*
 * @test       plugin
 * @brief      Tests:xfpga_plugin_initialize
@@ -175,7 +180,11 @@ INSTANTIATE_TEST_CASE_P(xfpga_plugin_c, xfpga_plugin_c_p,
 * @details    When passed valid argument,the fn initializes plugin <br>
 *             returns FPGA_OK <br>
 */
-TEST(xfpga_plugin_c, test_plugin) {
+TEST_P(xfpga_plugin_mock_c_p, test_plugin) {
 	EXPECT_NE(xfpga_plugin_initialize(), FPGA_OK);
 	EXPECT_EQ(xfpga_plugin_finalize(), FPGA_OK);
 }
+
+INSTANTIATE_TEST_CASE_P(xfpga_plugin_mock_c, xfpga_plugin_mock_c_p,
+     ::testing::ValuesIn(test_platform::mock_platforms()));
+
