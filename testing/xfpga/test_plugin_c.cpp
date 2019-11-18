@@ -181,7 +181,7 @@ protected:
 *             returns FPGA_OK <br>
 */
 TEST_P(xfpga_plugin_mock_c_p, test_plugin) {
-	EXPECT_NE(xfpga_plugin_initialize(), FPGA_OK);
+	EXPECT_EQ(xfpga_plugin_initialize(), FPGA_OK);
 	EXPECT_EQ(xfpga_plugin_finalize(), FPGA_OK);
 }
 

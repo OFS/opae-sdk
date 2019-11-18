@@ -258,7 +258,7 @@ static platform_db MOCK_PLATFORMS = {
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
                        .mdata = skx_mdata}}} },
 	{ "dcp-rc-dfl0_patchset2",
-		test_platform{.mock_sysfs = "mock_sys_tmp-dfl0_patchset2-nlb0.tar.gz",
+		test_platform{.mock_sysfs = "mock_sys_tmp-dcp-rc-dfl0_patchset2-nlb0.tar.gz",
 				.driver = fpga_driver::linux_dfl0,
 				.devices = {test_device{
 					   .fme_guid = "F64E598B-EA11-517F-A28E-7BC65D885104",
@@ -608,9 +608,9 @@ static std::map<platform_cfg, std::string> platform_names = {
   {  platform_cfg(0x8086, 0xbcc1, fpga_driver::linux_intel), "skx-p-v" },
   {  platform_cfg(0x8086, 0x09c4, fpga_driver::linux_intel), "dcp-rc" },
   {  platform_cfg(0x8086, 0x09c5, fpga_driver::linux_intel), "dcp-rc-v" },
-  {  platform_cfg(0x8086, 0xbcc0, fpga_driver::linux_dfl0),  "skx-p-dfl0" },
   {  platform_cfg(0x8086, 0xbcc0, fpga_driver::linux_dfl0),  "skx-p-dfl0_patchset2" },
   {  platform_cfg(0x8086, 0x09c4, fpga_driver::linux_dfl0), "dcp-rc-dfl0_patchset2" },
+  {  platform_cfg(0x8086, 0xbcc0, fpga_driver::linux_dfl0),  "skx-p-dfl0" },
   {  platform_cfg(0x8086, 0x0b30, fpga_driver::linux_intel), "dcp-vc" },
   {  platform_cfg(0x8086, 0x0b31, fpga_driver::linux_intel), "dcp-vc-v" }
   
