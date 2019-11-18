@@ -423,6 +423,7 @@ fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
 
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
+		FPGA_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
 		if (pglob.gl_pathv) {
 			globfree(&pglob);
 		}
