@@ -94,7 +94,7 @@ const char *rc_mdata =
    "afu-image":
     {"clock-frequency-high": 312,
      "clock-frequency-low": 156,
-     "interface-uuid": "f64e598b-ea11-517f-a28e-7bc65d885104",
+     "interface-uuid": "89a05379-528e-5b84-b8f2-348aea5d02c0",
      "magic-no": 488605312,
      "accelerator-clusters":
       [
