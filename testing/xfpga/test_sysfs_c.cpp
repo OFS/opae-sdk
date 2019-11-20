@@ -114,7 +114,7 @@ class sysfsinit_c_p : public ::testing::TestWithParam<std::string> {
 
     int value;
     std::string cmd =
-        "(ls -l /sys/class/fpga*/device*/*fme*/dev || "
+        "(ls -l /sys/class/fpga*/*/*fme*/dev || "
         "ls -l /sys/class/fpga*/*intel*) |  (wc -l)";
 
     ExecuteCmd(cmd, value);

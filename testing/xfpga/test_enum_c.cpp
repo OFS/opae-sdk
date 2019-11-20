@@ -131,7 +131,7 @@ class enum_c_p : public mock_opae_p<2, xfpga_> {
       EXPECT_TRUE(file.is_open());
       EXPECT_TRUE(std::getline(file, afu_id));
       file.close();
-      EXPECT_EQ(std::system("rm output.txt"), 0);
+      EXPECT_EQ(unlink("output.txt"), 0);
 
       if (afu_id == afu_id_expected) {
           matches++;

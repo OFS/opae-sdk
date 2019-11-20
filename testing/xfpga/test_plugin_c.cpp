@@ -168,14 +168,22 @@ TEST_P(xfpga_plugin_c_p, test_plugin_2) {
 INSTANTIATE_TEST_CASE_P(xfpga_plugin_c, xfpga_plugin_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({"skx-p","dcp-rc"})));
 
+class xfpga_plugin_mock_c_p : public ::testing::TestWithParam<std::string> {
+protected:
+    xfpga_plugin_mock_c_p() {};
+};
+
 /*
-* @test       plugin
+* @test       test_plugin_neg
 * @brief      Tests:xfpga_plugin_initialize
 *                   xfpga_plugin_finalize
-* @details    When passed valid argument,the fn initializes plugin <br>
-*             returns FPGA_OK <br>
+* @details    When no driver is present, returns FPGA_NO_DRIVER.
 */
-TEST(xfpga_plugin_c, test_plugin) {
-	EXPECT_NE(xfpga_plugin_initialize(), FPGA_OK);
+TEST_P(xfpga_plugin_mock_c_p, test_plugin_neg) {
+	EXPECT_EQ(xfpga_plugin_initialize(), FPGA_NO_DRIVER);
 	EXPECT_EQ(xfpga_plugin_finalize(), FPGA_OK);
 }
+
+INSTANTIATE_TEST_CASE_P(xfpga_plugin_mock_c, xfpga_plugin_mock_c_p,
+     ::testing::ValuesIn(test_platform::mock_platforms()));
+
