@@ -442,6 +442,20 @@ fpga_result fpgaReadMMIO32(fpga_handle handle, uint32_t mmio_num,
 		wrapped_handle->opae_handle, mmio_num, offset, value);
 }
 
+fpga_result fpgaWriteMMIO512(fpga_handle handle, uint32_t mmio_num,
+			    uint64_t offset, void *value)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaWriteMMIO512,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_handle->adapter_table->fpgaWriteMMIO512(
+		wrapped_handle->opae_handle, mmio_num, offset, value);
+}
+
 fpga_result fpgaMapMMIO(fpga_handle handle, uint32_t mmio_num,
 			uint64_t **mmio_ptr)
 {

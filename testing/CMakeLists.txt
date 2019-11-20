@@ -858,6 +858,19 @@ add_unit_test(test_fpgainfo_c fpgainfo-static
 )
 target_link_libraries(test_fpgainfo_c argsfilter-static)
 
+add_unit_test(test_fpgainfo_board_c fpgainfo-static
+    fpgainfo/test_board_c.cpp
+)
+target_link_libraries(test_fpgainfo_c argsfilter-static)
+
+############################################################################
+# argsfilter tests #########################################################
+############################################################################
+
+add_unit_test(test_argsfilter_c fpgainfo-static
+    argsfilter/test_argsfilter_c.cpp
+)
+target_link_libraries(test_argsfilter_c argsfilter-static)
 
 ############################################################################
 # hello_fpga tests #########################################################

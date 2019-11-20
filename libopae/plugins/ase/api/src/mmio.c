@@ -182,6 +182,42 @@ fpga_result __FPGA_API__ ase_fpgaReadMMIO64(fpga_handle handle,
 
 }
 
+fpga_result __FPGA_API__ ase_fpgaWriteMMIO512(fpga_handle handle,
+					 uint32_t mmio_num,
+					 uint64_t offset, const void *value)
+{
+	UNUSED_PARAM(mmio_num);
+
+	if (NULL == handle) {
+		FPGA_MSG("handle is NULL");
+		return FPGA_INVALID_PARAM;
+	}
+
+	struct _fpga_handle *_handle = (struct _fpga_handle *) handle;
+
+	if (!_handle->fpgaMMIO_is_mapped)
+		_handle->fpgaMMIO_is_mapped = true;
+
+	if (NULL == mmio_afu_vbase) {
+		return FPGA_NOT_FOUND;
+	} else {
+		if (offset % 64 != 0) {
+			FPGA_MSG("Misaligned MMIO access");
+			return FPGA_INVALID_PARAM;
+		} else {
+			if (offset > MMIO_AFU_OFFSET) {
+				FPGA_MSG("Offset out of bounds");
+				return FPGA_INVALID_PARAM;
+			}
+
+			mmio_write512(offset, value);
+			return FPGA_OK;
+		}
+	}
+
+	return FPGA_OK;
+}
+
 fpga_result __FPGA_API__ ase_fpgaMapMMIO(fpga_handle handle, uint32_t mmio_num,
 				     uint64_t **mmio_ptr)
 {
