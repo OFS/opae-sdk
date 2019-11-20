@@ -195,6 +195,17 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len);
 */
 fpga_result get_phy_info(char *dev_path, fpga_phy_group_info *info);
 
+
+/**
+* Prints pkvl informantion..
+*
+* @param[in] token            fpga_token object for device (FPGA_DEVICE type)
+* @returns FPGA_OK on success. FPGA_EXCEPTION if token is invlaid.
+*
+*/
+fpga_result print_pkvl_version(fpga_token token);
+
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
