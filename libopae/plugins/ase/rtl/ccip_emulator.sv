@@ -146,7 +146,7 @@ module ccip_emulator
     endfunction
 
     // ccip_tx1_to_ase_tx1: Convert from CCIP -> ASE Tx1
-    function ASETxHdr_t ccip_tx1_to_ase_tx1(t_ccip_c1_ReqMemHdr inhdr);
+    function ASETxHdr_t ccip_tx1_to_ase_tx1(t_ccip_c1_ReqMemHdr inhdr, logic valid);
         ASETxHdr_t        txasehdr;
         logic [41:0]      c1tx_mcl_baseaddr;
         ccip_reqtype_t c1tx_mcl_basetype;
@@ -172,7 +172,7 @@ module ccip_emulator
              || (txasehdr.txhdr.reqtype == ASE_WRLINE_M)
              || (txasehdr.txhdr.reqtype == ASE_WRPUSH) )
         begin
-            if (inhdr.sop)
+            if (inhdr.sop && valid)
             begin
                 c1tx_mcl_baseaddr  = txasehdr.txhdr.addr;
                 c1tx_mcl_basetype  = txasehdr.txhdr.reqtype;
@@ -278,7 +278,8 @@ module ccip_emulator
         C0TxValid                    <= pck_af2cp_sTx.c0.valid;
 
         // Tx OUT (CH1)
-        ASE_C1TxHdr                  <= ccip_tx1_to_ase_tx1(pck_af2cp_sTx.c1.hdr);
+        ASE_C1TxHdr                  <= ccip_tx1_to_ase_tx1(pck_af2cp_sTx.c1.hdr,
+                                                            pck_af2cp_sTx.c1.valid);
         C1TxHdr                      <= ASE_C1TxHdr.txhdr;
         C1TxData                     <= pck_af2cp_sTx.c1.data;
         C1TxValid                    <= pck_af2cp_sTx.c1.valid;
@@ -730,6 +731,9 @@ module ccip_emulator
             else if (mmio_pkt.width == MMIO_WIDTH_64) begin
                 hdr.len      = 2'b01;
             end
+            else if (mmio_pkt.width == MMIO_WIDTH_512) begin
+                hdr.len      = 2'b10;
+            end
         
             // Set MMIO Read/Write behavior
             if (mmio_pkt.write_en == MMIO_WRITE_REQ)
@@ -739,6 +743,12 @@ module ccip_emulator
                 end
                 else if (mmio_pkt.width == MMIO_WIDTH_64) begin
                     cwlp_data = {448'b0, mmio_pkt.qword[0][63:0]};
+                end
+                else if (mmio_pkt.width == MMIO_WIDTH_512) begin
+                    cwlp_data = {mmio_pkt.qword[7], mmio_pkt.qword[6],
+                                 mmio_pkt.qword[5], mmio_pkt.qword[4],
+                                 mmio_pkt.qword[3], mmio_pkt.qword[2],
+                                 mmio_pkt.qword[1], mmio_pkt.qword[0]};
                 end
                 cwlp_header = logic_cast_CfgHdr_t'(hdr);
                 cwlp_wrvalid = 1;
