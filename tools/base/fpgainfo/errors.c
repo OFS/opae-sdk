@@ -184,7 +184,7 @@ static struct errors_config {
 	bool clear;
 	int force_count;
 	enum verbs_index which;
-	int help_only;
+	bool help_only;
 } errors_config = {.clear = false, .which = VERB_ALL, .help_only = false};
 
 /*
