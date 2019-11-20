@@ -766,6 +766,7 @@ fpga_result sysfs_get_fme_temp_path(fpga_token token, char *sysfs_temp)
 	int gres = glob(sysfs_temp, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		FPGA_ERR("Failed pattern match %s: %s", sysfs_temp, strerror(errno));
+		//TBD refactor to common function
 		switch (gres) {
 		case GLOB_NOSPACE:
 			res = FPGA_NO_MEMORY;
@@ -811,6 +812,7 @@ fpga_result sysfs_get_fme_perf_path(fpga_token token, char *sysfs_perf)
 	int gres = glob(sysfs_perf, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		FPGA_ERR("Failed pattern match %s: %s", sysfs_perf, strerror(errno));
+		//TBD refactor to common function
 		switch (gres) {
 		case GLOB_NOSPACE:
 			res = FPGA_NO_MEMORY;
