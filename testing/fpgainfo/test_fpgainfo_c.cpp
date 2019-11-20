@@ -107,6 +107,8 @@ int str_in_list(const char *key, const char *list[], size_t size);
 
 int fpgainfo_main(int argc, char *argv[]);
 
+int parse_error_args(int argc, char *argv[]);
+
 }
 
 #include <iostream>
@@ -147,105 +149,6 @@ class fpgainfo_c_p : public ::testing::TestWithParam<std::string> {
         test_platform platform_;
         test_system *system_;
 };
-
-/**
- * @test       help
- * @brief      Test: help
- * @details    help displays the application help message.<br>
- */
-TEST_P(fpgainfo_c_p, help) {
-    help();
-}
-
-/**
- * @test       parse_args0
- * @brief      Test: parse_args
- * @details    When passed with valid command options, <br>
- *             the fn returns 0. <br>
- */
-TEST_P(fpgainfo_c_p, parse_args0) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one };
-
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "fme");
-    EXPECT_EQ(parse_args(2, argv), 0);
-
-    strcpy(one, "port");
-    EXPECT_EQ(parse_args(2, argv), 0);
-
-    strcpy(one, "power");
-    EXPECT_EQ(parse_args(2, argv), 0);
-
-    strcpy(one, "temp");
-    EXPECT_EQ(parse_args(2, argv), 0);
-}
-
-/**
- * @test       parse_args1
- * @brief      Test: parse_args
- * @details    When passed with '-h' or '--help', the fn <br>
- *             prints help message and return non-zero. <br>
- */
-TEST_P(fpgainfo_c_p, parse_args1) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one };
-
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "-h");
-    EXPECT_NE(parse_args(2, argv), 0);
-
-    optind = 0;
-    strcpy(one, "--help");
-    EXPECT_NE(parse_args(2, argv), 0);
-}
-
-/**
- * @test       parse_args2
- * @brief      Test: parse_args
- * @details    When passed with invalid options, the fn <br>
- *             prints error message and return zero. <br>
- */
-TEST_P(fpgainfo_c_p, parse_args2) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one };
-
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "?");
-    EXPECT_EQ(parse_args(2, argv), 0);
-}
-
-/**
- * @test       parse_args3
- * @brief      Test: parse_args
- * @details    When passed with an invalid options, the fn <br>
- *             returns zero. <br>
- */
-TEST_P(fpgainfo_c_p, parse_args3) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one };
-
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "κόσμε");
-
-    /* FIXME: Parse_arg will return 0 on all inputs
-              that doesn't match MAIN_GETOPT_STRING.
-              Main fails on get_command call but 
-              will return 0. 
-
-    */
-    EXPECT_EQ(parse_args(2, argv), 0);
-    EXPECT_EQ(fpgainfo_main(2, argv), 0);
-
-    strcpy(one, "\x00 \x09\x0A\x0D\x20\x7E");
-
-    EXPECT_EQ(parse_args(2, argv), 0);
-    EXPECT_EQ(fpgainfo_main(2, argv), 0);
-}
 
 /**
  * @test       get_command0
@@ -343,59 +246,6 @@ TEST_P(fpgainfo_c_p, errors_filter0) {
 }
 
 /**
- * @test       errors_filter1
- * @brief      Test: errors_filter
- * @details    When passed with invalid arguments, the function <br>
- *             prints help message and returns FPGA_OK. <br>
- */
-TEST_P(fpgainfo_c_p, errors_filter1) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char *argv[] = { zero, one, two };
-
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "errors");
-    strcpy(two, "???");
-    EXPECT_EQ(errors_filter(&filter, 3, argv), FPGA_OK);
-
-    ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
-}
-
-/**
- * @test       errors_filter2
- * @brief      Test: errors_filter
- * @details    When passed with argument that requires additional <br>
- *             option, missing the option causes the fn to print <br>
- *             help messages and return FPGA_OK. <br>
- */
-TEST_P(fpgainfo_c_p, errors_filter2) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char *argv2[] = { zero, one };
-    char *argv3[] = { zero, one, two };
-
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "errors");
-    EXPECT_EQ(errors_filter(&filter, 2, argv2), FPGA_OK);
-
-    strcpy(two, "-c");
-    EXPECT_EQ(errors_filter(&filter, 3, argv3), FPGA_OK);
-
-    strcpy(two, "--force");
-    EXPECT_EQ(errors_filter(&filter, 3, argv3), FPGA_OK);
-
-    ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
-}
-
-/**
  * @test       errors_command0
  * @brief      Test: errors_command
  * @details    When passed with valid arguments, the fn prints <br>
@@ -484,6 +334,63 @@ TEST_P(fpgainfo_c_p, errors_command0) {
 }
 
 /**
+ * @test       parse_error_args_errors_clear
+ * @brief      Test: parse_error_args
+ * @details    When passed the clear errors option, the function <br>
+ *             prints and clears errors.<br>
+ */
+TEST_P(fpgainfo_c_p, parse_error_args_errors_clear) {
+    char zero[20];
+    char one[20];
+    char two[20];
+    char three[20];
+    char *argv[] = { zero, one, two, three };
+
+    fpga_properties filter = NULL;
+    fpga_token *tokens = NULL;
+    uint32_t matches = 0, num_tokens = 0;;
+
+    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+    ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
+    ASSERT_GT(matches, 0);
+    tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
+
+    num_tokens = matches;
+    ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "errors");
+    strcpy(two, "all");
+    strcpy(three, "-c");
+    EXPECT_EQ(parse_error_args(4, argv), 0);
+
+    EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv), FPGA_OK);
+
+    for (uint32_t i = 0; i < num_tokens; ++i) {
+        fpgaDestroyToken(&tokens[i]);
+    }
+    free(tokens);
+    fpgaDestroyProperties(&filter);
+}
+
+/**
+ * @test       parse_error_args_neg
+ * @brief      Test: parse_error_args
+ * @details    When passed an invalid option, the function prints <br>
+ *             help message for errors subcommand and returns
+ *             an error.<br>
+ */
+TEST_P(fpgainfo_c_p, parse_error_args_neg) {
+    char zero[20];
+    char one[20];
+    char *argv[] = { zero, one };
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "-k");
+    EXPECT_NE(parse_error_args(2, argv), 0);
+}
+
+/**
  * @test       errors_help
  * @brief      Test: errors_help
  * @details    The function prints help message for errors <br>
@@ -491,6 +398,90 @@ TEST_P(fpgainfo_c_p, errors_command0) {
  */
 TEST_P(fpgainfo_c_p, errors_help) {
     errors_help();
+}
+
+/**
+ * @test       parse_error_args_help
+ * @brief      Test: parse_error_args
+ * @details    When passed the help option, the function prints <br>
+ *             help message for errors subcommand.<br>
+ */
+TEST_P(fpgainfo_c_p, parse_error_args_help) {
+    char zero[20];
+    char one[20];
+    char *argv[] = { zero, one };
+
+    std::string expected = "\nPrint and clear errors\n"
+                      "        fpgainfo errors [-h] [-c] {all,fme,port}\n\n"
+                      "                -h,--help           Print this help\n"
+                      "                -c,--clear          Clear all errors\n"
+                      "                --force             Retry clearing errors 64 times\n"
+                      "                                    to clear certain error conditions\n"
+                      "\n";
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "-h");
+
+    testing::internal::CaptureStdout();
+
+    EXPECT_NE(parse_error_args(2, argv), 0);
+
+    std::string log_stdout = testing::internal::GetCapturedStdout();
+
+    EXPECT_TRUE(log_stdout.find(expected) != std::string::npos);
+}
+
+/**
+ * @test       errors_filter1
+ * @brief      Test: errors_filter
+ * @details    When passed with invalid arguments, the function <br>
+ *             prints help message and returns FPGA_OK. <br>
+ */
+TEST_P(fpgainfo_c_p, errors_filter1) {
+    char zero[20];
+    char one[20];
+    char two[20];
+    char *argv[] = { zero, one, two };
+
+    fpga_properties filter = NULL;
+    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "errors");
+    strcpy(two, "???");
+    EXPECT_EQ(errors_filter(&filter, 3, argv), FPGA_OK);
+
+    ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+}
+
+/**
+ * @test       errors_filter2
+ * @brief      Test: errors_filter
+ * @details    When passed with argument that requires additional <br>
+ *             option, missing the option causes the fn to print <br>
+ *             help messages and return FPGA_OK. <br>
+ */
+TEST_P(fpgainfo_c_p, errors_filter2) {
+    char zero[20];
+    char one[20];
+    char two[20];
+    char *argv2[] = { zero, one };
+    char *argv3[] = { zero, one, two };
+
+    fpga_properties filter = NULL;
+    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "errors");
+    EXPECT_EQ(errors_filter(&filter, 2, argv2), FPGA_OK);
+
+    strcpy(two, "-c");
+    EXPECT_EQ(errors_filter(&filter, 3, argv3), FPGA_OK);
+
+    strcpy(two, "--force");
+    EXPECT_EQ(errors_filter(&filter, 3, argv3), FPGA_OK);
+
+    ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -1243,6 +1234,104 @@ TEST(fpgainfo_c, str_in_list0) {
     EXPECT_EQ(idx, INT_MAX);
 }
 
+/**
+ * @test       parse_args0
+ * @brief      Test: parse_args
+ * @details    When passed with valid command options, <br>
+ *             the fn returns 0. <br>
+ */
+TEST_P(fpgainfo_c_p, parse_args0) {
+    char zero[20];
+    char one[20];
+    char *argv[] = { zero, one };
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "fme");
+    EXPECT_EQ(parse_args(2, argv), 0);
+
+    strcpy(one, "port");
+    EXPECT_EQ(parse_args(2, argv), 0);
+
+    strcpy(one, "power");
+    EXPECT_EQ(parse_args(2, argv), 0);
+
+    strcpy(one, "temp");
+    EXPECT_EQ(parse_args(2, argv), 0);
+}
+
+/**
+ * @test       parse_args1
+ * @brief      Test: parse_args
+ * @details    When passed with '-h' or '--help', the fn <br>
+ *             prints help message and return non-zero. <br>
+ */
+TEST_P(fpgainfo_c_p, parse_args1) {
+    char zero[20];
+    char one[20];
+    char *argv[] = { zero, one };
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "-h");
+    EXPECT_NE(parse_args(2, argv), 0);
+
+    optind = 0;
+    strcpy(one, "--help");
+    EXPECT_NE(parse_args(2, argv), 0);
+}
+
+/**
+ * @test       parse_args2
+ * @brief      Test: parse_args
+ * @details    When passed with invalid options, the fn <br>
+ *             prints error message and return zero. <br>
+ */
+TEST_P(fpgainfo_c_p, parse_args2) {
+    char zero[20];
+    char one[20];
+    char *argv[] = { zero, one };
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "?");
+    EXPECT_EQ(parse_args(2, argv), 0);
+}
+
+/**
+ * @test       parse_args3
+ * @brief      Test: parse_args
+ * @details    When passed with an invalid options, the fn <br>
+ *             returns zero. <br>
+ */
+TEST_P(fpgainfo_c_p, parse_args3) {
+    char zero[20];
+    char one[20];
+    char *argv[] = { zero, one };
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "κόσμε");
+
+    /* FIXME: Parse_arg will return 0 on all inputs
+              that doesn't match MAIN_GETOPT_STRING.
+              Main fails on get_command call but
+              will return 0.
+
+    */
+    EXPECT_EQ(parse_args(2, argv), 0);
+    EXPECT_EQ(fpgainfo_main(2, argv), 0);
+
+    strcpy(one, "\x00 \x09\x0A\x0D\x20\x7E");
+
+    EXPECT_EQ(parse_args(2, argv), 0);
+    EXPECT_EQ(fpgainfo_main(2, argv), 0);
+}
+
+/**
+ * @test       help
+ * @brief      Test: help
+ * @details    help displays the application help message.<br>
+ */
+TEST_P(fpgainfo_c_p, help) {
+    help();
+}
 
 INSTANTIATE_TEST_CASE_P(fpgainfo_c, fpgainfo_c_p,
         ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));
