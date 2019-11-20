@@ -1333,5 +1333,116 @@ TEST_P(fpgainfo_c_p, help) {
     help();
 }
 
+/**
+ * @test       main_1
+ * @brief      Test: fpgainfo_main
+ * @details    When passed with no argument, the fn <br>
+ *             returns an error. <br>
+ */
+TEST_P(fpgainfo_c_p, main_1) {
+    char zero[20];
+    char *argv[] = { zero };
+
+    strcpy(zero, "fpgainfo");
+
+    EXPECT_NE(fpgainfo_main(1, argv), 0);
+}
+
+/**
+ * @test       main_2
+ * @brief      Test: fpgainfo_main
+ * @details    When passed with the version option, the fn <br>
+ *             returns zero. <br>
+ */
+TEST_P(fpgainfo_c_p, main_2) {
+    char zero[20];
+    char one[20];
+    char *argv[] = { zero, one };
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "-v");
+
+    EXPECT_EQ(fpgainfo_main(2, argv), 0);
+}
+
+/**
+ * @test       main_3
+ * @brief      Test: fpgainfo_main
+ * @details    When missing an argument, the fn <br>
+ *             returns an error. <br>
+ */
+TEST_P(fpgainfo_c_p, main_3) {
+    char zero[20];
+    char one[20];
+    char *argv[] = { zero, one };
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "-B");
+
+    EXPECT_NE(fpgainfo_main(2, argv), 0);
+}
+
+/**
+ * @test       main_4
+ * @brief      Test: fpgainfo_main
+ * @details    When passed with invalid option, the fn <br>
+ *             returns an error. <br>
+ */
+TEST_P(fpgainfo_c_p, main_4) {
+    char zero[20];
+    char one[20];
+    char *argv[] = { zero, one };
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "-K");
+
+    EXPECT_NE(fpgainfo_main(2, argv), 0);
+}
+
+/**
+ * @test       main_5
+ * @brief      Test: fpgainfo_main
+ * @details    When passed with valid option, the fn <br>
+ *             returns 0. <br>
+ */
+TEST_P(fpgainfo_c_p, main_5) {
+    char zero[20];
+    char one[20];
+    char two[20];
+    char three[20];
+    char *argv[] = { zero, one, two, three };
+    char bus[10];
+
+    sprintf(bus, "0x%x", platform_.devices[0].bus);
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "fme");
+    strcpy(two, "-B");
+    strcpy(three, bus);
+
+    EXPECT_EQ(fpgainfo_main(4, argv), 0);
+}
+
+/**
+ * @test       main_6
+ * @brief      Test: fpgainfo_main
+ * @details    When passed with invalid option, the fn <br>
+ *             returns an error. <br>
+ */
+TEST_P(fpgainfo_c_p, main_6) {
+    char zero[20];
+    char one[20];
+    char two[20];
+    char three[20];
+    char *argv[] = { zero, one, two, three };
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "fme");
+    strcpy(two, "-B");
+    strcpy(three, "0xFF");
+
+    EXPECT_NE(fpgainfo_main(4, argv), 0);
+}
+
 INSTANTIATE_TEST_CASE_P(fpgainfo_c, fpgainfo_c_p,
         ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));
