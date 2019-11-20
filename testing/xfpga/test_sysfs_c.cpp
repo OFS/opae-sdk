@@ -786,24 +786,6 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_05) {
 	EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
 
-/*
-* @test       sysfs
-* @brief      Tests: sysfs_get_fme_pwr_path
- @details    When passed with valid argument return 0
-*            and fme power sysfs path <br>
-*            When passed with invalid argument return
-*            FPGA_INVALID_PARAM <br>
-*/
-TEST_P(sysfs_c_mock_p, fpga_sysfs_06) {
-	fpga_result result;
-	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
-
-	result = sysfs_get_fme_pwr_path(handle_, sysfs_path);
-	EXPECT_EQ(result, FPGA_OK);
-
-	result = sysfs_get_fme_pwr_path(handle_, NULL);
-	EXPECT_EQ(result, FPGA_INVALID_PARAM);
-}
 
 /*
 * @test       sysfs
@@ -813,14 +795,14 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_06) {
 *            When passed with invalid argument return
 *            FPGA_INVALID_PARAM <br>
 */
-TEST_P(sysfs_c_mock_p, fpga_sysfs_07) {
+TEST_P(sysfs_c_mock_p, fpga_sysfs_06) {
 	fpga_result result;
 	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
 
-	result = sysfs_get_fme_temp_path(handle_, sysfs_path);
+	result = sysfs_get_fme_temp_path(tokens_[0], sysfs_path);
 	EXPECT_EQ(result, FPGA_OK);
 
-	result = sysfs_get_fme_temp_path(handle_, NULL);
+	result = sysfs_get_fme_temp_path(tokens_[0], NULL);
 	EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
 
@@ -832,19 +814,117 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_07) {
 *            When passed with invalid argument return
 *            FPGA_INVALID_PARAM <br>
 */
-TEST_P(sysfs_c_mock_p, fpga_sysfs_08) {
+TEST_P(sysfs_c_mock_p, fpga_sysfs_07) {
 	fpga_result result;
 	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
 
-	result = sysfs_get_fme_perf_path(handle_, sysfs_path);
+	result = sysfs_get_fme_perf_path(tokens_[0], sysfs_path);
 	EXPECT_EQ(result, FPGA_OK);
 
-	result = sysfs_get_fme_perf_path(handle_, NULL);
+	result = sysfs_get_fme_perf_path(tokens_[0], NULL);
 	EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc", "dcp-vc","skx-p-dfl0_patchset2" })));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc", "dcp-vc" })));
+
+
+class sysfs_dfl_c_mock_p : public sysfs_c_mock_p { };
+/*
+* @test       sysfs
+* @brief      Tests: sysfs_get_fme_perf_path
+ @details    When passed with valid argument return 0
+*            and fme perf sysfs path <br>
+*            When passed with invalid argument returns
+*            FPGA_INVALID_PARAM <br>
+*            When passed with valid argument on
+*            unsupported plaform returns
+*            FPGA_NOT_FOUND <br>
+*/
+TEST_P(sysfs_dfl_c_mock_p, fpga_sysfs_08) {
+	fpga_result result;
+	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
+
+	result = sysfs_get_fme_perf_path(tokens_[0], sysfs_path);
+	EXPECT_EQ(result, FPGA_NOT_FOUND);
+
+	result = sysfs_get_fme_perf_path(tokens_[0], NULL);
+	EXPECT_EQ(result, FPGA_INVALID_PARAM);
+}
+INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_dfl_c_mock_p,
+	::testing::ValuesIn(test_platform::mock_platforms({ "skx-p-dfl0_patchset2" })));
+
+class sysfs_power_mock_p : public sysfs_c_mock_p { };
+/*
+* @test       sysfs
+* @brief      Tests: sysfs_get_fme_pwr_path
+ @details    When passed with valid argument return 0
+*            and fme power sysfs path <br>
+*            When passed with invalid argument returns
+*            FPGA_INVALID_PARAM <br>
+*            When passed with valid argument on
+*            unsupported plaform returns
+*            FPGA_NOT_FOUND <br>
+*/
+TEST_P(sysfs_power_mock_p, fpga_sysfs_09) {
+	fpga_result result;
+	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
+
+	result = sysfs_get_fme_pwr_path(tokens_[0], sysfs_path);
+	EXPECT_EQ(result, FPGA_NOT_FOUND);
+
+	result = sysfs_get_fme_pwr_path(tokens_[0], NULL);
+	EXPECT_EQ(result, FPGA_INVALID_PARAM);
+}
+INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_power_mock_p,
+	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-rc", "dcp-vc" })));
+
+
+class sysfs_bmc_mock_p : public sysfs_c_mock_p { };
+/*
+* @test       sysfs
+* @brief      Tests: sysfs_get_bmc_path
+ @details    When passed with valid argument return 0
+*            and bmc sysfs path <br>
+*            When passed with invalid argument return
+*            FPGA_INVALID_PARAM <br>
+*/
+TEST_P(sysfs_bmc_mock_p, fpga_sysfs_10) {
+	fpga_result result;
+	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
+
+	result = sysfs_get_bmc_path(tokens_[0], sysfs_path);
+	EXPECT_EQ(result, FPGA_OK);
+
+	result = sysfs_get_bmc_path(tokens_[0], NULL);
+	EXPECT_EQ(result, FPGA_INVALID_PARAM);
+}
+INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_bmc_mock_p,
+	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-rc" })));
+
+
+class sysfs_max10_mock_p : public sysfs_c_mock_p { };
+/*
+* @test       sysfs
+* @brief      Tests: sysfs_get_max10_path
+ @details    When passed with valid argument return 0
+*            and max10 sysfs path <br>
+*            When passed with invalid argument return
+*            FPGA_INVALID_PARAM <br>
+*/
+TEST_P(sysfs_max10_mock_p, fpga_sysfs_11) {
+	fpga_result result;
+	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
+
+	result = sysfs_get_max10_path(tokens_[0], sysfs_path);
+	EXPECT_EQ(result, FPGA_OK);
+
+	result = sysfs_get_max10_path(tokens_[0], NULL);
+	EXPECT_EQ(result, FPGA_INVALID_PARAM);
+}
+INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_max10_mock_p,
+	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-vc" })));
+
 
 class sysfs_c_mock_no_drv_p : public ::testing::TestWithParam<std::string> {
  protected:

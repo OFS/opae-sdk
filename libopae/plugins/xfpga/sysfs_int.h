@@ -145,6 +145,8 @@ fpga_result sysfs_get_port_error_clear_path(fpga_handle handle, char *sysfs_port
 fpga_result sysfs_get_fme_pwr_path(fpga_token token, char *sysfs_pwr);
 fpga_result sysfs_get_fme_temp_path(fpga_token token, char *sysfs_temp);
 fpga_result sysfs_get_fme_perf_path(fpga_token token, char *sysfs_perf);
+fpga_result sysfs_get_bmc_path(fpga_token token, char *sysfs_bmc);
+fpga_result sysfs_get_max10_path(fpga_token token, char *sysfs_max10);
 #ifdef __cplusplus
 }
 #endif

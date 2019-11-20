@@ -75,6 +75,8 @@ typedef struct _sysfs_formats {
 	const char *sysfs_fme_perf_glob;
 	const char *sysfs_port_err;
 	const char *sysfs_port_err_clear;
+	const char *sysfs_bmc_glob;
+	const char *sysfs_max10_glob;
 } sysfs_formats;
 
 static sysfs_formats sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
@@ -89,8 +91,11 @@ static sysfs_formats sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
 	 .sysfs_compat_id = "/dfl-fme-region.*/fpga_region/region*/compat_id",
 	 .sysfs_fme_temp_glob = "hwmon/hwmon*/temp*_*",
 	 .sysfs_fme_pwr_glob = "hwmon/hwmon*/power*_*",
+	 .sysfs_fme_perf_glob = "*perf",
 	 .sysfs_port_err = "errors/errors",
-	 .sysfs_port_err_clear = "errors/errors"
+	 .sysfs_port_err_clear = "errors/errors",
+	 .sysfs_bmc_glob = "",
+	 .sysfs_max10_glob = ""
 	},
 	// intel driver sysfs formats
 	{.sysfs_class_path = "/sys/class/fpga",
@@ -101,11 +106,14 @@ static sysfs_formats sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
 	 .sysfs_fme_glob = "intel-fpga-fme.*",
 	 .sysfs_port_glob = "intel-fpga-port.*",
 	 .sysfs_compat_id = "pr/interface_id",
-	 .sysfs_fme_temp_glob = "thermal_mgmt",
-	 .sysfs_fme_pwr_glob = "power_mgmt",
+	 .sysfs_fme_temp_glob = "thermal_mgmt/*",
+	 .sysfs_fme_pwr_glob = "power_mgmt/*",
 	 .sysfs_fme_perf_glob = "*perf",
 	 .sysfs_port_err = "errors/errors",
-	 .sysfs_port_err_clear = "errors/clear"} };
+	 .sysfs_port_err_clear = "errors/clear",
+	 .sysfs_bmc_glob = "avmmi-bmc.*/bmc_info",
+	 .sysfs_max10_glob = "spi-*/spi_master/spi*/spi*.*"
+	} };
 
 // RE_MATCH_STRING is index 0 in a regex match array
 #define RE_MATCH_STRING 0
@@ -712,6 +720,7 @@ fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid)
 fpga_result sysfs_get_fme_pwr_path(fpga_token token, char *sysfs_pwr)
 {
 	fpga_result res = FPGA_OK;
+	glob_t pglob;
 	struct _fpga_token *_token = (struct _fpga_token *)token;
 	ASSERT_NOT_NULL(_token);
 
@@ -720,6 +729,18 @@ fpga_result sysfs_get_fme_pwr_path(fpga_token token, char *sysfs_pwr)
 		return FPGA_INVALID_PARAM;
 	}
 	res = cat_token_sysfs_path(sysfs_pwr, token, SYSFS_FORMAT(sysfs_fme_pwr_glob));
+	if (res != FPGA_OK) {
+		return res;
+	}
+
+	// check for path is valid
+	int gres = glob(sysfs_pwr, GLOB_NOSORT, NULL, &pglob);
+	if (gres) {
+		FPGA_ERR("Failed pattern match %s: %s", sysfs_pwr, strerror(errno));
+		globfree(&pglob);
+		return FPGA_NOT_FOUND;
+	}
+	globfree(&pglob);
 
 	return res;
 }
@@ -727,6 +748,7 @@ fpga_result sysfs_get_fme_pwr_path(fpga_token token, char *sysfs_pwr)
 fpga_result sysfs_get_fme_temp_path(fpga_token token, char *sysfs_temp)
 {
 	fpga_result res = FPGA_OK;
+	glob_t pglob;
 	struct _fpga_token *_token = (struct _fpga_token *)token;
 	ASSERT_NOT_NULL(_token);
 
@@ -736,6 +758,35 @@ fpga_result sysfs_get_fme_temp_path(fpga_token token, char *sysfs_temp)
 	}
 
 	res = cat_token_sysfs_path(sysfs_temp, token, SYSFS_FORMAT(sysfs_fme_temp_glob));
+	if (res != FPGA_OK) {
+		return res;
+	}
+
+	// check for path is valid
+	int gres = glob(sysfs_temp, GLOB_NOSORT, NULL, &pglob);
+	if (gres) {
+		FPGA_ERR("Failed pattern match %s: %s", sysfs_temp, strerror(errno));
+		//TODO refactor to common function
+		switch (gres) {
+		case GLOB_NOSPACE:
+			res = FPGA_NO_MEMORY;
+			break;
+		case GLOB_NOMATCH:
+			res = FPGA_NOT_FOUND;
+			break;
+		default:
+			res = FPGA_EXCEPTION;
+		}
+
+		if (pglob.gl_pathv) {
+			globfree(&pglob);
+		}
+		return res;
+	}
+
+	if (pglob.gl_pathv) {
+		globfree(&pglob);
+	}
 
 	return res;
 }
@@ -743,6 +794,7 @@ fpga_result sysfs_get_fme_temp_path(fpga_token token, char *sysfs_temp)
 fpga_result sysfs_get_fme_perf_path(fpga_token token, char *sysfs_perf)
 {
 	fpga_result res = FPGA_OK;
+	glob_t pglob;
 	struct _fpga_token *_token = (struct _fpga_token *)token;
 	ASSERT_NOT_NULL(_token);
 
@@ -752,6 +804,35 @@ fpga_result sysfs_get_fme_perf_path(fpga_token token, char *sysfs_perf)
 	}
 
 	res = cat_token_sysfs_path(sysfs_perf, token, SYSFS_FORMAT(sysfs_fme_perf_glob));
+	if (res != FPGA_OK) {
+		return res;
+	}
+
+	// check for path is valid
+	int gres = glob(sysfs_perf, GLOB_NOSORT, NULL, &pglob);
+	if (gres) {
+		FPGA_ERR("Failed pattern match %s: %s", sysfs_perf, strerror(errno));
+		//TODO refactor to common function
+		switch (gres) {
+		case GLOB_NOSPACE:
+			res = FPGA_NO_MEMORY;
+			break;
+		case GLOB_NOMATCH:
+			res = FPGA_NOT_FOUND;
+			break;
+		default:
+			res = FPGA_EXCEPTION;
+		}
+
+		if (pglob.gl_pathv) {
+			globfree(&pglob);
+		}
+		return res;
+	}
+
+	if (pglob.gl_pathv) {
+		globfree(&pglob);
+	}
 
 	return res;
 }
@@ -811,6 +892,43 @@ fpga_result sysfs_get_port_error_clear_path(fpga_handle handle, char *sysfs_port
 	return result;
 }
 
+fpga_result sysfs_get_bmc_path(fpga_token token, char *sysfs_bmc)
+{
+	fpga_result res = FPGA_OK;
+	struct _fpga_token *_token = (struct _fpga_token *)token;
+	ASSERT_NOT_NULL(_token);
+
+	if (sysfs_bmc == NULL) {
+		FPGA_ERR("Invalid input parameters");
+		return FPGA_INVALID_PARAM;
+	}
+
+	res = cat_token_sysfs_path(sysfs_bmc, token, SYSFS_FORMAT(sysfs_bmc_glob));
+	if (res != FPGA_OK) {
+		return res;
+	}
+
+	return opae_glob_path(sysfs_bmc);
+}
+
+fpga_result sysfs_get_max10_path(fpga_token token, char *sysfs_max10)
+{
+	fpga_result res = FPGA_OK;
+	struct _fpga_token *_token = (struct _fpga_token *)token;
+	ASSERT_NOT_NULL(_token);
+
+	if (sysfs_max10 == NULL) {
+		FPGA_ERR("Invalid input parameters");
+		return FPGA_INVALID_PARAM;
+	}
+
+	res = cat_token_sysfs_path(sysfs_max10, token, SYSFS_FORMAT(sysfs_max10_glob));
+	if (res != FPGA_OK) {
+		return res;
+	}
+
+	return opae_glob_path(sysfs_max10);
+}
 
 fpga_result sysfs_get_fme_pr_interface_id(const char *sysfs_sysfs_path, fpga_guid guid)
 {
