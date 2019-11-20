@@ -415,14 +415,11 @@ fpga_result fpgainfo_board_info(fpga_token token)
 		goto out;
 	}
 
-	if(dl_handle == NULL)
-		return FPGA_OK;
-
 	print_board_info = dlsym(dl_handle, "print_board_info");
 	if (print_board_info) {
 		res = print_board_info(token);
 	} else {
-		OPAE_MSG("No print_board_info entry point:%s\n", dlerror());
+		OPAE_ERR("No print_board_info entry point:%s\n", dlerror());
 		res = FPGA_NOT_FOUND;
 	}
 

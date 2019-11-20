@@ -197,10 +197,10 @@ fpga_result get_phy_info(char *dev_path, fpga_phy_group_info *info);
 
 
 /**
-* Prints pkvl informantion..
+* Prints pkvl information
 *
 * @param[in] token            fpga_token object for device (FPGA_DEVICE type)
-* @returns FPGA_OK on success. FPGA_EXCEPTION if token is invlaid.
+* @returns FPGA_OK on success. FPGA_EXCEPTION if token is invalid.
 *
 */
 fpga_result print_pkvl_version(fpga_token token);

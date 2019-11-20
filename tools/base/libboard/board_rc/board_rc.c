@@ -301,9 +301,9 @@ fpga_result print_board_info(fpga_token token)
 	if (!stat("/sys/class/fpga_region", &st)) {
 		res = fpgaTokenGetObject(token, SYSFS_DEVID_FILE, &bmc_object, FPGA_OBJECT_GLOB);
 		if (res != FPGA_OK) {
-			printf("Board Management Controller, microcontroller FW version: %s\n", "Not Supportd");
-			printf("Last Power down cause: %s\n", "Not Supportd");
-			printf("Last Reset cause: %s\n", "Not Supportd");
+			printf("Board Management Controller, microcontroller FW version: %s\n", "Not Supported");
+			printf("Last Power down cause: %s\n", "Not Supported");
+			printf("Last Reset cause: %s\n", "Not Supported");
 			return res;
 		}
 
