@@ -171,6 +171,8 @@ struct _fpga_handle {
 	void *bmc_handle;                                    // bmc module handle
 	struct _fpga_bmc_metric *_bmc_metric_cache_value;    // bmc cache values
 	uint64_t num_bmc_metric;                             // num of bmc values
+#define OPAE_FLAG_HAS_MMX512 (1u << 0)
+	uint32_t flags;
 };
 
 /*

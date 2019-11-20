@@ -391,6 +391,7 @@ extern uint64_t *umsg_umas_vbase;
 
 #define MMIO_WIDTH_32        32
 #define MMIO_WIDTH_64        64
+#define MMIO_WIDTH_512       512
 
 // UMSG info structure
 typedef struct {
@@ -513,6 +514,7 @@ extern "C" {
 	void mmio_write64(int, uint64_t);
 	void mmio_read32(int, uint32_t *);
 	void mmio_read64(int, uint64_t *);
+	void mmio_write512(int, const void *);
 
 	// UMSG functions
 	// uint64_t *umsg_get_address(int);
