@@ -94,8 +94,8 @@ static sysfs_formats sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
 	 .sysfs_fme_perf_glob = "*perf",
 	 .sysfs_port_err = "errors/errors",
 	 .sysfs_port_err_clear = "errors/errors",
-	 .sysfs_bmc_glob = "avmmi-bmc.*/bmc_info",
-	 .sysfs_max10_glob = "spi-*/spi_master/spi*/spi*.*"
+	 .sysfs_bmc_glob = "",
+	 .sysfs_max10_glob = ""
 	},
 	// intel driver sysfs formats
 	{.sysfs_class_path = "/sys/class/fpga",
@@ -766,10 +766,27 @@ fpga_result sysfs_get_fme_temp_path(fpga_token token, char *sysfs_temp)
 	int gres = glob(sysfs_temp, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		FPGA_ERR("Failed pattern match %s: %s", sysfs_temp, strerror(errno));
-		globfree(&pglob);
-		return FPGA_NOT_FOUND;
+		//TODO refactor to common function
+		switch (gres) {
+		case GLOB_NOSPACE:
+			res = FPGA_NO_MEMORY;
+			break;
+		case GLOB_NOMATCH:
+			res = FPGA_NOT_FOUND;
+			break;
+		default:
+			res = FPGA_EXCEPTION;
+		}
+
+		if (pglob.gl_pathv) {
+			globfree(&pglob);
+		}
+		return res;
 	}
-	globfree(&pglob);
+
+	if (pglob.gl_pathv) {
+		globfree(&pglob);
+	}
 
 	return res;
 }
@@ -795,10 +812,27 @@ fpga_result sysfs_get_fme_perf_path(fpga_token token, char *sysfs_perf)
 	int gres = glob(sysfs_perf, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		FPGA_ERR("Failed pattern match %s: %s", sysfs_perf, strerror(errno));
-		globfree(&pglob);
-		return FPGA_NOT_FOUND;
+		//TODO refactor to common function
+		switch (gres) {
+		case GLOB_NOSPACE:
+			res = FPGA_NO_MEMORY;
+			break;
+		case GLOB_NOMATCH:
+			res = FPGA_NOT_FOUND;
+			break;
+		default:
+			res = FPGA_EXCEPTION;
+		}
+
+		if (pglob.gl_pathv) {
+			globfree(&pglob);
+		}
+		return res;
 	}
-	globfree(&pglob);
+
+	if (pglob.gl_pathv) {
+		globfree(&pglob);
+	}
 
 	return res;
 }

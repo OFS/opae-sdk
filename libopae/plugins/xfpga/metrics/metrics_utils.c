@@ -234,10 +234,22 @@ fpga_result enum_thermalmgmt_metrics(fpga_metric_vector *vector,
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		FPGA_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
+		//TODO refactor to common function
+		switch (gres) {
+		case GLOB_NOSPACE:
+			result = FPGA_NO_MEMORY;
+			break;
+		case GLOB_NOMATCH:
+			result = FPGA_NOT_FOUND;
+			break;
+		default:
+			result = FPGA_EXCEPTION;
+		}
+
 		if (pglob.gl_pathv) {
 			globfree(&pglob);
 		}
-		return FPGA_NOT_FOUND;
+		return result;
 	}
 
 	for (i = 0; i < pglob.gl_pathc; i++) {
@@ -256,16 +268,20 @@ fpga_result enum_thermalmgmt_metrics(fpga_metric_vector *vector,
 		}
 
 		result = add_metric_vector(vector, *metric_num, THERLGMT, THERLGMT, sysfspath, (dir_name + 1), pglob.gl_pathv[i], metric_data.metric_units,
-			FPGA_METRIC_DATATYPE_INT, FPGA_METRIC_TYPE_THERMAL, hw_type, 0);
+								FPGA_METRIC_DATATYPE_INT, FPGA_METRIC_TYPE_THERMAL, hw_type, 0);
 		if (result != FPGA_OK) {
 			FPGA_MSG("Failed to add metrics");
-			globfree(&pglob);
+			if (pglob.gl_pathv) {
+				globfree(&pglob);
+			}
 			return result;
 		}
 		*metric_num = *metric_num + 1;
 	}
 
-	globfree(&pglob);
+	if (pglob.gl_pathv) {
+		globfree(&pglob);
+	}
 	return result;
 }
 
@@ -292,10 +308,22 @@ fpga_result enum_powermgmt_metrics(fpga_metric_vector *vector,
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		FPGA_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
+		//TODO refactor to common function
+		switch (gres) {
+		case GLOB_NOSPACE:
+			result = FPGA_NO_MEMORY;
+			break;
+		case GLOB_NOMATCH:
+			result = FPGA_NOT_FOUND;
+			break;
+		default:
+			result = FPGA_EXCEPTION;
+		}
+
 		if (pglob.gl_pathv) {
 			globfree(&pglob);
 		}
-		return FPGA_NOT_FOUND;
+		return result;
 	}
 
 	for (i = 0; i < pglob.gl_pathc; i++) {
@@ -314,16 +342,21 @@ fpga_result enum_powermgmt_metrics(fpga_metric_vector *vector,
 		}
 
 		result = add_metric_vector(vector, *metric_num, PWRMGMT, PWRMGMT, sysfspath, (dir_name + 1), pglob.gl_pathv[i], metric_data.metric_units,
-			FPGA_METRIC_DATATYPE_INT, FPGA_METRIC_TYPE_POWER, hw_type, 0);
+								FPGA_METRIC_DATATYPE_INT, FPGA_METRIC_TYPE_POWER, hw_type, 0);
 		if (result != FPGA_OK) {
 			FPGA_MSG("Failed to add metrics");
-			globfree(&pglob);
+			if (pglob.gl_pathv) {
+				globfree(&pglob);
+			}
 			return result;
 		}
 		*metric_num = *metric_num + 1;
 	}
 
-	globfree(&pglob);
+	if (pglob.gl_pathv) {
+		globfree(&pglob);
+	}
+
 	return result;
 }
 
@@ -423,6 +456,7 @@ fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
 
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
+		FPGA_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
 		if (pglob.gl_pathv) {
 			globfree(&pglob);
 		}
