@@ -234,7 +234,7 @@ fpga_result enum_thermalmgmt_metrics(fpga_metric_vector *vector,
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		FPGA_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
-		//TBD refactor to common function
+		//TODO refactor to common function
 		switch (gres) {
 		case GLOB_NOSPACE:
 			result = FPGA_NO_MEMORY;
@@ -308,7 +308,7 @@ fpga_result enum_powermgmt_metrics(fpga_metric_vector *vector,
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		FPGA_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
-		//TBD refactor to common function
+		//TODO refactor to common function
 		switch (gres) {
 		case GLOB_NOSPACE:
 			result = FPGA_NO_MEMORY;
