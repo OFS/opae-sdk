@@ -217,7 +217,7 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 
 		if (tmp) {
 			free(tmp);
-		} 
+		}
 
 		// Metrics typw
 		result = read_sensor_sysfs_file(pglob.gl_pathv[i], SENSOR_SYSFS_TYPE, (void **)&tmp, &tot_bytes);
