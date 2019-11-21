@@ -595,7 +595,7 @@ def update_fw(fd_dev, args, pac):
     except IOError as exc:
         return exc.errno, exc.strerror
 
-    LOG.info('applying update')
+    LOG.info('applying update to %s', pac.pci_node.pci_address)
     with progress(time=apply_time, **progress_cfg) as prg:
         while True:
             try:
@@ -607,6 +607,8 @@ def update_fw(fd_dev, args, pac):
                     return exc.errno, exc.strerror
             prg.tick()
             time.sleep(1.0)
+
+    LOG.info('update of %s complete', pac.pci_node.pci_address)
 
     return 0, 'Secure update OK'
 
