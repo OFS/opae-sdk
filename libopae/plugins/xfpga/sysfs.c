@@ -94,8 +94,8 @@ static sysfs_formats sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
 	 .sysfs_fme_perf_glob = "*perf",
 	 .sysfs_port_err = "errors/errors",
 	 .sysfs_port_err_clear = "errors/errors",
-	 .sysfs_bmc_glob = "",
-	 .sysfs_max10_glob = ""
+	 .sysfs_bmc_glob = "avmmi-bmc.*/bmc_info",
+	 .sysfs_max10_glob = "spi-*/spi_master/spi*/spi*.*"
 	},
 	// intel driver sysfs formats
 	{.sysfs_class_path = "/sys/class/fpga",
@@ -720,7 +720,6 @@ fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid)
 fpga_result sysfs_get_fme_pwr_path(fpga_token token, char *sysfs_pwr)
 {
 	fpga_result res = FPGA_OK;
-	glob_t pglob;
 	struct _fpga_token *_token = (struct _fpga_token *)token;
 	ASSERT_NOT_NULL(_token);
 
@@ -734,13 +733,11 @@ fpga_result sysfs_get_fme_pwr_path(fpga_token token, char *sysfs_pwr)
 	}
 
 	// check for path is valid
-	int gres = glob(sysfs_pwr, GLOB_NOSORT, NULL, &pglob);
-	if (gres) {
-		FPGA_ERR("Failed pattern match %s: %s", sysfs_pwr, strerror(errno));
-		globfree(&pglob);
-		return FPGA_NOT_FOUND;
+	res = check_sysfs_path_is_valid(sysfs_pwr);
+	if (res != FPGA_OK) {
+		FPGA_MSG("Invalid path %s", sysfs_pwr);
+		return res;
 	}
-	globfree(&pglob);
 
 	return res;
 }
@@ -748,7 +745,6 @@ fpga_result sysfs_get_fme_pwr_path(fpga_token token, char *sysfs_pwr)
 fpga_result sysfs_get_fme_temp_path(fpga_token token, char *sysfs_temp)
 {
 	fpga_result res = FPGA_OK;
-	glob_t pglob;
 	struct _fpga_token *_token = (struct _fpga_token *)token;
 	ASSERT_NOT_NULL(_token);
 
@@ -763,29 +759,10 @@ fpga_result sysfs_get_fme_temp_path(fpga_token token, char *sysfs_temp)
 	}
 
 	// check for path is valid
-	int gres = glob(sysfs_temp, GLOB_NOSORT, NULL, &pglob);
-	if (gres) {
-		FPGA_ERR("Failed pattern match %s: %s", sysfs_temp, strerror(errno));
-		//TODO refactor to common function
-		switch (gres) {
-		case GLOB_NOSPACE:
-			res = FPGA_NO_MEMORY;
-			break;
-		case GLOB_NOMATCH:
-			res = FPGA_NOT_FOUND;
-			break;
-		default:
-			res = FPGA_EXCEPTION;
-		}
-
-		if (pglob.gl_pathv) {
-			globfree(&pglob);
-		}
+	res = check_sysfs_path_is_valid(sysfs_temp);
+	if (res != FPGA_OK) {
+		FPGA_MSG("Invalid path %s", sysfs_temp);
 		return res;
-	}
-
-	if (pglob.gl_pathv) {
-		globfree(&pglob);
 	}
 
 	return res;
@@ -794,7 +771,6 @@ fpga_result sysfs_get_fme_temp_path(fpga_token token, char *sysfs_temp)
 fpga_result sysfs_get_fme_perf_path(fpga_token token, char *sysfs_perf)
 {
 	fpga_result res = FPGA_OK;
-	glob_t pglob;
 	struct _fpga_token *_token = (struct _fpga_token *)token;
 	ASSERT_NOT_NULL(_token);
 
@@ -809,29 +785,10 @@ fpga_result sysfs_get_fme_perf_path(fpga_token token, char *sysfs_perf)
 	}
 
 	// check for path is valid
-	int gres = glob(sysfs_perf, GLOB_NOSORT, NULL, &pglob);
-	if (gres) {
-		FPGA_ERR("Failed pattern match %s: %s", sysfs_perf, strerror(errno));
-		//TODO refactor to common function
-		switch (gres) {
-		case GLOB_NOSPACE:
-			res = FPGA_NO_MEMORY;
-			break;
-		case GLOB_NOMATCH:
-			res = FPGA_NOT_FOUND;
-			break;
-		default:
-			res = FPGA_EXCEPTION;
-		}
-
-		if (pglob.gl_pathv) {
-			globfree(&pglob);
-		}
+	res = check_sysfs_path_is_valid(sysfs_perf);
+	if (res != FPGA_OK) {
+		FPGA_MSG("Invalid path %s", sysfs_perf);
 		return res;
-	}
-
-	if (pglob.gl_pathv) {
-		globfree(&pglob);
 	}
 
 	return res;
@@ -1457,6 +1414,39 @@ out_close:
 	close(fd);
 	return FPGA_NOT_FOUND;
 }
+
+fpga_result check_sysfs_path_is_valid(const char *sysfs_path)
+{
+	fpga_result result = FPGA_OK;
+	char path[SYSFS_PATH_MAX] = { 0 };
+	struct stat stats;
+	if (!sysfs_path) {
+		FPGA_ERR("Invalid input path");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (strcpy_s(path, SYSFS_PATH_MAX, sysfs_path)) {
+		FPGA_ERR("Could not copy globbed path");
+		return FPGA_EXCEPTION;
+	}
+
+	result = opae_glob_path(path);
+	if (result) {
+		return result;
+	}
+
+	if (stat(path, &stats) != 0) {
+		FPGA_ERR("stat failed: %s", strerror(errno));
+		return FPGA_NOT_FOUND;
+	}
+
+	if (S_ISDIR(stats.st_mode) || S_ISREG(stats.st_mode)) {
+		return FPGA_OK;
+	}
+
+	return FPGA_EXCEPTION;
+}
+
 
 fpga_result sysfs_path_is_valid(const char *root, const char *attr_path)
 {
