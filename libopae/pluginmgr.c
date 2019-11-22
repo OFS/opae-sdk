@@ -323,7 +323,7 @@ STATIC int process_plugin(const char *name, json_object *j_config)
 	if (!stringified) {
 		OPAE_ERR("error getting plugin configuration");
 		free(cfg);
-    return 1;
+		return 1;
 	}
 
 	cfg->cfg_size = strlen(stringified) + 1;
@@ -332,7 +332,7 @@ STATIC int process_plugin(const char *name, json_object *j_config)
 		OPAE_ERR("error allocating memory for plugin configuration");
 		cfg->cfg_size = 0;
 		free(cfg);
-    return 1;
+		return 1;
 	}
 
 	if (strncpy_s(cfg->cfg, MAX_PLUGIN_CFG_SIZE, stringified, cfg->cfg_size)) {
