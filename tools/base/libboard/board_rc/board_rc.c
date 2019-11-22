@@ -298,7 +298,7 @@ fpga_result print_board_info(fpga_token token)
 	fpga_object bmc_object;
 
 
-	if (!stat("/sys/class/fpga_region", &st)) {
+	if (!stat("/sys/bus/pci/drivers/dfl-pci", &st)) {
 		res = fpgaTokenGetObject(token, SYSFS_DEVID_FILE, &bmc_object, FPGA_OBJECT_GLOB);
 		if (res != FPGA_OK) {
 			printf("Board Management Controller, microcontroller FW version: %s\n", "Not Supported");

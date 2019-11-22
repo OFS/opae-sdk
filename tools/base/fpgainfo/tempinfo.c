@@ -64,7 +64,7 @@ static void print_temp_info(fpga_token token)
 	fpgainfo_board_info(token);
 	fpgainfo_print_common("//****** TEMP ******//", props);
 
-	if (!stat("/sys/class/fpga", &st)) {
+	if (!stat("/sys/bus/pci/drivers/intel-fpga-pci", &st)) {
 
 		res = fpgaTokenGetObject(token, PKG_TEMP_NAME, &obj, FPGA_OBJECT_GLOB);
 		ON_FPGAINFO_ERR_GOTO(res, out_destroy, "Failure getting temp object from token");
@@ -73,7 +73,7 @@ static void print_temp_info(fpga_token token)
 		printf("%-32s : %02ld %s\n", "Package Temperature", pkg_temp, "Centigrade");
 	}
 
-	if (!stat("/sys/class/fpga_region", &st)) {
+	if (!stat("/sys/bus/pci/drivers/dfl-pci", &st)) {
 
 		res = fpgaTokenGetObject(token, PKG_TEMP_UPS_DRV_NAME, &obj, FPGA_OBJECT_GLOB);
 		ON_FPGAINFO_ERR_GOTO(res, out_destroy, "Failure getting temp object from token");
