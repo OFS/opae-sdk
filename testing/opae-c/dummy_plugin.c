@@ -208,6 +208,6 @@ int __attribute__((visibility("default"))) opae_plugin_configure(opae_api_adapte
 	adapter->fpgaGetMetricsInfo = NULL;
 	adapter->fpgaGetMetricsByIndex = NULL;
 	adapter->fpgaGetMetricsByName = NULL;
-
+	json_object_put(root);
 	return 0;
 }
