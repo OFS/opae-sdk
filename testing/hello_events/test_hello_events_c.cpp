@@ -328,7 +328,7 @@ TEST_P(mock_hello_events_c_fpgad_p, main2) {
 }
 
 INSTANTIATE_TEST_CASE_P(mock_hello_events_c_fpgad, mock_hello_events_c_fpgad_p,
-  ::testing::ValuesIn(test_platform::mock_platforms()));
+  ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc","dcp-rc-dfl0_patchset2","skx-p-dfl0_patchset2" })));
 
 
 class hw_hello_events_c_fpgad_p : public mock_hello_events_c_fpgad_p {
