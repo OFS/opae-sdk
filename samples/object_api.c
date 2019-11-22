@@ -122,7 +122,7 @@ metric_group *init_metric_group(fpga_token token, const char *name,
 			print_err("error reading function", res);
 		}
 	}
-
+	fpgaDestroyProperties(&props);
 	if (fpgaTokenGetObject(token, name, &group->object, FPGA_OBJECT_GLOB)
 	    == FPGA_OK) {
 		return group;
@@ -135,6 +135,7 @@ fpga_result add_clock(token_group *t_group)
 {
 	fpga_result res = fpgaTokenGetObject(t_group->token, "*perf/clock",
 					     &t_group->clock, FPGA_OBJECT_GLOB);
+	ADD_TO_CLEANUP(fpgaDestroyObject, &t_group->clock);
 
 	return res;
 }
@@ -150,6 +151,8 @@ fpga_result add_counter(metric_group *group, const char *name)
 		group->objects[count].value = 0;
 		group->objects[count].name = name;
 		group->count++;
+		ADD_TO_CLEANUP(fpgaDestroyObject, &group->objects[count].object);
+
 	} else {
 		group->objects[count].object = NULL;
 	}
@@ -288,9 +291,11 @@ int main(int argc, char *argv[])
 		metrics[i].token = tokens[i];
 		add_clock(&metrics[i]);
 		metrics[i].groups = calloc(3, sizeof(metric_group));
+		ADD_TO_CLEANUP(free, metrics[i].groups);
 		metrics[i].count = 3;
 		metric_group *g_cache = init_metric_group(
 			tokens[i], "*perf/cache", &metrics[i].groups[0]);
+		ADD_TO_CLEANUP(fpgaDestroyObject, &(g_cache->object));
 		if (!g_cache)
 			goto out_free;
 		add_counter(g_cache, "read_hit");
@@ -300,12 +305,14 @@ int main(int argc, char *argv[])
 		add_counter(g_cache, "hold_request");
 		metric_group *g_fabric = init_metric_group(
 			tokens[i], "*perf/fabric", &metrics[i].groups[1]);
+		ADD_TO_CLEANUP(fpgaDestroyObject, &(g_fabric->object))
 		if (!g_fabric)
 			goto out_free;
 		add_counter(g_fabric, "mmio_write");
 		add_counter(g_fabric, "mmio_read");
 		metric_group *g_iommu = init_metric_group(
 			tokens[i], "*perf/iommu", &metrics[i].groups[2]);
+		ADD_TO_CLEANUP(fpgaDestroyObject, &(g_iommu->object));
 		if (!g_iommu)
 			goto out_free;
 		add_counter(g_iommu, "iotlb_4k_hit");
@@ -330,8 +337,6 @@ int main(int argc, char *argv[])
 	exit_code = 0;
 
 out_free:
-	if (metrics)
-		free(metrics);
 
 	while (cleanup_size-- > 0) {
 		if ((res = cleanup[cleanup_size].fn(
@@ -341,6 +346,8 @@ out_free:
 		}
 	}
 
+	if (metrics)
+		free(metrics);
 out:
 	return exit_code;
 }
