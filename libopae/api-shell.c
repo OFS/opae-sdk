@@ -893,15 +893,18 @@ fpga_result fpgaGetOPAECVersionString(char *version_str, size_t len)
 
 fpga_result fpgaGetOPAECBuildString(char *build_str, size_t len)
 {
-	errno_t err;
+	int err;
 
 	ASSERT_NOT_NULL(build_str);
 
-	err = strncpy_s(build_str, len, INTEL_FPGA_API_HASH,
-			sizeof(INTEL_FPGA_API_HASH));
+	err = snprintf_s_ss(build_str,
+			    len,
+			    "%s%s",
+			    INTEL_FPGA_API_HASH,
+			    INTEL_FPGA_TREE_DIRTY ? "*" : "");
 
-	if (err) {
-		OPAE_ERR("strncpy_s failed with error %d", err);
+	if (err < 0) {
+		OPAE_ERR("snprintf_s_ss failed with error %d", err);
 		return FPGA_EXCEPTION;
 	}
 

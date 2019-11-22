@@ -149,6 +149,8 @@ fpga_result parse_args(int argc, char *argv[])
 	int getopt_ret;
 	int option_index;
 	char *endptr = NULL;
+	char version[32];
+	char build[32];
 
 	while (-1 != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING,
 						longopts, &option_index))) {
@@ -175,10 +177,10 @@ fpga_result parse_args(int argc, char *argv[])
 			break;
 
 		case 'v':
-			printf("hello_fpga %s %s%s\n",
-			       INTEL_FPGA_API_VERSION,
-			       INTEL_FPGA_API_HASH,
-			       INTEL_FPGA_TREE_DIRTY ? "*":"");
+			fpgaGetOPAECVersionString(version, sizeof(version));
+			fpgaGetOPAECBuildString(build, sizeof(build));
+			printf("hello_fpga %s %s\n",
+			       version, build);
 			return -1;
 
 		default: /* invalid option */
