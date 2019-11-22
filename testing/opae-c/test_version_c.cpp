@@ -75,17 +75,6 @@ TEST(version, opaec_string) {
 }
 
 /**
- * @test       opaec_string_err
- * @brief      Test: fpgaGetOPAECVersionString
- * @details    When fpgaGetOPAECVersionString is called with invalid params,<br>
- *             then it returns FPGA_EXCEPTION.<br>
- */
-TEST(version, opaec_string_err) {
-  char ver_str[4097];
-  EXPECT_EQ(fpgaGetOPAECVersionString(ver_str, sizeof(ver_str)), FPGA_EXCEPTION);
-}
-
-/**
  * @test       opaec_build_string
  * @brief      Test: fpgaGetOPAECBuildString
  * @details    When fpgaGetOPAECBuildString is called with valid params,<br>
@@ -95,18 +84,11 @@ TEST(version, opaec_string_err) {
 TEST(version, opaec_build_string) {
   char b_str[32];
   EXPECT_EQ(fpgaGetOPAECBuildString(b_str, sizeof(b_str)), FPGA_OK);
-  EXPECT_STREQ(b_str, INTEL_FPGA_API_HASH);
-}
-
-/**
- * @test       opaec_build_string_err
- * @brief      Test: fpgaGetOPAECBuildString
- * @details    When fpgaGetOPAECBuildString is called with invalid params,<br>
- *             then it returns FPGA_EXCEPTION.<br>
- */
-TEST(version, opaec_build_string_err) {
-  char b_str[4097];
-  EXPECT_EQ(fpgaGetOPAECBuildString(b_str, sizeof(b_str)), FPGA_EXCEPTION);
+  if (INTEL_FPGA_TREE_DIRTY) {
+      EXPECT_STREQ(b_str, INTEL_FPGA_API_HASH "*");
+  } else {
+      EXPECT_STREQ(b_str, INTEL_FPGA_API_HASH);
+  }
 }
 
 /**
