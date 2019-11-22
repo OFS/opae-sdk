@@ -42,7 +42,7 @@ int opae_plugin_mgr_configure_plugin(opae_api_adapter_table *adapter,
 				     const char *config);
 int process_cfg_buffer(const char *buffer, const char *filename);
 extern opae_api_adapter_table *adapter_list;
-
+int opae_plugin_mgr_finalize_all(void);
 }
 
 #include <config.h>
@@ -480,6 +480,8 @@ TEST_P(pluginmgr_c_p, dummy_plugin) {
 
   EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
   unlink("opae_log.log");
+  opae_plugin_mgr_finalize_all();
+  opae_plugin_mgr_reset_cfg(); 
 }
 
 TEST_P(pluginmgr_c_p, no_cfg) {
@@ -489,6 +491,8 @@ TEST_P(pluginmgr_c_p, no_cfg) {
   EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
   auto p1 = opae_plugin_mgr_config_list;
   ASSERT_EQ(p1, nullptr);
+  opae_plugin_mgr_finalize_all();
+  opae_plugin_mgr_reset_cfg(); 
 }
 
 class pluginmgr_cfg_p : public ::testing::TestWithParam<const char*> {
@@ -582,6 +586,8 @@ TEST_P(pluginmgr_cfg_p, find_and_parse_cfg) {
   ASSERT_NE(p1, nullptr);
   ASSERT_EQ(p1->next, nullptr);
   EXPECT_TRUE(p1->enabled);
+  opae_plugin_mgr_finalize_all();
+  opae_plugin_mgr_reset_cfg(); 
 }
 
 INSTANTIATE_TEST_CASE_P(pluginmgr_cfg, pluginmgr_cfg_p,
