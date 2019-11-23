@@ -235,6 +235,7 @@ int main(int argc, char *argv[])
 
 	ret_value = parse_args(argc, argv);
 	if (ret_value != EX_OK) {
+    		fpgaDestroyProperties(&filter);
 		return ret_value == EX_TEMPFAIL ? EX_OK : ret_value;
 	}
 

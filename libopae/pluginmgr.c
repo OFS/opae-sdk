@@ -304,11 +304,7 @@ STATIC int process_plugin(const char *name, json_object *j_config)
 	json_object *j_plugin_cfg = NULL;
 	json_object *j_enabled = NULL;
 	const char *stringified = NULL;
-	plugin_cfg *cfg = malloc(sizeof(plugin_cfg));
-	if (!cfg) {
-		OPAE_ERR("Could not allocate memory for plugin cfg");
-		return 1;
-	}
+
 	JSON_GET(j_config, "plugin", &j_plugin);
 	JSON_GET(j_config, "configuration", &j_plugin_cfg);
 	JSON_GET(j_config, "enabled", &j_enabled);
@@ -317,9 +313,16 @@ STATIC int process_plugin(const char *name, json_object *j_config)
 		return 1;
 	}
 
+	plugin_cfg *cfg = malloc(sizeof(plugin_cfg));
+	if (!cfg) {
+		OPAE_ERR("Could not allocate memory for plugin cfg");
+		return 1;
+	}
+
 	stringified = json_object_to_json_string_ext(j_plugin_cfg, JSON_C_TO_STRING_PLAIN);
 	if (!stringified) {
 		OPAE_ERR("error getting plugin configuration");
+		free(cfg);
 		return 1;
 	}
 
@@ -328,6 +331,7 @@ STATIC int process_plugin(const char *name, json_object *j_config)
 	if (!cfg->cfg) {
 		OPAE_ERR("error allocating memory for plugin configuration");
 		cfg->cfg_size = 0;
+		free(cfg);
 		return 1;
 	}
 
