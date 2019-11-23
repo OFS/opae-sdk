@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,6 +24,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 #include <sstream>
 #include "nlb3.h"
 #include "log.h"
@@ -54,6 +57,18 @@ int main(int argc, char* argv[])
     {
         nlb.show_help(std::cout);
         return 100;
+    }
+
+    bool show_version = false;
+    opts.get_value<bool>("version", show_version);
+    if (show_version)
+    {
+        std::cout << "nlb3 " << INTEL_FPGA_API_VERSION
+                  << " " << INTEL_FPGA_API_HASH;
+        if (INTEL_FPGA_TREE_DIRTY)
+            std::cout << "*";
+        std::cout << std::endl;
+        return 103;
     }
 
     logger log;

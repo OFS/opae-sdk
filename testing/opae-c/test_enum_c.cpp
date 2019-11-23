@@ -114,16 +114,35 @@ class enum_c_p : public mock_opae_p<2, none_> {
       return platform_.devices.size();
     }
 
-    std::stringstream ss;
-    ss << std::setw(4) << std::hex << platform_.devices[0].device_id;
-    std::string deviceid (ss.str());
+    int matches = 0;
+    std::string afu_id;
+    std::string afu_id_expected = platform_.devices[0].afu_guid;
 
-    std::string cmd =  "lspci | grep " + deviceid + " | wc -l";
+    afu_id_expected.erase(std::remove(afu_id_expected.begin(),
+                                      afu_id_expected.end(), '-'),
+                          afu_id_expected.end());
+    transform(afu_id_expected.begin(), afu_id_expected.end(),
+              afu_id_expected.begin(), ::tolower);
 
-    int value;
-    ExecuteCmd(cmd, value);
-    return value;
+    int i;
+    for (i = 0; i < GetNumFpgas(); i++) {
+      std::string cmd = "cat /sys/class/fpga*/*" + std::to_string(i) +
+                        "/*port." + std::to_string(i) + "/afu_id > output.txt";
+      EXPECT_EQ(std::system(cmd.c_str()), 0);
+      std::ifstream file("output.txt");
+      EXPECT_TRUE(file.is_open());
+      EXPECT_TRUE(std::getline(file, afu_id));
+      file.close();
+      EXPECT_EQ(unlink("output.txt"), 0);
+
+      if (afu_id == afu_id_expected) {
+          matches++;
+      }
+    }
+
+    return matches;
   }
+
   virtual int GetNumDeviceID() {
     if (platform_.mock_sysfs != nullptr) {
       return 1;
@@ -451,7 +470,7 @@ TEST_P(enum_c_p, guid) {
   EXPECT_EQ(
       fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
       FPGA_OK);
-  EXPECT_EQ(num_matches_, GetNumFpgas());
+  EXPECT_EQ(num_matches_, GetMatchedGuidFpgas());
 
   DestroyTokens();
 

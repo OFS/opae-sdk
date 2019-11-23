@@ -48,6 +48,7 @@ extern uint64_t *mmio_afu_vbase;
 TEST(mmio_c_ase, nullhandle) {
   uint32_t value = 0;
   uint64_t value2 = 0;
+  uint64_t value512[8] = {0, 0, 0, 0, 0, 0, 0, 0};
   uint64_t *addr = nullptr;
   EXPECT_EQ(ase_fpgaWriteMMIO32(nullptr, 1, 0x4, 0xff),
             FPGA_INVALID_PARAM);
@@ -59,6 +60,9 @@ TEST(mmio_c_ase, nullhandle) {
             FPGA_INVALID_PARAM);
 
   EXPECT_EQ(ase_fpgaReadMMIO64(nullptr, 1, 0x4, &value2),
+            FPGA_INVALID_PARAM);
+
+  EXPECT_EQ(ase_fpgaWriteMMIO512(nullptr, 1, 0x40, value512),
             FPGA_INVALID_PARAM);
 
   EXPECT_EQ(ase_fpgaMapMMIO(nullptr, 1, &addr),
@@ -79,6 +83,7 @@ TEST(mmio_c_ase, nullhandle) {
 TEST(mmio_c_ase, mmio_afu_vbase_null) {
   uint32_t value = 0;
   uint64_t value2 = 0;
+  uint64_t value512[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
   struct _fpga_handle handle_;
   fpga_handle accel_ = &handle_;
@@ -93,6 +98,8 @@ TEST(mmio_c_ase, mmio_afu_vbase_null) {
             FPGA_NOT_FOUND);
   EXPECT_EQ(ase_fpgaReadMMIO64(accel_, 1, 0x4, &value2),
             FPGA_NOT_FOUND);
+  EXPECT_EQ(ase_fpgaWriteMMIO512(accel_, 1, 0x40, value512),
+            FPGA_NOT_FOUND);
 }
 
 /**
@@ -104,6 +111,7 @@ TEST(mmio_c_ase, mmio_afu_vbase_null) {
 TEST(mmio_c_ase, offset_misaligned) {
   uint32_t value = 0;
   uint64_t value2 = 0;
+  uint64_t value512[8] = {0, 0, 0, 0, 0, 0, 0, 0};
   uint64_t mmio_data[16];
 
   struct _fpga_handle handle_;
@@ -119,6 +127,8 @@ TEST(mmio_c_ase, offset_misaligned) {
             FPGA_INVALID_PARAM);
   EXPECT_EQ(ase_fpgaReadMMIO64(accel_, 1, 0x3, &value2),
             FPGA_INVALID_PARAM);
+  EXPECT_EQ(ase_fpgaWriteMMIO512(accel_, 1, 0x3, value512),
+            FPGA_INVALID_PARAM);
 }
 
 /**
@@ -130,6 +140,7 @@ TEST(mmio_c_ase, offset_misaligned) {
 TEST(mmio_c_ase, offset_overflow) {
   uint32_t value = 0;
   uint64_t value2 = 0;
+  uint64_t value512[8] = {0, 0, 0, 0, 0, 0, 0, 0};
   uint64_t mmio_data[16];
 
   struct _fpga_handle handle_;
@@ -144,6 +155,8 @@ TEST(mmio_c_ase, offset_overflow) {
   EXPECT_EQ(ase_fpgaWriteMMIO64(accel_, 1, MMIO_AFU_OFFSET + 4, 0xff),
             FPGA_INVALID_PARAM);
   EXPECT_EQ(ase_fpgaReadMMIO64(accel_, 1, MMIO_AFU_OFFSET + 4, &value2),
+            FPGA_INVALID_PARAM);
+  EXPECT_EQ(ase_fpgaWriteMMIO512(accel_, 1, MMIO_AFU_OFFSET + 64, value512),
             FPGA_INVALID_PARAM);
 }
 

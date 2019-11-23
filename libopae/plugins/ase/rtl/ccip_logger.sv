@@ -262,6 +262,7 @@ module ccip_logger
    string c1rx_str;
    string c0tx_str;
    string c1tx_str;
+   string c1tx_byte_en_str;
    string c2tx_str;
 
 
@@ -430,14 +431,22 @@ module ccip_logger
 	 // -------------------------------------------------- //
 	 // Write Request
 	 if (ccip_tx.c1.valid && isCCIPWrLineRequest(ccip_tx.c1.hdr.req_type)) begin
+	    // Partial line write with byte range?
+	    c1tx_byte_en_str = "";
+	    if (ccip_tx.c1.hdr.mode == eMOD_BYTE) begin
+	       $sformat(c1tx_byte_en_str, " PW [start %0d, len %0d]",
+		      ccip_tx.c1.hdr.byte_start, ccip_tx.c1.hdr.byte_len);
+	    end
+
 	    $sformat(c1tx_str,
-		     "%d\t%s\t%s\t%x\t%x\t%x\t%s\n",
+		     "%d\t%s\t%s\t%x\t%x\t%x%s\t%s\n",
 	 	     $time,
 	 	     print_channel(ccip_tx.c1.hdr.vc_sel),
 	 	     print_c1_reqtype(ccip_tx.c1.hdr.req_type),
 	 	     ccip_tx.c1.hdr.mdata,
 	 	     ccip_tx.c1.hdr.address,
 	 	     ccip_tx.c1.data,
+	 	     c1tx_byte_en_str,
 		     print_clnum(ccip_tx.c1.hdr.cl_len));
 	    print_and_post_log(c1tx_str);
 	 end // if (ccip_tx.c1.valid && (ccip_tx.c1.hdr.req_type != eREQ_WRFENCE))

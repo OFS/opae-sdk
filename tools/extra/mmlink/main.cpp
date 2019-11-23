@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,6 +24,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 #include <stdlib.h>
 #include <getopt.h>
 #include <signal.h>
@@ -40,7 +43,7 @@
 #define FPGA_PORT_INDEX_STP               1
 #define FPGA_PORT_STP_DFH_REVBIT         12
 
-#define GETOPT_STRING ":hB:D:F:S:P:I"
+#define GETOPT_STRING ":hB:D:F:S:P:Iv"
 
 #define PRINT_ERR(format, ...) \
 	printf("%s:%u:%s() : " format "\n", __FILE__, __LINE__, __func__,\
@@ -55,6 +58,7 @@ struct option longopts[] = {
 		{"socket-id",   required_argument, NULL, 'S'},
 		{"port",        required_argument, NULL, 'P'},
 		{"ip",          required_argument, NULL, 'I'},
+    {"version",     no_argument,       NULL, 'v'},
 		{0,0,0,0}
 };
 
@@ -90,6 +94,7 @@ void MMLinkAppShowHelp()
 		"OR  -P <PORT>\n");
 	printf("<IP ADDRESS>          --ip=<IP ADDRESS>            "
 		"OR  -I <IP ADDRESS>\n");
+  printf("<Version>             -v,--version Print version and exit\n");
 	printf("\n");
 
 }
@@ -396,6 +401,14 @@ int ParseCmds(struct MMLinkCommandLine *mmlinkCmdLine, int argc, char *argv[])
 			strncpy_s(mmlinkCmdLine->ip, sizeof(mmlinkCmdLine->ip),
 				tmp_optarg, 16);
 			break;
+
+		case 'v':
+			// Version
+      printf("mmlink %s %s%s\n",
+             INTEL_FPGA_API_VERSION,
+             INTEL_FPGA_API_HASH,
+             INTEL_FPGA_TREE_DIRTY ? "*":"");
+			return -2;
 
 		case '?':
 		default: /* invalid option */

@@ -123,7 +123,7 @@ static void *sim_huge_mmap(void *addr, size_t length, int prot, int flags)
 /*
  * Allocate (mmap) new buffer
  */
-static fpga_result buffer_allocate(void **addr, uint64_t len, int flags)
+static fpga_result buffer_allocate(void **addr, uint64_t *len, int flags)
 {
 	void *addr_local = NULL;
 
@@ -134,18 +134,22 @@ static fpga_result buffer_allocate(void **addr, uint64_t len, int flags)
 	/* ! FPGA_BUF_PREALLOCATED, allocate memory using huge pages
 	   For buffer > 2M, use 1G-hugepage to ensure pages are
 	   contiguous */
-	if (len > 2 * MB)
-		addr_local = sim_huge_mmap(ADDR, len, PROTECTION, FLAGS_1G);
-	else if (len > 4 * KB)
-		addr_local = sim_huge_mmap(ADDR, len, PROTECTION, FLAGS_2M);
-	else
-		addr_local = mmap(ADDR, len, PROTECTION, FLAGS_4K, 0, 0);
+	if (*len > 2 * MB) {
+		// Round up length to GB pages
+		*len = (*len + (1 * GB - 1)) & (~(1 * GB - 1));
+		addr_local = sim_huge_mmap(ADDR, *len, PROTECTION, FLAGS_1G);
+	} else if (*len > 4 * KB) {
+		// Round up length to a full 2MB page
+		*len = 2 * MB;
+		addr_local = sim_huge_mmap(ADDR, *len, PROTECTION, FLAGS_2M);
+	} else
+		addr_local = mmap(ADDR, *len, PROTECTION, FLAGS_4K, 0, 0);
 	if (addr_local == MAP_FAILED) {
 		if (errno == ENOMEM) {
-			if (len > 2 * MB)
+			if (*len > 2 * MB)
 				FPGA_MSG("Could not allocate buffer (no free 1 "
 					 "GiB huge pages)");
-			if (len > 4 * KB)
+			if (*len > 4 * KB)
 				FPGA_MSG("Could not allocate buffer (no free 2 "
 					 "MiB huge pages)");
 			else
@@ -374,7 +378,7 @@ fpga_result __FPGA_API__ ase_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 			len = pg_size + (len & ~(pg_size - 1));
 		}
 
-		result = buffer_allocate(&addr, len, flags);
+		result = buffer_allocate(&addr, &len, flags);
 		if (result != FPGA_OK) {
 			goto out_unlock;
 		}

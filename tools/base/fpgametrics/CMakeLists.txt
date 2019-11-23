@@ -32,6 +32,7 @@ add_executable(fpgametrics fpgametrics.c)
 set_install_rpath(fpgametrics)
 
 target_link_libraries(fpgametrics opae-c uuid ${CMAKE_THREAD_LIBS_INIT})
+set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS}")
 
 install(TARGETS fpgametrics
         RUNTIME DESTINATION bin

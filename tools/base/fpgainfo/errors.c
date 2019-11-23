@@ -107,10 +107,11 @@ static const char *const INJECT_ERROR[INJECT_ERROR_COUNT] = {
 	"Set Catastrophic  error .", "Set Fatal error.",
 	"Ser Non-fatal error ."};
 
-#define PORT_ERROR_COUNT 52
+#define PORT_ERROR_COUNT 60
 static const char *const PORT_ERROR[PORT_ERROR_COUNT] = {
+	// 0
 	"Tx Channel 0 overflow error detected.",
-	"Tx Channel 0 invalid request encodingr error detected.",
+	"Tx Channel 0 invalid request encoding error detected.",
 	"Tx Channel 0 cl_len=3 not supported error detected.",
 	"Tx Channel 0 request with cl_len=2 does NOT have a 2CL aligned address error detected.",
 	"Tx Channel 0 request with cl_len=4 does NOT have a 4CL aligned address error detected.",
@@ -119,6 +120,7 @@ static const char *const PORT_ERROR[PORT_ERROR_COUNT] = {
 	"RSVD.",
 	"RSVD.",
 	"AFU MMIO RD received while PORT is in reset error detected",
+	// 10
 	"AFU MMIO WR received while PORT is in reset error detected",
 	"RSVD.",
 	"RSVD.",
@@ -129,16 +131,18 @@ static const char *const PORT_ERROR[PORT_ERROR_COUNT] = {
 	"Tx Channel 1 cl_len=3 not supported error detected.",
 	"Tx Channel 1 request with cl_len=2 does NOT have a 2CL aligned address error detected",
 	"Tx Channel 1 request with cl_len=4 does NOT have a 4CL aligned address error detected",
+	// 20
 	"Tx Channel 1 insufficient data payload Error detected",
 	"Tx Channel 1 data payload overrun error detected",
 	"Tx Channel 1 incorrect address on subsequent payloads error detected",
 	"Tx Channel 1 Non-zero SOP detected for requests!=WrLine_* error detected",
+	"Tx Channel 1 SOP expected to be 0 for req_type!=WrLine_*",
 	"Tx Channel 1 Illegal VC_SEL. Atomic request is only supported on VL0 error detected",
 	"RSVD.",
 	"RSVD.",
 	"RSVD.",
 	"RSVD.",
-	"RSVD.",
+	// 30
 	"RSVD.",
 	"RSVD.",
 	"MMIO TimedOut error detected",
@@ -149,6 +153,7 @@ static const char *const PORT_ERROR[PORT_ERROR_COUNT] = {
 	"RSVD.",
 	"RSVD.",
 	"RSVD.",
+	// 40
 	"Number of pending requests: counter overflow error detected",
 	"Request with Address violating SMM range error detected",
 	"Request with Address violating second SMM range error detected",
@@ -159,8 +164,18 @@ static const char *const PORT_ERROR[PORT_ERROR_COUNT] = {
 	"Request with Address violating VGA memory range error detected",
 	"Page Fault error detected",
 	"PMR Erro error detected",
-	"AP6 event detected ",
-	"VF FLR detected on port when PORT configured in PF access mode error detected "};
+	// 50
+	"AP6 event detected",
+	"VF FLR detected on port when PORT configured in PF access mode error detected ",
+	"RSVD.",
+	"RSVD.",
+	"RSVD.",
+	"RSVD.",
+	"Tx Channel 1 byte_len cannot be zero",
+	"Tx Channel 1 illegal operation: sum of byte_len and byte_start should be less than or equal to 64",
+	"Tx Channel 1 illegal operation: cl_len cannot be non-zero when mode is eMOD_BYTE",
+	"Tx Channel 1 byte_len and byte_start should be zero when mode is not eMOD_BYTE"
+};
 
 /*
  * errors command configuration, set during parse_args()
@@ -169,7 +184,7 @@ static struct errors_config {
 	bool clear;
 	int force_count;
 	enum verbs_index which;
-	int help_only;
+	bool help_only;
 } errors_config = {.clear = false, .which = VERB_ALL, .help_only = false};
 
 /*

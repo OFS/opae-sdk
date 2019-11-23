@@ -883,6 +883,7 @@ void exit_cleanup(void)
   ase_exit();
 }
 
+
 /*
  * MMIO Write 32-bit
  */
@@ -992,6 +993,63 @@ void mmio_write64(int offset, uint64_t data)
 
 	FUNC_CALL_EXIT;
 }
+
+
+/*
+ * MMIO Write 512-bit
+ */
+void mmio_write512(int offset, const void *data)
+{
+	FUNC_CALL_ENTRY;
+
+	if (offset < 0) {
+		ASE_ERR("Requested offset is not in AFU MMIO region\n");
+		ASE_ERR("MMIO Write Error\n");
+		raise(SIGABRT);
+	} else {
+		mmio_t *mmio_pkt;
+		mmio_pkt =
+			(struct mmio_t *) ase_malloc(sizeof(struct mmio_t));
+
+		mmio_pkt->write_en = MMIO_WRITE_REQ;
+		mmio_pkt->width = MMIO_WIDTH_512;
+		mmio_pkt->addr = offset;
+		ase_memcpy(mmio_pkt->qword, data, 64);
+		mmio_pkt->resp_en = 0;
+
+		// Critical Section
+		if (pthread_mutex_lock(&io_s.mmio_port_lock) != 0) {
+			ASE_ERR("pthread_mutex_lock could not attain lock !\n");
+			exit_cleanup();
+		}
+
+		mmio_pkt->tid = generate_mmio_tid();
+		mmio_request_put(mmio_pkt);
+
+		if (pthread_mutex_unlock(&io_s.mmio_port_lock) != 0) {
+			ASE_ERR
+				("Mutex unlock failure ... Application Exit here\n");
+			session_deinit();
+			exit(1);
+		}
+
+		// Write to MMIO map
+		void *mmio_vaddr;
+		mmio_vaddr =
+			(void *) ((uint64_t) mmio_afu_vbase + offset);
+		ase_memcpy(mmio_vaddr, (char *) &data, 64);
+
+		// Display
+		ASE_MSG("MMIO Write     : tid = 0x%03x, offset = 0x%x, data = 0x%08x\n",
+			mmio_pkt->tid, mmio_pkt->addr, data);
+
+		free(mmio_pkt);
+		mmio_pkt = NULL;
+	}
+
+	FUNC_CALL_EXIT;
+}
+
 
 /* *********************************************************************
  * MMIO Read
@@ -1431,6 +1489,9 @@ void free_buffers(void)
 
 	ase_host_memory_terminate();
 
+	asebuf_index_count = 0;
+	userbuf_index_count = 0;
+
 	FUNC_CALL_EXIT;
 }
 
@@ -1642,7 +1703,22 @@ static void *membus_wr_watcher(void *arg)
 			wr_rsp.va = ase_host_memory_pa_to_va(wr_req.addr, true);
 			wr_rsp.status = membus_op_status(wr_rsp.va, wr_rsp.pa);
 			if (wr_rsp.status == HOST_MEM_STATUS_VALID) {
-				ase_memcpy((char *) wr_rsp.va, wr_req.data, CL_BYTE_WIDTH);
+				char *dst = (char *) wr_rsp.va;
+				char *src = (char *) wr_req.data;
+				size_t len = CL_BYTE_WIDTH;
+
+				// Partial write? Figure out the region to copy.
+				if (wr_req.byte_en) {
+					dst += wr_req.byte_start;
+					src += wr_req.byte_start;
+					len = wr_req.byte_len;
+					if ((src + len - (char *) wr_req.data) > CL_BYTE_WIDTH) {
+						ASE_ERR("Byte range is outside of cache line!");
+						ase_exit();
+					}
+				}
+
+				ase_memcpy(dst, src, len);
 			}
 			ase_host_memory_unlock();
 

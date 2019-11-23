@@ -42,15 +42,18 @@ class Nlb3Mode(bc.BistMode):
                   '--cont')
         self.executables = {mode: params.format(mode) for mode in modes}
 
-    def run(self, gbs_path, bus_num):
+    def run(self, gbs_path, bdf):
         if gbs_path:
-            bc.load_gbs(gbs_path, bus_num)
+            bc.load_gbs(gbs_path, bdf)
         ret = 0
         for test, param in self.executables.items():
             print "Running fpgadiag {} test...\n".format(test)
-            cmd = "fpgadiag -B 0x{} {}".format(bus_num, param)
+            cmd = ['fpgadiag', '-B', hex(bdf['bus']),
+                   '-D', hex(bdf['device']),
+                   '-F', hex(bdf['function'])]
+            cmd.extend(param.split())
             try:
-                subprocess.check_call(cmd, shell=True)
+                subprocess.check_call(cmd)
             except subprocess.CalledProcessError as e:
                 print "Failed Test: {}".format(test)
                 print e

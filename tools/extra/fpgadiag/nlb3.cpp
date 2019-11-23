@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -67,6 +67,7 @@ nlb3::nlb3()
 , cachelines_(0)
 {
     options_.add_option<bool>("help",                'h', option::no_argument,   "Show help", false);
+    options_.add_option<bool>("version",             'v', option::no_argument,   "Show version", false);
     options_.add_option<std::string>("config",       'c', option::with_argument, "Path to test config file", config_);
     options_.add_option<std::string>("target",       't', option::with_argument, "one of {fpga, ase}", target_);
     options_.add_option<std::string>("mode",         'm', option::with_argument, "mode {read, write, trput}", mode_);
