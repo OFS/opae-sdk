@@ -297,7 +297,7 @@ int main(int argc, char *argv[])
 			tokens[i], "*perf/cache", &metrics[i].groups[0]);
 		if (!g_cache)
 			goto out_free;
-        ADD_TO_CLEANUP(fpgaDestroyObject, &(g_cache->object));
+		ADD_TO_CLEANUP(fpgaDestroyObject, &(g_cache->object));
 		add_counter(g_cache, "read_hit");
 		add_counter(g_cache, "read_miss");
 		add_counter(g_cache, "write_hit");
@@ -307,14 +307,14 @@ int main(int argc, char *argv[])
 			tokens[i], "*perf/fabric", &metrics[i].groups[1]);
 		if (!g_fabric)
 			goto out_free;
-        ADD_TO_CLEANUP(fpgaDestroyObject, &(g_fabric->object))
+		ADD_TO_CLEANUP(fpgaDestroyObject, &(g_fabric->object))
 		add_counter(g_fabric, "mmio_write");
 		add_counter(g_fabric, "mmio_read");
 		metric_group *g_iommu = init_metric_group(
 			tokens[i], "*perf/iommu", &metrics[i].groups[2]);
 		if (!g_iommu)
 			goto out_free;
-        ADD_TO_CLEANUP(fpgaDestroyObject, &(g_iommu->object));
+		ADD_TO_CLEANUP(fpgaDestroyObject, &(g_iommu->object));
 		add_counter(g_iommu, "iotlb_4k_hit");
 		add_counter(g_iommu, "iotlb_4k_miss");
 		add_counter(g_iommu, "iotlb_2m_hit");
