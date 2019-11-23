@@ -38,6 +38,9 @@ parameter CCIP_VERSION_NUMBER    = 12'h080;
 parameter CCIP_CLADDR_WIDTH      = 42;
 parameter CCIP_CLDATA_WIDTH      = 512;
 
+// Number of bytes in a cache line
+parameter CCIP_CLDATA_BYTE_WIDTH = CCIP_CLDATA_WIDTH / 8;
+
 parameter CCIP_MMIOADDR_WIDTH    = 16;
 parameter CCIP_MMIODATA_WIDTH    = 64;
 parameter CCIP_TID_WIDTH         = 9;
@@ -67,6 +70,9 @@ typedef logic [CCIP_MDATA_WIDTH-1:0]    t_ccip_mdata;
 
 typedef logic [1:0]                     t_ccip_clNum;
 typedef logic [2:0]                     t_ccip_qwIdx;
+
+// Index into a cache line when organized as an array of bytes
+typedef logic [$clog2(CCIP_CLDATA_BYTE_WIDTH)-1:0] t_ccip_clByteIdx;
 
 
 // Request Type  Encodings
@@ -127,6 +133,13 @@ typedef enum logic [1:0] {
     eCL_LEN_4 = 2'b11
 } t_ccip_clLen;
 
+// Memory Access Mode Encodings
+//----------------------------------------------------------------------
+typedef enum logic [0:0] {
+    eMOD_CL   = 1'b0,           // Memory full CL access
+    eMOD_BYTE = 1'h1            // Memory byte access
+} t_ccip_mem_access_mode;
+
 //
 // Structures for Request and Response headers
 //----------------------------------------------------------------------
@@ -142,15 +155,15 @@ typedef struct packed {
 parameter CCIP_C0TX_HDR_WIDTH = $bits(t_ccip_c0_ReqMemHdr);
 
 typedef struct packed {
-    logic [5:0]     rsvd2;      // [79:74]  reserved, drive 0
-    t_ccip_vc       vc_sel;     // [73:72]
-    logic           sop;        // [71]
-    logic           rsvd1;      // [70]     reserved, drive 0
-    t_ccip_clLen    cl_len;     // [69:68]
-    t_ccip_c1_req   req_type;   // [67:64]
-    logic [5:0]     rsvd0;      // [63:58]  reserved, drive 0
-    t_ccip_clAddr   address;    // [57:16]
-    t_ccip_mdata    mdata;      // [15:0]
+    t_ccip_clByteIdx       byte_len;    // [79:74]
+    t_ccip_vc              vc_sel;      // [73:72]
+    logic                  sop;         // [71]
+    t_ccip_mem_access_mode mode;        // [70]
+    t_ccip_clLen           cl_len;      // [69:68]
+    t_ccip_c1_req          req_type;    // [67:64]
+    t_ccip_clByteIdx       byte_start;  // [63:58]
+    t_ccip_clAddr          address;     // [57:16]
+    t_ccip_mdata           mdata;       // [15:0]
 } t_ccip_c1_ReqMemHdr;
 parameter CCIP_C1TX_HDR_WIDTH = $bits(t_ccip_c1_ReqMemHdr);
 

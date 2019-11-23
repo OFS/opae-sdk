@@ -1000,6 +1000,9 @@ int fpgad_plugin_configure(fpgad_monitored_device *d,
 			"accelerator" : "device");
 
 		res = vc_parse_config(vc, cfg);
+		if (res) {
+			free(vc);
+		}
 
 	}
 

@@ -28,6 +28,13 @@
 
    "comment":
       [
+         "Boolean (0/1) indicating whether the platform supports byte-enable",
+         "to update only a portion of a cache line."
+      ],
+   "byte-en-supported": 0,
+
+   "comment":
+      [
          "Minimum number of outstanding lines that must be in flight to",
          "saturate bandwidth on each virtual channel.  (Index of the parameter",
          "is the virtual channel number.)  Maximum bandwidth is typically a",

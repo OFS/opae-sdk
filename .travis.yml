@@ -27,6 +27,7 @@ matrix:
         packages:
         - libjson-c-dev
         - libhwloc-dev
+        - libtbb-dev
         - uuid-dev
         - doxygen
     deploy:
@@ -49,6 +50,7 @@ matrix:
         packages:
         - libjson-c-dev
         - libhwloc-dev
+        - libtbb-dev
         - uuid-dev
         - doxygen
   - script: scripts/test-build.sh
@@ -63,6 +65,7 @@ matrix:
         packages:
         - libjson-c-dev
         - libhwloc-dev
+        - libtbb-dev
         - uuid-dev
         - doxygen
   - script: scripts/test-build.sh
@@ -77,6 +80,7 @@ matrix:
         packages:
         - libjson-c-dev
         - libhwloc-dev
+        - libtbb-dev
         - uuid-dev
         - doxygen
   - script: scripts/cover.sh
@@ -94,6 +98,7 @@ matrix:
        packages:
         - libjson-c-dev
         - libhwloc-dev
+        - libtbb-dev
         - uuid-dev
         - doxygen
         - lcov
@@ -116,6 +121,7 @@ matrix:
        packages:
         - libjson-c-dev
         - libhwloc-dev
+        - libtbb-dev
         - uuid-dev
         - doxygen
         - lcov
@@ -134,6 +140,7 @@ matrix:
        packages:
         - libjson-c-dev
         - libhwloc-dev
+        - libtbb-dev
         - uuid-dev
         - doxygen
         - pandoc

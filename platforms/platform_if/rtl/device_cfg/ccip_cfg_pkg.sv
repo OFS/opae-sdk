@@ -42,6 +42,11 @@
 // the package long.
 //
 
+// Provide defaults for new parameters
+`ifndef PLATFORM_PARAM_CCI_P_BYTE_EN_SUPPORTED
+  `define PLATFORM_PARAM_CCI_P_BYTE_EN_SUPPORTED 0
+`endif
+
 package ccip_cfg_pkg;
 
     parameter VERSION_NUMBER = 1;
@@ -80,6 +85,9 @@ package ccip_cfg_pkg;
 
     // Is a given request length supported, indexed by t_ccip_clLen?  (0 or 1)
     parameter int CL_LEN_SUPPORTED[4] = `PLATFORM_PARAM_CCI_P_CL_LEN_SUPPORTED;
+
+    // Does the platform honor byte enable to update a sub-region of a line?
+    parameter int BYTE_EN_SUPPORTED = `PLATFORM_PARAM_CCI_P_BYTE_EN_SUPPORTED;
 
     // Recommended number of edge register stages for CCI-P request/response
     // signals.  This is expected to be one on all platforms, reflecting the

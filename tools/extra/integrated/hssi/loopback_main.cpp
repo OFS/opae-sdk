@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,6 +24,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 #include <string>
 #include <map>
 #include <uuid/uuid.h>
@@ -115,6 +118,18 @@ int main(int argc, char* argv[])
     {
         app.show_help();
         return 100;
+    }
+
+    bool show_version = false;
+    opts.get_value<bool>("version", show_version);
+    if (show_version)
+    {
+        std::cout << "hssi_loopback " << INTEL_FPGA_API_VERSION
+                  << " " << INTEL_FPGA_API_HASH;
+        if (INTEL_FPGA_TREE_DIRTY)
+            std::cout << "*";
+        std::cout << std::endl;
+        return 101;
     }
 
     option_map::ptr_t filter(new option_map(opts));

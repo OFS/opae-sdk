@@ -76,3 +76,6 @@ find_package(json-c REQUIRED)
 # hwloc check
 find_package(Hwloc REQUIRED)
 
+# tbb check
+find_package(Tbb REQUIRED)
+

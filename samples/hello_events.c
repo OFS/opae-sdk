@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -38,6 +38,9 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -157,11 +160,12 @@ void * error_thread(void *arg)
 /*
  * Parse command line arguments
  */
-#define GETOPT_STRING "B:"
+#define GETOPT_STRING "B:v"
 fpga_result parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
-		{"bus", required_argument, NULL, 'B'},
+		{"bus",     required_argument, NULL, 'B'},
+		{"version", no_argument,       NULL, 'v'},
 		{NULL, 0, NULL, 0}
 	};
 	
@@ -187,7 +191,14 @@ fpga_result parse_args(int argc, char *argv[])
 			return FPGA_EXCEPTION;
 		}
 		break;
-	
+
+	case 'v': /* version */
+		printf("hello_events %s %s%s\n",
+		       INTEL_FPGA_API_VERSION,
+		       INTEL_FPGA_API_HASH,
+		       INTEL_FPGA_TREE_DIRTY ? "*":"");
+		return -1;
+
 	default: /* invalid option */
 		fprintf(stderr, "Invalid cmdline options\n");
 		return FPGA_EXCEPTION;
@@ -264,6 +275,8 @@ int main(int argc, char *argv[])
 	pthread_t          errthr;
 
 	res1 = parse_args(argc, argv);
+	if ((int)res1 < 0)
+		goto out_exit;
 	ON_ERR_GOTO(res1, out_exit, "parsing arguments");
 
 	res1 = find_fpga(&fpga_device_token, &num_matches);

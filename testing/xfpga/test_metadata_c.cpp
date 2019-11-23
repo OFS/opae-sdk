@@ -415,7 +415,35 @@ TEST_P(metadata_mock_c, validate_bitstream_metadata) {
 }
 
 INSTANTIATE_TEST_CASE_P(metadata, metadata_mock_c,
-                        ::testing::ValuesIn(test_platform::mock_platforms()));
+	::testing::ValuesIn(test_platform::mock_platforms({ "skx-p-dfl0_patchset2", "skx-p" })));
+
+class metadata_mock_rc_c : public metadata_c {};
+
+uint8_t bitstream_rc_guid[] = "XeonFPGA·GBSv001\53\02\00\00 {\"version\": 640, \"afu-image\":\
+      {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
+      \"power\": 50, \"interface-uuid\": \"F64E598B-EA11-517F-A28E-7BC65D885104\", \
+      \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\":1,\
+      \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
+      \"F64E598B-EA11-517F-A28E-7BC65D885104\"}]}, \"platform-name\": \"RC\"}";
+
+/**
+* @test    validate_metadata
+* @brief   Tests: validate_bitstream_metadata
+* @details validate_bitstream_metadata validates BS metadata
+*          Returns FPGA_OK if metadata is valid
+*/
+TEST_P(metadata_mock_rc_c, validate_bitstream_metadata_rc) {
+	fpga_result result;
+
+	ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+
+	result = validate_bitstream_metadata(handle_, bitstream_rc_guid);
+	EXPECT_EQ(result, FPGA_OK);
+}
+
+INSTANTIATE_TEST_CASE_P(metadata, metadata_mock_rc_c,
+	::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc","dcp-rc-dfl0_patchset2"})));
+
 
 class metadata_hw_c : public metadata_c {};
 

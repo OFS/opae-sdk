@@ -149,7 +149,7 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			args_filter_config.segment =
 				(int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
-				fprintf(stderr, "invalid socket: %s\n",
+				fprintf(stderr, "invalid segment: %s\n",
 					tmp_optarg);
 				return EX_USAGE;
 			}
