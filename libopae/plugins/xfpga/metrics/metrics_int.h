@@ -59,9 +59,18 @@
 #define VOLTAGE                             "Voltage"
 #define CURRENT                             "Current"
 #define POWER                               "Power"
+#define CLOCK                               "Clock"
 
-#define MAX10_SYSFS_PATH                     "spi-altera.*.auto/spi_master/spi*/spi*.*"
-#define MAX10_SENSOR_SYSFS_PATH              "spi-altera.*.auto/spi_master/spi*/spi*.*/sensor*"
+
+#define TEMPERATURE_UNITS                   "Celsius"
+#define VOLTAGE_UNITS                       "Volts"
+#define CURRENT_UNITS                       "Amps"
+#define POWER_UNITS                         "Watts"
+#define CLOCK_UNITS                         "Hz"
+
+#define MAX10_SYSFS_PATH                     "spi-*/spi_master/spi*/spi*.*"
+#define MAX10_SENSOR_SYSFS_PATH              "spi-*/spi_master/spi*/spi*.*/sensor*"
+
 #define SENSOR_SYSFS_NAME                    "name"
 #define SENSOR_SYSFS_TYPE                    "type"
 #define SENSOR_SYSFS_ID                      "id"
