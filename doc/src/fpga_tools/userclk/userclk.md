@@ -2,7 +2,7 @@
 
 ## SYNOPSIS  ##
 
-`userclk [-B <bus>] [-D <device>] [-F <function>] [-S <socket>] [-P <Port id>] [-H <User clock high frequency>] -L <User clock low frequency>]`
+`userclk [-v] [-B <bus>] [-D <device>] [-F <function>] [-S <socket>] [-P <Port id>] [-H <User clock high frequency>] -L <User clock low frequency>]`
 
 
 ## DESCRIPTION ##
@@ -16,6 +16,10 @@ userclk sets the frequency range for an AFU.
  Sets AFU frequency.
 
 ## OPTIONS ##
+
+`-v,--version`
+
+Prints version information and exits.
 
 `-B,--bus` 
 
