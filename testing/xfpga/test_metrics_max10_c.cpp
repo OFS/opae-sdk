@@ -190,3 +190,33 @@ TEST_P(metrics_invalid_max10_c_p, test_metric_max10_3) {
 }
 INSTANTIATE_TEST_CASE_P(metrics_max10_c, metrics_invalid_max10_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
+
+
+class metrics_max10_vc_c_p : public metrics_max10_c_p {
+protected:
+	metrics_max10_vc_c_p() {}
+};
+
+/**
+* @test       test_metric_max10_4
+* @brief      Tests: read_max10_value
+* @details    When passed with valid argument fn reads metric values <br>
+*             When passed with invalid argument return
+*             FPGA_INVALID_PARAM <br>
+*/
+TEST_P(metrics_max10_vc_c_p, test_metric_max10_4) {
+
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle_;
+	EXPECT_EQ(FPGA_OK, enum_fpga_metrics(handle_));
+
+	struct fpga_metric fpga_metric;
+
+	EXPECT_EQ(FPGA_OK,
+		get_fme_metric_value(handle_, &(_handle->fpga_enum_metric_vector),
+			1, &fpga_metric));
+
+	double dvalue = 0;
+	EXPECT_EQ(FPGA_INVALID_PARAM, read_max10_value(NULL, &dvalue));
+}
+INSTANTIATE_TEST_CASE_P(metrics_max10_c, metrics_max10_vc_c_p,
+	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-vc" })));
