@@ -52,13 +52,13 @@ import ccip_if_pkg::*;
 module ccip_emulator
    (
     // CCI-P Clocks and Resets
-    output logic       pClk,                   // 400MHz - CCI-P clock domain. Primary interface clock
-    output logic       pClkDiv2,               // 200MHz - CCI-P clock domain
-    output logic       pClkDiv4,               // 100MHz - CCI-P clock domain
+    input  logic       pClk,                   // CCI-P clock domain. Primary interface clock
+    input  logic       pClkDiv2,
+    input  logic       pClkDiv4,
    
     // User clocks
-    output logic       uClk_usr,               // User clock domain. Refer to clock programming guide
-    output logic       uClk_usrDiv2,           // User clock domain. Half the programmed frequency
+    input  logic       uClk_usr,               // User clock domain. Refer to clock programming guide
+    input  logic       uClk_usrDiv2,           // User clock domain. Half the programmed frequency
    
     // Power & error states
     output logic       pck_cp2af_softReset,    // CCI-P ACTIVE HIGH Soft Reset
@@ -74,10 +74,7 @@ module ccip_emulator
     assign pck_cp2af_pwrState = 2'b0;
     assign pck_cp2af_error    = 1'b0;
 
-    // Clock/reset
-    logic          Clk16UI ;
-    logic          Clk32UI ;
-    logic          Clk64UI ;
+    // reset
     logic          SoftReset;
 
     // Tx0 & bookkeeper
@@ -111,9 +108,6 @@ module ccip_emulator
     logic                              C0TxAlmFull;
     logic                              C1TxAlmFull;
 
-
-    // Internal 800 Mhz clock (for creating synchronized clocks)
-    logic                              Clk8UI;
     logic                              clk;
 
     // Real Full ch2as
@@ -152,7 +146,7 @@ module ccip_emulator
     endfunction
 
     // ccip_tx1_to_ase_tx1: Convert from CCIP -> ASE Tx1
-    function ASETxHdr_t ccip_tx1_to_ase_tx1(t_ccip_c1_ReqMemHdr inhdr);
+    function ASETxHdr_t ccip_tx1_to_ase_tx1(t_ccip_c1_ReqMemHdr inhdr, logic valid);
         ASETxHdr_t        txasehdr;
         logic [41:0]      c1tx_mcl_baseaddr;
         ccip_reqtype_t c1tx_mcl_basetype;
@@ -178,7 +172,7 @@ module ccip_emulator
              || (txasehdr.txhdr.reqtype == ASE_WRLINE_M)
              || (txasehdr.txhdr.reqtype == ASE_WRPUSH) )
         begin
-            if (inhdr.sop)
+            if (inhdr.sop && valid)
             begin
                 c1tx_mcl_baseaddr  = txasehdr.txhdr.addr;
                 c1tx_mcl_basetype  = txasehdr.txhdr.reqtype;
@@ -252,10 +246,6 @@ module ccip_emulator
     /*
      * Remapping ASE CCIP to cvl_pkg struct
      */
-    // Clocks 16ui, 32ui, 64ui
-    assign pClk = Clk16UI;
-    assign pClkDiv2 = Clk32UI;
-    assign pClkDiv4 = Clk64UI;
 
     // Reset out
     assign pck_cp2af_softReset = SoftReset;
@@ -288,7 +278,8 @@ module ccip_emulator
         C0TxValid                    <= pck_af2cp_sTx.c0.valid;
 
         // Tx OUT (CH1)
-        ASE_C1TxHdr                  <= ccip_tx1_to_ase_tx1(pck_af2cp_sTx.c1.hdr);
+        ASE_C1TxHdr                  <= ccip_tx1_to_ase_tx1(pck_af2cp_sTx.c1.hdr,
+                                                            pck_af2cp_sTx.c1.valid);
         C1TxHdr                      <= ASE_C1TxHdr.txhdr;
         C1TxData                     <= pck_af2cp_sTx.c1.data;
         C1TxValid                    <= pck_af2cp_sTx.c1.valid;
@@ -499,34 +490,8 @@ module ccip_emulator
     logic             tx0_overflow;
     logic             tx1_overflow;
 
-    /*
-     * Fabric Clock, pClk{*}
-     */
-    logic [2:0]        ase_clk_rollover = 3'b111;
-
     // ASE clock
-    assign clk = Clk16UI;
-    assign Clk16UI = ase_clk_rollover[0];
-    assign Clk32UI = ase_clk_rollover[1];
-    assign Clk64UI = ase_clk_rollover[2];
-
-    // 800 Mhz internal reference clock
-    initial begin : clk8ui_proc
-        begin
-            Clk8UI = 0;
-            forever begin
-                #(`CLK_8UI_TIME/2);
-                Clk8UI = 0;
-                #(`CLK_8UI_TIME/2);
-                Clk8UI = 1;
-            end
-        end
-    end
-
-    // 200 Mhz clock
-    always @(posedge Clk8UI) begin : clk_rollover_ctr
-        ase_clk_rollover <= ase_clk_rollover - 1;
-    end
+    assign clk = pClk;
 
     // Reset management
     logic             sw_reset_trig = 1;
@@ -652,42 +617,6 @@ module ccip_emulator
 
 
     /*
-     * User clock, uclk{*}
-     */
-    logic        usrClk;
-    logic        usrClkDiv2 = 0;
-    int          usrClk_delay = 3200;
-
-    // Function: Update usrclk_delay
-    function void update_usrclk_delay(int delay);
-    begin
-        usrClk_delay = delay;
-    end
-    endfunction
-
-    // User clock process
-    initial begin : usrclk_proc
-        begin
-            usrClk = 0;
-            forever begin
-                #(usrClk_delay/2);
-                usrClk = ~usrClk;
-            end
-        end
-    end
-
-
-    // Div2 output
-    always @(posedge usrClk) begin : usrclkdiv2_proc
-        usrClkDiv2 = ~usrClkDiv2;
-    end
-
-    // UCLK interface
-    assign uClk_usr     = usrClk;
-    assign uClk_usrDiv2 = usrClkDiv2;
-
-
-    /*
      * AFU reset - software & system resets
      */
     //
@@ -802,6 +731,9 @@ module ccip_emulator
             else if (mmio_pkt.width == MMIO_WIDTH_64) begin
                 hdr.len      = 2'b01;
             end
+            else if (mmio_pkt.width == MMIO_WIDTH_512) begin
+                hdr.len      = 2'b10;
+            end
         
             // Set MMIO Read/Write behavior
             if (mmio_pkt.write_en == MMIO_WRITE_REQ)
@@ -811,6 +743,12 @@ module ccip_emulator
                 end
                 else if (mmio_pkt.width == MMIO_WIDTH_64) begin
                     cwlp_data = {448'b0, mmio_pkt.qword[0][63:0]};
+                end
+                else if (mmio_pkt.width == MMIO_WIDTH_512) begin
+                    cwlp_data = {mmio_pkt.qword[7], mmio_pkt.qword[6],
+                                 mmio_pkt.qword[5], mmio_pkt.qword[4],
+                                 mmio_pkt.qword[3], mmio_pkt.qword[2],
+                                 mmio_pkt.qword[1], mmio_pkt.qword[0]};
                 end
                 cwlp_header = logic_cast_CfgHdr_t'(hdr);
                 cwlp_wrvalid = 1;
@@ -1384,9 +1322,6 @@ module ccip_emulator
         cfg.enable_cl_view           = cfg_in.enable_cl_view           ;
         cfg.usr_tps                  = cfg_in.usr_tps                  ;
         cfg.phys_memory_available_gb = cfg_in.phys_memory_available_gb ;
-
-        // Set UsrClk
-        update_usrclk_delay( cfg.usr_tps );
     end
     endtask
 
@@ -1749,7 +1684,11 @@ module ccip_emulator
         // Interrupt ID set
         ccip_intr_txhdr = t_ccip_c1_ReqIntrHdr'(txhdr);
         pkt.intr_id  = ccip_intr_txhdr.id;
-        // Response enable
+
+        // Byte range
+        pkt.byte_en = (txhdr.mode == eMOD_BYTE);
+        pkt.byte_start = int'(txhdr.byte_start);
+        pkt.byte_len = int'(txhdr.byte_len);
     end
     endfunction
 
@@ -2272,8 +2211,8 @@ module ccip_emulator
             C0RxMmioRdValid <= 0;
             C0RxRdValid     <= 0;
             C0RxUMsgValid   <= 0;
-            C0RxHdr         <= RxHdr_t'({CCIP_RX_HDR_WIDTH{1'b0}});
-            C0RxData        <= {CCIP_DATA_WIDTH{1'b0}};
+            C0RxHdr         <= RxHdr_t'('x);
+            C0RxData        <= {CCIP_DATA_WIDTH{'x}};
         end
         else if (mmioreq_valid) begin
             C0RxMmioWrValid <= mmio_wrvalid;
@@ -2306,8 +2245,8 @@ module ccip_emulator
             C0RxMmioRdValid <= 0;
             C0RxRdValid     <= 0;
             C0RxUMsgValid   <= 0;
-            C0RxHdr         <= RxHdr_t'({CCIP_RX_HDR_WIDTH{1'b0}});
-            C0RxData        <= {CCIP_DATA_WIDTH{1'b0}};
+            C0RxHdr         <= RxHdr_t'('x);
+            C0RxData        <= {CCIP_DATA_WIDTH{'x}};
         end
     end
 

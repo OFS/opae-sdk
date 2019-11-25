@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017-2019, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -31,7 +31,7 @@ add_executable(bist bist_dc.c)
 set_install_rpath(bist_app)
 set_install_rpath(bist)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DHAVE_CONFIG_H -std=c99")
 target_link_libraries(bist_app opae-c ${libjson-c_LIBRARIES} uuid rt ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(bist opae-c ${libjson-c_LIBRARIES} uuid rt ${CMAKE_THREAD_LIBS_INIT})
 

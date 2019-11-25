@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -30,6 +30,9 @@
  *
  *
  */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 #include <opae/fpga.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -119,7 +122,7 @@ metric_group *init_metric_group(fpga_token token, const char *name,
 			print_err("error reading function", res);
 		}
 	}
-
+	fpgaDestroyProperties(&props);
 	if (fpgaTokenGetObject(token, name, &group->object, FPGA_OBJECT_GLOB)
 	    == FPGA_OK) {
 		return group;
@@ -132,6 +135,7 @@ fpga_result add_clock(token_group *t_group)
 {
 	fpga_result res = fpgaTokenGetObject(t_group->token, "*perf/clock",
 					     &t_group->clock, FPGA_OBJECT_GLOB);
+	ADD_TO_CLEANUP(fpgaDestroyObject, &t_group->clock);
 
 	return res;
 }
@@ -147,6 +151,8 @@ fpga_result add_counter(metric_group *group, const char *name)
 		group->objects[count].value = 0;
 		group->objects[count].name = name;
 		group->count++;
+		ADD_TO_CLEANUP(fpgaDestroyObject, &group->objects[count].object);
+
 	} else {
 		group->objects[count].object = NULL;
 	}
@@ -186,11 +192,12 @@ void print_counters(fpga_object clock, metric_group *group)
 }
 
 
-#define GETOPT_STRING "B:f"
+#define GETOPT_STRING "B:v"
 fpga_result parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
-		{"bus", required_argument, NULL, 'B'},
+		{"bus",     required_argument, NULL, 'B'},
+		{"version", no_argument,       NULL, 'v'},
 		{NULL, 0, NULL, 0},
 	};
 	int getopt_ret;
@@ -219,6 +226,14 @@ fpga_result parse_args(int argc, char *argv[])
 				return FPGA_EXCEPTION;
 			}
 			break;
+
+		case 'v': /* version */
+			printf("object_api %s %s%s\n",
+			       INTEL_FPGA_API_VERSION,
+			       INTEL_FPGA_API_HASH,
+			       INTEL_FPGA_TREE_DIRTY ? "*":"");
+			return -1;
+
 		default: /* invalid option */
 			fprintf(stderr, "Invalid cmdline option \n");
 			return FPGA_EXCEPTION;
@@ -241,7 +256,8 @@ int main(int argc, char *argv[])
 	token_group *metrics = NULL;
 
 	if ((res = parse_args(argc, argv)) != FPGA_OK) {
-		print_err("error parsing arguments", res);
+		if((int)res > 0)
+			print_err("error parsing arguments", res);
 		return -1;
 	}
 
@@ -275,11 +291,13 @@ int main(int argc, char *argv[])
 		metrics[i].token = tokens[i];
 		add_clock(&metrics[i]);
 		metrics[i].groups = calloc(3, sizeof(metric_group));
+		ADD_TO_CLEANUP(free, metrics[i].groups);
 		metrics[i].count = 3;
 		metric_group *g_cache = init_metric_group(
 			tokens[i], "*perf/cache", &metrics[i].groups[0]);
 		if (!g_cache)
 			goto out_free;
+		ADD_TO_CLEANUP(fpgaDestroyObject, &(g_cache->object));
 		add_counter(g_cache, "read_hit");
 		add_counter(g_cache, "read_miss");
 		add_counter(g_cache, "write_hit");
@@ -289,12 +307,14 @@ int main(int argc, char *argv[])
 			tokens[i], "*perf/fabric", &metrics[i].groups[1]);
 		if (!g_fabric)
 			goto out_free;
+		ADD_TO_CLEANUP(fpgaDestroyObject, &(g_fabric->object))
 		add_counter(g_fabric, "mmio_write");
 		add_counter(g_fabric, "mmio_read");
 		metric_group *g_iommu = init_metric_group(
 			tokens[i], "*perf/iommu", &metrics[i].groups[2]);
 		if (!g_iommu)
 			goto out_free;
+		ADD_TO_CLEANUP(fpgaDestroyObject, &(g_iommu->object));
 		add_counter(g_iommu, "iotlb_4k_hit");
 		add_counter(g_iommu, "iotlb_4k_miss");
 		add_counter(g_iommu, "iotlb_2m_hit");
@@ -317,8 +337,6 @@ int main(int argc, char *argv[])
 	exit_code = 0;
 
 out_free:
-	if (metrics)
-		free(metrics);
 
 	while (cleanup_size-- > 0) {
 		if ((res = cleanup[cleanup_size].fn(
@@ -328,6 +346,8 @@ out_free:
 		}
 	}
 
+	if (metrics)
+		free(metrics);
 out:
 	return exit_code;
 }

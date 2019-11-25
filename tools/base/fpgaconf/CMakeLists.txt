@@ -39,6 +39,8 @@ target_link_libraries(fpgaconf
   uuid
   ${CMAKE_THREAD_LIBS_INIT})
 
+set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS}")
+
 install(TARGETS fpgaconf
         RUNTIME DESTINATION bin
         COMPONENT toolfpgaconf)

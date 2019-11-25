@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -71,6 +71,7 @@ nlb7::nlb7()
 , cachelines_(0)
 {
     options_.add_option<bool>("help",                'h', option::no_argument,   "Show help", false);
+    options_.add_option<bool>("version",             'v', option::no_argument,   "Show version", false);
     options_.add_option<std::string>("config",       'c', option::with_argument, "Path to test config file", config_);
     options_.add_option<std::string>("target",       't', option::with_argument, "one of {fpga, ase}", target_);
     options_.add_option<uint32_t>("begin",           'b', option::with_argument, "where 1 <= <value> <= 65535", begin_);
@@ -90,7 +91,7 @@ nlb7::nlb7()
     options_.add_option<uint32_t>("clock-freq",      'T', option::with_argument, "Clock frequency (used for bw measurements)", frequency_);
     options_.add_option<bool>("suppress-hdr",             option::no_argument,   "Suppress column headers", suppress_headers_);
     options_.add_option<bool>("csv",                 'V', option::no_argument,   "Comma separated value format", csv_format_);
-    options_.add_option<bool>("suppress-stats",           option::no_argument,   "Show stas at end", suppress_stats_);
+    options_.add_option<bool>("suppress-stats",           option::no_argument,   "Show stats at end", suppress_stats_);
 }
 
 nlb7::~nlb7()

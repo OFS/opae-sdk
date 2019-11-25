@@ -485,6 +485,50 @@ module ccip_checker
            print_message_and_log(0, log_str);
         end
 
+          // C1Tx - byte range set but request isn't a write
+          SNIFF_C1TX_BYTE_EN_NON_WRITE:
+        begin
+           error_code_q[code] = 1'b1;
+           $sformat(log_str, "[%s] C1TxHdr byte range requested on non-write request!\n", errcode_str);
+           print_message_and_log(0, log_str);
+        end
+
+          // C1Tx - byte range can only be set for single-line writes
+          SNIFF_C1TX_BYTE_EN_MULTI_LINE:
+        begin
+           error_code_q[code] = 1'b1;
+           $sformat(log_str, "[%s] C1TxHdr byte range may not be used on multi-line write requests!\n", errcode_str);
+           print_message_and_log(0, log_str);
+        end
+
+          // C1Tx - byte range outside of line
+          SNIFF_C1TX_BYTE_EN_BAD_RANGE:
+        begin
+           error_code_q[code] = 1'b1;
+           $sformat(log_str, "[%s] C1TxHdr byte range outside of line!\n", errcode_str);
+           print_message_and_log(0, log_str);
+        end
+
+          // C1Tx - byte range not implemented by the emulated platform
+          SNIFF_C1TX_BYTE_EN_NOT_IMPL:
+        begin
+           error_code_q[code] = 1'b1;
+`ifdef PLATFORM_CLASS_NAME
+           $sformat(log_str, "[%s] C1TxHdr byte range not implemented by platform %s!\n", errcode_str, `PLATFORM_CLASS_NAME);
+`else
+           $sformat(log_str, "[%s] C1TxHdr byte range not implemented by simulated platform!\n", errcode_str);
+`endif
+           print_message_and_log(0, log_str);
+        end
+
+          // C1Tx - byte range set but request isn't eMOD_BYTE
+          SNIFF_C1TX_BYTE_EN_WRONG_MODE:
+        begin
+           error_code_q[code] = 1'b1;
+           $sformat(log_str, "[%s] C1TxHdr byte range requested on non-eMOD_BYTE request!\n", errcode_str);
+           print_message_and_log(0, log_str);
+        end
+
           // C0TX - 3CL Request check
           SNIFF_C1TX_3CL_REQUEST:
         begin
@@ -1075,6 +1119,54 @@ module ccip_checker
       end
       else
             error_code_q[SNIFF_C1TX_UNEXP_REQTYPE]=1'b0;
+
+      // ----------------------------------------- //
+      // Byte range control on non-write request?
+      if ((ccip_tx.c1.hdr.mode == eMOD_BYTE) && ccip_tx.c1.valid && ~(isCCIPWriteRequest(ccip_tx.c1.hdr))) begin
+            decode_error_code(0, SNIFF_C1TX_BYTE_EN_NON_WRITE);
+      end
+      else
+            error_code_q[SNIFF_C1TX_BYTE_EN_NON_WRITE]=1'b0;
+
+      // ----------------------------------------- //
+      // Byte range set on normal write?
+      if ((ccip_tx.c1.hdr.mode == eMOD_CL) && ccip_tx.c1.valid && isCCIPWriteRequest(ccip_tx.c1.hdr) &&
+          ((ccip_tx.c1.hdr.byte_start != 0) || (ccip_tx.c1.hdr.byte_len != 0))) begin
+            decode_error_code(0, SNIFF_C1TX_BYTE_EN_WRONG_MODE);
+      end
+      else
+            error_code_q[SNIFF_C1TX_BYTE_EN_WRONG_MODE]=1'b0;
+
+      // ----------------------------------------- //
+      // Check various properties of byte ranges
+      if ((ccip_tx.c1.hdr.mode == eMOD_BYTE) && ccip_tx.c1.valid && isCCIPWriteRequest(ccip_tx.c1.hdr)) begin
+            // Requests may only be single-line writes
+            if (~ccip_tx.c1.hdr.sop || (ccip_tx.c1.hdr.cl_len != eCL_LEN_1)) begin
+              decode_error_code(0, SNIFF_C1TX_BYTE_EN_MULTI_LINE);
+            end
+            else
+              error_code_q[SNIFF_C1TX_BYTE_EN_MULTI_LINE]=1'b0;
+
+            // Range outside the cache line?
+            if ((ccip_tx.c1.hdr.byte_len == t_ccip_clByteIdx'(0)) ||
+                ((int'(ccip_tx.c1.hdr.byte_start) + int'(ccip_tx.c1.hdr.byte_len)) > CCIP_CLDATA_BYTE_WIDTH)) begin
+              decode_error_code(0, SNIFF_C1TX_BYTE_EN_BAD_RANGE);
+            end
+            else
+              error_code_q[SNIFF_C1TX_BYTE_EN_BAD_RANGE]=1'b0;
+
+            // Does the simulated platform support byte ranges?
+            if (! ccip_cfg_pkg::BYTE_EN_SUPPORTED) begin
+              decode_error_code(0, SNIFF_C1TX_BYTE_EN_NOT_IMPL);
+            end
+            else
+              error_code_q[SNIFF_C1TX_BYTE_EN_NOT_IMPL]=1'b0;
+      end
+      else begin
+            error_code_q[SNIFF_C1TX_BYTE_EN_MULTI_LINE]=1'b0;
+            error_code_q[SNIFF_C1TX_BYTE_EN_BAD_RANGE]=1'b0;
+            error_code_q[SNIFF_C1TX_BYTE_EN_NOT_IMPL]=1'b0;
+      end
  end
 
 

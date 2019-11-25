@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017-2019, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -26,6 +26,8 @@
 include_directories(${OPAE_INCLUDE_DIR}
                     ${OPAE_SDK_SOURCE}/tools/extra/c++utils)
 
+set(CMAKE_CXX_FLAGS "-DHAVE_CONFIG_H ${CMAKE_CXX_FLAGS}")
+
 add_library(hssi-io SHARED przone.h
                            accelerator_przone.h
                            accelerator_przone.cpp
@@ -50,7 +52,7 @@ set_install_rpath(hssi-io)
 set_target_properties(hssi-io PROPERTIES
   VERSION ${INTEL_FPGA_API_VERSION}
   SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
-target_link_libraries(hssi-io opae-cxx-core opae-c++-utils)
+target_link_libraries(hssi-io opae-cxx-core opae-c++-utils opae-c)
 
 add_executable(hssi_loopback loopback_main.cpp
                              loopback_app.h

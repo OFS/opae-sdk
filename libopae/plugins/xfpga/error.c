@@ -193,12 +193,14 @@ const char *errors_exclude[NUM_ERRORS_EXCLUDE] = {
 };
 
 /* files that can be cleared by writing their value to them */
-#define NUM_ERRORS_CLEARABLE 4
+#define NUM_ERRORS_CLEARABLE 6
 const char *errors_clearable[] = {
 	"pcie0_errors",
 	"pcie1_errors",
 	"warning_errors",
-	"inject_error"
+	"inject_error",
+	"fme_errors",
+	"errors"
 };
 
 /* Walks the given directory and adds error entries to `list`.
@@ -328,7 +330,8 @@ build_error_list(const char *path, struct error_list **list)
 		//   * if the name is "errors" and there is a file called "clear" (generic case), OR
 		//   * if the name is in the "errors_clearable" table
 		new_entry->info.can_clear = false;
-		if (strcmp(de->d_name, "errors") == 0) {
+		if (strcmp(de->d_name, "errors") == 0 &&
+			!stat(FPGA_SYSFS_CLASS_PATH_INTEL, &st)) {
 			err = strncpy_s(basedir + len, FILENAME_MAX - len, "clear", sizeof("clear"));
 			if (err != EOK) {
 				FPGA_MSG("strncpy_s() failed with return value %u", err);

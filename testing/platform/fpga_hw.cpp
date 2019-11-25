@@ -94,7 +94,7 @@ const char *rc_mdata =
    "afu-image":
     {"clock-frequency-high": 312,
      "clock-frequency-low": 156,
-     "interface-uuid": "9926ab6d-6c92-5a68-aabc-a7d84c545738",
+     "interface-uuid": "89a05379-528e-5b84-b8f2-348aea5d02c0",
      "magic-no": 488605312,
      "accelerator-clusters":
       [
@@ -126,6 +126,7 @@ const char *vc_mdata =
      },
      "platform-name": "PAC"}";
 )mdata";
+
 static platform_db MOCK_PLATFORMS = {
     {"skx-p",
      test_platform{.mock_sysfs = "mock_sys_tmp-1socket-nlb0.tar.gz",
@@ -183,7 +184,7 @@ static platform_db MOCK_PLATFORMS = {
      test_platform{.mock_sysfs = "mock_sys_tmp-dcp-rc-nlb3.tar.gz",
                    .driver = fpga_driver::linux_intel,
                    .devices = {test_device{
-                       .fme_guid = "9926AB6D-6C92-5A68-AABC-A7D84C545738",
+                       .fme_guid = "F64E598B-EA11-517F-A28E-7BC65D885104",
                        .afu_guid = "D8424DC4-A4A3-C413-F89E-433683F9040B",
                        .segment = 0x0,
                        .bus = 0x05,
@@ -231,7 +232,59 @@ static platform_db MOCK_PLATFORMS = {
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
                        .mdata = skx_mdata}}}},
-	 {"dcp-vc",
+   {"skx-p-dfl0_patchset2",
+     test_platform{.mock_sysfs = "mock_sys_tmp-dfl0_patchset2-nlb0.tar.gz",
+                .driver = fpga_driver::linux_dfl0,
+                .devices = {test_device{
+                       .fme_guid = "1A422218-6DBA-448E-B302-425CBCDE1406",
+                       .afu_guid = "D8424DC4-A4A3-C413-F89E-433683F9040B",
+                       .segment = 0x0,
+                       .bus = 0x5e,
+                       .device = 0,
+                       .function = 0,
+                       .num_vfs = 0,
+                       .socket_id = 0,
+                       .num_slots = 1,
+                       .bbs_id = 0x06400002fc614bb9,
+                       .bbs_version = {6, 4, 0},
+                       .state = FPGA_ACCELERATOR_UNASSIGNED,
+                       .num_mmio = 0x2,
+                       .num_interrupts = 0,
+                       .fme_object_id = 0xf500000,
+                       .port_object_id = 0xf400000,
+                       .vendor_id = 0x8086,
+                       .device_id = 0xbcc0,
+                       .fme_num_errors = 8,
+                       .port_num_errors = 3,
+                       .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                       .mdata = skx_mdata}}}},
+   {"dcp-rc-dfl0_patchset2",
+     test_platform{.mock_sysfs = "mock_sys_tmp-dcp-rc-dfl0_patchset2-nlb0.tar.gz",
+                .driver = fpga_driver::linux_dfl0,
+                .devices = {test_device{
+                       .fme_guid = "F64E598B-EA11-517F-A28E-7BC65D885104",
+                       .afu_guid = "D8424DC4-A4A3-C413-F89E-433683F9040B",
+                       .segment = 0x0,
+                       .bus = 0x05,
+                       .device = 0,
+                       .function = 0,
+                       .num_vfs = 0,
+                       .socket_id = 0,
+                       .num_slots = 1,
+                       .bbs_id = 0x0113000200000177,
+                       .bbs_version = {1, 1, 3},
+                       .state = FPGA_ACCELERATOR_UNASSIGNED,
+                       .num_mmio = 0x2,
+                       .num_interrupts = 0,
+                       .fme_object_id = 0xf500000,
+                       .port_object_id = 0xf400000,
+                       .vendor_id = 0x8086,
+                       .device_id = 0x09c4,
+                       .fme_num_errors = 8,
+                       .port_num_errors = 3,
+                       .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                       .mdata = rc_mdata}}}},
+   {"dcp-vc",
      test_platform{.mock_sysfs = "mock_sys_tmp-dcp-vc.tar.gz",
             	   .driver = fpga_driver::linux_intel,
                    .devices = {test_device{
@@ -462,12 +515,10 @@ static  T read_attribute(const std::string &pci_dir, const std::string &attr) {
 }
 
 static uint16_t read_socket_id(const std::string devices) {
-  std::string glob_path = PCI_DEVICES + "/" + devices + "/fpga/intel-fpga-dev.*/intel-fpga-fme.*/socket_id";
+  std::string glob_path = PCI_DEVICES + "/" + devices + "/fpga*/*/*fme.*/socket_id";
   std::string socket_path = glob_first_path(glob_path);
   return parse_file_int<uint16_t>(socket_path);
 }
-
-
 
 static uint16_t read_device_id(const std::string &pci_dir) {
   std::string device_path = pci_dir + "/device";
@@ -480,12 +531,14 @@ static uint16_t read_vendor_id(const std::string &pci_dir) {
 }
 
 static uint64_t read_bitstream_id(const std::string &pci_dir) {
-  std::string bitstream_path = pci_dir + "/fpga/intel-fpga-dev.*/intel-fpga-fme.*/bitstream_id";
+  std::string bitstream_path = pci_dir + "/fpga*/*/*-fme.*/bitstream_id";
   bitstream_path = glob_first_path(bitstream_path);
   return parse_file_int<uint64_t>(bitstream_path);
 }
+
 static std::string read_afu_id(const std::string &pci_dir) {
-  std::string afu_path = pci_dir + "/fpga/intel-fpga-dev.*/intel-fpga-port.*/afu_id";
+  std::string afu_path = pci_dir + "/fpga*/*/*-port.*/afu_id";
+
   afu_path = glob_first_path(afu_path);
   return format_uuid(read_file(afu_path));
 }
@@ -493,6 +546,12 @@ static std::string read_afu_id(const std::string &pci_dir) {
 static std::string read_pr_interface_id(const std::string &pci_dir) {
   std::string pr_interface_path = pci_dir + "/fpga/intel-fpga-dev.*/intel-fpga-fme.*/pr/interface_id";
   pr_interface_path = glob_first_path(pr_interface_path);
+
+  if (pr_interface_path.empty()) {
+    pr_interface_path = pci_dir + "/fpga_region/region*/dfl-fme.*/dfl-fme-region.*/fpga_region/region*/compat_id";
+    pr_interface_path = glob_first_path(pr_interface_path);
+  }
+
   return format_uuid(read_file(pr_interface_path));
 }
 
@@ -550,6 +609,8 @@ static std::map<platform_cfg, std::string> platform_names = {
   {  platform_cfg(0x8086, 0xbcc1, fpga_driver::linux_intel), "skx-p-v" },
   {  platform_cfg(0x8086, 0x09c4, fpga_driver::linux_intel), "dcp-rc" },
   {  platform_cfg(0x8086, 0x09c5, fpga_driver::linux_intel), "dcp-rc-v" },
+  {  platform_cfg(0x8086, 0xbcc0, fpga_driver::linux_dfl0),  "skx-p-dfl0_patchset2" },
+  {  platform_cfg(0x8086, 0x09c4, fpga_driver::linux_dfl0), "dcp-rc-dfl0_patchset2" },
   {  platform_cfg(0x8086, 0xbcc0, fpga_driver::linux_dfl0),  "skx-p-dfl0" },
   {  platform_cfg(0x8086, 0x0b30, fpga_driver::linux_intel), "dcp-vc" },
   {  platform_cfg(0x8086, 0x0b31, fpga_driver::linux_intel), "dcp-vc-v" }
@@ -560,6 +621,7 @@ const char *PCI_DEV_PATTERN = "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([
 
 test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &platform, const std::string &pci_path) {
   test_device dev = MOCK_PLATFORMS[platform].devices[0];
+
   auto r = regex<>::create(PCI_DEV_PATTERN);
   auto m = r->match(pci_path);
   if (m) {
@@ -573,13 +635,13 @@ test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &pla
 
     std::string device_string = make_path(dev.segment, dev.bus, dev.device, dev.function);
     dev.socket_id = read_socket_id(device_string);
-	uint64_t bitstream_id = read_bitstream_id(pci_path);
-	dev.bbs_id = bitstream_id;
+    uint64_t bitstream_id = read_bitstream_id(pci_path);
+    dev.bbs_id = bitstream_id;
     dev.bbs_version = {(uint8_t)FPGA_BBS_VER_MAJOR(bitstream_id),
                          (uint8_t)FPGA_BBS_VER_MINOR(bitstream_id),
                          (uint16_t)FPGA_BBS_VER_PATCH(bitstream_id)};
-      strcpy(dev.fme_guid, read_pr_interface_id(pci_path).c_str());
-      strcpy(dev.afu_guid, read_afu_id(pci_path).c_str());
+    strcpy(dev.fme_guid, read_pr_interface_id(pci_path).c_str());
+    strcpy(dev.afu_guid, read_afu_id(pci_path).c_str());
   } else {
     std::cerr << "error matching pci dev pattern (" << pci_path << ")\n";
   }

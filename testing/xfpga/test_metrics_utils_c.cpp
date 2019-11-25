@@ -266,7 +266,7 @@ TEST_P(metrics_utils_c_p, test_metric_utils_103) {
   std::string sysclass_path =
               system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
   snprintf_s_ss(group_sysfs, sizeof(group_sysfs), "%s/%s",
-                sysclass_path.c_str(), "intel-fpga-fme.0/");
+                sysclass_path.c_str(), "intel-fpga-fme.0/thermal_mgmt/*");
   printf("sysclass_path %s \n", sysclass_path.c_str());
   printf("metric_sysfs %s \n", group_sysfs);
 
@@ -307,7 +307,7 @@ TEST_P(metrics_utils_c_p, test_metric_utils_104) {
   std::string sysclass_path =
               system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
   snprintf_s_ss(group_sysfs, sizeof(group_sysfs), "%s/%s",
-                sysclass_path.c_str(), "intel-fpga-fme.0/");
+                sysclass_path.c_str(), "intel-fpga-fme.0/power_mgmt/*");
   printf("sysclass_path %s \n", sysclass_path.c_str());
   printf("metric_sysfs %s \n", group_sysfs);
 

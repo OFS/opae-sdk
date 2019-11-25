@@ -145,6 +145,11 @@ destroy:
 		OPAE_ERR("Failed to Destroy Object");
 	}
 
+	if (*dl_handle == NULL) {
+		OPAE_MSG("Failed to load board module");
+		resval = FPGA_EXCEPTION;
+	}
+
 	return resval;
 }
 
@@ -264,7 +269,10 @@ fpga_result mac_command(fpga_token *tokens, int num_tokens, int argc,
 
 		fpgainfo_board_info(tokens[i]);
 		fpgainfo_print_common("//****** MAC ******//", props);
-		mac_info(tokens[i]);
+		res = mac_info(tokens[i]);
+		if (res != FPGA_OK) {
+			printf("mac info is not supported\n");
+		}
 
 	}
 
@@ -381,7 +389,10 @@ fpga_result phy_command(fpga_token *tokens, int num_tokens, int argc,
 
 		fpgainfo_board_info(tokens[i]);
 		fpgainfo_print_common("//****** PHY ******//", props);
-		phy_group_info(tokens[i]);
+		res = phy_group_info(tokens[i]);
+		if (res != FPGA_OK) {
+			printf("phy group info is not supported\n");
+		}
 
 	}
 
@@ -400,7 +411,7 @@ fpga_result fpgainfo_board_info(fpga_token token)
 
 	res = load_board_plugin(token, &dl_handle);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to load board plugin\n");
+		OPAE_MSG("Failed to load board plugin\n");
 		goto out;
 	}
 
@@ -427,7 +438,7 @@ fpga_result mac_info(fpga_token token)
 
 	res = load_board_plugin(token, &dl_handle);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to load board plugin\n");
+		OPAE_MSG("Failed to load board plugin\n");
 		goto out;
 	}
 
@@ -435,7 +446,7 @@ fpga_result mac_info(fpga_token token)
 	if (print_mac_info) {
 		res = print_mac_info(token);
 	} else {
-		OPAE_ERR("No print_mac_info entry point:%s\n", dlerror());
+		OPAE_MSG("No print_mac_info entry point:%s\n", dlerror());
 		res = FPGA_NOT_FOUND;
 	}
 
@@ -454,7 +465,7 @@ fpga_result phy_group_info(fpga_token token)
 
 	res = load_board_plugin(token, &dl_handle);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to load board plugin\n");
+		OPAE_MSG("Failed to load board plugin\n");
 		goto out;
 	}
 
@@ -462,7 +473,7 @@ fpga_result phy_group_info(fpga_token token)
 	if (print_phy_info) {
 		res = print_phy_info(token);
 	} else {
-		OPAE_ERR("No print_phy_info entry point:%s\n", dlerror());
+		OPAE_MSG("No print_phy_info entry point:%s\n", dlerror());
 		res = FPGA_NOT_FOUND;
 	}
 
