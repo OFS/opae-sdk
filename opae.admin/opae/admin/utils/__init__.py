@@ -29,10 +29,12 @@ from opae.admin.utils.utils import (dry_run,
                                     get_fme_version,
                                     version_comparator,
                                     parse_timedelta)
+from opae.admin.utils import verifier
 __all__ = [
     'dry_run',
     'hex_version',
     'max10_or_nios_version',
     'get_fme_version',
     'version_comparator',
+    'verifier',
     'parse_timedelta']
