@@ -2,7 +2,7 @@
 
 ## SYNOPSIS ##
 ```console
-fpgainfo [-h | --help] [<args>] <command> [<command-args>]
+fpgainfo [-h | --help] [-v | --version] [<args>] <command> [<command-args>]
 ```
 
 
@@ -54,6 +54,10 @@ Show information about the MAC address in ROM attached to the FPGA, if available
 `--help, -h`
 
 Prints help information and exit.
+
+`--version, -v`
+
+Prints version information and exit.
 
 ## COMMON ARGUMENTS ##
 The following arguments are common to all commands and are optional.
