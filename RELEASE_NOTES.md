@@ -49,6 +49,16 @@ Major Changes from 1.2.0 to 1.3.0
 - Various compiler warning fixes
 - Various memory leak fixes
 
+Major Changes from 1.3.2 to 1.4.0
+----------------------------------
+- Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set2.
+- Increased test cases and test coverage
+- Various bug fixes
+- Various compiler warning fixes
+- Various memory leak fixes
+- Various Static code scan bug fixes
+- Added new FPGA MMIO API to write 512 bits
+
 Notes / Known Issues
 --------------------
 -  libopaec++ is being deprecated in favor of the official OPAE C++ API.

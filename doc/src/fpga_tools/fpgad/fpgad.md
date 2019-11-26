@@ -1,7 +1,7 @@
 # fpgad #
 
 ## SYNOPSIS ##
-`fpgad --daemon [--directory=<dir>] [--logfile=<file>] [--pidfile=<file>] [--umask=<mode>] [--socket=<sock>] [--null-bitstream=<file>]`
+`fpgad --daemon [--version] [--directory=<dir>] [--logfile=<file>] [--pidfile=<file>] [--umask=<mode>] [--socket=<sock>] [--null-bitstream=<file>]`
 `fpgad [--socket=<sock>] [--null-bitstream=<file>]`
 
 ## DESCRIPTION ##
@@ -14,6 +14,10 @@ If your system does not support interrupts, you must run ```fpgad``` before the 
 `fpgaUnregisterEvent` can succeed.
 
 Use SIGINT to stop ```fpgad```.
+
+`-v, --version`
+
+    Prints version information and exits.
 
 `-d, --daemon`
 

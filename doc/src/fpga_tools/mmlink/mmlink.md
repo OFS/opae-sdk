@@ -2,7 +2,7 @@
 
 ## Synopsis  ##
 
-`mmlink [-B <bus>] [-D <device>] [-F <function>] [-S <socket>] [-P <TCP port>] [-I <IP Address>]`
+`mmlink [-v] [-B <bus>] [-D <device>] [-F <function>] [-S <socket>] [-P <TCP port>] [-I <IP Address>]`
 
 
 ## Description ##
@@ -17,6 +17,10 @@ analyzer provides access to the Remote Signal Tap part of the Port MMIO space an
   MMLink app starts and listens for connection.
 
 ## Options ##
+
+`-v,--version`
+
+Prints version information and exits.
 
 `-B,--bus` 
 
