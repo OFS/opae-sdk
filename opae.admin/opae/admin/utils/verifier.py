@@ -122,7 +122,7 @@ class print_bitstream(_VERIFIER_BASE):
         super(print_bitstream, self).__init__(args)
         try:
             _ = payload[0]
-        except TypeError:
+        except (AttributeError, TypeError) as e:
             payload = payload.data
         self.cert_type = args.cert_type
         val = b0.get_dword(0)
