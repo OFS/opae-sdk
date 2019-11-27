@@ -1317,12 +1317,12 @@ fpga_result  get_fme_metric_value(fpga_handle handle,
 			}
 
 			// Read power theraml values from Max10
-			if (((_fpga_enum_metric->hw_type == FPGA_HW_DCP_VC) ||
+			if (((_fpga_enum_metric->hw_type == FPGA_HW_DCP_DC) ||
 				(_fpga_enum_metric->hw_type == FPGA_HW_DCP_VC)) &&
 				((_fpga_enum_metric->metric_type == FPGA_METRIC_TYPE_POWER) ||
 				(_fpga_enum_metric->metric_type == FPGA_METRIC_TYPE_THERMAL))) {
 
-				result = get_pwr_thermal_max10_value(_fpga_enum_metric->metric_sysfs, &value.dvalue);
+				result = read_max10_value(_fpga_enum_metric, &value.dvalue);
 				if (result != FPGA_OK) {
 					FPGA_MSG("Failed to get Max10 metric value");
 				} else {
