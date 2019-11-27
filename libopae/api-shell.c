@@ -442,6 +442,20 @@ fpga_result fpgaReadMMIO32(fpga_handle handle, uint32_t mmio_num,
 		wrapped_handle->opae_handle, mmio_num, offset, value);
 }
 
+fpga_result fpgaWriteMMIO512(fpga_handle handle, uint32_t mmio_num,
+			    uint64_t offset, void *value)
+{
+	opae_wrapped_handle *wrapped_handle =
+		opae_validate_wrapped_handle(handle);
+
+	ASSERT_NOT_NULL(wrapped_handle);
+	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaWriteMMIO512,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_handle->adapter_table->fpgaWriteMMIO512(
+		wrapped_handle->opae_handle, mmio_num, offset, value);
+}
+
 fpga_result fpgaMapMMIO(fpga_handle handle, uint32_t mmio_num,
 			uint64_t **mmio_ptr)
 {
@@ -879,15 +893,18 @@ fpga_result fpgaGetOPAECVersionString(char *version_str, size_t len)
 
 fpga_result fpgaGetOPAECBuildString(char *build_str, size_t len)
 {
-	errno_t err;
+	int err;
 
 	ASSERT_NOT_NULL(build_str);
 
-	err = strncpy_s(build_str, len, INTEL_FPGA_API_HASH,
-			sizeof(INTEL_FPGA_API_HASH));
+	err = snprintf_s_ss(build_str,
+			    len,
+			    "%s%s",
+			    INTEL_FPGA_API_HASH,
+			    INTEL_FPGA_TREE_DIRTY ? "*" : "");
 
-	if (err) {
-		OPAE_ERR("strncpy_s failed with error %d", err);
+	if (err < 0) {
+		OPAE_ERR("snprintf_s_ss failed with error %d", err);
 		return FPGA_EXCEPTION;
 	}
 

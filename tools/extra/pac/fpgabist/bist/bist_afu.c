@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and	use  in source	and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,6 +24,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,	EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -133,13 +136,19 @@ int main(int argc, char *argv[])
 	int open_flags = 0;
 
 	/* Parse command line for exclusive or shared access */
-	while ((opt = getopt(argc, argv, "s")) != -1) {
+	while ((opt = getopt(argc, argv, "sv")) != -1) {
 		switch (opt) {
 		case 's':
 			open_flags |= FPGA_OPEN_SHARED;
 			break;
+		case 'v':
+			printf("bist_app %s %s%s\n",
+			       INTEL_FPGA_API_VERSION,
+			       INTEL_FPGA_API_HASH,
+			       INTEL_FPGA_TREE_DIRTY ? "*":"");
+			exit(0);
 		default:
-			printf("USAGE: %s [-s]\n", argv[0]);
+			printf("USAGE: %s [-s] [-v]\n", argv[0]);
 			exit(1);
 		}
 	}

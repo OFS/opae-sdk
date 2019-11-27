@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,6 +24,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 #include <errno.h>
 #include <stdbool.h>
 #include <malloc.h>
@@ -261,7 +264,7 @@ struct ras_inject_error {
 	};
 };
 
-#define GETOPT_STRING ":hB:D:F:S:PQRNTCEGHIO"
+#define GETOPT_STRING ":hB:D:F:S:PQRNTCEGHIOv"
 
 struct option longopts[] = {
 		{"help",                no_argument,       NULL, 'h'},
@@ -281,6 +284,7 @@ struct option longopts[] = {
 		{"mwlength-error",      no_argument,       NULL, 'H'},
 		{"mrlength-error",      no_argument,       NULL, 'I'},
 		{"pagefault-error",     no_argument,       NULL, 'O'},
+		{"version",             no_argument,       NULL, 'v'},
 		{0,0,0,0}
 };
 
@@ -342,6 +346,7 @@ void RASAppShowHelp()
 	printf("<MW Length error>  --mwlength-error             OR  -H \n");
 	printf("<MR Length error>  --mrlength-error             OR  -I \n");
 	printf("<Page Fault Error> --pagefault-error            OR  -O \n");
+	printf("<Version>          -v,--version Print version and exit.\n");
 	printf("\n");
 
 }
@@ -397,8 +402,9 @@ int main( int argc, char** argv )
 	if ( argc < 2 ) {
 		RASAppShowHelp();
 	return 1;
-	} else if ( 0!= ParseCmds(&rasCmdLine, argc, argv) ) {
-		OPAE_ERR( "Error scanning command line \n.");
+	} else if (0 != (result = ParseCmds(&rasCmdLine, argc, argv))) {
+		if ((int)result != -2)
+			OPAE_ERR( "Error scanning command line.\n");
 	return 2;
 	}
 
@@ -1503,6 +1509,14 @@ int ParseCmds(struct RASCommandLine *rasCmdLine, int argc, char *argv[])
 			// Set MR Length error
 			rasCmdLine->mrlength_error = true;
 			break;
+
+		case 'v':
+			// version
+			printf("ras %s %s%s\n",
+			       INTEL_FPGA_API_VERSION,
+			       INTEL_FPGA_API_HASH,
+			       INTEL_FPGA_TREE_DIRTY ? "*":"");
+			return -2;
 
 		case ':': /* missing option argument */
 			printf("Missing option argument.\n");

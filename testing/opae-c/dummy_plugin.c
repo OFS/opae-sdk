@@ -165,6 +165,7 @@ int __attribute__((visibility("default"))) opae_plugin_configure(opae_api_adapte
 	adapter->fpgaReadMMIO64 = NULL;
 	adapter->fpgaWriteMMIO32 = NULL;
 	adapter->fpgaReadMMIO32 = NULL;
+	adapter->fpgaWriteMMIO512 = NULL;
 	adapter->fpgaMapMMIO = NULL;
 	adapter->fpgaUnmapMMIO = NULL;
 	adapter->fpgaCloneToken = NULL;
@@ -207,6 +208,6 @@ int __attribute__((visibility("default"))) opae_plugin_configure(opae_api_adapte
 	adapter->fpgaGetMetricsInfo = NULL;
 	adapter->fpgaGetMetricsByIndex = NULL;
 	adapter->fpgaGetMetricsByName = NULL;
-
+	json_object_put(root);
 	return 0;
 }

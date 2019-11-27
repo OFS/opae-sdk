@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,9 +23,13 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif  // HAVE_CONFIG_H
 #include <algorithm>
 #include <chrono>
 #include <iostream>
+#include <string>
 #include <thread>
 
 #include <uuid/uuid.h>
@@ -59,8 +63,16 @@ static inline uint64_t cacheline_aligned_addr(uint64_t num) {
   return num >> LOG2_CL;
 }
 
-int main(__attribute__((unused)) int argc,
-         __attribute__((unused)) char* argv[]) {
+int main(int argc, char* argv[]) {
+  if ((argc > 1) && ((std::string(argv[1]) == std::string("-v")) ||
+                     (std::string(argv[1]) == std::string("--version")))) {
+    std::cout << "hello_cxxcore " << INTEL_FPGA_API_VERSION << " "
+              << INTEL_FPGA_API_HASH;
+    if (INTEL_FPGA_TREE_DIRTY) std::cout << "*";
+    std::cout << std::endl;
+    return 0;
+  }
+
   std::cout << "Using OPAE C++ Core library version '" << version::as_string()
             << "' build '" << version::build() << "'\n";
   // look for accelerator with NLB0_AFUID

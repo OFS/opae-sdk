@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017-2019, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -38,6 +38,7 @@ add_executable(ras ${SRC})
 set_install_rpath(ras)
 
 target_link_libraries(ras opae-c pthread uuid ${libjson-c_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS}")
 
 install(TARGETS ras
         RUNTIME DESTINATION bin

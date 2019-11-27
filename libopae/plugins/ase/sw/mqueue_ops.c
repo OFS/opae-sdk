@@ -311,8 +311,8 @@ void mqueue_send(int mq, const char *str, int size)
 	ret_tx = write(mq, (void *) str, size);
 
 	if ((ret_tx == 0) || (ret_tx != size)) {
-#ifdef ASE_DEBUG
 		perror("write");
+#ifdef ASE_DEBUG
 		ASE_DBG("write() returned wrong data size.");
 #endif
 	}

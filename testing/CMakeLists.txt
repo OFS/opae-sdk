@@ -697,6 +697,10 @@ add_unit_test(test_xfpga_threshold_c xfpga-static
     xfpga/test_thresold_c.cpp
 )
 
+add_unit_test(test_xfpga_plugin_c xfpga-static
+    xfpga/test_plugin_c.cpp
+)
+
 
 target_link_libraries(test_xfpga_bmc_c
     safestr
@@ -858,6 +862,19 @@ add_unit_test(test_fpgainfo_c fpgainfo-static
 )
 target_link_libraries(test_fpgainfo_c argsfilter-static)
 
+add_unit_test(test_fpgainfo_board_c fpgainfo-static
+    fpgainfo/test_board_c.cpp
+)
+target_link_libraries(test_fpgainfo_c argsfilter-static)
+
+############################################################################
+# argsfilter tests #########################################################
+############################################################################
+
+add_unit_test(test_argsfilter_c fpgainfo-static
+    argsfilter/test_argsfilter_c.cpp
+)
+target_link_libraries(test_argsfilter_c argsfilter-static)
 
 ############################################################################
 # hello_fpga tests #########################################################
@@ -930,7 +947,19 @@ add_custom_command(TARGET test_unit
     ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dcp-vc.tar.gz
     ${CMAKE_BINARY_DIR}
     )
+add_custom_command(TARGET test_unit
+    PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dfl0_patchset2-nlb0.tar.gz
+    ${CMAKE_BINARY_DIR}
+    )
 
+add_custom_command(TARGET test_unit
+    PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+    ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dcp-rc-dfl0_patchset2-nlb0.tar.gz
+    ${CMAKE_BINARY_DIR}
+    )
 ############################################################################
 # ase tests #######################################################
 ############################################################################

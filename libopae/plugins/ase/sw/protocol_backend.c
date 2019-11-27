@@ -323,6 +323,10 @@ void wr_memline_req_dex(cci_pkt *pkt)
 		// Write to memory
 		wr_req.req = HOST_MEM_REQ_WRITE_LINE;
 		wr_req.addr = phys_addr;
+		wr_req.byte_en = pkt->byte_en;
+		wr_req.byte_start = pkt->byte_start;
+		wr_req.byte_len = pkt->byte_len;
+
 		ase_memcpy(wr_req.data, (char *) pkt->qword, CL_BYTE_WIDTH);
 
 		mqueue_send(sim2app_membus_wr_req_tx, (char *) &wr_req, sizeof(wr_req));

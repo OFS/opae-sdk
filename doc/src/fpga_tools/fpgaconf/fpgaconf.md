@@ -2,7 +2,7 @@
 
 ## SYNOPSIS ##
 
-`fpgaconf [-hvn] [-b <bus>] [-d <device>] [-f <function>] [-s <socket>] <gbs>`
+`fpgaconf [-hvVn] [-b <bus>] [-d <device>] [-f <function>] [-s <socket>] <gbs>`
 
 ## DESCRIPTION ##
 
@@ -13,7 +13,11 @@ the targeted FPGA and the FPGA Interface Manager (FIM). ```fpgaconf``` takes the
 
 	Prints usage information.
 
-`-v, --verbose`
+`-v, --version`
+
+	Prints version information and exits.
+
+`-V, --verbose`
 
 	Prints more verbose messages while enumerating and configuring. Can be
 	requested more than once.

@@ -38,9 +38,10 @@ class BistMode(bc.BistMode):
     def __init__(self):
         self.executables = {'bist_app': ''}
 
-    def run(self, gbs_path, bus_num):
+    def run(self, gbs_path, bdf):
         if gbs_path:
-            bc.load_gbs(gbs_path, bus_num)
+            bc.load_gbs(gbs_path, bdf)
+        ret = 0
         for func, param in self.executables.items():
             print "Running {} test...\n".format(func)
             cmd = "{} {}".format(func, param)
@@ -49,4 +50,6 @@ class BistMode(bc.BistMode):
             except subprocess.CalledProcessError as e:
                 print "Failed Test: {}".format(func)
                 print e
+                ret += 1
         print "Finished Executing BIST application\n"
+        return ret

@@ -39,6 +39,7 @@ add_executable(fpgainfo main.c
 set_install_rpath(fpgainfo)
 target_link_libraries(fpgainfo opae-c argsfilter uuid)
 set_property(TARGET fpgainfo PROPERTY C_STANDARD 99)
+set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS}")
 
 install(TARGETS fpgainfo
     RUNTIME DESTINATION bin

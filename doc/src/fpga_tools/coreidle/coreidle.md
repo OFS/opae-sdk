@@ -2,7 +2,7 @@
 
 ## SYNOPSIS  ##
 
-`coreidle [-B <bus>] [-D <device>] [-F <function>] [-S <socket>] [-G <GBS path>] `
+`coreidle [-v] [-B <bus>] [-D <device>] [-F <function>] [-S <socket>] [-G <GBS path>] `
 
 
 ## DESCRIPTION ##
@@ -19,6 +19,8 @@ the FPGA power and calculates the number of online and idle cores. It moves thre
   Idle cores to run online cores at maximum capacity.
 
 ## OPTIONS ##
+
+`-v,--version` Prints version information and exit.
 
 `-B,--bus` FPGA bus number.
 

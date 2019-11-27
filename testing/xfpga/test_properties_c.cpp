@@ -85,10 +85,10 @@ class properties_c_p : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     if (prop_) { EXPECT_EQ(fpgaDestroyProperties(&prop_), FPGA_OK); };
 
-    if (filter_accel_) EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
-    if (filter_dev_) EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK);
-    if (handle_accel_) EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK);
-    if (handle_dev_) EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK);
+    if (filter_accel_) { EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK); }
+    if (filter_dev_) { EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK); }
+    if (handle_accel_) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
+    if (handle_dev_) { EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK); }
 
     for (auto &t : tokens_accel_) {
       if (t) {

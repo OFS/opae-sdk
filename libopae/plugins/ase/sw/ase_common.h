@@ -391,6 +391,7 @@ extern uint64_t *umsg_umas_vbase;
 
 #define MMIO_WIDTH_32        32
 #define MMIO_WIDTH_64        64
+#define MMIO_WIDTH_512       512
 
 // UMSG info structure
 typedef struct {
@@ -513,6 +514,7 @@ extern "C" {
 	void mmio_write64(int, uint64_t);
 	void mmio_read32(int, uint32_t *);
 	void mmio_read64(int, uint64_t *);
+	void mmio_write512(int, const void *);
 
 	// UMSG functions
 	// uint64_t *umsg_get_address(int);
@@ -659,12 +661,16 @@ extern struct ase_cfg_t *cfg;
 typedef struct {
 	int       mode;
 	int       qw_start;
-	long      mdata;
+	int       mdata;
+	int       intr_id;
 	long long cl_addr;
 	long long qword[8];
 	int       resp_channel;
-	int       intr_id;
 	int       success;
+
+	int       byte_en;         // Access limited to byte range within line when non-zero
+	int       byte_start;      // Index of first byte update
+	int       byte_len;        // Number of bytes to update, starting with byte_start
 } cci_pkt;
 
 #define CCIPKT_WRITE_MODE    0x1010
