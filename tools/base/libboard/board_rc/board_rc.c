@@ -329,5 +329,9 @@ fpga_result print_board_info(fpga_token token)
 	printf("Last Power down cause:%s\n", pwr_down_cause);
 	printf("Last Reset cause: %s\n", reset_cause);
 
+	res = fpgaDestroyObject(&bmc_object);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to Destroy Object");
+	}
 	return res;
 }

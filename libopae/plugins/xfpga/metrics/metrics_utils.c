@@ -254,6 +254,9 @@ fpga_result enum_thermalmgmt_metrics(fpga_metric_vector *vector,
 
 	for (i = 0; i < pglob.gl_pathc; i++) {
 
+		if (!pglob.gl_pathv)
+			continue;
+
 		char *dir_name = strrchr(pglob.gl_pathv[i], '/');
 
 		if (!dir_name)
@@ -327,6 +330,9 @@ fpga_result enum_powermgmt_metrics(fpga_metric_vector *vector,
 	}
 
 	for (i = 0; i < pglob.gl_pathc; i++) {
+
+		if (!pglob.gl_pathv)
+			continue;
 
 		char *dir_name = strrchr(pglob.gl_pathv[i], '/');
 
