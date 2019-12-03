@@ -306,6 +306,10 @@ fpga_result print_board_info(fpga_token token)
 			printf("Last Reset cause: %s\n", "Not Supported");
 			return res;
 		}
+		res = fpgaDestroyObject(&bmc_object);
+		if (res != FPGA_OK) {
+			OPAE_ERR("Failed to Destroy Object");
+		}
 
 	}
 
