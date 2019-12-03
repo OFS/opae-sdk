@@ -1,0 +1,17 @@
+# List of maintainers for the Security-Tools
+#
+# Maintainers will be assigned as reviewers on every pull request in their area
+# of responsibility (which is defined by the paths of the files touched by a
+# pull request).
+
+# pac_sign
+/tools                         @jabuie @scottgi
+
+# opae.admin
+/python                        @rrojo
+
+# CI
+/scripts                       @nkorde
+
+# Codeowners
+.gitlab/CODEOWNERS             @nkorde @rrojo
