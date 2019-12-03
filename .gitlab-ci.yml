@@ -1,0 +1,57 @@
+stages:
+ - build
+ - test-opae-admin-tox
+ - scan-pacsign-bandit
+
+build-opae-admin:
+ stage: build
+ tags:
+  - security-tools
+ script:
+  - scripts/build-opae-admin.sh
+ artifacts:
+  paths:
+    - admin_rpmbuilder/*.rpm
+    - admin_rpmbuilder/*.tar.gz
+
+build-pacsign:
+ stage: build
+ tags:
+  - security-tools
+ script:
+  - scripts/build-pacsign.sh
+ artifacts:
+  paths:
+    - pacsign_rpmbuilder/*.rpm
+    - pacsign_rpmbuilder/*.tar.gz
+
+test-opae-admin-tox:
+ stage: test-opae-admin-tox
+ tags:
+  - security-tools
+ script:
+  - scripts/test-opae-admin-tox.sh
+ before_script:
+  - pip install --user tox virtualenv
+ dependencies:
+  - build-pacsign
+  - build-opae-admin
+ artifacts:
+  paths:
+    - mybuild/python/opae.admin/stage/opae.admin.bandit-py*.dat
+
+scan-pacsign-bandit:
+ stage: scan-pacsign-bandit
+ tags:
+  - security-tools
+ script:
+  - scripts/scan-pacsign-bandit.sh
+ before_script:
+  - pip install --user bandit
+ dependencies:
+  - build-pacsign
+  - build-opae-admin
+ artifacts:
+  paths:
+    - pacsign-bandit-py*.dat
+
