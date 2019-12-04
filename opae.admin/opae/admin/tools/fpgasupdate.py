@@ -167,7 +167,9 @@ def decode_gbs_header(infile):
     # 0x000     16  valid_gbs_guid
     # 0x010      4  metadata_length
 
-    valid_gbs_guid = uuid.UUID(bytes=[b for b in reversed(hdr[:16])])
+    ba = bytearray(hdr[:16])
+    ba.reverse()
+    valid_gbs_guid = uuid.UUID(bytes=bytes(ba))
 
     if valid_gbs_guid != VALID_GBS_GUID:
         infile.seek(orig_pos, os.SEEK_SET)
@@ -245,10 +247,11 @@ def do_partial_reconf(addr, filename):
     LOG.debug('command: %s', ' '.join(conf_args))
 
     try:
-        output = subprocess.check_output(conf_args)
+        output = subprocess.check_output(conf_args).decode('utf-8')
     except subprocess.CalledProcessError as exc:
         return (exc.returncode,
-                exc.output + '\nPartial Reconfiguration failed')
+                exc.output.decode('utf-8') +
+                              '\nPartial Reconfiguration failed')
 
     return (0, output + '\nPartial Reconfiguration OK')
 
