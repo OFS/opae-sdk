@@ -367,7 +367,7 @@ on the platform.
 ### **lpbk1** test options ###
 `--guid=, -g`
 
-    AFC ID to enumerate. Default=D8424DC4-A4A3-C413-F89E-433683F9040B 
+    Accelerator ID to enumerate. Default=D8424DC4-A4A3-C413-F89E-433683F9040B 
 
 `--begin=B, -b`
 
@@ -415,7 +415,7 @@ on the platform.
 ### **read** test options ###
 `--guid=, -g`
 
-    AFC ID to enumerate. Default=F7DF405C-BD7A-CF72-22F1-44B0B93ACD18 
+    Accelerator ID to enumerate. Default=F7DF405C-BD7A-CF72-22F1-44B0B93ACD18 
 
 `--begin=B, -b`
 
@@ -464,7 +464,7 @@ on the platform.
 ### **write** test options ###
 `--guid=, -g`
 
-    AFC ID to enumerate. Default=F7DF405C-BD7A-CF72-22F1-44B0B93ACD18 
+    Accelerator ID to enumerate. Default=F7DF405C-BD7A-CF72-22F1-44B0B93ACD18 
 
 `--begin=B, -b`
 
@@ -517,7 +517,7 @@ on the platform.
 ### **trput** test options ###
 `--guid=, -g`
 
-    AFC ID to enumerate. Default=F7DF405C-BD7A-CF72-22F1-44B0B93ACD18 
+    Accelerator ID to enumerate. Default=F7DF405C-BD7A-CF72-22F1-44B0B93ACD18 
 
 `--begin=B, -b`
 
@@ -569,7 +569,7 @@ on the platform.
 ### **sw** test options ###
 `--guid=, -g`
 
-    AFC ID to enumerate. Default=7BAF4DEA-A57C-E91E-168A-455D9BDA88A3 
+    Accelerator ID to enumerate. Default=7BAF4DEA-A57C-E91E-168A-455D9BDA88A3 
 
 `--begin=B, -b`
 
@@ -763,8 +763,8 @@ lists the software components and configuration to use.
 .. note::
 
 ```
-  Only one (the first) AFU is discoverable by the OPAE driver. Enumerating AFCs on an FPGA will find
-  the AFC associated with the first AFU only. The first software component in the configuration will
+  Only one (the first) AFU is discoverable by the OPAE driver. Enumerating acceleration on an FPGA will find
+  the accelerator associated with the first AFU only. The first software component in the configuration will
   be used to determine the GUID to use for enumeration. This can be overridden with the -G|--guid option.
 ```
 
@@ -784,7 +784,7 @@ lists the software components and configuration to use.
        function id of FPGA resource
 
     -G, --guid
-       specify what guid to use for the AFC enumeration
+       specify what guid to use for the accelerator enumeration
 
 ## CONFIGURATION ##
 fpgamux uses a configuration file (in JSON format) to determine what software components to instantiate and

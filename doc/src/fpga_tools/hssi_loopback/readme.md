@@ -43,13 +43,13 @@ Function ID of FPGA resource.
 
 `-G, --guid`
 
-Specifies guid for the AFC enumeration.
+Specifies guid for the resource enumeration.
 
 `-m, --mode`
     
 One of the following: [`auto`, `e40`, `e10`]
 `auto` is the default and indicates that the software runs the mode based on the first accelerator functional
-context (AFC) it enumerates.
+unit it identifies.
 
 `-t, --timeout`
 
