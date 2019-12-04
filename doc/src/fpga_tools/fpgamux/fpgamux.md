@@ -41,7 +41,7 @@ You cannot run it on the PCIe accelerator card (PAC).
 
 `-G, --guid`
 
-   Specifies the GUID to use for the AFC enumeration.
+   Specifies the GUID to use for the resource enumeration.
 
 `-m, --muxfile <filepath.json>`
 

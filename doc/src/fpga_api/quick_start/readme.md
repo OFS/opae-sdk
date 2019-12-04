@@ -111,8 +111,8 @@ After downloading the source, unpack, configure, and compile it:
 ```console
     tar xfvz opae-sdk-<release>.tar.gz
     cd opae-sdk-<release>
-    mkdir mybuild
-    cd mybuild
+    mkdir build
+    cd build
     cmake .. -DBUILD_ASE=1
     make
 ```
@@ -199,8 +199,8 @@ OPAE SDK repository on github.
     int main(int argc, char *argv[])
     {
         fpga_properties    filter = NULL;
-        fpga_token         afc_token;
-        fpga_handle        afc_handle;
+        fpga_token         afu_token;
+        fpga_handle        afu_handle;
         fpga_guid          guid;
         uint32_t           num_matches;
 
@@ -219,11 +219,11 @@ OPAE SDK repository on github.
             goto out_exit;
         }
 
-        /* Look for AFC with MY_AFC_ID */
+        /* Look for accelerator by its "afu_id" */
         res = fpgaGetProperties(NULL, &filter);
         ON_ERR_GOTO(res, out_exit, "creating properties object");
 
-        res = fpgaPropertiesSetObjectType(filter, FPGA_AFC);
+        res = fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR);
         ON_ERR_GOTO(res, out_destroy_prop, "setting object type");
 
         res = fpgaPropertiesSetGuid(filter, guid);
@@ -231,32 +231,32 @@ OPAE SDK repository on github.
 
         /* TODO: Add selection via BDF / device ID */
 
-        res = fpgaEnumerate(&filter, 1, &afc_token, 1, &num_matches);
-        ON_ERR_GOTO(res, out_destroy_prop, "enumerating AFCs");
+        res = fpgaEnumerate(&filter, 1, &afu_token, 1, &num_matches);
+        ON_ERR_GOTO(res, out_destroy_prop, "enumerating accelerators");
 
         if (num_matches < 1) {
-            fprintf(stderr, "AFC not found.\n");
+            fprintf(stderr, "accelerator not found.\n");
             res = fpgaDestroyProperties(&filter);
             return FPGA_INVALID_PARAM;
         }
 
-        /* Open AFC and map MMIO */
-        res = fpgaOpen(afc_token, &afc_handle, 0);
-        ON_ERR_GOTO(res, out_destroy_tok, "opening AFC");
+        /* Open accelerator and map MMIO */
+        res = fpgaOpen(afu_token, &afu_handle, 0);
+        ON_ERR_GOTO(res, out_destroy_tok, "opening accelerator");
 
-        res = fpgaMapMMIO(afc_handle, 0, NULL);
+        res = fpgaMapMMIO(afu_handle, 0, NULL);
         ON_ERR_GOTO(res, out_close, "mapping MMIO space");
 
         /* Allocate buffers */
-        res = fpgaPrepareBuffer(afc_handle, LPBK1_DSM_SIZE,
+        res = fpgaPrepareBuffer(afu_handle, LPBK1_DSM_SIZE,
                     (void **)&dsm_ptr, &dsm_wsid, 0);
         ON_ERR_GOTO(res, out_close, "allocating DSM buffer");
 
-        res = fpgaPrepareBuffer(afc_handle, LPBK1_BUFFER_ALLOCATION_SIZE,
+        res = fpgaPrepareBuffer(afu_handle, LPBK1_BUFFER_ALLOCATION_SIZE,
                    (void **)&input_ptr, &input_wsid, 0);
         ON_ERR_GOTO(res, out_free_dsm, "allocating input buffer");
 
-        res = fpgaPrepareBuffer(afc_handle, LPBK1_BUFFER_ALLOCATION_SIZE,
+        res = fpgaPrepareBuffer(afu_handle, LPBK1_BUFFER_ALLOCATION_SIZE,
                    (void **)&output_ptr, &output_wsid, 0);
         ON_ERR_GOTO(res, out_free_input, "allocating output buffer");
 
@@ -272,48 +272,42 @@ OPAE SDK repository on github.
             cl_ptr[i].uint[15] = i+1; /* set the last uint in every cacheline */
         }
 
-        /* Reset AFC */
-        res = fpgaReset(afc_handle);
-        ON_ERR_GOTO(res, out_free_output, "resetting AFC");
+        /* Reset accelerator */
+        res = fpgaReset(afu_handle);
+        ON_ERR_GOTO(res, out_free_output, "resetting accelerator");
 
         /* Program DMA addresses */
         uint64_t iova;
-        res = fpgaGetIOVA(afc_handle, dsm_wsid, &iova);
+        res = fpgaGetIOAddress(afu_handle, dsm_wsid, &iova);
         ON_ERR_GOTO(res, out_free_output, "getting DSM IOVA");
 
-        res = fpgaWriteMMIO64(afc_handle, 0, CSR_AFU_DSM_BASEL, iova);
+        res = fpgaWriteMMIO64(afu_handle, 0, CSR_AFU_DSM_BASEL, iova);
         ON_ERR_GOTO(res, out_free_output, "writing CSR_AFU_DSM_BASEL");
 
-        res = fpgaWriteMMIO32(afc_handle, 0, CSR_CTL, 0);
+        res = fpgaWriteMMIO32(afu_handle, 0, CSR_CTL, 0);
         ON_ERR_GOTO(res, out_free_output, "writing CSR_CFG");
-        res = fpgaWriteMMIO32(afc_handle, 0, CSR_CTL, 1);
+        res = fpgaWriteMMIO32(afu_handle, 0, CSR_CTL, 1);
         ON_ERR_GOTO(res, out_free_output, "writing CSR_CFG");
 
-        res = fpgaGetIOVA(afc_handle, input_wsid, &iova);
+        res = fpgaGetIOAddress(afu_handle, input_wsid, &iova);
         ON_ERR_GOTO(res, out_free_output, "getting input IOVA");
-        res = fpgaWriteMMIO64(afc_handle, 0, CSR_SRC_ADDR, CACHELINE_ALIGNED_ADDR(iova));
+        res = fpgaWriteMMIO64(afu_handle, 0, CSR_SRC_ADDR, CACHELINE_ALIGNED_ADDR(iova));
         ON_ERR_GOTO(res, out_free_output, "writing CSR_SRC_ADDR");
 
-        res = fpgaGetIOVA(afc_handle, output_wsid, &iova);
+        res = fpgaGetIOAddress(afu_handle, output_wsid, &iova);
         ON_ERR_GOTO(res, out_free_output, "getting output IOVA");
-        res = fpgaWriteMMIO64(afc_handle, 0, CSR_DST_ADDR, CACHELINE_ALIGNED_ADDR(iova));
+        res = fpgaWriteMMIO64(afu_handle, 0, CSR_DST_ADDR, CACHELINE_ALIGNED_ADDR(iova));
         ON_ERR_GOTO(res, out_free_output, "writing CSR_DST_ADDR");
-        //fpgaProgramBufferAddressAndLength(afc_handle, dsm_wsid, 0, LPBK1_DSM_SIZE,
-        //                 CSR_AFU_DSM_BASEL);
-        //fpgaProgramBufferAddressAndLength(afc_handle, input_wsid, 0, LPBK1_BUFFER_SIZE,
-        //                 CSR_SRC_ADDR);
-        //fpgaProgramBufferAddressAndLength(afc_handle, output_wsid, 0, LPBK1_BUFFER_SIZE,
-        //                 CSR_DST_ADDR);
 
-        res = fpgaWriteMMIO32(afc_handle, 0, CSR_NUM_LINES, LPBK1_BUFFER_SIZE / CL(1));
+        res = fpgaWriteMMIO32(afu_handle, 0, CSR_NUM_LINES, LPBK1_BUFFER_SIZE / CL(1));
         ON_ERR_GOTO(res, out_free_output, "writing CSR_NUM_LINES");
-        res = fpgaWriteMMIO32(afc_handle, 0, CSR_CFG, 0x42000);
+        res = fpgaWriteMMIO32(afu_handle, 0, CSR_CFG, 0x42000);
         ON_ERR_GOTO(res, out_free_output, "writing CSR_CFG");
 
         status_ptr = dsm_ptr + DSM_STATUS_TEST_COMPLETE/8;
 
         /* Start the test */
-        res = fpgaWriteMMIO32(afc_handle, 0, CSR_CTL, 3);
+        res = fpgaWriteMMIO32(afu_handle, 0, CSR_CTL, 3);
         ON_ERR_GOTO(res, out_free_output, "writing CSR_CFG");
 
         /* Wait for test completion */
@@ -322,7 +316,7 @@ OPAE SDK repository on github.
         }
 
         /* Stop the device */
-        res = fpgaWriteMMIO32(afc_handle, 0, CSR_CTL, 7);
+        res = fpgaWriteMMIO32(afu_handle, 0, CSR_CTL, 7);
         ON_ERR_GOTO(res, out_free_output, "writing CSR_CFG");
 
         /* Check output buffer contents */
@@ -338,28 +332,28 @@ OPAE SDK repository on github.
 
         /* Release buffers */
     out_free_output:
-        res = fpgaReleaseBuffer(afc_handle, output_wsid);
+        res = fpgaReleaseBuffer(afu_handle, output_wsid);
         ON_ERR_GOTO(res, out_free_input, "releasing output buffer");
     out_free_input:
-        res = fpgaReleaseBuffer(afc_handle, input_wsid);
+        res = fpgaReleaseBuffer(afu_handle, input_wsid);
         ON_ERR_GOTO(res, out_free_dsm, "releasing input buffer");
     out_free_dsm:
-        res = fpgaReleaseBuffer(afc_handle, dsm_wsid);
+        res = fpgaReleaseBuffer(afu_handle, dsm_wsid);
         ON_ERR_GOTO(res, out_unmap, "releasing DSM buffer");
 
         /* Unmap MMIO space */
     out_unmap:
-        res = fpgaUnmapMMIO(afc_handle, 0);
+        res = fpgaUnmapMMIO(afu_handle, 0);
         ON_ERR_GOTO(res, out_close, "unmapping MMIO space");
 
         /* Release accelerator */
     out_close:
-        res = fpgaClose(afc_handle);
-        ON_ERR_GOTO(res, out_destroy_tok, "closing AFC");
+        res = fpgaClose(afu_handle);
+        ON_ERR_GOTO(res, out_destroy_tok, "closing accelerator");
 
         /* Destroy token */
     out_destroy_tok:
-        res = fpgaDestroyToken(&afc_token);
+        res = fpgaDestroyToken(&afu_token);
         ON_ERR_GOTO(res, out_destroy_prop, "destroying token");
 
         /* Destroy properties object */

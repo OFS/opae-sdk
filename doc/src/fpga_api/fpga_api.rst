@@ -70,7 +70,7 @@ Event API
 =========
 
 The event API provides functions and types for handling asynchronous events
-such as errors or AFC interrupts.
+such as errors or accelerator interrupts.
 
 To natively support asynchronous event, the driver for the FPGA platform
 needs to support events natively (in which case the OPAE C library will
