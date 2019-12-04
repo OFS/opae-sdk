@@ -298,12 +298,6 @@ OPAE SDK repository on github.
         ON_ERR_GOTO(res, out_free_output, "getting output IOVA");
         res = fpgaWriteMMIO64(afu_handle, 0, CSR_DST_ADDR, CACHELINE_ALIGNED_ADDR(iova));
         ON_ERR_GOTO(res, out_free_output, "writing CSR_DST_ADDR");
-        //fpgaProgramBufferAddressAndLength(afu_handle, dsm_wsid, 0, LPBK1_DSM_SIZE,
-        //                 CSR_AFU_DSM_BASEL);
-        //fpgaProgramBufferAddressAndLength(afu_handle, input_wsid, 0, LPBK1_BUFFER_SIZE,
-        //                 CSR_SRC_ADDR);
-        //fpgaProgramBufferAddressAndLength(afu_handle, output_wsid, 0, LPBK1_BUFFER_SIZE,
-        //                 CSR_DST_ADDR);
 
         res = fpgaWriteMMIO32(afu_handle, 0, CSR_NUM_LINES, LPBK1_BUFFER_SIZE / CL(1));
         ON_ERR_GOTO(res, out_free_output, "writing CSR_NUM_LINES");
