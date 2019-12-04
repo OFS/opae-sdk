@@ -857,6 +857,10 @@ def validate_bdf(bdf, bdf_pvid_map):
 
 def rc_fpga_update(ifile, utype, bdf, no_verify):
     bdf_map = get_bdf_mtd_mapping()
+    
+    if bdf not in bdf_map:
+        print('No mtd device for {}. (Platform is secure.)'.format(bdf))
+        return 1
     mtd_dev = bdf_map[bdf]
 
     target_offset = check_rpd(ifile)
