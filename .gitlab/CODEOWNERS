@@ -5,13 +5,13 @@
 # pull request).
 
 # pac_sign
-/tools                         @jabuie @scottgi
+/tools/                         @jabuie @scottgi
 
 # opae.admin
-/python                        @rrojo
+/python/                        @rrojo @tswhison
 
 # CI
-/scripts                       @nkorde
+/scripts/                       @nkorde @itbarraz
 
 # Codeowners
-.gitlab/CODEOWNERS             @nkorde @rrojo
+.gitlab/CODEOWNERS              @nkorde @rrojo
