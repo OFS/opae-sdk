@@ -172,7 +172,7 @@ The table below groups important API calls by their functionality. For more info
 |           | ```fpgaReadMMIO[32, 64]()``` | Yes| Yes|Read a 32-bit or 64-bit value from MMIO space |
 |           | ```fpgaWriteMMIO[32, 64]()``` |Yes| Yes| Write a 32-bit or 64-bit value to MMIO space |
 |Memory management: Shared memory | ```fpga[Prepare, Release]Buffer()``` |Yes| Yes| Manage memory buffer shared between the calling process and an accelerator |
-|              | ```fpgaGetIOVA()``` | Yes| Yes|Return the virtual address of a shared memory buffer |
+|              | ```fpgaGetIOAddress()``` | Yes| Yes|Return the device I/O address of a shared memory buffer |
 |Management: Reconfiguration | ```fpgaReconfigureSlot()``` | Yes | No | Replace an existing AFU with a new one |
 |Error report | ```fpgaErrStr()``` | Yes| Yes|Map an error code to a human readable string |
 
@@ -322,7 +322,7 @@ calling process and an accelerator.
     /* The actual address mapped to the buffer */
     uint64_t                iova;
     /* Get the IO virtual address for the buffer */
-    res = fpgaGetIOVA(handle, bufid, &iova);
+    res = fpgaGetIOAddress(handle, bufid, &iova);
 
     /* Inform the accelerator about the virtual address by writing to its mapped
        register file
