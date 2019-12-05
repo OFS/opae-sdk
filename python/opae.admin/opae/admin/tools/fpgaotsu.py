@@ -262,7 +262,7 @@ class otsu_updater(object):
         self._pac = pac
         self._config = config
         self._chunk_size = chunk_size
-        self._timeout = 3600
+        self._timeout = 8*3600.0
         self._thread = None
         self._errors = []
 
@@ -467,7 +467,9 @@ class otsu_updater(object):
             non-zero if thread timed out or if the update failed.
         """
         self._thread.join(timeout=self._timeout)
-        return 1 if self._thread.isAlive() else self.error_count
+        if self._thread.isAlive():
+            self.error('update timed out')
+        return self.error_count
 
     def update(self):
         """Begin this update in a separate thread"""
