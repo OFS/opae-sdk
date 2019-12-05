@@ -859,7 +859,8 @@ def rc_fpga_update(ifile, utype, bdf, no_verify):
     bdf_map = get_bdf_mtd_mapping()
     
     if bdf not in bdf_map:
-        print('No mtd device for {}. (Platform is secure.)'.format(bdf))
+        print('fpgaflash is not supported when the platform is secure.' +
+              'Use fpgasupdate for secure flash updates. {}'.format(bdf))
         return 1
     mtd_dev = bdf_map[bdf]
 
