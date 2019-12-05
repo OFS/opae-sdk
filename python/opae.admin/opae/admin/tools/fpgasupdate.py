@@ -727,8 +727,9 @@ def main():
                   '%s : %s', pac.pci_node.pci_address, sec_dev.devpath)
 
         try:
-            with sec_dev as descr:
-                stat, mesg = update_fw(descr, args, pac)
+            with pac.fme:
+                with sec_dev as descr:
+                    stat, mesg = update_fw(descr, args, pac)
         except SecureUpdateError as exc:
             stat, mesg = exc.errno, exc.strerror
         except KeyboardInterrupt as kb_interrupt:
