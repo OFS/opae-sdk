@@ -62,13 +62,13 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 	fpga_object bmcfw_object;
 
 	if (bmcfw_ver == NULL) {
-		FPGA_ERR("Invalid Input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
 	res = fpgaTokenGetObject(token, SYSFS_BMCFW_VER, &bmcfw_object, FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to get token object");
+		OPAE_ERR("Failed to get token object");
 		return res;
 	}
 
@@ -81,7 +81,7 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 
 	// Return error if object size bigger then buffer size
 	if (size > FPGA_VAR_BUF_LEN) {
-		FPGA_ERR("object size bigger then buffer size");
+		OPAE_ERR("object size bigger then buffer size");
 		resval = FPGA_EXCEPTION;
 		goto out_destroy;
 	}
@@ -97,7 +97,6 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to parse version ");
 		resval = res;
-		goto out_destroy;
 	}
 
 
@@ -115,10 +114,10 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 	uint32_t var               = 0;
 	fpga_result res            = FPGA_OK;
 	int retval                 = 0;
+	char *endptr               = NULL;
 
-	if (buf == NULL ||
-		fw_ver == NULL) {
-		FPGA_ERR("Invalid Input parameters");
+	if (buf == NULL || fw_ver == NULL) {
+		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -130,7 +129,7 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 	*/
 
 	errno = 0;
-	var = strtoul(buf, NULL, 16);
+	var = strtoul(buf, &endptr, 16);
 	if (var == 0  &&
 		errno != 0) {
 		OPAE_ERR("Failed to covert buffer to integer: %s", strerror(errno));
@@ -139,7 +138,7 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 
 	retval = snprintf_s_iii(fw_ver, len, "%u.%u.%u", (var >> 16) & 0xff, (var >> 8) & 0xff, var & 0xff);
 	if (retval < 0) {
-			FPGA_ERR("error in formatting version" );
+			OPAE_ERR("error in formatting version" );
 			return FPGA_EXCEPTION;
 	}
 
@@ -156,13 +155,13 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 	fpga_object max10fw_object;
 
 	if (max10fw_ver == NULL) {
-		FPGA_ERR("Invalid input parameters");
+		OPAE_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
 	res = fpgaTokenGetObject(token, SYSFS_MAX10_VER, &max10fw_object, FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to get token object");
+		OPAE_ERR("Failed to get token object");
 		return res;
 	}
 
@@ -175,7 +174,7 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 
 	// Return error if object size bigger then buffer size
 	if (size > FPGA_VAR_BUF_LEN) {
-		FPGA_ERR("object size bigger then buffer size");
+		OPAE_ERR("object size bigger then buffer size");
 		resval = FPGA_EXCEPTION;
 		goto out_destroy;
 	}
@@ -191,7 +190,6 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to parse version ");
 		resval = res;
-		goto out_destroy;
 	}
 
 out_destroy:
@@ -216,7 +214,7 @@ fpga_result read_mac_info(fpga_token token, uint32_t afu_channel_num,
 	uint64_t count;
 
 	if (mac_addr == NULL) {
-		FPGA_ERR("Invalid Input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -252,7 +250,7 @@ fpga_result read_mac_info(fpga_token token, uint32_t afu_channel_num,
 
 	if (afu_channel_num >= count) {
 		resval = FPGA_INVALID_PARAM;
-		FPGA_ERR("Invalid Input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		goto out_destroy_channel;
 	}
 
@@ -266,7 +264,7 @@ fpga_result read_mac_info(fpga_token token, uint32_t afu_channel_num,
 		(mac_addr->ether_addr_octet[5] == 0xff)) {
 
 		resval = FPGA_NOT_FOUND;
-		FPGA_ERR("Invalid MAC address");
+		OPAE_ERR("Invalid MAC address");
 		goto out_destroy_channel;
 	}
 
@@ -290,7 +288,6 @@ out_destroy_mac:
 }
 
 
-
 // print board information
 fpga_result print_board_info(fpga_token token)
 {
@@ -303,12 +300,12 @@ fpga_result print_board_info(fpga_token token)
 
 	res = read_bmcfw_version(token, bmc_ver, FPGA_VAR_BUF_LEN);
 	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to read bmc version");
+		OPAE_ERR("Failed to read bmc version");
 	}
 
 	res = read_max10fw_version(token, max10_ver, FPGA_VAR_BUF_LEN);
 	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to read max10 version");
+		OPAE_ERR("Failed to read max10 version");
 	}
 
 	printf("Board Management Controller, MAX10 NIOS FW version: %s \n", bmc_ver);
@@ -318,7 +315,7 @@ fpga_result print_board_info(fpga_token token)
 
 	res = read_mac_info(token, 0, &MAC);
 	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to read mac address");
+		OPAE_ERR("Failed to read mac address");
 	} else {
 		printf("%-1s : %s\n", "MAC address",
 			ether_ntoa_r(&MAC, mac_str));

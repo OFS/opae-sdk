@@ -135,12 +135,16 @@ fpga_result board_dc_c_p::write_sysfs_file(const char *file,
 
 	glob_t pglob;
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
-	if ((gres) || (1 != pglob.gl_pathc)) {
-		globfree(&pglob);
+	if (gres) {
+		if (pglob.gl_pathv) {
+			globfree(&pglob);
+		}
 		return FPGA_NOT_FOUND;
 	}
 	fd = open(pglob.gl_pathv[0], O_WRONLY);
-	globfree(&pglob);
+	if (pglob.gl_pathv) {
+		globfree(&pglob);
+	}
 	if (fd < 0) {
 		printf("open failed \n");
 		return FPGA_NOT_FOUND;
@@ -166,13 +170,15 @@ fpga_result board_dc_c_p::delete_sysfs_file(const char *file) {
 
 	glob_t pglob;
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
-	if ((gres) || (1 != pglob.gl_pathc)) {
+	if (gres) {
 		globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
 	status = remove(pglob.gl_pathv[0]);
 
-	globfree(&pglob);
+	if (pglob.gl_pathv) {
+		globfree(&pglob);
+	}
 	if (status < 0) {
 		printf("delete failed = %d \n", status);
 		return FPGA_NOT_FOUND;
@@ -228,19 +234,17 @@ TEST_P(board_dc_c_p, board_dc_4) {
 /**
 * @test       board_dc_5
 * @brief      Tests: parse_fw_ver
-* @details    Validates parse fw version  <br>
+* @details    Validates parse fw version <br>
 */
 TEST_P(board_dc_c_p, board_dc_5) {
 
 	char buf[10] = {0};
 	char buf_ver[10] = {0};
 
-	EXPECT_EQ(parse_fw_ver(buf,buf_ver,strlen(buf)), FPGA_OK);
+	EXPECT_EQ(parse_fw_ver(buf,buf_ver, sizeof(buf)), FPGA_OK);
 
-	EXPECT_EQ(parse_fw_ver(NULL, buf_ver, strlen(buf)), FPGA_INVALID_PARAM);
-	EXPECT_EQ(parse_fw_ver(buf, NULL, strlen(buf)), FPGA_INVALID_PARAM);
-
-	EXPECT_EQ(parse_fw_ver(buf, buf_ver, 0x100000), FPGA_OK);
+	EXPECT_EQ(parse_fw_ver(NULL, buf_ver, sizeof(buf)), FPGA_INVALID_PARAM);
+	EXPECT_EQ(parse_fw_ver(buf, NULL, sizeof(buf)), FPGA_INVALID_PARAM);
 }
 
 /**

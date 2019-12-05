@@ -24,8 +24,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGA_BOARD_VC_H__
-#define __FPGA_BOARD_VC_H__
+#ifndef __FPGA_BOARD_DC_H__
+#define __FPGA_BOARD_DC_H__
 
 #include <opae/types.h>
 
@@ -41,7 +41,7 @@ extern "C" {
 *
 * @param[in] token            fpga_token object for device (FPGA_DEVICE type)
 * @returns FPGA_OK on success. FPGA_NOT_FOUND if MAX10 or NIOS sysfs not found.
-* FPGA_INVALID_PARAM if invalid parameters were provide
+* FPGA_INVALID_PARAM if invalid parameters were provided
 *
 */
 fpga_result print_board_info(fpga_token token);
@@ -50,11 +50,11 @@ fpga_result print_board_info(fpga_token token);
 * Get Max10 firmware version.
 *
 * @param[in] token           fpga_token object for device (FPGA_DEVICE type)
-* @param[inout] max10fw_var  pointer to char pcb_info string
+* @param[inout] max10fw_var  pointer to char max10fw_var string
 *                            user allocates memory and free input string
 * @param[in] len             length of char max10fw_var string
 * @returns FPGA_OK on success. FPGA_NOT_FOUND if MAX10  sysfs not found.
-* FPGA_INVALID_PARAM if invalid parameters were provide
+* FPGA_INVALID_PARAM if invalid parameters were provided
 *
 */
 fpga_result read_max10fw_version(fpga_token token, char *max10fw_var, size_t len);
@@ -67,7 +67,7 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_var, size_t len
 *                            user allocates memory and free input string
 * @param[in] len             length of char bmcfw_var string
 * @returns FPGA_OK on success. FPGA_NOT_FOUND if NIOS sysfs not found.
-* FPGA_INVALID_PARAM if invalid parameters were provide
+* FPGA_INVALID_PARAM if invalid parameters were provided
 *
 */
 fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_var, size_t len);
@@ -78,7 +78,7 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_var, size_t len);
 * @param[in] buf             pointer to firmware version
 * @param[inout] fw_ver       pointer to char firmware string
 * @param[in] len             length of char fw var string
-* @returns FPGA_OK on success. FPGA_EXCEPTION if FW version is invlaid.
+* @returns FPGA_OK on success. FPGA_EXCEPTION if FW version is invalid.
 *
 */
 fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len);
@@ -91,7 +91,7 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len);
 * @param[inout] mac_addr  pointer to struct ether_addr
 
 * @returns FPGA_OK on success. FPGA_NOT_FOUND if invalid MAC address.
-* FPGA_INVALID_PARAM if invalid parameters were provide
+* FPGA_INVALID_PARAM if invalid parameters were provided
 *
 */
 fpga_result read_mac_info(fpga_token token, uint32_t afu_channel_num,
@@ -101,4 +101,4 @@ fpga_result read_mac_info(fpga_token token, uint32_t afu_channel_num,
 }
 #endif /* __cplusplus */
 
-#endif /* __FPGA_BOARD_VC_H__ */
+#endif /* __FPGA_BOARD_DC_H__ */
