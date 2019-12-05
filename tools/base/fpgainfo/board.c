@@ -59,6 +59,8 @@ static platform_data platform_data_table[] = {
 	{ 0x8086, 0x09c5, "libboard_rc.so", NULL },
 	{ 0x8086, 0x0b30, "libboard_vc.so", NULL },
 	{ 0x8086, 0x0b31, "libboard_vc.so", NULL },
+	{ 0x8086, 0x0b2b, "libboard_dc.so", NULL },
+	{ 0x8086, 0x0b2c, "libboard_dc.so", NULL },
 	{ 0,      0,          NULL, NULL },
 };
 
