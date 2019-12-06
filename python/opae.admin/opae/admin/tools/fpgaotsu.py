@@ -593,7 +593,7 @@ def main():
 
     LOG.addHandler(log_hndlr)
 
-    procs = ['pacd', 'fpgad', 'fpgainfo']
+    procs = ['pacd', 'fpgad']
     if not process.assert_not_running(procs):
         LOG.error('One of %s is detected. '
                   'Please end that task before attempting %s',

@@ -1241,7 +1241,7 @@ def main():
             sys.exit(1)
 
     if args.type != 'eeprom':
-        assert_not_running(["pacd", "fpgad", "fpgainfo"])
+        assert_not_running(["pacd", "fpgad"])
 
     if args.type == 'bmc_fw':
         if (bdf_pvid_map[bdf] == DC_PVID) or (bdf_pvid_map[bdf] == VC_PVID):
