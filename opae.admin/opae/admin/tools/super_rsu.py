@@ -1264,7 +1264,7 @@ def main():
         fh.setFormatter(logging.Formatter(fmt=logfmt))
         LOG.addHandler(fh)
 
-    procs = ['pacd', 'fpgad', 'fpgainfo']
+    procs = ['pacd', 'fpgad']
     if not assert_not_running(procs):
         LOG.error('One of %s is detected. '
                   'Please end that task before attempting %s' %
