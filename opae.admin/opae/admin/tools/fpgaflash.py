@@ -857,11 +857,6 @@ def validate_bdf(bdf, bdf_pvid_map):
 
 def rc_fpga_update(ifile, utype, bdf, no_verify):
     bdf_map = get_bdf_mtd_mapping()
-    
-    if bdf not in bdf_map:
-        print('fpgaflash is not supported when the platform is secure.' +
-              'Use fpgasupdate for secure flash updates. {}'.format(bdf))
-        return 1
     mtd_dev = bdf_map[bdf]
 
     target_offset = check_rpd(ifile)
@@ -1229,6 +1224,14 @@ def main():
         sys.exit(1)
 
     bdf = validate_bdf(args.bdf, bdf_pvid_map)
+
+    # Is the device secure?
+    path = os.path.join(bdf, 'fpga')
+    for g in glob.glob('/sys/class/ifpga_sec_mgr/*'):
+        if path in os.readlink(g):
+            print('fpgaflash is not supported when the platform is secure.' +
+                  ' Use fpgasupdate for secure flash updates. {}'.format(bdf))
+            sys.exit(1)
 
     # check if another fpgaflash instance is programming on specified card
     if (bdf_pvid_map[bdf] == DC_PVID) or (bdf_pvid_map[bdf] == VC_PVID):
