@@ -17,22 +17,43 @@ OPAE\'s goal is to accelerate FPGA adoption. It is a community effort to simplif
 More information about OPAE can be found
 at http://01.org/OPAE.
 
-Open Programmable Acceleration Engine (OPAE) 1.3.0 Release Notes
+Open Programmable Acceleration Engine (OPAE) 1.4.0 Release Notes
 -----------------------------------------------------------------
 
 This document provides the Release Notes for the Open Programmable
-Acceleration Engine (OPAE) 1.3.0 release.
+Acceleration Engine (OPAE) 1.4.0 release.
 
 System Compatibility
 --------------------
 
 -   Hardware: tightly coupled FPGA products and programmable FPGA
     acceleration cards for Intel(R) Xeon(R) processors:
-    - Intel(R) PAC with Arria(R) 10 GX FPGA (PCI ID: 0x09c4) FIM version 1.0.3 (1.0 Production)
+    - Intel(R) PAC with Arria(R) 10 GX FPGA (PCI ID: 0x09c4) FIM version 1.1.2-1 (1.2 Production)
     - Intel(R) Xeon with Integrated FPGA (PCI ID: 0xbcc0) FIM version 6.4.0
+    - Intel® FPGA Programmable Acceleration Card N3000 (PCI ID: 0x0b30) FIM version D.1.0.13 (1.0 Production)
 
 -   Operating System: tested on Red Hat Enterprise Linux 7.3 and 7.4, Ubuntu 16.04, 
-    SUSE SLE 12 SP3 and CentOS 7.4, with Linux kernels 3.10 through 4.7
+    SUSE SLE 12 SP3 and CentOS 7.4, with Linux kernels 3.10 through 4.19
+
+Major Changes from 1.3.0 to 1.4.0
+----------------------------------
+- Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set2.
+- Added test cases and Increased test coverage
+- Various bug fixes
+- Various memory leak fixes
+- Various Static code scan bug fixes
+- Added new FPGA MMIO API to write 512 bits
+
+- Operating System: Tested on RedHat 7.6, CentOS7.6  with Linux Kernel 3.10 and 4.19
+
+- OPAE & Intel FPGA driver are tested on Intel Programmable Acceleration Card Arria 10 GX FPGA & Intel PAC N3000.
+
+- OPAE & DFL FPGA driver are tested on Intel Programmable Acceleration Card Arria 10 GX FPGA.
+
+- FPGA DFL Linux driver source code patchset2 available 
+   - https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/drivers?h=linux-5.4.y
+
+
 
 Major Changes from 1.2.0 to 1.3.0
 ----------------------------------
@@ -49,23 +70,6 @@ Major Changes from 1.2.0 to 1.3.0
 - Various compiler warning fixes
 - Various memory leak fixes
 
-Major Changes from 1.3.0 to 1.4.0
-----------------------------------
-- Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set2.
-- Added test cases and Increased test coverage
-- Various bug fixes
-- Various memory leak fixes
-- Various Static code scan bug fixes
-- Added new FPGA MMIO API to write 512 bits
-
-- Operating System: Tested on RedHat 7.6, CentOS 7.6  with Linux Kernel 3.10 and 4.19
-
-- OPAE  &  Intel FPGA  driver  are tested on  Intel Programmable Acceleration Card Arria 10 GX FPGA  & Intel PAC D5005.
-
-- OPAE  &  DFL FPGA  driver  are tested on  Intel Programmable Acceleration Card Arria 10 GX FPGA.
-
-- FPGA DFL Linux driver source code patchset2 available 
-   - https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/drivers?h=linux-5.4.y
 
 
 Notes / Known Issues
