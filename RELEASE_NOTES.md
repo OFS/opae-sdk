@@ -49,30 +49,32 @@ Major Changes from 1.2.0 to 1.3.0
 - Various compiler warning fixes
 - Various memory leak fixes
 
-Major Changes from 1.3.2 to 1.4.0
+Major Changes from 1.3.0 to 1.4.0
 ----------------------------------
 - Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set2.
-- Increased test cases and test coverage
+- Added test cases and Increased test coverage
 - Various bug fixes
-- Various compiler warning fixes
 - Various memory leak fixes
 - Various Static code scan bug fixes
 - Added new FPGA MMIO API to write 512 bits
 
+- Operating System: Tested on RedHat 7.6, CentOS7.6  with Linux Kernel 3.10 and 4.19
+
+- OPAE  &  Intel FPGA  driver  are tested on  Intel Programmable Acceleration Card Arria 10 GX FPGA  & Intel PAC D5005.
+
+- OPAE  &  DFL FPGA  driver  are tested on  Intel Programmable Acceleration Card Arria 10 GX FPGA.
+
+- FPGA DFL Linux driver source code patchset2 available 
+   - https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/drivers?h=linux-5.4.y
+
+
 Notes / Known Issues
 --------------------
--  libopaec++ is being deprecated in favor of the official OPAE C++ API.
-While no tools in the OPAE codebase use libopaec++, the code is being kept here
-for any other tools that may use it outside of the OPAE repository.
-This directory, however, will be removed in future versions of OPAE.
-For more information and reference on the official API, see the
-[documentation](https://opae.github.io/latest/docs/fpga_api/fpga_cxx_api.html).
-
 -   fpgamux has been ported to use the OPAE Python API.
 
 -   In addition to supporting the OPAE driver bundled with OPAE SDK releases, the OPAE SDK libraries now
-support the FPGA driver that has been upstreamed to the Linux Kernel 4.18.
-For more details on this, please see the [OPAE documentation](https://opae.github.io/1.3.0/docs/fpga_dfl_drv/fpga_dfl_drv.html) related to this.
+support the FPGA driver that has been upstreamed to the Linux Kernel 5.4.
+For more details on this, please see the [OPAE documentation](https://opae.github.io/1.4.0/docs/fpga_dfl_drv/fpga_dfl_drv.html) related to this.
 
 -   Seldom in stress tests, kernel panic may be encountered in kernel version 3.10. Preliminary debug information seems to indicate it may be related to hugepage support in the Linux kernel.
 
@@ -114,11 +116,6 @@ For more details on this, please see the [OPAE documentation](https://opae.githu
 - fpgaAssignToInterface() and fpgaReleaseFromInterface() not supported
 
   The OPAE C API provides functions to assign individual AFCs to host interfaces (i.e. a virtual or physical function). Due to the internal implementation of fpga_token, these functions are not yet supported. Instead, we provide a simplified call fpgaAssignPortToInterface() that can assign a port by number to either the physical function (PF) or virtual function (VF). This function will eventually be replaced by the more generic implementation of fpgaAssignToInterface() and fpgaReleaseFromInterface() in a future release.
-
-
-- AP6 condition may prevent clearing of port errors
-
-  If the system encounters an AP6 condition (exceeded power or temperature threshold), it will report a port error. These errors can only be cleared (e.g. using fpgainfo) after the AP6 condition has been removed.
 
 - Driver may not display explicit incompatibility message if loaded on mismatched FIM version
 
