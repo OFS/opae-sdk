@@ -58,7 +58,7 @@ Major Changes from 1.3.0 to 1.4.0
 - Various Static code scan bug fixes
 - Added new FPGA MMIO API to write 512 bits
 
-- Operating System: Tested on RedHat 7.6, CentOS7.6  with Linux Kernel 3.10 and 4.19
+- Operating System: Tested on RedHat 7.6, CentOS 7.6  with Linux Kernel 3.10 and 4.19
 
 - OPAE  &  Intel FPGA  driver  are tested on  Intel Programmable Acceleration Card Arria 10 GX FPGA  & Intel PAC D5005.
 
