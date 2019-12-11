@@ -225,6 +225,10 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 option(HASH_ARCHIVES "Add git commit hash to archive names" OFF)
 mark_as_advanced(HASH_ARCHIVES)
 set(CPACK_RPM_RELOCATION_PATHS "/etc")
+
+#use to set doc dir for installing license file
+include(GNUInstallDirs)
+
 set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Open Programmable Acceleration Engine")
 SET(CPACK_PACKAGE_VENDOR "Intel Corporation")
@@ -244,6 +248,11 @@ endif()
 
 if("${CPACK_GENERATOR}" STREQUAL "DEB")
 include(packaging)
+
+#install LICENSE file to copyright
+install(FILES LICENSE DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DOCDIR}
+COMPONENT licensefile
+RENAME copyright)
 
 #list of components to be included in the package
 set(CPACK_COMPONENTS_ALL
@@ -293,6 +302,7 @@ set(CPACK_COMPONENTS_ALL
         testsopae
 	)
 
+
 # Component definition
 define_pkg(tools
   COMPONENTS
@@ -302,8 +312,7 @@ define_pkg(tools
   toolfpgad_vc
   toolfpgaconf
   toolfpgainfo
-  toolfpgaport
-  toolfpgametrics
+  licensefile
   GROUP "tools"
   DISPLAY_NAME "opae-tools"
   DESCRIPTION "OPAE base tool binaries"
@@ -331,6 +340,7 @@ define_pkg(tools
   opaecxxnlb
   hssiiolib
   hssiprograms
+  licensefile
   GROUP "tools-extra"
   DISPLAY_NAME "opae-tools-extra"
   DESCRIPTION "OPAE extra tool binaries"
@@ -344,6 +354,7 @@ define_pkg(ase
   asescripts
   aseextra
   asesw
+  licensefile
   GROUP "ase"
   DISPLAY_NAME "opae-ase"
   DESCRIPTION "OPAE AFU Simulation Environment"
@@ -363,6 +374,7 @@ define_pkg(devel
   samplebin
   safestrlib
   safestrheaders
+  licensefile
   GROUP "devel"
   DISPLAY_NAME "opae-devel"
   DESCRIPTION "OPAE headers, sample source, and documentation"
@@ -373,7 +385,7 @@ define_pkg(devel
   COMPONENTS
   opaeclib
   opaecxxcorelib
-  opaetoolslibs
+  licensefile
   GROUP "libs"
   DISPLAY_NAME "opae-libs"
   DESCRIPTION "OPAE runtime"
@@ -431,7 +443,9 @@ set(CPACK_RPM_PACKAGE_LICENSE "BSD 3.0")
 set(CPACK_TEMPORARY_PACKAGE_FILE_NAME "${CMAKE_BINARY_DIR}/_CPack_Packages/Linux/RPM/RPMS/x86_64/${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}.rpm")
 set(CPACK_META_GROUP_NAME "opae")
 set(CPACK_RPM_PACKAGE_DESCRIPTION "This package contains the Open Programmable Acceleration Engine (OPAE) components ")
-
+#install license file
+install(FILES LICENSE DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DOCDIR}
+COMPONENT licensefile)
 # /usr, /usr/lib are already present in CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST,
 # but some Linux distributions complain without this explicit suppression
 set(CPACK_RPM_SPEC_MORE_DEFINE "%define ignore \#")
