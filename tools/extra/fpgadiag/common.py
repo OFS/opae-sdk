@@ -334,9 +334,6 @@ def main():
                         help='Function number of PCIe device')
     args, left = parser.parse_known_args()
 
-    args = convert_argument_str2hex(
-        args, ['segment', 'bus', 'device', 'function'])
-
     finder = FpgaFinder(args.segment, args.bus, args.device, args.function)
     finder.find()
     print('find {} node'.format(len(finder.match_dev)))
