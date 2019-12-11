@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 # Copyright(c) 2019, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -35,14 +36,34 @@ import traceback
 import fcntl
 import stat
 import struct
+import mmap
 
-PATTERN = (r'.*(?P<segment>\w{4}):(?P<bus>\w{2}):'
+
+pattern = (r'.*(?P<segment>\w{4}):(?P<bus>\w{2}):'
            r'(?P<dev>\w{2})\.(?P<func>\d).*')
 
-BDF_PATTERN = re.compile(PATTERN)
+bdf_pattern = re.compile(pattern)
 
-FPGA_ROOT_PATH = '/sys/class/fpga'
-CHAR_DEV = '/dev/char'
+ROOT_PATH = '/sys/class/fpga'
+char_dev = '/dev/char'
+
+MAPSIZE = mmap.PAGESIZE
+MAPMASK = MAPSIZE - 1
+
+UPL_INDIRECT_CTRL_REG = 0x18
+UPL_INDIRECT_DATA_REG = 0x20
+
+DFH_TYPE_SHIFT = 60
+DFH_TYPE_MASK = 0xf
+DFH_TYPE_AFU = 0x1
+DFH_TYPE_FIU = 0x4
+
+DFH_ID_SHIFT = 0
+DFH_ID_MASK = 0xfff
+DFH_ID_UPL = 0x1f
+
+NEXT_AFU_OFFSET_REG = 0x18
+NEXT_AFU_OFFSET_MASK = 0xffffff
 
 
 def exception_quit(msg, retcode=-1):
@@ -50,8 +71,18 @@ def exception_quit(msg, retcode=-1):
     sys.exit(retcode)
 
 
-def hexint(val):
-    return int(val, 16)
+def convert_argument_str2hex(args, arg_list):
+    if isinstance(arg_list, list):
+        for i in arg_list:
+            try:
+                if getattr(args, i) is not None:
+                    setattr(args, i, int(getattr(args, i), 16))
+            except BaseException:
+                exception_quit(
+                    'Invlid argument {}: {}'.format(
+                        i, getattr(
+                            args, i)))
+    return args
 
 
 class FpgaFinder(object):
@@ -66,13 +97,13 @@ class FpgaFinder(object):
 
     def read_bdf(self, path):
         symlink = os.readlink(path)
-        m = BDF_PATTERN.match(symlink)
+        m = bdf_pattern.match(symlink)
         data = m.groupdict() if m else {}
         return dict([(k, int(v, 16)) for (k, v) in data.items()])
 
     def get_fpga_device_list(self):
-        if os.path.exists(FPGA_ROOT_PATH):
-            paths = glob.glob(os.path.join(FPGA_ROOT_PATH, 'intel-fpga-dev.*'))
+        if os.path.exists(ROOT_PATH):
+            paths = glob.glob(os.path.join(ROOT_PATH, 'intel-fpga-dev.*'))
             for p in paths:
                 bdf = self.read_bdf(os.path.join(p, 'device'))
                 if bdf:
@@ -81,7 +112,7 @@ class FpgaFinder(object):
 
     def find(self):
         if not self.all_devs:
-            print('No FPGA device find at {}'.format(FPGA_ROOT_PATH))
+            print('No FPGA device find at {}'.format(ROOT_PATH))
         for dev in self.all_devs:
             r = True
             for i in dev:
@@ -101,6 +132,9 @@ class FpgaFinder(object):
 
 
 class COMMON(object):
+    sbdf = None
+    upl_base = 0x40000
+    mac_lightweight = False
     eth_comp = {'phy': 1,
                 'mac': 2,
                 'eth': 3}
@@ -116,28 +150,26 @@ class COMMON(object):
     rd_len = struct.calcsize(rd_fmt)
     wr_len = struct.calcsize(wr_fmt)
 
-    def ioctl(self, file, op, data):
-        if isinstance(file, str):
-            with open(file, 'rw') as f:
+    def ioctl(self, handler, op, data):
+        if isinstance(handler, str):
+            with open(handler, 'rw') as f:
                 ret = self._ioctl(f, op, data)
         else:
-            ret = self._ioctl(file, op, data)
+            ret = self._ioctl(handler, op, data)
         return ret
 
-    def _ioctl(self, file, op, data):
+    def _ioctl(self, handler, op, data):
         try:
-            ret = fcntl.ioctl(file, op, data)
-        except IOError as e:
+            ret = fcntl.ioctl(handler, op, data)
+        except Exception as e:
             traceback.print_exc()
-            file.close()
-            exception_quit('ioctl IOError: {}'.format(e))
+            handler.close()
+            exception_quit('ioctl fail: {}'.format(e))
         return ret
 
-    # f: fpga file
+    # f: fpga handler
     # phy: phy index
     # reg: fpga register offset
-    # comp: ethernet array index
-    # dev: device handle
     # idx: propose to change the register field lowest bit index
     # width: propose to change register field length
     # value: propose to change register field value
@@ -174,17 +206,22 @@ class COMMON(object):
         info = {}
         for eth_grp in eth_grps:
             with open(eth_grp, 'r') as f:
-                node = os.path.join(CHAR_DEV, f.readline().strip())
+                node = os.path.join(char_dev, f.readline().strip())
             data = struct.pack(self.if_fmt, self.if_len, *[0] * 5)
             ret = self.ioctl(
                 os.path.join(
-                    CHAR_DEV,
+                    char_dev,
                     node),
                 self.ETH_GROUP_GET_INFO,
                 data)
-            _, _, spd, phy, mac, grp = struct.unpack(self.if_fmt, ret)
+            _, flags, spd, phy, mac, grp = struct.unpack(self.if_fmt, ret)
+            self.mac_lightweight = self.mac_lightweight or (flags & 1) == 1
             info[grp] = [phy, mac, spd, node]
         return info
+
+    def is_mac_lightweight_image(self, eth_grps):
+        self.get_eth_group_info(eth_grps)
+        return self.mac_lightweight
 
     def is_char_device(self, dev):
         m = os.stat(dev).st_mode
@@ -208,7 +245,10 @@ class COMMON(object):
             ports = []
             for p in argport:
                 if p.isdigit():
-                    ports.append(int(p))
+                    if int(p) < total:
+                        ports.append(int(p))
+                    else:
+                        exception_quit('Invalid argument port {}'.format(p))
                 elif '-' in p:
                     s, e = p.split('-')
                     s = s.strip()
@@ -221,19 +261,87 @@ class COMMON(object):
             ports.sort()
             return ports
 
+    def pci_read(self, pci_dev_path, addr):
+        base = addr & ~MAPMASK
+        offset = addr & MAPMASK
+        data = b'\xff'*8
+
+        with open(pci_dev_path, "rb", 0) as f:
+            mm = mmap.mmap(f.fileno(), MAPSIZE, mmap.MAP_SHARED,
+                           mmap.PROT_READ, 0, base)
+            # read data (64 bit)
+            data = mm[offset:offset+8]
+            value, = struct.unpack('<Q', data)
+            # close mapping
+            mm.close()
+        return value
+
+    def pci_write(self, pci_dev_path, addr, value):
+        base = addr & ~MAPMASK
+        offset = addr & MAPMASK
+        data = struct.pack('<Q', value)
+
+        # mmap PCI resource
+        with open(pci_dev_path, "r+b", 0) as f:
+            mm = mmap.mmap(f.fileno(), MAPSIZE, mmap.MAP_SHARED,
+                           mmap.PROT_WRITE, 0, base)
+            # write data (64 bit)
+            mm[offset:offset+8] = data
+            # close mapping
+            mm.close()
+
+    def pci_bar2_rw(self, addr, data=None):
+        pci_bar2_path = '/sys/bus/pci/devices/{}/resource2'
+        if data is None:    # read
+            return self.pci_read(pci_bar2_path.format(self.sbdf), addr)
+        else:   # write
+            self.pci_write(pci_bar2_path.format(self.sbdf), addr, data)
+
+    def upl_indirect_rw(self, addr, data=None):
+        addr &= 0xffffff
+        rdata = 0
+        if data is None:      # read
+            cmd = (1 << 62) | (addr << 32)
+            self.pci_bar2_rw(self.upl_base + UPL_INDIRECT_CTRL_REG, cmd)
+            while (rdata >> 32) != 0x1:     # waiting for read valid
+                rdata = self.pci_bar2_rw(self.upl_base + UPL_INDIRECT_DATA_REG)
+            return rdata & 0xffffffff
+        else:       # write
+            cmd = (2 << 62) | (addr << 32) | (data & 0xffffffff)
+            self.pci_bar2_rw(self.upl_base + UPL_INDIRECT_CTRL_REG, cmd)
+            if (rdata >> 32) != 0x1:     # waiting for write complete
+                rdata = self.pci_bar2_rw(self.upl_base + UPL_INDIRECT_DATA_REG)
+
+    def get_upl_base(self):
+        addr = 0
+        while True:
+            header = self.pci_bar2_rw(addr)
+            feature_type = (header >> DFH_TYPE_SHIFT) & DFH_TYPE_MASK
+            feature_id = (header >> DFH_ID_SHIFT) & DFH_ID_MASK
+            if feature_type == DFH_TYPE_AFU and feature_id == DFH_ID_UPL:
+                self.upl_base = addr
+                break
+            if feature_type in [DFH_TYPE_AFU, DFH_TYPE_FIU]:
+                next_afu_offset = self.pci_bar2_rw(addr+NEXT_AFU_OFFSET_REG)
+                next_afu_offset &= NEXT_AFU_OFFSET_MASK
+            if next_afu_offset == 0 or (next_afu_offset & 0xffff) == 0xffff:
+                print("Use default UPL base address {:#x}".format(
+                                                                self.upl_base))
+                break
+            else:
+                addr += next_afu_offset
+                next_afu_offset = 0
+
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--segment', '-S', type=hexint,
-                        help='Segment number of PCIe device')
-    parser.add_argument('--bus', '-B', type=hexint,
-                        help='Bus number of PCIe device')
-    parser.add_argument('--device', '-D', type=hexint,
-                        help='Device number of PCIe device')
-    parser.add_argument('--function', '-F', type=hexint,
-                        help='Function number of PCIe device')
+    parser.add_argument('--segment')
+    parser.add_argument('--bus')
+    parser.add_argument('--device')
+    parser.add_argument('--function')
     args, left = parser.parse_known_args()
-
+    args = convert_argument_str2hex(
+        args, ['segment', 'bus', 'device', 'function'])
     finder = FpgaFinder(args.segment, args.bus, args.device, args.function)
     finder.find()
     print('find {} node'.format(len(finder.match_dev)))

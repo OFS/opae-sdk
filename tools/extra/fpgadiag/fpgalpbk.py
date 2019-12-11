@@ -31,7 +31,7 @@ import time
 import struct
 import os
 from common import FpgaFinder, exception_quit, COMMON
-from common import hexint
+from common import convert_argument_str2hex
 
 FPGA_PHY_GROUP_ID = {'host': 1, 'line': 0}
 
@@ -158,13 +158,13 @@ class FPGALPBK(COMMON):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--segment', '-S', type=hexint,
+    parser.add_argument('--segment', '-S',
                         help='Segment number of PCIe device')
-    parser.add_argument('--bus', '-B', type=hexint,
+    parser.add_argument('--bus', '-B',
                         help='Bus number of PCIe device')
-    parser.add_argument('--device', '-D', type=hexint,
+    parser.add_argument('--device', '-D',
                         help='Device number of PCIe device')
-    parser.add_argument('--function', '-F', type=hexint,
+    parser.add_argument('--function', '-F',
                         help='Function number of PCIe device')
     parser.add_argument('--direction',
                         required=True,
@@ -199,6 +199,9 @@ def main():
         op = 'enable' if args.en else 'disable'
         print('{} fpga loopback'.format(op))
 
+    args = convert_argument_str2hex(
+        args, ['segment', 'bus', 'device', 'function'])
+
     if not args.type:
         if ((args.side == 'line' and args.direction == 'local') or
                 (args.side == 'host' and args.direction == 'remote')):
@@ -216,7 +219,7 @@ def main():
                        'one FPGA'.format(len(devs)))
     if not devs:
         exception_quit('no FPGA found')
-    args.eth_grps = f.find_node(devs[0].get('path'), 'eth_group*/dev', depth=3)
+    args.eth_grps = f.find_node(devs[0].get('path'), 'eth_group*/dev', depth=4)
     if not args.eth_grps:
         exception_quit('No ethernet group found')
     for g in args.eth_grps:
