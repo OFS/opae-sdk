@@ -38,11 +38,10 @@ import stat
 import struct
 import mmap
 
-
 PATTERN = (r'.*(?P<segment>\w{4}):(?P<bus>\w{2}):'
            r'(?P<dev>\w{2})\.(?P<func>\d).*')
 
-BDF_PATTERN  = re.compile(PATTERN)
+BDF_PATTERN = re.compile(PATTERN)
 
 FPGA_ROOT_PATH = '/sys/class/fpga'
 CHAR_DEV = '/dev/char'
@@ -97,7 +96,7 @@ class FpgaFinder(object):
 
     def read_bdf(self, path):
         symlink = os.readlink(path)
-        m = BDF_PATTERN .match(symlink)
+        m = BDF_PATTERN.match(symlink)
         data = m.groupdict() if m else {}
         return dict([(k, int(v, 16)) for (k, v) in data.items()])
 

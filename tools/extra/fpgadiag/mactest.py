@@ -36,6 +36,7 @@ from common import COMMON, convert_argument_str2hex
 
 SYSF_IF = '/sys/class/net'
 DIVIDE = '-' * 80
+
 FVL_SIDE = 1
 
 
@@ -82,7 +83,7 @@ class MacromCompare(COMMON):
             ethifs = sorted(self.ethif.items())
             for i in ethifs:
                 print('  {:<20} {}'.format(*i))
-            print(DIVIDE)
+            print(divide)
         else:
             exception_quit('No ethernet interface found!')
 
@@ -127,7 +128,7 @@ class MacromCompare(COMMON):
             mac += 1
         for m in self.mac:
             print('  {}'.format(m))
-        print(DIVIDE)
+        print(divide)
 
     def compare_eth_mac_with_macrom(self):
         result = 'PASS'
