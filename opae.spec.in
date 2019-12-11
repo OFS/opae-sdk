@@ -113,10 +113,12 @@ rm -f -- /etc/ld.so.conf.d/opae-c.conf
 ldconfig
 
 %files
+%license @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DOCDIR@/LICENSE
 %defattr(-,root,root,-)
 
 
 %files libs
+%license @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DOCDIR@/LICENSE
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-cxx*
@@ -128,6 +130,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libboard_vc.so*
 
 %files devel
+%license @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DOCDIR@/LICENSE
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/afu_platform_config
 @CMAKE_INSTALL_PREFIX@/bin/afu_platform_info
@@ -146,6 +149,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/src/opae/*
 
 %files tools
+%license @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DOCDIR@/LICENSE
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/fpgaconf
 @CMAKE_INSTALL_PREFIX@/bin/fpgainfo
@@ -161,6 +165,7 @@ ldconfig
 
 
 %files tools-extra
+%license @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DOCDIR@/LICENSE
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/afu_json_mgr
 @CMAKE_INSTALL_PREFIX@/bin/bist_app
@@ -201,6 +206,7 @@ ldconfig
 
 %if %with_ase == "ON"
 %files ase
+%license @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DOCDIR@/LICENSE
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/afu_sim_setup
 @CMAKE_INSTALL_PREFIX@/bin/with_ase
