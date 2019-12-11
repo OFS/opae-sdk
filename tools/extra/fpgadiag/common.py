@@ -69,19 +69,8 @@ def exception_quit(msg, retcode=-1):
     print(msg)
     sys.exit(retcode)
 
-
-def convert_argument_str2hex(args, arg_list):
-    if isinstance(arg_list, list):
-        for i in arg_list:
-            try:
-                if getattr(args, i) is not None:
-                    setattr(args, i, int(getattr(args, i), 16))
-            except BaseException:
-                exception_quit(
-                    'Invalid argument {}: {}'.format(
-                        i, getattr(
-                            args, i)))
-    return args
+def hexint(val):
+    return int(val, 16)
 
 
 class FpgaFinder(object):
@@ -334,13 +323,19 @@ class COMMON(object):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--segment')
-    parser.add_argument('--bus')
-    parser.add_argument('--device')
-    parser.add_argument('--function')
+    parser.add_argument('--segment', '-S', type=hexint,
+                        help='Segment number of PCIe device')
+    parser.add_argument('--bus', '-B', type=hexint,
+                        help='Bus number of PCIe device')
+    parser.add_argument('--device', '-D', type=hexint,
+                        help='Device number of PCIe device')
+    parser.add_argument('--function', '-F', type=hexint,
+                        help='Function number of PCIe device')
     args, left = parser.parse_known_args()
+
     args = convert_argument_str2hex(
         args, ['segment', 'bus', 'device', 'function'])
+
     finder = FpgaFinder(args.segment, args.bus, args.device, args.function)
     finder.find()
     print('find {} node'.format(len(finder.match_dev)))
