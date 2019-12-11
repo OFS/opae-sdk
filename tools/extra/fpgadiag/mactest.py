@@ -82,7 +82,7 @@ class MacromCompare(COMMON):
             ethifs = sorted(self.ethif.items())
             for i in ethifs:
                 print('  {:<20} {}'.format(*i))
-            print(divide)
+            print(DIVIDE)
         else:
             exception_quit('No ethernet interface found!')
 
@@ -127,7 +127,7 @@ class MacromCompare(COMMON):
             mac += 1
         for m in self.mac:
             print('  {}'.format(m))
-        print(divide)
+        print(DIVIDE)
 
     def compare_eth_mac_with_macrom(self):
         result = 'PASS'

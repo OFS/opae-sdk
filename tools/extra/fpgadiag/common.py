@@ -69,6 +69,7 @@ def exception_quit(msg, retcode=-1):
     print(msg)
     sys.exit(retcode)
 
+
 def hexint(val):
     return int(val, 16)
 
