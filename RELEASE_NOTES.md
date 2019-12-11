@@ -30,7 +30,7 @@ System Compatibility
     acceleration cards for Intel(R) Xeon(R) processors:
     - Intel(R) PAC with Arria(R) 10 GX FPGA (PCI ID: 0x09c4) FIM version 1.1.2-1 (1.2 Production)
     - Intel(R) Xeon with Integrated FPGA (PCI ID: 0xbcc0) FIM version 6.4.0
-    - Intel® FPGA Programmable Acceleration Card N3000 (PCI ID: 0x0b30) FIM version D.1.0.13 (1.0 Production)
+    - IntelÂ® FPGA Programmable Acceleration Card N3000 (PCI ID: 0x0b30) FIM version D.1.0.13 (1.0 Production)
 
 -   Operating System: tested on Red Hat Enterprise Linux 7.3 and 7.4, Ubuntu 16.04, 
     SUSE SLE 12 SP3 and CentOS 7.4, with Linux kernels 3.10 through 4.19
@@ -44,7 +44,7 @@ Major Changes from 1.3.0 to 1.4.0
 - Various Static code scan bug fixes
 - Added new FPGA MMIO API to write 512 bits
 
-- Operating System: Tested on RedHat 7.6, CentOS7.6  with Linux Kernel 3.10 and 4.19
+- Operating System: Tested on RedHat 7.6, CentOS 7.6  with Linux Kernel 3.10 and 4.19
 
 - OPAE & Intel FPGA driver are tested on Intel Programmable Acceleration Card Arria 10 GX FPGA & Intel PAC N3000.
 
