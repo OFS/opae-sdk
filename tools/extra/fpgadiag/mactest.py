@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2018-2019, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -34,8 +34,8 @@ import glob
 from common import FpgaFinder, exception_quit
 from common import COMMON, convert_argument_str2hex
 
-sys_if = '/sys/class/net'
-divide = '-' * 80
+SYSF_IF = '/sys/class/net'
+DIVIDE = '-' * 80
 FVL_SIDE = 1
 
 
@@ -70,11 +70,11 @@ class MacromCompare(COMMON):
     def get_if_and_mac_list(self):
         self.get_netif_number()
         pci_root = self.get_pci_common_root_path(self.args.fpga_root)
-        ifs = os.listdir(sys_if)
+        ifs = os.listdir(SYSF_IF)
         for i in ifs:
-            root = self.get_pci_common_root_path(os.path.join(sys_if, i))
+            root = self.get_pci_common_root_path(os.path.join(SYSF_IF, i))
             if pci_root == root:
-                with open(os.path.join(sys_if, i, 'address')) as f:
+                with open(os.path.join(SYSF_IF, i, 'address')) as f:
                     self.ethif[i] = f.read().strip()
 
         if self.ethif:
@@ -82,7 +82,7 @@ class MacromCompare(COMMON):
             ethifs = sorted(self.ethif.items())
             for i in ethifs:
                 print('  {:<20} {}'.format(*i))
-            print(divide)
+            print(DIVIDE)
         else:
             exception_quit('No ethernet interface found!')
 
@@ -127,7 +127,7 @@ class MacromCompare(COMMON):
             mac += 1
         for m in self.mac:
             print('  {}'.format(m))
-        print(divide)
+        print(DIVIDE)
 
     def compare_eth_mac_with_macrom(self):
         result = 'PASS'
