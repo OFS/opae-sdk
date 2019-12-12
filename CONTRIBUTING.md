@@ -5,7 +5,7 @@
 We track OPAE design and development issues, bugs, and feature requests in
 the [GitHub issue tracker](https://github.com/OPAE/opae-sdk/issues). For
 usage, installation, or other requests for help, please use the [OPAE mailing
-list](https://lists.01.org/mailman/listinfo/opae) instead.
+list](https://lists.01.org/postorius/lists/opae.lists.01.org) instead.
 
 When reporting a bug, please provide the following information, where
 applicable:
