@@ -135,9 +135,9 @@ fpga_result add_clock(token_group *t_group)
 {
 	fpga_result res = fpgaTokenGetObject(t_group->token, "*perf/clock",
 					     &t_group->clock, FPGA_OBJECT_GLOB);
-  if (res == FPGA_OK) {
-    ADD_TO_CLEANUP(fpgaDestroyObject, &t_group->clock);
-  }
+    if (res == FPGA_OK) {
+        ADD_TO_CLEANUP(fpgaDestroyObject, &t_group->clock);
+    }
 
 	return res;
 }
