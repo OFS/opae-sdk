@@ -50,7 +50,7 @@ Major Changes from 1.3.0 to 1.4.0
 
 - OPAE & DFL FPGA driver are tested on Intel Programmable Acceleration Card Arria 10 GX FPGA.
 
-- FPGA DFL Linux driver source code patchset2 available 
+- FPGA DFL Linux driver source code patchset2 available in Linux 5.4 kernel
    - https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/drivers?h=linux-5.4.y
 
 
@@ -76,5 +76,3 @@ For more details on this, please see the [OPAE documentation](https://opae.githu
 - ASE: Multiple ModelSim simulator instances may crash when run on the same host
 
     When trying to run multiple instances of the ModelSim simulator on a single system, the simulator may crash. Only run one instance of ModelSim at the same time per system.
-
-
