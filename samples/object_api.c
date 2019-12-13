@@ -326,12 +326,15 @@ out_free:
 		}
 	}
 
-	for (i = 0; i < num_matches; ++i) {
-		if (metrics[i].groups)
-			free(metrics[i].groups);
-	}
-	if (metrics)
+
+	if (metrics) {
+
+		for (i = 0; i < num_matches; ++i) {
+			if (metrics[i].groups)
+				free(metrics[i].groups);
+		}
 		free(metrics);
+	}
 out:
 	return exit_code;
 }
