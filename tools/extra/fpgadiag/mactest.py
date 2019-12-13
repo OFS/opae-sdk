@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2018-2019, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -31,12 +31,12 @@ import argparse
 import binascii
 import sys
 import glob
-from common import FpgaFinder, exception_quit
-from common import COMMON, convert_argument_str2hex
+from common import FpgaFinder, exception_quit, COMMON, hexint
 
-sys_if = '/sys/class/net'
-divide = '-' * 80
-FVL_SIDE = 1
+SYSF_IF = '/sys/class/net'
+DIVIDE = '-' * 80
+
+HOST_SIDE = 1
 
 
 class MacromCompare(COMMON):
@@ -64,17 +64,17 @@ class MacromCompare(COMMON):
     def get_netif_number(self):
         info = self.get_eth_group_info(self.args.eth_grps)
         for grp in info:
-            if grp == FVL_SIDE:
+            if grp == HOST_SIDE:
                 self.number, _, spd, node = info[grp]
 
     def get_if_and_mac_list(self):
         self.get_netif_number()
         pci_root = self.get_pci_common_root_path(self.args.fpga_root)
-        ifs = os.listdir(sys_if)
+        ifs = os.listdir(SYSF_IF)
         for i in ifs:
-            root = self.get_pci_common_root_path(os.path.join(sys_if, i))
+            root = self.get_pci_common_root_path(os.path.join(SYSF_IF, i))
             if pci_root == root:
-                with open(os.path.join(sys_if, i, 'address')) as f:
+                with open(os.path.join(SYSF_IF, i, 'address')) as f:
                     self.ethif[i] = f.read().strip()
 
         if self.ethif:
@@ -82,7 +82,7 @@ class MacromCompare(COMMON):
             ethifs = sorted(self.ethif.items())
             for i in ethifs:
                 print('  {:<20} {}'.format(*i))
-            print(divide)
+            print(DIVIDE)
         else:
             exception_quit('No ethernet interface found!')
 
@@ -127,7 +127,7 @@ class MacromCompare(COMMON):
             mac += 1
         for m in self.mac:
             print('  {}'.format(m))
-        print(divide)
+        print(DIVIDE)
 
     def compare_eth_mac_with_macrom(self):
         result = 'PASS'
@@ -150,23 +150,20 @@ class MacromCompare(COMMON):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--segment', '-S',
+    parser.add_argument('--segment', '-S',  type=hexint,
                         help='Segment number of PCIe device')
-    parser.add_argument('--bus', '-B',
+    parser.add_argument('--bus', '-B',  type=hexint,
                         help='Bus number of PCIe device')
-    parser.add_argument('--device', '-D',
+    parser.add_argument('--device', '-D',  type=hexint,
                         help='Device number of PCIe device')
-    parser.add_argument('--function', '-F',
+    parser.add_argument('--function', '-F',  type=hexint,
                         help='Function number of PCIe device')
     parser.add_argument('--offset',
-                        default='0',
+                        default='0',  type=hexint,
                         help='read mac address from a offset address')
     parser.add_argument('--debug', '-d', action='store_true',
                         help='Output debug information')
     args, left = parser.parse_known_args()
-
-    args = convert_argument_str2hex(
-        args, ['segment', 'bus', 'device', 'function', 'offset'])
 
     f = FpgaFinder(args.segment, args.bus, args.device, args.function)
     devs = f.find()

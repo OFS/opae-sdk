@@ -32,17 +32,15 @@ from subprocess import CalledProcessError
 
 cwd = os.path.dirname(os.path.realpath(__file__))
 cmd_list = ['lpbk1', 'read', 'write', 'trput', 'sw',
-            'fvlbypass', 'fpgalpbk', 'mactest', 'fpgastats', 'fpgamac']
+            'fpgalpbk', 'mactest', 'fpgastats']
 cmd_map = {'lpbk1': ['nlb0'],
            'read': ['nlb3', '--mode=read'],
            'write': ['nlb3', '--mode=write'],
            'trput': ['nlb3', '--mode=trput'],
            'sw': ['nlb7'],
-           'fvlbypass': ['fvlbypass'],
            'fpgalpbk': ['fpgalpbk'],
            'mactest': ['mactest'],
-           'fpgastats': ['fpgastats'],
-           'fpgamac': ['fpgamac']}
+           'fpgastats': ['fpgastats']}
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(add_help=False)
