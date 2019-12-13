@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2018-2019, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -38,14 +38,13 @@ import stat
 import struct
 import mmap
 
-
-pattern = (r'.*(?P<segment>\w{4}):(?P<bus>\w{2}):'
+PATTERN = (r'.*(?P<segment>\w{4}):(?P<bus>\w{2}):'
            r'(?P<dev>\w{2})\.(?P<func>\d).*')
 
-bdf_pattern = re.compile(pattern)
+BDF_PATTERN = re.compile(PATTERN)
 
-ROOT_PATH = '/sys/class/fpga'
-char_dev = '/dev/char'
+FPGA_ROOT_PATH = '/sys/class/fpga'
+CHAR_DEV = '/dev/char'
 
 MAPSIZE = mmap.PAGESIZE
 MAPMASK = MAPSIZE - 1
@@ -71,18 +70,8 @@ def exception_quit(msg, retcode=-1):
     sys.exit(retcode)
 
 
-def convert_argument_str2hex(args, arg_list):
-    if isinstance(arg_list, list):
-        for i in arg_list:
-            try:
-                if getattr(args, i) is not None:
-                    setattr(args, i, int(getattr(args, i), 16))
-            except BaseException:
-                exception_quit(
-                    'Invlid argument {}: {}'.format(
-                        i, getattr(
-                            args, i)))
-    return args
+def hexint(val):
+    return int(val, 16)
 
 
 class FpgaFinder(object):
@@ -97,13 +86,13 @@ class FpgaFinder(object):
 
     def read_bdf(self, path):
         symlink = os.readlink(path)
-        m = bdf_pattern.match(symlink)
+        m = BDF_PATTERN.match(symlink)
         data = m.groupdict() if m else {}
         return dict([(k, int(v, 16)) for (k, v) in data.items()])
 
     def get_fpga_device_list(self):
-        if os.path.exists(ROOT_PATH):
-            paths = glob.glob(os.path.join(ROOT_PATH, 'intel-fpga-dev.*'))
+        if os.path.exists(FPGA_ROOT_PATH):
+            paths = glob.glob(os.path.join(FPGA_ROOT_PATH, 'intel-fpga-dev.*'))
             for p in paths:
                 bdf = self.read_bdf(os.path.join(p, 'device'))
                 if bdf:
@@ -112,7 +101,7 @@ class FpgaFinder(object):
 
     def find(self):
         if not self.all_devs:
-            print('No FPGA device find at {}'.format(ROOT_PATH))
+            print('No FPGA device find at {}'.format(FPGA_ROOT_PATH))
         for dev in self.all_devs:
             r = True
             for i in dev:
@@ -206,11 +195,11 @@ class COMMON(object):
         info = {}
         for eth_grp in eth_grps:
             with open(eth_grp, 'r') as f:
-                node = os.path.join(char_dev, f.readline().strip())
+                node = os.path.join(CHAR_DEV, f.readline().strip())
             data = struct.pack(self.if_fmt, self.if_len, *[0] * 5)
             ret = self.ioctl(
                 os.path.join(
-                    char_dev,
+                    CHAR_DEV,
                     node),
                 self.ETH_GROUP_GET_INFO,
                 data)
@@ -335,13 +324,16 @@ class COMMON(object):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--segment')
-    parser.add_argument('--bus')
-    parser.add_argument('--device')
-    parser.add_argument('--function')
+    parser.add_argument('--segment', '-S', type=hexint,
+                        help='Segment number of PCIe device')
+    parser.add_argument('--bus', '-B', type=hexint,
+                        help='Bus number of PCIe device')
+    parser.add_argument('--device', '-D', type=hexint,
+                        help='Device number of PCIe device')
+    parser.add_argument('--function', '-F', type=hexint,
+                        help='Function number of PCIe device')
     args, left = parser.parse_known_args()
-    args = convert_argument_str2hex(
-        args, ['segment', 'bus', 'device', 'function'])
+
     finder = FpgaFinder(args.segment, args.bus, args.device, args.function)
     finder.find()
     print('find {} node'.format(len(finder.match_dev)))
