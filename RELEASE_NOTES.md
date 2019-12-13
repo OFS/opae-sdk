@@ -61,7 +61,7 @@ Notes / Known Issues
 support the FPGA driver that has been upstreamed to the Linux Kernel 5.4.
 For more details on this, please see the [OPAE documentation](https://opae.github.io/1.4.0/docs/fpga_dfl_drv/fpga_dfl_drv.html) related to this.
 
-- DFL FPGA driver patchset2 doesn’t support all the features supported by Intel FPAG driver.
+- DFL FPGA driver patchset2 doesn’t support all the features supported by Intel FPGA driver.
 
 - FPGAInfo tool doesn’t clear injected error.
 
