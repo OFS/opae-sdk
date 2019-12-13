@@ -36,7 +36,7 @@ from common import FpgaFinder, exception_quit, COMMON, hexint
 SYSF_IF = '/sys/class/net'
 DIVIDE = '-' * 80
 
-FVL_SIDE = 1
+HOST_SIDE = 1
 
 
 class MacromCompare(COMMON):
@@ -64,7 +64,7 @@ class MacromCompare(COMMON):
     def get_netif_number(self):
         info = self.get_eth_group_info(self.args.eth_grps)
         for grp in info:
-            if grp == FVL_SIDE:
+            if grp == HOST_SIDE:
                 self.number, _, spd, node = info[grp]
 
     def get_if_and_mac_list(self):
