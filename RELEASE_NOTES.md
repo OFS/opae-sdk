@@ -57,7 +57,6 @@ Major Changes from 1.3.0 to 1.4.0
 Notes / Known Issues
 --------------------
 
-
 - In addition to supporting the OPAE driver bundled with OPAE SDK releases, the OPAE SDK libraries now
 support the FPGA driver that has been upstreamed to the Linux Kernel 5.4.
 For more details on this, please see the [OPAE documentation](https://opae.github.io/1.4.0/docs/fpga_dfl_drv/fpga_dfl_drv.html) related to this.
