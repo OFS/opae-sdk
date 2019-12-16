@@ -40,6 +40,8 @@
 
 #include "error_int.h"
 
+#define INJECT_ERROR "inject_error"
+
 fpga_result __FPGA_API__ xfpga_fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
 {
 	struct _fpga_token *_token = (struct _fpga_token *)token;
@@ -99,7 +101,7 @@ fpga_result __FPGA_API__ xfpga_fpgaClearError(fpga_token token, uint32_t error_n
 				return FPGA_NOT_SUPPORTED;
 			}
 
-			if (strcmp(p->info.name, "inject_error") == 0) {
+			if (strcmp(p->info.name, INJECT_ERROR) == 0) {
 				value = 0;
 			} else {
 				// read current error value
