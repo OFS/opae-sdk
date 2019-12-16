@@ -40,6 +40,8 @@
 
 #include "error_int.h"
 
+#define INJECT_ERROR "inject_error"
+
 fpga_result __FPGA_API__ xfpga_fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
 {
 	struct _fpga_token *_token = (struct _fpga_token *)token;
@@ -98,10 +100,15 @@ fpga_result __FPGA_API__ xfpga_fpgaClearError(fpga_token token, uint32_t error_n
 				FPGA_MSG("can't clear error '%s'", p->info.name);
 				return FPGA_NOT_SUPPORTED;
 			}
-			// read current error value
-			res = xfpga_fpgaReadError(token, error_num, &value);
-			if (res != FPGA_OK)
-				return res;
+
+			if (strcmp(p->info.name, INJECT_ERROR) == 0) {
+				value = 0;
+			} else {
+				// read current error value
+				res = xfpga_fpgaReadError(token, error_num, &value);
+				if (res != FPGA_OK)
+					return res;
+			}
 
 			// write to 'clear' file
 			if (stat(p->clear_file, &st) == -1) {
