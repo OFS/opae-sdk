@@ -45,7 +45,6 @@ import signal
 import errno
 import logging
 from opae.admin.fpga import fpga
-from opae.admin.utils import process
 from opae.admin.utils.progress import progress
 from opae.admin.version import pretty_version
 
@@ -710,13 +709,6 @@ def main():
         stat, mesg = do_partial_reconf(pac.pci_node.pci_address,
                                        args.file.name)
     elif blk0 is not None:
-        procs = ['pacd', 'fpgad']
-        if not process.assert_not_running(procs):
-            LOG.error('One of %s is detected. '
-                      'Please end that task before attempting %s',
-                      str(procs), os.path.basename(sys.argv[0]))
-            sys.exit(1)
-
         sec_dev = pac.secure_dev
         if not sec_dev:
             LOG.error('Failed to find secure '

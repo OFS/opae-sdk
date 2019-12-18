@@ -44,7 +44,7 @@ from uuid import UUID
 
 from opae.admin.fpga import fpga as fpga_device
 from opae.admin.sysfs import pci_node
-from opae.admin.utils.process import call_process, assert_not_running
+from opae.admin.utils.process import call_process
 from opae.admin.utils import (max10_or_nios_version,
                               hex_version,
                               version_comparator,
@@ -1263,13 +1263,6 @@ def main():
         fh.setLevel(logging.DEBUG)
         fh.setFormatter(logging.Formatter(fmt=logfmt))
         LOG.addHandler(fh)
-
-    procs = ['pacd', 'fpgad']
-    if not assert_not_running(procs):
-        LOG.error('One of %s is detected. '
-                  'Please end that task before attempting %s' %
-                  (str(procs), os.path.basename(sys.argv[0])))
-        sys.exit(1)
 
     if not DRY_RUN and os.getuid():
         LOG.error('must run as root')
