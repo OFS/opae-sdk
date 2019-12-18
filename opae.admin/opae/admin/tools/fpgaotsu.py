@@ -40,7 +40,7 @@ import threading
 from datetime import datetime
 from opae.admin.fpga import fpga
 from opae.admin.utils.mtd import mtd
-from opae.admin.utils import process, version_comparator
+from opae.admin.utils import version_comparator
 from opae.admin.version import pretty_version
 
 LOG = logging.getLogger()
@@ -592,13 +592,6 @@ def main():
     log_hndlr.setLevel(logging.getLevelName(args.log_level.upper()))
 
     LOG.addHandler(log_hndlr)
-
-    procs = ['pacd', 'fpgad']
-    if not process.assert_not_running(procs):
-        LOG.error('One of %s is detected. '
-                  'Please end that task before attempting %s',
-                  str(procs), os.path.basename(sys.argv[0]))
-        sys.exit(1)
 
     signal.signal(signal.SIGINT, sig_handler)
     signal.signal(signal.SIGTERM, sig_handler)
