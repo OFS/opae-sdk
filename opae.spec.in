@@ -18,7 +18,7 @@ Source0:        @CPACK_PACKAGE_NAME@.tar.gz
 %define _unpackaged_files_terminate_build 0
 %define _rpmdir %_topdir/RPMS
 %define _srcrpmdir %_topdir/SRPMS
-%define with_ase @BUILD_ASE@
+%define with_ase "@BUILD_ASE@"
 
 %package libs
 Summary:    Runtime libraries for OPAE applications
@@ -52,7 +52,7 @@ Requires:   opae-libs , opae-devel
 %description tools-extra
 This package contains OPAE extra tools binaries
 
-%if %{?with_ase:OFF} == ON
+%if %with_ase == "ON"
 %package ase
 Summary:    OPAE AFU Simulation Environment
 Group:      ase
@@ -193,7 +193,7 @@ ldconfig
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/python/*
 @CMAKE_INSTALL_PREFIX@/share/opae/python/*
 
-%if %{?with_ase:OFF} == ON
+%if %with_ase == "ON"
 %files ase
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/afu_sim_setup
