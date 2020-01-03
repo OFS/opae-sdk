@@ -14,7 +14,7 @@ development of software applications and accelerators using OPAE.
 General documentation on OPAE can be found at <http://01.org/OPAE>.
 
 The OPAE mailing list is available at
-<http://lists.01.org/mailman/listinfo/opae>.
+<https://lists.01.org/postorius/lists/opae.lists.01.org>.
 
 The OPAE SDK source code is hosted at <http://github.com/OPAE/opae-sdk>.
 

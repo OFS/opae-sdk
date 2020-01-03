@@ -61,6 +61,14 @@ Requires:   opae-libs , opae-devel
 %description ase
 This package contains OPAE AFU Simulation Environment
 
+%package tests
+Summary:    OPAE tests package
+Group:      tests
+Requires:   opae-libs
+
+%description tests
+This package contains OPAE tests
+
 
 # This is a shortcutted spec file generatCed by CMake RPM generator
 # we skip _install step because CPack does that for us.
@@ -195,5 +203,9 @@ ldconfig
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/ase/*
 @CMAKE_INSTALL_PREFIX@/share/opae/ase/*
 
+%files tests
+%defattr(-,root,root,-)
+@CMAKE_INSTALL_PREFIX@/bin/hello_fpga
+@CMAKE_INSTALL_PREFIX@/bin/hello_events
 
 %changelog

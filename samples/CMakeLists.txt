@@ -91,4 +91,11 @@ install(FILES ${SAMPLES_SRC}
 
 install(TARGETS hello_fpga
   RUNTIME DESTINATION bin
-  COMPONENT samplebin) 
+  COMPONENT samplebin)
+
+if(BUILD_LIBOPAE_C)
+  set(TESTS hello_fpga hello_events)
+  install(TARGETS ${TESTS}
+    DESTINATION bin
+    COMPONENT testsopae)
+endif()
