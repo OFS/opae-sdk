@@ -48,6 +48,8 @@ This package contains OPAE base tools binaries
 Summary:    OPAE extra tools binaries
 Group:      tools-extra
 Requires:   opae-libs , opae-devel
+Prefix:     @CPACK_RPM_RELOCATION_PATHS@
+
 
 %description tools-extra
 This package contains OPAE extra tools binaries
@@ -145,9 +147,9 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/fpgaport
 @CMAKE_INSTALL_PREFIX@/bin/fpgametrics
 @CMAKE_INSTALL_PREFIX@/bin/fpgad
-/etc/opae/fpgad.cfg
-/etc/sysconfig/fpgad.conf
-/etc/systemd/system/fpgad.service
+@CPACK_RPM_RELOCATION_PATHS@/opae/fpgad.cfg
+@CPACK_RPM_RELOCATION_PATHS@/sysconfig/fpgad.conf
+@CPACK_RPM_RELOCATION_PATHS@/systemd/system/fpgad.service
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-api.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-xfpga.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-vc.so*

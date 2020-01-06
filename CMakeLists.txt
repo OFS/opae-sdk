@@ -224,7 +224,7 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 option(HASH_ARCHIVES "Add git commit hash to archive names" OFF)
 mark_as_advanced(HASH_ARCHIVES)
-
+set(CPACK_RPM_RELOCATION_PATHS "/etc")
 set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Open Programmable Acceleration Engine")
 SET(CPACK_PACKAGE_VENDOR "Intel Corporation")
