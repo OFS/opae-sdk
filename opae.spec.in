@@ -16,7 +16,24 @@ Requires:       opae-libs , opae-devel , opae-tools, opae-tools-extra
 Requires:       opae-ase
 %endif
 Source0:        @CPACK_PACKAGE_NAME@.tar.gz
+URL:            https://github.com/OPAE/opae-sdk
 
+ExclusiveArch: %{ix86} x86_64
+
+
+
+BuildRequires:     gcc
+BuildRequires:     gcc-c++
+BuildRequires:     gtest-devel
+BuildRequires:     cmake
+BuildRequires:     git
+BuildRequires:     rpm-build
+BuildRequires:     python-sphinx
+BuildRequires:     python-jsonschema
+BuildRequires:     json-c-devel
+BuildRequires:     libuuid-devel 
+BuildRequires:     hwloc-libs
+BuildRequires:     python-devel
 %description
 @CPACK_RPM_PACKAGE_DESCRIPTION@
 
@@ -217,3 +234,11 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/hello_events
 
 %changelog
+* Mon Dec 17 2019 Korde Nakul <nakul.korde@intel.com> -1.4.0
+- Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set2.
+- Increased test cases and test coverage
+- Various bug fixes
+- Various compiler warning fixes
+- Various memory leak fixes
+- Various Static code scan bug fixes
+- Added new FPGA MMIO API to write 512 bits
