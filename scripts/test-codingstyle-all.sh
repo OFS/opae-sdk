@@ -69,8 +69,8 @@ check_py () {
     FILES+=" "
     FILES+=$(grep -rl "^#./usr/bin.*python" ./* | grep -v cpplint.py | grep -vE "^\.\/(doc|pyopae\/pybind11)\/")
 
-    if [ "$TRAVIS_COMMIT_RANGE" != "" ]; then
-        CHANGED_FILES=$(git diff --name-only $TRAVIS_COMMIT_RANGE)
+    if [ "$CI_COMMIT_BEFORE_SHA" != "" ]; then
+        CHANGED_FILES=$(git diff --name-only $CI_COMMIT_BEFORE_SHA)
         printf "Looking at changed files:\n${CHANGED_FILES}"
         FILES=$(comm -12 <(sort <(for f in $FILES; do printf "$f\n"; done)) <(sort <(for f in $CHANGED_FILES; do printf "./$f\n"; done)))
     fi

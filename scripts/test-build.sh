@@ -5,7 +5,7 @@ pushd mybuild
 
 trap "popd" EXIT
 
-cmake .. -DBUILD_ASE=1 -DCMAKE_BUILD_TYPE=$TRAVIS_BUILD_TYPE
+cmake .. -DBUILD_ASE=1 -DCMAKE_BUILD_TYPE=$BUILD_TYPE
 make -j
 
 echo "test-build PASSED"

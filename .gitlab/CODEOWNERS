@@ -1,0 +1,37 @@
+# List of maintainers for the OPAE-SDK
+#
+# Maintainers will be assigned as reviewers on every pull request in their area
+# of responsibility (which is defined by the paths of the files touched by a
+# pull request).
+
+# API specification, implementation, and samples
+/common/include/OPAE/          @tswhison @rrojo @aravuri
+/libopae/                      @tswhison @rrojo @aravuri
+/libopaecxx/                   @tswhison @rrojo @aravuri
+/samples/                      @tswhison @rrojo @aravuri
+
+# Tools
+/tools/                        @rrojo @mgerlach @aravuri @tswhison @scottgi
+
+# ASE & platforms database
+/ase/                          @rrojo @ahanani1
+/platforms/                    @rrojo @ahanani1
+
+# Documentation
+/doc/                          @tswhison @ahanani1
+
+# Build toolchain & continuous integration
+CMakeLists.txt                 @nkorde @rrojo @ccbilbre
+/scripts/                      @nkorde @rrojo @ccbilbre
+/tests/                        @nkorde @rrojo @ccbilbre
+/testing/                      @nkorde @rrojo @ccbilbre
+.travis.yml                    @nkorde @rrojo @ccbilbre
+/cmake/                        @nkorde @rrojo @ccbilbre
+.gitlab-ci.yml                 @nkorde @rrojo @ccbilbre
+
+# Safestring library
+/common/include/safe_string/   @nkorde @tswhison
+/safe_string/                  @nkorde @tswhison
+
+# Codeowners
+.gitlab/CODEOWNERS             @nkorde @rrojo

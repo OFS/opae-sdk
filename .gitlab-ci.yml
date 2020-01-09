@@ -1,0 +1,136 @@
+stages:
+ - codestyle_check
+ - static_analysis
+ - build
+ - test
+ - build_artifacts
+ - source_install
+
+codestyle_check:
+ stage: codestyle_check
+ script: scripts/test-codingstyle-all.sh
+ tags:
+  - opae-sdk-x
+ before_script:
+  - python -m pip install --user pylint
+  - python -m pip install --user pycodestyle
+  - python -m pip install --user jsonschema
+  - python -m pip install --user jinja2
+
+bandit:
+ stage: static_analysis
+ script:
+  - scripts/run-bandit.sh
+ tags:
+  - opae-sdk-x
+ artifacts:
+  paths:
+   - ./*.html
+
+build_RelWithDebInfo:
+ stage: build
+ script:
+  - scripts/test-build.sh
+ tags:
+  - opae-sdk-x
+ dependencies:
+  - codestyle_check
+  - bandit
+ variables:
+  BUILD_TYPE: RelWithDebInfo
+
+build_Debug:
+ stage: build
+ script:
+  - scripts/test-build.sh
+ tags:
+  - opae-sdk-x
+ dependencies:
+  - codestyle_check
+  - bandit
+ variables:
+  BUILD_TYPE: Debug
+
+build_Release:
+ stage: build
+ script:
+  - scripts/test-build.sh
+ tags:
+  - opae-sdk-x
+ dependencies:
+  - codestyle_check
+  - bandit
+ variables:
+  BUILD_TYPE: Release
+
+build_docs:
+ stage: build
+ script:
+  - scripts/build-documentation.sh
+ tags:
+  - opae-sdk-x
+ dependencies:
+  - codestyle_check
+  - bandit
+ artifacts:
+  paths:
+   - mybuild_docs/sphinx/html/[0-9]*
+
+test:
+ stage: test
+ script:
+  - scripts/cover.sh
+ tags:
+  - opae-sdk-x
+ dependencies:
+  - build_RelWithDebInfo
+ before_script:
+  - echo $LABPASS | sudo -S sysctl -w vm.nr_hugepages=8
+  - python -m pip install --user pybind11 nose2
+  - python -m pip install --user cpp-coveralls
+
+build_artifacts_rpm:
+ stage: build_artifacts
+ script:
+  - scripts/build-rpms.sh
+ tags:
+  - opae-sdk-x
+ dependencies:
+  - test
+ artifacts:
+  paths:
+   - rpmbuilder/*.rpm
+
+build_artifacts_deb:
+ stage: build_artifacts
+ script:
+  - scripts/build-debs.sh
+ tags:
+  - opae-sdk-x
+ dependencies:
+  - test
+ artifacts:
+  paths:
+   - debbuilder/*.deb
+
+build_artifacts_tar:
+ stage: build_artifacts 
+ script:
+  - scripts/build-tar.sh
+ tags:
+  - opae-sdk-x
+ dependencies:
+  - test
+ artifacts:
+  paths:
+   - source_code/*.tar.gz
+
+build_from_source:
+ stage: source_install
+ tags:
+  - opae-sdk-x
+ dependencies:
+  - build_artifacts_tar
+ script:
+  - scripts/build-from-src.sh
+
