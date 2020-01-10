@@ -62,31 +62,7 @@ FLASH_TIMEOUT = 10.0
 
 NULL_CMD = ['sleep', '11']
 
-NVM_CFG_HEAD = '''
-CURRENT FAMILY: 1.0.0
-CONFIG VERSION: 1.14.0
-
-;release 19.3/19.4 to release 20.0
-
-'''
-
-NVM_CFG_DEVICE = '''
-BEGIN DEVICE
-DEVICENAME: XXV710
-VENDOR: {VENDOR}
-DEVICE: {DEVICE}
-NVM IMAGE: {FILENAME}
-SKIP OROM: TRUE
-EEPID: {EEPID}
-REPLACES: {REPLACES}
-;Family identifies 1ea696de-c026-45ba-bfed-d1022f611d90
-RESET TYPE: POWER
-END DEVICE
-'''
-
 OPAE_SHARE = '/usr/share/opae'
-NVMUPDATE_EXE = 'nvmupdate64e'
-OPAE_NVMUPDATE_EXE = os.path.join(OPAE_SHARE, 'bin', NVMUPDATE_EXE)
 
 LOG = logging.getLogger(__name__)
 TRACE = logging.DEBUG - 5
@@ -405,61 +381,6 @@ class eth_instance(object):
     def check(self):
         # TODO (RR): implement ethernet testing
         return True
-
-
-class nvm_updater(object):
-    def __init__(self):
-        self._to_update = []
-
-    def enumerate(self, **kwargs):
-        nodes = self._run_inventory(**kwargs)
-        instances = []
-        for node in nodes:
-            module = node.find('Module[@version]')
-            mac = node.find('MACAddresses/MAC[@address]')
-            fail = node.find('Status[@result="fail"]')
-            version = None if module is None else module.get('version')
-            address = None if mac is None else mac.get('address')
-            if version is None or address is None and fail:
-                LOG.warn('could not get all attributes from xml: %s',
-                         fail.text)
-            instances.append(eth_instance(node, version, address))
-        return instances
-
-    def _run_inventory(self, **kwargs):
-        f = tempfile.NamedTemporaryFile()
-        LOG.debug("running nvmupdate inventory")
-        try:
-            call_process('{} -i -o {}'.format(OPAE_NVMUPDATE_EXE, f.name),
-                         no_dry=True)
-        except (subprocess.CalledProcessError, OSError):
-            LOG.error('%s may not be installed', NVMUPDATE_EXE)
-            return []
-        tree = ET.parse(f.name)
-        root = tree.getroot()
-        attr = ''.join(["[@{}]".format(k)
-                        for k in kwargs.keys()])
-        xpath = './Instance{}'.format(attr)
-        LOG.debug('searching %s', xpath)
-
-        def filter_attrib(node):
-            for k, v in kwargs.items():
-                if k not in node.attrib:
-                    return False
-                if k in ['vendor', 'device', 'bus']:
-                    attrib_value = int(node.get(k), 16)
-                else:
-                    try:
-                        attrib_value = type(v)(node.get(k))
-                    except ValueError:
-                        attrib_value = None
-                if attrib_value != v:
-                    return False
-            return True
-
-        nodes = filter(filter_attrib, root.findall(xpath))
-        LOG.debug('found %s nodes in inventory', len(nodes))
-        return nodes
 
 
 # pac classes
@@ -897,22 +818,6 @@ def get_update_threads(boards, args, rsu_config):
         update_thr = b.update(flash_dir, rsu_config, args)
         if update_thr is not None:
             threads.append(update_thr)
-
-    if rsu_config.get('version', 1) < SECURE_UPDATE_VERSION:
-        # managing nvmupdate is only supported in older versions
-        if 'nvmupdate' in rsu_config:
-            LOG.warn('nvmupdate in super-rsu is being deprecated')
-            nvm_timeout = parse_timedelta(
-                rsu_config['nvmupdate'].get('timeout', '00:10:0'))
-            nvm_update_thr = update_thread(
-                None,
-                do_nvmupdate,
-                args,
-                rsu_config,
-                name='nvmupdate',
-                timeout=nvm_timeout)
-            nvm_update_thr.start()
-            threads.append(nvm_update_thr)
     return threads
 
 
@@ -959,89 +864,6 @@ def update_wait(threads, args, rsu_config):
 
 def do_verify(boards, args, rsu_config):
     return [b for b in boards if b.verify(rsu_config, args)]
-
-
-def do_nvmverify(boards, args, rsu_config):
-    nvm_cfg = rsu_config.get('nvmupdate')
-    if not nvm_cfg:
-        return True
-
-    nvmu = nvm_updater()
-    if int(rsu_config.get('version', 1)) <= 1:
-        vendor_id = 0x8086
-        device_id = 0x0d58
-        total_count = 2
-    else:
-        vendor_id = int(nvm_cfg['vendor'], 16)
-        device_id = int(nvm_cfg['device'], 16)
-        total_count = nvm_cfg.get('interfaces', 1) * len(boards)
-    eth_instances = nvmu.enumerate(vendor=vendor_id, device=device_id, func=0)
-    eth_instances = [eth for eth in eth_instances
-                     if eth.version == nvm_cfg.get('version')]
-    updated_count = len(eth_instances)
-
-    if updated_count != total_count:
-        LOG.warn('Only %s/%s ETH interfaces updated',
-                 updated_count, total_count)
-        return False
-    return True
-
-
-def do_nvmupdate(args, rsu_config, **kwargs):
-    flash_dir = os.path.dirname(args.rsu_config.name)
-    nvm_cfg = rsu_config.get('nvmupdate')
-    if not nvm_cfg:
-        return 0
-
-    nvmu = nvm_updater()
-    if rsu_config['version'] == 1:
-        vendor_id = 0x8086
-        device_id = 0x0d58
-    else:
-        vendor_id = int(nvm_cfg['vendor'], 16)
-        device_id = int(nvm_cfg['device'], 16)
-    eth_instances = nvmu.enumerate(vendor=vendor_id, device=device_id, func=0)
-    if not eth_instances:
-        LOG.warn('could not enumerate ETH interfaces')
-        return (os.EX_UNAVAILABLE, os.EX_UNAVAILABLE)
-
-    need_update = []
-    for eth in eth_instances:
-        if eth.version is None:
-            LOG.warn('Could not get version for ETH interface: %s', eth.bus)
-        elif eth.version != nvm_cfg.get('version'):
-            need_update.append(eth)
-
-    if not need_update:
-        LOG.debug('no eth interfaces to update')
-        return 0
-
-    old_versions = set([item.version for item in need_update])
-    nvm_file = os.path.abspath(os.path.join(flash_dir, nvm_cfg['filename']))
-
-    # generate the nvm cfg file
-    with tempfile.NamedTemporaryFile('w', delete=False) as fd:
-        LOG.debug('generating nvmupdate cfg: %s', fd.name)
-        fd.write(NVM_CFG_HEAD)
-        replaces_str = ' '.join(old_versions)
-        LOG.debug("adding old versions to nvmupdate cfg: '%s'", replaces_str)
-        nvmupdate_vendor = '{:X}'.format(int(nvm_cfg['vendor'], 16))
-        nvmupdate_device = '{:X}'.format(int(nvm_cfg['device'], 16))
-        fd.write(NVM_CFG_DEVICE.format(EEPID=nvm_cfg['version'],
-                                       REPLACES=replaces_str,
-                                       FILENAME=nvm_file,
-                                       VENDOR=nvmupdate_vendor,
-                                       DEVICE=nvmupdate_device))
-        cmd = '{} -u -c {}'.format(OPAE_NVMUPDATE_EXE, fd.name)
-
-    task = process_task(cmd)
-    p = task()
-    result = p.wait()
-    LOG.debug('task completed in %s', timedelta(
-        seconds=time.time() - task.start_time))
-    if result:
-        LOG.error('nvmupdate returned non-zero exit: %s', result)
-    return result
 
 
 def run_tests(boards, args, rsu_config):
@@ -1106,11 +928,6 @@ def check_requirements(boards, args, rsu_config):
 
     missing = []
     callables = ['fpgaflash', 'fpgasupdate']
-    if 'nvmupdate' in rsu_config:
-        if not os.path.exists(OPAE_NVMUPDATE_EXE):
-            LOG.debug("missing '%s'", NVMUPDATE_EXE)
-            missing.append(NVMUPDATE_EXE)
-
     for exe in callables:
         if subprocess.check_call(['which', exe],
                                  stdout=subprocess.PIPE):
@@ -1118,12 +935,8 @@ def check_requirements(boards, args, rsu_config):
             missing.append(exe)
 
     flash_dir = os.path.dirname(args.rsu_config.name)
-    nvm_cfg = rsu_config.get('nvmupdate')
     # copy the flash specs
     specs = list(rsu_config['flash'])
-    if nvm_cfg is not None:
-        specs.append(nvm_cfg)
-
     for item in specs:
         args.rsu_config.name
         filename = item['filename']
@@ -1307,16 +1120,12 @@ def main():
             verified = False
         else:
             LOG.debug('all boards up to date')
-        if 'nvmupdate' in rsu_config:
-            nvm_verified = do_nvmverify(boards, args, rsu_config)
-        else:
-            nvm_verified = True
 
         test_result = run_tests(boards, args, rsu_config)
         total_elapsed = datetime.now() - begin
         LOG.info('%s verification completed in: %s',
                  os.path.basename(__file__), total_elapsed)
-        if not verified or not nvm_verified or test_result:
+        if not verified or test_result:
             sys_exit(os.EX_SOFTWARE)
         sys_exit(os.EX_OK)
 
@@ -1381,9 +1190,6 @@ def main():
         LOG.error('board self tests failed')
         exit_code = os.EX_SOFTWARE
 
-    if 'nvmupdate' in rsu_config:
-        if not do_nvmverify(boards, args, rsu_config):
-            exit_code = os.EX_SOFTWARE
     total_elapsed = datetime.now() - begin
     LOG.info('%s update completed in: %s', os.path.basename(__file__),
              total_elapsed)
