@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2019-2020, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -91,7 +91,8 @@ OPAE_NVMUPDATE_EXE = os.path.join(OPAE_SHARE, 'bin', NVMUPDATE_EXE)
 LOG = logging.getLogger(__name__)
 TRACE = logging.DEBUG - 5
 logging.addLevelName(TRACE, 'TRACE')
-RSU_TMP_LOG = '/tmp/super-rsu.log'
+RSU_LOG_DIR = '/var/lib/opae'
+RSU_LOG = os.path.join(RSU_LOG_DIR, 'super-rsu.log')
 
 SECURE_UPDATE_VERSION = 4
 
@@ -1214,9 +1215,9 @@ def main():
                                                 'info',
                                                 'notset'], default='info',
                         help='log level to use')
-    parser.add_argument('--log-file', default=RSU_TMP_LOG,
+    parser.add_argument('--log-file', default=RSU_LOG,
                         help='destination logfile'
-                             '- default is {}'.format(RSU_TMP_LOG))
+                             '- default is {}'.format(RSU_LOG))
     parser.add_argument('--rsu-only', default=False, action='store_true',
                         help='only perform the RSU command')
     parser.add_argument('--with-rsu', default=False, action='store_true',
@@ -1243,14 +1244,15 @@ def main():
     logging.basicConfig(format=logfmt,
                         level=getattr(logging, args.log_level.upper(), level))
 
-    if args.log_file == RSU_TMP_LOG:
+    if args.log_file == RSU_LOG:
+        os.makedirs(RSU_LOG_DIR, exist_ok=True)
         try:
             fh = logging.handlers.RotatingFileHandler(args.log_file,
                                                       backupCount=50)
             fh.doRollover()
         except IOError:
             sys.stderr.write('Could not rollover log file: {}\n'.format(
-                RSU_TMP_LOG))
+                RSU_LOG))
             fh = None
     else:
         try:
