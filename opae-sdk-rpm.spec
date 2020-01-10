@@ -1,7 +1,7 @@
 Summary:        Open Programmable Acceleration Engine
 Name:           opae-sdk
 Version:        1.4.0
-Release:        2
+Release:        1
 License:        BSD 3.0
 Group:          opae
 Vendor:         Intel Corporation
@@ -9,7 +9,7 @@ Prefix:         /usr
 Requires:       opae-libs , opae-devel , opae-tools, opae-tools-extra
 Requires:       opae-ase
 URL:             https://github.com/OPAE/%{name}
-Source0:         https://github.com/OPAE/%{name}/%{name}-%{version}.tar.gz
+Source0:         https://github.com/OPAE/%{name}/%{name}-%{version}-%{release}.tar.gz
 
 ExclusiveArch: %{ix86} x86_64
 
