@@ -5,7 +5,6 @@ Release:        1
 License:        BSD 3.0
 Group:          opae
 Vendor:         Intel Corporation
-Prefix:         /usr
 Requires:       opae-libs , opae-devel , opae-tools, opae-tools-extra
 Requires:       opae-ase
 URL:             https://github.com/OPAE/%{name}-sdk
@@ -15,6 +14,7 @@ ExclusiveArch: %{ix86} x86_64
 
 BuildRequires:     gcc,gcc-c++
 BuildRequires:     cmake
+BuildRequires:     python-devel
 BuildRequires:     json-c-devel
 BuildRequires:     libuuid-devel
 BuildRequires:     rpm-build
@@ -23,6 +23,8 @@ BuildRequires:     gtest-devel
 BuildRequires:     python-sphinx
 BuildRequires:     doxygen
 
+
+Requires:         python
 
 %description
 This package contains the Open Programmable Acceleration Engine (OPAE) components
@@ -56,7 +58,7 @@ This package contains OPAE base tools binaries
 Summary:    OPAE extra tools binaries
 Group:      tools-extra
 Requires:   opae-libs , opae-devel
-Prefix:     /etc
+
 
 
 %description tools-extra
@@ -94,14 +96,15 @@ make -j
 %install
 cd  mybuild
 make DESTDIR=%{buildroot} install
-mkdir -p %{buildroot}/etc/systemd/system/
-mv %{buildroot}%{_usr}/lib/systemd/system/fpgad.service  %{buildroot}/etc/systemd/system/fpgad.service
+mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/
+mv %{buildroot}%{_usr}/lib/systemd/system/fpgad.service  %{buildroot}%{_sysconfdir}/systemd/system/fpgad.service
+
 
 %clean
 
 %post
-mkdir -p /etc/ld.so.conf.d
-echo "" > /etc/ld.so.conf.d/opae-c.conf
+mkdir -p  %{_sysconfdir}/ld.so.conf.d
+echo "" >  %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 ldconfig
 
 %postun
@@ -109,7 +112,7 @@ ldconfig
 %pre
 
 %preun
-rm -f -- /etc/ld.so.conf.d/opae-c.conf 
+rm -f --  %{_sysconfdir}/ld.so.conf.d/opae-c.conf 
 ldconfig
 
 %files
@@ -117,105 +120,105 @@ ldconfig
 
 %files libs
 %defattr(-,root,root,-)
-%{_usr}/lib64/libopae-c.so*
-%{_usr}/lib64/libopae-cxx*
-%{_usr}/lib64/libxfpga.so*
-%{_usr}/lib64/libbmc.so*
-%{_usr}/lib64/libmodbmc.so*
-%{_usr}/lib64/libbitstream.so*
-%{_usr}/lib64/libboard_rc.so*
-%{_usr}/lib64/libboard_vc.so*
+%{_libdir}/libopae-c.so*
+%{_libdir}/libopae-cxx*
+%{_libdir}/libxfpga.so*
+%{_libdir}/libbmc.so*
+%{_libdir}/libmodbmc.so*
+%{_libdir}/libbitstream.so*
+%{_libdir}/libboard_rc.so*
+%{_libdir}/libboard_vc.so*
 
 %files devel
 %defattr(-,root,root,-)
-%{_usr}/bin/afu_platform_config
-%{_usr}/bin/afu_platform_info
-%{_usr}/bin/afu_synth_setup
-%{_usr}/bin/rtl_src_config
-%{_usr}/bin/hello_fpga
-%dir %{_usr}/include/opae
-%{_usr}/include/opae/*
-%dir %{_usr}/include/safe_string
-%{_usr}/include/safe_string/safe_string.h
-%{_usr}/lib64/libsafestr.a
-%dir %{_usr}/share/opae
-%dir %{_usr}/share/opae/*
-%{_usr}/share/opae/*
+%{_bindir}/afu_platform_config
+%{_bindir}/afu_platform_info
+%{_bindir}/afu_synth_setup
+%{_bindir}/rtl_src_config
+%{_bindir}/hello_fpga
+%dir %{_includedir}/opae
+%{_includedir}/opae/*
+%dir %{_includedir}/safe_string
+%{_includedir}/safe_string/safe_string.h
+%{_libdir}/libsafestr.a
+%dir %{_datadir}/opae
+%dir %{_datadir}/opae/*
+%{_datadir}/opae/*
 %dir %{_usr}/src/opae
 %{_usr}/src/opae/*
 
 
 %files tools
 %defattr(-,root,root,-)
-%{_usr}/bin/fpgaconf*
-%{_usr}/bin/fpgainfo*
-%{_usr}/bin/fpgaport*
-%{_usr}/bin/fpgametrics*
-%{_usr}/bin/fpgad*
-/etc/opae/fpgad.cfg*
-/etc/sysconfig/fpgad.conf*
-/etc/systemd/system/fpgad.service
-%{_usr}/lib64/libfpgad-api.so*
-%{_usr}/lib64/libfpgad-xfpga.so*
-%{_usr}/lib64/libfpgad-vc.so*
+%{_bindir}/fpgaconf*
+%{_bindir}/fpgainfo*
+%{_bindir}/fpgaport*
+%{_bindir}/fpgametrics*
+%{_bindir}/fpgad*
+%{_sysconfdir}/opae/fpgad.cfg*
+%{_sysconfdir}/sysconfig/fpgad.conf*
+%{_sysconfdir}/systemd/system/fpgad.service
+%{_libdir}/libfpgad-api.so*
+%{_libdir}/libfpgad-xfpga.so*
+%{_libdir}/libfpgad-vc.so*
 
 
 
 %files tools-extra
 %defattr(-,root,root,-)
-%{_usr}/bin/afu_json_mgr
-%{_usr}/bin/bist_app
-%{_usr}/bin/bist_app.py
-%{_usr}/bin/bist_common.py
-%{_usr}/bin/bist_dma.py
-%{_usr}/bin/bist_def.py
-%{_usr}/bin/bist_nlb3.py
-%{_usr}/bin/bist_nlb0.py
-%{_usr}/bin/coreidle
-%{_usr}/bin/fpga_dma_vc_test
-%{_usr}/bin/fpga_dma_test
-%{_usr}/bin/bist
-%{_usr}/bin/fpgabist
-%{_usr}/bin/fpgadiag
-%{_usr}/bin/fpgaflash
-%{_usr}/bin/hssi_config
-%{_usr}/bin/hssi_loopback
-%{_usr}/bin/mmlink
-%{_usr}/bin/nlb0
-%{_usr}/bin/nlb3
-%{_usr}/bin/nlb7
-%{_usr}/bin/super-rsu
-%{_usr}/bin/packager
-%{_usr}/bin/mactest
-%{_usr}/bin/fpgalpbk
-%{_usr}/bin/fpgastats
-%{_usr}/bin/pac_hssi_config.py
-%{_usr}/bin/ras
-%{_usr}/bin/userclk
-%{_usr}/lib64/libhssi*
-%{_usr}/lib64/libopae-c++-nlb.so*
-%{_usr}/lib64/libopae-c++-utils.so*
-%dir %{_usr}/share/opae
-%dir %{_usr}/share/opae/python/
-%dir %{_usr}/share/opae/python/*
-%{_usr}/share/opae/python/*
+%{_bindir}/afu_json_mgr
+%{_bindir}/bist_app
+%{_bindir}/bist_app.py
+%{_bindir}/bist_common.py
+%{_bindir}/bist_dma.py
+%{_bindir}/bist_def.py
+%{_bindir}/bist_nlb3.py
+%{_bindir}/bist_nlb0.py
+%{_bindir}/coreidle
+%{_bindir}/fpga_dma_vc_test
+%{_bindir}/fpga_dma_test
+%{_bindir}/bist
+%{_bindir}/fpgabist
+%{_bindir}/fpgadiag
+%{_bindir}/fpgaflash
+%{_bindir}/hssi_config
+%{_bindir}/hssi_loopback
+%{_bindir}/mmlink
+%{_bindir}/nlb0
+%{_bindir}/nlb3
+%{_bindir}/nlb7
+%{_bindir}/super-rsu
+%{_bindir}/packager
+%{_bindir}/mactest
+%{_bindir}/fpgalpbk
+%{_bindir}/fpgastats
+%{_bindir}/pac_hssi_config.py
+%{_bindir}/ras
+%{_bindir}/userclk
+%{_libdir}/libhssi*
+%{_libdir}/libopae-c++-nlb.so*
+%{_libdir}/libopae-c++-utils.so*
+%dir %{_datadir}/opae
+%dir %{_datadir}/opae/python/
+%dir %{_datadir}/opae/python/*
+%{_datadir}/opae/python/*
 
 
 %files ase
 %defattr(-,root,root,-)
-%{_usr}/bin/afu_sim_setup
-%{_usr}/bin/with_ase
-%{_usr}/lib64/libase*
-%{_usr}/lib64/libopae-c-ase.so*
-%dir %{_usr}/share/opae
-%dir %{_usr}/share/opae/ase/
-%dir %{_usr}/share/opae/ase/*
-%{_usr}/share/opae/ase/*
+%{_bindir}/afu_sim_setup
+%{_bindir}/with_ase
+%{_libdir}/libase*
+%{_libdir}/libopae-c-ase.so*
+%dir %{_datadir}/opae
+%dir %{_datadir}/opae/ase/
+%dir %{_datadir}/opae/ase/*
+%{_datadir}/opae/ase/*
 
 %files tests
 %defattr(-,root,root,-)
-%{_usr}/bin/hello_fpga
-%{_usr}/bin/hello_events
+%{_bindir}/hello_fpga
+%{_bindir}/hello_events
 
 %changelog
 * Mon Dec 17 2019 Korde Nakul <nakul.korde@intel.com> -1.4.0
