@@ -9,7 +9,7 @@ Prefix:         /usr
 Requires:       opae-libs , opae-devel , opae-tools, opae-tools-extra
 Requires:       opae-ase
 URL:             https://github.com/OPAE/%{name}
-Source0:         https://github.com/OPAE/%{name}/%{name}-%{version}-%{release}.tar.gz
+Source0:         https://github.com/OPAE/%{name}/%{name}.tar.gz
 
 ExclusiveArch: %{ix86} x86_64
 
