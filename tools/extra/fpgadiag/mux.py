@@ -197,10 +197,10 @@ class mtnlb8_options(nlb_options):
 def run_mux(muxfile, args, iteration=0):
     result = "PASS"
     stdout, stderr = None, None
+    cmd = [args.cmd, '-c', muxfile, '-s', args.socket_id]
     try:
         p = subprocess.Popen(
-            '{} -c {} -s {}'.format(args.cmd, muxfile, args.socket_id),
-            shell=True,
+            cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         timedout = False
