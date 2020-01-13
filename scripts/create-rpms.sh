@@ -1,5 +1,12 @@
 #!/bin/bash
 
+#check if rpmbuild is installed
+yum list installed rpm-build
+if [ $? -eq 1 ]; then
+	echo "'rpm-build' package not installed.. exiting"
+	exit 1
+fi
+
 #create source tarball
 rm -rf ../build
 mkdir ../build
