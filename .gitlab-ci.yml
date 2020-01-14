@@ -32,7 +32,7 @@ test-opae-admin-tox:
  script:
   - scripts/test-opae-admin-tox.sh
  before_script:
-  - pip install --user tox virtualenv
+  - python3.6 -m pip install --user tox virtualenv
  dependencies:
   - build-pacsign
   - build-opae-admin
