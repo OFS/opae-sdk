@@ -22,12 +22,13 @@
 # INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.a
+# POSSIBILITY OF SUCH DAMAGE.
 import glob
 import os
 import re
 from contextlib import contextmanager
 from subprocess import CalledProcessError
+from opae.admin.path import sysfs_path
 from opae.admin.utils.process import call_process, DRY_RUN
 from opae.admin.utils.log import loggable, LOG
 
@@ -42,14 +43,14 @@ PCI_ADDRESS_RE = re.compile(PCI_ADDRESS_PATTERN, re.IGNORECASE)
 class sysfs_node(loggable):
     """sysfs_node is a base class representing a sysfs object in sysfs """
 
-    def __init__(self, sysfs_path):
+    def __init__(self, _sysfs_path):
         """__init__ Initializes a new sysfs_node object with a sysfs path.
 
         Args:
             sysfs_path: sysfs path to a 'file' or 'directory' object.
         """
         super(sysfs_node, self).__init__()
-        self._sysfs_path = sysfs_path
+        self._sysfs_path = sysfs_path(_sysfs_path)
 
     def node(self, *nodes):
         """node Gets a new sysfs_node object using the given paths.
@@ -622,11 +623,7 @@ class class_node(sysfs_node):
         sysfs_class = sysfs_class or cls
         log = LOG(cls.__name__)
         nodes = []
-        class_paths = glob.glob(
-            os.path.join(
-                '/sys/class',
-                sysfs_class_name,
-                '*'))
+        class_paths = glob.glob(sysfs_path('class', sysfs_class_name, '*'))
         log.debug('found %s objects: %s', sysfs_class_name, class_paths)
         for path in class_paths:
             nodes.append(sysfs_class(path))

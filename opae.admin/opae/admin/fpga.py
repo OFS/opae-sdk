@@ -31,6 +31,7 @@ import time
 
 from array import array
 from contextlib import contextmanager
+from opae.admin.path import device_path
 from opae.admin.sysfs import class_node, sysfs_node
 from opae.admin.utils.log import loggable
 from opae.admin.utils import max10_or_nios_version
@@ -49,7 +50,7 @@ class region(sysfs_node):
     @property
     def devpath(self):
         basename = os.path.basename(self.sysfs_path)
-        dev_path = os.path.join('/dev', basename)
+        dev_path = device_path(basename)
         if not os.path.exists(dev_path):
             raise AttributeError('no device found: {}'.format(dev_path))
         return dev_path
@@ -122,8 +123,7 @@ class flash_control(loggable):
 
             if len(mtds) > 1:
                 self.log.warn('found more than one: "/mtd/mtdX"')
-
-            return os.path.join('/dev', mtds[0])
+            return device_path(mtds[0])
 
         msg = 'timeout waiting for %s to appear' % (self._mtd_pattern)
         self.log.error(msg)
@@ -171,7 +171,7 @@ class flash_control(loggable):
     @property
     def devpath(self):
         if self._always_on and self._mtd_dev:
-            dev_path = os.path.join('/dev', self._mtd_dev)
+            dev_path = device_path(self._mtd_dev)
             if not os.path.exists(dev_path):
                 raise AttributeError('no device found: %s' % dev_path)
             return dev_path
