@@ -1,4 +1,6 @@
 # -*- rpm-spec -*-
+%define with_ase "@BUILD_ASE@"
+
 BuildRoot:      %_topdir/@CPACK_PACKAGE_FILE_NAME@
 
 Summary:        @CPACK_PACKAGE_DESCRIPTION_SUMMARY@
@@ -9,7 +11,10 @@ License:        @CPACK_RPM_PACKAGE_LICENSE@
 Group:          @CPACK_META_GROUP_NAME@
 Vendor:         @CPACK_PACKAGE_VENDOR@
 Prefix:         @CMAKE_INSTALL_PREFIX@
-Requires:       opae-libs , opae-devel , opae-tools, opae-tools-extra, opae-ase
+Requires:       opae-libs , opae-devel , opae-tools, opae-tools-extra
+%if %with_ase == "ON"
+Requires:       opae-ase
+%endif
 Source0:        @CPACK_PACKAGE_NAME@.tar.gz
 
 %description
@@ -18,7 +23,6 @@ Source0:        @CPACK_PACKAGE_NAME@.tar.gz
 %define _unpackaged_files_terminate_build 0
 %define _rpmdir %_topdir/RPMS
 %define _srcrpmdir %_topdir/SRPMS
-
 
 %package libs
 Summary:    Runtime libraries for OPAE applications
@@ -48,11 +52,13 @@ This package contains OPAE base tools binaries
 Summary:    OPAE extra tools binaries
 Group:      tools-extra
 Requires:   opae-libs , opae-devel
+Prefix:     @CPACK_RPM_RELOCATION_PATHS@
+
 
 %description tools-extra
 This package contains OPAE extra tools binaries
 
-
+%if %with_ase == "ON"
 %package ase
 Summary:    OPAE AFU Simulation Environment
 Group:      ase
@@ -60,6 +66,7 @@ Requires:   opae-libs , opae-devel
 
 %description ase
 This package contains OPAE AFU Simulation Environment
+%endif
 
 %package tests
 Summary:    OPAE tests package
@@ -146,9 +153,9 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/fpgaport
 @CMAKE_INSTALL_PREFIX@/bin/fpgametrics
 @CMAKE_INSTALL_PREFIX@/bin/fpgad
-/etc/opae/fpgad.cfg
-/etc/sysconfig/fpgad.conf
-/etc/systemd/system/fpgad.service
+@CPACK_RPM_RELOCATION_PATHS@/opae/fpgad.cfg
+@CPACK_RPM_RELOCATION_PATHS@/sysconfig/fpgad.conf
+@CPACK_RPM_RELOCATION_PATHS@/systemd/system/fpgad.service
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-api.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-xfpga.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-vc.so*
@@ -193,6 +200,7 @@ ldconfig
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/python/*
 @CMAKE_INSTALL_PREFIX@/share/opae/python/*
 
+%if %with_ase == "ON"
 %files ase
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/afu_sim_setup
@@ -202,6 +210,7 @@ ldconfig
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/ase/
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/ase/*
 @CMAKE_INSTALL_PREFIX@/share/opae/ase/*
+%endif
 
 %files tests
 %defattr(-,root,root,-)
