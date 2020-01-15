@@ -39,6 +39,7 @@
 
 // 0 on success
 int file_write_string(const char *path, const char *str, size_t len);
+int file_read_string(const char *path, char *str, size_t len);
 
 char *cstr_dup(const char *s);
 

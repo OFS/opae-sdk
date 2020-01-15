@@ -61,6 +61,30 @@ int file_write_string(const char *path, const char *str, size_t len)
 	return 0;
 }
 
+int file_read_string(const char *path, char *str, size_t len)
+{
+	FILE *fp;
+	size_t num;
+
+	fp = fopen(path, "r");
+	if (!fp)
+		return 1;
+
+	num = fread(str, 1, len, fp);
+
+	if (!num || ferror(fp)) {
+		fclose(fp);
+		return 1;
+	}
+
+	if (num >= len)
+		num = len - 1;
+	str[num] = '\0';
+
+	fclose(fp);
+
+	return 0;
+}
 char *cstr_dup(const char *s)
 {
 	size_t len = strlen(s);

@@ -29,6 +29,7 @@
 #endif // HAVE_CONFIG_H
 
 #include <glob.h>
+#include <poll.h>
 #include <json-c/json.h>
 
 #include "safe_string/safe_string.h"
@@ -43,6 +44,12 @@
 log_printf("fpgad-vc: " format, ##__VA_ARGS__)
 
 #define SYSFS_PATH_MAX 256
+#define FME_ERR_NAME "errors"
+#define SEU_ERR_NAME "seu_emr"
+#define CATFATAL_ERR_NAME "catfatal_errors"
+
+#define FPGA_SEU_ERR_BIT 20
+#define BMC_SEU_ERR_BIT 12
 
 #define TRIM_LOG_MODULUS 20
 #define LOG_MOD(__r, __fmt, ...) \
@@ -85,6 +92,7 @@ typedef struct _vc_config_sensor {
 	uint32_t flags;
 } vc_config_sensor;
 
+#define MAX_SENSORS_ENUM_RETRIES	5
 #define MAX_VC_SENSORS 128
 typedef struct _vc_device {
 	fpgad_monitored_device *base_device;
@@ -99,6 +107,17 @@ typedef struct _vc_device {
 	vc_config_sensor *config_sensors;
 	bool aer_disabled;
 	uint32_t previous_ecap_aer[2];
+	fpga_handle fpga_h;
+	fpga_event_handle event_h;
+	bool poll_seu_event;
+	int poll_timeout_msec;
+	struct pollfd event_fd;
+	bool fpga_seu_err;
+	bool bmc_seu_err;
+	char sbdf[16];
+	uint16_t device_id;
+#define VC_PF0_DEV_ID 0x0b30
+#define VC_VF0_DEV_ID 0x0b31
 } vc_device;
 
 #define BIT_SET_MASK(__n)  (1 << ((__n) % 8))
@@ -726,6 +745,10 @@ STATIC bool vc_monitor_sensors(vc_device *vc)
 	bool negative_trans = false;
 	bool res = true;
 
+	if (vc->num_sensors == 0) {		// no sensor found
+		return true;
+	}
+
 	for (i = 0 ; i < vc->num_sensors ; ++i) {
 		vc_sensor *s = &vc->sensors[i];
 
@@ -811,6 +834,129 @@ STATIC bool vc_monitor_sensors(vc_device *vc)
 	return res;
 }
 
+STATIC void vc_handle_err_event(vc_device *vc)
+{
+	fpgad_monitored_device *d = vc->base_device;
+	fpga_properties props = NULL;
+	uint32_t num_errors;
+	struct fpga_error_info errinfo;
+	uint16_t seg = 0;
+	uint8_t bus = 0;
+	uint8_t dev = 0;
+	uint8_t fn = 0;
+	int i;
+
+	if (fpgaGetProperties(d->token, &props) != FPGA_OK) {
+		LOG("failed to get FPGA properties.\n");
+		return;
+	}
+
+	if (fpgaPropertiesGetDeviceID(props, &vc->device_id) != FPGA_OK) {
+		LOG("failed to get device ID.\n");
+		fpgaDestroyProperties(&props);
+		return;
+	}
+
+	if ((fpgaPropertiesGetSegment(props, &seg) != FPGA_OK) ||
+	    (fpgaPropertiesGetBus(props, &bus) != FPGA_OK) ||
+	    (fpgaPropertiesGetDevice(props, &dev) != FPGA_OK) ||
+	    (fpgaPropertiesGetFunction(props, &fn) != FPGA_OK)) {
+		LOG("failed to get PCI attributes.\n");
+		fpgaDestroyProperties(&props);
+		return;
+	}
+
+	snprintf_s_iiii(vc->sbdf, 16, "%04x:%02x:%02x.%d",
+					(int)seg, (int)bus, (int)dev, (int)fn);
+
+	fpgaPropertiesGetNumErrors(props, &num_errors);
+	for (i = 0; i < (int)num_errors; i++) {
+		uint64_t error_value = 0;
+		fpgaGetErrorInfo(d->token, i, &errinfo);
+		fpgaReadError(d->token, i, &error_value);
+		if (error_value != 0) {
+			LOG("detect %s 0x%zx @ %s\n", errinfo.name, error_value, vc->sbdf);
+		}
+		if (!strcmp(errinfo.name, FME_ERR_NAME)) {
+			if (error_value & (1 << FPGA_SEU_ERR_BIT)) {
+				vc->fpga_seu_err = true;
+				LOG("SEU error occurred on fpga @ %s\n", vc->sbdf);
+			}
+		}
+		if (!strcmp(errinfo.name, CATFATAL_ERR_NAME)) {
+			if (error_value & (1 << BMC_SEU_ERR_BIT)) {
+				vc->bmc_seu_err = true;
+				LOG("SEU error occurred on bmc @ %s\n", vc->sbdf);
+			}
+		}
+	}
+	fpgaClearAllErrors(d->token);
+
+	fpgaDestroyProperties(&props);
+
+	if (vc->fpga_seu_err || vc->bmc_seu_err) {
+		opae_api_send_EVENT_ERROR(d);
+		vc->fpga_seu_err = false;
+		vc->bmc_seu_err = false;
+	}
+}
+
+STATIC void vc_register_err_event(vc_device *vc)
+{
+	fpgad_monitored_device *d = vc->base_device;
+	fpga_result ret = FPGA_OK;
+
+	vc->poll_seu_event = false;
+
+	ret = fpgaOpen(d->token, &vc->fpga_h, FPGA_OPEN_SHARED);
+	if (ret != FPGA_OK) {
+		LOG("failed to get FPGA handle from token.\n");
+		return;
+	}
+
+	ret = fpgaCreateEventHandle(&vc->event_h);
+	if (ret != FPGA_OK) {
+		LOG("failed to create event handle.\n");
+		goto out_close;
+	}
+
+	/* FME error interrupt vector is 6 */
+	ret = fpgaRegisterEvent(vc->fpga_h, FPGA_EVENT_ERROR, vc->event_h, 6);
+	if (ret != FPGA_OK) {
+		LOG("failed to register FPGA error event handle.\n");
+		goto out_destroy;
+	}
+
+	memset_s(&vc->event_fd, sizeof(struct pollfd), 0);
+	ret = fpgaGetOSObjectFromEventHandle(vc->event_h, &vc->event_fd.fd);
+	if (ret == FPGA_OK) {
+		vc->event_fd.events = POLLIN;
+		vc->poll_seu_event = true;
+		vc->fpga_seu_err = false;
+		vc->bmc_seu_err = false;
+		vc->poll_timeout_msec = d->config->poll_interval_usec / 1000;
+	} else {
+		LOG("failed to get event fd from event handle.\n");
+		goto out_unregister;
+	}
+
+	return;
+
+out_unregister:
+	fpgaUnregisterEvent(vc->fpga_h, FPGA_EVENT_ERROR, vc->event_h);
+out_destroy:
+	fpgaDestroyEventHandle(&vc->event_h);
+out_close:
+	fpgaClose(vc->fpga_h);
+}
+
+STATIC void vc_unregister_err_event(vc_device *vc)
+{
+	fpgaUnregisterEvent(vc->fpga_h, FPGA_EVENT_ERROR, vc->event_h);
+	fpgaDestroyEventHandle(&vc->event_h);
+	fpgaClose(vc->fpga_h);
+}
+
 STATIC int cool_down = 30;
 
 STATIC void *monitor_fme_vc_thread(void *arg)
@@ -824,9 +970,15 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 	uint8_t *save_state_last = NULL;
 
 	while (vc_threads_running) {
-
+		vc_register_err_event(vc);
+		vc_handle_err_event(vc);  // handle error occurred before running fpgad
 		while (vc_enum_sensors(vc) != FPGA_OK) {
 			LOG_MOD(enum_retries, "waiting to enumerate sensors.\n");
+			if (enum_retries > MAX_SENSORS_ENUM_RETRIES) {
+				LOG("no sensors are found.\n");
+				enum_retries = 0;
+				break;
+			}
 			if (!vc_threads_running)
 				return NULL;
 			sleep(1);
@@ -839,10 +991,28 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 		}
 
 		while (vc_monitor_sensors(vc)) {
-			usleep(d->config->poll_interval_usec);
+			if (vc->poll_seu_event) {
+				int poll_ret = poll(&vc->event_fd, 1, vc->poll_timeout_msec);
+				if (poll_ret > 0) {
+					LOG("error interrupt event received.\n");
+					uint64_t count = 0;
+					ssize_t bytes_read = read(vc->event_fd.fd, &count,
+											  sizeof(count));
+					if (bytes_read > 0) {
+						LOG("poll count = %zu.\n", count);
+					}
+
+					vc_handle_err_event(vc);
+				} else if (poll_ret < 0) {
+					LOG("poll error, errno = %s.\n", strerror(errno));
+				}
+			} else {
+				usleep(d->config->poll_interval_usec);
+			}
 
 			if (!vc_threads_running) {
 				vc_destroy_sensors(vc);
+				vc_unregister_err_event(vc);
 				return NULL;
 			}
 		}
@@ -851,7 +1021,7 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 		vc->state_last = NULL;
 
 		vc_destroy_sensors(vc);
-
+		vc_unregister_err_event(vc);
 	}
 
 	return NULL;
