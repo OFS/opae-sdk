@@ -27,6 +27,8 @@ if(BUILD_ASE)
   add_definitions(-DTARGET_ASE)
 endif()
 
+include(packaging)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_CONFIG_H -std=c++11")
 include_directories(
     ${OPAE_INCLUDE_DIR}
