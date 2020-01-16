@@ -29,13 +29,17 @@ def reverse_bits_in_file(ifile, ofile):
         if not ichunk:
             break
 
-        ochunk = ''
-        for b in ichunk:
-            ochunk += chr(bit_rev[ord(b)])
-        ofile.write(ochunk)
-
+        if isinstance(ichunk, str):
+            ochunk = ''
+            for b in ichunk:
+                ochunk += chr(bit_rev[ord(b)])
+            ofile.write(ochunk)
+        elif isinstance(ichunk, bytes):
+            ochunk = []
+            for b in ichunk:
+                ochunk.append(bit_rev[b])
+            ofile.write(bytes(ochunk))
     LOGGER.info("Finished")
-
 
 def main():
     parser = argparse.ArgumentParser()
