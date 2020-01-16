@@ -67,6 +67,22 @@ static int cleanup_size = 0;
 		cleanup[cleanup_size].fn = (destroy_f)func;                    \
 		cleanup[cleanup_size++].param = p;                             \
 	}
+
+typedef void (*free_f)(void *p);
+#define MAX_FREE 10
+struct {
+	free_f fn;
+	void *param;
+} freeup[MAX_FREE];
+
+static int free_size = 0;
+
+#define ADD_TO_FREE(func, p)                                            \
+	if (free_size < MAX_FREE) {                                     \
+		freeup[free_size].fn = (free_f)func;                    \
+		freeup[free_size++].param = p;                          \
+	}
+
 #define MAX_TOKENS 4
 #define MAX_GROUP_OBJECTS 32
 typedef struct {
@@ -291,7 +307,7 @@ int main(int argc, char *argv[])
 		metrics[i].token = tokens[i];
 		add_clock(&metrics[i]);
 		metrics[i].groups = calloc(3, sizeof(metric_group));
-		ADD_TO_CLEANUP(free, metrics[i].groups);
+		ADD_TO_FREE(free, metrics[i].groups);
 		metrics[i].count = 3;
 		metric_group *g_cache = init_metric_group(
 			tokens[i], "*perf/cache", &metrics[i].groups[0]);
@@ -344,6 +360,10 @@ out_free:
 		    != FPGA_OK) {
 			print_err("Error destroying structure: ", res);
 		}
+	}
+
+	while (free_size-- > 0) {
+		freeup[free_size].fn(freeup[free_size].param);
 	}
 
 	if (metrics)
