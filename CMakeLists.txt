@@ -173,7 +173,7 @@ endif()
 option(BUILD_PYTHON_DIST "Enable building of Python source and binary distribution" OFF)
 mark_as_advanced(BUILD_PYTHON_DIST)
 
-add_subdirectory(platforms)
+#add_subdirectory(platforms)
 add_subdirectory(tools)
 
 option(BUILD_ASE "Enable ASE compilation" ON)
