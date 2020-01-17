@@ -41,6 +41,13 @@ tar --transform='s/opae-sdk/opae/' \
   --exclude=tools/extra/pyfpgadiag \
   --exclude=tools/extra/pypackager \
   --exclude=tools/utilities \
+  --exclude=common/include/opae/cxx/.clang-format \
+  --exclude=libopae/.clang-format \
+  --exclude=libopaecxx/.clang-format \
+  --exclude=pyopae/.clang-format \
+  --exclude=testing/.clang-format \
+  --exclude=testing/xfpga/.clang-format \
+  --exclude=tools/base/argsfilter/.clang-format \
   -z -c -f opae.tar.gz opae-sdk
 
 mv opae.tar.gz ~/rpmbuild/SOURCES/

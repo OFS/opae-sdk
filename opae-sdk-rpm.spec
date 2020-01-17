@@ -2,13 +2,12 @@ Summary:        Open Programmable Acceleration Engine
 Name:           opae
 Version:        1.4.0
 Release:        1
-License:        BSD 3.0
+License:        BSD
 Group:          opae
 Vendor:         Intel Corporation
 Requires:       opae-libs, opae-devel, opae-tools, opae-tools-extra
 URL:            https://github.com/OPAE/%{name}-sdk
 Source0:        https://github.com/OPAE/%{name}/%{name}.tar.gz
-
 ExclusiveArch:  %{ix86} x86_64
 
 BuildRequires:  gcc, gcc-c++
@@ -25,7 +24,8 @@ BuildRequires:  doxygen
 Requires:       python
 
 %description
-This package contains the Open Programmable Acceleration Engine (OPAE) components.
+Open Programmable Acceleration Engine (OPAE)
+
 
 %package libs
 Summary:    Runtime libraries for OPAE applications
@@ -33,7 +33,7 @@ Group:      libs
 Requires:   uuid, json-c
 
 %description libs
-This package contains runtime libraries that support OPAE applications.
+OPAE runtime libraries
 
 
 %package devel
@@ -42,7 +42,7 @@ Group:      devel
 Requires:   opae-libs, libuuid-devel, json-c
 
 %description devel
-This package contains OPAE headers, sample source, and documentation.
+OPAE headers, sample source, and documentation
 
 
 %package tools
@@ -51,7 +51,7 @@ Group:      tools
 Requires:   opae-libs, opae-devel
 
 %description tools
-This package contains OPAE base tools binaries.
+OPAE Base Tools binaries
 
 
 %package tools-extra
@@ -60,7 +60,7 @@ Group:      tools-extra
 Requires:   opae-libs, opae-devel
 
 %description tools-extra
-This package contains OPAE extra tools binaries.
+OPAE Extra Tools binaries
 
 
 %package tests
@@ -69,7 +69,7 @@ Group:      tests
 Requires:   opae-libs
 
 %description tests
-This package contains OPAE tests.
+OPAE tests
 
 
 %prep
@@ -109,7 +109,7 @@ ldconfig
 %files libs
 %defattr(-,root,root,-)
 %{_libdir}/libopae-c.so*
-%{_libdir}/libopae-cxx*
+%{_libdir}/libopae-cxx-core.so*
 %{_libdir}/libxfpga.so*
 %{_libdir}/libbmc.so*
 %{_libdir}/libmodbmc.so*
@@ -137,9 +137,9 @@ ldconfig
 %{_bindir}/fpgainfo*
 %{_bindir}/fpgametrics*
 %{_bindir}/fpgad*
-%{_sysconfdir}/opae/fpgad.cfg*
-%{_sysconfdir}/sysconfig/fpgad.conf*
-%{_sysconfdir}/systemd/system/fpgad.service
+%config %{_sysconfdir}/opae/fpgad.cfg*
+%config %{_sysconfdir}/sysconfig/fpgad.conf*
+%config %{_sysconfdir}/systemd/system/fpgad.service
 %{_libdir}/libfpgad-api.so*
 %{_libdir}/libfpgad-xfpga.so*
 %{_libdir}/libfpgad-vc.so*
@@ -180,7 +180,7 @@ ldconfig
 %{_bindir}/hello_events
 
 %changelog
-* Tue Dec 17 2019 Korde Nakul <nakul.korde@intel.com> 1.4.0
+* Tue Dec 17 2019 Korde Nakul <nakul.korde@intel.com> 1.4.0-1
 - Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set2.
 - Increased test cases and test coverage
 - Various bug fixes

@@ -87,6 +87,9 @@ find_package(PythonLibs ${OPAE_PYTHON_VERSION})
 ############################################################################
 ## Other setup and dependencies ############################################
 ############################################################################
+option(OPAE_INSTALL_RPATH "Enable to create RPATH during install" OFF)
+mark_as_advanced(OPAE_INSTALL_RPATH)
+
 include(compiler_config)
 include(libraries_config)
 include(fpga_functions)
@@ -214,10 +217,12 @@ endif()
 ############################################################################
 
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
-set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${OPAE_LIB_INSTALL_DIR}")
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+if(OPAE_INSTALL_RPATH)
+  set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+  set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${OPAE_LIB_INSTALL_DIR}")
+  set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+endif()
 ############################################################################
 ## Packaging ###############################################################
 ############################################################################
