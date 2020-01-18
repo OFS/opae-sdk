@@ -48,7 +48,6 @@ OPAE headers, sample source, and documentation
 %package tools
 Summary:    OPAE base tools binaries
 Group:      tools
-Requires:   opae-libs, opae-devel
 
 %description tools
 OPAE Base Tools binaries
@@ -57,7 +56,6 @@ OPAE Base Tools binaries
 %package tools-extra
 Summary:    OPAE extra tools binaries
 Group:      tools-extra
-Requires:   opae-libs, opae-devel
 
 %description tools-extra
 OPAE Extra Tools binaries
@@ -66,7 +64,6 @@ OPAE Extra Tools binaries
 %package tests
 Summary:    OPAE tests package
 Group:      tests
-Requires:   opae-libs
 
 %description tests
 OPAE tests
@@ -137,9 +134,9 @@ ldconfig
 %{_bindir}/fpgainfo*
 %{_bindir}/fpgametrics*
 %{_bindir}/fpgad*
-%config %{_sysconfdir}/opae/fpgad.cfg*
-%config %{_sysconfdir}/sysconfig/fpgad.conf*
-%config %{_sysconfdir}/systemd/system/fpgad.service
+%config(noreplace) %{_sysconfdir}/opae/fpgad.cfg*
+%config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
+%config(noreplace) %{_sysconfdir}/systemd/system/fpgad.service
 %{_libdir}/libfpgad-api.so*
 %{_libdir}/libfpgad-xfpga.so*
 %{_libdir}/libfpgad-vc.so*
