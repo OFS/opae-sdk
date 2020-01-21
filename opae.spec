@@ -1,14 +1,13 @@
-Summary:        Open Programmable Acceleration Engine
+Summary:        Open Programmable Acceleration Engine (OPAE)
 Name:           opae
 Version:        1.4.0
 Release:        1
 License:        BSD
 Group:          opae
 Vendor:         Intel Corporation
-Requires:       opae-libs, opae-devel, opae-tools, opae-tools-extra
+Requires:       uuid, json-c, python
 URL:            https://github.com/OPAE/%{name}-sdk
 Source0:        https://github.com/OPAE/%{name}/%{name}.tar.gz
-ExclusiveArch:  %{ix86} x86_64
 
 BuildRequires:  gcc, gcc-c++
 BuildRequires:  cmake
@@ -17,29 +16,17 @@ BuildRequires:  json-c-devel
 BuildRequires:  libuuid-devel
 BuildRequires:  rpm-build
 BuildRequires:  hwloc-devel
-BuildRequires:  gtest-devel
 BuildRequires:  python-sphinx
 BuildRequires:  doxygen
 
-Requires:       python
-
 %description
-Open Programmable Acceleration Engine (OPAE)
-
-
-%package libs
-Summary:    Runtime libraries for OPAE applications
-Group:      libs
-Requires:   uuid, json-c
-
-%description libs
-OPAE runtime libraries
+Runtime libraries for OPAE applications
 
 
 %package devel
 Summary:    OPAE headers, sample source and documentation
 Group:      devel
-Requires:   opae-libs, libuuid-devel, json-c
+Requires:   libuuid-devel
 
 %description devel
 OPAE headers, sample source, and documentation
@@ -61,12 +48,12 @@ Group:      tools-extra
 OPAE Extra Tools binaries
 
 
-%package tests
-Summary:    OPAE tests package
-Group:      tests
+%package samples
+Summary:    OPAE samples apps
+Group:      samples
 
-%description tests
-OPAE tests
+%description samples
+OPAE samples
 
 
 %prep
@@ -76,10 +63,12 @@ OPAE tests
 rm -rf mybuild
 mkdir mybuild
 cd mybuild
-%cmake .. -DBUILD_ASE=OFF
+%cmake .. -DBUILD_ASE=OFF -DOPAE_INSTALL_RPATH=OFF
 make -j
 
 %install
+mkdir -p %{buildroot}/%{_datadir}/opae
+cp RELEASE_NOTES.md %{buildroot}/%{_datadir}/opae/RELEASE_NOTES.md
 cd mybuild
 make DESTDIR=%{buildroot} install
 mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/
@@ -93,18 +82,18 @@ echo "" > %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 ldconfig
 
 %postun
+ldconfig
 
 %pre
 
 %preun
 rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf 
-ldconfig
 
 %files
 %defattr(-,root,root,-)
-
-%files libs
-%defattr(-,root,root,-)
+%dir %{_datadir}/opae
+%doc %{_datadir}/opae/RELEASE_NOTES.md
+%{_libdir}/libsafestr.a
 %{_libdir}/libopae-c.so*
 %{_libdir}/libopae-cxx-core.so*
 %{_libdir}/libxfpga.so*
@@ -116,12 +105,10 @@ ldconfig
 
 %files devel
 %defattr(-,root,root,-)
-%{_bindir}/hello_fpga
 %dir %{_includedir}/opae
 %{_includedir}/opae/*
 %dir %{_includedir}/safe_string
 %{_includedir}/safe_string/safe_string.h
-%{_libdir}/libsafestr.a
 %dir %{_datadir}/opae
 %dir %{_datadir}/opae/*
 %{_datadir}/opae/*
@@ -171,10 +158,11 @@ ldconfig
 %{_libdir}/libopae-c++-utils.so*
 %dir %{_datadir}/opae
 
-%files tests
+%files samples
 %defattr(-,root,root,-)
 %{_bindir}/hello_fpga
 %{_bindir}/hello_events
+
 
 %changelog
 * Tue Dec 17 2019 Korde Nakul <nakul.korde@intel.com> 1.4.0-1

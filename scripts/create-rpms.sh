@@ -23,7 +23,7 @@ tar --transform='s/opae-sdk/opae/' \
   --exclude=.github \
   --exclude=.travis.yml \
   --exclude=opae.spec.in \
-  --exclude=opae-sdk-rpm.spec \
+  --exclude=opae.spec \
   --exclude=libopae/plugins/ase \
   --exclude=platforms \
   --exclude=samples/base \
@@ -51,12 +51,14 @@ tar --transform='s/opae-sdk/opae/' \
   -z -c -f opae.tar.gz opae-sdk
 
 mv opae.tar.gz ~/rpmbuild/SOURCES/
-cp "${BUILD_DIR}/../opae-sdk-rpm.spec" ~/rpmbuild/SPECS/
+cp "${BUILD_DIR}/../opae.spec" ~/rpmbuild/SPECS/
 
 cd ~/rpmbuild/SPECS/
 
 #generate RPMS
-rpmbuild -ba opae-sdk-rpm.spec
+rpmbuild -ba opae.spec
+rpmbuild -bs opae.spec
 
 #copy RPMS to build directory
 cp ~/rpmbuild/RPMS/x86_64/opae-* $BUILD_DIR/
+cp ~/rpmbuild/SRPMS/opae-*.src.rpm $BUILD_DIR/
