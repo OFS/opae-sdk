@@ -41,6 +41,7 @@ def reverse_bits_in_file(ifile, ofile):
             ofile.write(bytes(ochunk))
     LOGGER.info("Finished")
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('ifile', type=argparse.FileType('rb'),
