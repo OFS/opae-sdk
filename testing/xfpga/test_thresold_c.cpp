@@ -1,4 +1,4 @@
-// Copyright(c) 2019, Intel Corporation
+// Copyright(c) 2019-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -194,7 +194,7 @@ TEST_P(metrics_bmc_threshold_c_p, metrics_threshold_4) {
   EXPECT_NE(get_bmc_threshold_info(handle_, NULL, NULL), FPGA_OK);
   EXPECT_NE(get_bmc_threshold_info(NULL, NULL, &num_thresholds), FPGA_OK);
 
-  _handle->bmc_handle = dlopen("libmodbmc.so", RTLD_LAZY | RTLD_LOCAL);
+  _handle->bmc_handle = metrics_load_bmc_lib();
   ASSERT_NE(_handle->bmc_handle, (void *)nullptr);
 
   EXPECT_EQ(get_bmc_threshold_info(handle_, NULL, &num_thresholds), FPGA_OK);

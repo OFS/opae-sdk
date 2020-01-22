@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2019, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -36,7 +36,6 @@ int xfpga_plugin_finalize(void);
 bool xfpga_plugin_supports_host(const char *hostname);
 int opae_plugin_configure(opae_api_adapter_table *adapter,
 	const char *jsonConfig);
-void *opae_plugin_mgr_find_plugin(const char *lib_path);
 }
 
 #include <opae/enum.h>
@@ -99,7 +98,7 @@ protected:
 	{
 		void *dl_handle;
 		opae_api_adapter_table *adapter;
-    dl_handle = opae_plugin_mgr_find_plugin(lib_path);
+    dl_handle = dlopen(lib_path, RTLD_LAZY | RTLD_LOCAL);
 		if (!dl_handle) {
 			char *err = dlerror();
 			OPAE_ERR("failed to load \"%s\" %s", lib_path, err ? err : "");
