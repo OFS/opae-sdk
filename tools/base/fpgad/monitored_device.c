@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2019, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -102,6 +102,31 @@ allocate_monitored_device(struct fpgad_config *config,
 	d->bitstr = bitstr;
 
 	return d;
+}
+
+STATIC void *mon_find_plugin(const char *libpath)
+{
+	char plugin_path[PATH_MAX];
+	const char *search_paths[] = {
+		"/usr/lib64/opae/",
+		"/usr/lib/opae/",
+		""
+	};
+	unsigned i;
+	void *dl_handle;
+
+	for (i = 0 ;
+		i < sizeof(search_paths) / sizeof(search_paths[0]) ;
+		++i) {
+		snprintf_s_ss(plugin_path, sizeof(plugin_path),
+				"%s%s", search_paths[i], libpath);
+
+		dl_handle = dlopen(plugin_path, RTLD_LAZY|RTLD_LOCAL);
+		if (dl_handle)
+			return dl_handle;
+	}
+
+	return NULL;
 }
 
 STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
@@ -231,8 +256,8 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 			} else {
 				// Plugin hasn't been loaded.
 				// Load it now.
-				d->dl_handle = dlopen(d->library_path,
-							RTLD_LAZY|RTLD_LOCAL);
+				d->dl_handle =
+					mon_find_plugin(d->library_path);
 				if (!d->dl_handle) {
 					char *err = dlerror();
 					LOG("failed to load \"%s\" %s\n",
