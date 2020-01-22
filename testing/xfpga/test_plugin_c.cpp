@@ -98,7 +98,7 @@ protected:
 	{
 		void *dl_handle;
 		opae_api_adapter_table *adapter;
-    dl_handle = dlopen(lib_path, RTLD_LAZY | RTLD_LOCAL);
+		dl_handle = dlopen(lib_path, RTLD_LAZY | RTLD_LOCAL);
 		if (!dl_handle) {
 			char *err = dlerror();
 			OPAE_ERR("failed to load \"%s\" %s", lib_path, err ? err : "");
