@@ -139,8 +139,8 @@ STATIC void *opae_plugin_mgr_find_plugin(const char *lib_path)
 {
 	char plugin_path[PATH_MAX];
 	const char *search_paths[] = {
-		"/usr/lib64/",
-		"/usr/lib/",
+		"/usr/lib64/opae/",
+		"/usr/lib/opae/",
 		""
 	};
 	unsigned i;
