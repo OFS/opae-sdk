@@ -3,7 +3,7 @@ Name:           opae
 Version:        1.4.0
 Release:        1
 License:        BSD
-Group:          opae
+Group:          Applications/Engineering
 Vendor:         Intel Corporation
 Requires:       uuid, json-c, python
 URL:            https://github.com/OPAE/%{name}-sdk
@@ -24,8 +24,8 @@ Runtime libraries for OPAE applications
 
 
 %package devel
-Summary:    OPAE headers, sample source and documentation
-Group:      devel
+Summary:    OPAE headers, sample source, and documentation
+Group:      Development/Libraries
 Requires:   libuuid-devel
 
 %description devel
@@ -34,23 +34,35 @@ OPAE headers, sample source, and documentation
 
 %package tools
 Summary:    OPAE base tools binaries
-Group:      tools
+Group:      Applications/Engineering
 
 %description tools
 OPAE Base Tools binaries
 
+%post tools
+ldconfig
+
+%postun tools
+ldconfig
+
 
 %package tools-extra
 Summary:    OPAE extra tools binaries
-Group:      tools-extra
+Group:      Applications/Engineering
 
 %description tools-extra
 OPAE Extra Tools binaries
 
+%post tools-extra
+ldconfig
+
+%postun tools-extra
+ldconfig
+
 
 %package samples
 Summary:    OPAE samples apps
-Group:      samples
+Group:      Applications/Engineering
 
 %description samples
 OPAE samples
@@ -67,8 +79,31 @@ cd mybuild
 make -j
 
 %install
-mkdir -p %{buildroot}/%{_datadir}/opae
-cp RELEASE_NOTES.md %{buildroot}/%{_datadir}/opae/RELEASE_NOTES.md
+mkdir -p %{buildroot}%{_datadir}/opae
+cp RELEASE_NOTES.md %{buildroot}%{_datadir}/opae/RELEASE_NOTES.md
+
+mkdir -p %{buildroot}%{_usr}/src/opae/cmake/modules
+for s in FindDBus.cmake \
+         FindGLIB.cmake \
+         FindOPAE.cmake \
+         FindQuartus.cmake \
+         FindQuesta.cmake \
+         FindRT.cmake \
+         FindUUID.cmake \
+         FindVerilator.cmake \
+         Findjson-c.cmake \
+         cmake_useful.cmake \
+         compiler_config.cmake \
+         libraries_config.cmake
+do
+  cp "cmake/modules/${s}" %{buildroot}%{_usr}/src/opae/cmake/modules
+done
+
+mkdir -p %{buildroot}%{_usr}/src/opae/samples
+cp samples/hello_fpga.c %{buildroot}%{_usr}/src/opae/samples/
+cp samples/hello_events.c %{buildroot}%{_usr}/src/opae/samples/
+cp samples/object_api.c %{buildroot}%{_usr}/src/opae/samples/
+
 cd mybuild
 make DESTDIR=%{buildroot} install
 mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/
@@ -109,11 +144,11 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_includedir}/opae/*
 %dir %{_includedir}/safe_string
 %{_includedir}/safe_string/safe_string.h
-%dir %{_datadir}/opae
-%dir %{_datadir}/opae/*
-%{_datadir}/opae/*
 %dir %{_usr}/src/opae
-%{_usr}/src/opae/*
+%{_usr}/src/opae/samples/hello_fpga.c
+%{_usr}/src/opae/samples/hello_events.c
+%{_usr}/src/opae/samples/object_api.c
+%{_usr}/src/opae/cmake/modules/*
 
 %files tools
 %defattr(-,root,root,-)
