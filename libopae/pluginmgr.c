@@ -148,7 +148,7 @@ STATIC void *opae_plugin_mgr_find_plugin(const char *lib_path)
 
 	for (i = 0 ;
 		i < sizeof(search_paths) / sizeof(search_paths[0]) ; ++i) {
-		
+
 		snprintf_s_ss(plugin_path, sizeof(plugin_path),
 				"%s%s", search_paths[i], lib_path);
 
