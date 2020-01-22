@@ -3,7 +3,7 @@ Name:           opae
 Version:        1.4.0
 Release:        1
 License:        BSD
-Group:          Applications/Engineering
+Group:          Development/Libraries
 Vendor:         Intel Corporation
 Requires:       uuid, json-c, python
 URL:            https://github.com/OPAE/%{name}-sdk
@@ -34,7 +34,7 @@ OPAE headers, sample source, and documentation
 
 %package tools
 Summary:    OPAE base tools binaries
-Group:      Applications/Engineering
+Group:      Development/Libraries
 
 %description tools
 OPAE Base Tools binaries
@@ -48,7 +48,7 @@ ldconfig
 
 %package tools-extra
 Summary:    OPAE extra tools binaries
-Group:      Applications/Engineering
+Group:      Development/Libraries
 
 %description tools-extra
 OPAE Extra Tools binaries
@@ -62,7 +62,7 @@ ldconfig
 
 %package samples
 Summary:    OPAE samples apps
-Group:      Applications/Engineering
+Group:      Development/Libraries
 
 %description samples
 OPAE samples
@@ -137,7 +137,6 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %defattr(-,root,root,-)
 %dir %{_datadir}/opae
 %doc %{_datadir}/opae/RELEASE_NOTES.md
-%{_libdir}/libsafestr.a
 %{_libdir}/libopae-c.so*
 %{_libdir}/libopae-cxx-core.so*
 %dir %{_libdir}/opae
@@ -154,6 +153,7 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_includedir}/opae/*
 %dir %{_includedir}/safe_string
 %{_includedir}/safe_string/safe_string.h
+%{_libdir}/libsafestr.a
 %dir %{_usr}/src/opae
 %{_usr}/src/opae/samples/hello_fpga.c
 %{_usr}/src/opae/samples/hello_events.c
