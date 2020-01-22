@@ -109,6 +109,15 @@ make DESTDIR=%{buildroot} install
 mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/
 mv %{buildroot}%{_usr}/lib/systemd/system/fpgad.service %{buildroot}%{_sysconfdir}/systemd/system/fpgad.service
 
+mkdir -p %{buildroot}%{_libdir}/opae/
+for l in libxfpga.so \
+         libmodbmc.so \
+         libfpgad-xfpga.so \
+         libfpgad-vc.so
+do
+  mv "%{buildroot}%{_libdir}/${l}" %{buildroot}%{_libdir}/opae/
+done
+
 %clean
 
 %post
@@ -131,9 +140,10 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_libdir}/libsafestr.a
 %{_libdir}/libopae-c.so*
 %{_libdir}/libopae-cxx-core.so*
-%{_libdir}/libxfpga.so*
+%dir %{_libdir}/opae
+%{_libdir}/opae/libxfpga.so*
 %{_libdir}/libbmc.so*
-%{_libdir}/libmodbmc.so*
+%{_libdir}/opae/libmodbmc.so*
 %{_libdir}/libbitstream.so*
 %{_libdir}/libboard_rc.so*
 %{_libdir}/libboard_vc.so*
@@ -160,8 +170,9 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
 %config(noreplace) %{_sysconfdir}/systemd/system/fpgad.service
 %{_libdir}/libfpgad-api.so*
-%{_libdir}/libfpgad-xfpga.so*
-%{_libdir}/libfpgad-vc.so*
+%dir %{_libdir}/opae
+%{_libdir}/opae/libfpgad-xfpga.so*
+%{_libdir}/opae/libfpgad-vc.so*
 
 %files tools-extra
 %defattr(-,root,root,-)
