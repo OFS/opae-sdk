@@ -109,15 +109,6 @@ make DESTDIR=%{buildroot} install
 mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/
 mv %{buildroot}%{_usr}/lib/systemd/system/fpgad.service %{buildroot}%{_sysconfdir}/systemd/system/fpgad.service
 
-mkdir -p %{buildroot}%{_libdir}/opae/
-for l in libxfpga.so \
-         libmodbmc.so \
-         libfpgad-xfpga.so \
-         libfpgad-vc.so
-do
-  mv "%{buildroot}%{_libdir}/${l}" %{buildroot}%{_libdir}/opae/
-done
-
 %clean
 
 %post

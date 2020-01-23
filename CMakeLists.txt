@@ -283,8 +283,10 @@ set(CPACK_COMPONENTS_ALL
 	safestrlib
 	safestrheaders
 	opaeclib
+	opaeclib_xfpga
 	opaecxxcorelib
 	opaetoolslibs
+	metricsmodbmc
 	opaecxxutils
 	opaecxxlib
 	opaecxxnlb
@@ -377,8 +379,10 @@ define_pkg(devel
   define_pkg(libs
   COMPONENTS
   opaeclib
+  opaeclib_xfpga
   opaecxxcorelib
   opaetoolslibs
+  metricsmodbmc
   GROUP "libs"
   DISPLAY_NAME "opae-libs"
   DESCRIPTION "OPAE runtime"

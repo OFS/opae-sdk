@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -120,8 +120,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
 endif(CMAKE_BUILD_TYPE STREQUAL "Release")
 
 install(TARGETS xfpga
-  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
-  COMPONENT opaeclib)
+  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}/opae
+  COMPONENT opaeclib_xfpga)
 
 #get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
 #if ("${LIB64}" STREQUAL "TRUE")

@@ -1,4 +1,4 @@
-## Copyright(c) 2018-2019, Intel Corporation
+## Copyright(c) 2018-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -63,5 +63,5 @@ install(TARGETS bmc
     COMPONENT opaetoolslibs)
 
 install(TARGETS modbmc
-    LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
-    COMPONENT opaetoolslibs)
+    LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}/opae
+    COMPONENT metricsmodbmc)
