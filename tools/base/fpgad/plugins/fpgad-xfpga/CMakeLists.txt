@@ -1,4 +1,4 @@
-## Copyright(c) 2018-2019, Intel Corporation
+## Copyright(c) 2018-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -60,5 +60,5 @@ target_link_libraries(fpgad-xfpga
 set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
 
 install(TARGETS fpgad-xfpga
-  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
+  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}/opae
   COMPONENT toolfpgad_xfpga)

@@ -76,16 +76,18 @@ function(fpga_target_link_libraries)
 endfunction(fpga_target_link_libraries)
 
 
-get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
+get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
 if ("${LIB64}" STREQUAL "TRUE")
     set(FPGA_FUNCTIONS_LIB_DIR "lib64")
 else()
     set(FPGA_FUNCTIONS_LIB_DIR "lib")
-endif() 
+endif()
 
 macro(set_install_rpath target_name)
+  if(OPAE_INSTALL_RPATH)
     set_target_properties(${target_name} PROPERTIES INSTALL_RPATH "\$ORIGIN/../${FPGA_FUNCTIONS_LIB_DIR}"
                                                     INSTALL_RPATH_USE_LINK_PATH TRUE
                                                     SKIP_BUILD_RPATH FALSE
                                                     BUILD_WITH_INSTALL_RPATH FALSE)
+  endif()
 endmacro(set_install_rpath target_name)

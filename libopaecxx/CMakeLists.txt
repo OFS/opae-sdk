@@ -60,6 +60,10 @@ set(OPAECXXCORE_SRC src/properties.cpp
 add_library(opae-cxx-core SHARED ${OPAECXXCORE_SRC})
 target_link_libraries(opae-cxx-core uuid)
 
+set_target_properties(opae-cxx-core PROPERTIES
+  VERSION ${INTEL_FPGA_API_VERSION}
+  SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
+
 add_executable(hello_cxxcore samples/hello_fpga-1.cpp)
 target_link_libraries(hello_cxxcore opae-c ${CMAKE_THREAD_LIBS_INIT} opae-cxx-core )
 

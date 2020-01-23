@@ -23,7 +23,7 @@ tar --transform='s/opae-sdk/opae/' \
   --exclude=.github \
   --exclude=.travis.yml \
   --exclude=opae.spec.in \
-  --exclude=opae-sdk-rpm.spec \
+  --exclude=opae.spec \
   --exclude=libopae/plugins/ase \
   --exclude=platforms \
   --exclude=samples/base \
@@ -41,15 +41,24 @@ tar --transform='s/opae-sdk/opae/' \
   --exclude=tools/extra/pyfpgadiag \
   --exclude=tools/extra/pypackager \
   --exclude=tools/utilities \
+  --exclude=common/include/opae/cxx/.clang-format \
+  --exclude=libopae/.clang-format \
+  --exclude=libopaecxx/.clang-format \
+  --exclude=pyopae/.clang-format \
+  --exclude=testing/.clang-format \
+  --exclude=testing/xfpga/.clang-format \
+  --exclude=tools/base/argsfilter/.clang-format \
   -z -c -f opae.tar.gz opae-sdk
 
 mv opae.tar.gz ~/rpmbuild/SOURCES/
-cp "${BUILD_DIR}/../opae-sdk-rpm.spec" ~/rpmbuild/SPECS/
+cp "${BUILD_DIR}/../opae.spec" ~/rpmbuild/SPECS/
 
 cd ~/rpmbuild/SPECS/
 
 #generate RPMS
-rpmbuild -ba opae-sdk-rpm.spec
+rpmbuild -ba opae.spec
+rpmbuild -bs opae.spec
 
 #copy RPMS to build directory
 cp ~/rpmbuild/RPMS/x86_64/opae-* $BUILD_DIR/
+cp ~/rpmbuild/SRPMS/opae-*.src.rpm $BUILD_DIR/
