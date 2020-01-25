@@ -64,7 +64,16 @@ cd ~/rpmbuild/SPECS/
 
 #generate RPMS
 rpmbuild -ba opae.spec
+if [ $? -eq 1 ]; then
+	echo "building rpm failed.. exiting"
+	exit 1
+fi
+
 rpmbuild -bs opae.spec
+if [ $? -eq 1 ]; then
+	echo "building srpm failed.. exiting"
+	exit 1
+fi
 
 #copy RPMS to build directory
 cp ~/rpmbuild/RPMS/x86_64/opae-* $BUILD_DIR/
