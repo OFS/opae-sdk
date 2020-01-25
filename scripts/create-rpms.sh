@@ -7,6 +7,13 @@ if [ $? -eq 1 ]; then
 	exit 1
 fi
 
+#check if rpmdevtools is installed
+yum list installed rpmdevtools
+if [ $? -eq 1 ]; then
+	echo "'rpmdevtools' package not installed.. exiting"
+	exit 1
+fi
+
 rm -rf ~/rpmbuild
 rpmdev-setuptree
 
