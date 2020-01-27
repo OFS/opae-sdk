@@ -103,7 +103,7 @@ def main(args):
             mode = getattr(sys.modules.get(module),
                            '{}Mode'.format(name.capitalize()))()
             print "Running mode: {}".format(mode.name)
-            ret += mode.run(None, hex(bdf['bus'])[2:],
+            ret += mode.run(None, bdf,
                             bist_common.VCP_ID, afu_id)
     else:
         gbs_paths = args.gbs_paths

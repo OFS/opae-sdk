@@ -47,9 +47,9 @@ class DmaMode(bc.BistMode):
             {0:
              {'fpga_dma_test': ' -s 1073741824 -p 1048576 -r mtom'},
              bc.VCP_ID:
-             {'fpga_dma_test': ' -s 1073741824 -p 1048576 -r mtom',
-              'fpga_dma_vc_test': '0x0b30'}
+             {'fpga_dma_vc_test': '0x0b30'}
              }
+
 
     def run_cmd(self, cmd):
         ret = 0
@@ -71,6 +71,7 @@ class DmaMode(bc.BistMode):
             return 1
 
         ret = 0
+        self.dev_id = bd_id
         # Pick the set of tests to run based on bd_id
         for func, param in self.executables[bd_id].items():
             if bd_id in dma_list:
