@@ -328,9 +328,8 @@ fpga_result bmcThresholdsTripped(bmc_values_handle values,
 		}
 
 		rets[index].sensor_number = i;
-		rets[index].type = SDR_SENSOR_IS_POWER(&sdr->body)
-					   ? BMC_POWER
-					   : BMC_THERMAL;
+		rets[index].sensor_type = SDR_SENSOR_IS_POWER(&sdr->body)
+			? BMC_POWER : BMC_THERMAL;
 		rets[index].which_thresholds = indicators;
 		index++;
 	}
@@ -472,7 +471,7 @@ fpga_result bmcGetSDRDetails(bmc_values_handle values, uint32_t sensor_number,
 	this_val = vals->values[sensor_number];
 
 	details->sensor_number = sensor_number;
-	details->type = this_val->sensor_type;
+	details->sensor_type = this_val->sensor_type;
 	details->name = this_val->name;
 	details->units = this_val->units;
 	details->M = this_val->M;

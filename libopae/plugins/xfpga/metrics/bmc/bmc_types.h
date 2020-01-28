@@ -74,7 +74,7 @@ typedef enum {
 
 typedef struct {
 	uint32_t sensor_number;
-	BMC_SENSOR_TYPE type;
+	BMC_SENSOR_TYPE sensor_type;
 	uint32_t which_thresholds; // bit vector
 } tripped_thresholds;
 
@@ -94,7 +94,7 @@ typedef struct _thresholds {
 
 typedef struct _sdr_details {
 	uint32_t sensor_number;
-	BMC_SENSOR_TYPE type;
+	BMC_SENSOR_TYPE sensor_type;
 	char *name;
 	wchar_t *units;
 	double M;
