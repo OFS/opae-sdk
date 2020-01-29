@@ -50,7 +50,6 @@ class DmaMode(bc.BistMode):
              {'fpga_dma_vc_test': '0x0b30'}
              }
 
-
     def run_cmd(self, cmd):
         ret = 0
         try:

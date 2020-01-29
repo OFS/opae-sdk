@@ -34,10 +34,11 @@ import sys
 # TODO: Use AFU IDs vs. names of AFUs
 BIST_MODES = ['bist_afu', 'dma_afu', 'nlb_mode_3']
 REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf', 'fpgadiag', 'fpga_dma_test',
-           'fpga_dma_vc_test', 'bist_app']
+            'fpga_dma_vc_test', 'bist_app']
 BDF_PATTERN = r'{:02x}:{:02x}.{:x}'
 VCP_ID = 0x0b30
 DCP_ID = 0x0b2b
+
 
 def find_exec(cmd, paths):
     for p in paths:
