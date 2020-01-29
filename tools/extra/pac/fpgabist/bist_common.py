@@ -34,10 +34,10 @@ import sys
 # TODO: Use AFU IDs vs. names of AFUs
 BIST_MODES = ['bist_afu', 'dma_afu', 'nlb_mode_3']
 REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf', 'fpgadiag', 'fpga_dma_test',
-            'fpga_dma_vc_test', 'bist_app']
+           'fpga_dma_vc_test', 'bist_app']
 BDF_PATTERN = r'{:02x}:{:02x}.{:x}'
 VCP_ID = 0x0b30
-
+DCP_ID = 0x0b2b
 
 def find_exec(cmd, paths):
     for p in paths:
@@ -130,7 +130,7 @@ def load_gbs(gbs_file, bdf):
     print "Attempting Partial Reconfiguration:"
     cmd = ['fpgaconf', '-B', hex(bdf['bus']), '-D',
            hex(bdf['device']), '-F', hex(bdf['function']),
-           gbs_file]
+           '-v', gbs_file]
     try:
         subprocess.check_call(cmd)
     except subprocess.CalledProcessError as e:
