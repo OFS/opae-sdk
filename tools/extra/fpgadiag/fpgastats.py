@@ -175,8 +175,8 @@ class FPGASTATS(COMMON):
                     print('mac {}'.format(i).rjust(12, ' '), end=' | ')
                 print()
                 with open(node, 'rw') as handler:
-                    stats = (self.stats_25_40g if spd in [25, 40]
-                                               else self.stats_10g)
+                    stats = (self.stats_25_40g if spd in [25, 40] else
+                             self.stats_10g)
                     offset = self.demux_offset.get(self.mac_number, 0x100)
                     demux = ((n, r+offset) for n, r in self.fifo_stats_demux)
                     fifo_regs = self.fifo_stats_mux + tuple(demux)
