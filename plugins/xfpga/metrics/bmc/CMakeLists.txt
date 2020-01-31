@@ -37,9 +37,9 @@ add_library(bmc SHARED ${SRC})
 
 set_install_rpath(bmc)
 set_target_properties(bmc PROPERTIES
-  VERSION ${INTEL_FPGA_API_VERSION}
-  SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
-  
+  VERSION ${OPAE_VERSION}
+  SOVERSION ${OPAE_VERSION_MAJOR})
+
 target_link_libraries(bmc
     safestr
     m

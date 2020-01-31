@@ -867,9 +867,9 @@ fpga_result fpgaGetOPAECVersion(fpga_version *version)
 {
 	ASSERT_NOT_NULL(version);
 
-	version->major = INTEL_FPGA_API_VER_MAJOR;
-	version->minor = INTEL_FPGA_API_VER_MINOR;
-	version->patch = INTEL_FPGA_API_VER_REV;
+	version->major = OPAE_VERSION_MAJOR;
+	version->minor = OPAE_VERSION_MINOR;
+	version->patch = OPAE_VERSION_REVISION;
 
 	return FPGA_OK;
 }
@@ -880,8 +880,8 @@ fpga_result fpgaGetOPAECVersionString(char *version_str, size_t len)
 
 	ASSERT_NOT_NULL(version_str);
 
-	err = strncpy_s(version_str, len, INTEL_FPGA_API_VERSION,
-			sizeof(INTEL_FPGA_API_VERSION));
+	err = strncpy_s(version_str, len, OPAE_VERSION,
+			sizeof(OPAE_VERSION));
 
 	if (err) {
 		OPAE_ERR("strncpy_s failed with error %d", err);
@@ -900,8 +900,8 @@ fpga_result fpgaGetOPAECBuildString(char *build_str, size_t len)
 	err = snprintf_s_ss(build_str,
 			    len,
 			    "%s%s",
-			    INTEL_FPGA_API_HASH,
-			    INTEL_FPGA_TREE_DIRTY ? "*" : "");
+			    OPAE_GIT_COMMIT_HASH,
+			    OPAE_GIT_SRC_TREE_DIRTY ? "*" : "");
 
 	if (err < 0) {
 		OPAE_ERR("snprintf_s_ss failed with error %d", err);

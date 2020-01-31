@@ -49,9 +49,9 @@ using namespace opae::fpga::types;
  */
 TEST(version_cxx_core, as_struct) {
   auto v = version::as_struct();
-  EXPECT_EQ(v.major, INTEL_FPGA_API_VER_MAJOR);
-  EXPECT_EQ(v.minor, INTEL_FPGA_API_VER_MINOR);
-  EXPECT_EQ(v.patch, INTEL_FPGA_API_VER_REV);
+  EXPECT_EQ(v.major, OPAE_VERSION_MAJOR);
+  EXPECT_EQ(v.minor, OPAE_VERSION_MINOR);
+  EXPECT_EQ(v.patch, OPAE_VERSION_REVISION);
 }
 
 /**
@@ -63,7 +63,7 @@ TEST(version_cxx_core, as_struct) {
  */
 TEST(version_cxx_core, as_string) {
   auto v = version::as_string();
-  EXPECT_STREQ(v.c_str(), INTEL_FPGA_API_VERSION);
+  EXPECT_STREQ(v.c_str(), OPAE_VERSION);
 }
 
 /**

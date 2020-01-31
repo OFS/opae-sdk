@@ -111,8 +111,8 @@ endif()
 
   # Match OPAE ASE client library version
   set_target_properties(opae-c-ase-server-${name} PROPERTIES
-    VERSION ${INTEL_FPGA_API_VERSION}
-    SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
+    VERSION ${OPAE_VERSION}
+    SOVERSION ${OPAE_VERSION_MAJOR})
 
   # Add coverage flags
   if(CMAKE_BUILD_TYPE STREQUAL "Coverage")

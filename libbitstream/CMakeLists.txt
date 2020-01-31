@@ -49,8 +49,8 @@ endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
 # Target properties
 set_property(TARGET bitstream PROPERTY C_STANDARD 99)
 set_target_properties(bitstream PROPERTIES
-  VERSION ${INTEL_FPGA_API_VERSION}
-  SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
+  VERSION ${OPAE_VERSION}
+  SOVERSION ${OPAE_VERSION_MAJOR})
 
 # Add coverage flags
 if(CMAKE_BUILD_TYPE STREQUAL "Coverage")

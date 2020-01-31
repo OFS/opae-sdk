@@ -104,6 +104,11 @@ set(SRC
   wmemset_s.c
 )
 
+include_directories(
+    ${OPAE_INCLUDE_PATH}
+    ${CMAKE_BINARY_DIR}/include
+    )
+
 opae_add_static_library(safestr SRC)
 set_property(TARGET safestr PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_compile_definitions(safestr PRIVATE PIC=1)
@@ -112,13 +117,6 @@ target_compile_options(safestr PRIVATE -O3)
 # mem_primitives_lib.c is optimized through the use of fallthrough switch statements.
 set_source_files_properties(mem_primitives_lib.c PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough)
 
-get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
-if ("${LIB64}" STREQUAL "TRUE")
-  install(TARGETS safestr
-    ARCHIVE DESTINATION lib64
+install(TARGETS safestr
+    ARCHIVE DESTINATION ${OPAE_LIB_INSTALL_DIR}
     COMPONENT safestrlib)
-else()
-  install(TARGETS safestr
-    ARCHIVE DESTINATION lib
-    COMPONENT safestrlib)
-endif() 

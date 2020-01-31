@@ -66,7 +66,7 @@ static inline uint64_t cacheline_aligned_addr(uint64_t num) {
 int main(int argc, char* argv[]) {
   if ((argc > 1) && ((std::string(argv[1]) == std::string("-v")) ||
                      (std::string(argv[1]) == std::string("--version")))) {
-    std::cout << "hello_cxxcore " << INTEL_FPGA_API_VERSION << " "
+    std::cout << "hello_cxxcore " << OPAE_VERSION << " "
               << INTEL_FPGA_API_HASH;
     if (INTEL_FPGA_TREE_DIRTY) std::cout << "*";
     std::cout << std::endl;

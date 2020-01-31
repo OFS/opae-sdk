@@ -82,7 +82,7 @@ extensions = [
 
 setup(
     name="opae.fpga",
-    version="@INTEL_FPGA_API_VERSION@",
+    version="@OPAE_VERSION@",
     packages=find_packages(),
     entry_points={
         'console_scripts': [

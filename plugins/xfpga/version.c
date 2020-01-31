@@ -39,9 +39,9 @@ fpga_result __FPGA_API__ xfpga_fpgaGetOPAECVersion(fpga_version *version)
 		return FPGA_INVALID_PARAM;
 	}
 
-	version->major = INTEL_FPGA_API_VER_MAJOR;
-	version->minor = INTEL_FPGA_API_VER_MINOR;
-	version->patch = INTEL_FPGA_API_VER_REV;
+	version->major = OPAE_VERSION_MAJOR;
+	version->minor = OPAE_VERSION_MINOR;
+	version->patch = OPAE_VERSION_REVISION;
 
 	return FPGA_OK;
 }
@@ -55,8 +55,8 @@ fpga_result __FPGA_API__ xfpga_fpgaGetOPAECVersionString(char *version_str, size
 		return FPGA_INVALID_PARAM;
 	}
 
-	err = strncpy_s(version_str, len, INTEL_FPGA_API_VERSION,
-		  sizeof(INTEL_FPGA_API_VERSION));
+	err = strncpy_s(version_str, len, OPAE_VERSION,
+		  sizeof(OPAE_VERSION));
 
 	if (err) {
 		FPGA_ERR("strncpy_s failed with error %i", err);

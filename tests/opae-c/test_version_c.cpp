@@ -50,28 +50,28 @@ using namespace opae::testing;
  * @test       opaec
  * @brief      Test: fpgaGetOPAECVersion
  * @details    When fpgaGetOPAECVersion is called with a valid param,<br>
- *             then it retrieves the INTEL_FPGA_API_VER_* constants<br>
+ *             then it retrieves the OPAE_VERSION_* constants<br>
  *             from config.h.<br>
  */
 TEST(version, opaec) {
   fpga_version v;
   EXPECT_EQ(fpgaGetOPAECVersion(&v), FPGA_OK);
-  EXPECT_EQ(v.major, INTEL_FPGA_API_VER_MAJOR);
-  EXPECT_EQ(v.minor, INTEL_FPGA_API_VER_MINOR);
-  EXPECT_EQ(v.patch, INTEL_FPGA_API_VER_REV);
+  EXPECT_EQ(v.major, OPAE_VERSION_MAJOR);
+  EXPECT_EQ(v.minor, OPAE_VERSION_MINOR);
+  EXPECT_EQ(v.patch, OPAE_VERSION_REVISION);
 }
 
 /**
  * @test       opaec_string
  * @brief      Test: fpgaGetOPAECVersionString
  * @details    When fpgaGetOPAECVersionString is called with valid params,<br>
- *             then it retrieves the INTEL_FPGA_API_VERSION string<br>
+ *             then it retrieves the OPAE_VERSION string<br>
  *             from config.h.<br>
  */
 TEST(version, opaec_string) {
   char ver_str[32];
   EXPECT_EQ(fpgaGetOPAECVersionString(ver_str, sizeof(ver_str)), FPGA_OK);
-  EXPECT_STREQ(ver_str, INTEL_FPGA_API_VERSION);
+  EXPECT_STREQ(ver_str, OPAE_VERSION);
 }
 
 /**
