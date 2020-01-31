@@ -1,5 +1,9 @@
 language: c
 compiler: gcc
+# blocklist
+branches:
+  except:
+    - feature/newlayout
 matrix:
   include:
   - script: scripts/test-codingstyle-all.sh
