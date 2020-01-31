@@ -56,8 +56,8 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
     #   opae_coverage_build(opae-c SRC)
     #
     function(opae_coverage_build target source)
-        set_property(SOURCE ${${source}} APPEND PROPERTY COMPILE_FLAGS
-                     "-g -O0 -Wall -Wextra -Werror -pthread --coverage -fprofile-arcs -ftest-coverage")
+        set_property(SOURCE ${${source}} APPEND_STRING PROPERTY COMPILE_FLAGS
+                     " -g -O0 -Wall -Wextra -Werror -pthread --coverage -fprofile-arcs -ftest-coverage")
         target_link_libraries(${target} "-lgcov")
     endfunction()
 else()
