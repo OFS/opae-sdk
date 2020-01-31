@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -26,17 +26,6 @@
 
 project(libxfpga)
 
-############################################################################
-## Add 'coverage' ##########################################################
-############################################################################
-
-if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-  include(coverage)
-endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-
-############################################################################
-## Add 'libxfpga' library ###################################################
-############################################################################
 set(SRC
   common.c
   enum.c
@@ -71,47 +60,11 @@ set(SRC
   metrics/metrics_max10.c
   metrics/threshold.c)
 
-# Define target
-add_library(xfpga MODULE ${SRC})
+opae_add_module_library(xfpga SRC)
 
-target_link_libraries(xfpga
-  m
-  safestr
-  dl
-  ${libjson-c_LIBRARIES}
-  ${libuuid_LIBRARIES}
-  ${CMAKE_THREAD_LIBS_INIT}
-  opae-c)
+target_link_libraries(xfpga m opae-c)
 
-set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
-
-# Define headers for this library. PUBLIC headers are used for
-# compiling the library, and will be added to consumers' build
-# paths. Keep current directory private.
-target_include_directories(xfpga PUBLIC
-  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-  $<INSTALL_INTERFACE:include>
-  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
-  PRIVATE ${OPAE_SDK_SOURCE}/libopae)
-
-# Add coverage flags
-if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-  set_property(SOURCE ${SRC} APPEND PROPERTY COMPILE_FLAGS ${GCOV_COMPILE_FLAGS})
-endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-
-# Target properties
-set_property(TARGET xfpga PROPERTY C_STANDARD 99)
-
-# Add coverage flags
-if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-  target_link_libraries(xfpga ${GCOV_LINK_FLAGS})
-endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-
-# Set debug flags, if required
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  add_definitions(-DLIBOPAE_DEBUG)
-endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+target_include_directories(xfpga PRIVATE ${OPAE_LIBS_ROOT}/libopae-c)
 
 # Hide non-public symbols when building release
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -123,25 +76,14 @@ install(TARGETS xfpga
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
   COMPONENT opaeclib)
 
-#get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
-#if ("${LIB64}" STREQUAL "TRUE")
-#    install(TARGETS xfpga
-#      LIBRARY DESTINATION lib64
-#      COMPONENT opaeclib)
-#else()
-#    install(TARGETS xfpga
-#      LIBRARY DESTINATION lib
-#      COMPONENT opaeclib)
-#endif() 
-
 
 ############################################################################
 ## Add 'coverage' ##########################################################
 ############################################################################
 
-if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-  if(BUILD_TESTS AND GTEST_FOUND)
-    set_target_for_coverage(xfpga bin/gtapi -p)
-    add_dependencies(coverage_xfpga gtapi)
-  endif(BUILD_TESTS AND GTEST_FOUND)
-endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+#if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+#  if(BUILD_TESTS AND GTEST_FOUND)
+#    set_target_for_coverage(xfpga bin/gtapi -p)
+#    add_dependencies(coverage_xfpga gtapi)
+#  endif(BUILD_TESTS AND GTEST_FOUND)
+#endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")

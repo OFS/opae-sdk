@@ -75,8 +75,8 @@ fpga_result __FPGA_API__ xfpga_fpgaGetOPAECBuildString(char *build_str, size_t l
 		return FPGA_INVALID_PARAM;
 	}
 
-	err = strncpy_s(build_str, len, INTEL_FPGA_API_HASH,
-		  sizeof(INTEL_FPGA_API_HASH));
+	err = strncpy_s(build_str, len, OPAE_GIT_COMMIT_HASH,
+		  sizeof(OPAE_GIT_COMMIT_HASH));
 
 	if (err) {
 		FPGA_ERR("strncpy_s failed with error %i", err);

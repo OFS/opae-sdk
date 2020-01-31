@@ -9,7 +9,7 @@ set(OPAE_VERSION ${OPAE_VERSION_MAJOR}.${OPAE_VERSION_MINOR}.${OPAE_VERSION_REVI
 set(OPAE_LIBS_ROOT ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Root directory of opae-libs project" FORCE)
 set(OPAE_INCLUDE_PATH ${OPAE_LIBS_ROOT}/include CACHE PATH "Include directory for opae-libs")
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_ROOT}/cmake/modules")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_LIBS_ROOT}/cmake/modules")
 include(OPAE)
 
 

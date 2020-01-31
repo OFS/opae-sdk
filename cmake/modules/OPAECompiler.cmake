@@ -80,7 +80,7 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -Wall -Wextra -Werror -pthread")
 ############################################################################
 ## If we have opae-sdk, then we have config.h. #############################
 ############################################################################
-if(OPAE_SDK_ROOT)
+if(OPAE_LIBS_ROOT)
     add_definitions(-DHAVE_CONFIG_H)
 endif()
 
@@ -166,9 +166,9 @@ endif()
 function(opae_add_shared_library target source)
     add_library(${target} SHARED ${${source}})
 
-    if(OPAE_SDK_ROOT)
+    if(OPAE_LIBS_ROOT)
         target_include_directories(${target} PUBLIC
-            $<BUILD_INTERFACE:${OPAE_SDK_ROOT}/include>
+            $<BUILD_INTERFACE:${OPAE_LIBS_ROOT}/include>
             $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
             PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
             PUBLIC ${libjson-c_INCLUDE_DIRS}
@@ -192,6 +192,39 @@ function(opae_add_shared_library target source)
     opae_coverage_build(${target} ${source})
 endfunction()
 
+# target    The target name for the module library.
+# source    The list of source files for the module library.
+#
+# example:
+#   set(SRC a.c b.c)
+#   opae_add_module_library(xfpga SRC)
+#
+function(opae_add_module_library target source)
+    add_library(${target} MODULE ${${source}})
+
+    if(OPAE_LIBS_ROOT)
+        target_include_directories(${target} PUBLIC
+            $<BUILD_INTERFACE:${OPAE_LIBS_ROOT}/include>
+            $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+            PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+            PUBLIC ${libjson-c_INCLUDE_DIRS}
+            PUBLIC ${libuuid_INCLUDE_DIRS})
+    else()
+
+    endif()
+
+    set_property(TARGET ${target} PROPERTY C_STANDARD 99)
+
+    target_link_libraries(${target}
+        dl
+        ${CMAKE_THREAD_LIBS_INIT}
+        safestr
+        ${libjson-c_LIBRARIES}
+        ${libuuid_LIBRARIES})
+
+    opae_coverage_build(${target} ${source})
+endfunction()
+
 # target    The target name for the static library.
 # source    The list of source files for the static library.
 #
@@ -204,5 +237,5 @@ function(opae_add_static_library target source)
 
     set_property(TARGET ${target} PROPERTY C_STANDARD 99)
 
-
+    opae_coverage_build(${target} ${source})
 endfunction()
