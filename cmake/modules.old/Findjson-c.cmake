@@ -1,5 +1,3 @@
-#!/usr/bin/cmake -P
-
 # - Try to find libjson-c
 # Once done, this will define
 #

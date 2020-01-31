@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -25,8 +25,6 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 project(safe_string)
-
-include_directories(${OPAE_INCLUDE_DIR})
 
 set(SRC
   abort_handler_s.c
@@ -106,17 +104,13 @@ set(SRC
   wmemset_s.c
 )
 
-add_library(safestr STATIC ${SRC})
-
-set_property(TARGET safestr PROPERTY C_STANDARD 99)
+opae_add_static_library(safestr SRC)
 set_property(TARGET safestr PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_compile_definitions(safestr PRIVATE PIC=1)
 target_compile_options(safestr PRIVATE -O3)
 
 # mem_primitives_lib.c is optimized through the use of fallthrough switch statements.
 set_source_files_properties(mem_primitives_lib.c PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough)
-
-
 
 get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS) 
 if ("${LIB64}" STREQUAL "TRUE")
