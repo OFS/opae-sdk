@@ -20,9 +20,23 @@ else()
     set(OPAE_LIB_INSTALL_DIR "lib" CACHE INTERNAL "arch specific library")
 endif()
 
+option(OPAE_INSTALL_RPATH "Enable to create RPATH during install" OFF)
+mark_as_advanced(OPAE_INSTALL_RPATH)
+############################################################################
+## RPATH Handling ##########################################################
+############################################################################
+set(CMAKE_SKIP_BUILD_RPATH FALSE)
+if(OPAE_INSTALL_RPATH)
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${OPAE_LIB_INSTALL_DIR}")
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+endif()
+
 add_subdirectory(safe_string)
 add_subdirectory(libopae-c)
 add_subdirectory(plugins)
+add_subdirectory(libbitstream)
+add_subdirectory(libopaecxx)
 
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/config/config.h.in"

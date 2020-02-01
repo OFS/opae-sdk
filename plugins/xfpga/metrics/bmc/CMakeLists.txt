@@ -33,30 +33,17 @@ set(SRC
     bmc_ioctl.c
     bmcinfo.c)
 
-add_library(bmc SHARED ${SRC})
+opae_add_shared_library(bmc SRC)
 
-set_install_rpath(bmc)
-set_target_properties(bmc PROPERTIES
-  VERSION ${OPAE_VERSION}
-  SOVERSION ${OPAE_VERSION_MAJOR})
+target_link_libraries(bmc m rt)
 
-target_link_libraries(bmc
-    safestr
-    m
-    rt
-    ${CMAKE_THREAD_LIBS_INIT})
-
-add_library(staticbmc STATIC ${SRC})
+opae_add_static_library(staticbmc SRC)
 
 set_property(TARGET staticbmc PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-add_library(modbmc MODULE ${SRC})
+opae_add_module_library(modbmc SRC)
 
-target_link_libraries(modbmc
-    safestr
-    m
-    rt
-    ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(modbmc m rt)
 
 install(TARGETS bmc
     LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}

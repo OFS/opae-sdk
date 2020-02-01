@@ -67,8 +67,8 @@ int main(int argc, char* argv[]) {
   if ((argc > 1) && ((std::string(argv[1]) == std::string("-v")) ||
                      (std::string(argv[1]) == std::string("--version")))) {
     std::cout << "hello_cxxcore " << OPAE_VERSION << " "
-              << INTEL_FPGA_API_HASH;
-    if (INTEL_FPGA_TREE_DIRTY) std::cout << "*";
+              << OPAE_GIT_COMMIT_HASH;
+    if (OPAE_GIT_SRC_TREE_DIRTY) std::cout << "*";
     std::cout << std::endl;
     return 0;
   }

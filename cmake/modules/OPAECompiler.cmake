@@ -30,6 +30,9 @@ include(CheckCXXCompilerFlag)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
+set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+find_package(Threads)
+
 ############################################################################
 ## Set the default build type to Release with debug info. ##################
 ############################################################################
@@ -156,6 +159,45 @@ if(CMAKE_COMPILER_IS_GNUCC)
     endif()
 endif()
 
+macro(set_install_rpath target_name)
+    if(OPAE_INSTALL_RPATH)
+        set_target_properties(${target_name} PROPERTIES
+            INSTALL_RPATH "\$ORIGIN/../${OPAE_LIB_INSTALL_DIR}"
+            INSTALL_RPATH_USE_LINK_PATH TRUE
+            SKIP_BUILD_RPATH FALSE
+            BUILD_WITH_INSTALL_RPATH FALSE)
+    endif()
+endmacro(set_install_rpath target_name)
+
+# target    The target name for the executable
+# source    The list of source files for the executable
+#
+# example:
+#   set(SRC a.c b.c)
+#   opae_add_executable(opae-c SRC)
+#
+function(opae_add_executable target source)
+    add_executable(${target} ${${source}})
+
+    target_include_directories(${target} PUBLIC
+        $<BUILD_INTERFACE:${OPAE_LIBS_ROOT}/include>
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+        PUBLIC ${libjson-c_INCLUDE_DIRS}
+        PUBLIC ${libuuid_INCLUDE_DIRS})
+
+    set_property(TARGET ${target} PROPERTY C_STANDARD 99)
+
+    target_link_libraries(${target}
+        dl
+        ${CMAKE_THREAD_LIBS_INIT}
+        safestr
+        ${libjson-c_LIBRARIES}
+        ${libuuid_LIBRARIES})
+
+    opae_coverage_build(${target} ${source})
+    set_install_rpath(${target})
+endfunction()
 # target    The target name for the shared library.
 # source    The list of source files for the shared library.
 #
@@ -166,16 +208,12 @@ endif()
 function(opae_add_shared_library target source)
     add_library(${target} SHARED ${${source}})
 
-    if(OPAE_LIBS_ROOT)
-        target_include_directories(${target} PUBLIC
-            $<BUILD_INTERFACE:${OPAE_LIBS_ROOT}/include>
-            $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-            PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
-            PUBLIC ${libjson-c_INCLUDE_DIRS}
-            PUBLIC ${libuuid_INCLUDE_DIRS})
-    else()
-
-    endif()
+    target_include_directories(${target} PUBLIC
+        $<BUILD_INTERFACE:${OPAE_LIBS_ROOT}/include>
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+        PUBLIC ${libjson-c_INCLUDE_DIRS}
+        PUBLIC ${libuuid_INCLUDE_DIRS})
 
     set_property(TARGET ${target} PROPERTY C_STANDARD 99)
     set_target_properties(${target} PROPERTIES
@@ -190,6 +228,7 @@ function(opae_add_shared_library target source)
         ${libuuid_LIBRARIES})
 
     opae_coverage_build(${target} ${source})
+    set_install_rpath(${target})
 endfunction()
 
 # target    The target name for the module library.
@@ -202,16 +241,12 @@ endfunction()
 function(opae_add_module_library target source)
     add_library(${target} MODULE ${${source}})
 
-    if(OPAE_LIBS_ROOT)
-        target_include_directories(${target} PUBLIC
-            $<BUILD_INTERFACE:${OPAE_LIBS_ROOT}/include>
-            $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-            PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
-            PUBLIC ${libjson-c_INCLUDE_DIRS}
-            PUBLIC ${libuuid_INCLUDE_DIRS})
-    else()
-
-    endif()
+    target_include_directories(${target} PUBLIC
+        $<BUILD_INTERFACE:${OPAE_LIBS_ROOT}/include>
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+        PUBLIC ${libjson-c_INCLUDE_DIRS}
+        PUBLIC ${libuuid_INCLUDE_DIRS})
 
     set_property(TARGET ${target} PROPERTY C_STANDARD 99)
 
@@ -234,8 +269,13 @@ endfunction()
 #
 function(opae_add_static_library target source)
     add_library(${target} STATIC ${${source}})
+    target_include_directories(${target} PUBLIC
+        $<BUILD_INTERFACE:${OPAE_LIBS_ROOT}/include>
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
     set_property(TARGET ${target} PROPERTY C_STANDARD 99)
 
     opae_coverage_build(${target} ${source})
 endfunction()
+

@@ -32,39 +32,9 @@ set(SRC
     metadatav1.c
     )
 
-add_library(bitstream SHARED ${SRC})
+opae_add_shared_library(bitstream SRC)
 
-target_include_directories(bitstream PUBLIC
-  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
-  PUBLIC ${libjson-c_INCLUDE_DIRS}
-  PUBLIC ${libuuid_INCLUDE_DIRS})
-
-# Add coverage flags
-if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-  set_property(SOURCE ${SRC} APPEND PROPERTY COMPILE_FLAGS ${GCOV_COMPILE_FLAGS})
-endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-
-# Target properties
-set_property(TARGET bitstream PROPERTY C_STANDARD 99)
-set_target_properties(bitstream PROPERTIES
-  VERSION ${OPAE_VERSION}
-  SOVERSION ${OPAE_VERSION_MAJOR})
-
-# Add coverage flags
-if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-  target_link_libraries(bitstream ${GCOV_LINK_FLAGS})
-endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-
-target_link_libraries(bitstream
-  safestr
-  opae-c
-  ${CMAKE_THREAD_LIBS_INIT}
-  ${libjson-c_LIBRARIES}
-  ${libuuid_LIBRARIES})
-
-set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
+target_link_libraries(bitstream opae-c)
 
 install(TARGETS bitstream
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}

@@ -43,6 +43,7 @@ set(SRC_ASE
     props.c
     )
 opae_add_shared_library(opae-c-ase SRC_ASE)
+# set_property(TARGET opae-c PROPERTY INTERFACE_LINK_LIBRARIES dl)
 
 install(TARGETS opae-c
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}

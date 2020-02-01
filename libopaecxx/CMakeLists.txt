@@ -27,22 +27,6 @@
 project(libopae-cxx)
 
 
-#############################################################################
-### Add 'libopae-cxx' library ###################################################
-#############################################################################
-#set(SRC)
-
-## Define target
-#add_library(opae-c SHARED ${SRC})
-#add_dependencies(opae-c copy-common-opae-header-files)
-#target_link_libraries(opae-c
-#  m
-#  safestr
-#  ${libjson-c_LIBRARIES}
-#  ${libuuid_LIBRARIES})
-
-set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
-find_package(Threads)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_CONFIG_H -pthread")
@@ -57,11 +41,11 @@ set(OPAECXXCORE_SRC src/properties.cpp
                     src/sysobject.cpp
                     src/version.cpp)
 
-add_library(opae-cxx-core SHARED ${OPAECXXCORE_SRC})
-target_link_libraries(opae-cxx-core uuid)
+opae_add_shared_library(opae-cxx-core OPAECXXCORE_SRC)
 
-add_executable(hello_cxxcore samples/hello_fpga-1.cpp)
-target_link_libraries(hello_cxxcore opae-c ${CMAKE_THREAD_LIBS_INIT} opae-cxx-core )
+set(SAMPLE_SRC samples/hello_fpga-1.cpp)
+opae_add_executable(hello_cxxcore SAMPLE_SRC)
+target_link_libraries(hello_cxxcore opae-c opae-cxx-core )
 
 
 # Define headers for this library. PUBLIC headers are used for

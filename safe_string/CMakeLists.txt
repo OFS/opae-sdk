@@ -104,11 +104,6 @@ set(SRC
   wmemset_s.c
 )
 
-include_directories(
-    ${OPAE_INCLUDE_PATH}
-    ${CMAKE_BINARY_DIR}/include
-    )
-
 opae_add_static_library(safestr SRC)
 set_property(TARGET safestr PROPERTY POSITION_INDEPENDENT_CODE ON)
 target_compile_definitions(safestr PRIVATE PIC=1)
