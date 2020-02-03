@@ -31,9 +31,17 @@ set(SRC
     api-shell.c
     init.c
     props.c
-    )
+)
 
-opae_add_shared_library(opae-c SRC)
+opae_add_shared_library(TARGET opae-c
+    SOURCE ${SRC}
+    LIBS
+        dl
+        ${CMAKE_THREAD_LIBS_INIT}
+        safestr
+        ${libjson-C_LIBRARIES}
+        ${libuuid_LIBRARIES}
+)
 
 set(SRC_ASE
     pluginmgr.c
@@ -41,8 +49,18 @@ set(SRC_ASE
     init.c
     init_ase.c
     props.c
-    )
-opae_add_shared_library(opae-c-ase SRC_ASE)
+)
+
+opae_add_shared_library(TARGET opae-c-ase
+    SOURCE ${SRC_ASE}
+    LIBS
+        dl
+        ${CMAKE_THREAD_LIBS_INIT}
+        safestr
+        ${libjson-C_LIBRARIES}
+        ${libuuid_LIBRARIES}
+)
+
 # set_property(TARGET opae-c PROPERTY INTERFACE_LINK_LIBRARIES dl)
 
 install(TARGETS opae-c

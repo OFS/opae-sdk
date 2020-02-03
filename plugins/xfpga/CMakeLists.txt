@@ -60,9 +60,17 @@ set(SRC
   metrics/metrics_max10.c
   metrics/threshold.c)
 
-opae_add_module_library(xfpga SRC)
-
-target_link_libraries(xfpga m opae-c)
+opae_add_module_library(TARGET xfpga
+    SOURCE ${SRC}
+    LIBS
+        dl
+        m
+        ${CMAKE_THREAD_LIBS_INIT}
+        safestr
+        opae-c
+        ${libjson-c_LIBRARIES}
+        ${libuuid_LIBRARIES}
+)
 
 target_include_directories(xfpga PRIVATE ${OPAE_LIBS_ROOT}/libopae-c)
 

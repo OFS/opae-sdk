@@ -41,7 +41,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "")
         CACHE STRING
         "Type of build: {Debug Release RelWithDebInfo MinSizeRel Coverage}"
         FORCE)
-    function(opae_coverage_build target source)
+    function(opae_coverage_build)
     endfunction()
 elseif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
     find_program(OPAE_GCOV_EXECUTABLE gcov)
@@ -51,20 +51,21 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
     find_program(OPAE_LCOV_EXECUTABLE lcov)
     find_program(OPAE_GENHTML_EXECUTABLE genhtml)
 
-    # target    The target name whose link libraries need updating.
-    # source    The list of source files whose compiler flags need updating.
-    #
     # example:
-    #   set(SRC a.c b.c)
-    #   opae_coverage_build(opae-c SRC)
-    #
-    function(opae_coverage_build target source)
-        set_property(SOURCE ${${source}} APPEND_STRING PROPERTY COMPILE_FLAGS
+    #   opae_coverage_build(TARGET opae-c SOURCE a.c b.c)
+    function(opae_coverage_build)
+        set(options )
+        set(oneValueArgs TARGET)
+        set(multiValueArgs SOURCE)
+        cmake_parse_arguments(OPAE_COVERAGE_BUILD "${options}"
+            "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+        set_property(SOURCE ${OPAE_COVERAGE_BUILD_SOURCE} APPEND_STRING PROPERTY COMPILE_FLAGS
                      " -g -O0 -Wall -Wextra -Werror -pthread --coverage -fprofile-arcs -ftest-coverage")
-        target_link_libraries(${target} "-lgcov")
+        target_link_libraries(${OPAE_COVERAGE_BUILD_TARGET} "-lgcov")
     endfunction()
 else()
-    function(opae_coverage_build target source)
+    function(opae_coverage_build)
     endfunction()
 endif()
 
@@ -81,7 +82,7 @@ set(CMAKE_C_FLAGS_MINSIZEREL       "-Os -Wall -Wextra -Werror -pthread")
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -Wall -Wextra -Werror -pthread")
 
 ############################################################################
-## If we have opae-sdk, then we have config.h. #############################
+## If we have opae-libs, then we have config.h. ############################
 ############################################################################
 if(OPAE_LIBS_ROOT)
     add_definitions(-DHAVE_CONFIG_H)
@@ -167,115 +168,106 @@ macro(set_install_rpath target_name)
             SKIP_BUILD_RPATH FALSE
             BUILD_WITH_INSTALL_RPATH FALSE)
     endif()
-endmacro(set_install_rpath target_name)
+endmacro()
 
-# target    The target name for the executable
-# source    The list of source files for the executable
-#
 # example:
-#   set(SRC a.c b.c)
-#   opae_add_executable(opae-c SRC)
-#
-function(opae_add_executable target source)
-    add_executable(${target} ${${source}})
+#   opae_add_executable(TARGET fpgaconf SOURCE a.c b.c LIBS safestr)
+function(opae_add_executable)
+    set(options )
+    set(oneValueArgs TARGET)
+    set(multiValueArgs SOURCE LIBS)
+    cmake_parse_arguments(OPAE_ADD_EXECUTABLE "${options}"
+        "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    target_include_directories(${target} PUBLIC
+    add_executable(${OPAE_ADD_EXECUTABLE_TARGET} ${OPAE_ADD_EXECUTABLE_SOURCE})
+
+    target_include_directories(${OPAE_ADD_EXECUTABLE_TARGET} PUBLIC
         $<BUILD_INTERFACE:${OPAE_LIBS_ROOT}/include>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         PUBLIC ${libjson-c_INCLUDE_DIRS}
         PUBLIC ${libuuid_INCLUDE_DIRS})
 
-    set_property(TARGET ${target} PROPERTY C_STANDARD 99)
+    set_property(TARGET ${OPAE_ADD_EXECUTABLE_TARGET} PROPERTY C_STANDARD 99)
 
-    target_link_libraries(${target}
-        dl
-        ${CMAKE_THREAD_LIBS_INIT}
-        safestr
-        ${libjson-c_LIBRARIES}
-        ${libuuid_LIBRARIES})
+    target_link_libraries(${OPAE_ADD_EXECUTABLE_TARGET} ${OPAE_ADD_EXECUTABLE_LIBS})
 
-    opae_coverage_build(${target} ${source})
-    set_install_rpath(${target})
+    opae_coverage_build(TARGET ${OPAE_ADD_EXECUTABLE_TARGET} SOURCE ${OPAE_ADD_EXECUTABLE_SOURCE})
+    set_install_rpath(${OPAE_ADD_EXECUTABLE_TARGET})
 endfunction()
-# target    The target name for the shared library.
-# source    The list of source files for the shared library.
-#
-# example:
-#   set(SRC a.c b.c)
-#   opae_add_shared_library(opae-c SRC)
-#
-function(opae_add_shared_library target source)
-    add_library(${target} SHARED ${${source}})
 
-    target_include_directories(${target} PUBLIC
+# example:
+#   opae_add_shared_library(TARGET opae-c SOURCE a.c b.c LIBS safestr)
+function(opae_add_shared_library)
+    set(options )
+    set(oneValueArgs TARGET)
+    set(multiValueArgs SOURCE LIBS)
+    cmake_parse_arguments(OPAE_ADD_SHARED_LIBRARY "${options}"
+        "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    add_library(${OPAE_ADD_SHARED_LIBRARY_TARGET} SHARED ${OPAE_ADD_SHARED_LIBRARY_SOURCE})
+
+    target_include_directories(${OPAE_ADD_SHARED_LIBRARY_TARGET} PUBLIC
         $<BUILD_INTERFACE:${OPAE_LIBS_ROOT}/include>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         PUBLIC ${libjson-c_INCLUDE_DIRS}
         PUBLIC ${libuuid_INCLUDE_DIRS})
 
-    set_property(TARGET ${target} PROPERTY C_STANDARD 99)
-    set_target_properties(${target} PROPERTIES
+    set_property(TARGET ${OPAE_ADD_SHARED_LIBRARY_TARGET} PROPERTY C_STANDARD 99)
+    set_target_properties(${OPAE_ADD_SHARED_LIBRARY_TARGET} PROPERTIES
         VERSION ${OPAE_VERSION}
         SOVERSION ${OPAE_VERSION_MAJOR})
 
-    target_link_libraries(${target}
-        dl
-        ${CMAKE_THREAD_LIBS_INIT}
-        safestr
-        ${libjson-c_LIBRARIES}
-        ${libuuid_LIBRARIES})
+    target_link_libraries(${OPAE_ADD_SHARED_LIBRARY_TARGET} ${OPAE_ADD_SHARED_LIBRARY_LIBS})
 
-    opae_coverage_build(${target} ${source})
-    set_install_rpath(${target})
+    opae_coverage_build(TARGET ${OPAE_ADD_SHARED_LIBRARY_TARGET} SOURCE ${OPAE_ADD_SHARED_LIBRARY_SOURCE})
+    set_install_rpath(${OPAE_ADD_SHARED_LIBRARY_TARGET})
 endfunction()
 
-# target    The target name for the module library.
-# source    The list of source files for the module library.
-#
 # example:
-#   set(SRC a.c b.c)
-#   opae_add_module_library(xfpga SRC)
+#   opae_add_module_library(TARGET xfpga SOURCE a.c b.c LIBS safestr)
 #
-function(opae_add_module_library target source)
-    add_library(${target} MODULE ${${source}})
+function(opae_add_module_library)
+    set(options )
+    set(oneValueArgs TARGET)
+    set(multiValueArgs SOURCE LIBS)
+    cmake_parse_arguments(OPAE_ADD_MODULE_LIBRARY "${options}"
+        "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    target_include_directories(${target} PUBLIC
+    add_library(${OPAE_ADD_MODULE_LIBRARY_TARGET} MODULE ${OPAE_ADD_MODULE_LIBRARY_SOURCE})
+
+    target_include_directories(${OPAE_ADD_MODULE_LIBRARY_TARGET} PUBLIC
         $<BUILD_INTERFACE:${OPAE_LIBS_ROOT}/include>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         PUBLIC ${libjson-c_INCLUDE_DIRS}
         PUBLIC ${libuuid_INCLUDE_DIRS})
 
-    set_property(TARGET ${target} PROPERTY C_STANDARD 99)
+    set_property(TARGET ${OPAE_ADD_MODULE_LIBRARY_TARGET} PROPERTY C_STANDARD 99)
 
-    target_link_libraries(${target}
-        dl
-        ${CMAKE_THREAD_LIBS_INIT}
-        safestr
-        ${libjson-c_LIBRARIES}
-        ${libuuid_LIBRARIES})
+    target_link_libraries(${OPAE_ADD_MODULE_LIBRARY_TARGET} ${OPAE_ADD_MODULE_LIBRARY_LIBS})
 
-    opae_coverage_build(${target} ${source})
+    opae_coverage_build(TARGET ${OPAE_ADD_MODULE_LIBRARY_TARGET} SOURCE ${OPAE_ADD_MODULE_LIBRARY_SOURCE})
 endfunction()
 
-# target    The target name for the static library.
-# source    The list of source files for the static library.
-#
 # example:
-#   set(SRC a.c b.c)
-#   opae_add_static_library(safestr SRC)
-#
-function(opae_add_static_library target source)
-    add_library(${target} STATIC ${${source}})
-    target_include_directories(${target} PUBLIC
+#   opae_add_static_library(TARGET safestr SOURCE ${SRC})
+function(opae_add_static_library)
+    set(options )
+    set(oneValueArgs TARGET)
+    set(multiValueArgs SOURCE)
+    cmake_parse_arguments(OPAE_ADD_STATIC_LIBRARY "${options}"
+        "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    add_library(${OPAE_ADD_STATIC_LIBRARY_TARGET} STATIC ${OPAE_ADD_STATIC_LIBRARY_SOURCE})
+
+    target_include_directories(${OPAE_ADD_STATIC_LIBRARY_TARGET} PUBLIC
         $<BUILD_INTERFACE:${OPAE_LIBS_ROOT}/include>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-    set_property(TARGET ${target} PROPERTY C_STANDARD 99)
+    set_property(TARGET ${OPAE_ADD_STATIC_LIBRARY_TARGET} PROPERTY C_STANDARD 99)
 
-    opae_coverage_build(${target} ${source})
+    opae_coverage_build(TARGET ${OPAE_ADD_STATIC_LIBRARY_TARGET} SOURCE ${OPAE_ADD_STATIC_LIBRARY_SOURCE})
 endfunction()
-

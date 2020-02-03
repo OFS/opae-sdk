@@ -1,4 +1,4 @@
-## Copyright(c) 2018-2019, Intel Corporation
+## Copyright(c) 2018-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -26,45 +26,32 @@
 
 project(libopae-cxx)
 
-
-
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_CONFIG_H -pthread")
 
-set(OPAECXXCORE_SRC src/properties.cpp
-                    src/token.cpp
-                    src/handle.cpp
-                    src/shared_buffer.cpp
-                    src/events.cpp
-                    src/except.cpp
-                    src/errors.cpp
-                    src/sysobject.cpp
-                    src/version.cpp)
+set(OPAECXXCORE_SRC
+    src/properties.cpp
+    src/token.cpp
+    src/handle.cpp
+    src/shared_buffer.cpp
+    src/events.cpp
+    src/except.cpp
+    src/errors.cpp
+    src/sysobject.cpp
+    src/version.cpp
+)
 
-opae_add_shared_library(opae-cxx-core OPAECXXCORE_SRC)
+opae_add_shared_library(TARGET opae-cxx-core
+    SOURCE ${OPAECXXCORE_SRC}
+)
 
-set(SAMPLE_SRC samples/hello_fpga-1.cpp)
-opae_add_executable(hello_cxxcore SAMPLE_SRC)
-target_link_libraries(hello_cxxcore opae-c opae-cxx-core )
+opae_add_executable(TARGET hello_cxxcore
+    SOURCE samples/hello_fpga-1.cpp
+    LIBS
+        opae-c
+        opae-cxx-core
+        ${libjson-c_LIBRARIES}
+)
 
-
-# Define headers for this library. PUBLIC headers are used for
-# compiling the library, and will be added to consumers' build
-# paths. Keep current directory private.
-target_include_directories(opae-cxx-core PUBLIC
-  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
-  $<INSTALL_INTERFACE:include>
-  PRIVATE src)
-
-############################################################################
-## Create config_int.h #########################################################
-############################################################################
-
-configure_file ("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"
-                "${PROJECT_BINARY_DIR}/include/config_int.h" )
-
-set_install_rpath(opae-cxx-core)
 install(TARGETS opae-cxx-core
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
   COMPONENT opaecxxcorelib)

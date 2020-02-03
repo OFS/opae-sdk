@@ -1,4 +1,4 @@
-## Copyright(c) 2019, Intel Corporation
+## Copyright(c) 2019-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -26,15 +26,10 @@
 
 project(libbitstream)
 
-set(SRC
-    bitstream.c
-    bits_utils.c
-    metadatav1.c
-    )
-
-opae_add_shared_library(bitstream SRC)
-
-target_link_libraries(bitstream opae-c)
+opae_add_shared_library(TARGET bitstream
+    SOURCE bitstream.c bits_utils.c metadatav1.c
+    LIBS ${CMAKE_THREAD_LIBS_INIT} safestr opae-c
+)
 
 install(TARGETS bitstream
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
