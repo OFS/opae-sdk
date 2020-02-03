@@ -724,7 +724,7 @@ int test_system::glob(const char *pattern, int flags,
 
   auto res = glob_(path.c_str(), flags, errfunc, pglob);
   if (!res) {
-    for (int i = 0; i < pglob->gl_pathc; ++i) {
+    for (unsigned int i = 0; i < pglob->gl_pathc; ++i) {
       std::string tmppath(pglob->gl_pathv[i]);
       if (tmppath.find(get_root()) == 0) {
         auto p = pglob->gl_pathv[i];
