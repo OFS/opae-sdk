@@ -68,6 +68,12 @@ if(OPAE_INSTALL_RPATH)
 endif()
 
 ############################################################################
+## Place all executables and libraries under the same directories ##########
+############################################################################
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin CACHE PATH "Exe Build directory" FORCE)
+set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib CACHE PATH "Lib Build directory" FORCE)
+
+############################################################################
 ## Conditional Build Steps #################################################
 ############################################################################
 option(BUILD_LIBOPAE_CXX "Enable building of C++ bindings around libopae-c." ON)

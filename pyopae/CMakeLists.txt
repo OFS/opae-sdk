@@ -51,9 +51,6 @@ set(PYOPAE_SRC
 
 set(PYBIND11_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/pybind11/include)
 
-
-#include_directories(${PYBIND_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS})
-
 opae_add_module_library(TARGET _opae
     SOURCE ${PYOPAE_SRC}
     LIBS
@@ -62,22 +59,17 @@ opae_add_module_library(TARGET _opae
         opae-cxx-core
 )
 
-
-
-#add_library(_opae MODULE ${PYOPAE_SRC})
-
 target_include_directories(_opae
     PRIVATE ${PYBIND11_INCLUDE_DIR}
     PRIVATE ${PYTHON_INCLUDE_DIRS})
 
-#target_link_libraries(_opae PUBLIC opae-c opae-cxx-core)
-
-set_target_properties(_opae PROPERTIES PREFIX ""
-                       CXX_VISIBILITY_PRESET "hidden"
-                       LINK_FLAGS "-std=c++11"
-                       LIBRARY_OUTPUT_DIRECTORY
-                       ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae/fpga
-                      )
+set_target_properties(_opae
+    PROPERTIES PREFIX ""
+    CXX_VISIBILITY_PRESET "hidden"
+    LINK_FLAGS "-std=c++11"
+    LIBRARY_OUTPUT_DIRECTORY
+    ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae/fpga
+)
 
 add_custom_command(TARGET _opae
     POST_BUILD
