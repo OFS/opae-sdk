@@ -1,3 +1,29 @@
+## Copyright(c) 2017-2020, Intel Corporation
+##
+## Redistribution  and  use  in source  and  binary  forms,  with  or  without
+## modification, are permitted provided that the following conditions are met:
+##
+## * Redistributions of  source code  must retain the  above copyright notice,
+##   this list of conditions and the following disclaimer.
+## * Redistributions in binary form must reproduce the above copyright notice,
+##   this list of conditions and the following disclaimer in the documentation
+##   and/or other materials provided with the distribution.
+## * Neither the name  of Intel Corporation  nor the names of its contributors
+##   may be used to  endorse or promote  products derived  from this  software
+##   without specific prior written permission.
+##
+## THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+## AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+## IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+## ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+## LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+## CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+## SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+## INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+## POSSIBILITY OF SUCH DAMAGE.
+
 cmake_minimum_required(VERSION 2.8.12)
 project(opae)
 
@@ -10,8 +36,8 @@ set(OPAE_LIBS_ROOT ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Root directory of opa
 set(OPAE_INCLUDE_PATH ${OPAE_LIBS_ROOT}/include CACHE PATH "Include directory for opae-libs")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_LIBS_ROOT}/cmake/modules")
-include(OPAE)
 
+include(OPAE)
 
 get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
 if ("${LIB64}" STREQUAL "TRUE")
@@ -20,11 +46,12 @@ else()
     set(OPAE_LIB_INSTALL_DIR "lib" CACHE INTERNAL "arch specific library")
 endif()
 
-option(OPAE_INSTALL_RPATH "Enable to create RPATH during install" OFF)
-mark_as_advanced(OPAE_INSTALL_RPATH)
 ############################################################################
 ## RPATH Handling ##########################################################
 ############################################################################
+option(OPAE_INSTALL_RPATH "Enable to create RPATH during install" OFF)
+mark_as_advanced(OPAE_INSTALL_RPATH)
+
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 if(OPAE_INSTALL_RPATH)
     set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
@@ -32,12 +59,30 @@ if(OPAE_INSTALL_RPATH)
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 endif()
 
+############################################################################
+## Conditional Build Steps #################################################
+############################################################################
+option(BUILD_LIBOPAE_CXX "Enable building of C++ bindings around libopae-c." ON)
+mark_as_advanced(BUILD_LIBOPAE_CXX)
+
+option(BUILD_LIBOPAE_PY "Enable building of Python bindings around libopae-cxx-core." ON)
+mark_as_advanced(BUILD_LIBOPAE_PY)
+
+option(BUILD_PYTHON_DIST "Enable building of Python source and binary distribution" OFF)
+mark_as_advanced(BUILD_PYTHON_DIST)
+
 add_subdirectory(safe_string)
 add_subdirectory(libopae-c)
-add_subdirectory(plugins)
 add_subdirectory(libbitstream)
-add_subdirectory(libopaecxx)
+add_subdirectory(plugins)
 
+if(BUILD_LIBOPAE_CXX)
+    add_subdirectory(libopaecxx)
+endif()
+
+if(BUILD_LIBOPAE_PY AND BUILD_LIBOPAE_CXX)
+    add_subdirectory(pyopae)
+endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/config/config.h.in"
                "${PROJECT_BINARY_DIR}/include/config.h")

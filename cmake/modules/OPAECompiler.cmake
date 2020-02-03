@@ -28,6 +28,18 @@
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 
+if(NOT CMAKE_C_COMPILER)
+    message("-- No C compiler was found. Please install the gcc package for your distribution:
+    DEB: apt install gcc
+    RPM: yum install gcc")
+endif()
+
+if(NOT CMAKE_CXX_COMPILER)
+    message("-- No C++ compiler was found. Please install the g++ package for your distribution:
+    DEB: apt install g++
+    RPM: yum install gcc-c++")
+endif()
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
@@ -227,7 +239,6 @@ endfunction()
 
 # example:
 #   opae_add_module_library(TARGET xfpga SOURCE a.c b.c LIBS safestr)
-#
 function(opae_add_module_library)
     set(options )
     set(oneValueArgs TARGET)

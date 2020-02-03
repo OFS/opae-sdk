@@ -1,4 +1,4 @@
-## Copyright(c) 2018, Intel Corporation
+## Copyright(c) 2018-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -60,8 +60,6 @@ opae_add_shared_library(TARGET opae-c-ase
         ${libjson-C_LIBRARIES}
         ${libuuid_LIBRARIES}
 )
-
-# set_property(TARGET opae-c PROPERTY INTERFACE_LINK_LIBRARIES dl)
 
 install(TARGETS opae-c
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}

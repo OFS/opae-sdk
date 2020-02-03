@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -26,19 +26,19 @@
 
 if(NOT CMAKE_C_COMPILER)
     message("-- No C compiler was found. Please install the gcc package for your distribution:
-    DEB: apt-get install gcc
+    DEB: apt install gcc
     RPM: yum install gcc") 
 endif()
 
 if(NOT CMAKE_CXX_COMPILER)
     message("-- No C++ compiler was found. Please install the g++ package for your distribution:
-    DEB: apt-get install g++
+    DEB: apt install g++
     RPM: yum install gcc-c++") 
 endif()
 
 if(NOT libjson-c_FOUND)
     message("-- json-c not found. Please install json-c package for you respective distribution:
-    DEB: apt-get install libjson0-dev
+    DEB: apt install libjson0-dev
     RPM: yum install json-c-devel
    If you have already installed this package in a non-standard location 
    please specify the location by defining the variable LIBJSON-C_ROOT in 
@@ -48,7 +48,7 @@ endif()
 
 if(NOT libuuid_FOUND)
     message("-- uuid not found. Please install uuid package for your respective distribution:
-    DEB: apt-get install uuid-dev
+    DEB: apt install uuid-dev
     RPM: yum install libuuid-devel
    If you have already installed this package in a non-standard location 
    please specify the location by defining the variable LIBUUID_ROOT in 
@@ -63,7 +63,7 @@ endif()
 
 if(NOT DOXYGEN_FOUND)
     message("-- Doxygen not found. Documentation will not be built. If you want documentation to be built, please install doxygen:
-    DEB: apt-get install doxygen
+    DEB: apt install doxygen
     RPM: yum install doxygen
    If you have already installed this package in a non-standard location 
    please specify the location by defining the variable DOXYGEN_ROOT in 
@@ -73,7 +73,7 @@ endif()
 if(NOT SPHINX_FOUND)
     message("-- Sphinx not found. HTML documentation will not be built. If you want HTML documentation to be built, 
    please install python-sphinx:
-    DEB: apt-get install python-sphinx
+    DEB: apt install python-sphinx
     RPM: Please follow the official documentation to install Sphinx: http://www.sphinx-doc.org/en/stable/install.html
    If you have already installed this package in a non-standard location 
    please specify the location by defining the variable SPHINX_ROOT in 

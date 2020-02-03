@@ -1,4 +1,4 @@
-## Copyright(c) 2018, Intel Corporation
+## Copyright(c) 2018-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -26,40 +26,59 @@
 
 cmake_minimum_required(VERSION 2.8.12)
 project(pyopae)
+
 set(PYOPAE_PYBIND11_VERSION "2.2.4")
-set(PYOPAE_SRC opae.cpp
-               pycontext.h
-               pycontext.cpp
-               pyproperties.h
-               pyproperties.cpp
-               pyhandle.h
-               pyhandle.cpp
-               pytoken.h
-               pytoken.cpp
-               pyshared_buffer.h
-               pyshared_buffer.cpp
-               pyevents.h
-               pyevents.cpp
-               pyerrors.h
-               pyerrors.cpp
-               pysysobject.h
-               pysysobject.cpp
-               )
+
+set(PYOPAE_SRC
+    opae.cpp
+    pycontext.h
+    pycontext.cpp
+    pyproperties.h
+    pyproperties.cpp
+    pyhandle.h
+    pyhandle.cpp
+    pytoken.h
+    pytoken.cpp
+    pyshared_buffer.h
+    pyshared_buffer.cpp
+    pyevents.h
+    pyevents.cpp
+    pyerrors.h
+    pyerrors.cpp
+    pysysobject.h
+    pysysobject.cpp
+)
 
 set(PYBIND_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/pybind11/include)
-include_directories(${PYBIND_INCLUDE_DIR}
-                    ${PYTHON_INCLUDE_DIRS})
-add_library(_opae MODULE ${PYOPAE_SRC})
+
+
+#include_directories(${PYBIND_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS})
+
+opae_add_module_library(TARGET _opae
+    SOURCE ${PYOPAE_SRC}
+    LIBS
+        safestr
+        opae-c
+        opae-cxx-core
+)
+
+
+
+#add_library(_opae MODULE ${PYOPAE_SRC})
+
 target_include_directories(_opae
     PRIVATE ${PYBIND11_INCLUDE_DIR}
     PRIVATE ${PYTHON_INCLUDE_DIRS})
-target_link_libraries(_opae PUBLIC opae-c opae-cxx-core)
+
+#target_link_libraries(_opae PUBLIC opae-c opae-cxx-core)
+
 set_target_properties(_opae PROPERTIES PREFIX ""
                        CXX_VISIBILITY_PRESET "hidden"
                        LINK_FLAGS "-std=c++11"
                        LIBRARY_OUTPUT_DIRECTORY
                        ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae/fpga
                       )
+
 add_custom_command(TARGET _opae
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
@@ -79,7 +98,6 @@ add_custom_command(TARGET _opae
 
 if (BUILD_PYTHON_DIST)
     set(SETUP_INCLUDE_DIRS "${OPAE_INCLUDE_DIR}:${PYBIND_INCLUDE_DIR}")
-
 
     set(PYFILES
         setup.py

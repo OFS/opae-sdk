@@ -83,15 +83,3 @@ endif(CMAKE_BUILD_TYPE STREQUAL "Release")
 install(TARGETS xfpga
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
   COMPONENT opaeclib)
-
-
-############################################################################
-## Add 'coverage' ##########################################################
-############################################################################
-
-#if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-#  if(BUILD_TESTS AND GTEST_FOUND)
-#    set_target_for_coverage(xfpga bin/gtapi -p)
-#    add_dependencies(coverage_xfpga gtapi)
-#  endif(BUILD_TESTS AND GTEST_FOUND)
-#endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
