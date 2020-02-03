@@ -49,7 +49,7 @@ set(PYOPAE_SRC
     pysysobject.cpp
 )
 
-set(PYBIND_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/pybind11/include)
+set(PYBIND11_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/pybind11/include)
 
 
 #include_directories(${PYBIND_INCLUDE_DIR} ${PYTHON_INCLUDE_DIRS})

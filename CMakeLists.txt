@@ -37,6 +37,14 @@ set(OPAE_INCLUDE_PATH ${OPAE_LIBS_ROOT}/include CACHE PATH "Include directory fo
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_LIBS_ROOT}/cmake/modules")
 
+############################################################################
+## Python Interpreter/Build Env  ###########################################
+############################################################################
+set(OPAE_PYTHON_VERSION 2.7 CACHE STRING "Python version to use for building/distributing pyopae")
+set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3.6 3.5 3.4 3.3)
+find_package(PythonInterp ${OPAE_PYTHON_VERSION})
+find_package(PythonLibs ${OPAE_PYTHON_VERSION})
+
 include(OPAE)
 
 get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
