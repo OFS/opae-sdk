@@ -105,6 +105,5 @@ if(BUILD_OPAE_TESTS)
     add_subdirectory(tests)
 endif(BUILD_OPAE_TESTS)
 
-
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/config/config.h.in"
                "${PROJECT_BINARY_DIR}/include/config.h")

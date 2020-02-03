@@ -212,7 +212,7 @@ endfunction()
 #   opae_add_shared_library(TARGET opae-c SOURCE a.c b.c LIBS safestr)
 function(opae_add_shared_library)
     set(options )
-    set(oneValueArgs TARGET)
+    set(oneValueArgs TARGET VERSION SOVERSION)
     set(multiValueArgs SOURCE LIBS)
     cmake_parse_arguments(OPAE_ADD_SHARED_LIBRARY "${options}"
         "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -227,9 +227,12 @@ function(opae_add_shared_library)
         PUBLIC ${libuuid_INCLUDE_DIRS})
 
     set_property(TARGET ${OPAE_ADD_SHARED_LIBRARY_TARGET} PROPERTY C_STANDARD 99)
-    set_target_properties(${OPAE_ADD_SHARED_LIBRARY_TARGET} PROPERTIES
-        VERSION ${OPAE_VERSION}
-        SOVERSION ${OPAE_VERSION_MAJOR})
+
+    if(OPAE_ADD_SHARED_LIBRARY_VERSION AND OPAE_ADD_SHARED_LIBRARY_SOVERSION)
+        set_target_properties(${OPAE_ADD_SHARED_LIBRARY_TARGET} PROPERTIES
+            VERSION ${OPAE_ADD_SHARED_LIBRARY_VERSION}
+            SOVERSION ${OPAE_ADD_SHARED_LIBRARY_SOVERSION})
+    endif()
 
     target_link_libraries(${OPAE_ADD_SHARED_LIBRARY_TARGET} ${OPAE_ADD_SHARED_LIBRARY_LIBS})
 

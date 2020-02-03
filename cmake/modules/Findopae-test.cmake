@@ -31,7 +31,7 @@ find_path(opae_test
           ${CMAKE_BINARY_DIR}/opae-test/src/opae-test
           ${CMAKE_SOURCE_DIR})
 
-if (NOT ${opae_test})
+if(NOT ${opae_test})
     include(ExternalProject)
     ExternalProject_Add(opae-test
           GIT_REPOSITORY    https://github.com/OPAE/opae-test.git
@@ -41,9 +41,9 @@ if (NOT ${opae_test})
           BUILD_COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR> --config $<CONFIG> --target test_system
           COMMENT "adding opae-test"
     )
-endif (NOT ${opae_test})
+endif()
 
-if (${opae_test_framework})
+if(${opae_test_framework})
     set(opae_test_framework_FOUND true)
     message(FATAL_ERROR "TBD")
-endif (${opae_test_framework})
+endif()

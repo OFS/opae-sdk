@@ -42,6 +42,8 @@ set(OPAECXXCORE_SRC
 
 opae_add_shared_library(TARGET opae-cxx-core
     SOURCE ${OPAECXXCORE_SRC}
+    VERSION ${OPAE_VERSION}
+    SOVERSION ${OPAE_VERSION_MAJOR}
 )
 
 opae_add_executable(TARGET hello_cxxcore

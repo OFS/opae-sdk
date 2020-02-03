@@ -40,6 +40,8 @@ opae_add_shared_library(TARGET bmc
         dl
         ${CMAKE_THREAD_LIBS_INIT}
         safestr
+    VERSION ${OPAE_VERSION}
+    SOVERSION ${OPAE_VERSION_MAJOR}
 )
 
 opae_add_static_library(TARGET staticbmc SOURCE ${SRC})

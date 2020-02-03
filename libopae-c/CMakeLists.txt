@@ -41,6 +41,8 @@ opae_add_shared_library(TARGET opae-c
         safestr
         ${libjson-C_LIBRARIES}
         ${libuuid_LIBRARIES}
+    VERSION ${OPAE_VERSION}
+    SOVERSION ${OPAE_VERSION_MAJOR}
 )
 
 set(SRC_ASE
@@ -59,6 +61,8 @@ opae_add_shared_library(TARGET opae-c-ase
         safestr
         ${libjson-C_LIBRARIES}
         ${libuuid_LIBRARIES}
+    VERSION ${OPAE_VERSION}
+    SOVERSION ${OPAE_VERSION_MAJOR}
 )
 
 install(TARGETS opae-c
