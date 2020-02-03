@@ -85,6 +85,9 @@ mark_as_advanced(BUILD_LIBOPAE_PY)
 option(BUILD_PYTHON_DIST "Enable building of Python source and binary distribution" OFF)
 mark_as_advanced(BUILD_PYTHON_DIST)
 
+option(BUILD_OPAE_TESTS "Enable building of OPAE unit tests" OFF)
+mark_as_advanced(BUILD_OPAE_TESTS)
+
 add_subdirectory(safe_string)
 add_subdirectory(libopae-c)
 add_subdirectory(libbitstream)
@@ -97,6 +100,11 @@ endif()
 if(BUILD_LIBOPAE_PY AND BUILD_LIBOPAE_CXX)
     add_subdirectory(pyopae)
 endif()
+
+if(BUILD_OPAE_TESTS)
+    add_subdirectory(tests)
+endif(BUILD_OPAE_TESTS)
+
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/config/config.h.in"
                "${PROJECT_BINARY_DIR}/include/config.h")
