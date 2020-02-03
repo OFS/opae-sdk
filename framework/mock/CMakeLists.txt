@@ -6,7 +6,7 @@ include(CheckCXXCompilerFlag)
 
 # projectname is the same as the main-executable
 project(test_system)
-
+set(CMAKE_CXX_STANDARD 11)
 # Disable some warnings that fire in system libraries
 check_cxx_compiler_flag("-Wno-error=frame-address"
   CXX_SUPPORTS_NO_ERROR_FRAME_ADDRESS)
