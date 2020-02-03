@@ -484,3 +484,118 @@ out:
 }
 
 
+void sec_help(void)
+{
+	printf("\nPrint security information\n"
+		"        fpgainfo security [-h]\n"
+		"                -h,--help           Print this help\n"
+		"\n");
+}
+
+#define SEC_GETOPT_STRING ":h"
+int parse_sec_args(int argc, char *argv[])
+{
+	struct option longopts[] = {
+		{"help", no_argument, NULL, 'h'},
+		{0, 0, 0, 0},
+	};
+	int getopt_ret;
+	int option_index;
+
+	optind = 0;
+	while (-1 != (getopt_ret = getopt_long(argc, argv, SEC_GETOPT_STRING,
+		longopts, &option_index))) {
+		const char *tmp_optarg = optarg;
+
+		if (optarg && ('=' == *tmp_optarg)) {
+			++tmp_optarg;
+		}
+
+		switch (getopt_ret) {
+		case 'h':   /* help */
+			mac_help();
+			return -1;
+
+		case ':':   /* missing option argument */
+			fprintf(stderr, "Missing option argument\n");
+			mac_help();
+			return -1;
+
+		case '?':
+		default:    /* invalid option */
+			fprintf(stderr, "Invalid cmdline options\n");
+			mac_help();
+			return -1;
+		}
+	}
+
+	return 0;
+}
+
+fpga_result sec_filter(fpga_properties *filter, int argc, char *argv[])
+{
+	fpga_result res = FPGA_INVALID_PARAM;
+
+	if (0 == parse_sec_args(argc, argv)) {
+		res = fpgaPropertiesSetObjectType(*filter, FPGA_DEVICE);
+		fpgainfo_print_err("Setting type to FPGA_DEVICE", res);
+	}
+	return res;
+}
+
+fpga_result sec_command(fpga_token *tokens, int num_tokens, int argc,
+	char *argv[])
+{
+	(void)argc;
+	(void)argv;
+	fpga_result res = FPGA_OK;
+	fpga_properties props;
+
+	int i = 0;
+	for (i = 0; i < num_tokens; ++i) {
+
+		res = fpgaGetProperties(tokens[i], &props);
+		if (res != FPGA_OK) {
+			OPAE_ERR("Failed to get properties\n");
+			continue;
+		}
+
+		fpgainfo_board_info(tokens[i]);
+		fpgainfo_print_common("//****** MAC ******//", props);
+		res = sec_info(tokens[i]);
+		if (res != FPGA_OK) {
+			printf("mac info is not supported\n");
+		}
+
+	}
+
+	return FPGA_OK;
+}
+
+// Prints Sec info
+fpga_result sec_info(fpga_token token)
+{
+	fpga_result res = FPGA_OK;
+	void* dl_handle = NULL;
+
+	// Sec information
+	fpga_result(*print_sec_info)(fpga_token token);
+
+	res = load_board_plugin(token, &dl_handle);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to load board plugin\n");
+		goto out;
+	}
+
+	print_sec_info = dlsym(dl_handle, "print_sec_info");
+	if (print_sec_info) {
+		res = print_sec_info(token);
+	}
+	else {
+		OPAE_MSG("No print_sec_info entry point:%s\n", dlerror());
+		res = FPGA_NOT_FOUND;
+	}
+
+out:
+	return res;
+}

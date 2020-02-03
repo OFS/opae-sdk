@@ -79,6 +79,13 @@ fpga_result read_bmc_reset_cause(fpga_token token, char *reset_causee);
  */
 fpga_result print_board_info(fpga_token token);
 
+
+fpga_result read_sysfs(fpga_token token,
+			char *sysfs_path,
+			char *sysfs_name);
+
+fpga_result print_sec_info(fpga_token token);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

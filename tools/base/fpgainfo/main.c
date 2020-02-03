@@ -105,6 +105,11 @@ static struct command_handler {
 	 .filter = phy_filter,
 	 .run = phy_command,
 	 .help = phy_help},
+
+	{.command = "security",
+	 .filter = sec_filter,
+	 .run = sec_command,
+	 .help = sec_help},
 };
 
 /*
