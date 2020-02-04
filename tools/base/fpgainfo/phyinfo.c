@@ -259,20 +259,24 @@ static void print_pkvl_info(fpga_properties props)
 		/* 8x10g */
 		mask = 0xff;
 	} else if (speed == 25) {
-		if (num_ports == 4) {
-			switch(fpga_mode) {
-			case 1: /* 4x25g */
-			case 3: /* 6x25g */
-				mask = 0xf;
-				break;
-
-			case 4: /* 2x2x25g */
-				mask = 0x33;
-				break;
-			}
-		} else {
-			/* 2*1*25g */
+		switch(fpga_mode) {
+		case 1: /* 4x25g */
+		case 3: /* 6x25g */
+			mask = 0xf;
+			break;
+		case 2: /* 2x1x25g */
+		case 5: /* 2x1x25gx2FVL */
 			mask = 0x11;
+			break;
+		case 4: /* 2x2x25g */
+			mask = 0x33;
+			break;
+		case 6: /* 1x2x25g */
+			mask = 0x03;
+			break;
+		default:
+			mask = 0x0;
+			break;
 		}
 	}
 	strncpy_s(mode, sizeof(mode), speed == 25 ? "25G" : "10G", 3);

@@ -146,7 +146,8 @@ static void print_fme_verbose_info(fpga_properties props)
 
 	val = FPGA_BSID_INTERFACE(bitstream_id);
 	if (major == 0) {	// Vista Creek
-		char *intf[] = {"8x10G", "4x25G", "2x1x25G", "4x25G+2x25G", "2x2x25G"};
+		char *intf[] = {"8x10G", "4x25G", "2x1x25G", "4x25G+2x25G", "2x2x25G",
+						"2x1x25Gx2FVL", "1x2x25G"};
 		printf("%-29s : ", "Interface");
 		if (val < sizeof(intf)/sizeof(char*))
 			printf("%s\n", intf[val]);
