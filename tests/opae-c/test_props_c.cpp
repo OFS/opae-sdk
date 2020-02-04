@@ -27,7 +27,7 @@
 #include <algorithm>
 
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 
 #include <opae/fpga.h>
 #include "opae_int.h"

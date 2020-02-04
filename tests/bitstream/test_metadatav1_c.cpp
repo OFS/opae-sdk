@@ -42,7 +42,7 @@ fpga_result opae_bitstream_parse_afu_image_v1(json_object *j_afu_image,
 #include <opae/fpga.h>
 
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 #include "safe_string/safe_string.h"
 
 using namespace opae::testing;

@@ -57,7 +57,7 @@ int opae_plugin_mgr_finalize_all(void);
 #include <vector>
 #include <stack>
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 
 using namespace opae::testing;
 

@@ -42,7 +42,7 @@ extern "C" {
 #include <unistd.h>
 #include <poll.h>
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 #include "fpgad_control.h"
 
 using namespace opae::testing;

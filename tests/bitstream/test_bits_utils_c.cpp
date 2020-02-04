@@ -44,7 +44,7 @@ bool opae_bitstream_path_contains_symlink(const char *path,
 #include <opae/fpga.h>
 
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 #include "safe_string/safe_string.h"
 
 using namespace opae::testing;

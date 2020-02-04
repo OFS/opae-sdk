@@ -42,7 +42,7 @@ extern "C" {
 #include <string>
 #include <vector>
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 
 using namespace opae::testing;
 
@@ -78,16 +78,16 @@ TEST(version, opaec_string) {
  * @test       opaec_build_string
  * @brief      Test: fpgaGetOPAECBuildString
  * @details    When fpgaGetOPAECBuildString is called with valid params,<br>
- *             then it retrieves the INTEL_FPGA_API_HASH string<br>
+ *             then it retrieves the OPAE_GIT_COMMIT_HASH string<br>
  *             from config.h.<br>
  */
 TEST(version, opaec_build_string) {
   char b_str[32];
   EXPECT_EQ(fpgaGetOPAECBuildString(b_str, sizeof(b_str)), FPGA_OK);
-  if (INTEL_FPGA_TREE_DIRTY) {
-      EXPECT_STREQ(b_str, INTEL_FPGA_API_HASH "*");
+  if (OPAE_GIT_SRC_TREE_DIRTY) {
+      EXPECT_STREQ(b_str, OPAE_GIT_COMMIT_HASH "*");
   } else {
-      EXPECT_STREQ(b_str, INTEL_FPGA_API_HASH);
+      EXPECT_STREQ(b_str, OPAE_GIT_COMMIT_HASH);
   }
 }
 

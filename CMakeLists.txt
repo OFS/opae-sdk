@@ -102,6 +102,7 @@ if(BUILD_LIBOPAE_PY AND BUILD_LIBOPAE_CXX)
 endif()
 
 if(BUILD_OPAE_TESTS)
+    enable_testing()
     add_subdirectory(tests)
 endif(BUILD_OPAE_TESTS)
 

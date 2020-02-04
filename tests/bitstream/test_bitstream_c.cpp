@@ -51,7 +51,7 @@ extern fpga_guid valid_GBS_guid;
 #include <vector>
 
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 #include "safe_string/safe_string.h"
 
 const fpga_guid guid = {

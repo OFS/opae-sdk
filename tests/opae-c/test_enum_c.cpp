@@ -46,7 +46,7 @@ extern "C" {
 #include <memory>
 #include <string>
 #include <vector>
-#include "mock_opae.h"
+#include "mock/mock_opae.h"
 
 using namespace opae::testing;
 

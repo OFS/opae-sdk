@@ -50,7 +50,7 @@ extern const char *_ase_home_cfg_files[HOME_CFG_PATHS];
 #include <vector>
 #include <stack>
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 
 using namespace opae::testing;
 

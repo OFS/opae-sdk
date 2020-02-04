@@ -1,4 +1,3 @@
-#!/usr/bin/cmake -P
 ## Copyright(c) 2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -25,30 +24,29 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-include(OPAEGit)
+opae_test_add_static_lib(TARGET bitstream-static
+    SOURCE 
+        ${OPAE_LIBS_ROOT}/libbitstream/bitstream.c
+        ${OPAE_LIBS_ROOT}/libbitstream/bits_utils.c
+        ${OPAE_LIBS_ROOT}/libbitstream/metadatav1.c
+    LIBS
+        safestr
+        opae-c
+        ${libjson-c_LIBRARIES}
+        ${libuuid_LIBRARIES}
+)
 
-include(Findjson-c)
+opae_test_add(TARGET test_bitstream_bitstream_c
+    SOURCE test_bitstream_c.cpp
+    LIBS bitstream-static
+)
 
-if(NOT libjson-c_FOUND)
-    message("-- json-c not found. Please install json-c package for you respective distribution:
-    DEB: apt install libjson-c-dev
-    RPM: yum install json-c-devel
-   If you have already installed this package in a non-standard location 
-   please specify the location by defining the variable LIBJSON-C_ROOT in 
-   your cmake command as follows: cmake <path to clone dir> -DLIBJSON-C_ROOT=<path to json-c install location>")
-   set(REQUIRED_DEPENDENCIES "libjson-c ${REQUIRED_DEPENDENCIES}")
-endif()
+opae_test_add(TARGET test_bitstream_bits_utils_c
+    SOURCE test_bits_utils_c.cpp
+    LIBS bitstream-static
+)
 
-include(FindUUID)
-
-if(NOT libuuid_FOUND)
-    message("-- uuid not found. Please install uuid package for your respective distribution:
-    DEB: apt install uuid-dev
-    RPM: yum install libuuid-devel
-   If you have already installed this package in a non-standard location 
-   please specify the location by defining the variable LIBUUID_ROOT in 
-   your cmake command as follows: cmake <path to clone dir> -DLIBUUID_ROOT=<path to uuid install location>")
-   set(REQUIRED_DEPENDENCIES "libuuid ${REQUIRED_DEPENDENCIES}")
-endif()
-
-include(OPAECompiler)
+opae_test_add(TARGET test_bitstream_metadatav1_c
+    SOURCE test_metadatav1_c.cpp
+    LIBS bitstream-static
+)
