@@ -37,8 +37,8 @@
 
 #include "safe_string/safe_string.h"
 
-#include "opae_int.h"
 #include "pluginmgr.h"
+#include "opae_int.h"
 #include "props.h"
 
 
