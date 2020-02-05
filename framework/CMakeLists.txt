@@ -28,3 +28,7 @@ target_include_directories(test_system PUBLIC
 opae_add_shared_library(TARGET fpga_db
     SOURCE platform/fpga_hw.cpp
 )
+
+if(OPAE_ENABLE_MOCK)
+    target_compile_definitions(fpga_db PUBLIC -DENABLE_MOCK)
+endif(OPAE_ENABLE_MOCK)
