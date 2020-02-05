@@ -24,7 +24,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "test_system.h"
+#include "mock/test_system.h"
 #include "gtest/gtest.h"
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>

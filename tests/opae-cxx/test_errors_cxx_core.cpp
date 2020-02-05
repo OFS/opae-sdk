@@ -25,7 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 #include <opae/cxx/core/token.h>
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>

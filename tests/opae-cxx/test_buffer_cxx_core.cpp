@@ -37,7 +37,7 @@
 #define FLAGS_1G (FLAGS_2M | MAP_1G_HUGEPAGE)
 #endif
 
-#include "test_system.h"
+#include "mock/test_system.h"
 #include "gtest/gtest.h"
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
