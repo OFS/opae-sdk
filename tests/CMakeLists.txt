@@ -45,5 +45,5 @@ endif()
 add_subdirectory(bitstream)
 add_subdirectory(opae-c)
 add_subdirectory(opae-cxx)
-
+add_subdirectory(pyopae)
 add_subdirectory(xfpga)

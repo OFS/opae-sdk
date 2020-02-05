@@ -61,6 +61,7 @@ else()
     set(OPAE_TEST_ROOT "${opae_test}")
 endif()
 
+set(OPAE_TEST_SRC_DIR ${OPAE_TEST_ROOT}/framework)
 set(OPAE_TEST_INCLUDE_DIRS ${OPAE_TEST_ROOT}/framework)
 set(OPAE_TEST_LIBRARIES test_system fpga_db)
 
