@@ -32,11 +32,19 @@ find_path(opae_test
           ${CMAKE_SOURCE_DIR})
 
 if(NOT ${opae_test})
+
+    # look for desired componenents
+    set(opaetest_COMPONENTS ${opae-test_FIND_COMPONENTS})
+
+    # resolve inter-component dependencies
+    list(FIND opaetest_COMPONENTS "MOCK" WILL_USE_MOCK)
+    message(STATUS "test components: ${opaetest_COMPONENTS}")
+
     include(ExternalProject)
     ExternalProject_Add(opae-test
           GIT_REPOSITORY https://github.com/OPAE/opae-test.git
           PREFIX ${CMAKE_BINARY_DIR}/opae-test
-          CMAKE_ARGS -DOPAE_INCLUDE_PATH=${OPAE_INCLUDE_PATH} -DOPAE_LIBS_ROOT=${OPAE_LIBS_ROOT}
+          CMAKE_ARGS -DOPAE_INCLUDE_PATH=${OPAE_INCLUDE_PATH} -DOPAE_LIBS_ROOT=${OPAE_LIBS_ROOT} -DOPAE_ENABLE_MOCK=${WILL_USE_MOCK} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
           INSTALL_COMMAND ""
           BUILD_COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR> --config $<CONFIG> --target test_system
           COMMENT "adding opae-test"

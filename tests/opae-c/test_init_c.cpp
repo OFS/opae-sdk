@@ -178,9 +178,9 @@ TEST(init, log_file) {
  * @brief      When WITH_ASE is specified, opae_ase.cfg will
  *             be searched from OPAE source directory, OPAE
  *             installation directory or home/system config directory.
- *             
+ *
  */
-TEST(init, find_ase_cfg) {
+TEST(init, DISABLED_find_ase_cfg) {
   char *cfg_path = nullptr;
 
   ASSERT_EQ(0, putenv((char*)"WITH_ASE=1"));

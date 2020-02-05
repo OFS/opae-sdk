@@ -27,7 +27,11 @@
 cmake_minimum_required (VERSION 2.8)
 project(tests)
 
-find_package(opae-test)
+if (${OPAE_ENABLE_MOCK})
+    set(MOCK_COMPONENT MOCK)
+endif (${OPAE_ENABLE_MOCK})
+find_package(opae-test
+    OPTIONAL_COMPONENTS ${MOCK_COMPONENT})
 
 find_package(GTest)
 if(${GTest_FOUND})
@@ -45,5 +49,5 @@ endif()
 add_subdirectory(bitstream)
 add_subdirectory(opae-c)
 add_subdirectory(opae-cxx)
-add_subdirectory(pyopae)
+#add_subdirectory(pyopae)
 add_subdirectory(xfpga)
