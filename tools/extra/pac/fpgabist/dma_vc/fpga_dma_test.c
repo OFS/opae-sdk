@@ -704,7 +704,7 @@ int main(int argc, char *argv[])
 		hwloc_topology_t topology;
 		hwloc_topology_init(&topology);
 		hwloc_topology_set_flags(topology,
-			HWLOC_TOPOLOGY_FLAG_IS_THISSYSTEM);
+			HWLOC_TOPOLOGY_FLAG_IO_DEVICES);
 		hwloc_topology_load(topology);
 		hwloc_obj_t obj = hwloc_get_pcidev_by_busid(topology, dom, bus,
 							    dev, func);
@@ -721,11 +721,16 @@ int main(int argc, char *argv[])
 #endif
 		if (memory_affinity) {
 
+#if HWLOC_API_VERSION > 0x00020000
 			retval = hwloc_set_membind(
 				topology, obj2->nodeset, HWLOC_MEMBIND_THREAD,
 				HWLOC_MEMBIND_MIGRATE
 					| HWLOC_MEMBIND_BYNODESET);
-
+#else
+			retval = hwloc_set_membind_nodeset(
+				topology, obj2->nodeset, HWLOC_MEMBIND_THREAD,
+				HWLOC_MEMBIND_MIGRATE);
+#endif
 			ON_ERR_GOTO(retval, out_close,
 				    "hwloc_set_membind");
 		}
