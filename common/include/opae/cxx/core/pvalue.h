@@ -29,6 +29,7 @@
 #include <opae/utils.h>
 #include <uuid/uuid.h>
 #include <algorithm>
+#include <array>
 #include <cstring>
 #include <iostream>
 #include <type_traits>
