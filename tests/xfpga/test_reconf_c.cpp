@@ -24,8 +24,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include "gtest/gtest.h"
-#include "test_system.h"
-#include "test_utils.h"
+#include "mock/test_system.h"
+#include "mock/test_utils.h"
 
 extern "C" {
 #include <bitstream_int.h>

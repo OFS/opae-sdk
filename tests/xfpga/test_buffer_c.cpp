@@ -36,7 +36,7 @@ extern "C" {
 #include <tuple>
 #include "xfpga.h"
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 #include "intel-fpga.h"
 #include "fpga-dfl.h"
 #include <linux/ioctl.h>

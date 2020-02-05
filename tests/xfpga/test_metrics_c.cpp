@@ -50,10 +50,10 @@ extern "C" {
 #include <string>
 #include <vector>
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 #include "token_list_int.h"
 #include "xfpga.h"
-#include "test_utils.h"
+#include "mock/test_utils.h"
 
 #undef FPGA_MSG
 #define FPGA_MSG(fmt, ...) \

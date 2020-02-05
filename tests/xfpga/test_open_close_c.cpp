@@ -28,7 +28,7 @@ extern "C"{
 }
 
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 #include "xfpga.h"
 #include "types_int.h"
 #include "opae/mmio.h"

@@ -27,7 +27,7 @@
 #include <opae/fpga.h>
 #include "gtest/gtest.h"
 #include "xfpga.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -61,9 +61,9 @@ TEST(version_c, version_02) {
   fpga_version version = { 0xFF, 0xFF, 0xFFFF };
   
   EXPECT_EQ(FPGA_OK, xfpga_fpgaGetOPAECVersion(&version));
-  EXPECT_EQ(INTEL_FPGA_API_VER_MAJOR, version.major);
-  EXPECT_EQ(INTEL_FPGA_API_VER_MINOR, version.minor);
-  EXPECT_EQ(INTEL_FPGA_API_VER_REV, version.patch);
+  EXPECT_EQ(OPAE_VERSION_MAJOR, version.major);
+  EXPECT_EQ(OPAE_VERSION_MINOR, version.minor);
+  EXPECT_EQ(OPAE_VERSION_REVISION, version.patch);
 }
 
 /**
@@ -103,9 +103,9 @@ TEST(version_c, version_05) {
   char have[80];
   
   snprintf(want, 80, "%d.%d.%d",
-  		INTEL_FPGA_API_VER_MAJOR,
-  		INTEL_FPGA_API_VER_MINOR,
-  		INTEL_FPGA_API_VER_REV
+  		OPAE_VERSION_MAJOR,
+  		OPAE_VERSION_MINOR,
+  		OPAE_VERSION_REVISION
   	);
   
   EXPECT_EQ(FPGA_OK, xfpga_fpgaGetOPAECVersionString(have, 80));
@@ -145,7 +145,7 @@ TEST(version_c, version_07) {
  *             function returns FPGA_OK)
  */
 TEST(version_c, version_08) {
-  char want[] = INTEL_FPGA_API_HASH;
+  char want[] = OPAE_GIT_COMMIT_HASH;
   char have[80];
   
   EXPECT_EQ(FPGA_OK, xfpga_fpgaGetOPAECBuildString(have, 80));

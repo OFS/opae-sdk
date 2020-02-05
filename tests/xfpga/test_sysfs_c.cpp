@@ -63,7 +63,7 @@ fpga_result re_match_region(const char *fmt, char *inpstr, char type[], size_t,
 #include "xfpga.h"
 #include <fcntl.h>
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 
 const std::string single_sysfs_fme =
     "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0";

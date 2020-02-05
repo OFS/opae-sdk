@@ -36,7 +36,7 @@ int xfpga_plugin_finalize(void);
 #include <linux/ioctl.h>
 
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 #include "sysfs_int.h"
 
 #undef FPGA_MSG

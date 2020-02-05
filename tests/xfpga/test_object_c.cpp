@@ -27,7 +27,7 @@
 #include <uuid/uuid.h>
 #include <fstream>
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 #include "types_int.h"
 #include "xfpga.h"
 #include "sysfs_int.h"

@@ -33,7 +33,7 @@ int xfpga_plugin_finalize(void);
 
 #include "gtest/gtest.h"
 #include "sysfs_int.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 #include "types_int.h"
 #include "sysfs_int.h"
 

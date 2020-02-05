@@ -29,7 +29,7 @@
 #include "intel-fpga.h"
 #include "gtest/gtest.h"
 #include "types_int.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 #include <opae/mmio.h>
 #include <cstdarg>
 #include <linux/ioctl.h>

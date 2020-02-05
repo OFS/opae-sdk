@@ -43,7 +43,7 @@ extern "C" {
 #include <string>
 #include <vector>
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 
 using namespace opae::testing;
 

@@ -44,7 +44,7 @@ int opae_plugin_configure(opae_api_adapter_table *adapter,
 #include "xfpga.h"
 #include <fcntl.h>
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 #include "adapter.h"
 
 using namespace opae::testing;

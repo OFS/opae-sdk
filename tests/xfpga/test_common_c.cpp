@@ -33,7 +33,7 @@ fpga_result handle_check_and_lock(struct _fpga_handle*);
 fpga_result event_handle_check_and_lock(struct _fpga_event_handle*);
 }
 #include <opae/properties.h>
-#include "test_system.h"
+#include "mock/test_system.h"
 #include "gtest/gtest.h"
 #include "types_int.h"
 #include "sysfs_int.h"

@@ -53,7 +53,7 @@ extern "C" {
 #include <vector>
 #include "gtest/gtest.h"
 #include "intel-fpga.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 
 #undef FPGA_MSG
 #define FPGA_MSG(fmt, ...) \

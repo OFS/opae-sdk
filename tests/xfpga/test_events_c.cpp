@@ -45,7 +45,7 @@ int xfpga_plugin_finalize(void);
 #include <cstring>
 #include "types_int.h"
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 #include "fpgad_control.h"
 #include "safe_string/safe_string.h"
 

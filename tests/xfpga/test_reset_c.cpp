@@ -29,7 +29,7 @@
 #include "intel-fpga.h"
 #include "fpga-dfl.h"
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 #include "sysfs_int.h"
 #include <linux/ioctl.h>
 

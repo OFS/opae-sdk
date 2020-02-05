@@ -38,7 +38,7 @@
 #include <vector>
 #include "types_int.h"
 #include "sysfs_int.h"
-#include "mock_opae.h"
+#include "mock/mock_opae.h"
 extern "C" {
 #include "token_list_int.h"
 }

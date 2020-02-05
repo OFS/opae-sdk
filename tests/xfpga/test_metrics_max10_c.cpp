@@ -41,8 +41,8 @@ extern "C" {
 #include "gtest/gtest.h"
 #include "safe_string/safe_string.h"
 #include "sysfs_int.h"
-#include "test_system.h"
-#include "test_utils.h"
+#include "mock/test_system.h"
+#include "mock/test_utils.h"
 #include "token_list_int.h"
 #include "xfpga.h"
 
