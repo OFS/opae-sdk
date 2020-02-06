@@ -31,4 +31,29 @@ opae_add_shared_library(TARGET fpga_db
 
 if(OPAE_ENABLE_MOCK)
     target_compile_definitions(fpga_db PUBLIC -DENABLE_MOCK)
+    
+    add_custom_command(TARGET fpga_db
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+            ${OPAE_TEST_ROOT}/framework/mock_sys_tmp-1socket-nlb0.tar.gz
+            ${CMAKE_BINARY_DIR}
+        COMMAND ${CMAKE_COMMAND} -E copy
+            ${OPAE_TEST_ROOT}/framework/mock_sys_tmp-1socket-nlb0-vf.tar.gz
+            ${CMAKE_BINARY_DIR}
+        COMMAND ${CMAKE_COMMAND} -E copy
+            ${OPAE_TEST_ROOT}/framework/mock_sys_tmp-dcp-rc-nlb3.tar.gz
+            ${CMAKE_BINARY_DIR}
+        COMMAND ${CMAKE_COMMAND} -E copy
+            ${OPAE_TEST_ROOT}/framework/mock_sys_tmp-dfl0-nlb0.tar.gz
+            ${CMAKE_BINARY_DIR}
+        COMMAND ${CMAKE_COMMAND} -E copy
+            ${OPAE_TEST_ROOT}/framework/mock_sys_tmp-dcp-vc.tar.gz
+            ${CMAKE_BINARY_DIR}
+        COMMAND ${CMAKE_COMMAND} -E copy
+            ${OPAE_TEST_ROOT}/framework/mock_sys_tmp-dfl0_patchset2-nlb0.tar.gz
+            ${CMAKE_BINARY_DIR}
+        COMMAND ${CMAKE_COMMAND} -E copy
+            ${OPAE_TEST_ROOT}/framework/mock_sys_tmp-dcp-rc-dfl0_patchset2-nlb0.tar.gz
+            ${CMAKE_BINARY_DIR}
+    )
 endif(OPAE_ENABLE_MOCK)
