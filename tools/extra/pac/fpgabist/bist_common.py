@@ -140,6 +140,13 @@ def load_gbs(gbs_file, bdf):
         sys.exit(-1)
 
 
+def get_afuid(mode_list, device_id):
+    for dev_id, afu_id in mode_list.items():
+        if device_id == dev_id:
+            return afu_id.replace("-", "")
+    return -1
+
+
 class BistMode(object):
     name = ""
     afu_id = ""

@@ -39,7 +39,9 @@ dma_list = {bc.VCP_ID: {0: ('DDR4_A', 4*1024*1024*1024),
 
 class DmaMode(bc.BistMode):
     name = "dma_afu"
-    afu_id = "331db30c-9885-41ea-9081-f88b8f655caa"
+    mode_list = {0x09c4: "331db30c-9885-41ea-9081-f88b8f655caa",
+                 0x0b30: "331db30c-9885-41ea-9081-f88b8f655caa",
+                 0x0b2b: "331db30c-9885-41ea-9081-f88b8f655caa"}
 
     def __init__(self):
         # Specify the test(s) for a given architecture or the default (0)
