@@ -1,9 +1,9 @@
-#!/usr/bin/env python
-
+#!/usr/bin/env python3
 import argparse
 from array import array
 import struct
 import tempfile
+
 
 def reverse_bits(x, n):
     result = 0
@@ -46,13 +46,14 @@ def main():
                         help='output file')
 
     shlp = 'seek number of bytes into input file before reading'
-    parser.add_argument('-s', '--seek', type=lambda x: int(x,0), help=shlp);
+    parser.add_argument('-s', '--seek', type=lambda x: int(x, 0), help=shlp)
 
     phlp = 'pad to multiple of bytes'
-    parser.add_argument('-p', '--pad', type=lambda x: int(x,0), help=phlp);
+    parser.add_argument('-p', '--pad', type=lambda x: int(x, 0), help=phlp)
 
     pvhlp = 'value of byte used to pad [default to 0xff]'
-    parser.add_argument('-pv', '--pad-value', type=lambda x: int(x,0), help=pvhlp, default=0xff);
+    parser.add_argument('-pv', '--pad-value', type=lambda x: int(x, 0),
+                        help=pvhlp, default=0xff)
 
     endhlp = 'swap 32 bin endian before swapping bytes [Max10 RPDs]'
     parser.add_argument('-e', '--endian', action='store_true', help=endhlp)
