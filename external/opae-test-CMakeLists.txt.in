@@ -1,0 +1,19 @@
+cmake_minimum_required(VERSION 2.8.12)
+
+project(external NONE)
+
+include(ExternalProject)
+
+#### opae-test ####
+ExternalProject_Add(opae-test
+  GIT_REPOSITORY https://github.com/OPAE/opae-test.git
+  #PREFIX ${CMAKE_BINARY_DIR}/opae-test
+  SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/opae-test
+  BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/opae-test
+  # CMAKE_ARGS -DOPAE_INCLUDE_PATH=${OPAE_INCLUDE_PATH} -DOPAE_LIBS_ROOT=${OPAE_LIBS_ROOT} -DOPAE_ENABLE_MOCK=${WILL_USE_MOCK} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+  INSTALL_COMMAND ""
+  TEST_COMMAND ""
+  COMMENT "adding opae-test"
+)

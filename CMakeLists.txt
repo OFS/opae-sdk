@@ -91,6 +91,7 @@ mark_as_advanced(BUILD_OPAE_TESTS)
 option(OPAE_ENABLE_MOCK "Enable building of test infrastructure with mock" OFF)
 mark_as_advanced(OPAE_ENABLE_MOCK)
 
+add_subdirectory(external)
 add_subdirectory(safe_string)
 add_subdirectory(libopae-c)
 add_subdirectory(libbitstream)
