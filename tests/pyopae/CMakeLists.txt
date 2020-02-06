@@ -69,8 +69,6 @@ if (SUPPORTS_EMBEDDED_PYTHON)
             ${libjson-c_LIBRARIES}
             ${PYTHON_LIBRARIES})
 
-    #add_dependencies(test_unit test_pyopae)
-
     macro(add_pyopae_test pytest)
         add_custom_command(TARGET test_pyopae
            POST_BUILD
