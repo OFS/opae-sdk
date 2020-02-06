@@ -52,3 +52,4 @@ if(NOT libuuid_FOUND)
 endif()
 
 include(OPAECompiler)
+include(OPAETest)

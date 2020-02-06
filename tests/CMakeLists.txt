@@ -30,8 +30,6 @@ project(tests)
 if (${OPAE_ENABLE_MOCK})
     set(MOCK_COMPONENT MOCK)
 endif (${OPAE_ENABLE_MOCK})
-find_package(opae-test
-    OPTIONAL_COMPONENTS ${MOCK_COMPONENT})
 
 find_package(GTest)
 if(${GTest_FOUND})

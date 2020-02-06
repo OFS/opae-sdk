@@ -25,83 +25,9 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE
 
-find_path(opae_test
-    NAMES framework/mock/test_system.cpp
-    PATHS ${opae_test_framework}
-          ${CMAKE_BINARY_DIR}/opae-test/src/opae-test
-          ${CMAKE_SOURCE_DIR})
-
-if(NOT ${opae_test})
-
-    # look for desired componenents
-    set(opaetest_COMPONENTS ${opae-test_FIND_COMPONENTS})
-
-    # resolve inter-component dependencies
-    list(FIND opaetest_COMPONENTS "MOCK" WILL_USE_MOCK)
-    message(STATUS "test components: ${opaetest_COMPONENTS}")
-
-    include(ExternalProject)
-    ExternalProject_Add(opae-test
-          GIT_REPOSITORY https://github.com/OPAE/opae-test.git
-          PREFIX ${CMAKE_BINARY_DIR}/opae-test
-          CMAKE_ARGS -DOPAE_INCLUDE_PATH=${OPAE_INCLUDE_PATH} -DOPAE_LIBS_ROOT=${OPAE_LIBS_ROOT} -DOPAE_ENABLE_MOCK=${WILL_USE_MOCK} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-          INSTALL_COMMAND ""
-          BUILD_COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR> --config $<CONFIG> --target test_system
-          COMMENT "adding opae-test"
-    )
-    set(OPAE_TEST_ROOT "${CMAKE_BINARY_DIR}/opae-test/src/opae-test")
-
-    add_library(test_system IMPORTED SHARED GLOBAL)
-    add_dependencies(test_system opae-test)
-
-    add_library(fpga_db IMPORTED SHARED GLOBAL)
-    add_dependencies(fpga_db opae-test)
-
-    # Get source and binary directories from CMake project.
-    ExternalProject_Get_Property(opae-test source_dir binary_dir)
-
-    # Set libtest_system properties.
-    set_target_properties(test_system PROPERTIES
-        "IMPORTED_LOCATION" "${binary_dir}/framework/libtest_system.so")
-    set_target_properties(fpga_db PROPERTIES
-        "IMPORTED_LOCATION" "${binary_dir}/framework/libfpga_db.so")
-else()
-    set(OPAE_TEST_ROOT "${opae_test}")
-endif()
-
-set(OPAE_TEST_SRC_DIR ${OPAE_TEST_ROOT}/framework)
-set(OPAE_TEST_INCLUDE_DIRS ${OPAE_TEST_ROOT}/framework)
+set(OPAE_TEST_SRC_DIR ${CMAKE_SOURCE_DIR}/external/opae-test/framework)
+set(OPAE_TEST_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/external/opae-test/framework)
 set(OPAE_TEST_LIBRARIES test_system fpga_db)
-
-add_custom_command(TARGET opae-test
-    POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-        ${OPAE_TEST_ROOT}/framework/mock_sys_tmp-1socket-nlb0.tar.gz
-        ${CMAKE_BINARY_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy
-        ${OPAE_TEST_ROOT}/framework/mock_sys_tmp-1socket-nlb0-vf.tar.gz
-        ${CMAKE_BINARY_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy
-        ${OPAE_TEST_ROOT}/framework/mock_sys_tmp-dcp-rc-nlb3.tar.gz
-        ${CMAKE_BINARY_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy
-        ${OPAE_TEST_ROOT}/framework/mock_sys_tmp-dfl0-nlb0.tar.gz
-        ${CMAKE_BINARY_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy
-        ${OPAE_TEST_ROOT}/framework/mock_sys_tmp-dcp-vc.tar.gz
-        ${CMAKE_BINARY_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy
-        ${OPAE_TEST_ROOT}/framework/mock_sys_tmp-dfl0_patchset2-nlb0.tar.gz
-        ${CMAKE_BINARY_DIR}
-    COMMAND ${CMAKE_COMMAND} -E copy
-        ${OPAE_TEST_ROOT}/framework/mock_sys_tmp-dcp-rc-dfl0_patchset2-nlb0.tar.gz
-        ${CMAKE_BINARY_DIR}
-)
-
-if(${opae_test_framework})
-    set(opae_test_framework_FOUND true)
-    message(FATAL_ERROR "TBD")
-endif()
 
 function(opae_load_gtest)
     message(STATUS "Trying to fetch gtest through git...")
@@ -157,7 +83,12 @@ function(opae_test_add)
     cmake_parse_arguments(OPAE_TEST_ADD "${options}"
         "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    add_executable(${OPAE_TEST_ADD_TARGET} ${OPAE_TEST_ADD_SOURCE})
+    if(OPAE_ENABLE_MOCK)
+        set(MOCK_C ${OPAE_TEST_SRC_DIR}/mock/mock.c)
+    endif()
+
+    add_executable(${OPAE_TEST_ADD_TARGET}
+        ${OPAE_TEST_ADD_SOURCE} ${MOCK_C})
 
     set_target_properties(${OPAE_TEST_ADD_TARGET}
         PROPERTIES
@@ -186,8 +117,6 @@ function(opae_test_add)
         ${libuuid_LIBRARIES}
         ${GTEST_BOTH_LIBRARIES}
         ${OPAE_TEST_ADD_LIBS})
-
-    add_dependencies(${OPAE_TEST_ADD_TARGET} opae-test)
 
     add_test(
         NAME ${OPAE_TEST_ADD_TARGET}
