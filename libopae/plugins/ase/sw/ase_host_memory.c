@@ -53,7 +53,7 @@ static pthread_mutex_t ase_pt_lock = PTHREAD_MUTEX_INITIALIZER;
 static uint64_t *ase_pt_root;
 static bool ase_pt_enable_debug;
 
-static int ase_pt_length_to_level(uint64_t length);
+STATIC int ase_pt_length_to_level(uint64_t length);
 static uint64_t ase_pt_level_to_bit_idx(int pt_level);
 static void ase_pt_delete_tree(uint64_t *pt, int pt_level);
 static bool ase_pt_check_addr(uint64_t iova, int *pt_level);
@@ -267,8 +267,7 @@ static inline uint8_t ase_pt_incr_huge_entry(uint64_t *pt)
 	if (*pt == 0) {
 		// Not set yet -- initialize with high bit set and a refcount of 1
 		*pt = ((uint64_t)1 << 63) | 1;
-	}
-	else {
+	} else {
 		// Increment the refcount (stored in the low 8 bits)
 		uint64_t v = *pt;
 
@@ -344,7 +343,7 @@ static inline uint8_t ase_pt_decr_std_refcnt(uint64_t *pt, int idx)
  * Page size to level in the table. Level 3 is the root, though we never
  * return 3 since the hardware won't allocated 512GB huge pages.
  */
-static int ase_pt_length_to_level(uint64_t length)
+STATIC int ase_pt_length_to_level(uint64_t length)
 {
 	int pt_level;
 
@@ -545,12 +544,12 @@ static int ase_pt_pin_page(uint64_t va, uint64_t *iova, int pt_level)
 
 	idx = ase_pt_idx(*iova, level);
 	if (level) {
-		if (! ase_pt_entry_is_huge((uint64_t *)pt[idx]) && (pt[idx] != 0)) {
+		if (!ase_pt_entry_is_huge((uint64_t *)pt[idx]) && (pt[idx] != 0)) {
 			// Smaller pages in the same address range are already pinned.
 			// What should we do? mmap() allows overwriting existing
 			// mappings, so we behave like it for now.
 			ase_pt_delete_tree((uint64_t *)pt[idx], level - 1);
-            pt[idx] = 0;
+			pt[idx] = 0;
 		}
 
 		ase_pt_incr_huge_entry(&pt[idx]);
@@ -611,7 +610,7 @@ static int ase_pt_unpin_page(uint64_t iova, int pt_level)
 	idx = ase_pt_idx(iova, level);
 	if (level) {
 		// Drop a huge page
-		if (! ase_pt_entry_is_huge((uint64_t *)pt[idx])) {
+		if (!ase_pt_entry_is_huge((uint64_t *)pt[idx])) {
 			ASE_ERR("Attempt to unpin non-existent page.\n");
 			return -1;
 		}
