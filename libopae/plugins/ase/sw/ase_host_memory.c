@@ -50,12 +50,12 @@
 
 static pthread_mutex_t ase_pt_lock = PTHREAD_MUTEX_INITIALIZER;
 
-static uint64_t **ase_pt_root;
+static uint64_t *ase_pt_root;
 static bool ase_pt_enable_debug;
 
 STATIC int ase_pt_length_to_level(uint64_t length);
 static uint64_t ase_pt_level_to_bit_idx(int pt_level);
-static void ase_pt_delete_tree(uint64_t **pt, int pt_level);
+static void ase_pt_delete_tree(uint64_t *pt, int pt_level);
 static bool ase_pt_check_addr(uint64_t iova, int *pt_level);
 static int ase_pt_pin_page(uint64_t va, uint64_t *iova, int pt_level);
 static int ase_pt_unpin_page(uint64_t iova, int pt_level);
@@ -249,6 +249,97 @@ void ase_host_memory_terminate(void)
  */
 
 /*
+ * Test whether page table entry is a huge page. Huge pages are
+ * indicated by the high bit being set, which is otherwise impossible
+ * for a user-space pointer.
+ */
+static inline bool ase_pt_entry_is_huge(uint64_t *pt)
+{
+	return (uint64_t)pt >> 63;
+}
+
+/*
+ * Increment the reference counter for a huge page entry and return
+ * the new count.
+ */
+static inline uint8_t ase_pt_incr_huge_entry(uint64_t *pt)
+{
+	if (*pt == 0) {
+		// Not set yet -- initialize with high bit set and a refcount of 1
+		*pt = ((uint64_t)1 << 63) | 1;
+	} else {
+		// Increment the refcount (stored in the low 8 bits)
+		uint64_t v = *pt;
+
+		// Must already be a huge entry
+		assert(ase_pt_entry_is_huge((uint64_t *)*pt));
+
+		// Preserve all but the low 8 bits and add 1 to the low 8 bits
+		v = (v & ~(uint64_t)0xff) | ((uint8_t)v + 1);
+		*pt = v;
+	}
+
+	uint8_t c = *pt;
+	assert(c != 0);
+
+	return c;
+}
+
+/*
+ * Decrement the reference counter for a huge page entry and return
+ * the new count.
+ */
+static inline uint8_t ase_pt_decr_huge_entry(uint64_t *pt)
+{
+	// Must already be a huge entry
+	assert(ase_pt_entry_is_huge((uint64_t *)*pt));
+
+	// Decrement the refcount (stored in the low 8 bits)
+	uint64_t v = *pt;
+
+	// Preserve all but the low 8 bits and add 1 to the low 8 bits
+	v = (v & ~(uint64_t)0xff) | ((uint8_t)v - 1);
+	*pt = v;
+
+	uint8_t c = *pt;
+	assert(c != 0xff);
+
+	return c;
+}
+
+/*
+ * Get the reference count for idx in vector of 4KB page counters.
+ * A page table entry is valid when the reference count is nonzero.
+ */
+static inline uint8_t ase_pt_get_std_refcnt(uint64_t *pt, int idx)
+{
+	uint8_t *ctr_p = (uint8_t *)pt;
+	return ctr_p[idx];
+}
+
+/*
+ * Increment the reference count for idx in vector of 4KB page counters.
+ */
+static inline uint8_t ase_pt_incr_std_refcnt(uint64_t *pt, int idx)
+{
+	uint8_t *ctr_p = (uint8_t *)pt;
+	assert(ctr_p[idx] != 0xff);
+
+	return ++ctr_p[idx];
+}
+
+/*
+ * Decrement the reference count for idx in vector of 4KB page counters.
+ */
+static inline uint8_t ase_pt_decr_std_refcnt(uint64_t *pt, int idx)
+{
+	uint8_t *ctr_p = (uint8_t *)pt;
+	assert(ctr_p[idx] != 0);
+
+	return --ctr_p[idx];
+}
+
+/*
  * Page size to level in the table. Level 3 is the root, though we never
  * return 3 since the hardware won't allocated 512GB huge pages.
  */
@@ -297,25 +388,29 @@ static inline int ase_pt_idx(uint64_t iova, int pt_level)
 /*
  * Dump the page table for debugging.
  */
-static void ase_pt_dump(uint64_t **pt, uint64_t iova, int pt_level)
+static void ase_pt_dump(uint64_t *pt, uint64_t iova, int pt_level)
 {
 	if (pt == NULL)
 		return;
 
-	if (pt == (uint64_t **) -1) {
-		printf("  0x%016lx	  %ld\n", iova, 4096 * (1UL << (9 * (pt_level + 1))));
+	if (ase_pt_entry_is_huge(pt)) {
+		printf("  0x%016lx	  %ld  (refcnt %d)\n", iova,
+			   4096 * (1UL << (9 * (pt_level + 1))),
+			   (uint8_t)(uint64_t)pt);
 		return;
 	}
 
 	int idx;
 	for (idx = 0; idx < 512; idx++) {
 		if (pt_level > 0) {
-			ase_pt_dump((uint64_t **)pt[idx],
+			ase_pt_dump((uint64_t *)pt[idx],
 				    iova | ((uint64_t)idx << ase_pt_level_to_bit_idx(pt_level)),
 				    pt_level - 1);
 		} else {
-			if ((uint64_t)pt[idx / 64] & (1UL << (idx & 63))) {
-				printf("  0x%016lx	  4096\n", iova | (idx << 12));
+			uint8_t refcnt = ase_pt_get_std_refcnt(pt, idx);
+			if (refcnt) {
+				printf("  0x%016lx	  4096	(refcnt %d)\n",
+					   iova | (idx << 12), refcnt);
 			}
 		}
 	}
@@ -325,16 +420,16 @@ static void ase_pt_dump(uint64_t **pt, uint64_t iova, int pt_level)
 /*
  * Delete a sub-tree in the table.
  */
-static void ase_pt_delete_tree(uint64_t **pt, int pt_level)
+static void ase_pt_delete_tree(uint64_t *pt, int pt_level)
 {
-	if ((pt == NULL) || (pt == (uint64_t **) -1))
+	if ((pt == NULL) || ase_pt_entry_is_huge(pt))
 		return;
 
 	if (pt_level) {
 		// Drop sub-trees and then release this node.
 		int idx;
 		for (idx = 0; idx < 512; idx++) {
-			ase_pt_delete_tree((uint64_t **)pt[idx], pt_level - 1);
+			ase_pt_delete_tree((uint64_t *)pt[idx], pt_level - 1);
 		}
 		munmap(pt, 4096);
 	} else {
@@ -353,7 +448,7 @@ static bool ase_pt_check_addr(uint64_t iova, int *pt_level)
 	*pt_level = -1;
 
 	int level = 3;
-	uint64_t **pt = ase_pt_root;
+	uint64_t *pt = ase_pt_root;
 
 	while (level > 0) {
 		if (pt == NULL) {
@@ -365,9 +460,8 @@ static bool ase_pt_check_addr(uint64_t iova, int *pt_level)
 		// here are simple virtual pointers. We can do this since the table
 		// isn't actually translating -- it is simply indicating whether a
 		// physical address is pinned.
-		pt = (uint64_t **) pt[ase_pt_idx(iova, level)];
-		if (pt == (uint64_t **) -1) {
-			// -1 indicates a valid huge page mapping at this level.
+		pt = (uint64_t *) pt[ase_pt_idx(iova, level)];
+		if (ase_pt_entry_is_huge(pt)) {
 			*pt_level = level;
 			return true;
 		}
@@ -379,7 +473,7 @@ static bool ase_pt_check_addr(uint64_t iova, int *pt_level)
 	// of pointers. We do this to save space since the table only has to
 	// indicate whether a page is valid.
 	int idx = ase_pt_idx(iova, 0);
-	if (pt && ((uint64_t)pt[idx / 64] & (1UL << (idx & 63)))) {
+	if (pt && ase_pt_get_std_refcnt(pt, idx)) {
 		*pt_level = 0;
 		return true;
 	}
@@ -406,7 +500,7 @@ static int ase_pt_pin_page(uint64_t va, uint64_t *iova, int pt_level)
 
 	int idx;
 	int level = 3;
-	uint64_t **pt = ase_pt_root;
+	uint64_t *pt = ase_pt_root;
 
 	// Does the translation table need a page of pointers for this portion of
 	// the tree?
@@ -423,42 +517,44 @@ static int ase_pt_pin_page(uint64_t va, uint64_t *iova, int pt_level)
 
 	while (level != pt_level) {
 		idx = ase_pt_idx(*iova, level);
-		if (pt[idx] == NULL) {
+		if (pt[idx] == 0) {
 			if (level > 1) {
-				pt[idx] = mmap(NULL, 4096, PROT_READ | PROT_WRITE,
-							   MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+				pt[idx] = (uint64_t)mmap(NULL, 4096, PROT_READ | PROT_WRITE,
+										 MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 			} else {
-				pt[idx] = ase_malloc(64);
+				pt[idx] = (uint64_t)ase_malloc(512);
 			}
-			if ((pt[idx] == NULL) || (pt[idx] == MAP_FAILED)) {
+			if ((pt[idx] == 0) || (pt[idx] == (uint64_t)MAP_FAILED)) {
 				ASE_ERR("Simulated page table out of memory!\n");
-				pt[idx] = NULL;
+				pt[idx] = 0;
 				return -1;
 			}
 
-			ase_memset(pt[idx], 0, (level > 1) ? 4096 : 64);
+			ase_memset((void *)pt[idx], 0, (level > 1) ? 4096 : 512);
 		}
 
-		if (pt == (uint64_t **) -1) {
+		if (ase_pt_entry_is_huge(pt)) {
 			ASE_ERR("Attempt to map smaller page inside existing huge page\n");
 			return -1;
 		}
 
-		pt = (uint64_t **) pt[idx];
+		pt = (uint64_t *) pt[idx];
 		level -= 1;
 	}
 
 	idx = ase_pt_idx(*iova, level);
 	if (level) {
-		if (pt[idx] != NULL) {
-			// The page is already pinned. What should we do? mmap() allows overwriting
-			// existing mappings, so we behave like it for now.
-			ase_pt_delete_tree((uint64_t **)pt[idx], level - 1);
+		if (!ase_pt_entry_is_huge((uint64_t *)pt[idx]) && (pt[idx] != 0)) {
+			// Smaller pages in the same address range are already pinned.
+			// What should we do? mmap() allows overwriting existing
+			// mappings, so we behave like it for now.
+			ase_pt_delete_tree((uint64_t *)pt[idx], level - 1);
+			pt[idx] = 0;
 		}
 
-		pt[idx] = (uint64_t *) -1;
+		ase_pt_incr_huge_entry(&pt[idx]);
 	} else {
-		pt[idx / 64] = (uint64_t *)((uint64_t)pt[idx / 64] | (1UL << (idx & 63)));
+		ase_pt_incr_std_refcnt(pt, idx);
 	}
 
 	// Lock the "pinned" page so it more closely resembles the behavior of
@@ -487,7 +583,7 @@ static int ase_pt_unpin_page(uint64_t iova, int pt_level)
 
 	int idx;
 	int level = 3;
-	uint64_t **pt = ase_pt_root;
+	uint64_t *pt = ase_pt_root;
 	uint64_t length = 4096 * (1UL << (9 * pt_level));
 
 	uint64_t va = iova ^ ase_host_memory_gen_xor_mask(pt_level);
@@ -497,31 +593,34 @@ static int ase_pt_unpin_page(uint64_t iova, int pt_level)
 
 	while (level != pt_level) {
 		idx = ase_pt_idx(iova, level);
-		if (pt[idx] == NULL) {
+		if (pt[idx] == 0) {
 			ASE_ERR("Attempt to unpin non-existent page.\n");
 			return -1;
 		}
 
-		if (pt == (uint64_t **) -1) {
+		if (ase_pt_entry_is_huge(pt)) {
 			ASE_ERR("Attempt to unpin smaller page inside existing huge page\n");
 			return -1;
 		}
 
-		pt = (uint64_t **) pt[idx];
+		pt = (uint64_t *) pt[idx];
 		level -= 1;
 	}
 
 	idx = ase_pt_idx(iova, level);
 	if (level) {
 		// Drop a huge page
-		if (pt[idx] != (uint64_t *) -1) {
+		if (!ase_pt_entry_is_huge((uint64_t *)pt[idx])) {
 			ASE_ERR("Attempt to unpin non-existent page.\n");
 			return -1;
 		}
-		pt[idx] = NULL;
+		if (ase_pt_decr_huge_entry(&pt[idx]) == 0) {
+			// Reference count is 0. Clear the page.
+			pt[idx] = 0;
+		}
 	} else if (pt) {
 		// Drop a 4KB page
-		pt[idx / 64] = (uint64_t *)((uint64_t)pt[idx / 64] & ~(1UL << (idx & 63)));
+		ase_pt_decr_std_refcnt(pt, idx);
 	}
 
 	if (ase_pt_enable_debug) {
