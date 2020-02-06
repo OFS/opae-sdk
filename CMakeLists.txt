@@ -76,17 +76,17 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib CACHE PATH "Lib Build directory"
 ############################################################################
 ## Conditional Build Steps #################################################
 ############################################################################
-option(BUILD_LIBOPAE_CXX "Enable building of C++ bindings around libopae-c." ON)
-mark_as_advanced(BUILD_LIBOPAE_CXX)
+option(OPAE_BUILD_LIBOPAE_CXX "Enable building of C++ bindings around libopae-c." ON)
+mark_as_advanced(OPAE_BUILD_LIBOPAE_CXX)
 
-option(BUILD_LIBOPAE_PY "Enable building of Python bindings around libopae-cxx-core." ON)
-mark_as_advanced(BUILD_LIBOPAE_PY)
+option(OPAE_BUILD_LIBOPAE_PY "Enable building of Python bindings around libopae-cxx-core." ON)
+mark_as_advanced(OPAE_BUILD_LIBOPAE_PY)
 
-option(BUILD_PYTHON_DIST "Enable building of Python source and binary distribution" OFF)
-mark_as_advanced(BUILD_PYTHON_DIST)
+option(OPAE_BUILD_PYTHON_DIST "Enable building of Python source and binary distribution" OFF)
+mark_as_advanced(OPAE_BUILD_PYTHON_DIST)
 
-option(BUILD_OPAE_TESTS "Enable building of OPAE unit tests" OFF)
-mark_as_advanced(BUILD_OPAE_TESTS)
+option(OPAE_BUILD_TESTS "Enable building of OPAE unit tests" OFF)
+mark_as_advanced(OPAE_BUILD_TESTS)
 
 option(OPAE_ENABLE_MOCK "Enable building of test infrastructure with mock" OFF)
 mark_as_advanced(OPAE_ENABLE_MOCK)
@@ -97,18 +97,18 @@ add_subdirectory(libopae-c)
 add_subdirectory(libbitstream)
 add_subdirectory(plugins)
 
-if(BUILD_LIBOPAE_CXX)
+if(OPAE_BUILD_LIBOPAE_CXX)
     add_subdirectory(libopaecxx)
 endif()
 
-if(BUILD_LIBOPAE_PY AND BUILD_LIBOPAE_CXX)
+if(OPAE_BUILD_LIBOPAE_PY AND OPAE_BUILD_LIBOPAE_CXX)
     add_subdirectory(pyopae)
 endif()
 
-if(BUILD_OPAE_TESTS)
+if(OPAE_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
-endif(BUILD_OPAE_TESTS)
+endif(OPAE_BUILD_TESTS)
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/config/config.h.in"
                "${PROJECT_BINARY_DIR}/include/config.h")

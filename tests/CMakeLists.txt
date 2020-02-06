@@ -27,10 +27,6 @@
 cmake_minimum_required (VERSION 2.8)
 project(tests)
 
-if (${OPAE_ENABLE_MOCK})
-    set(MOCK_COMPONENT MOCK)
-endif (${OPAE_ENABLE_MOCK})
-
 find_package(GTest)
 if(${GTest_FOUND})
     message(STATUS Found GTest)

@@ -88,7 +88,7 @@ add_custom_command(TARGET _opae
     ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}
     COMMENT "Copying Python test files")
 
-if (BUILD_PYTHON_DIST)
+if (OPAE_BUILD_PYTHON_DIST)
     set(SETUP_INCLUDE_DIRS "${OPAE_INCLUDE_DIR}:${PYBIND_INCLUDE_DIR}")
 
     set(PYFILES
@@ -118,4 +118,4 @@ if (BUILD_PYTHON_DIST)
         DEPENDS ${PYFILES} ${PYOPAE_SRC}
         WORKING_DIRECTORY ${PYDIST_STAGE_DIR}
         COMMENT "Building Python distrubutions")
-endif (BUILD_PYTHON_DIST)
+endif (OPAE_BUILD_PYTHON_DIST)
