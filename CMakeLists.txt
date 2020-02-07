@@ -111,4 +111,4 @@ if(OPAE_BUILD_TESTS)
 endif(OPAE_BUILD_TESTS)
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/config/config.h.in"
-               "${PROJECT_BINARY_DIR}/include/config.h")
+               "${CMAKE_BINARY_DIR}/include/config.h")
