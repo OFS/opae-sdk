@@ -95,6 +95,14 @@ function(opae_test_add)
             CXX_STANDARD 11
             CXX_STANDARD_REQUIRED YES
             CXX_EXTENSIONS NO)
+    target_compile_definitions(${OPAE_TEST_ADD_TARGET}
+        PRIVATE
+            HAVE_CONFIG_H=1)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        target_compile_definitions(${OPAE_TEST_ADD_TARGET}
+            PRIVATE
+                LIBOPAE_DEBUG=1)
+    endif()
 
     target_include_directories(${OPAE_TEST_ADD_TARGET}
         PUBLIC
@@ -143,9 +151,15 @@ function(opae_test_add_static_lib)
         PRIVATE ${OPAE_LIBS_ROOT}/plugins/xfpga
         PRIVATE ${OPAE_LIBS_ROOT}/libopae-c)
 
-    set_target_properties(${OPAE_TEST_ADD_STATIC_LIB_TARGET}
-        PROPERTIES
-            COMPILE_FLAGS "-DSTATIC=''")
+    target_compile_definitions(${OPAE_TEST_ADD_STATIC_LIB_TARGET}
+        PRIVATE
+            HAVE_CONFIG_H=1
+            STATIC=)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        target_compile_definitions(${OPAE_TEST_ADD_STATIC_LIB_TARGET}
+            PRIVATE
+                LIBOPAE_DEBUG=1)
+    endif()
 
     target_link_libraries(${OPAE_TEST_ADD_STATIC_LIB_TARGET}
         ${OPAE_TEST_ADD_STATIC_LIB_LIBS})

@@ -93,15 +93,6 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -Wall -Wextra -Werror -pthread")
 set(CMAKE_C_FLAGS_MINSIZEREL       "-Os -Wall -Wextra -Werror -pthread")
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -Wall -Wextra -Werror -pthread")
 
-add_definitions(-DHAVE_CONFIG_H)
-
-############################################################################
-## Enable debug logging for Debug builds. ##################################
-############################################################################
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_definitions(-DLIBOPAE_DEBUG)
-endif()
-
 ############################################################################
 ## Enable defensive options for Release builds. ############################
 ############################################################################
@@ -197,6 +188,14 @@ function(opae_add_executable)
         PUBLIC ${libuuid_INCLUDE_DIRS})
 
     set_property(TARGET ${OPAE_ADD_EXECUTABLE_TARGET} PROPERTY C_STANDARD 99)
+    target_compile_definitions(${OPAE_ADD_EXECUTABLE_TARGET}
+        PRIVATE
+            HAVE_CONFIG_H=1)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        target_compile_definitions(${OPAE_ADD_EXECUTABLE_TARGET}
+            PRIVATE
+                LIBOPAE_DEBUG=1)
+    endif()
 
     target_link_libraries(${OPAE_ADD_EXECUTABLE_TARGET} ${OPAE_ADD_EXECUTABLE_LIBS})
 
@@ -224,6 +223,14 @@ function(opae_add_shared_library)
         PUBLIC ${libuuid_INCLUDE_DIRS})
 
     set_property(TARGET ${OPAE_ADD_SHARED_LIBRARY_TARGET} PROPERTY C_STANDARD 99)
+    target_compile_definitions(${OPAE_ADD_SHARED_LIBRARY_TARGET}
+        PRIVATE
+            HAVE_CONFIG_H=1)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        target_compile_definitions(${OPAE_ADD_SHARED_LIBRARY_TARGET}
+            PRIVATE
+                LIBOPAE_DEBUG=1)
+    endif()
 
     if(OPAE_ADD_SHARED_LIBRARY_VERSION AND OPAE_ADD_SHARED_LIBRARY_SOVERSION)
         set_target_properties(${OPAE_ADD_SHARED_LIBRARY_TARGET} PROPERTIES
@@ -257,6 +264,14 @@ function(opae_add_module_library)
         PUBLIC ${libuuid_INCLUDE_DIRS})
 
     set_property(TARGET ${OPAE_ADD_MODULE_LIBRARY_TARGET} PROPERTY C_STANDARD 99)
+    target_compile_definitions(${OPAE_ADD_MODULE_LIBRARY_TARGET}
+        PRIVATE
+            HAVE_CONFIG_H=1)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        target_compile_definitions(${OPAE_ADD_MODULE_LIBRARY_TARGET}
+            PRIVATE
+                LIBOPAE_DEBUG=1)
+    endif()
 
     target_link_libraries(${OPAE_ADD_MODULE_LIBRARY_TARGET} ${OPAE_ADD_MODULE_LIBRARY_LIBS})
 
@@ -283,7 +298,15 @@ function(opae_add_static_library)
     set_property(TARGET ${OPAE_ADD_STATIC_LIBRARY_TARGET}
         PROPERTY
             POSITION_INDEPENDENT_CODE ON)
-    target_compile_definitions(${OPAE_ADD_STATIC_LIBRARY_TARGET} PRIVATE PIC=1)
+    target_compile_definitions(${OPAE_ADD_STATIC_LIBRARY_TARGET}
+        PRIVATE
+            PIC=1
+            HAVE_CONFIG_H=1)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        target_compile_definitions(${OPAE_ADD_STATIC_LIBRARY_TARGET}
+            PRIVATE
+                LIBOPAE_DEBUG=1)
+    endif()
 
     target_link_libraries(${OPAE_ADD_STATIC_LIBRARY_TARGET}
         ${OPAE_ADD_STATIC_LIBRARY_LIBS})
