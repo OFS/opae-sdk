@@ -25,7 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 2.8.12)
-include(packaging)
+#include(packaging)
 
 ## Install target for jsonschema files
 set(JSONSCHEMA_SHARE_DIR share/opae/python)

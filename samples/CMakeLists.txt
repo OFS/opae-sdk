@@ -24,9 +24,9 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-find_package(UUID REQUIRED)
-include(opae_devpkgs_cmake_install)
-include(ase_add_module)
+#find_package(UUID REQUIRED)
+#include(opae_devpkgs_cmake_install)
+#include(ase_add_module)
 
 include_directories(${OPAE_INCLUDE_DIR}
   ${OPAE_SDK_SOURCE}/libopae/src )

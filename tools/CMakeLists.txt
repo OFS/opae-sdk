@@ -33,7 +33,6 @@ add_subdirectory(fpgainfo)
 add_subdirectory(fpgametrics)
 
 # extra
-add_subdirectory(extra/coreidle)
 add_subdirectory(extra/userclk)
 add_subdirectory(extra/packager)
 add_subdirectory(extra/c++utils)
