@@ -107,7 +107,6 @@ cp samples/object_api.c %{buildroot}%{_usr}/src/opae/samples/
 cd mybuild
 make DESTDIR=%{buildroot} install
 mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/
-mv %{buildroot}%{_usr}/lib/systemd/system/fpgad.service %{buildroot}%{_sysconfdir}/systemd/system/fpgad.service
 
 %clean
 
@@ -156,14 +155,8 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_bindir}/fpgaconf*
 %{_bindir}/fpgainfo*
 %{_bindir}/fpgametrics*
-%{_bindir}/fpgad*
-%config(noreplace) %{_sysconfdir}/opae/fpgad.cfg*
-%config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
-%config(noreplace) %{_sysconfdir}/systemd/system/fpgad.service
-%{_libdir}/libfpgad-api.so*
 %dir %{_libdir}/opae
-%{_libdir}/opae/libfpgad-xfpga.so*
-%{_libdir}/opae/libfpgad-vc.so*
+
 
 %files tools-extra
 %defattr(-,root,root,-)
@@ -174,13 +167,10 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_bindir}/bist_def.py
 %{_bindir}/bist_nlb3.py
 %{_bindir}/bist_nlb0.py
-%{_bindir}/coreidle
 %{_bindir}/fpga_dma_vc_test
 %{_bindir}/bist
 %{_bindir}/fpgabist
 %{_bindir}/fpgadiag
-%{_bindir}/hssi_config
-%{_bindir}/hssi_loopback
 %{_bindir}/mmlink
 %{_bindir}/nlb0
 %{_bindir}/nlb3
@@ -188,9 +178,7 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_bindir}/mactest
 %{_bindir}/fpgalpbk
 %{_bindir}/fpgastats
-%{_bindir}/ras
 %{_bindir}/userclk
-%{_libdir}/libhssi*
 %{_libdir}/libopae-c++-nlb.so*
 %{_libdir}/libopae-c++-utils.so*
 %dir %{_datadir}/opae

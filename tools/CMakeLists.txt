@@ -31,14 +31,14 @@ add_subdirectory(base/libboard/board_vc)
 
 # base
 add_subdirectory(base/fpgaconf)
-add_subdirectory(base/fpgad)
+#add_subdirectory(base/fpgad)
 add_subdirectory(base/argsfilter)
 add_subdirectory(base/fpgainfo)
 #add_subdirectory(base/fpgaport)
 add_subdirectory(base/fpgametrics)
 
 # extra
-add_subdirectory(extra/coreidle)
+#add_subdirectory(extra/coreidle)
 add_subdirectory(extra/userclk)
 #add_subdirectory(extra/packager)
 #if (BUILD_PYTHON_DIST)
@@ -48,10 +48,10 @@ add_subdirectory(extra/userclk)
 add_subdirectory(extra/c++utils)
 add_subdirectory(extra/fpgadiag)
 add_subdirectory(extra/mmlink)
-add_subdirectory(extra/ras)
+#add_subdirectory(extra/ras)
 
 # integrated
-add_subdirectory(extra/integrated/hssi)
+#add_subdirectory(extra/integrated/hssi)
 
 # pac
 #add_subdirectory(extra/pac/fpgaflash)
