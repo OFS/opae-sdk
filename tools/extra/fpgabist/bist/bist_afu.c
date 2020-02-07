@@ -143,9 +143,9 @@ int main(int argc, char *argv[])
 			break;
 		case 'v':
 			printf("bist_app %s %s%s\n",
-			       INTEL_FPGA_API_VERSION,
-			       INTEL_FPGA_API_HASH,
-			       INTEL_FPGA_TREE_DIRTY ? "*":"");
+			       OPAE_VERSION,
+			       OPAE_GIT_COMMIT_HASH,
+			       OPAE_GIT_SRC_TREE_DIRTY ? "*":"");
 			exit(0);
 		default:
 			printf("USAGE: %s [-s] [-v]\n", argv[0]);

@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2019, Intel Corporation
+## Copyright(c) 2017-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -23,51 +23,70 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
-if(BUILD_ASE)
-  add_definitions(-DTARGET_ASE)
-endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_CONFIG_H -std=c++11")
-include_directories(
-    ${OPAE_INCLUDE_DIR}
-    ${libjson-c_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${OPAE_SDK_SOURCE}/tools/extra/c++utils
+opae_add_shared_library(TARGET opae-c++-nlb
+    SOURCE
+        nlb.h
+        nlb_cache_prime.h
+        nlb_cache_prime.cpp
+        nlb_stats.h
+        nlb_stats.cpp
+        nlb0.h
+        nlb0.cpp
+        nlb3.h
+        nlb3.cpp
+        nlb7.h
+        nlb7.cpp
+        perf_counters.h
+        perf_counters.cpp
+        diag_utils.cpp
+    LIBS
+        safestr
+        opae-c
+        opae-cxx-core 
+    VERSION ${OPAE_VERSION}
+    SOVERSION ${OPAE_VERSION_MAJOR}
+)
+
+target_include_directories(opae-c++-nlb
+    PRIVATE
+        ${OPAE_SDK_SOURCE}/tools/extra/c++utils
+)
+
+set_target_properties(opae-c++-nlb
+    PROPERTIES
+        CXX_STANDARD 11
+        CXX_STANDARD_REQUIRED YES
+        CXX_EXTENSIONS NO
+)
+
+function(add_fpgadiag_app target source)
+    opae_add_executable(TARGET ${target}
+        SOURCE ${source}
+        LIBS
+            safestr
+            opae-c
+            opae-cxx-core
+            opae-c++-utils
+            opae-c++-nlb
+            ${libjson-c_LIBRARIES}
+            ${libuuid_LIBRARIES}
     )
+    set_target_properties(${target}
+        PROPERTIES
+            CXX_STANDARD 11
+            CXX_STANDARD_REQUIRED YES
+            CXX_EXTENSIONS NO
+    )
+    target_include_directories(${target}
+        PRIVATE
+            ${OPAE_SDK_SOURCE}/tools/extra/c++utils
+    )
+endfunction()
 
-add_library(opae-c++-nlb SHARED nlb.h
-                       nlb_cache_prime.h
-                       nlb_cache_prime.cpp
-                       nlb_stats.h
-                       nlb_stats.cpp
-                       nlb0.h
-                       nlb0.cpp
-                       nlb3.h
-                       nlb3.cpp
-                       nlb7.h
-                       nlb7.cpp
-                       perf_counters.h
-                       perf_counters.cpp
-                       diag_utils.cpp)
-
-set_install_rpath(opae-c++-nlb)
-
-target_link_libraries(opae-c++-nlb opae-c opae-cxx-core pthread)
-
-set_target_properties(opae-c++-nlb PROPERTIES
-  VERSION ${INTEL_FPGA_API_VERSION}
-  SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
-
-macro(add_fpgadiag_app target_name sources)
-    add_executable(${target_name} ${sources})
-    target_link_libraries(${target_name} opae-c++-utils uuid pthread opae-c
-        opae-cxx-core opae-c++-nlb)
-    set_install_rpath(${target_name})
-endmacro(add_fpgadiag_app target_name sources)
-
-add_fpgadiag_app( nlb0    nlb0_main.cpp   )
-add_fpgadiag_app( nlb3    nlb3_main.cpp   )
-add_fpgadiag_app( nlb7    nlb7_main.cpp   )
+add_fpgadiag_app(nlb0 nlb0_main.cpp)
+add_fpgadiag_app(nlb3 nlb3_main.cpp)
+add_fpgadiag_app(nlb7 nlb7_main.cpp)
 
 set(binaries nlb0
              nlb3

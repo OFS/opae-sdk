@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2019, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -280,9 +280,9 @@ int parse_args(int argc, char *argv[])
 
 		case 'v': /* version */
 			fprintf(stdout, "fpgaconf %s %s%s\n",
-					INTEL_FPGA_API_VERSION,
-					INTEL_FPGA_API_HASH,
-					INTEL_FPGA_TREE_DIRTY ? "*":"");
+					OPAE_VERSION,
+					OPAE_GIT_COMMIT_HASH,
+					OPAE_GIT_SRC_TREE_DIRTY ? "*":"");
 			return -1;
 
 		case ':': /* missing option argument */

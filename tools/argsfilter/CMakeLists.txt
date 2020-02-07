@@ -1,4 +1,4 @@
-## Copyright(c) 2018, Intel Corporation
+## Copyright(c) 2018-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -23,15 +23,10 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
-cmake_minimum_required (VERSION 2.8)
 
 project(argsfilter)
 
-add_library(${PROJECT_NAME} STATIC argsfilter.c)
-
-set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 99)
-set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
-target_compile_definitions(${PROJECT_NAME} PRIVATE PIC=1)
-target_compile_options(${PROJECT_NAME} PRIVATE -O3)
-target_link_libraries(${PROJECT_NAME} opae-c)
-
+opae_add_static_library(TARGET argsfilter
+    SOURCE argsfilter.c
+    LIBS opae-c
+)

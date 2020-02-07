@@ -238,9 +238,9 @@ fpga_result parse_args(int argc, char *argv[])
 
 		case 'v':
 			printf("fpga_dma_vc_test %s %s%s\n",
-			       INTEL_FPGA_API_VERSION,
-			       INTEL_FPGA_API_HASH,
-			       INTEL_FPGA_TREE_DIRTY ? "*":"");
+			       OPAE_VERSION,
+			       OPAE_GIT_COMMIT_HASH,
+			       OPAE_GIT_SRC_TREE_DIRTY ? "*":"");
 			return -2;
 
 		default: /* invalid option */

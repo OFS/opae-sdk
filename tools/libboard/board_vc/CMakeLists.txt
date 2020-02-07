@@ -1,4 +1,4 @@
-## Copyright(c) 2019, Intel Corporation
+## Copyright(c) 2019-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -26,41 +26,14 @@
 
 project(libboard_vc)
 
-set(SRC
-    board_vc.c
-    )
-
-add_library(board_vc MODULE ${SRC})
-
-target_include_directories(board_rc PUBLIC
-  $<BUILD_INTERFACE:${OPAE_INCLUDE_DIR}>
-  $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
-  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-
-# Add coverage flags
-if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-  set_property(SOURCE ${SRC} APPEND PROPERTY COMPILE_FLAGS ${GCOV_COMPILE_FLAGS})
-endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-
-# Target properties
-set_property(TARGET board_vc PROPERTY C_STANDARD 99)
-set_target_properties(board_vc PROPERTIES
-  VERSION ${INTEL_FPGA_API_VERSION}
-  SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
-
-# Add coverage flags
-if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-  target_link_libraries(board_vc ${GCOV_LINK_FLAGS})
-endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-
-target_link_libraries(board_vc
-  safestr
-  opae-c
-  ${CMAKE_THREAD_LIBS_INIT})
-
-set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS} -pthread")
+opae_add_module_library(TARGET board_vc
+    SOURCE board_vc.c
+    LIBS
+        ${CMAKE_THREAD_LIBS_INIT}
+        safestr
+        opae-c
+)
 
 install(TARGETS board_vc
   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
   COMPONENT opaeclib)
-

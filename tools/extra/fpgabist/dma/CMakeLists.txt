@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2019, Intel Corporation
+## Copyright(c) 2017-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -28,19 +28,31 @@ enable_language(C ASM)
 
 set(ASM_OPTIONS "-x assembler-with-cpp")
 set(CMAKE_ASM_FLAGS "${CFLAGS} ${ASM_OPTIONS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHAVE_CONFIG_H -std=c++11 -DFPGA_DMA_MAX_BLOCKS=256 -DFPGA_DMA_BLOCK_SIZE=64")
-
-include_directories(${OPAE_INCLUDE_DIR}
-                    ${libjson-c_INCLUDE_DIRS}
-                    ${OPAE_SDK_SOURCE}/libopae/src
-                    ${HWLOC_INCLUDE_DIRS}
-                    ${TBB_INCLUDE_DIRS})
 
 file(GLOB CSources *.cpp *.S)
-add_executable(fpga_dma_test ${CSources})
-set_install_rpath(fpga_dma_test)
+opae_add_executable(TARGET fpga_dma_test
+    SOURCE ${CSources}
+    LIBS
+        rt
+        safestr
+        opae-c
+        ${TBB_LIBRARIES}
+        ${HWLOC_LIBRARIES}
+        ${libjson-c_LIBRARIES}
+)
 
-target_link_libraries(fpga_dma_test opae-c ${libjson-c_LIBRARIES} uuid rt ${TBB_LIBRARIES} ${HWLOC_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+set_target_properties(fpga_dma_test
+    PROPERTIES
+        CXX_STANDARD 11
+        CXX_STANDARD_REQUIRED YES
+        CXX_EXTENSIONS NO
+)
+
+target_compile_definitions(fpga_dma_test
+    PRIVATE
+        FPGA_DMA_MAX_BLOCKS=256
+        FPGA_DMA_BLOCK_SIZE=64
+)
 
 install(TARGETS fpga_dma_test
         RUNTIME DESTINATION bin

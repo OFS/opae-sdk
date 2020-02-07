@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -23,6 +23,10 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
+    "${OPAE_SDK_SOURCE}/opae-libs/cmake/modules")
+include(FindHwloc)
 
 #TODO: Edit the code dependencies here
 set(PYTHON_SRC
