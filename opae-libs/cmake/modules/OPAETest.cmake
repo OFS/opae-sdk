@@ -25,8 +25,8 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE
 
-set(OPAE_TEST_SRC_DIR ${CMAKE_SOURCE_DIR}/external/opae-test/framework)
-set(OPAE_TEST_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/external/opae-test/framework)
+set(OPAE_TEST_SRC_DIR ${OPAE_LIBS_ROOT}/external/opae-test/framework)
+set(OPAE_TEST_INCLUDE_DIRS ${OPAE_LIBS_ROOT}/external/opae-test/framework)
 set(OPAE_TEST_LIBRARIES test_system fpga_db)
 
 function(opae_load_gtest)
@@ -102,9 +102,9 @@ function(opae_test_add)
             $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
             $<INSTALL_INTERFACE:include>
         PRIVATE
+            ${OPAE_LIBS_ROOT}
             ${OPAE_LIBS_ROOT}/plugins/xfpga
             ${OPAE_LIBS_ROOT}/libopae-c
-            ${OPAE_LIBS_ROOT}/libbitstream
             ${OPAE_TEST_INCLUDE_DIRS}
             ${GTEST_INCLUDE_DIRS})
 
