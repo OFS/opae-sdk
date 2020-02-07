@@ -44,10 +44,10 @@ extern "C" {
 #endif
 
 
-typedef struct _sysfs_fpga_device sysfs_fpga_device;
+struct _sysfs_fpga_device;
 
 typedef struct _sysfs_fpga_region {
-	sysfs_fpga_device *device;
+	struct _sysfs_fpga_device *device;
 	char sysfs_path[SYSFS_PATH_MAX];
 	char sysfs_name[SYSFS_PATH_MAX];
 	fpga_objtype type;
