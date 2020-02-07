@@ -25,9 +25,12 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE
 
-set(OPAE_TEST_SRC_DIR ${OPAE_LIBS_ROOT}/external/opae-test/framework)
-set(OPAE_TEST_INCLUDE_DIRS ${OPAE_LIBS_ROOT}/external/opae-test/framework)
-set(OPAE_TEST_LIBRARIES test_system fpga_db)
+set(OPAE_TEST_SRC_DIR ${OPAE_LIBS_ROOT}/external/opae-test/framework
+    CACHE PATH "OPAE test source dir." FORCE)
+set(OPAE_TEST_INCLUDE_DIRS ${OPAE_LIBS_ROOT}/external/opae-test/framework
+    CACHE PATH "OPAE test include dir." FORCE)
+set(OPAE_TEST_LIBRARIES test_system fpga_db
+    CACHE LIST "OPAE test libs." FORCE)
 
 function(opae_load_gtest)
     message(STATUS "Trying to fetch gtest through git...")
@@ -68,12 +71,16 @@ function(opae_load_gtest)
         "IMPORTED_LINK_INTERFACE_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}")
 
     # Export gtest variables
-    set(GTEST_ROOT ${gtest_root} PARENT_SCOPE)
-    set(GTEST_INCLUDE_DIRS ${gtest_root}/include PARENT_SCOPE)
-    set(GTEST_MAIN_LIBRARY libgtest_main PARENT_SCOPE)
-    set(GTEST_LIBRARIES libgtest PARENT_SCOPE)
-    set(GTEST_BOTH_LIBRARIES libgtest_main libgtest PARENT_SCOPE)
-    set(GTEST_FOUND true PARENT_SCOPE)
+    set(GTEST_ROOT "${gtest_root}" CACHE PATH "GTest root dir." FORCE)
+    set(GTEST_INCLUDE_DIRS "${gtest_root}/include"
+        CACHE PATH "GTest include dir." FORCE)
+    set(GTEST_MAIN_LIBRARY "libgtest_main"
+        CACHE PATH "GTest main lib." FORCE)
+    set(GTEST_LIBRARIES "libgtest"
+        CACHE PATH "GTest test lib." FORCE)
+    set(GTEST_BOTH_LIBRARIES libgtest_main libgtest
+        CACHE LIST "GTest both libs." FORCE) 
+    set(GTEST_FOUND TRUE CACHE BOOL "GTest found?" FORCE)
 endfunction()
 
 function(opae_test_add)
