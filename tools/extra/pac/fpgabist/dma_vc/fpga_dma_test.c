@@ -703,8 +703,13 @@ int main(int argc, char *argv[])
 		// Find the device from the topology
 		hwloc_topology_t topology;
 		hwloc_topology_init(&topology);
+#if HWLOC_API_VERSION >= 0x00020000
 		hwloc_topology_set_flags(topology,
-					 HWLOC_TOPOLOGY_FLAG_IO_DEVICES);
+			HWLOC_TOPOLOGY_FLAG_IS_THISSYSTEM);
+#else
+		hwloc_topology_set_flags(topology,
+			HWLOC_TOPOLOGY_FLAG_IO_DEVICES);
+#endif
 		hwloc_topology_load(topology);
 		hwloc_obj_t obj = hwloc_get_pcidev_by_busid(topology, dom, bus,
 							    dev, func);
@@ -720,15 +725,17 @@ int main(int argc, char *argv[])
 		printf("NODESET is %s\n", str);
 #endif
 		if (memory_affinity) {
-#if HWLOC_API_VERSION > 0x00020000
+
+#if HWLOC_API_VERSION >= 0x00020000
 			retval = hwloc_set_membind(
-				topology, obj2->nodeset, HWLOC_MEMBIND_THREAD,
-				HWLOC_MEMBIND_MIGRATE
-					| HWLOC_MEMBIND_BYNODESET);
+				topology, obj2->nodeset,
+				HWLOC_MEMBIND_BIND,
+				HWLOC_MEMBIND_THREAD | HWLOC_MEMBIND_MIGRATE);
 #else
 			retval = hwloc_set_membind_nodeset(
-				topology, obj2->nodeset, HWLOC_MEMBIND_THREAD,
-				HWLOC_MEMBIND_MIGRATE);
+				topology, obj2->nodeset,
+				HWLOC_MEMBIND_BIND,
+				HWLOC_MEMBIND_THREAD | HWLOC_MEMBIND_MIGRATE);
 #endif
 			ON_ERR_GOTO(retval, out_close,
 				    "hwloc_set_membind");
