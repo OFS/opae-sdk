@@ -93,12 +93,7 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O2 -Wall -Wextra -Werror -pthread")
 set(CMAKE_C_FLAGS_MINSIZEREL       "-Os -Wall -Wextra -Werror -pthread")
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os -Wall -Wextra -Werror -pthread")
 
-############################################################################
-## If we have opae-libs, then we have config.h. ############################
-############################################################################
-if(OPAE_LIBS_ROOT)
-    add_definitions(-DHAVE_CONFIG_H)
-endif()
+add_definitions(-DHAVE_CONFIG_H)
 
 ############################################################################
 ## Enable debug logging for Debug builds. ##################################
