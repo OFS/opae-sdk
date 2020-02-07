@@ -27,8 +27,8 @@
 #include <opae/fpga.h>
 #include <libbitstream/bitstream.h>
 #include "gtest/gtest.h"
-#include "test_system.h"
-#include "test_utils.h"
+#include "mock/test_system.h"
+#include "mock/test_utils.h"
 extern "C" {
 
 #include <json-c/json.h>

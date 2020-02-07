@@ -43,7 +43,7 @@ extern "C" {
 #include <cstdlib>
 #include <string>
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 #include "libboard/board_vc/board_vc.h"
 
 

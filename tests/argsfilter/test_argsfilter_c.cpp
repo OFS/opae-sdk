@@ -32,7 +32,7 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 }
 
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 
 using namespace opae::testing;
 

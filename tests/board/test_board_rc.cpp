@@ -48,7 +48,7 @@ extern "C" {
 #include "libboard/board_rc/board_rc.h"
 #include "opae_int.h"
 #include "safe_string/safe_string.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 
 #define SYSFS_FME_PATH "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0"
 

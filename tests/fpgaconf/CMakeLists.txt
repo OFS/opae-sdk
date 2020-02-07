@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,17 +24,20 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required (VERSION 2.8.12)
+opae_test_add_static_lib(TARGET fpgaconf-static
+    SOURCE ${OPAE_SDK_SOURCE}/tools/fpgaconf/fpgaconf.c
+    LIBS bitstream
+)
 
-project(testing)
+target_compile_definitions(fpgaconf-static
+    PRIVATE main=fpgaconf_main
+)
 
-add_subdirectory(argsfilter)
-#add_subdirectory(ase)
-add_subdirectory(board)
-add_subdirectory(fpgaconf)
-#add_subdirectory(fpgainfo)
-#add_subdirectory(hello_events)
-#add_subdirectory(hello_fpga)
-#add_subdirectory(object_api)
-#add_subdirectory(ras)
-#add_subdirectory(userclk)
+opae_test_add(TARGET test_fpgaconf_fpgaconf_c
+    SOURCE test_fpgaconf_c.cpp
+    LIBS fpgaconf-static
+)
+
+#target_include_directories(test_board_vc_c
+#    PRIVATE ${OPAE_SDK_SOURCE}/tools
+#)
