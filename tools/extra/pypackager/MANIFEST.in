@@ -1,2 +1,0 @@
-recursive-include opae/tools/packager/schema *.json
-recursive-include opae/tools/packager *

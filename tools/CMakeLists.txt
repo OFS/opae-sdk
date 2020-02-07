@@ -24,39 +24,21 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-
 # board lib
-add_subdirectory(base/libboard/board_rc)
-add_subdirectory(base/libboard/board_vc)
-
-# base
-add_subdirectory(base/fpgaconf)
-add_subdirectory(base/fpgad)
-add_subdirectory(base/argsfilter)
-add_subdirectory(base/fpgainfo)
-add_subdirectory(base/fpgaport)
-add_subdirectory(base/fpgametrics)
+add_subdirectory(libboard/board_rc)
+add_subdirectory(libboard/board_vc)
+add_subdirectory(fpgaconf)
+add_subdirectory(argsfilter)
+add_subdirectory(fpgainfo)
+add_subdirectory(fpgametrics)
 
 # extra
 add_subdirectory(extra/coreidle)
 add_subdirectory(extra/userclk)
 add_subdirectory(extra/packager)
-if (BUILD_PYTHON_DIST)
-    add_subdirectory(extra/pypackager)
-	add_subdirectory(extra/pyfpgadiag)
-endif()
 add_subdirectory(extra/c++utils)
 add_subdirectory(extra/fpgadiag)
 add_subdirectory(extra/mmlink)
 add_subdirectory(extra/ras)
-
-# integrated
-add_subdirectory(extra/integrated/hssi)
-
-# pac
-add_subdirectory(extra/pac/fpgaflash)
-if (BUILD_PYTHON_DIST)
-    add_subdirectory(extra/pac/pyfpgaflash)
-endif()
-add_subdirectory(extra/pac/pac_hssi_config)
-add_subdirectory(extra/pac/fpgabist)
+add_subdirectory(extra/pac_hssi_config)
+add_subdirectory(extra/fpgabist)
