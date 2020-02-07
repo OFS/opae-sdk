@@ -53,3 +53,4 @@ endif()
 
 include(OPAECompiler)
 include(OPAETest)
+include(OPAEPackaging)
