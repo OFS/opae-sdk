@@ -270,7 +270,7 @@ endfunction()
 function(opae_add_static_library)
     set(options )
     set(oneValueArgs TARGET)
-    set(multiValueArgs SOURCE)
+    set(multiValueArgs SOURCE LIBS)
     cmake_parse_arguments(OPAE_ADD_STATIC_LIBRARY "${options}"
         "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -282,6 +282,13 @@ function(opae_add_static_library)
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
     set_property(TARGET ${OPAE_ADD_STATIC_LIBRARY_TARGET} PROPERTY C_STANDARD 99)
+    set_property(TARGET ${OPAE_ADD_STATIC_LIBRARY_TARGET}
+        PROPERTY
+            POSITION_INDEPENDENT_CODE ON)
+    target_compile_definitions(${OPAE_ADD_STATIC_LIBRARY_TARGET} PRIVATE PIC=1)
+
+    target_link_libraries(${OPAE_ADD_STATIC_LIBRARY_TARGET}
+        ${OPAE_ADD_STATIC_LIBRARY_LIBS})
 
     opae_coverage_build(TARGET ${OPAE_ADD_STATIC_LIBRARY_TARGET} SOURCE ${OPAE_ADD_STATIC_LIBRARY_SOURCE})
 endfunction()

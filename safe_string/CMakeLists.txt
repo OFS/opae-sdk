@@ -105,8 +105,6 @@ set(SRC
 )
 
 opae_add_static_library(TARGET safestr SOURCE ${SRC})
-set_property(TARGET safestr PROPERTY POSITION_INDEPENDENT_CODE ON)
-target_compile_definitions(safestr PRIVATE PIC=1)
 target_compile_options(safestr PRIVATE -O3)
 
 # mem_primitives_lib.c is optimized through the use of fallthrough switch statements.
