@@ -27,7 +27,10 @@
 #ifndef __FPGAD_COMMAND_LINE_H__
 #define __FPGAD_COMMAND_LINE_H__
 
-#include "fpgad.h"
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <linux/limits.h>
 #include "bitstream.h"
 
 typedef struct _fpgad_supported_device fpgad_supported_device;
