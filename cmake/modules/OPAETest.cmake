@@ -155,8 +155,10 @@ function(opae_test_add_static_lib)
             $<BUILD_INTERFACE:${OPAE_INCLUDE_PATH}>
             $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
             $<INSTALL_INTERFACE:include>
-        PRIVATE ${OPAE_LIBS_ROOT}/plugins/xfpga
-        PRIVATE ${OPAE_LIBS_ROOT}/libopae-c)
+        PRIVATE
+            ${OPAE_LIBS_ROOT}
+            ${OPAE_LIBS_ROOT}/plugins/xfpga
+            ${OPAE_LIBS_ROOT}/libopae-c)
 
     target_compile_definitions(${OPAE_TEST_ADD_STATIC_LIB_TARGET}
         PRIVATE
