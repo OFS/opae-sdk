@@ -197,6 +197,7 @@ function(opae_add_executable)
         $<BUILD_INTERFACE:${OPAE_LIBS_ROOT}/include>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+        PRIVATE ${OPAE_LIBS_ROOT}/libbitstream
         PUBLIC ${libjson-c_INCLUDE_DIRS}
         PUBLIC ${libuuid_INCLUDE_DIRS})
 
@@ -223,6 +224,7 @@ function(opae_add_shared_library)
         $<BUILD_INTERFACE:${OPAE_LIBS_ROOT}/include>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+        PRIVATE ${OPAE_LIBS_ROOT}/libbitstream
         PUBLIC ${libjson-c_INCLUDE_DIRS}
         PUBLIC ${libuuid_INCLUDE_DIRS})
 
@@ -255,6 +257,7 @@ function(opae_add_module_library)
         $<BUILD_INTERFACE:${OPAE_LIBS_ROOT}/include>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+        PRIVATE ${OPAE_LIBS_ROOT}/libbitstream
         PUBLIC ${libjson-c_INCLUDE_DIRS}
         PUBLIC ${libuuid_INCLUDE_DIRS})
 
