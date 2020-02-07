@@ -57,7 +57,6 @@ static const uint32_t CSR_CFG = 0x0140;
 static const uint32_t CSR_NUM_LINES = 0x0130;
 static const uint32_t DSM_STATUS_TEST_COMPLETE = 0x40;
 static const uint64_t CSR_AFU_DSM_BASEL = 0x0110;
-static const uint64_t CSR_AFU_DSM_BASEH = 0x0114;
 
 static inline uint64_t cacheline_aligned_addr(uint64_t num) {
   return num >> LOG2_CL;
