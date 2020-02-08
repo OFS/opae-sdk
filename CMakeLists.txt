@@ -125,10 +125,11 @@ add_subdirectory(samples)
 #option(BUILD_ASE_TESTS "Enable ASE test compilation." OFF)
 #mark_as_advanced(BUILD_ASE_TESTS)
 
-#if(BUILD_TESTS OR BUILD_ASE_TESTS)
+#if(OPAE_BUILD_TESTS OR BUILD_ASE_TESTS)
+if(OPAE_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
-#endif()
+endif()
 
 ############################################################################
 ## Packaging ###############################################################
