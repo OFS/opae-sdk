@@ -78,7 +78,7 @@ fpga_result clear_inject_ras_errors(fpga_token);
 #include <string>
 #include <cstdarg>
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 #define OPAE_WRAPPED_HANDLE_MAGIC 0x6e616877
 using namespace opae::testing;
 

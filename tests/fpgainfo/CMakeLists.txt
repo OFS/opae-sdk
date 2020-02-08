@@ -36,18 +36,24 @@ opae_test_add_static_lib(TARGET fpgainfo-static
         ${OPAE_SDK_SOURCE}/tools/fpgainfo/tempinfo.c
         ${OPAE_SDK_SOURCE}/tools/fpgainfo/board.c
         ${OPAE_SDK_SOURCE}/tools/fpgainfo/main.c
+    LIBS
+        argsfilter-static
 )
 
 target_compile_definitions(fpgainfo-static
     PRIVATE main=fpgainfo_main
 )
 
-#opae_test_add(TARGET test_board_vc_c
-#    SOURCE test_board_vc.cpp
-#    LIBS
-#        board-vc-static
-#)
-#
-#target_include_directories(test_board_vc_c
-#    PRIVATE ${OPAE_SDK_SOURCE}/tools
-#)
+target_include_directories(fpgainfo-static
+    PRIVATE ${OPAE_SDK_SOURCE}/tools/argsfilter
+)
+
+opae_test_add(TARGET test_fpgainfo_c
+    SOURCE test_fpgainfo_c.cpp
+    LIBS fpgainfo-static
+)
+
+opae_test_add(TARGET test_fpgainfo_board_c 
+    SOURCE test_board_c.cpp
+    LIBS fpgainfo-static
+)

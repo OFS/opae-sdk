@@ -67,7 +67,7 @@ int hello_fpga_main(int argc, char *argv[]);
 #include <getopt.h>
 #include <stdarg.h>
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 #include <linux/ioctl.h>
 #include "intel-fpga.h"
 #include "fpga-dfl.h"

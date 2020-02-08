@@ -63,7 +63,7 @@ int userclk_main(int argc, char *argv[]);
 #include <errno.h>
 #include <unistd.h>
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 
 using namespace opae::testing;
 

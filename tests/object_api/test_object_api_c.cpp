@@ -42,7 +42,7 @@ int object_api_main(int argc, char* argv[]);
 #include <intel-fpga.h>
 #include <getopt.h>
 #include <string.h>
-#include <test_system.h>
+#include <mock/test_system.h>
 #include <gtest/gtest.h>
 using namespace opae::testing;
 
