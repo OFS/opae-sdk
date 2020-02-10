@@ -178,8 +178,8 @@ Values *bmc_build_values(sensor_reading *reading, sdr_header *header,
 	val->sensor_number = key->sensor_number;
 	val->sensor_type =
 		SDR_SENSOR_IS_TEMP(body)
-			? _BMC_THERMAL
-			: SDR_SENSOR_IS_POWER(body) ? _BMC_POWER : _BMC_SENSORS;
+			? BMC_THERMAL
+			: SDR_SENSOR_IS_POWER(body) ? BMC_POWER : BMC_ALL;
 
 	switch (body->sensor_units_1.bits.analog_data_format) {
 	case 0x0: // unsigned
