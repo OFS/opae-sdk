@@ -91,7 +91,6 @@ int usleep(unsigned);
 #define CSR_NUM_LINES                0x0130
 #define DSM_STATUS_TEST_COMPLETE     0x40
 #define CSR_AFU_DSM_BASEL            0x0110
-#define CSR_AFU_DSM_BASEH            0x0114
 
 /* NLB0 AFU_ID */
 #define NLB0_AFUID "D8424DC4-A4A3-C413-F89E-433683F9040B"
