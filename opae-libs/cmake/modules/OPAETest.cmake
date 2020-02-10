@@ -25,6 +25,8 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE
 
+check_cxx_compiler_flag("-Wno-sign-compare" CXX_SUPPORTS_NO_SIGN_COMPARE)
+
 set(OPAE_TEST_SRC_DIR ${OPAE_LIBS_ROOT}/external/opae-test/framework
     CACHE PATH "OPAE test source dir." FORCE)
 set(OPAE_TEST_INCLUDE_DIRS ${OPAE_LIBS_ROOT}/external/opae-test/framework
@@ -109,6 +111,10 @@ function(opae_test_add)
         target_compile_definitions(${OPAE_TEST_ADD_TARGET}
             PRIVATE
                 LIBOPAE_DEBUG=1)
+    endif()
+    if(CXX_SUPPORTS_NO_SIGN_COMPARE)
+        target_compile_options(${OPAE_TEST_ADD_TARGET}
+            PRIVATE -Wno-sign-compare)
     endif()
 
     target_include_directories(${OPAE_TEST_ADD_TARGET}
