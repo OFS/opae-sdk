@@ -60,7 +60,7 @@ fpga_result cpuset_setaffinity(int socket, int split_point,
 #include <string>
 #include <fstream>
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 
 using namespace opae::testing;
 
