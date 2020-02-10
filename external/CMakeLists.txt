@@ -57,3 +57,31 @@ if(OPAE_BUILD_TESTS)
                      ${CMAKE_CURRENT_BINARY_DIR}/opae-test
                      EXCLUDE_FROM_ALL)
 endif()
+
+################################################################################
+## opae-legacy #################################################################
+################################################################################
+configure_file(opae-legacy-CMakeLists.txt.in
+               ${CMAKE_CURRENT_BINARY_DIR}/opae-legacy/download/CMakeLists.txt)
+
+execute_process(
+    COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+    RESULT_VARIABLE result
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/opae-legacy/download)
+if(result)
+    message(FATAL_ERROR "CMake step for opae-legacy failed: ${result}")
+endif()
+
+execute_process(
+    COMMAND ${CMAKE_COMMAND} --build .
+    RESULT_VARIABLE result
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/opae-legacy/download)
+if(result)
+    message(FATAL_ERROR "Build step for opae-legacy failed: ${result}")
+endif()
+
+# Add opae-legacy directly to our build.
+# This defines the opae-legacy targets.
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/opae-legacy
+                 ${CMAKE_CURRENT_BINARY_DIR}/opae-legacy
+                 EXCLUDE_FROM_ALL)
