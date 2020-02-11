@@ -55,16 +55,21 @@ opae_test_add(TARGET test_opae_errors_cxx_core
     LIBS opae-cxx-core-static
 )
 
-# TODO: enable this test
-#opae_test_add(TARGET test_opae_events_cxx_core
-#    SOURCE test_events_cxx_core.cpp
-#    LIBS
-#        safestr
-#        fpgad-static
-#        fpgad-api-static
-#        opae-cxx-core-static
-#        ${libjson-c_LIBRARIES}
-#)
+opae_test_add(TARGET test_opae_events_cxx_core
+    SOURCE test_events_cxx_core.cpp
+    LIBS
+        safestr
+        fpgad-static
+        fpgad-api-static
+        opae-cxx-core-static
+        ${libjson-c_LIBRARIES}
+)
+
+target_include_directories(test_opae_events_cxx_core
+    PRIVATE
+        ${OPAE_LEGACY_ROOT}/tools
+        ${OPAE_LIBS_ROOT}/libbitstream
+)
 
 opae_test_add(TARGET test_opae_properties_cxx_core
     SOURCE test_properties_cxx_core.cpp

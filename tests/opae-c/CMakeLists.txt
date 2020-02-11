@@ -77,15 +77,19 @@ opae_test_add(TARGET test_opae_error_c
     LIBS opae-c-static
 )
 
-# TODO: enable event tests.
-#add_unit_test(test_opae_event_c opae-c-static
-#    opae-c/test_event_c.cpp
-#)
-#target_link_libraries(test_opae_event_c
-#    safestr
-#    fpgad-static
-#    fpgad-api-static
-#    )
+opae_test_add(TARGET test_opae_event_c 
+    SOURCE test_event_c.cpp
+    LIBS
+        opae-c-static
+        fpgad-static
+        fpgad-api-static
+)
+
+target_include_directories(test_opae_event_c
+    PRIVATE
+        ${OPAE_LEGACY_ROOT}/tools
+        ${OPAE_LIBS_ROOT}/libbitstream
+)
 
 opae_test_add(TARGET test_opae_hostif_c
     SOURCE test_hostif_c.cpp
