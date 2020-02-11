@@ -25,4 +25,4 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 add_subdirectory(coreidle)
-#add_subdirectory(fpgad)
+add_subdirectory(fpgad)

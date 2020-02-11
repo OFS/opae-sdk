@@ -52,7 +52,7 @@ allocate_monitored_device(struct fpgad_config *config,
 #include <unistd.h>
 #include <fstream>
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 
 using namespace opae::testing;
 

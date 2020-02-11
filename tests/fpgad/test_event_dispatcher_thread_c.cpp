@@ -59,7 +59,7 @@ bool evt_queue_is_full(evt_dispatch_queue *q);
 #include <thread>
 #include <chrono>
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 
 using namespace opae::testing;
 

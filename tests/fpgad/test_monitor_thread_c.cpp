@@ -66,7 +66,7 @@ void mon_monitor(fpgad_monitored_device *d);
 #include <thread>
 #include <chrono>
 #include "gtest/gtest.h"
-#include "test_system.h"
+#include "mock/test_system.h"
 
 using namespace opae::testing;
 

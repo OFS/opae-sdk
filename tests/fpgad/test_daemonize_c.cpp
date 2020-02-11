@@ -25,7 +25,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <signal.h>
-#include "test_system.h"
+#include "mock/test_system.h"
 
 extern "C" {
 
