@@ -34,6 +34,24 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake"
 include(OPAE)
 
 ############################################################################
+## Get distribution information ############################################
+############################################################################
+find_program(LSB_RELEASE_EXEC lsb_release)
+if (LSB_RELEASE_EXEC)
+  execute_process(COMMAND ${LSB_RELEASE_EXEC} -is
+      OUTPUT_VARIABLE LSB_DISTRIBUTOR_ID
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  execute_process(COMMAND ${LSB_RELEASE_EXEC} -rs
+      OUTPUT_VARIABLE LSB_RELEASE_NUMBER
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  message(STATUS "Detected current distribution: '${LSB_DISTRIBUTOR_ID}', version: '${LSB_RELEASE_NUMBER}'")
+else()
+  message(WARNING "Unable to locate 'lsb_release' to identify current distribution!")
+endif()
+
+############################################################################
 ## Whether to build opae-legacy ############################################
 ############################################################################
 option(OPAE_BUILD_LEGACY "Enable building of OPAE legacy tools" OFF)
@@ -109,6 +127,24 @@ if("${CPACK_GENERATOR}" STREQUAL "DEB")
 install(FILES LICENSE DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DOCDIR}
 COMPONENT licensefile
 RENAME copyright)
+
+# compute the dependencies based on distribution and version
+set(JSON_PACKAGE_VERSION "libjson-c-dev")
+if(${LSB_DISTRIBUTOR_ID} STREQUAL "Ubuntu")
+  if (${LSB_RELEASE_NUMBER} STREQUAL "16.04")
+    set(JSON_PACKAGE_VERSION "libjson-c2")
+  elseif(${LSB_RELEASE_NUMBER} STREQUAL "18.04" OR ${LSB_RELEASE_NUMBER} STREQUAL "19.04")
+    set(JSON_PACKAGE_VERSION "libjson-c3")
+  elseif(${LSB_RELEASE_NUMBER} STREQUAL "19.10" OR ${LSB_RELEASE_NUMBER} STREQUAL "20.04")
+    set(JSON_PACKAGE_VERSION "libjson-c4")
+  else()
+    message(WARNING "Unrecognized Ubuntu version, defaulting to 'libjson-c-dev' package dependency")
+  endif()
+elseif(${LSB_DISTRIBUTOR_ID} STREQUAL "CentOS" OR ${LSB_DISTRIBUTOR_ID} STREQUAL "RedHatEnterprise")
+  set(JSON_PACKAGE_VERSION "libjson")
+else()
+  message(WARNING "Unrecognized distribution, defaulting to 'libjson-c-dev' package dependency")
+endif()
 
 # list of components to be included in the package
 set(CPACK_COMPONENTS_ALL
@@ -224,7 +260,7 @@ define_pkg(devel
   GROUP "devel"
   DISPLAY_NAME "opae-devel"
   DESCRIPTION "OPAE headers, sample source, and documentation"
-  DEB_DEPENDS "uuid-dev , libjson0 , opae-libs"
+  DEB_DEPENDS "uuid-dev , libjson-c-dev , opae-libs"
   )
 
   define_pkg(libs
@@ -236,7 +272,7 @@ define_pkg(devel
   GROUP "libs"
   DISPLAY_NAME "opae-libs"
   DESCRIPTION "OPAE runtime"
-  DEB_DEPENDS "uuid-dev , libjson0"
+  DEB_DEPENDS "uuid , ${JSON_PACKAGE_VERSION}"
   )
 
   define_pkg(tests
