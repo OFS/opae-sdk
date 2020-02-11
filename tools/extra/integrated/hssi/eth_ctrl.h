@@ -76,8 +76,6 @@ public:
 
 private:
     przone_interface::ptr_t przone_;
-    uint32_t scratch_;
-    uint32_t eth_arst_;
     uint32_t eth_ctrl_addr_;
     uint32_t eth_wr_data_;
     uint32_t eth_rd_data_;

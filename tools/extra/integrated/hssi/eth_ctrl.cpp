@@ -46,8 +46,6 @@ namespace hssi
 
 eth_ctrl::eth_ctrl(przone_interface::ptr_t przone, gbs_version version)
 : przone_(przone)
-, scratch_      (prtable[static_cast<uint8_t>(version)][0])
-, eth_arst_     (prtable[static_cast<uint8_t>(version)][1])
 , eth_ctrl_addr_(prtable[static_cast<uint8_t>(version)][2])
 , eth_wr_data_  (prtable[static_cast<uint8_t>(version)][3])
 , eth_rd_data_  (prtable[static_cast<uint8_t>(version)][4])

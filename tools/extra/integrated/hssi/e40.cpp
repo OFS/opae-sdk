@@ -41,7 +41,6 @@ namespace hssi
 
 e40::e40()
 : loopback()
-, interactive_(false)
 , config_("e40.json")
 , afu_id_("26b40788-034b-4389-b3c1-51a1b62ed6c2")
 , gen_ctrl_(0)
@@ -51,7 +50,6 @@ e40::e40()
 
 e40::e40(const std::string & name)
 : loopback(name)
-, interactive_(false)
 , config_("e40.json")
 , afu_id_("26B40788-034B-4389-B3C1-51A1B62ED6C2")
 , gen_ctrl_(0)

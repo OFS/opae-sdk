@@ -1024,7 +1024,7 @@ out:
 	result = fpgaDestroyObject(&error_object);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Destroy Object");
-		resval = resval;
+		resval = result;
 	}
 
 	printf("----------- FME ERROR  END-------- \n \n");
