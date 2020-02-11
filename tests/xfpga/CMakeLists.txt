@@ -170,17 +170,22 @@ opae_test_add(TARGET test_xfpga_manage_c
     LIBS xfpga-static
 )
 
-# TODO: enable this test
-#opae_test_add(TARGET test_xfpga_events_c
-#    SOURCE test_events_c.cpp
-#    LIBS
-#        safestr
-#        fpgad-static
-#        fpgad-api-static
-#        bmc
-#        ${libjson-c_LIBRARIES}
-#        xfpga-static
-#)
+opae_test_add(TARGET test_xfpga_events_c
+    SOURCE test_events_c.cpp
+    LIBS
+        safestr
+        fpgad-static
+        bmc-static
+        ${libjson-c_LIBRARIES}
+        xfpga-static
+        fpgad-api-static
+)
+
+target_include_directories(test_xfpga_events_c
+    PRIVATE
+        ${OPAE_LEGACY_ROOT}/tools
+        ${OPAE_LIBS_ROOT}/libbitstream
+)
 
 opae_test_add(TARGET test_xfpga_metrics_vector_c
     SOURCE test_metrics_vector_c.cpp

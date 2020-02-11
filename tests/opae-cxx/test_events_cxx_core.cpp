@@ -28,8 +28,8 @@
 #include <thread>
 #include <unistd.h>
 #include "gtest/gtest.h"
-#include "test_system.h"
-#include "fpgad_control.h"
+#include "mock/test_system.h"
+#include "mock/fpgad_control.h"
 #include <opae/cxx/core/events.h>
 #include <opae/cxx/core/token.h>
 #include <opae/cxx/core/handle.h>
