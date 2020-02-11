@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -43,7 +43,7 @@ extern "C" {
 #include <poll.h>
 #include "gtest/gtest.h"
 #include "mock/test_system.h"
-#include "fpgad_control.h"
+#include "mock/fpgad_control.h"
 
 using namespace opae::testing;
 
