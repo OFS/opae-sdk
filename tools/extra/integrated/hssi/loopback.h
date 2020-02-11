@@ -105,16 +105,16 @@ public:
 
     virtual ~loopback();
 
-    virtual intel::utils::option_map & get_options()
+    virtual intel::utils::option_map & get_options() override
     {
         return options_;
     }
     virtual void assign(opae::fpga::types::handle::ptr_t accelerator) override;
-    virtual const std::string & afu_id() = 0;
+    virtual const std::string & afu_id() override = 0 ;
 
-    virtual bool setup();
+    virtual bool setup() override;
 
-    virtual bool run();
+    virtual bool run() override;
 
     virtual opae::fpga::types::shared_buffer::ptr_t dsm() const override
     { return opae::fpga::types::shared_buffer::allocate(accelerator_, loopback::dsm_size_); }
