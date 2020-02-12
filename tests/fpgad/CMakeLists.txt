@@ -26,14 +26,14 @@
 
 opae_test_add_static_lib(TARGET fpgad-static
     SOURCE
-        ${OPAE_LEGACY_ROOT}/tools/fpgad/command_line.c
-        ${OPAE_LEGACY_ROOT}/tools/fpgad/config_file.c
-        ${OPAE_LEGACY_ROOT}/tools/fpgad/daemonize.c
-        ${OPAE_LEGACY_ROOT}/tools/fpgad/event_dispatcher_thread.c
-        ${OPAE_LEGACY_ROOT}/tools/fpgad/events_api_thread.c
-        ${OPAE_LEGACY_ROOT}/tools/fpgad/fpgad.c
-        ${OPAE_LEGACY_ROOT}/tools/fpgad/monitored_device.c
-        ${OPAE_LEGACY_ROOT}/tools/fpgad/monitor_thread.c
+        ${opae-legacy_ROOT}/tools/fpgad/command_line.c
+        ${opae-legacy_ROOT}/tools/fpgad/config_file.c
+        ${opae-legacy_ROOT}/tools/fpgad/daemonize.c
+        ${opae-legacy_ROOT}/tools/fpgad/event_dispatcher_thread.c
+        ${opae-legacy_ROOT}/tools/fpgad/events_api_thread.c
+        ${opae-legacy_ROOT}/tools/fpgad/fpgad.c
+        ${opae-legacy_ROOT}/tools/fpgad/monitored_device.c
+        ${opae-legacy_ROOT}/tools/fpgad/monitor_thread.c
     LIBS
         safestr
         bitstream-static
@@ -45,16 +45,16 @@ target_compile_definitions(fpgad-static PRIVATE main=fpgad_main)
 
 target_include_directories(fpgad-static
     PRIVATE
-        ${OPAE_LEGACY_ROOT}/tools
+        ${opae-legacy_ROOT}/tools
         ${OPAE_LIBS_ROOT}/libbitstream
 )
 
 opae_test_add_static_lib(TARGET fpgad-api-static
     SOURCE
-        ${OPAE_LEGACY_ROOT}/tools/fpgad/api/logging.c
-        ${OPAE_LEGACY_ROOT}/tools/fpgad/api/opae_events_api.c
-        ${OPAE_LEGACY_ROOT}/tools/fpgad/api/device_monitoring.c
-        ${OPAE_LEGACY_ROOT}/tools/fpgad/api/sysfs.c
+        ${opae-legacy_ROOT}/tools/fpgad/api/logging.c
+        ${opae-legacy_ROOT}/tools/fpgad/api/opae_events_api.c
+        ${opae-legacy_ROOT}/tools/fpgad/api/device_monitoring.c
+        ${opae-legacy_ROOT}/tools/fpgad/api/sysfs.c
     LIBS
         safestr
         ${CMAKE_THREAD_LIBS_INIT}
@@ -63,27 +63,27 @@ opae_test_add_static_lib(TARGET fpgad-api-static
 
 target_include_directories(fpgad-api-static
     PRIVATE
-        ${OPAE_LEGACY_ROOT}/tools
+        ${opae-legacy_ROOT}/tools
         ${OPAE_LIBS_ROOT}/libbitstream
 )
 
 opae_test_add_static_lib(TARGET fpgad-xfpga-static
-    SOURCE ${OPAE_LEGACY_ROOT}/tools/fpgad/plugins/fpgad-xfpga/fpgad-xfpga.c
+    SOURCE ${opae-legacy_ROOT}/tools/fpgad/plugins/fpgad-xfpga/fpgad-xfpga.c
 )
 
 target_include_directories(fpgad-xfpga-static
     PRIVATE
-        ${OPAE_LEGACY_ROOT}/tools
+        ${opae-legacy_ROOT}/tools
         ${OPAE_LIBS_ROOT}/libbitstream
 ) 
 
 opae_test_add_static_lib(TARGET fpgad-vc-static
-    SOURCE ${OPAE_LEGACY_ROOT}/tools/fpgad/plugins/fpgad-vc/fpgad-vc.c
+    SOURCE ${opae-legacy_ROOT}/tools/fpgad/plugins/fpgad-vc/fpgad-vc.c
 )
 
 target_include_directories(fpgad-vc-static
     PRIVATE
-        ${OPAE_LEGACY_ROOT}/tools
+        ${opae-legacy_ROOT}/tools
         ${OPAE_LIBS_ROOT}/libbitstream
 )
 
@@ -96,7 +96,7 @@ function(add_fpgad_test target source)
     )
     target_include_directories(${target}
         PRIVATE
-            ${OPAE_LEGACY_ROOT}/tools
+            ${opae-legacy_ROOT}/tools
             ${OPAE_LIBS_ROOT}/libbitstream
     )
 endfunction()
@@ -119,7 +119,7 @@ function(add_fpgad_api_test target source)
     )
     target_include_directories(${target}
         PRIVATE
-            ${OPAE_LEGACY_ROOT}/tools
+            ${opae-legacy_ROOT}/tools
             ${OPAE_LIBS_ROOT}/libbitstream
     )
 endfunction()
@@ -139,7 +139,7 @@ function(add_fpgad_xfpga_test target source)
     )
     target_include_directories(${target}
         PRIVATE
-            ${OPAE_LEGACY_ROOT}/tools
+            ${opae-legacy_ROOT}/tools
             ${OPAE_LIBS_ROOT}/libbitstream
     )
 endfunction()
