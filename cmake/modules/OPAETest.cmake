@@ -166,9 +166,13 @@ function(opae_test_add_static_lib)
             ${OPAE_LIBS_ROOT}/plugins/xfpga
             ${OPAE_LIBS_ROOT}/libopae-c)
 
+    set_property(TARGET ${OPAE_TEST_ADD_STATIC_LIB_TARGET}
+        PROPERTY
+            POSITION_INDEPENDENT_CODE ON)
     target_compile_definitions(${OPAE_TEST_ADD_STATIC_LIB_TARGET}
         PRIVATE
             HAVE_CONFIG_H=1
+            PIC=1
             STATIC=)
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         target_compile_definitions(${OPAE_TEST_ADD_STATIC_LIB_TARGET}
