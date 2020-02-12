@@ -89,6 +89,8 @@ target_include_directories(test_fpgad-xfpga
         ${CMAKE_CURRENT_SOURCE_DIR}/mock/test_fpgad/fpgad/api
 )
 
+add_dependencies(fpga_db test_fpgad-xfpga)
+
 if(OPAE_ENABLE_MOCK)
     target_compile_definitions(fpga_db PUBLIC -DOPAE_ENABLE_MOCK=1)
     
