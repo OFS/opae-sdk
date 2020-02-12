@@ -34,7 +34,7 @@ try_compile(SUPPORTS_EMBEDDED_PYTHON
 
 if (SUPPORTS_EMBEDDED_PYTHON)
     add_executable(test_pyopae
-         ${OPAE_TEST_SRC_DIR}/mock/mock.c
+         ${opae-test_ROOT}/framework/mock/mock.c
          test_pyopae.cpp
          ${OPAE_LIBS_ROOT}/pyopae/opae.cpp
          ${OPAE_LIBS_ROOT}/pyopae/pycontext.h
@@ -59,7 +59,7 @@ if (SUPPORTS_EMBEDDED_PYTHON)
         PRIVATE ${OPAE_LIBS_ROOT}/pyopae/pybind11/include
         PRIVATE ${PYTHON_INCLUDE_DIRS}
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
-        PRIVATE ${OPAE_TEST_INCLUDE_DIRS})
+        PRIVATE ${opae-test_ROOT}/framework)
 
     target_link_libraries(test_pyopae
         PUBLIC
