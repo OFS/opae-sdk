@@ -32,6 +32,7 @@ project(framework)
 set(CMAKE_CXX_STANDARD 11)
 
 # Disable some warnings that fire in system libraries
+include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-Wno-error=frame-address"
   CXX_SUPPORTS_NO_ERROR_FRAME_ADDRESS)
 
@@ -52,6 +53,40 @@ target_include_directories(test_system PUBLIC
 
 opae_add_shared_library(TARGET fpga_db
     SOURCE platform/fpga_hw.cpp
+)
+
+opae_test_add_static_lib(TARGET test-fpgad-static
+    SOURCE
+        mock/test_fpgad/logging.c
+        mock/test_fpgad/event_dispatcher_thread.c
+        mock/test_fpgad/monitor_thread.c
+        mock/test_fpgad/monitored_device.c
+        mock/test_fpgad/events_api_thread.c
+        mock/test_fpgad/opae_events_api.c
+        mock/test_fpgad/device_monitoring.c
+    LIBS
+        opae-c
+        ${libjson-c_LIBRARIES}
+)
+
+target_include_directories(test-fpgad-static
+    PRIVATE
+        ${OPAE_LIBS_ROOT}
+        ${CMAKE_CURRENT_SOURCE_DIR}/mock/test_fpgad
+        ${CMAKE_CURRENT_SOURCE_DIR}/mock/test_fpgad/fpgad
+        ${CMAKE_CURRENT_SOURCE_DIR}/mock/test_fpgad/fpgad/api
+)
+
+opae_add_module_library(TARGET test_fpgad-xfpga
+    SOURCE mock/test_fpgad/fpgad-xfpga.c
+    LIBS test-fpgad-static
+)
+
+target_include_directories(test_fpgad-xfpga
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/mock/test_fpgad
+        ${CMAKE_CURRENT_SOURCE_DIR}/mock/test_fpgad/fpgad
+        ${CMAKE_CURRENT_SOURCE_DIR}/mock/test_fpgad/fpgad/api
 )
 
 if(OPAE_ENABLE_MOCK)

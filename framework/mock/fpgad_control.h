@@ -65,7 +65,7 @@ class fpgad_control {
     close(mkstemps(tmpfpgad_log_, 4));
     close(mkstemps(tmpfpgad_pid_, 4));
 
-    memset_s(&fpgad_config_, sizeof(fpgad_config_), 0);
+    memset(&fpgad_config_, 0, sizeof(fpgad_config_));
     fpgad_config_.poll_interval_usec = 100 * 1000;
     fpgad_config_.running = true;
     fpgad_config_.api_socket = "/tmp/fpga_event_socket";
