@@ -1,4 +1,3 @@
-#!/usr/bin/cmake -P
 ## Copyright(c) 2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -24,7 +23,8 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE
+
 cmake_minimum_required(VERSION 2.8.12)
 
-fetch_external(PROJECT_NAME opae-legacy
-               GIT_URL https://github.com/OPAE/opae-legacy.git)
+opae_external_project_add(PROJECT_NAME opae-legacy
+                          GIT_URL https://github.com/OPAE/opae-legacy.git)

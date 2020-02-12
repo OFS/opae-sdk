@@ -36,6 +36,6 @@ opae_test_add(TARGET test_hello_events_c
     SOURCE test_hello_events_c.cpp
     LIBS
         hello_events-static
-        fpgad-static
-        fpgad-api-static
+        test-fpgad-static
+    TEST_FPGAD
 )

@@ -29,12 +29,10 @@ cmake_minimum_required (VERSION 2.8.12)
 project(testing)
 
 add_subdirectory(argsfilter)
-#add_subdirectory(ase)
 add_subdirectory(board)
 add_subdirectory(fpgaconf)
 add_subdirectory(fpgainfo)
-#TODO: enable this test
-#add_subdirectory(hello_events)
+add_subdirectory(hello_events)
 add_subdirectory(hello_fpga)
 add_subdirectory(object_api)
 add_subdirectory(ras)
