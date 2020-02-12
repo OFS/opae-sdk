@@ -27,10 +27,10 @@
 
 check_cxx_compiler_flag("-Wno-sign-compare" CXX_SUPPORTS_NO_SIGN_COMPARE)
 
-set(OPAE_TEST_SRC_DIR ${OPAE_LIBS_ROOT}/external/opae-test/framework
-    CACHE PATH "OPAE test source dir." FORCE)
-set(OPAE_TEST_INCLUDE_DIRS ${OPAE_LIBS_ROOT}/external/opae-test/framework
-    CACHE PATH "OPAE test include dir." FORCE)
+# set(OPAE_TEST_SRC_DIR ${opae-test_ROOT}/framework
+#     CACHE PATH "OPAE test source dir." FORCE)
+# set(OPAE_TEST_INCLUDE_DIRS ${opae-test_ROOT}/framework
+#     CACHE PATH "OPAE test include dir." FORCE)
 set(OPAE_TEST_LIBRARIES test_system fpga_db
     CACHE LIST "OPAE test libs." FORCE)
 
@@ -86,14 +86,14 @@ function(opae_load_gtest)
 endfunction()
 
 function(opae_test_add)
-    set(options )
+    set(options TEST_FPGAD)
     set(oneValueArgs TARGET)
     set(multiValueArgs SOURCE LIBS)
     cmake_parse_arguments(OPAE_TEST_ADD "${options}"
         "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     if(OPAE_ENABLE_MOCK)
-        set(MOCK_C ${OPAE_TEST_SRC_DIR}/mock/mock.c)
+        set(MOCK_C ${opae-test_ROOT}/framework/mock/mock.c)
     endif()
 
     add_executable(${OPAE_TEST_ADD_TARGET}
@@ -126,8 +126,14 @@ function(opae_test_add)
             ${OPAE_LIBS_ROOT}
             ${OPAE_LIBS_ROOT}/plugins/xfpga
             ${OPAE_LIBS_ROOT}/libopae-c
-            ${OPAE_TEST_INCLUDE_DIRS}
+            ${opae-test_ROOT}/framework
             ${GTEST_INCLUDE_DIRS})
+
+    if(${OPAE_TEST_ADD_TEST_FPGAD})
+        target_include_directories(${OPAE_TEST_ADD_TARGET}
+            PRIVATE
+                ${opae-test_ROOT}/framework/mock/test_fpgad)
+    endif(${OPAE_TEST_ADD_TEST_FPGAD})
 
     target_link_libraries(${OPAE_TEST_ADD_TARGET}
         ${CMAKE_THREAD_LIBS_INIT}

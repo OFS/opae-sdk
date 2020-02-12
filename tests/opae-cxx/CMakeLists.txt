@@ -61,11 +61,11 @@ opae_test_add(TARGET test_opae_events_cxx_core
         safestr
         test-fpgad-static
         opae-cxx-core-static
+    TEST_FPGAD
 )
 
 target_include_directories(test_opae_events_cxx_core
     PRIVATE
-        ${OPAE_LIBS_ROOT}/external/opae-test/framework/mock/test_fpgad
         ${OPAE_LIBS_ROOT}/libbitstream
 )
 

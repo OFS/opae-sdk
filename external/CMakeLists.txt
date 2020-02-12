@@ -26,5 +26,5 @@
 
 cmake_minimum_required(VERSION 2.8.12)
 
-fetch_external(PROJECT_NAME opae-test
-               GIT_URL https://github.com/OPAE/opae-test.git)
+opae_external_project_add(PROJECT_NAME opae-test
+                          GIT_URL https://github.com/OPAE/opae-test.git)
