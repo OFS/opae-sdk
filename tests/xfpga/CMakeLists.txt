@@ -174,16 +174,15 @@ opae_test_add(TARGET test_xfpga_events_c
     SOURCE test_events_c.cpp
     LIBS
         safestr
-        fpgad-static
+        test-fpgad-static
         bmc-static
         ${libjson-c_LIBRARIES}
         xfpga-static
-        fpgad-api-static
 )
 
 target_include_directories(test_xfpga_events_c
     PRIVATE
-        ${OPAE_LEGACY_ROOT}/tools
+        ${OPAE_LIBS_ROOT}/external/opae-test/framework/mock/test_fpgad
         ${OPAE_LIBS_ROOT}/libbitstream
 )
 
