@@ -59,15 +59,13 @@ opae_test_add(TARGET test_opae_events_cxx_core
     SOURCE test_events_cxx_core.cpp
     LIBS
         safestr
-        fpgad-static
-        fpgad-api-static
+        test-fpgad-static
         opae-cxx-core-static
-        ${libjson-c_LIBRARIES}
 )
 
 target_include_directories(test_opae_events_cxx_core
     PRIVATE
-        ${OPAE_LEGACY_ROOT}/tools
+        ${OPAE_LIBS_ROOT}/external/opae-test/framework/mock/test_fpgad
         ${OPAE_LIBS_ROOT}/libbitstream
 )
 
