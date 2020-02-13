@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -47,8 +47,8 @@ function(DEFINE_PKG name)
     # Assume all entrys refer to component variables
     foreach(_entry ${_component_entries})
       if(DEFINE_PKG_${_entry})
-        set_cached_variable(CPACK_COMPONENT_${_component_upper}_${_entry}
-	  "${DEFINE_PKG_${_entry}}")
+        set(CPACK_COMPONENT_${_component_upper}_${_entry} "${DEFINE_PKG_${_entry}}"
+            CACHE STRING "component" FORCE)
       endif()
     endforeach()
   endforeach()
@@ -56,16 +56,14 @@ function(DEFINE_PKG name)
 
   if(DEFINE_PKG_DEB_DEPENDS)
   string(TOUPPER "${DEFINE_PKG_GROUP}" _group_upper)
-    set_cached_variable(
-      CPACK_DEBIAN_${_group_upper}_PACKAGE_DEPENDS
-      ${DEFINE_PKG_DEB_DEPENDS})
+    set(CPACK_DEBIAN_${_group_upper}_PACKAGE_DEPENDS ${DEFINE_PKG_DEB_DEPENDS}
+        CACHE STRING "depends" FORCE)
   endif()
 
   if(DEFINE_PKG_DESCRIPTION)
   string(TOUPPER "${DEFINE_PKG_GROUP}" _group_upper)
-    set_cached_variable(
-      CPACK_COMPONENT_${_group_upper}_DESCRIPTION
-      ${DEFINE_PKG_DESCRIPTION})
+    set(CPACK_COMPONENT_${_group_upper}_DESCRIPTION ${DEFINE_PKG_DESCRIPTION}
+        CACHE STRING "descr" FORCE)
   endif()
 
 
