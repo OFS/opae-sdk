@@ -41,7 +41,10 @@ project(opae)
 ## Compilation configuration ###############################################
 ############################################################################
 set(OPAE_SDK_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Root directory of opae-sdk project" FORCE)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake"
+    "${CMAKE_CURRENT_SOURCE_DIR}/opae-libs/cmake/modules")
+
+include(OPAE)
 
 option(OPAE_BUILD_LEGACY "Enable building of OPAE legacy tools" OFF)
 mark_as_advanced(OPAE_BUILD_LEGACY)
