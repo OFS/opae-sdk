@@ -31,8 +31,8 @@
 #include <dlfcn.h>
 
 #include "xfpga.h"
-#include "common_int.h"
 #include "adapter.h"
+#include "common_int.h"
 #include "sysfs_int.h"
 #include "opae_drv.h"
 
