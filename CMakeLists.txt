@@ -25,12 +25,13 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 2.8.12)
-project(opae)
+project(opae-libs)
 
-set(OPAE_VERSION_MAJOR    1 CACHE STRING "OPAE major version")
-set(OPAE_VERSION_MINOR    4 CACHE STRING "OPAE minor version")
-set(OPAE_VERSION_REVISION 0 CACHE STRING "OPAE revision version")
-set(OPAE_VERSION ${OPAE_VERSION_MAJOR}.${OPAE_VERSION_MINOR}.${OPAE_VERSION_REVISION})
+set(OPAE_VERSION_MAJOR    1 CACHE STRING "OPAE major version" FORCE)
+set(OPAE_VERSION_MINOR    4 CACHE STRING "OPAE minor version" FORCE)
+set(OPAE_VERSION_REVISION 0 CACHE STRING "OPAE revision version" FORCE)
+set(OPAE_VERSION ${OPAE_VERSION_MAJOR}.${OPAE_VERSION_MINOR}.${OPAE_VERSION_REVISION}
+    CACHE STRING "OPAE version" FORCE)
 
 set(OPAE_LIBS_ROOT ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Root directory of opae-libs project" FORCE)
 set(OPAE_INCLUDE_PATH ${OPAE_LIBS_ROOT}/include CACHE PATH "Include directory for opae-libs")
@@ -109,6 +110,14 @@ if(OPAE_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif(OPAE_BUILD_TESTS)
+
+install(DIRECTORY include/opae
+    DESTINATION include
+    COMPONENT libopaeheaders)
+
+install(DIRECTORY include/safe_string
+    DESTINATION include
+    COMPONENT safestrheaders)
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/config/config.h.in"
                "${CMAKE_BINARY_DIR}/include/config.h")
