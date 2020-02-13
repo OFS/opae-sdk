@@ -36,6 +36,10 @@ include_directories(${OPAE_INCLUDE_DIR}
 
 file(GLOB CSources *.c *.S)
 add_executable(fpga_dma_vc_test ${CSources})
+set(clang_compiler "clang")
+if (${CMAKE_C_COMPILER} MATCHES  "${clang_compiler}")
+    set_source_files_properties(x86-sse2.S  PROPERTIES COMPILE_FLAGS -fno-integrated-as)   
+endif()      
 set_install_rpath(fpga_dma_vc_test)
 
 target_link_libraries(fpga_dma_vc_test opae-c ${libjson-c_LIBRARIES} uuid rt ${HWLOC_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})

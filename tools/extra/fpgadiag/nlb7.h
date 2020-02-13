@@ -50,12 +50,12 @@ public:
     }
     ~nlb7();
 
-    virtual intel::utils::option_map & get_options()          { return options_; }
-    virtual void                       assign(opae::fpga::types::handle::ptr_t accelerator) { accelerator_ = accelerator;      }
-    virtual const std::string &        afu_id()               { return afu_id_;  }
-    virtual const std::string &        name()                 { return name_;    }
-    virtual bool                       setup();
-    virtual bool                       run();
+    virtual intel::utils::option_map & get_options()         override  { return options_; }
+    virtual void                       assign(opae::fpga::types::handle::ptr_t accelerator) override { accelerator_ = accelerator;      }
+    virtual const std::string &        afu_id()              override  { return afu_id_;  }
+    virtual const std::string &        name()                override  { return name_;    }
+    virtual bool                       setup() override ;
+    virtual bool                       run() override ;
     virtual opae::fpga::types::shared_buffer::ptr_t          dsm()            const override { return dsm_; }
     virtual uint64_t                   cachelines()     const override { return cachelines_; }
 

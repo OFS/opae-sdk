@@ -73,6 +73,7 @@ public:
     {
 
     }
+    virtual ~option() {};
 
     option & operator=(const option & other)
     {

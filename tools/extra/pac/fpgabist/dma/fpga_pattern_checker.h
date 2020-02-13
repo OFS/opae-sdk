@@ -103,7 +103,7 @@ typedef union {
 	} st;
 } pattern_checker_status_t;
 
-typedef struct __attribute__((__packed__,__aligned__(32))) {
+typedef struct __attribute__((__packed__, __aligned__(32))) {
 	//0x0
 	uint32_t payload_len;
 	//0x4
