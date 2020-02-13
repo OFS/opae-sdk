@@ -46,6 +46,9 @@ set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3.6 3.5 3.4 3.3)
 find_package(PythonInterp ${OPAE_PYTHON_VERSION})
 find_package(PythonLibs ${OPAE_PYTHON_VERSION})
 
+option(OPAE_BUILD_TESTS "Enable building of OPAE unit tests" OFF)
+mark_as_advanced(OPAE_BUILD_TESTS)
+
 include(OPAE)
 
 get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
@@ -86,11 +89,12 @@ mark_as_advanced(OPAE_BUILD_LIBOPAE_PY)
 option(OPAE_BUILD_PYTHON_DIST "Enable building of Python source and binary distribution" OFF)
 mark_as_advanced(OPAE_BUILD_PYTHON_DIST)
 
-option(OPAE_BUILD_TESTS "Enable building of OPAE unit tests" OFF)
-mark_as_advanced(OPAE_BUILD_TESTS)
-
 option(OPAE_ENABLE_MOCK "Enable building of test infrastructure with mock" OFF)
 mark_as_advanced(OPAE_ENABLE_MOCK)
+
+############################################################################
+## Add Subdirectories ######################################################
+############################################################################
 
 add_subdirectory(external)
 add_subdirectory(safe_string)
