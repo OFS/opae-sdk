@@ -92,6 +92,9 @@ mark_as_advanced(OPAE_BUILD_PYTHON_DIST)
 option(OPAE_ENABLE_MOCK "Enable building of test infrastructure with mock" OFF)
 mark_as_advanced(OPAE_ENABLE_MOCK)
 
+option(OPAE_BUILD_SIM "Enable building of the AFU simulation environment" OFF)
+mark_as_advanced(OPAE_BUILD_SIM)
+
 ############################################################################
 ## Add Subdirectories ######################################################
 ############################################################################
