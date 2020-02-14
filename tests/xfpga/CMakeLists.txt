@@ -219,7 +219,7 @@ opae_test_add(TARGET test_xfpga_max10_c
 )
 
 opae_test_add(TARGET test_xfpga_threshold_c
-    SOURCE test_thresold_c.cpp
+    SOURCE test_threshold_c.cpp
     LIBS xfpga-static
 )
 
