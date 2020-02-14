@@ -33,7 +33,6 @@
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
-#include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -41,12 +40,9 @@
 #include <pthread.h>
 #include <stdarg.h>
 #include <errno.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
-#include <linux/limits.h>
 #include <opae/fpga.h>
 
 #include "opae_int.h"
