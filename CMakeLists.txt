@@ -52,8 +52,8 @@ endif()
 ############################################################################
 ## Add 'documentation' target ##############################################
 ############################################################################
-option(BUILD_SPHINX_DOC "Enable building of Sphinx documentation." OFF)
-mark_as_advanced(BUILD_SPHINX_DOC)
+option(OPAE_BUILD_SPHINX_DOC "Enable building of Sphinx documentation." OFF)
+mark_as_advanced(OPAE_BUILD_SPHINX_DOC)
 
 if (DOXYGEN_FOUND)
     add_subdirectory(doc)
