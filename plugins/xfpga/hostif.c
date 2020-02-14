@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -41,7 +41,7 @@
 #define ASSIGN_PORT_TO_HOST         1
 
 //Assign and Release  port to a host interface
-fpga_result __FPGA_API__ xfpga_fpgaAssignPortToInterface(fpga_handle fpga,
+fpga_result __XFPGA_API__ xfpga_fpgaAssignPortToInterface(fpga_handle fpga,
 						uint32_t interface_num,
 						uint32_t slot_num,
 						int flags)

@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2019, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -38,7 +38,7 @@
 #include "error_int.h"
 
 
-fpga_result __FPGA_API__
+fpga_result __XFPGA_API__
 xfpga_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop)
 {
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
@@ -59,7 +59,7 @@ xfpga_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop)
 	return result;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaGetProperties(fpga_token token,
+fpga_result __XFPGA_API__ xfpga_fpgaGetProperties(fpga_token token,
 						 fpga_properties *prop)
 {
 	struct _fpga_properties *_prop = NULL;
@@ -85,7 +85,7 @@ out_free:
 	return result;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
+fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 						    fpga_properties prop)
 {
 	struct _fpga_token *_token = (struct _fpga_token *)token;

@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -35,7 +35,7 @@
 #include "opae_drv.h"
 
 // Reset slot
-fpga_result __FPGA_API__ xfpga_fpgaReset(fpga_handle handle)
+fpga_result __XFPGA_API__ xfpga_fpgaReset(fpga_handle handle)
 {
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
 	fpga_result result 	     = FPGA_OK;

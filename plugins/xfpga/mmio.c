@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -162,7 +162,7 @@ STATIC fpga_result find_or_map_wm(fpga_handle handle, uint32_t mmio_num,
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaWriteMMIO32(fpga_handle handle,
+fpga_result __XFPGA_API__ xfpga_fpgaWriteMMIO32(fpga_handle handle,
 					 uint32_t mmio_num,
 					 uint64_t offset,
 					 uint32_t value)
@@ -202,7 +202,7 @@ out_unlock:
 	return result;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaReadMMIO32(fpga_handle handle,
+fpga_result __XFPGA_API__ xfpga_fpgaReadMMIO32(fpga_handle handle,
 					uint32_t mmio_num,
 					uint64_t offset,
 					uint32_t *value)
@@ -241,7 +241,7 @@ out_unlock:
 	return result;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaWriteMMIO64(fpga_handle handle,
+fpga_result __XFPGA_API__ xfpga_fpgaWriteMMIO64(fpga_handle handle,
 					 uint32_t mmio_num,
 					 uint64_t offset,
 					 uint64_t value)
@@ -280,7 +280,7 @@ out_unlock:
 	return result;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaReadMMIO64(fpga_handle handle,
+fpga_result __XFPGA_API__ xfpga_fpgaReadMMIO64(fpga_handle handle,
 					uint32_t mmio_num,
 					uint64_t offset,
 					uint64_t *value)
@@ -327,7 +327,7 @@ static inline void copy512(const void *src, void *dst)
 		 : "r"(src), "r"(dst));
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaWriteMMIO512(fpga_handle handle,
+fpga_result __XFPGA_API__ xfpga_fpgaWriteMMIO512(fpga_handle handle,
 					 uint32_t mmio_num,
 					 uint64_t offset,
 					 const void *value)
@@ -371,7 +371,7 @@ out_unlock:
 	return result;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaMapMMIO(fpga_handle handle,
+fpga_result __XFPGA_API__ xfpga_fpgaMapMMIO(fpga_handle handle,
 				     uint32_t mmio_num,
 				     uint64_t **mmio_ptr)
 {
@@ -400,7 +400,7 @@ out_unlock:
 	return result;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaUnmapMMIO(fpga_handle handle,
+fpga_result __XFPGA_API__ xfpga_fpgaUnmapMMIO(fpga_handle handle,
 				       uint32_t mmio_num)
 {
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;

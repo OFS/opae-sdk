@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -42,7 +42,7 @@
 
 #define INJECT_ERROR "inject_error"
 
-fpga_result __FPGA_API__ xfpga_fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
+fpga_result __XFPGA_API__ xfpga_fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
 {
 	struct _fpga_token *_token = (struct _fpga_token *)token;
 	struct stat st;
@@ -79,7 +79,8 @@ fpga_result __FPGA_API__ xfpga_fpgaReadError(fpga_token token, uint32_t error_nu
 	return FPGA_NOT_FOUND;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaClearError(fpga_token token, uint32_t error_num)
+fpga_result __XFPGA_API__
+xfpga_fpgaClearError(fpga_token token, uint32_t error_num)
 {
 	struct _fpga_token *_token = (struct _fpga_token *)token;
 	struct stat st;
@@ -130,7 +131,7 @@ fpga_result __FPGA_API__ xfpga_fpgaClearError(fpga_token token, uint32_t error_n
 	return FPGA_NOT_FOUND;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaClearAllErrors(fpga_token token)
+fpga_result __XFPGA_API__ xfpga_fpgaClearAllErrors(fpga_token token)
 {
 	struct _fpga_token *_token = (struct _fpga_token *)token;
 	uint32_t i = 0;
@@ -158,7 +159,7 @@ fpga_result __FPGA_API__ xfpga_fpgaClearAllErrors(fpga_token token)
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaGetErrorInfo(fpga_token token,
+fpga_result __XFPGA_API__ xfpga_fpgaGetErrorInfo(fpga_token token,
 			     uint32_t error_num,
 			     struct fpga_error_info *error_info)
 {
@@ -218,7 +219,7 @@ const char *errors_clearable[] = {
  * Note that build_error_list() does not check for dupliates; if
  * called again on the same list, it will add all found errors again.
  * Returns the number of error entries added to `list` */
-uint32_t __FIXME_MAKE_VISIBLE__
+uint32_t
 build_error_list(const char *path, struct error_list **list)
 {
 	struct dirent *de;

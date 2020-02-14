@@ -69,7 +69,7 @@ struct  QUCPU_Uclock   gQUCPU_Uclock;
 static int using_iopll(char* sysfs_usrpath, const char* sysfs_path);
 
 //Get fpga user clock
-fpga_result __FIXME_MAKE_VISIBLE__ get_userclock(const char* sysfs_path,
+fpga_result get_userclock(const char* sysfs_path,
 					uint64_t* userclk_high,
 					uint64_t* userclk_low)
 {
@@ -120,7 +120,7 @@ fpga_result __FIXME_MAKE_VISIBLE__ get_userclock(const char* sysfs_path,
 }
 
 // set fpga user clock
-fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
+fpga_result set_userclock(const char* sysfs_path,
 					uint64_t userclk_high,
 					uint64_t userclk_low)
 {

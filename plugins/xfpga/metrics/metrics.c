@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2019, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@
 //Wrong search string invalid array index
 #define METRIC_ARRAY_INVALID_INDEX     0xFFFFFF
 
-fpga_result __FPGA_API__ xfpga_fpgaGetNumMetrics(fpga_handle handle,
+fpga_result __XFPGA_API__ xfpga_fpgaGetNumMetrics(fpga_handle handle,
 					uint64_t *num_metrics)
 {
 	fpga_result result               = FPGA_OK;
@@ -103,7 +103,7 @@ out_unlock:
 	return result;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaGetMetricsInfo(fpga_handle handle,
+fpga_result __XFPGA_API__ xfpga_fpgaGetMetricsInfo(fpga_handle handle,
 					fpga_metric_info *metric_info,
 					uint64_t *num_metrics)
 {
@@ -175,7 +175,7 @@ out_unlock:
 }
 
 
-fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
+fpga_result __XFPGA_API__ xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
 						uint64_t *metric_num,
 						uint64_t num_metric_indexes,
 						fpga_metric *metrics)
@@ -288,7 +288,7 @@ out_unlock:
 	return result;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
+fpga_result __XFPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 						char **metrics_names,
 						uint64_t num_metric_names,
 						fpga_metric *metrics)

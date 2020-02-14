@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,6 +24,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
 #include "opae/access.h"
 #include "opae/utils.h"
 #include "opae/umsg.h"
@@ -32,7 +36,7 @@
 
 #include "usrclk/user_clk_pgm_uclock.h"
 
-fpga_result __FPGA_API__ xfpga_fpgaSetUserClock(fpga_handle handle,
+fpga_result __XFPGA_API__ xfpga_fpgaSetUserClock(fpga_handle handle,
 						uint64_t high_clk,
 						uint64_t low_clk,
 						int flags)
@@ -87,7 +91,7 @@ out_unlock:
 	return result;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaGetUserClock(fpga_handle handle,
+fpga_result __XFPGA_API__ xfpga_fpgaGetUserClock(fpga_handle handle,
 						uint64_t *high_clk,
 						uint64_t *low_clk,
 						int flags)

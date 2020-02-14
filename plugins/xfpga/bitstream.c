@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -116,7 +116,7 @@ STATIC int64_t int64_be_to_le(int64_t val)
 	return (val << 32) | ((val >> 32) & 0xFFFFFFFFULL);
 }
 
-fpga_result __FIXME_MAKE_VISIBLE__ get_interface_id(fpga_handle handle, uint64_t *id_l, uint64_t *id_h)
+fpga_result get_interface_id(fpga_handle handle, uint64_t *id_l, uint64_t *id_h)
 {
 
 	struct _fpga_token  *_token;
@@ -195,8 +195,7 @@ fpga_result check_interface_id(fpga_handle handle,
 	return result;
 }
 
-//TODO: this shouldn't be exported once all bistreams use JSON metadata format
-fpga_result __FPGA_API__ check_bitstream_guid(const uint8_t *bitstream)
+fpga_result check_bitstream_guid(const uint8_t *bitstream)
 {
 	fpga_guid bitstream_guid;
 	fpga_guid expected_guid;

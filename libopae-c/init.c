@@ -66,7 +66,7 @@ STATIC const char *_ase_sys_cfg_files[SYS_CFG_PATHS] = {
 	"/etc/opae/opae_ase.cfg",
 };
 
-void /* __FIXME_MAKE_VISIBLE__ */ opae_print(int loglevel, const char *fmt, ...)
+void opae_print(int loglevel, const char *fmt, ...)
 {
 	FILE *fp;
 	int err;

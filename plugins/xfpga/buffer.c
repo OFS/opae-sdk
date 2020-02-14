@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -146,7 +146,7 @@ STATIC fpga_result buffer_release(void *addr, uint64_t len)
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
+fpga_result __XFPGA_API__ xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 					   void **buf_addr, uint64_t *wsid,
 					   int flags)
 {
@@ -282,7 +282,7 @@ out_unlock:
 	return result;
 }
 
-fpga_result __FPGA_API__
+fpga_result __XFPGA_API__
 xfpga_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 {
 	void *buf_addr;
@@ -344,7 +344,7 @@ out_unlock:
 	return result;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
+fpga_result __XFPGA_API__ xfpga_fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 					  uint64_t *ioaddr)
 {
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;

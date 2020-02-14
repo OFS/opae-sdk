@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2019, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -1199,7 +1199,7 @@ out_close:
 	return FPGA_NOT_FOUND;
 }
 
-fpga_result __FIXME_MAKE_VISIBLE__ sysfs_read_u64(const char *path, uint64_t *u)
+fpga_result sysfs_read_u64(const char *path, uint64_t *u)
 {
 	int fd = -1;
 	int res = 0;
@@ -1249,7 +1249,7 @@ out_close:
 	return FPGA_NOT_FOUND;
 }
 
-fpga_result __FIXME_MAKE_VISIBLE__ sysfs_write_u64(const char *path, uint64_t u)
+fpga_result sysfs_write_u64(const char *path, uint64_t u)
 {
 	int fd = -1;
 	int res = 0;
@@ -1300,7 +1300,7 @@ out_close:
 }
 
 
-fpga_result __FIXME_MAKE_VISIBLE__ sysfs_write_u64_decimal(const char *path, uint64_t u)
+fpga_result sysfs_write_u64_decimal(const char *path, uint64_t u)
 {
 	int fd = -1;
 	int res = 0;

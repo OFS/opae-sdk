@@ -233,3 +233,7 @@
 #ifndef STATIC
 #define STATIC static
 #endif
+
+#ifndef __XFPGA_API__
+#define __XFPGA_API__
+#endif

@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -40,15 +40,15 @@
 #include <opae/log.h>
 
 
-#define VALIDATE_NAME(_N)                                                      \
-	do {                                                                   \
-		if (_N[0] == '.' || _N[0] == '/' || strstr(_N, "..")) {        \
-			FPGA_MSG("%s is not a valid input", _N);               \
-			return FPGA_INVALID_PARAM;                             \
-		}                                                              \
+#define VALIDATE_NAME(_N)                                       \
+	do {                                                        \
+		if (_N[0] == '.' || _N[0] == '/' || strstr(_N, "..")) { \
+			FPGA_MSG("%s is not a valid input", _N);            \
+			return FPGA_INVALID_PARAM;                          \
+		}                                                       \
 	} while (false);
 
-fpga_result __FPGA_API__ xfpga_fpgaTokenGetObject(fpga_token token, const char *name,
+fpga_result __XFPGA_API__ xfpga_fpgaTokenGetObject(fpga_token token, const char *name,
 						  fpga_object *object, int flags)
 {
 	char objpath[SYSFS_PATH_MAX];
@@ -65,7 +65,8 @@ fpga_result __FPGA_API__ xfpga_fpgaTokenGetObject(fpga_token token, const char *
 	return make_sysfs_object(objpath, name, object, flags, NULL);
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaHandleGetObject(fpga_token handle, const char *name,
+fpga_result __XFPGA_API__
+xfpga_fpgaHandleGetObject(fpga_token handle, const char *name,
 						   fpga_object *object, int flags)
 {
 	char objpath[SYSFS_PATH_MAX];
@@ -82,7 +83,8 @@ fpga_result __FPGA_API__ xfpga_fpgaHandleGetObject(fpga_token handle, const char
 	return make_sysfs_object(objpath, name, object, flags, handle);
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaObjectGetObject(fpga_object parent, const char *name,
+fpga_result __XFPGA_API__
+xfpga_fpgaObjectGetObject(fpga_object parent, const char *name,
 						   fpga_object *object, int flags)
 {
 	char objpath[SYSFS_PATH_MAX] = {0};
@@ -113,7 +115,8 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectGetObject(fpga_object parent, const cha
 	return make_sysfs_object(objpath, name, object, flags, _obj->handle);
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaCloneObject(fpga_object src, fpga_object *dst)
+fpga_result __XFPGA_API__
+xfpga_fpgaCloneObject(fpga_object src, fpga_object *dst)
 {
 	size_t i = 0;
 	fpga_result res = FPGA_OK;
@@ -157,7 +160,7 @@ out_err:
 	return res;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaObjectGetObjectAt(fpga_object parent,
+fpga_result __XFPGA_API__ xfpga_fpgaObjectGetObjectAt(fpga_object parent,
 						     size_t idx,
 						     fpga_object *object)
 {
@@ -183,7 +186,7 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectGetObjectAt(fpga_object parent,
 	return res;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaDestroyObject(fpga_object *obj)
+fpga_result __XFPGA_API__ xfpga_fpgaDestroyObject(fpga_object *obj)
 {
 	fpga_result res = FPGA_OK;
 	if (NULL == obj || NULL == *obj) {
@@ -200,7 +203,7 @@ fpga_result __FPGA_API__ xfpga_fpgaDestroyObject(fpga_object *obj)
 	return res;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaObjectGetSize(fpga_object obj,
+fpga_result __XFPGA_API__ xfpga_fpgaObjectGetSize(fpga_object obj,
 						 uint32_t *size,
 						 int flags)
 {
@@ -218,7 +221,7 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectGetSize(fpga_object obj,
 	return res;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaObjectRead64(fpga_object obj,
+fpga_result __XFPGA_API__ xfpga_fpgaObjectRead64(fpga_object obj,
 						uint64_t *value,
 						int flags)
 {
@@ -241,7 +244,7 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectRead64(fpga_object obj,
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaObjectRead(fpga_object obj,
+fpga_result __XFPGA_API__ xfpga_fpgaObjectRead(fpga_object obj,
 					      uint8_t *buffer,
 					      size_t offset,
 					      size_t len,
@@ -273,7 +276,7 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectRead(fpga_object obj,
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaObjectWrite64(fpga_object obj,
+fpga_result __XFPGA_API__ xfpga_fpgaObjectWrite64(fpga_object obj,
 						 uint64_t value,
 						 int flags)
 {
@@ -326,7 +329,7 @@ out_unlock:
 	return res;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaObjectGetType(fpga_object obj,
+fpga_result __XFPGA_API__ xfpga_fpgaObjectGetType(fpga_object obj,
 						 enum fpga_sysobject_type *type)
 {
 	fpga_result res = FPGA_OK;
@@ -357,7 +360,7 @@ fpga_result __FPGA_API__ xfpga_fpgaObjectGetType(fpga_object obj,
 	return res;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaObjectGetName(fpga_object obj, char *name,
+fpga_result __XFPGA_API__ xfpga_fpgaObjectGetName(fpga_object obj, char *name,
 						 size_t max_len)
 {
 	fpga_result res = FPGA_OK;

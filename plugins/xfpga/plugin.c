@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -36,7 +36,7 @@
 #include "sysfs_int.h"
 #include "opae_drv.h"
 
-int __FPGA_API__ xfpga_plugin_initialize(void)
+int __XFPGA_API__ xfpga_plugin_initialize(void)
 {
 	int res = sysfs_initialize();
 	if (res) {
@@ -50,25 +50,25 @@ int __FPGA_API__ xfpga_plugin_initialize(void)
 	return 0;
 }
 
-int __FPGA_API__ xfpga_plugin_finalize(void)
+int __XFPGA_API__ xfpga_plugin_finalize(void)
 {
 	sysfs_finalize();
 	return 0;
 }
 
-bool __FPGA_API__ xfpga_plugin_supports_device(const char *device_type)
+bool __XFPGA_API__ xfpga_plugin_supports_device(const char *device_type)
 {
 	UNUSED_PARAM(device_type);
 	return true;
 }
 
-bool __FPGA_API__ xfpga_plugin_supports_host(const char *hostname)
+bool __XFPGA_API__ xfpga_plugin_supports_host(const char *hostname)
 {
 	UNUSED_PARAM(hostname);
 	return true;
 }
 
-int __FPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
+int __XFPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 				       const char *jsonConfig)
 {
 	UNUSED_PARAM(jsonConfig);

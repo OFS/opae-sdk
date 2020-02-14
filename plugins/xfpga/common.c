@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -146,7 +146,7 @@ fpga_result event_handle_check_and_lock(struct _fpga_event_handle *eh)
 /* mutex to protect global data structures */
 pthread_mutex_t global_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
-const char __FPGA_API__ *xfpga_fpgaErrStr(fpga_result e)
+const char __XFPGA_API__ *xfpga_fpgaErrStr(fpga_result e)
 {
 	switch (e) {
 	case FPGA_OK:
