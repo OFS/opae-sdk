@@ -17,6 +17,11 @@ fi
 rm -rf ~/rpmbuild
 rpmdev-setuptree
 
+#query spec for version details
+version=`grep 'Version:' ../opae.spec | awk '{ print $2 }'`
+release=`grep 'Release:' ../opae.spec | awk '{ print $2 }'`
+full_version=${version}-${release}
+
 #create source tarball
 rm -rf ../build
 mkdir ../build
@@ -55,9 +60,9 @@ tar --transform='s/opae-sdk/opae/' \
   --exclude=testing/.clang-format \
   --exclude=testing/xfpga/.clang-format \
   --exclude=tools/base/argsfilter/.clang-format \
-  -z -c -f opae.tar.gz opae-sdk
+  -z -c -f opae-${full_version}.tar.gz opae-sdk
 
-mv opae.tar.gz ~/rpmbuild/SOURCES/
+mv opae-${full_version}.tar.gz ~/rpmbuild/SOURCES/
 cp "${BUILD_DIR}/../opae.spec" ~/rpmbuild/SPECS/
 
 cd ~/rpmbuild/SPECS/
