@@ -254,9 +254,9 @@ static void parse_args(struct config *config, int argc, char *argv[])
 			break;
 
     case 'v':    /* version */
-        cout << "fpga_dma_test " << INTEL_FPGA_API_VERSION
-             << " " << INTEL_FPGA_API_HASH;
-        if (INTEL_FPGA_TREE_DIRTY)
+        cout << "fpga_dma_test " << OPAE_VERSION
+             << " " << OPAE_GIT_COMMIT_HASH;
+        if (OPAE_GIT_SRC_TREE_DIRTY)
             cout << "*";
         cout << endl;
         exit(0);
