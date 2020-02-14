@@ -76,7 +76,6 @@ private:
     std::string afu_id_;
 
     std::size_t dsm_size_;
-    uint32_t step_;
     uint32_t begin_;
     uint32_t end_;
     uint32_t frequency_;

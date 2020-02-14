@@ -60,7 +60,6 @@ int usleep(unsigned);
 #define CSR_NUM_LINES		     0x0130
 #define DSM_STATUS_TEST_COMPLETE     0x40
 #define CSR_AFU_DSM_BASEL	     0x0110
-#define CSR_AFU_DSM_BASEH	     0x0114
 
 /**************** BIST #defines ***************/
 #define ENABLE_DDRA_BIST	      0x08000000
