@@ -30,3 +30,8 @@ if(OPAE_BUILD_TESTS)
     opae_external_project_add(PROJECT_NAME opae-test
                               GIT_URL https://github.com/OPAE/opae-test.git)
 endif(OPAE_BUILD_TESTS)
+
+if(OPAE_BUILD_SIM)
+    opae_external_project_add(PROJECT_NAME opae-sim
+                              GIT_URL https://github.com/OPAE/opae-sim.git)
+endif(OPAE_BUILD_SIM)
