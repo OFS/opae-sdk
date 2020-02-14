@@ -66,14 +66,6 @@ int xfpga_plugin_finalize(void);
 
 using namespace opae::testing;
 
-/**
- * @test       opaec
- * @brief      Tests: fpga_vector_init
- * @details    When fpgaGetOPAECVersion is called with a valid param,<br>
- *             then it retrieves the INTEL_FPGA_API_VER_* constants<br>
- *             from config.h.<br>
- */
-
 int mmio_ioctl(mock_object *m, int request, va_list argp) {
   int retval = -1;
   errno = EINVAL;
