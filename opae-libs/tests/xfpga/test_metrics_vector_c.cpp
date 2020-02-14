@@ -50,9 +50,7 @@ using namespace opae::testing;
 /**
  * @test       opaec
  * @brief      Tests: fpga_vector_init
- * @details    When fpgaGetOPAECVersion is called with a valid param,<br>
- *             then it retrieves the INTEL_FPGA_API_VER_* constants<br>
- *             from config.h.<br>
+ * @details    TODO: test needs a valid comment.
  */
 TEST(metric_vector, test_metric_vector_01) {
   fpga_metric_vector vector;
@@ -87,9 +85,7 @@ TEST(metric_vector, test_metric_vector_01) {
 /**
  * @test       opaec
  * @brief      Tests: fpga_vector_init
- * @details    When fpgaGetOPAECVersion is called with a valid param,<br>
- *             then it retrieves the INTEL_FPGA_API_VER_* constants<br>
- *             from config.h.<br>
+ * @details    TODO: test needs a valid comment.
  */
 TEST(metric_vector, test_metric_vector_02) {
   fpga_metric_vector metric_vector;
@@ -121,9 +117,7 @@ TEST(metric_vector, test_metric_vector_02) {
 /**
  * @test       opaec
  * @brief      Tests: fpga_vector_init
- * @details    When fpgaGetOPAECVersion is called with a valid param,<br>
- *             then it retrieves the INTEL_FPGA_API_VER_* constants<br>
- *             from config.h.<br>
+ * @details    TODO: test needs a valid comment.
  */
 TEST(metric_vector, test_metric_vector_03) {
   fpga_metric_vector metric_vector;
