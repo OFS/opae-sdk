@@ -195,23 +195,22 @@ public:
     e100(const std::string & name);
     ~e100();
 
-      virtual void assign(opae::fpga::types::handle::ptr_t accelerator_ptr);
+    virtual void assign(opae::fpga::types::handle::ptr_t accelerator_ptr) override;
 
-    virtual const std::string & afu_id()
+    virtual const std::string & afu_id() override
     {
         return afu_id_;
     }
 
     virtual uint32_t num_ports()  override { return 1; }
-    virtual void clear_status();
-    virtual void internal_loopback(uint32_t port);
-    virtual void external_loopback(uint32_t source_port, uint32_t destination_port);
-    virtual void stop(uint32_t instance, loopback::packet_flow flow);
-    virtual mac_report gen_report(uint32_t instance);
-    virtual std::vector<mac_address_t> get_mac_addresses();
+    virtual void clear_status() override;
+    virtual void internal_loopback(uint32_t port) override;
+    virtual void external_loopback(uint32_t source_port, uint32_t destination_port) override;
+    virtual void stop(uint32_t instance, loopback::packet_flow flow) override;
+    virtual mac_report gen_report(uint32_t instance) override;
+    virtual std::vector<mac_address_t> get_mac_addresses() override;
 private:
     eth_ctrl::ptr_t eth_;
-    bool interactive_;
     std::string config_;
     std::string afu_id_;
     uint32_t gen_ctrl_;

@@ -40,7 +40,6 @@ namespace hssi
 
 e100::e100()
 : loopback("e100")
-, interactive_(false)
 , config_("e100.json")
 , afu_id_("4AFC1716-3224-4753-9BD0-3D5B1F229370")
 , gen_ctrl_(0)
@@ -50,7 +49,6 @@ e100::e100()
 
 e100::e100(const std::string & name)
 : loopback(name)
-, interactive_(false)
 , config_("e100.json")
 , afu_id_("4AFC1716-3224-4753-9BD0-3D5B1F229370")
 , gen_ctrl_(0)

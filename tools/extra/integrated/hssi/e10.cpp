@@ -41,7 +41,6 @@ namespace hssi
 
 e10::e10()
 : loopback()
-, interactive_(false)
 , config_("e10.json")
 , afu_id_("05189fe4-0676-dd24-b74f-291af34e1783")
 , gen_ctrl_(0)
@@ -51,7 +50,6 @@ e10::e10()
 
 e10::e10(const std::string & name)
 : loopback(name)
-, interactive_(false)
 , config_("e10.json")
 , afu_id_("05189FE4-0676-DD24-B74F-291AF34E1783")
 , gen_ctrl_(0)
