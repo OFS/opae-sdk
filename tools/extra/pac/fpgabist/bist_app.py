@@ -44,9 +44,9 @@ class BistMode(bc.BistMode):
         ret = 0
         for func, param in self.executables.items():
             print "Running {} test...\n".format(func)
-            cmd = "{} {}".format(func, param)
+            cmd = [func, param]
             try:
-                subprocess.check_call(cmd, shell=True)
+                subprocess.check_call(cmd)
             except subprocess.CalledProcessError as e:
                 print "Failed Test: {}".format(func)
                 print e
