@@ -45,8 +45,7 @@ typedef enum _fpgad_plugin_type {
 	FPGAD_PLUGIN_TYPE_THREAD
 } fpgad_plugin_type;
 
-typedef struct _fpgad_monitored_device
-		fpgad_monitored_device;
+struct _fpgad_monitored_device;
 
 typedef enum _fpgad_detection_status {
 	FPGAD_STATUS_NOT_DETECTED = 0, // no detection
@@ -55,9 +54,9 @@ typedef enum _fpgad_detection_status {
 } fpgad_detection_status;
 
 typedef fpgad_detection_status
-		(*fpgad_detect_event_t)(fpgad_monitored_device *dev,
+		(*fpgad_detect_event_t)(struct _fpgad_monitored_device *dev,
 					void *context);
-typedef void (*fpgad_respond_event_t)(fpgad_monitored_device *dev,
+typedef void (*fpgad_respond_event_t)(struct _fpgad_monitored_device *dev,
 				      void *context);
 
 typedef void * (*fpgad_plugin_thread_t)(void *context);
