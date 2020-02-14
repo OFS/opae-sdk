@@ -54,7 +54,7 @@ class DmaMode(bc.BistMode):
     def run_cmd(self, cmd):
         ret = 0
         try:
-            subprocess.check_call(cmd, shell=True)
+            subprocess.check_call(cmd.split(' '))
         except subprocess.CalledProcessError as e:
             print("Failed Test: {}".format(cmd))
             print(e)

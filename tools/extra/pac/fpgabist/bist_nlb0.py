@@ -60,7 +60,7 @@ class Nlb0Mode(bc.BistMode):
             if bd_id != 0:
                 cmd += ' -T {}'.format(afu_clk_freqs.get(bd_id, 400000000))
             try:
-                subprocess.check_call(cmd, shell=True)
+                subprocess.check_call(cmd.split(' '))
             except subprocess.CalledProcessError as e:
                 print "Failed Test: {}".format(test)
                 print e
