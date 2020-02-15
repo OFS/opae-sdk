@@ -69,7 +69,7 @@ struct  QUCPU_Uclock   gQUCPU_Uclock;
 static int using_iopll(char* sysfs_usrpath, const char* sysfs_path);
 
 //Get fpga user clock
-fpga_result __FIXME_MAKE_VISIBLE__ get_userclock(const char* sysfs_path,
+fpga_result get_userclock(const char* sysfs_path,
 					uint64_t* userclk_high,
 					uint64_t* userclk_low)
 {
@@ -82,7 +82,7 @@ fpga_result __FIXME_MAKE_VISIBLE__ get_userclock(const char* sysfs_path,
 	if ((sysfs_path == NULL) ||
 		(userclk_high == NULL) ||
 		(userclk_low == NULL)) {
-		FPGA_ERR("Invalid input parameters");
+		OPAE_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -103,13 +103,13 @@ fpga_result __FIXME_MAKE_VISIBLE__ get_userclock(const char* sysfs_path,
 
 	// Initialize
 	if (fi_RunInitz(sysfs_path) != 0) {
-		FPGA_ERR("Failed to initialize user clock ");
+		OPAE_ERR("Failed to initialize user clock ");
 		return FPGA_NOT_SUPPORTED;
 	}
 
 	// get user clock
 	if (fi_GetFreqs(&userClock) != 0) {
-		FPGA_ERR("Failed to get user clock Frequency ");
+		OPAE_ERR("Failed to get user clock Frequency ");
 		return FPGA_NOT_SUPPORTED;
 	}
 
@@ -120,7 +120,7 @@ fpga_result __FIXME_MAKE_VISIBLE__ get_userclock(const char* sysfs_path,
 }
 
 // set fpga user clock
-fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
+fpga_result set_userclock(const char* sysfs_path,
 					uint64_t userclk_high,
 					uint64_t userclk_low)
 {
@@ -133,7 +133,7 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 	int ret;
 
 	if (sysfs_path == NULL) {
-		FPGA_ERR("Invalid Input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -142,13 +142,13 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 		// Enforce 1x clock within valid range
 		if ((userclk_low > IOPLL_MAX_FREQ) ||
 		    (userclk_low < IOPLL_MIN_FREQ)) {
-			FPGA_ERR("Invalid Input frequency");
+			OPAE_ERR("Invalid Input frequency");
 			return FPGA_INVALID_PARAM;
 		}
 
 		fd = open(sysfs_usrpath, O_WRONLY);
 		if (fd < 0) {
-			FPGA_MSG("open(%s) failed: %s",
+			OPAE_MSG("open(%s) failed: %s",
 				 sysfs_usrpath, strerror(errno));
 			return FPGA_NOT_FOUND;
 		}
@@ -157,7 +157,7 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 		do {
 			res = write(fd, bufp, cnt);
 			if (res < 0) {
-				FPGA_ERR("Failed to write");
+				OPAE_ERR("Failed to write");
 				break;
 			}
 			bufp += res;
@@ -173,24 +173,24 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 	// verify user clock freq range (100hz to 1200hz)
 	if ((userclk_high > MAX_FPGA_FREQ) ||
 		(userclk_low > MAX_FPGA_FREQ)) {
-		FPGA_ERR("Invalid Input frequency");
+		OPAE_ERR("Invalid Input frequency");
 		return FPGA_INVALID_PARAM;
 	}
 
 	if (userclk_low != 0 && userclk_high != 0
 		&& userclk_low > userclk_high) {
-		FPGA_ERR("Invalid Input low frequency");
+		OPAE_ERR("Invalid Input low frequency");
 		return FPGA_INVALID_PARAM;
 	}
 
 	if (freq < MIN_FPGA_FREQ){
-		FPGA_ERR("Invalid Input frequency");
+		OPAE_ERR("Invalid Input frequency");
 		return FPGA_INVALID_PARAM;
 	}
 
 	// Initialize
 	if (fi_RunInitz(sysfs_path) != 0) {
-		FPGA_ERR("Failed to initialize user clock ");
+		OPAE_ERR("Failed to initialize user clock ");
 		return FPGA_NOT_SUPPORTED;
 	}
 
@@ -200,11 +200,11 @@ fpga_result __FIXME_MAKE_VISIBLE__ set_userclock(const char* sysfs_path,
 		refClk = 1;
 	}
 
-	FPGA_DBG("User clock: %ld \n", freq);
+	OPAE_DBG("User clock: %ld \n", freq);
 
 	// set user clock
 	if (fi_SetFreqs(refClk, freq) != 0) {
-		FPGA_ERR("Failed to set user clock frequency ");
+		OPAE_ERR("Failed to set user clock frequency ");
 		return FPGA_NOT_SUPPORTED;
 	}
 
@@ -285,7 +285,7 @@ int fi_RunInitz(const char* sysfs_path)
 		} // User Clock wrong version number
 	} // Verifying User Clock version number
 
-	FPGA_DBG("User clock version = %lx \n", gQUCPU_Uclock.tInitz_InitialParams.u64i_Version);
+	OPAE_DBG("User clock version = %lx \n", gQUCPU_Uclock.tInitz_InitialParams.u64i_Version);
 
 	// Read PLL ID
 	if (i_ReturnErr == 0)
@@ -556,7 +556,7 @@ int fi_GetFreqs(QUCPU_tFreqs *ptFreqs_retFreqs)
 
 	} // Read div2 and 1x user clock frequency
 
-	FPGA_DBG("\nApproximate frequency:\n"
+	OPAE_DBG("\nApproximate frequency:\n"
 		"High clock = %5.1f MHz\n"
 		"Low clock  = %5.1f MHz\n \n",
 		ptFreqs_retFreqs->u64i_Frq_ClkUsr / 1.0e6, (ptFreqs_retFreqs->u64i_Frq_DivBy2) / 1.0e6);
@@ -892,14 +892,14 @@ static int using_iopll(char* sysfs_usrpath, const char* sysfs_path)
 		return FPGA_NOT_FOUND;
 
 	if (iopll_glob.gl_pathc > 1)
-		FPGA_MSG("WARNING: Port has multiple sysfs frequency files");
+		OPAE_MSG("WARNING: Port has multiple sysfs frequency files");
 
 	strcpy_s(sysfs_usrpath, SYSFS_PATH_MAX, iopll_glob.gl_pathv[0]);
 
 	globfree(&iopll_glob);
 
 	if (access(sysfs_usrpath, F_OK | R_OK | W_OK) != 0) {
-		FPGA_ERR("Unable to access sysfs frequency file");
+		OPAE_ERR("Unable to access sysfs frequency file");
 		return FPGA_NO_ACCESS;
 	}
 

@@ -72,7 +72,7 @@ void *alloc_buffer(uint64_t len)
 	else
 		addr = mmap(ADDR, len, PROTECTION, FLAGS_4K, 0, 0);
 	if (addr == MAP_FAILED) {
-		FPGA_ERR("mmap failed");
+		OPAE_ERR("mmap failed");
 		addr = NULL;
 	}
 
@@ -100,7 +100,7 @@ int free_buffer(void *addr, uint64_t len)
 	else if (len > 4 * KB)
 		len = 2 * MB;
 	if (munmap(addr, len)) {
-		FPGA_ERR("munmap failed");
+		OPAE_ERR("munmap failed");
 		return FPGA_INVALID_PARAM;
 	}
 

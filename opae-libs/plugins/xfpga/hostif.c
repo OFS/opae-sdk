@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -41,7 +41,7 @@
 #define ASSIGN_PORT_TO_HOST         1
 
 //Assign and Release  port to a host interface
-fpga_result __FPGA_API__ xfpga_fpgaAssignPortToInterface(fpga_handle fpga,
+fpga_result __XFPGA_API__ xfpga_fpgaAssignPortToInterface(fpga_handle fpga,
 						uint32_t interface_num,
 						uint32_t slot_num,
 						int flags)
@@ -55,7 +55,7 @@ fpga_result __FPGA_API__ xfpga_fpgaAssignPortToInterface(fpga_handle fpga,
 		return result;
 
 	if (_handle->fddev < 0) {
-		FPGA_ERR("Invalid handle file descriptor");
+		OPAE_ERR("Invalid handle file descriptor");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -64,17 +64,17 @@ fpga_result __FPGA_API__ xfpga_fpgaAssignPortToInterface(fpga_handle fpga,
 	case ASSIGN_PORT_TO_PF:
 		result = opae_fme_port_assign(_handle->fddev, flags, slot_num);
 		if (result) {
-			FPGA_ERR("Failed to assign port");
+			OPAE_ERR("Failed to assign port");
 		}
 		break;
 	case ASSIGN_PORT_TO_HOST:
 		result = opae_fme_port_release(_handle->fddev, flags, slot_num);
 		if (result) {
-			FPGA_ERR("Failed to releae port");
+			OPAE_ERR("Failed to releae port");
 		}
 		break;
 	default:
-		FPGA_MSG("Unknown port assignment operation: %d",
+		OPAE_MSG("Unknown port assignment operation: %d",
 			 interface_num);
 		result = FPGA_INVALID_PARAM;
 	}
@@ -83,7 +83,7 @@ fpga_result __FPGA_API__ xfpga_fpgaAssignPortToInterface(fpga_handle fpga,
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err)
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 
 }

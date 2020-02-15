@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -52,9 +52,6 @@
 #include "mmap_int.h"
 #include "props.h"
 
-/* Macro for defining symbol visibility */
-#define __FPGA_API__ __attribute__((visibility("default")))
-#define __FIXME_MAKE_VISIBLE__ __attribute__((visibility("default")))
 #define GCC_VERSION (__GNUC__       * 10000 \
 		   + __GNUC_MINOR__ * 100 \
 		   + __GNUC_PATCHLEVEL__)

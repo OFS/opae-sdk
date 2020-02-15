@@ -117,13 +117,13 @@ fpga_result add_metric_vector(fpga_metric_vector *vector,
 		metric_sysfs == NULL ||
 		qualifier_name == NULL ||
 		metric_units == NULL) {
-		FPGA_ERR("Invalid Input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
 	fpga_enum_metric = (struct _fpga_enum_metric *)malloc(sizeof(struct _fpga_enum_metric));
 	if (fpga_enum_metric == NULL) {
-		FPGA_ERR("Failed to allocate memory");
+		OPAE_ERR("Failed to allocate memory");
 		return FPGA_NO_MEMORY;
 	}
 
@@ -188,7 +188,7 @@ fpga_result get_metric_data_info(const char *group_name,
 		metric_name == NULL ||
 		metric_data_serach == NULL ||
 		metric_data == NULL) {
-		FPGA_ERR("Invalid Input Paramters");
+		OPAE_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -227,13 +227,13 @@ fpga_result enum_thermalmgmt_metrics(fpga_metric_vector *vector,
 	if (vector == NULL ||
 		sysfspath == NULL ||
 		metric_num == NULL) {
-		FPGA_ERR("Invalid Input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
-		FPGA_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
+		OPAE_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
 		//TODO refactor to common function
 		switch (gres) {
 		case GLOB_NOSPACE:
@@ -255,7 +255,7 @@ fpga_result enum_thermalmgmt_metrics(fpga_metric_vector *vector,
 	for (i = 0; i < pglob.gl_pathc; i++) {
 
 		if (!pglob.gl_pathv) {
-			FPGA_ERR("No matching pattern");
+			OPAE_ERR("No matching pattern");
 			break;
 		}
 
@@ -269,13 +269,13 @@ fpga_result enum_thermalmgmt_metrics(fpga_metric_vector *vector,
 
 		result = get_metric_data_info(THERLGMT, (dir_name + 1), mcp_metric_metadata, MCP_MDATA_SIZE, &metric_data);
 		if (result != FPGA_OK) {
-			FPGA_MSG("Failed to get metric metadata ");
+			OPAE_MSG("Failed to get metric metadata ");
 		}
 
 		result = add_metric_vector(vector, *metric_num, THERLGMT, THERLGMT, sysfspath, (dir_name + 1), pglob.gl_pathv[i], metric_data.metric_units,
 								FPGA_METRIC_DATATYPE_INT, FPGA_METRIC_TYPE_THERMAL, hw_type, 0);
 		if (result != FPGA_OK) {
-			FPGA_MSG("Failed to add metrics");
+			OPAE_MSG("Failed to add metrics");
 			if (pglob.gl_pathv) {
 				globfree(&pglob);
 			}
@@ -306,13 +306,13 @@ fpga_result enum_powermgmt_metrics(fpga_metric_vector *vector,
 	if (vector == NULL ||
 		sysfspath == NULL ||
 		metric_num == NULL) {
-		FPGA_ERR("Invalid Input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
-		FPGA_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
+		OPAE_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
 		//TODO refactor to common function
 		switch (gres) {
 		case GLOB_NOSPACE:
@@ -334,7 +334,7 @@ fpga_result enum_powermgmt_metrics(fpga_metric_vector *vector,
 	for (i = 0; i < pglob.gl_pathc; i++) {
 
 		if (!pglob.gl_pathv) {
-			FPGA_ERR("No matching pattern");
+			OPAE_ERR("No matching pattern");
 			break;
 		}
 
@@ -348,13 +348,13 @@ fpga_result enum_powermgmt_metrics(fpga_metric_vector *vector,
 
 		result = get_metric_data_info(PWRMGMT, (dir_name + 1), mcp_metric_metadata, MCP_MDATA_SIZE, &metric_data);
 		if (result != FPGA_OK) {
-			FPGA_MSG("Failed to get metric metadata ");
+			OPAE_MSG("Failed to get metric metadata ");
 		}
 
 		result = add_metric_vector(vector, *metric_num, PWRMGMT, PWRMGMT, sysfspath, (dir_name + 1), pglob.gl_pathv[i], metric_data.metric_units,
 								FPGA_METRIC_DATATYPE_INT, FPGA_METRIC_TYPE_POWER, hw_type, 0);
 		if (result != FPGA_OK) {
-			FPGA_MSG("Failed to add metrics");
+			OPAE_MSG("Failed to add metrics");
 			if (pglob.gl_pathv) {
 				globfree(&pglob);
 			}
@@ -391,7 +391,7 @@ fpga_result enum_perf_counter_items(fpga_metric_vector *vector,
 		sysfs_name == NULL ||
 		qualifier_name == NULL ||
 		metric_num == NULL) {
-		FPGA_ERR("Invalid Input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -400,7 +400,7 @@ fpga_result enum_perf_counter_items(fpga_metric_vector *vector,
 
 	dir = opendir(sysfs_path);
 	if (NULL == dir) {
-		FPGA_MSG("can't find dir %s ", strerror(errno));
+		OPAE_MSG("can't find dir %s ", strerror(errno));
 		return FPGA_NOT_FOUND;
 	}
 
@@ -421,7 +421,7 @@ fpga_result enum_perf_counter_items(fpga_metric_vector *vector,
 
 			result = enum_perf_counter_items(vector, metric_num, qname, sysfs_path, dirent->d_name, metric_type, hw_type);
 			if (result != FPGA_OK) {
-				FPGA_MSG("Failed to add metrics");
+				OPAE_MSG("Failed to add metrics");
 			}
 			continue;
 
@@ -432,7 +432,7 @@ fpga_result enum_perf_counter_items(fpga_metric_vector *vector,
 		result = add_metric_vector(vector, *metric_num, qualifier_name, "performance", sysfs_path, dirent->d_name,
 			metric_sysfs, "", FPGA_METRIC_DATATYPE_INT, metric_type, hw_type, 0);
 		if (result != FPGA_OK) {
-			FPGA_MSG("Failed to add metrics");
+			OPAE_MSG("Failed to add metrics");
 			closedir(dir);
 			return result;
 		}
@@ -460,13 +460,13 @@ fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
 	if (vector == NULL ||
 		sysfspath == NULL ||
 		metric_num == NULL) {
-		FPGA_ERR("Invalid Input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
-		FPGA_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
+		OPAE_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
 		if (pglob.gl_pathv) {
 			globfree(&pglob);
 		}
@@ -478,7 +478,7 @@ fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
 
 	dir = opendir(sysfs_path);
 	if (NULL == dir) {
-		FPGA_MSG("can't find dirt %s ", strerror(errno));
+		OPAE_MSG("can't find dirt %s ", strerror(errno));
 		return FPGA_NOT_FOUND;
 	}
 
@@ -496,7 +496,7 @@ fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
 			snprintf_s_ss(qualifier_name, sizeof(qualifier_name), "%s:%s", PERFORMANCE, PERF_CACHE);
 			result = enum_perf_counter_items(vector, metric_num, qualifier_name, sysfs_path, dirent->d_name, FPGA_METRIC_TYPE_PERFORMANCE_CTR, hw_type);
 			if (result != FPGA_OK) {
-				FPGA_MSG("Failed to add metrics");
+				OPAE_MSG("Failed to add metrics");
 			}
 
 		}
@@ -505,7 +505,7 @@ fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
 			snprintf_s_ss(qualifier_name, sizeof(qualifier_name), "%s:%s", PERFORMANCE, PERF_FABRIC);
 			result = enum_perf_counter_items(vector, metric_num, qualifier_name, sysfs_path, dirent->d_name, FPGA_METRIC_TYPE_PERFORMANCE_CTR, hw_type);
 			if (result != FPGA_OK) {
-				FPGA_MSG("Failed to add metrics");
+				OPAE_MSG("Failed to add metrics");
 			}
 
 		}
@@ -514,7 +514,7 @@ fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
 			snprintf_s_ss(qualifier_name, sizeof(qualifier_name), "%s:%s", PERFORMANCE, PERF_IOMMU);
 			result = enum_perf_counter_items(vector, metric_num, qualifier_name, sysfs_path, dirent->d_name, FPGA_METRIC_TYPE_PERFORMANCE_CTR, hw_type);
 			if (result != FPGA_OK) {
-				FPGA_MSG("Failed to add metrics");
+				OPAE_MSG("Failed to add metrics");
 			}
 
 		}
@@ -666,18 +666,18 @@ fpga_result  enum_bmc_metrics_info(struct _fpga_handle *_handle,
 
 	if (vector == NULL ||
 		metric_num == NULL) {
-		FPGA_ERR("Invalid input");
+		OPAE_ERR("Invalid input");
 		return result;
 	}
 	result = xfpga_bmcLoadSDRs(_handle, &records, &num_sensors);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to load BMC SDR.");
+		OPAE_ERR("Failed to load BMC SDR.");
 		return result;
 	}
 
 	result = xfpga_bmcReadSensorValues(_handle, records, &values, &num_values);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to read BMC sensor values.");
+		OPAE_ERR("Failed to read BMC sensor values.");
 		return result;
 	}
 
@@ -704,7 +704,7 @@ fpga_result  enum_bmc_metrics_info(struct _fpga_handle *_handle,
 
 		result = add_metric_vector(vector, *metric_num, qualifier_name, group_name, "", details.name, "", units, FPGA_METRIC_DATATYPE_DOUBLE, metric_type, hw_type, 0);
 		if (result != FPGA_OK) {
-			FPGA_MSG("Failed to add metrics");
+			OPAE_MSG("Failed to add metrics");
 			return result;
 		}
 
@@ -713,12 +713,12 @@ fpga_result  enum_bmc_metrics_info(struct _fpga_handle *_handle,
 
 	result = xfpga_bmcDestroySensorValues(_handle, &values);
 	if (result != FPGA_OK) {
-		FPGA_MSG("Failed to Destroy Sensor value.");
+		OPAE_MSG("Failed to Destroy Sensor value.");
 	}
 
 	result = xfpga_bmcDestroySDRs(_handle, &records);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to Destroy SDR.");
+		OPAE_ERR("Failed to Destroy SDR.");
 		return result;
 	}
 
@@ -733,18 +733,18 @@ fpga_result free_fpga_enum_metrics_vector(struct _fpga_handle *_handle)
 	uint64_t num_enun_metrics = 0;
 
 	if (_handle == NULL) {
-		FPGA_ERR("Invalid handle ");
+		OPAE_ERR("Invalid handle ");
 		return FPGA_INVALID_PARAM;
 	}
 
 	if (_handle->magic != FPGA_HANDLE_MAGIC) {
-		FPGA_MSG("Invalid handle");
+		OPAE_MSG("Invalid handle");
 		return FPGA_INVALID_PARAM;
 	}
 
 	result = fpga_vector_total(&(_handle->fpga_enum_metric_vector), &num_enun_metrics);
 	if (result != FPGA_OK) {
-		FPGA_MSG("Failed to get metric total");
+		OPAE_MSG("Failed to get metric total");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -775,19 +775,19 @@ fpga_result get_fpga_object_type(fpga_handle handle,
 
 	result = xfpga_fpgaGetPropertiesFromHandle(handle, &prop);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get properties");
+		OPAE_ERR("Failed to get properties");
 		return result;
 	}
 
 	result = fpgaPropertiesGetObjectType(prop, objtype);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to object type.");
+		OPAE_ERR("Failed to object type.");
 	}
 
 	resval = (result != FPGA_OK) ? result : resval;
 	result = fpgaDestroyProperties(&prop);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to destroy properties");
+		OPAE_ERR("Failed to destroy properties");
 	}
 
 	resval = (result != FPGA_OK) ? result : resval;
@@ -810,7 +810,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
 
 	if (_handle == NULL) {
-		FPGA_ERR("Invalid handle ");
+		OPAE_ERR("Invalid handle ");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -819,20 +819,20 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 
 	_token = (struct _fpga_token *)_handle->token;
 	if (_token == NULL) {
-		FPGA_ERR("Invalid token within handle");
+		OPAE_ERR("Invalid token within handle");
 		return FPGA_INVALID_PARAM;
 	}
 
 	result = get_fpga_object_type(handle, &objtype);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to init vector");
+		OPAE_ERR("Failed to init vector");
 		return result;
 	}
 
 	// Init vector
 	result = fpga_vector_init(&(_handle->fpga_enum_metric_vector));
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to init vector");
+		OPAE_ERR("Failed to init vector");
 		return result;
 	}
 
@@ -840,7 +840,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 		// enum AFU
 		result = discover_afu_metrics_feature(handle, &mmio_offset);
 		if (result != FPGA_OK) {
-			FPGA_ERR("Failed to discover AFU Metrics BBB");
+			OPAE_ERR("Failed to discover AFU Metrics BBB");
 			return result;
 		}
 
@@ -850,7 +850,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 			&metric_num,
 			mmio_offset);
 			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to enum AFU metrics BBB");
+				OPAE_ERR("Failed to enum AFU metrics BBB");
 				return result;
 			}
 
@@ -861,7 +861,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 		// get fpga hw type.
 		result = get_fpga_hw_type(_handle, &hw_type);
 		if (result != FPGA_OK) {
-			FPGA_ERR("Failed to discover hardware type.");
+			OPAE_ERR("Failed to discover hardware type.");
 			return result;
 		}
 
@@ -875,7 +875,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 			if (sysfs_get_fme_pwr_path(_token, metrics_path) == FPGA_OK) {
 				result = enum_powermgmt_metrics(&(_handle->fpga_enum_metric_vector), &metric_num, metrics_path, FPGA_HW_MCP);
 				if (result != FPGA_OK) {
-					FPGA_ERR("Failed to Enum Power metrics.");
+					OPAE_ERR("Failed to Enum Power metrics.");
 				}
 			}
 
@@ -883,7 +883,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 			if (sysfs_get_fme_temp_path(_token, metrics_path) == FPGA_OK) {
 				result = enum_thermalmgmt_metrics(&(_handle->fpga_enum_metric_vector), &metric_num, metrics_path, FPGA_HW_MCP);
 				if (result != FPGA_OK) {
-					FPGA_ERR("Failed to Enum Thermal metrics.");
+					OPAE_ERR("Failed to Enum Thermal metrics.");
 				}
 			}
 
@@ -891,7 +891,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 			if (sysfs_get_fme_perf_path(_token, metrics_path) == FPGA_OK) {
 				result = enum_perf_counter_metrics(&(_handle->fpga_enum_metric_vector), &metric_num, metrics_path, FPGA_HW_MCP);
 				if (result != FPGA_OK) {
-					FPGA_ERR("Failed to Enum Performance metrics.");
+					OPAE_ERR("Failed to Enum Performance metrics.");
 				}
 			}
 
@@ -906,7 +906,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 
 				result = enum_perf_counter_metrics(&(_handle->fpga_enum_metric_vector), &metric_num, metrics_path, FPGA_HW_DCP_RC);
 				if (result != FPGA_OK) {
-					FPGA_ERR("Failed to Enum Performance metrics.");
+					OPAE_ERR("Failed to Enum Performance metrics.");
 				}
 			}
 
@@ -919,7 +919,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 				if (_handle->bmc_handle) {
 					result = enum_bmc_metrics_info(_handle, &(_handle->fpga_enum_metric_vector), &metric_num, FPGA_HW_DCP_RC);
 					if (result != FPGA_OK) {
-						FPGA_ERR("Failed to enumerate BMC metrics.");
+						OPAE_ERR("Failed to enumerate BMC metrics.");
 					}
 
 				}
@@ -941,7 +941,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 					&metric_num,
 					hw_type);
 				if (result != FPGA_OK) {
-					FPGA_ERR("Failed to Enum Power and Thermal metrics.");
+					OPAE_ERR("Failed to Enum Power and Thermal metrics.");
 				}
 			}
 
@@ -951,14 +951,14 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 				// Perf Counters
 				result = enum_perf_counter_metrics(&(_handle->fpga_enum_metric_vector), &metric_num, _token->sysfspath, hw_type);
 				if (result != FPGA_OK) {
-					FPGA_ERR("Failed to Enum Performance metrics.");
+					OPAE_ERR("Failed to Enum Performance metrics.");
 				}
 			}
 		}
 		break;
 
 		default:
-			FPGA_MSG("Unknown hardware type.");
+			OPAE_MSG("Unknown hardware type.");
 			result = FPGA_EXCEPTION;
 		}
 
@@ -983,7 +983,7 @@ fpga_result add_metric_info(struct _fpga_enum_metric *_enum_metrics,
 	if (_enum_metrics == NULL ||
 		fpga_metric_info == NULL) {
 
-		FPGA_ERR("Invalid Input Paramters");
+		OPAE_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -1055,14 +1055,14 @@ fpga_result get_bmc_metrics_values(fpga_handle handle,
 
 	result = xfpga_bmcLoadSDRs(_handle, &records, &num_sensors);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to load BMC SDR.");
+		OPAE_ERR("Failed to load BMC SDR.");
 		return result;
 	}
 
 	if (_handle->_bmc_metric_cache_value == NULL) {
 		_handle->_bmc_metric_cache_value = calloc(sizeof(struct _fpga_bmc_metric), num_sensors);
 		if (_handle->_bmc_metric_cache_value == NULL) {
-			FPGA_ERR("Failed to allocate memory");
+			OPAE_ERR("Failed to allocate memory");
 			result = FPGA_NO_MEMORY;
 			goto out_destroy;
 		}
@@ -1071,7 +1071,7 @@ fpga_result get_bmc_metrics_values(fpga_handle handle,
 
 	result = xfpga_bmcReadSensorValues(_handle, records, &values, &num_values);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to read BMC sensor values.");
+		OPAE_ERR("Failed to read BMC sensor values.");
 		goto out_destroy;
 	}
 
@@ -1079,12 +1079,12 @@ fpga_result get_bmc_metrics_values(fpga_handle handle,
 
 		result = xfpga_bmcGetSDRDetails(_handle, values, x, &details);
 		if (result != FPGA_OK) {
-			FPGA_MSG("Failed to get SDR details.");
+			OPAE_MSG("Failed to get SDR details.");
 		}
 
 		result = xfpga_bmcGetSensorReading(_handle, values, x, &is_valid, &tmp);
 		if (result != FPGA_OK) {
-			FPGA_MSG("Failed to read sensor readings.");
+			OPAE_MSG("Failed to read sensor readings.");
 			continue;
 		}
 
@@ -1105,13 +1105,13 @@ fpga_result get_bmc_metrics_values(fpga_handle handle,
 
 	result = xfpga_bmcDestroySensorValues(_handle, &values);
 	if (result != FPGA_OK) {
-		FPGA_MSG("Failed to Destroy Sensor value.");
+		OPAE_MSG("Failed to Destroy Sensor value.");
 	}
 
 out_destroy:
 	result = xfpga_bmcDestroySDRs(_handle, &records);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to Destroy SDR.");
+		OPAE_ERR("Failed to Destroy SDR.");
 		return result;
 	}
 
@@ -1128,13 +1128,13 @@ fpga_result get_pwr_thermal_max10_value(const char *sysfs_path,
 
 	if (sysfs_path == NULL ||
 		dvalue == NULL) {
-		FPGA_ERR("Invalid Input Paramters");
+		OPAE_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 
 	result = sysfs_read_u64(sysfs_path, &value);
 	if (result != FPGA_OK) {
-		FPGA_MSG("Failed to read Metrics values");
+		OPAE_MSG("Failed to read Metrics values");
 		return result;
 	}
 
@@ -1152,13 +1152,13 @@ fpga_result get_pwr_thermal_value(const char *sysfs_path,
 
 	if (sysfs_path == NULL ||
 		value == NULL) {
-		FPGA_ERR("Invalid Input Paramters");
+		OPAE_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 
 	result = sysfs_read_u64(sysfs_path, value);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to read Metrics values");
+		OPAE_ERR("Failed to read Metrics values");
 		return result;
 	}
 
@@ -1186,7 +1186,7 @@ fpga_result get_performance_counter_value(const char *group_sysfs,
 	if (group_sysfs == NULL ||
 		metric_sysfs == NULL ||
 		value == NULL) {
-		FPGA_ERR("Invalid Input Paramters");
+		OPAE_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -1196,14 +1196,14 @@ fpga_result get_performance_counter_value(const char *group_sysfs,
 	if (result == FPGA_OK) {
 		result = sysfs_read_u64(sysfs_path, &val);
 		if (result != FPGA_OK) {
-			FPGA_ERR("Failed to read perf fabric enable");
+			OPAE_ERR("Failed to read perf fabric enable");
 		}
 
 		if (val == 0x0) {
 			// Writer Fabric Enable
 			result = sysfs_write_u64_decimal(sysfs_path, 1);;
 			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to read perf fabric enable");
+				OPAE_ERR("Failed to read perf fabric enable");
 			}
 
 		}
@@ -1216,14 +1216,14 @@ fpga_result get_performance_counter_value(const char *group_sysfs,
 
 		result = sysfs_read_u64(sysfs_path, &val);
 		if (result != FPGA_OK) {
-			FPGA_ERR("Failed to read perf fabric freeze");
+			OPAE_ERR("Failed to read perf fabric freeze");
 		}
 
 		if (val != 0x1) {
 			// Write Fabric Freeze
 			result = sysfs_write_u64(sysfs_path, 1);
 			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to write perf fabric freeze");
+				OPAE_ERR("Failed to write perf fabric freeze");
 			}
 
 		}
@@ -1232,7 +1232,7 @@ fpga_result get_performance_counter_value(const char *group_sysfs,
 	*value = 0;
 	result = sysfs_read_u64(metric_sysfs, value);
 	if (result != FPGA_OK) {
-		FPGA_ERR("--Failed to read Metrics values");
+		OPAE_ERR("--Failed to read Metrics values");
 		return result;
 	}
 
@@ -1242,7 +1242,7 @@ fpga_result get_performance_counter_value(const char *group_sysfs,
 
 		result = sysfs_read_u64(sysfs_path, &val);
 		if (result != FPGA_OK) {
-			FPGA_ERR("Failed to read perf fabric freeze");
+			OPAE_ERR("Failed to read perf fabric freeze");
 
 		}
 
@@ -1250,7 +1250,7 @@ fpga_result get_performance_counter_value(const char *group_sysfs,
 			// Write Fabric Freeze
 			result = sysfs_write_u64(sysfs_path, 0);
 			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to write perf fabric freeze");
+				OPAE_ERR("Failed to write perf fabric freeze");
 			}
 
 		}
@@ -1274,13 +1274,13 @@ fpga_result  get_fme_metric_value(fpga_handle handle,
 
 	if (enum_vector == NULL ||
 		fpga_metric == NULL) {
-		FPGA_ERR("Invalid Input Paramters");
+		OPAE_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 
 	result = fpga_vector_total(enum_vector, &num_enun_metrics);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get metric total");
+		OPAE_ERR("Failed to get metric total");
 		return FPGA_NOT_FOUND;
 	}
 
@@ -1303,7 +1303,7 @@ fpga_result  get_fme_metric_value(fpga_handle handle,
 
 				result  = get_bmc_metrics_values(handle, _fpga_enum_metric, fpga_metric);
 				if (result != FPGA_OK) {
-					FPGA_MSG("Failed to get BMC metric value");
+					OPAE_MSG("Failed to get BMC metric value");
 				} else {
 					fpga_metric->isvalid = true;
 				}
@@ -1317,7 +1317,7 @@ fpga_result  get_fme_metric_value(fpga_handle handle,
 
 				result = get_pwr_thermal_value(_fpga_enum_metric->metric_sysfs, &value.ivalue);
 				if (result != FPGA_OK) {
-					FPGA_MSG("Failed to get BMC metric value");
+					OPAE_MSG("Failed to get BMC metric value");
 				} else {
 					fpga_metric->isvalid = true;
 				}
@@ -1334,7 +1334,7 @@ fpga_result  get_fme_metric_value(fpga_handle handle,
 
 				result = read_max10_value(_fpga_enum_metric, &value.dvalue);
 				if (result != FPGA_OK) {
-					FPGA_MSG("Failed to get Max10 metric value");
+					OPAE_MSG("Failed to get Max10 metric value");
 				} else {
 					fpga_metric->isvalid = true;
 				}
@@ -1349,7 +1349,7 @@ fpga_result  get_fme_metric_value(fpga_handle handle,
 
 				result = get_performance_counter_value(_fpga_enum_metric->group_sysfs, _fpga_enum_metric->metric_sysfs, &value.ivalue);
 				if (result != FPGA_OK) {
-					FPGA_MSG("Failed to get perf metric value");
+					OPAE_MSG("Failed to get perf metric value");
 				} else {
 					fpga_metric->isvalid = true;
 				}
@@ -1387,7 +1387,7 @@ fpga_result  parse_metric_num_name(const char *search_string,
 	if (search_string == NULL ||
 		fpga_enum_metrics_vector == NULL ||
 		metric_num == NULL) {
-		FPGA_ERR("Invalid Input Paramters");
+		OPAE_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -1395,7 +1395,7 @@ fpga_result  parse_metric_num_name(const char *search_string,
 			strnlen_s(search_string, FPGA_METRIC_STR_SIZE), ':', &str);
 	if (err != 0 &&
 		str == NULL) {
-		FPGA_ERR("Invalid Input Paramters");
+		OPAE_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -1403,14 +1403,14 @@ fpga_result  parse_metric_num_name(const char *search_string,
 	err = strncpy_s(metrics_name, strnlen_s(search_string, FPGA_METRIC_STR_SIZE) + 1,
 			str + 1, strnlen_s(str + 1, FPGA_METRIC_STR_SIZE));
 	if (err != 0) {
-		FPGA_ERR("Failed to copy metric name");
+		OPAE_ERR("Failed to copy metric name");
 		return FPGA_INVALID_PARAM;
 	}
 
 	// qualifier_name
 	err = strlastchar_s((char *)search_string, strnlen_s(search_string, FPGA_METRIC_STR_SIZE), ':', &str_last);
 	if (err != 0) {
-		FPGA_ERR("Invalid Input Paramters");
+		OPAE_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -1419,7 +1419,7 @@ fpga_result  parse_metric_num_name(const char *search_string,
 
 	err = strncpy_s(qualifier_name, init_size + 1, search_string, init_size);
 	if (err != 0) {
-		FPGA_ERR("Invalid Input Paramters");
+		OPAE_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 	if (init_size < FPGA_METRIC_STR_SIZE)
@@ -1427,7 +1427,7 @@ fpga_result  parse_metric_num_name(const char *search_string,
 
 	result = fpga_vector_total(fpga_enum_metrics_vector, &num_enun_metrics);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get metric total");
+		OPAE_ERR("Failed to get metric total");
 		return FPGA_NOT_FOUND;
 	}
 

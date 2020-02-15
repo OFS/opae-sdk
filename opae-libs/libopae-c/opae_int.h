@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -40,56 +40,51 @@
 #endif // __USE_GNU
 #include <pthread.h>
 
-/* Macro for defining symbol visibility */
-//#define __FPGA_API__ __attribute__((visibility("default")))
-//#define __FIXME_MAKE_VISIBLE__ __attribute__((visibility("default")))
-
-
-#define ASSERT_NOT_NULL_MSG_RESULT(__arg, __msg, __result)                     \
-	do {                                                                   \
-		if (!__arg) {                                                  \
-			OPAE_ERR(__msg);                                       \
-			return __result;                                       \
-		}                                                              \
+#define ASSERT_NOT_NULL_MSG_RESULT(__arg, __msg, __result) \
+	do {                                                   \
+		if (!__arg) {                                      \
+			OPAE_ERR(__msg);                               \
+			return __result;                               \
+		}                                                  \
 	} while (0)
 
 /*
  * Check if argument is NULL and return FPGA_INVALID_PARAM and a message
  */
-#define ASSERT_NOT_NULL_MSG(__arg, __msg)                                      \
+#define ASSERT_NOT_NULL_MSG(__arg, __msg) \
 	ASSERT_NOT_NULL_MSG_RESULT(__arg, __msg, FPGA_INVALID_PARAM)
 
 #define ASSERT_NOT_NULL(__arg) ASSERT_NOT_NULL_MSG(__arg, #__arg " is NULL")
 
-#define ASSERT_NOT_NULL_RESULT(__arg, __result)                                \
+#define ASSERT_NOT_NULL_RESULT(__arg, __result) \
 	ASSERT_NOT_NULL_MSG_RESULT(__arg, #__arg " is NULL", __result)
 
-#define ASSERT_RESULT(__result)                                                \
-	do {                                                                   \
-		if ((__result) != FPGA_OK)                                     \
-			return __result;                                       \
+#define ASSERT_RESULT(__result)    \
+	do {                           \
+		if ((__result) != FPGA_OK) \
+			return __result;       \
 	} while (0)
 
 
 #define UNUSED_PARAM(x) ((void)x)
 
 
-#define opae_mutex_lock(__res, __mtx_ptr)                                      \
-	({                                                                     \
-		(__res) = pthread_mutex_lock(__mtx_ptr);                       \
-		if (__res)                                                     \
-			OPAE_ERR("pthread_mutex_lock failed: %s",              \
-				 strerror(errno));                             \
-		__res;                                                         \
+#define opae_mutex_lock(__res, __mtx_ptr)             \
+	({                                                \
+		(__res) = pthread_mutex_lock(__mtx_ptr);      \
+		if (__res)                                    \
+			OPAE_ERR("pthread_mutex_lock failed: %s", \
+				 strerror(errno));                    \
+		__res;                                        \
 	})
 
-#define opae_mutex_unlock(__res, __mtx_ptr)                                    \
-	({                                                                     \
-		(__res) = pthread_mutex_unlock(__mtx_ptr);                     \
-		if (__res)                                                     \
-			OPAE_ERR("pthread_mutex_unlock failed: %s",            \
-				 strerror(errno));                             \
-		__res;                                                         \
+#define opae_mutex_unlock(__res, __mtx_ptr)             \
+	({                                                  \
+		(__res) = pthread_mutex_unlock(__mtx_ptr);      \
+		if (__res)                                      \
+			OPAE_ERR("pthread_mutex_unlock failed: %s", \
+				 strerror(errno));                      \
+		__res;                                          \
 	})
 
 

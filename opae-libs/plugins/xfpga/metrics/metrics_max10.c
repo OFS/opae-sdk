@@ -80,7 +80,7 @@ fpga_result read_sensor_sysfs_file(const char *sysfs, const char *file,
 		file == NULL ||
 		buf == NULL ||
 		tot_bytes_ret == NULL) {
-		FPGA_ERR("Invalid Input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 	*buf = NULL;
@@ -164,13 +164,13 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 	if (_handle == NULL ||
 		vector == NULL ||
 		metric_num == NULL) {
-		FPGA_ERR("Invalid Input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
 	_token = (struct _fpga_token *)_handle->token;
 	if (_token == NULL) {
-		FPGA_ERR("Invalid token within handle");
+		OPAE_ERR("Invalid token within handle");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -178,7 +178,7 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", _token->sysfspath, MAX10_SYSFS_PATH);
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if ((gres) || (1 != pglob.gl_pathc)) {
-		FPGA_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
+		OPAE_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
 		globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
@@ -195,7 +195,7 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", _token->sysfspath, MAX10_SENSOR_SYSFS_PATH);
 	gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
-		FPGA_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
+		OPAE_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
 		globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
@@ -281,7 +281,7 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 			e = strncpy_s(metric_units, sizeof(metric_units),
 				POWER_UNITS, SYSFS_PATH_MAX);
 				if (EOK != e) {
-					FPGA_ERR("Failed to copy metric units");
+					OPAE_ERR("Failed to copy metric units");
 					continue;
 				}
 
@@ -291,7 +291,7 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 			e = strncpy_s(metric_units, sizeof(metric_units),
 				VOLTAGE_UNITS, SYSFS_PATH_MAX);
 				if (EOK != e) {
-					FPGA_ERR("Failed to copy metric units");
+					OPAE_ERR("Failed to copy metric units");
 					continue;
 				}
 
@@ -301,7 +301,7 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 			e = strncpy_s(metric_units, sizeof(metric_units),
 				CURRENT_UNITS, SYSFS_PATH_MAX);
 				if (EOK != e) {
-					FPGA_ERR("Failed to copy metric units");
+					OPAE_ERR("Failed to copy metric units");
 					continue;
 				}
 
@@ -311,7 +311,7 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 			e = strncpy_s(metric_units, sizeof(metric_units),
 				TEMPERATURE_UNITS, SYSFS_PATH_MAX);
 				if (EOK != e) {
-					FPGA_ERR("Failed to copy metric units");
+					OPAE_ERR("Failed to copy metric units");
 					continue;
 				}
 
@@ -321,7 +321,7 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 			e = strncpy_s(metric_units, sizeof(metric_units),
 				CLOCK_UNITS, SYSFS_PATH_MAX);
 				if (EOK != e) {
-					FPGA_ERR("Failed to copy metric units");
+					OPAE_ERR("Failed to copy metric units");
 					continue;
 				}
 
@@ -329,7 +329,7 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 			e = strncpy_s(metric_units, sizeof(metric_units),
 				"N/A", SYSFS_PATH_MAX);
 				if (EOK != e) {
-					FPGA_ERR("Failed to copy metric units");
+					OPAE_ERR("Failed to copy metric units");
 					continue;
 				}
 		}
@@ -340,7 +340,7 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 		result = add_metric_vector(vector, *metric_num, qualifier_name, group_name, group_sysfs, metric_name, metrics_sysfs_path, metric_units,
 			FPGA_METRIC_DATATYPE_DOUBLE, metric_type, hw_type, 0);
 		if (result != FPGA_OK) {
-			FPGA_ERR("Failed to add metrics");
+			OPAE_ERR("Failed to add metrics");
 			goto out;
 		}
 
@@ -364,13 +364,13 @@ fpga_result read_max10_value(struct _fpga_enum_metric *_fpga_enum_metric,
 
 	if (_fpga_enum_metric == NULL ||
 		dvalue == NULL) {
-		FPGA_ERR("Invalid Input Parameters");
+		OPAE_ERR("Invalid Input Parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
 	result = sysfs_read_u64(_fpga_enum_metric->metric_sysfs, &value);
 	if (result != FPGA_OK) {
-		FPGA_MSG("Failed to read Metrics values");
+		OPAE_MSG("Failed to read Metrics values");
 		return result;
 	}
 

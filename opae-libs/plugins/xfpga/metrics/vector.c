@@ -62,7 +62,7 @@ fpga_result fpga_vector_free(fpga_metric_vector *vector)
 	fpga_result result = FPGA_OK;
 	uint64_t i = 0;
 	if (vector == NULL) {
-		FPGA_ERR("Invalid parm");
+		OPAE_ERR("Invalid parm");
 		return FPGA_INVALID_PARAM;
 	}
 	for (i = 0; i < vector->total; i++) {
@@ -84,7 +84,7 @@ fpga_result fpga_vector_total(fpga_metric_vector *vector, uint64_t *total)
 
 	if (vector == NULL ||
 		total == NULL) {
-		FPGA_ERR("Invalid parm");
+		OPAE_ERR("Invalid parm");
 		return FPGA_EXCEPTION;
 	}
 	*total =  vector->total;
@@ -97,14 +97,14 @@ fpga_result fpga_vector_resize(fpga_metric_vector *vector, uint64_t capacity)
 	fpga_result result = FPGA_OK;
 
 	if (vector == NULL) {
-		FPGA_ERR("Invalid parm");
+		OPAE_ERR("Invalid parm");
 		return FPGA_INVALID_PARAM;
 	}
 
 	void **fpga_metric_item = realloc(vector->fpga_metric_item, sizeof(void *) * capacity);
 
 	if (fpga_metric_item == NULL) {
-		FPGA_ERR("Invalid parm");
+		OPAE_ERR("Invalid parm");
 		return FPGA_NO_MEMORY;
 	}
 
@@ -121,7 +121,7 @@ fpga_result fpga_vector_push(fpga_metric_vector *vector, void *fpga_metric_item)
 
 	if ((vector == NULL) ||
 		(fpga_metric_item == NULL)) {
-		FPGA_ERR("Invalid parm");
+		OPAE_ERR("Invalid parm");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -144,7 +144,7 @@ fpga_result fpga_vector_delete(fpga_metric_vector *vector, uint64_t index)
 	uint64_t i = 0;
 
 	if (vector == NULL) {
-		FPGA_ERR("Invalid parm");
+		OPAE_ERR("Invalid parm");
 		return FPGA_INVALID_PARAM;
 	}
 	if (index >= vector->total)
@@ -171,7 +171,7 @@ fpga_result fpga_vector_delete(fpga_metric_vector *vector, uint64_t index)
 void *fpga_vector_get(fpga_metric_vector *vector, uint64_t index)
 {
 	if (vector == NULL) {
-		FPGA_ERR("Invalid parm");
+		OPAE_ERR("Invalid parm");
 		return NULL;
 	}
 

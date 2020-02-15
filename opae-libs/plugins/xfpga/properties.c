@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2019, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -38,7 +38,7 @@
 #include "error_int.h"
 
 
-fpga_result __FPGA_API__
+fpga_result __XFPGA_API__
 xfpga_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop)
 {
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
@@ -53,13 +53,13 @@ xfpga_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop)
 
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
 	}
 
 	return result;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaGetProperties(fpga_token token,
+fpga_result __XFPGA_API__ xfpga_fpgaGetProperties(fpga_token token,
 						 fpga_properties *prop)
 {
 	struct _fpga_properties *_prop = NULL;
@@ -85,7 +85,7 @@ out_free:
 	return result;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
+fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 						    fpga_properties prop)
 {
 	struct _fpga_token *_token = (struct _fpga_token *)token;
@@ -110,13 +110,13 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 
 	ASSERT_NOT_NULL(token);
 	if (_token->magic != FPGA_TOKEN_MAGIC) {
-		FPGA_MSG("Invalid token");
+		OPAE_MSG("Invalid token");
 		return FPGA_INVALID_PARAM;
 	}
 
 	ASSERT_NOT_NULL(_prop);
 	if (_prop->magic != FPGA_PROPERTY_MAGIC) {
-		FPGA_MSG("Invalid properties object");
+		OPAE_MSG("Invalid properties object");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -149,7 +149,7 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	e = strncpy_s(spath, sizeof(spath), _token->sysfspath,
 		      sizeof(_token->sysfspath));
 	if (EOK != e) {
-		FPGA_ERR("strncpy_s failed");
+		OPAE_ERR("strncpy_s failed");
 		return FPGA_EXCEPTION;
 	}
 
@@ -263,7 +263,7 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_NUM_ERRORS);
 
 	if (pthread_mutex_lock(&_prop->lock)) {
-		FPGA_MSG("Failed to lock properties mutex");
+		OPAE_MSG("Failed to lock properties mutex");
 		return FPGA_EXCEPTION;
 	}
 
@@ -273,7 +273,7 @@ fpga_result __FPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 
 	err = pthread_mutex_unlock(&_prop->lock);
 	if (err)
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 
 	return FPGA_OK;
 }

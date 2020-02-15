@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -35,7 +35,7 @@
 #include "opae_drv.h"
 
 // Reset slot
-fpga_result __FPGA_API__ xfpga_fpgaReset(fpga_handle handle)
+fpga_result __XFPGA_API__ xfpga_fpgaReset(fpga_handle handle)
 {
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
 	fpga_result result 	     = FPGA_OK;
@@ -46,7 +46,7 @@ fpga_result __FPGA_API__ xfpga_fpgaReset(fpga_handle handle)
 		return result;
 
 	if (_handle->fddev < 0) {
-		FPGA_ERR("Invalid handle file descriptor");
+		OPAE_ERR("Invalid handle file descriptor");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -54,12 +54,12 @@ fpga_result __FPGA_API__ xfpga_fpgaReset(fpga_handle handle)
 	// reset ioctl
 	result = opae_fme_port_reset(_handle->fddev);
 	if (result != 0) {
-		FPGA_MSG("Reset failed");
+		OPAE_MSG("Reset failed");
 	}
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err)
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }

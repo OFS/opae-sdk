@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -40,7 +40,7 @@
 
 #include "safe_string/safe_string.h"
 
-fpga_result __FPGA_API__
+fpga_result __XFPGA_API__
 xfpga_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 {
 	fpga_result result = FPGA_NOT_FOUND;
@@ -51,30 +51,30 @@ xfpga_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 	int open_flags = 0;
 
 	if (NULL == token) {
-		FPGA_MSG("token is NULL");
+		OPAE_MSG("token is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
 	if (NULL == handle) {
-		FPGA_MSG("handle is NULL");
+		OPAE_MSG("handle is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
 	if (flags & ~FPGA_OPEN_SHARED) {
-		FPGA_MSG("unrecognized flags");
+		OPAE_MSG("unrecognized flags");
 		return FPGA_INVALID_PARAM;
 	}
 
 	_token = (struct _fpga_token *)token;
 
 	if (_token->magic != FPGA_TOKEN_MAGIC) {
-		FPGA_MSG("Invalid token");
+		OPAE_MSG("Invalid token");
 		return FPGA_INVALID_PARAM;
 	}
 
 	_handle = malloc(sizeof(struct _fpga_handle));
 	if (NULL == _handle) {
-		FPGA_MSG("Failed to allocate memory for handle");
+		OPAE_MSG("Failed to allocate memory for handle");
 		return FPGA_NO_MEMORY;
 	}
 
@@ -102,7 +102,7 @@ xfpga_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 	open_flags = O_RDWR | ((flags & FPGA_OPEN_SHARED) ? 0 : O_EXCL);
 	fddev = open(_token->devpath, open_flags);
 	if (-1 == fddev) {
-		FPGA_MSG("open(%s) failed: %s", _token->devpath, strerror(errno));
+		OPAE_MSG("open(%s) failed: %s", _token->devpath, strerror(errno));
 		switch (errno) {
 		case EACCES:
 			result = FPGA_NO_ACCESS;
@@ -121,14 +121,14 @@ xfpga_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 	_handle->fddev = fddev;
 
 	if (pthread_mutexattr_init(&mattr)) {
-		FPGA_MSG("Failed to init handle mutex attributes");
+		OPAE_MSG("Failed to init handle mutex attributes");
 		result = FPGA_EXCEPTION;
 		goto out_free;
 	}
 
 	if (pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE) ||
 	    pthread_mutex_init(&_handle->lock, &mattr)) {
-		FPGA_MSG("Failed to init handle mutex");
+		OPAE_MSG("Failed to init handle mutex");
 		result = FPGA_EXCEPTION;
 		goto out_attr_destroy;
 	}
