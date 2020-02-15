@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -88,13 +88,13 @@ STATIC fpga_result validate_bitstream(fpga_handle handle,
 			int *header_len)
 {
 	if (bitstream == NULL) {
-		FPGA_MSG("Bitstream is NULL");
+		OPAE_MSG("Bitstream is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
 	if (bitstream_len <= 0 ||
 		bitstream_len <= sizeof(struct bitstream_header)) {
-		FPGA_MSG("Invalid bitstream size");
+		OPAE_MSG("Invalid bitstream size");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -102,12 +102,12 @@ STATIC fpga_result validate_bitstream(fpga_handle handle,
 		*header_len = get_bitstream_header_len(bitstream);
 
 		if (*header_len < 0) {
-			FPGA_MSG("Invalid bitstream header length");
+			OPAE_MSG("Invalid bitstream header length");
 			return FPGA_EXCEPTION;
 		}
 
 		if (validate_bitstream_metadata(handle, bitstream) != FPGA_OK) {
-			FPGA_MSG("Invalid JSON data");
+			OPAE_MSG("Invalid JSON data");
 			return FPGA_EXCEPTION;
 		}
 
@@ -129,12 +129,12 @@ STATIC fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
 	uint32_t matches = 0;
 
 	if (_handle == NULL) {
-		FPGA_ERR("Invalid handle");
+		OPAE_ERR("Invalid handle");
 		return FPGA_INVALID_PARAM;
 	}
 
 	if (_handle->token == NULL) {
-		FPGA_ERR("Invalid token within handle");
+		OPAE_ERR("Invalid token within handle");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -144,7 +144,7 @@ STATIC fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
 
 	result = fpgaPropertiesSetParent(props, _handle->token);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Error setting parent in properties.");
+		OPAE_ERR("Error setting parent in properties.");
 		goto free_props;
 	}
 
@@ -153,31 +153,31 @@ STATIC fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
 	//       slot being reconfigured
 	result = xfpga_fpgaEnumerate(&props, 1, &token, 1, &matches);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Error enumerating for accelerator to reconfigure");
+		OPAE_ERR("Error enumerating for accelerator to reconfigure");
 		goto free_props;
 	}
 
 	if (matches == 0) {
-		FPGA_ERR("No accelerator found to reconfigure");
+		OPAE_ERR("No accelerator found to reconfigure");
 		result = FPGA_BUSY;
 		goto destroy_token;
 	}
 
 	result = xfpga_fpgaOpen(token, accel, 0);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Could not open accelerator for given slot");
+		OPAE_ERR("Could not open accelerator for given slot");
 		goto destroy_token;
 	}
 
 destroy_token:
 	destroy_result = xfpga_fpgaDestroyToken(&token);
 	if (destroy_result != FPGA_OK)
-		FPGA_ERR("Error destroying a token");
+		OPAE_ERR("Error destroying a token");
 
 free_props:
 	destroy_result = fpgaDestroyProperties(&props);
 	if (destroy_result != FPGA_OK)
-		FPGA_ERR("Error destroying properties");
+		OPAE_ERR("Error destroying properties");
 
 	if (result != FPGA_OK || destroy_result != FPGA_OK)
 		return result != FPGA_OK ? result : destroy_result;
@@ -195,27 +195,27 @@ STATIC fpga_result clear_port_errors(fpga_handle handle)
 
 	result = sysfs_get_port_error_path(handle, sysfs_path);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get port errors path");
+		OPAE_ERR("Failed to get port errors path");
 		return result;
 	}
 
 	// Read port error.
 	result = sysfs_read_u64(sysfs_path, &error);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to read port errors");
+		OPAE_ERR("Failed to read port errors");
 		return result;
 	}
 
 	result = sysfs_get_port_error_clear_path(handle, sysfs_path);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get port errors clear path");
+		OPAE_ERR("Failed to get port errors clear path");
 		return result;
 	}
 
 	// Clear port error.
 	result = sysfs_write_u64(sysfs_path, error);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to clear port errors");
+		OPAE_ERR("Failed to clear port errors");
 		return result;
 	}
 
@@ -235,21 +235,21 @@ fpga_result set_afu_userclock(fpga_handle handle,
 	// Read port sysfs path
 	result = get_port_sysfs(handle, sysfs_path);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get port syfs path");
+		OPAE_ERR("Failed to get port syfs path");
 		return result;
 	}
 
 	// set user clock
 	result = set_userclock(sysfs_path, usrlclock_high, usrlclock_low);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to set user clock");
+		OPAE_ERR("Failed to set user clock");
 		return result;
 	}
 
 	// read user clock
 	result = get_userclock(sysfs_path, &userclk_high, &userclk_low);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get user clock");
+		OPAE_ERR("Failed to get user clock");
 		return result;
 	}
 
@@ -267,13 +267,13 @@ fpga_result set_fpga_pwr_threshold(fpga_handle handle,
 	struct _fpga_handle *_handle      = (struct _fpga_handle *)handle;
 
 	if (_handle == NULL) {
-		FPGA_ERR("Invalid handle");
+		OPAE_ERR("Invalid handle");
 		return FPGA_INVALID_PARAM;
 	}
 
 	_token = (struct _fpga_token *)_handle->token;
 	if (_token == NULL) {
-		FPGA_ERR("Invalid token within handle");
+		OPAE_ERR("Invalid token within handle");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -284,7 +284,7 @@ fpga_result set_fpga_pwr_threshold(fpga_handle handle,
 
 	// verify gbs power limits
 	if (gbs_power > FPGA_GBS_MAX_POWER) {
-		FPGA_ERR("Invalid GBS power value");
+		OPAE_ERR("Invalid GBS power value");
 		result = FPGA_NOT_SUPPORTED;
 		return result;
 	}
@@ -292,25 +292,25 @@ fpga_result set_fpga_pwr_threshold(fpga_handle handle,
 	// FPGA threshold1 = BBS Idle power + GBS power
 	fpga_power = gbs_power + FPGA_BBS_IDLE_POWER;
 	if (fpga_power > FPGA_MAX_POWER) {
-		FPGA_ERR("Total power requirements exceed FPGA maximum");
+		OPAE_ERR("Total power requirements exceed FPGA maximum");
 		result = FPGA_NOT_SUPPORTED;
 		return result;
 	}
 
 	// set fpga threshold 1
 	snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s",  _token->sysfspath, PWRMGMT_THRESHOLD1);
-	FPGA_DBG(" FPGA Threshold1             :%ld watts\n", fpga_power);
+	OPAE_DBG(" FPGA Threshold1             :%ld watts\n", fpga_power);
 
 	result = sysfs_write_u64(sysfs_path, fpga_power);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to write power threshold 1");
+		OPAE_ERR("Failed to write power threshold 1");
 		return result;
 	}
 
 	return result;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
+fpga_result __XFPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 						uint32_t slot,
 						const uint8_t *bitstream,
 						size_t bitstream_len,
@@ -330,14 +330,14 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 		return result;
 
 	if (_handle->fddev < 0) {
-		FPGA_ERR("Invalid handle file descriptor");
+		OPAE_ERR("Invalid handle file descriptor");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
 	if (validate_bitstream(fpga, bitstream, bitstream_len,
 				&bitstream_header_len) != FPGA_OK) {
-		FPGA_MSG("Invalid bitstream");
+		OPAE_MSG("Invalid bitstream");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -347,7 +347,7 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 	if (!(flags & FPGA_RECONF_FORCE)) {
 		result = open_accel(fpga, &accel);
 		if (result != FPGA_OK) {
-			FPGA_ERR("Accelerator in use or not found");
+			OPAE_ERR("Accelerator in use or not found");
 			goto out_unlock;
 		}
 	}
@@ -355,7 +355,7 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 	// Clear port errors
 	result = clear_port_errors(fpga);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to clear port errors.");
+		OPAE_ERR("Failed to clear port errors.");
 	}
 
 	if (get_bitstream_json_len(bitstream) > 0) {
@@ -365,33 +365,33 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 		memset_s(&metadata, sizeof(metadata), 0);
 		result = read_gbs_metadata(bitstream, &metadata);
 		if (result != FPGA_OK) {
-			FPGA_ERR("Failed to read metadata");
+			OPAE_ERR("Failed to read metadata");
 			goto out_unlock;
 		}
 
-		FPGA_DBG(" Version                  :%f\n", metadata.version);
-		FPGA_DBG(" Magic Num                :%ld\n",
+		OPAE_DBG(" Version                  :%f\n", metadata.version);
+		OPAE_DBG(" Magic Num                :%ld\n",
 			 metadata.afu_image.magic_num);
-		FPGA_DBG(" Interface Id             :%s\n",
+		OPAE_DBG(" Interface Id             :%s\n",
 			 metadata.afu_image.interface_uuid);
-		FPGA_DBG(" Clock_frequency_high     :%d\n",
+		OPAE_DBG(" Clock_frequency_high     :%d\n",
 			 metadata.afu_image.clock_frequency_high);
-		FPGA_DBG(" Clock_frequency_low      :%d\n",
+		OPAE_DBG(" Clock_frequency_low      :%d\n",
 			 metadata.afu_image.clock_frequency_low);
-		FPGA_DBG(" Power                    :%d\n",
+		OPAE_DBG(" Power                    :%d\n",
 			 metadata.afu_image.power);
-		FPGA_DBG(" Name                     :%s\n",
+		OPAE_DBG(" Name                     :%s\n",
 			 metadata.afu_image.afu_clusters.name);
-		FPGA_DBG(" Total_contexts           :%d\n",
+		OPAE_DBG(" Total_contexts           :%d\n",
 			 metadata.afu_image.afu_clusters.total_contexts);
-		FPGA_DBG(" AFU_uuid                 :%s\n",
+		OPAE_DBG(" AFU_uuid                 :%s\n",
 			 metadata.afu_image.afu_clusters.afu_uuid);
 
 		// Set AFU user clock
 		if (metadata.afu_image.clock_frequency_high > 0 || metadata.afu_image.clock_frequency_low > 0) {
 			result = set_afu_userclock(fpga, metadata.afu_image.clock_frequency_high, metadata.afu_image.clock_frequency_low);
 			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to set user clock");
+				OPAE_ERR("Failed to set user clock");
 				goto out_unlock;
 			}
 		}
@@ -399,7 +399,7 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 		// get fpga device id.
 		result = get_fpga_hw_type(fpga, &hw_type);
 		if (result != FPGA_OK) {
-			FPGA_ERR("Failed to discover hardware type.");
+			OPAE_ERR("Failed to discover hardware type.");
 			goto out_unlock;
 		}
 
@@ -408,7 +408,7 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 			!stat(FPGA_SYSFS_CLASS_PATH_INTEL, &st)) {
 			result = set_fpga_pwr_threshold(fpga, metadata.afu_image.power);
 			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to set threshold.");
+				OPAE_ERR("Failed to set threshold.");
 				goto out_unlock;
 			}
 
@@ -420,7 +420,7 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 		_handle->fddev, 0, slot, bitstream_len - bitstream_header_len,
 		(uint64_t)bitstream + bitstream_header_len, &error.csr);
 	if (result != 0) {
-		FPGA_ERR("Failed to reconfigure bitstream: %s",
+		OPAE_ERR("Failed to reconfigure bitstream: %s",
 			  strerror(errno));
 
 		if ((errno == EINVAL) || (errno == EFAULT)) {
@@ -431,49 +431,49 @@ fpga_result __FPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 	}
 
 	if (error.reconf_operation_error == 0x1) {
-		FPGA_ERR("PR operation error detected");
+		OPAE_ERR("PR operation error detected");
 		result = FPGA_RECONF_ERROR;
 	}
 
 	if (error.reconf_CRC_error == 0x1) {
-		FPGA_ERR("PR CRC error detected");
+		OPAE_ERR("PR CRC error detected");
 		result = FPGA_RECONF_ERROR;
 	}
 
 	if (error.reconf_incompatible_bitstream_error == 0x1) {
-		FPGA_ERR("PR incompatible bitstream error detected");
+		OPAE_ERR("PR incompatible bitstream error detected");
 		result = FPGA_RECONF_ERROR;
 	}
 
 	if (error.reconf_IP_protocol_error == 0x1) {
-		FPGA_ERR("PR IP protocol error detected");
+		OPAE_ERR("PR IP protocol error detected");
 		result = FPGA_RECONF_ERROR;
 	}
 
 	if (error.reconf_FIFO_overflow_error == 0x1) {
-		FPGA_ERR("PR FIFO overflow error detected");
+		OPAE_ERR("PR FIFO overflow error detected");
 		result = FPGA_RECONF_ERROR;
 	}
 
 	if (error.reconf_timeout_error == 0x1) {
-		FPGA_ERR("PR timeout error detected");
+		OPAE_ERR("PR timeout error detected");
 		result = FPGA_RECONF_ERROR;
 	}
 
 	if (error.reconf_secure_load_error == 0x1) {
-		FPGA_ERR("PR secure load error detected");
+		OPAE_ERR("PR secure load error detected");
 		result = FPGA_RECONF_ERROR;
 	}
 
 out_unlock:
 	// close the accelerator opened during `open_accel`
 	if (accel && xfpga_fpgaClose(accel) != FPGA_OK) {
-		FPGA_ERR("Error closing accelerator after reconfiguration");
+		OPAE_ERR("Error closing accelerator after reconfiguration");
 		result = FPGA_RECONF_ERROR;
 	}
 
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err)
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }

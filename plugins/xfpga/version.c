@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -32,10 +32,10 @@
 #include "common_int.h"
 #include "types_int.h"
 
-fpga_result __FPGA_API__ xfpga_fpgaGetOPAECVersion(fpga_version *version)
+fpga_result __XFPGA_API__ xfpga_fpgaGetOPAECVersion(fpga_version *version)
 {
 	if (!version) {
-		FPGA_MSG("version is NULL");
+		OPAE_MSG("version is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -46,12 +46,12 @@ fpga_result __FPGA_API__ xfpga_fpgaGetOPAECVersion(fpga_version *version)
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaGetOPAECVersionString(char *version_str, size_t len)
+fpga_result __XFPGA_API__ xfpga_fpgaGetOPAECVersionString(char *version_str, size_t len)
 {
 	errno_t err = 0;
 
 	if (!version_str) {
-		FPGA_MSG("version_str is NULL");
+		OPAE_MSG("version_str is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -59,19 +59,19 @@ fpga_result __FPGA_API__ xfpga_fpgaGetOPAECVersionString(char *version_str, size
 		  sizeof(OPAE_VERSION));
 
 	if (err) {
-		FPGA_ERR("strncpy_s failed with error %i", err);
+		OPAE_ERR("strncpy_s failed with error %i", err);
 		return FPGA_EXCEPTION;
 	}
 
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaGetOPAECBuildString(char *build_str, size_t len)
+fpga_result __XFPGA_API__ xfpga_fpgaGetOPAECBuildString(char *build_str, size_t len)
 {
 	errno_t err = 0;
 
 	if (!build_str) {
-		FPGA_MSG("build_str is NULL");
+		OPAE_MSG("build_str is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -79,7 +79,7 @@ fpga_result __FPGA_API__ xfpga_fpgaGetOPAECBuildString(char *build_str, size_t l
 		  sizeof(OPAE_GIT_COMMIT_HASH));
 
 	if (err) {
-		FPGA_ERR("strncpy_s failed with error %i", err);
+		OPAE_ERR("strncpy_s failed with error %i", err);
 		return FPGA_EXCEPTION;
 	}
 

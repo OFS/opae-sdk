@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,6 +24,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
 #include "opae/access.h"
 #include "opae/utils.h"
 #include "opae/umsg.h"
@@ -39,7 +43,7 @@
 
 
 // Get number of Umsgs
-fpga_result __FPGA_API__
+fpga_result __XFPGA_API__
 xfpga_fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 {
 	struct _fpga_handle  *_handle = (struct _fpga_handle *)handle;
@@ -72,7 +76,7 @@ out_unlock:
 }
 
 // Set Umsg Attributes
-fpga_result __FPGA_API__
+fpga_result __XFPGA_API__
 xfpga_fpgaSetUmsgAttributes(fpga_handle handle, uint64_t value)
 {
 	struct _fpga_handle  *_handle         = (struct _fpga_handle *)handle;
@@ -100,7 +104,7 @@ out_unlock:
 }
 
 // Gets Umsg address
-fpga_result __FPGA_API__
+fpga_result __XFPGA_API__
 xfpga_fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 {
 	struct _fpga_handle  *_handle            = (struct _fpga_handle *)handle;
@@ -233,7 +237,7 @@ fpga_result free_umsg_buffer(fpga_handle handle)
 }
 
 // Trigger umsg
-fpga_result __FPGA_API__
+fpga_result __XFPGA_API__
 xfpga_fpgaTriggerUmsg(fpga_handle handle, uint64_t value)
 {
 	struct _fpga_handle  *_handle = (struct _fpga_handle *)handle;

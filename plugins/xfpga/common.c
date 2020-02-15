@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -72,15 +72,15 @@ fpga_result prop_check_and_lock(struct _fpga_properties *prop)
 	ASSERT_NOT_NULL(prop);
 
 	if (pthread_mutex_lock(&prop->lock)) {
-		FPGA_MSG("Failed to lock mutex");
+		OPAE_MSG("Failed to lock mutex");
 		return FPGA_EXCEPTION;
 	}
 
 	if (prop->magic != FPGA_PROPERTY_MAGIC) {
-		FPGA_MSG("Invalid properties object");
+		OPAE_MSG("Invalid properties object");
 		int err = pthread_mutex_unlock(&prop->lock);
 		if (err) {
-			FPGA_ERR("pthread_mutex_unlock() failed: %S",
+			OPAE_ERR("pthread_mutex_unlock() failed: %S",
 				 strerror(err));
 		}
 		return FPGA_INVALID_PARAM;
@@ -98,16 +98,16 @@ fpga_result handle_check_and_lock(struct _fpga_handle *handle)
 	ASSERT_NOT_NULL(handle);
 
 	if (pthread_mutex_lock(&handle->lock)) {
-		FPGA_MSG("Failed to lock mutex");
+		OPAE_MSG("Failed to lock mutex");
 		return FPGA_EXCEPTION;
 	}
 
 
 	if (handle->magic != FPGA_HANDLE_MAGIC) {
-		FPGA_MSG("Invalid handle object");
+		OPAE_MSG("Invalid handle object");
 		int err = pthread_mutex_unlock(&handle->lock);
 		if (err) {
-			FPGA_ERR("pthread_mutex_unlock() failed: %S",
+			OPAE_ERR("pthread_mutex_unlock() failed: %S",
 				 strerror(err));
 		}
 		return FPGA_INVALID_PARAM;
@@ -126,15 +126,15 @@ fpga_result event_handle_check_and_lock(struct _fpga_event_handle *eh)
 	ASSERT_NOT_NULL(eh);
 
 	if (pthread_mutex_lock(&eh->lock)) {
-		FPGA_MSG("Failed to lock mutex");
+		OPAE_MSG("Failed to lock mutex");
 		return FPGA_EXCEPTION;
 	}
 
 	if (eh->magic != FPGA_EVENT_HANDLE_MAGIC) {
-		FPGA_MSG("Invalid event handle object");
+		OPAE_MSG("Invalid event handle object");
 		int err = pthread_mutex_unlock(&eh->lock);
 		if (err) {
-			FPGA_ERR("pthread_mutex_unlock() failed: %S",
+			OPAE_ERR("pthread_mutex_unlock() failed: %S",
 				 strerror(err));
 		}
 		return FPGA_INVALID_PARAM;
@@ -146,7 +146,7 @@ fpga_result event_handle_check_and_lock(struct _fpga_event_handle *eh)
 /* mutex to protect global data structures */
 pthread_mutex_t global_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
-const char __FPGA_API__ *xfpga_fpgaErrStr(fpga_result e)
+const char __XFPGA_API__ *xfpga_fpgaErrStr(fpga_result e)
 {
 	switch (e) {
 	case FPGA_OK:

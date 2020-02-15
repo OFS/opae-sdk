@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -396,7 +396,7 @@ STATIC fpga_result daemon_register_event(fpga_handle handle,
 		if (connect(_handle->fdfpgad, (struct sockaddr *)&addr,
 			    sizeof(addr))
 		    < 0) {
-			FPGA_DBG("connect: %s", strerror(errno));
+			OPAE_DBG("connect: %s", strerror(errno));
 			result = FPGA_NO_DAEMON;
 			goto out_close_conn;
 		}
@@ -496,7 +496,7 @@ out_close_conn:
 	return result;
 }
 
-fpga_result __FPGA_API__
+fpga_result __XFPGA_API__
 xfpga_fpgaCreateEventHandle(fpga_event_handle *event_handle)
 {
 	struct _fpga_event_handle *_eh;
@@ -556,7 +556,7 @@ out_free:
 	return result;
 }
 
-fpga_result __FPGA_API__
+fpga_result __XFPGA_API__
 xfpga_fpgaDestroyEventHandle(fpga_event_handle *event_handle)
 {
 	struct _fpga_event_handle *_eh;
@@ -602,7 +602,7 @@ xfpga_fpgaDestroyEventHandle(fpga_event_handle *event_handle)
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__
+fpga_result __XFPGA_API__
 xfpga_fpgaGetOSObjectFromEventHandle(const fpga_event_handle eh, int *fd)
 {
 	struct _fpga_event_handle *_eh = (struct _fpga_event_handle *)eh;
@@ -622,7 +622,7 @@ xfpga_fpgaGetOSObjectFromEventHandle(const fpga_event_handle eh, int *fd)
 	return FPGA_OK;
 }
 
-fpga_result __FPGA_API__ xfpga_fpgaRegisterEvent(fpga_handle handle,
+fpga_result __XFPGA_API__ xfpga_fpgaRegisterEvent(fpga_handle handle,
 						 fpga_event_type event_type,
 						 fpga_event_handle event_handle,
 						 uint32_t flags)
@@ -685,7 +685,7 @@ out_unlock_handle:
 	return result;
 }
 
-fpga_result __FPGA_API__
+fpga_result __XFPGA_API__
 xfpga_fpgaUnregisterEvent(fpga_handle handle, fpga_event_type event_type,
 			  fpga_event_handle event_handle)
 {
