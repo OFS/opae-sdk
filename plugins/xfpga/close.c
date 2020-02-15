@@ -40,7 +40,7 @@
 STATIC void unmap_mmio_region(struct wsid_map *wm)
 {
 	if (munmap((void *)wm->offset, wm->len)) {
-		FPGA_MSG("munmap failed: %s",
+		OPAE_MSG("munmap failed: %s",
 			 strerror(errno));
 	}
 }
@@ -56,10 +56,10 @@ fpga_result __XFPGA_API__ xfpga_fpgaClose(fpga_handle handle)
 		return result;
 
 	if (-1 == _handle->fddev) {
-		FPGA_ERR("Invalid handle file descriptor");
+		OPAE_ERR("Invalid handle file descriptor");
 		err = pthread_mutex_unlock(&_handle->lock);
 		if (err) {
-			FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+			OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
 		}
 		return FPGA_INVALID_PARAM;
 	}
@@ -80,11 +80,11 @@ fpga_result __XFPGA_API__ xfpga_fpgaClose(fpga_handle handle)
 
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
 	}
 	err = pthread_mutex_destroy(&_handle->lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
 	}
 
 	free(_handle);

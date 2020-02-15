@@ -35,7 +35,7 @@
 fpga_result __XFPGA_API__ xfpga_fpgaGetOPAECVersion(fpga_version *version)
 {
 	if (!version) {
-		FPGA_MSG("version is NULL");
+		OPAE_MSG("version is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -51,7 +51,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetOPAECVersionString(char *version_str, siz
 	errno_t err = 0;
 
 	if (!version_str) {
-		FPGA_MSG("version_str is NULL");
+		OPAE_MSG("version_str is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -59,7 +59,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetOPAECVersionString(char *version_str, siz
 		  sizeof(OPAE_VERSION));
 
 	if (err) {
-		FPGA_ERR("strncpy_s failed with error %i", err);
+		OPAE_ERR("strncpy_s failed with error %i", err);
 		return FPGA_EXCEPTION;
 	}
 
@@ -71,7 +71,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetOPAECBuildString(char *build_str, size_t 
 	errno_t err = 0;
 
 	if (!build_str) {
-		FPGA_MSG("build_str is NULL");
+		OPAE_MSG("build_str is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -79,7 +79,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetOPAECBuildString(char *build_str, size_t 
 		  sizeof(OPAE_GIT_COMMIT_HASH));
 
 	if (err) {
-		FPGA_ERR("strncpy_s failed with error %i", err);
+		OPAE_ERR("strncpy_s failed with error %i", err);
 		return FPGA_EXCEPTION;
 	}
 

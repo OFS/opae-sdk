@@ -51,7 +51,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaReadError(fpga_token token, uint32_t error_n
 
 	ASSERT_NOT_NULL(token);
 	if (_token->magic != FPGA_TOKEN_MAGIC) {
-		FPGA_MSG("Invalid token");
+		OPAE_MSG("Invalid token");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -60,12 +60,12 @@ fpga_result __XFPGA_API__ xfpga_fpgaReadError(fpga_token token, uint32_t error_n
 		if (i == error_num) {
 			// test if file exists
 			if (stat(p->error_file, &st) == -1) {
-				FPGA_MSG("can't stat %s", p->error_file);
+				OPAE_MSG("can't stat %s", p->error_file);
 				return FPGA_EXCEPTION;
 			}
 			res = sysfs_read_u64(p->error_file, value);
 			if (res != FPGA_OK) {
-				FPGA_MSG("can't read error file '%s'", p->error_file);
+				OPAE_MSG("can't read error file '%s'", p->error_file);
 				return res;
 			}
 
@@ -75,7 +75,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaReadError(fpga_token token, uint32_t error_n
 		p = p->next;
 	}
 
-	FPGA_MSG("error %d not found", error_num);
+	OPAE_MSG("error %d not found", error_num);
 	return FPGA_NOT_FOUND;
 }
 
@@ -90,7 +90,7 @@ xfpga_fpgaClearError(fpga_token token, uint32_t error_num)
 
 	ASSERT_NOT_NULL(token);
 	if (_token->magic != FPGA_TOKEN_MAGIC) {
-		FPGA_MSG("Invalid token");
+		OPAE_MSG("Invalid token");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -98,7 +98,7 @@ xfpga_fpgaClearError(fpga_token token, uint32_t error_num)
 	while (p) {
 		if (i == error_num) {
 			if (!p->info.can_clear) {
-				FPGA_MSG("can't clear error '%s'", p->info.name);
+				OPAE_MSG("can't clear error '%s'", p->info.name);
 				return FPGA_NOT_SUPPORTED;
 			}
 
@@ -113,12 +113,12 @@ xfpga_fpgaClearError(fpga_token token, uint32_t error_num)
 
 			// write to 'clear' file
 			if (stat(p->clear_file, &st) == -1) {
-				FPGA_MSG("can't stat %s", p->clear_file);
+				OPAE_MSG("can't stat %s", p->clear_file);
 				return FPGA_EXCEPTION;
 			}
 			res = sysfs_write_u64(p->clear_file, value);
 			if (res != FPGA_OK) {
-				FPGA_MSG("can't write clear file '%s'", p->clear_file);
+				OPAE_MSG("can't write clear file '%s'", p->clear_file);
 				return res;
 			}
 			return FPGA_OK;
@@ -127,7 +127,7 @@ xfpga_fpgaClearError(fpga_token token, uint32_t error_num)
 		p = p->next;
 	}
 
-	FPGA_MSG("error info %d not found", error_num);
+	OPAE_MSG("error info %d not found", error_num);
 	return FPGA_NOT_FOUND;
 }
 
@@ -139,7 +139,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaClearAllErrors(fpga_token token)
 
 	ASSERT_NOT_NULL(token);
 	if (_token->magic != FPGA_TOKEN_MAGIC) {
-		FPGA_MSG("Invalid token");
+		OPAE_MSG("Invalid token");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -167,13 +167,13 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetErrorInfo(fpga_token token,
 	uint32_t i = 0;
 
 	if (!error_info) {
-		FPGA_MSG("error_info is NULL");
+		OPAE_MSG("error_info is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
 	ASSERT_NOT_NULL(token);
 	if (_token->magic != FPGA_TOKEN_MAGIC) {
-		FPGA_MSG("Invalid token");
+		OPAE_MSG("Invalid token");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -187,7 +187,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetErrorInfo(fpga_token token,
 		p = p->next;
 	}
 
-	FPGA_MSG("error info %d not found", error_num);
+	OPAE_MSG("error info %d not found", error_num);
 	return FPGA_NOT_FOUND;
 }
 
@@ -239,13 +239,13 @@ build_error_list(const char *path, struct error_list **list)
 	// 1 for null string to terminate
 	// if we go over now, then leave without doing anything else
 	if (len+3 > FILENAME_MAX) {
-		FPGA_MSG("path too long");
+		OPAE_MSG("path too long");
 		return 0;
 	}
 
 	err = strncpy_s(basedir, FILENAME_MAX-3, path, len);
 	if (err != EOK) {
-		FPGA_MSG("strncpy_s() failed with return value %u", err);
+		OPAE_MSG("strncpy_s() failed with return value %u", err);
 		return 0;
 	}
 	basedir[len++] = '/';
@@ -253,7 +253,7 @@ build_error_list(const char *path, struct error_list **list)
 
 	dir = opendir(path);
 	if (!dir) {
-		FPGA_MSG("unable to open %s", path);
+		OPAE_MSG("unable to open %s", path);
 		return 0;
 	}
 
@@ -275,7 +275,7 @@ build_error_list(const char *path, struct error_list **list)
 
 		// check if the result abs path is longer than  our max
 		if (len + subpath_len > FILENAME_MAX) {
-			FPGA_MSG("Error path length is too long");
+			OPAE_MSG("Error path length is too long");
 			continue;
 		}
 
@@ -285,13 +285,13 @@ build_error_list(const char *path, struct error_list **list)
 		err = strncpy_s(basedir + len, FILENAME_MAX - len - 1,
 				de->d_name, subpath_len);
 		if (err != EOK) {
-			FPGA_MSG("strncpy_s() failed with return value %u", err);
+			OPAE_MSG("strncpy_s() failed with return value %u", err);
 			continue;
 		}
 
 		// try accessing file/dir
 		if (lstat(basedir, &st) == -1) {
-			FPGA_MSG("can't stat %s", basedir);
+			OPAE_MSG("can't stat %s", basedir);
 			continue;
 		}
 
@@ -313,13 +313,13 @@ build_error_list(const char *path, struct error_list **list)
 		// append error info to list
 		struct error_list *new_entry = malloc(sizeof(struct error_list));
 		if (!new_entry) {
-			FPGA_MSG("can't allocate memory");
+			OPAE_MSG("can't allocate memory");
 			n--;
 			break;
 		}
 		err = strncpy_s(new_entry->info.name, FPGA_ERROR_NAME_MAX, de->d_name, FILENAME_MAX);
 		if (err != EOK) {
-			FPGA_MSG("strncpy_s() failed with return value %u", err);
+			OPAE_MSG("strncpy_s() failed with return value %u", err);
 			n--;
 			free(new_entry);
 			new_entry = NULL;
@@ -327,7 +327,7 @@ build_error_list(const char *path, struct error_list **list)
 		}
 		err = strncpy_s(new_entry->error_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
 		if (err != EOK) {
-			FPGA_MSG("strncpy_s() failed with return value %u", err);
+			OPAE_MSG("strncpy_s() failed with return value %u", err);
 			n--;
 			free(new_entry);
 			new_entry = NULL;
@@ -342,7 +342,7 @@ build_error_list(const char *path, struct error_list **list)
 			!stat(FPGA_SYSFS_CLASS_PATH_INTEL, &st)) {
 			err = strncpy_s(basedir + len, FILENAME_MAX - len, "clear", sizeof("clear"));
 			if (err != EOK) {
-				FPGA_MSG("strncpy_s() failed with return value %u", err);
+				OPAE_MSG("strncpy_s() failed with return value %u", err);
 				n--;
 				free(new_entry);
 				new_entry = NULL;
@@ -353,7 +353,7 @@ build_error_list(const char *path, struct error_list **list)
 				new_entry->info.can_clear = true;
 				err = strncpy_s(new_entry->clear_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
 				if (err != EOK) {
-					FPGA_MSG("strncpy_s() failed with return value %u", err);
+					OPAE_MSG("strncpy_s() failed with return value %u", err);
 					n--;
 					free(new_entry);
 					new_entry = NULL;
@@ -365,7 +365,7 @@ build_error_list(const char *path, struct error_list **list)
 				if (strcmp(de->d_name, errors_clearable[i]) == 0) {
 					err = strncpy_s(basedir + len, FILENAME_MAX - len, de->d_name, FILENAME_MAX);
 					if (err != EOK) {
-						FPGA_MSG("strncpy_s() failed with return value %u", err);
+						OPAE_MSG("strncpy_s() failed with return value %u", err);
 						n--;
 						free(new_entry);
 						new_entry = NULL;
@@ -376,7 +376,7 @@ build_error_list(const char *path, struct error_list **list)
 						new_entry->info.can_clear = true;
 						err = strncpy_s(new_entry->clear_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
 						if (err != EOK) {
-							FPGA_MSG("strncpy_s() failed with return value %u", err);
+							OPAE_MSG("strncpy_s() failed with return value %u", err);
 							n--;
 							free(new_entry);
 							new_entry = NULL;

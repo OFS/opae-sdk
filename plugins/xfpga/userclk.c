@@ -54,40 +54,40 @@ fpga_result __XFPGA_API__ xfpga_fpgaSetUserClock(fpga_handle handle,
 		return result;
 
 	if (_handle->fddev < 0) {
-		FPGA_ERR("Invalid handle file descriptor");
+		OPAE_ERR("Invalid handle file descriptor");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
 	_token = (struct _fpga_token *)_handle->token;
 	if (_token == NULL) {
-		FPGA_ERR("Token not found");
+		OPAE_ERR("Token not found");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
 	p = strstr(_token->sysfspath, FPGA_SYSFS_AFU);
 	if (NULL == p) {
-		FPGA_ERR("Invalid sysfspath in token");
+		OPAE_ERR("Invalid sysfspath in token");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 	p = strrchr(_token->sysfspath, '.');
 	if (NULL == p) {
-		FPGA_ERR("Invalid sysfspath in token");
+		OPAE_ERR("Invalid sysfspath in token");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
 	result = set_userclock(_token->sysfspath, high_clk, low_clk);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to set user clock");
+		OPAE_ERR("Failed to set user clock");
 	}
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err)
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -109,40 +109,40 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetUserClock(fpga_handle handle,
 		return result;
 
 	if (_handle->fddev < 0) {
-		FPGA_ERR("Invalid handle file descriptor");
+		OPAE_ERR("Invalid handle file descriptor");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
 	_token = (struct _fpga_token *)_handle->token;
 	if (_token == NULL) {
-		FPGA_ERR("Token not found");
+		OPAE_ERR("Token not found");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
 	p = strstr(_token->sysfspath, FPGA_SYSFS_AFU);
 	if (NULL == p) {
-		FPGA_ERR("Invalid sysfspath in token");
+		OPAE_ERR("Invalid sysfspath in token");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
 	p = strrchr(_token->sysfspath, '.');
 	if (NULL == p) {
-		FPGA_ERR("Invalid sysfspath in token");
+		OPAE_ERR("Invalid sysfspath in token");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
 	result = get_userclock(_token->sysfspath, high_clk, low_clk);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get user clock");
+		OPAE_ERR("Failed to get user clock");
 	}
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err)
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }

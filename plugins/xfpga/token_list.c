@@ -67,33 +67,33 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 	/* get the device instance id */
 	ptr = strchr(sysfspath, '.');
 	if (ptr == NULL) {
-		FPGA_MSG("sysfspath does not meet expected format");
+		OPAE_MSG("sysfspath does not meet expected format");
 		return NULL;
 	}
 
 	device_instance = strtoul(++ptr, &endptr, 10);
 	/* no digits in path */
 	if (endptr == ptr) {
-		FPGA_MSG("sysfspath does not meet expected format");
+		OPAE_MSG("sysfspath does not meet expected format");
 		return NULL;
 	}
 
 	/* get the sub-device (FME/Port) instance id */
 	ptr = strrchr(sysfspath, '.');
 	if (ptr == NULL) {
-		FPGA_MSG("sysfspath does not meet expected format");
+		OPAE_MSG("sysfspath does not meet expected format");
 		return NULL;
 	}
 
 	subdev_instance = strtoul(++ptr, &endptr, 10);
 	/* no digits in path */
 	if (endptr == ptr) {
-		FPGA_MSG("sysfspath does not meet expected format");
+		OPAE_MSG("sysfspath does not meet expected format");
 		return NULL;
 	}
 
 	if (pthread_mutex_lock(&global_lock)) {
-		FPGA_MSG("Failed to lock global mutex");
+		OPAE_MSG("Failed to lock global mutex");
 		return NULL;
 	}
 
@@ -105,7 +105,7 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 					      DEV_PATH_MAX))) {
 			err = pthread_mutex_unlock(&global_lock);
 			if (err) {
-				FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+				OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
 			}
 			return &tmp->_token;
 		}
@@ -115,7 +115,7 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 	if (!tmp) {
 		err = pthread_mutex_unlock(&global_lock);
 		if (err) {
-			FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+			OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
 		}
 		return NULL;
 	}
@@ -138,14 +138,14 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 	e = strncpy_s(tmp->_token.sysfspath, sizeof(tmp->_token.sysfspath),
 			sysfspath, SYSFS_PATH_MAX);
 	if (EOK != e) {
-		FPGA_ERR("strncpy_s failed");
+		OPAE_ERR("strncpy_s failed");
 		goto out_free;
 	}
 
 	e = strncpy_s(tmp->_token.devpath, sizeof(tmp->_token.devpath),
 			devpath, DEV_PATH_MAX);
 	if (EOK != e) {
-		FPGA_ERR("strncpy_s failed");
+		OPAE_ERR("strncpy_s failed");
 		goto out_free;
 	}
 
@@ -154,7 +154,7 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 
 	err = pthread_mutex_unlock(&global_lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
 	}
 
 	return &tmp->_token;
@@ -163,7 +163,7 @@ out_free:
 	free(tmp);
 	err = pthread_mutex_unlock(&global_lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
 	}
 	return NULL;
 }
@@ -191,13 +191,13 @@ struct _fpga_token *token_get_parent(struct _fpga_token *_t)
 
 	res = sysfs_get_fme_path(_t->sysfspath, spath);
 	if (res) {
-		FPGA_ERR("Could not find fme path for token: %s",
+		OPAE_ERR("Could not find fme path for token: %s",
 			 _t->sysfspath);
 		return NULL;
 	}
 
 	if (pthread_mutex_lock(&global_lock)) {
-		FPGA_MSG("Failed to lock global mutex");
+		OPAE_MSG("Failed to lock global mutex");
 		return NULL;
 	}
 
@@ -206,7 +206,7 @@ struct _fpga_token *token_get_parent(struct _fpga_token *_t)
 		if (rptr && !strncmp(spath, rptr, SYSFS_PATH_MAX)) {
 			err = pthread_mutex_unlock(&global_lock);
 			if (err) {
-				FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+				OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
 			}
 			return &itr->_token;
 		}
@@ -214,7 +214,7 @@ struct _fpga_token *token_get_parent(struct _fpga_token *_t)
 
 	err = pthread_mutex_unlock(&global_lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
 	}
 
 	return NULL;
@@ -231,7 +231,7 @@ void token_cleanup(void)
 
 	err = pthread_mutex_lock(&global_lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_lock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_lock() failed: %s", strerror(err));
 		return;
 	}
 
@@ -272,6 +272,6 @@ void token_cleanup(void)
 out_unlock:
 	err = pthread_mutex_unlock(&global_lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	}
 }

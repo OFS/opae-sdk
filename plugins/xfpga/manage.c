@@ -34,7 +34,7 @@
 fpga_result __XFPGA_API__ xfpga_fpgaAssignToInterface(fpga_handle fpga, fpga_token accelerator,
 				  uint32_t host_interface, int flags)
 {
-	FPGA_MSG("xfpga_fpgaAssignToInterface not supported");
+	OPAE_MSG("xfpga_fpgaAssignToInterface not supported");
 	fpga_result result = FPGA_NOT_SUPPORTED;
 
 	UNUSED_PARAM(fpga);
@@ -47,7 +47,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaAssignToInterface(fpga_handle fpga, fpga_tok
 
 fpga_result __XFPGA_API__ xfpga_fpgaReleaseFromInterface(fpga_handle fpga, fpga_token accelerator)
 {
-	FPGA_MSG("xfpga_fpgaReleaseFromInterface not supported");
+	OPAE_MSG("xfpga_fpgaReleaseFromInterface not supported");
 	fpga_result result = FPGA_NOT_SUPPORTED;
 
 	UNUSED_PARAM(fpga);

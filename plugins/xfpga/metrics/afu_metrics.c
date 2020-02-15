@@ -68,14 +68,14 @@ fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset)
 	memset_s(&feature_def, sizeof(feature_def), 0);
 
 	if (offset == NULL) {
-		FPGA_ERR("Invalid Input Paramters");
+		OPAE_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 
 	// Read AFU DFH
 	result = xfpga_fpgaReadMMIO64(handle, 0, 0x0, &(feature_def.dfh.csr));
 	if (result != FPGA_OK) {
-		FPGA_ERR("Invalid handle file descriptor");
+		OPAE_ERR("Invalid handle file descriptor");
 		result = FPGA_NOT_SUPPORTED;
 		return result;
 	}
@@ -87,7 +87,7 @@ fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset)
 
 		result = xfpga_fpgaReadMMIO64(handle, 0, feature_def.dfh.next_header_offset, &(feature_def.dfh.csr));
 		if (result != FPGA_OK) {
-			FPGA_ERR("Invalid handle file descriptor");
+			OPAE_ERR("Invalid handle file descriptor");
 			result = FPGA_NOT_SUPPORTED;
 			return result;
 		}
@@ -96,14 +96,14 @@ fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset)
 
 			result = xfpga_fpgaReadMMIO64(handle, 0, bbs_offset +0x8, &(feature_def.guid[0]));
 			if (result != FPGA_OK) {
-				FPGA_ERR("Invalid handle file descriptor");
+				OPAE_ERR("Invalid handle file descriptor");
 				result = FPGA_NOT_SUPPORTED;
 				return result;
 			}
 
 			result = xfpga_fpgaReadMMIO64(handle, 0, bbs_offset + 0x10, &(feature_def.guid[1]));
 			if (result != FPGA_OK) {
-				FPGA_ERR("Invalid handle file descriptor");
+				OPAE_ERR("Invalid handle file descriptor");
 				result = FPGA_NOT_SUPPORTED;
 				return result;
 			}
@@ -113,14 +113,14 @@ fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset)
 				*offset = bbs_offset;
 				return FPGA_OK;
 			} else	{
-				FPGA_ERR(" Metrics BBB Not Found \n ");
+				OPAE_ERR(" Metrics BBB Not Found \n ");
 			}
 
 		}
 
 	}
 
-	FPGA_ERR("AFU Metrics BBB Not Found \n ");
+	OPAE_ERR("AFU Metrics BBB Not Found \n ");
 	return FPGA_NOT_FOUND;
 }
 
@@ -141,13 +141,13 @@ fpga_result get_afu_metric_value(fpga_handle handle,
 	if (handle == NULL ||
 		enum_vector == NULL ||
 		fpga_metric == NULL) {
-		FPGA_ERR("Invalid Input Paramters");
+		OPAE_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 
 	result = fpga_vector_total(enum_vector, &num_enun_metrics);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get metric total");
+		OPAE_ERR("Failed to get metric total");
 		return FPGA_NOT_FOUND;
 	}
 
@@ -189,7 +189,7 @@ fpga_result add_afu_metrics_vector(fpga_metric_vector *vector,
 
 	if (metric_id == NULL ||
 		vector == NULL) {
-		FPGA_ERR("Invalid Input Paramters");
+		OPAE_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -228,7 +228,7 @@ fpga_result enum_afu_metrics(fpga_handle handle,
 	if (handle == NULL ||
 		vector == NULL ||
 		metric_id == NULL) {
-		FPGA_ERR("Invalid Input Paramters");
+		OPAE_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -248,7 +248,7 @@ fpga_result enum_afu_metrics(fpga_handle handle,
 					// add to counter
 					result = add_afu_metrics_vector(vector, metric_id, group_csr.csr, metric_csr.csr, value_offset);
 					if (result != FPGA_OK) {
-						FPGA_ERR("Failed to add metrics vector");
+						OPAE_ERR("Failed to add metrics vector");
 					}
 
 

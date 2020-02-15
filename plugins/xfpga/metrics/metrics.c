@@ -55,7 +55,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetNumMetrics(fpga_handle handle,
 	uint64_t num_enun_metrics        = 0;
 
 	if (_handle == NULL) {
-		FPGA_ERR("NULL fpga handle");
+		OPAE_ERR("NULL fpga handle");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -64,27 +64,27 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetNumMetrics(fpga_handle handle,
 		return result;
 
 	if (_handle->fddev < 0) {
-		FPGA_ERR("Invalid handle file descriptor");
+		OPAE_ERR("Invalid handle file descriptor");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
 	if (num_metrics == NULL) {
-		FPGA_ERR("Invalid Input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
 	result = enum_fpga_metrics(handle);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to Discover Metrics");
+		OPAE_ERR("Failed to Discover Metrics");
 		result = FPGA_NOT_FOUND;
 		goto out_unlock;
 	}
 
 	result = fpga_vector_total(&(_handle->fpga_enum_metric_vector), &num_enun_metrics);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get metric total");
+		OPAE_ERR("Failed to get metric total");
 		goto out_unlock;
 	}
 
@@ -97,7 +97,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetNumMetrics(fpga_handle handle,
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	}
 
 	return result;
@@ -116,7 +116,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetMetricsInfo(fpga_handle handle,
 	struct _fpga_enum_metric	*fpga_enum_metric   = NULL;
 
 	if (_handle == NULL) {
-		FPGA_ERR("NULL fpga handle");
+		OPAE_ERR("NULL fpga handle");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -125,28 +125,28 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetMetricsInfo(fpga_handle handle,
 		return result;
 
 	if (_handle->fddev < 0) {
-		FPGA_ERR("Invalid handle file descriptor");
+		OPAE_ERR("Invalid handle file descriptor");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
 	if (metric_info == NULL ||
 		num_metrics == NULL) {
-		FPGA_ERR("Invalid Input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
 	result = enum_fpga_metrics(handle);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to enum Metrics");
+		OPAE_ERR("Failed to enum Metrics");
 		result = FPGA_NOT_FOUND;
 		goto out_unlock;
 	}
 
 	result = fpga_vector_total(&(_handle->fpga_enum_metric_vector), &num_enun_metrics);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get metric total");
+		OPAE_ERR("Failed to get metric total");
 		goto out_unlock;
 	}
 
@@ -158,7 +158,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetMetricsInfo(fpga_handle handle,
 			fpga_enum_metric = (struct _fpga_enum_metric *)	fpga_vector_get(&(_handle->fpga_enum_metric_vector), i);
 			result = add_metric_info(fpga_enum_metric, &metric_info[i]);
 			if (result != FPGA_OK) {
-				FPGA_MSG("Failed to add metric info");
+				OPAE_MSG("Failed to add metric info");
 				continue;
 			}
 
@@ -168,7 +168,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetMetricsInfo(fpga_handle handle,
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	}
 
 	return result;
@@ -188,7 +188,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
 	fpga_objtype objtype;
 
 	if (_handle == NULL) {
-		FPGA_ERR("NULL fpga handle");
+		OPAE_ERR("NULL fpga handle");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -197,28 +197,28 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
 		return result;
 
 	if (_handle->fddev < 0) {
-		FPGA_ERR("Invalid handle file descriptor");
+		OPAE_ERR("Invalid handle file descriptor");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
 	if (metrics == NULL ||
 		metric_num == NULL) {
-		FPGA_ERR("Invalid Input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
 	result = enum_fpga_metrics(handle);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to Discover Metrics");
+		OPAE_ERR("Failed to Discover Metrics");
 		result = FPGA_NOT_FOUND;
 		goto out_unlock;
 	}
 
 	result = get_fpga_object_type(handle, &objtype);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to init vector");
+		OPAE_ERR("Failed to init vector");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -232,7 +232,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
 						metric_num[i],
 						&metrics[i]);
 			if (result != FPGA_OK) {
-				FPGA_MSG("Failed to get metric value  at Index = %ld", metric_num[i]);
+				OPAE_MSG("Failed to get metric value  at Index = %ld", metric_num[i]);
 				metrics[i].metric_num = metric_num[i];
 				continue;
 			} else {
@@ -257,7 +257,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetMetricsByIndex(fpga_handle handle,
 							metric_num[i],
 							&metrics[i]);
 			if (result != FPGA_OK) {
-				FPGA_MSG("Failed to get metric value  at Index = %ld", metric_num[i]);
+				OPAE_MSG("Failed to get metric value  at Index = %ld", metric_num[i]);
 				metrics[i].metric_num = metric_num[i];
 				continue;
 			} else {
@@ -282,7 +282,7 @@ out_unlock:
 	clear_cached_values(_handle);
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	}
 
 	return result;
@@ -302,7 +302,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 	fpga_objtype objtype;
 
 	if (_handle == NULL) {
-		FPGA_ERR("NULL fpga handle");
+		OPAE_ERR("NULL fpga handle");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -311,27 +311,27 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 		return result;
 
 	if (_handle->fddev < 0) {
-		FPGA_ERR("Invalid handle file descriptor");
+		OPAE_ERR("Invalid handle file descriptor");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
 	if (metrics_names == NULL ||
 		metrics == NULL) {
-		FPGA_ERR("Invalid Input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
 	if (num_metric_names == 0) {
-		FPGA_ERR("Invalid Input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
 	result = enum_fpga_metrics(handle);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to Discover Metrics");
+		OPAE_ERR("Failed to Discover Metrics");
 		result = FPGA_NOT_FOUND;
 		goto out_unlock;
 	}
@@ -339,7 +339,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 
 	result = get_fpga_object_type(handle, &objtype);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to init vector");
+		OPAE_ERR("Failed to init vector");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -351,7 +351,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 							&(_handle->fpga_enum_metric_vector),
 							&metric_num);
 			if (result != FPGA_OK) {
-				FPGA_MSG("Invalid input metrics string= %s", metrics_names[i]);
+				OPAE_MSG("Invalid input metrics string= %s", metrics_names[i]);
 				metrics[i].metric_num = METRIC_ARRAY_INVALID_INDEX;
 				continue;
 			}
@@ -360,7 +360,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 				metric_num,
 				&metrics[i]);
 			if (result != FPGA_OK) {
-				FPGA_MSG("Failed to get metric value  for metric = %s", metrics_names[i]);
+				OPAE_MSG("Failed to get metric value  for metric = %s", metrics_names[i]);
 				metrics[i].metric_num = METRIC_ARRAY_INVALID_INDEX;
 				continue;
 			} else {
@@ -383,7 +383,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 							&(_handle->fpga_enum_metric_vector),
 							&metric_num);
 			if (result != FPGA_OK) {
-				FPGA_ERR("Invalid input metrics string= %s", metrics_names[i]);
+				OPAE_ERR("Invalid input metrics string= %s", metrics_names[i]);
 				metrics[i].metric_num = METRIC_ARRAY_INVALID_INDEX;
 				continue;
 			}
@@ -393,7 +393,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetMetricsByName(fpga_handle handle,
 							metric_num,
 							&metrics[i]);
 			if (result != FPGA_OK) {
-				FPGA_ERR("Failed to get metric value  for metric = %s \n", metrics_names[i]);
+				OPAE_ERR("Failed to get metric value  for metric = %s \n", metrics_names[i]);
 				metrics[i].metric_num = METRIC_ARRAY_INVALID_INDEX;
 				continue;
 			} else {
@@ -418,7 +418,7 @@ out_unlock:
 
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	}
 	return result;
 }

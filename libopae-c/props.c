@@ -428,7 +428,7 @@ fpga_result __OPAE_API__ fpgaPropertiesSetFunction(fpga_properties prop,
 
 	// PCIe supports 8 functions per device.
 	if (function > 7) {
-		FPGA_MSG("Invalid function number");
+		OPAE_MSG("Invalid function number");
 		return FPGA_INVALID_PARAM;
 	}
 

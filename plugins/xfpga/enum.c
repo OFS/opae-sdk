@@ -80,7 +80,7 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 	char buffer[PATH_MAX] = {0};
 
 	if (pthread_mutex_lock(&_filter->lock)) {
-		FPGA_MSG("Failed to lock filter mutex");
+		OPAE_MSG("Failed to lock filter mutex");
 		return false;
 	}
 
@@ -269,7 +269,7 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 out_unlock:
 	err = pthread_mutex_unlock(&_filter->lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
 	}
 	return res;
 }
@@ -334,7 +334,7 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 
 	// Make sure it's a directory.
 	if (stat(sysfspath, &stats) != 0) {
-		FPGA_MSG("stat failed: %s", strerror(errno));
+		OPAE_MSG("stat failed: %s", strerror(errno));
 		return FPGA_NOT_FOUND;
 	}
 
@@ -345,7 +345,7 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 
 	pdev = add_dev(sysfspath, dpath, parent);
 	if (!pdev) {
-		FPGA_MSG("Failed to allocate device");
+		OPAE_MSG("Failed to allocate device");
 		return FPGA_NO_MEMORY;
 	}
 
@@ -361,7 +361,7 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 	// Discover the FME GUID from sysfs (pr/interface_id)
 	result = sysfs_get_fme_pr_interface_id(sysfspath, pdev->guid);
 	if (FPGA_OK != result) {
-		FPGA_MSG("Failed to get PR interface id");
+		OPAE_MSG("Failed to get PR interface id");
 		return result;
 	}
 
@@ -411,7 +411,7 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	uint64_t value = 0;
 	// Make sure it's a directory.
 	if (stat(sysfspath, &stats) != 0) {
-		FPGA_ERR("stat failed: %s", strerror(errno));
+		OPAE_ERR("stat failed: %s", strerror(errno));
 		return FPGA_NOT_FOUND;
 	}
 
@@ -423,7 +423,7 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 
 	pdev = add_dev(sysfspath, dpath, parent);
 	if (!pdev) {
-		FPGA_ERR("Failed to allocate device");
+		OPAE_ERR("Failed to allocate device");
 		return FPGA_NO_MEMORY;
 	}
 
@@ -440,7 +440,7 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	if (sysfs_get_fme_path(sysfspath, spath) == FPGA_OK) {
 		resval = sysfs_parse_attribute64(spath, FPGA_SYSFS_SOCKET_ID, &value);
 		if (resval) {
-			FPGA_MSG("error reading socket_id");
+			OPAE_MSG("error reading socket_id");
 		} else {
 			pdev->socket_id = parent->socket_id = value;
 		}
@@ -465,7 +465,7 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	result = sysfs_read_guid(spath, pdev->guid);
 	/* if we can't read the afu_id, remove device from list */
 	if (FPGA_OK != result) {
-		FPGA_MSG("Could not read afu_id from '%s', ignoring", spath);
+		OPAE_MSG("Could not read afu_id from '%s', ignoring", spath);
 		parent->next = pdev->next;
 		free(pdev);
 	}
@@ -484,7 +484,7 @@ STATIC fpga_result enum_regions(const sysfs_fpga_device *device, void *context)
 	fpga_result result = FPGA_OK;
 	struct dev_list *pdev = add_dev(device->sysfs_path, "", ctx->list);
 	if (!pdev) {
-		FPGA_MSG("Failed to allocate device");
+		OPAE_MSG("Failed to allocate device");
 		return FPGA_NO_MEMORY;
 	}
 	// Assign bus, function, device
@@ -501,7 +501,7 @@ STATIC fpga_result enum_regions(const sysfs_fpga_device *device, void *context)
 		result = enum_fme(device->fme->sysfs_path,
 				  device->fme->sysfs_name, pdev);
 		if (result != FPGA_OK) {
-			FPGA_ERR("Failed to enum FME");
+			OPAE_ERR("Failed to enum FME");
 			return result;
 		}
 	}
@@ -511,7 +511,7 @@ STATIC fpga_result enum_regions(const sysfs_fpga_device *device, void *context)
 		result = enum_afu(device->port->sysfs_path,
 				  device->port->sysfs_name, pdev);
 		if (result != FPGA_OK) {
-			FPGA_ERR("Failed to enum PORT");
+			OPAE_ERR("Failed to enum PORT");
 			return result;
 		}
 	}
@@ -565,24 +565,24 @@ fpga_result __XFPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 	struct dev_list *lptr;
 
 	if (NULL == num_matches) {
-		FPGA_MSG("num_matches is NULL");
+		OPAE_MSG("num_matches is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
 	/* requiring a max number of tokens, but not providing a pointer to
 	 * return them through is invalid */
 	if ((max_tokens > 0) && (NULL == tokens)) {
-		FPGA_MSG("max_tokens > 0 with NULL tokens");
+		OPAE_MSG("max_tokens > 0 with NULL tokens");
 		return FPGA_INVALID_PARAM;
 	}
 
 	if ((num_filters > 0) && (NULL == filters)) {
-		FPGA_MSG("num_filters > 0 with NULL filters");
+		OPAE_MSG("num_filters > 0 with NULL filters");
 		return FPGA_INVALID_PARAM;
 	}
 
 	if (!num_filters && (NULL != filters)) {
-		FPGA_MSG("num_filters == 0 with non-NULL filters");
+		OPAE_MSG("num_filters == 0 with non-NULL filters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -595,7 +595,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 				include_afu(filters, num_filters));
 
 	if (result != FPGA_OK) {
-		FPGA_MSG("No FPGA resources found");
+		OPAE_MSG("No FPGA resources found");
 		return result;
 	}
 
@@ -616,7 +616,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 		_tok = token_add(lptr->sysfspath, lptr->devpath);
 
 		if (NULL == _tok) {
-			FPGA_MSG("Failed to allocate memory for token");
+			OPAE_MSG("Failed to allocate memory for token");
 			result = FPGA_NO_MEMORY;
 			goto out_free_trash;
 		}
@@ -627,7 +627,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 				if (xfpga_fpgaCloneToken(_tok, &tokens[*num_matches])
 				    != FPGA_OK) {
 					// FIXME: should we error out here?
-					FPGA_MSG("Error cloning token");
+					OPAE_MSG("Error cloning token");
 				}
 			}
 			++(*num_matches);
@@ -653,18 +653,18 @@ fpga_result __XFPGA_API__ xfpga_fpgaCloneToken(fpga_token src, fpga_token *dst)
 	errno_t e;
 
 	if (NULL == src || NULL == dst) {
-		FPGA_MSG("src or dst in NULL");
+		OPAE_MSG("src or dst in NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
 	if (_src->magic != FPGA_TOKEN_MAGIC) {
-		FPGA_MSG("Invalid src");
+		OPAE_MSG("Invalid src");
 		return FPGA_INVALID_PARAM;
 	}
 
 	_dst = malloc(sizeof(struct _fpga_token));
 	if (NULL == _dst) {
-		FPGA_MSG("Failed to allocate memory for token");
+		OPAE_MSG("Failed to allocate memory for token");
 		return FPGA_NO_MEMORY;
 	}
 
@@ -675,7 +675,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaCloneToken(fpga_token src, fpga_token *dst)
 	e = strncpy_s(_dst->sysfspath, sizeof(_dst->sysfspath), _src->sysfspath,
 		      sizeof(_src->sysfspath));
 	if (EOK != e) {
-		FPGA_MSG("strncpy_s failed");
+		OPAE_MSG("strncpy_s failed");
 		result = FPGA_EXCEPTION;
 		goto out_free;
 	}
@@ -683,7 +683,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaCloneToken(fpga_token src, fpga_token *dst)
 	e = strncpy_s(_dst->devpath, sizeof(_dst->devpath), _src->devpath,
 		      sizeof(_src->devpath));
 	if (EOK != e) {
-		FPGA_MSG("strncpy_s failed");
+		OPAE_MSG("strncpy_s failed");
 		result = FPGA_EXCEPTION;
 		goto out_free;
 	}
@@ -705,19 +705,19 @@ fpga_result __XFPGA_API__ xfpga_fpgaDestroyToken(fpga_token *token)
 	int err = 0;
 
 	if (NULL == token || NULL == *token) {
-		FPGA_MSG("Invalid token pointer");
+		OPAE_MSG("Invalid token pointer");
 		return FPGA_INVALID_PARAM;
 	}
 
 	struct _fpga_token *_token = (struct _fpga_token *)*token;
 
 	if (pthread_mutex_lock(&global_lock)) {
-		FPGA_MSG("Failed to lock global mutex");
+		OPAE_MSG("Failed to lock global mutex");
 		return FPGA_EXCEPTION;
 	}
 
 	if (_token->magic != FPGA_TOKEN_MAGIC) {
-		FPGA_MSG("Invalid token");
+		OPAE_MSG("Invalid token");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -731,7 +731,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaDestroyToken(fpga_token *token)
 out_unlock:
 	err = pthread_mutex_unlock(&global_lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
 	}
 	return result;
 }

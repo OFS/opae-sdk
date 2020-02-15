@@ -158,7 +158,7 @@ static sysfs_fpga_device _devices[SYSFS_MAX_DEVICES];
 		errno = 0;                                                     \
 		_v = strtoul(_p + _m.rm_so, NULL, _b);                         \
 		if (errno) {                                                   \
-			FPGA_MSG("error parsing int");                         \
+			OPAE_MSG("error parsing int");                         \
 			goto _l;                                               \
 		}                                                              \
 	} while (0)
@@ -180,13 +180,13 @@ STATIC int parse_pcie_info(sysfs_fpga_device *device, char *buffer)
 
 	int reg_res = regcomp(&re, PCIE_PATH_PATTERN, REG_EXTENDED | REG_ICASE);
 	if (reg_res) {
-		FPGA_ERR("Error compling regex");
+		OPAE_ERR("Error compling regex");
 		return FPGA_EXCEPTION;
 	}
 	reg_res = regexec(&re, buffer, PCIE_PATH_PATTERN_GROUPS, matches, 0);
 	if (reg_res) {
 		regerror(reg_res, &re, err, 128);
-		FPGA_ERR("Error executing regex: %s", err);
+		OPAE_ERR("Error executing regex: %s", err);
 		res = FPGA_EXCEPTION;
 		goto out;
 	} else {
@@ -212,18 +212,18 @@ int sysfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *v
 	int len = snprintf_s_ss(path, SYSFS_PATH_MAX, "%s/%s",
 				root, attr_path);
 	if (len < 0) {
-		FPGA_ERR("error concatenating strings (%s, %s)",
+		OPAE_ERR("error concatenating strings (%s, %s)",
 			 root, attr_path);
 		return FPGA_EXCEPTION;
 	}
 	fd = open(path, O_RDONLY);
 	if (fd < 0) {
-		FPGA_MSG("Error opening %s: %s", path, strerror(errno));
+		OPAE_MSG("Error opening %s: %s", path, strerror(errno));
 		return FPGA_EXCEPTION;
 	}
 	bytes_read = eintr_read(fd, buffer, pg_size);
 	if (bytes_read < 0) {
-		FPGA_ERR("Error reading from %s: %s", path,
+		OPAE_ERR("Error reading from %s: %s", path,
 			 strerror(errno));
 		close(fd);
 		return FPGA_EXCEPTION;
@@ -240,7 +240,7 @@ STATIC int parse_device_vendor_id(sysfs_fpga_device *device)
 	uint64_t value = 0;
 	int res = sysfs_parse_attribute64(device->sysfs_path, "device/device", &value);
 	if (res) {
-		FPGA_MSG("Error parsing device_id for device: %s",
+		OPAE_MSG("Error parsing device_id for device: %s",
 			 device->sysfs_path);
 		return res;
 	}
@@ -249,7 +249,7 @@ STATIC int parse_device_vendor_id(sysfs_fpga_device *device)
 	res = sysfs_parse_attribute64(device->sysfs_path, "device/vendor", &value);
 
 	if (res) {
-		FPGA_ERR("Error parsing vendor_id for device: %s",
+		OPAE_ERR("Error parsing vendor_id for device: %s",
 			 device->sysfs_path);
 		return res;
 	}
@@ -263,7 +263,7 @@ STATIC sysfs_fpga_region *make_region(sysfs_fpga_device *device, char *name,
 {
 	sysfs_fpga_region *region = malloc(sizeof(sysfs_fpga_region));
 	if (region == NULL) {
-		FPGA_ERR("error creating region");
+		OPAE_ERR("error creating region");
 		return NULL;
 	}
 	region->device = device;
@@ -273,13 +273,13 @@ STATIC sysfs_fpga_region *make_region(sysfs_fpga_device *device, char *name,
 	if (snprintf_s_ss(region->sysfs_path, sizeof(region->sysfs_path),
 			  "%s/%s", device->sysfs_path, name)
 	    < 0) {
-		FPGA_ERR("error formatting path");
+		OPAE_ERR("error formatting path");
 		free(region);
 		return NULL;
 	}
 
 	if (strcpy_s(region->sysfs_name, sizeof(region->sysfs_name),  name)) {
-		FPGA_ERR("Error copying sysfs name");
+		OPAE_ERR("Error copying sysfs name");
 		free(region);
 		return NULL;
 	}
@@ -324,7 +324,7 @@ STATIC fpga_result re_match_device(const char *fmt, char *inpstr, char prefix[],
 	reg_res = regcomp(&re, fmt, REG_EXTENDED);
 	if (reg_res) {
 		regerror(reg_res, &re, err, sizeof(err));
-		FPGA_ERR("Error compiling regex: %s", err);
+		OPAE_ERR("Error compiling regex: %s", err);
 		return FPGA_EXCEPTION;
 	}
 	reg_res = regexec(&re, inpstr, RE_DEVICE_GROUPS, matches, 0);
@@ -335,7 +335,7 @@ STATIC fpga_result re_match_device(const char *fmt, char *inpstr, char prefix[],
 	ptr = inpstr + matches[RE_DEVICE_GROUP_PREFIX].rm_so;
 	end = inpstr + matches[RE_DEVICE_GROUP_PREFIX].rm_eo;
 	if (strncpy_s(prefix, prefix_len, ptr, end - ptr)) {
-		FPGA_ERR("Error copying prefix from string: %s", inpstr);
+		OPAE_ERR("Error copying prefix from string: %s", inpstr);
 		goto out_free;
 	}
 	*(prefix + (end - ptr)) = '\0';
@@ -343,7 +343,7 @@ STATIC fpga_result re_match_device(const char *fmt, char *inpstr, char prefix[],
 	errno = 0;
 	*num = strtoul(ptr, NULL, 10);
 	if (errno) {
-		FPGA_ERR("Error parsing number: %s", inpstr);
+		OPAE_ERR("Error parsing number: %s", inpstr);
 		goto out_free;
 	}
 	res = FPGA_OK;
@@ -390,7 +390,7 @@ STATIC fpga_result re_match_region(const char *fmt, char *inpstr, char type[],
 	reg_res = regcomp(&re, fmt, REG_EXTENDED);
 	if (reg_res) {
 		regerror(reg_res, &re, err, sizeof(err));
-		FPGA_ERR("Error compiling regex: %s", err);
+		OPAE_ERR("Error compiling regex: %s", err);
 		return FPGA_EXCEPTION;
 	}
 	reg_res = regexec(&re, inpstr, RE_REGION_GROUPS, matches, 0);
@@ -402,7 +402,7 @@ STATIC fpga_result re_match_region(const char *fmt, char *inpstr, char type[],
 	ptr = inpstr + matches[RE_REGION_GROUP_TYPE].rm_so;
 	end = inpstr + matches[RE_REGION_GROUP_TYPE].rm_eo;
 	if (strncpy_s(type, type_len, ptr, end - ptr)) {
-		FPGA_ERR("Error copying type from string: %s", inpstr);
+		OPAE_ERR("Error copying type from string: %s", inpstr);
 		goto out_free;
 	}
 	*(type + (end - ptr)) = '\0';
@@ -410,7 +410,7 @@ STATIC fpga_result re_match_region(const char *fmt, char *inpstr, char type[],
 	errno = 0;
 	*num = strtoul(ptr, NULL, 10);
 	if (errno) {
-		FPGA_ERR("Error parsing number: %s", inpstr);
+		OPAE_ERR("Error parsing number: %s", inpstr);
 		goto out_free;
 	}
 	res = FPGA_OK;
@@ -431,7 +431,7 @@ STATIC int find_regions(sysfs_fpga_device *device)
 	struct dirent *dirent = NULL;
 	DIR *dir = opendir(device->sysfs_path);
 	if (!dir) {
-		FPGA_ERR("failed to open device path: %s", device->sysfs_path);
+		OPAE_ERR("failed to open device path: %s", device->sysfs_path);
 		return FPGA_EXCEPTION;
 	}
 
@@ -466,7 +466,7 @@ STATIC int find_regions(sysfs_fpga_device *device)
 	if (dir)
 		closedir(dir);
 	if (!device->fme && !device->port) {
-		FPGA_ERR("did not find fme/port in device: %s", device->sysfs_path);
+		OPAE_ERR("did not find fme/port in device: %s", device->sysfs_path);
 		return FPGA_NOT_FOUND;
 	}
 
@@ -483,18 +483,18 @@ STATIC int make_device(sysfs_fpga_device *device, const char *sysfs_class_fpga,
 	if (snprintf_s_ss(device->sysfs_path, SYSFS_PATH_MAX, "%s/%s",
 			  sysfs_class_fpga, dir_name)
 	    < 0) {
-		FPGA_ERR("Error formatting sysfs paths");
+		OPAE_ERR("Error formatting sysfs paths");
 		return FPGA_EXCEPTION;
 	}
 
 	if (snprintf_s_s(device->sysfs_name, SYSFS_PATH_MAX, "%s", dir_name) < 0) {
-		FPGA_ERR("Error formatting sysfs name");
+		OPAE_ERR("Error formatting sysfs name");
 		return FPGA_EXCEPTION;
 	}
 
 	sym_link_len = readlink(device->sysfs_path, buffer, SYSFS_PATH_MAX);
 	if (sym_link_len < 0) {
-		FPGA_ERR("Error reading sysfs link: %s", device->sysfs_path);
+		OPAE_ERR("Error reading sysfs link: %s", device->sysfs_path);
 		return FPGA_EXCEPTION;
 	}
 
@@ -502,13 +502,13 @@ STATIC int make_device(sysfs_fpga_device *device, const char *sysfs_class_fpga,
 	res = parse_pcie_info(device, buffer);
 
 	if (res) {
-		FPGA_ERR("Could not parse symlink");
+		OPAE_ERR("Could not parse symlink");
 		return res;
 	}
 
 	res = parse_device_vendor_id(device);
 	if (res) {
-		FPGA_MSG("Could not parse vendor/device id");
+		OPAE_MSG("Could not parse vendor/device id");
 		return res;
 	}
 
@@ -594,13 +594,13 @@ int sysfs_initialize(void)
 			break;
 		}
 		if (errno != ENOENT) {
-			FPGA_ERR("Error while inspecting sysfs: %s",
+			OPAE_ERR("Error while inspecting sysfs: %s",
 				 strerror(errno));
 			return FPGA_EXCEPTION;
 		}
 	}
 	if (i == OPAE_KERNEL_DRIVERS) {
-		FPGA_ERR(
+		OPAE_ERR(
 			"No valid sysfs class files found - a suitable driver may not be loaded");
 		return FPGA_NO_DRIVER;
 	}
@@ -609,7 +609,7 @@ int sysfs_initialize(void)
 
 	const char *sysfs_class_fpga = SYSFS_FORMAT(sysfs_class_path);
 	if (!sysfs_class_fpga) {
-		FPGA_ERR("Invalid fpga class path: %s", sysfs_class_fpga);
+		OPAE_ERR("Invalid fpga class path: %s", sysfs_class_fpga);
 		res = FPGA_EXCEPTION;
 		goto out_free;
 	}
@@ -618,7 +618,7 @@ int sysfs_initialize(void)
 	// look in the directory and get device objects
 	dir = opendir(sysfs_class_fpga);
 	if (!dir) {
-		FPGA_MSG("failed to open device path: %s", sysfs_class_fpga);
+		OPAE_MSG("failed to open device path: %s", sysfs_class_fpga);
 		res = FPGA_EXCEPTION;
 		goto out_free;
 	}
@@ -640,7 +640,7 @@ int sysfs_initialize(void)
 			if (make_device(&_devices[_sysfs_device_count++],
 					sysfs_class_fpga, dirent->d_name,
 					num)) {
-				FPGA_MSG("Error processing device: %s",
+				OPAE_MSG("Error processing device: %s",
 					 dirent->d_name);
 				_sysfs_device_count--;
 			}
@@ -651,7 +651,7 @@ int sysfs_initialize(void)
 	}
 
 	if (!_sysfs_device_count) {
-		FPGA_ERR("Error discovering fpga devices");
+		OPAE_ERR("Error discovering fpga devices");
 		res = FPGA_NO_DRIVER;
 	}
 out_free:
@@ -665,7 +665,7 @@ int sysfs_finalize(void)
 	uint32_t i = 0;
 	int res = 0;
 	if (opae_mutex_lock(res, &_sysfs_device_lock)) {
-		FPGA_ERR("Error locking mutex");
+		OPAE_ERR("Error locking mutex");
 		return FPGA_EXCEPTION;
 	}
 	for (; i < _sysfs_device_count; ++i) {
@@ -674,7 +674,7 @@ int sysfs_finalize(void)
 	_sysfs_device_count = 0;
 	_sysfs_format_ptr = NULL;
 	if (opae_mutex_unlock(res, &_sysfs_device_lock)) {
-		FPGA_ERR("Error unlocking mutex");
+		OPAE_ERR("Error unlocking mutex");
 		return FPGA_EXCEPTION;
 	}
 	return FPGA_OK;
@@ -686,7 +686,7 @@ const sysfs_fpga_device *sysfs_get_device(size_t num)
 	int res = 0;
 	if (!opae_mutex_lock(res, &_sysfs_device_lock)) {
 		if (num >= _sysfs_device_count) {
-			FPGA_ERR("No such device with index: %d", num);
+			OPAE_ERR("No such device with index: %d", num);
 		} else {
 			ptr = &_devices[num];
 		}
@@ -724,7 +724,7 @@ fpga_result sysfs_get_fme_pwr_path(fpga_token token, char *sysfs_pwr)
 	ASSERT_NOT_NULL(_token);
 
 	if (sysfs_pwr == NULL) {
-		FPGA_ERR("Invalid input parameters");
+		OPAE_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 	res = cat_token_sysfs_path(sysfs_pwr, token, SYSFS_FORMAT(sysfs_fme_pwr_glob));
@@ -735,7 +735,7 @@ fpga_result sysfs_get_fme_pwr_path(fpga_token token, char *sysfs_pwr)
 	// check for path is valid
 	res = check_sysfs_path_is_valid(sysfs_pwr);
 	if (res != FPGA_OK) {
-		FPGA_MSG("Invalid path %s", sysfs_pwr);
+		OPAE_MSG("Invalid path %s", sysfs_pwr);
 		return res;
 	}
 
@@ -749,7 +749,7 @@ fpga_result sysfs_get_fme_temp_path(fpga_token token, char *sysfs_temp)
 	ASSERT_NOT_NULL(_token);
 
 	if (sysfs_temp == NULL) {
-		FPGA_ERR("Invalid input parameters");
+		OPAE_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -761,7 +761,7 @@ fpga_result sysfs_get_fme_temp_path(fpga_token token, char *sysfs_temp)
 	// check for path is valid
 	res = check_sysfs_path_is_valid(sysfs_temp);
 	if (res != FPGA_OK) {
-		FPGA_MSG("Invalid path %s", sysfs_temp);
+		OPAE_MSG("Invalid path %s", sysfs_temp);
 		return res;
 	}
 
@@ -775,7 +775,7 @@ fpga_result sysfs_get_fme_perf_path(fpga_token token, char *sysfs_perf)
 	ASSERT_NOT_NULL(_token);
 
 	if (sysfs_perf == NULL) {
-		FPGA_ERR("Invalid input parameters");
+		OPAE_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -787,7 +787,7 @@ fpga_result sysfs_get_fme_perf_path(fpga_token token, char *sysfs_perf)
 	// check for path is valid
 	res = check_sysfs_path_is_valid(sysfs_perf);
 	if (res != FPGA_OK) {
-		FPGA_MSG("Invalid path %s", sysfs_perf);
+		OPAE_MSG("Invalid path %s", sysfs_perf);
 		return res;
 	}
 
@@ -800,13 +800,13 @@ fpga_result sysfs_get_port_error_path(fpga_handle handle, char *sysfs_port_error
 	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
 
 	if (sysfs_port_error == NULL) {
-		FPGA_ERR("Invalid input parameters");
+		OPAE_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
 	result = get_port_sysfs(handle, sysfs_path);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get port syfs path");
+		OPAE_ERR("Failed to get port syfs path");
 		return result;
 	}
 
@@ -814,7 +814,7 @@ fpga_result sysfs_get_port_error_path(fpga_handle handle, char *sysfs_port_error
 		"%s/%s", sysfs_path, SYSFS_FORMAT(sysfs_port_err));
 
 	if (len < 0) {
-		FPGA_ERR("error concatenating strings (%s, %s)",
+		OPAE_ERR("error concatenating strings (%s, %s)",
 			sysfs_path, "port error");
 		return FPGA_EXCEPTION;
 	}
@@ -828,20 +828,20 @@ fpga_result sysfs_get_port_error_clear_path(fpga_handle handle, char *sysfs_port
 	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
 
 	if (sysfs_port_error_clear == NULL) {
-		FPGA_ERR("Invalid input parameters");
+		OPAE_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
 	result = get_port_sysfs(handle, sysfs_path);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to get port syfs path");
+		OPAE_ERR("Failed to get port syfs path");
 		return result;
 	}
 
 	int len = snprintf_s_ss(sysfs_port_error_clear, SYSFS_PATH_MAX,
 		"%s/%s", sysfs_path, SYSFS_FORMAT(sysfs_port_err_clear));
 	if (len < 0) {
-		FPGA_ERR("error concatenating strings (%s, %s)",
+		OPAE_ERR("error concatenating strings (%s, %s)",
 			sysfs_path, "port clear error");
 		return FPGA_EXCEPTION;
 	}
@@ -856,7 +856,7 @@ fpga_result sysfs_get_bmc_path(fpga_token token, char *sysfs_bmc)
 	ASSERT_NOT_NULL(_token);
 
 	if (sysfs_bmc == NULL) {
-		FPGA_ERR("Invalid input parameters");
+		OPAE_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -875,7 +875,7 @@ fpga_result sysfs_get_max10_path(fpga_token token, char *sysfs_max10)
 	ASSERT_NOT_NULL(_token);
 
 	if (sysfs_max10 == NULL) {
-		FPGA_ERR("Invalid input parameters");
+		OPAE_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -895,7 +895,7 @@ fpga_result sysfs_get_fme_pr_interface_id(const char *sysfs_sysfs_path, fpga_gui
 	int len = snprintf_s_ss(sysfs_path, SYSFS_PATH_MAX, "%s/%s",
 		sysfs_sysfs_path, SYSFS_FORMAT(sysfs_compat_id));
 	if (len < 0) {
-		FPGA_ERR("error concatenating strings (%s, %s)",
+		OPAE_ERR("error concatenating strings (%s, %s)",
 			sysfs_sysfs_path, sysfs_path);
 		return FPGA_EXCEPTION;
 	}
@@ -919,7 +919,7 @@ fpga_result sysfs_get_guid(fpga_token token, const char *sysfspath, fpga_guid gu
 	int len = snprintf_s_ss(sysfs_path, SYSFS_PATH_MAX, "%s/%s",
 		_token->sysfspath, sysfspath);
 	if (len < 0) {
-		FPGA_ERR("error concatenating strings (%s, %s)",
+		OPAE_ERR("error concatenating strings (%s, %s)",
 			_token->sysfspath, sysfs_path);
 		return FPGA_EXCEPTION;
 	}
@@ -965,7 +965,7 @@ fpga_result sysfs_get_fme_path(const char *sysfs_port, char *sysfs_fme)
 		if (snprintf_s_ss(sysfs_path, SYSFS_PATH_MAX, "%s/../%s",
 				  sysfs_port, fpga_globs[i])
 		    < 0) {
-			FPGA_ERR("Error formatting sysfs path");
+			OPAE_ERR("Error formatting sysfs path");
 			return FPGA_EXCEPTION;
 		}
 		result = opae_glob_path(sysfs_path);
@@ -978,7 +978,7 @@ fpga_result sysfs_get_fme_path(const char *sysfs_port, char *sysfs_fme)
 	}
 
 	if (!fpga_globs[i]) {
-		FPGA_ERR("Could not find path to port device/fpga*");
+		OPAE_ERR("Could not find path to port device/fpga*");
 		return FPGA_NOT_FOUND;
 	}
 
@@ -992,13 +992,13 @@ fpga_result sysfs_get_fme_path(const char *sysfs_port, char *sysfs_fme)
 			  SYSFS_FORMAT(sysfs_device_glob),
 			  SYSFS_FORMAT(sysfs_fme_glob))
 	    < 0) {
-		FPGA_ERR("Error formatting sysfs path");
+		OPAE_ERR("Error formatting sysfs path");
 		return FPGA_EXCEPTION;
 	}
 
 	// now concatenate the subdirectory to the "fpga*" node
 	if (strcat_s(sysfs_path, sizeof(sysfs_path), fpga_path)) {
-		FPGA_ERR("Error concatenating path to fpga node");
+		OPAE_ERR("Error concatenating path to fpga node");
 		return FPGA_EXCEPTION;
 	}
 
@@ -1027,18 +1027,18 @@ fpga_result sysfs_read_int(const char *path, int *i)
 	int b;
 
 	if (path == NULL) {
-		FPGA_ERR("Invalid input path");
+		OPAE_ERR("Invalid input path");
 		return FPGA_INVALID_PARAM;
 	}
 
 	fd = open(path, O_RDONLY);
 	if (fd < 0) {
-		FPGA_MSG("open(%s) failed", path);
+		OPAE_MSG("open(%s) failed", path);
 		return FPGA_NOT_FOUND;
 	}
 
 	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
-		FPGA_MSG("seek failed");
+		OPAE_MSG("seek failed");
 		goto out_close;
 	}
 
@@ -1047,12 +1047,12 @@ fpga_result sysfs_read_int(const char *path, int *i)
 	do {
 		res = read(fd, buf + b, sizeof(buf) - b);
 		if (res <= 0) {
-			FPGA_MSG("Read from %s failed", path);
+			OPAE_MSG("Read from %s failed", path);
 			goto out_close;
 		}
 		b += res;
 		if (((unsigned)b > sizeof(buf)) || (b <= 0)) {
-			FPGA_MSG("Unexpected size reading from %s", path);
+			OPAE_MSG("Unexpected size reading from %s", path);
 			goto out_close;
 		}
 	} while (buf[b - 1] != '\n' && buf[b - 1] != '\0'
@@ -1079,18 +1079,18 @@ fpga_result sysfs_read_u32(const char *path, uint32_t *u)
 	int b;
 
 	if (path == NULL) {
-		FPGA_ERR("Invalid input path");
+		OPAE_ERR("Invalid input path");
 		return FPGA_INVALID_PARAM;
 	}
 
 	fd = open(path, O_RDONLY);
 	if (fd < 0) {
-		FPGA_MSG("open(%s) failed", path);
+		OPAE_MSG("open(%s) failed", path);
 		return FPGA_NOT_FOUND;
 	}
 
 	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
-		FPGA_MSG("seek failed");
+		OPAE_MSG("seek failed");
 		goto out_close;
 	}
 
@@ -1099,12 +1099,12 @@ fpga_result sysfs_read_u32(const char *path, uint32_t *u)
 	do {
 		res = read(fd, buf + b, sizeof(buf) - b);
 		if (res <= 0) {
-			FPGA_MSG("Read from %s failed", path);
+			OPAE_MSG("Read from %s failed", path);
 			goto out_close;
 		}
 		b += res;
 		if (((unsigned)b > sizeof(buf)) || (b <= 0)) {
-			FPGA_MSG("Unexpected size reading from %s", path);
+			OPAE_MSG("Unexpected size reading from %s", path);
 			goto out_close;
 		}
 	} while (buf[b - 1] != '\n' && buf[b - 1] != '\0'
@@ -1135,23 +1135,23 @@ fpga_result sysfs_read_u32_pair(const char *path, uint32_t *u1, uint32_t *u2,
 	uint32_t x1, x2;
 
 	if (sep == '\0') {
-		FPGA_MSG("invalid separation character");
+		OPAE_MSG("invalid separation character");
 		return FPGA_INVALID_PARAM;
 	}
 
 	if (path == NULL) {
-		FPGA_ERR("Invalid input path");
+		OPAE_ERR("Invalid input path");
 		return FPGA_INVALID_PARAM;
 	}
 
 	fd = open(path, O_RDONLY);
 	if (fd < 0) {
-		FPGA_MSG("open(%s) failed", path);
+		OPAE_MSG("open(%s) failed", path);
 		return FPGA_NOT_FOUND;
 	}
 
 	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
-		FPGA_MSG("seek failed");
+		OPAE_MSG("seek failed");
 		goto out_close;
 	}
 
@@ -1160,12 +1160,12 @@ fpga_result sysfs_read_u32_pair(const char *path, uint32_t *u1, uint32_t *u2,
 	do {
 		res = read(fd, buf + b, sizeof(buf) - b);
 		if (res <= 0) {
-			FPGA_MSG("Read from %s failed", path);
+			OPAE_MSG("Read from %s failed", path);
 			goto out_close;
 		}
 		b += res;
 		if (((unsigned)b > sizeof(buf)) || (b <= 0)) {
-			FPGA_MSG("Unexpected size reading from %s", path);
+			OPAE_MSG("Unexpected size reading from %s", path);
 			goto out_close;
 		}
 	} while (buf[b - 1] != '\n' && buf[b - 1] != '\0'
@@ -1177,14 +1177,14 @@ fpga_result sysfs_read_u32_pair(const char *path, uint32_t *u1, uint32_t *u2,
 	// read first value
 	x1 = strtoul(buf, &c, 0);
 	if (*c != sep) {
-		FPGA_MSG("couldn't find separation character '%c' in '%s'", sep,
+		OPAE_MSG("couldn't find separation character '%c' in '%s'", sep,
 			 path);
 		goto out_close;
 	}
 	// read second value
 	x2 = strtoul(c + 1, &c, 0);
 	if (*c != '\0') {
-		FPGA_MSG("unexpected character '%c' in '%s'", *c, path);
+		OPAE_MSG("unexpected character '%c' in '%s'", *c, path);
 		goto out_close;
 	}
 
@@ -1207,30 +1207,30 @@ fpga_result sysfs_read_u64(const char *path, uint64_t *u)
 	int b = 0;
 
 	if (path == NULL) {
-		FPGA_ERR("Invalid input path");
+		OPAE_ERR("Invalid input path");
 		return FPGA_INVALID_PARAM;
 	}
 
 	fd = open(path, O_RDONLY);
 	if (fd < 0) {
-		FPGA_MSG("open(%s) failed", path);
+		OPAE_MSG("open(%s) failed", path);
 		return FPGA_NOT_FOUND;
 	}
 
 	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
-		FPGA_MSG("seek failed");
+		OPAE_MSG("seek failed");
 		goto out_close;
 	}
 
 	do {
 		res = read(fd, buf + b, sizeof(buf) - b);
 		if (res <= 0) {
-			FPGA_MSG("Read from %s failed", path);
+			OPAE_MSG("Read from %s failed", path);
 			goto out_close;
 		}
 		b += res;
 		if (((unsigned)b > sizeof(buf)) || (b <= 0)) {
-			FPGA_MSG("Unexpected size reading from %s", path);
+			OPAE_MSG("Unexpected size reading from %s", path);
 			goto out_close;
 		}
 	} while (buf[b - 1] != '\n' && buf[b - 1] != '\0'
@@ -1258,18 +1258,18 @@ fpga_result sysfs_write_u64(const char *path, uint64_t u)
 	int len;
 
 	if (path == NULL) {
-		FPGA_ERR("Invalid input path");
+		OPAE_ERR("Invalid input path");
 		return FPGA_INVALID_PARAM;
 	}
 
 	fd = open(path, O_WRONLY);
 	if (fd < 0) {
-		FPGA_MSG("open(%s) failed: %s", path, strerror(errno));
+		OPAE_MSG("open(%s) failed: %s", path, strerror(errno));
 		return FPGA_NOT_FOUND;
 	}
 
 	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
-		FPGA_MSG("seek: %s", strerror(errno));
+		OPAE_MSG("seek: %s", strerror(errno));
 		goto out_close;
 	}
 
@@ -1278,13 +1278,13 @@ fpga_result sysfs_write_u64(const char *path, uint64_t u)
 	do {
 		res = write(fd, buf + b, len - b);
 		if (res <= 0) {
-			FPGA_ERR("Failed to write");
+			OPAE_ERR("Failed to write");
 			goto out_close;
 		}
 		b += res;
 
 		if (b > len || b <= 0) {
-			FPGA_MSG("Unexpected size writing to %s", path);
+			OPAE_MSG("Unexpected size writing to %s", path);
 			goto out_close;
 		}
 
@@ -1309,18 +1309,18 @@ fpga_result sysfs_write_u64_decimal(const char *path, uint64_t u)
 	int len;
 
 	if (path == NULL) {
-		FPGA_ERR("Invalid input path");
+		OPAE_ERR("Invalid input path");
 		return FPGA_INVALID_PARAM;
 	}
 
 	fd = open(path, O_WRONLY);
 	if (fd < 0) {
-		FPGA_MSG("open(%s) failed: %s", path, strerror(errno));
+		OPAE_MSG("open(%s) failed: %s", path, strerror(errno));
 		return FPGA_NOT_FOUND;
 	}
 
 	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
-		FPGA_MSG("seek: %s", strerror(errno));
+		OPAE_MSG("seek: %s", strerror(errno));
 		goto out_close;
 	}
 
@@ -1329,13 +1329,13 @@ fpga_result sysfs_write_u64_decimal(const char *path, uint64_t u)
 	do {
 		res = write(fd, buf + b, len - b);
 		if (res <= 0) {
-			FPGA_ERR("Failed to write");
+			OPAE_ERR("Failed to write");
 			goto out_close;
 		}
 		b += res;
 
 		if (b > len || b <= 0) {
-			FPGA_MSG("Unexpected size writing to %s", path);
+			OPAE_MSG("Unexpected size writing to %s", path);
 			goto out_close;
 		}
 
@@ -1362,18 +1362,18 @@ fpga_result sysfs_read_guid(const char *path, fpga_guid guid)
 	unsigned octet;
 
 	if (path == NULL) {
-		FPGA_ERR("Invalid input path");
+		OPAE_ERR("Invalid input path");
 		return FPGA_INVALID_PARAM;
 	}
 
 	fd = open(path, O_RDONLY);
 	if (fd < 0) {
-		FPGA_MSG("open(%s) failed", path);
+		OPAE_MSG("open(%s) failed", path);
 		return FPGA_NOT_FOUND;
 	}
 
 	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
-		FPGA_MSG("seek failed");
+		OPAE_MSG("seek failed");
 		goto out_close;
 	}
 
@@ -1382,12 +1382,12 @@ fpga_result sysfs_read_guid(const char *path, fpga_guid guid)
 	do {
 		res = read(fd, buf + b, sizeof(buf) - b);
 		if (res <= 0) {
-			FPGA_MSG("Read from %s failed", path);
+			OPAE_MSG("Read from %s failed", path);
 			goto out_close;
 		}
 		b += res;
 		if (((unsigned)b > sizeof(buf)) || (b <= 0)) {
-			FPGA_MSG("Unexpected size reading from %s", path);
+			OPAE_MSG("Unexpected size reading from %s", path);
 			goto out_close;
 		}
 	} while (buf[b - 1] != '\n' && buf[b - 1] != '\0'
@@ -1421,12 +1421,12 @@ fpga_result check_sysfs_path_is_valid(const char *sysfs_path)
 	char path[SYSFS_PATH_MAX] = { 0 };
 	struct stat stats;
 	if (!sysfs_path) {
-		FPGA_ERR("Invalid input path");
+		OPAE_ERR("Invalid input path");
 		return FPGA_INVALID_PARAM;
 	}
 
 	if (strcpy_s(path, SYSFS_PATH_MAX, sysfs_path)) {
-		FPGA_ERR("Could not copy globbed path");
+		OPAE_ERR("Could not copy globbed path");
 		return FPGA_EXCEPTION;
 	}
 
@@ -1436,7 +1436,7 @@ fpga_result check_sysfs_path_is_valid(const char *sysfs_path)
 	}
 
 	if (stat(path, &stats) != 0) {
-		FPGA_ERR("stat failed: %s", strerror(errno));
+		OPAE_ERR("stat failed: %s", strerror(errno));
 		return FPGA_NOT_FOUND;
 	}
 
@@ -1457,7 +1457,7 @@ fpga_result sysfs_path_is_valid(const char *root, const char *attr_path)
 	int len = snprintf_s_ss(path, SYSFS_PATH_MAX, "%s/%s",
 		root, attr_path);
 	if (len < 0) {
-		FPGA_ERR("error concatenating strings (%s, %s)",
+		OPAE_ERR("error concatenating strings (%s, %s)",
 			root, attr_path);
 		return FPGA_EXCEPTION;
 	}
@@ -1468,7 +1468,7 @@ fpga_result sysfs_path_is_valid(const char *root, const char *attr_path)
 	}
 
 	if (stat(path, &stats) != 0) {
-		FPGA_ERR("stat failed: %s", strerror(errno));
+		OPAE_ERR("stat failed: %s", strerror(errno));
 		return FPGA_NOT_FOUND;
 	}
 
@@ -1578,23 +1578,23 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 	// to the VF that the port is on
 	const char *fpga_globs[] = {"device/virtfn*/fpga*", "device/fpga*", NULL};
 	if (sysfs_port == NULL) {
-		FPGA_ERR("Invalid output pointer");
+		OPAE_ERR("Invalid output pointer");
 		return FPGA_INVALID_PARAM;
 	}
 
 	if (_handle == NULL) {
-		FPGA_ERR("Invalid handle");
+		OPAE_ERR("Invalid handle");
 		return FPGA_INVALID_PARAM;
 	}
 
 	_token = (struct _fpga_token *)_handle->token;
 	if (_token == NULL) {
-		FPGA_ERR("Token not found");
+		OPAE_ERR("Token not found");
 		return FPGA_INVALID_PARAM;
 	}
 
 	if (!strstr(_token->sysfspath, FPGA_SYSFS_FME)) {
-		FPGA_ERR("Invalid sysfspath in token");
+		OPAE_ERR("Invalid sysfspath in token");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -1603,7 +1603,7 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 		if (snprintf_s_ss(sysfs_path, SYSFS_PATH_MAX, "%s/../%s",
 				  _token->sysfspath, fpga_globs[i])
 		    < 0) {
-			FPGA_ERR("Error formatting sysfs path");
+			OPAE_ERR("Error formatting sysfs path");
 			return FPGA_EXCEPTION;
 		}
 		result = opae_glob_path(sysfs_path);
@@ -1616,7 +1616,7 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 	}
 
 	if (!fpga_globs[i]) {
-		FPGA_ERR("Could not find path to port device/fpga");
+		OPAE_ERR("Could not find path to port device/fpga");
 		return FPGA_EXCEPTION;
 	}
 
@@ -1629,13 +1629,13 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 			  SYSFS_FORMAT(sysfs_device_glob),
 			  SYSFS_FORMAT(sysfs_port_glob))
 	    < 0) {
-		FPGA_ERR("Error formatting sysfs path");
+		OPAE_ERR("Error formatting sysfs path");
 		return FPGA_EXCEPTION;
 	}
 
 	// now concatenate the subdirectory to the "fpga*" node
 	if (strcat_s(sysfs_path, sizeof(sysfs_path), fpga_path)) {
-		FPGA_ERR("Error concatenating path to fpga node");
+		OPAE_ERR("Error concatenating path to fpga node");
 		return FPGA_EXCEPTION;
 	}
 
@@ -1686,11 +1686,11 @@ enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id)
 		break;
 
 		default:
-			FPGA_ERR("unknown device id: 0x%04x", device_id);
+			OPAE_ERR("unknown device id: 0x%04x", device_id);
 		}
 
 	} else {
-		FPGA_ERR("unknown vendor id: 0x%04x", vendor_id);
+		OPAE_ERR("unknown vendor id: 0x%04x", vendor_id);
 	}
 
 	return hw_type;
@@ -1708,23 +1708,23 @@ fpga_result get_fpga_hw_type(fpga_handle handle, enum fpga_hw_type *hw_type)
 	uint64_t device_id = 0;
 
 	if (_handle == NULL) {
-		FPGA_ERR("Invalid handle");
+		OPAE_ERR("Invalid handle");
 		return FPGA_INVALID_PARAM;
 	}
 
 	if (hw_type == NULL) {
-		FPGA_ERR("Invalid input Parameters");
+		OPAE_ERR("Invalid input Parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
 	if (pthread_mutex_lock(&_handle->lock)) {
-		FPGA_MSG("Failed to lock handle mutex");
+		OPAE_MSG("Failed to lock handle mutex");
 		return FPGA_EXCEPTION;
 	}
 
 	_token = (struct _fpga_token *)_handle->token;
 	if (_token == NULL) {
-		FPGA_ERR("Token not found");
+		OPAE_ERR("Token not found");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -1734,7 +1734,7 @@ fpga_result get_fpga_hw_type(fpga_handle handle, enum fpga_hw_type *hw_type)
 
 	result = sysfs_read_u64(sysfs_path, &vendor_id);
 	if (result != 0) {
-		FPGA_ERR("Failed to read vendor ID");
+		OPAE_ERR("Failed to read vendor ID");
 		goto out_unlock;
 	}
 
@@ -1743,7 +1743,7 @@ fpga_result get_fpga_hw_type(fpga_handle handle, enum fpga_hw_type *hw_type)
 
 	result = sysfs_read_u64(sysfs_path, &device_id);
 	if (result != 0) {
-		FPGA_ERR("Failed to read device ID");
+		OPAE_ERR("Failed to read device ID");
 		goto out_unlock;
 	}
 
@@ -1753,7 +1753,7 @@ fpga_result get_fpga_hw_type(fpga_handle handle, enum fpga_hw_type *hw_type)
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err)
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
 
@@ -1770,7 +1770,7 @@ fpga_result sysfs_sbdf_from_path(const char *sysfspath, int *s, int *b, int *d,
 
 	res = readlink(sysfspath, rlpath, sizeof(rlpath));
 	if (-1 == res) {
-		FPGA_MSG("Can't read link %s (no driver?)", sysfspath);
+		OPAE_MSG("Can't read link %s (no driver?)", sysfspath);
 		return FPGA_NO_DRIVER;
 	}
 
@@ -1778,19 +1778,19 @@ fpga_result sysfs_sbdf_from_path(const char *sysfspath, int *s, int *b, int *d,
 	rlpath[res] = 0;
 	p = strrchr(rlpath, '/');
 	if (!p) {
-		FPGA_MSG("Invalid link %s (no driver?)", rlpath);
+		OPAE_MSG("Invalid link %s (no driver?)", rlpath);
 		return FPGA_NO_DRIVER;
 	}
 	*p = 0;
 	p = strrchr(rlpath, '/');
 	if (!p) {
-		FPGA_MSG("Invalid link %s (no driver?)", rlpath);
+		OPAE_MSG("Invalid link %s (no driver?)", rlpath);
 		return FPGA_NO_DRIVER;
 	}
 	*p = 0;
 	p = strrchr(rlpath, '/');
 	if (!p) {
-		FPGA_MSG("Invalid link %s (no driver?)", rlpath);
+		OPAE_MSG("Invalid link %s (no driver?)", rlpath);
 		return FPGA_NO_DRIVER;
 	}
 	++p;
@@ -1877,14 +1877,14 @@ ssize_t eintr_write(int fd, void *buf, size_t count)
 fpga_result cat_token_sysfs_path(char *dest, fpga_token token, const char *path)
 {
 	if (!dest) {
-		FPGA_ERR("destination str is NULL");
+		OPAE_ERR("destination str is NULL");
 		return FPGA_EXCEPTION;
 	}
 	struct _fpga_token *_token = (struct _fpga_token *)token;
 	int len = snprintf_s_ss(dest, SYSFS_PATH_MAX, "%s/%s",
 				_token->sysfspath, path);
 	if (len < 0) {
-		FPGA_ERR("error concatenating strings (%s, %s)",
+		OPAE_ERR("error concatenating strings (%s, %s)",
 			 _token->sysfspath, path);
 		return FPGA_EXCEPTION;
 	}
@@ -1901,17 +1901,17 @@ fpga_result cat_sysfs_path(char *dest, const char *path)
 	case EOK:
 		return FPGA_OK;
 	case ESNULLP:
-		FPGA_ERR("NULL pointer in name");
+		OPAE_ERR("NULL pointer in name");
 		return FPGA_INVALID_PARAM;
 		break;
 	case ESZEROL:
-		FPGA_ERR("Zero length");
+		OPAE_ERR("Zero length");
 		break;
 	case ESLEMAX:
-		FPGA_ERR("Length exceeds max");
+		OPAE_ERR("Length exceeds max");
 		break;
 	case ESUNTERM:
-		FPGA_ERR("Destination not termindated");
+		OPAE_ERR("Destination not termindated");
 		break;
 	};
 
@@ -1930,11 +1930,11 @@ STATIC char *cstr_dup(const char *str)
 	size_t s = strlen(str);
 	char *p = malloc(s+1);
 	if (!p) {
-		FPGA_ERR("malloc failed");
+		OPAE_ERR("malloc failed");
 		return NULL;
 	}
 	if (strncpy_s(p, s+1, str, s)) {
-		FPGA_ERR("Error copying string");
+		OPAE_ERR("Error copying string");
 		free(p);
 		return NULL;
 	}
@@ -1948,17 +1948,17 @@ struct _fpga_object *alloc_fpga_object(const char *sysfspath, const char *name)
 	if (obj) {
 		pthread_mutexattr_t mattr;
 		if (pthread_mutexattr_init(&mattr)) {
-			FPGA_ERR("pthread_mutexattr_init() failed");
+			OPAE_ERR("pthread_mutexattr_init() failed");
 			goto out_err;
 		}
 		if (pthread_mutexattr_settype(&mattr,
 					      PTHREAD_MUTEX_RECURSIVE)) {
-			FPGA_ERR("pthread_mutexattr_settype() failed");
+			OPAE_ERR("pthread_mutexattr_settype() failed");
 			pthread_mutexattr_destroy(&mattr);
 			goto out_err;
 		}
 		if (pthread_mutex_init(&obj->lock, &mattr)) {
-			FPGA_ERR("pthread_mutex_init() failed");
+			OPAE_ERR("pthread_mutex_init() failed");
 			pthread_mutexattr_destroy(&mattr);
 			goto out_err;
 		}
@@ -1992,18 +1992,18 @@ fpga_result destroy_fpga_object(struct _fpga_object *obj)
 		res = destroy_fpga_object(
 			(struct _fpga_object *)obj->objects[--obj->size]);
 		if (res) {
-			FPGA_ERR("Error freeing subobject");
+			OPAE_ERR("Error freeing subobject");
 			return res;
 		}
 	}
 	FREE_IF(obj->objects);
 
 	if (pthread_mutex_unlock(&obj->lock)) {
-		FPGA_MSG("pthread_mutex_unlock() failed");
+		OPAE_MSG("pthread_mutex_unlock() failed");
 	}
 
 	if (pthread_mutex_destroy(&obj->lock)) {
-		FPGA_ERR("Error destroying mutex");
+		OPAE_ERR("Error destroying mutex");
 		res = FPGA_EXCEPTION;
 	}
 	free(obj);
@@ -2019,10 +2019,10 @@ fpga_result opae_glob_path(char *path)
 	int globres = glob(path, 0, NULL, &pglob);
 	if (!globres) {
 		if (pglob.gl_pathc > 1) {
-			FPGA_MSG("Ambiguous object key - using first one");
+			OPAE_MSG("Ambiguous object key - using first one");
 		}
 		if (strcpy_s(path, FILENAME_MAX, pglob.gl_pathv[0])) {
-			FPGA_ERR("Could not copy globbed path");
+			OPAE_ERR("Could not copy globbed path");
 			res = FPGA_EXCEPTION;
 		}
 		globfree(&pglob);
@@ -2068,7 +2068,7 @@ fpga_result opae_glob_paths(const char *path, size_t found_max, char *found[],
 					free(found[--i]);
 					found[i] = NULL;
 				}
-				FPGA_ERR("Could not copy globbed path");
+				OPAE_ERR("Could not copy globbed path");
 				res = FPGA_EXCEPTION;
 				goto out_free;
 			}
@@ -2103,7 +2103,7 @@ fpga_result sync_object(fpga_object obj)
 	_obj = (struct _fpga_object *)obj;
 	fd = open(_obj->path, _obj->perm);
 	if (fd < 0) {
-		FPGA_ERR("Error opening %s: %s", _obj->path, strerror(errno));
+		OPAE_ERR("Error opening %s: %s", _obj->path, strerror(errno));
 		return FPGA_EXCEPTION;
 	}
 	bytes_read = eintr_read(fd, _obj->buffer, _obj->max_size);
@@ -2138,7 +2138,7 @@ fpga_result make_sysfs_group(char *sysfspath, const char *name,
 
 	n = scandir(sysfspath, &namelist, sysfs_filter, alphasort);
 	if (n < 0) {
-		FPGA_ERR("Error calling scandir: %s", strerror(errno));
+		OPAE_ERR("Error calling scandir: %s", strerror(errno));
 		switch (errno) {
 		case ENOMEM:
 			return FPGA_NO_MEMORY;
@@ -2149,7 +2149,7 @@ fpga_result make_sysfs_group(char *sysfspath, const char *name,
 	}
 
 	if (n == 0) {
-		FPGA_ERR("Group is empty");
+		OPAE_ERR("Group is empty");
 		return FPGA_EXCEPTION;
 	}
 
@@ -2199,7 +2199,7 @@ fpga_result make_sysfs_group(char *sysfspath, const char *name,
 
 out_free_group:
 	if (destroy_fpga_object(group)) {
-		FPGA_ERR("Error destroying object");
+		OPAE_ERR("Error destroying object");
 	}
 
 out_free_namelist:
@@ -2220,13 +2220,13 @@ fpga_result make_sysfs_array(char *sysfspath, const char *name,
 	struct _fpga_object *array = alloc_fpga_object(sysfspath, name);
 	char *oname = NULL;
 	if (!array) {
-		FPGA_ERR(
+		OPAE_ERR(
 			"Error allocating memory for container of fpga_objects");
 		return FPGA_NO_MEMORY;
 	}
 	array->objects = calloc(num_objects, sizeof(fpga_object));
 	if (!array->objects) {
-		FPGA_ERR("Error allocating memory for array of fpga_objects");
+		OPAE_ERR("Error allocating memory for array of fpga_objects");
 		destroy_fpga_object(array);
 		return FPGA_NO_MEMORY;
 	}
@@ -2237,7 +2237,7 @@ fpga_result make_sysfs_array(char *sysfspath, const char *name,
 	for (i = 0; i < num_objects; ++i) {
 		oname = strrchr(objects[i], '/');
 		if (!oname) {
-			FPGA_ERR("Error with sysfs path: %s", objects[i]);
+			OPAE_ERR("Error with sysfs path: %s", objects[i]);
 			res = FPGA_EXCEPTION;
 			goto out_err;
 		}
@@ -2251,7 +2251,7 @@ fpga_result make_sysfs_array(char *sysfspath, const char *name,
 	return res;
 out_err:
 	if (destroy_fpga_object(array)) {
-		FPGA_ERR("Error destroying object");
+		OPAE_ERR("Error destroying object");
 	}
 	return res;
 }
@@ -2278,7 +2278,7 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 		if (found == 1) {
 			if (strncpy_s(sysfspath, SYSFS_PATH_MAX,
 				      object_paths[0], PATH_MAX)) {
-				FPGA_ERR("error copying glob result");
+				OPAE_ERR("error copying glob result");
 				res = FPGA_EXCEPTION;
 				goto out_free;
 			}
@@ -2298,7 +2298,7 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	}
 	statres = stat(sysfspath, &objstat);
 	if (statres < 0) {
-		FPGA_MSG("Error accessing %s: %s", sysfspath, strerror(errno));
+		OPAE_MSG("Error accessing %s: %s", sysfspath, strerror(errno));
 		switch (errno) {
 		case ENOENT:
 			res = FPGA_NOT_FOUND;

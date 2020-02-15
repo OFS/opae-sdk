@@ -396,7 +396,7 @@ STATIC fpga_result daemon_register_event(fpga_handle handle,
 		if (connect(_handle->fdfpgad, (struct sockaddr *)&addr,
 			    sizeof(addr))
 		    < 0) {
-			FPGA_DBG("connect: %s", strerror(errno));
+			OPAE_DBG("connect: %s", strerror(errno));
 			result = FPGA_NO_DAEMON;
 			goto out_close_conn;
 		}

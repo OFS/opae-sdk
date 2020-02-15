@@ -65,7 +65,7 @@ fpga_result xfpga_fpgaGetMetricsThresholdInfo(fpga_handle handle,
 	if (handle == NULL ||
 		(metric_thresholds == NULL &&
 		num_thresholds == NULL)) {
-		FPGA_ERR("Invalid input parameters");
+		OPAE_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -73,32 +73,32 @@ fpga_result xfpga_fpgaGetMetricsThresholdInfo(fpga_handle handle,
 
 	_token = (struct _fpga_token *)_handle->token;
 	if (_token == NULL) {
-		FPGA_ERR("Invalid token within handle");
+		OPAE_ERR("Invalid token within handle");
 		return FPGA_INVALID_PARAM;
 	}
 
 	result = get_fpga_object_type(handle, &objtype);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to object type");
+		OPAE_ERR("Failed to object type");
 		return result;
 	}
 
 	if (objtype != FPGA_DEVICE) {
-		FPGA_ERR("FPGA object type is not FPGA DEVICE ");
+		OPAE_ERR("FPGA object type is not FPGA DEVICE ");
 		return result;
 	}
 
 	// get fpga hw type.
 	result = get_fpga_hw_type(_handle, &hw_type);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to discover hardware type.");
+		OPAE_ERR("Failed to discover hardware type.");
 		return result;
 	}
 
 	switch (hw_type) {
 	// MCP
 	case FPGA_HW_MCP: {
-		FPGA_ERR("Not Supported MCP thresholds.");
+		OPAE_ERR("Not Supported MCP thresholds.");
 		result = FPGA_EXCEPTION;
 	}
 	break;
@@ -109,7 +109,7 @@ fpga_result xfpga_fpgaGetMetricsThresholdInfo(fpga_handle handle,
 		result = get_bmc_threshold_info(handle,
 			metric_thresholds, num_thresholds);
 		if (result != FPGA_OK) {
-			FPGA_ERR("Failed to get bmc thresholds.");
+			OPAE_ERR("Failed to get bmc thresholds.");
 			return result;
 		}
 
@@ -123,7 +123,7 @@ fpga_result xfpga_fpgaGetMetricsThresholdInfo(fpga_handle handle,
 		result = get_max10_threshold_info(handle,
 			metric_thresholds, num_thresholds);
 		if (result != FPGA_OK) {
-			FPGA_ERR("Failed to get max10 thresholds.");
+			OPAE_ERR("Failed to get max10 thresholds.");
 			return result;
 		}
 
@@ -131,7 +131,7 @@ fpga_result xfpga_fpgaGetMetricsThresholdInfo(fpga_handle handle,
 	break;
 
 	default:
-		FPGA_ERR("Unknown Device ID.");
+		OPAE_ERR("Unknown Device ID.");
 		result = FPGA_EXCEPTION;
 	}
 
@@ -155,7 +155,7 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 
 	if (handle == NULL ||
 		num_thresholds == NULL) {
-		FPGA_ERR("Invalid input parameters");
+		OPAE_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -165,7 +165,7 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 	if (_handle->bmc_handle == NULL)
 		_handle->bmc_handle = dlopen(BMC_LIB, RTLD_LAZY | RTLD_LOCAL);
 	if (!_handle->bmc_handle) {
-		FPGA_ERR("Failed to load BMC module %s", dlerror());
+		OPAE_ERR("Failed to load BMC module %s", dlerror());
 		pthread_mutex_unlock(&_handle->lock);
 		return FPGA_EXCEPTION;
 	}
@@ -173,13 +173,13 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 
 	result = xfpga_bmcLoadSDRs(_handle, &records, &num_sensors);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to load BMC SDR.");
+		OPAE_ERR("Failed to load BMC SDR.");
 		return result;
 	}
 
 	result = xfpga_bmcReadSensorValues(_handle, records, &values, &num_values);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to read BMC sensor values.");
+		OPAE_ERR("Failed to read BMC sensor values.");
 		goto destroy_sdr;
 	}
 
@@ -197,14 +197,14 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 			// Sensor Name
 			result = xfpga_bmcGetSDRDetails(_handle, values, x, &details);
 			if (result != FPGA_OK) {
-				FPGA_MSG("Failed to read sensor readings.");
+				OPAE_MSG("Failed to read sensor readings.");
 				continue;
 			}
 
 			e = strncpy_s(metric_thresholds[x].metric_name, sizeof(metric_thresholds[x].metric_name),
 				details.name, SYSFS_PATH_MAX);
 			if (EOK != e) {
-				FPGA_ERR("Failed to copy threshold name");
+				OPAE_ERR("Failed to copy threshold name");
 				result = FPGA_EXCEPTION;
 				goto destroy_values;
 			}
@@ -216,7 +216,7 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 					sizeof(metric_thresholds[x].upper_nr_threshold.threshold_name),
 					UPPER_NR_THRESHOLD, SYSFS_PATH_MAX);
 				if (EOK != e) {
-					FPGA_ERR("Failed to copy threshold name");
+					OPAE_ERR("Failed to copy threshold name");
 					result = FPGA_EXCEPTION;
 					goto destroy_values;
 				}
@@ -233,7 +233,7 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 					sizeof(metric_thresholds[x].upper_c_threshold.threshold_name),
 					UPPER_C_THRESHOLD, SYSFS_PATH_MAX);
 				if (EOK != e) {
-					FPGA_ERR("Failed to copy threshold name");
+					OPAE_ERR("Failed to copy threshold name");
 					result = FPGA_EXCEPTION;
 					goto destroy_values;
 				}
@@ -249,7 +249,7 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 					sizeof(metric_thresholds[x].upper_nc_threshold.threshold_name),
 					UPPER_NC_THRESHOLD, SYSFS_PATH_MAX);
 				if (EOK != e) {
-					FPGA_ERR("Failed to copy threshold name");
+					OPAE_ERR("Failed to copy threshold name");
 					result = FPGA_EXCEPTION;
 					goto destroy_values;
 				}
@@ -265,7 +265,7 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 					sizeof(metric_thresholds[x].lower_nr_threshold.threshold_name),
 					LOWER_NR_THRESHOLD, SYSFS_PATH_MAX);
 				if (EOK != e) {
-					FPGA_ERR("Failed to copy threshold name");
+					OPAE_ERR("Failed to copy threshold name");
 					result = FPGA_EXCEPTION;
 					goto destroy_values;
 				}
@@ -281,7 +281,7 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 					sizeof(metric_thresholds[x].lower_c_threshold.threshold_name),
 					LOWER_C_THRESHOLD, SYSFS_PATH_MAX);
 				if (EOK != e) {
-					FPGA_ERR("Failed to copy threshold name");
+					OPAE_ERR("Failed to copy threshold name");
 					result = FPGA_EXCEPTION;
 					goto destroy_values;
 				}
@@ -296,7 +296,7 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 					sizeof(metric_thresholds[x].lower_nc_threshold.threshold_name),
 					LOWER_NC_THRESHOLD, SYSFS_PATH_MAX);
 				if (EOK != e) {
-					FPGA_ERR("Failed to copy threshold name");
+					OPAE_ERR("Failed to copy threshold name");
 					result = FPGA_EXCEPTION;
 					goto destroy_values;
 				}
@@ -313,7 +313,7 @@ destroy_values:
 
 	result = xfpga_bmcDestroySensorValues(_handle, &values);
 	if (result != FPGA_OK) {
-		FPGA_MSG("Failed to Destroy Sensor value.");
+		OPAE_MSG("Failed to Destroy Sensor value.");
 	}
 
 destroy_sdr:
@@ -321,7 +321,7 @@ destroy_sdr:
 
 	result = xfpga_bmcDestroySDRs(_handle, &records);
 	if (result != FPGA_OK) {
-		FPGA_ERR("Failed to Destroy SDR.");
+		OPAE_ERR("Failed to Destroy SDR.");
 	}
 
 	resval = (result != FPGA_OK) ? result : resval;
@@ -346,7 +346,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 
 	if (handle == NULL ||
 		num_thresholds == NULL) {
-		FPGA_ERR("Invalid input parameters");
+		OPAE_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -354,7 +354,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 
 	_token = (struct _fpga_token *)_handle->token;
 	if (_token == NULL) {
-		FPGA_ERR("Invalid token within handle");
+		OPAE_ERR("Invalid token within handle");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -362,7 +362,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", _token->sysfspath, MAX10_SYSFS_PATH);
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if ((gres) || (1 != pglob.gl_pathc)) {
-		FPGA_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
+		OPAE_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
 		globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
@@ -373,7 +373,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", _token->sysfspath, MAX10_SENSOR_SYSFS_PATH);
 	gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
-		FPGA_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
+		OPAE_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
 		globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
@@ -401,7 +401,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		e = strncpy_s(metric_thresholds[i].metric_name, sizeof(metric_thresholds[i].metric_name),
 			(char *)tmp, strnlen_s((char *)tmp, SYSFS_PATH_MAX));
 		if (EOK != e) {
-			FPGA_ERR("Failed to copy threshold name");
+			OPAE_ERR("Failed to copy threshold name");
 			result = FPGA_EXCEPTION;
 			goto out;
 		}
@@ -416,7 +416,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 			sizeof(metric_thresholds[i].upper_c_threshold.threshold_name),
 			UPPER_C_THRESHOLD, SYSFS_PATH_MAX);
 		if (EOK != e) {
-			FPGA_ERR("Failed to copy threshold name");
+			OPAE_ERR("Failed to copy threshold name");
 			result = FPGA_EXCEPTION;
 			goto out;
 		}
@@ -433,7 +433,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 			sizeof(metric_thresholds[i].upper_nc_threshold.threshold_name),
 			UPPER_NC_THRESHOLD, SYSFS_PATH_MAX);
 		if (EOK != e) {
-			FPGA_ERR("Failed to copy threshold name");
+			OPAE_ERR("Failed to copy threshold name");
 			result = FPGA_EXCEPTION;
 			goto out;
 		}
@@ -450,7 +450,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 			sizeof(metric_thresholds[i].lower_c_threshold.threshold_name),
 			LOWER_C_THRESHOLD, SYSFS_PATH_MAX);
 		if (EOK != e) {
-			FPGA_ERR("Failed to copy threshold name");
+			OPAE_ERR("Failed to copy threshold name");
 			result = FPGA_EXCEPTION;
 			goto out;
 		}
@@ -467,7 +467,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 			sizeof(metric_thresholds[i].lower_nc_threshold.threshold_name),
 			LOWER_NC_THRESHOLD, SYSFS_PATH_MAX);
 		if (EOK != e) {
-			FPGA_ERR("Failed to copy threshold name");
+			OPAE_ERR("Failed to copy threshold name");
 			result = FPGA_EXCEPTION;
 			goto out;
 		}
@@ -484,7 +484,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 			sizeof(metric_thresholds[i].hysteresis.threshold_name),
 			SYSFS_HYSTERESIS, SYSFS_PATH_MAX);
 		if (EOK != e) {
-			FPGA_ERR("Failed to copy threshold name");
+			OPAE_ERR("Failed to copy threshold name");
 			result = FPGA_EXCEPTION;
 			goto out;
 		}

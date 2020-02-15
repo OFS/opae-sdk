@@ -95,17 +95,17 @@ STATIC fpga_result buffer_allocate(void **addr, uint64_t len, int flags)
 	if (addr_local == MAP_FAILED) {
 		if (errno == ENOMEM) {
 			if (len > 2 * MB)
-				FPGA_MSG("Could not allocate buffer (no free 1 "
+				OPAE_MSG("Could not allocate buffer (no free 1 "
 					 "GiB huge pages)");
 			if (len > 4 * KB)
-				FPGA_MSG("Could not allocate buffer (no free 2 "
+				OPAE_MSG("Could not allocate buffer (no free 2 "
 					 "MiB huge pages)");
 			else
-				FPGA_MSG("Could not allocate buffer (out of "
+				OPAE_MSG("Could not allocate buffer (out of "
 					 "memory)");
 			return FPGA_NO_MEMORY;
 		}
-		FPGA_MSG("FPGA buffer mmap failed: %s", strerror(errno));
+		OPAE_MSG("FPGA buffer mmap failed: %s", strerror(errno));
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -138,7 +138,7 @@ STATIC fpga_result buffer_release(void *addr, uint64_t len)
 		len = 2 * MB;
 
 	if (munmap(addr, len)) {
-		FPGA_MSG("FPGA buffer munmap failed: %s",
+		OPAE_MSG("FPGA buffer munmap failed: %s",
 			 strerror(errno));
 		return FPGA_INVALID_PARAM;
 	}
@@ -170,14 +170,14 @@ fpga_result __XFPGA_API__ xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t l
 
 	/* Assure wsid is a valid pointer */
 	if (!wsid) {
-		FPGA_MSG("WSID is NULL");
+		OPAE_MSG("WSID is NULL");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
 
 	if (flags & (~(FPGA_BUF_PREALLOCATED | FPGA_BUF_QUIET |
 		       FPGA_BUF_READ_ONLY))) {
-		FPGA_MSG("Unrecognized flags");
+		OPAE_MSG("Unrecognized flags");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -195,18 +195,18 @@ fpga_result __XFPGA_API__ xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t l
 
 		/* buffer is already allocated, check addresses */
 		if (!buf_addr) {
-			FPGA_MSG("No preallocated buffer address given");
+			OPAE_MSG("No preallocated buffer address given");
 			result = FPGA_INVALID_PARAM;
 			goto out_unlock;
 		}
 		if (!(*buf_addr)) {
-			FPGA_MSG("Preallocated buffer address is NULL");
+			OPAE_MSG("Preallocated buffer address is NULL");
 			result = FPGA_INVALID_PARAM;
 			goto out_unlock;
 		}
 		/* check length */
 		if (!len || (len & (pg_size - 1))) {
-			FPGA_MSG("Preallocated buffer size is not a non-zero multiple of page size");
+			OPAE_MSG("Preallocated buffer size is not a non-zero multiple of page size");
 			result = FPGA_INVALID_PARAM;
 			goto out_unlock;
 		}
@@ -214,13 +214,13 @@ fpga_result __XFPGA_API__ xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t l
 	} else {
 
 		if (!buf_addr) {
-			FPGA_MSG("buffer address is NULL");
+			OPAE_MSG("buffer address is NULL");
 			result = FPGA_INVALID_PARAM;
 			goto out_unlock;
 		}
 
 		if (!len) {
-			FPGA_MSG("buffer length is zero");
+			OPAE_MSG("buffer length is zero");
 			result = FPGA_INVALID_PARAM;
 			goto out_unlock;
 		}
@@ -242,7 +242,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t l
 		}
 
 		if (!quiet) {
-			FPGA_MSG("FPGA_PORT_DMA_MAP ioctl failed: %s",
+			OPAE_MSG("FPGA_PORT_DMA_MAP ioctl failed: %s",
 				 strerror(errno));
 		}
 
@@ -261,7 +261,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t l
 			buffer_release(addr, len);
 		}
 
-		FPGA_MSG("Failed to add workspace id %lu", *wsid);
+		OPAE_MSG("Failed to add workspace id %lu", *wsid);
 		result = FPGA_NO_MEMORY;
 		goto out_unlock;
 	}
@@ -277,7 +277,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaPrepareBuffer(fpga_handle handle, uint64_t l
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	}
 	return result;
 }
@@ -300,7 +300,7 @@ xfpga_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 	/* Fetch the buffer physical address and length */
 	struct wsid_map *wm = wsid_find(_handle->wsid_root, wsid);
 	if (!wm) {
-		FPGA_MSG("WSID not found");
+		OPAE_MSG("WSID not found");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -312,7 +312,7 @@ xfpga_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 	bool preallocated = (wm->flags & FPGA_BUF_PREALLOCATED);
 
 	if (opae_port_unmap(_handle->fddev, iova)) {
-		FPGA_MSG("FPGA_PORT_DMA_UNMAP ioctl failed: %s",
+		OPAE_MSG("FPGA_PORT_DMA_UNMAP ioctl failed: %s",
 			 strerror(errno));
 		result = FPGA_INVALID_PARAM;
 		goto ws_free;
@@ -324,7 +324,7 @@ xfpga_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 	if (!preallocated) {
 		result = buffer_release(buf_addr, len);
 		if (result != FPGA_OK) {
-			FPGA_MSG("Buffer release failed");
+			OPAE_MSG("Buffer release failed");
 			goto ws_free;
 		}
 	}
@@ -339,7 +339,7 @@ ws_free:
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	}
 	return result;
 }
@@ -358,7 +358,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetIOAddress(fpga_handle handle, uint64_t ws
 
 	wm = wsid_find(_handle->wsid_root, wsid);
 	if (!wm) {
-		FPGA_MSG("WSID not found");
+		OPAE_MSG("WSID not found");
 		result = FPGA_NOT_FOUND;
 	} else {
 		*ioaddr = wm->phys;
@@ -366,7 +366,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetIOAddress(fpga_handle handle, uint64_t ws
 
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err) {
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	}
 	return result;
 }

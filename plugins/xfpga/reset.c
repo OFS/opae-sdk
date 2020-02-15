@@ -46,7 +46,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaReset(fpga_handle handle)
 		return result;
 
 	if (_handle->fddev < 0) {
-		FPGA_ERR("Invalid handle file descriptor");
+		OPAE_ERR("Invalid handle file descriptor");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
 	}
@@ -54,12 +54,12 @@ fpga_result __XFPGA_API__ xfpga_fpgaReset(fpga_handle handle)
 	// reset ioctl
 	result = opae_fme_port_reset(_handle->fddev);
 	if (result != 0) {
-		FPGA_MSG("Reset failed");
+		OPAE_MSG("Reset failed");
 	}
 
 out_unlock:
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err)
-		FPGA_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
+		OPAE_ERR("pthread_mutex_unlock() failed: %s", strerror(err));
 	return result;
 }
