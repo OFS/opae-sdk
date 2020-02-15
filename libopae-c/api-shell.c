@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -131,19 +131,20 @@ opae_allocate_wrapped_object(fpga_object opae_object,
 	return wobj;
 }
 
-fpga_result fpgaInitialize(const char *config_file)
+fpga_result __OPAE_API__ fpgaInitialize(const char *config_file)
 {
 	return opae_plugin_mgr_initialize(config_file) ? FPGA_EXCEPTION
 						       : FPGA_OK;
 }
 
-fpga_result fpgaFinalize(void)
+fpga_result __OPAE_API__ fpgaFinalize(void)
 {
 	return opae_plugin_mgr_finalize_all() ? FPGA_EXCEPTION
 					      : FPGA_OK;
 }
 
-fpga_result fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
+fpga_result __OPAE_API__ fpgaOpen(fpga_token token, fpga_handle *handle,
+				  int flags)
 {
 	fpga_result res;
 	fpga_result cres = FPGA_OK;
@@ -179,7 +180,7 @@ fpga_result fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 	return res != FPGA_OK ? res : cres;
 }
 
-fpga_result fpgaClose(fpga_handle handle)
+fpga_result __OPAE_API__ fpgaClose(fpga_handle handle)
 {
 	fpga_result res;
 	opae_wrapped_handle *wrapped_handle =
@@ -197,7 +198,7 @@ fpga_result fpgaClose(fpga_handle handle)
 	return res;
 }
 
-fpga_result fpgaReset(fpga_handle handle)
+fpga_result __OPAE_API__ fpgaReset(fpga_handle handle)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
@@ -210,7 +211,7 @@ fpga_result fpgaReset(fpga_handle handle)
 		wrapped_handle->opae_handle);
 }
 
-fpga_result fpgaGetPropertiesFromHandle(fpga_handle handle,
+fpga_result __OPAE_API__ fpgaGetPropertiesFromHandle(fpga_handle handle,
 					fpga_properties *prop)
 {
 	fpga_result res;
@@ -256,7 +257,8 @@ fpga_result fpgaGetPropertiesFromHandle(fpga_handle handle,
 	return res;
 }
 
-fpga_result fpgaGetProperties(fpga_token token, fpga_properties *prop)
+fpga_result __OPAE_API__ fpgaGetProperties(fpga_token token,
+					   fpga_properties *prop)
 {
 	fpga_result res = FPGA_OK;
 	opae_wrapped_token *wrapped_token = opae_validate_wrapped_token(token);
@@ -318,7 +320,8 @@ fpga_result fpgaGetProperties(fpga_token token, fpga_properties *prop)
 	return res;
 }
 
-fpga_result fpgaUpdateProperties(fpga_token token, fpga_properties prop)
+fpga_result __OPAE_API__ fpgaUpdateProperties(fpga_token token,
+					      fpga_properties prop)
 {
 	fpga_result res;
 	struct _fpga_properties *p;
@@ -386,8 +389,8 @@ fpga_result fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	return res;
 }
 
-fpga_result fpgaWriteMMIO64(fpga_handle handle, uint32_t mmio_num,
-			    uint64_t offset, uint64_t value)
+fpga_result __OPAE_API__ fpgaWriteMMIO64(fpga_handle handle, uint32_t mmio_num,
+					 uint64_t offset, uint64_t value)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
@@ -400,7 +403,7 @@ fpga_result fpgaWriteMMIO64(fpga_handle handle, uint32_t mmio_num,
 		wrapped_handle->opae_handle, mmio_num, offset, value);
 }
 
-fpga_result fpgaReadMMIO64(fpga_handle handle, uint32_t mmio_num,
+fpga_result __OPAE_API__ fpgaReadMMIO64(fpga_handle handle, uint32_t mmio_num,
 			   uint64_t offset, uint64_t *value)
 {
 	opae_wrapped_handle *wrapped_handle =
@@ -414,7 +417,7 @@ fpga_result fpgaReadMMIO64(fpga_handle handle, uint32_t mmio_num,
 		wrapped_handle->opae_handle, mmio_num, offset, value);
 }
 
-fpga_result fpgaWriteMMIO32(fpga_handle handle, uint32_t mmio_num,
+fpga_result __OPAE_API__ fpgaWriteMMIO32(fpga_handle handle, uint32_t mmio_num,
 			    uint64_t offset, uint32_t value)
 {
 	opae_wrapped_handle *wrapped_handle =
@@ -428,7 +431,7 @@ fpga_result fpgaWriteMMIO32(fpga_handle handle, uint32_t mmio_num,
 		wrapped_handle->opae_handle, mmio_num, offset, value);
 }
 
-fpga_result fpgaReadMMIO32(fpga_handle handle, uint32_t mmio_num,
+fpga_result __OPAE_API__ fpgaReadMMIO32(fpga_handle handle, uint32_t mmio_num,
 			   uint64_t offset, uint32_t *value)
 {
 	opae_wrapped_handle *wrapped_handle =
@@ -442,8 +445,8 @@ fpga_result fpgaReadMMIO32(fpga_handle handle, uint32_t mmio_num,
 		wrapped_handle->opae_handle, mmio_num, offset, value);
 }
 
-fpga_result fpgaWriteMMIO512(fpga_handle handle, uint32_t mmio_num,
-			    uint64_t offset, void *value)
+fpga_result __OPAE_API__ fpgaWriteMMIO512(fpga_handle handle,
+	uint32_t mmio_num, uint64_t offset, void *value)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
@@ -456,7 +459,7 @@ fpga_result fpgaWriteMMIO512(fpga_handle handle, uint32_t mmio_num,
 		wrapped_handle->opae_handle, mmio_num, offset, value);
 }
 
-fpga_result fpgaMapMMIO(fpga_handle handle, uint32_t mmio_num,
+fpga_result __OPAE_API__ fpgaMapMMIO(fpga_handle handle, uint32_t mmio_num,
 			uint64_t **mmio_ptr)
 {
 	opae_wrapped_handle *wrapped_handle =
@@ -470,7 +473,7 @@ fpga_result fpgaMapMMIO(fpga_handle handle, uint32_t mmio_num,
 		wrapped_handle->opae_handle, mmio_num, mmio_ptr);
 }
 
-fpga_result fpgaUnmapMMIO(fpga_handle handle, uint32_t mmio_num)
+fpga_result __OPAE_API__ fpgaUnmapMMIO(fpga_handle handle, uint32_t mmio_num)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
@@ -561,9 +564,9 @@ static int opae_enumerate(const opae_api_adapter_table *adapter, void *context)
 		       : OPAE_ENUM_CONTINUE;
 }
 
-fpga_result fpgaEnumerate(const fpga_properties *filters, uint32_t num_filters,
-			  fpga_token *tokens, uint32_t max_tokens,
-			  uint32_t *num_matches)
+fpga_result __OPAE_API__ fpgaEnumerate(const fpga_properties *filters,
+	uint32_t num_filters, fpga_token *tokens, uint32_t max_tokens,
+	uint32_t *num_matches)
 {
 	fpga_result res = FPGA_EXCEPTION;
 	fpga_token *adapter_tokens = NULL;
@@ -699,7 +702,7 @@ out_free_tokens:
 	return res;
 }
 
-fpga_result fpgaCloneToken(fpga_token src, fpga_token *dst)
+fpga_result __OPAE_API__ fpgaCloneToken(fpga_token src, fpga_token *dst)
 {
 	fpga_result res;
 	fpga_result dres = FPGA_OK;
@@ -736,7 +739,7 @@ fpga_result fpgaCloneToken(fpga_token src, fpga_token *dst)
 	return res != FPGA_OK ? res : dres;
 }
 
-fpga_result fpgaDestroyToken(fpga_token *token)
+fpga_result __OPAE_API__ fpgaDestroyToken(fpga_token *token)
 {
 	fpga_result res;
 	opae_wrapped_token *wrapped_token;
@@ -757,7 +760,7 @@ fpga_result fpgaDestroyToken(fpga_token *token)
 	return res;
 }
 
-fpga_result fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
+fpga_result __OPAE_API__ fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
@@ -771,7 +774,8 @@ fpga_result fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 		wrapped_handle->opae_handle, value);
 }
 
-fpga_result fpgaSetUmsgAttributes(fpga_handle handle, uint64_t value)
+fpga_result __OPAE_API__ fpgaSetUmsgAttributes(fpga_handle handle,
+					       uint64_t value)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
@@ -785,7 +789,7 @@ fpga_result fpgaSetUmsgAttributes(fpga_handle handle, uint64_t value)
 		wrapped_handle->opae_handle, value);
 }
 
-fpga_result fpgaTriggerUmsg(fpga_handle handle, uint64_t value)
+fpga_result __OPAE_API__ fpgaTriggerUmsg(fpga_handle handle, uint64_t value)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
@@ -798,7 +802,7 @@ fpga_result fpgaTriggerUmsg(fpga_handle handle, uint64_t value)
 		wrapped_handle->opae_handle, value);
 }
 
-fpga_result fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
+fpga_result __OPAE_API__ fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
@@ -812,8 +816,8 @@ fpga_result fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 		wrapped_handle->opae_handle, umsg_ptr);
 }
 
-fpga_result fpgaPrepareBuffer(fpga_handle handle, uint64_t len, void **buf_addr,
-			      uint64_t *wsid, int flags)
+fpga_result __OPAE_API__ fpgaPrepareBuffer(fpga_handle handle,
+	uint64_t len, void **buf_addr, uint64_t *wsid, int flags)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
@@ -835,7 +839,7 @@ fpga_result fpgaPrepareBuffer(fpga_handle handle, uint64_t len, void **buf_addr,
 		wrapped_handle->opae_handle, len, buf_addr, wsid, flags);
 }
 
-fpga_result fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
+fpga_result __OPAE_API__ fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
@@ -848,8 +852,8 @@ fpga_result fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 		wrapped_handle->opae_handle, wsid);
 }
 
-fpga_result fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
-			     uint64_t *ioaddr)
+fpga_result __OPAE_API__ fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
+					  uint64_t *ioaddr)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
@@ -863,7 +867,7 @@ fpga_result fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 		wrapped_handle->opae_handle, wsid, ioaddr);
 }
 
-fpga_result fpgaGetOPAECVersion(fpga_version *version)
+fpga_result __OPAE_API__ fpgaGetOPAECVersion(fpga_version *version)
 {
 	ASSERT_NOT_NULL(version);
 
@@ -874,7 +878,8 @@ fpga_result fpgaGetOPAECVersion(fpga_version *version)
 	return FPGA_OK;
 }
 
-fpga_result fpgaGetOPAECVersionString(char *version_str, size_t len)
+fpga_result __OPAE_API__ fpgaGetOPAECVersionString(char *version_str,
+						   size_t len)
 {
 	errno_t err;
 
@@ -891,7 +896,7 @@ fpga_result fpgaGetOPAECVersionString(char *version_str, size_t len)
 	return FPGA_OK;
 }
 
-fpga_result fpgaGetOPAECBuildString(char *build_str, size_t len)
+fpga_result __OPAE_API__ fpgaGetOPAECBuildString(char *build_str, size_t len)
 {
 	int err;
 
@@ -911,7 +916,8 @@ fpga_result fpgaGetOPAECBuildString(char *build_str, size_t len)
 	return FPGA_OK;
 }
 
-fpga_result fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
+fpga_result __OPAE_API__ fpgaReadError(fpga_token token,
+	uint32_t error_num, uint64_t *value)
 {
 	opae_wrapped_token *wrapped_token = opae_validate_wrapped_token(token);
 
@@ -924,7 +930,7 @@ fpga_result fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
 		wrapped_token->opae_token, error_num, value);
 }
 
-fpga_result fpgaClearError(fpga_token token, uint32_t error_num)
+fpga_result __OPAE_API__ fpgaClearError(fpga_token token, uint32_t error_num)
 {
 	opae_wrapped_token *wrapped_token = opae_validate_wrapped_token(token);
 
@@ -936,7 +942,7 @@ fpga_result fpgaClearError(fpga_token token, uint32_t error_num)
 		wrapped_token->opae_token, error_num);
 }
 
-fpga_result fpgaClearAllErrors(fpga_token token)
+fpga_result __OPAE_API__ fpgaClearAllErrors(fpga_token token)
 {
 	opae_wrapped_token *wrapped_token = opae_validate_wrapped_token(token);
 
@@ -948,8 +954,8 @@ fpga_result fpgaClearAllErrors(fpga_token token)
 		wrapped_token->opae_token);
 }
 
-fpga_result fpgaGetErrorInfo(fpga_token token, uint32_t error_num,
-			     struct fpga_error_info *error_info)
+fpga_result __OPAE_API__ fpgaGetErrorInfo(fpga_token token, uint32_t error_num,
+					  struct fpga_error_info *error_info)
 {
 	opae_wrapped_token *wrapped_token = opae_validate_wrapped_token(token);
 
@@ -962,7 +968,7 @@ fpga_result fpgaGetErrorInfo(fpga_token token, uint32_t error_num,
 		wrapped_token->opae_token, error_num, error_info);
 }
 
-const char *fpgaErrStr(fpga_result e)
+const char * __OPAE_API__ fpgaErrStr(fpga_result e)
 {
 	switch (e) {
 	case FPGA_OK:
@@ -992,7 +998,7 @@ const char *fpgaErrStr(fpga_result e)
 	}
 }
 
-fpga_result fpgaCreateEventHandle(fpga_event_handle *event_handle)
+fpga_result __OPAE_API__ fpgaCreateEventHandle(fpga_event_handle *event_handle)
 {
 	opae_wrapped_event_handle *wrapped_event_handle;
 
@@ -1008,7 +1014,7 @@ fpga_result fpgaCreateEventHandle(fpga_event_handle *event_handle)
 	return FPGA_OK;
 }
 
-fpga_result fpgaDestroyEventHandle(fpga_event_handle *event_handle)
+fpga_result __OPAE_API__ fpgaDestroyEventHandle(fpga_event_handle *event_handle)
 {
 	fpga_result res = FPGA_OK;
 	opae_wrapped_event_handle *wrapped_event_handle;
@@ -1050,7 +1056,8 @@ fpga_result fpgaDestroyEventHandle(fpga_event_handle *event_handle)
 	return res;
 }
 
-fpga_result fpgaGetOSObjectFromEventHandle(const fpga_event_handle eh, int *fd)
+fpga_result __OPAE_API__ fpgaGetOSObjectFromEventHandle(
+	const fpga_event_handle eh, int *fd)
 {
 	fpga_result res;
 	opae_wrapped_event_handle *wrapped_event_handle =
@@ -1092,8 +1099,9 @@ fpga_result fpgaGetOSObjectFromEventHandle(const fpga_event_handle eh, int *fd)
 	return res;
 }
 
-fpga_result fpgaRegisterEvent(fpga_handle handle, fpga_event_type event_type,
-			      fpga_event_handle event_handle, uint32_t flags)
+fpga_result __OPAE_API__ fpgaRegisterEvent(fpga_handle handle,
+	fpga_event_type event_type, fpga_event_handle event_handle,
+	uint32_t flags)
 {
 	fpga_result res = FPGA_OK;
 	opae_wrapped_handle *wrapped_handle =
@@ -1160,8 +1168,8 @@ fpga_result fpgaRegisterEvent(fpga_handle handle, fpga_event_type event_type,
 	return res;
 }
 
-fpga_result fpgaUnregisterEvent(fpga_handle handle, fpga_event_type event_type,
-				fpga_event_handle event_handle)
+fpga_result __OPAE_API__ fpgaUnregisterEvent(fpga_handle handle,
+	fpga_event_type event_type, fpga_event_handle event_handle)
 {
 	fpga_result res;
 	opae_wrapped_handle *wrapped_handle =
@@ -1204,8 +1212,8 @@ fpga_result fpgaUnregisterEvent(fpga_handle handle, fpga_event_type event_type,
 	return res;
 }
 
-fpga_result fpgaAssignPortToInterface(fpga_handle fpga, uint32_t interface_num,
-				      uint32_t slot_num, int flags)
+fpga_result __OPAE_API__ fpgaAssignPortToInterface(fpga_handle fpga,
+	uint32_t interface_num, uint32_t slot_num, int flags)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(fpga);
@@ -1219,8 +1227,8 @@ fpga_result fpgaAssignPortToInterface(fpga_handle fpga, uint32_t interface_num,
 		wrapped_handle->opae_handle, interface_num, slot_num, flags);
 }
 
-fpga_result fpgaAssignToInterface(fpga_handle fpga, fpga_token accelerator,
-				  uint32_t host_interface, int flags)
+fpga_result __OPAE_API__ fpgaAssignToInterface(fpga_handle fpga,
+	fpga_token accelerator, uint32_t host_interface, int flags)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(fpga);
@@ -1238,7 +1246,8 @@ fpga_result fpgaAssignToInterface(fpga_handle fpga, fpga_token accelerator,
 		host_interface, flags);
 }
 
-fpga_result fpgaReleaseFromInterface(fpga_handle fpga, fpga_token accelerator)
+fpga_result __OPAE_API__ fpgaReleaseFromInterface(fpga_handle fpga,
+						  fpga_token accelerator)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(fpga);
@@ -1255,7 +1264,7 @@ fpga_result fpgaReleaseFromInterface(fpga_handle fpga, fpga_token accelerator)
 		wrapped_handle->opae_handle, wrapped_token->opae_token);
 }
 
-fpga_result fpgaReconfigureSlot(fpga_handle fpga, uint32_t slot,
+fpga_result __OPAE_API__ fpgaReconfigureSlot(fpga_handle fpga, uint32_t slot,
 				const uint8_t *bitstream, size_t bitstream_len,
 				int flags)
 {
@@ -1273,7 +1282,7 @@ fpga_result fpgaReconfigureSlot(fpga_handle fpga, uint32_t slot,
 		flags);
 }
 
-fpga_result fpgaTokenGetObject(fpga_token token, const char *name,
+fpga_result __OPAE_API__ fpgaTokenGetObject(fpga_token token, const char *name,
 			       fpga_object *object, int flags)
 {
 	fpga_result res;
@@ -1309,8 +1318,8 @@ fpga_result fpgaTokenGetObject(fpga_token token, const char *name,
 	return res != FPGA_OK ? res : dres;
 }
 
-fpga_result fpgaHandleGetObject(fpga_handle handle, const char *name,
-				fpga_object *object, int flags)
+fpga_result __OPAE_API__ fpgaHandleGetObject(fpga_handle handle,
+	const char *name, fpga_object *object, int flags)
 {
 	fpga_result res;
 	fpga_result dres = FPGA_OK;
@@ -1347,8 +1356,8 @@ fpga_result fpgaHandleGetObject(fpga_handle handle, const char *name,
 	return res != FPGA_OK ? res : dres;
 }
 
-fpga_result fpgaObjectGetObjectAt(fpga_object parent, size_t index,
-				  fpga_object *object)
+fpga_result __OPAE_API__ fpgaObjectGetObjectAt(fpga_object parent,
+	size_t index, fpga_object *object)
 {
 	fpga_result res;
 	fpga_result dres = FPGA_OK;
@@ -1385,8 +1394,8 @@ fpga_result fpgaObjectGetObjectAt(fpga_object parent, size_t index,
 
 }
 
-fpga_result fpgaObjectGetObject(fpga_object parent, const char *name,
-				fpga_object *object, int flags)
+fpga_result __OPAE_API__ fpgaObjectGetObject(fpga_object parent,
+	const char *name, fpga_object *object, int flags)
 {
 	fpga_result res;
 	fpga_result dres = FPGA_OK;
@@ -1423,7 +1432,7 @@ fpga_result fpgaObjectGetObject(fpga_object parent, const char *name,
 	return res != FPGA_OK ? res : dres;
 }
 
-fpga_result fpgaDestroyObject(fpga_object *obj)
+fpga_result __OPAE_API__ fpgaDestroyObject(fpga_object *obj)
 {
 	fpga_result res;
 	opae_wrapped_object *wrapped_object;
@@ -1444,8 +1453,8 @@ fpga_result fpgaDestroyObject(fpga_object *obj)
 	return res;
 }
 
-fpga_result fpgaObjectRead(fpga_object obj, uint8_t *buffer, size_t offset,
-			   size_t len, int flags)
+fpga_result __OPAE_API__ fpgaObjectRead(fpga_object obj, uint8_t *buffer,
+	size_t offset, size_t len, int flags)
 {
 	opae_wrapped_object *wrapped_object = opae_validate_wrapped_object(obj);
 
@@ -1458,7 +1467,8 @@ fpga_result fpgaObjectRead(fpga_object obj, uint8_t *buffer, size_t offset,
 		wrapped_object->opae_object, buffer, offset, len, flags);
 }
 
-fpga_result fpgaObjectGetSize(fpga_object obj, uint64_t *value, int flags)
+fpga_result __OPAE_API__ fpgaObjectGetSize(fpga_object obj, uint64_t *value,
+					   int flags)
 {
 	opae_wrapped_object *wrapped_object = opae_validate_wrapped_object(obj);
 
@@ -1471,7 +1481,8 @@ fpga_result fpgaObjectGetSize(fpga_object obj, uint64_t *value, int flags)
 		wrapped_object->opae_object, value, flags);
 }
 
-fpga_result fpgaObjectGetType(fpga_object obj, enum fpga_sysobject_type *type)
+fpga_result __OPAE_API__ fpgaObjectGetType(fpga_object obj,
+					   enum fpga_sysobject_type *type)
 {
 	opae_wrapped_object *wrapped_object = opae_validate_wrapped_object(obj);
 
@@ -1484,7 +1495,8 @@ fpga_result fpgaObjectGetType(fpga_object obj, enum fpga_sysobject_type *type)
 		wrapped_object->opae_object, type);
 }
 
-fpga_result fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags)
+fpga_result __OPAE_API__ fpgaObjectRead64(fpga_object obj, uint64_t *value,
+					  int flags)
 {
 	opae_wrapped_object *wrapped_object = opae_validate_wrapped_object(obj);
 
@@ -1497,7 +1509,8 @@ fpga_result fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags)
 		wrapped_object->opae_object, value, flags);
 }
 
-fpga_result fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags)
+fpga_result __OPAE_API__ fpgaObjectWrite64(fpga_object obj, uint64_t value,
+					   int flags)
 {
 	opae_wrapped_object *wrapped_object = opae_validate_wrapped_object(obj);
 
@@ -1509,8 +1522,8 @@ fpga_result fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags)
 		wrapped_object->opae_object, value, flags);
 }
 
-fpga_result fpgaSetUserClock(fpga_handle handle, uint64_t high_clk,
-			     uint64_t low_clk, int flags)
+fpga_result __OPAE_API__ fpgaSetUserClock(fpga_handle handle,
+	uint64_t high_clk, uint64_t low_clk, int flags)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
@@ -1523,9 +1536,8 @@ fpga_result fpgaSetUserClock(fpga_handle handle, uint64_t high_clk,
 		wrapped_handle->opae_handle, high_clk, low_clk, flags);
 }
 
-
-fpga_result fpgaGetUserClock(fpga_handle handle, uint64_t *high_clk,
-			     uint64_t *low_clk, int flags)
+fpga_result __OPAE_API__ fpgaGetUserClock(fpga_handle handle,
+	uint64_t *high_clk, uint64_t *low_clk, int flags)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
@@ -1540,7 +1552,8 @@ fpga_result fpgaGetUserClock(fpga_handle handle, uint64_t *high_clk,
 		wrapped_handle->opae_handle, high_clk, low_clk, flags);
 }
 
-fpga_result fpgaGetNumMetrics(fpga_handle handle, uint64_t *num_metrics)
+fpga_result __OPAE_API__ fpgaGetNumMetrics(fpga_handle handle,
+					   uint64_t *num_metrics)
 {
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
@@ -1555,7 +1568,7 @@ fpga_result fpgaGetNumMetrics(fpga_handle handle, uint64_t *num_metrics)
 		wrapped_handle->opae_handle, num_metrics);
 }
 
-fpga_result fpgaGetMetricsInfo(fpga_handle handle,
+fpga_result __OPAE_API__ fpgaGetMetricsInfo(fpga_handle handle,
 				fpga_metric_info *metric_info,
 				uint64_t *num_metrics)
 {
@@ -1572,7 +1585,7 @@ fpga_result fpgaGetMetricsInfo(fpga_handle handle,
 		wrapped_handle->opae_handle, metric_info, num_metrics);
 }
 
-fpga_result fpgaGetMetricsByIndex(fpga_handle handle,
+fpga_result __OPAE_API__ fpgaGetMetricsByIndex(fpga_handle handle,
 				uint64_t *metric_num,
 				uint64_t num_metric_indexes,
 				fpga_metric *metrics)
@@ -1591,7 +1604,7 @@ fpga_result fpgaGetMetricsByIndex(fpga_handle handle,
 		wrapped_handle->opae_handle, metric_num, num_metric_indexes, metrics);
 }
 
-fpga_result fpgaGetMetricsByName(fpga_handle handle,
+fpga_result __OPAE_API__ fpgaGetMetricsByName(fpga_handle handle,
 				char **metrics_names,
 				uint64_t num_metric_names,
 				fpga_metric *metrics)
@@ -1610,8 +1623,7 @@ fpga_result fpgaGetMetricsByName(fpga_handle handle,
 		wrapped_handle->opae_handle, metrics_names, num_metric_names, metrics);
 }
 
-
-fpga_result fpgaGetMetricsThresholdInfo(fpga_handle handle,
+fpga_result __OPAE_API__ fpgaGetMetricsThresholdInfo(fpga_handle handle,
 	metric_threshold *metric_thresholds,
 	uint32_t *num_thresholds)
 {
