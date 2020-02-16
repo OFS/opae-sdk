@@ -173,6 +173,9 @@ endif()
 option(BUILD_PYTHON_DIST "Enable building of Python source and binary distribution" OFF)
 mark_as_advanced(BUILD_PYTHON_DIST)
 
+option(BUILD_TOOLS_EXTRA "Enable building of the extra tools" ON)
+mark_as_advanced(BUILD_TOOLS_EXTRA)
+
 add_subdirectory(platforms)
 add_subdirectory(tools)
 
