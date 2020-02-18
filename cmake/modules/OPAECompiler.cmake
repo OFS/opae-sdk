@@ -136,20 +136,6 @@ elseif(COMPILER_SUPPORTS_CXX0X)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 endif()
 
-# Disable some warnings that fire in system libraries
-#check_cxx_compiler_flag("-Wno-unused-local-typedefs"
-#    CXX_SUPPORTS_NO_LOCAL_TYPEDEFS)
-#if(CXX_SUPPORTS_NO_LOCAL_TYPEDEFS)
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-local-typedefs")
-#endif()
-
-# Disable some warnings that fire during gtest compilation
-#check_cxx_compiler_flag("-Wno-sign-compare"
-#    CXX_SUPPORTS_NO_SIGN_COMPARE)
-#if(CXX_SUPPORTS_NO_SIGN_COMPARE)
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
-#endif()
-
 # If building on a 32-bit system, make sure off_t can store offsets > 2GB.
 if(CMAKE_COMPILER_IS_GNUCC)
     if(CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -172,7 +158,7 @@ endmacro()
 #   opae_add_executable(TARGET fpgaconf SOURCE a.c b.c LIBS safestr)
 function(opae_add_executable)
     set(options )
-    set(oneValueArgs TARGET)
+    set(oneValueArgs TARGET COMPONENT DESTINATION)
     set(multiValueArgs SOURCE LIBS)
     cmake_parse_arguments(OPAE_ADD_EXECUTABLE "${options}"
         "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -201,13 +187,25 @@ function(opae_add_executable)
 
     opae_coverage_build(TARGET ${OPAE_ADD_EXECUTABLE_TARGET} SOURCE ${OPAE_ADD_EXECUTABLE_SOURCE})
     set_install_rpath(${OPAE_ADD_EXECUTABLE_TARGET})
+
+    if(OPAE_ADD_EXECUTABLE_COMPONENT)
+        if(OPAE_ADD_EXECUTABLE_DESTINATION)
+            set(dest ${OPAE_ADD_EXECUTABLE_DESTINATION})
+        else(OPAE_ADD_EXECUTABLE_DESTINATION)
+            set(dest bin)
+        endif(OPAE_ADD_EXECUTABLE_DESTINATION)
+
+        install(TARGETS ${OPAE_ADD_EXECUTABLE_TARGET}
+                RUNTIME DESTINATION ${dest}
+                COMPONENT ${OPAE_ADD_EXECUTABLE_COMPONENT})
+    endif(OPAE_ADD_EXECUTABLE_COMPONENT)
 endfunction()
 
 # example:
 #   opae_add_shared_library(TARGET opae-c SOURCE a.c b.c LIBS safestr)
 function(opae_add_shared_library)
     set(options )
-    set(oneValueArgs TARGET VERSION SOVERSION)
+    set(oneValueArgs TARGET VERSION SOVERSION COMPONENT DESTINATION)
     set(multiValueArgs SOURCE LIBS)
     cmake_parse_arguments(OPAE_ADD_SHARED_LIBRARY "${options}"
         "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -242,13 +240,25 @@ function(opae_add_shared_library)
 
     opae_coverage_build(TARGET ${OPAE_ADD_SHARED_LIBRARY_TARGET} SOURCE ${OPAE_ADD_SHARED_LIBRARY_SOURCE})
     set_install_rpath(${OPAE_ADD_SHARED_LIBRARY_TARGET})
+
+    if(OPAE_ADD_SHARED_LIBRARY_COMPONENT)
+        if(OPAE_ADD_SHARED_LIBRARY_DESTINATION)
+            set(dest ${OPAE_ADD_SHARED_LIBRARY_DESTINATION})
+        else(OPAE_ADD_SHARED_LIBRARY_DESTINATION)
+            set(dest ${OPAE_LIB_INSTALL_DIR})
+        endif(OPAE_ADD_SHARED_LIBRARY_DESTINATION)
+
+        install(TARGETS ${OPAE_ADD_SHARED_LIBRARY_TARGET}
+                LIBRARY DESTINATION ${dest}
+                COMPONENT ${OPAE_ADD_SHARED_LIBRARY_COMPONENT})
+    endif(OPAE_ADD_SHARED_LIBRARY_COMPONENT)
 endfunction()
 
 # example:
 #   opae_add_module_library(TARGET xfpga SOURCE a.c b.c LIBS safestr)
 function(opae_add_module_library)
     set(options )
-    set(oneValueArgs TARGET)
+    set(oneValueArgs TARGET COMPONENT DESTINATION)
     set(multiValueArgs SOURCE LIBS)
     cmake_parse_arguments(OPAE_ADD_MODULE_LIBRARY "${options}"
         "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -276,13 +286,25 @@ function(opae_add_module_library)
     target_link_libraries(${OPAE_ADD_MODULE_LIBRARY_TARGET} ${OPAE_ADD_MODULE_LIBRARY_LIBS})
 
     opae_coverage_build(TARGET ${OPAE_ADD_MODULE_LIBRARY_TARGET} SOURCE ${OPAE_ADD_MODULE_LIBRARY_SOURCE})
+
+    if(OPAE_ADD_MODULE_LIBRARY_COMPONENT)
+        if(OPAE_ADD_MODULE_LIBRARY_DESTINATION)
+            set(dest ${OPAE_ADD_MODULE_LIBRARY_DESTINATION})
+        else(OPAE_ADD_MODULE_LIBRARY_DESTINATION)
+            set(dest ${OPAE_LIB_INSTALL_DIR}/opae)
+        endif(OPAE_ADD_MODULE_LIBRARY_DESTINATION)
+
+        install(TARGETS ${OPAE_ADD_MODULE_LIBRARY_TARGET}
+                LIBRARY DESTINATION ${dest}
+                COMPONENT ${OPAE_ADD_MODULE_LIBRARY_COMPONENT})
+    endif(OPAE_ADD_MODULE_LIBRARY_COMPONENT)
 endfunction()
 
 # example:
 #   opae_add_static_library(TARGET safestr SOURCE ${SRC})
 function(opae_add_static_library)
     set(options )
-    set(oneValueArgs TARGET)
+    set(oneValueArgs TARGET COMPONENT DESTINATION)
     set(multiValueArgs SOURCE LIBS)
     cmake_parse_arguments(OPAE_ADD_STATIC_LIBRARY "${options}"
         "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -312,4 +334,16 @@ function(opae_add_static_library)
         ${OPAE_ADD_STATIC_LIBRARY_LIBS})
 
     opae_coverage_build(TARGET ${OPAE_ADD_STATIC_LIBRARY_TARGET} SOURCE ${OPAE_ADD_STATIC_LIBRARY_SOURCE})
+
+    if(OPAE_ADD_STATIC_LIBRARY_COMPONENT)
+        if(OPAE_ADD_STATIC_LIBRARY_DESTINATION)
+            set(dest ${OPAE_ADD_STATIC_LIBRARY_DESTINATION})
+        else(OPAE_ADD_STATIC_LIBRARY_DESTINATION)
+            set(dest ${OPAE_LIB_INSTALL_DIR})
+        endif(OPAE_ADD_STATIC_LIBRARY_DESTINATION)
+
+        install(TARGETS ${OPAE_ADD_STATIC_LIBRARY_TARGET}
+                ARCHIVE DESTINATION ${dest}
+                COMPONENT ${OPAE_ADD_STATIC_LIBRARY_COMPONENT})
+    endif(OPAE_ADD_STATIC_LIBRARY_COMPONENT)
 endfunction()

@@ -24,8 +24,6 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-project(safe_string)
-
 set(SRC
   abort_handler_s.c
   ignore_handler_s.c
@@ -104,12 +102,12 @@ set(SRC
   wmemset_s.c
 )
 
-opae_add_static_library(TARGET safestr SOURCE ${SRC})
+opae_add_static_library(TARGET safestr
+    SOURCE ${SRC}
+    COMPONENT safestrlib
+)
+
 target_compile_options(safestr PRIVATE -O3)
 
 # mem_primitives_lib.c is optimized through the use of fallthrough switch statements.
 set_source_files_properties(mem_primitives_lib.c PROPERTIES COMPILE_FLAGS -Wno-implicit-fallthrough)
-
-install(TARGETS safestr
-    ARCHIVE DESTINATION ${OPAE_LIB_INSTALL_DIR}
-    COMPONENT safestrlib)

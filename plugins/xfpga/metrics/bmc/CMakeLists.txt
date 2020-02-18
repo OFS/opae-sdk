@@ -24,8 +24,6 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-project(bmclibs)
-
 set(SRC
     bmc.c
     bmcdata.c
@@ -55,12 +53,5 @@ opae_add_module_library(TARGET modbmc
         dl
         ${CMAKE_THREAD_LIBS_INIT}
         safestr
+    COMPONENT opaetoolslibs
 )
-
-#install(TARGETS bmc
-#    LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
-#    COMPONENT opaetoolslibs)
-
-install(TARGETS modbmc
-    LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
-    COMPONENT opaetoolslibs)

@@ -24,8 +24,6 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-project(libopae-c)
-
 set(SRC
     pluginmgr.c
     api-shell.c
@@ -43,6 +41,7 @@ opae_add_shared_library(TARGET opae-c
         ${libuuid_LIBRARIES}
     VERSION ${OPAE_VERSION}
     SOVERSION ${OPAE_VERSION_MAJOR}
+    COMPONENT opaeclib
 )
 
 set(SRC_ASE
@@ -63,12 +62,5 @@ opae_add_shared_library(TARGET opae-c-ase
         ${libuuid_LIBRARIES}
     VERSION ${OPAE_VERSION}
     SOVERSION ${OPAE_VERSION_MAJOR}
+    COMPONENT opaeclib
 )
-
-install(TARGETS opae-c
-  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
-  COMPONENT opaeclib)
-
-install(TARGETS opae-c-ase
-  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
-  COMPONENT opaeclib)

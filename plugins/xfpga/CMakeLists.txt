@@ -24,8 +24,6 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-project(libxfpga)
-
 set(SRC
   common.c
   enum.c
@@ -70,16 +68,7 @@ opae_add_module_library(TARGET xfpga
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
+    COMPONENT opaeclib
 )
 
 target_include_directories(xfpga PRIVATE ${OPAE_LIBS_ROOT}/libopae-c)
-
-# Hide non-public symbols when building release
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-  message("!! Building for release, may break internal tests")
-  set_property(TARGET xfpga PROPERTY C_VISIBILITY_PRESET hidden)
-endif(CMAKE_BUILD_TYPE STREQUAL "Release")
-
-install(TARGETS xfpga
-  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
-  COMPONENT opaeclib)
