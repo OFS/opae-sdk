@@ -117,7 +117,9 @@ opae_test_add(TARGET test_opae_init_c
 
 opae_test_add(TARGET test_opae_pluginmgr_c
     SOURCE test_pluginmgr_c.cpp
-    LIBS opae-c-static
+    LIBS
+	opae-c-static
+	${libjson-c_LIBRARIES}
 )
 
 set_tests_properties(test_opae_pluginmgr_c
