@@ -27,10 +27,6 @@
 
 check_cxx_compiler_flag("-Wno-sign-compare" CXX_SUPPORTS_NO_SIGN_COMPARE)
 
-# set(OPAE_TEST_SRC_DIR ${opae-test_ROOT}/framework
-#     CACHE PATH "OPAE test source dir." FORCE)
-# set(OPAE_TEST_INCLUDE_DIRS ${opae-test_ROOT}/framework
-#     CACHE PATH "OPAE test include dir." FORCE)
 set(OPAE_TEST_LIBRARIES test_system fpga_db
     CACHE LIST "OPAE test libs." FORCE)
 
