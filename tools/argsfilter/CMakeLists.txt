@@ -24,9 +24,8 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-project(argsfilter)
-
 opae_add_static_library(TARGET argsfilter
     SOURCE argsfilter.c
     LIBS opae-c
+    COMPONENT toolfpgainfo
 )

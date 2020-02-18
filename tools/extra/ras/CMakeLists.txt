@@ -30,8 +30,5 @@ opae_add_executable(TARGET ras
         safestr
         opae-c
         ${libjson-c_LIBRARIES}
+    COMPONENT toolras
 )
-
-install(TARGETS ras
-        RUNTIME DESTINATION bin
-        COMPONENT toolras)

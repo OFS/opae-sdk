@@ -30,8 +30,5 @@ opae_add_executable(TARGET userclk
         safestr
         opae-c
         ${libjson-c_LIBRARIES}
+    COMPONENT tooluserclk
 )
-
-install(TARGETS userclk
-        RUNTIME DESTINATION bin
-        COMPONENT tooluserclk)

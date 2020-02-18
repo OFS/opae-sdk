@@ -39,6 +39,7 @@ opae_add_executable(TARGET fpga_dma_vc_test
         ${TBB_LIBRARIES}
         ${HWLOC_LIBRARIES}
         ${libjson-c_LIBRARIES}
+    COMPONENT toolfpga_dma_vc_test
 )
 
 set_target_properties(fpga_dma_vc_test
@@ -47,11 +48,3 @@ set_target_properties(fpga_dma_vc_test
         CXX_STANDARD_REQUIRED YES
         CXX_EXTENSIONS NO
 )
-
-#include_directories(${OPAE_INCLUDE_DIR}
-#                ${libjson-c_INCLUDE_DIRS}
-#                ${HWLOC_INCLUDE_DIRS})
-
-install(TARGETS fpga_dma_vc_test
-        RUNTIME DESTINATION bin
-        COMPONENT toolfpga_dma_vc_test)

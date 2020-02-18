@@ -43,6 +43,7 @@ opae_add_shared_library(TARGET opae-c++-utils
         ${libjson-c_LIBRARIES}
     VERSION ${OPAE_VERSION}
     SOVERSION ${OPAE_VERSION_MAJOR}
+    COMPONENT opaecxxutils
 )
 
 set_target_properties(opae-c++-utils
@@ -51,7 +52,3 @@ set_target_properties(opae-c++-utils
         CXX_STANDARD_REQUIRED YES
         CXX_EXTENSIONS NO
 )
-
-install(TARGETS opae-c++-utils
-    LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
-    COMPONENT opaecxxutils)

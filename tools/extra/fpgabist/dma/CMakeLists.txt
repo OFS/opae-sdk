@@ -39,6 +39,7 @@ opae_add_executable(TARGET fpga_dma_test
         ${TBB_LIBRARIES}
         ${HWLOC_LIBRARIES}
         ${libjson-c_LIBRARIES}
+    COMPONENT toolfpga_dma_test
 )
 
 set_target_properties(fpga_dma_test
@@ -53,7 +54,3 @@ target_compile_definitions(fpga_dma_test
         FPGA_DMA_MAX_BLOCKS=256
         FPGA_DMA_BLOCK_SIZE=64
 )
-
-install(TARGETS fpga_dma_test
-        RUNTIME DESTINATION bin
-        COMPONENT toolfpga_dma_test)

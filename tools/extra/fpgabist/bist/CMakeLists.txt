@@ -32,6 +32,7 @@ opae_add_executable(TARGET bist_app
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
+    COMPONENT toolbist_app
 )
 
 opae_add_executable(TARGET bist
@@ -42,12 +43,5 @@ opae_add_executable(TARGET bist
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
+    COMPONENT toolbist
 )
-
-install(TARGETS bist_app
-        RUNTIME DESTINATION bin
-        COMPONENT toolbist_app)
-
-install(TARGETS bist
-        RUNTIME DESTINATION bin
-        COMPONENT toolbist)

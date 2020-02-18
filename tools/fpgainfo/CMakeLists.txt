@@ -40,13 +40,10 @@ opae_add_executable(TARGET fpgainfo
         argsfilter
         opae-c
         ${libjson-c_LIBRARIES}
+    COMPONENT toolfpgainfo
 )
 
 target_include_directories(fpgainfo
     PRIVATE
         ${OPAE_SDK_SOURCE}/tools/argsfilter
 )
-
-install(TARGETS fpgainfo
-    RUNTIME DESTINATION bin
-    COMPONENT toolfpgainfo)

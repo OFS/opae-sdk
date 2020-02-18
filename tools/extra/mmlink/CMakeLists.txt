@@ -33,6 +33,7 @@ opae_add_executable(TARGET mmlink
         safestr
         opae-c
         ${libjson-c_LIBRARIES}
+    COMPONENT toolmmlink
 )
 
 set_target_properties(mmlink
@@ -41,7 +42,3 @@ set_target_properties(mmlink
         CXX_STANDARD_REQUIRED YES
         CXX_EXTENSIONS NO
 )
-
-install(TARGETS mmlink
-        RUNTIME DESTINATION bin
-        COMPONENT toolmmlink)

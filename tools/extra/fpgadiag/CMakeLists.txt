@@ -46,6 +46,7 @@ opae_add_shared_library(TARGET opae-c++-nlb
         opae-cxx-core 
     VERSION ${OPAE_VERSION}
     SOVERSION ${OPAE_VERSION_MAJOR}
+    COMPONENT opaecxxnlb
 )
 
 target_include_directories(opae-c++-nlb
@@ -60,7 +61,7 @@ set_target_properties(opae-c++-nlb
         CXX_EXTENSIONS NO
 )
 
-function(add_fpgadiag_app target source)
+function(add_fpgadiag_app target source comp)
     opae_add_executable(TARGET ${target}
         SOURCE ${source}
         LIBS
@@ -71,6 +72,7 @@ function(add_fpgadiag_app target source)
             opae-c++-nlb
             ${libjson-c_LIBRARIES}
             ${libuuid_LIBRARIES}
+        COMPONENT ${comp}
     )
     set_target_properties(${target}
         PROPERTIES
@@ -84,13 +86,9 @@ function(add_fpgadiag_app target source)
     )
 endfunction()
 
-add_fpgadiag_app(nlb0 nlb0_main.cpp)
-add_fpgadiag_app(nlb3 nlb3_main.cpp)
-add_fpgadiag_app(nlb7 nlb7_main.cpp)
-
-set(binaries nlb0
-             nlb3
-             nlb7)
+add_fpgadiag_app(nlb0 nlb0_main.cpp toolfpgadiagapps)
+add_fpgadiag_app(nlb3 nlb3_main.cpp toolfpgadiagapps)
+add_fpgadiag_app(nlb7 nlb7_main.cpp toolfpgadiagapps)
 
 set(fpgalpbksrc common.py
                 fpgalpbk.py)
@@ -119,11 +117,3 @@ install(PROGRAMS ${PACKAGER_BIN}
 install(PROGRAMS fpgadiag
     DESTINATION bin
     COMPONENT toolfpgadiag)
-
-install(TARGETS opae-c++-nlb
-   LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
-   COMPONENT opaecxxnlb)
-
-install(TARGETS ${binaries}
-    RUNTIME DESTINATION bin
-    COMPONENT toolfpgadiagapps)

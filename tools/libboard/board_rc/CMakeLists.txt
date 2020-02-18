@@ -24,16 +24,11 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-project(libboard_rc)
-
 opae_add_module_library(TARGET board_rc
     SOURCE board_rc.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
         safestr
         opae-c
+    COMPONENT opaeclib
 )
-
-install(TARGETS board_rc
-  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
-  COMPONENT opaeclib)

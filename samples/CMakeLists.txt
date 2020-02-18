@@ -71,6 +71,7 @@ opae_add_executable(TARGET hello_fpga
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
+    COMPONENT samplebin
 )
 
 opae_add_executable(TARGET hello_events
@@ -80,6 +81,7 @@ opae_add_executable(TARGET hello_events
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
+    COMPONENT samplebin
 )
 
 opae_add_executable(TARGET object_api
@@ -89,6 +91,7 @@ opae_add_executable(TARGET object_api
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
+    COMPONENT samplebin
 )
 
 set(SAMPLES_SRC hello_fpga.c hello_events.c object_api.c)
@@ -96,12 +99,3 @@ set(SAMPLES_SRC hello_fpga.c hello_events.c object_api.c)
 install(FILES ${SAMPLES_SRC}
   DESTINATION ${OPAE_SAMPLES}
   COMPONENT samplesrc)
-
-install(TARGETS hello_fpga
-  RUNTIME DESTINATION bin
-  COMPONENT samplebin)
-
-set(TESTS hello_fpga hello_events)
-install(TARGETS ${TESTS}
-  DESTINATION bin
-  COMPONENT testsopae)

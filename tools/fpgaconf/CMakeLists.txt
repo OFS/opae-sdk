@@ -24,8 +24,6 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-project(fpgaconf)
-
 opae_add_executable(TARGET fpgaconf
     SOURCE fpgaconf.c
     LIBS
@@ -35,8 +33,5 @@ opae_add_executable(TARGET fpgaconf
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
+    COMPONENT toolfpgaconf
 )
-
-install(TARGETS fpgaconf
-        RUNTIME DESTINATION bin
-        COMPONENT toolfpgaconf)
