@@ -24,8 +24,6 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-project(libopae-cxx)
-
 set(CMAKE_CXX_STANDARD 11)
 
 set(OPAECXXCORE_SRC
@@ -44,6 +42,7 @@ opae_add_shared_library(TARGET opae-cxx-core
     SOURCE ${OPAECXXCORE_SRC}
     VERSION ${OPAE_VERSION}
     SOVERSION ${OPAE_VERSION_MAJOR}
+    COMPONENT opaecxxcorelib
 )
 
 opae_add_executable(TARGET hello_cxxcore
@@ -52,8 +51,5 @@ opae_add_executable(TARGET hello_cxxcore
         opae-c
         opae-cxx-core
         ${libjson-c_LIBRARIES}
+    COMPONENT samples
 )
-
-install(TARGETS opae-cxx-core
-  LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
-  COMPONENT opaecxxcorelib)
