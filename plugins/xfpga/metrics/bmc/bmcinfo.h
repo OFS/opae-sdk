@@ -33,6 +33,7 @@
 
 #include <opae/fpga.h>
 #include <wchar.h>
+#include "bmc_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -63,8 +64,6 @@ extern "C" {
 #define SYSFS_PWRDN_FILE "avmmi-bmc.*.auto/bmc_info/power_down_cause"
 #define SYSFS_AVMMI_DIR "avmmi-bmc.*.auto"
 #define SYSFS_THERMAL_FILE "thermal_mgmt/temperature"
-
-typedef enum { _BMC_THERMAL, _BMC_POWER, _BMC_SENSORS } BMC_TYPE;
 
 #pragma pack(push, 1)
 
@@ -517,7 +516,7 @@ typedef struct _Values {
 		uint64_t i_val;
 	} value;
 	uint8_t sensor_number;
-	BMC_TYPE sensor_type;
+	BMC_SENSOR_TYPE sensor_type;
 	sensor_value_type val_type;
 	struct _sdr_content *sdr;
 } Values;

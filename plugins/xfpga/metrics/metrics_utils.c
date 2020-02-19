@@ -685,14 +685,14 @@ fpga_result  enum_bmc_metrics_info(struct _fpga_handle *_handle,
 		result = xfpga_bmcGetSDRDetails(_handle, values, x, &details);
 
 
-		if (details.type == BMC_THERMAL) {
+		if (details.sensor_type == BMC_THERMAL) {
 
 			metric_type = FPGA_METRIC_TYPE_THERMAL;
 			snprintf_s_s(group_name, sizeof(group_name), "%s", THERLGMT);
 			snprintf_s_s(units, sizeof(units), "%s", TEMP);
 			snprintf_s_ss(qualifier_name, sizeof(qualifier_name), "%s:%s", THERLGMT, details.name);
 
-		} else if (details.type == BMC_POWER) {
+		} else if (details.sensor_type == BMC_POWER) {
 
 			metric_type = FPGA_METRIC_TYPE_POWER;
 			snprintf_s_s(group_name, sizeof(group_name), "%s", PWRMGMT);
