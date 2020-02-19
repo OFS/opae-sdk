@@ -2267,7 +2267,7 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	struct stat objstat;
 	int statres;
 	fpga_result res = FPGA_OK;
-	char *object_paths[MAX_SYSOBJECT_GLOB] = { '\0' };
+	char *object_paths[MAX_SYSOBJECT_GLOB] = { NULL };
 	size_t found = 0;
 	if (flags & FPGA_OBJECT_GLOB) {
 		res = opae_glob_paths(sysfspath, MAX_SYSOBJECT_GLOB,
