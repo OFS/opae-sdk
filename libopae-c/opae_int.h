@@ -88,7 +88,9 @@
 	})
 
 
+#ifndef __OPAE_ADAPTER_H__
 typedef struct _opae_api_adapter_table opae_api_adapter_table;
+#endif // __OPAE_ADAPTER_H__
 
 //                                  k o t w
 #define OPAE_WRAPPED_TOKEN_MAGIC 0x6b6f7477

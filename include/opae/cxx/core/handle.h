@@ -49,7 +49,7 @@ class handle {
   handle(const handle &) = delete;
   handle &operator=(const handle &) = delete;
 
-  ~handle();
+  virtual ~handle();
 
   /** Retrieve the underlying OPAE handle.
    */
