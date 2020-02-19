@@ -68,6 +68,9 @@ set_property(TARGET opae-c PROPERTY C_STANDARD 99)
 set_target_properties(opae-c PROPERTIES
   VERSION ${INTEL_FPGA_API_VERSION}
   SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
+set_target_properties(opae-c-ase PROPERTIES
+  VERSION ${INTEL_FPGA_API_VERSION}
+  SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
 
 # Add coverage flags
 if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
