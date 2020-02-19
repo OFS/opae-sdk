@@ -727,8 +727,9 @@ int main(int argc, char *argv[])
 					| HWLOC_MEMBIND_BYNODESET);
 #else
 			retval = hwloc_set_membind_nodeset(
-				topology, obj2->nodeset, HWLOC_MEMBIND_THREAD,
-				HWLOC_MEMBIND_MIGRATE);
+				topology, obj2->nodeset,
+				HWLOC_MEMBIND_BIND,
+				HWLOC_MEMBIND_THREAD | HWLOC_MEMBIND_MIGRATE);
 #endif
 			ON_ERR_GOTO(retval, out_close,
 				    "hwloc_set_membind");
