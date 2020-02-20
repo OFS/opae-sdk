@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -706,11 +706,8 @@ TEST_P(metrics_utils_dcp_c_p, test_metric_utils_12) {
   struct _fpga_handle *_handle = (struct _fpga_handle *)handle_;
   fpga_metric_vector vector;
 
-  _handle->bmc_handle = dlopen("libmodbmc.so", RTLD_LAZY | RTLD_LOCAL);
-
-  if (!_handle->bmc_handle) {
-    OPAE_ERR("--------------------------failed to load ");
-  }
+  _handle->bmc_handle = metrics_load_bmc_lib();
+  ASSERT_NE(_handle->bmc_handle, (void *)nullptr);
 
   EXPECT_EQ(FPGA_OK, fpga_vector_init(&vector));
 
@@ -723,11 +720,8 @@ TEST_P(metrics_utils_dcp_c_p, test_metric_utils_12) {
 TEST_P(metrics_utils_dcp_c_p, test_metric_utils_13) {
   struct _fpga_handle *_handle = (struct _fpga_handle *)handle_;
 
-  _handle->bmc_handle = dlopen("libmodbmc.so", RTLD_LAZY | RTLD_LOCAL);
-
-  if (!_handle->bmc_handle) {
-    OPAE_ERR("--------------------------failed to load ");
-  }
+  _handle->bmc_handle = metrics_load_bmc_lib();
+  ASSERT_NE(_handle->bmc_handle, (void *)nullptr);
 
   EXPECT_EQ(FPGA_OK, enum_fpga_metrics(handle_));
 }
@@ -735,11 +729,8 @@ TEST_P(metrics_utils_dcp_c_p, test_metric_utils_13) {
 TEST_P(metrics_utils_dcp_c_p, test_metric_utils_14) {
   struct _fpga_handle *_handle = (struct _fpga_handle *)handle_;
 
-  _handle->bmc_handle = dlopen("libmodbmc.so", RTLD_LAZY | RTLD_LOCAL);
-
-  if (!_handle->bmc_handle) {
-    OPAE_ERR("--------------------------failed to load ");
-  }
+  _handle->bmc_handle = metrics_load_bmc_lib();
+  ASSERT_NE(_handle->bmc_handle, (void *)nullptr);
 
   EXPECT_EQ(FPGA_OK, enum_fpga_metrics(handle_));
 
