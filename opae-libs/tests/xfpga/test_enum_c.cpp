@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -1045,6 +1045,9 @@ class enum_err_c_p : public enum_c_p {};
 TEST_P(enum_err_c_p, num_errors_fme) {
   auto device = platform_.devices[0];
 
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE),
+      FPGA_OK);
+
   ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors),
       FPGA_OK);
   EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
@@ -1063,6 +1066,9 @@ TEST_P(enum_err_c_p, num_errors_fme) {
  */
 TEST_P(enum_err_c_p, num_errors_port) {
   auto device = platform_.devices[0];
+
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR),
+      FPGA_OK);
 
   ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.port_num_errors),
       FPGA_OK);
