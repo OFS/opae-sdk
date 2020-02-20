@@ -1,4 +1,4 @@
-// Copyright(c) 2019, Intel Corporation
+// Copyright(c) 2019-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -62,6 +62,30 @@ static platform_data platform_data_table[] = {
 	{ 0,      0,          NULL, NULL },
 };
 
+void *find_plugin(const char *libpath)
+{
+	char plugin_path[PATH_MAX];
+	const char *search_paths[] = {
+		"/usr/lib64/opae/",
+		"/usr/lib/opae/",
+		""
+	};
+	unsigned i;
+	void *dl_handle;
+
+	for (i = 0 ;
+		i < sizeof(search_paths) / sizeof(search_paths[0]) ;
+		++i) {
+		snprintf_s_ss(plugin_path, sizeof(plugin_path),
+			      "%s%s", search_paths[i], libpath);
+
+		dl_handle = dlopen(plugin_path, RTLD_LAZY | RTLD_LOCAL);
+		if (dl_handle)
+			return dl_handle;
+	}
+
+	return NULL;
+}
 
 fpga_result load_board_plugin(fpga_token token, void** dl_handle)
 {
@@ -115,7 +139,7 @@ fpga_result load_board_plugin(fpga_token token, void** dl_handle)
 				goto unlock_destroy;
 			}
 
-			platform_data_table[i].dl_handle = dlopen(platform_data_table[i].board_plugin, RTLD_LAZY | RTLD_LOCAL);
+			platform_data_table[i].dl_handle = find_plugin(platform_data_table[i].board_plugin);
 			if (!platform_data_table[i].dl_handle) {
 				char *err = dlerror();
 				OPAE_ERR("Failed to load \"%s\" %s", platform_data_table[i].board_plugin, err ? err : "");
