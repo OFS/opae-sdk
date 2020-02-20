@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2019, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -273,5 +273,6 @@ fpga_result xfpga_bmcGetSDRDetails(struct _fpga_handle *_handle,
 	uint32_t sensor_number,
 	sdr_details *details);
 
+void *metrics_load_bmc_lib(void);
 
 #endif // __FPGA_METRICS_INT_H__

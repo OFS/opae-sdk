@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2019, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -163,7 +163,7 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 
 	pthread_mutex_lock(&_handle->lock);
 	if (_handle->bmc_handle == NULL)
-		_handle->bmc_handle = dlopen(BMC_LIB, RTLD_LAZY | RTLD_LOCAL);
+		_handle->bmc_handle = metrics_load_bmc_lib();
 	if (!_handle->bmc_handle) {
 		OPAE_ERR("Failed to load BMC module %s", dlerror());
 		pthread_mutex_unlock(&_handle->lock);
