@@ -75,7 +75,7 @@ rm -rf mybuild
 mkdir mybuild
 cd mybuild
 
-%cmake ..
+%cmake .. -DCMAKE_INSTALL_PREFIX=/usr
 
 make -j  opae-c\
          bitstream\
@@ -128,19 +128,19 @@ cp samples/object_api.c %{buildroot}%{_usr}/src/opae/samples/
 
 cd mybuild
 
-cmake -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr -DCOMPONENT=safestrlib -P cmake_install.cmake
-cmake -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr -DCOMPONENT=opaeclib -P cmake_install.cmake
-cmake -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr -DCOMPONENT=opaecxxcorelib -P cmake_install.cmake
-cmake -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr -DCOMPONENT=samples -P cmake_install.cmake
-cmake -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr -DCOMPONENT=opaetoolslibs -P cmake_install.cmake
-cmake -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr -DCOMPONENT=toolfpgainfo -P cmake_install.cmake
-cmake -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr -DCOMPONENT=toolfpgametrics -P cmake_install.cmake
-cmake -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr -DCOMPONENT=toolfpgaconf -P cmake_install.cmake
-cmake -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr -DCOMPONENT=tooluserclk -P cmake_install.cmake
-cmake -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr -DCOMPONENT=toolmmlink -P cmake_install.cmake
-cmake -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr -DCOMPONENT=samplebin -P cmake_install.cmake
-cmake -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr -DCOMPONENT=libopaeheaders -P cmake_install.cmake
-cmake -DCMAKE_INSTALL_PREFIX=%{buildroot}/usr -DCOMPONENT=safestrheaders -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=safestrlib -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaeclib -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxcorelib -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=samples -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaetoolslibs -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgainfo -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgametrics -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgaconf -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=tooluserclk -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolmmlink -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=samplebin -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=libopaeheaders -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=safestrheaders -P cmake_install.cmake
 
 
 
