@@ -154,6 +154,15 @@ macro(set_install_rpath target_name)
     endif()
 endmacro()
 
+function(opae_add_subdirectory directory_name)
+    get_filename_component(full_dir_path "${directory_name}" REALPATH)
+    if(EXISTS "${full_dir_path}" AND IS_DIRECTORY "${full_dir_path}")
+       add_subdirectory(${directory_name})
+    else()
+       message("Not Found directory: ${full_dir_path}")
+    endif()
+endfunction()
+
 # example:
 #   opae_add_executable(TARGET fpgaconf SOURCE a.c b.c LIBS safestr)
 function(opae_add_executable)

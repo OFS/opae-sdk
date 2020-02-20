@@ -24,19 +24,19 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-add_subdirectory(argsfilter)
-add_subdirectory(libboard/board_rc)
-add_subdirectory(libboard/board_vc)
-add_subdirectory(fpgaconf)
-add_subdirectory(fpgainfo)
-add_subdirectory(fpgametrics)
+opae_add_subdirectory(argsfilter)
+opae_add_subdirectory(libboard/board_rc)
+opae_add_subdirectory(libboard/board_vc)
+opae_add_subdirectory(fpgaconf)
+opae_add_subdirectory(fpgainfo)
+opae_add_subdirectory(fpgametrics)
 
 # extra
-add_subdirectory(extra/userclk)
-add_subdirectory(extra/packager)
-add_subdirectory(extra/c++utils)
-add_subdirectory(extra/fpgadiag)
-add_subdirectory(extra/mmlink)
-add_subdirectory(extra/ras)
-add_subdirectory(extra/pac_hssi_config)
-add_subdirectory(extra/fpgabist)
+opae_add_subdirectory(extra/userclk)
+opae_add_subdirectory(extra/packager)
+opae_add_subdirectory(extra/c++utils)
+opae_add_subdirectory(extra/fpgadiag)
+opae_add_subdirectory(extra/mmlink)
+opae_add_subdirectory(extra/ras)
+opae_add_subdirectory(extra/pac_hssi_config)
+opae_add_subdirectory(extra/fpgabist)
