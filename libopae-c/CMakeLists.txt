@@ -62,5 +62,5 @@ opae_add_shared_library(TARGET opae-c-ase
         ${libuuid_LIBRARIES}
     VERSION ${OPAE_VERSION}
     SOVERSION ${OPAE_VERSION_MAJOR}
-    COMPONENT opaeclib
+    COMPONENT opaecsimlib
 )
