@@ -159,7 +159,7 @@ function(opae_add_subdirectory directory_name)
     if(EXISTS "${full_dir_path}" AND IS_DIRECTORY "${full_dir_path}")
        add_subdirectory(${directory_name})
     else()
-       message("Not Found directory: ${full_dir_path}")
+       message("Directory not found: ${full_dir_path}")
     endif()
 endfunction()
 # example:
