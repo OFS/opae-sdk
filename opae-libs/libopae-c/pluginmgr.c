@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -135,12 +135,38 @@ STATIC char *find_cfg()
 	return NULL;
 }
 
+STATIC void *opae_plugin_mgr_find_plugin(const char *lib_path)
+{
+	char plugin_path[PATH_MAX];
+	const char *search_paths[] = {
+		"/usr/lib64/opae/",
+		"/usr/lib/opae/",
+		""
+	};
+	unsigned i;
+	void *dl_handle;
+
+	for (i = 0 ;
+		i < sizeof(search_paths) / sizeof(search_paths[0]) ; ++i) {
+
+		snprintf_s_ss(plugin_path, sizeof(plugin_path),
+				"%s%s", search_paths[i], lib_path);
+
+		dl_handle = dlopen(plugin_path, RTLD_LAZY | RTLD_LOCAL);
+
+		if (dl_handle)
+			return dl_handle;
+	}
+
+	return NULL;
+}
+
 STATIC opae_api_adapter_table *opae_plugin_mgr_alloc_adapter(const char *lib_path)
 {
 	void *dl_handle;
 	opae_api_adapter_table *adapter;
 
-	dl_handle = dlopen(lib_path, RTLD_LAZY | RTLD_LOCAL);
+	dl_handle = opae_plugin_mgr_find_plugin(lib_path);
 
 	if (!dl_handle) {
 		char *err = dlerror();

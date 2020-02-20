@@ -795,6 +795,32 @@ fpga_result get_fpga_object_type(fpga_handle handle,
 	return resval;
 }
 
+void *metrics_load_bmc_lib(void)
+{
+	char plugin_path[PATH_MAX];
+	const char *search_paths[] = {
+		"/usr/lib64/opae/",
+		"/usr/lib/opae/",
+		""
+	};
+	unsigned i;
+	void *dl_handle;
+
+	for (i = 0 ;
+		i < sizeof(search_paths) / sizeof(search_paths[0]) ;
+		++i) {
+
+		snprintf_s_ss(plugin_path, sizeof(plugin_path),
+			      "%s%s", search_paths[i], BMC_LIB);
+
+		dl_handle = dlopen(plugin_path, RTLD_LAZY | RTLD_LOCAL);
+		if (dl_handle)
+			return dl_handle;
+	}
+
+	return NULL;
+}
+
 // enumerates FME & AFU metrics info
 fpga_result enum_fpga_metrics(fpga_handle handle)
 {
@@ -914,7 +940,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 			if (sysfs_get_bmc_path(_token, metrics_path) == FPGA_OK) {
 
 				if (_handle->bmc_handle == NULL)
-					_handle->bmc_handle = dlopen(BMC_LIB, RTLD_LAZY | RTLD_LOCAL);
+					_handle->bmc_handle = metrics_load_bmc_lib();
 
 				if (_handle->bmc_handle) {
 					result = enum_bmc_metrics_info(_handle, &(_handle->fpga_enum_metric_vector), &metric_num, FPGA_HW_DCP_RC);
