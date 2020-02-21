@@ -99,23 +99,23 @@ mark_as_advanced(OPAE_BUILD_SIM)
 ## Add Subdirectories ######################################################
 ############################################################################
 
-add_subdirectory(external)
-add_subdirectory(safe_string)
-add_subdirectory(libopae-c)
-add_subdirectory(libbitstream)
-add_subdirectory(plugins)
+opae_add_subdirectory(external)
+opae_add_subdirectory(safe_string)
+opae_add_subdirectory(libopae-c)
+opae_add_subdirectory(libbitstream)
+opae_add_subdirectory(plugins)
 
 if(OPAE_BUILD_LIBOPAE_CXX)
-    add_subdirectory(libopaecxx)
+    opae_add_subdirectory(libopaecxx)
 endif()
 
 if(OPAE_BUILD_LIBOPAE_PY AND OPAE_BUILD_LIBOPAE_CXX)
-    add_subdirectory(pyopae)
+    opae_add_subdirectory(pyopae)
 endif()
 
 if(OPAE_BUILD_TESTS)
     enable_testing()
-    add_subdirectory(tests)
+    opae_add_subdirectory(tests)
 endif(OPAE_BUILD_TESTS)
 
 install(DIRECTORY include/opae
