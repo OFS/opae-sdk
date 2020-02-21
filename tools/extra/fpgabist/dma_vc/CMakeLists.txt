@@ -42,6 +42,11 @@ opae_add_executable(TARGET fpga_dma_vc_test
     COMPONENT toolfpga_dma_vc_test
 )
 
+
+if (${CMAKE_C_COMPILER} MATCHES  "clang")
+    set_source_files_properties(x86-sse2.S  PROPERTIES COMPILE_FLAGS -fno-integrated-as)
+endif()   
+
 set_target_properties(fpga_dma_vc_test
     PROPERTIES
         CXX_STANDARD 11

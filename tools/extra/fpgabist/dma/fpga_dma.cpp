@@ -112,7 +112,11 @@ static void *local_memcpy(void *dst, void *src, size_t n)
 
 	if (n)
 	{
+#if __cplusplus  <= 199711L
 		register unsigned long int dummy;
+#else
+		unsigned long int dummy
+#endif 
 		debug_print("copying 0x%lx bytes with REP MOVSB\n", n);
 		__asm__ __volatile__("rep movsb\n":"=&D"(ldst), "=&S"(lsrc), "=&c"(dummy):"0"(ldst), "1"(lsrc), "2"(n):"memory");
 	}
