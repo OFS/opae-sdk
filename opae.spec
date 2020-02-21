@@ -95,7 +95,6 @@ make -j  opae-c\
          hello_events \
          object_api \
          mmlink  \
-         opae-c-ase \
 
 %install
 mkdir -p %{buildroot}%{_datadir}/opae
@@ -142,9 +141,6 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=samplebin -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=libopaeheaders -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=safestrheaders -P cmake_install.cmake
 
-
-
-mkdir -p %{buildroot}%{_sysconfdir}/systemd/system/
 
 %clean
 
