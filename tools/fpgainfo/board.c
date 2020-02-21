@@ -65,11 +65,7 @@ static platform_data platform_data_table[] = {
 void *find_plugin(const char *libpath)
 {
 	char plugin_path[PATH_MAX];
-	const char *search_paths[] = {
-		"/usr/lib64/opae/",
-		"/usr/lib/opae/",
-		""
-	};
+	const char *search_paths[] = { OPAE_MODULE_SEARCH_PATHS };
 	unsigned i;
 	void *dl_handle;
 
