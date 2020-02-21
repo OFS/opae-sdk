@@ -798,11 +798,7 @@ fpga_result get_fpga_object_type(fpga_handle handle,
 void *metrics_load_bmc_lib(void)
 {
 	char plugin_path[PATH_MAX];
-	const char *search_paths[] = {
-		"/usr/lib64/opae/",
-		"/usr/lib/opae/",
-		""
-	};
+	const char *search_paths[] = { OPAE_MODULE_SEARCH_PATHS };
 	unsigned i;
 	void *dl_handle;
 
