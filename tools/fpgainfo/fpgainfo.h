@@ -36,6 +36,8 @@
 extern "C" {
 #endif
 
+#define FACTORY_BIT (1ULL << 36)
+
 void fpgainfo_print_common(const char *hdr, fpga_properties props);
 
 void fpgainfo_print_err(const char *s, fpga_result res);

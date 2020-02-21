@@ -65,6 +65,12 @@ fpga_result phy_command(fpga_token *tokens, int num_tokens, int argc,
 void phy_help(void);
 fpga_result phy_group_info(fpga_token token);
 
+// sec group info
+fpga_result sec_filter(fpga_properties *filter, int argc, char *argv[]);
+fpga_result sec_command(fpga_token *tokens, int num_tokens, int argc,
+	char *argv[]);
+void sec_help(void);
+fpga_result sec_info(fpga_token token);
 
 #ifdef __cplusplus
 }
