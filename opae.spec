@@ -77,9 +77,9 @@ cd mybuild
 
 %cmake .. -DCMAKE_INSTALL_PREFIX=/usr
 
-make -j  opae-c\
-         bitstream\
-         xfpga\
+make -j  opae-c \
+         bitstream \
+         xfpga \
          safestr \
          modbmc \
          opae-cxx-core \
@@ -94,7 +94,7 @@ make -j  opae-c\
          hello_fpga \
          hello_events \
          object_api \
-         mmlink  \
+         mmlink
 
 %install
 mkdir -p %{buildroot}%{_datadir}/opae
@@ -153,7 +153,6 @@ ldconfig
 %pre
 
 %preun
-rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf 
 
 %files
 %defattr(-,root,root,-)
@@ -167,7 +166,6 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_libdir}/opae/libboard_rc.so*
 %{_libdir}/opae/libboard_vc.so*
 %{_libdir}/libsafestr.a*
-
 
 
 %files devel
@@ -184,6 +182,7 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_usr}/src/opae/cmake/*
 %{_usr}/src/opae/opae-libs/cmake/modules/*
 
+
 %files tools
 %defattr(-,root,root,-)
 %{_libdir}/libargsfilter.a*
@@ -191,10 +190,12 @@ rm -f -- %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_bindir}/fpgainfo*
 %{_bindir}/fpgametrics*
 
+
 %files tools-extra
 %defattr(-,root,root,-)
 %{_bindir}/mmlink
 %{_bindir}/userclk
+
 
 %files samples
 %defattr(-,root,root,-)
