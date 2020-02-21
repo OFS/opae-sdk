@@ -145,8 +145,6 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=safestrheaders -P cmake_install.cmake
 %clean
 
 %post
-mkdir -p %{_sysconfdir}/ld.so.conf.d
-echo "" > %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 ldconfig
 
 %postun
