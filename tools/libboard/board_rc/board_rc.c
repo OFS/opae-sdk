@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2019, Intel Corporation
+// Copyright(c) 2019-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -42,6 +42,19 @@
 #define SYSFS_RESET_FILE "avmmi-bmc.*.auto/bmc_info/reset_cause"
 #define SYSFS_PWRDN_FILE "avmmi-bmc.*.auto/bmc_info/power_down_cause"
 
+#define SYSFS_TCM_GLOB "tcm/*"
+#define SYSFS_TCM_BIP_VER "tcm/bip_version"
+#define SYSFS_TCM_BMC_CANCEL "tcm/bmc_canceled_csks"
+#define SYSFS_TCM_BMC_FLASH_COUNT "tcm/bmc_flash_count"
+#define SYSFS_TCM_BMC_FWVERS "tcm/bmcfw_version"
+#define SYSFS_TCM_BMC_ROOT "tcm/bmc_root_hash"
+#define SYSFS_TCM_CRYPTO_VER "tcm/crypto_version"
+#define SYSFS_TCM_PR_CANCEL "tcm/pr_canceled_csks"
+#define SYSFS_TCM_PR_ROOT "tcm/pr_root_hash"
+#define SYSFS_TCM_QSPI_COUNT "tcm/qspi_flash_count"
+#define SYSFS_TCM_SR_CANCEL "tcm/sr_canceled_csks"
+#define SYSFS_TCM_SR_ROOT "tcm/sr_root_hash"
+#define SYSFS_TCM_FW_VER "tcm/tcmfw_version"
 #define FPGA_STR_SIZE     256
 #define SDR_HEADER_LEN    3
 #define SDR_MSG_LEN       40
@@ -332,6 +345,148 @@ fpga_result print_board_info(fpga_token token)
 	printf("Board Management Controller, microcontroller FW version: %d\n", version);
 	printf("Last Power down cause:%s\n", pwr_down_cause);
 	printf("Last Reset cause: %s\n", reset_cause);
+
+	return res;
+}
+
+fpga_result read_sysfs(fpga_token token, char *sysfs_path,char *sysfs_name)
+{
+	fpga_result res                 = FPGA_OK;
+	fpga_result resval              = FPGA_OK;
+	uint32_t size                   = 0;
+	char name[FPGA_STR_SIZE]        = { 0 };
+	fpga_object sec_object;
+
+	if (sysfs_path == NULL ||
+		sysfs_name == NULL) {
+		OPAE_ERR("Invalid input parameter");
+		return FPGA_INVALID_PARAM;
+	}
+
+	res = fpgaTokenGetObject(token, sysfs_path, &sec_object, FPGA_OBJECT_GLOB);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get token Object");
+		return res;
+	}
+
+	res = fpgaObjectGetSize(sec_object, &size, 0);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get object size ");
+		resval = res;
+		goto out_destroy;
+	}
+
+	if (size > FPGA_STR_SIZE) {
+		OPAE_ERR("object size bigger then buffer size");
+		resval = FPGA_EXCEPTION;
+		goto out_destroy;
+	}
+
+	res = fpgaObjectRead(sec_object, (uint8_t*)(&name), 0, size, 0);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to Read object ");
+		resval = res;
+		goto out_destroy;
+	}
+
+	snprintf_s_s(sysfs_name, FPGA_STR_SIZE, "%s", (char*)name);
+
+out_destroy:
+	res = fpgaDestroyObject(&sec_object);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to Destroy Object");
+		resval = res;
+	}
+
+	return resval;
+}
+
+
+fpga_result print_sec_info(fpga_token token)
+{
+	fpga_result res = FPGA_OK;
+	fpga_object tcm_object;
+	char name[FPGA_STR_SIZE] = { 0 };
+
+	res = fpgaTokenGetObject(token, SYSFS_TCM_GLOB, &tcm_object, FPGA_OBJECT_GLOB);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to get token Object");
+		return res;
+	}
+
+	if (read_sysfs(token, SYSFS_TCM_BMC_FWVERS, name) == FPGA_OK) 
+		printf("BMC FW Version: %s", name);
+	else 
+		OPAE_MSG("Failed to Read BMC FW Version");
+
+	memset_s(name, sizeof(name), 0);
+	if (read_sysfs(token, SYSFS_TCM_BIP_VER, name) == FPGA_OK)
+		printf("BIP Version: %s", name);
+	else
+		OPAE_MSG("Failed to Read BIP Version");
+
+	memset_s(name, sizeof(name), 0);
+	if (read_sysfs(token, SYSFS_TCM_FW_VER, name) == FPGA_OK)
+		printf("TCM FW Version: %s", name);
+	else
+		OPAE_MSG("Failed to Read TCM FW Version");
+
+	memset_s(name, sizeof(name), 0);
+	if (read_sysfs(token, SYSFS_TCM_CRYPTO_VER, name) == FPGA_OK)
+		printf("Crypto block Version: %s", name);
+	else
+		OPAE_MSG("Failed to Read Crypto block Version");
+
+	memset_s(name, sizeof(name), 0);
+	if (read_sysfs(token, SYSFS_TCM_SR_ROOT, name) == FPGA_OK)
+		printf("FIM root entry hash: %s", name);
+	else
+		OPAE_MSG("Failed to Read FIM root entry hash");
+
+	memset_s(name, sizeof(name), 0);
+	if (read_sysfs(token, SYSFS_TCM_BMC_ROOT, name) == FPGA_OK)
+		printf("BMC root entry hash: %s", name);
+	else
+		OPAE_MSG("Failed to Read TCM BMC root entry hash");
+
+	memset_s(name, sizeof(name), 0);
+	if (read_sysfs(token, SYSFS_TCM_PR_ROOT, name) == FPGA_OK)
+		printf("PR root entry hash: %s", name);
+
+	memset_s(name, sizeof(name), 0);
+	if (read_sysfs(token, SYSFS_TCM_BMC_FLASH_COUNT, name) == FPGA_OK)
+		printf("BMC flash update counter: %s", name);
+	else
+		OPAE_MSG("Failed to Read BMC flash update counter");
+
+	memset_s(name, sizeof(name), 0);
+	if (read_sysfs(token, SYSFS_TCM_QSPI_COUNT, name) == FPGA_OK)
+		printf("User flash update counter: %s", name);
+	else
+		OPAE_MSG("Failed to Read User flash update counter");
+
+	memset_s(name, sizeof(name), 0);
+	if (read_sysfs(token, SYSFS_TCM_SR_CANCEL, name) == FPGA_OK)
+		printf("FIM CSK IDs canceled : %s", strlen(name) > 1 ? name : "None\n");
+	else
+		OPAE_MSG("Failed to Read FIM CSK IDs canceled");
+
+	memset_s(name, sizeof(name), 0);
+	if (read_sysfs(token, SYSFS_TCM_BMC_CANCEL, name) == FPGA_OK)
+		printf("BMC CSK IDs canceled: %s", strlen(name) > 1 ? name : "None\n");
+	else
+		OPAE_MSG("Failed to Read BMC CSK IDs canceled");
+
+	memset_s(name, sizeof(name), 0);
+	if (read_sysfs(token, SYSFS_TCM_PR_CANCEL, name) == FPGA_OK)
+		printf("AFU CSK IDs canceled: %s", strlen(name) > 1 ? name : "None\n");
+	else
+		OPAE_MSG("Failed to Read AFU CSK IDs canceled");
+
+	res = fpgaDestroyObject(&tcm_object);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to Destroy Object");
+	}
 
 	return res;
 }

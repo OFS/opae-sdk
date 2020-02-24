@@ -1,4 +1,4 @@
-// Copyright(c) 2019, Intel Corporation
+// Copyright(c) 2019-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -78,6 +78,13 @@ fpga_result read_bmc_reset_cause(fpga_token token, char *reset_causee);
  *
  */
 fpga_result print_board_info(fpga_token token);
+
+
+fpga_result read_sysfs(fpga_token token,
+			char *sysfs_path,
+			char *sysfs_name);
+
+fpga_result print_sec_info(fpga_token token);
 
 #ifdef __cplusplus
 }
