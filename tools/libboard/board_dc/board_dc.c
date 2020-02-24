@@ -131,7 +131,7 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 	errno = 0;
 	var = strtoul(buf, &endptr, 16);
 	if (!endptr || *endptr != '\0') {
-		OPAE_ERR("Failed to covert buffer to integer: %s", strerror(errno));
+		OPAE_ERR("Failed to convert buffer to integer: %s", strerror(errno));
 		return FPGA_EXCEPTION;
 	}
 
