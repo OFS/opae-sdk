@@ -87,6 +87,7 @@ make -j  opae-c \
          argsfilter \
          board_rc \
          board_vc \
+         board_dc\
          fpgaconf \
          fpgainfo \
          fpgametrics \
@@ -165,6 +166,7 @@ ldconfig
 %{_libdir}/opae/libmodbmc.so*
 %{_libdir}/opae/libboard_rc.so*
 %{_libdir}/opae/libboard_vc.so*
+%{_libdir}/opae/libboard_dc.so*
 %{_libdir}/libsafestr.a*
 
 
