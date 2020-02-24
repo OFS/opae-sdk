@@ -1,4 +1,4 @@
-// Copyright(c) 2019, Intel Corporation
+// Copyright(c) 2019-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -130,7 +130,7 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 
 	errno = 0;
 	var = strtoul(buf, &endptr, 16);
-	if (endptr && *endptr == '\0') {
+	if (!endptr || *endptr == '\0') {
 		OPAE_ERR("Failed to covert buffer to integer: %s", strerror(errno));
 		return FPGA_EXCEPTION;
 	}
@@ -291,6 +291,7 @@ out_destroy_mac:
 fpga_result print_board_info(fpga_token token)
 {
 	fpga_result res                      = FPGA_OK;
+	fpga_result resval                   = FPGA_OK;
 	char bmc_ver[FPGA_VAR_BUF_LEN]       = { 0 };
 	char max10_ver[FPGA_VAR_BUF_LEN]     = { 0 };
 	char mac_str[18] = { 0 };
@@ -300,11 +301,13 @@ fpga_result print_board_info(fpga_token token)
 	res = read_bmcfw_version(token, bmc_ver, FPGA_VAR_BUF_LEN);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to read bmc version");
+		resval = res;
 	}
 
 	res = read_max10fw_version(token, max10_ver, FPGA_VAR_BUF_LEN);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to read max10 version");
+		resval = res;
 	}
 
 	printf("Board Management Controller, MAX10 NIOS FW version: %s \n", bmc_ver);
@@ -315,11 +318,12 @@ fpga_result print_board_info(fpga_token token)
 	res = read_mac_info(token, 0, &MAC);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to read mac address");
+		resval = res;
 	} else {
 		printf("%-1s : %s\n", "MAC address",
 			ether_ntoa_r(&MAC, mac_str));
 
 	}
 
-	return res;
+	return resval;
 }
