@@ -88,7 +88,7 @@ void *find_plugin(const char *libpath)
 	return NULL;
 }
 
-fpga_result load_board_plugin(fpga_token token, void** dl_handle)
+fpga_result load_board_plugin(fpga_token token, void **dl_handle)
 {
 	fpga_result res                = FPGA_OK;
 	fpga_result resval             = FPGA_OK;
@@ -122,7 +122,7 @@ fpga_result load_board_plugin(fpga_token token, void** dl_handle)
 		goto destroy;
 	}
 
-	if (pthread_mutex_lock(&board_plugin_lock) != 0 ) {
+	if (pthread_mutex_lock(&board_plugin_lock) != 0) {
 		OPAE_ERR("pthread mutex lock failed \n");
 		resval = FPGA_EXCEPTION;
 		goto destroy;
@@ -351,14 +351,11 @@ int parse_phy_args(int argc, char *argv[])
 			}
 			if (!strcmp("0", tmp_optarg)) {
 				group_num = 0;
-			}
-			else if (!strcmp("1", tmp_optarg)) {
+			} else if (!strcmp("1", tmp_optarg)) {
 				group_num = 1;
-			}
-			else if (!strcmp("all", tmp_optarg)) {
+			} else if (!strcmp("all", tmp_optarg)) {
 				group_num = -1;
-			}
-			else {
+			} else {
 				fprintf(stderr, "Invalid argument '%s' of option group\n",
 					tmp_optarg);
 				return -1;
@@ -429,7 +426,7 @@ fpga_result phy_command(fpga_token *tokens, int num_tokens, int argc,
 fpga_result fpgainfo_board_info(fpga_token token)
 {
 	fpga_result res        = FPGA_OK;
-	void* dl_handle = NULL;
+	void *dl_handle = NULL;
 
 	// Board version
 	fpga_result(*print_board_info)(fpga_token token);
@@ -456,7 +453,7 @@ out:
 fpga_result mac_info(fpga_token token)
 {
 	fpga_result res       = FPGA_OK;
-	void* dl_handle       = NULL;
+	void *dl_handle       = NULL;
 
 	// mac information
 	fpga_result(*print_mac_info)(fpga_token token);
@@ -483,7 +480,7 @@ out:
 fpga_result phy_group_info(fpga_token token)
 {
 	fpga_result res         = FPGA_OK;
-	void* dl_handle = NULL;
+	void *dl_handle = NULL;
 
 	// phy group info
 	fpga_result(*print_phy_info)(fpga_token token);
@@ -599,7 +596,7 @@ fpga_result sec_command(fpga_token *tokens, int num_tokens, int argc,
 fpga_result sec_info(fpga_token token)
 {
 	fpga_result res = FPGA_OK;
-	void* dl_handle = NULL;
+	void *dl_handle = NULL;
 
 	// Sec information
 	fpga_result(*print_sec_info)(fpga_token token);
@@ -613,8 +610,7 @@ fpga_result sec_info(fpga_token token)
 	print_sec_info = dlsym(dl_handle, "print_sec_info");
 	if (print_sec_info) {
 		res = print_sec_info(token);
-	}
-	else {
+	} else {
 		OPAE_MSG("No print_sec_info entry point:%s\n", dlerror());
 		res = FPGA_NOT_FOUND;
 	}

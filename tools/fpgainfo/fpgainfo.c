@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -196,15 +196,15 @@ void replace_chars(char *str, char match, char rep)
 void upcase_pci(char *str, size_t len)
 {
 	char *tmp = NULL;
-        errno_t res = EOK;
-        res = strcasestr_s(str, len, "pci", 3, &tmp);
+	errno_t res = EOK;
+	res = strcasestr_s(str, len, "pci", 3, &tmp);
 	while (res == EOK) {
 		*tmp++ = 'P';
 		*tmp++ = 'C';
 		*tmp++ = 'I';
-                str += 3;
-                len -= 3;
-                tmp = NULL;
+		str += 3;
+		len -= 3;
+		tmp = NULL;
 		res = strcasestr_s(str, len, "pci", 3, &tmp);
 	}
 }
@@ -212,24 +212,24 @@ void upcase_pci(char *str, size_t len)
 // Upper-case the first letter of each word in str
 void upcase_first(char *str)
 {
-        *str = toupper(*str);
-        char *tmp = strchr(str + 1, ' ');
-        while (tmp) {
-                if (tmp[1] && isalpha(tmp[1])) {
-                        tmp[1] = toupper(tmp[1]);
-                }
-                tmp = strchr(tmp + 1, ' ');
-        }
+	*str = toupper(*str);
+	char *tmp = strchr(str + 1, ' ');
+	while (tmp) {
+		if (tmp[1] && isalpha(tmp[1])) {
+			tmp[1] = toupper(tmp[1]);
+		}
+		tmp = strchr(tmp + 1, ' ');
+	}
 }
 
 // TODO: Move this to a common file for reuse in other fpgainfo files
 int str_in_list(const char *key, const char *list[], size_t size)
 {
-        int ret = 0;
-        size_t i = 0;
+	int ret = 0;
+	size_t i = 0;
 	for (i = 0; i < size; ++i) {
 		if (strcmp_s(key, RSIZE_MAX_STR, list[i], &ret) == EOK &&
-                        ret == 0) {
+			ret == 0) {
 			return (int)i;
 		}
 	}

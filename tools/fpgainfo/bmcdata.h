@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -30,7 +30,7 @@
 #include <opae/fpga.h>
 #include <opae/types.h>
 
-#define METRICS_MAX_NUM         256
+#define METRICS_MAX_NUM 256
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,16 +38,16 @@ extern "C" {
 
 typedef enum metrics_inquiry { FPGA_ALL, FPGA_POWER, FPGA_THERMAL, FPGA_PERF } metrics_inquiry;
 
-fpga_result get_metrics(fpga_token token, 
-                        metrics_inquiry inquiry,
-                        fpga_metric_info *metrics_info,
-                        uint64_t *num_metrics_info,
-                        fpga_metric *metrics, 
-                        uint64_t *num_metrics);
+fpga_result get_metrics(fpga_token token,
+			metrics_inquiry inquiry,
+			fpga_metric_info *metrics_info,
+			uint64_t *num_metrics_info,
+			fpga_metric *metrics,
+			uint64_t *num_metrics);
 
 void print_metrics(const fpga_metric_info *metrics_info,
-                   uint64_t num_metrics_info,
-                   const fpga_metric *metrics, uint64_t num);
+		   uint64_t num_metrics_info,
+		   const fpga_metric *metrics, uint64_t num);
 
 #ifdef __cplusplus
 }

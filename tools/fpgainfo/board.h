@@ -45,7 +45,7 @@ typedef struct _platform_data {
 	void *dl_handle;
 } platform_data;
 
-fpga_result load_board_plugin(fpga_token token, void** dl_handle);
+fpga_result load_board_plugin(fpga_token token, void **dl_handle);
 int unload_board_plugin(void);
 
 // Board info

@@ -271,7 +271,7 @@ int parse_error_args(int argc, char *argv[])
 	}
 
 	int cmp = 0;
-	if ((optind < argc) && 
+	if ((optind < argc) &&
 		strcmp_s(argv[optind - 1], RSIZE_MAX_STR, "errors", &cmp) == EOK &&
 		cmp == 0) {
 		char *verb = argv[optind];
@@ -357,7 +357,7 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 			       error_value);
 
 			int cmp = 0;
-			if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR, 
+			if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
 				    "Errors", &cmp) == EOK && cmp == 0) {
 				size = FME_ERROR_COUNT;
 				error_string = FME_ERROR;
@@ -472,7 +472,7 @@ fpga_result errors_command(fpga_token *tokens, int num_tokens, int argc,
 					fpgainfo_print_err(
 						"reading error info structure", res);
 					replace_chars(errinfos[j].name, '_', ' ');
-					upcase_pci(errinfos[j].name, 
+					upcase_pci(errinfos[j].name,
 						    strnlen_s(errinfos[j].name, RSIZE_MAX_STR));
 					upcase_first(errinfos[j].name);
 				}

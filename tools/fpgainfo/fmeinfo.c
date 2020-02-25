@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -45,11 +45,11 @@ void fme_help(void)
 
 static void print_fme_info(fpga_token token)
 {
-        fpga_properties props;
+	fpga_properties props;
 	fpga_result res = FPGA_OK;
-        res = fpgaGetProperties(token, &props);
+	res = fpgaGetProperties(token, &props);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-                             "Failure reading properties from token");
+			     "Failure reading properties from token");
 
 	fpgainfo_board_info(token);
 	fpgainfo_print_common("//****** FME ******//", props);
@@ -57,10 +57,10 @@ static void print_fme_info(fpga_token token)
 out_destroy:
 	res = fpgaDestroyProperties(&props);
 	ON_FPGAINFO_ERR_GOTO(res, out_exit,
-                             "destroying properties");
+			     "destroying properties");
 
 out_exit:
-        return;
+	return;
 }
 
 fpga_result fme_filter(fpga_properties *filter, int argc, char *argv[])
@@ -107,13 +107,13 @@ fpga_result fme_command(fpga_token *tokens, int num_tokens, int argc,
 			return res;
 
 		case ':': /* missing option argument */
-			OPAE_ERR( "Missing option argument\n");
+			OPAE_ERR("Missing option argument\n");
 			fme_help();
 			return FPGA_INVALID_PARAM;
 
 		case '?':
 		default: /* invalid option */
-			OPAE_ERR( "Invalid cmdline options\n");
+			OPAE_ERR("Invalid cmdline options\n");
 			fme_help();
 			return FPGA_INVALID_PARAM;
 		}
@@ -121,7 +121,7 @@ fpga_result fme_command(fpga_token *tokens, int num_tokens, int argc,
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
-                print_fme_info(tokens[i]);
+		print_fme_info(tokens[i]);
 	}
 
 	return res;

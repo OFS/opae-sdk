@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -31,89 +31,89 @@
 #include <string.h>
 #include <inttypes.h>
 
-fpga_result get_metrics(fpga_token token, 
-                        metrics_inquiry inquiry,
-                        fpga_metric_info *metrics_info,
-                        uint64_t *num_metrics_info,
-                        fpga_metric *metrics, 
-                        uint64_t *num_metrics)
+fpga_result get_metrics(fpga_token token,
+			metrics_inquiry inquiry,
+			fpga_metric_info *metrics_info,
+			uint64_t *num_metrics_info,
+			fpga_metric *metrics,
+			uint64_t *num_metrics)
 {
-        if (!metrics_info || !metrics || !num_metrics || !num_metrics_info) {
-            return FPGA_INVALID_PARAM;
-        }
+	if (!metrics_info || !metrics || !num_metrics || !num_metrics_info) {
+	    return FPGA_INVALID_PARAM;
+	}
 
-        fpga_result res = FPGA_OK;
-        fpga_result ret = FPGA_OK;
-        fpga_handle handle;
+	fpga_result res = FPGA_OK;
+	fpga_result ret = FPGA_OK;
+	fpga_handle handle;
 
-        /* open FPGA */
-        res = fpgaOpen(token, &handle, FPGA_OPEN_SHARED);
-        ON_FPGAINFO_ERR_GOTO(res, out_close, "opening FPGA");
+	/* open FPGA */
+	res = fpgaOpen(token, &handle, FPGA_OPEN_SHARED);
+	ON_FPGAINFO_ERR_GOTO(res, out_close, "opening FPGA");
 
-        res = fpgaGetNumMetrics(handle, num_metrics_info);
-        ON_FPGAINFO_ERR_GOTO(res, out_close, 
-                            "getting number of metrics");
+	res = fpgaGetNumMetrics(handle, num_metrics_info);
+	ON_FPGAINFO_ERR_GOTO(res, out_close,
+			     "getting number of metrics");
 
-        res = fpgaGetMetricsInfo(handle, metrics_info, num_metrics_info);
-        ON_FPGAINFO_ERR_GOTO(res, out_close, 
-                            "getting metrics info");
+	res = fpgaGetMetricsInfo(handle, metrics_info, num_metrics_info);
+	ON_FPGAINFO_ERR_GOTO(res, out_close,
+			     "getting metrics info");
 
-        /* get metrics */
-        uint64_t id_array[METRICS_MAX_NUM];
-        uint64_t i = 0;
-        uint64_t j = 0;
-        switch (inquiry) {
-        case FPGA_ALL:
-            for (i = 0; i < *num_metrics_info; ++i) {
-                id_array[j++] = i;
-            }
-            break;
-        case FPGA_POWER:
-            for (i = 0; i < *num_metrics_info; ++i) {
-                if (metrics_info[i].metric_type == FPGA_METRIC_TYPE_POWER) {
-                    id_array[j++] = i;
-                }
-            }
-            break;
-        case FPGA_THERMAL:
-            for (i = 0; i < *num_metrics_info; ++i) {
-                if (metrics_info[i].metric_type == FPGA_METRIC_TYPE_THERMAL) {
-                    id_array[j++] = i;
-                }
-            }
-            break;
-        case FPGA_PERF:
-            for (i = 0; i < *num_metrics_info; ++i) {
-                if (metrics_info[i].metric_type == FPGA_METRIC_TYPE_PERFORMANCE_CTR) {
-                    id_array[j++] = i;
-                }
-            }
-            break;
-        }
-        
-        *num_metrics = j;
+	/* get metrics */
+	uint64_t id_array[METRICS_MAX_NUM];
+	uint64_t i = 0;
+	uint64_t j = 0;
+	switch (inquiry) {
+	case FPGA_ALL:
+	    for (i = 0; i < *num_metrics_info; ++i) {
+		id_array[j++] = i;
+	    }
+	    break;
+	case FPGA_POWER:
+	    for (i = 0; i < *num_metrics_info; ++i) {
+		if (metrics_info[i].metric_type == FPGA_METRIC_TYPE_POWER) {
+			id_array[j++] = i;
+		}
+	    }
+	    break;
+	case FPGA_THERMAL:
+	    for (i = 0; i < *num_metrics_info; ++i) {
+		if (metrics_info[i].metric_type == FPGA_METRIC_TYPE_THERMAL) {
+			id_array[j++] = i;
+		}
+	    }
+	    break;
+	case FPGA_PERF:
+	    for (i = 0; i < *num_metrics_info; ++i) {
+		if (metrics_info[i].metric_type == FPGA_METRIC_TYPE_PERFORMANCE_CTR) {
+		    id_array[j++] = i;
+		}
+	    }
+	    break;
+	}
 
-        if (*num_metrics == 0) {
-            goto out_close;
-        }
+	*num_metrics = j;
 
-        res = fpgaGetMetricsByIndex(handle, id_array, *num_metrics, metrics);
-        ON_FPGAINFO_ERR_GOTO(res, out_close, "getting metrics");
+	if (*num_metrics == 0) {
+		goto out_close;
+	}
+
+	res = fpgaGetMetricsByIndex(handle, id_array, *num_metrics, metrics);
+	ON_FPGAINFO_ERR_GOTO(res, out_close, "getting metrics");
 
 out_close:
-        /* close FPGA */
-        ret = (res != FPGA_OK) ? res : ret;
-        res = fpgaClose(handle);
-        ON_FPGAINFO_ERR_GOTO(res, out_exit, "closing FPGA");
+	/* close FPGA */
+	ret = (res != FPGA_OK) ? res : ret;
+	res = fpgaClose(handle);
+	ON_FPGAINFO_ERR_GOTO(res, out_exit, "closing FPGA");
 
 out_exit:
-        ret = (res != FPGA_OK) ? res : ret;
-        return ret;
+	ret = (res != FPGA_OK) ? res : ret;
+	return ret;
 }
 
 void print_metrics(const fpga_metric_info *metrics_info,
-                    uint64_t num_metrics_info,
-                   const fpga_metric *metrics, uint64_t num_metrics)
+		   uint64_t num_metrics_info,
+		   const fpga_metric *metrics, uint64_t num_metrics)
 {
 	uint64_t i = 0;
 	for (i = 0; i < num_metrics; ++i) {
@@ -125,20 +125,19 @@ void print_metrics(const fpga_metric_info *metrics_info,
 				printf("(%2ld) %-27s : ", i + 1, metrics_info[idx].metric_name);
 
 				switch (metrics_info[idx].metric_datatype) {
-					case FPGA_METRIC_DATATYPE_INT:
-						printf("%" PRId64 "", metrics[i].value.ivalue);
-						break;
-					case FPGA_METRIC_DATATYPE_DOUBLE:
-						/* FALLTHROUGH */
-					case FPGA_METRIC_DATATYPE_FLOAT:
-						printf("%0.2f", metrics[i].value.dvalue);
-						break;
-					case FPGA_METRIC_DATATYPE_BOOL:
-						printf("%d", metrics[i].value.bvalue);
-						break;
-					default:
-						OPAE_ERR(" Metrics Invalid datatype");
-						break;
+				case FPGA_METRIC_DATATYPE_INT:
+					printf("%" PRId64 "", metrics[i].value.ivalue);
+					break;
+				case FPGA_METRIC_DATATYPE_DOUBLE: /* FALLTHROUGH */
+				case FPGA_METRIC_DATATYPE_FLOAT:
+					printf("%0.2f", metrics[i].value.dvalue);
+					break;
+				case FPGA_METRIC_DATATYPE_BOOL:
+					printf("%d", metrics[i].value.bvalue);
+					break;
+				default:
+					OPAE_ERR("Metrics Invalid datatype");
+					break;
 				}
 
 				printf(" %s\n", metrics_info[idx].metric_units);

@@ -169,11 +169,11 @@ struct command_handler *get_command(char *cmd)
 {
 	int cmd_size = sizeof(cmd_array) / sizeof(cmd_array[0]);
 	// find the command handler for the command
-        int cmp = 0;
-        int i = 0;
+	int cmp = 0;
+	int i = 0;
 	for (i = 0; i < cmd_size; ++i) {
 		if (strcmp_s(cmd, RSIZE_MAX_STR, cmd_array[i].command, &cmp) == EOK &&
-                        cmp == 0) {
+			cmp == 0) {
 			return &cmd_array[i];
 		}
 	}
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
 
 	ret_value = parse_args(argc, argv);
 	if (ret_value != EX_OK) {
-    		fpgaDestroyProperties(&filter);
+		fpgaDestroyProperties(&filter);
 		return ret_value == EX_TEMPFAIL ? EX_OK : ret_value;
 	}
 
@@ -276,10 +276,10 @@ int main(int argc, char *argv[])
 	res = handler->run(tokens, matches, argc, argv);
 
 out_destroy_tokens:
-        for (i = 0; i < num_tokens; i++) {
-            fpgaDestroyToken(&tokens[i]);
-        }
-        free(tokens);
+	for (i = 0; i < num_tokens; i++) {
+	    fpgaDestroyToken(&tokens[i]);
+	}
+	free(tokens);
 
 out_destroy:
 	if (res != FPGA_OK)

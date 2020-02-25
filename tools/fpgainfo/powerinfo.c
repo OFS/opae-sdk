@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -49,30 +49,30 @@ void power_help(void)
 
 static void print_power_info(fpga_token token)
 {
-        fpga_properties props;
-        fpga_metric_info metrics_info[METRICS_MAX_NUM] = {{0}};
-        fpga_metric metrics[METRICS_MAX_NUM] = {{0}};
-        uint64_t num_metrics;
-         uint64_t num_metrics_info;
-        fpga_result res = FPGA_OK;
+	fpga_properties props;
+	fpga_metric_info metrics_info[METRICS_MAX_NUM] = { { 0 } };
+	fpga_metric metrics[METRICS_MAX_NUM] = { { 0 } };
+	uint64_t num_metrics;
+	uint64_t num_metrics_info;
+	fpga_result res = FPGA_OK;
 
-        res = fpgaGetProperties(token, &props);
-        ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading properties from token");
+	res = fpgaGetProperties(token, &props);
+	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading properties from token");
 
-        fpgainfo_board_info(token);
-        fpgainfo_print_common("//****** POWER ******//", props);
+	fpgainfo_board_info(token);
+	fpgainfo_print_common("//****** POWER ******//", props);
 
-        res = get_metrics(token, FPGA_POWER, metrics_info, &num_metrics_info, metrics, &num_metrics);
-        ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading metrics from BMC");
+	res = get_metrics(token, FPGA_POWER, metrics_info, &num_metrics_info, metrics, &num_metrics);
+	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading metrics from BMC");
 
-        print_metrics(metrics_info, num_metrics_info, metrics, num_metrics);
+	print_metrics(metrics_info, num_metrics_info, metrics, num_metrics);
 
 out_destroy:
 	res = fpgaDestroyProperties(&props);
-        ON_FPGAINFO_ERR_GOTO(res, out_exit, "destroying properties");
+	ON_FPGAINFO_ERR_GOTO(res, out_exit, "destroying properties");
 
 out_exit:
-        return;
+	return;
 }
 
 fpga_result power_filter(fpga_properties *filter, int argc, char *argv[])
@@ -133,7 +133,7 @@ fpga_result power_command(fpga_token *tokens, int num_tokens, int argc,
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
-                print_power_info(tokens[i]);
+		print_power_info(tokens[i]);
 	}
 
 	return res;

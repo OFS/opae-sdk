@@ -72,55 +72,54 @@ fpga_result bmc_filter(fpga_properties *filter, int argc, char *argv[])
 
 static void print_bmc_info(fpga_token token)
 {
-        fpga_properties props;
-        fpga_metric_info metrics_info[METRICS_MAX_NUM];
-        fpga_metric metrics[METRICS_MAX_NUM] = {{0}};
-        uint64_t num_metrics;
-        uint64_t num_metrics_info;
-        fpga_result res = FPGA_OK;
+	fpga_properties props;
+	fpga_metric_info metrics_info[METRICS_MAX_NUM];
+	fpga_metric metrics[METRICS_MAX_NUM] = { { 0 } };
+	uint64_t num_metrics;
+	uint64_t num_metrics_info;
+	fpga_result res = FPGA_OK;
 
-        res = fpgaGetProperties(token, &props);
-        ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-                             "reading properties from token");
+	res = fpgaGetProperties(token, &props);
+	ON_FPGAINFO_ERR_GOTO(res, out_exit,
+			     "reading properties from token");
 
-        fpgainfo_board_info(token);
-        fpgainfo_print_common("//****** BMC SENSORS ******//", props);
+	fpgainfo_board_info(token);
+	fpgainfo_print_common("//****** BMC SENSORS ******//", props);
 
-        res = get_metrics(token, FPGA_ALL, metrics_info, &num_metrics_info, metrics, &num_metrics);
-        ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-                             "reading metrics from BMC");
+	res = get_metrics(token, FPGA_ALL, metrics_info, &num_metrics_info, metrics, &num_metrics);
+	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
+			     "reading metrics from BMC");
 
-        print_metrics(metrics_info, num_metrics_info, metrics, num_metrics);
+	print_metrics(metrics_info, num_metrics_info, metrics, num_metrics);
 
 out_destroy:
 	res = fpgaDestroyProperties(&props);
-        ON_FPGAINFO_ERR_GOTO(res, out_exit,
-                             "destroying properties");
+	ON_FPGAINFO_ERR_GOTO(res, out_exit, "destroying properties");
 
 out_exit:
-        return;
+	return;
 }
 
 static void print_perf_info(fpga_token token)
 {
-        fpga_properties props;
-        fpga_metric_info metrics_info[METRICS_MAX_NUM];
-        fpga_metric metrics[METRICS_MAX_NUM];
-        uint64_t num_metrics;
-        uint64_t num_metrics_info;
-        fpga_result res = FPGA_OK;
+	fpga_properties props;
+	fpga_metric_info metrics_info[METRICS_MAX_NUM];
+	fpga_metric metrics[METRICS_MAX_NUM];
+	uint64_t num_metrics;
+	uint64_t num_metrics_info;
+	fpga_result res = FPGA_OK;
 
-        res = fpgaGetProperties(token, &props);
-        ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-                             "reading properties from token");
-        fpgainfo_board_info(token);
-        fpgainfo_print_common("//****** PERFORMANCE COUNTERS ******//", props);
+	res = fpgaGetProperties(token, &props);
+	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
+			     "reading properties from token");
+	fpgainfo_board_info(token);
+	fpgainfo_print_common("//****** PERFORMANCE COUNTERS ******//", props);
 
-        res = get_metrics(token, FPGA_PERF, metrics_info, &num_metrics_info, metrics, &num_metrics);
-        ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-                             "reading metrics from BMC");
+	res = get_metrics(token, FPGA_PERF, metrics_info, &num_metrics_info, metrics, &num_metrics);
+	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
+			     "reading metrics from BMC");
 
-        print_metrics(metrics_info, num_metrics_info, metrics, num_metrics);
+	print_metrics(metrics_info, num_metrics_info, metrics, num_metrics);
 
 out_destroy:
 	fpgaDestroyProperties(&props);

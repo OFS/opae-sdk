@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -45,26 +45,26 @@ static void print_port_info(fpga_token token)
 {
 	char guid_str[38];
 	fpga_guid guid;
-        fpga_properties props;
+	fpga_properties props;
 	fpga_result res = FPGA_OK;
-        res = fpgaGetProperties(token, &props);
+	res = fpgaGetProperties(token, &props);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-                             "Failure reading properties from token");
+			     "Failure reading properties from token");
 	fpgainfo_print_common("//****** PORT ******//", props);
 
 	res = fpgaPropertiesGetGUID(props, &guid);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-	                     "reading guid from properties");
+			     "reading guid from properties");
 	uuid_unparse(guid, guid_str);
 	printf("%-32s : %s\n", "Accelerator GUID", guid_str);
 
 out_destroy:
 	res = fpgaDestroyProperties(&props);
 	ON_FPGAINFO_ERR_GOTO(res, out_exit,
-	                     "destroying properties");
+			     "destroying properties");
 
 out_exit:
-        return;
+	return;
 }
 
 fpga_result port_filter(fpga_properties *filter, int argc, char *argv[])
@@ -109,13 +109,13 @@ fpga_result port_command(fpga_token *tokens, int num_tokens, int argc,
 			return res;
 
 		case ':': /* missing option argument */
-			OPAE_ERR( "Missing option argument\n");
+			OPAE_ERR("Missing option argument\n");
 			port_help();
 			return FPGA_INVALID_PARAM;
 
 		case '?':
 		default: /* invalid option */
-			OPAE_ERR( "Invalid cmdline options\n");
+			OPAE_ERR("Invalid cmdline options\n");
 			port_help();
 			return FPGA_INVALID_PARAM;
 		}
@@ -123,7 +123,7 @@ fpga_result port_command(fpga_token *tokens, int num_tokens, int argc,
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
-                print_port_info(tokens[i]);
+		print_port_info(tokens[i]);
 	}
 
 	return res;
