@@ -58,8 +58,7 @@ struct option longopts[] = {
 };
 
 // User clock Command line struct
-struct  UserClkCommandLine
-{
+struct UserClkCommandLine {
 	int      segment;
 	int      bus;
 	int      device;
@@ -110,23 +109,22 @@ int ParseCmds(struct UserClkCommandLine *userclkCmdLine, int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-	fpga_properties filter             = NULL;
-	uint32_t num_matches               = 1;
-	fpga_result result                 = FPGA_OK;
-	fpga_result res                    = FPGA_OK;
-	uint64_t userclk_high              = 0;
-	uint64_t userclk_low               = 0;
-	fpga_token accel_token             = NULL;
-	int high                           = 0;
-	int low                            = 0;
-
-	fpga_handle        accelerator_handle;
+	fpga_properties filter	= NULL;
+	uint32_t num_matches	= 1;
+	fpga_result result	= FPGA_OK;
+	fpga_result res		= FPGA_OK;
+	uint64_t userclk_high	= 0;
+	uint64_t userclk_low	= 0;
+	fpga_token accel_token	= NULL;
+	int high		= 0;
+	int low			= 0;
+	fpga_handle		accelerator_handle;
 
 	// Parse command line
-	if ( argc < 2 ) {
+	if (argc < 2) {
 		UserClkAppShowHelp();
 		return 1;
-	} else if ( 0!= ParseCmds(&userclkCmdLine, argc, argv) ) {
+	} else if (0 != ParseCmds(&userclkCmdLine, argc, argv)) {
 		return 2;
 	}
 
@@ -167,17 +165,17 @@ int main(int argc, char *argv[])
 		ON_ERR_GOTO(result, out_destroy_prop, "setting device");
 	}
 
-	if (-1 != userclkCmdLine.function){
+	if (-1 != userclkCmdLine.function) {
 		result = fpgaPropertiesSetFunction(filter, userclkCmdLine.function);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting function");
 	}
 
-	if (-1 != userclkCmdLine.socket){
+	if (-1 != userclkCmdLine.socket) {
 		result = fpgaPropertiesSetSocketID(filter, userclkCmdLine.socket);
 		ON_ERR_GOTO(result, out_destroy_prop, "setting socket");
 	}
 
-	result = fpgaEnumerate(&filter, 1, &accel_token,1, &num_matches);
+	result = fpgaEnumerate(&filter, 1, &accel_token, 1, &num_matches);
 	ON_ERR_GOTO(result, out_destroy_prop, "enumerating FPGAs");
 
 	if (num_matches < 1) {
@@ -193,12 +191,12 @@ int main(int argc, char *argv[])
 	res = fpgaGetUserClock(accelerator_handle, &userclk_high, &userclk_low, 0);
 	ON_ERR_GOTO(res, out_close, "Failed to get user clock");
 
- 	printf("\nApproximate frequency:\n"
+	printf("\nApproximate frequency:\n"
 		"High clock = %5.1f MHz\n"
 		"Low clock  = %5.1f MHz\n \n",
 		userclk_high / 1.0e6, userclk_low / 1.0e6);
 
-	if (userclkCmdLine.freq_high > 0 || userclkCmdLine.freq_low > 0 ) {
+	if (userclkCmdLine.freq_high > 0 || userclkCmdLine.freq_low > 0) {
 		high = userclkCmdLine.freq_high;
 		low = userclkCmdLine.freq_low;
 		if (low <= 0) {
@@ -251,21 +249,19 @@ int ParseCmds(struct UserClkCommandLine *userclkCmdLine, int argc, char *argv[])
 	int option_index   = 0;
 	char *endptr       = NULL;
 
-	while( -1 != ( getopt_ret = getopt_long(argc, argv, GETOPT_STRING, longopts, &option_index))){
+	while (-1 != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING, longopts, &option_index))) {
 		const char *tmp_optarg = optarg;
 
-		if((optarg) &&
-		   ('=' == *tmp_optarg)) {
+		if ((optarg) && ('=' == *tmp_optarg)) {
 			++tmp_optarg;
 		}
 
-		if((!optarg) && (optind < argc) &&
-		   (NULL != argv[optind]) &&
-	 	   ('-' != argv[optind][0]) ) {
+		if ((!optarg) && (optind < argc) && (NULL != argv[optind]) &&
+			('-' != argv[optind][0])) {
 			tmp_optarg = argv[optind++];
 		}
 
-		switch(getopt_ret){
+		switch (getopt_ret) {
 		case 'h':
 			// Command line help
 			UserClkAppShowHelp();
