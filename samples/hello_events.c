@@ -137,7 +137,7 @@ out_close:
 	return res1 != FPGA_OK ? res1 : res2;
 }
 
-void * error_thread(void *arg)
+void *error_thread(void *arg)
 {
 	fpga_token token = (fpga_token) arg;
 	fpga_result res;
@@ -164,22 +164,22 @@ void * error_thread(void *arg)
 fpga_result parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
-		{"bus",     required_argument, NULL, 'B'},
-		{"version", no_argument,       NULL, 'v'},
-		{NULL, 0, NULL, 0}
+		{ "bus",     required_argument, NULL, 'B' },
+		{ "version", no_argument,       NULL, 'v' },
+		{ NULL,      0,                 NULL, 0   }
 	};
-	
+
 	int getopt_ret;
 	int option_index;
 	char *endptr = NULL;
 
-	while (-1 != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING, longopts, &option_index))){
+	while (-1 != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING, longopts, &option_index))) {
 		const char *tmp_optarg = optarg;
 		/* checks to see if optarg is null and if not goes to value of optarg */
-		if ((optarg) && ('=' == *tmp_optarg)){
+		if ((optarg) && ('=' == *tmp_optarg)) {
 			++tmp_optarg;
 		}
-		
+
 	switch (getopt_ret) {
 	case 'B': /* bus */
 		if (NULL == tmp_optarg)
@@ -204,7 +204,7 @@ fpga_result parse_args(int argc, char *argv[])
 		return FPGA_EXCEPTION;
 	}
 	}
-	
+
 	return FPGA_OK;
 }
 
@@ -225,15 +225,15 @@ fpga_result find_fpga(fpga_token *fpga, uint32_t *num_matches)
 		res = fpgaPropertiesSetBus(filter, events_config.target.bus);
 		ON_ERR_GOTO(res, out_destroy, "setting bus");
 	}
-		
-	res= fpgaEnumerate(&filter, 1, fpga, 1, num_matches);
+
+	res = fpgaEnumerate(&filter, 1, fpga, 1, num_matches);
 	ON_ERR_GOTO(res, out_destroy, "enumerating FPGAs");
 
 out_destroy:
 	dres = fpgaDestroyProperties(&filter);
 	ON_ERR_GOTO(dres, out, "destroying properties object");
 out:
-	return (res == FPGA_OK) ? dres: res;
+	return (res == FPGA_OK) ? dres : res;
 }
 
 
@@ -249,7 +249,7 @@ fpga_result get_bus(fpga_token tok, uint8_t *bus)
 
 	res1 = fpgaPropertiesGetBus(props, bus);
 	ON_ERR_GOTO(res1, out_destroy, "Reading bus from properties");
-	
+
 out_destroy:
 	res2 = fpgaDestroyProperties(&props);
 	ON_ERR_GOTO(res2, out, "fpgaDestroyProps");
@@ -289,12 +289,12 @@ int main(int argc, char *argv[])
 	}
 
 	res1 = get_bus(fpga_device_token, &bus);
-	ON_ERR_GOTO(res1, out_destroy_tok, "getting bus num");	
+	ON_ERR_GOTO(res1, out_destroy_tok, "getting bus num");
 
 	if (num_matches > 1) {
 		fprintf(stderr, "Found more than one suitable slot. ");
 	}
-       
+
 	printf("Running on bus 0x%02x.\n", bus);
 
 	res1 = fpgaOpen(fpga_device_token, &fpga_device_handle, FPGA_OPEN_SHARED);
@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
 	ON_ERR_GOTO(res1, out_destroy_eh, "registering an FME event");
 
 	printf("Waiting for interrupts now...\n");
-	
+
 	res = pthread_create(&errthr, NULL, error_thread, fpga_device_token);
 	if (res) {
 		printf("Failed to create error_thread.\n");
