@@ -1,4 +1,4 @@
-// Copyright(c) 2019, Intel Corporation
+// Copyright(c) 2019-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -100,7 +100,7 @@ opae_bitstream_parse_metadata_v1(json_object *root,
  * Release a parsed metadata version 1 object.
  *
  * @param[in] md The metadata object to be released.
- */ 
+ */
 void opae_bitstream_release_metadata_v1(opae_bitstream_metadata_v1 *md);
 
 #ifdef __cplusplus

@@ -1,4 +1,4 @@
-// Copyright(c) 2019, Intel Corporation
+// Copyright(c) 2019-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -74,7 +74,7 @@ fpga_result opae_bitstream_get_json_string(json_object *parent,
  *
  * @returns FPGA_OK on success. FPGA_EXCEPTION if `name`
  * is not found or if `name` is not a key of type integer.
- */ 
+ */
 fpga_result opae_bitstream_get_json_int(json_object *parent,
 					const char *name,
 					int *value);
@@ -88,7 +88,7 @@ fpga_result opae_bitstream_get_json_int(json_object *parent,
  *
  * @returns FPGA_OK on success. FPGA_EXCEPTION if `name`
  * is not found or if `name` is not a key of type double.
- */ 
+ */
 fpga_result opae_bitstream_get_json_double(json_object *parent,
 					   const char *name,
 					   double *value);
@@ -111,7 +111,7 @@ fpga_result opae_bitstream_get_json_double(json_object *parent,
  *
  * @returns true if `path` is accepted, or false if `path`
  * is rejected, based on the requested checks.
- */ 
+ */
 bool opae_bitstream_path_is_valid(const char *path,
 				  uint32_t flags);
 

@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2019, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -155,7 +155,7 @@ STATIC void *opae_bitstream_parse_metadata(const char *metadata,
 			 json_tokener_error_desc(j_err));
 		return NULL;
 	}
-	
+
 	if (!json_object_object_get_ex(root,
 				       "version",
 				       &j_version)) {
