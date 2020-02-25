@@ -87,7 +87,7 @@ config = {
 };
 
 // Metric Command line input help
-void FpgaMetricsAppShowHelp()
+void FpgaMetricsAppShowHelp(void)
 {
 	printf("Usage:\n");
 	printf("fpgametrics\n");
@@ -104,14 +104,14 @@ void FpgaMetricsAppShowHelp()
 fpga_result parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
-		{"bus",	   required_argument, NULL, 'B'},
-		{"fme-metrics"  ,no_argument, NULL, 'F'},
-		{"afu-metrics"  ,no_argument, NULL, 'A'},
-		{"shared", no_argument,       NULL, 's'},
-		{"version", no_argument,      NULL, 'v'},
-		{NULL,     0,                 NULL,  0 },
+		{ "bus",         required_argument, NULL, 'B' },
+		{ "fme-metrics", no_argument,       NULL, 'F' },
+		{ "afu-metrics", no_argument,       NULL, 'A' },
+		{ "shared",      no_argument,       NULL, 's' },
+		{ "version",     no_argument,       NULL, 'v' },
+		{ NULL,          0,                 NULL,  0  },
 	};
-	
+
 	int getopt_ret;
 	int option_index;
 	char *endptr = NULL;
@@ -120,13 +120,13 @@ fpga_result parse_args(int argc, char *argv[])
 						longopts, &option_index))) {
 		const char *tmp_optarg = optarg;
 		/* Checks to see if optarg is null and if not it goes to value of optarg */
-		if ((optarg) && ('=' == *tmp_optarg)){
+		if ((optarg) && ('=' == *tmp_optarg)) {
 			++tmp_optarg;
 		}
 
-		switch (getopt_ret){
+		switch (getopt_ret) {
 		case 'B': /* bus */
-			if (NULL == tmp_optarg){
+			if (NULL == tmp_optarg) {
 				return FPGA_EXCEPTION;
 			}
 			endptr = NULL;
@@ -142,7 +142,7 @@ fpga_result parse_args(int argc, char *argv[])
 		case 'F':
 			config.target.fme_metrics = true;
 			break;
-		
+
 		case 'A':
 			config.target.afu_metrics = true;
 			config.target.fme_metrics = false;
@@ -160,21 +160,19 @@ fpga_result parse_args(int argc, char *argv[])
 			return FPGA_EXCEPTION;
 		}
 	}
-	
+
 	return FPGA_OK;
 }
 
 
-
-
-	
 /* function to get the bus number when there are multiple buses */
 /* TODO: add device and function information */
 struct bdf_info {
 	uint8_t bus;
 };
 
-fpga_result get_bus_info(fpga_token tok, struct bdf_info *finfo){
+fpga_result get_bus_info(fpga_token tok, struct bdf_info *finfo)
+{
 	fpga_result res    = FPGA_OK;
 	fpga_result resval = FPGA_OK;
 	fpga_properties props;
@@ -194,7 +192,8 @@ out:
 	return resval;
 }
 
-void print_bus_info(struct bdf_info *info){
+void print_bus_info(struct bdf_info *info)
+{
 	printf("Running on bus 0x%02X. \n", info->bus);
 }
 
@@ -218,12 +217,13 @@ int main(int argc, char *argv[])
 	if (argc < 2) {
 		FpgaMetricsAppShowHelp();
 		return 1;
-	}
-	else if (0 != (res = parse_args(argc, argv))) {
-		if ((int)res > 0) {
-			OPAE_ERR("Error scanning command line \n.");
+	} else {
+		res = parse_args(argc, argv);
+		if (res != 0) {
+			if ((int)res > 0)
+				OPAE_ERR("Error scanning command line\n.");
+			return 2;
 		}
-		return 2;
 	}
 
 	/* Get number of FPGAs in system */
@@ -265,13 +265,12 @@ int main(int argc, char *argv[])
 	/* Open fpga  */
 	res = fpgaOpen(fpga_token, &fpga_handle, config.target.open_flags);
 	ON_ERR_GOTO(res, out_destroy_tok, "opening fpga");
- 
 
 
 	res = fpgaGetNumMetrics(fpga_handle, &num_metrics);
 	ON_ERR_GOTO(res, out_close, "get num of metrics");
-	printf("\n\n ------Number of Metrics Discoverd = %ld ------- \n\n\n", num_metrics);
-	
+	printf("\n\n ------Number of Metrics Discovered = %ld ------- \n\n\n", num_metrics);
+
 	metric_info = calloc(sizeof(struct fpga_metric_info), num_metrics);
 	if (metric_info == NULL) {
 		printf(" Failed to allocate memroy \n");
@@ -293,7 +292,7 @@ int main(int argc, char *argv[])
 	printf("metric_num              qualifier_name      group_name             metric_name            metric_units\n");
 	printf("---------------------------------------------------------------------------------------------------\n");
 
-	for (i = 0; i < num_metrics; i++){
+	for (i = 0; i < num_metrics; i++) {
 
 		printf("%-3ld  | %-30s  | %-15s  | %-30s  | %-10s \n",
 						metric_info[i].metric_num,
@@ -319,7 +318,7 @@ int main(int argc, char *argv[])
 	printf("    metric_num              qualifier_name                    metric_name              value     \n ");
 	printf("-------------------------------------------------------------------------------------------------\n ");
 
-	for (i = 0; i < num_metrics; i++){
+	for (i = 0; i < num_metrics; i++) {
 
 		uint64_t num = metric_array[i].metric_num;
 		if (metric_info[num].metric_datatype == FPGA_METRIC_DATATYPE_INT &&
@@ -377,7 +376,7 @@ out_destroy:
 	resval = (res != FPGA_OK) ? res : resval;
 	res = fpgaDestroyProperties(&filter);
 	ON_ERR_GOTO(res, out_exit, "destroying properties object");
- 
+
 out_exit:
 	resval = (res != FPGA_OK) ? res : resval;
 	return (resval == FPGA_OK) ? 0 : 1;
