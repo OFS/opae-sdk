@@ -64,6 +64,11 @@ add_executable(hello_cxxcore samples/hello_fpga-1.cpp)
 target_link_libraries(hello_cxxcore opae-c ${CMAKE_THREAD_LIBS_INIT} opae-cxx-core )
 
 
+# Target properties
+set_target_properties(opae-cxx-core PROPERTIES
+  VERSION ${INTEL_FPGA_API_VERSION}
+  SOVERSION ${INTEL_FPGA_API_VER_MAJOR})
+
 # Define headers for this library. PUBLIC headers are used for
 # compiling the library, and will be added to consumers' build
 # paths. Keep current directory private.
