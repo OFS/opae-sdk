@@ -60,13 +60,16 @@ struct {
 	void *param;
 } cleanup[MAX_CLEANUP];
 
-static int cleanup_size = 0;
+static int cleanup_size;
 
-#define ADD_TO_CLEANUP(func, p)                                                \
-	if (cleanup_size < MAX_CLEANUP) {                                      \
-		cleanup[cleanup_size].fn = (destroy_f)func;                    \
-		cleanup[cleanup_size++].param = p;                             \
-	}
+#define ADD_TO_CLEANUP(func, p)                                         \
+do {									\
+	if (cleanup_size < MAX_CLEANUP) {                               \
+		cleanup[cleanup_size].fn = (destroy_f)func;             \
+		cleanup[cleanup_size++].param = p;                      \
+	}								\
+} while (0)
+
 #define MAX_TOKENS 4
 #define MAX_GROUP_OBJECTS 32
 typedef struct {
@@ -108,25 +111,28 @@ metric_group *init_metric_group(fpga_token token, const char *name,
 	group->token = token;
 	group->name = name;
 	group->count = 0;
+
 	if (fpgaGetProperties(token, &props) == FPGA_OK) {
-		if ((res = fpgaPropertiesGetBus(props, &group->bus))
-		    != FPGA_OK) {
+		res = fpgaPropertiesGetBus(props, &group->bus);
+		if (res != FPGA_OK)
 			print_err("error reading bus", res);
-		}
-		if ((res = fpgaPropertiesGetDevice(props, &group->device))
-		    != FPGA_OK) {
+
+		res = fpgaPropertiesGetDevice(props, &group->device);
+		if (res != FPGA_OK)
 			print_err("error reading device", res);
-		}
-		if ((res = fpgaPropertiesGetFunction(props, &group->function))
-		    != FPGA_OK) {
+
+		res = fpgaPropertiesGetFunction(props, &group->function);
+		if (res != FPGA_OK)
 			print_err("error reading function", res);
-		}
 	}
+
 	fpgaDestroyProperties(&props);
+
 	if (fpgaTokenGetObject(token, name, &group->object, FPGA_OBJECT_GLOB)
 	    == FPGA_OK) {
 		return group;
 	}
+
 	return NULL;
 }
 
@@ -257,8 +263,9 @@ int main(int argc, char *argv[])
 	uint32_t i = 0, j = 0;
 	token_group *metrics = NULL;
 
-	if ((res = parse_args(argc, argv)) != FPGA_OK) {
-		if((int)res > 0)
+	res = parse_args(argc, argv);
+	if (res != FPGA_OK) {
+		if ((int)res > 0)
 			print_err("error parsing arguments", res);
 		return -1;
 	}
@@ -319,16 +326,13 @@ int main(int argc, char *argv[])
 out_free:
 
 	while (cleanup_size-- > 0) {
-		if ((res = cleanup[cleanup_size].fn(
-			     cleanup[cleanup_size].param))
-		    != FPGA_OK) {
+		res = cleanup[cleanup_size].fn(cleanup[cleanup_size].param);
+		if (res != FPGA_OK) {
 			print_err("Error destroying structure: ", res);
 		}
 	}
 
-
 	if (metrics) {
-
 		for (i = 0; i < num_matches; ++i) {
 			if (metrics[i].groups)
 				free(metrics[i].groups);
