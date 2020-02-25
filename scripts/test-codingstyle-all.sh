@@ -87,14 +87,14 @@ check_py () {
 
     PYCODESTYLE=$(which pycodestyle)
     PYLINT=$(which pylint)
-    FILES=$(find . -iname "*.py" -not -name "test_fpgadiag.py" -not -name "cpplint.py" -not -name "setup.py" -not -path "./doc/*" -not -path "./tools/extra/packager/jsonschema-2.3.0/*" -not -path  "./opae-libs/pyopae/pybind11/*" -and \( ! -name "__init__.py" \))
+    FILES=$(find . -iname "*.py" -not -name "test_fpgadiag.py" -not -name "cpplint.py" -not -name "setup.py" -not -path "./doc/*" -not -path "./tools/extra/packager/jsonschema-2.3.0/*" -not -path  "$OPAE_SDK_ROOT/opae-libs/pyopae/pybind11/*" -and \( ! -name "__init__.py" \))
     FILES+=" "
     FILES+=$(grep -rl "^#./usr/bin.*python" ./* | grep -v cpplint.py | grep -vE "^\.\/(doc|pyopae\/pybind11)\/")
 
     if [ "$TRAVIS_COMMIT_RANGE" != "" ]; then
         CHANGED_FILES=$(git diff --name-only $TRAVIS_COMMIT_RANGE)
-        printf "Looking at changed files:\n${CHANGED_FILES}"
         FILES=$(comm -12 <(sort <(for f in $FILES; do printf "$f\n"; done)) <(sort <(for f in $CHANGED_FILES; do printf "./$f\n"; done)))
+        printf "Looking at changed files:\n${FILES}"
     fi
 
     if [ "$1" == "-v" ]; then
