@@ -305,7 +305,7 @@ int main(int argc, char *argv[])
 			tokens[i], "*perf/fabric", &metrics[i].groups[0]);
 		if (!g_fabric)
 			goto out_free;
-		ADD_TO_CLEANUP(fpgaDestroyObject, &(g_fabric->object))
+		ADD_TO_CLEANUP(fpgaDestroyObject, &(g_fabric->object));
 		add_counter(g_fabric, "mmio_write");
 		add_counter(g_fabric, "mmio_read");
 	}

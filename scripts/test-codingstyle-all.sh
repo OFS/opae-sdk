@@ -19,8 +19,6 @@ find_c() {
     find "${OPAE_SDK_ROOT}/tools/fpgainfo" -iname "*.c" -or -iname "*.h"
     find "${OPAE_SDK_ROOT}/tools/fpgametrics" -iname "*.c" -or -iname "*.h"
     find "${OPAE_SDK_ROOT}/tools/libboard" -iname "*.c" -or -iname "*.h"
-    find "${OPAE_SDK_ROOT}/external/opae-legacy/tools/coreidle" -iname "*.c" -or -iname "*.h"
-    find "${OPAE_SDK_ROOT}/external/opae-legacy/tools/fpgad" -iname "*.c" -or -iname "*.h"
 }
 
 check_c () {
