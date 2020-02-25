@@ -137,7 +137,7 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 
 	retval = snprintf_s_iii(fw_ver, len, "%u.%u.%u", (var >> 16) & 0xff, (var >> 8) & 0xff, var & 0xff);
 	if (retval < 0) {
-			OPAE_ERR("error in formatting version" );
+			OPAE_ERR("error in formatting version");
 			return FPGA_EXCEPTION;
 	}
 
@@ -313,7 +313,7 @@ fpga_result print_board_info(fpga_token token)
 	printf("Board Management Controller, MAX10 NIOS FW version: %s \n", bmc_ver);
 	printf("Board Management Controller, MAX10 Build version: %s \n", max10_ver);
 
-	memset_s((void*)&MAC, sizeof(MAC), 0);
+	memset_s((void *)&MAC, sizeof(MAC), 0);
 
 	res = read_mac_info(token, 0, &MAC);
 	if (res != FPGA_OK) {

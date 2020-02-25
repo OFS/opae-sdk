@@ -160,7 +160,7 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 	if ((rev >= 'A') && (rev <= 'Z')) {// range from 'A' to 'Z'
 		retval = snprintf_s_ciii(fw_ver, len, "%c.%u.%u.%u", (char)rev, (var >> 16) & 0xff, (var >> 8) & 0xff, var & 0xff);
 		if (retval < 0) {
-			FPGA_ERR("error in formatting version" );
+			FPGA_ERR("error in formatting version");
 			return FPGA_EXCEPTION;
 		}
 	} else {
@@ -236,7 +236,7 @@ fpga_result read_pcb_info(fpga_token token, char *pcb_info, size_t len)
 	uint32_t size                  = 0;
 	fpga_object pcb_object;
 
-	if (pcb_info == NULL ) {
+	if (pcb_info == NULL) {
 		FPGA_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
 	}
@@ -704,7 +704,7 @@ fpga_result print_board_info(fpga_token token)
 		OPAE_MSG("Failed to read pcb version");
 	}
 
-	printf("Board Management Controller, MAX10 NIOS FW version: %s \n", bmc_ver );
+	printf("Board Management Controller, MAX10 NIOS FW version: %s \n", bmc_ver);
 	printf("Board Management Controller, MAX10 Build version: %s \n", max10_ver);
 	printf("PCB version: %s \n", pcb_ver);;
 
@@ -715,7 +715,7 @@ fpga_result print_board_info(fpga_token token)
 fpga_result print_phy_info(fpga_token token)
 {
 	fpga_result res                            = FPGA_OK;
-	fpga_phy_group_info* phy_info_array        = NULL;
+	fpga_phy_group_info *phy_info_array        = NULL;
 	uint32_t group_num                         = 0;
 	int fpga_mode                              = 0;
 	uint32_t i                                 = 0;
@@ -783,8 +783,7 @@ fpga_result print_phy_info(fpga_token token)
 				mask = 0xff;
 				break;
 			}
-		}
-		else {
+		} else {
 			/* 2*1*25g */
 			mask = 0x11;
 		}

@@ -1,4 +1,4 @@
-// Copyright(c) 2019, Intel Corporation
+// Copyright(c) 2019-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -45,7 +45,7 @@ extern "C" {
 typedef struct _fpga_pkvl_info {
 	uint32_t polling_mode;
 	uint32_t status;
-}fpga_pkvl_info;
+} fpga_pkvl_info;
 
 typedef struct _fpga_phy_group_info {
 	unsigned int    argsz;
@@ -54,7 +54,7 @@ typedef struct _fpga_phy_group_info {
 	unsigned char  phy_num;
 	unsigned char  mac_num;
 	unsigned char  group_id;
-}fpga_phy_group_info;
+} fpga_phy_group_info;
 
 typedef union _pkvl_mac {
 	unsigned int dword;

@@ -152,7 +152,7 @@ fpga_result read_bmc_version(fpga_token token, int *version)
 
 	memset_s(&bmc_dev, sizeof(bmc_dev), 0);
 
-	res = fpgaObjectRead(bmc_object, (uint8_t*)(&bmc_dev), 0, sizeof(bmc_dev), 0);
+	res = fpgaObjectRead(bmc_object, (uint8_t *)(&bmc_dev), 0, sizeof(bmc_dev), 0);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to Read object ");
 		resval = res;
@@ -196,7 +196,7 @@ fpga_result read_bmc_pwr_down_cause(fpga_token token, char *pwr_down_cause)
 
 	memset_s(&bmc_pd, sizeof(bmc_pd), 0);
 
-	res = fpgaObjectRead(bmc_object, (uint8_t*)(&bmc_pd), 0, sizeof(bmc_pd), 0);
+	res = fpgaObjectRead(bmc_object, (uint8_t *)(&bmc_pd), 0, sizeof(bmc_pd), 0);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to Read object ");
 		resval = res;
@@ -204,7 +204,7 @@ fpga_result read_bmc_pwr_down_cause(fpga_token token, char *pwr_down_cause)
 	}
 
 	if (bmc_pd.completion_code == 0) {
-		snprintf_s_s(pwr_down_cause, bmc_pd.count, "%s", (char*)bmc_pd.message);
+		snprintf_s_s(pwr_down_cause, bmc_pd.count, "%s", (char *)bmc_pd.message);
 	} else {
 		OPAE_ERR("unavailable read power down cause: %d ", bmc_pd.completion_code);
 		resval = FPGA_EXCEPTION;
@@ -243,7 +243,7 @@ fpga_result read_bmc_reset_cause(fpga_token token, char *reset_cause_str)
 
 	memset_s(&bmc_rc, sizeof(bmc_rc), 0);
 
-	res = fpgaObjectRead(bmc_object, (uint8_t*)(&bmc_rc), 0, sizeof(bmc_rc), 0);
+	res = fpgaObjectRead(bmc_object, (uint8_t *)(&bmc_rc), 0, sizeof(bmc_rc), 0);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to Read Object ");
 		resval = res;
@@ -349,7 +349,7 @@ fpga_result print_board_info(fpga_token token)
 	return res;
 }
 
-fpga_result read_sysfs(fpga_token token, char *sysfs_path,char *sysfs_name)
+fpga_result read_sysfs(fpga_token token, char *sysfs_path, char *sysfs_name)
 {
 	fpga_result res                 = FPGA_OK;
 	fpga_result resval              = FPGA_OK;
@@ -382,14 +382,14 @@ fpga_result read_sysfs(fpga_token token, char *sysfs_path,char *sysfs_name)
 		goto out_destroy;
 	}
 
-	res = fpgaObjectRead(sec_object, (uint8_t*)(&name), 0, size, 0);
+	res = fpgaObjectRead(sec_object, (uint8_t *)(&name), 0, size, 0);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to Read object ");
 		resval = res;
 		goto out_destroy;
 	}
 
-	snprintf_s_s(sysfs_name, FPGA_STR_SIZE, "%s", (char*)name);
+	snprintf_s_s(sysfs_name, FPGA_STR_SIZE, "%s", (char *)name);
 
 out_destroy:
 	res = fpgaDestroyObject(&sec_object);
@@ -414,9 +414,9 @@ fpga_result print_sec_info(fpga_token token)
 		return res;
 	}
 
-	if (read_sysfs(token, SYSFS_TCM_BMC_FWVERS, name) == FPGA_OK) 
+	if (read_sysfs(token, SYSFS_TCM_BMC_FWVERS, name) == FPGA_OK)
 		printf("BMC FW Version: %s", name);
-	else 
+	else
 		OPAE_MSG("Failed to Read BMC FW Version");
 
 	memset_s(name, sizeof(name), 0);
