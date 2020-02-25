@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2019, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -64,9 +64,9 @@ int main(int argc, char* argv[])
     opts.get_value<bool>("version", show_version);
     if (show_version)
     {
-        std::cout << "nlb7 " << INTEL_FPGA_API_VERSION
-                  << " " << INTEL_FPGA_API_HASH;
-        if (INTEL_FPGA_TREE_DIRTY)
+        std::cout << "nlb7 " << OPAE_VERSION
+                  << " " << OPAE_GIT_COMMIT_HASH;
+        if (OPAE_GIT_SRC_TREE_DIRTY)
             std::cout << "*";
         std::cout << std::endl;
         return 103;

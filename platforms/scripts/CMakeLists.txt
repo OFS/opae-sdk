@@ -25,7 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 2.8.12)
-include(packaging)
+#include(packaging)
 
 
 ## All the scripts to install that aren't zipped, just copied.

@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2019, Intel Corporation
+## Copyright(c) 2017-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,18 +24,11 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-
-include_directories(${OPAE_INCLUDE_DIR})
-
-set(SRC main.c )
-
-add_executable(userclk ${SRC})
-
-set_install_rpath(userclk)
-
-target_link_libraries(userclk opae-c pthread)
-set(CMAKE_C_FLAGS "-DHAVE_CONFIG_H ${CMAKE_C_FLAGS}")
-
-install(TARGETS userclk
-        RUNTIME DESTINATION bin
-        COMPONENT tooluserclk)
+opae_add_executable(TARGET userclk
+    SOURCE main.c
+    LIBS
+        safestr
+        opae-c
+        ${libjson-c_LIBRARIES}
+    COMPONENT tooluserclk
+)

@@ -1024,7 +1024,7 @@ out:
 	result = fpgaDestroyObject(&error_object);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to Destroy Object");
-		resval = resval;
+		resval = result;
 	}
 
 	printf("----------- FME ERROR  END-------- \n \n");
@@ -1512,9 +1512,9 @@ int ParseCmds(struct RASCommandLine *rasCmdLine, int argc, char *argv[])
 		case 'v':
 			// version
 			printf("ras %s %s%s\n",
-			       INTEL_FPGA_API_VERSION,
-			       INTEL_FPGA_API_HASH,
-			       INTEL_FPGA_TREE_DIRTY ? "*":"");
+			       OPAE_VERSION,
+			       OPAE_GIT_COMMIT_HASH,
+			       OPAE_GIT_SRC_TREE_DIRTY ? "*":"");
 			return -2;
 
 		case ':': /* missing option argument */

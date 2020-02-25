@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -27,196 +27,52 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(opae)
 
-############################################################################
-## Get git hash info, if available #########################################
-############################################################################
-find_program(GIT_EXECUTABLE git)
-if(EXISTS ${GIT_EXECUTABLE})
-  execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_COMMIT_HASH
-    RESULT_VARIABLE GIT_LOG_RESULT
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-    if(NOT ${GIT_LOG_RESULT} EQUAL 0)
-      set(GIT_COMMIT_HASH unknown)
-    endif(NOT ${GIT_LOG_RESULT} EQUAL 0)
-
-  execute_process(COMMAND ${GIT_EXECUTABLE} diff --stat
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_DIFF_OUTPUT
-    RESULT_VARIABLE GIT_DIFF_RESULT
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-  if(NOT ${GIT_DIFF_RESULT} EQUAL 0)
-    set(INTEL_FPGA_TREE_DIRTY 0)
-  else(NOT ${GIT_DIFF_RESULT} EQUAL 0)
-    if(GIT_DIFF_OUTPUT)
-      set(INTEL_FPGA_TREE_DIRTY 1)
-    else(GIT_DIFF_OUTPUT)
-      set(INTEL_FPGA_TREE_DIRTY 0)
-    endif(GIT_DIFF_OUTPUT)
-  endif(NOT ${GIT_DIFF_RESULT} EQUAL 0)
-else(EXISTS ${GIT_EXECUTABLE})
-  set(GIT_COMMIT_HASH unknown)
-  set(INTEL_FPGA_TREE_DIRTY 0)
-endif(EXISTS ${GIT_EXECUTABLE})
-
-############################################################################
-## Add 'versioning' library ################################################
-############################################################################
-
-set(INTEL_FPGA_API_VER_MAJOR 1  CACHE STRING "Intel FPGA API major version")
-set(INTEL_FPGA_API_VER_MINOR 4  CACHE STRING "Intel FPGA API minor version")
-set(INTEL_FPGA_API_VER_REV   0  CACHE STRING "Intel FPGA API revision version")
-set(INTEL_FPGA_API_VERSION   ${INTEL_FPGA_API_VER_MAJOR}.${INTEL_FPGA_API_VER_MINOR}.${INTEL_FPGA_API_VER_REV})
-set(INTEL_FPGA_API_HASH      ${GIT_COMMIT_HASH})
-
-############################################################################
-## Compilation configuration ###############################################
-############################################################################
 set(OPAE_SDK_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Root directory of opae-sdk project" FORCE)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake/modules")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake"
+    "${CMAKE_CURRENT_SOURCE_DIR}/opae-libs/cmake/modules")
+
+include(OPAE)
 
 ############################################################################
-## Find Python by version     ##############################################
+## Whether to build opae-legacy ############################################
 ############################################################################
-set(OPAE_PYTHON_VERSION 2.7 CACHE STRING "Python version to use for building/distributing pyopae")
-set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3.6 3.5 3.4 3.3)
-find_package(PythonInterp ${OPAE_PYTHON_VERSION})
-find_package(PythonLibs ${OPAE_PYTHON_VERSION})
+option(OPAE_BUILD_LEGACY "Enable building of OPAE legacy tools" OFF)
+mark_as_advanced(OPAE_BUILD_LEGACY)
 
 ############################################################################
 ## Other setup and dependencies ############################################
 ############################################################################
-include(compiler_config)
-include(libraries_config)
-include(fpga_functions)
 find_package(Doxygen)
-find_package(Threads REQUIRED)
 find_package(Sphinx)
-include(dependency_notifier)
-
-############################################################################
-## set libs install location ###############################################
-############################################################################
-
-get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
-if ("${LIB64}" STREQUAL "TRUE")
-    set_cached_variable(OPAE_LIB_INSTALL_DIR "lib64")
-else()
-    set_cached_variable(OPAE_LIB_INSTALL_DIR "lib")
-endif()
 
 if(CPACK_GENERATOR)
   set(CMAKE_INSTALL_PREFIX "/usr")
 endif()
 
 ############################################################################
-## Target configuration ####################################################
-############################################################################
-
-# Place all executables and libraries under same directories
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin CACHE PATH "Build directory" FORCE)
-set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib CACHE PATH "Build directory" FORCE)
-
-############################################################################
-## Compilation configuration ###############################################
-############################################################################
-
-set(COMMON_DIR        ${CMAKE_CURRENT_SOURCE_DIR}/common)
-set(OPAE_INCLUDE_DIR  ${COMMON_DIR}/include CACHE PATH "Path to include directory" FORCE)
-
-# Install common header files
-install(DIRECTORY common/include/opae
-  DESTINATION include
-  COMPONENT libopaeheaders)
-
-install(DIRECTORY common/include/safe_string
-  DESTINATION include
-  COMPONENT safestrheaders)
-
-############################################################################
 ## Add 'documentation' target ##############################################
 ############################################################################
-option(BUILD_SPHINX_DOC "Enable building of Sphinx documentation." OFF)
-mark_as_advanced(BUILD_SPHINX_DOC)
+option(OPAE_BUILD_SPHINX_DOC "Enable building of Sphinx documentation." OFF)
+mark_as_advanced(OPAE_BUILD_SPHINX_DOC)
 
 if (DOXYGEN_FOUND)
-  add_subdirectory(doc)
+    add_subdirectory(doc)
 endif()
-
 
 ############################################################################
 ## Sub-projects ############################################################
 ############################################################################
+opae_add_subdirectory(opae-libs)
+opae_add_subdirectory(platforms)
+opae_add_subdirectory(tools)
+opae_add_subdirectory(samples)
 
-add_subdirectory(safe_string)
-add_subdirectory(libbitstream)
-
-option(BUILD_LIBOPAE_C "Enable building of libopae-c. This is the default OPAE API implementation." ON)
-mark_as_advanced(BUILD_LIBOPAE_C)
-if(BUILD_LIBOPAE_C)
-  add_subdirectory(libopae)
+if(OPAE_BUILD_TESTS)
+    enable_testing()
+    opae_add_subdirectory(tests)
 endif()
 
-option(BUILD_LIBOPAE_CXX "Enable building of C++ bindings around libopae-c." ON)
-mark_as_advanced(BUILD_LIBOPAE_CXX)
-if(BUILD_LIBOPAE_CXX)
-  add_subdirectory(libopaecxx)
-endif()
-
-option(BUILD_LIBOPAE_PY "Enable building of Python bindings around libopae-cxx-core." ON)
-mark_as_advanced(BUILD_LIBOPAE_PY)
-if(BUILD_LIBOPAE_PY AND BUILD_LIBOPAE_CXX)
-  add_subdirectory(pyopae)
-endif()
-
-option(BUILD_PYTHON_DIST "Enable building of Python source and binary distribution" OFF)
-mark_as_advanced(BUILD_PYTHON_DIST)
-
-add_subdirectory(platforms)
-add_subdirectory(tools)
-
-option(BUILD_ASE "Enable ASE compilation" ON)
-mark_as_advanced(BUILD_ASE)
-
-if (NOT BUILD_ASE AND NOT BUILD_LIBOPAE_C)
-  message(FATAL_ERROR "Not building any OPAE libraries")
-endif()
-
-
-############################################################################
-## Add 'samples' ###########################################################
-############################################################################
-
-add_subdirectory(samples)
-
-############################################################################
-## Add 'tests' #############################################################
-############################################################################
-
-option(BUILD_TESTS "Enable tests compilation" OFF)
-mark_as_advanced(BUILD_TESTS)
-
-option(BUILD_ASE_TESTS "Enable ASE test compilation." OFF)
-mark_as_advanced(BUILD_ASE_TESTS)
-
-option(ENABLE_MOCK "Enable mock driver for testing." ON)
-mark_as_advanced(ENABLE_MOCK)
-
-if(BUILD_TESTS OR BUILD_ASE_TESTS)
-  enable_testing()
-  include(CTest)
-  add_subdirectory(testing)
-endif()
-
-############################################################################
-## RPATH Handling ##########################################################
-############################################################################
-
-set(CMAKE_SKIP_BUILD_RPATH FALSE)
-set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${OPAE_LIB_INSTALL_DIR}")
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+opae_add_subdirectory(external)
 
 ############################################################################
 ## Packaging ###############################################################
@@ -226,20 +82,20 @@ option(HASH_ARCHIVES "Add git commit hash to archive names" OFF)
 mark_as_advanced(HASH_ARCHIVES)
 set(CPACK_RPM_RELOCATION_PATHS "/etc")
 
-#use to set doc dir for installing license file
+# use to set doc dir for installing license file
 include(GNUInstallDirs)
 
 set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Open Programmable Acceleration Engine")
 SET(CPACK_PACKAGE_VENDOR "Intel Corporation")
-set(CPACK_PACKAGE_VERSION_MAJOR "${INTEL_FPGA_API_VER_MAJOR}")
-set(CPACK_PACKAGE_VERSION_MINOR "${INTEL_FPGA_API_VER_MINOR}")
-set(CPACK_PACKAGE_VERSION_PATCH "${INTEL_FPGA_API_VER_REV}")
-set(CPACK_PACKAGE_VERSION ${INTEL_FPGA_API_VERSION})
+set(CPACK_PACKAGE_VERSION_MAJOR "${OPAE_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${OPAE_VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_PATCH "${OPAE_VERSION_REVISION}")
+set(CPACK_PACKAGE_VERSION ${OPAE_VERSION})
 set(CPACK_PACKAGE_RELEASE 1)
 set(CPACK_PACKAGE_CONTACT "opae@lists.01.org")
 set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
-#Hashing the package components
+# Hashing the package components
  if(HASH_ARCHIVES)
   set(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}-${CPACK_PACKAGE_RELEASE}.${CMAKE_SYSTEM_PROCESSOR}-git${GIT_COMMIT_HASH}")
 else()
@@ -247,18 +103,17 @@ else()
 endif()
 
 if("${CPACK_GENERATOR}" STREQUAL "DEB")
-include(packaging)
+    #include(packaging)
 
-#install LICENSE file to copyright
+# install LICENSE file to copyright
 install(FILES LICENSE DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DOCDIR}
 COMPONENT licensefile
 RENAME copyright)
 
-#list of components to be included in the package
+# list of components to be included in the package
 set(CPACK_COMPONENTS_ALL
 	toolfpgaconf
 	toolfpgainfo
-	toolfpgaport
 	toolfpgametrics
 	toolfpgadiag
 	toolfpga_dma_test
@@ -295,23 +150,16 @@ set(CPACK_COMPONENTS_ALL
 	toolfpgaconf
 	toolbist_app
 	toolbist
-	toolfpgad
-	toolfpgad_api
-	toolfpgad_xfpga
-	toolfpgad_vc
-        testsopae
+    testsopae
 	)
 
 
 # Component definition
 define_pkg(tools
   COMPONENTS
-  toolfpgad
-  toolfpgad_api
-  toolfpgad_xfpga
-  toolfpgad_vc
   toolfpgaconf
   toolfpgainfo
+  toolfpgametrics
   licensefile
   GROUP "tools"
   DISPLAY_NAME "opae-tools"
@@ -338,8 +186,6 @@ define_pkg(tools
   jsonschema
   opaecxxlib
   opaecxxnlb
-  hssiiolib
-  hssiprograms
   licensefile
   GROUP "tools-extra"
   DISPLAY_NAME "opae-tools-extra"
@@ -385,6 +231,7 @@ define_pkg(devel
   COMPONENTS
   opaeclib
   opaecxxcorelib
+  opaetoolslibs
   licensefile
   GROUP "libs"
   DISPLAY_NAME "opae-libs"
@@ -549,6 +396,3 @@ else()
   )
 endif()
 include(CPack)
-
-configure_file("${CMAKE_SOURCE_DIR}/cmake/config/config.h.in"
-               "${PROJECT_BINARY_DIR}/include/config.h")

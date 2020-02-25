@@ -16,7 +16,7 @@ pushd mybuild_docs
 
 trap "popd" EXIT
 
-cmake .. -DBUILD_SPHINX_DOC=ON
+cmake .. -DOPAE_BUILD_SPHINX_DOC=ON
 make docs
 
 

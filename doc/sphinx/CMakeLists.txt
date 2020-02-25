@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -34,9 +34,9 @@ set(SPHINX_CACHE_DIR "${CMAKE_BINARY_DIR}/sphinx/_doctrees")
 
 # Documentation number
 if(HASH_ARCHIVES)
-  set(SPHINX_DOC_RELEASE "${INTEL_FPGA_API_VERSION}.${GIT_COMMIT_HASH}")
+    set(SPHINX_DOC_RELEASE "${OPAE_VERSION}.${OPAE_GIT_COMMIT_HASH}")
 else()
-  set(SPHINX_DOC_RELEASE "${INTEL_FPGA_API_VERSION}")
+  set(SPHINX_DOC_RELEASE "${OPAE_VERSION}")
 endif()
 
 # HTML output directory
