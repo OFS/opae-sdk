@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2019, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -73,8 +73,8 @@
 
 // MMIO scratchpad
 #define PORT_SCRATCHPAD0                       0x0028
-#define NLB_CSR_SCRATCHPAD                     (0x40000 + 0x0104 )
-#define PORT_MMIO_LEN                          (0x40000 + 0x0512 )
+#define NLB_CSR_SCRATCHPAD                     (0x40000 + 0x0104)
+#define PORT_MMIO_LEN                          (0x40000 + 0x0512)
 
 #define MMO_WRITE64_VALUE                      0xF1F1F1F1F1F1F1F1
 #define MMO_WRITE32_VALUE                      0xF1F1F1
@@ -84,15 +84,15 @@
 #define FPGA_INTEGRATED_DEVICEID              0xbcc0
 #define FPGA_DISCRETE_DEVICEID                0x09c4
 
-#define FPAG_DEVICEID_PATH        "../device/device"
-#define FPGA_PORT_RES_PATH   "/sys/bus/pci/devices/%04x:%02x:%02x.%d/resource2"
+#define FPAG_DEVICEID_PATH	"../device/device"
+#define FPGA_PORT_RES_PATH	"/sys/bus/pci/devices/%04x:%02x:%02x.%d/resource2"
 
 
 
-#define FPGA_SET_BIT(val, index) val |= (1 << index)
-#define FPGA_CLEAR_BIT(val, index) val &= ~(1 << index)
-#define FPGA_TOGGLE_BIT(val, index) val ^= (1 << index)
-#define FPGA_BIT_IS_SET(val, index) (((val) >> (index)) & 1)
+#define FPGA_SET_BIT(val, index)	((val) |= (1 << (index)))
+#define FPGA_CLEAR_BIT(val, index)	((val) &= ~(1 << (index)))
+#define FPGA_TOGGLE_BIT(val, index)	((val) ^= (1 << (index)))
+#define FPGA_BIT_IS_SET(val, index)	(((val) >> (index)) & 1)
 
 /* Type definitions */
 typedef struct {
@@ -168,7 +168,7 @@ static const char * const PCIE1_ERROR[PCIE1_ERROR_COUNT] = {
 };
 
 #define RAS_NONFATAL_ERROR_COUNT            13
-static const char * const RAS_NONFATAL_ERROR [RAS_NONFATAL_ERROR_COUNT] = {
+static const char * const RAS_NONFATAL_ERROR[RAS_NONFATAL_ERROR_COUNT] = {
 		"Temperature threshold triggered AP1 detected", \
 		"Temperature threshold triggered AP2 detected", \
 		"PCIe error detected", \
@@ -214,7 +214,7 @@ static const char * const PORT_ERROR[PORT_ERROR_COUNT] = {
 		"Tx Channel 0 cl_len=3 not supported error detected.", \
 		"Tx Channel 0 request with cl_len=2 does NOT have a 2CL aligned address error detected.", \
 		"Tx Channel 0 request with cl_len=4 does NOT have a 4CL aligned address error detected.", \
-		"RSVD.", "RSVD.", "RSVD.","RSVD.",\
+		"RSVD.", "RSVD.", "RSVD.", "RSVD.", \
 		"AFU MMIO RD received while PORT is in reset error detected", \
 		"AFU MMIO WR received while PORT is in reset error detected", \
 		"RSVD.", "RSVD.", "RSVD.", "RSVD.", "RSVD.",\
@@ -266,30 +266,29 @@ struct ras_inject_error {
 #define GETOPT_STRING ":hB:D:F:S:PQRNTCEGHIOv"
 
 struct option longopts[] = {
-		{"help",                no_argument,       NULL, 'h'},
-		{"segment",             required_argument, NULL, 0xe},
-		{"bus",                 required_argument, NULL, 'B'},
-		{"device",              required_argument, NULL, 'D'},
-		{"function",            required_argument, NULL, 'F'},
-		{"socket-id",           required_argument, NULL, 'S'},
-		{"print-error",         no_argument,       NULL, 'P'},
-		{"catast-error",        no_argument,       NULL, 'Q'},
-		{"fatal-error",         no_argument,       NULL, 'R'},
-		{"nofatal-error",       no_argument,       NULL, 'N'},
-		{"thermal-trip",        no_argument,       NULL, 'T'},
-		{"clearinj-error",      no_argument,       NULL, 'C'},
-		{"mwaddress-error",     no_argument,       NULL, 'E'},
-		{"mraddress-error",     no_argument,       NULL, 'G'},
-		{"mwlength-error",      no_argument,       NULL, 'H'},
-		{"mrlength-error",      no_argument,       NULL, 'I'},
-		{"pagefault-error",     no_argument,       NULL, 'O'},
-		{"version",             no_argument,       NULL, 'v'},
-		{0,0,0,0}
+	{ "help",                no_argument,       NULL, 'h' },
+	{ "segment",             required_argument, NULL, 0xe },
+	{ "bus",                 required_argument, NULL, 'B' },
+	{ "device",              required_argument, NULL, 'D' },
+	{ "function",            required_argument, NULL, 'F' },
+	{ "socket-id",           required_argument, NULL, 'S' },
+	{ "print-error",         no_argument,       NULL, 'P' },
+	{ "catast-error",        no_argument,       NULL, 'Q' },
+	{ "fatal-error",         no_argument,       NULL, 'R' },
+	{ "nofatal-error",       no_argument,       NULL, 'N' },
+	{ "thermal-trip",        no_argument,       NULL, 'T' },
+	{ "clearinj-error",      no_argument,       NULL, 'C' },
+	{ "mwaddress-error",     no_argument,       NULL, 'E' },
+	{ "mraddress-error",     no_argument,       NULL, 'G' },
+	{ "mwlength-error",      no_argument,       NULL, 'H' },
+	{ "mrlength-error",      no_argument,       NULL, 'I' },
+	{ "pagefault-error",     no_argument,       NULL, 'O' },
+	{ "version",             no_argument,       NULL, 'v' },
+	{ 0,			 0,		    0,	  0   }
 };
 
 // RAS Command line struct
-struct  RASCommandLine
-{
+struct RASCommandLine {
 	uint32_t          flags;
 #define RASAPP_CMD_FLAG_HELP      0x00000001
 #define RASAPP_CMD_FLAG_VERSION   0x00000002
@@ -318,11 +317,11 @@ struct  RASCommandLine
 };
 
 struct RASCommandLine rasCmdLine = { 0, -1, -1, -1, -1, -1, false,
-				false, false, false,false,
-				false, false, false, false, false};
+					false, false, false, false,
+					false, false, false, false, false };
 
 // RAS Command line input help
-void RASAppShowHelp()
+void RASAppShowHelp(void)
 {
 	printf("Usage:\n");
 	printf("ras\n");
@@ -381,11 +380,11 @@ fpga_result print_port_errors(fpga_token token);
 
 fpga_result clear_port_errors(fpga_handle afu_handle);
 
-fpga_result page_fault_errors();
+fpga_result page_fault_errors(void);
 
 int ParseCmds(struct RASCommandLine *rasCmdLine, int argc, char *argv[]);
 
-int main( int argc, char** argv )
+int main(int argc, char *argv[])
 {
 	fpga_result result                  = 0;
 	fpga_properties fpga_filter         = NULL;
@@ -396,15 +395,17 @@ int main( int argc, char** argv )
 	fpga_token fme_token                = NULL;
 	fpga_token afu_token                = NULL;
 
-
 	// Parse command line
-	if ( argc < 2 ) {
+	if (argc < 2) {
 		RASAppShowHelp();
-	return 1;
-	} else if (0 != (result = ParseCmds(&rasCmdLine, argc, argv))) {
-		if ((int)result != -2)
-			OPAE_ERR( "Error scanning command line.\n");
-	return 2;
+		return 1;
+	} else {
+		result = ParseCmds(&rasCmdLine, argc, argv);
+		if (result != 0) {
+			if ((int)result != -2)
+				OPAE_ERR("Error scanning command line.\n");
+			return 2;
+		}
 	}
 
 	printf(" ------- Command line Input Start ----\n\n");
@@ -419,7 +420,7 @@ int main( int argc, char** argv )
 	printf(" Fatal Error           : %d\n", rasCmdLine.fatal_error);
 	printf(" NonFatal Error        : %d\n", rasCmdLine.nonfatal_error);
 	printf(" Clear Error           : %d\n", rasCmdLine.clear_injerror);
- 	printf(" MW Address Error      : %d\n", rasCmdLine.mwaddress_error);
+	printf(" MW Address Error      : %d\n", rasCmdLine.mwaddress_error);
 	printf(" MR Address Error      : %d\n", rasCmdLine.mraddress_error);
 	printf(" MW Length Error       : %d\n", rasCmdLine.mwlength_error);
 	printf(" MR Length Error       : %d\n", rasCmdLine.mrlength_error);
@@ -510,10 +511,10 @@ int main( int argc, char** argv )
 	}
 
 	// inject MMIO error
-	if ( (rasCmdLine.mwaddress_error == true) ||
+	if ((rasCmdLine.mwaddress_error == true) ||
 		(rasCmdLine.mraddress_error == true) ||
 		(rasCmdLine.mwlength_error == true) ||
-		(rasCmdLine.mrlength_error == true) ) {
+		(rasCmdLine.mrlength_error == true)) {
 
 		result = mmio_error(afu_handle, &rasCmdLine);
 		if (result != FPGA_OK) {
@@ -524,7 +525,7 @@ int main( int argc, char** argv )
 	}
 
 	// Clear Inject Error
-	if (rasCmdLine.clear_injerror ) {
+	if (rasCmdLine.clear_injerror) {
 
 		// clear RAS ERROR
 		result = clear_inject_ras_errors(fme_handle);
@@ -619,8 +620,8 @@ out_exit:
 
 // Print Error
 fpga_result print_errors(fpga_token token,
-			const char * err_path,
-			const char * const* err_strings,
+			const char *err_path,
+			const char * const *err_strings,
 			int size)
 {
 	fpga_result result       = FPGA_OK;
@@ -764,13 +765,12 @@ fpga_result print_ras_errors(fpga_token token)
 			PCIE1_ERROR_COUNT);
 
 		if (result != FPGA_OK) {
-			OPAE_ERR("Failed  to get pcie1  errors");
+			OPAE_ERR("Failed to get pcie1 errors");
 			return result;
 		}
 
-	}
-	else {
-		printf("\n Invalid FME Error Revision \n");
+	} else {
+		printf("\nInvalid FME Error Revision\n");
 	}
 
 	printf("\n ----------- PRINT FME ERROR  END----------\n");
@@ -921,7 +921,7 @@ out:
 	return resval;
 }
 
-static fpga_result clear_fpga_errors(fpga_handle handle, char *error )
+static fpga_result clear_fpga_errors(fpga_handle handle, char *error)
 {
 	fpga_result result   = FPGA_OK;
 	fpga_result resval   = FPGA_OK;
@@ -1113,28 +1113,28 @@ fpga_result print_pwr_temp(fpga_token token)
 // MMIO erros
 fpga_result mmio_error(fpga_handle afu_handle, struct RASCommandLine *rasCmdLine)
 {
-	char sysfs_path[256]              = {0};
-	fpga_result result                = FPGA_OK;
-	int bus                           = 0;
-	int device                        = 0;
-	int function                      = 0;
-	int fd                            = 0;
-	uint8_t *ptr                      = 0;
-	uint16_t value                    = 0;
-	fpga_properties props;
+	char sysfs_path[256]	= {0};
+	fpga_result result	= FPGA_OK;
+	int bus			= 0;
+	int device		= 0;
+	int function		= 0;
+	int fd			= 0;
+	uint8_t *ptr		= 0;
+	uint16_t value		= 0;
+	fpga_properties		props;
 
-	if (rasCmdLine  == NULL ) {
+	if (rasCmdLine  == NULL) {
 		OPAE_ERR("Invalid input ");
 		return FPGA_INVALID_PARAM;
 	}
 
-	if ( rasCmdLine->bus >0 )
+	if (rasCmdLine->bus > 0)
 		bus = rasCmdLine->bus;
 
-	if ( rasCmdLine->device >0 )
+	if (rasCmdLine->device > 0)
 		device = rasCmdLine->bus;
 
-	if ( rasCmdLine->function >0 )
+	if (rasCmdLine->function > 0)
 		function = rasCmdLine->bus;
 
 	result = fpgaGetPropertiesFromHandle(afu_handle, &props);
@@ -1157,13 +1157,13 @@ fpga_result mmio_error(fpga_handle afu_handle, struct RASCommandLine *rasCmdLine
 
 	if ((value != FPGA_INTEGRATED_DEVICEID) &&
 		(value != FPGA_DISCRETE_DEVICEID)) {
-		OPAE_ERR("Failed  to read Device id");
+		OPAE_ERR("Failed to read Device id");
 		return FPGA_NOT_SUPPORTED;
 	}
 
 
 	snprintf(sysfs_path, sizeof(sysfs_path),
-			FPGA_PORT_RES_PATH,0,bus,device,function);
+		 FPGA_PORT_RES_PATH, 0, bus, device, function);
 
 	fd = open(sysfs_path, O_RDWR);
 	if (fd < 0) {
@@ -1171,16 +1171,16 @@ fpga_result mmio_error(fpga_handle afu_handle, struct RASCommandLine *rasCmdLine
 		return FPGA_EXCEPTION;
 	}
 
-	ptr =  mmap(NULL, PORT_MMIO_LEN,
-			PROT_READ|PROT_WRITE,MAP_SHARED, fd, 0);
-	if (ptr == MAP_FAILED ) {
+	ptr = mmap(NULL, PORT_MMIO_LEN,
+			PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+	if (ptr == MAP_FAILED) {
 		OPAE_ERR("Failed to map FPGA PCIE BAR2");
 		result = FPGA_EXCEPTION;
 		goto out_close ;
 	}
 
 	// Memory Write length error
-	if(rasCmdLine->mwlength_error) {
+	if (rasCmdLine->mwlength_error) {
 
 		OPAE_DBG("Memory Write length error \n");
 		*((volatile uint64_t *) (ptr + PORT_SCRATCHPAD0+3))
@@ -1188,15 +1188,15 @@ fpga_result mmio_error(fpga_handle afu_handle, struct RASCommandLine *rasCmdLine
 	}
 
 	// Memory Read length error
-	if(rasCmdLine->mrlength_error) {
+	if (rasCmdLine->mrlength_error) {
 
-		OPAE_DBG(" Memory Read length error \n");
+		OPAE_DBG("Memory Read length error\n");
 		value = *((volatile uint64_t *) (ptr + PORT_SCRATCHPAD0+3));
-		OPAE_DBG(" Memory Read length value %lx\n",value);
+		OPAE_DBG("Memory Read length value %lx\n", value);
 	}
 
 	// Memory Read addresss error
-	if(rasCmdLine->mraddress_error) {
+	if (rasCmdLine->mraddress_error) {
 
 		OPAE_DBG("Memory Read addresss error \n");
 		value = *((volatile uint16_t *) (ptr + NLB_CSR_SCRATCHPAD +3));
@@ -1207,39 +1207,38 @@ fpga_result mmio_error(fpga_handle afu_handle, struct RASCommandLine *rasCmdLine
 	}
 
 	// Memory Write addresss error
-	if(rasCmdLine->mwaddress_error) {
+	if (rasCmdLine->mwaddress_error) {
 
 		OPAE_DBG("Memory Write addresss error \n");
 		*((volatile uint16_t *) (ptr + NLB_CSR_SCRATCHPAD +3))
 				= (uint16_t)MMO_WRITE32_VALUE;
 	}
 
-	if(ptr)
+	if (ptr)
 		munmap(ptr, PORT_MMIO_LEN);
 out_close:
-	if(fd >=0)
+	if (fd >= 0)
 		close(fd);
 
 	return result;
 }
 // page fault errors
-fpga_result page_fault_errors()
+fpga_result page_fault_errors(void)
 {
-	fpga_properties    filter = NULL;
-	fpga_token         accelerator_token;
-	fpga_handle        accelerator_handle;
-	fpga_guid          guid;
-	uint32_t           num_matches;
+	fpga_properties		filter = NULL;
+	fpga_token		accelerator_token;
+	fpga_handle		accelerator_handle;
+	fpga_guid		guid;
+	uint32_t		num_matches;
 
-	volatile uint64_t *dsm_ptr    = NULL;
-	volatile uint64_t *input_ptr  = NULL;
-	volatile uint64_t *output_ptr = NULL;
+	volatile uint64_t	*dsm_ptr    = NULL;
+	volatile uint64_t	*input_ptr  = NULL;
+	volatile uint64_t	*output_ptr = NULL;
 
-	uint64_t        dsm_wsid;
-	uint64_t        input_wsid;
-	uint64_t        output_wsid;
-	fpga_result     res = FPGA_OK;
-
+	uint64_t		dsm_wsid;
+	uint64_t		input_wsid;
+	uint64_t		output_wsid;
+	fpga_result		res = FPGA_OK;
 
 	if (uuid_parse(SKX_P_NLB0_AFUID, guid) < 0) {
 		fprintf(stderr, "Error parsing guid '%s'\n", SKX_P_NLB0_AFUID);
@@ -1256,17 +1255,17 @@ fpga_result page_fault_errors()
 	res = fpgaPropertiesSetGUID(filter, guid);
 	ON_ERR_GOTO(res, out_destroy_prop, "setting GUID");
 
-	if (rasCmdLine.bus >0){
+	if (rasCmdLine.bus > 0) {
 		res = fpgaPropertiesSetBus(filter, rasCmdLine.bus);
 		ON_ERR_GOTO(res, out_destroy_prop, "setting bus");
 	}
 
-	if (rasCmdLine.device >0) {
+	if (rasCmdLine.device > 0) {
 		res = fpgaPropertiesSetDevice(filter, rasCmdLine.device);
 		ON_ERR_GOTO(res, out_destroy_prop, "setting device");
 	}
 
-	if (rasCmdLine.function >0){
+	if (rasCmdLine.function > 0) {
 		res = fpgaPropertiesSetFunction(filter, rasCmdLine.function);
 		ON_ERR_GOTO(res, out_destroy_prop, "setting function");
 	}
@@ -1406,18 +1405,17 @@ int ParseCmds(struct RASCommandLine *rasCmdLine, int argc, char *argv[])
 	int option_index   = 0;
 	char *endptr       = NULL;
 
-	while( -1 != ( getopt_ret = getopt_long(argc, argv,
+	while (-1 != (getopt_ret = getopt_long(argc, argv,
 						GETOPT_STRING,
 						longopts,
-						&option_index))){
+						&option_index))) {
 		const char *tmp_optarg = optarg;
 
-		if ((optarg) &&
-				('=' == *tmp_optarg)){
+		if ((optarg) && ('=' == *tmp_optarg)) {
 			++tmp_optarg;
 		}
 
-		switch(getopt_ret){
+		switch (getopt_ret) {
 		case 'h':
 			// Command line help
 			RASAppShowHelp();
@@ -1426,35 +1424,40 @@ int ParseCmds(struct RASCommandLine *rasCmdLine, int argc, char *argv[])
 
 		case 0xe:
 			// segment number
-			if (tmp_optarg == NULL ) break;
+			if (tmp_optarg == NULL)
+				break;
 			endptr = NULL;
 			rasCmdLine->segment = strtol(tmp_optarg, &endptr, 0);
 			break;
 
 		case 'B':
 			// bus number
-			if (tmp_optarg == NULL ) break;
+			if (tmp_optarg == NULL)
+				break;
 			endptr = NULL;
 			rasCmdLine->bus = strtol(tmp_optarg, &endptr, 0);
 			break;
 
 		case 'D':
 			// Device number
-			if (tmp_optarg == NULL ) break;
+			if (tmp_optarg == NULL)
+				break;
 			endptr = NULL;
 			rasCmdLine->device = strtol(tmp_optarg, &endptr, 0);
 			break;
 
 		case 'F':
 			// Function number
-			if (tmp_optarg == NULL ) break;
+			if (tmp_optarg == NULL)
+				break;
 			endptr = NULL;
 			rasCmdLine->function = strtol(tmp_optarg, &endptr, 0);
 			break;
 
 		case 'S':
 			// Socket number
-			if (tmp_optarg == NULL ) break;
+			if (tmp_optarg == NULL)
+				break;
 			endptr = NULL;
 			rasCmdLine->socket = strtol(tmp_optarg, &endptr, 0);
 			break;
