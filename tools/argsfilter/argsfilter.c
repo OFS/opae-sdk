@@ -73,10 +73,10 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 		int device;
 		int function;
 		int socket_id;
-                int segment;
+		int segment;
 	} args_filter_config = {
-		.bus = -1, .device = -1, .function = -1, .socket_id = -1, 
-                .segment = -1 };
+		.bus = -1, .device = -1, .function = -1, .socket_id = -1,
+		.segment = -1 };
 
 	while (-1
 	       != (getopt_ret = getopt_long(*argc, argv, short_opts, longopts,
@@ -142,7 +142,7 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			}
 			found_opts[next_found++] = optind - 2;
 			break;
-        case 0xe: /* segment */
+		case 0xe: /* segment */
 			if (NULL == tmp_optarg)
 				break;
 			endptr = NULL;
@@ -154,7 +154,7 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 				return EX_USAGE;
 			}
 			found_opts[next_found++] = optind - 2;
-                        break;
+			break;
 		case ':': /* missing option argument */
 			fprintf(stderr, "Missing option argument\n");
 			return EX_USAGE;
