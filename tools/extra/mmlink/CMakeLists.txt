@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2019, Intel Corporation
+## Copyright(c) 2017-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,20 +24,21 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
+opae_add_executable(TARGET mmlink
+    SOURCE
+        mm_debug_link_linux.cpp
+        mmlink_connection.cpp
+        mmlink_server.cpp main.cpp
+    LIBS
+        safestr
+        opae-c
+        ${libjson-c_LIBRARIES}
+    COMPONENT toolmmlink
+)
 
-include_directories(${OPAE_INCLUDE_DIR})
-
-set(SRC mm_debug_link_linux.cpp
-		mmlink_connection.cpp
-		mmlink_server.cpp main.cpp)
-
-add_executable(mmlink ${SRC})
-
-set_install_rpath(mmlink)
-
-target_link_libraries(mmlink opae-c pthread)
-set(CMAKE_CXX_FLAGS "-DHAVE_CONFIG_H ${CMAKE_CXX_FLAGS}")
-
-install(TARGETS mmlink
-        RUNTIME DESTINATION bin
-        COMPONENT toolmmlink)
+set_target_properties(mmlink
+    PROPERTIES
+        CXX_STANDARD 11
+        CXX_STANDARD_REQUIRED YES
+        CXX_EXTENSIONS NO
+)

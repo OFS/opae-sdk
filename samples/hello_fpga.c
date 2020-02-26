@@ -155,13 +155,13 @@ fpga_result parse_args(int argc, char *argv[])
 						longopts, &option_index))) {
 		const char *tmp_optarg = optarg;
 		/* Checks to see if optarg is null and if not it goes to value of optarg */
-		if ((optarg) && ('=' == *tmp_optarg)){
+		if ((optarg) && ('=' == *tmp_optarg)) {
 			++tmp_optarg;
 		}
 
-		switch (getopt_ret){
+		switch (getopt_ret) {
 		case 'B': /* bus */
-			if (NULL == tmp_optarg){
+			if (NULL == tmp_optarg) {
 				return FPGA_EXCEPTION;
 			}
 			endptr = NULL;
@@ -244,7 +244,7 @@ out:
 }
 
 /* Is the FPGA simulated with ASE? */
-bool probe_for_ase()
+bool probe_for_ase(void)
 {
 	fpga_result r = FPGA_OK;
 	uint16_t device_id = 0;

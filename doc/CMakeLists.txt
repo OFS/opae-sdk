@@ -1,4 +1,4 @@
-## Copyright(c) 2017, Intel Corporation
+## Copyright(c) 2017-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,16 +24,12 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-############################################################################
-## Add 'doxygen' library ###################################################
-############################################################################
-
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
   add_subdirectory(doxygen)
 endif(DOXYGEN_FOUND)
 
 find_package(Sphinx)
-if(BUILD_SPHINX_DOC AND SPHINX_EXECUTABLE)
+if(OPAE_BUILD_SPHINX_DOC AND SPHINX_EXECUTABLE)
   add_subdirectory(sphinx)
-endif(BUILD_SPHINX_DOC AND SPHINX_EXECUTABLE)
+endif(OPAE_BUILD_SPHINX_DOC AND SPHINX_EXECUTABLE)

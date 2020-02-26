@@ -64,9 +64,9 @@ int main(int argc, char* argv[])
     opts.get_value<bool>("version", show_version);
     if (show_version)
     {
-        std::cout << "nlb0 " << INTEL_FPGA_API_VERSION
-                  << " " << INTEL_FPGA_API_HASH;
-        if (INTEL_FPGA_TREE_DIRTY)
+        std::cout << "nlb0 " << OPAE_VERSION
+                  << " " << OPAE_GIT_COMMIT_HASH;
+        if (OPAE_GIT_SRC_TREE_DIRTY)
             std::cout << "*";
         std::cout << std::endl;
         return 103;

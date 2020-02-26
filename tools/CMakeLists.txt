@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2018, Intel Corporation
+## Copyright(c) 2017-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,39 +24,20 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-
-# board lib
-add_subdirectory(base/libboard/board_rc)
-add_subdirectory(base/libboard/board_vc)
-
-# base
-add_subdirectory(base/fpgaconf)
-add_subdirectory(base/fpgad)
-add_subdirectory(base/argsfilter)
-add_subdirectory(base/fpgainfo)
-add_subdirectory(base/fpgaport)
-add_subdirectory(base/fpgametrics)
+opae_add_subdirectory(argsfilter)
+opae_add_subdirectory(libboard/board_rc)
+opae_add_subdirectory(libboard/board_vc)
+opae_add_subdirectory(libboard/board_dc)
+opae_add_subdirectory(fpgaconf)
+opae_add_subdirectory(fpgainfo)
+opae_add_subdirectory(fpgametrics)
 
 # extra
-add_subdirectory(extra/coreidle)
-add_subdirectory(extra/userclk)
-add_subdirectory(extra/packager)
-if (BUILD_PYTHON_DIST)
-    add_subdirectory(extra/pypackager)
-	add_subdirectory(extra/pyfpgadiag)
-endif()
-add_subdirectory(extra/c++utils)
-add_subdirectory(extra/fpgadiag)
-add_subdirectory(extra/mmlink)
-add_subdirectory(extra/ras)
-
-# integrated
-add_subdirectory(extra/integrated/hssi)
-
-# pac
-add_subdirectory(extra/pac/fpgaflash)
-if (BUILD_PYTHON_DIST)
-    add_subdirectory(extra/pac/pyfpgaflash)
-endif()
-add_subdirectory(extra/pac/pac_hssi_config)
-add_subdirectory(extra/pac/fpgabist)
+opae_add_subdirectory(extra/userclk)
+opae_add_subdirectory(extra/packager)
+opae_add_subdirectory(extra/c++utils)
+opae_add_subdirectory(extra/fpgadiag)
+opae_add_subdirectory(extra/mmlink)
+opae_add_subdirectory(extra/ras)
+opae_add_subdirectory(extra/pac_hssi_config)
+opae_add_subdirectory(extra/fpgabist)

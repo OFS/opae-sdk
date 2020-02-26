@@ -1,4 +1,0 @@
-#!/bin/sh
-
-# Run a binary using the ASE simulation library instead of the standard libopae-c.
-env WITH_ASE=1 "$@"

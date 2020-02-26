@@ -113,7 +113,7 @@ After downloading the source, unpack, configure, and compile it:
     cd opae-sdk-<release>
     mkdir build
     cd build
-    cmake .. -DBUILD_ASE=1
+    cmake .. -DOPAE_BUILD_SIM=ON
     make
 ```
 
