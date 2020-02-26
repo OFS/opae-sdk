@@ -175,7 +175,7 @@ library (libopae-c-ase) with the following commands:
 $ cd opae-sdk-<release>
 $ mkdir mybuild
 $ cd mybuild
-$ cmake .. -DBUILD_ASE=1
+$ cmake .. -DOPAE_BUILD_SIM=ON
 $ make
 ```
 
@@ -202,7 +202,7 @@ The tools that can be built with python distutils are:
 $ cd opae-sdk-<release>
 $ mkdir mybuild
 $ cd mybuild
-$ cmake .. -DBUILD_PYTHON_DIST=ON
+$ cmake .. -DOPAE_BUILD_PYTHON_DIST=ON
 $ make <toolname>-dist
 ```
 The python distributions will be available in mybuild/<tools-directory>/<toolname>/stage/dist
@@ -220,7 +220,7 @@ systems to install the OPAE SDK.
 $ cd opae-sdk-<release>
 $ mkdir mybuild
 $ cd mybuild
-$ cmake .. -DBUILD_ASE=1 -DCPACK_GENERATOR=RPM -DCMAKE_INSTALL_PREFIX=<desired install loacation>
+$ cmake .. -DOPAE_BUILD_SIM=ON -DCPACK_GENERATOR=RPM -DCMAKE_INSTALL_PREFIX=<desired install location>
 $ make package_rpm
 ```
 .. note::
@@ -249,7 +249,7 @@ opae-ase-<release>.x86_64.rpm           (libopae-c-ase)
 $ cd opae-sdk-<release>
 $ mkdir mybuild
 $ cd mybuild
-$ cmake .. -DBUILD_ASE=1 -DCPACK_GENERATOR=DEB -DCMAKE_INSTALL_PREFIX=<desired install loacation>
+$ cmake .. -DOPAE_BUILD_SIM=ON -DCPACK_GENERATOR=DEB -DCMAKE_INSTALL_PREFIX=<desired install location>
 $ make package_deb
 ```
 .. note::

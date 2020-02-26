@@ -33,8 +33,15 @@ CMake options that may be set during the configuration include the following:
 | cmake flag                 | Optional or Mandatory | Purpose                             | Valid values                          | Default value  |
 |----------------------------|-----------------------|-------------------------------------|---------------------------------------|----------------|
 | -DCMAKE_BUILD_TYPE         | Optional              | Set compiler flags                  | Debug/Release/Coverage/RelWithDebInfo | RelWithDebInfo |
-| -DBUILD_TESTS              | Optional              | Enable/disable building gtests      | ON/OFF                                | OFF            |
-| -DBUILD_ASE                | Optional              | Enable/disable building ASE         | ON/OFF                                | ON             |
+| -DOPAE_BUILD_LEGACY        | Optional              | Enable/disable opae-legacy.git      | ON/OFF                                | OFF            |
+| -DOPAE_BUILD_SPHINX_DOC    | Optional              | Enable/disable documentation build  | ON/OFF                                | OFF            |
+| -DOPAE_BUILD_TESTS         | Optional              | Enable/disable building unit tests  | ON/OFF                                | OFF            |
+| -DOPAE_INSTALL_RPATH       | Optional              | Enable/disable rpath for install    | ON/OFF                                | OFF            |
+| -DOPAE_BUILD_LIBOPAE_CXX   | Optional              | Enable/disable OPAE C++ bindings    | ON/OFF                                | ON             | 
+| -DOPAE_BUILD_LIBOPAE_PY    | Optional              | Enable/disable OPAE Python bindings | ON/OFF                                | ON             |
+| -DOPAE_BUILD_PYTHON_DIST   | Optional              | Enable/disable Python Distribution  | ON/OFF                                | OFF            |
+| -DOPAE_ENABLE_MOCK         | Optional              | Enable/disable mocks for unit tests | ON/OFF                                | OFF            |
+| -DOPAE_BUILD_SIM           | Optional              | Enable/disable opae-sim.git         | ON/OFF                                | OFF            |
 
 ```
 
