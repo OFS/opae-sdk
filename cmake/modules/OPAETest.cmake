@@ -141,6 +141,9 @@ function(opae_test_add)
         ${GTEST_BOTH_LIBRARIES}
         ${OPAE_TEST_ADD_LIBS})
 
+    opae_coverage_build(TARGET ${OPAE_TEST_ADD_TARGET}
+        SOURCE ${OPAE_TEST_ADD_SOURCE})
+
     add_test(
         NAME ${OPAE_TEST_ADD_TARGET}
         COMMAND $<TARGET_FILE:${OPAE_TEST_ADD_TARGET}>
@@ -184,4 +187,7 @@ function(opae_test_add_static_lib)
 
     target_link_libraries(${OPAE_TEST_ADD_STATIC_LIB_TARGET}
         ${OPAE_TEST_ADD_STATIC_LIB_LIBS})
+
+    opae_coverage_build(TARGET ${OPAE_TEST_ADD_STATIC_LIB_TARGET}
+        SOURCE ${OPAE_TEST_ADD_STATIC_LIB_SOURCE})
 endfunction()
