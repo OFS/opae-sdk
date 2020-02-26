@@ -443,7 +443,7 @@ Follow these instructions if you are building the OPAE SDK from a source tar fil
     # $ cmake <Path to CMakeLists.txt>
     # Install directory, in this example it is <Path  to opae>/myinst/
 
-    $ cmake ../ -DBUILD_ASE=YES -DCMAKE_INSTALL_PREFIX=/tmp/opae/myinst/
+    $ cmake ../ -DOPAE_BUILD_SIM=YES -DCMAKE_INSTALL_PREFIX=/tmp/opae/myinst/
     -- The C compiler identification is GNU 4.8.4
     -- The CXX compiler identification is GNU 4.8.4
     -- Check for working C compiler: /usr/bin/cc
