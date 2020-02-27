@@ -102,8 +102,10 @@ set(SRC
   wmemset_s.c
 )
 
-opae_add_static_library(TARGET safestr
-    SOURCE ${SRC}
+opae_add_shared_library(TARGET safestr
+  SOURCE ${SRC}
+  VERSION ${OPAE_VERSION}
+  SOVERSION ${OPAE_VERSION_MAJOR}
     COMPONENT safestrlib
 )
 
