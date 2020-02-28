@@ -25,14 +25,31 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 opae_test_add_static_lib(TARGET object_api-static
-    SOURCE ${OPAE_SDK_SOURCE}/samples/object_api.c
+    SOURCE
+
+
+opae_test_add_static_lib(TARGET bitstream-static
+    SOURCE 
+        ${OPAE_LIBS_ROOT}/libbitstream/bitstream.c
+        ${OPAE_LIBS_ROOT}/libbitstream/bits_utils.c
+        ${OPAE_LIBS_ROOT}/libbitstream/metadatav1.c
+    LIBS
+        safestr
+        ${libjson-c_LIBRARIES}
+        ${libuuid_LIBRARIES}
 )
 
-target_compile_definitions(object_api-static
-    PRIVATE main=object_api_main
+opae_test_add(TARGET test_bitstream_bitstream_c
+    SOURCE test_bitstream_c.cpp
+    LIBS bitstream-static
 )
 
-opae_test_add(TARGET test_object_api_c
-    SOURCE test_object_api_c.cpp
-    LIBS object_api-static
+opae_test_add(TARGET test_bitstream_bits_utils_c
+    SOURCE test_bits_utils_c.cpp
+    LIBS bitstream-static
+)
+
+opae_test_add(TARGET test_bitstream_metadatav1_c
+    SOURCE test_metadatav1_c.cpp
+    LIBS bitstream-static
 )

@@ -1,8 +1,0 @@
-############################################################################
-## Synthesizable: AFU-specific section #####################################
-############################################################################
-
-# For now we force MPF to a particular platform.  This will be fixed later.
-+define+MPF_PLATFORM_BDX
--F base_addenda.txt
-rtl/cci_mpf_hello_afu.sv

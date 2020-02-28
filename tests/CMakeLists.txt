@@ -25,15 +25,22 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required (VERSION 2.8.12)
+project(tests)
 
-project(testing)
+if(${GTest_FOUND})
+    message(STATUS Found GTest)
+else()
+    opae_load_gtest()
+endif()
 
-add_subdirectory(argsfilter)
-add_subdirectory(board)
-add_subdirectory(fpgaconf)
-add_subdirectory(fpgainfo)
-add_subdirectory(hello_events)
-add_subdirectory(hello_fpga)
-add_subdirectory(object_api)
-add_subdirectory(ras)
-add_subdirectory(userclk)
+# Disable some warnings that fire during gtest compilation
+check_cxx_compiler_flag("-Wno-sign-compare" CXX_SUPPORTS_NO_SIGN_COMPARE)
+if(CXX_SUPPORTS_NO_SIGN_COMPARE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
+endif()
+
+add_subdirectory(bitstream)
+add_subdirectory(opae-c)
+add_subdirectory(opae-cxx)
+add_subdirectory(pyopae)
+add_subdirectory(xfpga)

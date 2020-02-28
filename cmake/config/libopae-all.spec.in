@@ -1,0 +1,73 @@
+%{?!packager: %define packager @PACKAGE_PACKAGER_NAME@ <@PACKAGE_PACKAGER_EMAIL@>}
+
+@DEFINE_RPM_NAME@
+
+%define module  @MODULE_NAME@
+Name: @PACKAGE_NAME@
+
+Version:       @PACKAGE_VERSION@
+Release:       @CPACK_PACKAGE_RELEASE@
+Summary:       @PACKAGE_SUMMARY@
+Vendor:        @PACKAGE_VENDOR@
+URL:           @PACKAGE_URL@
+License:       BSD-3.0+
+Group:         unknown
+
+BuildArch:     x86_64
+BuildRoot:     %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
+Requires:      opae-devel = @PACKAGE_VERSION@
+Requires:      opae-tools = @PACKAGE_VERSION@
+Requires:      opae-ase = @PACKAGE_VERSION@
+
+# Put the RPM in the current directory
+%define _rpmdir .
+
+# Find the tarball in the current directory
+%define _sourcedir %(echo $PWD)
+
+# Disable redundant stuff rpm distros include in the build process by
+# default:
+#   Disable any prep shell actions. replace them with simply 'true'
+%define __spec_prep_pre true
+%define __spec_prep_post true
+#   Disable any build shell actions. replace them with simply 'true'
+%define __spec_build_pre cd %{_builddir}
+%define __spec_build_post true
+#   Disable any install shell actions. replace them with simply 'true'
+%define __spec_install_pre cd %{_builddir}
+%define __spec_install_post true
+#   Disable any clean shell actions. replace them with simply 'true'
+%define __spec_clean_pre cd %{_builddir}
+%define __spec_clean_post true
+
+%description
+@PACKAGE_DESCRIPTION@
+
+%global debug_package %{nil}
+
+%prep
+
+%build
+# nothing to do
+
+%install
+# nothing to do
+
+%clean
+# nothing to do
+
+%files
+
+%pre
+# nothing to do
+
+%post
+# nothing to do
+
+%preun
+# nothing to do
+
+%changelog
+* %(date "+%a %b %d %Y") %packager %{version}-%{release}
+- OPAE meta package @GIT_COMMIT_HASH@

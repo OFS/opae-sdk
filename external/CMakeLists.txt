@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2017-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -22,11 +22,16 @@
 ## INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
-## POSSIBILITY OF SUCH DAMAGE
+## POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required(VERSION 2.8.12)
 
-if(OPAE_BUILD_LEGACY)
-    opae_external_project_add(PROJECT_NAME opae-legacy
-                              GIT_URL https://github.com/OPAE/opae-legacy.git)
-endif(OPAE_BUILD_LEGACY)
+if(OPAE_BUILD_TESTS)
+    opae_external_project_add(PROJECT_NAME opae-test
+                              GIT_URL https://github.com/OPAE/opae-test.git)
+endif(OPAE_BUILD_TESTS)
+
+if(OPAE_BUILD_SIM)
+    opae_external_project_add(PROJECT_NAME opae-sim
+                              GIT_URL https://github.com/OPAE/opae-sim.git)
+endif(OPAE_BUILD_SIM)
