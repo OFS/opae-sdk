@@ -1,0 +1,17 @@
+include opae.cpp
+include pycontext.h
+include pycontext.cpp
+include pyproperties.h
+include pyproperties.cpp
+include pyhandle.h
+include pyhandle.cpp
+include pytoken.h
+include pytoken.cpp
+include pyshared_buffer.h
+include pyshared_buffer.cpp
+include pyevents.h
+include pyevents.cpp
+include pyerrors.h
+include pyerrors.cpp
+include pysysobject.h
+include pysysobject.cpp
