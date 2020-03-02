@@ -89,7 +89,6 @@ make -j  opae-c \
          board_vc \
          fpgaconf \
          fpgainfo \
-         fpgametrics \
          userclk \
          hello_fpga \
          hello_events \
@@ -133,7 +132,6 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxcorelib -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=samples -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaetoolslibs -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgainfo -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgametrics -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgaconf -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=tooluserclk -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolmmlink -P cmake_install.cmake
@@ -188,7 +186,6 @@ ldconfig
 %{_libdir}/libargsfilter.a*
 %{_bindir}/fpgaconf*
 %{_bindir}/fpgainfo*
-%{_bindir}/fpgametrics*
 
 
 %files tools-extra
