@@ -152,6 +152,7 @@ ldconfig
 %license @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DOCDIR@/LICENSE
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/fpgaconf
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libargsfilter.so*
 @CMAKE_INSTALL_PREFIX@/bin/fpgainfo
 @CMAKE_INSTALL_PREFIX@/bin/fpgaport
 @CMAKE_INSTALL_PREFIX@/bin/fpgametrics

@@ -24,8 +24,12 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_add_static_library(TARGET argsfilter
+opae_add_shared_library(TARGET argsfilter
     SOURCE argsfilter.c
-    LIBS opae-c
+    LIBS 
+        ${CMAKE_THREAD_LIBS_INIT}
+        opae-c
+    VERSION ${OPAE_VERSION}
+    SOVERSION ${OPAE_VERSION_MAJOR}
     COMPONENT toolfpgainfo
 )
