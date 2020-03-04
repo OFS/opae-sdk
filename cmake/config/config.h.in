@@ -230,11 +230,11 @@
 #define OPAE_ASE_CFG_SRC_PATH "@CMAKE_CURRENT_SOURCE_DIR@/libopae/plugins/ase/opae_ase.cfg"
 #define OPAE_ASE_CFG_INST_PATH "@CMAKE_INSTALL_PREFIX@/share/opae/ase/opae_ase.cfg"
 
-#define OPAE_MODULE_SEARCH_PATHS       \
-  "@CMAKE_INSTALL_PREFIX@/lib64/opae", \
-  "@CMAKE_INSTALL_PREFIX@/lib/opae",   \
-  "/usr/lib64/opae",                   \
-  "/usr/lib/opae",                     \
+#define OPAE_MODULE_SEARCH_PATHS        \
+  "@CMAKE_INSTALL_PREFIX@/lib64/opae/", \
+  "@CMAKE_INSTALL_PREFIX@/lib/opae/",   \
+  "/usr/lib64/opae/",                   \
+  "/usr/lib/opae/",                     \
   ""
 
 #ifndef STATIC
