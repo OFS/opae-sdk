@@ -35,6 +35,7 @@ add_executable(fpgainfo main.c
 			  bmcinfo.c
 			  bmcdata.c
 			  powerinfo.c
+              securityinfo.c
 			  tempinfo.c
 			  portinfo.c
 			  phyinfo.c

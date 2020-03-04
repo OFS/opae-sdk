@@ -47,6 +47,7 @@
 #include "errors.h"
 #include "fmeinfo.h"
 #include "portinfo.h"
+#include "securityinfo.h"
 #include "tempinfo.h"
 #include "powerinfo.h"
 #include "bmcdata.h"
@@ -91,6 +92,10 @@ static struct command_handler {
 	 .filter = bmc_filter,
 	 .run = bmc_command,
 	 .help = bmc_help},
+    {.command = "security",
+     .filter = security_filter,
+     .run = security_command,
+     .help = security_help},
 	{.command = "phy",
 	 .filter = phy_filter,
 	 .run = phy_command,
