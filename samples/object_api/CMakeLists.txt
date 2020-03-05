@@ -24,46 +24,19 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-#find_package(UUID REQUIRED)
-#include(opae_devpkgs_cmake_install)
-#include(ase_add_module)
+opae_add_executable(TARGET object_api
+    SOURCE object_api.c
+    LIBS
+        safestr
+        opae-c
+        ${libjson-c_LIBRARIES}
+        ${libuuid_LIBRARIES}
+    COMPONENT samplebin
+)
 
-include_directories(${OPAE_INCLUDE_DIR}
-  ${OPAE_SDK_SOURCE}/libopae/src )
-include_directories(base/sw)
+set(OPAE_SAMPLES src/opae/samples/object_api)
+set(SAMPLES_SRC object_api.c)
 
-if(BUILD_ASE_SAMPLES)
-  find_package(Quartus)
-  find_package(Questa)
-endif()
-
-######################################################################
-# Add the samples ####################################################
-######################################################################
-
-set(OPAE_SAMPLES src/opae/samples)
-if(BUILD_ASE_SAMPLES)
-  # BBB libraries (MPF, DMA, etc)
-  include(intel_fpga_bbb)
-  Build_Intel_FPGA_BBB()
-
-  opae_add_subdirectory(intg_xeon_nlb)
-  opae_add_subdirectory(hello_afu)
-  opae_add_subdirectory(hello_mpf_afu)
-  if(BUILD_ASE_INTR)
-    opae_add_subdirectory(hello_intr_afu)
-  endif()
-  # opae_add_subdirectory(hello_error_afu)
-  # opae_add_subdirectory(hello_dma_afu)
-endif()
-
-######################################################################
-# Client application #################################################
-######################################################################
-if(BUILD_ASE)
-  add_definitions(-DTEST_TIMEOUT=130000000)
-endif()
-
-opae_add_subdirectory(hello_fpga)
-opae_add_subdirectory(hello_events)
-opae_add_subdirectory(object_api)
+install(FILES ${SAMPLES_SRC}
+  DESTINATION ${OPAE_SAMPLES}
+  COMPONENT samplesrc)
