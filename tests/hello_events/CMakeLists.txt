@@ -25,7 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 opae_test_add_static_lib(TARGET hello_events-static
-    SOURCE ${OPAE_SDK_SOURCE}/samples/hello_events.c
+    SOURCE ${OPAE_SDK_SOURCE}/samples/hello_events/hello_events.c
 )
 
 target_compile_definitions(hello_events-static
