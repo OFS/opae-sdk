@@ -34,9 +34,6 @@ opae_add_executable(TARGET hello_fpga
     COMPONENT samplebin
 )
 
-set(OPAE_SAMPLES src/opae/samples/hello_fpga)
-set(SAMPLES_SRC hello_fpga.c)
-
-install(FILES ${SAMPLES_SRC}
-  DESTINATION ${OPAE_SAMPLES}
+install(FILES hello_fpga.c
+  DESTINATION src/opae/samples/hello_fpga
   COMPONENT samplesrc)

@@ -34,9 +34,6 @@ opae_add_executable(TARGET object_api
     COMPONENT samplebin
 )
 
-set(OPAE_SAMPLES src/opae/samples/object_api)
-set(SAMPLES_SRC object_api.c)
-
-install(FILES ${SAMPLES_SRC}
-  DESTINATION ${OPAE_SAMPLES}
+install(FILES object_api.c
+  DESTINATION src/opae/samples/object_api
   COMPONENT samplesrc)

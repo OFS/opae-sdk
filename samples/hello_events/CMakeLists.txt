@@ -37,6 +37,6 @@ opae_add_executable(TARGET hello_events
 set(OPAE_SAMPLES src/opae/samples/hello_events)
 set(SAMPLES_SRC hello_events.c)
 
-install(FILES ${SAMPLES_SRC}
-  DESTINATION ${OPAE_SAMPLES}
+install(FILES hello_events.c
+  DESTINATION src/opae/samples/hello_events
   COMPONENT samplesrc)
