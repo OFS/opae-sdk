@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2019, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -59,8 +59,6 @@
 
 #include <uuid/uuid.h>
 #include <opae/fpga.h>
-
-#include "safe_string/safe_string.h"
 
 int usleep(unsigned);
 

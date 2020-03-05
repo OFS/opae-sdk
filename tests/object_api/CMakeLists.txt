@@ -26,6 +26,8 @@
 
 opae_test_add_static_lib(TARGET object_api-static
     SOURCE ${OPAE_SDK_SOURCE}/samples/object_api.c
+    LIBS
+        opae-c
 )
 
 target_compile_definitions(object_api-static

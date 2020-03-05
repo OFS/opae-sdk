@@ -38,7 +38,6 @@ opae_add_shared_library(TARGET opae-c++-utils
         option_parser.h
         option_parser.cpp
     LIBS
-        safestr
         opae-c
         ${libjson-c_LIBRARIES}
     VERSION ${OPAE_VERSION}

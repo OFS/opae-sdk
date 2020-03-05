@@ -30,7 +30,6 @@ opae_add_executable(TARGET mmlink
         mmlink_connection.cpp
         mmlink_server.cpp main.cpp
     LIBS
-        safestr
         opae-c
         ${libjson-c_LIBRARIES}
     COMPONENT toolmmlink

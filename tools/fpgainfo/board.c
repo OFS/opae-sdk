@@ -49,8 +49,6 @@
 #include <dlfcn.h>
 #include <pthread.h>
 
-#include "safe_string/safe_string.h"
-
 #include "board.h"
 
 
@@ -77,7 +75,7 @@ void *find_plugin(const char *libpath)
 	for (i = 0 ;
 		i < sizeof(search_paths) / sizeof(search_paths[0]) ;
 		++i) {
-		snprintf_s_ss(plugin_path, sizeof(plugin_path),
+		snprintf(plugin_path, sizeof(plugin_path),
 			      "%s%s", search_paths[i], libpath);
 
 		dl_handle = dlopen(plugin_path, RTLD_LAZY | RTLD_LOCAL);

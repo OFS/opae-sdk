@@ -28,7 +28,6 @@ opae_add_executable(TARGET bist_app
     SOURCE bist_afu.c
     LIBS
         rt
-        safestr
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
@@ -39,7 +38,6 @@ opae_add_executable(TARGET bist
     SOURCE bist_dc.c
     LIBS
         rt
-        safestr
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}

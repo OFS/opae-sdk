@@ -37,7 +37,6 @@
 #include <time.h>
 #include <limits.h>
 
-#include "safe_string/safe_string.h"
 #include <opae/fpga.h>
 
 

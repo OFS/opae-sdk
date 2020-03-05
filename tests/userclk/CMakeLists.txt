@@ -26,6 +26,8 @@
 
 opae_test_add_static_lib(TARGET userclk-static
     SOURCE ${OPAE_SDK_SOURCE}/tools/extra/userclk/main.c
+    LIBS
+        opae-c
 )
 
 target_compile_definitions(userclk-static

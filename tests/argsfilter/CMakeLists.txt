@@ -26,6 +26,8 @@
 
 opae_test_add_static_lib(TARGET argsfilter-static
     SOURCE ${OPAE_SDK_SOURCE}/tools/argsfilter/argsfilter.c
+    LIBS
+        opae-c
 )
 
 opae_test_add(TARGET test_argsfilter_c

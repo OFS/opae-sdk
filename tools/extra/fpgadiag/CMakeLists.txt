@@ -41,7 +41,6 @@ opae_add_shared_library(TARGET opae-c++-nlb
         perf_counters.cpp
         diag_utils.cpp
     LIBS
-        safestr
         opae-c
         opae-cxx-core 
     VERSION ${OPAE_VERSION}
@@ -65,7 +64,6 @@ function(add_fpgadiag_app target source comp)
     opae_add_executable(TARGET ${target}
         SOURCE ${source}
         LIBS
-            safestr
             opae-c
             opae-cxx-core
             opae-c++-utils

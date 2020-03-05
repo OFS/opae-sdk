@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -35,7 +35,6 @@
 
 #include <sys/socket.h>
 #include <unistd.h>
-#include "safe_string/safe_string.h"
 
 #include "mm_debug_link_interface.h"
 #include "mmlink_server.h"
@@ -87,8 +86,7 @@ protected:
 			m_server         = mm_conn.m_server;
 
 			m_buf= new char[m_bufsize];
-			strncpy_s(m_buf, m_bufsize,
-				mm_conn.m_buf, m_bufsize);
+			strncpy(m_buf, mm_conn.m_buf, m_bufsize);
 		}
 
 		mmlink_connection& operator=(const mmlink_connection& mm_conn)
@@ -103,8 +101,7 @@ protected:
 				if(m_buf) delete m_buf;
 
 				m_buf = new char[m_bufsize];
-				strncpy_s(m_buf, m_bufsize,
-					mm_conn.m_buf, m_bufsize);
+				strncpy(m_buf, mm_conn.m_buf, m_bufsize);
 			}
 			return *this;
 		}

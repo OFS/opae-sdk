@@ -41,7 +41,6 @@
 #include <unistd.h>
 #include <uuid/uuid.h>
 
-#include "safe_string/safe_string.h"
 #include <opae/fpga.h>
 
 
@@ -1302,9 +1301,9 @@ fpga_result page_fault_errors(void)
 	printf("Running Test\n");
 
 	/* Initialize buffers */
-	memset_s((void *)dsm_ptr,    LPBK1_DSM_SIZE,    0);
-	memset_s((void *)input_ptr,  LPBK1_BUFFER_SIZE, 0xAF);
-	memset_s((void *)output_ptr, LPBK1_BUFFER_SIZE, 0xBE);
+	memset((void *)dsm_ptr,    0,    LPBK1_DSM_SIZE);
+	memset((void *)input_ptr,  0xAF, LPBK1_BUFFER_SIZE);
+	memset((void *)output_ptr, 0xBE, LPBK1_BUFFER_SIZE);
 
 	cache_line *cl_ptr = (cache_line *)input_ptr;
 	uint32_t i;

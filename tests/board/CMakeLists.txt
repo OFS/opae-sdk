@@ -26,10 +26,14 @@
 
 opae_test_add_static_lib(TARGET board-vc-static
     SOURCE ${OPAE_SDK_SOURCE}/tools/libboard/board_vc/board_vc.c
+    LIBS
+        opae-c
 )
 
 opae_test_add_static_lib(TARGET board-rc-static
     SOURCE ${OPAE_SDK_SOURCE}/tools/libboard/board_rc/board_rc.c
+    LIBS
+        opae-c
 )
 
 opae_test_add(TARGET test_board_vc_c
