@@ -67,7 +67,6 @@ endif()
 opae_add_executable(TARGET hello_fpga
     SOURCE hello_fpga.c
     LIBS
-        safestr
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
@@ -77,7 +76,6 @@ opae_add_executable(TARGET hello_fpga
 opae_add_executable(TARGET hello_events
     SOURCE hello_events.c
     LIBS
-        safestr
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
@@ -87,7 +85,6 @@ opae_add_executable(TARGET hello_events
 opae_add_executable(TARGET object_api
     SOURCE object_api.c
     LIBS
-        safestr
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}

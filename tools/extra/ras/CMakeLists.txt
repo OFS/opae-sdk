@@ -27,7 +27,6 @@
 opae_add_executable(TARGET ras
     SOURCE main.c
     LIBS
-        safestr
         opae-c
         ${libjson-c_LIBRARIES}
     COMPONENT toolras

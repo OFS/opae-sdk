@@ -26,6 +26,8 @@
 
 opae_test_add_static_lib(TARGET hello_fpga-static
     SOURCE ${OPAE_SDK_SOURCE}/samples/hello_fpga.c
+    LIBS
+        opae-c
 )
 
 target_compile_definitions(hello_fpga-static

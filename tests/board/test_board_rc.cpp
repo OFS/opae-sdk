@@ -1,4 +1,4 @@
-// Copyright(c) 2019, Intel Corporation
+// Copyright(c) 2019-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -47,7 +47,6 @@ extern "C" {
 #include "intel-fpga.h"
 #include "libboard/board_rc/board_rc.h"
 #include "opae_int.h"
-#include "safe_string/safe_string.h"
 #include "mock/test_system.h"
 
 #define SYSFS_FME_PATH "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0"
@@ -205,7 +204,7 @@ fpga_result board_rc_c_p::write_sysfs_file(const char *file, void *buf,
   char sysfspath[256];
   int fd = 0;
 
-  snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", SYSFS_FME_PATH, file);
+  snprintf(sysfspath, sizeof(sysfspath), "%s/%s", SYSFS_FME_PATH, file);
   glob_t pglob;
   int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
   if ((gres) || (1 != pglob.gl_pathc)) {

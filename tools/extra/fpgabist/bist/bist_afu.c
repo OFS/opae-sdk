@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2019, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and	use  in source	and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,6 @@
 #include <opae/fpga.h>
 #include <stdlib.h>
 #include <getopt.h>
-#include "safe_string/safe_string.h"
 
 int usleep(unsigned);
 
@@ -199,9 +198,9 @@ int main(int argc, char *argv[])
 	ON_ERR_GOTO(res, out_free_input, "allocating output buffer");
 
 	/* Initialize buffers */
-	memset_s((void *)dsm_ptr,    LPBK1_DSM_SIZE,    0);
-	memset_s((void *)input_ptr,  LPBK1_BUFFER_SIZE, 0xAF);
-	memset_s((void *)output_ptr, LPBK1_BUFFER_SIZE, 0xBE);
+	memset((void *)dsm_ptr,    0,    LPBK1_DSM_SIZE);
+	memset((void *)input_ptr,  0xAF, LPBK1_BUFFER_SIZE);
+	memset((void *)output_ptr, 0xBE, LPBK1_BUFFER_SIZE);
 
 	cache_line *cl_ptr = (cache_line *)input_ptr;
 	for (i = 0; i < LPBK1_BUFFER_SIZE / CL(1); ++i) {
