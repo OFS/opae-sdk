@@ -34,7 +34,6 @@ opae_add_executable(TARGET hello_events
     COMPONENT samplebin
 )
 
-
 install(FILES hello_events.c
   DESTINATION src/opae/samples/hello_events
   COMPONENT samplesrc)
