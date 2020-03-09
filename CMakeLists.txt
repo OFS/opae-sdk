@@ -224,7 +224,7 @@ define_pkg(devel
   GROUP "devel"
   DISPLAY_NAME "opae-devel"
   DESCRIPTION "OPAE headers, sample source, and documentation"
-  DEB_DEPENDS "uuid-dev , libjson0 , opae-libs"
+  DEB_DEPENDS "uuid-dev , ${JSON_C_DEBIAN_PACKAGE} , opae-libs"
   )
 
   define_pkg(libs
@@ -236,7 +236,7 @@ define_pkg(devel
   GROUP "libs"
   DISPLAY_NAME "opae-libs"
   DESCRIPTION "OPAE runtime"
-  DEB_DEPENDS "uuid-dev , libjson0"
+  DEB_DEPENDS "uuid-dev , ${JSON_C_DEBIAN_PACKAGE}"
   )
 
   define_pkg(tests
