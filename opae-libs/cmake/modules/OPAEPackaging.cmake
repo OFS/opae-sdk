@@ -129,7 +129,7 @@ macro(CREATE_PYTHON_EXE EXE_NAME MAIN_MODULE)
         "\n"
         "# Write to a buffer so that the shebang can be prepended easily\n"
         "wr_buf = BytesIO()\n"
-        "wr_buf.write('#!/usr/bin/env python' + os.linesep)\n"
+        "wr_buf.write('#!/usr/bin/env python3{}'.format(os.linesep).encode())\n"
         "\n"
         "z = zipfile.PyZipFile(wr_buf, 'w')\n")
 
@@ -168,7 +168,7 @@ macro(CREATE_PYTHON_EXE EXE_NAME MAIN_MODULE)
         "f.close()\n")
 
     # Run Python to generate the zipped file
-    execute_process(COMMAND python "${BUILD_DIR_MAIN}/do_zip.py"
+    execute_process(COMMAND python3 "${BUILD_DIR_MAIN}/do_zip.py"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 endmacro(CREATE_PYTHON_EXE)

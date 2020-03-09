@@ -1,83 +1,66 @@
-Summary:        Open Programmable Acceleration Engine (OPAE)
+Summary:        Open Programmable Acceleration Engine (OPAE) SDK
 Name:           opae
 Version:        1.4.0
-Release:        1
+Release:        1%{?dist}
 License:        BSD
+ExclusiveArch:  x86_64
+
 Group:          Development/Libraries
 Vendor:         Intel Corporation
 Requires:       uuid, json-c, python
 URL:            https://github.com/OPAE/%{name}-sdk
-Source0:        https://github.com/OPAE/%{name}/%{name}.tar.gz
+Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-1/%{name}.tar.gz
 
 BuildRequires:  gcc, gcc-c++
 BuildRequires:  cmake
-BuildRequires:  python-devel
+BuildRequires:  python3-devel
 BuildRequires:  json-c-devel
 BuildRequires:  libuuid-devel
 BuildRequires:  rpm-build
 BuildRequires:  hwloc-devel
 BuildRequires:  python-sphinx
 BuildRequires:  doxygen
+BuildRequires:  systemd-rpm-macros
+BuildRequires:  systemd
 
 %description
-Runtime libraries for OPAE applications
+Open Programmable Acceleration Engine (OPAE) is a software framework
+for managing and accessing programmable accelerators (FPGAs).
+Its main parts are:
 
+* OPAE Software Development Kit (OPAE SDK) (this package)
+* OPAE Linux driver for Intel(R) Xeon(R) CPU with
+  Integrated FPGAs and Intel(R) PAC with Arria(R) 10 GX FPGA
+* Basic Building Block (BBB) library for accelerating AFU
+
+OPAE SDK is a collection of libraries and tools to facilitate the
+development of software applications and accelerators using OPAE.
+It provides a library implementing the OPAE C API for presenting a
+streamlined and easy-to-use interface for software applications to
+discover, access, and manage FPGA devices and accelerators using
+the OPAE software stack.
 
 %package devel
 Summary:    OPAE headers, sample source, and documentation
-Group:      Development/Libraries
-Requires:   libuuid-devel
+Requires:   libuuid-devel, %{name}%{?_isa} = %{version}-%{release}
 
 %description devel
-OPAE headers, sample source, and documentation
+OPAE headers, tools, sample source, and documentation
 
 
-%package tools
-Summary:    OPAE base tools binaries
-Group:      Development/Libraries
 
-%description tools
-OPAE Base Tools binaries
-
-%post tools
-ldconfig
-
-%postun tools
-ldconfig
-
-
-%package tools-extra
-Summary:    OPAE extra tools binaries
-Group:      Development/Libraries
-
-%description tools-extra
-OPAE Extra Tools binaries
-
-%post tools-extra
-ldconfig
-
-%postun tools-extra
-ldconfig
-
-
-%package samples
-Summary:    OPAE samples apps
-Group:      Development/Libraries
-
-%description samples
-OPAE samples
 
 %prep
-%autosetup -n %{name}
+%setup -q -n %{name}
 
 %build
-rm -rf mybuild
-mkdir mybuild
-cd mybuild
+rm -rf _build
+mkdir _build
+cd _build
 
 %cmake .. -DCMAKE_INSTALL_PREFIX=/usr
 
-make -j  opae-c \
+%make_build  opae-c \
          bitstream \
          xfpga \
          safestr \
@@ -90,14 +73,16 @@ make -j  opae-c \
          fpgaconf \
          fpgainfo \
          userclk \
+         object_api \
          hello_fpga \
          hello_events \
-         object_api \
-         mmlink
+         mmlink 
 
 %install
 mkdir -p %{buildroot}%{_datadir}/opae
 cp RELEASE_NOTES.md %{buildroot}%{_datadir}/opae/RELEASE_NOTES.md
+cp LICENSE %{buildroot}%{_datadir}/opae/LICENSE
+cp COPYING %{buildroot}%{_datadir}/opae/COPYING
 
 mkdir -p %{buildroot}%{_usr}/src/opae/cmake/modules
 
@@ -120,11 +105,17 @@ do
 done
 
 mkdir -p %{buildroot}%{_usr}/src/opae/samples
-cp samples/hello_fpga.c %{buildroot}%{_usr}/src/opae/samples/
-cp samples/hello_events.c %{buildroot}%{_usr}/src/opae/samples/
-cp samples/object_api.c %{buildroot}%{_usr}/src/opae/samples/
+mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_fpga/
+mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_events/
+mkdir -p %{buildroot}%{_usr}/src/opae/samples/object_api/
 
-cd mybuild
+
+cp samples/hello_fpga/hello_fpga.c %{buildroot}%{_usr}/src/opae/samples/hello_fpga/
+cp samples/hello_events/hello_events.c %{buildroot}%{_usr}/src/opae/samples/hello_events/
+cp samples/object_api/object_api.c %{buildroot}%{_usr}/src/opae/samples/object_api/
+
+
+cd _build
 
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=safestrlib -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaeclib -P cmake_install.cmake
@@ -138,68 +129,68 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolmmlink -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=samplebin -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=libopaeheaders -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=safestrheaders -P cmake_install.cmake
-
-
-%clean
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolpackager -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
 
 %post
-ldconfig
+mkdir -p %{_sysconfdir}/ld.so.conf.d
+echo "" > %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 
-%postun
-ldconfig
-
-%pre
-
-%preun
 
 %files
-%defattr(-,root,root,-)
 %dir %{_datadir}/opae
 %doc %{_datadir}/opae/RELEASE_NOTES.md
-%{_libdir}/libopae-c.so*
-%{_libdir}/libopae-cxx-core.so*
+%license %{_datadir}/opae/LICENSE
+%license %{_datadir}/opae/COPYING
+%{_libdir}/libopae-c.so.%{version}
+%{_libdir}/libopae-c.so.1
+%{_libdir}/libopae-c.so
+
+%{_libdir}/libbitstream.so.%{version}
+%{_libdir}/libbitstream.so.1
+%{_libdir}/libbitstream.so
+
+%{_libdir}/libopae-cxx-core.so.%{version}
+%{_libdir}/libopae-cxx-core.so.1
+%{_libdir}/libopae-cxx-core.so
+
+
 %{_libdir}/opae/libxfpga.so*
-%{_libdir}/libbitstream.so*
 %{_libdir}/opae/libmodbmc.so*
-%{_libdir}/opae/libboard_rc.so*
-%{_libdir}/opae/libboard_vc.so*
 %{_libdir}/libsafestr.a*
 
 
+
 %files devel
-%defattr(-,root,root,-)
 %dir %{_includedir}/opae
 %{_includedir}/opae/*
 %dir %{_includedir}/safe_string
 %{_includedir}/safe_string/safe_string.h
 %{_libdir}/libsafestr.a
 %dir %{_usr}/src/opae
-%{_usr}/src/opae/samples/hello_fpga.c
-%{_usr}/src/opae/samples/hello_events.c
-%{_usr}/src/opae/samples/object_api.c
+%{_usr}/src/opae/samples/hello_fpga/hello_fpga.c
+%{_usr}/src/opae/samples/hello_events/hello_events.c
+%{_usr}/src/opae/samples/object_api/object_api.c
 %{_usr}/src/opae/cmake/*
 %{_usr}/src/opae/opae-libs/cmake/modules/*
 
-
-%files tools
-%defattr(-,root,root,-)
 %{_libdir}/libargsfilter.a*
-%{_bindir}/fpgaconf*
-%{_bindir}/fpgainfo*
+%{_libdir}/opae/libboard_rc.so*
+%{_libdir}/opae/libboard_vc.so*
 
-
-%files tools-extra
-%defattr(-,root,root,-)
+%{_bindir}/fpgaconf
+%{_bindir}/fpgainfo
 %{_bindir}/mmlink
 %{_bindir}/userclk
-
-
-%files samples
-%defattr(-,root,root,-)
 %{_bindir}/hello_fpga
-%{_bindir}/hello_events*
 %{_bindir}/object_api
+%{_bindir}/hello_events
 %{_bindir}/hello_cxxcore
+%{_bindir}/afu_json_mgr
+%{_bindir}/packager
+
+%{_usr}/share/opae/*
+%{_usr}/share/opae/python/*
 
 
 %changelog
