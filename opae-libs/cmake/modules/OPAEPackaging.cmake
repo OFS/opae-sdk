@@ -1,3 +1,4 @@
+#!/usr/bin/cmake -P
 ## Copyright(c) 2017-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -23,6 +24,37 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
+
+set(JSON_C_DEBIAN_PACKAGE "libjson0")
+
+find_program(LSB_RELEASE_EXE lsb_release)
+if(LSB_RELEASE_EXE)
+    execute_process(COMMAND ${LSB_RELEASE_EXE} -is
+        OUTPUT_VARIABLE LSB_DISTRIBUTOR_ID
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    execute_process(COMMAND ${LSB_RELEASE_EXE} -rs
+        OUTPUT_VARIABLE LSB_RELEASE_NUMBER
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    message(STATUS "Detecting distribution - ${LSB_DISTRIBUTOR_ID} ${LSB_RELEASE_NUMBER}")
+
+    if(${LSB_DISTRIBUTOR_ID} STREQUAL "Ubuntu")
+
+        if(${LSB_RELEASE_NUMBER} STREQUAL "16.04")
+            set(JSON_C_DEBIAN_PACKAGE "libjson-c2")
+        elseif(${LSB_RELEASE_NUMBER} STREQUAL "18.04" OR ${LSB_RELEASE_NUMBER} STREQUAL "19.04")
+            set(JSON_C_DEBIAN_PACKAGE "libjson-c3")
+        elseif(${LSB_RELEASE_NUMBER} STREQUAL "19.10" OR ${LSB_RELEASE_NUMBER} STREQUAL "20.04")
+            set(JSON_C_DEBIAN_PACKAGE "libjson-c4")
+        else()
+            message(WARNING "Unrecognized Ubuntu version: ${LSB_RELEASE_NUMBER}. Defaulting to ${JSON_C_DEBIAN_PACKAGE}")
+        endif()
+
+    endif(${LSB_DISTRIBUTOR_ID} STREQUAL "Ubuntu")
+endif(LSB_RELEASE_EXE)
+
 
 function(DEFINE_PKG name)
   set(_components "COMPONENTS")
