@@ -47,7 +47,7 @@ extern "C" {
 #include <opae/mmio.h>
 #include <string>
 #include "safe_string/safe_string.h"
-
+#include <algorithm>
 #define PROTECTION (PROT_READ | PROT_WRITE)
 
 #ifdef __ia64__
