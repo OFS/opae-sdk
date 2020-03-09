@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2014-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,18 +24,16 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_test_add_static_lib(TARGET hello_events-static
-    SOURCE ${OPAE_SDK_SOURCE}/samples/hello_events/hello_events.c
-)
-
-target_compile_definitions(hello_events-static
-    PRIVATE main=hello_events_main
-)
-
-opae_test_add(TARGET test_hello_events_c
-    SOURCE test_hello_events_c.cpp
+opae_add_executable(TARGET object_api
+    SOURCE object_api.c
     LIBS
-        hello_events-static
-        test-fpgad-static
-    TEST_FPGAD
+        safestr
+        opae-c
+        ${libjson-c_LIBRARIES}
+        ${libuuid_LIBRARIES}
+    COMPONENT samplebin
 )
+
+install(FILES object_api.c
+  DESTINATION src/opae/samples/object_api
+  COMPONENT samplesrc)

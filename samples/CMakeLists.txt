@@ -64,38 +64,6 @@ if(BUILD_ASE)
   add_definitions(-DTEST_TIMEOUT=130000000)
 endif()
 
-opae_add_executable(TARGET hello_fpga
-    SOURCE hello_fpga.c
-    LIBS
-        safestr
-        opae-c
-        ${libjson-c_LIBRARIES}
-        ${libuuid_LIBRARIES}
-    COMPONENT samplebin
-)
-
-opae_add_executable(TARGET hello_events
-    SOURCE hello_events.c
-    LIBS
-        safestr
-        opae-c
-        ${libjson-c_LIBRARIES}
-        ${libuuid_LIBRARIES}
-    COMPONENT samplebin
-)
-
-opae_add_executable(TARGET object_api
-    SOURCE object_api.c
-    LIBS
-        safestr
-        opae-c
-        ${libjson-c_LIBRARIES}
-        ${libuuid_LIBRARIES}
-    COMPONENT samplebin
-)
-
-set(SAMPLES_SRC hello_fpga.c hello_events.c object_api.c)
-
-install(FILES ${SAMPLES_SRC}
-  DESTINATION ${OPAE_SAMPLES}
-  COMPONENT samplesrc)
+opae_add_subdirectory(hello_fpga)
+opae_add_subdirectory(hello_events)
+opae_add_subdirectory(object_api)
