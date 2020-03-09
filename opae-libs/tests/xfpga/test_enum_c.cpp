@@ -28,7 +28,7 @@
 #include <json-c/json.h>
 #include <opae/fpga.h>
 #include <uuid/uuid.h>
-
+#include <algorithm>
 #include <array>
 #include <cstdlib>
 #include <fstream>
