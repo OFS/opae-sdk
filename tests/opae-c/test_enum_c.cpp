@@ -47,7 +47,7 @@ extern "C" {
 #include <string>
 #include <vector>
 #include "mock/mock_opae.h"
-
+#include <algorithm>
 using namespace opae::testing;
 
 class enum_c_p : public mock_opae_p<2, none_> {
