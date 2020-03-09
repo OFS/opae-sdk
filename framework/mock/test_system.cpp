@@ -646,12 +646,34 @@ ssize_t test_system::readlink(const char *path, char *buf, size_t bufsize) {
 
 int test_system::xstat(int ver, const char *path, struct stat *buf) {
   std::string syspath = get_sysfs_path(path);
-  return xstat_(ver, syspath.c_str(), buf);
+  int res = xstat_(ver, syspath.c_str(), buf);
+
+  if (!res && strlen(path) > 5) {
+    // If path is rooted at /dev, assume it is a char device.
+    str::string p(path, 5);
+    if (p == std::string("/dev/")) {
+            buf->st_mode &= ~S_IFMT;
+            buf->st_mode |= S_IFCHR;
+    }
+  }
+
+  return res;
 }
 
 int test_system::lstat(int ver, const char *path, struct stat *buf) {
   std::string syspath = get_sysfs_path(path);
-  return lstat_(ver, syspath.c_str(), buf);
+  int res = lstat_(ver, syspath.c_str(), buf);
+
+  if (!res && strlen(path) > 5) {
+    // If path is rooted at /dev, assume it is a char device.
+    str::string p(path, 5);
+    if (p == std::string("/dev/")) {
+            buf->st_mode &= ~S_IFMT;
+            buf->st_mode |= S_IFCHR;
+    }
+  }
+
+  return res;
 }
 
 int test_system::scandir(const char *dirp, struct dirent ***namelist,
