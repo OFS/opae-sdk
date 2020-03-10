@@ -56,6 +56,34 @@
 		   + __GNUC_MINOR__ * 100 \
 		   + __GNUC_PATCHLEVEL__)
 
+#define KB 1024
+#define MB (1024 * KB)
+#define GB (1024UL * MB)
+
+#define PROTECTION (PROT_READ | PROT_WRITE)
+
+#ifndef MAP_HUGETLB
+#define MAP_HUGETLB 0x40000
+#endif
+#ifndef MAP_HUGE_SHIFT
+#define MAP_HUGE_SHIFT 26
+#endif
+
+#define MAP_2M_HUGEPAGE (0x15 << MAP_HUGE_SHIFT) /* 2 ^ 0x15 = 2M */
+#define MAP_1G_HUGEPAGE (0x1e << MAP_HUGE_SHIFT) /* 2 ^ 0x1e = 1G */
+
+#ifdef __ia64__
+#define ADDR (void *)(0x8000000000000000UL)
+#define FLAGS_4K (MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED)
+#define FLAGS_2M (FLAGS_4K | MAP_2M_HUGEPAGE | MAP_HUGETLB)
+#define FLAGS_1G (FLAGS_4K | MAP_1G_HUGEPAGE | MAP_HUGETLB)
+#else
+#define ADDR (void *)(0x0UL)
+#define FLAGS_4K (MAP_PRIVATE | MAP_ANONYMOUS)
+#define FLAGS_2M (FLAGS_4K | MAP_2M_HUGEPAGE | MAP_HUGETLB)
+#define FLAGS_1G (FLAGS_4K | MAP_1G_HUGEPAGE | MAP_HUGETLB)
+#endif
+
 /* Check validity of various objects */
 fpga_result prop_check_and_lock(struct _fpga_properties *prop);
 fpga_result handle_check_and_lock(struct _fpga_handle *handle);
