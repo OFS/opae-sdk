@@ -9,10 +9,6 @@ if [[ $TEMP == *"fatal"* ]]; then
     git reset --hard origin/master
 fi
 
-#generate virtual environment
-python -m virtualenv docs-build
-. docs-build/bin/activate
-
 #install requirements
 pip install -r doc/sphinx/requirements.txt
 if [ -d mybuild_docs ];
@@ -46,5 +42,3 @@ else
     echo "No new tag detected; Latest documentation will be uploaded to opae.github.io"
     /bin/bash ../scripts/push-documentation.sh latest
 fi
-
-deactivate
