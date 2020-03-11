@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,26 +24,13 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#define PROTECTION (PROT_READ | PROT_WRITE)
-#ifdef __ia64__
-#define ADDR (void *)(0x8000000000000000UL)
-#define FLAGS_4K (MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED)
-#define FLAGS_2M (FLAGS_4K | MAP_HUGETLB)
-#define FLAGS_1G (FLAGS_2M | MAP_1G_HUGEPAGE)
-#else
-#define ADDR (void *)(0x0UL)
-#define FLAGS_4K (MAP_PRIVATE | MAP_ANONYMOUS)
-#define FLAGS_2M (FLAGS_4K | MAP_HUGETLB)
-#define FLAGS_1G (FLAGS_2M | MAP_1G_HUGEPAGE)
-#endif
-
 #include "mock/test_system.h"
 #include "gtest/gtest.h"
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
 #include <opae/cxx/core/shared_buffer.h>
 #include <opae/cxx/core/token.h>
-#include <sys/mman.h>
+#include "common_int.h"
 
 using namespace opae::testing;
 using namespace opae::fpga::types;
