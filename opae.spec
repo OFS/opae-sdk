@@ -67,7 +67,6 @@ cd _build
          modbmc \
          opae-cxx-core \
          hello_cxxcore \
-         argsfilter \
          board_rc \
          board_vc \
          fpgaconf \
@@ -132,10 +131,6 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=safestrheaders -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolpackager -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
 
-%post
-mkdir -p %{_sysconfdir}/ld.so.conf.d
-echo "" > %{_sysconfdir}/ld.so.conf.d/opae-c.conf
-
 
 %files
 %dir %{_datadir}/opae
@@ -174,7 +169,6 @@ echo "" > %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_usr}/src/opae/cmake/*
 %{_usr}/src/opae/opae-libs/cmake/modules/*
 
-%{_libdir}/libargsfilter.a*
 %{_libdir}/opae/libboard_rc.so*
 %{_libdir}/opae/libboard_vc.so*
 
@@ -190,7 +184,6 @@ echo "" > %{_sysconfdir}/ld.so.conf.d/opae-c.conf
 %{_bindir}/packager
 
 %{_usr}/share/opae/*
-%{_usr}/share/opae/python/*
 
 
 %changelog

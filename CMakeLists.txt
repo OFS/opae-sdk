@@ -113,6 +113,7 @@ RENAME copyright)
 # list of components to be included in the package
 set(CPACK_COMPONENTS_ALL
 	toolfpgaconf
+	toolargsfilter
 	toolfpgainfo
 	toolfpgametrics
 	toolfpgadiag
@@ -158,6 +159,7 @@ set(CPACK_COMPONENTS_ALL
 define_pkg(tools
   COMPONENTS
   toolfpgaconf
+  toolargsfilter
   toolfpgainfo
   toolfpgametrics
   licensefile
