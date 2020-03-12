@@ -71,9 +71,8 @@ add_custom_target(copy-python-files ALL
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/opae-libs/pyopae/README.md ${BINARY_BUILD_DIR}/docs/README.md
   DEPENDS copy-markdown-files)
 
-set(ENV{PYTHONPATH} "${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}")
-
 add_custom_target(docs ALL
+  COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}"
   ${SPHINX_EXECUTABLE}
   -q -b html
   -c "${BINARY_BUILD_DIR}"
