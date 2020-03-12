@@ -188,7 +188,7 @@ test_system *test_system::instance_ = nullptr;
 
 test_system::test_system() : initialized_(false), root_("") {
   open_ = (open_func)dlsym(RTLD_NEXT, "open");
-  open_create_ = (open_create_func)open_;
+  open_create_ = open_;
   read_ = (read_func)dlsym(RTLD_NEXT, "read");
   fopen_ = (fopen_func)dlsym(RTLD_NEXT, "fopen");
   popen_ = (popen_func)dlsym(RTLD_NEXT, "popen");
