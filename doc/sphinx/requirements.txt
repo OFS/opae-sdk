@@ -2,8 +2,8 @@ requests==2.20.0
 docutils==0.14
 pygments==2.2.0
 sphinx==1.6.5
-sphinx-rtd-theme
-sphinx_fontawesome
-sphinxcontrib-pandoc-markdown
-breathe
+sphinx-rtd-theme==0.4.3
+sphinx_fontawesome==0.0.6
+sphinxcontrib-pandoc-markdown==1.6.8
+breathe==4.0.0
 travis-sphinx

@@ -49,15 +49,6 @@ if(CPACK_GENERATOR)
   set(CMAKE_INSTALL_PREFIX "/usr")
 endif()
 
-############################################################################
-## Add 'documentation' target ##############################################
-############################################################################
-option(OPAE_BUILD_SPHINX_DOC "Enable building of Sphinx documentation." OFF)
-mark_as_advanced(OPAE_BUILD_SPHINX_DOC)
-
-if (DOXYGEN_FOUND)
-    add_subdirectory(doc)
-endif()
 
 ############################################################################
 ## Sub-projects ############################################################
@@ -73,6 +64,16 @@ if(OPAE_BUILD_TESTS)
 endif()
 
 opae_add_subdirectory(external)
+
+############################################################################
+## Add 'documentation' target ##############################################
+############################################################################
+option(OPAE_BUILD_SPHINX_DOC "Enable building of Sphinx documentation." OFF)
+mark_as_advanced(OPAE_BUILD_SPHINX_DOC)
+
+if (DOXYGEN_FOUND)
+    add_subdirectory(doc)
+endif()
 
 ############################################################################
 ## Packaging ###############################################################

@@ -60,7 +60,7 @@ add_custom_target(copy-markdown-files ALL
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/doc/src ${BINARY_BUILD_DIR}/docs)
 
 add_custom_target(copy-include-files ALL
-  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/common/include ${BINARY_BUILD_DIR}/docs/fpga_api/include
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/opae-libs/include ${BINARY_BUILD_DIR}/docs/fpga_api/include
   DEPENDS copy-markdown-files)
 
 add_custom_target(copy-sample-files ALL
@@ -68,11 +68,12 @@ add_custom_target(copy-sample-files ALL
   DEPENDS copy-include-files)
 
 add_custom_target(copy-python-files ALL
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/pyopae/README.md ${BINARY_BUILD_DIR}/docs/README.md
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/opae-libs/pyopae/README.md ${BINARY_BUILD_DIR}/docs/README.md
   DEPENDS copy-markdown-files)
 
+set(ENV{PYTHONPATH} "${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}")
+
 add_custom_target(docs ALL
-  COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}"
   ${SPHINX_EXECUTABLE}
   -q -b html
   -c "${BINARY_BUILD_DIR}"
@@ -81,6 +82,7 @@ add_custom_target(docs ALL
   "${SPHINX_HTML_DIR}"
   WORKING_DIRECTORY "${BINARY_BUILD_DIR}"
   COMMENT "Building HTML documentation with Sphinx")
+
 
 add_dependencies(docs
   copy-doxygen-files
