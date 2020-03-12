@@ -679,31 +679,38 @@ void print_sensor_verbose_value(sensor_attr *sensors, BMC_TYPE type)
 void print_sensor_value(sensor_attr *sensors, BMC_TYPE type)
 {
 	sensor_attr *attr;
+	size_t max_len = 0;
+	char fmt[16];
+
+	for (attr = sensors; attr != NULL; attr = attr->next) {
+		if (type == BMC_SENSORS || type == get_bmc_sensor_type(attr)) {
+			if (strlen(attr->name) > max_len)
+				max_len = strlen(attr->name);
+		}
+	}
+	if (max_len <= 24)
+		max_len = 24;
+	sprintf(fmt, "(%%2d) %%-%zds : ", max_len);
 
 	for (attr = sensors; attr != NULL; attr = attr->next) {
 		if (type == BMC_SENSORS || type == get_bmc_sensor_type(attr)) {
 			if (attr->flag & SENSOR_FLAG_VALUE) {
+				printf(fmt, attr->id, attr->name);
 				if (attr->type == SENSOR_TYPE_THERMAL) {
-					printf("(%2d) %-24s : %.2f Celsius\n",
-						   attr->id, attr->name, attr->value.f_val);
+					printf("%.2f Celsius\n", attr->value.f_val);
 				} else if (attr->type == SENSOR_TYPE_POWER) {
-					printf("(%2d) %-24s : %.2f Watts\n",
-						   attr->id, attr->name, attr->value.f_val);
+					printf("%.2f Watts\n", attr->value.f_val);
 				} else if (attr->type == SENSOR_TYPE_VOLTAGE) {
-					printf("(%2d) %-24s : %.2f Volts\n",
-						   attr->id, attr->name, attr->value.f_val);
+					printf("%.2f Volts\n", attr->value.f_val);
 				} else if (attr->type == SENSOR_TYPE_CURRENT) {
-					printf("(%2d) %-24s : %.2f Amps\n",
-						   attr->id, attr->name, attr->value.f_val);
+					printf("%.2f Amps\n", attr->value.f_val);
 				} else if (attr->type == SENSOR_TYPE_CLOCK) {
-					printf("(%2d) %-24s : %d Hz\n",
-						   attr->id, attr->name, attr->value.i_val);
+					printf("%d Hz\n", attr->value.i_val);
 				} else {
-					printf("(%2d) %-24s : %d\n",
-						   attr->id, attr->name, attr->value.i_val);
+					printf("%d\n", attr->value.i_val);
 				}
 			} else {
-				printf("(%2d) %-24s : N/A\n", attr->id, attr->name);
+				printf("N/A\n");
 			}
 		}
 	}
@@ -784,6 +791,47 @@ static void convert_sensor_value(sensor_attr *attr, char *value, int flag)
 	attr->flag |= flag;
 }
 
+static struct _sensor_name {
+	int id;
+	char *name;
+} vc_sensor_name[] = {
+	{1, "Board Power"},
+	{2, "12V Backplane Current"},
+	{3, "12V Backplane Voltage"},
+	{4, "1.2V Voltage"},
+	{6, "1.8V Voltage"},
+	{8, "3.3V Voltage"},
+	{10, "FPGA Core Voltage"},
+	{11, "FPGA Core Current"},
+	{12, "FPGA Core Temperature"},
+	{13, "Board Temperature"},
+	{14, "QSFP A Voltage"},
+	{15, "QSFP A Temperature"},
+	{24, "12V AUX Current"},
+	{25, "12V AUX Voltage"},
+	{37, "QSFP B Voltage"},
+	{38, "QSFP B Temperature"},
+	{44, "Retimer A Core Temperature"},
+	{45, "Retimer A Serdes Temperature"},
+	{46, "Retimer B Core Temperature"},
+	{47, "Retimer B Serdes Temperature"}
+};
+#define NUM_NAME_ENTRIES (sizeof(vc_sensor_name) / sizeof(struct _sensor_name))
+
+static fpga_result get_sensor_name(int id, char *name, int size)
+{
+	size_t i;
+
+	for (i = 0; i < NUM_NAME_ENTRIES; i++) {
+		if (vc_sensor_name[i].id == id) {
+			strncpy_s(name, size, vc_sensor_name[i].name,
+					  strlen(vc_sensor_name[i].name));
+			return FPGA_OK;
+		}
+	}
+	return FPGA_INVALID_PARAM;
+}
+
 void build_sensor_list(const char *sensor_path, sensor_attr **head)
 {
 	sensor_attr *attr = (sensor_attr *)calloc(1, sizeof(sensor_attr));
@@ -805,8 +853,10 @@ void build_sensor_list(const char *sensor_path, sensor_attr **head)
 	get_sysfs_attr(path, id, sizeof(id));
 	attr->id = atoi(id);
 
-	snprintf_s_ss(path, sizeof(path), "%s/%s", sensor_path, "name");
-	get_sysfs_attr(path, attr->name, sizeof(attr->name));
+	if (get_sensor_name(attr->id, attr->name, sizeof(attr->name)) != FPGA_OK) {
+		snprintf_s_ss(path, sizeof(path), "%s/%s", sensor_path, "name");
+		get_sysfs_attr(path, attr->name, sizeof(attr->name));
+	}
 
 	snprintf_s_ss(path, sizeof(path), "%s/%s", sensor_path, "type");
 	get_sysfs_attr(path, type, sizeof(type));
