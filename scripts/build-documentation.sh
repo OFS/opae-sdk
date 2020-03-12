@@ -10,7 +10,7 @@ if [[ $TEMP == *"fatal"* ]]; then
 fi
 
 #install requirements
-pip install -r doc/sphinx/requirements.txt
+pip install --user -r doc/sphinx/requirements.txt
 if [ -d mybuild_docs ];
 then
 	rm -rf mybuild_docs
