@@ -1,0 +1,97 @@
+{
+  "product": "n3000",
+  "vendor": "0x8086",
+  "device": "0x0b30",
+
+  "flash": [
+    {
+      "filename": "vista_dev_bmc_root_hash.raw32",
+      "type": "bmc_root_key_hash",
+      "start": "0x7FFC004",
+      "end": "0x7FFCFFF"
+    },
+    {
+      "filename": "root_key_programed",
+      "type": "bmc_root_key_program",
+      "start": "0x7ffC000",
+      "end": "0x7ffC004"
+    },
+    {
+      "filename": "vista_dev_fim_root_hash.raw32",
+      "type": "sr_root_key_hash",
+      "start": "0x7FFD004",
+      "end": "0x7FFDFFF"
+    },
+    {
+      "filename": "root_key_programed",
+      "type": "sr_root_key_program",
+      "start": "0x7ffD000",
+      "end": "0x7ffD004"
+    },
+    {
+      "filename": "vista_rot_xip_factory.bin",
+      "type": "nios_factory",
+      "start": "0x3800000",
+      "end": "0x3A00FF0"
+    },
+    {
+      "filename": "vista_rot_xip_factory_header.bin",
+      "type": "nios_factory_header",
+      "start": "0x3A00FF0",
+      "end": "0x3A00FFF"
+    },
+    {
+      "filename": "vista_fpga_factory_reverse.bin",
+      "type": "fpga_factory",
+      "start": "0x0020000",
+      "end": "0x381FFFF"
+    },
+    {
+      "filename": "vista_fpga_factory_reverse.bin",
+      "type": "fpga_user",
+      "start": "0x4000000",
+      "end": "0x77FFFFF"
+    },
+    {
+      "filename": "max10_system_revd_rot_dual_v2.15.18_ufm_bootloader_reversed.rpd",
+      "type": "nios_bootloader",
+      "start": "0x08000",
+      "end": "0x0FFFF"
+    },
+
+    {
+      "filename": "max10_system_revd_rot_dual_v2.15.18_cfm1_factory_reversed.rpd",
+      "type": "max10_factory",
+      "start": "0x10000",
+      "end": "0xB7FFF"
+    },
+
+    {
+      "filename": "max10_system_revd_rot_dual_v2.15.18_cfm0_user_reversed.rpd",
+      "type": "max10_user",
+      "start": "0xB8000",
+      "end": "0x15FFFF"
+    },
+
+    {
+      "filename": "intel-pac-n3000.dtb",
+      "type": "bmc_dts",
+      "start": "0x3820000",
+      "end": "0x3FFFFFF"
+    },
+
+    {
+      "filename": "vista_rot_xip_user.bin",
+      "type": "nios_user",
+      "start": "0",
+      "end": "0x7EFFFF"
+    },
+    {
+      "filename": "vista_rot_xip_user_header.bin",
+      "type": "nios_user_header",
+      "start": "0x7F0000",
+      "end": "0x7F000F"
+    }
+
+  ]
+}
