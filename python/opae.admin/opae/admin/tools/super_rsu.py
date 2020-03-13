@@ -33,9 +33,7 @@ import re
 import signal
 import subprocess
 import sys
-import tempfile
 import time
-import xml.etree.cElementTree as ET
 
 from contextlib import contextmanager
 from datetime import datetime, timedelta
@@ -50,6 +48,11 @@ from opae.admin.utils import (max10_or_nios_version,
                               version_comparator,
                               parse_timedelta)
 from opae.admin.version import pretty_version
+
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path  #  noqa
 
 BMC_SENSOR_PATTERN = (r'^\(\s*(?P<num>\d+)\)\s*(?P<name>[\w \.]+)\s*:\s*'
                       r'(?P<value>[\d\.]+)\s+(?P<units>\w+)$')
@@ -1059,7 +1062,7 @@ def main():
                         level=getattr(logging, args.log_level.upper(), level))
 
     if args.log_file == RSU_LOG:
-        os.makedirs(RSU_LOG_DIR, exist_ok=True)
+        Path(RSU_LOG_DIR).mkdir(parents=True, exist_ok=True)
         try:
             fh = logging.handlers.RotatingFileHandler(args.log_file,
                                                       backupCount=50)
