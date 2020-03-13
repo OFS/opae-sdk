@@ -182,7 +182,7 @@ def main():
             contents.data[payload_offset + 128: payload_offset + 1024])
         payload.append_data(contents.data[payload_offset + 1024:])
 
-        #is_OK = b0.get_dword(0) == database.DESCRIPTOR_BLOCK_MAGIC_NUM
+        # is_OK = b0.get_dword(0) == database.DESCRIPTOR_BLOCK_MAGIC_NUM
 
         # LOG.debug("b0 size={}, b1 size={}, payload size={}".format(
         #    b0.size(), b1.size(), payload.size()))
