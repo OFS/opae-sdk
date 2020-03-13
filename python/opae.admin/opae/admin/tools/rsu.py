@@ -34,6 +34,11 @@ import sys
 
 from opae.admin.fpga import fpga
 
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path  #  noqa
+
 
 RSU_LOCK_DIR = '/var/lib/opae'
 RSU_LOCK_FILE = os.path.join(RSU_LOCK_DIR, 'rsu_lock')
@@ -156,7 +161,7 @@ def main():
     bdf = normalize_bdf(args.bdf)
     boot_page = FACTORY_BOOT_PAGE if args.factory else USER_BOOT_PAGE
 
-    os.makedirs(RSU_LOCK_DIR, exist_ok=True)
+    Path(RSU_LOCK_DIR).mkdir(parents=True, exist_ok=True)
 
     for device in compatible:
         if device.pci_node.pci_address == bdf:
