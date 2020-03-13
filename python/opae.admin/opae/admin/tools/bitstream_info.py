@@ -1,32 +1,32 @@
-#Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2019, Intel Corporation
 #
-#Redistribution and use in source and binary forms, with or without
-#modification, are permitted provided that the following conditions are met:
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
 #
-#* Redistributions of source code must retain the above copyright notice,
-#this list of conditions and the following disclaimer.
-#* Redistributions in binary form must reproduce the above copyright notice,
-#this list of conditions and the following disclaimer in the documentation
-#and / or other materials provided with the distribution.
-#* Neither the name of Intel Corporation nor the names of its contributors
-#may be used to endorse or promote products derived from this software
-#without specific prior written permission.
+# * Redistributions of source code must retain the above copyright notice,
+# this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
+# and / or other materials provided with the distribution.
+# * Neither the name of Intel Corporation nor the names of its contributors
+# may be used to endorse or promote products derived from this software
+# without specific prior written permission.
 #
-#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-#AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-#IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-#ARE DISCLAIMED.IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-#LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-#CONSEQUENTIAL DAMAGES(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-#SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-#INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-#CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE)
-#ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-#POSSIBILITY OF SUCH DAMAGE.
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED.IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT(INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
 
 ##########################
 #
-#Main entry to the tool
+# Main entry to the tool
 #
 ##########################
 import logging
@@ -53,6 +53,7 @@ ADD_OPTIONS = database.ADD_OPTIONS
 
 LOG = logging.getLogger()
 
+
 def add_common_options(parser):
     if ADD_OPTIONS:
         parser.add_argument(
@@ -64,8 +65,10 @@ def add_common_options(parser):
             help="Print JSON if it exists in the file", action="store_true"
         )
         parser.add_argument(
-            "-H", "--hashes", help="Print hash values from headers", action="store_true"
-        )
+            "-H",
+            "--hashes",
+            help="Print hash values from headers",
+            action="store_true")
         parser.add_argument(
             "-k", "--keys", help='Print key XY values', action="store_true"
         )
@@ -80,6 +83,7 @@ def add_common_options(parser):
         "file", help='List of files to print', nargs='+'
     )
 
+
 def is_JSON(contents):
     LOG.debug(
         "GUID: {} vs. file {}".format(
@@ -87,6 +91,7 @@ def is_JSON(contents):
         )
     )
     return METADATA_GUID == "".join([chr(i) for i in contents.data[:GUID_LEN]])
+
 
 def skip_JSON(contents):
     leng = contents.get_dword(GUID_LEN)
@@ -157,7 +162,7 @@ def main():
         json_string = common_util.BYTE_ARRAY()
         if has_json:
             json_string.append_data(
-                contents.data[GUID_LEN + SIZEOF_LEN_FIELD : sig_offset]
+                contents.data[GUID_LEN + SIZEOF_LEN_FIELD: sig_offset]
             )
 
         LOG.debug("".join("{:02x} ".format(x) for x in json_string.data))
@@ -172,16 +177,17 @@ def main():
         b1 = common_util.BYTE_ARRAY()
         payload = common_util.BYTE_ARRAY()
 
-        b0.append_data(contents.data[payload_offset : payload_offset + 128])
-        b1.append_data(contents.data[payload_offset + 128 : payload_offset + 1024])
-        payload.append_data(contents.data[payload_offset + 1024 :])
+        b0.append_data(contents.data[payload_offset: payload_offset + 128])
+        b1.append_data(
+            contents.data[payload_offset + 128: payload_offset + 1024])
+        payload.append_data(contents.data[payload_offset + 1024:])
 
         #is_OK = b0.get_dword(0) == database.DESCRIPTOR_BLOCK_MAGIC_NUM
 
-        #LOG.debug("b0 size={}, b1 size={}, payload size={}".format(
+        # LOG.debug("b0 size={}, b1 size={}, payload size={}".format(
         #    b0.size(), b1.size(), payload.size()))
 
-        #if not is_OK:
+        # if not is_OK:
         #    LOG.error("File '{}' unrecognized".format(f))
         #    continue
 

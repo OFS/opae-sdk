@@ -115,6 +115,7 @@ class max10_or_nios_version_bits(LittleEndianStructure):
                    ("reserved", c_uint64, 32)
     ]
 
+
 class max10_or_nios_version(Union):
     _fields_ = [("bits", max10_or_nios_version_bits),
                 ("value", c_uint64)]
@@ -182,6 +183,7 @@ class d5005_bitstream_id_bits(LittleEndianStructure):
                     ("major", c_uint64, 4),
     ]
 
+
 class d5005_fme_version(Union):
     _fields_ = [("bits", d5005_bitstream_id_bits),
                 ("value", c_uint64)]
@@ -238,6 +240,7 @@ class n3000_bitstream_id_bits(LittleEndianStructure):
                     ("major", c_uint64, 4),
     ]
 
+
 class n3000_fme_version(d5005_fme_version):
     _fields_ = [("bits", n3000_bitstream_id_bits),
                 ("value", c_uint64)]
@@ -262,9 +265,11 @@ def get_fme_version(vid_did, value):
 VERSION_PATTERN = r'(?:(\d+)\.)?(?:(\d+)\.)?(\d+)'
 VERSION_RE = re.compile(VERSION_PATTERN)
 
-VERSION_EXPR_PATTERN = (r'(?P<label>\w+[-\w]*)\s*(?P<op>(?:(?:[><!=])?=)|[<>])\s*'
-                        r'(?P<version>.*)')
+VERSION_EXPR_PATTERN = (
+    r'(?P<label>\w+[-\w]*)\s*(?P<op>(?:(?:[><!=])?=)|[<>])\s*'
+    r'(?P<version>.*)')
 VERSION_EXPR_RE = re.compile(VERSION_EXPR_PATTERN)
+
 
 class version_comparator(object):
     """Parse and manipulate a version expression

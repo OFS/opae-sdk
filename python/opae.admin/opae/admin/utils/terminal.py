@@ -27,11 +27,10 @@ import sys
 import os
 import struct
 from sys import platform as _platform
-from ctypes import *
+from ctypes import byref, c_short, c_ushort, Structure
 
 
 class MSG_TYPE:
-
     INFO = "Info"
     WARNING = "Warning"
     ERROR = "Error"
@@ -89,19 +88,16 @@ if _platform == "win32" or _platform == "win64":
     screen_csbi = create_string_buffer(22)
 
     def get_text_attr():
-
         csbi = CONSOLE_SCREEN_BUFFER_INFO()
         GetConsoleScreenBufferInfo(stdout_handle, byref(csbi))
         return csbi.wAttributes
 
     def set_text_attr(color):
-
         SetConsoleTextAttribute(stdout_handle, color)
 
     default_colors = get_text_attr()
     default_bg = default_colors & 0x0070
     default_fg = default_colors & 0x0007
-
 else:
 
     class BCOLORS:
@@ -160,11 +156,9 @@ def printing(string, msg_type, bcolor, space, file, local_no_color=False):
 if _platform == "win32" or _platform == "win64":
 
     def get_size():
-
-        res = windll.kernel32.GetConsoleScreenBufferInfo(stderr_handle, screen_csbi)
-
+        res = windll.kernel32.GetConsoleScreenBufferInfo(stderr_handle,
+                                                         screen_csbi)
         if res:
-
             (
                 bufx,
                 bufy,
@@ -190,7 +184,6 @@ if _platform == "win32" or _platform == "win64":
 else:
 
     def get_size():
-
         env = os.environ
 
         def ioctl_gwin_size(fd):
@@ -198,7 +191,8 @@ else:
                 import fcntl
                 import termios
 
-                cr = struct.unpack("hh", fcntl.ioctl(fd, termios.TIOCGWINSZ, "1234"))
+                cr = struct.unpack("hh", fcntl.ioctl(fd, termios.TIOCGWINSZ,
+                                                     "1234"))
             except Exception:
                 return
             return cr

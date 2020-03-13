@@ -34,7 +34,8 @@ import sys
 from opae.admin.utils import terminal
 import array
 import inspect
-from ctypes import *
+from ctypes import c_char
+
 
 def answer_y_n(args, question):
     if args.yes:
@@ -51,12 +52,16 @@ def answer_y_n(args, question):
 
 
 def print_new_line():
-
-    terminal.printing("", terminal.MSG_TYPE.NULL, terminal.BCOLORS.INFO, 0, None, False)
+    terminal.printing(
+        "",
+        terminal.MSG_TYPE.NULL,
+        terminal.BCOLORS.INFO,
+        0,
+        None,
+        False)
 
 
 def print_info(string, space=0, file=None, alternate_color=False):
-
     terminal.printing(
         string,
         terminal.MSG_TYPE.INFO,
@@ -68,77 +73,69 @@ def print_info(string, space=0, file=None, alternate_color=False):
 
 
 def print_warning(string, space=0, file=None):
-
     terminal.printing(
-        string, terminal.MSG_TYPE.WARNING, terminal.BCOLORS.WARNING, space, file
-    )
+        string,
+        terminal.MSG_TYPE.WARNING,
+        terminal.BCOLORS.WARNING,
+        space,
+        file)
 
 
 def print_error(string, space=0, file=None):
-
     terminal.printing(
         string, terminal.MSG_TYPE.ERROR, terminal.BCOLORS.ERROR, space, file
     )
 
 
 def print_prompt(string, space=0, file=None):
-
     terminal.printing(
         string, terminal.MSG_TYPE.NULL, terminal.BCOLORS.PROMPT, space, file
     )
 
 
 def exception_handler(etype, value, tb):
-
     pass
 
 
 def assert_in_error(boolean, string, *arg):
-
     if boolean:
-
         pass
-
     elif len(string):
-
         if len(arg):
             string = string % (arg)
-
         # contruct message
         caller = inspect.stack()[1]
         module = os.path.basename(caller[1])
-        info = "Module: %s, Function: %s, Line: %d" % (module, caller[3], caller[2])
+        info = "Module: %s, Function: %s, Line: %d" % (
+            module, caller[3], caller[2])
         msg = "%s\n       %s" % (info, string)
         print_error(msg, space=0)
         sys.excepthook = exception_handler
         assert False, msg
-
     else:
-
         # contruct message
         caller = inspect.stack()[1]
         module = os.path.basename(caller[1])
-        msg = "Module: %s, Function: %s, Line: %d" % (module, caller[3], caller[2])
+        msg = "Module: %s, Function: %s, Line: %d" % (
+            module, caller[3], caller[2])
         print_error(msg, space=0)
         sys.excepthook = exception_handler
         assert False, msg
 
 
 def change_folder_seperator(fullpath):
-
     fullpath = fullpath.replace("\\", "/")
     fullpath = fullpath.replace("//", "/")
     return fullpath
 
 
 def get_filename(fullpath, space=0):
-
     fullpath = change_folder_seperator(fullpath)
     filename = fullpath
     if len(fullpath):
         index = fullpath.rfind("/")
         if index != 0:
-            filename = fullpath[index + 1 :]
+            filename = fullpath[index + 1:]
     else:
         print_error("Input is NULL function get_filename()", space=space)
         sys.exit(-1)
@@ -146,7 +143,6 @@ def get_filename(fullpath, space=0):
 
 
 def check_extension(file, extension):
-
     status = True
     file_char_count = len(file)
     extension_char_count = len(extension)
@@ -154,14 +150,13 @@ def check_extension(file, extension):
         file_char_count == 0
         or extension_char_count == 0
         or file_char_count < (extension_char_count + 1)
-        or extension != file[(file_char_count - extension_char_count) :]
+        or extension != file[(file_char_count - extension_char_count):]
     ):
         status = False
     return status
 
 
 def check_extensions(file, extensions):
-
     final_index = 0
     index = 0
     for extension in extensions:
@@ -174,18 +169,15 @@ def check_extensions(file, extensions):
 
 
 def get_unit_size(size, unit_size):
-
     assert unit_size > 0
     return int((size + unit_size - 1) / unit_size)
 
 
 def get_byte_size(bit):
-
     return get_unit_size(bit, 8)
 
 
 def get_standard_hex_string(data):
-
     string = ""
     try:
         for d in data:
@@ -197,7 +189,6 @@ def get_standard_hex_string(data):
 
 
 def get_reversed_hex_string(data):
-
     string = ""
     try:
         for d in data:
@@ -210,7 +201,6 @@ def get_reversed_hex_string(data):
 
 class BYTE_ARRAY:
     def __init__(self, type=None, arg=None):
-
         self.data = array.array("B")
         if type == "FILE":
             assert arg is not None
@@ -238,59 +228,48 @@ class BYTE_ARRAY:
             assert arg is None
 
     def __enter__(self):
-
         return self
 
     def __del__(self):
-
         self.clean()
 
     def __exit__(self, exception_type, exception_value, traceback):
-
         self.clean()
 
     def clean(self):
-
         if self.data is not None:
             self.null_data()
             del self.data
             self.data = None
 
     def size(self):
-
         return len(self.data)
 
     def append_byte(self, data):
-
         self.data.append(data & 0xFF)
 
     def tofile(self, file):
-
         self.data.tofile(file)
 
     def append_word(self, data):
-
         for i in range(2):
 
             self.data.append(data & 0xFF)
             data >>= 8
 
     def append_dword(self, data):
-
         for i in range(4):
 
             self.data.append(data & 0xFF)
             data >>= 8
 
     def append_qword(self, data):
-
         for i in range(8):
 
             self.data.append(data & 0xFF)
             data >>= 8
 
     def append_data(self, chars):
-
         try:
             for char in chars:
                 self.data.append(char)
@@ -299,7 +278,6 @@ class BYTE_ARRAY:
                 self.data.append(ord(char))
 
     def append_data_swizzled(self, chars):
-
         try:
             for char in chars:
                 self.data.append(int("{:08b}".format(char)[::-1], 2))
@@ -308,7 +286,6 @@ class BYTE_ARRAY:
                 self.data.append(ord(int("{:08b}".format(char)[::-1], 2)))
 
     def assign_word(self, offset, word):
-
         for i in range(2):
             assert offset < self.size()
             self.data[offset] = word & 0xFF
@@ -316,7 +293,6 @@ class BYTE_ARRAY:
             offset += 1
 
     def assign_dword(self, offset, dword):
-
         for i in range(4):
             assert offset < self.size()
             self.data[offset] = dword & 0xFF
@@ -324,7 +300,6 @@ class BYTE_ARRAY:
             offset += 1
 
     def assign_qword(self, offset, qword):
-
         for i in range(8):
             assert offset < self.size()
             self.data[offset] = qword & 0xFF
@@ -332,7 +307,6 @@ class BYTE_ARRAY:
             offset += 1
 
     def assign_data(self, offset, chars):
-
         assert (offset + len(chars)) <= self.size()
         try:
             for char in chars:
@@ -344,18 +318,15 @@ class BYTE_ARRAY:
                 offset += 1
 
     def null_data(self):
-
         for i in range(self.size()):
             self.data[i] = 0
 
     def clear_data(self):
-
         self.null_data()
         while self.size():
             self.data.pop()
 
     def get_word(self, offset):
-
         word = 0
         shift = 0
         for i in range(2):
@@ -366,33 +337,32 @@ class BYTE_ARRAY:
         return word
 
     def get_dword(self, offset):
-
         dword = 0
         shift = 0
         for i in range(4):
             assert (
                 offset < self.size()
-            ), "Data size is %d, attemp to access index %d" % (self.size(), offset)
+            ), "Data size is %d, attemp to access index %d" % (self.size(),
+                                                               offset)
             dword |= (self.data[offset] & 0xFF) << shift
             offset += 1
             shift += 8
         return dword
 
     def get_qword(self, offset):
-
         qword = 0
         shift = 0
         for i in range(8):
             assert (
                 offset < self.size()
-            ), "Data size is %d, attemp to access index %d" % (self.size(), offset)
+            ), "Data size is %d, attemp to access index %d" % (self.size(),
+                                                               offset)
             qword |= (self.data[offset] & 0xFF) << shift
             offset += 1
             shift += 8
         return qword
 
     def get_string(self, offset, size):
-
         assert size
         string = ""
         null = False
@@ -407,7 +377,6 @@ class BYTE_ARRAY:
         return string
 
     def resize(self, size):
-
         assert size
         while len(self.data) > size:
             self.data[len(self.data) - 1] = 0
@@ -418,33 +387,27 @@ class BYTE_ARRAY:
 
 class CHAR_POINTER:
     def __init__(self, size):
-
         assert size > 0
         c_chars = c_char * size
         self.data = c_chars()
         self.null_data()
 
     def __del__(self):
-
         self.clean()
 
     def __exit__(self, exception_type, exception_value, traceback):
-
         self.clean()
 
     def clean(self):
-
         if self.data is not None:
             self.null_data()
             del self.data
             self.data = None
 
     def size(self):
-
         return len(self.data)
 
     def null_data(self):
-
         for i in range(self.size()):
             try:
                 self.data[i] = chr(0)
@@ -452,7 +415,6 @@ class CHAR_POINTER:
                 self.data[i] = 0
 
     def assign_data(self, chars):
-
         assert self.size() == len(chars)
         for i in range(self.size()):
             try:
@@ -461,7 +423,6 @@ class CHAR_POINTER:
                 self.data[i] = chars[i]
 
     def assign_partial_data(self, chars, source_offset, dest_offset, size):
-
         assert source_offset < len(chars)
         assert (source_offset + size) <= len(chars)
         assert dest_offset < self.size()
@@ -470,7 +431,6 @@ class CHAR_POINTER:
             self.data[dest_offset + i] = chars[source_offset + i]
 
     def compare_data(self, chars, error):
-
         assert self.size() == len(chars)
         if id(self.data) == id(chars):
             for i in range(self.size()):
@@ -480,20 +440,19 @@ class CHAR_POINTER:
                 assert_in_error(ord(self.data[i]) == chars[i], error)
 
     def get_dword(self, offset):
-
         dword = 0
         shift = 0
         for i in range(4):
             assert (
                 offset < self.size()
-            ), "Data size is %d, attemp to access index %d" % (self.size(), offset)
+            ), "Data size is %d, attemp to access index %d" % (self.size(),
+                                                               offset)
             dword |= (ord(self.data[offset]) & 0xFF) << shift
             offset += 1
             shift += 8
         return dword
 
     def get_standard_hex_string(self, offset, size):
-
         assert size
         string = ""
         for i in range(size):

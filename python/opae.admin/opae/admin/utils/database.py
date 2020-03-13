@@ -31,14 +31,17 @@ PRINT_JSON = True
 
 
 class FILE_TYPE_DATABASE(object):
-    def __init__(self, min_csk, max_csk, enum, permission, supported_size=None):
+    def __init__(self, min_csk, max_csk, enum,
+                 permission, supported_size=None):
         self.MIN_CODE_SIGNING_KEY_ENTRIES = min_csk
         self.MAX_CODE_SIGNING_KEY_ENTRIES = max_csk
         common_util.assert_in_error(
-            self.MAX_CODE_SIGNING_KEY_ENTRIES >= self.MIN_CODE_SIGNING_KEY_ENTRIES,
-            "Impossible Code Signing Key entry count [min: %d, max: %d]"
-            % (self.MIN_CODE_SIGNING_KEY_ENTRIES, self.MAX_CODE_SIGNING_KEY_ENTRIES),
-        )
+            (self.MAX_CODE_SIGNING_KEY_ENTRIES >=
+             self.MIN_CODE_SIGNING_KEY_ENTRIES),
+            "Impossible Code Signing Key entry count [min: %d, max: %d]" %
+            (self.MIN_CODE_SIGNING_KEY_ENTRIES,
+             self.MAX_CODE_SIGNING_KEY_ENTRIES),
+            )
         self.ENUM = enum
         self.PERMISSION = permission
         self.SUPPORTED_SIZE = supported_size
