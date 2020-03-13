@@ -27,7 +27,8 @@ import sys
 import os
 import struct
 from sys import platform as _platform
-from ctypes import byref, c_short, c_ushort, Structure
+from ctypes import (byref, c_short, c_ushort, create_string_buffer,
+                    windll, Structure)
 
 
 class MSG_TYPE:
@@ -41,7 +42,6 @@ class MSG_TYPE:
 
 
 if _platform == "win32" or _platform == "win64":
-
     STD_INPUT_HANDLE = -10
     STD_OUTPUT_HANDLE = -11
     STD_ERROR_HANDLE = -12
