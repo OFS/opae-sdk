@@ -1,6 +1,6 @@
 Summary:        Open Programmable Acceleration Engine (OPAE) SDK
 Name:           opae
-Version:        1.4.0
+Version:        1.4.1
 Release:        1%{?dist}
 License:        BSD
 ExclusiveArch:  x86_64
@@ -9,7 +9,7 @@ Group:          Development/Libraries
 Vendor:         Intel Corporation
 Requires:       uuid, json-c, python
 URL:            https://github.com/OPAE/%{name}-sdk
-Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-1/%{name}.tar.gz
+Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-1/%{name}-%{version}-1.tar.gz
 
 BuildRequires:  gcc, gcc-c++
 BuildRequires:  cmake
@@ -47,11 +47,8 @@ Requires:   libuuid-devel, %{name}%{?_isa} = %{version}-%{release}
 %description devel
 OPAE headers, tools, sample source, and documentation
 
-
-
-
 %prep
-%setup -q -n %{name}
+%setup -q -n %{name}-%{version}-1
 
 %build
 rm -rf _build
@@ -72,7 +69,6 @@ cd _build
          fpgaconf \
          fpgainfo \
          userclk \
-         object_api \
          hello_fpga \
          hello_events \
          mmlink 
@@ -106,15 +102,15 @@ done
 mkdir -p %{buildroot}%{_usr}/src/opae/samples
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_fpga/
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_events/
-mkdir -p %{buildroot}%{_usr}/src/opae/samples/object_api/
 
 
 cp samples/hello_fpga/hello_fpga.c %{buildroot}%{_usr}/src/opae/samples/hello_fpga/
 cp samples/hello_events/hello_events.c %{buildroot}%{_usr}/src/opae/samples/hello_events/
-cp samples/object_api/object_api.c %{buildroot}%{_usr}/src/opae/samples/object_api/
 
 
 cd _build
+
+rm -rf %{_libdir}/libsafestr.a
 
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=safestrlib -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaeclib -P cmake_install.cmake
@@ -139,21 +135,12 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
 %license %{_datadir}/opae/COPYING
 %{_libdir}/libopae-c.so.%{version}
 %{_libdir}/libopae-c.so.1
-%{_libdir}/libopae-c.so
 
 %{_libdir}/libbitstream.so.%{version}
 %{_libdir}/libbitstream.so.1
-%{_libdir}/libbitstream.so
 
 %{_libdir}/libopae-cxx-core.so.%{version}
 %{_libdir}/libopae-cxx-core.so.1
-%{_libdir}/libopae-cxx-core.so
-
-
-%{_libdir}/opae/libxfpga.so*
-%{_libdir}/opae/libmodbmc.so*
-%{_libdir}/libsafestr.a*
-
 
 
 %files devel
@@ -165,10 +152,15 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
 %dir %{_usr}/src/opae
 %{_usr}/src/opae/samples/hello_fpga/hello_fpga.c
 %{_usr}/src/opae/samples/hello_events/hello_events.c
-%{_usr}/src/opae/samples/object_api/object_api.c
 %{_usr}/src/opae/cmake/*
 %{_usr}/src/opae/opae-libs/cmake/modules/*
 
+%{_libdir}/libopae-c.so
+%{_libdir}/libbitstream.so
+%{_libdir}/libopae-cxx-core.so
+
+%{_libdir}/opae/libxfpga.so*
+%{_libdir}/opae/libmodbmc.so*
 %{_libdir}/opae/libboard_rc.so*
 %{_libdir}/opae/libboard_vc.so*
 
@@ -177,13 +169,14 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
 %{_bindir}/mmlink
 %{_bindir}/userclk
 %{_bindir}/hello_fpga
-%{_bindir}/object_api
 %{_bindir}/hello_events
 %{_bindir}/hello_cxxcore
 %{_bindir}/afu_json_mgr
 %{_bindir}/packager
 
 %{_usr}/share/opae/*
+%{_usr}/src/opae/cmake/*
+%{_usr}/src/opae/opae-libs/cmake/modules/*
 
 
 %changelog

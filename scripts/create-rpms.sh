@@ -17,13 +17,23 @@ fi
 rm -rf ~/rpmbuild
 rpmdev-setuptree
 
+version=`grep 'Version:' ../opae.spec | awk '{ print $2 }'`
+full_version=${version}-1
+
+echo ${full_version}
+
 #create source tarball
 BUILD_DIR=${PWD}
 
 echo ${PWD}
 
+opae_sdk_tar="s/opae-sdk/opae-"
+opae_sdk_tar+=${full_version}
+opae_sdk_tar+="/"
+echo ${opae_sdk_tar}
+
 cd ../..
-tar --transform='s/opae-sdk/opae/' \
+tar --transform=${opae_sdk_tar} \
   --exclude=.git \
   --exclude=.gitignore \
   --exclude=.github \
@@ -40,6 +50,7 @@ tar --transform='s/opae-sdk/opae/' \
   --exclude=platforms \
   --exclude=samples/base \
   --exclude=samples/hello_afu \
+  --exclude=samples/object_api \
   --exclude=samples/hello_mpf_afu \
   --exclude=samples/intg_xeon_nlb \
   --exclude=samples/base \
@@ -60,11 +71,11 @@ tar --transform='s/opae-sdk/opae/' \
   --exclude=opae-libs/pyopae/.clang-format \
   --exclude=opae-libs/.clang-format \
   --exclude=opae-libs/.clang-format \
-  -z -c -f opae.tar.gz opae-sdk
+  -z -c -f opae-${full_version}.tar.gz opae-sdk
 
 
 
-mv opae.tar.gz ~/rpmbuild/SOURCES/
+mv opae-${full_version}.tar.gz ~/rpmbuild/SOURCES/
 cp "${BUILD_DIR}/../opae.spec" ~/rpmbuild/SPECS/
 
 echo $"${BUILD_DIR}/../opae.spec"
