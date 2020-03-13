@@ -127,7 +127,7 @@ class otsu_manifest_loader(object):
                             (obj['version']))
         if res[1] != self.MANIFEST_VERSION:
             raise ValueError('expected %d for "version" key '
-                             'but found: %s' %(self.MANIFEST_VERSION, res[1]))
+                             'but found: %s' % (self.MANIFEST_VERSION, res[1]))
 
     def validate_requires_section(self, obj):
         """Verify an optional "requires" array, when present."""
@@ -353,7 +353,7 @@ class otsu_updater(object):
                     raise IOError('failed to read file %s' %
                                   (os.path.basename(filename)))
                 mtd_dev.replace(data,
-                                (erase_end +1) - erase_start,
+                                (erase_end + 1) - erase_start,
                                 start)
 
                 if verify:
@@ -451,7 +451,7 @@ class otsu_updater(object):
                      obj['type'], start, (end + 1) - start,
                      os.path.basename(filename))
             return True
-            
+
         if report_fail:
             msg = 'Verification of {} @0x{} failed'.format(
                   os.path.basename(filename), start)

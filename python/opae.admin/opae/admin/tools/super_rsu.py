@@ -650,7 +650,8 @@ class pac(object):
         for sv in rsu_config.get('sensor validation', []):
             if sv['type'] == 'bmc' and self.fpga.fme.spi_bus:
                 bmc = self.get_flashable('bmc_fw')
-                rev_match = bmc.version.revision.lower() == sv['revision'].lower()
+                rev_lower = bmc.version.revision.lower()
+                rev_match = rev_lower == sv['revision'].lower()
                 if bmc.version.major > 1 or rev_match:
                     LOG.debug("[%s] validating sensors for rev '%s'",
                               self.pci_node.bdf, sv['revision'])

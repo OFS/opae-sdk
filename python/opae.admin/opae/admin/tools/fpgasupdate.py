@@ -250,7 +250,7 @@ def do_partial_reconf(addr, filename):
     except subprocess.CalledProcessError as exc:
         return (exc.returncode,
                 exc.output.decode('utf-8') +
-                              '\nPartial Reconfiguration failed')
+                '\nPartial Reconfiguration failed')
 
     return (0, output + '\nPartial Reconfiguration OK')
 
