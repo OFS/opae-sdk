@@ -33,6 +33,8 @@
 # Load a Platform Interface Manager JSON database.
 #
 
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 import sys
 import json
@@ -106,8 +108,8 @@ class jsondb(object):
                     "Failed to find {0} JSON file for {1}".format(c, fname))
 
         if (not self.quiet):
-            print("Loading {0} database: {1}".format(
-                self.db_category, json_fname))
+            print(("Loading {0} database: {1}".format(
+                self.db_category, json_fname)))
 
         self.file_path = json_fname
         self.file_name = os.path.splitext(os.path.basename(json_fname))[0]
@@ -173,7 +175,7 @@ class jsondb(object):
         if (not isinstance(db, dict) and not isinstance(db, list)):
             return db
 
-        for k, v in db.iteritems():
+        for k, v in db.items():
             if (k == '...'):
                 path = os.path.join(os.path.dirname(json_fname), v)
                 return self.__loadJsonDbWithIncludes(path, json_fname)
@@ -375,7 +377,7 @@ class jsondb(object):
                             ("module port class '{0}:{1}' max-entries " +
                              "must be defined in {2}").format(
                                  port['class'], port['interface'], fname))
-                    port['max-entries'] = sys.maxint
+                    port['max-entries'] = sys.maxsize
                 if (port['max-entries'] < port['min-entries']):
                     self.__errorExit(
                         ("module port class '{0}:{1}' max-entries " +

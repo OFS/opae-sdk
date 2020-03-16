@@ -10,19 +10,19 @@ codestyle_check:
  stage: codestyle_check
  script: scripts/test-codingstyle-all.sh
  tags:
-  - opae-sdk-x
+  - Python3.6
  before_script:
-  - python -m pip install --user pylint
-  - python -m pip install --user pycodestyle
-  - python -m pip install --user jsonschema
-  - python -m pip install --user jinja2
+  - python3 -m pip install --user pylint
+  - python3 -m pip install --user pycodestyle
+  - python3 -m pip install --user jsonschema
+  - python3 -m pip install --user jinja2
 
 bandit:
  stage: static_analysis
  script:
   - scripts/run-bandit.sh
  tags:
-  - opae-sdk-x
+  - Python3.6
  artifacts:
   paths:
    - ./*.html
@@ -68,7 +68,7 @@ build_docs:
  script:
   - scripts/build-documentation.sh
  tags:
-  - opae-sdk-x
+  - doc
  dependencies:
   - codestyle_check
   - bandit

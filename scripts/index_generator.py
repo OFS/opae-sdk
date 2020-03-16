@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 # vim:fenc=utf-8
 #
@@ -6,6 +6,7 @@
 """
 
 """
+from __future__ import absolute_import
 import os
 from jinja2 import Environment
 
@@ -88,7 +89,7 @@ def main():
 
     def splitit(s):
         try:
-            return map(int, s.split('.'))
+            return list(map(int, s.split('.')))
         except ValueError:
             return s
     versions.sort(key=splitit)

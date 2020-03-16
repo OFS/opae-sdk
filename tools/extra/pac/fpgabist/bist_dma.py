@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright(c) 2017, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -25,6 +25,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 import subprocess
 
@@ -49,8 +51,8 @@ class DmaMode(bc.BistMode):
         try:
             subprocess.check_call(cmd, shell=True)
         except subprocess.CalledProcessError as e:
-            print "Failed Test: {}".format(cmd)
-            print e
+            print("Failed Test: {}".format(cmd))
+            print(e)
             ret = 1
         return ret
 
@@ -66,12 +68,12 @@ class DmaMode(bc.BistMode):
                                                              bus_num, i, size)
                     if guid:
                         cmd += ' -G {}'.format(guid)
-                    print "Running {} test on {}...\n".format(func, name)
+                    print("Running {} test on {}...\n".format(func, name))
                     ret += self.run_cmd(cmd)
             else:
-                print "Running {} test...\n".format(func)
+                print("Running {} test...\n".format(func))
                 cmd = "{} {} {}".format(func, param, bus_num)
                 ret += self.run_cmd(cmd)
 
-        print "Finished Executing DMA Tests\n"
+        print("Finished Executing DMA Tests\n")
         return ret

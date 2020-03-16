@@ -1,4 +1,5 @@
 #!/bin/bash
+PATH=~/.local/bin:$PATH
 
 # Function defintion to check cpp coding style
 check_c () {

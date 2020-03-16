@@ -33,6 +33,8 @@
 # Utilities for emitting configuration, invoked by afu_platform_config.
 #
 
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 import sys
 import re

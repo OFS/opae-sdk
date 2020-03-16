@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # Copyright(c) 2018, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -26,6 +26,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import print_function
+from __future__ import absolute_import
 from common import exception_quit, FpgaFinder, COMMON
 from common import convert_argument_str2hex
 import argparse
@@ -174,7 +175,7 @@ class FPGASTATS(COMMON):
                 for i in range(self.mac_number):
                     print('mac {}'.format(i).rjust(12, ' '), end=' | ')
                 print()
-                with open(node, 'rw') as handler:
+                with open(node, 'r') as handler:
                     stats = (self.stats_25_40g if spd in [25, 40] else
                              self.stats_10g)
                     offset = self.demux_offset.get(self.mac_number, 0x100)
@@ -219,7 +220,7 @@ class FPGASTATS(COMMON):
             for w in info:
                 _, self.mac_number, _, node = info[w]
                 offset = self.demux_offset.get(self.mac_number, 0x100)
-                with open(node, 'rw') as fd:
+                with open(node, 'r') as fd:
                     for i in range(self.mac_number):
                         if self.mac_number == 8:
                             self.fpga_eth_reg_write(fd, 'mac', i, 0x140, 0x1)

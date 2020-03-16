@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # Copyright(c) 2019, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -25,6 +25,9 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import division
 from common import exception_quit, FpgaFinder, COMMON
 from common import convert_argument_str2hex
 from fpgastats import FPGASTATS
@@ -247,7 +250,7 @@ def clear_stats(f, info, args):
 
         for w in info:
             _, mac_total, _, node = info[w]
-            with open(node, 'rw') as fd:
+            with open(node, 'r') as fd:
                 for i in args.ports:
                     if vc_mode == VC_MODE_8x10G:
                         f.fpga_eth_reg_write(fd, 'mac', i, 0x140, 0x1)
@@ -403,15 +406,15 @@ def main():
     setattr(args, 'number', int(getattr(args, 'number')))
     if args.number < MIN_TEST_PKT_NUM or args.number > MAX_TEST_PKT_NUM:
         setattr(args, 'number', DEFAULT_TEST_PKT_NUM)
-        print('The number of test packets is out of range ({}~{})'
+        print(('The number of test packets is out of range ({}~{})'
               ', use {} instead'.format(MIN_TEST_PKT_NUM, MAX_TEST_PKT_NUM,
-                                        DEFAULT_TEST_PKT_NUM))
+                                        DEFAULT_TEST_PKT_NUM)))
     setattr(args, 'length', int(getattr(args, 'length')))
     if args.length < MIN_TEST_PKT_LEN or args.length > MAX_TEST_PKT_LEN:
         setattr(args, 'length', DEFAULT_TEST_PKT_LEN)
-        print('The length of test packet is out of range ({}~{})'
+        print(('The length of test packet is out of range ({}~{})'
               ', use {} instead'.format(MIN_TEST_PKT_LEN, MAX_TEST_PKT_LEN,
-                                        DEFAULT_TEST_PKT_LEN))
+                                        DEFAULT_TEST_PKT_LEN)))
 
     f = FpgaFinder(args.segment, args.bus, args.device, args.function)
     devs = f.find()

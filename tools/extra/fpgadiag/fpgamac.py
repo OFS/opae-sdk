@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # Copyright(c) 2019, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -26,6 +26,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import print_function
+from __future__ import absolute_import
 import argparse
 import time
 import struct
@@ -88,7 +89,7 @@ class FPGAMAC(COMMON):
         return self.fpga_eth_reg_read(f, 'mac', mac, reg)
 
     def fpga_mac_mtu(self):
-        with open(self.mac_group_dev, 'rw') as f:
+        with open(self.mac_group_dev, 'w') as f:
             if self.mtu == '':
                 tab_len = 64 if self.direction == 'both' else 45
                 print(''.center(tab_len, '='))

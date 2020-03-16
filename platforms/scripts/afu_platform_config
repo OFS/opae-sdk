@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #
 # Copyright (c) 2017, Intel Corporation
@@ -163,13 +163,13 @@ def matchAfuPorts(args, afu_ifc_db, platform_db):
                 # Both are vectors.  Pick a size, starting with either the most
                 # the platform will offer or the default number, depending on
                 # whether the AFU requested a specific number.
-                if ((port['max-entries'] == sys.maxint) and
+                if ((port['max-entries'] == sys.maxsize) and
                     ('default-entries' in port) and
                     (port['default-entries'] >= plat_match['min-entries']) and
                     (port['default-entries'] <=
                      plat_match['max-entries'])):
                     entries = port['default-entries']
-                elif ((port['max-entries'] == sys.maxint) and
+                elif ((port['max-entries'] == sys.maxsize) and
                       ('default-entries' in plat_match) and
                       (plat_match['default-entries'] >= port['min-entries'])):
                     entries = plat_match['default-entries']

@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # Copyright(c) 2019, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -26,6 +26,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import print_function
+from __future__ import absolute_import
 import argparse
 import time
 import struct
@@ -110,7 +111,7 @@ class FPGALPBK(COMMON):
         self.fpga_eth_reg_set_field(f, 'phy', phy, reg, idx, width, value)
 
     def fpga_loopback_en(self, en):
-        with open(self.phy_group_dev, 'rw') as f:
+        with open(self.phy_group_dev, 'w') as f:
             if self.speed == 10:
                 if self.type == 'serial':
                     for i in self.ports:

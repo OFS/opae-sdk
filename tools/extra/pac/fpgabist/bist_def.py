@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright(c) 2017, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -25,6 +25,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 import subprocess
 
@@ -43,13 +45,13 @@ class DefaultMode(bc.BistMode):
             bc.load_gbs(gbs_path, bus_num)
         ret = 0
         for func, param in self.executables.items():
-            print "Running Built-in Self test...\n"
+            print("Running Built-in Self test...\n")
             cmd = "{} {}".format(func, param)
             try:
                 subprocess.check_call(cmd, shell=True)
             except subprocess.CalledProcessError as e:
-                print "Failed Test: {}".format(func)
-                print e
+                print("Failed Test: {}".format(func))
+                print(e)
                 ret += 1
-        print "Finished Executing BIST\n"
+        print("Finished Executing BIST\n")
         return ret

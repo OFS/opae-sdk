@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Setup script for PyPI; use CMakeFile.txt to build extension modules
 

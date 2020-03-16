@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # Copyright(c) 2019, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -26,6 +26,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import print_function
+from __future__ import absolute_import
 import os
 import argparse
 import binascii
@@ -132,7 +133,7 @@ class MacromCompare(COMMON):
     def compare_eth_mac_with_macrom(self):
         result = 'PASS'
         for m in self.mac:
-            if m not in self.ethif.values():
+            if m not in list(self.ethif.values()):
                 print('{} in MAC ROM, is not used!'.format(m))
         ethifs = sorted(self.ethif.items())
         for e, m in ethifs:

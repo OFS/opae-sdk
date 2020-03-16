@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright(c) 2017, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -25,6 +25,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 import subprocess
 
@@ -47,13 +49,13 @@ class Nlb3Mode(bc.BistMode):
             bc.load_gbs(gbs_path, bus_num)
         ret = 0
         for test, param in self.executables.items():
-            print "Running fpgadiag {} test...\n".format(test)
+            print("Running fpgadiag {} test...\n".format(test))
             cmd = "fpgadiag -B 0x{} {}".format(bus_num, param)
             try:
                 subprocess.check_call(cmd, shell=True)
             except subprocess.CalledProcessError as e:
-                print "Failed Test: {}".format(test)
-                print e
+                print("Failed Test: {}".format(test))
+                print(e)
                 ret += 1
-        print "Finished Executing NLB (FPGA DIAG)Tests\n"
+        print("Finished Executing NLB (FPGA DIAG)Tests\n")
         return ret

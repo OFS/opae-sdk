@@ -24,6 +24,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import absolute_import
+from __future__ import print_function
 import glob
 import json
 import os
@@ -89,7 +91,7 @@ def get_all_fpga_bdfs(args):
                 device_id = fd.read().strip()
             if int(device_id, 16) == int(vars(args)['device_id'], 16):
                 bdf_list.append(dict([(k, hex(int(v, 16)).lstrip("0x"))
-                                for (k, v) in data.iteritems()]))
+                                for (k, v) in data.items()]))
     return bdf_list
 
 
@@ -121,13 +123,13 @@ def get_mode_from_path(gbs_path):
 
 
 def load_gbs(gbs_file, bus_num):
-    print "Attempting Partial Reconfiguration:"
+    print("Attempting Partial Reconfiguration:")
     cmd = "{} -B 0x{} -v {}".format('fpgaconf', bus_num, gbs_file)
     try:
         subprocess.check_call(cmd, shell=True)
     except subprocess.CalledProcessError as e:
-        print "Failed to load gbs file: {}".format(gbs_file)
-        print "Please try a different gbs"
+        print("Failed to load gbs file: {}".format(gbs_file))
+        print("Please try a different gbs")
         sys.exit(-1)
 
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright(c) 2017, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -24,6 +24,8 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+from __future__ import absolute_import
+from __future__ import print_function
 import datetime
 import itertools
 import json
@@ -32,6 +34,7 @@ import random
 import tempfile
 import subprocess
 import os
+
 max_threads = 2047       # 11 bits
 max_count = 1048575      # 20 bits
 max_stride = 4294967295  # 32 bit
@@ -39,10 +42,10 @@ max_stride = 4294967295  # 32 bit
 
 class nlb_options(object):
     all_options = {
-        "begin": range(1, 65535),
-        "end": range(2, 65535),
+        "begin": list(range(1, 65535)),
+        "end": list(range(2, 65535)),
         "cont": [True, False],
-        "timeout-sec": range(1, 11),
+        "timeout-sec": list(range(1, 11)),
         "mode": ["read", "write"],
         "multi-cl": [1, 2, 4],
         "cache-policy": ["wrline-I", "wrline-M", "wrpush-I"],
@@ -50,9 +53,9 @@ class nlb_options(object):
         "read-vc": ["vh0", "vh1", "vl0"],
         "write-vc": ["vh0", "vh1"],
         "wrfence-vc": ["vh0", "vh1"],
-        "strided-access": range(1, 65),
-        "threads": range(1, 65),
-        "count": range(1, 100),
+        "strided-access": list(range(1, 65)),
+        "threads": list(range(1, 65)),
+        "count": list(range(1, 100)),
         "stride": [int(math.pow(2, n)) for n in range(9)],
         "warm-fpga-cache": [True, False],
         "cool-fpga-cache": [True, False],
@@ -81,7 +84,7 @@ class nlb_options(object):
     def iter(self):
         values = [self.all_options[k] for k in self.keys]
         for v in itertools.product(*values):
-            opts = dict(zip(self.keys, v))
+            opts = dict(list(zip(self.keys, v)))
             opts.update(self.const())
             if self.validate(opts):
                 yield opts
@@ -274,19 +277,19 @@ def run(args):
                                          delete=False,
                                          dir="muxfiles") as fd:
             json.dump(options, fd, indent=4, sort_keys=True)
-        print count, "running with: ", fd.name
+        print(count, "running with: ", fd.name)
         count += 1
         try:
             result = run_mux(fd.name, args, count)
         except KeyboardInterrupt:
-            print "Stopping..."
+            print("Stopping...")
             return results
             break
         else:
             results.append(result)
 
         if result["result"] != "PASS":
-            print "tests failed with file: ", fd.name
+            print("tests failed with file: ", fd.name)
             if stop_on_fail:
                 break
         if args.timeout is not None:
@@ -317,7 +320,7 @@ def retry(args):
                     config["name"] = "mtnlb8"
                 config["disable"] = True
             rerunfile = result["filename"].replace("random", "rerun")
-            print rerunfile
+            print(rerunfile)
             with open(rerunfile, "w") as fd:
                 json.dump(configs, fd, indent=4, sort_keys=True)
             retries.append(run_mux(rerunfile, args, result["iteration"]))

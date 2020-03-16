@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # Copyright(c) 2018, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -25,6 +25,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import absolute_import
+from __future__ import print_function
 import argparse
 import mmap
 import os
@@ -81,19 +83,22 @@ class PhyMemAccess(object):
         self.wrptr.close()
         os.close(self.fdesc)
 
-    def __getitem__(self, index):
-        return self.rdptr[index]
+    def __getitem__(self, item):
+        if isinstance(item, slice):
+            if item.step is not None and item.step != -1:
+                raise ValueError('only step of "-1" is supported')
+            return self.rdptr[item.first:item.last:-1]
+        return self.rdptr[item]
 
-    def __setitem__(self, index, value):
-        self.wrptr[index] = value
-
-    def __getslice__(self, first, last):
-        return self.rdptr[first:last][::-1]
-
-    def __setslice__(self, first, last, value):
-        if len(value) != (last - first):
-            raise ValueError('Slice length does not equal actual length')
-        self.wrptr[first:last] = value[::-1]
+    def __setitem__(self, item, value):
+        if isinstance(item, slice):
+            if item.step is not None and item.step != -1:
+                raise ValueError('only step of "-1" is supported')
+            if len(value) != (item.last - item.first):
+                raise ValueError('Slice length does not equal actual length')
+            self.wrptr[item.first:item.last] = value[::-1]
+        else:
+            self.wrptr[item] = value
 
     def write32(self, addr, val):
         self[addr:addr + 4] = vals_to_chars(val, 4)
@@ -566,15 +571,15 @@ class SklHssi(object):
         clock_name = ["spare   ", "ref     ", "TX out  ",
                       "RX rec  ", "TX com  ", "RX com  ",
                       "TX com2 ", "RX com2 "]
-        print "Firmware version %08x" \
-              % self.nios_soft_fn(self.NIOS_FW_VERSION)
+        print("Firmware version %08x" %
+              self.nios_soft_fn(self.NIOS_FW_VERSION))
         val = self.skl_prmgmt_read(self.PR_MGMT_SCRATCH)
-        print "GBS %c%c%c version %02x" % (
+        print("GBS %c%c%c version %02x" % (
             (val >> 24) & 0xff, (val >> 16)
-            & 0xff, (val >> 8) & 0xff, val & 0xff)
+            & 0xff, (val >> 8) & 0xff, val & 0xff))
         val = self.skl_local_read(self.NIOS_LBUS_TEMP_SENSE)
-        print "Temp sense : %d (C) %d (F)" % (val >> 8, val & 0xff)
-        print ""
+        print("Temp sense : %d (C) %d (F)" % (val >> 8, val & 0xff))
+        print("")
         val = self.nios_soft_fn(self.NIOS_GET_HSSI_MODE)
         modes = {
             0: "LSFR Mode",
@@ -583,21 +588,21 @@ class SklHssi(object):
         }
         mode = modes.get(val, 'Unknown')
 
-        print "HSSI Mode: %d (%s)" % (val, mode)
-        print "HSSI Enabled: %d" % self.nios_soft_fn(self.NIOS_GET_HSSI_EN)
-        print "init_done: %d" % self.nios_soft_fn(self.NIOS_HSSI_INIT_DONE)
-        print ""
-        print "NIOS error: %08x" % self.nios_soft_fn(self.NIOS_HSSI_FATL_ERR)
-        print ""
+        print("HSSI Mode: %d (%s)" % (val, mode))
+        print("HSSI Enabled: %d" % self.nios_soft_fn(self.NIOS_GET_HSSI_EN))
+        print("init_done: %d" % self.nios_soft_fn(self.NIOS_HSSI_INIT_DONE))
+        print("")
+        print("NIOS error: %08x" % self.nios_soft_fn(self.NIOS_HSSI_FATL_ERR))
+        print("")
         val = self.skl_local_read(self.NIOS_LBUS_PLL_LOCKED_STATUS)
-        print "PLL lock Rpre      : %x" % ((val >> 2) & 1)
-        print "PLL lock core TX   : %x" % ((val >> 3) & 1)
-        print "PLL lock core RX   : %x" % ((val >> 1) & 1)
-        print "PLL lock TX   ATX  : %x" % ((val >> 0) & 1)
-        print ""
+        print("PLL lock Rpre      : %x" % ((val >> 2) & 1))
+        print("PLL lock core TX   : %x" % ((val >> 3) & 1))
+        print("PLL lock core RX   : %x" % ((val >> 1) & 1))
+        print("PLL lock TX   ATX  : %x" % ((val >> 0) & 1))
+        print("")
         val = self.skl_local_read(self.NIOS_LBUS_PRMGMT_RAME_ENA)
-        print "RAM ena : %x" % val
-        print ""
+        print("RAM ena : %x" % val)
+        print("")
         i = 0
         for name in clock_name:
             self.skl_local_write(self.NIOS_LBUS_CLK_MON_SEL, 7 - i)
@@ -605,7 +610,7 @@ class SklHssi(object):
             time.sleep(self.CLK_RD_DELAY)
             val = self.skl_local_read(self.NIOS_LBUS_CLK_MON_OUT)
             val *= 10
-            print "%s %6d KHz" % (name, val)
+            print("%s %6d KHz" % (name, val))
             i = i + 1
 
     def set_mode(self, mode):
@@ -619,7 +624,7 @@ class SklHssi(object):
             1: "Setting the SKL nios into mode 1 (10GbE Mode)",
             2: "Setting the SKL nios into mode 2 (40GbE Mode)",
         }
-        print modes.get(mode)
+        print(modes.get(mode))
         self.nios_soft_fn(self.NIOS_CHANGE_HSSI_MODE, mode)
         self.nios_soft_fn(self.NIOS_HSSI_INIT)
         self.skl_local_write(self.NIOS_LBUS_PRMGMT_RAME_ENA, 0x0)
@@ -629,53 +634,53 @@ class SklHssi(object):
         base = 0x1c00
         val = 0
         val2 = 0
-        print "TX side statistics -- "
+        print("TX side statistics -- ")
         val = self.skl_e10_read(base + 2)
         val2 = self.skl_e10_read(base + 3)
-        print "Frames OK: %d" % ((val2 << 32) | val)
+        print("Frames OK: %d" % ((val2 << 32) | val))
         val = self.skl_e10_read(base + 4)
         val2 = self.skl_e10_read(base + 5)
-        print "Frames Err: %d" % ((val2 << 32) | val)
+        print("Frames Err: %d" % ((val2 << 32) | val))
         val = self.skl_e10_read(base + 6)
         val2 = self.skl_e10_read(base + 7)
-        print "Frames CRC: %d" % ((val2 << 32) | val)
+        print("Frames CRC: %d" % ((val2 << 32) | val))
         val = self.skl_e10_read(base + 8)
         val2 = self.skl_e10_read(base + 9)
-        print "Bytes OK: %d" % ((val2 << 32) | val)
-        print ""
+        print("Bytes OK: %d" % ((val2 << 32) | val))
+        print("")
 
     def e10_rx_stat(self):
         base = 0xc00
         val = 0
         val2 = 0
-        print "RX side statistics -- "
+        print("RX side statistics -- ")
         val = self.skl_e10_read(base + 2)
         val2 = self.skl_e10_read(base + 3)
-        print "Frames OK: %d" % ((val2 << 32) | val)
+        print("Frames OK: %d" % ((val2 << 32) | val))
         val = self.skl_e10_read(base + 4)
         val2 = self.skl_e10_read(base + 5)
-        print "Frames Err: %d" % ((val2 << 32) | val)
+        print("Frames Err: %d" % ((val2 << 32) | val))
         val = self.skl_e10_read(base + 6)
         val2 = self.skl_e10_read(base + 7)
-        print "Frames CRC: %d" % ((val2 << 32) | val)
+        print("Frames CRC: %d" % ((val2 << 32) | val))
         val = self.skl_e10_read(base + 8)
         val2 = self.skl_e10_read(base + 9)
-        print "Bytes OK: %d" % ((val2 << 32) | val)
-        print ""
+        print("Bytes OK: %d" % ((val2 << 32) | val))
+        print("")
 
     def e10_stat(self):
         val = self.skl_prmgmt_read(self.PR_MGMT_SLOOP)
-        print "TxRx loop : %x" % val
+        print("TxRx loop : %x" % val)
         val = self.skl_prmgmt_read(self.PR_MGMT_LOCK_STATUS)
-        print "Freq lock : %x" % ((int(val) >> 4) & 0xf)
-        print "Word lock : %x" % (int(val) & 0xf)
-        print ""
+        print("Freq lock : %x" % ((int(val) >> 4) & 0xf))
+        print("Word lock : %x" % (int(val) & 0xf))
+        print("")
         for i in range(self.NUM_E10_CHANNELS):
-            print "*** 10GE port %d\n" % i
+            print("*** 10GE port %d\n" % i)
             self.skl_prmgmt_write(self.PR_MGMT_PORT_SEL, i)
             self.e10_tx_stat()
             self.e10_rx_stat()
-        print ""
+        print("")
 
     def skl_e40_check(self):
         afu_guid = (self._mem2.read64(self.AFU_OFFSET_HI) <<
@@ -700,24 +705,24 @@ class SklHssi(object):
         self.skl_prmgmt_write(self.PR_MGMT_ETH_CTRL, 0x10000 | addr)
 
     def skl_e40_stat_clr(self):
-        print "clearing e40 stats..."
+        print("clearing e40 stats...")
         self.skl_e40_write(self.CNTR_RX_CONFIG, 1)
         self.skl_e40_write(self.CNTR_TX_CONFIG, 1)
 
     def skl_e40_stat(self):
-        print "************************"
-        print "** A10 40GbE port 0"
-        print "************************"
-        print ""
-        print "PCS status section"
-        print "  rev    : %08x" % self.skl_e40_read(self.PHY_REVID)
-        print "  scratch: %08x" % self.skl_e40_read(self.PHY_SCRATCH)
-        print "  name   : %s%s%s" % (
+        print("************************")
+        print("** A10 40GbE port 0")
+        print("************************")
+        print("")
+        print("PCS status section")
+        print("  rev    : %08x" % self.skl_e40_read(self.PHY_REVID))
+        print("  scratch: %08x" % self.skl_e40_read(self.PHY_SCRATCH))
+        print("  name   : %s%s%s" % (
             vals_to_chars(self.skl_e40_read(self.PHY_NAME_0), 4),
             vals_to_chars(self.skl_e40_read(self.PHY_NAME_1), 4),
-            vals_to_chars(self.skl_e40_read(self.PHY_NAME_2), 4))
-        print "  ctrl ovr: %x" % self.skl_e40_read(self.PHY_CONFIG)
-        print "  FIFO flags "
+            vals_to_chars(self.skl_e40_read(self.PHY_NAME_2), 4)))
+        print("  ctrl ovr: %x" % self.skl_e40_read(self.PHY_CONFIG))
+        print("  FIFO flags ")
         for k in range(8):
             self.skl_e40_write(self.PHY_PCS_INDIRECT_ADDR, k)
             val = self.skl_e40_read(self.PHY_PCS_INDIRECT_DATA)
@@ -733,17 +738,17 @@ class SklHssi(object):
                 sys.stdout.write("empty")
             else:
                 sys.stdout.write("full")
-            print ""
-        print "  Loop      : %x" % self.skl_e40_read(self.PHY_PMA_SLOOP)
-        print "  TX lock   : %x" % self.skl_e40_read(self.PHY_TX_PLL_LOCKED)
+            print("")
+        print("  Loop      : %x" % self.skl_e40_read(self.PHY_PMA_SLOOP))
+        print("  TX lock   : %x" % self.skl_e40_read(self.PHY_TX_PLL_LOCKED))
         val = self.skl_e40_read(self.PHY_EIOFREQ_LOCKED)
         if val == 0xf:
             lstat = "fully locked"
         else:
             lstat = "incomplete"
-        print "  Freqlock  : %x (%s)" % (val, lstat)
-        print "  mac PLL flg: %x" % self.skl_e40_read(
-            self.PHY_TX_COREPLL_LOCKED)
+        print("  Freqlock  : %x (%s)" % (val, lstat))
+        print("  mac PLL flg: %x" % self.skl_e40_read(
+            self.PHY_TX_COREPLL_LOCKED))
 
         val = self.skl_e40_read(self.PHY_FRAME_ERROR)
         output = ""
@@ -752,44 +757,45 @@ class SklHssi(object):
             self.skl_e40_write(self.PHY_SCLR_FRAME_ERROR, 1)
             self.skl_e40_write(self.PHY_SCLR_FRAME_ERROR, 0)
 
-        print "  Frame Err : %x%s" % (val, output)
-        print "  rx purge: %x " % (self.skl_e40_read(self.PHY_EIO_SFTRESET))
-        print ""
+        print("  Frame Err : %x%s" % (val, output))
+        print("  rx purge: %x " % (self.skl_e40_read(self.PHY_EIO_SFTRESET)))
+        print("")
         val = self.skl_e40_read(self.PHY_RXPCS_STATUS)
         if val & 1:
-            print "RX status : fully aligned"
+            print("RX status : fully aligned")
         else:
-            print "RX status : not aligned"
-        print ""
-        print "Clk ref   : %6d KHz" % (self.skl_e40_read(self.PHY_REFCLK_KHZ))
-        print "Clk RX    : %6d KHz" % (self.skl_e40_read(self.PHY_RXCLK_KHZ))
-        print "Clk TX    : %6d KHz" % (self.skl_e40_read(self.PHY_TXCLK_KHZ))
-        print "Clk recov : %6d KHz" % (self.skl_e40_read(self.PHY_RECCLK_KHZ))
-        print "Clk TX IO : %6d KHz" % (self.skl_e40_read(self.PHY_TXIOCLK_KHZ))
-        print ""
-        print "TXCSR section"
-        print "  rev    : %08x" % (self.skl_e40_read(self.TXMAC_REVID))
-        print "  scratch: %08x" % (self.skl_e40_read(self.TXMAC_SCRATCH))
-        print "  name   : %s%s%s" % (
+            print("RX status : not aligned")
+        print("")
+        print("Clk ref   : %6d KHz" % (self.skl_e40_read(self.PHY_REFCLK_KHZ)))
+        print("Clk RX    : %6d KHz" % (self.skl_e40_read(self.PHY_RXCLK_KHZ)))
+        print("Clk TX    : %6d KHz" % (self.skl_e40_read(self.PHY_TXCLK_KHZ)))
+        print("Clk recov : %6d KHz" % (self.skl_e40_read(self.PHY_RECCLK_KHZ)))
+        print("Clk TX IO : %6d KHz" %
+              (self.skl_e40_read(self.PHY_TXIOCLK_KHZ)))
+        print("")
+        print("TXCSR section")
+        print("  rev    : %08x" % (self.skl_e40_read(self.TXMAC_REVID)))
+        print("  scratch: %08x" % (self.skl_e40_read(self.TXMAC_SCRATCH)))
+        print("  name   : %s%s%s" % (
             vals_to_chars(self.skl_e40_read(self.TXMAC_NAME_0), 4),
             vals_to_chars(self.skl_e40_read(self.TXMAC_NAME_1), 4),
-            vals_to_chars(self.skl_e40_read(self.TXMAC_NAME_2), 4))
+            vals_to_chars(self.skl_e40_read(self.TXMAC_NAME_2), 4)))
 
-        print "  fault  : %08x" % (self.skl_e40_read(self.LINK_FAULT_CONFIG))
-        print "  ipgcol : %08x" % (self.skl_e40_read(self.IPG_COL_REM))
-        print "  frmsize: %08x" \
-            % (self.skl_e40_read(self.MAX_TX_SIZE_CONFIG))
-        print "  crc cfg: %08x" % (self.skl_e40_read(self.CRC_CONFIG))
-        print " addr cfg: %08x" % (self.skl_e40_read(self.ADDR_CONFIG))
-        print " ple  cfg: %08x" % (self.skl_e40_read(self.PLE_CONFIG))
-        print " err  cfg: %08x" % (self.skl_e40_read(self.ERR_CONFIG))
-        print ""
-        print "TXstat section"
+        print("  fault  : %08x" % (self.skl_e40_read(self.LINK_FAULT_CONFIG)))
+        print("  ipgcol : %08x" % (self.skl_e40_read(self.IPG_COL_REM)))
+        print("  frmsize: %08x" %
+              (self.skl_e40_read(self.MAX_TX_SIZE_CONFIG)))
+        print("  crc cfg: %08x" % (self.skl_e40_read(self.CRC_CONFIG)))
+        print(" addr cfg: %08x" % (self.skl_e40_read(self.ADDR_CONFIG)))
+        print(" ple  cfg: %08x" % (self.skl_e40_read(self.PLE_CONFIG)))
+        print(" err  cfg: %08x" % (self.skl_e40_read(self.ERR_CONFIG)))
+        print("")
+        print("TXstat section")
 
-        print "%s%s%s" % (
+        print("%s%s%s" % (
             vals_to_chars(self.skl_e40_read(self.TXSTAT_NAME_0), 4),
             vals_to_chars(self.skl_e40_read(self.TXSTAT_NAME_1), 4),
-            vals_to_chars(self.skl_e40_read(self.TXSTAT_NAME_2), 4))
+            vals_to_chars(self.skl_e40_read(self.TXSTAT_NAME_2), 4)))
         self.skl_e40_write(self.CNTR_TX_CONFIG, 4)  # shadow on
         sys.stdout.write("TX packets : ")
         val = self.skl_e40_read(self.CNTR_TX_ST_HI)
@@ -798,7 +804,7 @@ class SklHssi(object):
         val = self.skl_e40_read(self.CNTR_TX_ST_LO)
         val = self.skl_e40_read(self.CNTR_TX_ST_LO)
         i = (i << 32) | val
-        print "%d" % i
+        print("%d" % i)
         sys.stdout.write("TX 64b     : ")
         val = self.skl_e40_read(self.CNTR_TX_64B_HI)
         val = self.skl_e40_read(self.CNTR_TX_64B_HI)
@@ -806,28 +812,28 @@ class SklHssi(object):
         val = self.skl_e40_read(self.CNTR_TX_64B_LO)
         val = self.skl_e40_read(self.CNTR_TX_64B_LO)
         i = (i << 32) | val
-        print "%d" % i
+        print("%d" % i)
         self.skl_e40_write(self.CNTR_TX_CONFIG, 0)  # shadow off
-        print ""
-        print "RXCSR section"
-        print "  rev    : %08x" % (self.skl_e40_read(self.RXMAC_REVID))
-        print "  scratch: %08x" % (self.skl_e40_read(self.RXMAC_SCRATCH))
-        print "  name   : %s%s%s" % (
+        print("")
+        print("RXCSR section")
+        print("  rev    : %08x" % (self.skl_e40_read(self.RXMAC_REVID)))
+        print("  scratch: %08x" % (self.skl_e40_read(self.RXMAC_SCRATCH)))
+        print("  name   : %s%s%s" % (
             vals_to_chars(self.skl_e40_read(self.RXMAC_NAME_0), 4),
             vals_to_chars(self.skl_e40_read(self.RXMAC_NAME_1), 4),
-            vals_to_chars(self.skl_e40_read(self.RXMAC_NAME_2), 4))
-        print "  type   : %08x" % (self.skl_e40_read(self.RXMAC_TYPE))
-        print "  frm sz : %08x" % (self.skl_e40_read(self.MAX_RX_SIZE_CONFIG))
-        print "  crc    : %08x" % (self.skl_e40_read(self.MAC_CRC_CONFIG))
-        print "  fault  : %08x" % (self.skl_e40_read(self.RX_FAULT_CONFIG))
-        print "  afl    : %08x" % (self.skl_e40_read(self.RX_AFL))
-        print "  pfe    : %08x" % (self.skl_e40_read(self.CFG_PLEN_CHECK))
-        print "  err    : %08x" % (self.skl_e40_read(self.RX_ERR))
-        print "\nRXstat section"
-        print "%s%s%s" % (
+            vals_to_chars(self.skl_e40_read(self.RXMAC_NAME_2), 4)))
+        print("  type   : %08x" % (self.skl_e40_read(self.RXMAC_TYPE)))
+        print("  frm sz : %08x" % (self.skl_e40_read(self.MAX_RX_SIZE_CONFIG)))
+        print("  crc    : %08x" % (self.skl_e40_read(self.MAC_CRC_CONFIG)))
+        print("  fault  : %08x" % (self.skl_e40_read(self.RX_FAULT_CONFIG)))
+        print("  afl    : %08x" % (self.skl_e40_read(self.RX_AFL)))
+        print("  pfe    : %08x" % (self.skl_e40_read(self.CFG_PLEN_CHECK)))
+        print("  err    : %08x" % (self.skl_e40_read(self.RX_ERR)))
+        print("\nRXstat section")
+        print("%s%s%s" % (
             vals_to_chars(self.skl_e40_read(self.RXSTAT_NAME_0), 4),
             vals_to_chars(self.skl_e40_read(self.RXSTAT_NAME_1), 4),
-            vals_to_chars(self.skl_e40_read(self.RXSTAT_NAME_2), 4))
+            vals_to_chars(self.skl_e40_read(self.RXSTAT_NAME_2), 4)))
         self.skl_e40_write(self.CNTR_RX_CONFIG, 4)  # shadow on
         sys.stdout.write("RX packets : ")
         val = self.skl_e40_read(self.CNTR_RX_ST_HI)
@@ -836,7 +842,7 @@ class SklHssi(object):
         val = self.skl_e40_read(self.CNTR_RX_ST_LO)
         val = self.skl_e40_read(self.CNTR_RX_ST_LO)
         i = (i << 32) | val
-        print "%d" % i
+        print("%d" % i)
         sys.stdout.write("RX runts   : ")
         val = self.skl_e40_read(self.CNTR_RX_RUNT_HI)
         val = self.skl_e40_read(self.CNTR_RX_RUNT_HI)
@@ -844,7 +850,7 @@ class SklHssi(object):
         val = self.skl_e40_read(self.CNTR_RX_RUNT_LO)
         val = self.skl_e40_read(self.CNTR_RX_RUNT_LO)
         i = (i << 32) | val
-        print "%d" % i
+        print("%d" % i)
         sys.stdout.write("RX CRC err : ")
         val = self.skl_e40_read(self.CNTR_RX_CRCERR_HI)
         val = self.skl_e40_read(self.CNTR_RX_CRCERR_HI)
@@ -852,9 +858,9 @@ class SklHssi(object):
         val = self.skl_e40_read(self.CNTR_RX_CRCERR_LO)
         val = self.skl_e40_read(self.CNTR_RX_CRCERR_LO)
         i = (i << 32) | val
-        print "%d" % i
+        print("%d" % i)
         self.skl_e40_write(self.CNTR_RX_CONFIG, 0)  # shadow off
-        print ""
+        print("")
 
 
 def stat_fxn(args, skl):
@@ -865,10 +871,10 @@ def eeprom_fxn(args, skl):
     skl.skl_maci2c_reset()
     val = 0
     val = skl.skl_maci2c_read_serial(0, 16)
-    print ""
-    print "128-bit Unique Board ID: 0x%032x" % (val)
-    print ""
-    print "EEPROM:"
+    print("")
+    print("128-bit Unique Board ID: 0x%032x" % (val))
+    print("")
+    print("EEPROM:")
     numbytes = 512
     val = skl.skl_maci2c_read_eeprom(0, numbytes)
     tmp = [0x0] * 16
@@ -885,7 +891,7 @@ def eeprom_fxn(args, skl):
                 else:
                     sys.stdout.write('.')
             sys.stdout.write("\n")
-    print ""
+    print("")
 
 
 PARAMS_DICT = {
@@ -904,12 +910,11 @@ def eqwrite_fxn(args, skl):
     chan = int(args.channel, 16)
     param = int(args.parameter, 16)
     value = int(args.value, 16)
-    val = skl.nios_soft_fn(skl.NIOS_TX_EQ_WRITE, chan, param, value)
 
     msg = PARAMS_DICT.get(param, "Unknown Paramter")
     msg = "WRITE Channel %i - %s" % (chan, msg)
-    print "eqwrite(C=0x%01X,P=0x%02X) <- 0x%02X (%s)" % (
-        chan, param, value, msg)
+    print("eqwrite(C=0x%01X,P=0x%02X) <- 0x%02X (%s)" % (
+        chan, param, value, msg))
 
 
 def eqread_fxn(args, skl):
@@ -919,7 +924,7 @@ def eqread_fxn(args, skl):
 
     msg = PARAMS_DICT.get(param, "Unknown Paramter")
     msg = "READ Channel %i - %s" % (chan, msg)
-    print "eqread(C=0x%01X,P=0x%02X) -> 0x%02X (%s)" % (chan, param, val, msg)
+    print("eqread(C=0x%01X,P=0x%02X) -> 0x%02X (%s)" % (chan, param, val, msg))
 
 
 def e10_loop_fxn(args, skl):
@@ -943,7 +948,7 @@ def e10_reset_fxn(args, skl):
 def e10_pkt_send_fxn(args, skl):
     skl.skl_e10_check()
     for i in range(skl.NUM_E10_CHANNELS):
-        print "*** 10GE port %d sending" % i
+        print("*** 10GE port %d sending" % i)
         skl.skl_prmgmt_write(skl.PR_MGMT_PORT_SEL, i)
         skl.skl_e10_write(0x3c00, skl.NUM_SEND_PACKETS)  # num pkts
         skl.skl_e10_write(0x3c03, 1)          # go
@@ -953,8 +958,8 @@ def e10_init_fxn(args, skl):
     skl.skl_e10_check()
     mem2 = skl._mem2
     skl.skl_set_mem2(None)
-    print "Changing SKL mode to 10g, \
-    initializing E2E_10G AFU and placing it in loopback..."
+    print("Changing SKL mode to 10g, \
+    initializing E2E_10G AFU and placing it in loopback...")
     skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x7)
     skl.set_mode(1)
     skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x6)
@@ -963,7 +968,7 @@ def e10_init_fxn(args, skl):
     skl.skl_prmgmt_write(skl.PR_MGMT_SLOOP, 0xF)
     skl.skl_set_mem2(mem2)
     e10_stat_clr_fxn(args, skl)
-    print "Done!"
+    print("Done!")
 
 
 def e10_stat_fxn(args, skl):
@@ -974,7 +979,7 @@ def e10_stat_fxn(args, skl):
 def e10_stat_clr_fxn(args, skl):
     skl.skl_e10_check()
     for i in range(skl.NUM_E10_CHANNELS):
-        print "*** 10GE port %d clearing" % i
+        print("*** 10GE port %d clearing" % i)
         skl.skl_prmgmt_write(skl.PR_MGMT_PORT_SEL, i)
         skl.skl_e10_write(0xc00, 1)
         skl.skl_e10_write(0x1c00, 1)
@@ -998,7 +1003,7 @@ def e40_reset_fxn(args, skl):
 
 def e40_pkt_send_fxn(args, skl):
     skl.skl_e40_check()
-    print "Sending {} 1500-byte packets...".format(skl.NUM_SEND_PACKETS)
+    print("Sending {} 1500-byte packets...".format(skl.NUM_SEND_PACKETS))
     skl.skl_e40_traf_write(0x4, skl.NUM_SEND_PACKETS)  # number of packets
     skl.skl_e40_traf_write(0x5, 1500)  # packet length
     skl.skl_e40_traf_write(0x6, 0)  # packet delay
@@ -1010,15 +1015,15 @@ def e40_init_fxn(args, skl):
     skl.skl_e40_check()
     mem2 = skl._mem2
     skl.skl_set_mem2(None)
-    print "Changing SKL mode to 40g, \
-    initializing E2E_40G AFU and placing it in loopback..."
+    print("Changing SKL mode to 40g, \
+    initializing E2E_40G AFU and placing it in loopback...")
     skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x3)
     skl.set_mode(2)
     skl.skl_prmgmt_write(skl.PR_MGMT_RST, 0x0)
     skl.skl_e40_write(0x313, 0x3ff)
     skl.skl_set_mem2(mem2)
     skl.skl_e40_stat_clr()
-    print "Done!"
+    print("Done!")
 
 
 def e40_stat_fxn(args, skl):
@@ -1143,7 +1148,7 @@ def validate_bdf(args):
     if not args.bdf:
         if len(devs) > 1:
             for dev in devs:
-                print "    {}".format(dev)
+                print("    {}".format(dev))
             sys.exit("Must specify a bdf. More than one device found.")
         else:
             args.bdf = devs[0]
@@ -1154,7 +1159,7 @@ def validate_bdf(args):
         if args.bdf not in devs:
             text = "Invalid bdf, {}. Not one of the following".format(args.bdf)
             for dev in devs:
-                print "    {}".format(dev)
+                print("    {}".format(dev))
             sys.exit(text)
 
 

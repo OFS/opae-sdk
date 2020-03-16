@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # Copyright(c) 2019, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -26,6 +26,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import print_function
+from __future__ import absolute_import
 import re
 import os
 import glob
@@ -152,7 +153,7 @@ class COMMON(object):
 
     def ioctl(self, handler, op, data):
         if isinstance(handler, str):
-            with open(handler, 'rw') as f:
+            with open(handler, 'w') as f:
                 ret = self._ioctl(f, op, data)
         else:
             ret = self._ioctl(handler, op, data)
@@ -240,7 +241,7 @@ class COMMON(object):
 
     def get_port_list(self, argport, total):
         if 'all' in argport:
-            return range(total)
+            return list(range(total))
         elif isinstance(argport, list):
             ports = []
             for p in argport:
@@ -254,7 +255,7 @@ class COMMON(object):
                     s = s.strip()
                     e = e.strip()
                     if s.isdigit() and e.isdigit() and total >= (int(e) + 1):
-                        ports.extend(range(int(s), int(e) + 1))
+                        ports.extend(list(range(int(s), int(e) + 1)))
                     else:
                         exception_quit(
                             'Invalid argument port {}-{}'.format(s, e))
