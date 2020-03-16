@@ -115,13 +115,18 @@ def main(args):
             afu_ids.update({bist_common.get_afu_id(bdf=bdf): ""})
 
         for afu_id in afu_ids.keys():
-            if afu_id == bist_def.DefaultMode().afu_id.replace("-", ""):
+            print afu_id
+            if afu_id == bist_common.get_afuid(
+                          bist_def.DefaultMode().mode_list, dev_id):
                 mode = bist_def.DefaultMode()
-            elif afu_id == bist_nlb3.Nlb3Mode().afu_id.replace("-", ""):
+            elif afu_id == bist_common.get_afuid(
+                            bist_nlb3.Nlb3Mode().mode_list, dev_id):
                 mode = bist_nlb3.Nlb3Mode()
-            elif afu_id == bist_dma.DmaMode().afu_id.replace("-", ""):
+            elif afu_id == bist_common.get_afuid(
+                            bist_dma.DmaMode().mode_list, dev_id):
                 mode = bist_dma.DmaMode()
-            elif afu_id == bist_app.BistMode().afu_id.replace("-", ""):
+            elif afu_id == bist_common.get_afuid(
+                            bist_app.BistMode().mode_list, dev_id):
                 mode = bist_app.BistMode()
             else:
                 sys.exit("Unknown AFU for available ID {}\n".format(afu_id))
