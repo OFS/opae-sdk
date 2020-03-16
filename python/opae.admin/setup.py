@@ -23,15 +23,30 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+from setuptools import setup, find_packages
+from opae.admin.version import pretty_version
 
-version = {
-    'base': '@INTEL_SECURITY_TOOLS_VERSION@',
-    'hash': '@GIT_COMMIT_HASH@',
-    'dirty': @INTEL_SECURITY_TOOLS_TREE_DIRTY@
-}
-
-def pretty_version():
-    ver = '{} {}'.format(version['base'], version['hash'])
-    if version['dirty']:
-        ver += '*'
-    return ver
+setup(
+    name="opae.admin",
+    version=pretty_version(),
+    packages=find_packages(),
+    entry_points={
+        'console_scripts': [
+            'fpgasupdate = opae.admin.tools.fpgasupdate:main',
+            'rsu = opae.admin.tools.rsu:main',
+            'super-rsu = opae.admin.tools.super_rsu:main',
+            'fpgaflash = opae.admin.tools.fpgaflash:main',
+            'fpgaotsu = opae.admin.tools.fpgaotsu:main',
+            'fpgaport = opae.admin.tools.fpgaport:main',
+            'bitstreaminfo = opae.admin.tools.bitstream_info:main'
+        ]
+    },
+    install_requires=[],
+    description="opae.admin provides Python classes for interfacing with"
+                "OPAE kernel drivers",
+    license="BSD3",
+    keywords="OPAE accelerator fpga kernel sysfs",
+    data_files=[('share/doc/opae.admin',
+                 ['@CMAKE_CURRENT_SOURCE_DIR@/LICENSE'])],
+    url="https://01.org/OPAE",
+)

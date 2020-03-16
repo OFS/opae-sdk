@@ -1,4 +1,4 @@
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2020, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -23,28 +23,42 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from setuptools import setup, find_packages
+import subprocess
 
-setup(
-    name="opae.admin",
-    version="@INTEL_SECURITY_TOOLS_VERSION@",
-    packages=find_packages(),
-    entry_points={
-        'console_scripts': [
-            'fpgasupdate = opae.admin.tools.fpgasupdate:main',
-            'rsu = opae.admin.tools.rsu:main',
-            'super-rsu = opae.admin.tools.super_rsu:main',
-            'fpgaflash = opae.admin.tools.fpgaflash:main',
-            'fpgaotsu = opae.admin.tools.fpgaotsu:main',
-            'fpgaport = opae.admin.tools.fpgaport:main',
-            'bitstreaminfo = opae.admin.tools.bitstream_info:main'
-        ]
-    },
-    install_requires=[],
-    description="opae.admin provides Python classes for interfacing with"
-                "OPAE kernel drivers",
-    license="BSD3",
-    keywords="OPAE accelerator fpga kernel sysfs",
-    data_files = [('share/doc/opae.admin', ['@CMAKE_CURRENT_SOURCE_DIR@/LICENSE'])],
-    url="https://01.org/OPAE",
-)
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path
+
+version = {
+    'major': 1,
+    'minor': 4,
+    'patch': 1
+}
+
+
+def git_root():
+    for p in reversed(Path(__file__).parents):
+        if next(p.glob('.git'), None):
+            return p
+
+
+def _is_dirty():
+    if git_root():
+        try:
+            cp = subprocess.run(['git', 'diff-index', '--quiet', 'HEAD'])
+        except FileNotFoundError:
+            pass
+        return cp.returncode != 0
+    return False
+
+
+def version_info():
+    return (version['major'], version['minor'], version['patch'])
+
+
+def pretty_version():
+    ver = '{major}.{minor}.{patch}'.format(**version)
+    if _is_dirty():
+        ver += '*'
+    return ver
