@@ -42,9 +42,9 @@
 #include <unistd.h>
 
 /* Others */
-#define KB 1024
-#define MB (1024 * KB)
-#define GB (1024UL * MB)
+#define KB 1024ULL
+#define MB (1024ULL * (KB))
+#define GB (1024ULL * (MB))
 
 #define PROTECTION (PROT_READ | PROT_WRITE)
 
@@ -55,18 +55,19 @@
 #define MAP_HUGE_SHIFT 26
 #endif
 
+#define MAP_2M_HUGEPAGE (0x15 << MAP_HUGE_SHIFT)
 #define MAP_1G_HUGEPAGE	(0x1e << MAP_HUGE_SHIFT) /* 2 ^ 0x1e = 1G */
 
 #ifdef __ia64__
 #define ADDR (void *)(0x8000000000000000UL)
 #define FLAGS_4K (MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED)
-#define FLAGS_2M (FLAGS_4K | MAP_HUGETLB)
-#define FLAGS_1G (FLAGS_2M | MAP_1G_HUGEPAGE)
+#define FLAGS_2M (FLAGS_4K | MAP_2M_HUGEPAGE | MAP_HUGETLB)
+#define FLAGS_1G (FLAGS_4K | MAP_1G_HUGEPAGE | MAP_HUGETLB)
 #else
 #define ADDR (void *)(0x0UL)
 #define FLAGS_4K (MAP_PRIVATE | MAP_ANONYMOUS)
-#define FLAGS_2M (FLAGS_4K | MAP_HUGETLB)
-#define FLAGS_1G (FLAGS_2M | MAP_1G_HUGEPAGE)
+#define FLAGS_2M (FLAGS_4K | MAP_2M_HUGEPAGE | MAP_HUGETLB)
+#define FLAGS_1G (FLAGS_4K | MAP_1G_HUGEPAGE | MAP_HUGETLB)
 #endif
 
 

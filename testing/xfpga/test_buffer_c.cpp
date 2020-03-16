@@ -45,24 +45,34 @@ extern "C" {
 #include <string>
 #include "safe_string/safe_string.h"
 
+#ifndef MAP_HUGETLB
+#define MAP_HUGETLB 0x40000
+#endif
+#ifndef MAP_HUGE_SHIFT
+#define MAP_HUGE_SHIFT 26
+#endif
+
+#define MAP_2M_HUGEPAGE (0x15 << MAP_HUGE_SHIFT)
+#define MAP_1G_HUGEPAGE (0x1e << MAP_HUGE_SHIFT)
+
 #define PROTECTION (PROT_READ | PROT_WRITE)
 
 #ifdef __ia64__
-#define ADDR (void*)(0x8000000000000000UL)
+#define ADDR (void *)(0x8000000000000000UL)
 #define FLAGS_4K (MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED)
-#define FLAGS_2M (FLAGS_4K | MAP_HUGETLB)
-#define FLAGS_1G (FLAGS_2M | MAP_1G_HUGEPAGE)
+#define FLAGS_2M (FLAGS_4K | MAP_2M_HUGEPAGE | MAP_HUGETLB)
+#define FLAGS_1G (FLAGS_4K | MAP_1G_HUGEPAGE | MAP_HUGETLB)
 #else
-#define ADDR (void*)(0x0UL)
+#define ADDR (void *)(0x0UL)
 #define FLAGS_4K (MAP_PRIVATE | MAP_ANONYMOUS)
-#define FLAGS_2M (FLAGS_4K | MAP_HUGETLB)
-#define FLAGS_1G (FLAGS_2M | MAP_1G_HUGEPAGE)
+#define FLAGS_2M (FLAGS_4K | MAP_2M_HUGEPAGE | MAP_HUGETLB)
+#define FLAGS_1G (FLAGS_4K | MAP_1G_HUGEPAGE | MAP_HUGETLB)
 #endif
 
 #define NLB_DSM_SIZE (2 * 1024 * 1024)
-#define KB 1024
-#define MB (1024 * KB)
-#define GB (1024UL * MB)
+#define KB 1024ULL
+#define MB (1024ULL * (KB))
+#define GB (1024ULL * (MB))
 #define FPGA_MOCK_IOVA 0xDECAFBADDEADBEEF
 #undef FPGA_MSG
 #define FPGA_MSG(fmt, ...) \
