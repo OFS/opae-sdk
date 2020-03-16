@@ -53,6 +53,10 @@ def _is_dirty():
     return False
 
 
+def git_hash():
+    return '$Id$'.lstrip('$Id:')[:6]
+
+
 def version_info():
     return (version['major'], version['minor'], version['patch'])
 
@@ -60,5 +64,5 @@ def version_info():
 def pretty_version():
     ver = '{major}.{minor}.{patch}'.format(**version)
     if _is_dirty():
-        ver += '*'
+        ver += '+' + git_hash() + '*'
     return ver
