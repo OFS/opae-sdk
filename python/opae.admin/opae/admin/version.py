@@ -54,7 +54,8 @@ def _is_dirty():
 
 
 def git_hash():
-    return '$Id$'.lstrip('$Id:')[:6]
+    _id = '$Id$'
+    return _id.lstrip('$Id:').strip()[:6]
 
 
 def version_info():
