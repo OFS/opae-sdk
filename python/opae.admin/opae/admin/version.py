@@ -30,6 +30,7 @@ try:
 except ImportError:
     from pathlib2 import Path
 
+
 version = {
     'major': 1,
     'minor': 4,
@@ -37,14 +38,18 @@ version = {
 }
 
 
-def git_root():
+def _git_root():
     for p in reversed(Path(__file__).parents):
         if next(p.glob('.git'), None):
             return p
 
 
+def _is_export():
+    return '$Format:%h$' == git_hash(short=True, check_dirty=False)
+
+
 def _is_dirty():
-    if git_root():
+    if not _is_export() and _git_root():
         try:
             cp = subprocess.run(['git', 'diff-index', '--quiet', 'HEAD'])
         except FileNotFoundError:
@@ -53,11 +58,11 @@ def _is_dirty():
     return False
 
 
-def git_hash(short=False):
+def git_hash(short=False, check_dirty=True):
     h = '$Format:%H$'
     if short:
-        return h[:6]
-    return h
+        h = h[:7]
+    return h + '*' if check_dirty and _is_dirty() else ''
 
 
 def version_info():
@@ -67,5 +72,5 @@ def version_info():
 def pretty_version():
     ver = '{major}.{minor}.{patch}'.format(**version)
     if _is_dirty():
-        ver += '+' + git_hash() + '*'
+        ver += '+' + git_hash(short=True, check_dirty=False) + '*'
     return ver
