@@ -37,7 +37,7 @@ from opae.admin.fpga import fpga
 try:
     from pathlib import Path
 except ImportError:
-    from pathlib2 import Path  #  noqa
+    from pathlib2 import Path  # noqa
 
 
 RSU_LOCK_DIR = '/var/lib/opae'
