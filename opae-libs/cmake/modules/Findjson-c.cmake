@@ -38,7 +38,8 @@ pkg_check_modules(PC_JSON_C QUIET json-c)
 # Use pkg-config to get hints about paths
 execute_process(COMMAND pkg-config --cflags json-c --silence-errors
   COMMAND cut -d I -f 2
-  OUTPUT_VARIABLE JSON-C_PKG_CONFIG_INCLUDE_DIRS)
+  OUTPUT_VARIABLE JSON-C_PKG_CONFIG_INCLUDE_DIRS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
 set(JSON-C_PKG_CONFIG_INCLUDE_DIRS "${JSON-C_PKG_CONFIG_INCLUDE_DIRS}" CACHE STRING "Compiler flags for JSON-C library")
 
 # Include dir
