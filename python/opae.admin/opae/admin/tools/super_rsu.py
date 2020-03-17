@@ -52,7 +52,7 @@ from opae.admin.version import pretty_version
 try:
     from pathlib import Path
 except ImportError:
-    from pathlib2 import Path  #  noqa
+    from pathlib2 import Path  # noqa
 
 BMC_SENSOR_PATTERN = (r'^\(\s*(?P<num>\d+)\)\s*(?P<name>[\w \.]+)\s*:\s*'
                       r'(?P<value>[\d\.]+)\s+(?P<units>\w+)$')
