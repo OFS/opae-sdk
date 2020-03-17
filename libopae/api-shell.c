@@ -538,7 +538,11 @@ static int opae_enumerate(const opae_api_adapter_table *adapter, void *context)
 			return OPAE_ENUM_STOP;
 		}
 
-		ctx->wrapped_tokens[ctx->num_wrapped_tokens++] = wt;
+		if (ctx->wrapped_tokens)
+			ctx->wrapped_tokens[ctx->num_wrapped_tokens++] = wt;
+		else
+			opae_destroy_wrapped_token(wt);
+
 	}
 
 	return ctx->num_wrapped_tokens == ctx->max_wrapped_tokens
