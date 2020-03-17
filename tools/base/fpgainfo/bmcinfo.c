@@ -680,7 +680,6 @@ void print_sensor_value(sensor_attr *sensors, BMC_TYPE type)
 {
 	sensor_attr *attr;
 	size_t max_len = 0;
-	char fmt[16];
 
 	for (attr = sensors; attr != NULL; attr = attr->next) {
 		if (type == BMC_SENSORS || type == get_bmc_sensor_type(attr)) {
@@ -688,14 +687,15 @@ void print_sensor_value(sensor_attr *sensors, BMC_TYPE type)
 				max_len = strlen(attr->name);
 		}
 	}
-	if (max_len <= 24)
-		max_len = 24;
-	sprintf(fmt, "(%%2d) %%-%zds : ", max_len);
 
 	for (attr = sensors; attr != NULL; attr = attr->next) {
 		if (type == BMC_SENSORS || type == get_bmc_sensor_type(attr)) {
 			if (attr->flag & SENSOR_FLAG_VALUE) {
-				printf(fmt, attr->id, attr->name);
+				if (max_len <= 24) {
+					printf("(%2d) %-24s : ", attr->id, attr->name);
+				} else {
+					printf("(%2d) %-28s : ", attr->id, attr->name);
+				}
 				if (attr->type == SENSOR_TYPE_THERMAL) {
 					printf("%.2f Celsius\n", attr->value.f_val);
 				} else if (attr->type == SENSOR_TYPE_POWER) {
