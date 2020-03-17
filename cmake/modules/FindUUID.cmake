@@ -38,7 +38,8 @@ pkg_check_modules(PC_UUID QUIET uuid)
 # Use pkg-config to get hints about paths
 execute_process(COMMAND pkg-config --cflags uuid --silence-errors
   COMMAND cut -d I -f 2
-  OUTPUT_VARIABLE UUID_PKG_CONFIG_INCLUDE_DIRS)
+  OUTPUT_VARIABLE UUID_PKG_CONFIG_INCLUDE_DIRS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
 set(UUID_PKG_CONFIG_INCLUDE_DIRS "${UUID_PKG_CONFIG_INCLUDE_DIRS}" CACHE STRING "Compiler flags for UUID library")
 
 # Include dir
