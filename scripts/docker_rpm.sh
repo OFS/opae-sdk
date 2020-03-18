@@ -49,5 +49,5 @@ RUN usermod -a -G mock root && mock -r fedora-rawhide-x86_64  rebuild ~/rpmbuild
 RUN fedora-review --rpm-spec -v -n ~/rpmbuild/SRPMS/opae-1.4.1*.src.rpm
 EOF
 
-docker build -f fedora.Dockerfile
+docker build  . --file fedora.Dockerfile --tag opae-fedora-review
 
