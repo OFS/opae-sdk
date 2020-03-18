@@ -1,0 +1,2 @@
+version.py export-subst
+version.py filter=gethash
