@@ -43,7 +43,7 @@ RUN dnf install -y python3 python3-pip python3-devel cmake make libuuid-devel js
 RUN rpmdev-setuptree
 COPY opae.tar.gz ~/rpmbuild/SOURCES/.
 COPY opae.spec ~/rpmbuild/SPECS/.
-RUN rpmbuild -ba opae.spec
+RUN bash -c rpmbuild -ba opae.spec
 RUN dnf -nogpgcheck
 RUN usermod -a -G mock root && mock -r fedora-rawhide-x86_64  rebuild ~/rpmbuild/SRPMS/opae-1.4.1*.src.rpm
 RUN fedora-review --rpm-spec -v -n ~/rpmbuild/SRPMS/opae-1.4.1*.src.rpm
