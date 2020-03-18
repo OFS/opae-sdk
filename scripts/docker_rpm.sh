@@ -43,10 +43,9 @@ RUN dnf install -y python3 python3-pip python3-devel cmake make libuuid-devel js
 RUN rpmdev-setuptree
 COPY opae.tar.gz ~/rpmbuild/SOURCES/.
 COPY opae.spec ~/rpmbuild/SPECS/.
-RUN bash -c rpmbuild -ba opae.spec
-RUN dnf -nogpgcheck
-RUN usermod -a -G mock root && mock -r fedora-rawhide-x86_64  rebuild ~/rpmbuild/SRPMS/opae-1.4.1*.src.rpm
-RUN fedora-review --rpm-spec -v -n ~/rpmbuild/SRPMS/opae-1.4.1*.src.rpm
+RUN bash -c rpmbuild -ba opae.spec && ls ~/rpmbuild/*RPMS/*
+RUN usermod -a -G mock root && mock -r fedora-rawhide-x86_64  rebuild /root/rpmbuild/SRPMS/opae-1.4.1*.src.rpm
+RUN fedora-review --rpm-spec -v -n /root/rpmbuild/SRPMS/opae-1.4.1*.src.rpm
 EOF
 
 docker build  . --file fedora.Dockerfile --tag opae-fedora-review
