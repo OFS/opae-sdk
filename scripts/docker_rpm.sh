@@ -49,6 +49,7 @@ chmod a+x buildrpm.sh
 cat > fedora.Dockerfile << EOF
 FROM fedora
 RUN dnf install -y python3 python3-pip python3-devel cmake make libuuid-devel json-c-devel gcc clang vim hwloc-devel gdb doxygen python-sphinx fedora-review rpm-build rpmdevtools
+RUN useradd -ms /bin/bash opae -G mock
 USER opae:mock
 WORKDIR /home/opae
 RUN rpmdev-setuptree
