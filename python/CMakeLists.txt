@@ -1,4 +1,4 @@
-## Copyright(c) 2019, Intel Corporation
+## Copyright(c) 2019-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -23,51 +23,21 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
-cmake_minimum_required (VERSION 2.8)
 
-# projectname is the same as the main-executable
+cmake_minimum_required (VERSION 2.8.12)
+
 project(python)
+
 ############################################################################
 ## Find Python by version     ##############################################
 ############################################################################
 set(OPAE_PYTHON_VERSION 3.6 CACHE STRING "Python version to use for building/distributing pyopae")
 set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3.6 3.5 3.4 3.3)
 
-
 find_package(PythonInterp ${OPAE_PYTHON_VERSION})
 find_package(PythonLibs ${OPAE_PYTHON_VERSION})
 
 set(INTEL_SECURITY_TOOLS_VERSION 1.0.2 CACHE STRING "Security Tools Version string")
-
-find_program(GIT_EXECUTABLE git)
-if(EXISTS ${GIT_EXECUTABLE})
-  execute_process(COMMAND ${GIT_EXECUTABLE} log -1 --format=%h
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_COMMIT_HASH
-    RESULT_VARIABLE GIT_LOG_RESULT
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-    if(NOT ${GIT_LOG_RESULT} EQUAL 0)
-      set(GIT_COMMIT_HASH unknown)
-    endif(NOT ${GIT_LOG_RESULT} EQUAL 0)
-
-  execute_process(COMMAND ${GIT_EXECUTABLE} diff --stat
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_DIFF_OUTPUT
-    RESULT_VARIABLE GIT_DIFF_RESULT
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-  if(NOT ${GIT_DIFF_RESULT} EQUAL 0)
-    set(INTEL_SECURITY_TOOLS_TREE_DIRTY False)
-  else(NOT ${GIT_DIFF_RESULT} EQUAL 0)
-    if(GIT_DIFF_OUTPUT)
-      set(INTEL_SECURITY_TOOLS_TREE_DIRTY True)
-    else(GIT_DIFF_OUTPUT)
-      set(INTEL_SECURITY_TOOLS_TREE_DIRTY False)
-    endif(GIT_DIFF_OUTPUT)
-  endif(NOT ${GIT_DIFF_RESULT} EQUAL 0)
-else(EXISTS ${GIT_EXECUTABLE})
-  set(GIT_COMMIT_HASH unknown)
-  set(INTEL_SECURITY_TOOLS_TREE_DIRTY False)
-endif(EXISTS ${GIT_EXECUTABLE})
 
 add_subdirectory(opae.admin)
 
@@ -85,4 +55,3 @@ else(HAS_VIRTUALENV)
         COMMENT "Setting up virtualenv..."
         )
 endif(HAS_VIRTUALENV)
-
