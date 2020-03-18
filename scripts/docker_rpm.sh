@@ -39,7 +39,7 @@ git archive --format tar --prefix opae/ --worktree-attributes HEAD | gzip > opae
 
 cat > buildrpm.sh << EOF
 #!/bin/bash
-rpmbuild -ba opae.spec
+rpmbuild -ba ~/rpmbuild/SPECS/opae.spec
 mock -r fedora-rawhide-x86_64 rebuild ~/rpmbuild/SRPMS/opae-1.4.0*.src.rpm
 fedora-review --rpm-spec -v -n ~/rpmbuild/SRPMS/opae-1.4.0*.src.rpm
 EOF
