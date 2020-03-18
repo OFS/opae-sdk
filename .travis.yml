@@ -19,7 +19,7 @@ matrix:
           - python3-pip
   - script: scripts/build-pypi.sh
     install:
-    - python3 -m pip install --user pybind11 nose2
+    - python3 -m pip install --upgrade pip && python3 -m pip install --user pybind11 nose2
     cache: ccache
     env:
     - BUILD_JOB=Build python distribution and upload to PyPI
