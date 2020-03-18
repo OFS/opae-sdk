@@ -1,4 +1,4 @@
-## Copyright(c) 2019, Intel Corporation
+## Copyright(c) 2019-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -23,7 +23,8 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
-cmake_minimum_required (VERSION 2.8)
+
+cmake_minimum_required (VERSION 2.8.12)
 
 # projectname is the same as the main-executable
 project(opae.admin)
@@ -36,10 +37,6 @@ find_program (DEB_BUILD
     debuild
     )
 
-configure_file(setup.py.in ${CMAKE_CURRENT_SOURCE_DIR}/setup.py @ONLY)
-configure_file(setup.py.in ${ADMIN_STAGE_DIR}/setup.py @ONLY)
-configure_file(opae/admin/version.py.in ${CMAKE_CURRENT_SOURCE_DIR}/opae/admin/version.py @ONLY)
-configure_file(opae/admin/version.py.in ${ADMIN_STAGE_DIR}/opae/admin/version.py @ONLY)
 configure_file(tox.ini ${ADMIN_STAGE_DIR}/tox.ini @ONLY)
 configure_file(py27-nose2.cfg ${ADMIN_STAGE_DIR}/py27-nose2.cfg @ONLY)
 configure_file(py36-nose2.cfg ${ADMIN_STAGE_DIR}/py36-nose2.cfg @ONLY)
