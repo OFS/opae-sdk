@@ -61,5 +61,5 @@ CMD ["-c", "./buildrpm.sh"]
 EOF
 
 docker build . --file fedora.Dockerfile --tag opae-fedora-review:latest
-docker run opae-fedora-review:latest
+docker run --cap-add=SYS_ADMIN opae-fedora-review:latest
 
