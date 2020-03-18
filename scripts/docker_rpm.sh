@@ -37,15 +37,25 @@ EOF
 
 git archive --format tar --prefix opae/ --worktree-attributes HEAD | gzip > opae.tar.gz
 
+cat > buildrpm.sh << EOF
+#!/bin/bash
+ls ~/rpmbuild/*RPMS/*
+rpmbuild -ba opae.spec
+usermod -a -G mock root
+mock -r fedora-rawhide-x86_64 rebuild /root/rpmbuild/SRPMS/opae-1.4.0*.src.rpm
+fedora-review --rpm-spec -v -n /root/rpmbuild/SRPMS/opae-1.4.0*.src.rpm
+EOF
+chmod a+x buildrpm.sh
+
+
 cat > fedora.Dockerfile << EOF
 FROM fedora
 RUN dnf install -y python3 python3-pip python3-devel cmake make libuuid-devel json-c-devel gcc clang vim hwloc-devel gdb doxygen python-sphinx fedora-review rpm-build rpmdevtools
 RUN rpmdev-setuptree
-COPY opae.tar.gz ~/rpmbuild/SOURCES/.
-COPY opae.spec ~/rpmbuild/SPECS/.
-RUN bash -c rpmbuild -ba opae.spec && ls ~/rpmbuild/*RPMS/*
-RUN usermod -a -G mock root && mock -r fedora-rawhide-x86_64  rebuild /root/rpmbuild/SRPMS/opae-1.4.1*.src.rpm
-RUN fedora-review --rpm-spec -v -n /root/rpmbuild/SRPMS/opae-1.4.1*.src.rpm
+COPY opae.tar.gz rpmbuild/SOURCES/.
+COPY opae.spec rpmbuild/SPECS/.
+COPY buildrpm.sh .
+RUN ./buildrpm.sh
 EOF
 
 docker build  . --file fedora.Dockerfile --tag opae-fedora-review
