@@ -1,6 +1,6 @@
 Summary:        Open Programmable Acceleration Engine (OPAE) SDK
 Name:           opae
-Version:        1.4.0
+Version:        1.4.1
 Release:        1%{?dist}
 License:        BSD
 ExclusiveArch:  x86_64
