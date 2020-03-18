@@ -49,9 +49,9 @@ chmod a+x buildrpm.sh
 cat > fedora.Dockerfile << EOF
 FROM fedora
 RUN dnf install -y python3 python3-pip python3-devel cmake make libuuid-devel json-c-devel gcc clang vim hwloc-devel gdb doxygen python-sphinx fedora-review rpm-build rpmdevtools
-RUN groupadd mock
-RUN useradd -ms /bin/bash opae -G mock
-USER opae:mock
+RUN useradd -ms /bin/bash opae
+RUN usermod -a -G mock opae
+USER opae
 WORKDIR /home/opae
 RUN rpmdev-setuptree
 COPY opae.tar.gz rpmbuild/SOURCES/.
