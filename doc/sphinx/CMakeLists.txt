@@ -42,6 +42,9 @@ endif()
 # HTML output directory
 set(SPHINX_HTML_DIR "${CMAKE_BINARY_DIR}/sphinx/html/${SPHINX_DOC_RELEASE}")
 
+# MAN output directory
+set(SPHINX_MAN_DIR "${CMAKE_BINARY_DIR}/sphinx/man/${SPHINX_DOC_RELEASE}")
+
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in"
   "${BINARY_BUILD_DIR}/conf.py"
@@ -71,8 +74,10 @@ add_custom_target(copy-python-files ALL
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/opae-libs/pyopae/README.md ${BINARY_BUILD_DIR}/docs/README.md
   DEPENDS copy-markdown-files)
 
+set(ENV{PYTHONPATH} "${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}")
+
+
 add_custom_target(docs ALL
-  COMMAND ${CMAKE_COMMAND} -E env "PYTHONPATH=${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}"
   ${SPHINX_EXECUTABLE}
   -q -b html
   -c "${BINARY_BUILD_DIR}"
@@ -82,6 +87,15 @@ add_custom_target(docs ALL
   WORKING_DIRECTORY "${BINARY_BUILD_DIR}"
   COMMENT "Building HTML documentation with Sphinx")
 
+add_custom_target(manpages ALL
+  ${SPHINX_EXECUTABLE}
+  -q -b man
+  -c "${BINARY_BUILD_DIR}"
+  -d "${SPHINX_CACHE_DIR}"
+  "${BINARY_BUILD_DIR}"
+  "${SPHINX_MAN_DIR}"
+  WORKING_DIRECTORY "${BINARY_BUILD_DIR}"
+  COMMENT "Building manpages with Sphinx")
 
 add_dependencies(docs
   copy-doxygen-files
