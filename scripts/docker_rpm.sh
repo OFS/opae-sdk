@@ -62,5 +62,5 @@ EOF
 
 docker build . --file fedora.Dockerfile --tag opae-fedora-review:latest
 mkdir rpmbuild
-docker run --cap-add=SYS_ADMIN opae-fedora-review:latest -v $PWD/rpmbuild:/root/rpmbuild
+docker run -v $PWD/rpmbuild:/root/rpmbuild opae-fedora-review:latest
 

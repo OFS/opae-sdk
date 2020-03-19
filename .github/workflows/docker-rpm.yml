@@ -9,3 +9,4 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build a Docker image and RPM file
         run: ${{ github.workspace }}/scripts/docker_rpm.sh
+
