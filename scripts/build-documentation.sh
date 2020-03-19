@@ -23,7 +23,7 @@ trap "popd" EXIT
 
 cmake .. -DOPAE_BUILD_SPHINX_DOC=ON
 make docs
-
+make manpages
 
 if test $? -eq 0
 then
