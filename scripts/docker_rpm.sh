@@ -9,7 +9,6 @@ opae.spec.in export-ignore
 opae.spec export-ignore
 opae-libs/external export-ignore
 opae-libs/tests export-ignore
-opae-libs/plugins/ase export-ignore
 opae-libs/cmake/config/libopae-all.spec.in export-ignore
 opae-libs/cmake/config/run_coverage_test.sh.in export-ignore
 opae-libs/cmake/config/run_coverage_test_local.sh.inexport-ignore
