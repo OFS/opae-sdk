@@ -63,4 +63,4 @@ EOF
 
 docker build . --file fedora.Dockerfile --tag opae-fedora-review:latest
 mkdir rpmbuild
-docker run -v $PWD/rpmbuild:/tmp/rpmbuild --rm -it --cap-add SYS_ADMIN --security-opt apparmor=unconfined opae-fedora-review:latest
+docker run -v $PWD/rpmbuild:/tmp/rpmbuild --rm --cap-add SYS_ADMIN --security-opt apparmor=unconfined opae-fedora-review:latest
