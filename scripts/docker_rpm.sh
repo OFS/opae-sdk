@@ -34,11 +34,11 @@ tools/utilities export-ignore
 .clang-format export-ignore
 EOF
 
-git archive --format tar --prefix opae/ --worktree-attributes HEAD | gzip > opae.tar.gz
 
 cat > buildrpm.sh << EOF
 #!/bin/bash
-rpmbuild -ba ~/rpmbuild/SPECS/opae.spec
+cp /tmp/rpmbuild/opae.tar.gz ~/rpmbuild/SOURCES/.
+rpmbuild -ba /tmp/rpmbuild/opae.spec
 newgrp mock
 mock -r fedora-rawhide-x86_64 rebuild ~/rpmbuild/SRPMS/opae-1.4.0*.src.rpm
 fedora-review --rpm-spec -v -n ~/rpmbuild/SRPMS/opae-1.4.0*.src.rpm
@@ -49,22 +49,10 @@ cp opae/review.txt /tmp/rpmbuild/.
 EOF
 chmod a+x buildrpm.sh
 
-
-cat > fedora.Dockerfile << EOF
-FROM fedora
-RUN dnf install -y python3 python3-pip python3-devel cmake make libuuid-devel json-c-devel gcc clang vim hwloc-devel gdb doxygen python-sphinx fedora-review rpm-build rpmdevtools
-RUN usermod -G mock root
-RUN rpmdev-setuptree
-RUN echo 'config_opts["use_nspawn"] = False' >> /etc/mock/site-defaults.cfg
-WORKDIR /root
-COPY opae.tar.gz rpmbuild/SOURCES/.
-COPY opae.spec rpmbuild/SPECS/.
-COPY buildrpm.sh .
-ENTRYPOINT ["/bin/bash"]
-CMD ["-c", "./buildrpm.sh"]
-EOF
-
-docker build . --file fedora.Dockerfile --tag opae-fedora-review:latest
+git archive --format tar --prefix opae/ --worktree-attributes HEAD | gzip > opae.tar.gz
 mkdir rpmbuild
 cp opae.spec rpmbuild/.
-docker run -v $PWD/rpmbuild:/tmp/rpmbuild --rm --cap-add SYS_ADMIN --security-opt apparmor=unconfined opae-fedora-review:latest
+cp opae.tar.gz rpmbuild/.
+
+docker pull opae/fedora-builder:latest
+docker run -v $PWD/rpmbuild:/tmp/rpmbuild --rm --cap-add SYS_ADMIN --security-opt apparmor=unconfined opae/fedora-builder:latest
