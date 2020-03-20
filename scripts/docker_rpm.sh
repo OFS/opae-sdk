@@ -42,7 +42,7 @@ cat > buildrpm.sh << EOF
 rpmbuild -ba ~/rpmbuild/SPECS/opae.spec
 cp ~/rpmbuild/*RPMS/*.rpm /tmp/rpmbuild/.
 newgrp mock
-# mock -r fedora-rawhide-x86_64 rebuild ~/rpmbuild/SRPMS/opae-1.4.0*.src.rpm
+mock -r fedora-rawhide-x86_64 rebuild ~/rpmbuild/SRPMS/opae-1.4.0*.src.rpm
 fedora-review --rpm-spec -v -n ~/rpmbuild/SRPMS/opae-1.4.0*.src.rpm
 EOF
 chmod a+x buildrpm.sh
