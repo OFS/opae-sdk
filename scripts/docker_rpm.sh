@@ -37,6 +37,7 @@ EOF
 
 cat > buildrpm.sh << EOF
 #!/bin/bash
+rpmdev-setuptree
 cp /tmp/rpmbuild/opae.tar.gz ~/rpmbuild/SOURCES/.
 rpmbuild -ba /tmp/rpmbuild/opae.spec
 newgrp mock
