@@ -182,7 +182,6 @@ man_pages = [
     ("docs/fpga_api/plug_guide/readme", 'plug_guide', u'OPAE Plugin API', [author], 8),
     ("docs/fpga_api/prog_guide/readme", 'prog_guide', u'OPAE Programming Guide', [author], 8),
     ("docs/fpga_api/quick_start/readme", 'quick_start', u'OPAE Quick Start Guide', [author], 8),
-    ("docs/fpga_api/samples/hello_afu/README", 'hello_afu', u'hello_afu sample', [author], 8),
     ("index", 'index', u'Manual page index', [author], 8)
 
 ]
