@@ -53,6 +53,7 @@ git archive --format tar --prefix opae/ --worktree-attributes HEAD | gzip > opae
 mkdir rpmbuild
 cp opae.spec rpmbuild/.
 cp opae.tar.gz rpmbuild/.
+cp buildrpm.sh rpmbuild/.
 
 docker pull opae/fedora-builder:latest
-docker run -v $PWD/rpmbuild:/tmp/rpmbuild --rm --cap-add SYS_ADMIN --security-opt apparmor=unconfined opae/fedora-builder:latest
+docker run -v $PWD/rpmbuild:/tmp/rpmbuild --rm --cap-add SYS_ADMIN --security-opt apparmor=unconfined opae/fedora-builder:latest -c /tmp/rpmbuild/buildrpm.sh
