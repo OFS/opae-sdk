@@ -1,7 +1,11 @@
-name: Docker Build RPM
+name: Docker Build and Review RPM
 
-on: [push]
-
+on:
+  push:
+    paths:
+      - opae.spec
+      - scripts/docker_rpm.sh
+      - .github/workflows/docker-rpm.yml
 jobs:
   build_docker_image:
     runs-on: ubuntu-latest
