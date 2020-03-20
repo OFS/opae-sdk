@@ -40,9 +40,10 @@ git archive --format tar --prefix opae/ --worktree-attributes HEAD | gzip > opae
 cat > buildrpm.sh << EOF
 #!/bin/bash
 rpmbuild -ba ~/rpmbuild/SPECS/opae.spec
-# newgrp mock
+cp ~/rpmbuild/*RPMS/*.rpm /tmp/rpmbuild/.
+newgrp mock
 # mock -r fedora-rawhide-x86_64 rebuild ~/rpmbuild/SRPMS/opae-1.4.0*.src.rpm
-# fedora-review --rpm-spec -v -n ~/rpmbuild/SRPMS/opae-1.4.0*.src.rpm
+fedora-review --rpm-spec -v -n ~/rpmbuild/SRPMS/opae-1.4.0*.src.rpm
 EOF
 chmod a+x buildrpm.sh
 
@@ -62,5 +63,4 @@ EOF
 
 docker build . --file fedora.Dockerfile --tag opae-fedora-review:latest
 mkdir rpmbuild
-docker run -v $PWD/rpmbuild:/root/rpmbuild opae-fedora-review:latest
-
+docker run -v $PWD/rpmbuild:/tmp/rpmbuild --cap-add SYS_ADMIN apparmor=unconfined opae-fedora-review:latest
