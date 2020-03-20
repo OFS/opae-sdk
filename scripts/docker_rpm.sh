@@ -53,6 +53,7 @@ FROM fedora
 RUN dnf install -y python3 python3-pip python3-devel cmake make libuuid-devel json-c-devel gcc clang vim hwloc-devel gdb doxygen python-sphinx fedora-review rpm-build rpmdevtools
 RUN usermod -G mock root
 RUN rpmdev-setuptree
+RUN echo 'config_opts["use_nspawn"] = False' >> /etc/mock/site-defaults.cfg
 WORKDIR /root
 COPY opae.tar.gz rpmbuild/SOURCES/.
 COPY opae.spec rpmbuild/SPECS/.
