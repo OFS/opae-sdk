@@ -25,7 +25,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import json
-import constants
+from . import constants
 import struct
 from collections import OrderedDict
 

@@ -258,12 +258,12 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
         # Platform-specific values in 'params' key within a class
         if ('params' in plat_port):
-            for k in plat_port['params'].keys():
+            for k in list(plat_port['params'].keys()):
                 params[k] = plat_port['params'][k]
 
         # Update parameters overridden by the AFU
         if ('params' in afu_port):
-            for k in afu_port['params'].keys():
+            for k in list(afu_port['params'].keys()):
                 if (k not in params):
                     # AFU can't define a new parameter.  It may only update
                     # existing ones.
