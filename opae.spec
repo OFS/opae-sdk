@@ -1,6 +1,6 @@
 Summary:        Open Programmable Acceleration Engine (OPAE) SDK
 Name:           opae
-Version:        1.4.1
+Version:        1.4.0
 Release:        1%{?dist}
 License:        BSD
 ExclusiveArch:  x86_64
@@ -18,10 +18,19 @@ BuildRequires:  json-c-devel
 BuildRequires:  libuuid-devel
 BuildRequires:  rpm-build
 BuildRequires:  hwloc-devel
-BuildRequires:  python-sphinx
+BuildRequires:  python3-sphinx
 BuildRequires:  doxygen
 BuildRequires:  systemd-rpm-macros
 BuildRequires:  systemd
+BuildRequires:  python3-pip
+BuildRequires:  python3-requests
+BuildRequires:  python3-docutils
+BuildRequires:  python3-breathe
+BuildRequires:  python3-pygments
+BuildRequires:  fontawesome-fonts
+BuildRequires:  fontawesome-fonts-web
+BuildRequires:  python3-sphinx_rtd_theme
+BuildRequires:  python3-recommonmark
 
 %description
 Open Programmable Acceleration Engine (OPAE) is a software framework
@@ -55,7 +64,7 @@ rm -rf _build
 mkdir _build
 cd _build
 
-%cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+%cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_BUILD_SPHINX_DOC=ON
 
 %make_build  opae-c \
          bitstream \
@@ -72,6 +81,9 @@ cd _build
          hello_fpga \
          hello_events \
          mmlink 
+
+make docs
+make manpages
 
 %install
 mkdir -p %{buildroot}%{_datadir}/opae
@@ -107,6 +119,12 @@ mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_events/
 cp samples/hello_fpga/hello_fpga.c %{buildroot}%{_usr}/src/opae/samples/hello_fpga/
 cp samples/hello_events/hello_events.c %{buildroot}%{_usr}/src/opae/samples/hello_events/
 
+mkdir -p %{buildroot}/%{_mandir}/man8/
+
+cp _build/sphinx/man/*/userclk.*    %{buildroot}/%{_mandir}/man8/
+cp _build/sphinx/man/*/fpgainfo.*    %{buildroot}/%{_mandir}/man8/
+cp _build/sphinx/man/*/fpgaconf.*    %{buildroot}/%{_mandir}/man8/
+cp _build/sphinx/man/*/mmlink.*    %{buildroot}/%{_mandir}/man8/
 
 cd _build
 
@@ -175,8 +193,10 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
 %{_bindir}/packager
 
 %{_usr}/share/opae/*
-%{_usr}/src/opae/cmake/*
-%{_usr}/src/opae/opae-libs/cmake/modules/*
+%{_mandir}/man8/userclk.*
+%{_mandir}/man8/fpgainfo.*
+%{_mandir}/man8/mmlink.*
+%{_mandir}/man8/fpgaconf.*
 
 
 %changelog

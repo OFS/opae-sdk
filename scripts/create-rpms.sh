@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 #check if rpmbuild is installed
@@ -56,6 +57,7 @@ tar --transform=${opae_sdk_tar} \
   --exclude=samples/base \
   --exclude=scripts \
   --exclude=tests \
+  --exclude=python\
   --exclude=tools/fpgametrics \
   --exclude=tools/libboard/board_dc \
   --exclude=tools/extra/ras \

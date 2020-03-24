@@ -6,10 +6,12 @@ import os
 import shutil
 
 # Better fonts
-import sphinx_fontawesome
+#import sphinx_fontawesome
+
 
 # Pandoc-based markdown parser for sphinx
-from sphinxcontrib.pandoc_markdown import MarkdownParser
+#from sphinxcontrib.pandoc_markdown import MarkdownParser
+from recommonmark.parser import CommonMarkParser
 
 # Enabled extensions
 extensions = [
@@ -21,7 +23,6 @@ extensions = [
     'sphinx.ext.imgmath',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
-    'sphinx_fontawesome',
     'breathe'
 ]
 
@@ -35,7 +36,7 @@ breathe_projects = {'FPGA-API' : 'doxygen_xml/'}
 breathe_default_project = 'FPGA-API'
 
 # Do not use this; if _contrib markdown plugin was used
-source_parsers = { '.md': MarkdownParser}
+source_parsers = { '.md': CommonMarkParser}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
