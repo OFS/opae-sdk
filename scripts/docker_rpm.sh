@@ -42,7 +42,7 @@ release=1
 cat > buildrpm.sh << EOF
 #!/bin/bash
 rpmdev-setuptree
-cp /tmp/rpmbuild/opae.tar.gz ~/rpmbuild/SOURCES/opae-${version}-${release}.tar.gz
+cp /tmp/rpmbuild/opae-${version}-${release}.tar.gz ~/rpmbuild/SOURCES/opae-${version}-${release}.tar.gz
 rpmbuild -ba /tmp/rpmbuild/opae.spec
 newgrp mock
 mock -r fedora-rawhide-x86_64 rebuild ~/rpmbuild/SRPMS/opae-${version}-${release}.src.rpm
