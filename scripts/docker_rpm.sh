@@ -54,10 +54,9 @@ cp opae/review.txt /tmp/rpmbuild/.
 EOF
 chmod a+x buildrpm.sh
 
-git archive --format tar --prefix opae/ --worktree-attributes HEAD | gzip > opae.tar.gz
 mkdir rpmbuild
+git archive --format tar --prefix opae-${version}-${release} --worktree-attributes HEAD | gzip > /tmp/opae-${version}-${release}.tar.gz
 cp opae.spec rpmbuild/.
-cp opae.tar.gz rpmbuild/.
 cp buildrpm.sh rpmbuild/.
 
 docker pull opae/fedora-builder:latest
