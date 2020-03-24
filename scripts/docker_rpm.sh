@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 #
+set -x
 
 cat > .gitattributes << EOF
 .git* export-ignore
@@ -34,7 +35,7 @@ tools/utilities export-ignore
 .clang-format export-ignore
 EOF
 
-version=$(grep 'Version:' ../opae.spec | awk '{ print $2 }')
+version=$(grep 'Version:' opae.spec | awk '{ print $2 }')
 
 
 cat > buildrpm.sh << EOF
