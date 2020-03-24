@@ -34,6 +34,8 @@ tools/utilities export-ignore
 .clang-format export-ignore
 EOF
 
+version=$(grep 'Version:' ../opae.spec | awk '{ print $2 }')
+
 
 cat > buildrpm.sh << EOF
 #!/bin/bash
@@ -41,8 +43,8 @@ rpmdev-setuptree
 cp /tmp/rpmbuild/opae.tar.gz ~/rpmbuild/SOURCES/.
 rpmbuild -ba /tmp/rpmbuild/opae.spec
 newgrp mock
-mock -r fedora-rawhide-x86_64 rebuild ~/rpmbuild/SRPMS/opae-1.4.0*.src.rpm
-fedora-review --rpm-spec -v -n ~/rpmbuild/SRPMS/opae-1.4.0*.src.rpm
+mock -r fedora-rawhide-x86_64 rebuild ~/rpmbuild/SRPMS/opae-${version}*.src.rpm
+fedora-review --rpm-spec -v -n ~/rpmbuild/SRPMS/opae-${version}*.src.rpm
 cp ~/rpmbuild/SRPMS/*.rpm /tmp/rpmbuild/.
 cp ~/rpmbuild/RPMS/*/*.rpm /tmp/rpmbuild/.
 cp ~/.cache/fedora-review.log /tmp/rpmbuild/.
