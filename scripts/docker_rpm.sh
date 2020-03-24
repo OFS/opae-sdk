@@ -55,7 +55,7 @@ EOF
 chmod a+x buildrpm.sh
 
 mkdir rpmbuild
-git archive --format tar --prefix opae-${version}-${release} --worktree-attributes HEAD | gzip > /tmp/opae-${version}-${release}.tar.gz
+git archive --format tar --prefix opae-${version}-${release} --worktree-attributes HEAD | gzip > rpmbuild/opae-${version}-${release}.tar.gz
 cp opae.spec rpmbuild/.
 cp buildrpm.sh rpmbuild/.
 
