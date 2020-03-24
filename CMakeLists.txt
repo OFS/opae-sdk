@@ -57,6 +57,7 @@ opae_add_subdirectory(opae-libs)
 opae_add_subdirectory(platforms)
 opae_add_subdirectory(tools)
 opae_add_subdirectory(samples)
+opae_add_subdirectory(python)
 
 if(OPAE_BUILD_TESTS)
     enable_testing()

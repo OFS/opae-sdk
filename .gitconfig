@@ -1,0 +1,4 @@
+[filter "gethash"]
+	smudge = sed -e 's/\\$Format:%H\\$/'$(git rev-parse HEAD)'/g'
+	clean = sed -e 's/[0-9a-f]\\{40\\}/$Format:%H$/g'
+

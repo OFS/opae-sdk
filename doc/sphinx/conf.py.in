@@ -161,19 +161,29 @@ latex_documents = [
 man_pages = [
 #    (master_doc, 'intel-fpga', u'Intel FPGA Documentation',
 #     [author], 1),
+    ("docs/fpga_tools/fpgabist/fpgabist", 'fpgabist', u'Perform self-diagnostic tests on supported FPGA platforms', [author], 8),
+    ("docs/fpga_tools/fpgaport/fpgaport", 'fpgaport', u'Enable/Disable virtualization', [author], 8),
+    ("docs/fpga_tools/fpgaflash/fpgaflash", 'fpgaflash', u'Update static FIM image loaded from flash at power-on', [author], 8),
+    ("docs/fpga_tools/fpgaflash/superrsu", 'super-rsu', u'Flash image files and command an Intel PAC device to perform RSU', [author], 8),
     ("docs/fpga_tools/coreidle/coreidle", 'coreidle', u'Adjust number of active cores to account for FPGA power consumption', [author], 8),
-    ("docs/fpga_tools/error_monitor/fpga_errors", 'fpgaerr', u'Error reporting and clearing', [author], 8),
     ("docs/fpga_tools/fpgaconf/fpgaconf", 'fpgaconf', u'Configure green bitstreams to an FPGA', [author], 8),
     ("docs/fpga_tools/fpgad/fpgad", 'fpgad', u'Log errors and generate events', [author], 8),
     ("docs/fpga_tools/fpgadiag/README", 'fpgadiag', u'FPGA diagnosis and testing tool', [author], 8),
     ("docs/fpga_tools/fpgainfo/fpgainfo", 'fpgainfo', u'FPGA information tool', [author], 8),
     ("docs/fpga_tools/fpgamux/fpgamux", 'fpgamux', u'Software MUX for running multiple AFU tests in one GBS', [author], 8),
-    ("docs/fpga_tools/hssi_config/readme", 'hssi_config', u'Read from or write to HSSI registers', [author], 8),
+    ("docs/fpga_tools/pac_hssi_config/pac_hssi_config", 'pac_hssi_config', u'Access Ethernet transceivers for designs', [author], 8),
     ("docs/fpga_tools/hssi_loopback/readme", 'hssi_loopback', u'Interact with a packet generator GBS', [author], 8),
+    ("docs/fpga_tools/hssi_config/readme", 'hssi_config', u'Read from or write to HSSI registers', [author], 8),
     ("docs/fpga_tools/mmlink/mmlink", 'mmlink', u'Enable remote SignalTAP debugging', [author], 8),
-    ("docs/fpga_tools/thermal_power_monitor/power", 'fpgapwr', u'Query power consumed by FPGA', [author], 8),
-    ("docs/fpga_tools/thermal_power_monitor/temp", 'fpgatmp', u'Query FPGA temperature readings', [author], 8),
-    ("docs/fpga_tools/userclk/userclk", 'userclk', u'Set AFU high and low clock frequency', [author], 8)
+    ("docs/fpga_tools/userclk/userclk", 'userclk', u'Set AFU high and low clock frequency', [author], 8),
+    ("docs/fpga_api/fpga_api", 'fpga_api', u'OPAE C API', [author], 8),
+    ("docs/fpga_api/fpga_cxx_api", 'fpga_cxx_api', u'OPAE C++ API', [author], 8),
+    ("docs/fpga_api/fpga_python_api", 'fpga_python_api', u'OPAE Python API', [author], 8),
+    ("docs/fpga_api/plug_guide/readme", 'plug_guide', u'OPAE Plugin API', [author], 8),
+    ("docs/fpga_api/prog_guide/readme", 'prog_guide', u'OPAE Programming Guide', [author], 8),
+    ("docs/fpga_api/quick_start/readme", 'quick_start', u'OPAE Quick Start Guide', [author], 8),
+    ("index", 'index', u'Manual page index', [author], 8)
+
 ]
 
 # If true, show URL addresses after external links.
