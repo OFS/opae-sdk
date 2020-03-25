@@ -6,7 +6,7 @@ opae-libs/external export-ignore
 opae-libs/tests export-ignore
 opae-libs/cmake/config/libopae-all.spec.in export-ignore
 opae-libs/cmake/config/run_coverage_test.sh.in export-ignore
-opae-libs/cmake/config/run_coverage_test_local.sh.inexport-ignore
+opae-libs/cmake/config/run_coverage_test_local.sh.in export-ignore
 external export-ignore
 platforms export-ignore
 samples/base export-ignore
