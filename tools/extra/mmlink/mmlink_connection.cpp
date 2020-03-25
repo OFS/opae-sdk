@@ -191,7 +191,7 @@ int mmlink_connection::handle_unbound_command(char *cmd)
 	// if any other input, close
 	char expect_handle[] = "HANDLE 01234567";
 
-	snprintf(expect_handle+7, 8,
+	snprintf(expect_handle+7, 9,
 			"%08X", get_server_id());
 
 	if (0 == strcmp(expect_handle, cmd))
