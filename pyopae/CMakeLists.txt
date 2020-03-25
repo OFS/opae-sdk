@@ -46,7 +46,10 @@ set(PYOPAE_SRC
     pysysobject.cpp
 )
 
-set(PYBIND11_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/pybind11/include)
+opae_external_project_add(PROJECT_NAME pybind11
+                          GIT_URL https://github.com/pybind/pybind11.git
+                          GIT_TAG v2.4.3
+                          )
 
 opae_add_module_library(TARGET _opae
     SOURCE ${PYOPAE_SRC}

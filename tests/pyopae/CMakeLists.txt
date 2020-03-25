@@ -27,7 +27,7 @@
 try_compile(SUPPORTS_EMBEDDED_PYTHON
     ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/test_embed.cpp
     CMAKE_FLAGS
-    "-DINCLUDE_DIRECTORIES=${PYTHON_INCLUDE_DIRS};${OPAE_LIBS_ROOT}/pyopae/pybind11/include"
+    "-DINCLUDE_DIRECTORIES=${PYTHON_INCLUDE_DIRS};${PYBIND11_INCLUDE_DIR}"
     LINK_LIBRARIES ${PYTHON_LIBRARIES}
     OUTPUT_VARIABLE TRY_COMPILE_OUTPUT
 )
@@ -56,7 +56,7 @@ if (SUPPORTS_EMBEDDED_PYTHON)
     target_compile_definitions(test_pyopae PRIVATE
         OPAE_EMBEDDED)
     target_include_directories(test_pyopae
-        PRIVATE ${OPAE_LIBS_ROOT}/pyopae/pybind11/include
+        PRIVATE ${PYBIND11_INCLUDE_DIR}
         PRIVATE ${PYTHON_INCLUDE_DIRS}
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE ${opae-test_ROOT}/framework)
