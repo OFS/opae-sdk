@@ -20,6 +20,7 @@ samples/hello_afu export-ignore
 samples/hello_mpf_afu export-ignore
 samples/intg_xeon_nlb export-ignore
 samples/base export-ignore
+samples/object_api export-ignore
 scripts export-ignore
 tests export-ignore
 tools/fpgametrics export-ignore
