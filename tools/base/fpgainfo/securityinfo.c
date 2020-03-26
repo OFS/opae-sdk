@@ -134,7 +134,7 @@ static void print_security_info(fpga_properties props)
             &bytes_read);
 
     if (bytes_read) {
-        printf("BMC FW Version: ");
+        printf("%-29s : ", "BMC FW Version");
         printf("%s", file_content);
     }
 
@@ -142,7 +142,7 @@ static void print_security_info(fpga_properties props)
     read_string(security_path, SYSFS_SEC_BIP_VER, file_content, &bytes_read);
 
     if (bytes_read) {
-        printf("BIP Version: ");
+        printf("%-29s : ", "BIP Version");
         printf("%s", file_content);
     }
 
@@ -150,7 +150,7 @@ static void print_security_info(fpga_properties props)
     read_string(security_path, SYSFS_SEC_FW_VER, file_content, &bytes_read);
 
     if (bytes_read) {
-        printf("TCM FW Version: ");
+        printf("%-29s : ", "TCM FW Version");
         printf("%s", file_content);
     }
 
@@ -158,43 +158,53 @@ static void print_security_info(fpga_properties props)
             &bytes_read);
 
     if (bytes_read) {
-        printf("Crypto block Version: ");
+        printf("%-29s : ", "Crypto block Version");
         printf("%s", file_content);
     }
 
     // Print programmed hashes
     read_string(security_path, SYSFS_SEC_SR_ROOT, file_content, &bytes_read);
-    printf("FIM/SR root entry hash: %s", file_content);
+    if (bytes_read) {
+        printf("%-29s : %s", "FIM/SR root entry hash", file_content);
+    }
 
     read_string(security_path, SYSFS_SEC_BMC_ROOT, file_content, &bytes_read);
-    printf("BMC root entry hash: %s", file_content);
+    if (bytes_read) {
+        printf("%-29s : %s", "BMC root entry hash", file_content);
+    }
 
     read_string(security_path, SYSFS_SEC_PR_ROOT, file_content, &bytes_read);
-    printf("PR root entry hash: %s", file_content);
+    if (bytes_read) {
+        printf("%-29s : %s", "PR root entry hash", file_content);
+    }
 
     // Print update counters
 
     read_string(security_path, SYSFS_SEC_BMC_FLASH_COUNT, file_content,
             &bytes_read);
-    printf("BMC flash update counter: %s", file_content);
+    if (bytes_read) {
+    	printf("%-29s : %s", "BMC flash update counter", file_content);
+    }
 
     read_string(security_path, SYSFS_SEC_QSPI_COUNT, file_content,
             &bytes_read);
-    printf("User flash update counter: %s", file_content);
+    if (bytes_read) {
+        printf("%-29s : %s", "User flash update counter", file_content);
+    }
 
     // Show canceled CSKs
 
     read_string(security_path, SYSFS_SEC_SR_CANCEL, file_content, &bytes_read);
-    printf("FIM/SR CSK IDs canceled: %s",
+    printf("%-29s : %s", "FIM/SR CSK IDs canceled",
            strlen(file_content) > 1 ? file_content : "None\n");
 
     read_string(security_path, SYSFS_SEC_BMC_CANCEL, file_content,
             &bytes_read);
-    printf("BMC CSK IDs canceled: %s",
+    printf("%-29s : %s", "BMC CSK IDs canceled",
            strlen(file_content) > 1 ? file_content : "None\n");
 
     read_string(security_path, SYSFS_SEC_PR_CANCEL, file_content, &bytes_read);
-    printf("AFU CSK IDs canceled: %s",
+    printf("%-29s : %s", "AFU CSK IDs canceled",
            strlen(file_content) > 1 ? file_content : "None\n");
 
 }
