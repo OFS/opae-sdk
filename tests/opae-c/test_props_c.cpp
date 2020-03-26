@@ -52,6 +52,7 @@ class properties_c_p : public ::testing::TestWithParam<std::string> {
     system_->prepare_syfs(platform_);
 
     filter_ = nullptr;
+    accel_ = nullptr;
     ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
     ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
