@@ -75,15 +75,17 @@ macro(opae_external_project_add)
         endif(result)
     endif()
 
-    if(NOT ${OPAE_EXTERNAL_PROJECT_ADD_NO_ADD_SUBDIRECTORY})
+    set(src_dir
+        ${CMAKE_SOURCE_DIR}/external/${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME})
+    set(bin_dir
+        ${CMAKE_BINARY_DIR}/external/${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME})
+
+    if(NOT ${OPAE_EXTERNAL_PROJECT_ADD_NO_ADD_SUBDIRECTORY} AND EXISTS ${src_dir}/CMakeLists.txt)
         if(${OPAE_EXTERNAL_PROJECT_ADD_EXCLUDE_FROM_ALL})
-            add_subdirectory(${CMAKE_SOURCE_DIR}/external/${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME}
-                             ${CMAKE_BINARY_DIR}/external/${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME}
-                             EXCLUDE_FROM_ALL)
+            add_subdirectory(${src_dir} ${bin_dir} EXCLUDE_FROM_ALL)
         else(${OPAE_EXTERNAL_PROJECT_ADD_EXCLUDE_FROM_ALL})
-            add_subdirectory(${CMAKE_SOURCE_DIR}/external/${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME}
-                             ${CMAKE_BINARY_DIR}/external/${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME})
+            add_subdirectory(${src_dir} ${bin_dir})
         endif(${OPAE_EXTERNAL_PROJECT_ADD_EXCLUDE_FROM_ALL})
-    endif(NOT ${OPAE_EXTERNAL_PROJECT_ADD_NO_ADD_SUBDIRECTORY})
+    endif(NOT ${OPAE_EXTERNAL_PROJECT_ADD_NO_ADD_SUBDIRECTORY} AND EXISTS ${src_dir}/CMakeLists.txt)
 
 endmacro(opae_external_project_add)
