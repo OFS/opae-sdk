@@ -24,11 +24,10 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE
-cmake_minimum_required (VERSION 2.8)
 
 macro(opae_external_project_add)
     set(options EXCLUDE_FROM_ALL NO_ADD_SUBDIRECTORY)
-    set(oneValueArgs PROJECT_NAME GIT_URL GIT_TAG)
+    set(oneValueArgs PROJECT_NAME GIT_URL GIT_TAG PRESERVE_REPOS)
     set(multiValueArgs)
     cmake_parse_arguments(OPAE_EXTERNAL_PROJECT_ADD "${options}"
         "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -57,21 +56,24 @@ macro(opae_external_project_add)
         "    COMMENT \"adding ${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME}\"\n"
         ")\n"
     )
-    execute_process(
-        COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${download_dir})
-    if(result)
-        message(FATAL_ERROR "CMake step for ${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME} failed: ${result}")
-    endif(result)
 
-    execute_process(
-        COMMAND ${CMAKE_COMMAND} --build .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${download_dir})
-    if(result)
-        message(FATAL_ERROR "Build step for ${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME} failed: ${result}")
-    endif(result)
+    if(NOT EXISTS ${CMAKE_SOURCE_DIR}/external/${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME} OR NOT ${OPAE_EXTERNAL_PROJECT_ADD_PRESERVE_REPOS})
+        execute_process(
+            COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+            RESULT_VARIABLE result
+            WORKING_DIRECTORY ${download_dir})
+        if(result)
+            message(FATAL_ERROR "CMake step for ${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME} failed: ${result}")
+        endif(result)
+
+        execute_process(
+            COMMAND ${CMAKE_COMMAND} --build .
+            RESULT_VARIABLE result
+            WORKING_DIRECTORY ${download_dir})
+        if(result)
+            message(FATAL_ERROR "Build step for ${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME} failed: ${result}")
+        endif(result)
+    endif()
 
     if(NOT ${OPAE_EXTERNAL_PROJECT_ADD_NO_ADD_SUBDIRECTORY})
         if(${OPAE_EXTERNAL_PROJECT_ADD_EXCLUDE_FROM_ALL})

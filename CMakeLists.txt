@@ -95,6 +95,9 @@ mark_as_advanced(OPAE_ENABLE_MOCK)
 option(OPAE_BUILD_SIM "Enable building of the AFU simulation environment" OFF)
 mark_as_advanced(OPAE_BUILD_SIM)
 
+option(OPAE_PRESERVE_REPOS "Disable refresh of external repos" OFF)
+mark_as_advanced(OPAE_PRESERVE_REPOS)
+
 ############################################################################
 ## Add Subdirectories ######################################################
 ############################################################################
