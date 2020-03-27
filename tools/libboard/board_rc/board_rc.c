@@ -355,6 +355,7 @@ fpga_result read_sysfs(fpga_token token, char *sysfs_path, char *sysfs_name)
 	uint32_t size                   = 0;
 	char name[FPGA_STR_SIZE]        = { 0, };
 	fpga_object sec_object;
+	size_t len;
 
 	if (sysfs_path == NULL ||
 		sysfs_name == NULL) {
@@ -388,7 +389,8 @@ fpga_result read_sysfs(fpga_token token, char *sysfs_path, char *sysfs_name)
 		goto out_destroy;
 	}
 
-	strncpy(sysfs_name, name, FPGA_STR_SIZE - 1);
+	len = strnlen(name, FPGA_STR_SIZE - 1);
+	strncpy(sysfs_name, name, len + 1);
 
 out_destroy:
 	res = fpgaDestroyObject(&sec_object);
