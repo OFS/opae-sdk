@@ -180,10 +180,10 @@ static void print_security_info(fpga_properties props)
 
     // Print update counters
 
-    read_string(security_path, SYSFS_SEC_BMC_FLASH_COUNT, file_content,
+    read_string(security_path, SYSFS_SEC_SMBUS_COUNT, file_content,
             &bytes_read);
     if (bytes_read) {
-    	printf("%-29s : %s", "BMC flash update counter", file_content);
+    	printf("%-29s : %s", "SMB parameters update counter", file_content);
     }
 
     read_string(security_path, SYSFS_SEC_QSPI_COUNT, file_content,

@@ -42,7 +42,7 @@ extern "C" {
 #define SYSFS_SEC_GLOB "ifpga_sec_mgr/*"
 #define SYSFS_SEC_BIP_VER "security/bip_version"
 #define SYSFS_SEC_BMC_CANCEL "security/bmc_canceled_csks"
-#define SYSFS_SEC_BMC_FLASH_COUNT "security/bmc_flash_count"
+#define SYSFS_SEC_SMBUS_COUNT "security/smbus_flash_count"
 #define SYSFS_SEC_BMC_FWVERS "security/bmcfw_version"
 #define SYSFS_SEC_BMC_ROOT "security/bmc_root_hash"
 #define SYSFS_SEC_CRYPTO_VER "security/crypto_version"
