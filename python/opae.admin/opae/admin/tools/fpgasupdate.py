@@ -109,6 +109,7 @@ def linear_est_apply_tm(tcm, size):
     # Let's over-estimate by 1.5 to account for flash performance degradation
     return 1.5*est
 
+
 def parse_args():
     """Parses command line arguments
     """
