@@ -23,6 +23,8 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
+from __future__ import absolute_import
 import glob
 import os
 import re
@@ -126,7 +128,7 @@ class sysfs_node(loggable):
                            os.path.join(self.sysfs_path, pattern))
             return None
         if len(items) > 1:
-            self.log.warn('found more than one: "%s"', pattern)
+            self.log.warning('found more than one: "%s"', pattern)
         return items[0]
 
     @contextmanager
@@ -428,7 +430,7 @@ class pci_node(sysfs_node):
                                            bus=self.root.bus)
         if os.path.exists(path):
             return sysfs_node(path)
-        self.log.warn('pci_bus not found at %s', path)
+        self.log.warning('pci_bus not found at %s', path)
 
     def remove(self):
         """remove Perform a hot-remove of the PCIe device represented by
@@ -532,7 +534,7 @@ class pci_node(sysfs_node):
         if value > self.sriov_totalvfs:
             msg = 'does not support VFs creater than: {}'.format(
                 self.sriov_totalvfs)
-            self.log.warn(msg)
+            self.log.warning(msg)
             raise ValueError(msg)
         self.node('sriov_numvfs').value = value
 
@@ -550,6 +552,7 @@ class class_node(sysfs_node):
     """class_node A class_node object represents a sysfs object directly
                   under '/sys/class' directory.
     """
+
     def __init__(self, path):
         """__init__ Initializes a new class_node object found in /sys/class/..
 

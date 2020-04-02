@@ -23,6 +23,8 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
+from __future__ import absolute_import
 import errno
 import fcntl
 import os
@@ -60,7 +62,7 @@ class region(sysfs_node):
         with open(self.devpath, mode) as fd:
             try:
                 fcntl.ioctl(fd.fileno(), req, data)
-            except IOError as err:
+            except (IOError, OSError) as err:
                 self.log.exception('error calling ioctl: %s', err)
                 raise
             else:
@@ -122,7 +124,8 @@ class flash_control(loggable):
                 continue
 
             if len(mtds) > 1:
-                self.log.warn('found more than one: "/mtd/mtdX"')
+                self.log.warning('found more than one: "/mtd/mtdX"')
+
             return device_path(mtds[0])
 
         msg = 'timeout waiting for %s to appear' % (self._mtd_pattern)
@@ -278,7 +281,7 @@ class fme(region):
             mtds = self.altr_asmip.find_all('mtd/mtd*')
             mtd = [m for m in mtds if m.sysfs_path[-2:] != 'ro']
             if len(mtd) > 1:
-                self.log.warn('found more than one: "/mtd/mtdX"')
+                self.log.warning('found more than one: "/mtd/mtdX"')
             return [flash_control(mtd_dev=os.path.basename(mtd[0].sysfs_path))]
 
     @property
@@ -472,8 +475,8 @@ class fpga(class_node):
                                        {}).get(boot_type, {}).get('user')
 
         if page is None:
-            self.log.warn('rsu not supported by device: %s',
-                          self.pci_node.pci_id)
+            self.log.warning('rsu not supported by device: %s',
+                             self.pci_node.pci_id)
             return
 
         if boot_type not in fpga.BOOT_TYPES:
@@ -489,8 +492,8 @@ class fpga(class_node):
         # if for some reason it can't be found, do a full system rescan
         to_rescan = self.pci_node.pci_bus
         if not to_rescan:
-            self.log.warn(('cannot find pci bus to rescan, will do a '
-                           'system pci rescan'))
+            self.log.warning(('cannot find pci bus to rescan, will do a '
+                              'system pci rescan'))
             to_rescan = sysfs_node('/sys/bus/pci')
 
         with self.disable_aer(*to_disable):
