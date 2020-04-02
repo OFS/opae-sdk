@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # Copyright(c) 2019, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -25,6 +25,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import absolute_import
 import argparse
 import struct
 import fnmatch
@@ -837,13 +838,13 @@ def validate_bdf(bdf, bdf_pvid_map):
             print("Must specify a bdf. More than one device found.")
             print_bdf_mtd_mapping(bdf_pvid_map)
         else:
-            bdf = bdf_pvid_map.keys()[0]
+            bdf = list(bdf_pvid_map.keys())[0]
     else:
         bdf = normalize_bdf(bdf)
         if not bdf:
             print("{} is an invalid bdf".format(bdf))
             sys.exit(1)
-        elif bdf not in bdf_pvid_map.keys():
+        elif bdf not in list(bdf_pvid_map.keys()):
             print("Could not find fpga device for {}".format(bdf))
             print_bdf_mtd_mapping(bdf_pvid_map)
 
@@ -1271,7 +1272,7 @@ def main():
     if not args.yes and \
        args.type in ['factory', 'factory_only', 'bmc_factory']:
         msg = "Are you sure you want to perform a factory update? [Yes/No]"
-        line = raw_input(msg)
+        line = input(msg)
         if line != "Yes":
             sys.exit(1)
 

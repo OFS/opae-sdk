@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # Copyright(c) 2019, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -27,6 +27,7 @@
 
 """Program PAC firmware"""
 
+from __future__ import absolute_import
 import argparse
 import os
 import sys
@@ -50,6 +51,12 @@ from opae.admin.version import pretty_version
 
 if sys.version_info[0] == 2:
     input = raw_input  # noqa pylint: disable=E0602
+
+    def uuid_from_bytes(blob):
+        return uuid.UUID(bytes=[b for b in reversed(blob)])
+else:
+    def uuid_from_bytes(blob):
+        return uuid.UUID(bytes=blob)
 
 DEFAULT_BDF = 'ssss:bb:dd.f'
 
@@ -101,7 +108,6 @@ def linear_est_apply_tm(tcm, size):
         est = size/FLASH_COPY_BPS
     # Let's over-estimate by 1.5 to account for flash performance degradation
     return 1.5*est
-
 
 def parse_args():
     """Parses command line arguments
@@ -166,9 +172,7 @@ def decode_gbs_header(infile):
     # 0x000     16  valid_gbs_guid
     # 0x010      4  metadata_length
 
-    ba = bytearray(hdr[:16])
-    ba.reverse()
-    valid_gbs_guid = uuid.UUID(bytes=bytes(ba))
+    valid_gbs_guid = uuid_from_bytes(hdr[:16])
 
     if valid_gbs_guid != VALID_GBS_GUID:
         infile.seek(orig_pos, os.SEEK_SET)
@@ -724,7 +728,7 @@ def main():
                     stat, mesg = update_fw(descr, args, pac)
         except SecureUpdateError as exc:
             stat, mesg = exc.errno, exc.strerror
-        except KeyboardInterrupt as kb_interrupt:
+        except KeyboardInterrupt:
             with sec_dev as descr:
                 try:
                     fcntl.ioctl(descr, IOCTL_IFPGA_SECURE_UPDATE_CANCEL)

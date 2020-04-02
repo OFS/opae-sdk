@@ -28,7 +28,7 @@ cmake_minimum_required (VERSION 2.8.12)
 
 # projectname is the same as the main-executable
 project(opae.admin)
-set(OPAE_ADMIN_RPM_RELEASE 3)
+set(OPAE_ADMIN_RPM_RELEASE 2)
 set (ADMIN_STAGE_DIR ${CMAKE_CURRENT_BINARY_DIR}/stage)
 find_program (RPM_BUILD
     rpmbuild
