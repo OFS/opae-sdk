@@ -311,7 +311,7 @@ static platform_db MOCK_PLATFORMS = {
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
                        .mdata = vc_mdata}}}},
    {"dcp-vc-dfl0",
-     test_platform{.mock_sysfs = "",
+     test_platform{.mock_sysfs = "mock_sys_tmp-dcp-vc-dfl0_patchset2-nlb0.tar.gz",
                    .driver = fpga_driver::linux_dfl0,
                    .devices = {test_device{
                        .fme_guid = "CF9B1C50-37C9-45E9-8030-F921B17D2B3A",
