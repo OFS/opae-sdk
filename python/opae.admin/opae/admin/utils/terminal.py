@@ -1,4 +1,4 @@
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2019-2020, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -28,7 +28,10 @@ import os
 import struct
 from sys import platform as _platform
 from ctypes import (byref, c_short, c_ushort, create_string_buffer,
-                    windll, Structure)
+                    Structure)
+
+if _platform == "win32" or _platform == "win64":
+    from ctypes import windll
 
 
 class MSG_TYPE:
