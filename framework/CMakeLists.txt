@@ -117,5 +117,8 @@ if(OPAE_ENABLE_MOCK)
         COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dcp-rc-dfl0_patchset2-nlb0.tar.gz
             ${CMAKE_BINARY_DIR}
+        COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dcp-vc-dfl0_patchset2-nlb0.tar.gz
+            ${CMAKE_BINARY_DIR}
     )
 endif(OPAE_ENABLE_MOCK)
