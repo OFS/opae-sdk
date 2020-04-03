@@ -666,6 +666,8 @@ class class_node(sysfs_node):
         log = LOG(cls.__name__)
 
         def func(obj):
+            if hasattr(cls, 'class_filter') and not cls.class_filter(obj):
+                return False
             for f in filt:
                 for k, v in f.items():
                     cur_obj = obj

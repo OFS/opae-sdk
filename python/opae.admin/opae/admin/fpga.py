@@ -368,9 +368,10 @@ class avmmi_bmc(region):
             raise IOError('bad completion code: 0x{:8x}'.format(ccode))
 
 
-class fpga(class_node):
+class fpga_base(class_node):
     FME_PATTERN = 'intel-fpga-fme.*'
     PORT_PATTERN = 'intel-fpga-port.*'
+    PCI_DRIVER = 'intel-fpga-pci'
     BOOT_TYPES = ['bmcimg', 'fpga']
     BOOT_PAGES = {
         (0x8086, 0x0b30): {'fpga': {'user': 1,
@@ -381,7 +382,7 @@ class fpga(class_node):
     }
 
     def __init__(self, path):
-        super(fpga, self).__init__(path)
+        super(fpga_base, self).__init__(path)
 
     @property
     def fme(self):
@@ -446,7 +447,7 @@ class fpga(class_node):
         if kwargs:
             self.log.exception('unrecognized kwargs: %s', kwargs)
             raise ValueError('unrecognized kwargs: {}'.format(kwargs))
-        if boot_type not in fpga.BOOT_TYPES:
+        if boot_type not in self.BOOT_TYPES:
             raise TypeError('type: {} not recognized'.format(boot_type))
 
         node_path = '{boot_type}_flash_ctrl/{boot_type}_image_load'.format(
@@ -479,7 +480,7 @@ class fpga(class_node):
                              self.pci_node.pci_id)
             return
 
-        if boot_type not in fpga.BOOT_TYPES:
+        if boot_type not in self.BOOT_TYPES:
             raise TypeError('type: {} not recognized'.format(boot_type))
 
         if boot_type == 'fpga':
@@ -514,3 +515,30 @@ class fpga(class_node):
             time.sleep(wait_time)
             self.log.info('rescanning PCIe bus: %s', to_rescan.sysfs_path)
             to_rescan.node('rescan').value = 1
+
+
+class fpga_region(fpga_base):
+    FME_PATTERN = 'dfl-fme.*'
+    PORT_PATTERN = 'dfl-port.*'
+    PCI_DRIVER = 'dfl-pci'
+
+    @classmethod
+    def class_filter(cls, node):
+        if not node.have_node('device'):
+            return False
+        if 'dfl-fme-region' in os.readlink(node.node('device').sysfs_path):
+            return False
+        return True
+
+
+class fpga(fpga_base):
+    _drivers = [fpga_region, fpga_base]
+
+    @classmethod
+    def enum(cls, filt=[]):
+        for drv in cls._drivers:
+            drv_path = os.path.join('/sys/bus/pci/drivers', drv.PCI_DRIVER)
+            if os.path.exists(drv_path):
+                return drv.enum(filt)
+
+        print('no fpga drivers loaded')
