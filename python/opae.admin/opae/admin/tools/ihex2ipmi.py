@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # Copyright(c) 2019, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -27,6 +27,7 @@
 
 """ Convert ihex file into FPGA bitstream file """
 
+from __future__ import absolute_import
 import argparse
 import struct
 import sys

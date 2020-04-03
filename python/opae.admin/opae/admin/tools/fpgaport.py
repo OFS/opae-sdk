@@ -23,6 +23,7 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+from __future__ import absolute_import
 import argparse
 import logging
 import os
@@ -55,32 +56,32 @@ def set_numvfs(device, value):
     try:
         device.pci_node.sriov_numvfs = value
     except ValueError as err:
-        LOG.warn('error setting num_sriov: "%s"', err)
+        LOG.warning('error setting num_sriov: "%s"', err)
 
 
 def assign(args, device):
     destroy_vfs = args.numvfs == 0 or args.destroy_vfs
     if not destroy_vfs and device.pci_node.sriov_numvfs:
-        LOG.warn('Device (%s) has VFs, skipping...', device.pci_node)
+        LOG.warning('Device (%s) has VFs, skipping...', device.pci_node)
         return
     numvfs = device.pci_node.sriov_numvfs
     set_numvfs(device, 0)
     try:
         device.fme.assign_port(args.port)
     except (OSError, IOError) as err:
-        LOG.warn('assiging port %d for device %s: %s', args.port,
-                 device.pci_node, err)
+        LOG.warning('assiging port %d for device %s: %s', args.port,
+                    device.pci_node, err)
         set_numvfs(device, numvfs)
 
 
 def release(args, device):
     if args.destroy_vfs:
-        LOG.warn('--destroy-vfs only applicable with "assign"')
+        LOG.warning('--destroy-vfs only applicable with "assign"')
     try:
         device.fme.release_port(args.port)
     except (OSError, IOError) as err:
-        LOG.warn('releasing port %d for device %s: %s', args.port,
-                 device.pci_node, err)
+        LOG.warning('releasing port %d for device %s: %s', args.port,
+                    device.pci_node, err)
     else:
         if args.numvfs:
             set_numvfs(device, args.numvfs)
@@ -93,7 +94,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('action', action='store',
                         choices=sorted(actions.keys()),
-                        help='Action to perform - {}'.format(actions.keys()))
+                        help='Action to perform - {}'.format(
+                            list(actions.keys())))
     parser.add_argument('device',
                         help=('The FPGA (FME) device.'
                               'Can be identified by dev path (/dev/*fme.0) '
