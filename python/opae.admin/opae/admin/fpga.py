@@ -33,15 +33,15 @@ import time
 
 from array import array
 from contextlib import contextmanager
-from opae.admin.path import device_path
+from opae.admin.path import device_path, sysfs_path
 from opae.admin.sysfs import class_node, sysfs_node
 from opae.admin.utils.log import loggable
 from opae.admin.utils import max10_or_nios_version
 
 
 class region(sysfs_node):
-    def __init__(self, sysfs_path, pci_node):
-        super(region, self).__init__(sysfs_path)
+    def __init__(self, path, pci_node):
+        super(region, self).__init__(path)
         self._pci_node = pci_node
         self._fd = -1
 
@@ -539,7 +539,7 @@ class fpga(fpga_base):
     @classmethod
     def enum(cls, filt=[]):
         for drv in cls._drivers:
-            drv_path = os.path.join('/sys/bus/pci/drivers', drv.PCI_DRIVER)
+            drv_path = sysfs_path('/sys/bus/pci/drivers', drv.PCI_DRIVER)
             if os.path.exists(drv_path):
                 return drv.enum(filt)
 
