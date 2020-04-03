@@ -372,6 +372,7 @@ class fpga_base(class_node):
     FME_PATTERN = 'intel-fpga-fme.*'
     PORT_PATTERN = 'intel-fpga-port.*'
     PCI_DRIVER = 'intel-fpga-pci'
+    SYSFS_CLASS = 'fpga'
     BOOT_TYPES = ['bmcimg', 'fpga']
     BOOT_PAGES = {
         (0x8086, 0x0b30): {'fpga': {'user': 1,
@@ -521,6 +522,7 @@ class fpga_region(fpga_base):
     FME_PATTERN = 'dfl-fme.*'
     PORT_PATTERN = 'dfl-port.*'
     PCI_DRIVER = 'dfl-pci'
+    SYSFS_CLASS = 'fpga_region'
 
     @classmethod
     def class_filter(cls, node):
