@@ -633,6 +633,17 @@ class class_node(sysfs_node):
         return nodes
 
     @classmethod
+    def class_filter(cls, node):
+        """class_filter Run a class specific filter in enum_class.
+
+        Args:
+            node: A sysfs node to consider for filtering.
+        Returns:
+            True if the node should be kept, false otherwise.
+        """
+        return True
+
+    @classmethod
     def enum(cls, filt=[]):
         """enum Discover and return a list of class_node-derived objects given
                 a filter.
@@ -666,7 +677,8 @@ class class_node(sysfs_node):
         log = LOG(cls.__name__)
 
         def func(obj):
-            if hasattr(cls, 'class_filter') and not cls.class_filter(obj):
+            # if this node is not valid, reject it
+            if not cls.class_filter(obj):
                 return False
             for f in filt:
                 for k, v in f.items():
