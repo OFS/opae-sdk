@@ -552,6 +552,7 @@ class class_node(sysfs_node):
     """class_node A class_node object represents a sysfs object directly
                   under '/sys/class' directory.
     """
+    SYSFS_CLASS = None
 
     def __init__(self, path):
         """__init__ Initializes a new class_node object found in /sys/class/..
