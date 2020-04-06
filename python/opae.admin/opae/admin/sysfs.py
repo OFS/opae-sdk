@@ -552,6 +552,7 @@ class class_node(sysfs_node):
     """class_node A class_node object represents a sysfs object directly
                   under '/sys/class' directory.
     """
+    SYSFS_CLASS = None
 
     def __init__(self, path):
         """__init__ Initializes a new class_node object found in /sys/class/..
@@ -633,6 +634,17 @@ class class_node(sysfs_node):
         return nodes
 
     @classmethod
+    def class_filter(cls, node):
+        """class_filter Run a class specific filter in enum_class.
+
+        Args:
+            node: A sysfs node to consider for filtering.
+        Returns:
+            True if the node should be kept, false otherwise.
+        """
+        return True
+
+    @classmethod
     def enum(cls, filt=[]):
         """enum Discover and return a list of class_node-derived objects given
                 a filter.
@@ -666,6 +678,9 @@ class class_node(sysfs_node):
         log = LOG(cls.__name__)
 
         def func(obj):
+            # if this node is not valid, reject it
+            if not cls.class_filter(obj):
+                return False
             for f in filt:
                 for k, v in f.items():
                     cur_obj = obj
@@ -687,4 +702,4 @@ class class_node(sysfs_node):
                         if attr_value != v:
                             return False
             return True
-        return list(filter(func, cls.enum_class(cls.__name__, cls)))
+        return list(filter(func, cls.enum_class(cls.SYSFS_CLASS, cls)))
