@@ -173,7 +173,7 @@ class jsondb(object):
         if (not isinstance(db, dict) and not isinstance(db, list)):
             return db
 
-        for k, v in db.iteritems():
+        for k, v in db.items():
             if (k == '...'):
                 path = os.path.join(os.path.dirname(json_fname), v)
                 return self.__loadJsonDbWithIncludes(path, json_fname)
@@ -199,7 +199,7 @@ class jsondb(object):
     def __mergeDbs(self, db, db_child, module_port_key):
         # Copy everything from the child that isn't a module ports.
         # Ports are special.  They will be checked by class.
-        for k in db_child.keys():
+        for k in list(db_child.keys()):
             if (k != module_port_key):
                 db[k] = db_child[k]
 
@@ -210,7 +210,7 @@ class jsondb(object):
         elif (module_port_key in db_child):
             # Both databases have module ports.  Overwrite any parent entries
             # with matching classes.
-            for k in db_child[module_port_key].keys():
+            for k in list(db_child[module_port_key].keys()):
                 db[module_port_key][k] = db_child[module_port_key][k]
 
         return db
@@ -309,7 +309,7 @@ class jsondb(object):
 
         # Walk the module ports list
         classes_seen = dict()
-        for port in db[ports_key].values():
+        for port in list(db[ports_key].values()):
             # Default optional is False
             if ('optional' not in port):
                 port['optional'] = False
@@ -375,7 +375,7 @@ class jsondb(object):
                             ("module port class '{0}:{1}' max-entries " +
                              "must be defined in {2}").format(
                                  port['class'], port['interface'], fname))
-                    port['max-entries'] = sys.maxint
+                    port['max-entries'] = sys.maxsize
                 if (port['max-entries'] < port['min-entries']):
                     self.__errorExit(
                         ("module port class '{0}:{1}' max-entries " +
@@ -414,7 +414,7 @@ class jsondb(object):
                               "dictionary.").format(fname))
 
         # Each class in module-port-params must also be a dictionary
-        for c in params.keys():
+        for c in list(params.keys()):
             if (c == 'comment'):
                 None   # Ignore comments
             else:
