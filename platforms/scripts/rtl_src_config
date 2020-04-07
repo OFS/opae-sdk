@@ -104,7 +104,13 @@ def emitCfg(opts, cfg):
     # Filtering for specific file types?
     file_type_filter = opts.qsys or opts.ipx or opts.json or opts.tcl
 
+    rel_prefix = ''
     if (not file_type_filter):
+        if (not opts.sim and not opts.abs):
+            # For Quartus, generate a Tcl variable for relative paths
+            print('set THIS_DIR [file dirname [info script]]\n')
+            rel_prefix = '${THIS_DIR}/'
+
         # First emit all preprocessor configuration
         for c in cfg:
             if ("+define+" == c[:8]):
@@ -120,8 +126,8 @@ def emitCfg(opts, cfg):
                 if (opts.sim):
                     print(c)
                 else:
-                    print('set_global_assignment -name SEARCH_PATH "' +
-                          c[8:] + '"')
+                    print('set_global_assignment -name SEARCH_PATH "{0}{1}"'
+                          .format(rel_prefix, c[8:]))
 
     # Emit sources and Quartus/simulator includes
     for c in cfg:
@@ -137,7 +143,7 @@ def emitCfg(opts, cfg):
         elif ("QI:" == c[:3]):
             # Quartus include
             if (not opts.sim and not file_type_filter):
-                print("source " + c[3:])
+                print('source "{0}{1}"'.format(rel_prefix, c[3:]))
         else:
             validateTag(c)
             tag = lookupTag(c, quartus_tag_map)
@@ -162,8 +168,8 @@ def emitCfg(opts, cfg):
                 # and ignore them in Quartus flows. To get a .tcl
                 # file in Quartus, use QI:<path to>.tcl.
                 if (tag is not 'SOURCE_TCL_SCRIPT_FILE'):
-                    print('set_global_assignment -name {0} "{1}"'
-                          .format(tag, c))
+                    print('set_global_assignment -name {0} "{1}{2}"'
+                          .format(tag, rel_prefix, c))
 
 
 #

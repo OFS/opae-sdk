@@ -387,6 +387,9 @@ def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
     emitHeader(f, afu_ifc_db, platform_db, comment="##")
 
+    f.write('# Directory of this script for relative paths\n')
+    f.write('set THIS_DIR [file dirname [info script]]\n\n')
+
     f.write('namespace eval platform_cfg {\n')
     f.write("    variable PLATFORM_CLASS_NAME \"" +
             platform_db['platform-name'] + "\"\n")
@@ -417,8 +420,8 @@ def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
     if (args.platform_if):
         f.write(
-            "set_global_assignment -name SOURCE_TCL_SCRIPT_FILE " +
-            "{0}/par/platform_if_addenda.qsf\n".format(args.platform_if))
+            'set_global_assignment -name SOURCE_TCL_SCRIPT_FILE "' +
+            '{0}/par/platform_if_addenda.qsf"\n'.format(args.platform_if))
     f.close()
 
 
