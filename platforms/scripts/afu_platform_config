@@ -630,11 +630,12 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
 
     # Now that arguments are parsed, canonicalize the ofs_plat_if. If it
     # hasn't been changed from the default then make the path relative
-    # to the build directory. The tree will be copied into the AFU's build
+    # to the platform directory. The tree will be copied into the AFU's build
     # tree. Using the local copy makes the AFU build tree easier to package.
     if (args.qsf and args.platform_if and
             (args.platform_if == ofs_plat_if_default)):
-        args.platform_if = 'platform/ofs_plat_if'
+        # The generated script will set THIS_DIR to the script's directory
+        args.platform_if = '${THIS_DIR}/ofs_plat_if'
 
     # Load the platform database
     platform = jsondb(args.platform, platform_db_path, 'platform', args.quiet)
