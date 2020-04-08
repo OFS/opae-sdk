@@ -42,7 +42,7 @@ DESCRIPTION = 'Intel OPAE FPGA Packager'
 VERSION = "@OPAE_VERSION@"
 
 try:
-    assert sys.version_info >= (2, 7) and sys.version_info < (3, 0, 0)
+    assert sys.version_info >= (2, 7)
 except AssertionError:
     print(DESCRIPTION + " requires Python 2 version 2.7+")
     sys.exit(1)

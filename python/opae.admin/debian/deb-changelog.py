@@ -1,5 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
+from __future__ import absolute_import
 import argparse
 import re
 import subprocess

@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # Copyright(c) 2019, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -27,6 +27,7 @@
 
 """Perform One-Time Secure Update for PAC devices."""
 
+from __future__ import absolute_import
 import argparse
 import sys
 import logging
@@ -79,7 +80,7 @@ def all_or_none(obj, *keys):
     """Determine if all keys present or absent in obj."""
     values = [obj.get(key) for key in keys]
     if any(values) and not all(values):
-        pairs = zip(keys, values)
+        pairs = list(zip(keys, values))
         present = [k for k, v in pairs if v is not None]
         missing = [k for k, v in pairs if v is None]
         raise KeyError('"flash" key "%s" requires "%s"' %
@@ -344,7 +345,6 @@ class otsu_updater(object):
                          obj['type'], start, (end + 1) - start,
                          os.path.basename(filename))
 
-                infile.seek(seek)
                 if infile.tell() != seek:
                     raise IOError('failed to seek in input file %s: 0x%x' %
                                   (os.path.basename(filename), seek))

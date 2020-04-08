@@ -23,6 +23,7 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+from __future__ import absolute_import
 import fcntl
 import os
 import shutil
@@ -77,7 +78,7 @@ class mtd(loggable):
               warning and close the current file object.
         """
         if self._fp is not None:
-            self.log.warn('device is currently open, closing')
+            self.log.warning('device is currently open, closing')
             self._fp.close()
         self._fp = open(self._devpath, mode)
         return self
@@ -96,7 +97,7 @@ class mtd(loggable):
         """
         if self._fp is not None:
             return self._fp.fileno()
-        self.log.warn('mtd device (%s) is not open', self._devpath)
+        self.log.warning('mtd device (%s) is not open', self._devpath)
         return -1
 
     @property
@@ -263,8 +264,8 @@ class mtd(loggable):
                 dest.write(chunk)
                 n_read = len(chunk)
                 if n_read < n_bytes:
-                    self.log.warn('read %d less bytes than requested',
-                                  n_bytes - n_read)
+                    self.log.warning('read %d less bytes than requested',
+                                     n_bytes - n_read)
                 offset += n_read
                 prg.update(offset)
 

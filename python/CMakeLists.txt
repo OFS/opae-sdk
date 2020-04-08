@@ -37,7 +37,7 @@ set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3.6 3.5 3.4 3.3)
 find_package(PythonInterp ${OPAE_PYTHON_VERSION})
 find_package(PythonLibs ${OPAE_PYTHON_VERSION})
 
-set(INTEL_SECURITY_TOOLS_VERSION 1.0.2 CACHE STRING "Security Tools Version string")
+set(INTEL_SECURITY_TOOLS_VERSION 1.0.3 CACHE STRING "Security Tools Version string")
 
 add_subdirectory(opae.admin)
 

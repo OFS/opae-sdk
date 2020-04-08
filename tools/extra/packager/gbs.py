@@ -122,7 +122,9 @@ class GBS:
         if not gbs_file:
             gbs_file = self.filename + GBS_EXT
 
-        gbs_file_header = bytearray(self.get_gbs_metadata())
+        decoded_bytes = [c if isinstance(c, int) else ord(c)
+                         for c in self.get_gbs_metadata()]
+        gbs_file_header = bytearray(decoded_bytes)
 
         with open(gbs_file, 'wb') as gbs:
             gbs.write(gbs_file_header + self.rbf)

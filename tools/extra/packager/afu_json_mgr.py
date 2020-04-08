@@ -37,12 +37,6 @@ from afu import AFU
 AFU_JSON_MGR_EXEC = "afu_json_mgr"
 DESCRIPTION = 'Intel FPGA AFU JSON Manager'
 
-try:
-    assert sys.version_info >= (2, 7) and sys.version_info < (3, 0, 0)
-except AssertionError:
-    print(DESCRIPTION + " requires Python 2 version 2.7+")
-    sys.exit(1)
-
 USAGE = """
 {0}
 
@@ -107,7 +101,7 @@ def flatten_json(subargs):
 
     entries = dict()
 
-    emit_types = (int, bool, str, unicode, float)
+    emit_types = (int, bool, str, str, float)
     # Don't emit some keys.  For example, user clock frequency may not be
     # known at compile time, so avoid emitting potentially false information.
     skip_keys = ['clock-frequency-low', 'clock-frequency-high']

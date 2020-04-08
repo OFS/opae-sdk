@@ -122,7 +122,7 @@ def matchAfuPorts(args, afu_ifc_db, platform_db):
             print("    {0}:{1}".format(r['class'], r['interface']))
 
     # Ports requested by the AFU
-    for port in afu_ifc_db['module-ports'].values():
+    for port in list(afu_ifc_db['module-ports'].values()):
         plat_match = None
 
         # Ports offered by the platform
@@ -163,13 +163,13 @@ def matchAfuPorts(args, afu_ifc_db, platform_db):
                 # Both are vectors.  Pick a size, starting with either the most
                 # the platform will offer or the default number, depending on
                 # whether the AFU requested a specific number.
-                if ((port['max-entries'] == sys.maxint) and
+                if ((port['max-entries'] == sys.maxsize) and
                     ('default-entries' in port) and
                     (port['default-entries'] >= plat_match['min-entries']) and
                     (port['default-entries'] <=
                      plat_match['max-entries'])):
                     entries = port['default-entries']
-                elif ((port['max-entries'] == sys.maxint) and
+                elif ((port['max-entries'] == sys.maxsize) and
                       ('default-entries' in plat_match) and
                       (plat_match['default-entries'] >= port['min-entries'])):
                     entries = plat_match['default-entries']
@@ -350,7 +350,7 @@ def injectAfuIfcChanges(args, afu_ifc_db, afu_ifc_req):
         else:
             # Yes, this is an update of a port already defined.
             # Restrict the fields it may update.
-            for k in port.keys():
+            for k in list(port.keys()):
                 if (k != 'class'):
                     # Only legal_afu_ifc_update_classes may be modified by the
                     # AFU's JSON database
@@ -630,11 +630,12 @@ Platform database directories (OPAE_PLATFORM_DB_PATH):
 
     # Now that arguments are parsed, canonicalize the ofs_plat_if. If it
     # hasn't been changed from the default then make the path relative
-    # to the build directory. The tree will be copied into the AFU's build
+    # to the platform directory. The tree will be copied into the AFU's build
     # tree. Using the local copy makes the AFU build tree easier to package.
     if (args.qsf and args.platform_if and
             (args.platform_if == ofs_plat_if_default)):
-        args.platform_if = 'platform/ofs_plat_if'
+        # The generated script will set THIS_DIR to the script's directory
+        args.platform_if = '${THIS_DIR}/ofs_plat_if'
 
     # Load the platform database
     platform = jsondb(args.platform, platform_db_path, 'platform', args.quiet)

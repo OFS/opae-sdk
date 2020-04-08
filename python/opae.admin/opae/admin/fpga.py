@@ -23,6 +23,8 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
+from __future__ import absolute_import
 import errno
 import fcntl
 import os
@@ -31,15 +33,15 @@ import time
 
 from array import array
 from contextlib import contextmanager
-from opae.admin.path import device_path
+from opae.admin.path import device_path, sysfs_path
 from opae.admin.sysfs import class_node, sysfs_node
 from opae.admin.utils.log import loggable
 from opae.admin.utils import max10_or_nios_version
 
 
 class region(sysfs_node):
-    def __init__(self, sysfs_path, pci_node):
-        super(region, self).__init__(sysfs_path)
+    def __init__(self, path, pci_node):
+        super(region, self).__init__(path)
         self._pci_node = pci_node
         self._fd = -1
 
@@ -60,7 +62,7 @@ class region(sysfs_node):
         with open(self.devpath, mode) as fd:
             try:
                 fcntl.ioctl(fd.fileno(), req, data)
-            except IOError as err:
+            except (IOError, OSError) as err:
                 self.log.exception('error calling ioctl: %s', err)
                 raise
             else:
@@ -122,7 +124,8 @@ class flash_control(loggable):
                 continue
 
             if len(mtds) > 1:
-                self.log.warn('found more than one: "/mtd/mtdX"')
+                self.log.warning('found more than one: "/mtd/mtdX"')
+
             return device_path(mtds[0])
 
         msg = 'timeout waiting for %s to appear' % (self._mtd_pattern)
@@ -203,6 +206,8 @@ class fme(region):
 
     @property
     def spi_bus(self):
+        if os.path.basename(self.sysfs_path).startswith('dfl'):
+            return self.find_one('dfl-fme.*.*/spi*/spi_master/spi*/spi*')
         return self.find_one('spi*/spi_master/spi*/spi*')
 
     @property
@@ -278,7 +283,7 @@ class fme(region):
             mtds = self.altr_asmip.find_all('mtd/mtd*')
             mtd = [m for m in mtds if m.sysfs_path[-2:] != 'ro']
             if len(mtd) > 1:
-                self.log.warn('found more than one: "/mtd/mtdX"')
+                self.log.warning('found more than one: "/mtd/mtdX"')
             return [flash_control(mtd_dev=os.path.basename(mtd[0].sysfs_path))]
 
     @property
@@ -365,9 +370,11 @@ class avmmi_bmc(region):
             raise IOError('bad completion code: 0x{:8x}'.format(ccode))
 
 
-class fpga(class_node):
+class fpga_base(class_node):
     FME_PATTERN = 'intel-fpga-fme.*'
     PORT_PATTERN = 'intel-fpga-port.*'
+    PCI_DRIVER = 'intel-fpga-pci'
+    SYSFS_CLASS = 'fpga'
     BOOT_TYPES = ['bmcimg', 'fpga']
     BOOT_PAGES = {
         (0x8086, 0x0b30): {'fpga': {'user': 1,
@@ -378,7 +385,7 @@ class fpga(class_node):
     }
 
     def __init__(self, path):
-        super(fpga, self).__init__(path)
+        super(fpga_base, self).__init__(path)
 
     @property
     def fme(self):
@@ -443,7 +450,7 @@ class fpga(class_node):
         if kwargs:
             self.log.exception('unrecognized kwargs: %s', kwargs)
             raise ValueError('unrecognized kwargs: {}'.format(kwargs))
-        if boot_type not in fpga.BOOT_TYPES:
+        if boot_type not in self.BOOT_TYPES:
             raise TypeError('type: {} not recognized'.format(boot_type))
 
         node_path = '{boot_type}_flash_ctrl/{boot_type}_image_load'.format(
@@ -472,11 +479,11 @@ class fpga(class_node):
                                        {}).get(boot_type, {}).get('user')
 
         if page is None:
-            self.log.warn('rsu not supported by device: %s',
-                          self.pci_node.pci_id)
+            self.log.warning('rsu not supported by device: %s',
+                             self.pci_node.pci_id)
             return
 
-        if boot_type not in fpga.BOOT_TYPES:
+        if boot_type not in self.BOOT_TYPES:
             raise TypeError('type: {} not recognized'.format(boot_type))
 
         if boot_type == 'fpga':
@@ -489,8 +496,8 @@ class fpga(class_node):
         # if for some reason it can't be found, do a full system rescan
         to_rescan = self.pci_node.pci_bus
         if not to_rescan:
-            self.log.warn(('cannot find pci bus to rescan, will do a '
-                           'system pci rescan'))
+            self.log.warning(('cannot find pci bus to rescan, will do a '
+                              'system pci rescan'))
             to_rescan = sysfs_node('/sys/bus/pci')
 
         with self.disable_aer(*to_disable):
@@ -511,3 +518,31 @@ class fpga(class_node):
             time.sleep(wait_time)
             self.log.info('rescanning PCIe bus: %s', to_rescan.sysfs_path)
             to_rescan.node('rescan').value = 1
+
+
+class fpga_region(fpga_base):
+    FME_PATTERN = 'dfl-fme.*'
+    PORT_PATTERN = 'dfl-port.*'
+    PCI_DRIVER = 'dfl-pci'
+    SYSFS_CLASS = 'fpga_region'
+
+    @classmethod
+    def class_filter(cls, node):
+        if not node.have_node('device'):
+            return False
+        if 'dfl-fme-region' in os.readlink(node.node('device').sysfs_path):
+            return False
+        return True
+
+
+class fpga(fpga_base):
+    _drivers = [fpga_region, fpga_base]
+
+    @classmethod
+    def enum(cls, filt=[]):
+        for drv in cls._drivers:
+            drv_path = sysfs_path('/sys/bus/pci/drivers', drv.PCI_DRIVER)
+            if os.path.exists(drv_path):
+                return drv.enum(filt)
+
+        print('no fpga drivers loaded')

@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # Copyright(c) 2019-2020, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -24,6 +24,7 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+from __future__ import absolute_import
 import glob
 import json
 import logging
@@ -161,7 +162,7 @@ def ignore_signals(*signals):
         try:
             signal.signal(s, signal.SIG_IGN)
         except ValueError:
-            LOG.warn('signal (%s) cannot be ignored', s)
+            LOG.warning('signal (%s) cannot be ignored', s)
         else:
             handlers[s] = signal.getsignal(s)
     try:
@@ -428,7 +429,7 @@ class pac(object):
         if isinstance(node, pci_node):
             self._pci_node = node
         else:
-            LOG.warn('pci_node value not compatible')
+            LOG.warning('pci_node value not compatible')
 
     @property
     def fpga(self):
@@ -589,8 +590,8 @@ class pac(object):
                 flash_type = flash_info['type']
                 flashed = self.get_flashable(flash_type)
                 if flashed is None:
-                    LOG.warn('could not find flashable for entry: %s',
-                             flash_info)
+                    LOG.warning('could not find flashable for entry: %s',
+                                flash_info)
                     continue
 
                 if flashed.is_factory or not flashed.can_verify:
@@ -639,8 +640,8 @@ class pac(object):
             LOG.debug('[%s] - %s = %s', self.pci_node.bdf,
                       k, value)
             if value < lo or value > hi:
-                LOG.warn('[%s] sensor (%s) value (%s) out of range: %s',
-                         self.pci_node.bdf, k, value, (lo, hi))
+                LOG.warning('[%s] sensor (%s) value (%s) out of range: %s',
+                            self.pci_node.bdf, k, value, (lo, hi))
                 errors += 1
         return errors
 
@@ -663,7 +664,7 @@ class pac(object):
                     break
 
         if not sensors_validated:
-            LOG.warn('[%s] did not validate sensors', self.pci_node.bdf)
+            LOG.warning('[%s] did not validate sensors', self.pci_node.bdf)
         elif err:
             LOG.error('[%s] error validating sensors', self.pci_node.bdf)
             return os.EX_SOFTWARE
@@ -712,15 +713,15 @@ class vc(pac):
                 failures += 1
             else:
                 if UUID(expected_afu_id) != UUID(read_afu_id):
-                    LOG.warn('[%s] afu_id read not equal to expected one',
-                             self.pci_node.bdf)
+                    LOG.warning('[%s] afu_id read not equal to expected one',
+                                self.pci_node.bdf)
                     failures += 1
 
         try:
             self._fpga.fme.spi_bus.node('pkvl', 'pkvl_a_version').value
             self._fpga.fme.spi_bus.node('pkvl', 'pkvl_b_version').value
         except NameError:
-            LOG.warn('error reading pkvl versions')
+            LOG.warning('error reading pkvl versions')
             failures += 1
 
         return failures
@@ -822,6 +823,7 @@ def get_update_threads(boards, args, rsu_config):
         update_thr = b.update(flash_dir, rsu_config, args)
         if update_thr is not None:
             threads.append(update_thr)
+
     return threads
 
 
@@ -897,7 +899,9 @@ def need_requires(boards, flash_spec, comparator):
             continue
         cur = b.get_flashable(comparator.label)
         if cur is None or cur.is_factory:
-            LOG.warn('could not get component of type: %s', comparator.label)
+            LOG.warning(
+                'could not get component of type: %s',
+                comparator.label)
             missing.append('[{}] {}'.format(b.pci_node.bdf, comparator.label))
         else:
             if not version_comparator.to_int_tuple(str(cur.version)):
@@ -912,9 +916,9 @@ def need_requires(boards, flash_spec, comparator):
                 missing.append('[{}] {} {}'.format(b.pci_node.bdf,
                                                    comparator.label,
                                                    comparator.version))
-                LOG.warn('[%s] %s (%s) does not meet requirement (%s)',
-                         b.pci_node.bdf, comparator.label, cur.version,
-                         comparator.version)
+                LOG.warning('[%s] %s (%s) does not meet requirement (%s)',
+                            b.pci_node.bdf, comparator.label, cur.version,
+                            comparator.version)
     return missing
 
 
@@ -925,8 +929,8 @@ def check_requirements(boards, args, rsu_config):
     for b in boards:
         if not b.is_secure and m_version >= SECURE_UPDATE_VERSION:
             non_secure += 1
-            LOG.warn('[%s] does not support secure update',
-                     b.pci_node.pci_address)
+            LOG.warning('[%s] does not support secure update',
+                        b.pci_node.pci_address)
     if non_secure:
         return False
 
@@ -957,7 +961,7 @@ def check_requirements(boards, args, rsu_config):
             missing.extend(need_requires(boards, item, c))
 
     if missing:
-        LOG.warn('missing %s', ','.join(missing))
+        LOG.warning('missing %s', ','.join(missing))
         return False
     return True
 
@@ -978,9 +982,9 @@ def find_config(program='super-rsu', configuration=None):
                 cfg_did = int(data.get('device', '0'), 0)
                 cfg_cfg = data.get('configuration')
             except IOError:
-                LOG.warn('could not open file: %s', f)
+                LOG.warning('could not open file: %s', f)
             except ValueError as err:
-                LOG.warn('could not decode JSON file, %s: %s', f, err)
+                LOG.warning('could not decode JSON file, %s: %s', f, err)
             except AttributeError:
                 # not a recognized schema
                 pass
@@ -1000,7 +1004,7 @@ def find_config(program='super-rsu', configuration=None):
         except IOError:
             pass
 
-    LOG.warn('could not find or open suitable super-rsu manifest')
+    LOG.warning('could not find or open suitable super-rsu manifest')
 
 
 def main():
@@ -1186,7 +1190,7 @@ def main():
     exit_code = os.EX_OK
 
     if len(to_test) < len(to_rsu):
-        LOG.warn('not all boards updated, testing only those that were')
+        LOG.warning('not all boards updated, testing only those that were')
         exit_code = os.EX_SOFTWARE
 
     test_result = run_tests(to_test, args, rsu_config)
