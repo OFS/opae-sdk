@@ -35,7 +35,6 @@ opae_test_add_static_lib(TARGET fpgad-static
         ${opae-legacy_ROOT}/tools/fpgad/monitored_device.c
         ${opae-legacy_ROOT}/tools/fpgad/monitor_thread.c
     LIBS
-        safestr
         bitstream-static
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
@@ -56,7 +55,6 @@ opae_test_add_static_lib(TARGET fpgad-api-static
         ${opae-legacy_ROOT}/tools/fpgad/api/device_monitoring.c
         ${opae-legacy_ROOT}/tools/fpgad/api/sysfs.c
     LIBS
-        safestr
         ${CMAKE_THREAD_LIBS_INIT}
         ${libjson-c_LIBRARIES}
 )

@@ -81,7 +81,7 @@ class fpgad_config_file_c_p : public ::testing::TestWithParam<std::string> {
     strcpy(cfg_file_, "fpgad-XXXXXX.cfg");
     close(mkstemps(cfg_file_, 4));
 
-    memset_s(&config_, sizeof(config_), 0);
+    memset(&config_, 0, sizeof(config_));
     config_.poll_interval_usec = 100 * 1000;
     config_.running = true;
     config_.api_socket = "/tmp/fpga_event_socket";

@@ -1,4 +1,4 @@
-// Copyright(c) 2019, Intel Corporation
+// Copyright(c) 2019-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -156,7 +156,7 @@ TEST_P(fpgad_monitor_c_p, normal_q_full) {
  */
 TEST_P(fpgad_monitor_c_p, null_detections0) {
   fpgad_monitored_device d;
-  memset_s(&d, sizeof(d), 0);
+  memset(&d, 0, sizeof(d));
   mon_monitor(&d);
 }
 
@@ -178,7 +178,7 @@ positive_detection(fpgad_monitored_device *dev,
  */
 TEST_P(fpgad_monitor_c_p, null_response0) {
   fpgad_monitored_device d;
-  memset_s(&d, sizeof(d), 0);
+  memset(&d, 0, sizeof(d));
 
   fpgad_detect_event_t detections[] = {
     positive_detection,

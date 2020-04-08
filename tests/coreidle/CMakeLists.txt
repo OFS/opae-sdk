@@ -28,6 +28,8 @@ opae_test_add_static_lib(TARGET coreidle-static
     SOURCE
         ${opae-legacy_ROOT}/tools/coreidle/coreidle.c
         ${opae-legacy_ROOT}/tools/coreidle/main.c
+    LIBS
+        opae-c
 )
 
 target_compile_definitions(coreidle-static

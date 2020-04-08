@@ -88,7 +88,7 @@ class fpgad_command_line_c_p : public ::testing::TestWithParam<std::string> {
     cfg.write("{}\n", 3);
     cfg.close();
 
-    memset_s(&config_, sizeof(config_), 0);
+    memset(&config_, 0, sizeof(config_));
     config_.poll_interval_usec = 100 * 1000;
     config_.running = true;
     config_.api_socket = "/tmp/fpga_event_socket";

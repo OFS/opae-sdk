@@ -158,7 +158,7 @@ TEST_P(fpgad_opae_events_api_c_p, events02) {
  */
 TEST_P(fpgad_opae_events_api_c_p, events03) {
   fpgad_monitored_device d;
-  memset_s(&d, sizeof(d), 0);
+  memset(&d, 0, sizeof(d));
   d.object_id = 43;
 
   ASSERT_EQ(event_registry_list, (void *)NULL);
