@@ -98,7 +98,7 @@ STATIC const char _opae_sys_cfg_files[SYS_CFG_PATHS][CFG_PATH_MAX] = {
 // Find the canonicalized configuration file. If null, the file was not found.
 // Otherwise, it's the first configuration file found from a list of possible
 // paths. Note: The char * returned is allocated here, caller must free.
-STATIC char *find_cfg()
+STATIC char *find_cfg(void)
 {
 	int i = 0;
 	char *file_name = NULL;
