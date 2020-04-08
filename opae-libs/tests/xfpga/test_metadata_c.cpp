@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -90,78 +90,78 @@ class metadata_c
 };
 
 uint8_t bitstream_null[10] = "abcd";
-uint8_t bitstream_invalid_guid[] = "Xeon·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\":\
+uint8_t bitstream_invalid_guid[] = "Xeon\xb7GBSv001\53\02\00\00{\"version\": 640, \"afu-image\":\
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
       \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
       \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\":1,\
       \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
       \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_metadata_size[] = "XeonFPGA·GBSv001S";
-uint8_t bitstream_empty[] = "XeonFPGA·GBSv001";
-uint8_t bitstream_metadata_length[] = "XeonFPGA·GBSv001S {\"version/\": 640, \"afu-image\":  \
+uint8_t bitstream_metadata_size[] = "XeonFPGA\xb7GBSv001S";
+uint8_t bitstream_empty[] = "XeonFPGA\xb7GBSv001";
+uint8_t bitstream_metadata_length[] = "XeonFPGA\xb7GBSv001S {\"version/\": 640, \"afu-image\":  \
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156,\
       \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
       \"magic-no\": 488605312, \"accelerator-clusters\"\
       : [{\"total-contexts\": 1, \"name\": \"nlb_400\", \"accelerator-type-uuid\": \
       \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_no_gbs_version[] = "XeonFPGA·GBSv001\53\02\00\00{\"version99\": 640, \"afu-image\": \
+uint8_t bitstream_no_gbs_version[] = "XeonFPGA\xb7GBSv001\53\02\00\00{\"version99\": 640, \"afu-image\": \
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
       \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
       \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1, \
       \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
       \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_no_afu_image[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640 }, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_no_interface_id[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+uint8_t bitstream_no_afu_image[] = "XeonFPGA\xb7GBSv001\53\02\00\00{\"version\": 640 }, \"platform-name\": \"MCP\"}";
+uint8_t bitstream_no_interface_id[] = "XeonFPGA\xb7GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156,\
       \"power\": 50,  \"magic-no\": 488605312, \"accelerator-clusters\": \
       [{\"total-contexts\": 1, \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
       \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_invalid_interface_id[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+uint8_t bitstream_invalid_interface_id[] = "XeonFPGA\xb7GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
       \"power\": 50, \"interface-uuid\": \"a422218-6dba-448e-b302-425cbcde1406\", \
       \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1,\
       \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
       \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_mismatch_interface_id[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+uint8_t bitstream_mismatch_interface_id[] = "XeonFPGA\xb7GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
       \"power\": 50, \"interface-uuid\": \"00000000-6dba-448e-b302-425cbcde1406\", \
       \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1,\
       \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
       \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_error_interface_id[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+uint8_t bitstream_error_interface_id[] = "XeonFPGA\xb7GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
       \"power\": 50, \"interface-uuid\": \"00000000-6dba-448e-b302-425cbcde1406\", \
       \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1,\
       \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
       \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_no_accelerator_id[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+uint8_t bitstream_no_accelerator_id[] = "XeonFPGA\xb7GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
       \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
       \"magic-no\": 488605312, \"accelerator-clusters\":\
       [{\"total-contexts\": 1, \"name\": \"nlb_400\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_invalid_length[] = "XeonFPGA·GBSv001\00\00\00\00{\"version\": 640, \"afu-image\":\
+uint8_t bitstream_invalid_length[] = "XeonFPGA\xb7GBSv001\00\00\00\00{\"version\": 640, \"afu-image\":\
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
       \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
       \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\":1,\
       \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
       \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_no_accelerator[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\":\
+uint8_t bitstream_no_accelerator[] = "XeonFPGA\xb7GBSv001\53\02\00\00{\"version\": 640, \"afu-image\":\
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
       \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
       \"magic-no\": 488605312}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_no_magic_no[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+uint8_t bitstream_no_magic_no[] = "XeonFPGA\xb7GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
       \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
       \"magic-no99\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1,\
       \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
       \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_invalid_magic_no[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+uint8_t bitstream_invalid_magic_no[] = "XeonFPGA\xb7GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
       \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
       \"magic-no\": 000000000, \"accelerator-clusters\": [{\"total-contexts\": 1,\
       \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
       \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
-uint8_t bitstream_invalid_json[] = "XeonFPGA·GBSv001\53\02\00\00{\"version\": \"afu-image\":\
+uint8_t bitstream_invalid_json[] = "XeonFPGA\xb7GBSv001\53\02\00\00{\"version\": \"afu-image\":\
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
       \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
       \"magic-no\": 488605312}, \"platform-name\": \"MCP\"}";
@@ -391,7 +391,7 @@ TEST_P(metadata_c, get_interface_id_03) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
 
   // invalid file
-  strncpy(_token->sysfspath, sysfs_fme.c_str(), SYSFS_PATH_MAX);
+  strncpy(_token->sysfspath, sysfs_fme.c_str(), sysfs_fme.size() + 1);
   auto res = get_interface_id(handle_, &id_l, &id_h);
   EXPECT_EQ(res, FPGA_EXCEPTION);
 }
@@ -419,7 +419,7 @@ INSTANTIATE_TEST_CASE_P(metadata, metadata_mock_c,
 
 class metadata_mock_rc_c : public metadata_c {};
 
-uint8_t bitstream_rc_guid[] = "XeonFPGA·GBSv001\53\02\00\00 {\"version\": 640, \"afu-image\":\
+uint8_t bitstream_rc_guid[] = "XeonFPGA\xb7GBSv001\53\02\00\00 {\"version\": 640, \"afu-image\":\
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
       \"power\": 50, \"interface-uuid\": \"F64E598B-EA11-517F-A28E-7BC65D885104\", \
       \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\":1,\

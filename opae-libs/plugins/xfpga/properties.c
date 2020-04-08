@@ -28,9 +28,9 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include <opae/properties.h>
+#include <string.h>
 
-#include "safe_string/safe_string.h"
+#include <opae/properties.h>
 
 #include "xfpga.h"
 #include "common_int.h"
@@ -93,16 +93,16 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 
 	struct _fpga_properties _iprop;
 
-	char spath[SYSFS_PATH_MAX];
-	char idpath[SYSFS_PATH_MAX];
+	char spath[SYSFS_PATH_MAX] = { 0, };
+	char idpath[SYSFS_PATH_MAX] = { 0, };
 	char *p;
 	int s, b, d, f;
 	int res;
-	errno_t e;
 	int err = 0;
 	int resval = 0;
 	uint64_t value = 0;
 	uint32_t x = 0;
+	size_t len;
 
 	pthread_mutex_t lock;
 
@@ -121,12 +121,15 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	}
 
 	// clear fpga_properties buffer
-	memset_s(&_iprop, sizeof(struct _fpga_properties), 0);
+	memset(&_iprop, 0, sizeof(struct _fpga_properties));
 	_iprop.magic = FPGA_PROPERTY_MAGIC;
 
 	// read the vendor and device ID from the 'device' path
-	snprintf_s_s(idpath, SYSFS_PATH_MAX, "%s/../device/vendor",
-		     _token->sysfspath);
+
+	len = strnlen(_token->sysfspath, sizeof(_token->sysfspath) - 1);
+	strncpy(idpath, _token->sysfspath, len + 1);
+	strncat(idpath, "/../device/vendor", 18);
+
 	x = 0;
 	result = sysfs_read_u32(idpath, &x);
 	if (result != FPGA_OK)
@@ -134,8 +137,9 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	_iprop.vendor_id = (uint16_t)x;
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_VENDORID);
 
-	snprintf_s_s(idpath, SYSFS_PATH_MAX, "%s/../device/device",
-		     _token->sysfspath);
+	strncpy(idpath, _token->sysfspath, len + 1);
+	strncat(idpath, "/../device/device", 18);
+
 	x = 0;
 	result = sysfs_read_u32(idpath, &x);
 	if (result != FPGA_OK)
@@ -146,12 +150,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	// The input token is either for an FME or an AFU.
 	// Go one level back to get to the dev.
 
-	e = strncpy_s(spath, sizeof(spath), _token->sysfspath,
-		      sizeof(_token->sysfspath));
-	if (EOK != e) {
-		OPAE_ERR("strncpy_s failed");
-		return FPGA_EXCEPTION;
-	}
+	strncpy(spath, _token->sysfspath, len + 1);
 
 	p = strrchr(spath, '/');
 	ASSERT_NOT_NULL_MSG(p, "Invalid token sysfs path");
@@ -257,8 +256,12 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	if (0 == result)
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJECTID);
 
-	char errpath[SYSFS_PATH_MAX];
-	snprintf_s_s(errpath, SYSFS_PATH_MAX, "%s/errors", _token->sysfspath);
+	char errpath[SYSFS_PATH_MAX] = { 0, };
+
+	strncpy(errpath, _token->sysfspath, len + 1);
+	errpath[len] = '\0';
+	strncat(errpath, "/errors", 8);
+
 	_iprop.num_errors = count_error_files(errpath);
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_NUM_ERRORS);
 

@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,17 +23,16 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-/*
- * opae_ioctl.c
- */
 
+#include <string.h>
 #include <stddef.h>
 #include <stdarg.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <errno.h>
+
 #include <opae/fpga.h>
-#include <safe_string/safe_string.h>
+
 #include "common_int.h"
 #include "opae_drv.h"
 #include "intel-fpga.h"
@@ -254,7 +253,6 @@ fpga_result intel_port_set_user_irq(int fd, uint32_t flags, uint32_t start,
 	uint32_t sz =
 		sizeof(struct fpga_port_uafu_irq_set) + count * sizeof(int32_t);
 	struct fpga_port_uafu_irq_set *irq = NULL;
-	errno_t err = 0;
 	int res = 0;
 
 	ASSERT_NOT_NULL(eventfd);
@@ -267,8 +265,8 @@ fpga_result intel_port_set_user_irq(int fd, uint32_t flags, uint32_t start,
 		OPAE_MSG(
 			"flags currently not supported in FPGA_FME_ERR_SET_IRQ");
 	}
-	irq = malloc(sz);
 
+	irq = malloc(sz);
 	if (!irq) {
 		OPAE_ERR("Could not allocate memory for irq request");
 		return FPGA_NO_MEMORY;
@@ -278,16 +276,11 @@ fpga_result intel_port_set_user_irq(int fd, uint32_t flags, uint32_t start,
 	irq->flags = 0;
 	irq->start = start;
 	irq->count = count;
-	err = memcpy32_s((uint32_t *)irq->evtfd, count, (uint32_t *)eventfd,
-			 count);
-	if (err) {
-		res = FPGA_INVALID_PARAM;
-		goto out_free;
-	}
+
+	memcpy(irq->evtfd, eventfd, count * sizeof(int32_t));
 
 	res = opae_ioctl(fd, FPGA_PORT_UAFU_SET_IRQ, irq);
 
-out_free:
 	free(irq);
 	return res;
 }

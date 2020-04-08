@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2019, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -22,7 +22,7 @@
 // INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
-// POSSIBILITY OF SUCH DAMAG
+// POSSIBILITY OF SUCH DAMAGE.
 
 
 /**
@@ -45,6 +45,7 @@
 #endif
 #include <fcntl.h>
 #include <stdlib.h>
+#include <string.h>
 #include <glob.h>
 
 
@@ -55,7 +56,6 @@
 #include "opae/metrics.h"
 #include "metrics/vector.h"
 #include "xfpga.h"
-#include "safe_string/safe_string.h"
 #include "metrics/metrics_metadata.h"
 #include "metrics/max10_metadata.h"
 
@@ -71,10 +71,11 @@
 fpga_result read_sensor_sysfs_file(const char *sysfs, const char *file,
 			void **buf, uint32_t *tot_bytes_ret)
 {
-	char sysfspath[SYSFS_PATH_MAX];
+	char sysfspath[SYSFS_PATH_MAX] = { 0, };
 	struct stat stats;
 	int fd = 0;
 	fpga_result res = FPGA_OK;
+	size_t len;
 
 	if (sysfs == NULL ||
 		file == NULL ||
@@ -86,7 +87,11 @@ fpga_result read_sensor_sysfs_file(const char *sysfs, const char *file,
 	*buf = NULL;
 	*tot_bytes_ret = 0;
 
-	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", sysfs, file);
+	len = strnlen(sysfs, SYSFS_PATH_MAX - 1);
+	strncpy(sysfspath, sysfs, len + 1);
+	strncat(sysfspath, "/", 2);
+	len = strnlen(file, SYSFS_PATH_MAX - 1);
+	strncat(sysfspath, file, len + 1);
 
 	glob_t pglob;
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
@@ -150,16 +155,15 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 	char *tmp                                      = NULL;
 	uint32_t tot_bytes                             = 0;
 	enum fpga_metric_type metric_type              = FPGA_METRIC_TYPE_POWER;
-	char sysfspath[SYSFS_PATH_MAX]                 = { 0 };
-	char metrics_sysfs_path[SYSFS_PATH_MAX]        = { 0 };
-	char metric_name[SYSFS_PATH_MAX]               = { 0 };
-	char group_name[SYSFS_PATH_MAX]                = { 0 };
-	char group_sysfs[SYSFS_PATH_MAX]               = { 0 };
-	char qualifier_name[SYSFS_PATH_MAX]            = { 0 };
-	char metric_units[SYSFS_PATH_MAX]              = { 0 };
-	errno_t e                                      = 0;
-	char *substr                                   = NULL;
+	char sysfspath[SYSFS_PATH_MAX]                 = { 0, };
+	char metrics_sysfs_path[SYSFS_PATH_MAX]        = { 0, };
+	char metric_name[SYSFS_PATH_MAX]               = { 0, };
+	char group_name[SYSFS_PATH_MAX]                = { 0, };
+	char group_sysfs[SYSFS_PATH_MAX]               = { 0, };
+	char qualifier_name[SYSFS_PATH_MAX]            = { 0, };
+	char metric_units[SYSFS_PATH_MAX]              = { 0, };
 	glob_t pglob;
+	size_t len;
 
 	if (_handle == NULL ||
 		vector == NULL ||
@@ -175,7 +179,12 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 	}
 
 	// metrics group
-	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", _token->sysfspath, MAX10_SYSFS_PATH);
+	len = strnlen(_token->sysfspath, SYSFS_PATH_MAX - 1);
+	strncpy(sysfspath, _token->sysfspath, len + 1);
+	strncat(sysfspath, "/", 2);
+	len = strnlen(MAX10_SYSFS_PATH, sizeof(sysfspath) - (len + 1));
+	strncat(sysfspath, MAX10_SYSFS_PATH, len + 1);
+
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if ((gres) || (1 != pglob.gl_pathc)) {
 		OPAE_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
@@ -183,16 +192,18 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 		return FPGA_NOT_FOUND;
 	}
 
-	e = strncpy_s(group_sysfs, sizeof(group_sysfs),
-		pglob.gl_pathv[0], strnlen_s(pglob.gl_pathv[0], SYSFS_PATH_MAX));
-	if (EOK != e) {
-		result = FPGA_EXCEPTION;
-		goto out;
-	}
+	len = strnlen(pglob.gl_pathv[0], sizeof(group_sysfs) - 1);
+	strncpy(group_sysfs, pglob.gl_pathv[0], len + 1);
 	globfree(&pglob);
 
 	// Enum sensors
-	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", _token->sysfspath, MAX10_SENSOR_SYSFS_PATH);
+
+	len = strnlen(_token->sysfspath, sizeof(sysfspath) - 1);
+	strncpy(sysfspath, _token->sysfspath, len + 1);
+	strncat(sysfspath, "/", 2);
+	len = strnlen(MAX10_SENSOR_SYSFS_PATH, sizeof(sysfspath) - (len + 1));
+	strncat(sysfspath, MAX10_SENSOR_SYSFS_PATH, len + 1);
+
 	gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		OPAE_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
@@ -213,15 +224,10 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 			continue;
 		}
 
-		memset_s(&metric_name, sizeof(metric_name), 0);
+		memset(&metric_name, 0, sizeof(metric_name));
 
-		e = strncpy_s(metric_name, sizeof(metric_name),
-			(char *)tmp, strnlen_s((char *)tmp, SYSFS_PATH_MAX));
-		if (EOK != e) {
-			result = FPGA_EXCEPTION;
-			goto out;
-		}
-		metric_name[strlen(metric_name)-1] = '\0';
+		len = strnlen(tmp, sizeof(metric_name) - 1);
+		strncpy(metric_name, tmp, len + 1);
 
 		if (tmp) {
 			free(tmp);
@@ -242,29 +248,29 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 			metric_type = FPGA_METRIC_TYPE_POWER;
 
 			// group name
-			e = strncpy_s(group_name, sizeof(group_name),
-				PWRMGMT, SYSFS_PATH_MAX);
-			if (EOK != e && tmp) {
-				free(tmp);
-				continue;
-			}
+			len = strnlen(PWRMGMT, sizeof(group_name) - 1);
+			strncpy(group_name, PWRMGMT, len + 1);
 
 			//qualifier name
-			snprintf_s_ss(qualifier_name, sizeof(qualifier_name), "%s:%s", PWRMGMT, metric_name);
+			len = strnlen(PWRMGMT, sizeof(qualifier_name) - 1);
+			strncpy(qualifier_name, PWRMGMT, len + 1);
+			strncat(qualifier_name, ":", 2);
+			len = strnlen(metric_name, sizeof(qualifier_name) - (len + 1));
+			strncat(qualifier_name, metric_name, len + 1);
 
 		} else if (tmp && strstr(tmp, TEMPERATURE)) {
 			metric_type = FPGA_METRIC_TYPE_THERMAL;
 
 			// group name
-			e = strncpy_s(group_name, sizeof(group_name),
-				THERLGMT, SYSFS_PATH_MAX);
-			if (EOK != e && tmp) {
-				free(tmp);
-				continue;
-			}
+			len = strnlen(THERLGMT, sizeof(group_name) - 1);
+			strncpy(group_name, THERLGMT, len + 1);
 
 			//qualifier name
-			snprintf_s_ss(qualifier_name, sizeof(qualifier_name), "%s:%s", THERLGMT, metric_name);
+			len = strnlen(THERLGMT, sizeof(qualifier_name) - 1);
+			strncpy(qualifier_name, THERLGMT, len + 1);
+			strncat(qualifier_name, ":", 2);
+			len = strnlen(metric_name, sizeof(qualifier_name) - (len + 1));
+			strncat(qualifier_name, metric_name, len + 1);
 		} else {
 			printf("FPGA_METRIC_TYPE_UNKNOWN \n");
 			metric_type = FPGA_METRIC_TYPE_UNKNOWN;
@@ -275,70 +281,48 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 		}
 
 		// Metric Units
-		if (EOK == strstr_s(metric_name, strlen(metric_name),
-				POWER, strlen(POWER), &substr)) {
+		if (strstr(metric_name, POWER)) {
 
-			e = strncpy_s(metric_units, sizeof(metric_units),
-				POWER_UNITS, SYSFS_PATH_MAX);
-				if (EOK != e) {
-					OPAE_ERR("Failed to copy metric units");
-					continue;
-				}
+			len = strnlen(POWER_UNITS, sizeof(metric_units) - 1);
+			strncpy(metric_units, POWER_UNITS, len + 1);
 
-		} else if (EOK == strstr_s(metric_name, strlen(metric_name),
-				VOLTAGE, strlen(VOLTAGE), &substr)) {
+		} else if (strstr(metric_name, VOLTAGE)) {
 
-			e = strncpy_s(metric_units, sizeof(metric_units),
-				VOLTAGE_UNITS, SYSFS_PATH_MAX);
-				if (EOK != e) {
-					OPAE_ERR("Failed to copy metric units");
-					continue;
-				}
+			len = strnlen(VOLTAGE_UNITS, sizeof(metric_units) - 1);
+			strncpy(metric_units, VOLTAGE_UNITS, len + 1);
 
-		} else if (EOK == strstr_s(metric_name, strlen(metric_name),
-					CURRENT, strlen(CURRENT), &substr)) {
+		} else if (strstr(metric_name, CURRENT)) {
 
-			e = strncpy_s(metric_units, sizeof(metric_units),
-				CURRENT_UNITS, SYSFS_PATH_MAX);
-				if (EOK != e) {
-					OPAE_ERR("Failed to copy metric units");
-					continue;
-				}
+			len = strnlen(CURRENT_UNITS, sizeof(metric_units) - 1);
+			strncpy(metric_units, CURRENT_UNITS, len + 1);
 
-		} else if (EOK == strstr_s(metric_name, strlen(metric_name),
-				TEMPERATURE, strlen(TEMPERATURE), &substr)) {
+		} else if (strstr(metric_name, TEMPERATURE)) {
 
-			e = strncpy_s(metric_units, sizeof(metric_units),
-				TEMPERATURE_UNITS, SYSFS_PATH_MAX);
-				if (EOK != e) {
-					OPAE_ERR("Failed to copy metric units");
-					continue;
-				}
+			len = strnlen(TEMPERATURE_UNITS, sizeof(metric_units) - 1);
+			strncpy(metric_units, TEMPERATURE_UNITS, len + 1);
 
-		} else if (EOK == strstr_s(metric_name, strlen(metric_name),
-					CLOCK, strlen(CLOCK), &substr)) {
+		} else if (strstr(metric_name, CLOCK)) {
 
-			e = strncpy_s(metric_units, sizeof(metric_units),
-				CLOCK_UNITS, SYSFS_PATH_MAX);
-				if (EOK != e) {
-					OPAE_ERR("Failed to copy metric units");
-					continue;
-				}
+			len = strnlen(CLOCK_UNITS, sizeof(metric_units) - 1);
+			strncpy(metric_units, CLOCK_UNITS, len + 1);
 
 		} else {
-			e = strncpy_s(metric_units, sizeof(metric_units),
-				"N/A", SYSFS_PATH_MAX);
-				if (EOK != e) {
-					OPAE_ERR("Failed to copy metric units");
-					continue;
-				}
+
+			strncpy(metric_units, "N/A", 4);
+
 		}
 
 		// value sysfs path
-		snprintf_s_ss(metrics_sysfs_path, sizeof(metrics_sysfs_path), "%s/%s", pglob.gl_pathv[i], SENSOR_SYSFS_VALUE);
+		len = strnlen(pglob.gl_pathv[i], sizeof(metrics_sysfs_path) - 1);
+		strncpy(metrics_sysfs_path, pglob.gl_pathv[i], len + 1);
+		strncat(metrics_sysfs_path, "/", 2);
+		len = strnlen(SENSOR_SYSFS_VALUE, sizeof(metrics_sysfs_path) - (len + 1));
+		strncat(metrics_sysfs_path, SENSOR_SYSFS_VALUE, len + 1);
 
-		result = add_metric_vector(vector, *metric_num, qualifier_name, group_name, group_sysfs, metric_name, metrics_sysfs_path, metric_units,
-			FPGA_METRIC_DATATYPE_DOUBLE, metric_type, hw_type, 0);
+		result = add_metric_vector(vector, *metric_num, qualifier_name,
+				group_name, group_sysfs, metric_name,
+				metrics_sysfs_path, metric_units,
+				FPGA_METRIC_DATATYPE_DOUBLE, metric_type, hw_type, 0);
 		if (result != FPGA_OK) {
 			OPAE_ERR("Failed to add metrics");
 			goto out;
@@ -359,7 +343,6 @@ fpga_result read_max10_value(struct _fpga_enum_metric *_fpga_enum_metric,
 					double *dvalue)
 {
 	fpga_result result     = FPGA_OK;
-	char *substr           = NULL;
 	uint64_t value         = 0;
 
 	if (_fpga_enum_metric == NULL ||
@@ -377,34 +360,22 @@ fpga_result read_max10_value(struct _fpga_enum_metric *_fpga_enum_metric,
 	*dvalue = ((double)value / MILLI);
 
 	// Check for limits
-	if (EOK == strstr_s(_fpga_enum_metric->metric_name,
-				strlen(_fpga_enum_metric->metric_name),
-				POWER,
-				strlen(POWER), &substr)) {
+	if (strstr(_fpga_enum_metric->metric_name, POWER)) {
 
 		if (*dvalue  < POWER_LOW_LIMIT || *dvalue  > POWER_HIGH_LIMIT)
 			result = FPGA_EXCEPTION;
 
-	} else if (EOK == strstr_s(_fpga_enum_metric->metric_name,
-				strlen(_fpga_enum_metric->metric_name),
-				VOLTAGE,
-				strlen(VOLTAGE), &substr)) {
+	} else if (strstr(_fpga_enum_metric->metric_name, VOLTAGE)) {
 
 		if (*dvalue < VOLTAMP_LOW_LIMIT || *dvalue > VOLTAMP_HIGH_LIMIT)
 			result = FPGA_EXCEPTION;
 
-	} else if (EOK == strstr_s(_fpga_enum_metric->metric_name,
-				strlen(_fpga_enum_metric->metric_name),
-				CURRENT,
-				strlen(CURRENT), &substr)) {
+	} else if (strstr(_fpga_enum_metric->metric_name, CURRENT)) {
 
 		if (*dvalue < VOLTAMP_LOW_LIMIT || *dvalue > VOLTAMP_HIGH_LIMIT)
 			result = FPGA_EXCEPTION;
 
-	} else if (EOK == strstr_s(_fpga_enum_metric->metric_name,
-				strlen(_fpga_enum_metric->metric_name),
-				TEMPERATURE,
-				strlen(TEMPERATURE), &substr)) {
+	} else if (strstr(_fpga_enum_metric->metric_name, TEMPERATURE)) {
 
 		if (*dvalue < THERMAL_LOW_LIMIT || *dvalue > THERMAL_HIGH_LIMIT)
 			result = FPGA_EXCEPTION;

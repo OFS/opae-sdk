@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -379,7 +379,11 @@ extern "C" {
   int opae_plugin_mgr_finalize_all(void);
   extern plugin_cfg *opae_plugin_mgr_config_list;
   extern int opae_plugin_mgr_plugin_count;
-  extern const char *_opae_home_cfg_files[HOME_CFG_PATHS];
+  const char *_opae_home_configs[HOME_CFG_PATHS] = {
+	"/.local/opae.cfg",
+	"/.local/opae/opae.cfg",
+	"/.config/opae/opae.cfg",
+  };
 }
 
 TEST(pluginmgr_c_p, process_cfg_buffer) {
@@ -518,7 +522,7 @@ class pluginmgr_cfg_p : public ::testing::TestWithParam<const char*> {
     if (stat(cfg_dir_, &st)) {
       std::string dir = cfg_dir_;
       // find the first '/' after $HOME
-      int pos = dir.find('/', home.size());
+      size_t pos = dir.find('/', home.size());
       while (pos != std::string::npos) {
         std::string sub = dir.substr(0, pos);
         // sub is $HOME/<dir1>, then $HOME/<dir1>/<dir2>, ...
@@ -591,4 +595,4 @@ TEST_P(pluginmgr_cfg_p, find_and_parse_cfg) {
 }
 
 INSTANTIATE_TEST_CASE_P(pluginmgr_cfg, pluginmgr_cfg_p,
-                        ::testing::ValuesIn(_opae_home_cfg_files));
+                        ::testing::ValuesIn(_opae_home_configs));

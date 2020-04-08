@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -47,7 +47,6 @@ int xfpga_plugin_finalize(void);
 #include "gtest/gtest.h"
 #include "mock/test_system.h"
 #include "mock/fpgad_control.h"
-#include "safe_string/safe_string.h"
 
 #include "error_int.h"
 #include "xfpga.h"
@@ -427,8 +426,8 @@ TEST(events, event_03) {
   struct _fpga_token _t;
 
   // token setup
-  strncpy_s(_t.sysfspath,sizeof(_t.sysfspath),sysfs_port.c_str(),sysfs_port.size());
-  strncpy_s(_t.devpath,sizeof(_t.devpath),dev_port.c_str(),dev_port.size());
+  strncpy(_t.sysfspath, sysfs_port.c_str(), sysfs_port.size() + 1);
+  strncpy(_t.devpath, dev_port.c_str(), dev_port.size() + 1);
   _t.magic = FPGA_TOKEN_MAGIC;
   _t.errors = nullptr;
   std::string errpath = sysfs_port + "/errors";
@@ -445,8 +444,8 @@ TEST(events, event_03) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaRegisterEvent(&_h, e, eh, 0));
 
   // token/event mismatch.
-  strncpy_s(_t.sysfspath,sizeof(_t.sysfspath),sysfs_fme.c_str(),sysfs_fme.size());
-  strncpy_s(_t.devpath,sizeof(_t.devpath),dev_fme.c_str(),dev_fme.size());
+  strncpy(_t.sysfspath, sysfs_fme.c_str(), sysfs_fme.size() + 1);
+  strncpy(_t.devpath, dev_fme.c_str(), dev_fme.size() + 1);
   _t.magic = FPGA_TOKEN_MAGIC;
   _t.errors = nullptr;
   errpath = sysfs_fme + "/errors";
@@ -483,8 +482,8 @@ TEST(events, event_04) {
   struct _fpga_token _t;
 
   // token setup
-  strncpy_s(_t.sysfspath,sizeof(_t.sysfspath),sysfs_port.c_str(),sysfs_port.size());
-  strncpy_s(_t.devpath,sizeof(_t.devpath),dev_port.c_str(),dev_port.size());
+  strncpy(_t.sysfspath, sysfs_port.c_str(), sysfs_port.size() + 1);
+  strncpy(_t.devpath, dev_port.c_str(), dev_port.size() + 1);
   _t.magic = FPGA_TOKEN_MAGIC;
   _t.errors = nullptr;
   std::string errpath = sysfs_port + "/errors";
@@ -501,8 +500,8 @@ TEST(events, event_04) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnregisterEvent(&_h, e, eh));
 
   // token/event mismatch.
-  strncpy_s(_t.sysfspath,sizeof(_t.sysfspath),sysfs_fme.c_str(),sysfs_fme.size());
-  strncpy_s(_t.devpath,sizeof(_t.devpath),dev_fme.c_str(),dev_fme.size());
+  strncpy(_t.sysfspath, sysfs_fme.c_str(), sysfs_fme.size() + 1);
+  strncpy(_t.devpath, dev_fme.c_str(), dev_fme.size() + 1);
   _t.magic = FPGA_TOKEN_MAGIC;
   _t.errors = nullptr;
   errpath = sysfs_fme + "/errors";
@@ -1130,7 +1129,7 @@ TEST_P(events_mock_p, fme_interrupts_check){
   EXPECT_EQ(FPGA_EXCEPTION,res);
 
   // change sysfspath
-  strncpy(t->sysfspath,"null",sizeof(t->sysfspath));
+  strncpy(t->sysfspath, "null" , 5);
   res = check_interrupts_supported(handle_dev_,&obj);
   EXPECT_NE(FPGA_OK,res);
 }
@@ -1164,7 +1163,7 @@ TEST_P(events_mock_p, afu_interrupts_check){
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
 
   // change sysfspath
-  strncpy(t->sysfspath,"null",sizeof(t->sysfspath));
+  strncpy(t->sysfspath, "null", 5);
   res = check_interrupts_supported(handle_accel_,&obj);
   EXPECT_NE(FPGA_OK,res);
 }

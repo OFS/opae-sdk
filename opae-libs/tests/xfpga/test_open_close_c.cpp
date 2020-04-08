@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -38,7 +38,6 @@ extern "C"{
 #include "linux/ioctl.h"
 #include "cstdarg"
 
-#include "safe_string/safe_string.h"
 #include "error_int.h"
 
 extern "C" {
@@ -386,8 +385,8 @@ TEST_P(openclose_c_mock_p, invalid_open_close) {
   const std::string dev_port = "/dev/intel-fpga-port.0";
 
   // token setup
-  strncpy_s(_tok.sysfspath,sizeof(_tok.sysfspath),sysfs_port.c_str(),sysfs_port.size());
-  strncpy_s(_tok.devpath,sizeof(_tok.devpath),dev_port.c_str(),dev_port.size());
+  strncpy(_tok.sysfspath, sysfs_port.c_str(), sysfs_port.size() + 1);
+  strncpy(_tok.devpath, dev_port.c_str(), dev_port.size() + 1);
   _tok.magic = FPGA_TOKEN_MAGIC;
   _tok.errors = nullptr;
   std::string errpath = sysfs_port + "/errors";

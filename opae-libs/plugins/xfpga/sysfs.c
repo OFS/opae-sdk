@@ -46,8 +46,6 @@
 #include <opae/log.h>
 #include <opae/types_enum.h>
 
-#include "safe_string/safe_string.h"
-
 #include "types_int.h"
 #include "sysfs_int.h"
 #include "common_int.h"
@@ -205,17 +203,18 @@ out:
 int sysfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *value)
 {
 	uint64_t pg_size = (uint64_t)sysconf(_SC_PAGE_SIZE);
-	char path[SYSFS_PATH_MAX];
+	char path[SYSFS_PATH_MAX] = { 0, };
 	char buffer[pg_size];
 	int fd = -1;
 	ssize_t bytes_read = 0;
-	int len = snprintf_s_ss(path, SYSFS_PATH_MAX, "%s/%s",
-				root, attr_path);
-	if (len < 0) {
-		OPAE_ERR("error concatenating strings (%s, %s)",
-			 root, attr_path);
-		return FPGA_EXCEPTION;
-	}
+	size_t len;
+
+	len = strnlen(root, sizeof(path) - 1);
+	strncpy(path, root, len + 1);
+	strncat(path, "/", 2);
+	len = strnlen(attr_path, sizeof(path) - (len + 1));
+	strncat(path, attr_path, len + 1);
+
 	fd = open(path, O_RDONLY);
 	if (fd < 0) {
 		OPAE_MSG("Error opening %s: %s", path, strerror(errno));
@@ -261,6 +260,8 @@ STATIC int parse_device_vendor_id(sysfs_fpga_device *device)
 STATIC sysfs_fpga_region *make_region(sysfs_fpga_device *device, char *name,
 				      int num, fpga_objtype type)
 {
+	size_t len;
+
 	sysfs_fpga_region *region = malloc(sizeof(sysfs_fpga_region));
 	if (region == NULL) {
 		OPAE_ERR("error creating region");
@@ -269,20 +270,16 @@ STATIC sysfs_fpga_region *make_region(sysfs_fpga_device *device, char *name,
 	region->device = device;
 	region->type = type;
 	region->number = num;
-	// sysfs path of region is sysfs path of device + / + name
-	if (snprintf_s_ss(region->sysfs_path, sizeof(region->sysfs_path),
-			  "%s/%s", device->sysfs_path, name)
-	    < 0) {
-		OPAE_ERR("error formatting path");
-		free(region);
-		return NULL;
-	}
 
-	if (strcpy_s(region->sysfs_name, sizeof(region->sysfs_name),  name)) {
-		OPAE_ERR("Error copying sysfs name");
-		free(region);
-		return NULL;
-	}
+	// sysfs path of region is sysfs path of device + / + name
+	len = strnlen(device->sysfs_path, SYSFS_PATH_MAX - 1);
+	strncpy(region->sysfs_path, device->sysfs_path, len + 1);
+	strncat(region->sysfs_path, "/", 2);
+	len = strnlen(name, SYSFS_PATH_MAX - (len + 1));
+	strncat(region->sysfs_path, name, len + 1);
+
+	len = strnlen(name, SYSFS_PATH_MAX - 1);
+	strncpy(region->sysfs_name, name, len + 1);
 
 	return region;
 }
@@ -334,11 +331,16 @@ STATIC fpga_result re_match_device(const char *fmt, char *inpstr, char prefix[],
 
 	ptr = inpstr + matches[RE_DEVICE_GROUP_PREFIX].rm_so;
 	end = inpstr + matches[RE_DEVICE_GROUP_PREFIX].rm_eo;
-	if (strncpy_s(prefix, prefix_len, ptr, end - ptr)) {
-		OPAE_ERR("Error copying prefix from string: %s", inpstr);
+
+	if ((size_t)(end - ptr) >= prefix_len) {
+		OPAE_ERR("Regex result too long");
+		res = FPGA_EXCEPTION;
 		goto out_free;
 	}
+
+	strncpy(prefix, ptr, end - ptr);
 	*(prefix + (end - ptr)) = '\0';
+
 	ptr = inpstr + matches[RE_DEVICE_GROUP_NUM].rm_so;
 	errno = 0;
 	*num = strtoul(ptr, NULL, 10);
@@ -401,11 +403,15 @@ STATIC fpga_result re_match_region(const char *fmt, char *inpstr, char type[],
 
 	ptr = inpstr + matches[RE_REGION_GROUP_TYPE].rm_so;
 	end = inpstr + matches[RE_REGION_GROUP_TYPE].rm_eo;
-	if (strncpy_s(type, type_len, ptr, end - ptr)) {
+
+	if ((size_t)(end - ptr) >= type_len) {
 		OPAE_ERR("Error copying type from string: %s", inpstr);
 		goto out_free;
 	}
+
+	strncpy(type, ptr, end - ptr);
 	*(type + (end - ptr)) = '\0';
+
 	ptr = inpstr + matches[RE_REGION_GROUP_NUM].rm_so;
 	errno = 0;
 	*num = strtoul(ptr, NULL, 10);
@@ -478,19 +484,18 @@ STATIC int make_device(sysfs_fpga_device *device, const char *sysfs_class_fpga,
 		       char *dir_name, int num)
 {
 	int res = FPGA_OK;
-	char buffer[SYSFS_PATH_MAX] = {0};
+	char buffer[SYSFS_PATH_MAX] = { 0, };
 	ssize_t sym_link_len = 0;
-	if (snprintf_s_ss(device->sysfs_path, SYSFS_PATH_MAX, "%s/%s",
-			  sysfs_class_fpga, dir_name)
-	    < 0) {
-		OPAE_ERR("Error formatting sysfs paths");
-		return FPGA_EXCEPTION;
-	}
+	size_t len;
 
-	if (snprintf_s_s(device->sysfs_name, SYSFS_PATH_MAX, "%s", dir_name) < 0) {
-		OPAE_ERR("Error formatting sysfs name");
-		return FPGA_EXCEPTION;
-	}
+	len = strnlen(sysfs_class_fpga, SYSFS_PATH_MAX - 1);
+	strncpy(device->sysfs_path, sysfs_class_fpga, len + 1);
+	strncat(device->sysfs_path, "/", 2);
+	len = strnlen(dir_name, SYSFS_PATH_MAX - (len + 1));
+	strncat(device->sysfs_path, dir_name, len + 1);
+
+	len = strnlen(dir_name, SYSFS_PATH_MAX - 1);
+	strncpy(device->sysfs_name, dir_name, len + 1);
 
 	sym_link_len = readlink(device->sysfs_path, buffer, SYSFS_PATH_MAX);
 	if (sym_link_len < 0) {
@@ -708,7 +713,7 @@ fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid)
 	if (res) {
 		return res;
 	}
-	res = opae_glob_path(path);
+	res = opae_glob_path(path, SYSFS_PATH_MAX - 1);
 	if (res) {
 		return res;
 	}
@@ -797,7 +802,8 @@ fpga_result sysfs_get_fme_perf_path(fpga_token token, char *sysfs_perf)
 fpga_result sysfs_get_port_error_path(fpga_handle handle, char *sysfs_port_error)
 {
 	fpga_result result = FPGA_OK;
-	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
+	char sysfs_path[SYSFS_PATH_MAX] = { 0, };
+	size_t len;
 
 	if (sysfs_port_error == NULL) {
 		OPAE_ERR("Invalid input parameters");
@@ -810,14 +816,17 @@ fpga_result sysfs_get_port_error_path(fpga_handle handle, char *sysfs_port_error
 		return result;
 	}
 
-	int len = snprintf_s_ss(sysfs_port_error, SYSFS_PATH_MAX,
-		"%s/%s", sysfs_path, SYSFS_FORMAT(sysfs_port_err));
-
-	if (len < 0) {
-		OPAE_ERR("error concatenating strings (%s, %s)",
-			sysfs_path, "port error");
+	if (!SYSFS_FORMAT(sysfs_port_err)) {
+		OPAE_ERR("_sysfs_format_ptr is not set.");
 		return FPGA_EXCEPTION;
 	}
+
+	len = strnlen(sysfs_path, SYSFS_PATH_MAX - 1);
+	strncpy(sysfs_port_error, sysfs_path, len + 1);
+	strncat(sysfs_port_error, "/", 2);
+	len = strnlen(_sysfs_format_ptr->sysfs_port_err,
+			SYSFS_PATH_MAX - (len + 1));
+	strncat(sysfs_port_error, _sysfs_format_ptr->sysfs_port_err, len + 1);
 
 	return result;
 }
@@ -825,7 +834,8 @@ fpga_result sysfs_get_port_error_path(fpga_handle handle, char *sysfs_port_error
 fpga_result sysfs_get_port_error_clear_path(fpga_handle handle, char *sysfs_port_error_clear)
 {
 	fpga_result result = FPGA_OK;
-	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
+	char sysfs_path[SYSFS_PATH_MAX] = { 0, };
+	size_t len;
 
 	if (sysfs_port_error_clear == NULL) {
 		OPAE_ERR("Invalid input parameters");
@@ -838,13 +848,18 @@ fpga_result sysfs_get_port_error_clear_path(fpga_handle handle, char *sysfs_port
 		return result;
 	}
 
-	int len = snprintf_s_ss(sysfs_port_error_clear, SYSFS_PATH_MAX,
-		"%s/%s", sysfs_path, SYSFS_FORMAT(sysfs_port_err_clear));
-	if (len < 0) {
-		OPAE_ERR("error concatenating strings (%s, %s)",
-			sysfs_path, "port clear error");
+	if (!SYSFS_FORMAT(sysfs_port_err_clear)) {
+		OPAE_ERR("_sysfs_format_ptr is not set.");
 		return FPGA_EXCEPTION;
 	}
+
+	len = strnlen(sysfs_path, SYSFS_PATH_MAX - 1);
+	strncpy(sysfs_port_error_clear, sysfs_path, len + 1);
+	strncat(sysfs_port_error_clear, "/", 2);
+	len = strnlen(_sysfs_format_ptr->sysfs_port_err_clear,
+			SYSFS_PATH_MAX - (len + 1));
+	strncat(sysfs_port_error_clear,
+		_sysfs_format_ptr->sysfs_port_err_clear, len + 1);
 
 	return result;
 }
@@ -865,7 +880,7 @@ fpga_result sysfs_get_bmc_path(fpga_token token, char *sysfs_bmc)
 		return res;
 	}
 
-	return opae_glob_path(sysfs_bmc);
+	return opae_glob_path(sysfs_bmc, SYSFS_PATH_MAX - 1);
 }
 
 fpga_result sysfs_get_max10_path(fpga_token token, char *sysfs_max10)
@@ -884,49 +899,56 @@ fpga_result sysfs_get_max10_path(fpga_token token, char *sysfs_max10)
 		return res;
 	}
 
-	return opae_glob_path(sysfs_max10);
+	return opae_glob_path(sysfs_max10, SYSFS_PATH_MAX - 1);
 }
 
 fpga_result sysfs_get_fme_pr_interface_id(const char *sysfs_sysfs_path, fpga_guid guid)
 {
 	fpga_result res = FPGA_OK;
-	char sysfs_path[SYSFS_PATH_MAX];
+	char sysfs_path[SYSFS_PATH_MAX] = { 0, };
+	size_t len;
 
-	int len = snprintf_s_ss(sysfs_path, SYSFS_PATH_MAX, "%s/%s",
-		sysfs_sysfs_path, SYSFS_FORMAT(sysfs_compat_id));
-	if (len < 0) {
-		OPAE_ERR("error concatenating strings (%s, %s)",
-			sysfs_sysfs_path, sysfs_path);
+	if (!SYSFS_FORMAT(sysfs_compat_id)) {
+		OPAE_ERR("_sysfs_format_ptr is not set.");
 		return FPGA_EXCEPTION;
 	}
 
-	res = opae_glob_path(sysfs_path);
-	if (res) {
+	len = strnlen(sysfs_sysfs_path, sizeof(sysfs_path) - 1);
+	strncpy(sysfs_path, sysfs_sysfs_path, len + 1);
+	strncat(sysfs_path, "/", 2);
+	len = strnlen(_sysfs_format_ptr->sysfs_compat_id,
+			sizeof(sysfs_path) - (len + 1));
+	strncat(sysfs_path,
+		_sysfs_format_ptr->sysfs_compat_id,
+		len + 1);
+
+	res = opae_glob_path(sysfs_path, SYSFS_PATH_MAX - 1);
+	if (res)
 		return res;
-	}
+
 	return sysfs_read_guid(sysfs_path, guid);
 }
 
 fpga_result sysfs_get_guid(fpga_token token, const char *sysfspath, fpga_guid guid)
 {
 	fpga_result res = FPGA_OK;
-	char sysfs_path[SYSFS_PATH_MAX];
+	char sysfs_path[SYSFS_PATH_MAX] = { 0, };
+	size_t len;
 	struct _fpga_token *_token = (struct _fpga_token *)token;
 
 	if (_token == NULL || sysfspath == NULL)
 		return FPGA_EXCEPTION;
 
-	int len = snprintf_s_ss(sysfs_path, SYSFS_PATH_MAX, "%s/%s",
-		_token->sysfspath, sysfspath);
-	if (len < 0) {
-		OPAE_ERR("error concatenating strings (%s, %s)",
-			_token->sysfspath, sysfs_path);
-		return FPGA_EXCEPTION;
-	}
-	res = opae_glob_path(sysfs_path);
-	if (res) {
+	len = strnlen(_token->sysfspath, sizeof(sysfs_path) - 1);
+	strncpy(sysfs_path, _token->sysfspath, len + 1);
+	strncat(sysfs_path, "/", 2);
+	len = strnlen(sysfspath, sizeof(sysfs_path) - (len + 1));
+	strncat(sysfs_path, sysfspath, len + 1);
+
+	res = opae_glob_path(sysfs_path, SYSFS_PATH_MAX - 1);
+	if (res)
 		return res;
-	}
+
 	return sysfs_read_guid(sysfs_path, guid);
 }
 
@@ -950,25 +972,27 @@ int sysfs_filter(const struct dirent *de)
 fpga_result sysfs_get_fme_path(const char *sysfs_port, char *sysfs_fme)
 {
 	fpga_result result = FPGA_EXCEPTION;
-	char sysfs_path[SYSFS_PATH_MAX]   = {0};
-	char fpga_path[SYSFS_PATH_MAX]    = {0};
+	char sysfs_path[SYSFS_PATH_MAX]   = { 0, };
+	char fpga_path[SYSFS_PATH_MAX]    = { 0, };
 	// subdir candidates to look for when locating "fpga*" node in sysfs
 	// order is important here because a physfn node is the exception
 	// (will only exist when a port is on a VF) and will be used to point
 	// to the PF that the FME is on
 	const char *fpga_globs[] = {"device/physfn/fpga*", "device/fpga*", NULL};
 	int i = 0;
+	size_t len;
 
 	// now try globbing fme resource sysfs path + a candidate
 	// sysfs_port is expected to be the sysfs path to a port
 	for (; fpga_globs[i]; ++i) {
-		if (snprintf_s_ss(sysfs_path, SYSFS_PATH_MAX, "%s/../%s",
-				  sysfs_port, fpga_globs[i])
-		    < 0) {
-			OPAE_ERR("Error formatting sysfs path");
-			return FPGA_EXCEPTION;
-		}
-		result = opae_glob_path(sysfs_path);
+
+		len = strnlen(sysfs_port, SYSFS_PATH_MAX - 1);
+		strncpy(sysfs_path, sysfs_port, len + 1);
+		strncat(sysfs_path, "/../", 5);
+		len = strnlen(fpga_globs[i], SYSFS_PATH_MAX - (len + 4));
+		strncat(sysfs_path, fpga_globs[i], len + 1);
+
+		result = opae_glob_path(sysfs_path, SYSFS_PATH_MAX - 1);
 		if (result == FPGA_OK) {
 			// we've found a path to the "fpga*" node
 			break;
@@ -988,29 +1012,32 @@ fpga_result sysfs_get_fme_path(const char *sysfs_port, char *sysfs_fme)
 	// driver
 	// -- intel-fpga-dev.*/intel-fpga-fme.*
 	// -- region*/dfl-fme.*
-	if (snprintf_s_ss(fpga_path, SYSFS_PATH_MAX, "/%s/%s",
-			  SYSFS_FORMAT(sysfs_device_glob),
-			  SYSFS_FORMAT(sysfs_fme_glob))
-	    < 0) {
-		OPAE_ERR("Error formatting sysfs path");
+
+	if (!SYSFS_FORMAT(sysfs_device_glob)) {
+		OPAE_ERR("_sysfs_format_ptr is not set.");
 		return FPGA_EXCEPTION;
 	}
+
+	strncpy(fpga_path, "/", 2);
+	len = strnlen(_sysfs_format_ptr->sysfs_device_glob, SYSFS_PATH_MAX - 1);
+	strncat(fpga_path, _sysfs_format_ptr->sysfs_device_glob, len + 1);
+	strncat(fpga_path, "/", 2);
+	len = strnlen(_sysfs_format_ptr->sysfs_fme_glob,
+			SYSFS_PATH_MAX - (len + 2));
+	strncat(fpga_path, _sysfs_format_ptr->sysfs_fme_glob, len + 1);
 
 	// now concatenate the subdirectory to the "fpga*" node
-	if (strcat_s(sysfs_path, sizeof(sysfs_path), fpga_path)) {
-		OPAE_ERR("Error concatenating path to fpga node");
-		return FPGA_EXCEPTION;
-	}
 
-	result = opae_glob_path(sysfs_path);
-	if (result) {
+	len = strnlen(sysfs_path, SYSFS_PATH_MAX - 1);
+	strncat(sysfs_path, fpga_path, SYSFS_PATH_MAX - len);
+
+	result = opae_glob_path(sysfs_path, SYSFS_PATH_MAX - 1);
+	if (result)
 		return result;
-	}
 
 	// copy the assembled and verified path to the output param
-	if (!realpath(sysfs_path, sysfs_fme)) {
+	if (!realpath(sysfs_path, sysfs_fme))
 		return FPGA_EXCEPTION;
-	}
 
 	return FPGA_OK;
 }
@@ -1273,7 +1300,7 @@ fpga_result sysfs_write_u64(const char *path, uint64_t u)
 		goto out_close;
 	}
 
-	len = snprintf_s_l(buf, sizeof(buf), "0x%lx\n", u);
+	len = snprintf(buf, sizeof(buf), "0x%lx\n", u);
 
 	do {
 		res = write(fd, buf + b, len - b);
@@ -1324,7 +1351,7 @@ fpga_result sysfs_write_u64_decimal(const char *path, uint64_t u)
 		goto out_close;
 	}
 
-	len = snprintf_s_l(buf, sizeof(buf), "%ld\n", u);
+	len = snprintf(buf, sizeof(buf), "%ld\n", u);
 
 	do {
 		res = write(fd, buf + b, len - b);
@@ -1354,7 +1381,7 @@ fpga_result sysfs_read_guid(const char *path, fpga_guid guid)
 {
 	int fd;
 	int res;
-	char buf[SYSFS_PATH_MAX];
+	char buf[SYSFS_PATH_MAX] = { 0, };
 	int b;
 
 	int i;
@@ -1401,7 +1428,7 @@ fpga_result sysfs_read_guid(const char *path, fpga_guid guid)
 		buf[i + 2] = 0;
 
 		octet = 0;
-		sscanf_s_u(&buf[i], "%x", &octet);
+		sscanf(&buf[i], "%x", &octet);
 		guid[i / 2] = (uint8_t)octet;
 
 		buf[i + 2] = tmp;
@@ -1418,19 +1445,19 @@ out_close:
 fpga_result check_sysfs_path_is_valid(const char *sysfs_path)
 {
 	fpga_result result = FPGA_OK;
-	char path[SYSFS_PATH_MAX] = { 0 };
+	char path[SYSFS_PATH_MAX] = { 0, };
 	struct stat stats;
+	size_t len;
+
 	if (!sysfs_path) {
 		OPAE_ERR("Invalid input path");
 		return FPGA_INVALID_PARAM;
 	}
 
-	if (strcpy_s(path, SYSFS_PATH_MAX, sysfs_path)) {
-		OPAE_ERR("Could not copy globbed path");
-		return FPGA_EXCEPTION;
-	}
+	len = strnlen(sysfs_path, SYSFS_PATH_MAX - 1);
+	strncpy(path, sysfs_path, len + 1);
 
-	result = opae_glob_path(path);
+	result = opae_glob_path(path, SYSFS_PATH_MAX - 1);
 	if (result) {
 		return result;
 	}
@@ -1450,19 +1477,23 @@ fpga_result check_sysfs_path_is_valid(const char *sysfs_path)
 
 fpga_result sysfs_path_is_valid(const char *root, const char *attr_path)
 {
-	char path[SYSFS_PATH_MAX]    = {0};
+	char path[SYSFS_PATH_MAX]    = { 0, };
 	fpga_result result          = FPGA_OK;
 	struct stat stats;
+	size_t len;
 
-	int len = snprintf_s_ss(path, SYSFS_PATH_MAX, "%s/%s",
-		root, attr_path);
-	if (len < 0) {
-		OPAE_ERR("error concatenating strings (%s, %s)",
-			root, attr_path);
-		return FPGA_EXCEPTION;
+	if (!root || !attr_path) {
+		OPAE_ERR("input path is NULL");
+		return FPGA_INVALID_PARAM;
 	}
 
-	result = opae_glob_path(path);
+	len = strnlen(root, sizeof(path) - 1);
+	strncpy(path, root, len + 1);
+	strncat(path, "/", 2);
+	len = strnlen(attr_path, sizeof(path) - (len + 1));
+	strncat(path, attr_path, len + 1);
+
+	result = opae_glob_path(path, SYSFS_PATH_MAX - 1);
 	if (result) {
 		return result;
 	}
@@ -1486,13 +1517,13 @@ fpga_result sysfs_path_is_valid(const char *root, const char *attr_path)
 fpga_result sysfs_get_socket_id(int dev, int subdev, uint8_t *socket_id)
 {
 	fpga_result result;
-	char spath[SYSFS_PATH_MAX];
+	char spath[SYSFS_PATH_MAX] = { 0, };
 	int i;
 
-	snprintf_s_ii(spath, SYSFS_PATH_MAX,
-		      SYSFS_FPGA_CLASS_PATH SYSFS_FME_PATH_FMT
-		      "/" FPGA_SYSFS_SOCKET_ID,
-		      dev, subdev);
+	snprintf(spath, SYSFS_PATH_MAX,
+		 SYSFS_FPGA_CLASS_PATH SYSFS_FME_PATH_FMT
+		 "/" FPGA_SYSFS_SOCKET_ID,
+		 dev, subdev);
 
 	i = 0;
 	result = sysfs_read_int(spath, &i);
@@ -1506,48 +1537,48 @@ fpga_result sysfs_get_socket_id(int dev, int subdev, uint8_t *socket_id)
 
 fpga_result sysfs_get_afu_id(int dev, int subdev, fpga_guid guid)
 {
-	char spath[SYSFS_PATH_MAX];
+	char spath[SYSFS_PATH_MAX] = { 0, };
 
-	snprintf_s_ii(spath, SYSFS_PATH_MAX,
-		      SYSFS_FPGA_CLASS_PATH SYSFS_AFU_PATH_FMT
-		      "/" FPGA_SYSFS_AFU_GUID,
-		      dev, subdev);
+	snprintf(spath, SYSFS_PATH_MAX,
+		 SYSFS_FPGA_CLASS_PATH SYSFS_AFU_PATH_FMT
+		 "/" FPGA_SYSFS_AFU_GUID,
+		 dev, subdev);
 
 	return sysfs_read_guid(spath, guid);
 }
 
 fpga_result sysfs_get_pr_id(int dev, int subdev, fpga_guid guid)
 {
-	char spath[SYSFS_PATH_MAX];
+	char spath[SYSFS_PATH_MAX] = { 0, };
 
-	snprintf_s_ii(spath, SYSFS_PATH_MAX,
-		      SYSFS_FPGA_CLASS_PATH SYSFS_FME_PATH_FMT
-		      "/" FPGA_SYSFS_FME_INTERFACE_ID,
-		      dev, subdev);
+	snprintf(spath, SYSFS_PATH_MAX,
+		 SYSFS_FPGA_CLASS_PATH SYSFS_FME_PATH_FMT
+		 "/" FPGA_SYSFS_FME_INTERFACE_ID,
+		 dev, subdev);
 
 	return sysfs_read_guid(spath, guid);
 }
 
 fpga_result sysfs_get_slots(int dev, int subdev, uint32_t *slots)
 {
-	char spath[SYSFS_PATH_MAX];
+	char spath[SYSFS_PATH_MAX] = { 0, };
 
-	snprintf_s_ii(spath, SYSFS_PATH_MAX,
-		      SYSFS_FPGA_CLASS_PATH SYSFS_FME_PATH_FMT
-		      "/" FPGA_SYSFS_NUM_SLOTS,
-		      dev, subdev);
+	snprintf(spath, SYSFS_PATH_MAX,
+		 SYSFS_FPGA_CLASS_PATH SYSFS_FME_PATH_FMT
+		 "/" FPGA_SYSFS_NUM_SLOTS,
+		 dev, subdev);
 
 	return sysfs_read_u32(spath, slots);
 }
 
 fpga_result sysfs_get_bitstream_id(int dev, int subdev, uint64_t *id)
 {
-	char spath[SYSFS_PATH_MAX];
+	char spath[SYSFS_PATH_MAX] = { 0, };
 
-	snprintf_s_ii(spath, SYSFS_PATH_MAX,
-		      SYSFS_FPGA_CLASS_PATH SYSFS_FME_PATH_FMT
-		      "/" FPGA_SYSFS_BITSTREAM_ID,
-		      dev, subdev);
+	snprintf(spath, SYSFS_PATH_MAX,
+		 SYSFS_FPGA_CLASS_PATH SYSFS_FME_PATH_FMT
+		 "/" FPGA_SYSFS_BITSTREAM_ID,
+		 dev, subdev);
 
 	return sysfs_read_u64(spath, id);
 }
@@ -1568,10 +1599,12 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 
 	struct _fpga_token *_token;
 	struct _fpga_handle *_handle      = (struct _fpga_handle *)handle;
-	char sysfs_path[SYSFS_PATH_MAX]   = {0};
-	char fpga_path[SYSFS_PATH_MAX]    = {0};
+	char sysfs_path[SYSFS_PATH_MAX]   = { 0, };
+	char fpga_path[SYSFS_PATH_MAX]    = { 0, };
 	fpga_result result                = FPGA_OK;
 	int i = 0;
+	size_t len;
+
 	// subdir candidates to look for when locating "fpga*" node in sysfs
 	// order is important here because a virtfn* node is the exception
 	// (will only exist when a port is on a VF) and will be used to point
@@ -1600,13 +1633,13 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 
 	// now try globbing fme token's sysfs path + a candidate
 	for (; fpga_globs[i]; ++i) {
-		if (snprintf_s_ss(sysfs_path, SYSFS_PATH_MAX, "%s/../%s",
-				  _token->sysfspath, fpga_globs[i])
-		    < 0) {
-			OPAE_ERR("Error formatting sysfs path");
-			return FPGA_EXCEPTION;
-		}
-		result = opae_glob_path(sysfs_path);
+		len = strnlen(_token->sysfspath, SYSFS_PATH_MAX - 1);
+		strncpy(sysfs_path, _token->sysfspath, len + 1);
+		strncat(sysfs_path, "/../", 5);
+		len = strnlen(fpga_globs[i], SYSFS_PATH_MAX - (len + 4));
+		strncat(sysfs_path, fpga_globs[i], len + 1);
+
+		result = opae_glob_path(sysfs_path, SYSFS_PATH_MAX - 1);
 		if (result == FPGA_OK) {
 			// we've found a path to the "fpga*" node
 			break;
@@ -1625,21 +1658,15 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 	// driver
 	// -- intel-fgga-dev.*/intel-fpga-port.*
 	// -- region*/dfl-port.*
-	if (snprintf_s_ss(fpga_path, SYSFS_PATH_MAX, "/%s/%s",
-			  SYSFS_FORMAT(sysfs_device_glob),
-			  SYSFS_FORMAT(sysfs_port_glob))
-	    < 0) {
-		OPAE_ERR("Error formatting sysfs path");
-		return FPGA_EXCEPTION;
-	}
+	snprintf(fpga_path, SYSFS_PATH_MAX, "/%s/%s",
+		 SYSFS_FORMAT(sysfs_device_glob),
+		 SYSFS_FORMAT(sysfs_port_glob));
 
 	// now concatenate the subdirectory to the "fpga*" node
-	if (strcat_s(sysfs_path, sizeof(sysfs_path), fpga_path)) {
-		OPAE_ERR("Error concatenating path to fpga node");
-		return FPGA_EXCEPTION;
-	}
+	len = strnlen(fpga_path, SYSFS_PATH_MAX - 1);
+	strncat(sysfs_path, fpga_path, len + 1);
 
-	result = opae_glob_path(sysfs_path);
+	result = opae_glob_path(sysfs_path, sizeof(sysfs_path) - 1);
 	if (result) {
 		return result;
 	}
@@ -1660,27 +1687,27 @@ enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id)
 	if (vendor_id == 0x8086) {
 
 		switch (device_id) {
-		case 0xbcbc:
-		case 0xbcbd:
-		case 0xbcbe:
-		case 0xbcbf:
-		case 0xbcc0:
-		case 0xbcc1:
+		case 0xbcbc: /* FALLTHROUGH */
+		case 0xbcbd: /* FALLTHROUGH */
+		case 0xbcbe: /* FALLTHROUGH */
+		case 0xbcbf: /* FALLTHROUGH */
+		case 0xbcc0: /* FALLTHROUGH */
+		case 0xbcc1: /* FALLTHROUGH */
 		case 0x09cb:
 			hw_type = FPGA_HW_MCP;
 		break;
 
-		case 0x09c4:
+		case 0x09c4: /* FALLTHROUGH */
 		case 0x09c5:
 			hw_type = FPGA_HW_DCP_RC;
 		break;
 
-		case 0x0b2b:
+		case 0x0b2b: /* FALLTHROUGH */
 		case 0x0b2c:
 			hw_type = FPGA_HW_DCP_DC;
 		break;
 
-		case 0x0b30:
+		case 0x0b30: /* FALLTHROUGH */
 		case 0x0b31:
 			hw_type = FPGA_HW_DCP_VC;
 		break;
@@ -1706,6 +1733,7 @@ fpga_result get_fpga_hw_type(fpga_handle handle, enum fpga_hw_type *hw_type)
 	int err = 0;
 	uint64_t vendor_id = 0;
 	uint64_t device_id = 0;
+	size_t len;
 
 	if (_handle == NULL) {
 		OPAE_ERR("Invalid handle");
@@ -1729,8 +1757,9 @@ fpga_result get_fpga_hw_type(fpga_handle handle, enum fpga_hw_type *hw_type)
 		goto out_unlock;
 	}
 
-	snprintf_s_s(sysfs_path, SYSFS_PATH_MAX, "%s/../device/vendor",
-		_token->sysfspath);
+	len = strnlen(_token->sysfspath, SYSFS_PATH_MAX - 1);
+	strncpy(sysfs_path, _token->sysfspath, len + 1);
+	strncat(sysfs_path, "/../device/vendor", 18);
 
 	result = sysfs_read_u64(sysfs_path, &vendor_id);
 	if (result != 0) {
@@ -1738,8 +1767,9 @@ fpga_result get_fpga_hw_type(fpga_handle handle, enum fpga_hw_type *hw_type)
 		goto out_unlock;
 	}
 
-	snprintf_s_s(sysfs_path, SYSFS_PATH_MAX, "%s/../device/device",
-		_token->sysfspath);
+	len = strnlen(_token->sysfspath, SYSFS_PATH_MAX - 1);
+	strncpy(sysfs_path, _token->sysfspath, len + 1);
+	strncat(sysfs_path, "/../device/device", 18);
 
 	result = sysfs_read_u64(sysfs_path, &device_id);
 	if (result != 0) {
@@ -1814,12 +1844,15 @@ fpga_result sysfs_sbdf_from_path(const char *sysfspath, int *s, int *b, int *d,
 
 fpga_result sysfs_objectid_from_path(const char *sysfspath, uint64_t *object_id)
 {
-	char sdevpath[SYSFS_PATH_MAX];
+	char sdevpath[SYSFS_PATH_MAX] = { 0, };
 	uint32_t major = 0;
 	uint32_t minor = 0;
 	fpga_result result;
+	size_t len;
 
-	snprintf_s_s(sdevpath, SYSFS_PATH_MAX, "%s/dev", sysfspath);
+	len = strnlen(sysfspath, SYSFS_PATH_MAX - 1);
+	strncpy(sdevpath, sysfspath, len + 1);
+	strncat(sdevpath, "/dev", 5);
 
 	result = sysfs_read_u32_pair(sdevpath, &major, &minor, ':');
 	if (FPGA_OK != result)
@@ -1876,46 +1909,34 @@ ssize_t eintr_write(int fd, void *buf, size_t count)
 
 fpga_result cat_token_sysfs_path(char *dest, fpga_token token, const char *path)
 {
+	struct _fpga_token *_token = (struct _fpga_token *)token;
+	size_t len;
+
 	if (!dest) {
 		OPAE_ERR("destination str is NULL");
 		return FPGA_EXCEPTION;
 	}
-	struct _fpga_token *_token = (struct _fpga_token *)token;
-	int len = snprintf_s_ss(dest, SYSFS_PATH_MAX, "%s/%s",
-				_token->sysfspath, path);
-	if (len < 0) {
-		OPAE_ERR("error concatenating strings (%s, %s)",
-			 _token->sysfspath, path);
-		return FPGA_EXCEPTION;
-	}
+
+	len = strnlen(_token->sysfspath, SYSFS_PATH_MAX - 1);
+	strncpy(dest, _token->sysfspath, len + 1);
+	strncat(dest, "/", 2);
+	len = strnlen(path, SYSFS_PATH_MAX - (len + 1));
+	strncat(dest, path, len + 1);
+
 	return FPGA_OK;
 }
 
 
 fpga_result cat_sysfs_path(char *dest, const char *path)
 {
-	errno_t err;
-
-	err = strcat_s(dest, SYSFS_PATH_MAX, path);
-	switch (err) {
-	case EOK:
-		return FPGA_OK;
-	case ESNULLP:
+	if (!dest || !path) {
 		OPAE_ERR("NULL pointer in name");
 		return FPGA_INVALID_PARAM;
-		break;
-	case ESZEROL:
-		OPAE_ERR("Zero length");
-		break;
-	case ESLEMAX:
-		OPAE_ERR("Length exceeds max");
-		break;
-	case ESUNTERM:
-		OPAE_ERR("Destination not termindated");
-		break;
-	};
+	}
 
-	return FPGA_EXCEPTION;
+	strncat(dest, path, SYSFS_PATH_MAX);
+
+	return FPGA_OK;
 }
 
 fpga_result cat_handle_sysfs_path(char *dest, fpga_handle handle,
@@ -1927,18 +1948,24 @@ fpga_result cat_handle_sysfs_path(char *dest, fpga_handle handle,
 
 STATIC char *cstr_dup(const char *str)
 {
-	size_t s = strlen(str);
-	char *p = malloc(s+1);
+	size_t s;
+	char *p;
+
+	if (!str) {
+		OPAE_ERR("NULL param to cstr_dup");
+		return NULL;
+	}
+
+	s = strnlen(str, PATH_MAX - 1);
+	p = malloc(s+1);
 	if (!p) {
 		OPAE_ERR("malloc failed");
 		return NULL;
 	}
-	if (strncpy_s(p, s+1, str, s)) {
-		OPAE_ERR("Error copying string");
-		free(p);
-		return NULL;
-	}
+
+	strncpy(p, str, s + 1);
 	p[s] = '\0';
+
 	return p;
 }
 
@@ -2010,7 +2037,7 @@ fpga_result destroy_fpga_object(struct _fpga_object *obj)
 	return res;
 }
 
-fpga_result opae_glob_path(char *path)
+fpga_result opae_glob_path(char *path, size_t len)
 {
 	fpga_result res = FPGA_OK;
 	glob_t pglob;
@@ -2021,10 +2048,7 @@ fpga_result opae_glob_path(char *path)
 		if (pglob.gl_pathc > 1) {
 			OPAE_MSG("Ambiguous object key - using first one");
 		}
-		if (strcpy_s(path, FILENAME_MAX, pglob.gl_pathv[0])) {
-			OPAE_ERR("Could not copy globbed path");
-			res = FPGA_EXCEPTION;
-		}
+		strncpy(path, pglob.gl_pathv[0], len);
 		globfree(&pglob);
 	} else {
 		switch (globres) {
@@ -2123,18 +2147,16 @@ fpga_result make_sysfs_group(char *sysfspath, const char *name,
 	int n;
 	size_t pathlen = strlen(sysfspath);
 	char *ptr = NULL;
-	errno_t err;
 	fpga_object subobj;
 	fpga_result res = FPGA_OK;
 	struct _fpga_object *group;
 
 	if (flags & FPGA_OBJECT_GLOB) {
-		res = opae_glob_path(sysfspath);
+		res = opae_glob_path(sysfspath, SYSFS_PATH_MAX - 1);
 	}
 	if (res != FPGA_OK) {
 		return res;
 	}
-
 
 	n = scandir(sysfspath, &namelist, sysfs_filter, alphasort);
 	if (n < 0) {
@@ -2172,17 +2194,15 @@ fpga_result make_sysfs_group(char *sysfspath, const char *name,
 		}
 		group->size = 0;
 		while (n--) {
-			err = strcpy_s(ptr, SYSFS_PATH_MAX - pathlen + 1,
-				       namelist[n]->d_name);
-			if (err == EOK) {
-				if (flags & FPGA_OBJECT_RECURSE_ONE) {
-					flags &= ~FPGA_OBJECT_RECURSE_ONE;
-				}
-				if (!make_sysfs_object(
-					    sysfspath, namelist[n]->d_name,
-					    &subobj, flags, handle)) {
-					group->objects[group->size++] = subobj;
-				}
+			strncpy(ptr, namelist[n]->d_name,
+				SYSFS_PATH_MAX - pathlen + 1);
+			if (flags & FPGA_OBJECT_RECURSE_ONE) {
+				flags &= ~FPGA_OBJECT_RECURSE_ONE;
+			}
+			if (!make_sysfs_object(
+				    sysfspath, namelist[n]->d_name,
+				    &subobj, flags, handle)) {
+				group->objects[group->size++] = subobj;
 			}
 			free(namelist[n]);
 		}
@@ -2269,6 +2289,8 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	fpga_result res = FPGA_OK;
 	char *object_paths[MAX_SYSOBJECT_GLOB] = { NULL };
 	size_t found = 0;
+	size_t len;
+
 	if (flags & FPGA_OBJECT_GLOB) {
 		res = opae_glob_paths(sysfspath, MAX_SYSOBJECT_GLOB,
 				      object_paths, &found);
@@ -2276,12 +2298,8 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 			return res;
 		}
 		if (found == 1) {
-			if (strncpy_s(sysfspath, SYSFS_PATH_MAX,
-				      object_paths[0], PATH_MAX)) {
-				OPAE_ERR("error copying glob result");
-				res = FPGA_EXCEPTION;
-				goto out_free;
-			}
+			len = strnlen(object_paths[0], SYSFS_PATH_MAX - 1);
+			strncpy(sysfspath, object_paths[0], len + 1);
 			res = make_sysfs_object(sysfspath, name, object,
 						flags & ~FPGA_OBJECT_GLOB,
 						handle);
@@ -2296,6 +2314,7 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 		}
 		return res;
 	}
+
 	statres = stat(sysfspath, &objstat);
 	if (statres < 0) {
 		OPAE_MSG("Error accessing %s: %s", sysfspath, strerror(errno));

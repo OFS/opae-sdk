@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -35,8 +35,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-
-#include "safe_string/safe_string.h"
 
 #include <opae/enum.h>
 
@@ -810,13 +808,7 @@ fpga_result __OPAE_API__ fpgaPropertiesGetGUID(const fpga_properties prop,
 	ASSERT_NOT_NULL(p);
 
 	if (FIELD_VALID(p, FPGA_PROPERTY_GUID)) {
-		errno_t e;
-		e = memcpy_s(*guid, sizeof(fpga_guid), p->guid,
-			     sizeof(fpga_guid));
-		if (EOK != e) {
-			OPAE_ERR("memcpy_s failed");
-			res = FPGA_EXCEPTION;
-		}
+		memcpy(*guid, p->guid, sizeof(fpga_guid));
 	} else {
 		OPAE_MSG("No GUID");
 		res = FPGA_NOT_FOUND;
@@ -832,17 +824,13 @@ fpga_result __OPAE_API__ fpgaPropertiesSetGUID(fpga_properties prop,
 {
 	fpga_result res = FPGA_OK;
 	int err;
-	errno_t e;
 	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
 	SET_FIELD_VALID(p, FPGA_PROPERTY_GUID);
-	e = memcpy_s(p->guid, sizeof(fpga_guid), guid, sizeof(fpga_guid));
-	if (EOK != e) {
-		OPAE_ERR("memcpy_s failed");
-		res = FPGA_EXCEPTION;
-	}
+
+	memcpy(p->guid, guid, sizeof(fpga_guid));
 
 	opae_mutex_unlock(err, &p->lock);
 

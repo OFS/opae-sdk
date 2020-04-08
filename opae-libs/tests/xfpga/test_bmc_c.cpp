@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -40,6 +40,7 @@ extern "C" {
 #include <dlfcn.h>
 #include <array>
 #include <cstdlib>
+#include <cstring>
 #include <map>
 #include <memory>
 #include <string>
@@ -49,7 +50,6 @@ extern "C" {
 #include "metrics/bmc/bmc_ioctl.h"
 #include "metrics/bmc/bmcdata.h"
 #include "metrics/bmc/bmcinfo.h"
-#include "safe_string/safe_string.h"
 #include "sysfs_int.h"
 #include "mock/test_system.h"
 #include "mock/test_utils.h"
@@ -115,15 +115,20 @@ class bmc_c_p : public ::testing::TestWithParam<std::string> {
 fpga_result bmc_c_p::write_sysfs_file(fpga_token token, const char *file,
                                       void *buf, size_t count) {
   fpga_result res = FPGA_OK;
-  char sysfspath[SYSFS_PATH_MAX];
+  char sysfspath[SYSFS_PATH_MAX] = { 0, };
   int fd = 0;
+  size_t len;
 
   struct _fpga_token *tok = (struct _fpga_token *)token;
   if (FPGA_TOKEN_MAGIC != tok->magic) {
     return FPGA_INVALID_PARAM;
   }
 
-  snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", tok->sysfspath, file);
+  len = strnlen(tok->sysfspath, sizeof(sysfspath) - 1);
+  strncpy(sysfspath, tok->sysfspath, len + 1);
+  strncat(sysfspath, "/", 2);
+  len = strnlen(file, sizeof(sysfspath) - (len + 1));
+  strncat(sysfspath, file, len + 1);
 
   glob_t pglob;
   int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
@@ -212,7 +217,7 @@ TEST_P(bmc_c_p, test_bmc_2) {
   uint8_t raw = 0;
   sdr_details details;
 
-  memset_s(&details, sizeof(sdr_details), 0);
+  memset(&details, 0, sizeof(sdr_details));
 
   // Load SDR
   EXPECT_EQ(bmcLoadSDRs(tokens_[0], &sdrs, &num_sensors), FPGA_OK);
@@ -224,7 +229,7 @@ TEST_P(bmc_c_p, test_bmc_2) {
     EXPECT_EQ(bmcGetSensorReading(values, i, &is_valid, &tmp), FPGA_OK);
 
     Values detail;
-    memset_s(&detail, sizeof(detail), 0);
+    memset(&detail, 0, sizeof(detail));
     EXPECT_EQ(rawFromDouble(&detail, tmp, &raw), FPGA_OK);
 
     detail.result_exp = 2;
@@ -255,7 +260,7 @@ TEST_P(bmc_c_p, test_bmc_3) {
   uint32_t num_tripped = 0;
   sdr_details details;
 
-  memset_s(&details, sizeof(details), 0);
+  memset(&details, 0, sizeof(details));
   // Load SDR
   EXPECT_EQ(bmcLoadSDRs(tokens_[0], &sdrs, &num_sensors), FPGA_OK);
   EXPECT_EQ(bmcReadSensorValues(sdrs, &values, &num_values), FPGA_OK);
@@ -296,14 +301,14 @@ TEST_P(bmc_c_p, test_bmc_4) {
   uint32_t num_values = 0;
   sdr_details details;
 
-  memset_s(&details, sizeof(details), 0);
+  memset(&details, 0, sizeof(details));
   // Load SDR
   EXPECT_EQ(bmcLoadSDRs(tokens_[0], &sdrs, &num_sensors), FPGA_OK);
   EXPECT_EQ(bmcReadSensorValues(sdrs, &values, &num_values), FPGA_OK);
 
   threshold_list thresh;
 
-  memset_s(&thresh, sizeof(thresh), 0);
+  memset(&thresh, 0, sizeof(thresh));
   thresh.upper_nr_thresh.is_valid = 1;
   thresh.upper_nr_thresh.value = 20;
 
@@ -321,7 +326,7 @@ TEST_P(bmc_c_p, test_bmc_4) {
   _bmcSetThreshold(1, 1, &req);
 
   Values vals;
-  memset_s(&vals, sizeof(vals), 0);
+  memset(&vals, 0, sizeof(vals));
   fill_set_request(&vals, &thresh, &req);
 
   thresh.upper_nr_thresh.is_valid = true;
@@ -364,7 +369,7 @@ TEST_P(bmc_c_p, test_bmc_5) {
 
   // write to reset cause
   reset_cause reset;
-  memset_s(&reset, sizeof(reset_cause), 0);
+  memset(&reset, 0, sizeof(reset_cause));
   reset.completion_code = 1;
   write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void *)(&reset),
                    sizeof(reset_cause));
@@ -460,8 +465,8 @@ TEST_P(bmc_c_p, test_bmc_6) {
   char *string = NULL;
   device_id dev_id;
 
-  memset_s(&reset, sizeof(powerdown_cause), 0);
-  memset_s(&dev_id, sizeof(device_id), 0);
+  memset(&reset, 0, sizeof(powerdown_cause));
+  memset(&dev_id, 0, sizeof(device_id));
   reset.completion_code = 1;
   write_sysfs_file(tokens_[0], SYSFS_PWRDN_FILE, (void *)(&reset),
                    sizeof(powerdown_cause));
@@ -492,10 +497,10 @@ TEST_P(bmc_c_p, test_bmc_7) {
   sdr_body body;
   Values *vals = NULL;
 
-  memset_s(&reading, sizeof(sensor_reading), 0);
-  memset_s(&key, sizeof(sdr_key), 0);
-  memset_s(&header, sizeof(sdr_header), 0);
-  memset_s(&body, sizeof(sdr_body), 0);
+  memset(&reading, 0, sizeof(sensor_reading));
+  memset(&key, 0, sizeof(sdr_key));
+  memset(&header, 0, sizeof(sdr_header));
+  memset(&body, 0, sizeof(sdr_body));
 
   // build bmc values
   reading.sensor_validity.sensor_state.sensor_scanning_disabled = true;

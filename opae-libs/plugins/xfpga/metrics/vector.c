@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2019, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -36,7 +36,6 @@
 #include "opae/enum.h"
 #include "opae/properties.h"
 #include "common_int.h"
-#include "safe_string/safe_string.h"
 
 #define FPGA_VECTOR_CAPACITY     20
 

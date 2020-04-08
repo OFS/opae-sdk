@@ -165,7 +165,7 @@ function(opae_add_subdirectory directory_name)
     endif()
 endfunction()
 # example:
-#   opae_add_executable(TARGET fpgaconf SOURCE a.c b.c LIBS safestr)
+#   opae_add_executable(TARGET fpgaconf SOURCE a.c b.c LIBS opae-c)
 function(opae_add_executable)
     set(options )
     set(oneValueArgs TARGET COMPONENT DESTINATION)
@@ -212,7 +212,7 @@ function(opae_add_executable)
 endfunction()
 
 # example:
-#   opae_add_shared_library(TARGET opae-c SOURCE a.c b.c LIBS safestr)
+#   opae_add_shared_library(TARGET opae-c SOURCE a.c b.c LIBS dl)
 function(opae_add_shared_library)
     set(options )
     set(oneValueArgs TARGET VERSION SOVERSION COMPONENT DESTINATION)
@@ -265,7 +265,7 @@ function(opae_add_shared_library)
 endfunction()
 
 # example:
-#   opae_add_module_library(TARGET xfpga SOURCE a.c b.c LIBS safestr)
+#   opae_add_module_library(TARGET xfpga SOURCE a.c b.c LIBS opae-c)
 function(opae_add_module_library)
     set(options )
     set(oneValueArgs TARGET COMPONENT DESTINATION)
@@ -311,7 +311,7 @@ function(opae_add_module_library)
 endfunction()
 
 # example:
-#   opae_add_static_library(TARGET safestr SOURCE ${SRC})
+#   opae_add_static_library(TARGET sometarget SOURCE ${SRC})
 function(opae_add_static_library)
     set(options )
     set(oneValueArgs TARGET COMPONENT DESTINATION)
