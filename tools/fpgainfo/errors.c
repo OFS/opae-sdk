@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -34,9 +34,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 #include "fpgainfo.h"
-#include "safe_string/safe_string.h"
 #include <opae/properties.h>
 #include "errors.h"
 
@@ -270,10 +270,8 @@ int parse_error_args(int argc, char *argv[])
 		return -1;
 	}
 
-	int cmp = 0;
 	if ((optind < argc) &&
-		strcmp_s(argv[optind - 1], RSIZE_MAX_STR, "errors", &cmp) == EOK &&
-		cmp == 0) {
+		!strcmp(argv[optind - 1], "errors")) {
 		char *verb = argv[optind];
 		size_t idx = str_in_list(verb, supported_verbs, VERB_MAX);
 		if (idx < VERB_MAX) {
@@ -356,37 +354,28 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 			printf("%-32s : 0x%" PRIX64 "\n", errinfos[i].name,
 			       error_value);
 
-			int cmp = 0;
-			if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-				    "Errors", &cmp) == EOK && cmp == 0) {
+			if (!strcmp(errinfos[i].name, "Errors")) {
 				size = FME_ERROR_COUNT;
 				error_string = FME_ERROR;
-			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-				    "Next Error", &cmp) == EOK && cmp == 0) {
+			} else if (!strcmp(errinfos[i].name, "Next Error")) {
 				size = 0;
 				error_string = NULL;
-			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-				    "First Error", &cmp) == EOK && cmp == 0) {
+			} else if (!strcmp(errinfos[i].name, "First Error")) {
 				size = 0;
 				error_string = NULL;
-			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-				    "PCIe0 Errors", &cmp) == EOK && cmp == 0) {
+			} else if (!strcmp(errinfos[i].name, "PCIe0 Errors")) {
 				size = PCIE0_ERROR_COUNT;
 				error_string = PCIE0_ERROR;
-			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-				    "Inject Error", &cmp) == EOK && cmp == 0) {
+			} else if (!strcmp(errinfos[i].name, "Inject Error")) {
 				size = INJECT_ERROR_COUNT;
 				error_string = INJECT_ERROR;
-			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-				    "Catfatal Errors", &cmp) == EOK && cmp == 0) {
+			} else if (!strcmp(errinfos[i].name, "Catfatal Errors")) {
 				size = CATFATAL_ERROR_COUNT;
 				error_string = CATFATAL_ERROR;
-			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-				    "Nonfatal Errors", &cmp) == EOK && cmp == 0) {
+			} else if (!strcmp(errinfos[i].name, "Nonfatal Errors")) {
 				size = NONFATAL_ERROR_COUNT;
 				error_string = NONFATAL_ERROR;
-			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-				    "PCIe1 Errors", &cmp) == EOK && cmp == 0) {
+			} else if (!strcmp(errinfos[i].name, "PCIe1 Errors")) {
 				size = PCIE1_ERROR_COUNT;
 				error_string = PCIE1_ERROR;
 			}
@@ -410,17 +399,13 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 			printf("%-32s : 0x%" PRIX64 "\n", errinfos[i].name,
 			       error_value);
 
-			int cmp = 0;
-			if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-				    "Errors", &cmp) == EOK && cmp == 0) {
+			if (!strcmp(errinfos[i].name, "Errors")) {
 				size = PORT_ERROR_COUNT;
 				error_string = PORT_ERROR;
-			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-				    "First Malformed Req", &cmp) == EOK && cmp == 0) {
+			} else if (!strcmp(errinfos[i].name, "First Malformed Req")) {
 				size = 0;
 				error_string = NULL;
-			} else if (strcmp_s(errinfos[i].name, RSIZE_MAX_STR,
-				    "First Error", &cmp) == EOK && cmp == 0) {
+			} else if (!strcmp(errinfos[i].name, "First Error")) {
 				size = 0;
 				error_string = NULL;
 			}
@@ -473,7 +458,7 @@ fpga_result errors_command(fpga_token *tokens, int num_tokens, int argc,
 						"reading error info structure", res);
 					replace_chars(errinfos[j].name, '_', ' ');
 					upcase_pci(errinfos[j].name,
-						    strnlen_s(errinfos[j].name, RSIZE_MAX_STR));
+						    strnlen(errinfos[j].name, 4096));
 					upcase_first(errinfos[j].name);
 				}
 			}

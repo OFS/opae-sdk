@@ -28,7 +28,6 @@ opae_add_module_library(TARGET board_vc
     SOURCE board_vc.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
-        safestr
         opae-c
     COMPONENT opaeclib
 )

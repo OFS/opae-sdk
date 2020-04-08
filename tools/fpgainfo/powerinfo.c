@@ -32,8 +32,6 @@
 #include <opae/fpga.h>
 #include <uuid/uuid.h>
 
-#include "safe_string/safe_string.h"
-
 #define MODEL_SIZE 64
 
 /*

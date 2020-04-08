@@ -34,7 +34,6 @@
 #include <opae/utils.h>
 #include <opae/fpga.h>
 
-#include "safe_string/safe_string.h"
 #include "board_rc.h"
 
 // BMC sysfs path
@@ -150,7 +149,7 @@ fpga_result read_bmc_version(fpga_token token, int *version)
 		return res;
 	}
 
-	memset_s(&bmc_dev, sizeof(bmc_dev), 0);
+	memset(&bmc_dev, 0, sizeof(bmc_dev));
 
 	res = fpgaObjectRead(bmc_object, (uint8_t *)(&bmc_dev), 0, sizeof(bmc_dev), 0);
 	if (res != FPGA_OK) {
@@ -194,7 +193,7 @@ fpga_result read_bmc_pwr_down_cause(fpga_token token, char *pwr_down_cause)
 		return res;
 	}
 
-	memset_s(&bmc_pd, sizeof(bmc_pd), 0);
+	memset(&bmc_pd, 0, sizeof(bmc_pd));
 
 	res = fpgaObjectRead(bmc_object, (uint8_t *)(&bmc_pd), 0, sizeof(bmc_pd), 0);
 	if (res != FPGA_OK) {
@@ -204,7 +203,7 @@ fpga_result read_bmc_pwr_down_cause(fpga_token token, char *pwr_down_cause)
 	}
 
 	if (bmc_pd.completion_code == 0) {
-		snprintf_s_s(pwr_down_cause, bmc_pd.count, "%s", (char *)bmc_pd.message);
+		strncpy(pwr_down_cause, (char *)bmc_pd.message, bmc_pd.count);
 	} else {
 		OPAE_ERR("unavailable read power down cause: %d ", bmc_pd.completion_code);
 		resval = FPGA_EXCEPTION;
@@ -241,7 +240,7 @@ fpga_result read_bmc_reset_cause(fpga_token token, char *reset_cause_str)
 		return res;
 	}
 
-	memset_s(&bmc_rc, sizeof(bmc_rc), 0);
+	memset(&bmc_rc, 0, sizeof(bmc_rc));
 
 	res = fpgaObjectRead(bmc_object, (uint8_t *)(&bmc_rc), 0, sizeof(bmc_rc), 0);
 	if (res != FPGA_OK) {
@@ -257,37 +256,37 @@ fpga_result read_bmc_reset_cause(fpga_token token, char *reset_cause_str)
 	}
 
 	if (0 == bmc_rc.reset_cause) {
-		snprintf_s_s(reset_cause_str, 256, "%s", "None");
+		strncpy(reset_cause_str, "None", 5);
 		goto out_destroy;
 	}
 
 
 	if (bmc_rc.reset_cause & CHIP_RESET_CAUSE_EXTRST) {
-		snprintf_s_s(reset_cause_str, 256, "%s", "External reset");
+		strncpy(reset_cause_str, "External reset", 15);
 	}
 
 	if (bmc_rc.reset_cause & CHIP_RESET_CAUSE_BOD_IO) {
-		snprintf_s_s(reset_cause_str, 256, "%s", "Brown-out detected");
+		strncpy(reset_cause_str, "Brown-out detected", 19);
 	}
 
 	if (bmc_rc.reset_cause & CHIP_RESET_CAUSE_OCD) {
-		snprintf_s_s(reset_cause_str, 256, "%s", "On-chip debug system");
+		strncpy(reset_cause_str, "On-chip debug system", 21);
 	}
 
 	if (bmc_rc.reset_cause & CHIP_RESET_CAUSE_POR) {
-		snprintf_s_s(reset_cause_str, 256, "%s", "Power-on-reset");
+		strncpy(reset_cause_str, "Power-on-reset", 15);
 	}
 
 	if (bmc_rc.reset_cause & CHIP_RESET_CAUSE_SOFT) {
-		snprintf_s_s(reset_cause_str, 256, "%s", "Software reset");
+		strncpy(reset_cause_str, "Software reset", 15);
 	}
 
 	if (bmc_rc.reset_cause & CHIP_RESET_CAUSE_SPIKE) {
-		snprintf_s_s(reset_cause_str, 256, "%s", "Spike detected");
+		strncpy(reset_cause_str, "Spike detected", 15);
 	}
 
 	if (bmc_rc.reset_cause & CHIP_RESET_CAUSE_WDT) {
-		snprintf_s_s(reset_cause_str, 256, "%s", "Watchdog timeout");
+		strncpy(reset_cause_str, "Watchdog timeout", 17);
 	}
 
 
@@ -354,8 +353,9 @@ fpga_result read_sysfs(fpga_token token, char *sysfs_path, char *sysfs_name)
 	fpga_result res                 = FPGA_OK;
 	fpga_result resval              = FPGA_OK;
 	uint32_t size                   = 0;
-	char name[FPGA_STR_SIZE]        = { 0 };
+	char name[FPGA_STR_SIZE]        = { 0, };
 	fpga_object sec_object;
+	size_t len;
 
 	if (sysfs_path == NULL ||
 		sysfs_name == NULL) {
@@ -389,7 +389,8 @@ fpga_result read_sysfs(fpga_token token, char *sysfs_path, char *sysfs_name)
 		goto out_destroy;
 	}
 
-	snprintf_s_s(sysfs_name, FPGA_STR_SIZE, "%s", (char *)name);
+	len = strnlen(name, FPGA_STR_SIZE - 1);
+	strncpy(sysfs_name, name, len + 1);
 
 out_destroy:
 	res = fpgaDestroyObject(&sec_object);
@@ -419,65 +420,65 @@ fpga_result print_sec_info(fpga_token token)
 	else
 		OPAE_MSG("Failed to Read BMC FW Version");
 
-	memset_s(name, sizeof(name), 0);
+	memset(name, 0, sizeof(name));
 	if (read_sysfs(token, SYSFS_TCM_BIP_VER, name) == FPGA_OK)
 		printf("BIP Version: %s", name);
 	else
 		OPAE_MSG("Failed to Read BIP Version");
 
-	memset_s(name, sizeof(name), 0);
+	memset(name, 0, sizeof(name));
 	if (read_sysfs(token, SYSFS_TCM_FW_VER, name) == FPGA_OK)
 		printf("TCM FW Version: %s", name);
 	else
 		OPAE_MSG("Failed to Read TCM FW Version");
 
-	memset_s(name, sizeof(name), 0);
+	memset(name, 0, sizeof(name));
 	if (read_sysfs(token, SYSFS_TCM_CRYPTO_VER, name) == FPGA_OK)
 		printf("Crypto block Version: %s", name);
 	else
 		OPAE_MSG("Failed to Read Crypto block Version");
 
-	memset_s(name, sizeof(name), 0);
+	memset(name, 0, sizeof(name));
 	if (read_sysfs(token, SYSFS_TCM_SR_ROOT, name) == FPGA_OK)
 		printf("FIM root entry hash: %s", name);
 	else
 		OPAE_MSG("Failed to Read FIM root entry hash");
 
-	memset_s(name, sizeof(name), 0);
+	memset(name, 0, sizeof(name));
 	if (read_sysfs(token, SYSFS_TCM_BMC_ROOT, name) == FPGA_OK)
 		printf("BMC root entry hash: %s", name);
 	else
 		OPAE_MSG("Failed to Read TCM BMC root entry hash");
 
-	memset_s(name, sizeof(name), 0);
+	memset(name, 0, sizeof(name));
 	if (read_sysfs(token, SYSFS_TCM_PR_ROOT, name) == FPGA_OK)
 		printf("PR root entry hash: %s", name);
 
-	memset_s(name, sizeof(name), 0);
+	memset(name, 0, sizeof(name));
 	if (read_sysfs(token, SYSFS_TCM_BMC_FLASH_COUNT, name) == FPGA_OK)
 		printf("BMC flash update counter: %s", name);
 	else
 		OPAE_MSG("Failed to Read BMC flash update counter");
 
-	memset_s(name, sizeof(name), 0);
+	memset(name, 0, sizeof(name));
 	if (read_sysfs(token, SYSFS_TCM_QSPI_COUNT, name) == FPGA_OK)
 		printf("User flash update counter: %s", name);
 	else
 		OPAE_MSG("Failed to Read User flash update counter");
 
-	memset_s(name, sizeof(name), 0);
+	memset(name, 0, sizeof(name));
 	if (read_sysfs(token, SYSFS_TCM_SR_CANCEL, name) == FPGA_OK)
 		printf("FIM CSK IDs canceled : %s", strlen(name) > 1 ? name : "None\n");
 	else
 		OPAE_MSG("Failed to Read FIM CSK IDs canceled");
 
-	memset_s(name, sizeof(name), 0);
+	memset(name, 0, sizeof(name));
 	if (read_sysfs(token, SYSFS_TCM_BMC_CANCEL, name) == FPGA_OK)
 		printf("BMC CSK IDs canceled: %s", strlen(name) > 1 ? name : "None\n");
 	else
 		OPAE_MSG("Failed to Read BMC CSK IDs canceled");
 
-	memset_s(name, sizeof(name), 0);
+	memset(name, 0, sizeof(name));
 	if (read_sysfs(token, SYSFS_TCM_PR_CANCEL, name) == FPGA_OK)
 		printf("AFU CSK IDs canceled: %s", strlen(name) > 1 ? name : "None\n");
 	else

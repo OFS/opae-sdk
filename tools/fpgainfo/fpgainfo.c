@@ -31,7 +31,6 @@
 #include "opae/fpga.h"
 #include <inttypes.h>
 #include <uuid/uuid.h>
-#include "safe_string/safe_string.h"
 #include <ctype.h>
 #include <limits.h>
 
@@ -195,17 +194,16 @@ void replace_chars(char *str, char match, char rep)
 // Turn all "pcie" into "PCIe"
 void upcase_pci(char *str, size_t len)
 {
-	char *tmp = NULL;
-	errno_t res = EOK;
-	res = strcasestr_s(str, len, "pci", 3, &tmp);
-	while (res == EOK) {
+	char *tmp;
+
+	tmp = strcasestr(str, "pci");
+	while (tmp) {
 		*tmp++ = 'P';
 		*tmp++ = 'C';
 		*tmp++ = 'I';
-		str += 3;
+		str = tmp + 3;
 		len -= 3;
-		tmp = NULL;
-		res = strcasestr_s(str, len, "pci", 3, &tmp);
+		tmp = strcasestr(str, "pci");
 	}
 }
 
@@ -225,11 +223,9 @@ void upcase_first(char *str)
 // TODO: Move this to a common file for reuse in other fpgainfo files
 int str_in_list(const char *key, const char *list[], size_t size)
 {
-	int ret = 0;
 	size_t i = 0;
 	for (i = 0; i < size; ++i) {
-		if (strcmp_s(key, RSIZE_MAX_STR, list[i], &ret) == EOK &&
-			ret == 0) {
+		if (!strcmp(key, list[i])) {
 			return (int)i;
 		}
 	}

@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2019, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,6 @@
 #include "option.h"
 #include "nlb.h"
 #include "nlb_stats.h"
-#include "safe_string/safe_string.h"
 #include "diag_utils.h"
 
 
@@ -435,7 +434,7 @@ bool nlb7::run()
 
         // Clear the UMsg address space.
         if (pUMsgUsrVirt)
-            memset_s((uint8_t *)pUMsgUsrVirt, UMsgBufSize, 0);
+            memset((uint8_t *)pUMsgUsrVirt, 0, UMsgBufSize);
 
         // Zero the output buffer.
         out->fill(0);
@@ -467,14 +466,7 @@ bool nlb7::run()
         }
 
         // 2. CPU copies dest to src
-        errno_t e;
-        e = memcpy_s((void *)inp->c_type(), sz,
-			(void *)out->c_type(), sz);
-        if (EOK != e) {
-            std::cerr << "memcpy_s failed" << std::endl;
-            res = false;
-            break;
-        }
+        memcpy((void *)inp->c_type(), (void *)out->c_type(), sz);
 
         // fence operation
         __sync_synchronize();

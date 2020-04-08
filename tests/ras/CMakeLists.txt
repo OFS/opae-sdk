@@ -26,6 +26,8 @@
 
 opae_test_add_static_lib(TARGET ras-static
     SOURCE ${OPAE_SDK_SOURCE}/tools/extra/ras/main.c
+    LIBS
+        opae-c
 )
 
 target_compile_definitions(ras-static

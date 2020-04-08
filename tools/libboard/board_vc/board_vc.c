@@ -1,4 +1,4 @@
-// Copyright(c) 2019, Intel Corporation
+// Copyright(c) 2019-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -38,7 +38,6 @@
 #include <opae/fpga.h>
 #include <sys/ioctl.h>
 
-#include "safe_string/safe_string.h"
 #include "board_vc.h"
 
 // sysfs paths
@@ -158,7 +157,7 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 
 	rev = (var >> 24) & 0xff;
 	if ((rev >= 'A') && (rev <= 'Z')) {// range from 'A' to 'Z'
-		retval = snprintf_s_ciii(fw_ver, len, "%c.%u.%u.%u", (char)rev, (var >> 16) & 0xff, (var >> 8) & 0xff, var & 0xff);
+		retval = snprintf(fw_ver, len, "%c.%u.%u.%u", (char)rev, (var >> 16) & 0xff, (var >> 8) & 0xff, var & 0xff);
 		if (retval < 0) {
 			FPGA_ERR("error in formatting version");
 			return FPGA_EXCEPTION;
@@ -371,8 +370,8 @@ fpga_result read_phy_group_info(fpga_token token,
 {
 	fpga_result res = FPGA_OK;
 	fpga_result resval = FPGA_OK;
-	char path[SYSFS_MAX_SIZE] = { 0 };
-	char cdevid[CDEV_ID_SIZE] = { 0 };
+	char path[SYSFS_MAX_SIZE] = { 0, };
+	char cdevid[CDEV_ID_SIZE] = { 0, };
 	size_t i = 0;
 	uint32_t group_dev_count = 0;
 	uint32_t obj_size = 0;
@@ -473,7 +472,8 @@ fpga_result read_phy_group_info(fpga_token token,
 
 		// append null char
 		cdevid[obj_size - 1] = '\0';
-		snprintf_s_s(path, sizeof(path), "/dev/char/%s", cdevid);
+		strncpy(path, "/dev/char/", 11);
+		strncat(path, cdevid, sizeof(path) - obj_size - 1);
 
 		res = get_phy_info(path, &group_info[i]);
 		if (res != FPGA_OK) {
@@ -517,7 +517,7 @@ fpga_result get_phy_info(char *dev_path, fpga_phy_group_info *info)
 		return FPGA_INVALID_PARAM;
 	}
 
-	memset_s(info, sizeof(fpga_phy_group_info), 0);
+	memset(info, 0, sizeof(fpga_phy_group_info));
 	info->argsz = sizeof(fpga_phy_group_info);
 
 	if (0 != ioctl(fd, FPGA_PHY_GROUP_GET_INFO, info)) {
@@ -537,7 +537,7 @@ fpga_result read_mac_info(fpga_token token, unsigned char *mac_info, size_t len)
 	unsigned char buf[8]            = {0};
 	fpga_object mac_object;
 
-	if (mac_info == NULL) {
+	if (!token || !mac_info || !len) {
 		FPGA_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
@@ -555,7 +555,7 @@ fpga_result read_mac_info(fpga_token token, unsigned char *mac_info, size_t len)
 		goto out_destroy_mac;
 	}
 
-	memcpy_s(mac_info, len, buf, sizeof(buf));
+	memcpy(mac_info, buf, len);
 
 out_destroy_mac:
 	res = fpgaDestroyObject(&mac_object);
@@ -792,7 +792,7 @@ fpga_result print_phy_info(fpga_token token)
 
 	printf("//****** Intel C827 Retimer ******//\n");
 
-	strncpy_s(mode, sizeof(mode), phy_info_array[0].speed == 25 ? "25G" : "10G", 3);
+	strncpy(mode, phy_info_array[0].speed == 25 ? "25G" : "10G", 4);
 	for (i = 0, j = 0; i < MAX_PORTS; i++) {
 		if (mask&(1 << i)) {
 			printf("Port%-2d%-26s : %s\n", j, mode, pkvl_info.status&(1 << i) ? "Up" : "Down");

@@ -34,7 +34,6 @@ opae_add_executable(TARGET fpga_dma_vc_test
     SOURCE ${CSources}
     LIBS
         rt
-        safestr
         opae-c
         ${TBB_LIBRARIES}
         ${HWLOC_LIBRARIES}

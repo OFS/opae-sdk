@@ -50,8 +50,6 @@
 
 #include <uuid/uuid.h>
 
-#include "safe_string/safe_string.h"
-
 #include <opae/fpga.h>
 #include <libbitstream/bitstream.h>
 
@@ -317,7 +315,6 @@ fpga_result get_fpga_interface_id(fpga_token token, fpga_guid interface_id)
 	fpga_properties filter = NULL;
 	fpga_objtype objtype;
 	fpga_guid guid;
-	errno_t e;
 
 	result = fpgaGetProperties(token, &filter);
 	if (result != FPGA_OK) {
@@ -343,12 +340,7 @@ fpga_result get_fpga_interface_id(fpga_token token, fpga_guid interface_id)
 		goto out_destroy;
 	}
 
-	e = memcpy_s(interface_id, sizeof(fpga_guid),
-		guid, sizeof(guid));
-	if (EOK != e) {
-		OPAE_ERR("memcpy_s failed");
-		goto out_destroy;
-	}
+	memcpy(interface_id, guid, sizeof(fpga_guid));
 
 out_destroy:
 	resval = (result != FPGA_OK) ? result : resval;

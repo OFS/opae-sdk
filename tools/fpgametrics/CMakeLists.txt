@@ -27,7 +27,6 @@
 opae_add_executable(TARGET fpgametrics
     SOURCE fpgametrics.c
     LIBS
-        safestr
         opae-c
         ${libjson-c_LIBRARIES}
     COMPONENT toolfpgametrics
