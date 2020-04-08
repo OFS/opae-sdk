@@ -173,7 +173,6 @@ opae_test_add(TARGET test_xfpga_manage_c
 opae_test_add(TARGET test_xfpga_events_c
     SOURCE test_events_c.cpp
     LIBS
-        safestr
         test-fpgad-static
         bmc-static
         ${libjson-c_LIBRARIES}

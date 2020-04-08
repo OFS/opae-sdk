@@ -47,8 +47,8 @@ extern "C" {
 #include <opae/buffer.h>
 #include <opae/mmio.h>
 #include <string>
-#include "safe_string/safe_string.h"
 #include <algorithm>
+
 
 #define NLB_DSM_SIZE (2 * 1024 * 1024)
 #define KB 1024

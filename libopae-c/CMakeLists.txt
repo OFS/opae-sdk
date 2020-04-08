@@ -36,7 +36,6 @@ opae_add_shared_library(TARGET opae-c
     LIBS
         dl
         ${CMAKE_THREAD_LIBS_INIT}
-        safestr
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
     VERSION ${OPAE_VERSION}
@@ -57,7 +56,6 @@ opae_add_shared_library(TARGET opae-c-ase
     LIBS
         dl
         ${CMAKE_THREAD_LIBS_INIT}
-        safestr
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
     VERSION ${OPAE_VERSION}

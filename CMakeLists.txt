@@ -95,12 +95,14 @@ mark_as_advanced(OPAE_ENABLE_MOCK)
 option(OPAE_BUILD_SIM "Enable building of the AFU simulation environment" OFF)
 mark_as_advanced(OPAE_BUILD_SIM)
 
+option(OPAE_PRESERVE_REPOS "Disable refresh of external repos" OFF)
+mark_as_advanced(OPAE_PRESERVE_REPOS)
+
 ############################################################################
 ## Add Subdirectories ######################################################
 ############################################################################
 
 opae_add_subdirectory(external)
-opae_add_subdirectory(safe_string)
 opae_add_subdirectory(libopae-c)
 opae_add_subdirectory(libbitstream)
 opae_add_subdirectory(plugins)
@@ -121,10 +123,6 @@ endif(OPAE_BUILD_TESTS)
 install(DIRECTORY include/opae
     DESTINATION include
     COMPONENT libopaeheaders)
-
-install(DIRECTORY include/safe_string
-    DESTINATION include
-    COMPONENT safestrheaders)
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/config/config.h.in"
                "${CMAKE_BINARY_DIR}/include/config.h")

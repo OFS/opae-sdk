@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -82,12 +82,12 @@ TEST(version_c, version_03) {
  *
  * @brief      When I retrieve fpga_version information using
  *             xfpga_fpgaGetOPAECVersionString using a size shorter than the minimum
- *             possible (which is 6) the function returns FPGA_EXCEPTION.
+ *             possible (which is 6) the function returns FPGA_INVALID_PARAM.
  */
 TEST(version_c, version_04) {
   char str[80];
 
-  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaGetOPAECVersionString(str, 5));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetOPAECVersionString(str, 5));
 }
 
 /**
@@ -128,12 +128,12 @@ TEST(version_c, version_06) {
  *
  * @brief      When I retrieve fpga_version information using
  *             xfpga_fpgaGetOPAECBuildString using a size of 0
- *             the function returns FPGA_EXCEPTION.
+ *             the function returns FPGA_INVALID_PARAM.
  */
 TEST(version_c, version_07) {
   char str[80];
  
-  EXPECT_EQ(FPGA_EXCEPTION, xfpga_fpgaGetOPAECBuildString(str, 0));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetOPAECBuildString(str, 0));
 }
 
 /**

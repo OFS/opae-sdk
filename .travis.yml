@@ -1,0 +1,23 @@
+dist: bionic
+language: c
+compiler: gcc
+matrix:
+  include:
+  - script:
+    - mkdir .build && cd .build && cmake .. -DCMAKE_BUILD_TYPE=Debug -DOPAE_ENABLE_MOCK=ON -DOPAE_BUILD_TESTS=ON
+    - make
+    - ctest --timeout 180
+    before_script:
+    - sudo sysctl -w vm.nr_hugepages=8
+    cache: ccache
+    env:
+    - OPAE_EXPLICIT_INITIALIZE=1
+    - LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/.build/lib
+    addons:
+      apt:
+        packages:
+        - libjson-c-dev
+        - libhwloc-dev
+        - libtbb-dev
+        - uuid-dev
+        - doxygen

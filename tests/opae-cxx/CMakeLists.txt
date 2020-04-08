@@ -58,7 +58,6 @@ opae_test_add(TARGET test_opae_errors_cxx_core
 opae_test_add(TARGET test_opae_events_cxx_core
     SOURCE test_events_cxx_core.cpp
     LIBS
-        safestr
         test-fpgad-static
         opae-cxx-core-static
     TEST_FPGAD
