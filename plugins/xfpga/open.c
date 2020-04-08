@@ -38,8 +38,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include "safe_string/safe_string.h"
-
 fpga_result __XFPGA_API__
 xfpga_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 {
@@ -78,7 +76,7 @@ xfpga_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 		return FPGA_NO_MEMORY;
 	}
 
-	memset_s(_handle, sizeof(*_handle), 0);
+	memset(_handle, 0, sizeof(*_handle));
 
 	// mark data structure as valid
 	_handle->magic = FPGA_HANDLE_MAGIC;

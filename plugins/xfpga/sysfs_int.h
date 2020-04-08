@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2019, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -61,12 +61,12 @@ typedef struct _sysfs_fpga_device {
 	int number;
 	sysfs_fpga_region *fme;
 	sysfs_fpga_region *port;
-  uint32_t segment;
-  uint8_t bus;
-  uint8_t device;
-  uint8_t function;
-  uint32_t device_id;
-  uint32_t vendor_id;
+	uint32_t segment;
+	uint8_t bus;
+	uint8_t device;
+	uint8_t function;
+	uint32_t device_id;
+	uint32_t vendor_id;
 } sysfs_fpga_device;
 
 int sysfs_initialize(void);
@@ -102,7 +102,7 @@ fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid);
  * sysfs utility functions.
  */
 
-fpga_result opae_glob_path(char *path);
+fpga_result opae_glob_path(char *path, size_t len);
 fpga_result sysfs_sbdf_from_path(const char *sysfspath, int *s, int *b, int *d, int *f);
 fpga_result sysfs_read_int(const char *path, int *i);
 fpga_result sysfs_read_u32(const char *path, uint32_t *u);

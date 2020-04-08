@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -230,14 +230,14 @@ TEST_P(reconf_c, fpga_reconf_slot) {
   fpga_result result;
   uint8_t bitstream_empty[] = "";
   uint8_t bitstream_invalid_guid[] =
-      "Xeon·GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
+      "Xeon\xb7GBSv001\53\02\00\00{\"version\": 640, \"afu-image\": \
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
       \"power\": 50, \"interface-uuid\": \"1a422218-6dba-448e-b302-425cbcde1406\", \
       \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\": 1,\
       \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
       \"d8424dc4-a4a3-c413-f89e-433683f9040b\"}]}, \"platform-name\": \"MCP\"}";
   uint8_t bitstream_invalid_json[] =
-      "XeonFPGA·GBSv001\53\02{\"version\": \"afu-image\"}";
+      "XeonFPGA\xb7GBSv001\53\02{\"version\": \"afu-image\"}";
   size_t bitstream_valid_len =
       get_bitstream_header_len(bitstream_valid_.data());
   uint32_t slot = 0;
@@ -364,7 +364,7 @@ TEST_P(reconf_c, open_accel_02) {
  *           FPGA_EXCEPTION.
  */
 TEST_P(reconf_c, validate_bitstream) {
-  uint8_t bitstream_invalid_len[] = "XeonFPGA·GBSv001\255\255\255\255";
+  uint8_t bitstream_invalid_len[] = "XeonFPGA\xb7GBSv001\255\255\255\255";
   size_t bitstream_len = sizeof(bitstream_invalid_len) / sizeof(uint8_t);
   int header_len;
   fpga_result result;

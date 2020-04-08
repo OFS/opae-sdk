@@ -30,6 +30,9 @@ opae_test_add_static_lib(TARGET opae-c-static
         ${OPAE_LIBS_ROOT}/libopae-c/init.c
         ${OPAE_LIBS_ROOT}/libopae-c/pluginmgr.c
         ${OPAE_LIBS_ROOT}/libopae-c/props.c
+    LIBS
+        ${CMAKE_THREAD_LIBS_INIT}
+	${libjson-c_LIBRARIES}
 )
 
 opae_test_add(TARGET test_opae_enum_c
@@ -119,7 +122,6 @@ opae_test_add(TARGET test_opae_pluginmgr_c
     SOURCE test_pluginmgr_c.cpp
     LIBS
 	opae-c-static
-	${libjson-c_LIBRARIES}
 )
 
 set_tests_properties(test_opae_pluginmgr_c

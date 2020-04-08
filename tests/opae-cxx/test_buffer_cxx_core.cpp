@@ -57,7 +57,8 @@ protected:
 
   virtual void TearDown() override {
     tokens_.clear();
-    handle_->close();
+    if (handle_.get())
+      handle_->close();
     handle_.reset();
     fpgaFinalize();
 

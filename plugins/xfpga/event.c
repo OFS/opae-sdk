@@ -32,12 +32,11 @@
 #define _GNU_SOURCE
 #endif // _GNU_SOURCE
 
+#include <string.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <sys/eventfd.h>
 #include <errno.h>
-
-#include "safe_string/safe_string.h"
 
 #include <opae/properties.h>
 #include "xfpga.h"
@@ -70,7 +69,7 @@ fpga_result send_event_request(int conn_socket, int fd,
 	/* set up ancillary data message header */
 	iov[0].iov_base = req;
 	iov[0].iov_len = sizeof(*req);
-	memset_s(buf, sizeof(buf), 0);
+	memset(buf, 0, sizeof(buf));
 	mh.msg_name = NULL;
 	mh.msg_namelen = 0;
 	mh.msg_iov = iov;
@@ -376,7 +375,6 @@ STATIC fpga_result daemon_register_event(fpga_handle handle,
 	UNUSED_PARAM(flags);
 
 	if (_handle->fdfpgad < 0) {
-		errno_t e;
 
 		/* connect to event socket */
 		_handle->fdfpgad = socket(AF_UNIX, SOCK_STREAM, 0);
@@ -386,12 +384,8 @@ STATIC fpga_result daemon_register_event(fpga_handle handle,
 		}
 
 		addr.sun_family = AF_UNIX;
-		e = strncpy_s(addr.sun_path, sizeof(addr.sun_path),
-			      EVENT_SOCKET_NAME, EVENT_SOCKET_NAME_LEN);
-		if (EOK != e) {
-			OPAE_ERR("strncpy_s failed");
-			return FPGA_EXCEPTION;
-		}
+		strncpy(addr.sun_path, EVENT_SOCKET_NAME,
+			EVENT_SOCKET_NAME_LEN);
 
 		if (connect(_handle->fdfpgad, (struct sockaddr *)&addr,
 			    sizeof(addr))

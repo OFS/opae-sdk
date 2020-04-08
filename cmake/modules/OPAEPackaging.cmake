@@ -129,7 +129,7 @@ macro(CREATE_PYTHON_EXE EXE_NAME MAIN_MODULE)
         "\n"
         "# Write to a buffer so that the shebang can be prepended easily\n"
         "wr_buf = BytesIO()\n"
-        "wr_buf.write('#!/usr/bin/env python' + os.linesep)\n"
+        "wr_buf.write('#!/usr/bin/env python{0}'.format(os.linesep).encode())\n"
         "\n"
         "z = zipfile.PyZipFile(wr_buf, 'w')\n")
 
