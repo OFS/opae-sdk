@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -26,7 +26,6 @@
 
 extern "C" {
 #include "error_int.h"
-#include "safe_string/safe_string.h"
 #include "token_list_int.h"
 }
 
@@ -34,6 +33,7 @@ extern "C" {
 #include <props.h>
 #include <fstream>
 #include <string>
+#include <cstring>
 #include "gtest/gtest.h"
 #include "mock/test_system.h"
 #include "types_int.h"
@@ -81,19 +81,21 @@ class error_c_mock_p : public ::testing::TestWithParam<std::string> {
         dev_port = std::string("/dev/") + std::string(device->port->sysfs_name);
       }
     }
-    strncpy_s(fake_port_token_.sysfspath, sizeof(fake_port_token_.sysfspath),
-              sysfs_port.c_str(), sysfs_port.size());
-    strncpy_s(fake_port_token_.devpath, sizeof(fake_port_token_.devpath),
-              dev_port.c_str(), dev_port.size());
+    memset(&fake_port_token_, 0, sizeof(fake_port_token_));
+    strncpy(fake_port_token_.sysfspath,
+              sysfs_port.c_str(), sysfs_port.size() + 1);
+    strncpy(fake_port_token_.devpath,
+              dev_port.c_str(), dev_port.size() + 1);
     fake_port_token_.magic = FPGA_TOKEN_MAGIC;
     fake_port_token_.device_instance = 0;
     fake_port_token_.subdev_instance = 0;
     fake_port_token_.errors = nullptr;
 
-    strncpy_s(fake_fme_token_.sysfspath, sizeof(fake_fme_token_.sysfspath),
-              sysfs_fme.c_str(), sysfs_fme.size());
-    strncpy_s(fake_fme_token_.devpath, sizeof(fake_fme_token_.devpath),
-              dev_fme.c_str(), dev_fme.size());
+    memset(&fake_fme_token_, 0, sizeof(fake_fme_token_));
+    strncpy(fake_fme_token_.sysfspath,
+              sysfs_fme.c_str(), sysfs_fme.size() + 1);
+    strncpy(fake_fme_token_.devpath,
+              dev_fme.c_str(), dev_fme.size() + 1);
     fake_fme_token_.magic = FPGA_TOKEN_MAGIC;
     fake_fme_token_.device_instance = 0;
     fake_fme_token_.subdev_instance = 0;
@@ -705,9 +707,8 @@ TEST(error_c, error_01) {
  */
 TEST(error_c, error_06) {
   struct _fpga_token _t;
-  strncpy_s(_t.sysfspath, sizeof(_t.sysfspath), sysfs_port.c_str(),
-            sysfs_port.size());
-  strncpy_s(_t.devpath, sizeof(_t.devpath), dev_port.c_str(), dev_port.size());
+  strncpy(_t.sysfspath, sysfs_port.c_str(), sysfs_port.size() + 1);
+  strncpy(_t.devpath, dev_port.c_str(), dev_port.size() + 1);
   _t.magic = FPGA_TOKEN_MAGIC;
   _t.errors = nullptr;
 

@@ -27,7 +27,6 @@
 opae_add_executable(TARGET object_api
     SOURCE object_api.c
     LIBS
-        safestr
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}

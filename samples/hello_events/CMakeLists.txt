@@ -27,7 +27,6 @@
 opae_add_executable(TARGET hello_events
     SOURCE hello_events.c
     LIBS
-        safestr
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}

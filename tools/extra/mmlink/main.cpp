@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2019, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -36,8 +36,6 @@
 #include <opae/fpga.h>
 #include "mmlink_server.h"
 #include "mm_debug_link_interface.h"
-
-#include "safe_string/safe_string.h"
 
 // STP index in AFU
 #define FPGA_PORT_INDEX_STP               1
@@ -150,8 +148,7 @@ int main( int argc, char** argv )
 	}
 
 	if ('\0' == mmlinkCmdLine.ip[0]) {
-		strncpy_s(mmlinkCmdLine.ip, sizeof(mmlinkCmdLine.ip),
-			"0.0.0.0", 9);
+		strncpy(mmlinkCmdLine.ip, "0.0.0.0", 8);
 	}
 
 	printf(" ------- Command line Input START ----\n\n");
@@ -265,7 +262,7 @@ int run_mmlink(fpga_handle  port_handle,
 		return -1;
 	}
 
-	memset_s(&sock, sizeof(sock), 0);
+	memset(&sock, 0, sizeof(sock));
 	sock.sin_family = AF_INET;
 	sock.sin_port = htons(mmlinkCmdLine->port);
 	if (1 != inet_pton(AF_INET, mmlinkCmdLine->ip, &sock.sin_addr)) {
@@ -398,8 +395,7 @@ int ParseCmds(struct MMLinkCommandLine *mmlinkCmdLine, int argc, char *argv[])
 				PRINT_ERR("Missing required argument for --ip");
 				return -1;
 			}
-			strncpy_s(mmlinkCmdLine->ip, sizeof(mmlinkCmdLine->ip),
-				tmp_optarg, 16);
+			strncpy(mmlinkCmdLine->ip, tmp_optarg, 16);
 			break;
 
 		case 'v':

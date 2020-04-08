@@ -1,4 +1,4 @@
-// Copyright(c) 2019, Intel Corporation
+// Copyright(c) 2019-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,6 @@ extern "C" {
 #include <sys/stat.h>
 #include <fcntl.h>
 #include "opae_int.h"
-#include "safe_string/safe_string.h"
 }
 
 #include <opae/fpga.h>
@@ -130,7 +129,8 @@ fpga_result board_vc_c_p::write_sysfs_file(const char *file,
 	char sysfspath[SYSFS_MAX_SIZE];
 	int fd = 0;
 
-	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", file);
+	snprintf(sysfspath, sizeof(sysfspath),
+		 "%s/%s", "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", file);
 
 	glob_t pglob;
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
@@ -161,7 +161,8 @@ fpga_result board_vc_c_p::delete_sysfs_file(const char *file) {
 	char sysfspath[SYSFS_MAX_SIZE];
 	int status = 0;
 
-	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", file);
+	snprintf(sysfspath, sizeof(sysfspath),
+		 "%s/%s", "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", file);
 
 	glob_t pglob;
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
@@ -254,13 +255,13 @@ TEST_P(board_vc_c_p, board_vc_4) {
 */
 TEST_P(board_vc_c_p, board_vc_5) {
 
-	unsigned char buf[8] = { 0 };
+	unsigned char buf[SYSFS_MAX_SIZE] = { 0, };
 
-	EXPECT_EQ(read_mac_info(tokens_[0], buf, SYSFS_MAX_SIZE), FPGA_OK);
+	EXPECT_EQ(read_mac_info(tokens_[0], buf, sizeof(buf)), FPGA_OK);
 
-	EXPECT_EQ(read_mac_info(NULL, buf, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
+	EXPECT_EQ(read_mac_info(NULL, buf, sizeof(buf)), FPGA_INVALID_PARAM);
 
-	EXPECT_EQ(read_mac_info(tokens_[0], NULL, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
+	EXPECT_EQ(read_mac_info(tokens_[0], NULL, sizeof(buf)), FPGA_INVALID_PARAM);
 }
 
 /**

@@ -52,7 +52,6 @@
 #include <pthread.h>
 
 #include <opae/fpga.h>
-#include <safe_string/safe_string.h>
 
 int usleep(unsigned);
 

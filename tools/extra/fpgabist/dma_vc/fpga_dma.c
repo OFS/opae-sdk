@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -40,7 +40,6 @@
 #include <assert.h>
 #include <inttypes.h>
 #include <signal.h>
-#include "safe_string/safe_string.h"
 #include "fpga_dma_internal.h"
 #include "fpga_dma.h"
 
@@ -678,7 +677,7 @@ fpga_result fpgaDmaOpen(fpga_handle fpga, int dma_idx, fpga_dma_handle *dma_p)
 	res = fpgaGetIOAddress(dma_h->fpga_h, dma_h->magic_wsid,
 			       &dma_h->magic_iova);
 	ON_ERR_GOTO(res, rel_buf, "fpgaGetIOAddress");
-	memset_s((void *)dma_h->magic_buf, FPGA_DMA_ALIGN_BYTES, 0);
+	memset((void *)dma_h->magic_buf, 0, FPGA_DMA_ALIGN_BYTES);
 
 	// turn on global interrupts
 	msgdma_ctrl_t ctrl = {0};
@@ -698,7 +697,7 @@ fpga_result fpgaDmaOpen(fpga_handle fpga, int dma_idx, fpga_dma_handle *dma_p)
 	struct sigaction sa;
 	int sigres;
 
-	memset_s(&sa, sizeof(sa), 0);
+	memset(&sa, 0, sizeof(sa));
 	sa.sa_flags = SA_SIGINFO | SA_RESETHAND;
 	sa.sa_sigaction = sig_handler;
 

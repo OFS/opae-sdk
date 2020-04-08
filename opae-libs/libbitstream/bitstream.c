@@ -28,6 +28,7 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#include <stdio.h>
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -39,7 +40,6 @@
 #include "bits_utils.h"
 #include "metadatav1.h"
 
-#include "safe_string/safe_string.h"
 #include <opae/log.h>
 #include <opae/properties.h>
 #include <opae/sysobject.h>
@@ -206,7 +206,6 @@ STATIC fpga_result opae_resolve_bitstream(opae_bitstream_info *info)
 	opae_bitstream_header *hdr;
 	size_t sz;
 	char *buf;
-	errno_t err;
 
 	if (info->data_len < sizeof(opae_bitstream_header)) {
 		OPAE_ERR("file length smaller than bitstream header: "
@@ -241,14 +240,7 @@ STATIC fpga_result opae_resolve_bitstream(opae_bitstream_info *info)
 		return FPGA_NO_MEMORY;
 	}
 
-	err = memcpy_s(buf, hdr->metadata_length,
-			hdr->metadata, hdr->metadata_length);
-	if (err != EOK) {
-		OPAE_ERR("memcpy_s failed");
-		free(buf);
-		return FPGA_EXCEPTION;
-	}
-
+	memcpy(buf, hdr->metadata, hdr->metadata_length);
 	buf[hdr->metadata_length] = '\0';
 
 	info->parsed_metadata =
@@ -274,7 +266,7 @@ fpga_result opae_load_bitstream(const char *file, opae_bitstream_info *info)
 		return FPGA_INVALID_PARAM;
 	}
 
-	memset_s(info, sizeof(opae_bitstream_info), 0);
+	memset(info, 0, sizeof(opae_bitstream_info));
 
 	res = opae_bitstream_read_file(file, &info->data, &info->data_len);
 	if (res != FPGA_OK) {
@@ -322,7 +314,7 @@ fpga_result opae_unload_bitstream(opae_bitstream_info *info)
 
 	}
 
-	memset_s(info, sizeof(opae_bitstream_info), 0);
+	memset(info, 0, sizeof(opae_bitstream_info));
 
 	return res;
 }

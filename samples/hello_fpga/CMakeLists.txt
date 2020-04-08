@@ -27,7 +27,6 @@
 opae_add_executable(TARGET hello_fpga
     SOURCE hello_fpga.c
     LIBS
-        safestr
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}

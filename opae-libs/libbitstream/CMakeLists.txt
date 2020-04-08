@@ -31,7 +31,6 @@ opae_add_shared_library(TARGET bitstream
         metadatav1.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
-        safestr
         opae-c
     VERSION ${OPAE_VERSION}
     SOVERSION ${OPAE_VERSION_MAJOR}

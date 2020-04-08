@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -38,7 +38,6 @@
 
 #include <sys/param.h>
 
-#include "safe_string/safe_string.h"
 #include "mmlink_connection.h"
 
 using namespace std;
@@ -192,7 +191,7 @@ int mmlink_connection::handle_unbound_command(char *cmd)
 	// if any other input, close
 	char expect_handle[] = "HANDLE 01234567";
 
-	snprintf_s_i(expect_handle+7, 16,
+	snprintf(expect_handle+7, 9,
 			"%08X", get_server_id());
 
 	if (0 == strcmp(expect_handle, cmd))
@@ -201,7 +200,7 @@ int mmlink_connection::handle_unbound_command(char *cmd)
 				" setting to bound state\n";
 
 		bind();
-		send(OK, strnlen_s(OK, MMLINK_OK_SIZE));
+		send(OK, strnlen(OK, MMLINK_OK_SIZE));
 	}
 	else
 	{
@@ -233,7 +232,7 @@ int mmlink_connection::handle_bound_command(char *cmd)
 	int arg1, arg2;
 	bool unknown = true;
 
-	if (1 == sscanf_s_u(cmd, "IDENT %X", &u))
+	if (1 == sscanf(cmd, "IDENT %X", &u))
 	{
 		arg1 = (int)u;
 		if (arg1 >= 0 && arg1 <= 0xF) {
@@ -244,39 +243,39 @@ int mmlink_connection::handle_bound_command(char *cmd)
 			// Write the nibble value
 			driver()->write_ident(arg1);
 			driver()->ident(ident);
-			snprintf_s_iiii(msg, msg_len, "%08X%08X%08X%08X\n",
+			snprintf(msg, msg_len, "%08X%08X%08X%08X\n",
 				 ident[3], ident[2], ident[1], ident[0]);
 
-			send(msg, strnlen_s(msg, msg_len + 1));
+			send(msg, strnlen(msg, msg_len + 1));
 			unknown = false;
 		}
 	}
-	else if (1 == sscanf_s_i(cmd, "RESET %d", &arg1))
+	else if (1 == sscanf(cmd, "RESET %d", &arg1))
 	{
 		if (arg1 == 0 || arg1 == 1)
 		{
 			driver()->reset(arg1);
-			send(OK,strnlen_s(OK, MMLINK_OK_SIZE));
+			send(OK, strnlen(OK, MMLINK_OK_SIZE));
 			unknown = false;
 		}
 	}
-	else if (2 == sscanf_s_ii(cmd, "ENABLE %d %d", &arg1, &arg2))
+	else if (2 == sscanf(cmd, "ENABLE %d %d", &arg1, &arg2))
 	{
 		if (arg1 >= 0 && (arg2 == 0 || arg2 == 1))
 		{
 			driver()->enable(arg1, arg2);
-			send(OK, strnlen_s(OK, MMLINK_OK_SIZE));
+			send(OK, strnlen(OK, MMLINK_OK_SIZE));
 			unknown = false;
 		}
 	}
 	else if (0 == strncmp(cmd, "NOOP", 4))
 	{
-		send(OK, strnlen_s(OK, MMLINK_OK_SIZE));
+		send(OK, strnlen(OK, MMLINK_OK_SIZE));
 		unknown = false;
 	}
 
 	if (unknown)
-		send(UNKNOWN, strnlen_s(UNKNOWN, MMLINK_UNKNOWN_SIZE));
+		send(UNKNOWN, strnlen(UNKNOWN, MMLINK_UNKNOWN_SIZE));
 
 	return 0;
 }
