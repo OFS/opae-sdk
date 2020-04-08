@@ -37,7 +37,6 @@ set(SRC
 #        rt
 #        dl
 #        ${CMAKE_THREAD_LIBS_INIT}
-#        safestr
 #    VERSION ${OPAE_VERSION}
 #    SOVERSION ${OPAE_VERSION_MAJOR}
 #)
@@ -52,6 +51,5 @@ opae_add_module_library(TARGET modbmc
         rt
         dl
         ${CMAKE_THREAD_LIBS_INIT}
-        safestr
     COMPONENT opaetoolslibs
 )

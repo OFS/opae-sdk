@@ -48,7 +48,6 @@ extern "C" {
 #include <vector>
 
 #include "gtest/gtest.h"
-#include "safe_string/safe_string.h"
 #include "mock/test_system.h"
 #include "mock/test_utils.h"
 #include "token_list_int.h"

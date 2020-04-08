@@ -33,8 +33,6 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-
-#include "safe_string/safe_string.h"
 #include "opae/access.h"
 #include "opae/utils.h"
 #include "common_int.h"

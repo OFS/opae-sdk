@@ -43,7 +43,6 @@
 #include <glob.h>
 
 #include "types_int.h"
-#include "safe_string/safe_string.h"
 #include "metrics_int.h"
 #include "common_int.h"
 #include "metrics/bmc/bmc.h"
@@ -147,11 +146,11 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 	uint32_t num_sensors              = 0;
 	uint32_t num_values               = 0;
 	uint32_t x                        = 0;
-	errno_t e                         = 0;
 
 	sdr_details details;
 	bmc_sdr_handle records;
 	bmc_values_handle values;
+	size_t len;
 
 	if (handle == NULL ||
 		num_thresholds == NULL) {
@@ -201,25 +200,16 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 				continue;
 			}
 
-			e = strncpy_s(metric_thresholds[x].metric_name, sizeof(metric_thresholds[x].metric_name),
-				details.name, SYSFS_PATH_MAX);
-			if (EOK != e) {
-				OPAE_ERR("Failed to copy threshold name");
-				result = FPGA_EXCEPTION;
-				goto destroy_values;
-			}
+			len = strnlen(details.name, sizeof(metric_thresholds[x].metric_name) - 1);
+			strncpy(metric_thresholds[x].metric_name, details.name, len + 1);
 
 			// Upper Non-Recoverable Threshold
 			if (details.thresholds.upper_nr_thresh.is_valid) {
 
-				e = strncpy_s(metric_thresholds[x].upper_nr_threshold.threshold_name,
-					sizeof(metric_thresholds[x].upper_nr_threshold.threshold_name),
-					UPPER_NR_THRESHOLD, SYSFS_PATH_MAX);
-				if (EOK != e) {
-					OPAE_ERR("Failed to copy threshold name");
-					result = FPGA_EXCEPTION;
-					goto destroy_values;
-				}
+				len = strnlen(UPPER_NR_THRESHOLD,
+					sizeof(metric_thresholds[x].upper_nr_threshold.threshold_name) - 1);
+				strncpy(metric_thresholds[x].upper_nr_threshold.threshold_name,
+					UPPER_NR_THRESHOLD, len + 1);
 				metric_thresholds[x].upper_nr_threshold.value = details.thresholds.upper_nr_thresh.value;
 				metric_thresholds[x].upper_nr_threshold.is_valid = true;
 
@@ -229,14 +219,10 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 			// Upper Critical Threshold
 			if (details.thresholds.upper_c_thresh.is_valid) {
 
-				e = strncpy_s(metric_thresholds[x].upper_c_threshold.threshold_name,
-					sizeof(metric_thresholds[x].upper_c_threshold.threshold_name),
-					UPPER_C_THRESHOLD, SYSFS_PATH_MAX);
-				if (EOK != e) {
-					OPAE_ERR("Failed to copy threshold name");
-					result = FPGA_EXCEPTION;
-					goto destroy_values;
-				}
+				len = strnlen(UPPER_C_THRESHOLD,
+					sizeof(metric_thresholds[x].upper_c_threshold.threshold_name) - 1);
+				strncpy(metric_thresholds[x].upper_c_threshold.threshold_name,
+					UPPER_C_THRESHOLD, len + 1);
 				metric_thresholds[x].upper_c_threshold.value = details.thresholds.upper_c_thresh.value;
 				metric_thresholds[x].upper_c_threshold.is_valid = true;
 			}
@@ -245,14 +231,10 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 			// Upper Non-Critical Threshold
 			if (details.thresholds.upper_nc_thresh.is_valid) {
 
-				e = strncpy_s(metric_thresholds[x].upper_nc_threshold.threshold_name,
-					sizeof(metric_thresholds[x].upper_nc_threshold.threshold_name),
-					UPPER_NC_THRESHOLD, SYSFS_PATH_MAX);
-				if (EOK != e) {
-					OPAE_ERR("Failed to copy threshold name");
-					result = FPGA_EXCEPTION;
-					goto destroy_values;
-				}
+				len = strnlen(UPPER_NC_THRESHOLD,
+						sizeof(metric_thresholds[x].upper_nc_threshold.threshold_name) - 1);
+				strncpy(metric_thresholds[x].upper_nc_threshold.threshold_name,
+					UPPER_NC_THRESHOLD, len + 1);
 				metric_thresholds[x].upper_nc_threshold.value = details.thresholds.upper_nc_thresh.value;
 				metric_thresholds[x].upper_nc_threshold.is_valid = true;
 			}
@@ -261,14 +243,10 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 			// Lower Non-Recoverable Threshold
 			if (details.thresholds.lower_nr_thresh.is_valid) {
 
-				e = strncpy_s(metric_thresholds[x].lower_nr_threshold.threshold_name,
-					sizeof(metric_thresholds[x].lower_nr_threshold.threshold_name),
-					LOWER_NR_THRESHOLD, SYSFS_PATH_MAX);
-				if (EOK != e) {
-					OPAE_ERR("Failed to copy threshold name");
-					result = FPGA_EXCEPTION;
-					goto destroy_values;
-				}
+				len = strnlen(LOWER_NR_THRESHOLD,
+					sizeof(metric_thresholds[x].lower_nr_threshold.threshold_name) - 1);
+				strncpy(metric_thresholds[x].lower_nr_threshold.threshold_name,
+					LOWER_NR_THRESHOLD, len + 1);
 				metric_thresholds[x].lower_nr_threshold.value = details.thresholds.lower_nr_thresh.value;
 				metric_thresholds[x].lower_nr_threshold.is_valid = true;
 			}
@@ -277,14 +255,10 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 			// Lower Critical Threshold
 			if (details.thresholds.lower_c_thresh.is_valid) {
 
-				e = strncpy_s(metric_thresholds[x].lower_c_threshold.threshold_name,
-					sizeof(metric_thresholds[x].lower_c_threshold.threshold_name),
-					LOWER_C_THRESHOLD, SYSFS_PATH_MAX);
-				if (EOK != e) {
-					OPAE_ERR("Failed to copy threshold name");
-					result = FPGA_EXCEPTION;
-					goto destroy_values;
-				}
+				len = strnlen(LOWER_C_THRESHOLD,
+						sizeof(metric_thresholds[x].lower_c_threshold.threshold_name) - 1);
+				strncpy(metric_thresholds[x].lower_c_threshold.threshold_name,
+					LOWER_C_THRESHOLD, len + 1);
 				metric_thresholds[x].lower_c_threshold.value = details.thresholds.lower_c_thresh.value;
 				metric_thresholds[x].lower_c_threshold.is_valid = true;
 			}
@@ -292,14 +266,10 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 			// Lower Non-Critical Threshold
 			if (details.thresholds.lower_nc_thresh.is_valid) {
 
-				e = strncpy_s(metric_thresholds[x].lower_nc_threshold.threshold_name,
-					sizeof(metric_thresholds[x].lower_nc_threshold.threshold_name),
-					LOWER_NC_THRESHOLD, SYSFS_PATH_MAX);
-				if (EOK != e) {
-					OPAE_ERR("Failed to copy threshold name");
-					result = FPGA_EXCEPTION;
-					goto destroy_values;
-				}
+				len = strnlen(LOWER_NC_THRESHOLD,
+					sizeof(metric_thresholds[x].lower_nc_threshold.threshold_name) - 1);
+				strncpy(metric_thresholds[x].lower_nc_threshold.threshold_name,
+					LOWER_NC_THRESHOLD, len + 1);
 				metric_thresholds[x].lower_nc_threshold.value = details.thresholds.lower_nc_thresh.value;
 				metric_thresholds[x].lower_nc_threshold.is_valid = true;
 			}
@@ -335,14 +305,14 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 {
 	fpga_result result                     = FPGA_OK;
 	fpga_result resval                     = FPGA_OK;
-	char sysfspath[SYSFS_PATH_MAX]         = { 0 };
+	char sysfspath[SYSFS_PATH_MAX]         = { 0, };
 	size_t i                               = 0;
 	struct _fpga_token *_token             = NULL;
 	char *tmp                              = NULL;
 	uint32_t tot_bytes                     = 0;
 	uint64_t value                         = 0;
-	errno_t e                              = 0;
 	glob_t pglob;
+	size_t len;
 
 	if (handle == NULL ||
 		num_thresholds == NULL) {
@@ -359,7 +329,12 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 	}
 
 	// Sensor path
-	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", _token->sysfspath, MAX10_SYSFS_PATH);
+	len = strnlen(_token->sysfspath, sizeof(sysfspath) - 1);
+	strncpy(sysfspath, _token->sysfspath, len + 1);
+	strncat(sysfspath, "/", 2);
+	len = strnlen(MAX10_SYSFS_PATH, sizeof(sysfspath) - (len + 1));
+	strncat(sysfspath, MAX10_SYSFS_PATH, len + 1);
+
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if ((gres) || (1 != pglob.gl_pathc)) {
 		OPAE_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
@@ -370,7 +345,12 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 
 
 	// scan sensors
-	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", _token->sysfspath, MAX10_SENSOR_SYSFS_PATH);
+	len = strnlen(_token->sysfspath, sizeof(sysfspath) - 1);
+	strncpy(sysfspath, _token->sysfspath, len + 1);
+	strncat(sysfspath, "/", 2);
+	len = strnlen(MAX10_SENSOR_SYSFS_PATH, sizeof(sysfspath) - (len + 1));
+	strncat(sysfspath, MAX10_SENSOR_SYSFS_PATH, len + 1);
+
 	gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		OPAE_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
@@ -397,31 +377,25 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 			continue;
 		}
 
-		memset_s(&metric_thresholds[i].metric_name, sizeof(metric_thresholds[i].metric_name), 0);
-		e = strncpy_s(metric_thresholds[i].metric_name, sizeof(metric_thresholds[i].metric_name),
-			(char *)tmp, strnlen_s((char *)tmp, SYSFS_PATH_MAX));
-		if (EOK != e) {
-			OPAE_ERR("Failed to copy threshold name");
-			result = FPGA_EXCEPTION;
-			goto out;
-		}
-		metric_thresholds[i].metric_name[strlen(metric_thresholds[i].metric_name) - 1] = '\0';
+		memset(&metric_thresholds[i].metric_name, 0, sizeof(metric_thresholds[i].metric_name));
+		len = strnlen(tmp, sizeof(metric_thresholds[i].metric_name) - 1);
+		strncpy(metric_thresholds[i].metric_name, tmp, len + 1);
 		if (tmp) {
 			free(tmp);
 			tmp = NULL;
 		}
 
 		// Upper Critical Threshold
-		e = strncpy_s(metric_thresholds[i].upper_c_threshold.threshold_name,
-			sizeof(metric_thresholds[i].upper_c_threshold.threshold_name),
-			UPPER_C_THRESHOLD, SYSFS_PATH_MAX);
-		if (EOK != e) {
-			OPAE_ERR("Failed to copy threshold name");
-			result = FPGA_EXCEPTION;
-			goto out;
-		}
+		len = strnlen(UPPER_C_THRESHOLD,
+			sizeof(metric_thresholds[i].upper_c_threshold.threshold_name) - 1);
+		strncpy(metric_thresholds[i].upper_c_threshold.threshold_name,
+			UPPER_C_THRESHOLD, len + 1);
 
-		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", pglob.gl_pathv[i], SYSFS_HIGH_FATAL);
+		len = strnlen(pglob.gl_pathv[i], sizeof(sysfspath) - 1);
+		strncpy(sysfspath, pglob.gl_pathv[i], len + 1);
+		strncat(sysfspath, "/", 2);
+		len = strnlen(SYSFS_HIGH_FATAL, sizeof(sysfspath) - (len + 1));
+		strncat(sysfspath, SYSFS_HIGH_FATAL, len + 1);
 		resval = sysfs_read_u64(sysfspath, &value);
 		if (resval == FPGA_OK) {
 			metric_thresholds[i].upper_c_threshold.value = ((double)value / MILLI);
@@ -429,16 +403,16 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		}
 
 		// Upper Non-Critical Threshold
-		e = strncpy_s(metric_thresholds[i].upper_nc_threshold.threshold_name,
-			sizeof(metric_thresholds[i].upper_nc_threshold.threshold_name),
-			UPPER_NC_THRESHOLD, SYSFS_PATH_MAX);
-		if (EOK != e) {
-			OPAE_ERR("Failed to copy threshold name");
-			result = FPGA_EXCEPTION;
-			goto out;
-		}
+		len = strnlen(UPPER_NC_THRESHOLD,
+				sizeof(metric_thresholds[i].upper_nc_threshold.threshold_name) - 1);
+		strncpy(metric_thresholds[i].upper_nc_threshold.threshold_name,
+			UPPER_NC_THRESHOLD, len + 1);
 
-		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", pglob.gl_pathv[i], SYSFS_HIGH_WARN);
+		len = strnlen(pglob.gl_pathv[i], sizeof(sysfspath) - 1);
+		strncpy(sysfspath, pglob.gl_pathv[i], len + 1);
+		strncat(sysfspath, "/", 2);
+		len = strnlen(SYSFS_HIGH_WARN, sizeof(sysfspath) - (len + 1));
+		strncat(sysfspath, SYSFS_HIGH_WARN, len + 1);
 		resval = sysfs_read_u64(sysfspath, &value);
 		if (resval == FPGA_OK) {
 			metric_thresholds[i].upper_nc_threshold.value = ((double)value / MILLI);
@@ -446,16 +420,16 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		}
 
 		// Lower Critical Threshold
-		e = strncpy_s(metric_thresholds[i].upper_nc_threshold.threshold_name,
-			sizeof(metric_thresholds[i].lower_c_threshold.threshold_name),
-			LOWER_C_THRESHOLD, SYSFS_PATH_MAX);
-		if (EOK != e) {
-			OPAE_ERR("Failed to copy threshold name");
-			result = FPGA_EXCEPTION;
-			goto out;
-		}
+		len = strnlen(LOWER_C_THRESHOLD,
+				sizeof(metric_thresholds[i].upper_nc_threshold.threshold_name) - 1);
+		strncpy(metric_thresholds[i].upper_nc_threshold.threshold_name,
+			LOWER_C_THRESHOLD, len + 1);
 
-		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", pglob.gl_pathv[i], SYSFS_LOW_FATAL);
+		len = strnlen(pglob.gl_pathv[i], sizeof(sysfspath) - 1);
+		strncpy(sysfspath, pglob.gl_pathv[i], len + 1);
+		strncat(sysfspath, "/", 2);
+		len = strnlen(SYSFS_LOW_FATAL, sizeof(sysfspath) - (len + 1));
+		strncat(sysfspath, SYSFS_LOW_FATAL, len + 1);
 		resval = sysfs_read_u64(sysfspath, &value);
 		if (resval == FPGA_OK) {
 			metric_thresholds[i].lower_c_threshold.value = ((double)value / MILLI);
@@ -463,16 +437,16 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		}
 
 		// Lower Non-Critical Threshold
-		e = strncpy_s(metric_thresholds[i].lower_nc_threshold.threshold_name,
-			sizeof(metric_thresholds[i].lower_nc_threshold.threshold_name),
-			LOWER_NC_THRESHOLD, SYSFS_PATH_MAX);
-		if (EOK != e) {
-			OPAE_ERR("Failed to copy threshold name");
-			result = FPGA_EXCEPTION;
-			goto out;
-		}
+		len = strnlen(LOWER_NC_THRESHOLD,
+				sizeof(metric_thresholds[i].lower_nc_threshold.threshold_name) - 1);
+		strncpy(metric_thresholds[i].lower_nc_threshold.threshold_name,
+			LOWER_NC_THRESHOLD, len + 1);
 
-		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", pglob.gl_pathv[i], SYSFS_LOW_WARN);
+		len = strnlen(pglob.gl_pathv[i], sizeof(sysfspath) - 1);
+		strncpy(sysfspath, pglob.gl_pathv[i], len + 1);
+		strncat(sysfspath, "/", 2);
+		len = strnlen(SYSFS_LOW_WARN, sizeof(sysfspath) - (len + 1));
+		strncat(sysfspath, SYSFS_LOW_WARN, len + 1);
 		resval = sysfs_read_u64(sysfspath, &value);
 		if (resval == FPGA_OK) {
 			metric_thresholds[i].lower_nc_threshold.value = ((double)value / MILLI);
@@ -480,16 +454,16 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		}
 
 		// Lower Non-Critical Threshold
-		e = strncpy_s(metric_thresholds[i].hysteresis.threshold_name,
-			sizeof(metric_thresholds[i].hysteresis.threshold_name),
-			SYSFS_HYSTERESIS, SYSFS_PATH_MAX);
-		if (EOK != e) {
-			OPAE_ERR("Failed to copy threshold name");
-			result = FPGA_EXCEPTION;
-			goto out;
-		}
+		len = strnlen(SYSFS_HYSTERESIS,
+				sizeof(metric_thresholds[i].hysteresis.threshold_name) - 1);
+		strncpy(metric_thresholds[i].hysteresis.threshold_name,
+			SYSFS_HYSTERESIS, len + 1);
 
-		snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", pglob.gl_pathv[i], SYSFS_HYSTERESIS);
+		len = strnlen(pglob.gl_pathv[i], sizeof(sysfspath) - 1);
+		strncpy(sysfspath, pglob.gl_pathv[i], len + 1);
+		strncat(sysfspath, "/", 2);
+		len = strnlen(SYSFS_HYSTERESIS, sizeof(sysfspath) - (len + 1));
+		strncat(sysfspath, SYSFS_HYSTERESIS, len + 1);
 		resval = sysfs_read_u64(sysfspath, &value);
 		if (resval == FPGA_OK) {
 			metric_thresholds[i].hysteresis.value = ((double)value / MILLI);

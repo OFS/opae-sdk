@@ -54,7 +54,6 @@ opae_external_project_add(PROJECT_NAME pybind11
 opae_add_module_library(TARGET _opae
     SOURCE ${PYOPAE_SRC}
     LIBS
-        safestr
         opae-c
         opae-cxx-core
 )

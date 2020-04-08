@@ -64,7 +64,6 @@ opae_add_module_library(TARGET xfpga
         dl
         m
         ${CMAKE_THREAD_LIBS_INIT}
-        safestr
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
