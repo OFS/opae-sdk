@@ -142,8 +142,6 @@ set(CPACK_COMPONENTS_ALL
 	docxml
 	platform
 	samplesrc
-	safestrlib
-	safestrheaders
 	opaeclib
 	opaecxxcorelib
 	opaetoolslibs
@@ -222,8 +220,6 @@ define_pkg(devel
   platform
   samplesrc
   samplebin
-  safestrlib
-  safestrheaders
   licensefile
   GROUP "devel"
   DISPLAY_NAME "opae-devel"
