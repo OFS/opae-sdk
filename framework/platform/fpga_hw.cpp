@@ -636,11 +636,11 @@ static std::map<platform_cfg, std::string> platform_names = {
   {  platform_cfg(0x8086, 0x09c4, fpga_driver::linux_intel), "dcp-rc" },
   {  platform_cfg(0x8086, 0x09c5, fpga_driver::linux_intel), "dcp-rc-v" },
   {  platform_cfg(0x8086, 0xbcc0, fpga_driver::linux_dfl0),  "skx-p-dfl0_patchset2" },
-  {  platform_cfg(0x8086, 0x09c4, fpga_driver::linux_dfl0), "dcp-rc-dfl0_patchset2" },
+  {  platform_cfg(0x8086, 0x09c4, fpga_driver::linux_dfl0),  "dcp-rc-dfl0_patchset2" },
   {  platform_cfg(0x8086, 0xbcc0, fpga_driver::linux_dfl0),  "skx-p-dfl0" },
   {  platform_cfg(0x8086, 0x0b30, fpga_driver::linux_intel), "dcp-vc" },
   {  platform_cfg(0x8086, 0x0b31, fpga_driver::linux_intel), "dcp-vc-v" },
-  {  platform_cfg(0x8086, 0x0b30, fpga_driver::linux_dfl0), "dcp-vc-dfl0" },
+  {  platform_cfg(0x8086, 0x0b30, fpga_driver::linux_dfl0),  "dcp-vc-dfl0" },
   
 };
 
