@@ -90,9 +90,9 @@ DEFAULT_IOCTL_HANDLER(FPGA_PORT_UMSG_SET_BASE_ADDR, fpga_port_umsg_base_addr);
 // fpga upstream driver ioctl
 
 // FPGA DEVICE
-DEFAULT_IOCTL_HANDLER(DFL_FPGA_FME_PORT_RELEASE, dfl_fpga_fme_port_release);
+//DEFAULT_IOCTL_HANDLER(DFL_FPGA_FME_PORT_RELEASE, dfl_fpga_fme_port_release);
 DEFAULT_IOCTL_HANDLER(DFL_FPGA_FME_PORT_PR, dfl_fpga_fme_port_pr);
-DEFAULT_IOCTL_HANDLER(DFL_FPGA_FME_PORT_ASSIGN, dfl_fpga_fme_port_assign);
+//DEFAULT_IOCTL_HANDLER(DFL_FPGA_FME_PORT_ASSIGN, dfl_fpga_fme_port_assign);
 
 
 // FPGA ACCELERATOR
