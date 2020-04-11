@@ -149,6 +149,7 @@ int main( int argc, char** argv )
 
 	if ('\0' == mmlinkCmdLine.ip[0]) {
 		strncpy(mmlinkCmdLine.ip, "0.0.0.0", 8);
+		mmlinkCmdLine.ip[7] = '\0';
 	}
 
 	printf(" ------- Command line Input START ----\n\n");
@@ -396,6 +397,7 @@ int ParseCmds(struct MMLinkCommandLine *mmlinkCmdLine, int argc, char *argv[])
 				return -1;
 			}
 			strncpy(mmlinkCmdLine->ip, tmp_optarg, 16);
+			mmlinkCmdLine->ip[15] = '\0';
 			break;
 
 		case 'v':
