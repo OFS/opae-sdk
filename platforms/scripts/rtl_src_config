@@ -310,7 +310,8 @@ def addDefaultFpgaFamily(opts):
             proc = subprocess.Popen(cmd, shell=True,
                                     stdout=subprocess.PIPE)
             for line in proc.stdout:
-                os.environ['OPAE_PLATFORM_FPGA_FAMILY'] = line.strip()
+                line = line.decode('ascii').strip()
+                os.environ['OPAE_PLATFORM_FPGA_FAMILY'] = line
             errcode = proc.wait()
             if (errcode):
                 errorExit("failed to set OPAE_PLATFORM_FPGA_FAMILY")
@@ -336,7 +337,7 @@ def getQuartusVersion(opts):
                                     stdout=subprocess.PIPE)
             ok = False
             for line in proc.stdout:
-                line = line.strip()
+                line = line.decode('ascii').strip()
                 if (line[:7] == 'Version'):
                     ok = True
 
