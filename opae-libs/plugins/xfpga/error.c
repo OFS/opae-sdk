@@ -242,8 +242,9 @@ build_error_list(const char *path, struct error_list **list)
 		return 0;
 	}
 
-	strncpy(basedir, path, len + 1);
-	basedir[len++] = '/';
+	len = snprintf(basedir, sizeof(basedir),
+		 	"%s/", path);
+
 	// now we've added one to length
 
 	dir = opendir(path);
@@ -311,11 +312,13 @@ build_error_list(const char *path, struct error_list **list)
 			break;
 		}
 
-		dlen = strnlen(de->d_name, sizeof(de->d_name) - 1);
-		strncpy(new_entry->info.name, de->d_name, dlen + 1);
+		dlen = strnlen(de->d_name, sizeof(new_entry->info.name) - 1);
+		memcpy(new_entry->info.name, de->d_name, dlen);
+		new_entry->info.name[dlen] = '\0';
 
-		blen = strnlen(basedir, sizeof(basedir) - 1);
-		strncpy(new_entry->error_file, basedir, blen + 1);
+		blen = strnlen(basedir, sizeof(new_entry->error_file) - 1);
+		memcpy(new_entry->error_file, basedir, blen);
+		new_entry->error_file[blen] = '\0';
 
 		new_entry->next = NULL;
 		// Errors can be cleared:
@@ -328,16 +331,19 @@ build_error_list(const char *path, struct error_list **list)
 			// try accessing clear file
 			if (lstat(basedir, &st) != -1) {
 				new_entry->info.can_clear = true;
-				strncpy(new_entry->clear_file, basedir, blen + 1);
+				memcpy(new_entry->clear_file, basedir, blen);
+				new_entry->clear_file[blen] = '\0';
 			}
 		} else {
 			for (i = 0; i < NUM_ERRORS_CLEARABLE; i++) {
 				if (strcmp(de->d_name, errors_clearable[i]) == 0) {
-					strncpy(basedir + len, de->d_name, dlen + 1);
+					memcpy(basedir + len, de->d_name, dlen);
+					*(basedir + len + dlen) = '\0';
 					// try accessing clear file
 					if (lstat(basedir, &st) != -1) {
 						new_entry->info.can_clear = true;
-						strncpy(new_entry->clear_file, basedir, blen + 1);
+						memcpy(new_entry->clear_file, basedir, blen);
+						new_entry->clear_file[blen] = '\0';
 					}
 				}
 			}

@@ -243,7 +243,8 @@ int fi_RunInitz(const char* sysfs_path)
 		return -1;
 	}
 	len = strnlen(sysfs_path, SYSFS_PATH_MAX - 1);
-	strncpy(gQUCPU_Uclock.sysfs_path, sysfs_path, len + 1);
+	memcpy(gQUCPU_Uclock.sysfs_path, sysfs_path, len);
+	gQUCPU_Uclock.sysfs_path[len] = '\0';
 
 	// Assume return error okay, for now
 	i_ReturnErr = 0;
@@ -956,7 +957,7 @@ static int using_iopll(char* sysfs_usrpath, const char* sysfs_path)
 		OPAE_MSG("WARNING: Port has multiple sysfs frequency files");
 
 	len = strnlen(iopll_glob.gl_pathv[0], SYSFS_PATH_MAX - 1);
-	strncpy(sysfs_usrpath, iopll_glob.gl_pathv[0], len + 1);
+	memcpy(sysfs_usrpath, iopll_glob.gl_pathv[0], len);
 	sysfs_usrpath[len] = '\0';
 
 	globfree(&iopll_glob);

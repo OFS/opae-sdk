@@ -128,17 +128,28 @@ fpga_result add_metric_vector(fpga_metric_vector *vector,
 	}
 
 	len = strnlen(group_name, SYSFS_PATH_MAX - 1);
-	strncpy(fpga_enum_metric->group_name, group_name, len + 1);
+	memcpy(fpga_enum_metric->group_name, group_name, len);
+	fpga_enum_metric->group_name[len] = '\0';
+
 	len = strnlen(group_sysfs, SYSFS_PATH_MAX - 1);
-	strncpy(fpga_enum_metric->group_sysfs, group_sysfs, len + 1);
+	memcpy(fpga_enum_metric->group_sysfs, group_sysfs, len + 1);
+	fpga_enum_metric->group_sysfs[len] = '\0';
+
 	len = strnlen(metric_name, SYSFS_PATH_MAX - 1);
-	strncpy(fpga_enum_metric->metric_name, metric_name, len + 1);
+	memcpy(fpga_enum_metric->metric_name, metric_name, len);
+	fpga_enum_metric->metric_name[len] = '\0';
+
 	len = strnlen(metric_sysfs, SYSFS_PATH_MAX - 1);
-	strncpy(fpga_enum_metric->metric_sysfs, metric_sysfs, len + 1);
+	memcpy(fpga_enum_metric->metric_sysfs, metric_sysfs, len);
+	fpga_enum_metric->metric_sysfs[len] = '\0';
+
 	len = strnlen(qualifier_name, SYSFS_PATH_MAX - 1);
-	strncpy(fpga_enum_metric->qualifier_name, qualifier_name, len + 1);
+	memcpy(fpga_enum_metric->qualifier_name, qualifier_name, len);
+	fpga_enum_metric->qualifier_name[len] = '\0';
+
 	len = strnlen(metric_units, SYSFS_PATH_MAX - 1);
-	strncpy(fpga_enum_metric->metric_units, metric_units, len + 1);
+	memcpy(fpga_enum_metric->metric_units, metric_units, len);
+	fpga_enum_metric->metric_units[len] = '\0';
 
 	fpga_enum_metric->metric_type = metric_type;
 	fpga_enum_metric->metric_datatype = metric_datatype;
@@ -462,7 +473,7 @@ fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
 	}
 
 	len = strnlen(pglob.gl_pathv[0], sizeof(sysfs_path) - 1);
-	strncpy(sysfs_path, pglob.gl_pathv[0], len + 1);
+	memcpy(sysfs_path, pglob.gl_pathv[0], len);
 	sysfs_path[len] = '\0';
 	globfree(&pglob);
 
@@ -697,9 +708,12 @@ fpga_result  enum_bmc_metrics_info(struct _fpga_handle *_handle,
 			metric_type = FPGA_METRIC_TYPE_THERMAL;
 
 			len = strnlen(THERLGMT, sizeof(group_name) - 1);
-			strncpy(group_name, THERLGMT, len + 1);
+			memcpy(group_name, THERLGMT, len);
+			group_name[len] = '\0';
+
 			len = strnlen(TEMP, sizeof(units) - 1);
-			strncpy(units, TEMP, len + 1);
+			memcpy(units, TEMP, len);
+			units[len] = '\0';
 
 			snprintf(qualifier_name, sizeof(qualifier_name),
 				 "%s:%s", THERLGMT, details.name);
@@ -709,7 +723,8 @@ fpga_result  enum_bmc_metrics_info(struct _fpga_handle *_handle,
 			metric_type = FPGA_METRIC_TYPE_POWER;
 
 			len = strnlen(PWRMGMT, sizeof(group_name) - 1);
-			strncpy(group_name, PWRMGMT, len + 1);
+			memcpy(group_name, PWRMGMT, len);
+			group_name[len] = '\0';
 
 			snprintf(qualifier_name, sizeof(qualifier_name),
 				 "%s:%s", PWRMGMT, details.name);
@@ -1029,16 +1044,20 @@ fpga_result add_metric_info(struct _fpga_enum_metric *_enum_metrics,
 	}
 
 	len = strnlen(_enum_metrics->group_name, SYSFS_PATH_MAX - 1);
-	strncpy(fpga_metric_info->group_name, _enum_metrics->group_name, len + 1);
+	memcpy(fpga_metric_info->group_name, _enum_metrics->group_name, len);
+	fpga_metric_info->group_name[len] = '\0';
 
 	len = strnlen(_enum_metrics->metric_name, SYSFS_PATH_MAX - 1);
-	strncpy(fpga_metric_info->metric_name, _enum_metrics->metric_name, len + 1);
+	memcpy(fpga_metric_info->metric_name, _enum_metrics->metric_name, len);
+	fpga_metric_info->metric_name[len] = '\0';
 
 	len = strnlen(_enum_metrics->qualifier_name, SYSFS_PATH_MAX - 1);
-	strncpy(fpga_metric_info->qualifier_name, _enum_metrics->qualifier_name, len + 1);
+	memcpy(fpga_metric_info->qualifier_name, _enum_metrics->qualifier_name, len);
+	fpga_metric_info->qualifier_name[len] = '\0';
 
 	len = strnlen(_enum_metrics->metric_units, SYSFS_PATH_MAX - 1);
-	strncpy(fpga_metric_info->metric_units, _enum_metrics->metric_units, len + 1);
+	memcpy(fpga_metric_info->metric_units, _enum_metrics->metric_units, len);
+	fpga_metric_info->metric_units[len] = '\0';
 
 	fpga_metric_info->metric_num = _enum_metrics->metric_num;
 	fpga_metric_info->metric_type = _enum_metrics->metric_type;
@@ -1122,7 +1141,8 @@ fpga_result get_bmc_metrics_values(fpga_handle handle,
 		}
 
 		len = strnlen(details.name, sizeof(_handle->_bmc_metric_cache_value[x].metric_name) - 1);
-		strncpy(_handle->_bmc_metric_cache_value[x].metric_name, details.name, len + 1);
+		memcpy(_handle->_bmc_metric_cache_value[x].metric_name, details.name, len);
+		_handle->_bmc_metric_cache_value[x].metric_name[len] = '\0';
 
 		_handle->_bmc_metric_cache_value[x].fpga_metric.value.dvalue = tmp;
 
@@ -1407,7 +1427,6 @@ fpga_result  parse_metric_num_name(const char *search_string,
 				uint64_t *metric_num)
 {
 	fpga_result result                          = FPGA_OK;
-	size_t init_size                            = 0;
 	char *str                                   = NULL;
 	char *str_last                              = NULL;
 	uint64_t i                                  = 0;
@@ -1434,7 +1453,8 @@ fpga_result  parse_metric_num_name(const char *search_string,
 
 	// Metric Name
 	len = strnlen(str + 1, FPGA_METRIC_STR_SIZE - 1);
-	strncpy(metrics_name, str + 1, len + 1);
+	memcpy(metrics_name, str + 1, len);
+	metrics_name[len] = '\0';
 
 	// qualifier_name
 	str_last = strrchr(search_string, ':');
@@ -1443,11 +1463,8 @@ fpga_result  parse_metric_num_name(const char *search_string,
 		return FPGA_INVALID_PARAM;
 	}
 
-	init_size = strnlen(search_string, FPGA_METRIC_STR_SIZE - 1) -
-		strnlen(str_last, FPGA_METRIC_STR_SIZE - 1) + 1;
-
-	strncpy(qualifier_name, search_string, init_size);
-	qualifier_name[init_size - 1] = '\0';
+	memcpy(qualifier_name, search_string, str_last - search_string);
+	qualifier_name[str_last - search_string] = '\0';
 
 	result = fpga_vector_total(fpga_enum_metrics_vector, &num_enun_metrics);
 	if (result != FPGA_OK) {

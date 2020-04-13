@@ -150,8 +150,9 @@ STATIC char *find_ase_cfg(void)
 
 	// now look in possible system paths
 	for (i = 0; i < SYS_CFG_PATHS; ++i) {
-		len = strnlen(_ase_sys_cfg_files[i], CFG_PATH_MAX);
-		strncpy(home_cfg, _ase_sys_cfg_files[i], len + 1);
+		len = strnlen(_ase_sys_cfg_files[i], CFG_PATH_MAX - 1);
+		memcpy(home_cfg, _ase_sys_cfg_files[i], len);
+		home_cfg[len] = '\0';
 		file_name = canonicalize_file_name(home_cfg);
 		if (file_name)
 			return file_name;
