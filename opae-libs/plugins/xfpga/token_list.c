@@ -124,10 +124,15 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 	tmp->_token.errors = NULL;
 	char errpath[SYSFS_PATH_MAX] = { 0, };
 
-	len = strnlen(sysfspath, sizeof(errpath) - 1);
-	strncpy(errpath, sysfspath, len + 1);
-	len = strnlen("/errors", sizeof(errpath) - len);
-	strncat(errpath, "/errors", len + 1);
+	if (snprintf(errpath, sizeof(errpath),
+		     "%s/errors", sysfspath) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		free(tmp);
+		if (pthread_mutex_unlock(&global_lock)) {
+			OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		}
+		return NULL;
+	}
 
 	build_error_list(errpath, &tmp->_token.errors);
 

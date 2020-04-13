@@ -102,7 +102,6 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	int resval = 0;
 	uint64_t value = 0;
 	uint32_t x = 0;
-	size_t len;
 
 	pthread_mutex_t lock;
 
@@ -125,10 +124,11 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	_iprop.magic = FPGA_PROPERTY_MAGIC;
 
 	// read the vendor and device ID from the 'device' path
-
-	len = strnlen(_token->sysfspath, sizeof(_token->sysfspath) - 1);
-	strncpy(idpath, _token->sysfspath, len + 1);
-	strncat(idpath, "/../device/vendor", 18);
+	if (snprintf(idpath, sizeof(idpath),
+		     "%s/../device/vendor", _token->sysfspath) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
 
 	x = 0;
 	result = sysfs_read_u32(idpath, &x);
@@ -137,8 +137,11 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	_iprop.vendor_id = (uint16_t)x;
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_VENDORID);
 
-	strncpy(idpath, _token->sysfspath, len + 1);
-	strncat(idpath, "/../device/device", 18);
+	if (snprintf(idpath, sizeof(idpath),
+		     "%s/../device/device", _token->sysfspath) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
 
 	x = 0;
 	result = sysfs_read_u32(idpath, &x);
@@ -150,7 +153,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	// The input token is either for an FME or an AFU.
 	// Go one level back to get to the dev.
 
-	strncpy(spath, _token->sysfspath, len + 1);
+	strncpy(spath, _token->sysfspath, sizeof(spath));
 
 	p = strrchr(spath, '/');
 	ASSERT_NOT_NULL_MSG(p, "Invalid token sysfs path");
@@ -258,9 +261,11 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 
 	char errpath[SYSFS_PATH_MAX] = { 0, };
 
-	strncpy(errpath, _token->sysfspath, len + 1);
-	errpath[len] = '\0';
-	strncat(errpath, "/errors", 8);
+	if (snprintf(errpath, sizeof(errpath),
+		     "%s/errors", _token->sysfspath) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
 
 	_iprop.num_errors = count_error_files(errpath);
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_NUM_ERRORS);
