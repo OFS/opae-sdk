@@ -145,9 +145,12 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 
 	/* deep copy token data */
 	len = strnlen(sysfspath, SYSFS_PATH_MAX - 1);
-	strncpy(tmp->_token.sysfspath, sysfspath, len + 1);
+	memcpy(tmp->_token.sysfspath, sysfspath, len);
+	tmp->_token.sysfspath[len] = '\0';
+
 	len = strnlen(devpath, DEV_PATH_MAX - 1);
-	strncpy(tmp->_token.devpath, devpath, len + 1);
+	memcpy(tmp->_token.devpath, devpath, len);
+	tmp->_token.devpath[len] = '\0';
 
 	tmp->next = token_root;
 	token_root = tmp;
