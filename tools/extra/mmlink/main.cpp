@@ -396,16 +396,16 @@ int ParseCmds(struct MMLinkCommandLine *mmlinkCmdLine, int argc, char *argv[])
 				PRINT_ERR("Missing required argument for --ip");
 				return -1;
 			}
-			strncpy(mmlinkCmdLine->ip, tmp_optarg, 16);
+			strncpy(mmlinkCmdLine->ip, tmp_optarg, 15);
 			mmlinkCmdLine->ip[15] = '\0';
 			break;
 
 		case 'v':
 			// Version
-      printf("mmlink %s %s%s\n",
-             OPAE_VERSION,
-             OPAE_GIT_COMMIT_HASH,
-             OPAE_GIT_SRC_TREE_DIRTY ? "*":"");
+			printf("mmlink %s %s%s\n",
+				OPAE_VERSION,
+				OPAE_GIT_COMMIT_HASH,
+				OPAE_GIT_SRC_TREE_DIRTY ? "*":"");
 			return -2;
 
 		case '?':
