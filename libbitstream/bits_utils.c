@@ -201,6 +201,7 @@ STATIC bool opae_bitstream_path_contains_symlink(const char *path,
 	char *pslash;
 
 	strncpy(component, path, len);
+	component[len] = '\0';
 
 	if (component[0] == '/') {
 		// absolute path

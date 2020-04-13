@@ -221,11 +221,11 @@ fpga_result bmcSetHWThresholds(bmc_sdr_handle sdr_h, uint32_t sensor,
 		return FPGA_INVALID_PARAM;
 	}
 
-	len = strnlen(sdr->sysfs_path, sizeof(sysfspath) - 1);
-	strncpy(sysfspath, sdr->sysfs_path, len + 1);
-	strncat(sysfspath, "/", 2);
-	len = strnlen(SYSFS_AVMMI_DIR, sizeof(sysfspath) - (len + 1));
-	strncat(sysfspath, SYSFS_AVMMI_DIR, len + 1);
+	if (snprintf(sysfspath, sizeof(sysfspath),
+		     "%s/" SYSFS_AVMMI_DIR, sdr->sysfs_path) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
 
 	glob_t pglob;
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
@@ -269,9 +269,13 @@ fpga_result bmcSetHWThresholds(bmc_sdr_handle sdr_h, uint32_t sensor,
 
 	lseek(fd, 0, SEEK_SET);
 
-	int sz = sizeof(bmc_get_thresh_response) - sizeof(resp.cc)
-		 - sizeof(resp.header);
-	memcpy(&req.mask, &resp.mask, sz);
+	req.mask = resp.mask;
+	req.LNC = resp.LNC;
+	req.LC = resp.LC;
+	req.LNR = resp.LNR;
+	req.UNC = resp.UNC;
+	req.UC = resp.UC;
+	req.UNR = resp.UNR;
 
 	fill_set_request(vals, thresh, &req);
 

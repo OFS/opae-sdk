@@ -114,6 +114,7 @@ STATIC char *find_cfg(void)
 		len = strnlen(user_passwd->pw_dir,
 			      sizeof(home_cfg) - 1);
 		strncpy(home_cfg, user_passwd->pw_dir, len + 1);
+		home_cfg[PATH_MAX - 1] = '\0';
 
 		home_cfg_ptr = home_cfg + strlen(home_cfg);
 
