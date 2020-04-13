@@ -158,12 +158,13 @@ endmacro()
 
 function(opae_add_subdirectory directory_name)
     get_filename_component(full_dir_path "${directory_name}" REALPATH)
-    if(EXISTS "${full_dir_path}" AND IS_DIRECTORY "${full_dir_path}")
+    if(EXISTS "${full_dir_path}" AND IS_DIRECTORY "${full_dir_path}" AND EXISTS "${full_dir_path}/CMakeLists.txt")
        add_subdirectory(${directory_name})
     else()
-       message("Directory not found: ${full_dir_path}")
+       message("Directory or CMakeLists.txt not found: ${full_dir_path}")
     endif()
 endfunction()
+
 # example:
 #   opae_add_executable(TARGET fpgaconf SOURCE a.c b.c LIBS opae-c)
 function(opae_add_executable)
