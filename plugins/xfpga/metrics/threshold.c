@@ -329,11 +329,11 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 	}
 
 	// Sensor path
-	len = strnlen(_token->sysfspath, sizeof(sysfspath) - 1);
-	strncpy(sysfspath, _token->sysfspath, len + 1);
-	strncat(sysfspath, "/", 2);
-	len = strnlen(MAX10_SYSFS_PATH, sizeof(sysfspath) - (len + 1));
-	strncat(sysfspath, MAX10_SYSFS_PATH, len + 1);
+	if (snprintf(sysfspath, sizeof(sysfspath),
+		     "%s/%s", _token->sysfspath, MAX10_SYSFS_PATH) < 0) {
+		OPAE_ERR("buffer overflow in snprintf");
+		return FPGA_EXCEPTION;
+	}
 
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if ((gres) || (1 != pglob.gl_pathc)) {
@@ -345,11 +345,11 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 
 
 	// scan sensors
-	len = strnlen(_token->sysfspath, sizeof(sysfspath) - 1);
-	strncpy(sysfspath, _token->sysfspath, len + 1);
-	strncat(sysfspath, "/", 2);
-	len = strnlen(MAX10_SENSOR_SYSFS_PATH, sizeof(sysfspath) - (len + 1));
-	strncat(sysfspath, MAX10_SENSOR_SYSFS_PATH, len + 1);
+	if (snprintf(sysfspath, sizeof(sysfspath),
+		     "%s/%s", _token->sysfspath, MAX10_SENSOR_SYSFS_PATH) < 0) {
+		OPAE_ERR("buffer overflow in snprintf");
+		return FPGA_EXCEPTION;
+	}
 
 	gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
@@ -369,7 +369,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 
 		// Sensor name
 		result = read_sensor_sysfs_file(pglob.gl_pathv[i], SENSOR_SYSFS_NAME, (void **)&tmp, &tot_bytes);
-		if (FPGA_OK != result) {
+		if (FPGA_OK != result || !tmp) {
 			if (tmp) {
 				free(tmp);
 				tmp = NULL;
@@ -391,11 +391,9 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		strncpy(metric_thresholds[i].upper_c_threshold.threshold_name,
 			UPPER_C_THRESHOLD, len + 1);
 
-		len = strnlen(pglob.gl_pathv[i], sizeof(sysfspath) - 1);
-		strncpy(sysfspath, pglob.gl_pathv[i], len + 1);
-		strncat(sysfspath, "/", 2);
-		len = strnlen(SYSFS_HIGH_FATAL, sizeof(sysfspath) - (len + 1));
-		strncat(sysfspath, SYSFS_HIGH_FATAL, len + 1);
+		snprintf(sysfspath, sizeof(sysfspath),
+			 "%s/%s", pglob.gl_pathv[i], SYSFS_HIGH_FATAL);
+
 		resval = sysfs_read_u64(sysfspath, &value);
 		if (resval == FPGA_OK) {
 			metric_thresholds[i].upper_c_threshold.value = ((double)value / MILLI);
@@ -408,11 +406,9 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		strncpy(metric_thresholds[i].upper_nc_threshold.threshold_name,
 			UPPER_NC_THRESHOLD, len + 1);
 
-		len = strnlen(pglob.gl_pathv[i], sizeof(sysfspath) - 1);
-		strncpy(sysfspath, pglob.gl_pathv[i], len + 1);
-		strncat(sysfspath, "/", 2);
-		len = strnlen(SYSFS_HIGH_WARN, sizeof(sysfspath) - (len + 1));
-		strncat(sysfspath, SYSFS_HIGH_WARN, len + 1);
+		snprintf(sysfspath, sizeof(sysfspath),
+			 "%s/%s", pglob.gl_pathv[i], SYSFS_HIGH_WARN);
+
 		resval = sysfs_read_u64(sysfspath, &value);
 		if (resval == FPGA_OK) {
 			metric_thresholds[i].upper_nc_threshold.value = ((double)value / MILLI);
@@ -425,11 +421,9 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		strncpy(metric_thresholds[i].upper_nc_threshold.threshold_name,
 			LOWER_C_THRESHOLD, len + 1);
 
-		len = strnlen(pglob.gl_pathv[i], sizeof(sysfspath) - 1);
-		strncpy(sysfspath, pglob.gl_pathv[i], len + 1);
-		strncat(sysfspath, "/", 2);
-		len = strnlen(SYSFS_LOW_FATAL, sizeof(sysfspath) - (len + 1));
-		strncat(sysfspath, SYSFS_LOW_FATAL, len + 1);
+		snprintf(sysfspath, sizeof(sysfspath),
+			 "%s/%s", pglob.gl_pathv[i], SYSFS_LOW_FATAL);
+
 		resval = sysfs_read_u64(sysfspath, &value);
 		if (resval == FPGA_OK) {
 			metric_thresholds[i].lower_c_threshold.value = ((double)value / MILLI);
@@ -442,11 +436,9 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		strncpy(metric_thresholds[i].lower_nc_threshold.threshold_name,
 			LOWER_NC_THRESHOLD, len + 1);
 
-		len = strnlen(pglob.gl_pathv[i], sizeof(sysfspath) - 1);
-		strncpy(sysfspath, pglob.gl_pathv[i], len + 1);
-		strncat(sysfspath, "/", 2);
-		len = strnlen(SYSFS_LOW_WARN, sizeof(sysfspath) - (len + 1));
-		strncat(sysfspath, SYSFS_LOW_WARN, len + 1);
+		snprintf(sysfspath, sizeof(sysfspath),
+			 "%s/%s", pglob.gl_pathv[i], SYSFS_LOW_WARN);
+
 		resval = sysfs_read_u64(sysfspath, &value);
 		if (resval == FPGA_OK) {
 			metric_thresholds[i].lower_nc_threshold.value = ((double)value / MILLI);
@@ -459,11 +451,9 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		strncpy(metric_thresholds[i].hysteresis.threshold_name,
 			SYSFS_HYSTERESIS, len + 1);
 
-		len = strnlen(pglob.gl_pathv[i], sizeof(sysfspath) - 1);
-		strncpy(sysfspath, pglob.gl_pathv[i], len + 1);
-		strncat(sysfspath, "/", 2);
-		len = strnlen(SYSFS_HYSTERESIS, sizeof(sysfspath) - (len + 1));
-		strncat(sysfspath, SYSFS_HYSTERESIS, len + 1);
+		snprintf(sysfspath, sizeof(sysfspath),
+			 "%s/%s", pglob.gl_pathv[i], SYSFS_HYSTERESIS);
+
 		resval = sysfs_read_u64(sysfspath, &value);
 		if (resval == FPGA_OK) {
 			metric_thresholds[i].hysteresis.value = ((double)value / MILLI);

@@ -88,7 +88,7 @@ fpga_result __XFPGA_API__
 xfpga_fpgaObjectGetObject(fpga_object parent, const char *name,
 						   fpga_object *object, int flags)
 {
-	char objpath[SYSFS_PATH_MAX] = {0};
+	char objpath[PATH_MAX] = { 0, };
 	fpga_result res = FPGA_EXCEPTION;
 	ASSERT_NOT_NULL(parent);
 	ASSERT_NOT_NULL(name);
@@ -102,6 +102,7 @@ xfpga_fpgaObjectGetObject(fpga_object parent, const char *name,
 	if (res) {
 		return res;
 	}
+
 	res = cat_sysfs_path(objpath, "/");
 	if (res) {
 		return res;
@@ -111,7 +112,6 @@ xfpga_fpgaObjectGetObject(fpga_object parent, const char *name,
 	if (res) {
 		return res;
 	}
-
 
 	return make_sysfs_object(objpath, name, object, flags, _obj->handle);
 }
@@ -174,9 +174,11 @@ fpga_result __XFPGA_API__ xfpga_fpgaObjectGetObjectAt(fpga_object parent,
 	}
 
 	if (_obj->type == FPGA_SYSFS_FILE) {
+		pthread_mutex_unlock(&_obj->lock);
 		return FPGA_INVALID_PARAM;
 	}
 	if (idx >= _obj->size) {
+		pthread_mutex_unlock(&_obj->lock);
 		return FPGA_INVALID_PARAM;
 	}
 	res = xfpga_fpgaCloneObject(_obj->objects[idx], object);

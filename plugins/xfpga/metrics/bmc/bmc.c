@@ -55,7 +55,6 @@ fpga_result read_sysfs_file(fpga_token token, const char *file,
 	struct stat stats;
 	int fd = 0;
 	fpga_result res = FPGA_OK;
-	size_t len;
 
 	NULL_CHECK(token);
 	NULL_CHECK(buf);
@@ -70,11 +69,11 @@ fpga_result read_sysfs_file(fpga_token token, const char *file,
 		return FPGA_INVALID_PARAM;
 	}
 
-	len = strnlen(tok->sysfspath, sizeof(sysfspath) - 1);
-	strncpy(sysfspath, tok->sysfspath, len + 1);
-	strncat(sysfspath, "/", 2);
-	len = strnlen(file, sizeof(sysfspath) - (len + 1));
-	strncat(sysfspath, file, len + 1);
+	if (snprintf(sysfspath, sizeof(sysfspath),
+		     "%s/%s", tok->sysfspath, file) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
 
 	glob_t pglob;
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
