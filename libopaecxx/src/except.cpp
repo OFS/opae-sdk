@@ -26,6 +26,7 @@
 #include <cerrno>
 #include <cstring>
 #include <iostream>
+#include <sstream>
 
 #include <opae/utils.h>
 
@@ -74,34 +75,15 @@ except::except(fpga_result res, src_location loc) noexcept
     : res_(res), msg_(0), loc_(loc) {}
 
 const char *except::what() const noexcept {
-  size_t len = 0;
-
+  std::stringstream ss;
   if (msg_) {
-    strncpy(buf_, msg_, MAX_EXCEPT - len - 1);
-    len += strlen(msg_);
+    ss << msg_;
   } else {
-    strncpy(buf_, "failed with error ", MAX_EXCEPT - len - 1);
-    len += 18;
-    strncat(buf_, fpgaErrStr(res_), MAX_EXCEPT - 64);
-    len += strlen(fpgaErrStr(res_));
+    ss << "failed with error " << fpgaErrStr(res_);
   }
-
-  strncat(buf_, " at: ", MAX_EXCEPT - len - 1);
-  len += 5;
-
-  strncat(buf_, loc_.file(), MAX_EXCEPT - len - 1);
-  len += strlen(loc_.file());
-
-  strncat(buf_, ":", MAX_EXCEPT - len - 1);
-  len += 1;
-
-  strncat(buf_, loc_.fn(), MAX_EXCEPT - len - 1);
-  len += strlen(loc_.fn());
-
-  strncat(buf_, "():", MAX_EXCEPT - len - 1);
-  len += 3;
-
-  snprintf(buf_ + len, 12, "%d", loc_.line());
+  ss << " at: " << loc_.file() << ":" << loc_.fn() << "():" << loc_.line();
+  strncpy(buf_, ss.str().c_str(), sizeof(buf_));
+  buf_[ss.str().length()] = '\0';
 
   return const_cast<const char *>(buf_);
 }
