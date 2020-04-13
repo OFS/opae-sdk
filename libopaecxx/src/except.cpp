@@ -82,7 +82,7 @@ const char *except::what() const noexcept {
     ss << "failed with error " << fpgaErrStr(res_);
   }
   ss << " at: " << loc_.file() << ":" << loc_.fn() << "():" << loc_.line();
-  strncpy(buf_, ss.str().c_str(), sizeof(buf_));
+  memcpy(buf_, ss.str().c_str(), ss.str().length());
   buf_[ss.str().length()] = '\0';
 
   return const_cast<const char *>(buf_);

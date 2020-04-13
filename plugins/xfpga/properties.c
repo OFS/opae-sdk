@@ -102,6 +102,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	int resval = 0;
 	uint64_t value = 0;
 	uint32_t x = 0;
+	size_t len;
 
 	pthread_mutex_t lock;
 
@@ -153,7 +154,9 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	// The input token is either for an FME or an AFU.
 	// Go one level back to get to the dev.
 
-	strncpy(spath, _token->sysfspath, sizeof(spath));
+	len = strnlen(_token->sysfspath, sizeof(spath) - 1);
+	memcpy(spath, _token->sysfspath, len);
+	spath[len] = '\0';
 
 	p = strrchr(spath, '/');
 	ASSERT_NOT_NULL_MSG(p, "Invalid token sysfs path");

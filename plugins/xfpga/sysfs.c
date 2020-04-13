@@ -275,7 +275,8 @@ STATIC sysfs_fpga_region *make_region(sysfs_fpga_device *device, char *name,
 	}
 
 	len = strnlen(name, SYSFS_PATH_MAX - 1);
-	strncpy(region->sysfs_name, name, len + 1);
+	memcpy(region->sysfs_name, name, len);
+	region->sysfs_name[len] = '\0';
 
 	return region;
 }
@@ -496,7 +497,8 @@ STATIC int make_device(sysfs_fpga_device *device, const char *sysfs_class_fpga,
 	}
 
 	len = strnlen(dir_name, SYSFS_PATH_MAX - 1);
-	strncpy(device->sysfs_name, dir_name, len + 1);
+	memcpy(device->sysfs_name, dir_name, len);
+	device->sysfs_name[len] = '\0';
 
 	sym_link_len = readlink(device->sysfs_path, buffer, SYSFS_PATH_MAX);
 	if (sym_link_len < 0) {
@@ -1006,15 +1008,11 @@ fpga_result sysfs_get_fme_path(const char *sysfs_port, char *sysfs_fme)
 		return FPGA_EXCEPTION;
 	}
 
-	strncpy(fpga_path, "/", 2);
-	len = strnlen(_sysfs_format_ptr->sysfs_device_glob, SYSFS_PATH_MAX - 1);
-	strncat(fpga_path, _sysfs_format_ptr->sysfs_device_glob, len + 1);
-	strncat(fpga_path, "/", 2);
-	len = strnlen(_sysfs_format_ptr->sysfs_fme_glob,
-			SYSFS_PATH_MAX - (len + 2));
-	strncat(fpga_path, _sysfs_format_ptr->sysfs_fme_glob, len + 1);
+	snprintf(fpga_path, sizeof(fpga_path),
+		 "/%s/%s",
+		 _sysfs_format_ptr->sysfs_device_glob,
+		 _sysfs_format_ptr->sysfs_fme_glob);
 
-	// now concatenate the subdirectory to the "fpga*" node
 
 	len = strnlen(sysfs_path, SYSFS_PATH_MAX - 1);
 	strncat(sysfs_path, fpga_path, SYSFS_PATH_MAX - len);
@@ -1443,7 +1441,8 @@ fpga_result check_sysfs_path_is_valid(const char *sysfs_path)
 	}
 
 	len = strnlen(sysfs_path, SYSFS_PATH_MAX - 1);
-	strncpy(path, sysfs_path, len + 1);
+	memcpy(path, sysfs_path, len);
+	path[len] = '\0';
 
 	result = opae_glob_path(path, SYSFS_PATH_MAX - 1);
 	if (result) {
@@ -2057,7 +2056,7 @@ fpga_result opae_glob_path(char *path, size_t len)
 		if (pglob.gl_pathc > 1) {
 			OPAE_MSG("Ambiguous object key - using first one");
 		}
-		strncpy(path, pglob.gl_pathv[0], len);
+		memcpy(path, pglob.gl_pathv[0], len);
 		path[len] = '\0';
 		globfree(&pglob);
 	} else {
@@ -2309,7 +2308,8 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 		}
 		if (found == 1) {
 			len = strnlen(object_paths[0], SYSFS_PATH_MAX - 1);
-			strncpy(sysfspath, object_paths[0], len + 1);
+			memcpy(sysfspath, object_paths[0], len);
+			sysfspath[len] = '\0';
 			res = make_sysfs_object(sysfspath, name, object,
 						flags & ~FPGA_OBJECT_GLOB,
 						handle);
