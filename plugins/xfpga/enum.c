@@ -303,11 +303,13 @@ STATIC struct dev_list *add_dev(const char *sysfspath, const char *devpath,
 	if (NULL == pdev)
 		return NULL;
 
-	len = strnlen(sysfspath, SYSFS_PATH_MAX - 1);
-	strncpy(pdev->sysfspath, sysfspath, len + 1);
+	len = strnlen(sysfspath, sizeof(pdev->sysfspath) - 1);
+	memcpy(pdev->sysfspath, sysfspath, len);
+	pdev->sysfspath[len] = '\0';
 
-	len = strnlen(devpath, DEV_PATH_MAX - 1);
-	strncpy(pdev->devpath, devpath, len + 1);
+	len = strnlen(devpath, sizeof(pdev->devpath) - 1);
+	memcpy(pdev->devpath, devpath, len);
+	pdev->devpath[len] = '\0';
 
 	pdev->next = parent->next;
 	parent->next = pdev;

@@ -189,7 +189,8 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 	}
 
 	len = strnlen(pglob.gl_pathv[0], sizeof(group_sysfs) - 1);
-	strncpy(group_sysfs, pglob.gl_pathv[0], len + 1);
+	memcpy(group_sysfs, pglob.gl_pathv[0], len);
+	group_sysfs[len] = '\0';
 	globfree(&pglob);
 
 	// Enum sensors
@@ -222,7 +223,7 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 		memset(&metric_name, 0, sizeof(metric_name));
 
 		len = strnlen(tmp, sizeof(metric_name) - 1);
-		strncpy(metric_name, tmp, len + 1);
+		memcpy(metric_name, tmp, len);
 		metric_name[len] = '\0';
 
 		if (tmp) {
@@ -245,7 +246,8 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 
 			// group name
 			len = strnlen(PWRMGMT, sizeof(group_name) - 1);
-			strncpy(group_name, PWRMGMT, len + 1);
+			memcpy(group_name, PWRMGMT, len);
+			group_name[len] = '\0';
 
 			//qualifier name
 			if (snprintf(qualifier_name, sizeof(qualifier_name),
@@ -262,7 +264,8 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 
 			// group name
 			len = strnlen(THERLGMT, sizeof(group_name) - 1);
-			strncpy(group_name, THERLGMT, len + 1);
+			memcpy(group_name, THERLGMT, len);
+			group_name[len] = '\0';
 
 			//qualifier name
 			if (snprintf(qualifier_name, sizeof(qualifier_name),
@@ -287,27 +290,32 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 		if (strstr(metric_name, POWER)) {
 
 			len = strnlen(POWER_UNITS, sizeof(metric_units) - 1);
-			strncpy(metric_units, POWER_UNITS, len + 1);
+			memcpy(metric_units, POWER_UNITS, len);
+			metric_units[len] = '\0';
 
 		} else if (strstr(metric_name, VOLTAGE)) {
 
 			len = strnlen(VOLTAGE_UNITS, sizeof(metric_units) - 1);
-			strncpy(metric_units, VOLTAGE_UNITS, len + 1);
+			memcpy(metric_units, VOLTAGE_UNITS, len);
+			metric_units[len] = '\0';
 
 		} else if (strstr(metric_name, CURRENT)) {
 
 			len = strnlen(CURRENT_UNITS, sizeof(metric_units) - 1);
-			strncpy(metric_units, CURRENT_UNITS, len + 1);
+			memcpy(metric_units, CURRENT_UNITS, len);
+			metric_units[len] = '\0';
 
 		} else if (strstr(metric_name, TEMPERATURE)) {
 
 			len = strnlen(TEMPERATURE_UNITS, sizeof(metric_units) - 1);
-			strncpy(metric_units, TEMPERATURE_UNITS, len + 1);
+			memcpy(metric_units, TEMPERATURE_UNITS, len);
+			metric_units[len] = '\0';
 
 		} else if (strstr(metric_name, CLOCK)) {
 
 			len = strnlen(CLOCK_UNITS, sizeof(metric_units) - 1);
-			strncpy(metric_units, CLOCK_UNITS, len + 1);
+			memcpy(metric_units, CLOCK_UNITS, len);
+			metric_units[len] = '\0';
 
 		} else {
 
