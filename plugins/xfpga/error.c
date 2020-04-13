@@ -243,7 +243,7 @@ build_error_list(const char *path, struct error_list **list)
 	}
 
 	len = snprintf(basedir, sizeof(basedir),
-		 	"%s/", path);
+		       "%s/", path);
 
 	// now we've added one to length
 
