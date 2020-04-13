@@ -363,7 +363,6 @@ fpga_result enum_perf_counter_items(fpga_metric_vector *vector,
 	char sysfs_path[SYSFS_PATH_MAX]     = { 0, };
 	char metric_sysfs[SYSFS_PATH_MAX]   = { 0, };
 	char qname[SYSFS_PATH_MAX]          = { 0, };
-	size_t len;
 
 	if (vector == NULL ||
 		sysfspath == NULL ||
@@ -374,11 +373,8 @@ fpga_result enum_perf_counter_items(fpga_metric_vector *vector,
 		return FPGA_INVALID_PARAM;
 	}
 
-	len = strnlen(sysfspath, sizeof(sysfs_path) - 1);
-	strncpy(sysfs_path, sysfspath, len + 1);
-	strncat(sysfs_path, "/", 2);
-	len = strnlen(sysfs_name, sizeof(sysfs_path) - (len + 1));
-	strncat(sysfs_path, sysfs_name, len + 1);
+	snprintf(sysfs_path, sizeof(sysfs_path),
+		 "%s/%s", sysfspath, sysfs_name);
 
 	dir = opendir(sysfs_path);
 	if (NULL == dir) {
@@ -399,11 +395,11 @@ fpga_result enum_perf_counter_items(fpga_metric_vector *vector,
 
 		if (dirent->d_type == DT_DIR) {
 
-			len = strnlen(qualifier_name, sizeof(qname) - 1);
-			strncpy(qname, qualifier_name, len + 1);
-			strncat(qname, ":", 2);
-			len = strnlen(dirent->d_name, sizeof(qname) - (len + 1));
-			strncat(qname, dirent->d_name, len + 1);
+			if (snprintf(qname, sizeof(qname),
+				     "%s:%s", qualifier_name, dirent->d_name) < 0) {
+				OPAE_ERR("snprintf buffer overflow");
+				continue;
+			}
 
 			result = enum_perf_counter_items(vector, metric_num, qname, sysfs_path, dirent->d_name, metric_type, hw_type);
 			if (result != FPGA_OK) {
@@ -413,11 +409,12 @@ fpga_result enum_perf_counter_items(fpga_metric_vector *vector,
 
 		}
 
-		len = strnlen(sysfs_path, sizeof(metric_sysfs) - 1);
-		strncpy(metric_sysfs, sysfs_path, len + 1);
-		strncat(metric_sysfs, "/", 2);
-		len = strnlen(dirent->d_name, sizeof(metric_sysfs) - (len + 1));
-		strncat(metric_sysfs, dirent->d_name, len + 1);
+		if (snprintf(metric_sysfs, sizeof(metric_sysfs),
+			     "%s/%s", sysfs_path, dirent->d_name) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+			closedir(dir);
+			return FPGA_EXCEPTION;
+		}
 
 		result = add_metric_vector(vector, *metric_num, qualifier_name, "performance", sysfs_path, dirent->d_name,
 			metric_sysfs, "", FPGA_METRIC_DATATYPE_INT, metric_type, hw_type, 0);
@@ -466,6 +463,7 @@ fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
 
 	len = strnlen(pglob.gl_pathv[0], sizeof(sysfs_path) - 1);
 	strncpy(sysfs_path, pglob.gl_pathv[0], len + 1);
+	sysfs_path[len] = '\0';
 	globfree(&pglob);
 
 	dir = opendir(sysfs_path);
@@ -486,11 +484,8 @@ fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
 
 		if (strcmp(dirent->d_name, PERF_CACHE) == 0) {
 
-			len = strnlen(PERFORMANCE, sizeof(qualifier_name) - 1);
-			strncpy(qualifier_name, PERFORMANCE, len + 1);
-			strncat(qualifier_name, ":", 2);
-			len = strnlen(PERF_CACHE, sizeof(qualifier_name) - (len + 1));
-			strncat(qualifier_name, PERF_CACHE, len + 1);
+			snprintf(qualifier_name, sizeof(qualifier_name),
+				 "%s:%s", PERFORMANCE, PERF_CACHE);
 
 			result = enum_perf_counter_items(vector,
 					metric_num, qualifier_name,
@@ -504,11 +499,8 @@ fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
 
 		if (strcmp(dirent->d_name, PERF_FABRIC) == 0) {
 
-			len = strnlen(PERFORMANCE, sizeof(qualifier_name) - 1);
-			strncpy(qualifier_name, PERFORMANCE, len + 1);
-			strncat(qualifier_name, ":", 2);
-			len = strnlen(PERF_FABRIC, sizeof(qualifier_name) - (len + 1));
-			strncat(qualifier_name, PERF_FABRIC, len + 1);
+			snprintf(qualifier_name, sizeof(qualifier_name),
+				 "%s:%s", PERFORMANCE, PERF_FABRIC);
 
 			result = enum_perf_counter_items(vector, metric_num,
 					qualifier_name, sysfs_path,
@@ -521,11 +513,8 @@ fpga_result enum_perf_counter_metrics(fpga_metric_vector *vector,
 
 		if (strcmp(dirent->d_name, PERF_IOMMU) == 0) {
 
-			len = strnlen(PERFORMANCE, sizeof(qualifier_name) - 1);
-			strncpy(qualifier_name, PERFORMANCE, len + 1);
-			strncat(qualifier_name, ":", 2);
-			len = strnlen(PERF_IOMMU, sizeof(qualifier_name) - (len + 1));
-			strncat(qualifier_name, PERF_IOMMU, len + 1);
+			snprintf(qualifier_name, sizeof(qualifier_name),
+				 "%s:%s", PERFORMANCE, PERF_IOMMU);
 
 			result = enum_perf_counter_items(vector, metric_num,
 					qualifier_name, sysfs_path, dirent->d_name,
@@ -712,11 +701,8 @@ fpga_result  enum_bmc_metrics_info(struct _fpga_handle *_handle,
 			len = strnlen(TEMP, sizeof(units) - 1);
 			strncpy(units, TEMP, len + 1);
 
-			len = strnlen(THERLGMT, sizeof(qualifier_name) - 1);
-			strncpy(qualifier_name, THERLGMT, len + 1);
-			strncat(qualifier_name, ":", 2);
-			len = strnlen(details.name, sizeof(qualifier_name) - (len + 1));
-			strncat(qualifier_name, details.name, len + 1);
+			snprintf(qualifier_name, sizeof(qualifier_name),
+				 "%s:%s", THERLGMT, details.name);
 
 		} else if (details.sensor_type == BMC_POWER) {
 
@@ -725,11 +711,8 @@ fpga_result  enum_bmc_metrics_info(struct _fpga_handle *_handle,
 			len = strnlen(PWRMGMT, sizeof(group_name) - 1);
 			strncpy(group_name, PWRMGMT, len + 1);
 
-			len = strnlen(PWRMGMT, sizeof(qualifier_name) - 1);
-			strncpy(qualifier_name, PWRMGMT, len + 1);
-			strncat(qualifier_name, ":", 2);
-			len = strnlen(details.name, sizeof(qualifier_name) - (len + 1));
-			strncat(qualifier_name, details.name, len + 1);
+			snprintf(qualifier_name, sizeof(qualifier_name),
+				 "%s:%s", PWRMGMT, details.name);
 
 			snprintf(units, sizeof(units), "%ls", details.units);
 		} else {
@@ -838,16 +821,13 @@ void *metrics_load_bmc_lib(void)
 	const char *search_paths[] = { OPAE_MODULE_SEARCH_PATHS };
 	unsigned i;
 	void *dl_handle;
-	size_t len;
 
 	for (i = 0 ;
 		i < sizeof(search_paths) / sizeof(search_paths[0]) ;
 		++i) {
 
-		len = strnlen(search_paths[i], sizeof(plugin_path) - 1);
-		strncpy(plugin_path, search_paths[i], len + 1);
-		len = strnlen(BMC_LIB, sizeof(plugin_path) - (len + 1));
-		strncat(plugin_path, BMC_LIB, len + 1);
+		snprintf(plugin_path, sizeof(plugin_path),
+			 "%s%s", search_paths[i], BMC_LIB);
 
 		dl_handle = dlopen(plugin_path, RTLD_LAZY | RTLD_LOCAL);
 		if (dl_handle)
@@ -1233,7 +1213,6 @@ fpga_result get_performance_counter_value(const char *group_sysfs,
 	fpga_result result                  = FPGA_OK;
 	char sysfs_path[SYSFS_PATH_MAX]     = { 0, };
 	uint64_t val                        = 0;
-	size_t len;
 
 	if (group_sysfs == NULL ||
 		metric_sysfs == NULL ||
@@ -1242,11 +1221,8 @@ fpga_result get_performance_counter_value(const char *group_sysfs,
 		return FPGA_INVALID_PARAM;
 	}
 
-	len = strnlen(group_sysfs, sizeof(sysfs_path) - 1);
-	strncpy(sysfs_path, group_sysfs, len + 1);
-	strncat(sysfs_path, "/", 2);
-	len = strnlen(PERF_ENABLE, sizeof(sysfs_path) - (len + 1));
-	strncat(sysfs_path, PERF_ENABLE, len + 1);
+	snprintf(sysfs_path, sizeof(sysfs_path),
+		 "%s/%s", group_sysfs, PERF_ENABLE);
 
 	result = metric_sysfs_path_is_file(sysfs_path);
 	if (result == FPGA_OK) {
@@ -1265,11 +1241,8 @@ fpga_result get_performance_counter_value(const char *group_sysfs,
 		}
 	}
 
-	len = strnlen(group_sysfs, sizeof(sysfs_path) - 1);
-	strncpy(sysfs_path, group_sysfs, len + 1);
-	strncat(sysfs_path, "/", 2);
-	len = strnlen(PERF_FREEZE, sizeof(sysfs_path) - (len + 1));
-	strncat(sysfs_path, PERF_FREEZE, len + 1);
+	snprintf(sysfs_path, sizeof(sysfs_path),
+		 "%s/%s", group_sysfs, PERF_FREEZE);
 
 	result = metric_sysfs_path_is_file(sysfs_path);
 	if (result == FPGA_OK) {
@@ -1296,11 +1269,8 @@ fpga_result get_performance_counter_value(const char *group_sysfs,
 		return result;
 	}
 
-	len = strnlen(group_sysfs, sizeof(sysfs_path) - 1);
-	strncpy(sysfs_path, group_sysfs, len + 1);
-	strncat(sysfs_path, "/", 2);
-	len = strnlen(PERF_FREEZE, sizeof(sysfs_path) - (len + 1));
-	strncat(sysfs_path, PERF_FREEZE, len + 1);
+	snprintf(sysfs_path, sizeof(sysfs_path),
+		 "%s/%s", group_sysfs, PERF_FREEZE);
 
 	result = metric_sysfs_path_is_file(sysfs_path);
 	if (result == FPGA_OK) {

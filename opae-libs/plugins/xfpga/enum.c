@@ -189,11 +189,13 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_NUM_ERRORS)) {
 		uint32_t errors;
 		char errpath[SYSFS_PATH_MAX] = { 0, };
-		size_t len;
 
-		len = strnlen(attr->sysfspath, SYSFS_PATH_MAX - 1);
-		strncpy(errpath, attr->sysfspath, len + 1);
-		strncat(errpath, "/errors", 8);
+		if (snprintf(errpath, sizeof(errpath),
+			     "%s/errors", attr->sysfspath) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+			res = false;
+			goto out_unlock;
+		}
 
 		errors = count_error_files(errpath);
 		if (errors != _filter->num_errors) {

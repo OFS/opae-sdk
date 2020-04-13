@@ -104,7 +104,6 @@ STATIC char *find_ase_cfg(void)
 	char *opae_path = NULL;
 	char cfg_path[PATH_MAX] = { 0, };
 	char home_cfg[PATH_MAX] = { 0, };
-	char *home_cfg_ptr = NULL;
 	size_t len;
 
 	// get the user's home directory
@@ -123,31 +122,29 @@ STATIC char *find_ase_cfg(void)
 	// third look in the release directory
 	opae_path = getenv("OPAE_PLATFORM_ROOT");
 	if (opae_path) {
-		len = strnlen(opae_path, sizeof(cfg_path) - 1);
-		strncpy(cfg_path, opae_path, len + 1);
-		strncat(cfg_path, "/share/opae/ase/opae_ase.cfg", 29);
-		file_name = canonicalize_file_name(cfg_path);
-		if (file_name)
-			return file_name;
+
+		if (snprintf(cfg_path, sizeof(cfg_path),
+			 "%s/share/opae/ase/opae_ase.cfg", opae_path) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+		} else {
+			file_name = canonicalize_file_name(cfg_path);
+			if (file_name)
+				return file_name;
+		}
 	}
 
 	// fourth look in possible paths in the users home directory
 	if (user_passwd != NULL) {
 		for (i = 0; i < HOME_CFG_PATHS; ++i) {
-			len = strnlen(user_passwd->pw_dir,
-				      sizeof(home_cfg) - 1);
-			strncpy(home_cfg, user_passwd->pw_dir, len + 1);
-
-			home_cfg_ptr = home_cfg + strlen(home_cfg);
-
-			len = strnlen(_ase_home_cfg_files[i], CFG_PATH_MAX);
-			strncpy(home_cfg_ptr, _ase_home_cfg_files[i], len + 1);
-
-			file_name = canonicalize_file_name(home_cfg);
-			if (file_name)
-				return file_name;
-
-			memset(home_cfg, 0, sizeof(home_cfg));
+			if (snprintf(home_cfg, sizeof(home_cfg),
+				     "%s%s", user_passwd->pw_dir,
+				     _ase_home_cfg_files[i]) < 0) {
+				OPAE_ERR("snprintf buffer overflow");
+			} else {
+				file_name = canonicalize_file_name(home_cfg);
+				if (file_name)
+					return file_name;
+			}
 		}
 	}
 
@@ -186,11 +183,13 @@ __attribute__((constructor)) STATIC void opae_init(void)
 
 	s = getenv("LIBOPAE_LOGFILE");
 	if (s) {
-		g_logfile = fopen(s, "w");
-		if (g_logfile == NULL) {
-			fprintf(stderr,
-				"Could not open log file for writing: %s. ", s);
-			fprintf(stderr, "Error is: %s\n", strerror(errno));
+		if (s[0] != '/' || !strncmp(s, "/tmp/", 5)) {
+			g_logfile = fopen(s, "w");
+			if (g_logfile == NULL) {
+				fprintf(stderr,
+					"Could not open log file for writing: %s. ", s);
+				fprintf(stderr, "Error is: %s\n", strerror(errno));
+			}
 		}
 	}
 
