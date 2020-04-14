@@ -1,6 +1,13 @@
 #!/bin/bash
 #
 #
+set -x
+
+version=$(grep 'Version:' opae.spec | awk '{ print $2 }')
+release=$(egrep 'Release:\s*([0-9]+).*' opae.spec | perl -pe 's/Release:\s*(\d+).*/\1/g')
+
+full_version=$version-$release
+
 
 cat > .gitattributes << EOF
 .git* export-ignore
@@ -16,9 +23,11 @@ external export-ignore
 platforms export-ignore
 samples/base export-ignore
 samples/hello_afu export-ignore
+samples/hello_events export-ignore
 samples/hello_mpf_afu export-ignore
 samples/intg_xeon_nlb export-ignore
 samples/base export-ignore
+samples/object_api export-ignore
 scripts export-ignore
 tests export-ignore
 tools/fpgametrics export-ignore
@@ -37,12 +46,13 @@ EOF
 
 cat > buildrpm.sh << EOF
 #!/bin/bash
+set -x
 rpmdev-setuptree
-cp /tmp/rpmbuild/opae.tar.gz ~/rpmbuild/SOURCES/.
+cp /tmp/rpmbuild/opae-$full_version.tar.gz ~/rpmbuild/SOURCES/opae-$full_version.tar.gz
 rpmbuild -ba /tmp/rpmbuild/opae.spec
 newgrp mock
-mock -r fedora-rawhide-x86_64 rebuild ~/rpmbuild/SRPMS/opae-1.4.0*.src.rpm
-fedora-review --rpm-spec -v -n ~/rpmbuild/SRPMS/opae-1.4.0*.src.rpm
+mock -r fedora-rawhide-x86_64 rebuild ~/rpmbuild/SRPMS/opae-$full_version.src.rpm
+fedora-review --rpm-spec -v -n ~/rpmbuild/SRPMS/opae-$full_version.src.rpm
 cp ~/rpmbuild/SRPMS/*.rpm /tmp/rpmbuild/.
 cp ~/rpmbuild/RPMS/*/*.rpm /tmp/rpmbuild/.
 cp ~/.cache/fedora-review.log /tmp/rpmbuild/.
@@ -50,10 +60,10 @@ cp opae/review.txt /tmp/rpmbuild/.
 EOF
 chmod a+x buildrpm.sh
 
-git archive --format tar --prefix opae/ --worktree-attributes HEAD | gzip > opae.tar.gz
-mkdir rpmbuild
+git archive --format tar --prefix opae-$full_version/ --worktree-attributes HEAD | gzip > opae-$full_version.tar.gz
+mkdir -p rpmbuild
 cp opae.spec rpmbuild/.
-cp opae.tar.gz rpmbuild/.
+cp opae-$full_version.tar.gz rpmbuild/.
 cp buildrpm.sh rpmbuild/.
 
 docker pull opae/fedora-builder:latest

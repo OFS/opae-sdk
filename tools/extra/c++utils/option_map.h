@@ -222,6 +222,11 @@ public:
         }
     }
 
+    bool empty()
+    {
+        return options_.empty();
+    }
+
 private:
     logger log_;
     std::map<std::string, option::ptr_t> options_;

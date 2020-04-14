@@ -17,34 +17,46 @@ fi
 rm -rf ~/rpmbuild
 rpmdev-setuptree
 
+version=`grep 'Version:' ../opae.spec | awk '{ print $2 }'`
+full_version=${version}-1
+
+echo ${full_version}
 #create source tarball
 BUILD_DIR=${PWD}
 
 echo ${PWD}
 
+opae_sdk_tar="s/opae-sdk/opae-"
+opae_sdk_tar+=${full_version}
+opae_sdk_tar+="/"
+echo ${opae_sdk_tar}
+
 cd ../..
-tar --transform='s/opae-sdk/opae/' \
+tar --transform=${opae_sdk_tar} \
   --exclude=.git \
   --exclude=.gitignore \
   --exclude=.github \
   --exclude=.travis.yml \
   --exclude=opae.spec.in \
   --exclude=opae.spec \
-  --exclude=opae-libs/external \
-  --exclude=opae-libs/tests \
   --exclude=opae-libs/plugins/ase \
   --exclude=opae-libs/cmake/config/libopae-all.spec.in \
   --exclude=opae-libs/cmake/config/run_coverage_test.sh.in \
   --exclude=opae-libs/cmake/config/run_coverage_test_local.sh.in\
-  --exclude=external \
   --exclude=platforms \
   --exclude=samples/base \
   --exclude=samples/hello_afu \
+  --exclude=samples/object_api \
+  --exclude=samples/hello_events \
   --exclude=samples/hello_mpf_afu \
   --exclude=samples/intg_xeon_nlb \
   --exclude=samples/base \
   --exclude=scripts \
-  --exclude=tests \
+  --exclude=python \
+  --exclude=tests/object_api \
+  --exclude=tests/ase \
+  --exclude=tests/ras \
+  --exclude=tests/hello_events \
   --exclude=tools/fpgametrics \
   --exclude=tools/libboard/board_dc \
   --exclude=tools/extra/ras \
@@ -60,11 +72,11 @@ tar --transform='s/opae-sdk/opae/' \
   --exclude=opae-libs/pyopae/.clang-format \
   --exclude=opae-libs/.clang-format \
   --exclude=opae-libs/.clang-format \
-  -z -c -f opae.tar.gz opae-sdk
+  -z -c -f opae-${full_version}.tar.gz opae-sdk
 
 
 
-mv opae.tar.gz ~/rpmbuild/SOURCES/
+mv opae-${full_version}.tar.gz ~/rpmbuild/SOURCES/
 cp "${BUILD_DIR}/../opae.spec" ~/rpmbuild/SPECS/
 
 echo $"${BUILD_DIR}/../opae.spec"
