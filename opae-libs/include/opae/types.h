@@ -40,7 +40,7 @@
  * variables of these types. In other words, before doing anything with a
  * variable of one of these opaque types, you need to first initialize them.
  *
- * The respective functions that initizalize opaque types are:
+ * The respective functions that initialize opaque types are:
  *
  *   * fpgaGetProperties() and fpgaCloneProperties() for `fpga_properties`
  *   * fpgaEnumerate() and fpgaCloneToken() for `fpga_token`

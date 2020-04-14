@@ -94,7 +94,7 @@ fpga_result fpgaClose(fpga_handle handle);
  *
  * @param[in]  handle   Handle to previously opened FPGA object
  * @returns             FPGA_OK on success. FPGA_INVALID_PARAM if handle does
- *                      not refer to an acquired resource or to a resoure that
+ *                      not refer to an acquired resource or to a resource that
  *                      cannot be reset. FPGA_EXCEPTION if an internal error
  *                      occurred while trying to access the handle or resetting
  *                      the resource.
