@@ -208,4 +208,3 @@ struct dfl_fpga_fme_port_pr {
 #define DFL_FPGA_FME_PORT_ASSIGN     _IOW(DFL_FPGA_MAGIC, DFL_FME_BASE + 2, int)
 
 #endif /* _UAPI_LINUX_FPGA_DFL_H */
-
