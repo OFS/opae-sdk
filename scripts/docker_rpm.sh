@@ -61,7 +61,7 @@ chmod a+x buildrpm.sh
 git archive --format tar --prefix opae-$full_version/ --worktree-attributes HEAD | gzip > opae-$full_version.tar.gz
 mkdir -p rpmbuild
 cp opae.spec rpmbuild/.
-cp opae.tar.gz rpmbuild/.
+cp opae-$full_version.tar.gz rpmbuild/.
 cp buildrpm.sh rpmbuild/.
 
 docker pull opae/fedora-builder:latest
