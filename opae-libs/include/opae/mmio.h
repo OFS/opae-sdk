@@ -185,7 +185,7 @@ fpga_result fpgaMapMMIO(fpga_handle handle,
 /**
  * Unmap MMIO space
  *
- * This function will unmap a previously mapped MMIO space of the target opject,
+ * This function will unmap a previously mapped MMIO space of the target object,
  * rendering any pointers to it invalid.
  *
  * @note This call is only supported by hardware targets, not by ASE

@@ -395,24 +395,14 @@ fpga_result dfl_port_unmap(int fd, uint64_t io_addr)
 
 fpga_result dfl_fme_port_assign(int fd, uint32_t flags, uint32_t port_id)
 {
-	struct dfl_fpga_fme_port_assign assign = {
-		.argsz = sizeof(assign), .flags = 0, .port_id = port_id};
-	if (flags) {
-		OPAE_MSG(
-			"flags currently not supported in DFL_FPGA_FME_PORT_ASSIGN");
-	}
-	return opae_ioctl(fd, DFL_FPGA_FME_PORT_ASSIGN, &assign);
+	UNUSED_PARAM(flags);
+	return opae_ioctl(fd, DFL_FPGA_FME_PORT_ASSIGN, port_id);
 }
 
 fpga_result dfl_fme_port_release(int fd, uint32_t flags, uint32_t port_id)
 {
-	struct dfl_fpga_fme_port_assign assign = {
-		.argsz = sizeof(assign), .flags = 0, .port_id = port_id};
-	if (flags) {
-		OPAE_MSG(
-			"flags currently not supported in DFL_FPGA_FME_PORT_RELEASE");
-	}
-	return opae_ioctl(fd, DFL_FPGA_FME_PORT_RELEASE, &assign);
+	UNUSED_PARAM(flags);
+	return opae_ioctl(fd, DFL_FPGA_FME_PORT_RELEASE, port_id);
 }
 
 fpga_result dfl_fme_port_pr(int fd, uint32_t flags, uint32_t port_id,
