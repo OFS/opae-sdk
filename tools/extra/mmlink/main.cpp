@@ -149,6 +149,7 @@ int main( int argc, char** argv )
 
 	if ('\0' == mmlinkCmdLine.ip[0]) {
 		strncpy(mmlinkCmdLine.ip, "0.0.0.0", 8);
+		mmlinkCmdLine.ip[7] = '\0';
 	}
 
 	printf(" ------- Command line Input START ----\n\n");
@@ -395,15 +396,16 @@ int ParseCmds(struct MMLinkCommandLine *mmlinkCmdLine, int argc, char *argv[])
 				PRINT_ERR("Missing required argument for --ip");
 				return -1;
 			}
-			strncpy(mmlinkCmdLine->ip, tmp_optarg, 16);
+			strncpy(mmlinkCmdLine->ip, tmp_optarg, 15);
+			mmlinkCmdLine->ip[15] = '\0';
 			break;
 
 		case 'v':
 			// Version
-      printf("mmlink %s %s%s\n",
-             OPAE_VERSION,
-             OPAE_GIT_COMMIT_HASH,
-             OPAE_GIT_SRC_TREE_DIRTY ? "*":"");
+			printf("mmlink %s %s%s\n",
+				OPAE_VERSION,
+				OPAE_GIT_COMMIT_HASH,
+				OPAE_GIT_SRC_TREE_DIRTY ? "*":"");
 			return -2;
 
 		case '?':

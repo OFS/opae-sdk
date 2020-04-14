@@ -264,7 +264,6 @@ fpga_result set_fpga_pwr_threshold(fpga_handle handle,
 	uint64_t fpga_power               = 0;
 	struct _fpga_token  *_token       = NULL;
 	struct _fpga_handle *_handle      = (struct _fpga_handle *)handle;
-	size_t len;
 
 	if (_handle == NULL) {
 		OPAE_ERR("Invalid handle");
@@ -298,10 +297,12 @@ fpga_result set_fpga_pwr_threshold(fpga_handle handle,
 	}
 
 	// set fpga threshold 1
-	len = strnlen(_token->sysfspath, sizeof(_token->sysfspath) - 1);
-	strncpy(sysfs_path, _token->sysfspath, len + 1);
-	strncat(sysfs_path, "/" PWRMGMT_THRESHOLD1,
-		2 + sizeof(PWRMGMT_THRESHOLD1));
+	if (snprintf(sysfs_path, sizeof(sysfs_path),
+		     "%s/%s", _token->sysfspath, PWRMGMT_THRESHOLD1) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		result = FPGA_EXCEPTION;
+		return result;
+	}
 
 	OPAE_DBG(" FPGA Threshold1             :%ld watts\n", fpga_power);
 

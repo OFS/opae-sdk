@@ -556,7 +556,11 @@ static int opae_enumerate(const opae_api_adapter_table *adapter, void *context)
 			return OPAE_ENUM_STOP;
 		}
 
-		ctx->wrapped_tokens[ctx->num_wrapped_tokens++] = wt;
+		if (ctx->wrapped_tokens) {
+			ctx->wrapped_tokens[ctx->num_wrapped_tokens++] = wt;
+		} else {
+			opae_destroy_wrapped_token(wt);
+		}
 	}
 
 	return ctx->num_wrapped_tokens == ctx->max_wrapped_tokens
@@ -882,12 +886,10 @@ fpga_result __OPAE_API__ fpgaGetOPAECVersionString(char *version_str,
 						   size_t len)
 {
 	ASSERT_NOT_NULL(version_str);
-	if (len < sizeof(OPAE_VERSION))
+	if (len <= sizeof(OPAE_VERSION))
 		return FPGA_INVALID_PARAM;
 
-	len = strnlen(OPAE_VERSION, len);
-	strncpy(version_str, OPAE_VERSION, len + 1);
-	version_str[len] = '\0';
+	snprintf(version_str, len, "%s", OPAE_VERSION);
 
 	return FPGA_OK;
 }

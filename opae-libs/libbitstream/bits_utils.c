@@ -70,7 +70,7 @@ fpga_result opae_bitstream_get_json_string(json_object *parent,
 		return FPGA_NO_MEMORY;
 	}
 
-	strncpy(*value, s, len + 1);
+	memcpy(*value, s, len);
 	p = *value;
 	p[len] = '\0';
 
@@ -200,7 +200,8 @@ STATIC bool opae_bitstream_path_contains_symlink(const char *path,
 	struct stat stat_buf;
 	char *pslash;
 
-	strncpy(component, path, len);
+	memcpy(component, path, len);
+	component[len] = '\0';
 
 	if (component[0] == '/') {
 		// absolute path
