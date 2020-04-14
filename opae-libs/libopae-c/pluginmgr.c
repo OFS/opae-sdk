@@ -113,12 +113,14 @@ STATIC char *find_cfg(void)
 	for (i = 0; i < HOME_CFG_PATHS; ++i) {
 		len = strnlen(user_passwd->pw_dir,
 			      sizeof(home_cfg) - 1);
-		strncpy(home_cfg, user_passwd->pw_dir, len + 1);
+		memcpy(home_cfg, user_passwd->pw_dir, len);
+		home_cfg[len] = '\0';
 
 		home_cfg_ptr = home_cfg + strlen(home_cfg);
 
 		len = strnlen(_opae_home_cfg_files[i], CFG_PATH_MAX);
-		strncpy(home_cfg_ptr, _opae_home_cfg_files[i], len + 1);
+		memcpy(home_cfg_ptr, _opae_home_cfg_files[i], len);
+		home_cfg_ptr[len] = '\0';
 
 		file_name = canonicalize_file_name(home_cfg);
 		if (file_name)
@@ -130,7 +132,8 @@ STATIC char *find_cfg(void)
 	// now look in possible system paths
 	for (i = 0; i < SYS_CFG_PATHS; ++i) {
 		len = strnlen(_opae_sys_cfg_files[i], CFG_PATH_MAX);
-		strncpy(home_cfg, _opae_sys_cfg_files[i], len + 1);
+		memcpy(home_cfg, _opae_sys_cfg_files[i], len);
+		home_cfg[len] = '\0';
 
 		file_name = canonicalize_file_name(home_cfg);
 		if (file_name)
@@ -377,13 +380,16 @@ STATIC int process_plugin(const char *name, json_object *j_config)
 	}
 
 	len = strnlen(stringified, cfg->cfg_size - 1);
-	strncpy(cfg->cfg, stringified, len + 1);
+	memcpy(cfg->cfg, stringified, len);
+	cfg->cfg[len] = '\0';
 
 	len = strnlen(name, PLUGIN_NAME_MAX - 1);
-	strncpy(cfg->name, name, len + 1);
+	memcpy(cfg->name, name, len);
+	cfg->name[len] = '\0';
 
 	len = strnlen(json_object_get_string(j_plugin), PLUGIN_NAME_MAX - 1);
-	strncpy(cfg->plugin, json_object_get_string(j_plugin), len + 1);
+	memcpy(cfg->plugin, json_object_get_string(j_plugin), len);
+	cfg->plugin[len] = '\0';
 
 	cfg->enabled = json_object_get_boolean(j_enabled);
 
@@ -535,14 +541,12 @@ STATIC int opae_plugin_mgr_detect_platforms(void)
 	char file_path[PATH_MAX];
 	struct dirent *dirent;
 	int errors = 0;
-	size_t len;
 
 	// Iterate over the directories in /sys/bus/pci/devices.
 	// This directory contains symbolic links to device directories
 	// where 'vendor' and 'device' files exist.
 
-	len = 21;
-	strncpy(base_dir, "/sys/bus/pci/devices", len);
+	memcpy(base_dir, "/sys/bus/pci/devices", 21);
 
 	dir = opendir(base_dir);
 	if (!dir) {
@@ -560,13 +564,14 @@ STATIC int opae_plugin_mgr_detect_platforms(void)
 			continue;
 
 		// Read the 'vendor' file.
-		len = 21;
-		strncpy(file_path, base_dir, len);
-		file_path[len] = '\0';
-		strncat(file_path, "/", 2);
-		len = strnlen(dirent->d_name, sizeof(file_path) - 1);
-		strncat(file_path, dirent->d_name, len);
-		strncat(file_path, "/vendor", 8);
+		if (snprintf(file_path, sizeof(file_path),
+			     "%s/%s/vendor",
+			     base_dir,
+			     dirent->d_name) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+			++errors;
+			goto out_close;
+		}
 
 		fp = fopen(file_path, "r");
 		if (!fp) {
@@ -585,13 +590,14 @@ STATIC int opae_plugin_mgr_detect_platforms(void)
 		fclose(fp);
 
 		// Read the 'device' file.
-		len = 21;
-		strncpy(file_path, base_dir, len);
-		file_path[len] = '\0';
-		strncat(file_path, "/", 2);
-		len = strnlen(dirent->d_name, sizeof(file_path) - 1);
-		strncat(file_path, dirent->d_name, len);
-		strncat(file_path, "/device", 8);
+		if (snprintf(file_path, sizeof(file_path),
+			     "%s/%s/device",
+			     base_dir,
+			     dirent->d_name) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+			++errors;
+			goto out_close;
+		}
 
 		fp = fopen(file_path, "r");
 		if (!fp) {

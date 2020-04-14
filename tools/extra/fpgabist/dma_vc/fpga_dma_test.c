@@ -197,8 +197,8 @@ fpga_result parse_args(int argc, char *argv[])
 				printf("DMA buffer size out of range (%d~%d), %zu is used\n",
 					   DMA_BUF_SIZE_MIN, DMA_BUF_SIZE_MAX, fpga_dma_buf_size);
 			}
-			if (fpga_dma_buf_size & 0x7f) {
-			    fpga_dma_buf_size &= ~0x7f;
+			if (fpga_dma_buf_size & 0x7fULL) {
+			    fpga_dma_buf_size &= ~0x7fULL;
 				printf("DMA buffer size must be multiple of 128, %zu is used\n",
 					   fpga_dma_buf_size);
 			}
@@ -606,7 +606,7 @@ static int check_config()
 		if (i == 0) {
 			if (config.target.dma == 3) {
 				if (config.target.size % 64) {
-					config.target.size &= ~63;
+					config.target.size &= ~63ULL;
 					printf("Round test size to 64-bytes aligned for QDR\n");
 				}
 			}
