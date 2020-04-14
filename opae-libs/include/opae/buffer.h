@@ -38,7 +38,7 @@
  * virtual address mappings of the CPU, so they can only access physical
  * addresses. To support this, the OPAE C library on Linux uses hugepages to
  * allocate large, contiguous pages of physical memory that can be shared with
- * an accalerator. It also supports sharing memory that has already been
+ * an accelerator. It also supports sharing memory that has already been
  * allocated by an application, as long as that memory satisfies the
  * requirements of being physically contigous and page-aligned.
  */

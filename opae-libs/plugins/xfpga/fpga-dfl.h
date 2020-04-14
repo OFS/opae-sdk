@@ -1,15 +1,28 @@
-/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
-/*
- * Header File for FPGA DFL User API
- *
- * Copyright (C) 2017-2018 Intel Corporation, Inc.
- *
- * Authors:
- *   Kang Luwei <luwei.kang@intel.com>
- *   Zhang Yi <yi.z.zhang@intel.com>
- *   Wu Hao <hao.wu@intel.com>
- *   Xiao Guangrong <guangrong.xiao@linux.intel.com>
- */
+// Copyright(c) 2017-2020, Intel Corporation
+//
+// Redistribution  and  use  in source  and  binary  forms,  with  or  without
+// modification, are permitted provided that the following conditions are met:
+//
+// * Redistributions of  source code  must retain the  above copyright notice,
+//   this list of conditions and the following disclaimer.
+// * Redistributions in binary form must reproduce the above copyright notice,
+//   this list of conditions and the following disclaimer in the documentation
+//   and/or other materials provided with the distribution.
+// * Neither the name  of Intel Corporation  nor the names of its contributors
+//   may be used to  endorse or promote  products derived  from this  software
+//   without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+// IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+// LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+// CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+// SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+// INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+// CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef _UAPI_LINUX_FPGA_DFL_H
 #define _UAPI_LINUX_FPGA_DFL_H
@@ -178,35 +191,20 @@ struct dfl_fpga_fme_port_pr {
 
 /**
  * DFL_FPGA_FME_PORT_RELEASE - _IOW(DFL_FPGA_MAGIC, DFL_FME_BASE + 1,
- *					struct dfl_fpga_fme_port_release)
+ *						int port_id)
  *
  * Driver releases the port per Port ID provided by caller.
  * Return: 0 on success, -errno on failure.
  */
-struct dfl_fpga_fme_port_release {
-	/* Input */
-	__u32 argsz;		/* Structure length */
-	__u32 flags;		/* Zero for now */
-	__u32 port_id;
-};
-
-#define DFL_FPGA_FME_PORT_RELEASE	_IO(DFL_FPGA_MAGIC, DFL_FME_BASE + 1)
+#define DFL_FPGA_FME_PORT_RELEASE   _IOW(DFL_FPGA_MAGIC, DFL_FME_BASE + 1, int)
 
 /**
  * DFL_FPGA_FME_PORT_ASSIGN - _IOW(DFL_FPGA_MAGIC, DFL_FME_BASE + 2,
- *					struct dfl_fpga_fme_port_assign)
+ *						int port_id)
  *
  * Driver assigns the port back per Port ID provided by caller.
  * Return: 0 on success, -errno on failure.
  */
-struct dfl_fpga_fme_port_assign {
-	/* Input */
-	__u32 argsz;		/* Structure length */
-	__u32 flags;		/* Zero for now */
-	__u32 port_id;
-};
-
-#define DFL_FPGA_FME_PORT_ASSIGN	_IO(DFL_FPGA_MAGIC, DFL_FME_BASE + 2)
+#define DFL_FPGA_FME_PORT_ASSIGN     _IOW(DFL_FPGA_MAGIC, DFL_FME_BASE + 2, int)
 
 #endif /* _UAPI_LINUX_FPGA_DFL_H */
-
