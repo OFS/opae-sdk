@@ -23,6 +23,7 @@ external export-ignore
 platforms export-ignore
 samples/base export-ignore
 samples/hello_afu export-ignore
+samples/hello_events export-ignore
 samples/hello_mpf_afu export-ignore
 samples/intg_xeon_nlb export-ignore
 samples/base export-ignore
