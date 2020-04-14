@@ -44,8 +44,9 @@ EOF
 
 cat > buildrpm.sh << EOF
 #!/bin/bash
+set -x
 rpmdev-setuptree
-cp /tmp/rpmbuild/opae.tar.gz ~/rpmbuild/SOURCES/opae-$full_version.tar.gz
+cp /tmp/rpmbuild/opae-$full_version.tar.gz ~/rpmbuild/SOURCES/opae-$full_version.tar.gz
 rpmbuild -ba /tmp/rpmbuild/opae.spec
 newgrp mock
 mock -r fedora-rawhide-x86_64 rebuild ~/rpmbuild/SRPMS/opae-$full_version.src.rpm
@@ -57,7 +58,7 @@ cp opae/review.txt /tmp/rpmbuild/.
 EOF
 chmod a+x buildrpm.sh
 
-git archive --format tar --prefix opae/ --worktree-attributes HEAD | gzip > opae.tar.gz
+git archive --format tar --prefix opae-$full_version/ --worktree-attributes HEAD | gzip > opae-$full_version.tar.gz
 mkdir -p rpmbuild
 cp opae.spec rpmbuild/.
 cp opae.tar.gz rpmbuild/.
