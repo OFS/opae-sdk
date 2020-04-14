@@ -178,7 +178,7 @@ fpga_result fpgaDestroyObject(fpga_object *obj);
  * If FPGA_OBJECT_SYNC is used then object will update its buffered copy before
  * retrieving the size.
  *
- * @return FPGA_OK on success. FPGA_INVALID_PARAM if any of supplied paramters
+ * @return FPGA_OK on success. FPGA_INVALID_PARAM if any of supplied parameters
  * is invalid. FPGA_EXCEPTION if error occurred.
  */
 fpga_result fpgaObjectGetSize(fpga_object obj, uint32_t *value, int flags);
