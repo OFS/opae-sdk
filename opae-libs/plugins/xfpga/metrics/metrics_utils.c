@@ -132,7 +132,7 @@ fpga_result add_metric_vector(fpga_metric_vector *vector,
 	fpga_enum_metric->group_name[len] = '\0';
 
 	len = strnlen(group_sysfs, SYSFS_PATH_MAX - 1);
-	memcpy(fpga_enum_metric->group_sysfs, group_sysfs, len + 1);
+	memcpy(fpga_enum_metric->group_sysfs, group_sysfs, len);
 	fpga_enum_metric->group_sysfs[len] = '\0';
 
 	len = strnlen(metric_name, SYSFS_PATH_MAX - 1);
