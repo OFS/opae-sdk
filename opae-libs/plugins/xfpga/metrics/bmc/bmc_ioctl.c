@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -26,7 +26,6 @@
 
 #include <opae/fpga.h>
 #include "bmc.h"
-#include "safe_string/safe_string.h"
 #include "bmcdata.h"
 #include <sys/types.h>
 #include <string.h>
@@ -202,12 +201,13 @@ fpga_result bmcSetHWThresholds(bmc_sdr_handle sdr_h, uint32_t sensor,
 			       threshold_list *thresh)
 {
 	fpga_result res = FPGA_OK;
-	char sysfspath[SYSFS_PATH_MAX] = {0};
+	char sysfspath[SYSFS_PATH_MAX] = { 0, };
 	int fd = 0;
 	bmc_set_thresh_request req;
 	Values *vals;
 	sensor_reading read;
 	bmc_get_thresh_response resp;
+	size_t len;
 
 	NULL_CHECK(sdr_h);
 	NULL_CHECK(thresh);
@@ -221,8 +221,11 @@ fpga_result bmcSetHWThresholds(bmc_sdr_handle sdr_h, uint32_t sensor,
 		return FPGA_INVALID_PARAM;
 	}
 
-	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", sdr->sysfs_path,
-		      SYSFS_AVMMI_DIR);
+	if (snprintf(sysfspath, sizeof(sysfspath),
+		     "%s/" SYSFS_AVMMI_DIR, sdr->sysfs_path) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
 
 	glob_t pglob;
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
@@ -237,7 +240,9 @@ fpga_result bmcSetHWThresholds(bmc_sdr_handle sdr_h, uint32_t sensor,
 		return FPGA_NOT_FOUND;
 	}
 
-	snprintf_s_s(sysfspath, sizeof(sysfspath), "/dev/%s", &avmmi[1]);
+	strncpy(sysfspath, "/dev/", 6);
+	len = strnlen(&avmmi[1], sizeof(sysfspath) - 6);
+	strncat(sysfspath, &avmmi[1], len + 1);
 
 	fd = open(sysfspath, O_RDWR);
 	globfree(&pglob);
@@ -245,8 +250,8 @@ fpga_result bmcSetHWThresholds(bmc_sdr_handle sdr_h, uint32_t sensor,
 		return FPGA_NOT_FOUND;
 	}
 
-	memset_s(&req, sizeof(req), 0);
-	memset_s(&read, sizeof(read), 0);
+	memset(&req, 0, sizeof(req));
+	memset(&read, 0, sizeof(read));
 
 	vals = bmc_build_values(&read, &sdr->contents[sensor].header,
 				&sdr->contents[sensor].key,
@@ -264,9 +269,13 @@ fpga_result bmcSetHWThresholds(bmc_sdr_handle sdr_h, uint32_t sensor,
 
 	lseek(fd, 0, SEEK_SET);
 
-	int sz = sizeof(bmc_get_thresh_response) - sizeof(resp.cc)
-		 - sizeof(resp.header);
-	memcpy_s(&req.mask, sz, &resp.mask, sz);
+	req.mask = resp.mask;
+	req.LNC = resp.LNC;
+	req.LC = resp.LC;
+	req.LNR = resp.LNR;
+	req.UNC = resp.UNC;
+	req.UC = resp.UC;
+	req.UNR = resp.UNR;
 
 	fill_set_request(vals, thresh, &req);
 

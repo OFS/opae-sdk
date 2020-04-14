@@ -37,8 +37,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "safe_string/safe_string.h"
-
 #include "xfpga.h"
 #include "common_int.h"
 #include "error_int.h"
@@ -190,10 +188,15 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_NUM_ERRORS)) {
 		uint32_t errors;
-		char errpath[SYSFS_PATH_MAX];
+		char errpath[SYSFS_PATH_MAX] = { 0, };
 
-		snprintf_s_s(errpath, SYSFS_PATH_MAX, "%s/errors",
-			     attr->sysfspath);
+		if (snprintf(errpath, sizeof(errpath),
+			     "%s/errors", attr->sysfspath) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+			res = false;
+			goto out_unlock;
+		}
+
 		errors = count_error_files(errpath);
 		if (errors != _filter->num_errors) {
 			res = false;
@@ -294,21 +297,19 @@ STATIC struct dev_list *add_dev(const char *sysfspath, const char *devpath,
 				struct dev_list *parent)
 {
 	struct dev_list *pdev;
-	errno_t e;
+	size_t len;
 
-	pdev = (struct dev_list *)malloc(sizeof(*pdev));
+	pdev = (struct dev_list *)calloc(1, sizeof(*pdev));
 	if (NULL == pdev)
 		return NULL;
 
-	e = strncpy_s(pdev->sysfspath, sizeof(pdev->sysfspath), sysfspath,
-		      SYSFS_PATH_MAX);
-	if (EOK != e)
-		goto out_free;
+	len = strnlen(sysfspath, sizeof(pdev->sysfspath) - 1);
+	memcpy(pdev->sysfspath, sysfspath, len);
+	pdev->sysfspath[len] = '\0';
 
-	e = strncpy_s(pdev->devpath, sizeof(pdev->devpath), devpath,
-		      DEV_PATH_MAX);
-	if (EOK != e)
-		goto out_free;
+	len = strnlen(devpath, sizeof(pdev->devpath) - 1);
+	memcpy(pdev->devpath, devpath, len);
+	pdev->devpath[len] = '\0';
 
 	pdev->next = parent->next;
 	parent->next = pdev;
@@ -316,10 +317,6 @@ STATIC struct dev_list *add_dev(const char *sysfspath, const char *devpath,
 	pdev->parent = parent;
 
 	return pdev;
-
-out_free:
-	free(pdev);
-	return NULL;
 }
 
 STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
@@ -341,7 +338,8 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 	if (!S_ISDIR(stats.st_mode))
 		return FPGA_OK;
 
-	snprintf_s_s(dpath, sizeof(dpath), FPGA_DEV_PATH "/%s", name);
+	snprintf(dpath, sizeof(dpath),
+		 FPGA_DEV_PATH "/%s", name);
 
 	pdev = add_dev(sysfspath, dpath, parent);
 	if (!pdev) {
@@ -406,9 +404,10 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	int resval = 0;
 	struct stat stats;
 	struct dev_list *pdev;
-	char spath[PATH_MAX];
-	char dpath[DEV_PATH_MAX];
+	char spath[PATH_MAX] = { 0, };
+	char dpath[DEV_PATH_MAX] = { 0, };
 	uint64_t value = 0;
+
 	// Make sure it's a directory.
 	if (stat(sysfspath, &stats) != 0) {
 		OPAE_ERR("stat failed: %s", strerror(errno));
@@ -419,7 +418,7 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 		return FPGA_OK;
 	int res;
 
-	snprintf_s_s(dpath, sizeof(dpath), FPGA_DEV_PATH "/%s", name);
+	snprintf(dpath, sizeof(dpath), FPGA_DEV_PATH "/%s", name);
 
 	pdev = add_dev(sysfspath, dpath, parent);
 	if (!pdev) {
@@ -459,8 +458,8 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	pdev->accelerator_num_irqs = 0;
 
 	// Discover the AFU GUID from sysfs.
-	snprintf_s_s(spath, sizeof(spath), "%s/" FPGA_SYSFS_AFU_GUID,
-		     sysfspath);
+	snprintf(spath, sizeof(spath),
+		 "%s/" FPGA_SYSFS_AFU_GUID, sysfspath);
 
 	result = sysfs_read_guid(spath, pdev->guid);
 	/* if we can't read the afu_id, remove device from list */
@@ -588,7 +587,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 
 	*num_matches = 0;
 
-	memset_s(&head, sizeof(head), 0);
+	memset(&head, 0, sizeof(head));
 
 	//enum FPGA regions & resources
 	result = enum_fpga_region_resources(&head,
@@ -603,7 +602,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 	for (lptr = head.next; NULL != lptr; lptr = lptr->next) {
 		struct _fpga_token *_tok;
 
-		if (!strnlen_s(lptr->devpath, sizeof(lptr->devpath)))
+		if (!strnlen(lptr->devpath, sizeof(lptr->devpath)))
 			continue;
 
 		// propagate the socket_id field.
@@ -649,8 +648,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaCloneToken(fpga_token src, fpga_token *dst)
 {
 	struct _fpga_token *_src = (struct _fpga_token *)src;
 	struct _fpga_token *_dst;
-	fpga_result result;
-	errno_t e;
+	size_t len;
 
 	if (NULL == src || NULL == dst) {
 		OPAE_MSG("src or dst in NULL");
@@ -662,7 +660,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaCloneToken(fpga_token src, fpga_token *dst)
 		return FPGA_INVALID_PARAM;
 	}
 
-	_dst = malloc(sizeof(struct _fpga_token));
+	_dst = calloc(1, sizeof(struct _fpga_token));
 	if (NULL == _dst) {
 		OPAE_MSG("Failed to allocate memory for token");
 		return FPGA_NO_MEMORY;
@@ -672,31 +670,18 @@ fpga_result __XFPGA_API__ xfpga_fpgaCloneToken(fpga_token src, fpga_token *dst)
 	_dst->device_instance = _src->device_instance;
 	_dst->subdev_instance = _src->subdev_instance;
 
-	e = strncpy_s(_dst->sysfspath, sizeof(_dst->sysfspath), _src->sysfspath,
-		      sizeof(_src->sysfspath));
-	if (EOK != e) {
-		OPAE_MSG("strncpy_s failed");
-		result = FPGA_EXCEPTION;
-		goto out_free;
-	}
+	len = strnlen(_src->sysfspath, sizeof(_src->sysfspath) - 1);
+	strncpy(_dst->sysfspath, _src->sysfspath, len + 1);
 
-	e = strncpy_s(_dst->devpath, sizeof(_dst->devpath), _src->devpath,
-		      sizeof(_src->devpath));
-	if (EOK != e) {
-		OPAE_MSG("strncpy_s failed");
-		result = FPGA_EXCEPTION;
-		goto out_free;
-	}
+	len = strnlen(_src->devpath, sizeof(_src->devpath) - 1);
+	strncpy(_dst->devpath, _src->devpath, len + 1);
 
 	// shallow-copy error list
 	_dst->errors = _src->errors;
 
 	*dst = _dst;
-	return FPGA_OK;
 
-out_free:
-	free(_dst);
-	return result;
+	return FPGA_OK;
 }
 
 fpga_result __XFPGA_API__ xfpga_fpgaDestroyToken(fpga_token *token)

@@ -1,0 +1,21 @@
+name: Docker Build and Review RPM
+
+on:
+  push:
+    paths:
+      - opae.spec
+      - scripts/docker_rpm.sh
+      - .github/workflows/docker-rpm.yml
+jobs:
+  build_docker_image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build a Docker image and RPM file
+        run: ${{ github.workspace }}/scripts/docker_rpm.sh
+      - name: Archive Results
+        uses: actions/upload-artifact@v1
+        with:
+          name: rpmbuild
+          path: rpmbuild
+

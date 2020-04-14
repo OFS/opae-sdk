@@ -28,8 +28,6 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include "safe_string/safe_string.h"
-
 #include <sys/stat.h>
 #include <unistd.h>
 #include <dirent.h>
@@ -180,7 +178,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetErrorInfo(fpga_token token,
 	struct error_list *p = _token->errors;
 	while (p) {
 		if (i == error_num) {
-			memcpy_s(error_info, sizeof(struct fpga_error_info), &p->info, sizeof(struct fpga_error_info));
+			memcpy(error_info, &p->info, sizeof(struct fpga_error_info));
 			return FPGA_OK;
 		}
 		i++;
@@ -225,13 +223,14 @@ build_error_list(const char *path, struct error_list **list)
 	struct dirent *de;
 	DIR *dir;
 	struct stat st;
-	char basedir[FILENAME_MAX];
-	int len = strlen(path);
+	char basedir[FILENAME_MAX] = { 0, };
+	int len;
 	int subpath_len = 0;
 	uint32_t n = 0;
 	unsigned int i;
 	struct error_list **el = list;
-	errno_t err;
+
+	len = strnlen(path, FILENAME_MAX - 1);
 
 	// add 3 to the len
 	// 1 for the '/' char
@@ -243,12 +242,9 @@ build_error_list(const char *path, struct error_list **list)
 		return 0;
 	}
 
-	err = strncpy_s(basedir, FILENAME_MAX-3, path, len);
-	if (err != EOK) {
-		OPAE_MSG("strncpy_s() failed with return value %u", err);
-		return 0;
-	}
-	basedir[len++] = '/';
+	len = snprintf(basedir, sizeof(basedir),
+		       "%s/", path);
+
 	// now we've added one to length
 
 	dir = opendir(path);
@@ -258,6 +254,9 @@ build_error_list(const char *path, struct error_list **list)
 	}
 
 	while ((de = readdir(dir))) {
+		size_t blen;
+		size_t dlen;
+
 		// skip hidden ('.*') files (includes "." and "..")
 		if (de->d_name[0] == '.')
 			continue;
@@ -271,7 +270,7 @@ build_error_list(const char *path, struct error_list **list)
 		if (i < NUM_ERRORS_EXCLUDE)
 			continue;
 
-		subpath_len = strlen(de->d_name);
+		subpath_len = strnlen(de->d_name, sizeof(de->d_name) - 1);
 
 		// check if the result abs path is longer than  our max
 		if (len + subpath_len > FILENAME_MAX) {
@@ -282,12 +281,7 @@ build_error_list(const char *path, struct error_list **list)
 		// build absolute path
 		// dmax (arg2) is restricted max length of resulting dest,
 		// including null - it must also be at least smax+1 (arg4)
-		err = strncpy_s(basedir + len, FILENAME_MAX - len - 1,
-				de->d_name, subpath_len);
-		if (err != EOK) {
-			OPAE_MSG("strncpy_s() failed with return value %u", err);
-			continue;
-		}
+		strncpy(basedir + len, de->d_name, subpath_len + 1);
 
 		// try accessing file/dir
 		if (lstat(basedir, &st) == -1) {
@@ -317,22 +311,15 @@ build_error_list(const char *path, struct error_list **list)
 			n--;
 			break;
 		}
-		err = strncpy_s(new_entry->info.name, FPGA_ERROR_NAME_MAX, de->d_name, FILENAME_MAX);
-		if (err != EOK) {
-			OPAE_MSG("strncpy_s() failed with return value %u", err);
-			n--;
-			free(new_entry);
-			new_entry = NULL;
-			break;
-		}
-		err = strncpy_s(new_entry->error_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
-		if (err != EOK) {
-			OPAE_MSG("strncpy_s() failed with return value %u", err);
-			n--;
-			free(new_entry);
-			new_entry = NULL;
-			break;
-		}
+
+		dlen = strnlen(de->d_name, sizeof(new_entry->info.name) - 1);
+		memcpy(new_entry->info.name, de->d_name, dlen);
+		new_entry->info.name[dlen] = '\0';
+
+		blen = strnlen(basedir, sizeof(new_entry->error_file) - 1);
+		memcpy(new_entry->error_file, basedir, blen);
+		new_entry->error_file[blen] = '\0';
+
 		new_entry->next = NULL;
 		// Errors can be cleared:
 		//   * if the name is "errors" and there is a file called "clear" (generic case), OR
@@ -340,57 +327,30 @@ build_error_list(const char *path, struct error_list **list)
 		new_entry->info.can_clear = false;
 		if (strcmp(de->d_name, "errors") == 0 &&
 			!stat(FPGA_SYSFS_CLASS_PATH_INTEL, &st)) {
-			err = strncpy_s(basedir + len, FILENAME_MAX - len, "clear", sizeof("clear"));
-			if (err != EOK) {
-				OPAE_MSG("strncpy_s() failed with return value %u", err);
-				n--;
-				free(new_entry);
-				new_entry = NULL;
-				break;
-			}
+			strncpy(basedir + len, "clear", 6);
 			// try accessing clear file
 			if (lstat(basedir, &st) != -1) {
 				new_entry->info.can_clear = true;
-				err = strncpy_s(new_entry->clear_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
-				if (err != EOK) {
-					OPAE_MSG("strncpy_s() failed with return value %u", err);
-					n--;
-					free(new_entry);
-					new_entry = NULL;
-					break;
-				}
+				memcpy(new_entry->clear_file, basedir, blen);
+				new_entry->clear_file[blen] = '\0';
 			}
 		} else {
 			for (i = 0; i < NUM_ERRORS_CLEARABLE; i++) {
 				if (strcmp(de->d_name, errors_clearable[i]) == 0) {
-					err = strncpy_s(basedir + len, FILENAME_MAX - len, de->d_name, FILENAME_MAX);
-					if (err != EOK) {
-						OPAE_MSG("strncpy_s() failed with return value %u", err);
-						n--;
-						free(new_entry);
-						new_entry = NULL;
-						break;
-					}
+					memcpy(basedir + len, de->d_name, dlen);
+					*(basedir + len + dlen) = '\0';
 					// try accessing clear file
 					if (lstat(basedir, &st) != -1) {
 						new_entry->info.can_clear = true;
-						err = strncpy_s(new_entry->clear_file, SYSFS_PATH_MAX, basedir, FILENAME_MAX);
-						if (err != EOK) {
-							OPAE_MSG("strncpy_s() failed with return value %u", err);
-							n--;
-							free(new_entry);
-							new_entry = NULL;
-							break;
-						}
+						memcpy(new_entry->clear_file, basedir, blen);
+						new_entry->clear_file[blen] = '\0';
 					}
 				}
 			}
 		}
 
 		if (new_entry && !new_entry->info.can_clear) {
-			err = memset_s(new_entry->clear_file, sizeof(new_entry->clear_file), 0);
-			// the first two arguments passed in to memset_s are
-			// always valid - no need to check for error code
+			memset(new_entry->clear_file, 0, sizeof(new_entry->clear_file));
 		}
 
 		// find end of list
@@ -406,7 +366,6 @@ build_error_list(const char *path, struct error_list **list)
 
 	return n;
 }
-
 
 uint32_t count_error_files(const char *path)
 {

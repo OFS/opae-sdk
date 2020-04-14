@@ -57,6 +57,7 @@ opae_add_subdirectory(opae-libs)
 opae_add_subdirectory(platforms)
 opae_add_subdirectory(tools)
 opae_add_subdirectory(samples)
+opae_add_subdirectory(python)
 
 if(OPAE_BUILD_TESTS)
     enable_testing()
@@ -141,8 +142,6 @@ set(CPACK_COMPONENTS_ALL
 	docxml
 	platform
 	samplesrc
-	safestrlib
-	safestrheaders
 	opaeclib
 	opaecxxcorelib
 	opaetoolslibs
@@ -221,8 +220,6 @@ define_pkg(devel
   platform
   samplesrc
   samplebin
-  safestrlib
-  safestrheaders
   licensefile
   GROUP "devel"
   DISPLAY_NAME "opae-devel"

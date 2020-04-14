@@ -28,13 +28,14 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <inttypes.h>
 
 #include "common_int.h"
 #include "sysfs_int.h"
 #include "types_int.h"
-#include "safe_string/safe_string.h"
 #include <opae/types_enum.h>
 #include <opae/sysobject.h>
 #include <opae/log.h>
@@ -87,7 +88,7 @@ fpga_result __XFPGA_API__
 xfpga_fpgaObjectGetObject(fpga_object parent, const char *name,
 						   fpga_object *object, int flags)
 {
-	char objpath[SYSFS_PATH_MAX] = {0};
+	char objpath[PATH_MAX] = { 0, };
 	fpga_result res = FPGA_EXCEPTION;
 	ASSERT_NOT_NULL(parent);
 	ASSERT_NOT_NULL(name);
@@ -101,6 +102,7 @@ xfpga_fpgaObjectGetObject(fpga_object parent, const char *name,
 	if (res) {
 		return res;
 	}
+
 	res = cat_sysfs_path(objpath, "/");
 	if (res) {
 		return res;
@@ -110,7 +112,6 @@ xfpga_fpgaObjectGetObject(fpga_object parent, const char *name,
 	if (res) {
 		return res;
 	}
-
 
 	return make_sysfs_object(objpath, name, object, flags, _obj->handle);
 }
@@ -134,8 +135,7 @@ xfpga_fpgaCloneObject(fpga_object src, fpga_object *dst)
 	_dst->max_size = _src->max_size;
 	if (_src->type == FPGA_SYSFS_FILE) {
 		_dst->buffer = calloc(_dst->max_size, sizeof(uint8_t));
-		memcpy_s(_dst->buffer, _dst->max_size, _src->buffer,
-			 _src->max_size);
+		memcpy(_dst->buffer, _src->buffer, _src->max_size);
 	} else {
 		_dst->buffer = NULL;
 		_dst->objects = calloc(_src->size, sizeof(fpga_object));
@@ -174,9 +174,11 @@ fpga_result __XFPGA_API__ xfpga_fpgaObjectGetObjectAt(fpga_object parent,
 	}
 
 	if (_obj->type == FPGA_SYSFS_FILE) {
+		pthread_mutex_unlock(&_obj->lock);
 		return FPGA_INVALID_PARAM;
 	}
 	if (idx >= _obj->size) {
+		pthread_mutex_unlock(&_obj->lock);
 		return FPGA_INVALID_PARAM;
 	}
 	res = xfpga_fpgaCloneObject(_obj->objects[idx], object);
@@ -271,7 +273,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaObjectRead(fpga_object obj,
 		OPAE_ERR("Bytes requested exceed object size");
 		return FPGA_INVALID_PARAM;
 	}
-	memcpy_s(buffer, len, _obj->buffer + offset, len);
+	memcpy(buffer, _obj->buffer + offset, len);
 
 	return FPGA_OK;
 }
@@ -284,7 +286,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaObjectWrite64(fpga_object obj,
 	size_t bytes_written = 0;
 	int fd = -1;
 	fpga_result res = FPGA_OK;
-	errno_t err;
+	int err;
 	ASSERT_NOT_NULL(obj);
 	ASSERT_NOT_NULL(_obj->handle);
 	if (_obj->type != FPGA_SYSFS_FILE) {
@@ -295,13 +297,13 @@ fpga_result __XFPGA_API__ xfpga_fpgaObjectWrite64(fpga_object obj,
 		return res;
 	}
 	if (_obj->max_size) {
-		memset_s(_obj->buffer, _obj->max_size, 0);
+		memset(_obj->buffer, 0, _obj->max_size);
 	}
 	if (flags & FPGA_OBJECT_RAW) {
 		_obj->size = sizeof(uint64_t);
 		*(uint64_t *)_obj->buffer = value;
 	} else {
-		snprintf_s_l((char *)_obj->buffer, _obj->max_size, "0x%" PRIx64,
+		snprintf((char *)_obj->buffer, _obj->max_size, "0x%" PRIx64,
 			     value);
 		_obj->size = (size_t)strlen((const char *)_obj->buffer);
 	}
@@ -365,17 +367,23 @@ fpga_result __XFPGA_API__ xfpga_fpgaObjectGetName(fpga_object obj, char *name,
 {
 	fpga_result res = FPGA_OK;
 	struct _fpga_object *_obj = (struct _fpga_object *)obj;
+	size_t len;
+
 	ASSERT_NOT_NULL(obj);
 	ASSERT_NOT_NULL(name);
+
 	if (pthread_mutex_lock(&_obj->lock)) {
 		OPAE_ERR("pthread_mutex_lock() failed");
 		return FPGA_EXCEPTION;
 	}
 
-	ASSERT_NOT_NULL(_obj->name);
-	if (strncpy_s(name, max_len, _obj->name, strlen(_obj->name))) {
-		res = FPGA_EXCEPTION;
+	if (!_obj->name) {
+		pthread_mutex_unlock(&_obj->lock);
+		return FPGA_INVALID_PARAM;
 	}
+
+	len = strnlen(_obj->name, max_len - 1);
+	strncpy(name, _obj->name, len + 1);
 
 	if (pthread_mutex_unlock(&_obj->lock)) {
 		OPAE_ERR("pthread_mutex_unlock() failed");

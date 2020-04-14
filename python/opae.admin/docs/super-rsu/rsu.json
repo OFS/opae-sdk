@@ -1,0 +1,25 @@
+{
+    "program": "super-rsu",
+    "product": "n3000",
+    "vendor": "0x8086",
+    "device": "0x0b30",
+    "additional_devices": [["0x8086", "0x0b32"]],
+    "flash": [
+        {
+            "filename": "vista_creek_qspi_xip_v1.0.6.ihex",
+            "type": "bmc_fw",
+            "version": "1.0.6",
+            "revision": "C"
+        },
+        {
+            "filename": "max10_system_revc_dual_v1.0.5_cfm0_auto.rpd",
+            "type": "bmc_img",
+            "version": "1.0.5"
+        },
+        {
+            "filename": "vcp_a10_flash_ww11.3_rc4_2x1x25.bin",
+            "type": "user",
+            "version": "2.0.0"
+        }
+    ]
+}

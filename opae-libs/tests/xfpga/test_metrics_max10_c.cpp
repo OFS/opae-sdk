@@ -1,4 +1,4 @@
-// Copyright(c) 2019, Intel Corporation
+// Copyright(c) 2019-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -39,7 +39,6 @@ extern "C" {
 
 #include <vector>
 #include "gtest/gtest.h"
-#include "safe_string/safe_string.h"
 #include "sysfs_int.h"
 #include "mock/test_system.h"
 #include "mock/test_utils.h"

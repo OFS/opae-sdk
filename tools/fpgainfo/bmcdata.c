@@ -48,7 +48,7 @@ fpga_result get_metrics(fpga_token token,
 
 	/* open FPGA */
 	res = fpgaOpen(token, &handle, FPGA_OPEN_SHARED);
-	ON_FPGAINFO_ERR_GOTO(res, out_close, "opening FPGA");
+	ON_FPGAINFO_ERR_GOTO(res, out_exit, "opening FPGA");
 
 	res = fpgaGetNumMetrics(handle, num_metrics_info);
 	ON_FPGAINFO_ERR_GOTO(res, out_close,

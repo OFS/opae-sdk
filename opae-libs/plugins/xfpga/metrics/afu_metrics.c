@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2019, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -46,7 +46,6 @@
 #include "types_int.h"
 #include "opae/metrics.h"
 #include "metrics/vector.h"
-#include "safe_string/safe_string.h"
 
 // AFU BBB GUID
 #define METRICS_BBB_GUID            "87816958-C148-4CD0-9D73-E8F258E9E3D7"
@@ -65,12 +64,12 @@ fpga_result discover_afu_metrics_feature(fpga_handle handle, uint64_t *offset)
 	feature_definition feature_def;
 	uint64_t bbs_offset              = 0;
 
-	memset_s(&feature_def, sizeof(feature_def), 0);
-
 	if (offset == NULL) {
 		OPAE_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
+
+	memset(&feature_def, 0, sizeof(feature_def));
 
 	// Read AFU DFH
 	result = xfpga_fpgaReadMMIO64(handle, 0, 0x0, &(feature_def.dfh.csr));
@@ -136,14 +135,14 @@ fpga_result get_afu_metric_value(fpga_handle handle,
 	struct _fpga_enum_metric *_fpga_enum_metric  = NULL;
 	uint64_t num_enun_metrics                    = 0;
 
-	memset_s(&metric_csr, sizeof(metric_csr), 0);
-
 	if (handle == NULL ||
 		enum_vector == NULL ||
 		fpga_metric == NULL) {
 		OPAE_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
+
+	memset(&metric_csr, 0, sizeof(metric_csr));
 
 	result = fpga_vector_total(enum_vector, &num_enun_metrics);
 	if (result != FPGA_OK) {
@@ -184,23 +183,23 @@ fpga_result add_afu_metrics_vector(fpga_metric_vector *vector,
 	char qualifier_name[SYSFS_PATH_MAX]     = { 0 };
 	char metric_units[SYSFS_PATH_MAX]       = { 0 };
 
-	memset_s(&group_csr, sizeof(group_csr), 0);
-	memset_s(&metric_csr, sizeof(metric_csr), 0);
-
 	if (metric_id == NULL ||
 		vector == NULL) {
 		OPAE_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
 
+	memset(&group_csr, 0, sizeof(group_csr));
+	memset(&metric_csr, 0, sizeof(metric_csr));
+
 	group_csr.csr = group_value;
 	metric_csr.csr = metric_value;
 
-	snprintf_s_i(group_name, sizeof(group_name), "%x", group_csr.group_id);
-	snprintf_s_i(metric_name, sizeof(metric_name), "%x", metric_csr.counter_id);
+	snprintf(group_name, sizeof(group_name), "%x", group_csr.group_id);
+	snprintf(metric_name, sizeof(metric_name), "%x", metric_csr.counter_id);
 
-	snprintf_s_si(qualifier_name, sizeof(qualifier_name), "%s:%x", "AFU", group_csr.group_id);
-	snprintf_s_i(metric_units, sizeof(metric_units), "%x", group_csr.units);
+	snprintf(qualifier_name, sizeof(qualifier_name), "%s:%x", "AFU", group_csr.group_id);
+	snprintf(metric_units, sizeof(metric_units), "%x", group_csr.units);
 
 	*metric_id = *metric_id + 1;
 
@@ -222,15 +221,15 @@ fpga_result enum_afu_metrics(fpga_handle handle,
 	uint64_t value_offset                 = 0;
 	uint64_t group_offset                 = 0;
 
-	memset_s(&group_csr, sizeof(group_csr), 0);
-	memset_s(&metric_csr, sizeof(metric_csr), 0);
-
 	if (handle == NULL ||
 		vector == NULL ||
 		metric_id == NULL) {
 		OPAE_ERR("Invalid Input Paramters");
 		return FPGA_INVALID_PARAM;
 	}
+
+	memset(&group_csr, 0, sizeof(group_csr));
+	memset(&metric_csr, 0, sizeof(metric_csr));
 
 	group_offset = metrics_offset + METRIC_CSR_OFFSET;
 

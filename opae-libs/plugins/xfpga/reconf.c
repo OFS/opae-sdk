@@ -35,7 +35,6 @@
 #include <limits.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include "safe_string/safe_string.h"
 
 #include "xfpga.h"
 #include "bitstream_int.h"
@@ -260,7 +259,7 @@ fpga_result set_afu_userclock(fpga_handle handle,
 fpga_result set_fpga_pwr_threshold(fpga_handle handle,
 					uint64_t gbs_power)
 {
-	char sysfs_path[SYSFS_PATH_MAX]   = {0};
+	char sysfs_path[SYSFS_PATH_MAX]   = { 0, };
 	fpga_result result                = FPGA_OK;
 	uint64_t fpga_power               = 0;
 	struct _fpga_token  *_token       = NULL;
@@ -298,7 +297,13 @@ fpga_result set_fpga_pwr_threshold(fpga_handle handle,
 	}
 
 	// set fpga threshold 1
-	snprintf_s_ss(sysfs_path, sizeof(sysfs_path), "%s/%s",  _token->sysfspath, PWRMGMT_THRESHOLD1);
+	if (snprintf(sysfs_path, sizeof(sysfs_path),
+		     "%s/%s", _token->sysfspath, PWRMGMT_THRESHOLD1) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		result = FPGA_EXCEPTION;
+		return result;
+	}
+
 	OPAE_DBG(" FPGA Threshold1             :%ld watts\n", fpga_power);
 
 	result = sysfs_write_u64(sysfs_path, fpga_power);
@@ -362,7 +367,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 		enum fpga_hw_type hw_type = FPGA_HW_UNKNOWN;
 
 		// Read GBS json metadata
-		memset_s(&metadata, sizeof(metadata), 0);
+		memset(&metadata, 0, sizeof(metadata));
 		result = read_gbs_metadata(bitstream, &metadata);
 		if (result != FPGA_OK) {
 			OPAE_ERR("Failed to read metadata");

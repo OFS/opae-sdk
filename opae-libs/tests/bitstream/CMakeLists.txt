@@ -30,7 +30,6 @@ opae_test_add_static_lib(TARGET bitstream-static
         ${OPAE_LIBS_ROOT}/libbitstream/bits_utils.c
         ${OPAE_LIBS_ROOT}/libbitstream/metadatav1.c
     LIBS
-        safestr
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}

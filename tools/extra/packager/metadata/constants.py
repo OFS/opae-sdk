@@ -27,7 +27,7 @@
 # GUID value: "58656F6E-4650-4741-B747-425376303031"
 # The string below will be converted to hex format
 # before being written into the bitstream file
-METADATA_GUID = "XeonFPGA" + chr(0xb7) + "GBSv001"
+METADATA_GUID = b'XeonFPGA\xb7GBSv001'
 
 # Metadata length field is a unsigned 32 bit int
 SIZEOF_LEN_FIELD = 4

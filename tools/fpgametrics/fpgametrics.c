@@ -45,7 +45,6 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <sys/stat.h>
-#include "safe_string/safe_string.h"
 
 
 /*

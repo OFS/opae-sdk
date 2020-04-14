@@ -30,6 +30,7 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdint.h>
 #include <dlfcn.h>
 #include <sys/types.h>
@@ -40,7 +41,6 @@
 #include <unistd.h>
 
 #include <json-c/json.h>
-#include "safe_string/safe_string.h"
 
 #include "pluginmgr.h"
 #include "opae_int.h"
@@ -71,6 +71,7 @@ static platform_data platform_data_table[] = {
 };
 
 static int initialized;
+static int finalizing;
 
 STATIC opae_api_adapter_table *adapter_list = (void *)0;
 static pthread_mutex_t adapter_list_lock =
@@ -80,58 +81,65 @@ static pthread_mutex_t adapter_list_lock =
 STATIC plugin_cfg *opae_plugin_mgr_config_list;
 STATIC int opae_plugin_mgr_plugin_count;
 
+#define CFG_PATH_MAX 64
 #define HOME_CFG_PATHS 3
-STATIC const char *_opae_home_cfg_files[HOME_CFG_PATHS] = {
-	"/.local/opae.cfg",
-	"/.local/opae/opae.cfg",
-	"/.config/opae/opae.cfg",
+STATIC const char _opae_home_cfg_files[HOME_CFG_PATHS][CFG_PATH_MAX] = {
+	{ "/.local/opae.cfg" },
+	{ "/.local/opae/opae.cfg" },
+	{ "/.config/opae/opae.cfg" },
 };
 #define SYS_CFG_PATHS 2
-STATIC const char *_opae_sys_cfg_files[SYS_CFG_PATHS] = {
-	"/usr/local/etc/opae/opae.cfg",
-	"/etc/opae/opae.cfg",
+STATIC const char _opae_sys_cfg_files[SYS_CFG_PATHS][CFG_PATH_MAX] = {
+	{ "/usr/local/etc/opae/opae.cfg" },
+	{ "/etc/opae/opae.cfg" },
 };
 
 
 // Find the canonicalized configuration file. If null, the file was not found.
 // Otherwise, it's the first configuration file found from a list of possible
 // paths. Note: The char * returned is allocated here, caller must free.
-STATIC char *find_cfg()
+STATIC char *find_cfg(void)
 {
 	int i = 0;
 	char *file_name = NULL;
-	char home_cfg[PATH_MAX] = {0};
+	char home_cfg[PATH_MAX] = { 0, };
 	char *home_cfg_ptr = &home_cfg[0];
+	size_t len;
+
 	// get the user's home directory
 	struct passwd *user_passwd = getpwuid(getuid());
 
 	// first look in possible paths in the users home directory
 	for (i = 0; i < HOME_CFG_PATHS; ++i) {
-		if (strcpy_s(home_cfg, PATH_MAX, user_passwd->pw_dir)) {
-			OPAE_ERR("error copying pw_dir string");
-			return NULL;
-		}
+		len = strnlen(user_passwd->pw_dir,
+			      sizeof(home_cfg) - 1);
+		memcpy(home_cfg, user_passwd->pw_dir, len);
+		home_cfg[len] = '\0';
+
 		home_cfg_ptr = home_cfg + strlen(home_cfg);
-		if (strcpy_s(home_cfg_ptr, PATH_MAX, _opae_home_cfg_files[i])) {
-			OPAE_ERR("error copying opae cfg dir string: %s",
-				 _opae_home_cfg_files[i]);
-			return NULL;
-		}
+
+		len = strnlen(_opae_home_cfg_files[i], CFG_PATH_MAX);
+		memcpy(home_cfg_ptr, _opae_home_cfg_files[i], len);
+		home_cfg_ptr[len] = '\0';
+
 		file_name = canonicalize_file_name(home_cfg);
-		if (file_name) {
+		if (file_name)
 			return file_name;
-		} else {
-			home_cfg[0] = '\0';
-		}
+
+		home_cfg[0] = '\0';
 	}
+
 	// now look in possible system paths
 	for (i = 0; i < SYS_CFG_PATHS; ++i) {
-		strcpy_s(home_cfg, PATH_MAX, _opae_sys_cfg_files[i]);
+		len = strnlen(_opae_sys_cfg_files[i], CFG_PATH_MAX);
+		memcpy(home_cfg, _opae_sys_cfg_files[i], len);
+		home_cfg[len] = '\0';
+
 		file_name = canonicalize_file_name(home_cfg);
-		if (file_name) {
+		if (file_name)
 			return file_name;
-		}
 	}
+
 	return NULL;
 }
 
@@ -145,8 +153,8 @@ STATIC void *opae_plugin_mgr_find_plugin(const char *lib_path)
 	for (i = 0 ;
 		i < sizeof(search_paths) / sizeof(search_paths[0]) ; ++i) {
 
-		snprintf_s_ss(plugin_path, sizeof(plugin_path),
-				"%s%s", search_paths[i], lib_path);
+		snprintf(plugin_path, sizeof(plugin_path),
+			 "%s%s", search_paths[i], lib_path);
 
 		dl_handle = dlopen(plugin_path, RTLD_LAZY | RTLD_LOCAL);
 
@@ -278,6 +286,11 @@ int opae_plugin_mgr_finalize_all(void)
 
 	opae_mutex_lock(res, &adapter_list_lock);
 
+	if (finalizing)
+		return 0;
+
+	finalizing = 1;
+
 	for (aptr = adapter_list; aptr;) {
 		opae_api_adapter_table *trash;
 
@@ -304,8 +317,9 @@ int opae_plugin_mgr_finalize_all(void)
 		platform_data_table[i].flags = 0;
 	}
 
-	initialized = 0;
 	opae_plugin_mgr_reset_cfg();
+	initialized = 0;
+	finalizing = 0;
 	opae_mutex_unlock(res, &adapter_list_lock);
 
 	return errors;
@@ -319,13 +333,14 @@ int opae_plugin_mgr_finalize_all(void)
 		}                                                              \
 	} while (0)
 
-#define MAX_PLUGIN_CFG_SIZE 1024
+#define MAX_PLUGIN_CFG_SIZE 8192
 STATIC int process_plugin(const char *name, json_object *j_config)
 {
 	json_object *j_plugin = NULL;
 	json_object *j_plugin_cfg = NULL;
 	json_object *j_enabled = NULL;
 	const char *stringified = NULL;
+	size_t len;
 
 	JSON_GET(j_config, "plugin", &j_plugin);
 	JSON_GET(j_config, "configuration", &j_plugin_cfg);
@@ -349,6 +364,13 @@ STATIC int process_plugin(const char *name, json_object *j_config)
 	}
 
 	cfg->cfg_size = strlen(stringified) + 1;
+
+	if (cfg->cfg_size >= MAX_PLUGIN_CFG_SIZE) {
+		OPAE_ERR("plugin config too large");
+		free(cfg);
+		return 1;
+	}
+
 	cfg->cfg = malloc(cfg->cfg_size);
 	if (!cfg->cfg) {
 		OPAE_ERR("error allocating memory for plugin configuration");
@@ -357,31 +379,23 @@ STATIC int process_plugin(const char *name, json_object *j_config)
 		return 1;
 	}
 
-	if (strncpy_s(cfg->cfg, MAX_PLUGIN_CFG_SIZE, stringified, cfg->cfg_size)) {
-		OPAE_ERR("error copying plugin configuration");
-		goto out_err;
-	}
+	len = strnlen(stringified, cfg->cfg_size - 1);
+	memcpy(cfg->cfg, stringified, len);
+	cfg->cfg[len] = '\0';
 
-	if (strcpy_s(cfg->name, PLUGIN_NAME_MAX, name)) {
-		OPAE_ERR("error copying plugin name");
-		goto out_err;
-	}
+	len = strnlen(name, PLUGIN_NAME_MAX - 1);
+	memcpy(cfg->name, name, len);
+	cfg->name[len] = '\0';
 
-	if (strcpy_s(cfg->plugin, PLUGIN_NAME_MAX, json_object_get_string(j_plugin))) {
-		OPAE_ERR("error copying plugin file name");
-		goto out_err;
-	}
+	len = strnlen(json_object_get_string(j_plugin), PLUGIN_NAME_MAX - 1);
+	memcpy(cfg->plugin, json_object_get_string(j_plugin), len);
+	cfg->plugin[len] = '\0';
 
 	cfg->enabled = json_object_get_boolean(j_enabled);
+
 	opae_plugin_mgr_add_plugin(cfg);
+
 	return 0;
-out_err:
-	if (cfg->cfg) {
-		free(cfg->cfg);
-		cfg->cfg = NULL;
-	}
-	free(cfg);
-	return 1;
 }
 
 STATIC int process_cfg_buffer(const char *buffer, const char *filename)
@@ -434,9 +448,9 @@ STATIC int process_cfg_buffer(const char *buffer, const char *filename)
 	}
 	res = num_errors;
 
-
 out_free:
-	json_object_put(root);
+	if (root)
+		json_object_put(root);
 	return res;
 }
 
@@ -526,15 +540,13 @@ STATIC int opae_plugin_mgr_detect_platforms(void)
 	char base_dir[PATH_MAX];
 	char file_path[PATH_MAX];
 	struct dirent *dirent;
-	int res;
 	int errors = 0;
 
 	// Iterate over the directories in /sys/bus/pci/devices.
 	// This directory contains symbolic links to device directories
 	// where 'vendor' and 'device' files exist.
 
-	strncpy_s(base_dir, sizeof(base_dir),
-			"/sys/bus/pci/devices", 21);
+	memcpy(base_dir, "/sys/bus/pci/devices", 21);
 
 	dir = opendir(base_dir);
 	if (!dir) {
@@ -547,29 +559,19 @@ STATIC int opae_plugin_mgr_detect_platforms(void)
 		unsigned vendor = 0;
 		unsigned device = 0;
 
-		if (EOK != strcmp_s(dirent->d_name, sizeof(dirent->d_name),
-					".", &res)) {
-			OPAE_ERR("strcmp_s failed");
-			++errors;
-			goto out_close;
-		}
-
-		if (0 == res) // don't process .
-			continue;
-
-		if (EOK != strcmp_s(dirent->d_name, sizeof(dirent->d_name),
-					"..", &res)) {
-			OPAE_ERR("strcmp_s failed");
-			++errors;
-			goto out_close;
-		}
-
-		if (0 == res) // don't process ..
+		if (!strcmp(dirent->d_name, ".") ||
+		    !strcmp(dirent->d_name, ".."))
 			continue;
 
 		// Read the 'vendor' file.
-		snprintf_s_ss(file_path, sizeof(file_path),
-				"%s/%s/vendor", base_dir, dirent->d_name);
+		if (snprintf(file_path, sizeof(file_path),
+			     "%s/%s/vendor",
+			     base_dir,
+			     dirent->d_name) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+			++errors;
+			goto out_close;
+		}
 
 		fp = fopen(file_path, "r");
 		if (!fp) {
@@ -588,8 +590,14 @@ STATIC int opae_plugin_mgr_detect_platforms(void)
 		fclose(fp);
 
 		// Read the 'device' file.
-		snprintf_s_ss(file_path, sizeof(file_path),
-				"%s/%s/device", base_dir, dirent->d_name);
+		if (snprintf(file_path, sizeof(file_path),
+			     "%s/%s/device",
+			     base_dir,
+			     dirent->d_name) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+			++errors;
+			goto out_close;
+		}
 
 		fp = fopen(file_path, "r");
 		if (!fp) {
@@ -684,17 +692,12 @@ STATIC int opae_plugin_mgr_load_dflt_plugins(int *platforms_detected)
 		already_loaded = 0;
 		for (j = 0 ; platform_data_table[j].native_plugin ; ++j) {
 
-			if (EOK != strcmp_s(native_plugin, strnlen_s(native_plugin, 256),
-						platform_data_table[j].native_plugin, &res)) {
-				OPAE_ERR("strcmp_s failed");
-				return ++errors;
-			}
-
-			if (!res &&
+			if (!strcmp(native_plugin, platform_data_table[j].native_plugin) &&
 			    (platform_data_table[j].flags & OPAE_PLATFORM_DATA_LOADED)) {
 				already_loaded = 1;
 				break;
 			}
+
 		}
 
 		if (already_loaded)

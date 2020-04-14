@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,6 +23,7 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
@@ -40,11 +41,9 @@
 #include <sysexits.h>
 #endif
 
-#include "safe_string/safe_string.h"
 #include "argsfilter.h"
 #include "opae/fpga.h"
 
-//#include "sysinfo.h"
 #include "fpgainfo.h"
 
 #include "errors.h"
@@ -169,11 +168,9 @@ struct command_handler *get_command(char *cmd)
 {
 	int cmd_size = sizeof(cmd_array) / sizeof(cmd_array[0]);
 	// find the command handler for the command
-	int cmp = 0;
 	int i = 0;
 	for (i = 0; i < cmd_size; ++i) {
-		if (strcmp_s(cmd, RSIZE_MAX_STR, cmd_array[i].command, &cmp) == EOK &&
-			cmp == 0) {
+		if (!strcmp(cmd, cmd_array[i].command)) {
 			return &cmd_array[i];
 		}
 	}

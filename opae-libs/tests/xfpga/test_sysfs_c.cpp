@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2019, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -36,7 +36,7 @@ fpga_result sysfs_get_pr_id(int, int, fpga_guid);
 fpga_result sysfs_get_slots(int, int, uint32_t *);
 fpga_result sysfs_get_bitstream_id(int, int, uint64_t *);
 fpga_result sysfs_sbdf_from_path(const char *, int *, int *, int *, int *);
-fpga_result opae_glob_path(char *);
+fpga_result opae_glob_path(char *, size_t );
 fpga_result opae_glob_paths(const char *path, size_t found_max,
                             char *found[], size_t *num_found);
 fpga_result make_sysfs_group(char *, const char *, fpga_object *, int,
@@ -386,7 +386,7 @@ TEST_P(sysfs_c_p, sysfs_invalid_tests) {
   fpga_result res;
 
   char invalid_string[] = "...";
-  strncpy(t->sysfspath, invalid_string, sizeof(t->sysfspath));
+  strncpy(t->sysfspath, invalid_string, 4);
   res = get_port_sysfs(handle_, spath);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 
@@ -424,10 +424,11 @@ TEST_P(sysfs_c_p, hw_type_invalid_tests) {
 TEST_P(sysfs_c_p, glob_tests) {
   std::string invalid_filename = "opae";
 
-  auto res = opae_glob_path(nullptr);
+  auto res = opae_glob_path(nullptr, 0);
   EXPECT_EQ(FPGA_EXCEPTION, res);
 
-  res = opae_glob_path(const_cast<char *>(invalid_filename.c_str()));
+  res = opae_glob_path(const_cast<char *>(invalid_filename.c_str()),
+		  invalid_filename.length() - 1);
   EXPECT_EQ(FPGA_NOT_FOUND, res);
 }
 
@@ -1195,7 +1196,7 @@ TEST_P(sysfs_sockid_c_p, sysfs_get_guid_neg) {
  *          it returns FPGA_NOT_FOUND. 
  */
 TEST_P(sysfs_sockid_c_p, sysfs_path_is_valid) {
-  EXPECT_EQ(sysfs_path_is_valid(nullptr, nullptr), FPGA_NOT_FOUND);
+  EXPECT_EQ(sysfs_path_is_valid(nullptr, nullptr), FPGA_INVALID_PARAM);
 }
 
 /**

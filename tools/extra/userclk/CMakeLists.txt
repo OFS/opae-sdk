@@ -27,7 +27,6 @@
 opae_add_executable(TARGET userclk
     SOURCE main.c
     LIBS
-        safestr
         opae-c
         ${libjson-c_LIBRARIES}
     COMPONENT tooluserclk

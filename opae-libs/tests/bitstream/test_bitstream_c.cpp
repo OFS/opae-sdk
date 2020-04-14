@@ -1,4 +1,4 @@
-// Copyright(c) 2019, Intel Corporation
+// Copyright(c) 2019-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -52,7 +52,6 @@ extern fpga_guid valid_GBS_guid;
 
 #include "gtest/gtest.h"
 #include "mock/test_system.h"
-#include "safe_string/safe_string.h"
 
 const fpga_guid guid = {
   0x02, 0x7f, 0x3a, 0x1a,

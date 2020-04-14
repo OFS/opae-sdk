@@ -54,9 +54,9 @@ check_c () {
 }
 
 find_cpp() {
-    find "${OPAE_SDK_ROOT}/opae-libs/libopaecxx/src"
-    find "${OPAE_SDK_ROOT}/opae-libs/libopaecxx/samples"
-    find "${OPAE_SDK_ROOT}/opae-libs/include/opae/cxx/core"
+    find "${OPAE_SDK_ROOT}/opae-libs/libopaecxx/src" -type f
+    find "${OPAE_SDK_ROOT}/opae-libs/libopaecxx/samples" -type f
+    find "${OPAE_SDK_ROOT}/opae-libs/include/opae/cxx/core" -type f
 }
 
 check_cpp () {

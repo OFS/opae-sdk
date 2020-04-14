@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -26,9 +26,9 @@
 #include <cerrno>
 #include <cstring>
 #include <iostream>
+#include <sstream>
 
 #include <opae/utils.h>
-#include <safe_string/safe_string.h>
 
 #include <opae/cxx/core/except.h>
 
@@ -75,42 +75,17 @@ except::except(fpga_result res, src_location loc) noexcept
     : res_(res), msg_(0), loc_(loc) {}
 
 const char *except::what() const noexcept {
-  errno_t err;
-  bool buf_ok = false;
+  std::stringstream ss;
   if (msg_) {
-    err = strncpy_s(buf_, MAX_EXCEPT - 64, msg_, 64);
+    ss << msg_;
   } else {
-    err = strncpy_s(buf_, MAX_EXCEPT - 64, "failed with error ", 64);
-    if (err) goto log_err;
-    err = strcat_s(buf_, MAX_EXCEPT - 64, fpgaErrStr(res_));
+    ss << "failed with error " << fpgaErrStr(res_);
   }
-  if (err) goto log_err;
-  buf_ok = true;
-
-  err = strcat_s(buf_, MAX_EXCEPT - 64, " at: ");
-  if (err) goto log_err;
-
-  err = strcat_s(buf_, MAX_EXCEPT - 64, loc_.file());
-  if (err) goto log_err;
-
-  err = strcat_s(buf_, MAX_EXCEPT - 64, ":");
-  if (err) goto log_err;
-
-  err = strcat_s(buf_, MAX_EXCEPT - 64, loc_.fn());
-  if (err) goto log_err;
-
-  err = strcat_s(buf_, MAX_EXCEPT - 64, "():");
-  if (err) goto log_err;
-
-  snprintf_s_i(buf_ + strlen(buf_), 64, "%d", loc_.line());
+  ss << " at: " << loc_.file() << ":" << loc_.fn() << "():" << loc_.line();
+  memcpy(buf_, ss.str().c_str(), ss.str().length());
+  buf_[ss.str().length()] = '\0';
 
   return const_cast<const char *>(buf_);
-
-log_err:
-  std::cerr << "[except::what()] error with safestr operation: " << err << "\n";
-
-  buf_[sizeof(buf_) - 1] = '\0';
-  return buf_ok ? const_cast<const char *>(buf_) : msg_;
 }
 
 }  // end of namespace types

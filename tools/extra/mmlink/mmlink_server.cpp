@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -48,8 +48,6 @@
 #include "mm_debug_link_interface.h"
 #include "mmlink_connection.h"
 #include "mmlink_server.h"
-
-#include "safe_string/safe_string.h"
 
 using namespace std;
 
@@ -221,7 +219,7 @@ int mmlink_server::run(unsigned char* stpAddr)
 
 				get_welcome_message(msg, sizeof(msg) / sizeof(*msg));
 				// to do:spin until all bytes sent.
-				pc->send(msg, strnlen_s(msg, sizeof(msg)));
+				pc->send(msg, strnlen(msg, sizeof(msg)));
 			}
 		}
 
@@ -369,11 +367,11 @@ void mmlink_server::get_welcome_message(char *msg, size_t msg_len)
 		//snprintf(msg, msg_len, "SystemConsole CONFIGROM IDENT=%08X%08X%08X%08X HANDLE=%08X\r\n",
 		//         ident[3], ident[2], ident[1], ident[0], m_server_id);
 
-		snprintf_s_i(msg, msg_len, "SystemConsole CONFIGROM IDENT=0001000000007BF899BB8B9AA2D864C3 HANDLE=%08X\r\n", m_server_id);
+		snprintf(msg, msg_len, "SystemConsole CONFIGROM IDENT=0001000000007BF899BB8B9AA2D864C3 HANDLE=%08X\r\n", m_server_id);
 	}
 	else
 	{
-		strncpy_s(msg, msg_len, "SystemConsole CONFIGROM IDENT=0001000000007BF899BB8B9AA2D864C3 HANDLE\r\n", 73);
+		strncpy(msg, "SystemConsole CONFIGROM IDENT=0001000000007BF899BB8B9AA2D864C3 HANDLE\r\n", 73);
 
 		//snprintf(msg, msg_len, "SystemConsole CONFIGROM IDENT=0001000000007BF899BB8B9AA2D864C3 HANDLE\r\n");
 		//snprintf(msg, msg_len, "SystemConsole CONFIGROM IDENT=%08X%08X%08X%08X HANDLE\r\n",

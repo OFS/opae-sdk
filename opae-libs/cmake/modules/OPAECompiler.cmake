@@ -158,14 +158,15 @@ endmacro()
 
 function(opae_add_subdirectory directory_name)
     get_filename_component(full_dir_path "${directory_name}" REALPATH)
-    if(EXISTS "${full_dir_path}" AND IS_DIRECTORY "${full_dir_path}")
+    if(EXISTS "${full_dir_path}" AND IS_DIRECTORY "${full_dir_path}" AND EXISTS "${full_dir_path}/CMakeLists.txt")
        add_subdirectory(${directory_name})
     else()
-       message("Directory not found: ${full_dir_path}")
+       message("Directory or CMakeLists.txt not found: ${full_dir_path}")
     endif()
 endfunction()
+
 # example:
-#   opae_add_executable(TARGET fpgaconf SOURCE a.c b.c LIBS safestr)
+#   opae_add_executable(TARGET fpgaconf SOURCE a.c b.c LIBS opae-c)
 function(opae_add_executable)
     set(options )
     set(oneValueArgs TARGET COMPONENT DESTINATION)
@@ -212,7 +213,7 @@ function(opae_add_executable)
 endfunction()
 
 # example:
-#   opae_add_shared_library(TARGET opae-c SOURCE a.c b.c LIBS safestr)
+#   opae_add_shared_library(TARGET opae-c SOURCE a.c b.c LIBS dl)
 function(opae_add_shared_library)
     set(options )
     set(oneValueArgs TARGET VERSION SOVERSION COMPONENT DESTINATION)
@@ -265,7 +266,7 @@ function(opae_add_shared_library)
 endfunction()
 
 # example:
-#   opae_add_module_library(TARGET xfpga SOURCE a.c b.c LIBS safestr)
+#   opae_add_module_library(TARGET xfpga SOURCE a.c b.c LIBS opae-c)
 function(opae_add_module_library)
     set(options )
     set(oneValueArgs TARGET COMPONENT DESTINATION)
@@ -311,7 +312,7 @@ function(opae_add_module_library)
 endfunction()
 
 # example:
-#   opae_add_static_library(TARGET safestr SOURCE ${SRC})
+#   opae_add_static_library(TARGET sometarget SOURCE ${SRC})
 function(opae_add_static_library)
     set(options )
     set(oneValueArgs TARGET COMPONENT DESTINATION)

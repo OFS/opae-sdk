@@ -1,4 +1,4 @@
-// Copyright(c) 2019, Intel Corporation
+// Copyright(c) 2019-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -39,7 +39,6 @@
 #include <opae/log.h>
 
 #include "bits_utils.h"
-#include "safe_string/safe_string.h"
 
 fpga_result opae_bitstream_get_json_string(json_object *parent,
 					   const char *name,
@@ -48,7 +47,7 @@ fpga_result opae_bitstream_get_json_string(json_object *parent,
 	json_object *obj = NULL;
 	const char *s;
 	size_t len;
-	errno_t err;
+	char *p;
 
 	if (!json_object_object_get_ex(parent,
 				       name,
@@ -71,13 +70,9 @@ fpga_result opae_bitstream_get_json_string(json_object *parent,
 		return FPGA_NO_MEMORY;
 	}
 
-	err = strncpy_s(*value, len+1, s, len);
-	if (err != EOK) {
-		OPAE_ERR("strncpy_s failed");
-		free(*value);
-		*value = NULL;
-		return FPGA_EXCEPTION;
-	}
+	memcpy(*value, s, len);
+	p = *value;
+	p[len] = '\0';
 
 	return FPGA_OK;
 }
@@ -201,32 +196,24 @@ STATIC bool opae_bitstream_path_contains_dotdot(const char *path,
 STATIC bool opae_bitstream_path_contains_symlink(const char *path,
 						 size_t len)
 {
-	char component[PATH_MAX];
-	errno_t res;
+	char component[PATH_MAX] = { 0, };
 	struct stat stat_buf;
 	char *pslash;
 
-	res = strncpy_s(component, sizeof(component),
-			path, len);
-	if (res) {
-		OPAE_ERR("strncpy_s failed.");
-		return true;
-	}
+	memcpy(component, path, len);
+	component[len] = '\0';
 
 	if (component[0] == '/') {
 		// absolute path
-		int indicator = -1;
 
 		pslash = realpath(path, component);
 
-		if (strcmp_s(component, sizeof(component),
-			     path, &indicator)) {
-			OPAE_ERR("strcmp_s failed.");
+		// If the result of conversion through realpath() is different
+		// than the original path, then the original must have
+		// contained a symlink.
+		if (strcmp(component, path)) {
 			return true;
 		}
-
-		if (indicator)
-			return true;
 
 	} else {
 		// relative path

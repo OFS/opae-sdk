@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -41,8 +41,6 @@
 #include <stdarg.h>
 #include <time.h>
 #include <glob.h>
-
-#include "safe_string/safe_string.h"
 
 #include "user_clk_pgm_uclock.h"
 #include "user_clk_pgm_uclock_freq_template.h"
@@ -218,10 +216,11 @@ int fi_RunInitz(const char* sysfs_path)
 	// Initialize
 	// Reinitialization okay too, since will issue machine reset
 
-	uint64_t u64i_PrtData;
+	uint64_t u64i_PrtData = 0;
 	uint64_t u64i_AvmmAdr, u64i_AvmmDat;
 	int      i_ReturnErr;
 	char sysfs_usrpath[SYSFS_PATH_MAX];
+	size_t len;
 
 	gQUCPU_Uclock.i_InitzState = 0;
 	gQUCPU_Uclock.tInitz_InitialParams.u64i_Version = (uint64_t) 0;
@@ -243,7 +242,9 @@ int fi_RunInitz(const char* sysfs_path)
 		printf(" Invalid input sysfs path \n");
 		return -1;
 	}
-	snprintf_s_s(gQUCPU_Uclock.sysfs_path, sizeof(gQUCPU_Uclock.sysfs_path), "%s", sysfs_path);
+	len = strnlen(sysfs_path, SYSFS_PATH_MAX - 1);
+	memcpy(gQUCPU_Uclock.sysfs_path, sysfs_path, len);
+	gQUCPU_Uclock.sysfs_path[len] = '\0';
 
 	// Assume return error okay, for now
 	i_ReturnErr = 0;
@@ -272,9 +273,14 @@ int fi_RunInitz(const char* sysfs_path)
 	if (i_ReturnErr == 0) // This always true; added for future safety
 	{
 		// Verifying User Clock version number
-		snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1);
-		sysfs_read_u64(sysfs_usrpath, &u64i_PrtData);
-		//printf(" fi_RunInitz u64i_PrtData %llx  \n", u64i_PrtData);
+		u64i_PrtData = 0;
+		if (snprintf(sysfs_usrpath, sizeof(sysfs_usrpath),
+			     "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+		} else {
+			sysfs_read_u64(sysfs_usrpath, &u64i_PrtData);
+			//printf(" fi_RunInitz u64i_PrtData %llx  \n", u64i_PrtData);
+		}
 
 		gQUCPU_Uclock.tInitz_InitialParams.u64i_Version = (u64i_PrtData & QUCPU_UI64_STS_1_VER_b63t60) >> 60;
 		if ((gQUCPU_Uclock.tInitz_InitialParams.u64i_Version != QUCPU_UI64_STS_1_VER_version) &&
@@ -302,19 +308,23 @@ int fi_RunInitz(const char* sysfs_path)
 		gQUCPU_Uclock.u64i_cmd_reg_0 &= ~(QUCPU_UI64_CMD_0_MRN_b52);
 		u64i_PrtData = gQUCPU_Uclock.u64i_cmd_reg_0;
 
-		snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0);
-		sysfs_write_u64(sysfs_usrpath, u64i_PrtData);
-
-		// Deasserting management & machine reset
-		gQUCPU_Uclock.u64i_cmd_reg_0 |= (QUCPU_UI64_CMD_0_MRN_b52);
-		gQUCPU_Uclock.u64i_cmd_reg_0 &= ~(QUCPU_UI64_CMD_0_PRS_b56);
-		u64i_PrtData = gQUCPU_Uclock.u64i_cmd_reg_0;
-
-		sysfs_write_u64(sysfs_usrpath, u64i_PrtData);
-		//printf(" fi_RunInitz u64i_PrtData %llx  \n", u64i_PrtData);
-
-		// Waiting for fcr PLL calibration not to be busy
-		i_ReturnErr = fi_WaitCalDone();
+		if (snprintf(sysfs_usrpath, sizeof(sysfs_usrpath),
+			     "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+		} else {
+			sysfs_write_u64(sysfs_usrpath, u64i_PrtData);
+	
+			// Deasserting management & machine reset
+			gQUCPU_Uclock.u64i_cmd_reg_0 |= (QUCPU_UI64_CMD_0_MRN_b52);
+			gQUCPU_Uclock.u64i_cmd_reg_0 &= ~(QUCPU_UI64_CMD_0_PRS_b56);
+			u64i_PrtData = gQUCPU_Uclock.u64i_cmd_reg_0;
+	
+			sysfs_write_u64(sysfs_usrpath, u64i_PrtData);
+			//printf(" fi_RunInitz u64i_PrtData %llx  \n", u64i_PrtData);
+	
+			// Waiting for fcr PLL calibration not to be busy
+			i_ReturnErr = fi_WaitCalDone();
+		}
 	} // Cycle reset and wait for any calibration to finish
 
 	if (i_ReturnErr == 0)
@@ -367,7 +377,7 @@ int fi_AvmmRWcom(int i_CmdWrite,
 	uint64_t u64i_FastPoll, u64i_SlowPoll;
 	long int li_sleep_nanoseconds;
 	int      i_ReturnErr;
-	char sysfs_usrpath[SYSFS_PATH_MAX];
+	char sysfs_usrpath[SYSFS_PATH_MAX] = { 0, };
 
 	// Assume return error okay, for now
 	i_ReturnErr = 0;
@@ -399,13 +409,21 @@ int fi_AvmmRWcom(int i_CmdWrite,
 	// Write register 0 to kick it off
 
 	u64i_PrtData = gQUCPU_Uclock.u64i_cmd_reg_0;
-	snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0);
-	sysfs_write_u64(sysfs_usrpath, u64i_PrtData);
+
+	if (snprintf(sysfs_usrpath, sizeof(sysfs_usrpath),
+		     "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+	} else {
+		sysfs_write_u64(sysfs_usrpath, u64i_PrtData);
+	}
 
 	li_sleep_nanoseconds = USRCLK_SLEEEP_1MS;
 	fv_SleepShort(li_sleep_nanoseconds);
 
-	snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
+	if (snprintf(sysfs_usrpath, sizeof(sysfs_usrpath),
+		     "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+	}
 
 	// Poll register 0 for completion.
 	// CCI is synchronous and needs only 1 read with matching sequence.
@@ -507,7 +525,7 @@ int fi_GetFreqs(QUCPU_tFreqs *ptFreqs_retFreqs)
 	uint64_t u64i_PrtData                 = 0;
 	long int li_sleep_nanoseconds         = 0;
 	int      res                          = 0;
-	char sysfs_usrpath[SYSFS_PATH_MAX]     = {0};
+	char sysfs_usrpath[SYSFS_PATH_MAX]     = { 0, };
 
 	// Assume return error okay, for now
 	res                           = 0;
@@ -520,16 +538,24 @@ int fi_GetFreqs(QUCPU_tFreqs *ptFreqs_retFreqs)
 		gQUCPU_Uclock.u64i_cmd_reg_1 &= ~QUCPU_UI64_CMD_1_MEA_b32;
 
 		u64i_PrtData = gQUCPU_Uclock.u64i_cmd_reg_1;
-		snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD1);
+
+		if (snprintf(sysfs_usrpath, sizeof(sysfs_usrpath),
+			     "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD1) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+		}
+
 		sysfs_write_u64(sysfs_usrpath, u64i_PrtData);
 
 
 		li_sleep_nanoseconds = USRCLK_SLEEEP_10MS;            // 10 ms for frequency counter
 		fv_SleepShort(li_sleep_nanoseconds);
 
-		snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1);
-		sysfs_read_u64(sysfs_usrpath,  &u64i_PrtData);
-
+		if (snprintf(sysfs_usrpath, sizeof(sysfs_usrpath),
+			     "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+		} else {
+			sysfs_read_u64(sysfs_usrpath,  &u64i_PrtData);
+		}
 
 		ptFreqs_retFreqs->u64i_Frq_DivBy2 = (u64i_PrtData & QUCPU_UI64_STS_1_FRQ_b16t00) * 10000; // Hz
 		//printf(" ptFreqs_retFreqs->u64i_Frq_ClkUsr %llx \n", ptFreqs_retFreqs->u64i_Frq_DivBy2);
@@ -541,15 +567,24 @@ int fi_GetFreqs(QUCPU_tFreqs *ptFreqs_retFreqs)
 
 		u64i_PrtData = gQUCPU_Uclock.u64i_cmd_reg_1;
 
-		snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD1);
-		sysfs_write_u64(sysfs_usrpath,  u64i_PrtData);
+		if (snprintf(sysfs_usrpath, sizeof(sysfs_usrpath),
+			     "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD1) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+		} else {
+			sysfs_write_u64(sysfs_usrpath,  u64i_PrtData);
+		}
 
 		li_sleep_nanoseconds = USRCLK_SLEEEP_10MS; // 10 ms for frequency counter
 		fv_SleepShort(li_sleep_nanoseconds);
 
-		snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1);
-		sysfs_read_u64(sysfs_usrpath,  &u64i_PrtData);
-		ptFreqs_retFreqs->u64i_Frq_ClkUsr = (u64i_PrtData & QUCPU_UI64_STS_1_FRQ_b16t00) * 10000; // Hz
+		if (snprintf(sysfs_usrpath, sizeof(sysfs_usrpath),
+			     "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS1) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+		} else {
+			sysfs_read_u64(sysfs_usrpath,  &u64i_PrtData);
+			ptFreqs_retFreqs->u64i_Frq_ClkUsr = (u64i_PrtData & QUCPU_UI64_STS_1_FRQ_b16t00) * 10000; // Hz
+		}
+
 		//printf(" ptFreqs_retFreqs->u64i_Frq_ClkUsr %llx \n", ptFreqs_retFreqs->u64i_Frq_ClkUsr);
 
 		fv_SleepShort(li_sleep_nanoseconds);
@@ -575,7 +610,7 @@ int fi_SetFreqs(uint64_t u64i_Refclk,
 	uint64_t u64i_AvmmAdr, u64i_AvmmDat, u64i_AvmmMsk;
 	long int li_sleep_nanoseconds;
 	int      i_ReturnErr;
-	char sysfs_usrpath[SYSFS_PATH_MAX];
+	char sysfs_usrpath[SYSFS_PATH_MAX] = { 0, };
 
 	// Assume return error okay, for now
 	i_ReturnErr = 0;
@@ -630,9 +665,14 @@ int fi_SetFreqs(uint64_t u64i_Refclk,
 	if (i_ReturnErr == 0)
 	{ // Verifying fcr PLL not locking
 
-		snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
-		sysfs_read_u64(sysfs_usrpath,  &u64i_PrtData);
-		//sysfs_read_uint64(gQUCPU_Uclock.sys_path, USER_CLOCK_STS0, &u64i_PrtData);
+		u64i_PrtData = 0;
+		if (snprintf(sysfs_usrpath, sizeof(sysfs_usrpath),
+			     "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+		} else {
+			sysfs_read_u64(sysfs_usrpath,  &u64i_PrtData);
+			//sysfs_read_uint64(gQUCPU_Uclock.sys_path, USER_CLOCK_STS0, &u64i_PrtData);
+		}
 
 		if ((u64i_PrtData & QUCPU_UI64_STS_0_LCK_b60) != 0)
 		{ // fcr PLL is locked but should be unlocked
@@ -647,8 +687,12 @@ int fi_SetFreqs(uint64_t u64i_Refclk,
 		if (u64i_Refclk) gQUCPU_Uclock.u64i_cmd_reg_0 |= QUCPU_UI64_CMD_0_SR1_b58;
 		u64i_PrtData = gQUCPU_Uclock.u64i_cmd_reg_0;
 
-		snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0);
-		sysfs_write_u64(sysfs_usrpath,  u64i_PrtData);
+		if (snprintf(sysfs_usrpath, sizeof(sysfs_usrpath),
+			     "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_CMD0) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+		} else {
+			sysfs_write_u64(sysfs_usrpath,  u64i_PrtData);
+		}
 
 		// Sleep 1 ms
 		li_sleep_nanoseconds = USRCLK_SLEEEP_1MS;
@@ -734,9 +778,13 @@ int fi_SetFreqs(uint64_t u64i_Refclk,
 
 		for (u64i_I = 0; u64i_I<100; u64i_I++)
 		{ // Poll with 100 ms timeout
-
-			snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
-			sysfs_read_u64(sysfs_usrpath,  &u64i_PrtData);
+			u64i_PrtData = 0;
+			if (snprintf(sysfs_usrpath, sizeof(sysfs_usrpath),
+				     "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0) < 0) {
+				OPAE_ERR("snprintf buffer overflow");
+			} else {
+				sysfs_read_u64(sysfs_usrpath,  &u64i_PrtData);
+			}
 
 			if ((u64i_PrtData & QUCPU_UI64_STS_0_LCK_b60) != 0) break;
 
@@ -852,14 +900,18 @@ int fi_WaitCalDone(void)
 	uint64_t u64i_I                      = 0;
 	long int li_sleep_nanoseconds        = 0;
 	int      res                         = 0;
-	char sysfs_usrpath[SYSFS_PATH_MAX]    = {0};
+	char sysfs_usrpath[SYSFS_PATH_MAX]    = { 0, };
 
 	// Waiting for fcr PLL calibration not to be busy
 	for (u64i_I = 0; u64i_I<1000; u64i_I++)
 	{ // Poll with 1000 ms timeout
-
-		snprintf_s_ss(sysfs_usrpath, sizeof(sysfs_usrpath), "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0);
-		sysfs_read_u64(sysfs_usrpath,  &u64i_PrtData);
+		u64i_PrtData = 0;
+		if (snprintf(sysfs_usrpath, sizeof(sysfs_usrpath),
+			     "%s/%s", gQUCPU_Uclock.sysfs_path, USER_CLOCK_STS0) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+		} else {
+			sysfs_read_u64(sysfs_usrpath,  &u64i_PrtData);
+		}
 
 		if ((u64i_PrtData & QUCPU_UI64_STS_0_BSY_b61) == 0) break;
 
@@ -882,19 +934,31 @@ int fi_WaitCalDone(void)
 static int using_iopll(char* sysfs_usrpath, const char* sysfs_path)
 {
 	glob_t iopll_glob;
+	size_t len;
+	int res;
 
 	// Test for the existence of the userclk_frequency file
 	// which indicates an S10 driver
-	snprintf_s_ss(sysfs_usrpath, SYSFS_PATH_MAX, "%s/%s",
-		      sysfs_path, IOPLL_CLOCK_FREQ);
 
-	if (glob(sysfs_usrpath, 0, NULL, &iopll_glob))
+	if (snprintf(sysfs_usrpath, SYSFS_PATH_MAX,
+		     "%s/%s", sysfs_path, IOPLL_CLOCK_FREQ) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
+
+	res = glob(sysfs_usrpath, 0, NULL, &iopll_glob);
+	if (res) {
+		if (iopll_glob.gl_pathv)
+			globfree(&iopll_glob);
 		return FPGA_NOT_FOUND;
+	}
 
 	if (iopll_glob.gl_pathc > 1)
 		OPAE_MSG("WARNING: Port has multiple sysfs frequency files");
 
-	strcpy_s(sysfs_usrpath, SYSFS_PATH_MAX, iopll_glob.gl_pathv[0]);
+	len = strnlen(iopll_glob.gl_pathv[0], SYSFS_PATH_MAX - 1);
+	memcpy(sysfs_usrpath, iopll_glob.gl_pathv[0], len);
+	sysfs_usrpath[len] = '\0';
 
 	globfree(&iopll_glob);
 

@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2019, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -40,7 +40,6 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <sys/stat.h>
-#include "safe_string/safe_string.h"
 #ifndef USE_ASE
 #include <hwloc.h>
 #endif
@@ -136,7 +135,7 @@ fpga_result parse_args(int argc, char *argv[])
 	char *endptr = NULL;
     int buf_size = sizeof(config.target.guid);
 
-	memcpy_s(config.target.guid, buf_size, HELLO_AFU_ID, strlen(HELLO_AFU_ID));
+	memcpy(config.target.guid, HELLO_AFU_ID, strlen(HELLO_AFU_ID));
 
 	while (-1
 	       != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING, longopts,
@@ -198,15 +197,15 @@ fpga_result parse_args(int argc, char *argv[])
 				printf("DMA buffer size out of range (%d~%d), %zu is used\n",
 					   DMA_BUF_SIZE_MIN, DMA_BUF_SIZE_MAX, fpga_dma_buf_size);
 			}
-			if (fpga_dma_buf_size & 0x7f) {
-			    fpga_dma_buf_size &= ~0x7f;
+			if (fpga_dma_buf_size & 0x7fULL) {
+			    fpga_dma_buf_size &= ~0x7fULL;
 				printf("DMA buffer size must be multiple of 128, %zu is used\n",
 					   fpga_dma_buf_size);
 			}
 			break;
         case 'G':   /* AFU ID */
             if (tmp_optarg)
-                memcpy_s(config.target.guid, buf_size, tmp_optarg, buf_size);
+                memcpy(config.target.guid, tmp_optarg, buf_size);
             break;
 		case 'm':
 			use_malloc = true;
@@ -390,7 +389,7 @@ static inline void clear_buffer(char *buf, size_t size)
 {
 	if (do_not_verify)
 		return;
-	memset_s(buf, size, 0);
+	memset(buf, 0, size);
 }
 
 static inline char *showDelays(char *buf)
@@ -603,12 +602,11 @@ static int check_config()
     for (i = 0; i < (int)sizeof(config.target.guid); i++) {
         guid[i] = toupper(config.target.guid[i]);
 	}
-	if (EOK == memcmp_s(VC_AFU_ID, strlen(VC_AFU_ID), guid,
-						strlen(VC_AFU_ID), &i)) {
+	if (!memcmp(VC_AFU_ID, guid, strlen(VC_AFU_ID))) {
 		if (i == 0) {
 			if (config.target.dma == 3) {
 				if (config.target.size % 64) {
-					config.target.size &= ~63;
+					config.target.size &= ~63ULL;
 					printf("Round test size to 64-bytes aligned for QDR\n");
 				}
 			}

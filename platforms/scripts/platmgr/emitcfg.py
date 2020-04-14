@@ -258,12 +258,12 @@ def emitConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
         # Platform-specific values in 'params' key within a class
         if ('params' in plat_port):
-            for k in plat_port['params'].keys():
+            for k in list(plat_port['params'].keys()):
                 params[k] = plat_port['params'][k]
 
         # Update parameters overridden by the AFU
         if ('params' in afu_port):
-            for k in afu_port['params'].keys():
+            for k in list(afu_port['params'].keys()):
                 if (k not in params):
                     # AFU can't define a new parameter.  It may only update
                     # existing ones.
@@ -387,6 +387,9 @@ def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
     emitHeader(f, afu_ifc_db, platform_db, comment="##")
 
+    f.write('# Directory of this script for relative paths\n')
+    f.write('set THIS_DIR [file dirname [info script]]\n\n')
+
     f.write('namespace eval platform_cfg {\n')
     f.write("    variable PLATFORM_CLASS_NAME \"" +
             platform_db['platform-name'] + "\"\n")
@@ -417,8 +420,8 @@ def emitQsfConfig(args, afu_ifc_db, platform_db, platform_defaults_db,
 
     if (args.platform_if):
         f.write(
-            "set_global_assignment -name SOURCE_TCL_SCRIPT_FILE " +
-            "{0}/par/platform_if_addenda.qsf\n".format(args.platform_if))
+            'set_global_assignment -name SOURCE_TCL_SCRIPT_FILE "' +
+            '{0}/par/platform_if_addenda.qsf"\n'.format(args.platform_if))
     f.close()
 
 

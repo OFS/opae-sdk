@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -27,7 +27,6 @@
 #include "bmc.h"
 #define _TIMESPEC_DEFINED
 #include "../../types_int.h"
-#include "safe_string/safe_string.h"
 #include "bmcdata.h"
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -52,7 +51,7 @@
 fpga_result read_sysfs_file(fpga_token token, const char *file,
 		   void **buf, uint32_t *tot_bytes_ret)
 {
-	char sysfspath[SYSFS_PATH_MAX];
+	char sysfspath[SYSFS_PATH_MAX] = { 0, };
 	struct stat stats;
 	int fd = 0;
 	fpga_result res = FPGA_OK;
@@ -65,13 +64,16 @@ fpga_result read_sysfs_file(fpga_token token, const char *file,
 	*buf = NULL;
 	*tot_bytes_ret = 0;
 
-	// TODO: Remove need for this
 	struct _fpga_token *tok = (struct _fpga_token *)token;
 	if (FPGA_TOKEN_MAGIC != tok->magic) {
 		return FPGA_INVALID_PARAM;
 	}
 
-	snprintf_s_ss(sysfspath, sizeof(sysfspath), "%s/%s", tok->sysfspath, file);
+	if (snprintf(sysfspath, sizeof(sysfspath),
+		     "%s/%s", tok->sysfspath, file) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
 
 	glob_t pglob;
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
@@ -127,6 +129,7 @@ fpga_result bmcLoadSDRs(fpga_token token, bmc_sdr_handle *records,
 			uint32_t *num_sensors)
 {
 	fpga_result res = FPGA_OK;
+	size_t len;
 
 	NULL_CHECK(token);
 	NULL_CHECK(num_sensors);
@@ -165,10 +168,10 @@ fpga_result bmcLoadSDRs(fpga_token token, bmc_sdr_handle *records,
 	recs->magic = BMC_SDR_MAGIC;
 	recs->num_records = num_of_sensors;
 
-	// TODO: Remove need for this
 	struct _fpga_token *tok = (struct _fpga_token *)token;
 
-	strcpy_s(recs->sysfs_path, SYSFS_PATH_MAX, tok->sysfspath);
+	len = strnlen(tok->sysfspath, SYSFS_PATH_MAX - 1);
+	strncpy(recs->sysfs_path, tok->sysfspath, len + 1);
 	recs->token = token;
 
 out:
@@ -564,7 +567,7 @@ fpga_result bmcGetLastPowerdownCause(fpga_token token, char **cause)
 	}
 
 	*cause = strndup((const char *)tmp->message,
-		strnlen_s((const char *)tmp->message, SYSFS_PATH_MAX));
+		strnlen((const char *)tmp->message, SYSFS_PATH_MAX));
 
 out:
 	if (tmp) {
@@ -599,60 +602,60 @@ fpga_result bmcGetLastResetCause(fpga_token token, char **cause)
 	if (tmp->completion_code != 0) {
 		res = FPGA_NOT_FOUND;
 		*cause = strndup((const char *)"Unavailable",
-			strnlen_s((const char *)"Unavailable", SYSFS_PATH_MAX));
+			strnlen((const char *)"Unavailable", SYSFS_PATH_MAX));
 		goto out;
 	}
 
 	if (0 == tmp->reset_cause) {
 		*cause = strndup((const char *)"None",
-			strnlen_s((const char *)"None", SYSFS_PATH_MAX));
+			strnlen((const char *)"None", SYSFS_PATH_MAX));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_EXTRST) {
 		*cause = strndup((const char *)"External reset",
-			strnlen_s((const char *)"External reset", SYSFS_PATH_MAX));
+			strnlen((const char *)"External reset", SYSFS_PATH_MAX));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_BOD_IO) {
 		*cause = strndup((const char *)"Brown-out detected",
-			strnlen_s((const char *)"Brown-out detected", SYSFS_PATH_MAX));
+			strnlen((const char *)"Brown-out detected", SYSFS_PATH_MAX));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_OCD) {
 		*cause = strndup((const char *)"On-chip debug system",
-			strnlen_s((const char *)"On-chip debug system", SYSFS_PATH_MAX));
+			strnlen((const char *)"On-chip debug system", SYSFS_PATH_MAX));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_POR) {
 		*cause = strndup((const char *)"Power-on-reset",
-			strnlen_s((const char *)"Power-on-reset", SYSFS_PATH_MAX));
+			strnlen((const char *)"Power-on-reset", SYSFS_PATH_MAX));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_SOFT) {
 		*cause = strndup((const char *)"Software reset",
-			strnlen_s((const char *)"Software reset", SYSFS_PATH_MAX));
+			strnlen((const char *)"Software reset", SYSFS_PATH_MAX));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_SPIKE) {
 		*cause = strndup((const char *)"Spike detected",
-			strnlen_s((const char *)"Spike detected", SYSFS_PATH_MAX));
+			strnlen((const char *)"Spike detected", SYSFS_PATH_MAX));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_WDT) {
 		*cause = strndup((const char *)"Watchdog timeout",
-			strnlen_s((const char *)"Watchdog timeout", SYSFS_PATH_MAX));
+			strnlen((const char *)"Watchdog timeout", SYSFS_PATH_MAX));
 		goto out;
 	}
 
 	*cause = strndup((const char *)"Unknown",
-		strnlen_s((const char *)"Unknown", SYSFS_PATH_MAX));
+		strnlen((const char *)"Unknown", SYSFS_PATH_MAX));
 
 out:
 	if (tmp) {

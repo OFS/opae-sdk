@@ -68,7 +68,8 @@ class sysobject_cxx_p : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     tokens_.clear();
     tokens_dev_.clear();
-    handle_->close();
+    if (handle_.get())
+      handle_->close();
     handle_.reset();
     handle_dev_.reset();
     fpgaFinalize();

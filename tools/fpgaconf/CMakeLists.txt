@@ -28,7 +28,6 @@ opae_add_executable(TARGET fpgaconf
     SOURCE fpgaconf.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
-        safestr
         bitstream
         opae-c
         ${libjson-c_LIBRARIES}

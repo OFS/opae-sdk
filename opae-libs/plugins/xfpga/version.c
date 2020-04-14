@@ -28,14 +28,15 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include "safe_string/safe_string.h"
+#include <string.h>
+
 #include "common_int.h"
 #include "types_int.h"
 
 fpga_result __XFPGA_API__ xfpga_fpgaGetOPAECVersion(fpga_version *version)
 {
 	if (!version) {
-		OPAE_MSG("version is NULL");
+		OPAE_ERR("version is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -48,40 +49,36 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetOPAECVersion(fpga_version *version)
 
 fpga_result __XFPGA_API__ xfpga_fpgaGetOPAECVersionString(char *version_str, size_t len)
 {
-	errno_t err = 0;
-
 	if (!version_str) {
-		OPAE_MSG("version_str is NULL");
+		OPAE_ERR("version_str is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
-	err = strncpy_s(version_str, len, OPAE_VERSION,
-		  sizeof(OPAE_VERSION));
-
-	if (err) {
-		OPAE_ERR("strncpy_s failed with error %i", err);
-		return FPGA_EXCEPTION;
+	if (len < sizeof(OPAE_VERSION)) {
+		OPAE_ERR("insufficient buffer size");
+		return FPGA_INVALID_PARAM;
 	}
+
+	len = strnlen(OPAE_VERSION, len - 1);
+	strncpy(version_str, OPAE_VERSION, len + 1);
 
 	return FPGA_OK;
 }
 
 fpga_result __XFPGA_API__ xfpga_fpgaGetOPAECBuildString(char *build_str, size_t len)
 {
-	errno_t err = 0;
-
 	if (!build_str) {
-		OPAE_MSG("build_str is NULL");
+		OPAE_ERR("build_str is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
-	err = strncpy_s(build_str, len, OPAE_GIT_COMMIT_HASH,
-		  sizeof(OPAE_GIT_COMMIT_HASH));
-
-	if (err) {
-		OPAE_ERR("strncpy_s failed with error %i", err);
-		return FPGA_EXCEPTION;
+	if (len < sizeof(OPAE_GIT_COMMIT_HASH)) {
+		OPAE_ERR("insufficient buffer size");
+		return FPGA_INVALID_PARAM;
 	}
+
+	len = strnlen(OPAE_GIT_COMMIT_HASH, len - 1);
+	strncpy(build_str, OPAE_GIT_COMMIT_HASH, len + 1);
 
 	return FPGA_OK;
 }

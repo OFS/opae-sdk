@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -35,7 +35,6 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
-#include "safe_string/safe_string.h"
 #include "error_int.h"
 
 #include "token_list_int.h"
@@ -57,12 +56,12 @@ extern pthread_mutex_t global_lock;
 struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 {
 	struct token_map *tmp;
-	errno_t e;
 	int err = 0;
 	uint32_t device_instance;
 	uint32_t subdev_instance;
 	char *endptr = NULL;
 	const char *ptr;
+	size_t len;
 
 	/* get the device instance id */
 	ptr = strchr(sysfspath, '.');
@@ -123,8 +122,18 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 
 	/* populate error list */
 	tmp->_token.errors = NULL;
-	char errpath[SYSFS_PATH_MAX];
-	snprintf_s_s(errpath, SYSFS_PATH_MAX, "%s/errors", sysfspath);
+	char errpath[SYSFS_PATH_MAX] = { 0, };
+
+	if (snprintf(errpath, sizeof(errpath),
+		     "%s/errors", sysfspath) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		free(tmp);
+		if (pthread_mutex_unlock(&global_lock)) {
+			OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+		}
+		return NULL;
+	}
+
 	build_error_list(errpath, &tmp->_token.errors);
 
 	/* mark data structure as valid */
@@ -135,19 +144,13 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 	tmp->_token.subdev_instance = subdev_instance;
 
 	/* deep copy token data */
-	e = strncpy_s(tmp->_token.sysfspath, sizeof(tmp->_token.sysfspath),
-			sysfspath, SYSFS_PATH_MAX);
-	if (EOK != e) {
-		OPAE_ERR("strncpy_s failed");
-		goto out_free;
-	}
+	len = strnlen(sysfspath, SYSFS_PATH_MAX - 1);
+	memcpy(tmp->_token.sysfspath, sysfspath, len);
+	tmp->_token.sysfspath[len] = '\0';
 
-	e = strncpy_s(tmp->_token.devpath, sizeof(tmp->_token.devpath),
-			devpath, DEV_PATH_MAX);
-	if (EOK != e) {
-		OPAE_ERR("strncpy_s failed");
-		goto out_free;
-	}
+	len = strnlen(devpath, DEV_PATH_MAX - 1);
+	memcpy(tmp->_token.devpath, devpath, len);
+	tmp->_token.devpath[len] = '\0';
 
 	tmp->next = token_root;
 	token_root = tmp;
@@ -158,14 +161,6 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 	}
 
 	return &tmp->_token;
-
-out_free:
-	free(tmp);
-	err = pthread_mutex_unlock(&global_lock);
-	if (err) {
-		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-	}
-	return NULL;
 }
 
 /**
@@ -178,8 +173,8 @@ out_free:
 struct _fpga_token *token_get_parent(struct _fpga_token *_t)
 {
 	char *p;
-	char spath[SYSFS_PATH_MAX];
-	char rpath[PATH_MAX];
+	char spath[SYSFS_PATH_MAX] = { 0, };
+	char rpath[PATH_MAX] = { 0, };
 	struct token_map *itr;
 	int err = 0;
 	char *rptr = NULL;
