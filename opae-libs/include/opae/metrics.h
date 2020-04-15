@@ -118,7 +118,7 @@ fpga_result fpgaGetMetricsByName(fpga_handle handle,
  * @param[in] handle Handle to previously opened fpga resource
  * @param[inout] metrics_threshold pointer to array of metric thresholds
  * user allocates threshold array memory
- * Number of thresholds returns enumerated threholds if user pass
+ * Number of thresholds returns enumerated thresholds if user pass
  * NULL metrics_thresholds
  * @param[inout] num_thresholds number of thresholds
  *
