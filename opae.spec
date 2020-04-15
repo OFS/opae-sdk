@@ -191,11 +191,11 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
 
 
 %changelog
-* Tue Dec 17 2019 Korde Nakul <nakul.korde@intel.com> 1.4.0-1
-- Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set2.
-- Increased test cases and test coverage
-- Various bug fixes
-- Various compiler warning fixes
-- Various memory leak fixes
-- Various Static code scan bug fixes
-- Added new FPGA MMIO API to write 512 bits
+* Fri Apr 17 2020 Korde Nakul <nakul.korde@intel.com> 1.4.1-1
+- OPAE git repository layout changes.
+- Removed Safe String module dependency.
+- Various bug fixes.
+- Ported python tools to python3.6.
+- Various Static code scan bug fixes.
+- Removed pybind11 3rd component from OPAE source repository.
+

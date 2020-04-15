@@ -28,7 +28,7 @@ cmake_minimum_required(VERSION 2.8.12)
 
 if(OPAE_BUILD_TESTS)
     opae_external_project_add(PROJECT_NAME opae-test
-                              GIT_URL https://github.com/OPAE/opae-test.git
+                              GIT_URL https://github.com/OPAE/opae-test.git GIT_TAG release/1.4.1
                               PRESERVE_REPOS ${OPAE_PRESERVE_REPOS})
 endif(OPAE_BUILD_TESTS)
 
