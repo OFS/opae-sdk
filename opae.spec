@@ -67,7 +67,7 @@ rm -rf _build
 mkdir _build
 cd _build
 
-%cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_BUILD_SPHINX_DOC=ON
+%cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_BUILD_SPHINX_DOC=ON -DOPAE_BUILD_TESTS=ON
 
 %make_build  opae-c \
          bitstream \
