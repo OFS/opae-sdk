@@ -39,6 +39,11 @@ include(OPAE)
 option(OPAE_BUILD_LEGACY "Enable building of OPAE legacy tools" OFF)
 mark_as_advanced(OPAE_BUILD_LEGACY)
 
+if(OPAE_BUILD_LEGACY)
+    option(OPAE_LEGACY_TAG "Desired branch for opae-legacy" master)
+    mark_as_advanced(OPAE_LEGACY_TAG)
+endif(OPAE_BUILD_LEGACY)
+
 ############################################################################
 ## Other setup and dependencies ############################################
 ############################################################################
