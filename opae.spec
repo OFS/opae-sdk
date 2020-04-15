@@ -13,6 +13,7 @@ Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-1/
 
 BuildRequires:  gcc, gcc-c++
 BuildRequires:  cmake
+BuildRequires:  git
 BuildRequires:  python3-devel
 BuildRequires:  json-c-devel
 BuildRequires:  libuuid-devel
@@ -67,7 +68,7 @@ rm -rf _build
 mkdir _build
 cd _build
 
-%cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_BUILD_SPHINX_DOC=ON -DOPAE_BUILD_TESTS=ON -DOPAE_TEST_TAG=release/1.4.1
+%cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_BUILD_SPHINX_DOC=ON -DOPAE_BUILD_TESTS=ON -DOPAE_TEST_TAG=release/1.4.1  -DOPAE_PRESERVE_REPOS=ON
 
 %make_build  opae-c \
          bitstream \
