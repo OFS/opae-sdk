@@ -28,5 +28,8 @@ cmake_minimum_required(VERSION 2.8.12)
 
 if(OPAE_BUILD_LEGACY)
     opae_external_project_add(PROJECT_NAME opae-legacy
-                              GIT_URL https://github.com/OPAE/opae-legacy.git)
+                              GIT_URL https://github.com/OPAE/opae-legacy.git
+                              GIT_TAG ${OPAE_LEGACY_TAG}
+                              PRESERVE_REPOS ${OPAE_PRESERVE_REPOS})
+
 endif(OPAE_BUILD_LEGACY)
