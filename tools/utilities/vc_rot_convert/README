@@ -1,0 +1,48 @@
+This the tool used to generate BIN file for PACSign tool.
+
+
+Environment
+-----------
+Note, make sure quartus tools are installed and accessible !!!
+
+Add the tools bin to PATH environment, example:
+
+export PATH=/root/intelFPGA_pro/18.0/quartus/bin/:$PATH
+
+or add to startup rc file.
+
+Make script files rot_convert.sh executable, example:
+
+chmod +x rot_convert.sh
+
+
+Input Files
+-----------
+Input files required for BIN file generation includes:
+
+1) input_files/chip.sof
+This is SOF file from FPGA release. You can copy a chip.sof file to this folder or just use -u option to specify one to use.
+
+
+Output Files
+------------
+Output files could be found in output_files folder.
+
+output_files/chip_rot.bin
+This is the bin file for PACSign tool to use, its name can be changed via -o option.
+
+
+Instruction
+-----------
+
+1) ./rot_convert.sh
+This command generate target bin files by using input_files/chip.sof as source image.
+
+2) ./rot_convert.sh -u [user_sof_file] -o [target_bin_file]
+This command generate target bin files by using [user_sof_file] as user image.
+
+3) ./rot_convert.sh -h
+This command print the help information.
+
+4) ./rot_convert.sh -v
+This command print the publish date information of this tool.

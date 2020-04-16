@@ -1,5 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
+from __future__ import absolute_import
 import argparse
 from array import array
 import logging
@@ -29,11 +30,16 @@ def reverse_bits_in_file(ifile, ofile):
         if not ichunk:
             break
 
-        ochunk = ''
-        for b in ichunk:
-            ochunk += chr(bit_rev[ord(b)])
-        ofile.write(ochunk)
-
+        if isinstance(ichunk, str):
+            ochunk = ''
+            for b in ichunk:
+                ochunk += chr(bit_rev[ord(b)])
+            ofile.write(ochunk)
+        elif isinstance(ichunk, bytes):
+            ochunk = []
+            for b in ichunk:
+                ochunk.append(bit_rev[b])
+            ofile.write(bytes(ochunk))
     LOGGER.info("Finished")
 
 
