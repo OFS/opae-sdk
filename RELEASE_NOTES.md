@@ -35,7 +35,7 @@ System Compatibility
 --------------------
 
 -   Hardware: tightly coupled FPGA products and programmable FPGA acceleration cards for Intel(R) Xeon(R) processors:
- -      Intel(R) PAC with Arria(R) 10 GX FPGA (PCI ID: 0x09c4) FIM version 1.1.2-1 (1.2 Production)
+       Intel(R) PAC with Arria(R) 10 GX FPGA (PCI ID: 0x09c4) FIM version 1.1.2-1 (1.2 Production)
 -   Operating System: Tested on Fedora 31 with Linux Kernel 5.6
 
 
@@ -44,8 +44,8 @@ Major Changes from 1.4.0 to 1.4.1
 
 -   OPAE git repository layout changes
 
- -      The opae-sdk repository has been reorganized into five total repositories.
- -      The following table describes the repositories and how they are integrated into opae-sdk.
+       The opae-sdk repository has been reorganized into five total repositories.
+       The following table describes the repositories and how they are integrated into opae-sdk.
 
 | Repository      | Description | Integration     |
 | :---        |    :----:   |          ---: |

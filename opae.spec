@@ -13,6 +13,7 @@ Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-1/
 
 BuildRequires:  gcc, gcc-c++
 BuildRequires:  cmake
+BuildRequires:  git
 BuildRequires:  python3-devel
 BuildRequires:  json-c-devel
 BuildRequires:  libuuid-devel
@@ -67,7 +68,7 @@ rm -rf _build
 mkdir _build
 cd _build
 
-%cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_BUILD_SPHINX_DOC=ON
+%cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_BUILD_SPHINX_DOC=ON  -DOPAE_PRESERVE_REPOS=ON
 
 %make_build  opae-c \
          bitstream \
@@ -191,6 +192,14 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
 
 
 %changelog
+* Fri Apr 17 2020 Korde Nakul <nakul.korde@intel.com> 1.4.1-1
+- OPAE git repository layout changes.
+- Removed Safe String module dependency.
+- Various bug fixes.
+- Ported python tools to python3.6.
+- Various Static code scan bug fixes.
+- Removed pybind11 3rd component from OPAE source repository.
+
 * Tue Dec 17 2019 Korde Nakul <nakul.korde@intel.com> 1.4.0-1
 - Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set2.
 - Increased test cases and test coverage
