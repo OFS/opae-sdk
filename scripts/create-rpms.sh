@@ -30,6 +30,9 @@ opae_sdk_tar="s/opae-sdk/opae-"
 opae_sdk_tar+=${full_version}
 opae_sdk_tar+="/"
 echo ${opae_sdk_tar}
+cd ../external 
+git clone -b release/1.4.1 https://github.com/OPAE/opae-test.git
+git clone -b v2.4.3 https://github.com/pybind/pybind11.git
 
 cd ../..
 tar --transform=${opae_sdk_tar} \
