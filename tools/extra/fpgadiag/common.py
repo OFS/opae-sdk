@@ -129,7 +129,7 @@ class FpgaFinder(object):
         for x in range(depth):
             r = glob.glob(os.path.join(os.path.join(root, *['*'] * x), node))
             paths.extend(r)
-        return paths
+        return sorted(paths)
 
 
 class COMMON(object):
