@@ -34,8 +34,6 @@ import os
 import sys
 from common import FpgaFinder, exception_quit, COMMON, hexint
 
-
-
 FPGA_MAC_GROUP_ID = {'host': 1, 'line': 0}
 
 MTU_REG_OFFSET = {
@@ -162,7 +160,6 @@ def main():
     parser.add_argument('--debug', '-d', action='store_true',
                         help='Output debug information')
     args, left = parser.parse_known_args()
-
 
     f = FpgaFinder(args.segment, args.bus, args.device, args.function)
     devs = f.find()

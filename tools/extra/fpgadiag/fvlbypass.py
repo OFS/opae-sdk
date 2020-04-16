@@ -39,7 +39,6 @@ import glob
 import os
 import time
 
-
 MAPSIZE = mmap.PAGESIZE
 MAPMASK = MAPSIZE - 1
 
@@ -177,23 +176,23 @@ def get_sbdf_mode_mapping(sbdf, args):
     if (build_flags & 0x01) == 0x00:
         exception_quit("FPGA {} does not support bypass mode".format(sbdf), 5)
 
-    vc_info['mode'] = (int(bitstream_id, 16) >> 32) & 0xf
-    print('Mode: {}'.format(VC_MODE_NAME.get(vc_info['mode'], 'unknown')))
+    VC_INFO['mode'] = (int(bitstream_id, 16) >> 32) & 0xf
+    print('Mode: {}'.format(VC_MODE_NAME.get(VC_INFO['mode'], 'unknown')))
 
-    if vc_info['mode'] == VC_MODE_8x10G:
-        vc_info['total_mac'] = 8
-        vc_info['demux_offset'] = 0x100
-    elif vc_info['mode'] == VC_MODE_2x1x25G:
-        vc_info['total_mac'] = 2
-        vc_info['demux_offset'] = 0x40
-    elif vc_info['mode'] == VC_MODE_2x2x25G:
-        vc_info['total_mac'] = 4
-        vc_info['demux_offset'] = 0x80
+    if VC_INFO['mode'] == VC_MODE_8x10G:
+        VC_INFO['total_mac'] = 8
+        VC_INFO['demux_offset'] = 0x100
+    elif VC_INFO['mode'] == VC_MODE_2x1x25G:
+        VC_INFO['total_mac'] = 2
+        VC_INFO['demux_offset'] = 0x40
+    elif VC_INFO['mode'] == VC_MODE_2x2x25G:
+        VC_INFO['total_mac'] = 4
+        VC_INFO['demux_offset'] = 0x80
     else:
         exception_quit("FPGA {} not support bypass mode".format(sbdf), 5)
 
     c = COMMON()
-    args.ports = c.get_port_list(args.port, vc_info.get('total_mac'))
+    args.ports = c.get_port_list(args.port, VC_INFO.get('total_mac'))
 
     sysfs_path = glob.glob(os.path.join('/sys/bus/pci/devices', sbdf,
                                         'fpga', 'intel-fpga-dev.*',
@@ -209,7 +208,7 @@ def get_sbdf_mode_mapping(sbdf, args):
 
 
 def get_sbdf_upl_mapping(sbdf):
-    global vc_info
+    global VC_INFO
 
     pci_dev_path = '/sys/bus/pci/devices/{}/resource2'.format(sbdf)
     addr = 0
@@ -221,7 +220,7 @@ def get_sbdf_upl_mapping(sbdf):
             uuid_l = pci_read(pci_dev_path, addr+UUID_L_OFFSET_REG)
             uuid_h = pci_read(pci_dev_path, addr+UUID_H_OFFSET_REG)
             if uuid_l == UPL_UUID_L and uuid_h == UPL_UUID_H:
-                vc_info['upl_base'] = addr
+                VC_INFO['upl_base'] = addr
                 break
             else:
                 msg = "FPGA {} has no packet generator for test".format(sbdf)
@@ -237,15 +236,15 @@ def get_sbdf_upl_mapping(sbdf):
 
 
 def clear_stats(f, info, args):
-    global vc_info
+    global VC_INFO
 
     if args.clear:
         print('Clearing statistics of MACs ...')
 
-        vc_mode = vc_info.get('mode', None)
+        vc_mode = VC_INFO.get('mode', None)
         if vc_mode is None:
             exception_quit("FPGA is not in bypass mode", 5)
-        offset = vc_info.get('demux_offset', 0x100)
+        offset = VC_INFO.get('demux_offset', 0x100)
 
         for w in info:
             _, mac_total, _, node = info[w]
@@ -305,7 +304,7 @@ def test_wait(sbdf, timeout, args):
 
 
 def fvl_bypass_mode_test(sbdf, args):
-    global vc_info
+    global VC_INFO
 
     get_sbdf_upl_mapping(sbdf)
 
@@ -326,7 +325,7 @@ def fvl_bypass_mode_test(sbdf, args):
     indir_rw_data(sbdf, 0, 0x1006, 0x1, 0)          # set EN_PKT_DELAY
     time.sleep(0.1)
 
-    mac_total = vc_info.get('total_mac', 2)
+    mac_total = VC_INFO.get('total_mac', 2)
     if 'all' in args.port:
         pkt_num = mac_total * args.number   # packets num to be sent on all mac
         wait_time = pkt_num * args.length / 1e9
@@ -398,7 +397,6 @@ def main():
     parser.add_argument('--debug', '-d', action='store_true',
                         help='Output debug information')
     args, left = parser.parse_known_args()
-
 
     setattr(args, 'number', int(getattr(args, 'number')))
     if args.number < MIN_TEST_PKT_NUM or args.number > MAX_TEST_PKT_NUM:

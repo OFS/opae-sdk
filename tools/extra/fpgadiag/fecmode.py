@@ -37,8 +37,6 @@ import time
 import subprocess
 from common import exception_quit, FpgaFinder, COMMON, hexint
 
-
-
 VCP_ID = 0x0b30
 
 CONF_FILE = '/etc/modprobe.d/intel-fpga-fme.conf'
@@ -246,7 +244,6 @@ def main():
     parser.add_argument('--debug', '-d', action='store_true',
                         help='Output debug information')
     args, left = parser.parse_known_args()
-
 
     f = FpgaFinder(args.segment, args.bus, args.device, args.function)
     devs = f.find()
