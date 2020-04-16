@@ -47,7 +47,7 @@ class DefaultMode(bc.BistMode):
             bc.load_gbs(gbs_path, bdf)
         ret = 0
         for func, param in self.executables.items():
-            print "Running Built-in Self test...\n"
+            print("Running Built-in Self test...\n")
             cmd = [func, '-B', hex(bdf['bus']),
                    '-D', hex(bdf['device']),
                    '-F', hex(bdf['function'])]
@@ -55,8 +55,8 @@ class DefaultMode(bc.BistMode):
             try:
                 subprocess.check_call(cmd)
             except subprocess.CalledProcessError as e:
-                print "Failed Test: {}".format(func)
+                print("Failed Test: {}".format(func))
                 print e
                 ret += 1
-        print "Finished Executing BIST\n"
+        print("Finished Executing BIST\n")
         return ret

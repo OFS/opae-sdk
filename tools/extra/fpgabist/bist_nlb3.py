@@ -51,7 +51,7 @@ class Nlb3Mode(bc.BistMode):
             bc.load_gbs(gbs_path, bdf)
         ret = 0
         for test, param in self.executables.items():
-            print "Running fpgadiag {} test...\n".format(test)
+            print("Running fpgadiag {} test...\n".format(test))
             cmd = ['fpgadiag', '-B', hex(bdf['bus']),
                    '-D', hex(bdf['device']),
                    '-F', hex(bdf['function'])]
@@ -59,8 +59,8 @@ class Nlb3Mode(bc.BistMode):
             try:
                 subprocess.check_call(cmd)
             except subprocess.CalledProcessError as e:
-                print "Failed Test: {}".format(test)
+                print("Failed Test: {}".format(test))
                 print e
                 ret += 1
-        print "Finished Executing NLB (FPGA DIAG)Tests\n"
+        print("Finished Executing NLB (FPGA DIAG)Tests\n")
         return ret

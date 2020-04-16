@@ -52,7 +52,7 @@ class Nlb0Mode(bc.BistMode):
         tp.sort()
         ret = 0
         for test, param in tp:
-            print "Running fpgadiag lpbk1 {} test...".format(test)
+            print("Running fpgadiag lpbk1 {} test...".format(test))
             cmd = "fpgadiag -B {} -D {} -F {} {}".format(hex(bdf['bus']),
                                                          hex(bdf['device']),
                                                          hex(bdf['function']),
@@ -64,8 +64,8 @@ class Nlb0Mode(bc.BistMode):
             try:
                 subprocess.check_call(cmd.split(' '))
             except subprocess.CalledProcessError as e:
-                print "Failed Test: {}".format(test)
+                print("Failed Test: {}".format(test))
                 print e
                 ret += 1
-        print "Finished Executing NLB (FPGA DIAG) Tests\n"
+        print("Finished Executing NLB (FPGA DIAG) Tests\n")
         return ret
