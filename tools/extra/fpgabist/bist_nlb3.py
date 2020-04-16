@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright(c) 2017, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -25,6 +25,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 import subprocess
 
@@ -33,7 +35,9 @@ import bist_common as bc
 
 class Nlb3Mode(bc.BistMode):
     name = "nlb_3"
-    afu_id = "d8424dc4-a4a3-c413-f89e-433683f9040b"
+    mode_list = {0x09c4: "f7df405c-bd7a-cf72-22f1-44b0b93acd18",
+                 0x0b30: "d8424dc4-a4a3-c413-f89e-433683f9040b",
+                 0x0b2b: "d8424dc4-a4a3-c413-f89e-433683f9040b"}
 
     def __init__(self):
         modes = ['read', 'write', 'trput']

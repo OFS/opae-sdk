@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright(c) 2017, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -25,6 +25,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 import subprocess
 
@@ -33,7 +35,9 @@ import bist_common as bc
 
 class BistMode(bc.BistMode):
     name = "bist_afu"
-    afu_id = "9caef53d-2fcf-43ea-84b9-aad98993fe41"
+    mode_list = {0x09c4: "9caef53d-2fcf-43ea-84b9-aad98993fe41",
+                 0x0b30: "9caef53d-2fcf-43ea-84b9-aad98993fe41",
+                 0x0b2b: "9caef53d-2fcf-43ea-84b9-aad98993fe41"}
 
     def __init__(self):
         self.executables = {'bist_app': ''}
