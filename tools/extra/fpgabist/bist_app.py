@@ -53,7 +53,7 @@ class BistMode(bc.BistMode):
                 subprocess.check_call(cmd)
             except subprocess.CalledProcessError as e:
                 print("Failed Test: {}".format(func))
-                print e
+                print(e)
                 ret += 1
         print("Finished Executing BIST application\n")
         return ret

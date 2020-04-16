@@ -60,7 +60,7 @@ class Nlb3Mode(bc.BistMode):
                 subprocess.check_call(cmd)
             except subprocess.CalledProcessError as e:
                 print("Failed Test: {}".format(test))
-                print e
+                print(e)
                 ret += 1
         print("Finished Executing NLB (FPGA DIAG)Tests\n")
         return ret

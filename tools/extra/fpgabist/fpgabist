@@ -83,7 +83,7 @@ def main(args):
     start = "==========================================================\n\n" \
             "Beginning FPGA Built-In Self-Test\n\n"\
             "=========================================================="
-    print start
+    print(start)
 
     # Display data from FPGA info
     dev_id = bdf['device_id']
@@ -102,7 +102,7 @@ def main(args):
             module = 'bist_{}'.format(name)
             mode = getattr(sys.modules.get(module),
                            '{}Mode'.format(name.capitalize()))()
-            print "Running mode: {}".format(mode.name)
+            print("Running mode: {}".format(mode.name))
             ret += mode.run(None, hex(bdf['bus'])[2:],
                             bist_common.VCP_ID, afu_id)
     else:
@@ -115,7 +115,7 @@ def main(args):
             afu_ids.update({bist_common.get_afu_id(bdf=bdf): ""})
 
         for afu_id in afu_ids.keys():
-            print afu_id
+            print(afu_id)
             if afu_id == bist_common.get_afuid(
                           bist_def.DefaultMode().mode_list, dev_id):
                 mode = bist_def.DefaultMode()
@@ -130,10 +130,10 @@ def main(args):
                 mode = bist_app.BistMode()
             else:
                 sys.exit("Unknown AFU for available ID {}\n".format(afu_id))
-            print "Running mode: {}".format(mode.name)
+            print("Running mode: {}".format(mode.name))
             ret += mode.run(afu_ids.get(afu_id), bdf)
 
-    print "\nBuilt-in Self-Test Completed.\n"
+    print("\nBuilt-in Self-Test Completed.\n")
     sys.exit(ret)
 
 
