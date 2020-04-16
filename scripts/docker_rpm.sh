@@ -51,8 +51,8 @@ rpmdev-setuptree
 cp /tmp/rpmbuild/opae-$full_version.tar.gz ~/rpmbuild/SOURCES/opae-$full_version.tar.gz
 rpmbuild -ba /tmp/rpmbuild/opae.spec
 newgrp mock
-mock -r fedora-rawhide-x86_64 rebuild ~/rpmbuild/SRPMS/opae-$full_version.*
-fedora-review --rpm-spec -v -n ~/rpmbuild/SRPMS/opae-$full_version.*
+mock -r fedora-rawhide-x86_64 rebuild ~/rpmbuild/SRPMS/opae-*
+fedora-review --rpm-spec -v -n ~/rpmbuild/SRPMS/opae-*
 cp ~/rpmbuild/SRPMS/*.rpm /tmp/rpmbuild/.
 cp ~/rpmbuild/RPMS/*/*.rpm /tmp/rpmbuild/.
 cp ~/.cache/fedora-review.log /tmp/rpmbuild/.
