@@ -69,10 +69,14 @@ token::ptr_t get_parent_token(handle::ptr_t h)
 {
     auto props = properties::get(h);
 
-    auto tokens = token::enumerate({properties::get(props->parent)});
-    if (!tokens.empty())
-    {
-        return tokens[0];
+    try {
+        auto tokens = token::enumerate({properties::get(props->parent)});
+        if (!tokens.empty())
+        {
+            return tokens[0];
+        }
+    } catch (not_found &) {
+        // If we cannot access the FME, return an empty result.
     }
     return token::ptr_t();
 }
