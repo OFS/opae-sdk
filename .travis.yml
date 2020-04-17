@@ -11,6 +11,7 @@ matrix:
     - sudo sysctl -w vm.nr_hugepages=8
     cache: ccache
     env:
+    - CTEST_OUTPUT_ON_FAILURE=1
     - OPAE_EXPLICIT_INITIALIZE=1
     - LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/.build/lib
     addons:
