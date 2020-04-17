@@ -39,6 +39,7 @@ typedef struct _opae_fme_info {
 
 typedef struct _opae_port_info {
 	uint32_t flags;
+#define OPAE_PORT_CAP_UAFU_IRQS 0x80000000
 	uint32_t capability;
 	uint32_t num_regions;
 	uint32_t num_umsgs;
