@@ -129,6 +129,8 @@ fpga_result intel_get_port_info(int fd, opae_port_info *info)
 	if (!res) {
 		info->flags = pinfo.flags;
 		info->capability = pinfo.capability;
+		if (pinfo.capability & FPGA_PORT_CAP_UAFU_IRQ)
+			info->capability |= OPAE_PORT_CAP_UAFU_IRQS;
 		info->num_regions = pinfo.num_regions;
 		info->num_umsgs = pinfo.num_umsgs;
 		info->num_uafu_irqs = pinfo.num_uafu_irqs;
