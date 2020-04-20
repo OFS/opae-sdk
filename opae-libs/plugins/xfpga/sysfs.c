@@ -2052,12 +2052,14 @@ fpga_result opae_glob_path(char *path, size_t len)
 	pglob.gl_pathc = 0;
 	pglob.gl_pathv = NULL;
 	int globres = glob(path, 0, NULL, &pglob);
+	size_t glob_len;
 	if (!globres) {
 		if (pglob.gl_pathc > 1) {
 			OPAE_MSG("Ambiguous object key - using first one");
 		}
-		memcpy(path, pglob.gl_pathv[0], len);
-		path[len] = '\0';
+		glob_len = strnlen(pglob.gl_pathv[0], len-1);
+		memcpy(path, pglob.gl_pathv[0], glob_len);
+		path[glob_len] = '\0';
 		globfree(&pglob);
 	} else {
 		switch (globres) {
