@@ -36,10 +36,15 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <cstdarg>
+#include <linux/ioctl.h>
+#include "opae_drv.h"
 #include "types_int.h"
 #include "sysfs_int.h"
 #include "mock/mock_opae.h"
 extern "C" {
+#include "intel-fpga.h"
+#include "fpga-dfl.h"
 #include "token_list_int.h"
 }
 #include "xfpga.h"
@@ -49,7 +54,83 @@ int xfpga_plugin_initialize(void);
 int xfpga_plugin_finalize(void);
 }
 
+static bool gEnableIRQ = true;
+
 using namespace opae::testing;
+
+int port_info(mock_object * m, int request, va_list argp){
+  int retval = -1;
+  errno = EINVAL;
+  UNUSED_PARAM(m);
+  UNUSED_PARAM(request);
+  struct fpga_port_info *pinfo = va_arg(argp, struct fpga_port_info *);
+  if (!pinfo) {
+  	FPGA_MSG("pinfo is NULL");
+  	goto out_EINVAL;
+  }
+  if (pinfo->argsz != sizeof(*pinfo)) {
+  	FPGA_MSG("wrong structure size");
+  	goto out_EINVAL;
+  }
+  pinfo->flags = 0;
+  pinfo->num_regions = 2;
+  pinfo->num_umsgs = 8;
+  if (gEnableIRQ) {
+  	pinfo->capability = FPGA_PORT_CAP_ERR_IRQ | FPGA_PORT_CAP_UAFU_IRQ;
+  	pinfo->num_uafu_irqs = 2;
+  } else {
+  	pinfo->capability = 0;
+  	pinfo->num_uafu_irqs = 0;
+  }
+  retval = 0;
+  errno = 0;
+out:
+  va_end(argp);
+  return retval;
+
+out_EINVAL:
+  retval = -1;
+  errno = EINVAL;
+  goto out;
+}
+
+int dfl_port_info(mock_object * m, int request, va_list argp){
+  int retval = -1;
+  errno = EINVAL;
+  UNUSED_PARAM(m);
+  UNUSED_PARAM(request);
+  struct dfl_fpga_port_info *pinfo = va_arg(argp, struct dfl_fpga_port_info *);
+  if (!pinfo) {
+  	FPGA_MSG("pinfo is NULL");
+  	goto out_EINVAL;
+  }
+  if (pinfo->argsz != sizeof(*pinfo)) {
+  	FPGA_MSG("wrong structure size");
+  	goto out_EINVAL;
+  }
+  pinfo->flags = 0;
+  pinfo->num_regions = 2;
+  pinfo->num_umsgs = 0;
+/*
+  if (gEnableIRQ) {
+  	pinfo->capability = FPGA_PORT_CAP_ERR_IRQ | FPGA_PORT_CAP_UAFU_IRQ;
+  	pinfo->num_uafu_irqs = 2;
+  } else {
+  	pinfo->capability = 0;
+  	pinfo->num_uafu_irqs = 0;
+  }
+*/
+  retval = 0;
+  errno = 0;
+out:
+  va_end(argp);
+  return retval;
+
+out_EINVAL:
+  retval = -1;
+  errno = EINVAL;
+  goto out;
+}
 
 class enum_c_p : public mock_opae_p<2, xfpga_> {
  protected:
@@ -904,6 +985,10 @@ TEST_P(enum_c_p, state_neg) {
  */
 TEST_P(enum_c_p, num_mmio) {
   auto device = platform_.devices[0];
+
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_GET_INFO, dfl_port_info);
+
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesSetNumMMIO(filter_, device.num_mmio), FPGA_OK);
   EXPECT_EQ(
@@ -919,6 +1004,9 @@ TEST_P(enum_c_p, num_mmio) {
  *             the function returns zero matches.
  */
 TEST_P(enum_c_p, num_mmio_neg) {
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_GET_INFO, dfl_port_info);
+
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesSetNumMMIO(filter_, invalid_device_.num_mmio), FPGA_OK);
   EXPECT_EQ(
