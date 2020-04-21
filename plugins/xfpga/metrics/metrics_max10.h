@@ -32,15 +32,23 @@
 #ifndef __FPGA_METRICS_MAX10_H__
 #define __FPGA_METRICS_MAX10_H__
 
-fpga_result read_sensor_sysfs_file(char *sysfs, const char *file,
-			void **buf, uint32_t *tot_bytes_ret);
 
-fpga_result enum_max10_metrics_info(struct _fpga_handle *_handle,
-			fpga_metric_vector *vector,
-			uint64_t *metric_num,
-			enum fpga_hw_type  hw_type);
+#define DFL_MAX10_SYSFS_PATH                     "dfl-fme*/spi-altera*/spi_master/spi*/spi*/*bmc-hwmon*/hwmon/hwmon*"
+#define DFL_MAX10_SENSOR_SYSFS_PATH              "dfl-fme*/spi-altera*/spi_master/spi*/spi*/*bmc-hwmon*/hwmon/hwmon*/*_label"
+#define DFL_TEMPERATURE                         "temp"
+#define DFL_VOLTAGE                             "in"
+#define DFL_CURRENT                             "curr"
+#define DFL_POWER                               "power"
+
+
+fpga_result read_sensor_sysfs_file(const char *sysfs, const char *file,
+			void **buf, uint32_t *tot_bytes_ret);
 
 fpga_result read_max10_value(struct _fpga_enum_metric *_fpga_enum_metric,
 				double *dvalue);
 
+fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
+	fpga_metric_vector *vector,
+	uint64_t *metric_num,
+	enum fpga_hw_type  hw_type);
 #endif // __FPGA_METRICS_MAX10_H__

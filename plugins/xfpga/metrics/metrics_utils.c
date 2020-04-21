@@ -986,30 +986,19 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 		break;
 
 		// DCP VC DC
-		case FPGA_HW_DCP_DC:
-		case FPGA_HW_DCP_VC: {
+		case FPGA_HW_DCP_N3000:
+		case FPGA_HW_DCP_D5005: {
 
 			memset(metrics_path, 0, SYSFS_PATH_MAX);
 			if (sysfs_get_max10_path(_token, metrics_path) == FPGA_OK) {
-
-				// Max10 Power & Thermal
-				result = enum_max10_metrics_info(_handle,
-					&(_handle->fpga_enum_metric_vector),
-					&metric_num,
-					hw_type);
-				if (result != FPGA_OK) {
-					OPAE_ERR("Failed to Enum Power and Thermal metrics.");
-				}
-			}
-
-			memset(metrics_path, 0, SYSFS_PATH_MAX);
-			if (sysfs_get_fme_perf_path(_token, metrics_path) == FPGA_OK) {
-
-				// Perf Counters
-				result = enum_perf_counter_metrics(&(_handle->fpga_enum_metric_vector), &metric_num, _token->sysfspath, hw_type);
-				if (result != FPGA_OK) {
-					OPAE_ERR("Failed to Enum Performance metrics.");
-				}
+					// Max10 Power & Thermal
+					result = dfl_enum_max10_metrics_info(_handle,
+						&(_handle->fpga_enum_metric_vector),
+						&metric_num,
+						hw_type);
+						if (result != FPGA_OK) {
+							OPAE_ERR("Failed to Enum Power and Thermal metrics.");
+						}
 			}
 		}
 		break;
@@ -1382,8 +1371,8 @@ fpga_result  get_fme_metric_value(fpga_handle handle,
 			}
 
 			// Read power theraml values from Max10
-			if (((_fpga_enum_metric->hw_type == FPGA_HW_DCP_DC) ||
-				(_fpga_enum_metric->hw_type == FPGA_HW_DCP_VC)) &&
+			if (((_fpga_enum_metric->hw_type == FPGA_HW_DCP_N3000) ||
+				(_fpga_enum_metric->hw_type == FPGA_HW_DCP_D5005)) &&
 				((_fpga_enum_metric->metric_type == FPGA_METRIC_TYPE_POWER) ||
 				(_fpga_enum_metric->metric_type == FPGA_METRIC_TYPE_THERMAL))) {
 

@@ -108,16 +108,16 @@ class metrics_max10_c_p : public ::testing::TestWithParam<std::string> {
 TEST_P(metrics_max10_c_p, test_metric_max10_1) {
   uint32_t tot_bytes_ret;
   void *buf = NULL;
-  char file[] = "name";
+  char file[] = "curr1_input";
   char sysfs[] =
-      "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/spi-altera.0.auto/"
-      "spi_master/spi0/spi0.0/sensor2";
+		"/sys/class/fpga_region/region0/dfl-fme.0/dfl-fme.0.10/spi-altera.4.auto/"
+		"spi_master/spi4/spi4.0/d5005bmc-hwmon.6.auto/hwmon/hwmon4";
 
   EXPECT_NE(read_sensor_sysfs_file(NULL, file, &buf, &tot_bytes_ret), FPGA_OK);
 
   EXPECT_NE(read_sensor_sysfs_file(sysfs, NULL, &buf, &tot_bytes_ret), FPGA_OK);
 
-  EXPECT_NE(read_sensor_sysfs_file(sysfs, NULL, &buf, NULL), FPGA_OK);
+  EXPECT_NE(read_sensor_sysfs_file(sysfs, file, &buf, NULL), FPGA_OK);
 
   EXPECT_EQ(read_sensor_sysfs_file(sysfs, file, &buf, &tot_bytes_ret), FPGA_OK);
 
@@ -143,28 +143,28 @@ TEST_P(metrics_max10_c_p, test_metric_max10_2) {
 
   EXPECT_EQ(FPGA_OK, fpga_vector_init(&vector));
 
-  EXPECT_EQ(FPGA_OK, enum_max10_metrics_info(_handle, &vector, &metric_num,
-                                             FPGA_HW_DCP_VC));
+  EXPECT_EQ(FPGA_OK, dfl_enum_max10_metrics_info(_handle, &vector, &metric_num,
+                                             FPGA_HW_DCP_N3000));
 
   EXPECT_NE(FPGA_OK,
-            enum_max10_metrics_info(_handle, &vector, NULL, FPGA_HW_DCP_VC));
+	  dfl_enum_max10_metrics_info(_handle, &vector, NULL, FPGA_HW_DCP_N3000));
 
-  EXPECT_NE(FPGA_OK, enum_max10_metrics_info(NULL, &vector, &metric_num,
-                                             FPGA_HW_DCP_VC));
+  EXPECT_NE(FPGA_OK, dfl_enum_max10_metrics_info(NULL, &vector, &metric_num,
+                                             FPGA_HW_DCP_N3000));
 
-  EXPECT_NE(FPGA_OK, enum_max10_metrics_info(_handle, NULL, &metric_num,
-                                             FPGA_HW_DCP_VC));
+  EXPECT_NE(FPGA_OK, dfl_enum_max10_metrics_info(_handle, NULL, &metric_num,
+                                             FPGA_HW_DCP_N3000));
 
   EXPECT_NE(FPGA_OK,
-            enum_max10_metrics_info(_handle, &vector, NULL, FPGA_HW_DCP_VC));
+	  dfl_enum_max10_metrics_info(_handle, &vector, NULL, FPGA_HW_DCP_N3000));
 
-  EXPECT_EQ(FPGA_OK, enum_max10_metrics_info(_handle, &vector, &metric_num,
+  EXPECT_EQ(FPGA_OK, dfl_enum_max10_metrics_info(_handle, &vector, &metric_num,
                                              FPGA_HW_UNKNOWN));
 
   EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
 }
 INSTANTIATE_TEST_CASE_P(metrics_max10_c, metrics_max10_c_p,
-    ::testing::ValuesIn(test_platform::mock_platforms({"dcp-vc"})));
+    ::testing::ValuesIn(test_platform::mock_platforms({"dcp-d5005-dfl"})));
 
 class metrics_invalid_max10_c_p : public metrics_max10_c_p {};
 
@@ -182,8 +182,8 @@ TEST_P(metrics_invalid_max10_c_p, test_metric_max10_3) {
 
   EXPECT_EQ(FPGA_OK, fpga_vector_init(&vector));
 
-  EXPECT_NE(FPGA_OK, enum_max10_metrics_info(_handle, &vector, &metric_num,
-                                             FPGA_HW_DCP_VC));
+  EXPECT_NE(FPGA_OK, dfl_enum_max10_metrics_info(_handle, &vector, &metric_num,
+                                             FPGA_HW_DCP_N3000));
 
   EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
 }
@@ -218,4 +218,4 @@ TEST_P(metrics_max10_vc_c_p, test_metric_max10_4) {
 	EXPECT_EQ(FPGA_INVALID_PARAM, read_max10_value(NULL, &dvalue));
 }
 INSTANTIATE_TEST_CASE_P(metrics_max10_c, metrics_max10_vc_c_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-vc" })));
+	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-d5005-dfl" })));

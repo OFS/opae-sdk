@@ -113,8 +113,8 @@ struct _fpga_token {
 enum fpga_hw_type {
 	FPGA_HW_MCP,
 	FPGA_HW_DCP_RC,
-	FPGA_HW_DCP_DC,
-	FPGA_HW_DCP_VC,
+	FPGA_HW_DCP_D5005,
+	FPGA_HW_DCP_N3000,
 	FPGA_HW_UNKNOWN
 };
 

@@ -56,8 +56,8 @@
 #include "opae/metrics.h"
 #include "metrics/vector.h"
 #include "xfpga.h"
-#include "metrics/metrics_metadata.h"
-#include "metrics/max10_metadata.h"
+#include "metrics_max10.h"
+
 
 // Max10 Metric limits
 #define THERMAL_HIGH_LIMIT             300.00
@@ -77,7 +77,6 @@ fpga_result read_sensor_sysfs_file(const char *sysfs, const char *file,
 	fpga_result res = FPGA_OK;
 
 	if (sysfs == NULL ||
-		file == NULL ||
 		buf == NULL ||
 		tot_bytes_ret == NULL) {
 		OPAE_ERR("Invalid Input parameters");
@@ -85,9 +84,12 @@ fpga_result read_sensor_sysfs_file(const char *sysfs, const char *file,
 	}
 	*buf = NULL;
 	*tot_bytes_ret = 0;
-
-	snprintf(sysfspath, sizeof(sysfspath),
-		 "%s/%s", sysfs, file);
+	if (file)
+		snprintf(sysfspath, sizeof(sysfspath),
+			 "%s/%s", sysfs, file);
+	else 
+		snprintf(sysfspath, sizeof(sysfspath),
+			"%s", sysfs);
 
 	glob_t pglob;
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
@@ -140,24 +142,25 @@ out:
 }
 
 
-fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
-							fpga_metric_vector *vector,
-							uint64_t *metric_num,
-							enum fpga_hw_type  hw_type)
+
+fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
+	fpga_metric_vector *vector,
+	uint64_t *metric_num,
+	enum fpga_hw_type  hw_type)
 {
-	fpga_result result                             = FPGA_OK;
-	struct _fpga_token *_token                     = NULL;
-	size_t i                                       = 0;
-	char *tmp                                      = NULL;
-	uint32_t tot_bytes                             = 0;
-	enum fpga_metric_type metric_type              = FPGA_METRIC_TYPE_POWER;
-	char sysfspath[SYSFS_PATH_MAX]                 = { 0, };
-	char metrics_sysfs_path[SYSFS_PATH_MAX]        = { 0, };
-	char metric_name[SYSFS_PATH_MAX]               = { 0, };
-	char group_name[SYSFS_PATH_MAX]                = { 0, };
-	char group_sysfs[SYSFS_PATH_MAX]               = { 0, };
-	char qualifier_name[SYSFS_PATH_MAX]            = { 0, };
-	char metric_units[SYSFS_PATH_MAX]              = { 0, };
+	fpga_result result                  = FPGA_OK;
+	struct _fpga_token *_token          = NULL;
+	size_t i                            = 0;
+	char *tmp                           = NULL;
+	uint32_t tot_bytes                  = 0;
+	enum fpga_metric_type metric_type   = FPGA_METRIC_TYPE_POWER;
+	char sysfspath[SYSFS_PATH_MAX]      = { 0, };
+	char metrics_sysfs_path[SYSFS_PATH_MAX] = { 0, };
+	char metric_name[SYSFS_PATH_MAX]        = { 0, };
+	char group_name[SYSFS_PATH_MAX]         = { 0, };
+	char group_sysfs[SYSFS_PATH_MAX]        = { 0, };
+	char qualifier_name[SYSFS_PATH_MAX]     = { 0, };
+	char metric_units[SYSFS_PATH_MAX]       = { 0, };
 	glob_t pglob;
 	size_t len;
 
@@ -176,7 +179,7 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 
 	// metrics group
 	if (snprintf(sysfspath, sizeof(sysfspath),
-		 "%s/%s", _token->sysfspath, MAX10_SYSFS_PATH) < 0) {
+		"%s/%s", _token->sysfspath, DFL_MAX10_SYSFS_PATH) < 0) {
 		OPAE_ERR("snprintf failed");
 		return FPGA_EXCEPTION;
 	}
@@ -195,7 +198,7 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 
 	// Enum sensors
 	if (snprintf(sysfspath, sizeof(sysfspath),
-		 "%s/%s", _token->sysfspath, MAX10_SENSOR_SYSFS_PATH) < 0) {
+		"%s/%s", _token->sysfspath, DFL_MAX10_SENSOR_SYSFS_PATH) < 0) {
 		OPAE_ERR("snprintf failed");
 		return FPGA_EXCEPTION;
 	}
@@ -212,7 +215,7 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 	for (i = 0; i < pglob.gl_pathc; i++) {
 
 		// Sensor name
-		result = read_sensor_sysfs_file(pglob.gl_pathv[i], SENSOR_SYSFS_NAME, (void **)&tmp, &tot_bytes);
+		result = read_sensor_sysfs_file(pglob.gl_pathv[i], NULL, (void **)&tmp, &tot_bytes);
 		if (FPGA_OK != result || !tmp) {
 			if (tmp) {
 				free(tmp);
@@ -221,27 +224,19 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 		}
 
 		memset(&metric_name, 0, sizeof(metric_name));
-
 		len = strnlen(tmp, sizeof(metric_name) - 1);
 		memcpy(metric_name, tmp, len);
 		metric_name[len] = '\0';
+		if (metric_name[len - 1] == '\n')
+			metric_name[len - 1] = '\0';
 
 		if (tmp) {
 			free(tmp);
 		}
 
-		// Metrics typw
-		result = read_sensor_sysfs_file(pglob.gl_pathv[i], SENSOR_SYSFS_TYPE, (void **)&tmp, &tot_bytes);
-		if (FPGA_OK != result || !tmp) {
-			if (tmp) {
-				free(tmp);
-				continue;
-			}
-
-		}
-
 		// Metrics group name and qualifier name
-		if (tmp && (strstr(tmp, VOLTAGE) || strstr(tmp, CURRENT) || strstr(tmp, POWER))) {
+		if ((strstr(pglob.gl_pathv[i], DFL_VOLTAGE) || strstr(pglob.gl_pathv[i],
+			DFL_CURRENT) || strstr(pglob.gl_pathv[i], DFL_POWER))) {
 			metric_type = FPGA_METRIC_TYPE_POWER;
 
 			// group name
@@ -251,15 +246,13 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 
 			//qualifier name
 			if (snprintf(qualifier_name, sizeof(qualifier_name),
-				 "%s:%s", PWRMGMT, metric_name) < 0) {
+				"%s:%s", PWRMGMT, metric_name) < 0) {
 				OPAE_ERR("snprintf failed");
 				result = FPGA_EXCEPTION;
-				if (tmp)
-					free(tmp);
 				goto out;
 			}
 
-		} else if (tmp && strstr(tmp, TEMPERATURE)) {
+		} else if (strstr(pglob.gl_pathv[i], DFL_TEMPERATURE)) {
 			metric_type = FPGA_METRIC_TYPE_THERMAL;
 
 			// group name
@@ -269,68 +262,65 @@ fpga_result  enum_max10_metrics_info(struct _fpga_handle *_handle,
 
 			//qualifier name
 			if (snprintf(qualifier_name, sizeof(qualifier_name),
-				 "%s:%s", THERLGMT, metric_name) < 0) {
+				"%s:%s", THERLGMT, metric_name) < 0) {
 				OPAE_ERR("snprintf failed");
 				result = FPGA_EXCEPTION;
-				if (tmp)
-					free(tmp);
 				goto out;
 			}
 
-		} else {
+		}
+		else {
 			printf("FPGA_METRIC_TYPE_UNKNOWN \n");
 			metric_type = FPGA_METRIC_TYPE_UNKNOWN;
 		}
 
-		if (tmp) {
-			free(tmp);
-		}
-
 		// Metric Units
-		if (strstr(metric_name, POWER)) {
+		if (strstr(pglob.gl_pathv[i], DFL_POWER)) {
 
 			len = strnlen(POWER_UNITS, sizeof(metric_units) - 1);
 			memcpy(metric_units, POWER_UNITS, len);
 			metric_units[len] = '\0';
 
-		} else if (strstr(metric_name, VOLTAGE)) {
+		} else if (strstr(pglob.gl_pathv[i], DFL_VOLTAGE)) {
 
 			len = strnlen(VOLTAGE_UNITS, sizeof(metric_units) - 1);
 			memcpy(metric_units, VOLTAGE_UNITS, len);
 			metric_units[len] = '\0';
 
-		} else if (strstr(metric_name, CURRENT)) {
+		} else if (strstr(pglob.gl_pathv[i], DFL_CURRENT)) {
 
 			len = strnlen(CURRENT_UNITS, sizeof(metric_units) - 1);
 			memcpy(metric_units, CURRENT_UNITS, len);
 			metric_units[len] = '\0';
 
-		} else if (strstr(metric_name, TEMPERATURE)) {
+		} else if (strstr(pglob.gl_pathv[i], DFL_TEMPERATURE)) {
 
 			len = strnlen(TEMPERATURE_UNITS, sizeof(metric_units) - 1);
 			memcpy(metric_units, TEMPERATURE_UNITS, len);
 			metric_units[len] = '\0';
 
-		} else if (strstr(metric_name, CLOCK)) {
+		} else if (strstr(pglob.gl_pathv[i], CLOCK)) {
 
 			len = strnlen(CLOCK_UNITS, sizeof(metric_units) - 1);
 			memcpy(metric_units, CLOCK_UNITS, len);
 			metric_units[len] = '\0';
 
 		} else {
-
 			strncpy(metric_units, "N/A", 4);
-
 		}
 
 		// value sysfs path
-		snprintf(metrics_sysfs_path, sizeof(metrics_sysfs_path),
-			 "%s/%s", pglob.gl_pathv[i], SENSOR_SYSFS_VALUE);
+		memset(&metrics_sysfs_path, 0, sizeof(metrics_sysfs_path));
+		len = strlen(pglob.gl_pathv[i]) - 5;
+
+		memcpy(metrics_sysfs_path, pglob.gl_pathv[i], len);
+		metrics_sysfs_path[len] = '\0';
+		strcat(metrics_sysfs_path, "input");
 
 		result = add_metric_vector(vector, *metric_num, qualifier_name,
-				group_name, group_sysfs, metric_name,
-				metrics_sysfs_path, metric_units,
-				FPGA_METRIC_DATATYPE_DOUBLE, metric_type, hw_type, 0);
+			group_name, group_sysfs, metric_name,
+			metrics_sysfs_path, metric_units,
+			FPGA_METRIC_DATATYPE_DOUBLE, metric_type, hw_type, 0);
 		if (result != FPGA_OK) {
 			OPAE_ERR("Failed to add metrics");
 			goto out;
@@ -344,7 +334,6 @@ out:
 	globfree(&pglob);
 	return result;
 }
-
 
 
 fpga_result read_max10_value(struct _fpga_enum_metric *_fpga_enum_metric,
@@ -368,22 +357,22 @@ fpga_result read_max10_value(struct _fpga_enum_metric *_fpga_enum_metric,
 	*dvalue = ((double)value / MILLI);
 
 	// Check for limits
-	if (strstr(_fpga_enum_metric->metric_name, POWER)) {
+	if (strstr(_fpga_enum_metric->metric_name, DFL_POWER)) {
 
 		if (*dvalue  < POWER_LOW_LIMIT || *dvalue  > POWER_HIGH_LIMIT)
 			result = FPGA_EXCEPTION;
 
-	} else if (strstr(_fpga_enum_metric->metric_name, VOLTAGE)) {
+	} else if (strstr(_fpga_enum_metric->metric_name, DFL_VOLTAGE)) {
 
 		if (*dvalue < VOLTAMP_LOW_LIMIT || *dvalue > VOLTAMP_HIGH_LIMIT)
 			result = FPGA_EXCEPTION;
 
-	} else if (strstr(_fpga_enum_metric->metric_name, CURRENT)) {
+	} else if (strstr(_fpga_enum_metric->metric_name, DFL_CURRENT)) {
 
 		if (*dvalue < VOLTAMP_LOW_LIMIT || *dvalue > VOLTAMP_HIGH_LIMIT)
 			result = FPGA_EXCEPTION;
 
-	} else if (strstr(_fpga_enum_metric->metric_name, TEMPERATURE)) {
+	} else if (strstr(_fpga_enum_metric->metric_name, DFL_TEMPERATURE)) {
 
 		if (*dvalue < THERMAL_LOW_LIMIT || *dvalue > THERMAL_HIGH_LIMIT)
 			result = FPGA_EXCEPTION;
