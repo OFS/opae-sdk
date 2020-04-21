@@ -41,6 +41,7 @@
 #include "common_int.h"
 #include "error_int.h"
 #include "props.h"
+#include "opae_drv.h"
 
 /* mutex to protect global data structures */
 extern pthread_mutex_t global_lock;
@@ -322,26 +323,16 @@ STATIC struct dev_list *add_dev(const char *sysfspath, const char *devpath,
 STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 			    struct dev_list *parent)
 {
-	fpga_result result;
-	struct stat stats;
+	char devpath[DEV_PATH_MAX];
 	struct dev_list *pdev;
-	char dpath[DEV_PATH_MAX];
-	int resval                = 0;
-	uint64_t value            = 0;
 
-	// Make sure it's a directory.
-	if (stat(sysfspath, &stats) != 0) {
-		OPAE_MSG("stat failed: %s", strerror(errno));
-		return FPGA_NOT_FOUND;
+	if (snprintf(devpath, sizeof(devpath),
+		     FPGA_DEV_PATH "/%s", name) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
 	}
 
-	if (!S_ISDIR(stats.st_mode))
-		return FPGA_OK;
-
-	snprintf(dpath, sizeof(dpath),
-		 FPGA_DEV_PATH "/%s", name);
-
-	pdev = add_dev(sysfspath, dpath, parent);
+	pdev = add_dev(sysfspath, devpath, parent);
 	if (!pdev) {
 		OPAE_MSG("Failed to allocate device");
 		return FPGA_NO_MEMORY;
@@ -356,71 +347,149 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 	pdev->vendor_id = parent->vendor_id;
 	pdev->device_id = parent->device_id;
 
-	// Discover the FME GUID from sysfs (pr/interface_id)
-	result = sysfs_get_fme_pr_interface_id(sysfspath, pdev->guid);
-	if (FPGA_OK != result) {
-		OPAE_MSG("Failed to get PR interface id");
-		return result;
+	parent->fme = pdev->fme = pdev;
+
+	return FPGA_OK;
+}
+
+STATIC fpga_result sync_fme(struct dev_list *fme)
+{
+	struct stat stats;
+	uint64_t value = 0;
+
+	// The sysfspath must be a directory.
+	if (stat(fme->sysfspath, &stats) ||
+	    !S_ISDIR(stats.st_mode)) {
+		OPAE_DBG("stat(%s) failed: %s",
+			 fme->sysfspath, strerror(errno));
+		return FPGA_NOT_FOUND;
 	}
 
-	// Discover the socket id from the FME's sysfs entry.
-	if (sysfs_path_is_valid(sysfspath, FPGA_SYSFS_SOCKET_ID) == FPGA_OK) {
+	// The device path must be a char device.
+	if (stat(fme->devpath, &stats) ||
+	    !S_ISCHR(stats.st_mode)) {
+		OPAE_DBG("stat(%s) failed: %s",
+			 fme->devpath, strerror(errno));
+		return FPGA_NOT_FOUND;
+	}
 
-		resval = sysfs_parse_attribute64(sysfspath, FPGA_SYSFS_SOCKET_ID, &value);
-		if (resval != 0) {
-			return FPGA_NOT_FOUND;
+	// PR interface ID is the FME GUID.
+	if (sysfs_get_fme_pr_interface_id(fme->sysfspath, fme->guid)) {
+		OPAE_DBG("failed to read PR interface ID.");
+	}
+
+	value = 0;
+	if (sysfs_path_is_valid(fme->sysfspath,
+				FPGA_SYSFS_SOCKET_ID) == FPGA_OK) {
+		sysfs_parse_attribute64(fme->sysfspath, FPGA_SYSFS_SOCKET_ID, &value);
+	} else {
+		OPAE_DBG("failed to read socket ID.");
+	}
+	fme->socket_id = fme->parent->socket_id = (uint8_t)value;
+
+	value = 0;
+	if (sysfs_path_is_valid(fme->sysfspath,
+				FPGA_SYSFS_NUM_SLOTS) == FPGA_OK) {
+		sysfs_parse_attribute64(fme->sysfspath, FPGA_SYSFS_NUM_SLOTS, &value);
+
+	} else {
+		OPAE_DBG("failed to read number of slots.");
+	}
+	fme->fpga_num_slots = (uint32_t)value;
+
+	if (sysfs_path_is_valid(fme->sysfspath,
+				FPGA_SYSFS_BITSTREAM_ID) == FPGA_OK) {
+		sysfs_parse_attribute64(fme->sysfspath,
+					FPGA_SYSFS_BITSTREAM_ID,
+					&fme->fpga_bitstream_id);
+
+		fme->fpga_bbs_version.major =
+				FPGA_BBS_VER_MAJOR(fme->fpga_bitstream_id);
+		fme->fpga_bbs_version.minor =
+				FPGA_BBS_VER_MINOR(fme->fpga_bitstream_id);
+		fme->fpga_bbs_version.patch =
+				FPGA_BBS_VER_PATCH(fme->fpga_bitstream_id);
+	} else {
+		OPAE_DBG("failed to read bitstream ID.");
+	}
+
+	return FPGA_OK;
+}
+
+STATIC fpga_result sync_afu(struct dev_list *afu)
+{
+	struct stat stats;
+	int res;
+	char sysfspath[SYSFS_PATH_MAX];
+
+	// The sysfspath must be a directory.
+	if (stat(afu->sysfspath, &stats) ||
+	    !S_ISDIR(stats.st_mode)) {
+		OPAE_DBG("stat(%s) failed: %s",
+			 afu->sysfspath, strerror(errno));
+		return FPGA_NOT_FOUND;
+	}
+
+	// The device path must be a char device.
+	if (stat(afu->devpath, &stats) ||
+	    !S_ISCHR(stats.st_mode)) {
+		OPAE_DBG("stat(%s) failed: %s",
+			 afu->devpath, strerror(errno));
+		return FPGA_NOT_FOUND;
+	}
+
+	if (afu->fme)
+		afu->socket_id = afu->fme->socket_id;
+
+	afu->accelerator_num_mmios = 0;
+	afu->accelerator_num_irqs = 0;
+
+	res = open(afu->devpath, O_RDWR);
+	if (-1 == res) {
+		afu->accelerator_state = FPGA_ACCELERATOR_ASSIGNED;
+	} else {
+		opae_port_info info = { 0, 0, 0, 0, 0 };
+
+		if (opae_get_port_info(res, &info) == FPGA_OK) {
+			afu->accelerator_num_mmios = info.num_regions;
+			if (info.capability & OPAE_PORT_CAP_UAFU_IRQS)
+				afu->accelerator_num_irqs = info.num_uafu_irqs;
 		}
-		parent->socket_id = (uint8_t)value;
+
+		close(res);
+
+		afu->accelerator_state = FPGA_ACCELERATOR_UNASSIGNED;
 	}
 
-	// Read number of slots
-	resval = sysfs_parse_attribute64(sysfspath, FPGA_SYSFS_NUM_SLOTS, &value);
-	if (resval != 0) {
-		return FPGA_NOT_FOUND;
-	}
-	pdev->fpga_num_slots = (uint32_t) value;
-
-	// Read bitstream id
-	resval = sysfs_parse_attribute64(sysfspath, FPGA_SYSFS_BITSTREAM_ID, &pdev->fpga_bitstream_id);
-	if (resval != 0) {
-		return FPGA_NOT_FOUND;
+	// Discover the AFU GUID.
+	if (snprintf(sysfspath, sizeof(sysfspath),
+		     "%s/" FPGA_SYSFS_AFU_GUID, afu->sysfspath) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
 	}
 
-	pdev->fpga_bbs_version.major =
-			FPGA_BBS_VER_MAJOR(pdev->fpga_bitstream_id);
-	pdev->fpga_bbs_version.minor =
-			FPGA_BBS_VER_MINOR(pdev->fpga_bitstream_id);
-	pdev->fpga_bbs_version.patch =
-			FPGA_BBS_VER_PATCH(pdev->fpga_bitstream_id);
+	// If we can't read the afu_id, don't return a token.
+	if (sysfs_read_guid(sysfspath, afu->guid) != FPGA_OK) {
+		OPAE_MSG("Could not read AFU ID from '%s', ignoring", sysfspath);
+		return FPGA_EXCEPTION;
+	}
 
-	parent->fme = pdev;
 	return FPGA_OK;
 }
 
 STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 			    struct dev_list *parent)
 {
-	fpga_result result;
-	int resval = 0;
-	struct stat stats;
 	struct dev_list *pdev;
-	char spath[PATH_MAX] = { 0, };
-	char dpath[DEV_PATH_MAX] = { 0, };
-	uint64_t value = 0;
+	char devpath[DEV_PATH_MAX];
 
-	// Make sure it's a directory.
-	if (stat(sysfspath, &stats) != 0) {
-		OPAE_ERR("stat failed: %s", strerror(errno));
-		return FPGA_NOT_FOUND;
+	if (snprintf(devpath, sizeof(devpath),
+		     FPGA_DEV_PATH "/%s", name) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
 	}
 
-	if (!S_ISDIR(stats.st_mode))
-		return FPGA_OK;
-	int res;
-
-	snprintf(dpath, sizeof(dpath), FPGA_DEV_PATH "/%s", name);
-
-	pdev = add_dev(sysfspath, dpath, parent);
+	pdev = add_dev(sysfspath, devpath, parent);
 	if (!pdev) {
 		OPAE_ERR("Failed to allocate device");
 		return FPGA_NO_MEMORY;
@@ -434,40 +503,8 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	pdev->function = parent->function;
 	pdev->vendor_id = parent->vendor_id;
 	pdev->device_id = parent->device_id;
-	pdev->socket_id = parent->socket_id = 0;
-	// get the socket id from the fme
-	if (sysfs_get_fme_path(sysfspath, spath) == FPGA_OK) {
-		resval = sysfs_parse_attribute64(spath, FPGA_SYSFS_SOCKET_ID, &value);
-		if (resval) {
-			OPAE_MSG("error reading socket_id");
-		} else {
-			pdev->socket_id = parent->socket_id = value;
-		}
-	}
 
-	res = open(pdev->devpath, O_RDWR);
-	if (-1 == res) {
-		pdev->accelerator_state = FPGA_ACCELERATOR_ASSIGNED;
-	} else {
-		close(res);
-		pdev->accelerator_state = FPGA_ACCELERATOR_UNASSIGNED;
-	}
-
-	// FIXME: not to rely on hard-coded constants.
-	pdev->accelerator_num_mmios = 2;
-	pdev->accelerator_num_irqs = 0;
-
-	// Discover the AFU GUID from sysfs.
-	snprintf(spath, sizeof(spath),
-		 "%s/" FPGA_SYSFS_AFU_GUID, sysfspath);
-
-	result = sysfs_read_guid(spath, pdev->guid);
-	/* if we can't read the afu_id, remove device from list */
-	if (FPGA_OK != result) {
-		OPAE_MSG("Could not read afu_id from '%s', ignoring", spath);
-		parent->next = pdev->next;
-		free(pdev);
-	}
+	pdev->fme = parent->fme;
 
 	return FPGA_OK;
 }
@@ -481,13 +518,18 @@ STATIC fpga_result enum_regions(const sysfs_fpga_device *device, void *context)
 {
 	enum_region_ctx *ctx = (enum_region_ctx *)context;
 	fpga_result result = FPGA_OK;
-	struct dev_list *pdev = add_dev(device->sysfs_path, "", ctx->list);
+	struct dev_list *pdev;
+
+	pdev = ctx->list;
+	while (pdev->next)
+		pdev = pdev->next;
+
+	pdev = add_dev(device->sysfs_path, "", pdev);
 	if (!pdev) {
 		OPAE_MSG("Failed to allocate device");
 		return FPGA_NO_MEMORY;
 	}
-	// Assign bus, function, device
-	// segment,device_id ,vendor_id
+
 	pdev->function = device->function;
 	pdev->segment = device->segment;
 	pdev->bus = device->bus;
@@ -505,6 +547,9 @@ STATIC fpga_result enum_regions(const sysfs_fpga_device *device, void *context)
 		}
 	}
 
+	while (pdev->next)
+		pdev = pdev->next;
+
 	// Enum port
 	if (device->port && ctx->include_port) {
 		result = enum_afu(device->port->sysfs_path,
@@ -514,6 +559,7 @@ STATIC fpga_result enum_regions(const sysfs_fpga_device *device, void *context)
 			return result;
 		}
 	}
+
 	return FPGA_OK;
 }
 
@@ -524,7 +570,6 @@ STATIC fpga_result enum_fpga_region_resources(struct dev_list *list,
 
 	return sysfs_foreach_device(enum_regions, &ctx);
 }
-
 
 /// Determine if filters require reading AFUs
 ///
@@ -559,7 +604,6 @@ fpga_result __XFPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 {
 	fpga_result result = FPGA_NOT_FOUND;
 
-
 	struct dev_list head;
 	struct dev_list *lptr;
 
@@ -589,7 +633,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 
 	memset(&head, 0, sizeof(head));
 
-	//enum FPGA regions & resources
+	// enum FPGA regions & resources
 	result = enum_fpga_region_resources(&head,
 				include_afu(filters, num_filters));
 
@@ -602,12 +646,17 @@ fpga_result __XFPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 	for (lptr = head.next; NULL != lptr; lptr = lptr->next) {
 		struct _fpga_token *_tok;
 
-		if (!strnlen(lptr->devpath, sizeof(lptr->devpath)))
+		// Skip the "container" device list nodes.
+		if (!lptr->devpath[0])
 			continue;
 
-		// propagate the socket_id field.
-		lptr->socket_id = lptr->parent->socket_id;
-		lptr->fme = lptr->parent->fme;
+		if (lptr->objtype == FPGA_DEVICE &&
+		    sync_fme(lptr) != FPGA_OK) {
+			continue;
+		} else if (lptr->objtype == FPGA_ACCELERATOR &&
+			   sync_afu(lptr) != FPGA_OK) {
+			continue;
+		}
 
 		/* FIXME: do we need to keep a global list of tokens? */
 		/* For now we do becaue it is used in xfpga_fpgaUpdateProperties
@@ -620,7 +669,6 @@ fpga_result __XFPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 			goto out_free_trash;
 		}
 
-		// FIXME: should check contents of filter for token magic
 		if (matches_filters(lptr, filters, num_filters)) {
 			if (*num_matches < max_tokens) {
 				if (xfpga_fpgaCloneToken(_tok, &tokens[*num_matches])
@@ -634,7 +682,6 @@ fpga_result __XFPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 	}
 
 out_free_trash:
-	/* FIXME: should this live in a separate function? */
 	for (lptr = head.next; NULL != lptr;) {
 		struct dev_list *trash = lptr;
 		lptr = lptr->next;
