@@ -44,6 +44,7 @@ extern "C" {
 #include "gtest/gtest.h"
 #include "mock/test_system.h"
 #include "libboard/board_dc/board_dc.h"
+#include "libboard/board_common/board_common.h"
 
 #define SYSFS_MAX_SIZE         256
 using namespace opae::testing;
@@ -224,11 +225,13 @@ TEST_P(board_dc_c_p, board_dc_3) {
 
 	char name[SYSFS_MAX_SIZE] = { 0 };
 
-	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*/spi-altera*/spi_master/spi*/spi*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count", name), FPGA_OK);
-	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*/spi-altera*/spi_master/spi*/spi*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count1", name), FPGA_NOT_FOUND);
+	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*/spi-altera*/spi_master/spi*/spi*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count",
+		name, SYSFS_MAX_SIZE), FPGA_OK);
+	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*/spi-altera*/spi_master/spi*/spi*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count1",
+		name, SYSFS_MAX_SIZE), FPGA_NOT_FOUND);
 
-	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*", NULL), FPGA_INVALID_PARAM);
-	EXPECT_EQ(read_sysfs(tokens_[0], NULL, name), FPGA_INVALID_PARAM);
+	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*", NULL, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
+	EXPECT_EQ(read_sysfs(tokens_[0], NULL, name, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
 }
 
 /**
