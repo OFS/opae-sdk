@@ -187,7 +187,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 		if (-1 == res) {
 			_iprop.u.accelerator.state = FPGA_ACCELERATOR_ASSIGNED;
 		} else {
-			opae_port_info info = { 0, };
+			opae_port_info info = { 0, 0, 0, 0, 0 };
 
 			if (opae_get_port_info(res, &info) == FPGA_OK) {
 				_iprop.u.accelerator.num_mmio = info.num_regions;
