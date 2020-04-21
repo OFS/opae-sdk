@@ -83,9 +83,11 @@ fpga_result read_sysfs(fpga_token token, char *sysfs_path,
 		goto out_destroy;
 	}
 
-	len = strnlen((char *)name, sizeof(name) - 1);
-	memcpy(sysfs_name, (char *)name, len);
+	len = strnlen(name, len - 1);
+	memcpy(sysfs_name, name, len);
 	sysfs_name[len] = '\0';
+	if (sysfs_name[len-1] == '\n')
+		sysfs_name[len-1] = '\0';
 
 out_destroy:
 	res = fpgaDestroyObject(&fpga_object);
