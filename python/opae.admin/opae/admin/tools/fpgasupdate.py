@@ -618,6 +618,10 @@ def main():
             cancel.value = 1
             stat, mesg = 1, 'Interrupted'
 
+    if stat and mesg == 'flash_wearout':
+        mesg = ('Secure update is delayed due to excessive flash counts.\n'
+                'Please wait 30 seconds and try again.')
+
     if stat:
         LOG.error(mesg)
     else:
