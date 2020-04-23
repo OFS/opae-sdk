@@ -528,7 +528,7 @@ fpga_result print_mac_info(fpga_token token)
 	pkvl_mac mac;
 	unsigned int mac_byte[6] = { 0 };
 
-	res = read_sysfs(token, SYSFS_MACADDR_PATH, (char*)buf, 18);
+	res = read_sysfs(token, SYSFS_MACADDR_PATH, (char *)buf, 18);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to read mac information");
 		return res;
@@ -538,7 +538,7 @@ fpga_result print_mac_info(fpga_token token)
 	for (i = 0; i < 6; i++)
 		buf[i] = (unsigned char)mac_byte[i];
 
-	res = read_sysfs(token, SYSFS_MACCNT_PATH, (char*)count, 18);
+	res = read_sysfs(token, SYSFS_MACCNT_PATH, (char *)count, 18);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to read mac information");
 		return res;
