@@ -214,22 +214,6 @@ TEST_P(board_vc_c_p, board_vc_2) {
 }
 
 /**
-* @test       board_vc_3
-* @brief      Tests: read_pcb_info
-* @details    Validates pcb information  <br>
-*/
-TEST_P(board_vc_c_p, board_vc_3) {
-
-	char pcb_info[SYSFS_MAX_SIZE];
-
-	EXPECT_EQ(read_pcb_info(tokens_[0], pcb_info, SYSFS_MAX_SIZE), FPGA_OK);
-
-	EXPECT_EQ(read_pcb_info(tokens_[0], NULL, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
-
-	EXPECT_EQ(read_pcb_info(NULL, pcb_info, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
-}
-
-/**
 * @test       board_vc_4
 * @brief      Tests: read_pkvl_info
 * @details    Validates pkvl information  <br>
@@ -246,22 +230,6 @@ TEST_P(board_vc_c_p, board_vc_4) {
 	EXPECT_EQ(read_pkvl_info(tokens_[0], NULL, &fpga_mode), FPGA_INVALID_PARAM);
 
 	EXPECT_EQ(read_pkvl_info(NULL, &pkvl_info, &fpga_mode), FPGA_INVALID_PARAM);
-}
-
-/**
-* @test       board_vc_5
-* @brief      Tests: read_mac_info
-* @details    Validates fpga pkvl mac information  <br>
-*/
-TEST_P(board_vc_c_p, board_vc_5) {
-
-	unsigned char buf[SYSFS_MAX_SIZE] = { 0, };
-
-	EXPECT_EQ(read_mac_info(tokens_[0], buf, sizeof(buf)), FPGA_OK);
-
-	EXPECT_EQ(read_mac_info(NULL, buf, sizeof(buf)), FPGA_INVALID_PARAM);
-
-	EXPECT_EQ(read_mac_info(tokens_[0], NULL, sizeof(buf)), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -288,8 +256,6 @@ TEST_P(board_vc_c_p, board_vc_6) {
 TEST_P(board_vc_c_p, board_vc_7) {
 
 	EXPECT_EQ(print_board_info(tokens_[0]), FPGA_OK);
-
-	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
 
 }
 
@@ -335,15 +301,10 @@ TEST_P(board_vc_invalid_c_p, board_vc_9) {
 	char max10fw_ver[SYSFS_MAX_SIZE];
 	EXPECT_EQ(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_MAX_SIZE), FPGA_NOT_FOUND);
 
-	char pcb_info[SYSFS_MAX_SIZE];
-	EXPECT_EQ(read_pcb_info(tokens_[0], pcb_info, SYSFS_MAX_SIZE), FPGA_NOT_FOUND);
 
 	fpga_pkvl_info pkvl_info;
 	int fpga_mode;
 	EXPECT_EQ(read_pkvl_info(tokens_[0], &pkvl_info, &fpga_mode), FPGA_NOT_FOUND);
-
-	unsigned char buf[8] = { 0 };
-	EXPECT_EQ(read_mac_info(tokens_[0], buf, 8), FPGA_NOT_FOUND);
 
 	uint32_t group_num = 0;
 	EXPECT_EQ(read_phy_group_info(tokens_[0], NULL, &group_num), FPGA_NOT_FOUND);

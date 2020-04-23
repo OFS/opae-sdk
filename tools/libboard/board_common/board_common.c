@@ -59,7 +59,7 @@ fpga_result read_sysfs(fpga_token token, char *sysfs_path,
 
 	res = fpgaTokenGetObject(token, sysfs_path, &fpga_object, FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get token Object");
+		OPAE_MSG("Failed to get token Object");
 		return res;
 	}
 
