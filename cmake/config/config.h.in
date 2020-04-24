@@ -248,3 +248,5 @@
 #ifndef __OPAE_API__
 #define __OPAE_API__
 #endif
+
+#define SYSFS_PATH_MAX @SYSFS_PATH_MAX@
