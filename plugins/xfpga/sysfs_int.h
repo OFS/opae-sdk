@@ -33,8 +33,6 @@
 
 #include "types_int.h"
 
-#define SYSFS_PATH_MAX 256
-
 #define FPGA_SYSFS_CLASS_PATH_INTEL   "/sys/class/fpga"
 #define FPGA_SYSFS_CLASS_PATH_DFL     "/sys/class/fpga_region"
 

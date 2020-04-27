@@ -250,3 +250,4 @@
 #endif
 
 #define SYSFS_PATH_MAX @SYSFS_PATH_MAX@
+#define DEV_PATH_MAX @DEV_PATH_MAX@
