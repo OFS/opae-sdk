@@ -49,13 +49,13 @@ class Nlb0Mode(bc.BistMode):
 
     def run(self, path, bdf, bd_id=0, guid=''):
         tp = self.executables.items()
-        tp.sort()
+        sorted(tp)
         ret = 0
         for test, param in tp:
             print("Running fpgadiag lpbk1 {} test...".format(test))
-            cmd = "fpgadiag -B {} -D {} -F {} {}".format(hex(bdf['bus']),
-                                                         hex(bdf['device']),
-                                                         hex(bdf['function']),
+            cmd = "fpgadiag -B {} -D {} -F {} {}".format(bdf['bus'],
+                                                         bdf['device'],
+                                                         bdf['function'],
                                                          param)
             if guid:
                 cmd += ' -G {}'.format(guid)
