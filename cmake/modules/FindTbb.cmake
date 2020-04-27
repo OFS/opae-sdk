@@ -1,5 +1,5 @@
 #!/usr/bin/cmake -P
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2019-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -23,40 +23,32 @@
 ## INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
-## POSSIBILITY OF SUCH DAMAGE.
+## POSSIBILITY OF SUCH DAMAGE
 
-include(OPAEGit)
+find_package(PkgConfig)
+pkg_check_modules(PC_TBB QUIET tbb)
 
-include(Findjson-c)
-
-if(NOT libjson-c_FOUND)
-    message("-- json-c not found. Please install json-c package for you respective distribution:
-    DEB: apt install libjson-c-dev
-    RPM: yum install json-c-devel
-   If you have already installed this package in a non-standard location
-   please specify the location by defining the variable LIBJSON-C_ROOT in
-   your cmake command as follows: cmake <path to clone dir> -DLIBJSON-C_ROOT=<path to json-c install location>")
-   set(REQUIRED_DEPENDENCIES "libjson-c ${REQUIRED_DEPENDENCIES}")
+if(NOT TBB_LIBRARY_DIRS)
+  set(TBB_LIBRARY_DIRS "")
 endif()
+find_library(TBB_LIBRARIES
+    NAMES tbb
+    HINTS ${PC_TBB_LIBDIR}
+          ${PC_TBB_LIBRARY_DIRS}
+          ${TBB_LIBRARY_DIRS})
 
-include(FindUUID)
-
-if(NOT libuuid_FOUND)
-    message("-- uuid not found. Please install uuid package for your respective distribution:
-    DEB: apt install uuid-dev
-    RPM: yum install libuuid-devel
-   If you have already installed this package in a non-standard location
-   please specify the location by defining the variable LIBUUID_ROOT in
-   your cmake command as follows: cmake <path to clone dir> -DLIBUUID_ROOT=<path to uuid install location>")
-   set(REQUIRED_DEPENDENCIES "libuuid ${REQUIRED_DEPENDENCIES}")
+if(NOT TBB_INCLUDE)
+  set(TBB_INCLUDE "")
 endif()
+find_path(TBB_INCLUDE_DIRS
+    NAMES tbb/tbb.h
+    HINTS ${PC_TBB_INCLUDEDIR}
+          ${PC_TBB_INCLUDE_DIRS}
+          ${TBB_INCLUDE})
 
-include(FindTbb)
+if(TBB_LIBRARIES AND TBB_INCLUDE_DIRS)
+  set(TBB_FOUND true)
+endif(TBB_LIBRARIES AND TBB_INCLUDE_DIRS)
 
-include(OPAECompiler)
-if(OPAE_BUILD_TESTS)
-    find_package(GTest 1.8.0)
-endif(OPAE_BUILD_TESTS)
-include(OPAETest)
-include(OPAEPackaging)
-include(OPAEExternal)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(TBB REQUIRED_VARS TBB_INCLUDE_DIRS TBB_LIBRARIES)
