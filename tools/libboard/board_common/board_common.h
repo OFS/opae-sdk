@@ -33,8 +33,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define SYSFS_PATH_MAX 256
-
 /**
 * Get sysfs value.
 *

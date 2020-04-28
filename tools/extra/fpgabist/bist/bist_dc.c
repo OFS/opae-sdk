@@ -265,7 +265,7 @@ int main(int argc, char *argv[])
 	fpga_token	   accelerator_token;
 	fpga_handle	   accelerator_handle;
 	int open_flags = 0;
-	uint32_t i = 0;
+
 	
 	volatile uint64_t *dsm_ptr    = NULL;
 	volatile uint64_t *status_ptr = NULL;
@@ -319,7 +319,7 @@ int main(int argc, char *argv[])
 	memset((void *)output_ptr, 0xBE, LPBK1_BUFFER_SIZE);
 
 	cache_line *cl_ptr = (cache_line *)input_ptr;
-	for (i = 0; i < LPBK1_BUFFER_SIZE / CL(1); ++i) {
+	for (uint32_t i = 0; i < LPBK1_BUFFER_SIZE / CL(1); ++i) {
 		cl_ptr[i].uint[15] = i+1; /* set the last uint in every cacheline */
 	}
 
@@ -503,7 +503,7 @@ int main(int argc, char *argv[])
 	ON_ERR_GOTO(res, out_free_output, "writing CSR_CFG");
 
 	/* Check output buffer contents */
-	for (i = 0; i < LPBK1_BUFFER_SIZE; i++) {
+	for (uint32_t i = 0; i < LPBK1_BUFFER_SIZE; i++) {
 		if (((uint8_t *)output_ptr)[i] != ((uint8_t *)input_ptr)[i]) {
 			fprintf(stderr, "Output does NOT match input "
 				"at offset %i!\n", i);
