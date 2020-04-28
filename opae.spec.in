@@ -122,12 +122,10 @@ ldconfig
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-cxx*
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libxfpga.so*
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libbmc.so*
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libmodbmc.so
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libxfpga.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libmodbmc.so
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libbitstream.so*
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libboard_rc.so*
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libboard_vc.so*
+
 
 %files devel
 %license @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DOCDIR@/LICENSE
@@ -139,9 +137,6 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/hello_fpga
 %dir @CMAKE_INSTALL_PREFIX@/include/opae
 @CMAKE_INSTALL_PREFIX@/include/opae/*
-%dir @CMAKE_INSTALL_PREFIX@/include/safe_string
-@CMAKE_INSTALL_PREFIX@/include/safe_string/safe_string.h
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libsafestr.a
 %dir @CMAKE_INSTALL_PREFIX@/share/opae
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/*
 @CMAKE_INSTALL_PREFIX@/share/opae/*
@@ -153,15 +148,17 @@ ldconfig
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/fpgaconf
 @CMAKE_INSTALL_PREFIX@/bin/fpgainfo
-@CMAKE_INSTALL_PREFIX@/bin/fpgaport
 @CMAKE_INSTALL_PREFIX@/bin/fpgametrics
 @CMAKE_INSTALL_PREFIX@/bin/fpgad
 @CPACK_RPM_RELOCATION_PATHS@/opae/fpgad.cfg
 @CPACK_RPM_RELOCATION_PATHS@/sysconfig/fpgad.conf
 @CPACK_RPM_RELOCATION_PATHS@/systemd/system/fpgad.service
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-api.so*
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-xfpga.so*
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-vc.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libfpgad-xfpga.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libfpgad-vc.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libboard_rc.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libboard_vc.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libboard_dc.so*
 
 
 %files tools-extra
@@ -179,16 +176,19 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/fpga_dma_test
 @CMAKE_INSTALL_PREFIX@/bin/fpga_dma_vc_test
 @CMAKE_INSTALL_PREFIX@/bin/fpgabist
+@CMAKE_INSTALL_PREFIX@/bin/fecmode
+@CMAKE_INSTALL_PREFIX@/bin/fecmode
+@CMAKE_INSTALL_PREFIX@/bin/fpgamac
+@CMAKE_INSTALL_PREFIX@/bin/fpgastats
+@CMAKE_INSTALL_PREFIX@/bin/fvlbypass
+@CMAKE_INSTALL_PREFIX@/bin/mactest
 @CMAKE_INSTALL_PREFIX@/bin/fpgadiag
-@CMAKE_INSTALL_PREFIX@/bin/fpgaflash
 @CMAKE_INSTALL_PREFIX@/bin/hssi_config
 @CMAKE_INSTALL_PREFIX@/bin/hssi_loopback
 @CMAKE_INSTALL_PREFIX@/bin/mmlink
 @CMAKE_INSTALL_PREFIX@/bin/nlb0
 @CMAKE_INSTALL_PREFIX@/bin/nlb3
 @CMAKE_INSTALL_PREFIX@/bin/nlb7
-@CMAKE_INSTALL_PREFIX@/bin/fpgaflash
-@CMAKE_INSTALL_PREFIX@/bin/super-rsu
 @CMAKE_INSTALL_PREFIX@/bin/packager
 @CMAKE_INSTALL_PREFIX@/bin/mactest
 @CMAKE_INSTALL_PREFIX@/bin/fpgalpbk
