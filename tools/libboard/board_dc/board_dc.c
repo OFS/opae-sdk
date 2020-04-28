@@ -47,6 +47,8 @@
 #define SDR_MSG_LEN       40
 
 // sysfs paths
+#define SYSFS_BMCFW_VER                     "spi-*/spi_master/spi*/spi*.*/bmcfw_flash_ctrl/bmcfw_version"	
+#define SYSFS_MAX10_VER                     "spi-*/spi_master/spi*/spi*.*/max10_version"
 #define SYSFS_MACADDR_PATH                  "spi-*/spi_master/spi*/spi*.*/mac_address"
 #define SYSFS_MACCNT_PATH                   "spi-*/spi_master/spi*/spi*.*/mac_count"
 
@@ -75,7 +77,7 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 		return FPGA_INVALID_PARAM;
 	}
 
-	res = read_sysfs(token, DFL_SYSFS_BMCFW_VER, buf, FPGA_VAR_BUF_LEN);
+	res = read_sysfs(token, SYSFS_BMCFW_VER, buf, FPGA_VAR_BUF_LEN);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get read object");
 		return res;
@@ -109,7 +111,7 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 	*/
 
 	errno = 0;
-	var = strtoul(buf, &endptr, 0);
+	var = strtoul(buf, &endptr, 16);
 	if (endptr != buf + strlen(buf)) {
 		OPAE_ERR("Failed to convert buffer to integer: %s", strerror(errno));
 		return FPGA_EXCEPTION;
@@ -135,7 +137,7 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 		return FPGA_INVALID_PARAM;
 	}
 
-	res = read_sysfs(token, DFL_SYSFS_MAX10_VER, buf, FPGA_VAR_BUF_LEN);
+	res = read_sysfs(token, SYSFS_MAX10_VER, buf, FPGA_VAR_BUF_LEN);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get read object");
 		return res;
