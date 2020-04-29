@@ -83,7 +83,7 @@ class DmaMode(bc.BistMode):
                     if self.dev_id != int(param, 16):
                         continue
                     cmd = "{} {} -B {} -D {} -S {}".format(func, param,
-                                                           hex(bdf['bus']),
+                                                           bdf['bus'],
                                                            i, size)
                     if guid:
                         cmd += ' -G {}'.format(guid)

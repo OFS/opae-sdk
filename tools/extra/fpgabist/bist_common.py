@@ -101,7 +101,7 @@ def get_all_fpga_bdfs(args):
 
             # Add this BDF/device to the list
             bdf_list.append(dict([(k, int(v, 16))
-                                  for (k, v) in data.iteritems()]))
+                                  for (k, v) in data.items()]))
 
     return bdf_list
 
