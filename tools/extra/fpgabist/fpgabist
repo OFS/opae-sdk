@@ -46,7 +46,7 @@ def get_afu_id(bus):
     cmd = 'fpgainfo port -B {}'.format(hex(bus))
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     output, _ = p.communicate()
-    m = re.search('Accelerator Id\\s+:\\s(\\S+)', output)
+    m = re.search('Accelerator GUID\\s+:\\s(\\S+)', output.decode())
     afu_id = (m.group(1) if m else m)
     return afu_id
 
@@ -103,7 +103,7 @@ def main(args):
             mode = getattr(sys.modules.get(module),
                            '{}Mode'.format(name.capitalize()))()
             print("Running mode: {}".format(mode.name))
-            ret += mode.run(None, hex(bdf['bus'])[2:],
+            ret += mode.run(None, bdf,
                             bist_common.VCP_ID, afu_id)
     else:
         gbs_paths = args.gbs_paths
