@@ -97,7 +97,7 @@ fpga_result start_checker(fpga_handle fpga_h, uint64_t transfer_len) {
 	pattern_checker_control_t checker_ctrl;
 	pattern_checker_status_t status ={0};
 
-	memset_s(&checker_ctrl, sizeof(pattern_checker_control_t), 0);
+	memset(&checker_ctrl, 0, sizeof(pattern_checker_control_t));
 
 	checker_ctrl.payload_len = ceil(transfer_len/(double)PATTERN_WIDTH);
 	checker_ctrl.pattern_len = PATTERN_LENGTH;
