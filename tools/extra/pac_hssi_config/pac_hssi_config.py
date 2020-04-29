@@ -779,7 +779,7 @@ class SklHssi(object):
         print("  fault  : %08x" % (self.skl_e40_read(self.LINK_FAULT_CONFIG)))
         print("  ipgcol : %08x" % (self.skl_e40_read(self.IPG_COL_REM)))
         print("  frmsize: %08x"
-               % (self.skl_e40_read(self.MAX_TX_SIZE_CONFIG)))
+              % (self.skl_e40_read(self.MAX_TX_SIZE_CONFIG)))
         print("  crc cfg: %08x" % (self.skl_e40_read(self.CRC_CONFIG)))
         print(" addr cfg: %08x" % (self.skl_e40_read(self.ADDR_CONFIG)))
         print(" ple  cfg: %08x" % (self.skl_e40_read(self.PLE_CONFIG)))
