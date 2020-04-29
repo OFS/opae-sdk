@@ -566,7 +566,7 @@ class SklHssi(object):
         clock_name = ["spare   ", "ref     ", "TX out  ",
                       "RX rec  ", "TX com  ", "RX com  ",
                       "TX com2 ", "RX com2 "]
-        print("Firmware version %08x" \
+        print("Firmware version %08x"
               % self.nios_soft_fn(self.NIOS_FW_VERSION))
         val = self.skl_prmgmt_read(self.PR_MGMT_SCRATCH)
         print("GBS %c%c%c version %02x" % (
@@ -765,7 +765,8 @@ class SklHssi(object):
         print("Clk RX    : %6d KHz" % (self.skl_e40_read(self.PHY_RXCLK_KHZ)))
         print("Clk TX    : %6d KHz" % (self.skl_e40_read(self.PHY_TXCLK_KHZ)))
         print("Clk recov : %6d KHz" % (self.skl_e40_read(self.PHY_RECCLK_KHZ)))
-        print("Clk TX IO : %6d KHz" % (self.skl_e40_read(self.PHY_TXIOCLK_KHZ)))
+        print("Clk TX IO : %6d KHz"
+             % (self.skl_e40_read(self.PHY_TXIOCLK_KHZ)))
         print("")
         print("TXCSR section")
         print("  rev    : %08x" % (self.skl_e40_read(self.TXMAC_REVID)))
@@ -777,7 +778,7 @@ class SklHssi(object):
 
         print("  fault  : %08x" % (self.skl_e40_read(self.LINK_FAULT_CONFIG)))
         print("  ipgcol : %08x" % (self.skl_e40_read(self.IPG_COL_REM)))
-        print("  frmsize: %08x" \
+        print("  frmsize: %08x"
             % (self.skl_e40_read(self.MAX_TX_SIZE_CONFIG)))
         print("  crc cfg: %08x" % (self.skl_e40_read(self.CRC_CONFIG)))
         print(" addr cfg: %08x" % (self.skl_e40_read(self.ADDR_CONFIG)))
