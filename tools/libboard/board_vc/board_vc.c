@@ -61,7 +61,8 @@
 #define SYSFS_MACADDR_PATH                  "spi-*/spi_master/spi*/spi*.*/mac_address"
 #define SYSFS_MACCNT_PATH                   "spi-*/spi_master/spi*/spi*.*/mac_count"
 
-#define SYSFS_SEC_GLOB "spi-altera.*.auto/spi_master/spi*/spi*.*/ifpga_sec_mgr/ifpga_sec*/"
+#define SYSFS_SEC_GLOB "spi-altera.*.auto/spi_master/spi*/spi*/ifpga_sec_mgr/ifpga_sec*/"
+
 #define SYSFS_SEC_BIP_VER         SYSFS_SEC_GLOB "security/bip_version"
 #define SYSFS_SEC_BMC_CANCEL      SYSFS_SEC_GLOB"security/bmc_canceled_csks"
 #define SYSFS_SEC_SMBUS_COUNT     SYSFS_SEC_GLOB "security/smbus_flash_count"
@@ -537,6 +538,7 @@ fpga_result print_mac_info(fpga_token token)
 		OPAE_ERR("Failed to read mac information");
 		return res;
 	}
+
 	sscanf(buf, "%x:%x:%x:%x:%x:%x", &mac_byte[0], &mac_byte[1],
 		&mac_byte[2], &mac_byte[3], &mac_byte[4], &mac_byte[5]);
 	for (i = 0; i < 6; i++)

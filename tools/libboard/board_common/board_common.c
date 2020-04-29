@@ -73,8 +73,8 @@ fpga_result read_sysfs(fpga_token token, char *sysfs_path,
 		resval = res;
 		goto out_destroy;
 	}
-
-	if (size > SYSFS_PATH_MAX || size > len) {
+	printf("size=%d \n", size);
+	if (size > len) {
 		OPAE_ERR("object size bigger then buffer size");
 		resval = FPGA_EXCEPTION;
 		goto out_destroy;

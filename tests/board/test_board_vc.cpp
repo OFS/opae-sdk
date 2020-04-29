@@ -170,6 +170,7 @@ fpga_result board_vc_c_p::delete_sysfs_file(const char *file) {
 		globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
+
 	status = remove(pglob.gl_pathv[0]);
 
 	globfree(&pglob);
@@ -214,6 +215,21 @@ TEST_P(board_vc_c_p, board_vc_2) {
 }
 
 /**
+* @test       board_vc_3
+* @brief      Tests: parse_fw_ver
+* @details    Validates parse fw version  <br>
+*/
+TEST_P(board_vc_c_p, board_vc_3) {
+
+	char buf[SYSFS_MAX_SIZE];
+	char fw_ver[SYSFS_MAX_SIZE];
+
+	EXPECT_EQ(parse_fw_ver(buf, NULL, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
+	EXPECT_EQ(parse_fw_ver(NULL, fw_ver, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
+
+}
+
+/**
 * @test       board_vc_4
 * @brief      Tests: read_pkvl_info
 * @details    Validates pkvl information  <br>
@@ -231,6 +247,7 @@ TEST_P(board_vc_c_p, board_vc_4) {
 
 	EXPECT_EQ(read_pkvl_info(NULL, &pkvl_info, &fpga_mode), FPGA_INVALID_PARAM);
 }
+
 
 /**
 * @test       board_vc_6
@@ -256,6 +273,9 @@ TEST_P(board_vc_c_p, board_vc_6) {
 TEST_P(board_vc_c_p, board_vc_7) {
 
 	EXPECT_EQ(print_board_info(tokens_[0]), FPGA_OK);
+	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
+	EXPECT_EQ(print_sec_info(tokens_[0]), FPGA_OK);
+	EXPECT_EQ(print_pkvl_version(tokens_[0]), FPGA_OK);
 
 }
 
@@ -277,6 +297,7 @@ TEST_P(board_vc_c_p, board_vc_8) {
 
 	char max10fw_ver[SYSFS_MAX_SIZE];
 	EXPECT_NE(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_MAX_SIZE), FPGA_OK);
+
 }
 INSTANTIATE_TEST_CASE_P(baord_vc_c, board_vc_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-vc" })));
@@ -314,6 +335,8 @@ TEST_P(board_vc_invalid_c_p, board_vc_9) {
 	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_NOT_FOUND);
 
 	EXPECT_EQ(print_phy_info(tokens_[0]), FPGA_NOT_FOUND);
+
+	EXPECT_EQ(print_sec_info(tokens_[0]), FPGA_NOT_FOUND);
 }
 INSTANTIATE_TEST_CASE_P(board_vc_invalid_c, board_vc_invalid_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
