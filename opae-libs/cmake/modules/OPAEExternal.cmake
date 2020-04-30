@@ -45,6 +45,7 @@ macro(opae_external_project_add)
         ${CMAKE_CURRENT_BINARY_DIR}/${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME}/download)
     file(WRITE ${download_dir}/CMakeLists.txt
         "cmake_minimum_required(VERSION 2.8.12)\n"
+        "project(${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME}-download)\n"
         "include(ExternalProject)\n"
         "ExternalProject_Add(${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME}\n"
         "    GIT_REPOSITORY ${OPAE_EXTERNAL_PROJECT_ADD_GIT_URL}\n"
