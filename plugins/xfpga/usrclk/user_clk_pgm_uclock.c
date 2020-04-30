@@ -27,6 +27,9 @@
 // Arthur.Sheiman@Intel.com   Created: 09-08-16
 // Revision: 10-18-16  18:06
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
 #include <errno.h>
 #include <malloc.h>    /* malloc */
