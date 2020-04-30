@@ -30,7 +30,6 @@
  */
 
 #include "fpga_pattern_gen.h"
-#include "safe_string/safe_string.h"
 #include <math.h>
 /*
  * macro for checking return codes

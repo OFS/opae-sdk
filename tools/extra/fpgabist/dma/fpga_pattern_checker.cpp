@@ -30,7 +30,6 @@
  */
 #include "fpga_dma_common.h"
 #include "fpga_pattern_checker.h"
-#include "safe_string/safe_string.h"
 #include <math.h>
 #include <unistd.h>
 /*
