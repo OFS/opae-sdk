@@ -110,8 +110,8 @@ TEST_P(metrics_max10_c_p, test_metric_max10_1) {
   void *buf = NULL;
   char file[] = "curr1_input";
   char sysfs[] =
-		"/sys/class/fpga_region/region0/dfl-fme.0/dfl-fme.0.10/spi-altera.4.auto/"
-		"spi_master/spi4/spi4.0/d5005bmc-hwmon.6.auto/hwmon/hwmon4";
+		"/sys/class/fpga_region/region*/dfl-fme.*/dfl-fme.*/spi-altera.*.auto/"
+		"spi_master/spi4/spi*/*-hwmon.*.auto/hwmon/hwmon*";
 
   EXPECT_NE(read_sensor_sysfs_file(NULL, file, &buf, &tot_bytes_ret), FPGA_OK);
 

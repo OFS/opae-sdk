@@ -75,6 +75,7 @@ fpga_result read_sensor_sysfs_file(const char *sysfs, const char *file,
 	struct stat stats;
 	int fd = 0;
 	fpga_result res = FPGA_OK;
+	size_t len;
 
 	if (sysfs == NULL ||
 		buf == NULL ||
@@ -84,12 +85,14 @@ fpga_result read_sensor_sysfs_file(const char *sysfs, const char *file,
 	}
 	*buf = NULL;
 	*tot_bytes_ret = 0;
-	if (file)
+	if (file) {
 		snprintf(sysfspath, sizeof(sysfspath),
-			 "%s/%s", sysfs, file);
-	else 
-		snprintf(sysfspath, sizeof(sysfspath),
-			"%s", sysfs);
+			"%s/%s", sysfs, file);
+	} else {
+		len = strnlen(sysfspath, sizeof(sysfspath) - 1);
+		memcpy(sysfspath, sysfs, len);
+		sysfspath[len] = '\0';
+	}
 
 	glob_t pglob;
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
@@ -148,19 +151,19 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 	uint64_t *metric_num,
 	enum fpga_hw_type  hw_type)
 {
-	fpga_result result                  = FPGA_OK;
-	struct _fpga_token *_token          = NULL;
-	size_t i                            = 0;
-	char *tmp                           = NULL;
-	uint32_t tot_bytes                  = 0;
-	enum fpga_metric_type metric_type   = FPGA_METRIC_TYPE_POWER;
-	char sysfspath[SYSFS_PATH_MAX]      = { 0, };
-	char metrics_sysfs_path[SYSFS_PATH_MAX] = { 0, };
-	char metric_name[SYSFS_PATH_MAX]        = { 0, };
-	char group_name[SYSFS_PATH_MAX]         = { 0, };
-	char group_sysfs[SYSFS_PATH_MAX]        = { 0, };
-	char qualifier_name[SYSFS_PATH_MAX]     = { 0, };
-	char metric_units[SYSFS_PATH_MAX]       = { 0, };
+	fpga_result result                         = FPGA_OK;
+	struct _fpga_token *_token                 = NULL;
+	size_t i                                   = 0;
+	char *tmp                                  = NULL;
+	uint32_t tot_bytes                         = 0;
+	enum fpga_metric_type metric_type          = FPGA_METRIC_TYPE_POWER;
+	char sysfspath[SYSFS_PATH_MAX]             = { 0, };
+	char metrics_sysfs_path[SYSFS_PATH_MAX]    = { 0, };
+	char metric_name[SYSFS_PATH_MAX]           = { 0, };
+	char group_name[SYSFS_PATH_MAX]            = { 0, };
+	char group_sysfs[SYSFS_PATH_MAX]           = { 0, };
+	char qualifier_name[SYSFS_PATH_MAX]        = { 0, };
+	char metric_units[SYSFS_PATH_MAX]          = { 0, };
 	glob_t pglob;
 	size_t len;
 
@@ -315,7 +318,7 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 
 		memcpy(metrics_sysfs_path, pglob.gl_pathv[i], len);
 		metrics_sysfs_path[len] = '\0';
-		strcat(metrics_sysfs_path, "input");
+		strncat(metric_units, DFL_VALUE, strlen(DFL_VALUE)+1);
 
 		result = add_metric_vector(vector, *metric_num, qualifier_name,
 			group_name, group_sysfs, metric_name,

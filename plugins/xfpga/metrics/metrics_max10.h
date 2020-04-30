@@ -39,6 +39,7 @@
 #define DFL_VOLTAGE                             "in"
 #define DFL_CURRENT                             "curr"
 #define DFL_POWER                               "power"
+#define DFL_VALUE                               "input"
 
 
 fpga_result read_sensor_sysfs_file(const char *sysfs, const char *file,
