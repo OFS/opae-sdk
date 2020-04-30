@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -53,8 +53,6 @@ extern "C" {
 		fflush(stderr);                                                \
 	} while (0)
 #endif
-
-#define SYSFS_PATH_MAX 256
 
 // sysfs file names for power and temperature
 #define SYSFS_SDR_FILE "avmmi-bmc.*.auto/bmc_info/sdr"

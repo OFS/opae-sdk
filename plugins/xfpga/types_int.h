@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -43,7 +43,6 @@
 #include <opae/metrics.h>
 #include "metrics/vector.h"
 
-#define SYSFS_PATH_MAX 256
 #define SYSFS_FPGA_CLASS_PATH "/sys/class/fpga"
 #define FPGA_DEV_PATH "/dev"
 
@@ -77,8 +76,6 @@
 #define FPGA_BBS_VER_MAJOR(i) (((i) >> 56) & 0xf)
 #define FPGA_BBS_VER_MINOR(i) (((i) >> 52) & 0xf)
 #define FPGA_BBS_VER_PATCH(i) (((i) >> 48) & 0xf)
-
-#define DEV_PATH_MAX 256
 
 // FPGA token magic (FPGATOKN)
 #define FPGA_TOKEN_MAGIC 0x46504741544f4b4e
