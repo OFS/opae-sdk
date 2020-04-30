@@ -25,6 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 opae_add_subdirectory(argsfilter)
+opae_add_subdirectory(libboard/board_common)
 opae_add_subdirectory(libboard/board_rc)
 opae_add_subdirectory(libboard/board_vc)
 opae_add_subdirectory(libboard/board_dc)

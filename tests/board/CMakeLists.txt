@@ -24,6 +24,13 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
+
+opae_test_add_static_lib(TARGET board-common-static
+    SOURCE ${OPAE_SDK_SOURCE}/tools/libboard/board_common/board_common.c
+    LIBS
+        opae-c
+)
+
 opae_test_add_static_lib(TARGET board-vc-static
     SOURCE ${OPAE_SDK_SOURCE}/tools/libboard/board_vc/board_vc.c
     LIBS
@@ -36,10 +43,17 @@ opae_test_add_static_lib(TARGET board-rc-static
         opae-c
 )
 
+opae_test_add_static_lib(TARGET board-dc-static
+    SOURCE ${OPAE_SDK_SOURCE}/tools/libboard/board_dc/board_dc.c
+    LIBS
+        opae-c
+)
+
 opae_test_add(TARGET test_board_vc_c
     SOURCE test_board_vc.cpp
     LIBS
         board-vc-static
+        board-common-static
 )
 
 target_include_directories(test_board_vc_c
@@ -50,8 +64,20 @@ opae_test_add(TARGET test_board_rc_c
     SOURCE test_board_rc.cpp
     LIBS
         board-rc-static
+        board-common-static
 )
 
 target_include_directories(test_board_rc_c
+    PRIVATE ${OPAE_SDK_SOURCE}/tools
+)
+
+opae_test_add(TARGET test_board_dc_c
+    SOURCE test_board_dc.cpp
+    LIBS
+        board-dc-static
+        board-common-static
+)
+
+target_include_directories(test_board_dc_c
     PRIVATE ${OPAE_SDK_SOURCE}/tools
 )

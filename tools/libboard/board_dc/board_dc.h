@@ -97,6 +97,15 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len);
 fpga_result read_mac_info(fpga_token token, uint32_t afu_channel_num,
 				struct ether_addr *mac_addr);
 
+/**
+* Prints Security information.
+*
+* @param[in] token            fpga_token object for device (FPGA_DEVICE type)
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if MAX10 or NIOS sysfs not found.
+* FPGA_INVALID_PARAM if invalid parameters were provided
+*/
+fpga_result print_sec_info(fpga_token token);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

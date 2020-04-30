@@ -24,11 +24,8 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_add_module_library(TARGET board_vc
-    SOURCE board_vc.c
-    LIBS
-        ${CMAKE_THREAD_LIBS_INIT}
-        opae-c
-        board_common
+opae_add_static_library(TARGET board_common
+    SOURCE board_common.c
+    LIBS opae-c
     COMPONENT opaeboardlib
 )
