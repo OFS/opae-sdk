@@ -24,6 +24,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
 extern "C" {
 
 #include <json-c/json.h>
@@ -46,7 +50,6 @@ extern "C" {
 #include "libboard/board_dc/board_dc.h"
 #include "libboard/board_common/board_common.h"
 
-#define SYSFS_MAX_SIZE         256
 using namespace opae::testing;
 
 class board_dc_c_p : public ::testing::TestWithParam<std::string> {
@@ -128,7 +131,7 @@ ssize_t board_dc_c_p::eintr_write(int fd, void *buf, size_t count)
 fpga_result board_dc_c_p::write_sysfs_file(const char *file,
 	void *buf, size_t count) {
 	fpga_result res = FPGA_OK;
-	char sysfspath[SYSFS_MAX_SIZE];
+	char sysfspath[SYSFS_PATH_MAX];
 	int fd = 0;
 
 	snprintf(sysfspath, sizeof(sysfspath),
@@ -161,7 +164,7 @@ fpga_result board_dc_c_p::write_sysfs_file(const char *file,
 
 fpga_result board_dc_c_p::delete_sysfs_file(const char *file) {
 	fpga_result res = FPGA_OK;
-	char sysfspath[SYSFS_MAX_SIZE];
+	char sysfspath[SYSFS_PATH_MAX];
 	int status = 0;
 
 	snprintf(sysfspath, sizeof(sysfspath),
@@ -191,13 +194,13 @@ fpga_result board_dc_c_p::delete_sysfs_file(const char *file) {
 */
 TEST_P(board_dc_c_p, board_dc_1) {
 
-	char bmcfw_ver[SYSFS_MAX_SIZE];
+	char bmcfw_ver[SYSFS_PATH_MAX];
 
-	EXPECT_EQ(read_bmcfw_version(tokens_[0], bmcfw_ver, SYSFS_MAX_SIZE), FPGA_OK);
+	EXPECT_EQ(read_bmcfw_version(tokens_[0], bmcfw_ver, SYSFS_PATH_MAX), FPGA_OK);
 
-	EXPECT_EQ(read_bmcfw_version(tokens_[0], NULL, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
+	EXPECT_EQ(read_bmcfw_version(tokens_[0], NULL, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
 
-	EXPECT_EQ(read_bmcfw_version(NULL, bmcfw_ver, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
+	EXPECT_EQ(read_bmcfw_version(NULL, bmcfw_ver, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -207,13 +210,13 @@ TEST_P(board_dc_c_p, board_dc_1) {
 */
 TEST_P(board_dc_c_p, board_dc_2) {
 
-	char max10fw_ver[SYSFS_MAX_SIZE];
+	char max10fw_ver[SYSFS_PATH_MAX];
 
-	EXPECT_EQ(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_MAX_SIZE), FPGA_OK);
+	EXPECT_EQ(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_PATH_MAX), FPGA_OK);
 
-	EXPECT_EQ(read_max10fw_version(tokens_[0], NULL, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
+	EXPECT_EQ(read_max10fw_version(tokens_[0], NULL, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
 
-	EXPECT_EQ(read_max10fw_version(NULL, max10fw_ver, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
+	EXPECT_EQ(read_max10fw_version(NULL, max10fw_ver, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -223,15 +226,15 @@ TEST_P(board_dc_c_p, board_dc_2) {
 */
 TEST_P(board_dc_c_p, board_dc_3) {
 
-	char name[SYSFS_MAX_SIZE] = { 0 };
+	char name[SYSFS_PATH_MAX] = { 0 };
 
 	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*/spi-altera*/spi_master/spi*/spi*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count",
-		name, SYSFS_MAX_SIZE), FPGA_OK);
+		name, SYSFS_PATH_MAX), FPGA_OK);
 	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*/spi-altera*/spi_master/spi*/spi*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count1",
-		name, SYSFS_MAX_SIZE), FPGA_NOT_FOUND);
+		name, SYSFS_PATH_MAX), FPGA_NOT_FOUND);
 
-	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*", NULL, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
-	EXPECT_EQ(read_sysfs(tokens_[0], NULL, name, SYSFS_MAX_SIZE), FPGA_INVALID_PARAM);
+	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*", NULL, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
+	EXPECT_EQ(read_sysfs(tokens_[0], NULL, name, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -260,11 +263,11 @@ class board_dc_invalid_c_p : public board_dc_c_p { };
 */
 TEST_P(board_dc_invalid_c_p, board_dc_9) {
 
-	char bmcfw_ver[SYSFS_MAX_SIZE];
-	EXPECT_EQ(read_bmcfw_version(tokens_[0], bmcfw_ver, SYSFS_MAX_SIZE), FPGA_NOT_FOUND);
+	char bmcfw_ver[SYSFS_PATH_MAX];
+	EXPECT_EQ(read_bmcfw_version(tokens_[0], bmcfw_ver, SYSFS_PATH_MAX), FPGA_NOT_FOUND);
 
-	char max10fw_ver[SYSFS_MAX_SIZE];
-	EXPECT_EQ(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_MAX_SIZE), FPGA_NOT_FOUND);
+	char max10fw_ver[SYSFS_PATH_MAX];
+	EXPECT_EQ(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_PATH_MAX), FPGA_NOT_FOUND);
 
 	EXPECT_EQ(print_sec_info(tokens_[0]), FPGA_NOT_FOUND);
 
