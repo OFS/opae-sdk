@@ -30,7 +30,6 @@
  */
 
 #include "fpga_pattern_gen.h"
-#include "safe_string/safe_string.h"
 #include <math.h>
 /*
  * macro for checking return codes
@@ -95,7 +94,7 @@ fpga_result start_generator(fpga_handle fpga_h, uint64_t transfer_len, int pkt_t
 	pattern_gen_control_t generator_ctrl;
 	pattern_gen_status_t status ={0};
 
-	memset_s(&generator_ctrl, sizeof(pattern_gen_control_t), 0);
+	memset(&generator_ctrl, 0, sizeof(pattern_gen_control_t));
 
 	generator_ctrl.payload_len = ceil(transfer_len/(double)PATTERN_WIDTH);
 	generator_ctrl.pattern_len = PATTERN_LENGTH;
