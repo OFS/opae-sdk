@@ -236,40 +236,5 @@ out_destroy_mac:
 // print board information
 fpga_result print_board_info(fpga_token token)
 {
-	fpga_result res                      = FPGA_OK;
-	fpga_result resval                   = FPGA_OK;
-	char bmc_ver[FPGA_VAR_BUF_LEN]       = { 0 };
-	char max10_ver[FPGA_VAR_BUF_LEN]     = { 0 };
-	char mac_str[18] = { 0 };
-	struct ether_addr MAC ;
-
-
-	res = read_bmcfw_version(token, bmc_ver, FPGA_VAR_BUF_LEN);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read bmc version");
-		resval = res;
-	}
-
-	res = read_max10fw_version(token, max10_ver, FPGA_VAR_BUF_LEN);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read max10 version");
-		resval = res;
-	}
-
-	printf("Board Management Controller, MAX10 NIOS FW version: %s \n", bmc_ver);
-	printf("Board Management Controller, MAX10 Build version: %s \n", max10_ver);
-
-	memset((void *)&MAC, 0, sizeof(MAC));
-
-	res = read_mac_info(token, 0, &MAC);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read mac address");
-		resval = res;
-	} else {
-		printf("%-1s : %s\n", "MAC address",
-			ether_ntoa_r(&MAC, mac_str));
-
-	}
-
-	return resval;
+	return print_sec_common_info(token);
 }

@@ -134,8 +134,7 @@ fpga_result print_sec_common_info(fpga_token token)
 	res = read_sysfs(token, DFL_SYSFS_SEC_BMC_ROOT, name, SYSFS_PATH_MAX);
 	if (res == FPGA_OK) {
 		printf("BMC root entry hash: %s\n", name);
-	}
-	else {
+	} else {
 		OPAE_MSG("Failed to Read TCM BMC root entry hash");
 		printf("BMC root entry hash: %s\n", "None");
 		resval = res;
@@ -145,8 +144,7 @@ fpga_result print_sec_common_info(fpga_token token)
 	res = read_sysfs(token, DFL_SYSFS_SEC_BMC_CANCEL, name, SYSFS_PATH_MAX);
 	if (res == FPGA_OK) {
 		printf("BMC CSK IDs canceled: %s\n", strlen(name) > 1 ? name : "None");
-	}
-	else {
+	} else {
 		OPAE_MSG("Failed to Read BMC CSK IDs canceled");
 		printf("BBMC CSK IDs canceled: %s\n", "None");
 		resval = res;
@@ -157,8 +155,7 @@ fpga_result print_sec_common_info(fpga_token token)
 	res = read_sysfs(token, DFL_SYSFS_SEC_PR_ROOT, name, SYSFS_PATH_MAX);
 	if (res == FPGA_OK) {
 		printf("PR root entry hash: %s\n", name);
-	}
-	else {
+	} else {
 		OPAE_MSG("Failed to Read PR root entry hash");
 		printf("PR root entry hash: %s\n", "None");
 		resval = res;
@@ -168,8 +165,7 @@ fpga_result print_sec_common_info(fpga_token token)
 	res = read_sysfs(token, DFL_SYSFS_SEC_PR_CANCEL, name, SYSFS_PATH_MAX);
 	if (res == FPGA_OK) {
 		printf("AFU/PR CSK IDs canceled: %s\n", strlen(name) > 1 ? name : "None");
-	}
-	else {
+	} else {
 		OPAE_MSG("Failed to Read AFU CSK/PR IDs canceled");
 		printf("AFU/PR CSK IDs canceled: %s\n", "None");
 		resval = res;
@@ -180,8 +176,7 @@ fpga_result print_sec_common_info(fpga_token token)
 	res = read_sysfs(token, DFL_SYSFS_SEC_SR_ROOT, name, SYSFS_PATH_MAX);
 	if (res == FPGA_OK) {
 		printf("FIM root entry hash: %s\n", name);
-	}
-	else {
+	} else {
 		OPAE_MSG("Failed to Read FIM root entry hash");
 		printf("FIM root entry hash: %s\n", "None");
 		resval = res;
@@ -191,8 +186,7 @@ fpga_result print_sec_common_info(fpga_token token)
 	res = read_sysfs(token, DFL_SYSFS_SEC_SR_CANCEL, name, SYSFS_PATH_MAX);
 	if (res == FPGA_OK) {
 		printf("FIM CSK IDs canceled: %s\n", strlen(name) > 1 ? name : "None");
-	}
-	else {
+	} else {
 		OPAE_MSG("Failed to Read FIM CSK IDs canceled");
 		printf("FIM CSK IDs canceled: %s\n", "None");
 		resval = res;
@@ -203,8 +197,7 @@ fpga_result print_sec_common_info(fpga_token token)
 	res = read_sysfs(token, DFL_SYSFS_SEC_USER_FLASH_COUNT, name, SYSFS_PATH_MAX);
 	if (res == FPGA_OK) {
 		printf("User flash update counter: %s\n", name);
-	}
-	else {
+	} else {
 		OPAE_MSG("Failed to Read User flash update counter");
 		printf("User flash update counter: %s\n", "None");
 		resval = res;
