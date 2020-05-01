@@ -37,7 +37,6 @@ lcov -a coverage.base -a coverage.info --output-file coverage.total
 lcov --remove coverage.total \
     '/usr/**' \
     '*external/opae-test/**' \
-    '*opae-libs/safe_string/**' \
     '*opae-libs/libopaecxx/samples/**' \
     '*opae-libs/tests/**' \
     '*opae-libs/pyopae/**' \
@@ -47,7 +46,6 @@ lcov --remove coverage.total \
     '*tools/extra/mmlink/**' \
     '*tools/extra/fpgabist/**' \
     '*tools/extra/fpgadiag/**' \
-    '*tools/libboard/board_dc/**' \
     '*pybind11/**' \
     --output-file coverage.info.cleaned
 
