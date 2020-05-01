@@ -73,6 +73,20 @@ typedef struct _ioctl_ops {
 				   uint32_t sz, uint64_t addr,
 				   uint64_t *status);
 	fpga_result (*fme_port_reset)(int fd);
+	fpga_result(*dfl_port_get_err_irq)(int fd, uint32_t *num_irqs);
+
+	fpga_result(*dfl_port_get_user_irq)(int fd, uint32_t *num_irqs);
+
+	fpga_result(*dfl_fme_get_err_irq)(int fd, uint32_t *num_irqs);
+
+	fpga_result(*dfl_fme_set_err_irq)(int fd, uint32_t start,
+		uint32_t count, int32_t *eventfd);
+
+	fpga_result(*dfl_port_set_err_irq)(int fd, uint32_t start,
+		uint32_t count, int32_t *eventfd);
+
+	fpga_result(*dfl_port_set_user_irq)(int fd, uint32_t start,
+		uint32_t count, int32_t *eventfd);
 } ioctl_ops;
 
 fpga_result opae_ioctl(int fd, int request, ...)
@@ -434,6 +448,86 @@ fpga_result dfl_fme_port_reset(int fd)
 	return opae_ioctl(fd, DFL_FPGA_PORT_RESET, NULL);
 }
 
+fpga_result dfl_port_get_err_irq(int fd, uint32_t *num_irqs)
+{
+	ASSERT_NOT_NULL(num_irqs);
+	int res = opae_ioctl(fd, DFL_FPGA_PORT_ERR_GET_IRQ_NUM, num_irqs);
+	if (!res) {
+		OPAE_MSG("Ioctl DFL_FPGA_PORT_ERR_GET_IRQ_NUM error=%d", res);
+	}
+	return res;
+}
+
+fpga_result dfl_port_get_user_irq(int fd, uint32_t *num_irqs)
+{
+	ASSERT_NOT_NULL(num_irqs);
+	int res = opae_ioctl(fd, DFL_FPGA_PORT_UINT_GET_IRQ_NUM, num_irqs);
+	if (!res) {
+		OPAE_MSG("Ioctl DFL_FPGA_PORT_UINT_GET_IRQ_NUM error=%d", res);
+	}
+	return res;
+}
+
+fpga_result dfl_fme_get_err_irq(int fd, uint32_t *num_irqs)
+{
+	ASSERT_NOT_NULL(num_irqs);
+	int res = opae_ioctl(fd, DFL_FPGA_FME_ERR_GET_IRQ_NUM, num_irqs);
+	if (!res) {
+		OPAE_MSG("Ioctl DFL_FPGA_FME_ERR_GET_IRQ_NUM error=%d", res);
+	}
+	return res;
+}
+
+fpga_result dfl_set_irq(int fd,uint32_t start,
+	uint32_t count, int32_t *eventfd,int ioctl_id)
+{
+	uint32_t sz = sizeof(struct dfl_fpga_irq_set)
+		+ count * sizeof(int32_t);
+	struct dfl_fpga_irq_set *irq = NULL;
+	int res = 0;
+
+	ASSERT_NOT_NULL(eventfd);
+	if (!count) {
+		OPAE_ERR("set_user irq with emtpy count");
+		return FPGA_INVALID_PARAM;
+	}
+
+	irq = malloc(sz);
+
+	if (!irq) {
+		OPAE_ERR("Could not allocate memory for irq request");
+		return FPGA_NO_MEMORY;
+	}
+
+	irq->start = start;
+	irq->count = count;
+	memcpy(irq->evtfds, eventfd, count * sizeof(int32_t));
+
+	res = opae_ioctl(fd, ioctl_id, irq);
+
+	free(irq);
+	return res;
+}
+
+fpga_result dfl_fme_set_err_irq(int fd,  uint32_t start,
+	uint32_t count, int32_t *eventfd)
+{
+	return dfl_set_irq(fd, start, count, eventfd, DFL_FPGA_FME_ERR_SET_IRQ);
+}
+
+fpga_result dfl_port_set_err_irq(int fd, uint32_t start,
+	uint32_t count, int32_t *eventfd)
+{
+	return dfl_set_irq(fd,  start, count, eventfd, DFL_FPGA_PORT_ERR_SET_IRQ);
+}
+
+
+fpga_result dfl_port_set_user_irq(int fd, uint32_t start,
+	uint32_t count, int32_t *eventfd)
+{
+	return dfl_set_irq(fd, start, count, eventfd, DFL_FPGA_PORT_UINT_SET_IRQ);
+}
+
 #define MAX_KERNEL_DRIVERS 2
 static ioctl_ops ioctl_table[MAX_KERNEL_DRIVERS] = {
 	{.get_fme_info = NULL,
@@ -448,6 +542,12 @@ static ioctl_ops ioctl_table[MAX_KERNEL_DRIVERS] = {
 	 .fme_set_err_irq = NULL,
 	 .port_set_err_irq = NULL,
 	 .port_set_user_irq = NULL,
+	 .dfl_port_get_err_irq = dfl_port_get_err_irq,
+	 .dfl_port_get_user_irq = dfl_port_get_user_irq,
+	 .dfl_fme_get_err_irq = dfl_fme_get_err_irq,
+	 .dfl_fme_set_err_irq = dfl_fme_set_err_irq,
+	 .dfl_port_set_err_irq = dfl_port_set_err_irq,
+	 .dfl_port_set_user_irq = dfl_port_set_err_irq,
 	 .fme_port_assign = dfl_fme_port_assign,
 	 .fme_port_release = dfl_fme_port_release,
 	 .fme_port_pr = dfl_fme_port_pr,
@@ -464,6 +564,11 @@ static ioctl_ops ioctl_table[MAX_KERNEL_DRIVERS] = {
 	 .fme_set_err_irq = intel_fme_set_err_irq,
 	 .port_set_err_irq = intel_port_set_err_irq,
 	 .port_set_user_irq = intel_port_set_user_irq,
+	 .dfl_port_get_err_irq = NULL,
+	 .dfl_port_get_user_irq = NULL,
+	 .dfl_fme_get_err_irq = NULL,
+	 .dfl_fme_set_err_irq = NULL,
+	 .dfl_port_set_err_irq = NULL,
 	 .fme_port_assign = intel_fme_port_assign,
 	 .fme_port_release = intel_fme_port_release,
 	 .fme_port_pr = intel_fme_port_pr,
@@ -581,4 +686,36 @@ fpga_result opae_fme_port_pr(int fd, uint32_t flags, uint32_t port_id,
 fpga_result opae_fme_port_reset(int fd)
 {
 	IOCTL(fme_port_reset, fd);
+}
+fpga_result opae_dfl_port_get_err_irq(int fd, uint32_t *num_irqs)
+{
+	IOCTL(dfl_port_get_err_irq, fd, num_irqs);
+}
+
+fpga_result opae_dfl_port_get_user_irq(int fd, uint32_t *num_irqs)
+{
+	IOCTL(dfl_port_get_user_irq, fd, num_irqs);
+}
+
+fpga_result opae_dfl_fme_get_err_irq(int fd, uint32_t *num_irqs)
+{
+	IOCTL(dfl_fme_get_err_irq, fd, num_irqs);
+}
+
+fpga_result opae_dfl_port_set_err_irq(int fd, uint32_t start,
+	uint32_t count, int32_t *eventfd)
+{
+	IOCTL(dfl_port_set_err_irq, fd, start, count, eventfd);
+}
+
+fpga_result opae_dfl_port_set_user_irq(int fd, uint32_t start,
+	uint32_t count, int32_t *eventfd)
+{
+	IOCTL(dfl_port_set_user_irq, fd, start, count, eventfd);
+
+}
+fpga_result opae_dfl_fme_set_err_irq(int fd, uint32_t start,
+	uint32_t count, int32_t *eventfd)
+{
+	IOCTL(dfl_fme_set_err_irq, fd, start, count, eventfd);
 }
