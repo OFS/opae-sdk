@@ -24,6 +24,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
 #include <glob.h>
 #include <stdio.h>
 #include <errno.h>
@@ -34,6 +38,7 @@
 #include <opae/utils.h>
 #include <opae/fpga.h>
 
+#include "../board_common/board_common.h"
 #include "board_a10gx.h"
 
 // BMC sysfs path

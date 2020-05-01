@@ -49,7 +49,7 @@
 #define MACADDR_LEN 17
 #define SDR_HEADER_LEN    3
 #define SDR_MSG_LEN       40
-#define SYSFS_PATH_MAX 256
+
 // sysfs paths
 #define SYSFS_MACADDR_PATH                  "spi-*/spi_master/spi*/spi*.*/mac_address"
 #define SYSFS_MACCNT_PATH                   "spi-*/spi_master/spi*/spi*.*/mac_count"
@@ -234,7 +234,7 @@ out_destroy_mac:
 
 
 // print board information
-fpga_result print_board_info(fpga_token token)
+fpga_result print_sec_info(fpga_token token)
 {
 	return print_sec_common_info(token);
 }

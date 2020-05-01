@@ -43,7 +43,8 @@
 #include <sys/ioctl.h>
 #include "../board_common/board_common.h"
 #include "board_n3000.h"
-#define SYSFS_PATH_MAX 256
+
+
 // sysfs paths
 // DFL SYSFS
 #define DFL_SYSFS_BMCFW_VER                 "dfl-fme*/spi-altera*/spi_master/spi*/spi*/bmcfw_version"
