@@ -24,8 +24,8 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_add_module_library(TARGET board_rc
-    SOURCE board_rc.c
+opae_add_module_library(TARGET board_a10gx
+    SOURCE board_a10gx.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
         opae-c

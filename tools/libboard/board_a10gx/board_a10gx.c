@@ -34,7 +34,7 @@
 #include <opae/utils.h>
 #include <opae/fpga.h>
 
-#include "board_rc.h"
+#include "board_a10gx.h"
 
 // BMC sysfs path
 #define SYSFS_DEVID_FILE "avmmi-bmc.*.auto/bmc_info/device_id"
