@@ -38,7 +38,6 @@
 #include <opae/utils.h>
 #include <opae/fpga.h>
 
-#include "../board_common/board_common.h"
 #include "board_a10gx.h"
 
 // BMC sysfs path
