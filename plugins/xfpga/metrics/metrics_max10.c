@@ -89,7 +89,7 @@ fpga_result read_sensor_sysfs_file(const char *sysfs, const char *file,
 		snprintf(sysfspath, sizeof(sysfspath),
 			"%s/%s", sysfs, file);
 	} else {
-		len = strnlen(sysfspath, sizeof(sysfspath) - 1);
+		len = strnlen(sysfs, sizeof(sysfspath) - 1);
 		memcpy(sysfspath, sysfs, len);
 		sysfspath[len] = '\0';
 	}
@@ -318,7 +318,7 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 
 		memcpy(metrics_sysfs_path, pglob.gl_pathv[i], len);
 		metrics_sysfs_path[len] = '\0';
-		strncat(metric_units, DFL_VALUE, strlen(DFL_VALUE)+1);
+		strncat(metrics_sysfs_path, DFL_VALUE, strlen(DFL_VALUE)+1);
 
 		result = add_metric_vector(vector, *metric_num, qualifier_name,
 			group_name, group_sysfs, metric_name,
