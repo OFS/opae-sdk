@@ -26,7 +26,7 @@
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif // HAVE_CONFIG_Hrm
+#endif // HAVE_CONFIG_H
 
 #include <glob.h>
 #include <stdio.h>
@@ -43,8 +43,6 @@
 #include <sys/ioctl.h>
 
 #include "board_common.h"
-
-#define SYSFS_PATH_MAX 256
 
 
 #define DFL_SYSFS_SEC_GLOB "dfl-fme*/spi-altera*/spi_master/spi*/spi*/ifpga_sec_mgr/ifpga_sec*/security/"
