@@ -264,8 +264,7 @@ fpga_result print_board_info(fpga_token token)
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to read mac address");
 		resval = res;
-	}
-	else {
+	} else {
 		printf("%-1s : %s\n", "MAC address",
 			ether_ntoa_r(&MAC, mac_str));
 
