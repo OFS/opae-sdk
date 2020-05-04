@@ -29,11 +29,24 @@
 # Related to openssl library call
 #
 ##########################
+import glob
 import os
-from ctypes import *
+from ctypes import CFUNCTYPE, Structure, Union, POINTER, CDLL
+from ctypes import (byref, c_void_p, c_ulong, c_uint, c_int, c_char, c_char_p,
+                    c_longlong, c_long, c_size_t, util)
 from sys import platform as _platform
+import re
 
 from pacsign import common_util
+from pacsign.logger import log
+
+
+OPENSSL_VERSION_PATTERN = (r'OpenSSL\s+'
+                           r'(?P<version>\d+(?:\.\d+)*(?:[a-z]+)?)\s+'
+                           r'(?P<om>FIPS)?\s*'
+                           r'(?P<day>\d+)\s+(?P<month>\w+)\s+(?P<year>\d{4})')
+OPENSSL_VERSION_RE = re.compile(OPENSSL_VERSION_PATTERN)
+
 # Constant
 # 1. Curve type
 NID_X9_62_prime256v1 = 415
@@ -280,53 +293,50 @@ class OPENSSL_AES_KEY(Structure):
 
 
 class openssl:
-    def __init__(self):
+    # Look for something like: OpenSSL 1.1.1d FIPS  10 Sep 2019
+    def _find_openssl_so(self, version, *paths):
+        candidates = list(paths)
+        crypto = util.find_library('crypto')
+        if crypto:
+            candidates.insert(0, crypto)
 
+        for c in candidates:
+            dll = CDLL(c)
+            if dll is None:
+                log.warn('could not open: %s', c)
+                continue
+            try:
+                dll.OpenSSL_version.argtypes = [c_int]
+                dll.OpenSSL_version.restype = c_char_p
+            except AttributeError:
+                log.debug('"%s: does not have OpenSSL_version', c)
+                continue
+
+            c_version = dll.OpenSSL_version(0).decode("utf-8")
+            m = OPENSSL_VERSION_RE.match(c_version)
+            if m is None:
+                log.warn('"%s" is not a valid OpenSSL version', c_version)
+                continue
+
+            if m.group('version') == version:
+                return dll
+
+            log.debug('OpenSSL version "%s" is not equal to "%s"',
+                      c_version,
+                      version)
+
+    def __init__(self, version='1.1.1d'):
         path = "%s/library" % os.path.dirname(os.path.abspath(__file__))
         self.nanotime = None
         if _platform == "win32" or _platform == "win64":
-            dll = "%s/libcrypto-1_1-x64.dll" % path
+            dll_name = 'libcrypto-1_1-x64.dll'
         else:
-            dll = "%s/libcrypto.so" % path
+            dll_name = '*libcrypto*.so'
 
-        self.lib = CDLL("%s" % dll)
-        common_util.assert_in_error(
-            self.lib is not None, "Fail to load library %s" % dll
-        )
+        dlls = glob.glob(os.path.join(path, dll_name))
 
-        # Checking SSL version
-        self.lib.OpenSSL_version.argtypes = [c_int]
-        self.lib.OpenSSL_version.restype = c_char_p
-
-        # Make sure version is good before proceed
-        version = self.lib.OpenSSL_version(0)
-        version = version.decode("utf-8")
-        version = version.split()
-        common_util.assert_in_error(
-            len(version) == 5,
-            (
-                "OpenSSL_version() should have five information, "
-                + "only by found %d (%s) information"
-            )
-            % (len(version), version),
-        )
-        # Check the naming and version but ignore date, month, year
-        common_util.assert_in_error(
-            version[0] == "OpenSSL",
-            (
-                "OpenSSL_version() header information should be "
-                + '"OpenSSL", but found "%s"'
-            )
-            % version[0],
-        )
-        common_util.assert_in_error(
-            version[1] == "1.1.1a",
-            (
-                "OpenSSL_version() version information should be "
-                + '"1.1.1a", but found "%s"'
-            )
-            % version[1],
-        )
+        self.lib = self._find_openssl_so(version, *dlls)
+        common_util.assert_in_error(self.lib, "Failed to find crypto library")
 
         # Initialize OPEN algorithm
         self.lib.OPENSSL_init_crypto.argtypes = [c_uint, c_void_p]
@@ -473,11 +483,7 @@ class openssl:
         self.lib.ECDSA_SIG_set0.argtypes = [c_void_p, c_void_p, c_void_p]
         self.lib.ECDSA_SIG_set0.restype = c_int
 
-        self.lib.ECDSA_SIG_get0.argtypes = [
-            c_void_p,
-            POINTER(c_void_p),
-            POINTER(c_void_p),
-        ]
+        self.lib.ECDSA_SIG_get0.argtypes = [c_void_p, POINTER(c_void_p), POINTER(c_void_p)]
         self.lib.ECDSA_SIG_get0.restype = None
 
         # Convert enum to char *
@@ -530,12 +536,7 @@ class openssl:
         self.lib.CRYPTO_free.restype = None
 
         # Initialize
-        self.lib.OPENSSL_init_crypto(
-            OPENSSL_INIT_ADD_ALL_CIPHERS
-            | OPENSSL_INIT_ADD_ALL_DIGESTS
-            | OPENSSL_INIT_LOAD_CONFIG,
-            None,
-        )
+        self.lib.OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS | OPENSSL_INIT_ADD_ALL_DIGESTS | OPENSSL_INIT_LOAD_CONFIG, None)
 
         # SHA256
         self.lib.SHA256.argtypes = [c_void_p, c_size_t, c_char_p]

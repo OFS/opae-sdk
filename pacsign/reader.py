@@ -1,4 +1,4 @@
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2019-2020, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -44,12 +44,8 @@
 ##########################
 import json
 from hashlib import sha256, sha384
-from os import path
-
-from pacsign.logger import log
-from pacsign import common_util
-from pacsign import verifier
-from pacsign import database
+from . import common_util, database, verifier
+from .logger import log
 
 METADATA_GUID = "XeonFPGA" + chr(0xB7) + "GBSv001"
 
@@ -63,13 +59,14 @@ GUID_LEN = len(METADATA_GUID)
 class _READER_BASE(object):
     def __init__(self, args, hsm_manager, config):
         self.args = args
-        self.hsm_manager = hsm_manager.HSM_MANAGER(config) if hsm_manager else None
+        self.hsm_manager = hsm_manager.HSM_MANAGER(config)
         self.database = database.FAMILY_LIST["PAC_CARD"]
         self.cert_type = self.database.SUPPORTED_CERT_TYPES[args.cert_type]
         self.output_file_name = args.output_file
         self.input_file = args.input_file
         log.debug(args.main_command)
-        self.bitstream_type = self.database.SUPPORTED_TYPES[args.main_command].ENUM
+        self.bitstream_type = self.database.SUPPORTED_TYPES[
+            args.main_command].ENUM
         log.debug(self.bitstream_type)
         self.root_hash = common_util.BYTE_ARRAY()
         self.s10_root_hash = common_util.BYTE_ARRAY()
@@ -78,45 +75,22 @@ class _READER_BASE(object):
         self.dc_curve_magic_num = cinfo.dc_curve_magic_num
         self.dc_sig_hash_magic_num = cinfo.dc_sig_hash_magic_num
         self.sig_magic_num = cinfo.sha_magic_num
-        self.verify = verifier.verify_reader(args) if args.root_bitstream else None
 
     def is_Darby_PR(self, contents, offset):
         # TODO: Write function to read dword and determine RC or VC
         val = contents.get_dword(offset)
-        log.debug("platform value is '{}' ".format(hex(val)))
+        log.info("platform value is '{}' ".format(val))
         type = contents.get_word(offset + int(0xC))
         return val == database.DC_PLATFORM_NUM and type == database.PR_IDENTIFIER
 
-    def finalize(self, fd, block0, block1, payload, json_str=None):
+    def finalize(self, fd, block0, block1, payload):
         log.info("Writing blocks to file")
-        done = False
-        file_offset = fd.tell()
-        fname = fd.name
-        while not done:
-            try:
-                fd.seek(file_offset)
-                # Write to the output fd
-                block0.tofile(fd)
-                block1.tofile(fd)
-                payload.tofile(fd)
-                done = True
-            except KeyboardInterrupt:
-                continue
-            finally:
-                fd.close()
+        # Write to the output fd
+        block0.tofile(fd)
+        block1.tofile(fd)
+        payload.tofile(fd)
 
-        if self.verify:
-            self.verify.run(fname, file_offset, block0, block1, payload)
-
-        if self.args.print:
-            verifier.print_bitstream(self.args, block0, block1, payload, json_str)
-
-        if self.hsm_manager is not None:
-            # Call the manager's finalize_files if present
-            try:
-                self.hsm_manager.finalize_files(fname)
-            except AttributeError:
-                pass
+        fd.close()
 
         log.info("Processing of file '{}' complete".format(fd.name))
 
@@ -187,14 +161,14 @@ class _READER_BASE(object):
         root_body.append_dword(self.curve_magic_num)
         common_util.assert_in_error(
             self.pub_root_key_perm == 0xFFFFFFFF,
-            "Root public key permissions should be 0xFFFFFFFF, got 0x%08X"
-            % self.pub_root_key_perm,
+            "Root public key permissions should be 0xFFFFFFFF, got 0x%08X" %
+            self.pub_root_key_perm,
         )
         root_body.append_dword(0xFFFFFFFF)
         common_util.assert_in_error(
             self.pub_root_key_id == 0xFFFFFFFF,
-            "Root public key permissions should be 0xFFFFFFFF, got 0x%08X"
-            % self.pub_root_key_id,
+            "Root public key permissions should be 0xFFFFFFFF, got 0x%08X" %
+            self.pub_root_key_id,
         )
         root_body.append_dword(0xFFFFFFFF)
 
@@ -222,7 +196,8 @@ class _READER_BASE(object):
 
         log.debug("".join("{:02x} ".format(x) for x in root_entry.data))
         log.debug("".join("{:02x} ".format(x) for x in self.root_hash.data))
-        log.debug("".join("{:02x} ".format(x) for x in self.s10_root_hash.data))
+        log.debug("".join("{:02x} ".format(x)
+                          for x in self.s10_root_hash.data))
 
         # with open("root_entry.bin", "wb") as f:
         #     root_entry.tofile(f)
@@ -259,7 +234,7 @@ class _READER_BASE(object):
         # root_entry.append_dword(int(0x38+length(xy)))
         root_entry.append_dword(int(0x78))
         # Data Length (should be 0x60)
-        # root_entry.append_dword(int(0x20 + length(xy)))
+        #root_entry.append_dword(int(0x20 + length(xy)))
         root_entry.append_dword(int(0x60))
         # Signature Length (0)
         root_entry.append_dword(0)
@@ -291,8 +266,8 @@ class _READER_BASE(object):
         # Public key permissions (reserved, 0xFFFFFFFF)
         common_util.assert_in_error(
             self.pub_root_key_perm == 0xFFFFFFFF,
-            "Root public key permissions should be 0xFFFFFFFF, got 0x%08X"
-            % self.pub_root_key_perm,
+            "Root public key permissions should be 0xFFFFFFFF, got 0x%08X" %
+            self.pub_root_key_perm,
         )
         root_entry.append_dword(0xFFFFFFFF)
         # Public key cancellation (reserved, -1)
@@ -346,6 +321,7 @@ class _READER_BASE(object):
             csk_entry.append_byte(0)
 
         log.info("Code Signing Key Entry done")
+
         return csk_entry
 
     def make_csk_entry_dc(self, root_key, CSK_pub_key):
@@ -471,12 +447,12 @@ class _READER_BASE(object):
         # Block 0 magic number
         b0_entry.append_dword(database.BLOCK0_MAGIC_NUM)
         # Length (to next entry)
-        # b0_entry.append_dword(int(0x28 + rs.size()))
+        #b0_entry.append_dword(int(0x28 + rs.size()))
         b0_entry.append_dword(int(0x68))
         # Data Length(0)
         b0_entry.append_dword(0)
         # Signature Length (0x10 + RSIZE + SSIZE)
-        # b0_entry.append_dword(int(0x10 + rs.size()))
+        #b0_entry.append_dword(int(0x10 + rs.size()))
         b0_entry.append_dword(int(0x50))
         # SHA length (0)
         b0_entry.append_dword(0)
@@ -534,7 +510,8 @@ class _READER_BASE(object):
         return b1
 
     # Signature Block, Size (0x1000)
-    def make_block1_dc(self, block0, root_entry=None, block0_entry=None, CSK=None):
+    def make_block1_dc(self, block0, root_entry=None,
+                       block0_entry=None, CSK=None):
         b1 = common_util.BYTE_ARRAY()
         log.info("Starting Block 1 creation for DC PR")
         # SHA384 over block 0
@@ -562,12 +539,11 @@ class _READER_BASE(object):
             b1.append_data(block0_entry.data)
         # TODO:  Main image pointer area?
         # Pointer to main image
-        while b1.size() < 0xFFC:
+        while (b1.size() < 0xFFC):
             b1.append_byte(0)
         # CRC32 over 0 to SIZE-4 TODO: add the right data
-        crc32 = self.msb_calculate_crc32(
-            b1.data, 0xFFFFFFFF, 0x04C11DB7, True, 0xFFFFFFFF
-        )
+        crc32 = self.msb_calculate_crc32(b1.data, 0xFFFFFFFF, 0x04C11DB7,
+                                         True, 0xFFFFFFFF)
         b1.append_dword(crc32)
         log.info("Block 1 done")
 
@@ -596,7 +572,7 @@ class _READER_BASE(object):
                     bit_index >>= 1
                 else:
                     bit_index <<= 1
-        return crc32 ^ xor
+        return (crc32 ^ xor)
 
 
 class CANCEL_reader(_READER_BASE):
@@ -610,13 +586,11 @@ class CANCEL_reader(_READER_BASE):
         )
         log.debug("Root key is {}".format(args.root_key))
         self.pub_root_key_c = self.hsm_manager.get_public_key(args.root_key)
-        common_util.assert_in_error(
-            self.pub_root_key_c is not None, "Can not retrieve root public key"
-        )
+        common_util.assert_in_error(self.pub_root_key_c is not None,
+                                    "Can not retrieve root public key")
         log.debug(self.pub_root_key_c.get_X_Y())
-        log.debug(
-            "".join("{:02x} ".format(x) for x in self.pub_root_key_c.get_X_Y().data)
-        )
+        log.debug("".join("{:02x} ".format(x)
+                          for x in self.pub_root_key_c.get_X_Y().data))
         self.pub_root_key = self.pub_root_key_c.get_X_Y()
         self.pub_root_key_perm = self.pub_root_key_c.get_permission()
         self.pub_root_key_id = self.pub_root_key_c.get_ID()
@@ -624,17 +598,14 @@ class CANCEL_reader(_READER_BASE):
         self.pub_root_key_type = self.pub_root_key_c.get_content_type()
         if isinstance(self.pub_root_key_type, str):
             self.pub_root_key_type = self.database.SUPPORTED_TYPES[
-                self.pub_root_key_type
-            ].ENUM
+                self.pub_root_key_type].ENUM
         log.debug("FOO: {}".format(self.pub_root_key_type))
-        common_util.assert_in_error(
-            self.pub_root_key_type is not None, "Cannot retrieve root public key type"
-        )
+        common_util.assert_in_error(self.pub_root_key_type is not None,
+                                    "Cannot retrieve root public key type")
         common_util.assert_in_error(
             self.pub_root_key_type == self.bitstream_type,
             "Root key content type mismatch: key={}, type={}".format(
-                self.pub_root_key_type, self.bitstream_type
-            ),
+                self.pub_root_key_type, self.bitstream_type),
         )
 
     def run(self):
@@ -652,7 +623,8 @@ class CANCEL_reader(_READER_BASE):
         block0_entry = self.make_block0_entry(block0, self.root_key)
 
         # Make block 1 using the "keychain" we just made components for
-        block1 = self.make_block1(root_entry=root_entry, block0_entry=block0_entry)
+        block1 = self.make_block1(root_entry=root_entry,
+                                  block0_entry=block0_entry)
 
         output_fd = open(self.output_file_name, "wb")
         # Write to the output file
@@ -661,7 +633,7 @@ class CANCEL_reader(_READER_BASE):
 
 class UPDATE_reader(_READER_BASE):
     def __init__(self, args, hsm_manager, config):
-        self.proxy = super(UPDATE_reader, self).__init__(args, hsm_manager, config)
+        super(UPDATE_reader, self).__init__(args, hsm_manager, config)
         self.root_key = args.root_key
         self.pub_root_key_perm = 0xFFFFFFFF
         self.pub_root_key_id = 0xFFFFFFFF
@@ -670,28 +642,25 @@ class UPDATE_reader(_READER_BASE):
         self.pub_root_key_type = None
         self.pub_CSK_type = None
         if self.root_key is not None:
-            self.pub_root_key_c = self.hsm_manager.get_public_key(args.root_key)
+            self.pub_root_key_c = self.hsm_manager.get_public_key(
+                args.root_key)
             log.debug(self.pub_root_key_c)
-            common_util.assert_in_error(
-                self.pub_root_key_c, "Cannot retrieve root public key"
-            )
+            common_util.assert_in_error(self.pub_root_key_c,
+                                        "Cannot retrieve root public key")
             self.pub_root_key = self.pub_root_key_c.get_X_Y()
             self.pub_root_key_perm = self.pub_root_key_c.get_permission()
             self.pub_root_key_id = self.pub_root_key_c.get_ID()
             self.pub_root_key_type = self.pub_root_key_c.get_content_type()
             if isinstance(self.pub_root_key_type, str):
                 self.pub_root_key_type = self.database.SUPPORTED_TYPES[
-                    self.pub_root_key_type
-                ].ENUM
+                    self.pub_root_key_type].ENUM
             common_util.assert_in_error(
                 self.pub_root_key_type is not None,
-                "Cannot retrieve root public key type",
-            )
+                "Cannot retrieve root public key type")
             common_util.assert_in_error(
                 self.pub_root_key_type == self.bitstream_type,
                 "Root key content type mismatch: key={}, type={}".format(
-                    self.pub_root_key_type, self.bitstream_type
-                ),
+                    self.pub_root_key_type, self.bitstream_type),
             )
         else:
             self.pub_root_key = common_util.BYTE_ARRAY()
@@ -700,26 +669,23 @@ class UPDATE_reader(_READER_BASE):
 
         self.CSK = args.code_signing_key
         if self.CSK is not None:
-            self.pub_CSK_c = self.hsm_manager.get_public_key(args.code_signing_key)
-            common_util.assert_in_error(
-                self.pub_CSK_c is not None, "Cannot retrieve public CSK"
-            )
+            self.pub_CSK_c = self.hsm_manager.get_public_key(
+                args.code_signing_key)
+            common_util.assert_in_error(self.pub_CSK_c is not None,
+                                        "Cannot retrieve public CSK")
             self.pub_CSK = self.pub_CSK_c.get_X_Y()
             self.pub_CSK_perm = self.pub_CSK_c.get_permission()
             self.pub_CSK_id = self.pub_CSK_c.get_ID()
             self.pub_CSK_type = self.pub_CSK_c.get_content_type()
             if isinstance(self.pub_CSK_type, str):
                 self.pub_CSK_type = self.database.SUPPORTED_TYPES[
-                    self.pub_CSK_type
-                ].ENUM
-            common_util.assert_in_error(
-                self.pub_CSK_type is not None, "Cannot retrieve CSK type"
-            )
+                    self.pub_CSK_type].ENUM
+            common_util.assert_in_error(self.pub_CSK_type is not None,
+                                        "Cannot retrieve CSK type")
             common_util.assert_in_error(
                 self.pub_CSK_type == self.bitstream_type,
                 "CSK content type mismatch: key={}, type={}".format(
-                    self.pub_CSK_type, self.bitstream_type
-                ),
+                    self.pub_CSK_type, self.bitstream_type),
             )
         else:
             self.pub_CSK = common_util.BYTE_ARRAY()
@@ -732,10 +698,8 @@ class UPDATE_reader(_READER_BASE):
 
         # Check if this is a WRITE_NVM IPMI command
         for i in range(7):
-            if (
-                int(payload.get_string(offset + 2 + i, 1))
-                != b"\xb8\x00\x0b\x18\x7b\x00\x00"[i]
-            ):
+            if (int(payload.get_string(offset + 2 + i, 1)) !=
+                    b"\xb8\x00\x0b\x18\x7b\x00\x00" [i]):
                 return False
 
         return True
@@ -749,24 +713,20 @@ class UPDATE_reader(_READER_BASE):
         log.debug("has_json = {}".format(has_json))
         payload_offset = 0 if not has_json else self.skip_JSON(payload_content)
         sig_offset = payload_offset
-
-        # Determine if platform is RC or DC
-        self.dc_pr = self.is_Darby_PR(payload_content, sig_offset)
-
-        prev_sig = (
-            0 if self.dc_pr else self.already_signed(payload_content, payload_offset)
-        )
+        prev_sig = self.already_signed(payload_content, payload_offset)
         payload_offset += 1024 if prev_sig else 0
         log.debug("payload_offset={}".format(payload_offset))
         json_string = common_util.BYTE_ARRAY()
         if has_json:
             json_string.append_data(
-                payload_content.data[GUID_LEN + SIZEOF_LEN_FIELD : sig_offset]
-            )
+                payload_content.data[GUID_LEN + SIZEOF_LEN_FIELD:sig_offset])
             # json_string.append_data(payload_content.data[:sig_offset])
         payload = common_util.BYTE_ARRAY()
         log.debug("".join("{:02x} ".format(x) for x in json_string.data))
         log.debug(bytearray(json_string.data).decode("utf-8"))
+
+        # Determine if platform is RC or DC
+        dc_pr = self.is_Darby_PR(payload_content, sig_offset)
 
         if has_json:
             j_data = json.loads(bytearray(json_string.data).decode("utf-8"))
@@ -787,16 +747,17 @@ class UPDATE_reader(_READER_BASE):
         log.debug("Payload size is {}".format(payload.size()))
         # Create block 0, root entry, and block 0 entry
 
-        if self.dc_pr:
+        if dc_pr:
             block0 = self.make_block0_dc(payload, payload.size())
             # Remove first 0x2000 bytes.
-            payload = payload.data[int(0x2000) :]
+            payload = payload.data[int(0x2000):]
             root_entry = self.make_root_entry_dc(self.pub_root_key)
             CSK = self.make_csk_entry_dc(self.root_key, self.pub_CSK)
             block0_entry = self.make_block0_entry_dc(block0, self.CSK)
-            block1 = self.make_block1_dc(
-                block0=block0, root_entry=root_entry, CSK=CSK, block0_entry=block0_entry
-            )
+            block1 = self.make_block1_dc(block0=block0,
+                                         root_entry=root_entry,
+                                         CSK=CSK,
+                                         block0_entry=block0_entry)
 
         else:
             block0 = self.make_block0(payload, payload.size())
@@ -804,45 +765,32 @@ class UPDATE_reader(_READER_BASE):
             CSK = self.make_csk_entry(self.root_key, self.pub_CSK)
             block0_entry = self.make_block0_entry(block0, self.CSK)
             # Make block 1 using the "keychain" we just made components for
-            block1 = self.make_block1(
-                root_entry=root_entry, CSK=CSK, block0_entry=block0_entry
-            )
+            block1 = self.make_block1(root_entry=root_entry,
+                                      CSK=CSK,
+                                      block0_entry=block0_entry)
 
         output_fd = open(self.output_file_name, "wb")
         # Write to the output file
         if has_json:
             mod_json_string = common_util.BYTE_ARRAY()
-            log.debug(
-                "r={}, c={}, h={}, s10h={}".format(
-                    self.root_key,
-                    self.CSK,
-                    "".join("{:02x} ".format(x) for x in self.root_hash.data),
-                    "".join("{:02x} ".format(x) for x in self.s10_root_hash.data),
-                )
-            )
+            log.debug("r={}, c={}, h={}".format(
+                self.root_key,
+                self.CSK,
+                "".join("{:02x} ".format(x) for x in self.root_hash.data),
+            ))
             sig = {}
-            sig["root_key"] = path.basename(self.root_key.rstrip("/"))
-            sig["CSK"] = path.basename(self.CSK.rstrip("/"))
-            if not self.dc_pr:
-                sig["root_hash"] = " ".join(
-                    "0x{:02x}".format(x) for x in self.root_hash.data
-                )
-            else:
-                sig["root_hash"] = " ".join(
-                    "0x{:02x}".format(x) for x in self.s10_root_hash.data
-                )
+            sig["root_key"] = self.root_key
+            sig["CSK"] = self.CSK
+            sig["root_hash"] = " ".join("0x{:02x}".format(x)
+                                        for x in self.root_hash.data)
             sig["root_pub_key-X"] = " ".join(
-                "0x{:02x}".format(x) for x in self.pub_root_key.data[:32]
-            )
+                "0x{:02x}".format(x) for x in self.pub_root_key.data[:32])
             sig["root_pub_key-Y"] = " ".join(
-                "0x{:02x}".format(x) for x in self.pub_root_key.data[-32:]
-            )
-            sig["CSK_pub_key-X"] = " ".join(
-                "0x{:02x}".format(x) for x in self.pub_CSK.data[:32]
-            )
-            sig["CSK_pub_key-Y"] = " ".join(
-                "0x{:02x}".format(x) for x in self.pub_CSK.data[-32:]
-            )
+                "0x{:02x}".format(x) for x in self.pub_root_key.data[-32:])
+            sig["CSK_pub_key-X"] = " ".join("0x{:02x}".format(x)
+                                            for x in self.pub_CSK.data[:32])
+            sig["CSK_pub_key-Y"] = " ".join("0x{:02x}".format(x)
+                                            for x in self.pub_CSK.data[-32:])
             j_data["signature"] = sig
             log.debug(json.dumps(j_data, sort_keys=True, indent=4))
             mod_json_string.append_data(METADATA_GUID)
@@ -850,17 +798,14 @@ class UPDATE_reader(_READER_BASE):
             mod_json_string.append_dword(len(j_string))
             mod_json_string.append_data(j_string)
             mod_json_string.tofile(output_fd)
-            self.finalize(output_fd, block0, block1, payload, json_str=j_string)
-        else:
-            self.finalize(output_fd, block0, block1, payload)
+        self.finalize(output_fd, block0, block1, payload)
 
     def is_JSON(self, contents):
-        log.debug(
-            "GUID: {} vs. file {}".format(
-                METADATA_GUID, "".join([chr(i) for i in contents.data[:GUID_LEN]])
-            )
-        )
-        return METADATA_GUID == "".join([chr(i) for i in contents.data[:GUID_LEN]])
+        log.debug("GUID: {} vs. file {}".format(
+            METADATA_GUID,
+            "".join([chr(i) for i in contents.data[:GUID_LEN]])))
+        return METADATA_GUID == "".join(
+            [chr(i) for i in contents.data[:GUID_LEN]])
 
     def skip_JSON(self, contents):
         leng = contents.get_dword(GUID_LEN)
@@ -882,7 +827,7 @@ class UPDATE_reader(_READER_BASE):
             common_util.assert_in_error(
                 False,
                 "Attempting to change cert type from {} to {}".format(
-                    self.database.get_cert_type_from_enum((con_type >> 8) & 0xFF),
+                    self.database.get_cert_type_from_enum(con_type & 0xFF),
                     self.database.get_cert_type_from_enum(self.bitstream_type),
                 ),
             )
@@ -895,7 +840,8 @@ class UPDATE_reader(_READER_BASE):
                 ),
             )
 
-        if contents.get_dword(offset + 128) != database.SIGNATURE_BLOCK_MAGIC_NUM:
+        if contents.get_dword(offset +
+                              128) != database.SIGNATURE_BLOCK_MAGIC_NUM:
             log.info("Bitstream not previously signed")
             return False
 
@@ -912,36 +858,30 @@ class RHP_reader(_READER_BASE):
         super(RHP_reader, self).__init__(args, hsm_manager, config)
         self.root_key = args.root_key
         self.pub_root_key_c = self.hsm_manager.get_public_key(args.root_key)
-        common_util.assert_in_error(
-            self.pub_root_key_c is not None, "Cannot retrieve root public key"
-        )
+        common_util.assert_in_error(self.pub_root_key_c is not None,
+                                    "Cannot retrieve root public key")
         self.pub_root_key = self.pub_root_key_c.get_X_Y()
         self.pub_root_key_perm = self.pub_root_key_c.get_permission()
         self.pub_root_key_id = self.pub_root_key_c.get_ID()
         self.pub_root_key_type = self.pub_root_key_c.get_content_type()
         if isinstance(self.pub_root_key_type, str):
             self.pub_root_key_type = self.database.SUPPORTED_TYPES[
-                self.pub_root_key_type
-            ].ENUM
-        common_util.assert_in_error(
-            self.pub_root_key_type is not None, "Cannot retrieve root public key type"
-        )
+                self.pub_root_key_type].ENUM
+        common_util.assert_in_error(self.pub_root_key_type is not None,
+                                    "Cannot retrieve root public key type")
         common_util.assert_in_error(
             self.pub_root_key_type == self.bitstream_type,
             "Root key content type mismatch: key={}, type={}".format(
-                self.pub_root_key_type, self.bitstream_type
-            ),
+                self.pub_root_key_type, self.bitstream_type),
         )
 
     def run(self):
         # Make root entry to get the hash
         root_entry = self.make_root_entry(self.pub_root_key)
-        common_util.assert_in_error(
-            self.root_hash.size() >= 32, "Cannot retrieve root hash"
-        )
-        common_util.assert_in_error(
-            self.s10_root_hash.size() >= 32, "Cannot retrieve Quartus hash"
-        )
+        common_util.assert_in_error(self.root_hash.size() >= 32,
+                                    "Cannot retrieve root hash")
+        common_util.assert_in_error(self.s10_root_hash.size() >= 32,
+                                    "Cannot retrieve Quartus hash")
         payload = common_util.BYTE_ARRAY()
 
         # Add hash to payload and pad
@@ -968,97 +908,3 @@ class RHP_reader(_READER_BASE):
         output_fd = open(self.output_file_name, "wb")
         # Write to the output file
         self.finalize(output_fd, block0, block1, payload)
-
-
-class dummy_args:
-    def __init__(self):
-        self.cert_type = "UPDATE"
-        self.output_file = None
-        self.input_file = None
-        self.main_command = "PR"
-        self.root_bitstream = None
-        self.root_key = None
-        self.code_signing_key = None
-
-
-def print_file_contents(files):
-    args = dummy_args()
-    for file in files:
-        print("\nFile {}:".format(file))
-
-        try:
-            contents = common_util.BYTE_ARRAY("FILE", file)
-        except FileNotFoundError:
-            print("File '{}' not found".format(file))
-            continue
-
-        if contents.size() < 1100:
-            print("Unrecognized file")
-            continue
-
-        rdr = UPDATE_reader(args, None, None)
-
-        # Skip JSON and old signature if they exist
-        has_json = rdr.is_JSON(contents)
-        log.debug("has_json = {}".format(has_json))
-        payload_offset = 0 if not has_json else rdr.skip_JSON(contents)
-        sig_offset = payload_offset
-
-        # Determine if platform is RC or DC
-        dc_pr = rdr.is_Darby_PR(contents, sig_offset)
-        # print(dc_pr)
-        con_type = contents.get_dword(payload_offset + 8)
-        rdr.cert_type = (con_type >> 8) & 0xFF
-        rdr.bitstream_type = con_type & 0xFF
-
-        # prev_sig = 0 if dc_pr else \
-        #           rdr.already_signed(contents, payload_offset)
-        # payload_offset += 1024 if prev_sig else 0
-        log.debug("payload_offset={}".format(payload_offset))
-        json_string = common_util.BYTE_ARRAY()
-        if has_json:
-            json_string.append_data(
-                contents.data[GUID_LEN + SIZEOF_LEN_FIELD : sig_offset]
-            )
-            # json_string.append_data(contents.data[:sig_offset])
-
-        log.debug("".join("{:02x} ".format(x) for x in json_string.data))
-        log.debug(bytearray(json_string.data).decode("utf-8"))
-
-        j_data = None
-        if has_json:
-            j_data = json.loads(bytearray(json_string.data).decode("utf-8"))
-            log.debug(json.dumps(j_data, sort_keys=True, indent=4))
-
-        log.debug(rdr.bitstream_type)
-
-        b0 = common_util.BYTE_ARRAY()
-        b1 = common_util.BYTE_ARRAY()
-        payload = common_util.BYTE_ARRAY()
-        # print(payload_offset)
-
-        if dc_pr:
-            b0.append_data(contents.data[payload_offset : payload_offset + 4096])
-            b1.append_data(contents.data[payload_offset + 4096 : payload_offset + 8192])
-            payload.append_data(contents.data[payload_offset + 8192 :])
-
-            val = b0.get_dword(0)
-            type = b0.get_word(int(0xC))
-            # print(hex(val), hex(type))
-            is_OK = val == database.DC_PLATFORM_NUM and type == database.PR_IDENTIFIER
-            log.debug("".join("{:02x} ".format(x) for x in b1.data))
-        else:
-            b0.append_data(contents.data[payload_offset : payload_offset + 128])
-            b1.append_data(contents.data[payload_offset + 128 : payload_offset + 1024])
-            payload.append_data(contents.data[payload_offset + 1024 :])
-
-            is_OK = b0.get_dword(0) == database.DESCRIPTOR_BLOCK_MAGIC_NUM
-
-        # print(b0.size(), b1.size(), payload.size())
-
-        if not is_OK:
-            print("File '{}' unrecognized".format(file))
-            continue
-
-        verifier.print_bitstream(args, b0, b1, payload, bytearray(json_string.data))
-

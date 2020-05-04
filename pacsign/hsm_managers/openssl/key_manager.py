@@ -39,13 +39,31 @@ import os
 from pacsign import common_util
 from pacsign.logger import log
 from pacsign.hsm_managers.openssl import openssl
-from ctypes import *
+from ctypes import c_void_p, byref
+
+import json
 
 
 class HSM_MANAGER(object):
     def __init__(self, cfg_file):
 
         self.openssl = openssl.openssl()
+        self.key_path = None
+        self.curve = None
+        self.keys = None
+
+        if cfg_file is not None:
+            with open(cfg_file, "r") as read_file:
+                j_data = json.load(read_file)
+
+            try:
+                self.key_path = j_data["key_path"]
+                self.curve = j_data["curve"]
+                self.keys = j_data["keys"]
+            except KeyError as ke:
+                common_util.assert_in_error(
+                    False, "No key '{}' in config file".format(ke)
+                    )
 
     def __del__(self):
 
@@ -59,29 +77,25 @@ class HSM_MANAGER(object):
 
         pass
 
-    def make_private_pem(self, ecparam, private_pem, encrypt):
-
-        curve_info = openssl.get_curve_info_from_name(ecparam)
-        common_util.assert_in_error(
-            curve_info is not None,
-            "Expects EC curve name to be %s but found %s"
-            % (openssl.get_supported_curve_info_names(), ecparam),
-        )
-        group = self.openssl.generate_group(curve_info.enum)
-        key = self.openssl.generate_key(group)
-        self.openssl.generate_private_pem(private_pem, group, key, encrypt)
-        self.openssl.lib.EC_GROUP_free(group)
-        self.openssl.lib.EC_KEY_free(key)
-
-    def make_public_pem(self, private_pem, public_pem):
-
-        key = self.openssl.read_private_key(private_pem)
-        self.openssl.generate_public_pem(public_pem, key)
-        self.openssl.lib.EC_KEY_free(key)
-
     def get_public_key(self, public_pem):
+        pem = public_pem
+        local_key = None
+        if self.keys:
+            for k in self.keys:
+                if pem == k["label"]:
+                    local_key = k
+                    break
+            common_util.assert_in_error(
+                local_key is not None,
+                "Key '{}' not found".format(pem),
+            )
+            common_util.assert_in_error(
+                "pub_key" in local_key,
+                "Public key for '{}' not found".format(pem),
+            )
+            pem = os.path.join(self.key_path, local_key["pub_key"])
 
-        return _PUBLIC_KEY(public_pem, self.openssl)
+        return _PUBLIC_KEY(pem, self.openssl, local_key)
 
     def sign(self, sha, key):
         private_key = self.get_private_key(key)
@@ -93,13 +107,30 @@ class HSM_MANAGER(object):
         return data
 
     def get_private_key(self, private_pem):
-        pem = private_pem.replace("_public_", "_private_", 1)
-        return _PRIVATE_KEY(pem, self.openssl)
+        pem = private_pem
+        local_key = None
+        if self.keys:
+            for k in self.keys:
+                if pem == k["label"]:
+                    local_key = k
+                    break
+            common_util.assert_in_error(
+                local_key is not None,
+                "Key '{}' not found".format(pem),
+            )
+            common_util.assert_in_error(
+                "priv_key" in local_key,
+                "Private key for '{}' not found".format(pem),
+            )
+            pem = os.path.join(self.key_path, local_key["priv_key"])
+        else:
+            pem = private_pem.replace("_public_", "_private_", 1)
+        return _PRIVATE_KEY(pem, self.openssl, local_key)
 
 
 class _KEY(object):
-    def __init__(self, file, openssl):
-
+    def __init__(self, file, openssl, key_info):
+        self.key_info = key_info
         assert openssl is not None
         self.file = file
         self.openssl = openssl
@@ -450,7 +481,7 @@ class _KEY(object):
 
         cpointer = self.get_char_point_from_bignum(y, self.curve_info.size)
         cpointer.compare_data(
-            self.xy.data[self.curve_info.size :],
+            self.xy.data[self.curve_info.size:],
             (
                 "Y of Public key from QKY does not match "
                 + "with private key from PEM file"
@@ -489,6 +520,9 @@ class _KEY(object):
         self.openssl.lib.ECDSA_SIG_free(signature)
 
     def get_content_type(self):
+        if self.key_info is not None:
+            return self.key_info["type"]
+
         if "_fim_" in self.file:
             return 0  # TODO: Fix this
 
@@ -502,9 +536,9 @@ class _KEY(object):
 
 
 class _PRIVATE_KEY(_KEY):
-    def __init__(self, file, openssl):
-
-        super(_PRIVATE_KEY, self).__init__(file, openssl)
+    def __init__(self, file, openssl, key_info):
+        self.key_info = key_info
+        super(_PRIVATE_KEY, self).__init__(file, openssl, key_info)
         public_pem = self.check_pem_file()
         common_util.assert_in_error(
             public_pem is False,
@@ -538,12 +572,10 @@ class _PRIVATE_KEY(_KEY):
         self.openssl.lib.ECDSA_SIG_get0(signature, byref(r), byref(s))
 
         # assign r
-        cpointer = self.get_char_point_from_bignum(r, self.curve_info.size)
-        log.debug(
-            "Sign: curve_info.size={}, cpointer.size={}".format(
-                self.curve_info.size, cpointer.size()
-            )
-        )
+        cpointer = self.get_char_point_from_bignum(r,
+                                                   self.curve_info.size)
+        log.debug("Sign: curve_info.size={}, cpointer.size={}".format(
+            self.curve_info.size, cpointer.size()))
         data.append_data(cpointer.data)
         del cpointer
 
@@ -553,7 +585,8 @@ class _PRIVATE_KEY(_KEY):
                 data.append_byte(0)
 
         # assign s
-        cpointer = self.get_char_point_from_bignum(s, self.curve_info.size)
+        cpointer = self.get_char_point_from_bignum(s,
+                                                   self.curve_info.size)
         data.append_data(cpointer.data)
         del cpointer
 
@@ -567,10 +600,10 @@ class _PRIVATE_KEY(_KEY):
 
 
 class _PUBLIC_KEY(_KEY):
-    def __init__(self, file, openssl):
-
+    def __init__(self, file, openssl, key_info):
+        self.key_info = key_info
         if type(file) is str:
-            super(_PUBLIC_KEY, self).__init__(file, openssl)
+            super(_PUBLIC_KEY, self).__init__(file, openssl, key_info)
             public_pem = self.check_pem_file()
             if public_pem:
                 self.key = self.openssl.read_public_key(self.file)
@@ -588,9 +621,22 @@ class _PUBLIC_KEY(_KEY):
         return self.xy
 
     def get_permission(self):
+        if self.key_info is not None:
+            return int(self.key_info["permissions"], 16)
         return 0xFFFFFFFF
 
     def get_ID(self):
+        if self.key_info is not None:
+            if self.key_info["is_root"]:
+                return 0xFFFFFFFF
+
+            try:
+                csk_id = int(self.key_info["csk_id"])
+            except ValueError:
+                csk_id = int(self.key_info["csk_id"], 16)
+
+            return csk_id
+
         if "_root_" in self.file:
             return 0xFFFFFFFF
 

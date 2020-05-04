@@ -27,9 +27,9 @@ from setuptools import setup, find_packages
 
 setup(
     name="pacsign",
-    version="1.0.1",
+    version="1.0.3",
     packages=find_packages(),
-    install_requires=['python-pkcs11'],
+    install_requires=['cython', 'python-pkcs11'],
     python_requires='>=3.6',
     description="pacsign provides Python classes for interfacing with"
                 "OPAE PACSign tool",
