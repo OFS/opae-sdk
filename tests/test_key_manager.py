@@ -1,25 +1,57 @@
+import json
+import os
+import tempfile
 import unittest
 from unittest import mock
 from pacsign.hsm_managers.openssl.key_manager import (HSM_MANAGER,
                                                       _KEY,
                                                       _PRIVATE_KEY,
                                                       _PUBLIC_KEY)
-'''test_clean'''
 
-def test_clean():
-    init_file = mock.MagicMock()
-    init_openssl = mock.MagicMock()
-    init_key_info = mock.MagicMock()
-    _KEY_test = _KEY(init_file, init_openssl, init_key_info)
-    _KEY_test.clean()
+class test_openssl_keymanager(unittest.TestCase):
+    def setUp(self):
+        cfg = {'cryptoki_version': [2, 40],
+               'library_version': [2,5],
+               'platform-name': "DCP"
+               }
+        self._dummy_files = []
+        self._dummy_files.append(tempfile.NamedTemporaryFile(mode='w',
+                                                             delete=False))
+        json.dump(cfg, self._dummy_files[-1])
+        self._dummy_files[-1].close()
 
-'''test_get_public_key'''
+        cfg['key_path'] = '/tmp/key'
 
-def test_get_public_key():
-    init_cfg_file = mock.MagicMock()
-    HSM_MANAGER_test = HSM_MANAGER(init_cfg_file)
-    get_public_key_public_pem = mock.MagicMock()
-    HSM_MANAGER_test.get_public_key(get_public_key_public_pem)
+        self._dummy_files.append(tempfile.NamedTemporaryFile(mode='w',
+                                                             delete=False))
+        json.dump(cfg, self._dummy_files[-1])
+        self._dummy_files[-1].close()
+
+    def tearDown(self):
+        for f in self._dummy_files:
+            os.unlink(f.name)
+
+    '''test_clean'''
+
+    def test_clean(self):
+        init_file = mock.MagicMock()
+        init_openssl = mock.MagicMock()
+        init_key_info = mock.MagicMock()
+        _KEY_test = _KEY(init_file, init_openssl, init_key_info)
+        _KEY_test.clean()
+
+    '''test_get_public_key'''
+
+    def test_get_public_key(self):
+        with self.assertRaises(AssertionError) as err:
+            HSM_MANAGER_test = HSM_MANAGER(self._dummy_files[0].name)
+            self.assertIn("key_path", err.msg)
+
+        with self.assertRaises(AssertionError):
+            HSM_MANAGER_test = HSM_MANAGER(self._dummy_files[1].name)
+
+        get_public_key_public_pem = "test_key.pem"
+        HSM_MANAGER_test.get_public_key(get_public_key_public_pem)
 
 '''test_sign'''
 
