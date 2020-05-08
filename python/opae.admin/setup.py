@@ -47,6 +47,6 @@ setup(
     license="BSD3",
     keywords="OPAE accelerator fpga kernel sysfs",
     data_files=[('share/doc/opae.admin',
-                 ['@CMAKE_CURRENT_SOURCE_DIR@/LICENSE'])],
+                 ['LICENSE'])],
     url="https://01.org/OPAE",
 )
