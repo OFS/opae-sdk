@@ -32,7 +32,7 @@ import subprocess
 
 import bist_common as bc
 
-dma_list = {bc.VCP_ID: {0: ('DDR4_A', 4*1024*1024*1024),
+dma_list = {bc.N3000_ID: {0: ('DDR4_A', 4*1024*1024*1024),
                         1: ('DDR4_B', 4*1024*1024*1024),
                         2: ('DDR4_C', 1*1024*1024*1024),
                         3: ('QDR', 16*1024*1024)}
@@ -50,7 +50,7 @@ class DmaMode(bc.BistMode):
         self.executables = \
             {0:
              {'fpga_dma_test': ' -s 1073741824 -p 1048576 -r mtom'},
-             bc.VCP_ID:
+             bc.N3000_ID:
              {'fpga_dma_N3000_test': '0x0b30'}
              }
 
