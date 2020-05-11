@@ -111,7 +111,6 @@ STATIC fpga_result send_fme_event_request(fpga_handle handle,
 	res = opae_dfl_fme_get_err_irq(_handle->fddev, &num_irqs);
 	if (res) {
 		OPAE_ERR("FME interrupts not supported in hw");
-		res = FPGA_EXCEPTION;
 		return res;
 	}
 
@@ -148,7 +147,6 @@ STATIC fpga_result send_port_event_request(fpga_handle handle,
 	res = opae_dfl_port_get_err_irq(_handle->fddev, &num_irqs);
 	if (res) {
 		OPAE_ERR("Port interrupts not supported in hw");
-		res = FPGA_EXCEPTION;
 		return res;
 	}
 
@@ -173,7 +171,7 @@ STATIC fpga_result send_uafu_event_request(fpga_handle handle,
 	int res = FPGA_OK;
 	int fd = FILE_DESCRIPTOR(event_handle);
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	uint32_t num_irqs;
+	uint32_t num_irqs = 0;
 	int32_t neg = -1;
 	UNUSED_PARAM(flags);
 
@@ -186,7 +184,6 @@ STATIC fpga_result send_uafu_event_request(fpga_handle handle,
 	res = opae_dfl_port_get_user_irq(_handle->fddev, &num_irqs);
 	if (res) {
 		OPAE_ERR("Port user interrupts not supported in hw");
-		res = FPGA_EXCEPTION;
 		return res;
 	}
 
@@ -210,18 +207,69 @@ STATIC fpga_result send_uafu_event_request(fpga_handle handle,
 	return res;
 }
 
+STATIC fpga_result check_user_interrupts_supported(fpga_handle handle,
+	fpga_objtype *objtype)
+{
+	fpga_result res = FPGA_OK;
+	fpga_result destroy_res = FPGA_OK;
+	fpga_properties prop = NULL;
+	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	uint32_t num_irqs = 0;
+
+	res = xfpga_fpgaGetPropertiesFromHandle(handle, &prop);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Could not get FPGA properties from handle");
+		return res;
+	}
+
+	res = fpgaPropertiesGetObjectType(prop, objtype);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Could not determine FPGA object type");
+		goto destroy_prop;
+	}
+
+	if (*objtype == FPGA_DEVICE) {
+			OPAE_MSG("Interrupts not supported in hw");
+			res = FPGA_NOT_SUPPORTED;
+	}
+	else if (*objtype == FPGA_ACCELERATOR) {
+		res = opae_dfl_port_get_user_irq(_handle->fddev, &num_irqs);
+		if (res) {
+			OPAE_ERR("Interrupts not supported in hw: %d", res);
+			goto destroy_prop;
+		}
+
+		if (num_irqs > 0) {
+			res = FPGA_OK;
+		}
+		else {
+			OPAE_ERR("Interrupts not supported in hw: %d", res);
+			res = FPGA_NOT_SUPPORTED;
+		}
+	}
+
+destroy_prop:
+	destroy_res = fpgaDestroyProperties(&prop);
+	if (destroy_res != FPGA_OK) {
+		OPAE_MSG("Could not destroy FPGA properties");
+		return destroy_res;
+	}
+
+	return res;
+}
+
 /*
  * Uses driver ioctls to determine whether the driver supports interrupts
  * on this platform. objtype is an output parameter.
  */
-STATIC fpga_result check_interrupts_supported(fpga_handle handle,
+STATIC fpga_result check_err_interrupts_supported(fpga_handle handle,
 					      fpga_objtype *objtype)
 {
 	fpga_result res = FPGA_OK;
 	fpga_result destroy_res = FPGA_OK;
 	fpga_properties prop = NULL;
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	uint32_t num_irqs;
+	uint32_t num_irqs = 0;
 
 	res = xfpga_fpgaGetPropertiesFromHandle(handle, &prop);
 	if (res != FPGA_OK) {
@@ -239,7 +287,7 @@ STATIC fpga_result check_interrupts_supported(fpga_handle handle,
 		res = opae_dfl_fme_get_err_irq(_handle->fddev, &num_irqs);
 		if (res) {
 			OPAE_MSG("Interrupts not supported in hw");
-			res = FPGA_EXCEPTION;
+
 			goto destroy_prop;
 		}
 
@@ -254,7 +302,7 @@ STATIC fpga_result check_interrupts_supported(fpga_handle handle,
 		res = opae_dfl_port_get_err_irq(_handle->fddev, &num_irqs);
 		if (res) {
 			OPAE_MSG("Interrupts not supported in hw");
-			res = FPGA_EXCEPTION;
+
 			goto destroy_prop;
 		}
 
@@ -284,15 +332,15 @@ STATIC fpga_result driver_register_event(fpga_handle handle,
 	fpga_objtype objtype;
 	fpga_result res = FPGA_OK;
 
-	res = check_interrupts_supported(handle, &objtype);
-	if (res != FPGA_OK) {
-		OPAE_MSG(
-			"Could not determine whether interrupts are supported");
-		return FPGA_NOT_SUPPORTED;
-	}
-
 	switch (event_type) {
 	case FPGA_EVENT_ERROR:
+		res = check_err_interrupts_supported(handle, &objtype);
+		if (res != FPGA_OK) {
+			OPAE_MSG(
+				"Could not determine whether interrupts are supported");
+			return FPGA_NOT_SUPPORTED;
+		}
+
 		if (objtype == FPGA_DEVICE) {
 			return send_fme_event_request(handle, event_handle,
 						      FPGA_IRQ_ASSIGN);
@@ -303,9 +351,16 @@ STATIC fpga_result driver_register_event(fpga_handle handle,
 		OPAE_ERR("Invalid objtype: %d", objtype);
 		return FPGA_EXCEPTION;
 	case FPGA_EVENT_INTERRUPT:
+
+		res = check_user_interrupts_supported(handle, &objtype);
 		if (objtype != FPGA_ACCELERATOR) {
-			OPAE_MSG("User events need an accelerator object");
+			OPAE_ERR("User events need an accelerator object");
 			return FPGA_INVALID_PARAM;
+		}
+		if (res != FPGA_OK) {
+			OPAE_ERR(
+				"Could not determine whether interrupts are supported");
+			return FPGA_NOT_SUPPORTED;
 		}
 
 		return send_uafu_event_request(handle, event_handle, flags,
@@ -326,15 +381,16 @@ STATIC fpga_result driver_unregister_event(fpga_handle handle,
 	fpga_objtype objtype;
 	fpga_result res = FPGA_OK;
 
-	res = check_interrupts_supported(handle, &objtype);
-	if (res != FPGA_OK) {
-		OPAE_MSG(
-			"Could not determine whether interrupts are supported");
-		return FPGA_NOT_SUPPORTED;
-	}
 
 	switch (event_type) {
 	case FPGA_EVENT_ERROR:
+		res = check_err_interrupts_supported(handle, &objtype);
+		if (res != FPGA_OK) {
+			OPAE_ERR(
+				"Could not determine whether interrupts are supported");
+			return FPGA_NOT_SUPPORTED;
+		}
+		
 		if (objtype == FPGA_DEVICE) {
 			return send_fme_event_request(handle, event_handle,
 						      FPGA_IRQ_DEASSIGN);
@@ -345,9 +401,16 @@ STATIC fpga_result driver_unregister_event(fpga_handle handle,
 		OPAE_ERR("Invalid objtype: %d", objtype);
 		return FPGA_EXCEPTION;
 	case FPGA_EVENT_INTERRUPT:
+
+		res = check_user_interrupts_supported(handle, &objtype);
 		if (objtype != FPGA_ACCELERATOR) {
-			OPAE_MSG("User events need an Accelerator object");
+			OPAE_ERR("User events need an Accelerator object");
 			return FPGA_INVALID_PARAM;
+		}
+		if (res != FPGA_OK) {
+			OPAE_ERR(
+				"Could not determine whether interrupts are supported");
+			return FPGA_NOT_SUPPORTED;
 		}
 
 		return send_uafu_event_request(handle, event_handle, 0,
