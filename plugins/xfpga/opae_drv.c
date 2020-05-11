@@ -479,7 +479,8 @@ fpga_result dfl_fme_get_err_irq(int fd, uint32_t *num_irqs)
 }
 
 fpga_result dfl_set_irq(int fd,uint32_t start,
-	uint32_t count, int32_t *eventfd,int ioctl_id)
+			uint32_t count, int32_t *eventfd,
+			int ioctl_id)
 {
 	uint32_t sz = sizeof(struct dfl_fpga_irq_set)
 		+ count * sizeof(int32_t);
