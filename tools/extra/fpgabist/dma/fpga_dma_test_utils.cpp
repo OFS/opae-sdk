@@ -630,8 +630,8 @@ fpga_result configure_numa(fpga_token afc_token, bool cpu_affinity, bool memory_
 		hwloc_topology_t topology;
 		hwloc_topology_init(&topology);
 #if HWLOC_API_VERSION >= 0x00020000
-		hwloc_topology_set_flags(topology,
-			HWLOC_TOPOLOGY_FLAG_IS_THISSYSTEM);
+		hwloc_topology_set_io_types_filter(topology,
+			HWLOC_TYPE_FILTER_KEEP_ALL);
 #else
 		hwloc_topology_set_flags(topology,
 			HWLOC_TOPOLOGY_FLAG_IO_DEVICES);
@@ -652,9 +652,10 @@ fpga_result configure_numa(fpga_token afc_token, bool cpu_affinity, bool memory_
 		if (memory_affinity) {
 #if HWLOC_API_VERSION >= 0x00020000
 			retval = hwloc_set_membind(
-				topology, obj2->nodeset,
-				HWLOC_MEMBIND_BIND,
-				HWLOC_MEMBIND_THREAD | HWLOC_MEMBIND_MIGRATE);
+				topology,
+				obj2->nodeset,
+				HWLOC_MEMBIND_DEFAULT,
+				0);
 #else
 			retval = hwloc_set_membind_nodeset(
 				topology, obj2->nodeset,

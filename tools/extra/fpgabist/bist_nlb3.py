@@ -35,9 +35,9 @@ import bist_common as bc
 
 class Nlb3Mode(bc.BistMode):
     name = "nlb_3"
-    mode_list = {0x09c4: "f7df405c-bd7a-cf72-22f1-44b0b93acd18",
-                 0x0b30: "d8424dc4-a4a3-c413-f89e-433683f9040b",
-                 0x0b2b: "d8424dc4-a4a3-c413-f89e-433683f9040b"}
+    mode_list = {bc.A10GX_ID: "f7df405c-bd7a-cf72-22f1-44b0b93acd18",
+                 bc.N3000_ID: "d8424dc4-a4a3-c413-f89e-433683f9040b",
+                 bc.D5005_ID: "d8424dc4-a4a3-c413-f89e-433683f9040b"}
 
     def __init__(self):
         modes = ['read', 'write', 'trput']

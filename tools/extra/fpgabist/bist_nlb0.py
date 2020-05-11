@@ -32,7 +32,7 @@ import subprocess
 
 import bist_common as bc
 
-afu_clk_freqs = {bc.VCP_ID: 200000000}
+afu_clk_freqs = {bc.N3000_ID: 200000000}
 
 
 class Nlb0Mode(bc.BistMode):

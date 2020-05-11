@@ -41,9 +41,9 @@ dma_list = {bc.VCP_ID: {0: ('DDR4_A', 4*1024*1024*1024),
 
 class DmaMode(bc.BistMode):
     name = "dma_afu"
-    mode_list = {0x09c4: "331db30c-9885-41ea-9081-f88b8f655caa",
-                 0x0b30: "331db30c-9885-41ea-9081-f88b8f655caa",
-                 0x0b2b: "331db30c-9885-41ea-9081-f88b8f655caa"}
+    mode_list = {bc.A10GX_ID: "331db30c-9885-41ea-9081-f88b8f655caa",
+                 bc.N3000_ID: "331db30c-9885-41ea-9081-f88b8f655caa",
+                 bc.D5005_ID: "331db30c-9885-41ea-9081-f88b8f655caa"}
 
     def __init__(self):
         # Specify the test(s) for a given architecture or the default (0)
@@ -51,7 +51,7 @@ class DmaMode(bc.BistMode):
             {0:
              {'fpga_dma_test': ' -s 1073741824 -p 1048576 -r mtom'},
              bc.VCP_ID:
-             {'fpga_dma_vc_test': '0x0b30'}
+             {'fpga_dma_N3000_test': '0x0b30'}
              }
 
     def run_cmd(self, cmd):
