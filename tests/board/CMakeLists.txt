@@ -31,53 +31,53 @@ opae_test_add_static_lib(TARGET board-common-static
         opae-c
 )
 
-opae_test_add_static_lib(TARGET board-vc-static
-    SOURCE ${OPAE_SDK_SOURCE}/tools/libboard/board_vc/board_vc.c
+opae_test_add_static_lib(TARGET board-n3000-static
+    SOURCE ${OPAE_SDK_SOURCE}/tools/libboard/board_n3000/board_n3000.c
     LIBS
         opae-c
 )
 
-opae_test_add_static_lib(TARGET board-rc-static
-    SOURCE ${OPAE_SDK_SOURCE}/tools/libboard/board_rc/board_rc.c
+opae_test_add_static_lib(TARGET board-a10gx-static
+    SOURCE ${OPAE_SDK_SOURCE}/tools/libboard/board_a10gx/board_a10gx.c
     LIBS
         opae-c
 )
 
-opae_test_add_static_lib(TARGET board-dc-static
-    SOURCE ${OPAE_SDK_SOURCE}/tools/libboard/board_dc/board_dc.c
+opae_test_add_static_lib(TARGET board-d5005-static
+    SOURCE ${OPAE_SDK_SOURCE}/tools/libboard/board_d5005/board_d5005.c
     LIBS
         opae-c
 )
 
-opae_test_add(TARGET test_board_vc_c
-    SOURCE test_board_vc.cpp
+opae_test_add(TARGET test_board_n3000_c
+    SOURCE test_board_n3000.cpp
     LIBS
-        board-vc-static
+        board-n3000-static
         board-common-static
 )
 
-target_include_directories(test_board_vc_c
+target_include_directories(test_board_n3000_c
     PRIVATE ${OPAE_SDK_SOURCE}/tools
 )
 
-opae_test_add(TARGET test_board_rc_c
-    SOURCE test_board_rc.cpp
+opae_test_add(TARGET test_board_a10gx_c
+    SOURCE test_board_a10gx.cpp
     LIBS
-        board-rc-static
+        board-a10gx-static
         board-common-static
 )
 
-target_include_directories(test_board_rc_c
+target_include_directories(test_board_a10gx_c
     PRIVATE ${OPAE_SDK_SOURCE}/tools
 )
 
-opae_test_add(TARGET test_board_dc_c
-    SOURCE test_board_dc.cpp
+opae_test_add(TARGET test_board_d5005_c
+    SOURCE test_board_d5005.cpp
     LIBS
-        board-dc-static
+        board-d5005-static
         board-common-static
 )
 
-target_include_directories(test_board_dc_c
+target_include_directories(test_board_d5005_c
     PRIVATE ${OPAE_SDK_SOURCE}/tools
 )
