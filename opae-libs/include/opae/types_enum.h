@@ -142,7 +142,9 @@ enum fpga_open_flags {
  */
 enum fpga_reconf_flags {
 	/** Reconfigure the slot without checking if it is in use */
-	FPGA_RECONF_FORCE = (1u << 0)
+	FPGA_RECONF_FORCE = (1u << 0),
+	/** Don't configure AFU user clocks as part of PR */
+	FPGA_RECONF_SKIP_USRCLK = (1u << 1)
 };
 
 enum fpga_sysobject_flags {
