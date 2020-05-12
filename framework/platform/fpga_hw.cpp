@@ -127,6 +127,44 @@ const char *vc_mdata =
      "platform-name": "PAC"}";
 )mdata";
 
+const char *dfl_n3000_mdata =
+R"mdata({"version": 1,
+   "afu-image":
+    {"clock-frequency-high": 312,
+     "clock-frequency-low": 156,
+     "interface-uuid": "a5d72a3c-c8b0-4939-912c-f715e5dc10ca",
+     "magic-no": 488605312,
+     "accelerator-clusters":
+      [
+        {
+          "total-contexts": 1,
+          "name": "nlb3",
+          "accelerator-type-uuid": "9aeffe5f-8457-0612-c000-c9660d824272"
+        }
+      ]
+     },
+     "platform-name": "PAC"}";
+)mdata";
+
+const char *dfl_d5005_mdata =
+R"mdata({"version": 1,
+   "afu-image":
+    {"clock-frequency-high": 312,
+     "clock-frequency-low": 156,
+     "interface-uuid": "9346116d-a52d-5ca8-b06a-a9a389ef7c8d",
+     "magic-no": 488605312,
+     "accelerator-clusters":
+      [
+        {
+          "total-contexts": 1,
+          "name": "nlb3",
+          "accelerator-type-uuid": "f7df405c-bd7a-cf72-22f1-44b0b93acd18"
+        }
+      ]
+     },
+     "platform-name": "PAC"}";
+)mdata";
+
 static platform_db MOCK_PLATFORMS = {
     {"skx-p",
      test_platform{.mock_sysfs = "mock_sys_tmp-1socket-nlb0.tar.gz",
@@ -310,11 +348,11 @@ static platform_db MOCK_PLATFORMS = {
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
                        .mdata = vc_mdata}}}},
-   {"dcp-vc-dfl0",
-     test_platform{.mock_sysfs = "mock_sys_tmp-dcp-vc-dfl0_patchset2-nlb0.tar.gz",
+   {"dfl-n3000",
+     test_platform{.mock_sysfs = "mock_sys_dfl_n3000_nlb0.tar.gz",
                    .driver = fpga_driver::linux_dfl0,
                    .devices = {test_device{
-                       .fme_guid = "CF9B1C50-37C9-45E9-8030-F921B17D2B3A",
+                       .fme_guid = "a5d72a3c-c8b0-4939-912c-f715e5dc10ca",
                        .afu_guid = "9AEFFE5F-8457-0612-C000-C9660D824272",
                        .segment = 0x0,
                        .bus = 0x05,
@@ -323,8 +361,8 @@ static platform_db MOCK_PLATFORMS = {
                        .num_vfs = 0,
                        .socket_id = 0,
                        .num_slots = 1,
-                       .bbs_id = 0x222000200567bd1,
-                       .bbs_version = {2, 2, 2},
+                       .bbs_id = 0x202000200000237,
+                       .bbs_version = {2, 0, 2},
                        .state = FPGA_ACCELERATOR_UNASSIGNED,
                        .num_mmio = 0x2,
                        .num_interrupts = 0,
@@ -332,10 +370,36 @@ static platform_db MOCK_PLATFORMS = {
                        .port_object_id = 0xf400000,
                        .vendor_id = 0x8086,
                        .device_id = 0x0b30,
-                       .fme_num_errors = 9,
+                       .fme_num_errors = 8,
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
-                       .mdata = vc_mdata}}}}
+                       .mdata = dfl_n3000_mdata}}}},
+   { "dfl-d5005",
+     test_platform{ .mock_sysfs = "mock_sys_dfl_d5005_nlb0.tar.gz",
+                       .driver = fpga_driver::linux_dfl0,
+                       .devices = {test_device{
+                       .fme_guid = "9346116d-a52d-5ca8-b06a-a9a389ef7c8d",
+                       .afu_guid = "f7df405c-bd7a-cf72-22f1-44b0b93acd18",
+                       .segment = 0x0,
+                       .bus = 0x05,
+                       .device = 0,
+                       .function = 0,
+                       .num_vfs = 0,
+                       .socket_id = 0,
+                       .num_slots = 1,
+                       .bbs_id = 0x202000200000237,
+                       .bbs_version = {2, 0, 2},
+                       .state = FPGA_ACCELERATOR_UNASSIGNED,
+                       .num_mmio = 0x2,
+                       .num_interrupts = 0,
+                       .fme_object_id = 0xf500000,
+                       .port_object_id = 0xf400000,
+                       .vendor_id = 0x8086,
+                       .device_id = 0x0b2b,
+                       .fme_num_errors = 8,
+                       .port_num_errors = 3,
+                       .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                       .mdata = dfl_d5005_mdata}} } }
 };
 
 
@@ -640,7 +704,8 @@ static std::map<platform_cfg, std::string> platform_names = {
   {  platform_cfg(0x8086, 0xbcc0, fpga_driver::linux_dfl0),  "skx-p-dfl0" },
   {  platform_cfg(0x8086, 0x0b30, fpga_driver::linux_intel), "dcp-vc" },
   {  platform_cfg(0x8086, 0x0b31, fpga_driver::linux_intel), "dcp-vc-v" },
-  {  platform_cfg(0x8086, 0x0b30, fpga_driver::linux_dfl0),  "dcp-vc-dfl0" },
+  {  platform_cfg(0x8086, 0x0b30, fpga_driver::linux_dfl0),  "dfl-n3000" },
+  {  platform_cfg(0x8086, 0x0b2b, fpga_driver::linux_dfl0),  "dfl-d5005" },
   
 };
 
