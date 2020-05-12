@@ -138,7 +138,7 @@ R"mdata({"version": 1,
       [
         {
           "total-contexts": 1,
-          "name": "nlb3",
+          "name": "nlb0",
           "accelerator-type-uuid": "9aeffe5f-8457-0612-c000-c9660d824272"
         }
       ]
@@ -157,7 +157,7 @@ R"mdata({"version": 1,
       [
         {
           "total-contexts": 1,
-          "name": "nlb3",
+          "name": "nlb0",
           "accelerator-type-uuid": "f7df405c-bd7a-cf72-22f1-44b0b93acd18"
         }
       ]
