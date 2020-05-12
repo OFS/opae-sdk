@@ -189,7 +189,7 @@ You can change this installation prefix from `/usr/local` into something else
 by adding `-DCMAKE_INSTALL_PREFIX=<new prefix>` to the `cmake` command above.
 
 Please see Quick Start Guide on how to run the hello\_fpga sample to verify
-libopae-c & driver are built correctly.
+libopae-c and driver are built correctly.
 
 ## Building python distributions for tools ##
 
@@ -325,12 +325,12 @@ $ sudo dpkg -r opae-ase
 ## FPGA Device Access Permissions ##
 
 Access to FPGA accelerators and devices is controlled using file access permissions on the
-Intel&reg; FPGA device files, `/dev/intel-fpga-fme.*` and `/dev/intel-fpga-port.*`, as well as to the files reachable through `/sys/class/fpga/`.
+Intel&reg; FPGA device files, `/dev/dfl-fme.*` and `/dev/dfl-port.*`, as well as to the files reachable through `/sys/class/fpga_region/`.
 
-In order to allow regular (non-root) users to access accelerators, you need to grant them read and write permissions on `/dev/intel/fpga-port.*` (with `*` denoting the respective socket, i.e. 0 or 1). E.g.:
+In order to allow regular (non-root) users to access accelerators, you need to grant them read and write permissions on `/dev/dfl-port.*` (with `*` denoting the respective socket, i.e. 0 or 1). E.g.:
 
 ```console
-$ sudo chmod a+rw /dev/intel-fpga-port.0
+$ sudo chmod a+rw /dev/dfl-port.0
 ```
 
 ## Memlock limit ##
@@ -372,7 +372,7 @@ LimitMEMLOCK=infinity
 
 ## Hugepage Settings ##
 
-Users need to configure system hugepage to reserve 2MB-hugepages or
+Users need to configure system hugepages to reserve 2MB-hugepages or
 1GB-hugepages. For example, the 'hello\_fpga' sample requires several
 2MB-hugepages. And the _fpgadiag_ tool requires several 1GB-hugepages.
 

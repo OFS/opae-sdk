@@ -14,7 +14,7 @@ software programs running on the host.
 
 These features include the acceleration logic preconfigured on the
 device, as well as functions to manage and reconfigure the
-device. Hence, the library is able to enalbe user applications to
+device. Hence, the library is able to enable user applications to
 transparently and seamlessly leverage FPGA-based acceleration.
 
 In this document, we will explore the initial steps on how to setup
@@ -172,13 +172,13 @@ Usage:
     slot by typing the following command and checking the output
     matches the following:
 
-    $ cat /sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0/afu_id
+    $ cat /sys/class/fpga_region/region0/dfl-port.0/afu_id
 
     d8424dc4a4a3c413f89e433683f9040b
 ```
 
 ## Building a sample application ##
-The library source include code samples. Use these samples to learn
+The library source includes code samples. Use these samples to learn
 how to call functions in the library. Build and run these samples as
 quick sanity checks to determine if your installation and environment
 are set up properly.
@@ -188,7 +188,7 @@ World!" example of using the library.  This code searches for a
 predefined and known AFU called "Native Loopback Adapter" on the
 FPGA. If found, it acquires ownership and then interacts with the AFU
 by sending it a 2MB message and waiting for the message being echoed
-back. This coe exercises all major components of the API except for
+back. This code exercises all major components of the API except for
 AFU reconfiguration: AFU search, enumeration, access, MMIO, and memory
 management.
 
@@ -404,7 +404,8 @@ Done
 
 ```eval_rst
 .. note::
-  In order to successfully run hello\_fpga, user need to configure system hugepage to reserve 2M-hugepages.
+  In order to successfully run hello\_fpga, the user needs to configure
+  system hugepage to reserve 2M-hugepages.
   For example, the command below reserves 20 2M-hugepages:
 
   $ echo 20 | sudo tee /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages

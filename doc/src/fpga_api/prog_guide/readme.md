@@ -194,9 +194,6 @@ columns state whether or not the Property is available for the FPGA or Accelerat
 |BBSID |Yes |No |The FPGA Interface Manager (FIM) ID of an `FPGA_DEVICE` resource |
 |BBSVersion |Yes |No |The FIM version of an `FPGA_DEVICE` resource |
 |VendorId |Yes |No |The vendor ID of an `FPGA_DEVICE` resource |
-|Model |Yes |No |The model of an `FPGA_DEVICE` resource |
-|LocalMemorySize |Yes |No |The local memory size of an `FPGA_DEVICE` resource |
-|Capabilities |Yes |No |The capabilities of an `FPGA_DEVICE` resource |
 |GUID |Yes |Yes |The GUID of an `FPGA_DEVICE` or `FPGA_ACCELERATOR` resource |
 |NumMMIO |No |Yes |The number of MMIO space of an `FPGA_ACCELERATOR` resource |
 |NumInterrupts |No |Yes |The number of interrupts of an `FPGA_ACCELERATOR` resource |
