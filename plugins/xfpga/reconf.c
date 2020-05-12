@@ -392,12 +392,18 @@ fpga_result __XFPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 		OPAE_DBG(" AFU_uuid                 :%s\n",
 			 metadata.afu_image.afu_clusters.afu_uuid);
 
+
 		// Set AFU user clock
-		if (metadata.afu_image.clock_frequency_high > 0 || metadata.afu_image.clock_frequency_low > 0) {
-			result = set_afu_userclock(fpga, metadata.afu_image.clock_frequency_high, metadata.afu_image.clock_frequency_low);
-			if (result != FPGA_OK) {
-				OPAE_ERR("Failed to set user clock");
-				goto out_unlock;
+		if (!(flags & FPGA_RECONF_SKIP_USRCLK)) {
+			if (metadata.afu_image.clock_frequency_high > 0 ||
+			    metadata.afu_image.clock_frequency_low > 0) {
+				result = set_afu_userclock(fpga,
+						metadata.afu_image.clock_frequency_high,
+						metadata.afu_image.clock_frequency_low);
+				if (result != FPGA_OK) {
+					OPAE_ERR("Failed to set user clock");
+					goto out_unlock;
+				}
 			}
 		}
 
