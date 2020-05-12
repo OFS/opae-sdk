@@ -56,12 +56,12 @@ static pthread_mutex_t board_plugin_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_N
 
 // Board plug-in table
 static platform_data platform_data_table[] = {
-	{ 0x8086, 0x09c4, "libboard_rc.so", NULL },
-	{ 0x8086, 0x09c5, "libboard_rc.so", NULL },
-	{ 0x8086, 0x0b30, "libboard_vc.so", NULL },
-	{ 0x8086, 0x0b31, "libboard_vc.so", NULL },
-	{ 0x8086, 0x0b2b, "libboard_dc.so", NULL },
-	{ 0x8086, 0x0b2c, "libboard_dc.so", NULL },
+	{ 0x8086, 0x09c4, "libboard_a10gx.so", NULL },
+	{ 0x8086, 0x09c5, "libboard_a10gx.so", NULL },
+	{ 0x8086, 0x0b30, "libboard_n3000.so", NULL },
+	{ 0x8086, 0x0b31, "libboard_n3000.so", NULL },
+	{ 0x8086, 0x0b2b, "libboard_d5005.so", NULL },
+	{ 0x8086, 0x0b2c, "libboard_d5005.so", NULL },
 	{ 0,      0,          NULL, NULL },
 };
 

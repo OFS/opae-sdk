@@ -47,14 +47,14 @@ extern "C" {
 #include <string>
 #include "gtest/gtest.h"
 #include "mock/test_system.h"
-#include "libboard/board_dc/board_dc.h"
+#include "libboard/board_d5005/board_d5005.h"
 #include "libboard/board_common/board_common.h"
 
 using namespace opae::testing;
 
-class board_dc_c_p : public ::testing::TestWithParam<std::string> {
+class board_d5005_c_p : public ::testing::TestWithParam<std::string> {
 protected:
-	board_dc_c_p() : tokens_{ {nullptr, nullptr} } {}
+	board_d5005_c_p() : tokens_{ {nullptr, nullptr} } {}
 
 	fpga_result write_sysfs_file(const char *file,
 		void *buf, size_t count);
@@ -105,7 +105,7 @@ protected:
 	test_system *system_;
 };
 
-ssize_t board_dc_c_p::eintr_write(int fd, void *buf, size_t count)
+ssize_t board_d5005_c_p::eintr_write(int fd, void *buf, size_t count)
 {
 	ssize_t bytes_written = 0, total_written = 0;
 	char *ptr = (char*)buf;
@@ -128,7 +128,7 @@ ssize_t board_dc_c_p::eintr_write(int fd, void *buf, size_t count)
 	return total_written;
 
 }
-fpga_result board_dc_c_p::write_sysfs_file(const char *file,
+fpga_result board_d5005_c_p::write_sysfs_file(const char *file,
 	void *buf, size_t count) {
 	fpga_result res = FPGA_OK;
 	char sysfspath[SYSFS_PATH_MAX];
@@ -162,7 +162,7 @@ fpga_result board_dc_c_p::write_sysfs_file(const char *file,
 	return res;
 }
 
-fpga_result board_dc_c_p::delete_sysfs_file(const char *file) {
+fpga_result board_d5005_c_p::delete_sysfs_file(const char *file) {
 	fpga_result res = FPGA_OK;
 	char sysfspath[SYSFS_PATH_MAX];
 	int status = 0;
@@ -187,12 +187,15 @@ fpga_result board_dc_c_p::delete_sysfs_file(const char *file) {
 	return res;
 }
 
+// test DFL sysfs attributes
+class board_dfl_d5005_c_p : public board_d5005_c_p { };
+
 /**
-* @test       board_dc_1
+* @test       board_d5005_1
 * @brief      Tests: read_bmcfw_version
 * @details    Validates bmc firmware version  <br>
 */
-TEST_P(board_dc_c_p, board_dc_1) {
+TEST_P(board_dfl_d5005_c_p, board_d5005_1) {
 
 	char bmcfw_ver[SYSFS_PATH_MAX];
 
@@ -204,11 +207,11 @@ TEST_P(board_dc_c_p, board_dc_1) {
 }
 
 /**
-* @test       board_dc_2
+* @test       board_d5005_2
 * @brief      Tests: read_max10fw_version
 * @details    Validates max10 firmware version  <br>
 */
-TEST_P(board_dc_c_p, board_dc_2) {
+TEST_P(board_dfl_d5005_c_p, board_d5005_2) {
 
 	char max10fw_ver[SYSFS_PATH_MAX];
 
@@ -220,11 +223,25 @@ TEST_P(board_dc_c_p, board_dc_2) {
 }
 
 /**
-* @test       board_dc_3
+* @test       board_d5005_10
+* @brief      Tests: print_sec_info
+* @details    Validates fpga board info  <br>
+*/
+TEST_P(board_dfl_d5005_c_p, board_d5005_10) {
+
+	EXPECT_EQ(print_sec_info(tokens_[0]), FPGA_OK);
+}
+
+
+INSTANTIATE_TEST_CASE_P(board_dfl_d5005_c, board_dfl_d5005_c_p,
+	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-d5005-dfl" })));
+
+/**
+* @test       board_d5005_3
 * @brief      Tests: read_sysfs
 * @details    Validates read sysfs  <br>
 */
-TEST_P(board_dc_c_p, board_dc_3) {
+TEST_P(board_d5005_c_p, board_d5005_3) {
 
 	char name[SYSFS_PATH_MAX] = { 0 };
 
@@ -238,30 +255,27 @@ TEST_P(board_dc_c_p, board_dc_3) {
 }
 
 /**
-* @test       board_dc_4
+* @test       board_d5005_4
 * @brief      Tests: print_sec_info
 * @details    Validates sec info  <br>
 */
-TEST_P(board_dc_c_p, board_dc_4) {
+TEST_P(board_d5005_c_p, board_d5005_4) {
 
 	EXPECT_EQ(print_sec_info(tokens_[0]), FPGA_OK);
-	EXPECT_EQ(print_sec_info(NULL), FPGA_INVALID_PARAM);
 }
-
-
-INSTANTIATE_TEST_CASE_P(baord_dc_c, board_dc_c_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-dc-dfl" })));
+INSTANTIATE_TEST_CASE_P(baord_d5005_c, board_d5005_c_p,
+	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-d5005-dfl" })));
 
 // test invalid sysfs attributes
-class board_dc_invalid_c_p : public board_dc_c_p { };
+class board_d5005_invalid_c_p : public board_d5005_c_p { };
 
 /**
-* @test       board_dc_10
+* @test       board_d5005_10
 * @brief      Tests: read_max10fw_version
 *             read_bmcfw_version print_sec_info
 * @details    Validates function with invalid sysfs <br>
 */
-TEST_P(board_dc_invalid_c_p, board_dc_9) {
+TEST_P(board_d5005_invalid_c_p, board_d5005_9) {
 
 	char bmcfw_ver[SYSFS_PATH_MAX];
 	EXPECT_EQ(read_bmcfw_version(tokens_[0], bmcfw_ver, SYSFS_PATH_MAX), FPGA_NOT_FOUND);
@@ -272,5 +286,5 @@ TEST_P(board_dc_invalid_c_p, board_dc_9) {
 	EXPECT_EQ(print_sec_info(tokens_[0]), FPGA_NOT_FOUND);
 
 }
-INSTANTIATE_TEST_CASE_P(board_dc_invalid_c, board_dc_invalid_c_p,
+INSTANTIATE_TEST_CASE_P(board_d5005_invalid_c, board_d5005_invalid_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
