@@ -30,7 +30,6 @@
 
 #include "types_int.h"
 #include "xfpga.h"
-#include "intel-fpga.h"
 #include "fpga-dfl.h"
 #include "gtest/gtest.h"
 #include "mock/test_system.h"
@@ -152,7 +151,7 @@ TEST_P(reset_c_p, valid_port_reset) {
   EXPECT_EQ(FPGA_OK, xfpga_fpgaReset(handle_));
 } 
 
-INSTANTIATE_TEST_CASE_P(reset_c, reset_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(reset_c, reset_c_p, ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 class reset_c_mock_p : public reset_c_p {
  protected:
@@ -167,10 +166,9 @@ class reset_c_mock_p : public reset_c_p {
  *
  */
 TEST_P(reset_c_mock_p, test_port_drv_reset_01) {
-  system_->register_ioctl_handler(FPGA_PORT_RESET,dummy_ioctl<-1,EINVAL>);
   system_->register_ioctl_handler(DFL_FPGA_PORT_RESET, dummy_ioctl<-1, EINVAL>);
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReset(handle_));
 }
 
 INSTANTIATE_TEST_CASE_P(reset_c, reset_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms()));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));

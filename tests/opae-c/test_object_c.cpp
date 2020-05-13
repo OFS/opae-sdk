@@ -33,7 +33,6 @@ extern "C" {
 }
 
 #include <opae/fpga.h>
-#include "intel-fpga.h"
 #include <linux/ioctl.h>
 
 #include <array>
@@ -171,7 +170,7 @@ TEST_P(object_c_p, obj_write64) {
   EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
 
   // clear the port errors
-  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors/clear", &obj, 0),
+  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors/errors", &obj, 0),
 		    FPGA_OK);
   ASSERT_EQ(fpgaObjectWrite64(obj, errors, 0), FPGA_OK);
   EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
@@ -190,7 +189,7 @@ TEST_P(object_c_p, obj_get_obj0) {
 
   ASSERT_EQ(fpgaHandleGetObject(accel_, "errors", &errors_obj, 0),
 		    FPGA_OK);
-  ASSERT_EQ(fpgaObjectGetObject(errors_obj, "clear",
+  ASSERT_EQ(fpgaObjectGetObject(errors_obj, "errors",
                                 &clear_obj, 0), FPGA_OK);
   ASSERT_EQ(fpgaObjectWrite64(clear_obj, 0, 0), FPGA_OK);
   EXPECT_EQ(fpgaDestroyObject(&clear_obj), FPGA_OK);
@@ -260,7 +259,7 @@ TEST_P(object_c_p, obj_get_size) {
 }
 
 INSTANTIATE_TEST_CASE_P(object_c, object_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 class object_c_mock_p : public object_c_p {
   protected:
@@ -310,12 +309,12 @@ TEST_P(object_c_mock_p, obj_get_obj_err) {
 		    FPGA_OK);
 
   system_->invalidate_malloc(0, "opae_allocate_wrapped_object");
-  ASSERT_EQ(fpgaObjectGetObject(errors_obj, "clear",
+  ASSERT_EQ(fpgaObjectGetObject(errors_obj, "errors",
                                 &clear_obj, 0), FPGA_NO_MEMORY);
 
   EXPECT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
 }
 
 INSTANTIATE_TEST_CASE_P(object_c, object_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc","dcp-vc"  })));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
