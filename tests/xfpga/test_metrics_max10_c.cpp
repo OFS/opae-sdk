@@ -111,7 +111,7 @@ TEST_P(metrics_max10_c_p, test_metric_max10_1) {
   char file[] = "curr1_input";
   char sysfs[] =
 		"/sys/class/fpga_region/region*/dfl-fme.*/dfl-fme.*/spi-altera.*.auto/"
-		"spi_master/spi4/spi*/*-hwmon.*.auto/hwmon/hwmon*";
+		"spi_master/spi*/spi*/*-hwmon.*.auto/hwmon/hwmon*";
 
   EXPECT_NE(read_sensor_sysfs_file(NULL, file, &buf, &tot_bytes_ret), FPGA_OK);
 
@@ -164,7 +164,7 @@ TEST_P(metrics_max10_c_p, test_metric_max10_2) {
   EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
 }
 INSTANTIATE_TEST_CASE_P(metrics_max10_c, metrics_max10_c_p,
-    ::testing::ValuesIn(test_platform::mock_platforms({"dcp-d5005-dfl"})));
+    ::testing::ValuesIn(test_platform::mock_platforms({"dfl-d5005"})));
 
 class metrics_invalid_max10_c_p : public metrics_max10_c_p {};
 
@@ -218,4 +218,4 @@ TEST_P(metrics_max10_vc_c_p, test_metric_max10_4) {
 	EXPECT_EQ(FPGA_INVALID_PARAM, read_max10_value(NULL, &dvalue));
 }
 INSTANTIATE_TEST_CASE_P(metrics_max10_c, metrics_max10_vc_c_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-d5005-dfl" })));
+	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-d5005" })));
