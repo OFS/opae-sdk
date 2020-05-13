@@ -663,7 +663,7 @@ TEST_P(events_p, irq_event_06) {
 }
 
 INSTANTIATE_TEST_CASE_P(events, events_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "dcp-n3000-dfl","dcp-d5005-dfl" })));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 
 class events_dcp_p : public events_p {};
@@ -701,7 +701,7 @@ TEST_P(events_dcp_p, invalid_fme_event_request){
 }
 
 INSTANTIATE_TEST_CASE_P(events, events_dcp_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms({ "dcp-n3000-dfl","dcp-d5005-dfl" })));
+                        ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-n3000","dfl-d5005" })));
 
 
 class events_mcp_p : public events_p {};
@@ -741,7 +741,7 @@ TEST_P(events_mcp_p, invalid_fme_event_request){
 }
 
 INSTANTIATE_TEST_CASE_P(events, events_mcp_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "dcp-n3000-dfl","dcp-d5005-dfl" })));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 
 
@@ -1143,7 +1143,7 @@ TEST_P(events_mock_p, afu_driver_unregister_event){
 
   system_->register_ioctl_handler(DFL_FPGA_PORT_UINT_SET_IRQ, dummy_ioctl<-1, EINVAL>);
   res = driver_unregister_event(handle_accel_, FPGA_EVENT_INTERRUPT, eh_);
-  EXPECT_EQ(FPGA_EXCEPTION,res);
+  EXPECT_EQ(FPGA_NOT_SUPPORTED,res);
 
   // Not supported event_type
   res = driver_unregister_event(handle_accel_, FPGA_EVENT_POWER_THERMAL, eh_);
@@ -1292,4 +1292,4 @@ TEST_P(events_mock_p, irq_event_03) {
 }
 
 INSTANTIATE_TEST_CASE_P(events, events_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "dcp-n3000-dfl","dcp-d5005-dfl" })));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
