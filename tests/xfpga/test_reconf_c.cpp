@@ -32,7 +32,6 @@ extern "C" {
 #include <opae/access.h>
 #include <opae/enum.h>
 #include <opae/properties.h>
-#include "intel-fpga.h"
 #include "fpga-dfl.h"
 #include "reconf_int.h"
 #include "token_list_int.h"
@@ -148,9 +147,6 @@ TEST_P(reconf_c, set_afu_userclock) {
   result = set_afu_userclock(handle_, 0, 0);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
-
-
-
 
 /**
 * @test    fpga_reconf_slot
@@ -423,7 +419,6 @@ TEST_P(reconf_c_mock_p, fpga_reconf_slot_einval) {
   int flags = 0;
 
   // register an ioctl handler that will return -1 and set errno to EINVAL
-  system_->register_ioctl_handler(FPGA_FME_PORT_PR, dummy_ioctl<-1, EINVAL>);
   system_->register_ioctl_handler(DFL_FPGA_FME_PORT_PR, dummy_ioctl<-1, EINVAL>);
   result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid_.data(),
                                      bitstream_valid_.size(), flags);
@@ -443,7 +438,6 @@ TEST_P(reconf_c_mock_p, fpga_reconf_slot_enotsup) {
   int flags = 0;
 
   // register an ioctl handler that will return -1 and set errno to ENOTSUP
-  system_->register_ioctl_handler(FPGA_FME_PORT_PR, dummy_ioctl<-1, ENOTSUP>);
   system_->register_ioctl_handler(DFL_FPGA_FME_PORT_PR, dummy_ioctl<-1, ENOTSUP>);
   result = xfpga_fpgaReconfigureSlot(handle_, slot, bitstream_valid_.data(),
                                      bitstream_valid_.size(), flags);
@@ -451,7 +445,7 @@ TEST_P(reconf_c_mock_p, fpga_reconf_slot_enotsup) {
 }
 
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 class reconf_c_hw_skx_p : public reconf_c {
   protected:
@@ -470,7 +464,7 @@ TEST_P(reconf_c_hw_skx_p, set_afu_userclock) {
 }
 
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c_hw_skx_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms({"skx-p"})));
+                        ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-n3000","dfl-d5005" })));
 
 class reconf_c_hw_dcp_p : public reconf_c {
   protected:
@@ -489,7 +483,7 @@ TEST_P(reconf_c_hw_dcp_p, set_afu_userclock) {
 }
 
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c_hw_dcp_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms({"dcp-p"})));
+                        ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-n3000","dfl-d5005" })));
 
 /**
 * @test    clear_port_errors
@@ -597,4 +591,4 @@ TEST_P(reconf_c_hw_p, fpga_reconf_slot_inv_len) {
 }
 
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c_hw_p,
-	::testing::ValuesIn(test_platform::hw_platforms({ "skx-p", "dcp-rc" })));
+	::testing::ValuesIn(test_platform::hw_platforms({ "dfl-n3000","dfl-d5005" })));

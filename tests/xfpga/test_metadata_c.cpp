@@ -400,7 +400,7 @@ TEST_P(metadata_c, get_interface_id_03) {
   EXPECT_EQ(res, FPGA_EXCEPTION);
 }
 
-INSTANTIATE_TEST_CASE_P(metadata, metadata_c, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(metadata, metadata_c, ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 class metadata_mock_c : public metadata_c {};
 
 /**
@@ -419,34 +419,35 @@ TEST_P(metadata_mock_c, validate_bitstream_metadata) {
 }
 
 INSTANTIATE_TEST_CASE_P(metadata, metadata_mock_c,
-	::testing::ValuesIn(test_platform::mock_platforms({ "skx-p-dfl0_patchset2", "skx-p" })));
+	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
-class metadata_mock_rc_c : public metadata_c {};
+class metadata_mock_d5005_c : public metadata_c {};
 
-uint8_t bitstream_rc_guid[] = "XeonFPGA\xb7GBSv001\53\02\00\00 {\"version\": 640, \"afu-image\":\
+uint8_t bitstream_d5005_guid[] = "XeonFPGA\xb7GBSv001\53\02\00\00 {\"version\": 640, \"afu-image\":\
       {\"clock-frequency-high\": 312, \"clock-frequency-low\": 156, \
-      \"power\": 50, \"interface-uuid\": \"F64E598B-EA11-517F-A28E-7BC65D885104\", \
+      \"power\": 50, \"interface-uuid\": \"9346116d-a52d-5ca8-b06a-a9a389ef7c8d\", \
       \"magic-no\": 488605312, \"accelerator-clusters\": [{\"total-contexts\":1,\
       \"name\": \"nlb_400\", \"accelerator-type-uuid\":\
-      \"F64E598B-EA11-517F-A28E-7BC65D885104\"}]}, \"platform-name\": \"RC\"}";
+      \"F64E598B-EA11-517F-A28E-7BC65D885104\"}]}, \"platform-name\": \"d5005\"}";
 
 /**
 * @test    validate_metadata
-* @brief   Tests: validate_bitstream_metadata
+* @brief   Tests: validate_bitstream_metadata_1
 * @details validate_bitstream_metadata validates BS metadata
 *          Returns FPGA_OK if metadata is valid
 */
-TEST_P(metadata_mock_rc_c, validate_bitstream_metadata_rc) {
+
+TEST_P(metadata_mock_d5005_c, validate_bitstream_metadata_1) {
 	fpga_result result;
 
 	ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
 
-	result = validate_bitstream_metadata(handle_, bitstream_rc_guid);
+	result = validate_bitstream_metadata(handle_, bitstream_d5005_guid);
 	EXPECT_EQ(result, FPGA_OK);
 }
 
-INSTANTIATE_TEST_CASE_P(metadata, metadata_mock_rc_c,
-	::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc","dcp-rc-dfl0_patchset2"})));
+INSTANTIATE_TEST_CASE_P(metadata, metadata_mock_d5005_c,
+	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-d5005" })));
 
 
 class metadata_hw_c : public metadata_c {};
@@ -467,4 +468,4 @@ TEST_P(metadata_hw_c, validate_bitstream_metadata) {
 }
 
 INSTANTIATE_TEST_CASE_P(metadata, metadata_hw_c,
-                        ::testing::ValuesIn(test_platform::hw_platforms({"skx-p", "dcp-rc"})));
+                        ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-n3000","dfl-d5005" })));
