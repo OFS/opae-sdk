@@ -309,7 +309,7 @@ class fme(region):
             self.log.error(msg)
             raise ValueError(msg)
         data = struct.pack('i', port_num)
-        self.ioctl(self.DFL_FPGA_FME_PORT_RELEASE , data)
+        self.ioctl(self.DFL_FPGA_FME_PORT_RELEASE, data)
 
     def assign_port(self, port_num):
         """assign_port Assign port device (disable SR-IOV).
