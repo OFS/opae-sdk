@@ -57,7 +57,6 @@
 #include "metrics/vector.h"
 #include "xfpga.h"
 #include "metrics/metrics_metadata.h"
-#include "metrics/max10_metadata.h"
 
 // Max10 Metric limits
 #define THERMAL_HIGH_LIMIT             300.00
