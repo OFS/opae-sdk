@@ -166,7 +166,6 @@ The table below groups important API calls by their functionality. For more info
 |Access: Reset      | ```fpgaReset()``` |Yes| Yes| Reset an accelerator |
 |Access: Event handling | ```fpga[Register, Unregister]Event()``` |Yes| Yes| Register/unregister an event to be notified about |
 |               | ```fpga[Create, Destroy]EventHandle()```|Yes| Yes| Manage ```fpga_event_handle``` life cycle |
-|Access: UMsg           | ```fpgaGetNumUmsg()```, ```fpgaSetUmsgAttributes()```, ```fpgaTriggerUmsg()```, ```fpgaGetUmsgPtr()``` | No|Yes| Low-latency accelerator notification mechanism.|
 |Access: MMIO       | ```fpgaMapMMIO()```, ```fpgaUnMapMMIO()``` |Yes| Yes| Map/unmap MMIO space |
 |           | ```fpgaGetMMIOInfo()``` |Yes| Yes| Get information about the specified MMIO space |
 |           | ```fpgaReadMMIO[32, 64]()``` | Yes| Yes|Read a 32-bit or 64-bit value from MMIO space |
@@ -175,6 +174,12 @@ The table below groups important API calls by their functionality. For more info
 |              | ```fpgaGetIOAddress()``` | Yes| Yes|Return the device I/O address of a shared memory buffer |
 |Management: Reconfiguration | ```fpgaReconfigureSlot()``` | Yes | No | Replace an existing AFU with a new one |
 |Error report | ```fpgaErrStr()``` | Yes| Yes|Map an error code to a human readable string |
+
+.. note::
+
+```
+The UMsg APIs are not supported for the Intel&reg PAC cards and are being deprecated.
+```
 
 ### FPGA Resource Properties ###
 Applications query resource properties by specifying the property name for `Prop` in the 
