@@ -37,7 +37,6 @@ extern "C"{
 #include "xfpga.h"
 #include "types_int.h"
 #include "opae/mmio.h"
-#include "intel-fpga.h"
 #include "fpga-dfl.h"
 #include "opae/access.h"
 #include "linux/ioctl.h"
@@ -81,40 +80,40 @@ static bool mmio_map_is_empty(struct wsid_map *root) {
 #define FPGA_MSG(fmt, ...) \
 	printf("MOCK " fmt "\n", ## __VA_ARGS__)
 
-int mmio_ioctl(mock_object * m, int request, va_list argp){
-    int retval = -1;
-    errno = EINVAL;
-    UNUSED_PARAM(m);
-    UNUSED_PARAM(request);
-    struct fpga_port_region_info *rinfo = va_arg(argp, struct fpga_port_region_info *);
-    if (!rinfo) {
-      FPGA_MSG("rinfo is NULL");
-      goto out_EINVAL;
-    }
-    if (rinfo->argsz != sizeof(*rinfo)) {
-      FPGA_MSG("wrong structure size");
-      goto out_EINVAL;
-    }
-    if (rinfo->index > 1 ) {
-      FPGA_MSG("unsupported MMIO index");
-      goto out_EINVAL;
-    }
-    if (rinfo->padding != 0) {
-      FPGA_MSG("unsupported padding");
-      goto out_EINVAL;
-    }
-    rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
-    rinfo->size = 0x40000;
-    rinfo->offset = 0;
-    retval = 0;
-    errno = 0;
+int mmio_ioctl(mock_object * m, int request, va_list argp) {
+	int retval = -1;
+	errno = EINVAL;
+	UNUSED_PARAM(m);
+	UNUSED_PARAM(request);
+	struct dfl_fpga_port_region_info *rinfo = va_arg(argp, struct dfl_fpga_port_region_info *);
+	if (!rinfo) {
+		FPGA_MSG("rinfo is NULL");
+		goto out_EINVAL;
+	}
+	if (rinfo->argsz != sizeof(*rinfo)) {
+		FPGA_MSG("wrong structure size");
+		goto out_EINVAL;
+	}
+	if (rinfo->index > 1) {
+		FPGA_MSG("unsupported MMIO index");
+		goto out_EINVAL;
+	}
+	if (rinfo->padding != 0) {
+		FPGA_MSG("unsupported padding");
+		goto out_EINVAL;
+	}
+	rinfo->flags = DFL_PORT_REGION_READ | DFL_PORT_REGION_WRITE | DFL_PORT_REGION_MMAP;
+	rinfo->size = 0x40000;
+	rinfo->offset = 0;
+	retval = 0;
+	errno = 0;
 out:
-    return retval;
+	return retval;
 
 out_EINVAL:
-    retval = -1;
-    errno = EINVAL;
-    goto out;
+	retval = -1;
+	errno = EINVAL;
+	goto out;
 }
 
 
@@ -308,7 +307,6 @@ TEST_P(openclose_c_p, close_03) {
   ASSERT_EQ(FPGA_OK, res);
 
   // Register valid ioctl
-  system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
   system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
   EXPECT_TRUE(mmio_map_is_empty(((struct _fpga_handle*)handle_)->mmio_root));
 
@@ -320,7 +318,7 @@ TEST_P(openclose_c_p, close_03) {
 }
 
 INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_p, 
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 class openclose_c_skx_dcp_p
     : public openclose_c_p {};
@@ -408,4 +406,4 @@ TEST_P(openclose_c_mock_p, invalid_open_close) {
 }
 
 INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_mock_p, 
-                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));

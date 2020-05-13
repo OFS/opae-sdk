@@ -400,7 +400,7 @@ TEST_P(metadata_c, get_interface_id_03) {
   EXPECT_EQ(res, FPGA_EXCEPTION);
 }
 
-INSTANTIATE_TEST_CASE_P(metadata, metadata_c, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(metadata, metadata_c, ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 class metadata_mock_c : public metadata_c {};
 
 /**
@@ -436,6 +436,7 @@ uint8_t bitstream_rc_guid[] = "XeonFPGA\xb7GBSv001\53\02\00\00 {\"version\": 640
 * @details validate_bitstream_metadata validates BS metadata
 *          Returns FPGA_OK if metadata is valid
 */
+/*
 TEST_P(metadata_mock_rc_c, validate_bitstream_metadata_rc) {
 	fpga_result result;
 
@@ -443,10 +444,10 @@ TEST_P(metadata_mock_rc_c, validate_bitstream_metadata_rc) {
 
 	result = validate_bitstream_metadata(handle_, bitstream_rc_guid);
 	EXPECT_EQ(result, FPGA_OK);
-}
+}*/
 
 INSTANTIATE_TEST_CASE_P(metadata, metadata_mock_rc_c,
-	::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc","dcp-rc-dfl0_patchset2"})));
+	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 
 class metadata_hw_c : public metadata_c {};
@@ -467,4 +468,4 @@ TEST_P(metadata_hw_c, validate_bitstream_metadata) {
 }
 
 INSTANTIATE_TEST_CASE_P(metadata, metadata_hw_c,
-                        ::testing::ValuesIn(test_platform::hw_platforms({"skx-p", "dcp-rc"})));
+                        ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-n3000","dfl-d5005" })));

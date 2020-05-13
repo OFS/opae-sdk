@@ -156,4 +156,4 @@ TEST_P(token_list_c_p, invalid_paths) {
 }
 
 INSTANTIATE_TEST_CASE_P(token_list_c, token_list_c_p,
-                        ::testing::ValuesIn(test_platform::keys(true)));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));

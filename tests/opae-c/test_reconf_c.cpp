@@ -33,7 +33,6 @@ extern "C" {
 }
 
 #include <opae/fpga.h>
-#include "intel-fpga.h"
 #include <linux/ioctl.h>
 
 #include <array>

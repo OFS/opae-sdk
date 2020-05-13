@@ -226,7 +226,7 @@ TEST_P(properties_c_p, valid_gets) {
 }
 
 INSTANTIATE_TEST_CASE_P(properties_c, properties_c_p,
-                        ::testing::ValuesIn(test_platform::keys(true)));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 /**
  * @test    fpga_get_properties
