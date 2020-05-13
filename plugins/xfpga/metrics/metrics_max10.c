@@ -58,7 +58,6 @@
 #include "xfpga.h"
 #include "metrics_max10.h"
 
-
 // Max10 Metric limits
 #define THERMAL_HIGH_LIMIT             300.00
 #define THERMAL_LOW_LIMIT              -273.00

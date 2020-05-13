@@ -255,65 +255,6 @@ fpga_result set_afu_userclock(fpga_handle handle,
 	return result;
 }
 
-// Sets FPGA threshold power values
-fpga_result set_fpga_pwr_threshold(fpga_handle handle,
-					uint64_t gbs_power)
-{
-	char sysfs_path[SYSFS_PATH_MAX]   = { 0, };
-	fpga_result result                = FPGA_OK;
-	uint64_t fpga_power               = 0;
-	struct _fpga_token  *_token       = NULL;
-	struct _fpga_handle *_handle      = (struct _fpga_handle *)handle;
-
-	if (_handle == NULL) {
-		OPAE_ERR("Invalid handle");
-		return FPGA_INVALID_PARAM;
-	}
-
-	_token = (struct _fpga_token *)_handle->token;
-	if (_token == NULL) {
-		OPAE_ERR("Invalid token within handle");
-		return FPGA_INVALID_PARAM;
-	}
-
-	// Set max power if not specified by gbs
-	if (gbs_power == 0) {
-		gbs_power = FPGA_GBS_MAX_POWER;
-	}
-
-	// verify gbs power limits
-	if (gbs_power > FPGA_GBS_MAX_POWER) {
-		OPAE_ERR("Invalid GBS power value");
-		result = FPGA_NOT_SUPPORTED;
-		return result;
-	}
-
-	// FPGA threshold1 = BBS Idle power + GBS power
-	fpga_power = gbs_power + FPGA_BBS_IDLE_POWER;
-	if (fpga_power > FPGA_MAX_POWER) {
-		OPAE_ERR("Total power requirements exceed FPGA maximum");
-		result = FPGA_NOT_SUPPORTED;
-		return result;
-	}
-
-	// set fpga threshold 1
-	if (snprintf(sysfs_path, sizeof(sysfs_path),
-		     "%s/%s", _token->sysfspath, PWRMGMT_THRESHOLD1) < 0) {
-		OPAE_ERR("snprintf buffer overflow");
-		result = FPGA_EXCEPTION;
-		return result;
-	}
-
-	OPAE_DBG(" FPGA Threshold1             :%ld watts\n", fpga_power);
-
-	result = sysfs_write_u64(sysfs_path, fpga_power);
-	if (result != FPGA_OK) {
-		OPAE_ERR("Failed to write power threshold 1");
-		return result;
-	}
-
-	return result;
-}
 
 fpga_result __XFPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 						uint32_t slot,
@@ -328,7 +269,6 @@ fpga_result __XFPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 	int bitstream_header_len        = 0;
 	int err                         = 0;
 	fpga_handle accel               = NULL;
-	struct stat st;
 
 	result = handle_check_and_lock(_handle);
 	if (result)
@@ -364,7 +304,6 @@ fpga_result __XFPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 	}
 
 	if (get_bitstream_json_len(bitstream) > 0) {
-		enum fpga_hw_type hw_type = FPGA_HW_UNKNOWN;
 
 		// Read GBS json metadata
 		memset(&metadata, 0, sizeof(metadata));
@@ -401,23 +340,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaReconfigureSlot(fpga_handle fpga,
 			}
 		}
 
-		// get fpga device id.
-		result = get_fpga_hw_type(fpga, &hw_type);
-		if (result != FPGA_OK) {
-			OPAE_ERR("Failed to discover hardware type.");
-			goto out_unlock;
-		}
 
-		// Set power threshold for integrated fpga.
-		if (hw_type == FPGA_HW_MCP &&
-			!stat(FPGA_SYSFS_CLASS_PATH_INTEL, &st)) {
-			result = set_fpga_pwr_threshold(fpga, metadata.afu_image.power);
-			if (result != FPGA_OK) {
-				OPAE_ERR("Failed to set threshold.");
-				goto out_unlock;
-			}
-
-		} // device id
 
 	}
 

@@ -147,7 +147,7 @@ pthread_mutex_t _sysfs_device_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #define SYSFS_MAX_DEVICES 128
 static sysfs_fpga_device _devices[SYSFS_MAX_DEVICES];
 
-#define PCIE_PATH_PATTERN "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([0-9])/fpga"
+#define PCIE_PATH_PATTERN "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9a-fA-F]{2})\\.([0-9])/fpga"
 #define PCIE_PATH_PATTERN_GROUPS 5
 
 #define PARSE_MATCH_INT(_p, _m, _v, _b, _l)                                    \
