@@ -856,7 +856,6 @@ class sysfs_bmc_mock_p : public sysfs_c_mock_p { };
 *            When passed with invalid argument return
 *            FPGA_INVALID_PARAM <br>
 */
-/*
 TEST_P(sysfs_bmc_mock_p, fpga_sysfs_10) {
 	fpga_result result;
 	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
@@ -867,9 +866,9 @@ TEST_P(sysfs_bmc_mock_p, fpga_sysfs_10) {
 	result = sysfs_get_bmc_path(tokens_[0], NULL);
 	EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
-*/
+
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_bmc_mock_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
+	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-rc" })));
 
 
 class sysfs_max10_mock_p : public sysfs_c_mock_p { };
