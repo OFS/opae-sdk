@@ -11,8 +11,8 @@
 
 The OPAE SDK has been tested on the following configurations.
 
-* Hardware: Intel&reg FPGA Programmable Acceleration Cards: Arria&reg 10 GX, D5005, and N3000.
-* Operating System: Tested on Red Hat Enterprise Linux 7.3 and 7.4, Ubuntu 16.04, SUSE SLE 12 SP3 and CentOS 7.4, with Linux kernels 3.10 through 4.7
+* Hardware: Intel(R) FPGA Programmable Acceleration Cards: Arria(R) 10 GX, D5005, and N3000.
+* Operating System: Tested on Fedora 31, with Linux kernel 5.7.
 * Arria&reg 10 GX FPGA FIM version: 1.0.3 (1.0 Production)
 
 ## How to download the OPAE SDK ##

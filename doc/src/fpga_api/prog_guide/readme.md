@@ -178,7 +178,7 @@ The table below groups important API calls by their functionality. For more info
 .. note::
 
 ```
-The UMsg APIs are not supported for the Intel&reg PAC cards and are being deprecated.
+The UMsg APIs are not supported for the Intel(R) PAC cards. They will be deprecated in a future release.
 ```
 
 ### FPGA Resource Properties ###

@@ -20,8 +20,6 @@ transparently and seamlessly leverage FPGA-based acceleration.
 In this document, we will explore the initial steps on how to setup
 the required libraries and utilities to use the FPGA devices.
 
-## Installing the OPAE Intel&reg; FPGA drivers ##
-
 If you do not have access to an Intel&reg; Xeon&reg; processor with integrated
 FPGA, or a programmable FPGA acceleration card for Intel&reg; Xeon&reg;
 processors, you will not be able to run the examples below. However, you can
@@ -33,7 +31,7 @@ For more information about ASE, see the [OPAE AFU Simulation Environment
 
 ```eval_rst
 .. note::
-The AFU Simulation Environment is not available for the Intel PAC N3000.
+    The AFU simulation environment is not available for the Intel PAC N3000.
 ```
 
 The source for the OPAE SDK Linux device drivers is available at the
