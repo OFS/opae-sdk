@@ -27,8 +27,12 @@
 
 import fcntl, os, sys, argparse, stat, struct
 
+# Intel driver
 FPGA_FME_PORT_ASSIGN = 0xB582
 FPGA_FME_PORT_RELEASE = 0xB581
+# DFL driver
+DFL_FME_PORT_ASSIGN = 0x4004B682
+DFL_FME_PORT_RELEASE = 0x4004B681
 
 if __name__ == "__main__":
 
@@ -51,18 +55,27 @@ if __name__ == "__main__":
 
 	# open FPGA device
 	try:
-		f = open(args.device, "rw")
+		f = open(args.device, "w")
 	except Exception as e:
 		print("open() failed:", e)
 		sys.exit(1)
 
 	# send IOCTL
-	ioctl_data = struct.pack('III', 12, 0, args.port)
+	if (args.device.find("intel-fpga-fme") != -1):
+		ioctl_data = struct.pack('III', 12, 0, args.port)
+	else:
+		ioctl_data = struct.pack('I', args.port)
 	try:
 		if args.action == 'assign':
-			ret = fcntl.ioctl(f, FPGA_FME_PORT_ASSIGN, ioctl_data)
+			if (args.device.find("intel-fpga-fme") != -1):
+				ret = fcntl.ioctl(f, FPGA_FME_PORT_ASSIGN, ioctl_data)
+			else:
+				ret = fcntl.ioctl(f, DFL_FME_PORT_ASSIGN, ioctl_data)
 		else:
-			ret = fcntl.ioctl(f, FPGA_FME_PORT_RELEASE, ioctl_data)
+			if (args.device.find("intel-fpga-fme") != -1):
+				ret = fcntl.ioctl(f, FPGA_FME_PORT_RELEASE, ioctl_data)
+			else:
+				ret = fcntl.ioctl(f, DFL_FME_PORT_RELEASE, ioctl_data)
 	except Exception as e:
 		print("ioctl() failed:", e)
 		f.close()
