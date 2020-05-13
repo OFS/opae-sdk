@@ -31,28 +31,14 @@ accelerator RTL with OPAE applications.
 For more information about ASE, see the [OPAE AFU Simulation Environment
 (ASE) User Guide](../../ase_userguide/ase_userguide.html).
 
-As part of the OPAE SDK release, we provide DKMS-based RPM and DEB packages for
-distributions using RPM (e.g. Redhat, Fedora, Centos) and DEB (eg. Ubuntu) package managers.
-Download these package from the respective [release page on
-GitHub](https://github.com/OPAE/opae-sdk/releases) - they are named
-`opae-intel-fpga-driver-x.y.z-r.x86_64.rpm` and `opae-intel-fpga-driver_x.y.z-r_amd64.deb`, with `x.y.z-r` being the respective OPAE
-release's version number.
-
 ```eval_rst
 .. note::
-    The packages require that the DKMS (Dynamic Kernel Module System)
-    package, version greater than 2.2, is already installed.
+The AFU Simulation Environment is not available for the Intel PAC N3000.
 ```
 
-For RPM-based distributions:
-```console
-$ sudo yum install opae-intel-fpga-driver-<release>.x86_64.rpm
-```
+The source for the OPAE SDK Linux device drivers is available at the
+[OPAE Linux DFL drivers repository](https://github.com/OPAE/linux-dfl).
 
-For DEB-based distributions:
-```console
-$ sudo dpkg -i opae-intel-fpga-driver_<release>_amd64.deb
-```
 ## Installing the OPAE SDK from rpm or deb packages ##
 See the [OPAE Installation Guide](/fpga-doc/docs/fpga_api/install_guide/installation_guide.html)
 for information about OPAE RPM and DEB packages.
