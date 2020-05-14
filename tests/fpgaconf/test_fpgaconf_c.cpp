@@ -234,7 +234,8 @@ TEST_P(fpgaconf_c_p, parse_args1) {
   char thirteen[20];
   char fourteen[20];
   char fifteen[20];
-  char sixteen[30];
+  char sixteen[20];
+  char seventeen[30];
   strcpy(zero, "fpgaconf");
   strcpy(one, "-V");
   strcpy(two, "-n");
@@ -251,17 +252,19 @@ TEST_P(fpgaconf_c_p, parse_args1) {
   strcpy(thirteen, "2");
   strcpy(fourteen, "-A");
   strcpy(fifteen, "-I");
-  strcpy(sixteen, tmpfilename);
+  strcpy(sixteen, "--skip-usrclk");
+  strcpy(seventeen, tmpfilename);
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
                    ten, eleven, twelve, thirteen, fourteen,
-                   fifteen, sixteen };
+                   fifteen, sixteen, seventeen };
 
-  EXPECT_EQ(parse_args(17, argv), 0);
+  EXPECT_EQ(parse_args(18, argv), 0);
   EXPECT_EQ(config.verbosity, 1);
   EXPECT_NE(config.dry_run, 0);
   EXPECT_NE(config.flags & FPGA_RECONF_FORCE, 0);
+  EXPECT_NE(config.flags & FPGA_RECONF_SKIP_USRCLK, 0);
   EXPECT_EQ(config.target.segment, 0x1234);
   EXPECT_EQ(config.target.bus, 0x5e);
   EXPECT_EQ(config.target.device, 0xab);
@@ -503,7 +506,7 @@ TEST_P(fpgaconf_c_p, main2) {
 /**
  * @test       main_seg_neg
  * @brief      Test: fpgaconf_main
- * @details    When the command params for sement are invalid,<br>
+ * @details    When the command params for segment are invalid,<br>
  *             fpgaconf_main displays an error and returns non-zero.<br>
  */
 TEST_P(fpgaconf_c_p, main_seg_neg) {
