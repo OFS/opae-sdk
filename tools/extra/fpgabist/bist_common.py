@@ -61,7 +61,7 @@ def get_afu_id(gbs_path="", bdf=None):
         output = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         json_data = json.loads(output.communicate()[0])
         accel_data = json_data["afu-image"]["accelerator-clusters"]
-        uuid = accel_data[0]["accelerator-type-uuid"].encode("ascii")
+        uuid = accel_data[0]["accelerator-type-uuid"]
         return uuid.lower().replace("-", "")
     elif bdf:
         pattern = BDF_PATTERN.format(bdf['bus'], bdf['device'],
