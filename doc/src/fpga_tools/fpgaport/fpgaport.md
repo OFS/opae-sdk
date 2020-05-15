@@ -2,7 +2,7 @@
 
 ## SYNOPSIS ##
 ```console
-fpgaport [-h] {assign,release} device port
+fpgaport [-h] [-N NUMVFS] [-X] [--debug] {assign,release} device [port]
 ```
 
 ## DESCRIPTION ##
@@ -12,32 +12,46 @@ assigns the port to the physical function (PF) in the non-virtualization use cas
 
 
 ## POSITIONAL ARGUMENTS ##
+
 `{assign, release}`
 
-   Action to perform.
+    Action to perform.
 
 `device`
 
-The FPGA device being targeted with this action.
+    The FPGA device being targeted with this action.
 
 `port`
 
-The number of the port.
+    The number of the port.
 
 ## OPTIONAL ARGUMENTS ##
+
+`-N NUMVFS, --numvfs NUMVFS`
+
+    Create NUMVFS virtual functions. The typical value is 1.
+
+`-X, --destroy-vfs`
+
+    Destroy all virtual functions prior to assigning.
+
+`--debug`
+
+    Display additional log information.
+
 `-h, --help`
 
-Print usage information.
+    Print usage information.
 
 ## EXAMPLE ##
 
-`fpgaport release /dev/intel-fpga-fme.0 0`
+`fpgaport release /dev/dfl-fme.0 0`
 
-Release port 0 from physical function control.
+    Release port 0 from physical function control.
 
-`fpgaport assign /dev/intel-fpga-fme.0 0`
+`fpgaport assign /dev/dfl-fme.0 0`
 
-Assign port 0 to physical function control.
+    Assign port 0 to physical function control.
 
 ## Revision History ##
 

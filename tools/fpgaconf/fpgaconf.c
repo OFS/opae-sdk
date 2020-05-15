@@ -127,12 +127,13 @@ void help(void)
 	       "                -V,--verbose        Increase verbosity\n"
 	       "                -n,--dry-run        Don't actually perform actions\n"
 	       "                --force             Don't try to open accelerator resource\n"
+	       "                --skip-usrclk       Don't program user clocks\n"
 	       "                --segment           Set target segment number\n"
 	       "                -B,--bus            Set target bus number\n"
 	       "                -D,--device         Set target device number\n"
 	       "                -F,--function       Set target function number\n"
 	       "                -S,--socket-id      Set target socket number\n"
-	       "                 -v,--version       Print version info and exit\n"
+	       "                -v,--version        Print version info and exit\n"
 	       /* "                -A,--auto           Automatically choose
 		  target slot if\n" */
 	       /* "                                    multiple valid slots are
@@ -154,16 +155,17 @@ void help(void)
 int parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
-		{"help",      no_argument,       NULL, 'h'},
-		{"verbose",   no_argument,       NULL, 'V'},
-		{"dry-run",   no_argument,       NULL, 'n'},
-		{"segment",   required_argument, NULL, 0xe},
-		{"bus",       required_argument, NULL, 'B'},
-		{"device",    required_argument, NULL, 'D'},
-		{"function",  required_argument, NULL, 'F'},
-		{"socket-id", required_argument, NULL, 'S'},
-		{"force",     no_argument,       NULL, 0xf},
-		{"version",   no_argument,       NULL, 'v'},
+		{"help",        no_argument,       NULL, 'h'},
+		{"verbose",     no_argument,       NULL, 'V'},
+		{"dry-run",     no_argument,       NULL, 'n'},
+		{"segment",     required_argument, NULL, 0xe},
+		{"bus",         required_argument, NULL, 'B'},
+		{"device",      required_argument, NULL, 'D'},
+		{"function",    required_argument, NULL, 'F'},
+		{"socket-id",   required_argument, NULL, 'S'},
+		{"force",       no_argument,       NULL, 0xf},
+		{"skip-usrclk", no_argument,       NULL, 0x5},
+		{"version",     no_argument,       NULL, 'v'},
 		/* {"auto",          no_argument,       NULL, 'A'}, */
 		/* {"interactive",   no_argument,       NULL, 'I'}, */
 		/* {"quiet",         no_argument,       NULL, 'Q'}, */
@@ -197,6 +199,10 @@ int parse_args(int argc, char *argv[])
 
 		case 0xf: /* force */
 			config.flags |= FPGA_RECONF_FORCE;
+			break;
+
+		case 0x5: /* skip-usrclk */
+			config.flags |= FPGA_RECONF_SKIP_USRCLK;
 			break;
 
 		case 0xe: /* segment */
