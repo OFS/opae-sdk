@@ -270,8 +270,7 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 				goto out;
 			}
 
-		}
-		else {
+		} else {
 			printf("FPGA_METRIC_TYPE_UNKNOWN \n");
 			metric_type = FPGA_METRIC_TYPE_UNKNOWN;
 		}
