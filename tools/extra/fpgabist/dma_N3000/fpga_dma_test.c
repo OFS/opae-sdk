@@ -53,7 +53,7 @@
 #include <assert.h>
 
 #define HELLO_AFU_ID "331DB30C-9885-41EA-9081-F88B8F655CAA"
-#define VC_AFU_ID	 "9AEFFE5F-8457-0612-C000-C9660D824272"
+#define N3000_AFU_ID	 "9AEFFE5F-8457-0612-C000-C9660D824272"
 #define TEST_BUF_SIZE (10 * 1024 * 1024)
 #define ASE_TEST_BUF_SIZE (4 * 1024)
 #define TEST_TOTAL_SIZE (uint64_t)4 * 1024 * 1024 * 1024
@@ -236,7 +236,7 @@ fpga_result parse_args(int argc, char *argv[])
 			break;
 
 		case 'v':
-			printf("fpga_dma_vc_test %s %s%s\n",
+			printf("fpga_dma_N3000_test %s %s%s\n",
 			       OPAE_VERSION,
 			       OPAE_GIT_COMMIT_HASH,
 			       OPAE_GIT_SRC_TREE_DIRTY ? "*":"");
@@ -602,7 +602,7 @@ static int check_config()
     for (i = 0; i < (int)sizeof(config.target.guid); i++) {
         guid[i] = toupper(config.target.guid[i]);
 	}
-	if (!memcmp(VC_AFU_ID, guid, strlen(VC_AFU_ID))) {
+	if (!memcmp(N3000_AFU_ID, guid, strlen(N3000_AFU_ID))) {
 		if (i == 0) {
 			if (config.target.dma == 3) {
 				if (config.target.size % 64) {

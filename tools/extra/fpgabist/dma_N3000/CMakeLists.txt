@@ -30,7 +30,7 @@ set(ASM_OPTIONS "-x assembler-with-cpp")
 set(CMAKE_ASM_FLAGS "${CFLAGS} ${ASM_OPTIONS}")
 
 file(GLOB CSources *.c *.S)
-opae_add_executable(TARGET fpga_dma_vc_test
+opae_add_executable(TARGET fpga_dma_N3000_test
     SOURCE ${CSources}
     LIBS
         rt
@@ -38,7 +38,7 @@ opae_add_executable(TARGET fpga_dma_vc_test
         ${TBB_LIBRARIES}
         ${HWLOC_LIBRARIES}
         ${libjson-c_LIBRARIES}
-    COMPONENT toolfpga_dma_vc_test
+    COMPONENT toolfpga_dma_N3000_test
 )
 
 
@@ -46,7 +46,7 @@ if (${CMAKE_C_COMPILER} MATCHES  "clang")
     set_source_files_properties(x86-sse2.S  PROPERTIES COMPILE_FLAGS -fno-integrated-as)
 endif()   
 
-set_target_properties(fpga_dma_vc_test
+set_target_properties(fpga_dma_N3000_test
     PROPERTIES
         CXX_STANDARD 11
         CXX_STANDARD_REQUIRED YES
