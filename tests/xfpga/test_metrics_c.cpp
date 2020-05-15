@@ -306,7 +306,7 @@ TEST_P(metrics_c_p, test_metric_04) {
 }
 
 INSTANTIATE_TEST_CASE_P(metrics_c, metrics_c_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
 
 /**
 * @brief metrics afu gtest fixture
@@ -590,4 +590,4 @@ TEST_P(metrics_afu_c_p, test_afc_metric_04) {
   free(metric_array_search);
 }
 INSTANTIATE_TEST_CASE_P(metrics_c, metrics_afu_c_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));

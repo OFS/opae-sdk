@@ -93,7 +93,7 @@ static sysfs_formats sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
 	 .sysfs_port_err = "errors/errors",
 	 .sysfs_port_err_clear = "errors/errors",
 	 .sysfs_bmc_glob = "avmmi-bmc.*/bmc_info",
-	 .sysfs_max10_glob = "spi-*/spi_master/spi*/spi*.*"
+	 .sysfs_max10_glob = "dfl-fme*/spi-*/spi_master/spi*/spi*.*"
 	},
 	// intel driver sysfs formats
 	{.sysfs_class_path = "/sys/class/fpga",
@@ -1694,12 +1694,12 @@ enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id)
 
 		case 0x0b2b: /* FALLTHROUGH */
 		case 0x0b2c:
-			hw_type = FPGA_HW_DCP_DC;
+			hw_type = FPGA_HW_DCP_D5005;
 		break;
 
 		case 0x0b30: /* FALLTHROUGH */
 		case 0x0b31:
-			hw_type = FPGA_HW_DCP_VC;
+			hw_type = FPGA_HW_DCP_N3000;
 		break;
 
 		default:
