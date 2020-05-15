@@ -116,8 +116,8 @@ fpga_result xfpga_fpgaGetMetricsThresholdInfo(fpga_handle handle,
 	break;
 
 	// VC DC
-	case FPGA_HW_DCP_DC:
-	case FPGA_HW_DCP_VC: {
+	case FPGA_HW_DCP_N3000:
+	case FPGA_HW_DCP_D5005: {
 		// Max10
 		result = get_max10_threshold_info(handle,
 			metric_thresholds, num_thresholds);
