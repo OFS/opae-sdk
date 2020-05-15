@@ -77,9 +77,9 @@
 #define SENSOR_SYSFS_VALUE                   "value"
 #define MILLI                                 1000
 
-#define  FPGA_DISCRETE_VC_DEVICEID           0x0B30
+#define  FPGA_DISCRETE_N3000_DEVICEID           0x0B30
 
-#define  FPGA_DISCRETE_DC_DEVICEID           0x0B2B
+#define  FPGA_DISCRETE_D5005_DEVICEID           0x0B2B
 
 #define BMC_LIB                             "libmodbmc.so"
 

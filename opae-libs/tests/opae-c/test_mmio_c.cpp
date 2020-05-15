@@ -34,7 +34,6 @@ extern "C" {
 
 #include <opae/fpga.h>
 #include "fpga-dfl.h"
-#include "intel-fpga.h"
 #include <linux/ioctl.h>
 
 #include <array>
@@ -54,7 +53,7 @@ static int mmio_ioctl(mock_object * m, int request, va_list argp){
     errno = EINVAL;
     UNUSED_PARAM(m);
     UNUSED_PARAM(request);
-    struct fpga_port_region_info *rinfo = va_arg(argp, struct fpga_port_region_info *);
+    struct dfl_fpga_port_region_info *rinfo = va_arg(argp, struct dfl_fpga_port_region_info *);
     if (!rinfo) {
       FPGA_MSG("rinfo is NULL");
       goto out_EINVAL;
@@ -71,7 +70,7 @@ static int mmio_ioctl(mock_object * m, int request, va_list argp){
       FPGA_MSG("unsupported padding");
       goto out_EINVAL;
     }
-    rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
+    rinfo->flags = DFL_PORT_REGION_READ | DFL_PORT_REGION_WRITE | DFL_PORT_REGION_MMAP;
     rinfo->size = 0x40000;
     rinfo->offset = 0;
     retval = 0;
@@ -107,7 +106,6 @@ class mmio_c_p : public ::testing::TestWithParam<std::string> {
     EXPECT_GT(num_matches_, 0);
     accel_ = nullptr;
     ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
-    system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
     system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
 
     which_mmio_ = 0;
@@ -203,4 +201,4 @@ TEST_P(mmio_c_p, mmio512) {
 #endif // TEST_SUPPORTS_AVX512
 
 INSTANTIATE_TEST_CASE_P(mmio_c, mmio_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
