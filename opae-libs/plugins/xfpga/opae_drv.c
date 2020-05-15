@@ -478,7 +478,7 @@ fpga_result dfl_fme_get_err_irq(int fd, uint32_t *num_irqs)
 	return res;
 }
 
-fpga_result dfl_set_irq(int fd,uint32_t start,
+fpga_result dfl_set_irq(int fd, uint32_t start,
 			uint32_t count, int32_t *eventfd,
 			int ioctl_id)
 {

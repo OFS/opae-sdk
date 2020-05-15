@@ -151,7 +151,7 @@ STATIC fpga_result send_port_event_request(fpga_handle handle,
 	}
 
 	if (num_irqs > 0) {
-		res = opae_dfl_port_set_err_irq(_handle->fddev, 0, 1, 
+		res = opae_dfl_port_set_err_irq(_handle->fddev, 0, 1,
 			&fd);
 		if (res) {
 			OPAE_ERR("Could not set eventfd %s", strerror(errno));
@@ -198,8 +198,7 @@ STATIC fpga_result send_uafu_event_request(fpga_handle handle,
 			OPAE_ERR("Could not set eventfd");
 			res = FPGA_EXCEPTION;
 		}
-	}
-	else {
+	} else {
 		OPAE_ERR("PORT interrupts not supported in hw");
 		res = FPGA_NOT_SUPPORTED;
 	}
@@ -231,8 +230,7 @@ STATIC fpga_result check_user_interrupts_supported(fpga_handle handle,
 	if (*objtype == FPGA_DEVICE) {
 			OPAE_MSG("Interrupts not supported in hw");
 			res = FPGA_NOT_SUPPORTED;
-	}
-	else if (*objtype == FPGA_ACCELERATOR) {
+	} else if (*objtype == FPGA_ACCELERATOR) {
 		res = opae_dfl_port_get_user_irq(_handle->fddev, &num_irqs);
 		if (res) {
 			OPAE_ERR("Interrupts not supported in hw: %d", res);
@@ -241,8 +239,7 @@ STATIC fpga_result check_user_interrupts_supported(fpga_handle handle,
 
 		if (num_irqs > 0) {
 			res = FPGA_OK;
-		}
-		else {
+		} else {
 			OPAE_ERR("Interrupts not supported in hw: %d", res);
 			res = FPGA_NOT_SUPPORTED;
 		}
@@ -297,12 +294,10 @@ STATIC fpga_result check_err_interrupts_supported(fpga_handle handle,
 			OPAE_MSG("Interrupts not supported in hw");
 			res = FPGA_NOT_SUPPORTED;
 		}
-	}
-	else if (*objtype == FPGA_ACCELERATOR) {
+	} else if (*objtype == FPGA_ACCELERATOR) {
 		res = opae_dfl_port_get_err_irq(_handle->fddev, &num_irqs);
 		if (res) {
 			OPAE_MSG("Interrupts not supported in hw");
-
 			goto destroy_prop;
 		}
 
@@ -390,7 +385,7 @@ STATIC fpga_result driver_unregister_event(fpga_handle handle,
 				"Could not determine whether interrupts are supported");
 			return FPGA_NOT_SUPPORTED;
 		}
-		
+
 		if (objtype == FPGA_DEVICE) {
 			return send_fme_event_request(handle, event_handle,
 						      FPGA_IRQ_DEASSIGN);
