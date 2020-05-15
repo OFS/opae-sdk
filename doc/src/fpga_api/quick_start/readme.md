@@ -14,13 +14,11 @@ software programs running on the host.
 
 These features include the acceleration logic preconfigured on the
 device, as well as functions to manage and reconfigure the
-device. Hence, the library is able to enalbe user applications to
+device. Hence, the library is able to enable user applications to
 transparently and seamlessly leverage FPGA-based acceleration.
 
 In this document, we will explore the initial steps on how to setup
 the required libraries and utilities to use the FPGA devices.
-
-## Installing the OPAE Intel&reg; FPGA drivers ##
 
 If you do not have access to an Intel&reg; Xeon&reg; processor with integrated
 FPGA, or a programmable FPGA acceleration card for Intel&reg; Xeon&reg;
@@ -31,28 +29,14 @@ accelerator RTL with OPAE applications.
 For more information about ASE, see the [OPAE AFU Simulation Environment
 (ASE) User Guide](../../ase_userguide/ase_userguide.html).
 
-As part of the OPAE SDK release, we provide DKMS-based RPM and DEB packages for
-distributions using RPM (e.g. Redhat, Fedora, Centos) and DEB (eg. Ubuntu) package managers.
-Download these package from the respective [release page on
-GitHub](https://github.com/OPAE/opae-sdk/releases) - they are named
-`opae-intel-fpga-driver-x.y.z-r.x86_64.rpm` and `opae-intel-fpga-driver_x.y.z-r_amd64.deb`, with `x.y.z-r` being the respective OPAE
-release's version number.
-
 ```eval_rst
 .. note::
-    The packages require that the DKMS (Dynamic Kernel Module System)
-    package, version greater than 2.2, is already installed.
+    The AFU simulation environment is not available for the Intel PAC N3000.
 ```
 
-For RPM-based distributions:
-```console
-$ sudo yum install opae-intel-fpga-driver-<release>.x86_64.rpm
-```
+The source for the OPAE SDK Linux device drivers is available at the
+[OPAE Linux DFL drivers repository](https://github.com/OPAE/linux-dfl).
 
-For DEB-based distributions:
-```console
-$ sudo dpkg -i opae-intel-fpga-driver_<release>_amd64.deb
-```
 ## Installing the OPAE SDK from rpm or deb packages ##
 See the [OPAE Installation Guide](/fpga-doc/docs/fpga_api/install_guide/installation_guide.html)
 for information about OPAE RPM and DEB packages.
@@ -172,13 +156,13 @@ Usage:
     slot by typing the following command and checking the output
     matches the following:
 
-    $ cat /sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0/afu_id
+    $ cat /sys/class/fpga_region/region0/dfl-port.0/afu_id
 
     d8424dc4a4a3c413f89e433683f9040b
 ```
 
 ## Building a sample application ##
-The library source include code samples. Use these samples to learn
+The library source includes code samples. Use these samples to learn
 how to call functions in the library. Build and run these samples as
 quick sanity checks to determine if your installation and environment
 are set up properly.
@@ -188,7 +172,7 @@ World!" example of using the library.  This code searches for a
 predefined and known AFU called "Native Loopback Adapter" on the
 FPGA. If found, it acquires ownership and then interacts with the AFU
 by sending it a 2MB message and waiting for the message being echoed
-back. This coe exercises all major components of the API except for
+back. This code exercises all major components of the API except for
 AFU reconfiguration: AFU search, enumeration, access, MMIO, and memory
 management.
 
@@ -404,7 +388,8 @@ Done
 
 ```eval_rst
 .. note::
-  In order to successfully run hello\_fpga, user need to configure system hugepage to reserve 2M-hugepages.
+  In order to successfully run hello\_fpga, the user needs to configure
+  system hugepage to reserve 2M-hugepages.
   For example, the command below reserves 20 2M-hugepages:
 
   $ echo 20 | sudo tee /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages

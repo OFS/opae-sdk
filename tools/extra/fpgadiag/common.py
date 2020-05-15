@@ -142,7 +142,7 @@ class COMMON(object):
 
     def ioctl(self, handler, op, data):
         if isinstance(handler, str):
-            with open(handler, 'rw') as f:
+            with open(handler, 'w') as f:
                 ret = self._ioctl(f, op, data)
         else:
             ret = self._ioctl(handler, op, data)

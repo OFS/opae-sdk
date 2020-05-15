@@ -76,6 +76,12 @@ Requires:   opae-libs
 %description tests
 This package contains OPAE tests
 
+%package opae.admin
+Summary:    OPAE admin package
+Group:      opae admin
+
+%description opae.admin
+This package contains OPAE admin tools
 
 # This is a shortcutted spec file generatCed by CMake RPM generator
 # we skip _install step because CPack does that for us.
@@ -85,15 +91,28 @@ This package contains OPAE tests
 mv $RPM_BUILD_ROOT %_topdir/tmpBRoot
 
 %build
+pushd @CMAKE_SOURCE_DIR@/python/opae.admin
+
+%{__python3} setup.py build
+popd
 
 %install
+
 if [ -e $RPM_BUILD_ROOT ];
 then
   rm -rf $RPM_BUILD_ROOT
 fi
 mv %_topdir/tmpBRoot $RPM_BUILD_ROOT
 
+
+prev=$PWD
+pushd @CMAKE_SOURCE_DIR@/python/opae.admin
+%{__python3} setup.py install --single-version-externally-managed -O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_FILES
+popd
+
+
 %clean
+
 
 %post
 
@@ -221,5 +240,9 @@ ldconfig
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/hello_fpga
 @CMAKE_INSTALL_PREFIX@/bin/hello_events
+
+%files opae.admin -f INSTALLED_FILES
+%defattr(-,root,root,-)
+
 
 %changelog

@@ -219,7 +219,7 @@ class FPGASTATS(COMMON):
             for w in info:
                 _, self.mac_number, _, node = info[w]
                 offset = self.demux_offset.get(self.mac_number, 0x100)
-                with open(node, 'rw') as fd:
+                with open(node, 'r') as fd:
                     for i in range(self.mac_number):
                         if self.mac_number == 8:
                             self.fpga_eth_reg_write(fd, 'mac', i, 0x140, 0x1)

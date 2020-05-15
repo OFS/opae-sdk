@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Copyright(c) 2019, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -97,8 +98,8 @@ def main():
                         help='Action to perform - {}'.format(
                             list(actions.keys())))
     parser.add_argument('device',
-                        help=('The FPGA (FME) device.'
-                              'Can be identified by dev path (/dev/*fme.0) '
+                        help=('The FPGA (FME) device. '
+                              'Can be identified by dev path (/dev/dfl-fme.0) '
                               'or by PCIe address: '
                               '([<segment>:]<bus>:<device>.<function>'))
     parser.add_argument('port', type=int, default=0, nargs='?',
