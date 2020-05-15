@@ -80,4 +80,15 @@ fpga_result opae_fme_port_pr(int fd, uint32_t flags, uint32_t port_id,
 			     uint32_t sz, uint64_t addr, uint64_t *status);
 fpga_result opae_fme_port_reset(int fd);
 
+fpga_result opae_dfl_port_get_err_irq(int fd, uint32_t *num_irqs);
+fpga_result opae_dfl_port_get_user_irq(int fd, uint32_t *num_irqs);
+fpga_result opae_dfl_fme_get_err_irq(int fd, uint32_t *num_irqs);
+
+fpga_result opae_dfl_port_set_err_irq(int fd, uint32_t start,
+	uint32_t count, int32_t *eventfd);
+fpga_result opae_dfl_port_set_user_irq(int fd, uint32_t start,
+	uint32_t count, int32_t *eventfd);
+fpga_result opae_dfl_fme_set_err_irq(int fd, uint32_t start,
+	uint32_t count, int32_t *eventfd);
+
 #endif /* !OPAE_IOCTL_H */

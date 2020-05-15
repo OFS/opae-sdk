@@ -726,7 +726,7 @@ TEST(wrapper, validate) {
 }
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-d5005" })));
 
 class enum_c_mock_p : public enum_c_p {};
 
@@ -743,7 +743,7 @@ TEST_P(enum_c_mock_p, clone_token02) {
 }
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms()));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000", "dfl-d5005" })));
 
 class enum_c_err_p : public enum_c_p {};
 
@@ -780,7 +780,7 @@ TEST_P(enum_c_err_p, num_errors) {
 }
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_err_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::platforms({"dfl-n3000", "dfl-d5005" })));
 
 class enum_c_socket_p : public enum_c_p {};
 
@@ -803,4 +803,4 @@ TEST_P(enum_c_socket_p, socket_id) {
 }
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_socket_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
