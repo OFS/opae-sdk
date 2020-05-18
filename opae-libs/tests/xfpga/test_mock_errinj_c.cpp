@@ -30,7 +30,6 @@
 
 #include <opae/enum.h>
 #include <opae/properties.h>
-#include "intel-fpga.h"
 #include "gtest/gtest.h"
 #include "types_int.h"
 #include "mock/test_system.h"
@@ -53,27 +52,16 @@ int xfpga_plugin_finalize(void);
 
 using namespace opae::testing;
 
-int port_release_ioctl(mock_object * m, int request, va_list argp){
+int dfl_port_release_ioctl(mock_object * m, int request, va_list argp){
   UNUSED_PARAM(m);
   UNUSED_PARAM(request);
+  UNUSED_PARAM(argp);
   int retval = -1;
   errno = EINVAL;
-  struct fpga_fme_port_release *port_release =
-         va_arg(argp, struct fpga_fme_port_release *);
-  if (!port_release) {
-    FPGA_MSG("port_release is NULL");
-    goto out_EINVAL;
-  }
-  if (port_release->argsz != sizeof(*port_release)) {
-    FPGA_MSG("wrong structure size");
-    goto out_EINVAL;
-  }
-  if (port_release->flags != 0) {
-    FPGA_MSG("unexpected flags %u", port_release->flags);
-    goto out_EINVAL;
-  }
-  if (port_release->port_id != 0) {
-    FPGA_MSG("unexpected port ID %u", port_release->port_id);
+  int port_id = va_arg(argp,int);
+
+  if (port_id != 0) {
+    FPGA_MSG("unexpected port ID %u", port_id);
     goto out_EINVAL;
   }
   retval = 0;
@@ -89,29 +77,20 @@ out_EINVAL:
   goto out;
 }
 
-int port_assign_ioctl(mock_object * m, int request, va_list argp){
+int dfl_port_assign_ioctl(mock_object * m, int request, va_list argp){
   UNUSED_PARAM(m);
   UNUSED_PARAM(request);
+  UNUSED_PARAM(argp);
   int retval = -1;
   errno = EINVAL;
-  struct fpga_fme_port_assign *port_assign =
-      va_arg(argp, struct fpga_fme_port_assign *);
-  if (!port_assign) {
-      FPGA_MSG("port_assign is NULL");
-      goto out_EINVAL;
+  errno = EINVAL;
+  int port_id = va_arg(argp, int);
+
+  if (port_id != 0) {
+	  FPGA_MSG("unexpected port ID %u", port_id);
+	  goto out_EINVAL;
   }
-  if (port_assign->argsz != sizeof(*port_assign)) {
-      FPGA_MSG("wrong structure size");
-      goto out_EINVAL;
-  }
-  if (port_assign->flags != 0) {
-      FPGA_MSG("unexpected flags %u", port_assign->flags);
-      goto out_EINVAL;
-  }
-  if (port_assign->port_id != 0) {
-      FPGA_MSG("unexpected port ID %u", port_assign->port_id);
-      goto out_EINVAL;
-  }
+
   retval = 0;
   errno = 0;
 out:
@@ -203,11 +182,11 @@ TEST_P(err_inj_c_p, fpga_mock_errinj_02) {
   res = xfpga_fpgaAssignPortToInterface(handle_, 2, 0, 0);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 
-  system_->register_ioctl_handler(FPGA_FME_PORT_RELEASE, port_release_ioctl);
+  system_->register_ioctl_handler(DFL_FPGA_FME_PORT_RELEASE, dfl_port_release_ioctl);
   res = xfpga_fpgaAssignPortToInterface(handle_, 1, 0, 0);
   EXPECT_EQ(FPGA_OK, res);
 
-  system_->register_ioctl_handler(FPGA_FME_PORT_ASSIGN, port_assign_ioctl);
+  system_->register_ioctl_handler(DFL_FPGA_FME_PORT_ASSIGN, dfl_port_assign_ioctl);
   res = xfpga_fpgaAssignPortToInterface(handle_, 0, 0, 0);
   EXPECT_EQ(FPGA_OK, res);
 }
@@ -224,7 +203,7 @@ TEST_P(err_inj_c_p, invalid_max_interface_num) {
 }
 
 INSTANTIATE_TEST_CASE_P(err_inj_c, err_inj_c_p, 
-                        ::testing::ValuesIn(test_platform::platforms({"skx-p","dcp-rc"})));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 
 class err_inj_c_usd_p : public err_inj_c_p {};
@@ -246,7 +225,7 @@ TEST_P(err_inj_c_usd_p, dfl_tests_neg) {
 }
 
 INSTANTIATE_TEST_CASE_P(err_inj_c, err_inj_c_usd_p, 
-                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p-dfl0"})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 class err_inj_c_mock_p : public err_inj_c_p {
  protected:
@@ -280,7 +259,7 @@ TEST_P(err_inj_c_mock_p, fpga_mock_errinj_01) {
 */
 TEST_P(err_inj_c_mock_p, fpga_mock_errinj_04) {
   // Reset
-  system_->register_ioctl_handler(FPGA_PORT_RESET,dummy_ioctl<0,ENOTSUP>);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_RESET,dummy_ioctl<0,ENOTSUP>);
   EXPECT_EQ(FPGA_OK, xfpga_fpgaReset(handle_));
 }
 
@@ -297,36 +276,10 @@ TEST_P(err_inj_c_mock_p, fpga_mock_errinj_05) {
   // mmap 
   mmio_num = 0;
 
-  system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO,dummy_ioctl<0,EINVAL>);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO,dummy_ioctl<0,EINVAL>);
   EXPECT_NE(FPGA_OK, xfpga_fpgaMapMMIO(handle_, mmio_num, &mmio_ptr));
 }
 
-/**
-* @test    fpga_mock_errinj_06
-* @brief   Tests:fpgaGetNumUmsg,fpgaSetUmsgAttributes
-*          fpgaGetUmsgPtr and fpgaTriggerUmsg
-* @details API Set,Get and Trigger UMSG
-*          Then the return error code
-*/
-TEST_P(err_inj_c_mock_p, fpga_mock_errinj_06) {
-  uint64_t *value = 0;
-  uint64_t *umsg_ptr;
-
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EINVAL>);
-  // Get Number of UMSG
-  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(handle_, value));
-  
-  system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE, dummy_ioctl<-1,EINVAL>);
-  // Set UMSG
-  EXPECT_NE(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, 0));
-  
-  system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_BASE_ADDR, dummy_ioctl<-1,EINVAL>);
-  // Get UMSG pointer
-  EXPECT_NE(FPGA_OK, xfpga_fpgaGetUmsgPtr(handle_, &umsg_ptr));
-  
-  // Trigger UMSG
-  EXPECT_NE(FPGA_OK, xfpga_fpgaTriggerUmsg(handle_, 0));
-}
 
 /**
 * @test    port_to_interface_err
@@ -337,17 +290,17 @@ TEST_P(err_inj_c_mock_p, fpga_mock_errinj_06) {
 TEST_P(err_inj_c_mock_p, port_to_interface_err) {
   fpga_result res;
    
-  system_->register_ioctl_handler(FPGA_FME_PORT_RELEASE, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(DFL_FPGA_FME_PORT_RELEASE, dummy_ioctl<-1,EINVAL>);
   res = xfpga_fpgaAssignPortToInterface(handle_, 1, 0, 0);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 
-  system_->register_ioctl_handler(FPGA_FME_PORT_ASSIGN, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(DFL_FPGA_FME_PORT_ASSIGN, dummy_ioctl<-1,EINVAL>);
   res = xfpga_fpgaAssignPortToInterface(handle_, 0, 0, 0);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 }
 
 INSTANTIATE_TEST_CASE_P(err_inj_c, err_inj_c_mock_p, 
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc","dcp-vc" })));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 /**
  * @test       invalid_handle

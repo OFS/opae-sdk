@@ -70,11 +70,11 @@ fpga_result re_match_region(const char *fmt, char *inpstr, char type[], size_t,
 #include "mock/test_system.h"
 
 const std::string single_sysfs_fme =
-    "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0";
+    "/sys/class/fpga_region/region0/dfl-fme.0";
 const std::string single_sysfs_port =
-    "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
-const std::string single_dev_fme = "/dev/intel-fpga-fme.0";
-const std::string single_dev_port = "/dev/intel-fpga-port.0";
+    "/sys/class/fpga_region/region0/dfl-port.0";
+const std::string single_dev_fme = "/dev/dfl-fme.0";
+const std::string single_dev_port = "/dev/dfl-port.0";
 
 using namespace opae::testing;
 
@@ -269,7 +269,7 @@ TEST_P(sysfsinit_c_p, get_interface_id) {
 
 TEST(sysfsinit_c_p, sysfs_parse_pcie) {
   sysfs_fpga_device device;
-  char buffer1[] = "../../devices/pci0000:00/0000:00:02.0/0f0f:05:04.3/fpga/intel-fpga-dev.0";
+  char buffer1[] = "../../devices/pci0000:00/0000:00:02.0/0f0f:05:04.3/fpga_region/region0";
   char buffer2[] = "../../devices/pci0000:5e/a0a0:5e:02.1/fpga_device/device0";
   auto res = parse_pcie_info(&device, buffer1);
   EXPECT_EQ(res, 0);
@@ -655,7 +655,7 @@ TEST_P(sysfs_c_hw_p, make_object_glob) {
 }
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_hw_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms({ "skx-p","dcp-rc","dcp-vc" })));
+                        ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-n3000","dfl-d5005" })));
 
 class sysfs_c_mock_p : public sysfs_c_p {
  protected:
@@ -792,46 +792,8 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_05) {
 }
 
 
-/*
-* @test       sysfs
-* @brief      Tests: sysfs_get_fme_temp_path
- @details    When passed with valid argument return 0
-*            and fme temp sysfs path <br>
-*            When passed with invalid argument return
-*            FPGA_INVALID_PARAM <br>
-*/
-TEST_P(sysfs_c_mock_p, fpga_sysfs_06) {
-	fpga_result result;
-	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
-
-	result = sysfs_get_fme_temp_path(tokens_[0], sysfs_path);
-	EXPECT_EQ(result, FPGA_OK);
-
-	result = sysfs_get_fme_temp_path(tokens_[0], NULL);
-	EXPECT_EQ(result, FPGA_INVALID_PARAM);
-}
-
-/*
-* @test       sysfs
-* @brief      Tests: sysfs_get_fme_perf_path
- @details    When passed with valid argument return 0
-*            and fme perf sysfs path <br>
-*            When passed with invalid argument return
-*            FPGA_INVALID_PARAM <br>
-*/
-TEST_P(sysfs_c_mock_p, fpga_sysfs_07) {
-	fpga_result result;
-	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
-
-	result = sysfs_get_fme_perf_path(tokens_[0], sysfs_path);
-	EXPECT_EQ(result, FPGA_OK);
-
-	result = sysfs_get_fme_perf_path(tokens_[0], NULL);
-	EXPECT_EQ(result, FPGA_INVALID_PARAM);
-}
-
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc", "dcp-vc" })));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 
 class sysfs_dfl_c_mock_p : public sysfs_c_mock_p { };
@@ -857,7 +819,7 @@ TEST_P(sysfs_dfl_c_mock_p, fpga_sysfs_08) {
 	EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_dfl_c_mock_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "skx-p-dfl0_patchset2" })));
+	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 class sysfs_power_mock_p : public sysfs_c_mock_p { };
 /*
@@ -882,7 +844,7 @@ TEST_P(sysfs_power_mock_p, fpga_sysfs_09) {
 	EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_power_mock_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-rc", "dcp-vc" })));
+	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 
 class sysfs_bmc_mock_p : public sysfs_c_mock_p { };
@@ -904,6 +866,7 @@ TEST_P(sysfs_bmc_mock_p, fpga_sysfs_10) {
 	result = sysfs_get_bmc_path(tokens_[0], NULL);
 	EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
+
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_bmc_mock_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-rc" })));
 
@@ -928,7 +891,7 @@ TEST_P(sysfs_max10_mock_p, fpga_sysfs_11) {
 	EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_max10_mock_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-vc" })));
+	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 
 class sysfs_c_mock_no_drv_p : public ::testing::TestWithParam<std::string> {
@@ -1019,7 +982,7 @@ TEST_P(sysfs_sockid_c_mock_p, fpga_sysfs_02) {
 }
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_sockid_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc","dcp-vc" })));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 
 class sysfs_sockid_c_p : public sysfs_c_p { };
@@ -1216,7 +1179,7 @@ TEST_P(sysfs_sockid_c_p, get_port_sysfs) {
 }
 
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_sockid_c_p,
-                       ::testing::ValuesIn(test_platform::platforms({"skx-p","dcp-rc","dcp-vc"})));
+                       ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 /**
  * @test    match_region

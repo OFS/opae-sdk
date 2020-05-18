@@ -111,7 +111,7 @@ TEST_P(usrclk_c_p, get) {
 
 // TODO: Fix user clock test for DCP
 INSTANTIATE_TEST_CASE_P(usrclk_c, usrclk_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-d5005" })));
 
 class usrclk_c_hw_p : public usrclk_c_p{
   protected:
@@ -130,5 +130,5 @@ TEST_P(usrclk_c_hw_p, set) {
 }
 
 INSTANTIATE_TEST_CASE_P(usrclk_c, usrclk_c_hw_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms({ "skx-p","dcp-rc" }, fpga_driver::linux_intel)));
+                        ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-d5005"})));
 
