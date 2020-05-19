@@ -136,7 +136,7 @@ alaska_fw_loader_doc = 'docs/fpga_tools/alaska_fw_loader/readme'
 fpga_tools_doc = 'docs/fpga_tools/readme'
 ase_userguide_doc = 'docs/ase_userguide/ase_userguide'
 api_build_doc = 'docs/build_chain/fpga_api/api_build'
-driver_build_doc = 'docs/build_chain/fpga_driver/driver_build'
+#driver_build_doc = 'docs/build_chain/fpga_driver/driver_build'
 install_guide_doc = 'docs/install_guide/installation_guide'
 
 
@@ -147,7 +147,7 @@ latex_documents = [
     # (fpgainfo_doc, 'fpgainfo.tex', u'fpgainfo', u'FPT SW Development Team', 'howto'),
     (ase_userguide_doc, 'ase_userguide.tex', u'Intel AFU Simulation Environment (ASE) User Guide', u'FPT SW Development Team', 'howto'),
     (api_build_doc, 'api_build.tex', u'apiBuild', u'FPT SW Development Team', 'howto'),
-    (driver_build_doc, 'driver_build.tex', u'Building the Intel FPGA driver', u'FPT SW Development Team', 'howto'),
+    # (driver_build_doc, 'driver_build.tex', u'Building the Intel FPGA driver', u'FPT SW Development Team', 'howto'),
     (install_guide_doc, 'install_guide.tex', u'Intel FPGA Software Stack Installation Guide', u'FPT SW Development Team', 'howto'),
     (drv_arch_doc, 'drv_arch.tex', u'FPGA Driver Architecture', u'FPT SW Development Team', 'manual'),
     # (hssi_config_doc, 'hssi_config.tex', u'HSSI config manual', u'FPT SW Development Team', 'howto'),
@@ -163,17 +163,18 @@ man_pages = [
 #     [author], 1),
     ("docs/fpga_tools/fpgabist/fpgabist", 'fpgabist', u'Perform self-diagnostic tests on supported FPGA platforms', [author], 8),
     ("docs/fpga_tools/fpgaport/fpgaport", 'fpgaport', u'Enable/Disable virtualization', [author], 8),
-    ("docs/fpga_tools/fpgaflash/fpgaflash", 'fpgaflash', u'Update static FIM image loaded from flash at power-on', [author], 8),
-    ("docs/fpga_tools/fpgaflash/superrsu", 'super-rsu', u'Flash image files and command an Intel PAC device to perform RSU', [author], 8),
-    ("docs/fpga_tools/coreidle/coreidle", 'coreidle', u'Adjust number of active cores to account for FPGA power consumption', [author], 8),
+    #("docs/fpga_tools/fpgaflash/fpgaflash", 'fpgaflash', u'Update static FIM image loaded from flash at power-on', [author], 8),
+    #("docs/fpga_tools/fpgaflash/superrsu", 'super-rsu', u'Flash image files and command an Intel PAC device to perform RSU', [author], 8),
+    #("docs/fpga_tools/coreidle/coreidle", 'coreidle', u'Adjust number of active cores to account for FPGA power consumption', [author], 8),
     ("docs/fpga_tools/fpgaconf/fpgaconf", 'fpgaconf', u'Configure green bitstreams to an FPGA', [author], 8),
     ("docs/fpga_tools/fpgad/fpgad", 'fpgad', u'Log errors and generate events', [author], 8),
     ("docs/fpga_tools/fpgadiag/README", 'fpgadiag', u'FPGA diagnosis and testing tool', [author], 8),
     ("docs/fpga_tools/fpgainfo/fpgainfo", 'fpgainfo', u'FPGA information tool', [author], 8),
-    ("docs/fpga_tools/fpgamux/fpgamux", 'fpgamux', u'Software MUX for running multiple AFU tests in one GBS', [author], 8),
+    ("docs/fpga_tools/fpgasupdate/fpgasupdate", 'fpgasupdate', u'FPGA Secure Update tool', [author], 8),
+    #("docs/fpga_tools/fpgamux/fpgamux", 'fpgamux', u'Software MUX for running multiple AFU tests in one GBS', [author], 8),
     ("docs/fpga_tools/pac_hssi_config/pac_hssi_config", 'pac_hssi_config', u'Access Ethernet transceivers for designs', [author], 8),
-    ("docs/fpga_tools/hssi_loopback/readme", 'hssi_loopback', u'Interact with a packet generator GBS', [author], 8),
-    ("docs/fpga_tools/hssi_config/readme", 'hssi_config', u'Read from or write to HSSI registers', [author], 8),
+    #("docs/fpga_tools/hssi_loopback/readme", 'hssi_loopback', u'Interact with a packet generator GBS', [author], 8),
+    #("docs/fpga_tools/hssi_config/readme", 'hssi_config', u'Read from or write to HSSI registers', [author], 8),
     ("docs/fpga_tools/mmlink/mmlink", 'mmlink', u'Enable remote SignalTAP debugging', [author], 8),
     ("docs/fpga_tools/userclk/userclk", 'userclk', u'Set AFU high and low clock frequency', [author], 8),
     ("docs/fpga_api/fpga_api", 'fpga_api', u'OPAE C API', [author], 8),

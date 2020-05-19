@@ -1445,4 +1445,4 @@ TEST_P(fpgainfo_c_p, main_6) {
 }
 
 INSTANTIATE_TEST_CASE_P(fpgainfo_c, fpgainfo_c_p,
-        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));
+        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));

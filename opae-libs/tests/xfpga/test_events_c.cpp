@@ -34,7 +34,7 @@ extern "C" {
 fpga_result send_fme_event_request(fpga_handle, fpga_event_handle, int);
 fpga_result send_port_event_request(fpga_handle, fpga_event_handle, int);
 fpga_result send_uafu_event_request(fpga_handle, fpga_event_handle, uint32_t, int);
-fpga_result check_interrupts_supported(fpga_handle, fpga_objtype*);
+fpga_result check_err_interrupts_supported(fpga_handle, fpga_objtype*);
 fpga_result driver_register_event(fpga_handle, fpga_event_type, fpga_event_handle, uint32_t);
 fpga_result driver_unregister_event(fpga_handle, fpga_event_type, fpga_event_handle);
 int xfpga_plugin_initialize(void);
@@ -52,7 +52,7 @@ int xfpga_plugin_finalize(void);
 #include "gtest/gtest.h"
 #include "mock/test_system.h"
 #include "mock/fpgad_control.h"
-
+#include "fpga-dfl.h"
 #include "error_int.h"
 #include "xfpga.h"
 #include <opae/enum.h>
@@ -72,10 +72,10 @@ int xfpga_plugin_finalize(void);
 
 using namespace opae::testing;
 
-static std::string sysfs_fme = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0";
-static std::string dev_fme = "/dev/intel-fpga-fme.0";
-static std::string sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
-static std::string dev_port = "/dev/intel-fpga-port.0";
+static std::string sysfs_fme = "/sys/class/fpga_region/region0/dfl-fme.0";
+static std::string dev_fme = "/dev/dfl-fme.0";
+static std::string sysfs_port = "/sys/class/fpga/fpga_region/region0/dfl-fme.0";
+static std::string dev_port = "/dev/dfl-port.0";
 static bool gEnableIRQ = false;
 
 static void get_path(const std::string object_type, fpga_handle handle){
@@ -93,32 +93,95 @@ static void get_path(const std::string object_type, fpga_handle handle){
   }
 }
 
-int port_info(mock_object * m, int request, va_list argp){
-  int retval = -1;
-  errno = EINVAL;
-  UNUSED_PARAM(m);
-  UNUSED_PARAM(request);
-  struct fpga_port_info *pinfo = va_arg(argp, struct fpga_port_info *);
-  if (!pinfo) {
-  	FPGA_MSG("pinfo is NULL");
-  	goto out_EINVAL;
-  }
-  if (pinfo->argsz != sizeof(*pinfo)) {
-  	FPGA_MSG("wrong structure size");
-  	goto out_EINVAL;
-  }
-  pinfo->flags = 0;
-  pinfo->num_regions = 1;
-  pinfo->num_umsgs = 8;
-  if (gEnableIRQ) {
-  	pinfo->capability = FPGA_PORT_CAP_ERR_IRQ | FPGA_PORT_CAP_UAFU_IRQ;
-  	pinfo->num_uafu_irqs = 1;
-  } else {
-  	pinfo->capability = 0;
-  	pinfo->num_uafu_irqs = 0;
-  }
-  retval = 0;
-  errno = 0;
+int dfl_get_fme_err_irq(mock_object * m, int request, va_list argp) {
+	int retval = -1;
+	errno = EINVAL;
+	UNUSED_PARAM(m);
+	UNUSED_PARAM(request);
+	UNUSED_PARAM(argp);
+	uint32_t *num_irqs = va_arg(argp, uint32_t *);
+
+	if (gEnableIRQ) {
+		*num_irqs = 1;
+		retval = 0;
+		errno = 0;
+	} else {
+		*num_irqs = 0;
+
+		retval = -1;
+		errno = ENOTSUP;
+	}
+
+
+
+	va_end(argp);
+	return retval;
+}
+
+int dfl_get_port_err_irq(mock_object * m, int request, va_list argp) {
+	int retval = -1;
+	errno = EINVAL;
+	UNUSED_PARAM(m);
+	UNUSED_PARAM(request);
+
+	uint32_t *num_irqs = va_arg(argp, uint32_t *);
+
+	if (gEnableIRQ) {
+		*num_irqs = 1;
+		retval = 0;
+		errno = 0;
+	}
+	else {
+		*num_irqs = 0;
+		retval = -1;
+		errno = ENOTSUP;
+	}
+
+	va_end(argp);
+	return retval;
+}
+
+int dfl_get_port_uint_irq(mock_object * m, int request, va_list argp) {
+	int retval = -1;
+	errno = EINVAL;
+	UNUSED_PARAM(m);
+	UNUSED_PARAM(request);
+
+	uint32_t *num_irqs = va_arg(argp, uint32_t *);
+	if (gEnableIRQ) {
+		*num_irqs = 4;
+		retval = 0;
+		errno = 0;
+	}
+	else {
+		*num_irqs = 0;
+		retval = -1;
+		errno = ENOTSUP;
+	}
+	va_end(argp);
+	return retval;
+}
+
+int set_dummy_dfl_irq(mock_object * m, int request, va_list argp) {
+
+	int retval = -1;
+	errno = EINVAL;
+	UNUSED_PARAM(m);
+	UNUSED_PARAM(request);
+	struct dfl_fpga_irq_set *irq = va_arg(argp, struct dfl_fpga_irq_set *);
+
+	if (!irq) {
+		FPGA_MSG("fme_irq is NULL");
+		goto out_EINVAL;
+	}
+	if (irq->count <= 0) {
+		FPGA_MSG("wrong structure size");
+		goto out_EINVAL;
+	}
+
+		retval = -1;
+		errno = EINVAL;
+
 out:
   va_end(argp);
   return retval;
@@ -129,157 +192,47 @@ out_EINVAL:
   goto out;
 }
 
-int fme_info(mock_object * m, int request, va_list argp){
-  int retval = -1;
-  errno = EINVAL;
-  UNUSED_PARAM(m);
-  UNUSED_PARAM(request);
-  struct fpga_fme_info *fme_info = va_arg(argp, struct fpga_fme_info *);
-  if (!fme_info) {
-  	FPGA_MSG("fme_info is NULL");
-  	goto out_EINVAL;
-  }
-  if (fme_info->argsz != sizeof(*fme_info)) {
-  	FPGA_MSG("wrong structure size");
-  	goto out_EINVAL;
-  }
-  if (fme_info->flags != 0) {
-  	FPGA_MSG("unexpected flags %u", fme_info->flags);
-  	goto out_EINVAL;
-  }
-  if (fme_info->capability != 0) {
-  	FPGA_MSG("unexpected capability %u", fme_info->capability);
-  	goto out_EINVAL;
-  }
-  fme_info->capability = gEnableIRQ ? FPGA_FME_CAP_ERR_IRQ : 0;
-  retval = 0;
-  errno = 0;
+
+int set_dfl_irq(mock_object * m, int request, va_list argp) {
+
+	int retval = -1;
+	errno = EINVAL;
+	UNUSED_PARAM(m);
+	UNUSED_PARAM(request);
+
+	struct dfl_fpga_irq_set *irq = va_arg(argp, struct dfl_fpga_irq_set *);
+	if (!irq) {
+		FPGA_MSG("fme_irq is NULL");
+		goto out_EINVAL;
+	}
+	if (irq->count <= 0 ) {
+		FPGA_MSG("wrong structure size");
+		goto out_EINVAL;
+	}
+	if (gEnableIRQ) {
+		uint32_t i;
+		uint64_t data = 1;
+		// Write to each eventfd to signal one IRQ event.
+		for (i = 0; i < irq->count; ++i) {
+			if (irq->evtfds[i] >= 0)
+				if (write(irq->evtfds[i], &data, sizeof(data)) !=
+					sizeof(data)) {
+					FPGA_ERR("IRQ write < 8 bytes");
+				}
+		}
+	}
+	retval = 0;
+	errno = 0;
 out:
-  va_end(argp);
-  return retval;
+	va_end(argp);
+	return retval;
 
 out_EINVAL:
-  retval = -1;
-  errno = EINVAL;
-  goto out;
+	retval = -1;
+	errno = EINVAL;
+	goto out;
 }
 
-int set_port_irq(mock_object * m, int request, va_list argp){
-  int retval = -1;
-  errno = EINVAL;
-  UNUSED_PARAM(m);
-  UNUSED_PARAM(request);
-  struct fpga_port_err_irq_set *port_irq = va_arg(argp, struct fpga_port_err_irq_set *);
-  if (!port_irq) {
-  	FPGA_MSG("port_irq is NULL");
-  	goto out_EINVAL;
-  }
-  if (port_irq->argsz != sizeof(*port_irq)) {
-  	FPGA_MSG("wrong structure size");
-  	goto out_EINVAL;
-  }
-  if (port_irq->flags != 0) {
-  	FPGA_MSG("unexpected flags %u", port_irq->flags);
-  	goto out_EINVAL;
-  }
-  if (gEnableIRQ && port_irq->evtfd >= 0) {
-  	uint64_t data = 1;
-  	// Write to the eventfd to signal one IRQ event.
-  	if (write(port_irq->evtfd, &data, sizeof(data)) != sizeof(data)) {
-  		FPGA_ERR("IRQ write < 8 bytes");
-  	}
-  }
-  retval = 0;
-  errno = 0; 
-out:
-  va_end(argp);
-  return retval;
-
-out_EINVAL:
-  retval = -1;
-  errno = EINVAL;
-  goto out;
-}
-
-int set_fme_irq(mock_object * m, int request, va_list argp){
-  int retval = -1;
-  errno = EINVAL;
-  UNUSED_PARAM(m);
-  UNUSED_PARAM(request);
-  struct fpga_fme_err_irq_set *fme_irq = va_arg(argp, struct fpga_fme_err_irq_set *);
-  if (!fme_irq) {
-  	FPGA_MSG("fme_irq is NULL");
-  	goto out_EINVAL;
-  }
-  if (fme_irq->argsz != sizeof(*fme_irq)) {
-  	FPGA_MSG("wrong structure size");
-  	goto out_EINVAL;
-  }
-  if (fme_irq->flags != 0) {
-  	FPGA_MSG("unexpected flags %u", fme_irq->flags);
-  	goto out_EINVAL;
-  }
-  if (gEnableIRQ && fme_irq->evtfd >= 0) {
-  	uint64_t data = 1;
-  	// Write to the eventfd to signal one IRQ event.
-  	if (write(fme_irq->evtfd, &data, sizeof(data)) != sizeof(data)) {
-  		FPGA_ERR("IRQ write < 8 bytes");
-  	}
-  }
-  retval = 0;
-  errno = 0;
-out:
-  va_end(argp);
-  return retval;
-
-out_EINVAL:
-  retval = -1;
-  errno = EINVAL;
-  goto out;
-}
-
-int set_uport_irq(mock_object * m, int request, va_list argp){
-  int retval = -1;
-  errno = EINVAL;
-  UNUSED_PARAM(m);
-  UNUSED_PARAM(request);
-  struct fpga_port_uafu_irq_set *uafu_irq =
-  	va_arg(argp, struct fpga_port_uafu_irq_set *);
-  if (!uafu_irq) {
-  	FPGA_MSG("uafu_irq is NULL");
-  	goto out_EINVAL;
-  }
-  if (uafu_irq->argsz < sizeof(*uafu_irq)) {
-  	FPGA_MSG("wrong structure size");
-  	goto out_EINVAL;
-  }
-  if (uafu_irq->flags != 0) {
-  	FPGA_MSG("unexpected flags %u", uafu_irq->flags);
-  	goto out_EINVAL;
-  }
-  if (gEnableIRQ) {
-  	uint32_t i;
-  	uint64_t data = 1;
-  	// Write to each eventfd to signal one IRQ event.
-  	for (i = 0 ; i < uafu_irq->count ; ++i) {
-  		if (uafu_irq->evtfd[i] >= 0)
-  			if (write(uafu_irq->evtfd[i], &data, sizeof(data)) !=
-  					sizeof(data)) {
-  				FPGA_ERR("IRQ write < 8 bytes");
-  			}
-  	}
-  }
-  retval = 0;
-  errno = 0;
-out:
-  va_end(argp);
-  return retval;
-
-out_EINVAL:
-  retval = -1;
-  errno = EINVAL;
-  goto out;
-}
 
 class events_p : public ::testing::TestWithParam<std::string>,
                  public fpgad_control {
@@ -594,7 +547,7 @@ TEST(events, event_drv_10) {
 TEST_P(events_p, register_event) {
   fpga_result res;
   gEnableIRQ = true;
-  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
+  system_->register_ioctl_handler(DFL_FPGA_FME_ERR_GET_IRQ_NUM, dfl_get_fme_err_irq);
  
   ASSERT_EQ(res = xfpga_fpgaRegisterEvent(handle_dev_, FPGA_EVENT_ERROR, eh_, 0), FPGA_OK)
       << "\tEVENT TYPE: ERROR, RESULT: " << fpgaErrStr(res);
@@ -710,7 +663,7 @@ TEST_P(events_p, irq_event_06) {
 }
 
 INSTANTIATE_TEST_CASE_P(events, events_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 
 class events_dcp_p : public events_p {};
@@ -726,7 +679,7 @@ TEST_P(events_dcp_p, invalid_port_event_request){
   EXPECT_EQ(FPGA_OK, res) << "\t result is " << res;
 
   gEnableIRQ = false;
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_ERR_GET_IRQ_NUM, dfl_get_port_err_irq);
   res = send_port_event_request(handle_accel_,eh_,port_op);
   EXPECT_EQ(FPGA_OK, res);
 }
@@ -742,13 +695,13 @@ TEST_P(events_dcp_p, invalid_fme_event_request){
   EXPECT_EQ(FPGA_OK, res) << "\t result is " << res;
 
   gEnableIRQ = false;
-  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
+  system_->register_ioctl_handler(DFL_FPGA_FME_ERR_GET_IRQ_NUM, dfl_get_fme_err_irq);
   res = send_fme_event_request(handle_dev_,eh_,fme_op);
   EXPECT_EQ(FPGA_OK, res);
 }
 
 INSTANTIATE_TEST_CASE_P(events, events_dcp_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms({"dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-n3000","dfl-d5005" })));
 
 
 class events_mcp_p : public events_p {};
@@ -765,7 +718,7 @@ TEST_P(events_mcp_p, invalid_port_event_request){
   EXPECT_EQ(FPGA_NOT_SUPPORTED, res) << "\t result is " << res;
 
   gEnableIRQ = false;
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_ERR_GET_IRQ_NUM, dfl_get_port_err_irq);
   res = send_port_event_request(handle_accel_,eh_,port_op);
   EXPECT_EQ(FPGA_NOT_SUPPORTED, res);
 }
@@ -782,13 +735,14 @@ TEST_P(events_mcp_p, invalid_fme_event_request){
   EXPECT_EQ(FPGA_NOT_SUPPORTED,res) << "\t result is " << res;
 
   gEnableIRQ = false;
-  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
+  system_->register_ioctl_handler(DFL_FPGA_FME_ERR_GET_IRQ_NUM, dfl_get_fme_err_irq);
   res = send_fme_event_request(handle_dev_,eh_,fme_op);
   EXPECT_EQ(FPGA_NOT_SUPPORTED,res);
 }
 
 INSTANTIATE_TEST_CASE_P(events, events_mcp_p,
-                        ::testing::ValuesIn(test_platform::platforms({"skx-p" })));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
+
 
 
 class events_mock_p : public events_p {
@@ -823,7 +777,7 @@ TEST_P(events_mock_p, valid_fme_event_request){
   int fme_op = FPGA_IRQ_ASSIGN;
 
   gEnableIRQ = true;
-  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
+  system_->register_ioctl_handler(DFL_FPGA_FME_ERR_GET_IRQ_NUM, dfl_get_fme_err_irq);
   auto res = send_fme_event_request(handle_dev_,eh_,fme_op);
   EXPECT_EQ(FPGA_OK,res);
 }
@@ -838,7 +792,7 @@ TEST_P(events_mock_p, valid_port_event_request){
   int port_op = FPGA_IRQ_ASSIGN;
 
   gEnableIRQ = true;
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_ERR_GET_IRQ_NUM, dfl_get_port_err_irq);
   auto res = send_port_event_request(handle_accel_,eh_,port_op);
   EXPECT_EQ(FPGA_OK,res);
 }
@@ -853,7 +807,7 @@ TEST_P(events_mock_p, valid_port_event_request_01){
   int port_op = FPGA_IRQ_DEASSIGN;
 
   gEnableIRQ = true;
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_ERR_GET_IRQ_NUM, dfl_get_port_err_irq);
   auto res = send_port_event_request(handle_accel_,eh_,port_op);
   EXPECT_EQ(FPGA_OK,res);
 }
@@ -870,7 +824,7 @@ TEST_P(events_mock_p, valid_fme_event_request_01){
   int fme_op = FPGA_IRQ_DEASSIGN;
 
   gEnableIRQ = true;
-  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
+  system_->register_ioctl_handler(DFL_FPGA_FME_ERR_GET_IRQ_NUM, dfl_get_fme_err_irq);
   auto res = send_fme_event_request(handle_dev_,eh_,fme_op);
   EXPECT_EQ(FPGA_OK,res);
 }
@@ -885,7 +839,7 @@ TEST_P(events_mock_p, valid_uafu_event_request){
   int port_op = FPGA_IRQ_ASSIGN;
 
   gEnableIRQ = true;
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_UINT_GET_IRQ_NUM, dfl_get_port_uint_irq);
   auto res = send_uafu_event_request(handle_dev_,eh_,0,port_op);
   EXPECT_EQ(FPGA_OK,res);
 }
@@ -900,7 +854,7 @@ TEST_P(events_mock_p, valid_uafu_event_request_01){
   int port_op = FPGA_IRQ_DEASSIGN;
 
   gEnableIRQ = true;
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+ system_->register_ioctl_handler(DFL_FPGA_PORT_UINT_GET_IRQ_NUM, dfl_get_port_uint_irq);
   auto res = send_uafu_event_request(handle_dev_,eh_,0,port_op);
   EXPECT_EQ(FPGA_OK,res);
 }
@@ -914,7 +868,7 @@ TEST_P(events_mock_p, invalid_uafu_event_request_03){
   int port_op = FPGA_IRQ_ASSIGN;
   gEnableIRQ = true;
 
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_UINT_GET_IRQ_NUM, dummy_ioctl<-1, EINVAL>);
   auto res = send_uafu_event_request(handle_dev_,eh_,2,port_op);
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
 }
@@ -930,14 +884,14 @@ TEST_P(events_mock_p, afu_driver_register_event){
 
   // Valid params
   gEnableIRQ = true;
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_ERR_GET_IRQ_NUM, dfl_get_port_err_irq);
   auto res = driver_register_event(handle_accel_, FPGA_EVENT_ERROR, eh_, 0);
   EXPECT_EQ(FPGA_OK,res);
 
   // Invalid num_uafu_irqs
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_ERR_GET_IRQ_NUM, dfl_get_port_err_irq);
   res = driver_register_event(handle_accel_, FPGA_EVENT_INTERRUPT, eh_, port_op);
-  EXPECT_EQ(FPGA_INVALID_PARAM,res);
+  EXPECT_EQ(FPGA_NOT_SUPPORTED,res);
 
   // Not supported event type
   res = driver_register_event(handle_accel_, FPGA_EVENT_POWER_THERMAL, eh_, 0);
@@ -952,7 +906,7 @@ TEST_P(events_mock_p, afu_driver_register_event){
 TEST_P(events_mock_p, fme_driver_register_event){
   // Invalid ioctl
   gEnableIRQ = true;
-  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
+  system_->register_ioctl_handler(DFL_FPGA_FME_ERR_GET_IRQ_NUM, dfl_get_fme_err_irq);
   auto res = driver_register_event(handle_dev_, FPGA_EVENT_ERROR, eh_, 0);
   EXPECT_EQ(FPGA_OK,res);
 
@@ -967,7 +921,7 @@ TEST_P(events_mock_p, fme_driver_register_event){
  */
 TEST_P(events_mock_p, fme_driver_unregister_event){
   gEnableIRQ = true;
-  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
+  system_->register_ioctl_handler(DFL_FPGA_FME_ERR_GET_IRQ_NUM, dfl_get_fme_err_irq);
   auto res = driver_unregister_event(handle_dev_, FPGA_EVENT_ERROR, eh_);
   EXPECT_EQ(FPGA_OK,res);
 
@@ -1008,7 +962,7 @@ TEST_P(events_mock_p, event_drv_14) {
 
   // Valid magic and ioctl
   gEnableIRQ = true;
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_UINT_GET_IRQ_NUM, dfl_get_port_uint_irq);
   EXPECT_EQ(FPGA_OK, xfpga_fpgaUnregisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT, bad_handle));
 
   // Destory event handle
@@ -1027,14 +981,14 @@ TEST_P(events_mock_p, invalid_fme_event_request_01){
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
 
   fme_op = FPGA_IRQ_ASSIGN;
-  system_->register_ioctl_handler(FPGA_FME_GET_INFO, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(DFL_FPGA_FME_ERR_GET_IRQ_NUM, dummy_ioctl<-1,EINVAL>);
 
   res = send_fme_event_request(handle_dev_,eh_,fme_op);
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
 
   gEnableIRQ = true;
-  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
-  system_->register_ioctl_handler(FPGA_FME_ERR_SET_IRQ, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(DFL_FPGA_FME_ERR_GET_IRQ_NUM, dfl_get_fme_err_irq);
+  system_->register_ioctl_handler(DFL_FPGA_FME_ERR_SET_IRQ, dummy_ioctl<-1,EINVAL>);
   res = send_fme_event_request(handle_dev_,eh_,fme_op);
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
 }
@@ -1052,14 +1006,14 @@ TEST_P(events_mock_p, invalid_port_event_request_01){
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
 
   port_op = FPGA_IRQ_ASSIGN;
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_ERR_GET_IRQ_NUM, dummy_ioctl<-1,EINVAL>);
 
   res = send_port_event_request(handle_dev_,eh_,port_op);
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
 
   gEnableIRQ = true;
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
-  system_->register_ioctl_handler(FPGA_PORT_ERR_SET_IRQ, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_ERR_GET_IRQ_NUM, dfl_get_port_err_irq);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_ERR_SET_IRQ, set_dummy_dfl_irq);
   res = send_port_event_request(handle_dev_,eh_,port_op);
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
 }
@@ -1078,7 +1032,7 @@ TEST_P(events_mock_p, invalid_uafu_event_request_01){
 
   // Invalid ioctl
   port_op = FPGA_IRQ_ASSIGN;
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_UINT_GET_IRQ_NUM, dummy_ioctl<-1, EINVAL>);
   res = send_uafu_event_request(handle_dev_,eh_,0,port_op);
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
 }
@@ -1094,13 +1048,13 @@ TEST_P(events_mock_p, invalid_uafu_event_request_02){
   EXPECT_EQ(FPGA_NOT_SUPPORTED,res) << "\t result is " << res;
 
   gEnableIRQ = false;
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_UINT_GET_IRQ_NUM, dfl_get_port_uint_irq);
   res = send_uafu_event_request(handle_dev_,eh_,0,port_op);
   EXPECT_EQ(FPGA_NOT_SUPPORTED,res);
 
   gEnableIRQ = true;
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
-  system_->register_ioctl_handler(FPGA_PORT_UAFU_SET_IRQ, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_UINT_GET_IRQ_NUM, dfl_get_port_uint_irq);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_UINT_SET_IRQ, set_dummy_dfl_irq);
   res = send_uafu_event_request(handle_dev_,eh_,0,port_op);
   EXPECT_EQ(FPGA_EXCEPTION,res);
 }
@@ -1108,7 +1062,7 @@ TEST_P(events_mock_p, invalid_uafu_event_request_02){
 /**
  * @test       fme_interrupts_check
  * @brief      When irq is not supported and register invalid ioctl,
- *             check_interrupts_supported returns FPGA_NOT_SUPPORTED 
+ *             check_err_interrupts_supported returns FPGA_NOT_SUPPORTED 
  *             or FPGA_EXCEPTION.
  */
 TEST_P(events_mock_p, fme_interrupts_check){
@@ -1118,31 +1072,31 @@ TEST_P(events_mock_p, fme_interrupts_check){
 
   // no fme_info capability
   gEnableIRQ = false;
-  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
-  auto res = check_interrupts_supported(handle_dev_,&obj);
+  system_->register_ioctl_handler(DFL_FPGA_FME_ERR_GET_IRQ_NUM, dfl_get_fme_err_irq);
+  auto res = check_err_interrupts_supported(handle_dev_,&obj);
   EXPECT_EQ(FPGA_NOT_SUPPORTED,res);
 
   // Value input
   gEnableIRQ = true;
-  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
-  res = check_interrupts_supported(handle_dev_,&obj);
+  system_->register_ioctl_handler(DFL_FPGA_FME_ERR_GET_IRQ_NUM, dfl_get_fme_err_irq);
+  res = check_err_interrupts_supported(handle_dev_,&obj);
   EXPECT_EQ(FPGA_OK,res);
 
   // interrupt ioctl
-  system_->register_ioctl_handler(FPGA_FME_GET_INFO, dummy_ioctl<-1,EINVAL>);
-  res = check_interrupts_supported(handle_dev_,&obj);
-  EXPECT_EQ(FPGA_EXCEPTION,res);
+  system_->register_ioctl_handler(DFL_FPGA_FME_ERR_GET_IRQ_NUM, dummy_ioctl<-1, EINVAL>);
+  res = check_err_interrupts_supported(handle_dev_,&obj);
+  EXPECT_EQ(FPGA_INVALID_PARAM,res);
 
   // change sysfspath
   strncpy(t->sysfspath, "null" , 5);
-  res = check_interrupts_supported(handle_dev_,&obj);
+  res = check_err_interrupts_supported(handle_dev_,&obj);
   EXPECT_NE(FPGA_OK,res);
 }
 
 /**
  * @test       afu_interrupts_check
  * @brief      When irq is not supported and register invalid ioctl,
- *             check_interrupts_supported returns FPGA_NOT_SUPPORTED 
+ *             check_err_interrupts_supported returns FPGA_NOT_SUPPORTED 
  *             or FPGA_EXCEPTION.
  */
 TEST_P(events_mock_p, afu_interrupts_check){
@@ -1152,24 +1106,25 @@ TEST_P(events_mock_p, afu_interrupts_check){
 
   // no fme_info capability
   gEnableIRQ = false;
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
-  auto res = check_interrupts_supported(handle_accel_,&obj);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_ERR_GET_IRQ_NUM, dfl_get_port_err_irq);
+  auto res = check_err_interrupts_supported(handle_accel_,&obj);
   EXPECT_EQ(FPGA_NOT_SUPPORTED,res);
 
   // Value input
   gEnableIRQ = true;
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
-  res = check_interrupts_supported(handle_accel_,&obj);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_ERR_GET_IRQ_NUM, dfl_get_port_err_irq);
+  res = check_err_interrupts_supported(handle_accel_,&obj);
   EXPECT_EQ(FPGA_OK,res);
 
   // interrupt ioctl
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EINVAL>);
-  res = check_interrupts_supported(handle_accel_,&obj);
+    system_->register_ioctl_handler(DFL_FPGA_PORT_ERR_GET_IRQ_NUM, dummy_ioctl<-1, EINVAL>);
+
+  res = check_err_interrupts_supported(handle_accel_,&obj);
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
 
   // change sysfspath
   strncpy(t->sysfspath, "null", 5);
-  res = check_interrupts_supported(handle_accel_,&obj);
+  res = check_err_interrupts_supported(handle_accel_,&obj);
   EXPECT_NE(FPGA_OK,res);
 }
 
@@ -1181,14 +1136,14 @@ TEST_P(events_mock_p, afu_interrupts_check){
 TEST_P(events_mock_p, afu_driver_unregister_event){
   // Invalid ioctl
   gEnableIRQ = true;
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
-  system_->register_ioctl_handler(FPGA_PORT_ERR_SET_IRQ, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_ERR_GET_IRQ_NUM, dfl_get_port_err_irq);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_ERR_SET_IRQ, dummy_ioctl<-1, EINVAL>);
   auto res = driver_unregister_event(handle_accel_, FPGA_EVENT_ERROR, eh_);
   EXPECT_EQ(FPGA_INVALID_PARAM,res);
 
-  system_->register_ioctl_handler(FPGA_PORT_UAFU_SET_IRQ, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_UINT_SET_IRQ, dummy_ioctl<-1, EINVAL>);
   res = driver_unregister_event(handle_accel_, FPGA_EVENT_INTERRUPT, eh_);
-  EXPECT_EQ(FPGA_EXCEPTION,res);
+  EXPECT_EQ(FPGA_NOT_SUPPORTED,res);
 
   // Not supported event_type
   res = driver_unregister_event(handle_accel_, FPGA_EVENT_POWER_THERMAL, eh_);
@@ -1207,8 +1162,9 @@ TEST_P(events_mock_p, afu_driver_unregister_event){
  */
 TEST_P(events_mock_p, irq_event_01) {
   gEnableIRQ = true;
-  system_->register_ioctl_handler(FPGA_FME_GET_INFO, fme_info);
-  system_->register_ioctl_handler(FPGA_FME_ERR_SET_IRQ, set_fme_irq);
+  system_->register_ioctl_handler(DFL_FPGA_FME_ERR_GET_IRQ_NUM, dfl_get_fme_err_irq);
+  system_->register_ioctl_handler(DFL_FPGA_FME_ERR_SET_IRQ, set_dfl_irq);
+
  
   ASSERT_EQ(FPGA_OK, xfpga_fpgaRegisterEvent(handle_dev_, FPGA_EVENT_ERROR,
                                        eh_, 0));
@@ -1253,8 +1209,10 @@ TEST_P(events_mock_p, irq_event_01) {
  */
 TEST_P(events_mock_p, irq_event_02) {
   gEnableIRQ = true;
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
-  system_->register_ioctl_handler(FPGA_PORT_ERR_SET_IRQ, set_port_irq);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_ERR_GET_IRQ_NUM, dfl_get_port_err_irq);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_ERR_SET_IRQ, set_dfl_irq);
+
+
  
   ASSERT_EQ(FPGA_OK, xfpga_fpgaRegisterEvent(handle_accel_, FPGA_EVENT_ERROR, eh_, 0));
 
@@ -1298,8 +1256,9 @@ TEST_P(events_mock_p, irq_event_02) {
  */
 TEST_P(events_mock_p, irq_event_03) {
   gEnableIRQ = true;
-  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
-  system_->register_ioctl_handler(FPGA_PORT_UAFU_SET_IRQ, set_uport_irq);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_UINT_GET_IRQ_NUM, dfl_get_port_uint_irq);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_UINT_SET_IRQ, set_dfl_irq);
+
  
   ASSERT_EQ(FPGA_OK, xfpga_fpgaRegisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT,
                                        eh_, 0));
@@ -1333,4 +1292,4 @@ TEST_P(events_mock_p, irq_event_03) {
 }
 
 INSTANTIATE_TEST_CASE_P(events, events_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));

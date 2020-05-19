@@ -241,250 +241,8 @@ TEST_P(metrics_utils_c_p, test_metric_utils_102) {
   EXPECT_EQ(FPGA_OK, fpga_vector_free(&metric_vector));
 }
 
-/**
- * @test       opaec
- * @brief      Tests: enum_thermalmgmt_metrics
- * @details    Validates enumeration of thermal metrics <br>
- *
- */
-TEST_P(metrics_utils_c_p, test_metric_utils_103) {
-  char group_sysfs[FPGA_METRIC_STR_SIZE] = {
-       "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0"};
-  char group_sysfs_invalid[FPGA_METRIC_STR_SIZE] = {0};
 
-  fpga_metric_vector vector;
-  uint64_t metric_id = 0;
-  size_t len;
 
-  EXPECT_NE(FPGA_OK, enum_thermalmgmt_metrics(NULL, &metric_id, group_sysfs,
-                                              FPGA_HW_MCP));
-
-  EXPECT_NE(FPGA_OK,
-            enum_thermalmgmt_metrics(&vector, &metric_id, NULL, FPGA_HW_MCP));
-
-  EXPECT_NE(FPGA_OK,
-            enum_thermalmgmt_metrics(&vector, NULL, group_sysfs, FPGA_HW_MCP));
-
-  EXPECT_NE(FPGA_OK,
-            enum_thermalmgmt_metrics(&vector, &metric_id, group_sysfs_invalid,
-                                     FPGA_HW_MCP));
-
-  EXPECT_EQ(FPGA_OK, fpga_vector_init(&vector));
-
-  std::string sysclass_path =
-              system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
-
-  strncpy(group_sysfs, sysclass_path.c_str(), sysclass_path.size() + 1);
-  strncat(group_sysfs, "/", 2);
-  len = strnlen("intel-fpga-fme.0/thermal_mgmt/*", sizeof(group_sysfs) - (sysclass_path.size() + 1));
-  strncat(group_sysfs, "intel-fpga-fme.0/thermal_mgmt/*", len + 1);
-
-  printf("sysclass_path %s \n", sysclass_path.c_str());
-  printf("metric_sysfs %s \n", group_sysfs);
-
-  EXPECT_EQ(FPGA_OK, enum_thermalmgmt_metrics(&vector, &metric_id, group_sysfs,
-                                              FPGA_HW_MCP));
-
-  EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
-}
-
-/**
- * @test       opaec
- * @brief      Tests: enum_powermgmt_metrics
- * @details    Validates enumeration of power metrics <br>
- *
- *
- */
-TEST_P(metrics_utils_c_p, test_metric_utils_104) {
-  char group_sysfs[FPGA_METRIC_STR_SIZE] = {
-       "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0"};
-  char group_sysfs_invalid[FPGA_METRIC_STR_SIZE] = {0};
-  uint64_t metric_id = 0;
-  fpga_metric_vector vector;
-  size_t len;
-
-  EXPECT_NE(FPGA_OK,
-            enum_powermgmt_metrics(NULL, &metric_id, group_sysfs, FPGA_HW_MCP));
-
-  EXPECT_NE(FPGA_OK,
-            enum_powermgmt_metrics(&vector, &metric_id, NULL, FPGA_HW_MCP));
-
-  EXPECT_NE(FPGA_OK,
-            enum_powermgmt_metrics(&vector, NULL, group_sysfs, FPGA_HW_MCP));
-
-  EXPECT_NE(FPGA_OK, enum_powermgmt_metrics(&vector, &metric_id,
-                                            group_sysfs_invalid, FPGA_HW_MCP));
-
-  EXPECT_EQ(FPGA_OK, fpga_vector_init(&vector));
-
-  std::string sysclass_path =
-              system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
-
-  strncpy(group_sysfs, sysclass_path.c_str(), sysclass_path.size() + 1);
-  strncat(group_sysfs, "/", 2);
-  len = strnlen("intel-fpga-fme.0/power_mgmt/*", sizeof(group_sysfs) - (sysclass_path.size() + 1));
-  strncat(group_sysfs, "intel-fpga-fme.0/power_mgmt/*", len + 1);
-
-  printf("sysclass_path %s \n", sysclass_path.c_str());
-  printf("metric_sysfs %s \n", group_sysfs);
-
-  EXPECT_EQ(FPGA_OK, enum_powermgmt_metrics(&vector, &metric_id, group_sysfs,
-                                            FPGA_HW_MCP));
-
-  EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
-}
-
-/**
- * @test      opaec
- * @brief     Tests: enum_perf_counter_items
- * @details   Validates enumeration performance counters metrics <br>
- *
- */
-TEST_P(metrics_utils_c_p, test_metric_utils_105) {
-  char qualifier_name[FPGA_METRIC_STR_SIZE] = {0};
-  char group_sysfs[FPGA_METRIC_STR_SIZE] = {0};
-  char sysfs_name[FPGA_METRIC_STR_SIZE] = {0};
-  uint64_t metric_id = 0;
-  fpga_metric_vector vector;
-  size_t len;
-
-  EXPECT_NE(FPGA_OK, enum_perf_counter_items(NULL, &metric_id, qualifier_name,
-                                             group_sysfs, sysfs_name,
-                                             FPGA_METRIC_TYPE_PERFORMANCE_CTR,
-                                             FPGA_HW_MCP));
-
-  EXPECT_NE(FPGA_OK, enum_perf_counter_items(
-                         &vector, NULL, qualifier_name, group_sysfs, sysfs_name,
-                         FPGA_METRIC_TYPE_PERFORMANCE_CTR, FPGA_HW_MCP));
-
-  EXPECT_NE(FPGA_OK, enum_perf_counter_items(
-                         &vector, &metric_id, NULL, group_sysfs, sysfs_name,
-                         FPGA_METRIC_TYPE_PERFORMANCE_CTR, FPGA_HW_MCP));
-
-  EXPECT_NE(FPGA_OK, enum_perf_counter_items(
-                         &vector, &metric_id, qualifier_name, NULL, sysfs_name,
-                         FPGA_METRIC_TYPE_PERFORMANCE_CTR, FPGA_HW_MCP));
-
-  EXPECT_NE(FPGA_OK, enum_perf_counter_items(
-                         &vector, &metric_id, qualifier_name, group_sysfs, NULL,
-                         FPGA_METRIC_TYPE_PERFORMANCE_CTR, FPGA_HW_MCP));
-
-  EXPECT_NE(FPGA_OK, enum_perf_counter_items(
-                         &vector, &metric_id, qualifier_name, group_sysfs, NULL,
-                         FPGA_METRIC_TYPE_PERFORMANCE_CTR, FPGA_HW_MCP));
-
-  EXPECT_NE(FPGA_OK, enum_perf_counter_items(
-                         &vector, &metric_id, qualifier_name,
-                         (char *)"/tmp/class/fpga/intel-fpga-dev.1", sysfs_name,
-                         FPGA_METRIC_TYPE_PERFORMANCE_CTR, FPGA_HW_MCP));
-
-  EXPECT_EQ(FPGA_OK, fpga_vector_init(&vector));
-
-  std::string sysclass_path =
-              system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
-
-  strncpy(group_sysfs, sysclass_path.c_str(), sysclass_path.size() + 1);
-  strncat(group_sysfs, "/", 2);
-  len = strnlen("intel-fpga-fme.0/iperf/", sizeof(group_sysfs) - (sysclass_path.size() + 1));
-  strncat(group_sysfs, "intel-fpga-fme.0/iperf/", len + 1);
-
-  printf("sysclass_path %s \n", sysclass_path.c_str());
-  printf("metric_sysfs %s \n", group_sysfs);
-
-  EXPECT_EQ(FPGA_OK, enum_perf_counter_items(
-                         &vector, &metric_id, qualifier_name,
-                         (char *)group_sysfs, (char *)"fabric",
-                         FPGA_METRIC_TYPE_PERFORMANCE_CTR, FPGA_HW_MCP));
-
-  strncpy(group_sysfs, sysclass_path.c_str(), sysclass_path.size() + 1);
-  strncat(group_sysfs, "/", 2);
-  len = strnlen("intel-fpga-fme.0/perf/", sizeof(group_sysfs) - (sysclass_path.size() + 1));
-  strncat(group_sysfs, "intel-fpga-fme.0/perf/", len + 1);
-
-  printf("sysclass_path %s \n", sysclass_path.c_str());
-  printf("metric_sysfs %s \n", group_sysfs);
-
-  EXPECT_NE(FPGA_OK, enum_perf_counter_items(
-                         &vector, &metric_id, qualifier_name,
-                         (char *)group_sysfs, (char *)"port0",
-                         FPGA_METRIC_TYPE_PERFORMANCE_CTR, FPGA_HW_MCP));
-
-  EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
-}
-
-/**
- * @test       opaec
- * @brief      Tests: enum_perf_counter_metrics
- * @details    Validates enumeration performance counters metrics <br>
- *
- */
-TEST_P(metrics_utils_c_p, test_metric_utils_106) {
-  char group_sysfs[FPGA_METRIC_STR_SIZE] = {0};
-  fpga_metric_vector vector;
-  uint64_t metric_id = 0;
-  size_t len;
-
-  EXPECT_NE(FPGA_OK, enum_perf_counter_metrics(NULL, &metric_id, group_sysfs,
-                                               FPGA_HW_MCP));
-  EXPECT_NE(FPGA_OK,
-            enum_perf_counter_metrics(&vector, NULL, group_sysfs, FPGA_HW_MCP));
-
-  EXPECT_NE(FPGA_OK,
-            enum_perf_counter_metrics(&vector, &metric_id, NULL, FPGA_HW_MCP));
-
-  EXPECT_EQ(FPGA_OK, fpga_vector_init(&vector));
-
-  std::string sysclass_path =
-              system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
-
-  strncpy(group_sysfs, sysclass_path.c_str(), sysclass_path.size() + 1);
-  strncat(group_sysfs, "/", 2);
-  len = strnlen("intel-fpga-fme.0/", sizeof(group_sysfs) - (sysclass_path.size() + 1));
-  strncat(group_sysfs, "intel-fpga-fme.0/", len + 1);
-
-  printf("sysclass_path %s \n", sysclass_path.c_str());
-  printf("metric_sysfs %s \n", group_sysfs);
-
-  EXPECT_EQ(FPGA_OK,
-            enum_perf_counter_metrics(&vector, &metric_id, (char *)group_sysfs,
-                                      FPGA_HW_MCP));
-
-  EXPECT_NE(FPGA_OK,
-            enum_perf_counter_metrics(
-                &vector, &metric_id,
-                (char *)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.1",
-                FPGA_HW_MCP));
-
-  EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
-}
-
-/**
- * @test       opaec
- * @brief      Tests: add_metric_info
- * @details    Validates add metrics info <br>
- *
- */
-TEST_P(metrics_utils_c_p, test_metric_utils_107) {
-  struct _fpga_enum_metric _enum_metric = {
-      "power_mgmt",
-      "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/power_mgmt",
-      "consumed",
-      "/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/power_mgmt/consumed",
-      "power_mgmt:consumed",
-      "watts",
-      1,
-      FPGA_METRIC_DATATYPE_INT,
-      FPGA_METRIC_TYPE_POWER,
-      FPGA_HW_MCP,
-      0};
-
-  struct fpga_metric_info fpga_metric_info;
-
-  EXPECT_NE(FPGA_OK, add_metric_info(NULL, &fpga_metric_info));
-  EXPECT_NE(FPGA_OK, add_metric_info(&_enum_metric, NULL));
-
-  EXPECT_EQ(FPGA_OK, add_metric_info(&_enum_metric, &fpga_metric_info));
-}
 
 /**
  * @test       opaec
@@ -531,26 +289,6 @@ TEST_P(metrics_utils_c_p, test_metric_utils_10) {
             get_fme_metric_value(handle_, &(_handle->fpga_enum_metric_vector),
                                  20, &fpga_metric));
 
-  EXPECT_EQ(FPGA_OK,
-            get_fme_metric_value(handle_, &(_handle->fpga_enum_metric_vector),
-                                 25, &fpga_metric));
-
-  EXPECT_EQ(FPGA_OK,
-            get_fme_metric_value(handle_, &(_handle->fpga_enum_metric_vector),
-                                 30, &fpga_metric));
-
-  EXPECT_EQ(FPGA_OK,
-            get_fme_metric_value(handle_, &(_handle->fpga_enum_metric_vector),
-                                 34, &fpga_metric));
-
-  EXPECT_EQ(FPGA_OK,
-            get_fme_metric_value(handle_, &(_handle->fpga_enum_metric_vector),
-                                 31, &fpga_metric));
-
-  EXPECT_EQ(FPGA_OK,
-            get_fme_metric_value(handle_, &(_handle->fpga_enum_metric_vector),
-                                 32, &fpga_metric));
-
   EXPECT_NE(FPGA_OK, get_fme_metric_value(handle_, NULL, 1, &fpga_metric));
 
   EXPECT_NE(FPGA_OK,
@@ -571,9 +309,6 @@ TEST_P(metrics_utils_c_p, test_metric_utils_11) {
 
   char serach_string[] = {"power_mgmt:consumed"};
   uint64_t metric_id;
-  EXPECT_EQ(FPGA_OK, parse_metric_num_name((const char *)serach_string,
-                                           &(_handle->fpga_enum_metric_vector),
-                                           &metric_id));
 
   EXPECT_NE(FPGA_OK,
             parse_metric_num_name(NULL, &(_handle->fpga_enum_metric_vector),
@@ -606,87 +341,7 @@ TEST_P(metrics_utils_c_p, test_metric_utils_12) {
   EXPECT_NE(FPGA_OK, free_fpga_enum_metrics_vector(&_handle_invalid));
 }
 
-/**
- * @test       opaec
- * @brief      Tests: enum_fpga_metrics
- * @details    Validates delete enum metric <br>
- *
- */
-TEST_P(metrics_utils_c_p, test_metric_utils_13) {
-  uint64_t value;
 
-  char group_sysfs[FPGA_METRIC_STR_SIZE] = {0};
-  size_t len;
-
-  EXPECT_NE(FPGA_OK, get_pwr_thermal_value(group_sysfs, NULL));
-  EXPECT_NE(FPGA_OK, get_pwr_thermal_value(NULL, &value));
-
-  EXPECT_NE(FPGA_OK, get_pwr_thermal_value(
-                     (char *)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.1", &value));
-
-  std::string sysclass_path =
-              system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
-
-  strncpy(group_sysfs, sysclass_path.c_str(), sysclass_path.size() + 1);
-  strncat(group_sysfs, "/", 2);
-  len = strnlen("intel-fpga-fme.0/power_mgmt/fpga_limit", sizeof(group_sysfs) - (sysclass_path.size() + 1));
-  strncat(group_sysfs, "intel-fpga-fme.0/power_mgmt/fpga_limit", len + 1);
-
-  printf("sysclass_path %s \n", sysclass_path.c_str());
-  printf("metric_sysfs %s \n", group_sysfs);
-
-  EXPECT_EQ(FPGA_OK, get_pwr_thermal_value(group_sysfs, &value));
-
-  strncpy(group_sysfs, sysclass_path.c_str(), sysclass_path.size() + 1);
-  strncat(group_sysfs, "/", 2);
-  len = strnlen("intel-fpga-fme.0/power_mgmt/xeon_limit", sizeof(group_sysfs) - (sysclass_path.size() + 1));
-  strncat(group_sysfs, "intel-fpga-fme.0/power_mgmt/xeon_limit", len + 1);
-
-  printf("sysclass_path %s \n", sysclass_path.c_str());
-  printf("metric_sysfs %s \n", group_sysfs);
-
-  EXPECT_EQ(FPGA_OK, get_pwr_thermal_value(group_sysfs, &value));
-}
-
-TEST_P(metrics_utils_c_p, test_metric_utils_14) {
-  uint64_t value;
-
-  char group_sysfs[FPGA_METRIC_STR_SIZE] = {0};
-  char metric_sysfs[FPGA_METRIC_STR_SIZE] = {0};
-  size_t len;
-
-  EXPECT_NE(FPGA_OK,
-            get_performance_counter_value(group_sysfs, metric_sysfs, NULL));
-  EXPECT_NE(FPGA_OK, get_performance_counter_value(NULL, metric_sysfs, &value));
-  EXPECT_NE(FPGA_OK, get_performance_counter_value(group_sysfs, NULL, &value));
-
-  EXPECT_NE(FPGA_OK, get_performance_counter_value(
-                     (char *)"/tmp/class/fpga/intel-fpga-dev.0/intel-fpga-fme.1",
-                     metric_sysfs, &value));
-
-  std::string sysclass_path =
-              system_->get_sysfs_path(std::string("/sys/class/fpga/intel-fpga-dev.0"));
-
-  strncpy(group_sysfs, sysclass_path.c_str(), sysclass_path.size() + 1);
-  strncat(group_sysfs, "/", 2);
-  len = strnlen("intel-fpga-fme.0/power_mgmt/iperf/cache",
-		  sizeof(group_sysfs) - (sysclass_path.size() + 1));
-  strncat(group_sysfs, "intel-fpga-fme.0/power_mgmt/iperf/cache", len + 1);
-
-  printf("sysclass_path %s \n", sysclass_path.c_str());
-  printf("metric_sysfs %s \n", group_sysfs);
-
-  strncpy(group_sysfs, sysclass_path.c_str(), sysclass_path.size() + 1);
-  strncat(group_sysfs, "/", 2);
-  len = strnlen("intel-fpga-fme.0/power_mgmt/iperf/cache/read_miss1",
-		  sizeof(group_sysfs) - (sysclass_path.size() + 1));
-  strncat(group_sysfs, "intel-fpga-fme.0/power_mgmt/iperf/cache/read_miss1", len + 1);
-
-  printf("metric_sysfs %s \n", metric_sysfs);
-
-  EXPECT_NE(FPGA_OK,
-            get_performance_counter_value(group_sysfs, metric_sysfs, &value));
-}
 
 TEST_P(metrics_utils_c_p, test_metric_utils_15) {
   fpga_objtype objtype;
@@ -696,7 +351,7 @@ TEST_P(metrics_utils_c_p, test_metric_utils_15) {
 }
 
 INSTANTIATE_TEST_CASE_P(metrics_utils_c, metrics_utils_c_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
 
 class metrics_utils_dcp_c_p : public ::testing::TestWithParam<std::string> {
  protected:
