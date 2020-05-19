@@ -1793,7 +1793,7 @@ fpga_result sysfs_sbdf_from_path(const char *sysfspath, int *s, int *b, int *d,
 	char rlpath[SYSFS_PATH_MAX];
 	char *p;
 
-	res = readlink(sysfspath, rlpath, sizeof(rlpath)-1);
+	res = readlink(sysfspath, rlpath, sizeof(rlpath));
 	if (-1 == res) {
 		OPAE_MSG("Can't read link %s (no driver?)", sysfspath);
 		return FPGA_NO_DRIVER;
