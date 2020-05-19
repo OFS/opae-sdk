@@ -434,7 +434,7 @@ def update_fw(args, pac):
             return 1, e
 
     progress_cfg = {}
-    level = min([l.level for l in LOG.handlers])
+    level = min([handler.level for handler in LOG.handlers])
     if level < logging.INFO:
         progress_cfg['log'] = LOG.debug
     else:
