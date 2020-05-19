@@ -24,6 +24,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
 #include <json-c/json.h>
 #include <opae/fpga.h>
@@ -36,10 +39,14 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <cstdarg>
+#include <linux/ioctl.h>
+#include "opae_drv.h"
 #include "types_int.h"
 #include "sysfs_int.h"
 #include "mock/mock_opae.h"
 extern "C" {
+#include "fpga-dfl.h"
 #include "token_list_int.h"
 }
 #include "xfpga.h"
@@ -50,6 +57,36 @@ int xfpga_plugin_finalize(void);
 }
 
 using namespace opae::testing;
+
+int dfl_port_info(mock_object * m, int request, va_list argp){
+  int retval = -1;
+  errno = EINVAL;
+  UNUSED_PARAM(m);
+  UNUSED_PARAM(request);
+  struct dfl_fpga_port_info *pinfo = va_arg(argp, struct dfl_fpga_port_info *);
+  if (!pinfo) {
+  	FPGA_MSG("pinfo is NULL");
+  	goto out_EINVAL;
+  }
+  if (pinfo->argsz != sizeof(*pinfo)) {
+  	FPGA_MSG("wrong structure size");
+  	goto out_EINVAL;
+  }
+  pinfo->flags = 0;
+  pinfo->num_regions = 2;
+  pinfo->num_umsgs = 0;
+
+  retval = 0;
+  errno = 0;
+out:
+  va_end(argp);
+  return retval;
+
+out_EINVAL:
+  retval = -1;
+  errno = EINVAL;
+  goto out;
+}
 
 class enum_c_p : public mock_opae_p<2, xfpga_> {
  protected:
@@ -904,6 +941,8 @@ TEST_P(enum_c_p, state_neg) {
  */
 TEST_P(enum_c_p, num_mmio) {
   auto device = platform_.devices[0];
+  system_->register_ioctl_handler(DFL_FPGA_PORT_GET_INFO, dfl_port_info);
+
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesSetNumMMIO(filter_, device.num_mmio), FPGA_OK);
   EXPECT_EQ(
@@ -919,6 +958,8 @@ TEST_P(enum_c_p, num_mmio) {
  *             the function returns zero matches.
  */
 TEST_P(enum_c_p, num_mmio_neg) {
+  system_->register_ioctl_handler(DFL_FPGA_PORT_GET_INFO, dfl_port_info);
+
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesSetNumMMIO(filter_, invalid_device_.num_mmio), FPGA_OK);
   EXPECT_EQ(
@@ -1032,7 +1073,7 @@ TEST_P(enum_c_p, get_guid) {
 
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p, 
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 class enum_err_c_p : public enum_c_p {};
 /**
@@ -1047,7 +1088,6 @@ TEST_P(enum_err_c_p, num_errors_fme) {
 
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE),
       FPGA_OK);
-
   ASSERT_EQ(fpgaPropertiesSetNumErrors(filter_, device.fme_num_errors),
       FPGA_OK);
   EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
@@ -1079,7 +1119,7 @@ TEST_P(enum_err_c_p, num_errors_port) {
 }
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_err_c_p,
-                       ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));
+                       ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 class enum_socket_c_p : public enum_c_p {};
 
@@ -1100,7 +1140,7 @@ TEST_P(enum_socket_c_p, socket_id) {
 }
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_socket_c_p,
-                          ::testing::ValuesIn(test_platform::platforms({ "skx-p"})));
+                          ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 class enum_mock_only : public enum_c_p {};
 
@@ -1123,10 +1163,10 @@ TEST_P(enum_mock_only, remove_port) {
   EXPECT_EQ(xfpga_fpgaEnumerate(&filterp, 1, tokens_.data(), 1, &num_matches_),
             FPGA_OK);
   EXPECT_EQ(num_matches_, 1);
-  const char *sysfs_port = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
+  const char *sysfs_port = "/sys/class/fpga_region/region0/dfl-port.0";
 
   EXPECT_EQ(system_->remove_sysfs_dir(sysfs_port), 0)
-      << "error removing intel-fpga-port.0: " << strerror(errno);
+      << "error removing dfl-port.0: " << strerror(errno);
   EXPECT_EQ(xfpga_fpgaEnumerate(&filterp, 1, tokens_.data(), 1, &num_matches_),
             FPGA_OK);
   EXPECT_EQ(num_matches_, 0);
@@ -1134,4 +1174,4 @@ TEST_P(enum_mock_only, remove_port) {
 }
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_mock_only,
-                          ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p"})));
+                          ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));

@@ -24,8 +24,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef __cplusplus
+#include <linux/ioctl.h>
 
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -33,6 +34,8 @@ extern "C" {
 #include <opae/fpga.h>
 #include <uuid/uuid.h>
 #include "opae_int.h"
+#include "intel-fpga.h"
+#include "fpga-dfl.h"
 
 #ifdef __cplusplus
 }
@@ -48,7 +51,85 @@ extern "C" {
 #include <vector>
 #include "mock/mock_opae.h"
 #include <algorithm>
+#include <cstdarg>
+
+static bool gEnableIRQ = true;
+
 using namespace opae::testing;
+
+int port_info(mock_object * m, int request, va_list argp){
+  int retval = -1;
+  errno = EINVAL;
+  UNUSED_PARAM(m);
+  UNUSED_PARAM(request);
+  struct fpga_port_info *pinfo = va_arg(argp, struct fpga_port_info *);
+  if (!pinfo) {
+  	FPGA_MSG("pinfo is NULL");
+  	goto out_EINVAL;
+  }
+  if (pinfo->argsz != sizeof(*pinfo)) {
+  	FPGA_MSG("wrong structure size");
+  	goto out_EINVAL;
+  }
+  pinfo->flags = 0;
+  pinfo->num_regions = 2;
+  pinfo->num_umsgs = 8;
+  if (gEnableIRQ) {
+  	pinfo->capability = FPGA_PORT_CAP_ERR_IRQ | FPGA_PORT_CAP_UAFU_IRQ;
+  	pinfo->num_uafu_irqs = 2;
+  } else {
+  	pinfo->capability = 0;
+  	pinfo->num_uafu_irqs = 0;
+  }
+  retval = 0;
+  errno = 0;
+out:
+  va_end(argp);
+  return retval;
+
+out_EINVAL:
+  retval = -1;
+  errno = EINVAL;
+  goto out;
+}
+
+int dfl_port_info(mock_object * m, int request, va_list argp){
+  int retval = -1;
+  errno = EINVAL;
+  UNUSED_PARAM(m);
+  UNUSED_PARAM(request);
+  struct dfl_fpga_port_info *pinfo = va_arg(argp, struct dfl_fpga_port_info *);
+  if (!pinfo) {
+  	FPGA_MSG("pinfo is NULL");
+  	goto out_EINVAL;
+  }
+  if (pinfo->argsz != sizeof(*pinfo)) {
+  	FPGA_MSG("wrong structure size");
+  	goto out_EINVAL;
+  }
+  pinfo->flags = 0;
+  pinfo->num_regions = 2;
+  pinfo->num_umsgs = 0;
+/*
+  if (gEnableIRQ) {
+  	pinfo->capability = FPGA_PORT_CAP_ERR_IRQ | FPGA_PORT_CAP_UAFU_IRQ;
+  	pinfo->num_uafu_irqs = 2;
+  } else {
+  	pinfo->capability = 0;
+  	pinfo->num_uafu_irqs = 0;
+  }
+*/
+  retval = 0;
+  errno = 0;
+out:
+  va_end(argp);
+  return retval;
+
+out_EINVAL:
+  retval = -1;
+  errno = EINVAL;
+  goto out;
+}
 
 class enum_c_p : public mock_opae_p<2, none_> {
  protected:
@@ -594,6 +675,10 @@ TEST_P(enum_c_p, state) {
 
 TEST_P(enum_c_p, num_mmio) {
   auto device = platform_.devices[0];
+
+  system_->register_ioctl_handler(FPGA_PORT_GET_INFO, port_info);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_GET_INFO, dfl_port_info);
+
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesSetNumMMIO(filter_, device.num_mmio), FPGA_OK);
   EXPECT_EQ(
@@ -641,7 +726,7 @@ TEST(wrapper, validate) {
 }
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-d5005" })));
 
 class enum_c_mock_p : public enum_c_p {};
 
@@ -658,7 +743,7 @@ TEST_P(enum_c_mock_p, clone_token02) {
 }
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms()));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000", "dfl-d5005" })));
 
 class enum_c_err_p : public enum_c_p {};
 
@@ -695,7 +780,7 @@ TEST_P(enum_c_err_p, num_errors) {
 }
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_err_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::platforms({"dfl-n3000", "dfl-d5005" })));
 
 class enum_c_socket_p : public enum_c_p {};
 
@@ -718,4 +803,4 @@ TEST_P(enum_c_socket_p, socket_id) {
 }
 
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_socket_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));

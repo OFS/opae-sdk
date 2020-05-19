@@ -23,6 +23,11 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
 #include <opae/fpga.h>
 
 extern "C" {
@@ -38,7 +43,6 @@ extern "C" {
 #include "xfpga.h"
 #include "gtest/gtest.h"
 #include "mock/test_system.h"
-#include "intel-fpga.h"
 #include "fpga-dfl.h"
 #include <linux/ioctl.h>
 #include <cstdarg>
@@ -67,72 +71,7 @@ struct buffer_params {
 };
 #pragma pack(pop)
 
-
-
 using namespace opae::testing;
-
-int dma_map_ioctl(mock_object * m, int request, va_list argp){
-    UNUSED_PARAM(m);
-    UNUSED_PARAM(request);
-    int retval = -1;
-    errno = EINVAL;
-    struct fpga_port_dma_map *dma_map = va_arg(argp, struct fpga_port_dma_map *);
-    if (!dma_map) {
-    	FPGA_MSG("dma_map is NULL");
-    	goto out_EINVAL;
-    }
-    if (dma_map->argsz != sizeof(*dma_map)) {
-    	FPGA_MSG("wrong structure size");
-    	goto out_EINVAL;
-    }
-    if (!dma_map->user_addr) {
-    	FPGA_MSG("mapping address is NULL");
-    	goto out_EINVAL;
-    }
-    /* TODO: check alignment */
-    if (dma_map->length == 0) {
-    	FPGA_MSG("mapping size is 0");
-    	goto out_EINVAL;
-    }
-    dma_map->iova = FPGA_MOCK_IOVA; /* return something */
-out:
-    return retval;
-
-out_EINVAL:
-    retval = -1;
-    errno = EINVAL;
-    goto out;
-}
-
-int dma_unmap_ioctl(mock_object * m, int request, va_list argp){
-    UNUSED_PARAM(m);
-    UNUSED_PARAM(request);
-    int retval = -1;
-    errno = EINVAL;
-    struct fpga_port_dma_unmap *dma_unmap = va_arg(argp, struct fpga_port_dma_unmap *);
-    if (!dma_unmap) {
-    	FPGA_MSG("dma_unmap is NULL");
-    	goto out_EINVAL;
-    }
-    if (dma_unmap->argsz != sizeof(*dma_unmap)) {
-    	FPGA_MSG("wrong structure size");
-    	goto out_EINVAL;
-    }
-    if (dma_unmap->iova != FPGA_MOCK_IOVA) {
-    	FPGA_MSG("unexpected IOVA (0x%llx)", dma_unmap->iova);
-    	goto out_EINVAL;
-    }
-    retval = 0;
-    errno = 0;
-out:
-    return retval;
-
-out_EINVAL:
-    retval = -1;
-    errno = EINVAL;
-    goto out;
-}
-
 
 class buffer_prepare : public ::testing::TestWithParam<std::tuple<std::string, buffer_params>> {
  protected:
@@ -415,7 +354,6 @@ TEST_P(buffer_c_mock_p, port_dma_unmap) {
   auto res = xfpga_fpgaPrepareBuffer(handle_, buf_len, (void **)&buf_addr, &wsid, 0);
   EXPECT_EQ(res, FPGA_OK);
 
-  system_->register_ioctl_handler(FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1,EINVAL>);
   system_->register_ioctl_handler(DFL_FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1, EINVAL>);
   EXPECT_EQ(res = xfpga_fpgaReleaseBuffer(handle_, wsid), FPGA_INVALID_PARAM)
         << "result is " << fpgaErrStr(res);
@@ -428,11 +366,10 @@ TEST_P(buffer_c_mock_p, port_dma_map) {
   uint64_t wsid = 0;
   uint64_t buf_len = KiB(1);
 
-  system_->register_ioctl_handler(FPGA_PORT_DMA_MAP, dummy_ioctl<-1,EINVAL>);
   system_->register_ioctl_handler(DFL_FPGA_PORT_DMA_MAP, dummy_ioctl<-1, EINVAL>);
   auto res = xfpga_fpgaPrepareBuffer(handle_, buf_len, (void **)&buf_addr, &wsid, 0);
   EXPECT_EQ(res, FPGA_INVALID_PARAM) << "result is " << fpgaErrStr(res);
 }
 
 INSTANTIATE_TEST_CASE_P(buffer_c, buffer_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms()));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));

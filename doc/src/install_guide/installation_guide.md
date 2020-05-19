@@ -11,17 +11,14 @@
 
 The OPAE SDK has been tested on the following configurations.
 
-* Hardware: Tightly coupled FPGA products and programmable FPGA acceleration
-  cards for Intel&reg; Xeon&reg; processors
-* Operating System: Tested on Red Hat Enterprise Linux 7.3 and 7.4, Ubuntu 16.04, SUSE SLE 12 SP3 and CentOS 7.4, with Linux kernels 3.10 through 4.7
-* Integrated FPGA FIM (FPGA Interface Manager) version: 6.4.0
-* Arria(R) 10 GX FPGA FIM version: 1.0.3 (1.0 Production)
+* Hardware: Intel(R) FPGA Programmable Acceleration Cards: Arria(R) 10 GX, D5005, and N3000.
+* Operating System: Tested on Fedora 31, with Linux kernel 5.7.
+* Arria&reg 10 GX FPGA FIM version: 1.0.3 (1.0 Production)
 
 ## How to download the OPAE SDK ##
 
-OPAE SDK releases are available on
-[GitHub](https://github.com/OPAE/opae-sdk/releases). There, you can also find
-the driver source code and DKMS packages for the respective SDK release.
+OPAE SDK releases are available on [GitHub](https://github.com/OPAE/opae-sdk/releases).
+Source code for the OPAE DFL device driver for Linux is also available on [GitHub](https://github.com/OPAE/linux-dfl).
 
 The various componentes of OPAE are available via the following compressed tar files and RPM packages.
 
@@ -56,107 +53,6 @@ For building libopae-c, tools and samples, the following dependences are require
 * cmake.x86\_64:           (tested with 2.8.12.2-2.el7)
 * libhwloc.x86\_64
 
-## Driver installation with DKMS rpm and deb packages ##
-
-Install rpm package:
-```console
-$ sudo yum install opae-intel-fpga-driver-<release>.x86_64.rpm
-```
-
-Uninstall rpm package:
-```console
-$ sudo yum remove opae-intel-fpga-driver-<release>
-```
-
-Install deb package:
-```console
-$ sudo dpkg -i opae-intel-fpga-driver_<release>_amd64.deb
-```
-
-Uninstall deb package:
-```console
-$ sudo dpkg -r opae-intel-fpga-driver
-```
-
-During the installation process, the tool will compile the driver from
-source then install the driver automatically. Driver installed by these packages
-will be automatically install again after system reboot.
-
-## Driver build/installation with driver source package ##
-
-Using the following command to untar the source tar ball:
-
-```console
-$ tar zxvf opae-intel-fpga-driver-<release>.tar.gz
-```
-
-Following directory shall be extracted at the working directory where the above command is executed.
-
-* `opae-intel-fpga-driver-<release>`
-
-Build the fpga driver from source with following procedures:
-
-```console
-$ cd opae-intel-fpga-driver-<release>
-$ make
-```
-
-Following kernel modules shall be generated from source:
-
-* fpga-mgr-mod.ko
-* intel-fpga-afu.ko
-* intel-fpga-fme.ko
-* intel-fpga-pci.ko
-
-Install the above modules in the following order:
-
-```console
-$ sudo insmod fpga-mgr-mod.ko
-$ sudo insmod intel-fpga-pci.ko
-$ sudo insmod intel-fpga-fme.ko
-$ sudo insmod intel-fpga-afu.ko
-```
-
-Use lsmod to check if all 4 modules are installed correctly or not:
-
-```console
-$ lsmod | grep fpga
-```
-
-Output should look like:
-
-```console
-intel_fpga_fme         36864  0
-intel_fpga_afu         28672  0
-intel_fpga_pci         28672  2 intel_fpga_afu,intel_fpga_fme
-fpga_mgr_mod           16384  1 intel_fpga_fme
-```
-
-Remove the driver modules in the following order:
-
-```console
-$ sudo rmmod intel-fpga-afu
-$ sudo rmmod intel-fpga-fme
-$ sudo rmmod intel-fpga-pci
-$ sudo rmmod fpga-mgr-mod
-```
-
-## Manual Driver build from RPM package ##
-Use the following command to extract the driver source files from the rpm:
-
-```console
-$ mkdir opae-intel-fpga-driver-<release>
-$ cd opae-intel-fpga-driver-<release>
-$ rpm2cpio ../opae-intel-fpga-driver-<release>.rpm | cpio -idmv
-```
-
-Build the fpga driver from source with the following procedure:
-
-```console
-$ cd ./usr/src/intel-fpga-<release>
-$ make
-```
-
 ## OPAE SDK build/installation from OPAE SDK source ##
 Using the following command to untar the source tar ball:
 
@@ -189,7 +85,7 @@ You can change this installation prefix from `/usr/local` into something else
 by adding `-DCMAKE_INSTALL_PREFIX=<new prefix>` to the `cmake` command above.
 
 Please see Quick Start Guide on how to run the hello\_fpga sample to verify
-libopae-c & driver are built correctly.
+libopae-c and driver are built correctly.
 
 ## Building python distributions for tools ##
 
@@ -325,12 +221,12 @@ $ sudo dpkg -r opae-ase
 ## FPGA Device Access Permissions ##
 
 Access to FPGA accelerators and devices is controlled using file access permissions on the
-Intel&reg; FPGA device files, `/dev/intel-fpga-fme.*` and `/dev/intel-fpga-port.*`, as well as to the files reachable through `/sys/class/fpga/`.
+Intel&reg; FPGA device files, `/dev/dfl-fme.*` and `/dev/dfl-port.*`, as well as to the files reachable through `/sys/class/fpga_region/`.
 
-In order to allow regular (non-root) users to access accelerators, you need to grant them read and write permissions on `/dev/intel/fpga-port.*` (with `*` denoting the respective socket, i.e. 0 or 1). E.g.:
+In order to allow regular (non-root) users to access accelerators, you need to grant them read and write permissions on `/dev/dfl-port.*` (with `*` denoting the respective socket, i.e. 0 or 1). E.g.:
 
 ```console
-$ sudo chmod a+rw /dev/intel-fpga-port.0
+$ sudo chmod a+rw /dev/dfl-port.0
 ```
 
 ## Memlock limit ##
@@ -372,7 +268,7 @@ LimitMEMLOCK=infinity
 
 ## Hugepage Settings ##
 
-Users need to configure system hugepage to reserve 2MB-hugepages or
+Users need to configure system hugepages to reserve 2MB-hugepages or
 1GB-hugepages. For example, the 'hello\_fpga' sample requires several
 2MB-hugepages. And the _fpgadiag_ tool requires several 1GB-hugepages.
 

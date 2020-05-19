@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Copyright(c) 2017, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -37,6 +38,7 @@ REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf', 'fpgadiag', 'fpga_dma_test',
             'fpga_dma_vc_test', 'bist_app']
 BDF_PATTERN = r'{:02x}:{:02x}.{:x}'
 VCP_ID = 0x0b30
+DCP_ID = 0x0b2b
 
 
 def find_exec(cmd, paths):
@@ -59,7 +61,7 @@ def get_afu_id(gbs_path="", bdf=None):
         output = subprocess.Popen(cmd, stdout=subprocess.PIPE)
         json_data = json.loads(output.communicate()[0])
         accel_data = json_data["afu-image"]["accelerator-clusters"]
-        uuid = accel_data[0]["accelerator-type-uuid"].encode("ascii")
+        uuid = accel_data[0]["accelerator-type-uuid"]
         return uuid.lower().replace("-", "")
     elif bdf:
         pattern = BDF_PATTERN.format(bdf['bus'], bdf['device'],
@@ -99,7 +101,7 @@ def get_all_fpga_bdfs(args):
 
             # Add this BDF/device to the list
             bdf_list.append(dict([(k, int(v, 16))
-                                  for (k, v) in data.iteritems()]))
+                                  for (k, v) in data.items()]))
 
     return bdf_list
 
@@ -127,16 +129,23 @@ def get_mode_from_path(gbs_path):
 
 
 def load_gbs(gbs_file, bdf):
-    print "Attempting Partial Reconfiguration:"
+    print("Attempting Partial Reconfiguration:")
     cmd = ['fpgaconf', '-B', hex(bdf['bus']), '-D',
            hex(bdf['device']), '-F', hex(bdf['function']),
-           gbs_file]
+           '-V', gbs_file]
     try:
         subprocess.check_call(cmd)
     except subprocess.CalledProcessError as e:
-        print "Failed to load gbs file: {}".format(gbs_file)
-        print "Please try a different gbs"
+        print("Failed to load gbs file: {}".format(gbs_file))
+        print("Please try a different gbs")
         sys.exit(-1)
+
+
+def get_afuid(mode_list, device_id):
+    for dev_id, afu_id in mode_list.items():
+        if device_id == dev_id:
+            return afu_id.replace("-", "")
+    return -1
 
 
 class BistMode(object):

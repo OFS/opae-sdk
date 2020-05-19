@@ -49,6 +49,19 @@ int usleep(unsigned);
 
 #define CONFIG_UNINIT (0)
 
+#define CACHELINE_ALIGNED_ADDR(p) ((p) >> LOG2_CL)
+
+#define LPBK1_BUFFER_SIZE	     MB(1)
+#define LPBK1_BUFFER_ALLOCATION_SIZE MB(2)
+#define LPBK1_DSM_SIZE		     MB(2)
+#define CSR_SRC_ADDR		     0x0120
+#define CSR_DST_ADDR		     0x0128
+#define CSR_CTL			     0x0138
+#define CSR_CFG			     0x0140
+#define CSR_NUM_LINES		     0x0130
+#define DSM_STATUS_TEST_COMPLETE     0x40
+#define CSR_AFU_DSM_BASEL	     0x0110
+#define CSR_AFU_DSM_BASEH	     0x0114
 /**************** BIST #defines ***************/
 #define ENABLE_DDRA_BIST	      0x08000000
 #define ENABLE_DDRB_BIST	      0x10000000
@@ -252,8 +265,16 @@ int main(int argc, char *argv[])
 	fpga_token	   accelerator_token;
 	fpga_handle	   accelerator_handle;
 	int open_flags = 0;
-	//fpga_guid	   guid;
-	//uint32_t	   num_matches;
+	uint32_t i = 0;
+	
+	volatile uint64_t *dsm_ptr    = NULL;
+	volatile uint64_t *status_ptr = NULL;
+	volatile uint64_t *input_ptr  = NULL;
+	volatile uint64_t *output_ptr = NULL;
+
+	uint64_t	dsm_wsid;
+	uint64_t	input_wsid;
+	uint64_t	output_wsid;
 
 	fpga_result	res = FPGA_OK;
 
@@ -280,6 +301,70 @@ int main(int argc, char *argv[])
 	res = fpgaMapMMIO(accelerator_handle, 0, NULL);
 	ON_ERR_GOTO(res, out_close, "mapping MMIO space");
 
+	/* Allocate buffers */
+	res = fpgaPrepareBuffer(accelerator_handle, LPBK1_DSM_SIZE,
+				(void **)&dsm_ptr, &dsm_wsid, 0);
+	ON_ERR_GOTO(res, out_close, "allocating DSM buffer");
+
+	res = fpgaPrepareBuffer(accelerator_handle, LPBK1_BUFFER_ALLOCATION_SIZE,
+			   (void **)&input_ptr, &input_wsid, 0);
+	ON_ERR_GOTO(res, out_free_dsm, "allocating input buffer");
+
+	res = fpgaPrepareBuffer(accelerator_handle, LPBK1_BUFFER_ALLOCATION_SIZE,
+			   (void **)&output_ptr, &output_wsid, 0);
+	ON_ERR_GOTO(res, out_free_input, "allocating output buffer");
+	/* Initialize buffers */
+	memset((void *)dsm_ptr,    0,	 LPBK1_DSM_SIZE);
+	memset((void *)input_ptr,  0xAF, LPBK1_BUFFER_SIZE);
+	memset((void *)output_ptr, 0xBE, LPBK1_BUFFER_SIZE);
+
+	cache_line *cl_ptr = (cache_line *)input_ptr;
+	for (i = 0; i < LPBK1_BUFFER_SIZE / CL(1); ++i) {
+		cl_ptr[i].uint[15] = i+1; /* set the last uint in every cacheline */
+	}
+
+	/* Reset accelerator */
+	res = fpgaReset(accelerator_handle);
+	ON_ERR_GOTO(res, out_free_output, "resetting accelerator");
+
+	/* Program DMA addresses */
+	uint64_t iova;
+	res = fpgaGetIOAddress(accelerator_handle, dsm_wsid, &iova);
+	ON_ERR_GOTO(res, out_free_output, "getting DSM IOVA");
+
+	res = fpgaWriteMMIO64(accelerator_handle, 0, CSR_AFU_DSM_BASEL, iova);
+	ON_ERR_GOTO(res, out_free_output, "writing CSR_AFU_DSM_BASEL");
+
+	res = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CTL, 0);
+	ON_ERR_GOTO(res, out_free_output, "writing CSR_CFG");
+	res = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CTL, 1);
+	ON_ERR_GOTO(res, out_free_output, "writing CSR_CFG");
+
+	res = fpgaGetIOAddress(accelerator_handle, input_wsid, &iova);
+	ON_ERR_GOTO(res, out_free_output, "getting input IOVA");
+	res = fpgaWriteMMIO64(accelerator_handle, 0, CSR_SRC_ADDR, CACHELINE_ALIGNED_ADDR(iova));
+	ON_ERR_GOTO(res, out_free_output, "writing CSR_SRC_ADDR");
+
+	res = fpgaGetIOAddress(accelerator_handle, output_wsid, &iova);
+	ON_ERR_GOTO(res, out_free_output, "getting output IOVA");
+	res = fpgaWriteMMIO64(accelerator_handle, 0, CSR_DST_ADDR, CACHELINE_ALIGNED_ADDR(iova));
+	ON_ERR_GOTO(res, out_free_output, "writing CSR_DST_ADDR");
+	res = fpgaWriteMMIO32(accelerator_handle, 0, CSR_NUM_LINES, LPBK1_BUFFER_SIZE / CL(1));
+	ON_ERR_GOTO(res, out_free_output, "writing CSR_NUM_LINES");
+	res = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CFG, 0x42000);
+	ON_ERR_GOTO(res, out_free_output, "writing CSR_CFG");
+
+	status_ptr = dsm_ptr + DSM_STATUS_TEST_COMPLETE/8;
+
+	/* Start the test */
+	res = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CTL, 3);
+	ON_ERR_GOTO(res, out_free_output, "writing CSR_CFG");
+
+	/* Wait for test completion */
+	while (0 == ((*status_ptr) & 0x1)) {
+		usleep(100);
+	}
+
 /************* Begin BIST *************/
 	/* Perform BIST Check */
 	printf("Running BIST Test\n");
@@ -288,10 +373,10 @@ int main(int argc, char *argv[])
 	unsigned int bist_mask = ENABLE_DDRA_BIST;
 
 	res = fpgaWriteMMIO32(accelerator_handle, 0, DDR_BIST_CTRL_ADDR, bist_mask);
-	ON_ERR_GOTO(res, out_close, "write DDR_BIST_CTRL_ADDR");
+	ON_ERR_GOTO(res, out_free_output, "write DDR_BIST_CTRL_ADDR");
 
 	res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_CTRL_ADDR, &data);
-	ON_ERR_GOTO(res, out_close, "write DDR_BIST_CTRL_ADDR");
+	ON_ERR_GOTO(res, out_free_output, "write DDR_BIST_CTRL_ADDR");
 
 	while ((CHECK_BIT(data, 27) != 0x08000000)) {
 	  printf("Enable Test: reading result #%f: %04lx\n", count, data);
@@ -304,12 +389,12 @@ int main(int argc, char *argv[])
 	printf("BIST is enabled.  Reading status register\n");
 
 	count = 0;
-	ON_ERR_GOTO(res, out_close, "writing CSR_BIST");
+	ON_ERR_GOTO(res, out_free_output, "writing CSR_BIST");
 	while ((CHECK_BIT(data, 9) != 0x200) && (CHECK_BIT(data, 8) != 0x100) && (CHECK_BIT(data, 7) != 0x80) &&
 		(CHECK_BIT(data, 10) != 0x400) && (CHECK_BIT(data, 11) != 0x800) && (CHECK_BIT(data, 12) != 0x1000)) {
 		res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_STATUS_ADDR,
 			&data);
-		ON_ERR_GOTO(res, out_close, "Reading DDR_BIST_STATUS");
+		ON_ERR_GOTO(res, out_free_output, "Reading DDR_BIST_STATUS");
 		if (count >= MAX_COUNT) {
 			fprintf(stderr, "DDR Bank A BIST Timed Out.\n");
 			break;
@@ -331,11 +416,11 @@ int main(int argc, char *argv[])
 	bist_mask = ENABLE_DDRB_BIST;
 	count = 0;
 	res = fpgaWriteMMIO32(accelerator_handle, 0, DDR_BIST_CTRL_ADDR, bist_mask);
-	ON_ERR_GOTO(res, out_close, "writing CSR_BIST");
+	ON_ERR_GOTO(res, out_free_output, "writing CSR_BIST");
 	while ((CHECK_BIT(data, 10) != 0x400) && (CHECK_BIT(data, 11) != 0x800) && (CHECK_BIT(data, 12) != 0x1000)) {
 		res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_STATUS_ADDR,
 			&data);
-		ON_ERR_GOTO(res, out_close, "Reading DDR_BIST_STATUS_ADDR");
+		ON_ERR_GOTO(res, out_free_output, "Reading DDR_BIST_STATUS_ADDR");
 		if (count >= MAX_COUNT) {
 			fprintf(stderr, "DDR Bank B BIST Timed Out.\n");
 			break;
@@ -359,11 +444,11 @@ int main(int argc, char *argv[])
       	bist_mask = ENABLE_DDRC_BIST;
 	count = 0;
 	res = fpgaWriteMMIO32(accelerator_handle, 0, DDR_BIST_CTRL_ADDR, bist_mask);
-	ON_ERR_GOTO(res, out_close, "writing CSR_BIST");
+	ON_ERR_GOTO(res, out_free_output, "writing CSR_BIST");
 	while ((CHECK_BIT(data, 13) != 0x2000) && (CHECK_BIT(data, 15) != 0x8000) && (CHECK_BIT(data, 14) != 0x4000)) {
 		res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_STATUS_ADDR,
 			&data);
-		ON_ERR_GOTO(res, out_close, "Reading DDR_BIST_STATUS_ADDR");
+		ON_ERR_GOTO(res, out_free_output, "Reading DDR_BIST_STATUS_ADDR");
 		if (count >= MAX_COUNT) {
 			fprintf(stderr, "DDR Bank C BIST Timed Out.\n");
 			break;
@@ -387,11 +472,11 @@ int main(int argc, char *argv[])
        	bist_mask = ENABLE_DDRD_BIST;
 	count = 0;
 	res = fpgaWriteMMIO32(accelerator_handle, 0, DDR_BIST_CTRL_ADDR, bist_mask);
-	ON_ERR_GOTO(res, out_close, "writing CSR_BIST");
+	ON_ERR_GOTO(res, out_free_output, "writing CSR_BIST");
 	while ((CHECK_BIT(data, 16) != 0x10000) && (CHECK_BIT(data, 17) != 0x20000) && (CHECK_BIT(data, 18) != 0x40000)) {
 		res = fpgaReadMMIO64(accelerator_handle, 0, DDR_BIST_STATUS_ADDR,
 			&data);
-		ON_ERR_GOTO(res, out_close, "Reading DDR_BIST_STATUS_ADDR");
+		ON_ERR_GOTO(res, out_free_output, "Reading DDR_BIST_STATUS_ADDR");
 		if (count >= MAX_COUNT) {
 			fprintf(stderr, "DDR Bank D BIST Timed Out.\n");
 			break;
@@ -412,7 +497,37 @@ int main(int argc, char *argv[])
 
 /**************** End BIST *****************/
 
+
+	/* Stop the device */
+	res = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CTL, 7);
+	ON_ERR_GOTO(res, out_free_output, "writing CSR_CFG");
+
+	/* Check output buffer contents */
+	for (i = 0; i < LPBK1_BUFFER_SIZE; i++) {
+		if (((uint8_t *)output_ptr)[i] != ((uint8_t *)input_ptr)[i]) {
+			fprintf(stderr, "Output does NOT match input "
+				"at offset %i!\n", i);
+			break;
+		}
+	}
+
 	printf("Done Running Test\n");
+
+	/* Release buffers */
+out_free_output:
+	res = fpgaReleaseBuffer(accelerator_handle, output_wsid);
+	ON_ERR_GOTO(res, out_free_input, "releasing output buffer");
+out_free_input:
+	res = fpgaReleaseBuffer(accelerator_handle, input_wsid);
+	ON_ERR_GOTO(res, out_free_dsm, "releasing input buffer");
+out_free_dsm:
+	res = fpgaReleaseBuffer(accelerator_handle, dsm_wsid);
+	ON_ERR_GOTO(res, out_unmap, "releasing DSM buffer");
+
+	/* Unmap MMIO space */
+out_unmap:
+	res = fpgaUnmapMMIO(accelerator_handle, 0);
+	ON_ERR_GOTO(res, out_close, "unmapping MMIO space");
 
 	/* Release accelerator */
 out_close:
@@ -423,6 +538,8 @@ out_close:
 out_destroy_tok:
 	res = fpgaDestroyToken(&accelerator_token);
 	ON_ERR_GOTO(res, out_exit, "destroying token");
+
+
 
 out_exit:
 	return res;

@@ -1,10 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """ splice in max10 device table info at 0x3820000
 
     0x03820000 to 0x03ffffff : Max10 device table range
 
     can take Max10 device table under above range """
 
+from __future__ import absolute_import
 import argparse
 import logging
 import os

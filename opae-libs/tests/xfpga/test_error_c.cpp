@@ -24,6 +24,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
 extern "C" {
 #include "error_int.h"
 #include "token_list_int.h"
@@ -48,11 +52,11 @@ int xfpga_plugin_finalize(void);
 
 using namespace opae::testing;
 const std::string sysfs_fme =
-    "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0";
-const std::string dev_fme = "/dev/intel-fpga-fme.0";
+    "/sys/class/fpga_region/region0/dfl-fme.0";
+const std::string dev_fme = "/dev/dfl-fme.0";
 const std::string sysfs_port =
-    "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-port.0";
-const std::string dev_port = "/dev/intel-fpga-port.0";
+    "/sys/class/fpga_region/region0/dfl-port.0";
+const std::string dev_port = "/dev/dfl-port.0";
 
 class error_c_mock_p : public ::testing::TestWithParam<std::string> {
  public:
@@ -279,7 +283,7 @@ TEST_P(error_c_mock_p, error_02) {
 TEST_P(error_c_mock_p, error_03) {
   std::fstream clear_file;
   std::ofstream error_file;
-  std::string clear_name = tmpsysfs_ + sysfs_port + "/errors/clear";
+  std::string clear_name = tmpsysfs_ + sysfs_port + "/errors/errors";
   std::string error_name = tmpsysfs_ + sysfs_port + "/errors/errors";
   uint64_t clear_val;
 
@@ -358,7 +362,7 @@ TEST_P(error_c_mock_p, error_03) {
 TEST_P(error_c_mock_p, error_04) {
   std::fstream clear_file;
   std::ofstream error_file;
-  std::string clear_name = tmpsysfs_ + sysfs_port + "/errors/clear";
+  std::string clear_name = tmpsysfs_ + sysfs_port + "/errors/errors";
   std::string error_name = tmpsysfs_ + sysfs_port + "/errors/errors";
   uint64_t clear_val;
 
@@ -599,7 +603,7 @@ TEST_P(error_c_mock_p, error_12) {
 }
 
 INSTANTIATE_TEST_CASE_P(error_c, error_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p","dcp-rc","dcp-vc" })));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 class error_c_p : public error_c_mock_p {};
 
@@ -677,7 +681,7 @@ TEST_P(error_c_p, error_13) {
 }
 
 INSTANTIATE_TEST_CASE_P(error_c, error_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc"  })));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 /**
  * @test       error_01

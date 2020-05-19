@@ -109,7 +109,7 @@ class FPGALPBK(COMMON):
         self.fpga_eth_reg_set_field(f, 'phy', phy, reg, idx, width, value)
 
     def fpga_loopback_en(self, en):
-        with open(self.phy_group_dev, 'rw') as f:
+        with open(self.phy_group_dev, 'w') as f:
             if self.speed == 10:
                 if self.type == 'serial':
                     for i in self.ports:

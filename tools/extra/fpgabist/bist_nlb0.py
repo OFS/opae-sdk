@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright(c) 2018, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -25,6 +25,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 import subprocess
 
@@ -47,13 +49,13 @@ class Nlb0Mode(bc.BistMode):
 
     def run(self, path, bdf, bd_id=0, guid=''):
         tp = self.executables.items()
-        tp.sort()
+        sorted(tp)
         ret = 0
         for test, param in tp:
-            print "Running fpgadiag lpbk1 {} test...".format(test)
-            cmd = "fpgadiag -B {} -D {} -F {} {}".format(hex(bdf['bus']),
-                                                         hex(bdf['device']),
-                                                         hex(bdf['function']),
+            print("Running fpgadiag lpbk1 {} test...".format(test))
+            cmd = "fpgadiag -B {} -D {} -F {} {}".format(bdf['bus'],
+                                                         bdf['device'],
+                                                         bdf['function'],
                                                          param)
             if guid:
                 cmd += ' -G {}'.format(guid)
@@ -62,8 +64,8 @@ class Nlb0Mode(bc.BistMode):
             try:
                 subprocess.check_call(cmd.split(' '))
             except subprocess.CalledProcessError as e:
-                print "Failed Test: {}".format(test)
-                print e
+                print("Failed Test: {}".format(test))
+                print(e)
                 ret += 1
-        print "Finished Executing NLB (FPGA DIAG) Tests\n"
+        print("Finished Executing NLB (FPGA DIAG) Tests\n")
         return ret

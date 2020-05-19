@@ -1,4 +1,4 @@
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2019-2020, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -193,8 +193,8 @@ class flash_control(loggable):
 
 
 class fme(region):
-    FPGA_FME_PORT_ASSIGN = 0xB582
-    FPGA_FME_PORT_RELEASE = 0xB581
+    DFL_FPGA_FME_PORT_RELEASE = 0x4004b681
+    DFL_FPGA_FME_PORT_ASSIGN = 0x4004b682
 
     @property
     def pr_interface_id(self):
@@ -308,8 +308,8 @@ class fme(region):
             msg = 'port number is invalid: {}'.format(port_num)
             self.log.error(msg)
             raise ValueError(msg)
-        data = struct.pack('III', 12, 0, port_num)
-        self.ioctl(self.FPGA_FME_PORT_RELEASE, data)
+        data = struct.pack('i', port_num)
+        self.ioctl(self.DFL_FPGA_FME_PORT_RELEASE, data)
 
     def assign_port(self, port_num):
         """assign_port Assign port device (disable SR-IOV).
@@ -331,8 +331,8 @@ class fme(region):
         if self.pci_node.sriov_numvfs:
             msg = 'Cannot assign a port while VFs exist'
             raise ValueError(msg)
-        data = struct.pack('III', 12, 0, port_num)
-        self.ioctl(self.FPGA_FME_PORT_ASSIGN, data)
+        data = struct.pack('i', port_num)
+        self.ioctl(self.DFL_FPGA_FME_PORT_ASSIGN, data)
 
 
 class port(region):

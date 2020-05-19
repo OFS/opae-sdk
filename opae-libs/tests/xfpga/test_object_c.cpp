@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,6 +23,10 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
 #include <uuid/uuid.h>
 #include <fstream>
@@ -145,7 +149,7 @@ TEST_P(sysobject_p, xfpga_fpgaObjectGetObject) {
   const char *name = "errors";
   EXPECT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], name, &err_object, flags),
             FPGA_OK);
-  ASSERT_EQ(xfpga_fpgaObjectGetObject(err_object, "revision", &object,
+  ASSERT_EQ(xfpga_fpgaObjectGetObject(err_object, "fme_errors", &object,
                                       flags),
             FPGA_OK);
   EXPECT_EQ(xfpga_fpgaHandleGetObject(err_object, "../../../fpga", &non_object, 0),
@@ -162,7 +166,7 @@ TEST_P(sysobject_p, xfpga_fpgaDestroyObject) {
 }
 
 INSTANTIATE_TEST_CASE_P(sysobject_c, sysobject_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 
 class sysobject_mock_p : public sysobject_p{
@@ -272,4 +276,4 @@ TEST_P(sysobject_mock_p, xfpga_fpgaGetSize) {
 }
 
 INSTANTIATE_TEST_CASE_P(sysobject_c, sysobject_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));

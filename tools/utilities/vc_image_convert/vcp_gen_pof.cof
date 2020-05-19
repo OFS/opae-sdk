@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="US-ASCII" standalone="yes"?>
 <cof>
 	<eprom_name>CFI_1GB</eprom_name>
-	<output_filename>./output_files/vcp_a10_flash.pof</output_filename>
+	<output_filename>./output_files/vc.pof</output_filename>
 	<n_pages>2</n_pages>
 	<width>1</width>
 	<mode>10</mode>

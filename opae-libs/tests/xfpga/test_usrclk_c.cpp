@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,6 +23,10 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
 #ifdef __cplusplus
 
@@ -303,7 +307,7 @@ TEST_P(usrclk_c, get_user_clock) {
 }
 
 INSTANTIATE_TEST_CASE_P(usrclk, usrclk_c,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc" })));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 class usrclk_mock_c : public usrclk_c {};
 
@@ -324,7 +328,7 @@ TEST_P(usrclk_mock_c, set_user_clock) {
 }
 
 INSTANTIATE_TEST_CASE_P(usrclk, usrclk_mock_c,
-                        ::testing::ValuesIn(test_platform::mock_platforms()));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 class usrclk_hw_c : public usrclk_c {};
 

@@ -153,6 +153,7 @@ set(CPACK_COMPONENTS_ALL
 	opaecxxutils
 	opaecxxlib
 	opaecxxnlb
+	opaeboardlib
 	toolfpgaconf
 	toolbist_app
 	toolbist
@@ -164,6 +165,7 @@ set(CPACK_COMPONENTS_ALL
 define_pkg(tools
   COMPONENTS
   toolfpgaconf
+  opaeboardlib
   toolargsfilter
   toolfpgainfo
   toolfpgametrics

@@ -51,6 +51,8 @@ if(NOT libuuid_FOUND)
    set(REQUIRED_DEPENDENCIES "libuuid ${REQUIRED_DEPENDENCIES}")
 endif()
 
+include(FindTbb)
+
 include(OPAECompiler)
 if(OPAE_BUILD_TESTS)
     find_package(GTest 1.8.0)

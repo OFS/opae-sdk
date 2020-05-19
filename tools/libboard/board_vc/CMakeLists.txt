@@ -29,5 +29,6 @@ opae_add_module_library(TARGET board_vc
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
         opae-c
-    COMPONENT opaeclib
+        board_common
+    COMPONENT opaeboardlib
 )

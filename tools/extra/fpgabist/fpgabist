@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright(c) 2017, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -46,7 +46,7 @@ def get_afu_id(bus):
     cmd = 'fpgainfo port -B {}'.format(hex(bus))
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
     output, _ = p.communicate()
-    m = re.search('Accelerator Id\\s+:\\s(\\S+)', output)
+    m = re.search('Accelerator GUID\\s+:\\s(\\S+)', output.decode())
     afu_id = (m.group(1) if m else m)
     return afu_id
 
@@ -83,7 +83,7 @@ def main(args):
     start = "==========================================================\n\n" \
             "Beginning FPGA Built-In Self-Test\n\n"\
             "=========================================================="
-    print start
+    print(start)
 
     # Display data from FPGA info
     dev_id = bdf['device_id']
@@ -102,8 +102,8 @@ def main(args):
             module = 'bist_{}'.format(name)
             mode = getattr(sys.modules.get(module),
                            '{}Mode'.format(name.capitalize()))()
-            print "Running mode: {}".format(mode.name)
-            ret += mode.run(None, hex(bdf['bus'])[2:],
+            print("Running mode: {}".format(mode.name))
+            ret += mode.run(None, bdf,
                             bist_common.VCP_ID, afu_id)
     else:
         gbs_paths = args.gbs_paths
@@ -115,20 +115,25 @@ def main(args):
             afu_ids.update({bist_common.get_afu_id(bdf=bdf): ""})
 
         for afu_id in afu_ids.keys():
-            if afu_id == bist_def.DefaultMode().afu_id.replace("-", ""):
+            print(afu_id)
+            if afu_id == bist_common.get_afuid(
+                          bist_def.DefaultMode().mode_list, dev_id):
                 mode = bist_def.DefaultMode()
-            elif afu_id == bist_nlb3.Nlb3Mode().afu_id.replace("-", ""):
+            elif afu_id == bist_common.get_afuid(
+                            bist_nlb3.Nlb3Mode().mode_list, dev_id):
                 mode = bist_nlb3.Nlb3Mode()
-            elif afu_id == bist_dma.DmaMode().afu_id.replace("-", ""):
+            elif afu_id == bist_common.get_afuid(
+                            bist_dma.DmaMode().mode_list, dev_id):
                 mode = bist_dma.DmaMode()
-            elif afu_id == bist_app.BistMode().afu_id.replace("-", ""):
+            elif afu_id == bist_common.get_afuid(
+                            bist_app.BistMode().mode_list, dev_id):
                 mode = bist_app.BistMode()
             else:
                 sys.exit("Unknown AFU for available ID {}\n".format(afu_id))
-            print "Running mode: {}".format(mode.name)
+            print("Running mode: {}".format(mode.name))
             ret += mode.run(afu_ids.get(afu_id), bdf)
 
-    print "\nBuilt-in Self-Test Completed.\n"
+    print("\nBuilt-in Self-Test Completed.\n")
     sys.exit(ret)
 
 

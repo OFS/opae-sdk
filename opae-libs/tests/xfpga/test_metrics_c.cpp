@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,6 +23,10 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
 extern "C" {
 
@@ -302,7 +306,7 @@ TEST_P(metrics_c_p, test_metric_04) {
 }
 
 INSTANTIATE_TEST_CASE_P(metrics_c, metrics_c_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
 
 /**
 * @brief metrics afu gtest fixture
@@ -586,4 +590,4 @@ TEST_P(metrics_afu_c_p, test_afc_metric_04) {
   free(metric_array_search);
 }
 INSTANTIATE_TEST_CASE_P(metrics_c, metrics_afu_c_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));

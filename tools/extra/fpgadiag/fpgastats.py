@@ -26,6 +26,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import print_function
+from __future__ import absolute_import
 from common import exception_quit, FpgaFinder, COMMON, hexint
 import argparse
 import time
@@ -101,22 +102,14 @@ class FPGASTATS(COMMON):
                     ('CNTR_RX_UCAST_CTRL', 0x930, 2),
                     ('CNTR_RX_PAUSE', 0x932, 2),
                     ('CNTR_RX_RUNT', 0x934, 2))
-    fifo_stats_10g = (('MUX_CDC_FIFO_CNTR_FULL', 0x1),
+    fifo_stats_mux = (('MUX_CDC_FIFO_CNTR_FULL', 0x1),
                       ('MUX_CDC_FIFO_CNTR_ERROR', 0x2),
                       ('MUX_CDC_FIFO_CNTR_SOP_MISSED', 0x3),
-                      ('MUX_CDC_FIFO_CNTR_EOP_MISSED', 0x4),
-                      ('DEMUX_CDC_FIFO_CNTR_FULL', 0x101),
-                      ('DEMUX_CDC_FIFO_CNTR_ERROR', 0x102),
-                      ('DEMUX_CDC_FIFO_CNTR_SOP_MISSED', 0x103),
-                      ('DEMUX_CDC_FIFO_CNTR_EOP_MISSED', 0x104))
-    fifo_stats_25_40g = (('MUX_CDC_FIFO_CNTR_FULL', 0x1),
-                         ('MUX_CDC_FIFO_CNTR_ERROR', 0x2),
-                         ('MUX_CDC_FIFO_CNTR_SOP_MISSED', 0x3),
-                         ('MUX_CDC_FIFO_CNTR_EOP_MISSED', 0x4),
-                         ('DEMUX_CDC_FIFO_CNTR_FULL', 0x41),
-                         ('DEMUX_CDC_FIFO_CNTR_ERROR', 0x42),
-                         ('DEMUX_CDC_FIFO_CNTR_SOP_MISSED', 0x43),
-                         ('DEMUX_CDC_FIFO_CNTR_EOP_MISSED', 0x44))
+                      ('MUX_CDC_FIFO_CNTR_EOP_MISSED', 0x4))
+    fifo_stats_demux = (('DEMUX_CDC_FIFO_CNTR_FULL', 0x1),
+                        ('DEMUX_CDC_FIFO_CNTR_ERROR', 0x2),
+                        ('DEMUX_CDC_FIFO_CNTR_SOP_MISSED', 0x3),
+                        ('DEMUX_CDC_FIFO_CNTR_EOP_MISSED', 0x4))
     fifo_stats_ingress = (('ING_CDC_FIFO_CNTR_FULL', 0x1),
                           ('ING_CDC_FIFO_CNTR_ERROR', 0x2),
                           ('ING_CDC_FIFO_CNTR_SOP_MISSED', 0x3),
@@ -181,11 +174,12 @@ class FPGASTATS(COMMON):
                 for i in range(self.mac_number):
                     print('mac {}'.format(i).rjust(12, ' '), end=' | ')
                 print()
-                with open(node, 'rw') as handler:
-                    stats, fifo_regs = ((self.stats_25_40g,
-                                         self.fifo_stats_25_40g)
-                                        if spd in [25, 40] else
-                                        (self.stats_10g, self.fifo_stats_10g))
+                with open(node, 'r') as handler:
+                    stats = (self.stats_25_40g if spd in [25, 40] else
+                             self.stats_10g)
+                    offset = self.demux_offset.get(self.mac_number, 0x100)
+                    demux = ((n, r+offset) for n, r in self.fifo_stats_demux)
+                    fifo_regs = self.fifo_stats_mux + tuple(demux)
                     if not self.mac_lightweight:
                         for s, reg, length in stats:
                             self.print_mac_stats(handler, s, reg, length)
@@ -225,7 +219,7 @@ class FPGASTATS(COMMON):
             for w in info:
                 _, self.mac_number, _, node = info[w]
                 offset = self.demux_offset.get(self.mac_number, 0x100)
-                with open(node, 'rw') as fd:
+                with open(node, 'r') as fd:
                     for i in range(self.mac_number):
                         if self.mac_number == 8:
                             self.fpga_eth_reg_write(fd, 'mac', i, 0x140, 0x1)

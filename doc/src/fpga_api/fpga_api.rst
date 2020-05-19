@@ -166,11 +166,11 @@ Code samples demonstrate how to use OPAE C API.
 hello_fpga.c
 ------------
 
-.. doxygenfile:: samples/hello_fpga.c
+.. doxygenfile:: samples/hello_fpga/hello_fpga.c
 
 hello_events.c
 --------------
 
-.. doxygenfile:: samples/hello_events.c
+.. doxygenfile:: samples/hello_events/hello_events.c
 
 

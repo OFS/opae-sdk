@@ -166,7 +166,6 @@ The table below groups important API calls by their functionality. For more info
 |Access: Reset      | ```fpgaReset()``` |Yes| Yes| Reset an accelerator |
 |Access: Event handling | ```fpga[Register, Unregister]Event()``` |Yes| Yes| Register/unregister an event to be notified about |
 |               | ```fpga[Create, Destroy]EventHandle()```|Yes| Yes| Manage ```fpga_event_handle``` life cycle |
-|Access: UMsg           | ```fpgaGetNumUmsg()```, ```fpgaSetUmsgAttributes()```, ```fpgaTriggerUmsg()```, ```fpgaGetUmsgPtr()``` | No|Yes| Low-latency accelerator notification mechanism.|
 |Access: MMIO       | ```fpgaMapMMIO()```, ```fpgaUnMapMMIO()``` |Yes| Yes| Map/unmap MMIO space |
 |           | ```fpgaGetMMIOInfo()``` |Yes| Yes| Get information about the specified MMIO space |
 |           | ```fpgaReadMMIO[32, 64]()``` | Yes| Yes|Read a 32-bit or 64-bit value from MMIO space |
@@ -175,6 +174,12 @@ The table below groups important API calls by their functionality. For more info
 |              | ```fpgaGetIOAddress()``` | Yes| Yes|Return the device I/O address of a shared memory buffer |
 |Management: Reconfiguration | ```fpgaReconfigureSlot()``` | Yes | No | Replace an existing AFU with a new one |
 |Error report | ```fpgaErrStr()``` | Yes| Yes|Map an error code to a human readable string |
+
+.. note::
+
+```
+The UMsg APIs are not supported for the Intel(R) PAC cards. They will be deprecated in a future release.
+```
 
 ### FPGA Resource Properties ###
 Applications query resource properties by specifying the property name for `Prop` in the 
@@ -194,9 +199,6 @@ columns state whether or not the Property is available for the FPGA or Accelerat
 |BBSID |Yes |No |The FPGA Interface Manager (FIM) ID of an `FPGA_DEVICE` resource |
 |BBSVersion |Yes |No |The FIM version of an `FPGA_DEVICE` resource |
 |VendorId |Yes |No |The vendor ID of an `FPGA_DEVICE` resource |
-|Model |Yes |No |The model of an `FPGA_DEVICE` resource |
-|LocalMemorySize |Yes |No |The local memory size of an `FPGA_DEVICE` resource |
-|Capabilities |Yes |No |The capabilities of an `FPGA_DEVICE` resource |
 |GUID |Yes |Yes |The GUID of an `FPGA_DEVICE` or `FPGA_ACCELERATOR` resource |
 |NumMMIO |No |Yes |The number of MMIO space of an `FPGA_ACCELERATOR` resource |
 |NumInterrupts |No |Yes |The number of interrupts of an `FPGA_ACCELERATOR` resource |

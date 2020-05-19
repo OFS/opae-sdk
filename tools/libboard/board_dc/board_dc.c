@@ -24,6 +24,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
 #include <glob.h>
 #include <stdio.h>
 #include <errno.h>
@@ -40,77 +44,60 @@
 #include <netinet/ether.h>
 
 #include "board_dc.h"
+#include "../board_common/board_common.h"
 
 #define MACADDR_LEN 17
+#define SDR_HEADER_LEN    3
+#define SDR_MSG_LEN       40
+
 // sysfs paths
 #define SYSFS_BMCFW_VER                     "spi-*/spi_master/spi*/spi*.*/bmcfw_flash_ctrl/bmcfw_version"
 #define SYSFS_MAX10_VER                     "spi-*/spi_master/spi*/spi*.*/max10_version"
 #define SYSFS_MACADDR_PATH                  "spi-*/spi_master/spi*/spi*.*/mac_address"
 #define SYSFS_MACCNT_PATH                   "spi-*/spi_master/spi*/spi*.*/mac_count"
 
+// DFL SYSFS
+#define DFL_SYSFS_BMCFW_VER                 "dfl-fme*/spi-altera*/spi_master/spi*/spi*/bmcfw_version"
+#define DFL_SYSFS_MAX10_VER                 "dfl-fme*/spi-altera*/spi_master/spi*/spi*/bmc_version"
 
+#define DFL_SYSFS_SEC_GLOB "dfl-fme*/spi-altera*/spi_master/spi*/spi*/ifpga_sec_mgr/ifpga_sec*/security/"
+#define DFL_SYSFS_SEC_USER_FLASH_COUNT         DFL_SYSFS_SEC_GLOB "user_flash_count"
+#define DFL_SYSFS_SEC_BMC_CANCEL               DFL_SYSFS_SEC_GLOB "bmc_canceled_csks"
+#define DFL_SYSFS_SEC_BMC_ROOT                 DFL_SYSFS_SEC_GLOB "bmc_root_hash"
+#define DFL_SYSFS_SEC_PR_CANCEL                DFL_SYSFS_SEC_GLOB "pr_canceled_csks"
+#define DFL_SYSFS_SEC_PR_ROOT                  DFL_SYSFS_SEC_GLOB"pr_root_hash"
+#define DFL_SYSFS_SEC_SR_CANCEL                DFL_SYSFS_SEC_GLOB "sr_canceled_csks"
+#define DFL_SYSFS_SEC_SR_ROOT                  DFL_SYSFS_SEC_GLOB "sr_root_hash"
 
 
 // Read BMC firmware version
 fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 {
 	fpga_result res                = FPGA_OK;
-	fpga_result resval             = FPGA_OK;
-	uint32_t size                  = 0;
 	char buf[FPGA_VAR_BUF_LEN]     = { 0 };
-	fpga_object bmcfw_object;
 
 	if (bmcfw_ver == NULL) {
 		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
-	res = fpgaTokenGetObject(token, SYSFS_BMCFW_VER, &bmcfw_object, FPGA_OBJECT_GLOB);
+	res = read_sysfs(token, SYSFS_BMCFW_VER, buf, FPGA_VAR_BUF_LEN);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get token object");
+		OPAE_ERR("Failed to get read object");
 		return res;
-	}
-
-	res = fpgaObjectGetSize(bmcfw_object, &size, 0);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read object size ");
-		resval = res;
-		goto out_destroy;
-	}
-
-	// Return error if object size bigger then buffer size
-	if (size > FPGA_VAR_BUF_LEN) {
-		OPAE_ERR("object size bigger then buffer size");
-		resval = FPGA_EXCEPTION;
-		goto out_destroy;
-	}
-
-	res = fpgaObjectRead(bmcfw_object, (uint8_t *)buf, 0, size, 0);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read object ");
-		resval = res;
-		goto out_destroy;
 	}
 
 	res = parse_fw_ver(buf, bmcfw_ver, len);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to parse version ");
-		resval = res;
 	}
 
-
-out_destroy:
-	res = fpgaDestroyObject(&bmcfw_object);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to destroy object");
-	}
-
-	return resval;
+	return res;
 }
 
 fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 {
-	uint32_t var               = 0;
+	uint32_t  var              = 0;
 	fpga_result res            = FPGA_OK;
 	int retval                 = 0;
 	char *endptr               = NULL;
@@ -129,7 +116,7 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 
 	errno = 0;
 	var = strtoul(buf, &endptr, 16);
-	if (!endptr || *endptr != '\0') {
+	if (endptr != buf + strlen(buf)) {
 		OPAE_ERR("Failed to convert buffer to integer: %s", strerror(errno));
 		return FPGA_EXCEPTION;
 	}
@@ -146,57 +133,26 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 // Read MAX10 firmware version
 fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len)
 {
-	fpga_result res                      = FPGA_OK;
-	fpga_result resval                   = FPGA_OK;
-	uint32_t size                        = 0;
-	char buf[FPGA_VAR_BUF_LEN]           = { 0 };
-	fpga_object max10fw_object;
+	fpga_result res = FPGA_OK;
+	char buf[FPGA_VAR_BUF_LEN] = { 0 };
 
 	if (max10fw_ver == NULL) {
-		OPAE_ERR("Invalid input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
-	res = fpgaTokenGetObject(token, SYSFS_MAX10_VER, &max10fw_object, FPGA_OBJECT_GLOB);
+	res = read_sysfs(token, SYSFS_MAX10_VER, buf, FPGA_VAR_BUF_LEN);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get token object");
+		OPAE_ERR("Failed to get read object");
 		return res;
-	}
-
-	res = fpgaObjectGetSize(max10fw_object, &size, 0);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get object size ");
-		resval = res;
-		goto out_destroy;
-	}
-
-	// Return error if object size bigger then buffer size
-	if (size > FPGA_VAR_BUF_LEN) {
-		OPAE_ERR("object size bigger then buffer size");
-		resval = FPGA_EXCEPTION;
-		goto out_destroy;
-	}
-
-	res = fpgaObjectRead(max10fw_object, (uint8_t *)buf, 0, size, 0);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read object ");
-		resval = res;
-		goto out_destroy;
 	}
 
 	res = parse_fw_ver(buf, max10fw_ver, len);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to parse version ");
-		resval = res;
 	}
 
-out_destroy:
-	res = fpgaDestroyObject(&max10fw_object);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to destroy object");
-	}
-
-	return resval;
+	return res;
 }
 
 
@@ -323,6 +279,106 @@ fpga_result print_board_info(fpga_token token)
 			ether_ntoa_r(&MAC, mac_str));
 
 	}
+
+	return resval;
+}
+
+// Sec info
+fpga_result print_sec_info(fpga_token token)
+{
+	fpga_result res = FPGA_OK;
+	fpga_result resval = FPGA_OK;
+	fpga_object tcm_object;
+	char name[SYSFS_PATH_MAX] = { 0 };
+
+	res = fpgaTokenGetObject(token, DFL_SYSFS_SEC_GLOB, &tcm_object, FPGA_OBJECT_GLOB);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to get token Object");
+		return res;
+	}
+	printf("********** SEC Info START ************ \n");
+
+	// BMC Keys
+	memset(name, 0, sizeof(name));
+	res = read_sysfs(token, DFL_SYSFS_SEC_BMC_ROOT, name, SYSFS_PATH_MAX);
+	if (res == FPGA_OK) {
+		printf("BMC root entry hash: %s\n", name);
+	} else {
+		OPAE_MSG("Failed to Read TCM BMC root entry hash");
+		printf("BMC root entry hash: %s\n", "None");
+		resval = res;
+	}
+
+	memset(name, 0, sizeof(name));
+	res = read_sysfs(token, DFL_SYSFS_SEC_BMC_CANCEL, name, SYSFS_PATH_MAX);
+	if (res == FPGA_OK) {
+		printf("BMC CSK IDs canceled: %s\n", strlen(name) > 1 ? name : "None");
+	} else {
+		OPAE_MSG("Failed to Read BMC CSK IDs canceled");
+		printf("BBMC CSK IDs canceled: %s\n", "None");
+		resval = res;
+	}
+
+	// PR Keys
+	memset(name, 0, sizeof(name));
+	res = read_sysfs(token, DFL_SYSFS_SEC_PR_ROOT, name, SYSFS_PATH_MAX);
+	if (res == FPGA_OK) {
+		printf("PR root entry hash: %s\n", name);
+	} else {
+		OPAE_MSG("Failed to Read PR root entry hash");
+		printf("PR root entry hash: %s\n", "None");
+		resval = res;
+	}
+
+	memset(name, 0, sizeof(name));
+	res = read_sysfs(token, DFL_SYSFS_SEC_PR_CANCEL, name, SYSFS_PATH_MAX);
+	if (res == FPGA_OK) {
+		printf("AFU/PR CSK IDs canceled: %s\n", strlen(name) > 1 ? name : "None");
+	} else {
+		OPAE_MSG("Failed to Read AFU CSK/PR IDs canceled");
+		printf("AFU/PR CSK IDs canceled: %s\n", "None");
+		resval = res;
+	}
+
+	// SR Keys
+	memset(name, 0, sizeof(name));
+	res = read_sysfs(token, DFL_SYSFS_SEC_SR_ROOT, name, SYSFS_PATH_MAX);
+	if (res == FPGA_OK) {
+		printf("FIM root entry hash: %s\n", name);
+	} else {
+		OPAE_MSG("Failed to Read FIM root entry hash");
+		printf("FIM root entry hash: %s\n", "None");
+		resval = res;
+	}
+
+	memset(name, 0, sizeof(name));
+	res = read_sysfs(token, DFL_SYSFS_SEC_SR_CANCEL, name, SYSFS_PATH_MAX);
+	if (res == FPGA_OK) {
+		printf("FIM CSK IDs canceled: %s\n", strlen(name) > 1 ? name : "None");
+	} else {
+		OPAE_MSG("Failed to Read FIM CSK IDs canceled");
+		printf("FIM CSK IDs canceled: %s\n", "None");
+		resval = res;
+	}
+
+	// User flash count
+	memset(name, 0, sizeof(name));
+	res = read_sysfs(token, DFL_SYSFS_SEC_USER_FLASH_COUNT, name, SYSFS_PATH_MAX);
+	if (res == FPGA_OK) {
+		printf("User flash update counter: %s\n", name);
+	} else {
+		OPAE_MSG("Failed to Read User flash update counter");
+		printf("User flash update counter: %s\n", "None");
+		resval = res;
+	}
+
+	res = fpgaDestroyObject(&tcm_object);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to Destroy Object");
+		resval = res;
+	}
+
+	printf("********** SEC Info END ************ \n");
 
 	return resval;
 }

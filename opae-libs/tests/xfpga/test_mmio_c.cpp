@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,10 +23,13 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
 #include <opae/fpga.h>
 
-
-#include "intel-fpga.h"
 #include "fpga-dfl.h"
 #include "gtest/gtest.h"
 #include "mock/test_system.h"
@@ -86,7 +89,7 @@ int mmio_ioctl(mock_object * m, int request, va_list argp){
     errno = EINVAL;
     UNUSED_PARAM(m);
     UNUSED_PARAM(request);
-    struct fpga_port_region_info *rinfo = va_arg(argp, struct fpga_port_region_info *);
+    struct dfl_fpga_port_region_info *rinfo = va_arg(argp, struct dfl_fpga_port_region_info *);
     if (!rinfo) {
       FPGA_MSG("rinfo is NULL");
       goto out_EINVAL;
@@ -103,7 +106,7 @@ int mmio_ioctl(mock_object * m, int request, va_list argp){
       FPGA_MSG("unsupported padding");
       goto out_EINVAL;
     }
-    rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
+    rinfo->flags = DFL_PORT_REGION_READ | DFL_PORT_REGION_WRITE | DFL_PORT_REGION_MMAP;
     rinfo->size = 0x40000;
     rinfo->offset = 0;
     retval = 0;
@@ -138,7 +141,6 @@ class mmio_c_p
                             &num_matches_),
               FPGA_OK);
     ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
-    system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
     system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
   }
 
@@ -233,13 +235,13 @@ TEST_P (mmio_c_p, test_neg_map_mmio) {
 TEST_P (mmio_c_p, test_port_map_region_err) {
   uint64_t * mmio_ptr = NULL;
 
-  system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,EINVAL>);
   EXPECT_EQ(FPGA_NO_ACCESS, xfpga_fpgaMapMMIO(handle_,-1,&mmio_ptr));
 
-  system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,EFAULT>);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,EFAULT>);
   EXPECT_EQ(FPGA_NO_ACCESS, xfpga_fpgaMapMMIO(handle_,-1,&mmio_ptr));
 
-  system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,ENOTSUP>);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,ENOTSUP>);
   EXPECT_EQ(FPGA_NO_ACCESS, xfpga_fpgaMapMMIO(handle_,-1,&mmio_ptr));
 
 }
@@ -249,13 +251,13 @@ TEST_P (mmio_c_p, test_port_unmap_region_err) {
   uint64_t * mmio_ptr = NULL;
   EXPECT_NE(FPGA_OK, xfpga_fpgaMapMMIO(handle_,-1,&mmio_ptr));
 
-  system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,EINVAL>);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,EINVAL>);
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnmapMMIO(handle_, 0));
 
-  system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,EFAULT>);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,EFAULT>);
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnmapMMIO(handle_, 0));
 
-  system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,ENOTSUP>);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,ENOTSUP>);
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnmapMMIO(handle_, 0));
 }
 
@@ -493,4 +495,4 @@ TEST_P (mmio_c_p, test_neg_read_write_512) {
 }
 
 
-INSTANTIATE_TEST_CASE_P(mmio_c, mmio_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_CASE_P(mmio_c, mmio_c_p, ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));

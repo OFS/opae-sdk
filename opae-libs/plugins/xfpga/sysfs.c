@@ -93,7 +93,7 @@ static sysfs_formats sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
 	 .sysfs_port_err = "errors/errors",
 	 .sysfs_port_err_clear = "errors/errors",
 	 .sysfs_bmc_glob = "avmmi-bmc.*/bmc_info",
-	 .sysfs_max10_glob = "spi-*/spi_master/spi*/spi*.*"
+	 .sysfs_max10_glob = "dfl-fme*/spi-*/spi_master/spi*/spi*.*"
 	},
 	// intel driver sysfs formats
 	{.sysfs_class_path = "/sys/class/fpga",
@@ -147,7 +147,7 @@ pthread_mutex_t _sysfs_device_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 #define SYSFS_MAX_DEVICES 128
 static sysfs_fpga_device _devices[SYSFS_MAX_DEVICES];
 
-#define PCIE_PATH_PATTERN "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([0-9])/fpga"
+#define PCIE_PATH_PATTERN "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9a-fA-F]{2})\\.([0-9])/fpga"
 #define PCIE_PATH_PATTERN_GROUPS 5
 
 #define PARSE_MATCH_INT(_p, _m, _v, _b, _l)                                    \
@@ -1694,12 +1694,12 @@ enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id)
 
 		case 0x0b2b: /* FALLTHROUGH */
 		case 0x0b2c:
-			hw_type = FPGA_HW_DCP_DC;
+			hw_type = FPGA_HW_DCP_D5005;
 		break;
 
 		case 0x0b30: /* FALLTHROUGH */
 		case 0x0b31:
-			hw_type = FPGA_HW_DCP_VC;
+			hw_type = FPGA_HW_DCP_N3000;
 		break;
 
 		default:
@@ -2052,12 +2052,14 @@ fpga_result opae_glob_path(char *path, size_t len)
 	pglob.gl_pathc = 0;
 	pglob.gl_pathv = NULL;
 	int globres = glob(path, 0, NULL, &pglob);
+	size_t glob_len;
 	if (!globres) {
 		if (pglob.gl_pathc > 1) {
 			OPAE_MSG("Ambiguous object key - using first one");
 		}
-		memcpy(path, pglob.gl_pathv[0], len);
-		path[len] = '\0';
+		glob_len = strnlen(pglob.gl_pathv[0], len-1);
+		memcpy(path, pglob.gl_pathv[0], glob_len);
+		path[glob_len] = '\0';
 		globfree(&pglob);
 	} else {
 		switch (globres) {
