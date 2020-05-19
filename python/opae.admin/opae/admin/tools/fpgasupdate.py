@@ -77,12 +77,8 @@ BLOCK0_CONTYPE_MASK = 0x00ff
 BLOCK0_CONSUBTYPE_MASK = 0xff00
 
 LOG = logging.getLogger()
-LOG_IOCTL = logging.DEBUG - 1
-LOG_STATE = logging.DEBUG - 2
 
 LOG_NAMES_TO_LEVELS = {
-    'state': LOG_STATE,
-    'ioctl': LOG_IOCTL,
     'debug': logging.DEBUG,
     'info': logging.INFO,
     'warning': logging.WARNING,
@@ -106,19 +102,12 @@ def parse_args():
                ' Optional when one device in system.'
     parser.add_argument('bdf', nargs='?', default=DEFAULT_BDF, help=bdf_help)
 
-    log_levels = ['state', 'ioctl', 'debug', 'info',
-                  'warning', 'error', 'critical']
+    log_levels = ['debug', 'info', 'warning', 'error', 'critical']
     parser.add_argument('--log-level', choices=log_levels,
                         default='info', help='log level to use')
 
     parser.add_argument('-y', '--yes', default=False, action='store_true',
                         help='answer Yes to all confirmation prompts')
-
-    parser.add_argument('-t', '--time', type=float, default=0.50,
-                        help=argparse.SUPPRESS)
-
-    parser.add_argument('-p', '--percentage', type=int, default=5,
-                        help=argparse.SUPPRESS)
 
     parser.add_argument('-v', '--version', action='version',
                         version='%(prog)s {}'.format(pretty_version()),
@@ -368,11 +357,8 @@ class SecureUpdateError(Exception):
         self.errno, self.strerror = arg
 
 
-def update_fw(fd_dev, args, pac):
+def update_fw(args, pac):
     """Writes firmware to secure device.
-
-    fd_dev - an integer file descriptor to the os.open()'ed secure
-             device file.
 
     args - the object resulting from command-line parsing.
 
@@ -394,7 +380,7 @@ def update_fw(fd_dev, args, pac):
     sec_dev = pac.secure_dev
     error = sec_dev.find_one(os.path.join('update', 'error'))
     filename = sec_dev.find_one(os.path.join('update', 'filename'))
-    size = sec_dev.find_one(os.path.join('update', 'size'))
+    size = sec_dev.find_one(os.path.join('update', 'remaining_size'))
     status = sec_dev.find_one(os.path.join('update', 'status'))
 
     fw_path = os.path.join(os.sep, 'usr', 'lib', 'firmware')
@@ -518,8 +504,6 @@ def main():
         sys.exit(1)
 
     LOG.setLevel(logging.NOTSET)
-    logging.addLevelName(LOG_IOCTL, 'IOCTL')
-    logging.addLevelName(LOG_STATE, 'STATE')
 
     log_fmt = ('[%(asctime)-15s] [%(levelname)-8s] '
                '%(message)s')
@@ -603,12 +587,10 @@ def main():
             sys.exit(1)
 
         LOG.debug('Found secure device for PAC '
-                  '%s : %s', pac.pci_node.pci_address, sec_dev.devpath)
+                  '%s', pac.pci_node.pci_address)
 
         try:
-            with pac.fme:
-                with sec_dev as descr:
-                    stat, mesg = update_fw(descr, args, pac)
+            stat, mesg = update_fw(args, pac)
         except SecureUpdateError as exc:
             stat, mesg = exc.errno, exc.strerror
         except KeyboardInterrupt:
