@@ -1,0 +1,93 @@
+#!/bin/bash
+shopt -o -s nounset
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+SDK_DIR="$(cd "${SCRIPT_DIR}/../../../" && pwd)"
+
+# Check for prerequisite packages.
+for pkg in 'make' \
+           'cmake' \
+           'doxygen' \
+	   'hwloc-devel' \
+	   'json-c-devel' \
+	   'libuuid-devel' \
+	   'python3-sphinx' \
+	   'python3-devel' \
+	   'rpm-build' \
+           'rpmdevtools'
+do
+    yum list installed "${pkg}" >/dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        printf "${pkg} package not found.. exiting\n"
+	exit 1
+    fi
+done
+
+rm -rf ~/rpmbuild
+rpmdev-setuptree
+
+# Create source tarball.
+cd "${SDK_DIR}/.."
+tar --transform='s/opae-sdk/opae/' \
+  --exclude=.git \
+  --exclude=.gitignore \
+  --exclude=.github \
+  --exclude=.travis.yml \
+  --exclude=opae.spec.in \
+  --exclude=opae.spec \
+  --exclude=opae-libs/external \
+  --exclude=opae-libs/tests \
+  --exclude=opae-libs/plugins/ase \
+  --exclude=opae-libs/cmake/config/libopae-all.spec.in \
+  --exclude=opae-libs/cmake/config/run_coverage_test.sh.in \
+  --exclude=opae-libs/cmake/config/run_coverage_test_local.sh.in\
+  --exclude=external \
+  --exclude=platforms \
+  --exclude=samples/base \
+  --exclude=samples/hello_afu \
+  --exclude=samples/hello_mpf_afu \
+  --exclude=samples/intg_xeon_nlb \
+  --exclude=samples/base \
+  --exclude=scripts \
+  --exclude=tests \
+  --exclude=tools/fpgametrics \
+  --exclude=tools/libboard/board_dc \
+  --exclude=tools/extra/ras \
+  --exclude=tools/extra/fpgabist \
+  --exclude=tools/extra/pac_hssi_config \
+  --exclude=tools/extra/fpgadiag \
+  --exclude=tools/extra/c++utils \
+  --exclude=tools/extra/pyfpgadiag \
+  --exclude=tools/extra/pypackager \
+  --exclude=tools/utilities \
+  --exclude=opae-libs/include/opae/cxx/.clang-format \
+  --exclude=opae-libs/libopaecxx/.clang-format \
+  --exclude=opae-libs/pyopae/.clang-format \
+  --exclude=opae-libs/.clang-format \
+  --exclude=opae-libs/.clang-format \
+  -z -c -f opae.tar.gz opae-sdk
+
+mv opae.tar.gz ~/rpmbuild/SOURCES/
+
+cd "${SCRIPT_DIR}"
+cp ./opae.spec ~/rpmbuild/SPECS/
+
+# Create RPMS.
+cd ~/rpmbuild/SPECS/
+
+rpmbuild -ba opae.spec
+if [ $? -ne 0 ]; then
+    printf "'rpmbuild -ba opae.spec' failed.. exiting\n"
+    exit 1
+fi
+
+rpmbuild -bs opae.spec
+if [ $? -eq 1 ]; then
+    echo "'rpmbuild -bs opae.spec' failed.. exiting"
+    exit 1
+fi
+
+# Move RPMS to build directory.
+cd "${SCRIPT_DIR}"
+mv ~/rpmbuild/RPMS/x86_64/opae-* "${SCRIPT_DIR}"
+mv ~/rpmbuild/SRPMS/opae-*.src.rpm "${SCRIPT_DIR}"
