@@ -43,7 +43,7 @@
 #include <sys/ioctl.h>
 #include <netinet/ether.h>
 
-#include "board_dc.h"
+#include "board_d5005.h"
 #include "../board_common/board_common.h"
 
 #define MACADDR_LEN 17
@@ -51,8 +51,6 @@
 #define SDR_MSG_LEN       40
 
 // sysfs paths
-#define SYSFS_BMCFW_VER                     "spi-*/spi_master/spi*/spi*.*/bmcfw_flash_ctrl/bmcfw_version"
-#define SYSFS_MAX10_VER                     "spi-*/spi_master/spi*/spi*.*/max10_version"
 #define SYSFS_MACADDR_PATH                  "spi-*/spi_master/spi*/spi*.*/mac_address"
 #define SYSFS_MACCNT_PATH                   "spi-*/spi_master/spi*/spi*.*/mac_count"
 
@@ -60,14 +58,7 @@
 #define DFL_SYSFS_BMCFW_VER                 "dfl-fme*/spi-altera*/spi_master/spi*/spi*/bmcfw_version"
 #define DFL_SYSFS_MAX10_VER                 "dfl-fme*/spi-altera*/spi_master/spi*/spi*/bmc_version"
 
-#define DFL_SYSFS_SEC_GLOB "dfl-fme*/spi-altera*/spi_master/spi*/spi*/ifpga_sec_mgr/ifpga_sec*/security/"
-#define DFL_SYSFS_SEC_USER_FLASH_COUNT         DFL_SYSFS_SEC_GLOB "user_flash_count"
-#define DFL_SYSFS_SEC_BMC_CANCEL               DFL_SYSFS_SEC_GLOB "bmc_canceled_csks"
-#define DFL_SYSFS_SEC_BMC_ROOT                 DFL_SYSFS_SEC_GLOB "bmc_root_hash"
-#define DFL_SYSFS_SEC_PR_CANCEL                DFL_SYSFS_SEC_GLOB "pr_canceled_csks"
-#define DFL_SYSFS_SEC_PR_ROOT                  DFL_SYSFS_SEC_GLOB"pr_root_hash"
-#define DFL_SYSFS_SEC_SR_CANCEL                DFL_SYSFS_SEC_GLOB "sr_canceled_csks"
-#define DFL_SYSFS_SEC_SR_ROOT                  DFL_SYSFS_SEC_GLOB "sr_root_hash"
+
 
 
 // Read BMC firmware version
@@ -81,7 +72,7 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 		return FPGA_INVALID_PARAM;
 	}
 
-	res = read_sysfs(token, SYSFS_BMCFW_VER, buf, FPGA_VAR_BUF_LEN);
+	res = read_sysfs(token, DFL_SYSFS_BMCFW_VER, buf, FPGA_VAR_BUF_LEN);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get read object");
 		return res;
@@ -141,7 +132,7 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 		return FPGA_INVALID_PARAM;
 	}
 
-	res = read_sysfs(token, SYSFS_MAX10_VER, buf, FPGA_VAR_BUF_LEN);
+	res = read_sysfs(token, DFL_SYSFS_MAX10_VER, buf, FPGA_VAR_BUF_LEN);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get read object");
 		return res;
@@ -241,16 +232,15 @@ out_destroy_mac:
 	return resval;
 }
 
-
 // print board information
 fpga_result print_board_info(fpga_token token)
 {
-	fpga_result res                      = FPGA_OK;
-	fpga_result resval                   = FPGA_OK;
-	char bmc_ver[FPGA_VAR_BUF_LEN]       = { 0 };
-	char max10_ver[FPGA_VAR_BUF_LEN]     = { 0 };
+	fpga_result res = FPGA_OK;
+	fpga_result resval = FPGA_OK;
+	char bmc_ver[FPGA_VAR_BUF_LEN] = { 0 };
+	char max10_ver[FPGA_VAR_BUF_LEN] = { 0 };
 	char mac_str[18] = { 0 };
-	struct ether_addr MAC ;
+	struct ether_addr MAC;
 
 
 	res = read_bmcfw_version(token, bmc_ver, FPGA_VAR_BUF_LEN);
@@ -283,102 +273,8 @@ fpga_result print_board_info(fpga_token token)
 	return resval;
 }
 
-// Sec info
+// print board information
 fpga_result print_sec_info(fpga_token token)
 {
-	fpga_result res = FPGA_OK;
-	fpga_result resval = FPGA_OK;
-	fpga_object tcm_object;
-	char name[SYSFS_PATH_MAX] = { 0 };
-
-	res = fpgaTokenGetObject(token, DFL_SYSFS_SEC_GLOB, &tcm_object, FPGA_OBJECT_GLOB);
-	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to get token Object");
-		return res;
-	}
-	printf("********** SEC Info START ************ \n");
-
-	// BMC Keys
-	memset(name, 0, sizeof(name));
-	res = read_sysfs(token, DFL_SYSFS_SEC_BMC_ROOT, name, SYSFS_PATH_MAX);
-	if (res == FPGA_OK) {
-		printf("BMC root entry hash: %s\n", name);
-	} else {
-		OPAE_MSG("Failed to Read TCM BMC root entry hash");
-		printf("BMC root entry hash: %s\n", "None");
-		resval = res;
-	}
-
-	memset(name, 0, sizeof(name));
-	res = read_sysfs(token, DFL_SYSFS_SEC_BMC_CANCEL, name, SYSFS_PATH_MAX);
-	if (res == FPGA_OK) {
-		printf("BMC CSK IDs canceled: %s\n", strlen(name) > 1 ? name : "None");
-	} else {
-		OPAE_MSG("Failed to Read BMC CSK IDs canceled");
-		printf("BBMC CSK IDs canceled: %s\n", "None");
-		resval = res;
-	}
-
-	// PR Keys
-	memset(name, 0, sizeof(name));
-	res = read_sysfs(token, DFL_SYSFS_SEC_PR_ROOT, name, SYSFS_PATH_MAX);
-	if (res == FPGA_OK) {
-		printf("PR root entry hash: %s\n", name);
-	} else {
-		OPAE_MSG("Failed to Read PR root entry hash");
-		printf("PR root entry hash: %s\n", "None");
-		resval = res;
-	}
-
-	memset(name, 0, sizeof(name));
-	res = read_sysfs(token, DFL_SYSFS_SEC_PR_CANCEL, name, SYSFS_PATH_MAX);
-	if (res == FPGA_OK) {
-		printf("AFU/PR CSK IDs canceled: %s\n", strlen(name) > 1 ? name : "None");
-	} else {
-		OPAE_MSG("Failed to Read AFU CSK/PR IDs canceled");
-		printf("AFU/PR CSK IDs canceled: %s\n", "None");
-		resval = res;
-	}
-
-	// SR Keys
-	memset(name, 0, sizeof(name));
-	res = read_sysfs(token, DFL_SYSFS_SEC_SR_ROOT, name, SYSFS_PATH_MAX);
-	if (res == FPGA_OK) {
-		printf("FIM root entry hash: %s\n", name);
-	} else {
-		OPAE_MSG("Failed to Read FIM root entry hash");
-		printf("FIM root entry hash: %s\n", "None");
-		resval = res;
-	}
-
-	memset(name, 0, sizeof(name));
-	res = read_sysfs(token, DFL_SYSFS_SEC_SR_CANCEL, name, SYSFS_PATH_MAX);
-	if (res == FPGA_OK) {
-		printf("FIM CSK IDs canceled: %s\n", strlen(name) > 1 ? name : "None");
-	} else {
-		OPAE_MSG("Failed to Read FIM CSK IDs canceled");
-		printf("FIM CSK IDs canceled: %s\n", "None");
-		resval = res;
-	}
-
-	// User flash count
-	memset(name, 0, sizeof(name));
-	res = read_sysfs(token, DFL_SYSFS_SEC_USER_FLASH_COUNT, name, SYSFS_PATH_MAX);
-	if (res == FPGA_OK) {
-		printf("User flash update counter: %s\n", name);
-	} else {
-		OPAE_MSG("Failed to Read User flash update counter");
-		printf("User flash update counter: %s\n", "None");
-		resval = res;
-	}
-
-	res = fpgaDestroyObject(&tcm_object);
-	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to Destroy Object");
-		resval = res;
-	}
-
-	printf("********** SEC Info END ************ \n");
-
-	return resval;
+	return print_sec_common_info(token);
 }

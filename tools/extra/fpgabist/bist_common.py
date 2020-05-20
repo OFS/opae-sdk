@@ -35,10 +35,12 @@ import sys
 # TODO: Use AFU IDs vs. names of AFUs
 BIST_MODES = ['bist_afu', 'dma_afu', 'nlb_mode_3']
 REQ_CMDS = ['lspci', 'fpgainfo', 'fpgaconf', 'fpgadiag', 'fpga_dma_test',
-            'fpga_dma_vc_test', 'bist_app']
+            'fpga_dma_N3000_test', 'bist_app']
 BDF_PATTERN = r'{:02x}:{:02x}.{:x}'
-VCP_ID = 0x0b30
-DCP_ID = 0x0b2b
+
+N3000_ID = 0x0b30
+D5005_ID = 0x0b2b
+A10GX_ID = 0x09c4
 
 
 def find_exec(cmd, paths):
@@ -66,13 +68,13 @@ def get_afu_id(gbs_path="", bdf=None):
     elif bdf:
         pattern = BDF_PATTERN.format(bdf['bus'], bdf['device'],
                                      bdf['function'])
-        fpgas = glob.glob('/sys/class/fpga/*')
+        fpgas = glob.glob('/sys/class/fpga*/*')
         for fpga in fpgas:
             slink = os.path.basename(os.readlink(os.path.join(fpga, "device")))
             m = re.findall(pattern, slink)
             if m:
                 id_path = os.path.join(fpga,
-                                       'intel-fpga-port.{}'
+                                       '*-port.{}'
                                        .format(fpgas.index(fpga)),
                                        'afu_id')
                 with open(id_path) as f:
@@ -87,7 +89,7 @@ def get_all_fpga_bdfs(args):
                          r'(?P<device>[a-fA-F0-9]{2})\.'
                          r'(?P<function>[a-fA-F0-9])')
     bdf_list = []
-    for fpga in glob.glob('/sys/class/fpga/*'):
+    for fpga in glob.glob('/sys/class/fpga*/*'):
         devpath = os.path.join(fpga, "device")
         symlink = os.path.basename(os.readlink(devpath))
         m = pattern.match(symlink)

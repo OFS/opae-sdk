@@ -35,9 +35,9 @@ import bist_common as bc
 
 class BistMode(bc.BistMode):
     name = "bist_afu"
-    mode_list = {0x09c4: "9caef53d-2fcf-43ea-84b9-aad98993fe41",
-                 0x0b30: "9caef53d-2fcf-43ea-84b9-aad98993fe41",
-                 0x0b2b: "9caef53d-2fcf-43ea-84b9-aad98993fe41"}
+    mode_list = {bc.A10GX_ID: "9caef53d-2fcf-43ea-84b9-aad98993fe41",
+                 bc.N3000_ID: "9caef53d-2fcf-43ea-84b9-aad98993fe41",
+                 bc.D5005_ID: "9caef53d-2fcf-43ea-84b9-aad98993fe41"}
 
     def __init__(self):
         self.executables = {'bist_app': ''}

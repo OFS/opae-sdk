@@ -35,7 +35,7 @@ opae_add_executable(TARGET bist_app
 )
 
 opae_add_executable(TARGET bist
-    SOURCE bist_dc.c
+    SOURCE bist_D5005.c
     LIBS
         rt
         opae-c

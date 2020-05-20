@@ -24,6 +24,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
 extern "C" {
 #include <fcntl.h>
 #include <json-c/json.h>
@@ -45,13 +49,12 @@ extern "C" {
 
 #include "gtest/gtest.h"
 #include "intel-fpga.h"
-#include "libboard/board_rc/board_rc.h"
+#include "libboard/board_a10gx/board_a10gx.h"
 #include "opae_int.h"
 #include "mock/test_system.h"
 
 #define SYSFS_FME_PATH "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0"
 
-#define FPGA_STR_SIZE 256
 #define SDR_HEADER_LEN 3
 #define SDR_MSG_LEN 4
 
@@ -127,9 +130,9 @@ typedef struct _bmc_device_id {
 
 using namespace opae::testing;
 
-class board_rc_c_p : public ::testing::TestWithParam<std::string> {
+class board_a10gx_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  board_rc_c_p() : tokens_{{nullptr, nullptr}} {}
+  board_a10gx_c_p() : tokens_{{nullptr, nullptr}} {}
 
   fpga_result write_sysfs_file(const char *file, void *buf, size_t count);
   ssize_t eintr_write(int fd, void *buf, size_t count);
@@ -178,7 +181,7 @@ class board_rc_c_p : public ::testing::TestWithParam<std::string> {
   test_system *system_;
 };
 
-ssize_t board_rc_c_p::eintr_write(int fd, void *buf, size_t count) {
+ssize_t board_a10gx_c_p::eintr_write(int fd, void *buf, size_t count) {
   ssize_t bytes_written = 0, total_written = 0;
   char *ptr = (char *)buf;
 
@@ -198,10 +201,10 @@ ssize_t board_rc_c_p::eintr_write(int fd, void *buf, size_t count) {
   }
   return total_written;
 }
-fpga_result board_rc_c_p::write_sysfs_file(const char *file, void *buf,
+fpga_result board_a10gx_c_p::write_sysfs_file(const char *file, void *buf,
                                            size_t count) {
   fpga_result res = FPGA_OK;
-  char sysfspath[256];
+  char sysfspath[SYSFS_PATH_MAX];
   int fd = 0;
 
   snprintf(sysfspath, sizeof(sysfspath), "%s/%s", SYSFS_FME_PATH, file);
@@ -230,11 +233,11 @@ fpga_result board_rc_c_p::write_sysfs_file(const char *file, void *buf,
 }
 
 /**
- * @test       board_rc_1
+ * @test       board_a10gx_1
  * @brief      Tests: read_bmc_version
  * @details    Validates bmc version  <br>
  */
-TEST_P(board_rc_c_p, board_rc_1) {
+TEST_P(board_a10gx_c_p, board_a10gx_1) {
   int version;
 
   EXPECT_EQ(read_bmc_version(tokens_[0], &version), FPGA_OK);
@@ -245,12 +248,12 @@ TEST_P(board_rc_c_p, board_rc_1) {
 }
 
 /**
- * @test       board_rc_2
+ * @test       board_a10gx_2
  * @brief      Tests: read_bmc_pwr_down_cause
  * @details    Validates bmc power down root cause <br>
  */
-TEST_P(board_rc_c_p, board_rc_2) {
-  char pwr_down_cause[FPGA_STR_SIZE];
+TEST_P(board_a10gx_c_p, board_a10gx_2) {
+  char pwr_down_cause[SYSFS_PATH_MAX];
 
   EXPECT_EQ(read_bmc_pwr_down_cause(tokens_[0], pwr_down_cause), FPGA_OK);
 
@@ -260,12 +263,12 @@ TEST_P(board_rc_c_p, board_rc_2) {
 }
 
 /**
- * @test       board_rc_3
+ * @test       board_a10gx_3
  * @brief      Tests: read_bmc_pwr_down_cause
  * @details    Validates bmc reset root cause <br>
  */
-TEST_P(board_rc_c_p, board_rc_3) {
-  char reset_cause[FPGA_STR_SIZE];
+TEST_P(board_a10gx_c_p, board_a10gx_3) {
+  char reset_cause[SYSFS_PATH_MAX];
 
   EXPECT_EQ(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
 
@@ -275,129 +278,129 @@ TEST_P(board_rc_c_p, board_rc_3) {
 }
 
 /**
- * @test       board_rc_4
+ * @test       board_a10gx_4
  * @brief      Tests: print_board_info
  * @details    Validates print board information <br>
  */
-TEST_P(board_rc_c_p, board_rc_4) {
+TEST_P(board_a10gx_c_p, board_a10gx_4) {
   EXPECT_EQ(print_board_info(tokens_[0]), FPGA_OK);
   EXPECT_NE(print_board_info(NULL), FPGA_OK);
 }
 
 /**
- * @test       board_rc_5
+ * @test       board_a10gx_5
  * @brief      Tests: read_bmc_reset_cause
  * @details    Validates bmc reset root cause with invalid completion code <br>
  */
-TEST_P(board_rc_c_p, board_rc_5) {
-  bmc_reset_cause bmc_rc;
-  bmc_rc.completion_code = 1;
+TEST_P(board_a10gx_c_p, board_a10gx_5) {
+  bmc_reset_cause bmc_a10gx;
+  bmc_a10gx.completion_code = 1;
   write_sysfs_file((const char *)"avmmi-bmc.3.auto/bmc_info/reset_cause",
-                   (void *)&bmc_rc, sizeof(bmc_reset_cause));
-  char reset_cause[FPGA_STR_SIZE];
+                   (void *)&bmc_a10gx, sizeof(bmc_reset_cause));
+  char reset_cause[SYSFS_PATH_MAX];
 
   EXPECT_NE(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
 }
 
 /**
- * @test       board_rc_6
+ * @test       board_a10gx_6
  * @brief      Tests: read_bmc_reset_cause
  * @details    Validates bmc reset root cause with different root cause<br>
  */
-TEST_P(board_rc_c_p, board_rc_6) {
-  bmc_reset_cause bmc_rc;
-  bmc_rc.completion_code = 0;
-  bmc_rc.reset_cause = CHIP_RESET_CAUSE_POR;
+TEST_P(board_a10gx_c_p, board_a10gx_6) {
+  bmc_reset_cause bmc_a10gx;
+  bmc_a10gx.completion_code = 0;
+  bmc_a10gx.reset_cause = CHIP_RESET_CAUSE_POR;
   write_sysfs_file((const char *)"avmmi-bmc.3.auto/bmc_info/reset_cause",
-                   (void *)&bmc_rc, sizeof(bmc_reset_cause));
+                   (void *)&bmc_a10gx, sizeof(bmc_reset_cause));
 
-  char reset_cause[FPGA_STR_SIZE];
+  char reset_cause[SYSFS_PATH_MAX];
   EXPECT_EQ(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
 
-  bmc_rc.reset_cause = CHIP_RESET_CAUSE_EXTRST;
+  bmc_a10gx.reset_cause = CHIP_RESET_CAUSE_EXTRST;
   write_sysfs_file((const char *)"avmmi-bmc.3.auto/bmc_info/reset_cause",
-                   (void *)&bmc_rc, sizeof(bmc_reset_cause));
+                   (void *)&bmc_a10gx, sizeof(bmc_reset_cause));
   EXPECT_EQ(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
 
-  bmc_rc.reset_cause = CHIP_RESET_CAUSE_BOD_IO;
+  bmc_a10gx.reset_cause = CHIP_RESET_CAUSE_BOD_IO;
   write_sysfs_file((const char *)"avmmi-bmc.3.auto/bmc_info/reset_cause",
-                   (void *)&bmc_rc, sizeof(bmc_reset_cause));
+                   (void *)&bmc_a10gx, sizeof(bmc_reset_cause));
   EXPECT_EQ(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
 
-  bmc_rc.reset_cause = CHIP_RESET_CAUSE_WDT;
+  bmc_a10gx.reset_cause = CHIP_RESET_CAUSE_WDT;
   write_sysfs_file((const char *)"avmmi-bmc.3.auto/bmc_info/reset_cause",
-                   (void *)&bmc_rc, sizeof(bmc_reset_cause));
+                   (void *)&bmc_a10gx, sizeof(bmc_reset_cause));
   EXPECT_EQ(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
 
-  bmc_rc.reset_cause = CHIP_RESET_CAUSE_OCD;
+  bmc_a10gx.reset_cause = CHIP_RESET_CAUSE_OCD;
   write_sysfs_file((const char *)"avmmi-bmc.3.auto/bmc_info/reset_cause",
-                   (void *)&bmc_rc, sizeof(bmc_reset_cause));
+                   (void *)&bmc_a10gx, sizeof(bmc_reset_cause));
   EXPECT_EQ(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
 
-  bmc_rc.reset_cause = CHIP_RESET_CAUSE_SOFT;
+  bmc_a10gx.reset_cause = CHIP_RESET_CAUSE_SOFT;
   write_sysfs_file((const char *)"avmmi-bmc.3.auto/bmc_info/reset_cause",
-                   (void *)&bmc_rc, sizeof(bmc_reset_cause));
+                   (void *)&bmc_a10gx, sizeof(bmc_reset_cause));
   EXPECT_EQ(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
 
-  bmc_rc.reset_cause = CHIP_RESET_CAUSE_SPIKE;
+  bmc_a10gx.reset_cause = CHIP_RESET_CAUSE_SPIKE;
   write_sysfs_file((const char *)"avmmi-bmc.3.auto/bmc_info/reset_cause",
-                   (void *)&bmc_rc, sizeof(bmc_reset_cause));
+                   (void *)&bmc_a10gx, sizeof(bmc_reset_cause));
   EXPECT_EQ(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
 }
 
 /**
- * @test       board_rc_7
+ * @test       board_a10gx_7
  * @brief      Tests: read_bmc_pwr_down_cause
  * @details    Validates bmc power down root cause with invalid completion code
  * <br>
  */
-TEST_P(board_rc_c_p, board_rc_7) {
+TEST_P(board_a10gx_c_p, board_a10gx_7) {
   bmc_powerdown_cause bmc_pd;
   bmc_pd.completion_code = 1;
   write_sysfs_file((const char *)"avmmi-bmc.3.auto/bmc_info/power_down_cause",
                    (void *)&bmc_pd, sizeof(bmc_powerdown_cause));
 
-  char pwr_down_cause[FPGA_STR_SIZE];
+  char pwr_down_cause[SYSFS_PATH_MAX];
   EXPECT_NE(read_bmc_pwr_down_cause(tokens_[0], pwr_down_cause), FPGA_OK);
 }
 INSTANTIATE_TEST_CASE_P(
-    baord_rc_c, board_rc_c_p,
-    ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
+    baord_a10gx_c, board_a10gx_c_p,
+    ::testing::ValuesIn(test_platform::mock_platforms({"dcp-a10gx"})));
 
-class board_rc_invalid_c_p : public board_rc_c_p {};
+class board_a10gx_invalid_c_p : public board_a10gx_c_p {};
 
 /**
- * @test       board_rc_8
+ * @test       board_a10gx_8
  * @brief      Tests: read_bmc_version
  * @details    Validates bmc power down root cause with invalid completion code
  * <br>
  */
-TEST_P(board_rc_invalid_c_p, board_rc_8) {
+TEST_P(board_a10gx_invalid_c_p, board_a10gx_8) {
   int version;
   EXPECT_NE(read_bmc_version(tokens_[0], &version), FPGA_OK);
 }
 
 /**
- * @test       board_rc_9
+ * @test       board_a10gx_9
  * @brief      Tests: read_bmc_pwr_down_cause
  * @details    Validates bmc power down root cause with invalid completion code
  * <br>
  */
-TEST_P(board_rc_invalid_c_p, board_rc_9) {
-  char pwr_down_cause[FPGA_STR_SIZE];
+TEST_P(board_a10gx_invalid_c_p, board_a10gx_9) {
+  char pwr_down_cause[SYSFS_PATH_MAX];
   EXPECT_NE(read_bmc_pwr_down_cause(tokens_[0], pwr_down_cause), FPGA_OK);
 }
 
 /**
- * @test       board_rc_9
+ * @test       board_a10gx_9
  * @brief      Tests: read_bmc_reset_cause
  * @details    Validates bmc power down root cause with invalid completion code
  * <br>
  */
-TEST_P(board_rc_invalid_c_p, board_rc_10) {
-  char reset_cause[FPGA_STR_SIZE];
+TEST_P(board_a10gx_invalid_c_p, board_a10gx_10) {
+  char reset_cause[SYSFS_PATH_MAX];
   EXPECT_NE(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
 }
 INSTANTIATE_TEST_CASE_P(
-    board_rc_invalid_c, board_rc_invalid_c_p,
+    board_a10gx_invalid_c, board_a10gx_invalid_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
