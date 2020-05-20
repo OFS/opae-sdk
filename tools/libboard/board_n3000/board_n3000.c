@@ -44,11 +44,12 @@
 #include "../board_common/board_common.h"
 #include "board_n3000.h"
 
-
-// sysfs paths
 // DFL SYSFS
-#define DFL_SYSFS_BMCFW_VER                 "dfl-fme*/spi-altera*/spi_master/spi*/spi*/bmcfw_version"
-#define DFL_SYSFS_MAX10_VER                 "dfl-fme*/spi-altera*/spi_master/spi*/spi*/bmc_version"
+#define DFL_SYSFS_BMCFW_VER                  "dfl-fme*/spi-altera*/spi_master/spi*/spi*/bmcfw_version"
+#define DFL_SYSFS_MAX10_VER                  "dfl-fme*/spi-altera*/spi_master/spi*/spi*/bmc_version"
+
+#define DFL_SYSFS_MACADDR_PATH               "dfl-fme*/spi-*/spi_master/spi*/spi*.*/mac_address"
+#define DFL_SYSFS_MACCNT_PATH                "dfl-fme*/spi-*/spi_master/spi*/spi*.*/mac_count"
 
 
 #define SYSFS_PCB_INFO                      "spi-altera.*.auto/spi_master/spi*/spi*.*/pcb_info"
@@ -61,9 +62,6 @@
 #define SYSFS_NVMEM                         "*i2c*/i2c*/*/nvmem"
 #define SYSFS_PKVL_A_VER                    "spi-altera.*.auto/spi_master/spi*/spi*.*/pkvl/pkvl_a_version"
 #define SYSFS_PKVL_B_VER                    "spi-altera.*.auto/spi_master/spi*/spi*.*/pkvl/pkvl_b_version"
-
-#define SYSFS_MACADDR_PATH                  "spi-*/spi_master/spi*/spi*.*/mac_address"
-#define SYSFS_MACCNT_PATH                   "spi-*/spi_master/spi*/spi*.*/mac_count"
 
 
 // driver ioctl id
@@ -523,7 +521,7 @@ fpga_result print_mac_info(fpga_token token)
 	pkvl_mac mac;
 	unsigned int mac_byte[6] = { 0 };
 
-	res = read_sysfs(token, SYSFS_MACADDR_PATH, (char *)buf, 18);
+	res = read_sysfs(token, DFL_SYSFS_MACADDR_PATH, (char *)buf, 18);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to read mac information");
 		return res;
@@ -534,7 +532,7 @@ fpga_result print_mac_info(fpga_token token)
 	for (i = 0; i < 6; i++)
 		buf[i] = (unsigned char)mac_byte[i];
 
-	res = read_sysfs(token, SYSFS_MACCNT_PATH, (char *)count, 18);
+	res = read_sysfs(token, DFL_SYSFS_MACCNT_PATH, (char *)count, 18);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to read mac information");
 		return res;
