@@ -26,9 +26,9 @@
 
 opae_add_subdirectory(argsfilter)
 opae_add_subdirectory(libboard/board_common)
-opae_add_subdirectory(libboard/board_rc)
-opae_add_subdirectory(libboard/board_vc)
-opae_add_subdirectory(libboard/board_dc)
+opae_add_subdirectory(libboard/board_a10gx)
+opae_add_subdirectory(libboard/board_n3000)
+opae_add_subdirectory(libboard/board_d5005)
 opae_add_subdirectory(fpgaconf)
 opae_add_subdirectory(fpgainfo)
 opae_add_subdirectory(fpgametrics)

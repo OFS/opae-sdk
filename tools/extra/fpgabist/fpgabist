@@ -39,7 +39,7 @@ import bist_nlb3
 import bist_nlb0
 
 FEATURES = ['fme', 'port', 'temp', 'power', 'errors all']
-PRIVATE_FEATURES = {bist_common.VCP_ID: ['phy', 'mac']}
+PRIVATE_FEATURES = {bist_common.N3000_ID: ['phy', 'mac']}
 
 
 def get_afu_id(bus):
@@ -97,14 +97,14 @@ def main(args):
         ret += subprocess.call(cmd, shell=True)
         print("\n")
 
-    if dev_id == bist_common.VCP_ID:
+    if dev_id == bist_common.N3000_ID:
         for name in ['nlb0', 'dma']:
             module = 'bist_{}'.format(name)
             mode = getattr(sys.modules.get(module),
                            '{}Mode'.format(name.capitalize()))()
             print("Running mode: {}".format(mode.name))
             ret += mode.run(None, bdf,
-                            bist_common.VCP_ID, afu_id)
+                            bist_common.N3000_ID, afu_id)
     else:
         gbs_paths = args.gbs_paths
         afu_ids = {}

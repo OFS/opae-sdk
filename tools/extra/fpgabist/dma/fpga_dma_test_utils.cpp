@@ -630,7 +630,8 @@ fpga_result configure_numa(fpga_token afc_token, bool cpu_affinity, bool memory_
 		hwloc_topology_t topology;
 		hwloc_topology_init(&topology);
 #if HWLOC_API_VERSION >= 0x00020000
-		hwloc_topology_set_io_types_filter(topology, HWLOC_TYPE_FILTER_KEEP_ALL);
+		hwloc_topology_set_io_types_filter(topology,
+			HWLOC_TYPE_FILTER_KEEP_ALL);
 #else
 		hwloc_topology_set_flags(topology,
 			HWLOC_TOPOLOGY_FLAG_IO_DEVICES);
