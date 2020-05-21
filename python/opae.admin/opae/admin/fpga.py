@@ -407,11 +407,11 @@ class fpga_base(class_node):
             return None
         spi = f.spi_bus
         if spi:
-            sec = spi.find_one('ifpga_sec_mgr/ifpga_sec*')
+            sec = spi.find_one('m10bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
             if sec:
                 return secure_dev(sec.sysfs_path, self.pci_node)
         else:
-            sec = f.find_one('ifpga_sec_mgr/ifpga_sec*')
+            sec = f.find_one('m10bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
             if sec:
                 return secure_dev(sec.sysfs_path, self.pci_node)
 
