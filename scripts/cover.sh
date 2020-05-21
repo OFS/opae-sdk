@@ -43,6 +43,7 @@ lcov --remove coverage.total \
     '*opae-libs/plugins/xfpga/usrclk/**' \
     '*tests/**' \
     '*tools/extra/c++utils/**' \
+    '*tools/libboard/board_a10gx/**' \
     '*tools/extra/mmlink/**' \
     '*tools/extra/fpgabist/**' \
     '*tools/extra/fpgadiag/**' \
