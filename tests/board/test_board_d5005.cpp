@@ -330,6 +330,14 @@ TEST_P(board_dfl_d5005_c_p, board_d5005_9) {
 
 	struct ether_addr mac_addr;
 	EXPECT_EQ(read_mac_info(tokens_[0], 0, &mac_addr), FPGA_OK);
+
+	char mac_buf[18] = { 0 };
+	strncpy(mac_buf, "ff:ff:ff:ff:ff:ff", 18);
+	write_sysfs_file((char*)"dfl-fme*/spi-*/spi_master/spi*/spi*.*/mac_address",
+	(void*)mac_buf,18);
+	EXPECT_EQ(read_mac_info(tokens_[0], 0, &mac_addr), FPGA_INVALID_PARAM);
+
+	EXPECT_EQ(read_mac_info(tokens_[0], 100, &mac_addr), FPGA_INVALID_PARAM);
 }
 
 INSTANTIATE_TEST_CASE_P(baord_d5005_c, board_dfl_d5005_c_p,
