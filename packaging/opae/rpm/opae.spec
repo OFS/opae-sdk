@@ -189,11 +189,3 @@ find %{buildroot} -iname libboard_common.a -delete
 
 
 %changelog
-* Tue Dec 17 2019 Korde Nakul <nakul.korde@intel.com> 1.4.0-1
-- Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set2.
-- Increased test cases and test coverage
-- Various bug fixes
-- Various compiler warning fixes
-- Various memory leak fixes
-- Various Static code scan bug fixes
-- Added new FPGA MMIO API to write 512 bits

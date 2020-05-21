@@ -27,6 +27,8 @@
 
 shopt -o -s nounset
 
+PROJECT_VERSION='1.4.1-1'
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 RPMBUILD_DIR="${SCRIPT_DIR}/rpmbuild"
 SDK_DIR="$(cd "${SCRIPT_DIR}/../../../" && pwd)"
@@ -62,7 +64,6 @@ for d in 'SOURCES' \
 do
     mkdir -p "${RPMBUILD_DIR}/$d"
 done
-#rpmdev-setuptree "${RPMBUILD_DIR}"
 
 # Create source tarball.
 cd "${SDK_DIR}/.."
@@ -109,6 +110,12 @@ mv opae.tar.gz "${RPMBUILD_DIR}/SOURCES"
 
 cd "${SCRIPT_DIR}"
 cp ./opae.spec "${RPMBUILD_DIR}/SPECS"
+
+${SDK_DIR}/packaging/changelog.py \
+    --git-dir="${SDK_DIR}/.git" \
+    --project="opae" \
+    --project-version="${PROJECT_VERSION}" \
+    >> "${RPMBUILD_DIR}/SPECS/opae.spec"
 
 # Create RPMS.
 cd "${RPMBUILD_DIR}/SPECS"

@@ -28,8 +28,7 @@
 shopt -o -s nounset
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-STAGING_DIR="${SCRIPT_DIR}/stage"
+RPMBUILD_DIR="${SCRIPT_DIR}/rpmbuild"
 
-rm -rf "${STAGING_DIR}"
-rm -f "${SCRIPT_DIR}"/opae.admin*.tar.gz
-rm -f "${SCRIPT_DIR}"/opae.admin*.rpm
+rm -rf "${RPMBUILD_DIR}"
+rm -f "${SCRIPT_DIR}"/python3-opae.admin*.rpm
