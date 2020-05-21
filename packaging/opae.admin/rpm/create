@@ -1,0 +1,59 @@
+#!/bin/bash
+shopt -o -s nounset
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+STAGING_DIR="${SCRIPT_DIR}/stage"
+SDK_DIR="$(cd "${SCRIPT_DIR}/../../../" && pwd)"
+OPAE_ADMIN_DIR="${SDK_DIR}/python/opae.admin"
+
+OPAE_ADMIN_RPM_RELEASE='3'
+
+PYTHON=`which python3 2>/dev/null`
+if [ $# -gt 0 ] && [ "$1" == "2" ]; then
+    printf "python 2 requested\n"
+    PYTHON=`which python 2>/dev/null`
+fi
+
+# Check for prerequisite packages.
+for pkg in 'python3-devel' \
+	   'rpm-build' \
+           'rpmdevtools'
+do
+    yum list installed "${pkg}" >/dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        printf "${pkg} package not found.. exiting\n"
+        exit 1
+    fi
+done
+
+rm -rf "${STAGING_DIR}"
+mkdir -p "${STAGING_DIR}"
+
+for f in 'setup.py' 'LICENSE' ; do
+    cp -r "${OPAE_ADMIN_DIR}/$f" "${STAGING_DIR}"
+done
+
+for d in 'opae' 'tests' ; do
+    cp -r "${OPAE_ADMIN_DIR}/$d" "${STAGING_DIR}"
+done
+
+cd "${STAGING_DIR}"
+
+# Create the source dist.
+${PYTHON} ./setup.py sdist
+if [ $? -ne 0 ]; then
+    printf "Failed to create source dist\n"
+    exit 1
+fi
+mv "${STAGING_DIR}"/dist/opae.admin*.tar.gz "${SCRIPT_DIR}"
+
+# Create the wheel.
+#${PYTHON} ./setup.py bdist_wheel --universal
+
+# Create the RPM.
+${PYTHON} ./setup.py bdist_rpm --release ${OPAE_ADMIN_RPM_RELEASE}
+if [ $? -ne 0 ]; then
+    printf "Failed to create RPM\n"
+    exit 1
+fi
+mv "${STAGING_DIR}"/dist/opae.admin*.rpm "${SCRIPT_DIR}"

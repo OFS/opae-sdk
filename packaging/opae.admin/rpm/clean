@@ -1,0 +1,9 @@
+#!/bin/bash
+shopt -o -s nounset
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+STAGING_DIR="${SCRIPT_DIR}/stage"
+
+rm -rf "${STAGING_DIR}"
+rm -f "${SCRIPT_DIR}"/opae.admin*.tar.gz
+rm -f "${SCRIPT_DIR}"/opae.admin*.rpm
