@@ -2,6 +2,7 @@
 shopt -o -s nounset
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+RPMBUILD_DIR="${SCRIPT_DIR}/rpmbuild"
 SDK_DIR="$(cd "${SCRIPT_DIR}/../../../" && pwd)"
 
 # Check for prerequisite packages.
@@ -19,12 +20,23 @@ do
     yum list installed "${pkg}" >/dev/null 2>&1
     if [ $? -ne 0 ]; then
         printf "${pkg} package not found.. exiting\n"
-	exit 1
+        exit 1
     fi
 done
 
-rm -rf ~/rpmbuild
-rpmdev-setuptree
+rm -rf "${RPMBUILD_DIR}"
+mkdir -p "${RPMBUILD_DIR}"
+
+for d in 'SOURCES' \
+         'BUILD' \
+         'RPMS' \
+         'SPECS' \
+         'BUILDROOT' \
+         'SRPMS'
+do
+    mkdir -p "${RPMBUILD_DIR}/$d"
+done
+#rpmdev-setuptree "${RPMBUILD_DIR}"
 
 # Create source tarball.
 cd "${SDK_DIR}/.."
@@ -67,27 +79,27 @@ tar --transform='s/opae-sdk/opae/' \
   --exclude=opae-libs/.clang-format \
   -z -c -f opae.tar.gz opae-sdk
 
-mv opae.tar.gz ~/rpmbuild/SOURCES/
+mv opae.tar.gz "${RPMBUILD_DIR}/SOURCES"
 
 cd "${SCRIPT_DIR}"
-cp ./opae.spec ~/rpmbuild/SPECS/
+cp ./opae.spec "${RPMBUILD_DIR}/SPECS"
 
 # Create RPMS.
-cd ~/rpmbuild/SPECS/
+cd "${RPMBUILD_DIR}/SPECS"
 
-rpmbuild -ba opae.spec
+rpmbuild --define="_topdir ${RPMBUILD_DIR}" -ba opae.spec
 if [ $? -ne 0 ]; then
-    printf "'rpmbuild -ba opae.spec' failed.. exiting\n"
+    printf "first rpmbuild failed.. exiting\n"
     exit 1
 fi
 
-rpmbuild -bs opae.spec
+rpmbuild --define="_topdir ${RPMBUILD_DIR}" -bs opae.spec
 if [ $? -eq 1 ]; then
-    echo "'rpmbuild -bs opae.spec' failed.. exiting"
+    echo "second rpmbuild failed.. exiting"
     exit 1
 fi
 
-# Move RPMS to build directory.
+# Move RPMS to script directory.
 cd "${SCRIPT_DIR}"
-mv ~/rpmbuild/RPMS/x86_64/opae-* "${SCRIPT_DIR}"
-mv ~/rpmbuild/SRPMS/opae-*.src.rpm "${SCRIPT_DIR}"
+mv "${RPMBUILD_DIR}"/RPMS/x86_64/opae-* "${SCRIPT_DIR}"
+mv "${RPMBUILD_DIR}"/SRPMS/opae-*.src.rpm "${SCRIPT_DIR}"

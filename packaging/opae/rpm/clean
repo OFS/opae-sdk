@@ -1,0 +1,9 @@
+#!/bin/bash
+shopt -o -s nounset
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+RPMBUILD_DIR="${SCRIPT_DIR}/rpmbuild"
+
+rm -rf "${RPMBUILD_DIR}"
+rm -f opae-*.src.rpm
+rm -f opae-*.x86_64.rpm
