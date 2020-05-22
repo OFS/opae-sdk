@@ -468,6 +468,7 @@ static void print_body(sdr_body *body, int level)
 	case BCD_plus:
 	case unicode:
 		PRINT(level + 1, "*UNSUPPORTED");
+		break;
 	default:
 		PRINT(level + 1, "*INVALID*");
 	}
