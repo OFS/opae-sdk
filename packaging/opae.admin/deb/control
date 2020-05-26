@@ -8,13 +8,13 @@ Build-Depends: debhelper (>= 11), python-all, python3-all
 Package: python-opae.admin
 Architecture: all
 Section: python
-Depends: python, ${misc:Depends}, ${python:Depends}
+Depends: python, sysvinit-utils, pciutils, ${misc:Depends}, ${python:Depends}
 Description: OPAE Administration
  Provides administration capability for Intel FPGA PAC devices.
 
 Package: python3-opae.admin
 Architecture: all
 Section: python
-Depends: python3, ${misc:Depends}, ${python3:Depends}
+Depends: python3, sysvinit-utils, pciutils, ${misc:Depends}, ${python3:Depends}
 Description: OPAE Administration
  Provides administration capability for Intel FPGA PAC devices.
