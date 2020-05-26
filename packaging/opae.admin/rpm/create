@@ -79,7 +79,7 @@ cat ./opae.admin.spec | \
     sed -e "s/@VERSION@/${PROJECT_VERSION}/" -e "s/@RELEASE@/${PROJECT_RELEASE}/" \
     > "${RPMBUILD_DIR}/SPECS/opae.admin.spec"
 
-${SDK_DIR}/packaging/changelog.py \
+${SDK_DIR}/packaging/changelog.py rpm \
     --git-dir="${SDK_DIR}/.git" \
     --project="opae.admin" \
     --project-version="${PROJECT_VERSION}" \

@@ -111,7 +111,7 @@ mv opae.tar.gz "${RPMBUILD_DIR}/SOURCES"
 cd "${SCRIPT_DIR}"
 cp ./opae.spec "${RPMBUILD_DIR}/SPECS"
 
-${SDK_DIR}/packaging/changelog.py \
+${SDK_DIR}/packaging/changelog.py rpm \
     --git-dir="${SDK_DIR}/.git" \
     --project="opae" \
     --project-version="${PROJECT_VERSION}" \
