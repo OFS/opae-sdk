@@ -30,7 +30,6 @@ try:
 except ImportError:
     from pathlib2 import Path
 
-
 version = {
     'major': 1,
     'minor': 4,
@@ -51,10 +50,9 @@ def _is_export():
 def _is_dirty():
     if not _is_export() and _git_root():
         try:
-            cp = subprocess.run(['git', 'diff-index', '--quiet', 'HEAD'])
-        except FileNotFoundError:
+            return subprocess.call(['git', 'diff-index', '--quiet', 'HEAD']) != 0
+        except (OSError, IOError):
             pass
-        return cp.returncode != 0
     return False
 
 

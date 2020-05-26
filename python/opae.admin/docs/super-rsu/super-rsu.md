@@ -1,4 +1,5 @@
-# super-rsu #
+## NAME ##
+super-rsu - PAC remote system update
 
 ## SYNOPSIS ##
 ```console

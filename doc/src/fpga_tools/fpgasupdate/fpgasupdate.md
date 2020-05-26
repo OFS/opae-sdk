@@ -1,4 +1,5 @@
-# fpgasupdate #
+## NAME ##
+fpgasupdate - PAC secure firmware update
 
 ## SYNOPSIS ##
 
@@ -14,7 +15,7 @@ The ```fpgasupdate``` command implements a secure firmware update for the follow
 `--log-level <level>`
 
     Specifies the `log-level` which is the level of information output to your command tool.
-    The following seven levels  are available: `state`, `ioctl`, `debug`, `info`, `warning`,
+    The following five levels  are available: `debug`, `info`, `warning`,
     `error`, `critical`. Setting `--log-level=state` provides the most verbose output.
     Setting `--log-level=ioctl` provides the second most information, and so on. The default
     level is `info`. 
@@ -41,7 +42,7 @@ To gather more debug output, decrease the `--log-level` parameter.
 
 `fpgasupdate firmware.bin`<br>
 `fpgasupdate firmware.bin 05:00.0`<br>
-`fpgasupdate firmware.bin 0001:04:02.0 --log-level=ioctl`
+`fpgasupdate firmware.bin 0001:04:02.0 --log-level=debug`
 
 ## Revision History ##
 

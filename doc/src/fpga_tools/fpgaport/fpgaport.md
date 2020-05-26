@@ -1,4 +1,5 @@
-# fpgaport #
+## NAME ##
+fpgaport - manage PAC port virtualization
 
 ## SYNOPSIS ##
 ```console
