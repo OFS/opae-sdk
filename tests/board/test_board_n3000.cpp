@@ -244,8 +244,18 @@ TEST_P(board_dfl_n3000_c_p, board_n3000_10) {
 	EXPECT_EQ(print_sec_info(tokens_[0]), FPGA_OK);
 }
 
+/**
+* @test       board_n3000_11
+* @brief      Tests: print_mac_info
+* @details    Validates prints mac info  <br>
+*/
+TEST_P(board_dfl_n3000_c_p, board_n3000_11) {
+
+	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
+}
+
 INSTANTIATE_TEST_CASE_P(board_dfl_n3000_c, board_dfl_n3000_c_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-n3000-dfl"})));
+	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000"})));
 
 /**
 * @test       board_n3000_4
@@ -290,8 +300,6 @@ TEST_P(board_n3000_c_p, board_n3000_6) {
 */
 TEST_P(board_n3000_c_p, board_n3000_7) {
 
-	//EXPECT_EQ(print_board_info(tokens_[0]), FPGA_OK);
-	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
 	EXPECT_EQ(print_pkvl_version(tokens_[0]), FPGA_OK);
 }
 

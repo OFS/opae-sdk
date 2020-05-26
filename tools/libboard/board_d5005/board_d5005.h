@@ -106,6 +106,17 @@ fpga_result read_mac_info(fpga_token token, uint32_t afu_channel_num,
 */
 fpga_result print_sec_info(fpga_token token);
 
+/**
+* Prints mac informantion.
+*
+* @param[in] token            fpga_token object for device (FPGA_DEVICE type)
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if mac sysfs not found.
+* FPGA_INVALID_PARAM if invalid parameters were provide
+*
+*/
+fpga_result print_mac_info(fpga_token token);
+
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

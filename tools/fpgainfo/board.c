@@ -579,10 +579,10 @@ fpga_result sec_command(fpga_token *tokens, int num_tokens, int argc,
 		}
 
 		fpgainfo_board_info(tokens[i]);
-		fpgainfo_print_common("//****** MAC ******//", props);
+		fpgainfo_print_common("//****** SEC ******//", props);
 		res = sec_info(tokens[i]);
 		if (res != FPGA_OK) {
-			printf("mac info is not supported\n");
+			printf("Sec info is not supported\n");
 		}
 
 	}
