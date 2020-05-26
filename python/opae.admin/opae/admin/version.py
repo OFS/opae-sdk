@@ -50,7 +50,8 @@ def _is_export():
 def _is_dirty():
     if not _is_export() and _git_root():
         try:
-            return subprocess.call(['git', 'diff-index', '--quiet', 'HEAD']) != 0
+            return subprocess.call(['git', 'diff-index',
+                                    '--quiet', 'HEAD']) != 0
         except (OSError, IOError):
             pass
     return False

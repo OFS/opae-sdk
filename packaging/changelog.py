@@ -32,6 +32,7 @@ import subprocess
 import sys
 import time
 
+
 class GitCommit:
     GIT_REFS_PATTERN = r'(?:\s*tag:)(?:\s+(?P<tag>[^),]+))'
     GIT_REFS_RE = re.compile(GIT_REFS_PATTERN)
@@ -111,7 +112,8 @@ class GitRepo:
 
     def _run_process(self, cmd):
         return subprocess.check_output(cmd,
-                stderr=open('/dev/null', 'w')).decode('UTF-8').strip()
+                                       stderr=open('/dev/null', 'w')
+                                       ).decode('UTF-8').strip()
 
     def _run_log_cmd(self, fmt, *args):
         cmd = ['git', '--git-dir={}'.format(self._gitdir),
