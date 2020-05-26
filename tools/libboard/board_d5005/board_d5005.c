@@ -46,19 +46,14 @@
 #include "board_d5005.h"
 #include "../board_common/board_common.h"
 
-#define MACADDR_LEN 17
-#define SDR_HEADER_LEN    3
-#define SDR_MSG_LEN       40
-
-// sysfs paths
-#define SYSFS_MACADDR_PATH                  "spi-*/spi_master/spi*/spi*.*/mac_address"
-#define SYSFS_MACCNT_PATH                   "spi-*/spi_master/spi*/spi*.*/mac_count"
+#define MACADDR_LEN 18
 
 // DFL SYSFS
-#define DFL_SYSFS_BMCFW_VER                 "dfl-fme*/spi-altera*/spi_master/spi*/spi*/bmcfw_version"
-#define DFL_SYSFS_MAX10_VER                 "dfl-fme*/spi-altera*/spi_master/spi*/spi*/bmc_version"
+#define DFL_SYSFS_BMCFW_VER                     "dfl-fme*/spi-altera*/spi_master/spi*/spi*/bmcfw_version"
+#define DFL_SYSFS_MAX10_VER                     "dfl-fme*/spi-altera*/spi_master/spi*/spi*/bmc_version"
 
-
+#define DFL_SYSFS_MACADDR_PATH                  "dfl-fme*/spi-*/spi_master/spi*/spi*.*/mac_address"
+#define DFL_SYSFS_MACCNT_PATH                   "dfl-fme*/spi-*/spi_master/spi*/spi*.*/mac_count"
 
 
 // Read BMC firmware version
@@ -149,57 +144,44 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 
 // Read mac information
 fpga_result read_mac_info(fpga_token token, uint32_t afu_channel_num,
-							struct ether_addr *mac_addr)
+						struct ether_addr *mac_addr)
 {
-	fpga_result res = FPGA_OK;
-	fpga_result resval = FPGA_OK;
-	char macaddr_buf[MACADDR_LEN];
-	fpga_object mac_addr_obj;
-	fpga_object mac_channel_obj;
-	uint64_t count;
+	fpga_result res                = FPGA_OK;
+	char mac_buf[MACADDR_LEN]      = { 0 };
+	char mac_count[MACADDR_LEN]    = { 0 };
+	uint64_t count                 = 0;
+	char *endptr                   = NULL;
 
 	if (mac_addr == NULL) {
 		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
-	res = fpgaTokenGetObject(token, SYSFS_MACADDR_PATH, &mac_addr_obj, FPGA_OBJECT_GLOB);
+	res = read_sysfs(token, DFL_SYSFS_MACADDR_PATH, mac_buf, MACADDR_LEN);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get token object");
+		OPAE_ERR("Failed to get read object");
 		return res;
 	}
 
-	res = fpgaObjectRead(mac_addr_obj, (uint8_t *)macaddr_buf, 0, sizeof(macaddr_buf), 0);
+	ether_aton_r(mac_buf, mac_addr);
+
+	res = read_sysfs(token, DFL_SYSFS_MACCNT_PATH, mac_count, MACADDR_LEN);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read object ");
-		resval = res;
-		goto out_destroy_mac;
+		OPAE_ERR("Failed to get read object");
+		return res;
 	}
 
-
-	ether_aton_r(macaddr_buf, mac_addr);
-
-	res = fpgaTokenGetObject(token, SYSFS_MACCNT_PATH, &mac_channel_obj, FPGA_OBJECT_GLOB);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get token object");
-		resval = res;
-		goto out_destroy_mac;
-	}
-
-	res = fpgaObjectRead64(mac_channel_obj, &count, 0);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read object ");
-		resval = res;
-		goto out_destroy_channel;
+	errno = 0;
+	count = strtoul(mac_count, &endptr, 16);
+	if (endptr != mac_count + strlen(mac_count)) {
+		OPAE_ERR("Failed to convert buffer to integer: %s", strerror(errno));
+		return FPGA_EXCEPTION;
 	}
 
 	if (afu_channel_num >= count) {
-		resval = FPGA_INVALID_PARAM;
 		OPAE_ERR("Invalid Input parameters");
-		goto out_destroy_channel;
+		return FPGA_INVALID_PARAM;
 	}
-
-
 
 	if ((mac_addr->ether_addr_octet[0] == 0xff) &&
 		(mac_addr->ether_addr_octet[1] == 0xff) &&
@@ -207,29 +189,13 @@ fpga_result read_mac_info(fpga_token token, uint32_t afu_channel_num,
 		(mac_addr->ether_addr_octet[3] == 0xff) &&
 		(mac_addr->ether_addr_octet[4] == 0xff) &&
 		(mac_addr->ether_addr_octet[5] == 0xff)) {
-
-		resval = FPGA_NOT_FOUND;
 		OPAE_ERR("Invalid MAC address");
-		goto out_destroy_channel;
+		return FPGA_INVALID_PARAM;
 	}
 
 	mac_addr->ether_addr_octet[5] += afu_channel_num;
 
-out_destroy_channel:
-	res = fpgaDestroyObject(&mac_channel_obj);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to destroy object");
-		resval = res;
-	}
-
-out_destroy_mac:
-	res = fpgaDestroyObject(&mac_addr_obj);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to destroy object");
-		resval = res;
-	}
-
-	return resval;
+	return res;
 }
 
 // print board information
@@ -239,9 +205,6 @@ fpga_result print_board_info(fpga_token token)
 	fpga_result resval = FPGA_OK;
 	char bmc_ver[FPGA_VAR_BUF_LEN] = { 0 };
 	char max10_ver[FPGA_VAR_BUF_LEN] = { 0 };
-	char mac_str[18] = { 0 };
-	struct ether_addr MAC;
-
 
 	res = read_bmcfw_version(token, bmc_ver, FPGA_VAR_BUF_LEN);
 	if (res != FPGA_OK) {
@@ -258,18 +221,6 @@ fpga_result print_board_info(fpga_token token)
 	printf("Board Management Controller, MAX10 NIOS FW version: %s \n", bmc_ver);
 	printf("Board Management Controller, MAX10 Build version: %s \n", max10_ver);
 
-	memset((void *)&MAC, 0, sizeof(MAC));
-
-	res = read_mac_info(token, 0, &MAC);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read mac address");
-		resval = res;
-	} else {
-		printf("%-1s : %s\n", "MAC address",
-			ether_ntoa_r(&MAC, mac_str));
-
-	}
-
 	return resval;
 }
 
@@ -277,4 +228,24 @@ fpga_result print_board_info(fpga_token token)
 fpga_result print_sec_info(fpga_token token)
 {
 	return print_sec_common_info(token);
+}
+
+// print mac information
+fpga_result print_mac_info(fpga_token token)
+{
+	char mac_str[18] = { 0 };
+	struct ether_addr MAC;
+	fpga_result res = FPGA_OK;
+
+	memset((void *)&MAC, 0, sizeof(MAC));
+
+	res = read_mac_info(token, 0, &MAC);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to read mac address");
+	} else {
+		printf("%-1s : %s\n", "MAC address",
+			ether_ntoa_r(&MAC, mac_str));
+	}
+
+	return res;
 }
