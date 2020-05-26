@@ -42,7 +42,10 @@ BuildRequires:  python3-devel
 # Note that there is no %%files section for the unversioned python module
 %files -n python3-%{srcname}
 %license %{_datadir}/doc/opae.admin/LICENSE
-%doc
+%doc %{_usr}/share/man/man1/bitstreaminfo.1.gz
+%doc %{_usr}/share/man/man1/fpgaport.1.gz
+%doc %{_usr}/share/man/man1/fpgasupdate.1.gz
+%doc %{_usr}/share/man/man1/super-rsu.1.gz
 %{python3_sitelib}/%{srcname}-*.egg-info/
 %{python3_sitelib}/opae/
 %ghost %{python3_sitelib}/opae/__init__.py
