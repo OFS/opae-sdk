@@ -4,6 +4,8 @@ on:
   schedule:
     - cron: '0 7 * * 0'
   push:
+    branches: 
+      - '*/valgrind'
 
 jobs:
   build:
