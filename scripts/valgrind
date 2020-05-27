@@ -4,13 +4,13 @@ mkdir -p valgrind
 
 for f in $(find ./bin -type f -iname "test_*" -not -name "test_pyopae") ; do
   printf "checking $f\n"
-  log="valgrind/${f}.log"
+  log="$(basename $f).log"
 
   LD_LIBRARY_PATH=$PWD/../lib \
   OPAE_EXPLICIT_INITIALIZE=1 \
   valgrind \
   -v \
-  --log-file=${log} \
+  --log-file=valgrind/${log} \
   --tool=memcheck \
   --leak-check=full \
   --undef-value-errors=yes \
