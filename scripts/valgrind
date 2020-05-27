@@ -6,12 +6,9 @@ run_valgrind() {
   local output="$1"
   local exe="$2"
   local log_file="$3"
-  local xml
 
   valgrind \
   -v \
-  --xml=yes \
-  --xml-file=${output}/valgrind/${log_file}.raw_xml \
   --log-file=${output}/valgrind/${log_file} \
   --tool=memcheck \
   --leak-check=full \
@@ -22,15 +19,6 @@ run_valgrind() {
   --malloc-fill=0xa1 \
   --free-fill=0xfe \
   ${exe}
-
-  xml=${output}/valgrind/${log_file}.xml
-
-  cat > ${xml} <<END
-<?xml version="1.0"?>
-<?xml-stylesheet type="text/xsl" href="http://spike-test-gen.sourceforge.net/valgrind.xsl"?>
-END
-
-  cat ${output}/valgrind/${log_file}.raw_xml >> ${xml}
 }
 
 if [ $# -gt 1 ]; then
