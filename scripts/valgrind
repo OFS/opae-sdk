@@ -2,13 +2,17 @@
 
 mkdir -p $1/valgrind
 
-for f in $(find ./bin -type f -iname "test_*" -not -name "test_pyopae") ; do
-  printf "checking $f\n"
-  log="$(basename $f).log"
+run_valgrind() {
+  local output="$1"
+  local exe="$2"
+  local log_file="$3"
+  local xml
 
   valgrind \
   -v \
-  --log-file=$1/valgrind/${log} \
+  --xml=yes \
+  --xml-file=${output}/valgrind/${log_file}.raw_xml \
+  --log-file=${output}/valgrind/${log_file} \
   --tool=memcheck \
   --leak-check=full \
   --undef-value-errors=yes \
@@ -17,6 +21,23 @@ for f in $(find ./bin -type f -iname "test_*" -not -name "test_pyopae") ; do
   --leak-check-heuristics=all \
   --malloc-fill=0xa1 \
   --free-fill=0xfe \
-  ${f}
+  ${exe}
 
-done
+  xml=${output}/valgrind/${log_file}.xml
+
+  cat > ${xml} <<END
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="http://spike-test-gen.sourceforge.net/valgrind.xsl"?>
+END
+
+  cat ${output}/valgrind/${log_file}.raw_xml >> ${xml}
+}
+
+if [ $# -gt 1 ]; then
+  run_valgrind "$1" "$2" "$(basename $2).log"
+else
+  for f in $(find ./bin -type f -iname "test_*" -not -name "test_pyopae") ; do
+    log="$(basename $f).log"
+    run_valgrind "$1" "$f" "${log}"
+  done
+fi
