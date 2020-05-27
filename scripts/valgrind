@@ -6,8 +6,6 @@ for f in $(find ./bin -type f -iname "test_*" -not -name "test_pyopae") ; do
   printf "checking $f\n"
   log="$(basename $f).log"
 
-  LD_LIBRARY_PATH=$PWD/../lib \
-  OPAE_EXPLICIT_INITIALIZE=1 \
   valgrind \
   -v \
   --log-file=valgrind/${log} \
