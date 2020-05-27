@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mkdir -p valgrind
+mkdir -p $1/valgrind
 
 for f in $(find ./bin -type f -iname "test_*" -not -name "test_pyopae") ; do
   printf "checking $f\n"
@@ -8,7 +8,7 @@ for f in $(find ./bin -type f -iname "test_*" -not -name "test_pyopae") ; do
 
   valgrind \
   -v \
-  --log-file=valgrind/${log} \
+  --log-file=$1/valgrind/${log} \
   --tool=memcheck \
   --leak-check=full \
   --undef-value-errors=yes \
