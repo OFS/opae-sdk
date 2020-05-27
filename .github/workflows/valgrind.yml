@@ -1,0 +1,31 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: update
+      run: sudo apt-get update -y
+    - name: Get Packages
+      uses: mstksg/get-package@v1
+      with:
+        apt-get: uuid-dev libjson-c-dev libhwloc-dev lcov
+    - name: configure
+      run: mkdir ${{ github.workspace }}/.build && cd ${{ github.workspace }}/.build && cmake .. -DCMAKE_BUILD_TYPE=Debug -DOPAE_ENABLE_MOCK=ON -DOPAE_BUILD_TESTS=ON
+    - name: make
+      run: cd ${{ github.workspace }}/.build && make -j
+    - name: set hugepages
+      run: sudo sysctl -w vm.nr_hugepages=8
+    - name: test
+      run: cd ${{ github.workspace }}/.build && ${{ github.workspace }}/scripts/valgrind
+      env:
+        OPAE_EXPLICIT_INITIALIZE: 1
+        LD_LIBRARY_PATH: ${{ github.workspace }}/.build/lib
