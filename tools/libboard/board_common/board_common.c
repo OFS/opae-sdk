@@ -45,14 +45,14 @@
 #include "board_common.h"
 
 
-#define DFL_SYSFS_SEC_GLOB "dfl-fme*/spi-altera*/spi_master/spi*/spi*/ifpga_sec_mgr/ifpga_sec*/security/"
+#define DFL_SYSFS_SEC_GLOB "dfl-fme*/spi-altera*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/"
 #define DFL_SYSFS_SEC_USER_FLASH_COUNT         DFL_SYSFS_SEC_GLOB "user_flash_count"
 #define DFL_SYSFS_SEC_BMC_CANCEL               DFL_SYSFS_SEC_GLOB "bmc_canceled_csks"
-#define DFL_SYSFS_SEC_BMC_ROOT                 DFL_SYSFS_SEC_GLOB "bmc_root_hash"
+#define DFL_SYSFS_SEC_BMC_ROOT                 DFL_SYSFS_SEC_GLOB "bmc_root_entry_hash"
 #define DFL_SYSFS_SEC_PR_CANCEL                DFL_SYSFS_SEC_GLOB "pr_canceled_csks"
-#define DFL_SYSFS_SEC_PR_ROOT                  DFL_SYSFS_SEC_GLOB "pr_root_hash"
+#define DFL_SYSFS_SEC_PR_ROOT                  DFL_SYSFS_SEC_GLOB "pr_root_entry_hash"
 #define DFL_SYSFS_SEC_SR_CANCEL                DFL_SYSFS_SEC_GLOB "sr_canceled_csks"
-#define DFL_SYSFS_SEC_SR_ROOT                  DFL_SYSFS_SEC_GLOB "sr_root_hash"
+#define DFL_SYSFS_SEC_SR_ROOT                  DFL_SYSFS_SEC_GLOB "sr_root_entry_hash"
 
 // Read sysfs
 fpga_result read_sysfs(fpga_token token, char *sysfs_path,
