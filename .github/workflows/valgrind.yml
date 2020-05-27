@@ -23,7 +23,7 @@ jobs:
     - name: set hugepages
       run: sudo sysctl -w vm.nr_hugepages=8
     - name: test
-      run: cd ${{ github.workspace }}/.build && ${{ github.workspace }}/scripts/valgrind
+      run: cd ${{ github.workspace }}/.build && ${{ github.workspace }}/scripts/valgrind ${{ github.workspace }}/.build
       env:
         OPAE_EXPLICIT_INITIALIZE: 1
         LD_LIBRARY_PATH: ${{ github.workspace }}/.build/lib
@@ -31,4 +31,4 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: valgrind
-        path: valgrind
+        path: ${{ github.workspace }}/.build/valgrind
