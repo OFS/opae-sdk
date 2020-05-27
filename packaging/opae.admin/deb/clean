@@ -1,3 +1,4 @@
+#!/bin/bash
 # Copyright(c) 2020, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -23,53 +24,15 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-import subprocess
 
-try:
-    from pathlib import Path
-except ImportError:
-    from pathlib2 import Path
+shopt -o -s nounset
 
-version = {
-    'major': 1,
-    'minor': 4,
-    'patch': 1
-}
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
+source "${SCRIPT_DIR}/../version"
 
-def _git_root():
-    for p in reversed(Path(__file__).parents):
-        if next(p.glob('.git'), None):
-            return p
+TARBALL_DIR="${SCRIPT_DIR}/opae.admin-${PROJECT_VERSION}"
 
-
-def _is_export():
-    return '$Format:%h$' == git_hash(short=True, check_dirty=False)
-
-
-def _is_dirty():
-    if not _is_export() and _git_root():
-        try:
-            return subprocess.call(['git', 'diff-index',
-                                    '--quiet', 'HEAD']) != 0
-        except (OSError, IOError):
-            pass
-    return False
-
-
-def git_hash(short=False, check_dirty=True):
-    h = '$Format:%H$'
-    if short:
-        h = h[:7]
-    return h + '*' if check_dirty and _is_dirty() else ''
-
-
-def version_info():
-    return (version['major'], version['minor'], version['patch'])
-
-
-def pretty_version():
-    ver = '{major}.{minor}.{patch}'.format(**version)
-    if _is_dirty():
-        ver += '+' + git_hash(short=True, check_dirty=False) + '*'
-    return ver
+rm -rf "${TARBALL_DIR}"
+rm -f "${SCRIPT_DIR}"/*.build "${SCRIPT_DIR}"/*.tar.xz "${SCRIPT_DIR}"/*.dsc
+rm -f "${SCRIPT_DIR}"/*.buildinfo "${SCRIPT_DIR}"/*.changes "${SCRIPT_DIR}"/*.deb

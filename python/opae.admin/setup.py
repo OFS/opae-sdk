@@ -43,10 +43,14 @@ setup(
     },
     install_requires=[],
     description="opae.admin provides Python classes for interfacing with"
-                "OPAE kernel drivers",
+                " OPAE kernel drivers",
     license="BSD3",
     keywords="OPAE accelerator fpga kernel sysfs",
-    data_files=[('share/doc/opae.admin',
-                 ['LICENSE'])],
+    data_files=[('share/doc/opae.admin', ['LICENSE']),
+                ('share/man/man1', ['docs/bitstreaminfo.1']),
+                ('share/man/man1', ['docs/fpgaport.1']),
+                ('share/man/man1', ['docs/fpgasupdate.1']),
+                ('share/man/man1', ['docs/super-rsu.1']),
+        ],
     url="https://01.org/OPAE",
 )

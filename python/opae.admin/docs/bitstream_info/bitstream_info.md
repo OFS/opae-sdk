@@ -1,4 +1,5 @@
-# bitstreaminfo #
+## NAME ##
+bitstreaminfo - PAC bitstream information
 
 ## SYNOPSIS ##
 `bitstreaminfo [--verbose | -v] file {file}`
