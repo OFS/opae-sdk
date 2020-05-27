@@ -19,5 +19,4 @@ for f in $(find ./bin -type f -iname "test_*" -not -name "test_pyopae") ; do
   --free-fill=0xfe \
   ${f}
 
-  exit 0
 done
