@@ -1,8 +1,10 @@
 #!/bin/bash
 
+mkdir -p valgrind
+
 for f in $(find ./bin -type f -iname "test_*" -not -name "test_pyopae") ; do
   printf "checking $f\n"
-  log="${f}.log"
+  log="valgrind/${f}.log"
 
   LD_LIBRARY_PATH=$PWD/../lib \
   OPAE_EXPLICIT_INITIALIZE=1 \
