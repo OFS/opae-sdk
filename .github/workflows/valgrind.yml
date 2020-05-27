@@ -1,7 +1,8 @@
 name: valgrind OPAE tests
 
 on:
-  push
+  schedule:
+    - cron: '0 7 * * 0'
 
 jobs:
   build:
