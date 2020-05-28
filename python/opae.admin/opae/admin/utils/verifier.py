@@ -242,7 +242,7 @@ class Block_0:
                 int_from_bytes(payload[:32], byteorder="big"), 66))
         if self.cert_type == database.BITSTREAM_TYPE_RK_384:
             print("\n\tHash to program =\t{0:#0{1}x}".format(
-                int_from_bytes(payload[:32], byteorder="big"), 98))
+                int_from_bytes(payload[:48], byteorder="big"), 98))
 
 
 class Block_0_dc:
