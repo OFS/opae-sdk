@@ -118,7 +118,7 @@ fpga_result read_sensor_sysfs_file(const char *sysfs, const char *file,
 	int32_t tot_bytes = 0;
 	int32_t bytes_read = 0;
 	do {
-		bytes_read = (int32_t)read(fd, *buf, stats.st_size);
+		bytes_read = (int32_t)read(fd, *buf + tot_bytes, stats.st_size - tot_bytes);
 		if (bytes_read < 0) {
 			if (errno == EINTR) {
 				bytes_read = 1; // Fool the while loop
