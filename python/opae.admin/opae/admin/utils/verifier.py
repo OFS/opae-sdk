@@ -209,6 +209,7 @@ class Block_0:
             sha384(payload).digest(), byteorder="big")
 
         self.hash = int_from_bytes(sha256(bits).digest(), byteorder="big")
+        self.payload = payload
 
     def print_block(self):
         if not self.is_good:
@@ -236,13 +237,13 @@ class Block_0:
               self.calc_sha384 else "\t\tNo match")
         if self.cert_type == database.BITSTREAM_TYPE_CANCEL:
             print("\n\tCSK to cancel =\t{}".format(
-                int_from_bytes(payload[:4], byteorder="big")))
+                int_from_bytes(self.payload[:4], byteorder="big")))
         if self.cert_type == database.BITSTREAM_TYPE_RK_256:
             print("\n\tHash to program =\t{0:#0{1}x}".format(
-                int_from_bytes(payload[:32], byteorder="big"), 66))
+                int_from_bytes(self.payload[:32], byteorder="big"), 66))
         if self.cert_type == database.BITSTREAM_TYPE_RK_384:
             print("\n\tHash to program =\t{0:#0{1}x}".format(
-                int_from_bytes(payload[:48], byteorder="big"), 98))
+                int_from_bytes(self.payload[:48], byteorder="big"), 98))
 
 
 class Block_0_dc:
