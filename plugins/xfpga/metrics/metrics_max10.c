@@ -221,12 +221,13 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 		if (FPGA_OK != result || !tmp) {
 			if (tmp) {
 				free(tmp);
+				tmp = NULL;
 			}
 			continue;
 		}
 
-		memset(&metric_name, 0, sizeof(metric_name));
-		len = strnlen(tmp, sizeof(metric_name) - 1);
+		memset(metric_name, 0, sizeof(metric_name));
+		len = strnlen(tmp, tot_bytes);
 		memcpy(metric_name, tmp, len);
 		metric_name[len] = '\0';
 		if (metric_name[len - 1] == '\n')
@@ -234,6 +235,7 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 
 		if (tmp) {
 			free(tmp);
+			tmp = NULL;
 		}
 
 		// Metrics group name and qualifier name
@@ -270,8 +272,7 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 				goto out;
 			}
 
-		}
-		else {
+		} else {
 			printf("FPGA_METRIC_TYPE_UNKNOWN \n");
 			metric_type = FPGA_METRIC_TYPE_UNKNOWN;
 		}
@@ -312,7 +313,7 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 		}
 
 		// value sysfs path
-		memset(&metrics_sysfs_path, 0, sizeof(metrics_sysfs_path));
+		memset(metrics_sysfs_path, 0, sizeof(metrics_sysfs_path));
 		len = strlen(pglob.gl_pathv[i]) - 5;
 
 		memcpy(metrics_sysfs_path, pglob.gl_pathv[i], len);
