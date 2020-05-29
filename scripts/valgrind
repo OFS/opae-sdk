@@ -6,10 +6,15 @@ run_valgrind() {
   local output="$1"
   local exe="$2"
   local log_file="$3"
+  local xml
+
+  xml="$(basename ${exe}).xml"
 
   valgrind \
   -v \
   --log-file=${output}/valgrind/${log_file} \
+  --xml=yes \
+  --xml-file=${output}/valgrind/${xml} \
   --tool=memcheck \
   --leak-check=full \
   --undef-value-errors=yes \
