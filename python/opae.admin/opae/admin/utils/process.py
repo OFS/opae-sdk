@@ -1,4 +1,4 @@
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2019-2020, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -25,6 +25,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 from __future__ import absolute_import
 import subprocess
+import sys
 from opae.admin.utils.log import LOG
 
 DRY_RUN = False
@@ -43,7 +44,7 @@ def call_process(cmd, no_dry=False):
         LOG('process').debug('process output: %s', err.output)
         raise
     else:
-        return output.decode('UTF-8')
+        return output.decode(sys.getdefaultencoding())
 
 
 def assert_not_running(programs):
