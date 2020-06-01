@@ -451,31 +451,19 @@ fpga_result dfl_fme_port_reset(int fd)
 fpga_result dfl_port_get_err_irq(int fd, uint32_t *num_irqs)
 {
 	ASSERT_NOT_NULL(num_irqs);
-	int res = opae_ioctl(fd, DFL_FPGA_PORT_ERR_GET_IRQ_NUM, num_irqs);
-	if (!res) {
-		OPAE_ERR("Ioctl DFL_FPGA_PORT_ERR_GET_IRQ_NUM error=%d", res);
-	}
-	return res;
+	return opae_ioctl(fd, DFL_FPGA_PORT_ERR_GET_IRQ_NUM, num_irqs);
 }
 
 fpga_result dfl_port_get_user_irq(int fd, uint32_t *num_irqs)
 {
 	ASSERT_NOT_NULL(num_irqs);
-	int res = opae_ioctl(fd, DFL_FPGA_PORT_UINT_GET_IRQ_NUM, num_irqs);
-	if (!res) {
-		OPAE_ERR("Ioctl DFL_FPGA_PORT_UINT_GET_IRQ_NUM error=%d", res);
-	}
-	return res;
+	return opae_ioctl(fd, DFL_FPGA_PORT_UINT_GET_IRQ_NUM, num_irqs);;
 }
 
 fpga_result dfl_fme_get_err_irq(int fd, uint32_t *num_irqs)
 {
 	ASSERT_NOT_NULL(num_irqs);
-	int res = opae_ioctl(fd, DFL_FPGA_FME_ERR_GET_IRQ_NUM, num_irqs);
-	if (!res) {
-		OPAE_ERR("Ioctl DFL_FPGA_FME_ERR_GET_IRQ_NUM error=%d", res);
-	}
-	return res;
+	return opae_ioctl(fd, DFL_FPGA_FME_ERR_GET_IRQ_NUM, num_irqs);
 }
 
 fpga_result dfl_set_irq(int fd,uint32_t start,
@@ -505,7 +493,7 @@ fpga_result dfl_set_irq(int fd,uint32_t start,
 	memcpy(irq->evtfds, eventfd, count * sizeof(int32_t));
 
 	res = opae_ioctl(fd, ioctl_id, irq);
-	if (!res) {
+	if (res) {
 		OPAE_ERR("Ioctl error=%d", res);
 	}
 
