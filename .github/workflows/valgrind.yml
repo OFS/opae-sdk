@@ -1,0 +1,37 @@
+name: valgrind OPAE tests
+
+on:
+  schedule:
+    - cron: '0 7 * * 0'
+  push:
+    branches: 
+      - '*/valgrind'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: update
+      run: sudo apt-get update -y
+    - name: Get Packages
+      uses: mstksg/get-package@v1
+      with:
+        apt-get: uuid-dev libjson-c-dev libhwloc-dev libtbb-dev valgrind
+    - name: configure
+      run: mkdir ${{ github.workspace }}/.build && cd ${{ github.workspace }}/.build && cmake .. -DCMAKE_BUILD_TYPE=Debug -DOPAE_ENABLE_MOCK=ON -DOPAE_BUILD_TESTS=ON
+    - name: make
+      run: cd ${{ github.workspace }}/.build && make -j
+    - name: set hugepages
+      run: sudo sysctl -w vm.nr_hugepages=8
+    - name: test
+      run: cd ${{ github.workspace }}/.build && ${{ github.workspace }}/scripts/valgrind ${{ github.workspace }}/.build
+      env:
+        OPAE_EXPLICIT_INITIALIZE: 1
+        LD_LIBRARY_PATH: ${{ github.workspace }}/.build/lib
+    - name: Archive Results
+      uses: actions/upload-artifact@v1
+      with:
+        name: valgrind
+        path: ${{ github.workspace }}/.build/valgrind
