@@ -55,7 +55,7 @@
 
 int usleep(unsigned);
 
-#define FME_SYSFS_INJECT_ERROR "errors/inject_error"
+#define FME_SYSFS_INJECT_ERROR "errors/inject_errors"
 
 #define ON_ERR_GOTO(res, label, desc)              \
 	do {                                       \
