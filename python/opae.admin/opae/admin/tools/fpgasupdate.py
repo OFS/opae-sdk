@@ -223,10 +223,11 @@ def do_partial_reconf(addr, filename):
     LOG.debug('command: %s', ' '.join(conf_args))
 
     try:
-        output = subprocess.check_output(conf_args).decode('utf-8')
+        output = subprocess.check_output(conf_args)
+        output = output.decode(sys.getdefaultencoding())
     except subprocess.CalledProcessError as exc:
         return (exc.returncode,
-                exc.output.decode('utf-8') +
+                exc.output.decode(sys.getdefaultencoding()) +
                 '\nPartial Reconfiguration failed')
 
     return (0, output + '\nPartial Reconfiguration OK')
