@@ -53,32 +53,12 @@ static void print_temp_info(fpga_token token)
 	uint64_t num_metrics;
 	uint64_t num_metrics_info;
 	fpga_result res = FPGA_OK;
-	uint64_t pkg_temp;
-	struct stat st;
 
 	res = fpgaGetProperties(token, &props);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "Failure reading properties from token");
 
 	fpgainfo_board_info(token);
 	fpgainfo_print_common("//****** TEMP ******//", props);
-
-	if (!stat("/sys/bus/pci/drivers/intel-fpga-pci", &st)) {
-
-		res = fpgaTokenGetObject(token, PKG_TEMP_NAME, &obj, FPGA_OBJECT_GLOB);
-		ON_FPGAINFO_ERR_GOTO(res, out_destroy, "Failure getting temp object from token");
-		res = fpgaObjectRead64(obj, &pkg_temp, FPGA_OBJECT_SYNC);
-		ON_FPGAINFO_ERR_GOTO(res, out_destroy, "Failure reading package temperature value");
-		printf("%-32s : %02ld %s\n", "Package Temperature", pkg_temp, "Centigrade");
-	}
-
-	if (!stat("/sys/bus/pci/drivers/dfl-pci", &st)) {
-
-		res = fpgaTokenGetObject(token, PKG_TEMP_UPS_DRV_NAME, &obj, FPGA_OBJECT_GLOB);
-		ON_FPGAINFO_ERR_GOTO(res, out_destroy, "Failure getting temp object from token");
-		res = fpgaObjectRead64(obj, &pkg_temp, FPGA_OBJECT_SYNC);
-		ON_FPGAINFO_ERR_GOTO(res, out_destroy, "Failure reading package temperature value");
-		printf("%-32s : %02ld %s\n", "Package Temperature", pkg_temp, "Milli Centigrade");
-	}
 
 	res = get_metrics(token, FPGA_THERMAL, metrics_info, &num_metrics_info, metrics, &num_metrics);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "reading metrics from BMC");
