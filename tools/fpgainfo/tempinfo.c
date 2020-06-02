@@ -47,7 +47,6 @@ void temp_help(void)
 static void print_temp_info(fpga_token token)
 {
 	fpga_properties props;
-	fpga_object obj = NULL;
 	fpga_metric_info metrics_info[METRICS_MAX_NUM];
 	fpga_metric metrics[METRICS_MAX_NUM];
 	uint64_t num_metrics;
@@ -55,7 +54,7 @@ static void print_temp_info(fpga_token token)
 	fpga_result res = FPGA_OK;
 
 	res = fpgaGetProperties(token, &props);
-	ON_FPGAINFO_ERR_GOTO(res, out_destroy, "Failure reading properties from token");
+	ON_FPGAINFO_ERR_GOTO(res, out_exit, "Failure reading properties from token");
 
 	fpgainfo_board_info(token);
 	fpgainfo_print_common("//****** TEMP ******//", props);
@@ -66,11 +65,6 @@ static void print_temp_info(fpga_token token)
 	print_metrics(metrics_info, num_metrics_info, metrics, num_metrics);
 
 out_destroy:
-	if (obj) {
-		res = fpgaDestroyObject(&obj);
-		ON_FPGAINFO_ERR_GOTO(res, out_exit, "destroying object");
-	}
-
 	res = fpgaDestroyProperties(&props);
 	ON_FPGAINFO_ERR_GOTO(res, out_exit, "destroying properties");
 
