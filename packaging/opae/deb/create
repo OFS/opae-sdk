@@ -31,44 +31,25 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 source "${SCRIPT_DIR}/../version"
 
-RPMBUILD_DIR="${SCRIPT_DIR}/rpmbuild"
+TARBALL_DIR="${SCRIPT_DIR}/opae-${PROJECT_VERSION}"
 SDK_DIR="$(cd "${SCRIPT_DIR}/../../../" && pwd)"
 
 # Check for prerequisite packages.
-for pkg in 'make' \
-           'cmake' \
-           'doxygen' \
-	   'hwloc-devel' \
-	   'json-c-devel' \
-	   'libuuid-devel' \
-	   'python3-sphinx' \
-	   'python3-devel' \
-	   'rpm-build' \
-           'rpmdevtools'
+for pkg in 'devscripts' \
+           'pandoc'
 do
-    yum list installed "${pkg}" >/dev/null 2>&1
+    apt list --installed "${pkg}" >/dev/null 2>&1
     if [ $? -ne 0 ]; then
         printf "${pkg} package not found.. exiting\n"
         exit 1
     fi
 done
 
-rm -rf "${RPMBUILD_DIR}"
-mkdir -p "${RPMBUILD_DIR}"
-
-for d in 'SOURCES' \
-         'BUILD' \
-         'RPMS' \
-         'SPECS' \
-         'BUILDROOT' \
-         'SRPMS'
-do
-    mkdir -p "${RPMBUILD_DIR}/$d"
-done
+rm -rf "${TARBALL_DIR}"
 
 # Create source tarball.
 cd "${SDK_DIR}/.."
-tar --transform='s/opae-sdk/opae/' \
+tar --transform="s/opae-sdk/opae-${PROJECT_VERSION}/" \
   --exclude=.git \
   --exclude=.gitignore \
   --exclude=.github \
@@ -87,16 +68,9 @@ tar --transform='s/opae-sdk/opae/' \
   --exclude=samples/hello_afu \
   --exclude=samples/hello_mpf_afu \
   --exclude=samples/intg_xeon_nlb \
-  --exclude=samples/base \
   --exclude=scripts \
   --exclude=tests \
-  --exclude=tools/fpgametrics \
-  --exclude=tools/libboard/board_dc \
-  --exclude=tools/extra/ras \
-  --exclude=tools/extra/fpgabist \
   --exclude=tools/extra/pac_hssi_config \
-  --exclude=tools/extra/fpgadiag \
-  --exclude=tools/extra/c++utils \
   --exclude=tools/extra/pyfpgadiag \
   --exclude=tools/extra/pypackager \
   --exclude=tools/utilities \
@@ -105,35 +79,55 @@ tar --transform='s/opae-sdk/opae/' \
   --exclude=opae-libs/pyopae/.clang-format \
   --exclude=opae-libs/.clang-format \
   --exclude=opae-libs/.clang-format \
-  -z -c -f opae.tar.gz opae-sdk
+  -z -c -f "opae-${PROJECT_VERSION}.tar.gz" opae-sdk
 
-mv opae.tar.gz "${RPMBUILD_DIR}/SOURCES"
+mv "opae-${PROJECT_VERSION}.tar.gz" "${SCRIPT_DIR}"
 
 cd "${SCRIPT_DIR}"
-cp ./opae.spec "${RPMBUILD_DIR}/SPECS"
+tar zxf "opae-${PROJECT_VERSION}.tar.gz"
+mkdir -p "${TARBALL_DIR}/debian/source"
 
-${SDK_DIR}/packaging/changelog.py rpm \
-    --git-dir="${SDK_DIR}/.git" \
-    --project="opae" \
-    --project-version="${PROJECT_VERSION}" \
-    >> "${RPMBUILD_DIR}/SPECS/opae.spec"
+for f in 'changelog' \
+         'opae-libs.install' \
+         'opae-devel.install' \
+         'opae-tools.install' \
+         'opae-tools-extra.install'
+do
+    sed -e "s/@VERSION@/${PROJECT_VERSION}/" \
+        -e "s/@RELEASE@/${PROJECT_RELEASE}/" \
+        $f > "${TARBALL_DIR}/debian/$f"
+done
+
+for f in 'compat' \
+         'control' \
+         'copyright' \
+         'opae-libs.dirs' \
+         'opae-devel.dirs' \
+         'opae-tools.dirs' \
+         'opae-tools-extra.dirs' \
+         'rules'
+do
+    cp $f "${TARBALL_DIR}/debian/$f"
+done
+
+cp 'format' "${TARBALL_DIR}/debian/source/format"
+
+#${SDK_DIR}/packaging/changelog.py deb \
+#    --git-dir="${SDK_DIR}/.git" \
+#    --project="opae" \
+#    --project-version="${PROJECT_VERSION}-${PROJECT_RELEASE}" \
+#    >> "${RPMBUILD_DIR}/SPECS/opae.spec"
 
 # Create RPMS.
-cd "${RPMBUILD_DIR}/SPECS"
+cd "${TARBALL_DIR}"
 
-rpmbuild --define="_topdir ${RPMBUILD_DIR}" -ba opae.spec
+debuild -i -us -uc -b
 if [ $? -ne 0 ]; then
-    printf "first rpmbuild failed.. exiting\n"
-    exit 1
-fi
-
-rpmbuild --define="_topdir ${RPMBUILD_DIR}" -bs opae.spec
-if [ $? -eq 1 ]; then
-    echo "second rpmbuild failed.. exiting"
+    printf "debuild failed.. exiting\n"
     exit 1
 fi
 
 # Move RPMS to script directory.
-cd "${SCRIPT_DIR}"
-mv "${RPMBUILD_DIR}"/RPMS/x86_64/opae-* "${SCRIPT_DIR}"
-mv "${RPMBUILD_DIR}"/SRPMS/opae-*.src.rpm "${SCRIPT_DIR}"
+#cd "${SCRIPT_DIR}"
+#mv "${RPMBUILD_DIR}"/RPMS/x86_64/opae-* "${SCRIPT_DIR}"
+#mv "${RPMBUILD_DIR}"/SRPMS/opae-*.src.rpm "${SCRIPT_DIR}"

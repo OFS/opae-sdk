@@ -1,0 +1,11 @@
+usr/lib/libopae-c.so.@VERSION@
+usr/lib/libopae-c.so.1
+usr/lib/libopae-c.so
+usr/lib/libbitstream.so.@VERSION@
+usr/lib/libbitstream.so.1
+usr/lib/libbitstream.so
+usr/lib/libopae-cxx-core.so.@VERSION@
+usr/lib/libopae-cxx-core.so.1
+usr/lib/libopae-cxx-core.so
+usr/lib/opae/libxfpga.so
+usr/lib/opae/libmodbmc.so

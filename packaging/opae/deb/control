@@ -1,0 +1,39 @@
+Source: opae
+Priority: optional
+Maintainer: OPAE Dev Team <opae@lists.01.org>
+Build-Depends: debhelper (>= 10)
+Standards-Version: 4.1.2
+Section: libs
+Homepage: https://github.com/OPAE/opae-sdk.git
+Vcs-Git: https://github.com/OPAE/opae-sdk.git
+
+Package: opae-libs
+Section: libs
+Priority: optional
+Architecture: any
+Depends: uuid-dev, libjson-c3, ${misc:Depends}
+Description: OPAE runtime
+
+Package: opae-devel
+Section: libdevel
+Priority: optional
+Architecture: any
+Multi-Arch: same
+Depends: opae-libs (= ${binary:Version})
+Description: OPAE headers, sample source, and documentation
+
+Package: opae-tools
+Section: utils
+Priority: optional
+Architecture: any
+Multi-Arch: same
+Depends: opae-libs (= ${binary:Version}), opae-devel (= ${binary:Version})
+Description: OPAE base tool binaries
+
+Package: opae-tools-extra
+Section: utils
+Priority: optional
+Architecture: any
+Multi-Arch: same
+Depends: opae-libs (= ${binary:Version}), opae-devel (= ${binary:Version})
+Description: OPAE extra tool binaries
