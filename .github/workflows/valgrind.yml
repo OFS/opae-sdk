@@ -2,10 +2,7 @@ name: valgrind OPAE tests
 
 on:
   schedule:
-    - cron: '5 0 * * *'
-  push:
-    branches: 
-      - '*/valgrind'
+    - cron: '8 0 * * *'
 
 jobs:
   build:
