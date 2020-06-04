@@ -25,9 +25,9 @@ from pacsign.verifier import (_VERIFIER_BASE,
 
 class test_verifier_base(unittest.TestCase):
     def setUp(self):
-        self._dummy_bitstream = mocksign.bitstream.create(database.CONTENT_BMC)
+        self._dummy_bitstream = mocksign.bitstream.create(database.CONTENT_SR)
         self._dummy_file = tempfile.NamedTemporaryFile(mode='w+b')
-        self._dummy_file.write(self._dummy_bitstream.getbuffer())
+        self._dummy_file.write(self._dummy_bitstream.data)
         self._dummy_file.seek(0)
 
     def tearDown(self):
@@ -35,7 +35,7 @@ class test_verifier_base(unittest.TestCase):
         # self._dummy_file.close()
 
     def test_verifier_base(self):
-        args = mocksign.args(main_command = 'BMC',
+        args = mocksign.args(main_command = 'SR',
                              root_bitstream = self._dummy_file.name)
         _VERIFIER_BASE_test = _VERIFIER_BASE(args)
 
@@ -46,7 +46,7 @@ class test_verifier_base(unittest.TestCase):
         with self.assertRaises(KeyError):
             _VERIFIER_BASE_test = _VERIFIER_BASE(args)
 
-        args.main_command = 'BMC'
+        args.main_command = 'SR'
         self._dummy_file.seek(0)
         self._dummy_file.write(bytes(0xffff))
         self._dummy_file.seek(0)
@@ -60,10 +60,11 @@ class test_verifier_base(unittest.TestCase):
 
     def test_is_Darby_PR(self):
         bs = mocksign.bitstream.create(database.CONTENT_PR)
-        bio = bs.bytes_io
+        bio = io.BytesIO()
+        bio.write(bs.data)
         offset = bio.tell()
         bio.write(database.DC_PLATFORM_NUM.to_bytes(4, 'little'))
-        bio.seek(offset + 12)
+        bio.write(bytearray(8))
         bio.write(database.PR_IDENTIFIER.to_bytes(4, 'little'))
 
         with tempfile.NamedTemporaryFile(mode='w+b') as bsfile:
@@ -72,20 +73,20 @@ class test_verifier_base(unittest.TestCase):
             bsfile.write(bio.getbuffer())
             bsfile.seek(0)
             base = _VERIFIER_BASE(args)
-            self.assertEqual(base.is_Darby_PR(base.reh, offset), True)
+            assert base.is_Darby_PR(base.reh, offset)
 
 
 '''test_run'''
 @mock.patch('pacsign.ecdsa.is_on_curve', return_value=True)
 @mock.patch('pacsign.ecdsa.inverse_mod', return_value=1)
 @pytest.mark.parametrize('cfg',
-                         [('BMC', database.CONTENT_BMC),
+                         [('SR', database.CONTENT_SR),
                           ('PR', database.CONTENT_PR)])
 def test_run(is_on_curve_patch, inverse_mod_patch, cfg):
     command, content_type = cfg[0], cfg[1]
     bs = mocksign.bitstream.create(content_type)
     with tempfile.NamedTemporaryFile(mode='w+b') as tmp:
-        tmp.write(bs.getbuffer())
+        tmp.write(bs.data)
         tmp.seek(0)
         args = mocksign.args(main_command = command,
                              root_bitstream = tmp.name,
@@ -113,7 +114,7 @@ def test_run(is_on_curve_patch, inverse_mod_patch, cfg):
 def test_is_JSON():
     bs = mocksign.bitstream.create(database.CONTENT_PR)
     with tempfile.NamedTemporaryFile('w+b') as tmp:
-        tmp.write(bs.getbuffer())
+        tmp.write(bs.data)
         tmp.seek(0)
 
         args = mocksign.args(main_command = 'PR',
@@ -128,7 +129,7 @@ def test_is_JSON():
 def test_skip_JSON():
     bs = mocksign.bitstream.create(database.CONTENT_PR)
     with tempfile.NamedTemporaryFile('w+b') as tmp:
-        tmp.write(bs.getbuffer())
+        tmp.write(bs.data)
         tmp.seek(0)
 
         args = mocksign.args(main_command = 'PR',
@@ -145,7 +146,7 @@ class test_print_bitstream(test_verifier_base):
     def setUp(self):
         self._dummy_bitstream = mocksign.bitstream.create(database.CONTENT_PR)
         self._dummy_file = tempfile.NamedTemporaryFile(mode='w+b')
-        self._dummy_file.write(self._dummy_bitstream.getbuffer())
+        self._dummy_file.write(self._dummy_bitstream.data)
         self._dummy_file.seek(0)
         self.b0 = mocksign.byte_array(self._dummy_bitstream.block0)
         self.b1 = mocksign.byte_array(self._dummy_bitstream.block1)
@@ -176,51 +177,89 @@ class test_print_bitstream(test_verifier_base):
 
 
 
-def test_Block_0_print_block():
-    bs = mocksign.bitstream.create(database.CONTENT_BMC)
-    b0 = Block_0(bs.getbuffer(), bs.payload)
-    b0.print_block()
 
-def test_Block_0_dc_print_block():
-    bs = mocksign.bitstream.create(database.CONTENT_BMC)
-    b0 = Block_0_dc(bs.getbuffer(), bs.payload)
-    b0.print_block()
+class test_printers(unittest.TestCase):
+    def setUp(self):
+        self._dummy_file = tempfile.NamedTemporaryFile('w+b')
+        self.bs = mocksign.bitstream.create(database.CONTENT_SR)
+        self._stdout_patcher = mock.patch('sys.stdout', new=io.StringIO())
+        self._stdout = self._stdout_patcher.start()
 
-def test_Block_1_print_block():
-    bs = mocksign.bitstream.create(database.CONTENT_BMC)
-    b1 = Block_1(bs.getbuffer(), bs.block0)
-    b1.print_block()
+    def tearDown(self):
+        self._stdout_patcher.stop()
 
-def test_RootEntry_print_block():
-    bs = mocksign.bitstream.create(database.CONTENT_BMC)
-    re = Root_Entry(bs.block1[16:])
+    def stdout(self, split=False):
+        text = self._stdout.getvalue().strip()
+        if split:
+            return text.split('\n')
+        return text
 
-    with mock.patch('sys.stdout', io.StringIO()) as stdout:
-        re.print_block()
-        assert stdout.getvalue().strip() != 'No root entry'
+    def test_Block_0(self):
+        b0 = Block_0(self.bs.data,
+                     self.bs.payload)
+        b0.print_block()
+        # TODO: assert stdout is valid
 
-def test_Block_0_Entry_print_block():
-    bs = mocksign.bitstream.create(database.CONTENT_BMC)
-    b0entry = Block_0_Entry(bs.b0entry)
-    b0entry.print_block()
+    def test_Block_0_dc(self):
+        b0 = Block_0_dc(self.bs.data, self.bs.payload)
+        b0.print_block()
+        # TODO: assert stdout is valid
 
-def test_CSK_print_block():
-    bs = mocksign.bitstream.create(database.CONTENT_BMC)
-    root = mock.MagicMock()
-    root.curve_magic = 0xC7B88C74
-    csk = CSK(bs.csk, root)
-    csk.print_block()
+    def test_Block_1(self):
+        b1 = Block_1(self.bs.data, self.bs.block0)
+        b1.print_block()
+        # TODO: assert stdout is valid
 
-def test_Block_1_dc_print_block():
-    bs = mocksign.bitstream.create(database.CONTENT_PR)
-    data = bs.getbuffer()
-    b0 = mock.MagicMock()
-    b0.sha256 = int.from_bytes(bs.m256be, 'big')
-    b0.sha384 = int.from_bytes(bs.m384be, 'big')
-    with mock.patch('sys.stdout', new=io.StringIO()) as stdout:
+    def test_RootEntry(self):
+        root_entry = Root_Entry(self.bs.block1[16:])
+        root_entry.print_block()
+        lines = self.stdout(split=True)
+        assert lines[0] != 'No root entry'
+        # TODO: assert stdout is valid
+
+    def test_Block_0_Entry(self):
+        b0entry = Block_0_Entry(self.bs.b0entry)
+        b0entry.print_block()
+        # TODO: assert stdout is valid
+
+    def test_CSK(self):
+        root = mock.MagicMock()
+        root.curve_magic = 0xC7B88C74
+        csk = CSK(self.bs.csk, root)
+        csk.print_block()
+        # TODO: assert stdout is valid
+
+    def test_Block_1_dc(self):
+        data = self.bs.data
+        b0 = mock.MagicMock()
+        b0.sha256 = int.from_bytes(self.bs.m256be, 'big')
+        b0.sha384 = int.from_bytes(self.bs.m384be, 'big')
+        # capture stdout from here
         b1printer = Block_1_dc(data[48:], b0)
         b1printer.print_block()
-        lines = stdout.getvalue().split('\n')
+        lines = self.stdout(split=True)
         assert lines[0] not in ['SHA-384 mismatch',
                                 "Can't find root entry"]
         assert lines[0] == 'Block 1:'
+
+    def test_DC_Root_Entry(self):
+        data = self.bs.data
+        dc_root_entry = DC_Root_Entry(data)
+        assert dc_root_entry.is_good
+        dc_root_entry.print_block()
+        # TODO: assert stdout is valid
+
+    def test_DC_CSK_Entry(self):
+        data = self.bs.data
+        dc_csk_entry = DC_CSK_Entry(data)
+        assert dc_csk_entry.is_good
+        dc_csk_entry.print_block()
+        # TODO: assert stdout is valid
+
+    def test_DC_B0_Entry(self):
+        data = self.bs.data
+        dc_b0_entry = DC_B0_Entry(data)
+        assert dc_b0_entry.is_good
+        dc_b0_entry.print_block()
+        # TODO: assert stdout is valid
+

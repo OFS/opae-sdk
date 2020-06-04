@@ -48,12 +48,13 @@ class bitstream(object):
     }
 
     def __init__(self, content_type, payload):
+        self.sig_block_offset = int(128)
         self.content_type = content_type
         self.payload = payload
         self.sign()
         self.block0 = self.create_block0()
         self.block1 = self.create_block1()
-        self.write_bytes()
+        self.data = self.write_bytes()
 
     def c2p(self):
         return self._c2p.get(self.content_type)
@@ -66,10 +67,11 @@ class bitstream(object):
 
 
     def write_bytes(self):
-        self.bytes_io = io.BytesIO()
-        self.bytes_io.write(self.block0)
-        self.bytes_io.write(self.block1)
-        self.bytes_io.write(self.payload)
+        bio = io.BytesIO()
+        bio.write(self.block0)
+        bio.write(self.block1)
+        bio.write(self.payload)
+        return bio.getbuffer()
 
 
     def create_block0(self):
@@ -92,8 +94,10 @@ class bitstream(object):
         bio.write(self.m256be)
         bio.write(self.m384be)
         bio.write(bytearray(16))
+        # Not in the doc? Or need latest doc
         bio.write(int(3).to_bytes(4, 'little'))
-        bio.write(bytearray(12))
+        bio.write(self.sig_block_offset.to_bytes(4, 'little'))
+        bio.write(bytearray(8))
         return bio.getbuffer()
 
     def create_block1(self):
