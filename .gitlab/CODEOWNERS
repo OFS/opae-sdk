@@ -21,17 +21,17 @@
 /doc/                          @tswhison @ahanani1
 
 # Build toolchain & continuous integration
-CMakeLists.txt                 @nkorde @rrojo @ccbilbre
-/scripts/                      @nkorde @rrojo @ccbilbre
-/tests/                        @nkorde @rrojo @ccbilbre
-/testing/                      @nkorde @rrojo @ccbilbre
-.travis.yml                    @nkorde @rrojo @ccbilbre
-/cmake/                        @nkorde @rrojo @ccbilbre
-.gitlab-ci.yml                 @nkorde @rrojo @ccbilbre
+CMakeLists.txt                 @amarroqu @homichel @rrojo @ccbilbre
+/scripts/                      @amarroqu @homichel @rrojo @ccbilbre
+/tests/                        @amarroqu @homichel @rrojo @ccbilbre
+/testing/                      @amarroqu @homichel @rrojo @ccbilbre
+.travis.yml                    @amarroqu @homichel @rrojo @ccbilbre
+/cmake/                        @amarroqu @homichel @rrojo @ccbilbre
+.gitlab-ci.yml                 @amarroqu @homichel @rrojo @ccbilbre
 
 # Safestring library
-/common/include/safe_string/   @nkorde @tswhison
-/safe_string/                  @nkorde @tswhison
+/common/include/safe_string/   @amarroqu @homichel @tswhison
+/safe_string/                  @amarroqu @homichel @tswhison
 
 # Codeowners
-.gitlab/CODEOWNERS             @nkorde @rrojo
+.gitlab/CODEOWNERS             @amarroqu @homichel @rrojo
