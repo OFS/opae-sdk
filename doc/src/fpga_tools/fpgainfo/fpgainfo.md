@@ -1,4 +1,5 @@
-# fpgainfo #
+## NAME ##
+fpgainfo - Display FPGA Information
 
 ## SYNOPSIS ##
 ```console

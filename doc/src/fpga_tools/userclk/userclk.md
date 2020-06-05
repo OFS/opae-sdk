@@ -1,4 +1,5 @@
-# userclk #
+## NAME ##
+userclk - Set AFU Frequency
 
 ## SYNOPSIS  ##
 

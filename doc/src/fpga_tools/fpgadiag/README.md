@@ -1,4 +1,5 @@
-# fpgadiag #
+## NAME ##
+fpgadiag - FPGA Diagnostics Test
 
 ## SYNOPSIS ##
 ```console

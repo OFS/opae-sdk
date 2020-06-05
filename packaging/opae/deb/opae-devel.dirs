@@ -1,6 +1,7 @@
 usr/include/opae
+usr/include/opae/cxx/core
 usr/src/opae/samples/hello_fpga
 usr/src/opae/samples/hello_events
 usr/src/opae/samples/object_api
-usr/lib/opae
 usr/bin
+usr/share/man/man1

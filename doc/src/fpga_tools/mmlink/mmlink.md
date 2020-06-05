@@ -1,4 +1,5 @@
-# mmlink #
+## NAME ##
+mmlink - Remote Signal Tap
 
 ## Synopsis  ##
 

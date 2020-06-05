@@ -1,8 +1,8 @@
+usr/include/opae/*.h
+usr/include/opae/cxx/core/*.h
 usr/src/opae/samples/hello_fpga/hello_fpga.c
 usr/src/opae/samples/hello_events/hello_events.c
 usr/src/opae/samples/object_api/object_api.c
-usr/lib/opae/libboard_n3000.so
-usr/lib/opae/libboard_d5005.so
 usr/bin/fpgaconf
 usr/bin/fpgainfo
 usr/bin/mmlink
@@ -13,3 +13,4 @@ usr/bin/hello_events
 usr/bin/hello_cxxcore
 usr/bin/afu_json_mgr
 usr/bin/packager
+*.1.gz usr/share/man/man1

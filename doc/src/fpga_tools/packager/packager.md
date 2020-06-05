@@ -1,4 +1,5 @@
-# packager #
+## NAME ##
+packager - Create Accelerator Function files
 
 ## SYNOPSIS ##
 

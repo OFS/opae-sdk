@@ -78,7 +78,6 @@ tar --transform="s/opae-sdk/opae-${PROJECT_VERSION}/" \
   --exclude=opae-libs/libopaecxx/.clang-format \
   --exclude=opae-libs/pyopae/.clang-format \
   --exclude=opae-libs/.clang-format \
-  --exclude=opae-libs/.clang-format \
   -z -c -f "opae-${PROJECT_VERSION}.tar.gz" opae-sdk
 
 mv "opae-${PROJECT_VERSION}.tar.gz" "${SCRIPT_DIR}"
@@ -112,13 +111,45 @@ done
 
 cp 'format' "${TARBALL_DIR}/debian/source/format"
 
-#${SDK_DIR}/packaging/changelog.py deb \
-#    --git-dir="${SDK_DIR}/.git" \
-#    --project="opae" \
-#    --project-version="${PROJECT_VERSION}-${PROJECT_RELEASE}" \
-#    >> "${RPMBUILD_DIR}/SPECS/opae.spec"
+${SDK_DIR}/packaging/changelog.py deb \
+    --git-dir="${SDK_DIR}/.git" \
+    --project="opae" \
+    --project-version="${PROJECT_VERSION}-${PROJECT_RELEASE}" \
+    > "${TARBALL_DIR}/debian/changelog"
 
-# Create RPMS.
+MAN="${TARBALL_DIR}"
+mkdir -p "${MAN}"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/fpgabist/fpgabist.md" -o "${MAN}/fpgabist.1"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/fpgaconf/fpgaconf.md" -o "${MAN}/fpgaconf.1"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/fpgadiag/README.md" -o "${MAN}/fpgadiag.1"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/fpgainfo/fpgainfo.md" -o "${MAN}/fpgainfo.1"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/mmlink/mmlink.md" -o "${MAN}/mmlink.1"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/packager/packager.md" -o "${MAN}/packager.1"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/userclk/userclk.md" -o "${MAN}/userclk.1"
+
+cd "${MAN}"
+for f in 'fpgabist.1' \
+         'fpgaconf.1' \
+         'fpgadiag.1' \
+         'fpgainfo.1' \
+         'mmlink.1' \
+         'packager.1' \
+         'userclk.1'
+do
+    gzip "$f"
+done
+
+cat > "${TARBALL_DIR}/debian/manpages" <<END
+fpgabist.1.gz
+fpgaconf.1.gz
+fpgadiag.1.gz
+fpgainfo.1.gz
+mmlink.1.gz
+packager.1.gz
+userclk.1.gz
+END
+
+# Create package.
 cd "${TARBALL_DIR}"
 
 debuild -i -us -uc -b
@@ -126,8 +157,3 @@ if [ $? -ne 0 ]; then
     printf "debuild failed.. exiting\n"
     exit 1
 fi
-
-# Move RPMS to script directory.
-#cd "${SCRIPT_DIR}"
-#mv "${RPMBUILD_DIR}"/RPMS/x86_64/opae-* "${SCRIPT_DIR}"
-#mv "${RPMBUILD_DIR}"/SRPMS/opae-*.src.rpm "${SCRIPT_DIR}"
