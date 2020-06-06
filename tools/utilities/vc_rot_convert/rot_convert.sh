@@ -47,7 +47,11 @@ echo "Step1: convert user image ${user_sof##*/} to ${pof_file##*/}"
 quartus_cpf -c $cof_file
 
 echo "Step2: extract user image"
-python extract_rot_image.py $pof_file $OUTPUT_PATH/$dest_file
+if [ `command -v python` ]; then
+	python extract_rot_image.py $pof_file $OUTPUT_PATH/$dest_file
+elif [ `command -v python3` ]; then
+	python3 extract_rot_image.py $pof_file $OUTPUT_PATH/$dest_file
+fi
 
 rm $cof_file
 echo "========================================================================="
