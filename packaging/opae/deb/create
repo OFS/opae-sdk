@@ -90,7 +90,8 @@ for f in 'changelog' \
          'opae-libs.install' \
          'opae-devel.install' \
          'opae-tools.install' \
-         'opae-tools-extra.install'
+         'opae-tools-extra.install' \
+         'opae-ase.install'
 do
     sed -e "s/@VERSION@/${PROJECT_VERSION}/" \
         -e "s/@RELEASE@/${PROJECT_RELEASE}/" \
@@ -104,6 +105,7 @@ for f in 'compat' \
          'opae-devel.dirs' \
          'opae-tools.dirs' \
          'opae-tools-extra.dirs' \
+         'opae-ase.dirs' \
          'rules'
 do
     cp $f "${TARBALL_DIR}/debian/$f"

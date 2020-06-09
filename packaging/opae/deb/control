@@ -48,3 +48,11 @@ Depends: opae-libs (= ${binary:Version}), opae-devel (= ${binary:Version}),
          ${shlibs:Depends}, ${misc:Depends},
          python3
 Description: OPAE extra tool binaries
+
+Package: opae-ase
+Section: utils
+Priority: optional
+Architecture: any
+Multi-Arch: same
+Depends: opae-libs (= ${binary:Version}), opae-devel (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: OPAE AFU Simulation Environment
