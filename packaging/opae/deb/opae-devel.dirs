@@ -5,3 +5,5 @@ usr/src/opae/samples/hello_events
 usr/src/opae/samples/object_api
 usr/bin
 usr/share/man/man1
+usr/share/opae
+usr/share/opae/python

@@ -1,1 +1,4 @@
 usr/bin
+usr/share/opae
+usr/share/opae/python
+usr/lib

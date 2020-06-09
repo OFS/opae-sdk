@@ -1,5 +1,8 @@
 usr/bin/fpgaconf
+usr/bin/fpgametrics
 usr/bin/fpgainfo
 usr/lib/opae/libboard_n3000.so
 usr/lib/opae/libboard_d5005.so
-usr/bin/fpgametrics
+LICENSE usr/share/opae
+COPYING usr/share/opae
+RELEASE_NOTES.md usr/share/opae

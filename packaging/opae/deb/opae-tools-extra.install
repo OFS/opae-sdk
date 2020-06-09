@@ -1,5 +1,35 @@
-usr/bin/userclk
-usr/bin/ras
-usr/bin/mmlink
-usr/bin/fpgadiag
+usr/bin/afu_json_mgr
+usr/bin/bist
+usr/bin/bist_app
+usr/bin/bist_app.py
+usr/bin/bist_common.py
+usr/bin/bist_def.py
+usr/bin/bist_dma.py
+usr/bin/bist_nlb0.py
+usr/bin/bist_nlb3.py
+usr/bin/fecmode
+usr/bin/fpga_dma_test
 usr/bin/fpgabist
+usr/bin/fpgadiag
+usr/bin/fpgalpbk
+usr/bin/fpgamac
+usr/bin/fpgastats
+usr/bin/fvlbypass
+usr/bin/mactest
+usr/bin/mmlink
+usr/bin/nlb0
+usr/bin/nlb3
+usr/bin/nlb7
+usr/bin/packager
+usr/bin/ras
+usr/bin/userclk
+usr/lib/libopae-c++-nlb.so
+usr/lib/libopae-c++-nlb.so.1
+usr/lib/libopae-c++-nlb.so.@VERSION@
+usr/lib/libopae-c++-utils.so
+usr/lib/libopae-c++-utils.so.1
+usr/lib/libopae-c++-utils.so.@VERSION@
+usr/share/opae/python/*
+LICENSE usr/share/opae
+COPYING usr/share/opae
+RELEASE_NOTES.md usr/share/opae
