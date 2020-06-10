@@ -3,8 +3,6 @@ usr/include/opae/cxx/core/*.h
 usr/src/opae/samples/hello_fpga/hello_fpga.c
 usr/src/opae/samples/hello_events/hello_events.c
 usr/src/opae/samples/object_api/object_api.c
-usr/bin/mmlink
-usr/bin/userclk
 usr/bin/hello_fpga
 usr/bin/object_api
 usr/bin/hello_events
@@ -16,8 +14,8 @@ usr/bin/afu_platform_info
 usr/bin/afu_synth_setup
 usr/bin/rtl_src_config
 *.1.gz usr/share/man/man1
-LICENSE usr/share/opae
-COPYING usr/share/opae
-RELEASE_NOTES.md usr/share/opae
+LICENSE usr/share/doc/opae-devel
+COPYING usr/share/doc/opae-devel
+RELEASE_NOTES.md usr/share/doc/opae-devel
 usr/share/opae/python/*
 usr/share/opae/platform/*

@@ -1,4 +1,4 @@
 usr/bin
 usr/lib
-usr/share/opae
 usr/share/opae/ase
+usr/share/doc/opae-ase

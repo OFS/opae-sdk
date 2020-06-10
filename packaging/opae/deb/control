@@ -20,7 +20,7 @@ Package: opae-libs
 Section: libs
 Priority: optional
 Architecture: any
-Depends: uuid-dev, libjson-c3, ${shlibs:Depends}, ${misc:Depends}
+Depends: uuid-dev, libjson-c3, libhwloc-dev, libtbb-dev, ${shlibs:Depends}, ${misc:Depends}
 Description: OPAE runtime
 
 Package: opae-devel
@@ -28,7 +28,7 @@ Section: libdevel
 Priority: optional
 Architecture: any
 Multi-Arch: same
-Depends: opae-libs (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Depends: opae-libs (= ${binary:Version}), python3, ${shlibs:Depends}, ${misc:Depends}
 Description: OPAE headers, sample source, and documentation
 
 Package: opae-tools

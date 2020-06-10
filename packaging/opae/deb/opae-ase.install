@@ -4,6 +4,6 @@ usr/lib/libase.so
 usr/lib/libase.so.1
 usr/lib/libase.so.@VERSION@
 usr/share/opae/ase/*
-COPYING usr/share/opae
-LICENSE usr/share/opae
-RELEASE_NOTES.md usr/share/opae
+COPYING usr/share/doc/opae-ase
+LICENSE usr/share/doc/opae-ase
+RELEASE_NOTES.md usr/share/doc/opae-ase

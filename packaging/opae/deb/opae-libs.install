@@ -9,6 +9,6 @@ usr/lib/libopae-cxx-core.so.1
 usr/lib/libopae-cxx-core.so
 usr/lib/opae/libxfpga.so
 usr/lib/opae/libmodbmc.so
-COPYING usr/share/opae
-LICENSE usr/share/opae
-RELEASE_NOTES.md usr/share/opae
+COPYING usr/share/doc/opae-libs
+LICENSE usr/share/doc/opae-libs
+RELEASE_NOTES.md usr/share/doc/opae-libs

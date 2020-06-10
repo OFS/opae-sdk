@@ -1,4 +1,3 @@
-usr/bin/afu_json_mgr
 usr/bin/bist
 usr/bin/bist_app
 usr/bin/bist_app.py
@@ -20,7 +19,6 @@ usr/bin/mmlink
 usr/bin/nlb0
 usr/bin/nlb3
 usr/bin/nlb7
-usr/bin/packager
 usr/bin/ras
 usr/bin/userclk
 usr/lib/libopae-c++-nlb.so
@@ -29,7 +27,6 @@ usr/lib/libopae-c++-nlb.so.@VERSION@
 usr/lib/libopae-c++-utils.so
 usr/lib/libopae-c++-utils.so.1
 usr/lib/libopae-c++-utils.so.@VERSION@
-usr/share/opae/python/*
-LICENSE usr/share/opae
-COPYING usr/share/opae
-RELEASE_NOTES.md usr/share/opae
+LICENSE usr/share/doc/opae-tools-extra
+COPYING usr/share/doc/opae-tools-extra
+RELEASE_NOTES.md usr/share/doc/opae-tools-extra

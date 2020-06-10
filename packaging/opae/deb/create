@@ -144,15 +144,15 @@ do
     gzip "$f"
 done
 
-cat > "${TARBALL_DIR}/debian/manpages" <<END
-fpgabist.1.gz
-fpgaconf.1.gz
-fpgadiag.1.gz
-fpgainfo.1.gz
-mmlink.1.gz
-packager.1.gz
-userclk.1.gz
-END
+# cat > "${TARBALL_DIR}/debian/manpages" <<END
+# fpgabist.1.gz
+# fpgaconf.1.gz
+# fpgadiag.1.gz
+# fpgainfo.1.gz
+# mmlink.1.gz
+# packager.1.gz
+# userclk.1.gz
+# END
 
 # Create package.
 cd "${TARBALL_DIR}"
