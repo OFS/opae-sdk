@@ -11,15 +11,13 @@ usr/bin/hello_events
 usr/bin/hello_cxxcore
 usr/bin/afu_json_mgr
 usr/bin/packager
-#afu_platform_config usr/bin
-#afu_platform_info usr/bin
-#afu_synth_setup usr/bin
-#rtl_src_config usr/bin
+usr/bin/afu_platform_config
+usr/bin/afu_platform_info
+usr/bin/afu_synth_setup
+usr/bin/rtl_src_config
 *.1.gz usr/share/man/man1
 LICENSE usr/share/opae
 COPYING usr/share/opae
 RELEASE_NOTES.md usr/share/opae
 usr/share/opae/python/*
-#usr/share/opae/platform/afu_top_ifc_db/*
-#usr/share/opae/platform/platform_db/*
-#usr/share/opae/platform/platform_if/*
+usr/share/opae/platform/*

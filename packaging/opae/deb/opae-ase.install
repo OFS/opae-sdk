@@ -1,9 +1,9 @@
-#usr/bin/afu_sim_setup
-#usr/bin/with_ase
-#usr/lib/libase.so
-#usr/lib/libase.so.1
-#usr/lib/libase.so.@VERSION@
-#usr/share/opae/ase/*
+usr/bin/afu_sim_setup
+usr/bin/with_ase
+usr/lib/libase.so
+usr/lib/libase.so.1
+usr/lib/libase.so.@VERSION@
+usr/share/opae/ase/*
 COPYING usr/share/opae
 LICENSE usr/share/opae
 RELEASE_NOTES.md usr/share/opae

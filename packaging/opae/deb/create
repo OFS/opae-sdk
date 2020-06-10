@@ -36,7 +36,16 @@ SDK_DIR="$(cd "${SCRIPT_DIR}/../../../" && pwd)"
 
 # Check for prerequisite packages.
 for pkg in 'devscripts' \
-           'pandoc'
+           'debhelper' \
+           'pandoc' \
+           'pkg-config' \
+           'uuid-dev' \
+           'libjson-c-dev' \
+           'libtbb2' \
+           'libtbb-dev' \
+           'libhwloc-dev' \
+           'python3-dev' \
+           'doxygen'
 do
     apt list --installed "${pkg}" >/dev/null 2>&1
     if [ $? -ne 0 ]; then
@@ -56,21 +65,15 @@ tar --transform="s/opae-sdk/opae-${PROJECT_VERSION}/" \
   --exclude=.travis.yml \
   --exclude=opae.spec.in \
   --exclude=opae.spec \
-  --exclude=opae-libs/external \
   --exclude=opae-libs/tests \
-  --exclude=opae-libs/plugins/ase \
   --exclude=opae-libs/cmake/config/libopae-all.spec.in \
   --exclude=opae-libs/cmake/config/run_coverage_test.sh.in \
-  --exclude=opae-libs/cmake/config/run_coverage_test_local.sh.in\
-  --exclude=external \
-  --exclude=platforms \
+  --exclude=opae-libs/cmake/config/run_coverage_test_local.sh.in \
   --exclude=samples/base \
   --exclude=samples/hello_afu \
   --exclude=samples/hello_mpf_afu \
   --exclude=samples/intg_xeon_nlb \
-  --exclude=scripts \
   --exclude=tests \
-  --exclude=tools/extra/pac_hssi_config \
   --exclude=tools/extra/pyfpgadiag \
   --exclude=tools/extra/pypackager \
   --exclude=tools/utilities \
@@ -154,7 +157,7 @@ END
 # Create package.
 cd "${TARBALL_DIR}"
 
-debuild -i -us -uc -b
+debuild --preserve-env -i -us -uc -b
 if [ $? -ne 0 ]; then
     printf "debuild failed.. exiting\n"
     exit 1
