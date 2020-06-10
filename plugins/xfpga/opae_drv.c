@@ -416,13 +416,13 @@ fpga_result dfl_port_unmap(int fd, uint64_t io_addr)
 fpga_result dfl_fme_port_assign(int fd, uint32_t flags, uint32_t port_id)
 {
 	UNUSED_PARAM(flags);
-	return opae_ioctl(fd, DFL_FPGA_FME_PORT_ASSIGN, port_id);
+	return opae_ioctl(fd, DFL_FPGA_FME_PORT_ASSIGN, &port_id);
 }
 
 fpga_result dfl_fme_port_release(int fd, uint32_t flags, uint32_t port_id)
 {
 	UNUSED_PARAM(flags);
-	return opae_ioctl(fd, DFL_FPGA_FME_PORT_RELEASE, port_id);
+	return opae_ioctl(fd, DFL_FPGA_FME_PORT_RELEASE, &port_id);
 }
 
 fpga_result dfl_fme_port_pr(int fd, uint32_t flags, uint32_t port_id,
