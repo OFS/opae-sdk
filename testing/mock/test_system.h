@@ -174,8 +174,7 @@ class test_system {
   std::map<FILE * , std::string> popen_requests_;
   static test_system *instance_;
 
-  typedef int (*open_func)(const char *pathname, int flags);
-  typedef int (*open_create_func)(const char *pathname, int flags, mode_t mode);
+  typedef int (*open_func)(const char *pathname, int flags, ...);
   typedef ssize_t (*read_func)(int fd, void *buf, size_t count);
   typedef FILE * (*fopen_func)(const char *path, const char *mode);
   typedef FILE * (*popen_func)(const char *cmd, const char *type);
@@ -198,7 +197,7 @@ typedef  int (*glob_func)(const char *pattern, int flags,
 
 
   open_func open_;
-  open_create_func open_create_;
+  open_func open_create_;
   read_func read_;
   fopen_func fopen_;
   popen_func popen_;
