@@ -31,72 +31,49 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 source "${SCRIPT_DIR}/../version"
 
-RPMBUILD_DIR="${SCRIPT_DIR}/rpmbuild"
+TARBALL_DIR="${SCRIPT_DIR}/opae-${PROJECT_VERSION}"
 SDK_DIR="$(cd "${SCRIPT_DIR}/../../../" && pwd)"
 
 # Check for prerequisite packages.
-for pkg in 'make' \
-           'cmake' \
-           'doxygen' \
-	   'hwloc-devel' \
-	   'json-c-devel' \
-	   'libuuid-devel' \
-	   'python3-sphinx' \
-	   'python3-devel' \
-	   'rpm-build' \
-           'rpmdevtools'
+for pkg in 'devscripts' \
+           'debhelper' \
+           'pandoc' \
+           'pkg-config' \
+           'uuid-dev' \
+           'libjson-c-dev' \
+           'libtbb2' \
+           'libtbb-dev' \
+           'libhwloc-dev' \
+           'python3-dev' \
+           'doxygen'
 do
-    yum list installed "${pkg}" >/dev/null 2>&1
+    apt list --installed "${pkg}" >/dev/null 2>&1
     if [ $? -ne 0 ]; then
         printf "${pkg} package not found.. exiting\n"
         exit 1
     fi
 done
 
-rm -rf "${RPMBUILD_DIR}"
-mkdir -p "${RPMBUILD_DIR}"
-
-for d in 'SOURCES' \
-         'BUILD' \
-         'RPMS' \
-         'SPECS' \
-         'BUILDROOT' \
-         'SRPMS'
-do
-    mkdir -p "${RPMBUILD_DIR}/$d"
-done
+rm -rf "${TARBALL_DIR}"
 
 # Create source tarball.
 cd "${SDK_DIR}/.."
-tar --transform='s/opae-sdk/opae/' \
+tar --transform="s/opae-sdk/opae-${PROJECT_VERSION}/" \
   --exclude=.git \
   --exclude=.gitignore \
   --exclude=.github \
   --exclude=.travis.yml \
   --exclude=opae.spec.in \
   --exclude=opae.spec \
-  --exclude=opae-libs/external \
   --exclude=opae-libs/tests \
-  --exclude=opae-libs/plugins/ase \
   --exclude=opae-libs/cmake/config/libopae-all.spec.in \
   --exclude=opae-libs/cmake/config/run_coverage_test.sh.in \
-  --exclude=opae-libs/cmake/config/run_coverage_test_local.sh.in\
-  --exclude=external \
-  --exclude=platforms \
+  --exclude=opae-libs/cmake/config/run_coverage_test_local.sh.in \
   --exclude=samples/base \
   --exclude=samples/hello_afu \
   --exclude=samples/hello_mpf_afu \
   --exclude=samples/intg_xeon_nlb \
-  --exclude=samples/base \
-  --exclude=scripts \
   --exclude=tests \
-  --exclude=tools/fpgametrics \
-  --exclude=tools/libboard/board_dc \
-  --exclude=tools/extra/ras \
-  --exclude=tools/extra/fpgabist \
-  --exclude=tools/extra/pac_hssi_config \
-  --exclude=tools/extra/fpgadiag \
-  --exclude=tools/extra/c++utils \
   --exclude=tools/extra/pyfpgadiag \
   --exclude=tools/extra/pypackager \
   --exclude=tools/utilities \
@@ -104,36 +81,84 @@ tar --transform='s/opae-sdk/opae/' \
   --exclude=opae-libs/libopaecxx/.clang-format \
   --exclude=opae-libs/pyopae/.clang-format \
   --exclude=opae-libs/.clang-format \
-  --exclude=opae-libs/.clang-format \
-  -z -c -f opae.tar.gz opae-sdk
+  -z -c -f "opae-${PROJECT_VERSION}.tar.gz" opae-sdk
 
-mv opae.tar.gz "${RPMBUILD_DIR}/SOURCES"
+mv "opae-${PROJECT_VERSION}.tar.gz" "${SCRIPT_DIR}"
 
 cd "${SCRIPT_DIR}"
-cp ./opae.spec "${RPMBUILD_DIR}/SPECS"
+tar zxf "opae-${PROJECT_VERSION}.tar.gz"
+mkdir -p "${TARBALL_DIR}/debian/source"
 
-${SDK_DIR}/packaging/changelog.py rpm \
+for f in 'changelog' \
+         'opae-libs.install' \
+         'opae-devel.install' \
+         'opae-tools.install' \
+         'opae-tools-extra.install' \
+         'opae-ase.install'
+do
+    sed -e "s/@VERSION@/${PROJECT_VERSION}/" \
+        -e "s/@RELEASE@/${PROJECT_RELEASE}/" \
+        $f > "${TARBALL_DIR}/debian/$f"
+done
+
+for f in 'compat' \
+         'control' \
+         'copyright' \
+         'opae-libs.dirs' \
+         'opae-devel.dirs' \
+         'opae-tools.dirs' \
+         'opae-tools-extra.dirs' \
+         'opae-ase.dirs' \
+         'rules'
+do
+    cp $f "${TARBALL_DIR}/debian/$f"
+done
+
+cp 'format' "${TARBALL_DIR}/debian/source/format"
+
+${SDK_DIR}/packaging/changelog.py deb \
     --git-dir="${SDK_DIR}/.git" \
     --project="opae" \
-    --project-version="${PROJECT_VERSION}" \
-    >> "${RPMBUILD_DIR}/SPECS/opae.spec"
+    --project-version="${PROJECT_VERSION}-${PROJECT_RELEASE}" \
+    > "${TARBALL_DIR}/debian/changelog"
 
-# Create RPMS.
-cd "${RPMBUILD_DIR}/SPECS"
+MAN="${TARBALL_DIR}"
+mkdir -p "${MAN}"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/fpgabist/fpgabist.md" -o "${MAN}/fpgabist.1"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/fpgaconf/fpgaconf.md" -o "${MAN}/fpgaconf.1"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/fpgadiag/README.md" -o "${MAN}/fpgadiag.1"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/fpgainfo/fpgainfo.md" -o "${MAN}/fpgainfo.1"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/mmlink/mmlink.md" -o "${MAN}/mmlink.1"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/packager/packager.md" -o "${MAN}/packager.1"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/userclk/userclk.md" -o "${MAN}/userclk.1"
 
-rpmbuild --define="_topdir ${RPMBUILD_DIR}" -ba opae.spec
+cd "${MAN}"
+for f in 'fpgabist.1' \
+         'fpgaconf.1' \
+         'fpgadiag.1' \
+         'fpgainfo.1' \
+         'mmlink.1' \
+         'packager.1' \
+         'userclk.1'
+do
+    gzip "$f"
+done
+
+# cat > "${TARBALL_DIR}/debian/manpages" <<END
+# fpgabist.1.gz
+# fpgaconf.1.gz
+# fpgadiag.1.gz
+# fpgainfo.1.gz
+# mmlink.1.gz
+# packager.1.gz
+# userclk.1.gz
+# END
+
+# Create package.
+cd "${TARBALL_DIR}"
+
+debuild --preserve-env -i -us -uc -b
 if [ $? -ne 0 ]; then
-    printf "first rpmbuild failed.. exiting\n"
+    printf "debuild failed.. exiting\n"
     exit 1
 fi
-
-rpmbuild --define="_topdir ${RPMBUILD_DIR}" -bs opae.spec
-if [ $? -eq 1 ]; then
-    echo "second rpmbuild failed.. exiting"
-    exit 1
-fi
-
-# Move RPMS to script directory.
-cd "${SCRIPT_DIR}"
-mv "${RPMBUILD_DIR}"/RPMS/x86_64/opae-* "${SCRIPT_DIR}"
-mv "${RPMBUILD_DIR}"/SRPMS/opae-*.src.rpm "${SCRIPT_DIR}"

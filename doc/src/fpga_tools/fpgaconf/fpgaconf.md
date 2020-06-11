@@ -1,4 +1,5 @@
-# fpgaconf #
+## NAME ##
+fpgaconf - configure FPGA reprogrammable region
 
 ## SYNOPSIS ##
 

@@ -1,4 +1,5 @@
-# fpgabist #
+## NAME ##
+fpgabist - FPGA built-in self test
 
 ## SYNOPSIS ##
 ```console
