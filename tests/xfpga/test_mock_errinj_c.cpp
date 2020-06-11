@@ -58,10 +58,10 @@ int dfl_port_release_ioctl(mock_object * m, int request, va_list argp){
   UNUSED_PARAM(argp);
   int retval = -1;
   errno = EINVAL;
-  int port_id = va_arg(argp,int);
+  int *port_id = va_arg(argp,int*);
 
-  if (port_id != 0) {
-    FPGA_MSG("unexpected port ID %u", port_id);
+  if (*port_id != 0) {
+    FPGA_MSG("unexpected port ID %u", *port_id);
     goto out_EINVAL;
   }
   retval = 0;
@@ -84,10 +84,10 @@ int dfl_port_assign_ioctl(mock_object * m, int request, va_list argp){
   int retval = -1;
   errno = EINVAL;
   errno = EINVAL;
-  int port_id = va_arg(argp, int);
+  int *port_id = va_arg(argp, int*);
 
-  if (port_id != 0) {
-	  FPGA_MSG("unexpected port ID %u", port_id);
+  if (*port_id != 0) {
+	  FPGA_MSG("unexpected port ID %u", *port_id);
 	  goto out_EINVAL;
   }
 
