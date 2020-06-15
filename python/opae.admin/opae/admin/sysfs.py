@@ -156,7 +156,7 @@ class sysfs_node(loggable):
             will result in an IOError being raised.
         """
         try:
-            with self._open('r') as fd:
+            with self._open('rb') as fd:
                 return fd.read().strip()
         except IOError as err:
             self.log.exception('error opening: %s - %s', self.sysfs_path, err)
