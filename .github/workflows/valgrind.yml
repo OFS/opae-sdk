@@ -3,7 +3,7 @@ name: valgrind OPAE tests
 
 on:
   schedule:
-    - cron: '8 0 * * *'
+    - cron: '0 7 * * 0'
 
 jobs:
   build:
@@ -24,6 +24,7 @@ jobs:
     - name: set hugepages
       run: sudo sysctl -w vm.nr_hugepages=8
     - name: test
+      continue-on-error: true
       run: cd ${{ github.workspace }}/.build && ${{ github.workspace }}/scripts/valgrind ${{ github.workspace }}/.build
       env:
         OPAE_EXPLICIT_INITIALIZE: 1
