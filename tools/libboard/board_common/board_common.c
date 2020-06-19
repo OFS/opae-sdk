@@ -129,7 +129,7 @@ fpga_result print_sec_common_info(fpga_token token)
 
 	// BMC Keys
 	memset(name, 0, sizeof(name));
-	res = read_sysfs(token, DFL_SYSFS_SEC_BMC_ROOT, name, SYSFS_PATH_MAX -1);
+	res = read_sysfs(token, DFL_SYSFS_SEC_BMC_ROOT, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
 		printf("BMC root entry hash: %s\n", name);
 	} else {
@@ -139,7 +139,7 @@ fpga_result print_sec_common_info(fpga_token token)
 	}
 
 	memset(name, 0, sizeof(name));
-	res = read_sysfs(token, DFL_SYSFS_SEC_BMC_CANCEL, name, SYSFS_PATH_MAX -1);
+	res = read_sysfs(token, DFL_SYSFS_SEC_BMC_CANCEL, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
 		printf("BMC CSK IDs canceled: %s\n", strlen(name) > 1 ? name : "None");
 	} else {
