@@ -82,7 +82,7 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 		return FPGA_INVALID_PARAM;
 	}
 
-	res = read_sysfs(token, DFL_SYSFS_BMCFW_VER, buf, FPGA_VAR_BUF_LEN);
+	res = read_sysfs(token, DFL_SYSFS_BMCFW_VER, buf, FPGA_VAR_BUF_LEN - 1);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get read object");
 		return res;
@@ -102,7 +102,7 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 	uint32_t var               = 0;
 	fpga_result res            = FPGA_OK;
 	int retval                 = 0;
-
+	char *endptr               = NULL;
 	if (buf == NULL ||
 		fw_ver == NULL) {
 		FPGA_ERR("Invalid Input parameters");
@@ -122,10 +122,9 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 	*/
 
 	errno = 0;
-	var = strtoul(buf, NULL, 16);
-	if (var == 0  &&
-		errno != 0) {
-		OPAE_ERR("Failed to covert buffer to integer: %s", strerror(errno));
+	var = strtoul(buf, &endptr, 16);
+	if (endptr != buf + strlen(buf)) {
+		OPAE_ERR("Failed to convert buffer to integer: %s", strerror(errno));
 		return FPGA_EXCEPTION;
 	}
 
@@ -154,7 +153,7 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 		FPGA_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
 	}
-	res = read_sysfs(token, DFL_SYSFS_MAX10_VER, buf, FPGA_VAR_BUF_LEN);
+	res = read_sysfs(token, DFL_SYSFS_MAX10_VER, buf, FPGA_VAR_BUF_LEN - 1);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get read object");
 		return res;
@@ -515,10 +514,11 @@ fpga_result print_mac_info(fpga_token token)
 	char count[MAC_BUF_LEN]          = { 0 };
 	int i                            = 0;
 	int n                            = 0;
+	char *endptr                     = NULL;
 	pkvl_mac mac;
 	unsigned int mac_byte[6] = { 0 };
 
-	res = read_sysfs(token, DFL_SYSFS_MACADDR_PATH, (char *)buf, MAC_BUF_LEN);
+	res = read_sysfs(token, DFL_SYSFS_MACADDR_PATH, (char *)buf, MAC_BUF_LEN - 1);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to read mac information");
 		return res;
@@ -529,18 +529,29 @@ fpga_result print_mac_info(fpga_token token)
 	for (i = 0; i < 6; i++)
 		buf[i] = (unsigned char)mac_byte[i];
 
-	res = read_sysfs(token, DFL_SYSFS_MACCNT_PATH, (char *)count, MAC_BUF_LEN);
+	res = read_sysfs(token, DFL_SYSFS_MACCNT_PATH, (char *)count, MAC_BUF_LEN - 1);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to read mac information");
 		return res;
 	}
 
-	n = strtol(count, NULL, 10);
+	errno = 0;
+	n = strtol(count, &endptr, 10);
+	if (endptr != count + strlen(count)) {
+		OPAE_ERR("Failed to convert buffer to integer: %s", strerror(errno));
+		return FPGA_EXCEPTION;
+	}
 	printf("%-32s : %d\n", "Number of MACs", n);
 	mac.byte[0] = buf[5];
 	mac.byte[1] = buf[4];
 	mac.byte[2] = buf[3];
 	mac.byte[3] = 0;
+
+	if (n < 0 || n > 0xFFFF) {
+		OPAE_ERR("Invalid mac count");
+		return FPGA_EXCEPTION;
+	}
+
 	for (i = 0; i < n; ++i) {
 		printf("%s %-20d : %02X:%02X:%02X:%02X:%02X:%02X\n",
 			"MAC address", i, buf[0], buf[1], buf[2],
