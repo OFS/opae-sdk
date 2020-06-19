@@ -46,7 +46,7 @@
 #include "board_d5005.h"
 #include "../board_common/board_common.h"
 
-#define MACADDR_LEN 18
+#define MACADDR_LEN 19
 
 // DFL SYSFS
 #define DFL_SYSFS_BMCFW_VER                     "dfl-fme*/spi-altera*/spi_master/spi*/spi*/bmcfw_version"
@@ -67,7 +67,7 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 		return FPGA_INVALID_PARAM;
 	}
 
-	res = read_sysfs(token, DFL_SYSFS_BMCFW_VER, buf, FPGA_VAR_BUF_LEN);
+	res = read_sysfs(token, DFL_SYSFS_BMCFW_VER, buf, FPGA_VAR_BUF_LEN -1);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get read object");
 		return res;
@@ -127,7 +127,7 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 		return FPGA_INVALID_PARAM;
 	}
 
-	res = read_sysfs(token, DFL_SYSFS_MAX10_VER, buf, FPGA_VAR_BUF_LEN);
+	res = read_sysfs(token, DFL_SYSFS_MAX10_VER, buf, FPGA_VAR_BUF_LEN -1);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get read object");
 		return res;
@@ -157,7 +157,7 @@ fpga_result read_mac_info(fpga_token token, uint32_t afu_channel_num,
 		return FPGA_INVALID_PARAM;
 	}
 
-	res = read_sysfs(token, DFL_SYSFS_MACADDR_PATH, mac_buf, MACADDR_LEN);
+	res = read_sysfs(token, DFL_SYSFS_MACADDR_PATH, mac_buf, MACADDR_LEN-1);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get read object");
 		return res;
@@ -165,7 +165,7 @@ fpga_result read_mac_info(fpga_token token, uint32_t afu_channel_num,
 
 	ether_aton_r(mac_buf, mac_addr);
 
-	res = read_sysfs(token, DFL_SYSFS_MACCNT_PATH, mac_count, MACADDR_LEN);
+	res = read_sysfs(token, DFL_SYSFS_MACCNT_PATH, mac_count, MACADDR_LEN-1);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get read object");
 		return res;

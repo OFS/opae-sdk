@@ -82,7 +82,7 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 		return FPGA_INVALID_PARAM;
 	}
 
-	res = read_sysfs(token, DFL_SYSFS_BMCFW_VER, buf, FPGA_VAR_BUF_LEN);
+	res = read_sysfs(token, DFL_SYSFS_BMCFW_VER, buf, FPGA_VAR_BUF_LEN -1);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get read object");
 		return res;
@@ -154,7 +154,7 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 		FPGA_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
 	}
-	res = read_sysfs(token, DFL_SYSFS_MAX10_VER, buf, FPGA_VAR_BUF_LEN);
+	res = read_sysfs(token, DFL_SYSFS_MAX10_VER, buf, FPGA_VAR_BUF_LEN - 1);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get read object");
 		return res;
@@ -518,7 +518,7 @@ fpga_result print_mac_info(fpga_token token)
 	pkvl_mac mac;
 	unsigned int mac_byte[6] = { 0 };
 
-	res = read_sysfs(token, DFL_SYSFS_MACADDR_PATH, (char *)buf, MAC_BUF_LEN);
+	res = read_sysfs(token, DFL_SYSFS_MACADDR_PATH, (char *)buf, MAC_BUF_LEN-1);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to read mac information");
 		return res;
@@ -529,7 +529,7 @@ fpga_result print_mac_info(fpga_token token)
 	for (i = 0; i < 6; i++)
 		buf[i] = (unsigned char)mac_byte[i];
 
-	res = read_sysfs(token, DFL_SYSFS_MACCNT_PATH, (char *)count, MAC_BUF_LEN);
+	res = read_sysfs(token, DFL_SYSFS_MACCNT_PATH, (char *)count, MAC_BUF_LEN-1);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to read mac information");
 		return res;
@@ -541,6 +541,12 @@ fpga_result print_mac_info(fpga_token token)
 	mac.byte[1] = buf[4];
 	mac.byte[2] = buf[3];
 	mac.byte[3] = 0;
+
+	if (n < 0 || n > 0xFFFF) {
+		OPAE_ERR("Invalid mac count");
+		return FPGA_EXCEPTION;
+	}
+
 	for (i = 0; i < n; ++i) {
 		printf("%s %-20d : %02X:%02X:%02X:%02X:%02X:%02X\n",
 			"MAC address", i, buf[0], buf[1], buf[2],
