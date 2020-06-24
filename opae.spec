@@ -63,18 +63,27 @@ cd _build
 %make_build  opae-c \
          bitstream \
          xfpga \
-         safestr \
          modbmc \
          opae-cxx-core \
          hello_cxxcore \
-         board_rc \
-         board_vc \
+         board_a10gx \
+         board_n3000 \
+         board_d5005 \
          fpgaconf \
+         fpgametrics \
          fpgainfo \
          userclk \
          object_api \
          hello_fpga \
          hello_events \
+         bist_app\
+         fpga_dma_N3000_test\
+         fpga_dma_test\
+         opae-c++-utils\
+         opae-c++-nlb\
+         nlb0\
+         nlb3\
+         nlb7\
          mmlink 
 
 %install
@@ -116,7 +125,6 @@ cp samples/object_api/object_api.c %{buildroot}%{_usr}/src/opae/samples/object_a
 
 cd _build
 
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=safestrlib -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaeclib -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxcorelib -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=samples -P cmake_install.cmake
@@ -127,9 +135,27 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=tooluserclk -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolmmlink -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=samplebin -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=libopaeheaders -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=safestrheaders -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolpackager -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolmmlink -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaeboardlib -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgametrics -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolbist_app -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpga_dma_test -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpga_dma_N3000_test -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgabist -P cmake_install.cmake
+
+
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxutils -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxnlb -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgadiagapps -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgadiag -P cmake_install.cmake
+
+
+prev=$PWD
+pushd %{_topdir}/BUILD/opae/python/opae.admin/
+%{__python3} setup.py install --single-version-externally-managed  --root=%{buildroot} --record=$prev/INSTALLED_FILES
+popd
 
 
 %files
@@ -152,16 +178,13 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
 
 %{_libdir}/opae/libxfpga.so*
 %{_libdir}/opae/libmodbmc.so*
-%{_libdir}/libsafestr.a*
+
 
 
 
 %files devel
 %dir %{_includedir}/opae
 %{_includedir}/opae/*
-%dir %{_includedir}/safe_string
-%{_includedir}/safe_string/safe_string.h
-%{_libdir}/libsafestr.a
 %dir %{_usr}/src/opae
 %{_usr}/src/opae/samples/hello_fpga/hello_fpga.c
 %{_usr}/src/opae/samples/hello_events/hello_events.c
@@ -169,8 +192,41 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
 %{_usr}/src/opae/cmake/*
 %{_usr}/src/opae/opae-libs/cmake/modules/*
 
-%{_libdir}/opae/libboard_rc.so*
-%{_libdir}/opae/libboard_vc.so*
+%{_libdir}/opae/libboard_a10gx.so*
+%{_libdir}/opae/libboard_n3000.so*
+%{_libdir}/opae/libboard_d5005.so*
+
+%{_bindir}/bist_app*
+%{_bindir}/bist_common.py*
+%{_bindir}/bist_dma.py*
+%{_bindir}/bist_def.py*
+%{_bindir}/bist_nlb3.py*
+%{_bindir}/bist_nlb0.py*
+%{_bindir}/fpgabist*
+
+%{_libdir}/libopae-c++-nlb.so*
+%{_libdir}/libopae-c++-utils.so*
+
+%{_bindir}/nlb0*
+%{_bindir}/nlb3*
+%{_bindir}/nlb7*
+%{_bindir}/fecmode*
+
+%{_bindir}/fpgamac*
+%{_bindir}/fvlbypass*
+%{_bindir}/mactest*
+%{_bindir}/fpgadiag*
+%{_bindir}/fpgalpbk*
+%{_bindir}/fpgastats*
+
+%{_bindir}/bitstreaminfo*
+%{_bindir}/fpgaflash*
+%{_bindir}/fpgaotsu*
+%{_bindir}/fpgaport*
+%{_bindir}/fpgasupdate*
+%{_bindir}/rsu*
+%{_bindir}/super-rsu*
+
 
 %{_bindir}/fpgaconf
 %{_bindir}/fpgainfo
@@ -182,9 +238,13 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
 %{_bindir}/hello_cxxcore
 %{_bindir}/afu_json_mgr
 %{_bindir}/packager
-
+%{_bindir}/fpgametrics
+%{_bindir}/fpga_dma_N3000_test
+%{_bindir}/fpga_dma_test
 %{_usr}/share/opae/*
 
+/usr/lib/python*
+%{_datadir}/doc/opae.admin/LICENSE
 
 %changelog
 * Tue Dec 17 2019 Korde Nakul <nakul.korde@intel.com> 1.4.0-1

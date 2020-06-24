@@ -32,3 +32,8 @@ opae_add_module_library(TARGET board_d5005
         board_common
     COMPONENT opaeboardlib
 )
+
+target_include_directories(board_d5005
+    PRIVATE
+        ${OPAE_SDK_SOURCE}/ibboard/board_common
+)
