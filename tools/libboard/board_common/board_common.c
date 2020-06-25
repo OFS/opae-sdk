@@ -118,7 +118,7 @@ fpga_result read_sysfs_int64(fpga_token token, char *sysfs_path,
 	fpga_result res = FPGA_OK;
 	fpga_object fpga_object;
 
-	if (sysfs_path == NULL ) {
+	if (sysfs_path == NULL) {
 		OPAE_ERR("Invalid input parameter");
 		return FPGA_INVALID_PARAM;
 	}
@@ -129,7 +129,7 @@ fpga_result read_sysfs_int64(fpga_token token, char *sysfs_path,
 		return res;
 	}
 
-	res = fpgaObjectRead64(fpga_object, value,0);
+	res = fpgaObjectRead64(fpga_object, value, 0);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to Read object ");
 	}

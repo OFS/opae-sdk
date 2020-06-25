@@ -63,8 +63,7 @@ fpga_result print_sec_common_info(fpga_token token);
 *
 * @param[in] token           fpga_token object for device (FPGA_DEVICE type)
 * @param[in] sysfs_path      pointer to sysfs path
-* @param[inout] value        returns sysfs value 
-
+* @param[inout] value        returns sysfs value
 * @returns FPGA_OK on success. FPGA_NOT_FOUND if invalid MAC address.
 * FPGA_INVALID_PARAM if invalid parameters were provided
 *
