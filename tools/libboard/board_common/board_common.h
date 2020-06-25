@@ -37,8 +37,8 @@ extern "C" {
 * Get sysfs value.
 *
 * @param[in] token           fpga_token object for device (FPGA_DEVICE type)
-* @param[in] bmcfw_var       pointer to sysfs path
-* @param[inout] len          returns sysfs value as string
+* @param[in] sysfs_path      pointer to sysfs path
+* @param[inout] sysfs_name   returns sysfs value as string
 * @param[in] len             size of sysfs path
 
 * @returns FPGA_OK on success. FPGA_NOT_FOUND if invalid MAC address.
@@ -58,6 +58,19 @@ fpga_result read_sysfs(fpga_token token, char *sysfs_path,
 */
 fpga_result print_sec_common_info(fpga_token token);
 
+/**
+* Get sysfs value.
+*
+* @param[in] token           fpga_token object for device (FPGA_DEVICE type)
+* @param[in] sysfs_path      pointer to sysfs path
+* @param[inout] value        returns sysfs value 
+
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if invalid MAC address.
+* FPGA_INVALID_PARAM if invalid parameters were provided
+*
+*/
+fpga_result read_sysfs_int64(fpga_token token, char *sysfs_path,
+	uint64_t *value);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

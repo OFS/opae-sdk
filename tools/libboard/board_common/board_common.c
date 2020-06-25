@@ -45,7 +45,7 @@
 #include "board_common.h"
 
 
-#define DFL_SYSFS_SEC_GLOB "dfl-fme*/spi-altera*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/"
+#define DFL_SYSFS_SEC_GLOB "dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/"
 #define DFL_SYSFS_SEC_USER_FLASH_COUNT         DFL_SYSFS_SEC_GLOB "user_flash_count"
 #define DFL_SYSFS_SEC_BMC_CANCEL               DFL_SYSFS_SEC_GLOB "bmc_canceled_csks"
 #define DFL_SYSFS_SEC_BMC_ROOT                 DFL_SYSFS_SEC_GLOB "bmc_root_entry_hash"
@@ -111,6 +111,35 @@ out_destroy:
 	return resval;
 }
 
+// read sysfs value
+fpga_result read_sysfs_int64(fpga_token token, char *sysfs_path,
+	uint64_t *value)
+{
+	fpga_result res = FPGA_OK;
+	fpga_object fpga_object;
+
+	if (sysfs_path == NULL ) {
+		OPAE_ERR("Invalid input parameter");
+		return FPGA_INVALID_PARAM;
+	}
+
+	res = fpgaTokenGetObject(token, sysfs_path, &fpga_object, FPGA_OBJECT_GLOB);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to get token Object");
+		return res;
+	}
+
+	res = fpgaObjectRead64(fpga_object, value,0);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to Read object ");
+	}
+
+	res = fpgaDestroyObject(&fpga_object);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to Destroy Object");
+	}
+	return res;
+}
 
 // Sec info
 fpga_result print_sec_common_info(fpga_token token)
