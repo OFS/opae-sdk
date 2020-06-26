@@ -318,7 +318,14 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 
 		memcpy(metrics_sysfs_path, pglob.gl_pathv[i], len);
 		metrics_sysfs_path[len] = '\0';
-		strncat(metrics_sysfs_path, DFL_VALUE, strlen(DFL_VALUE)+1);
+
+		if (strlen(metrics_sysfs_path) + sizeof(DFL_VALUE) > SYSFS_PATH_MAX) {
+			OPAE_ERR("Invalid sensor sysfs path length");
+			result = FPGA_EXCEPTION;
+			goto out;
+		}
+
+		strncat(metrics_sysfs_path, DFL_VALUE, strlen(DFL_VALUE) + 1);
 
 		result = add_metric_vector(vector, *metric_num, qualifier_name,
 			group_name, group_sysfs, metric_name,
