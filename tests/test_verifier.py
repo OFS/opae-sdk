@@ -1,13 +1,12 @@
 import io
 import json
-import os
 import pytest
 import unittest
 import tempfile
 from unittest import mock
 
 import mocksign
-from pacsign import database
+from pacsign import database, common_util
 from pacsign.verifier import (_VERIFIER_BASE,
                               verify_reader,
                               print_bitstream,
@@ -35,45 +34,36 @@ class test_verifier_base(unittest.TestCase):
         # self._dummy_file.close()
 
     def test_verifier_base(self):
-        args = mocksign.args(main_command = 'SR',
-                             root_bitstream = self._dummy_file.name)
-        _VERIFIER_BASE_test = _VERIFIER_BASE(args)
-
+        args = mocksign.args(main_command='SR',
+                             root_bitstream=self._dummy_file.name)
+        _ = _VERIFIER_BASE(args)
 
     def test_verifier_base_neg(self):
-        args = mocksign.args(main_command = 'XYZ',
-                             root_bitstream = self._dummy_file.name)
+        args = mocksign.args(main_command='XYZ',
+                             root_bitstream=self._dummy_file.name)
         with self.assertRaises(KeyError):
-            _VERIFIER_BASE_test = _VERIFIER_BASE(args)
+            _ = _VERIFIER_BASE(args)
 
         args.main_command = 'SR'
         self._dummy_file.seek(0)
         self._dummy_file.write(bytes(0xffff))
         self._dummy_file.seek(0)
         with self.assertRaises(AssertionError) as err:
-            _VERIFIER_BASE_test = _VERIFIER_BASE(args)
+            _ = _VERIFIER_BASE(args)
             self.assertIn(err.msg, 'is not a root entry hash')
-
-
 
     '''test_is_Darby_PR'''
 
     def test_is_Darby_PR(self):
-        bs = mocksign.bitstream.create(database.CONTENT_PR)
-        bio = io.BytesIO()
-        bio.write(bs.data)
-        offset = bio.tell()
-        bio.write(database.DC_PLATFORM_NUM.to_bytes(4, 'little'))
-        bio.write(bytearray(8))
-        bio.write(database.PR_IDENTIFIER.to_bytes(4, 'little'))
+        bs = mocksign.d5005_pr.create()
+        data = bs.getbuffer()
 
         with tempfile.NamedTemporaryFile(mode='w+b') as bsfile:
-            args = mocksign.args(main_command = 'PR',
-                                 root_bitstream = bsfile.name)
-            bsfile.write(bio.getbuffer())
+            bsfile.write(data)
             bsfile.seek(0)
-            base = _VERIFIER_BASE(args)
-            assert base.is_Darby_PR(base.reh, offset)
+            ba = common_util.BYTE_ARRAY("FILE", bsfile.name)
+            assert _VERIFIER_BASE.is_Darby_PR(mock.MagicMock(),
+                                              ba, bs.payload_offset)
 
 
 '''test_run'''
@@ -88,9 +78,9 @@ def test_run(is_on_curve_patch, inverse_mod_patch, cfg):
     with tempfile.NamedTemporaryFile(mode='w+b') as tmp:
         tmp.write(bs.data)
         tmp.seek(0)
-        args = mocksign.args(main_command = command,
-                             root_bitstream = tmp.name,
-                             cert_type = 'RK_256')
+        args = mocksign.args(main_command=command,
+                             root_bitstream=tmp.name,
+                             cert_type='RK_256')
 
         verify_reader_test = verify_reader(args)
         run_fname = tmp.name
@@ -110,31 +100,37 @@ def test_run(is_on_curve_patch, inverse_mod_patch, cfg):
                                run_block1,
                                run_payload)
 
+
 '''test_is_JSON'''
+
+
 def test_is_JSON():
     bs = mocksign.bitstream.create(database.CONTENT_PR)
     with tempfile.NamedTemporaryFile('w+b') as tmp:
         tmp.write(bs.data)
         tmp.seek(0)
 
-        args = mocksign.args(main_command = 'PR',
-                             root_bitstream = tmp.name,
-                             cert_type = 'RK_256')
+        args = mocksign.args(main_command='PR',
+                             root_bitstream=tmp.name,
+                             cert_type='RK_256')
         verify_reader_test = verify_reader(args)
         metadata_guid = mock.MagicMock()
         metadata_guid.data = ("XeonFPGA" + chr(0xB7) + "GBSv001").encode()
         verify_reader_test.is_JSON(metadata_guid)
 
+
 '''test_skip_JSON'''
+
+
 def test_skip_JSON():
     bs = mocksign.bitstream.create(database.CONTENT_PR)
     with tempfile.NamedTemporaryFile('w+b') as tmp:
         tmp.write(bs.data)
         tmp.seek(0)
 
-        args = mocksign.args(main_command = 'PR',
-                             root_bitstream = tmp.name,
-                             cert_type = 'RK_256')
+        args = mocksign.args(main_command='PR',
+                             root_bitstream=tmp.name,
+                             cert_type='RK_256')
         verify_reader_test = verify_reader(args)
         verify_reader_test = verify_reader(args)
         skip_JSON_contents = mock.MagicMock()
@@ -152,12 +148,11 @@ class test_print_bitstream(test_verifier_base):
         self.b1 = mocksign.byte_array(self._dummy_bitstream.block1)
         self.payload = mocksign.byte_array(self._dummy_bitstream.payload)
 
-
     '''test_print_json'''
     def test_print_json(self):
-        args = mocksign.args(main_command = 'PR',
-                             root_bitstream = self._dummy_file.name,
-                             cert_type = 'RK_256')
+        args = mocksign.args(main_command='PR',
+                             root_bitstream=self._dummy_file.name,
+                             cert_type='RK_256')
 
         print_bitstream_test = print_bitstream(args,
                                                self.b0, self.b1, self.payload)
@@ -166,16 +161,15 @@ class test_print_bitstream(test_verifier_base):
     '''test_print_payload'''
 
     def test_print_payload(self):
-        args = mocksign.args(main_command = 'PR',
-                             root_bitstream = self._dummy_file.name,
-                             cert_type = 'RK_256')
+        args = mocksign.args(main_command='PR',
+                             root_bitstream=self._dummy_file.name,
+                             cert_type='RK_256')
         print_bitstream_test = print_bitstream(args,
                                                self.b0, self.b1, self.payload)
         print_payload_b0 = mock.MagicMock()
         print_payload_bits = mock.MagicMock()
-        print_bitstream_test.print_payload(print_payload_b0, print_payload_bits)
-
-
+        print_bitstream_test.print_payload(print_payload_b0,
+                                           print_payload_bits)
 
 
 class test_printers(unittest.TestCase):
@@ -212,30 +206,30 @@ class test_printers(unittest.TestCase):
 
     def test_RootEntry(self):
         root_entry = Root_Entry(self.bs.block1[16:])
+        assert root_entry.is_good
         root_entry.print_block()
         lines = self.stdout(split=True)
         assert lines[0] != 'No root entry'
         # TODO: assert stdout is valid
 
     def test_Block_0_Entry(self):
-        b0entry = Block_0_Entry(self.bs.b0entry)
+        b0entry = Block_0_Entry(self.bs.b0_entry)
         b0entry.print_block()
         # TODO: assert stdout is valid
 
     def test_CSK(self):
         root = mock.MagicMock()
         root.curve_magic = 0xC7B88C74
-        csk = CSK(self.bs.csk, root)
+        csk = CSK(self.bs.csk_entry, root)
         csk.print_block()
         # TODO: assert stdout is valid
 
     def test_Block_1_dc(self):
-        data = self.bs.data
-        b0 = mock.MagicMock()
-        b0.sha256 = int.from_bytes(self.bs.m256be, 'big')
-        b0.sha384 = int.from_bytes(self.bs.m384be, 'big')
-        # capture stdout from here
-        b1printer = Block_1_dc(data[48:], b0)
+        bs = mocksign.d5005_pr.create(database.CONTENT_PR)
+        b0 = Block_0_dc(bs.block0, bs.payload)
+        assert b0.is_good
+        b1printer = Block_1_dc(bs.block1, b0)
+        assert b1printer.is_good
         b1printer.print_block()
         lines = self.stdout(split=True)
         assert lines[0] not in ['SHA-384 mismatch',
@@ -243,23 +237,22 @@ class test_printers(unittest.TestCase):
         assert lines[0] == 'Block 1:'
 
     def test_DC_Root_Entry(self):
-        data = self.bs.data
-        dc_root_entry = DC_Root_Entry(data)
+        bs = mocksign.d5005_pr.create()
+        dc_root_entry = DC_Root_Entry(bs.root_entry)
         assert dc_root_entry.is_good
         dc_root_entry.print_block()
         # TODO: assert stdout is valid
 
     def test_DC_CSK_Entry(self):
-        data = self.bs.data
-        dc_csk_entry = DC_CSK_Entry(data)
+        bs = mocksign.d5005_pr.create()
+        dc_csk_entry = DC_CSK_Entry(bs.csk_entry)
         assert dc_csk_entry.is_good
         dc_csk_entry.print_block()
         # TODO: assert stdout is valid
 
     def test_DC_B0_Entry(self):
-        data = self.bs.data
-        dc_b0_entry = DC_B0_Entry(data)
+        bs = mocksign.d5005_pr.create()
+        dc_b0_entry = DC_B0_Entry(bs.b0_entry)
         assert dc_b0_entry.is_good
         dc_b0_entry.print_block()
         # TODO: assert stdout is valid
-

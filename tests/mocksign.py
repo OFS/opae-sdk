@@ -32,15 +32,13 @@
 import ecdsa
 import hashlib
 import io
-import random
-import tempfile
 
 from unittest import mock
 
 from pacsign import database
 
 
-class bitstream(object):
+class bitstream(io.BytesIO):
     _c2p = {
         database.CONTENT_BMC: database.SIGN_BMC,
         database.CONTENT_PR: database.SIGN_PR,
@@ -48,16 +46,22 @@ class bitstream(object):
     }
 
     def __init__(self, content_type, payload):
-        self.sig_block_offset = int(128)
+        super(bitstream, self).__init__()
+        self.sig_block_offset = 96
         self.content_type = content_type
-        self.payload = payload
+        self.payload = self.insert_header(payload)
         self.sign()
-        self.block0 = self.create_block0()
-        self.block1 = self.create_block1()
-        self.data = self.write_bytes()
+        self.block0 = self.get_bytes(self.write_block0)
+        self.block1 = self.get_bytes(self.write_block1)
+        self.payload_offset = self.tell()
+        self.write(self.payload)
 
     def c2p(self):
         return self._c2p.get(self.content_type)
+
+    @property
+    def data(self):
+        return self.getbuffer()
 
     def sign(self):
         self.sk = ecdsa.SigningKey.generate(ecdsa.SECP256k1)
@@ -65,16 +69,13 @@ class bitstream(object):
         self.pk = self.vk.pubkey
         self.signature = self.sk.sign(self.payload)
 
+    def get_bytes(self, fn, *args, **kwargs):
+        b = self.tell()
+        fn(*args, **kwargs)
+        data = self.getvalue()[b:self.tell()]
+        return data
 
-    def write_bytes(self):
-        bio = io.BytesIO()
-        bio.write(self.block0)
-        bio.write(self.block1)
-        bio.write(self.payload)
-        return bio.getbuffer()
-
-
-    def create_block0(self):
+    def write_block0(self):
         m256 = hashlib.sha256(self.payload)
         m384 = hashlib.sha384(self.payload)
         m256le = m256.digest()
@@ -83,81 +84,169 @@ class bitstream(object):
             m256le, 'little').to_bytes(len(m256le), 'big')
         self.m384be = int.from_bytes(
             m384le, 'little').to_bytes(len(m384le), 'big')
-        bio = io.BytesIO()
         # write a valid bitstream header
-        header = [database.DESCRIPTOR_BLOCK_MAGIC_NUM,
-                  128,
-                  (database.BITSTREAM_TYPE_RK_256 << 8) | self.content_type,
-                  0]
-        for h in header:
-            bio.write(h.to_bytes(4, 'little'))
-        bio.write(self.m256be)
-        bio.write(self.m384be)
-        bio.write(bytearray(16))
+
+        ctype = (database.BITSTREAM_TYPE_RK_256 << 8) | self.content_type
+        self.write_int32(database.DESCRIPTOR_BLOCK_MAGIC_NUM,
+                         128,
+                         ctype,
+                         0)
+        self.write(self.m256be)
+        self.write(self.m384be)
+        self.write(bytearray(16))
         # Not in the doc? Or need latest doc
-        bio.write(int(3).to_bytes(4, 'little'))
-        bio.write(self.sig_block_offset.to_bytes(4, 'little'))
-        bio.write(bytearray(8))
-        return bio.getbuffer()
+        self.write_int32(3)
+        self.write(self.sig_block_offset.to_bytes(4, 'little'))
+        self.write(bytearray(8))
 
-    def create_block1(self):
-        bio = io.BytesIO()
-        bio.write(database.SIGNATURE_BLOCK_MAGIC_NUM.to_bytes(4, 'little'))
-        bio.write(bytearray(12))
-        # begin signature chain
-        # root entry
+    def write_root_entry(self):
         for v in [0xA757A046, 0xC7B88C74, 0xFFFFFFFF, 1 << 31]:
-            bio.write(int(v).to_bytes(4, 'little'))
-        bio.write(self.pk.point.x().to_bytes(48, 'big'))
-        bio.write(self.pk.point.y().to_bytes(48, 'big'))
-        bio.write(bytearray(20))
+            self.write(int(v).to_bytes(4, 'little'))
+        self.write(self.pk.point.x().to_bytes(48, 'big'))
+        self.write(self.pk.point.y().to_bytes(48, 'big'))
+        self.write(bytearray(20))
 
-        csk_begin = bio.tell()
+    def write_csk_entry(self):
         # csk entry
         for v in [0x14711C2F, 0xC7B88C74, self.c2p(), 0]:
-            bio.write(int(v).to_bytes(4, 'little'))
-        bio.write(self.pk.point.x().to_bytes(48, 'big'))
-        bio.write(self.pk.point.y().to_bytes(48, 'big'))
-        bio.write(bytearray(20))
-        bio.write(int(0xDE64437D).to_bytes(4, 'little'))
-        bio.write(self.signature[1:49]) # should be R
-        bio.write(self.signature[2:50]) # should be S
-        csk_end = bio.tell()
+            self.write(int(v).to_bytes(4, 'little'))
+        self.write(self.pk.point.x().to_bytes(48, 'big'))
+        self.write(self.pk.point.y().to_bytes(48, 'big'))
+        self.write(bytearray(20))
+        self.write(int(0xDE64437D).to_bytes(4, 'little'))
+        self.write(self.signature[1:49])  # should be R
+        self.write(self.signature[2:50])  # should be S
 
-        # block 0 entry
+    def write_b0_entry(self):
         for v in [0x15364367, 0xDE64437D]:
-            bio.write(int(v).to_bytes(4, 'little'))
+            self.write(int(v).to_bytes(4, 'little'))
 
-        bio.write(self.signature[1:49]) # should be R
-        bio.write(self.signature[2:50]) # should be S
-        b0entry_end = bio.tell()
+        self.write(self.signature[1:49])  # should be R
+        self.write(self.signature[2:50])  # should be S
 
-        bio.write(bytearray(896-bio.tell()))
-        data =  bio.getbuffer()
-        self.csk = data[csk_begin:csk_end]
-        self.b0entry = data[csk_end:b0entry_end]
+    def write_b1_header(self):
+        self.write(database.SIGNATURE_BLOCK_MAGIC_NUM.to_bytes(4, 'little'))
+        self.write(bytearray(12))
 
-        return data
+    def write_block1(self):
+        begin = self.tell()
+        self.write_b1_header()
+        # begin signature chain
+        # root entry
+        self.root_entry = self.get_bytes(self.write_root_entry)
+        # csk entry
+        self.csk_entry = self.get_bytes(self.write_csk_entry)
+        # block 0 entry
+        self.b0_entry = self.get_bytes(self.write_b0_entry)
+        # padding
+        self.write(bytearray(896-(self.tell()-begin)))
 
     @classmethod
     def create(cls, content_type, size=1024):
         # put random bytes in a BytesIO object
         random_buffer = io.BytesIO()
-        with open('/dev/urandom', 'rb') as tmp:
-            random_buffer.write(tmp.read(size))
-
-        if content_type == database.CONTENT_PR:
-            random_buffer.seek(0)
-            random_buffer.write(database.DC_PLATFORM_NUM.to_bytes(4, 'little'))
-            random_buffer.seek(12)
-            random_buffer.write(database.PR_IDENTIFIER.to_bytes(4, 'little'))
-
+        random_buffer.write(bytearray(size))
         payload = random_buffer.getbuffer()
         bs = cls(content_type, payload)
         return bs
 
-    def getbuffer(self):
-        return self.bytes_io.getbuffer()
+    def insert_header(self, data):
+        return data
+
+    def write_int32(self, *args, **kwargs):
+        endian = kwargs.get('endian', 'little')
+        for v in args:
+            self.write(int(v).to_bytes(4, endian))
+
+    def write_int64(self, *args, **kwargs):
+        endian = kwargs.get('endian', 'little')
+        for v in args:
+            self.write(int(v).to_bytes(8, endian))
+
+
+class d5005_pr(bitstream):
+
+    @classmethod
+    def create(cls, content_type=database.CONTENT_PR, size=1024):
+        return super(d5005_pr, cls).create(database.CONTENT_PR, size)
+
+    def insert_header(self, data):
+        bio = io.BytesIO()
+        bio.write(database.DC_PLATFORM_NUM.to_bytes(4, 'little'))
+        bio.write(bytearray(8))
+        bio.write(database.PR_IDENTIFIER.to_bytes(4, 'little'))
+        bio.write(data[bio.tell():])
+        return bio.getbuffer()
+
+    def write_block0(self):
+        for i in range(0, 0x1000, 4):
+            self.write(int(i).to_bytes(4, 'little'))
+
+    def write_b1_header(self):
+        sha384 = hashlib.sha384(self.block0)
+        digest = sha384.digest()
+        self.write(digest)
+        self.write(bytearray(64-len(digest)))
+        # number of entries, root, csk, b0
+        self.write(int(3).to_bytes(4, 'little'))
+        # offset to first entry in signature block
+        self.write(int(0x60).to_bytes(4, 'little'))
+        self.write_int64(0, 0, 0)
+
+    def write_root_entry(self):
+        data = self.pk.point.x().to_bytes(32, 'big')
+        data += self.pk.point.y().to_bytes(32, 'big')
+        self.write_int32(database.DC_ROOT_ENTRY_MAGIC,
+                         0x78, 0x60, 0, 0, 1)
+
+        chksum = hashlib.sha256(data).digest()
+        self.write(chksum[0:4])
+
+        self.write_int32(0, database.DC_XY_KEY_MAGIC,
+                         32, 32,
+                         )
+        cinfo = database.get_curve_info_from_name('secp256r1')
+        self.write_int32(cinfo.dc_curve_magic_num,
+                         0xFFFFFFFF, 0xFFFFFFFF)
+        self.write(data)
+
+    def write_csk_entry(self):
+        cinfo = database.get_curve_info_from_name('secp256r1')
+        self.write_int32(database.DC_CSK_MAGIC_NUM,
+                         0xc0,
+                         0x58,
+                         0x50,
+                         0,
+                         0)
+        # csk body
+        self.write_int32(database.DC_XY_KEY_MAGIC,
+                         0x20,
+                         0x20,
+                         cinfo.dc_curve_magic_num,
+                         0x2,
+                         0)  # pub csk id
+
+        self.write(self.pk.point.x().to_bytes(32, 'big'))
+        self.write(self.pk.point.y().to_bytes(32, 'big'))
+        self.write_int32(database.DC_SIGNATURE_MAGIC_NUM,
+                         0x20,
+                         0x20,
+                         cinfo.dc_sig_hash_magic_num)
+        # sign csk body sha256 but use 0 for now
+        self.write(bytearray(64))
+
+    def write_b0_entry(self):
+        begin = self.tell()
+        cinfo = database.get_curve_info_from_name('secp256r1')
+        self.write_int32(database.BLOCK0_MAGIC_NUM,
+                         0x68, 0, 0x50, 0, 0,
+                         database.DC_SIGNATURE_MAGIC_NUM,
+                         0x20, 0x20, cinfo.dc_sig_hash_magic_num)
+        b0_entry_size = self.tell() - begin
+
+        # Signature R & S
+        # or zeroes
+        self.write(bytearray(0x68-b0_entry_size))
 
 
 class byte_array(object):
@@ -170,9 +259,9 @@ class byte_array(object):
     def get_word(self, offset):
         return int.from_bytes(self.data[offset:offset+2], 'little')
 
+
 def args(**kwargs):
     m = mock.MagicMock()
     for k, v in kwargs.items():
         setattr(m, k, v)
     return m
-
