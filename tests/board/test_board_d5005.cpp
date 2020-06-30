@@ -264,7 +264,7 @@ TEST_P(board_dfl_d5005_c_p, board_d5005_5) {
 	EXPECT_EQ(read_sysfs(tokens_[0], NULL, sysfs_name,len), FPGA_INVALID_PARAM);
 	EXPECT_EQ(read_sysfs(tokens_[0], sysfs_path, NULL, len), FPGA_INVALID_PARAM);
 	EXPECT_EQ(read_sysfs(tokens_[0], NULL, NULL, len), FPGA_INVALID_PARAM);
-	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*/spi-altera*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count",
+	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count",
 		sysfs_name, 0), FPGA_EXCEPTION);
 }
 
@@ -277,9 +277,9 @@ TEST_P(board_dfl_d5005_c_p, board_d5005_6) {
 
 	char name[SYSFS_PATH_MAX] = { 0 };
 
-	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*/spi-altera*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count",
+	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count",
 		name, SYSFS_PATH_MAX), FPGA_OK);
-	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*/spi-altera*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count1",
+	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count1",
 		name, SYSFS_PATH_MAX), FPGA_NOT_FOUND);
 
 	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*", NULL, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
@@ -293,11 +293,11 @@ TEST_P(board_dfl_d5005_c_p, board_d5005_6) {
 */
 TEST_P(board_dfl_d5005_c_p, board_d5005_7) {
 
-	delete_sysfs_file((char*)"dfl-fme*/spi-altera*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count");
-	delete_sysfs_file((char*)"dfl-fme*/spi-altera*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/bmc_canceled_csks");
-	delete_sysfs_file((char*)"dfl-fme*/spi-altera*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/bmc_root_entry_hash");
-	delete_sysfs_file((char*)"dfl-fme*/spi-altera*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/sr_canceled_csks");
-	delete_sysfs_file((char*)"dfl-fme*/spi-altera*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/sr_root_entry_hash");
+	delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count");
+	delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/bmc_canceled_csks");
+	delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/bmc_root_entry_hash");
+	delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/sr_canceled_csks");
+	delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/sr_root_entry_hash");
 	EXPECT_NE(print_sec_info(tokens_[0]), FPGA_OK);
 }
 
@@ -308,8 +308,8 @@ TEST_P(board_dfl_d5005_c_p, board_d5005_7) {
 */
 TEST_P(board_dfl_d5005_c_p, board_d5005_8) {
 
-	delete_sysfs_file((char*)"dfl-fme*/spi-altera*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/pr_canceled_csks");
-	delete_sysfs_file((char*)"dfl-fme*/spi-altera*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/pr_root_entry_hash");
+	delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/pr_canceled_csks");
+	delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/pr_root_entry_hash");
 	EXPECT_NE(print_sec_info(tokens_[0]), FPGA_OK);
 }
 
@@ -333,7 +333,7 @@ TEST_P(board_dfl_d5005_c_p, board_d5005_9) {
 
 	char mac_buf[18] = { 0 };
 	strncpy(mac_buf, "ff:ff:ff:ff:ff:ff", 18);
-	write_sysfs_file((char*)"dfl-fme*/spi-*/spi_master/spi*/spi*.*/mac_address",
+	write_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*.*/mac_address",
 	(void*)mac_buf,18);
 	EXPECT_EQ(read_mac_info(tokens_[0], 0, &mac_addr), FPGA_INVALID_PARAM);
 

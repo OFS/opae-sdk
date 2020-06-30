@@ -45,20 +45,17 @@
 #include "board_n3000.h"
 
 // DFL SYSFS
-#define DFL_SYSFS_BMCFW_VER                  "dfl-fme*/spi-altera*/spi_master/spi*/spi*/bmcfw_version"
-#define DFL_SYSFS_MAX10_VER                  "dfl-fme*/spi-altera*/spi_master/spi*/spi*/bmc_version"
+#define DFL_SYSFS_BMCFW_VER                  "dfl-fme*/*spi*/spi_master/spi*/spi*/bmcfw_version"
+#define DFL_SYSFS_MAX10_VER                  "dfl-fme*/*spi*/spi_master/spi*/spi*/bmc_version"
 
-#define DFL_SYSFS_MACADDR_PATH               "dfl-fme*/spi-*/spi_master/spi*/spi*.*/mac_address"
-#define DFL_SYSFS_MACCNT_PATH                "dfl-fme*/spi-*/spi_master/spi*/spi*.*/mac_count"
+#define DFL_SYSFS_MACADDR_PATH               "dfl-fme*/*spi*/spi_master/spi*/spi*.*/mac_address"
+#define DFL_SYSFS_MACCNT_PATH                "dfl-fme*/*spi*/spi_master/spi*/spi*.*/mac_count"
 
+#define DFL_SYSFS_PKVL_A_SBUS_VER            "dfl-fme*/*spi*/spi_master/spi*/spi*.*/*pkvl*/A_sbus_version"
+#define DFL_SYSFS_PKVL_A_SERDES_VER          "dfl-fme*/*spi*/spi_master/spi*/spi*.*/*pkvl*/A_serdes_version"
 
-#define SYSFS_PKVL_POLL_MODE                "spi-altera.*.auto/spi_master/spi*/spi*.*/pkvl/polling_mode"
-#define SYSFS_PKVL_STATUS                   "spi-altera.*.auto/spi_master/spi*/spi*.*/pkvl/status"
-#define SYSFS_BS_ID                         "bitstream_id"
-#define SYSFS_PHY_GROUP_INFO                "pac_n3000_net*/misc/eth_group*.*"
-#define SYSFS_PHY_GROUP_INFO_DEV            "pac_n3000_net*/misc/eth_group*/dev"
-#define SYSFS_PKVL_A_VER                    "spi-altera.*.auto/spi_master/spi*/spi*.*/pkvl/pkvl_a_version"
-#define SYSFS_PKVL_B_VER                    "spi-altera.*.auto/spi_master/spi*/spi*.*/pkvl/pkvl_b_version"
+#define DFL_SYSFS_PKVL_B_SBUS_VER            "dfl-fme*/*spi*/spi_master/spi*/spi*.*/*pkvl*/B_sbus_version"
+#define DFL_SYSFS_PKVL_B_SERDES_VER          "dfl-fme*/*spi*/spi_master/spi*/spi*.*/*pkvl*/B_serdes_version"
 
 
 // driver ioctl id
@@ -168,342 +165,55 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 }
 
 
-// Read PKVL information
-fpga_result read_pkvl_info(fpga_token token,
-			   fpga_pkvl_info *pkvl_info,
-			   int *fpga_mode)
-{
-	fpga_result res                    = FPGA_OK;
-	fpga_result resval                 = FPGA_OK;
-	uint64_t bs_id                     = 0;
-	uint64_t poll_mode                 = 0;
-	uint64_t status                    = 0;
-	fpga_object poll_mode_object;
-	fpga_object status_object;
-	fpga_object bsid_object;
-
-	if (pkvl_info == NULL ||
-		fpga_mode == NULL) {
-		FPGA_ERR("Invalid Input parameters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	res = fpgaTokenGetObject(token, SYSFS_BS_ID, &bsid_object, FPGA_OBJECT_GLOB);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get token object");
-		return res;
-	}
-
-	res = fpgaTokenGetObject(token, SYSFS_PKVL_POLL_MODE, &poll_mode_object, FPGA_OBJECT_GLOB);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get token object");
-		resval = res;
-		goto out_destroy_bsid;
-	}
-
-	res = fpgaTokenGetObject(token, SYSFS_PKVL_STATUS, &status_object, FPGA_OBJECT_GLOB);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get token object");
-		resval = res;
-		goto out_destroy_poll;
-	}
-
-	res = fpgaObjectRead64(bsid_object, &bs_id, 0);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read object ");
-		resval = res;
-		goto out_destroy_status;
-	}
-
-	*fpga_mode = (bs_id >> FPGA_BSID_SIZE) & 0xf;
-
-	res = fpgaObjectRead64(poll_mode_object, &poll_mode, 0);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read object ");
-		resval = res;
-		goto out_destroy_status;
-	}
-
-	res = fpgaObjectRead64(status_object, &status, 0);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read object ");
-		resval = res;
-		goto out_destroy_status;
-	}
-
-	pkvl_info->polling_mode = (uint32_t)poll_mode;
-	pkvl_info->status = (uint32_t)status;
-
-out_destroy_status:
-	res = fpgaDestroyObject(&status_object);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to destroy object");
-	}
-
-out_destroy_poll:
-	res = fpgaDestroyObject(&poll_mode_object);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to destroy object");
-	}
-
-out_destroy_bsid:
-	res = fpgaDestroyObject(&bsid_object);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to destroy object");
-	}
-
-	return resval;
-}
-
-// Read PHY group information
-fpga_result read_phy_group_info(fpga_token token,
-				fpga_phy_group_info *group_info,
-				uint32_t *group_num)
-{
-	fpga_result res = FPGA_OK;
-	fpga_result resval = FPGA_OK;
-	char path[SYSFS_MAX_SIZE] = { 0, };
-	char cdevid[CDEV_ID_SIZE] = { 0, };
-	size_t i = 0;
-	uint32_t group_dev_count = 0;
-	uint32_t obj_size = 0;
-	fpga_object dev_obj;
-	fpga_object group_object;
-	fpga_object group_dev_object;
-
-
-	if (group_num == NULL) {
-		FPGA_ERR("Invalid Input parameters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	res = fpgaTokenGetObject(token, SYSFS_PHY_GROUP_INFO,
-		&group_object, FPGA_OBJECT_GLOB);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get token object");
-		return FPGA_NOT_FOUND;
-	}
-
-	res = fpgaTokenGetObject(token, SYSFS_PHY_GROUP_INFO_DEV,
-		&group_dev_object, FPGA_OBJECT_GLOB);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get token object");
-		resval = res;
-		goto out_destroy_group;
-	}
-
-	res = fpgaObjectGetSize(group_dev_object, &group_dev_count, FPGA_OBJECT_GLOB);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get object size");
-		resval = res;
-		goto out_destroy_group_dev;
-	}
-
-	// Return number of group.
-	if (group_info == NULL) {
-		*group_num = group_dev_count;
-		resval = FPGA_OK;
-		goto out_destroy_group_dev;
-	}
-
-	// Return error if group device count bigger then group info array size
-	if (group_dev_count > *group_num) {
-		FPGA_ERR("group device count bigger then group info array size");
-		resval = FPGA_EXCEPTION;
-		goto out_destroy_group_dev;
-	}
-
-	for (i = 0; i < group_dev_count; i++) {
-
-		res = fpgaObjectGetObjectAt(group_dev_object, i, &dev_obj);
-		if (res != FPGA_OK) {
-			OPAE_ERR("Failed to get device node object from group device object");
-			resval = res;
-			continue;
-		}
-
-		res = fpgaObjectGetSize(dev_obj, &obj_size, 0);
-		if (res != FPGA_OK) {
-			OPAE_ERR("Failed to get object size");
-			resval = res;
-			res = fpgaDestroyObject(&dev_obj);
-			if (res != FPGA_OK) {
-				OPAE_ERR("Failed to destroy object");
-			}
-			continue;
-		}
-
-
-		if (obj_size > CDEV_ID_SIZE) {
-			OPAE_ERR("Device node obj size size bigger then buffer ");
-			resval = FPGA_EXCEPTION;
-			res = fpgaDestroyObject(&dev_obj);
-			if (res != FPGA_OK) {
-				OPAE_ERR("Failed to destroy object");
-			}
-			continue;
-		}
-
-		res = fpgaObjectRead(dev_obj, (uint8_t *)cdevid, 0, obj_size, 0);
-		if (res != FPGA_OK) {
-			OPAE_ERR("Failed to read device node");
-			resval = res;
-			res = fpgaDestroyObject(&dev_obj);
-			if (res != FPGA_OK) {
-				OPAE_ERR("Failed to destroy object");
-			}
-			continue;
-		}
-
-
-		res = fpgaDestroyObject(&dev_obj);
-		if (res != FPGA_OK) {
-			resval = res;
-			OPAE_ERR("Failed to destroy object");
-		}
-
-		// append null char
-		cdevid[obj_size - 1] = '\0';
-		strncpy(path, "/dev/char/", 11);
-		strncat(path, cdevid, sizeof(path) - obj_size - 1);
-
-		res = get_phy_info(path, &group_info[i]);
-		if (res != FPGA_OK) {
-			OPAE_ERR("Failed to get phy group info");
-			resval = res;
-		}
-
-	} // end for loop
-
-out_destroy_group_dev:
-	res = fpgaDestroyObject(&group_dev_object);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to destroy object");
-	}
-
-out_destroy_group:
-	res = fpgaDestroyObject(&group_object);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to destroy object");
-	}
-
-	return resval;
-
-}
-
-// get pyh group information
-fpga_result get_phy_info(char *dev_path, fpga_phy_group_info *info)
-{
-	fpga_result res = FPGA_OK;
-	int fd          = 0;
-
-	if (dev_path == NULL ||
-		info == NULL) {
-		FPGA_ERR("Invalid Input parameters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	fd = open(dev_path, O_RDWR);
-	if (fd < 0) {
-		OPAE_ERR("Open %s failed\n", dev_path);
-		return FPGA_INVALID_PARAM;
-	}
-
-	memset(info, 0, sizeof(fpga_phy_group_info));
-	info->argsz = sizeof(fpga_phy_group_info);
-
-	if (0 != ioctl(fd, FPGA_PHY_GROUP_GET_INFO, info)) {
-		OPAE_ERR("ioctl  FPGA_PHY_GROUP_GET_INFO error\n");
-	}
-
-	close(fd);
-
-	return res;
-}
-
 
 // Read pkvl versoin
 fpga_result print_pkvl_version(fpga_token token)
 {
 	fpga_result res                     = FPGA_OK;
-	fpga_result resval                  = FPGA_OK;
 	char ver_a_buf[FPGA_VAR_BUF_LEN]    = { 0 };
 	char ver_b_buf[FPGA_VAR_BUF_LEN]    = { 0 };
-	uint32_t size                       = 0;
-	fpga_object pkvl_a_object;
-	fpga_object pkvl_b_object;
+	int retval = 0;
+	uint64_t  sub_ver;
+	uint64_t serdes_ver;
 
-
-	res = fpgaTokenGetObject(token, SYSFS_PKVL_A_VER, &pkvl_a_object, FPGA_OBJECT_GLOB);
+	res = read_sysfs_int64(token, DFL_SYSFS_PKVL_A_SBUS_VER, &sub_ver);
 	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to get token object");
+		OPAE_ERR("Failed to get read object");
+		return res;
+	}
+	res = read_sysfs_int64(token, DFL_SYSFS_PKVL_A_SERDES_VER, &serdes_ver);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get read object");
 		return res;
 	}
 
-	res = fpgaTokenGetObject(token, SYSFS_PKVL_B_VER, &pkvl_b_object, FPGA_OBJECT_GLOB);
+	retval = snprintf(ver_a_buf, FPGA_VAR_BUF_LEN, "%lx.%lx", sub_ver, serdes_ver);
+	if (retval < 0) {
+		FPGA_ERR("error in formatting version");
+		return FPGA_EXCEPTION;
+	}
+
+	res = read_sysfs_int64(token, DFL_SYSFS_PKVL_B_SBUS_VER, &sub_ver);
 	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to get token object");
-		resval = res;
-		goto out_destroy_obj_a;
+		OPAE_ERR("Failed to get read object");
+		return res;
 	}
-
-	res = fpgaObjectGetSize(pkvl_a_object, &size, FPGA_OBJECT_GLOB);
+	res = read_sysfs_int64(token, DFL_SYSFS_PKVL_B_SERDES_VER, &serdes_ver);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get object size");
-		resval = res;
-		goto out_destroy_obj_b;
+		OPAE_ERR("Failed to get read object");
+		return res;
 	}
 
-	if (size > FPGA_VAR_BUF_LEN) {
-		OPAE_ERR("pkvl A version buffer bigger then version buffer");
-		resval = FPGA_EXCEPTION;
-		goto out_destroy_obj_b;
+	retval = snprintf(ver_b_buf, FPGA_VAR_BUF_LEN, "%lx.%lx", sub_ver, serdes_ver);
+	if (retval < 0) {
+		FPGA_ERR("error in formatting version");
+		return FPGA_EXCEPTION;
 	}
 
-	res = fpgaObjectRead(pkvl_a_object, (uint8_t *)ver_a_buf, 0, size, 0);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read object ");
-		resval = res;
-		goto out_destroy_obj_b;
-	}
+	printf("%-32s : %s \n", "Retimer A Version ", ver_a_buf);
+	printf("%-32s : %s \n", "Retimer B Version ", ver_b_buf);
 
-	res = fpgaObjectGetSize(pkvl_b_object, &size, FPGA_OBJECT_GLOB);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get object size");
-		resval = res;
-		goto out_destroy_obj_b;
-	}
-
-	if (size > FPGA_VAR_BUF_LEN) {
-		OPAE_ERR("pkvl B version buffer bigger then version buffer");
-		resval = FPGA_EXCEPTION;
-		goto out_destroy_obj_b;
-	}
-
-
-	res = fpgaObjectRead(pkvl_b_object, (uint8_t *)ver_b_buf, 0, size, 0);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read object ");
-		resval = res;
-		goto out_destroy_obj_b;
-	}
-
-	printf("%-32s : %s", "Retimer A Version", ver_a_buf);
-	printf("%-32s : %s", "Retimer B Version", ver_b_buf);
-
-out_destroy_obj_b:
-	res = fpgaDestroyObject(&pkvl_b_object);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to destroy object");
-	}
-
-out_destroy_obj_a:
-	res = fpgaDestroyObject(&pkvl_a_object);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to destroy object");
-	}
-
-	return resval;
+	return res;
 }
 
 // print mac information
@@ -589,100 +299,13 @@ fpga_result print_board_info(fpga_token token)
 fpga_result print_phy_info(fpga_token token)
 {
 	fpga_result res                            = FPGA_OK;
-	fpga_phy_group_info *phy_info_array        = NULL;
-	uint32_t group_num                         = 0;
-	int fpga_mode                              = 0;
-	uint32_t i                                 = 0;
-	int j                                      = 0;
-	char mode[VER_BUF_SIZE]                    = { 0 };
-	fpga_pkvl_info pkvl_info;
 
-
-	res = read_phy_group_info(token, NULL, &group_num);
+	res = print_pkvl_version(token);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to read phy group count");
 		return res;
 	}
 
-	phy_info_array = calloc(sizeof(fpga_phy_group_info), group_num);
-	if (phy_info_array == NULL) {
-		OPAE_ERR(" Failed to allocate memory");
-		return FPGA_NO_MEMORY;
-	}
-
-
-	res = read_phy_group_info(token, phy_info_array, &group_num);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read phy group array");
-		goto out_free;
-	}
-
-	res = read_pkvl_info(token, &pkvl_info, &fpga_mode);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read pkvl info");
-		goto out_free;
-	}
-
-
-	for (i = 0; i < group_num; i++) {
-
-		printf("//****** PHY GROUP %d ******//\n", i);
-		printf("%-32s : %s\n", "Direction",
-			phy_info_array[i].group_id == 0 ? "Line side" : "Fortville side");
-		printf("%-32s : %d Gbps\n", "Speed", phy_info_array[i].speed);
-		printf("%-32s : %d\n", "Number of PHYs", phy_info_array[i].phy_num);
-	}
-
-
-	int mask = 0;
-	if (phy_info_array[0].speed == 10) {
-		mask = 0xff;
-
-	} else if (phy_info_array[0].speed == 25) {
-
-
-		if (phy_info_array[0].phy_num == 4) {
-			switch (fpga_mode) {
-			case FPGA_PHYGROUP_MODE_4_25G: /* 4x25g */
-				/* FALLTHROUGH */
-			case FPGA_PHYGROUP_MODE_6_25G: /* 6x25g */
-				mask = 0xf;
-				break;
-
-			case FPGA_PHYGROUP_MODE_2_2_25G: /* 2x2x25g */
-				mask = 0x33;
-				break;
-
-			default:
-				mask = 0xff;
-				break;
-			}
-		} else {
-			/* 2*1*25g */
-			mask = 0x11;
-		}
-
-	}
-
-	printf("//****** Intel C827 Retimer ******//\n");
-
-	strncpy(mode, phy_info_array[0].speed == 25 ? "25G" : "10G", 4);
-	for (i = 0, j = 0; i < MAX_PORTS; i++) {
-		if (mask&(1 << i)) {
-			printf("Port%-2d%-26s : %s\n", j, mode, pkvl_info.status&(1 << i) ? "Up" : "Down");
-			j++;
-		}
-	}
-
-	res = print_pkvl_version(token);
-	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to read pkvl version");
-		goto out_free;
-	}
-
-out_free:
-	if (phy_info_array)
-		free(phy_info_array);
 
 	return res;
 

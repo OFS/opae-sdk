@@ -133,7 +133,7 @@ fpga_result board_n3000_c_p::write_sysfs_file(const char *file,
 	int fd = 0;
 
 	snprintf(sysfspath, sizeof(sysfspath),
-		 "%s/%s", "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", file);
+		 "%s/%s", "/sys/class/fpga_region/region*/dfl-fme*", file);
 
 	glob_t pglob;
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
@@ -165,7 +165,7 @@ fpga_result board_n3000_c_p::delete_sysfs_file(const char *file) {
 	int status = 0;
 
 	snprintf(sysfspath, sizeof(sysfspath),
-		 "%s/%s", "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0", file);
+		 "%s/%s", "/sys/class/fpga_region/region*/dfl-fme*", file);
 
 	glob_t pglob;
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
@@ -254,51 +254,12 @@ TEST_P(board_dfl_n3000_c_p, board_n3000_11) {
 	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
 }
 
-INSTANTIATE_TEST_CASE_P(board_dfl_n3000_c, board_dfl_n3000_c_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000"})));
-
-/**
-* @test       board_n3000_4
-* @brief      Tests: read_pkvl_info
-* @details    Validates pkvl information  <br>
-*/
-TEST_P(board_n3000_c_p, board_n3000_4) {
-
-	fpga_pkvl_info pkvl_info;
-	int fpga_mode;
-
-	EXPECT_EQ(read_pkvl_info(tokens_[0], &pkvl_info, &fpga_mode), FPGA_OK);
-
-	EXPECT_EQ(read_pkvl_info(tokens_[0], &pkvl_info, NULL), FPGA_INVALID_PARAM);
-
-	EXPECT_EQ(read_pkvl_info(tokens_[0], NULL, &fpga_mode), FPGA_INVALID_PARAM);
-
-	EXPECT_EQ(read_pkvl_info(NULL, &pkvl_info, &fpga_mode), FPGA_INVALID_PARAM);
-}
-
-
-/**
-* @test       board_n3000_6
-* @brief      Tests: read_phy_group_info
-* @details    Validates fpga phy group information  <br>
-*/
-TEST_P(board_n3000_c_p, board_n3000_6) {
-
-	uint32_t group_num = 0;
-
-	EXPECT_EQ(read_phy_group_info(tokens_[0], NULL, &group_num), FPGA_OK);
-
-	EXPECT_EQ(read_phy_group_info(tokens_[0], NULL, NULL), FPGA_INVALID_PARAM);
-
-	EXPECT_EQ(read_phy_group_info(NULL, NULL, &group_num), FPGA_NOT_FOUND);
-}
-
 /**
 * @test       board_n3000_7
 * @brief      Tests: print_board_info
 * @details    Validates fpga board info  <br>
 */
-TEST_P(board_n3000_c_p, board_n3000_7) {
+TEST_P(board_dfl_n3000_c_p, board_n3000_7) {
 
 	EXPECT_EQ(print_pkvl_version(tokens_[0]), FPGA_OK);
 }
@@ -309,22 +270,22 @@ TEST_P(board_n3000_c_p, board_n3000_7) {
 *             read_bmcfw_version,
 * @details    Validates fpga invalid fpga firmware version  <br>
 */
-TEST_P(board_n3000_c_p, board_n3000_8) {
+TEST_P(board_dfl_n3000_c_p, board_n3000_8) {
 
 	char buf[10] = { 0 };
-	write_sysfs_file((const char *)"spi-altera.0.auto/spi_master/spi0/spi0.0/bmcfw_flash_ctrl/bmcfw_version", (void*)buf, sizeof(buf));
+	write_sysfs_file((const char *)"dfl-fme*/*spi*/spi_master/spi*/spi*/bmcfw_version", (void*)buf, sizeof(buf));
 
 	char bmcfw_ver[SYSFS_PATH_MAX];
 	EXPECT_NE(read_bmcfw_version(tokens_[0], bmcfw_ver, SYSFS_PATH_MAX), FPGA_OK);
 
-	write_sysfs_file((const char *)"spi-altera.0.auto/spi_master/spi0/spi0.0/max10_version", (void*)buf, sizeof(buf));
+	write_sysfs_file((const char *)"dfl-fme*/*spi*/spi_master/spi*/spi*/bmc_version", (void*)buf, sizeof(buf));
 
 	char max10fw_ver[SYSFS_PATH_MAX];
 	EXPECT_NE(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_PATH_MAX), FPGA_OK);
 
 }
-INSTANTIATE_TEST_CASE_P(baord_n3000_c, board_n3000_c_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-vc" })));
+INSTANTIATE_TEST_CASE_P(board_dfl_n3000_c, board_dfl_n3000_c_p,
+	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000" })));
 
 // test invalid sysfs attributes
 class board_n3000_invalid_c_p : public board_n3000_c_p { };
@@ -346,20 +307,11 @@ TEST_P(board_n3000_invalid_c_p, board_n3000_9) {
 	char max10fw_ver[SYSFS_PATH_MAX];
 	EXPECT_EQ(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_PATH_MAX), FPGA_NOT_FOUND);
 
-
-	fpga_pkvl_info pkvl_info;
-	int fpga_mode;
-	EXPECT_EQ(read_pkvl_info(tokens_[0], &pkvl_info, &fpga_mode), FPGA_NOT_FOUND);
-
-	uint32_t group_num = 0;
-	EXPECT_EQ(read_phy_group_info(tokens_[0], NULL, &group_num), FPGA_NOT_FOUND);
-
 	EXPECT_EQ(print_board_info(tokens_[0]), FPGA_NOT_FOUND);
 
 	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_NOT_FOUND);
 
-	EXPECT_EQ(print_phy_info(tokens_[0]), FPGA_NOT_FOUND);
-
+	
 	EXPECT_EQ(print_sec_info(tokens_[0]), FPGA_NOT_FOUND);
 }
 INSTANTIATE_TEST_CASE_P(board_n3000_invalid_c, board_n3000_invalid_c_p,
