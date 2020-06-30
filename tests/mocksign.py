@@ -64,7 +64,7 @@ class bitstream(io.BytesIO):
         return self.getbuffer()
 
     def sign(self):
-        self.sk = ecdsa.SigningKey.generate(ecdsa.SECP256k1)
+        self.sk = ecdsa.SigningKey.generate(ecdsa.curves.NIST384p)
         self.vk = self.sk.verifying_key
         self.pk = self.vk.pubkey
         self.signature = self.sk.sign(self.payload)
@@ -167,7 +167,7 @@ class bitstream(io.BytesIO):
 class d5005_pr(bitstream):
 
     @classmethod
-    def create(cls, content_type=database.CONTENT_PR, size=1024):
+    def create(cls, content_type=database.CONTENT_PR, size=4096):
         return super(d5005_pr, cls).create(database.CONTENT_PR, size)
 
     def insert_header(self, data):
@@ -180,7 +180,7 @@ class d5005_pr(bitstream):
 
     def write_block0(self):
         for i in range(0, 0x1000, 4):
-            self.write(int(i).to_bytes(4, 'little'))
+            self.write(self.payload[i:i+4])
 
     def write_b1_header(self):
         sha384 = hashlib.sha384(self.block0)
@@ -194,8 +194,8 @@ class d5005_pr(bitstream):
         self.write_int64(0, 0, 0)
 
     def write_root_entry(self):
-        data = self.pk.point.x().to_bytes(32, 'big')
-        data += self.pk.point.y().to_bytes(32, 'big')
+        data = self.pk.point.x().to_bytes(64, 'big')[:32]
+        data += self.pk.point.y().to_bytes(64, 'big')[-32:]
         self.write_int32(database.DC_ROOT_ENTRY_MAGIC,
                          0x78, 0x60, 0, 0, 1)
 
@@ -226,8 +226,8 @@ class d5005_pr(bitstream):
                          0x2,
                          0)  # pub csk id
 
-        self.write(self.pk.point.x().to_bytes(32, 'big'))
-        self.write(self.pk.point.y().to_bytes(32, 'big'))
+        self.write(self.pk.point.x().to_bytes(64, 'big')[:32])
+        self.write(self.pk.point.y().to_bytes(64, 'big')[-32:])
         self.write_int32(database.DC_SIGNATURE_MAGIC_NUM,
                          0x20,
                          0x20,
