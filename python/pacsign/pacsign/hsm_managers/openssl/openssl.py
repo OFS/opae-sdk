@@ -206,23 +206,14 @@ def password_callback(buf, bufsiz, verify, cb_temp):
     )
     try:
         if verify:
-            (password, error) = common_util.get_password(
-                [
-                    (
-                        "Enter PEM passphrase (4 to %d characters per OpenSSL "
-                        + "spec, Intel recommends minumum 13 characters): "
-                    )
-                    % (bufsiz - 1),
-                    (
-                        "Re-enter PEM passphrase (4 to %d characters per OpenSSL "
-                        + "spec, Intel recommends minumum 13 characters): "
-                    )
-                    % (bufsiz - 1),
-                ],
-                4,
-                bufsiz - 1,
-                comment,
-            )
+            (password, error) = common_util.get_password([(
+                  "Enter PEM passphrase (4 to %d characters per OpenSSL " +
+                  "spec, Intel recommends minumum 13 characters): ") %
+                 (bufsiz - 1),
+                 ("Re-enter PEM passphrase (4 to %d characters per OpenSSL " +
+                  "spec, Intel recommends minumum 13 characters): ") %
+                 (bufsiz - 1), ],
+                4, bufsiz - 1, comment,)
         else:
             (password, error) = common_util.get_password(
                 [
@@ -404,7 +395,8 @@ class openssl:
         self.lib.PEM_read_bio_ECPrivateKey.restype = c_void_p
 
         # Read Public key from PEM
-        self.lib.PEM_read_bio_PUBKEY.argtypes = [c_void_p, c_void_p, c_void_p, c_char_p]
+        self.lib.PEM_read_bio_PUBKEY.argtypes = [
+            c_void_p, c_void_p, c_void_p, c_char_p]
         self.lib.PEM_read_bio_PUBKEY.restype = c_void_p
 
         # Get public key
@@ -448,7 +440,8 @@ class openssl:
         self.lib.EC_GROUP_set_asn1_flag.restype = None
 
         # Set Group conversion
-        self.lib.EC_GROUP_set_point_conversion_form.argtypes = [c_void_p, c_int]
+        self.lib.EC_GROUP_set_point_conversion_form.argtypes = [
+            c_void_p, c_int]
         self.lib.EC_GROUP_set_point_conversion_form.restype = None
 
         # Get XY from of a public key
@@ -483,7 +476,8 @@ class openssl:
         self.lib.ECDSA_SIG_set0.argtypes = [c_void_p, c_void_p, c_void_p]
         self.lib.ECDSA_SIG_set0.restype = c_int
 
-        self.lib.ECDSA_SIG_get0.argtypes = [c_void_p, POINTER(c_void_p), POINTER(c_void_p)]
+        self.lib.ECDSA_SIG_get0.argtypes = [
+            c_void_p, POINTER(c_void_p), POINTER(c_void_p)]
         self.lib.ECDSA_SIG_get0.restype = None
 
         # Convert enum to char *
@@ -536,7 +530,9 @@ class openssl:
         self.lib.CRYPTO_free.restype = None
 
         # Initialize
-        self.lib.OPENSSL_init_crypto(OPENSSL_INIT_ADD_ALL_CIPHERS | OPENSSL_INIT_ADD_ALL_DIGESTS | OPENSSL_INIT_LOAD_CONFIG, None)
+        self.lib.OPENSSL_init_crypto(
+            OPENSSL_INIT_ADD_ALL_CIPHERS | OPENSSL_INIT_ADD_ALL_DIGESTS |
+            OPENSSL_INIT_LOAD_CONFIG, None)
 
         # SHA256
         self.lib.SHA256.argtypes = [c_void_p, c_size_t, c_char_p]
@@ -545,7 +541,8 @@ class openssl:
         self.lib.SHA256_Init.argtypes = [POINTER(OPENSSL_SHA256)]
         self.lib.SHA256_Init.restype = c_int
 
-        self.lib.SHA256_Update.argtypes = [POINTER(OPENSSL_SHA256), c_void_p, c_size_t]
+        self.lib.SHA256_Update.argtypes = [
+            POINTER(OPENSSL_SHA256), c_void_p, c_size_t]
         self.lib.SHA256_Update.restype = c_int
 
         self.lib.SHA256_Final.argtypes = [c_char_p, POINTER(OPENSSL_SHA256)]
@@ -558,7 +555,8 @@ class openssl:
         self.lib.SHA384_Init.argtypes = [POINTER(OPENSSL_SHA512)]
         self.lib.SHA384_Init.restype = c_int
 
-        self.lib.SHA384_Update.argtypes = [POINTER(OPENSSL_SHA512), c_void_p, c_size_t]
+        self.lib.SHA384_Update.argtypes = [
+            POINTER(OPENSSL_SHA512), c_void_p, c_size_t]
         self.lib.SHA384_Update.restype = c_int
 
         self.lib.SHA384_Final.argtypes = [c_char_p, POINTER(OPENSSL_SHA512)]
@@ -571,7 +569,8 @@ class openssl:
         self.lib.SHA512_Init.argtypes = [POINTER(OPENSSL_SHA512)]
         self.lib.SHA512_Init.restype = c_int
 
-        self.lib.SHA512_Update.argtypes = [POINTER(OPENSSL_SHA512), c_void_p, c_size_t]
+        self.lib.SHA512_Update.argtypes = [
+            POINTER(OPENSSL_SHA512), c_void_p, c_size_t]
         self.lib.SHA512_Update.restype = c_int
 
         self.lib.SHA512_Final.argtypes = [c_char_p, POINTER(OPENSSL_SHA512)]
@@ -617,13 +616,16 @@ class openssl:
 
         bio = self.lib.BIO_new(self.lib.BIO_s_file())
         status = self.lib.BIO_ctrl(
-            bio, BIO_C_SET_FILENAME, BIO_CLOSE | BIO_FP_WRITE, pem.encode("utf-8")
-        )
+            bio,
+            BIO_C_SET_FILENAME,
+            BIO_CLOSE | BIO_FP_WRITE,
+            pem.encode("utf-8"))
         common_util.assert_in_error(
             status > 0, "Fail to open file %s for BIO write" % pem
         )
         status = self.lib.PEM_write_bio_ECPKParameters(bio, group)
-        common_util.assert_in_error(status > 0, "Fail to write EC Param to PEM BIO")
+        common_util.assert_in_error(
+            status > 0, "Fail to write EC Param to PEM BIO")
         if encrypt is None or not encrypt:
             status = self.lib.PEM_write_bio_ECPrivateKey(
                 bio, key, None, None, 0, None, None
@@ -631,8 +633,8 @@ class openssl:
         else:
             enc = self.lib.EVP_get_cipherbyname("aes256".encode("utf-8"))
             status = self.lib.PEM_write_bio_ECPrivateKey(
-                bio, key, enc, None, 0, callback, ("Writing %s" % pem).encode("utf-8")
-            )
+                bio, key, enc, None, 0, callback, ("Writing %s" %
+                                                   pem).encode("utf-8"))
         common_util.assert_in_error(
             status > 0, "Fail to write EC Private Key to PEM BIO"
         )
@@ -642,8 +644,10 @@ class openssl:
 
         bio = self.lib.BIO_new(self.lib.BIO_s_file())
         status = self.lib.BIO_ctrl(
-            bio, BIO_C_SET_FILENAME, BIO_CLOSE | BIO_FP_WRITE, pem.encode("utf-8")
-        )
+            bio,
+            BIO_C_SET_FILENAME,
+            BIO_CLOSE | BIO_FP_WRITE,
+            pem.encode("utf-8"))
         common_util.assert_in_error(
             status > 0, "Fail to open file %s for BIO write" % pem
         )
@@ -669,8 +673,9 @@ class openssl:
             bio, None, callback, ("Reading %s" % private_pem).encode("utf-8")
         )
         common_util.assert_in_error(
-            key is not None, "Fail to read EC Private Key from PEM BIO %s" % private_pem
-        )
+            key is not None,
+            "Fail to read EC Private Key from PEM BIO %s" %
+            private_pem)
         self.lib.BIO_free_all(bio)
         return key
 
@@ -678,8 +683,10 @@ class openssl:
 
         bio = self.lib.BIO_new(self.lib.BIO_s_file())
         status = self.lib.BIO_ctrl(
-            bio, BIO_C_SET_FILENAME, BIO_CLOSE | BIO_FP_READ, public_pem.encode("utf-8")
-        )
+            bio,
+            BIO_C_SET_FILENAME,
+            BIO_CLOSE | BIO_FP_READ,
+            public_pem.encode("utf-8"))
         common_util.assert_in_error(
             status > 0, "Fail to read file %s for BIO read" % public_pem
         )
@@ -794,8 +801,8 @@ class openssl:
             % len(bytes),
         )
         common_util.assert_in_error(
-            memoryview(bytes).c_contiguous, "Byte array is not contiguous in memory"
-        )
+            memoryview(bytes).c_contiguous,
+            "Byte array is not contiguous in memory")
         cpointer = c_char_p(bytes.buffer_info()[0])
         sha = common_util.CHAR_POINTER(type)
         if type == 32:

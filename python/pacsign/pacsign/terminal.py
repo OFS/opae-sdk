@@ -161,7 +161,8 @@ if _platform == "win32" or _platform == "win64":
 
     def get_size():
 
-        res = windll.kernel32.GetConsoleScreenBufferInfo(stderr_handle, screen_csbi)
+        res = windll.kernel32.GetConsoleScreenBufferInfo(
+            stderr_handle, screen_csbi)
 
         if res:
 
@@ -198,7 +199,9 @@ else:
                 import fcntl
                 import termios
 
-                cr = struct.unpack("hh", fcntl.ioctl(fd, termios.TIOCGWINSZ, "1234"))
+                cr = struct.unpack(
+                    "hh", fcntl.ioctl(
+                        fd, termios.TIOCGWINSZ, "1234"))
             except Exception:
                 return
             return cr

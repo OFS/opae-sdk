@@ -79,11 +79,8 @@ class _VERIFIER_BASE(object):
                 != database.SIGNATURE_BLOCK_MAGIC_NUM
             ):
                 common_util.assert_in_error(
-                    False,
-                    "File '{}' is not a root entry hash programming bitstream".format(
-                        args.root_bitstream
-                    ),
-                )
+                    False, "File '{}' is not a root entry hash programming bitstream".format(
+                        args.root_bitstream), )
 
             if con_type & 0xFF != self.bitstream_type:
                 log.warn(
@@ -149,15 +146,21 @@ class verify_reader(_VERIFIER_BASE):
         pay_sha384_v = int.from_bytes(sha384(pay).digest(), byteorder="big")
 
         if not self.dc_pr:
-            if pay_sha256_v != int.from_bytes(b0[16 : 16 + 32], byteorder="big"):
+            if pay_sha256_v != int.from_bytes(
+                    b0[16: 16 + 32],
+                    byteorder="big"):
                 log.error("SHA-256 in Block 0 does not match")
 
-            if pay_sha384_v != int.from_bytes(b0[48 : 48 + 48], byteorder="big"):
+            if pay_sha384_v != int.from_bytes(
+                    b0[48: 48 + 48],
+                    byteorder="big"):
                 log.error("SHA-384 in Block 0 does not match")
 
         # Check root hash
         if self.dc_pr:
-            hash = int.from_bytes(sha256(b1[152 : 152 + 64]).digest(), byteorder="big")
+            hash = int.from_bytes(
+                sha256(b1[152: 152 + 64]).digest(),
+                byteorder="big")
             good = hash == self.val_root_hash_dc
         else:
             hash = int.from_bytes(sha256(b1[20:148]).digest(), byteorder="big")
@@ -167,30 +170,33 @@ class verify_reader(_VERIFIER_BASE):
             log.info("Root hash matches")
         else:
             log.error("Root hash mismatch:")
-            log.error("Signed bitstream:                   {}".format(hex(hash)))
             log.error(
-                "Root entry hash bitstream provided: {}".format(
-                    hex(self.val_root_hash_dc if self.dc_pr else self.val_root_hash)
-                )
-            )
+                "Signed bitstream:                   {}".format(
+                    hex(hash)))
+            log.error("Root entry hash bitstream provided: {}".format(
+                hex(self.val_root_hash_dc if self.dc_pr else self.val_root_hash)))
 
         if self.dc_pr:
-            root_pub_key_x = int.from_bytes(b1[152 : 152 + 32], byteorder="big")
-            root_pub_key_y = int.from_bytes(b1[152 + 32 : 152 + 64], byteorder="big")
+            root_pub_key_x = int.from_bytes(b1[152: 152 + 32], byteorder="big")
+            root_pub_key_y = int.from_bytes(
+                b1[152 + 32: 152 + 64],
+                byteorder="big")
             root_pub_key_v = (root_pub_key_x, root_pub_key_y)
-            csk_pub_key_x = int.from_bytes(b1[264 : 264 + 32], byteorder="big")
-            csk_pub_key_y = int.from_bytes(b1[264 + 32 : 264 + 64], byteorder="big")
+            csk_pub_key_x = int.from_bytes(b1[264: 264 + 32], byteorder="big")
+            csk_pub_key_y = int.from_bytes(
+                b1[264 + 32: 264 + 64],
+                byteorder="big")
             csk_pub_key_v = (csk_pub_key_x, csk_pub_key_y)
-            csk_rs_r = int.from_bytes(b1[344 : 344 + 32], byteorder="big")
-            csk_rs_s = int.from_bytes(b1[344 + 32 : 344 + 64], byteorder="big")
+            csk_rs_r = int.from_bytes(b1[344: 344 + 32], byteorder="big")
+            csk_rs_s = int.from_bytes(b1[344 + 32: 344 + 64], byteorder="big")
             csk_rs_v = (csk_rs_r, csk_rs_s)
-            b0e_rs_r = int.from_bytes(b1[448 : 448 + 32], byteorder="big")
-            b0e_rs_s = int.from_bytes(b1[448 + 32 : 448 + 64], byteorder="big")
+            b0e_rs_r = int.from_bytes(b1[448: 448 + 32], byteorder="big")
+            b0e_rs_s = int.from_bytes(b1[448 + 32: 448 + 64], byteorder="big")
             b0e_rs_v = (b0e_rs_r, b0e_rs_s)
 
             root_sha_v = hash
             csk_sha_v = int.from_bytes(
-                sha256(b1[240 : 240 + 88]).digest(), byteorder="big"
+                sha256(b1[240: 240 + 88]).digest(), byteorder="big"
             )
             b0_sha_v = int.from_bytes(sha256(b0).digest(), byteorder="big")
         else:
@@ -201,22 +207,26 @@ class verify_reader(_VERIFIER_BASE):
                 csk_sha_v = 0
             else:
                 b0e_off = 388
-                csk_pub_key_x = int.from_bytes(b1[164 : 164 + 32], byteorder="big")
-                csk_pub_key_y = int.from_bytes(b1[212 : 212 + 32], byteorder="big")
+                csk_pub_key_x = int.from_bytes(
+                    b1[164: 164 + 32], byteorder="big")
+                csk_pub_key_y = int.from_bytes(
+                    b1[212: 212 + 32], byteorder="big")
                 csk_pub_key_v = (csk_pub_key_x, csk_pub_key_y)
-                csk_rs_r = int.from_bytes(b1[284 : 284 + 32], byteorder="big")
-                csk_rs_s = int.from_bytes(b1[332 : 332 + 32], byteorder="big")
+                csk_rs_r = int.from_bytes(b1[284: 284 + 32], byteorder="big")
+                csk_rs_s = int.from_bytes(b1[332: 332 + 32], byteorder="big")
                 csk_rs_v = (csk_rs_r, csk_rs_s)
                 csk_sha_v = int.from_bytes(
-                    sha256(b1[152 : 152 + 128]).digest(), byteorder="big"
+                    sha256(b1[152: 152 + 128]).digest(), byteorder="big"
                 )
 
-            root_pub_key_x = int.from_bytes(b1[32 : 32 + 32], byteorder="big")
-            root_pub_key_y = int.from_bytes(b1[80 : 80 + 32], byteorder="big")
+            root_pub_key_x = int.from_bytes(b1[32: 32 + 32], byteorder="big")
+            root_pub_key_y = int.from_bytes(b1[80: 80 + 32], byteorder="big")
             root_pub_key_v = (root_pub_key_x, root_pub_key_y)
-            b0e_rs_r = int.from_bytes(b1[b0e_off : b0e_off + 32], byteorder="big")
+            b0e_rs_r = int.from_bytes(
+                b1[b0e_off: b0e_off + 32],
+                byteorder="big")
             b0e_rs_s = int.from_bytes(
-                b1[b0e_off + 48 : b0e_off + 48 + 32], byteorder="big"
+                b1[b0e_off + 48: b0e_off + 48 + 32], byteorder="big"
             )
             b0e_rs_v = (b0e_rs_r, b0e_rs_s)
             root_sha_v = hash
@@ -243,10 +253,10 @@ class verify_reader(_VERIFIER_BASE):
     def is_JSON(self, contents):
         log.debug(
             "GUID: {} vs. file {}".format(
-                METADATA_GUID, "".join([chr(i) for i in contents.data[:GUID_LEN]])
-            )
-        )
-        return METADATA_GUID == "".join([chr(i) for i in contents.data[:GUID_LEN]])
+                METADATA_GUID, "".join(
+                    [chr(i) for i in contents.data[: GUID_LEN]])))
+        return METADATA_GUID == "".join(
+            [chr(i) for i in contents.data[:GUID_LEN]])
 
     def skip_JSON(self, contents):
         leng = contents.get_dword(GUID_LEN)
@@ -295,9 +305,11 @@ class print_bitstream(_VERIFIER_BASE):
         for xx in range(8):
             print("\t", end="")
             try:
-                print("".join("{:02x} ".format(x) for x in bits[off : off + 16]))
+                print("".join("{:02x} ".format(x)
+                              for x in bits[off: off + 16]))
             except TypeError:
-                print("".join("{:02x} ".format(x) for x in bits.data[off : off + 16]))
+                print("".join("{:02x} ".format(x)
+                              for x in bits.data[off: off + 16]))
             off += 16
 
         if b0.content_len == 128:
@@ -328,8 +340,10 @@ class Block_0:
         self.cert_type = bits[9]
         self.sha256 = int.from_bytes(bits[16:48], byteorder="big")
         self.sha384 = int.from_bytes(bits[48:96], byteorder="big")
-        self.calc_sha256 = int.from_bytes(sha256(payload).digest(), byteorder="big")
-        self.calc_sha384 = int.from_bytes(sha384(payload).digest(), byteorder="big")
+        self.calc_sha256 = int.from_bytes(
+            sha256(payload).digest(), byteorder="big")
+        self.calc_sha384 = int.from_bytes(
+            sha384(payload).digest(), byteorder="big")
 
         self.hash = int.from_bytes(sha256(bits).digest(), byteorder="big")
 
@@ -342,28 +356,28 @@ class Block_0:
         print("\tContent length =\t{0:#0{1}x}".format(self.content_len, 10))
         con = self.content_type
         print("\tContent type =\t\t{}".format(["SR", "BMC", "PR"][con & 0xFF]))
+        print("\tCert type =\t\t{}".format(
+                  ["UPDATE", "CANCEL", "Root Entry Hash (256)",
+                   "Root Entry Hash (384)"][self.cert_type]))
         print(
-            "\tCert type =\t\t{}".format(
-                ["UPDATE", "CANCEL", "Root Entry Hash (256)", "Root Entry Hash (384)"][
-                    self.cert_type
-                ]
-            )
-        )
-        print("\tProtected content SHA-256: \n\t\t\t{0:#0{1}x}".format(self.sha256, 66))
+            "\tProtected content SHA-256: \n\t\t\t{0:#0{1}x}".format(self.sha256, 66))
         print(
             "\tCalculated protected content SHA-256: \n\t\t\t{0:#0{1}x}".format(
                 self.calc_sha256, 66
             )
         )
-        print("\t\tMatch" if self.sha256 == self.calc_sha256 else "\t\tNo match")
+        print("\t\tMatch" if self.sha256 ==
+              self.calc_sha256 else "\t\tNo match")
 
-        print("\tProtected content SHA-384: \n\t\t\t{0:#0{1}x}".format(self.sha384, 98))
+        print(
+            "\tProtected content SHA-384: \n\t\t\t{0:#0{1}x}".format(self.sha384, 98))
         print(
             "\tCalculated protected content SHA-384: \n\t\t\t{0:#0{1}x}".format(
                 self.calc_sha384, 98
             )
         )
-        print("\t\tMatch" if self.sha384 == self.calc_sha384 else "\t\tNo match")
+        print("\t\tMatch" if self.sha384 ==
+              self.calc_sha384 else "\t\tNo match")
 
 
 class Block_0_dc:
@@ -411,7 +425,7 @@ class Block_1:
         if b0.cert_type != 1:
             off = 380
         self.b0e_offset = off
-        self.b0_entry = Block_0_Entry(bits[off : off + 232])
+        self.b0_entry = Block_0_Entry(bits[off: off + 232])
 
     def print_block(self):
         if not self.is_good:
@@ -441,19 +455,27 @@ class Root_Entry:
         self.key_id = int.from_bytes(bits[12:16], byteorder="little")
         self.x = int.from_bytes(bits[16:48], byteorder="big")
         self.y = int.from_bytes(bits[64:96], byteorder="big")
-        self.hash = int.from_bytes(sha256(bits[4:132]).digest(), byteorder="big")
+        self.hash = int.from_bytes(
+            sha256(bits[4: 132]).digest(),
+            byteorder="big")
 
     def print_block(self):
         if not self.is_good:
             print("\tNo root entry")
             return
         print("\t\tRoot Entry magic =\t\t{0:#0{1}x}".format(self.magic, 10))
-        print("\t\tRoot Entry curve magic =\t{0:#0{1}x}".format(self.curve_magic, 10))
-        print("\t\tRoot Entry permissions =\t{0:#0{1}x}".format(self.permissions, 10))
+        print(
+            "\t\tRoot Entry curve magic =\t{0:#0{1}x}".format(
+                self.curve_magic, 10))
+        print(
+            "\t\tRoot Entry permissions =\t{0:#0{1}x}".format(
+                self.permissions, 10))
         print("\t\tRoot Entry key ID =\t\t{0:#0{1}x}".format(self.key_id, 10))
         print("\t\tRoot public key X =\t\t{0:#0{1}x}".format(self.x, 66))
         print("\t\tRoot public key Y =\t\t{0:#0{1}x}".format(self.y, 66))
-        print("\n\t\tExpected root entry hash =\t{0:#0{1}x}".format(self.hash, 66))
+        print(
+            "\n\t\tExpected root entry hash =\t{0:#0{1}x}".format(
+                self.hash, 66))
 
 
 class CSK:
@@ -479,7 +501,9 @@ class CSK:
         self.key_id = int.from_bytes(bits[12:16], byteorder="little")
         self.x = int.from_bytes(bits[16:48], byteorder="big")
         self.y = int.from_bytes(bits[64:96], byteorder="big")
-        self.hash = int.from_bytes(sha256(bits[4:132]).digest(), byteorder="big")
+        self.hash = int.from_bytes(
+            sha256(bits[4: 132]).digest(),
+            byteorder="big")
         self.sig_magic = int.from_bytes(bits[132:136], byteorder="little")
         self.r = int.from_bytes(bits[136:168], byteorder="big")
         self.s = int.from_bytes(bits[184:216], byteorder="big")
@@ -489,12 +513,18 @@ class CSK:
             print("\tNo CSK")
             return
         print("\n\t\tCSK magic =\t\t\t{0:#0{1}x}".format(self.magic, 10))
-        print("\t\tCSK curve magic =\t\t{0:#0{1}x}".format(self.curve_magic, 10))
-        print("\t\tCSK permissions =\t\t{0:#0{1}x}".format(self.permissions, 10))
+        print(
+            "\t\tCSK curve magic =\t\t{0:#0{1}x}".format(
+                self.curve_magic, 10))
+        print(
+            "\t\tCSK permissions =\t\t{0:#0{1}x}".format(
+                self.permissions, 10))
         print("\t\tCSK key ID =\t\t\t{0:#0{1}x}".format(self.key_id, 10))
         print("\t\tCode signing key X =\t\t{0:#0{1}x}".format(self.x, 66))
         print("\t\tCode signing key Y =\t\t{0:#0{1}x}".format(self.y, 66))
-        print("\t\tCSK signature magic =\t\t{0:#0{1}x}".format(self.sig_magic, 10))
+        print(
+            "\t\tCSK signature magic =\t\t{0:#0{1}x}".format(
+                self.sig_magic, 10))
         print("\t\tSignature R =\t\t\t{0:#0{1}x}".format(self.r, 66))
         print("\t\tSignature S =\t\t\t{0:#0{1}x}".format(self.s, 66))
         print("\n\t\tExpected CSK hash =\t\t{0:#0{1}x}".format(self.hash, 66))
@@ -520,10 +550,12 @@ class Block_0_Entry:
         if not self.is_good:
             print("\tNo block 0 entry")
             return
-        print("\n\t\tBlock 0 Entry magic =\t\t{0:#0{1}x}".format(self.magic, 10))
         print(
-            "\t\tBlock 0 Entry signature magic = {0:#0{1}x}".format(self.sig_magic, 10)
-        )
+            "\n\t\tBlock 0 Entry magic =\t\t{0:#0{1}x}".format(
+                self.magic, 10))
+        print(
+            "\t\tBlock 0 Entry signature magic = {0:#0{1}x}".format(
+                self.sig_magic, 10))
         print("\t\tSignature R =\t\t\t{0:#0{1}x}".format(self.r, 66))
         print("\t\tSignature S =\t\t\t{0:#0{1}x}".format(self.s, 66))
 
@@ -546,7 +578,7 @@ class Block_1_dc:
             return
 
         magic = int.from_bytes(
-            bits[sig_blk_offset : sig_blk_offset + 4], byteorder="little"
+            bits[sig_blk_offset: sig_blk_offset + 4], byteorder="little"
         )
         if magic != database.DC_ROOT_ENTRY_MAGIC:
             self.is_good = False
@@ -554,16 +586,16 @@ class Block_1_dc:
             return
 
         siz = int.from_bytes(
-            bits[sig_blk_offset + 4 : sig_blk_offset + 8], byteorder="little"
+            bits[sig_blk_offset + 4: sig_blk_offset + 8], byteorder="little"
         )
 
         self.sig_entries.append(
-            DC_Root_Entry(bits[sig_blk_offset : sig_blk_offset + siz])
+            DC_Root_Entry(bits[sig_blk_offset: sig_blk_offset + siz])
         )
         sig_blk_offset += siz
 
         magic = int.from_bytes(
-            bits[sig_blk_offset : sig_blk_offset + 4], byteorder="little"
+            bits[sig_blk_offset: sig_blk_offset + 4], byteorder="little"
         )
         if magic != database.DC_CSK_MAGIC_NUM:
             self.is_good = False
@@ -571,16 +603,16 @@ class Block_1_dc:
             return
 
         siz = int.from_bytes(
-            bits[sig_blk_offset + 4 : sig_blk_offset + 8], byteorder="little"
+            bits[sig_blk_offset + 4: sig_blk_offset + 8], byteorder="little"
         )
 
         self.sig_entries.append(
-            DC_CSK_Entry(bits[sig_blk_offset : sig_blk_offset + siz])
+            DC_CSK_Entry(bits[sig_blk_offset: sig_blk_offset + siz])
         )
         sig_blk_offset += siz
 
         magic = int.from_bytes(
-            bits[sig_blk_offset : sig_blk_offset + 4], byteorder="little"
+            bits[sig_blk_offset: sig_blk_offset + 4], byteorder="little"
         )
         if magic != database.BLOCK0_MAGIC_NUM:
             self.is_good = False
@@ -588,11 +620,11 @@ class Block_1_dc:
             return
 
         siz = int.from_bytes(
-            bits[sig_blk_offset + 4 : sig_blk_offset + 8], byteorder="little"
+            bits[sig_blk_offset + 4: sig_blk_offset + 8], byteorder="little"
         )
 
         self.sig_entries.append(
-            DC_B0_Entry(bits[sig_blk_offset : sig_blk_offset + siz])
+            DC_B0_Entry(bits[sig_blk_offset: sig_blk_offset + siz])
         )
 
     def print_block(self):
@@ -644,23 +676,26 @@ class DC_Root_Entry:
         print("\tRoot entry:")
         print(
             "\t\tRoot hash select =\t\t{}".format(
-                ["Intel", "User", "Engineering", "Manufacturing", "Upgrade", "Slot"][
-                    self.rhs
-                ]
-            )
-        )
+                ["Intel", "User", "Engineering", "Manufacturing", "Upgrade",
+                 "Slot"][self.rhs]))
         print("\t\tPublic key magic =\t\t{0:#0{1}x}".format(self.pk_magic, 10))
         print(
-            "\t\tPublic key curve magic =\t{0:#0{1}x}".format(self.pk_curve_magic, 10)
-        )
+            "\t\tPublic key curve magic =\t{0:#0{1}x}".format(
+                self.pk_curve_magic, 10))
         print("\t\tPublic key X size =\t\t{}".format(self.x_size))
         print("\t\tPublic key Y size =\t\t{}".format(self.y_size))
-        print("\t\tPublic key permissions =\t{0:#0{1}x}".format(self.permissions, 10))
+        print(
+            "\t\tPublic key permissions =\t{0:#0{1}x}".format(
+                self.permissions, 10))
         print("\t\tPublic key id =\t\t\t{0:#0{1}x}".format(self.key_id, 10))
         print("\t\tPublic key X =\t\t\t{0:#0{1}x}".format(self.key_x, 66))
         print("\t\tPublic key Y =\t\t\t{0:#0{1}x}".format(self.key_y, 66))
-        print("\n\t\tExpected root key hash =\t{0:#0{1}x}".format(self.hash, 66))
-        print("\t\tRoot key hash MSW =\t\t{0:#0{1}x}".format(self.calc_hash_msw, 10))
+        print(
+            "\n\t\tExpected root key hash =\t{0:#0{1}x}".format(
+                self.hash, 66))
+        print(
+            "\t\tRoot key hash MSW =\t\t{0:#0{1}x}".format(
+                self.calc_hash_msw, 10))
 
 
 class DC_CSK_Entry:
@@ -699,24 +734,30 @@ class DC_CSK_Entry:
             print("No public key")
             return
         print("\n\tPublic key entry:")
-        print("\t\tPublic key entry magic =\t{0:#0{1}x}".format(self.magic, 10))
+        print(
+            "\t\tPublic key entry magic =\t{0:#0{1}x}".format(
+                self.magic, 10))
         print("\t\tPublic key magic =\t\t{0:#0{1}x}".format(self.pk_magic, 10))
         print(
-            "\t\tPublic key curve magic =\t{0:#0{1}x}".format(self.pk_curve_magic, 10)
-        )
+            "\t\tPublic key curve magic =\t{0:#0{1}x}".format(
+                self.pk_curve_magic, 10))
         print("\t\tPublic key X size =\t\t{}".format(self.x_size))
         print("\t\tPublic key Y size =\t\t{}".format(self.y_size))
-        print("\t\tPublic key permissions =\t{0:#0{1}x}".format(self.permissions, 10))
+        print(
+            "\t\tPublic key permissions =\t{0:#0{1}x}".format(
+                self.permissions, 10))
         print("\t\tPublic key id =\t\t\t{0:#0{1}x}".format(self.key_id, 10))
         print("\t\tPublic key X =\t\t\t{0:#0{1}x}".format(self.key_x, 66))
         print("\t\tPublic key Y =\t\t\t{0:#0{1}x}".format(self.key_y, 66))
         print("\t\tSignature magic =\t\t{0:#0{1}x}".format(self.sig_magic, 10))
         print(
-            "\t\tSignature curve magic =\t\t{0:#0{1}x}".format(self.sig_hash_magic, 10)
-        )
+            "\t\tSignature curve magic =\t\t{0:#0{1}x}".format(
+                self.sig_hash_magic, 10))
         print("\t\tSignature R =\t\t\t{0:#0{1}x}".format(self.r, 66))
         print("\t\tSignature S =\t\t\t{0:#0{1}x}".format(self.s, 66))
-        print("\n\t\tPublic key entry hash =\t\t{0:#0{1}x}".format(self.hash, 66))
+        print(
+            "\n\t\tPublic key entry hash =\t\t{0:#0{1}x}".format(
+                self.hash, 66))
 
 
 class DC_B0_Entry:
@@ -749,8 +790,7 @@ class DC_B0_Entry:
         print("\t\tSignature R size =\t\t{}".format(self.r_size))
         print("\t\tSignature S size =\t\t{}".format(self.s_size))
         print(
-            "\t\tSignature curve magic =\t\t{0:#0{1}x}".format(self.sig_hash_magic, 10)
-        )
+            "\t\tSignature curve magic =\t\t{0:#0{1}x}".format(
+                self.sig_hash_magic, 10))
         print("\t\tSignature R =\t\t\t{0:#0{1}x}".format(self.r, 66))
         print("\t\tSignature S =\t\t\t{0:#0{1}x}".format(self.s, 66))
-

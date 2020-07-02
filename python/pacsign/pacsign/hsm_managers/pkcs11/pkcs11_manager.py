@@ -91,7 +91,9 @@ class HSM_MANAGER(object):
         if not local_key:
             raise pkcs11.NoSuchKey
 
-        key_ = self.session.get_key(label=local_key["label"], object_class=attrib)
+        key_ = self.session.get_key(
+            label=local_key["label"],
+            object_class=attrib)
 
         return key_, local_key
 

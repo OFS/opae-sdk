@@ -45,7 +45,13 @@ from pacsign import terminal
 
 def print_new_line():
 
-    terminal.printing("", terminal.MSG_TYPE.NULL, terminal.BCOLORS.INFO, 0, None, False)
+    terminal.printing(
+        "",
+        terminal.MSG_TYPE.NULL,
+        terminal.BCOLORS.INFO,
+        0,
+        None,
+        False)
 
 
 def print_info(string, space=0, file=None, alternate_color=False):
@@ -63,8 +69,11 @@ def print_info(string, space=0, file=None, alternate_color=False):
 def print_warning(string, space=0, file=None):
 
     terminal.printing(
-        string, terminal.MSG_TYPE.WARNING, terminal.BCOLORS.WARNING, space, file
-    )
+        string,
+        terminal.MSG_TYPE.WARNING,
+        terminal.BCOLORS.WARNING,
+        space,
+        file)
 
 
 def print_error(string, space=0, file=None):
@@ -88,7 +97,7 @@ def exception_handler(etype, value, tb):
 
 def run_command(command, printed_cmd=None, return_code=0, allow_error=False):
 
-    if printed_cmd == None:
+    if printed_cmd is None:
         printed_cmd = command
     p = subprocess.Popen(
         command,
@@ -119,7 +128,8 @@ def assert_in_error(boolean, string, *arg):
         # contruct message
         caller = inspect.stack()[1]
         module = os.path.basename(caller[1])
-        info = "Module: %s, Function: %s, Line: %d" % (module, caller[3], caller[2])
+        info = "Module: %s, Function: %s, Line: %d" % (
+            module, caller[3], caller[2])
         msg = "%s\n       %s" % (info, string)
         print_error(msg, space=0)
         sys.excepthook = exception_handler
@@ -130,7 +140,8 @@ def assert_in_error(boolean, string, *arg):
         # contruct message
         caller = inspect.stack()[1]
         module = os.path.basename(caller[1])
-        msg = "Module: %s, Function: %s, Line: %d" % (module, caller[3], caller[2])
+        msg = "Module: %s, Function: %s, Line: %d" % (
+            module, caller[3], caller[2])
         print_error(msg, space=0)
         sys.excepthook = exception_handler
         assert False, msg
@@ -150,7 +161,7 @@ def get_filename(fullpath, space=0):
     if len(fullpath):
         index = fullpath.rfind("/")
         if index != 0:
-            filename = fullpath[index + 1 :]
+            filename = fullpath[index + 1:]
     else:
         print_error("Input is NULL function get_filename()", space=space)
         sys.exit(-1)
@@ -171,7 +182,7 @@ def check_extension(file, extension):
         file_char_count == 0
         or extension_char_count == 0
         or file_char_count < (extension_char_count + 1)
-        or extension != file[(file_char_count - extension_char_count) :]
+        or extension != file[(file_char_count - extension_char_count):]
     ):
         status = False
     return status

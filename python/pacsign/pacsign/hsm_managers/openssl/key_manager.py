@@ -165,8 +165,8 @@ class _KEY(object):
         # Checking support type
         group = self.openssl.lib.EC_KEY_get0_group(self.key)
         common_util.assert_in_error(
-            group is not None, "generate_openssl_key() failed to EC_KEY_get0_group()"
-        )
+            group is not None,
+            "generate_openssl_key() failed to EC_KEY_get0_group()")
         type = self.openssl.lib.EC_GROUP_get_curve_name(group)
         self.curve_info = openssl.get_curve_info_from_enum(type)
         common_util.assert_in_error(
@@ -253,9 +253,10 @@ class _KEY(object):
                 )
                 common_util.assert_in_error(
                     public_tracking == 0,
-                    ("Basic checking on %s failed. Public Key " + "is already detected")
-                    % self.file,
-                )
+                    ("Basic checking on %s failed. Public Key " +
+                     "is already detected") %
+                    self.file,
+                    )
                 private_tracking += 1
             elif line.find("-----BEGIN ENCRYPTED PRIVATE KEY-----") == 0:
                 common_util.assert_in_error(
@@ -277,9 +278,10 @@ class _KEY(object):
                 )
                 common_util.assert_in_error(
                     public_tracking == 0,
-                    ("Basic checking on %s failed. Public " + "Key is already detected")
-                    % self.file,
-                )
+                    ("Basic checking on %s failed. Public " +
+                     "Key is already detected") %
+                    self.file,
+                    )
                 encrypted_tracking += 1
             elif line.find("-----BEGIN PUBLIC KEY-----") == 0:
                 common_util.assert_in_error(
@@ -318,9 +320,10 @@ class _KEY(object):
                 )
                 common_util.assert_in_error(
                     public_tracking == 0,
-                    ("Basic checking on %s failed. Public " + "Key is already detected")
-                    % self.file,
-                )
+                    ("Basic checking on %s failed. Public " +
+                     "Key is already detected") %
+                    self.file,
+                    )
                 common_util.assert_in_error(
                     private_tracking != 0,
                     (
@@ -350,9 +353,10 @@ class _KEY(object):
                 )
                 common_util.assert_in_error(
                     public_tracking == 0,
-                    ("Basic checking on %s failed. Public " + "Key is already detected")
-                    % self.file,
-                )
+                    ("Basic checking on %s failed. Public " +
+                     "Key is already detected") %
+                    self.file,
+                    )
                 common_util.assert_in_error(
                     encrypted_tracking != 0,
                     (
@@ -443,12 +447,12 @@ class _KEY(object):
         bn_byte = self.openssl.lib.BN_bn2bin(bignum, cpointer.data)
         common_util.assert_in_error(
             bn_byte <= size,
-            ("BN_bn2bin() expects BN size to be %d Bytes, " + "but found %d Bytes")
-            % (size, bn_byte),
-        )
+            ("BN_bn2bin() expects BN size to be %d Bytes, " +
+             "but found %d Bytes") % (size, bn_byte),)
         if bn_byte != size:
             cpointer1 = common_util.CHAR_POINTER(size)
-            cpointer1.assign_partial_data(cpointer.data, 0, size - bn_byte, bn_byte)
+            cpointer1.assign_partial_data(
+                cpointer.data, 0, size - bn_byte, bn_byte)
             del cpointer
             return cpointer1
         else:
@@ -563,9 +567,10 @@ class _PRIVATE_KEY(_KEY):
         )
         signature = self.openssl.lib.ECDSA_do_sign(sha, len(sha), self.key)
         common_util.assert_in_error(
-            self.openssl.lib.ECDSA_do_verify(sha, len(sha), signature, self.key),
-            "Fail to verify after the signing",
-        )
+            self.openssl.lib.ECDSA_do_verify(
+                sha, len(sha),
+                signature, self.key),
+            "Fail to verify after the signing",)
 
         r = c_void_p(None)
         s = c_void_p(None)
@@ -602,7 +607,7 @@ class _PRIVATE_KEY(_KEY):
 class _PUBLIC_KEY(_KEY):
     def __init__(self, file, openssl, key_info):
         self.key_info = key_info
-        if type(file) is str:
+        if isinstance(file, str):
             super(_PUBLIC_KEY, self).__init__(file, openssl, key_info)
             public_pem = self.check_pem_file()
             if public_pem:

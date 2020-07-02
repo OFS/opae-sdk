@@ -47,7 +47,6 @@
 # THE SOFTWARE.
 
 
-
 import collections
 import hashlib
 import random
@@ -218,4 +217,3 @@ def verify_signature(public_key, message, signature):
         return True
     else:
         return False
-

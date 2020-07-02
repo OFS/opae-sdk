@@ -99,29 +99,22 @@ assert (
 print("Append new key to root keychain to generate new keychain")
 assert (
     os.system(
-        "python -m pacsign --operation=append_key --permission=-1 "
-        + "--cancel=0 --previous_qky=test/root.qky --previous_pem=test/pri1.pem "
-        + "test/pub2.pem test/key.qky -k key_manager"
-    )
-    == 0
-)
-print("Append new key to root keychain to generate new keychain " + "(negative test)")
+        "python -m pacsign --operation=append_key --permission=-1 " +
+        "--cancel=0 --previous_qky=test/root.qky --previous_pem=test/pri1.pem " +
+        "test/pub2.pem test/key.qky -k key_manager") == 0)
+print(
+    "Append new key to root keychain to generate new keychain " +
+    "(negative test)")
 assert (
     os.system(
-        "python -m pacsign --operation=append_key --permission=-1 "
-        + "--cancel=0 --previous_qky=test/key.qky --previous_pem=test/pri2.pem "
-        + "test/pub4.pem test/negative.qky -k key_manager"
-    )
-    != 0
-)
+        "python -m pacsign --operation=append_key --permission=-1 " +
+        "--cancel=0 --previous_qky=test/key.qky --previous_pem=test/pri2.pem " +
+        "test/pub4.pem test/negative.qky -k key_manager") != 0)
 assert (
     os.system(
-        "python -m pacsign --operation=append_key --permission=-1 "
-        + "--cancel=0 --previous_qky=test/root.qky --previous_pem=test/pri1.pem "
-        + "test/pub3.pem test/negative.qky -k key_manager"
-    )
-    != 0
-)
+        "python -m pacsign --operation=append_key --permission=-1 " +
+        "--cancel=0 --previous_qky=test/root.qky --previous_pem=test/pri1.pem " +
+        "test/pub3.pem test/negative.qky -k key_manager") != 0)
 print("Insert Block0/Block1 into raw data and sign")
 assert (
     os.system(
@@ -257,4 +250,5 @@ assert not os.path.exists("test/negative.bin")
 assert not os.path.exists("test/negative.cert")
 print("Misc")
 assert os.system("python -m pacsign --help > test/help.txt") == 0
-assert os.system("python -m pacsign --help --operation=sign  > test/ohelp.txt") == 0
+assert os.system(
+    "python -m pacsign --help --operation=sign  > test/ohelp.txt") == 0
