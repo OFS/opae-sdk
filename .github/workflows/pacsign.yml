@@ -1,10 +1,14 @@
 name: Python pacsign tests
 
 on:
+  pull_request:
+    paths: 
+      - 'python/pacsign/**'
+      - '.github/workflows/pacsign.yml'
   push:
     paths:
       - 'python/pacsign/**'
-
+      - '.github/workflows/pacsign.yml'
 jobs:
   build:
     runs-on: ubuntu-latest
