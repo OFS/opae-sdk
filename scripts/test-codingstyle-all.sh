@@ -93,6 +93,7 @@ check_py () {
 	    -not -path "./doc/*" \
 	    -not -path "./tools/extra/packager/jsonschema-2.3.0/*" \
 	    -not -path  "./opae-libs/pyopae/pybind11/*" \
+	    -not -path "./python/pacsign/*" \
 	    -and \( ! -name "__init__.py" \))
     FILES+=" "
     FILES+=$(grep -rl "^#./usr/bin.*python" ./* \
