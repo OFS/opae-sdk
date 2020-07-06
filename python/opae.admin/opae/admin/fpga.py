@@ -208,7 +208,7 @@ class fme(region):
     def spi_bus(self):
         if os.path.basename(self.sysfs_path).startswith('dfl'):
             return self.find_one('dfl-fme.*.*/'
-                                 'subdev_spi_altera.*.auto/'
+                                 '*spi*/'
                                  'spi_master/spi*/spi*')
         return self.find_one('spi*/spi_master/spi*/spi*')
 
