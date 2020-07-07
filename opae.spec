@@ -7,7 +7,7 @@ ExclusiveArch:  x86_64
 
 Group:          Development/Libraries
 Vendor:         Intel Corporation
-Requires:       uuid, json-c, python
+Requires:       uuid, json-c, python3
 URL:            https://github.com/OPAE/%{name}-sdk
 Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-1/%{name}.tar.gz
 
@@ -18,10 +18,12 @@ BuildRequires:  json-c-devel
 BuildRequires:  libuuid-devel
 BuildRequires:  rpm-build
 BuildRequires:  hwloc-devel
-BuildRequires:  python-sphinx
+BuildRequires:  python3-sphinx
 BuildRequires:  doxygen
 BuildRequires:  systemd-rpm-macros
 BuildRequires:  systemd
+BuildRequires:  pybind11-devel
+BuildRequires:  tbb-devel
 
 %description
 Open Programmable Acceleration Engine (OPAE) is a software framework
@@ -163,24 +165,17 @@ popd
 %doc %{_datadir}/opae/RELEASE_NOTES.md
 %license %{_datadir}/opae/LICENSE
 %license %{_datadir}/opae/COPYING
+
 %{_libdir}/libopae-c.so.%{version}
 %{_libdir}/libopae-c.so.1
-%{_libdir}/libopae-c.so
-
 %{_libdir}/libbitstream.so.%{version}
 %{_libdir}/libbitstream.so.1
-%{_libdir}/libbitstream.so
-
 %{_libdir}/libopae-cxx-core.so.%{version}
 %{_libdir}/libopae-cxx-core.so.1
-%{_libdir}/libopae-cxx-core.so
-
-
-%{_libdir}/opae/libxfpga.so*
-%{_libdir}/opae/libmodbmc.so*
-
-
-
+%{_libdir}/libopae-c++-utils.so.%{version}
+%{_libdir}/libopae-c++-utils.so.1
+%{_libdir}/libopae-c++-nlb.so.%{version}
+%{_libdir}/libopae-c++-nlb.so.1
 
 %files devel
 %dir %{_includedir}/opae
@@ -195,6 +190,13 @@ popd
 %{_libdir}/opae/libboard_a10gx.so*
 %{_libdir}/opae/libboard_n3000.so*
 %{_libdir}/opae/libboard_d5005.so*
+%{_libdir}/libopae-c++-nlb.so
+%{_libdir}/libopae-cxx-core.so
+%{_libdir}/libopae-c++-utils.so
+%{_libdir}/libopae-c.so
+%{_libdir}/libbitstream.so
+%{_libdir}/opae/libxfpga.so*
+%{_libdir}/opae/libmodbmc.so*
 
 %{_bindir}/bist_app*
 %{_bindir}/bist_common.py*
@@ -203,22 +205,16 @@ popd
 %{_bindir}/bist_nlb3.py*
 %{_bindir}/bist_nlb0.py*
 %{_bindir}/fpgabist*
-
-%{_libdir}/libopae-c++-nlb.so*
-%{_libdir}/libopae-c++-utils.so*
-
 %{_bindir}/nlb0*
 %{_bindir}/nlb3*
 %{_bindir}/nlb7*
 %{_bindir}/fecmode*
-
 %{_bindir}/fpgamac*
 %{_bindir}/fvlbypass*
 %{_bindir}/mactest*
 %{_bindir}/fpgadiag*
 %{_bindir}/fpgalpbk*
 %{_bindir}/fpgastats*
-
 %{_bindir}/bitstreaminfo*
 %{_bindir}/fpgaflash*
 %{_bindir}/fpgaotsu*
@@ -226,8 +222,6 @@ popd
 %{_bindir}/fpgasupdate*
 %{_bindir}/rsu*
 %{_bindir}/super-rsu*
-
-
 %{_bindir}/fpgaconf
 %{_bindir}/fpgainfo
 %{_bindir}/mmlink
@@ -241,8 +235,8 @@ popd
 %{_bindir}/fpgametrics
 %{_bindir}/fpga_dma_N3000_test
 %{_bindir}/fpga_dma_test
-%{_usr}/share/opae/*
 
+%{_usr}/share/opae/*
 /usr/lib/python*
 %{_datadir}/doc/opae.admin/LICENSE
 
