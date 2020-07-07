@@ -24,6 +24,7 @@ BuildRequires:  systemd-rpm-macros
 BuildRequires:  systemd
 BuildRequires:  pybind11-devel
 BuildRequires:  tbb-devel
+BuildRequires:  git
 
 %description
 Open Programmable Acceleration Engine (OPAE) is a software framework
