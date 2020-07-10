@@ -429,6 +429,8 @@ def update_fw(args, pac):
         if retries >= max_retries:
             os.remove(tfile.name)
             return errno.ETIMEDOUT, 'Secure update timed out'
+
+    if status.value == 'idle':
         e = error.value
         if e:
             os.remove(tfile.name)
@@ -451,11 +453,13 @@ def update_fw(args, pac):
             if retries >= max_retries:
                 os.remove(tfile.name)
                 return errno.ETIMEDOUT, 'Secure update timed out'
-            e = error.value
-            if e:
-                os.remove(tfile.name)
-                return 1, e
             prg.update(payload_size - int(size.value))
+
+    if status.value == 'idle':
+        e = error.value
+        if e:
+            os.remove(tfile.name)
+            return 1, e
 
     if pac.fme.have_node('tcm'):
         estimated_time = payload_size / dram_copy_bps + dram_copy_offset
@@ -476,11 +480,13 @@ def update_fw(args, pac):
             if retries >= max_retries:
                 os.remove(tfile.name)
                 return errno.ETIMEDOUT, 'Secure update timed out'
-            e = error.value
-            if e:
-                os.remove(tfile.name)
-                return 1, e
             prg.tick()
+
+    if status.value == 'idle':
+        e = error.value
+        if e:
+            os.remove(tfile.name)
+            return 1, e
 
     LOG.info('update of %s complete', pac.pci_node.pci_address)
 
