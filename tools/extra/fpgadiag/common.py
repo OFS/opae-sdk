@@ -44,7 +44,7 @@ PATTERN = (r'.*(?P<segment>\w{4}):(?P<bus>\w{2}):'
 
 BDF_PATTERN = re.compile(PATTERN)
 
-FPGA_ROOT_PATH = '/sys/class/fpga'
+FPGA_ROOT_PATH = '/sys/class/fpga_region'
 CHAR_DEV = '/dev/char'
 
 MAPSIZE = mmap.PAGESIZE
@@ -93,7 +93,7 @@ class FpgaFinder(object):
 
     def get_fpga_device_list(self):
         if os.path.exists(FPGA_ROOT_PATH):
-            paths = glob.glob(os.path.join(FPGA_ROOT_PATH, 'intel-fpga-dev.*'))
+            paths = glob.glob(os.path.join(FPGA_ROOT_PATH, 'region*'))
             for p in paths:
                 bdf = self.read_bdf(os.path.join(p, 'device'))
                 if bdf:

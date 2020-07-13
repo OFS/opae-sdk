@@ -61,14 +61,7 @@ class MacromCompare(COMMON):
         if len(m) > 4:
             return os.sep.join(m[:-4])
 
-    def get_netif_number(self):
-        info = self.get_eth_group_info(self.args.eth_grps)
-        for grp in info:
-            if grp == HOST_SIDE:
-                self.number, _, spd, node = info[grp]
-
     def get_if_and_mac_list(self):
-        self.get_netif_number()
         pci_root = self.get_pci_common_root_path(self.args.fpga_root)
         ifs = os.listdir(SYSF_IF)
         for i in ifs:
@@ -181,14 +174,14 @@ def main():
                                     'bitstream_id', depth=3)
 
     mac_addrs = glob.glob(os.path.join(devs[0].get('path'),
-                                       'intel-fpga-fme.*', 'spi-altera*',
+                                       'dfl-fme*','dfl-fme*', '*spi*',
                                        'spi_master', 'spi*', 'spi*',
                                        'mac_address'))
     args.mac_addr = None
     if len(mac_addrs) > 0:
         args.mac_addr = mac_addrs[0]
     mac_cnts = glob.glob(os.path.join(devs[0].get('path'),
-                                      'intel-fpga-fme.*', 'spi-altera*',
+                                      'dfl-fme*','dfl-fme*', '*spi*',
                                       'spi_master', 'spi*', 'spi*',
                                       'mac_count'))
     args.mac_cnt = None
@@ -207,13 +200,6 @@ def main():
         if len(nvmem_path) > 1 and args.debug:
             s = 'multi nvmem found, select {} to do mactest'.format(args.nvmem)
             print(s)
-
-    args.eth_grps = f.find_node(devs[0].get('path'), 'eth_group*/dev', depth=4)
-    if not args.eth_grps:
-        exception_quit('No ethernet group found')
-    for g in args.eth_grps:
-        if args.debug:
-            print('ethernet group device: {}'.format(g))
 
     m = MacromCompare(args)
     m.start()
