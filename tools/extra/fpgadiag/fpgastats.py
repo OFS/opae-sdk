@@ -30,7 +30,10 @@ from __future__ import absolute_import
 from common import exception_quit, FpgaFinder, COMMON, hexint
 import argparse
 import time
-
+import glob
+import os
+import re
+import subprocess
 
 BUILD_FLAG_MAC_LIGHTWEIGHT = 0x2
 BUILD_FLAG_LIGHTWEIGHT = 0x8
@@ -132,6 +135,8 @@ class FPGASTATS(COMMON):
                             else False)
         self.eth_grps = args.eth_grps
         self.mac_number = 0
+        self.sbdf = args.sbdf
+        self.fpga_root = args.fpga_root
         self.demux_offset = {8: 0x100, 4: 0x80, 2: 0x40}
         if self.lightweight:
             self.sbdf = args.sbdf
@@ -235,6 +240,27 @@ class FPGASTATS(COMMON):
     def start(self):
         info = self.get_eth_group_info(self.eth_grps)
         self.print_stats(info)
+    def eth_stats(self):
+        eth_paths = glob.glob(os.path.join(self.fpga_root, 'dfl-fme*/dfl-fme*/net/*'))
+        for filepath in glob.glob(os.path.join(self.fpga_root, 'dfl-fme*/dfl-fme*/net/*')):
+            print(filepath)
+            eth_name = filepath.split("/net/")
+            print("------------------------------")
+            print("Ethernet Interface Name:", eth_name[1])
+            print("------------------------------")
+            try:
+                cmd = "ethtool  {}".format(eth_name[1])
+                print(cmd)
+                rc = subprocess.call(cmd, shell=True)
+                cmd = "ethtool -S {}".format(eth_name[1])
+                print(cmd)
+                rc = subprocess.call(cmd, shell=True)
+                if rc != 0:
+                    print("failed to '{}'".format(cmd))
+                    return None
+            except subprocess.CalledProcessError as e:
+                print('failed call')
+                return None
 
 
 def main():
@@ -267,13 +293,16 @@ def main():
 
     args.sbdf = '{segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**devs[0])
     bitstream_id_path = f.find_node(devs[0].get('path'),
-                                    'intel-fpga-fme.*/bitstream_id', depth=1)
+                                    'dfl-fme*/bitstream_id', depth=1)
+    print(bitstream_id_path)
     with open(bitstream_id_path[0], 'r') as fd:
         bitstream_id = fd.read().strip()
     args.build_flags = (int(bitstream_id, 16) >> 24) & 0xff
+    args.fpga_root = devs[0].get('path')
+    print(args.fpga_root)
     args.eth_grps = f.find_node(devs[0].get('path'), 'eth_group*/dev', depth=4)
-    if not args.eth_grps:
-        exception_quit('No ethernet group found')
+    #if not args.eth_grps:
+        #exception_quit('No ethernet group found')
     for g in args.eth_grps:
         if args.debug:
             print('ethernet group device: {}'.format(g))
@@ -282,7 +311,7 @@ def main():
     if args.clear:
         f.clear_stats()
     else:
-        f.start()
+        f.eth_stats()
 
 
 if __name__ == "__main__":

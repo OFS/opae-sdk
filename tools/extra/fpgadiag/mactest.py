@@ -143,16 +143,16 @@ class MacromCompare(COMMON):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--segment', '-S',  type=hexint,
+    parser.add_argument('--segment', '-S', type=hexint,
                         help='Segment number of PCIe device')
-    parser.add_argument('--bus', '-B',  type=hexint,
+    parser.add_argument('--bus', '-B', type=hexint,
                         help='Bus number of PCIe device')
-    parser.add_argument('--device', '-D',  type=hexint,
+    parser.add_argument('--device', '-D', type=hexint,
                         help='Device number of PCIe device')
-    parser.add_argument('--function', '-F',  type=hexint,
+    parser.add_argument('--function', '-F', type=hexint,
                         help='Function number of PCIe device')
     parser.add_argument('--offset',
-                        default='0',  type=hexint,
+                        default='0', type=hexint,
                         help='read mac address from a offset address')
     parser.add_argument('--debug', '-d', action='store_true',
                         help='Output debug information')
@@ -174,14 +174,14 @@ def main():
                                     'bitstream_id', depth=3)
 
     mac_addrs = glob.glob(os.path.join(devs[0].get('path'),
-                                       'dfl-fme*','dfl-fme*', '*spi*',
+                                       'dfl-fme*', 'dfl-fme*', '*spi*',
                                        'spi_master', 'spi*', 'spi*',
                                        'mac_address'))
     args.mac_addr = None
     if len(mac_addrs) > 0:
         args.mac_addr = mac_addrs[0]
     mac_cnts = glob.glob(os.path.join(devs[0].get('path'),
-                                      'dfl-fme*','dfl-fme*', '*spi*',
+                                      'dfl-fme*', 'dfl-fme*', '*spi*',
                                       'spi_master', 'spi*', 'spi*',
                                       'mac_count'))
     args.mac_cnt = None
