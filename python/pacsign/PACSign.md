@@ -19,6 +19,10 @@ bitstreams to validate their origin. The PACs will not program bitstreams withou
 The current PACs only support elliptical curve keys with the curve type `secp256r1` or `prime256v1`.
 The `PACSign` command supports hardware security modules (HSMs) for both `OpenSSL` and `PKCS #11`.
 
+To utilize `PKCS #11`, please ensure that the dummy fields `lib_path`,
+`token.label`, and `token.user_password` in the configuration file
+`PKCS11_config.json` are modified appropriately before proceeding.
+
 ## BITSTREAM TYPES ##
 The first required argument to `PACSign` is the bitstream type identifier.
 

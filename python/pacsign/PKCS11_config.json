@@ -2,11 +2,11 @@
    "cryptoki_version": [2, 40],
    "library_version": [2, 5],
    "platform-name" : "DCP",
-   "lib_path" : "D:/SoftHSM2/lib/softhsm2-x64.dll",
+   "lib_path" : "<[X:]/path/to/softhsm2-x64.dll>",
    "curve": "secp256r1",
    "token": {
-      "label": "Scott",
-      "user_password": "intel123",
+      "label": "foo",
+      "user_password": "bar",
       "keys":
          [
             {
