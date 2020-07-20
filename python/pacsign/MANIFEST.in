@@ -1,0 +1,2 @@
+include pacsign/hsm_managers/openssl/library/libcrypto.so
+include pacsign/hsm_managers/openssl/library/libcrypto-1_1-x64.dll
