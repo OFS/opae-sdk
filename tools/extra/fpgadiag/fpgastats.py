@@ -240,9 +240,12 @@ class FPGASTATS(COMMON):
     def start(self):
         info = self.get_eth_group_info(self.eth_grps)
         self.print_stats(info)
+
     def eth_stats(self):
-        eth_paths = glob.glob(os.path.join(self.fpga_root, 'dfl-fme*/dfl-fme*/net/*'))
-        for filepath in glob.glob(os.path.join(self.fpga_root, 'dfl-fme*/dfl-fme*/net/*')):
+        eth_paths = glob.glob(os.path.join(self.fpga_root,
+                              'dfl-fme*/dfl-fme*/net/*'))
+        for filepath in glob.glob(os.path.join(self.fpga_root,
+                                  'dfl-fme*/dfl-fme*/net/*')):
             print(filepath)
             eth_name = filepath.split("/net/")
             print("------------------------------")
@@ -301,8 +304,6 @@ def main():
     args.fpga_root = devs[0].get('path')
     print(args.fpga_root)
     args.eth_grps = f.find_node(devs[0].get('path'), 'eth_group*/dev', depth=4)
-    #if not args.eth_grps:
-        #exception_quit('No ethernet group found')
     for g in args.eth_grps:
         if args.debug:
             print('ethernet group device: {}'.format(g))

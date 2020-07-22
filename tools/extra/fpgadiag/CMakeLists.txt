@@ -107,6 +107,17 @@ set(fecmodesrc common.py
 
 set(fpgamacsrc common.py
                fpgamac.py)
+               
+find_package(PythonLibs)
+include_directories(${PYTHON_INCLUDE_DIRS})
+
+target_include_directories(_opae
+    PRIVATE ${PYBIND11_INCLUDE_DIR}
+    PRIVATE ${PYTHON_INCLUDE_DIRS})
+
+#add_subdirectory(pybind11)
+pybind11_add_module(fpga_vfio fpga_vfio.cpp)
+
 
 CREATE_PYTHON_EXE(fpgalpbk fpgalpbk ${fpgalpbksrc})
 install(PROGRAMS ${PACKAGER_BIN}

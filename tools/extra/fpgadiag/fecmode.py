@@ -126,7 +126,7 @@ def get_fec_mode(sbdf, debug):
     if not fpga_path:
         return None
     else:
-        paths = glob.glob(os.path.join(fpga_path, 'dfl-fme*', 'dfl-fme*', 
+        paths = glob.glob(os.path.join(fpga_path, 'dfl-fme*', 'dfl-fme*',
                                        'fec_mode'))
         if not paths:
             return None
