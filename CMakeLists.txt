@@ -123,6 +123,7 @@ set(CPACK_COMPONENTS_ALL
 	toolargsfilter
 	toolfpgainfo
 	toolfpgametrics
+    toolhssi
 	toolfpgadiag
 	toolfpga_dma_test
 	toolfpgabist
@@ -169,6 +170,7 @@ define_pkg(tools
   toolargsfilter
   toolfpgainfo
   toolfpgametrics
+  toolhssi
   licensefile
   GROUP "tools"
   DISPLAY_NAME "opae-tools"
