@@ -146,9 +146,9 @@ class FPGASTATS(COMMON):
         print("{0: <32}".format(stats), end=' | ')
         for i in range(self.mac_number):
             data = 0
-            for l in range(length):
-                v = self.fpga_eth_reg_read(handler, 'mac', i, reg + l)
-                data += (v & 0xffffffff) << (32 * l)
+            for len in range(length):
+                v = self.fpga_eth_reg_read(handler, 'mac', i, reg + len)
+                data += (v & 0xffffffff) << (32 * len)
             print("{0: >12}".format(data), end=' | ')
         print()
 
