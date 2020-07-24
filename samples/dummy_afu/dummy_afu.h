@@ -44,12 +44,12 @@ union afu_dfh  {
   afu_dfh(uint64_t v) : value(v) {}
   uint64_t value;
   struct {
-    uint64_t FeatureType : 4;
-    uint64_t Reserved41 : 19;
-    uint64_t EOL : 1;
-    uint64_t NextDfhByteOffset : 24;
-    uint64_t FeatureRev : 4;
     uint64_t FeatureID : 12;
+    uint64_t FeatureRev : 4;
+    uint64_t NextDfhByteOffset : 24;
+    uint64_t EOL : 1;
+    uint64_t Reserved41 : 19;
+    uint64_t FeatureType : 4;
   };
 };
 
@@ -61,8 +61,8 @@ union mem_test_ctrl  {
   mem_test_ctrl(uint64_t v) : value(v) {}
   uint64_t value;
   struct {
-    uint64_t Reserved1 : 63;
     uint64_t StartTest : 1;
+    uint64_t Reserved1 : 63;
   };
 };
 
@@ -74,11 +74,11 @@ union ddr_test_ctrl  {
   ddr_test_ctrl(uint64_t v) : value(v) {}
   uint64_t value;
   struct {
-    uint64_t Reserved4 : 60;
-    uint64_t DDRBank3StartTest : 1;
-    uint64_t DDRBank2StartTest : 1;
-    uint64_t DDRBank1StartTest : 1;
     uint64_t DDRBank0StartTest : 1;
+    uint64_t DDRBank1StartTest : 1;
+    uint64_t DDRBank2StartTest : 1;
+    uint64_t DDRBank3StartTest : 1;
+    uint64_t Reserved4 : 60;
   };
 };
 
@@ -90,8 +90,8 @@ union ddr_test_stat  {
   ddr_test_stat(uint64_t v) : value(v) {}
   uint64_t value;
   struct {
-    uint64_t Reserved8 : 56;
     uint64_t NumDDRBank : 8;
+    uint64_t Reserved8 : 56;
   };
 };
 
@@ -103,11 +103,11 @@ union ddr_test_bank0_stat  {
   ddr_test_bank0_stat(uint64_t v) : value(v) {}
   uint64_t value;
   struct {
-    uint64_t Reserved4 : 57;
-    uint64_t TrafficGenFSMState : 4;
-    uint64_t TrafficGenTestTimeout : 1;
-    uint64_t TrafficGenTestFail : 1;
     uint64_t TrafficGenTestPass : 1;
+    uint64_t TrafficGenTestFail : 1;
+    uint64_t TrafficGenTestTimeout : 1;
+    uint64_t TrafficGenFSMState : 4;
+    uint64_t Reserved4 : 57;
   };
 };
 
@@ -119,11 +119,11 @@ union ddr_test_bank1_stat  {
   ddr_test_bank1_stat(uint64_t v) : value(v) {}
   uint64_t value;
   struct {
-    uint64_t Reserved4 : 57;
-    uint64_t TrafficGenFSMState : 4;
-    uint64_t TrafficGenTestTimeout : 1;
-    uint64_t TrafficGenTestFail : 1;
     uint64_t TrafficGenTestPass : 1;
+    uint64_t TrafficGenTestFail : 1;
+    uint64_t TrafficGenTestTimeout : 1;
+    uint64_t TrafficGenFSMState : 4;
+    uint64_t Reserved4 : 57;
   };
 };
 
@@ -135,11 +135,11 @@ union ddr_test_bank2_stat  {
   ddr_test_bank2_stat(uint64_t v) : value(v) {}
   uint64_t value;
   struct {
-    uint64_t Reserved4 : 57;
-    uint64_t TrafficGenFSMState : 4;
-    uint64_t TrafficGenTestTimeout : 1;
-    uint64_t TrafficGenTestFail : 1;
     uint64_t TrafficGenTestPass : 1;
+    uint64_t TrafficGenTestFail : 1;
+    uint64_t TrafficGenTestTimeout : 1;
+    uint64_t TrafficGenFSMState : 4;
+    uint64_t Reserved4 : 57;
   };
 };
 
@@ -151,11 +151,11 @@ union ddr_test_bank3_stat  {
   ddr_test_bank3_stat(uint64_t v) : value(v) {}
   uint64_t value;
   struct {
-    uint64_t Reserved4 : 57;
-    uint64_t TrafficGenFSMState : 4;
-    uint64_t TrafficGenTestTimeout : 1;
-    uint64_t TrafficGenTestFail : 1;
     uint64_t TrafficGenTestPass : 1;
+    uint64_t TrafficGenTestFail : 1;
+    uint64_t TrafficGenTestTimeout : 1;
+    uint64_t TrafficGenFSMState : 4;
+    uint64_t Reserved4 : 57;
   };
 };
 
@@ -168,19 +168,27 @@ public:
   }
   ~dummy_afu(){}
 
-  uint64_t read64(uint32_t offset) {
+  uint64_t read64(uint32_t offset) const {
     return feature_->read_csr64(offset);
   }
 
-  void write64(uint32_t offset, uint64_t value) {
+  void write64(uint32_t offset, uint64_t value) const {
     return feature_->write_csr64(offset, value);
   }
 
-  uint64_t read64(uint32_t offset, uint32_t i) {
+  uint32_t read32(uint32_t offset) const {
+    return feature_->read_csr32(offset);
+  }
+
+  void write32(uint32_t offset, uint32_t value) const {
+    return feature_->write_csr32(offset, value);
+  }
+
+  uint64_t read64(uint32_t offset, uint32_t i) const {
     return read64(get_offset(offset, i));
   }
 
-  void write64(uint32_t offset, uint32_t i, uint64_t value) {
+  void write64(uint32_t offset, uint32_t i, uint64_t value) const {
     write64(get_offset(offset, i), value);
   }
 
@@ -246,9 +254,9 @@ public:
   }
 
   template<class T>
-  volatile T* register_ptr()
+  volatile T* register_ptr(uint32_t offset)
   {
-    return reinterpret_cast<volatile T*>(feature_->mmio_ptr(T::offset));
+    return reinterpret_cast<volatile T*>(feature_->mmio_ptr(offset));
   }
 
   template<class T>
@@ -261,7 +269,7 @@ private:
   uint32_t max_;
   fpga::handle::ptr_t feature_;
   std::map<uint32_t, uint32_t> limits_;
-  uint32_t get_offset(uint32_t base, uint32_t i) {
+  uint32_t get_offset(uint32_t base, uint32_t i) const {
     auto limit = limits_.find(base);
     auto offset = base + sizeof(uint64_t)*i;
     if (limit != limits_.end() &&
