@@ -47,7 +47,9 @@ int main(int argc, char* argv[])
         std::cerr << ": FAIL (" << ex.what() << ")\n";
         return 1;
       }
-      std::cout << "Test " << kv.first->get_display_name() << ": PASS\n";
+      auto pass = !ret ? "PASS" : "FAIL";
+      std::cout << "Test " << kv.first->get_display_name()
+                << ": " << pass << "\n";
       break;
     }
   }
