@@ -24,47 +24,33 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-#find_package(UUID REQUIRED)
-#include(opae_devpkgs_cmake_install)
-#include(ase_add_module)
+set(CLI11_URL https://github.com/CLIUtils/CLI11.git)
+set(CLI11_TAG v1.9.1)
 
-include_directories(${OPAE_INCLUDE_DIR}
-  ${OPAE_SDK_SOURCE}/libopae/src )
-include_directories(base/sw)
+set(CLI11_URL file:///storage/shared/home_directories/rrojo/mirrors/github.com/CLIUtils/CLI11.git) 
 
-if(BUILD_ASE_SAMPLES)
-  find_package(Quartus)
-  find_package(Questa)
-endif()
+opae_external_project_add(PROJECT_NAME CLI11
+                          GIT_URL ${CLI11_URL}
+                          GIT_TAG ${CLI11_TAG}
+                          GIT_SUBMODULES ""
+                          NO_ADD_SUBDIRECTORY
+)
 
-######################################################################
-# Add the samples ####################################################
-######################################################################
+include_directories(
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_SOURCE_DIR}/external/CLI11/include
+)
 
-set(OPAE_SAMPLES src/opae/samples)
-if(BUILD_ASE_SAMPLES)
-  # BBB libraries (MPF, DMA, etc)
-  include(intel_fpga_bbb)
-  Build_Intel_FPGA_BBB()
+opae_add_executable(TARGET dummy_afu
+    SOURCE dummy_afu.cpp
+    LIBS
+        opae-c
+        opae-cxx-core
+        ${libjson-c_LIBRARIES}
+        ${libuuid_LIBRARIES}
+    COMPONENT samplebin
+)
 
-  opae_add_subdirectory(intg_xeon_nlb)
-  opae_add_subdirectory(hello_afu)
-  opae_add_subdirectory(hello_mpf_afu)
-  if(BUILD_ASE_INTR)
-    opae_add_subdirectory(hello_intr_afu)
-  endif()
-  # opae_add_subdirectory(hello_error_afu)
-  # opae_add_subdirectory(hello_dma_afu)
-endif()
-
-######################################################################
-# Client application #################################################
-######################################################################
-if(BUILD_ASE)
-  add_definitions(-DTEST_TIMEOUT=130000000)
-endif()
-
-opae_add_subdirectory(hello_fpga)
-opae_add_subdirectory(hello_events)
-opae_add_subdirectory(object_api)
-opae_add_subdirectory(dummy_afu)
+#install(FILES dummy_afu.c
+#  DESTINATION src/opae/samples/dummy_afu
+#  COMPONENT samplesrc)
