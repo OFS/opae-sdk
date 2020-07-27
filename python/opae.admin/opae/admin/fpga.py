@@ -462,7 +462,7 @@ class fpga_base(class_node):
         if boot_type == "bmcimg":
             boot_type = "bmc"
         node_path = ("m10bmc-secure.*.auto/ifpga_sec_mgr/"
-                     "ifpga_sec*/update/{boot_type}_image_load".format(
+                     "ifpga_sec*/update/{boot_type}_image_load").format(
                          boot_type=boot_type)
 
         node = self.fme.spi_bus.find_one(node_path)
