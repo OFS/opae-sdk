@@ -386,7 +386,7 @@ class fpga_base(class_node):
         (0x8086, 0x0b2b): {'fpga': {'user': 0,
                                     'factory': 1},
                            'bmcimg': {'user': 1,
-                                      'factory': 0}},                                
+                                      'factory': 0}},
         (0x8086, 0x09c4): {'fpga': {'user': 0}}
     }
 
@@ -461,8 +461,9 @@ class fpga_base(class_node):
 
         if boot_type == "bmcimg":
             boot_type = "bmc"
-        node_path = "m10bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*/update/{boot_type}_image_load".format(
-            boot_type=boot_type)
+        node_path = ("m10bmc-secure.*.auto/ifpga_sec_mgr/"
+                     "ifpga_sec*/update/{boot_type}_image_load".format(
+                         boot_type=boot_type)
 
         node = self.fme.spi_bus.find_one(node_path)
         node.value = page
