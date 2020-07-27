@@ -124,18 +124,18 @@ class FpgaFinder(object):
         return paths
 
     def find_eth_group(self):
-
         eth_group = {}
         paths = glob.glob(ETH_GROUP_IOMMU_GROUPS)
         i = 0
         for path in paths:
-            print("fpga vfio iommu group:",path)
+            print("fpga vfio iommu group:", path)
             one, guid = os.path.split(path)
-            regex = re.compile('(/sys/kernel/iommu_groups/\d+)', re.I)
+            regex = re.compile(r'(/sys/kernel/iommu_groups/\d+)', re.I)
             one, group_id = os.path.split(regex.findall(path)[0])
-            eth_group[i] = [group_id,guid]
+            eth_group[i] = [group_id, guid]
             i = i + 1
         return eth_group
+
 
 class COMMON(object):
     sbdf = None
@@ -158,39 +158,41 @@ class COMMON(object):
 
     eth_group_inst = None
 
-    def eth_group_info(self,eth_grps):
+    def eth_group_info(self, eth_grps):
         info = {}
-        for keys,values in eth_grps.items():
- 
+        for keys, values in eth_grps.items():
             eth_group_inst = eth_group()
-            ret = eth_group_inst.eth_group_open(int(values[0]),values[1])
+            ret = eth_group_inst.eth_group_open(int(values[0]), values[1])
             if ret != 0:
                 return None
-            print("eth groups: \n ")
-            print("direction:",eth_group_inst.direction)
-            print("speed:",eth_group_inst.speed)
-            print("phy_num:",eth_group_inst.phy_num)
-            print("group_id:",eth_group_inst.group_id)
-            print("df_id:",eth_group_inst.df_id)
-            print("eth_lwmac:",eth_group_inst.eth_lwmac)
-            self.mac_lightweight = self.mac_lightweight or (eth_group_inst.eth_lwmac & 1) == 1
+            print("eth groups: \n")
+            print("direction:", eth_group_inst.direction)
+            print("speed:", eth_group_inst.speed)
+            print("phy_num:", eth_group_inst.phy_num)
+            print("group_id:", eth_group_inst.group_id)
+            print("df_id:", eth_group_inst.df_id)
+            print("eth_lwmac:", eth_group_inst.eth_lwmac)
+            self.mac_lightweight \
+                = \
+                self.mac_lsightweights \
+                or (eth_group_inst.eth_lwmac & 1) == 1
             info[eth_group_inst.group_id] = [eth_group_inst.phy_num,
                                              eth_group_inst.phy_num,
                                              eth_group_inst.speed]
             eth_group_inst.eth_group_close()
         return info
 
-    def eth_group_reg_write(self,eth_group, comp, dev, reg, v):
-        ret = eth_group.write_reg(self.eth_comp[comp],dev,0, reg, v)
+    def eth_group_reg_write(self, eth_group, comp, dev, reg, v):
+        ret = eth_group.write_reg(self.eth_comp[comp], dev, 0, reg, v)
         return ret
 
     def eth_group_reg_read(self, eth_group, comp, dev, reg):
-        ret = eth_group.read_reg(self.eth_comp[comp],dev,0, reg)
+        ret = eth_group.read_reg(self.eth_comp[comp], dev, 0, reg)
         return ret
 
-    def eth_group_reg_set_field(self,eth_group, comp, dev, reg, idx, width, value):
+    def eth_group_reg_set_field(self, eth_group, comp,
+                                dev, reg, idx, width, value):
         v = self.eth_group_reg_read(eth_group, comp, dev, reg)
-
         v = self.register_field_set(v, idx, width, value)
         self.eth_group_reg_write(eth_group, comp, dev, reg, v)
 

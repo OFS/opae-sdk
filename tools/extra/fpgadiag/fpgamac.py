@@ -144,11 +144,9 @@ class FPGAMAC(COMMON):
         return self.eth_group_reg_read(eth_group, 'mac', mac, reg)
 
     def eth_group_mac_mtu(self):
-
-        for keys,values in self.eth_grps.items():
-
+        for keys, values in self.eth_grps.items():
             eth_group_inst = eth_group()
-            ret = eth_group_inst.eth_group_open(int(values[0]),values[1])
+            ret = eth_group_inst.eth_group_open(int(values[0]), values[1])
             if ret != 0:
                 return None
 
@@ -165,21 +163,25 @@ class FPGAMAC(COMMON):
                     print("mac {}".format(i).ljust(24), end=' | ')
                     if self.direction in ['tx', 'both']:
                         offset = MTU_REG_OFFSET[self.speed]['tx']
-                        v = self.eth_group_mac_reg_read(eth_group_inst, i, offset)
+                        v = self.eth_group_mac_reg_read(eth_group_inst,
+                                                        i, offset)
                         print('{:<16}'.format(v), end=' | ')
                     if self.direction in ['rx', 'both']:
                         offset = MTU_REG_OFFSET[self.speed]['rx']
-                        v = self.eth_group_mac_reg_read(eth_group_inst, i, offset)
+                        v = self.eth_group_mac_reg_read(eth_group_inst,
+                                                        i, offset)
                         print('{:<16}'.format(v), end=' | ')
                     print()
             else:
                 for i in self.ports:
                     if self.direction in ['tx', 'both']:
                         offset = MTU_REG_OFFSET[self.speed]['tx']
-                        self.eth_group_mac_reg_write(eth_group_inst, i, offset, self.mtu)
+                        self.eth_group_mac_reg_write(eth_group_inst,
+                                                     i, offset, self.mtu)
                     if self.direction in ['rx', 'both']:
                         offset = MTU_REG_OFFSET[self.speed]['rx']
-                        self.eth_group_mac_reg_write(eth_group_inst, i, offset, self.mtu)
+                        self.eth_group_mac_reg_write(eth_group_inst,
+                                                     i, offset, self.mtu)
                 eth_group_inst.eth_group_close()
                 print("Done")
 
@@ -193,17 +195,14 @@ class FPGAMAC(COMMON):
                 self.speed = spd
 
     def eth_group_start(self):
-
         self.eth_group_port_info()
-
         self.check_args()
- 
         self.ports = self.get_port_list(self.argport, self.mac_number)
- 
         if self.mtu is None:
             print('Please set configruation type of MAC, such as "--mtu"')
         else:
             self.eth_group_mac_mtu()
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -240,13 +239,12 @@ def main():
     if not devs:
         sys.exit(2)
     args.eth_grps = f.find_eth_group()
-    print("args.eth_grps",args.eth_grps)
-    for keys,values in args.eth_grps.items():
-        print(keys,":",values)
+    print("args.eth_grps", args.eth_grps)
+    for keys, values in args.eth_grps.items():
+        print(keys, ":", values)
 
     lp = FPGAMAC(args)
     lp.eth_group_start()
-
 
 
 if __name__ == "__main__":
