@@ -38,6 +38,8 @@ import fcntl
 import stat
 import struct
 import mmap
+import eth_group
+from eth_group import *
 
 PATTERN = (r'.*(?P<segment>\w{4}):(?P<bus>\w{2}):'
            r'(?P<dev>\w{2})\.(?P<func>\d).*')
@@ -46,6 +48,7 @@ BDF_PATTERN = re.compile(PATTERN)
 
 FPGA_ROOT_PATH = '/sys/class/fpga_region'
 CHAR_DEV = '/dev/char'
+ETH_GROUP_IOMMU_GROUPS = "/sys/kernel/iommu_groups/*[0-9]/devices/*-*-*-*"
 
 MAPSIZE = mmap.PAGESIZE
 MAPMASK = MAPSIZE - 1
@@ -120,6 +123,28 @@ class FpgaFinder(object):
             paths.extend(r)
         return paths
 
+    def find_eth_group(self):
+        #paths = glob.glob("/dev/vfio/*[0-9]")
+        #/sys/kernel/iommu_groups/73/devices/83b8f4f2-509f-382f-3c1e-e6bfe0fa1001
+        eth_group = {}
+        paths = glob.glob(ETH_GROUP_IOMMU_GROUPS)
+        #print("paths",paths)
+        i = 0
+        for path in paths:
+            print("fpga vfio iommu group:",path)
+            one, guid = os.path.split(path)
+            #print("one:------->",one)
+            #print("two:------->",guid)
+            regex = re.compile('(/sys/kernel/iommu_groups/\d+)', re.I)
+            #print("KRI:------->",regex.findall(path))
+            one, group_id = os.path.split(regex.findall(path)[0])
+            #print("one:------->",one)
+            #print("two:------->",group_id)
+            eth_group[i] = [group_id,guid]
+            i = i + 1
+        #print("eth_group:------",eth_group)
+        return eth_group
+
 
 class COMMON(object):
     sbdf = None
@@ -139,6 +164,57 @@ class COMMON(object):
     if_len = struct.calcsize(if_fmt)
     rd_len = struct.calcsize(rd_fmt)
     wr_len = struct.calcsize(wr_fmt)
+
+    eth_group_inst = None
+
+    def eth_group_info(self,eth_grps):
+        info = {}
+        print("eth_group_info",eth_grps)
+        for keys,values in eth_grps.items():
+            #print(keys)
+            #print(values)
+            #print("values[0]",values[0])
+            #print("values[1]",values[1])
+
+            eth_group_inst = eth_group()
+            ret = eth_group_inst.eth_group_open(int(values[0]),values[1])
+            if ret != 0:
+                return None
+            print("eth groups: \n ")
+            print("direction:",eth_group_inst.direction)
+            print("speed:",eth_group_inst.speed)
+            print("phy_num:",eth_group_inst.phy_num)
+            print("group_id:",eth_group_inst.group_id)
+            print("df_id:",eth_group_inst.df_id)
+            print("eth_lwmac:",eth_group_inst.eth_lwmac)
+            self.mac_lightweight = self.mac_lightweight or (eth_group_inst.eth_lwmac & 1) == 1
+            info[eth_group_inst.group_id] = [eth_group_inst.phy_num,
+                                             eth_group_inst.phy_num,
+                                             eth_group_inst.speed]
+            eth_group_inst.eth_group_close()
+        return info
+
+    def eth_group_reg_write(self,eth_group, comp, dev, reg, v):
+        #print("--eth_group_reg_write---")
+        ret = eth_group.write_reg(self.eth_comp[comp],dev,0, reg, v)
+        return ret
+
+    def eth_group_reg_read(self, eth_group, comp, dev, reg):
+        #print("--eth_group_reg_read---")
+        ret = eth_group.read_reg(self.eth_comp[comp],dev,0, reg)
+        return ret
+
+    def eth_group_reg_set_field(self,eth_group, comp, dev, reg, idx, width, value):
+        #print("--- COMMON eth_group_eth_reg_set_field ---")
+        v = self.eth_group_reg_read(eth_group, comp, dev, reg)
+        #print("comp",comp)
+        #print("dev",dev)
+        #print("reg",reg)
+        #print("idx",idx)
+        #print("width",width)
+        #print("value",value)
+        v = self.register_field_set(v, idx, width, value)
+        self.eth_group_reg_write(eth_group, comp, dev, reg, v)
 
     def ioctl(self, handler, op, data):
         if isinstance(handler, str):
@@ -210,7 +286,7 @@ class COMMON(object):
         return info
 
     def is_mac_lightweight_image(self, eth_grps):
-        self.get_eth_group_info(eth_grps)
+        self.eth_group_info(eth_grps)
         return self.mac_lightweight
 
     def is_char_device(self, dev):

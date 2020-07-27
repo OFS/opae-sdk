@@ -29,7 +29,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "fpga_vfio.h"
+#include "eth_group.h"
 
 // Eth Group CSR
 #define ETH_GROUP_INFO		0x8
@@ -47,7 +47,9 @@
 
 #define DVE_VFIO_PATH  "/dev/vfio/vfio"
 
-uint64_t fpga_vfio::fpga_mdev_open(int vfio_id, std::string fpga_mdev_str)
+#define ETH_GROUP_DEBUG 0
+
+uint64_t eth_group::eth_group_open(int vfio_id, std::string fpga_mdev_str)
 {
 	char dev_path[256] = { 0 };
 	int i = 0;
@@ -55,8 +57,9 @@ uint64_t fpga_vfio::fpga_mdev_open(int vfio_id, std::string fpga_mdev_str)
 	struct vfio_iommu_type1_info iommu_info;
 	struct vfio_iommu_type1_dma_map dma_map;
 
-	std::cout << "vfio_id:" << vfio_id << std::endl;
-	std::cout << "fpga_mdev_str:" << fpga_mdev_str << std::endl;
+	//std::cout << "vfio_id:" << vfio_id << std::endl;
+	//std::cout << "fpga_mdev_str:" << fpga_mdev_str << std::endl;
+
 
 	memset(&group_status, 0, sizeof(group_status));
 	group_status.argsz = sizeof(group_status);
@@ -96,7 +99,7 @@ uint64_t fpga_vfio::fpga_mdev_open(int vfio_id, std::string fpga_mdev_str)
 		return -1;
 	}
 
-	printf("dev_path:%s \n", dev_path);
+	//printf("dev_path:%s \n", dev_path);
 
 	group = open(dev_path, O_RDWR);
 	if (group < 0) {
@@ -105,7 +108,7 @@ uint64_t fpga_vfio::fpga_mdev_open(int vfio_id, std::string fpga_mdev_str)
 		return -1;
 	}
 
-	printf("Group fd = %d\n", group);
+	//printf("Group fd = %d\n", group);
 
 	/* Test the group is viable and available */
 	ioctl(group, VFIO_GROUP_GET_STATUS, &group_status);
@@ -124,7 +127,7 @@ uint64_t fpga_vfio::fpga_mdev_open(int vfio_id, std::string fpga_mdev_str)
 	/* Get addition IOMMU info */
 	ioctl(container, VFIO_IOMMU_GET_INFO, &iommu_info);
 
-	printf("Success vfio VFIO_IOMMU_GET_INFO \n");
+	//printf("Success vfio VFIO_IOMMU_GET_INFO \n");
 
 	/* Allocate some space and setup a DMA mapping */
 	dma_map.vaddr = (unsigned long int) mmap(0, 1024 * 1024, PROT_READ | PROT_WRITE,
@@ -145,7 +148,7 @@ uint64_t fpga_vfio::fpga_mdev_open(int vfio_id, std::string fpga_mdev_str)
 	/* Test and setup the device */
 	ioctl(device, VFIO_DEVICE_GET_INFO, &device_info);
 
-	printf("Num regions: %d\n", device_info.num_regions);
+	//printf("Num regions: %d\n", device_info.num_regions);
 
 	for (i = 0; i < (int)device_info.num_regions; i++) {
 		struct vfio_region_info reg;
@@ -159,7 +162,7 @@ uint64_t fpga_vfio::fpga_mdev_open(int vfio_id, std::string fpga_mdev_str)
 			MAP_SHARED, device, reg.offset);
 
 		if (mem == MAP_FAILED) {
-			fpga_mdev_close();
+			eth_group_close();
 			return -1;
 		}
 
@@ -175,20 +178,20 @@ uint64_t fpga_vfio::fpga_mdev_open(int vfio_id, std::string fpga_mdev_str)
 		group_id = eth_info.group_num;
 		speed = eth_info.speed_gbs;
 		df_id = eth_dfh.id;
+		eth_lwmac = eth_info.light_wight_mac;
 
-		printf("ptr_=%lx \n", *(ptr_));
-		printf("ptr_+1 =%lx \n", *(ptr_ + 1));
-		printf("ptr_+2 =%lx \n", *(ptr_ + 2));
-		printf("ptr_+3 =%lx \n", *(ptr_ + 2));
-		printf("id =%x \n", eth_dfh.id);
+		//printf("eth group dfh   :%lx \n", *(ptr_));
+		//printf("eth group info  :%lx \n", *(ptr_ + 1));
+		//printf("eth group ctl   :%lx \n", *(ptr_ + 2));
+		//printf("eth group stas  :%lx \n", *(ptr_ + 2));
+		//printf("eth group dfhid :%x \n", eth_dfh.id);
 
 	}
-
 
 	return 0;
 }
 
-int fpga_vfio::fpga_mdev_close()
+int eth_group::eth_group_close()
 {
 	struct vfio_iommu_spapr_register_memory reg;
 	memset(&reg, 0, sizeof(reg));
@@ -216,18 +219,18 @@ int fpga_vfio::fpga_mdev_close()
 	return 0;
 }
 
-uint32_t fpga_vfio::read_mdev_reg(uint32_t type, uint32_t index, uint32_t flags, uint32_t addr)
+uint32_t eth_group::read_reg(uint32_t type, uint32_t index, uint32_t flags, uint32_t addr)
 {
 	volatile uint64_t value;
 	struct eth_group_ctl eth_ctl;
 	struct eth_group_stat eth_stat;
 	uint32_t data;
 
-	printf("read_mdev_reg\n \n ");
-	printf("addr: %x\n", addr);
-	printf("type: %x\n", type);
-	printf("index: %x\n", index);
-	printf("flags: %x\n", flags);
+	//printf("read_reg\n");
+	//printf("addr: %x\n", addr);
+	//printf("type: %x\n", type);
+	//printf("index: %x\n", index);
+	//printf("flags: %x\n", flags);
 
 	if (flags & ETH_GROUP_SELECT_FEAT && type != ETH_GROUP_PHY)
 		return -1;
@@ -236,16 +239,16 @@ uint32_t fpga_vfio::read_mdev_reg(uint32_t type, uint32_t index, uint32_t flags,
 	eth_stat.csr = 0;
 
 	if (type == ETH_GROUP_PHY)
-		eth_ctl.dev_select = index * 2 + 2;
+		eth_ctl.ctl_dev_select = index * 2 + 2;
 	else if (type == ETH_GROUP_MAC)
-		eth_ctl.dev_select = index * 2 + 3;
+		eth_ctl.ctl_dev_select = index * 2 + 3;
 	else if (type == ETH_GROUP_ETHER)
-		eth_ctl.dev_select = 0;
+		eth_ctl.ctl_dev_select = 0;
 
 	eth_ctl.eth_cmd = CMD_RD;
 	eth_ctl.ctl_addr = addr;
-	eth_ctl.dev_fev_select = flags & ETH_GROUP_SELECT_FEAT;
-	printf("::eth_ctl.csr =%lx \n", *(ptr_ + 2));
+	eth_ctl.ctl_fev_select = flags & ETH_GROUP_SELECT_FEAT;
+	//printf("::eth_ctl.csr =%lx \n", *(ptr_ + 2));
 
 	*(ptr_ + 2) = eth_ctl.csr;
 
@@ -254,27 +257,27 @@ uint32_t fpga_vfio::read_mdev_reg(uint32_t type, uint32_t index, uint32_t flags,
 	value = *(ptr_ + 3);
 	eth_stat.csr = value;
 	if (eth_stat.stat_valid) {
-		printf("Stats Read Valid \n ");
+		//printf("Stats Read Valid \n ");
 		data = eth_stat.stat_data;
-		printf("data: %x\n ", data);
+		//printf("data: %x\n ", data);
 		return data;
 	}
 	printf("Stats Read Valid Failed\n ");
 	return -1;
 
 }
-uint32_t fpga_vfio::write_mdev_reg(uint32_t type, uint32_t index, uint32_t flags, uint32_t addr, uint32_t data)
+uint32_t eth_group::write_reg(uint32_t type, uint32_t index, uint32_t flags, uint32_t addr, uint32_t data)
 {
 	volatile uint64_t value;
 	struct eth_group_ctl eth_ctl;
 	struct eth_group_stat eth_stat;
 
-	printf("-write_mdev_reg \n \n ");
-	printf("data: %x\n", data);
-	printf("addr: %x\n", addr);
-	printf("type: %x\n", type);
-	printf("index: %x\n", index);
-	printf("flags: %x\n", flags);
+	//printf("write_reg \n");
+	//printf("data: %x\n", data);
+	//printf("addr: %x\n", addr);
+	//printf("type: %x\n", type);
+	//printf("index: %x\n", index);
+	//printf("flags: %x\n", flags);
 
 	if (flags & ETH_GROUP_SELECT_FEAT && type != ETH_GROUP_PHY)
 		return -1;
@@ -283,23 +286,23 @@ uint32_t fpga_vfio::write_mdev_reg(uint32_t type, uint32_t index, uint32_t flags
 	eth_stat.csr = 0;
 
 	if (type == ETH_GROUP_PHY)
-		eth_ctl.dev_select = index * 2 + 2;
+		eth_ctl.ctl_dev_select = index * 2 + 2;
 	else if (type == ETH_GROUP_MAC)
-		eth_ctl.dev_select = index * 2 + 3;
+		eth_ctl.ctl_dev_select = index * 2 + 3;
 	else if (type == ETH_GROUP_ETHER)
-		eth_ctl.dev_select = 0;
+		eth_ctl.ctl_dev_select = 0;
 
 	eth_ctl.eth_cmd = CMD_WR;
 	eth_ctl.ctl_addr = addr;
 	eth_ctl.ctl_data = data;
-	eth_ctl.dev_fev_select = flags & ETH_GROUP_SELECT_FEAT;
+	eth_ctl.ctl_fev_select = flags & ETH_GROUP_SELECT_FEAT;
 	*(ptr_ + 2) = eth_ctl.csr;
 
 	usleep(300);
 	value = *(ptr_ + 3);
 	eth_stat.csr = value;
 	if (eth_stat.stat_valid) {
-		printf("Stats Read Valid \n ");
+		//printf("Stats Read Valid \n ");
 		return 0;
 	}
 	printf("Stats Read Valid Failed\n ");
@@ -309,20 +312,20 @@ uint32_t fpga_vfio::write_mdev_reg(uint32_t type, uint32_t index, uint32_t flags
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(fpga_vfio, m) {
+PYBIND11_MODULE(eth_group, m) {
 	// optional module docstring
-	m.doc() = "pybind11 fpga_vfio plugin";
+	m.doc() = "pybind11 eth_group plugin";
 
-	py::class_<fpga_vfio>(m, "fpga_vfio")
+	py::class_<eth_group>(m, "eth_group")
 		.def(py::init<>())
-		.def("fpga_mdev_open", (uint64_t(fpga_vfio::*)(int, std::string))&fpga_vfio::fpga_mdev_open)
-		.def("fpga_mdev_close", &fpga_vfio::fpga_mdev_close)
-		.def("read_mdev_reg", (uint32_t(fpga_vfio::*)(uint32_t type, uint32_t index, uint32_t flags, uint32_t addrr))&fpga_vfio::read_mdev_reg)
-		.def("write_mdev_reg", (uint32_t(fpga_vfio::*)(uint32_t type, uint32_t index, uint32_t flags, uint32_t addrr, uint32_t data))&fpga_vfio::write_mdev_reg)
-		.def_readonly("direction", &fpga_vfio::direction)
-		.def_readonly("phy_num", &fpga_vfio::phy_num)
-		.def_readonly("group_id", &fpga_vfio::group_id)
-		.def_readonly("speed", &fpga_vfio::speed)
-		.def_readonly("df_id", &fpga_vfio::df_id)
-		.def_readonly("eth_flag", &fpga_vfio::eth_flag);
+		.def("eth_group_open", (uint64_t(eth_group::*)(int, std::string))&eth_group::eth_group_open)
+		.def("eth_group_close", &eth_group::eth_group_close)
+		.def("read_reg", (uint32_t(eth_group::*)(uint32_t type, uint32_t index, uint32_t flags, uint32_t addrr))&eth_group::read_reg)
+		.def("write_reg", (uint32_t(eth_group::*)(uint32_t type, uint32_t index, uint32_t flags, uint32_t addrr, uint32_t data))&eth_group::write_reg)
+		.def_readonly("direction", &eth_group::direction)
+		.def_readonly("phy_num", &eth_group::phy_num)
+		.def_readonly("group_id", &eth_group::group_id)
+		.def_readonly("speed", &eth_group::speed)
+		.def_readonly("df_id", &eth_group::df_id)
+		.def_readonly("eth_lwmac", &eth_group::eth_lwmac);
 }

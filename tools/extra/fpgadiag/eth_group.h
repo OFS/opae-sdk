@@ -25,8 +25,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 
-#ifndef FPGA_VFIO_H
-#define FPGA_VFIO_H
+#ifndef ETH_VFIO_H
+#define ETH_VFIO_H
 
 #include <map>
 #include <memory>
@@ -76,8 +76,8 @@ struct eth_group_ctl {
 		struct {
 			uint32_t ctl_data : 32;
 			uint16_t ctl_addr : 16;
-			uint8_t dev_fev_select : 1;
-			uint8_t dev_select : 5;
+			uint8_t ctl_fev_select : 1;
+			uint8_t ctl_dev_select : 5;
 			uint16_t reserved : 8;
 			uint8_t  eth_cmd : 2;
 		};
@@ -95,16 +95,16 @@ struct eth_group_stat {
 	};
 };
 
-class fpga_vfio {
+class eth_group {
 public:
-	fpga_vfio() { }
+	eth_group() { }
 
-	~fpga_vfio() {}
-	uint64_t fpga_mdev_open(int vfio_id, std::string fpga_mdev_str);
-	int fpga_mdev_close();
-	uint32_t read_mdev_reg(uint32_t type, uint32_t index,
+	~eth_group() {}
+	uint64_t eth_group_open(int vfio_id, std::string fpga_mdev_str);
+	int eth_group_close();
+	uint32_t read_reg(uint32_t type, uint32_t index,
 		uint32_t flags, uint32_t addr);
-	uint32_t write_mdev_reg(uint32_t type, uint32_t index,
+	uint32_t write_reg(uint32_t type, uint32_t index,
 		uint32_t flags, uint32_t addr, uint32_t data);
 
 	uint32_t direction;
@@ -112,7 +112,7 @@ public:
 	uint32_t group_id;
 	uint32_t speed;
 	uint32_t df_id;
-	uint32_t eth_flag;
+	uint32_t eth_lwmac;
 
 private:
 	uint64_t* ptr_;
@@ -128,4 +128,4 @@ private:
 };
 
 
-#endif //FPGA_VFIO_H
+#endif //ETH_VFIO_H

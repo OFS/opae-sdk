@@ -115,8 +115,8 @@ target_include_directories(_opae
     PRIVATE ${PYBIND11_INCLUDE_DIR}
     PRIVATE ${PYTHON_INCLUDE_DIRS})
 
-#add_subdirectory(pybind11)
-pybind11_add_module(fpga_vfio fpga_vfio.cpp)
+
+pybind11_add_module(eth_group eth_group.cpp)
 
 
 CREATE_PYTHON_EXE(fpgalpbk fpgalpbk ${fpgalpbksrc})
