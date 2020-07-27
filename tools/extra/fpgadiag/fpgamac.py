@@ -77,8 +77,6 @@ class FPGAMAC(COMMON):
         if isinstance(self.mtu, int) and (self.mtu < 1 or self.mtu > 65535):
             s = 'mtu size {} is out of range 1~65535'.format(self.mtu)
             exception_quit(s, 5)
-        #if self.mac_group_dev == '':
-            #exception_quit('{} side mac not found'.format(self.side), 6)
         if self.speed not in MTU_REG_OFFSET:
             exception_quit('unknown speed {}'.format(self.speed), 6)
 
@@ -146,12 +144,8 @@ class FPGAMAC(COMMON):
         return self.eth_group_reg_read(eth_group, 'mac', mac, reg)
 
     def eth_group_mac_mtu(self):
-        #print("--------fpga_vfio_mac_mtu -----------\n \n")
+
         for keys,values in self.eth_grps.items():
-            #print(keys)
-            #print(values)
-            #print("values[0]",values[0])
-            #print("values[1]",values[1])
 
             eth_group_inst = eth_group()
             ret = eth_group_inst.eth_group_open(int(values[0]),values[1])
@@ -199,18 +193,17 @@ class FPGAMAC(COMMON):
                 self.speed = spd
 
     def eth_group_start(self):
-        #print("--------fpga_vfio_start -----------\n \n")
+
         self.eth_group_port_info()
-        #print("--------fpga_vfio_start -----------\n \n")
+
         self.check_args()
-        #print("--------fpga_vfio_mac_mtu get_port_list-----------\n \n")
+ 
         self.ports = self.get_port_list(self.argport, self.mac_number)
-        #print("--------fpga_vfio_mac_mtu get_port_list-----------\n \n")
+ 
         if self.mtu is None:
             print('Please set configruation type of MAC, such as "--mtu"')
         else:
             self.eth_group_mac_mtu()
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -246,25 +239,14 @@ def main():
         exception_quit(s, 1)
     if not devs:
         sys.exit(2)
-
     args.eth_grps = f.find_eth_group()
     print("args.eth_grps",args.eth_grps)
     for keys,values in args.eth_grps.items():
-        #print(keys)
-        #print(values)
         print(keys,":",values)
 
-    #for eth_grp in args.eth_grps:
-        #print("LOOP",eth_grp)
-    #args.eth_grps = f.find_node(devs[0].get('path'), 'eth_group*/dev', depth=4)
-    #if not args.eth_grps:
-     #   exception_quit('no ethernet group found', 3)
-    #if args.debug:
-     #   for g in args.eth_grps:
-      #      print('ethernet group device: {}'.format(g))
     lp = FPGAMAC(args)
     lp.eth_group_start()
-    #lp.start()
+
 
 
 if __name__ == "__main__":

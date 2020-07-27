@@ -157,13 +157,8 @@ class FPGALPBK(COMMON):
         self.fpga_loopback_en(self.en)
 
     def eth_group_loopback_en(self, en):
-        #print("--------eth_group_loopback_en -----------\n \n")
-        for keys,values in self.eth_grps.items():
-            #print(keys)
-            #print(values)
-            #print("values[0]",values[0])
-            #print("values[1]",values[1])
 
+        for keys,values in self.eth_grps.items():
             eth_group_inst = eth_group()
             ret = eth_group_inst.eth_group_open(int(values[0]),values[1])
             if ret != 0:
@@ -189,16 +184,13 @@ class FPGALPBK(COMMON):
                         self.eth_group_phy_reg_set_field(eth_group_inst, i, 0x142, 4, 1, 0)
                         self.eth_group_phy_reg_set_field(eth_group_inst, i, 0x11d, 0, 1, 0)
             elif self.speed == 25:
-                #print("--------eth_group_loopback_en self.speed == 25 -----------")
+
                 for i in self.ports:
-                    #print("--------Index : -----------",i)
+
                     self.eth_group_reg_set_field(eth_group_inst, 'mac', i, 0x313, 0, 4, en)
             elif self.speed == 40:
-
-                #print("--------eth_group_loopback_en self.speed == 40 -----------")
                 for i in self.ports:
                     v = 0xf if en else en
-                    #print("--------Index : -----------",i)
                     self.eth_group_reg_set_field(eth_group_inst,'mac', i, 0x313, 0, 4, v)
             else:
                 exception_quit('unsupport speed mode {}'.format(self.speed))
@@ -222,7 +214,6 @@ class FPGALPBK(COMMON):
         self.check_args()
         self.ports = self.get_port_list(self.argport, self.phy_number)
         self.eth_group_loopback_en(self.en)
-
 
 def main():
     parser = argparse.ArgumentParser()
@@ -288,20 +279,10 @@ def main():
     print("args.eth_grps",args.eth_grps)
     for keys,values in args.eth_grps.items():
         print(keys,":",values)
-        #print(values)
 
-    #for eth_grp in args.eth_grps:
-    #    print("LOOP",eth_grp)
-
-    #args.eth_grps = f.find_node(devs[0].get('path'), 'eth_group*/dev', depth=4)
-    #if not args.eth_grps:
-        #exception_quit('No ethernet group found')
-    #for g in args.eth_grps:
-        #print('ethernet group device: {}'.format(g))
 
     lp = FPGALPBK(args)
     lp.eth_group_start()
-
     print('Done')
 
 

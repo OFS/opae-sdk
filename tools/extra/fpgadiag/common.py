@@ -124,27 +124,18 @@ class FpgaFinder(object):
         return paths
 
     def find_eth_group(self):
-        #paths = glob.glob("/dev/vfio/*[0-9]")
-        #/sys/kernel/iommu_groups/73/devices/83b8f4f2-509f-382f-3c1e-e6bfe0fa1001
+
         eth_group = {}
         paths = glob.glob(ETH_GROUP_IOMMU_GROUPS)
-        #print("paths",paths)
         i = 0
         for path in paths:
             print("fpga vfio iommu group:",path)
             one, guid = os.path.split(path)
-            #print("one:------->",one)
-            #print("two:------->",guid)
             regex = re.compile('(/sys/kernel/iommu_groups/\d+)', re.I)
-            #print("KRI:------->",regex.findall(path))
             one, group_id = os.path.split(regex.findall(path)[0])
-            #print("one:------->",one)
-            #print("two:------->",group_id)
             eth_group[i] = [group_id,guid]
             i = i + 1
-        #print("eth_group:------",eth_group)
         return eth_group
-
 
 class COMMON(object):
     sbdf = None
@@ -169,13 +160,8 @@ class COMMON(object):
 
     def eth_group_info(self,eth_grps):
         info = {}
-        print("eth_group_info",eth_grps)
         for keys,values in eth_grps.items():
-            #print(keys)
-            #print(values)
-            #print("values[0]",values[0])
-            #print("values[1]",values[1])
-
+ 
             eth_group_inst = eth_group()
             ret = eth_group_inst.eth_group_open(int(values[0]),values[1])
             if ret != 0:
@@ -195,24 +181,16 @@ class COMMON(object):
         return info
 
     def eth_group_reg_write(self,eth_group, comp, dev, reg, v):
-        #print("--eth_group_reg_write---")
         ret = eth_group.write_reg(self.eth_comp[comp],dev,0, reg, v)
         return ret
 
     def eth_group_reg_read(self, eth_group, comp, dev, reg):
-        #print("--eth_group_reg_read---")
         ret = eth_group.read_reg(self.eth_comp[comp],dev,0, reg)
         return ret
 
     def eth_group_reg_set_field(self,eth_group, comp, dev, reg, idx, width, value):
-        #print("--- COMMON eth_group_eth_reg_set_field ---")
         v = self.eth_group_reg_read(eth_group, comp, dev, reg)
-        #print("comp",comp)
-        #print("dev",dev)
-        #print("reg",reg)
-        #print("idx",idx)
-        #print("width",width)
-        #print("value",value)
+
         v = self.register_field_set(v, idx, width, value)
         self.eth_group_reg_write(eth_group, comp, dev, reg, v)
 
