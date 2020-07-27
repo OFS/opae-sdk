@@ -174,7 +174,7 @@ class COMMON(object):
             print("eth_lwmac:", eth_group_inst.eth_lwmac)
             self.mac_lightweight \
                 = \
-                self.mac_lsightweights \
+                self.mac_lightweight \
                 or (eth_group_inst.eth_lwmac & 1) == 1
             info[eth_group_inst.group_id] = [eth_group_inst.phy_num,
                                              eth_group_inst.phy_num,
