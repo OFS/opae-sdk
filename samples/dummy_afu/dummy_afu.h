@@ -226,16 +226,13 @@ public:
     pfd.events = POLLIN;
     pfd.fd = event->os_object();
     auto ret = poll(&pfd, 1, timeout);
-    int count = 0;
 
     if (ret < 0)
       throw std::runtime_error(strerror(errno));
     if (ret == 0)
       throw std::runtime_error("timeout error");
-    std::cout << "got ineterrupt\n";
+    std::cout << "got interrupt\n";
 
-    if (read(pfd.fd, &count, sizeof(count)))
-      throw std::runtime_error("error reading from poll fd");
   }
 
   void compare(fpga::shared_buffer::ptr_t b1,
