@@ -32,7 +32,6 @@ opae_add_subdirectory(libboard/board_d5005)
 opae_add_subdirectory(fpgaconf)
 opae_add_subdirectory(fpgainfo)
 opae_add_subdirectory(fpgametrics)
-opae_add_subdirectory(hssi)
 
 # extra
 opae_add_subdirectory(extra/userclk)

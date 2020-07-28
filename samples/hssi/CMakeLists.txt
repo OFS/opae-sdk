@@ -31,8 +31,7 @@ opae_add_executable(TARGET hssi
     LIBS
         opae-c
         opae-cxx-core
-        ${libjson-c_LIBRARIES}
-    COMPONENT toolhssi
+    COMPONENT samplehssi
 )
 
 target_include_directories(hssi
@@ -40,9 +39,8 @@ target_include_directories(hssi
         ${CMAKE_SOURCE_DIR}/external/CLI11/include
 )
 
-#opae_external_project_add(PROJECT_NAME CLI11
-#                          #GIT_URL https://github.com/CLIUtils/CLI11.git
-#                          GIT_URL file:///storage/shared/home_directories/tswhison/iofs/hssi/CLI11.git
-#                          GIT_TAG v1.9.1
-#                          NO_ADD_SUBDIRECTORY
-#)
+opae_external_project_add(PROJECT_NAME CLI11
+                          GIT_URL https://github.com/CLIUtils/CLI11.git
+                          GIT_TAG v1.9.1
+                          NO_ADD_SUBDIRECTORY
+)
