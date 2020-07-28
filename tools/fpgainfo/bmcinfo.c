@@ -100,31 +100,6 @@ out_exit:
 	return;
 }
 
-static void print_perf_info(fpga_token token)
-{
-	fpga_properties props;
-	fpga_metric_info metrics_info[METRICS_MAX_NUM];
-	fpga_metric metrics[METRICS_MAX_NUM];
-	uint64_t num_metrics;
-	uint64_t num_metrics_info;
-	fpga_result res = FPGA_OK;
-
-	res = fpgaGetProperties(token, &props);
-	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-			     "reading properties from token");
-	fpgainfo_board_info(token);
-	fpgainfo_print_common("//****** PERFORMANCE COUNTERS ******//", props);
-
-	res = get_metrics(token, FPGA_PERF, metrics_info, &num_metrics_info, metrics, &num_metrics);
-	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-			     "reading metrics from BMC");
-
-	print_metrics(metrics_info, num_metrics_info, metrics, num_metrics);
-
-out_destroy:
-	fpgaDestroyProperties(&props);
-}
-
 
 fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
 			char *argv[])
@@ -178,54 +153,4 @@ fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
 	return res;
 }
 
-fpga_result perf_command(fpga_token *tokens, int num_tokens, int argc,
-			char *argv[])
-{
-	(void)argc;
-	(void)argv;
 
-	fpga_result res = FPGA_OK;
-
-	optind = 0;
-	struct option longopts[] = {
-		{"help", no_argument, NULL, 'h'},
-		{0, 0, 0, 0},
-	};
-
-	int getopt_ret;
-	int option_index;
-
-	while (-1
-	       != (getopt_ret = getopt_long(argc, argv, ":h", longopts,
-					    &option_index))) {
-		const char *tmp_optarg = optarg;
-
-		if ((optarg) && ('=' == *tmp_optarg)) {
-			++tmp_optarg;
-		}
-
-		switch (getopt_ret) {
-		case 'h': /* help */
-			perf_help();
-			return res;
-
-		case ':': /* missing option argument */
-			OPAE_ERR("Missing option argument\n");
-			perf_help();
-			return FPGA_INVALID_PARAM;
-
-		case '?':
-		default: /* invalid option */
-			OPAE_ERR("Invalid cmdline options\n");
-			perf_help();
-			return FPGA_INVALID_PARAM;
-		}
-	}
-
-	int i = 0;
-	for (i = 0; i < num_tokens; ++i) {
-		print_perf_info(tokens[i]);
-	}
-
-	return res;
-}
