@@ -211,15 +211,15 @@ STATIC fpga_result send_uafu_event_request(fpga_handle handle,
 			_eh->flags = flags;
 			break;
 		case FPGA_IRQ_DEASSIGN:
+			// unassigning has flags set to 0
+			// get the irq number from the event handle
+			flags = _eh->flags;
 			if (!(_handle->irq_set & (1 << flags))) {
 				OPAE_DBG("No irqs assigned");
 				return FPGA_INVALID_PARAM;
 			}
 			data = &neg;
 			_handle->irq_set &= ~(1 << flags);
-			// unassigning has flags set to 0
-			// get the irq number from the event handle
-			flags = _eh->flags;
 			break;
 		default:
 			OPAE_ERR("Invalid uafu operation");
