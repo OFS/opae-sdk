@@ -89,9 +89,6 @@ fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
 			 char *argv[]);
 void bmc_help(void);
 
-fpga_result perf_command(fpga_token *tokens, int num_tokens, int argc,
-			 char *argv[]);
-void perf_help(void);
 
 fpga_result get_metrics(fpga_token token, metrics_inquiry inquiry,
                         fpga_metric_info *metrics_info, uint64_t *num_metrics_info,
@@ -916,96 +913,12 @@ TEST_P(fpgainfo_c_p, bmc_command2) {
 }
 
 /**
- * @test       perf_command0
- * @brief      Test: perf_command
- * @details    When passed with valid arguments, the fn prints <br>
- *             relevant information and returns FPGA_OK. <br>
- */
-TEST_P(fpgainfo_c_p, perf_command0) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one };
-
-    fpga_properties filter = NULL;
-    fpga_token *tokens = NULL;
-    uint32_t matches = 0, num_tokens = 0;;
-
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
-    ASSERT_GT(matches, 0);
-    tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
-
-    num_tokens = matches;
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
-
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "perf");
-    EXPECT_EQ(perf_command(tokens, num_tokens, 2, argv), FPGA_OK);
-
-    for (uint32_t i = 0; i < num_tokens; ++i) {
-        fpgaDestroyToken(&tokens[i]);
-    }
-    free(tokens);
-    fpgaDestroyProperties(&filter);
-}
-
-/**
- * @test       perf_command1
- * @brief      Test: perf_command
- * @details    When passed with '-h', the fn prints <br>
- *             perf help message and returns FPGA_OK. <br>
- */
-TEST_P(fpgainfo_c_p, perf_command1) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char *argv[] = { zero, one, two };
-
-    fpga_token *tokens = NULL;
-
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "perf");
-    strcpy(two, "-h");
-    EXPECT_EQ(perf_command(tokens, 0, 3, argv), FPGA_OK);
-}
-
-/**
- * @test       perf_command2
- * @brief      Test: perf_command
- * @details    When passed with invalid '-xyz' param, the fn prints <br>
- *             perf help message and returns FPGA_INVALID_PARAM. <br>
- */
-TEST_P(fpgainfo_c_p, perf_command2) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char *argv[] = { zero, one, two };
-
-    fpga_token *tokens = NULL;
-
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "perf");
-    strcpy(two, "-xyz");
-    EXPECT_EQ(perf_command(tokens, 0, 3, argv), FPGA_INVALID_PARAM);
-}
-
-/**
  * @test       bmc_help
  * @brief      Test: bmc_help
  * @details    The function prints help message for bmc subcommand.<br>
  */
 TEST_P(fpgainfo_c_p, bmc_help) {
     bmc_help();
-}
-
-/**
- * @test       perf_help
- * @brief      Test: perf_help
- * @details    The function prints help message for perf subcommand.<br>
- */
-TEST_P(fpgainfo_c_p, perf_help) {
-    perf_help();
 }
 
 /**
