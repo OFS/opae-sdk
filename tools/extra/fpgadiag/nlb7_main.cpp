@@ -99,7 +99,13 @@ int main(int argc, char* argv[])
     if (accelerator_list.size() >= 1)
     {
         token::ptr_t accelerator_tok = accelerator_list[0];
-        auto h = handle::open(accelerator_tok, (shared ? FPGA_OPEN_SHARED: 0));
+        handle::ptr_t h;
+        try {
+            h = handle::open(accelerator_tok, (shared ? FPGA_OPEN_SHARED: 0));
+        } catch(no_access &e) {
+            std::cerr << "Error: insufficient privileges to access device." << std::endl;
+            return 103;
+        }
         nlb.assign(h);
         if (nlb.setup())
         {

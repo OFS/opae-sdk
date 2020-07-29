@@ -41,7 +41,7 @@ extern "C" {
 #define FPGA_VAR_BUF_LEN       256
 #define FPGA_PHYGROUP_SIZE     256
 #define MAC_BUF_SIZE           8
-#define MAC_BUF_LEN           18
+#define MAC_BUF_LEN           19
 
 typedef struct _fpga_pkvl_info {
 	uint32_t polling_mode;

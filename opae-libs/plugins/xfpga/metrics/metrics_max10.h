@@ -33,8 +33,8 @@
 #define __FPGA_METRICS_MAX10_H__
 
 
-#define DFL_MAX10_SYSFS_PATH                     "dfl-fme*/spi-altera*/spi_master/spi*/spi*/*bmc-hwmon*/hwmon/hwmon*"
-#define DFL_MAX10_SENSOR_SYSFS_PATH              "dfl-fme*/spi-altera*/spi_master/spi*/spi*/*bmc-hwmon*/hwmon/hwmon*/*_label"
+#define DFL_MAX10_SYSFS_PATH                     "dfl-fme*/*spi*/spi_master/spi*/spi*/*bmc-hwmon*/hwmon/hwmon*"
+#define DFL_MAX10_SENSOR_SYSFS_PATH              "dfl-fme*/*spi*/spi_master/spi*/spi*/*bmc-hwmon*/hwmon/hwmon*/*_label"
 #define DFL_TEMPERATURE                         "temp"
 #define DFL_VOLTAGE                             "in"
 #define DFL_CURRENT                             "curr"
