@@ -1,0 +1,45 @@
+name: python static analysis
+
+on: push
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [2.7, 3.5, 3.6, 3.7, 3.8]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Update
+      run: sudo apt-get update -y
+    - name: Setup python${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install flake8 bandit
+    - name: Lint
+      run: |
+        flake8 $(find ${{ github.workspace }} -name "*.py") \
+          --count --show-source --statistics \
+          | tee ${{ github.workspace }}/flake8.log
+      continue-on-error: true
+    - name: Bandit scan
+      run: |
+        bandit -r $(find ${{ github.workspace }} -name "*.py") \
+          --format txt \
+          | tee ${{ github.workspace }}/bandit.log
+        bandit -r $(find ${{ github.workspace }} -name "*.py") \
+          --format csv \
+          | tee ${{ github.workspace }}/bandit.log.csv
+    - name: Archive results
+      uses: actions/upload-artifact@v2
+      with:
+        name: static-analysis
+        path: |
+          ${{ github.workspace }}/flake8.log
+          ${{ github.workspace }}/bandit.log
+          ${{ github.workspace }}/bandit.log.csv

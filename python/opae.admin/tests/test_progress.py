@@ -1,4 +1,4 @@
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2019-2020, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,7 @@ import re
 from opae.admin.utils.progress import progress
 
 if sys.version_info[0] == 3:
-    temp_cfg = {'encoding': 'utf-8'}
+    temp_cfg = {'encoding': sys.getdefaultencoding()}
 else:
     temp_cfg = {}
 

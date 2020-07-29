@@ -114,21 +114,40 @@ TEST_P(metrics_max10_c_p, test_metric_max10_1) {
   void *buf = NULL;
   char file[] = "curr1_input";
   char sysfs[] =
-		"/sys/class/fpga_region/region*/dfl-fme.*/dfl-fme.*/spi-altera.*.auto/"
+		"/sys/class/fpga_region/region*/dfl-fme.*/dfl-fme.*/*spi*/"
 		"spi_master/spi*/spi*/*-hwmon.*.auto/hwmon/hwmon*";
 
   EXPECT_NE(read_sensor_sysfs_file(NULL, file, &buf, &tot_bytes_ret), FPGA_OK);
+  if (buf) {
+      free(buf);
+      buf = NULL;
+  }
 
   EXPECT_NE(read_sensor_sysfs_file(sysfs, NULL, &buf, &tot_bytes_ret), FPGA_OK);
+  if (buf) {
+      free(buf);
+      buf = NULL;
+  }
 
   EXPECT_NE(read_sensor_sysfs_file(sysfs, file, &buf, NULL), FPGA_OK);
+  if (buf) {
+      free(buf);
+      buf = NULL;
+  }
 
   EXPECT_EQ(read_sensor_sysfs_file(sysfs, file, &buf, &tot_bytes_ret), FPGA_OK);
+  if (buf) {
+      free(buf);
+      buf = NULL;
+  }
 
   EXPECT_NE(read_sensor_sysfs_file(sysfs, "test", &buf, &tot_bytes_ret),
             FPGA_OK);
+  if (buf) {
+      free(buf);
+      buf = NULL;
+  }
 
-  if (buf) free(buf);
 }
 
 /**

@@ -1,0 +1,36 @@
+#!/bin/bash
+
+mkdir -p $1/valgrind
+
+run_valgrind() {
+  local output="$1"
+  local exe="$2"
+  local log_file="$3"
+  local xml
+
+  xml="$(basename ${exe}).xml"
+
+  valgrind \
+  -v \
+  --log-file=${output}/valgrind/${log_file} \
+  --xml=yes \
+  --xml-file=${output}/valgrind/${xml} \
+  --tool=memcheck \
+  --leak-check=full \
+  --undef-value-errors=yes \
+  --track-origins=yes \
+  --show-leak-kinds=all \
+  --leak-check-heuristics=all \
+  --malloc-fill=0xa1 \
+  --free-fill=0xfe \
+  ${exe}
+}
+
+if [ $# -gt 1 ]; then
+  run_valgrind "$1" "$2" "$(basename $2).log"
+else
+  for f in $(find ./bin -type f -iname "test_*" -not -name "test_pyopae") ; do
+    log="$(basename $f).log"
+    run_valgrind "$1" "$f" "${log}"
+  done
+fi

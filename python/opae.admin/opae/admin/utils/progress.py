@@ -1,5 +1,4 @@
-# -*- coding: UTF-8 -*-
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2019-2020, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -43,13 +42,13 @@ else:
     _ftype = file  # noqa pylint: disable=E0602
 
     def wrap_stream(stream):
-        utf_writer = codecs.getwriter('UTF-8')
+        utf_writer = codecs.getwriter(sys.getdefaultencoding())
         return utf_writer(stream)
 
 
 class progress(loggable):
     """progress is a class to show a progress bar on a stream or callback"""
-    BAR = u'\u2588'
+    BAR = u'\u2588' if sys.getdefaultencoding().lower() == 'utf-8' else '#'
 
     def __init__(self, **kwargs):
         """__init__

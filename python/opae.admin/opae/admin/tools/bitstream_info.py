@@ -167,11 +167,12 @@ def main():
             )
 
         LOG.debug("".join("{:02x} ".format(x) for x in json_string.data))
-        LOG.debug(bytearray(json_string.data).decode("utf-8"))
+        LOG.debug(bytearray(json_string.data).decode(sys.getdefaultencoding()))
 
         j_data = None
         if has_json:
-            j_data = json.loads(bytearray(json_string.data).decode("utf-8"))
+            a = bytearray(json_string.data).decode(sys.getdefaultencoding())
+            j_data = json.loads(a)
             LOG.debug(json.dumps(j_data, sort_keys=True, indent=4))
 
         b0 = common_util.BYTE_ARRAY()

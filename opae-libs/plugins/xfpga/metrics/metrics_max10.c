@@ -118,7 +118,7 @@ fpga_result read_sensor_sysfs_file(const char *sysfs, const char *file,
 	int32_t tot_bytes = 0;
 	int32_t bytes_read = 0;
 	do {
-		bytes_read = (int32_t)read(fd, *buf, stats.st_size);
+		bytes_read = (int32_t)read(fd, *buf + tot_bytes, stats.st_size - tot_bytes);
 		if (bytes_read < 0) {
 			if (errno == EINTR) {
 				bytes_read = 1; // Fool the while loop
@@ -221,12 +221,13 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 		if (FPGA_OK != result || !tmp) {
 			if (tmp) {
 				free(tmp);
+				tmp = NULL;
 			}
 			continue;
 		}
 
-		memset(&metric_name, 0, sizeof(metric_name));
-		len = strnlen(tmp, sizeof(metric_name) - 1);
+		memset(metric_name, 0, sizeof(metric_name));
+		len = strnlen(tmp, tot_bytes);
 		memcpy(metric_name, tmp, len);
 		metric_name[len] = '\0';
 		if (metric_name[len - 1] == '\n')
@@ -234,6 +235,7 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 
 		if (tmp) {
 			free(tmp);
+			tmp = NULL;
 		}
 
 		// Metrics group name and qualifier name
@@ -311,12 +313,19 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 		}
 
 		// value sysfs path
-		memset(&metrics_sysfs_path, 0, sizeof(metrics_sysfs_path));
+		memset(metrics_sysfs_path, 0, sizeof(metrics_sysfs_path));
 		len = strlen(pglob.gl_pathv[i]) - 5;
 
 		memcpy(metrics_sysfs_path, pglob.gl_pathv[i], len);
 		metrics_sysfs_path[len] = '\0';
-		strncat(metrics_sysfs_path, DFL_VALUE, strlen(DFL_VALUE)+1);
+
+		if (strlen(metrics_sysfs_path) + sizeof(DFL_VALUE) >= SYSFS_PATH_MAX) {
+			OPAE_ERR("Invalid sensor sysfs path length");
+			result = FPGA_EXCEPTION;
+			goto out;
+		}
+
+		strncat(metrics_sysfs_path, DFL_VALUE, strlen(DFL_VALUE) + 1);
 
 		result = add_metric_vector(vector, *metric_num, qualifier_name,
 			group_name, group_sysfs, metric_name,

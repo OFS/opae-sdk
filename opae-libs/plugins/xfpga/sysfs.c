@@ -93,7 +93,7 @@ static sysfs_formats sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
 	 .sysfs_port_err = "errors/errors",
 	 .sysfs_port_err_clear = "errors/errors",
 	 .sysfs_bmc_glob = "avmmi-bmc.*/bmc_info",
-	 .sysfs_max10_glob = "dfl-fme*/spi-*/spi_master/spi*/spi*.*"
+	 .sysfs_max10_glob = "dfl-fme*/*spi*/spi_master/spi*/spi*.*"
 	},
 	// intel driver sysfs formats
 	{.sysfs_class_path = "/sys/class/fpga",
@@ -1793,7 +1793,7 @@ fpga_result sysfs_sbdf_from_path(const char *sysfspath, int *s, int *b, int *d,
 	char rlpath[SYSFS_PATH_MAX];
 	char *p;
 
-	res = readlink(sysfspath, rlpath, sizeof(rlpath));
+	res = readlink(sysfspath, rlpath, sizeof(rlpath)-1);
 	if (-1 == res) {
 		OPAE_MSG("Can't read link %s (no driver?)", sysfspath);
 		return FPGA_NO_DRIVER;
