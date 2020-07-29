@@ -40,13 +40,15 @@ int run_mmio(test_afu *afu, CLI::App *app)
   auto sp_index = app->get_option("--scratchpad-index");
   uint32_t start = *sp_index ? sp_index->as<uint32_t>() : 0;
   uint32_t end = *sp_index ? start + 1 : 64;
+  uint32_t dummy_value32 = 0xc0c0cafe;
+  uint64_t dummy_value64 = 0xc0c0cafeUL << 32;
   for (uint32_t i = 0; i < count; ++i) {
-    write_verify<uint32_t>(afu, dummy_afu::SCRATCHPAD, 0xc0c0fe);
-    write_verify<uint64_t>(afu, dummy_afu::SCRATCHPAD, 0xc0c0cafeUL << 32);
+    write_verify<uint32_t>(afu, dummy_afu::SCRATCHPAD, dummy_value32);
+    write_verify<uint64_t>(afu, dummy_afu::SCRATCHPAD, dummy_value64);
 
     for (uint32_t i = start; i < end; ++i) {
-      write_verify<uint32_t>(afu, dummy_afu::MMIO_TEST_SCRATCHPAD, i, 0xc0c0cafe);
-      write_verify<uint64_t>(afu, dummy_afu::MMIO_TEST_SCRATCHPAD, i, 0xc0c0cafeUL << 32);
+      write_verify<uint32_t>(afu, dummy_afu::MMIO_TEST_SCRATCHPAD, i, dummy_value32 | i);
+      write_verify<uint64_t>(afu, dummy_afu::MMIO_TEST_SCRATCHPAD, i, dummy_value64 | i);
     }
 
   }
