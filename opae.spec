@@ -66,8 +66,8 @@ cd _build
          modbmc \
          opae-cxx-core \
          hello_cxxcore \
-         board_rc \
-         board_vc \
+         board_a10gx \
+         board_n3000 \
          fpgaconf \
          fpgainfo \
          userclk \
@@ -164,8 +164,8 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
 %{_usr}/src/opae/cmake/*
 %{_usr}/src/opae/opae-libs/cmake/modules/*
 
-%{_libdir}/opae/libboard_rc.so*
-%{_libdir}/opae/libboard_vc.so*
+%{_libdir}/opae/libboard_a10gx.so*
+%{_libdir}/opae/libboard_n3000.so*
 
 %{_bindir}/fpgaconf
 %{_bindir}/fpgainfo
