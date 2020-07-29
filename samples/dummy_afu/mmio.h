@@ -6,6 +6,41 @@
 using namespace opae::app;
 
 template<typename T>
+inline void timeit_wr(test_afu *afu, uint32_t count)
+{
+  using namespace std::chrono;
+  auto begin = high_resolution_clock::now();
+  for (uint32_t i = 0; i < count; ++i) {
+    afu->write<T>(dummy_afu::SCRATCHPAD, i);
+  }
+  auto end = high_resolution_clock::now();
+  auto delta = duration_cast<nanoseconds>(end - begin).count();
+  auto width = sizeof(T)*8;
+  std::cout << "count: " << count << ", "
+            << "op: wr, "
+            << "width: " << width << ", "
+            << "mean: " << delta/count << " nsec\n";
+}
+
+template<typename T>
+inline void timeit_rd(test_afu *afu, uint32_t count)
+{
+  using namespace std::chrono;
+  auto begin = high_resolution_clock::now();
+  for (uint32_t i = 0; i < count; ++i) {
+    afu->read<T>(dummy_afu::SCRATCHPAD);
+  }
+  auto end = high_resolution_clock::now();
+  auto delta = duration_cast<nanoseconds>(end - begin).count();
+  auto width = sizeof(T)*8;
+  std::cout << "count: " << count << ", "
+            << "op: rd, "
+            << "width: " << width << ", "
+            << "mean: " << delta/count << " nsec\n";
+}
+
+
+template<typename T>
 inline void write_verify(test_afu *afu, uint32_t addr, T value)
 {
     afu->write<T>(addr, 0);
@@ -42,6 +77,8 @@ public:
   : count_(1)
   , sp_index_(0)
   , perf_(false)
+  , width_(64)
+  , op_("rd")
   {
 
   }
@@ -64,7 +101,11 @@ public:
     app->add_option("-s,--scratchpad-index",
                     sp_index_,
                     "index in the scratchpad array")->check(CLI::Range(0, 63));
-    app->add_flag("--perf", perf_, "get mmio performance stats");
+    app->add_flag("--perf", perf_, "get mmio performace numbers");
+    auto opt = app->add_option("-w,--width", width_, "mmio width for mmio performance stats");
+    opt->check(CLI::IsMember({8, 16, 32, 64}))->default_val(64);
+    opt = app->add_option("--op", op_, "operation for mmio performance stats");
+    opt->check(CLI::IsMember({"rd", "wr"}))->default_val("rd");
   }
 
   virtual int run(test_afu *afu, CLI::App *app)
@@ -89,43 +130,35 @@ public:
     return 0;
   }
 
-  template<typename T>
-  inline void timeit_rd(test_afu *afu, const std::string &op)
-  {
-    using namespace std::chrono;
-    auto begin = high_resolution_clock::now();
-    for (uint32_t i = 0; i < count_; ++i) {
-      afu->read<T>(dummy_afu::SCRATCHPAD);
-    }
-    auto end = high_resolution_clock::now();
-    auto delta = duration_cast<nanoseconds>(end - begin).count();
-    std::cout << "mean " << op << ": " << delta/count_ << " nanoseconds\n";
-  }
-
-  template<typename T>
-  inline void timeit_wr(test_afu *afu, const std::string &op)
-  {
-    using namespace std::chrono;
-    auto begin = high_resolution_clock::now();
-    for (uint32_t i = 0; i < count_; ++i) {
-      afu->write<T>(dummy_afu::SCRATCHPAD, i);
-    }
-    auto end = high_resolution_clock::now();
-    auto delta = duration_cast<nanoseconds>(end - begin).count();
-    std::cout << "mean " << op << ": " << delta/count_ << " nanoseconds\n";
-  }
 
   int run_perf(test_afu *afu, CLI::App *app)
   {
     (void)app;
-    timeit_rd<uint32_t>(afu, "read32");
-    timeit_rd<uint64_t>(afu, "read64");
-    timeit_wr<uint32_t>(afu, "write32");
-    timeit_wr<uint64_t>(afu, "write64");
+    typedef void(*perf_test)(test_afu*, uint32_t);
+    std::map<uint32_t, perf_test> rd_tests
+    {
+      {8, timeit_rd<uint8_t>},
+      {16, timeit_rd<uint16_t>},
+      {32, timeit_rd<uint32_t>},
+      {64, timeit_rd<uint64_t>},
+    };
+    std::map<uint32_t, perf_test> wr_tests
+    {
+      {8, timeit_wr<uint8_t>},
+      {16, timeit_wr<uint16_t>},
+      {32, timeit_wr<uint32_t>},
+      {64, timeit_wr<uint64_t>},
+    };
+    if (op_ == "wr")
+      wr_tests[width_](afu, count_);
+    else
+      rd_tests[width_](afu, count_);
     return 0;
   }
 private:
   uint32_t count_;
   uint32_t sp_index_;
   bool perf_;
+  uint32_t width_;
+  std::string op_;
 };
