@@ -33,6 +33,7 @@
 #include <unistd.h>
 #include <regex.h>
 #include <glob.h>
+#include <netinet/ether.h>
 #include <CLI/CLI.hpp>
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/token.h>
@@ -170,32 +171,12 @@ handle::ptr_t open_accelerator(const char *guid, const char *sbdf)
 #define INVALID_MAC 0xffffffffffffffffULL
 uint64_t mac_string_to_bits(const std::string &str)
 {
-  //           1111111
-  // 01234567890123456
-  // xx:xx:xx:xx:xx:xx
+  uint64_t res = INVALID_MAC;
+  struct ether_addr *eth = ether_aton(str.c_str());
 
-  if (str.length() < 17 ||
-      str[2] != ':' ||
-      str[5] != ':' ||
-      str[8] != ':' ||
-      str[11] != ':' ||
-      str[14] != ':') {
-    return INVALID_MAC;
-  }
-
-  unsigned shift = 0;
-  int i;
-  uint64_t res = 0;
-  for (i = 15 ; i >= 0 ; i -= 3, shift += 8) {
-    std::string sub = str.substr(i, 2);
-    unsigned long bits;
-    try {
-      bits = std::stoul(sub, nullptr, 16);
-    } catch (std::invalid_argument &e) {
-      std::cerr << "error: " << e.what() << std::endl;
-      return INVALID_MAC;
-    }
-    res |= bits << shift;
+  if (eth) {
+    res = 0ULL;
+    memcpy(&res, eth->ether_addr_octet, sizeof(eth->ether_addr_octet));
   }
 
   return res;
