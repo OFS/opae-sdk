@@ -14,11 +14,8 @@ using namespace opae::app;
 int main(int argc, char* argv[])
 {
   test_afu app("dummy_afu", AFU_ID);
-  auto mmio_cmd = app.register_command(run_mmio, "mmio", "run mmio tests");
-  mmio_cmd->add_option("-c,--count", "number of repititions")->default_val(1);
-  auto op = mmio_cmd->add_option("-s,--scratchpad-index", "index in the scratchpad array");
-  op->check(CLI::Range(0,63));
-  app.register_command(run_lpbk, "lpbk", "run loopback tests");
-  app.register_command(run_dma, "dma", "run dma tests");
+  app.register_command<mmio_test>();
+  app.register_command<dma_test>();
+  app.register_command<lpbk_test>();
   return app.main(argc, argv);
 }

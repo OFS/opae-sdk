@@ -97,6 +97,23 @@ union pcie_address {
 
 };
 
+class test_afu;
+class test_command {
+public:
+  typedef std::shared_ptr<test_command> ptr_t;
+  test_command(){}
+  virtual ~test_command(){}
+  virtual const char *name() const = 0;
+  virtual const char *description() const = 0;
+  virtual int run(test_afu *afu, CLI::App *app) = 0;
+  virtual void add_options(CLI::App *app)
+  {
+    (void)app;
+  }
+private:
+
+};
+
 class test_afu {
 public:
   typedef int (*command_fn)(test_afu *afu, CLI::App *app);
@@ -162,34 +179,42 @@ public:
       return res;
     }
 
-    std::string test = "none";
+    test_command::ptr_t test(nullptr);
+    CLI::App *app = nullptr;
     for (auto kv : commands_) {
       if (*kv.first) {
-        test = kv.first->get_display_name();
-        try {
-          res = kv.second(this, kv.first);
-        } catch(std::exception &ex) {
-          std::cerr << "error running command " << test 
-                    << ": " << ex.what() << "\n";
-          res = exit_codes::exception;
-        }
+        app = kv.first;
+        test = kv.second;
         break;
       }
     }
+    if (!test) {
+      std::cerr << "no command specified\n";
+      return exit_codes::not_run;
+    }
+    try {
+      res = test->run(this, app);
+    } catch(std::exception &ex) {
+      std::cerr << "error running command "
+                << test->name()
+                << ": " << ex.what() << "\n";
+      res = exit_codes::exception;
+    }
     auto pass = res == exit_codes::success ? "PASS" : "FAIL";
-    std::cout << "Test " << test << ": "
+    std::cout << "Test " << test->name() << ": "
               << pass << "\n";
     return res;
   }
 
-  CLI::App *register_command(command_fn fn,
-                             const std::string &name,
-                             const std::string &desc)
-
+  template<class T>
+  CLI::App *register_command()
   {
-    auto cmd = app_.add_subcommand(name, desc);
-    commands_[cmd] = fn;
-    return cmd;
+    test_command::ptr_t cmd(new T());
+    auto sub = app_.add_subcommand(cmd->name(),
+                                   cmd->description());
+    cmd->add_options(sub);
+    commands_[sub] = cmd;
+    return sub;
   }
 
   template<typename T>
@@ -313,7 +338,7 @@ private:
   std::string pci_addr_;
   fpga::handle::ptr_t handle_;
   bool shared_;
-  std::map<CLI::App*, command_fn> commands_;
+  std::map<CLI::App*, test_command::ptr_t> commands_;
   uint32_t max_;
   std::map<uint32_t, uint32_t> limits_;
 
