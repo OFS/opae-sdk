@@ -170,7 +170,10 @@ STATIC fpga_result send_uafu_event_request(fpga_handle handle,
 {
 	int res = FPGA_OK;
 	int fd = FILE_DESCRIPTOR(event_handle);
+	int *data = NULL;
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
+	struct _fpga_event_handle *_eh =
+		(struct _fpga_event_handle *)event_handle;
 	uint32_t num_irqs = 0;
 	int32_t neg = -1;
 	UNUSED_PARAM(flags);
@@ -181,26 +184,56 @@ STATIC fpga_result send_uafu_event_request(fpga_handle handle,
 		return FPGA_INVALID_PARAM;
 	}
 
-	res = opae_dfl_port_get_user_irq(_handle->fddev, &num_irqs);
-	if (res) {
-		OPAE_ERR("Port user interrupts not supported in hw");
-		return res;
+	if (!_handle->num_irqs) {
+		res = opae_dfl_port_get_user_irq(_handle->fddev, &num_irqs);
+		if (res) {
+			OPAE_ERR("Invalid param or not supported");
+			return res;
+		}
+		if (!num_irqs) {
+			OPAE_ERR("Port user interrupts not supported in hw");
+			return FPGA_NOT_SUPPORTED;
+		}
+		_handle->num_irqs = num_irqs;
 	}
 
-	if (num_irqs > 0) {
-		if (uafu_operation == FPGA_IRQ_ASSIGN) {
-			res = opae_dfl_port_set_user_irq(_handle->fddev, 0, 1, &fd);
-		} else {
-			res = opae_dfl_port_set_user_irq(_handle->fddev, 0, 1, &neg);
-		}
+	switch(uafu_operation) {
+		case FPGA_IRQ_ASSIGN:
+			if (flags >= _handle->num_irqs) {
+				OPAE_ERR("Max IRQs reached");
+				return FPGA_INVALID_PARAM;
+			}
+			if (_handle->irq_set & (1 << flags)) {
+				OPAE_ERR("IRQ index already in use");
+				return FPGA_INVALID_PARAM;
+			}
+			data = &fd;
+			// assigning irq uses flags as the irq num.
+			// set the bit in the handle irq set
+			// and stash the number in the event handle
+			_handle->irq_set |= (1 << flags);
+			_eh->flags = flags;
+			break;
+		case FPGA_IRQ_DEASSIGN:
+			// unassigning has flags set to 0
+			// get the irq number from the event handle
+			flags = _eh->flags;
+			if (!(_handle->irq_set & (1 << flags))) {
+				OPAE_DBG("IRQ not assigned");
+				return FPGA_INVALID_PARAM;
+			}
+			data = &neg;
+			_handle->irq_set &= ~(1 << flags);
+			break;
+		default:
+			OPAE_ERR("Invalid uafu operation");
+			return FPGA_EXCEPTION;
+	}
+	res = opae_dfl_port_set_user_irq(_handle->fddev, flags, 1, data);
 
-		if (res) {
-			OPAE_ERR("Could not set eventfd");
-			res = FPGA_EXCEPTION;
-		}
-	} else {
-		OPAE_ERR("PORT interrupts not supported in hw");
-		res = FPGA_NOT_SUPPORTED;
+	if (res) {
+		OPAE_ERR("Could not set eventfd");
+		res = FPGA_EXCEPTION;
 	}
 
 	return res;
