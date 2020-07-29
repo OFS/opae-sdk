@@ -4,7 +4,7 @@
 
 #include "mmio.h"
 #include "lpbk.h"
-#include "dma.h"
+#include "ddr.h"
 
 #include "test_afu.h"
 

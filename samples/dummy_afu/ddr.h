@@ -23,20 +23,18 @@ public:
   virtual ~dma_test(){}
   virtual const char *name() const
   {
-    return "dma";
+    return "ddr";
   }
 
   virtual const char *description() const
   {
-    return "run dma test";
+    return "run ddr test";
   }
 
   virtual int run(test_afu *afu, CLI::App *app)
   {
     (void)app;
     using namespace std::chrono;
-    afu->write64(dummy_afu::DDR_TEST_CTRL, 0x00000000);
-    afu->write64(dummy_afu::DDR_TEST_CTRL, 0x0000000f);
     auto bank0 = afu->register_ptr<uint64_t>(dummy_afu::ddr_test_bank0_stat::offset);
     auto bank1 = afu->register_ptr<uint64_t>(dummy_afu::ddr_test_bank1_stat::offset);
     auto bank2 = afu->register_ptr<uint64_t>(dummy_afu::ddr_test_bank2_stat::offset);
@@ -46,6 +44,14 @@ public:
     ptrs.push_back(bank1);
     ptrs.push_back(bank2);
     ptrs.push_back(bank3);
+    for (auto p : ptrs)
+      if (*p & 0b111)
+        throw std::runtime_error("banks not zero");
+
+    // start the test
+    afu->write64(dummy_afu::DDR_TEST_CTRL, 0x00000000);
+    afu->write64(dummy_afu::DDR_TEST_CTRL, 0x0000000f);
+
     auto begin = high_resolution_clock::now();
     while (!ptrs.empty()) {
       if (*ptrs.front() & 0b111) {
