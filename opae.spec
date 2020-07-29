@@ -155,8 +155,6 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
 %files devel
 %dir %{_includedir}/opae
 %{_includedir}/opae/*
-%dir %{_includedir}/safe_string
-%{_includedir}/safe_string/safe_string.h
 %dir %{_usr}/src/opae
 %{_usr}/src/opae/samples/hello_fpga/hello_fpga.c
 %{_usr}/src/opae/samples/hello_events/hello_events.c
