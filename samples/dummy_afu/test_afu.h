@@ -74,10 +74,13 @@ union pcie_address {
     regmatch_t matches[MATCHES_SIZE];
 
     int reg_res = regcomp(&re, sbdf_pattern, REG_EXTENDED | REG_ICASE);
-    if (reg_res) {
+    if (reg_res)
       throw std::runtime_error("could not compile regex");
-    }
+
     reg_res = regexec(&re, s, MATCHES_SIZE, matches, 0);
+    if (reg_res)
+      throw std::runtime_error("pcie address not valid format");
+
     uint16_t domain, bus, device, function;
     if (!parse_match_int(s, matches[2], domain, 16))
       domain = 0;

@@ -117,3 +117,18 @@ TEST_P(dummy_afu_p, main) {
 
 INSTANTIATE_TEST_CASE_P(dummy_afu, dummy_afu_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"dfl-d5005"})));
+
+TEST(dummy_afu, parse_pcie_address)
+{
+  auto p = pcie_address::parse("1111:3b:19.4");
+  EXPECT_EQ(p.fields.domain, 0x1111);
+  EXPECT_EQ(p.fields.bus, 0x3b);
+  EXPECT_EQ(p.fields.device, 0x19);
+  EXPECT_EQ(p.fields.function, 4);
+  p = pcie_address::parse("3b:00.1");
+  EXPECT_EQ(p.fields.domain, 0x0000);
+  EXPECT_EQ(p.fields.bus, 0x3b);
+  EXPECT_EQ(p.fields.device, 0x0);
+  EXPECT_EQ(p.fields.function, 1);
+  EXPECT_THROW(pcie_address::parse("xy:11.g"), std::runtime_error);
+}
