@@ -85,7 +85,11 @@ class dummy_afu_p : public ::testing::TestWithParam<std::string> {
     app_ = 0;
     fpgaFinalize();
     system_->finalize();
+  }
+
+  void clear_args() {
     for (auto p : args_) free(p);
+    args_.clear();
   }
 
   test_platform platform_;
@@ -113,6 +117,41 @@ TEST_P(dummy_afu_p, main) {
   free(args_.back());
   args_.back() = strdup("lpbk");
   EXPECT_EQ(4, app_->main(args_.size(), const_cast<char**>(args_.data())));
+}
+
+/**
+ * @test       main_invalid_pci_addr
+ * @brief      Test: main
+ * @details    Given and invalid pcie_address
+ *             When I run dummy_afu with this
+ *             pcie_address in the command line
+ *             I get not_found exit code
+ */
+TEST_P(dummy_afu_p, main_invalid_pci_addr) {
+  args_.push_back(strdup("dummy_afu"));
+  args_.push_back(strdup("-p"));
+  args_.push_back(strdup("00:00.1"));
+  args_.push_back(strdup("mmio"));
+  EXPECT_EQ(test_afu::exit_codes::not_found,
+            app_->main(args_.size(), const_cast<char**>(args_.data())));
+}
+
+/**
+ * @test       main_invalid_guid
+ * @brief      Test: main
+ * @details    Given and invalid guid
+ *             When I run dummy_afu with this
+ *             guid in the command line
+ *             I get not_found exit code
+ */
+TEST_P(dummy_afu_p, main_invalid_guid) {
+  const char *guid = "8a38d6c4-d29c-11ea-9b96-005056ac13c8";
+  args_.push_back(strdup("dummy_afu"));
+  args_.push_back(strdup("-g"));
+  args_.push_back(strdup(guid));
+  args_.push_back(strdup("mmio"));
+  EXPECT_EQ(test_afu::exit_codes::not_found,
+            app_->main(args_.size(), const_cast<char**>(args_.data())));
 }
 
 INSTANTIATE_TEST_CASE_P(dummy_afu, dummy_afu_p,
