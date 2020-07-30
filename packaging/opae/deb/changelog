@@ -1,0 +1,5 @@
+opae (@VERSION@-@RELEASE@) unstable; urgency=medium
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- The OPAE Dev Team <opae@lists.01.org>  Mon, 01 Jun 2020 15:14:05 -0700
