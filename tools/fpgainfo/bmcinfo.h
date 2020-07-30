@@ -42,9 +42,6 @@ extern "C" {
 fpga_result bmc_filter(fpga_properties *filter, int argc, char *argv[]);
 fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
 			 char *argv[]);
-fpga_result perf_command(fpga_token *tokens, int num_tokens, int argc,
-			 char *argv[]);
-void perf_help(void);
 void bmc_help(void);
 
 
