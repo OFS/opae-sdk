@@ -27,6 +27,7 @@
 #include <poll.h>
 #include <regex.h>
 #include <unistd.h>
+#include <random>
 
 #include <CLI/CLI.hpp>
 #include <opae/cxx/core/events.h>
