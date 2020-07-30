@@ -197,7 +197,7 @@ STATIC fpga_result send_uafu_event_request(fpga_handle handle,
 		_handle->num_irqs = num_irqs;
 	}
 
-	switch(uafu_operation) {
+	switch (uafu_operation) {
 	case FPGA_IRQ_ASSIGN:
 		if (flags >= _handle->num_irqs) {
 			OPAE_ERR("Max IRQs reached");
