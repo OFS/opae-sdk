@@ -173,6 +173,7 @@ public:
 
   int main(int argc, char *argv[])
   {
+    app_.require_subcommand();
     CLI11_PARSE(app_, argc, argv);
     int res = open_handle();
     if (res != exit_codes::not_run) {

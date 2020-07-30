@@ -16,11 +16,11 @@ int print_stat(const char *name, T stat)
   return stat->value & 0b110;
 }
 
-class dma_test : public test_command
+class ddr_test : public test_command
 {
 public:
-  dma_test(){}
-  virtual ~dma_test(){}
+  ddr_test(){}
+  virtual ~ddr_test(){}
   virtual const char *name() const
   {
     return "ddr";

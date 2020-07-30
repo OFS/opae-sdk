@@ -1,5 +1,4 @@
 #include <iostream>
-#include <opae/cxx/core/handle.h>
 #include <CLI/CLI.hpp>
 
 #include "mmio.h"
@@ -15,7 +14,7 @@ int main(int argc, char* argv[])
 {
   test_afu app("dummy_afu", AFU_ID);
   app.register_command<mmio_test>();
-  app.register_command<dma_test>();
+  app.register_command<ddr_test>();
   app.register_command<lpbk_test>();
   return app.main(argc, argv);
 }

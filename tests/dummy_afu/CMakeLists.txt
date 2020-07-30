@@ -1,4 +1,4 @@
-## Copyright(c) 2014-2020, Intel Corporation
+## Copyright(c) 2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,32 +24,22 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-set(CLI11_URL
-    https://github.com/CLIUtils/CLI11.git
-    CACHE STRING "URL for CLI11 Project")
-set(CLI11_TAG
-    v1.9.1
-    CACHE STRING "Tag to checkout for CLI11")
-
-
-opae_external_project_add(PROJECT_NAME CLI11
-                          GIT_URL ${CLI11_URL}
-                          GIT_TAG ${CLI11_TAG}
-                          NO_ADD_SUBDIRECTORY
-)
-
 include_directories(
-    ${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_SOURCE_DIR}/external/CLI11/include
+    ${CMAKE_SOURCE_DIR}/samples/dummy_afu
 )
-
-opae_add_executable(TARGET dummy_afu
-    SOURCE dummy_afu.cpp
+opae_test_add_static_lib(TARGET dummy_afu-static
+    SOURCE ${OPAE_SDK_SOURCE}/samples/dummy_afu/dummy_afu.cpp
     LIBS
         opae-c
         opae-cxx-core
-        ${libjson-c_LIBRARIES}
-        ${libuuid_LIBRARIES}
-    COMPONENT samplebin
 )
 
+target_compile_definitions(dummy_afu-static
+    PRIVATE main=dummy_afu_main
+)
+
+opae_test_add(TARGET test_dummy_afu
+    SOURCE test_dummy_afu.cpp
+    LIBS dummy_afu-static
+)
