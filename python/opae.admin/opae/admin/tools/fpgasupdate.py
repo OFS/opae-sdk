@@ -423,7 +423,7 @@ def update_fw(args, pac):
     retries = 0
     timeout = 1.0
     max_retries = 60 * 5
-    while status.value != 'writing':
+    while status.value == 'read_file' or status.value == 'preparing':
         time.sleep(timeout)
         retries += 1
         if retries >= max_retries:
