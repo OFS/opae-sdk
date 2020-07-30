@@ -357,5 +357,6 @@ private:
 
 };
 
-}
-}
+} // end of namespace app
+} // end of namespace opae
+

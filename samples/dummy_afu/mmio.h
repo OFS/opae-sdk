@@ -187,3 +187,4 @@ private:
   uint32_t width_;
   std::string op_;
 };
+

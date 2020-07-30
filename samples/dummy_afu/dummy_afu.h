@@ -172,3 +172,4 @@ union ddr_test_bank3_stat  {
 };
 
 } // end of namespace dummy_afu
+
