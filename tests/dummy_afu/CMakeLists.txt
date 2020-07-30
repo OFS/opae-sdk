@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,18 +24,22 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required (VERSION 2.8.12)
+include_directories(
+    ${CMAKE_SOURCE_DIR}/external/CLI11/include
+    ${CMAKE_SOURCE_DIR}/samples/dummy_afu
+)
+opae_test_add_static_lib(TARGET dummy_afu-static
+    SOURCE ${OPAE_SDK_SOURCE}/samples/dummy_afu/dummy_afu.cpp
+    LIBS
+        opae-c
+        opae-cxx-core
+)
 
-project(testing)
+target_compile_definitions(dummy_afu-static
+    PRIVATE main=dummy_afu_main
+)
 
-add_subdirectory(argsfilter)
-add_subdirectory(board)
-add_subdirectory(dummy_afu)
-add_subdirectory(fpgaconf)
-add_subdirectory(fpgainfo)
-add_subdirectory(hello_events)
-add_subdirectory(hello_fpga)
-add_subdirectory(object_api)
-add_subdirectory(ras)
-add_subdirectory(userclk)
-add_subdirectory(fpgametrics)
+opae_test_add(TARGET test_dummy_afu
+    SOURCE test_dummy_afu.cpp
+    LIBS dummy_afu-static
+)
