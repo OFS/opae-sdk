@@ -198,36 +198,36 @@ STATIC fpga_result send_uafu_event_request(fpga_handle handle,
 	}
 
 	switch(uafu_operation) {
-		case FPGA_IRQ_ASSIGN:
-			if (flags >= _handle->num_irqs) {
-				OPAE_ERR("Max IRQs reached");
-				return FPGA_INVALID_PARAM;
-			}
-			if (_handle->irq_set & (1 << flags)) {
-				OPAE_ERR("IRQ index already in use");
-				return FPGA_INVALID_PARAM;
-			}
-			data = &fd;
-			// assigning irq uses flags as the irq num.
-			// set the bit in the handle irq set
-			// and stash the number in the event handle
-			_handle->irq_set |= (1 << flags);
-			_eh->flags = flags;
-			break;
-		case FPGA_IRQ_DEASSIGN:
-			// unassigning has flags set to 0
-			// get the irq number from the event handle
-			flags = _eh->flags;
-			if (!(_handle->irq_set & (1 << flags))) {
-				OPAE_DBG("IRQ not assigned");
-				return FPGA_INVALID_PARAM;
-			}
-			data = &neg;
-			_handle->irq_set &= ~(1 << flags);
-			break;
-		default:
-			OPAE_ERR("Invalid uafu operation");
-			return FPGA_EXCEPTION;
+	case FPGA_IRQ_ASSIGN:
+		if (flags >= _handle->num_irqs) {
+			OPAE_ERR("Max IRQs reached");
+			return FPGA_INVALID_PARAM;
+		}
+		if (_handle->irq_set & (1 << flags)) {
+			OPAE_ERR("IRQ index already in use");
+			return FPGA_INVALID_PARAM;
+		}
+		data = &fd;
+		// assigning irq uses flags as the irq num.
+		// set the bit in the handle irq set
+		// and stash the number in the event handle
+		_handle->irq_set |= (1 << flags);
+		_eh->flags = flags;
+		break;
+	case FPGA_IRQ_DEASSIGN:
+		// unassigning has flags set to 0
+		// get the irq number from the event handle
+		flags = _eh->flags;
+		if (!(_handle->irq_set & (1 << flags))) {
+			OPAE_DBG("IRQ not assigned");
+			return FPGA_INVALID_PARAM;
+		}
+		data = &neg;
+		_handle->irq_set &= ~(1 << flags);
+		break;
+	default:
+		OPAE_ERR("Invalid uafu operation");
+		return FPGA_EXCEPTION;
 	}
 	res = opae_dfl_port_set_user_irq(_handle->fddev, flags, 1, data);
 
