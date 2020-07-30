@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,18 +24,23 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required (VERSION 2.8.12)
+set(CMAKE_CXX_STANDARD 11)
 
-project(testing)
+opae_add_executable(TARGET hssi
+    SOURCE hssi.cpp
+    LIBS
+        opae-c
+        opae-cxx-core
+    COMPONENT samplehssi
+)
 
-add_subdirectory(argsfilter)
-add_subdirectory(board)
-add_subdirectory(dummy_afu)
-add_subdirectory(fpgaconf)
-add_subdirectory(fpgainfo)
-add_subdirectory(hello_events)
-add_subdirectory(hello_fpga)
-add_subdirectory(object_api)
-add_subdirectory(ras)
-add_subdirectory(userclk)
-add_subdirectory(fpgametrics)
+target_include_directories(hssi
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/external/CLI11/include
+)
+
+opae_external_project_add(PROJECT_NAME CLI11
+                          GIT_URL https://github.com/CLIUtils/CLI11.git
+                          GIT_TAG v1.9.1
+                          NO_ADD_SUBDIRECTORY
+)
