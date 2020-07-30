@@ -59,8 +59,5 @@ public:
     afu->compare(source, destination);
     return 0;
   }
-
-private:
-
 };
 

@@ -97,7 +97,8 @@ union pcie_address {
 
 };
 
-class test_afu;
+class test_afu; // forward declaration
+
 class test_command {
 public:
   typedef std::shared_ptr<test_command> ptr_t;
@@ -332,7 +333,6 @@ public:
     return *reinterpret_cast<T*>(handle_->mmio_ptr(offset)) = *reg;
   }
 
-protected:
 private:
   CLI::App app_;
   std::string afu_id_;

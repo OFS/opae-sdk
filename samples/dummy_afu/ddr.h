@@ -98,8 +98,5 @@ public:
       reinterpret_cast<volatile dummy_afu::ddr_test_bank3_stat*>(bank3));
     return res;
   }
-
-private:
-
 };
 

@@ -146,9 +146,9 @@ public:
       write_verify<uint32_t>(afu, dummy_afu::SCRATCHPAD, dummy_value32);
       write_verify<uint64_t>(afu, dummy_afu::SCRATCHPAD, dummy_value64);
 
-      for (uint32_t i = start; i < end; ++i) {
-        write_verify<uint32_t>(afu, dummy_afu::MMIO_TEST_SCRATCHPAD, i, dummy_value32 | i);
-        write_verify<uint64_t>(afu, dummy_afu::MMIO_TEST_SCRATCHPAD, i, dummy_value64 | i);
+      for (uint32_t scratch_i = start; i < end; ++scratch_i) {
+        write_verify<uint32_t>(afu, dummy_afu::MMIO_TEST_SCRATCHPAD, scratch_i, dummy_value32 | scratch_i);
+        write_verify<uint64_t>(afu, dummy_afu::MMIO_TEST_SCRATCHPAD, scratch_i, dummy_value64 | scratch_i);
       }
 
     }
