@@ -7,7 +7,7 @@ mkdir -p unittests
 cd unittests
 
 if [ ! -f CMakeCache.txt ]; then
-    cmake .. -DOPAE_PYTHON_VERSION=2.7 \
+    cmake .. -DOPAE_PYTHON_VERSION=3.6 \
              -DCMAKE_BUILD_TYPE=Coverage \
              -DOPAE_BUILD_LIBOPAE_CXX=ON \
              -DOPAE_BUILD_TESTS=ON \

@@ -1,0 +1,54 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - 'python/**'
+      - 'tools/extra/fpgabist/**'
+      - 'tools/extra/packager/*.py'
+      - 'tools/extra/packager/metadata/**'
+      - 'tools/extra/packager/test/*.py'
+      - 'tools/extra/pac_hssi_config/*.py'
+      - 'tools/extra/fpgadiag/**'
+      - 'tools/utilities/**'
+      - 'scripts/*.py'
+      - 'platforms/scripts/platmgr/**'
+      - '.github/workflows/python-static-analysis.yml'
+  pull_request:
+    branches: [master]
+    paths-ignore:
+      - 'python/**'
+      - 'tools/extra/fpgabist/**'
+      - 'tools/extra/packager/*.py'
+      - 'tools/extra/packager/metadata/**'
+      - 'tools/extra/packager/test/*.py'
+      - 'tools/extra/pac_hssi_config/*.py'
+      - 'tools/extra/fpgadiag/**'
+      - 'tools/utilities/**'
+      - 'scripts/*.py'
+      - 'platforms/scripts/platmgr/**'
+      - '.github/workflows/python-static-analysis.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test-script: [cover.sh, unit-tests.sh]
+    steps:
+    - uses: actions/checkout@v2
+    - name: update
+      run: sudo apt-get update -y
+    - name: Get Packages
+      uses: mstksg/get-package@v1
+      with:
+        apt-get: uuid-dev libjson-c-dev libhwloc-dev lcov libtbb-dev
+    - name: run ${{ matrix.test-script }}
+      run: scritps/${{ matrix.test-script }}
+    - name: Coveralls
+      if: ${{ matrix.test-script == 'cover.sh' }}
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+        path-to-lcov: unittests/coverage.info.cleaned
