@@ -1,4 +1,4 @@
-name: C/C++ CI Unit Tests
+name: C/C++ CI Build and Test
 
 on:
   push:
@@ -31,6 +31,23 @@ on:
       - '.github/workflows/python-static-analysis.yml'
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build-type: [Debug, Release, RelWithDebInfo]
+    steps:
+    - uses: actions/checkout@v2
+    - name: update
+      run: sudo apt-get update -y
+    - name: Get Packages
+      uses: mstksg/get-package@v1
+      with:
+        apt-get: uuid-dev libjson-c-dev libhwloc-dev lcov libtbb-dev
+    - name: configure ${{ matrix.build-type }}
+      run: mkdir ${{ github.workspace }}/.build && cd ${{ github.workspace }}/.build && cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
+    - name: make ${{ matrix.build-type }}
+      run: cd ${{ github.workspace }}/.build && make -j
   test:
     runs-on: ubuntu-latest
     strategy:
