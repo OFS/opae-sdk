@@ -251,32 +251,32 @@ def clear_stats(f, info, args):
             for keys, values in self.eth_grps.items():
                 eth_group_inst = eth_group()
                 ret = eth_group_inst.eth_group_open(int(values[0]),
-                                                   values[1])
+                                                    values[1])
                 if ret != 0:
                     return None
                 for i in args.ports:
                     if vc_mode == VC_MODE_8x10G:
                         eth_group_inst.eth_group_reg_write(eth_group_inst,
-                                                          'mac', i,
-                                                         0x140, 0x1)
+                                                           'mac', i,
+                                                           0x140, 0x1)
                         eth_group_inst.eth_group_reg_write(eth_group_inst,
-                                                          'mac', i,
-                                                          0x1C0, 0x1)
+                                                           'mac', i,
+                                                           0x1C0, 0x1)
                     else:
                         eth_group_inst.eth_group_reg_write(eth_group_inst,
-                                                          'mac', i,
-                                                          0x845, 0x1)
+                                                           'mac', i,
+                                                           0x845, 0x1)
                         eth_group_inst.eth_group_reg_write(eth_group_inst,
-                                                          'mac', i,
-                                                          0x945, 0x1)
+                                                           'mac', i,
+                                                           0x945, 0x1)
                     reg = 0x1 + i * 8
                     eth_group_inst.eth_group_reg_write(eth_group_inst,
-                                                      'eth', 0,
-                                                      reg, 0x0)
+                                                       'eth', 0,
+                                                       reg, 0x0)
                     eth_group_inst.eth_group_reg_write(eth_group_inst,
-                                                      'eth', 0,
-                                                      offset + reg,
-                                                      0x0)
+                                                       'eth', 0,
+                                                       offset + reg,
+                                                       0x0)
                     time.sleep(0.1)
                 eth_group_inst.eth_group_close()
 

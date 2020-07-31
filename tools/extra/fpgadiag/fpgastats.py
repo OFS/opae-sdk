@@ -287,25 +287,25 @@ class FPGASTATS(COMMON):
                 for keys, values in self.eth_grps.items():
                     eth_group_inst = eth_group()
                     ret = eth_group_inst.eth_group_open(int(values[0]),
-                                                       values[1])
+                                                        values[1])
                     if ret != 0:
                         return None
                     for i in range(self.mac_number):
                         if self.mac_number == 8:
                             self.eth_group_reg_write(eth_group_inst,
-                                                    'mac', i, 0x140, 0x1)
+                                                     'mac', i, 0x140, 0x1)
                             self.eth_group_reg_write(eth_group_inst,
-                                                    'mac', i, 0x1C0, 0x1)
+                                                     'mac', i, 0x1C0, 0x1)
                         else:
                             self.eth_group_reg_write(eth_group_inst,
-                                                    'mac', i, 0x845, 0x1)
+                                                     'mac', i, 0x845, 0x1)
                             self.eth_group_reg_write(eth_group_inst,
-                                                    'mac', i, 0x945, 0x1)
+                                                     'mac', i, 0x945, 0x1)
                         reg = 0x1 + i * 8
                         self.eth_group_reg_write(eth_group_inst,
-                                                'eth', 0, reg, 0x0)
+                                                 'eth', 0, reg, 0x0)
                         self.eth_group_reg_write(eth_group_inst,
-                                                'eth', 0, offset+reg, 0x0)
+                                                 'eth', 0, offset+reg, 0x0)
                         time.sleep(0.1)
                     eth_group_inst.eth_group_close()
 
@@ -322,7 +322,7 @@ class FPGASTATS(COMMON):
                 for keys, values in self.eth_grps.items():
                     eth_group_inst = eth_group()
                     ret = eth_group_inst.eth_group_open(int(values[0]),
-                                                       values[1])
+                                                        values[1])
                     if ret != 0:
                         return None
                     if eth_group_inst.speed != spd:
@@ -336,12 +336,12 @@ class FPGASTATS(COMMON):
                     if not self.mac_lightweight:
                         for s, reg, length in stats:
                             self.eth_group_print_mac_stats(eth_group_inst,
-                                                          s, reg, length)
+                                                           s, reg, length)
                             print()
                     if not self.lightweight:
                         for s, reg in fifo_regs:
                             self.eth_group_print_fifo_stats(eth_group_inst,
-                                                           s, reg)
+                                                            s, reg)
                             print()
                     eth_group_inst.eth_group_close()
 
