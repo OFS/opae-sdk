@@ -88,11 +88,11 @@ def main():
 
     def splitit(s):
         try:
-            return map(int, s.split('.'))
+            return list(map(int, s.split('.')))
         except ValueError:
             return s
     versions.sort(key=splitit)
-    t = Environment().from_string(index_tpl)
+    t = Environment(autoescape=True).from_string(index_tpl)
     f = open('index.html', 'w')
     f.write(t.render(versions=versions))
     f.close()
