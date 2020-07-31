@@ -1,0 +1,26 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build-type: [Debug, Release, RelWithDebInfo]
+    steps:
+    - uses: actions/checkout@v2
+    - name: update
+      run: sudo apt-get update -y
+    - name: Get Packages
+      uses: mstksg/get-package@v1
+      with:
+        apt-get: uuid-dev libjson-c-dev libhwloc-dev lcov
+    - name: configure ${{ matrix.build-type }}
+      run: mkdir ${{ github.workspace }}/.build && cd ${{ github.workspace }}/.build && cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -DOPAE_ENABLE_MOCK=ON -DOPAE_BUILD_TESTS=ON
+    - name: make ${{ matrix.build-type }}
+      run: cd ${{ github.workspace }}/.build && make -j
