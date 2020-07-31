@@ -52,5 +52,5 @@ jobs:
       if: ${{ matrix.test-script == 'cover.sh' }}
       uses: coverallsapp/github-action@master
       with:
-        github-token: ${{ secrets.github_token }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
         path-to-lcov: unittests/coverage.info.cleaned
