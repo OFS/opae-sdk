@@ -45,7 +45,7 @@ jobs:
       with:
         apt-get: uuid-dev libjson-c-dev libhwloc-dev lcov libtbb-dev
     - name: run ${{ matrix.test-script }}
-      run: scritps/${{ matrix.test-script }}
+      run: ${{ github.workspace }}/scripts/${{ matrix.test-script }}
     - name: Coveralls
       if: ${{ matrix.test-script == 'cover.sh' }}
       uses: coverallsapp/github-action@master
