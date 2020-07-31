@@ -47,6 +47,7 @@ lcov --remove coverage.total \
     '*tools/extra/fpgabist/**' \
     '*tools/extra/fpgadiag/**' \
     '*pybind11/**' \
+    '*external/CLI11/**' \
     --output-file coverage.info.cleaned
 
 genhtml --function-coverage -o coverage_report coverage.info.cleaned 2> /dev/null
