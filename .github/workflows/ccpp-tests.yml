@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: C/C++ CI Unit Tests
 
 on:
   push:
@@ -31,7 +31,7 @@ on:
       - '.github/workflows/python-static-analysis.yml'
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -44,6 +44,8 @@ jobs:
       uses: mstksg/get-package@v1
       with:
         apt-get: uuid-dev libjson-c-dev libhwloc-dev lcov libtbb-dev
+    - name: set hugepages
+      run: sudo sysctl -w vm.nr_hugepages=8
     - name: run ${{ matrix.test-script }}
       run: ${{ github.workspace }}/scripts/${{ matrix.test-script }}
     - name: Coveralls
