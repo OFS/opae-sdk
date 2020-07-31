@@ -34,6 +34,8 @@ import glob
 import os
 import re
 import subprocess
+import eth_group
+from eth_group import *
 
 BUILD_FLAG_MAC_LIGHTWEIGHT = 0x2
 BUILD_FLAG_LIGHTWEIGHT = 0x8
@@ -241,6 +243,130 @@ class FPGASTATS(COMMON):
         info = self.get_eth_group_info(self.eth_grps)
         self.print_stats(info)
 
+    def eth_group_print_mac_stats(self, eth_group, stats, reg, length):
+        print("{0: <32}".format(stats), end=' | ')
+        for i in range(self.mac_number):
+            data = 0
+            for len in range(length):
+                v = self.eth_group_reg_read(eth_group, 'mac', i, reg + len)
+                data += (v & 0xffffffff) << (32 * len)
+            print("{0: >12}".format(data), end=' | ')
+        print()
+
+    def eth_group_print_fifo_stats(self, eth_group, stats, reg):
+        print("{0: <32}".format(stats), end=' | ')
+        for i in range(self.mac_number):
+            h_addr = (reg & 0x100) + i * 8
+            if self.lightweight:
+                v = self.upl_indirect_rw(AFU_DATAPATH_OFFSET + reg + i * 8)
+                data = v & 0xffffffff
+                v = self.upl_indirect_rw(AFU_DATAPATH_OFFSET + h_addr)
+                data += (v & 0xffffffff) << 32
+            else:
+                v = self.eth_group_reg_read(eth_group, 'eth', 0, reg + i * 8)
+                data = v & 0xffffffff
+                v = self.eth_group_reg_read(eth_group, 'eth', 0, h_addr)
+                data += (v & 0xffffffff) << 32
+            print("{0: >12}".format(data), end=' | ')
+        print()
+
+    def eth_clear_stats(self):
+        info = self.eth_group_info(self.eth_grps)
+        if self.lightweight:
+            _, self.mac_number, _, node = info[0]
+            offset = self.demux_offset.get(self.mac_number, 0x100)
+            for i in range(self.mac_number):
+                reg = 0x1 + i * 8
+                self.upl_indirect_rw(AFU_DATAPATH_OFFSET + reg, 0x0)
+                self.upl_indirect_rw(AFU_DATAPATH_OFFSET + offset + reg, 0x0)
+                time.sleep(0.1)
+        else:
+            for w in info:
+                _, self.mac_number, _ = info[w]
+                offset = self.demux_offset.get(self.mac_number, 0x100)
+                for keys, values in self.eth_grps.items():
+                    eth_group_inst = eth_group()
+                    ret = eth_group_inst.eth_group_open(int(values[0]),
+                                                       values[1])
+                    if ret != 0:
+                        return None
+                    for i in range(self.mac_number):
+                        if self.mac_number == 8:
+                            self.eth_group_reg_write(eth_group_inst,
+                                                    'mac', i, 0x140, 0x1)
+                            self.eth_group_reg_write(eth_group_inst,
+                                                    'mac', i, 0x1C0, 0x1)
+                        else:
+                            self.eth_group_reg_write(eth_group_inst,
+                                                    'mac', i, 0x845, 0x1)
+                            self.eth_group_reg_write(eth_group_inst,
+                                                    'mac', i, 0x945, 0x1)
+                        reg = 0x1 + i * 8
+                        self.eth_group_reg_write(eth_group_inst,
+                                                'eth', 0, reg, 0x0)
+                        self.eth_group_reg_write(eth_group_inst,
+                                                'eth', 0, offset+reg, 0x0)
+                        time.sleep(0.1)
+                    eth_group_inst.eth_group_close()
+
+    def eth_group_print_stats(self, info):
+        if not self.mac_lightweight or not self.lightweight:
+            for w in info:
+                _, self.mac_number, spd = info[w]
+                print('=' * (34 + self.mac_number * 15))
+                s = 'MAC wrapper {}, Speed {}g'.format(w, spd)
+                print("{0: <32}".format(s), end=' | ')
+                for i in range(self.mac_number):
+                    print('mac {}'.format(i).rjust(12, ' '), end=' | ')
+                print()
+                for keys, values in self.eth_grps.items():
+                    eth_group_inst = eth_group()
+                    ret = eth_group_inst.eth_group_open(int(values[0]),
+                                                       values[1])
+                    if ret != 0:
+                        return None
+                    if eth_group_inst.speed != spd:
+                        eth_group_inst.eth_group_close()
+                        continue
+                    stats = (self.stats_25_40g if spd in [25, 40] else
+                             self.stats_10g)
+                    offset = self.demux_offset.get(self.mac_number, 0x100)
+                    demux = ((n, r+offset) for n, r in self.fifo_stats_demux)
+                    fifo_regs = self.fifo_stats_mux + tuple(demux)
+                    if not self.mac_lightweight:
+                        for s, reg, length in stats:
+                            self.eth_group_print_mac_stats(eth_group_inst,
+                                                          s, reg, length)
+                            print()
+                    if not self.lightweight:
+                        for s, reg in fifo_regs:
+                            self.eth_group_print_fifo_stats(eth_group_inst,
+                                                           s, reg)
+                            print()
+                    eth_group_inst.eth_group_close()
+
+        if self.lightweight:
+            _, self.mac_number, spd = info[0]
+            egress_offset = self.demux_offset.get(self.mac_number, 0x100)
+            print('=' * (34 + self.mac_number * 15))
+            print("{0: <32}".format('ingress fifo stats'), end=' | ')
+            for i in range(self.mac_number):
+                print('mac {}'.format(i).rjust(12, ' '), end=' | ')
+            print()
+            for s, reg in self.fifo_stats_ingress:
+                self.eth_group_print_fifo_stats(None, s, reg)
+            print('=' * (34 + self.mac_number * 15))
+            print("{0: <32}".format('egress fifo stats'), end=' | ')
+            for i in range(self.mac_number):
+                print('mac {}'.format(i).rjust(12, ' '), end=' | ')
+            print()
+            for s, reg in self.fifo_stats_egress:
+                self.eth_group_print_fifo_stats(None, s, egress_offset + reg)
+
+    def eth_group_start(self):
+        info = self.eth_group_info(self.eth_grps)
+        self.eth_group_print_stats(info)
+
     def eth_stats(self):
         eth_paths = glob.glob(os.path.join(self.fpga_root,
                               'dfl-fme*/dfl-fme*/net/*'))
@@ -303,16 +429,16 @@ def main():
     args.build_flags = (int(bitstream_id, 16) >> 24) & 0xff
     args.fpga_root = devs[0].get('path')
     print(args.fpga_root)
-    args.eth_grps = f.find_node(devs[0].get('path'), 'eth_group*/dev', depth=4)
-    for g in args.eth_grps:
-        if args.debug:
-            print('ethernet group device: {}'.format(g))
+    args.eth_grps = f.find_eth_group()
+    print("args.eth_grps", args.eth_grps)
+    for keys, values in args.eth_grps.items():
+        print(keys, ":", values)
 
     f = FPGASTATS(args)
     if args.clear:
-        f.clear_stats()
+        f.eth_clear_stats()
     else:
-        f.eth_stats()
+        f.eth_group_start()
 
 
 if __name__ == "__main__":

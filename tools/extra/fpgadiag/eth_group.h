@@ -65,7 +65,7 @@ struct dfh {
 			uint8_t  revision : 4;
 			uint32_t next_header_offset : 24;
 			uint8_t eol : 1;
-			uint32_t reserved : 18;
+			uint32_t reserved : 19;
 			uint8_t  type : 4;
 		};
 	};
@@ -125,6 +125,8 @@ private:
 	struct vfio_device_info device_info;
 	struct eth_group_info eth_info;
 	struct dfh eth_dfh;
+
+	uint8_t *mmap_ptr;
 };
 
 

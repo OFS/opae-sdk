@@ -28,6 +28,8 @@
 from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import division
+import eth_group
+from eth_group import *
 from common import exception_quit, FpgaFinder, COMMON, hexint
 from fpgastats import FPGASTATS
 from fpgalpbk import FPGALPBK
@@ -164,8 +166,8 @@ def get_sbdf_mode_mapping(sbdf, args):
     global VC_INFO
 
     sysfs_path = glob.glob(os.path.join('/sys/bus/pci/devices', sbdf,
-                                        'fpga', 'intel-fpga-dev.*',
-                                        'intel-fpga-fme.*', 'bitstream_id'))
+                                        'fpga_region', 'region*',
+                                        'dfl-fme*', 'bitstream_id'))
     if len(sysfs_path) == 0:
         exception_quit("Error: bitstream_id not found", 4)
 
@@ -195,8 +197,8 @@ def get_sbdf_mode_mapping(sbdf, args):
     args.ports = c.get_port_list(args.port, VC_INFO.get('total_mac'))
 
     sysfs_path = glob.glob(os.path.join('/sys/bus/pci/devices', sbdf,
-                                        'fpga', 'intel-fpga-dev.*',
-                                        'intel-fpga-fme.*',
+                                        'fpga_region', 'region*',
+                                        'dfl-fme*',
                                         'bitstream_metadata'))
     if len(sysfs_path) == 0:
         exception_quit("Error: bitstream_id not found", 4)
@@ -237,29 +239,46 @@ def get_sbdf_upl_mapping(sbdf):
 
 def clear_stats(f, info, args):
     global VC_INFO
-
     if args.clear:
         print('Clearing statistics of MACs ...')
-
         vc_mode = VC_INFO.get('mode', None)
         if vc_mode is None:
             exception_quit("FPGA is not in bypass mode", 5)
         offset = VC_INFO.get('demux_offset', 0x100)
 
         for w in info:
-            _, mac_total, _, node = info[w]
-            with open(node, 'r') as fd:
+            _, mac_total, _ = info[w]
+            for keys, values in self.eth_grps.items():
+                eth_group_inst = eth_group()
+                ret = eth_group_inst.eth_group_open(int(values[0]),
+                                                   values[1])
+                if ret != 0:
+                    return None
                 for i in args.ports:
                     if vc_mode == VC_MODE_8x10G:
-                        f.fpga_eth_reg_write(fd, 'mac', i, 0x140, 0x1)
-                        f.fpga_eth_reg_write(fd, 'mac', i, 0x1C0, 0x1)
+                        eth_group_inst.eth_group_reg_write(eth_group_inst,
+                                                          'mac', i,
+                                                         0x140, 0x1)
+                        eth_group_inst.eth_group_reg_write(eth_group_inst,
+                                                          'mac', i,
+                                                          0x1C0, 0x1)
                     else:
-                        f.fpga_eth_reg_write(fd, 'mac', i, 0x845, 0x1)
-                        f.fpga_eth_reg_write(fd, 'mac', i, 0x945, 0x1)
+                        eth_group_inst.eth_group_reg_write(eth_group_inst,
+                                                          'mac', i,
+                                                          0x845, 0x1)
+                        eth_group_inst.eth_group_reg_write(eth_group_inst,
+                                                          'mac', i,
+                                                          0x945, 0x1)
                     reg = 0x1 + i * 8
-                    f.fpga_eth_reg_write(fd, 'eth', 0, reg, 0x0)
-                    f.fpga_eth_reg_write(fd, 'eth', 0, offset + reg, 0x0)
+                    eth_group_inst.eth_group_reg_write(eth_group_inst,
+                                                      'eth', 0,
+                                                      reg, 0x0)
+                    eth_group_inst.eth_group_reg_write(eth_group_inst,
+                                                      'eth', 0,
+                                                      offset + reg,
+                                                      0x0)
                     time.sleep(0.1)
+                eth_group_inst.eth_group_close()
 
 
 def enable_loopback(args):
@@ -269,7 +288,7 @@ def enable_loopback(args):
         args.type = 'serial'
         args.en = 1
         fl = FPGALPBK(args)
-        fl.start()
+        fl.eth_group_start()
         if args.debug:
             print('Loopback enabled')
         time.sleep(0.1)
@@ -282,7 +301,7 @@ def disable_loopback(args):
         args.type = 'serial'
         args.en = 0
         fl = FPGALPBK(args)
-        fl.start()
+        fl.eth_group_start()
         if args.debug:
             print('Loopback disabled')
         time.sleep(0.1)
@@ -309,7 +328,7 @@ def fvl_bypass_mode_test(sbdf, args):
     get_sbdf_upl_mapping(sbdf)
 
     fs = FPGASTATS(args)
-    info = fs.get_eth_group_info(fs.eth_grps)
+    info = fs.eth_group_info(fs.eth_grps)
     clear_stats(fs, info, args)
 
     indir_rw_data(sbdf, 0, 0x1011, 0xff, 0)         # clear monitor statistic
@@ -421,12 +440,11 @@ def main():
                        'please choose one FPGA'.format(len(devs)), 1)
     if not devs:
         exception_quit('no FPGA found', 2)
-    args.eth_grps = f.find_node(devs[0].get('path'), 'eth_group*/dev', depth=4)
-    if not args.eth_grps:
-        exception_quit('No ethernet group found', 3)
-    if args.debug:
-        for g in args.eth_grps:
-            print('ethernet group device: {}'.format(g))
+
+    args.eth_grps = f.find_eth_group()
+    print("args.eth_grps", args.eth_grps)
+    for keys, values in args.eth_grps.items():
+        print(keys, ":", values)
 
     get_sbdf_mode_mapping(sbdf, args)
     lock_file = '/tmp/DUT{}'.format(sbdf)

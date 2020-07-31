@@ -157,8 +157,8 @@ uint64_t eth_group::eth_group_open(int vfio_id, std::string fpga_mdev_str)
 
 		reg.index = i;
 		ioctl(device, VFIO_DEVICE_GET_REGION_INFO, &reg);
-		uint32_t *mem;
-		mem = (uint32_t *)mmap(NULL, reg.size, PROT_READ | PROT_WRITE,
+		uint8_t *mem;
+		mem = (uint8_t*) mmap(NULL, reg.size, PROT_READ | PROT_WRITE,
 			MAP_SHARED, device, reg.offset);
 
 		if (mem == MAP_FAILED) {
@@ -169,6 +169,7 @@ uint64_t eth_group::eth_group_open(int vfio_id, std::string fpga_mdev_str)
 		reg_size = reg.size;
 		reg_offset = reg.offset;
 
+		mmap_ptr = mem;
 		ptr_ = (uint64_t*)mem;
 
 		eth_info.csr = *(ptr_ + 1);
@@ -221,16 +222,12 @@ int eth_group::eth_group_close()
 
 uint32_t eth_group::read_reg(uint32_t type, uint32_t index, uint32_t flags, uint32_t addr)
 {
-	volatile uint64_t value;
 	struct eth_group_ctl eth_ctl;
 	struct eth_group_stat eth_stat;
 	uint32_t data;
+	int timer_count = 0;
 
-	//printf("read_reg\n");
-	//printf("addr: %x\n", addr);
-	//printf("type: %x\n", type);
-	//printf("index: %x\n", index);
-	//printf("flags: %x\n", flags);
+	//printf("read_reg addr: %x   type: %x  index: %x flags: %x \n", addr, type, index, flags);
 
 	if (flags & ETH_GROUP_SELECT_FEAT && type != ETH_GROUP_PHY)
 		return -1;
@@ -250,34 +247,39 @@ uint32_t eth_group::read_reg(uint32_t type, uint32_t index, uint32_t flags, uint
 	eth_ctl.ctl_fev_select = flags & ETH_GROUP_SELECT_FEAT;
 	//printf("::eth_ctl.csr =%lx \n", *(ptr_ + 2));
 
-	*(ptr_ + 2) = eth_ctl.csr;
+	*((volatile uint64_t *)(mmap_ptr + 0x10))
+		= (uint64_t)eth_ctl.csr;
 
-	usleep(300);
 
-	value = *(ptr_ + 3);
-	eth_stat.csr = value;
-	if (eth_stat.stat_valid) {
-		//printf("Stats Read Valid \n ");
-		data = eth_stat.stat_data;
-		//printf("data: %x\n ", data);
-		return data;
-	}
-	printf("Stats Read Valid Failed\n ");
+	while (1)
+	{
+		eth_stat.csr = *((volatile uint64_t *)(mmap_ptr + 0x18));
+
+		if (eth_stat.stat_valid) {
+			data = eth_stat.stat_data;
+			//printf("data: %x\n ", data);
+			return data;
+		}
+		timer_count++;
+		
+		usleep(100);
+
+		if (timer_count > 50)
+			break;
+
+	};
+	//printf("Stats Read Valid Failed\n ");
 	return -1;
+
 
 }
 uint32_t eth_group::write_reg(uint32_t type, uint32_t index, uint32_t flags, uint32_t addr, uint32_t data)
 {
-	volatile uint64_t value;
 	struct eth_group_ctl eth_ctl;
 	struct eth_group_stat eth_stat;
+	int timer_count = 0;
 
-	//printf("write_reg \n");
-	//printf("data: %x\n", data);
-	//printf("addr: %x\n", addr);
-	//printf("type: %x\n", type);
-	//printf("index: %x\n", index);
-	//printf("flags: %x\n", flags);
+	//printf("write_reg addr: %x   type: %x  index: %x flags: %x data: %x\n", addr, type, index, flags, data);
 
 	if (flags & ETH_GROUP_SELECT_FEAT && type != ETH_GROUP_PHY)
 		return -1;
@@ -296,16 +298,28 @@ uint32_t eth_group::write_reg(uint32_t type, uint32_t index, uint32_t flags, uin
 	eth_ctl.ctl_addr = addr;
 	eth_ctl.ctl_data = data;
 	eth_ctl.ctl_fev_select = flags & ETH_GROUP_SELECT_FEAT;
-	*(ptr_ + 2) = eth_ctl.csr;
 
-	usleep(300);
-	value = *(ptr_ + 3);
-	eth_stat.csr = value;
-	if (eth_stat.stat_valid) {
-		//printf("Stats Read Valid \n ");
-		return 0;
-	}
-	printf("Stats Read Valid Failed\n ");
+	*((volatile uint64_t *)(mmap_ptr + 0x10))
+		= (uint64_t)eth_ctl.csr;
+
+
+	while (1)
+	{
+		eth_stat.csr = *((volatile uint64_t *)(mmap_ptr + 0x18));
+
+		if (eth_stat.stat_valid) {
+			//printf("data: %x\n ", data);
+			return 0;
+		}
+		timer_count++;
+
+		usleep(100);
+
+		if (timer_count > 50)
+			break;
+
+	};
+	//printf("Stats write Valid Failed\n ");
 	return -1;
 }
 
