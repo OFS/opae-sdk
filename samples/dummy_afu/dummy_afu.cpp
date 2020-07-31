@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,30 +23,24 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-/*
- * @file bmcinfo.h
- *
- * @brief
- */
-#ifndef BMCINFO_H
-#define BMCINFO_H
+#include <iostream>
+#include <CLI/CLI.hpp>
 
-#include <opae/fpga.h>
-#include <opae/types.h>
-#include <wchar.h>
+#include "mmio.h"
+#include "lpbk.h"
+#include "ddr.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "test_afu.h"
 
-fpga_result bmc_filter(fpga_properties *filter, int argc, char *argv[]);
-fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
-			 char *argv[]);
-void bmc_help(void);
+const char *AFU_ID = "91c2a3a1-4a23-4e21-a7cd-2b36dbf2ed73";
+using namespace opae::app;
 
-
-#ifdef __cplusplus
+int main(int argc, char* argv[])
+{
+  test_afu app("dummy_afu", AFU_ID);
+  app.register_command<mmio_test>();
+  app.register_command<ddr_test>();
+  app.register_command<lpbk_test>();
+  return app.main(argc, argv);
 }
-#endif
 
-#endif /* !BMCINFO_H */

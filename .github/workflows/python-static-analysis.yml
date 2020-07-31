@@ -1,6 +1,19 @@
 name: python static analysis
 
-on: push
+on:
+  push:
+    paths:
+      - 'python/**'
+      - 'tools/extra/fpgabist/**'
+      - 'tools/extra/packager/*.py'
+      - 'tools/extra/packager/metadata/**'
+      - 'tools/extra/packager/test/*.py'
+      - 'tools/extra/pac_hssi_config/*.py'
+      - 'tools/extra/fpgadiag/**'
+      - 'tools/utilities/**'
+      - 'scripts/*.py'
+      - 'platforms/scripts/platmgr/**'
+      - '.github/workflows/python-static-analysis.yml'
 
 jobs:
   analyze:

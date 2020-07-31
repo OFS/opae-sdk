@@ -846,17 +846,18 @@ TEST_P(events_mock_p, valid_uafu_event_request){
 
 /**
  * @test       send_uafu_event_request
- * @brief      When passed a valid event handle and handle
- *             with FPGA_IRQ_DEASSIGN flag. The function
- *             returns FPGA_OK.
+ * @brief      When passed a valid handle
+ *             with an event handle that hasn't been assigned
+ *             and with FPGA_IRQ_DEASSIGN in the flag. The function
+ *             returns FPGA_INVALID_PARAM.
  */
 TEST_P(events_mock_p, valid_uafu_event_request_01){
   int port_op = FPGA_IRQ_DEASSIGN;
 
   gEnableIRQ = true;
- system_->register_ioctl_handler(DFL_FPGA_PORT_UINT_GET_IRQ_NUM, dfl_get_port_uint_irq);
+  system_->register_ioctl_handler(DFL_FPGA_PORT_UINT_GET_IRQ_NUM, dfl_get_port_uint_irq);
   auto res = send_uafu_event_request(handle_dev_,eh_,0,port_op);
-  EXPECT_EQ(FPGA_OK,res);
+  EXPECT_EQ(FPGA_INVALID_PARAM, res);
 }
 
 /**
@@ -963,7 +964,7 @@ TEST_P(events_mock_p, event_drv_14) {
   // Valid magic and ioctl
   gEnableIRQ = true;
   system_->register_ioctl_handler(DFL_FPGA_PORT_UINT_GET_IRQ_NUM, dfl_get_port_uint_irq);
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnregisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT, bad_handle));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnregisterEvent(handle_accel_, FPGA_EVENT_INTERRUPT, bad_handle));
 
   // Destory event handle
   auto res = xfpga_fpgaDestroyEventHandle(&bad_handle);
@@ -1062,7 +1063,7 @@ TEST_P(events_mock_p, invalid_uafu_event_request_02){
 /**
  * @test       fme_interrupts_check
  * @brief      When irq is not supported and register invalid ioctl,
- *             check_err_interrupts_supported returns FPGA_NOT_SUPPORTED 
+ *             check_err_interrupts_supported returns FPGA_NOT_SUPPORTED
  *             or FPGA_EXCEPTION.
  */
 TEST_P(events_mock_p, fme_interrupts_check){

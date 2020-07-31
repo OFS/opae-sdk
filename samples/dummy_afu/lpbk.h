@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,30 +23,41 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-/*
- * @file bmcinfo.h
- *
- * @brief
- */
-#ifndef BMCINFO_H
-#define BMCINFO_H
+#pragma once
+#include "test_afu.h"
+#include "dummy_afu.h"
 
-#include <opae/fpga.h>
-#include <opae/types.h>
-#include <wchar.h>
+using namespace opae::app;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+class lpbk_test : public test_command
+{
+public:
+  lpbk_test(){}
+  virtual ~lpbk_test(){}
+  virtual const char *name() const
+  {
+    return "lpbk";
+  }
 
-fpga_result bmc_filter(fpga_properties *filter, int argc, char *argv[]);
-fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
-			 char *argv[]);
-void bmc_help(void);
+  virtual const char *description() const
+  {
+    return "run simple loopback test";
+  }
 
+  virtual int run(test_afu *afu, CLI::App *app)
+  {
+    (void)app;
+    auto done = afu->register_interrupt();
+    auto source = afu->allocate(64);
+    afu->fill(source);
+    auto destination = afu->allocate(64);
+    afu->write64(dummy_afu::MEM_TEST_SRC_ADDR, source->io_address());
+    afu->write64(dummy_afu::MEM_TEST_DST_ADDR, destination->io_address());
+    afu->write64(dummy_afu::MEM_TEST_CTRL, 0x0);
+    afu->write64(dummy_afu::MEM_TEST_CTRL, 0b1);
+    afu->interrupt_wait(done, 1000);
+    afu->compare(source, destination);
+    return 0;
+  }
+};
 
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* !BMCINFO_H */
