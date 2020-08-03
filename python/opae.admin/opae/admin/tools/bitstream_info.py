@@ -196,8 +196,14 @@ def main():
         block0 = verifier.Block_0(b0.data, payload.data)
         block1 = verifier.Block_1(b1.data, block0)
 
-        if not block0.is_good and not block1.is_good:
+        if not block0.is_good:
             LOG.error("File '{}' unrecognized".format(f))
+            LOG.error("Invalid Input file BLOCK0")
+            continue
+
+        if not block1.is_good:
+            LOG.error("File '{}' unrecognized".format(f))
+            LOG.error("Invalid Input file BLOCK1")
             continue
 
         args.main_command = block0.content_type
