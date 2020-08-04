@@ -1,0 +1,164 @@
+#!/bin/bash
+# Copyright(c) 2020, Intel Corporation
+#
+# Redistribution  and  use  in source  and  binary  forms,  with  or  without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of  source code  must retain the  above copyright notice,
+#   this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# * Neither the name  of Intel Corporation  nor the names of its contributors
+#   may be used to  endorse or promote  products derived  from this  software
+#   without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+# IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+# LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+# CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+# SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+# INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+# CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+shopt -o -s nounset
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+source "${SCRIPT_DIR}/../version"
+
+TARBALL_DIR="${SCRIPT_DIR}/opae-${PROJECT_VERSION}"
+SDK_DIR="$(cd "${SCRIPT_DIR}/../../../" && pwd)"
+
+# Check for prerequisite packages.
+for pkg in 'devscripts' \
+           'debhelper' \
+           'pandoc' \
+           'pkg-config' \
+           'uuid-dev' \
+           'libjson-c-dev' \
+           'libtbb2' \
+           'libtbb-dev' \
+           'libhwloc-dev' \
+           'python3-dev' \
+           'doxygen'
+do
+    apt list --installed "${pkg}" >/dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        printf "${pkg} package not found.. exiting\n"
+        exit 1
+    fi
+done
+
+rm -rf "${TARBALL_DIR}"
+
+# Create source tarball.
+cd "${SDK_DIR}/.."
+tar --transform="s/opae-sdk/opae-${PROJECT_VERSION}/" \
+  --exclude=.git \
+  --exclude=.gitignore \
+  --exclude=.github \
+  --exclude=.travis.yml \
+  --exclude=opae.spec.in \
+  --exclude=opae.spec \
+  --exclude=opae-libs/tests \
+  --exclude=opae-libs/cmake/config/libopae-all.spec.in \
+  --exclude=opae-libs/cmake/config/run_coverage_test.sh.in \
+  --exclude=opae-libs/cmake/config/run_coverage_test_local.sh.in \
+  --exclude=samples/base \
+  --exclude=samples/hello_afu \
+  --exclude=samples/hello_mpf_afu \
+  --exclude=samples/intg_xeon_nlb \
+  --exclude=tests \
+  --exclude=tools/extra/pyfpgadiag \
+  --exclude=tools/extra/pypackager \
+  --exclude=tools/utilities \
+  --exclude=opae-libs/include/opae/cxx/.clang-format \
+  --exclude=opae-libs/libopaecxx/.clang-format \
+  --exclude=opae-libs/pyopae/.clang-format \
+  --exclude=opae-libs/.clang-format \
+  -z -c -f "opae-${PROJECT_VERSION}.tar.gz" opae-sdk
+
+mv "opae-${PROJECT_VERSION}.tar.gz" "${SCRIPT_DIR}"
+
+cd "${SCRIPT_DIR}"
+tar zxf "opae-${PROJECT_VERSION}.tar.gz"
+mkdir -p "${TARBALL_DIR}/debian/source"
+
+for f in 'changelog' \
+         'opae-libs.install' \
+         'opae-devel.install' \
+         'opae-tools.install' \
+         'opae-tools-extra.install' \
+         'opae-ase.install'
+do
+    sed -e "s/@VERSION@/${PROJECT_VERSION}/" \
+        -e "s/@RELEASE@/${PROJECT_RELEASE}/" \
+        $f > "${TARBALL_DIR}/debian/$f"
+done
+
+for f in 'compat' \
+         'control' \
+         'copyright' \
+         'opae-libs.dirs' \
+         'opae-devel.dirs' \
+         'opae-tools.dirs' \
+         'opae-tools-extra.dirs' \
+         'opae-ase.dirs' \
+         'rules'
+do
+    cp $f "${TARBALL_DIR}/debian/$f"
+done
+
+cp 'format' "${TARBALL_DIR}/debian/source/format"
+
+${SDK_DIR}/packaging/changelog.py deb \
+    --git-dir="${SDK_DIR}/.git" \
+    --project="opae" \
+    --project-version="${PROJECT_VERSION}-${PROJECT_RELEASE}" \
+    > "${TARBALL_DIR}/debian/changelog"
+
+MAN="${TARBALL_DIR}"
+mkdir -p "${MAN}"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/fpgabist/fpgabist.md" -o "${MAN}/fpgabist.1"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/fpgaconf/fpgaconf.md" -o "${MAN}/fpgaconf.1"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/fpgadiag/README.md" -o "${MAN}/fpgadiag.1"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/fpgainfo/fpgainfo.md" -o "${MAN}/fpgainfo.1"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/mmlink/mmlink.md" -o "${MAN}/mmlink.1"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/packager/packager.md" -o "${MAN}/packager.1"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/userclk/userclk.md" -o "${MAN}/userclk.1"
+
+cd "${MAN}"
+for f in 'fpgabist.1' \
+         'fpgaconf.1' \
+         'fpgadiag.1' \
+         'fpgainfo.1' \
+         'mmlink.1' \
+         'packager.1' \
+         'userclk.1'
+do
+    gzip "$f"
+done
+
+# cat > "${TARBALL_DIR}/debian/manpages" <<END
+# fpgabist.1.gz
+# fpgaconf.1.gz
+# fpgadiag.1.gz
+# fpgainfo.1.gz
+# mmlink.1.gz
+# packager.1.gz
+# userclk.1.gz
+# END
+
+# Create package.
+cd "${TARBALL_DIR}"
+
+debuild --preserve-env -i -us -uc -b
+if [ $? -ne 0 ]; then
+    printf "debuild failed.. exiting\n"
+    exit 1
+fi
