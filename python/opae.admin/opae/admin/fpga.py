@@ -198,6 +198,9 @@ class fme(region):
 
     @property
     def pr_interface_id(self):
+        if os.path.basename(self.sysfs_path).startswith('dfl'):
+            glob_pat = 'dfl-fme-region.*/fpga_region/region*/compat_id'
+            return self.find_one(glob_pat).value
         return self.node('pr/interface_id').value
 
     @property
