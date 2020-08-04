@@ -246,8 +246,11 @@ public:
         "/fpga_region/region*/dfl-fme.*/dfl-fme.*.*/net/*";
 
     glob_t gl;
-    if (glob(oss.str().c_str(), 0, nullptr, &gl))
+    if (glob(oss.str().c_str(), 0, nullptr, &gl)) {
+      if (gl.gl_pathv)
+        globfree(&gl);
       return std::string("");
+    }
 
     if (gl.gl_pathc > 1)
       std::cerr << "Warning: more than one ethernet interface found." << std::endl;
