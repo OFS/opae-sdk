@@ -473,7 +473,8 @@ public:
     auto timeout_opt = app_->get_option("--timeout");
     uint32_t timeout_sec = timeout_opt->as<uint32_t>();
     std::cout << "  timeout: " << timeout_sec << " seconds" << std::endl;
-    uint64_t timeout_usec = static_cast<uint64_t>(timeout_sec) * 1000000;
+    uint64_t timeout_usec =
+      std::chrono::microseconds(std::chrono::seconds(timeout_sec)).count();
     uint64_t timer = 0;
     uint64_t interval = 100; // usec
 
