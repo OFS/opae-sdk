@@ -164,6 +164,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/afu_synth_setup
 @CMAKE_INSTALL_PREFIX@/bin/rtl_src_config
 @CMAKE_INSTALL_PREFIX@/bin/hssi
+@CMAKE_INSTALL_PREFIX@/bin/dummy_afu
 @CMAKE_INSTALL_PREFIX@/bin/hello_fpga
 %dir @CMAKE_INSTALL_PREFIX@/include/opae
 @CMAKE_INSTALL_PREFIX@/include/opae/*
