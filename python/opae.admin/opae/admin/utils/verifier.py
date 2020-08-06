@@ -153,7 +153,7 @@ class print_bitstream(_VERIFIER_BASE):
         if not json_str:
             return
 
-        jstr = json.loads(str(json_str))
+        jstr = json.loads(str(json_str.decode()))
         print("JSON:\n")
         print(json.dumps(jstr, sort_keys=True, indent=4))
         print("")

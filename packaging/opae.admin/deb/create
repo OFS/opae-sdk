@@ -1,0 +1,99 @@
+#!/bin/bash
+# Copyright(c) 2020, Intel Corporation
+#
+# Redistribution  and  use  in source  and  binary  forms,  with  or  without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of  source code  must retain the  above copyright notice,
+#   this list of conditions and the following disclaimer.
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+# * Neither the name  of Intel Corporation  nor the names of its contributors
+#   may be used to  endorse or promote  products derived  from this  software
+#   without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+# IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+# LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+# CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+# SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+# INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+# CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+shopt -o -s nounset
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+source "${SCRIPT_DIR}/../version"
+
+TARBALL_DIR="${SCRIPT_DIR}/opae.admin-${PROJECT_VERSION}"
+SDK_DIR="$(cd "${SCRIPT_DIR}/../../../" && pwd)"
+PYTHON_DIR="${SDK_DIR}/python"
+
+# Check for prerequisite packages.
+for pkg in 'devscripts' \
+           'pandoc'
+do
+    apt list --installed "${pkg}" >/dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        printf "${pkg} package not found.. exiting\n"
+        exit 1
+    fi
+done
+
+rm -rf "${TARBALL_DIR}"
+mkdir -p "${TARBALL_DIR}/debian/source"
+
+# Create the build dir.
+cd "${PYTHON_DIR}/opae.admin"
+cp -r opae "${TARBALL_DIR}"
+cp setup.py "${TARBALL_DIR}"
+cp LICENSE "${TARBALL_DIR}"
+
+cd "${TARBALL_DIR}"
+find . -type f -name '*.pyc' -delete
+find . -type d -name '__pycache__' -delete
+
+for f in 'compat' \
+	 'control' \
+	 'copyright' \
+	 'rules'
+do
+    cp "${SCRIPT_DIR}/$f" "${TARBALL_DIR}/debian"
+done
+
+chmod 775 "${TARBALL_DIR}/debian/rules"
+cp "${SCRIPT_DIR}/format" "${TARBALL_DIR}/debian/source"
+
+${SDK_DIR}/packaging/changelog.py deb \
+    --git-dir="${SDK_DIR}/.git" \
+    --project="opae.admin" \
+    --project-version="${PROJECT_VERSION}" \
+    > "${TARBALL_DIR}/debian/changelog"
+
+mkdir -p "${TARBALL_DIR}/docs"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/fpgaport/fpgaport.md" -o "${TARBALL_DIR}/docs/fpgaport.1"
+pandoc --standalone --to man "${SDK_DIR}/doc/src/fpga_tools/fpgasupdate/fpgasupdate.md" -o "${TARBALL_DIR}/docs/fpgasupdate.1"
+pandoc --standalone --to man "${PYTHON_DIR}/opae.admin/docs/bitstream_info/bitstream_info.md" -o "${TARBALL_DIR}/docs/bitstreaminfo.1"
+pandoc --standalone --to man "${PYTHON_DIR}/opae.admin/docs/super-rsu/super-rsu.md" -o "${TARBALL_DIR}/docs/super-rsu.1"
+
+cat > "${TARBALL_DIR}/debian/manpages" <<END
+docs/fpgaport.1
+docs/fpgasupdate.1
+docs/bitstreaminfo.1
+docs/super-rsu.1
+END
+
+# Create package.
+cd "${TARBALL_DIR}"
+
+debuild -us -uc
+if [ $? -ne 0 ]; then
+    printf "debuild failed.. exiting\n"
+    exit 1
+fi

@@ -27,11 +27,12 @@
 #include <stdarg.h>
 #include <linux/ioctl.h>
 #include <config.h>
-#include <opae/fpga.h>
 #include "fpga-dfl.h"
 
 #include "gtest/gtest.h"
 #include "mock/test_system.h"
+#include "mock/fpgad_control.h"
+#include <opae/fpga.h>
 
 #include <CLI/CLI.hpp>
 
@@ -57,7 +58,8 @@ int mmio_ioctl(mock_object * m, int request, va_list argp){
     return 0;
 }
 
-class dummy_afu_p : public ::testing::TestWithParam<std::string> {
+class dummy_afu_p : public ::testing::TestWithParam<std::string>,
+                    public fpgad_control {
  protected:
   dummy_afu_p()
   : app_(0)
@@ -78,13 +80,16 @@ class dummy_afu_p : public ::testing::TestWithParam<std::string> {
     app_->register_command<mmio_test>();
     app_->register_command<ddr_test>();
     app_->register_command<lpbk_test>();
+    fpgad_start();
   }
 
   virtual void TearDown() override {
+    fpgad_stop();
     delete app_;
     app_ = 0;
     fpgaFinalize();
     system_->finalize();
+    clear_args();
   }
 
   void clear_args() {
@@ -99,23 +104,45 @@ class dummy_afu_p : public ::testing::TestWithParam<std::string> {
 };
 
 /**
- * @test       main
- * @brief      Test: main
+ * @test       main_noargs
+ * @brief      Test: test main without argumenets
  * @details    Test the main entry point for dummy_afu
  */
-TEST_P(dummy_afu_p, main) {
+TEST_P(dummy_afu_p, main_noargs) {
   args_.push_back(strdup("dummy_afu"));
   EXPECT_NE(0, app_->main(args_.size(), const_cast<char**>(args_.data())));
+}
 
+/*
+ * @test       main_mmio
+ * @brief      Test: test main with mmio subcommand
+ * @details    Test the main entry point for dummy_afu
+ */
+TEST_P(dummy_afu_p, main_mmio) {
+  args_.push_back(strdup("dummy_afu"));
   args_.push_back(strdup("mmio"));
   EXPECT_EQ(0, app_->main(args_.size(), const_cast<char**>(args_.data())));
+}
 
-  free(args_.back());
-  args_.back() = strdup("ddr");
+/*
+ * @test       main_ddr
+ * @brief      Test: test main with ddr subcommand
+ * @details    Test the main entry point for dummy_afu
+ */
+TEST_P(dummy_afu_p, main_ddr) {
+  args_.push_back(strdup("dummy_afu"));
+  args_.push_back(strdup("ddr"));
   EXPECT_EQ(4, app_->main(args_.size(), const_cast<char**>(args_.data())));
+}
 
-  free(args_.back());
-  args_.back() = strdup("lpbk");
+/*
+ * @test       main_lpbk
+ * @brief      Test: test main with lpbk command
+ * @details    Test the main entry point for dummy_afu
+ */
+TEST_P(dummy_afu_p, main_lpbk) {
+  args_.push_back(strdup("dummy_afu"));
+  args_.push_back(strdup("lpbk"));
   EXPECT_EQ(4, app_->main(args_.size(), const_cast<char**>(args_.data())));
 }
 
