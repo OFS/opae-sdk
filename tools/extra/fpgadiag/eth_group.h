@@ -107,6 +107,7 @@ public:
 	uint32_t write_reg(uint32_t type, uint32_t index,
 		uint32_t flags, uint32_t addr, uint32_t data);
 
+	uint32_t read_mac_reset();
 	uint32_t direction;
 	uint32_t phy_num;
 	uint32_t group_id;

@@ -31,6 +31,8 @@ import argparse
 import binascii
 import sys
 import glob
+import eth_group
+from eth_group import *
 from common import FpgaFinder, exception_quit, COMMON, hexint
 
 SYSF_IF = '/sys/class/net'

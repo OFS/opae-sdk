@@ -186,9 +186,40 @@ uint64_t eth_group::eth_group_open(int vfio_id, std::string fpga_mdev_str)
 		//printf("eth group ctl   :%lx \n", *(ptr_ + 2));
 		//printf("eth group stas  :%lx \n", *(ptr_ + 2));
 		//printf("eth group dfhid :%x \n", eth_dfh.id);
+		read_mac_reset();
 
 	}
+	return 0;
+}
+#define MAC_CONFIG	0x310
+uint32_t eth_group::read_mac_reset()
+{
+	//printf("read_mac_reset\n");
+	uint32_t i;
+	uint32_t value;
+	struct eth_group_mac {
+		union {
+			uint64_t csr;
+			struct {
+				uint8_t mac_mask : 3;
+				uint64_t reserved : 61;
+			};
+		};
+	};
 
+	struct eth_group_mac mac_value;
+	for (i = 0; i < phy_num; i++) {
+
+		value = read_reg(ETH_GROUP_MAC, i, 0, MAC_CONFIG);
+		//printf("value= %x \n", value);
+
+		mac_value.csr = value;
+		//value &= ~bitStatus;
+		value |= mac_value.mac_mask;
+		//printf("value= %x \n", value);
+		write_reg(ETH_GROUP_MAC, i, 0, MAC_CONFIG, 0x0);
+
+	}
 	return 0;
 }
 
@@ -268,7 +299,7 @@ uint32_t eth_group::read_reg(uint32_t type, uint32_t index, uint32_t flags, uint
 			break;
 
 	};
-	//printf("Stats Read Valid Failed\n ");
+	//printf("FAIL data:%lx", eth_stat.csr);
 	return -1;
 
 
@@ -279,7 +310,7 @@ uint32_t eth_group::write_reg(uint32_t type, uint32_t index, uint32_t flags, uin
 	struct eth_group_stat eth_stat;
 	int timer_count = 0;
 
-	//printf("write_reg addr: %x   type: %x  index: %x flags: %x data: %x\n", addr, type, index, flags, data);
+	//printf("write_reg addr: %x   type: %x  index: %x flags: %x data: %x", addr, type, index, flags, data);
 
 	if (flags & ETH_GROUP_SELECT_FEAT && type != ETH_GROUP_PHY)
 		return -1;
@@ -319,7 +350,7 @@ uint32_t eth_group::write_reg(uint32_t type, uint32_t index, uint32_t flags, uin
 			break;
 
 	};
-	//printf("Stats write Valid Failed\n ");
+	//printf("FAIL data:%lx \n", eth_stat.csr);
 	return -1;
 }
 

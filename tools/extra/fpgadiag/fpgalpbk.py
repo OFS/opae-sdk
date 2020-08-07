@@ -288,8 +288,12 @@ def main():
     if not devs:
         exception_quit('no FPGA found')
 
-    args.eth_grps = f.find_eth_group()
+    args.fpga_root = devs[0].get('path')
+    print(args.fpga_root)
+    args.eth_grps = f.find_eth_group(args.fpga_root)
     print("args.eth_grps", args.eth_grps)
+    if len(args.eth_grps) == 0:
+        exception_quit("Invalid Eth group MDEV")
     for keys, values in args.eth_grps.items():
         print(keys, ":", values)
 

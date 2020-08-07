@@ -123,7 +123,7 @@ class FpgaFinder(object):
             paths.extend(r)
         return paths
 
-    def find_eth_group(self):
+    def find_eth_group(self,root):
         eth_group = {}
         paths = glob.glob(ETH_GROUP_IOMMU_GROUPS)
         i = 0
@@ -132,6 +132,11 @@ class FpgaFinder(object):
             one, guid = os.path.split(path)
             regex = re.compile(r'(/sys/kernel/iommu_groups/\d+)', re.I)
             one, group_id = os.path.split(regex.findall(path)[0])
+            fpga_path = glob.glob(os.path.join(root,
+                              'dfl-fme*/dfl-fme*/',guid))
+            if len(fpga_path) == 0:
+               continue
+
             eth_group[i] = [group_id, guid]
             i = i + 1
         return eth_group
