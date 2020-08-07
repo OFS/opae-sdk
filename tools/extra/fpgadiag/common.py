@@ -132,7 +132,8 @@ class FpgaFinder(object):
             one, guid = os.path.split(path)
             regex = re.compile(r'(/sys/kernel/iommu_groups/\d+)', re.I)
             one, group_id = os.path.split(regex.findall(path)[0])
-            fpga_path = glob.glob(os.path.join(root,
+            fpga_path = glob.glob(os.path.join(
+                                  root,
                                   'dfl-fme*/dfl-fme*/',
                                   guid))
             if len(fpga_path) == 0:
