@@ -27,6 +27,7 @@
 #include <string>
 #include <sstream>
 #include <exception>
+#include <thread>
 #include <csignal>
 #include <cstring>
 #include <cstdio>
@@ -54,6 +55,7 @@ using namespace opae::fpga::types;
 #define DEFAULT_RND_SEED0 0x5eed0000
 #define DEFAULT_RND_SEED1 0x5eed0001
 #define DEFAULT_RND_SEED2 0x00025eed
+#define DEFAULT_TIMEOUT 5
 
 #define ETH_AFU_DFH           0x0000
 #define ETH_AFU_ID_L          0x0008
@@ -468,6 +470,14 @@ public:
     uint32_t rnd_seed2 = rnd_seed2_opt->as<uint32_t>();
     std::cout << "  rnd seed2: " << int_to_hex(rnd_seed2) << std::endl;
 
+    auto timeout_opt = app_->get_option("--timeout");
+    uint32_t timeout_sec = timeout_opt->as<uint32_t>();
+    std::cout << "  timeout: " << timeout_sec << " seconds" << std::endl;
+    uint64_t timeout_usec =
+      std::chrono::microseconds(std::chrono::seconds(timeout_sec)).count();
+    uint64_t timer = 0;
+    uint64_t interval = 100; // usec
+
     std::string eth_ifc = ethernet_interface();
     std::cout << "  eth: " << eth_ifc << std::endl;
 
@@ -531,11 +541,20 @@ public:
     do
     {
       count = a.read(CSR_PACKET_TX_COUNT);
+
       if (!running_) {
           a.write(CSR_STOP, 1);
           return 1;
       }
-      usleep(100);
+
+      std::this_thread::sleep_for(std::chrono::microseconds(interval));
+      timer += interval;
+      if (timer >= timeout_usec) {
+        a.write(CSR_STOP, 1);
+        std::cerr << "Error: timed out" << std::endl;
+        return 1;
+      }
+
     } while(count < num_packets);
   
     // g. Print MAC IP statistics registers (May be some OPAE
@@ -603,6 +622,7 @@ int main(int argc, char *argv[])
   lpbk_cmd->add_option("--rnd-seed0", "prbs generator [31:0]")->default_val(DEFAULT_RND_SEED0);
   lpbk_cmd->add_option("--rnd-seed1", "prbs generator [47:32]")->default_val(DEFAULT_RND_SEED1);
   lpbk_cmd->add_option("--rnd-seed2", "prbs generator [91:64]")->default_val(DEFAULT_RND_SEED2);
+  lpbk_cmd->add_option("--timeout", "timeout in seconds")->default_val(DEFAULT_TIMEOUT);
   tests[lpbk_cmd] = create_test<lpbk_test>;
 
   auto regs_cmd = app.add_subcommand("regs", "display HSSI registers");
