@@ -198,10 +198,10 @@ TEST_P(dummy_afu_p, main_sleep_timeout) {
 TEST_P(dummy_afu_p, main_sleep_notimeout) {
   args_.push_back(strdup("dummy_afu"));
   args_.push_back(strdup("-t"));
-  args_.push_back(strdup("100"));
+  args_.push_back(strdup("1000"));
   args_.push_back(strdup("sleep"));
   args_.push_back(strdup("-s"));
-  args_.push_back(strdup("99"));
+  args_.push_back(strdup("100"));
   EXPECT_EQ(0, app_->main(args_.size(), const_cast<char**>(args_.data())));
 }
 
