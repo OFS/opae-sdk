@@ -73,7 +73,8 @@ public:
     return "none";
   }
 
-  virtual int run(test_afu *afu, CLI::App *app) override
+  virtual int run(__attribute__((unused)) test_afu *afu,
+                  __attribute__((unused)) CLI::App *app) override
   {
     std::this_thread::sleep_for(std::chrono::milliseconds(sleep_msec_));
     return 0;
