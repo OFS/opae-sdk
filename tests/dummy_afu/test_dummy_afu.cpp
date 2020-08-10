@@ -58,6 +58,39 @@ int mmio_ioctl(mock_object * m, int request, va_list argp){
     return 0;
 }
 
+class sleep_test : public test_command
+{
+public:
+  sleep_test() : sleep_msec_(1000){}
+  virtual ~sleep_test(){}
+  virtual const char *name() const
+  {
+    return "sleep";
+  }
+
+  virtual const char *description() const
+  {
+    return "none";
+  }
+
+  virtual int run(test_afu *afu, CLI::App *app) override
+  {
+    std::this_thread::sleep_for(std::chrono::milliseconds(sleep_msec_));
+    return 0;
+  }
+
+  virtual void add_options(CLI::App *app) override
+  {
+    app->add_option("-s,--sleep",
+                    sleep_msec_, "sleep time (msec)")->default_val(sleep_msec_);
+
+  }
+
+private:
+  uint32_t sleep_msec_;
+
+};
+
 class dummy_afu_p : public ::testing::TestWithParam<std::string>,
                     public fpgad_control {
  protected:
@@ -80,6 +113,7 @@ class dummy_afu_p : public ::testing::TestWithParam<std::string>,
     app_->register_command<mmio_test>();
     app_->register_command<ddr_test>();
     app_->register_command<lpbk_test>();
+    app_->register_command<sleep_test>();
     fpgad_start();
   }
 
@@ -121,6 +155,51 @@ TEST_P(dummy_afu_p, main_noargs) {
 TEST_P(dummy_afu_p, main_mmio) {
   args_.push_back(strdup("dummy_afu"));
   args_.push_back(strdup("mmio"));
+  EXPECT_EQ(0, app_->main(args_.size(), const_cast<char**>(args_.data())));
+}
+
+/*
+ * @test       main_mmio_count
+ * @brief      Test: test main with mmio subcommand and count > 1
+ * @details    Test the main entry point for dummy_afu
+ */
+TEST_P(dummy_afu_p, main_mmio_count) {
+  args_.push_back(strdup("dummy_afu"));
+  args_.push_back(strdup("-c"));
+  args_.push_back(strdup("100"));
+  args_.push_back(strdup("mmio"));
+  testing::internal::CaptureStdout();
+  EXPECT_EQ(0, app_->main(args_.size(), const_cast<char**>(args_.data())));
+  auto s_out = testing::internal::GetCapturedStdout();
+  EXPECT_NE(s_out.find("Test mmio(100): PASS"), std::string::npos);
+}
+
+/*
+ * @test       main_sleep_timeout
+ * @brief      Test: test main with sleep subcommand and timeout 100msec
+ * @details    Test the main entry point for dummy_afu
+ */
+TEST_P(dummy_afu_p, main_sleep_timeout) {
+  args_.push_back(strdup("dummy_afu"));
+  args_.push_back(strdup("-t"));
+  args_.push_back(strdup("100"));
+  args_.push_back(strdup("sleep"));
+  EXPECT_NE(0, app_->main(args_.size(), const_cast<char**>(args_.data())));
+}
+
+/*
+ * @test       main_sleep_notimeout
+ * @brief      Test: test main with sleep subcommand and timeout 100msec and
+ *                   sleep time of 99msec
+ * @details    Test the main entry point for dummy_afu
+ */
+TEST_P(dummy_afu_p, main_sleep_notimeout) {
+  args_.push_back(strdup("dummy_afu"));
+  args_.push_back(strdup("-t"));
+  args_.push_back(strdup("100"));
+  args_.push_back(strdup("sleep"));
+  args_.push_back(strdup("-s"));
+  args_.push_back(strdup("99"));
   EXPECT_EQ(0, app_->main(args_.size(), const_cast<char**>(args_.data())));
 }
 

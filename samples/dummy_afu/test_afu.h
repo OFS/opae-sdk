@@ -27,7 +27,10 @@
 #include <poll.h>
 #include <regex.h>
 #include <unistd.h>
+#include <chrono>
+#include <future>
 #include <random>
+#include <thread>
 
 #include <CLI/CLI.hpp>
 #include <opae/cxx/core/events.h>
@@ -135,6 +138,8 @@ public:
   : app_(name)
   , afu_id_(afu_id)
   , pci_addr_("")
+  , timeout_msec_(60000)
+  , count_(1)
   , handle_(nullptr)
   , shared_(false)
   {
@@ -142,6 +147,8 @@ public:
     app_.add_option("-p,--pci-address", pci_addr_,
                     "[<domain>:]<bus>:<device>.<function>");
     app_.add_flag("-s,--shared", shared_, "open in shared mode, default is off");
+    app_.add_option("-c,--count", count_, "Number of times to run test")->default_val(count_);
+    app_.add_option("-t,--timeout", timeout_msec_, "test timeout (msec)")->default_val(timeout_msec_);
   }
   virtual ~test_afu(){}
 
@@ -203,8 +210,22 @@ public:
       std::cerr << "no command specified\n";
       return exit_codes::not_run;
     }
+    uint32_t count = 0;
     try {
-      res = test->run(this, app);
+      while (count < count_) {
+        std::future<int> f = std::async(std::launch::async,
+            [this, test, app](){
+              return test->run(this, app);
+            });
+        auto status = f.wait_for(std::chrono::milliseconds(timeout_msec_));
+        if (status == std::future_status::timeout)
+          throw std::runtime_error("timeout");
+        res =f.get();
+
+        count++;
+        if (res)
+          break;
+      }
     } catch(std::exception &ex) {
       std::cerr << "error running command "
                 << test->name()
@@ -212,7 +233,7 @@ public:
       res = exit_codes::exception;
     }
     auto pass = res == exit_codes::success ? "PASS" : "FAIL";
-    std::cout << "Test " << test->name() << ": "
+    std::cout << "Test " << test->name() << "(" << count << "): "
               << pass << "\n";
     return res;
   }
@@ -346,6 +367,8 @@ private:
   CLI::App app_;
   std::string afu_id_;
   std::string pci_addr_;
+  uint32_t timeout_msec_;
+  uint32_t count_;
   fpga::handle::ptr_t handle_;
   bool shared_;
   std::map<CLI::App*, test_command::ptr_t> commands_;
