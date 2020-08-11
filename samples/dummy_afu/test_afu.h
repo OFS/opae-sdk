@@ -33,6 +33,9 @@
 #include <thread>
 
 #include <CLI/CLI.hpp>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/sinks/basic_file_sink.h>
 #include <opae/cxx/core/events.h>
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
@@ -52,6 +55,8 @@ namespace opae {
 namespace app {
 
 namespace fpga = fpga::types;
+
+typedef std::shared_ptr<spdlog::logger> logger_ptr;
 
 template<typename T>
 inline bool parse_match_int(const char *s,
@@ -136,8 +141,10 @@ public:
 
   test_afu(const char *name, const char *afu_id)
   : app_(name)
+  , name_(name)
   , afu_id_(afu_id)
   , pci_addr_("")
+  , log_level_("info")
   , timeout_msec_(60000)
   , count_(1)
   , handle_(nullptr)
@@ -146,6 +153,9 @@ public:
     app_.add_option("-g,--guid", afu_id_, "GUID")->default_val(afu_id_);
     app_.add_option("-p,--pci-address", pci_addr_,
                     "[<domain>:]<bus>:<device>.<function>");
+    app_.add_option("-l,--log-level", log_level_, "stdout logging level")->
+      default_val(log_level_)->
+      check(CLI::IsMember(SPDLOG_LEVEL_NAMES));;
     app_.add_flag("-s,--shared", shared_, "open in shared mode, default is off");
     app_.add_option("-c,--count", count_, "Number of times to run test")->default_val(count_);
     app_.add_option("-t,--timeout", timeout_msec_, "test timeout (msec)")->default_val(timeout_msec_);
@@ -192,6 +202,10 @@ public:
   {
     app_.require_subcommand();
     CLI11_PARSE(app_, argc, argv);
+
+    auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+    console_sink->set_level(spdlog::level::from_str(log_level_));
+
     int res = open_handle();
     if (res != exit_codes::not_run) {
       return res;
@@ -210,9 +224,19 @@ public:
       std::cerr << "no command specified\n";
       return exit_codes::not_run;
     }
+    std::stringstream ss;
+    ss << name_ << "_" << test->name() << ".log";
+    auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(ss.str(), true);
+    file_sink->set_level(spdlog::level::trace);
+    spdlog::sinks_init_list sinks({console_sink, file_sink});
+    auto test_log = std::make_shared<spdlog::logger>(test->name(), sinks);
+    spdlog::register_logger(test_log);
+    test_log->set_level(spdlog::level::trace);
+    test_log->info("starting test run, count of {0:d}", count_);
     uint32_t count = 0;
     try {
       while (count < count_) {
+        test_log->debug("starting iteration: {0:d}", count+1);
         handle_->reset();
         std::future<int> f = std::async(std::launch::async,
             [this, test, app](){
@@ -224,18 +248,17 @@ public:
         res =f.get();
 
         count++;
+        test_log->debug("end iteration: {0:d}", count);
         if (res)
           break;
       }
     } catch(std::exception &ex) {
-      std::cerr << "error running command "
-                << test->name()
-                << ": " << ex.what() << "\n";
+      test_log->error(ex.what());
       res = exit_codes::exception;
     }
     auto pass = res == exit_codes::success ? "PASS" : "FAIL";
-    std::cout << "Test " << test->name() << "(" << count << "): "
-              << pass << "\n";
+    test_log->info("Test {}({}): {}", test->name(), count, pass);
+    spdlog::drop_all();
     return res;
   }
 
@@ -333,8 +356,6 @@ public:
       throw std::runtime_error(strerror(errno));
     if (ret == 0)
       throw std::runtime_error("timeout error");
-    std::cout << "got interrupt\n";
-
   }
 
   void compare(fpga::shared_buffer::ptr_t b1,
@@ -366,8 +387,10 @@ public:
 
 private:
   CLI::App app_;
+  std::string name_;
   std::string afu_id_;
   std::string pci_addr_;
+  std::string log_level_;
   uint32_t timeout_msec_;
   uint32_t count_;
   fpga::handle::ptr_t handle_;
