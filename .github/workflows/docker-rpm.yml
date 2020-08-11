@@ -2,6 +2,8 @@ name: Docker Build and Review RPM
 
 on:
   push:
+    branches-ignore:
+      - '**'
     paths:
       - opae.spec
       - scripts/docker_rpm.sh

@@ -156,6 +156,8 @@ struct _fpga_handle {
 
 	int fddev;                      // file descriptor for the device.
 	int fdfpgad;                    // file descriptor for the event daemon.
+	uint32_t num_irqs;              // number of interrupts supported
+	uint32_t irq_set;               // bitmask of irqs set
 	struct wsid_tracker *wsid_root; // wsid information (list)
 	struct wsid_tracker *mmio_root; // MMIO information (list)
 	void *umsg_virt;	        // umsg Virtual Memory pointer

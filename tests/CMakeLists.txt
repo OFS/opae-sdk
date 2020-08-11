@@ -30,6 +30,7 @@ project(testing)
 
 add_subdirectory(argsfilter)
 add_subdirectory(board)
+add_subdirectory(dummy_afu)
 add_subdirectory(fpgaconf)
 add_subdirectory(fpgainfo)
 add_subdirectory(hello_events)

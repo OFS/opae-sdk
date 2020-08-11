@@ -1,0 +1,13 @@
+Source: opae.admin
+Maintainer: The OPAE Development Team, <opae@lists.01.org>
+Section: python
+Priority: optional
+Standards-Version: 4.1.4
+Build-Depends: debhelper (>= 11), python3-all
+
+Package: python3-opae.admin
+Architecture: all
+Section: python
+Depends: python3, sysvinit-utils, pciutils, ${misc:Depends}, ${python3:Depends}
+Description: OPAE Administration
+ Provides administration capability for Intel FPGA PAC devices.

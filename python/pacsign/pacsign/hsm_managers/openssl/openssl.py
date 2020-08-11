@@ -316,7 +316,7 @@ class openssl:
                       c_version,
                       version)
 
-    def __init__(self, version='1.1.1d'):
+    def __init__(self, version='1.1.1g'):
         path = "%s/library" % os.path.dirname(os.path.abspath(__file__))
         self.nanotime = None
         if _platform == "win32" or _platform == "win64":

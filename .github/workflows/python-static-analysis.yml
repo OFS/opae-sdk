@@ -1,6 +1,19 @@
 name: python static analysis
 
-on: push
+on:
+  push:
+    paths:
+      - 'python/**'
+      - 'tools/extra/fpgabist/**'
+      - 'tools/extra/packager/*.py'
+      - 'tools/extra/packager/metadata/**'
+      - 'tools/extra/packager/test/*.py'
+      - 'tools/extra/pac_hssi_config/*.py'
+      - 'tools/extra/fpgadiag/**'
+      - 'tools/utilities/**'
+      - 'scripts/*.py'
+      - 'platforms/scripts/platmgr/**'
+      - '.github/workflows/python-static-analysis.yml'
 
 jobs:
   analyze:
@@ -32,6 +45,9 @@ jobs:
         bandit -r $(find ${{ github.workspace }} -name "*.py") \
           --format txt \
           | tee ${{ github.workspace }}/bandit.log
+        bandit -r $(find ${{ github.workspace }} -name "*.py") \
+          --format csv \
+          | tee ${{ github.workspace }}/bandit.log.csv
     - name: Archive results
       uses: actions/upload-artifact@v2
       with:
@@ -39,3 +55,4 @@ jobs:
         path: |
           ${{ github.workspace }}/flake8.log
           ${{ github.workspace }}/bandit.log
+          ${{ github.workspace }}/bandit.log.csv

@@ -83,6 +83,13 @@ Group:      opae admin
 %description opae.admin
 This package contains OPAE admin tools
 
+%package PACSign
+Summary:    PACSign tools package
+Group:      opae PACSign
+
+%description PACSign
+This package contains PAC Sign tools
+
 # This is a shortcutted spec file generatCed by CMake RPM generator
 # we skip _install step because CPack does that for us.
 # We do only save CPack installed tree in _prepr
@@ -110,6 +117,9 @@ pushd @CMAKE_SOURCE_DIR@/python/opae.admin
 %{__python3} setup.py install --single-version-externally-managed -O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_FILES
 popd
 
+pushd @CMAKE_SOURCE_DIR@/python/pacsign
+%{__python3} setup.py install --single-version-externally-managed -O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_PACSIGN_FILES
+popd
 
 %clean
 
@@ -153,6 +163,8 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/afu_platform_info
 @CMAKE_INSTALL_PREFIX@/bin/afu_synth_setup
 @CMAKE_INSTALL_PREFIX@/bin/rtl_src_config
+@CMAKE_INSTALL_PREFIX@/bin/hssi
+@CMAKE_INSTALL_PREFIX@/bin/dummy_afu
 @CMAKE_INSTALL_PREFIX@/bin/hello_fpga
 %dir @CMAKE_INSTALL_PREFIX@/include/opae
 @CMAKE_INSTALL_PREFIX@/include/opae/*
@@ -242,6 +254,9 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/hello_events
 
 %files opae.admin -f INSTALLED_FILES
+%defattr(-,root,root,-)
+
+%files PACSign -f INSTALLED_PACSIGN_FILES
 %defattr(-,root,root,-)
 
 

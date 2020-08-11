@@ -198,6 +198,9 @@ class fme(region):
 
     @property
     def pr_interface_id(self):
+        if os.path.basename(self.sysfs_path).startswith('dfl'):
+            glob_pat = 'dfl-fme-region.*/fpga_region/region*/compat_id'
+            return self.find_one(glob_pat).value
         return self.node('pr/interface_id').value
 
     @property
@@ -383,6 +386,10 @@ class fpga_base(class_node):
                                     'factory': 0},
                            'bmcimg': {'user': 0,
                                       'factory': 1}},
+        (0x8086, 0x0b2b): {'fpga': {'user': 0,
+                                    'factory': 1},
+                           'bmcimg': {'user': 1,
+                                      'factory': 0}},
         (0x8086, 0x09c4): {'fpga': {'user': 0}}
     }
 
@@ -455,9 +462,13 @@ class fpga_base(class_node):
         if boot_type not in self.BOOT_TYPES:
             raise TypeError('type: {} not recognized'.format(boot_type))
 
-        node_path = '{boot_type}_flash_ctrl/{boot_type}_image_load'.format(
-            boot_type=boot_type)
-        node = self.fme.spi_bus.node(node_path)
+        if boot_type == "bmcimg":
+            boot_type = "bmc"
+        node_path = ("m10bmc-secure.*.auto/ifpga_sec_mgr/"
+                     "ifpga_sec*/update/{boot_type}_image_load").format(
+                         boot_type=boot_type)
+
+        node = self.fme.spi_bus.find_one(node_path)
         node.value = page
 
     @contextmanager

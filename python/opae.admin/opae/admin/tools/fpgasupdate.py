@@ -62,7 +62,7 @@ else:
 
 DEFAULT_BDF = 'ssss:bb:dd.f'
 
-VALID_GBS_GUID = uuid.UUID('31303076-5342-47b7-4147-50466e6f6558')
+VALID_GBS_GUID = uuid.UUID('58656f6e-4650-4741-b747-425376303031')
 
 BLOCK0_TYPE_STATIC_REGION = 0
 BLOCK0_TYPE_BMC = 1
@@ -176,7 +176,7 @@ def decode_gbs_header(infile):
         infile.seek(orig_pos, os.SEEK_SET)
         return None
 
-    metadata = infile.read(metadata_length)
+    metadata = infile.read(metadata_length).decode()
     LOG.debug('metadata: %s', metadata)
 
     try:
@@ -423,7 +423,7 @@ def update_fw(args, pac):
     retries = 0
     timeout = 1.0
     max_retries = 60 * 5
-    while status.value != 'writing':
+    while status.value == 'read_file' or status.value == 'preparing':
         time.sleep(timeout)
         retries += 1
         if retries >= max_retries:
