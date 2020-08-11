@@ -213,6 +213,7 @@ public:
     uint32_t count = 0;
     try {
       while (count < count_) {
+        handle_->reset();
         std::future<int> f = std::async(std::launch::async,
             [this, test, app](){
               return test->run(this, app);
@@ -372,7 +373,6 @@ private:
   fpga::handle::ptr_t handle_;
   bool shared_;
   std::map<CLI::App*, test_command::ptr_t> commands_;
-  uint32_t max_;
   std::map<uint32_t, uint32_t> limits_;
 
   uint32_t get_offset(uint32_t base, uint32_t i) const {
