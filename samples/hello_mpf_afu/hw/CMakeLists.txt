@@ -28,7 +28,7 @@
 # ASE module definition ##############################################
 ######################################################################
 
-if(BUILD_ASE_SAMPLES)
+if(OPAE_BUILD_ASE_SAMPLES)
   include(ase_add_modelsim)
   set(hello_mpf_afu_hw_SOURCES
     sources.txt

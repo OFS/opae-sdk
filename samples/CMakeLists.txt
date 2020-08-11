@@ -38,7 +38,7 @@ include_directories(${OPAE_INCLUDE_DIR}
   ${OPAE_SDK_SOURCE}/libopae/src )
 include_directories(base/sw)
 
-if(BUILD_ASE_SAMPLES)
+if(OPAE_BUILD_ASE_SAMPLES)
   find_package(Quartus)
   find_package(Questa)
 endif()
@@ -48,7 +48,7 @@ endif()
 ######################################################################
 
 set(OPAE_SAMPLES src/opae/samples)
-if(BUILD_ASE_SAMPLES)
+if(OPAE_BUILD_ASE_SAMPLES)
   # BBB libraries (MPF, DMA, etc)
   include(intel_fpga_bbb)
   Build_Intel_FPGA_BBB()

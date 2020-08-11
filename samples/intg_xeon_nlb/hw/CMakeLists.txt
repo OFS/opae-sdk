@@ -28,7 +28,7 @@
 # ASE module definition ##############################################
 ######################################################################
 
-if(BUILD_ASE_SAMPLES)
+if(OPAE_BUILD_ASE_SAMPLES)
   include(ase_add_modelsim)
   set(intg_xeon_nlb_SOURCES
     sources.txt

@@ -73,7 +73,7 @@ The software side is contained entirely in [sw/hello_afu.c](sw/hello_afu.c):
 ```console
     $ mkdir opae_build
     $ cd opae_build
-    $ cmake -DBUILD_ASE_SAMPLES=on <Directory where OPAE repository was cloned.>
+    $ cmake -DOPAE_BUILD_ASE_SAMPLES=on <Directory where OPAE repository was cloned.>
     $ make -j
 ```
 

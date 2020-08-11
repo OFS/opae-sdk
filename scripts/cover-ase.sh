@@ -28,11 +28,11 @@ cd unittests
 
 if [ -d "../samples/hello_intr_afu" ]; then
 	if [ ! -f CMakeCache.txt ]; then
-		cmake .. -DCMAKE_BUILD_TYPE=Coverage -DBUILD_TESTS=ON -DBUILD_ASE_SAMPLES=ON -DBUILD_ASE_INTR=ON -DBUILD_ASE=ON
+		cmake .. -DCMAKE_BUILD_TYPE=Coverage -DBUILD_TESTS=ON -DOPAE_BUILD_ASE_SAMPLES=ON -DBUILD_ASE_INTR=ON -DBUILD_ASE=ON
 	fi
 else
 	if [ ! -f CMakeCache.txt ]; then
-		cmake .. -DCMAKE_BUILD_TYPE=Coverage -DBUILD_TESTS=ON -DBUILD_ASE_SAMPLES=ON -DBUILD_ASE=ON
+		cmake .. -DCMAKE_BUILD_TYPE=Coverage -DBUILD_TESTS=ON -DOPAE_BUILD_ASE_SAMPLES=ON -DBUILD_ASE=ON
 	fi
 fi
 mkdir -p coverage_files
