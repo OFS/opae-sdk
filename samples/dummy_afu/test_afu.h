@@ -224,19 +224,26 @@ public:
       std::cerr << "no command specified\n";
       return exit_codes::not_run;
     }
+
     std::stringstream ss;
     ss << name_ << "_" << test->name() << ".log";
     auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(ss.str(), true);
     file_sink->set_level(spdlog::level::trace);
     spdlog::sinks_init_list sinks({console_sink, file_sink});
-    auto test_log = std::make_shared<spdlog::logger>(test->name(), sinks);
-    spdlog::register_logger(test_log);
-    test_log->set_level(spdlog::level::trace);
-    test_log->info("starting test run, count of {0:d}", count_);
+    logger_ = std::make_shared<spdlog::logger>(test->name(), sinks);
+    spdlog::register_logger(logger_);
+    return run(app, test);
+  }
+
+  int run(CLI::App *app, test_command::ptr_t test)
+  {
+    int res = exit_codes::not_run;
+    logger_->set_level(spdlog::level::trace);
+    logger_->info("starting test run, count of {0:d}", count_);
     uint32_t count = 0;
     try {
       while (count < count_) {
-        test_log->debug("starting iteration: {0:d}", count+1);
+        logger_->debug("starting iteration: {0:d}", count+1);
         handle_->reset();
         std::future<int> f = std::async(std::launch::async,
             [this, test, app](){
@@ -245,19 +252,19 @@ public:
         auto status = f.wait_for(std::chrono::milliseconds(timeout_msec_));
         if (status == std::future_status::timeout)
           throw std::runtime_error("timeout");
-        res =f.get();
+        res = f.get();
 
         count++;
-        test_log->debug("end iteration: {0:d}", count);
+        logger_->debug("end iteration: {0:d}", count);
         if (res)
           break;
       }
     } catch(std::exception &ex) {
-      test_log->error(ex.what());
+      logger_->error(ex.what());
       res = exit_codes::exception;
     }
     auto pass = res == exit_codes::success ? "PASS" : "FAIL";
-    test_log->info("Test {}({}): {}", test->name(), count, pass);
+    logger_->info("Test {}({}): {}", test->name(), count, pass);
     spdlog::drop_all();
     return res;
   }
@@ -397,6 +404,7 @@ private:
   bool shared_;
   std::map<CLI::App*, test_command::ptr_t> commands_;
   std::map<uint32_t, uint32_t> limits_;
+  logger_ptr logger_;
 
   uint32_t get_offset(uint32_t base, uint32_t i) const {
     auto limit = limits_.find(base);
