@@ -90,6 +90,7 @@ Group:      opae PACSign
 %description PACSign
 This package contains PAC Sign tools
 
+
 # This is a shortcutted spec file generatCed by CMake RPM generator
 # we skip _install step because CPack does that for us.
 # We do only save CPack installed tree in _prepr
@@ -99,6 +100,11 @@ mv $RPM_BUILD_ROOT %_topdir/tmpBRoot
 
 %build
 pushd @CMAKE_SOURCE_DIR@/python/opae.admin
+
+%{__python3} setup.py build
+popd
+
+pushd @CMAKE_SOURCE_DIR@/tools/extra/fpgadiag/
 
 %{__python3} setup.py build
 popd
@@ -119,6 +125,11 @@ popd
 
 pushd @CMAKE_SOURCE_DIR@/python/pacsign
 %{__python3} setup.py install --single-version-externally-managed -O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_PACSIGN_FILES
+popd
+
+
+pushd @CMAKE_SOURCE_DIR@/tools/extra/fpgadiag/
+%{__python3} setup.py install --single-version-externally-managed -O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_FPGADIAG_FILES
 popd
 
 %clean
@@ -195,6 +206,7 @@ ldconfig
 %files tools-extra
 %license @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DOCDIR@/LICENSE
 %defattr(-,root,root,-)
+@INSTALLED_FPGADIAG_FILES@
 @CMAKE_INSTALL_PREFIX@/bin/afu_json_mgr
 @CMAKE_INSTALL_PREFIX@/bin/bist_app
 @CMAKE_INSTALL_PREFIX@/bin/bist_app.py
@@ -258,6 +270,5 @@ ldconfig
 
 %files PACSign -f INSTALLED_PACSIGN_FILES
 %defattr(-,root,root,-)
-
 
 %changelog

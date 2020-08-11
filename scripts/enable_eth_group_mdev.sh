@@ -10,7 +10,7 @@ if [[ $pcie_count -lt 1 ]]; then
 fi
 echo $pcie_count
 #Bus number
-bus_num=db
+bus_num=$1
 PCIE_DEVICES=/sys/bus/pci/devices/*$bus_num*/device
 echo $PCIE_DEVICES
 for file in $PCIE_DEVICES
