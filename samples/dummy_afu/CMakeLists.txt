@@ -50,7 +50,6 @@ opae_external_project_add(PROJECT_NAME spdlog
                           NO_ADD_SUBDIRECTORY
 )
 
-message(STATUS ${spdlog_ROOT}/include)
 include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CLI11_ROOT}/include
