@@ -23,8 +23,11 @@ BuildRequires:  doxygen
 BuildRequires:  systemd-rpm-macros
 BuildRequires:  systemd
 BuildRequires:  pybind11-devel
+BuildRequires:  python3-setuptools
 BuildRequires:  tbb-devel
 BuildRequires:  git
+BuildRequires:  python3-pip
+BuildRequires:  python3-virtualenv
 
 %description
 Open Programmable Acceleration Engine (OPAE) is a software framework
@@ -61,7 +64,7 @@ rm -rf _build
 mkdir _build
 cd _build
 
-%cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+%cmake .. -DCMAKE_INSTALL_PREFIX=/usr -B $PWD
 
 %make_build  opae-c \
          bitstream \
@@ -88,6 +91,7 @@ cd _build
          nlb3\
          nlb7\
          mmlink 
+
 
 %install
 mkdir -p %{buildroot}%{_datadir}/opae
@@ -157,9 +161,16 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgadiag -P cmake_install.cmake
 
 prev=$PWD
 pushd %{_topdir}/BUILD/opae/python/opae.admin/
-%{__python3} setup.py install --single-version-externally-managed  --root=%{buildroot} --record=$prev/INSTALLED_FILES
+%{__python3} setup.py install --single-version-externally-managed  --root=%{buildroot} --record=$prev/INSTALLED_OPAE_ADMIN_FILES
 popd
 
+pushd %{_topdir}/BUILD/opae/python/pacsign
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} --record=$prev/INSTALLED_PACSIGN_FILES
+popd
+
+pushd %{_topdir}/BUILD/opae/tools/extra/fpgadiag/
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} --record=$prev/INSTALLED_FPGADIAG_FILES
+popd
 
 %files
 %dir %{_datadir}/opae
@@ -236,10 +247,13 @@ popd
 %{_bindir}/fpgametrics
 %{_bindir}/fpga_dma_N3000_test
 %{_bindir}/fpga_dma_test
+%{_bindir}/PACSign
 
 %{_usr}/share/opae/*
 /usr/lib/python*
 %{_datadir}/doc/opae.admin/LICENSE
+%{_libdir}/python*
+
 
 %changelog
 * Tue Dec 17 2019 Korde Nakul <nakul.korde@intel.com> 1.4.0-1

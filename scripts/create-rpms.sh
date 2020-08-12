@@ -40,6 +40,7 @@ tar --transform='s/opae-sdk/opae/' \
   --exclude=platforms \
   --exclude=samples/base \
   --exclude=samples/hello_afu \
+  --exclude=samples/dummy_afu \
   --exclude=samples/hello_mpf_afu \
   --exclude=samples/intg_xeon_nlb \
   --exclude=samples/base \
