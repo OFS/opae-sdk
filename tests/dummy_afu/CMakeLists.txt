@@ -37,8 +37,9 @@ target_compile_definitions(dummy_afu-static
 
 target_include_directories(dummy_afu-static
     PRIVATE
-        ${CMAKE_SOURCE_DIR}/external/CLI11/include
         ${CMAKE_SOURCE_DIR}/samples/dummy_afu
+        ${CMAKE_SOURCE_DIR}/external/CLI11/include
+        ${CMAKE_SOURCE_DIR}/external/spdlog/include
 )
 
 opae_test_add(TARGET test_dummy_afu
@@ -52,6 +53,7 @@ opae_test_add(TARGET test_dummy_afu
 target_include_directories(test_dummy_afu
     PRIVATE
         ${CMAKE_SOURCE_DIR}/external/CLI11/include
+        ${CMAKE_SOURCE_DIR}/external/spdlog/include
         ${CMAKE_SOURCE_DIR}/samples/dummy_afu
         ${CMAKE_SOURCE_DIR}/external/opae-test/framework/mock/test_fpgad
 )
