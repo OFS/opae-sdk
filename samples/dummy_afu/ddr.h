@@ -32,12 +32,12 @@
 using namespace opae::app;
 
 template<class T>
-int print_stat(const char *name, T stat)
+int check_stat(std::shared_ptr<spdlog::logger> logger, const char *name, T stat)
 {
-  std::cout << "[" << name << "]: ";
-  std::cout << "PASS=" << bool(stat->TrafficGenTestPass) << ", ";
-  std::cout << "FAIL=" << bool(stat->TrafficGenTestFail) << ", ";
-  std::cout << "TIMEOUT=" << bool(stat->TrafficGenTestTimeout) << "\n";
+  bool pass = stat->TrafficGenTestPass,
+       fail = stat->TrafficGenTestFail,
+       timeout = stat->TrafficGenTestTimeout;
+  logger->debug("[{0}]: PASS={1}, FAIL={2}, TIMEOUT={3}", name, pass, fail, timeout);
   return stat->value & 0b110;
 }
 
@@ -88,13 +88,14 @@ public:
       }
     }
     int res = 0;
-    res += print_stat("Bank0",
+    auto logger = spdlog::get(this->name());
+    res += check_stat(logger, "Bank0",
       reinterpret_cast<volatile dummy_afu::ddr_test_bank0_stat*>(bank0));
-    res += print_stat("Bank1",
+    res += check_stat(logger, "Bank1",
       reinterpret_cast<volatile dummy_afu::ddr_test_bank1_stat*>(bank1));
-    res += print_stat("Bank2",
+    res += check_stat(logger, "Bank2",
       reinterpret_cast<volatile dummy_afu::ddr_test_bank2_stat*>(bank2));
-    res += print_stat("Bank3",
+    res += check_stat(logger, "Bank3",
       reinterpret_cast<volatile dummy_afu::ddr_test_bank3_stat*>(bank3));
     return res;
   }
