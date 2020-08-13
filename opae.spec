@@ -189,6 +189,7 @@ popd
 %{_libdir}/libopae-c++-nlb.so.%{version}
 %{_libdir}/libopae-c++-nlb.so.1
 
+
 %files devel
 %dir %{_includedir}/opae
 %{_includedir}/opae/*
@@ -209,7 +210,6 @@ popd
 %{_libdir}/libbitstream.so
 %{_libdir}/opae/libxfpga.so*
 %{_libdir}/opae/libmodbmc.so*
-
 %{_bindir}/bist_app*
 %{_bindir}/bist_common.py*
 %{_bindir}/bist_dma.py*
