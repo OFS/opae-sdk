@@ -31,6 +31,12 @@ set(CLI11_TAG
     v1.9.1
     CACHE STRING "Tag to checkout for CLI11")
 
+set(SPDLOG_URL
+    https://github.com/gabime/spdlog.git
+    CACHE STRING "URL for SPDLOG Project")
+set(SPDLOG_TAG
+    v1.7.0
+    CACHE STRING "Tag to checkout for SPDLOG")
 
 opae_external_project_add(PROJECT_NAME CLI11
                           GIT_URL ${CLI11_URL}
@@ -38,9 +44,16 @@ opae_external_project_add(PROJECT_NAME CLI11
                           NO_ADD_SUBDIRECTORY
 )
 
+opae_external_project_add(PROJECT_NAME spdlog
+                          GIT_URL ${SPDLOG_URL}
+                          GIT_TAG ${SPDLOG_TAG}
+                          NO_ADD_SUBDIRECTORY
+)
+
 include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_SOURCE_DIR}/external/CLI11/include
+    ${CLI11_ROOT}/include
+    ${spdlog_ROOT}/include
 )
 
 opae_add_executable(TARGET dummy_afu
@@ -52,4 +65,6 @@ opae_add_executable(TARGET dummy_afu
         ${libuuid_LIBRARIES}
     COMPONENT samplebin
 )
-
+target_include_directories(dummy_afu
+    PRIVATE ${spdlog_ROOT}/include
+)

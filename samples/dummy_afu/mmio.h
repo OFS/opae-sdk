@@ -31,7 +31,7 @@
 using namespace opae::app;
 
 template<typename T>
-inline void timeit_wr(test_afu *afu, uint32_t count)
+inline void timeit_wr(logger_ptr log, test_afu *afu, uint32_t count)
 {
   using namespace std::chrono;
   auto begin = high_resolution_clock::now();
@@ -41,14 +41,12 @@ inline void timeit_wr(test_afu *afu, uint32_t count)
   auto end = high_resolution_clock::now();
   auto delta = duration_cast<nanoseconds>(end - begin).count();
   auto width = sizeof(T)*8;
-  std::cout << "count: " << count << ", "
-            << "op: wr, "
-            << "width: " << width << ", "
-            << "mean: " << delta/count << " nsec\n";
+  log->debug("count: {0}, op: wr, width: {1}, mean: {2} nsec",
+             count, width, delta/count);
 }
 
 template<typename T>
-inline void timeit_rd(test_afu *afu, uint32_t count)
+inline void timeit_rd(logger_ptr log, test_afu *afu, uint32_t count)
 {
   using namespace std::chrono;
   auto begin = high_resolution_clock::now();
@@ -58,10 +56,8 @@ inline void timeit_rd(test_afu *afu, uint32_t count)
   auto end = high_resolution_clock::now();
   auto delta = duration_cast<nanoseconds>(end - begin).count();
   auto width = sizeof(T)*8;
-  std::cout << "count: " << count << ", "
-            << "op: rd, "
-            << "width: " << width << ", "
-            << "mean: " << delta/count << " nsec\n";
+  log->debug("count: {0}, op: rd, width: {1}, mean: {2} nsec",
+             count, width, delta/count);
 }
 
 
@@ -159,7 +155,7 @@ public:
   int run_perf(test_afu *afu, CLI::App *app)
   {
     (void)app;
-    typedef void(*perf_test)(test_afu*, uint32_t);
+    typedef void(*perf_test)(logger_ptr, test_afu*, uint32_t);
     std::map<uint32_t, perf_test> rd_tests
     {
       {8, timeit_rd<uint8_t>},
@@ -174,10 +170,11 @@ public:
       {32, timeit_wr<uint32_t>},
       {64, timeit_wr<uint64_t>},
     };
+    auto log = spdlog::get(this->name());
     if (op_ == "wr")
-      wr_tests[width_](afu, count_);
+      wr_tests[width_](log, afu, count_);
     else
-      rd_tests[width_](afu, count_);
+      rd_tests[width_](log, afu, count_);
     return 0;
   }
 private:

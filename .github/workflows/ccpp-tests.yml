@@ -1,0 +1,69 @@
+name: C/C++ CI Build and Test
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - 'python/**'
+      - 'tools/extra/fpgabist/**'
+      - 'tools/extra/packager/*.py'
+      - 'tools/extra/packager/metadata/**'
+      - 'tools/extra/packager/test/*.py'
+      - 'tools/extra/pac_hssi_config/*.py'
+      - 'tools/extra/fpgadiag/**'
+      - 'tools/utilities/**'
+      - 'scripts/*.py'
+      - 'platforms/scripts/platmgr/**'
+      - '.github/workflows/python-static-analysis.yml'
+  pull_request:
+    branches: [master]
+    paths-ignore:
+      - 'python/**'
+      - 'tools/extra/fpgabist/**'
+      - 'tools/extra/packager/*.py'
+      - 'tools/extra/packager/metadata/**'
+      - 'tools/extra/packager/test/*.py'
+      - 'tools/extra/pac_hssi_config/*.py'
+      - 'tools/extra/fpgadiag/**'
+      - 'tools/utilities/**'
+      - 'scripts/*.py'
+      - 'platforms/scripts/platmgr/**'
+      - '.github/workflows/python-static-analysis.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build-type: [Debug, Release, RelWithDebInfo]
+    steps:
+    - uses: actions/checkout@v2
+    - name: update
+      run: sudo apt-get update -y
+    - name: Get Packages
+      uses: mstksg/get-package@v1
+      with:
+        apt-get: uuid-dev libjson-c-dev libhwloc-dev lcov libtbb-dev
+    - name: configure ${{ matrix.build-type }}
+      run: mkdir ${{ github.workspace }}/.build && cd ${{ github.workspace }}/.build && cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
+    - name: make ${{ matrix.build-type }}
+      run: cd ${{ github.workspace }}/.build && make -j
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: update
+      run: sudo apt-get update -y
+    - name: Get Packages
+      uses: mstksg/get-package@v1
+      with:
+        apt-get: uuid-dev libjson-c-dev libhwloc-dev lcov libtbb-dev
+    - name: set hugepages
+      run: sudo sysctl -w vm.nr_hugepages=8
+    - name: run unit tests
+      run: ${{ github.workspace }}/scripts/cover.sh
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: unittests/coverage.info.cleaned

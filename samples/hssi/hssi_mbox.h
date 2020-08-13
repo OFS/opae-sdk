@@ -33,26 +33,19 @@
 #include <stdint.h>
 #include <time.h>
 
-#if 0
 #define TRAFFIC_CTRL_CMD  0x0030
+#define TRAFFIC_CTRL_DATA 0x0038
+
+#if 1
 #define READ_CMD          0x00000001ULL
 #define WRITE_CMD         0x00000002ULL
 #define ACK_TRANS         0x00000004ULL
 #define AFU_CMD_SHIFT     32
-#define AFU_CMD_MASK      0x0000ffff00000000ULL
-#define ACK_TRANS_CLEAR   0xffff0000fffffff8ULL
-
-#define TRAFFIC_CTRL_DATA 0x0038
-#define READ_DATA_MASK    0x00000000ffffffffULL
 #define WRITE_DATA_SHIFT  32
-#define WRITE_DATA_MASK   0xffffffff00000000ULL
 #else
-#define TRAFFIC_CTRL_CMD  0x0030
 #define READ_CMD          0x00000001
 #define WRITE_CMD         0x00000002
 #define ACK_TRANS         0x00000004
-
-#define TRAFFIC_CTRL_DATA 0x0038
 #endif
 
 #define NO_TIMEOUT        0xffffffffffffffffULL
@@ -70,7 +63,7 @@ std::string int_to_hex(X x)
 }
 #endif // __cplusplus
 
-#if 0
+#if 1
 static inline
 int mbox_write(uint8_t *mmio_base, uint16_t csr,
                uint32_t data, uint64_t max_ticks)
@@ -81,11 +74,9 @@ int mbox_write(uint8_t *mmio_base, uint16_t csr,
 
     val = (((uint64_t)data) << WRITE_DATA_SHIFT);
     *((volatile uint64_t *)(mmio_base + TRAFFIC_CTRL_DATA)) = val;
-    std::cout << "write a " << int_to_hex(val) << std::endl;
 
     val = (((uint64_t)csr) << AFU_CMD_SHIFT) | WRITE_CMD;
     *((volatile uint64_t *)(mmio_base + TRAFFIC_CTRL_CMD)) = val;
-    std::cout << "write b " << int_to_hex(val) << std::endl;
 
     ticks = max_ticks;
     ts.tv_sec = 0;
