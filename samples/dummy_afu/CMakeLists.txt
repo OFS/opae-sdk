@@ -65,6 +65,8 @@ opae_add_executable(TARGET dummy_afu
         ${libuuid_LIBRARIES}
     COMPONENT samplebin
 )
+
+target_compile_options(dummy_afu PUBLIC -Wno-unused-result)
 target_include_directories(dummy_afu
     PRIVATE ${spdlog_ROOT}/include
 )
