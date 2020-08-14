@@ -1,4 +1,5 @@
-## Copyright(c) 2019-2020, Intel Corporation
+#!/usr/bin/cmake -P
+## Copyright(c) 2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -22,37 +23,38 @@
 ## INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
-## POSSIBILITY OF SUCH DAMAGE.
+## POSSIBILITY OF SUCH DAMAGE
+find_package(PkgConfig)
+pkg_check_modules(PC_LIBEDIT QUIET libedit)
 
-cmake_minimum_required (VERSION 2.8.12)
+execute_process(COMMAND pkg-config --cflags libedit --silence-errors
+  COMMAND cut -d I -f 2
+  OUTPUT_VARIABLE EDIT_PKG_CONFIG_INCLUDE_DIRS
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+set(EDIT_PKG_CONFIG_INCLUDE_DIRS "${EDIT_PKG_CONFIG_INCLUDE_DIRS}" CACHE STRING "Compiler flags for libedit")
 
-project(python)
+find_path(libedit_INCLUDE_DIRS
+  NAMES editline/readline.h
+  PATHS ${LIBEDIT_ROOT}/include
+  ${EDIT_PKG_CONFIG_INCLUDE_DIRS}
+  /usr/local/include
+  /usr/include
+  ${CMAKE_EXTRA_INCLUDES})
 
-############################################################################
-## Find Python by version     ##############################################
-############################################################################
-set(OPAE_PYTHON_VERSION 3.6 CACHE STRING "Python version to use for building/distributing pyopae")
-set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3.6 3.5 3.4 3.3)
+find_library(libedit_LIBRARIES
+  NAMES edit libedit
+  PATHS ${LIBEDIT_ROOT}/lib
+  ${PC_LIBEDIT_LIBDIR}
+  ${PC_LIBEDIT_LIBRARY_DIRS}
+  /usr/local/lib
+  /usr/lib
+  /lib
+  /usr/lib/x86_64-linux-gnu
+  ${CMAKE_EXTRA_LIBS})
 
-find_package(PythonInterp ${OPAE_PYTHON_VERSION})
-find_package(PythonLibs ${OPAE_PYTHON_VERSION})
+if(libedit_LIBRARIES AND libedit_INCLUDE_DIRS)
+  set(libedit_FOUND true)
+endif(libedit_LIBRARIES AND libedit_INCLUDE_DIRS)
 
-set(INTEL_SECURITY_TOOLS_VERSION 1.0.3 CACHE STRING "Security Tools Version string")
-
-add_subdirectory(opae.admin)
-add_subdirectory(opae.io)
-
-execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import virtualenv"
-    RESULT_VARIABLE HAS_VIRTUALENV)
-
-if (HAS_VIRTUALENV)
-    message("no virtualenv found, use 'pip install virtualenv' to install it")
-else(HAS_VIRTUALENV)
-    add_custom_target(pydev
-        COMMAND ${PYTHON_EXECUTABLE} -m virtualenv ${CMAKE_CURRENT_BINARY_DIR}
-        COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/pip install -e ${CMAKE_CURRENT_SOURCE_DIR}/opae.admin
-        COMMAND echo "Please source ${CMAKE_CURRENT_BINARY_DIR}/bin/activate to use this virtual environment"
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        COMMENT "Setting up virtualenv..."
-        )
-endif(HAS_VIRTUALENV)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(libedit REQUIRED_VARS libedit_INCLUDE_DIRS libedit_LIBRARIES)

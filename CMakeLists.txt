@@ -28,7 +28,10 @@ cmake_minimum_required(VERSION 2.8.12)
 project(opae)
 
 set(OPAE_SDK_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Root directory of opae-sdk project" FORCE)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake"
+set(CMAKE_MODULE_PATH
+    ${CMAKE_MODULE_PATH}
+    "${OPAE_SDK_SOURCE}/cmake"
+    "${OPAE_SDK_SOURCE}/cmake/modules"
     "${CMAKE_CURRENT_SOURCE_DIR}/opae-libs/cmake/modules")
 
 include(OPAE)
