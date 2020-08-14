@@ -71,9 +71,9 @@ extensions = [
 
 setup(
     name='eth_group',
-    version="@OPAE_VERSION@",
+    version="2.0",
     packages=find_packages(),
-    install_requires=['pybind11>=@PYOPAE_PYBIND11_VERSION@'],
+    install_requires=['pybind11>=2.0'],
     description="eth group provides python bindings"
                  "for ethernet mdev",
     license="BSD3",

@@ -206,7 +206,7 @@ ldconfig
 %files tools-extra
 %license @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DOCDIR@/LICENSE
 %defattr(-,root,root,-)
-@INSTALLED_FPGADIAG_FILES@
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/python*
 @CMAKE_INSTALL_PREFIX@/bin/afu_json_mgr
 @CMAKE_INSTALL_PREFIX@/bin/bist_app
 @CMAKE_INSTALL_PREFIX@/bin/bist_app.py
