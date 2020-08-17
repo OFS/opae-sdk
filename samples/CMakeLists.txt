@@ -28,6 +28,12 @@
 #include(opae_devpkgs_cmake_install)
 #include(ase_add_module)
 
+option(OPAE_BUILD_ASE_SAMPLES "Enable building ASE samples" OFF)
+mark_as_advanced(OPAE_BUILD_ASE_SAMPLES)
+
+option(OPAE_BUILD_SAMPLES "Enable building samples" ON)
+mark_as_advanced(OPAE_BUILD_SAMPLES)
+
 include_directories(${OPAE_INCLUDE_DIR}
   ${OPAE_SDK_SOURCE}/libopae/src )
 include_directories(base/sw)
