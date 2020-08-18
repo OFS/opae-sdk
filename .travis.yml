@@ -1,10 +1,9 @@
 language: c
 compiler: gcc
-python:
-  - "3.6"
 matrix:
   include:
   - script: scripts/test-codingstyle-all.sh
+    python: 3.6
     cache: pip
     env:
     - BUILD_JOB=Code Style Check
