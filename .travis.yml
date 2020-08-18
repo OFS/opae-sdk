@@ -1,5 +1,7 @@
 language: c
 compiler: gcc
+python:
+  - "3.6"
 matrix:
   include:
   - script: scripts/test-codingstyle-all.sh
