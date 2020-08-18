@@ -1,0 +1,35 @@
+{
+    "debug":
+    {
+        "build_type": "Debug"
+    },
+    "release":
+    {
+         "build_type": "Release"
+    },
+    "reldbg":
+    {
+        "build_type": "RelWithDebInfo"
+    },
+    "coverage":
+    {
+        "build_type": "Coverage",
+        "defs":
+        {
+            "OPAE_BUILD_LIBOPAE_CXX": "ON",
+            "OPAE_BUILD_TESTS": "ON",
+            "OPAE_BUILD_LIBOPAE_PY": "ON",
+            "OPAE_ENABLE_MOCK": "ON",
+            "OPAE_BUILD_SIM": "OFF"
+        }
+    },
+    "unit":
+    {
+        "from": "debug",
+        "defs":
+        {
+            "OPAE_BUILD_TESTS": "ON",
+            "OPAE_ENABLE_MOCK": "ON"
+        }
+    }
+}
