@@ -83,7 +83,7 @@ else()
 endif()
 
 target_link_libraries(opae-io
-    PRIVATE vfiocpp-static rt dl ${CMAKE_THREAD_LIBS_INIT} util ${PYLINK} ${libedit_LIBRARIES}
+    PRIVATE rt dl ${CMAKE_THREAD_LIBS_INIT} util ${PYLINK} ${libedit_LIBRARIES}
 )
 
 target_compile_definitions(opae-io
