@@ -400,7 +400,7 @@ TEST_P(metadata_c, get_interface_id_03) {
   EXPECT_EQ(res, FPGA_EXCEPTION);
 }
 
-INSTANTIATE_TEST_CASE_P(metadata, metadata_c, ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
+INSTANTIATE_TEST_CASE_P(metadata, metadata_c, ::testing::ValuesIn(test_platform::platforms({ "dfl-d5005" })));
 class metadata_mock_c : public metadata_c {};
 
 /**
@@ -468,4 +468,4 @@ TEST_P(metadata_hw_c, validate_bitstream_metadata) {
 }
 
 INSTANTIATE_TEST_CASE_P(metadata, metadata_hw_c,
-                        ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-n3000","dfl-d5005" })));
+                        ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-d5005" })));

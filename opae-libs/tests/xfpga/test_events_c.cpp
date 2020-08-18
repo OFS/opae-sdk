@@ -741,7 +741,7 @@ TEST_P(events_mcp_p, invalid_fme_event_request){
 }
 
 INSTANTIATE_TEST_CASE_P(events, events_mcp_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 
 
