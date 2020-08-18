@@ -72,7 +72,7 @@ static void print_fme_verbose_info(fpga_token token)
 		return ;
 	}
 
-	res = fpgaObjectRead64(fpga_object,&bitstream_id, 0);
+	res = fpgaObjectRead64(fpga_object, &bitstream_id, 0);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to Read object ");
 		goto out_destroy;
@@ -82,7 +82,7 @@ static void print_fme_verbose_info(fpga_token token)
 					"PAC S10" };
 	major = FPGA_BBS_VER_MAJOR(bitstream_id);
 	printf("%-32s : ", "Platform");
-	if (major < sizeof(platform) / sizeof(char*))
+	if (major < sizeof(platform) / sizeof(char *))
 		printf("%s\n", platform[major]);
 	else
 		printf("unknown\n");
@@ -93,7 +93,7 @@ static void print_fme_verbose_info(fpga_token token)
 	char *phase[] = { "Pre-Alpha", "Alpha", "Beta", "PV" };
 	val = FPGA_BBS_VER_PATCH(bitstream_id);
 	printf("%-32s : ", "Phase");
-	if (val < sizeof(phase) / sizeof(char*))
+	if (val < sizeof(phase) / sizeof(char *))
 		printf("%s\n", phase[val]);
 	else
 		printf("unknown\n");
@@ -106,12 +106,11 @@ static void print_fme_verbose_info(fpga_token token)
 		char *intf[] = { "8x10G", "4x25G", "2x1x25G", "4x25G+2x25G", "2x2x25G",
 						"2x1x25Gx2FVL", "1x2x25G" };
 		printf("%-32s : ", "Interface");
-		if (val < sizeof(intf) / sizeof(char*))
+		if (val < sizeof(intf) / sizeof(char *))
 			printf("%s\n", intf[val]);
 		else
 			printf("unknown\n");
-	}
-	else {
+	} else {
 		printf("%-32s : %x", "HSSI Id", val);
 	}
 
