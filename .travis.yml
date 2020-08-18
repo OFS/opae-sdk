@@ -3,15 +3,15 @@ compiler: gcc
 matrix:
   include:
   - script: scripts/test-codingstyle-all.sh
+    language: generic
     python: 3.6
     env:
     - BUILD_JOB=Code Style Check
     install:
-    - python3 -m pip install --upgrade pip
-    - python3 -m pip install --user pylint
-    - python3 -m pip install --user pycodestyle
-    - python3 -m pip install --user jsonschema
-    - python3 -m pip install --user jinja2
+    - pip install --user pylint
+    - pip install --user pycodestyle
+    - pip install --user jsonschema
+    - pip install --user jinja2
     addons:
       apt:
         packages:
