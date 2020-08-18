@@ -90,6 +90,7 @@ check_py () {
     FILES=$(find . -iname "*.py" -not -name "test_fpgadiag.py" \
 	    -not -name "cpplint.py" \
 	    -not -name "setup.py" \
+	    -not -name "buildit.py" \
 	    -not -path "./doc/*" \
 	    -not -path "./tools/extra/packager/jsonschema-2.3.0/*" \
 	    -not -path  "./opae-libs/pyopae/pybind11/*" \
