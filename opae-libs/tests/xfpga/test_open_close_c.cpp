@@ -358,7 +358,7 @@ TEST_P(openclose_c_dfl_p, open_share) {
   fpga_handle h2 = nullptr;
 
   EXPECT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &h1, FPGA_OPEN_SHARED));
-  EXPECT_EQ(FPGA_BUSY, xfpga_fpgaOpen(tokens_[0], &h2, FPGA_OPEN_SHARED));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &h2, FPGA_OPEN_SHARED));
   EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(h1));
 }
 
