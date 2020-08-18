@@ -319,6 +319,8 @@ char *pygenerator(const char *text, int state) {
 
 char **custom_completer(const char *text, int start, int end)
 {
+  (void)start;
+  (void)end;
   return completion_matches((char *)text, pygenerator);
 }
 
@@ -423,7 +425,7 @@ int main(int argc, char *argv[])
 bool regex_matches(std::string haystack, std::string pattern)
 {
   regex_t re;
-  regmatch_t matches[3] = { {0} };
+  regmatch_t matches[3];
   regcomp(&re, pattern.c_str(), REG_EXTENDED|REG_ICASE);
   bool match = regexec(&re,
                        haystack.c_str(),

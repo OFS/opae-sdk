@@ -40,6 +40,7 @@ set(libvfio_TAG
 opae_external_project_add(PROJECT_NAME libvfio
                           GIT_URL ${libvfio_URL}
                           GIT_TAG ${libvfio_TAG}
+                          NO_ADD_SUBDIRECTORY
 )
 
 set(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/build/timestamp)
@@ -64,7 +65,11 @@ install(
 find_package(Threads)
 find_package(libeditline)
 
-add_executable(opae-io main.cpp ${libvfio_ROOT}/src/vfio_driver.cpp)
+add_executable(opae-io
+    main.cpp
+    ${libvfio_ROOT}/src/vfio_driver.cpp
+    ${libvfio_ROOT}/src/vfiocpp.cpp
+)
 target_include_directories(opae-io
     PRIVATE ${CMAKE_SOURCE_DIR}/external/pybind11/include
             ${PYTHON_INCLUDE_DIRS}
