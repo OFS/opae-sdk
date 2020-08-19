@@ -162,6 +162,20 @@ public:
   }
   virtual ~test_afu(){}
 
+  void remove_option(const std::string &name)
+  {
+    auto option = app_.get_option(name);
+    if (option)
+      app_.remove_option(option);
+    else
+      std::cerr << name << " option not found\n";
+  }
+
+  CLI::App & cli()
+  {
+    return app_;
+  }
+
   int open_handle() {
     auto filter = fpga::properties::get();
     filter->type = FPGA_ACCELERATOR;

@@ -37,6 +37,7 @@ using namespace opae::app;
 int main(int argc, char* argv[])
 {
   test_afu app("hssi", AFU_ID);
+  app.remove_option("--count");
   app.register_command<hssi_test>();
   return app.main(argc, argv);
 }
