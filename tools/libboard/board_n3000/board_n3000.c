@@ -77,7 +77,7 @@
 #define IFCONFIG_STR             "ifconfig"
 #define IFCONFIG_UP_STR          "up"
 #define FPGA_ETHINTERFACE_NAME   "npac"
-#define DFL_ETHINTERFACE         "dfl-fme*/net/npac*" 
+#define DFL_ETHINTERFACE         "dfl-fme*/net/npac*"
 
 
 
@@ -319,11 +319,10 @@ fpga_result print_eth_interface_info(fpga_token token)
 	fpga_object fpga_object;
 
 	if_nidxs = if_nameindex();
-	if (if_nidxs != NULL)
-	{
+	if (if_nidxs != NULL) {
 		for (intf = if_nidxs; intf->if_index != 0
-			|| intf->if_name != NULL; intf++)
-		{
+			|| intf->if_name != NULL; intf++) {
+
 			char *p = strstr(intf->if_name, FPGA_ETHINTERFACE_NAME);
 			if (p) {
 				// Check interface associated to bdf
