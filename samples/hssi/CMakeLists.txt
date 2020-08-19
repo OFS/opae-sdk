@@ -44,3 +44,18 @@ opae_external_project_add(PROJECT_NAME CLI11
                           GIT_TAG v1.9.1
                           NO_ADD_SUBDIRECTORY
 )
+
+opae_add_executable(TARGET hssi_app
+    SOURCE hssi_app.cpp
+    LIBS
+        opae-c
+        opae-cxx-core
+    COMPONENT sampleshssi
+)
+
+target_include_directories(hssi_app
+    PRIVATE
+        ${CMAKE_SOURCE_DIR}/external/CLI11/include
+        ${CMAKE_SOURCE_DIR}/external/spdlog/include
+        ${CMAKE_SOURCE_DIR}/samples/dummy_afu
+)
