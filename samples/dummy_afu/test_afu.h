@@ -56,7 +56,6 @@ namespace app {
 
 namespace fpga = fpga::types;
 
-typedef std::shared_ptr<spdlog::logger> logger_ptr;
 
 template<typename T>
 inline bool parse_match_int(const char *s,
@@ -123,6 +122,11 @@ public:
   {
     (void)app;
   }
+  virtual const char *afu_id() const
+  {
+    return nullptr;
+  }
+
 private:
 
 };
@@ -139,18 +143,18 @@ public:
     error
   };
 
-  test_afu(const char *name)
-  : app_(name)
-  , name_(name)
+  test_afu(const char *name, const char *afu_id = nullptr)
+  : name_(name)
+  , afu_id_(afu_id)
+  , app_(name_)
   , pci_addr_("")
   , log_level_("info")
   , shared_(false)
   , timeout_msec_(60000)
   , handle_(nullptr)
   {
-    afu_id_ = afu_id();
-
-    app_.add_option("-g,--guid", afu_id_, "GUID")->default_val(afu_id_);
+    if (!afu_id_.empty())
+      app_.add_option("-g,--guid", afu_id_, "GUID")->default_val(afu_id_);
     app_.add_option("-p,--pci-address", pci_addr_,
                     "[<domain>:]<bus>:<device>.<function>");
     app_.add_option("-l,--log-level", log_level_, "stdout logging level")->
@@ -163,12 +167,15 @@ public:
 
   CLI::App & cli() { return app_; }
 
-  virtual const char * afu_id() const { return ""; }
-
-  int open_handle() {
+  int open_handle(const char *afu_id) {
     auto filter = fpga::properties::get();
+    auto app_afu_id = afu_id ? afu_id : afu_id_.c_str();
     filter->type = FPGA_ACCELERATOR;
-    filter->guid.parse(afu_id_.c_str());
+    try {
+      filter->guid.parse(app_afu_id);
+    } catch(opae::fpga::types::except & err) {
+      return error;
+    }
     if (!pci_addr_.empty()) {
       auto p = pcie_address::parse(pci_addr_.c_str());
       filter->segment = p.fields.domain;
@@ -201,16 +208,12 @@ public:
 
   int main(int argc, char *argv[])
   {
-    app_.require_subcommand();
+    if (!commands_.empty())
+      app_.require_subcommand();
     CLI11_PARSE(app_, argc, argv);
 
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
     console_sink->set_level(spdlog::level::from_str(log_level_));
-
-    int res = open_handle();
-    if (res != exit_codes::not_run) {
-      return res;
-    }
 
     test_command::ptr_t test(nullptr);
     CLI::App *app = nullptr;
@@ -224,6 +227,11 @@ public:
     if (!test) {
       std::cerr << "no command specified\n";
       return exit_codes::not_run;
+    }
+
+    int res = open_handle(test->afu_id());
+    if (res != exit_codes::not_run) {
+      return res;
     }
 
     std::stringstream ss;
@@ -284,177 +292,18 @@ public:
   }
 
 protected:
-  CLI::App app_;
   std::string name_;
+  std::string afu_id_;
+  CLI::App app_;
   std::string pci_addr_;
   std::string log_level_;
   bool shared_;
   uint32_t timeout_msec_;
   fpga::handle::ptr_t handle_;
-  std::string afu_id_;
   std::map<CLI::App*, test_command::ptr_t> commands_;
-  logger_ptr logger_;
+  std::shared_ptr<spdlog::logger> logger_;
 };
 
-class dummy_afu : public test_afu {
-public:
-  dummy_afu(const char *name)
-  : test_afu(name)
-  , count_(1)
-  {
-    app_.add_option("-c,--count", count_, "Number of times to run test")->default_val(count_);
-  }
-
-  virtual const char * afu_id() const override
-  {
-    return "91c2a3a1-4a23-4e21-a7cd-2b36dbf2ed73";
-  }
-
-  virtual int run(CLI::App *app, test_command::ptr_t test) override
-  {
-    int res = exit_codes::not_run;
-    logger_->set_level(spdlog::level::trace);
-    logger_->info("starting test run, count of {0:d}", count_);
-    uint32_t count = 0;
-    try {
-      while (count < count_) {
-        logger_->debug("starting iteration: {0:d}", count+1);
-        handle_->reset();
-        std::future<int> f = std::async(std::launch::async,
-            [this, test, app](){
-              return test->run(this, app);
-            });
-        auto status = f.wait_for(std::chrono::milliseconds(timeout_msec_));
-        if (status == std::future_status::timeout)
-          throw std::runtime_error("timeout");
-        res = f.get();
-
-        count++;
-        logger_->debug("end iteration: {0:d}", count);
-        if (res)
-          break;
-      }
-    } catch(std::exception &ex) {
-      logger_->error(ex.what());
-      res = exit_codes::exception;
-    }
-    auto pass = res == exit_codes::success ? "PASS" : "FAIL";
-    logger_->info("Test {}({}): {}", test->name(), count, pass);
-    spdlog::drop_all();
-    return res;
-  }
-
-  template<typename T>
-  inline T read(uint32_t offset) const {
-    return *reinterpret_cast<T*>(handle_->mmio_ptr(offset));
-  }
-
-  template<typename T>
-  inline void write(uint32_t offset, T value) const {
-    *reinterpret_cast<T*>(handle_->mmio_ptr(offset)) = value;
-  }
-
-  template<typename T>
-  T read(uint32_t offset, uint32_t i) const {
-    return read<T>(get_offset(offset, i));
-  }
-
-  template<typename T>
-  void write(uint32_t offset, uint32_t i, T value) const {
-    write<T>(get_offset(offset, i), value);
-  }
-
-  uint64_t read64(uint32_t offset, uint32_t i) const {
-    return test_afu::read64(get_offset(offset, i));
-  }
-
-  void write64(uint32_t offset, uint32_t i, uint64_t value) const {
-    test_afu::write64(get_offset(offset, i), value);
-  }
-
-  fpga::shared_buffer::ptr_t allocate(size_t size)
-  {
-    return fpga::shared_buffer::allocate(handle_, size);
-  }
-
-  void fill(fpga::shared_buffer::ptr_t buffer)
-  {
-    std::random_device rd;
-    std::mt19937 mt(rd());
-    std::uniform_int_distribution<uint32_t> dist(1, 4096);
-    auto sz = sizeof(uint32_t);
-    for (uint32_t i = 0; i < buffer->size()/sz; i+=sz){
-      buffer->write<uint32_t>(dist(mt), i);
-    }
-
-  }
-
-  void fill(fpga::shared_buffer::ptr_t buffer, uint32_t value)
-  {
-    buffer->fill(value);
-  }
-
-  fpga::event::ptr_t register_interrupt()
-  {
-    auto event = fpga::event::register_event(handle_, FPGA_EVENT_INTERRUPT);
-    return event;
-  }
-
-  void interrupt_wait(fpga::event::ptr_t event, int timeout=-1)
-  {
-    struct pollfd pfd;
-    pfd.events = POLLIN;
-    pfd.fd = event->os_object();
-    auto ret = poll(&pfd, 1, timeout);
-
-    if (ret < 0)
-      throw std::runtime_error(strerror(errno));
-    if (ret == 0)
-      throw std::runtime_error("timeout error");
-  }
-
-  void compare(fpga::shared_buffer::ptr_t b1,
-               fpga::shared_buffer::ptr_t b2, uint32_t count = 0)
-  {
-      if (b1->compare(b2, count ? count : b1->size())) {
-        throw std::runtime_error("buffers mismatch");
-      }
-
-  }
-
-  template<class T>
-  T read_register()
-  {
-    return *reinterpret_cast<T*>(handle_->mmio_ptr(T::offset));
-  }
-
-  template<class T>
-  volatile T* register_ptr(uint32_t offset)
-  {
-    return reinterpret_cast<volatile T*>(handle_->mmio_ptr(offset));
-  }
-
-  template<class T>
-  void write_register(uint32_t offset, T* reg)
-  {
-    return *reinterpret_cast<T*>(handle_->mmio_ptr(offset)) = *reg;
-  }
-
-private:
-  uint32_t count_;
-  std::map<uint32_t, uint32_t> limits_;
-
-  uint32_t get_offset(uint32_t base, uint32_t i) const {
-    auto limit = limits_.find(base);
-    auto offset = base + sizeof(uint64_t)*i;
-    if (limit != limits_.end() &&
-        offset > limit->second - sizeof(uint64_t)) {
-      throw std::out_of_range("offset out range in csr space");
-    }
-    return offset;
-  }
-
-};
 
 } // end of namespace app
 } // end of namespace opae

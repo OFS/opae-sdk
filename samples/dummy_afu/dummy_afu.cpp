@@ -30,17 +30,17 @@
 #include "lpbk.h"
 #include "ddr.h"
 
-#include "test_afu.h"
+#include "dummy_afu.h"
 
 const char *AFU_ID = "91c2a3a1-4a23-4e21-a7cd-2b36dbf2ed73";
 using namespace opae::app;
 
 int main(int argc, char* argv[])
 {
-  test_afu app("dummy_afu", AFU_ID);
-  app.register_command<mmio_test>();
-  app.register_command<ddr_test>();
-  app.register_command<lpbk_test>();
+  dummy_afu::dummy_afu app;
+  app.register_command<dummy_afu::mmio_test>();
+  app.register_command<dummy_afu::ddr_test>();
+  app.register_command<dummy_afu::lpbk_test>();
   return app.main(argc, argv);
 }
 

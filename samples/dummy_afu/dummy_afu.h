@@ -24,8 +24,14 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
+#include <opae/cxx/core/events.h>
+#include <opae/cxx/core/shared_buffer.h>
+
+#include "test_afu.h"
 
 namespace dummy_afu {
+using opae::fpga::types::event;
+using opae::fpga::types::shared_buffer;
 
 enum {
   AFU_DFH = 0x0000,
@@ -171,5 +177,154 @@ union ddr_test_bank3_stat  {
   };
 };
 
+using opae::app::test_afu;
+using opae::app::test_command;
+
+class dummy_afu : public test_afu {
+public:
+  dummy_afu(const char *afu_id = "91c2a3a1-4a23-4e21-a7cd-2b36dbf2ed73")
+  : test_afu("dummy_afu", afu_id)
+  , count_(1)
+  {
+    app_.add_option("-c,--count", count_, "Number of times to run test")->default_val(count_);
+  }
+
+  virtual int run(CLI::App *app, test_command::ptr_t test) override
+  {
+    int res = exit_codes::not_run;
+    logger_->set_level(spdlog::level::trace);
+    logger_->info("starting test run, count of {0:d}", count_);
+    uint32_t count = 0;
+    try {
+      while (count < count_) {
+        logger_->debug("starting iteration: {0:d}", count+1);
+        handle_->reset();
+        std::future<int> f = std::async(std::launch::async,
+            [this, test, app](){
+              return test->run(this, app);
+            });
+        auto status = f.wait_for(std::chrono::milliseconds(timeout_msec_));
+        if (status == std::future_status::timeout)
+          throw std::runtime_error("timeout");
+        res = f.get();
+
+        count++;
+        logger_->debug("end iteration: {0:d}", count);
+        if (res)
+          break;
+      }
+    } catch(std::exception &ex) {
+      logger_->error(ex.what());
+      res = exit_codes::exception;
+    }
+    auto pass = res == exit_codes::success ? "PASS" : "FAIL";
+    logger_->info("Test {}({}): {}", test->name(), count, pass);
+    spdlog::drop_all();
+    return res;
+  }
+
+  template<typename T>
+  inline T read(uint32_t offset) const {
+    return *reinterpret_cast<T*>(handle_->mmio_ptr(offset));
+  }
+
+  template<typename T>
+  inline void write(uint32_t offset, T value) const {
+    *reinterpret_cast<T*>(handle_->mmio_ptr(offset)) = value;
+  }
+
+  template<typename T>
+  T read(uint32_t offset, uint32_t i) const {
+    return read<T>(get_offset(offset, i));
+  }
+
+  template<typename T>
+  void write(uint32_t offset, uint32_t i, T value) const {
+    write<T>(get_offset(offset, i), value);
+  }
+
+  shared_buffer::ptr_t allocate(size_t size)
+  {
+    return shared_buffer::allocate(handle_, size);
+  }
+
+  void fill(shared_buffer::ptr_t buffer)
+  {
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_int_distribution<uint32_t> dist(1, 4096);
+    auto sz = sizeof(uint32_t);
+    for (uint32_t i = 0; i < buffer->size()/sz; i+=sz){
+      buffer->write<uint32_t>(dist(mt), i);
+    }
+
+  }
+
+  void fill(shared_buffer::ptr_t buffer, uint32_t value)
+  {
+    buffer->fill(value);
+  }
+
+  event::ptr_t register_interrupt()
+  {
+    auto event = event::register_event(handle_, FPGA_EVENT_INTERRUPT);
+    return event;
+  }
+
+  void interrupt_wait(event::ptr_t event, int timeout=-1)
+  {
+    struct pollfd pfd;
+    pfd.events = POLLIN;
+    pfd.fd = event->os_object();
+    auto ret = poll(&pfd, 1, timeout);
+
+    if (ret < 0)
+      throw std::runtime_error(strerror(errno));
+    if (ret == 0)
+      throw std::runtime_error("timeout error");
+  }
+
+  void compare(shared_buffer::ptr_t b1,
+               shared_buffer::ptr_t b2, uint32_t count = 0)
+  {
+      if (b1->compare(b2, count ? count : b1->size())) {
+        throw std::runtime_error("buffers mismatch");
+      }
+
+  }
+
+  template<class T>
+  T read_register()
+  {
+    return *reinterpret_cast<T*>(handle_->mmio_ptr(T::offset));
+  }
+
+  template<class T>
+  volatile T* register_ptr(uint32_t offset)
+  {
+    return reinterpret_cast<volatile T*>(handle_->mmio_ptr(offset));
+  }
+
+  template<class T>
+  void write_register(uint32_t offset, T* reg)
+  {
+    return *reinterpret_cast<T*>(handle_->mmio_ptr(offset)) = *reg;
+  }
+
+private:
+  uint32_t count_;
+  std::map<uint32_t, uint32_t> limits_;
+
+  uint32_t get_offset(uint32_t base, uint32_t i) const {
+    auto limit = limits_.find(base);
+    auto offset = base + sizeof(uint64_t)*i;
+    if (limit != limits_.end() &&
+        offset > limit->second - sizeof(uint64_t)) {
+      throw std::out_of_range("offset out range in csr space");
+    }
+    return offset;
+  }
+
+};
 } // end of namespace dummy_afu
 
