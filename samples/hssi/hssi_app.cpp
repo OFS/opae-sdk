@@ -23,24 +23,18 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include <iostream>
-#include <CLI/CLI.hpp>
-
-#include "hssi_base.h"
-
-#include "test_afu.h"
+#include "hssi_10g_cmd.h"
+#include "hssi_100g_cmd.h"
 
 const char *AFU_ID = "823c334c-98bf-11ea-bb37-0242ac130002";
 
 using namespace opae::app;
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
   test_afu app("hssi", AFU_ID);
   app.remove_option("--count");
-  app.register_command<hssi_test>();
+  app.register_command<hssi_10g_cmd>();
+  app.register_command<hssi_100g_cmd>();
   return app.main(argc, argv);
 }
-
-
-

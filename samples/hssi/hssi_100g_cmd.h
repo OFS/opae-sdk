@@ -28,22 +28,23 @@
 
 using namespace opae::app;
 
-class hssi_test : public test_command
+class hssi_100g_cmd : public test_command
 {
 public:
-  hssi_test()
+  hssi_100g_cmd()
   {
 
   }
-  virtual ~hssi_test(){}
+  virtual ~hssi_100g_cmd() {}
+
   virtual const char *name() const
   {
-    return "hssi";
+    return "hssi_100g";
   }
 
   virtual const char *description() const
   {
-    return "run hssi test";
+    return "hssi 100G test\n";
   }
 
   virtual void add_options(CLI::App *app)
@@ -58,6 +59,7 @@ public:
     return test_afu::not_run;
   }
 
+protected:
 
-private:
+
 };

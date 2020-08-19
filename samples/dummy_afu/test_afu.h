@@ -139,17 +139,17 @@ public:
     error
   };
 
-  test_afu(const char *name, const char *afu_id)
+  test_afu(const char *name)
   : app_(name)
   , name_(name)
-  , afu_id_(afu_id)
   , pci_addr_("")
   , log_level_("info")
-  , timeout_msec_(60000)
-  , count_(1)
-  , handle_(nullptr)
   , shared_(false)
+  , timeout_msec_(60000)
+  , handle_(nullptr)
   {
+    afu_id_ = afu_id();
+
     app_.add_option("-g,--guid", afu_id_, "GUID")->default_val(afu_id_);
     app_.add_option("-p,--pci-address", pci_addr_,
                     "[<domain>:]<bus>:<device>.<function>");
@@ -157,24 +157,13 @@ public:
       default_val(log_level_)->
       check(CLI::IsMember(SPDLOG_LEVEL_NAMES));
     app_.add_flag("-s,--shared", shared_, "open in shared mode, default is off");
-    app_.add_option("-c,--count", count_, "Number of times to run test")->default_val(count_);
     app_.add_option("-t,--timeout", timeout_msec_, "test timeout (msec)")->default_val(timeout_msec_);
   }
-  virtual ~test_afu(){}
+  virtual ~test_afu() {}
 
-  void remove_option(const std::string &name)
-  {
-    auto option = app_.get_option(name);
-    if (option)
-      app_.remove_option(option);
-    else
-      std::cerr << name << " option not found\n";
-  }
+  CLI::App & cli() { return app_; }
 
-  CLI::App & cli()
-  {
-    return app_;
-  }
+  virtual const char * afu_id() const { return ""; }
 
   int open_handle() {
     auto filter = fpga::properties::get();
@@ -209,8 +198,6 @@ public:
     }
     return exit_codes::not_run;
   }
-
-
 
   int main(int argc, char *argv[])
   {
@@ -249,7 +236,81 @@ public:
     return run(app, test);
   }
 
-  int run(CLI::App *app, test_command::ptr_t test)
+  virtual int run(CLI::App *app, test_command::ptr_t test)
+  {
+    int res = exit_codes::not_run;
+
+    try {
+      std::future<int> f = std::async(std::launch::async,
+        [this, test, app](){
+          return test->run(this, app);
+        });
+      auto status = f.wait_for(std::chrono::milliseconds(timeout_msec_));
+      if (status == std::future_status::timeout)
+        throw std::runtime_error("timeout");
+      res = f.get();
+    } catch(std::exception &ex) {
+      res = exit_codes::exception;
+    }
+
+    return res;
+  }
+
+  template<class T>
+  CLI::App *register_command()
+  {
+    test_command::ptr_t cmd(new T());
+    auto sub = app_.add_subcommand(cmd->name(),
+                                   cmd->description());
+    cmd->add_options(sub);
+    commands_[sub] = cmd;
+    return sub;
+  }
+
+  uint64_t read64(uint32_t offset) const {
+    return handle_->read_csr64(offset);
+  }
+
+  void write64(uint32_t offset, uint64_t value) const {
+    return handle_->write_csr64(offset, value);
+  }
+
+  uint32_t read32(uint32_t offset) const {
+    return handle_->read_csr32(offset);
+  }
+
+  void write32(uint32_t offset, uint32_t value) const {
+    return handle_->write_csr32(offset, value);
+  }
+
+protected:
+  CLI::App app_;
+  std::string name_;
+  std::string pci_addr_;
+  std::string log_level_;
+  bool shared_;
+  uint32_t timeout_msec_;
+  fpga::handle::ptr_t handle_;
+  std::string afu_id_;
+  std::map<CLI::App*, test_command::ptr_t> commands_;
+  logger_ptr logger_;
+};
+
+class dummy_afu : public test_afu {
+public:
+  dummy_afu(const char *name)
+  : test_afu(name)
+  , count_(1)
+  {
+    app_.add_option("-c,--count", count_, "Number of times to run test")->default_val(count_);
+  }
+
+  virtual const char * afu_id() const override
+  {
+    return "91c2a3a1-4a23-4e21-a7cd-2b36dbf2ed73";
+  }
+
+  virtual int run(CLI::App *app, test_command::ptr_t test) override
   {
     int res = exit_codes::not_run;
     logger_->set_level(spdlog::level::trace);
@@ -283,17 +344,6 @@ public:
     return res;
   }
 
-  template<class T>
-  CLI::App *register_command()
-  {
-    test_command::ptr_t cmd(new T());
-    auto sub = app_.add_subcommand(cmd->name(),
-                                   cmd->description());
-    cmd->add_options(sub);
-    commands_[sub] = cmd;
-    return sub;
-  }
-
   template<typename T>
   inline T read(uint32_t offset) const {
     return *reinterpret_cast<T*>(handle_->mmio_ptr(offset));
@@ -314,28 +364,12 @@ public:
     write<T>(get_offset(offset, i), value);
   }
 
-  uint64_t read64(uint32_t offset) const {
-    return handle_->read_csr64(offset);
-  }
-
-  void write64(uint32_t offset, uint64_t value) const {
-    return handle_->write_csr64(offset, value);
-  }
-
-  uint32_t read32(uint32_t offset) const {
-    return handle_->read_csr32(offset);
-  }
-
-  void write32(uint32_t offset, uint32_t value) const {
-    return handle_->write_csr32(offset, value);
-  }
-
   uint64_t read64(uint32_t offset, uint32_t i) const {
-    return read64(get_offset(offset, i));
+    return test_afu::read64(get_offset(offset, i));
   }
 
   void write64(uint32_t offset, uint32_t i, uint64_t value) const {
-    write64(get_offset(offset, i), value);
+    test_afu::write64(get_offset(offset, i), value);
   }
 
   fpga::shared_buffer::ptr_t allocate(size_t size)
@@ -407,18 +441,8 @@ public:
   }
 
 private:
-  CLI::App app_;
-  std::string name_;
-  std::string afu_id_;
-  std::string pci_addr_;
-  std::string log_level_;
-  uint32_t timeout_msec_;
   uint32_t count_;
-  fpga::handle::ptr_t handle_;
-  bool shared_;
-  std::map<CLI::App*, test_command::ptr_t> commands_;
   std::map<uint32_t, uint32_t> limits_;
-  logger_ptr logger_;
 
   uint32_t get_offset(uint32_t base, uint32_t i) const {
     auto limit = limits_.find(base);
@@ -429,8 +453,6 @@ private:
     }
     return offset;
   }
-
-
 
 };
 
