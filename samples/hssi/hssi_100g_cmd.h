@@ -24,39 +24,41 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
-#include "test_afu.h"
+#include "hssi_cmd.h"
 
 using namespace opae::app;
 
-class hssi_100g_cmd : public test_command
+class hssi_100g_cmd : public hssi_cmd
 {
 public:
   hssi_100g_cmd()
-  {
+  {}
 
-  }
-  virtual ~hssi_100g_cmd() {}
-
-  virtual const char *name() const
+  virtual const char *name() const override
   {
     return "hssi_100g";
   }
 
-  virtual const char *description() const
+  virtual const char *description() const override
   {
     return "hssi 100G test\n";
   }
 
-  virtual void add_options(CLI::App *app)
+  virtual void add_options(CLI::App *app) override
   {
     (void)app;
   }
 
-  virtual int run(test_afu *afu, CLI::App *app)
+  virtual int run(test_afu *afu, CLI::App *app) override
   {
     (void)afu;
     (void)app;
     return test_afu::not_run;
+  }
+
+  virtual const char *afu_id() const override
+  {
+    return "823c334c-98bf-11ea-bb37-0242ac130002";
   }
 
 protected:

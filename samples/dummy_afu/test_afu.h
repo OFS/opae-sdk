@@ -145,13 +145,14 @@ public:
 
   test_afu(const char *name, const char *afu_id = nullptr)
   : name_(name)
-  , afu_id_(afu_id)
+  , afu_id_(afu_id ? afu_id : "")
   , app_(name_)
   , pci_addr_("")
   , log_level_("info")
   , shared_(false)
   , timeout_msec_(60000)
   , handle_(nullptr)
+  , current_command_(nullptr)
   {
     if (!afu_id_.empty())
       app_.add_option("-g,--guid", afu_id_, "GUID")->default_val(afu_id_);
@@ -248,6 +249,8 @@ public:
   {
     int res = exit_codes::not_run;
 
+    current_command_ = test;
+
     try {
       std::future<int> f = std::async(std::launch::async,
         [this, test, app](){
@@ -261,6 +264,7 @@ public:
       res = exit_codes::exception;
     }
 
+    current_command_.reset();
     return res;
   }
 
@@ -291,6 +295,10 @@ public:
     return handle_->write_csr32(offset, value);
   }
 
+  test_command::ptr_t current_command() const {
+    return current_command_;
+  }
+
 protected:
   std::string name_;
   std::string afu_id_;
@@ -300,6 +308,7 @@ protected:
   bool shared_;
   uint32_t timeout_msec_;
   fpga::handle::ptr_t handle_;
+  test_command::ptr_t current_command_;
   std::map<CLI::App*, test_command::ptr_t> commands_;
   std::shared_ptr<spdlog::logger> logger_;
 };

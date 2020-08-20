@@ -33,7 +33,7 @@ opae_external_project_add(PROJECT_NAME CLI11
 )
 
 opae_add_executable(TARGET hssi
-    SOURCE hssi_app.cpp
+    SOURCE hssi.cpp
     LIBS
         opae-c
         opae-cxx-core
