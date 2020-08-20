@@ -54,6 +54,7 @@ ADD_OPTIONS = database.ADD_OPTIONS
 
 LOG = logging.getLogger()
 
+
 def is_PAC_D5005(self, contents, offset):
     # TODO: Write function to read dword and determine RC or VC
     val = contents.get_dword(offset)
