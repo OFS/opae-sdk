@@ -194,7 +194,7 @@ def main():
         #    continue
 
         # Check for DC PR bitstream
-        if verifier.is_Darby_PR(contents, sig_offset):
+        if _VERIFIER_BASE.is_Darby_PR(contents, sig_offset):
             block0 = verifier.Block_0_dc(b0.data, payload.data)
             block1 = verifier.Block_1_dc(b1.data, block0)
         else:
