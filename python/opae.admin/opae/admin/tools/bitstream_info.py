@@ -54,6 +54,14 @@ ADD_OPTIONS = database.ADD_OPTIONS
 
 LOG = logging.getLogger()
 
+def is_PAC_D5005(self, contents, offset):
+    # TODO: Write function to read dword and determine RC or VC
+    val = contents.get_dword(offset)
+    LOG.debug("platform value is '{}' ".format(hex(val)))
+    type = contents.get_word(offset + int(0xC))
+    return val == (database.DC_PLATFORM_NUM and
+                   type == database.PR_IDENTIFIER)
+
 
 def add_common_options(parser):
     if ADD_OPTIONS:
@@ -194,7 +202,7 @@ def main():
         #    continue
 
         # Check for DC PR bitstream
-        if verifier._VERIFIER_BASE.is_Darby_PR(contents, sig_offset):
+        if is_PAC_D5005(contents, sig_offset):
             block0 = verifier.Block_0_dc(b0.data, payload.data)
             block1 = verifier.Block_1_dc(b1.data, block0)
         else:
