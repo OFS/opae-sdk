@@ -199,15 +199,7 @@ public:
       while (count < count_) {
         logger_->debug("starting iteration: {0:d}", count+1);
         handle_->reset();
-        std::future<int> f = std::async(std::launch::async,
-            [this, test, app](){
-              return test->run(this, app);
-            });
-        auto status = f.wait_for(std::chrono::milliseconds(timeout_msec_));
-        if (status == std::future_status::timeout)
-          throw std::runtime_error("timeout");
-        res = f.get();
-
+        res = test_afu::run(app, test);
         count++;
         logger_->debug("end iteration: {0:d}", count);
         if (res)
