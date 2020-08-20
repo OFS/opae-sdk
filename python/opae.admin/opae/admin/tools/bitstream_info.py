@@ -192,16 +192,17 @@ def main():
         payload = common_util.BYTE_ARRAY()
 
         if is_dc:
-            b0.append_data(contents.data[payload_offset: payload_offset + 0x1000])
+            b0.append_data(
+                    contents.data[payload_offset: payload_offset + 0x1000])
             b1.append_data(
-                contents.data[payload_offset + 0x1000: payload_offset + 0x2000])
+                contents.data[
+                    payload_offset + 0x1000: payload_offset + 0x2000])
             payload.append_data(contents.data[payload_offset + 0x2000:])
         else:
             b0.append_data(contents.data[payload_offset: payload_offset + 128])
             b1.append_data(
                 contents.data[payload_offset + 128: payload_offset + 1024])
             payload.append_data(contents.data[payload_offset + 1024:])
-
 
         # Check for PAC_D5005 PR bitstream
         if is_dc:

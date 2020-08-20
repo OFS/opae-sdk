@@ -116,7 +116,7 @@ class _VERIFIER_BASE(object):
         log.debug("platform value is '{}' ".format(hex(val)))
         type = contents.get_word(offset + int(0xC))
         return (val == database.DC_PLATFORM_NUM and
-                       type == database.PR_IDENTIFIER)
+                type == database.PR_IDENTIFIER)
 
 
 class print_bitstream(_VERIFIER_BASE):
@@ -132,7 +132,7 @@ class print_bitstream(_VERIFIER_BASE):
         type = b0.get_word(int(0xC))
         log.debug("type is '{}' ".format(hex(type)))
         self.dc_pr = (val == database.DC_PLATFORM_NUM and
-                             type == database.PR_IDENTIFIER)
+                      type == database.PR_IDENTIFIER)
         if not self.dc_pr:
             self.b0 = Block_0(b0.data, payload)
             self.b1 = Block_1(b1.data, self.b0)
