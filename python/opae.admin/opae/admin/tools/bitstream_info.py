@@ -55,6 +55,15 @@ ADD_OPTIONS = database.ADD_OPTIONS
 LOG = logging.getLogger()
 
 
+def is_PAC_D5005(contents, offset):
+    # Write function to read dword and determine RC or VC
+    val = contents.get_dword(offset)
+    LOG.debug("platform value is '{}' ".format(hex(val)))
+    type = contents.get_word(offset + int(0xC))
+    return val == (database.DC_PLATFORM_NUM and
+                   type == database.PR_IDENTIFIER)
+
+
 def add_common_options(parser):
     if ADD_OPTIONS:
         parser.add_argument(
@@ -193,17 +202,16 @@ def main():
         #    LOG.error("File '{}' unrecognized".format(f))
         #    continue
 
-        block0 = verifier.Block_0(b0.data, payload.data)
-        block1 = verifier.Block_1(b1.data, block0)
+        # Check for PAC_D5005 PR bitstream
+        if is_PAC_D5005(contents, sig_offset):
+            block0 = verifier.Block_0_dc(b0.data, payload.data)
+            block1 = verifier.Block_1_dc(b1.data, block0)
+        else:
+            block0 = verifier.Block_0(b0.data, payload.data)
+            block1 = verifier.Block_1(b1.data, block0)
 
-        if not block0.is_good:
+        if not block0.is_good and not block1.is_good:
             LOG.error("File '{}' unrecognized".format(f))
-            LOG.error("Invalid Input file BLOCK0")
-            continue
-
-        if not block1.is_good:
-            LOG.error("File '{}' unrecognized".format(f))
-            LOG.error("Invalid Input file BLOCK1")
             continue
 
         args.main_command = block0.content_type
