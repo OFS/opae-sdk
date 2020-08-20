@@ -115,7 +115,7 @@ class _VERIFIER_BASE(object):
         val = contents.get_dword(offset)
         log.debug("platform value is '{}' ".format(hex(val)))
         type = contents.get_word(offset + int(0xC))
-        return val == (database.DC_PLATFORM_NUM and
+        return (val == database.DC_PLATFORM_NUM and
                        type == database.PR_IDENTIFIER)
 
 
@@ -131,7 +131,7 @@ class print_bitstream(_VERIFIER_BASE):
         log.debug("platform value is '{}' ".format(hex(val)))
         type = b0.get_word(int(0xC))
         log.debug("type is '{}' ".format(hex(type)))
-        self.dc_pr = val == (database.DC_PLATFORM_NUM and
+        self.dc_pr = (val == database.DC_PLATFORM_NUM and
                              type == database.PR_IDENTIFIER)
         if not self.dc_pr:
             self.b0 = Block_0(b0.data, payload)
@@ -465,7 +465,7 @@ class Block_1_dc:
         )
         if magic != database.DC_CSK_MAGIC_NUM:
             self.is_good = False
-            print("Can't find public key entry")
+            print("Can't find CSK entry")
             return
 
         siz = int_from_bytes(
@@ -482,7 +482,7 @@ class Block_1_dc:
         )
         if magic != database.BLOCK0_MAGIC_NUM:
             self.is_good = False
-            print("Can't find public key entry")
+            print("Can't find public key entry ({})".format(hex(magic)))
             return
 
         siz = int_from_bytes(
