@@ -30,6 +30,7 @@
 #include "dummy_afu.h"
 
 using namespace opae::app;
+namespace dummy_afu {
 
 template<class T>
 int check_stat(std::shared_ptr<spdlog::logger> logger, const char *name, T stat)
@@ -58,12 +59,13 @@ public:
 
   virtual int run(test_afu *afu, CLI::App *app)
   {
+    auto d_afu = dynamic_cast<dummy_afu*>(afu);
     (void)app;
     using namespace std::chrono;
-    auto bank0 = afu->register_ptr<uint64_t>(dummy_afu::ddr_test_bank0_stat::offset);
-    auto bank1 = afu->register_ptr<uint64_t>(dummy_afu::ddr_test_bank1_stat::offset);
-    auto bank2 = afu->register_ptr<uint64_t>(dummy_afu::ddr_test_bank2_stat::offset);
-    auto bank3 = afu->register_ptr<uint64_t>(dummy_afu::ddr_test_bank3_stat::offset);
+    auto bank0 = d_afu->register_ptr<uint64_t>(ddr_test_bank0_stat::offset);
+    auto bank1 = d_afu->register_ptr<uint64_t>(ddr_test_bank1_stat::offset);
+    auto bank2 = d_afu->register_ptr<uint64_t>(ddr_test_bank2_stat::offset);
+    auto bank3 = d_afu->register_ptr<uint64_t>(ddr_test_bank3_stat::offset);
     std::deque<volatile uint64_t*> ptrs;
     ptrs.push_back(bank0);
     ptrs.push_back(bank1);
@@ -74,8 +76,8 @@ public:
         throw std::runtime_error("banks not zero");
 
     // start the test
-    afu->write64(dummy_afu::DDR_TEST_CTRL, 0x00000000);
-    afu->write64(dummy_afu::DDR_TEST_CTRL, 0x0000000f);
+    d_afu->write64(DDR_TEST_CTRL, 0x00000000);
+    d_afu->write64(DDR_TEST_CTRL, 0x0000000f);
 
     auto begin = high_resolution_clock::now();
     while (!ptrs.empty()) {
@@ -90,14 +92,15 @@ public:
     int res = 0;
     auto logger = spdlog::get(this->name());
     res += check_stat(logger, "Bank0",
-      reinterpret_cast<volatile dummy_afu::ddr_test_bank0_stat*>(bank0));
+      reinterpret_cast<volatile ddr_test_bank0_stat*>(bank0));
     res += check_stat(logger, "Bank1",
-      reinterpret_cast<volatile dummy_afu::ddr_test_bank1_stat*>(bank1));
+      reinterpret_cast<volatile ddr_test_bank1_stat*>(bank1));
     res += check_stat(logger, "Bank2",
-      reinterpret_cast<volatile dummy_afu::ddr_test_bank2_stat*>(bank2));
+      reinterpret_cast<volatile ddr_test_bank2_stat*>(bank2));
     res += check_stat(logger, "Bank3",
-      reinterpret_cast<volatile dummy_afu::ddr_test_bank3_stat*>(bank3));
+      reinterpret_cast<volatile ddr_test_bank3_stat*>(bank3));
     return res;
   }
 };
 
+} // end of namespace dummy_afu
