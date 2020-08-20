@@ -197,7 +197,7 @@ def main():
         if verifier.is_Darby_PR(contents, sig_offset):
             block0 = verifier.Block_0_dc(b0.data, payload.data)
             block1 = verifier.Block_1_dc(b1.data, block0)
-        else
+        else:
             block0 = verifier.Block_0(b0.data, payload.data)
             block1 = verifier.Block_1(b1.data, block0)
 
