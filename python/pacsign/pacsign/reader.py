@@ -402,7 +402,7 @@ class _READER_BASE(object):
 
             del rs
         else:
-            for i in range(64):
+            for i in range(32):
                 csk_entry.append_dword(0)
 
         log.info("Code Signing Key Entry done")
