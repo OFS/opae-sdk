@@ -40,6 +40,8 @@ opae_add_executable(TARGET hssi
     COMPONENT sampleshssi
 )
 
+target_compile_options(hssi PUBLIC -Wno-unused-result)
+
 target_include_directories(hssi
     PRIVATE
         ${CMAKE_SOURCE_DIR}/external/CLI11/include
