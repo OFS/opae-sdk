@@ -66,7 +66,8 @@ static void print_fme_verbose_info(fpga_token token)
 	uint32_t major = 0;
 	uint32_t val = 0;
 
-	res = fpgaTokenGetObject(token, DFL_BITSTREAM_ID, &fpga_object, FPGA_OBJECT_GLOB);
+	res = fpgaTokenGetObject(token, DFL_BITSTREAM_ID,
+			&fpga_object, FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
 		OPAE_MSG("Failed to get token Object");
 		return ;
@@ -102,7 +103,7 @@ static void print_fme_verbose_info(fpga_token token)
 	printf("%-32s : %03x\n", "Revision", val);
 
 	val = FPGA_BSID_INTERFACE(bitstream_id);
-	if (major == 0) {	// Vista Creek
+	if (major == 0) {	// PAC N3000
 		char *intf[] = { "8x10G", "4x25G", "2x1x25G", "4x25G+2x25G", "2x2x25G",
 						"2x1x25Gx2FVL", "1x2x25G" };
 		printf("%-32s : ", "Interface");
@@ -184,7 +185,7 @@ fpga_result fme_command(fpga_token *tokens, int num_tokens, int argc,
 	optind = 0;
 	struct option longopts[] = {
 		{"help", no_argument, NULL, 'h'},
-		{"verbose", no_argument, NULL, 'v'},
+		{"verbose", no_argument, NULL, 'V'},
 		{0, 0, 0, 0},
 	};
 
@@ -210,7 +211,7 @@ fpga_result fme_command(fpga_token *tokens, int num_tokens, int argc,
 			fme_help();
 			return FPGA_INVALID_PARAM;
 
-		case 'v': /* verbose */
+		case 'V': /* verbose */
 			verbose_opt = 1;
 			break;
 
