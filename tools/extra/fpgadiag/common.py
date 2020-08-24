@@ -128,7 +128,6 @@ class FpgaFinder(object):
         paths = glob.glob(ETH_GROUP_IOMMU_GROUPS)
         i = 0
         for path in paths:
-            print("fpga vfio iommu group:", path)
             one, guid = os.path.split(path)
             regex = re.compile(r'(/sys/kernel/iommu_groups/\d+)', re.I)
             one, group_id = os.path.split(regex.findall(path)[0])
@@ -171,13 +170,14 @@ class COMMON(object):
             ret = eth_group_inst.eth_group_open(int(values[0]), values[1])
             if ret != 0:
                 return None
-            print("eth groups: \n")
-            print("direction:", eth_group_inst.direction)
-            print("speed:", eth_group_inst.speed)
-            print("phy_num:", eth_group_inst.phy_num)
-            print("group_id:", eth_group_inst.group_id)
-            print("df_id:", eth_group_inst.df_id)
-            print("eth_lwmac:", eth_group_inst.eth_lwmac)
+            print("eth group:: direction:{} speed:{} phy_num:{}\
+                  group_id:{} df_id:{} eth_lwmac:{}" \
+                  .format(eth_group_inst.direction, \
+                  eth_group_inst.speed, \
+                  eth_group_inst.phy_num, \
+                  eth_group_inst.group_id, \
+                  eth_group_inst.df_id, \
+                  eth_group_inst.eth_lwmac))
             self.mac_lightweight \
                 = \
                 self.mac_lightweight \

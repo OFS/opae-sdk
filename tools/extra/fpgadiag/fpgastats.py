@@ -423,18 +423,14 @@ def main():
     args.sbdf = '{segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**devs[0])
     bitstream_id_path = f.find_node(devs[0].get('path'),
                                     'dfl-fme*/bitstream_id', depth=1)
-    print(bitstream_id_path)
     with open(bitstream_id_path[0], 'r') as fd:
         bitstream_id = fd.read().strip()
     args.build_flags = (int(bitstream_id, 16) >> 24) & 0xff
     args.fpga_root = devs[0].get('path')
-    print(args.fpga_root)
     args.eth_grps = f.find_eth_group(args.fpga_root)
     print("args.eth_grps", args.eth_grps)
     if len(args.eth_grps) == 0:
         exception_quit("Invalid Eth group MDEV")
-    for keys, values in args.eth_grps.items():
-        print(keys, ":", values)
 
     f = FPGASTATS(args)
     if args.clear:

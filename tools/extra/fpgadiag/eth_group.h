@@ -95,19 +95,30 @@ struct eth_group_stat {
 	};
 };
 
+struct eth_group_mac {
+	union {
+		uint64_t csr;
+		struct {
+			uint8_t mac_mask : 3;
+			uint64_t reserved : 61;
+		};
+	};
+};
+
+
 class eth_group {
 public:
 	eth_group() { }
-
 	~eth_group() {}
-	uint64_t eth_group_open(int vfio_id, std::string fpga_mdev_str);
+
+	int eth_group_open(int vfio_id, std::string fpga_mdev_str);
 	int eth_group_close();
 	uint32_t read_reg(uint32_t type, uint32_t index,
 		uint32_t flags, uint32_t addr);
-	uint32_t write_reg(uint32_t type, uint32_t index,
+	int write_reg(uint32_t type, uint32_t index,
 		uint32_t flags, uint32_t addr, uint32_t data);
+	bool mac_reset();
 
-	uint32_t read_mac_reset();
 	uint32_t direction;
 	uint32_t phy_num;
 	uint32_t group_id;
