@@ -28,6 +28,7 @@
 #include "dummy_afu.h"
 
 using namespace opae::app;
+namespace dummy_afu {
 
 class lpbk_test : public test_command
 {
@@ -47,17 +48,19 @@ public:
   virtual int run(test_afu *afu, CLI::App *app)
   {
     (void)app;
-    auto done = afu->register_interrupt();
-    auto source = afu->allocate(64);
-    afu->fill(source);
-    auto destination = afu->allocate(64);
-    afu->write64(dummy_afu::MEM_TEST_SRC_ADDR, source->io_address());
-    afu->write64(dummy_afu::MEM_TEST_DST_ADDR, destination->io_address());
-    afu->write64(dummy_afu::MEM_TEST_CTRL, 0x0);
-    afu->write64(dummy_afu::MEM_TEST_CTRL, 0b1);
-    afu->interrupt_wait(done, 1000);
-    afu->compare(source, destination);
+    auto d_afu = dynamic_cast<dummy_afu*>(afu);
+    auto done = d_afu->register_interrupt();
+    auto source = d_afu->allocate(64);
+    d_afu->fill(source);
+    auto destination = d_afu->allocate(64);
+    d_afu->write64(MEM_TEST_SRC_ADDR, source->io_address());
+    d_afu->write64(MEM_TEST_DST_ADDR, destination->io_address());
+    d_afu->write64(MEM_TEST_CTRL, 0x0);
+    d_afu->write64(MEM_TEST_CTRL, 0b1);
+    d_afu->interrupt_wait(done, 1000);
+    d_afu->compare(source, destination);
     return 0;
   }
 };
 
+} // end of namespace dummy_afu

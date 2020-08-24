@@ -40,7 +40,7 @@
 #include "lpbk.h"
 #include "ddr.h"
 
-#include "test_afu.h"
+#include "dummy_afu.h"
 
 const char *AFU_ID = "f7df405c-bd7a-cf72-22f1-44b0b93acd18";
 
@@ -111,10 +111,10 @@ class dummy_afu_p : public ::testing::TestWithParam<std::string>,
 
     EXPECT_EQ(fpgaInitialize(NULL), FPGA_OK);
     system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
-    app_ = new test_afu("dummy_afu", AFU_ID);
-    app_->register_command<mmio_test>();
-    app_->register_command<ddr_test>();
-    app_->register_command<lpbk_test>();
+    app_ = new dummy_afu::dummy_afu(AFU_ID);
+    app_->register_command<dummy_afu::mmio_test>();
+    app_->register_command<dummy_afu::ddr_test>();
+    app_->register_command<dummy_afu::lpbk_test>();
     app_->register_command<sleep_test>();
     fpgad_start();
   }
@@ -135,7 +135,7 @@ class dummy_afu_p : public ::testing::TestWithParam<std::string>,
 
   test_platform platform_;
   test_system *system_;
-  test_afu *app_;
+  dummy_afu::dummy_afu *app_;
   std::vector<char*> args_;
 };
 
