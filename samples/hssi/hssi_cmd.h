@@ -23,24 +23,82 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include <iostream>
-#include <CLI/CLI.hpp>
+#pragma once
+#include <string>
+#include <sstream>
+#include <cstdio>
+#include <cstring>
+#include <netinet/ether.h>
+#include "test_afu.h"
 
-#include "mmio.h"
-#include "lpbk.h"
-#include "ddr.h"
-
-#include "dummy_afu.h"
-
-const char *AFU_ID = "91c2a3a1-4a23-4e21-a7cd-2b36dbf2ed73";
 using namespace opae::app;
 
-int main(int argc, char* argv[])
-{
-  dummy_afu::dummy_afu app;
-  app.register_command<dummy_afu::mmio_test>();
-  app.register_command<dummy_afu::ddr_test>();
-  app.register_command<dummy_afu::lpbk_test>();
-  return app.main(argc, argv);
-}
+#define INVALID_MAC 0xffffffffffffffffULL
 
+class hssi_cmd : public test_command
+{
+public:
+  hssi_cmd()
+  : running_(true)
+  {}
+
+  uint64_t mac_bits_for(std::string addr) const
+  {
+    uint64_t res = INVALID_MAC;
+    struct ether_addr *eth = ether_aton(addr.c_str());
+  
+    if (eth) {
+      res = 0ULL;
+      memcpy(&res, eth->ether_addr_octet, sizeof(eth->ether_addr_octet));
+    }
+
+    return res;
+  }
+
+  void run_process(const std::string &proc)
+  {
+    FILE *fp = popen(proc.c_str(), "r");
+    if (fp) {
+      char buf[256];
+      while (fgets(buf, sizeof(buf), fp)) {
+        std::cout << buf;
+      }
+      pclose(fp);
+    }
+  }
+  
+  void show_eth_stats(const std::string &eth)
+  {
+    std::string cmd = std::string("ethtool --statistics ") + eth;
+    run_process(cmd);
+  }
+  
+  void enable_eth_loopback(const std::string &eth, bool enable)
+  {
+    std::string cmd = std::string("ethtool --features ") + eth;
+    if (enable)
+      cmd += std::string(" loopback on");
+    else
+      cmd += std::string(" loopback off");
+    run_process(cmd);
+  }
+
+  template <typename X>
+  std::string int_to_hex(X x) const
+  {
+    std::stringstream ss;
+    ss << "0x" <<
+      std::setfill('0') <<
+      std::setw(2 * sizeof(X)) <<
+      std::hex << x;
+    return ss.str();
+  }
+
+  void stop()
+  {
+    running_ = false;
+  }
+
+protected:
+  bool running_;
+};

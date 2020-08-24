@@ -55,6 +55,15 @@ ADD_OPTIONS = database.ADD_OPTIONS
 LOG = logging.getLogger()
 
 
+def is_PAC_D5005(contents, offset):
+    # Write function to read dword and determine RC or VC
+    val = contents.get_dword(offset)
+    LOG.debug("platform value is '{}' ".format(hex(val)))
+    type = contents.get_word(offset + int(0xC))
+    LOG.debug("type value is '{}' ".format(hex(type)))
+    return val == database.DC_PLATFORM_NUM and type == database.PR_IDENTIFIER
+
+
 def add_common_options(parser):
     if ADD_OPTIONS:
         parser.add_argument(
@@ -175,35 +184,36 @@ def main():
             j_data = json.loads(a)
             LOG.debug(json.dumps(j_data, sort_keys=True, indent=4))
 
+        is_dc = is_PAC_D5005(contents, sig_offset)
+        LOG.debug("is_PAC_D5005={}".format(is_dc))
+
         b0 = common_util.BYTE_ARRAY()
         b1 = common_util.BYTE_ARRAY()
         payload = common_util.BYTE_ARRAY()
 
-        b0.append_data(contents.data[payload_offset: payload_offset + 128])
-        b1.append_data(
-            contents.data[payload_offset + 128: payload_offset + 1024])
-        payload.append_data(contents.data[payload_offset + 1024:])
+        if is_dc:
+            b0.append_data(
+                    contents.data[payload_offset: payload_offset + 0x1000])
+            b1.append_data(
+                contents.data[
+                    payload_offset + 0x1000: payload_offset + 0x2000])
+            payload.append_data(contents.data[payload_offset + 0x2000:])
+        else:
+            b0.append_data(contents.data[payload_offset: payload_offset + 128])
+            b1.append_data(
+                contents.data[payload_offset + 128: payload_offset + 1024])
+            payload.append_data(contents.data[payload_offset + 1024:])
 
-        # is_OK = b0.get_dword(0) == database.DESCRIPTOR_BLOCK_MAGIC_NUM
+        # Check for PAC_D5005 PR bitstream
+        if is_dc:
+            block0 = verifier.Block_0_dc(b0.data, payload.data)
+            block1 = verifier.Block_1_dc(b1.data, block0)
+        else:
+            block0 = verifier.Block_0(b0.data, payload.data)
+            block1 = verifier.Block_1(b1.data, block0)
 
-        # LOG.debug("b0 size={}, b1 size={}, payload size={}".format(
-        #    b0.size(), b1.size(), payload.size()))
-
-        # if not is_OK:
-        #    LOG.error("File '{}' unrecognized".format(f))
-        #    continue
-
-        block0 = verifier.Block_0(b0.data, payload.data)
-        block1 = verifier.Block_1(b1.data, block0)
-
-        if not block0.is_good:
+        if not block0.is_good and not block1.is_good:
             LOG.error("File '{}' unrecognized".format(f))
-            LOG.error("Invalid Input file BLOCK0")
-            continue
-
-        if not block1.is_good:
-            LOG.error("File '{}' unrecognized".format(f))
-            LOG.error("Invalid Input file BLOCK1")
             continue
 
         args.main_command = block0.content_type
