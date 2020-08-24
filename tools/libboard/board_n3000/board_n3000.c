@@ -311,7 +311,7 @@ fpga_result print_board_info(fpga_token token)
 // prints FPGA ethernet interface info
 fpga_result print_eth_interface_info(fpga_token token)
 {
-	fpga_result res                = FPGA_OK;
+	fpga_result res                = FPGA_NOT_FOUND;
 	struct if_nameindex *if_nidxs  = NULL;
 	struct if_nameindex *intf      = NULL;
 	char cmd[SYSFS_PATH_MAX]       = { 0 };
@@ -329,7 +329,7 @@ fpga_result print_eth_interface_info(fpga_token token)
 				res = fpgaTokenGetObject(token, DFL_ETHINTERFACE,
 					&fpga_object, FPGA_OBJECT_GLOB);
 				if (res != FPGA_OK) {
-					OPAE_MSG("Failed to get token Object");
+					OPAE_ERR("Failed to get token Object");
 					continue;
 				}
 				res = fpgaDestroyObject(&fpga_object);
@@ -346,11 +346,11 @@ fpga_result print_eth_interface_info(fpga_token token)
 					res = FPGA_EXCEPTION;
 					goto out_free;
 				}
-				printf("cmd:%s \n", cmd);
 				result = system(cmd);
 				if (result < 0) {
-					OPAE_ERR("Failed to run cmd: %s",
-						strerror(errno));
+					res = FPGA_EXCEPTION;
+					OPAE_ERR("Failed to run cmd: %s  %s",
+						cmd, strerror(errno));
 				}
 				// eth tool command
 				memset(cmd, 0, sizeof(cmd));
@@ -360,10 +360,11 @@ fpga_result print_eth_interface_info(fpga_token token)
 					res = FPGA_EXCEPTION;
 					goto out_free;
 				}
-				printf("cmd:%s \n", cmd);
 				result = system(cmd);
 				if (result < 0) {
-					OPAE_ERR("Failed to run cmd: %s", strerror(errno));
+					res = FPGA_EXCEPTION;
+					OPAE_ERR("Failed to run cmd: %s  %s", cmd,
+						strerror(errno));
 				}
 
 			}
