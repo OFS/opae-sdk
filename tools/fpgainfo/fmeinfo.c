@@ -65,7 +65,7 @@ static void print_fme_verbose_info(fpga_token token)
 	uint64_t bitstream_id;
 	uint32_t major = 0;
 	uint32_t val = 0;
-	printf("-----FME VERBOSE-----\n");
+
 	res = fpgaTokenGetObject(token, DFL_BITSTREAM_ID, &fpga_object, FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
 		OPAE_MSG("Failed to get token Object");
@@ -210,7 +210,7 @@ fpga_result fme_command(fpga_token *tokens, int num_tokens, int argc,
 			fme_help();
 			return FPGA_INVALID_PARAM;
 
-		case 'v': /* verbose - UNDOCUMENTED */
+		case 'v': /* verbose */
 			verbose_opt = 1;
 			break;
 
