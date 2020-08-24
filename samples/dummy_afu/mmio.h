@@ -25,18 +25,17 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 #include <chrono>
-#include "test_afu.h"
 #include "dummy_afu.h"
 
-using namespace opae::app;
+namespace dummy_afu {
 
 template<typename T>
-inline void timeit_wr(logger_ptr log, test_afu *afu, uint32_t count)
+inline void timeit_wr(std::shared_ptr<spdlog::logger> log, dummy_afu *afu, uint32_t count)
 {
   using namespace std::chrono;
   auto begin = high_resolution_clock::now();
   for (uint32_t i = 0; i < count; ++i) {
-    afu->write<T>(dummy_afu::SCRATCHPAD, i);
+    afu->write<T>(SCRATCHPAD, i);
   }
   auto end = high_resolution_clock::now();
   auto delta = duration_cast<nanoseconds>(end - begin).count();
@@ -46,12 +45,12 @@ inline void timeit_wr(logger_ptr log, test_afu *afu, uint32_t count)
 }
 
 template<typename T>
-inline void timeit_rd(logger_ptr log, test_afu *afu, uint32_t count)
+inline void timeit_rd(std::shared_ptr<spdlog::logger> log, dummy_afu *afu, uint32_t count)
 {
   using namespace std::chrono;
   auto begin = high_resolution_clock::now();
   for (uint32_t i = 0; i < count; ++i) {
-    afu->read<T>(dummy_afu::SCRATCHPAD);
+    afu->read<T>(SCRATCHPAD);
   }
   auto end = high_resolution_clock::now();
   auto delta = duration_cast<nanoseconds>(end - begin).count();
@@ -62,7 +61,7 @@ inline void timeit_rd(logger_ptr log, test_afu *afu, uint32_t count)
 
 
 template<typename T>
-inline void write_verify(test_afu *afu, uint32_t addr, T value)
+inline void write_verify(dummy_afu *afu, uint32_t addr, T value)
 {
     afu->write<T>(addr, 0);
     if (afu->read<T>(addr) != 0)
@@ -77,7 +76,7 @@ inline void write_verify(test_afu *afu, uint32_t addr, T value)
 }
 
 template<typename T>
-inline void write_verify(test_afu *afu, uint32_t addr, uint32_t i, uint64_t value)
+inline void write_verify(dummy_afu *afu, uint32_t addr, uint32_t i, uint64_t value)
 {
     afu->write<T>(addr, i, 0);
     if (afu->read<T>(addr, i) != 0)
@@ -131,20 +130,21 @@ public:
 
   virtual int run(test_afu *afu, CLI::App *app)
   {
+    auto d_afu = dynamic_cast<dummy_afu*>(afu);
     if (perf_)
-      return run_perf(afu, app);
+      return run_perf(d_afu, app);
     auto sp_index = app->get_option("--scratchpad-index");
     uint32_t start = *sp_index ? sp_index_ : 0;
     uint32_t end = *sp_index ? start + 1 : 64;
     uint32_t dummy_value32 = 0xc0c0cafe;
     uint64_t dummy_value64 = 0xc0c0cafeUL << 32;
     for (uint32_t i = 0; i < count_; ++i) {
-      write_verify<uint32_t>(afu, dummy_afu::SCRATCHPAD, dummy_value32);
-      write_verify<uint64_t>(afu, dummy_afu::SCRATCHPAD, dummy_value64);
+      write_verify<uint32_t>(d_afu, SCRATCHPAD, dummy_value32);
+      write_verify<uint64_t>(d_afu, SCRATCHPAD, dummy_value64);
 
       for (uint32_t scratch_i = start; scratch_i < end; ++scratch_i) {
-        write_verify<uint32_t>(afu, dummy_afu::MMIO_TEST_SCRATCHPAD, scratch_i, dummy_value32 | scratch_i);
-        write_verify<uint64_t>(afu, dummy_afu::MMIO_TEST_SCRATCHPAD, scratch_i, dummy_value64 | scratch_i);
+        write_verify<uint32_t>(d_afu, MMIO_TEST_SCRATCHPAD, scratch_i, dummy_value32 | scratch_i);
+        write_verify<uint64_t>(d_afu, MMIO_TEST_SCRATCHPAD, scratch_i, dummy_value64 | scratch_i);
       }
 
     }
@@ -152,10 +152,10 @@ public:
   }
 
 
-  int run_perf(test_afu *afu, CLI::App *app)
+  int run_perf(dummy_afu *afu, CLI::App *app)
   {
     (void)app;
-    typedef void(*perf_test)(logger_ptr, test_afu*, uint32_t);
+    typedef void(*perf_test)(std::shared_ptr<spdlog::logger>, dummy_afu*, uint32_t);
     std::map<uint32_t, perf_test> rd_tests
     {
       {8, timeit_rd<uint8_t>},
@@ -185,3 +185,4 @@ private:
   std::string op_;
 };
 
+} // end of namespace dummy_afu
