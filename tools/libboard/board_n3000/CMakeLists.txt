@@ -35,5 +35,5 @@ opae_add_module_library(TARGET board_n3000
 
 target_include_directories(board_n3000
     PRIVATE
-        ${OPAE_SDK_SOURCE}/ibboard/board_common
+        ${OPAE_SDK_SOURCE}/libboard/board_common
 )

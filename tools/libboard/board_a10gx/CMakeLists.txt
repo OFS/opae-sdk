@@ -33,5 +33,5 @@ opae_add_module_library(TARGET board_a10gx
 )
 target_include_directories(board_a10gx
     PRIVATE
-        ${OPAE_SDK_SOURCE}/ibboard/board_common
+        ${OPAE_SDK_SOURCE}/libboard/board_common
 )
