@@ -284,6 +284,16 @@ TEST_P(board_dfl_n3000_c_p, board_n3000_8) {
 	EXPECT_NE(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_PATH_MAX), FPGA_OK);
 
 }
+/**
+* @test       board_n3000_12
+* @brief      Tests: print_eth_interface_info
+* @details    Validates fpga eth group info  <br>
+*/
+TEST_P(board_dfl_n3000_c_p, board_n3000_12) {
+
+	EXPECT_NE(print_eth_interface_info(tokens_[0]), FPGA_OK);
+}
+
 INSTANTIATE_TEST_CASE_P(board_dfl_n3000_c, board_dfl_n3000_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000" })));
 
