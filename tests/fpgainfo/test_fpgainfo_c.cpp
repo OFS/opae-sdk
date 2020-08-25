@@ -1357,5 +1357,23 @@ TEST_P(fpgainfo_c_p, main_6) {
     EXPECT_NE(fpgainfo_main(4, argv), 0);
 }
 
+/**
+ * @test       main_7
+ * @brief      Test: fpgainfo_main
+ * @details    When passed with valid option, the fn <br>
+ *             returns 0. <br>
+ */
+TEST_P(fpgainfo_c_p, main_7) {
+	char zero[20];
+	char one[20];
+	char two[20];
+	char *argv[] = { zero, one, two};
+
+	strcpy(zero, "fpgainfo");
+	strcpy(one, "fme");
+	strcpy(two, "--verbose");
+
+	EXPECT_EQ(fpgainfo_main(3, argv), 0);
+}
 INSTANTIATE_TEST_CASE_P(fpgainfo_c, fpgainfo_c_p,
         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
