@@ -32,7 +32,7 @@ class TestSysObject(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.system = mockopae.test_system()
-        cls.platform = mockopae.test_platform.get("skx-p")
+        cls.platform = mockopae.test_platform.get("dfl-n3000")
         cls.system.initialize()
         cls.system.prepare_sysfs(cls.platform)
         opae.fpga.initialize(None)
@@ -71,17 +71,17 @@ class TestSysObject(unittest.TestCase):
         assert u1 == u2
 
     def test_object_object(self):
-        pr = self.fme_handle.pr
-        interface_id = pr.interface_id
-        u1 = uuid.UUID(interface_id.bytes()[:-1])
+        pr = self.fme_handle.find('dfl-fme-region.*/fpga_region/region*')
+        compat_id = pr.compat_id
+        u1 = uuid.UUID(compat_id.bytes()[:-1])
         u2 = uuid.UUID(self.platform.devices[0].fme_guid)
         assert u1 == u2
 
     def test_object_read64(self):
         errors = self.afu_handle.errors
-        rev = errors.revision
-        n1 = rev.read64()
-        self.assertEquals(n1, 1)
+        err = errors.errors
+        n1 = err.read64()
+        self.assertEquals(n1, 0)
         with self.assertRaises(RuntimeError):
             print(errors.read64())
 
