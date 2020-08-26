@@ -37,53 +37,7 @@ For more information about ASE, see the [OPAE AFU Simulation Environment
 The source for the OPAE SDK Linux device drivers is available at the
 [OPAE Linux DFL drivers repository](https://github.com/OPAE/linux-dfl).
 
-## Installing the OPAE SDK from rpm or deb packages ##
-See the [OPAE Installation Guide](/fpga-doc/docs/fpga_api/install_guide/installation_guide.html)
-for information about OPAE RPM and DEB packages.
-Assuming the packages are already downloaded and exist in the current folder,
-then use the commands below to install the OPAE library, tools, and development
-headers.
-
-For rpm packages:
-
-```console
-$ sudo yum install opae-libs-<release>.x86_64.rpm
-$ sudo yum install opae-tools-<release>.x86_64.rpm
-$ sudo yum install opae-tools-extra-<release>.x86_64.rpm
-$ sudo yum install opae-devel-<release>.x86_64.rpm
-$ sudo yum install opae-ase-<release>.x86_64.rpm
-```
-
-For deb packages:
-
-```console
-$ sudo dpkg -i opae-libs-<release>.x86_64.deb
-$ sudo dpkg -i opae-tools-<release>.x86_64.deb
-$ sudo dpkg -i opae-tools-extra-<release>.x86_64.deb
-$ sudo dpkg -i opae-devel-<release>.x86_64.deb
-$ sudo dpkg -i opae-ase-<release>.x86_64.deb
-```
-
-To use OPAE in the simulation environment, you also need to install the AFU
-Simulation Environment (ASE) package:
-
-rpm:
-
-```console
-$ sudo yum install opae-ase-<release>.x86_64.rpm
-```
-deb:
-
-```console
-$ sudo dpkg -i opae-<release>.x86_64-ase.deb
-```
-
-```eval_rst
-.. note:
-    If you want to install all the packages, you can also do:
-    rpm: $ sudo yum install opae-*.rpm
-    deb: $ sudo dpkg -i opae-*.deb
-```
+``
 
 ## Building and installing the OPAE SDK from source ##
 Download the OPAE SDK source package from the respective [release page on
@@ -97,14 +51,14 @@ After downloading the source, unpack, configure, and compile it:
     cd opae-sdk-<release>
     mkdir build
     cd build
-    cmake .. -DOPAE_BUILD_SIM=ON
+    cmake ..
     make
 ```
 
 By default, the OPAE SDK will install into `/usr/local` if you also issue the following:
 
 ```console
-    make install
+    sudo make install
 ```
 
 You can change this installation prefix from `/usr/local` into something else
