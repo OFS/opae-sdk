@@ -206,7 +206,7 @@ class umsg_c_p
  *             fpgaUmsgGetNumber returns error.
  *
  */
-TEST_P (umsg_c_p, test_umsg_drv_02) {
+TEST_P (umsg_c_p, test_umsg_drv_02_DISABLED) {
   uint64_t Umsg_num = 0;
 
   // NULL Driver handle 
@@ -228,7 +228,7 @@ TEST_P (umsg_c_p, test_umsg_drv_02) {
  *             fpgaUmsgGetNumber returns error.
  *
  */
-TEST_P (umsg_c_p, test_umsg_drv_03) {
+TEST_P (umsg_c_p, test_umsg_drv_03_DISABLED) {
   uint64_t Umsg_num = 0;
   int fddev = -1;
 
@@ -256,7 +256,7 @@ TEST_P (umsg_c_p, test_umsg_drv_03) {
  *             loaded, fpgaUmsgSetAttributes retuns error.
  *
  */
-TEST_P(umsg_c_p, test_umsg_drv_05) {
+TEST_P(umsg_c_p, test_umsg_drv_05_DISABLED) {
   uint64_t Umsghit_Disble = 0;
   int fddev = -1;
 
@@ -300,7 +300,7 @@ TEST_P(umsg_c_p, test_umsg_drv_05) {
  *             loaded, xfpga_fpgaGetUmsgPtr returns fpga error.
  *
  */
-TEST_P(umsg_c_p, test_umsg_drv_07) {
+TEST_P(umsg_c_p, test_umsg_drv_07_DISABLED) {
   uint64_t* umsg_ptr = NULL;
   int fddev = -1;
 
@@ -344,7 +344,7 @@ TEST_P(umsg_c_p, test_umsg_drv_07) {
  *             is NULL, the function returns FPGA_INVALID_PARAM.
  *
  */
-TEST_P(umsg_c_p, test_umsg_drv_08) {
+TEST_P(umsg_c_p, test_umsg_drv_08_DISABLED) {
   int fddev = -1;
   auto _handle = (struct _fpga_handle*)handle_;
 
@@ -374,7 +374,7 @@ class umsg_c_mcp_p : public umsg_c_p {
  *             slot.
  *
  */
-TEST_P (umsg_c_mcp_p, test_umsg_drv_01) {
+TEST_P (umsg_c_mcp_p, test_umsg_drv_01_DISABLED) {
   uint64_t Umsg_num = 0;
 
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumUmsg(handle_, NULL));
@@ -390,7 +390,7 @@ TEST_P (umsg_c_mcp_p, test_umsg_drv_01) {
  *             fpgaUmsgSetAttributes sets umsg hit  Enable / Disable.
  *
  */
-TEST_P(umsg_c_mcp_p, test_umsg_drv_04) {
+TEST_P(umsg_c_mcp_p, test_umsg_drv_04_DISABLED) {
   uint64_t Umsghit_Enable = 0xffff;
   uint64_t Umsghit_Disble = 0;
 
@@ -414,7 +414,7 @@ class umsg_c_mock_p : public umsg_c_p {
  *             hugepages is allocated. <br>
  *
  */
-TEST_P(umsg_c_mock_p, test_umsg_08) {
+TEST_P(umsg_c_mock_p, test_umsg_08_DISABLED) {
   auto res = xfpga_fpgaTriggerUmsg(handle_, 0);
   EXPECT_EQ(FPGA_OK, res) << "\t return value is " << res;
 }
@@ -427,7 +427,7 @@ TEST_P(umsg_c_mock_p, test_umsg_08) {
  *             fpgaGetNumUmsg returns FPGA_INVALID_PARAM/FPGA_EXCEPTION
  *
  */
-TEST_P(umsg_c_mock_p, get_num_umsg_ioctl_err) {
+TEST_P(umsg_c_mock_p, get_num_umsg_ioctl_err_DISABLED) {
   uint64_t num = 0;
 
   // register an ioctl handler that will return -1 and set errno to EINVAL
@@ -451,7 +451,7 @@ TEST_P(umsg_c_mock_p, get_num_umsg_ioctl_err) {
  *             fpgaSetUmsgAttributes returns FPGA_INVALID_PARAM/FPGA_EXCEPTION
  *
  */
-TEST_P(umsg_c_mock_p, set_umsg_attr_ioctl_err) {
+TEST_P(umsg_c_mock_p, set_umsg_attr_ioctl_err_DISABLED) {
   uint64_t value = 0;
   // register an ioctl handler that will return -1 and set errno to EINVAL
   system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE, dummy_ioctl<-1,EINVAL>);
@@ -475,7 +475,7 @@ TEST_P(umsg_c_mock_p, set_umsg_attr_ioctl_err) {
  *             fpgaGetUmsgPtr returns FPGA_INVALID_PARAM/FPGA_EXCEPTION
  *
  */
-TEST_P(umsg_c_mock_p, get_umsg_ptr_ioctl_err) {
+TEST_P(umsg_c_mock_p, get_umsg_ptr_ioctl_err_DISABLED) {
   uint64_t *value = 0;
 
   // register an ioctl handler that will return -1 and set errno to EINVAL
@@ -503,7 +503,7 @@ TEST_P(umsg_c_mock_p, get_umsg_ptr_ioctl_err) {
  *             FPGA_INVALID_PARAM/FPGA_EXCEPTION
  *
  */
-TEST_P(umsg_c_mock_p, get_umsg_ptr_ioctl_err_02) {
+TEST_P(umsg_c_mock_p, get_umsg_ptr_ioctl_err_02_DISABLED) {
   uint64_t *value = 0;
 
   // register an ioctl handler that will return -1 and set errno to ENOTSUP
@@ -525,7 +525,7 @@ TEST_P(umsg_c_mock_p, get_umsg_ptr_ioctl_err_02) {
  *             FPGA_INVALID_PARAM/FPGA_EXCEPTION
  *
  */
-TEST_P(umsg_c_mock_p, get_umsg_ptr_ioctl_err_03) {
+TEST_P(umsg_c_mock_p, get_umsg_ptr_ioctl_err_03_DISABLED) {
   uint64_t *value = 0;
 
   // register an ioctl handler that will return -1 and set errno to EINVAL
@@ -547,7 +547,7 @@ TEST_P(umsg_c_mock_p, get_umsg_ptr_ioctl_err_03) {
  *             "led to zero UMSG address" and returns FPGA_OK
  *
  */
-TEST_P(umsg_c_mock_p, invalid_free_umsg_buffer) {
+TEST_P(umsg_c_mock_p, invalid_free_umsg_buffer_DISABLED) {
   uint64_t* umsg_ptr = NULL;
   system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_BASE_ADDR, umsg_set_base_addr);
   system_->register_ioctl_handler(FPGA_PORT_UMSG_ENABLE, dummy_ioctl<0,EINVAL>);
@@ -574,7 +574,7 @@ TEST_P(umsg_c_mock_p, invalid_free_umsg_buffer) {
  *             "Failed to unmap UMSG Buffer" and returns FPGA_OK
  *
  */
-TEST_P(umsg_c_mock_p, invalid_free_umsg_buffer_02) {
+TEST_P(umsg_c_mock_p, invalid_free_umsg_buffer_02_DISABLED) {
   uint64_t* umsg_ptr = NULL;
   system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_BASE_ADDR, umsg_set_base_addr);
   system_->register_ioctl_handler(FPGA_PORT_UMSG_ENABLE, dummy_ioctl<0,EINVAL>);
@@ -593,7 +593,7 @@ TEST_P(umsg_c_mock_p, invalid_free_umsg_buffer_02) {
  *             xfpga_fpgaGetUmsgPtr returns umsg address.
  *
  */
-TEST_P(umsg_c_mock_p, test_umsg_drv_06) {
+TEST_P(umsg_c_mock_p, test_umsg_drv_06_DISABLED) {
   uint64_t* umsg_ptr = NULL;
   fpga_result res;
 
@@ -613,7 +613,7 @@ TEST_P(umsg_c_mock_p, test_umsg_drv_06) {
  *             is invalid, Then the function returns FPGA_EXCEPTION.<br>
  *
  */
-TEST_P(umsg_c_mock_p, test_umsg_09) {
+TEST_P(umsg_c_mock_p, test_umsg_09_DISABLED) {
   // register an ioctl handler that will return -1 and set errno to EINVAL
   system_->register_ioctl_handler(FPGA_PORT_GET_INFO, dummy_ioctl<-1,EINVAL>);
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaTriggerUmsg(handle_, 0));

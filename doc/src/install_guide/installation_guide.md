@@ -20,38 +20,29 @@ The OPAE SDK has been tested on the following configurations.
 OPAE SDK releases are available on [GitHub](https://github.com/OPAE/opae-sdk/releases).
 Source code for the OPAE DFL device driver for Linux is also available on [GitHub](https://github.com/OPAE/linux-dfl).
 
-The various componentes of OPAE are available via the following compressed tar files and RPM packages.
-
-* Source packages for the SDK and the drivers
-
-```console
-opae-sdk-<release>.tar.gz                   (BSD License)   (all src for libopae-c, tools, samples, headers and ASE)
-opae-sdk-<release>.zip                      (BSD License)   (ZIP archive, same content as opae-sdk-<release>.tar.gz)
-opae-intel-fpga-driver-<release>.tar.gz     (GPLv2 License) (driver sources)
-```
-
-* Binary package for the drivers
-
-```console
-opae-intel-fpga-drv-<release>-1.x86_64.rpm  (GPLv2 License) (dkms and driver src to generate \*.ko at installation)
-```
-
 ## Software requirements ##
 
 For building the kernel driver, the kernel development environment is required.
 
-* gcc                       >= 4.8.5
-* cmake                     >= 2.8
-* dkms.noarch              (Release is tested with 2.2.0.3-34)
-
 For building libopae-c, tools and samples, the following dependences are required:
 
-* libuuid-devel.x86\_64:   (tested with 2.23.2-33.el7)
-* libuuid.x86\_64:         (tested with 2.23.2-33.el7)
-* json-c-devel.x86\_64:    json-c-devel-0.11-4.el7\_0.x86\_64.rpm
-* json-c.x86\_64:          (tested with 0.11-4.el7\_0)
-* cmake.x86\_64:           (tested with 2.8.12.2-2.el7)
-* libhwloc.x86\_64
+RHEL/Fedora
+
+* libuuid-devel.x86\_64
+* json-c-devel.x86\_64
+* cmake.x86\_64
+* hwloc-devel.x86\_64
+* tbb-devel.x86\_64
+* python3-devel.x86\_64
+
+Debian/Ubuntu
+
+* uuid-dev
+* libjson-c-dev
+* cmake
+* libhwloc-dev
+* libtbb-dev
+* python3-dev
 
 ## OPAE SDK build/installation from OPAE SDK source ##
 Using the following command to untar the source tar ball:

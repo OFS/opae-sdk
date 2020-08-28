@@ -186,7 +186,7 @@ struct _fpga_token *token_get_parent(struct _fpga_token *_t)
 
 	res = sysfs_get_fme_path(_t->sysfspath, spath);
 	if (res) {
-		OPAE_ERR("Could not find fme path for token: %s",
+		OPAE_DBG("Could not find fme path for token: %s",
 			 _t->sysfspath);
 		return NULL;
 	}

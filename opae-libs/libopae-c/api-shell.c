@@ -766,58 +766,31 @@ fpga_result __OPAE_API__ fpgaDestroyToken(fpga_token *token)
 
 fpga_result __OPAE_API__ fpgaGetNumUmsg(fpga_handle handle, uint64_t *value)
 {
-	opae_wrapped_handle *wrapped_handle =
-		opae_validate_wrapped_handle(handle);
-
-	ASSERT_NOT_NULL(wrapped_handle);
-	ASSERT_NOT_NULL(value);
-	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaGetNumUmsg,
-			       FPGA_NOT_SUPPORTED);
-
-	return wrapped_handle->adapter_table->fpgaGetNumUmsg(
-		wrapped_handle->opae_handle, value);
+	UNUSED_PARAM(handle);
+	UNUSED_PARAM(value);
+	return FPGA_NOT_SUPPORTED;
 }
 
 fpga_result __OPAE_API__ fpgaSetUmsgAttributes(fpga_handle handle,
 					       uint64_t value)
 {
-	opae_wrapped_handle *wrapped_handle =
-		opae_validate_wrapped_handle(handle);
-
-	ASSERT_NOT_NULL(wrapped_handle);
-	ASSERT_NOT_NULL_RESULT(
-		wrapped_handle->adapter_table->fpgaSetUmsgAttributes,
-		FPGA_NOT_SUPPORTED);
-
-	return wrapped_handle->adapter_table->fpgaSetUmsgAttributes(
-		wrapped_handle->opae_handle, value);
+	UNUSED_PARAM(handle);
+	UNUSED_PARAM(value);
+	return FPGA_NOT_SUPPORTED;
 }
 
 fpga_result __OPAE_API__ fpgaTriggerUmsg(fpga_handle handle, uint64_t value)
 {
-	opae_wrapped_handle *wrapped_handle =
-		opae_validate_wrapped_handle(handle);
-
-	ASSERT_NOT_NULL(wrapped_handle);
-	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaTriggerUmsg,
-			       FPGA_NOT_SUPPORTED);
-
-	return wrapped_handle->adapter_table->fpgaTriggerUmsg(
-		wrapped_handle->opae_handle, value);
+	UNUSED_PARAM(handle);
+	UNUSED_PARAM(value);
+	return FPGA_NOT_SUPPORTED;
 }
 
 fpga_result __OPAE_API__ fpgaGetUmsgPtr(fpga_handle handle, uint64_t **umsg_ptr)
 {
-	opae_wrapped_handle *wrapped_handle =
-		opae_validate_wrapped_handle(handle);
-
-	ASSERT_NOT_NULL(wrapped_handle);
-	ASSERT_NOT_NULL(umsg_ptr);
-	ASSERT_NOT_NULL_RESULT(wrapped_handle->adapter_table->fpgaGetUmsgPtr,
-			       FPGA_NOT_SUPPORTED);
-
-	return wrapped_handle->adapter_table->fpgaGetUmsgPtr(
-		wrapped_handle->opae_handle, umsg_ptr);
+	UNUSED_PARAM(handle);
+	UNUSED_PARAM(umsg_ptr);
+	return FPGA_NOT_SUPPORTED;
 }
 
 fpga_result __OPAE_API__ fpgaPrepareBuffer(fpga_handle handle,
