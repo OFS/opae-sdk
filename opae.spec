@@ -64,7 +64,7 @@ rm -rf _build
 mkdir _build
 cd _build
 
-%cmake .. -DCMAKE_INSTALL_PREFIX=/usr -B $PWD
+%cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_BUILD_LEGACY=ON -B $PWD
 
 %make_build  opae-c \
          bitstream \
@@ -90,7 +90,10 @@ cd _build
          nlb0\
          nlb3\
          nlb7\
-         mmlink 
+         mmlink\
+         fpgad\
+         fpgad-api\
+         fpgad-vc\
 
 
 %install
@@ -157,7 +160,9 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxutils -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxnlb -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgadiagapps -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgadiag -P cmake_install.cmake
-
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad_api -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad_vc -P cmake_install.cmake
 
 prev=$PWD
 pushd %{_topdir}/BUILD/opae/python/opae.admin/
@@ -168,9 +173,6 @@ pushd %{_topdir}/BUILD/opae/python/pacsign
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} --record=$prev/INSTALLED_PACSIGN_FILES
 popd
 
-pushd %{_topdir}/BUILD/opae/tools/extra/fpgadiag/
-%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} --record=$prev/INSTALLED_FPGADIAG_FILES
-popd
 
 %files
 %dir %{_datadir}/opae
@@ -248,11 +250,21 @@ popd
 %{_bindir}/fpga_dma_N3000_test
 %{_bindir}/fpga_dma_test
 %{_bindir}/PACSign
+%{_bindir}/fpgad
+/etc/opae/fpgad.cfg
+/etc/sysconfig/fpgad.conf
+/usr/lib/systemd/system/fpgad.service
+%{_libdir}/libfpgad-api.so*
+%{_libdir}/opae/libfpgad-vc.so*
+%{_libdir}/opae/libboard_n3000.so*
+%{_libdir}/opae/libboard_d5005.so*
+%{_libdir}/opae/libboard_a10gx.so*
+
 
 %{_usr}/share/opae/*
 /usr/lib/python*
 %{_datadir}/doc/opae.admin/LICENSE
-%{_libdir}/python*
+
 
 
 %changelog
