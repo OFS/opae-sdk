@@ -216,6 +216,17 @@ class fme(region):
         return self.find_one('spi*/spi_master/spi*/spi*')
 
     @property
+    def ifpga_sec(self):
+        spi = self.spi_bus
+        if spi:
+            ifpga_sec = spi.find_one(
+                'd5005bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
+            if not ifpga_sec:
+                ifpga_sec = spi.find_one(
+                    'n3000bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
+            return ifpga_sec
+
+    @property
     def altr_asmip(self):
         return self.find_one('altr-asmip*.*.auto')
 
@@ -380,17 +391,16 @@ class fpga_base(class_node):
     PORT_PATTERN = 'intel-fpga-port.*'
     PCI_DRIVER = 'intel-fpga-pci'
     SYSFS_CLASS = 'fpga'
-    BOOT_TYPES = ['bmcimg', 'fpga']
+    BOOT_TYPES = ['bmcimg', 'retimer']
     BOOT_PAGES = {
-        (0x8086, 0x0b30): {'fpga': {'user': 1,
-                                    'factory': 0},
-                           'bmcimg': {'user': 0,
-                                      'factory': 1}},
-        (0x8086, 0x0b2b): {'fpga': {'user': 0,
-                                    'factory': 1},
-                           'bmcimg': {'user': 1,
-                                      'factory': 0}},
-        (0x8086, 0x09c4): {'fpga': {'user': 0}}
+        (0x8086, 0x0b30): {'bmcimg': {'user': 0,
+                                      'factory': 1},
+                           'retimer': {'user': 0,
+                                       'factory':0}},
+        (0x8086, 0x0b2b): {'bmcimg': {'user': 1,
+                                      'factory': 0},
+                           'retimer': {'user': 0,
+                                       'factory': 0}}
     }
 
     def __init__(self, path):
@@ -442,34 +452,54 @@ class fpga_base(class_node):
         """
         return self.pci_node.pci_id in self.BOOT_PAGES
 
-    def rsu_boot(self, page, **kwargs):
+    def rsu_boot(self, factory, **kwargs):
         # look for non-max10 solution
         fme = self.fme
         if fme:
             bmc = fme.avmmi_bmc
             if bmc is None:
-                self._rsu_boot_sysfs(page, **kwargs)
+                self._rsu_boot_sysfs(factory, **kwargs)
             else:
                 bmc.reboot()
         else:
             self.log.warn('do not have FME device')
 
-    def _rsu_boot_sysfs(self, page, **kwargs):
+    def _rsu_boot_sysfs(self, factory, **kwargs):
         boot_type = kwargs.pop('type', 'bmcimg')
+
         if kwargs:
             self.log.exception('unrecognized kwargs: %s', kwargs)
             raise ValueError('unrecognized kwargs: {}'.format(kwargs))
         if boot_type not in self.BOOT_TYPES:
             raise TypeError('type: {} not recognized'.format(boot_type))
 
-        if boot_type == "bmcimg":
-            boot_type = "bmc"
-        node_path = ("m10bmc-secure.*.auto/ifpga_sec_mgr/"
-                     "ifpga_sec*/update/{boot_type}_image_load").format(
-                         boot_type=boot_type)
+        ifpga_sec = self.fme.ifpga_sec
+        if not ifpga_sec:
+            msg = 'rsu not supported for {}'.format(self.pci_node.pci_id)
+            self.log.exception(msg)
+            raise TypeError(msg)
 
-        node = self.fme.spi_bus.find_one(node_path)
-        node.value = page
+        available_images = ifpga_sec.find_one('update/available_images').value
+        image_load = ifpga_sec.find_one('update/image_load')
+
+        if boot_type == 'bmcimg':
+            if factory:
+                boot_type = 'bmc_factory'
+            else:
+                boot_type = 'bmc_user'
+        elif boot_type == 'retimer':
+            boot_type = 'retimer_fw'
+
+        if boot_type in available_images:
+            image_load.value = boot_type
+        else:
+            msg = 'Boot type {} is not supported ' \
+                  'by this (0x{:04x},0x{:04x})'.format(
+                      boot_type,
+                      self.pci_node.pci_id[0],
+                      self.pci_node.pci_id[1])
+            self.log.exception(msg)
+            raise ValueError(msg)
 
     @contextmanager
     def disable_aer(self, *nodes):
@@ -484,17 +514,9 @@ class fpga_base(class_node):
             for n, v in aer_values:
                 n.aer = v
 
-    def safe_rsu_boot(self, page=None, **kwargs):
+    def safe_rsu_boot(self, factory, **kwargs):
         wait_time = kwargs.pop('wait', 10)
         boot_type = kwargs.get('type', 'bmcimg')
-        if page is None:
-            page = self.BOOT_PAGES.get(self.pci_node.pci_id,
-                                       {}).get(boot_type, {}).get('user')
-
-        if page is None:
-            self.log.warning('rsu not supported by device: %s',
-                             self.pci_node.pci_id)
-            return
 
         if boot_type not in self.BOOT_TYPES:
             raise TypeError('type: {} not recognized'.format(boot_type))
@@ -516,7 +538,7 @@ class fpga_base(class_node):
         with self.disable_aer(*to_disable):
             self.log.info('[%s] performing RSU operation', self.pci_node)
             try:
-                self.rsu_boot(page, **kwargs)
+                self.rsu_boot(factory, **kwargs)
             except IOError as err:
                 if err.errno == errno.EBUSY:
                     self.log.warn('device busy, cannot perform RSU operation')
