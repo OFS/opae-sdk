@@ -24,5 +24,5 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-add_subdirectory(coreidle)
-add_subdirectory(fpgad)
+opae_add_subdirectory(coreidle)
+opae_add_subdirectory(fpgad)
