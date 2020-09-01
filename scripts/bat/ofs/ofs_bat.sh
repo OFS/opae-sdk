@@ -2,8 +2,7 @@
 #
 # IOFS EA Test cases
 
-echo "------IOFS EA Test cases--------"
-
+echo "IOFS EA Test cases"
 
  opae_unit_tests()
  {
@@ -24,13 +23,20 @@ echo "------IOFS EA Test cases--------"
  cmake ..   -DCPACK_GENERATOR=RPM -DOPAE_BUILD_LEGACY=ON -DOPAE_BUILD_SIM=ON
  make -j
  make package_rpm
- yum -y remove opae*
+
+pkg="opae"
+if rpm -q $pkg
+then
+    echo "$pkg installed"
+    yum -y remove $(rpm -qa | grep opae)
+else
+    echo "$pkg NOT installed"
+
  yum -y install opae-*
  cd ../..
  echo "--END CREATE RPM--"
  }
-  #opae_unit_tests
-
+ #opae_unit_tests
 
 found=$(ls /dev/dfl-* | wc -l)
 echo $found
@@ -39,7 +45,9 @@ if [[ $found -lt 1 ]]; then
     exit 1
 fi
 
-found=$(lspci | grep 0b2b)
+PAC_D5005=0b2b
+
+found=$(lspci | grep PAC_D5005)
 echo $found
 if [ "$1" != "" ]; then
   bus_num=$1
@@ -49,16 +57,41 @@ if [ "$1" != "" ]; then
   fi
 else
   bus_num=${found:0:2}
+  bdf=${found:0:7}
   if [[ $((16#$bus_num)) -lt 0 ]]; then
       echo "Invalid bus number: "$bus_num
       exit 1
   fi
 fi
 
-gbs_file=nlb_mode_0_unsigned.gbs
+nlb_mode_0_unsigned_gbs=nlb_mode_0_unsigned.gbs
+nlb_mode_3_unsigned_gbs=nlb_mode_3_unsigned.gbs
+dummy_afu_pim_unsigned_gbs=dummy_afu_pim_unsigned.gbs
+hello_afu_unsigned_gbs=hello_afu_unsigned.gbs
+
+
+nlb_mode_0_gbs=nlb_mode_0.gbs
+nlb_mode_3_gbs=nlb_mode_3.gbs
+dummy_afu_pim_gbs=dummy_afu_pim.gbs
+hello_afu_gbs=hello_afu.gbs
+max10_fw=darby_rot_max10_v2.0.6_nios_fw_v2.0.12_signed.bin
+
 iofs_file=ofs_fim_page1_unsigned.bin
 echo "FPGA PCIE bus number:" $bus_num
-echo "FPGA GBS file:" $gbs_file
+
+echo "nlb_mode_0_unsigned_gbs file:" $nlb_mode_0_unsigned_gbs
+echo "nlb_mode_3_unsigned_gbs file:" $nlb_mode_3_unsigned_gbs
+echo "dummy_afu_pim_unsigned file:" $dummy_afu_pim_unsigned_gbs
+echo "hello_afu_unsigned_gbs file:" $hello_afu_unsigned_gbs
+
+echo "nlb_mode_0_gbs file:" $nlb_mode_0_gbs
+echo "nlb_mode_3_gbs file:" $nlb_mode_3_gbs
+echo "dummy_afu_pim_gbs file:" $dummy_afu_pim_gbs
+echo "hello_afu file:" $hello_afu_gbs
+
+echo "max10_fw"$max10_fw
+
+
 echo "FPGA IOFS FIM:" iofs_file
 
 tool_tests=(
@@ -74,18 +107,27 @@ tool_tests=(
 "fpgainfo power -B 0x$bus_num"
 "fpgainfo errors all -B 0x$bus_num"
 "fpgainfo security -B 0x$bus_num"
+"fpgaconf -B 0x$bus_num -V $nlb_mode_3_unsigned_gbs"
+"fpgadiag -t fpga -m read --read-vc=vh0 --write-vc=vh0 --multi-cl=4 --begin=1024 --end=1024 --timeout-sec=5"
+"fpgadiag -t fpga -m write --read-vc=vh0 --write-vc=vh0 --multi-cl=4 --begin=1024 --end=1024 --timeout-sec=5"
+"fpgadiag -t fpga -m trput --read-vc=vh0 --write-vc=vh0 --multi-cl=4 --begin=1024 --end=1024 --timeout-sec=5"
+"perf list | grep dfl"
+"sensors | grep -I FPGA"
 "hello_events -B 0x$bus_num"
-"packager gbs-info --gbs $gbs_file"
+"packager gbs-info --gbs $nlb_mode_0_unsigned_gbs"
 "fpgametrics -B 0x$bus_num"
 "bitstreaminfo -v  $iofs_file"
 "(echo Y && echo Y) |sudo -u lab PACSign SR -t update -H openssl_manager  -i ofs_fim_page1_unsigned.bin  -o test_fim.bin -r darby_dev_fim_root_public_256.pem  -k darby_dev_fim_csk0_public_256.pem"
-"echo yes | fpgasupdate   darby_dev_fim_root_hash.bin"
-"fpgainfo security -B 0x$bus_num"
-"echo yes | fpgasupdate  darby_dev_bmc_root_hash.bin"
-"fpgainfo security -B 0x$bus_num"
+"fpgaconf -B 0x$bus_num -V $nlb_mode_0_unsigned_gbs"
 "hello_fpga -B 0x$bus_num"
-"fpgaconf -B 0x$bus_num -V gbs_file"
-
+"fpgaconf -B 0x$bus_num -V $dummy_afu_pim_unsigned_gbs"
+"dummy_afu mmio"
+"dummy_afu ddr"
+"dummy_afu lpbk"
+"bitstreaminfo -v  $nlb_mode_0_gbs"
+"bitstreaminfo -v  $nlb_mode_0_unsigned_gbs"
+"userclk -B 0x$bus_num -L 200 -H 400"
+"bitstreaminfo -v $max10_fw"
 )
 
 num_tests_passed=0
