@@ -57,7 +57,7 @@
 #define  USER_CLOCK_CMD1       "userclk_freqcntrcmd"
 #define  USER_CLOCK_STS0       "userclk_freqsts"
 #define  USER_CLOCK_STS1       "userclk_freqcntrsts"
-#define  IOPLL_CLOCK_FREQ      "intel-pac-iopll.*.auto/userclk/frequency"
+#define  IOPLL_CLOCK_FREQ      "dfl-port*/userclk/frequency"
 #define  MAX_FPGA_FREQ          1200
 #define  MIN_FPGA_FREQ          25
 
