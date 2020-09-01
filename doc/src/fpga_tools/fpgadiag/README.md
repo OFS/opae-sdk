@@ -387,7 +387,7 @@ driver for ether group dfl-device,then userspace could take full control of ethe
 
 eth group must be enabled befor run fpgalpbk, mactset tools.
 
-#### **Setps to enable vfio mdev** ####
+#### **Setps to enable/create vfio mdev** ####
     unbind eth group feature id 10:
         echo dfl-fme.0.8 > /sys/bus/dfl/drivers/dfl-eth-group/unbind
         echo dfl-fme.0.7 > /sys/bus/dfl/drivers/dfl-eth-group/unbind
@@ -414,6 +414,19 @@ eth group must be enabled befor run fpgalpbk, mactset tools.
         vfio_mdev 83b8f4f2-509f-382f-3c1e-e6bfe0fa1005: MDEV: group_id = 140
         vfio_mdev 83b8f4f2-509f-382f-3c1e-e6bfe0fa1006: Adding to iommu group 141
         vfio_mdev 83b8f4f2-509f-382f-3c1e-e6bfe0fa1006: MDEV: group_id = 141
+
+#### **Remove vfio mdev** ####
+        echo 1 | sudo tee /sys/bus/mdev/devices/83b8f4f2-509f-382f-3c1e-e6bfe0fa1002/remove
+        echo 1 | sudo tee /sys/bus/mdev/devices/83b8f4f2-509f-382f-3c1e-e6bfe0fa1001/remove
+
+        rmmod vfio_mdev_dfl
+        modprobe dfl_eth_group
+
+        echo dfl-fme.0.7 >/sys/bus/dfl/drivers_probe
+        echo dfl-fme.0.8 >/sys/bus/dfl/drivers_probe
+
+        echo dfl-eth-group > /sys/bus/dfl/devices/dfl-fme.0.7/driver_override
+        echo dfl-eth-group > /sys/bus/dfl/devices/dfl-fme.0.8/driver_override
 
 
 ### **fpgalpbk** test options ###
