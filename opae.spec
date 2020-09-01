@@ -28,6 +28,7 @@ BuildRequires:  tbb-devel
 BuildRequires:  git
 BuildRequires:  python3-pip
 BuildRequires:  python3-virtualenv
+BuildRequires:  systemd-rpm-macros
 
 %description
 Open Programmable Acceleration Engine (OPAE) is a software framework
@@ -174,6 +175,15 @@ pushd %{_topdir}/BUILD/opae/python/pacsign
 popd
 
 
+%post
+%systemd_post fpgad.service
+
+%preun
+%systemd_preun fpgad.service
+
+%postun
+%systemd_postun_with_restart fpgad.service
+
 %files
 %dir %{_datadir}/opae
 %doc %{_datadir}/opae/RELEASE_NOTES.md
@@ -256,9 +266,6 @@ popd
 /usr/lib/systemd/system/fpgad.service
 %{_libdir}/libfpgad-api.so*
 %{_libdir}/opae/libfpgad-vc.so*
-%{_libdir}/opae/libboard_n3000.so*
-%{_libdir}/opae/libboard_d5005.so*
-%{_libdir}/opae/libboard_a10gx.so*
 
 
 %{_usr}/share/opae/*
