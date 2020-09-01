@@ -8,24 +8,26 @@ if [[ $pcie_count -lt 1 ]]; then
     echo "Failed to locate drivers."
     exit 1
 fi
-echo $pcie_count
+echo -e "PCIe device count:$pcie_count"
+
+
 #Bus number
 bus_num=$1
 PCIE_DEVICES=/sys/bus/pci/devices/*$bus_num*/device
-echo $PCIE_DEVICES
+#echo $PCIE_DEVICES
 for file in $PCIE_DEVICES
 do
-    echo "Device $file"
+    #echo -e "Device $file\n"
     device_id=$(cat $file)
-    echo $device_id
-	if [[ $device_id != 0x0b30 ]]; then
-		echo "Failed to locate drivers."
-		exit 1
-	fi
+    #echo $device_id
+    if [[ $device_id == 0x0b30 ]]; then
+     break
+    fi
 
 done
 
-echo " found fpga device $file"
+echo "Found fpga N3000 device $file"
+
 
 FPGA_FEATURID=/sys/bus/pci/devices/*$bus_num*/fpga_region/region*/dfl-fme*/dfl-fme*/feature_id
 echo " Feature: $FPGA_FEATURID"

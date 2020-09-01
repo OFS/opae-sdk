@@ -170,14 +170,12 @@ class COMMON(object):
             ret = eth_group_inst.eth_group_open(int(values[0]), values[1])
             if ret != 0:
                 return None
-            print("eth group:: direction:{} speed:{} phy_num:{}\
-                  group_id:{} df_id:{} eth_lwmac:{}" \
-                  .format(eth_group_inst.direction, \
-                  eth_group_inst.speed, \
-                  eth_group_inst.phy_num, \
-                  eth_group_inst.group_id, \
-                  eth_group_inst.df_id, \
-                  eth_group_inst.eth_lwmac))
+            print("direction:", eth_group_inst.direction)
+            print("speed    :", eth_group_inst.speed)
+            print("phy_num  :", eth_group_inst.direction)
+            print("group_id :", eth_group_inst.direction)
+            print("df_id    :", eth_group_inst.df_id)
+            print("eth_lwmac:", eth_group_inst.eth_lwmac)
             self.mac_lightweight \
                 = \
                 self.mac_lightweight \
