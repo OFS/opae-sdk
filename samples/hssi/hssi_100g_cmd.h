@@ -150,26 +150,9 @@ public:
     else if (pattern_ == "increment")
       reg |= 2 << 4;
 
-    if (eth_loopback_ == "on")
-      reg |= 1 << 3;
-
     hafu->mbox_write(CSR_CTRL1, reg);
 
     print_registers(std::cout, hafu);
-
-    const uint64_t interval = 100ULL;
-    do
-    {
-      reg = hafu->mbox_read(CSR_CTRL1);
-
-      if (!running_) {
-
-
-        return test_afu::error;
-      }
-
-      std::this_thread::sleep_for(std::chrono::microseconds(interval));
-    } while(!(reg & 2));
 
     std::cout << std::endl;
     show_eth_stats(eth_ifc);
@@ -182,7 +165,7 @@ public:
 
   virtual const char *afu_id() const override
   {
-    return "823c334c-98bf-11ea-bb37-0242ac130002";
+    return "43425ee6-92b2-4742-b03a-bd8d4a533812";
   }
 
   std::ostream & print_registers(std::ostream &os, hssi_afu *hafu) const
