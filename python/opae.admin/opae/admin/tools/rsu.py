@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2019-2020, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -47,13 +47,9 @@ RSU_LOCK_FILE = os.path.join(RSU_LOCK_DIR, 'rsu_lock')
 USER_BOOT_PAGE = 'user'
 FACTORY_BOOT_PAGE = 'factory'
 
-BOOT_PAGE = {0x0b30: {'fpga': {'user': 1,
-                               'factory': 0},
-                      'bmcimg': {'user': 0,
+BOOT_PAGE = {0x0b30: {'bmcimg': {'user': 0,
                                  'factory': 1}},
-             0x0b2b: {'fpga': {'user': 1,
-                               'factory': 0},
-                      'bmcimg': {'user': 1,
+             0x0b2b: {'bmcimg': {'user': 1,
                                  'factory': 0}}}
 
 logger = logging.getLogger('rsu')
@@ -63,8 +59,8 @@ Perform RSU (remote system update) operation on PAC device
 given its PCIe address.
 An RSU operation sends an instruction to the device to trigger
 a power cycle of the card only. This will force reconfiguration
-from flash for either BMC image (on devices that support it) or the
-FPGA'''
+from flash for the BMC image.
+'''
 
 EPILOG = '''
 Example usage:
@@ -79,16 +75,6 @@ Example usage:
      pci address of 25:00.0.
      NOTE: Both BMC image will be reconfigured from factory bank and the
            FPGA image will be reconfigured from the user bank.
-
-     %(prog)s fpga 25:00.0
-     This will trigger a reconfiguration of the FPGA only for a device with a
-     pci address of 25:00.0.
-     NOTE: The FPGA image will be reconfigured from user bank.
-
-     %(prog)s fpga 25:00.0 -f
-     This will trigger a factory reconfiguration of the FPGA only for a device
-     with a pci address of 25:00.0.
-     NOTE: The FPGA image will be reconfigured from the factory bank.
 '''
 
 
@@ -119,7 +105,7 @@ def normalize_bdf(bdf):
     raise SystemExit(os.EX_USAGE)
 
 
-def do_rsu(rsu_type, device, boot_page):
+def do_rsu(rsu_type, device, factory):
     dev_id = device.pci_node.pci_id
 
     region = fpga.BOOT_PAGES[dev_id].get(rsu_type, {})
@@ -127,12 +113,7 @@ def do_rsu(rsu_type, device, boot_page):
         logger.error('%s not supported by device', rsu_type)
         raise SystemExit(os.EX_SOFTWARE)
 
-    boot_number = region.get(boot_page)
-    if boot_number is None:
-        logger.error('%s not supported by device', boot_page)
-        raise SystemExit(os.EX_SOFTWARE)
-
-    device.safe_rsu_boot(boot_number, type=rsu_type)
+    device.safe_rsu_boot(factory, type=rsu_type)
 
 
 def main():
@@ -160,7 +141,6 @@ def main():
             raise SystemExit(os.EX_USAGE)
 
     bdf = normalize_bdf(args.bdf)
-    boot_page = FACTORY_BOOT_PAGE if args.factory else USER_BOOT_PAGE
 
     Path(RSU_LOCK_DIR).mkdir(parents=True, exist_ok=True)
 
@@ -170,7 +150,7 @@ def main():
             with open(RSU_LOCK_FILE, 'w') as flock:
                 fcntl.flock(flock.fileno(), fcntl.LOCK_EX)
                 try:
-                    do_rsu(args.type, device, boot_page)
+                    do_rsu(args.type, device, args.factory)
                 except IOError:
                     logging.error('RSU operation failed')
                 else:
