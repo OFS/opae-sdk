@@ -216,17 +216,6 @@ class fme(region):
         return self.find_one('spi*/spi_master/spi*/spi*')
 
     @property
-    def ifpga_sec(self):
-        spi = self.spi_bus
-        if spi:
-            ifpga_sec = spi.find_one(
-                'd5005bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
-            if not ifpga_sec:
-                ifpga_sec = spi.find_one(
-                    'n3000bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
-            return ifpga_sec
-
-    @property
     def altr_asmip(self):
         return self.find_one('altr-asmip*.*.auto')
 
@@ -426,13 +415,13 @@ class fpga_base(class_node):
             return None
         spi = f.spi_bus
         if spi:
-            sec = spi.find_one('m10bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
-            if sec:
-                return secure_dev(sec.sysfs_path, self.pci_node)
-        else:
-            sec = f.find_one('m10bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
-            if sec:
-                return secure_dev(sec.sysfs_path, self.pci_node)
+            ifpga_sec = spi.find_one(
+                'd5005bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
+            if not ifpga_sec:
+                ifpga_sec = spi.find_one(
+                    'n3000bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
+            if ifpga_sec:
+                return secure_dev(ifpga_sec.sysfs_path, self.pci_node)
 
     @property
     def port(self):
@@ -473,9 +462,10 @@ class fpga_base(class_node):
         if boot_type not in self.BOOT_TYPES:
             raise TypeError('type: {} not recognized'.format(boot_type))
 
-        ifpga_sec = self.fme.ifpga_sec
+        ifpga_sec = self.secure_dev
         if not ifpga_sec:
-            msg = 'rsu not supported for {}'.format(self.pci_node.pci_id)
+            msg = 'rsu not supported by this (0x{:04x},0x{:04x})'.format(
+                self.pci_node.pci_id[0], self.pci_node.pci_id[1])
             self.log.exception(msg)
             raise TypeError(msg)
 
