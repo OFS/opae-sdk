@@ -22,6 +22,13 @@ BUILD_DIR=${PWD}
 
 echo ${PWD}
 
+cd .. 
+rm -rf _build
+mkdir _build
+cd _build
+cmake .. -DOPAE_BUILD_LEGACY=ON  -DOPAE_BUILD_TESTS=ON
+
+
 cd ../..
 tar --transform='s/opae-sdk/opae/' \
   --exclude=.git \
@@ -31,7 +38,6 @@ tar --transform='s/opae-sdk/opae/' \
   --exclude=opae.spec.in \
   --exclude=opae.spec \
   --exclude=opae-libs/external \
-  --exclude=opae-libs/tests \
   --exclude=opae-libs/plugins/ase \
   --exclude=opae-libs/cmake/config/libopae-all.spec.in \
   --exclude=opae-libs/cmake/config/run_coverage_test.sh.in \
@@ -48,7 +54,6 @@ tar --transform='s/opae-sdk/opae/' \
   --exclude=samples/intg_xeon_nlb \
   --exclude=samples/base \
   --exclude=scripts \
-  --exclude=tests \
   --exclude=tools/extra/ras \
   --exclude=tools/extra/pac_hssi_config \
   --exclude=tools/extra/pyfpgadiag \

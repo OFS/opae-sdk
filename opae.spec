@@ -64,7 +64,7 @@ rm -rf _build
 mkdir _build
 cd _build
 
-%cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_BUILD_LEGACY=ON -B $PWD
+%cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_PRESERVE_REPOS=ON -DOPAE_BUILD_LEGACY=ON -B $PWD
 
 %make_build  opae-c \
          bitstream \
