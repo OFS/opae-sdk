@@ -385,7 +385,7 @@ class fpga_base(class_node):
         (0x8086, 0x0b30): {'bmcimg': {'user': 0,
                                       'factory': 1},
                            'retimer': {'user': 0,
-                                       'factory':0}},
+                                       'factory': 0}},
         (0x8086, 0x0b2b): {'bmcimg': {'user': 1,
                                       'factory': 0},
                            'retimer': {'user': 0,
