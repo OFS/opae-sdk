@@ -36,3 +36,16 @@ opae_add_executable(TARGET hello_fpga
 install(FILES hello_fpga.c
   DESTINATION src/opae/samples/hello_fpga
   COMPONENT samplesrc)
+
+opae_add_executable(TARGET hello_fpga_n3000
+    SOURCE hello_fpga_n3000.c
+    LIBS
+        opae-c
+        ${libjson-c_LIBRARIES}
+        ${libuuid_LIBRARIES}
+    COMPONENT samplebin
+)
+
+install(FILES hello_fpga_n3000.c
+  DESTINATION src/opae/samples/hello_fpga_n3000
+  COMPONENT samplesrc)
