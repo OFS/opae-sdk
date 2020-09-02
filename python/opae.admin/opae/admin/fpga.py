@@ -416,7 +416,10 @@ class fpga_base(class_node):
         spi = f.spi_bus
         if spi:
             ifpga_sec = spi.find_one(
-                'd5005bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
+                'm10bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
+            if not ifpga_sec:
+                ifpga_sec = spi.find_one(
+                    'd5005bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
             if not ifpga_sec:
                 ifpga_sec = spi.find_one(
                     'n3000bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
