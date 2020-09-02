@@ -530,6 +530,13 @@ class fpga_base(class_node):
 
         with self.disable_aer(*to_disable):
             self.log.info('[%s] performing RSU operation', self.pci_node)
+
+            self.log.debug('unbinding drivers from other endpoints')
+
+            for node in self.pci_node.root.endpoints:
+                if node.pci_address != self.node.pci_address:
+                    node.unbind()
+
             try:
                 self.rsu_boot(factory, **kwargs)
             except IOError as err:
