@@ -533,9 +533,9 @@ class fpga_base(class_node):
 
             self.log.debug('unbinding drivers from other endpoints')
 
-            for node in self.pci_node.root.endpoints:
-                if node.pci_address != self.node.pci_address:
-                    node.unbind()
+            for ep in self.pci_node.root.endpoints:
+                if ep.pci_address != self.pci_node.pci_address:
+                    ep.unbind()
 
             try:
                 self.rsu_boot(factory, **kwargs)
