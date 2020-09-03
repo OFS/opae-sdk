@@ -209,6 +209,7 @@ public:
       logger_->error(ex.what());
       res = exit_codes::exception;
     }
+    handle_->reset();
     auto pass = res == exit_codes::success ? "PASS" : "FAIL";
     logger_->info("Test {}({}): {}", test->name(), count, pass);
     spdlog::drop_all();
