@@ -416,7 +416,10 @@ class fpga_base(class_node):
         spi = f.spi_bus
         if spi:
             ifpga_sec = spi.find_one(
-                'd5005bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
+                'm10bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
+            if not ifpga_sec:
+                ifpga_sec = spi.find_one(
+                    'd5005bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
             if not ifpga_sec:
                 ifpga_sec = spi.find_one(
                     'n3000bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
@@ -527,6 +530,13 @@ class fpga_base(class_node):
 
         with self.disable_aer(*to_disable):
             self.log.info('[%s] performing RSU operation', self.pci_node)
+
+            self.log.debug('unbinding drivers from other endpoints')
+
+            for ep in self.pci_node.root.endpoints:
+                if ep.pci_address != self.pci_node.pci_address:
+                    ep.unbind()
+
             try:
                 self.rsu_boot(factory, **kwargs)
             except IOError as err:
