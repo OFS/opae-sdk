@@ -187,7 +187,7 @@ public:
 
     auto tokens = fpga::token::enumerate({filter});
     if (tokens.size() < 1) {
-      std::cerr << "no accelerator found with id: " << afu_id_;
+      std::cerr << "no accelerator found with id: " << app_afu_id;
       if (!pci_addr_.empty()) {
         std::cerr << " at pcie address: " << pci_addr_;
       }
