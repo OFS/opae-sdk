@@ -5,15 +5,13 @@
 `fpgad [--socket=<sock>] [--null-bitstream=<file>]`
 
 ## DESCRIPTION ##
-```fpgad``` periodically monitors and reports the error status reflected in the device driver's error status sysfs files.
-```fpgad``` establishes the channel to communicate events to the Open Programmable Accelerator Engine (OPAE) application. 
-```fpgad``` programs a NULL bitstream in response to an AP6 (power) event. ```fpgad``` is only available on the Integrated FPGA
-Platform. You cannot run ```fpgad``` on the PCIe&reg; Accelerator Card (PAC).
+fpgad monitors the device sensors, checking for sensor values that are out of the prescribed range. 
 
-If your system does not support interrupts, you must run ```fpgad``` before the API calls `fpgaRegisterEvent` and
-`fpgaUnregisterEvent` can succeed.
+When any of the sensors is detected to be out of bounds, fpgad will focus on keeping the server from rebooting by masking PCIE AER, and send a message to system administrator. System administrator can take further actions like stop the application and stop the FPGA, but fpgad just focus on monitor the sensors and will not take any cooling actions. 
 
-Use SIGINT to stop ```fpgad```.
+Note: fpgad must be running (as root) and actively monitoring devices when a sensor anomaly occurs in order to initiate Graceful Shutdown.  If fpgad is not loaded during such a sensor anomaly, the out-of-bounds scenario will not be detected, and the resulting effect on the hardware is undefined.
+
+### ARGUMENTS ##
 
 `-v, --version`
 
@@ -65,8 +63,14 @@ If you encounter any issues, you can get debug information in two ways:
 
 `fpgad --daemon --null-bitstream=my_null_bits.gbs`
 
+This command starts fpgad as a system daemon process:
+```console
+sudo systemctl start fpgad
+```
+
  ## Revision History ##
     
  | Document Version |  Intel Acceleration Stack Version  | Changes  |
  | ---------------- |------------------------------------|----------|
  |2018.05.21 | 1.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 17.1.1.) | No changes from previous release. |
+ |2020.09.02 | 2.0                                                                                                        |
