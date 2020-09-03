@@ -387,7 +387,7 @@ driver for ethernet group dfl-device; then userspace can take full control of et
 
 Ethernet group must be enabled before running fpgalpbk, mactest tools.
 
-#### **Setps to enable/create vfio mdev** ####
+#### **Steps to enable/create vfio mdev** ####
     unbind eth group feature id 10:
         echo dfl-fme.0.8 > /sys/bus/dfl/drivers/dfl-eth-group/unbind
         echo dfl-fme.0.7 > /sys/bus/dfl/drivers/dfl-eth-group/unbind
