@@ -381,11 +381,11 @@ This compare mac addresses that read from MAC ROM with mac addresses read from H
 
 ### **Enable FPGA N3000 Ethernet group VFIO mdev** ###
 
-FPGA DFL driver doesnot support any ioctls to read/write ethernet group info and Registers,
-user can read/write eth group registers by enabling VFIO mdev.unbind the dfl_eth_group driver and bind vfio-mdev-dfl
-driver for ether group dfl-device,then userspace could take full control of ether group feature id 10.
+FPGA DFL driver does not support any ioctls to read/write ethernet group info and registers.
+Users can read/write eth group registers by enabling VFIO mdev. Unbind the dfl_eth_group driver and bind vfio-mdev-dfl
+driver for ethernet group dfl-device; then userspace can take full control of ethernet group feature id 10.
 
-eth group must be enabled befor run fpgalpbk, mactset tools.
+Ethernet group must be enabled before running fpgalpbk, mactest tools.
 
 #### **Setps to enable/create vfio mdev** ####
     unbind eth group feature id 10:
