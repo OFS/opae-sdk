@@ -93,9 +93,8 @@ struct guid_t {
    * @param[in] str The guid string.
    */
   void parse(const char *str) {
-    int u;
     is_set_ = false;
-    if (0 != (u = uuid_parse(str, data_.data()))) {
+    if (0 != uuid_parse(str, data_.data())) {
       throw except(OPAECXX_HERE);
     }
     ASSERT_FPGA_OK(fpgaPropertiesSetGUID(*props_, data_.data()));
