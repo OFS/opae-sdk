@@ -204,6 +204,8 @@ class pci_node(sysfs_node):
             pci_address['pci_address'])
         self._aer_cmd2 = 'setpci -s {} ECAP_AER+0x14.L'.format(
             pci_address['pci_address'])
+        if self.have_node('driver'):
+            self._driver = os.readlink(self.node('driver').sysfs_path)
 
     def __str__(self):
         return '[pci_address({}), pci_id(0x{:04x}, 0x{:04x})]'.format(
@@ -463,6 +465,16 @@ class pci_node(sysfs_node):
         self.log.debug('rescanning bus %s under %s', bus, self.pci_address)
         self.node('pci_bus', bus, 'rescan').value = '1'
         self._children = []
+
+    def unbind(self):
+        driver = self.node('driver')
+        if driver and driver.have_node('unbind'):
+            try:
+                driver.node('unbind').value = self.pci_address
+            except (OSError, IOError):
+                self.log.warn('could not unbind from driver')
+        else:
+            self.log.debug('no driver to unbind')
 
     @property
     def aer(self):
