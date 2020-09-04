@@ -209,6 +209,7 @@ public:
       logger_->error(ex.what());
       res = exit_codes::exception;
     }
+    handle_->reset();
     auto pass = res == exit_codes::success ? "PASS" : "FAIL";
     logger_->info("Test {}({}): {}", test->name(), count, pass);
     spdlog::drop_all();
@@ -300,7 +301,7 @@ public:
   template<class T>
   void write_register(uint32_t offset, T* reg)
   {
-    return *reinterpret_cast<T*>(handle_->mmio_ptr(offset)) = *reg;
+    *reinterpret_cast<T*>(handle_->mmio_ptr(offset)) = *reg;
   }
 
 private:
