@@ -45,7 +45,7 @@
 #define ETH_GROUP_MAC		2
 #define ETH_GROUP_ETHER		3
 
-#define DVE_VFIO_PATH  "/dev/vfio/vfio"
+#define DEV_VFIO_PATH  "/dev/vfio/vfio"
 #define MAC_CONFIG	0x310
 
 #define ETH_GROUP_TIMEOUT          100
@@ -77,7 +77,7 @@ int eth_group::eth_group_open(int vfio_id, std::string fpga_mdev_str)
 	memset(&device_info, 0, sizeof(device_info));
 	device_info.argsz = sizeof(device_info);
 
-	container = open(DVE_VFIO_PATH, O_RDWR);
+	container = open(DEV_VFIO_PATH, O_RDWR);
 	if (container < 0) {
 		fprintf(stderr, "error opening container: %s\n",
 			strerror(errno));
@@ -268,7 +268,7 @@ uint32_t eth_group::read_reg(uint32_t type,
 	*((volatile uint64_t *)(mmap_ptr + ETH_GROUP_CTRL))
 		= (uint64_t)eth_ctl.csr;
 
-	//read untill status reg bit valid
+	//read until status reg bit valid
 	while (1)
 	{
 		eth_stat.csr = *((volatile uint64_t *)(mmap_ptr + ETH_GROUP_STAT));
@@ -320,7 +320,7 @@ int eth_group::write_reg(uint32_t type,
 	*((volatile uint64_t *)(mmap_ptr + ETH_GROUP_CTRL))
 		= (uint64_t)eth_ctl.csr;
 
-	//read untill status reg bit valid
+	//read until status reg bit valid
 	while (1)
 	{
 		eth_stat.csr = *((volatile uint64_t *)(mmap_ptr + ETH_GROUP_STAT));
