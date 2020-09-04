@@ -80,10 +80,10 @@ jobs:
       run: sudo sysctl -w vm.nr_hugepages=8
     - name: run unit tests
       env:
-        LD_LIBRARY_PATH: ${{ github.workspace }}/.build/lib
+        LD_LIBRARY_PATH: ${{ github.workspace }}/lib
         OPAE_EXPLICIT_INITIALIZE: 1
         CTEST_OUTPUT_ON_FAILURE: 1
-      working-directory: ${{ github.workspace }}/.build
+      working-directory: ${{ github.workspace }}
       run: |
         lcov --directory . --zerocounters
         lcov -c -i -d . -o coverage.base 2> /dev/null
