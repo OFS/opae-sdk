@@ -81,6 +81,7 @@ public:
     else
       cmd += std::string(" loopback off");
     run_process(cmd);
+    usleep(1000);
   }
 
   template <typename X>
