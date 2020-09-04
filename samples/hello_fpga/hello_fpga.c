@@ -296,11 +296,11 @@ fpga_result find_nlb_n3000(fpga_handle accelerator_handle,
 	do {
 		// Read the next feature header
 		res1 = fpgaReadMMIO64(accelerator_handle, 0, nlb0_offset, &header);
-		ON_ERR_GOTO(res1, out_free_output, "fpgaReadMMIO64");
+		ON_ERR_GOTO(res1, out_exit, "fpgaReadMMIO64");
 		res1 = fpgaReadMMIO64(accelerator_handle, 0, nlb0_offset+8, &uuid_lo);
-		ON_ERR_GOTO(res1, out_free_output, "fpgaReadMMIO64");
+		ON_ERR_GOTO(res1, out_exit, "fpgaReadMMIO64");
 		res1 = fpgaReadMMIO64(accelerator_handle, 0, nlb0_offset+16, &uuid_hi);
-		ON_ERR_GOTO(res1, out_free_output, "fpgaReadMMIO64");
+		ON_ERR_GOTO(res1, out_exit, "fpgaReadMMIO64");
 		// printf("%zx: %zx %zx %zx\n", nlb0_offset, header, uuid_lo, uuid_hi);
 		if ((((header >> 60) & 0xf) == 0x1) &&
 			(uuid_lo == FPGA_NLB0_UUID_L) && (uuid_hi == FPGA_NLB0_UUID_H)) {
@@ -317,19 +317,17 @@ fpga_result find_nlb_n3000(fpga_handle accelerator_handle,
 		}
 		nlb0_offset = nlb0_offset + next_offset;
 	} while (!end_of_list);
+
 	if (!nlb0_found) {
 		printf("AFU NLB0 not found\n");
 		return FPGA_EXCEPTION;
-	} else {
-		printf("AFU NLB0 found @ %zx\n", nlb0_offset);
 	}
 
-	
+	printf("AFU NLB0 found @ %zx\n", nlb0_offset);
 	*afu_baddr = nlb0_offset;
-
 	return FPGA_OK;
 
-out_free_output:
+out_exit:
 	return FPGA_EXCEPTION;
 }
 
