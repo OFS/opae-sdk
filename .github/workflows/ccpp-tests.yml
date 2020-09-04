@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        build-type: [Debug, Release, RelWithDebInfo]
+        build-type: [Debug, Release, RelWithDebInfo, Coverage]
     steps:
     - uses: actions/checkout@v2
     - name: update
@@ -43,27 +43,58 @@ jobs:
     - name: Get Packages
       uses: mstksg/get-package@v1
       with:
-        apt-get: uuid-dev libjson-c-dev libhwloc-dev lcov libtbb-dev
+        apt-get: uuid-dev libjson-c-dev libhwloc-dev libtbb-dev
+    - name: make build dir
+      run: mkdir ${{ github.workspace }}/.build
     - name: configure ${{ matrix.build-type }}
-      run: mkdir ${{ github.workspace }}/.build && cd ${{ github.workspace }}/.build && cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
+      working-directory: ${{ github.workspace }}/.build
+      run: cmake .. -DCMAKE_BUILD_TYPE=${{ matrix.build-type }}
+    - name: configure tests for Coverage
+      if: ${{ matrix.build-type == 'Coverage' }}
+      working-directory: ${{ github.workspace }}/.build
+      run : cmake . -DOPAE_PYTHON_VERSION=3.6 -DOPAE_BUILD_LIBOPAE_CXX=ON -DOPAE_BUILD_LIBOPAE_PY=ON -DOPAE_BUILD_TESTS=ON -DOPAE_BUILD_SIM=OFF -DOPAE_ENABLE_MOCK=ON
     - name: make ${{ matrix.build-type }}
-      run: cd ${{ github.workspace }}/.build && make -j
+      working-directory: ${{ github.workspace }}/.build
+      run: make -j $(nproc)
+    - name: upload build
+      if: ${{ matrix.build-type == 'Coverage' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: build
+        path: ${{ github.workspace }}/.build
   test:
+    needs: build
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - name: Download Build Artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: build
     - name: update
       run: sudo apt-get update -y
     - name: Get Packages
       uses: mstksg/get-package@v1
       with:
-        apt-get: uuid-dev libjson-c-dev libhwloc-dev lcov libtbb-dev
+        apt-get: uuid libjson-c-dev libhwloc5 lcov libtbb2
     - name: set hugepages
       run: sudo sysctl -w vm.nr_hugepages=8
     - name: run unit tests
-      run: ${{ github.workspace }}/scripts/cover.sh
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/.build/lib
+        OPAE_EXPLICIT_INITIALIZE: 1
+        CTEST_OUTPUT_ON_FAILURE: 1
+      working-directory: ${{ github.workspace }}/.build
+      run: |
+        lcov --directory . --zerocounters
+        lcov -c -i -d . -o coverage.base 2> /dev/null
+        ctest -j 4 --timeout 180
+        find . \( -iname "*.gcda" -or -iname "*.gcno" \) -exec chmod 664 '{}' \;
+        lcov --directory . --capture --output-file coverage.info 2> /dev/null
+        lcov -a coverage.base -a coverage.info --output-file coverage.total
+        lcov --remove coverage.total '/usr/**' '*external/opae-test/**' '*opae-libs/libopaecxx/samples/**' '*opae-libs/tests/**' '*opae-libs/pyopae/**' '*opae-libs/plugins/xfpga/usrclk/**' '*tests/**' '*tools/extra/c++utils/**' '*tools/extra/mmlink/**' '*tools/extra/fpgabist/**' '*tools/extra/fpgadiag/**' '*pybind11/**' '*external/CLI11/**' '*external/spdlog/**' --output-file coverage.info.cleaned
+
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: unittests/coverage.info.cleaned
+        path-to-lcov: ${{ github.workspace }}/build/coverage.info.cleaned
