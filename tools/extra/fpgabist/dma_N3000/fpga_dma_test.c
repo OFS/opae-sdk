@@ -441,6 +441,7 @@ fpga_result get_bus_info(fpga_token tok, struct bus_info *finfo)
 	ON_ERR_GOTO(res, out_destroy, "Reading bus from properties");
 
 	if (res != FPGA_OK) {
+		fpgaDestroyProperties(&props);
 		return FPGA_EXCEPTION;
 	}
 

@@ -301,7 +301,7 @@ public:
   template<class T>
   void write_register(uint32_t offset, T* reg)
   {
-    return *reinterpret_cast<T*>(handle_->mmio_ptr(offset)) = *reg;
+    *reinterpret_cast<T*>(handle_->mmio_ptr(offset)) = *reg;
   }
 
 private:
