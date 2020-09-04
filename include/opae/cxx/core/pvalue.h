@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -254,9 +254,9 @@ struct pvalue {
  private:
   fpga_properties *props_;
   bool is_set_;
-  copy_t copy_;
   getter_t get_;
   setter_t set_;
+  copy_t copy_;
 };
 
 /**
