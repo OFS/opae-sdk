@@ -467,7 +467,7 @@ class pci_node(sysfs_node):
         self._children = []
 
     def unbind(self):
-        driver = self.node('driver')
+        driver = self.find_one('driver')
         if driver and driver.have_node('unbind'):
             try:
                 driver.node('unbind').value = self.pci_address
