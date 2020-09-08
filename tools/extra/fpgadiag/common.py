@@ -38,14 +38,17 @@ import fcntl
 import stat
 import struct
 import mmap
+import eth_group
+from eth_group import *
 
 PATTERN = (r'.*(?P<segment>\w{4}):(?P<bus>\w{2}):'
            r'(?P<dev>\w{2})\.(?P<func>\d).*')
 
 BDF_PATTERN = re.compile(PATTERN)
 
-FPGA_ROOT_PATH = '/sys/class/fpga'
+FPGA_ROOT_PATH = '/sys/class/fpga_region'
 CHAR_DEV = '/dev/char'
+ETH_GROUP_IOMMU_GROUPS = "/sys/kernel/iommu_groups/*[0-9]/devices/*-*-*-*"
 
 MAPSIZE = mmap.PAGESIZE
 MAPMASK = MAPSIZE - 1
@@ -93,7 +96,7 @@ class FpgaFinder(object):
 
     def get_fpga_device_list(self):
         if os.path.exists(FPGA_ROOT_PATH):
-            paths = glob.glob(os.path.join(FPGA_ROOT_PATH, 'intel-fpga-dev.*'))
+            paths = glob.glob(os.path.join(FPGA_ROOT_PATH, 'region*'))
             for p in paths:
                 bdf = self.read_bdf(os.path.join(p, 'device'))
                 if bdf:
@@ -120,6 +123,24 @@ class FpgaFinder(object):
             paths.extend(r)
         return paths
 
+    def find_eth_group(self, root):
+        eth_group = {}
+        paths = glob.glob(ETH_GROUP_IOMMU_GROUPS)
+        i = 0
+        for path in paths:
+            one, guid = os.path.split(path)
+            regex = re.compile(r'(/sys/kernel/iommu_groups/\d+)', re.I)
+            one, group_id = os.path.split(regex.findall(path)[0])
+            fpga_path = glob.glob(os.path.join(
+                                  root,
+                                  'dfl-fme*/dfl-fme*/',
+                                  guid))
+            if len(fpga_path) == 0:
+                continue
+            eth_group[i] = [group_id, guid]
+            i = i + 1
+        return eth_group
+
 
 class COMMON(object):
     sbdf = None
@@ -139,6 +160,45 @@ class COMMON(object):
     if_len = struct.calcsize(if_fmt)
     rd_len = struct.calcsize(rd_fmt)
     wr_len = struct.calcsize(wr_fmt)
+
+    eth_group_inst = None
+
+    def eth_group_info(self, eth_grps):
+        info = {}
+        for keys, values in eth_grps.items():
+            eth_group_inst = eth_group()
+            ret = eth_group_inst.eth_group_open(int(values[0]), values[1])
+            if ret != 0:
+                return None
+            print("direction:", eth_group_inst.direction)
+            print("speed    :", eth_group_inst.speed)
+            print("phy_num  :", eth_group_inst.direction)
+            print("group_id :", eth_group_inst.direction)
+            print("df_id    :", eth_group_inst.df_id)
+            print("eth_lwmac:", eth_group_inst.eth_lwmac)
+            self.mac_lightweight \
+                = \
+                self.mac_lightweight \
+                or (eth_group_inst.eth_lwmac & 1) == 1
+            info[eth_group_inst.group_id] = [eth_group_inst.phy_num,
+                                             eth_group_inst.phy_num,
+                                             eth_group_inst.speed]
+            eth_group_inst.eth_group_close()
+        return info
+
+    def eth_group_reg_write(self, eth_group, comp, dev, reg, v):
+        ret = eth_group.write_reg(self.eth_comp[comp], dev, 0, reg, v)
+        return ret
+
+    def eth_group_reg_read(self, eth_group, comp, dev, reg):
+        ret = eth_group.read_reg(self.eth_comp[comp], dev, 0, reg)
+        return ret
+
+    def eth_group_reg_set_field(self, eth_group, comp,
+                                dev, reg, idx, width, value):
+        v = self.eth_group_reg_read(eth_group, comp, dev, reg)
+        v = self.register_field_set(v, idx, width, value)
+        self.eth_group_reg_write(eth_group, comp, dev, reg, v)
 
     def ioctl(self, handler, op, data):
         if isinstance(handler, str):
@@ -210,7 +270,7 @@ class COMMON(object):
         return info
 
     def is_mac_lightweight_image(self, eth_grps):
-        self.get_eth_group_info(eth_grps)
+        self.eth_group_info(eth_grps)
         return self.mac_lightweight
 
     def is_char_device(self, dev):
