@@ -59,6 +59,7 @@ endif()
 ## Sub-projects ############################################################
 ############################################################################
 opae_add_subdirectory(opae-libs)
+opae_add_subdirectory(external)
 opae_add_subdirectory(platforms)
 opae_add_subdirectory(tools)
 opae_add_subdirectory(samples)
@@ -68,8 +69,6 @@ if(OPAE_BUILD_TESTS)
     enable_testing()
     opae_add_subdirectory(tests)
 endif()
-
-opae_add_subdirectory(external)
 
 ############################################################################
 ## Add 'documentation' target ##############################################
