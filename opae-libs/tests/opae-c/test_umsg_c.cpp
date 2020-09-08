@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -118,9 +118,9 @@ out_EINVAL:
     goto out;
 }
 
-class umsg_c_p : public ::testing::TestWithParam<std::string> {
+class DISABLED_umsg_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  umsg_c_p() : tokens_{{nullptr, nullptr}} {}
+  DISABLED_umsg_c_p() : tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     ASSERT_TRUE(test_platform::exists(GetParam()));
@@ -175,7 +175,7 @@ class umsg_c_p : public ::testing::TestWithParam<std::string> {
  *             the number of Umsgs is greater than 0,<br>
  *             and the fn returns FPGA_OK.<br>
  */
-TEST_P(umsg_c_p, get_num) {
+TEST_P(DISABLED_umsg_c_p, get_num) {
   uint64_t num = 0;
   EXPECT_EQ(fpgaGetNumUmsg(dev_, &num), FPGA_OK);
   EXPECT_GT(num, 0);
@@ -187,19 +187,19 @@ TEST_P(umsg_c_p, get_num) {
  * @details    When fpgaSetUmsgAttributes is called with valid values,<br>
  *             then the fn returns FPGA_OK.<br>
  */
-TEST_P(umsg_c_p, set_attr) {
+TEST_P(DISABLED_umsg_c_p, set_attr) {
   uint64_t enable  = 0xff;
   uint64_t disable = 0;
   EXPECT_EQ(fpgaSetUmsgAttributes(dev_, enable), FPGA_OK);
   EXPECT_EQ(fpgaSetUmsgAttributes(dev_, disable), FPGA_OK);
 }
 
-INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_p, 
+INSTANTIATE_TEST_CASE_P(DISABLED_umsg_c, DISABLED_umsg_c_p, 
                         ::testing::ValuesIn(test_platform::platforms({ "skx-p"})));
 
-class umsg_c_mock_p: public umsg_c_p{
+class DISABLED_umsg_c_mock_p: public DISABLED_umsg_c_p{
   protected:
-    umsg_c_mock_p() {};
+    DISABLED_umsg_c_mock_p() {};
 };
 /**
  * @test       trigger
@@ -208,7 +208,7 @@ class umsg_c_mock_p: public umsg_c_p{
  *             fpgaTriggerUmsg is called with a valid value,<br>
  *             then the fn returns FPGA_OK.<br>
  */
-TEST_P(umsg_c_mock_p, trigger) {
+TEST_P(DISABLED_umsg_c_mock_p, trigger) {
   uint64_t enable  = 0xff;
   uint64_t disable = 0;
   EXPECT_EQ(fpgaSetUmsgAttributes(dev_, enable), FPGA_OK);
@@ -223,7 +223,7 @@ TEST_P(umsg_c_mock_p, trigger) {
  *             fpgaGetUmsgPtr is called with a valid value,<br>
  *             then the fn returns FPGA_OK.<br>
  */
-TEST_P(umsg_c_mock_p, get_ptr) {
+TEST_P(DISABLED_umsg_c_mock_p, get_ptr) {
   uint64_t enable  = 0xff;
   uint64_t disable = 0;
   uint64_t *umsg_ptr = nullptr;
@@ -233,6 +233,6 @@ TEST_P(umsg_c_mock_p, get_ptr) {
   EXPECT_EQ(fpgaSetUmsgAttributes(dev_, disable), FPGA_OK);
 }
 
-INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_mock_p, 
+INSTANTIATE_TEST_CASE_P(umsg_c, DISABLED_umsg_c_mock_p, 
                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p"})));
 

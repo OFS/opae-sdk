@@ -11,8 +11,8 @@
 
 The OPAE SDK has been tested on the following configurations.
 
-* Hardware: Intel(R) FPGA Programmable Acceleration Cards: Arria(R) 10 GX, D5005, and N3000.
-* Operating System: Tested on Fedora 31, with Linux kernel 5.7.
+* Hardware: Intel(R) FPGA Programmable Acceleration Cards: Arria(R) 10 GX, N3000.
+* Operating System: Tested on Fedora 32, with Linux kernel 5.8.
 * Arria&reg 10 GX FPGA FIM version: 1.0.3 (1.0 Production)
 
 ## How to download the OPAE SDK ##
@@ -20,202 +20,140 @@ The OPAE SDK has been tested on the following configurations.
 OPAE SDK releases are available on [GitHub](https://github.com/OPAE/opae-sdk/releases).
 Source code for the OPAE DFL device driver for Linux is also available on [GitHub](https://github.com/OPAE/linux-dfl).
 
-The various componentes of OPAE are available via the following compressed tar files and RPM packages.
+## Install the Fedora 32 ##
+Download the Fedora 32 (x86_64 version) installation file in [fedora](https://getfedora.org/en/workstation/download/), and install the Fedora 32 in yourserver. You can choose Fedora Workstation or Fedora server.
 
-* Source packages for the SDK and the drivers
+## Build the kernel and DFL drivers ##
 
-```console
-opae-sdk-<release>.tar.gz                   (BSD License)   (all src for libopae-c, tools, samples, headers and ASE)
-opae-sdk-<release>.zip                      (BSD License)   (ZIP archive, same content as opae-sdk-<release>.tar.gz)
-opae-intel-fpga-driver-<release>.tar.gz     (GPLv2 License) (driver sources)
-```
-
-* Binary package for the drivers
+For building the OPAE kernel and kernel driver, the kernel development environment is required. So before you build the kernel, you must install the required packages. Run the following commands:
 
 ```console
-opae-intel-fpga-drv-<release>-1.x86_64.rpm  (GPLv2 License) (dkms and driver src to generate \*.ko at installation)
+$ sudo yum install gcc gcc-c++ make kernel-headers kernel-devel elfutils-libelf-devel ncurses-devel openssl-devel bison flex
 ```
 
-## Software requirements ##
+Download the OPAE upstream kernel tree from github.
+```console
+$ git clone https://github.com/OPAE/linux-dfl.git -b fpga-upstream-dev-5.8.0
+```
 
-For building the kernel driver, the kernel development environment is required.
+Configure the kernel.
+```console
+$ cd linux-dfl
+$ cp /boot/config-`uname -r` .config
+$ cat configs/n3000_d5005_defconfig >> .config 
+$ echo 'CONFIG_LOCALVERSION="-dfl"' >> .config
+$ echo 'CONFIG_LOCALVERSION_AUTO=y' >> .config
+$ make olddefconfig
+```
 
-* gcc                       >= 4.8.5
-* cmake                     >= 2.8
-* dkms.noarch              (Release is tested with 2.2.0.3-34)
+Compile and install the new kernel.
+```console
+$ make -j
+$ sudo make modules_install
+$ sudo make install
+```
 
-For building libopae-c, tools and samples, the following dependences are required:
+When installed finished, reboot your system.
+When the system login again, check the kernel version is correctly or not.
+```console
+[figo@localhost linux-dfl]$ uname -a
+Linux localhost.localdomain 5.8.0-rc1-dfl-g73e16386cda0 #6 SMP Wed Aug 19 08:38:32 EDT 2020 x86_64 x86_64 x86_64 GNU/Linux
+```
 
-* libuuid-devel.x86\_64:   (tested with 2.23.2-33.el7)
-* libuuid.x86\_64:         (tested with 2.23.2-33.el7)
-* json-c-devel.x86\_64:    json-c-devel-0.11-4.el7\_0.x86\_64.rpm
-* json-c.x86\_64:          (tested with 0.11-4.el7\_0)
-* cmake.x86\_64:           (tested with 2.8.12.2-2.el7)
-* libhwloc.x86\_64
+And also you can check the OPAE dfl drivers have auto-loaded or not.
+```console
+[figo@localhost linux-dfl]$ lsmod | grep fpga
+ifpga_sec_mgr          20480  1 intel_m10_bmc_secure
+fpga_region            20480  3 dfl_fme_region,dfl_fme,dfl
+fpga_bridge            24576  4 dfl_fme_region,fpga_region,dfl_fme,dfl_fme_br
+fpga_mgr               16384  4 dfl_fme_region,fpga_region,dfl_fme_mgr,dfl_fme
+[figo@localhost linux-dfl]$ lsmod | grep dfl
+dfl_eth_group          36864  0
+dfl_fme_region         20480  0
+dfl_emif               16384  0
+dfl_n3000_nios         20480  0
+dfl_fme_br             16384  0
+dfl_fme_mgr            20480  1
+dfl_fme                49152  0
+dfl_afu                36864  0
+dfl_pci                20480  0
+dfl                    40960  7 dfl_pci,dfl_fme,dfl_fme_br,dfl_eth_group,dfl_n3000_nios,dfl_afu,dfl_emif
+fpga_region            20480  3 dfl_fme_region,dfl_fme,dfl
+fpga_bridge            24576  4 dfl_fme_region,fpga_region,dfl_fme,dfl_fme_br
+fpga_mgr               16384  4 dfl_fme_region,fpga_region,dfl_fme_mgr,dfl_fme
+```
 
-## OPAE SDK build/installation from OPAE SDK source ##
-Using the following command to untar the source tar ball:
+## Build the OPAE-SDK ##
+Before you build the kernel, you must install the required packages. Run the following commands:
 
 ```console
-$ tar zxvf opae-sdk-<release>.tar.gz
+$ sudo yum install cmake libuuid libuuid-devel json-c python3-devel python3-libs json-c-devel hwloc-devel uuid python3-pip python3-virtualenv tbb-devel rpm-build
 ```
 
-Following directory shall be created at the working directory where the above command is executed.
-
-* `opae-sdk-<release>`
-
-Build the OPAE C library (libopae-c), samples, tools, and the AFU Simulation Environment (ASE)
-library (libopae-c-ase) with the following commands:
-
+Download the OPAE-SDK source code from github.
 ```console
-$ cd opae-sdk-<release>
-$ mkdir mybuild
-$ cd mybuild
-$ cmake .. -DOPAE_BUILD_SIM=ON
-$ make
+$ git clone https://github.com/OPAE/opae-sdk.git
 ```
 
-By default, the OPAE SDK will install into `/usr/local` if you also issue the following:
-
+Compile and build the OPAE-SDK.
 ```console
-$ make install
+$ cd opae-sdk
+$ mkdir build
+$ cmake  ..  -DCPACK_GENERATOR=RPM -DOPAE_BUILD_LEGACY=ON
+$ make -j
+$ make -j package_rpm
 ```
-
-You can change this installation prefix from `/usr/local` into something else
-by adding `-DCMAKE_INSTALL_PREFIX=<new prefix>` to the `cmake` command above.
-
-Please see Quick Start Guide on how to run the hello\_fpga sample to verify
-libopae-c and driver are built correctly.
-
-## Building python distributions for tools ##
-
-The tools that can be built with python distutils are:
- - packager
- - fpgaflash
- - fpgadiag
-
+After compile successful, there are 8 rpm packages generated.
 ```console
-$ cd opae-sdk-<release>
-$ mkdir mybuild
-$ cd mybuild
-$ cmake .. -DOPAE_BUILD_PYTHON_DIST=ON
-$ make <toolname>-dist
+opae-2.0.0-1.x86_64.rpm
+opae-devel-2.0.0-1.x86_64.rpm
+opae-libs-2.0.0-1.x86_64.rpm
+opae-opae.admin-2.0.0-1.x86_64.rpm
+opae-PACSign-2.0.0-1.x86_64.rpm
+opae-tests-2.0.0-1.x86_64.rpm
+opae-tools-2.0.0-1.x86_64.rpm
+opae-tools-extra-2.0.0-1.x86_64.rpm
 ```
-The python distributions will be available in mybuild/<tools-directory>/<toolname>/stage/dist
-
-## Building OPAE SDK rpm and deb packages from the source ##
-In addition to building and installation from the source, users can also
-generate rpm and deb packages for the SDK. The generated packages can then be
-distributed to other users for easy installation. The advantage of this approach
-is that the other users do not need to have the build toolchain on their
-systems to install the OPAE SDK.
-
-* To build rpm packages follow these steps:
-
-```console
-$ cd opae-sdk-<release>
-$ mkdir mybuild
-$ cd mybuild
-$ cmake .. -DOPAE_BUILD_SIM=ON -DCPACK_GENERATOR=RPM -DCMAKE_INSTALL_PREFIX=<desired install location>
-$ make package_rpm
-```
-.. note::
-```
-Note: Providing CMAKE_INSTALL_PREFIX is optional, by default the install prefix will be /usr.
-```
-This will generate the following rpm packages.
-
-```console
-opae-<release>.x86_64.rpm               (meta package)
-opae-libs-<release>.x86_64.rpm          (libopae-c and samples)
-opae-tools-<release>.x86_64.rpm         (base tools)
-opae-tools-extra-<release>.x86_64.rpm   (extra tools)
-opae-devel-<release>.x86_64.rpm         (headers)
-opae-ase-<release>.x86_64.rpm           (libopae-c-ase)
-```
-
-* To build deb packages follow these steps:
-
- .. note::
-  ```
-  Note: For generating deb packages, cmake version 3.0.0 and above is required.
-  ```
-
-```console
-$ cd opae-sdk-<release>
-$ mkdir mybuild
-$ cd mybuild
-$ cmake .. -DOPAE_BUILD_SIM=ON -DCPACK_GENERATOR=DEB -DCMAKE_INSTALL_PREFIX=<desired install location>
-$ make package_deb
-```
-.. note::
-```
-Note: Providing CMAKE_INSTALL_PREFIX is optional, by default the install prefix will be /usr.
-```
-This will generate the following deb packages.
-
-```console
-opae-libs-<release>.x86_64.deb          (libopae-c and samples)
-opae-tools-<release>.x86_64.deb         (tools)
-opae-tools-extra-<release>.x86_64.deb   (tools)
-opae-devel-<release>.x86_64.deb         (headers)
-opae-ase-<release>.x86_64.deb           (libopae-c-ase)
-```
-
 ## OPAE SDK installation with rpm packages ##
-The rpm packages generated in the previous step can be installed
-using these commands:
+The rpm packages generated in the previous step can be installed using these commands:
 
 ```console
-$ sudo yum install opae-<release>.x86_64.rpm
 $ sudo yum install opae-libs-<release>.x86_64.rpm
 $ sudo yum install opae-tools-<release>.x86_64.rpm
 $ sudo yum install opae-tools-extra-<release>.x86_64.rpm
 $ sudo yum install opae-devel-<release>.x86_64.rpm
-$ sudo yum install opae-ase-<release>.x86_64.rpm
+$ sudo yum install opae-<release>.x86_64.rpm
+$ sudo yum install opae-opae.admin-<release>.x86_64.rpm
+$ sudo yum install opae-PACSign-<release>.x86_64.rpm
+$ sudo yum install opae-tests-<release>.x86_64.rpm
 ```
-
-```eval_rst
-.. note:
-    If you want to install all the packages, you can also do:
-    $ sudo yum install opae-*.rpm
-```
-To uninstall:
-
+When you installed the rpms, you can use fpgainfo command to check the FPGA FME infomation.
 ```console
-$ sudo yum remove opae
+[figo@localhost install_guide]$ fpgainfo fme
+Board Management Controller, MAX10 NIOS FW version: D.2.1.24
+Board Management Controller, MAX10 Build version: D.2.0.7
+//****** FME ******//
+Object Id                        : 0xEF00000
+PCIe s:b:d.f                     : 0000:08:00.0
+Device Id                        : 0x0B30
+Socket Id                        : 0x00
+Ports Num                        : 01
+Bitstream Id                     : 0x2300011001030F
+Bitstream Version                : 0.2.3
+Pr Interface Id                  : f3c99413-5081-4aad-bced-07eb84a6d0bb
+Boot Page                        : user
+```
+
+To uninstall the OPAE rpms, you can use this commands
+```console
 $ sudo yum remove opae-libs
 $ sudo yum remove opae-tools
 $ sudo yum remove opae-tools-extra
 $ sudo yum remove opae-devel
-$ sudo yum remove opae-ase
-```
-
-## OPAE SDK installation with deb packages ##
-The deb packages generated in the previous step can be installed
-using these commands:
-
-```console
-$ sudo dpkg -i opae-libs-<release>.x86_64.deb
-$ sudo dpkg -i opae-tools-<release>.x86_64.deb
-$ sudo dpkg -i opae-tools-extra-<release>.x86_64.deb
-$ sudo dpkg -i opae-devel-<release>.x86_64.deb
-$ sudo dpkg -i opae-ase-<release>.x86_64.deb
-```
-
-```eval_rst
-.. note:
-    If you want to install all the packages, you can also do:
-    $ sudo dpkg -i opae-*.deb
-```
-To uninstall:
-
-```console
-$ sudo dpkg -r opae-libs
-$ sudo dpkg -r opae-tools
-$ sudo dpkg -r opae-tools-extra
-$ sudo dpkg -r opae-devel
-$ sudo dpkg -r opae-ase
+$ sudo yum remove opae
+$ sudo yum remove opae-opae.admin
+$ sudo yum remove opae-PACSign
+$ sudo yum remove opae-tests
 ```
 
 ## FPGA Device Access Permissions ##

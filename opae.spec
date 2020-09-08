@@ -7,7 +7,7 @@ ExclusiveArch:  x86_64
 
 Group:          Development/Libraries
 Vendor:         Intel Corporation
-Requires:       uuid, json-c, python
+Requires:       uuid, json-c, python3
 URL:            https://github.com/OPAE/%{name}-sdk
 Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-1/%{name}.tar.gz
 
@@ -18,10 +18,16 @@ BuildRequires:  json-c-devel
 BuildRequires:  libuuid-devel
 BuildRequires:  rpm-build
 BuildRequires:  hwloc-devel
-BuildRequires:  python-sphinx
+BuildRequires:  python3-sphinx
 BuildRequires:  doxygen
 BuildRequires:  systemd-rpm-macros
 BuildRequires:  systemd
+BuildRequires:  pybind11-devel
+BuildRequires:  python3-setuptools
+BuildRequires:  tbb-devel
+BuildRequires:  git
+BuildRequires:  python3-pip
+BuildRequires:  python3-virtualenv
 
 %description
 Open Programmable Acceleration Engine (OPAE) is a software framework
@@ -58,7 +64,7 @@ rm -rf _build
 mkdir _build
 cd _build
 
-%cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+%cmake .. -DCMAKE_INSTALL_PREFIX=/usr -B $PWD
 
 %make_build  opae-c \
          bitstream \
@@ -68,13 +74,24 @@ cd _build
          hello_cxxcore \
          board_a10gx \
          board_n3000 \
+         board_d5005 \
          fpgaconf \
+         fpgametrics \
          fpgainfo \
          userclk \
          object_api \
          hello_fpga \
          hello_events \
-         mmlink
+         bist_app\
+         fpga_dma_N3000_test\
+         fpga_dma_test\
+         opae-c++-utils\
+         opae-c++-nlb\
+         nlb0\
+         nlb3\
+         nlb7\
+         mmlink 
+
 
 %install
 mkdir -p %{buildroot}%{_datadir}/opae
@@ -127,29 +144,50 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=samplebin -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=libopaeheaders -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolpackager -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolmmlink -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaeboardlib -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgametrics -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolbist_app -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpga_dma_test -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpga_dma_N3000_test -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgabist -P cmake_install.cmake
 
+
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxutils -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxnlb -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgadiagapps -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgadiag -P cmake_install.cmake
+
+
+prev=$PWD
+pushd %{_topdir}/BUILD/opae/python/opae.admin/
+%{__python3} setup.py install --single-version-externally-managed  --root=%{buildroot} --record=$prev/INSTALLED_OPAE_ADMIN_FILES
+popd
+
+pushd %{_topdir}/BUILD/opae/python/pacsign
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} --record=$prev/INSTALLED_PACSIGN_FILES
+popd
+
+pushd %{_topdir}/BUILD/opae/tools/extra/fpgadiag/
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} --record=$prev/INSTALLED_FPGADIAG_FILES
+popd
 
 %files
 %dir %{_datadir}/opae
 %doc %{_datadir}/opae/RELEASE_NOTES.md
 %license %{_datadir}/opae/LICENSE
 %license %{_datadir}/opae/COPYING
+
 %{_libdir}/libopae-c.so.%{version}
 %{_libdir}/libopae-c.so.1
-%{_libdir}/libopae-c.so
-
 %{_libdir}/libbitstream.so.%{version}
 %{_libdir}/libbitstream.so.1
-%{_libdir}/libbitstream.so
-
 %{_libdir}/libopae-cxx-core.so.%{version}
 %{_libdir}/libopae-cxx-core.so.1
-%{_libdir}/libopae-cxx-core.so
-
-
-%{_libdir}/opae/libxfpga.so*
-%{_libdir}/opae/libmodbmc.so*
-
+%{_libdir}/libopae-c++-utils.so.%{version}
+%{_libdir}/libopae-c++-utils.so.1
+%{_libdir}/libopae-c++-nlb.so.%{version}
+%{_libdir}/libopae-c++-nlb.so.1
 
 
 %files devel
@@ -164,7 +202,38 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
 
 %{_libdir}/opae/libboard_a10gx.so*
 %{_libdir}/opae/libboard_n3000.so*
-
+%{_libdir}/opae/libboard_d5005.so*
+%{_libdir}/libopae-c++-nlb.so
+%{_libdir}/libopae-cxx-core.so
+%{_libdir}/libopae-c++-utils.so
+%{_libdir}/libopae-c.so
+%{_libdir}/libbitstream.so
+%{_libdir}/opae/libxfpga.so*
+%{_libdir}/opae/libmodbmc.so*
+%{_bindir}/bist_app*
+%{_bindir}/bist_common.py*
+%{_bindir}/bist_dma.py*
+%{_bindir}/bist_def.py*
+%{_bindir}/bist_nlb3.py*
+%{_bindir}/bist_nlb0.py*
+%{_bindir}/fpgabist*
+%{_bindir}/nlb0*
+%{_bindir}/nlb3*
+%{_bindir}/nlb7*
+%{_bindir}/fecmode*
+%{_bindir}/fpgamac*
+%{_bindir}/fvlbypass*
+%{_bindir}/mactest*
+%{_bindir}/fpgadiag*
+%{_bindir}/fpgalpbk*
+%{_bindir}/fpgastats*
+%{_bindir}/bitstreaminfo*
+%{_bindir}/fpgaflash*
+%{_bindir}/fpgaotsu*
+%{_bindir}/fpgaport*
+%{_bindir}/fpgasupdate*
+%{_bindir}/rsu*
+%{_bindir}/super-rsu*
 %{_bindir}/fpgaconf
 %{_bindir}/fpgainfo
 %{_bindir}/mmlink
@@ -175,8 +244,15 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
 %{_bindir}/hello_cxxcore
 %{_bindir}/afu_json_mgr
 %{_bindir}/packager
+%{_bindir}/fpgametrics
+%{_bindir}/fpga_dma_N3000_test
+%{_bindir}/fpga_dma_test
+%{_bindir}/PACSign
 
 %{_usr}/share/opae/*
+/usr/lib/python*
+%{_datadir}/doc/opae.admin/LICENSE
+%{_libdir}/python*
 
 
 %changelog

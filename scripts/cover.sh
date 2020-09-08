@@ -27,7 +27,7 @@ lcov -c -i -d . -o coverage.base 2> /dev/null
 LD_LIBRARY_PATH=${PWD}/lib \
 CTEST_OUTPUT_ON_FAILURE=1 \
 OPAE_EXPLICIT_INITIALIZE=1 \
-ctest -j 4 --timeout 180
+ctest --timeout 180
 
 find . \( -iname "*.gcda" -or -iname "*.gcno" \) -exec chmod 664 '{}' \;
 

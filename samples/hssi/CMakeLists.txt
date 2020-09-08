@@ -31,16 +31,14 @@ opae_add_executable(TARGET hssi
     LIBS
         opae-c
         opae-cxx-core
-    COMPONENT samplehssi
+    COMPONENT sampleshssi
 )
+
+target_compile_options(hssi PUBLIC -Wno-unused-result)
 
 target_include_directories(hssi
     PRIVATE
-        ${CMAKE_SOURCE_DIR}/external/CLI11/include
-)
-
-opae_external_project_add(PROJECT_NAME CLI11
-                          GIT_URL https://github.com/CLIUtils/CLI11.git
-                          GIT_TAG v1.9.1
-                          NO_ADD_SUBDIRECTORY
+        ${CLI11_ROOT}/include
+        ${spdlog_ROOT}/include
+        ${CMAKE_SOURCE_DIR}/samples/dummy_afu
 )

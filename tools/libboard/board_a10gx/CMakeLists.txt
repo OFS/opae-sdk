@@ -31,3 +31,7 @@ opae_add_module_library(TARGET board_a10gx
         opae-c
     COMPONENT opaeboardlib
 )
+target_include_directories(board_a10gx
+    PRIVATE
+        ${OPAE_SDK_SOURCE}/libboard/board_common
+)

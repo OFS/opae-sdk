@@ -23,24 +23,45 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include <iostream>
-#include <CLI/CLI.hpp>
+#pragma once
+#include "hssi_cmd.h"
 
-#include "mmio.h"
-#include "lpbk.h"
-#include "ddr.h"
-
-#include "dummy_afu.h"
-
-const char *AFU_ID = "91c2a3a1-4a23-4e21-a7cd-2b36dbf2ed73";
 using namespace opae::app;
 
-int main(int argc, char* argv[])
+class hssi_100g_cmd : public hssi_cmd
 {
-  dummy_afu::dummy_afu app;
-  app.register_command<dummy_afu::mmio_test>();
-  app.register_command<dummy_afu::ddr_test>();
-  app.register_command<dummy_afu::lpbk_test>();
-  return app.main(argc, argv);
-}
+public:
+  hssi_100g_cmd()
+  {}
 
+  virtual const char *name() const override
+  {
+    return "hssi_100g";
+  }
+
+  virtual const char *description() const override
+  {
+    return "hssi 100G test\n";
+  }
+
+  virtual void add_options(CLI::App *app) override
+  {
+    (void)app;
+  }
+
+  virtual int run(test_afu *afu, CLI::App *app) override
+  {
+    (void)afu;
+    (void)app;
+    return test_afu::not_run;
+  }
+
+  virtual const char *afu_id() const override
+  {
+    return "823c334c-98bf-11ea-bb37-0242ac130002";
+  }
+
+protected:
+
+
+};
