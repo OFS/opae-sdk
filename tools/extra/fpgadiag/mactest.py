@@ -31,6 +31,8 @@ import argparse
 import binascii
 import sys
 import glob
+import eth_group
+from eth_group import *
 from common import FpgaFinder, exception_quit, COMMON, hexint
 
 SYSF_IF = '/sys/class/net'
@@ -61,14 +63,7 @@ class MacromCompare(COMMON):
         if len(m) > 4:
             return os.sep.join(m[:-4])
 
-    def get_netif_number(self):
-        info = self.get_eth_group_info(self.args.eth_grps)
-        for grp in info:
-            if grp == HOST_SIDE:
-                self.number, _, spd, node = info[grp]
-
     def get_if_and_mac_list(self):
-        self.get_netif_number()
         pci_root = self.get_pci_common_root_path(self.args.fpga_root)
         ifs = os.listdir(SYSF_IF)
         for i in ifs:
@@ -150,16 +145,16 @@ class MacromCompare(COMMON):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--segment', '-S',  type=hexint,
+    parser.add_argument('--segment', '-S', type=hexint,
                         help='Segment number of PCIe device')
-    parser.add_argument('--bus', '-B',  type=hexint,
+    parser.add_argument('--bus', '-B', type=hexint,
                         help='Bus number of PCIe device')
-    parser.add_argument('--device', '-D',  type=hexint,
+    parser.add_argument('--device', '-D', type=hexint,
                         help='Device number of PCIe device')
-    parser.add_argument('--function', '-F',  type=hexint,
+    parser.add_argument('--function', '-F', type=hexint,
                         help='Function number of PCIe device')
     parser.add_argument('--offset',
-                        default='0',  type=hexint,
+                        default='0', type=hexint,
                         help='read mac address from a offset address')
     parser.add_argument('--debug', '-d', action='store_true',
                         help='Output debug information')
@@ -181,14 +176,14 @@ def main():
                                     'bitstream_id', depth=3)
 
     mac_addrs = glob.glob(os.path.join(devs[0].get('path'),
-                                       'intel-fpga-fme.*', 'spi-altera*',
+                                       'dfl-fme*', 'dfl-fme*', '*spi*',
                                        'spi_master', 'spi*', 'spi*',
                                        'mac_address'))
     args.mac_addr = None
     if len(mac_addrs) > 0:
         args.mac_addr = mac_addrs[0]
     mac_cnts = glob.glob(os.path.join(devs[0].get('path'),
-                                      'intel-fpga-fme.*', 'spi-altera*',
+                                      'dfl-fme*', 'dfl-fme*', '*spi*',
                                       'spi_master', 'spi*', 'spi*',
                                       'mac_count'))
     args.mac_cnt = None
@@ -207,13 +202,6 @@ def main():
         if len(nvmem_path) > 1 and args.debug:
             s = 'multi nvmem found, select {} to do mactest'.format(args.nvmem)
             print(s)
-
-    args.eth_grps = f.find_node(devs[0].get('path'), 'eth_group*/dev', depth=4)
-    if not args.eth_grps:
-        exception_quit('No ethernet group found')
-    for g in args.eth_grps:
-        if args.debug:
-            print('ethernet group device: {}'.format(g))
 
     m = MacromCompare(args)
     m.start()
