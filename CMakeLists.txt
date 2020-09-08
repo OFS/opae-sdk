@@ -29,3 +29,7 @@ cmake_minimum_required(VERSION 2.8.12)
 project(opae-test)
 
 add_subdirectory(framework)
+
+configure_file(test_opae.py
+    ${CMAKE_BINARY_DIR}/test_opae.py
+    )
