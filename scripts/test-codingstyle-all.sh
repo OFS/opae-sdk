@@ -141,7 +141,7 @@ check_py () {
     fi
 
     echo -e "\n===== pylint -E ====="
-    $PYLINT -E -f parseable --ignore=__init__.py --ignore-patterns="test_.*.py" $FILES
+    $PYLINT -E -f parseable --disable=E0401 --ignore=__init__.py --ignore-patterns="test_.*.py" $FILES
     if [ $? -ne 0 ]; then
 	    echo "test-codingstyle-py FAILED"
 	    popd >/dev/null
