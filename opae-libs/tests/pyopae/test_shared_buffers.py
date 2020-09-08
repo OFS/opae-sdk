@@ -32,7 +32,7 @@ class TestSharedBuffer(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.system = mockopae.test_system()
-        cls.platform = mockopae.test_platform.get("skx-p")
+        cls.platform = mockopae.test_platform.get("dfl-n3000")
         cls.system.initialize()
         cls.system.prepare_sysfs(cls.platform)
         opae.fpga.initialize(None)

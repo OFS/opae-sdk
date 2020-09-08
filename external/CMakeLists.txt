@@ -26,6 +26,34 @@
 
 cmake_minimum_required(VERSION 2.8.12)
 
+set(CLI11_URL
+    https://github.com/CLIUtils/CLI11.git
+    CACHE STRING "URL for CLI11 Project")
+set(CLI11_TAG
+    v1.9.1
+    CACHE STRING "Tag for CLI11")
+
+opae_external_project_add(PROJECT_NAME CLI11
+                          GIT_URL ${CLI11_URL}
+                          GIT_TAG ${CLI11_TAG}
+                          PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
+                          NO_ADD_SUBDIRECTORY
+)
+
+set(SPDLOG_URL
+    https://github.com/gabime/spdlog.git
+    CACHE STRING "URL for spdlog Project")
+set(SPDLOG_TAG
+    v1.7.0
+    CACHE STRING "Tag for spdlog")
+
+opae_external_project_add(PROJECT_NAME spdlog
+                          GIT_URL ${SPDLOG_URL}
+                          GIT_TAG ${SPDLOG_TAG}
+                          PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
+                          NO_ADD_SUBDIRECTORY
+)
+
 if(OPAE_BUILD_LEGACY)
     opae_external_project_add(PROJECT_NAME opae-legacy
                               GIT_URL https://github.com/OPAE/opae-legacy.git
