@@ -123,13 +123,15 @@ try_compile(SUPPORTS_VFIO
 )
 
 if (SUPPORTS_VFIO)
-    pybind11_add_module(eth_group eth_group.cpp)
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
+       set_source_files_properties(eth_group.cpp  PROPERTIES COMPILE_FLAGS -fno-lto)
+    endif()
+    pybind11_add_module(eth_group THIN_LTO  eth_group.cpp)
 else(SUPPORTS_VFIO)
     message(WARNING
         "Could not compile VFIO. See errors in vfio_errors.txt")
     file(WRITE ${CMAKE_BINARY_DIR}/vfio_errors.txt ${TRY_COMPILE_OUTPUT})
 endif(SUPPORTS_VFIO)
-
 
 CREATE_PYTHON_EXE(fpgalpbk fpgalpbk ${fpgalpbksrc})
 install(PROGRAMS ${PACKAGER_BIN}
