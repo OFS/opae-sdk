@@ -279,7 +279,7 @@ fpga_result mac_command(fpga_token *tokens, int num_tokens, int argc,
 	(void)argc;
 	(void)argv;
 	fpga_result res = FPGA_OK;
-	fpga_properties props;
+	fpga_properties props = NULL;
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
@@ -397,7 +397,7 @@ fpga_result phy_command(fpga_token *tokens, int num_tokens, int argc,
 	(void)argc;
 	(void)argv;
 	fpga_result res = FPGA_OK;
-	fpga_properties props;
+	fpga_properties props = NULL;
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
@@ -567,7 +567,7 @@ fpga_result sec_command(fpga_token *tokens, int num_tokens, int argc,
 	(void)argc;
 	(void)argv;
 	fpga_result res = FPGA_OK;
-	fpga_properties props;
+	fpga_properties props = NULL;
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {

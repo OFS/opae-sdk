@@ -108,7 +108,14 @@ struct eth_group_mac {
 
 class eth_group {
 public:
-	eth_group() { }
+	eth_group(): direction(0), phy_num(0),
+				group_id(0), speed(0),
+				df_id(0), eth_lwmac(0),
+				ptr_(NULL), container(0),
+				group(0), device(0),
+				reg_size(0), reg_offset(0),
+				mmap_ptr(NULL) { }
+
 	~eth_group() {}
 
 	int eth_group_open(int vfio_id, std::string fpga_mdev_str);
