@@ -208,11 +208,7 @@ bool eth_group::mac_reset()
 // Close eth group
 int eth_group::eth_group_close(void)
 {
-	struct vfio_iommu_spapr_register_memory reg;
 	struct vfio_iommu_type1_dma_unmap dma_unmap;
-
-	memset(&reg, 0, sizeof(reg));
-	reg.argsz = sizeof(reg);
 
 	memset(&dma_unmap, 0, sizeof(dma_unmap));
 	dma_unmap.argsz = sizeof(struct vfio_iommu_type1_dma_unmap);
