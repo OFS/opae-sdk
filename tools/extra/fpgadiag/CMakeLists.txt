@@ -116,8 +116,11 @@ target_include_directories(_opae
     PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 
-pybind11_add_module(eth_group eth_group.cpp)
+if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
+  set_source_files_properties(eth_group.cpp  PROPERTIES COMPILE_FLAGS -fno-lto)
+endif()
 
+pybind11_add_module(eth_group THIN_LTO  eth_group.cpp)
 
 CREATE_PYTHON_EXE(fpgalpbk fpgalpbk ${fpgalpbksrc})
 install(PROGRAMS ${PACKAGER_BIN}
