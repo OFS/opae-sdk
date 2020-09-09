@@ -62,7 +62,7 @@ bus_num=$BUS_NUM
 
 found=$(lspci -D | grep $FPGA_N3000_DEVICE_ID)
 echo "PCIe fpga: $found"
-fpga_n3000_count=$(lspci -D | grep 0b2b | wc -l)
+fpga_n3000_count=$(lspci -D | grep $FPGA_N3000_DEVICE_ID | wc -l)
 echo "PCIe found_count:$fpga_n3000_count"
 
 if [ $fpga_n3000_count -eq 0 ]; then
