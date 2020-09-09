@@ -66,10 +66,6 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - name: Download Build Artifacts
-      uses: actions/download-artifact@v2
-      with:
-        name: build
     - name: update
       run: sudo apt-get update -y
     - name: Get Packages
@@ -85,6 +81,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install pytest pytest-xdist
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Download Build Artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: build
+    - name: Make tests executable
+      run: |
+        chmod a+x bin/*
     - name: set hugepages
       run: sudo sysctl -w vm.nr_hugepages=8
     - name: run unit tests
