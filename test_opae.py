@@ -26,6 +26,7 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+import os
 import pytest
 import subprocess
 
@@ -44,15 +45,22 @@ def get_pytests():
         yield str(f)
 
 
+def run(*args, **kwargs):
+    kwargs['env'] = os.environ
+
+    exit_code = subprocess.check_call(*args, **kwargs)
+    assert exit_code == 0
+
+
 @pytest.mark.parametrize(
     'test_exec', list(get_gtests())
 )
 def test_opae(test_exec):
-    subprocess.run([test_exec])
+    run([test_exec])
 
 
 @pytest.mark.parametrize(
     'test_py', list(get_pytests())
 )
 def test_pyopae(test_py):
-    subprocess.run(['./bin/test_pyopae', 'test', test_py])
+    run(['./bin/test_pyopae', 'test', test_py])
