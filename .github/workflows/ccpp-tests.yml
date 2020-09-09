@@ -76,6 +76,15 @@ jobs:
       uses: mstksg/get-package@v1
       with:
         apt-get: uuid libjson-c-dev libhwloc5 lcov libtbb2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install Python packages
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-xdist
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: set hugepages
       run: sudo sysctl -w vm.nr_hugepages=8
     - name: run unit tests
@@ -87,12 +96,11 @@ jobs:
       run: |
         lcov --directory . --zerocounters
         lcov -c -i -d . -o coverage.base 2> /dev/null
-        ctest -j 4 --timeout 180
+        pytest test_opae.py -n $(nproc)
         find . \( -iname "*.gcda" -or -iname "*.gcno" \) -exec chmod 664 '{}' \;
         lcov --directory . --capture --output-file coverage.info 2> /dev/null
         lcov -a coverage.base -a coverage.info --output-file coverage.total
         lcov --remove coverage.total '/usr/**' '*external/opae-test/**' '*opae-libs/libopaecxx/samples/**' '*opae-libs/tests/**' '*opae-libs/pyopae/**' '*opae-libs/plugins/xfpga/usrclk/**' '*tests/**' '*tools/extra/c++utils/**' '*tools/extra/mmlink/**' '*tools/extra/fpgabist/**' '*tools/extra/fpgadiag/**' '*pybind11/**' '*external/CLI11/**' '*external/spdlog/**' --output-file coverage.info.cleaned
-
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
