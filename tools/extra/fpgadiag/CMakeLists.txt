@@ -107,7 +107,7 @@ set(fecmodesrc common.py
 
 set(fpgamacsrc common.py
                fpgamac.py)
-               
+
 find_package(PythonLibs)
 include_directories(${PYTHON_INCLUDE_DIRS})
 
@@ -116,11 +116,22 @@ target_include_directories(_opae
     PRIVATE ${PYTHON_INCLUDE_DIRS})
 
 
-if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
-  set_source_files_properties(eth_group.cpp  PROPERTIES COMPILE_FLAGS -fno-lto)
-endif()
+try_compile(SUPPORTS_VFIO
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_vfio.c
+    OUTPUT_VARIABLE TRY_COMPILE_OUTPUT
+)
 
-pybind11_add_module(eth_group THIN_LTO  eth_group.cpp)
+if (SUPPORTS_VFIO)
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
+       set_source_files_properties(eth_group.cpp  PROPERTIES COMPILE_FLAGS -fno-lto)
+    endif()
+    pybind11_add_module(eth_group THIN_LTO  eth_group.cpp)
+else(SUPPORTS_VFIO)
+    message(WARNING
+        "Could not compile VFIO. See errors in vfio_errors.txt")
+    file(WRITE ${CMAKE_BINARY_DIR}/vfio_errors.txt ${TRY_COMPILE_OUTPUT})
+endif(SUPPORTS_VFIO)
 
 CREATE_PYTHON_EXE(fpgalpbk fpgalpbk ${fpgalpbksrc})
 install(PROGRAMS ${PACKAGER_BIN}
