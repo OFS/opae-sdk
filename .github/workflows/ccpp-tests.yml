@@ -79,7 +79,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: "3.6"
     - name: Install Python packages
       run: |
         python -m pip install --upgrade pip
@@ -96,7 +96,7 @@ jobs:
       run: |
         lcov --directory . --zerocounters
         lcov -c -i -d . -o coverage.base 2> /dev/null
-        pytest test_opae.py -n $(nproc)
+        python -m pytest test_opae.py -n $(nproc)
         find . \( -iname "*.gcda" -or -iname "*.gcno" \) -exec chmod 664 '{}' \;
         lcov --directory . --capture --output-file coverage.info 2> /dev/null
         lcov -a coverage.base -a coverage.info --output-file coverage.total
