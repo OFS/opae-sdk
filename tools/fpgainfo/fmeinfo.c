@@ -144,16 +144,15 @@ out_destroy:
 
 static void print_fme_info(fpga_token token)
 {
-	fpga_properties props;
+	fpga_properties props = NULL;
 	fpga_result res = FPGA_OK;
 	res = fpgaGetProperties(token, &props);
-	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
+	ON_FPGAINFO_ERR_GOTO(res, out_exit,
 			     "Failure reading properties from token");
 
 	fpgainfo_board_info(token);
 	fpgainfo_print_common("//****** FME ******//", props);
 
-out_destroy:
 	res = fpgaDestroyProperties(&props);
 	ON_FPGAINFO_ERR_GOTO(res, out_exit,
 			     "destroying properties");
