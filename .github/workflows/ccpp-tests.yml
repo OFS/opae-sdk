@@ -88,6 +88,7 @@ jobs:
     - name: Make tests executable
       run: |
         chmod a+x bin/*
+        mv test_opae.py opae_test.py
     - name: set hugepages
       run: sudo sysctl -w vm.nr_hugepages=8
     - name: run unit tests
@@ -99,7 +100,7 @@ jobs:
       run: |
         lcov --directory . --zerocounters
         lcov -c -i -d . -o coverage.base 2> /dev/null
-        python -m pytest test_opae.py -n $(nproc)
+        python -m pytest opae_test.py -v -x -n $(nproc)
         find . \( -iname "*.gcda" -or -iname "*.gcno" \) -exec chmod 664 '{}' \;
         lcov --directory . --capture --output-file coverage.info 2> /dev/null
         lcov -a coverage.base -a coverage.info --output-file coverage.total
