@@ -164,8 +164,7 @@ struct pvalue {
   typedef typename std::conditional<std::is_same<T, char *>::value,
                                     typename std::string, T>::type copy_t;
 
-  pvalue()
-      : props_(0), is_set_(false), get_(nullptr), set_(nullptr), copy_() {}
+  pvalue() : props_(0), is_set_(false), get_(nullptr), set_(nullptr), copy_() {}
 
   /**
    * @brief pvalue contructor that takes in a reference to fpga_properties
