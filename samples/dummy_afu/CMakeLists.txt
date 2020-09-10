@@ -24,32 +24,6 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-set(CLI11_URL
-    https://github.com/CLIUtils/CLI11.git
-    CACHE STRING "URL for CLI11 Project")
-set(CLI11_TAG
-    v1.9.1
-    CACHE STRING "Tag to checkout for CLI11")
-
-set(SPDLOG_URL
-    https://github.com/gabime/spdlog.git
-    CACHE STRING "URL for SPDLOG Project")
-set(SPDLOG_TAG
-    v1.7.0
-    CACHE STRING "Tag to checkout for SPDLOG")
-
-opae_external_project_add(PROJECT_NAME CLI11
-                          GIT_URL ${CLI11_URL}
-                          GIT_TAG ${CLI11_TAG}
-                          NO_ADD_SUBDIRECTORY
-)
-
-opae_external_project_add(PROJECT_NAME spdlog
-                          GIT_URL ${SPDLOG_URL}
-                          GIT_TAG ${SPDLOG_TAG}
-                          NO_ADD_SUBDIRECTORY
-)
-
 include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
     ${CLI11_ROOT}/include
