@@ -72,7 +72,7 @@ fpga_result bmc_filter(fpga_properties *filter, int argc, char *argv[])
 
 static void print_bmc_info(fpga_token token)
 {
-	fpga_properties props;
+	fpga_properties props = NULL;
 	fpga_metric_info metrics_info[METRICS_MAX_NUM];
 	fpga_metric metrics[METRICS_MAX_NUM] = { { 0 } };
 	uint64_t num_metrics;
