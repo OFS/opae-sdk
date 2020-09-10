@@ -87,9 +87,17 @@ xfpga_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 
 	// Init MMIO table
 	_handle->mmio_root = wsid_tracker_init(4);
+	if (NULL == _handle->mmio_root) {
+		result = FPGA_NO_MEMORY;
+		goto out_free1;
+	}
 
 	// Init workspace table
 	_handle->wsid_root = wsid_tracker_init(16384);
+	if (NULL == _handle->wsid_root) {
+		result = FPGA_NO_MEMORY;
+		goto out_free2;
+	}
 
 	// Init metric enum
 	_handle->metric_enum_status = false;
@@ -151,7 +159,9 @@ out_attr_destroy:
 
 out_free:
 	wsid_tracker_cleanup(_handle->wsid_root, NULL);
+out_free2:
 	wsid_tracker_cleanup(_handle->mmio_root, NULL);
+out_free1:
 	free(_handle);
 
 	if (-1 != fddev) {
