@@ -58,7 +58,7 @@ extensions = [
               extra_link_args=["-std=c++11"],
               include_dirs=[
                   "@CMAKE_INSTALL_PREFIX@/include",
-                  os.environ.get("OPAE_INCLUDE_DIR", ""),
+                  os.environ.get("OPAE_INCLUDE_DIR", "../../../external/pybind11/include"),
                   "@PYBIND11_INCLUDE_DIR@",
                   "@PYTHON_INCLUDE_DIRS@"
                   #pybind_include_dirs(),
