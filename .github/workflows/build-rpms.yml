@@ -3,7 +3,7 @@ name: Build RPMs
 on: [push]
 
 jobs:
-  centos7.6:
+  centos7_6:
     runs-on: ubuntu-latest
     name: CentOS 7.6
     steps:
