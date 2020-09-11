@@ -106,6 +106,7 @@ popd
 
 pushd @CMAKE_SOURCE_DIR@/tools/extra/fpgadiag/
 
+%{__python3} setup.py build_ext --include-dirs=@pybind11_ROOT@
 %{__python3} setup.py build
 popd
 
