@@ -21,7 +21,7 @@ jobs:
           #!/bin/bash
           mkdir centos7.6
           cd centos7.6
-          cmake .. -DOPAE_BUILD_LEGACY=ON -DOPAE_PYTHON_VERSION=3.6
+          cmake .. -DCPACK_GENERATOR=RPM -DOPAE_BUILD_LEGACY=ON -DOPAE_PYTHON_VERSION=3.6
           make package_rpm
           EOF
           chmod a+x ./buildit.sh
