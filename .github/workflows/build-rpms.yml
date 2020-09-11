@@ -16,7 +16,7 @@ jobs:
           WORKDIR /root
           ENTRYPOINT [ "/bin/bash", "-c" ]
           EOF
-          docker build -t opae-centos7.6
+          docker build . -t opae-centos7.6
           cat << 'EOF' > buildit.sh
           mkdir centos7.6
           cd centos7.6
