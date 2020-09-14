@@ -133,7 +133,7 @@ class FpgaFinder(object):
             one, group_id = os.path.split(regex.findall(path)[0])
             fpga_path = glob.glob(os.path.join(
                                   root,
-                                  'dfl-fme*/dfl-fme*/',
+                                  'dfl**/dfl*/',
                                   guid))
             if len(fpga_path) == 0:
                 continue
@@ -170,12 +170,6 @@ class COMMON(object):
             ret = eth_group_inst.eth_group_open(int(values[0]), values[1])
             if ret != 0:
                 return None
-            print("direction:", eth_group_inst.direction)
-            print("speed    :", eth_group_inst.speed)
-            print("phy_num  :", eth_group_inst.direction)
-            print("group_id :", eth_group_inst.direction)
-            print("df_id    :", eth_group_inst.df_id)
-            print("eth_lwmac:", eth_group_inst.eth_lwmac)
             self.mac_lightweight \
                 = \
                 self.mac_lightweight \
