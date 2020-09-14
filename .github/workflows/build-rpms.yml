@@ -1,6 +1,7 @@
 name: Build RPMs
 
 on:
+  push:
   workflow_dispatch:
   schedule:
     - cron: '0 22 * * *'
