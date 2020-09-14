@@ -3,8 +3,7 @@ name: Build RPMs
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 17 * * *'
-
+    - cron: '0 22 * * *'
 jobs:
   RPM:
     strategy:
