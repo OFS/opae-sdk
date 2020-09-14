@@ -14,7 +14,7 @@ jobs:
       - name: Build Docker image
         run: docker build . -f docker/${{ matrix.distro }}/Dockerfile -t opae-${{ matrix.distro }}
       - name: Build RPM
-        run: docker run --rm -v ${{ github.workspace }}:/root opae-${{ matrix.distro }} ./docker/buildit.sh ${{ matrix.distro }}
+        run: docker run --rm -v ${{ github.workspace }}:/root opae-${{ matrix.distro }} ${{ matrix.distro }}
       - name: Upload Artifact
         uses: actions/upload-artifact@v2.1.4
         with:
