@@ -17,11 +17,11 @@ OPAE\'s goal is to accelerate FPGA adoption. It is a community effort to simplif
 More information about OPAE can be found
 at http://01.org/OPAE.
 
-Open Programmable Acceleration Engine (OPAE) 1.4.0 Release Notes
+Open Programmable Acceleration Engine (OPAE) 2.0.0 Release Notes
 -----------------------------------------------------------------
 
 This document provides the Release Notes for the Open Programmable
-Acceleration Engine (OPAE) 1.4.0 release.
+Acceleration Engine (OPAE) 2.0.0 release.
 
 System Compatibility
 --------------------
@@ -29,10 +29,29 @@ System Compatibility
 -   Hardware: tightly coupled FPGA products and programmable FPGA
     acceleration cards for Intel(R) Xeon(R) processors:
     - Intel(R) PAC with Arria(R) 10 GX FPGA (PCI ID: 0x09c4) FIM version 1.1.2-1 (1.2 Production)
-    - Intel(R) Xeon with Integrated FPGA (PCI ID: 0xbcc0) FIM version 6.4.0
-    - Intel® FPGA Programmable Acceleration Card N3000 (PCI ID: 0x0b30) FIM version D.1.0.13 (1.0 Production)
+    - Intel® FPGA Programmable Acceleration Card N3000 (PCI ID: 0x0b30) FIM version 2.0.12 (2.0 Production)
+    - Intel® FPGA Programmable Acceleration Card D5005 (PCI ID: 0x0b2b) FIM version 2.0.12 (2.0 Production)
+    
+-   Operating System: Tested on Fedora 31  with Linux Kernel 5.8 version.
 
--   Operating System: Tested on RedHat 7.6, CentOS 7.6  with Linux Kernel 3.10 and the community 4.19 LTS kernels.
+
+Major Changes from 1.4.0 to 2.0.0
+----------------------------------
+
+- Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set3,set4 and set5.
+- Added support to both PAC card N3000 & D5005 cards.
+- Added pacsingn, bitstreaminfo, fpgasudpate, rsu  python tools.
+- Added ethernet tools for PAC card N3000.
+- Various bug fixes
+- Various memory leak fixes
+- Various Static code scan bug fixes
+
+- OPAE 2.0.0 tested on Fedora 31  with Linux Kernel 5.8 version.
+
+- FPGA DFL Linux driver source code available in Linux 5.8 kernel
+   - https://github.com/OPAE/linux-dfl/tree/fpga-upstream-dev-5.8.0
+
+
 
 Major Changes from 1.3.0 to 1.4.0
 ----------------------------------
