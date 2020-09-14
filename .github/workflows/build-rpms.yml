@@ -3,33 +3,22 @@ name: Build RPMs
 on: [push]
 
 jobs:
-  centos7_6:
+  RPM:
+    strategy:
+      matrix:
+        distro: [centos7.6, fedora32]
     runs-on: ubuntu-latest
-    name: CentOS 7.6
+    name: Build ${{ matrix.distro }}
     steps:
       - uses: actions/checkout@v2
-      - name: Docker
-        run: |
-          cat << 'EOF' > Dockerfile
-          FROM centos:7.6.1810
-          RUN yum install -y python-devel python3 python3-pip python3-devel python3-pybind11 cmake make libuuid-devel json-c-devel gcc clang gcc-c++  vim hwloc-devel tbb-devel gdb doxygen python-sphinx fontawesome-fonts fontawesome-fonts-web python3-breathe python3-recommonmark python3-sphinx_rtd_theme fedora-review rpm-build rpmdevtools git
-          WORKDIR /root
-          ENTRYPOINT [ "/bin/bash", "-c" ]
-          EOF
-          docker build . -t opae-centos7.6
-          cat << 'EOF' > buildit.sh
-          #!/bin/bash
-          mkdir centos7.6
-          cd centos7.6
-          cmake .. -DCPACK_GENERATOR=RPM -DOPAE_BUILD_LEGACY=ON -DOPAE_PYTHON_VERSION=3.6
-          make package_rpm
-          EOF
-          chmod a+x ./buildit.sh
-          docker run --rm -v ${{ github.workspace }}:/root opae-centos7.6 ./buildit.sh
+      - name: Build Docker image
+        run: docker build . -f docker/${{ matrix.distro }}/Dockerfile -t opae-${{ matrix.distro }}
+      - name: Build RPM
+        run: docker run --rm -v ${{ github.workspace }}:/root opae-${{ matrix.distro }} ./docker/buildit.sh ${{ matrix.distro }}
       - name: Upload Artifact
         uses: actions/upload-artifact@v2.1.4
         with:
-          name: OPAE-CentOS-7.6
+          name: OPAE-${{ matrix.distro }}
           path:
-            centos7.6/*.rpm
+            ${{ matrix.distro }}/*.rpm
 
