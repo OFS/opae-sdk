@@ -106,6 +106,7 @@ popd
 
 pushd @CMAKE_SOURCE_DIR@/tools/extra/fpgadiag/
 
+%{__python3} setup.py build_ext --include-dirs=@pybind11_ROOT@/include
 %{__python3} setup.py build
 popd
 
@@ -131,6 +132,8 @@ popd
 pushd @CMAKE_SOURCE_DIR@/tools/extra/fpgadiag/
 %{__python3} setup.py install --single-version-externally-managed -O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_FPGADIAG_FILES
 popd
+
+install -m 755 @CMAKE_SOURCE_DIR@/scripts/eth_group_mdev.sh %{buildroot}/usr/bin/eth_group_mdev.sh
 
 %clean
 
@@ -242,10 +245,12 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libhssi*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c++-nlb.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c++-utils.so*
+@CMAKE_INSTALL_PREFIX@/bin/eth_group_mdev.sh
 %dir @CMAKE_INSTALL_PREFIX@/share/opae
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/python/
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/python/*
 @CMAKE_INSTALL_PREFIX@/share/opae/python/*
+
 
 %if %with_ase == "ON"
 %files ase
