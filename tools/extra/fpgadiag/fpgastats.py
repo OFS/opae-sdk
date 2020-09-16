@@ -369,9 +369,9 @@ class FPGASTATS(COMMON):
 
     def eth_stats(self):
         eth_paths = glob.glob(os.path.join(self.fpga_root,
-                              'dfl-fme*/dfl-fme*/net/*'))
+                              'dfl*/dfl*/net/*'))
         for filepath in glob.glob(os.path.join(self.fpga_root,
-                                  'dfl-fme*/dfl-fme*/net/*')):
+                                  'dfl*/dfl*/net/*')):
             print(filepath)
             eth_name = filepath.split("/net/")
             print("------------------------------")
@@ -422,7 +422,7 @@ def main():
 
     args.sbdf = '{segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**devs[0])
     bitstream_id_path = f.find_node(devs[0].get('path'),
-                                    'dfl-fme*/bitstream_id', depth=1)
+                                    'dfl*/bitstream_id', depth=1)
     with open(bitstream_id_path[0], 'r') as fd:
         bitstream_id = fd.read().strip()
     args.build_flags = (int(bitstream_id, 16) >> 24) & 0xff
