@@ -1,6 +1,6 @@
 Summary:        Open Programmable Acceleration Engine (OPAE) SDK
 Name:           opae
-Version:        1.4.0
+Version:        2.0.0
 Release:        1%{?dist}
 License:        BSD
 ExclusiveArch:  x86_64
@@ -28,6 +28,7 @@ BuildRequires:  tbb-devel
 BuildRequires:  git
 BuildRequires:  python3-pip
 BuildRequires:  python3-virtualenv
+BuildRequires:  systemd-rpm-macros
 
 %description
 Open Programmable Acceleration Engine (OPAE) is a software framework
@@ -64,7 +65,7 @@ rm -rf _build
 mkdir _build
 cd _build
 
-%cmake .. -DCMAKE_INSTALL_PREFIX=/usr -B $PWD
+%cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_PRESERVE_REPOS=ON -DOPAE_BUILD_LEGACY=ON -B $PWD
 
 %make_build  opae-c \
          bitstream \
@@ -90,7 +91,10 @@ cd _build
          nlb0\
          nlb3\
          nlb7\
-         mmlink 
+         mmlink\
+         fpgad\
+         fpgad-api\
+         fpgad-vc\
 
 
 %install
@@ -157,7 +161,9 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxutils -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxnlb -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgadiagapps -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgadiag -P cmake_install.cmake
-
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad_api -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad_vc -P cmake_install.cmake
 
 prev=$PWD
 pushd %{_topdir}/BUILD/opae/python/opae.admin/
@@ -168,9 +174,18 @@ pushd %{_topdir}/BUILD/opae/python/pacsign
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} --record=$prev/INSTALLED_PACSIGN_FILES
 popd
 
-pushd %{_topdir}/BUILD/opae/tools/extra/fpgadiag/
-%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} --record=$prev/INSTALLED_FPGADIAG_FILES
+pushd %{_topdir}/BUILD/opae/scripts
+install -m 755 eth_group_mdev.sh %{buildroot}/usr/bin/eth_group_mdev.sh
 popd
+
+%post
+%systemd_post fpgad.service
+
+%preun
+%systemd_preun fpgad.service
+
+%postun
+%systemd_postun_with_restart fpgad.service
 
 %files
 %dir %{_datadir}/opae
@@ -179,15 +194,15 @@ popd
 %license %{_datadir}/opae/COPYING
 
 %{_libdir}/libopae-c.so.%{version}
-%{_libdir}/libopae-c.so.1
+%{_libdir}/libopae-c.so.2
 %{_libdir}/libbitstream.so.%{version}
-%{_libdir}/libbitstream.so.1
+%{_libdir}/libbitstream.so.2
 %{_libdir}/libopae-cxx-core.so.%{version}
-%{_libdir}/libopae-cxx-core.so.1
+%{_libdir}/libopae-cxx-core.so.2
 %{_libdir}/libopae-c++-utils.so.%{version}
-%{_libdir}/libopae-c++-utils.so.1
+%{_libdir}/libopae-c++-utils.so.2
 %{_libdir}/libopae-c++-nlb.so.%{version}
-%{_libdir}/libopae-c++-nlb.so.1
+%{_libdir}/libopae-c++-nlb.so.2
 
 
 %files devel
@@ -248,14 +263,31 @@ popd
 %{_bindir}/fpga_dma_N3000_test
 %{_bindir}/fpga_dma_test
 %{_bindir}/PACSign
+%{_bindir}/fpgad
+/etc/opae/fpgad.cfg
+/etc/sysconfig/fpgad.conf
+%{_libdir}/libfpgad-api.so*
+%{_libdir}/opae/libfpgad-vc.so*
+/usr/lib/systemd/system/fpgad.service
+%{_bindir}/eth_group_mdev.sh
+
 
 %{_usr}/share/opae/*
 /usr/lib/python*
 %{_datadir}/doc/opae.admin/LICENSE
-%{_libdir}/python*
+
 
 
 %changelog
+* Tue Dec 17 2019  Ananda Ravuri <ananda.ravuri@intel.com> 2.0.0-1
+- Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set3,set4 and set5.
+- Added support to both PAC card N3000 & D5005 cards.
+- Added pacsingn, bitstreaminfo, fpgasudpate, rsu  python tools.
+- Added ethernet tools for PAC card N3000.
+- Various bug fixes
+- Various memory leak fixes
+- Various Static code scan bug fixes
+
 * Tue Dec 17 2019 Korde Nakul <nakul.korde@intel.com> 1.4.0-1
 - Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set2.
 - Increased test cases and test coverage
