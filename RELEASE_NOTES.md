@@ -2,7 +2,7 @@ Open Programmable Acceleration Engine (OPAE) is a software framework for managin
 
 -   OPAE Software Development Kit (OPAE SDK),
 
--   OPAE Linux driver for Intel(R) Xeon(R) CPU with Integrated FPGAs and Intel(R) PAC with Arria(R) 10 GX FPGA
+-   OPAE Linux DFL driver for Intel® FPGA Programmable Acceleration Card
 
 -   Basic Building Block (BBB) library for accelerating AFU
     development (not part of this release, but pre-release code is
@@ -17,22 +17,70 @@ OPAE\'s goal is to accelerate FPGA adoption. It is a community effort to simplif
 More information about OPAE can be found
 at http://01.org/OPAE.
 
-Open Programmable Acceleration Engine (OPAE) 1.4.0 Release Notes
------------------------------------------------------------------
 
-This document provides the Release Notes for the Open Programmable
-Acceleration Engine (OPAE) 1.4.0 release.
+
+Open Programmable Acceleration Engine (OPAE) 2.0.0 Release Notes
+----------------------------------------------------------------------------------------------------------------------
+
+OPAE 2.0.0 release provides SDK, tools, and Linux kernel driver.  The main feature of this release is to support Intel®  FPGA Programmable Acceleration Card N3000 series.
 
 System Compatibility
 --------------------
+-   Hardware: Tightly coupled FPGA products and programmable FPGA  acceleration cards for Intel(R) Xeon(R) processors:
+- IntelÂ® FPGA Programmable Acceleration Card N3000-2 Production Release
+- IntelÂ® FPGA Programmable Acceleration Card N3000-V Production Release
+- IntelÂ® FPGA Programmable Acceleration Card N3000-3 Production Release
 
--   Hardware: tightly coupled FPGA products and programmable FPGA
-    acceleration cards for Intel(R) Xeon(R) processors:
-    - Intel(R) PAC with Arria(R) 10 GX FPGA (PCI ID: 0x09c4) FIM version 1.1.2-1 (1.2 Production)
-    - Intel(R) Xeon with Integrated FPGA (PCI ID: 0xbcc0) FIM version 6.4.0
-    - Intel® FPGA Programmable Acceleration Card N3000 (PCI ID: 0x0b30) FIM version D.1.0.13 (1.0 Production)
 
--   Operating System: Tested on RedHat 7.6, CentOS 7.6  with Linux Kernel 3.10 and the community 4.19 LTS kernels.
+Major Changes from 1.4.1 to 2.0.0
+---------------------------------
+- Added support to FPGA Linux kernel Device Feature List (DFL) driver.
+- Added support to PAC card N3000 series.
+- Added PACSign, bitstream_info, fpgasudpate, rsu, fpgaotsu, fpgaport  python tools.
+- Added ethernet tools for PAC card N3000.
+- Various bug fixes
+- Various Static code scan bug fixes
+- Added python3 support.
+- OPAE USMG API are deprecated.
+- Updated OPAE documentation.   
+
+-   Operating System: Tested on Fedora 31 with Linux Kernel 5.8 version.
+
+Source Code:
+------------
+-   FPGA DFL Linux driver source code:  tag  2.0.0-1
+- https://github.com/OPAE/linux-dfl/tree/fpga-upstream-dev-5.8.0
+
+-   SDK and tools source code:  tag 2.0.0-1
+- https://github.com/OPAE/opae-sdk/tree/release/2.0.0
+- https://github.com/OPAE/opae-libs/tree/release/2.0.0
+- https://github.com/OPAE/opae-legacy/tree/release/2.0.0
+- https://github.com/OPAE/opae-sim/tree/release/2.0.0
+- https://github.com/OPAE/opae-test/tree/release/2.0.0
+
+Notes/Known Issues
+------------------
+- FPGA DFL kernel driver upstreaming to Linux kernel is on going
+- OPAE 2.0 is not compatible with Intel previous production FPGA driver.
+
+
+Major Changes from 1.4.0 to 2.0.0
+----------------------------------
+
+- Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set3,set4 and set5.
+- Added support to both PAC card N3000 & D5005 cards.
+- Added pacsingn, bitstreaminfo, fpgasudpate, rsu  python tools.
+- Added ethernet tools for PAC card N3000.
+- Various bug fixes
+- Various memory leak fixes
+- Various Static code scan bug fixes
+
+- OPAE 2.0.0 tested on Fedora 31  with Linux Kernel 5.8 version.
+
+- FPGA DFL Linux driver source code available in Linux 5.8 kernel
+   - https://github.com/OPAE/linux-dfl/tree/fpga-upstream-dev-5.8.0
+
+
 
 Major Changes from 1.3.0 to 1.4.0
 ----------------------------------
