@@ -279,14 +279,19 @@ popd
 
 
 %changelog
-* Tue Dec 17 2019  Ananda Ravuri <ananda.ravuri@intel.com> 2.0.0-1
-- Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set3,set4 and set5.
-- Added support to both PAC card N3000 & D5005 cards.
-- Added pacsingn, bitstreaminfo, fpgasudpate, rsu  python tools.
+* Thu Sep 17 2020  Ananda Ravuri <ananda.ravuri@intel.com> 2.0.0-1
+- Various Static code scan bug fixes
+- Added support to FPGA Linux kernel Device Feature List (DFL) driver.
+- Added support to PAC card N3000 series.
+- Added PACSign, bitstream_info, fpgasudpate, rsu, fpgaotsu, fpgaport  python tools.
 - Added ethernet tools for PAC card N3000.
 - Various bug fixes
-- Various memory leak fixes
+- Various memory leak fixes.
 - Various Static code scan bug fixes
+- Added python3 support.
+- OPAE USMG API are deprecated.
+- Updated OPAE documentation.  
+
 
 * Tue Dec 17 2019 Korde Nakul <nakul.korde@intel.com> 1.4.0-1
 - Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set2.
