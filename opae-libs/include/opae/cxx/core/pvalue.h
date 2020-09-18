@@ -164,7 +164,7 @@ struct pvalue {
   typedef typename std::conditional<std::is_same<T, char *>::value,
                                     typename std::string, T>::type copy_t;
 
-  pvalue() : props_(0), is_set_(false), get_(nullptr), set_(nullptr), copy_() {}
+  pvalue() : props_(0), is_set_(false), get_(nullptr), set_(nullptr) {}
 
   /**
    * @brief pvalue contructor that takes in a reference to fpga_properties
@@ -175,7 +175,7 @@ struct pvalue {
    * @param s The setter function
    */
   pvalue(fpga_properties *p, getter_t g, setter_t s)
-      : props_(p), is_set_(false), get_(g), set_(s), copy_() {}
+      : props_(p), is_set_(false), get_(g), set_(s) {}
 
   /**
    * @brief Overload of `=` operator that calls the wrapped setter
