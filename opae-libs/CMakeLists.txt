@@ -102,12 +102,12 @@ option(OPAE_PRESERVE_REPOS "Disable refresh of external repos" OFF)
 mark_as_advanced(OPAE_PRESERVE_REPOS)
 
 if(OPAE_BUILD_TESTS)
-    option(OPAE_TEST_TAG "Desired branch for opae-test" master)
+    option(OPAE_TEST_TAG "Desired branch for opae-test" release/2.0.0)
     mark_as_advanced(OPAE_TEST_TAG)
 endif(OPAE_BUILD_TESTS)
 
 if(OPAE_BUILD_SIM)
-    option(OPAE_SIM_TAG "Desired branch for opae-sim" master)
+    option(OPAE_SIM_TAG "Desired branch for opae-sim" release/2.0.0)
     mark_as_advanced(OPAE_SIM_TAG)
 endif(OPAE_BUILD_SIM)
 
