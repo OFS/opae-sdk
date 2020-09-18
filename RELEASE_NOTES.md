@@ -39,7 +39,6 @@ Major Changes from 1.4.1 to 2.0.0
 - Added PACSign, bitstream_info, fpgasudpate, rsu, fpgaotsu, fpgaport  python tools.
 - Added ethernet tools for PAC card N3000.
 - Various bug fixes
-- Various memory leak fixes.
 - Various Static code scan bug fixes
 - Added python3 support.
 - OPAE USMG API are deprecated.
