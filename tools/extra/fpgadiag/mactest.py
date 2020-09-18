@@ -176,14 +176,14 @@ def main():
                                     'bitstream_id', depth=3)
 
     mac_addrs = glob.glob(os.path.join(devs[0].get('path'),
-                                       'dfl-fme*', 'dfl-fme*', '*spi*',
+                                       'dfl-fme*', 'dfl*', '*spi*',
                                        'spi_master', 'spi*', 'spi*',
                                        'mac_address'))
     args.mac_addr = None
     if len(mac_addrs) > 0:
         args.mac_addr = mac_addrs[0]
     mac_cnts = glob.glob(os.path.join(devs[0].get('path'),
-                                      'dfl-fme*', 'dfl-fme*', '*spi*',
+                                      'dfl-fme*', 'dfl*', '*spi*',
                                       'spi_master', 'spi*', 'spi*',
                                       'mac_count'))
     args.mac_cnt = None
