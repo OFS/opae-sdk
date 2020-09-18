@@ -1,5 +1,6 @@
 language: c
 compiler: gcc
+dist: bionic
 matrix:
   include:
   - script: scripts/test-codingstyle-all.sh
