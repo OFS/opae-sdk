@@ -27,8 +27,8 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(opae-libs)
 
-set(OPAE_VERSION_MAJOR    1 CACHE STRING "OPAE major version" FORCE)
-set(OPAE_VERSION_MINOR    4 CACHE STRING "OPAE minor version" FORCE)
+set(OPAE_VERSION_MAJOR    2 CACHE STRING "OPAE major version" FORCE)
+set(OPAE_VERSION_MINOR    0 CACHE STRING "OPAE minor version" FORCE)
 set(OPAE_VERSION_REVISION 0 CACHE STRING "OPAE revision version" FORCE)
 set(OPAE_VERSION ${OPAE_VERSION_MAJOR}.${OPAE_VERSION_MINOR}.${OPAE_VERSION_REVISION}
     CACHE STRING "OPAE version" FORCE)
@@ -102,12 +102,12 @@ option(OPAE_PRESERVE_REPOS "Disable refresh of external repos" OFF)
 mark_as_advanced(OPAE_PRESERVE_REPOS)
 
 if(OPAE_BUILD_TESTS)
-    option(OPAE_TEST_TAG "Desired branch for opae-test" master)
+    option(OPAE_TEST_TAG "Desired branch for opae-test" release/2.0.0)
     mark_as_advanced(OPAE_TEST_TAG)
 endif(OPAE_BUILD_TESTS)
 
 if(OPAE_BUILD_SIM)
-    option(OPAE_SIM_TAG "Desired branch for opae-sim" master)
+    option(OPAE_SIM_TAG "Desired branch for opae-sim" release/2.0.0)
     mark_as_advanced(OPAE_SIM_TAG)
 endif(OPAE_BUILD_SIM)
 
