@@ -36,8 +36,6 @@
 #define CSR_SRC_ADDR_HI 0x1014
 #define CSR_MLB_RST     0x1016
 
-using namespace opae::app;
-
 class hssi_100g_cmd : public hssi_cmd
 {
 public:
