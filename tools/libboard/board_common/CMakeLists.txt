@@ -27,5 +27,5 @@
 opae_add_static_library(TARGET board_common
     SOURCE board_common.c
     LIBS opae-c
-    COMPONENT opaeboardlib
+    COMPONENT opaecommboardlib
 )

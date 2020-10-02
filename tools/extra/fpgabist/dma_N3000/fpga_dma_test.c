@@ -433,7 +433,7 @@ struct bus_info {
 fpga_result get_bus_info(fpga_token tok, struct bus_info *finfo)
 {
 	fpga_result res = FPGA_OK;
-	fpga_properties props;
+	fpga_properties props = NULL;
 	res = fpgaGetProperties(tok, &props);
 	ON_ERR_GOTO(res, out, "reading properties from Token");
 
@@ -441,6 +441,7 @@ fpga_result get_bus_info(fpga_token tok, struct bus_info *finfo)
 	ON_ERR_GOTO(res, out_destroy, "Reading bus from properties");
 
 	if (res != FPGA_OK) {
+		fpgaDestroyProperties(&props);
 		return FPGA_EXCEPTION;
 	}
 
@@ -625,7 +626,7 @@ int main(int argc, char *argv[])
 	fpga_token afc_token;
 	fpga_handle afc_h;
 	fpga_guid guid;
-	uint32_t num_matches = 1;
+	uint32_t num_matches = 0;
 	volatile uint64_t *mmio_ptr = NULL;
 	uint64_t *dma_buf_ptr = NULL;
 	uint32_t use_ase;
@@ -659,7 +660,7 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	res = find_fpga(guid, &afc_token, &num_matches);
+	find_fpga(guid, &afc_token, &num_matches);
 	if (num_matches == 0) {
 		fprintf(stderr, "No suitable slots found.\n");
 		return 1;

@@ -41,21 +41,26 @@
 #include <opae/utils.h>
 #include <opae/fpga.h>
 #include <sys/ioctl.h>
+#include <sys/types.h>
+#include <ifaddrs.h>
+#include <net/if.h>
+#include <stdlib.h>
+
 #include "../board_common/board_common.h"
 #include "board_n3000.h"
 
 // DFL SYSFS
-#define DFL_SYSFS_BMCFW_VER                  "dfl-fme*/*spi*/spi_master/spi*/spi*/bmcfw_version"
-#define DFL_SYSFS_MAX10_VER                  "dfl-fme*/*spi*/spi_master/spi*/spi*/bmc_version"
+#define DFL_SYSFS_BMCFW_VER                  "dfl*/*spi*/spi_master/spi*/spi*/bmcfw_version"
+#define DFL_SYSFS_MAX10_VER                  "dfl*/*spi*/spi_master/spi*/spi*/bmc_version"
 
-#define DFL_SYSFS_MACADDR_PATH               "dfl-fme*/*spi*/spi_master/spi*/spi*.*/mac_address"
-#define DFL_SYSFS_MACCNT_PATH                "dfl-fme*/*spi*/spi_master/spi*/spi*.*/mac_count"
+#define DFL_SYSFS_MACADDR_PATH               "dfl*/*spi*/spi_master/spi*/spi*.*/mac_address"
+#define DFL_SYSFS_MACCNT_PATH                "dfl*/*spi*/spi_master/spi*/spi*.*/mac_count"
 
-#define DFL_SYSFS_PKVL_A_SBUS_VER            "dfl-fme*/*spi*/spi_master/spi*/spi*.*/*pkvl*/A_sbus_version"
-#define DFL_SYSFS_PKVL_A_SERDES_VER          "dfl-fme*/*spi*/spi_master/spi*/spi*.*/*pkvl*/A_serdes_version"
+#define DFL_SYSFS_PKVL_A_SBUS_VER            "dfl*/*spi*/spi_master/spi*/spi*.*/*pkvl*/A_sbus_version"
+#define DFL_SYSFS_PKVL_A_SERDES_VER          "dfl*/*spi*/spi_master/spi*/spi*.*/*pkvl*/A_serdes_version"
 
-#define DFL_SYSFS_PKVL_B_SBUS_VER            "dfl-fme*/*spi*/spi_master/spi*/spi*.*/*pkvl*/B_sbus_version"
-#define DFL_SYSFS_PKVL_B_SERDES_VER          "dfl-fme*/*spi*/spi_master/spi*/spi*.*/*pkvl*/B_serdes_version"
+#define DFL_SYSFS_PKVL_B_SBUS_VER            "dfl*/*spi*/spi_master/spi*/spi*.*/*pkvl*/B_sbus_version"
+#define DFL_SYSFS_PKVL_B_SERDES_VER          "dfl*/*spi*/spi_master/spi*/spi*.*/*pkvl*/B_serdes_version"
 
 
 // driver ioctl id
@@ -67,6 +72,14 @@
 #define FPGA_PHYGROUP_MODE_4_25G              1
 #define FPGA_PHYGROUP_MODE_6_25G              3
 #define FPGA_PHYGROUP_MODE_2_2_25G            4
+
+#define ETHTOOL_STR              "ethtool"
+#define IFCONFIG_STR             "ifconfig"
+#define IFCONFIG_UP_STR          "up"
+#define FPGA_ETHINTERFACE_NAME   "npac"
+#define DFL_ETHINTERFACE         "dfl-fme*/net/npac*"
+
+
 
 // Read BMC firmware version
 fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
@@ -295,10 +308,79 @@ fpga_result print_board_info(fpga_token token)
 	return res;
 }
 
+// prints FPGA ethernet interface info
+fpga_result print_eth_interface_info(fpga_token token)
+{
+	fpga_result res                = FPGA_NOT_FOUND;
+	struct if_nameindex *if_nidxs  = NULL;
+	struct if_nameindex *intf      = NULL;
+	char cmd[SYSFS_PATH_MAX]       = { 0 };
+	int result                     = 0;
+	fpga_object fpga_object;
+
+	if_nidxs = if_nameindex();
+	if (if_nidxs != NULL) {
+		for (intf = if_nidxs; intf->if_index != 0
+			|| intf->if_name != NULL; intf++) {
+
+			char *p = strstr(intf->if_name, FPGA_ETHINTERFACE_NAME);
+			if (p) {
+				// Check interface associated to bdf
+				res = fpgaTokenGetObject(token, DFL_ETHINTERFACE,
+					&fpga_object, FPGA_OBJECT_GLOB);
+				if (res != FPGA_OK) {
+					OPAE_ERR("Failed to get token Object");
+					continue;
+				}
+				res = fpgaDestroyObject(&fpga_object);
+				if (res != FPGA_OK) {
+					OPAE_ERR("Failed to Destroy Object");
+				}
+
+				// Interface up
+				memset(cmd, 0, sizeof(cmd));
+				if (snprintf(cmd, sizeof(cmd),
+					"%s %s %s", IFCONFIG_STR, intf->if_name,
+					IFCONFIG_UP_STR) < 0) {
+					OPAE_ERR("snprintf failed");
+					res = FPGA_EXCEPTION;
+					goto out_free;
+				}
+				result = system(cmd);
+				if (result < 0) {
+					res = FPGA_EXCEPTION;
+					OPAE_ERR("Failed to run cmd: %s  %s",
+						cmd, strerror(errno));
+				}
+				// eth tool command
+				memset(cmd, 0, sizeof(cmd));
+				if (snprintf(cmd, sizeof(cmd),
+					"%s %s", ETHTOOL_STR, intf->if_name) < 0) {
+					OPAE_ERR("snprintf failed");
+					res = FPGA_EXCEPTION;
+					goto out_free;
+				}
+				result = system(cmd);
+				if (result < 0) {
+					res = FPGA_EXCEPTION;
+					OPAE_ERR("Failed to run cmd: %s  %s", cmd,
+						strerror(errno));
+				}
+
+			}
+		}
+
+out_free:
+		if_freenameindex(if_nidxs);
+	}
+
+	return res;
+}
+
 // print phy group information
 fpga_result print_phy_info(fpga_token token)
 {
-	fpga_result res                            = FPGA_OK;
+	fpga_result res           = FPGA_OK;
 
 	res = print_pkvl_version(token);
 	if (res != FPGA_OK) {
@@ -306,6 +388,11 @@ fpga_result print_phy_info(fpga_token token)
 		return res;
 	}
 
+	res = print_eth_interface_info(token);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to read phy group count");
+		return res;
+	}
 
 	return res;
 

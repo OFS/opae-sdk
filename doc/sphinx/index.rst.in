@@ -50,7 +50,6 @@ The main documentation for the site is organized into following sections:
    :glob:
    :caption: OPAE FPGA Tools
 
-   docs/fpga_tools/fpgabist/fpgabist
    docs/fpga_tools/fpgaconf/fpgaconf
    docs/fpga_tools/fpgad/fpgad
    docs/fpga_tools/fpgadiag/README

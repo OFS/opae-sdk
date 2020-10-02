@@ -190,7 +190,7 @@ PYBIND11_MODULE(_opae, m) {
   pytoken.def("__getattr__", token_get_sysobject, sysobject_doc_token_get())
       .def("__getitem__", token_get_sysobject, sysobject_doc_token_get())
       .def("find", token_find_sysobject, sysobject_doc_token_find(),
-           py::arg("name"), py::arg("flags") = 0);
+           py::arg("name"), py::arg("flags") = FPGA_OBJECT_GLOB);
 
   // define handle class
   m.def("open", handle_open, handle_doc_open(), py::arg("tok"),
@@ -214,7 +214,7 @@ PYBIND11_MODULE(_opae, m) {
       .def("__getattr__", handle_get_sysobject, sysobject_doc_handle_get())
       .def("__getitem__", handle_get_sysobject, sysobject_doc_handle_get())
       .def("find", handle_find_sysobject, sysobject_doc_handle_find(),
-           py::arg("name"), py::arg("flags") = 0);
+           py::arg("name"), py::arg("flags") = FPGA_OBJECT_GLOB);
 
   // define shared_buffer class
   m.def("allocate_shared_buffer", shared_buffer_allocate,

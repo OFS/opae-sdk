@@ -90,6 +90,7 @@ check_py () {
     FILES=$(find . -iname "*.py" -not -name "test_fpgadiag.py" \
 	    -not -name "cpplint.py" \
 	    -not -name "setup.py" \
+	    -not -name "buildit.py" \
 	    -not -path "./doc/*" \
 	    -not -path "./tools/extra/packager/jsonschema-2.3.0/*" \
 	    -not -path  "./opae-libs/pyopae/pybind11/*" \
@@ -140,7 +141,7 @@ check_py () {
     fi
 
     echo -e "\n===== pylint -E ====="
-    $PYLINT -E -f parseable --ignore=__init__.py --ignore-patterns="test_.*.py" $FILES
+    $PYLINT -E -f parseable --disable=E0401 --ignore=__init__.py --ignore-patterns="test_.*.py" $FILES
     if [ $? -ne 0 ]; then
 	    echo "test-codingstyle-py FAILED"
 	    popd >/dev/null

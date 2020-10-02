@@ -34,6 +34,7 @@ opae_test_add_static_lib(TARGET dummy_afu-static
 target_compile_definitions(dummy_afu-static
     PRIVATE main=dummy_afu_main
 )
+target_compile_options(dummy_afu-static PUBLIC -Wno-unused-result)
 
 target_include_directories(dummy_afu-static
     PRIVATE
@@ -50,6 +51,7 @@ opae_test_add(TARGET test_dummy_afu
     TEST_FPGAD
 )
 
+target_compile_options(test_dummy_afu PUBLIC -Wno-unused-result)
 target_include_directories(test_dummy_afu
     PRIVATE
         ${CMAKE_SOURCE_DIR}/external/CLI11/include

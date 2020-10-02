@@ -37,52 +37,41 @@ For more information about ASE, see the [OPAE AFU Simulation Environment
 The source for the OPAE SDK Linux device drivers is available at the
 [OPAE Linux DFL drivers repository](https://github.com/OPAE/linux-dfl).
 
-## Installing the OPAE SDK from rpm or deb packages ##
-See the [OPAE Installation Guide](/fpga-doc/docs/fpga_api/install_guide/installation_guide.html)
-for information about OPAE RPM and DEB packages.
-Assuming the packages are already downloaded and exist in the current folder,
-then use the commands below to install the OPAE library, tools, and development
-headers.
+``
+## Build the OPAE Linux device drivers from source ##
+For building the OPAE kernel and kernel driver, the kernel development environment is required. So before you build the kernel, you must install the required packages. Run the following commands:
 
-For rpm packages:
-
+We using Federa 32 as an example.
 ```console
-$ sudo yum install opae-libs-<release>.x86_64.rpm
-$ sudo yum install opae-tools-<release>.x86_64.rpm
-$ sudo yum install opae-tools-extra-<release>.x86_64.rpm
-$ sudo yum install opae-devel-<release>.x86_64.rpm
-$ sudo yum install opae-ase-<release>.x86_64.rpm
+$ sudo yum install gcc gcc-c++ make kernel-headers kernel-devel elfutils-libelf-devel ncurses-devel openssl-devel bison flex
 ```
 
-For deb packages:
-
+Download the OPAE upstream kernel tree from github.
 ```console
-$ sudo dpkg -i opae-libs-<release>.x86_64.deb
-$ sudo dpkg -i opae-tools-<release>.x86_64.deb
-$ sudo dpkg -i opae-tools-extra-<release>.x86_64.deb
-$ sudo dpkg -i opae-devel-<release>.x86_64.deb
-$ sudo dpkg -i opae-ase-<release>.x86_64.deb
+$ git clone https://github.com/OPAE/linux-dfl.git -b fpga-upstream-dev-5.8.0
 ```
 
-To use OPAE in the simulation environment, you also need to install the AFU
-Simulation Environment (ASE) package:
-
-rpm:
-
+Configure the kernel.
 ```console
-$ sudo yum install opae-ase-<release>.x86_64.rpm
-```
-deb:
-
-```console
-$ sudo dpkg -i opae-<release>.x86_64-ase.deb
+$ cd linux-dfl
+$ cp /boot/config-`uname -r` .config
+$ cat configs/n3000_d5005_defconfig >> .config 
+$ echo 'CONFIG_LOCALVERSION="-dfl"' >> .config
+$ echo 'CONFIG_LOCALVERSION_AUTO=y' >> .config
+$ make olddefconfig
 ```
 
-```eval_rst
-.. note:
-    If you want to install all the packages, you can also do:
-    rpm: $ sudo yum install opae-*.rpm
-    deb: $ sudo dpkg -i opae-*.deb
+Compile and install the new kernel.
+```console
+$ make -j
+$ sudo make modules_install
+$ sudo make install
+```
+When installed finished, reboot your system.
+When the system login again, check the kernel version is correctly or not.
+```console
+[figo@localhost linux-dfl]$ uname -a
+Linux localhost.localdomain 5.8.0-rc1-dfl-g73e16386cda0 #6 SMP Wed Aug 19 08:38:32 EDT 2020 x86_64 x86_64 x86_64 GNU/Linux
 ```
 
 ## Building and installing the OPAE SDK from source ##
@@ -97,14 +86,14 @@ After downloading the source, unpack, configure, and compile it:
     cd opae-sdk-<release>
     mkdir build
     cd build
-    cmake .. -DOPAE_BUILD_SIM=ON
+    cmake ..
     make
 ```
 
 By default, the OPAE SDK will install into `/usr/local` if you also issue the following:
 
 ```console
-    make install
+    sudo make install
 ```
 
 You can change this installation prefix from `/usr/local` into something else
@@ -112,6 +101,7 @@ by adding `-DCMAKE_INSTALL_PREFIX=<new prefix>` to the `cmake` command above.
 The remainder of this guide assumes you installed into `/usr/local`.
 
 ## Configuring the FPGA (loading an FPGA AFU)##
+
 
 The *fpgaconf* tool exercises the AFU reconfiguration
 functionality. It shows how to read a bitstream from a disk file,
@@ -159,6 +149,11 @@ Usage:
     $ cat /sys/class/fpga_region/region0/dfl-port.0/afu_id
 
     d8424dc4a4a3c413f89e433683f9040b
+```
+```eval_rst
+.. note::
+    The fpgaconf tool is not available for the Intel PAC N3000. The NLB is
+    alrealy include in AFU.
 ```
 
 ## Building a sample application ##
@@ -374,6 +369,19 @@ $ gcc -std=c99 hello_fpga.c -I/usr/local/include -L/usr/local/lib -lopae-c -luui
     Third-party library dependency: The library internally uses
     `libuuid` and `libjson-c`. But they are not distributed as part of the
     library. Make sure you have these libraries properly installed.
+```
+
+```eval_rst
+.. note:
+    The layout of AFU is difference between the N3000 card and Rush Creek/Darby Creek.
+    In N3000 card, the NLB and DMA are contained in the AFU, so we need to do enumeration again in AFU to discover the NLB
+    To run the hello_fpga application on N3000 card, it should use the `c` argument to support N3000 card.
+$ sudo ./hello_fpga -c
+    Running Test
+    Running on bus 0x08.
+    AFU NLB0 found @ 28000
+    Done Running Test
+
 ```
 To run the *hello_fpga* application; just issue:
 
