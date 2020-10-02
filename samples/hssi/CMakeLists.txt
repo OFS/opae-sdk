@@ -29,16 +29,6 @@ set(CMAKE_CXX_STANDARD 11)
 opae_add_executable(TARGET hssi
     SOURCE hssi.cpp
     LIBS
-        opae-c
-        opae-cxx-core
+        afu-test
     COMPONENT sampleshssi
-)
-
-target_compile_options(hssi PUBLIC -Wno-unused-result)
-
-target_include_directories(hssi
-    PRIVATE
-        ${CLI11_ROOT}/include
-        ${spdlog_ROOT}/include
-        ${CMAKE_SOURCE_DIR}/samples/dummy_afu
 )

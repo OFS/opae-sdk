@@ -26,10 +26,10 @@
 #pragma once
 #include <chrono>
 #include <deque>
-#include "test_afu.h"
+#include "afu_test.h"
 #include "dummy_afu.h"
 
-using namespace opae::app;
+using test_afu = opae::afu_test::afu;
 namespace dummy_afu {
 
 template<class T>

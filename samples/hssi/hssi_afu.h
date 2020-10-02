@@ -30,9 +30,9 @@
 #include <exception>
 #include <glob.h>
 #include <time.h>
-#include "test_afu.h"
+#include "afu_test.h"
 
-using namespace opae::app;
+using test_afu =  opae::afu_test::afu;
 using namespace opae::fpga::types;
 
 #define ETH_AFU_DFH           0x0000
