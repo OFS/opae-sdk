@@ -24,23 +24,14 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-include_directories(
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${CLI11_ROOT}/include
-    ${spdlog_ROOT}/include
-)
-
 opae_add_executable(TARGET dummy_afu
     SOURCE dummy_afu.cpp
     LIBS
         opae-c
         opae-cxx-core
+        afu-test
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
     COMPONENT samplebin
 )
 
-target_compile_options(dummy_afu PUBLIC -Wno-unused-result)
-target_include_directories(dummy_afu
-    PRIVATE ${spdlog_ROOT}/include
-)

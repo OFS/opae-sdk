@@ -60,6 +60,7 @@ endif()
 ############################################################################
 opae_add_subdirectory(opae-libs)
 opae_add_subdirectory(external)
+opae_add_subdirectory(afu-test)
 opae_add_subdirectory(platforms)
 opae_add_subdirectory(tools)
 opae_add_subdirectory(samples)
