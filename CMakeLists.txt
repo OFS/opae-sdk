@@ -154,6 +154,7 @@ set(CPACK_COMPONENTS_ALL
 	opaecxxutils
 	opaecxxlib
 	opaecxxnlb
+  afutest
 	opaeboardlib
 	toolfpgaconf
 	toolbist_app
@@ -226,6 +227,7 @@ define_pkg(devel
   docman
   docxml
   platform
+  afutest
   samplesrc
   samplebin
   samplehssi

@@ -24,15 +24,29 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 cmake_minimum_required (VERSION 2.8)
-
 project(afu-test)
-add_library(afu-test INTERFACE)
-target_include_directories(afu-test INTERFACE
+set(afu_test_INCLUDE 
     ${OPAE_INCLUDE_PATHS}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CLI11_ROOT}/include
     ${spdlog_ROOT}/include
 )
-target_link_libraries(afu-test INTERFACE opae-c opae-cxx-core)
-target_compile_options(afu-test INTERFACE -Wno-unused-result)
+
+set(afu_test_LINK
+    opae-c opae-cxx-core
+)
+
+opae_add_shared_library(TARGET afu-test
+    SOURCE afu_test.h
+    LIBS ${afu_test_LINK}
+    VERSION ${OPAE_VERSION}
+    SOVERSION ${OPAE_VERSION_MAJOR}
+    COMPONENT afutest
+)
+set_target_properties(afu-test PROPERTIES
+    LINKER_LANGUAGE CXX 
+    INTERFACE_INCLUDE_DIRECTORIES "${afu_test_INCLUDE}"
+    INTERFACE_COMPILE_OPTIONS -Wno-unused-result
+    LINK_INTERFACE_LIBRARIES "${afu_test_LINK}"
+)
 
