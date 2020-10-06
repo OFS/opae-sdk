@@ -45,4 +45,3 @@ target_link_libraries(afu-test PUBLIC
 target_compile_options(afu-test PUBLIC
     -Wno-unused-result
 )
-

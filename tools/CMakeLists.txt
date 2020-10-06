@@ -34,11 +34,60 @@ opae_add_subdirectory(fpgainfo)
 opae_add_subdirectory(fpgametrics)
 
 # extra
-opae_add_subdirectory(extra/userclk)
-opae_add_subdirectory(extra/packager)
-opae_add_subdirectory(extra/c++utils)
-opae_add_subdirectory(extra/fpgadiag)
-opae_add_subdirectory(extra/mmlink)
-opae_add_subdirectory(extra/ras)
-opae_add_subdirectory(extra/pac_hssi_config)
-opae_add_subdirectory(extra/fpgabist)
+# Top level OPAE_BUILD_EXTRA_TOOLS controls building all the extra tools
+# Each extra tool gets its own conditional building variable
+# format is OPAE_BUILD_EXTRA_TOOLS_<TOOL_NAME>
+option(OPAE_BUILD_EXTRA_TOOLS "Enable building extra tools" ON)
+mark_as_advanced(OPAE_BUILD_EXTRA_TOOLS)
+
+option(OPAE_BUILD_EXTRA_TOOLS_USERCLK "Enable building extra tool userclk" ON)
+mark_as_advanced(OPAE_BUILD_EXTRA_TOOLS_USERCLK)
+
+option(OPAE_BUILD_EXTRA_TOOLS_PACKAGER "Enable building extra tool packager" ON)
+mark_as_advanced(OPAE_BUILD_EXTRA_TOOLS_PACKAGER)
+
+option(OPAE_BUILD_EXTRA_TOOLS_CXXUTILS "Enable building extra tool c++utils" ON)
+mark_as_advanced(OPAE_BUILD_EXTRA_TOOLS_CXXUTILS)
+
+option(OPAE_BUILD_EXTRA_TOOLS_FPGADIAG "Enable building extra tool fpgadiag" ON)
+mark_as_advanced(OPAE_BUILD_EXTRA_TOOLS_FPGADIAG)
+
+option(OPAE_BUILD_EXTRA_TOOLS_MMLINK "Enable building extra tool mmlink" ON)
+mark_as_advanced(OPAE_BUILD_EXTRA_TOOLS_MMLINK)
+
+option(OPAE_BUILD_EXTRA_TOOLS_RAS "Enable building extra tool ras" ON)
+mark_as_advanced(OPAE_BUILD_EXTRA_TOOLS_RAS)
+
+option(OPAE_BUILD_EXTRA_TOOLS_PAC_HSSI_CONFIG  "Enable building extra tool pac_hssi_config" ON)
+mark_as_advanced(OPAE_BUILD_EXTRA_TOOLS_PAC_HSSI_CONFIG)
+
+option(OPAE_BUILD_EXTRA_TOOLS_FPGABIST "Enable building extra tool fpgabist" OFF)
+mark_as_advanced(OPAE_BUILD_EXTRA_TOOLS_FPGABIST)
+
+if(OPAE_BUILD_EXTRA_TOOLS)
+  if(OPAE_BUILD_EXTRA_TOOLS_USERCLK)
+    opae_add_subdirectory(extra/userclk)
+  endif()
+  if(OPAE_BUILD_EXTRA_TOOLS_PACKAGER)
+    opae_add_subdirectory(extra/packager)
+  endif()
+  if(OPAE_BUILD_EXTRA_TOOLS_FPGADIAG)
+    set(OPAE_BUILD_EXTRA_TOOLS_CXXUTILS ON)
+    opae_add_subdirectory(extra/fpgadiag)
+  endif()
+  if(OPAE_BUILD_EXTRA_TOOLS_CXXUTILS)
+    opae_add_subdirectory(extra/c++utils)
+  endif()
+  if(OPAE_BUILD_EXTRA_TOOLS_MMLINK)
+    opae_add_subdirectory(extra/mmlink)
+  endif()
+  if(OPAE_BUILD_EXTRA_TOOLS_RAS)
+    opae_add_subdirectory(extra/ras)
+  endif()
+  if(OPAE_BUILD_EXTRA_TOOLS_PAC_HSSI_CONFIG)
+    opae_add_subdirectory(extra/pac_hssi_config)
+  endif()
+  if(OPAE_BUILD_EXTRA_TOOLS_FPGABIST)
+    opae_add_subdirectory(extra/fpgabist)
+  endif()
+endif()
