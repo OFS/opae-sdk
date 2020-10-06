@@ -60,6 +60,7 @@ endif()
 ############################################################################
 opae_add_subdirectory(opae-libs)
 opae_add_subdirectory(external)
+opae_add_subdirectory(afu-test)
 opae_add_subdirectory(platforms)
 opae_add_subdirectory(tools)
 opae_add_subdirectory(samples)
@@ -149,6 +150,7 @@ set(CPACK_COMPONENTS_ALL
 	samplesrc
 	opaeclib
 	opaecxxcorelib
+	afutest
 	opaetoolslibs
 	opaecxxutils
 	opaecxxlib
@@ -240,6 +242,7 @@ define_pkg(devel
   opaeclib
   opaecxxcorelib
   opaetoolslibs
+  afutest
   licensefile
   GROUP "libs"
   DISPLAY_NAME "opae-libs"

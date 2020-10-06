@@ -29,9 +29,9 @@
 #include <cstdio>
 #include <cstring>
 #include <netinet/ether.h>
-#include "test_afu.h"
+#include "afu_test.h"
 
-using namespace opae::app;
+using test_command = opae::afu_test::command;
 
 #define INVALID_MAC 0xffffffffffffffffULL
 

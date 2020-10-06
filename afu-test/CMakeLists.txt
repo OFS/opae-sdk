@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2017-2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -23,12 +23,26 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
+cmake_minimum_required (VERSION 2.8)
 
-set(CMAKE_CXX_STANDARD 11)
-
-opae_add_executable(TARGET hssi
-    SOURCE hssi.cpp
-    LIBS
-        afu-test
-    COMPONENT sampleshssi
+project(afu-test)
+opae_add_shared_library(TARGET afu-test
+    SOURCE afu_test.cpp
+    VERSION ${OPAE_VERSION}
+    SOVERSION ${OPAE_VERSION_MAJOR}
+    COMPONENT afutest
 )
+
+target_include_directories(afu-test PUBLIC
+    ${OPAE_INCLUDE_PATHS}
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CLI11_ROOT}/include
+    ${spdlog_ROOT}/include
+)
+target_link_libraries(afu-test PUBLIC
+    opae-c opae-cxx-core
+)
+target_compile_options(afu-test PUBLIC
+    -Wno-unused-result
+)
+
