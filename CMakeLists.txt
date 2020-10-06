@@ -150,6 +150,7 @@ set(CPACK_COMPONENTS_ALL
 	samplesrc
 	opaeclib
 	opaecxxcorelib
+	afutest
 	opaetoolslibs
 	opaecxxutils
 	opaecxxlib
@@ -241,6 +242,7 @@ define_pkg(devel
   opaeclib
   opaecxxcorelib
   opaetoolslibs
+  afutest
   licensefile
   GROUP "libs"
   DISPLAY_NAME "opae-libs"

@@ -26,13 +26,22 @@
 cmake_minimum_required (VERSION 2.8)
 
 project(afu-test)
-add_library(afu-test INTERFACE)
-target_include_directories(afu-test INTERFACE
+opae_add_shared_library(TARGET afu-test
+    SOURCE afu_test.cpp
+    VERSION ${OPAE_VERSION}
+    SOVERSION ${OPAE_VERSION_MAJOR}
+    COMPONENT afutest
+)
+
+target_include_directories(afu-test PUBLIC
     ${OPAE_INCLUDE_PATHS}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CLI11_ROOT}/include
     ${spdlog_ROOT}/include
 )
-target_link_libraries(afu-test INTERFACE opae-c opae-cxx-core)
-target_compile_options(afu-test INTERFACE -Wno-unused-result)
-
+target_link_libraries(afu-test PUBLIC
+    opae-c opae-cxx-core
+)
+target_compile_options(afu-test PUBLIC
+    -Wno-unused-result
+)
