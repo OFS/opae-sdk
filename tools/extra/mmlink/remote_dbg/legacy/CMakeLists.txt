@@ -24,27 +24,24 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_add_executable(TARGET mmlink
+opae_add_shared_library(TARGET mml-srv
     SOURCE
-        main.cpp
+        mm_debug_link_linux.cpp
+        mmlink_connection.cpp
+        mmlink_server.cpp
+        legacy_dbg.cpp
     LIBS
         opae-c
         ${libjson-c_LIBRARIES}
-        mml-srv
-        mml-stream
     COMPONENT toolmmlink
 )
 
-target_include_directories(mmlink
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/remote_dbg
+target_include_directories(mml-srv
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..
 )
-
 set_target_properties(mmlink
     PROPERTIES
         CXX_STANDARD 11
         CXX_STANDARD_REQUIRED YES
         CXX_EXTENSIONS NO
 )
-
-add_subdirectory(remote_dbg/legacy)
-add_subdirectory(remote_dbg/streaming)

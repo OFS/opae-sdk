@@ -34,18 +34,15 @@
 #include <arpa/inet.h>
 
 #include <opae/fpga.h>
-#include "mmlink_server.h"
-#include "mm_debug_link_interface.h"
+#include "remote_dbg/remote_dbg.h"
+#include "remote_dbg/legacy/legacy_dbg.h"
+#include "remote_dbg/streaming/stream_dbg.h"
 
 // STP index in AFU
 #define FPGA_PORT_INDEX_STP               1
 #define FPGA_PORT_STP_DFH_REVBIT         12
 
 #define GETOPT_STRING ":hB:D:F:S:P:Iv"
-
-#define PRINT_ERR(format, ...) \
-	printf("%s:%u:%s() : " format "\n", __FILE__, __LINE__, __func__,\
-               ## __VA_ARGS__)
 
 struct option longopts[] = {
 		{"help",        no_argument,       NULL, 'h'},
@@ -116,7 +113,7 @@ void print_err(const char *s, fpga_result res)
 
 void mmlink_sig_handler(int sig)
 {
-	UNUSED_PARAM(sig);
+	(void)sig;
 	perror("SIGINT: stopping the server\n");
 }
 
@@ -243,14 +240,17 @@ out_exit:
 
 }
 
+enum mmlink_protocol {
+  MMLINK_LEGACY = 0,
+  MMLINK_STREAMING
+};
+
 // run MMLink server
 int run_mmlink(fpga_handle  port_handle,
 		uint64_t *mmio_ptr,
 		struct MMLinkCommandLine *mmlinkCmdLine )
 {
-	mmlink_server *server          = NULL;
 	int res                        = 0;
-	struct sockaddr_in sock;
 	uint64_t value                 = 0;
 
 	if (mmio_ptr == NULL) {
@@ -263,13 +263,6 @@ int run_mmlink(fpga_handle  port_handle,
 		return -1;
 	}
 
-	memset(&sock, 0, sizeof(sock));
-	sock.sin_family = AF_INET;
-	sock.sin_port = htons(mmlinkCmdLine->port);
-	if (1 != inet_pton(AF_INET, mmlinkCmdLine->ip, &sock.sin_addr)) {
-		PRINT_ERR("Failed to convert IP address: %s\n", mmlinkCmdLine->ip);
-		return -1;
-	}
 
 	res = fpgaReadMMIO64(port_handle, FPGA_PORT_INDEX_STP, 0, &value);
 	if (res != 0) {
@@ -284,22 +277,27 @@ int run_mmlink(fpga_handle  port_handle,
 		PRINT_ERR("Invalid STP revision number \n");
 		return -1;
 	}
-	mm_debug_link_interface *driver = get_mm_debug_link();
-	server = new (std::nothrow) mmlink_server(&sock, driver);
-	if (!server) {
-		PRINT_ERR("Failed to allocate memory \n");
-		return -1;
-	}
 
-	// Run MMLink server
-	res = server->run((unsigned char*)mmio_ptr);
+  remote_dbg *srv = nullptr;
+  mmlink_protocol mode = MMLINK_LEGACY;
+  switch (mode) {
+    case MMLINK_LEGACY:
+      srv = new legacy_dbg();
+      break;
+    case MMLINK_STREAMING:
+      srv = new stream_dbg();
+      break;
+    default:
+      PRINT_ERR("mode not supported: %d\n", mode);
+      return -1;
+  }
 
-	if (server)
-		delete server;
+  res = srv->run(mmio_ptr, mmlinkCmdLine->ip, mmlinkCmdLine->port);
+  if (srv) delete srv;
+  srv = 0;
 
 	return res;
 }
-
 // parse Input command line
 int ParseCmds(struct MMLinkCommandLine *mmlinkCmdLine, int argc, char *argv[])
 {
