@@ -46,12 +46,26 @@ struct opae_vfio_iova_range {
 	struct opae_vfio_iova_range *next;
 };
 
+struct opae_vfio_group {
+	char *group_device;
+	int group_fd;
 
+};
+
+struct opae_vfio_device {
+	int device_fd;
+	uint64_t device_config_offset;
+	uint32_t device_num_regions;
+};
 
 struct opae_vfio_container {
 	pthread_mutex_t lock;
+	char *cont_device;
+	char *cont_pciaddr;
 	int cont_fd;
 	struct opae_vfio_iova_range *cont_ranges;
+	struct opae_vfio_group group;
+	struct opae_vfio_device device;
 
 };
 
@@ -60,7 +74,11 @@ struct opae_vfio_container {
 extern "C" {
 #endif
 
-int opae_vfio_open_container(struct opae_vfio_container * );
+int opae_vfio_open(struct opae_vfio_container *c,
+		   const char *device,
+		   const char *pciaddr);
+
+void opae_vfio_close(struct opae_vfio_container *c);
 
 
 
