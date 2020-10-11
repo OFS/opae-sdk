@@ -52,10 +52,28 @@ struct opae_vfio_group {
 
 };
 
+struct opae_vfio_sparse_info {
+	struct opae_vfio_sparse_info *next;
+	uint32_t index;
+	uint32_t offset;
+	uint32_t size;
+	uint8_t *ptr;
+};
+
+struct opae_vfio_device_region {
+	struct opae_vfio_device_region *next;
+	uint32_t region_index;
+	uint8_t *region_ptr;
+	size_t region_size;
+	struct opae_vfio_sparse_info *region_sparse;
+};
+
 struct opae_vfio_device {
 	int device_fd;
 	uint64_t device_config_offset;
 	uint32_t device_num_regions;
+	struct opae_vfio_device_region *regions;
+
 };
 
 struct opae_vfio_container {

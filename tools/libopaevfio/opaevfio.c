@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/mman.h>
 
 #include "opaevfio.h"
 
@@ -56,19 +57,162 @@
 fprintf(stderr, "%s:%u:%s() **ERROR** [%s] : " format , \
 	__SHORT_FILE__, __LINE__, __func__, strerror(errno), ##__VA_ARGS__)
 
-
-STATIC int opae_vfio_device_get_sparse_info(struct opae_vfio_device *d,
-					    struct vfio_region_info *rinfo)
+STATIC struct opae_vfio_sparse_info *
+opae_vfio_create_sparse_info(uint32_t index, uint32_t offset, uint32_t size)
 {
-	(void) d;
-	(void) rinfo;
+	struct opae_vfio_sparse_info *p = malloc(sizeof(*p));
+	if (p) {
+		p->next = NULL;
+		p->index = index;
+		p->offset = offset;
+		p->size = size;
+		p->ptr = MAP_FAILED;
+	}
+	return p;
+}
 
-	
-	return 0;
+STATIC void opae_vfio_destroy_sparse_info(struct opae_vfio_sparse_info *s)
+{
+	while (s) {
+		struct opae_vfio_sparse_info *trash = s;
+		s = s->next;
+		if (trash->ptr != MAP_FAILED) {
+			if (munmap(trash->ptr, trash->size) < 0)
+				ERR("munmap failed\n");
+		}
+		free(trash);
+	}
+}
+
+STATIC struct opae_vfio_device_region *
+opae_vfio_map_sparse_device_region(uint32_t index,
+				   int fd,
+				   uint64_t offset,
+				   size_t sz,
+				   struct opae_vfio_sparse_info *slist)
+{
+	struct opae_vfio_device_region *r = malloc(sizeof(*r));
+	if (r) {
+		r->next = NULL;
+		r->region_index = index;
+		r->region_ptr = mmap(0, sz, PROT_READ|PROT_WRITE,
+				     MAP_ANONYMOUS|MAP_PRIVATE,
+				     -1, 0);
+		if (r->region_ptr == MAP_FAILED) {
+			free(r);
+			return NULL;
+		}
+		r->region_size = sz;
+		r->region_sparse = slist;
+
+		while (slist) {
+			slist->ptr = mmap(r->region_ptr + slist->offset,
+				    slist->size, PROT_READ|PROT_WRITE,
+				    MAP_FIXED|MAP_SHARED, fd,
+				    offset + slist->offset);
+			if (slist->ptr == MAP_FAILED)
+				ERR("mmap failed\n");
+			slist = slist->next;
+		}
+	}
+	return r;
+}
+
+STATIC struct opae_vfio_device_region *
+opae_vfio_map_device_region(uint32_t index,
+			    int fd,
+			    uint64_t offset,
+			    size_t sz)
+{
+	struct opae_vfio_device_region *r = malloc(sizeof(*r));
+	if (r) {
+		r->next = NULL;
+		r->region_index = index;
+		r->region_ptr = mmap(0, sz, PROT_READ|PROT_WRITE,
+				     MAP_SHARED, fd, (off_t)offset);
+		r->region_size = sz;
+		r->region_sparse = NULL;
+		if (r->region_ptr == MAP_FAILED) {
+			free(r);
+			return NULL;
+		}
+	}
+	return r;
+}
+
+STATIC void
+opae_vfio_destroy_device_region(struct opae_vfio_device_region *r)
+{
+	while (r) {
+		struct opae_vfio_device_region *trash = r;
+		r = r->next;
+		if (munmap(trash->region_ptr, trash->region_size) < 0)
+			ERR("munmap failed\n");
+		opae_vfio_destroy_sparse_info(trash->region_sparse);
+		free(trash);
+	}
+}
+
+STATIC struct opae_vfio_sparse_info *
+opae_vfio_device_get_sparse_info(struct opae_vfio_device *d,
+				 struct vfio_region_info *rinfo)
+{
+	struct opae_vfio_sparse_info *sparse_list = NULL;
+	struct opae_vfio_sparse_info **slist = &sparse_list;
+	uint8_t *buffer;
+	struct vfio_region_info *rinfo_ptr;
+	struct vfio_info_cap_header *hdr;
+	struct vfio_region_info_cap_sparse_mmap *sparse_mmap;
+	uint32_t i;
+
+	if (!(rinfo->flags & VFIO_REGION_INFO_FLAG_CAPS))
+		return NULL;
+
+	buffer = malloc(rinfo->argsz);
+	if (!buffer) {
+		ERR("malloc failed\n");
+		return NULL;
+	}
+
+	memcpy(buffer, rinfo, sizeof(*rinfo));
+	rinfo_ptr = (struct vfio_region_info *) buffer;
+
+	if (ioctl(d->device_fd, VFIO_DEVICE_GET_REGION_INFO, buffer)) {
+		ERR("ioctl(%d, VFIO_DEVICE_GET_REGION_INFO, buffer)\n",
+		    d->device_fd);
+		goto out_free_buffer;
+	}
+
+	hdr = (struct vfio_info_cap_header *)(buffer + rinfo_ptr->cap_offset);
+
+	if (hdr->id != VFIO_REGION_INFO_CAP_SPARSE_MMAP)
+		goto out_free_buffer;
+
+	sparse_mmap = (struct vfio_region_info_cap_sparse_mmap *) hdr;
+
+	for (i = 0 ; i < sparse_mmap->nr_areas ; ++i) {
+		struct opae_vfio_sparse_info *node =
+		opae_vfio_create_sparse_info(i,
+					     sparse_mmap->areas[i].offset,
+					     sparse_mmap->areas[i].size);
+		if (!node) {
+			ERR("malloc failed");
+			goto out_free_buffer;
+		}
+		*slist = node;
+		slist = &node->next;
+	}
+
+out_free_buffer:
+	free(buffer);
+
+	return sparse_list;
 }
 
 STATIC void opae_vfio_device_destroy(struct opae_vfio_device *d)
 {
+	opae_vfio_destroy_device_region(d->regions);
+
 	if (d->device_fd >= 0) {
 		close(d->device_fd);
 		d->device_fd = -1;
@@ -82,6 +226,7 @@ STATIC int opae_vfio_device_init(struct opae_vfio_device *d,
 	struct vfio_region_info region_info;
 	struct vfio_device_info device_info;
 	uint32_t i;
+	struct opae_vfio_device_region **rlist = &d->regions;
 
 	d->device_fd = ioctl(group_fd, VFIO_GROUP_GET_DEVICE_FD, pciaddr);
 	if (d->device_fd < 0) {
@@ -114,6 +259,8 @@ STATIC int opae_vfio_device_init(struct opae_vfio_device *d,
 	d->device_num_regions = device_info.num_regions;
 
 	for (i = 0 ; i < d->device_num_regions ; ++i) {
+		struct opae_vfio_sparse_info *sparse_list = NULL;
+
 		memset(&region_info, 0, sizeof(region_info));
 		region_info.argsz = sizeof(region_info);
 		region_info.index = i;
@@ -124,12 +271,29 @@ STATIC int opae_vfio_device_init(struct opae_vfio_device *d,
 			continue;
 
 		if (region_info.flags & VFIO_REGION_INFO_FLAG_MMAP) {
+			struct opae_vfio_device_region *region = NULL;
 
-			if (!opae_vfio_device_get_sparse_info(d,
-							      &region_info)) {
+			sparse_list = opae_vfio_device_get_sparse_info(
+					d, &region_info);
 
+			if (sparse_list) {
+				// map_sparse
+				region = opae_vfio_map_sparse_device_region(
+						i, d->device_fd,
+						region_info.offset,
+						region_info.size,
+						sparse_list);
+			} else {
+				// map
+				region = opae_vfio_map_device_region(i,
+					d->device_fd,
+					region_info.offset,
+					region_info.size);
+			}
 
-
+			if (region) {
+				*rlist = region;
+				rlist = &region->next;
 			}
 		}
 
@@ -409,24 +573,19 @@ int opae_vfio_open(struct opae_vfio_container *c,
 		   const char *device,
 		   const char *pciaddr)
 {
-	int res = 0;
-
 	if (!c || !device || !pciaddr) {
 		ERR("NULL param\n");
 		return 1;
 	}
 
-	res = opae_vfio_container_init(c, device, pciaddr);
-	if (res)
-		return res;
-
-
-
-
-	return res;
+	return opae_vfio_container_init(c, device, pciaddr);
 }
 
 void opae_vfio_close(struct opae_vfio_container *c)
 {
+	if (!c) {
+		ERR("NULL param\n");
+		return;
+	}
 	opae_vfio_container_destroy(c);
 }
