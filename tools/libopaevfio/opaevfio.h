@@ -49,23 +49,22 @@ struct opae_vfio_iova_range {
 struct opae_vfio_group {
 	char *group_device;
 	int group_fd;
-
 };
 
 struct opae_vfio_sparse_info {
-	struct opae_vfio_sparse_info *next;
 	uint32_t index;
 	uint32_t offset;
 	uint32_t size;
 	uint8_t *ptr;
+	struct opae_vfio_sparse_info *next;
 };
 
 struct opae_vfio_device_region {
-	struct opae_vfio_device_region *next;
 	uint32_t region_index;
 	uint8_t *region_ptr;
 	size_t region_size;
 	struct opae_vfio_sparse_info *region_sparse;
+	struct opae_vfio_device_region *next;
 };
 
 struct opae_vfio_device {
@@ -73,7 +72,13 @@ struct opae_vfio_device {
 	uint64_t device_config_offset;
 	uint32_t device_num_regions;
 	struct opae_vfio_device_region *regions;
+};
 
+struct opae_vfio_buffer {
+	uint8_t *buffer_ptr;
+	size_t buffer_size;
+	uint64_t buffer_iova;
+	struct opae_vfio_buffer *next;
 };
 
 struct opae_vfio_container {
@@ -84,9 +89,8 @@ struct opae_vfio_container {
 	struct opae_vfio_iova_range *cont_ranges;
 	struct opae_vfio_group group;
 	struct opae_vfio_device device;
-
+	struct opae_vfio_buffer *cont_buffers;
 };
-
 
 #ifdef __cplusplus
 extern "C" {
@@ -96,9 +100,20 @@ int opae_vfio_open(struct opae_vfio_container *c,
 		   const char *device,
 		   const char *pciaddr);
 
+int opae_vfio_region_get(struct opae_vfio_container *c,
+			 uint32_t index,
+			 uint8_t **ptr,
+			 size_t *size);
+
+int opae_vfio_buffer_allocate(struct opae_vfio_container *c,
+			      size_t *size,
+			      uint8_t **buf,
+			      uint64_t *iova);
+
+int opae_vfio_buffer_free(struct opae_vfio_container *c,
+			  uint8_t *buf);
+
 void opae_vfio_close(struct opae_vfio_container *c);
-
-
 
 #ifdef __cplusplus
 } // extern "C"

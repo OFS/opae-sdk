@@ -357,19 +357,20 @@ out_destroy:
 	return res;
 }
 
-STATIC void opae_vfio_container_destroy(struct opae_vfio_container *c)
+STATIC void opae_vfio_destroy_iova_range(struct opae_vfio_iova_range *r)
 {
-	struct opae_vfio_iova_range *range;
-
-	opae_vfio_device_destroy(&c->device);
-	opae_vfio_group_destroy(&c->group);
-
-	range = c->cont_ranges;
-	while (range) {
-		struct opae_vfio_iova_range *trash = range;
-		range = range->next;
+	while (r) {
+		struct opae_vfio_iova_range *trash = r;
+		r = r->next;
 		free(trash);
 	}
+}
+
+STATIC void opae_vfio_container_destroy(struct opae_vfio_container *c)
+{
+	opae_vfio_device_destroy(&c->device);
+	opae_vfio_group_destroy(&c->group);
+	opae_vfio_destroy_iova_range(c->cont_ranges);
 
 	if (c->cont_fd >= 0) {
 		close(c->cont_fd);
@@ -385,6 +386,148 @@ STATIC void opae_vfio_container_destroy(struct opae_vfio_container *c)
 		free(c->cont_pciaddr);
 		c->cont_pciaddr = NULL;
 	}
+}
+
+STATIC struct opae_vfio_iova_range *
+opae_vfio_create_iova_range(uint64_t start, uint64_t end)
+{
+	struct opae_vfio_iova_range *r;
+	r = malloc(sizeof(*r));
+	if (r) {
+		r->start = start;
+		r->end = end;
+		r->next_ptr = r->start;
+		r->next = NULL;
+	}
+	return r;
+}
+
+STATIC struct opae_vfio_iova_range *
+opae_vfio_iova_discover(struct opae_vfio_container *c)
+{
+	struct opae_vfio_iova_range *iova_list = NULL;
+	struct opae_vfio_iova_range **ilist = &iova_list;
+	struct vfio_iommu_type1_info iommu_info;
+	uint8_t *info_buf;
+	struct vfio_iommu_type1_info *info_ptr;
+	struct vfio_info_cap_header *hdr;
+
+	memset(&iommu_info, 0, sizeof(iommu_info));
+	iommu_info.argsz = sizeof(iommu_info);
+
+	if (ioctl(c->cont_fd, VFIO_IOMMU_GET_INFO, &iommu_info)) {
+		ERR("ioctl(%d, VFIO_IOMMU_GET_INFO, &iommu_info\n",
+		    c->cont_fd);
+		return NULL;
+	}
+
+	info_buf = calloc(1, iommu_info.argsz);
+	if (!info_buf) {
+		ERR("calloc(1, iommu_info.argsz)\n");
+		return NULL;
+	}
+
+	info_ptr = (struct vfio_iommu_type1_info *) info_buf;
+	info_ptr->argsz = iommu_info.argsz;
+
+	if (ioctl(c->cont_fd, VFIO_IOMMU_GET_INFO, info_ptr)) {
+		ERR("ioctl(%d, VFIO_IOMMU_GET_INFO, info_ptr)\n",
+		    c->cont_fd);
+		goto out_free;
+	}
+
+	hdr = (struct vfio_info_cap_header *) (info_buf + info_ptr->cap_offset);
+
+	while (1) {
+		if (hdr->id == VFIO_IOMMU_TYPE1_INFO_CAP_IOVA_RANGE) {
+			struct vfio_iommu_type1_info_cap_iova_range *io_range =
+				(struct vfio_iommu_type1_info_cap_iova_range *) hdr;
+			uint32_t i;
+
+			for (i = 0 ; i < io_range->nr_iovas ; ++i) {
+				struct opae_vfio_iova_range *node;
+
+				node = opae_vfio_create_iova_range(
+						io_range->iova_ranges[i].start,
+						io_range->iova_ranges[i].end);
+
+				if (node) {
+					*ilist = node;
+					ilist = &node->next;
+				}
+			}
+		}
+
+		if (!hdr->next)
+			break;
+
+		hdr = (struct vfio_info_cap_header *) (info_buf + hdr->next);
+	}
+
+out_free:
+	free(info_buf);
+	return iova_list;
+}
+
+STATIC int opae_vfio_iova_reserve(struct opae_vfio_container *c,
+				  uint64_t *size,
+				  uint64_t *iova)
+{
+	uint64_t page_size;
+	struct opae_vfio_iova_range *range;
+
+	page_size = sysconf(_SC_PAGE_SIZE);
+	*size = page_size + ((*size - 1) & ~(page_size - 1));
+
+	for (range = c->cont_ranges ; range ; range = range->next) {
+		if (range->next_ptr + *size <= range->end) {
+			*iova = range->next_ptr;
+			range->next_ptr += *size;
+			return 0;
+		}
+	}
+
+	return 2;
+}
+
+int opae_vfio_buffer_allocate(struct opae_vfio_container *c,
+			      size_t *size,
+			      uint8_t **buf,
+			      uint64_t *iova)
+{
+	uint64_t ioaddr = 0;
+
+	if (!c || !size) {
+		ERR("NULL param\n");
+		return 1;
+	}
+
+	if (!*size) {
+		ERR("size must be > 0\n");
+		return 2;
+	}
+
+	if (opae_vfio_iova_reserve(c, size, &ioaddr)) {
+		return 3;
+	}
+
+	(void) buf;
+	(void) iova;
+
+
+
+
+	return 0;
+}
+
+int opae_vfio_buffer_free(struct opae_vfio_container *c,
+			  uint8_t *buf)
+{
+	(void) c;
+	(void) buf;
+
+
+	return 0;
 }
 
 STATIC int opae_vfio_container_init(struct opae_vfio_container *c,
@@ -422,12 +565,8 @@ STATIC int opae_vfio_container_init(struct opae_vfio_container *c,
 	c->cont_fd = open(c->cont_device, O_RDWR);
 	if (c->cont_fd < 0) {
 		ERR("open(\"%s\")\n", c->cont_device);
-		free(c->cont_device);
-		c->cont_device = NULL;
-		free(c->cont_pciaddr);
-		c->cont_pciaddr = NULL;
 		res = 4;
-		goto out_destroy_attr;
+		goto out_destroy_container;
 	}
 
 	if (ioctl(c->cont_fd, VFIO_GET_API_VERSION) != VFIO_API_VERSION) {
@@ -466,13 +605,11 @@ STATIC int opae_vfio_container_init(struct opae_vfio_container *c,
 	if (res)
 		goto out_destroy_container;
 
-
-
-
+	c->cont_ranges = opae_vfio_iova_discover(c);
 
 	if (pthread_mutexattr_destroy(&mattr)) {
 		ERR("pthread_mutexattr_destroy()\n");
-		return 7;
+		return 9;
 	}
 
 	return 0;
@@ -483,91 +620,11 @@ out_destroy_container:
 out_destroy_attr:
 	if (pthread_mutexattr_destroy(&mattr)) {
 		ERR("pthread_mutexattr_destroy()\n");
-		res = 9;
+		res = 10;
 	}
 
 	return res;
 }
-
-#if 0
-STATIC int opae_vfio_open_discover(struct opae_vfio_container *c)
-{
-	int res = 0;
-	struct vfio_iommu_type1_info iommu_info;
-	uint8_t *info_buf;
-	struct vfio_iommu_type1_info *info_ptr;
-	struct vfio_info_cap_header *hdr;
-	struct opae_vfio_iova_range **range_ptr = &c->cont_ranges;
-
-	memset(&iommu_info, 0, sizeof(iommu_info));
-	iommu_info.argsz = sizeof(iommu_info);
-
-	if (ioctl(c->cont_fd, VFIO_IOMMU_GET_INFO, &iommu_info)) {
-		ERR("ioctl( , VFIO_IOMMU_GET_INFO, &iommu_info\n");
-		return 1;
-	}
-
-	// Now that we have the size, create a temp buffer large enough..
-	info_buf = calloc(1, iommu_info.argsz);
-	if (!info_buf) {
-		ERR("calloc(1, iommu_info.argsz)\n");
-		return 2;
-	}
-
-	info_ptr = (struct vfio_iommu_type1_info *)info_buf;
-	info_ptr->argsz = iommu_info.argsz;
-
-	if (ioctl(c->cont_fd, VFIO_IOMMU_GET_INFO, info_ptr)) {
-		ERR("ioctl( , VFIO_IOMMU_GET_INFO, info_ptr)\n");
-		res = 3;
-		goto out_free;
-	}
-
-	hdr = (struct vfio_info_cap_header *) (info_buf + info_ptr->cap_offset);
-
-	while (1) {
-		if (hdr->id == VFIO_IOMMU_TYPE1_INFO_CAP_IOVA_RANGE) {
-			struct vfio_iommu_type1_info_cap_iova_range *io_range =
-				(struct vfio_iommu_type1_info_cap_iova_range *) hdr;
-			uint32_t i;
-
-			for (i = 0 ; i < io_range->nr_iovas ; ++i) {
-				*range_ptr = calloc(1, sizeof(struct opae_vfio_iova_range));
-				if (!*range_ptr) {
-					ERR("calloc()\n");
-					res = 4;
-					goto out_destroy_ranges;
-				}
-
-				(*range_ptr)->start = io_range->iova_ranges[i].start;
-				(*range_ptr)->end = io_range->iova_ranges[i].end;
-				(*range_ptr)->next_ptr = (*range_ptr)->start;
-
-				range_ptr = &(*range_ptr)->next;
-			}
-		}
-
-		if (!hdr->next)
-			break;
-
-		hdr = (struct vfio_info_cap_header *) (info_buf + hdr->next);
-	}
-
-	goto out_free;
-
-out_destroy_ranges:
-	range_ptr = &c->cont_ranges;
-	while (*range_ptr) {
-		struct opae_vfio_iova_range *trash = *range_ptr;
-		range_ptr = &(*range_ptr)->next;
-		free(trash);
-	}
-
-out_free:
-	free(info_buf);
-	return res;
-}
-#endif
 
 int opae_vfio_open(struct opae_vfio_container *c,
 		   const char *device,
@@ -579,6 +636,32 @@ int opae_vfio_open(struct opae_vfio_container *c,
 	}
 
 	return opae_vfio_container_init(c, device, pciaddr);
+}
+
+int opae_vfio_region_get(struct opae_vfio_container *c,
+			 uint32_t index,
+			 uint8_t **ptr,
+			 size_t *size)
+{
+	struct opae_vfio_device_region *region;
+
+	if (!c) {
+		ERR("NULL param\n");
+		return 1;
+	}
+
+	for (region = c->device.regions ; region ; region = region->next)
+	{
+		if (index == region->region_index) {
+			if (ptr)
+				*ptr = region->region_ptr;
+			if (size)
+				*size = region->region_size;
+			return 0;
+		}
+	}
+
+	return 2;
 }
 
 void opae_vfio_close(struct opae_vfio_container *c)
