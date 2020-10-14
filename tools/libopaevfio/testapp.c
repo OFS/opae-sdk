@@ -47,12 +47,24 @@ void print_dfhs(struct opae_vfio_container *c)
 
 void allocate_bufs(struct opae_vfio_container *c)
 {
+	size_t sz_4k;
 	size_t sz_2m;
 	size_t sz_1g;
+	uint8_t *buf_4k_virt;
 	uint8_t *buf_2m_virt;
 	uint8_t *buf_1g_virt;
+	uint64_t iova_4k;
 	uint64_t iova_2m;
 	uint64_t iova_1g;
+
+	sz_4k = 4096;
+	buf_4k_virt = NULL;
+	iova_4k = 0;
+
+	if (opae_vfio_buffer_allocate(c, &sz_4k,
+				      &buf_4k_virt, &iova_4k)) {
+		printf("whoops 4K!\n");
+	}
 
 	sz_2m = 2 * 1024 * 1024;
 	buf_2m_virt = NULL;
@@ -74,6 +86,9 @@ void allocate_bufs(struct opae_vfio_container *c)
 
 	if (opae_vfio_buffer_free(c, buf_2m_virt)) {
 		printf("whoops 2M free!\n");
+	}
+	if (opae_vfio_buffer_free(c, buf_4k_virt)) {
+		printf("whoops 4K free!\n");
 	}
 	if (opae_vfio_buffer_free(c, buf_1g_virt)) {
 		printf("whoops 1G free!\n");

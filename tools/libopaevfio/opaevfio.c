@@ -545,6 +545,26 @@ opae_vfio_destroy_buffer(int fd, struct opae_vfio_buffer *b)
 	}
 }
 
+#ifndef MAP_HUGETLB
+#define MAP_HUGETLB 0x40000
+#endif
+#ifndef MAP_HUGE_SHIFT
+#define MAP_HUGE_SHIFT 26
+#endif
+#define MAP_2M_HUGEPAGE (0x15 << MAP_HUGE_SHIFT)
+#define MAP_1G_HUGEPAGE (0x1e << MAP_HUGE_SHIFT)
+#ifdef __ia64__
+#define ADDR (void *)(0x8000000000000000UL)
+#define FLAGS_4K (MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED)
+#define FLAGS_2M (FLAGS_4K|MAP_2M_HUGEPAGE|MAP_HUGETLB)
+#define FLAGS_1G (FLAGS_4K|MAP_1G_HUGEPAGE|MAP_HUGETLB)
+#else
+#define ADDR (void *)(0x0UL)
+#define FLAGS_4K (MAP_PRIVATE|MAP_ANONYMOUS)
+#define FLAGS_2M (FLAGS_4K|MAP_2M_HUGEPAGE|MAP_HUGETLB)
+#define FLAGS_1G (FLAGS_4K|MAP_1G_HUGEPAGE|MAP_HUGETLB)
+#endif
+
 int opae_vfio_buffer_allocate(struct opae_vfio_container *c,
 			      size_t *size,
 			      uint8_t **buf,
@@ -577,8 +597,16 @@ int opae_vfio_buffer_allocate(struct opae_vfio_container *c,
 		return 4;
 	}
 
-	vaddr = mmap(0, *size, PROT_READ|PROT_WRITE,
-		     MAP_PRIVATE|MAP_ANONYMOUS|MAP_LOCKED, 0, 0);
+	if (*size > (2 * 1024 * 1024))
+		vaddr = mmap(ADDR, *size, PROT_READ|PROT_WRITE,
+			     FLAGS_1G, 0, 0);
+	else if (*size > 4096)
+		vaddr = mmap(ADDR, *size, PROT_READ|PROT_WRITE,
+			     FLAGS_2M, 0, 0);
+	else
+		vaddr = mmap(ADDR, *size, PROT_READ|PROT_WRITE,
+			     FLAGS_4K, 0, 0);
+
 	if (vaddr == MAP_FAILED) {
 		ERR("mmap() failed\n");
 		pthread_mutex_unlock(&c->lock);
