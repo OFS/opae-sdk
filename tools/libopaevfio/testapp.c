@@ -1,3 +1,5 @@
+#include <string.h>
+#include <unistd.h>
 #include "opaevfio.h"
 
 struct fme_dfh {
@@ -95,6 +97,98 @@ void allocate_bufs(struct opae_vfio_container *c)
 	}
 }
 
+#define AFU_OFFSET 0x40000
+#define CSR_SRC_ADDR      (AFU_OFFSET + 0x0120)
+#define CSR_DST_ADDR      (AFU_OFFSET + 0x0128)
+#define CSR_CTL           (AFU_OFFSET + 0x0138)
+#define CSR_STATUS1       (AFU_OFFSET + 0x0168)
+#define CSR_CFG           (AFU_OFFSET + 0x0140)
+#define CSR_NUM_LINES     (AFU_OFFSET + 0x0130)
+#define CSR_AFU_DSM_BASEL (AFU_OFFSET + 0x0110)
+
+#define DSM_STATUS_TEST_COMPLETE 0x40
+
+void nlb0(struct opae_vfio_container *c)
+{
+	volatile uint8_t *afu = NULL;
+	volatile uint32_t *p32;
+	volatile uint64_t *p64;
+	volatile uint64_t *test_status;
+
+#define wrcsr64(__offset, __value)                     \
+do                                                     \
+{                                                      \
+	p64 = (volatile uint64_t *)(afu + (__offset)); \
+	*p64 = (__value);                              \
+} while(0)
+
+#define wrcsr32(__offset, __value)                     \
+do                                                     \
+{                                                      \
+	p32 = (volatile uint32_t *)(afu + (__offset)); \
+	*p32 = (__value);                              \
+} while(0)
+
+	size_t size = 2 * 1024 * 1024;
+
+	uint8_t *afu_dsm_virt = NULL;
+	uint8_t *src_virt = NULL;
+	uint8_t *dst_virt = NULL;
+
+	uint64_t afu_dsm_iova = 0;
+	uint64_t src_iova = 0;
+	uint64_t dst_iova = 0;
+
+
+	if (opae_vfio_region_get(c, 2, (uint8_t **)&afu, NULL))
+		printf("whoops afu mmio\n");
+
+	if (opae_vfio_buffer_allocate(c, &size,
+				      &afu_dsm_virt, &afu_dsm_iova))
+		printf("whoops alloc afu dsm\n");
+	
+	if (opae_vfio_buffer_allocate(c, &size,
+				      &src_virt, &src_iova))
+		printf("whoops alloc src buf\n");
+	
+	if (opae_vfio_buffer_allocate(c, &size,
+				      &dst_virt, &dst_iova))
+		printf("whoops alloc dst buf\n");
+
+	memset(afu_dsm_virt, 0, size);
+	memset(src_virt, 0xaf, size);
+	memset(dst_virt, 0xbe, size);
+
+	wrcsr64(CSR_AFU_DSM_BASEL, afu_dsm_iova);
+	wrcsr32(CSR_CTL, 0);
+	wrcsr32(CSR_CTL, 1);
+	wrcsr64(CSR_SRC_ADDR, (src_iova >> 6));
+	wrcsr64(CSR_DST_ADDR, (dst_iova >> 6));
+	wrcsr32(CSR_NUM_LINES, (size >> 6));
+	wrcsr32(CSR_CFG, 0x42000);
+
+	test_status = (volatile uint64_t *) (afu_dsm_virt + DSM_STATUS_TEST_COMPLETE);
+	wrcsr32(CSR_CTL, 3);
+
+	while (0 == (*test_status & 0x1)) {
+		usleep(1000);
+	}
+
+	wrcsr32(CSR_CTL, 7);
+
+	if (memcmp(src_virt, dst_virt, size))
+		printf("whoops buffer mismatch\n");
+	else
+		printf("NLB0 OK\n");
+
+	if (opae_vfio_buffer_free(c, afu_dsm_virt))
+		printf("whoops free afu dsm\n");
+	if (opae_vfio_buffer_free(c, src_virt))
+		printf("whoops free src\n");
+	if (opae_vfio_buffer_free(c, dst_virt))
+		printf("whoops free dst\n");
+}
+
 int main(int argc, char *argv[])
 {
 	struct opae_vfio_container c;
@@ -111,7 +205,8 @@ int main(int argc, char *argv[])
 	}
 
 	//print_dfhs(&c);
-	allocate_bufs(&c);
+	//allocate_bufs(&c);
+	nlb0(&c);
 
 	opae_vfio_close(&c);
 
