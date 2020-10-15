@@ -81,7 +81,7 @@ struct opae_vfio_buffer {
 	struct opae_vfio_buffer *next;
 };
 
-struct opae_vfio_container {
+struct opae_vfio {
 	pthread_mutex_t lock;
 	char *cont_device;
 	char *cont_pciaddr;
@@ -96,24 +96,23 @@ struct opae_vfio_container {
 extern "C" {
 #endif
 
-int opae_vfio_open(struct opae_vfio_container *c,
-		   const char *device,
+int opae_vfio_open(struct opae_vfio *v,
 		   const char *pciaddr);
 
-int opae_vfio_region_get(struct opae_vfio_container *c,
+int opae_vfio_region_get(struct opae_vfio *v,
 			 uint32_t index,
 			 uint8_t **ptr,
 			 size_t *size);
 
-int opae_vfio_buffer_allocate(struct opae_vfio_container *c,
+int opae_vfio_buffer_allocate(struct opae_vfio *v,
 			      size_t *size,
 			      uint8_t **buf,
 			      uint64_t *iova);
 
-int opae_vfio_buffer_free(struct opae_vfio_container *c,
+int opae_vfio_buffer_free(struct opae_vfio *v,
 			  uint8_t *buf);
 
-void opae_vfio_close(struct opae_vfio_container *c);
+void opae_vfio_close(struct opae_vfio *v);
 
 #ifdef __cplusplus
 } // extern "C"

@@ -321,17 +321,23 @@ STATIC void opae_vfio_group_destroy(struct opae_vfio_group *g)
 }
 
 STATIC int opae_vfio_group_init(struct opae_vfio_group *g,
-				const char *device)
+				char *device)
 {
 	struct vfio_group_status group_status;
 	int res = 0;
 
-	g->group_device = strdup(device);
+	g->group_device = device;
+
+	if (!g->group_device) {
+		ERR("failed to find iommu group\n");
+		res = 1;
+		goto out_destroy;
+	}
 
 	g->group_fd = open(g->group_device, O_RDWR);
 	if (g->group_fd < 0) {
 		ERR("open(\"%s\", O_RDWR)\n", g->group_device);
-		res = 1;
+		res = 2;
 		goto out_destroy;
 	}
 
@@ -341,13 +347,13 @@ STATIC int opae_vfio_group_init(struct opae_vfio_group *g,
 	if (ioctl(g->group_fd, VFIO_GROUP_GET_STATUS, &group_status)) {
 		ERR("ioctl(%d, VFIO_GROUP_GET_STATUS, &group_status)\n",
 		    g->group_fd);
-		res = 2;
+		res = 3;
 		goto out_destroy;
 	}
 
 	if (!(group_status.flags & VFIO_GROUP_FLAGS_VIABLE)) {
 		ERR("VFIO group not viable\n");
-		res = 3;
+		res = 4;
 		goto out_destroy;
 	}
 
@@ -370,34 +376,34 @@ STATIC void opae_vfio_destroy_iova_range(struct opae_vfio_iova_range *r)
 STATIC void
 opae_vfio_destroy_buffer(int , struct opae_vfio_buffer * );
 
-STATIC void opae_vfio_container_destroy(struct opae_vfio_container *c)
+STATIC void opae_vfio_destroy(struct opae_vfio *v)
 {
-	opae_vfio_device_destroy(&c->device);
-	opae_vfio_group_destroy(&c->group);
-	opae_vfio_destroy_iova_range(c->cont_ranges);
-	c->cont_ranges = NULL;
-	opae_vfio_destroy_buffer(c->cont_fd, c->cont_buffers);
-	c->cont_buffers = NULL;
+	opae_vfio_device_destroy(&v->device);
+	opae_vfio_group_destroy(&v->group);
+	opae_vfio_destroy_iova_range(v->cont_ranges);
+	v->cont_ranges = NULL;
+	opae_vfio_destroy_buffer(v->cont_fd, v->cont_buffers);
+	v->cont_buffers = NULL;
 
-	if (c->cont_fd >= 0) {
-		close(c->cont_fd);
-		c->cont_fd = -1;
+	if (v->cont_fd >= 0) {
+		close(v->cont_fd);
+		v->cont_fd = -1;
 	}
 
-	if (c->cont_device) {
-		free(c->cont_device);
-		c->cont_device = NULL;
+	if (v->cont_device) {
+		free(v->cont_device);
+		v->cont_device = NULL;
 	}
 
-	if (c->cont_pciaddr) {
-		free(c->cont_pciaddr);
-		c->cont_pciaddr = NULL;
+	if (v->cont_pciaddr) {
+		free(v->cont_pciaddr);
+		v->cont_pciaddr = NULL;
 	}
 
-	if (pthread_mutex_unlock(&c->lock))
+	if (pthread_mutex_unlock(&v->lock))
 		ERR("pthread_mutex_unlock() failed\n");
 
-	if (pthread_mutex_destroy(&c->lock))
+	if (pthread_mutex_destroy(&v->lock))
 		ERR("pthread_mutex_destroy() failed\n");
 }
 
@@ -416,7 +422,7 @@ opae_vfio_create_iova_range(uint64_t start, uint64_t end)
 }
 
 STATIC struct opae_vfio_iova_range *
-opae_vfio_iova_discover(struct opae_vfio_container *c)
+opae_vfio_iova_discover(struct opae_vfio *v)
 {
 	struct opae_vfio_iova_range *iova_list = NULL;
 	struct opae_vfio_iova_range **ilist = &iova_list;
@@ -428,9 +434,9 @@ opae_vfio_iova_discover(struct opae_vfio_container *c)
 	memset(&iommu_info, 0, sizeof(iommu_info));
 	iommu_info.argsz = sizeof(iommu_info);
 
-	if (ioctl(c->cont_fd, VFIO_IOMMU_GET_INFO, &iommu_info)) {
+	if (ioctl(v->cont_fd, VFIO_IOMMU_GET_INFO, &iommu_info)) {
 		ERR("ioctl(%d, VFIO_IOMMU_GET_INFO, &iommu_info\n",
-		    c->cont_fd);
+		    v->cont_fd);
 		return NULL;
 	}
 
@@ -443,9 +449,9 @@ opae_vfio_iova_discover(struct opae_vfio_container *c)
 	info_ptr = (struct vfio_iommu_type1_info *) info_buf;
 	info_ptr->argsz = iommu_info.argsz;
 
-	if (ioctl(c->cont_fd, VFIO_IOMMU_GET_INFO, info_ptr)) {
+	if (ioctl(v->cont_fd, VFIO_IOMMU_GET_INFO, info_ptr)) {
 		ERR("ioctl(%d, VFIO_IOMMU_GET_INFO, info_ptr)\n",
-		    c->cont_fd);
+		    v->cont_fd);
 		goto out_free;
 	}
 
@@ -482,7 +488,7 @@ out_free:
 	return iova_list;
 }
 
-STATIC int opae_vfio_iova_reserve(struct opae_vfio_container *c,
+STATIC int opae_vfio_iova_reserve(struct opae_vfio *v,
 				  uint64_t *size,
 				  uint64_t *iova)
 {
@@ -492,7 +498,7 @@ STATIC int opae_vfio_iova_reserve(struct opae_vfio_container *c,
 	page_size = sysconf(_SC_PAGE_SIZE);
 	*size = page_size + ((*size - 1) & ~(page_size - 1));
 
-	for (range = c->cont_ranges ; range ; range = range->next) {
+	for (range = v->cont_ranges ; range ; range = range->next) {
 		if (range->next_ptr + *size <= range->end) {
 			*iova = range->next_ptr;
 			range->next_ptr += *size;
@@ -565,7 +571,7 @@ opae_vfio_destroy_buffer(int fd, struct opae_vfio_buffer *b)
 #define FLAGS_1G (FLAGS_4K|MAP_1G_HUGEPAGE|MAP_HUGETLB)
 #endif
 
-int opae_vfio_buffer_allocate(struct opae_vfio_container *c,
+int opae_vfio_buffer_allocate(struct opae_vfio *v,
 			      size_t *size,
 			      uint8_t **buf,
 			      uint64_t *iova)
@@ -577,7 +583,7 @@ int opae_vfio_buffer_allocate(struct opae_vfio_container *c,
 	struct vfio_iommu_type1_dma_unmap dma_unmap;
 	struct opae_vfio_buffer *node;
 
-	if (!c || !size) {
+	if (!v || !size) {
 		ERR("NULL param\n");
 		return 1;
 	}
@@ -587,13 +593,13 @@ int opae_vfio_buffer_allocate(struct opae_vfio_container *c,
 		return 2;
 	}
 
-	if (pthread_mutex_lock(&c->lock)) {
+	if (pthread_mutex_lock(&v->lock)) {
 		ERR("pthread_mutex_lock() failed\n");
 		return 3;
 	}
 
-	if (opae_vfio_iova_reserve(c, size, &ioaddr)) {
-		pthread_mutex_unlock(&c->lock);
+	if (opae_vfio_iova_reserve(v, size, &ioaddr)) {
+		pthread_mutex_unlock(&v->lock);
 		return 4;
 	}
 
@@ -609,7 +615,7 @@ int opae_vfio_buffer_allocate(struct opae_vfio_container *c,
 
 	if (vaddr == MAP_FAILED) {
 		ERR("mmap() failed\n");
-		pthread_mutex_unlock(&c->lock);
+		pthread_mutex_unlock(&v->lock);
 		return 5;
 	}
 
@@ -621,9 +627,9 @@ int opae_vfio_buffer_allocate(struct opae_vfio_container *c,
 	dma_map.iova = ioaddr;
 	dma_map.flags = VFIO_DMA_MAP_FLAG_READ|VFIO_DMA_MAP_FLAG_WRITE;
 
-	if (ioctl(c->cont_fd, VFIO_IOMMU_MAP_DMA, &dma_map) < 0) {
+	if (ioctl(v->cont_fd, VFIO_IOMMU_MAP_DMA, &dma_map) < 0) {
 		ERR("ioctl(%d, VFIO_IOMMU_MAP_DMA, &dma_map)\n",
-		    c->cont_fd);
+		    v->cont_fd);
 		res = 5;
 		goto out_munmap;
 	}
@@ -635,15 +641,15 @@ int opae_vfio_buffer_allocate(struct opae_vfio_container *c,
 		goto out_unmap_ioctl;
 	}
 
-	node->next = c->cont_buffers;
-	c->cont_buffers = node;
+	node->next = v->cont_buffers;
+	v->cont_buffers = node;
 
 	if (buf)
 		*buf = vaddr;
 	if (iova)
 		*iova = ioaddr;
 
-	if (pthread_mutex_unlock(&c->lock))
+	if (pthread_mutex_unlock(&v->lock))
 		ERR("pthread_mutex_unlock() failed\n");
 
 	return 0;
@@ -651,43 +657,42 @@ int opae_vfio_buffer_allocate(struct opae_vfio_container *c,
 out_unmap_ioctl:
 	memset(&dma_unmap, 0, sizeof(dma_unmap));
 	dma_unmap.argsz = sizeof(dma_unmap);
-	dma_unmap.flags = VFIO_DMA_MAP_FLAG_READ|VFIO_DMA_MAP_FLAG_WRITE;
 	dma_unmap.iova = ioaddr;
 	dma_unmap.size = *size;
-	ioctl(c->cont_fd, VFIO_IOMMU_UNMAP_DMA, &dma_unmap);
+	ioctl(v->cont_fd, VFIO_IOMMU_UNMAP_DMA, &dma_unmap);
 out_munmap:
 	munmap(vaddr, *size);
-	if (pthread_mutex_unlock(&c->lock))
+	if (pthread_mutex_unlock(&v->lock))
 		ERR("pthread_mutex_unlock() failed\n");
 	return res;
 }
 
-int opae_vfio_buffer_free(struct opae_vfio_container *c,
+int opae_vfio_buffer_free(struct opae_vfio *v,
 			  uint8_t *buf)
 {
 	struct opae_vfio_buffer *b;
 	struct opae_vfio_buffer *prev = NULL;
 	int res = 0;
 
-	if (!c) {
+	if (!v) {
 		ERR("NULL param\n");
 		return 1;
 	}
 
-	if (pthread_mutex_lock(&c->lock)) {
+	if (pthread_mutex_lock(&v->lock)) {
 		ERR("pthread_mutex_lock() failed\n");
 		return 2;
 	}
 
-	for (b = c->cont_buffers ; b ; prev = b, b = b->next) {
+	for (b = v->cont_buffers ; b ; prev = b, b = b->next) {
 		if (b->buffer_ptr == buf) {
-			if (!prev) { // b == c->cont_buffers
-				c->cont_buffers = b->next;
+			if (!prev) { // b == v->cont_buffers
+				v->cont_buffers = b->next;
 			} else {
 				prev->next = b->next;
 			}
 			b->next = NULL;
-			opae_vfio_destroy_buffer(c->cont_fd, b);
+			opae_vfio_destroy_buffer(v->cont_fd, b);
 			goto out_unlock;
 		}
 	}
@@ -695,24 +700,46 @@ int opae_vfio_buffer_free(struct opae_vfio_container *c,
 	res = 3;
 
 out_unlock:
-	if (pthread_mutex_unlock(&c->lock))
+	if (pthread_mutex_unlock(&v->lock))
 		ERR("pthread_mutex_unlock() failed\n");
 
 	return res;
 }
 
-STATIC int opae_vfio_container_init(struct opae_vfio_container *c,
-				    const char *device,
-				    const char *pciaddr)
+STATIC char * opae_vfio_group_for(const char *pciaddr)
+{
+	char path[256];
+	char rlbuf[256];
+	char *p;
+
+	snprintf(path, sizeof(path),
+		 "/sys/bus/pci/devices/%s/iommu_group", pciaddr);
+
+	if (readlink(path, rlbuf, sizeof(rlbuf)) < 0) {
+		ERR("readlink() failed\n");
+		return strdup("ERROR");
+	}
+
+	p = strrchr(rlbuf, '/');
+	if (!p)
+		return strdup("ERROR");
+
+	snprintf(path, sizeof(path), "/dev/vfio/%s", p + 1);
+
+	return strdup(path);
+}
+
+STATIC int opae_vfio_init(struct opae_vfio *v,
+			  const char *pciaddr)
 {
 	int res = 0;
 	pthread_mutexattr_t mattr;
 	int cont_fd;
 
-	memset(c, 0, sizeof(*c));
-	c->cont_fd = -1;
-	c->group.group_fd = -1;
-	c->device.device_fd = -1;
+	memset(v, 0, sizeof(*v));
+	v->cont_fd = -1;
+	v->group.group_fd = -1;
+	v->device.device_fd = -1;
 
 	if (pthread_mutexattr_init(&mattr)) {
 		ERR("pthread_mutexattr_init()\n");
@@ -725,58 +752,58 @@ STATIC int opae_vfio_container_init(struct opae_vfio_container *c,
 		goto out_destroy_attr;
 	}
 
-	if (pthread_mutex_init(&c->lock, &mattr)) {
+	if (pthread_mutex_init(&v->lock, &mattr)) {
 		ERR("pthread_mutex_init()\n");
 		res = 3;
 		goto out_destroy_attr;
 	}
 
-	c->cont_device = strdup("/dev/vfio/vfio");
-	c->cont_pciaddr = strdup(pciaddr);
-	c->cont_fd = open(c->cont_device, O_RDWR);
-	if (c->cont_fd < 0) {
-		ERR("open(\"%s\")\n", c->cont_device);
+	v->cont_device = strdup("/dev/vfio/vfio");
+	v->cont_pciaddr = strdup(pciaddr);
+	v->cont_fd = open(v->cont_device, O_RDWR);
+	if (v->cont_fd < 0) {
+		ERR("open(\"%s\")\n", v->cont_device);
 		res = 4;
 		goto out_destroy_container;
 	}
 
-	if (ioctl(c->cont_fd, VFIO_GET_API_VERSION) != VFIO_API_VERSION) {
-		ERR("ioctl(%d, VFIO_GET_API_VERSION)\n", c->cont_fd);
+	if (ioctl(v->cont_fd, VFIO_GET_API_VERSION) != VFIO_API_VERSION) {
+		ERR("ioctl(%d, VFIO_GET_API_VERSION)\n", v->cont_fd);
 		res = 5;
 		goto out_destroy_container;
 	}
 
-	if (!ioctl(c->cont_fd, VFIO_CHECK_EXTENSION, VFIO_TYPE1_IOMMU)) {
+	if (!ioctl(v->cont_fd, VFIO_CHECK_EXTENSION, VFIO_TYPE1_IOMMU)) {
 		ERR("ioctl(%d, VFIO_CHECK_EXTENSION, VFIO_TYPE1_IOMMU)\n",
-		    c->cont_fd);
+		    v->cont_fd);
 		res = 6;
 		goto out_destroy_container;
 	}
 
-	res = opae_vfio_group_init(&c->group, device);
+	res = opae_vfio_group_init(&v->group, opae_vfio_group_for(pciaddr));
 	if (res)
 		goto out_destroy_container;
 
-	cont_fd = c->cont_fd;
-	if (ioctl(c->group.group_fd, VFIO_GROUP_SET_CONTAINER, &cont_fd)) {
+	cont_fd = v->cont_fd;
+	if (ioctl(v->group.group_fd, VFIO_GROUP_SET_CONTAINER, &cont_fd)) {
 		ERR("ioctl(%d, VFIO_GROUP_SET_CONTAINER, &cont_fd)\n",
-		    c->group.group_fd);
+		    v->group.group_fd);
 		res = 7;
 		goto out_destroy_container;
 	}
 
-	if (ioctl(c->cont_fd, VFIO_SET_IOMMU, VFIO_TYPE1_IOMMU) < 0) {
+	if (ioctl(v->cont_fd, VFIO_SET_IOMMU, VFIO_TYPE1_IOMMU) < 0) {
 		ERR("ioctl(%d, VFIO_SET_IOMMU, VFIO_TYPE1_IOMMU)\n",
-		    c->cont_fd);
+		    v->cont_fd);
 		res = 8;
 		goto out_destroy_container;
 	}
 
-	res = opae_vfio_device_init(&c->device, c->group.group_fd, pciaddr);
+	res = opae_vfio_device_init(&v->device, v->group.group_fd, pciaddr);
 	if (res)
 		goto out_destroy_container;
 
-	c->cont_ranges = opae_vfio_iova_discover(c);
+	v->cont_ranges = opae_vfio_iova_discover(v);
 
 	if (pthread_mutexattr_destroy(&mattr)) {
 		ERR("pthread_mutexattr_destroy()\n");
@@ -786,8 +813,8 @@ STATIC int opae_vfio_container_init(struct opae_vfio_container *c,
 	return 0;
 
 out_destroy_container:
-	pthread_mutex_lock(&c->lock);
-	opae_vfio_container_destroy(c);
+	pthread_mutex_lock(&v->lock);
+	opae_vfio_destroy(v);
 
 out_destroy_attr:
 	if (pthread_mutexattr_destroy(&mattr)) {
@@ -798,31 +825,30 @@ out_destroy_attr:
 	return res;
 }
 
-int opae_vfio_open(struct opae_vfio_container *c,
-		   const char *device,
+int opae_vfio_open(struct opae_vfio *v,
 		   const char *pciaddr)
 {
-	if (!c || !device || !pciaddr) {
+	if (!v || !pciaddr) {
 		ERR("NULL param\n");
 		return 1;
 	}
 
-	return opae_vfio_container_init(c, device, pciaddr);
+	return opae_vfio_init(v, pciaddr);
 }
 
-int opae_vfio_region_get(struct opae_vfio_container *c,
+int opae_vfio_region_get(struct opae_vfio *v,
 			 uint32_t index,
 			 uint8_t **ptr,
 			 size_t *size)
 {
 	struct opae_vfio_device_region *region;
 
-	if (!c) {
+	if (!v) {
 		ERR("NULL param\n");
 		return 1;
 	}
 
-	for (region = c->device.regions ; region ; region = region->next)
+	for (region = v->device.regions ; region ; region = region->next)
 	{
 		if (index == region->region_index) {
 			if (ptr)
@@ -836,17 +862,17 @@ int opae_vfio_region_get(struct opae_vfio_container *c,
 	return 2;
 }
 
-void opae_vfio_close(struct opae_vfio_container *c)
+void opae_vfio_close(struct opae_vfio *v)
 {
-	if (!c) {
+	if (!v) {
 		ERR("NULL param\n");
 		return;
 	}
 
-	if (pthread_mutex_lock(&c->lock)) {
+	if (pthread_mutex_lock(&v->lock)) {
 		ERR("pthread_mutex_lock() failed\n");
 		return;
 	}
 
-	opae_vfio_container_destroy(c);
+	opae_vfio_destroy(v);
 }

@@ -9,12 +9,12 @@ struct fme_dfh {
 	uint64_t next_afu;
 };
 
-void print_dfhs(struct opae_vfio_container *c)
+void print_dfhs(struct opae_vfio *v)
 {
 	struct fme_dfh *mmio = NULL;
 	uint8_t *p = NULL;
 
-	opae_vfio_region_get(c, 0, (uint8_t **)&mmio, NULL);
+	opae_vfio_region_get(v, 0, (uint8_t **)&mmio, NULL);
 
 	printf("FME\n"
 	       "dfh:         0x%016lx\n"
@@ -24,7 +24,7 @@ void print_dfhs(struct opae_vfio_container *c)
 	       mmio->fme_version, mmio->afu_id_low,
 	       mmio->afu_id_high, mmio->next_afu);
 
-	opae_vfio_region_get(c, 2, (uint8_t **)&mmio, NULL);
+	opae_vfio_region_get(v, 2, (uint8_t **)&mmio, NULL);
 
 	printf("Port\n"
 	       "dfh:         0x%016lx\n"
@@ -47,7 +47,7 @@ void print_dfhs(struct opae_vfio_container *c)
 	       mmio->afu_id_high, mmio->next_afu);
 }
 
-void allocate_bufs(struct opae_vfio_container *c)
+void allocate_bufs(struct opae_vfio *v)
 {
 	size_t sz_4k;
 	size_t sz_2m;
@@ -63,7 +63,7 @@ void allocate_bufs(struct opae_vfio_container *c)
 	buf_4k_virt = NULL;
 	iova_4k = 0;
 
-	if (opae_vfio_buffer_allocate(c, &sz_4k,
+	if (opae_vfio_buffer_allocate(v, &sz_4k,
 				      &buf_4k_virt, &iova_4k)) {
 		printf("whoops 4K!\n");
 	}
@@ -72,7 +72,7 @@ void allocate_bufs(struct opae_vfio_container *c)
 	buf_2m_virt = NULL;
 	iova_2m = 0;
 
-	if (opae_vfio_buffer_allocate(c, &sz_2m,
+	if (opae_vfio_buffer_allocate(v, &sz_2m,
 				      &buf_2m_virt, &iova_2m)) {
 		printf("whoops 2M!\n");
 	}
@@ -81,18 +81,18 @@ void allocate_bufs(struct opae_vfio_container *c)
 	buf_1g_virt = NULL;
 	iova_1g = 0;
 
-	if (opae_vfio_buffer_allocate(c, &sz_1g,
+	if (opae_vfio_buffer_allocate(v, &sz_1g,
 				      &buf_1g_virt, &iova_1g)) {
 		printf("whoops 1G!\n");
 	}
 
-	if (opae_vfio_buffer_free(c, buf_2m_virt)) {
+	if (opae_vfio_buffer_free(v, buf_2m_virt)) {
 		printf("whoops 2M free!\n");
 	}
-	if (opae_vfio_buffer_free(c, buf_4k_virt)) {
+	if (opae_vfio_buffer_free(v, buf_4k_virt)) {
 		printf("whoops 4K free!\n");
 	}
-	if (opae_vfio_buffer_free(c, buf_1g_virt)) {
+	if (opae_vfio_buffer_free(v, buf_1g_virt)) {
 		printf("whoops 1G free!\n");
 	}
 }
@@ -108,7 +108,7 @@ void allocate_bufs(struct opae_vfio_container *c)
 
 #define DSM_STATUS_TEST_COMPLETE 0x40
 
-void nlb0(struct opae_vfio_container *c)
+void nlb0(struct opae_vfio *v)
 {
 	volatile uint8_t *afu = NULL;
 	volatile uint32_t *p32;
@@ -140,18 +140,18 @@ do                                                     \
 	uint64_t dst_iova = 0;
 
 
-	if (opae_vfio_region_get(c, 2, (uint8_t **)&afu, NULL))
+	if (opae_vfio_region_get(v, 2, (uint8_t **)&afu, NULL))
 		printf("whoops afu mmio\n");
 
-	if (opae_vfio_buffer_allocate(c, &size,
+	if (opae_vfio_buffer_allocate(v, &size,
 				      &afu_dsm_virt, &afu_dsm_iova))
 		printf("whoops alloc afu dsm\n");
 	
-	if (opae_vfio_buffer_allocate(c, &size,
+	if (opae_vfio_buffer_allocate(v, &size,
 				      &src_virt, &src_iova))
 		printf("whoops alloc src buf\n");
 	
-	if (opae_vfio_buffer_allocate(c, &size,
+	if (opae_vfio_buffer_allocate(v, &size,
 				      &dst_virt, &dst_iova))
 		printf("whoops alloc dst buf\n");
 
@@ -181,34 +181,34 @@ do                                                     \
 	else
 		printf("NLB0 OK\n");
 
-	if (opae_vfio_buffer_free(c, afu_dsm_virt))
+	if (opae_vfio_buffer_free(v, afu_dsm_virt))
 		printf("whoops free afu dsm\n");
-	if (opae_vfio_buffer_free(c, src_virt))
+	if (opae_vfio_buffer_free(v, src_virt))
 		printf("whoops free src\n");
-	if (opae_vfio_buffer_free(c, dst_virt))
+	if (opae_vfio_buffer_free(v, dst_virt))
 		printf("whoops free dst\n");
 }
 
 int main(int argc, char *argv[])
 {
-	struct opae_vfio_container c;
+	struct opae_vfio v;
 	int res;
 
 	if (argc < 3) {
-		printf("usage: testapp /dev/vfio/X 0000:00:00.0\n");
+		printf("usage: testapp 0000:00:00.0\n");
 		return 1;
 	}
 
-	res = opae_vfio_open(&c, argv[1], argv[2]);
+	res = opae_vfio_open(&v, argv[1]);
 	if (res) {
 		return res;
 	}
 
-	//print_dfhs(&c);
-	//allocate_bufs(&c);
-	nlb0(&c);
+	//print_dfhs(&v);
+	//allocate_bufs(&v);
+	nlb0(&v);
 
-	opae_vfio_close(&c);
+	opae_vfio_close(&v);
 
 	return 0;
 }
