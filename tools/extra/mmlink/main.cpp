@@ -240,9 +240,9 @@ out_exit:
 
 }
 
-enum mmlink_protocol {
-  MMLINK_LEGACY = 0,
-  MMLINK_STREAMING
+enum mmlink_revision {
+  MMLINK_LEGACY = 1,
+  MMLINK_STREAMING = 2
 };
 
 // run MMLink server
@@ -279,8 +279,7 @@ int run_mmlink(fpga_handle  port_handle,
 	}
 
   remote_dbg *srv = nullptr;
-  mmlink_protocol mode = MMLINK_LEGACY;
-  switch (mode) {
+  switch (value) {
     case MMLINK_LEGACY:
       srv = new legacy_dbg();
       break;
@@ -288,7 +287,7 @@ int run_mmlink(fpga_handle  port_handle,
       srv = new stream_dbg();
       break;
     default:
-      PRINT_ERR("mode not supported: %d\n", mode);
+      PRINT_ERR("revision not supported: %lu\n", value);
       return -1;
   }
 
