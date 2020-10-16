@@ -715,6 +715,7 @@ STATIC char * opae_vfio_group_for(const char *pciaddr)
 	snprintf(path, sizeof(path),
 		 "/sys/bus/pci/devices/%s/iommu_group", pciaddr);
 
+	memset(rlbuf, 0, sizeof(rlbuf));
 	if (readlink(path, rlbuf, sizeof(rlbuf)) < 0) {
 		ERR("readlink() failed\n");
 		return strdup("ERROR");

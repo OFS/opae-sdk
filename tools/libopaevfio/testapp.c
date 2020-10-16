@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
 	struct opae_vfio v;
 	int res;
 
-	if (argc < 3) {
+	if (argc < 2) {
 		printf("usage: testapp 0000:00:00.0\n");
 		return 1;
 	}
