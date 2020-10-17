@@ -33,7 +33,8 @@ opae_add_shared_library(TARGET opaevfio
     COMPONENT vfiolib
 )
 
-opae_add_executable(TARGET testapp
-    SOURCE testapp.c
+opae_add_executable(TARGET opaevfiotest
+    SOURCE opaevfiotest.c
     LIBS opaevfio
+    COMPONENT vfiotest
 )
