@@ -168,7 +168,7 @@ macro(CREATE_PYTHON_EXE EXE_NAME MAIN_MODULE)
         "f.close()\n")
 
     # Run Python to generate the zipped file
-    execute_process(COMMAND python "${BUILD_DIR_MAIN}/do_zip.py"
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} "${BUILD_DIR_MAIN}/do_zip.py"
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 endmacro(CREATE_PYTHON_EXE)
