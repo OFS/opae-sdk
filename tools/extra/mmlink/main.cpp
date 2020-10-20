@@ -287,11 +287,14 @@ int run_mmlink(fpga_handle  port_handle,
       PRINT_ERR("revision not supported: %lu\n", value);
       return -1;
   }
-
-  res = srv->run(mmio_ptr, mmlinkCmdLine->ip, mmlinkCmdLine->port);
-  if (srv) delete srv;
-  srv = 0;
-
+  if (srv) {
+    res = srv->run(mmio_ptr, mmlinkCmdLine->ip, mmlinkCmdLine->port);
+    delete srv;
+    srv = 0;
+  } else {
+    PRINT_ERR("Did not instantiate mmlink server\n");
+    return -1;
+  }
 	return res;
 }
 // parse Input command line

@@ -55,8 +55,6 @@ int legacy_dbg::run(volatile uint64_t *mmio_ptr, const char *address, int port)
 
 	// Run MMLink server
 	res = server->run((unsigned char*)mmio_ptr);
-
-	if (server)
-		delete server;
+  delete server;
   return res;
 }

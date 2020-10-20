@@ -43,7 +43,7 @@ target_include_directories(mml-stream
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..
 )
 
-set_target_properties(mmlink
+set_target_properties(mml-stream
     PROPERTIES
         CXX_STANDARD 11
         CXX_STANDARD_REQUIRED YES
