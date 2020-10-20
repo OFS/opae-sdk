@@ -35,8 +35,10 @@
 class remote_dbg
 {
 public:
-  remote_dbg(){}
-  virtual ~remote_dbg(){}
+  remote_dbg() = default;
+  remote_dbg(const remote_dbg&) = delete;
+  remote_dbg& operator=(const remote_dbg&) = delete;
+  virtual ~remote_dbg() = default;
   virtual int run(volatile uint64_t *mmio, const char *address, int port) = 0;
 
 };

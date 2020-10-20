@@ -111,9 +111,8 @@ void print_err(const char *s, fpga_result res)
 	fprintf(stderr, "Error %s: %s\n", s, fpgaErrStr(res));
 }
 
-void mmlink_sig_handler(int sig)
+void mmlink_sig_handler(int)
 {
-	(void)sig;
 	perror("SIGINT: stopping the server\n");
 }
 
