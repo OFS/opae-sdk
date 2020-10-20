@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
 	struct vfio_info_cap_header cap_hdr;
 	struct vfio_region_info_cap_sparse_mmap sparse_mmap;
 	struct vfio_device_info device_info;
+	int x;
 
 	(void) argc;
 	(void) argv;
@@ -48,6 +49,8 @@ int main(int argc, char *argv[])
 	(void) cap_hdr;
 	(void) sparse_mmap;
 	(void) device_info;
+
+	x = (int) VFIO_IOMMU_TYPE1_INFO_CAP_IOVA_RANGE;
 
 	return 0;
 }
