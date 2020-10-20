@@ -273,10 +273,7 @@ int run_mmlink(fpga_handle  port_handle,
 
 	value &= 0x1000;
 	value = value >> FPGA_PORT_STP_DFH_REVBIT;
-	if(1 != value){
-		PRINT_ERR("Invalid STP revision number \n");
-		return -1;
-	}
+
 
   remote_dbg *srv = nullptr;
   switch (value) {
