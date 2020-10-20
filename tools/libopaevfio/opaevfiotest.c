@@ -26,7 +26,7 @@
 
 #include <string.h>
 #include <unistd.h>
-#include "opaevfio.h"
+#include <opae/vfio.h>
 
 #define AFU_OFFSET 0x40000
 

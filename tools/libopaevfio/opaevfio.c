@@ -38,7 +38,7 @@
 #include <errno.h>
 #include <sys/mman.h>
 
-#include "opaevfio.h"
+#include <opae/vfio.h>
 
 #define __SHORT_FILE__                                    \
 ({                                                        \
