@@ -33,28 +33,28 @@
 
 int legacy_dbg::run(volatile uint64_t *mmio_ptr, const char *address, int port)
 {
-	mmlink_server *server = NULL;
-	struct sockaddr_in sock;
+  mmlink_server *server = NULL;
+  struct sockaddr_in sock;
   int res = -1;
 
-	memset(&sock, 0, sizeof(sock));
-	sock.sin_family = AF_INET;
-	sock.sin_port = htons(port);
-	if (1 != inet_pton(AF_INET, address, &sock.sin_addr)) {
-		PRINT_ERR("Failed to convert IP address: %s\n", address);
-		return -1;
-	}
+  memset(&sock, 0, sizeof(sock));
+  sock.sin_family = AF_INET;
+  sock.sin_port = htons(port);
+  if (1 != inet_pton(AF_INET, address, &sock.sin_addr)) {
+    PRINT_ERR("Failed to convert IP address: %s\n", address);
+    return -1;
+  }
 
 
-	mm_debug_link_interface *driver = get_mm_debug_link();
-	server = new (std::nothrow) mmlink_server(&sock, driver);
-	if (!server) {
-		PRINT_ERR("Failed to allocate memory \n");
-		return -1;
-	}
+  mm_debug_link_interface *driver = get_mm_debug_link();
+  server = new (std::nothrow) mmlink_server(&sock, driver);
+  if (!server) {
+    PRINT_ERR("Failed to allocate memory \n");
+    return -1;
+  }
 
-	// Run MMLink server
-	res = server->run((unsigned char*)mmio_ptr);
+  // Run MMLink server
+  res = server->run((unsigned char*)mmio_ptr);
   delete server;
   return res;
 }

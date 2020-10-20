@@ -39,7 +39,7 @@ opae_add_shared_library(TARGET mml-srv
 target_include_directories(mml-srv
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..
 )
-set_target_properties(mmlink
+set_target_properties(mml-srv
     PROPERTIES
         CXX_STANDARD 11
         CXX_STANDARD_REQUIRED YES
