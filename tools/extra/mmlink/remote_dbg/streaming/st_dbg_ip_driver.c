@@ -110,7 +110,8 @@ char *get_h2t_buffer(size_t sz) {
     if (freed_descriptor_slots > 0) {
         g_h2t_descriptor_slots_available += freed_descriptor_slots;
         size_t bytes_freed = 0;
-        for (char i = 0; i < freed_descriptor_slots; ++i) {
+        char i;
+        for (i = 0; i < freed_descriptor_slots; ++i) {
             bytes_freed += g_h2t_descriptor_chain[(g_h2t_descriptor_read_idx + i) % MAX_H2T_DESCRIPTOR_DEPTH];
         }
         g_h2t_descriptor_read_idx = (g_h2t_descriptor_read_idx + freed_descriptor_slots) % MAX_H2T_DESCRIPTOR_DEPTH;
@@ -155,7 +156,8 @@ char *get_mgmt_buffer(size_t sz) {
     if (freed_descriptor_slots > 0) {
         g_mgmt_descriptor_slots_available += freed_descriptor_slots;
         size_t bytes_freed = 0;
-        for (char i = 0; i < freed_descriptor_slots; ++i) {
+        char i;
+        for (i = 0; i < freed_descriptor_slots; ++i) {
             bytes_freed += g_mgmt_descriptor_chain[(g_mgmt_descriptor_read_idx + i) % MAX_MGMT_DESCRIPTOR_DEPTH];
         }
         g_mgmt_descriptor_read_idx = (g_mgmt_descriptor_read_idx + freed_descriptor_slots) % MAX_MGMT_DESCRIPTOR_DEPTH;

@@ -39,6 +39,7 @@ opae_add_shared_library(TARGET mml-stream
     COMPONENT toolmmlink
 )
 
+target_compile_options(mml-stream PUBLIC -Wno-strict-aliasing)
 target_include_directories(mml-stream
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..
 )
