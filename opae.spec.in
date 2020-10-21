@@ -194,10 +194,12 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/fpgainfo
 @CMAKE_INSTALL_PREFIX@/bin/fpgametrics
 @CMAKE_INSTALL_PREFIX@/bin/fpgad
+@CMAKE_INSTALL_PREFIX@/bin/opaevfiotest
 @CPACK_RPM_RELOCATION_PATHS@/opae/fpgad.cfg
 @CPACK_RPM_RELOCATION_PATHS@/sysconfig/fpgad.conf
 @CPACK_RPM_RELOCATION_PATHS@/systemd/system/fpgad.service
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-api.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopaevfio.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libfpgad-xfpga.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libfpgad-vc.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libboard_n3000.so*
