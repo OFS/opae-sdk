@@ -31,7 +31,8 @@ static unsigned char guardband_private[SIZEOF_PACKET_GUARDBAND] = { 0xDE, 0xAD, 
 const unsigned char *const PACKET_GUARDBAND = guardband_private;
 
 void populate_guardband(unsigned char *bytes) {
-    for (int i = 0; i < SIZEOF_PACKET_GUARDBAND; ++i) {
+    int i;
+    for (i = 0; i < SIZEOF_PACKET_GUARDBAND; ++i) {
         bytes[i] = PACKET_GUARDBAND[i];
     }
 }
@@ -141,7 +142,8 @@ void dump_h2t_packet_header(H2T_PACKET_HEADER *packet) {
 
 void dump_bytes(char *bytes, size_t len) {
     const int COL_WIDTH = 16;
-    for (size_t i = 0; i < len; ++i) {
+    size_t i;
+    for (i = 0; i < len; ++i) {
         if ((i % COL_WIDTH == 0) && (i > 0)) {
             printf("\n");
         }
