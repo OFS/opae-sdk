@@ -41,8 +41,7 @@ static char g_socket_send_buff[SW_SOCKET_BUFF_SZ+64];
 
 SOCKET max_of(SOCKET *array, int size) {
     SOCKET result = 0;
-    int i;
-    for (i = 0; i < size; ++i) {
+    for (int i = 0; i < size; ++i) {
         result = MAX_MACRO(array[i], result);
     }
     return result;
@@ -142,8 +141,7 @@ RETURN_CODE socket_send_all_t2h_data(SOCKET fd, const char *buff, const size_t l
     volatile uint64_t *mmio_ptr = (uint64_t *)buff;
     uint64_t *buff64 = (uint64_t *)g_socket_send_buff;
     size_t transfers = (len + 7) / 8;
-    size_t i;
-    for (i = 0; i < transfers; ++i) {
+    for (size_t i = 0; i < transfers; ++i) {
         *buff64++ = *mmio_ptr++;      
     }
     
@@ -213,8 +211,7 @@ RETURN_CODE socket_recv_accumulate_h2t_data(SOCKET sock_fd, char *buff, const si
         volatile uint64_t *mmio_ptr = (uint64_t *)buff;
         uint64_t *buff64 = (uint64_t *)g_socket_recv_buff;
         size_t transfers = (len +7) / 8;
-        size_t i;
-        for (i = 0; i < transfers; ++i) {
+        for (size_t i = 0; i < transfers; ++i) {
             *mmio_ptr++ = *buff64++;
         }
     }

@@ -422,8 +422,7 @@ const char *set_driver_parameter(char *cmd, SERVER_CONN *server_conn) {
         const char *param_name = strstr(cmd, SET_DRIVER_PARAM_CMD) + SET_DRIVER_PARAM_CMD_LEN;
         const char *param_value = strstr(param_name, " ") + 1;
         size_t param_name_len = (size_t)(param_value - param_name) - 1;
-        size_t i;
-        for (i = 0; i < MIN_MACRO(param_name_len, MAX_DRIVER_PARAM_NAME_LEN); ++i) {
+        for (size_t i = 0; i < MIN_MACRO(param_name_len, MAX_DRIVER_PARAM_NAME_LEN); ++i) {
             param_name_buff[i] = param_name[i];
         }
         if (server_conn->hw_callbacks.set_param(param_name_buff, param_value) >= 0) {
@@ -770,8 +769,7 @@ void handle_client(SERVER_CONN *server_conn, CLIENT_CONN *client_conn) {
         
         // First handle exceptional conditions
         char disconnect_client = 0;
-        int i;
-        for (i = 0; i < NUM_FDS; ++i) {
+        for (int i = 0; i < NUM_FDS; ++i) {
             if (FD_ISSET(all_fds[i], &except_fds)) {
                 server_conn->hw_callbacks.server_printf("Exception found on socket: %s\n", all_fd_names[i]);
                 disconnect_client = 1;
