@@ -48,18 +48,19 @@ void zero_mem(void *a, size_t length) {
     typedef size_t big_type;
     size_t big_size = sizeof(big_type);
     size_t leftover_offset = 0;
+    size_t i;
 
     if (length > big_size) {
         size_t fast_transfers = length / big_size;
         leftover_offset = fast_transfers * big_size;
         big_type *big_a = (big_type *)a;
-        for (size_t i = 0; i < fast_transfers; ++i) {
+        for (i = 0; i < fast_transfers; ++i) {
             big_a[i] = 0;
         }
 
     }
     size_t leftover = length % big_size;
-    for (size_t i = 0; i < leftover; ++i) {
+    for (i = 0; i < leftover; ++i) {
         ((char *)a)[i + leftover_offset] = 0;
     }
 }
@@ -69,8 +70,10 @@ void fill_mem(void *a, char c, size_t length) {
     size_t big_size = sizeof(big_type);
     size_t leftover_offset = 0;
     char stamp[32];
-    for (unsigned char i = 0; i < big_size; ++i) {
-        stamp[i] = c;
+    size_t i;
+    unsigned char j;
+    for (j = 0; j < big_size; ++j) {
+        stamp[j] = c;
     }
     big_type big_stamp = *((big_type *)stamp);
 
@@ -78,13 +81,13 @@ void fill_mem(void *a, char c, size_t length) {
         size_t fast_transfers = length / big_size;
         leftover_offset = fast_transfers * big_size;
         big_type *big_a = (big_type *)a;
-        for (size_t i = 0; i < fast_transfers; ++i) {
+        for (i = 0; i < fast_transfers; ++i) {
             big_a[i] = big_stamp;
         }
 
     }
     size_t leftover = length % big_size;
-    for (size_t i = 0; i < leftover; ++i) {
+    for (i = 0; i < leftover; ++i) {
         ((char *)a)[i + leftover_offset] = c;
     }
 }
