@@ -152,6 +152,8 @@ set(CPACK_COMPONENTS_ALL
 	opaecxxcorelib
 	afutest
 	opaetoolslibs
+	vfiolib
+	vfiotest
 	opaecxxutils
 	opaecxxlib
 	opaecxxnlb
@@ -168,6 +170,8 @@ define_pkg(tools
   COMPONENTS
   toolfpgaconf
   opaeboardlib
+  vfiolib
+  vfiotest
   toolargsfilter
   toolfpgainfo
   toolfpgametrics

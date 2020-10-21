@@ -1,4 +1,4 @@
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2019-2020, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -38,7 +38,8 @@ setup(
             'fpgaflash = opae.admin.tools.fpgaflash:main',
             'fpgaotsu = opae.admin.tools.fpgaotsu:main',
             'fpgaport = opae.admin.tools.fpgaport:main',
-            'bitstreaminfo = opae.admin.tools.bitstream_info:main'
+            'bitstreaminfo = opae.admin.tools.bitstream_info:main',
+            'opaevfio = opae.admin.tools.opaevfio:main'
         ]
     },
     install_requires=[],
