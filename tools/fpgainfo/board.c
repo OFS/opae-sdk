@@ -623,7 +623,7 @@ fpga_result fme_verbose_info(fpga_token token)
 	fpga_result res = FPGA_OK;
 	void *dl_handle = NULL;
 
-	// Sec information
+	// fme verbose information
 	fpga_result(*print_fme_verbose_info)(fpga_token token);
 
 	res = load_board_plugin(token, &dl_handle);
@@ -637,7 +637,7 @@ fpga_result fme_verbose_info(fpga_token token)
 		res = print_fme_verbose_info(token);
 	}
 	else {
-		OPAE_MSG("No print_sec_info entry point:%s\n", dlerror());
+		OPAE_MSG("No print_fme_verbose_info entry point:%s\n", dlerror());
 		res = FPGA_NOT_FOUND;
 	}
 
