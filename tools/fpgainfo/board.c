@@ -616,3 +616,31 @@ fpga_result sec_info(fpga_token token)
 out:
 	return res;
 }
+
+// prints fme verbose info
+fpga_result fme_verbose_info(fpga_token token)
+{
+	fpga_result res = FPGA_OK;
+	void *dl_handle = NULL;
+
+	// Sec information
+	fpga_result(*print_fme_verbose_info)(fpga_token token);
+
+	res = load_board_plugin(token, &dl_handle);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to load board plugin\n");
+		goto out;
+	}
+
+	print_fme_verbose_info = dlsym(dl_handle, "print_fme_verbose_info");
+	if (print_fme_verbose_info) {
+		res = print_fme_verbose_info(token);
+	}
+	else {
+		OPAE_MSG("No print_sec_info entry point:%s\n", dlerror());
+		res = FPGA_NOT_FOUND;
+	}
+
+out:
+	return res;
+}

@@ -170,7 +170,7 @@ fpga_result print_sec_common_info(fpga_token token)
 	memset(name, 0, sizeof(name));
 	res = read_sysfs(token, DFL_SYSFS_SEC_BMC_CANCEL, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
-		printf("BMC CSK IDs canceled: %s\n", strlen(name) > 1 ? name : "None");
+		printf("BMC CSK IDs canceled: %s\n", strlen(name) > 0 ? name : "None");
 	} else {
 		OPAE_MSG("Failed to Read BMC CSK IDs canceled");
 		printf("BBMC CSK IDs canceled: %s\n", "None");
@@ -191,7 +191,7 @@ fpga_result print_sec_common_info(fpga_token token)
 	memset(name, 0, sizeof(name));
 	res = read_sysfs(token, DFL_SYSFS_SEC_PR_CANCEL, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
-		printf("AFU/PR CSK IDs canceled: %s\n", strlen(name) > 1 ? name : "None");
+		printf("AFU/PR CSK IDs canceled: %s\n", strlen(name) > 0 ? name : "None");
 	} else {
 		OPAE_MSG("Failed to Read AFU CSK/PR IDs canceled");
 		printf("AFU/PR CSK IDs canceled: %s\n", "None");
@@ -212,7 +212,7 @@ fpga_result print_sec_common_info(fpga_token token)
 	memset(name, 0, sizeof(name));
 	res = read_sysfs(token, DFL_SYSFS_SEC_SR_CANCEL, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
-		printf("FIM CSK IDs canceled: %s\n", strlen(name) > 1 ? name : "None");
+		printf("FIM CSK IDs canceled: %s\n", strlen(name) > 0 ? name : "None");
 	} else {
 		OPAE_MSG("Failed to Read FIM CSK IDs canceled");
 		printf("FIM CSK IDs canceled: %s\n", "None");
