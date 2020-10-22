@@ -270,7 +270,7 @@ int run_mmlink(fpga_handle  port_handle,
 	}
 	//printf("STP DFH = 0x%lx\n" ,value);
 
-	value &= 0x1000;
+	value &= 0xF000;
 	value = value >> FPGA_PORT_STP_DFH_REVBIT;
 
 
