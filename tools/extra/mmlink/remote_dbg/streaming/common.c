@@ -65,7 +65,7 @@ void zero_mem(void *a, size_t length) {
 }
 
 void fill_mem(void *a, char c, size_t length) {
-    typedef size_t big_type;
+    typedef __attribute__((__may_alias__)) size_t big_type;
     size_t big_size = sizeof(big_type);
     size_t leftover_offset = 0;
     char stamp[32];

@@ -34,6 +34,8 @@ opae_add_shared_library(TARGET mml-srv
         opae-c
         ${libjson-c_LIBRARIES}
     COMPONENT toolmmlink
+    VERSION ${OPAE_VERSION}
+    SOVERSION ${OPAE_VERSION_MAJOR}
 )
 
 target_include_directories(mml-srv

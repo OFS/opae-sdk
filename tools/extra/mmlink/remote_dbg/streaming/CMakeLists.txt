@@ -24,6 +24,10 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
+# setting C_STANDARD on cmake 2.8 doesn't work
+# force the flags in this scope
+
+set(CMAKE_C_FLAGS "-std=gnu11 ${CMAKE_C_FLAGS}")
 opae_add_shared_library(TARGET mml-stream
     SOURCE
         common.c
@@ -37,6 +41,8 @@ opae_add_shared_library(TARGET mml-stream
         opae-c
         ${libjson-c_LIBRARIES}
     COMPONENT toolmmlink
+    VERSION ${OPAE_VERSION}
+    SOVERSION ${OPAE_VERSION_MAJOR}
 )
 
 target_include_directories(mml-stream
