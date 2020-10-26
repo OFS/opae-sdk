@@ -1,6 +1,7 @@
 name: Update opae-sdk
 on:
   repository_dispatch:
+    types: update-opae-libs
 jobs:
   create_pr:
     runs-on: ubuntu-latest
