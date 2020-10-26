@@ -1,0 +1,21 @@
+name: Update opae-sdk
+on:
+  repository_dispatch:
+jobs:
+  create_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Create PR
+        run: |
+          git config user.name "OPAE Bot"
+          git config user.email opae_robot@intel.com
+          git checkout -b auto/update-libs
+          git remote add opae-libs https://github.com/OPAE/opae-libs.git
+          git subtree pull --prefix opae-libs opae-libs master
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v3
+
+
