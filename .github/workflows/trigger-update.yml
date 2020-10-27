@@ -12,6 +12,6 @@ jobs:
         run: |
           curl -v --request POST --data '{"event_type": "update-opae-libs"}' \
             -H "Accept: application/vnd.github.everest-preview+json" \
-            -H "Authorization: token ${{ secret.UPDATER_TOKEN }} " \
+            -H "Authorization: token ${{ secrets.UPDATER_TOKEN }} " \
             https://api.github.com/repos/OPAE/opae-sdk/dispatches
 
