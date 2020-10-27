@@ -177,6 +177,26 @@ static const char *const PORT_ERROR[PORT_ERROR_COUNT] = {
 	"Tx Channel 1 byte_len and byte_start should be zero when mode is not eMOD_BYTE"
 };
 
+#define REV2_PORT_ERROR_COUNT 16
+static const char *const REV2_PORT_ERROR[REV2_PORT_ERROR_COUNT] = {
+	"Tx valid violation",
+	"Tx mwr insufficient data",
+	"Tx mwr data payload overrun",
+	"mmio insufficient data",
+	"mmio data payload overrun",
+	"mmio read while reset",
+	"mmio write while reset",
+	"mmio timeout",
+	"unexpected mmio response",
+	"tag occupiied",
+	"unaligned address",
+	"max tag",
+	"max read request size",
+	"max payload",
+	"malformed TLP",
+	"Tx request couter overflow",
+};
+
 /*
  * errors command configuration, set during parse_args()
  */
@@ -316,6 +336,31 @@ out:
 	return res;
 }
 
+static fpga_result get_port_error_revision(fpga_token token, uint64_t *value)
+{
+	fpga_result res = FPGA_OK;
+	fpga_object fpga_object;
+
+	res = fpgaTokenGetObject(token, "error*/revision" , &fpga_object, FPGA_OBJECT_GLOB);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to get token Object");
+		return res;
+	}
+
+	res = fpgaObjectRead64(fpga_object, value, 0);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to Read object ");
+		fpgaDestroyObject(&fpga_object);
+		return res;
+	}
+
+	res = fpgaDestroyObject(&fpga_object);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to Destroy Object");
+	}
+	return res;
+}
+
 static void print_errors_info(fpga_token token, fpga_properties props,
 			      struct fpga_error_info *errinfos,
 			      uint32_t num_errors)
@@ -400,8 +445,27 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 			       error_value);
 
 			if (!strcmp(errinfos[i].name, "Errors")) {
-				size = PORT_ERROR_COUNT;
-				error_string = PORT_ERROR;
+				uint64_t revision = 0;
+				res = get_port_error_revision(token, &revision);
+				if (res != FPGA_OK) {
+					OPAE_ERR("could not find port error revision - skipping decode\n");
+					continue;
+				}
+
+				switch (revision) {
+				case 2:
+					size = REV2_PORT_ERROR_COUNT;
+					error_string = REV2_PORT_ERROR;
+					break;
+
+				case 1:
+					size = PORT_ERROR_COUNT;
+					error_string = PORT_ERROR;
+					break;
+				default:
+					printf("unknown revision number %ld\n", revision);
+					continue;
+				}
 			} else if (!strcmp(errinfos[i].name, "First Malformed Req")) {
 				size = 0;
 				error_string = NULL;
