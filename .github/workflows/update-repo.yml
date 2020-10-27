@@ -12,7 +12,7 @@ jobs:
         run: |
           git config user.name "OPAE Bot"
           git config user.email opae_robot@intel.com
-          git subtree pull --prefix opae-libs https://github.com/OPAE/opae-libs.git master --squash
+          git subtree add --prefix opae-libs https://github.com/OPAE/opae-libs.git master --squash
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v3
