@@ -26,9 +26,6 @@ jobs:
           branch: auto/update-libs
           delete-branch: true
           assignees: r-rojo
-          reviewers:
-            - r-rojo
-            - asgardkm
-            - tswhison
+          reviewers: r-rojo, asgardkm, tswhison
 
 
