@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,27 +24,29 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_add_executable(TARGET mmlink
-    SOURCE
-        main.cpp
-    LIBS
-        opae-c
-        ${libjson-c_LIBRARIES}
-        mml-srv
-        mml-stream
-    COMPONENT toolmmlink
+try_compile(PLATFORM_SUPPORTS_VFIO
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/vfiocheck.c
+    OUTPUT_VARIABLE TRY_COMPILE_OUTPUT
 )
 
-target_include_directories(mmlink
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/remote_dbg
-)
-
-set_target_properties(mmlink
-    PROPERTIES
-        CXX_STANDARD 11
-        CXX_STANDARD_REQUIRED YES
-        CXX_EXTENSIONS NO
-)
-
-add_subdirectory(remote_dbg/legacy)
-add_subdirectory(remote_dbg/streaming)
+if (PLATFORM_SUPPORTS_VFIO)
+    opae_add_shared_library(TARGET opaevfio
+        SOURCE opaevfio.c
+        LIBS
+            ${CMAKE_THREAD_LIBS_INIT}
+        VERSION ${OPAE_VERSION}
+        SOVERSION ${OPAE_VERSION_MAJOR}
+        COMPONENT vfiolib
+    )
+    
+    opae_add_executable(TARGET opaevfiotest
+        SOURCE opaevfiotest.c
+        LIBS opaevfio
+        COMPONENT vfiotest
+    )
+else(PLATFORM_SUPPORTS_VFIO)
+    message(WARNING
+        "Could not compile VFIO. See errors in platform_vfio_errors.txt")
+    file(WRITE ${CMAKE_BINARY_DIR}/platform_vfio_errors.txt ${TRY_COMPILE_OUTPUT})
+endif(PLATFORM_SUPPORTS_VFIO)

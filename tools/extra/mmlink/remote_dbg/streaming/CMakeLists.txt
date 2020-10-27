@@ -24,27 +24,34 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_add_executable(TARGET mmlink
+# setting C_STANDARD on cmake 2.8 doesn't work
+# force the flags in this scope
+
+set(CMAKE_C_FLAGS "-std=gnu11 ${CMAKE_C_FLAGS}")
+opae_add_shared_library(TARGET mml-stream
     SOURCE
-        main.cpp
+        common.c
+        constants.c
+        packet.c
+        server.c
+        sockets.c
+        st_dbg_ip_driver.c
+        stream_dbg.cpp
     LIBS
         opae-c
         ${libjson-c_LIBRARIES}
-        mml-srv
-        mml-stream
     COMPONENT toolmmlink
+    VERSION ${OPAE_VERSION}
+    SOVERSION ${OPAE_VERSION_MAJOR}
 )
 
-target_include_directories(mmlink
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/remote_dbg
+target_include_directories(mml-stream
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..
 )
 
-set_target_properties(mmlink
+set_target_properties(mml-stream
     PROPERTIES
         CXX_STANDARD 11
         CXX_STANDARD_REQUIRED YES
         CXX_EXTENSIONS NO
 )
-
-add_subdirectory(remote_dbg/legacy)
-add_subdirectory(remote_dbg/streaming)
