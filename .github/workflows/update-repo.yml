@@ -1,0 +1,33 @@
+name: Update opae-sdk
+on:
+  repository_dispatch:
+    types: update-opae-libs
+jobs:
+  create_pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+      - name: Update opae-libs subtree
+        run: |
+          git config user.name "OPAE Bot"
+          git config user.email opae_robot@intel.com
+          git remote add opae-libs https://github.com/OPAE/opae-libs.git
+          git fetch --all
+          git subtree pull --prefix opae-libs opae-libs master --squash
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.UPDATER_TOKEN }}
+          commit-message: Update opae-libs
+          committer: GitHub <noreply@github.com>
+          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+          signoff: false
+          title: 'ci: merge opae-libs'
+          branch: auto/update-libs
+          delete-branch: true
+          assignees: r-rojo
+          reviewers: r-rojo, asgardkm, tswhison
