@@ -474,8 +474,7 @@ fpga_result print_fme_verbose_info(fpga_token token)
 			printf("%s\n", intf[val]);
 		else
 			printf("unknown\n");
-	}
-	else {
+	} else {
 		printf("%-32s : %x", "HSSI Id", val);
 	}
 

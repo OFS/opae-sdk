@@ -620,6 +620,7 @@ out:
 // prints fme verbose info
 fpga_result fme_verbose_info(fpga_token token)
 {
+
 	fpga_result res = FPGA_OK;
 	void *dl_handle = NULL;
 
@@ -635,8 +636,7 @@ fpga_result fme_verbose_info(fpga_token token)
 	print_fme_verbose_info = dlsym(dl_handle, "print_fme_verbose_info");
 	if (print_fme_verbose_info) {
 		res = print_fme_verbose_info(token);
-	}
-	else {
+	} else {
 		OPAE_MSG("No print_fme_verbose_info entry point:%s\n", dlerror());
 		res = FPGA_NOT_FOUND;
 	}
