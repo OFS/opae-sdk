@@ -27,7 +27,12 @@ jobs:
           author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
           signoff: false
           title: 'ci: merge opae-libs'
+          body: |
+            Automated changes by [create-pull-request](https://github.com/peter-evans/create-pull-request) GitHub action
           branch: auto/update-libs
           delete-branch: true
           assignees: r-rojo
-          reviewers: r-rojo, asgardkm, tswhison
+          reviewers: |
+            r-rojo
+            asgardkm
+            tswhison
