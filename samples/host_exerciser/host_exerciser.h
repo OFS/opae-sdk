@@ -36,6 +36,7 @@ using opae::fpga::types::event;
 using opae::fpga::types::shared_buffer;
 
 static const uint64_t HELPBK_TEST_TIMEOUT = 30000;
+static const uint64_t HELPBK_TEST_SLEEP_INVL = 100;
 static const uint64_t CL = 64;
 static const uint64_t KB = 1024;
 static const uint64_t MB = KB * 1024;
@@ -72,9 +73,9 @@ enum {
 
 //configures test mode
 typedef enum {
-	HOST_EXEMODE_LPBK1= 0x0,
+	HOST_EXEMODE_LPBK1 = 0x0,
 	HOST_EXEMODE_READ = 0x1,
-	HOST_EXEMODE_WRITE= 0x2,
+	HOST_EXEMODE_WRITE = 0x2,
 	HOST_EXEMODE_TRUPT = 0x3,
 } host_exe_mode;
 
@@ -96,18 +97,16 @@ union dfh_header  {
   enum {
     offset = DFH_HEADER
   };
-
-  dfh_header(uint64_t v) : value(v) {}
   uint64_t value;
   struct {
     uint16_t FeatureID : 12;
-    uint8_t FeatureRev : 4;
+    uint8_t  FeatureRev : 4;
     uint32_t NextDfhByteOffset : 24;
-	uint8_t EOL : 1;
-	uint8_t Reserved41 : 7;
-	uint8_t AFUminor : 4;
-	uint8_t DFHversion : 8;
-	uint8_t FeatureType : 4;
+	uint8_t  EOL : 1;
+	uint8_t  Reserved41 : 7;
+	uint8_t  AFUminor : 4;
+	uint8_t  DFHversion : 8;
+	uint8_t  FeatureType : 4;
   };
 };
 
@@ -116,7 +115,6 @@ union dfh_cap_hdr {
 	enum {
 		offset = DFH_CAPABILITY_HEADER
 	};
-	dfh_cap_hdr(uint32_t v) : value(v) {}
 	uint32_t value;
 	struct {
 		uint16_t CapID : 16;
@@ -125,161 +123,141 @@ union dfh_cap_hdr {
 	};
 };
 
-// TBD
-union dfh_cap_guid {
+
+// DFH CAPABILITY GUID
+struct dfh_cap_guid_s
+{
+	uint64_t GuidHi;
+	uint64_t GuidLo;
+	uint32_t Reserved;
+	uint32_t dfhCapHeader;
+};
+
+union dfh_cap_guid
+{
 	enum {
 		offset = DFH_CAPABILITY_GUID
 	};
-
-	dfh_cap_guid(uint8_t* v)
-	{
-		for (int i = 0; i < 24; i++) {
-			memcpy(&value[i], v, 1);
-			v++;
-		}
-	}
-	uint8_t  value[24];
-	struct {
-		uint64_t  GuidHi;
-		uint64_t GuidLo;
-		uint32_t Reserved;
-		uint32_t dfhCapHeader;
-	};
+	uint8_t arr[24];
+	dfh_cap_guid_s cap_guid;
 };
 
+// DFH CAPABILITY INT
+struct dfh_cap_init_s
+{
+	uint32_t IntVectorLength;
+	uint32_t IntVectorStart;
+	uint32_t IntControl;
+	uint32_t IntFlags;
+	uint32_t DfhCapHeader;
+};
 
-union dfh_cap_init {
+union dfh_cap_init
+{
 	enum {
 		offset = DFH_CAPABILITY_INT
 	};
-
-	dfh_cap_init(uint8_t* v)
-	{
-		for (int i = 0; i < 20; i++) {
-			memcpy(&value[i], v, 1);
-			v++;
-		}
-	}
-	uint8_t  value[20];
-	struct {
-		uint32_t IntVectorLength ;
-		uint32_t IntVectorStart;
-		uint32_t IntControl ;
-		uint32_t IntFlags ;
-		uint32_t DfhCapHeader;
-	};
+	uint8_t arr[20];
+	dfh_cap_init_s cap_init;
 };
 
-
-
+// DSM BASEL
 union csr_afu_dsm_basel {
 	enum {
 		offset = CSR_AFU_DSM_BASEL
 	};
-	csr_afu_dsm_basel(uint32_t v) : value(v) {}
 	uint32_t value;
 	struct {
 		uint32_t DsmBaseL : 32;
 	};
 };
 
+// DSM BASEH
 union csr_afu_dsm_baseh {
 	enum {
 		offset = CSR_AFU_DSM_BASEH
 	};
-	csr_afu_dsm_baseh(uint32_t v) : value(v) {}
 	uint32_t value;
 	struct {
 		uint32_t DsmBaseH : 32;
 	};
 };
 
+// CSR CTL
 union csr_ctl{
 	enum {
 		offset = CSR_CTL
 	};
-
-	csr_ctl(uint32_t v) : value(v) {}
 	uint32_t value;
 	struct {
-		uint32_t Reserved4 : 29;
+		uint32_t RsvdZ1 : 29;
 		uint8_t ForcedTestCmpl : 1;
 		uint8_t Start : 1;
 		uint8_t ResetL : 1;
 	};
 };
 
+// CSR CFG
 union csr_cfg {
 	enum {
 		offset = CSR_CFG
 	};
-
-	csr_cfg(uint32_t v) : value(v) {}
 	uint32_t value;
 	struct {
-
-		uint32_t RsvdZ1 : 2;
-		uint32_t cr_interrupt_testmode : 1;
-		uint32_t cr_interrupt_on_error : 1;
-		uint32_t cr_test_cfg : 8;
-		uint32_t RsvdZ2 : 1;
-		uint32_t cr_chsel : 2;
-		uint32_t cr_rdsel : 2;
-		uint32_t cr_delay_en : 1;
-
-		uint32_t cr_multiCL_len : 2;
-		uint32_t cr_mode : 3;
-		uint32_t c_cont : 1;
-		uint32_t cr_wrthru_en : 1;
+		uint8_t RsvdZ1 : 2;
+		uint8_t cr_interrupt_testmode : 1;
+		uint8_t cr_interrupt_on_error : 1;
+		uint8_t cr_test_cfg : 8;
+		uint8_t RsvdZ2 : 1;
+		uint8_t cr_chsel : 2;
+		uint8_t cr_rdsel : 2;
+		uint8_t cr_delay_en : 1;
+		uint8_t cr_multiCL_len : 2;
+		uint8_t cr_mode : 3;
+		uint8_t c_cont : 1;
+		uint8_t cr_wrthru_en : 1;
 	};
 };
 
-
+// CSR INACT THRESH
 union csr_inact_thresh {
 	enum {
 		offset = CSR_INACT_THRESH
 	};
-
-	csr_inact_thresh(uint32_t v) : value(v) {}
 	uint32_t value;
 	struct {
-
 	uint32_t csr_inact_thresh_value :32;
 	};
 };
 
+// INTERRUPT0
 union csr_interrupt0 {
 	enum {
 		offset = CSR_INTERRUPT0
 	};
-
-	csr_interrupt0(uint32_t v) : value(v) {}
 	uint32_t value;
 	struct {
-
 	uint32_t VectorNUm : 16;
 	uint32_t apci_id : 16;
 	};
 };
 
-
+// SWTEST MSG
 union csr_swtest_msg {
 	enum {
 		offset = CSR_SWTEST_MSG
 	};
-	csr_swtest_msg(uint64_t v) : value(v) {}
 	uint64_t value;
 	struct {
 		uint64_t swtest_msg : 64;
 	};
 };
 
-
+// STATUS0
 union csr_status0 {
 	enum {
 		offset = CSR_STATUS0
 	};
-	csr_status0(uint64_t v) : value(v) {}
 	uint64_t value;
 	struct {
 		uint32_t numReads : 32;
@@ -287,12 +265,11 @@ union csr_status0 {
 	};
 };
 
-
+// STATUS1
 union csr_status1 {
 	enum {
 		offset = CSR_STATUS1
 	};
-	csr_status1(uint64_t v) : value(v) {}
 	uint64_t value;
 	struct {
 		uint32_t numPendReads : 32;
@@ -300,29 +277,45 @@ union csr_status1 {
 	};
 };
 
-
+// ERROR
 union csr_error {
 	enum {
 		offset = CSR_ERROR
 	};
-	csr_error(uint64_t v) : value(v) {}
 	uint64_t value;
 	struct {
-		uint32_t RsvdZ1 : 32;
+		uint32_t Rsvd : 32;
 		uint32_t error : 32;
 	};
 };
 
-
+// ERROR1
 union csr_error1 {
 	enum {
 		offset = CSR_ERROR1
 	};
-	csr_error1(uint64_t v) : value(v) {}
 	uint64_t value;
 	struct {
-		uint64_t error : 32;
+		uint64_t error : 64;
 	};
+};
+
+const std::map<std::string, uint32_t> modes = {
+	{ "lpbk", HOST_EXEMODE_LPBK1},
+	{ "read", HOST_EXEMODE_READ},
+	{ "write", HOST_EXEMODE_WRITE},
+	{ "trput", HOST_EXEMODE_TRUPT},
+};
+
+const std::map<std::string, uint32_t> reads= {
+	{ "rdline_s", HOSTEXE_RDLINE_S},
+	{ "rdline_l", HOSTEXE_RDLINE_L},
+	{ "mixed", HOSTEXE_RDLINE_MIX},
+};
+
+const std::map<std::string, uint32_t> writes = {
+	{ "wrline_m", HOSTEXE_WRLINE_M},
+	{ "wrline_l", HOSTEXE_WRLINE_L}
 };
 
 using test_afu = opae::afu_test::afu;
@@ -334,14 +327,28 @@ public:
   : test_afu("host_exerciser", afu_id)
   , count_(1)
   {
-    app_.add_option("-m,--mode", mode_str_, "mode {lpbk,read, write, trput}")->default_val("lpbk");
-    app_.add_option("-r,--read", read_str_, "read request type{rdline_s, rdline_l,mixed}")->default_val("rdline_s");
-    app_.add_option("-w,--write", write_str_, "write request type {wrline_m, wrline_l}")->default_val("wrline_m");
+    // Mode
+    app_.add_option("-m,--mode", mode_, "mode {lpbk,read, write, trput}")
+      ->transform(CLI::CheckedTransformer(modes))->default_val("lpbk");
+
+    // Read
+    app_.add_option("-r,--read", read_, "read request type{rdline_s, rdline_l,mixed}")
+       ->transform(CLI::CheckedTransformer(reads))->default_val("rdline_s");
+
+    // Write
+    app_.add_option("-w,--write", write_, "write request type {wrline_m, wrline_l}")
+        ->transform(CLI::CheckedTransformer(writes))->default_val("wrline_m");
+
+    // Delay
     app_.add_option("-d,--delay", delay_, "Enables random delay insertion between requests")->default_val(false);
-    app_.add_option("--multi-cl", multi_cl_, "multi Cache lineone of {0, 1, 3}")->default_val(0);
+
+    // Multi Cache line
+    app_.add_option("--multi-cl", multi_cl_, "multi Cache lineone of {0, 1, 3}")
+         ->transform(CLI::IsMember(std::set<int>({ 0,1,3 })))->default_val(0);
+
+    // Configures test rollover
     app_.add_option("--ccont", c_cont_, "Configures test rollover or test termination")->default_val(false);
   }
-
 
   virtual int run(CLI::App *app, test_command::ptr_t test) override
   {
@@ -460,18 +467,12 @@ public:
 
 public:
   uint32_t count_;
-  uint32_t cacheline_;
-  std::string mode_str_;
-  std::string read_str_;
-  std::string write_str_;
   uint32_t mode_;
   uint32_t read_;
   uint32_t write_;
   bool delay_;
   uint32_t multi_cl_;
   bool c_cont_;
-  uint32_t thresh_limit_;
-
   std::map<uint32_t, uint32_t> limits_;
 
   uint32_t get_offset(uint32_t base, uint32_t i) const {
