@@ -28,19 +28,12 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-/*
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <stdlib.h>
-#include <string.h>
 #include <errno.h>
+#include <string.h>
 #include <sys/mman.h>
-
-#include <opae/uio.h>
-*/
 
 #include "uio.h"
 
@@ -62,3 +55,46 @@ fprintf(stderr, "%s:%u:%s() **ERROR** [%s] : " format , \
 	__SHORT_FILE__, __LINE__, __func__, strerror(errno), ##__VA_ARGS__)
 
 
+STATIC int opae_uio_init(struct opae_uio *u, const char *dfl_device)
+{
+	(void) u;
+	(void) dfl_device;
+
+	return 0;
+}
+
+STATIC void opae_uio_destroy(struct opae_uio *u)
+{
+	(void) u;
+}
+
+int opae_uio_open(struct opae_uio *u, const char *dfl_device)
+{
+	if (!u || !dfl_device) {
+		ERR("NULL param\n");
+		return 1;
+	}
+
+	return opae_uio_init(u, dfl_device);
+}
+
+int opae_uio_region_get(struct opae_uio *u, uint32_t index,
+			uint8_t **ptr, size_t *size)
+{
+(void) u;
+(void) index;
+(void) ptr;
+(void) size;
+
+	return 0;
+}
+
+void opae_uio_close(struct opae_uio *u)
+{
+	if (!u) {
+		ERR("NULL param\n");
+		return;
+	}
+
+	opae_uio_destroy(u);
+}

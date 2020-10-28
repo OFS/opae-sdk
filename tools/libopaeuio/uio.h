@@ -37,13 +37,33 @@
 #include <stdint.h>
 #include <pthread.h>
 
+struct opae_uio_device_region {
+	uint32_t region_index;
+	uint8_t *region_ptr;
+	size_t region_size;
+	struct opae_vfio_device_region *next;
+};
 
+struct opae_uio {
+
+
+	struct opae_uio_device_region *regions;
+};
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+int opae_uio_open(struct opae_uio *u,
+		  const char *dfl_device);
+
+int opae_uio_region_get(struct opae_uio *u,
+			uint32_t index,
+			uint8_t **ptr,
+			size_t *size);
+
+void opae_uio_close(struct opae_uio *u);
 
 #ifdef __cplusplus
 } // extern "C"
