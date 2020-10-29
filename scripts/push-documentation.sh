@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 
 setup_git() {
@@ -12,9 +12,9 @@ commit_website_files() {
   cd upload_docs
   git clone https://OPAE:$GIT_TOKEN@github.com/OPAE/opae.github.io.git
   cd opae.github.io
- 
 
-  if [ "$1" = "latest" ] 
+
+  if [ "$1" = "latest" ]
   then
     temp_dir=`ls ../../sphinx/html/`
     cp -r ../../sphinx/html/$temp_dir/* latest/
