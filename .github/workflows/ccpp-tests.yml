@@ -87,4 +87,9 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       working-directory: ${{ github.workspace }}/mybuild_docs
       run: ${{ github.workspace }}/scripts/push-documentation.sh "${GITHUB_TAG##*/}"
+    - name: Archive html docs
+      uses: actions/upload-artifact@v1
+      with:
+        name: docs
+        path: mybuild_docs/sphinx/html
 
