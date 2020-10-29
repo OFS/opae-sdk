@@ -16,7 +16,7 @@ fi
 mkdir mybuild_docs
 pushd mybuild_docs
 export PYTHONPATH=$PWD/lib/python$PYTHON_VERSION
-
+export PATH=~/.local/bin:$PATH
 trap "popd" EXIT
 
 cmake .. -DOPAE_BUILD_SPHINX_DOC=ON -DOPAE_PYTHON_VERSION=$PYTHON_VERSION
