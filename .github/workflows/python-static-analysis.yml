@@ -24,7 +24,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8 bandit
+        python -m pip install pylint flake8 bandit
     - name: Pylint lint
       run: |
         pylint $(find ${{ github.workspace }} -name "*.py") \
