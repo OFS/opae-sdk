@@ -127,7 +127,7 @@ The metrics APIs define functions for discovery/enumeration of metrics informati
 and reading metrics values.
 
 metrics.h
---------
+---------
 
 .. doxygenfile:: include/opae/metrics.h
 
@@ -142,7 +142,7 @@ tree for the resource used with the SysObject API.
 
 
 sysobject.h
--------
+-----------
 
 .. doxygenfile:: include/opae/sysobject.h
 
