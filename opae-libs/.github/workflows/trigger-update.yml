@@ -1,6 +1,8 @@
 name: Trigger update opae-sdk
 on:
   push:
+    paths-ignore: 
+      - '.github/**'
     branches:
       - master
   workflow_dispatch:
