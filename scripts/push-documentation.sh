@@ -2,8 +2,8 @@
 
 
 setup_git() {
-  git config --global user.email "nakul.korde@intel.com"
-  git config --global user.name "Nakul Korde"
+	git config user.name "OPAE Bot"
+	git config user.email opae_robot@intel.com
 }
 
 commit_website_files() {
@@ -33,6 +33,6 @@ upload_files() {
   echo "Latest documentation uploaded to opae.github.io"
 }
 
-setup_git 
+setup_git
 commit_website_files "$1"
 upload_files
