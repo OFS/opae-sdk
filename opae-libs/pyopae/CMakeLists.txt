@@ -48,7 +48,7 @@ set(PYOPAE_SRC
 
 opae_external_project_add(PROJECT_NAME pybind11
                           GIT_URL https://github.com/pybind/pybind11.git
-                          GIT_TAG v2.4.3
+                          GIT_TAG v2.6.0
                           )
 
 opae_add_module_library(TARGET _opae

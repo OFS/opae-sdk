@@ -2,10 +2,13 @@ name: C/C++ CI
 
 on:
   push:
+    paths-ignore:
+      - '.github/workflows/trigger-update.yml'
     branches: [master]
   pull_request:
     branches: [master]
-
+    paths-ignore:
+      - '.github/workflows/trigger-update.yml'
 jobs:
   build:
     runs-on: ubuntu-latest
