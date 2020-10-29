@@ -896,8 +896,9 @@ void server_main(SERVER_LIFESPAN lifespan, SERVER_CONN *server_conn) {
             if (terminate) break;
             server_conn->hw_callbacks.server_printf("Rejected remote client.\n");
         }
-        
+
         close_client_conn(&client_conn, server_conn);
+        if (terminate) break;
     } while (lifespan == MULTIPLE_CLIENTS);
 
     // Close the listening socket
