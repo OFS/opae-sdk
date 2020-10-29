@@ -92,4 +92,8 @@ jobs:
       with:
         name: docs
         path: mybuild_docs/sphinx/html
+    - name: Link Checker
+      uses: peter-evans/link-checker@v1
+      with:
+        args: -v -r mybuild_docs/sphinx/html
 
