@@ -76,7 +76,7 @@ jobs:
     - name: Get Packages
       uses: mstksg/get-package@v1
       with:
-        apt-get: uuid-dev libjson-c-dev libhwloc-dev lcov libtbb-dev doxygen python3-dev
+        apt-get: uuid-dev libjson-c-dev libhwloc-dev lcov libtbb-dev doxygen python3-dev python3-setuptools
     - name: Build Documentation
       run: ./scripts/build-documentation.sh
     - name: Upload latest to github.io
