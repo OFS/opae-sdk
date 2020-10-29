@@ -96,4 +96,9 @@ jobs:
       uses: peter-evans/link-checker@v1
       with:
         args: -v -r mybuild_docs/sphinx/html
+    - name: Archive link-checker result
+      uses: actions/upload-artifact@v1
+      with:
+        name: link-checker
+        path: link-checker
 
