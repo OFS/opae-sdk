@@ -8,10 +8,10 @@ matrix:
     env:
     - BUILD_JOB=Code Style Check
     install:
-    - pip install --user pylint
-    - pip install --user pycodestyle
-    - pip install --user jsonschema
-    - pip install --user jinja2
+    - python3 -m pip install --user pylint
+    - python3 -m pip install --user pycodestyle
+    - python3 -m pip install --user jsonschema
+    - python3 -m pip install --user jinja2
     addons:
       apt:
         packages:
