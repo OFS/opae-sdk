@@ -39,7 +39,8 @@ setup(
             'fpgaotsu = opae.admin.tools.fpgaotsu:main',
             'fpgaport = opae.admin.tools.fpgaport:main',
             'bitstreaminfo = opae.admin.tools.bitstream_info:main',
-            'opaevfio = opae.admin.tools.opaevfio:main'
+            'opaevfio = opae.admin.tools.opaevfio:main',
+            'regmap-debugfs = opae.admin.tools.regmap_debugfs:main',
         ]
     },
     install_requires=[],
