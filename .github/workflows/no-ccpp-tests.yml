@@ -1,4 +1,4 @@
-name: C/C++ CI Build and Test
+name: C/C++ CI Build and Test (dummy)
 
 on:
   workflow_dispatch:
