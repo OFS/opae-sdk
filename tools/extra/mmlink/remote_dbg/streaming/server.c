@@ -375,6 +375,8 @@ const char *get_parameter(char *cmd, SERVER_CONN *server_conn) {
 const char *set_parameter(char *cmd, SERVER_CONN *server_conn, CLIENT_CONN *client_conn) {
     const char *param_name = strstr(cmd, SET_PARAM_CMD) + SET_PARAM_CMD_LEN;
     const char *param_value;
+    if (!param_name)
+	return SET_PARAM_CMD_FAIL_RSP;
     if (strstr(param_name, SERVER_LOOPBACK_MODE_PARAM) == param_name) {
         param_value = param_name + SERVER_LOOPBACK_MODE_PARAM_LEN;
         if (strnlen(param_value, 1) == 1) {
@@ -420,6 +422,8 @@ const char *set_driver_parameter(char *cmd, SERVER_CONN *server_conn) {
 
     if (server_conn->hw_callbacks.set_param != NULL) {
         const char *param_name = strstr(cmd, SET_DRIVER_PARAM_CMD) + SET_DRIVER_PARAM_CMD_LEN;
+        if (!param_name)
+            return SET_PARAM_CMD_FAIL_RSP;
         const char *param_value = strstr(param_name, " ") + 1;
         size_t param_name_len = (size_t)(param_value - param_name) - 1;
         for (size_t i = 0; i < MIN_MACRO(param_name_len, MAX_DRIVER_PARAM_NAME_LEN); ++i) {
@@ -895,5 +899,8 @@ void server_main(SERVER_LIFESPAN lifespan, SERVER_CONN *server_conn) {
 
     // Close the listening socket
     set_linger_socket_option(server_conn->server_fd, 1, 0);
-    close_socket_fd(server_conn->server_fd);
+    if (close_socket_fd(server_conn->server_fd))
+        server_conn->hw_callbacks.server_printf("Error closing server socket.\n");
+    else
+        server_conn->server_fd = INVALID_SOCKET;
 }
