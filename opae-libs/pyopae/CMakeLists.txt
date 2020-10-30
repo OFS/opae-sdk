@@ -46,9 +46,30 @@ set(PYOPAE_SRC
     pysysobject.cpp
 )
 
+# Obtain current OS to determine pybind11 tag to use in compilation.
+file(READ "/etc/os-release" ver)
+string(REGEX MATCH "REDHAT_SUPPORT_PRODUCT_VERSION=.([0-9]*)" _ ${ver})
+set(os_dist "el${CMAKE_MATCH_1}")
+message(STATUS "OS dist: ${os_dist}")
+
+
+# Add el7 guard 
+# Latest pybind11 bumps up CMake support to 3.4.0.
+#  - https://github.com/pybind/pybind11/releases/tag/v2.6.0
+# This version is not available on default el7 machines (default: 2.8.12.2).
+# Therefore, use a pybind11 tag compatible on el7.
+if("${os_dist}" STREQUAL "el7")
+    set(PYBIND11_TAG "v2.4.3")
+else()
+# Otherwise, pull recent pybind11 tag to enable Python 3.9 support.
+    set(PYBIND11_TAG "v2.6.0")
+endif()
+message(STATUS "Using pybind11 ${PYBIND11_TAG}")
+
+
 opae_external_project_add(PROJECT_NAME pybind11
                           GIT_URL https://github.com/pybind/pybind11.git
-                          GIT_TAG v2.6.0
+                          GIT_TAG "${PYBIND11_TAG}"
                           )
 
 opae_add_module_library(TARGET _opae
