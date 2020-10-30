@@ -46,19 +46,7 @@ set(PYOPAE_SRC
     pysysobject.cpp
 )
 
-# Obtain current OS to determine pybind11 tag to use in compilation.
-file(READ "/etc/os-release" ver)
-string(REGEX MATCH "REDHAT_SUPPORT_PRODUCT_VERSION=.([0-9]*)" _ ${ver})
-set(os_dist "el${CMAKE_MATCH_1}")
-message(STATUS "OS dist: ${os_dist}")
-
-
-# Add el7 guard 
-# Latest pybind11 bumps up CMake support to 3.4.0.
-#  - https://github.com/pybind/pybind11/releases/tag/v2.6.0
-# This version is not available on default el7 machines (default: 2.8.12.2).
-# Therefore, use a pybind11 tag compatible on el7.
-if("${os_dist}" STREQUAL "el7")
+if(${CMAKE_VERSION} VERSION_LESS "3.4.0" AND ${PYTHONLIBS_VERSION_STRING} VERSION_LESS "3.9.0")
     set(PYBIND11_TAG "v2.4.3")
 else()
 # Otherwise, pull recent pybind11 tag to enable Python 3.9 support.
