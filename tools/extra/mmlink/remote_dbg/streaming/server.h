@@ -168,6 +168,7 @@ extern const CLIENT_CONN CLIENT_CONN_default;
 // Server code
 RETURN_CODE initialize_server(unsigned short port, SERVER_CONN *server_conn, const char *port_filename);
 void server_main(SERVER_LIFESPAN lifespan, SERVER_CONN *server_conn);
+void server_terminate();
 void reject_client(SERVER_CONN *server_conn);
 void handle_client(SERVER_CONN *server_conn, CLIENT_CONN *client_conn);
 RETURN_CODE bind_server_socket(SERVER_CONN *server_conn);

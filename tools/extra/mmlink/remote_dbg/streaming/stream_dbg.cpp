@@ -116,3 +116,8 @@ int stream_dbg::run(volatile uint64_t *mmio_ptr, const char *address, int port)
   return 0;
 }
 
+void stream_dbg::terminate()
+{
+  server_terminate();
+}
+
