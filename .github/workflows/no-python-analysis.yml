@@ -1,11 +1,8 @@
-name: python static analysis (dummy)
+name: python static analysis
 
 on:
   workflow_dispatch:
   push:
-    paths:
-      - '!**.py'
-      - '!.github/workflows/python-static-analysis.yml'
 
 jobs:
   analyze:
