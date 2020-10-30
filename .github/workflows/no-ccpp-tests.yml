@@ -1,0 +1,45 @@
+name: C/C++ CI Build and Test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - 'python/**'
+      - 'tools/extra/fpgabist/**'
+      - 'tools/extra/packager/*.py'
+      - 'tools/extra/packager/metadata/**'
+      - 'tools/extra/packager/test/*.py'
+      - 'tools/extra/pac_hssi_config/*.py'
+      - 'tools/extra/fpgadiag/**'
+      - 'tools/utilities/**'
+      - 'scripts/*.py'
+      - 'platforms/scripts/platmgr/**'
+      - '.github/workflows/python-static-analysis.yml'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'python/**'
+      - 'tools/extra/fpgabist/**'
+      - 'tools/extra/packager/*.py'
+      - 'tools/extra/packager/metadata/**'
+      - 'tools/extra/packager/test/*.py'
+      - 'tools/extra/pac_hssi_config/*.py'
+      - 'tools/extra/fpgadiag/**'
+      - 'tools/utilities/**'
+      - 'scripts/*.py'
+      - 'platforms/scripts/platmgr/**'
+      - '.github/workflows/python-static-analysis.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build-type: [Debug, Release, RelWithDebInfo]
+    steps:
+    - run: exit 0
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - run: exit 0
