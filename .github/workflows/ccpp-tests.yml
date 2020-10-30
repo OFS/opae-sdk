@@ -76,7 +76,7 @@ jobs:
     - name: Pull opae/docs-builder docker image
       run: docker pull opae/docs-builder
     - name: Build Documentation
-      run: docker run --rm -v ${{ github.workspace }}:/root opae-builder ./scripts/build-documentation.sh
+      run: docker run --rm -v ${{ github.workspace }}:/root opae/docs-builder ./scripts/build-documentation.sh
     - name: Upload latest to github.io
       if: ${{ github.ref == 'refs/heads/master' }}
       working-directory: ${{ github.workspace }}/mybuild_docs
