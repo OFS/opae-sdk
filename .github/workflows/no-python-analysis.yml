@@ -1,0 +1,17 @@
+name: python static analysis (dummy)
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '!**.py'
+      - '!.github/workflows/python-static-analysis.yml'
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [2.7, 3.5, 3.6, 3.7, 3.8]
+    steps:
+    - run: exit 0
