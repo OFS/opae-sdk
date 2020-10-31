@@ -42,6 +42,7 @@
 struct opae_uio_device_region {
 	uint32_t region_index;
 	uint8_t *region_ptr;
+	size_t region_page_offset;
 	size_t region_size;
 	struct opae_uio_device_region *next;
 };
@@ -49,8 +50,6 @@ struct opae_uio_device_region {
 struct opae_uio {
 	char device_path[OPAE_UIO_PATH_MAX];
 	int device_fd;
-
-
 	struct opae_uio_device_region *regions;
 };
 
