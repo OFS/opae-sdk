@@ -63,9 +63,9 @@ check_cpp () {
     pushd $(dirname $0) >/dev/null
 
     FILES=$(find_cpp)
-    clang-format-3.9 -i -style=Google ${FILES}
+    clang-format -i -style=Google ${FILES}
 
-    if [ x"$(git diff)" != x ]; then
+    if [ x"$(git diff -- ${FILES})" != x ]; then
         echo "Coding style check failed. Please fix them based on the following suggestions. You can run clang-format on these files in order to automatically format your code." 
         git --no-pager diff
         echo "The files that need to be fixed are:"
@@ -155,32 +155,14 @@ check_py () {
     return ${PY_CODE_OK}
 }
 
-check_c
-check_cpp
-check_py
-
 declare -i res=0
-
-if [ ${C_CODE_OK} -ne 0 ]; then
-    printf "C FAILED.\n"
-    res=1
+if [ "$1" == "c" ]; then
+	check_c
+	exit ${C_CODE_OK}
+elif [ "$1" == "cpp" ]; then
+	check_cpp
+	exit ${CPP_CODE_OK}
 else
-    printf "C PASSED.\n"
+	echo "unknown codingstyle check $1"
+	exit 1
 fi
-if [ ${CPP_CODE_OK} -ne 0 ]; then
-    printf "C++ FAILED.\n"
-    res=1
-else
-    printf "C++ PASSED.\n"
-fi
-if [ ${PY_CODE_OK} -ne 0 ]; then
-    printf "Python FAILED.\n"
-    res=1
-else
-    printf "Python PASSED.\n"
-fi
-
-if [ ${res} -eq 0 ]; then
-    printf "All coding style checks PASSED.\n"
-fi
-exit ${res}
