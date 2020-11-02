@@ -45,7 +45,7 @@ jobs:
       with:
         apt-get: clang-format
     - name: test ${{ matrix.lang-type }}
-      run: ${{ github.workspace }}/script/test-codingstyle-all.sh ${{ matrix.lang-type }}
+      run: ${{ github.workspace }}/scripts/test-codingstyle-all.sh ${{ matrix.lang-type }}
   build:
     runs-on: ubuntu-latest
     strategy:
