@@ -189,7 +189,7 @@ Download the ASE as source or in RPM format.
 
 The source directory tree is:
 
-```{.shell}
+```shell
 
     OPAE_BASEDIR
         |-- ase
@@ -255,7 +255,7 @@ or the RTL simulator user guides for help setting up the tools.
 This script checks the status of the OS distribution, distro, and available system libraries. This check is a non-exhaustive.
 It looks for only the most important dependencies, such as the GCC version, GLIBC version, and so on.
 
-```{.bash}
+```bash
 
     $ ./ase/scripts/env_check.sh
 
@@ -277,7 +277,7 @@ Refer to the [ASE Example](#ase-example) section below for a sample workload def
 The ```afu_sim_setup``` script reads a file containing a list of RTL sources (\<rtl_sources.txt\>) and configures a simulation
 environment for the specified sources. The ```afu_sim_setup``` command copies your base ASE environment to the \<target dir\>.
 
-```{.bash}
+```bash
 
     $ afu_sim_setup --sources=<rtl_sources.txt> <target dir>
 
@@ -350,7 +350,7 @@ variables in the generated files that build and run the simulator.
 Use the ASE cleanup script located in ```scripts/ipc_clean.py``` to kill zombie simulation processes and temporary files left
 behind by failed simulation processes or crashes.
 
-```{.bash}
+```bash
 
     $ ./ase/scripts/ipc_clean.py
 
@@ -425,7 +425,7 @@ Follow these instructions if you are building the OPAE SDK from a source tar fil
 
 * To build the OPAE libraries:
 
-```{.bash}
+```bash
 
     # Change directory to the opae directory
     $ cd /tmp/opae/
@@ -475,7 +475,7 @@ You can build the software application using one of the following three methods:
 
 ##### Dynamically Linking libopae-c-ase.so #####
 
-```{.bash}
+```bash
 
     # Change directory to <Path to Directory>/opae/samples/
     #   The UUID code requires the -luuid argument
@@ -493,7 +493,7 @@ The ASE implementation of the OPAE library simulates system behavior. Consequent
 to the System library, `libopae-c.so` and `libopae-c-ase.so`, and then override the system library with the
 ```LD_PRELOAD``` environment.
 
-```{.bash}
+```bash
 
     # Change directory to <Path to Directory>/opae/samples/
     #   The UUID code requires the -luuid argument
@@ -511,7 +511,7 @@ to the System library, `libopae-c.so` and `libopae-c-ase.so`, and then override 
 
 Use the OPAE ASE library implementation and compile it to the OPAE software application directly in one command using GCC.
 
-```{.bash}
+```bash
 
     # Compile command
     $ gcc -g -o hello_fpga_ase hello_fpga.c /tmp/opae/myinst/lib/libopae-c-ase.so -I /tmp/opae/myinst/include/ -std=c99 -luuid
@@ -548,7 +548,7 @@ requires manual inspection of generated configurations to achieve correct result
 
 You may use the [Generate ASE Environment](#generate_ase_environment.py) script to generate the required AFU ```ase_sources.mk``` and ```vlog_files.list``` files.
 
-```{.bash}
+```bash
 
     # change to ASE directory
     $ cd /tmp/opae/ase/
@@ -583,7 +583,7 @@ with a 'make' command.
 
 The ASE server-client simulator makes the server before the client. Here are the run-time options:
 
-```{.bash}
+```bash
 
     $ make sim \
         [SIMULATOR=<VCS|QUESTA>] \
@@ -652,7 +652,7 @@ You can close Terminal 1 ```make sim```by issuing a ```SIGTERM``` to the relevan
 * Terminal: First set the environment variable ```ASE_WORKDIR``` as specified in Terminal 1. In this example ```ASE_WORKDIR```
 is set to ```/tmp/opae/ase/work```.  Then, start the software application.
 
-```{.bash}
+```bash
 
     # Set ASE_WORKDIR environment variable
     $ export ASE_WORKDIR=/tmp/opae/ase/work/
@@ -671,7 +671,7 @@ is set to ```/tmp/opae/ase/work```.  Then, start the software application.
 ```
 
 
-```{.bash}
+```bash
 
 
 
@@ -758,7 +758,7 @@ while simulating, consider using the handle ```start_simkill_countdown()``` inst
 3. You can script ASE simulations. When the simulator is ready for use, the simulation writes a lock file,
 ```$ASE_WORKDIR/.ase_ready```, to the work directory.
 
-```{.bash}
+```bash
 
     # Start Simulator in background
     make sim &
@@ -982,7 +982,7 @@ variable ```ASE_LOG``` to ```0```.
 
 The following command  suppresses the ASE_MSG category:
 
-````{.bash}
+````bash
 
     $ ASE_LOG=0 LD_PRELOAD=libopae-c-ase ./hello_fpga
 
