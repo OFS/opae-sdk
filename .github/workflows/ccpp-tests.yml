@@ -82,3 +82,36 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         path-to-lcov: unittests/coverage.info.cleaned
+  build-doc:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: update
+      run: sudo apt-get update -y
+    - name: Pull opae/docs-builder docker image
+      run: docker pull opae/docs-builder
+    - name: Build Documentation
+      run: docker run --rm -v ${{ github.workspace }}:/root opae/docs-builder ./scripts/build-documentation.sh
+    - name: Upload latest to github.io
+      if: ${{ github.ref == 'refs/heads/master' }}
+      working-directory: ${{ github.workspace }}/mybuild_docs
+      run: ${{ github.workspace }}/scripts/push-documentation.sh latest
+    - name: Upload tag to github.io
+      if: startsWith(github.ref, 'refs/tags/')
+      working-directory: ${{ github.workspace }}/mybuild_docs
+      run: ${{ github.workspace }}/scripts/push-documentation.sh "${GITHUB_TAG##*/}"
+    - name: Archive html docs
+      uses: actions/upload-artifact@v1
+      with:
+        name: docs
+        path: mybuild_docs/sphinx/html
+    - name: Link Checker
+      uses: peter-evans/link-checker@v1
+      with:
+        args: -v -r mybuild_docs/sphinx/html
+    - name: Archive link-checker result
+      uses: actions/upload-artifact@v1
+      with:
+        name: link-checker
+        path: link-checker
+
