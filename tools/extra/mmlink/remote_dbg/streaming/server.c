@@ -373,7 +373,7 @@ const char *get_parameter(char *cmd, SERVER_CONN *server_conn) {
 }
 
 const char *set_parameter(char *cmd, SERVER_CONN *server_conn, CLIENT_CONN *client_conn) {
-    const char *param_name = strstr(cmd, SET_PARAM_CMD)
+    const char *param_name = strstr(cmd, SET_PARAM_CMD);
     const char *param_value;
     if (!param_name)
         return SET_PARAM_CMD_FAIL_RSP;
