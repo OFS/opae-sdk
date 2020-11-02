@@ -886,6 +886,12 @@ RETURN_CODE initialize_server(unsigned short port, SERVER_CONN *server_conn, con
     return OK;
 }
 
+int terminate;
+void server_terminate()
+{
+	terminate = 1;
+}
+
 void server_main(SERVER_LIFESPAN lifespan, SERVER_CONN *server_conn) {    
     // Main loop of server app
     do {
@@ -894,10 +900,12 @@ void server_main(SERVER_LIFESPAN lifespan, SERVER_CONN *server_conn) {
         if (connect_client(server_conn, &client_conn) == OK) {
             handle_client(server_conn, &client_conn);
         } else {
+            if (terminate) break;
             server_conn->hw_callbacks.server_printf("Rejected remote client.\n");
         }
-        
+
         close_client_conn(&client_conn, server_conn);
+        if (terminate) break;
     } while (lifespan == MULTIPLE_CLIENTS);
 
     // Close the listening socket

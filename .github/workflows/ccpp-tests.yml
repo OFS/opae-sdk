@@ -31,6 +31,21 @@ on:
       - '.github/workflows/python-static-analysis.yml'
 
 jobs:
+  coding-style:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        lang-type: [c, cpp]
+    steps:
+    - uses: actions/checkout@v2
+    - name: update
+      run: sudo apt-get update -y
+    - name: Get Packages
+      uses: mstksg/get-package@v1
+      with:
+        apt-get: clang-format
+    - name: test ${{ matrix.lang-type }}
+      run: ${{ github.workspace }}/scripts/test-codingstyle-all.sh ${{ matrix.lang-type }}
   build:
     runs-on: ubuntu-latest
     strategy:
