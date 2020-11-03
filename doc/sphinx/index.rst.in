@@ -19,7 +19,7 @@ The main documentation for the site is organized into following sections:
    docs/install_guide/installation_guide
    docs/fpga_api/prog_guide/readme
    docs/ase_userguide/ase_userguide
-   docs/README
+   docs/pyopae/README
 
 .. _api-docs:
 

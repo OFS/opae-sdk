@@ -111,9 +111,14 @@ void print_err(const char *s, fpga_result res)
 	fprintf(stderr, "Error %s: %s\n", s, fpgaErrStr(res));
 }
 
+remote_dbg *srv = nullptr;
+
 void mmlink_sig_handler(int)
 {
-	perror("SIGINT: stopping the server\n");
+  if (srv) {
+    perror("SIGINT: stopping the server\n");
+    srv->terminate();
+  }
 }
 
 int ParseCmds(struct MMLinkCommandLine *mmlinkCmdLine,
@@ -160,7 +165,10 @@ int main( int argc, char** argv )
 	printf(" ------- Command line Input END   ----\n\n");
 
 	// Signal Handler
-	signal(SIGINT, mmlink_sig_handler);
+	//signal(SIGINT, mmlink_sig_handler);
+	struct sigaction act_old, act_new;
+	act_new.sa_handler = mmlink_sig_handler;
+	sigaction(SIGINT, &act_new, &act_old);
 
 	// Enum FPGA device
 	result = fpgaGetProperties(NULL, &filter);

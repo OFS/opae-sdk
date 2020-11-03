@@ -1,10 +1,10 @@
 # Super Remote System Update User Guide #
 
+```eval_rst
 .. toctree::
-
 .. highlight:: c
-
 .. highlight:: console
+```
 
 ## Overview ##
 Intel Programmable Acceleration Card (PAC) devices are comprised of multiple processors
