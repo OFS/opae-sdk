@@ -4,7 +4,6 @@ _=${OPAE_SDK_ROOT:=..}
 
 declare -i C_CODE_OK=1
 declare -i CPP_CODE_OK=1
-declare -i PY_CODE_OK=1
 
 find_c() {
     find "${OPAE_SDK_ROOT}/opae-libs/libbitstream" -iname "*.c" -or -iname "*.h"
@@ -63,9 +62,10 @@ check_cpp () {
     pushd $(dirname $0) >/dev/null
 
     FILES=$(find_cpp)
-    clang-format-3.9 -i -style=Google ${FILES}
+    echo "Checking $FILES"
+    clang-format -i -style=Google ${FILES}
 
-    if [ x"$(git diff)" != x ]; then
+    if [ x"$(git diff -- ${FILES})" != x ]; then
         echo "Coding style check failed. Please fix them based on the following suggestions. You can run clang-format on these files in order to automatically format your code." 
         git --no-pager diff
         echo "The files that need to be fixed are:"
@@ -82,105 +82,13 @@ check_cpp () {
     return ${CPP_CODE_OK}
 }
 
-check_py () {
-    pushd $(dirname $0)/.. >/dev/null
-
-    PYCODESTYLE=$(which pycodestyle)
-    PYLINT=$(which pylint)
-    FILES=$(find . -iname "*.py" -not -name "test_fpgadiag.py" \
-	    -not -name "cpplint.py" \
-	    -not -name "setup.py" \
-	    -not -name "buildit.py" \
-	    -not -path "./doc/*" \
-	    -not -path "./tools/extra/packager/jsonschema-2.3.0/*" \
-	    -not -path  "./opae-libs/pyopae/pybind11/*" \
-	    -not -path "./python/pacsign/*" \
-	    -and \( ! -name "__init__.py" \))
-    FILES+=" "
-    FILES+=$(grep -rl "^#./usr/bin.*python" ./* \
-	    | grep -v cpplint.py \
-	    | grep -vE "^\.\/(doc|opae-libs\/pyopae\/pybind11)\/")
-
-    if [ "$TRAVIS_COMMIT_RANGE" != "" ]; then
-        CHANGED_FILES=$(git diff --name-only $TRAVIS_COMMIT_RANGE)
-        FILES=$(comm -12 <(sort <(for f in $FILES; do printf "$f\n"; done)) <(sort <(for f in $CHANGED_FILES; do printf "./$f\n"; done)))
-        printf "Looking at changed files:\n${FILES}"
-    fi
-
-    if [ "$1" == "-v" ]; then
-	    echo "Checking the following files:"
-	    echo ${FILES}
-    fi
-
-    if [ "${FILES}" == "" ]; then
-        PY_CODE_OK=0
-        return ${PY_CODE_OK}
-    fi
-
-    if [ ! -x "$PYLINT" ]; then
-	    echo "no pylint"
-	    popd >/dev/null
-	    PY_CODE_OK=1
-        return ${PY_CODE_OK}
-    fi
-
-    if [ ! -x "$PYCODESTYLE" ]; then
-	    echo "no pycodestyle"
-	    popd >/dev/null
-	    PY_CODE_OK=1
-        return ${PY_CODE_OK}
-    fi
-
-    echo -e "\n===== pycodestyle ====="
-    $PYCODESTYLE $FILES --exclude=test_*.py
-    if [ $? -ne 0 ]; then
-	    echo "test-codingstyle-py FAILED"
-	    popd >/dev/null
-	    PY_CODE_OK=1
-        return ${PY_CODE_OK}
-    fi
-
-    echo -e "\n===== pylint -E ====="
-    $PYLINT -E -f parseable --disable=E0401 --ignore=__init__.py --ignore-patterns="test_.*.py" $FILES
-    if [ $? -ne 0 ]; then
-	    echo "test-codingstyle-py FAILED"
-	    popd >/dev/null
-	    PY_CODE_OK=1
-        return ${PY_CODE_OK}
-    fi
-
-    echo "test-codingstyle-py PASSED"
-    popd >/dev/null
-    PY_CODE_OK=0
-    return ${PY_CODE_OK}
-}
-
-check_c
-check_cpp
-check_py
-
-declare -i res=0
-
-if [ ${C_CODE_OK} -ne 0 ]; then
-    printf "C FAILED.\n"
-    res=1
+if [ "$1" == "c" ]; then
+	check_c
+	exit ${C_CODE_OK}
+elif [ "$1" == "cpp" ]; then
+	check_cpp
+	exit ${CPP_CODE_OK}
 else
-    printf "C PASSED.\n"
+	echo "unknown codingstyle check $1"
+	exit 1
 fi
-if [ ${CPP_CODE_OK} -ne 0 ]; then
-    printf "C++ FAILED.\n"
-    res=1
-else
-    printf "C++ PASSED.\n"
-fi
-if [ ${PY_CODE_OK} -ne 0 ]; then
-    printf "Python FAILED.\n"
-    res=1
-else
-    printf "Python PASSED.\n"
-fi
-
-if [ ${res} -eq 0 ]; then
-    printf "All coding style checks PASSED.\n"
-fi
-exit ${res}

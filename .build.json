@@ -31,5 +31,12 @@
             "OPAE_BUILD_TESTS": "ON",
             "OPAE_ENABLE_MOCK": "ON"
         }
+    },
+    "docs":
+    {
+	"defs":
+	{
+	    "OPAE_BUILD_SPHINX_DOC": "ON"
+	}
     }
 }
