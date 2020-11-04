@@ -739,7 +739,7 @@ class sysfs_device(sysfs_node):
             self.log.debug('no driver bound')
 
     @property
-    def driver_override(self, driver):
+    def driver_override(self):
         if self.have_node('driver_override'):
             return self.node('driver_override')
 
