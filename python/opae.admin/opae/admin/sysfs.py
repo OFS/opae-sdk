@@ -54,6 +54,9 @@ class sysfs_node(loggable):
         super(sysfs_node, self).__init__()
         self._sysfs_path = sysfs_path(_sysfs_path)
 
+    def __str__(self):
+        return self.name
+
     @property
     def name(self):
         return os.path.basename(self.sysfs_path)
@@ -735,13 +738,9 @@ class sysfs_device(sysfs_node):
         else:
             self.log.debug('no driver bound')
 
+    @property
     def driver_override(self, driver):
-        if not self.have_node('driver_override'):
-            self.log.warn('driver_override not supported')
-            return
-        override = self.node('driver_override')
-        if not driver:
-            override.value = '\n'
-        else:
-            driver_name = driver.name if isinstance(sysfs_driver) else driver
-            override.value = driver_name
+        if self.have_node('driver_override'):
+            return self.node('driver_override')
+
+        self.log.warn('driver_override not supported')
