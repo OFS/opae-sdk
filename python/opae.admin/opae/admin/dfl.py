@@ -38,8 +38,3 @@ class dfl(sysfs_device):
     @property
     def feature_id(self):
         return self.node('feature_id').value
-
-    def driver_override(self, driver):
-        if self.have_node('driver_override'):
-            name = driver.name if isinstance(sysfs_driver) else driver
-            self.node('driver_override').value = name
