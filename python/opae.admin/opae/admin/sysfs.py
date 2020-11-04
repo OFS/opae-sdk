@@ -565,7 +565,12 @@ class pci_node(sysfs_node):
 
 
 class sysfs_driver(sysfs_node):
-    pass
+    def unbind(self, device):
+        if not self.have_node('unbind'):
+            self.log.warn('unbind not supported')
+            return
+        name = device.name if isinstance(device, sysfs_device) else device
+        self.node('unbind').value = name
 
 
 class sysfs_device(sysfs_node):
@@ -722,3 +727,21 @@ class sysfs_device(sysfs_node):
                         return False
             return True
         return list(filter(func, cls.enum_devices()))
+
+    def unbind(self):
+        driver = self.driver
+        if driver is not None:
+            driver.unbind(self.name)
+        else:
+            self.log.debug('no driver bound')
+
+    def driver_override(self, driver):
+        if not self.have_node('driver_override'):
+            self.log.warn('driver_override not supported')
+            return
+        override = self.node('driver_override')
+        if not driver:
+            override.value = '\n'
+        else:
+            driver_name = driver.name if isinstance(sysfs_driver) else driver
+            override.value = driver_name
