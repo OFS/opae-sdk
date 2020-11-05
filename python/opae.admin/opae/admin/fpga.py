@@ -34,7 +34,7 @@ import time
 from array import array
 from contextlib import contextmanager
 from opae.admin.path import device_path, sysfs_path
-from opae.admin.sysfs import class_node, sysfs_node
+from opae.admin.sysfs import sysfs_device, sysfs_node
 from opae.admin.utils.log import loggable
 from opae.admin.utils import max10_or_nios_version
 
@@ -375,11 +375,10 @@ class avmmi_bmc(region):
             raise IOError('bad completion code: 0x{:8x}'.format(ccode))
 
 
-class fpga_base(class_node):
+class fpga_base(sysfs_device):
     FME_PATTERN = 'intel-fpga-fme.*'
     PORT_PATTERN = 'intel-fpga-port.*'
     PCI_DRIVER = 'intel-fpga-pci'
-    SYSFS_CLASS = 'fpga'
     BOOT_TYPES = ['bmcimg', 'retimer']
     BOOT_PAGES = {
         (0x8086, 0x0b30): {'bmcimg': {'user': 0,
@@ -559,10 +558,10 @@ class fpga_region(fpga_base):
     FME_PATTERN = 'dfl-fme.*'
     PORT_PATTERN = 'dfl-port.*'
     PCI_DRIVER = 'dfl-pci'
-    SYSFS_CLASS = 'fpga_region'
+    DEVICE_ROOT = 'class/fpga_region'
 
     @classmethod
-    def class_filter(cls, node):
+    def enum_filter(cls, node):
         if not node.have_node('device'):
             return False
         if 'dfl-fme-region' in os.readlink(node.node('device').sysfs_path):
@@ -572,6 +571,7 @@ class fpga_region(fpga_base):
 
 class fpga(fpga_base):
     _drivers = [fpga_region, fpga_base]
+    DEVICE_ROOT = 'class/fpga'
 
     @classmethod
     def enum(cls, filt=[]):

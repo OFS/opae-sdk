@@ -54,6 +54,13 @@ class sysfs_node(loggable):
         super(sysfs_node, self).__init__()
         self._sysfs_path = sysfs_path(_sysfs_path)
 
+    def __str__(self):
+        return self.name
+
+    @property
+    def name(self):
+        return os.path.basename(self.sysfs_path)
+
     def node(self, *nodes):
         """node Gets a new sysfs_node object using the given paths.
 
@@ -560,11 +567,21 @@ class pci_node(sysfs_node):
         return bool(self.sriov_totalvfs)
 
 
-class class_node(sysfs_node):
-    """class_node A class_node object represents a sysfs object directly
-                  under '/sys/class' directory.
+class sysfs_driver(sysfs_node):
+    def unbind(self, device):
+        if not self.have_node('unbind'):
+            self.log.warn('unbind not supported')
+            return
+        name = device.name if isinstance(device, sysfs_device) else device
+        self.node('unbind').value = name
+
+
+class sysfs_device(sysfs_node):
+    """sysfs_device A sysfs object is a logical device but can usually
+                    be traced back to a pci device.
+                    A sysfs object can be found under /sys/class or /sys/bus.
     """
-    SYSFS_CLASS = None
+    DEVICE_ROOT = None
 
     def __init__(self, path):
         """__init__ Initializes a new class_node object found in /sys/class/..
@@ -586,8 +603,14 @@ class class_node(sysfs_node):
             This class is designed to be inherited from and contains a lot
             of the boiler-plate code that sub-classes get for free.
         """
-        super(class_node, self).__init__(path)
+        super(sysfs_device, self).__init__(path)
         self._pci_node = self._parse_class_path(path)
+
+    @property
+    def driver(self):
+        if self.have_node('driver'):
+            driver_path = os.path.realpath(self.node('driver').sysfs_path)
+            return sysfs_driver(driver_path)
 
     @property
     def pci_node(self):
@@ -617,37 +640,27 @@ class class_node(sysfs_node):
             node = pci_node(match.groupdict(), parent=node)
             path.append(node)
         # the last node is the fpga node
-        LOG('enum_class').debug('found device at %s -tree is\n %s',
-                                node.pci_address,
-                                path[0].tree())
+        LOG('_parse_class_path').debug('found device at %s -tree is\n %s',
+                                       node.pci_address,
+                                       path[0].tree())
         return node
 
     @classmethod
-    def enum_class(cls, sysfs_class_name, sysfs_class=None):
-        """enum_class Discover class_node objects under a given "class".
+    def enum_devices(cls):
+        """enum_devices Discover sysfs devices under a given device root.
 
-        Args:
-            sysfs_class_name: The name of the class under /sys/class to look
-                              at.
-            sysfs_class(class_node): The class_node or deriving class to use
-                                     when creating class_node objects.
 
-        Notes:
-            If 'sysfs_class' is not specified, it will use this class.
-            This is meant so that classes deriving from this can omit this.
         """
-        sysfs_class = sysfs_class or cls
-        log = LOG(cls.__name__)
         nodes = []
-        class_paths = glob.glob(sysfs_path('class', sysfs_class_name, '*'))
-        log.debug('found %s objects: %s', sysfs_class_name, class_paths)
-        for path in class_paths:
-            nodes.append(sysfs_class(path))
+        paths = glob.glob(sysfs_path(cls.DEVICE_ROOT, '*'))
+        # log.debug('found %s objects: %s', sysfs_class_name, class_paths)
+        for path in paths:
+            nodes.append(cls(path))
         return nodes
 
     @classmethod
-    def class_filter(cls, node):
-        """class_filter Run a class specific filter in enum_class.
+    def enum_filter(cls, node):
+        """enum_filter Run a specific filter in enum_devices.
 
         Args:
             node: A sysfs node to consider for filtering.
@@ -691,7 +704,7 @@ class class_node(sysfs_node):
 
         def func(obj):
             # if this node is not valid, reject it
-            if not cls.class_filter(obj):
+            if not cls.enum_filter(obj):
                 return False
             for f in filt:
                 for k, v in f.items():
@@ -713,5 +726,21 @@ class class_node(sysfs_node):
                             v = v.lower()
                         if attr_value != v:
                             return False
+                    else:
+                        return False
             return True
-        return list(filter(func, cls.enum_class(cls.SYSFS_CLASS, cls)))
+        return list(filter(func, cls.enum_devices()))
+
+    def unbind(self):
+        driver = self.driver
+        if driver is not None:
+            driver.unbind(self.name)
+        else:
+            self.log.debug('no driver bound')
+
+    @property
+    def driver_override(self):
+        if self.have_node('driver_override'):
+            return self.node('driver_override')
+
+        self.log.warn('driver_override not supported')
