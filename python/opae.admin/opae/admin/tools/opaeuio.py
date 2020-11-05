@@ -34,7 +34,6 @@ import pwd
 import subprocess
 import sys
 import time
-import glob
 from opae.admin.dfl import dfl
 
 OPAEUIO_VERSION = '1.0.0'
@@ -100,12 +99,14 @@ def initialize_uio(device, pac, new_owner, driver):
 
     time.sleep(0.25)
 
-    uio_device = glob.glob(os.path.join(pac.sysfs_path,
-                                        'uio_pdrv_genirq.*.auto',
-                                        'uio',
-                                        'uio*'))[0]
-    uio_device = os.path.split(uio_device)[-1]
-    uio_device = os.path.join('/dev', uio_device)
+    uio_device = pac.find_one(os.path.join('uio_pdrv_genirq.*.auto',
+                                           'uio',
+                                           'uio*'))
+    if uio_device:
+        uio_device = os.path.join('/dev', uio_device.name)
+    else:
+        print('Error discovering char device for {}'.format(device))
+        sys.exit(1)
     print('UIO device is {}.'.format(uio_device))
 
     if new_owner != 'root:root':
