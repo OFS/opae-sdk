@@ -1,4 +1,4 @@
-from _opae import (
+from ._opae import (
     properties,
     token,
     handle,
@@ -14,7 +14,7 @@ from _opae import (
     version,
     build,
     memory_barrier)
-from _opae import (DEVICE, ACCELERATOR, OPEN_SHARED, EVENT_ERROR,
+from ._opae import (DEVICE, ACCELERATOR, OPEN_SHARED, EVENT_ERROR,
                    EVENT_INTERRUPT, EVENT_POWER_THERMAL, ACCELERATOR_ASSIGNED,
                    ACCELERATOR_UNASSIGNED, RECONF_FORCE, SYSOBJECT_GLOB)
 __all__ = ['properties',

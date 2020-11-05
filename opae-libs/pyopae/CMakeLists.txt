@@ -46,10 +46,7 @@ set(PYOPAE_SRC
     pysysobject.cpp
 )
 
-opae_external_project_add(PROJECT_NAME pybind11
-                          GIT_URL https://github.com/pybind/pybind11.git
-                          GIT_TAG v2.4.3
-                          )
+
 
 opae_add_module_library(TARGET _opae
     SOURCE ${PYOPAE_SRC}
@@ -69,6 +66,8 @@ set_target_properties(_opae
     LIBRARY_OUTPUT_DIRECTORY
     ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae/fpga
 )
+
+opae_target_depends_external(_opae pybind11)
 
 add_custom_command(TARGET _opae
     POST_BUILD

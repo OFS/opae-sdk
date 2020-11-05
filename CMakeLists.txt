@@ -77,9 +77,11 @@ endif()
 option(OPAE_BUILD_SPHINX_DOC "Enable building of Sphinx documentation." OFF)
 mark_as_advanced(OPAE_BUILD_SPHINX_DOC)
 
-if (DOXYGEN_FOUND)
+if(DOXYGEN_FOUND)
     add_subdirectory(doc)
-endif()
+else(DOXYGEN_FOUND)
+    message(STATUS "Documentation cannot be built without doxygen")
+endif(DOXYGEN_FOUND)
 
 ############################################################################
 ## Packaging ###############################################################

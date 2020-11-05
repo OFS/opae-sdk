@@ -341,7 +341,7 @@ static fpga_result get_port_error_revision(fpga_token token, uint64_t *value)
 	fpga_result res = FPGA_OK;
 	fpga_object fpga_object;
 
-	res = fpgaTokenGetObject(token, "error*/revision" , &fpga_object, FPGA_OBJECT_GLOB);
+	res = fpgaTokenGetObject(token, "error*/revision", &fpga_object, FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
 		OPAE_MSG("Failed to get token Object");
 		return res;

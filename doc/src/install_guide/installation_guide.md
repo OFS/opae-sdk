@@ -1,11 +1,12 @@
 # OPAE Installation Guide #
 
+```eval_rst
 .. toctree::
 
 .. highlight:: c
 
 .. highlight:: console
-
+```
 
 ## System compatibility ##
 

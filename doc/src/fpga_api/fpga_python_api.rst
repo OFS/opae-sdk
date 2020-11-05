@@ -45,7 +45,7 @@ Event
 Shared Buffer
 -------------
 .. autoclass:: opae.fpga.shared_buffer
-        :members: size, wsid, iova, fill, compare, memoryview
+        :members: size, wsid, io_address, fill, compare
 
 Error
 -----
