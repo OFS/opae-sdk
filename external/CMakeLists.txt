@@ -31,9 +31,6 @@ if(OPAE_BUILD_TESTS)
                               GIT_URL https://github.com/OPAE/opae-test.git
                               GIT_TAG ${OPAE_TEST_TAG}
                               PRESERVE_REPOS ${OPAE_PRESERVE_REPOS})
-    set(DEFER "")
-else(OPAE_BUILD_TESTS)
-    set(DEFER DEFER)
 endif(OPAE_BUILD_TESTS)
 
 if(OPAE_BUILD_SIM)
@@ -54,7 +51,6 @@ if(OPAE_BUILD_LIBOPAE_PY)
     opae_external_project_add(PROJECT_NAME pybind11
                               GIT_URL https://github.com/pybind/pybind11.git
                               GIT_TAG "${PYBIND11_TAG}"
-                              ${DEFER}
     )
 
 endif(OPAE_BUILD_LIBOPAE_PY)
