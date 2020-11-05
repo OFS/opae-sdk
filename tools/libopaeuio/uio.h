@@ -91,7 +91,7 @@ extern "C" {
  *
  * Example
  * @code{.sh}
- * $ sudo
+ * $ sudo opaeuio -i -u lab -g lab dfl_dev.10
  * @endcode
  *
  * Example
@@ -164,7 +164,7 @@ int opae_uio_region_get(struct opae_uio *u,
  *
  * Example
  * @code{.sh}
- * $ sudo python3
+ * $ sudo opaeuio -r dfl_dev.10
  * @endcode
  */
 void opae_uio_close(struct opae_uio *u);
