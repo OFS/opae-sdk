@@ -332,6 +332,11 @@ int opae_uio_region_get(struct opae_uio *u, uint32_t index,
 {
 	struct opae_uio_device_region *r;
 
+	if (!u) {
+		ERR("NULL param\n");
+		return 1;
+	}
+
 	for (r = u->regions ; r ; r = r->next) {
 		if (index == r->region_index) {
 			if (ptr)
@@ -342,7 +347,7 @@ int opae_uio_region_get(struct opae_uio *u, uint32_t index,
 		}
 	}
 
-	return 1;
+	return 2;
 }
 
 void opae_uio_close(struct opae_uio *u)
