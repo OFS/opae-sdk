@@ -40,6 +40,7 @@ setup(
             'fpgaport = opae.admin.tools.fpgaport:main',
             'bitstreaminfo = opae.admin.tools.bitstream_info:main',
             'opaevfio = opae.admin.tools.opaevfio:main',
+            'opaeuio = opae.admin.tools.opaeuio:main',
             'regmap-debugfs = opae.admin.tools.regmap_debugfs:main',
         ]
     },
