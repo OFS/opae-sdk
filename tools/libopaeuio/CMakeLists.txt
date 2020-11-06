@@ -26,8 +26,6 @@
 
 opae_add_shared_library(TARGET opaeuio
     SOURCE opaeuio.c
-    LIBS
-        ${CMAKE_THREAD_LIBS_INIT}
     VERSION ${OPAE_VERSION}
     SOVERSION ${OPAE_VERSION_MAJOR}
     COMPONENT uiolib

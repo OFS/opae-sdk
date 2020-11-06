@@ -39,7 +39,7 @@
 #include <glob.h>
 #include <dirent.h>
 
-#include "uio.h"
+#include <opae/uio.h>
 
 #define __SHORT_FILE__                                    \
 ({                                                        \

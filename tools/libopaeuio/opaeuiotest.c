@@ -24,11 +24,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <string.h>
-#include <unistd.h>
-//#include <opae/vfio.h>
-
-#include "uio.h"
+#include <opae/uio.h>
 
 struct dfh {
 	uint64_t version;
