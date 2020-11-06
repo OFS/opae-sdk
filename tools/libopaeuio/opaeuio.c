@@ -141,6 +141,9 @@ opae_uio_enum_region(int fd, char *sysfs_path)
 		return NULL;
 	}
 
+	// p + 4 because the string will look like:
+	// 01234
+	// /map3
 	endptr = NULL;
 	index = strtoul(p + 4, &endptr, 10);
 	if (*endptr) {
