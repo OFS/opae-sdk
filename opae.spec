@@ -9,7 +9,7 @@ Group:          Development/Libraries
 Vendor:         Intel Corporation
 Requires:       uuid, json-c, python3
 URL:            https://github.com/OPAE/%{name}-sdk
-Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-1/%{name}.tar.gz
+Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-1/%{name}-%{version}.tar.gz
 
 BuildRequires:  gcc, gcc-c++
 BuildRequires:  cmake
@@ -58,7 +58,7 @@ OPAE headers, tools, sample source, and documentation
 
 
 %prep
-%setup -q -n %{name}
+%setup -q -n %{name}-%{version}
 
 %build
 rm -rf _build
@@ -166,15 +166,15 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad_api -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad_vc -P cmake_install.cmake
 
 prev=$PWD
-pushd %{_topdir}/BUILD/opae/python/opae.admin/
+pushd %{_topdir}/BUILD/%{name}-%{version}/python/opae.admin/
 %{__python3} setup.py install --single-version-externally-managed  --root=%{buildroot} --record=$prev/INSTALLED_OPAE_ADMIN_FILES
 popd
 
-pushd %{_topdir}/BUILD/opae/python/pacsign
+pushd %{_topdir}/BUILD/%{name}-%{version}/python/pacsign
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} --record=$prev/INSTALLED_PACSIGN_FILES
 popd
 
-pushd %{_topdir}/BUILD/opae/scripts
+pushd %{_topdir}/BUILD/%{name}-%{version}/scripts
 install -m 755 eth_group_mdev.sh %{buildroot}/usr/bin/eth_group_mdev.sh
 popd
 
