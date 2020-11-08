@@ -1,7 +1,7 @@
 Summary:        Open Programmable Acceleration Engine (OPAE) SDK
 Name:           opae
 Version:        2.0.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 License:        BSD
 ExclusiveArch:  x86_64
 
@@ -67,31 +67,7 @@ cd _build
 
 %cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_PRESERVE_REPOS=ON -DOPAE_BUILD_LEGACY=ON -DOPAE_BUILD_SAMPLES=OFF -B $PWD
 
-%make_build  opae-c \
-         bitstream \
-         xfpga \
-         modbmc \
-         opae-cxx-core \
-         board_a10gx \
-         board_n3000 \
-         board_d5005 \
-         fpgaconf \
-         fpgametrics \
-         fpgainfo \
-         userclk \
-         bist_app\
-         fpga_dma_N3000_test\
-         fpga_dma_test\
-         opae-c++-utils\
-         opae-c++-nlb\
-         nlb0\
-         nlb3\
-         nlb7\
-         mmlink\
-         fpgad\
-         fpgad-api\
-         fpgad-vc\
-
+%make_build
 
 %install
 mkdir -p %{buildroot}%{_datadir}/opae
