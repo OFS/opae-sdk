@@ -45,6 +45,7 @@ opae_add_shared_library(TARGET opae-cxx-core
     COMPONENT opaecxxcorelib
 )
 
+if(OPAE_BUILD_SAMPLES)
 opae_add_executable(TARGET hello_cxxcore
     SOURCE samples/hello_fpga-1.cpp
     LIBS
@@ -53,3 +54,4 @@ opae_add_executable(TARGET hello_cxxcore
         ${libjson-c_LIBRARIES}
     COMPONENT samples
 )
+endif()
