@@ -65,14 +65,13 @@ rm -rf _build
 mkdir _build
 cd _build
 
-%cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_PRESERVE_REPOS=ON -DOPAE_BUILD_LEGACY=ON -B $PWD
+%cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_PRESERVE_REPOS=ON -DOPAE_BUILD_LEGACY=ON -DOPAE_BUILD_SAMPLES=OFF -B $PWD
 
 %make_build  opae-c \
          bitstream \
          xfpga \
          modbmc \
          opae-cxx-core \
-         hello_cxxcore \
          board_a10gx \
          board_n3000 \
          board_d5005 \
@@ -80,9 +79,6 @@ cd _build
          fpgametrics \
          fpgainfo \
          userclk \
-         object_api \
-         hello_fpga \
-         hello_events \
          bist_app\
          fpga_dma_N3000_test\
          fpga_dma_test\
@@ -138,13 +134,11 @@ cd _build
 
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaeclib -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxcorelib -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=samples -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaetoolslibs -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgainfo -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgaconf -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=tooluserclk -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolmmlink -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=samplebin -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=libopaeheaders -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolpackager -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
@@ -253,10 +247,6 @@ popd
 %{_bindir}/fpgainfo
 %{_bindir}/mmlink
 %{_bindir}/userclk
-%{_bindir}/hello_fpga
-%{_bindir}/object_api
-%{_bindir}/hello_events
-%{_bindir}/hello_cxxcore
 %{_bindir}/afu_json_mgr
 %{_bindir}/packager
 %{_bindir}/fpgametrics
