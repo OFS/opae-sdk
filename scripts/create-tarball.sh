@@ -1,14 +1,15 @@
 #!/bin/sh
 
-here=`dirname $0`
-here=`realpath $here`
+SCRIPT_DIR=`dirname $0`
+SCRIPT_DIR=`realpath $SCRIPT_DIR`
+TOP_DIR=`realpath ${SCRIPT_DIR}/..`
 
 # Input is the name of the directory the tarball will
 # be unpacked to.
 opae_dir=${1:-opae}
 trans="s/opae-sdk/${opae_dir}/"
 
-cd ${here}/../..
+cd ${TOP_DIR}/..
 tar --transform=$trans \
   --exclude=_build \
   --exclude=.* \

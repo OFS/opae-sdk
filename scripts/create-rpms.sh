@@ -17,35 +17,37 @@ fi
 rm -rf ~/rpmbuild
 rpmdev-setuptree
 
+SCRIPT_DIR=`dirname $0`
+SCRIPT_DIR=`realpath $SCRIPT_DIR`
+
 #create source tarball
-BUILD_DIR=${PWD}
+TOP_DIR=`realpath ${SCRIPT_DIR}/..`
 
-echo ${PWD}
+echo ${TOP_DIR}
 
-cd .. 
+cd ${TOP_DIR}
 rm -rf _build
 mkdir _build
 cd _build
 cmake .. -DOPAE_BUILD_LEGACY=ON  -DOPAE_BUILD_TESTS=ON
+cd ..
 
 # From
 #   Version:        2.0.0
 # To
 #   2.0.0
-version=`grep ^Version "${BUILD_DIR}/../opae.spec" | awk '{ print $2 }'`
+version=`grep ^Version "${TOP_DIR}/opae.spec" | awk '{ print $2 }'`
 
-${BUILD_DIR}/create-tarball.sh opae-${version}
-cd ../..
+${SCRIPT_DIR}/create-tarball.sh opae-${version}
 
-if [ ! -f opae-${version}.tar.gz ]; then
+if [ ! -f ../opae-${version}.tar.gz ]; then
     echo "Creating the tarball failed"
     exit 1
 fi
-mv opae-${version}.tar.gz ~/rpmbuild/SOURCES/
-cp "${BUILD_DIR}/../opae.spec" ~/rpmbuild/SPECS/
+mv ../opae-${version}.tar.gz ~/rpmbuild/SOURCES/
+cp "${TOP_DIR}/opae.spec" ~/rpmbuild/SPECS/
 
-echo $"${BUILD_DIR}/../opae.spec"
-
+echo $"${TOP_DIR}/opae.spec"
 
 cd ~/rpmbuild/SPECS/
 
@@ -63,5 +65,5 @@ if [ $? -eq 1 ]; then
 fi
 
 #copy RPMS to build directory
-cp ~/rpmbuild/RPMS/x86_64/opae-* $BUILD_DIR/
-cp ~/rpmbuild/SRPMS/opae-*.src.rpm $BUILD_DIR/
+cp ~/rpmbuild/RPMS/x86_64/opae-* $TOP_DIR/_build
+cp ~/rpmbuild/SRPMS/opae-*.src.rpm $TOP_DIR/_build
