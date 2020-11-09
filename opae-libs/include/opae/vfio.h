@@ -158,7 +158,7 @@ extern "C" {
  *
  * Example
  * @code{.sh}
- * $ sudo python3 opaevfio.py -i 0000:00:00.0 -u user -g group
+ * $ sudo opaevfio -i 0000:00:00.0 -u user -g group
  * @endcode
  *
  * Example
@@ -345,7 +345,7 @@ int opae_vfio_buffer_free(struct opae_vfio *v,
  *
  * Example
  * @code{.sh}
- * $ sudo python3 opaevfio.py -r 0000:00:00.0
+ * $ sudo opaevfio -r 0000:00:00.0
  * @endcode
  */
 void opae_vfio_close(struct opae_vfio *v);

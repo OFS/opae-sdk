@@ -69,6 +69,8 @@ if (SUPPORTS_EMBEDDED_PYTHON)
             ${libjson-c_LIBRARIES}
             ${PYTHON_LIBRARIES})
 
+    opae_target_depends_external(test_pyopae pybind11)
+
     macro(add_pyopae_test pytest)
         add_custom_command(TARGET test_pyopae
            POST_BUILD
