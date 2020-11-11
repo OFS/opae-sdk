@@ -150,7 +150,8 @@ def main():
         dest="main_command",
     )
     parser_sr = subparsers.add_parser(
-        "SR", aliases=["FIM", "BBS"], help="Static FPGA image"
+        "SR", aliases=["FIM", "BBS", "SR2", "FIM2", "BBS2"],
+        help="Static FPGA image. '2' suffix is backup/secondary image."
     )
     parser_bmc = subparsers.add_parser("BMC", aliases=["BMC_FW"], help="BMC image")
     parser_pr = subparsers.add_parser(
@@ -205,9 +206,6 @@ def main():
         common_util.assert_in_error(
             False, "Invalid key manager module %s" % args.HSM_manager
         )
-
-    #if args.cert_type == "RK_384":
-    #    common_util.assert_in_error(False, "384-bit keys not supported")
 
     # Validate arguments
     if args.cert_type == "UPDATE":
