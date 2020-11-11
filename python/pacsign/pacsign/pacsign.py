@@ -56,6 +56,12 @@ def get_manager_names(append_manager=True):
 
 def add_common_options(parser):
     parser.add_argument(
+        "-S",
+        "--SHA256",
+        help="Generate 256-bit signatures (384-bit default)",
+        action="store_true",
+    )
+    parser.add_argument(
         "-t",
         "--cert_type",
         type=str.upper,
@@ -200,8 +206,8 @@ def main():
             False, "Invalid key manager module %s" % args.HSM_manager
         )
 
-    if args.cert_type == "RK_384":
-        common_util.assert_in_error(False, "384-bit keys not supported")
+    #if args.cert_type == "RK_384":
+    #    common_util.assert_in_error(False, "384-bit keys not supported")
 
     # Validate arguments
     if args.cert_type == "UPDATE":
