@@ -33,6 +33,7 @@ opae_add_subdirectory(fpgaconf)
 opae_add_subdirectory(fpgainfo)
 opae_add_subdirectory(fpgametrics)
 opae_add_subdirectory(libopaevfio)
+opae_add_subdirectory(libopaeuio)
 
 # extra
 # Top level OPAE_BUILD_EXTRA_TOOLS controls building all the extra tools
