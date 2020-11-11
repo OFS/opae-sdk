@@ -101,7 +101,7 @@ set(CPACK_PACKAGE_VERSION_MAJOR "${OPAE_VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${OPAE_VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${OPAE_VERSION_REVISION}")
 set(CPACK_PACKAGE_VERSION ${OPAE_VERSION})
-set(CPACK_PACKAGE_RELEASE 1)
+set(CPACK_PACKAGE_RELEASE 2)
 set(CPACK_PACKAGE_CONTACT "opae@lists.01.org")
 set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 # Hashing the package components
@@ -156,6 +156,8 @@ set(CPACK_COMPONENTS_ALL
 	opaetoolslibs
 	vfiolib
 	vfiotest
+	uiolib
+	uiotest
 	opaecxxutils
 	opaecxxlib
 	opaecxxnlb
@@ -174,6 +176,8 @@ define_pkg(tools
   opaeboardlib
   vfiolib
   vfiotest
+  uiolib
+  uiotest
   toolargsfilter
   toolfpgainfo
   toolfpgametrics

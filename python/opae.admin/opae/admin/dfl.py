@@ -1,4 +1,6 @@
-# Copyright(c) 2019-2020, Intel Corporation
+# -*- coding: utf-8 -*-
+# vim:fenc=utf-8
+# Copyright(c) 2020, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -23,33 +25,16 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from setuptools import setup, find_packages
-from opae.admin.version import pretty_version
 
-setup(
-    name="opae.admin",
-    version=pretty_version(),
-    packages=find_packages(),
-    entry_points={
-        'console_scripts': [
-            'fpgasupdate = opae.admin.tools.fpgasupdate:main',
-            'rsu = opae.admin.tools.rsu:main',
-            'super-rsu = opae.admin.tools.super_rsu:main',
-            'fpgaflash = opae.admin.tools.fpgaflash:main',
-            'fpgaotsu = opae.admin.tools.fpgaotsu:main',
-            'fpgaport = opae.admin.tools.fpgaport:main',
-            'bitstreaminfo = opae.admin.tools.bitstream_info:main',
-            'opaevfio = opae.admin.tools.opaevfio:main',
-            'opaeuio = opae.admin.tools.opaeuio:main',
-            'regmap-debugfs = opae.admin.tools.regmap_debugfs:main',
-        ]
-    },
-    install_requires=[],
-    description="opae.admin provides Python classes for interfacing with"
-                "OPAE kernel drivers",
-    license="BSD3",
-    keywords="OPAE accelerator fpga kernel sysfs",
-    data_files=[('share/doc/opae.admin',
-                 ['LICENSE'])],
-    url="https://01.org/OPAE",
-)
+"""
+
+"""
+from opae.admin.sysfs import sysfs_device, sysfs_driver
+
+
+class dfl(sysfs_device):
+    DEVICE_ROOT = 'bus/dfl/devices'
+
+    @property
+    def feature_id(self):
+        return self.node('feature_id').value

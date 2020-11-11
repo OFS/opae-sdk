@@ -1,4 +1,4 @@
-// Copyright(c) 2019, Intel Corporation
+// Copyright(c) 2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,58 +24,48 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-/*
- * @file board.h
- *
- * @brief
- */
-#ifndef _FPGA_BOARD_H
-#define _FPGA_BOARD_H
+#include <opae/uio.h>
 
-#include <opae/fpga.h>
+struct dfh {
+	uint64_t version;
+	uint64_t afu_id_low;
+	uint64_t afu_id_high;
+	uint64_t next_afu;
+};
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+void print_dfh(struct opae_uio *u)
+{
+	struct dfh *mmio = NULL;
 
-typedef struct _platform_data {
-	uint16_t vendor_id;
-	uint16_t device_id;
-	char *board_plugin;
-	void *dl_handle;
-} platform_data;
+	opae_uio_region_get(u, 0, (uint8_t **)&mmio, NULL);
 
-fpga_result load_board_plugin(fpga_token token, void **dl_handle);
-int unload_board_plugin(void);
-
-// Board info
-fpga_result fpgainfo_board_info(fpga_token token);
-
-// mac info
-fpga_result mac_filter(fpga_properties *filter, int argc, char *argv[]);
-fpga_result mac_command(fpga_token *tokens, int num_tokens, int argc,
-	char *argv[]);
-void mac_help(void);
-fpga_result mac_info(fpga_token token);
-
-// phy group info
-fpga_result phy_filter(fpga_properties *filter, int argc, char *argv[]);
-fpga_result phy_command(fpga_token *tokens, int num_tokens, int argc,
-	char *argv[]);
-void phy_help(void);
-fpga_result phy_group_info(fpga_token token);
-
-// sec group info
-fpga_result sec_filter(fpga_properties *filter, int argc, char *argv[]);
-fpga_result sec_command(fpga_token *tokens, int num_tokens, int argc,
-	char *argv[]);
-void sec_help(void);
-fpga_result sec_info(fpga_token token);
-
-fpga_result fme_verbose_info(fpga_token token);
-
-#ifdef __cplusplus
+	printf("dfh:         0x%016lx\n"
+	       "afu_id low:  0x%016lx\n"
+	       "afu_id high: 0x%016lx\n"
+	       "next afu:    0x%016lx\n",
+	       mmio->version, mmio->afu_id_low,
+	       mmio->afu_id_high, mmio->next_afu);
 }
-#endif
 
-#endif /* !_FPGA_BOARD_H */
+int main(int argc, char *argv[])
+{
+	struct opae_uio u;
+	int res;
+
+	if (argc < 2) {
+		printf("usage: opaeuiotest <dfl device>\n");
+		printf("\n\twhere <dfl device> is of the form dfl_dev.X\n");
+		return 1;
+	}
+
+	res = opae_uio_open(&u, argv[1]);
+	if (res) {
+		return res;
+	}
+
+	print_dfh(&u);
+
+	opae_uio_close(&u);
+
+	return 0;
+}
