@@ -35,3 +35,9 @@ opae_add_executable(TARGET host_exerciser
     COMPONENT samplebin
 )
 
+
+set(host_exerciser_src host_exerciser.py)
+
+install(PROGRAMS ${host_exerciser_src}
+    DESTINATION bin
+    COMPONENT samplebin)

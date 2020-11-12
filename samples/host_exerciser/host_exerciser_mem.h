@@ -26,37 +26,34 @@
 #pragma once
 #include "afu_test.h"
 #include "host_exerciser.h"
-#include "host_exerciser_cmd.h"
 
-const char *LPBK_AFU_ID = "91c2a3a1-4a23-4e21-a7cd-2b36dbf2ed73";
+const char *MEM_AFU_ID = "91c2a3a1-4a23-4e21-a7cd-2b36dbf2ed73";
 
 using test_afu = opae::afu_test::afu;
 using opae::fpga::types::shared_buffer;
 
 namespace host_exerciser {
 
-class host_exerciser_lpbk : public host_exerciser_cmd
+class host_exerciser_mem : public host_exerciser_cmd
 {
 public:
-  host_exerciser_lpbk() { }
+    host_exerciser_mem()
+    {
+    }
+    virtual ~host_exerciser_mem() {}
+    virtual const char *name() const
+    {
+        return "mem";
+    }
 
-  virtual ~host_exerciser_lpbk(){}
-  virtual const char *name() const
-  {
-    return "lpbk";
-  }
+    virtual const char *description() const
+    {
+        return "run simple mem test";
+    }
 
-  virtual const char *description() const
-  {
-    return "run simple loopback test";
-  }
-
-  virtual const char *afu_id() const override
-  {
-    return LPBK_AFU_ID;
-  }
-
-  
+    virtual const char *afu_id() const override
+    {
+        return MEM_AFU_ID;
+    }
 };
-
 } // end of namespace host_exerciser

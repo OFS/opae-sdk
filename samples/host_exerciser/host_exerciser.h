@@ -29,7 +29,7 @@
 
 #include "afu_test.h"
 
-const char *AFU_ID = "91c2a3a1-4a23-4e21-a7cd-2b36dbf2ed73";
+
 
 namespace host_exerciser {
 using opae::fpga::types::event;
@@ -323,8 +323,8 @@ using test_command = opae::afu_test::command;
 
 class host_exerciser : public test_afu {
 public:
-	host_exerciser(const char *afu_id = AFU_ID)
-  : test_afu("host_exerciser", afu_id)
+    host_exerciser()
+  : test_afu("host_exerciser")
   , count_(1)
   {
     // Mode

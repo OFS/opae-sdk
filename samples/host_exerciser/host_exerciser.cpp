@@ -27,6 +27,7 @@
 #include <CLI/CLI.hpp>
 
 #include "host_exerciser_lpbk.h"
+#include "host_exerciser_mem.h"
 #include "host_exerciser.h"
 
 
@@ -35,6 +36,7 @@ int main(int argc, char* argv[])
 {
   host_exerciser::host_exerciser app;
   app.register_command<host_exerciser::host_exerciser_lpbk>();
+  app.register_command<host_exerciser::host_exerciser_mem>();
   return app.main(argc, argv);
 }
 
