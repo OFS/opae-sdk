@@ -24,32 +24,7 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-if(PLATFORM_SUPPORTS_VFIO)
+from opae.io.utils import dfh_walk
 
-    find_package(edit REQUIRED)
-
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
-    set(PYBIND11_CPP_STANDARD -std=c++11)
-
-    add_executable(opae.io main.cpp)
-
-    if (NOT (CMAKE_VERSION VERSION_LESS 3.0))
-        target_link_libraries(opae.io PRIVATE pybind11::embed dl util ${libedit_LIBRARIES} opaevfio)
-    else()
-        target_link_libraries(opae.io PRIVATE ${PYTHON_LIBRARIES} dl util ${libedit_LIBRARIES} opaevfio)
-    endif()
-    
-    target_include_directories(opae.io
-        PUBLIC ${OPAE_INCLUDE_DIR}
-        PRIVATE ${PYTHON_INCLUDE_DIRS}
-        PRIVATE ${PYBIND11_INCLUDE_DIR}
-    )
-    target_compile_definitions(opae.io
-        PRIVATE LIBVFIO_EMBED
-    )
-    install(TARGETS opae.io
-            RUNTIME DESTINATION bin
-            COMPONENT opae.io
-    )
-    
-endif(PLATFORM_SUPPORTS_VFIO)
+for offset, dfh in dfh_walk():
+    print('offset: 0x{:0x}\n{}'.format(offset, dfh))

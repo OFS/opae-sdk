@@ -24,32 +24,37 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-if(PLATFORM_SUPPORTS_VFIO)
+from opae.io.utils import register
+from ctypes import c_uint64
 
-    find_package(edit REQUIRED)
+PORT_RESET = 0x38
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
-    set(PYBIND11_CPP_STANDARD -std=c++11)
+port_reset_bits = [
+        ('soft_reset', c_uint64, 1),
+        ('reserved63', c_uint64, 1),
+        ('latency_tolerance', c_uint64, 1),
+        ('reserved60', c_uint64, 1),
+        ('soft_reset_ack', c_uint64, 1),
+        ('reserved0', c_uint64, 59),
+]
 
-    add_executable(opae.io main.cpp)
+port_reset = register('port_reset', port_reset_bits)
 
-    if (NOT (CMAKE_VERSION VERSION_LESS 3.0))
-        target_link_libraries(opae.io PRIVATE pybind11::embed dl util ${libedit_LIBRARIES} opaevfio)
-    else()
-        target_link_libraries(opae.io PRIVATE ${PYTHON_LIBRARIES} dl util ${libedit_LIBRARIES} opaevfio)
-    endif()
-    
-    target_include_directories(opae.io
-        PUBLIC ${OPAE_INCLUDE_DIR}
-        PRIVATE ${PYTHON_INCLUDE_DIRS}
-        PRIVATE ${PYBIND11_INCLUDE_DIR}
-    )
-    target_compile_definitions(opae.io
-        PRIVATE LIBVFIO_EMBED
-    )
-    install(TARGETS opae.io
-            RUNTIME DESTINATION bin
-            COMPONENT opae.io
-    )
-    
-endif(PLATFORM_SUPPORTS_VFIO)
+def reset():
+    rst = port_reset(PORT_RESET)
+
+    with rst:
+        rst.bits.soft_reset_ack = 1
+
+    while rst.bits.soft_reset_ack == 0:
+        time.sleep(0.1)
+        rst.update()
+
+    with rst:
+        rst.bits.soft_reset = 0
+
+
+
+
+if __name__ == '__main__':
+    reset()

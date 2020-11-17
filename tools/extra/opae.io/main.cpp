@@ -92,6 +92,8 @@ void open_region(uint32_t region_num)
                              &the_region->size)) {
         delete the_region;
         the_region = nullptr;
+    } else {
+        the_region->index = region_num;
     }
     g["the_region"] = the_region;
   }

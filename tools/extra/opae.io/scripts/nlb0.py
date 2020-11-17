@@ -24,32 +24,55 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-if(PLATFORM_SUPPORTS_VFIO)
+# afu_id is "d8424dc4-a4a3-c413-f89e-433683f9040b"
 
-    find_package(edit REQUIRED)
+def afu_addr(offset):
+    return 0x40000 + offset
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
-    set(PYBIND11_CPP_STANDARD -std=c++11)
 
-    add_executable(opae.io main.cpp)
+src_buffer = allocate_buffer(4096)
+dst_buffer = allocate_buffer(4096)
+dsm_buffer = allocate_buffer(4096)
 
-    if (NOT (CMAKE_VERSION VERSION_LESS 3.0))
-        target_link_libraries(opae.io PRIVATE pybind11::embed dl util ${libedit_LIBRARIES} opaevfio)
-    else()
-        target_link_libraries(opae.io PRIVATE ${PYTHON_LIBRARIES} dl util ${libedit_LIBRARIES} opaevfio)
-    endif()
-    
-    target_include_directories(opae.io
-        PUBLIC ${OPAE_INCLUDE_DIR}
-        PRIVATE ${PYTHON_INCLUDE_DIRS}
-        PRIVATE ${PYBIND11_INCLUDE_DIR}
-    )
-    target_compile_definitions(opae.io
-        PRIVATE LIBVFIO_EMBED
-    )
-    install(TARGETS opae.io
-            RUNTIME DESTINATION bin
-            COMPONENT opae.io
-    )
-    
-endif(PLATFORM_SUPPORTS_VFIO)
+value_register = register()
+
+dsm = value_register(afu_addr(0x110))
+src = value_register(afu_addr(0x120))
+dst = value_register(afu_addr(0x128))
+nl = value_register(afu_addr(0x130))
+ctl = value_register(afu_addr(0x138))
+cfg = value_register(afu_addr(0x140))
+
+
+print('asserting afu reset...')
+ctl.commit(0)
+ctl.commit(1)
+
+for i in range(int(src_buffer.size/8)):
+    src_buffer[i] = 0xdeadbeef
+
+for i in range(int(dst_buffer.size/8)):
+    dst_buffer[i] = 0
+
+print('writing dsm address..')
+dsm.commit(dsm_buffer.io_address)
+print('writing srcaddress..')
+src.commit(src_buffer.io_address >> 6)
+print('writing dst address..')
+dst.commit(dst_buffer.io_address >> 6)
+print('writing config')
+cfg.commit(0x42000)
+print('writing number of cachelines')
+nl.commit(int(4096/64))
+print('kicking it off')
+ctl.commit(3)
+print('waiting for dsm...')
+while dsm_buffer[0x40] & 0x1 == 0:
+    time.sleep(0.1)
+print('stopping...')
+ctl.commit(7)
+for i in range(int(dst_buffer.size/8)):
+    if dst_buffer[i] != src_buffer[i]:
+        raise SystemExit("bah!")
+
+print('done')

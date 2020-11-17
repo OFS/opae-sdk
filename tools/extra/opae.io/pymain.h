@@ -183,52 +183,52 @@ def do_action(action, args):
 
 def show_help():
     help_msg = '''
-  opae-io - peek and poke FPGA CSRs
-      "opae-io" 
-      "opae-io -v | --version" 
-      "opae-io -h | --help" 
-      "opae-io ls" 
-      "opae-io [-d | --device <PCI_ADDRESS>] [-r | --region <REGION_NUMBER>] [init | release | peek | poke | <script> [arg1...argN]]
-      "opae-io init [-d <PCI_ADDRESS>] <USER>[:<GROUP>]" 
-      "opae-io release [-d <PCI_ADDRESS>]" 
-      "opae-io [-d <PCI_ADDRESS>]" 
-      "opae-io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>]" 
-      "opae-io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] peek <OFFSET>" 
-      "opae-io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] poke <OFFSET> <VALUE>" 
-      "opae-io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] <SCRIPT> <ARG1> <ARG2> ... <ARGN>" 
+  opae.io - peek and poke FPGA CSRs
+      "opae.io" 
+      "opae.io -v | --version" 
+      "opae.io -h | --help" 
+      "opae.io ls" 
+      "opae.io [-d | --device <PCI_ADDRESS>] [-r | --region <REGION_NUMBER>] [init | release | peek | poke | <script> [arg1...argN]]
+      "opae.io init [-d <PCI_ADDRESS>] <USER>[:<GROUP>]" 
+      "opae.io release [-d <PCI_ADDRESS>]" 
+      "opae.io [-d <PCI_ADDRESS>]" 
+      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>]" 
+      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] peek <OFFSET>" 
+      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] poke <OFFSET> <VALUE>" 
+      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] <SCRIPT> <ARG1> <ARG2> ... <ARGN>" 
 
   NOTE
-  If -d or --device is omitted, opae-io will attempt to open the first device found.
-  If -r or --region is omitted, opae-io will default to region 0.
+  If -d or --device is omitted, opae.io will attempt to open the first device found.
+  If -r or --region is omitted, opae.io will default to region 0.
 
   EXAMPLES
   Enumerating FPGA's:
-            "$ opae-io ls"
+            "$ opae.io ls"
 
   Initiating a session:
             
-            "$ sudo opae-io init -d 0000:00:00.0 lab:lab" 
+            "$ sudo opae.io init -d 0000:00:00.0 lab:lab" 
             
 
   Terminating a session:
             
-            "$ sudo opae-io release -d 0000:00:00.0" 
+            "$ sudo opae.io release -d 0000:00:00.0" 
             
 
   Entering an interactive Python environment:
             
-            "$ opae-io -d 0000:00:00.0 0" 
+            "$ opae.io -d 0000:00:00.0 0" 
             
 
   Peek & Poke from the command line:
             
-            "$ opae-io -d 0000:00:00.0 -r 0 peek 0x28" 
-            "$ opae-io -d 0000:00:00.0 -r 0 poke 0x28 0xbaddecaf" 
+            "$ opae.io -d 0000:00:00.0 -r 0 peek 0x28" 
+            "$ opae.io -d 0000:00:00.0 -r 0 poke 0x28 0xbaddecaf" 
             
 
   Executing a script:
             
-            "$ opae-io -d 0000:00:00.0 -r 0 script.py a b c" 
+            "$ opae.io -d 0000:00:00.0 -r 0 script.py a b c" 
             
 '''.strip()
     print(help_msg)
@@ -248,7 +248,7 @@ def get_action(args):
             return None
 
     if action_class.no_device:
-        return action_class(command='opae-io {}'.format(args.command))
+        return action_class(command='opae.io {}'.format(args.command))
     try:
         device = utils.find_device(args.pci_address)
     except OSError as err:
@@ -259,9 +259,9 @@ def get_action(args):
 
 
 def setup_logging():
-    h = TimedRotatingFileHandler('opae-io.log', when='midnight')
+    h = TimedRotatingFileHandler('opae.io.log', when='midnight')
     h.setFormatter(logging.Formatter('[%(asctime)-15s] [%(levelname)s] %(message)s'))
-    l = logging.getLogger('opae-io')
+    l = logging.getLogger('opae.io')
     l.setLevel(logging.DEBUG)
     l.addHandler(h)
     return l
