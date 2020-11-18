@@ -40,9 +40,8 @@ from opae.io.utils import Path
 
 def default_parser():
     parser = argparse.ArgumentParser(add_help=False)
-
     parser.add_argument('command', nargs='?')
-    parser.add_argument('-p', '--pci-address', type=utils.pci_address)
+    parser.add_argument('-d', '--device', type=utils.pci_address)
     parser.add_argument('-r', '--region', type=int, default=0)
     parser.add_argument('--version', action='store_true', default=False)
     parser.add_argument('-h', '--help', action='store_true', default=False)
@@ -51,7 +50,7 @@ def default_parser():
 
 
 class base_action(object):
-    no_device = False
+    open_device = False
 
     def __init__(self, device=None, region=None, command=None):
         self.device = device
@@ -59,7 +58,8 @@ class base_action(object):
         self.command = command
         self.parser = argparse.ArgumentParser(prog=command)
         self.add_args()
-        cli.update_device(device, region)
+        if self.open_device:
+            cli.update_device(device, region)
 
     def __call__(self, args):
         return_code = 0
@@ -83,44 +83,66 @@ class base_action(object):
         raise NotImplemtedError('action not implemented')
 
 class ls_action(base_action):
-    no_device = True
-
     def add_args(self):
-        self.parser.add_argument('-d', '--device', default={}, type=utils.vendev)
+        self.parser.add_argument('-v', '--viddid', default={}, type=utils.vendev)
         self.parser.add_argument('--all', action='store_true', default=False)
 
     def execute(self, args):
-        utils.ls(all=args.all, **args.device)
+        utils.ls(all=args.all, **args.viddid)
+        raise SystemExit(0)
 
 class init_action(base_action):
+    def add_args(self):
+        self.parser.add_argument('user_group', default='root:root')
+
     def execute(self, args):
-        pass
+        if not self.device:
+            raise SystemExit('Need device for init.')
+        utils.vfio_init(self.device, args.user_group)
+        raise SystemExit(0)
 
 class release_action(base_action):
-    def execute(self, args):
+    def add_args(self):
         pass
 
+    def execute(self, args):
+        if not self.device:
+            raise SystemExit('Need device for release.')
+        utils.vfio_release(self.device)
+        raise SystemExit(0)
+
 class peek_action(base_action):
+    open_device = True
+
     def add_args(self):
         self.parser.add_argument('offset', type=utils.hex_int)
 
     def execute(self, args):
+        if not self.device:
+            raise SystemExit('Need device for peek.')
         if not self.region:
-            raise SystemExit('Need region for peek')
+            raise SystemExit('Need region for peek.')
         print('0x{:0x}'.format(self.region.read64(args.offset)))
+        raise SystemExit(0)
 
 class poke_action(base_action):
+    open_device = True
+
     def add_args(self):
         self.parser.add_argument('offset', type=utils.hex_int)
         self.parser.add_argument('value', type=utils.hex_int)
 
     def execute(self, args):
+        if not self.device:
+            raise SystemExit('Need device for poke.')
         if not self.region:
-            raise SystemExit('Need region for peek')
+            raise SystemExit('Need region for poke.')
         self.region.write64(args.offset, args.value)
-
+        raise SystemExit(0)
 
 class script_action(base_action):
+    open_device = True
+
     def parse_args(self, args):
         return args
 
@@ -138,11 +160,10 @@ class walk_action(base_action):
         self.parser.add_argument('-u', '--show-uuid', action='store_true', default=False)
 
     def execute(self, args):
-        if self.device is None:
-            raise SystemExit('walk requires device')
-
-        if self.region is None:
-            raise SystemExit('walk requires region')
+        if not self.device:
+            raise SystemExit('walk requires device.')
+        if not self.region:
+            raise SystemExit('walk requires region.')
 
         offset = 0 if args.offset is None else args.offset
         for offset, dfh in utils.dfh_walk(offset=offset):
@@ -152,9 +173,9 @@ class walk_action(base_action):
                 print('    uuid: {}'.format(utils.read_guid(offset+0x8)))
                 
 
-        
-
 class no_action(base_action):
+    open_device = True
+
     def __call__(self, args):
         pass
 
@@ -187,7 +208,7 @@ def show_help():
       "opae.io" 
       "opae.io -v | --version" 
       "opae.io -h | --help" 
-      "opae.io ls" 
+      "opae.io ls [-v | --viddid <VID:DID>]" 
       "opae.io [-d | --device <PCI_ADDRESS>] [-r | --region <REGION_NUMBER>] [init | release | peek | poke | <script> [arg1...argN]]
       "opae.io init [-d <PCI_ADDRESS>] <USER>[:<GROUP>]" 
       "opae.io release [-d <PCI_ADDRESS>]" 
@@ -206,30 +227,26 @@ def show_help():
             "$ opae.io ls"
 
   Initiating a session:
-            
+
             "$ sudo opae.io init -d 0000:00:00.0 lab:lab" 
-            
 
   Terminating a session:
-            
+
             "$ sudo opae.io release -d 0000:00:00.0" 
-            
 
   Entering an interactive Python environment:
-            
-            "$ opae.io -d 0000:00:00.0 0" 
-            
+
+            "$ opae.io -d 0000:00:00.0 -r 0" 
 
   Peek & Poke from the command line:
-            
+
             "$ opae.io -d 0000:00:00.0 -r 0 peek 0x28" 
             "$ opae.io -d 0000:00:00.0 -r 0 poke 0x28 0xbaddecaf" 
-            
 
   Executing a script:
-            
+
             "$ opae.io -d 0000:00:00.0 -r 0 script.py a b c" 
-            
+
 '''.strip()
     print(help_msg)
     cli.return_code(0)
@@ -247,10 +264,10 @@ def get_action(args):
         else:
             return None
 
-    if action_class.no_device:
-        return action_class(command='opae.io {}'.format(args.command))
+    if not action_class.open_device:
+        return action_class(args.device, command='opae.io {}'.format(args.command))
     try:
-        device = utils.find_device(args.pci_address)
+        device = utils.find_device(args.device)
     except OSError as err:
         cli.return_code(err.errno)
         device = None

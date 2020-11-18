@@ -58,7 +58,7 @@ PCI_ADDRESS_RE = re.compile(PCI_ADDRESS_PATTERN, re.IGNORECASE)
 VENDOR_DEVICE_PATTERN = r'(?P<vendor>[\da-f]{0,4}):(?P<device>[\da-f]{0,4})'
 VENDOR_DEVICE_RE = re.compile(VENDOR_DEVICE_PATTERN, re.IGNORECASE)
 
-PICKLE_FILE = '/var/lib/opae/opae-io.pickle'
+PICKLE_FILE = '/var/lib/opae/opae.io.pickle'
 
 
 class pcicfg(Enum):
@@ -83,9 +83,8 @@ def pci_address(inp):
 
 def vid_did_for_address(pci_addr):
     path = Path('/sys/bus/pci/devices', pci_addr)
-    vid, did = '', ''
-    vid = path.join('vendor').read_text().strip()
-    did = path.join('device').read_text().strip()
+    vid = path.joinpath('vendor').read_text().strip()
+    did = path.joinpath('device').read_text().strip()
     return (vid, did)
 
 def load_driver(driver):
@@ -122,9 +121,12 @@ def put_dev_dict(file_name, dev_dict):
     with open(file_name, 'wb') as outf:
         pickle.dump(dev_dict, outf)
 
-def init(pci_addr, new_owner=''):
+def vfio_init(pci_addr, new_owner=''):
     vid_did = vid_did_for_address(pci_addr)
     driver = get_bound_driver(pci_addr)
+
+    msg = '(0x{:04x},0x{:04x}) at {}'.format(
+        int(vid_did[0], 16), int(vid_did[1], 16), pci_addr)
 
     if driver and driver != 'vfio-pci':
         dev_dict = get_dev_dict(PICKLE_FILE)
@@ -132,36 +134,51 @@ def init(pci_addr, new_owner=''):
             dev_dict = {}
         dev_dict[pci_addr] = driver
         put_dev_dict(PICKLE_FILE, dev_dict)
+        print('Unbinding {} from {}'.format(msg, driver))
         unbind_driver(driver, pci_addr)
 
     load_driver('vfio-pci')
 
+    print('Binding {} to vfio-pci'.format(msg))
     new_id = '/sys/bus/pci/drivers/vfio-pci/new_id'
     with open(new_id, 'w') as outf:
         outf.write('{} {}'.format(vid_did[0], vid_did[1]))
 
     time.sleep(0.25)
 
-    if new_owner:
-        iommu_group = os.path.join('/sys/bus/pci/devices',
-                                   pci_addr,
-                                   'iommu_group')
-        group_num = os.readlink(iommu_group).split(os.sep)[-1]
+    iommu_group = os.path.join('/sys/bus/pci/devices',
+                               pci_addr,
+                               'iommu_group')
+    group_num = os.readlink(iommu_group).split(os.sep)[-1]
+
+    print('iommu group for {} is {}'.format(msg, group_num))
+
+    if new_owner != 'root:root':
         device = os.path.join('/dev/vfio', group_num)
         items = new_owner.split(':')
         user = pwd.getpwnam(items[0]).pw_uid
         group = -1
         if len(items) > 1:
             group = grp.getgrnam(items[1]).gr_gid
+            print('Assigning {} to {}:{}'.format(device, items[0], items[1]))
+        else:
+            print('Assigning {} to {}'.format(device, items[0]))
         os.chown(device, user, group)
+        print('Changing permissions for {} to rw-rw----'.format(device))
         os.chmod(device, 0o660)
 
-def release(pci_addr):
+def vfio_release(pci_addr):
+    vid_did = vid_did_for_address(pci_addr)
     driver = get_bound_driver(pci_addr)
 
+    msg = '(0x{:04x},0x{:04x}) at {}'.format(
+        int(vid_did[0], 16), int(vid_did[1], 16), pci_addr)
+
     if not driver or driver != 'vfio-pci':
+        print('{} is not bound to vfio-pci'.format(msg))
         return
 
+    print('Releasing {} from vfio-pci'.format(msg))
     unbind_driver(driver, pci_addr)
 
     dev_dict = get_dev_dict(PICKLE_FILE)
@@ -170,6 +187,7 @@ def release(pci_addr):
 
     driver = dev_dict.get(pci_addr)
     if driver:
+        print('Rebinding {} to {}'.format(msg, driver))
         bind_driver(driver, pci_addr)
         del dev_dict[pci_addr]
         if dev_dict:
