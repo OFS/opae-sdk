@@ -252,7 +252,6 @@ char * prompt(void)
 void help(void)
 {
   std::cout << "use help(topic) on the following topics:" << std::endl
-            << "  ls" << std::endl
             << "  peek" << std::endl
             << "  poke" << std::endl
             << "  read_csr" << std::endl

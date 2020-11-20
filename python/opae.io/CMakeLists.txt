@@ -1,4 +1,4 @@
-## Copyright(c) 2019-2020, Intel Corporation
+## Copyright(c) 2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,35 +24,25 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required (VERSION 2.8.12)
+set(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/timestamp)
+file(GLOB_RECURSE PKG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/opae/*)
 
-project(python)
+set(INCLUDE_DIRS "${OPAE_INCLUDE_PATH}:${pybind11_ROOT}/include:${OPAE_SDK_SOURCE}/tools/extra/opae.io")
+set(LINK_DIRS "${LIBRARY_OUTPUT_PATH}")
 
-############################################################################
-## Find Python by version     ##############################################
-############################################################################
-set(OPAE_PYTHON_VERSION 3.6 CACHE STRING "Python version to use for building/distributing pyopae")
-set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3.6 3.5 3.4 3.3)
+add_custom_command(
+    OUTPUT ${OUTPUT}
+    COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext -I ${INCLUDE_DIRS} -L ${LINK_DIRS}
+    COMMAND ${CMAKE_COMMAND} -E touch ${OUTPUT}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    DEPENDS setup.py ${PKG_FILES}
+)
 
-find_package(PythonInterp ${OPAE_PYTHON_VERSION})
-find_package(PythonLibs ${OPAE_PYTHON_VERSION})
-
-set(INTEL_SECURITY_TOOLS_VERSION 1.0.3 CACHE STRING "Security Tools Version string")
-
-add_subdirectory(opae.admin)
-add_subdirectory(opae.io)
-
-execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import virtualenv"
-    RESULT_VARIABLE HAS_VIRTUALENV)
-
-if (HAS_VIRTUALENV)
-    message("no virtualenv found, use 'pip install virtualenv' to install it")
-else(HAS_VIRTUALENV)
-    add_custom_target(pydev
-        COMMAND ${PYTHON_EXECUTABLE} -m virtualenv ${CMAKE_CURRENT_BINARY_DIR}
-        COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/pip install -e ${CMAKE_CURRENT_SOURCE_DIR}/opae.admin
-        COMMAND echo "Please source ${CMAKE_CURRENT_BINARY_DIR}/bin/activate to use this virtual environment"
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        COMMENT "Setting up virtualenv..."
-        )
-endif(HAS_VIRTUALENV)
+add_custom_target(opae.io-package ALL DEPENDS ${OUTPUT} opaevfio opae.io)
+install(
+    CODE "execute_process(
+        COMMAND ${PYTHON_EXECUTABLE} setup.py install
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+	)"
+    COMPONENT opae.io
+)

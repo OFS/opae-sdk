@@ -155,6 +155,8 @@ class script_action(base_action):
 
 
 class walk_action(base_action):
+    open_device = True
+
     def add_args(self):
         self.parser.add_argument('offset', nargs='?', type=utils.hex_int)
         self.parser.add_argument('-u', '--show-uuid', action='store_true', default=False)
@@ -205,18 +207,19 @@ def do_action(action, args):
 def show_help():
     help_msg = '''
   opae.io - peek and poke FPGA CSRs
-      "opae.io" 
-      "opae.io -v | --version" 
-      "opae.io -h | --help" 
-      "opae.io ls [-v | --viddid <VID:DID>]" 
+      "opae.io"
+      "opae.io -v | --version"
+      "opae.io -h | --help"
+      "opae.io ls [-v | --viddid <VID:DID>]"
       "opae.io [-d | --device <PCI_ADDRESS>] [-r | --region <REGION_NUMBER>] [init | release | peek | poke | <script> [arg1...argN]]
-      "opae.io init [-d <PCI_ADDRESS>] <USER>[:<GROUP>]" 
-      "opae.io release [-d <PCI_ADDRESS>]" 
-      "opae.io [-d <PCI_ADDRESS>]" 
-      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>]" 
-      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] peek <OFFSET>" 
-      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] poke <OFFSET> <VALUE>" 
-      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] <SCRIPT> <ARG1> <ARG2> ... <ARGN>" 
+      "opae.io init [-d <PCI_ADDRESS>] <USER>[:<GROUP>]"
+      "opae.io release [-d <PCI_ADDRESS>]"
+      "opae.io [-d <PCI_ADDRESS>]"
+      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>]"
+      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] walk <OFFSET> [-u | --show-uuid]"
+      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] peek <OFFSET>"
+      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] poke <OFFSET> <VALUE>"
+      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] <SCRIPT> <ARG1> <ARG2> ... <ARGN>"
 
   NOTE
   If -d or --device is omitted, opae.io will attempt to open the first device found.
