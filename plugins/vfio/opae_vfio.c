@@ -301,7 +301,7 @@ int walk(pci_device_t *p, int region)
 	size_t size;
 	if (opae_vfio_region_get(&p->vfio_device, 0, (uint8_t**)&mmio, &size)) {
 		printf("error getting BAR%d\n", region);
-		return 0;
+		return 1;
 	}
 
 	volatile uint64_t *lo = ((uint64_t*)mmio)+1;
@@ -462,6 +462,7 @@ fpga_result vfio_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJTYPE);
 
 	memcpy(_prop->guid, t->guid, sizeof(fpga_guid));
+	SET_FIELD_VALID(_prop, FPGA_PROPERTY_GUID);
 	if (t->type == FPGA_ACCELERATOR) {
 		_prop->parent = clone_token(t->parent);
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_PARENT);
