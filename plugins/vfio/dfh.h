@@ -63,6 +63,11 @@ typedef struct _port_offset
 	uint64_t reserved61 : 3;
 } port_offset;
 
+#define PR_FEATURE_ID 0x5
+#define PR_INTFC_ID_LO 0xA8
+#define PR_INTFC_ID_HI 0xB0
+
+#define PORT_CONTROL 0x38
 typedef struct _port_control
 {
 	uint64_t port_reset : 1;

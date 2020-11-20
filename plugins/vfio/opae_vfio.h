@@ -47,6 +47,8 @@ typedef struct _vfio_token
 {
 	uint32_t magic;
 	fpga_guid guid;
+	volatile uint8_t *pr_control;
+	fpga_guid compat_id;
 	const pci_device_t *device;
 	uint32_t region;
 	volatile uint8_t *address;

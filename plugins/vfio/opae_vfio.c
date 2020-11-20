@@ -259,8 +259,6 @@ free:
 	return res;
 }
 
-fpga_result get_guid(uint64_t *h, fpga_guid guid);
-
 vfio_token *clone_token(vfio_token *src)
 {
 	if (src->magic != VFIO_TOKEN_MAGIC) return NULL;
@@ -461,11 +459,14 @@ fpga_result vfio_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	_prop->objtype = t->type;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJTYPE);
 
-	memcpy(_prop->guid, t->guid, sizeof(fpga_guid));
-	SET_FIELD_VALID(_prop, FPGA_PROPERTY_GUID);
 	if (t->type == FPGA_ACCELERATOR) {
 		_prop->parent = clone_token(t->parent);
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_PARENT);
+		memcpy(_prop->guid, t->guid, sizeof(fpga_guid));
+		SET_FIELD_VALID(_prop, FPGA_PROPERTY_GUID);
+	} else {
+		memcpy(_prop->guid, t->compat_id, sizeof(fpga_guid));
+		SET_FIELD_VALID(_prop, FPGA_PROPERTY_GUID);
 	}
 
 	return FPGA_OK;

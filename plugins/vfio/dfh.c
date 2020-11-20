@@ -43,7 +43,6 @@ static fpga_result legacy_port_errors_clear(vfio_token *t)
 	return FPGA_OK;
 }
 
-#define PORT_CONTROL 0x38
 static fpga_result legacy_port_reset(vfio_token *t)
 {
 	volatile uint8_t *port_base = t->address;
@@ -87,11 +86,27 @@ int walk_port(vfio_token *parent, uint32_t region, volatile uint8_t *mmio)
 	return 0;
 }
 
+static inline dfh *next_dfh(dfh* h)
+{
+	if (h && h->next && !h->eol)
+		return (dfh*)(((uint8_t*)h)+h->next);
+	return NULL;
+}
+
+
 int walk_fme(pci_device_t *p, volatile uint8_t *mmio, int region)
 {
 	int fd = p->vfio_device.device.device_fd;
 	vfio_token *fme = get_token(p, region, fd, mmio, FPGA_DEVICE);
 	get_guid(1+(uint64_t*)mmio, fme->guid);
+	for(dfh *h = (dfh*)mmio; h; h = next_dfh(h)) {
+		if (h->id == PR_FEATURE_ID) {
+			printf("fme dfh: 0x%lx\n", *(uint64_t*)h);
+			fme->pr_control = (volatile uint8_t*)h;
+			uint8_t *pr_id = PR_INTFC_ID_LO+(uint8_t*)h;
+			get_guid((uint64_t*)pr_id, fme->compat_id);
+		}
+	}
 	for (size_t i = 0; i < FME_PORTS; ++i) {
 		port_offset *offset_r = (port_offset*)(mmio+fme_ports[i]);
 		if (!offset_r->implemented) continue;
