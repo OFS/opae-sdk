@@ -310,7 +310,8 @@ int walk(pci_device_t *p, int region)
 			return walk_fme(p, mmio, 0);
 		}
 	}
-
+	int fd = p->vfio_device.device.device_fd;
+	get_token(p, 0, fd, mmio, FPGA_ACCELERATOR);
 	return 0;
 }
 
