@@ -65,6 +65,7 @@ opae_add_subdirectory(platforms)
 opae_add_subdirectory(tools)
 opae_add_subdirectory(samples)
 opae_add_subdirectory(python)
+opae_add_subdirectory(plugins/vfio)
 
 if(OPAE_BUILD_TESTS)
     enable_testing()
