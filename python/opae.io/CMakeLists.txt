@@ -35,7 +35,7 @@ add_custom_command(
     COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext -I ${INCLUDE_DIRS} -L ${LINK_DIRS}
     COMMAND ${CMAKE_COMMAND} -E touch ${OUTPUT}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    DEPENDS setup.py ${PKG_FILES} opaevfio
+    DEPENDS setup.py ${PKG_FILES}
 )
 
 add_custom_target(opae.io-package ALL DEPENDS ${OUTPUT} opaevfio opae.io)
