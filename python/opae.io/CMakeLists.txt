@@ -38,7 +38,7 @@ add_custom_command(
     DEPENDS setup.py ${PKG_FILES}
 )
 
-add_custom_target(opae.io-package ALL DEPENDS ${OUTPUT} opaevfio opae.io)
+add_custom_target(opae.io-package ALL DEPENDS opaevfio opae.io ${OUTPUT})
 install(
     CODE "execute_process(
         COMMAND ${PYTHON_EXECUTABLE} setup.py install
