@@ -58,7 +58,7 @@ jobs:
     - name: Get Packages
       uses: mstksg/get-package@v1
       with:
-        apt-get: uuid-dev libjson-c-dev libhwloc-dev lcov libtbb-dev linux-headers
+        apt-get: uuid-dev libjson-c-dev libhwloc-dev lcov libtbb-dev linux-headers-generic
     - name: Get Python packages
       run: python3 -m pip install setuptools --user
     - name: configure ${{ matrix.build-type }}
