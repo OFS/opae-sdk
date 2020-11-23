@@ -310,8 +310,7 @@ int walk(pci_device_t *p, int region)
 			return walk_fme(p, mmio, 0);
 		}
 	}
-	int fd = p->vfio_device.device.device_fd;
-	get_token(p, 0, fd, mmio, FPGA_ACCELERATOR);
+	get_token(p, 0, mmio, FPGA_ACCELERATOR);
 	return 0;
 }
 
@@ -618,12 +617,11 @@ void print_dfh(uint32_t offset, dfh *h)
                h->id, h->major_rev, h->next, h->eol, h->minor_rev, h->version, h->type);
 }
 
-vfio_token *find_token(const pci_device_t *p, uint32_t region, int fd, volatile uint8_t *address)
+vfio_token *find_token(const pci_device_t *p, uint32_t region, volatile uint8_t *address)
 {
 	vfio_token *t = _vfio_tokens;
 	while (t) {
 		if (t->region == region && t->address == address &&
-		    t->fd == fd &&
 		    !strncmp(t->device->addr, p->addr, PCIADDR_MAX))
 			return t;
 		t = t->next;
@@ -631,9 +629,9 @@ vfio_token *find_token(const pci_device_t *p, uint32_t region, int fd, volatile 
 	return t;
 }
 
-vfio_token *get_token(const pci_device_t *p, uint32_t region, int fd, volatile uint8_t *mmio, int type)
+vfio_token *get_token(const pci_device_t *p, uint32_t region, volatile uint8_t *mmio, int type)
 {
-	vfio_token *t = find_token(p, region, fd, mmio);
+	vfio_token *t = find_token(p, region, mmio);
 	if (t) return t;
 	t = (vfio_token*)malloc(sizeof(vfio_token));
 	memset(t, 0, sizeof(vfio_token));
@@ -641,7 +639,6 @@ vfio_token *get_token(const pci_device_t *p, uint32_t region, int fd, volatile u
 	t->device = p;
 	t->region = region;
 	t->address = mmio;
-	t->fd = fd;
 	t->type = type;
 	t->next = _vfio_tokens;
 	_vfio_tokens = t;

@@ -54,7 +54,6 @@ typedef struct _vfio_token
 	volatile uint8_t *address;
 	user_mmio_t user_mmio[USER_MMIO_MAX];
 	uint32_t user_mmio_count;
-	int fd;
 	uint32_t type;
 	struct _vfio_token *parent;
 	struct _vfio_token *next;
@@ -73,6 +72,6 @@ int features_discover();
 pci_device_t *get_pci_device(char addr[PCIADDR_MAX]);
 void free_device_list();
 void free_token_list();
-vfio_token *get_token(const pci_device_t *p, uint32_t region, int fd, volatile uint8_t *mmio, int type);
+vfio_token *get_token(const pci_device_t *p, uint32_t region, volatile uint8_t *mmio, int type);
 fpga_result get_guid(uint64_t* h, fpga_guid guid);
 #endif

@@ -69,7 +69,7 @@ static fpga_result legacy_port_reset(vfio_token *t)
 int walk_port(vfio_token *parent, uint32_t region, volatile uint8_t *mmio)
 {
 	//walk_port
-	vfio_token *port = get_token(parent->device, region, parent->fd, mmio,
+	vfio_token *port = get_token(parent->device, region, mmio,
 				     FPGA_ACCELERATOR);
 	port_next_afu *afu = (port_next_afu*)(mmio+PORT_NEXT_AFU);
 	port_capability *cap = (port_capability*)(mmio+PORT_CAPABILITY);
@@ -96,8 +96,7 @@ static inline dfh *next_dfh(dfh* h)
 
 int walk_fme(pci_device_t *p, volatile uint8_t *mmio, int region)
 {
-	int fd = p->vfio_device.device.device_fd;
-	vfio_token *fme = get_token(p, region, fd, mmio, FPGA_DEVICE);
+	vfio_token *fme = get_token(p, region, mmio, FPGA_DEVICE);
 	get_guid(1+(uint64_t*)mmio, fme->guid);
 	for(dfh *h = (dfh*)mmio; h; h = next_dfh(h)) {
 		if (h->id == PR_FEATURE_ID) {
