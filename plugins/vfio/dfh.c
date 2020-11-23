@@ -100,7 +100,6 @@ int walk_fme(pci_device_t *p, volatile uint8_t *mmio, int region)
 	get_guid(1+(uint64_t*)mmio, fme->guid);
 	for(dfh *h = (dfh*)mmio; h; h = next_dfh(h)) {
 		if (h->id == PR_FEATURE_ID) {
-			printf("fme dfh: 0x%lx\n", *(uint64_t*)h);
 			fme->pr_control = (volatile uint8_t*)h;
 			uint8_t *pr_id = PR_INTFC_ID_LO+(uint8_t*)h;
 			get_guid((uint64_t*)pr_id, fme->compat_id);
