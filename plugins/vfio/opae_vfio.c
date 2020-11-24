@@ -49,7 +49,7 @@
 
 #include "props.h"
 #include "opae_vfio.h"
-#include "dfh.h"
+#include "dfl.h"
 
 #define VFIO_TOKEN_MAGIC 0xEF1010FE
 #define VFIO_HANDLE_MAGIC ~VFIO_TOKEN_MAGIC
@@ -161,7 +161,6 @@ void free_device_list()
 {
 	while (_pci_devices) {
 		pci_device_t *p = _pci_devices;
-		opae_vfio_close(&p->vfio_device);
 		_pci_devices = _pci_devices->next;
 		free(p);
 	}
@@ -191,10 +190,6 @@ pci_device_t *get_pci_device(char addr[PCIADDR_MAX])
 	if (p) return p;
 	p = (pci_device_t*)malloc(sizeof(pci_device_t));
 	memset(p, 0, sizeof(pci_device_t));
-	if (opae_vfio_open(&p->vfio_device, addr)) {
-		printf("error opening vfio device: %s\n", addr);
-		goto free;
-	}
 
 	strncpy(p->addr, addr, PCIADDR_MAX-1);
 
@@ -295,9 +290,16 @@ fpga_result handle_check_and_lock(fpga_handle handle, bool lock)
 
 int walk(pci_device_t *p, int region)
 {
+	int res = 0;
 	volatile uint8_t *mmio;
 	size_t size;
-	if (opae_vfio_region_get(&p->vfio_device, 0, (uint8_t**)&mmio, &size)) {
+	struct opae_vfio v;
+
+	if (opae_vfio_open(&v, p->addr)) {
+		printf("error opening vfio device: %s\n", p->addr);
+		return 1;
+	}
+	if (opae_vfio_region_get(&v, 0, (uint8_t**)&mmio, &size)) {
 		printf("error getting BAR%d\n", region);
 		return 1;
 	}
@@ -307,11 +309,16 @@ int walk(pci_device_t *p, int region)
 	for (size_t i = 0; i < sizeof(fme_drivers); ++i) {
 		if (*lo == fme_drivers[i].guid_lo &&
 		    *hi == fme_drivers[i].guid_hi) {
-			return walk_fme(p, mmio, 0);
+			res = walk_fme(p, &v, mmio, 0);
+			goto close;
 		}
 	}
-	get_token(p, 0, mmio, FPGA_ACCELERATOR);
-	return 0;
+	vfio_token *t = get_token(p, 0, FPGA_ACCELERATOR);
+	t->mmio_size = size;
+
+close:
+	opae_vfio_close(&v);
+	return res;
 }
 
 int features_discover()
@@ -361,6 +368,21 @@ fpga_result vfio_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 	// mark data structure as valid
 	_handle->magic = VFIO_HANDLE_MAGIC;
 	_handle->token = clone_token(_token);
+	if (opae_vfio_open(&_handle->vfio_device, _token->device->addr)) {
+		printf("error opening vfio device\n");
+		free(_handle);
+		return FPGA_EXCEPTION;
+	}
+	uint8_t *mmio = NULL;
+	size_t size;
+	if (opae_vfio_region_get(&_handle->vfio_device,
+				 _token->region, &mmio, &size)) {
+		printf("error opening vfio region\n");
+		free(_handle);
+		return FPGA_EXCEPTION;
+	}
+	_handle->mmio_base = (volatile uint8_t*)(mmio);
+	_handle->mmio_size = size;
 	*handle = _handle;
 	return FPGA_OK;
 }
@@ -373,6 +395,7 @@ fpga_result vfio_fpgaClose(fpga_handle handle)
 	vfio_handle *h = (vfio_handle*)handle;
 	res = token_check_and_lock(h->token, true);
 	if (res) return res;
+	opae_vfio_close(&h->vfio_device);
 	free(h->token);
 	free(h);
 	return FPGA_OK;
@@ -388,20 +411,9 @@ fpga_result vfio_fpgaReset(fpga_handle handle)
 	if (t->type == FPGA_DEVICE)
 		return FPGA_NOT_SUPPORTED;
 	if (t->ops.reset) {
-		return t->ops.reset(t);
+		return t->ops.reset(h->mmio_base);
 	}
 	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result get_object_id(const struct opae_vfio *d, uint64_t *object_id)
-{
-	struct stat st;
-	if (stat(d->group.group_device, &st)) {
-		printf("error stat'ing device:%s\n", d->group.group_device);
-		return FPGA_EXCEPTION;
-	}
-	*object_id = st.st_dev;
-	return FPGA_OK;
 }
 
 fpga_result get_guid(uint64_t* h, fpga_guid guid)
@@ -450,10 +462,8 @@ fpga_result vfio_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	_prop->socket_id = t->device->numa_node;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_SOCKETID);
 
-	if (!get_object_id(&t->device->vfio_device, &_prop->object_id)) {
-		_prop->object_id = (_prop->object_id << 2 | t->region);
-		SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJECTID);
-	}
+	_prop->object_id = ((uint64_t)t->device->bdf.bdf) << 32 | t->region;
+	SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJECTID);
 
 
 	_prop->objtype = t->type;
@@ -505,11 +515,12 @@ fpga_result vfio_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties
 	return vfio_fpgaGetProperties(t, prop);
 }
 
-static inline volatile uint8_t *get_user_offset(vfio_token * t,
+static inline volatile uint8_t *get_user_offset(vfio_handle * h,
 						uint32_t mmio_num,
 						uint32_t offset)
 {
-	return t->user_mmio[mmio_num].base + offset;
+	uint32_t user_mmio = h->token->user_mmio[mmio_num];
+	return h->mmio_base + user_mmio + offset;
 }
 
 
@@ -528,7 +539,7 @@ fpga_result vfio_fpgaWriteMMIO64(fpga_handle handle,
 	if (mmio_num > t->user_mmio_count)
 		return FPGA_INVALID_PARAM;
 
-	*((uint64_t*)get_user_offset(t, mmio_num, offset)) = value;
+	*((uint64_t*)get_user_offset(h, mmio_num, offset)) = value;
 	return FPGA_OK;
 }
 
@@ -546,7 +557,7 @@ fpga_result vfio_fpgaReadMMIO64(fpga_handle handle,
 	if (mmio_num > t->user_mmio_count)
 		return FPGA_INVALID_PARAM;
 
-	*value = *((uint64_t*)get_user_offset(t, mmio_num, offset));
+	*value = *((uint64_t*)get_user_offset(h, mmio_num, offset));
 	return FPGA_OK;
 }
 
@@ -564,7 +575,7 @@ fpga_result vfio_fpgaWriteMMIO32(fpga_handle handle,
 		return FPGA_NOT_SUPPORTED;
 	if (mmio_num > t->user_mmio_count)
 		return FPGA_INVALID_PARAM;
-	*((uint32_t*)get_user_offset(t, mmio_num, offset)) = value;
+	*((uint32_t*)get_user_offset(h, mmio_num, offset)) = value;
 	return FPGA_OK;
 }
 
@@ -582,13 +593,8 @@ fpga_result vfio_fpgaReadMMIO32(fpga_handle handle,
 		return FPGA_NOT_SUPPORTED;
 	if (mmio_num > t->user_mmio_count)
 		return FPGA_INVALID_PARAM;
-	*value = *((uint32_t*)get_user_offset(t, mmio_num, offset));
+	*value = *((uint32_t*)get_user_offset(h, mmio_num, offset));
 	return FPGA_OK;
-}
-
-fpga_result vfio_fpgaWriteMMIO512()
-{
-	return FPGA_NOT_SUPPORTED;
 }
 
 fpga_result vfio_fpgaMapMMIO(fpga_handle handle,
@@ -597,17 +603,24 @@ fpga_result vfio_fpgaMapMMIO(fpga_handle handle,
 {
 	fpga_result res = handle_check_and_lock(handle, true);
 	if (res) return res;
-
-	vfio_token* t = ((vfio_handle*)handle)->token;
+	vfio_handle *h = (vfio_handle*)handle;
+	vfio_token* t = h->token;
 	if (mmio_num > t->user_mmio_count)
 		return FPGA_INVALID_PARAM;
-	*mmio_ptr = (uint64_t*)get_user_offset(t, mmio_num, 0);
+	*mmio_ptr = (uint64_t*)get_user_offset(h, mmio_num, 0);
 	return FPGA_OK;
 }
 
-fpga_result vfio_fpgaUnmapMMIO()
+fpga_result vfio_fpgaUnmapMMIO(fpga_handle handle,
+			       uint32_t mmio_num)
 {
-	return FPGA_NOT_SUPPORTED;
+	fpga_result res = handle_check_and_lock(handle, true);
+	if (res) return res;
+	vfio_handle *h = (vfio_handle*)handle;
+	vfio_token* t = h->token;
+	if (mmio_num > t->user_mmio_count)
+		return FPGA_INVALID_PARAM;
+	return FPGA_OK;
 }
 
 void print_dfh(uint32_t offset, dfh *h)
@@ -617,11 +630,11 @@ void print_dfh(uint32_t offset, dfh *h)
                h->id, h->major_rev, h->next, h->eol, h->minor_rev, h->version, h->type);
 }
 
-vfio_token *find_token(const pci_device_t *p, uint32_t region, volatile uint8_t *address)
+vfio_token *find_token(const pci_device_t *p, uint32_t region)
 {
 	vfio_token *t = _vfio_tokens;
 	while (t) {
-		if (t->region == region && t->address == address &&
+		if (t->region == region &&
 		    !strncmp(t->device->addr, p->addr, PCIADDR_MAX))
 			return t;
 		t = t->next;
@@ -629,16 +642,15 @@ vfio_token *find_token(const pci_device_t *p, uint32_t region, volatile uint8_t 
 	return t;
 }
 
-vfio_token *get_token(const pci_device_t *p, uint32_t region, volatile uint8_t *mmio, int type)
+vfio_token *get_token(const pci_device_t *p, uint32_t region, int type)
 {
-	vfio_token *t = find_token(p, region, mmio);
+	vfio_token *t = find_token(p, region);
 	if (t) return t;
 	t = (vfio_token*)malloc(sizeof(vfio_token));
 	memset(t, 0, sizeof(vfio_token));
 	t->magic = VFIO_TOKEN_MAGIC;
 	t->device = p;
 	t->region = region;
-	t->address = mmio;
 	t->type = type;
 	t->next = _vfio_tokens;
 	_vfio_tokens = t;
@@ -776,25 +788,6 @@ fpga_result vfio_fpgaDestroyToken(fpga_token *token)
 	return FPGA_INVALID_PARAM;
 }
 
-fpga_result vfio_fpgaGetNumUmsg()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaSetUmsgAttributes()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaTriggerUmsg()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaGetUmsgPtr()
-{
-	return FPGA_NOT_SUPPORTED;
-}
 
 fpga_result vfio_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 				   void **buf_addr, uint64_t *wsid,
@@ -805,8 +798,7 @@ fpga_result vfio_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 
 	(void)flags;
 	vfio_handle *h = (vfio_handle*)handle;
-	vfio_token *t = h->token;
-	struct opae_vfio *v = (struct opae_vfio*)&t->device->vfio_device;
+	struct opae_vfio *v = (struct opae_vfio*)&h->vfio_device;
 	uint8_t *virt = NULL;
 	uint64_t iova = 0;
 	size_t sz = len;
@@ -843,8 +835,7 @@ fpga_result vfio_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 	if (res) return res;
 
 	vfio_handle *h = (vfio_handle*)handle;
-	vfio_token *t = h->token;
-	struct opae_vfio *v = (struct opae_vfio*)&t->device->vfio_device;
+	struct opae_vfio *v = (struct opae_vfio*)&h->vfio_device;
 
 	vfio_buffer *ptr = _vfio_buffers;
 	vfio_buffer *prev = NULL;
@@ -884,159 +875,3 @@ fpga_result vfio_fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 	return FPGA_NOT_FOUND;
 }
 
-fpga_result vfio_fpgaReadError()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaClearError(fpga_token token, uint32_t error_num)
-{
-	(void)error_num;
-	int res = token_check_and_lock(token, true);
-	if (res) return res;
-	vfio_token *t = (vfio_token*)token;
-	if (t->ops.clear_errors) {
-		return t->ops.clear_errors(t);
-	}
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaClearAllErrors()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaGetErrorInfo()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaCreateEventHandle()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaDestroyEventHandle()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaGetOSObjectFromEventHandle()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaRegisterEvent()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaUnregisterEvent()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaAssignPortToInterface()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaAssignToInterface()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaReleaseFromInterface()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaReconfigureSlot()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaTokenGetObject()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaHandleGetObject()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaObjectGetObject()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaObjectGetObjectAt()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaDestroyObject()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaObjectRead()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaObjectRead64()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaObjectGetSize()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaObjectGetType()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaObjectWrite64()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaSetUserClock()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaGetUserClock()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaGetNumMetrics()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaGetMetricsInfo()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaGetMetricsByIndex()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaGetMetricsByName()
-{
-	return FPGA_NOT_SUPPORTED;
-}
-
-fpga_result vfio_fpgaGetMetricsThresholdInfo()
-{
-	return FPGA_NOT_SUPPORTED;
-}

@@ -24,7 +24,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #include "opae_vfio.h"
-#include "dfh.h"
+#include "dfl.h"
 
 #define FME_PORTS 4
 uint32_t fme_ports[FME_PORTS] = {
@@ -34,18 +34,8 @@ uint32_t fme_ports[FME_PORTS] = {
 	0x50
 };
 
-#define PORT_ERRORS 0x1010
-static fpga_result legacy_port_errors_clear(vfio_token *t)
+static fpga_result legacy_port_reset(volatile uint8_t *port_base)
 {
-	volatile uint8_t *port_base = t->address;
-	uint64_t value = *(uint64_t*)(port_base+PORT_ERRORS);
-	*(uint64_t*)(port_base+PORT_ERRORS) = value;
-	return FPGA_OK;
-}
-
-static fpga_result legacy_port_reset(vfio_token *t)
-{
-	volatile uint8_t *port_base = t->address;
 	port_control *cntrl = (port_control*)(port_base + PORT_CONTROL);
 	cntrl->port_reset = 1;
 	(void)*cntrl;
@@ -69,18 +59,16 @@ static fpga_result legacy_port_reset(vfio_token *t)
 int walk_port(vfio_token *parent, uint32_t region, volatile uint8_t *mmio)
 {
 	//walk_port
-	vfio_token *port = get_token(parent->device, region, mmio,
-				     FPGA_ACCELERATOR);
+	vfio_token *port = get_token(parent->device, region, FPGA_ACCELERATOR);
 	port_next_afu *afu = (port_next_afu*)(mmio+PORT_NEXT_AFU);
 	port_capability *cap = (port_capability*)(mmio+PORT_CAPABILITY);
 	port->parent = parent;
+	port->mmio_size = cap->mmio_size;
 	port->user_mmio_count = 2;
-	port->user_mmio[0].base = mmio + afu->port_afu_dfh_offset;
-	port->user_mmio[0].size = cap->mmio_size;
-	get_guid(1+(uint64_t*)port->user_mmio[0].base, port->guid);
+	port->user_mmio[0] = afu->port_afu_dfh_offset;
+	get_guid(1+(uint64_t*)(mmio+afu->port_afu_dfh_offset), port->guid);
 	port->ops.reset = legacy_port_reset;
-	port->ops.clear_errors = legacy_port_errors_clear;
-	if (port->ops.reset(port)) {
+	if (port->ops.reset(mmio)) {
 		printf("error resetting port\n");
 	}
 	return 0;
@@ -94,13 +82,12 @@ static inline dfh *next_dfh(dfh* h)
 }
 
 
-int walk_fme(pci_device_t *p, volatile uint8_t *mmio, int region)
+int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio, int region)
 {
-	vfio_token *fme = get_token(p, region, mmio, FPGA_DEVICE);
+	vfio_token *fme = get_token(p, region, FPGA_DEVICE);
 	get_guid(1+(uint64_t*)mmio, fme->guid);
 	for(dfh *h = (dfh*)mmio; h; h = next_dfh(h)) {
 		if (h->id == PR_FEATURE_ID) {
-			fme->pr_control = (volatile uint8_t*)h;
 			uint8_t *pr_id = PR_INTFC_ID_LO+(uint8_t*)h;
 			get_guid((uint64_t*)pr_id, fme->compat_id);
 		}
@@ -111,7 +98,7 @@ int walk_fme(pci_device_t *p, volatile uint8_t *mmio, int region)
 		int bar = offset_r->bar;
 		uint8_t *port_mmio;
 		size_t size = 0;
-		if (opae_vfio_region_get(&p->vfio_device, bar, &port_mmio, &size)) {
+		if (opae_vfio_region_get(v, bar, &port_mmio, &size)) {
 			printf("error getting port %lu\n", i);
 			continue;
 		}

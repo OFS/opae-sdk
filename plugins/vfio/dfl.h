@@ -102,7 +102,7 @@ typedef struct _dfl
 	dfh *next;
 } dfl;
 
-int walk_fme(pci_device_t *p, volatile uint8_t *mmio, int region);
+int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio, int region);
 int walk_port(vfio_token *parent, uint32_t region, volatile uint8_t *mmio);
 
 #endif /* !DFH0_H */

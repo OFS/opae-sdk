@@ -27,7 +27,7 @@
 set(SRC
   plugin.c
   opae_vfio.c
-  dfh.c
+  dfl.c
 )
 
 opae_add_module_library(TARGET v-opae
