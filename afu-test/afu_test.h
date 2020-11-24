@@ -290,6 +290,11 @@ public:
     return handle_->write_csr32(offset, value);
   }
 
+  uint8_t *mmio_ptr(uint64_t offset) const
+  {
+	   return handle_->mmio_ptr(offset);
+  }
+  
   command::ptr_t current_command() const {
     return current_command_;
   }
