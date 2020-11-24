@@ -411,7 +411,7 @@ fpga_result vfio_fpgaReset(fpga_handle handle)
 	if (t->type == FPGA_DEVICE)
 		return FPGA_NOT_SUPPORTED;
 	if (t->ops.reset) {
-		return t->ops.reset(h->mmio_base);
+		return t->ops.reset(t->device, h->mmio_base);
 	}
 	return FPGA_NOT_SUPPORTED;
 }

@@ -34,8 +34,10 @@ uint32_t fme_ports[FME_PORTS] = {
 	0x50
 };
 
-static fpga_result legacy_port_reset(volatile uint8_t *port_base)
+static fpga_result legacy_port_reset(const pci_device_t *p,
+				     volatile uint8_t *port_base)
 {
+	(void)p;
 	port_control *cntrl = (port_control*)(port_base + PORT_CONTROL);
 	cntrl->port_reset = 1;
 	(void)*cntrl;
@@ -55,25 +57,6 @@ static fpga_result legacy_port_reset(volatile uint8_t *port_base)
 }
 
 
-
-int walk_port(vfio_token *parent, uint32_t region, volatile uint8_t *mmio)
-{
-	//walk_port
-	vfio_token *port = get_token(parent->device, region, FPGA_ACCELERATOR);
-	port_next_afu *afu = (port_next_afu*)(mmio+PORT_NEXT_AFU);
-	port_capability *cap = (port_capability*)(mmio+PORT_CAPABILITY);
-	port->parent = parent;
-	port->mmio_size = cap->mmio_size;
-	port->user_mmio_count = 2;
-	port->user_mmio[0] = afu->port_afu_dfh_offset;
-	get_guid(1+(uint64_t*)(mmio+afu->port_afu_dfh_offset), port->guid);
-	port->ops.reset = legacy_port_reset;
-	if (port->ops.reset(mmio)) {
-		printf("error resetting port\n");
-	}
-	return 0;
-}
-
 static inline dfh *next_dfh(dfh* h)
 {
 	if (h && h->next && !h->eol)
@@ -81,6 +64,33 @@ static inline dfh *next_dfh(dfh* h)
 	return NULL;
 }
 
+
+
+int walk_port(vfio_token *parent, uint32_t region, volatile uint8_t *mmio)
+{
+	//walk_port
+	vfio_token *port = get_token(parent->device, region, FPGA_ACCELERATOR);
+	port_next_afu *next_afu = (port_next_afu*)(mmio+PORT_NEXT_AFU);
+	port_capability *cap = (port_capability*)(mmio+PORT_CAPABILITY);
+	port->parent = parent;
+	port->mmio_size = cap->mmio_size;
+	port->user_mmio_count = 1;
+	port->user_mmio[0] = next_afu->port_afu_dfh_offset;
+	get_guid(1+(uint64_t*)(mmio+next_afu->port_afu_dfh_offset), port->guid);
+	port->ops.reset = legacy_port_reset;
+
+	for(dfh *h = (dfh*)mmio; h; h = next_dfh(h)) {
+		if (h->id == PORT_STP_ID) {
+			port->user_mmio_count+= 1;
+			port->user_mmio[1] = (uint8_t*)h - mmio;
+			break;
+		}
+	}
+	if (port->ops.reset(port->device, mmio)) {
+		printf("error resetting port\n");
+	}
+	return 0;
+}
 
 int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio, int region)
 {

@@ -28,7 +28,7 @@ typedef struct _pci_device
 
 typedef struct _vfio_ops
 {
-	fpga_result (*reset)(volatile uint8_t *mmio);
+	fpga_result (*reset)(const pci_device_t *p, volatile uint8_t *mmio);
 } vfio_ops;
 
 #define USER_MMIO_MAX 8
