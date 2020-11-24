@@ -313,10 +313,14 @@ int walk(pci_device_t *p, int region)
 			goto close;
 		}
 	}
-	vfio_token *t = get_token(p, 0, FPGA_ACCELERATOR);
-	t->mmio_size = size;
-	t->user_mmio_count = 1;
-	t->user_mmio[0] = 0;
+	for (uint32_t i = 0; i < 8; ++i) {
+		if (!opae_vfio_region_get(&v, i, (uint8_t**)&mmio, &size)) {
+			vfio_token *t = get_token(p, i, FPGA_ACCELERATOR);
+			t->mmio_size = size;
+			t->user_mmio_count = 1;
+			t->user_mmio[0] = 0;
+		}
+	}
 
 close:
 	opae_vfio_close(&v);
