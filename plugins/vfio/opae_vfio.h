@@ -40,10 +40,12 @@ typedef struct _vfio_token
 	const pci_device_t *device;
 	uint32_t region;
 	uint32_t offset;
-  uint32_t mmio_size;
+	uint32_t mmio_size;
 	uint32_t pr_control;
 	uint32_t user_mmio_count;
-  uint32_t user_mmio[USER_MMIO_MAX];
+	uint32_t user_mmio[USER_MMIO_MAX];
+	uint64_t bitstream_id;
+	uint64_t bitstream_mdata;
 	uint32_t type;
 	struct _vfio_token *parent;
 	struct _vfio_token *next;
@@ -54,9 +56,9 @@ typedef struct _vfio_handle
 {
 	uint32_t magic;
 	struct _vfio_token *token;
-  struct opae_vfio vfio_device;
-  volatile uint8_t *mmio_base;
-  size_t mmio_size;
+	struct opae_vfio vfio_device;
+	volatile uint8_t *mmio_base;
+	size_t mmio_size;
 } vfio_handle;
 
 

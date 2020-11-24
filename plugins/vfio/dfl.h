@@ -67,7 +67,19 @@ typedef struct _port_offset
 #define PR_INTFC_ID_LO 0xA8
 #define PR_INTFC_ID_HI 0xB0
 #define PORT_STP_ID 0x13
+#define BITSTREAM_ID 0x60
+typedef struct _bitstream_id
+{
+  uint64_t git_hash : 32;
+  uint64_t hssi_id : 4;
+  uint64_t reserved36 : 12;
+  uint64_t ver_debug : 4;
+  uint64_t ver_patch : 4;
+  uint64_t ver_minor : 4;
+  uint64_t ver_major : 4;
+} bitstream_id;
 
+#define BITSTREAM_MD 0x68
 #define PORT_CONTROL 0x38
 typedef struct _port_control
 {

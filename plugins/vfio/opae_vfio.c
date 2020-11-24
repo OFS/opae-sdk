@@ -483,6 +483,9 @@ fpga_result vfio_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	} else {
 		memcpy(_prop->guid, t->compat_id, sizeof(fpga_guid));
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_GUID);
+
+		_prop->u.fpga.bbs_id = t->bitstream_id;
+		SET_FIELD_VALID(_prop, FPGA_PROPERTY_BBSID);
 	}
 
 	return FPGA_OK;

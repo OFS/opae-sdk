@@ -96,6 +96,8 @@ int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio, int r
 {
 	vfio_token *fme = get_token(p, region, FPGA_DEVICE);
 	get_guid(1+(uint64_t*)mmio, fme->guid);
+	fme->bitstream_id = *(uint64_t*)(mmio+BITSTREAM_ID);
+	fme->bitstream_mdata = *(uint64_t*)(mmio+BITSTREAM_MD);
 	for(dfh *h = (dfh*)mmio; h; h = next_dfh(h)) {
 		if (h->id == PR_FEATURE_ID) {
 			uint8_t *pr_id = PR_INTFC_ID_LO+(uint8_t*)h;
