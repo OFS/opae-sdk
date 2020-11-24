@@ -480,6 +480,9 @@ fpga_result vfio_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_PARENT);
 		memcpy(_prop->guid, t->guid, sizeof(fpga_guid));
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_GUID);
+
+		_prop->u.accelerator.num_mmio = t->user_mmio_count;
+		SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_MMIO);
 	} else {
 		memcpy(_prop->guid, t->compat_id, sizeof(fpga_guid));
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_GUID);
