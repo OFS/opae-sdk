@@ -315,6 +315,8 @@ int walk(pci_device_t *p, int region)
 	}
 	vfio_token *t = get_token(p, 0, FPGA_ACCELERATOR);
 	t->mmio_size = size;
+	t->user_mmio_count = 1;
+	t->user_mmio[0] = 0;
 
 close:
 	opae_vfio_close(&v);
