@@ -489,6 +489,9 @@ fpga_result vfio_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 
 		_prop->u.fpga.bbs_id = t->bitstream_id;
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_BBSID);
+
+		_prop->u.fpga.num_slots = t->num_ports;
+		SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_SLOTS);
 	}
 
 	return FPGA_OK;

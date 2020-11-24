@@ -70,13 +70,13 @@ typedef struct _port_offset
 #define BITSTREAM_ID 0x60
 typedef struct _bitstream_id
 {
-  uint64_t git_hash : 32;
-  uint64_t hssi_id : 4;
-  uint64_t reserved36 : 12;
-  uint64_t ver_debug : 4;
-  uint64_t ver_patch : 4;
-  uint64_t ver_minor : 4;
-  uint64_t ver_major : 4;
+	uint64_t git_hash : 32;
+	uint64_t hssi_id : 4;
+	uint64_t reserved36 : 12;
+	uint64_t ver_debug : 4;
+	uint64_t ver_patch : 4;
+	uint64_t ver_minor : 4;
+	uint64_t ver_major : 4;
 } bitstream_id;
 
 #define BITSTREAM_MD 0x68
@@ -94,19 +94,32 @@ typedef struct _port_control
 #define PORT_NEXT_AFU 0x18
 typedef struct _port_next_afu
 {
-  uint64_t port_afu_dfh_offset : 24;
-  uint64_t reserved24: 40;
+	uint64_t port_afu_dfh_offset : 24;
+	uint64_t reserved24: 40;
 } port_next_afu;
+
+#define FAB_CAPABILITY 0x30
+typedef struct _fab_capability
+{
+	uint64_t fab_version : 8;
+	uint64_t reserved9 : 4;
+	uint64_t pcie0_link : 1;
+	uint64_t reserved13 : 4;
+	uint64_t num_ports : 3;
+	uint64_t reserved20 : 4;
+	uint64_t address_width : 6;
+	uint64_t reserved30 : 34;
+} fab_capability;
 
 #define PORT_CAPABILITY 0x30
 typedef struct _port_capability
 {
-  uint64_t port_number : 2;
-  uint64_t reserved2 : 6;
-  uint64_t mmio_size : 16;
-  uint64_t resered24 : 8;
-  uint64_t num_supported_int : 4;
-  uint64_t reserved36 : 28;
+	uint64_t port_number : 2;
+	uint64_t reserved2 : 6;
+	uint64_t mmio_size : 16;
+	uint64_t resered24 : 8;
+	uint64_t num_supported_int : 4;
+	uint64_t reserved36 : 28;
 } port_capability;
 
 typedef struct _dfl

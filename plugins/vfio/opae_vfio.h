@@ -46,6 +46,7 @@ typedef struct _vfio_token
 	uint32_t user_mmio[USER_MMIO_MAX];
 	uint64_t bitstream_id;
 	uint64_t bitstream_mdata;
+	uint8_t num_ports;
 	uint32_t type;
 	struct _vfio_token *parent;
 	struct _vfio_token *next;

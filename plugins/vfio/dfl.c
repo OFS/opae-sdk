@@ -98,6 +98,8 @@ int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio, int r
 	get_guid(1+(uint64_t*)mmio, fme->guid);
 	fme->bitstream_id = *(uint64_t*)(mmio+BITSTREAM_ID);
 	fme->bitstream_mdata = *(uint64_t*)(mmio+BITSTREAM_MD);
+	fab_capability *cap = (fab_capability*)(mmio+FAB_CAPABILITY);
+	fme->num_ports = cap->num_ports;
 	for(dfh *h = (dfh*)mmio; h; h = next_dfh(h)) {
 		if (h->id == PR_FEATURE_ID) {
 			uint8_t *pr_id = PR_INTFC_ID_LO+(uint8_t*)h;
