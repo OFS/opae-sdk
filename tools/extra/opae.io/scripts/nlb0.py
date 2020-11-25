@@ -1,4 +1,4 @@
-## Copyright(c) 2019-2020, Intel Corporation
+## Copyright(c) 2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,35 +24,55 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required (VERSION 2.8.12)
+# afu_id is "d8424dc4-a4a3-c413-f89e-433683f9040b"
 
-project(python)
+def afu_addr(offset):
+    return 0x40000 + offset
 
-############################################################################
-## Find Python by version     ##############################################
-############################################################################
-set(OPAE_PYTHON_VERSION 3.6 CACHE STRING "Python version to use for building/distributing pyopae")
-set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3.6 3.5 3.4 3.3)
 
-find_package(PythonInterp ${OPAE_PYTHON_VERSION})
-find_package(PythonLibs ${OPAE_PYTHON_VERSION})
+src_buffer = allocate_buffer(4096)
+dst_buffer = allocate_buffer(4096)
+dsm_buffer = allocate_buffer(4096)
 
-set(INTEL_SECURITY_TOOLS_VERSION 1.0.3 CACHE STRING "Security Tools Version string")
+value_register = register()
 
-add_subdirectory(opae.admin)
-add_subdirectory(opae.io)
+dsm = value_register(afu_addr(0x110))
+src = value_register(afu_addr(0x120))
+dst = value_register(afu_addr(0x128))
+nl = value_register(afu_addr(0x130))
+ctl = value_register(afu_addr(0x138))
+cfg = value_register(afu_addr(0x140))
 
-execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import virtualenv"
-    RESULT_VARIABLE HAS_VIRTUALENV)
 
-if (HAS_VIRTUALENV)
-    message("no virtualenv found, use 'pip install virtualenv' to install it")
-else(HAS_VIRTUALENV)
-    add_custom_target(pydev
-        COMMAND ${PYTHON_EXECUTABLE} -m virtualenv ${CMAKE_CURRENT_BINARY_DIR}
-        COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/pip install -e ${CMAKE_CURRENT_SOURCE_DIR}/opae.admin
-        COMMAND echo "Please source ${CMAKE_CURRENT_BINARY_DIR}/bin/activate to use this virtual environment"
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        COMMENT "Setting up virtualenv..."
-        )
-endif(HAS_VIRTUALENV)
+print('asserting afu reset...')
+ctl.commit(0)
+ctl.commit(1)
+
+for i in range(int(src_buffer.size/8)):
+    src_buffer[i] = 0xdeadbeef
+
+for i in range(int(dst_buffer.size/8)):
+    dst_buffer[i] = 0
+
+print('writing dsm address..')
+dsm.commit(dsm_buffer.io_address)
+print('writing srcaddress..')
+src.commit(src_buffer.io_address >> 6)
+print('writing dst address..')
+dst.commit(dst_buffer.io_address >> 6)
+print('writing config')
+cfg.commit(0x42000)
+print('writing number of cachelines')
+nl.commit(int(4096/64))
+print('kicking it off')
+ctl.commit(3)
+print('waiting for dsm...')
+while dsm_buffer[0x40] & 0x1 == 0:
+    time.sleep(0.1)
+print('stopping...')
+ctl.commit(7)
+for i in range(int(dst_buffer.size/8)):
+    if dst_buffer[i] != src_buffer[i]:
+        raise SystemExit("bah!")
+
+print('done')
