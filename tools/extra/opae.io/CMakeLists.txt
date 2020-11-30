@@ -1,4 +1,4 @@
-## Copyright(c) 2019-2020, Intel Corporation
+## Copyright(c) 2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,35 +24,32 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required (VERSION 2.8.12)
+if(PLATFORM_SUPPORTS_VFIO)
 
-project(python)
+    find_package(edit REQUIRED)
 
-############################################################################
-## Find Python by version     ##############################################
-############################################################################
-set(OPAE_PYTHON_VERSION 3.6 CACHE STRING "Python version to use for building/distributing pyopae")
-set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3.6 3.5 3.4 3.3)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+    set(PYBIND11_CPP_STANDARD -std=c++11)
 
-find_package(PythonInterp ${OPAE_PYTHON_VERSION})
-find_package(PythonLibs ${OPAE_PYTHON_VERSION})
+    add_executable(opae.io main.cpp)
 
-set(INTEL_SECURITY_TOOLS_VERSION 1.0.3 CACHE STRING "Security Tools Version string")
-
-add_subdirectory(opae.admin)
-add_subdirectory(opae.io)
-
-execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import virtualenv"
-    RESULT_VARIABLE HAS_VIRTUALENV)
-
-if (HAS_VIRTUALENV)
-    message("no virtualenv found, use 'pip install virtualenv' to install it")
-else(HAS_VIRTUALENV)
-    add_custom_target(pydev
-        COMMAND ${PYTHON_EXECUTABLE} -m virtualenv ${CMAKE_CURRENT_BINARY_DIR}
-        COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/pip install -e ${CMAKE_CURRENT_SOURCE_DIR}/opae.admin
-        COMMAND echo "Please source ${CMAKE_CURRENT_BINARY_DIR}/bin/activate to use this virtual environment"
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        COMMENT "Setting up virtualenv..."
-        )
-endif(HAS_VIRTUALENV)
+    if (NOT (CMAKE_VERSION VERSION_LESS 3.0))
+        target_link_libraries(opae.io PRIVATE pybind11::embed dl util ${libedit_LIBRARIES} opaevfio)
+    else()
+        target_link_libraries(opae.io PRIVATE ${PYTHON_LIBRARIES} dl util ${libedit_LIBRARIES} opaevfio)
+    endif()
+    
+    target_include_directories(opae.io
+        PUBLIC ${OPAE_INCLUDE_DIR}
+        PRIVATE ${PYTHON_INCLUDE_DIRS}
+        PRIVATE ${PYBIND11_INCLUDE_DIR}
+    )
+    target_compile_definitions(opae.io
+        PRIVATE LIBVFIO_EMBED
+    )
+    install(TARGETS opae.io
+            RUNTIME DESTINATION bin
+            COMPONENT opae.io
+    )
+    
+endif(PLATFORM_SUPPORTS_VFIO)
