@@ -34,15 +34,11 @@
 #include <glob.h>
 #include <regex.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <sys/stat.h>
-
-// temporary for printing
-// vvvvvvvvvvvvvvvvvvvvvv
-#include <stdio.h>
-// ^^^^^^^^^^^^^^^^^^^^^^
 
 #undef _GNU_SOURCE
 #include <opae/fpga.h>
@@ -66,6 +62,15 @@
 		}                                                              \
 	} while (0)
 
+
+#ifndef __FILENAME__
+#define SLASHPTR strrchr(__FILE__, '/')
+#define __FILENAME__ (SLASHPTR ? SLASHPTR+1 : __FILE__)
+#endif
+
+#define ERR(format, ...)                                                       \
+	fprintf(stderr, "%s:%u:%s() [ERROR][%s] : " format,                    \
+	__FILENAME__, __LINE__, __func__, strerror(errno), ##__VA_ARGS__)
 
 #define FME_GUID_LO 0x82FE38F0F9E17764
 #define FME_GUID_HI 0xBFAF2AE94A5246E3
@@ -101,11 +106,11 @@ static int read_pci_attr(const char *addr, const char *attr, char *value, size_t
 	snprintf(path, sizeof(path), "/sys/bus/pci/devices/%s/%s", addr, attr);
 	FILE *fp = fopen(path, "r");
 	if (!fp) {
-		printf("error opening: %s\n", path);
+		ERR("error opening: %s", path);
 		return FPGA_EXCEPTION;
 	}
 	if (!fread(value, 1, max, fp)) {
-		printf("error reading from: %s\n", path);
+		ERR("error reading from: %s", path);
 		res = FPGA_EXCEPTION;
 	}
 	fclose(fp);
@@ -120,7 +125,7 @@ static int read_pci_attr_u32(const char *addr, const char *attr, uint32_t *value
 	errno = 0;
 	*value = strtoul(str_value, NULL, 0);
 	if (errno) {
-		printf("error parsing string: %s\n", str_value);
+		ERR("error parsing string: %s", str_value);
 		return FPGA_EXCEPTION;
 	}
 	return FPGA_OK;
@@ -194,22 +199,22 @@ pci_device_t *get_pci_device(char addr[PCIADDR_MAX])
 	strncpy(p->addr, addr, PCIADDR_MAX-1);
 
 	if(read_pci_attr_u32(addr, "vendor", &p->vendor)) {
-		printf("error reading 'vendor' attribute: %s\n", addr);
+		ERR("error reading 'vendor' attribute: %s", addr);
 		goto free;
 	}
 
 	if(read_pci_attr_u32(addr, "device", &p->device)) {
-		printf("error reading 'device' attribute: %s\n", addr);
+		ERR("error reading 'device' attribute: %s", addr);
 		goto free;
 	}
 
 	if(read_pci_attr_u32(addr, "numa_node", &p->numa_node)) {
-		printf("error opening 'numa_node' attribute: %s\n", addr);
+		ERR("error opening 'numa_node' attribute: %s", addr);
 		goto free;
 	}
 
 	if(parse_pcie_info(p, addr)) {
-		printf("error parsing pcie address: %s\n", addr);
+		ERR("error parsing pcie address: %s", addr);
 		goto free;
 	}
 
@@ -229,7 +234,7 @@ int pci_discover()
 	glob_t pg;
 	int gres = glob(gpattern, 0, NULL, &pg);
 	if (gres) {
-		printf("error looking in vfio-pci: %s\n", strerror(errno));
+		ERR("error looking in vfio-pci");
 		return res;
 	}
 	if (!pg.gl_pathc) {
@@ -244,7 +249,7 @@ int pci_discover()
 
 		pci_device_t *dev = get_pci_device(p + 1);
 		if (!dev) {
-			printf("error with pci address: %s\n", p + 1);
+			ERR("error with pci address: %s", p + 1);
 			continue;
 		}
 	}
@@ -296,11 +301,11 @@ int walk(pci_device_t *p, int region)
 	struct opae_vfio v;
 
 	if (opae_vfio_open(&v, p->addr)) {
-		printf("error opening vfio device: %s\n", p->addr);
+		ERR("error opening vfio device: %s", p->addr);
 		return 1;
 	}
 	if (opae_vfio_region_get(&v, 0, (uint8_t**)&mmio, &size)) {
-		printf("error getting BAR%d\n", region);
+		ERR("error getting BAR%d", region);
 		return 1;
 	}
 
@@ -723,7 +728,7 @@ void dump_csr(uint8_t *begin, uint8_t *end, uint32_t index)
 	snprintf(fname, sizeof(fname), "csr_%d.dat", index);
 	FILE *fp = fopen(fname, "w");
 	if (!fp) {
-		printf("could not open file: %s\n", fname);
+		ERR("could not open file: %s", fname);
 		return;
 	}
 	for (uint8_t *ptr = begin; ptr < end; ptr+=8) {
