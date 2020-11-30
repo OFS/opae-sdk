@@ -267,28 +267,22 @@ vfio_token *clone_token(vfio_token *src)
 	return token;
 }
 
-fpga_result token_check_and_lock(fpga_token token, bool lock)
+fpga_result token_check(fpga_token token)
 {
 	vfio_token *t = (vfio_token*)token;
 	if (t->magic != VFIO_TOKEN_MAGIC) {
 		printf("invalid token magic\n");
 		return FPGA_INVALID_PARAM;
 	}
-	if (lock) {
-		;
-	}
 	return FPGA_OK;
 }
 
-fpga_result handle_check_and_lock(fpga_handle handle, bool lock)
+fpga_result handle_check(fpga_handle handle)
 {
 	vfio_handle *h = (vfio_handle*)handle;
 	if (h->magic != VFIO_HANDLE_MAGIC) {
 		printf("invalid handle magic\n");
 		return FPGA_INVALID_PARAM;
-	}
-	if (lock) {
-		;
 	}
 	return FPGA_OK;
 }
@@ -363,7 +357,7 @@ fpga_result vfio_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 		//return FPGA_INVALID_PARAM;
 	}
 
-	int res = token_check_and_lock(token, true);
+	int res = token_check(token);
 	if (res) return res;
 
 	_token = (vfio_token *)token;
@@ -400,11 +394,11 @@ fpga_result vfio_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 
 fpga_result vfio_fpgaClose(fpga_handle handle)
 {
-	int res = handle_check_and_lock(handle, true);
+	int res = handle_check(handle);
 	if (res) return res;
 
 	vfio_handle *h = (vfio_handle*)handle;
-	res = token_check_and_lock(h->token, true);
+	res = token_check(h->token);
 	if (res) return res;
 	opae_vfio_close(&h->vfio_device);
 	free(h->token);
@@ -414,7 +408,7 @@ fpga_result vfio_fpgaClose(fpga_handle handle)
 
 fpga_result vfio_fpgaReset(fpga_handle handle)
 {
-	fpga_result res = handle_check_and_lock(handle, true);
+	fpga_result res = handle_check(handle);
 	if (res) return res;
 
 	vfio_handle *h = (vfio_handle*)handle;
@@ -439,7 +433,7 @@ fpga_result get_guid(uint64_t* h, fpga_guid guid)
 
 fpga_result vfio_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 {
-	fpga_result res = token_check_and_lock(token, true);
+	fpga_result res = token_check(token);
 	if (res) return res;
 
 	vfio_token *t = (vfio_token*)token;
@@ -529,7 +523,7 @@ out_free:
 
 fpga_result vfio_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop)
 {
-	fpga_result res = handle_check_and_lock(handle, false);
+	fpga_result res = handle_check(handle);
 	if (res) return res;
 
 	vfio_handle *h = (vfio_handle*)handle;
@@ -551,7 +545,7 @@ fpga_result vfio_fpgaWriteMMIO64(fpga_handle handle,
 				 uint64_t offset,
 				 uint64_t value)
 {
-	fpga_result res = handle_check_and_lock(handle, true);
+	fpga_result res = handle_check(handle);
 	if (res) return res;
 
 	vfio_handle *h = (vfio_handle*)handle;
@@ -570,7 +564,7 @@ fpga_result vfio_fpgaReadMMIO64(fpga_handle handle,
 				uint64_t offset,
 				uint64_t *value)
 {
-	fpga_result res = handle_check_and_lock(handle, true);
+	fpga_result res = handle_check(handle);
 	if (res) return res;
 	vfio_handle *h = (vfio_handle*)handle;
 	vfio_token *t = h->token;
@@ -588,7 +582,7 @@ fpga_result vfio_fpgaWriteMMIO32(fpga_handle handle,
 				 uint64_t offset,
 				 uint32_t value)
 {
-	fpga_result res = handle_check_and_lock(handle, true);
+	fpga_result res = handle_check(handle);
 	if (res) return res;
 
 	vfio_handle *h = (vfio_handle*)handle;
@@ -606,7 +600,7 @@ fpga_result vfio_fpgaReadMMIO32(fpga_handle handle,
 				uint64_t offset,
 				uint32_t *value)
 {
-	fpga_result res = handle_check_and_lock(handle, true);
+	fpga_result res = handle_check(handle);
 	if (res) return res;
 
 	vfio_handle *h = (vfio_handle*)handle;
@@ -623,7 +617,7 @@ fpga_result vfio_fpgaMapMMIO(fpga_handle handle,
 			     uint32_t mmio_num,
 			     uint64_t **mmio_ptr)
 {
-	fpga_result res = handle_check_and_lock(handle, true);
+	fpga_result res = handle_check(handle);
 	if (res) return res;
 	vfio_handle *h = (vfio_handle*)handle;
 	vfio_token* t = h->token;
@@ -636,7 +630,7 @@ fpga_result vfio_fpgaMapMMIO(fpga_handle handle,
 fpga_result vfio_fpgaUnmapMMIO(fpga_handle handle,
 			       uint32_t mmio_num)
 {
-	fpga_result res = handle_check_and_lock(handle, true);
+	fpga_result res = handle_check(handle);
 	if (res) return res;
 	vfio_handle *h = (vfio_handle*)handle;
 	vfio_token* t = h->token;
@@ -818,7 +812,7 @@ fpga_result vfio_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 				   void **buf_addr, uint64_t *wsid,
 				   int flags)
 {
-	fpga_result res = handle_check_and_lock(handle, true);
+	fpga_result res = handle_check(handle);
 	if (res) return res;
 
 	(void)flags;
@@ -857,7 +851,7 @@ fpga_result vfio_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 
 fpga_result vfio_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 {
-	fpga_result res = handle_check_and_lock(handle, true);
+	fpga_result res = handle_check(handle);
 	if (res) return res;
 
 	vfio_handle *h = (vfio_handle*)handle;
