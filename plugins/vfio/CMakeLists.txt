@@ -37,10 +37,13 @@ opae_add_module_library(TARGET v-opae
         m
         ${CMAKE_THREAD_LIBS_INIT}
         opae-c
-	opaevfio
+        opaevfio
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
     COMPONENT opaevfio
 )
 
-target_include_directories(v-opae PRIVATE ${OPAE_LIBS_ROOT}/libopae-c)
+target_include_directories(v-opae PRIVATE
+    ${OPAE_LIBS_ROOT}/libopae-c
+    ${libuuid_INCLUDE}
+    )

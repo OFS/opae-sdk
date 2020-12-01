@@ -38,6 +38,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <uuid/uuid.h>
 #include <sys/stat.h>
 
 #undef _GNU_SOURCE
@@ -47,6 +48,7 @@
 #include "opae_vfio.h"
 #include "dfl.h"
 
+#define BAR_MAX 6
 #define VFIO_TOKEN_MAGIC 0xEF1010FE
 #define VFIO_HANDLE_MAGIC ~VFIO_TOKEN_MAGIC
 
@@ -72,17 +74,13 @@
 	fprintf(stderr, "%s:%u:%s() [ERROR][%s] : " format,                    \
 	__FILENAME__, __LINE__, __func__, strerror(errno), ##__VA_ARGS__)
 
-#define FME_GUID_LO 0x82FE38F0F9E17764
-#define FME_GUID_HI 0xBFAF2AE94A5246E3
+#define WARN(format, ...)                                                       \
+	fprintf(stderr, "%s:%u:%s() [WARNING] : " format,                       \
+	__FILENAME__, __LINE__, __func__, ##__VA_ARGS__)
 
-typedef struct _driver
-{
-	uint64_t guid_lo;
-	uint64_t guid_hi;
-} driver;
-
-driver fme_drivers[] = {
-	{FME_GUID_LO, FME_GUID_HI}
+const char * fme_drivers[] = {
+	"bfaf2ae9-4a52-46e3-82fe-38f0f9e17764",
+	0
 };
 
 typedef struct _vfio_buffer
@@ -298,21 +296,45 @@ int walk(pci_device_t *p, int region)
 		ERR("error opening vfio device: %s", p->addr);
 		return 1;
 	}
+
+	// look for legacy FME guids in BAR 0
 	if (opae_vfio_region_get(&v, 0, (uint8_t**)&mmio, &size)) {
 		ERR("error getting BAR%d", region);
 		return 1;
 	}
 
-	volatile uint64_t *lo = ((uint64_t*)mmio)+1;
-	volatile uint64_t *hi = lo+1;
-	for (size_t i = 0; i < sizeof(fme_drivers); ++i) {
-		if (*lo == fme_drivers[i].guid_lo &&
-		    *hi == fme_drivers[i].guid_hi) {
+	// get the GUID at offset 0x8
+	fpga_guid b0_guid;
+	res = get_guid(((uint64_t*)mmio)+1, b0_guid);
+	if (res) {
+		WARN("error reading guid");
+		return 1;
+	}
+
+	// walk our known list of FME guids
+	// and compare each one to the one read into b0_guid
+	for (const char **u = fme_drivers; *u; u++) {
+		fpga_guid uuid;
+		res = uuid_parse(*u, uuid);
+		if (res) {
+			ERR("error parsing uuid: %s", *u);
+			return 1;
+		}
+		if (!uuid_compare(uuid, b0_guid)) {
+			// we found a legacy FME in BAR0, walk it
 			res = walk_fme(p, &v, mmio, 0);
 			goto close;
 		}
 	}
-	for (uint32_t i = 0; i < 8; ++i) {
+
+	// treat all of BAR0 as an FPGA_ACCELERATOR
+	vfio_token *t = get_token(p, 0, FPGA_ACCELERATOR);
+	t->mmio_size = size;
+	t->user_mmio_count = 1;
+	t->user_mmio[0] = 0;
+
+	// now let's check other BARs
+	for (uint32_t i = 1; i < BAR_MAX; ++i) {
 		if (!opae_vfio_region_get(&v, i, (uint8_t**)&mmio, &size)) {
 			vfio_token *t = get_token(p, i, FPGA_ACCELERATOR);
 			t->mmio_size = size;
