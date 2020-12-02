@@ -23,6 +23,10 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif //HAVE_CONFIG_H
+
 #include "opae_vfio.h"
 #include "dfl.h"
 
@@ -78,8 +82,7 @@ int walk_port(vfio_token *parent, uint32_t region, volatile uint8_t *mmio)
 	port->user_mmio[0] = next_afu->port_afu_dfh_offset;
 	get_guid(1+(uint64_t*)(mmio+next_afu->port_afu_dfh_offset), port->guid);
 	port->ops.reset = legacy_port_reset;
-
-	for(dfh *h = (dfh*)mmio; h; h = next_dfh(h)) {
+	for_each_dfh(h, mmio) {
 		if (h->id == PORT_STP_ID) {
 			port->user_mmio_count+= 1;
 			port->user_mmio[1] = (uint8_t*)h - mmio;
@@ -87,7 +90,7 @@ int walk_port(vfio_token *parent, uint32_t region, volatile uint8_t *mmio)
 		}
 	}
 	if (port->ops.reset(port->device, mmio)) {
-		printf("error resetting port\n");
+		OPAE_ERR("error resetting port");
 	}
 	return 0;
 }
@@ -100,7 +103,7 @@ int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio, int r
 	fme->bitstream_mdata = *(uint64_t*)(mmio+BITSTREAM_MD);
 	fab_capability *cap = (fab_capability*)(mmio+FAB_CAPABILITY);
 	fme->num_ports = cap->num_ports;
-	for(dfh *h = (dfh*)mmio; h; h = next_dfh(h)) {
+	for_each_dfh(h, mmio) {
 		if (h->id == PR_FEATURE_ID) {
 			uint8_t *pr_id = PR_INTFC_ID_LO+(uint8_t*)h;
 			get_guid((uint64_t*)pr_id, fme->compat_id);
@@ -113,7 +116,7 @@ int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio, int r
 		uint8_t *port_mmio;
 		size_t size = 0;
 		if (opae_vfio_region_get(v, bar, &port_mmio, &size)) {
-			printf("error getting port %lu\n", i);
+			OPAE_ERR("error getting port %lu", i);
 			continue;
 		}
 

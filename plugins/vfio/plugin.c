@@ -23,10 +23,10 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
+
 #include <stdlib.h>
 #include <dlfcn.h>
 
@@ -40,11 +40,11 @@ int __XFPGA_API__ vfio_plugin_initialize(void)
 {
 	int res = pci_discover();
 	if (res) {
-		printf("error with pci_discover\n");
+		OPAE_ERR("error with pci_discover\n");
 	}
 	res = features_discover();
 	if (res) {
-		printf("error discovering features\n");
+		OPAE_ERR("error discovering features\n");
 	}
 
 	return res;

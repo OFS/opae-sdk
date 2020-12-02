@@ -23,8 +23,8 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#ifndef DFH0_H
-#define DFH0_H
+#ifndef VFIO_DFL_H
+#define VFIO_DFL_H
 #include <stdint.h>
 #include "opae_vfio.h"
 
@@ -128,7 +128,8 @@ typedef struct _dfl
 	dfh *next;
 } dfl;
 
+#define for_each_dfh(H, ADDR) for(dfh *H = (dfh*)ADDR; H; H = next_dfh(H))
 int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio, int region);
 int walk_port(vfio_token *parent, uint32_t region, volatile uint8_t *mmio);
 
-#endif /* !DFH0_H */
+#endif /* !VFIO_DFL_H */
