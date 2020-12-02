@@ -915,7 +915,7 @@ out_free:
 
 fpga_result vfio_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 {
-	vfio_handle *h = handle_check_and_lock(handle);
+	vfio_handle *h = handle_check(handle);
 	ASSERT_NOT_NULL(h);
 
 	struct opae_vfio *v = (struct opae_vfio*)&h->vfio_device;
@@ -938,7 +938,6 @@ fpga_result vfio_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 		prev = ptr;
 		ptr = ptr->next;
 	}
-	pthread_mutex_unlock(&h->lock);
 	return FPGA_NOT_FOUND;
 }
 
