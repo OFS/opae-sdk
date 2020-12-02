@@ -80,17 +80,19 @@ int walk_port(vfio_token *parent, uint32_t region, volatile uint8_t *mmio)
 	port->mmio_size = cap->mmio_size;
 	port->user_mmio_count = 1;
 	port->user_mmio[0] = next_afu->port_afu_dfh_offset;
-	get_guid(1+(uint64_t*)(mmio+next_afu->port_afu_dfh_offset), port->guid);
 	port->ops.reset = legacy_port_reset;
+	// reset the port before attempting to read any afu registers
+	if (port->ops.reset(port->device, mmio)) {
+		OPAE_ERR("error resetting port");
+	}
+	get_guid(1+(uint64_t*)(mmio+next_afu->port_afu_dfh_offset), port->guid);
+	// look for stp and if found, add it to user_mmio offsets
 	for_each_dfh(h, mmio) {
 		if (h->id == PORT_STP_ID) {
 			port->user_mmio_count+= 1;
 			port->user_mmio[1] = (uint8_t*)h - mmio;
 			break;
 		}
-	}
-	if (port->ops.reset(port->device, mmio)) {
-		OPAE_ERR("error resetting port");
 	}
 	return 0;
 }
