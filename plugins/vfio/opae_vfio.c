@@ -59,9 +59,10 @@
 #define PCIE_PATH_PATTERN_GROUPS 5
 #define PARSE_MATCH_INT(_p, _m, _v, _b, _l)                                    \
 	do {                                                                   \
+		char *ptr = _p + _m.rm_so;                                     \
 		char *endptr = NULL;                                           \
-		_v = strtoul(_p + _m.rm_so, &endptr, _b);                      \
-		if (!_v && endptr == _p + _m.rm_so) {                          \
+		_v = strtoul(ptr, &endptr, _b);                                \
+		if (endptr != ptr + strlen(ptr)) {                             \
 			OPAE_MSG("error parsing int");                         \
 			goto _l;                                               \
 		}                                                              \
@@ -114,7 +115,7 @@ STATIC int read_pci_attr_u32(const char *addr, const char *attr, uint32_t *value
 	int res = read_pci_attr(addr, attr, str_value, sizeof(str_value));
 	if (res) return res;
 	uint32_t v = strtoul(str_value, &endptr, 0);
-	if (!v && str_value == endptr) {
+	if (endptr != str_value + strlen(str_value)) {
 		ERR("error parsing string: %s", str_value);
 		return FPGA_EXCEPTION;
 	}
