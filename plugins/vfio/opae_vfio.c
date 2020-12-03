@@ -442,6 +442,7 @@ out_attr_destroy:
 
 fpga_result vfio_fpgaClose(fpga_handle handle)
 {
+	fpga_result res = FPGA_OK;
 	vfio_handle *h = handle_check_and_lock(handle);
 	ASSERT_NOT_NULL(h);
 
@@ -449,9 +450,13 @@ fpga_result vfio_fpgaClose(fpga_handle handle)
 	else OPAE_MSG("invalid token in handle");
 
 	opae_vfio_close(&h->vfio_device);
-	pthread_mutex_unlock(&h->lock);
+	if (pthread_mutex_unlock(&h->lock) ||
+	    pthread_mutex_destroy(&h->lock)) {
+		OPAE_MSG("error unlocking/destroying handle mutex");
+		res = FPGA_EXCEPTION;
+	}
 	free(h);
-	return FPGA_OK;
+	return res;
 }
 
 fpga_result vfio_fpgaReset(fpga_handle handle)
@@ -918,12 +923,18 @@ fpga_result vfio_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 	_vfio_buffers = buffer;
 	*buf_addr = virt;
 	*wsid = buffer->wsid;
-	return FPGA_OK;
+	res = FPGA_OK;
+	if (pthread_mutex_unlock(&_buffers_mutex)) {
+		OPAE_MSG("error unlocking buffers");
+		res = FPGA_EXCEPTION;
+	}
 out_free:
-	if (buffer) {
-		free(buffer);
-		if (virt && opae_vfio_buffer_free(v, virt)) {
-			OPAE_ERR("error freeing vfio buffer");
+	if (res) {
+		if (buffer) {
+			free(buffer);
+			if (virt && opae_vfio_buffer_free(v, virt)) {
+				OPAE_ERR("error freeing vfio buffer");
+			}
 		}
 	}
 	return res;
@@ -938,6 +949,11 @@ fpga_result vfio_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 
 	vfio_buffer *ptr = _vfio_buffers;
 	vfio_buffer *prev = NULL;
+	if (pthread_mutex_lock(&_buffers_mutex)) {
+		OPAE_MSG("error locking buffer mutex");
+		return FPGA_EXCEPTION;
+	}
+	fpga_result res = FPGA_NOT_FOUND;
 	while (ptr) {
 		if (ptr->wsid == wsid) {
 			if (opae_vfio_buffer_free(v, ptr->virtual)) {
@@ -949,18 +965,27 @@ fpga_result vfio_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 				_vfio_buffers = ptr->next;
 			}
 			free(ptr);
-			return FPGA_OK;
+			res = FPGA_OK;
+			goto out_unlock;
 		}
 		prev = ptr;
 		ptr = ptr->next;
 	}
-	return FPGA_NOT_FOUND;
+out_unlock:
+	if (pthread_mutex_unlock(&_buffers_mutex)) {
+		OPAE_MSG("error unlocking buffers mutex");
+	}
+	return res;
 }
 
 fpga_result vfio_fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 			          uint64_t *ioaddr)
 {
 	(void)handle;
+	if (pthread_mutex_lock(&_buffers_mutex)) {
+		OPAE_MSG("error locking buffer mutex");
+		return FPGA_EXCEPTION;
+	}
 	vfio_buffer *ptr = _vfio_buffers;
 	while (ptr) {
 		if (ptr->wsid == wsid) {
