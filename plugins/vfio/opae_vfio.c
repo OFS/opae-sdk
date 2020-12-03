@@ -51,6 +51,10 @@
 #define VFIO_TOKEN_MAGIC 0xEF1010FE
 #define VFIO_HANDLE_MAGIC ~VFIO_TOKEN_MAGIC
 
+#define FPGA_BBS_VER_MAJOR(i) (((i) >> 56) & 0xf)
+#define FPGA_BBS_VER_MINOR(i) (((i) >> 52) & 0xf)
+#define FPGA_BBS_VER_PATCH(i) (((i) >> 48) & 0xf)
+
 #define PCIE_PATH_PATTERN "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9a-fA-F]{2})\\.([0-9])"
 #define PCIE_PATH_PATTERN_GROUPS 5
 #define PARSE_MATCH_INT(_p, _m, _v, _b, _l)                                    \
@@ -542,6 +546,14 @@ fpga_result vfio_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 
 		_prop->u.fpga.bbs_id = t->bitstream_id;
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_BBSID);
+
+		_prop->u.fpga.bbs_version.major =
+			FPGA_BBS_VER_MAJOR(t->bitstream_id);
+		_prop->u.fpga.bbs_version.minor =
+			FPGA_BBS_VER_MINOR(t->bitstream_id);
+		_prop->u.fpga.bbs_version.major =
+			FPGA_BBS_VER_PATCH(t->bitstream_id);
+		SET_FIELD_VALID(_prop, FPGA_PROPERTY_BBSVERSION);
 
 		_prop->u.fpga.num_slots = t->num_ports;
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_SLOTS);
