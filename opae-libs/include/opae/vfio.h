@@ -174,6 +174,39 @@ int opae_vfio_open(struct opae_vfio *v,
 		   const char *pciaddr);
 
 /**
+ * Open and populate a VFIO device
+ *
+ * Opens the PCIe device corresponding to the address given in pciaddr,
+ * using the VF token (GUID) given in token.
+ * The device must be bound to the vfio-pci driver prior to opening it.
+ * The data structures corresponding to IOVA space, MMIO regions,
+ * and DMA buffers are initialized.
+ *
+ * @param[out] v       Storage for the device info. May be stack-resident.
+ * @param[in]  pciaddr The PCIe address of the requested device.
+ * @param[in]  token   The GUID representing the VF token.
+ * @returns Non-zero on error. Zero on success.
+ *
+ * Example
+ * @code{.sh}
+ * $ sudo opaevfio -i 0000:00:00.0 -u user -g group
+ * @endcode
+ *
+ * Example
+ * @code{.c}
+ * opae_vfio v;
+ *
+ * if (opae_vfio_secure_open(&v, "0000:00:00.0",
+ *                           "00f5ad6b-2edd-422e-9d1e-34124c686fec")) {
+ *   // handle error
+ * }
+ * @endcode
+ */
+int opae_vfio_secure_open(struct opae_vfio *v,
+			  const char *pciaddr,
+			  const char *token);
+
+/**
  * Query device MMIO region
  *
  * Retrieves info describing the MMIO region with the given region index.
