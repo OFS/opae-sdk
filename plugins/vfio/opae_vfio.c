@@ -75,6 +75,7 @@ typedef struct _vfio_buffer
 	uint64_t iova;
 	uint64_t wsid;
 	size_t size;
+	struct opae_vfio *vfio_device;
 	struct _vfio_buffer *next;
 } vfio_buffer;
 
@@ -84,7 +85,7 @@ static vfio_token *_vfio_tokens;
 static vfio_buffer *_vfio_buffers;
 static pthread_mutex_t _buffers_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
-static int read_pci_attr(const char *addr, const char *attr, char *value, size_t max)
+STATIC int read_pci_attr(const char *addr, const char *attr, char *value, size_t max)
 {
 	int res = FPGA_OK;
 	char path[PATH_MAX];
@@ -102,7 +103,7 @@ static int read_pci_attr(const char *addr, const char *attr, char *value, size_t
 	return res;
 }
 
-static int read_pci_attr_u32(const char *addr, const char *attr, uint32_t *value)
+STATIC int read_pci_attr_u32(const char *addr, const char *attr, uint32_t *value)
 {
 	char str_value[64];
 	char *endptr = NULL;
@@ -117,7 +118,7 @@ static int read_pci_attr_u32(const char *addr, const char *attr, uint32_t *value
 	return FPGA_OK;
 }
 
-static int parse_pcie_info(pci_device_t *device, char *addr)
+STATIC int parse_pcie_info(pci_device_t *device, char *addr)
 {
 	char err[128] = {0};
 	regex_t re;
@@ -163,6 +164,20 @@ void free_token_list()
 		vfio_token *t = _vfio_tokens;
 		_vfio_tokens = _vfio_tokens->next;
 		free(t);
+	}
+}
+
+void free_buffer_list()
+{
+	vfio_buffer *ptr = _vfio_buffers;
+	vfio_buffer *tmp = NULL;
+	while (ptr) {
+		tmp = ptr;
+		ptr = tmp->next;
+		if (opae_vfio_buffer_free(tmp->vfio_device, tmp->virtual)) {
+			OPAE_ERR("error freeing vfio buffer");
+		}
+		free(tmp);
 	}
 }
 
@@ -889,6 +904,7 @@ fpga_result vfio_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 		goto out_free;
 	}
 	memset(buffer, 0, sizeof(vfio_buffer));
+	buffer->vfio_device = v;
 	buffer->virtual = virt;
 	buffer->iova = iova;
 	buffer->size = sz;

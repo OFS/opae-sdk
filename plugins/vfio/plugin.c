@@ -35,8 +35,11 @@
 #include "adapter.h"
 #include "opae_vfio.h"
 
+#ifndef __VFIO_API__
+#define __VFIO_API__
+#endif
 
-int __XFPGA_API__ vfio_plugin_initialize(void)
+int __VFIO_API__ vfio_plugin_initialize(void)
 {
 	int res = pci_discover();
 	if (res) {
@@ -50,26 +53,27 @@ int __XFPGA_API__ vfio_plugin_initialize(void)
 	return res;
 }
 
-int __XFPGA_API__ vfio_plugin_finalize(void)
+int __VFIO_API__ vfio_plugin_finalize(void)
 {
+	free_buffer_list();
 	free_token_list();
 	free_device_list();
 	return 0;
 }
 
-bool __XFPGA_API__ vfio_plugin_supports_device(const char *device_type)
+bool __VFIO_API__ vfio_plugin_supports_device(const char *device_type)
 {
 	(void)(device_type);
 	return true;
 }
 
-bool __XFPGA_API__ vfio_plugin_supports_host(const char *hostname)
+bool __VFIO_API__ vfio_plugin_supports_host(const char *hostname)
 {
 	(void)(hostname);
 	return true;
 }
 
-int __XFPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
+int __VFIO_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 				       const char *jsonConfig)
 {
 	(void)(jsonConfig);
