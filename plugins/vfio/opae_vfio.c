@@ -305,7 +305,7 @@ vfio_handle *handle_check_and_lock(fpga_handle handle)
 	return h;
 }
 
-int walk(pci_device_t *p, int region)
+int walk(pci_device_t *p)
 {
 	int res = 0;
 	volatile uint8_t *mmio;
@@ -319,7 +319,7 @@ int walk(pci_device_t *p, int region)
 
 	// look for legacy FME guids in BAR 0
 	if (opae_vfio_region_get(&v, 0, (uint8_t**)&mmio, &size)) {
-		OPAE_ERR("error getting BAR%d", region);
+		OPAE_ERR("error getting BAR 0");
 		return 1;
 	}
 
@@ -372,7 +372,7 @@ int features_discover()
 {
 	pci_device_t *p = _pci_devices;
 	while(p) {
-		walk(p, 0);
+		walk(p);
 		p = p->next;
 	}
 
