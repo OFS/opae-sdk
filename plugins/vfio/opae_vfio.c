@@ -346,32 +346,37 @@ STATIC vfio_pair_t *open_vfio_pair(const char *addr)
 {
 	char phys_device[PCIADDR_MAX];
 	char secret[GUIDSTR_MAX];
-	char *secret_ptr = NULL;
 	vfio_pair_t *pair = malloc(sizeof(vfio_pair_t));
 	memset(pair, 0, sizeof(vfio_pair_t));
+
+	pair->device = malloc(sizeof(struct opae_vfio));
+	memset(pair->device, 0, sizeof(struct opae_vfio));
 
 	if (!read_pci_link(addr, "physfn", phys_device, PCIADDR_MAX)) {
 		uuid_generate(pair->secret);
 		uuid_unparse(pair->secret, secret);
-		secret_ptr = secret;
-	}
-	if (secret_ptr) {
 		pair->physfn = malloc(sizeof(struct opae_vfio));
 		memset(pair->physfn, 0, sizeof(struct opae_vfio));
-		if (opae_vfio_secure_open(pair->physfn, phys_device, secret_ptr)) {
+		if (opae_vfio_secure_open(pair->physfn, phys_device, secret)) {
 			ERR("error opening physfn: %s", phys_device);
+			free(pair->physfn);
+			pair->physfn = NULL;
+			goto out_destroy;
+		}
+		if (opae_vfio_secure_open(pair->device, addr, secret)) {
+			ERR("error opening vfio device: %s", addr);
+			goto out_destroy;
+		}
+	} else {
+		if (opae_vfio_open(pair->device, addr)) {
+			ERR("error opening vfio device: %s", addr);
 			goto out_destroy;
 		}
 	}
-	pair->device = malloc(sizeof(struct opae_vfio));
-	memset(pair->device, 0, sizeof(struct opae_vfio));
-	if (opae_vfio_secure_open(pair->device, addr, secret_ptr)) {
-		ERR("error opening vfio device: %s", addr);
-		goto out_destroy;
-	}
 	return pair;
 out_destroy:
-	close_vfio_pair(&pair);
+	free(pair->device);
+	free(pair);
 	return NULL;
 }
 
