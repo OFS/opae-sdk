@@ -90,6 +90,24 @@ static vfio_token *_vfio_tokens;
 static vfio_buffer *_vfio_buffers;
 static pthread_mutex_t _buffers_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
+STATIC int read_pci_link(const char *addr, const char *link, char *value, size_t max)
+{
+	char path[PATH_MAX];
+	char fullpath[PATH_MAX];
+	snprintf(path, sizeof(path), "/sys/bus/pci/devices/%s/%s", addr, link);
+	if (!realpath(path, fullpath)) {
+		ERR("error reading path: %s", path);
+		return 1;
+	}
+	char *p = strrchr(fullpath, '/');
+	if (!p) {
+		ERR("error finding '/' in path: %s", fullpath);
+		return 2;
+	}
+	strncpy(value, p+1, max);
+	return 0;
+}
+
 STATIC int read_pci_attr(const char *addr, const char *attr, char *value, size_t max)
 {
 	int res = FPGA_OK;
@@ -306,20 +324,72 @@ vfio_handle *handle_check_and_lock(fpga_handle handle)
 	return h;
 }
 
+static int close_vfio_pair(vfio_pair_t **pair)
+{
+	ASSERT_NOT_NULL(pair);
+	ASSERT_NOT_NULL(*pair);
+	vfio_pair_t *ptr = *pair;
+	if (ptr->device) {
+		opae_vfio_close(ptr->device);
+		free(ptr->device);
+	}
+	if (ptr->physfn) {
+		opae_vfio_close(ptr->physfn);
+		free(ptr->physfn);
+	}
+	free(ptr);
+	*pair = NULL;
+	return 0;
+}
+
+STATIC vfio_pair_t *open_vfio_pair(const char *addr)
+{
+	char phys_device[PCIADDR_MAX];
+	char secret[GUIDSTR_MAX];
+	char *secret_ptr = NULL;
+	vfio_pair_t *pair = malloc(sizeof(vfio_pair_t));
+	memset(pair, 0, sizeof(vfio_pair_t));
+
+	if (!read_pci_link(addr, "physfn", phys_device, PCIADDR_MAX)) {
+		uuid_generate(pair->secret);
+		uuid_unparse(pair->secret, secret);
+		secret_ptr = secret;
+	}
+	if (secret_ptr) {
+		pair->physfn = malloc(sizeof(struct opae_vfio));
+		memset(pair->physfn, 0, sizeof(struct opae_vfio));
+		if (opae_vfio_secure_open(pair->physfn, phys_device, secret_ptr)) {
+			ERR("error opening physfn: %s", phys_device);
+			goto out_destroy;
+		}
+	}
+	pair->device = malloc(sizeof(struct opae_vfio));
+	memset(pair->device, 0, sizeof(struct opae_vfio));
+	if (opae_vfio_secure_open(pair->device, addr, secret_ptr)) {
+		ERR("error opening vfio device: %s", addr);
+		goto out_destroy;
+	}
+	return pair;
+out_destroy:
+	close_vfio_pair(&pair);
+	return NULL;
+}
+
+
 int walk(pci_device_t *p)
 {
 	int res = 0;
 	volatile uint8_t *mmio;
 	size_t size;
-	struct opae_vfio v;
+	vfio_pair_t *pair = open_vfio_pair(p->addr);
 
-	if (opae_vfio_open(&v, p->addr)) {
+	if (!pair) {
 		OPAE_ERR("error opening vfio device: %s", p->addr);
 		return 1;
 	}
-
+	struct opae_vfio *v = pair->device;
 	// look for legacy FME guids in BAR 0
-	if (opae_vfio_region_get(&v, 0, (uint8_t**)&mmio, &size)) {
+	if (opae_vfio_region_get(v, 0, (uint8_t**)&mmio, &size)) {
 		OPAE_ERR("error getting BAR 0");
 		return 1;
 	}
@@ -343,7 +413,7 @@ int walk(pci_device_t *p)
 		}
 		if (!uuid_compare(uuid, b0_guid)) {
 			// we found a legacy FME in BAR0, walk it
-			res = walk_fme(p, &v, mmio, 0);
+			res = walk_fme(p, v, mmio, 0);
 			goto close;
 		}
 	}
@@ -356,7 +426,7 @@ int walk(pci_device_t *p)
 
 	// now let's check other BARs
 	for (uint32_t i = 1; i < BAR_MAX; ++i) {
-		if (!opae_vfio_region_get(&v, i, (uint8_t**)&mmio, &size)) {
+		if (!opae_vfio_region_get(v, i, (uint8_t**)&mmio, &size)) {
 			vfio_token *t = get_token(p, i, FPGA_ACCELERATOR);
 			t->mmio_size = size;
 			t->user_mmio_count = 1;
@@ -365,7 +435,7 @@ int walk(pci_device_t *p)
 	}
 
 close:
-	opae_vfio_close(&v);
+	close_vfio_pair(&pair);
 	return res;
 }
 
@@ -419,16 +489,18 @@ fpga_result vfio_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 		res = FPGA_EXCEPTION;
 		goto out_attr_destroy;
 	}
+
 	_handle->magic = VFIO_HANDLE_MAGIC;
 	_handle->token = clone_token(_token);
-	if (opae_vfio_open(&_handle->vfio_device, _token->device->addr)) {
+	_handle->vfio_pair = open_vfio_pair(_token->device->addr);
+	if (!_handle->vfio_pair) {
 		OPAE_ERR("error opening vfio device");
 		res = FPGA_EXCEPTION;
 		goto out_attr_destroy;
 	}
 	uint8_t *mmio = NULL;
 	size_t size;
-	if (opae_vfio_region_get(&_handle->vfio_device,
+	if (opae_vfio_region_get(_handle->vfio_pair->device,
 				 _token->region, &mmio, &size)) {
 		OPAE_ERR("error opening vfio region");
 		res = FPGA_EXCEPTION;
@@ -440,8 +512,12 @@ fpga_result vfio_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 	res = FPGA_OK;
 out_attr_destroy:
 	pthread_mutexattr_destroy(&mattr);
-	if (res && _handle)
+	if (res && _handle) {
+		if (_handle->vfio_pair) {
+			close_vfio_pair(&_handle->vfio_pair);
+		}
 		free(_handle);
+	}
 	return res;
 }
 
@@ -454,7 +530,7 @@ fpga_result vfio_fpgaClose(fpga_handle handle)
 	if (token_check(h->token)) free(h->token);
 	else OPAE_MSG("invalid token in handle");
 
-	opae_vfio_close(&h->vfio_device);
+	close_vfio_pair(&h->vfio_pair);
 	if (pthread_mutex_unlock(&h->lock) ||
 	    pthread_mutex_destroy(&h->lock)) {
 		OPAE_MSG("error unlocking/destroying handle mutex");
@@ -903,7 +979,7 @@ fpga_result vfio_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 	(void)flags;
 	fpga_result res = FPGA_EXCEPTION;
 
-	struct opae_vfio *v = (struct opae_vfio*)&h->vfio_device;
+	struct opae_vfio *v = h->vfio_pair->device;
 	uint8_t *virt = NULL;
 	uint64_t iova = 0;
 	size_t sz = len > HUGE_2M ? ROUND_UP(len, HUGE_1G) :
@@ -958,7 +1034,7 @@ fpga_result vfio_fpgaReleaseBuffer(fpga_handle handle, uint64_t wsid)
 	vfio_handle *h = handle_check(handle);
 	ASSERT_NOT_NULL(h);
 
-	struct opae_vfio *v = (struct opae_vfio*)&h->vfio_device;
+	struct opae_vfio *v = h->vfio_pair->device;
 
 	vfio_buffer *ptr = _vfio_buffers;
 	vfio_buffer *prev = NULL;

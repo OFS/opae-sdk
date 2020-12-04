@@ -56,6 +56,8 @@
 #define ASSERT_NOT_NULL(__arg) ASSERT_NOT_NULL_MSG(__arg, #__arg " is NULL")
 #endif
 
+#define GUIDSTR_MAX 36
+
 typedef union _bdf
 {
 	struct
@@ -106,14 +108,22 @@ typedef struct _vfio_token
 	vfio_ops ops;
 } vfio_token;
 
+
+typedef struct _vfio_pair
+{
+	fpga_guid secret;
+	struct opae_vfio *device;
+	struct opae_vfio *physfn;
+} vfio_pair_t;
+
 typedef struct _vfio_handle
 {
 	uint32_t magic;
 	struct _vfio_token *token;
-	struct opae_vfio vfio_device;
+	vfio_pair_t *vfio_pair;
 	volatile uint8_t *mmio_base;
 	size_t mmio_size;
-  pthread_mutex_t lock;
+	pthread_mutex_t lock;
 } vfio_handle;
 
 
