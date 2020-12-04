@@ -62,7 +62,7 @@
 		char *ptr = _p + _m.rm_so;                                     \
 		char *endptr = NULL;                                           \
 		_v = strtoul(ptr, &endptr, _b);                                \
-		if (endptr != ptr + strlen(ptr)) {                             \
+		if (endptr == ptr) {                             \
 			OPAE_MSG("error parsing int");                         \
 			goto _l;                                               \
 		}                                                              \
@@ -133,7 +133,7 @@ STATIC int read_pci_attr_u32(const char *addr, const char *attr, uint32_t *value
 	int res = read_pci_attr(addr, attr, str_value, sizeof(str_value));
 	if (res) return res;
 	uint32_t v = strtoul(str_value, &endptr, 0);
-	if (endptr != str_value + strlen(str_value)) {
+	if (endptr == str_value) {
 		ERR("error parsing string: %s", str_value);
 		return FPGA_EXCEPTION;
 	}
