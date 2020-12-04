@@ -96,8 +96,9 @@ STATIC int read_pci_link(const char *addr, const char *link, char *value, size_t
 	char fullpath[PATH_MAX];
 	snprintf(path, sizeof(path), "/sys/bus/pci/devices/%s/%s", addr, link);
 	if (!realpath(path, fullpath)) {
+		if (errno == ENOENT) return 1;
 		ERR("error reading path: %s", path);
-		return 1;
+		return 2;
 	}
 	char *p = strrchr(fullpath, '/');
 	if (!p) {
