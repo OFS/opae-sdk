@@ -1,7 +1,7 @@
 Summary:        Open Programmable Acceleration Engine (OPAE) SDK
 Name:           opae
 Version:        2.0.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 License:        BSD
 ExclusiveArch:  x86_64
 
@@ -9,7 +9,9 @@ Group:          Development/Libraries
 Vendor:         Intel Corporation
 Requires:       uuid, json-c, python3
 URL:            https://github.com/OPAE/%{name}-sdk
-Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-1/%{name}.tar.gz
+Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-1/%{name}-%{version}.tar.gz
+
+
 
 BuildRequires:  gcc, gcc-c++
 BuildRequires:  cmake
@@ -20,7 +22,6 @@ BuildRequires:  rpm-build
 BuildRequires:  hwloc-devel
 BuildRequires:  python3-sphinx
 BuildRequires:  doxygen
-BuildRequires:  systemd-rpm-macros
 BuildRequires:  systemd
 BuildRequires:  pybind11-devel
 BuildRequires:  python3-setuptools
@@ -58,43 +59,18 @@ OPAE headers, tools, sample source, and documentation
 
 
 %prep
-%setup -q -n %{name}
+%setup -q -n %{name}-%{version}
 
 %build
 rm -rf _build
 mkdir _build
 cd _build
 
-%cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_PRESERVE_REPOS=ON -DOPAE_BUILD_LEGACY=ON -B $PWD
+%cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_PRESERVE_REPOS=ON -DOPAE_BUILD_LEGACY=ON -DOPAE_BUILD_SAMPLES=ON -B $PWD
 
-%make_build  opae-c \
-         bitstream \
-         xfpga \
-         modbmc \
-         opae-cxx-core \
-         hello_cxxcore \
-         board_a10gx \
-         board_n3000 \
-         board_d5005 \
-         fpgaconf \
-         fpgametrics \
-         fpgainfo \
-         userclk \
-         object_api \
-         hello_fpga \
-         hello_events \
-         bist_app\
-         fpga_dma_N3000_test\
-         fpga_dma_test\
-         opae-c++-utils\
-         opae-c++-nlb\
-         nlb0\
-         nlb3\
-         nlb7\
-         mmlink\
-         fpgad\
-         fpgad-api\
-         fpgad-vc\
+%make_build 
+
+
 
 
 %install
@@ -166,15 +142,15 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad_api -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad_vc -P cmake_install.cmake
 
 prev=$PWD
-pushd %{_topdir}/BUILD/opae/python/opae.admin/
+pushd %{_topdir}/BUILD/%{name}-%{version}/python/opae.admin/
 %{__python3} setup.py install --single-version-externally-managed  --root=%{buildroot} --record=$prev/INSTALLED_OPAE_ADMIN_FILES
 popd
 
-pushd %{_topdir}/BUILD/opae/python/pacsign
+pushd %{_topdir}/BUILD/%{name}-%{version}/python/pacsign
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} --record=$prev/INSTALLED_PACSIGN_FILES
 popd
 
-pushd %{_topdir}/BUILD/opae/scripts
+pushd %{_topdir}/BUILD/%{name}-%{version}/scripts
 install -m 755 eth_group_mdev.sh %{buildroot}/usr/bin/eth_group_mdev.sh
 popd
 
@@ -226,6 +202,7 @@ popd
 %{_libdir}/opae/libxfpga.so*
 %{_libdir}/opae/libmodbmc.so*
 %{_bindir}/bist_app*
+%{_bindir}/dummy_afu
 %{_bindir}/bist_common.py*
 %{_bindir}/bist_dma.py*
 %{_bindir}/bist_def.py*
