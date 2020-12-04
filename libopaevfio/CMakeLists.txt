@@ -31,6 +31,7 @@ try_compile(PLATFORM_SUPPORTS_VFIO
 )
 
 if (PLATFORM_SUPPORTS_VFIO)
+    set(PLATFORM_SUPPORTS_VFIO TRUE CACHE BOOL "Platform supports vfio driver")
     opae_add_shared_library(TARGET opaevfio
         SOURCE opaevfio.c
         LIBS
