@@ -24,30 +24,26 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-try_compile(PLATFORM_SUPPORTS_VFIO
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/vfiocheck.c
-    OUTPUT_VARIABLE TRY_COMPILE_OUTPUT
+set(SRC
+  plugin.c
+  opae_vfio.c
+  dfl.c
 )
 
-if (PLATFORM_SUPPORTS_VFIO)
-    set(PLATFORM_SUPPORTS_VFIO TRUE CACHE BOOL "Platform supports vfio driver")
-    opae_add_shared_library(TARGET opaevfio
-        SOURCE opaevfio.c
-        LIBS
-            ${CMAKE_THREAD_LIBS_INIT}
-        VERSION ${OPAE_VERSION}
-        SOVERSION ${OPAE_VERSION_MAJOR}
-        COMPONENT vfiolib
+opae_add_module_library(TARGET v-opae
+    SOURCE ${SRC}
+    LIBS
+        dl
+        m
+        ${CMAKE_THREAD_LIBS_INIT}
+        opae-c
+        opaevfio
+        ${libjson-c_LIBRARIES}
+        ${libuuid_LIBRARIES}
+    COMPONENT opaevfio
+)
+
+target_include_directories(v-opae PRIVATE
+    ${OPAE_LIBS_ROOT}/libopae-c
+    ${libuuid_INCLUDE}
     )
-    
-    opae_add_executable(TARGET opaevfiotest
-        SOURCE opaevfiotest.c
-        LIBS opaevfio
-        COMPONENT vfiotest
-    )
-else(PLATFORM_SUPPORTS_VFIO)
-    message(WARNING
-        "Could not compile VFIO. See errors in platform_vfio_errors.txt")
-    file(WRITE ${CMAKE_BINARY_DIR}/platform_vfio_errors.txt ${TRY_COMPILE_OUTPUT})
-endif(PLATFORM_SUPPORTS_VFIO)
