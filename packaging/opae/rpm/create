@@ -63,7 +63,7 @@ for pkg in 'make' \
            'systemd-rpm-macros' \
            'rpmdevtools'
 do
-    yum list installed "${pkg}" >/dev/null 2>&1
+    dnf list installed "${pkg}" >/dev/null 2>&1
     if [ $? -ne 0 ]; then
         printf "${pkg} package not found.. exiting\n"
         exit 1
