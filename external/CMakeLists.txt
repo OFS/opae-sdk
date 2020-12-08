@@ -38,6 +38,7 @@ opae_external_project_add(PROJECT_NAME CLI11
                           GIT_TAG ${CLI11_TAG}
                           PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
                           NO_ADD_SUBDIRECTORY
+                          DEFER
 )
 
 set(SPDLOG_URL
@@ -52,6 +53,7 @@ opae_external_project_add(PROJECT_NAME spdlog
                           GIT_TAG ${SPDLOG_TAG}
                           PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
                           NO_ADD_SUBDIRECTORY
+                          DEFER
 )
 
 if(OPAE_BUILD_LEGACY)

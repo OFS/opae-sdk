@@ -93,6 +93,11 @@ int usleep(unsigned);
 /* NLB0 AFU_ID */
 #define NLB0_AFUID "D8424DC4-A4A3-C413-F89E-433683F9040B"
 
+/* NLB0 AFU_ID for N3000 */
+#define N3000_AFUID "9AEFFE5F-8457-0612-C000-C9660D824272"
+#define FPGA_NLB0_UUID_H 0xd8424dc4a4a3c413
+#define FPGA_NLB0_UUID_L 0xf89e433683f9040b
+
 
 /*
  * macro to check return codes, print error message, and goto cleanup label
@@ -124,21 +129,24 @@ struct config {
 		int bus;
 	} target;
 	int open_flags;
+	int run_n3000;
 }
 
 config = {
 	.target = {
 		.bus = -1,
 	},
-	.open_flags = 0
+	.open_flags = 0,
+	.run_n3000 = 0
 };
 
-#define GETOPT_STRING "B:sv"
+#define GETOPT_STRING "B:scv"
 fpga_result parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
 		{ "bus",     required_argument, NULL, 'B' },
 		{ "shared",  no_argument,       NULL, 's' },
+		{ "run on N3000 card",  no_argument,       NULL, 'c' },
 		{ "version", no_argument,       NULL, 'v' },
 		{ NULL,      0,                 NULL,  0  }
 	};
@@ -172,7 +180,9 @@ fpga_result parse_args(int argc, char *argv[])
 		case 's':
 			config.open_flags |= FPGA_OPEN_SHARED;
 			break;
-
+		case 'c':
+			config.run_n3000 = 1;
+			break;
 		case 'v':
 			fpgaGetOPAECVersionString(version, sizeof(version));
 			fpgaGetOPAECBuildString(build, sizeof(build));
@@ -269,6 +279,58 @@ bool probe_for_ase(void)
 	return ((FPGA_OK == r) && (0xa5e == device_id));
 }
 
+fpga_result find_nlb_n3000(fpga_handle accelerator_handle,
+		uint64_t *afu_baddr)
+{
+
+	fpga_result res1 = FPGA_OK;
+	int end_of_list = 0;
+	int nlb0_found = 0;
+	uint64_t header = 0;
+	uint64_t uuid_hi = 0;
+	uint64_t uuid_lo = 0;
+	uint64_t next_offset = 0;
+	uint64_t nlb0_offset = 0;
+
+	/* find NLB0 in AFU */
+	do {
+		// Read the next feature header
+		res1 = fpgaReadMMIO64(accelerator_handle, 0, nlb0_offset, &header);
+		ON_ERR_GOTO(res1, out_exit, "fpgaReadMMIO64");
+		res1 = fpgaReadMMIO64(accelerator_handle, 0, nlb0_offset+8, &uuid_lo);
+		ON_ERR_GOTO(res1, out_exit, "fpgaReadMMIO64");
+		res1 = fpgaReadMMIO64(accelerator_handle, 0, nlb0_offset+16, &uuid_hi);
+		ON_ERR_GOTO(res1, out_exit, "fpgaReadMMIO64");
+		// printf("%zx: %zx %zx %zx\n", nlb0_offset, header, uuid_lo, uuid_hi);
+		if ((((header >> 60) & 0xf) == 0x1) &&
+			(uuid_lo == FPGA_NLB0_UUID_L) && (uuid_hi == FPGA_NLB0_UUID_H)) {
+			nlb0_found = 1;
+			break;
+		}
+		// End of the list flag
+		end_of_list = (header >> 40) & 1;
+		// Move to the next feature header
+		next_offset = (header >> 16) & 0xffffff;
+		if ((next_offset == 0xffff) || (next_offset == 0)) {
+			nlb0_found = 0;
+			break;
+		}
+		nlb0_offset = nlb0_offset + next_offset;
+	} while (!end_of_list);
+
+	if (!nlb0_found) {
+		printf("AFU NLB0 not found\n");
+		return FPGA_EXCEPTION;
+	}
+
+	printf("AFU NLB0 found @ %zx\n", nlb0_offset);
+	*afu_baddr = nlb0_offset;
+	return FPGA_OK;
+
+out_exit:
+	return FPGA_EXCEPTION;
+}
+
 int main(int argc, char *argv[])
 {
 	fpga_token         accelerator_token;
@@ -296,9 +358,14 @@ int main(int argc, char *argv[])
 		goto out_exit;
 	ON_ERR_GOTO(res1, out_exit, "parsing arguments");
 
-	if (uuid_parse(NLB0_AFUID, guid) < 0) {
-		res1 = FPGA_EXCEPTION;
+	if (config.run_n3000) {
+		if (uuid_parse(N3000_AFUID, guid) < 0)
+			res1 = FPGA_EXCEPTION;
+	} else {
+		if (uuid_parse(NLB0_AFUID, guid) < 0)
+			res1 = FPGA_EXCEPTION;
 	}
+
 	ON_ERR_GOTO(res1, out_exit, "parsing guid");
 
 	use_ase = probe_for_ase();
@@ -367,40 +434,46 @@ int main(int argc, char *argv[])
 	res1 = fpgaReset(accelerator_handle);
 	ON_ERR_GOTO(res1, out_free_output, "resetting accelerator");
 
+	uint64_t nlb_base_addr = 0;
+
+	if (config.run_n3000) {
+		res1 = find_nlb_n3000(accelerator_handle, &nlb_base_addr);
+		ON_ERR_GOTO(res1, out_free_output, "finding nlb in AFU");
+	}
 
 	/* Program DMA addresses */
 	uint64_t iova = 0;
 	res1 = fpgaGetIOAddress(accelerator_handle, dsm_wsid, &iova);
 	ON_ERR_GOTO(res1, out_free_output, "getting DSM IOVA");
 
-	res1 = fpgaWriteMMIO64(accelerator_handle, 0, CSR_AFU_DSM_BASEL, iova);
+	res1 = fpgaWriteMMIO64(accelerator_handle, 0, nlb_base_addr + CSR_AFU_DSM_BASEL, iova);
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_AFU_DSM_BASEL");
 
-	res1 = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CTL, 0);
+	res1 = fpgaWriteMMIO32(accelerator_handle, 0, nlb_base_addr + CSR_CTL, 0);
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_CFG");
-	res1 = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CTL, 1);
+	res1 = fpgaWriteMMIO32(accelerator_handle, 0, nlb_base_addr + CSR_CTL, 1);
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_CFG");
 
 	res1 = fpgaGetIOAddress(accelerator_handle, input_wsid, &iova);
 	ON_ERR_GOTO(res1, out_free_output, "getting input IOVA");
-	res1 = fpgaWriteMMIO64(accelerator_handle, 0, CSR_SRC_ADDR, CACHELINE_ALIGNED_ADDR(iova));
+	res1 = fpgaWriteMMIO64(accelerator_handle, 0, nlb_base_addr + CSR_SRC_ADDR, CACHELINE_ALIGNED_ADDR(iova));
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_SRC_ADDR");
 
 	res1 = fpgaGetIOAddress(accelerator_handle, output_wsid, &iova);
 	ON_ERR_GOTO(res1, out_free_output, "getting output IOVA");
-	res1 = fpgaWriteMMIO64(accelerator_handle, 0, CSR_DST_ADDR, CACHELINE_ALIGNED_ADDR(iova));
+	res1 = fpgaWriteMMIO64(accelerator_handle, 0, nlb_base_addr + CSR_DST_ADDR, CACHELINE_ALIGNED_ADDR(iova));
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_DST_ADDR");
 
-	res1 = fpgaWriteMMIO32(accelerator_handle, 0, CSR_NUM_LINES, LPBK1_BUFFER_SIZE / CL(1));
+	res1 = fpgaWriteMMIO32(accelerator_handle, 0, nlb_base_addr + CSR_NUM_LINES, LPBK1_BUFFER_SIZE / CL(1));
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_NUM_LINES");
-	res1 = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CFG, 0x42000);
+	res1 = fpgaWriteMMIO32(accelerator_handle, 0, nlb_base_addr + CSR_CFG, 0x42000);
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_CFG");
 
 	status_ptr = dsm_ptr + DSM_STATUS_TEST_COMPLETE/sizeof(uint64_t);
 
 
 	/* Start the test */
-	res1 = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CTL, 3);
+	res1 = fpgaWriteMMIO32(accelerator_handle, 0, nlb_base_addr + CSR_CTL, 3);
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_CFG");
 
 	/* Wait for test completion */
@@ -414,7 +487,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Stop the device */
-	res1 = fpgaWriteMMIO32(accelerator_handle, 0, CSR_CTL, 7);
+	res1 = fpgaWriteMMIO32(accelerator_handle, 0, nlb_base_addr + CSR_CTL, 7);
 	ON_ERR_GOTO(res1, out_free_output, "writing CSR_CFG");
 
 	/* Wait for the AFU's read/write traffic to complete */
@@ -425,7 +498,7 @@ int main(int argc, char *argv[])
 		 * Wait for it to be 0.
 		 */
 		uint64_t s1;
-		res1 = fpgaReadMMIO64(accelerator_handle, 0, CSR_STATUS1, &s1);
+		res1 = fpgaReadMMIO64(accelerator_handle, 0, nlb_base_addr + CSR_STATUS1, &s1);
 		ON_ERR_GOTO(res1, out_free_output, "reading CSR_STATUS1");
 		if (s1 == 0) {
 			break;

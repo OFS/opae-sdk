@@ -26,13 +26,17 @@
 
 opae_add_executable(TARGET mmlink
     SOURCE
-        mm_debug_link_linux.cpp
-        mmlink_connection.cpp
-        mmlink_server.cpp main.cpp
+        main.cpp
     LIBS
         opae-c
         ${libjson-c_LIBRARIES}
+        mml-srv
+        mml-stream
     COMPONENT toolmmlink
+)
+
+target_include_directories(mmlink
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/remote_dbg
 )
 
 set_target_properties(mmlink
@@ -41,3 +45,6 @@ set_target_properties(mmlink
         CXX_STANDARD_REQUIRED YES
         CXX_EXTENSIONS NO
 )
+
+add_subdirectory(remote_dbg/legacy)
+add_subdirectory(remote_dbg/streaming)

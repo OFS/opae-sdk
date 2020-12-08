@@ -379,6 +379,55 @@ This compare mac addresses that read from MAC ROM with mac addresses read from H
 
     Can be poll or csr-write. The default=poll. 
 
+### **Enable FPGA N3000 Ethernet group VFIO mdev** ###
+
+FPGA DFL driver does not support any ioctls to read/write ethernet group info and registers.
+Users can read/write eth group registers by enabling VFIO mdev. Unbind the dfl_eth_group driver and bind vfio-mdev-dfl
+driver for ethernet group dfl-device; then userspace can take full control of ethernet group feature id 10.
+
+Ethernet group must be enabled before running fpgalpbk, mactest tools.
+
+#### **Steps to enable/create vfio mdev** ####
+    unbind eth group feature id 10:
+        echo dfl-fme.0.8 > /sys/bus/dfl/drivers/dfl-eth-group/unbind
+        echo dfl-fme.0.7 > /sys/bus/dfl/drivers/dfl-eth-group/unbind
+    bind to vfio-mdev-dfl:
+        echo vfio-mdev-dfl > /sys/bus/dfl/devices/dfl-fme.0.7/driver_override
+        echo vfio-mdev-dfl > /sys/bus/dfl/devices/dfl-fme.0.8/driver_override
+    load vfio driver:
+        modprobe vfio_pci
+        modprobe vfio_iommu_type1
+        modprobe vfio_mdev
+        modprobe vfio_mdev_dfl
+    trigger mdev:
+        echo dfl-fme.0.7 >/sys/bus/dfl/drivers_probe
+        echo dfl-fme.0.8 >/sys/bus/dfl/drivers_probe
+        echo 83b8f4f2-509f-382f-3c1e-e6bfe0fa1001 > /sys/bus/dfl/devices/dfl-fme.0.7/mdev_supported_types/vfio-mdev-dfl-1/create
+        echo 83b8f4f2-509f-382f-3c1e-e6bfe0fa1002 > /sys/bus/dfl/devices/dfl-fme.0.8/mdev_supported_types/vfio-mdev-dfl-1/create
+
+    linux kerenl msg after enabling mdev:
+        i40e 0000:b3:00.0 eth1: NIC Link is Down
+        i40e 0000:b1:00.1 eth0: NIC Link is Down
+        vfio-mdev-dfl dfl-fme.2.7: MDEV: Registered
+        vfio-mdev-dfl dfl-fme.2.8: MDEV: Registered
+        vfio_mdev 83b8f4f2-509f-382f-3c1e-e6bfe0fa1005: Adding to iommu group 140
+        vfio_mdev 83b8f4f2-509f-382f-3c1e-e6bfe0fa1005: MDEV: group_id = 140
+        vfio_mdev 83b8f4f2-509f-382f-3c1e-e6bfe0fa1006: Adding to iommu group 141
+        vfio_mdev 83b8f4f2-509f-382f-3c1e-e6bfe0fa1006: MDEV: group_id = 141
+
+#### **Remove vfio mdev** ####
+        echo 1 | sudo tee /sys/bus/mdev/devices/83b8f4f2-509f-382f-3c1e-e6bfe0fa1002/remove
+        echo 1 | sudo tee /sys/bus/mdev/devices/83b8f4f2-509f-382f-3c1e-e6bfe0fa1001/remove
+
+        rmmod vfio_mdev_dfl
+        modprobe dfl_eth_group
+
+        echo dfl-fme.0.7 >/sys/bus/dfl/drivers_probe
+        echo dfl-fme.0.8 >/sys/bus/dfl/drivers_probe
+
+        echo dfl-eth-group > /sys/bus/dfl/devices/dfl-fme.0.7/driver_override
+        echo dfl-eth-group > /sys/bus/dfl/devices/dfl-fme.0.8/driver_override
+
 
 ### **fpgalpbk** test options ###
 `--enable`

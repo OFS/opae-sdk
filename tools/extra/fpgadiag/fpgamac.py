@@ -32,6 +32,8 @@ import time
 import struct
 import os
 import sys
+import eth_group
+from eth_group import *
 from common import FpgaFinder, exception_quit, COMMON, hexint
 
 FPGA_MAC_GROUP_ID = {'host': 1, 'line': 0}
@@ -75,8 +77,6 @@ class FPGAMAC(COMMON):
         if isinstance(self.mtu, int) and (self.mtu < 1 or self.mtu > 65535):
             s = 'mtu size {} is out of range 1~65535'.format(self.mtu)
             exception_quit(s, 5)
-        if self.mac_group_dev == '':
-            exception_quit('{} side mac not found'.format(self.side), 6)
         if self.speed not in MTU_REG_OFFSET:
             exception_quit('unknown speed {}'.format(self.speed), 6)
 
@@ -137,6 +137,72 @@ class FPGAMAC(COMMON):
         else:
             self.fpga_mac_mtu()
 
+    def eth_group_mac_reg_write(self, eth_group, mac, reg, value):
+        self.eth_group_reg_write(eth_group, 'mac', mac, reg, value)
+
+    def eth_group_mac_reg_read(self, eth_group, mac, reg):
+        return self.eth_group_reg_read(eth_group, 'mac', mac, reg)
+
+    def eth_group_mac_mtu(self):
+        for keys, values in self.eth_grps.items():
+            eth_group_inst = eth_group()
+            ret = eth_group_inst.eth_group_open(int(values[0]), values[1])
+            if ret != 0:
+                return None
+
+            if self.mtu == '':
+                tab_len = 64 if self.direction == 'both' else 45
+                print(''.center(tab_len, '='))
+                print('maximum frame length'.ljust(24, ' '), end=' | ')
+                if self.direction in ['tx', 'both']:
+                    print('transmit'.ljust(16), end=' | ')
+                if self.direction in ['rx', 'both']:
+                    print('receive'.ljust(16), end=' | ')
+                print()
+                for i in self.ports:
+                    print("mac {}".format(i).ljust(24), end=' | ')
+                    if self.direction in ['tx', 'both']:
+                        offset = MTU_REG_OFFSET[self.speed]['tx']
+                        v = self.eth_group_mac_reg_read(eth_group_inst,
+                                                        i, offset)
+                        print('{:<16}'.format(v), end=' | ')
+                    if self.direction in ['rx', 'both']:
+                        offset = MTU_REG_OFFSET[self.speed]['rx']
+                        v = self.eth_group_mac_reg_read(eth_group_inst,
+                                                        i, offset)
+                        print('{:<16}'.format(v), end=' | ')
+                    print()
+            else:
+                for i in self.ports:
+                    if self.direction in ['tx', 'both']:
+                        offset = MTU_REG_OFFSET[self.speed]['tx']
+                        self.eth_group_mac_reg_write(eth_group_inst,
+                                                     i, offset, self.mtu)
+                    if self.direction in ['rx', 'both']:
+                        offset = MTU_REG_OFFSET[self.speed]['rx']
+                        self.eth_group_mac_reg_write(eth_group_inst,
+                                                     i, offset, self.mtu)
+                eth_group_inst.eth_group_close()
+                print("Done")
+
+    def eth_group_port_info(self):
+        info = self.eth_group_info(self.eth_grps)
+        for mac_grp in info:
+            if mac_grp == FPGA_MAC_GROUP_ID[self.side]:
+                num, _, spd = info[mac_grp]
+                self.mac_grp = mac_grp
+                self.mac_number = num
+                self.speed = spd
+
+    def eth_group_start(self):
+        self.eth_group_port_info()
+        self.check_args()
+        self.ports = self.get_port_list(self.argport, self.mac_number)
+        if self.mtu is None:
+            print('Please set configruation type of MAC, such as "--mtu"')
+        else:
+            self.eth_group_mac_mtu()
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -172,14 +238,14 @@ def main():
         exception_quit(s, 1)
     if not devs:
         sys.exit(2)
-    args.eth_grps = f.find_node(devs[0].get('path'), 'eth_group*/dev', depth=4)
-    if not args.eth_grps:
-        exception_quit('no ethernet group found', 3)
-    if args.debug:
-        for g in args.eth_grps:
-            print('ethernet group device: {}'.format(g))
+    args.fpga_root = devs[0].get('path')
+    args.eth_grps = f.find_eth_group(args.fpga_root)
+    print("args.eth_grps", args.eth_grps)
+    if len(args.eth_grps) == 0:
+        exception_quit("Invalid Eth group MDEV")
+
     lp = FPGAMAC(args)
-    lp.start()
+    lp.eth_group_start()
 
 
 if __name__ == "__main__":

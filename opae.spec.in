@@ -90,6 +90,7 @@ Group:      opae PACSign
 %description PACSign
 This package contains PAC Sign tools
 
+
 # This is a shortcutted spec file generatCed by CMake RPM generator
 # we skip _install step because CPack does that for us.
 # We do only save CPack installed tree in _prepr
@@ -100,6 +101,12 @@ mv $RPM_BUILD_ROOT %_topdir/tmpBRoot
 %build
 pushd @CMAKE_SOURCE_DIR@/python/opae.admin
 
+%{__python3} setup.py build
+popd
+
+pushd @CMAKE_SOURCE_DIR@/tools/extra/fpgadiag/
+
+%{__python3} setup.py build_ext --include-dirs=@pybind11_ROOT@/include
 %{__python3} setup.py build
 popd
 
@@ -119,6 +126,11 @@ popd
 
 pushd @CMAKE_SOURCE_DIR@/python/pacsign
 %{__python3} setup.py install --single-version-externally-managed -O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_PACSIGN_FILES
+popd
+
+
+pushd @CMAKE_SOURCE_DIR@/tools/extra/fpgadiag/
+%{__python3} setup.py install --single-version-externally-managed -O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_FPGADIAG_FILES
 popd
 
 %clean
@@ -154,6 +166,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libxfpga.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libmodbmc.so
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libbitstream.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libafu-test.so*
 
 
 %files devel
@@ -181,10 +194,14 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/fpgainfo
 @CMAKE_INSTALL_PREFIX@/bin/fpgametrics
 @CMAKE_INSTALL_PREFIX@/bin/fpgad
+@CMAKE_INSTALL_PREFIX@/bin/opaevfiotest
+@CMAKE_INSTALL_PREFIX@/bin/opaeuiotest
 @CPACK_RPM_RELOCATION_PATHS@/opae/fpgad.cfg
 @CPACK_RPM_RELOCATION_PATHS@/sysconfig/fpgad.conf
 @CPACK_RPM_RELOCATION_PATHS@/systemd/system/fpgad.service
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-api.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopaevfio.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopaeuio.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libfpgad-xfpga.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libfpgad-vc.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libboard_n3000.so*
@@ -195,6 +212,7 @@ ldconfig
 %files tools-extra
 %license @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DOCDIR@/LICENSE
 %defattr(-,root,root,-)
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/python*
 @CMAKE_INSTALL_PREFIX@/bin/afu_json_mgr
 @CMAKE_INSTALL_PREFIX@/bin/bist_app
 @CMAKE_INSTALL_PREFIX@/bin/bist_app.py
@@ -227,6 +245,8 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/pac_hssi_config.py
 @CMAKE_INSTALL_PREFIX@/bin/ras
 @CMAKE_INSTALL_PREFIX@/bin/userclk
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libmml-srv.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libmml-stream.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libhssi*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c++-nlb.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c++-utils.so*
@@ -258,6 +278,5 @@ ldconfig
 
 %files PACSign -f INSTALLED_PACSIGN_FILES
 %defattr(-,root,root,-)
-
 
 %changelog

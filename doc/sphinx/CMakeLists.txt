@@ -71,7 +71,9 @@ add_custom_target(copy-sample-files ALL
   DEPENDS copy-include-files)
 
 add_custom_target(copy-python-files ALL
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/opae-libs/pyopae/README.md ${BINARY_BUILD_DIR}/docs/README.md
+  COMMAND ${CMAKE_COMMAND} -E copy
+  ${CMAKE_SOURCE_DIR}/opae-libs/pyopae/README.md
+  ${BINARY_BUILD_DIR}/docs/pyopae/README.md
   DEPENDS copy-markdown-files)
 
 

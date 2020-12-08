@@ -72,6 +72,8 @@ fpga_result sec_command(fpga_token *tokens, int num_tokens, int argc,
 void sec_help(void);
 fpga_result sec_info(fpga_token token);
 
+fpga_result fme_verbose_info(fpga_token token);
+
 #ifdef __cplusplus
 }
 #endif

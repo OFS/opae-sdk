@@ -174,7 +174,7 @@ fpga_result get_bus_info(fpga_token tok, struct bdf_info *finfo)
 {
 	fpga_result res    = FPGA_OK;
 	fpga_result resval = FPGA_OK;
-	fpga_properties props;
+	fpga_properties props = NULL;
 
 	res = fpgaGetProperties(tok, &props);
 	ON_ERR_GOTO(res, out, "reading properties from Token");

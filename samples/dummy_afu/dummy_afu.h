@@ -27,7 +27,7 @@
 #include <opae/cxx/core/events.h>
 #include <opae/cxx/core/shared_buffer.h>
 
-#include "test_afu.h"
+#include "afu_test.h"
 
 namespace dummy_afu {
 using opae::fpga::types::event;
@@ -177,8 +177,8 @@ union ddr_test_bank3_stat  {
   };
 };
 
-using opae::app::test_afu;
-using opae::app::test_command;
+using test_afu = opae::afu_test::afu;
+using test_command = opae::afu_test::command;
 
 class dummy_afu : public test_afu {
 public:

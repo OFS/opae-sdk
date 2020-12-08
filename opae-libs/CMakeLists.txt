@@ -27,9 +27,9 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(opae-libs)
 
-set(OPAE_VERSION_MAJOR    1 CACHE STRING "OPAE major version" FORCE)
-set(OPAE_VERSION_MINOR    4 CACHE STRING "OPAE minor version" FORCE)
-set(OPAE_VERSION_REVISION 0 CACHE STRING "OPAE revision version" FORCE)
+set(OPAE_VERSION_MAJOR    2 CACHE STRING "OPAE major version" FORCE)
+set(OPAE_VERSION_MINOR    0 CACHE STRING "OPAE minor version" FORCE)
+set(OPAE_VERSION_REVISION 1 CACHE STRING "OPAE revision version" FORCE)
 set(OPAE_VERSION ${OPAE_VERSION_MAJOR}.${OPAE_VERSION_MINOR}.${OPAE_VERSION_REVISION}
     CACHE STRING "OPAE version" FORCE)
 
@@ -44,8 +44,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_LIBS_ROOT}/cmake/modules")
 ############################################################################
 ## Python Interpreter/Build Env  ###########################################
 ############################################################################
-set(OPAE_PYTHON_VERSION 2.7 CACHE STRING "Python version to use for building/distributing pyopae")
-set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3.6 3.5 3.4 3.3)
+set(OPAE_PYTHON_VERSION 3 CACHE STRING "Python version to use for building/distributing pyopae")
+set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3 3.6 3.7 3.8 3.9)
 find_package(PythonInterp ${OPAE_PYTHON_VERSION})
 find_package(PythonLibs ${OPAE_PYTHON_VERSION})
 
@@ -102,12 +102,12 @@ option(OPAE_PRESERVE_REPOS "Disable refresh of external repos" OFF)
 mark_as_advanced(OPAE_PRESERVE_REPOS)
 
 if(OPAE_BUILD_TESTS)
-    option(OPAE_TEST_TAG "Desired branch for opae-test" master)
+    set(OPAE_TEST_TAG "master" CACHE STRING "Desired branch for opae-test")
     mark_as_advanced(OPAE_TEST_TAG)
 endif(OPAE_BUILD_TESTS)
 
 if(OPAE_BUILD_SIM)
-    option(OPAE_SIM_TAG "Desired branch for opae-sim" master)
+    set(OPAE_SIM_TAG "master" CACHE STRING "Desired branch for opae-sim")
     mark_as_advanced(OPAE_SIM_TAG)
 endif(OPAE_BUILD_SIM)
 

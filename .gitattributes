@@ -1,2 +1,12 @@
+text=auto
+
+*.c text
+*.h text
+*.cpp text
+*.hpp text
+*.yml text
+*.yaml text
+*.json text
+
 version.py export-subst
 version.py filter=gethash

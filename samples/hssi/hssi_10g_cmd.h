@@ -50,8 +50,6 @@
 
 #define CSR_MAC_LOOP          0x3e00
 
-using namespace opae::app;
-
 class hssi_10g_cmd : public hssi_cmd
 {
 public:

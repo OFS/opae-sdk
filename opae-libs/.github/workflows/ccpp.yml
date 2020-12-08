@@ -2,10 +2,13 @@ name: C/C++ CI
 
 on:
   push:
+    paths-ignore:
+      - '.github/workflows/trigger-update.yml'
     branches: [master]
   pull_request:
     branches: [master]
-
+    paths-ignore:
+      - '.github/workflows/trigger-update.yml'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,7 +22,7 @@ jobs:
       with:
         apt-get: uuid-dev libjson-c-dev libhwloc-dev lcov
     - name: configure
-      run: mkdir ${{ github.workspace }}/.build && cd ${{ github.workspace }}/.build && cmake .. -DCMAKE_BUILD_TYPE=Debug -DOPAE_ENABLE_MOCK=ON -DOPAE_BUILD_TESTS=ON
+      run: mkdir ${{ github.workspace }}/.build && cd ${{ github.workspace }}/.build && cmake .. -DCMAKE_BUILD_TYPE=Debug -DOPAE_ENABLE_MOCK=ON -DOPAE_BUILD_TESTS=ON -DOPAE_PYTHON_VERSION=3
     - name: make
       run: cd ${{ github.workspace }}/.build && make -j
     - name: set hugepages

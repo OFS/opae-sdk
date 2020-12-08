@@ -30,6 +30,8 @@ import argparse
 import time
 import struct
 import os
+import eth_group
+from eth_group import *
 from common import FpgaFinder, exception_quit, COMMON, hexint
 
 FPGA_PHY_GROUP_ID = {'host': 1, 'line': 0}
@@ -154,6 +156,76 @@ class FPGALPBK(COMMON):
         self.ports = self.get_port_list(self.argport, self.phy_number)
         self.fpga_loopback_en(self.en)
 
+    def eth_group_loopback_en(self, en):
+        for keys, values in self.eth_grps.items():
+            eth_group_inst = eth_group()
+            ret = eth_group_inst.eth_group_open(int(values[0]), values[1])
+            if ret != 0:
+                return None
+
+            if self.speed == 10:
+                if self.type == 'serial':
+                    for i in self.ports:
+                        self.eth_group_phy_reg_set_field(
+                            eth_group_inst,
+                            i, FPGA_PHY_REG_RX_SERIALLPBKEN,
+                            0, 1, en)
+                elif self.type == 'precdr':
+                    for i in self.ports:
+                        self.eth_group_phy_reg_set_field(eth_group_inst,
+                                                         i, 0x137, 7, 1, en)
+                        self.eth_group_phy_reg_set_field(eth_group_inst,
+                                                         i, 0x13c, 7, 1, 0)
+                        self.eth_group_phy_reg_set_field(eth_group_inst,
+                                                         i, 0x132, 4, 2, 0)
+                        self.eth_group_phy_reg_set_field(eth_group_inst,
+                                                         i, 0x142, 4, 1, en)
+                        self.eth_group_phy_reg_set_field(eth_group_inst,
+                                                         i, 0x11d, 0, 1, en)
+                elif self.type == 'postcdr':
+                    for i in self.ports:
+                        self.eth_group_phy_reg_set_field(eth_group_inst,
+                                                         i, 0x137, 7, 1, 0)
+                        self.eth_group_phy_reg_set_field(eth_group_inst,
+                                                         i, 0x13c, 7, 1, en)
+                        self.eth_group_phy_reg_set_field(eth_group_inst,
+                                                         i, 0x132, 4, 2, en)
+                        self.eth_group_phy_reg_set_field(eth_group_inst,
+                                                         i, 0x142, 4, 1, 0)
+                        self.eth_group_phy_reg_set_field(eth_group_inst,
+                                                         i, 0x11d, 0, 1, 0)
+            elif self.speed == 25:
+                for i in self.ports:
+                    self.eth_group_reg_set_field(eth_group_inst,
+                                                 'mac', i, 0x313, 0, 4, en)
+            elif self.speed == 40:
+                for i in self.ports:
+                    v = 0xf if en else en
+                    self.eth_group_reg_set_field(eth_group_inst,
+                                                 'mac', i, 0x313, 0, 4, v)
+            else:
+                exception_quit('unsupport speed mode {}'.format(self.speed))
+            eth_group_inst.eth_group_close()
+
+    def eth_group_phy_reg_set_field(self, eth_group,
+                                    phy, reg, idx, width, value):
+        self.eth_group_reg_set_field(eth_group,
+                                     'phy', phy, reg, idx, width, value)
+
+    def eth_group_port_info(self):
+        info = self.eth_group_info(self.eth_grps)
+        for phy_grp in info:
+            if phy_grp == FPGA_PHY_GROUP_ID[self.side]:
+                num, _, spd = info[phy_grp]
+                self.phy_number = num
+                self.speed = spd
+
+    def eth_group_start(self):
+        self.eth_group_port_info()
+        self.check_args()
+        self.ports = self.get_port_list(self.argport, self.phy_number)
+        self.eth_group_loopback_en(self.en)
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -215,14 +287,15 @@ def main():
                        'one FPGA'.format(len(devs)))
     if not devs:
         exception_quit('no FPGA found')
-    args.eth_grps = f.find_node(devs[0].get('path'), 'eth_group*/dev', depth=4)
-    if not args.eth_grps:
-        exception_quit('No ethernet group found')
-    for g in args.eth_grps:
-        print('ethernet group device: {}'.format(g))
+
+    args.fpga_root = devs[0].get('path')
+    args.eth_grps = f.find_eth_group(args.fpga_root)
+    print("args.eth_grps", args.eth_grps)
+    if len(args.eth_grps) == 0:
+        exception_quit("Invalid Eth group MDEV")
 
     lp = FPGALPBK(args)
-    lp.start()
+    lp.eth_group_start()
     print('Done')
 
 

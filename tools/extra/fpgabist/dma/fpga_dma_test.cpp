@@ -163,6 +163,11 @@ static void parse_args(struct config *config, int argc, char *argv[])
 				fprintf(stderr, "Minimum data size must be %d bytes\n", MIN_PAYLOAD_LEN);
 				printUsage();
 			}
+			if (config->data_size > MAX_PAYLOAD_LEN) {
+				fprintf(stderr, "maximum allowable size: %d bytes\n", MAX_PAYLOAD_LEN);
+				printUsage();
+			}
+			
 			debug_print("data_size = %ld bytes\n", config->data_size);
 			break;
 

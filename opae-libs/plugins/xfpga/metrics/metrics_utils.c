@@ -323,7 +323,10 @@ fpga_result  enum_bmc_metrics_info(struct _fpga_handle *_handle,
 
 	for (x = 0; x < num_sensors; x++) {
 		result = xfpga_bmcGetSDRDetails(_handle, values, x, &details);
-
+		if (result != FPGA_OK) {
+			OPAE_ERR("Failed to get sensor details.");
+			return result;
+		}
 
 		if (details.sensor_type == BMC_THERMAL) {
 

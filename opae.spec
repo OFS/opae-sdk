@@ -161,7 +161,11 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgadiag -P cmake_install.cmake
 
 prev=$PWD
 pushd %{_topdir}/BUILD/opae/python/opae.admin/
-%{__python3} setup.py install --single-version-externally-managed  --root=%{buildroot} --record=$prev/INSTALLED_OPAE_ADMIN_FILES
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} --record=$prev/INSTALLED_OPAE_ADMIN_FILES
+popd
+
+pushd %{_topdir}/BUILD/opae/python/opae.io/
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} --record=$prev/INSTALLED_OPAE_IO_FILES
 popd
 
 pushd %{_topdir}/BUILD/opae/python/pacsign

@@ -1,0 +1,17 @@
+name: C/C++ CI Build and Test (dummy)
+
+on:
+  workflow_dispatch:
+  push:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build-type: [Debug, Release, RelWithDebInfo]
+    steps:
+    - run: exit 0
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - run: exit 0

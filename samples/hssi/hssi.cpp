@@ -44,8 +44,14 @@ void sig_handler(int signum)
 
 int main(int argc, char *argv[])
 {
+  int res = 1;
   signal(SIGINT, sig_handler);
   app.register_command<hssi_10g_cmd>();
   app.register_command<hssi_100g_cmd>();
-  return app.main(argc, argv);
+  try {
+    res = app.main(argc, argv);
+  } catch (std::runtime_error &e) {
+    std::cerr << e.what() << std::endl;
+  }
+  return res;
 }

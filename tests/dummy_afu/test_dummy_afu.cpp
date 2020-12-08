@@ -44,7 +44,8 @@
 
 const char *AFU_ID = "f7df405c-bd7a-cf72-22f1-44b0b93acd18";
 
-using namespace opae::app;
+using test_command =  opae::afu_test::command;
+using test_afu =  opae::afu_test::afu;
 using namespace opae::testing;
 
 int mmio_ioctl(mock_object * m, int request, va_list argp){
@@ -267,6 +268,7 @@ INSTANTIATE_TEST_CASE_P(dummy_afu, dummy_afu_p,
 
 TEST(dummy_afu, parse_pcie_address)
 {
+  using opae::afu_test::pcie_address;
   auto p = pcie_address::parse("1111:3b:19.4");
   EXPECT_EQ(p.fields.domain, 0x1111);
   EXPECT_EQ(p.fields.bus, 0x3b);

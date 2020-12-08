@@ -36,12 +36,7 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/basic_file_sink.h>
-#include <opae/cxx/core/events.h>
-#include <opae/cxx/core/handle.h>
-#include <opae/cxx/core/properties.h>
-#include <opae/cxx/core/shared_buffer.h>
-#include <opae/cxx/core/token.h>
-#include <opae/cxx/core/version.h>
+#include <opae/cxx/core.h>
 
 const char *sbdf_pattern =
   "(([0-9a-fA-F]{4}):)?([0-9a-fA-F]{2}):([0-9a-fA-F]{2})\\.([0-9])";
@@ -52,7 +47,7 @@ enum {
 
 
 namespace opae {
-namespace app {
+namespace afu_test {
 
 namespace fpga = fpga::types;
 
@@ -108,16 +103,16 @@ union pcie_address {
 
 };
 
-class test_afu; // forward declaration
+class afu; // forward declaration
 
-class test_command {
+class command {
 public:
-  typedef std::shared_ptr<test_command> ptr_t;
-  test_command(){}
-  virtual ~test_command(){}
+  typedef std::shared_ptr<command> ptr_t;
+  command(){}
+  virtual ~command(){}
   virtual const char *name() const = 0;
   virtual const char *description() const = 0;
-  virtual int run(test_afu *afu, CLI::App *app) = 0;
+  virtual int run(afu *afu, CLI::App *app) = 0;
   virtual void add_options(CLI::App *app)
   {
     (void)app;
@@ -131,9 +126,9 @@ private:
 
 };
 
-class test_afu {
+class afu {
 public:
-  typedef int (*command_fn)(test_afu *afu, CLI::App *app);
+  typedef int (*command_fn)(afu *afu, CLI::App *app);
   enum exit_codes {
     success = 0,
     not_run,
@@ -143,7 +138,7 @@ public:
     error
   };
 
-  test_afu(const char *name, const char *afu_id = nullptr)
+  afu(const char *name, const char *afu_id = nullptr)
   : name_(name)
   , afu_id_(afu_id ? afu_id : "")
   , app_(name_)
@@ -164,7 +159,7 @@ public:
     app_.add_flag("-s,--shared", shared_, "open in shared mode, default is off");
     app_.add_option("-t,--timeout", timeout_msec_, "test timeout (msec)")->default_val(timeout_msec_);
   }
-  virtual ~test_afu() {}
+  virtual ~afu() {}
 
   CLI::App & cli() { return app_; }
 
@@ -216,7 +211,7 @@ public:
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
     console_sink->set_level(spdlog::level::from_str(log_level_));
 
-    test_command::ptr_t test(nullptr);
+    command::ptr_t test(nullptr);
     CLI::App *app = nullptr;
     for (auto kv : commands_) {
       if (*kv.first) {
@@ -245,7 +240,7 @@ public:
     return run(app, test);
   }
 
-  virtual int run(CLI::App *app, test_command::ptr_t test)
+  virtual int run(CLI::App *app, command::ptr_t test)
   {
     int res = exit_codes::not_run;
 
@@ -271,7 +266,7 @@ public:
   template<class T>
   CLI::App *register_command()
   {
-    test_command::ptr_t cmd(new T());
+    command::ptr_t cmd(new T());
     auto sub = app_.add_subcommand(cmd->name(),
                                    cmd->description());
     cmd->add_options(sub);
@@ -295,7 +290,7 @@ public:
     return handle_->write_csr32(offset, value);
   }
 
-  test_command::ptr_t current_command() const {
+  command::ptr_t current_command() const {
     return current_command_;
   }
 
@@ -308,12 +303,12 @@ protected:
   bool shared_;
   uint32_t timeout_msec_;
   fpga::handle::ptr_t handle_;
-  test_command::ptr_t current_command_;
-  std::map<CLI::App*, test_command::ptr_t> commands_;
+  command::ptr_t current_command_;
+  std::map<CLI::App*, command::ptr_t> commands_;
   std::shared_ptr<spdlog::logger> logger_;
 };
 
 
-} // end of namespace app
+} // end of namespace afu_test
 } // end of namespace opae
 

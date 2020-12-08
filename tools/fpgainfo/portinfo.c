@@ -45,7 +45,7 @@ static void print_port_info(fpga_token token)
 {
 	char guid_str[38];
 	fpga_guid guid;
-	fpga_properties props;
+	fpga_properties props = NULL;
 	fpga_result res = FPGA_OK;
 	res = fpgaGetProperties(token, &props);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy,

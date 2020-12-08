@@ -40,6 +40,7 @@ find_package(PythonLibs ${OPAE_PYTHON_VERSION})
 set(INTEL_SECURITY_TOOLS_VERSION 1.0.3 CACHE STRING "Security Tools Version string")
 
 add_subdirectory(opae.admin)
+add_subdirectory(opae.io)
 
 execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import virtualenv"
     RESULT_VARIABLE HAS_VIRTUALENV)

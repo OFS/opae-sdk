@@ -24,10 +24,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
-#include "test_afu.h"
+#include "afu_test.h"
 #include "dummy_afu.h"
 
-using namespace opae::app;
+using test_afu = opae::afu_test::afu;
 using opae::fpga::types::shared_buffer;
 
 namespace dummy_afu {

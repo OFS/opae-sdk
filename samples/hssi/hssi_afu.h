@@ -30,9 +30,9 @@
 #include <exception>
 #include <glob.h>
 #include <time.h>
-#include "test_afu.h"
+#include "afu_test.h"
 
-using namespace opae::app;
+using test_afu =  opae::afu_test::afu;
 using namespace opae::fpga::types;
 
 #define ETH_AFU_DFH           0x0000
@@ -99,7 +99,7 @@ public:
     uint64_t val;
     struct timespec ts;
     uint64_t ticks;
-    const uint64_t max_ticks = 1000ULL;
+    const uint64_t max_ticks = 10000ULL;
 
     val = (((uint64_t)data) << WRITE_DATA_SHIFT);
     *((volatile uint64_t *)(mmio_base + TRAFFIC_CTRL_DATA)) = val;
@@ -117,8 +117,11 @@ public:
             break;
         if (nanosleep(&ts, NULL) != -1 &&
             ticks != NO_TIMEOUT) {
-            if (!ticks)
-                throw std::runtime_error("mbox_write timed out [a]");
+            if (!ticks) {
+                const char *msg = "mbox_write timed out [a]";
+                std::cerr << msg << std::endl;
+                throw std::runtime_error(msg);
+            }
             --ticks;
         }
     } while (!(val & ACK_TRANS));
@@ -132,8 +135,11 @@ public:
             break;
         if (nanosleep(&ts, NULL) != -1 &&
             ticks != NO_TIMEOUT) {
-            if (!ticks)
-                throw std::runtime_error("mbox_write timed out [b]");
+            if (!ticks) {
+                const char *msg = "mbox_write timed out [b]";
+                std::cerr << msg << std::endl;
+                throw std::runtime_error(msg);
+            }
             --ticks;
         }
     } while (val & ACK_TRANS); 
@@ -147,7 +153,7 @@ public:
     uint64_t val;
     struct timespec ts;
     uint64_t ticks;
-    const uint64_t max_ticks = 1000ULL;
+    const uint64_t max_ticks = 10000ULL;
 
     val = (((uint64_t)offset) << AFU_CMD_SHIFT) | READ_CMD;
     *((volatile uint64_t *)(mmio_base + TRAFFIC_CTRL_CMD)) = val;
@@ -162,8 +168,11 @@ public:
             break;
         if (nanosleep(&ts, NULL) != -1 &&
             ticks != NO_TIMEOUT) {
-            if (!ticks)
-                throw std::runtime_error("mbox_read timed out [a]");
+            if (!ticks) {
+                const char *msg = "mbox_read timed out [a]";
+                std::cerr << msg << std::endl;
+                throw std::runtime_error(msg);
+            }
             --ticks;
         }
     } while (!(val & ACK_TRANS));
@@ -180,8 +189,11 @@ public:
             break;
         if (nanosleep(&ts, NULL) != -1 &&
             ticks != NO_TIMEOUT) {
-            if (!ticks)
-                throw std::runtime_error("mbox_read timed out [b]");
+            if (!ticks) {
+                const char *msg = "mbox_read timed out [b]";
+                std::cerr << msg << std::endl;
+                throw std::runtime_error(msg);
+            }
             --ticks;
         }
     } while (val & ACK_TRANS);

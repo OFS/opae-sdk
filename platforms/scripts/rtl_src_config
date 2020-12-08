@@ -34,7 +34,7 @@ quartus_tag_map = {
     '.qip':  'QIP_FILE',
     '.json': 'MISC_FILE',
     '.tcl':  'SOURCE_TCL_SCRIPT_FILE',
-    '.stp':  'SIGNALTAP_FILE',
+    '.stp':  'USE_SIGNALTAP_FILE',
     '.hex':  'MIF_FILE',
     '.mif':  'MIF_FILE'
 }

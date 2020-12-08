@@ -39,15 +39,15 @@ from common import exception_quit, FpgaFinder, COMMON, hexint
 
 VCP_ID = 0x0b30
 
-CONF_FILE = '/etc/modprobe.d/intel-fpga-fme.conf'
-OPTION_LINE = 'options intel-fpga-fme fec_mode='
-DRV_MODE = '/sys/module/intel_fpga_fme/parameters/fec_mode'
-REMOVE_MOD = 'rmmod intel_fpga_fme'
-PROBE_MOD = 'modprobe intel-fpga-fme'
+CONF_FILE = '/etc/modprobe.d/dfl-fme.conf'
+OPTION_LINE = 'options dfl_n3000_nios fec_mode='
+DRV_MODE = '/sys/module/dfl_n3000_nios/parameters/fec_mode'
+REMOVE_MOD = 'rmmod dfl_n3000_nios'
+PROBE_MOD = 'modprobe dfl_n3000_nios'
 
 
 def get_fpga_sysfs_path(sbdf):
-    for fpga in glob.glob('/sys/class/fpga/*'):
+    for fpga in glob.glob('/sys/class/fpga_region/*'):
         fpga_bdf = os.path.basename(os.readlink(os.path.join(fpga, "device")))
         if not fpga_bdf:
             continue
@@ -126,8 +126,8 @@ def get_fec_mode(sbdf, debug):
     if not fpga_path:
         return None
     else:
-        paths = glob.glob(os.path.join(fpga_path, 'intel-fpga-fme.*',
-                                       'nios_spi', 'fec_mode',))
+        paths = glob.glob(os.path.join(fpga_path, 'dfl-fme*', 'dfl-fme*',
+                                       'fec_mode'))
         if not paths:
             return None
 
@@ -211,7 +211,7 @@ def show_fec_mode(sbdf):
 def fec_is_fixed(sbdf, debug):
     fpga_path = get_fpga_sysfs_path(sbdf)
     if fpga_path:
-        paths = glob.glob(os.path.join(fpga_path, 'intel-fpga-fme.*',
+        paths = glob.glob(os.path.join(fpga_path, 'dfl-fme*',
                                        'bitstream_id'))
         if paths and len(paths) >= 1:
             with open(paths[0], 'r') as fd:

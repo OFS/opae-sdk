@@ -29,9 +29,9 @@
 #include <cstdio>
 #include <cstring>
 #include <netinet/ether.h>
-#include "test_afu.h"
+#include "afu_test.h"
 
-using namespace opae::app;
+using test_command = opae::afu_test::command;
 
 #define INVALID_MAC 0xffffffffffffffffULL
 
@@ -81,7 +81,7 @@ public:
     else
       cmd += std::string(" loopback off");
     run_process(cmd);
-    usleep(1000);
+    usleep(1000000);
   }
 
   template <typename X>

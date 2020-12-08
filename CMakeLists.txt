@@ -40,7 +40,7 @@ option(OPAE_BUILD_LEGACY "Enable building of OPAE legacy tools" OFF)
 mark_as_advanced(OPAE_BUILD_LEGACY)
 
 if(OPAE_BUILD_LEGACY)
-    option(OPAE_LEGACY_TAG "Desired branch for opae-legacy" master)
+    set(OPAE_LEGACY_TAG "master" CACHE STRING "Desired branch for opae-legacy")
     mark_as_advanced(OPAE_LEGACY_TAG)
 endif(OPAE_BUILD_LEGACY)
 
@@ -60,10 +60,15 @@ endif()
 ############################################################################
 opae_add_subdirectory(opae-libs)
 opae_add_subdirectory(external)
+opae_add_subdirectory(afu-test)
 opae_add_subdirectory(platforms)
 opae_add_subdirectory(tools)
 opae_add_subdirectory(samples)
 opae_add_subdirectory(python)
+
+if (PLATFORM_SUPPORTS_VFIO)
+    opae_add_subdirectory(plugins/vfio)
+endif()
 
 if(OPAE_BUILD_TESTS)
     enable_testing()
@@ -76,9 +81,11 @@ endif()
 option(OPAE_BUILD_SPHINX_DOC "Enable building of Sphinx documentation." OFF)
 mark_as_advanced(OPAE_BUILD_SPHINX_DOC)
 
-if (DOXYGEN_FOUND)
+if(DOXYGEN_FOUND)
     add_subdirectory(doc)
-endif()
+else(DOXYGEN_FOUND)
+    message(STATUS "Documentation cannot be built without doxygen")
+endif(DOXYGEN_FOUND)
 
 ############################################################################
 ## Packaging ###############################################################
@@ -98,7 +105,7 @@ set(CPACK_PACKAGE_VERSION_MAJOR "${OPAE_VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${OPAE_VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${OPAE_VERSION_REVISION}")
 set(CPACK_PACKAGE_VERSION ${OPAE_VERSION})
-set(CPACK_PACKAGE_RELEASE 1)
+set(CPACK_PACKAGE_RELEASE 2)
 set(CPACK_PACKAGE_CONTACT "opae@lists.01.org")
 set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 # Hashing the package components
@@ -149,7 +156,12 @@ set(CPACK_COMPONENTS_ALL
 	samplesrc
 	opaeclib
 	opaecxxcorelib
+	afutest
 	opaetoolslibs
+	vfiolib
+	vfiotest
+	uiolib
+	uiotest
 	opaecxxutils
 	opaecxxlib
 	opaecxxnlb
@@ -166,6 +178,10 @@ define_pkg(tools
   COMPONENTS
   toolfpgaconf
   opaeboardlib
+  vfiolib
+  vfiotest
+  uiolib
+  uiotest
   toolargsfilter
   toolfpgainfo
   toolfpgametrics
@@ -240,6 +256,7 @@ define_pkg(devel
   opaeclib
   opaecxxcorelib
   opaetoolslibs
+  afutest
   licensefile
   GROUP "libs"
   DISPLAY_NAME "opae-libs"

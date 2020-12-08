@@ -135,12 +135,12 @@ handle.h
 .. doxygenfile:: include/opae/cxx/core/handle.h
 
 shared_buffer.h
---------
+---------------
 
 .. doxygenfile:: include/opae/cxx/core/shared_buffer.h
 
 errors.h
--------
+--------
 
 .. doxygenfile:: include/opae/cxx/core/errors.h
 
@@ -150,7 +150,7 @@ events.h
 .. doxygenfile:: include/opae/cxx/core/events.h
 
 sysobject.h
--------
+-----------
 
 .. doxygenfile:: include/opae/cxx/core/sysobject.h
 
@@ -175,7 +175,7 @@ Misc
 The `version` class wraps the OPAE C version API.
 
 version.h
---------
+---------
 
 .. doxygenfile:: include/opae/cxx/core/version.h
 

@@ -53,6 +53,7 @@
 // No. of Patterns
 #define PATTERN_LENGTH 32
 #define MIN_PAYLOAD_LEN 64
+#define MAX_PAYLOAD_LEN  4 * 1024U * 1024U * 1024U
 #define MAX_DECIM_FACTOR (0xFFFF)
 #define CONFIG_UNINIT (0)
 #define BEAT_SIZE (64) // bytes

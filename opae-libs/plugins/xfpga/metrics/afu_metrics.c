@@ -158,10 +158,11 @@ fpga_result get_afu_metric_value(fpga_handle handle,
 		if (metric_num == _fpga_enum_metric->metric_num) {
 
 			result = xfpga_fpgaReadMMIO64(handle, 0, _fpga_enum_metric->mmio_offset, &metric_csr.csr);
-
-				fpga_metric->value.ivalue = metric_csr.value;
-				result = FPGA_OK;
-
+			if (result != FPGA_OK) {
+				OPAE_ERR("Failed to get metric");
+				break;
+			}
+			fpga_metric->value.ivalue = metric_csr.value;
 		}
 
 	}
