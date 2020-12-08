@@ -6,71 +6,71 @@ on:
 name: Create Release
 jobs:
   build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+    - name: Get Release Version
+      run: |
+        release=$(echo ${{ github.ref }} | tr -d v)
+        echo "release=$release" >> $GITHUB_ENV
     - name: Create Release
-      runs-on: ubuntu-latest
-      steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-      - name: Get Release Version
-        run: |
-          release=$(echo ${{ github.ref }} | tr -d v)
-          echo "release=$release" >> $GITHUB_ENV
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ env.release }}
-          body: |
-            Open Programmable Acceleration Engine (OPAE) ${{ env.release }} Release Notes
-            ----------------------------------------------------------------------------------------------------------------------
-            OPAE ${{ env.release }} release provides SDK, tools, and Linux kernel driver.  The main feature of this release is to support Intel® FPGA Programmable Acceleration Card N3000 series.
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: ${{ env.release }}
+        body: |
+          Open Programmable Acceleration Engine (OPAE) ${{ env.release }} Release Notes
+          ----------------------------------------------------------------------------------------------------------------------
+          OPAE ${{ env.release }} release provides SDK, tools, and Linux kernel driver.  The main feature of this release is to support Intel® FPGA Programmable Acceleration Card N3000 series.
 
-            System Compatibility
-            ----------------------------------
-            - Hardware: Tightly coupled FPGA products and programmable FPGA acceleration cards for Intel(R) Xeon(R) processors:
-              o Intel® FPGA Programmable Acceleration Card N3000-2 Production Release
-              o Intel® FPGA Programmable Acceleration Card N3000-V Production Release
-              o Intel® FPGA Programmable Acceleration Card N3000-3 Production Release
-            - Operating System: Tested on Fedora 31 with Linux Kernel 5.8 version.
+          System Compatibility
+          ----------------------------------
+          - Hardware: Tightly coupled FPGA products and programmable FPGA acceleration cards for Intel(R) Xeon(R) processors:
+            o Intel® FPGA Programmable Acceleration Card N3000-2 Production Release
+            o Intel® FPGA Programmable Acceleration Card N3000-V Production Release
+            o Intel® FPGA Programmable Acceleration Card N3000-3 Production Release
+          - Operating System: Tested on Fedora 31 with Linux Kernel 5.8 version.
 
-              Major Changes from X.Y.Z to ${{ env.release }}
-            -------------------------------------------------------
-            - Changes go here...
+            Major Changes from X.Y.Z to ${{ env.release }}
+          -------------------------------------------------------
+          - Changes go here...
 
-              Source Code
-            ----------------------------------
-            - FPGA DFL Linux driver source code:  tag  ${{ env.release }}
-              o https://github.com/OPAE/linux-dfl/tree/fpga-upstream-dev-5.8.0
+            Source Code
+          ----------------------------------
+          - FPGA DFL Linux driver source code:  tag  ${{ env.release }}
+            o https://github.com/OPAE/linux-dfl/tree/fpga-upstream-dev-5.8.0
 
-            - SDK and tools source code:  tag ${{ env.release }}-1
-              o https://github.com/OPAE/opae-sdk/tree/release/${{ env.release }}
-              o https://github.com/OPAE/opae-libs/tree/release/${{ env.release }}
-              o https://github.com/OPAE/opae-legacy/tree/release/${{ env.release }}
-              o https://github.com/OPAE/opae-test/tree/release/${{ env.release }}
+          - SDK and tools source code:  tag ${{ env.release }}-1
+            o https://github.com/OPAE/opae-sdk/tree/release/${{ env.release }}
+            o https://github.com/OPAE/opae-libs/tree/release/${{ env.release }}
+            o https://github.com/OPAE/opae-legacy/tree/release/${{ env.release }}
+            o https://github.com/OPAE/opae-test/tree/release/${{ env.release }}
 
-              Notes/Known Issues
-            ----------------------------------
-            - FPGA DFL kernel driver upstreaming to Linux kernel is ongoing.
-            - OPAE ${{ env.release }} is not be compatible with Intel production FPGA driver.
-          draft: true
-          prerelease: false
-      - name: Create tarball
-        run: |
-          git clone https://github.com/pybind11/pybind11.git external/pybind11 -b v.2.6.0
-          ./scripts/create-tarball.sh opae-$release
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ../opae-${{ env.release }}.tar.gz
-          asset_name: opae-${{ env.release }}.tar.gz
-          asset_content_type: application/gzip
+            Notes/Known Issues
+          ----------------------------------
+          - FPGA DFL kernel driver upstreaming to Linux kernel is ongoing.
+          - OPAE ${{ env.release }} is not be compatible with Intel production FPGA driver.
+        draft: true
+        prerelease: false
+    - name: Create tarball
+      run: |
+        git clone https://github.com/pybind11/pybind11.git external/pybind11 -b v.2.6.0
+        ./scripts/create-tarball.sh opae-$release
+    - name: Upload Release Asset
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ../opae-${{ env.release }}.tar.gz
+        asset_name: opae-${{ env.release }}.tar.gz
+        asset_content_type: application/gzip
 
 
 
