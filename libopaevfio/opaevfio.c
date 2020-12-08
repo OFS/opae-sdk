@@ -37,6 +37,7 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/mman.h>
+#include <regex.h>
 
 #include <opae/vfio.h>
 
@@ -222,18 +223,30 @@ STATIC void opae_vfio_device_destroy(struct opae_vfio_device *d)
 
 STATIC int opae_vfio_device_init(struct opae_vfio_device *d,
 				 int group_fd,
-				 const char *pciaddr)
+				 const char *pciaddr,
+				 const char *token)
 {
 	struct vfio_region_info region_info;
 	struct vfio_device_info device_info;
 	uint32_t i;
 	struct opae_vfio_device_region **rlist = &d->regions;
+	char arg[256];
 
-	d->device_fd = ioctl(group_fd, VFIO_GROUP_GET_DEVICE_FD, pciaddr);
+	if (token) {
+		if (snprintf(arg, sizeof(arg),
+			     "%s vf_token=%s", pciaddr, token) < 0) {
+			ERR("snprintf failed\n");
+			return 1;
+		}
+	} else {
+		memcpy(arg, pciaddr, strlen(pciaddr) + 1);
+	}
+
+	d->device_fd = ioctl(group_fd, VFIO_GROUP_GET_DEVICE_FD, arg);
 	if (d->device_fd < 0) {
 		ERR("ioctl(%d, VFIO_GROUP_GET_DEVICE_FD, \"%s\")\n",
 		    group_fd, pciaddr);
-		return 1;
+		return 2;
 	}
 
 	memset(&region_info, 0, sizeof(region_info));
@@ -243,7 +256,7 @@ STATIC int opae_vfio_device_init(struct opae_vfio_device *d,
 	if (ioctl(d->device_fd, VFIO_DEVICE_GET_REGION_INFO, &region_info)) {
 		ERR("ioctl(%d, VFIO_DEVICE_GET_REGION_INFO, &region_info)\n",
 		    d->device_fd);
-		return 2;
+		return 3;
 	}
 
 	d->device_config_offset = region_info.offset;
@@ -254,7 +267,7 @@ STATIC int opae_vfio_device_init(struct opae_vfio_device *d,
 	if (ioctl(d->device_fd, VFIO_DEVICE_GET_INFO, &device_info)) {
 		ERR("ioctl(%d, VFIO_DEVICE_GET_INFO, &device_info)\n",
 		    d->device_fd);
-		return 3;
+		return 4;
 	}
 
 	d->device_num_regions = device_info.num_regions;
@@ -731,7 +744,8 @@ STATIC char * opae_vfio_group_for(const char *pciaddr)
 }
 
 STATIC int opae_vfio_init(struct opae_vfio *v,
-			  const char *pciaddr)
+			  const char *pciaddr,
+			  const char *token)
 {
 	int res = 0;
 	pthread_mutexattr_t mattr;
@@ -800,7 +814,10 @@ STATIC int opae_vfio_init(struct opae_vfio *v,
 		goto out_destroy_container;
 	}
 
-	res = opae_vfio_device_init(&v->device, v->group.group_fd, pciaddr);
+	res = opae_vfio_device_init(&v->device,
+				    v->group.group_fd,
+				    pciaddr,
+				    token);
 	if (res)
 		goto out_destroy_container;
 
@@ -834,7 +851,47 @@ int opae_vfio_open(struct opae_vfio *v,
 		return 1;
 	}
 
-	return opae_vfio_init(v, pciaddr);
+	return opae_vfio_init(v, pciaddr, NULL);
+}
+
+#define GUID_RE_PATTERN "[0-9a-fA-F]{8}-" \
+                        "[0-9a-fA-F]{4}-" \
+                        "[0-9a-fA-F]{4}-" \
+                        "[0-9a-fA-F]{4}-" \
+                        "[0-9a-fA-F]{12}"
+
+int opae_vfio_secure_open(struct opae_vfio *v,
+			  const char *pciaddr,
+			  const char *token)
+{
+	int reg_res;
+	regex_t re;
+	regmatch_t matches[2];
+
+	if (!v || !pciaddr || !token) {
+		ERR("NULL param\n");
+		return 1;
+	}
+
+	memset(&matches, 0, sizeof(matches));
+	reg_res = regcomp(&re, GUID_RE_PATTERN, REG_EXTENDED);
+
+	if (reg_res) {
+		ERR("compiling GUID regex\n");
+		return 2;
+	}
+
+	reg_res = regexec(&re, token, 2, matches, 0);
+	if (reg_res) {
+		char err[128] = { 0, };
+		regerror(reg_res, &re, err, sizeof(err));
+		ERR("invalid GUID: %s [%s]\n", token, err);
+		regfree(&re);
+		return 3;
+	}
+
+	regfree(&re);
+	return opae_vfio_init(v, pciaddr, token);
 }
 
 int opae_vfio_region_get(struct opae_vfio *v,
