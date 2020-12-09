@@ -12,9 +12,7 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v2
     - name: Get Release Version
-      run: |
-        release=$(echo ${{ github.ref }} | tr -d v)
-        echo "release=$release" >> $GITHUB_ENV
+      run: echo "release=${GITHUB_REF##*/v}" >> $GITHUB_ENV
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
