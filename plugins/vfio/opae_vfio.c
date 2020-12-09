@@ -219,6 +219,10 @@ pci_device_t *get_pci_device(char addr[PCIADDR_MAX])
 	pci_device_t *p = find_pci_device(addr);
 	if (p) return p;
 	p = (pci_device_t*)malloc(sizeof(pci_device_t));
+	if (!p) {
+		ERR("Failed to allocate memory for pci_device_t");
+		return NULL;
+	}
 	memset(p, 0, sizeof(pci_device_t));
 
 	strncpy(p->addr, addr, PCIADDR_MAX-1);
@@ -289,6 +293,10 @@ vfio_token *clone_token(vfio_token *src)
 	ASSERT_NOT_NULL_RESULT(src, NULL);
 	if (src->magic != VFIO_TOKEN_MAGIC) return NULL;
 	vfio_token *token = (vfio_token *)malloc(sizeof(vfio_token));
+	if (!token) {
+		ERR("Failed to allocate memory for vfio_token");
+		return NULL;
+	}
 	memcpy(token, src, sizeof(vfio_token));
 	return token;
 }
@@ -348,15 +356,28 @@ STATIC vfio_pair_t *open_vfio_pair(const char *addr)
 	char phys_device[PCIADDR_MAX];
 	char secret[GUIDSTR_MAX];
 	vfio_pair_t *pair = malloc(sizeof(vfio_pair_t));
+	if (!pair) {
+		OPAE_ERR("Failed to allocate memory for vfio_pair_t");
+		return NULL;
+	}
 	memset(pair, 0, sizeof(vfio_pair_t));
 
 	pair->device = malloc(sizeof(struct opae_vfio));
+	if (!pair->device) {
+		OPAE_ERR("Failed to allocate memory for opae_vfio struct");
+		free(pair);
+		return NULL;
+	}
 	memset(pair->device, 0, sizeof(struct opae_vfio));
 
 	if (!read_pci_link(addr, "physfn", phys_device, PCIADDR_MAX)) {
 		uuid_generate(pair->secret);
 		uuid_unparse(pair->secret, secret);
 		pair->physfn = malloc(sizeof(struct opae_vfio));
+		if (!pair->physfn) {
+			OPAE_ERR("Failed to allocate memory for opae_vfio");
+			goto out_destroy;
+		}
 		memset(pair->physfn, 0, sizeof(struct opae_vfio));
 		if (opae_vfio_secure_open(pair->physfn, phys_device, secret)) {
 			ERR("error opening physfn: %s", phys_device);
@@ -828,6 +849,10 @@ vfio_token *get_token(const pci_device_t *p, uint32_t region, int type)
 	vfio_token *t = find_token(p, region);
 	if (t) return t;
 	t = (vfio_token*)malloc(sizeof(vfio_token));
+	if (!t) {
+		ERR("Failed to allocate memory for vfio_token");
+		return NULL;
+	}
 	memset(t, 0, sizeof(vfio_token));
 	t->magic = VFIO_TOKEN_MAGIC;
 	t->device = p;
@@ -950,6 +975,10 @@ fpga_result vfio_fpgaCloneToken(fpga_token src, fpga_token *dst)
 	}
 
 	_dst = malloc(sizeof(vfio_token));
+	if (!_dst) {
+		ERR("Failed to allocate memory for vfio_token");
+		return FPGA_NO_MEMORY;
+	}
 	memcpy(_dst, _src, sizeof(vfio_token));
 	*dst = _dst;
 	return FPGA_OK;
