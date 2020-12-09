@@ -92,11 +92,12 @@ cd _build
 cmake .. -DOPAE_BUILD_LEGACY=ON  -DOPAE_BUILD_TESTS=ON
 
 # Create source tarball.
-cd "${SDK_DIR}/.."
+cd "${SCRIPT_DIR}"
 
-${SDK_DIR}/scripts/create-tarball.sh opae-${version}
+./create-tarball.sh opae-${version}
 
-mv opae-${version}.tar.gz "${RPMBUILD_DIR}/SOURCES"
+mv ${SDK_DIR}/../opae-${version}.tar.gz "${RPMBUILD_DIR}/SOURCES"
+
 cp "${SDK_DIR}/opae.spec" ${SCRIPT_DIR}
 
 cd "${SCRIPT_DIR}"

@@ -3,7 +3,7 @@
 
 SCRIPT_DIR=`dirname $0`
 SCRIPT_DIR=`realpath $SCRIPT_DIR`
-TOP_DIR=`realpath ${SCRIPT_DIR}/..`
+TOP_DIR=`realpath ${SCRIPT_DIR}/../../..`
 
 # Input is the name of the directory the tarball will
 # be unpacked to.
