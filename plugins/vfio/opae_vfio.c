@@ -62,7 +62,7 @@
 		char *ptr = _p + _m.rm_so;                                     \
 		char *endptr = NULL;                                           \
 		_v = strtoul(ptr, &endptr, _b);                                \
-		if (endptr == ptr) {                             \
+		if (endptr == ptr) {                             	       \
 			OPAE_MSG("error parsing int");                         \
 			goto _l;                                               \
 		}                                                              \
