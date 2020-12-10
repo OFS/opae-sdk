@@ -418,7 +418,8 @@ int walk(pci_device_t *p)
 	// look for legacy FME guids in BAR 0
 	if (opae_vfio_region_get(v, 0, (uint8_t**)&mmio, &size)) {
 		OPAE_ERR("error getting BAR 0");
-		return 1;
+		res = 2;
+		goto close;
 	}
 
 	// get the GUID at offset 0x8
@@ -426,7 +427,7 @@ int walk(pci_device_t *p)
 	res = get_guid(((uint64_t*)mmio)+1, b0_guid);
 	if (res) {
 		OPAE_ERR("error reading guid");
-		return 1;
+		goto close;
 	}
 
 	// walk our known list of FME guids
@@ -436,7 +437,7 @@ int walk(pci_device_t *p)
 		res = uuid_parse(*u, uuid);
 		if (res) {
 			OPAE_ERR("error parsing uuid: %s", *u);
-			return 1;
+			goto close;
 		}
 		if (!uuid_compare(uuid, b0_guid)) {
 			// we found a legacy FME in BAR0, walk it
