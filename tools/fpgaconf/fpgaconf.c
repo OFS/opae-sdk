@@ -81,14 +81,13 @@ struct config {
 		int bus;
 		int device;
 		int function;
-		int socket;
 	} target;
 	char *filename;
 } config = {.verbosity = 0,
 	    .dry_run = false,
 	    .mode = NORMAL,
 	    .flags = 0,
-	    .target = {.segment = -1, .bus = -1, .device = -1, .function = -1, .socket = -1},
+	    .target = {.segment = -1, .bus = -1, .device = -1, .function = -1 },
 	    .filename = NULL };
 
 /*
@@ -120,8 +119,8 @@ void help(void)
 	       "\n"
 	       "Usage:\n"
 	       //"        fpgaconf [-hvnAIQ] [-B <bus>] [-D <device>] [-F
-	       //<function>] [-S <socket-id>] <gbs>\n"
-	       "        fpgaconf [-hvn] [-B <bus>] [-D <device>] [-F <function>] [-S <socket-id>] <gbs>\n"
+	       //<function>]  <gbs>\n"
+	       "        fpgaconf [-hvn] [-B <bus>] [-D <device>] [-F <function>] <gbs>\n"
 	       "\n"
 	       "                -h,--help           Print this help\n"
 	       "                -V,--verbose        Increase verbosity\n"
@@ -132,7 +131,6 @@ void help(void)
 	       "                -B,--bus            Set target bus number\n"
 	       "                -D,--device         Set target device number\n"
 	       "                -F,--function       Set target function number\n"
-	       "                -S,--socket-id      Set target socket number\n"
 	       "                -v,--version        Print version info and exit\n"
 	       /* "                -A,--auto           Automatically choose
 		  target slot if\n" */
@@ -162,7 +160,6 @@ int parse_args(int argc, char *argv[])
 		{"bus",         required_argument, NULL, 'B'},
 		{"device",      required_argument, NULL, 'D'},
 		{"function",    required_argument, NULL, 'F'},
-		{"socket-id",   required_argument, NULL, 'S'},
 		{"force",       no_argument,       NULL, 0xf},
 		{"skip-usrclk", no_argument,       NULL, 0x5},
 		{"version",     no_argument,       NULL, 'v'},
@@ -252,19 +249,6 @@ int parse_args(int argc, char *argv[])
 				(int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
 				fprintf(stderr, "invalid function: %s\n",
-					tmp_optarg);
-				return -1;
-			}
-			break;
-
-		case 'S': /* socket */
-			if (NULL == tmp_optarg)
-				break;
-			endptr = NULL;
-			config.target.socket =
-				(int)strtoul(tmp_optarg, &endptr, 0);
-			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
-				fprintf(stderr, "invalid socket: %s\n",
 					tmp_optarg);
 				return -1;
 			}
@@ -400,10 +384,6 @@ int print_interface_id(fpga_guid actual_interface_id)
 		ON_ERR_GOTO(res, out_destroy, "setting function");
 	}
 
-	if (-1 != config.target.socket) {
-		res = fpgaPropertiesSetSocketID(filter, config.target.socket);
-		ON_ERR_GOTO(res, out_destroy, "setting socket id");
-	}
 
 	res = fpgaEnumerate(&filter, 1, &fpga_token, 1, &num_matches);
 	ON_ERR_GOTO(res, out_destroy, "enumerating FPGAs");
@@ -481,11 +461,6 @@ int find_fpga(fpga_guid interface_id, fpga_token *fpga)
 	if (-1 != config.target.function) {
 		res = fpgaPropertiesSetFunction(filter, config.target.function);
 		ON_ERR_GOTO(res, out_destroy, "setting function");
-	}
-
-	if (-1 != config.target.socket) {
-		res = fpgaPropertiesSetSocketID(filter, config.target.socket);
-		ON_ERR_GOTO(res, out_destroy, "setting socket id");
 	}
 
 	res = fpgaEnumerate(&filter, 1, fpga, 1, &num_matches);
