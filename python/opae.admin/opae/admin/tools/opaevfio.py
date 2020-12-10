@@ -79,6 +79,8 @@ def parse_args():
                         help='userid to assign during init')
     parser.add_argument('-g', '--group', default='root',
                         help='groupid to assign during init')
+    parser.add_argument('-n', '--no-sriov', default=False, action='store_true',
+                        help='do not enable SR-IOV for vfio-pci')
     parser.add_argument('-v', '--version', action='version',
                         version='%(prog)s {}'.format(OPAEVFIO_VERSION),
                         help='display version information and exit')
@@ -139,19 +141,21 @@ def bind_driver(driver, addr):
             outf.write(addr)
 
 
-def load_driver(driver):
+def load_driver(driver, *args):
     """Load a Linux kernel module via modprobe.
 
     driver - name of the driver to load.
+    *args - additional module options for modprobe, if any.
     """
-    return subprocess.call(['modprobe', driver])
+    return subprocess.call(['modprobe', driver, *args])
 
 
-def initialize_vfio(addr, new_owner):
+def initialize_vfio(addr, new_owner, enable_sriov):
     """Bind a PCIe device and prepare it for use with vfio-pci.
 
     addr - canonical PCIe address.
     new_owner - user:group for the owner of the resulting vfio device.
+    enable_sriov - whether to enable SR-IOV when loading vfio-pci.
 
     Unbind the given PCIe device from its current driver, re-assigning it
     to vfio-pci. Discover the newly-created iommu group, and set he device
@@ -172,7 +176,10 @@ def initialize_vfio(addr, new_owner):
         print('Unbinding {} from {}'.format(msg, driver))
         unbind_driver(driver, addr)
 
-    load_driver('vfio-pci')
+    if enable_sriov:
+        load_driver('vfio-pci', 'enable_sriov=1')
+    else:
+        load_driver('vfio-pci')
 
     print('Binding {} to vfio-pci'.format(msg))
     new_id = '/sys/bus/pci/drivers/vfio-pci/new_id'
@@ -246,7 +253,8 @@ def main():
         sys.exit(1)
 
     if args.init:
-        initialize_vfio(addr, '{}:{}'.format(args.user, args.group))
+        initialize_vfio(addr, '{}:{}'.format(args.user, args.group),
+                        not args.no_sriov)
     elif args.release:
         release_vfio(addr, args.driver)
     else:

@@ -531,18 +531,18 @@ int parse_sec_args(int argc, char *argv[])
 
 		switch (getopt_ret) {
 		case 'h':   /* help */
-			mac_help();
+			sec_help();
 			return -1;
 
 		case ':':   /* missing option argument */
 			fprintf(stderr, "Missing option argument\n");
-			mac_help();
+			sec_help();
 			return -1;
 
 		case '?':
 		default:    /* invalid option */
 			fprintf(stderr, "Invalid cmdline options\n");
-			mac_help();
+			sec_help();
 			return -1;
 		}
 	}
