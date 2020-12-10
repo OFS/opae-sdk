@@ -229,10 +229,10 @@ TEST_P(fpgaconf_c_p, parse_args1) {
   char nine[20];
   char ten[20];
   char eleven[20];
+  char twelve[20];
+  char thirteen[20];
   char fourteen[20];
-  char fifteen[20];
-  char sixteen[20];
-  char seventeen[30];
+  char fifteen[30];
   strcpy(zero, "fpgaconf");
   strcpy(one, "-V");
   strcpy(two, "-n");
@@ -245,15 +245,15 @@ TEST_P(fpgaconf_c_p, parse_args1) {
   strcpy(nine, "0xab");
   strcpy(ten, "-F");
   strcpy(eleven, "3");
-  strcpy(fourteen, "-A");
-  strcpy(fifteen, "-I");
-  strcpy(sixteen, "--skip-usrclk");
-  strcpy(seventeen, tmpfilename);
+  strcpy(twelve, "-A");
+  strcpy(thirteen, "-I");
+  strcpy(fourteen, "--skip-usrclk");
+  strcpy(fifteen, tmpfilename);
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten, eleven, fourteen,
-                   fifteen, sixteen, seventeen };
+                   ten, eleven, twelve,
+                   thirteen, fourteen, fifteen };
 
   EXPECT_EQ(parse_args(16, argv), 0);
   EXPECT_EQ(config.verbosity, 1);
