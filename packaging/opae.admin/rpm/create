@@ -110,4 +110,4 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-mv "${RPMBUILD_DIR}"/RPMS/noarch/python3-opae.admin*.rpm "${SCRIPT_DIR}"
+mv "${RPMBUILD_DIR}"/RPMS/noarch/opae.admin*.rpm "${SCRIPT_DIR}"

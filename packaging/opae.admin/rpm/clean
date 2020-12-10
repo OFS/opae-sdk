@@ -31,4 +31,4 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 RPMBUILD_DIR="${SCRIPT_DIR}/rpmbuild"
 
 rm -rf "${RPMBUILD_DIR}"
-rm -f "${SCRIPT_DIR}"/python3-opae.admin*.rpm
+rm -f "${SCRIPT_DIR}"/opae.admin*.rpm
