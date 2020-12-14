@@ -282,7 +282,6 @@ int run_mmlink(fpga_handle  port_handle,
 	value = value >> FPGA_PORT_STP_DFH_REVBIT;
 
 
-  remote_dbg *srv = nullptr;
   switch (value) {
     case MMLINK_LEGACY:
       srv = new legacy_dbg();
