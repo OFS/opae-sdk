@@ -70,11 +70,12 @@ class _READER_BASE(object):
         log.debug(self.bitstream_type)
         self.root_hash = common_util.BYTE_ARRAY()
         self.s10_root_hash = common_util.BYTE_ARRAY()
-        cinfo = database.get_curve_info_from_name("secp256r1")
+        cinfo = database.get_curve_info_from_name("secp256r1" if args.SHA256 else "secp384r1")
         self.curve_magic_num = cinfo.curve_magic_num
         self.dc_curve_magic_num = cinfo.dc_curve_magic_num
         self.dc_sig_hash_magic_num = cinfo.dc_sig_hash_magic_num
         self.sig_magic_num = cinfo.sha_magic_num
+        self.sigsize = cinfo.size
 
     def is_Darby_PR(self, contents, offset):
         # TODO: Write function to read dword and determine RC or VC
@@ -172,12 +173,12 @@ class _READER_BASE(object):
         )
         root_body.append_dword(0xFFFFFFFF)
 
-        root_body.append_data(pub_key.data[:32])
+        root_body.append_data(pub_key.data[:self.sigsize])
         # Offset 0x00C - 0x03B key X
         while root_body.size() < 0x3C:
             root_body.append_byte(0)
 
-        root_body.append_data(pub_key.data[-32:])
+        root_body.append_data(pub_key.data[-self.sigsize:])
         # Offset 0x03C - 0x006B key Y
         # Offset 0x06C - 0x07F (reserved)
         while root_body.size() < 0x80:
@@ -187,11 +188,17 @@ class _READER_BASE(object):
         root_entry.append_dword(database.ROOT_ENTRY_MAGIC_NUM)
         root_entry.append_data(root_body.data)
 
-        log.info("Calculating Root Entry SHA256")
-        sha = sha256(root_body.data).digest()
-        self.root_hash.append_data(sha)
-        sha = sha256(pub_key.data).digest()
-        self.s10_root_hash.append_data(sha)
+        log.info("Calculating Root Entry SHA")
+        if self.args.SHA256:
+            sha = sha256(root_body.data).digest()
+            self.root_hash.append_data(sha)
+            sha = sha256(pub_key.data).digest()
+            self.s10_root_hash.append_data(sha)
+        else:
+            sha = sha384(root_body.data).digest()
+            self.root_hash.append_data(sha)
+            sha = sha384(pub_key.data).digest()
+            self.s10_root_hash.append_data(sha)
         del sha
 
         log.debug("".join("{:02x} ".format(x) for x in root_entry.data))
@@ -215,8 +222,8 @@ class _READER_BASE(object):
         log.info("Starting Root Key Entry generation for DC")
         root_entry = common_util.BYTE_ARRAY()
         xy_body = common_util.BYTE_ARRAY()
-        xy_body.append_data(pub_key.data[:32])
-        xy_body.append_data(pub_key.data[-32:])
+        xy_body.append_data(pub_key.data[:self.sigsize])
+        xy_body.append_data(pub_key.data[-self.sigsize:])
 
         log.info("Calculating Root Entry SHA256 for DC PR")
         sha = sha256(pub_key.data).digest()
@@ -284,12 +291,12 @@ class _READER_BASE(object):
         csk_body.append_dword(self.pub_CSK_perm)
         csk_body.append_dword(self.pub_CSK_id)
 
-        csk_body.append_data(CSK_pub_key.data[:32])
+        csk_body.append_data(CSK_pub_key.data[:self.sigsize])
         # Offset 0x00C - 0x03B key X
         while csk_body.size() < 0x3C:
             csk_body.append_byte(0)
 
-        csk_body.append_data(CSK_pub_key.data[-32:])
+        csk_body.append_data(CSK_pub_key.data[-self.sigsize:])
         # Offset 0x03C - 0x006B key Y
         # Offset 0x06C - 0x07F (reserved)
         while csk_body.size() < 0x80:
@@ -300,19 +307,19 @@ class _READER_BASE(object):
         csk_entry.append_data(csk_body.data)
         csk_entry.append_dword(self.sig_magic_num)
 
-        log.info("Calculating Code Signing Key Entry SHA256")
+        log.info("Calculating Code Signing Key Entry SHA")
         if root_key is not None:
-            sha = sha256(csk_body.data).digest()
+            sha = sha256(csk_body.data).digest() if self.args.SHA256 else sha384(csk_body.data).digest()
 
             rs = self.hsm_manager.sign(sha, root_key)
             del sha
 
-            csk_entry.append_data(rs.data[:32])
+            csk_entry.append_data(rs.data[:self.sigsize])
             # Offset 0x088 - 0x0B7 signature R
             while csk_entry.size() < 0xB8:
                 csk_entry.append_byte(0)
 
-            csk_entry.append_data(rs.data[-32:])
+            csk_entry.append_data(rs.data[-self.sigsize:])
 
             del rs
 
@@ -333,9 +340,9 @@ class _READER_BASE(object):
 
         # Reserved if no enablement (write x size)
         # SHA256 is 32 bytes
-        csk_body.append_dword(int(0x20))
+        csk_body.append_dword(int(self.sigsize))
         # Reserved if no enablement (write y size)
-        csk_body.append_dword(int(0x20))
+        csk_body.append_dword(int(self.sigsize))
 
         # Public key curve magic
         csk_body.append_dword(self.dc_curve_magic_num)
@@ -349,13 +356,13 @@ class _READER_BASE(object):
         csk_body.append_dword(self.pub_CSK_id)
 
         # Public Key XY
-        csk_body.append_data(CSK_pub_key.data[:32])
+        csk_body.append_data(CSK_pub_key.data[:self.sigsize])
         # TODO: REMOVE THIS if no padding needed
         # Offset 0x018 - 0x048 key x
         # while csk_body.size() < 0x48:
         #    csk_body.append_byte(0)
 
-        csk_body.append_data(CSK_pub_key.data[-32:])
+        csk_body.append_data(CSK_pub_key.data[-self.sigsize:])
         # TODO: REMOVE THIS if no padding needed
         # Offset 0x048 - 0x078 key Y
         # while csk_body.size() < 0x78:
@@ -388,21 +395,21 @@ class _READER_BASE(object):
         # DC Signature Hash Magic
         csk_entry.append_dword(self.dc_sig_hash_magic_num)
 
-        log.info("Inserting Code Signing Key Entry SHA256")
+        log.info("Inserting Code Signing Key Entry SHA")
 
         # Calculate the signature and append to the block
         if root_key is not None:
-            sha = sha256(csk_body.data).digest()
+            sha = sha256(csk_body.data).digest() if self.args.SHA256 else sha384(csk_body.data).digest()
 
             rs = self.hsm_manager.sign(sha, root_key)
             del sha
 
-            csk_entry.append_data(rs.data[:32])
-            csk_entry.append_data(rs.data[-32:])
+            csk_entry.append_data(rs.data[:self.sigsize])
+            csk_entry.append_data(rs.data[-self.sigsize:])
 
             del rs
         else:
-            for i in range(32):
+            for i in range(self.sigsize):
                 csk_entry.append_dword(0)
 
         log.info("Code Signing Key Entry done")
@@ -416,19 +423,19 @@ class _READER_BASE(object):
 
         b0_entry.append_dword(self.sig_magic_num)
 
-        log.info("Calculating Block 0 Entry SHA256")
+        log.info("Calculating Block 0 Entry SHA")
         if CSK_key is not None:
-            sha = sha256(block0.data).digest()
+            sha = sha256(block0.data).digest() if self.args.SHA256 else sha384(block0.data).digest()
 
             rs = self.hsm_manager.sign(sha, CSK_key)
             del sha
 
-            b0_entry.append_data(rs.data[:32])
+            b0_entry.append_data(rs.data[:self.sigsize])
             # Offset 0x008 - 0x037 signature R
             while b0_entry.size() < 0x38:
                 b0_entry.append_byte(0)
 
-            b0_entry.append_data(rs.data[-32:])
+            b0_entry.append_data(rs.data[-self.sigsize:])
 
             del rs
         # TODO: Check these offset values.  v5 says 0x38 - 0x58
@@ -463,10 +470,10 @@ class _READER_BASE(object):
         b0_entry.append_dword(database.DC_SIGNATURE_MAGIC_NUM)
         # R size (x)
         # b0_entry.append_dword(int(rs.size()/2))
-        b0_entry.append_dword(0x20)
+        b0_entry.append_dword(self.sigsize)
         # S size (x)
         # b0_entry.append_dword(int(rs.size()/2))
-        b0_entry.append_dword(0x20)
+        b0_entry.append_dword(self.sigsize)
         # Signature hash Magic
         # TODO: Right now only supports secp256r1
         b0_entry.append_dword(self.dc_sig_hash_magic_num)
@@ -476,8 +483,8 @@ class _READER_BASE(object):
             sha = sha256(block0.data).digest()
             rs = self.hsm_manager.sign(sha, CSK_key)
             del sha
-            b0_entry.append_data(rs.data[:32])
-            b0_entry.append_data(rs.data[-32:])
+            b0_entry.append_data(rs.data[:self.sigsize])
+            b0_entry.append_data(rs.data[-self.sigsize:])
             del rs
 
         while b0_entry.size() < 0x68:
@@ -784,13 +791,13 @@ class UPDATE_reader(_READER_BASE):
             sig["root_hash"] = " ".join("0x{:02x}".format(x)
                                         for x in self.root_hash.data)
             sig["root_pub_key-X"] = " ".join(
-                "0x{:02x}".format(x) for x in self.pub_root_key.data[:32])
+                "0x{:02x}".format(x) for x in self.pub_root_key.data[:self.sigsize])
             sig["root_pub_key-Y"] = " ".join(
-                "0x{:02x}".format(x) for x in self.pub_root_key.data[-32:])
+                "0x{:02x}".format(x) for x in self.pub_root_key.data[-self.sigsize:])
             sig["CSK_pub_key-X"] = " ".join("0x{:02x}".format(x)
-                                            for x in self.pub_CSK.data[:32])
+                                            for x in self.pub_CSK.data[:self.sigsize])
             sig["CSK_pub_key-Y"] = " ".join("0x{:02x}".format(x)
-                                            for x in self.pub_CSK.data[-32:])
+                                            for x in self.pub_CSK.data[-self.sigsize:])
             j_data["signature"] = sig
             log.debug(json.dumps(j_data, sort_keys=True, indent=4))
             mod_json_string.append_data(METADATA_GUID)
