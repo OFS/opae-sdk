@@ -435,7 +435,7 @@ int main(int argc, char *argv[])
  
     std::string line(l);
   
-    if (line.back() == '\n') {
+    if (!line.empty() && line.back() == '\n') {
       line.pop_back();
     }
   

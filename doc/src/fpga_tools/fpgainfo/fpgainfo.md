@@ -2,13 +2,15 @@
 
 ## SYNOPSIS ##
 ```console
-fpgainfo [-h | --help] [-v | --version] [<args>] <command> [<command-args>]
+   fpgainfo [-h] [-B <bus>] [-D <device>] [-F <function>] [--segment <Segment>] {errors,power,temp,fme,port,bmc,mac,phy,security}
+
 ```
+
 
 
 ## DESCRIPTION ##
 fpgainfo displays FPGA information derived from sysfs files. The command argument is one of the following:
-`errors`, `power`, `temp`, `port`, `fme`, `bmc`, `phy` or `mac`.
+`errors`, `power`, `temp`, `port`, `fme`, `bmc`, `phy` or `mac`,`security`.
 Some commands may also have other arguments or options that control their behavior.
 
 For systems with multiple FPGA devices, you can specify the BDF to limit the output to the FPGA resource
@@ -50,6 +52,10 @@ Show information about the PHY integrated in the FPGA, if available.
 
 Show information about the MAC address in ROM attached to the FPGA, if available.
 
+`security`
+
+Show information about the security keys, hashs and flash count, if available.
+
 ## OPTIONAL ARGUMENTS ##
 `--help, -h`
 
@@ -74,9 +80,9 @@ PCIe device number of resource.
 
 PCIe function number of resource.
 
-`--json`
+`--segment`
 
-Display information as JSON string.
+PCIe segment number of resource.
 
 ### ERRORS ARGUMENTS ###
 The first argument to the `errors` command specifies the resource type. It must be one of the following:
@@ -131,6 +137,10 @@ This command clears all errors on all resources:
 This command shows information of the FME on bus 0x5e
 ```console
 ./fpgainfo fme -B 0x5e
+```
+This command shows information of the FPGA security on bus 0x5e
+```console
+./fpgainfo security -B 0x5e
 ```
 
 ## Revision History ##

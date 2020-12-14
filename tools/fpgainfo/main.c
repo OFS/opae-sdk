@@ -186,7 +186,7 @@ void help(void)
 	       "\n"
 	       "Usage:\n"
 	       "        fpgainfo [-h] [-B <bus>] [-D <device>] "
-	       "[-F <function>] [-S <socket-id>] {");
+	       "[-F <function>] [--segment <Segment>] { ");
 	printf("%s", cmd_array[0].command);
 	for (i = 1; i < sizeof(cmd_array) / sizeof(cmd_array[0]); i++) {
 		printf(",%s", cmd_array[i].command);
@@ -197,7 +197,6 @@ void help(void)
 	       "                -B,--bus            Set target bus number\n"
 	       "                -D,--device         Set target device number\n"
 	       "                -F,--function       Set target function number\n"
-	       "                -S,--socket-id      Set target socket number\n"
 	       "                --segment           Set target segment\n"
 	       "\n");
 
