@@ -85,11 +85,13 @@ done
 
 # clone opae legancy and tests
 
-cd "${SDK_DIR}/.."
-rm -rf _build
-mkdir _build
-cd _build
-cmake .. -DOPAE_BUILD_LEGACY=ON  -DOPAE_BUILD_TESTS=ON
+CMAKE_BUILD_DIR="${SDK_DIR}/_build"
+rm -rf ${CMAKE_BUILD_DIR}
+mkdir ${CMAKE_BUILD_DIR}
+
+cmake -S ${SDK_DIR} -B ${CMAKE_BUILD_DIR}  -DOPAE_BUILD_LEGACY=ON  -DOPAE_BUILD_TESTS=ON
+
+#cmake .. -DOPAE_BUILD_LEGACY=ON  -DOPAE_BUILD_TESTS=ON
 
 # Create source tarball.
 cd "${SCRIPT_DIR}"

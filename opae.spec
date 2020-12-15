@@ -9,7 +9,7 @@ Group:          Development/Libraries
 Vendor:         Intel Corporation
 Requires:       uuid, json-c, python3
 URL:            https://github.com/OPAE/%{name}-sdk
-Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-1/%{name}-%{version}.tar.gz
+Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-%{Release}/%{name}-%{version}.tar.gz
 
 
 
@@ -256,7 +256,13 @@ popd
 
 
 %changelog
-* Thu Sep 17 2020  Ananda Ravuri <ananda.ravuri@intel.com> 2.0.0-1
+* Mon Dec 14 2020 The OPAE Dev Team <opae@lists.01.org> - 2.0.0-2
+- fix code review comments
+- fix  codeing style
+- add create tarball script
+- update fedora spec file and tarball generation script
+
+* Thu Sep 17 2020 Ananda Ravuri <ananda.ravuri@intel.com> 2.0.0-1
 - Various Static code scan bug fixes
 - Added support to FPGA Linux kernel Device Feature List (DFL) driver.
 - Added support to PAC card N3000 series.
