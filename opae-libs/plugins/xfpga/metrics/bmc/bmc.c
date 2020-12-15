@@ -571,7 +571,7 @@ fpga_result bmcGetLastPowerdownCause(fpga_token token, char **cause)
 	}
 
 	*cause = strndup((const char *)tmp->message,
-		strnlen((const char *)tmp->message, SYSFS_PATH_MAX));
+		strnlen((const char *)tmp->message, 40));
 
 out:
 	if (tmp) {
