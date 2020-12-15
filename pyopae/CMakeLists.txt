@@ -24,7 +24,7 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-set(PYOPAE_PYBIND11_VERSION "2.2.4")
+set(PYOPAE_PYBIND11_VERSION "2.6.1")
 
 set(PYOPAE_SRC
     opae.cpp
@@ -48,7 +48,7 @@ set(PYOPAE_SRC
 
 opae_external_project_add(PROJECT_NAME pybind11
                           GIT_URL https://github.com/pybind/pybind11.git
-                          GIT_TAG v2.4.3
+                          GIT_TAG v2.6.1
                           )
 
 opae_add_module_library(TARGET _opae
