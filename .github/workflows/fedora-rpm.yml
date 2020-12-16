@@ -21,4 +21,4 @@ jobs:
         with:
           name: fedora${{matrix.fedora_tag }}-rpmbuild
           path:
-            packaging/opae/rpmbuild
+            packaging/opae/rpm/rpmbuild
