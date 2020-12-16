@@ -1,0 +1,24 @@
+name: Build Fedora RPMs
+
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  RPM:
+    strategy:
+      matrix:
+        fedora_tag: [33, 34]
+    runs-on: ubuntu-latest
+    name: Build fedora/${{ matrix.fedora_tag }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build Docker image
+        run: docker build . -f docker/rawhide/Dockerfile -t opae-f${{ matrix.fedora_tag }} --build-arg FEDORA_TAG=${{ matrix.fedora_tag }}
+      - name: Build RPM
+        run: docker run --rm -v ${{ github.workspace }}:/opae-sdk opae-f${{ matrix.fedora_tag }} /opae-sdk/packaging/opae/rpm/create
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2.1.4
+        with:
+          name: fedora${{matrix.fedora_tag }}-rpmbuild
+          path:
+            packaging/opae/rpmbuild
