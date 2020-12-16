@@ -143,16 +143,19 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad_vc -P cmake_install.cmake
 
 prev=$PWD
 pushd %{_topdir}/BUILD/%{name}-%{version}/python/opae.admin/
-%{__python3} setup.py install --single-version-externally-managed  --root=%{buildroot} --record=$prev/INSTALLED_OPAE_ADMIN_FILES
+%{__python3} setup.py install --single-version-externally-managed  --root=%{buildroot} 
 popd
 
 pushd %{_topdir}/BUILD/%{name}-%{version}/python/pacsign
-%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} --record=$prev/INSTALLED_PACSIGN_FILES
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} 
 popd
 
 pushd %{_topdir}/BUILD/%{name}-%{version}/scripts
 install -m 755 eth_group_mdev.sh %{buildroot}/usr/bin/eth_group_mdev.sh
 popd
+
+
+
 
 %post
 %systemd_post fpgad.service
@@ -239,7 +242,7 @@ popd
 %{_bindir}/fpgametrics
 %{_bindir}/fpga_dma_N3000_test
 %{_bindir}/fpga_dma_test
-%{_bindir}/PACSign
+%{_bindir}/PACSign*
 %{_bindir}/fpgad
 /etc/opae/fpgad.cfg
 /etc/sysconfig/fpgad.conf
@@ -247,11 +250,14 @@ popd
 %{_libdir}/opae/libfpgad-vc.so*
 /usr/lib/systemd/system/fpgad.service
 %{_bindir}/eth_group_mdev.sh
+/usr/lib/python*/site-packages/opae*
+/usr/lib/python*/site-packages/pacsign*
 
 
 %{_usr}/share/opae/*
-/usr/lib/python*
 %{_datadir}/doc/opae.admin/LICENSE
+
+
 
 
 
