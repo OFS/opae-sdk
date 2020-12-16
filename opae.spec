@@ -257,10 +257,8 @@ popd
 
 %changelog
 * Mon Dec 14 2020 The OPAE Dev Team <opae@lists.01.org> - 2.0.0-2
-- fix code review comments
-- fix  codeing style
-- add create tarball script
-- update fedora spec file and tarball generation script
+- Update OPAE spec file and tarball generation script
+- Fix build errors
 
 * Thu Sep 17 2020 Ananda Ravuri <ananda.ravuri@intel.com> 2.0.0-1
 - Various Static code scan bug fixes
