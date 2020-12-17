@@ -16,9 +16,10 @@ jobs:
         run: docker build . -f docker/rawhide/Dockerfile -t opae-f${{ matrix.fedora_tag }} --build-arg FEDORA_TAG=${{ matrix.fedora_tag }}
       - name: Build RPM
         run: docker run --rm -v ${{ github.workspace }}:/opae-sdk opae-f${{ matrix.fedora_tag }} /opae-sdk/packaging/opae/rpm/create
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v2.1.4
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
         with:
-          name: fedora${{matrix.fedora_tag }}-rpmbuild
-          path:
-            packaging/opae/rpm/rpmbuild
+          name: fedora${{matrix.fedora_tag }}-rpms
+          path: |
+            packaging/opae/rpm/*.rpm
+            packaging/opae/rpm/rpmbuild/SOURCES/*.tar.gz
