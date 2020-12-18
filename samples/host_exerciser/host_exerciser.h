@@ -48,274 +48,241 @@ static const uint32_t DSM_STATUS_TEST_COMPLETE = 0x40;
 
 // Host execiser CSR Offset
 enum {
-  DFH_HEADER	= 0x0000,
-  DFH_CAPABILITY_HEADER = 0x0008,
-  DFH_CAPABILITY_GUID = 0x0010,
-  DFH_CAPABILITY_INT = 0x0018,
-  DSM_STATUS = 0x0040,
-  CSR_SCRATCHPAD0 = 0x0100,
-  CSR_SCRATCHPAD1 = 0x0108,
-  CSR_AFU_DSM_BASEL = 0x0110,
-  CSR_AFU_DSM_BASEH = 0x0114,
-  CSR_SRC_ADDR = 0x0120,
-  CSR_DST_ADDR = 0x0128,
-  CSR_NUM_LINES = 0x0130,
-  CSR_CTL = 0x0138,
-  CSR_CFG = 0x0138,
-  CSR_INACT_THRESH = 0x0148,
-  CSR_INTERRUPT0 = 0x0150,
-  CSR_SWTEST_MSG = 0x0158,
-  CSR_STATUS0 = 0x0160,
-  CSR_STATUS1 = 0x0168,
-  CSR_ERROR = 0x0170,
-  CSR_ERROR1 = 0x0178
+  HE_DFH = 0x0000,
+  HE_ID_L = 0x0008,
+  HE_ID_H = 0x0010,
+  HE_DFH_RSVD0 = 0x0018,
+  HE_DFH_RSVD1 = 0x0020,
+  HE_SCRATCHPAD0 = 0x0100,
+  HE_SCRATCHPAD1 = 0x0104,
+  HE_SCRATCHPAD2 = 0x0108,
+  HE_DSM_BASEL = 0x0110,
+  HE_DSM_BASEH = 0x0114,
+  HE_SRC_ADDR = 0x0120,
+  HE_DST_ADDR = 0x0128,
+  HE_NUM_LINES = 0x0130,
+  HE_CTL = 0x0138,
+  HE_CFG = 0x0140,
+  HE_INACT_THRESH = 0x0148,
+  HE_INTERRUPT0 = 0x0150,
+  HE_SWTEST_MSG = 0x0158,
+  HE_STATUS0 = 0x0160,
+  HE_STATUS1 = 0x0168,
+  HE_ERROR = 0x0170,
+  HE_STRIDE = 0x0178
 };
 
 //configures test mode
 typedef enum {
-	HOST_EXEMODE_LPBK1 = 0x0,
-	HOST_EXEMODE_READ = 0x1,
-	HOST_EXEMODE_WRITE = 0x2,
-	HOST_EXEMODE_TRUPT = 0x3,
+  HOST_EXEMODE_LPBK1 = 0x0,
+  HOST_EXEMODE_READ = 0x1,
+  HOST_EXEMODE_WRITE = 0x2,
+  HOST_EXEMODE_TRUPT = 0x3,
 } host_exe_mode;
 
-//read request type
+//request cache line
 typedef enum {
-	HOSTEXE_RDLINE_S = 0x0,
-	HOSTEXE_RDLINE_L = 0x1,
-	HOSTEXE_RDLINE_MIX = 0x2,
-} hostexe_rd;
+  HOSTEXE_CL_1 = 0x0,
+  HOSTEXE_CL_2 = 0x1,
+  HOSTEXE_CL_3 = 0x2,
+  HOSTEXE_CL_4 = 0x2,
+} hostexe_req_len;
 
-//read request type
+
+//he test type
 typedef enum {
-	HOSTEXE_WRLINE_M = 0x0,
-	HOSTEXE_WRLINE_L = 0x1,
-} hostexe_wr;
+  HOSTEXE_TEST_ROLLOVER = 0x0,
+  HOSTEXE_TEST_TERMINATION = 0x1,
+} hostexe_test_mode;
 
 // DFH Header
-union dfh_header  {
+union he_dfh  {
   enum {
-    offset = DFH_HEADER
+    offset = HE_DFH
   };
   uint64_t value;
   struct {
-    uint16_t FeatureID : 12;
-    uint8_t  FeatureRev : 4;
-    uint32_t NextDfhByteOffset : 24;
-	uint8_t  EOL : 1;
-	uint8_t  Reserved41 : 7;
-	uint8_t  AFUminor : 4;
-	uint8_t  DFHversion : 8;
-	uint8_t  FeatureType : 4;
+    uint16_t CcipVersionNumber : 12;
+    uint8_t  AfuMajVersion : 4;
+    uint32_t NextDfhOffset : 24;
+    uint8_t  EOL : 1;
+    uint32_t Reserved : 19;
+    uint8_t  FeatureType : 4;
   };
 };
 
-// DFH CAPABILITY Header
-union dfh_cap_hdr {
-	enum {
-		offset = DFH_CAPABILITY_HEADER
-	};
-	uint32_t value;
-	struct {
-		uint16_t CapID : 16;
-		uint8_t CapIDVersion : 4;
-		uint16_t NextCapOffset : 12;
-	};
-};
-
-
-// DFH CAPABILITY GUID
-struct dfh_cap_guid_s
-{
-	uint64_t GuidHi;
-	uint64_t GuidLo;
-	uint32_t Reserved;
-	uint32_t dfhCapHeader;
-};
-
-union dfh_cap_guid
-{
-	enum {
-		offset = DFH_CAPABILITY_GUID
-	};
-	uint8_t arr[24];
-	dfh_cap_guid_s cap_guid;
-};
-
-// DFH CAPABILITY INT
-struct dfh_cap_init_s
-{
-	uint32_t IntVectorLength;
-	uint32_t IntVectorStart;
-	uint32_t IntControl;
-	uint32_t IntFlags;
-	uint32_t DfhCapHeader;
-};
-
-union dfh_cap_init
-{
-	enum {
-		offset = DFH_CAPABILITY_INT
-	};
-	uint8_t arr[20];
-	dfh_cap_init_s cap_init;
-};
 
 // DSM BASEL
-union csr_afu_dsm_basel {
-	enum {
-		offset = CSR_AFU_DSM_BASEL
-	};
-	uint32_t value;
-	struct {
-		uint32_t DsmBaseL : 32;
-	};
+union he_dsm_basel {
+  enum {
+    offset = HE_DSM_BASEL
+  };
+  uint32_t value;
+  struct {
+    uint32_t DsmBaseL : 32;
+  };
 };
 
 // DSM BASEH
-union csr_afu_dsm_baseh {
-	enum {
-		offset = CSR_AFU_DSM_BASEH
-	};
-	uint32_t value;
-	struct {
-		uint32_t DsmBaseH : 32;
-	};
+union he_dsm_baseh {
+  enum {
+    offset = HE_DSM_BASEH
+  };
+  uint32_t value;
+  struct {
+    uint32_t DsmBaseH : 32;
+  };
 };
+
+// NUM_LINES
+union he_num_lines {
+  enum {
+    offset = HE_NUM_LINES
+  };
+  uint64_t value;
+  struct {
+    uint32_t NumCacheLines : 32;
+    uint32_t Reserved : 32;
+  };
+};
+
 
 // CSR CTL
-union csr_ctl{
-	enum {
-		offset = CSR_CTL
-	};
-	uint32_t value;
-	struct {
-		uint32_t RsvdZ1 : 29;
-		uint8_t ForcedTestCmpl : 1;
-		uint8_t Start : 1;
-		uint8_t ResetL : 1;
-	};
+union he_ctl{
+  enum {
+    offset = HE_CTL
+  };
+  uint32_t value;
+  struct {
+    uint8_t ResetL : 1;
+    uint8_t Start : 1;
+    uint8_t ForcedTestCmpl : 1;
+    uint32_t Reserved : 29;
+  };
 };
 
+
 // CSR CFG
-union csr_cfg {
-	enum {
-		offset = CSR_CFG
-	};
-	uint32_t value;
-	struct {
-		uint8_t RsvdZ1 : 2;
-		uint8_t cr_interrupt_testmode : 1;
-		uint8_t cr_interrupt_on_error : 1;
-		uint8_t cr_test_cfg : 8;
-		uint8_t RsvdZ2 : 1;
-		uint8_t cr_chsel : 2;
-		uint8_t cr_rdsel : 2;
-		uint8_t cr_delay_en : 1;
-		uint8_t cr_multiCL_len : 2;
-		uint8_t cr_mode : 3;
-		uint8_t c_cont : 1;
-		uint8_t cr_wrthru_en : 1;
-	};
+union he_cfg {
+  enum {
+    offset = HE_CFG
+  };
+  uint64_t value;
+  struct {
+    uint8_t DelayEn : 1;
+    uint8_t Continuous : 1;
+    uint8_t TestMode : 3;
+    uint8_t ReqLen : 2;
+    uint8_t Rsvd_7 : 1;
+    uint8_t Rsvd_8 : 1;
+    uint16_t Rsvd_19_9 : 11;
+    uint8_t TestCfg : 8;
+    uint8_t IntrOnErr : 1;
+    uint8_t IntrTestMode : 1;
+    uint64_t Rsvd_63_30 : 34;
+  };
 };
 
 // CSR INACT THRESH
-union csr_inact_thresh {
-	enum {
-		offset = CSR_INACT_THRESH
-	};
-	uint32_t value;
-	struct {
-	uint32_t csr_inact_thresh_value :32;
-	};
+union he_inact_thresh {
+  enum {
+    offset = HE_INACT_THRESH
+  };
+  uint32_t value;
+  struct {
+    uint32_t InactivtyThreshold : 32;
+  };
 };
 
 // INTERRUPT0
-union csr_interrupt0 {
-	enum {
-		offset = CSR_INTERRUPT0
-	};
-	uint32_t value;
-	struct {
-	uint32_t VectorNUm : 16;
-	uint32_t apci_id : 16;
-	};
+union he_interrupt0 {
+  enum {
+    offset = HE_INTERRUPT0
+  };
+  uint32_t value;
+  struct {
+    uint16_t apci_id : 16;
+    uint16_t VectorNUm : 8;
+    uint16_t Rsvd_31_24 : 8;
+  };
 };
 
 // SWTEST MSG
-union csr_swtest_msg {
-	enum {
-		offset = CSR_SWTEST_MSG
-	};
-	uint64_t value;
-	struct {
-		uint64_t swtest_msg : 64;
-	};
+union he_swtest_msg {
+  enum {
+    offset = HE_SWTEST_MSG
+  };
+  uint64_t value;
+  struct {
+    uint64_t swtest_msg : 64;
+  };
 };
 
 // STATUS0
-union csr_status0 {
-	enum {
-		offset = CSR_STATUS0
-	};
-	uint64_t value;
-	struct {
-		uint32_t numReads : 32;
-		uint32_t numWrites : 32;
-	};
+union he_status0 {
+  enum {
+    offset = HE_STATUS0
+  };
+  uint64_t value;
+  struct {
+    uint32_t numWrites : 32;
+    uint32_t numReads : 32;
+  };
 };
 
 // STATUS1
-union csr_status1 {
-	enum {
-		offset = CSR_STATUS1
-	};
-	uint64_t value;
-	struct {
-		uint32_t numPendReads : 32;
-		uint32_t numPendWrites : 32;
-	};
+union he_status1 {
+  enum {
+    offset = HE_STATUS1
+  };
+  uint64_t value;
+  struct {
+    uint32_t numPendReads : 32;
+    uint32_t numPendWrites : 32;
+  };
 };
+
 
 // ERROR
-union csr_error {
-	enum {
-		offset = CSR_ERROR
-	};
-	uint64_t value;
-	struct {
-		uint32_t Rsvd : 32;
-		uint32_t error : 32;
-	};
+union he_error {
+  enum {
+    offset = HE_ERROR
+  };
+  uint64_t value;
+  struct {
+    uint32_t error : 32;
+    uint32_t Rsvd : 32;
+  };
 };
 
-// ERROR1
-union csr_error1 {
-	enum {
-		offset = CSR_ERROR1
-	};
-	uint64_t value;
-	struct {
-		uint64_t error : 64;
-	};
+// STRIDE
+union he_stride {
+  enum {
+    offset = HE_STRIDE
+  };
+  uint32_t value;
+  struct {
+    uint32_t Stride : 32;
+  };
 };
 
-const std::map<std::string, uint32_t> modes = {
-	{ "lpbk", HOST_EXEMODE_LPBK1},
-	{ "read", HOST_EXEMODE_READ},
-	{ "write", HOST_EXEMODE_WRITE},
-	{ "trput", HOST_EXEMODE_TRUPT},
+const std::map<std::string, uint32_t> he_modes = {
+  { "lpbk", HOST_EXEMODE_LPBK1},
+  { "read", HOST_EXEMODE_READ},
+  { "write", HOST_EXEMODE_WRITE},
+  { "trput", HOST_EXEMODE_TRUPT},
 };
 
-const std::map<std::string, uint32_t> reads= {
-	{ "rdline_s", HOSTEXE_RDLINE_S},
-	{ "rdline_l", HOSTEXE_RDLINE_L},
-	{ "mixed", HOSTEXE_RDLINE_MIX},
+const std::map<std::string, uint32_t> he_req_cl_len= {
+  { "cl_1", HOSTEXE_CL_1},
+  { "cl_2", HOSTEXE_CL_2},
+  { "cl_3", HOSTEXE_CL_3},
+  { "cl_4", HOSTEXE_CL_4},
 };
 
-const std::map<std::string, uint32_t> writes = {
-	{ "wrline_m", HOSTEXE_WRLINE_M},
-	{ "wrline_l", HOSTEXE_WRLINE_L}
+const std::map<std::string, uint32_t> he_test_mode = {
+  { "test_rollover", HOSTEXE_TEST_ROLLOVER},
+  { "test_termination", HOSTEXE_TEST_TERMINATION}
 };
 
 using test_afu = opae::afu_test::afu;
@@ -328,26 +295,19 @@ public:
   , count_(1)
   {
     // Mode
-    app_.add_option("-m,--mode", mode_, "mode {lpbk,read, write, trput}")
-      ->transform(CLI::CheckedTransformer(modes))->default_val("lpbk");
+    app_.add_option("-m,--mode", he_modes_, "host exerciser mode {lpbk,read, write, trput}")
+      ->transform(CLI::CheckedTransformer(he_modes))->default_val("lpbk");
 
-    // Read
-    app_.add_option("-r,--read", read_, "read request type{rdline_s, rdline_l,mixed}")
-       ->transform(CLI::CheckedTransformer(reads))->default_val("rdline_s");
+    // Cache line
+    app_.add_option("--cl", he_req_cl_len_, "number of CLs per request{cl_1, cl_2, cl_3, cl_4}")
+       ->transform(CLI::CheckedTransformer(he_req_cl_len))->default_val("cl_1");
 
-    // Write
-    app_.add_option("-w,--write", write_, "write request type {wrline_m, wrline_l}")
-        ->transform(CLI::CheckedTransformer(writes))->default_val("wrline_m");
+    // Configures test rollover or test termination
+    app_.add_option("--ccont", he_ccont_, "Configures test rollover or test termination")->default_val(false);
 
     // Delay
-    app_.add_option("-d,--delay", delay_, "Enables random delay insertion between requests")->default_val(false);
+    app_.add_option("-d,--delay", he_delay_, "Enables random delay insertion between requests")->default_val(false);
 
-    // Multi Cache line
-    app_.add_option("--multi-cl", multi_cl_, "multi Cache lineone of {0, 1, 3}")
-         ->transform(CLI::IsMember(std::set<int>({ 0,1,3 })))->default_val(0);
-
-    // Configures test rollover
-    app_.add_option("--ccont", c_cont_, "Configures test rollover or test termination")->default_val(false);
   }
 
   virtual int run(CLI::App *app, test_command::ptr_t test) override
@@ -467,12 +427,11 @@ public:
 
 public:
   uint32_t count_;
-  uint32_t mode_;
-  uint32_t read_;
-  uint32_t write_;
-  bool delay_;
-  uint32_t multi_cl_;
-  bool c_cont_;
+  uint32_t he_modes_;
+  uint32_t he_req_cl_len_;
+  bool he_delay_;
+  bool he_ccont_;
+
   std::map<uint32_t, uint32_t> limits_;
 
   uint32_t get_offset(uint32_t base, uint32_t i) const {

@@ -39,49 +39,33 @@ public:
         :host_exe_(NULL) {
     }
     virtual ~host_exerciser_cmd() {}
-   /* virtual const char *name() const
-    {
-        return "lpbk";
-    }
-
-    virtual const char *description() const
-    {
-        return "run simple loopback test";
-    }
-
-    virtual const char *afu_id() const override
-    {
-        return LPBK_AFU_ID;
-    }*/
 
     void host_exerciser_status()
     {
-        csr_status0 afu_status0;
-        csr_status1 afu_status1;
+        he_status0 he_status0;
+        he_status1 he_status1;
 
-        afu_status0.value = host_exe_->read64(CSR_STATUS0);
-        afu_status1.value = host_exe_->read64(CSR_STATUS1);
+        he_status0.value = host_exe_->read64(HE_STATUS0);
+        he_status1.value = host_exe_->read64(HE_STATUS1);
 
-        std::cout << "Host Exerciser numReads:" << afu_status0.numReads << std::endl;
-        std::cout << "Host Exerciser numReads:" << afu_status0.numWrites << std::endl;
+        std::cout << "Host Exerciser numReads:" << he_status0.numReads << std::endl;
+        std::cout << "Host Exerciser numReads:" << he_status0.numWrites << std::endl;
 
-        std::cout << "Host Exerciser numPendReads:" << afu_status1.numPendReads << std::endl;
-        std::cout << "Host Exerciser numPendWrites:" << afu_status1.numPendWrites << std::endl;
+        std::cout << "Host Exerciser numPendReads:" << he_status1.numPendReads << std::endl;
+        std::cout << "Host Exerciser numPendWrites:" << he_status1.numPendWrites << std::endl;
     }
 
     void host_exerciser_errors()
     {
-        csr_error afu_error;
-        csr_error1 afu_error1;
+        he_error he_error;
 
         if (host_exe_ == NULL)
             return;
 
-        afu_error.value = host_exe_->read64(CSR_STATUS0);
-        afu_error1.value = host_exe_->read64(CSR_STATUS1);
+        he_error.value = host_exe_->read64(HE_STATUS0);
 
-        std::cout << "Host Exerciser Error:" << afu_error.error << std::endl;
-        std::cout << "Host Exerciser stride value:" << afu_error1.error << std::endl;
+        std::cout << "Host Exerciser Error:" << he_error.error << std::endl;
+
     }
 
     void host_exerciser_swtestmsg()
@@ -91,7 +75,7 @@ public:
         if (host_exe_ == NULL)
             return;
 
-        swtest_msg = host_exe_->read64(CSR_SWTEST_MSG);
+        swtest_msg = host_exe_->read64(HE_SWTEST_MSG);
 
         std::cout << "Host Exerciser swtest msg:" << swtest_msg << std::endl;
     }
@@ -107,24 +91,18 @@ public:
             return -1;
 
         // Host Exerciser Mode
-        lpbk_cfg_.cr_mode = host_exe_->mode_;
+        he_lpbk_cfg_.TestMode = host_exe_->he_modes_;
 
         // Host Exerciser Read
-        lpbk_cfg_.cr_rdsel = host_exe_->read_;
-
-        // Host Exerciser Write
-        lpbk_cfg_.cr_wrthru_en = host_exe_->write_;
+        he_lpbk_cfg_.ReqLen = host_exe_->he_req_cl_len_;
 
         // Host Exerciser  lpbk delay
-        if (host_exe_->delay_)
-            lpbk_cfg_.cr_delay_en = 1;
-
-        // write
-        lpbk_cfg_.cr_multiCL_len = host_exe_->multi_cl_;
+        if (host_exe_->he_delay_)
+             he_lpbk_cfg_.DelayEn = 1;
 
         //test rollover or test termination
-        if (host_exe_->c_cont_)
-            lpbk_cfg_.c_cont = 1;
+        if (host_exe_->he_ccont_)
+             he_lpbk_cfg_.Continuous = 1;
 
         return 0;
     }
@@ -142,40 +120,40 @@ public:
             std::cerr << "Failed to parese input options" << std::endl;
             return ret;
         }
-        std::cout << "Input Config:" << lpbk_cfg_.value << std::endl;
+        std::cout << "Input Config:" << he_lpbk_cfg_.value << std::endl;
 
         /* Allocate Source Buffer
         Write to CSR_SRC_ADDR */
         std::cout << "Allocate SRC Buffer" << std::endl;
         source_ = d_afu->allocate(LPBK1_BUFFER_ALLOCATION_SIZE);
-        d_afu->write64(CSR_SRC_ADDR, cacheline_aligned_addr(source_->io_address()));
+        d_afu->write64(HE_SRC_ADDR, cacheline_aligned_addr(source_->io_address()));
         std::fill_n(source_->c_type(), LPBK1_BUFFER_SIZE, 0xAF);
 
         /* Allocate Destination Buffer
             Write to CSR_DST_ADDR */
         std::cout << "Allocate DST Buffer" << std::endl;
         destination_ = d_afu->allocate(LPBK1_BUFFER_ALLOCATION_SIZE);
-        d_afu->write64(CSR_DST_ADDR, cacheline_aligned_addr(destination_->io_address()));
+        d_afu->write64(HE_DST_ADDR, cacheline_aligned_addr(destination_->io_address()));
         std::fill_n(destination_->c_type(), LPBK1_BUFFER_SIZE, 0xBE);
 
         /* Allocate DSM Buffer
             Write to CSR_AFU_DSM_BASEL */
         std::cout << "Allocate DSM Buffer" << std::endl;
         dsm_ = d_afu->allocate(LPBK1_DSM_SIZE);
-        d_afu->write32(CSR_AFU_DSM_BASEL, cacheline_aligned_addr(dsm_->io_address()));
+        d_afu->write32(HE_DSM_BASEL, cacheline_aligned_addr(dsm_->io_address()));
         std::fill_n(dsm_->c_type(), LPBK1_DSM_SIZE, 0x0);
 
         // Number of cache lines
-        d_afu->write64(CSR_NUM_LINES, LPBK1_BUFFER_SIZE / (1 * CL));
+        d_afu->write64(HE_NUM_LINES, LPBK1_BUFFER_SIZE / (1 * CL));
 
         // Write to CSR_CFG
-        d_afu->write32(CSR_CFG, lpbk_cfg_.value);
+        d_afu->write32(HE_CFG, he_lpbk_cfg_.value);
 
         // Write to CSR_CTL
         std::cout << "Start Test" << std::endl;
-        csr_ctl  afu_ctl;
-        afu_ctl.Start = 1;
-        d_afu->write32(CSR_CFG, afu_ctl.value);
+        he_ctl  he_ctl;
+        he_ctl.Start = 1;
+        d_afu->write32(HE_CTL, he_ctl.value);
 
         /* Wait for test completion */
         uint32_t           timeout = HELPBK_TEST_TIMEOUT;
@@ -192,9 +170,9 @@ public:
         }
 
         // stop the device
-        afu_ctl.value = 0;
-        afu_ctl.ForcedTestCmpl = 1;
-        d_afu->write32(CSR_CTL, afu_ctl.value);
+        he_ctl.value = 0;
+        he_ctl.ForcedTestCmpl = 1;
+        d_afu->write32(HE_CTL, he_ctl.value);
 
         std::cout << "Test Completed" << std::endl;
         host_exerciser_swtestmsg();
@@ -207,7 +185,7 @@ public:
     }
 
 protected:
-    csr_cfg lpbk_cfg_;
+	he_cfg he_lpbk_cfg_;
     host_exerciser *host_exe_;
     shared_buffer::ptr_t source_;
     shared_buffer::ptr_t destination_;
