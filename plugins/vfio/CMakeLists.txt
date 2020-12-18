@@ -30,6 +30,8 @@ set(SRC
   dfl.c
 )
 
+set(CMAKE_C_FLAGS "-std=gnu99 ${CMAKE_C_FLAGS}")
+
 opae_add_module_library(TARGET v-opae
     SOURCE ${SRC}
     LIBS
