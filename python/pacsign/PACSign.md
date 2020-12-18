@@ -1,11 +1,11 @@
 # PACSign #
 
 ## SYNOPSIS ##
-`python PACSign.py [-h] {FIM,SR,BBS,BMC,BMC_FW,AFU,PR,GBS} ...`
+`python PACSign.py [-h] {FIM,SR,BBS,FIM2,SR2,BBS2,BMC,BMC_FW,AFU,PR,GBS} ...`
 
 `python PACSign.py <CMD>  [-h] -t {UPDATE,CANCEL,RK_256,RK_384} -H HSM_MANAGER
                           [-C HSM_CONFIG] [-r ROOT_KEY] [-k CODE_SIGNING_KEY]
-                          [-d CSK_ID] [-i INPUT_FILE] [-o OUTPUT_FILE] [-y] [-v]`
+                          [-d CSK_ID] [-S] [-i INPUT_FILE] [-o OUTPUT_FILE] [-y] [-v]`
 
 ## DESCRIPTION ##
 The `PACSign` utility inserts authentication markers into bitstreams targeted for the following programmable
@@ -16,7 +16,8 @@ acceleration cards (PACs):
 `PACSign` uses a root key and an optional code signing key to digitally sign the  
 bitstreams to validate their origin. The PACs will not program bitstreams without proper authentication.
 
-The current PACs only support elliptical curve keys with the curve type `secp256r1` or `prime256v1`.
+The current PACs only support elliptical curve keys with the curve types `secp256r1` (aka `prime256v1`)
+or `secp384r1`.
 The `PACSign` command supports hardware security modules (HSMs) for both `OpenSSL` and `PKCS #11`.
 
 To utilize `PKCS #11`, please ensure that the dummy fields `lib_path`,
@@ -26,14 +27,18 @@ To utilize `PKCS #11`, please ensure that the dummy fields `lib_path`,
 ## BITSTREAM TYPES ##
 The first required argument to `PACSign` is the bitstream type identifier.
 
-`{SR,FIM,BBS,BMC,BMC_FW,PR,AFU,GBS}`
+`{SR,FIM,BBS,SR2,FIM2,BBS2,BMC,BMC_FW,PR,AFU,GBS}`
 
 Supported image types. `FIM` and `BBS` are aliases for the static region (`SR`). `BMC_FW` is an alias for 
 the board management controller (`BMC`). `AFU` and `GBS` are aliases for the partial reconfiguration (`PR`) region.
 
  `SR (FIM, BBS)`
  
- Static FPGA image
+ Static FPGA image for primary user image
+
+ `SR2 (FIM2, BBS2)`
+ 
+ Static FPGA image for secondary user image
  
  `BMC (BMC_FW)`
  
@@ -90,6 +95,10 @@ signing key to be used for the selected operation.
 Only used for type `CANCEL`. Specifies the key number of the code signing key to
 cancel.
 
+`-S, --SHA256`
+
+Used to specify that PACSign is to use 256-bit hashes.  Default is 384-bit.
+
 `-i, --input_file <file>`
 
 Only used for `UPDATE` operations. Specifies the file name containing the data
@@ -112,7 +121,9 @@ Three or more occurrences enables very verbose debugging information.
 ## NOTES ##
 
 Different certification types require different sets of options.  The table below
-describes the options required based on certification type:
+describes the options required based on certification type.  Note that these tables
+apply to both the primary user image certification types (`SR`, `FIM`, `BBS`) as
+well as those for the secondary user image (`SR2`, `FIM2`, `BBS2`).
 
 ### UPDATE ###
 
@@ -168,3 +179,4 @@ images that CSK 4 signed.
  | ---------------- |------------------------------------|----------|
  | 2019.07.08 | 1.2.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 19.2.) | Initial revision.  | 
  | 2019.10.04 | 2.0.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 19.2.) | Editorial changes only. |
+ | 2020.12.16 | 2.0.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 19.2.) | Added -S; default SHA384. |
