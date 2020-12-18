@@ -225,8 +225,8 @@ class _READER_BASE(object):
         xy_body.append_data(pub_key.data[:self.sigsize])
         xy_body.append_data(pub_key.data[-self.sigsize:])
 
-        log.info("Calculating Root Entry SHA256 for DC PR")
-        sha = sha256(pub_key.data).digest()
+        log.info("Calculating Root Entry SHA for DC PR")
+        sha = sha256(pub_key.data).digest() if self.args.SHA256 else sha384(pub_key.data).digest()
         self.s10_root_hash.append_data(sha)
         sha_msb = sha[0:4]  # get first 4 bytes
         del sha
@@ -264,9 +264,9 @@ class _READER_BASE(object):
 
         # X size
         # TODO: Should be 0x20
-        root_entry.append_dword(len(pub_key.data[:32]))
+        root_entry.append_dword(self.sigsize)
         # Y size
-        root_entry.append_dword(len(pub_key.data[-32:]))
+        root_entry.append_dword(self.sigsize)
 
         # Public curve magic
         root_entry.append_dword(self.dc_curve_magic_num)
@@ -480,7 +480,7 @@ class _READER_BASE(object):
 
         # Signature R & S
         if CSK_key is not None:
-            sha = sha256(block0.data).digest()
+            sha = sha256(block0.data).digest() if self.args.SHA256 else sha384(block0.data).digest()
             rs = self.hsm_manager.sign(sha, CSK_key)
             del sha
             b0_entry.append_data(rs.data[:self.sigsize])
