@@ -73,10 +73,10 @@ jobs:
     - uses: actions/checkout@v2
     - name: update
       run: sudo apt-get update -y
-    - name: Pull opae/docs-builder docker image
-      run: docker pull opae/docs-builder
+    - name: Build docker image for docs
+      run: docker build . -f docker/docs/Dockerfile -t opae/fed33 --build-arg FEDORA_TAG=33
     - name: Build Documentation
-      run: docker run --rm -v ${{ github.workspace }}:/root opae/docs-builder ./scripts/build-documentation.sh
+      run: docker run --rm -v ${{ github.workspace }}:/opae-sdk opae/fed33 /opae-sdk/scripts/build-documentation.sh
     - name: Upload latest to github.io
       if: ${{ github.ref == 'refs/heads/master' }}
       working-directory: ${{ github.workspace }}/mybuild_docs
