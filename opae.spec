@@ -56,6 +56,7 @@ Requires:   libuuid-devel, %{name}%{?_isa} = %{version}-%{release}
 OPAE headers, tools, sample source, and documentation
 
 
+%{?python_disable_dependency_generator}
 
 
 %prep
