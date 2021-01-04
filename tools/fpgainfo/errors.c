@@ -107,7 +107,7 @@ static const char *const INJECT_ERROR[INJECT_ERROR_COUNT] = {
 	"Set Catastrophic  error .", "Set Fatal error.",
 	"Ser Non-fatal error ."};
 
-#define PORT_ERROR_COUNT 60
+#define PORT_ERROR_COUNT 61
 static const char *const PORT_ERROR[PORT_ERROR_COUNT] = {
 	// 0
 	"Tx Channel 0 overflow error detected.",
@@ -127,11 +127,12 @@ static const char *const PORT_ERROR[PORT_ERROR_COUNT] = {
 	"RSVD.",
 	"RSVD.",
 	"RSVD.",
+	"Tx Channel 1 overflow error detected.",
 	"Tx Channel 1 invalid request encoding error detected",
 	"Tx Channel 1 cl_len=3 not supported error detected.",
 	"Tx Channel 1 request with cl_len=2 does NOT have a 2CL aligned address error detected",
-	"Tx Channel 1 request with cl_len=4 does NOT have a 4CL aligned address error detected",
 	// 20
+	"Tx Channel 1 request with cl_len=4 does NOT have a 4CL aligned address error detected",
 	"Tx Channel 1 insufficient data payload Error detected",
 	"Tx Channel 1 data payload overrun error detected",
 	"Tx Channel 1 incorrect address on subsequent payloads error detected",
@@ -141,8 +142,8 @@ static const char *const PORT_ERROR[PORT_ERROR_COUNT] = {
 	"RSVD.",
 	"RSVD.",
 	"RSVD.",
-	"RSVD.",
 	// 30
+	"RSVD.",
 	"RSVD.",
 	"RSVD.",
 	"MMIO TimedOut error detected",
@@ -152,8 +153,8 @@ static const char *const PORT_ERROR[PORT_ERROR_COUNT] = {
 	"RSVD.",
 	"RSVD.",
 	"RSVD.",
-	"RSVD.",
 	// 40
+	"RSVD.",
 	"Number of pending requests: counter overflow error detected",
 	"Request with Address violating SMM range error detected",
 	"Request with Address violating second SMM range error detected",
@@ -163,8 +164,8 @@ static const char *const PORT_ERROR[PORT_ERROR_COUNT] = {
 	"Request with Address violating Legacy Range High error detected",
 	"Request with Address violating VGA memory range error detected",
 	"Page Fault error detected",
-	"PMR Erro error detected",
 	// 50
+	"PMR Erro error detected",
 	"AP6 event detected",
 	"VF FLR detected on port when PORT configured in PF access mode error detected ",
 	"RSVD.",
@@ -174,6 +175,7 @@ static const char *const PORT_ERROR[PORT_ERROR_COUNT] = {
 	"Tx Channel 1 byte_len cannot be zero",
 	"Tx Channel 1 illegal operation: sum of byte_len and byte_start should be less than or equal to 64",
 	"Tx Channel 1 illegal operation: cl_len cannot be non-zero when mode is eMOD_BYTE",
+	// 60
 	"Tx Channel 1 byte_len and byte_start should be zero when mode is not eMOD_BYTE"
 };
 
