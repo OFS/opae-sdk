@@ -57,14 +57,13 @@ matrix:
         - libtbb-dev
         - uuid-dev
         - doxygen
-        - pandoc
+        - python3-dev
+        - python3-sphinx
+        - python3-pip
     if: branch = master
     install:
       - pip install --user jinja2
       - pip install --user requests[security]
-    before_install:
-    - wget https://github.com/jgm/pandoc/releases/download/2.1.1/pandoc-2.1.1-1-amd64.deb
-    - sudo dpkg -i pandoc-2.1.1-1-amd64.deb
 env:
   global:
     secure: ejmtge9PpCihZ92AolJhTBWGTYUU49dzwR10xBd62JfDSXWs8UYu3FSGodLQcMm4XdaM0uDthJ1MzvP/CphgMCOIyzVr6XLF8JFLVLw6cP1P0Q5Kgj1qN9f8DZL3VrgyRSL7lRuxQt4qP8eXLlksEAi+PKrka2hsNnUtoX8JBYHeeos7b+Q4vq4d/PzpIrhrYIQy1RlatAAhGG8JsD3R2WdkNwK3kGUvcAwZirROfRAf+xaPRKCTHtRfNehTCu93v9n1uYdxDAWw7RJOjjYp+HUGj7XUTi28D7kcz5zOKp6Ny7Cgf3SgQqwK4xF+Jidk/g5i9V8D0Qi0oplbD6vekp0zVU6k8IWLZgtfqw9CnRV2Tv7e7a7oMUsFoKEW3pT/U1lU1fKuEddTUlf8myMoAm6VcEXXtboz2xP9svpNvDjnATU8CTtN1eEdrOpmI6FjYZv133twkfP61bEKgv05w8416/jvcil3CXnzVGFkbO2oXCr1uWe3t/JjEon8W+rgnxl9uC/QeEd1uFwOi3/UBB+ZQp8khbMz68iRSux7g+mGiZ6Ezbr0WaSIz6ZiliFykLCbpyAJduHIUCc1chF20Xq8105D/Ue4nCOnI/h/vC/BsQ5Ms+VAYk1QHPgNXKEc2pteVxHaTg7c6qoHsBV+NTkdd4QJvNuS+jzZsxao7JQ=
