@@ -1,6 +1,8 @@
 # OPAE C API Programming Guide #
 
+```eval_rst
 .. toctree::
+```
 
 ## Overview ##
 The OPAE C library (*libopae-c*) is a lightweight user-space library that

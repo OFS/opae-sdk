@@ -1,10 +1,10 @@
 # Enable OPAE on FPGA PCIe drivers #
 
+```eval_rst
 .. toctree::
-
 .. highlight:: c
-
 .. highlight:: console
+```
 
 FPGA PCIe driver for PCIe-based Field-Programmable Gate Array (FPGA) solutions which implement
 the Device Feature List (DFL). This driver provides interfaces for user space applications to

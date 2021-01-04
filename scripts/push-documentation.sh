@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
 
 setup_git() {
-  git config --global user.email "nakul.korde@intel.com"
-  git config --global user.name "Nakul Korde"
+	git config user.name "OPAE Bot"
+	git config user.email opae_robot@intel.com
 }
 
 commit_website_files() {
@@ -12,9 +12,9 @@ commit_website_files() {
   cd upload_docs
   git clone https://OPAE:$GIT_TOKEN@github.com/OPAE/opae.github.io.git
   cd opae.github.io
- 
 
-  if [ "$1" = "latest" ] 
+
+  if [ "$1" = "latest" ]
   then
     temp_dir=`ls ../../sphinx/html/`
     cp -r ../../sphinx/html/$temp_dir/* latest/
@@ -33,6 +33,6 @@ upload_files() {
   echo "Latest documentation uploaded to opae.github.io"
 }
 
-setup_git 
+setup_git
 commit_website_files "$1"
 upload_files

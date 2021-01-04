@@ -1,12 +1,11 @@
 # Open Programmable Accelerator Engine (OPAE) Linux Device Driver Architecture #
 
+```eval_rst
 .. toctree::
-
 .. highlight:: c
-
 .. highlight:: sh
-
 .. highlight:: console
+```
 
 The OPAE FPGA Linux Device Driver provides interfaces for user-space applications to
 configure, enumerate, open, and access FPGA accelerators on platforms equipped
