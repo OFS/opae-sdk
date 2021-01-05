@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2017-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -162,6 +162,8 @@ set(CPACK_COMPONENTS_ALL
 	vfiotest
 	uiolib
 	uiotest
+	memlib
+	memtest
 	opaecxxutils
 	opaecxxlib
 	opaecxxnlb
@@ -182,6 +184,8 @@ define_pkg(tools
   vfiotest
   uiolib
   uiotest
+  memlib
+  memtest
   toolargsfilter
   toolfpgainfo
   toolfpgametrics
