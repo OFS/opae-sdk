@@ -56,7 +56,6 @@
 struct opae_vfio_iova_range {
 	uint64_t start;				/**< Start of this range of offsets. */
 	uint64_t end;				/**< End of this range of offsets. */
-	uint64_t next_ptr;			/**< The next allocatable offset. */
 	struct opae_vfio_iova_range *next;	/**< Pointer to next in list. */
 };
 
