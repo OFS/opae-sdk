@@ -31,7 +31,7 @@ class stream_dbg : public remote_dbg
 public:
   stream_dbg(){}
   virtual ~stream_dbg(){}
-  int run(volatile uint64_t *mmio, const char *address, int port);
+  int run(volatile uint64_t *mmio, const char *address, int port) override;
   void terminate() override;
 
 };
