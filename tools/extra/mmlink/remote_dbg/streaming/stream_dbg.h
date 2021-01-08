@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2020-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -31,7 +31,7 @@ class stream_dbg : public remote_dbg
 public:
   stream_dbg(){}
   virtual ~stream_dbg(){}
-  int run(volatile uint64_t *mmio, const char *address, int port);
+  int run(volatile uint64_t *mmio, const char *address, int port) override;
   void terminate() override;
 
 };
