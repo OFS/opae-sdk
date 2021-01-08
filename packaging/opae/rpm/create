@@ -105,11 +105,6 @@ cp "${SDK_DIR}/opae.spec" ${SCRIPT_DIR}
 cd "${SCRIPT_DIR}"
 cp ./opae.spec "${RPMBUILD_DIR}/SPECS"
 
-${SDK_DIR}/packaging/changelog.py rpm \
-    --git-dir="${SDK_DIR}/.git" \
-    --project="opae" \
-    --project-version="${version}" \
-    >> "${RPMBUILD_DIR}/SPECS/opae.spec"
 
 # Create RPMS.
 cd "${RPMBUILD_DIR}/SPECS"
