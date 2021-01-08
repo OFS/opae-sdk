@@ -125,3 +125,6 @@ fi
 cd "${SCRIPT_DIR}"
 mv "${RPMBUILD_DIR}"/RPMS/x86_64/opae-* "${SCRIPT_DIR}"
 mv "${RPMBUILD_DIR}"/SRPMS/opae-*.src.rpm "${SCRIPT_DIR}"
+
+# delete rpmbuild directory
+rm -rf $RPMBUILD_DIR
