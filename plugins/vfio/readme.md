@@ -3,12 +3,12 @@
 The OPAE vfio plugin, v-opae, is an OPAE plugin designed to discover and
 interface with accelerator resources on PCIe devices bound to the vfio-pci
 kernel driver. Given that the OPAE object model currently differentiates
-between management (`FPGA_DEVICE`) and accelerator (`FPGA_ACCELERATOR`),
-the vfio plugin focuses on enabling developers to create user-mode drivers
-for accelerators using the OPAE API. This means that even when a PCIe device
-with management IP may be bound to the vfio-pci driver, the OPAE operations
-allowed for those resources are limited mostly to those relating to discovery
-and identification.
+between management (`FPGA_DEVICE`) and accelerator (`FPGA_ACCELERATOR`)
+objects,the vfio plugin focuses on enabling developers to create user-mode
+driversfor accelerators using the OPAE API. This means that even when a PCIe
+device with management IP may be bound to the vfio-pci driver, the OPAE
+operationsallowed for those resources are limited mostly to those relating
+to discovery and identification.
 
 ### Sample Use Case
 As mentioned before, this plugin is best used for runninng user-space
@@ -72,3 +72,34 @@ of plugins.
 ```
 
 ### OPAE Operations
+As mentioned above, the goal of this plugin is to enable the development of
+user-mode driver software for accelerator IP discovered via PCIe.
+The table below describes the supported OPAE API functions and the OPAE
+object types supported.
+
+_Note_: All functions that operate on properties are supported. All other OPAE API
+functions not listed here are not supported.
+See [here](https://opae.github.io/latest/docs/fpga_api/fpga_api.html) for details
+on the OPAE API.
+
+Function  | FPGA_DEVICE | FPGA_ACCELERATOR | Notes
+----------|-------------|------------------|------
+fpgaEnumerate |  Yes | Yes | Used to discover resources and get token objects.
+fpgaCloneToken |  Yes | Yes | Clone a token object created with `fpgaEnumerate`.
+fpgaDestroyToken |  Yes | Yes | Destroys a token data structure.
+fpgaGetProperties |  Yes | Yes | Get new resource properties structure or an updated structure given a token object.
+fpgaUpdateProperties |  Yes | Yes | Update properties from a token structure.
+fpgaOpen  | Yes | Yes | Open a resource and get a handle data structure.
+fpgaGetPropertiesFromHandle |  Yes | Yes | Get resource properties given a handle object.
+fpgaClose | Yes | Yes | Close a resource identified by the handle.
+fpgaReset |  No | Yes | Reset accelerator resource.
+fpgaWriteMMIO64 |  No | Yes | Write 64-bit word.
+fpgaReadMMIO64 |  No | Yes | Read 64-bit word.
+fpgaWriteMMIO32 |  No | Yes | Write 32-bit word.
+fpgaReadMMIO32 |  No | Yes | Read 32-bit word.
+fpgaMapMMIO |  No | Yes | Map and get MMIO pointer for an accelerator resource.
+fpgaUnmapMMIO |  No | Yes | Unmap MMIO space for accelerator resource.
+fpgaPrepareBuffer |  No | Yes | Allocate and prepare buffer for use by accelerator.
+fpgaGetIOAddress |  No | Yes | Get the IO Address of a prepared buffer.
+fpgaReleaseBuffer |  No | Yes | Release a previously prepared buffer.
+
