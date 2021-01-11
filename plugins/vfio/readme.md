@@ -18,7 +18,9 @@ and one or more accelerator functions via VF (virtual function) endpoints.
 The image below depicts such an example and shows accelerator data flow
 between a software application and the accelerator functional unit (AFU).
 
-![sample use case](vfio-plugin-example.svg)
+<p align="center">
+  <img width="640" height="480" src="vfio-plugin-example.svg">
+</p>
 
 #### Binding vfio-pci Driver
 Using the example above, the folowing shows how one may bind the vfio-pci
