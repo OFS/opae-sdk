@@ -4,14 +4,14 @@ The OPAE vfio plugin, v-opae, is an OPAE plugin designed to discover and
 interface with accelerator resources on PCIe devices bound to the vfio-pci
 kernel driver. Given that the OPAE object model currently differentiates
 between management (`FPGA_DEVICE`) and accelerator (`FPGA_ACCELERATOR`)
-objects,the vfio plugin focuses on enabling developers to create user-mode
-driversfor accelerators using the OPAE API. This means that even when a PCIe
+objects, the vfio plugin focuses on enabling developers to create user-mode
+drivers for accelerators using the OPAE API. This means that even when a PCIe
 device with management IP may be bound to the vfio-pci driver, the OPAE
-operationsallowed for those resources are limited mostly to those relating
+operations allowed for those resources are limited mostly to those relating
 to discovery and identification.
 
 ### Sample Use Case
-As mentioned before, this plugin is best used for runninng user-space
+As mentioned before, this plugin is best used for running user-space
 drivers with vfio-pci kernel driver. An example hardware configuration
 could expose managment functions via a PF (physical fucntion) endpoint
 and one or more accelerator functions via VF (virtual function) endpoints.
@@ -23,7 +23,7 @@ between a software application and the accelerator functional unit (AFU).
 </p>
 
 #### Binding vfio-pci Driver
-Using the example above, the folowing shows how one may bind the vfio-pci
+Using the example above, the following shows how one may bind the vfio-pci
 driver to the VF for the AFU. For this example, the PCIe vendor ID is 8086
 and the device IDs for the PF and VF are aba0 and aba1 respectively.
 
@@ -34,7 +34,7 @@ Load the vfio-pci driver and create one VF.
 ```
 
 At this point, if this is the first VF created for the device, a
-sysfs node will be created for using function 1. The new PCIe
+sysfs node will be created for it using function 1. The new PCIe
 address will be `0000:ab:00.1`. If a driver claims this then it
 must be unbound from the device.
 ```shell
@@ -54,7 +54,7 @@ More information about vfio can be found
 Currently, the vfio plugin will not automatically load. One must use the OPAE
 configuration file in order to enable it. The example below shows how to
 enable it by adding a configuration item into the configurations dictionary
-(as identified by the `vfio` name) and by adding the idendtifier to the list
+(as identified by the `vfio` name) and by adding the identifier to the list
 of plugins.
 
 ```json
