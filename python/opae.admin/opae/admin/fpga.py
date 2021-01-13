@@ -210,7 +210,7 @@ class fme(region):
     @property
     def spi_bus(self):
         if os.path.basename(self.sysfs_path).startswith('dfl'):
-            return self.find_one('dfl-fme.*.*/'
+            return self.find_one('dfl*.*/'
                                  '*spi*/'
                                  'spi_master/spi*/spi*')
         return self.find_one('spi*/spi_master/spi*/spi*')
@@ -258,7 +258,7 @@ class fme(region):
 
     def flash_controls(self):
         if self.spi_bus:
-            sec = self.spi_bus.find_one('ifpga_sec_mgr/ifpga_sec*')
+            sec = self.spi_bus.find_one('*fpga_sec_mgr/*fpga_sec*')
             if sec:
                 return []
             pattern = 'intel-*.*.auto/mtd/mtd*'
@@ -415,13 +415,7 @@ class fpga_base(sysfs_device):
         spi = f.spi_bus
         if spi:
             ifpga_sec = spi.find_one(
-                'm10bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
-            if not ifpga_sec:
-                ifpga_sec = spi.find_one(
-                    'd5005bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
-            if not ifpga_sec:
-                ifpga_sec = spi.find_one(
-                    'n3000bmc-secure.*.auto/ifpga_sec_mgr/ifpga_sec*')
+                '*-secure.*.auto/*fpga_sec_mgr/*fpga_sec*')
             if ifpga_sec:
                 return secure_dev(ifpga_sec.sysfs_path, self.pci_node)
 
