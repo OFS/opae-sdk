@@ -414,10 +414,10 @@ class fpga_base(sysfs_device):
             return None
         spi = f.spi_bus
         if spi:
-            ifpga_sec = spi.find_one(
+            fpga_sec = spi.find_one(
                 '*-secure.*.auto/*fpga_sec_mgr/*fpga_sec*')
-            if ifpga_sec:
-                return secure_dev(ifpga_sec.sysfs_path, self.pci_node)
+            if fpga_sec:
+                return secure_dev(fpga_sec.sysfs_path, self.pci_node)
 
     @property
     def port(self):
@@ -458,15 +458,15 @@ class fpga_base(sysfs_device):
         if boot_type not in self.BOOT_TYPES:
             raise TypeError('type: {} not recognized'.format(boot_type))
 
-        ifpga_sec = self.secure_dev
-        if not ifpga_sec:
+        fpga_sec = self.secure_dev
+        if not fpga_sec:
             msg = 'rsu not supported by this (0x{:04x},0x{:04x})'.format(
                 self.pci_node.pci_id[0], self.pci_node.pci_id[1])
             self.log.exception(msg)
             raise TypeError(msg)
 
-        available_images = ifpga_sec.find_one('update/available_images').value
-        image_load = ifpga_sec.find_one('update/image_load')
+        available_images = fpga_sec.find_one('update/available_images').value
+        image_load = fpga_sec.find_one('update/image_load')
 
         if boot_type == 'bmcimg':
             if factory:
