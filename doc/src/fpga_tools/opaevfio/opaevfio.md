@@ -63,6 +63,6 @@ for a description of vfio-pci.
 
 ## Revision History ##
 
- | Document Version |  Intel Acceleration Stack Version  | Changes  |
- | ---------------- |------------------------------------|----------|
- |2021.01.07 | IOFS EA | Initial release. |
+Document Version | Intel Acceleration Stack Version | Changes
+-----------------|----------------------------------|--------
+2021.01.07 | IOFS EA | Initial release.

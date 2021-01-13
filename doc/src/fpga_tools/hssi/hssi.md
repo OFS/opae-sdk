@@ -126,6 +126,6 @@ MODE_OPTIONS [hssi_100g] - application options specific to the 100G AFU.
 
 ## Revision History ##
 
- | Document Version |  Intel Acceleration Stack Version  | Changes  |
- | ---------------- |------------------------------------|----------|
- |2021.01.08 | IOFS EA | Initial release. |
+Document Version | Intel Acceleration Stack Version | Changes
+-----------------|----------------------------------|--------
+2021.01.08 | IOFS EA | Initial release.
