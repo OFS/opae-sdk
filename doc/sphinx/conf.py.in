@@ -177,6 +177,7 @@ man_pages = [
     #("docs/fpga_tools/hssi_config/readme", 'hssi_config', u'Read from or write to HSSI registers', [author], 8),
     ("docs/fpga_tools/mmlink/mmlink", 'mmlink', u'Enable remote SignalTAP debugging', [author], 8),
     ("docs/fpga_tools/userclk/userclk", 'userclk', u'Set AFU high and low clock frequency', [author], 8),
+    ("docs/fpga_tools/pci_device/pci_device", 'pci_device', u'Common operations for PCIe devices', [author], 8),
     ("docs/fpga_api/fpga_api", 'fpga_api', u'OPAE C API', [author], 8),
     ("docs/fpga_api/fpga_cxx_api", 'fpga_cxx_api', u'OPAE C++ API', [author], 8),
     ("docs/fpga_api/fpga_python_api", 'fpga_python_api', u'OPAE Python API', [author], 8),
