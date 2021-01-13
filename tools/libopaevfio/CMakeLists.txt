@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -36,11 +36,12 @@ if (PLATFORM_SUPPORTS_VFIO)
         SOURCE opaevfio.c
         LIBS
             ${CMAKE_THREAD_LIBS_INIT}
+            opaemem
         VERSION ${OPAE_VERSION}
         SOVERSION ${OPAE_VERSION_MAJOR}
         COMPONENT vfiolib
     )
-    
+
     opae_add_executable(TARGET opaevfiotest
         SOURCE opaevfiotest.c
         LIBS opaevfio

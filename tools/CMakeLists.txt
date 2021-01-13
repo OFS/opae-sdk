@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2017-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -34,6 +34,7 @@ opae_add_subdirectory(fpgainfo)
 opae_add_subdirectory(fpgametrics)
 opae_add_subdirectory(libopaevfio)
 opae_add_subdirectory(libopaeuio)
+opae_add_subdirectory(memalloc)
 
 # extra
 # Top level OPAE_BUILD_EXTRA_TOOLS controls building all the extra tools

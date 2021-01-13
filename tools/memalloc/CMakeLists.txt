@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,28 +24,15 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-set(SRC
-  plugin.c
-  opae_vfio.c
-  dfl.c
+opae_add_shared_library(TARGET opaemem
+    SOURCE mem_alloc.c
+    VERSION ${OPAE_VERSION}
+    SOVERSION ${OPAE_VERSION_MAJOR}
+    COMPONENT memlib
 )
-
-set(CMAKE_C_FLAGS "-std=gnu99 ${CMAKE_C_FLAGS}")
-
-opae_add_module_library(TARGET v-opae
-    SOURCE ${SRC}
-    LIBS
-        dl
-        m
-        ${CMAKE_THREAD_LIBS_INIT}
-        opae-c
-        opaevfio
-        ${libjson-c_LIBRARIES}
-        ${libuuid_LIBRARIES}
-    COMPONENT opaevfio
+    
+opae_add_executable(TARGET opaememtest
+    SOURCE memtest.c
+    LIBS opaemem
+    COMPONENT memtest
 )
-
-target_include_directories(v-opae PRIVATE
-    ${OPAE_LIBS_ROOT}/libopae-c
-    ${libuuid_INCLUDE}
-    )
