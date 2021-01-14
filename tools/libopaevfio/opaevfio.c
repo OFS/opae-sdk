@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2020-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -387,7 +387,7 @@ STATIC void opae_vfio_destroy_iova_range(struct opae_vfio_iova_range *r)
 }
 
 STATIC void
-opae_vfio_destroy_buffer(int , struct opae_vfio_buffer * );
+opae_vfio_destroy_buffer(struct opae_vfio * , struct opae_vfio_buffer * );
 
 STATIC void opae_vfio_destroy(struct opae_vfio *v)
 {
@@ -395,8 +395,10 @@ STATIC void opae_vfio_destroy(struct opae_vfio *v)
 	opae_vfio_group_destroy(&v->group);
 	opae_vfio_destroy_iova_range(v->cont_ranges);
 	v->cont_ranges = NULL;
-	opae_vfio_destroy_buffer(v->cont_fd, v->cont_buffers);
+	opae_vfio_destroy_buffer(v, v->cont_buffers);
 	v->cont_buffers = NULL;
+
+	mem_alloc_destroy(&v->iova_alloc);
 
 	if (v->cont_fd >= 0) {
 		close(v->cont_fd);
@@ -428,7 +430,6 @@ opae_vfio_create_iova_range(uint64_t start, uint64_t end)
 	if (r) {
 		r->start = start;
 		r->end = end;
-		r->next_ptr = r->start;
 		r->next = NULL;
 	}
 	return r;
@@ -486,6 +487,13 @@ opae_vfio_iova_discover(struct opae_vfio *v)
 				if (node) {
 					*ilist = node;
 					ilist = &node->next;
+
+					if (mem_alloc_add_free(&v->iova_alloc,
+							       node->start,
+							       node->end + 1 -
+							       node->start)) {
+						ERR("mem_alloc_add_free()");
+					}
 				}
 			}
 		}
@@ -506,20 +514,13 @@ STATIC int opae_vfio_iova_reserve(struct opae_vfio *v,
 				  uint64_t *iova)
 {
 	uint64_t page_size;
-	struct opae_vfio_iova_range *range;
 
 	page_size = sysconf(_SC_PAGE_SIZE);
 	*size = page_size + ((*size - 1) & ~(page_size - 1));
 
-	for (range = v->cont_ranges ; range ; range = range->next) {
-		if (range->next_ptr + *size <= range->end) {
-			*iova = range->next_ptr;
-			range->next_ptr += *size;
-			return 0;
-		}
-	}
-
-	return 2;
+	return mem_alloc_get(&v->iova_alloc,
+			     iova,
+			     *size);
 }
 
 STATIC struct opae_vfio_buffer *
@@ -539,7 +540,8 @@ opae_vfio_create_buffer(uint8_t *vaddr,
 }
 
 STATIC void
-opae_vfio_destroy_buffer(int fd, struct opae_vfio_buffer *b)
+opae_vfio_destroy_buffer(struct opae_vfio *v,
+			 struct opae_vfio_buffer *b)
 {
 	struct vfio_iommu_type1_dma_unmap dma_unmap;
 
@@ -552,13 +554,17 @@ opae_vfio_destroy_buffer(int fd, struct opae_vfio_buffer *b)
 		dma_unmap.iova = trash->buffer_iova;
 		dma_unmap.size = trash->buffer_size;
 
-		if (ioctl(fd, VFIO_IOMMU_UNMAP_DMA, &dma_unmap) < 0)
+		if (ioctl(v->cont_fd, VFIO_IOMMU_UNMAP_DMA, &dma_unmap) < 0)
 			ERR("ioctl(%d, VFIO_IOMMU_UNMAP_DMA, &dma_unmap)\n",
-			    fd);
+			    v->cont_fd);
 
 		if (munmap(trash->buffer_ptr, trash->buffer_size) < 0)
-			ERR("munmap(0x%p, %lu) failed\n",
+			ERR("munmap(%p, %lu) failed\n",
 			    trash->buffer_ptr, trash->buffer_size);
+
+		if (mem_alloc_put(&v->iova_alloc, trash->buffer_iova))
+			ERR("mem_alloc_put(..., 0x%lx) failed\n",
+			    trash->buffer_iova);
 
 		free(trash);
 	}
@@ -705,7 +711,7 @@ int opae_vfio_buffer_free(struct opae_vfio *v,
 				prev->next = b->next;
 			}
 			b->next = NULL;
-			opae_vfio_destroy_buffer(v->cont_fd, b);
+			opae_vfio_destroy_buffer(v, b);
 			goto out_unlock;
 		}
 	}
@@ -755,6 +761,8 @@ STATIC int opae_vfio_init(struct opae_vfio *v,
 	v->cont_fd = -1;
 	v->group.group_fd = -1;
 	v->device.device_fd = -1;
+
+	mem_alloc_init(&v->iova_alloc);
 
 	if (pthread_mutexattr_init(&mattr)) {
 		ERR("pthread_mutexattr_init()\n");

@@ -29,6 +29,7 @@ import glob
 import os
 import re
 from contextlib import contextmanager
+from pathlib import Path
 from subprocess import CalledProcessError
 from opae.admin.path import sysfs_path
 from opae.admin.utils.process import call_process, DRY_RUN
@@ -269,7 +270,9 @@ class pci_node(sysfs_node):
             This function is recursively called with any children found in
             this node, incrementing the level every recursive call.
         """
-        text = '{}{}\n'.format(' ' * level*4, self)
+        driver = self.find_one('driver')
+        driver_name = Path(driver.sysfs_path).resolve().stem if driver else 'no driver'
+        text = '{}{} ({})\n'.format(' ' * level*4, self, driver_name)
         for n in self.children:
             text += n.tree(level+1)
         return text
@@ -744,3 +747,7 @@ class sysfs_device(sysfs_node):
             return self.node('driver_override')
 
         self.log.warn('driver_override not supported')
+
+
+class pcie_device(sysfs_device):
+    DEVICE_ROOT = 'bus/pci/devices'
