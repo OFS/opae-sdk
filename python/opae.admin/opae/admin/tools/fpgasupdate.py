@@ -424,8 +424,7 @@ def update_fw(args, pac):
     timeout = 1.0
     max_retries = 60 * 5
     # read_file is now deprecated. Leaving it in for backwards compat.
-    while status.value == 'read_file' or status.value == 'reading' \
-        or status.value == 'preparing':
+    while status.value in ['read_file', 'reading', 'preparing']:
         time.sleep(timeout)
         retries += 1
         if retries >= max_retries:
