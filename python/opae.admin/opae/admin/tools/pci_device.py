@@ -84,6 +84,7 @@ def main():
                         help=('pcie address of device '
                               '([segment:]bus:device.function)'))
     parser.add_argument('action', choices=sorted(actions.keys()),
+                        nargs='?',
                         help='action to perform on device')
     parser.add_argument('-E', '--other-endpoints', action='store_true',
                         default=False,
@@ -99,7 +100,7 @@ def main():
 
     pci_device = pci_devices[0]
 
-    actions[args.action](pci_device, args)
+    actions[args.action or 'topology'](pci_device, args)
 
 
 if __name__ == '__main__':
