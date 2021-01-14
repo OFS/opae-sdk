@@ -82,17 +82,17 @@ host exerciser tool time out, by default time out 60000
 
 `-m,--mode`
 
-host exerciser modes are supported lpbk,read, write, trput
+host exerciser test modes are lpbk, read, write, trput
 
 
-`--cl`
+`--cls`
 
-Number of CLs per request 1, 2, 3, 4.
+Number of cachelines per request 1, 2, 3, 4.
 
 
-`--ccont`
+`--continuousmode`
 
-Configures test rollover or test termination.
+Configures test rollover or test termination mode.
 
 
 `-d,--delay`

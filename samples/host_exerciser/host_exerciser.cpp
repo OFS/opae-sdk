@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -31,7 +31,6 @@
 #include "host_exerciser.h"
 
 
-
 int main(int argc, char* argv[])
 {
   host_exerciser::host_exerciser app;
@@ -39,4 +38,3 @@ int main(int argc, char* argv[])
   app.register_command<host_exerciser::host_exerciser_mem>();
   return app.main(argc, argv);
 }
-

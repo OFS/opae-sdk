@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,6 @@ opae_add_executable(TARGET host_exerciser
         ${libuuid_LIBRARIES}
     COMPONENT samplebin
 )
-
 
 set(host_exerciser_src host_exerciser.py)
 

@@ -82,10 +82,10 @@ typedef enum {
 
 //request cache line
 typedef enum {
-  HOSTEXE_CL_1 = 0x0,
-  HOSTEXE_CL_2 = 0x1,
-  HOSTEXE_CL_3 = 0x2,
-  HOSTEXE_CL_4 = 0x2,
+  HOSTEXE_CLS_1 = 0x0,
+  HOSTEXE_CLS_2 = 0x1,
+  HOSTEXE_CLS_3 = 0x2,
+  HOSTEXE_CLS_4 = 0x2,
 } hostexe_req_len;
 
 
@@ -273,11 +273,11 @@ const std::map<std::string, uint32_t> he_modes = {
   { "trput", HOST_EXEMODE_TRUPT},
 };
 
-const std::map<std::string, uint32_t> he_req_cl_len= {
-  { "cl_1", HOSTEXE_CL_1},
-  { "cl_2", HOSTEXE_CL_2},
-  { "cl_3", HOSTEXE_CL_3},
-  { "cl_4", HOSTEXE_CL_4},
+const std::map<std::string, uint32_t> he_req_cls_len= {
+  { "cl_1", HOSTEXE_CLS_1},
+  { "cl_2", HOSTEXE_CLS_2},
+  { "cl_3", HOSTEXE_CLS_3},
+  { "cl_4", HOSTEXE_CLS_4},
 };
 
 const std::map<std::string, uint32_t> he_test_mode = {
@@ -299,11 +299,11 @@ public:
       ->transform(CLI::CheckedTransformer(he_modes))->default_val("lpbk");
 
     // Cache line
-    app_.add_option("--cl", he_req_cl_len_, "number of CLs per request{cl_1, cl_2, cl_3, cl_4}")
-       ->transform(CLI::CheckedTransformer(he_req_cl_len))->default_val("cl_1");
+    app_.add_option("--cls", he_req_cls_len_, "number of CLs per request{cl_1, cl_2, cl_3, cl_4}")
+       ->transform(CLI::CheckedTransformer(he_req_cls_len))->default_val("cl_1");
 
     // Configures test rollover or test termination
-    app_.add_option("--ccont", he_ccont_, "Configures test rollover or test termination")->default_val(false);
+    app_.add_option("--continuousmode", he_continuousmode_, "test rollover or test termination")->default_val(false);
 
     // Delay
     app_.add_option("-d,--delay", he_delay_, "Enables random delay insertion between requests")->default_val(false);
@@ -428,9 +428,9 @@ public:
 public:
   uint32_t count_;
   uint32_t he_modes_;
-  uint32_t he_req_cl_len_;
+  uint32_t he_req_cls_len_;
   bool he_delay_;
-  bool he_ccont_;
+  bool he_continuousmode_;
 
   std::map<uint32_t, uint32_t> limits_;
 

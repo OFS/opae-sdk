@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -94,14 +94,14 @@ public:
         he_lpbk_cfg_.TestMode = host_exe_->he_modes_;
 
         // Host Exerciser Read
-        he_lpbk_cfg_.ReqLen = host_exe_->he_req_cl_len_;
+        he_lpbk_cfg_.ReqLen = host_exe_->he_req_cls_len_;
 
         // Host Exerciser  lpbk delay
         if (host_exe_->he_delay_)
              he_lpbk_cfg_.DelayEn = 1;
 
         //test rollover or test termination
-        if (host_exe_->he_ccont_)
+        if (host_exe_->he_continuousmode_)
              he_lpbk_cfg_.Continuous = 1;
 
         return 0;
