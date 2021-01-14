@@ -456,6 +456,7 @@ int walk(pci_device_t *p)
 	for (uint32_t i = 1; i < BAR_MAX; ++i) {
 		if (!opae_vfio_region_get(v, i, (uint8_t**)&mmio, &size)) {
 			vfio_token *t = get_token(p, i, FPGA_ACCELERATOR);
+			get_guid(1+(uint64_t*)mmio, t->guid);
 			t->mmio_size = size;
 			t->user_mmio_count = 1;
 			t->user_mmio[0] = 0;
