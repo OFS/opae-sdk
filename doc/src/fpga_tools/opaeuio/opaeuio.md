@@ -11,6 +11,8 @@ to/from the dfl-uio-pdev device driver.
 See https://kernel.org/doc/html/v4.14/driver-api/uio-howto.html for a
 description of uio.
 
+## OPTIONS ##
+
 `device`
     The DFL device name, eg dfl_dev.10
 

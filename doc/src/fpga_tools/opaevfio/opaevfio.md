@@ -10,6 +10,8 @@ The ```opaevfio``` command enables the binding/unbinding of a PCIe device
 to/from the vfio-pci device driver. See https://kernel.org/doc/Documentation/vfio.txt
 for a description of vfio-pci.
 
+## OPTIONS ##
+
 `addr`
     The PCIe address of the device in ssss:bb:dd.f format, eg 0000:7f:00.0
 
