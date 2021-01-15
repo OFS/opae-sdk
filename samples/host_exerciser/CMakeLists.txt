@@ -35,6 +35,6 @@ opae_add_executable(TARGET host_exerciser
     COMPONENT samplebin
 )
 
-install(PROGRAMS ${host_exerciser}
+install(PROGRAMS host_exerciser
     DESTINATION bin
     COMPONENT samplebin)
