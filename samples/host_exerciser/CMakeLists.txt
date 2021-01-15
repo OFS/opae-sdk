@@ -34,7 +34,3 @@ opae_add_executable(TARGET host_exerciser
         ${libuuid_LIBRARIES}
     COMPONENT samplebin
 )
-
-install(PROGRAMS host_exerciser
-    DESTINATION bin
-    COMPONENT samplebin)
