@@ -175,7 +175,7 @@ out:
 void free_token_list(vfio_token *tokens)
 {
 	while (tokens) {
-		vfio_token *t = tokens;;
+		vfio_token *t = tokens;
 		tokens = tokens->next;
 		free(t);
 	}
