@@ -179,6 +179,8 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/hssi
 @CMAKE_INSTALL_PREFIX@/bin/dummy_afu
 @CMAKE_INSTALL_PREFIX@/bin/hello_fpga
+@CMAKE_INSTALL_PREFIX@/bin/host_exerciser
+@CMAKE_INSTALL_PREFIX@/bin/fpgahostexerciser*
 %dir @CMAKE_INSTALL_PREFIX@/include/opae
 @CMAKE_INSTALL_PREFIX@/include/opae/*
 %dir @CMAKE_INSTALL_PREFIX@/share/opae
@@ -196,7 +198,6 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/fpgad
 @CMAKE_INSTALL_PREFIX@/bin/opaevfiotest
 @CMAKE_INSTALL_PREFIX@/bin/opaeuiotest
-@CMAKE_INSTALL_PREFIX@/bin/host_exerciser
 @CMAKE_INSTALL_PREFIX@/bin/opaememtest
 @CPACK_RPM_RELOCATION_PATHS@/opae/fpgad.cfg
 @CPACK_RPM_RELOCATION_PATHS@/sysconfig/fpgad.conf

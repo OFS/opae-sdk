@@ -34,3 +34,10 @@ opae_add_executable(TARGET host_exerciser
         ${libuuid_LIBRARIES}
     COMPONENT samplebin
 )
+
+set(fpgahostexerciser_src fpgahostexerciser.py)
+
+CREATE_PYTHON_EXE(fpgahostexerciser ${fpgahostexerciser_src})
+install(PROGRAMS ${PACKAGER_BIN}
+    DESTINATION bin
+    COMPONENT samplebin)
