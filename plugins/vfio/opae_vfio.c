@@ -1113,14 +1113,19 @@ fpga_result vfio_fpgaGetIOAddress(fpga_handle handle, uint64_t wsid,
 		return FPGA_EXCEPTION;
 	}
 	vfio_buffer *ptr = _vfio_buffers;
+	fpga_result res = FPGA_OK;
 	while (ptr) {
 		if (ptr->wsid == wsid) {
 			*ioaddr = ptr->iova;
-			return FPGA_OK;
+			goto out_unlock;
 		}
 		ptr = ptr->next;
 	}
-
-	return FPGA_NOT_FOUND;
+	res = FPGA_NOT_FOUND;
+out_unlock:
+	if (pthread_mutex_unlock(&_buffers_mutex)) {
+		OPAE_MSG("error unlocking buffers mutex");
+	}
+	return res;
 }
 
