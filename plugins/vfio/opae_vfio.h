@@ -79,7 +79,7 @@ typedef struct _pci_device
 	uint32_t vendor;
 	uint32_t device;
 	uint32_t numa_node;
-  struct _vfio_token *tokens;
+	struct _vfio_token *tokens;
 	struct _pci_device *next;
 } pci_device_t;
 
