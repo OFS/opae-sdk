@@ -27,7 +27,8 @@
 #include "afu_test.h"
 #include "host_exerciser.h"
 
-const char *MEM_AFU_ID = "91c2a3a1-4a23-4e21-a7cd-2b36dbf2ed73";
+const char *MEM_AFU_ID = "8568AB4E-6bA5-4616-BB65-2A578330A8EB";
+
 
 using test_afu = opae::afu_test::afu;
 using opae::fpga::types::shared_buffer;
