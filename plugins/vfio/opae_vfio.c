@@ -356,6 +356,7 @@ static int close_vfio_pair(vfio_pair_t **pair)
 STATIC vfio_pair_t *open_vfio_pair(const char *addr)
 {
 	char phys_device[PCIADDR_MAX];
+	char phys_driver[PATH_MAX];
 	char secret[GUIDSTR_MAX];
 	vfio_pair_t *pair = malloc(sizeof(vfio_pair_t));
 	if (!pair) {
@@ -372,7 +373,10 @@ STATIC vfio_pair_t *open_vfio_pair(const char *addr)
 	}
 	memset(pair->device, 0, sizeof(struct opae_vfio));
 
-	if (!read_pci_link(addr, "physfn", phys_device, PCIADDR_MAX)) {
+	if (!read_pci_link(addr, "physfn", phys_device, PCIADDR_MAX) &&
+	    !read_pci_link(phys_device, "driver", phys_driver,
+			   sizeof(phys_driver)) &&
+	    strstr(phys_driver, "vfio-pci")) {
 		uuid_generate(pair->secret);
 		uuid_unparse(pair->secret, secret);
 		pair->physfn = malloc(sizeof(struct opae_vfio));
@@ -453,6 +457,7 @@ int walk(pci_device_t *p)
 	t->mmio_size = size;
 	t->user_mmio_count = 1;
 	t->user_mmio[0] = 0;
+	get_guid(1+(uint64_t*)mmio, t->guid);
 
 	// now let's check other BARs
 	for (uint32_t i = 1; i < BAR_MAX; ++i) {
