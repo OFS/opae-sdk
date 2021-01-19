@@ -28,7 +28,7 @@
 #include "host_exerciser.h"
 #include "host_exerciser_cmd.h"
 
-const char *LPBK_AFU_ID = "D8424DC4-A4A3-C413-F89E-433683F9040B";
+const char *LPBK_AFU_ID = "56E203E9-864F-49A7-B94B-12284C31E02B";
 
 
 using test_afu = opae::afu_test::afu;
