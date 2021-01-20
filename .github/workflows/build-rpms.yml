@@ -22,7 +22,7 @@ jobs:
         run: docker run --rm -v ${{ github.workspace }}:/root opae-${{ matrix.distro }} ${{ matrix.distro }}
       - name: Install and Test RPMs
         run: |
-          cp ${{ github.workspace }}/scripts/test-rpms.sh ${{ matrix.distro }}/.
+          sudo cp ${{ github.workspace }}/scripts/test-rpms.sh ${{ matrix.distro }}/.
           docker run --rm -v ${{ github.workspace }}/${{ matrix.distro }}:/root --entrypoint /bin/bash  opae-${{ matrix.distro }} -c "./test-rpms.sh"
       - name: Upload Artifact
         uses: actions/upload-artifact@v2.1.4
