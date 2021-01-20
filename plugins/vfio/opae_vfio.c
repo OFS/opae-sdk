@@ -86,7 +86,6 @@ typedef struct _vfio_buffer
 
 
 static pci_device_t *_pci_devices;
-static vfio_token *_vfio_tokens;
 static vfio_buffer *_vfio_buffers;
 static pthread_mutex_t _buffers_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
@@ -173,21 +172,22 @@ out:
 	return res;
 }
 
+void free_token_list(vfio_token *tokens)
+{
+	while (tokens) {
+		vfio_token *t = tokens;
+		tokens = tokens->next;
+		free(t);
+	}
+}
+
 void free_device_list()
 {
 	while (_pci_devices) {
 		pci_device_t *p = _pci_devices;
 		_pci_devices = _pci_devices->next;
+		free_token_list(p->tokens);
 		free(p);
-	}
-}
-
-void free_token_list()
-{
-	while (_vfio_tokens) {
-		vfio_token *t = _vfio_tokens;
-		_vfio_tokens = _vfio_tokens->next;
-		free(t);
 	}
 }
 
@@ -298,6 +298,8 @@ vfio_token *clone_token(vfio_token *src)
 		return NULL;
 	}
 	memcpy(token, src, sizeof(vfio_token));
+	if (src->parent)
+		token->parent = clone_token(src->parent);
 	return token;
 }
 
@@ -354,6 +356,7 @@ static int close_vfio_pair(vfio_pair_t **pair)
 STATIC vfio_pair_t *open_vfio_pair(const char *addr)
 {
 	char phys_device[PCIADDR_MAX];
+	char phys_driver[PATH_MAX];
 	char secret[GUIDSTR_MAX];
 	vfio_pair_t *pair = malloc(sizeof(vfio_pair_t));
 	if (!pair) {
@@ -370,7 +373,10 @@ STATIC vfio_pair_t *open_vfio_pair(const char *addr)
 	}
 	memset(pair->device, 0, sizeof(struct opae_vfio));
 
-	if (!read_pci_link(addr, "physfn", phys_device, PCIADDR_MAX)) {
+	if (!read_pci_link(addr, "physfn", phys_device, PCIADDR_MAX) &&
+	    !read_pci_link(phys_device, "driver", phys_driver,
+			   sizeof(phys_driver)) &&
+	    strstr(phys_driver, "vfio-pci")) {
 		uuid_generate(pair->secret);
 		uuid_unparse(pair->secret, secret);
 		pair->physfn = malloc(sizeof(struct opae_vfio));
@@ -451,6 +457,7 @@ int walk(pci_device_t *p)
 	t->mmio_size = size;
 	t->user_mmio_count = 1;
 	t->user_mmio[0] = 0;
+	get_guid(1+(uint64_t*)mmio, t->guid);
 
 	// now let's check other BARs
 	for (uint32_t i = 1; i < BAR_MAX; ++i) {
@@ -468,9 +475,8 @@ close:
 	return res;
 }
 
-int features_discover()
+int features_discover(pci_device_t *p)
 {
-	pci_device_t *p = _pci_devices;
 	while(p) {
 		walk(p);
 		p = p->next;
@@ -836,17 +842,16 @@ void print_dfh(uint32_t offset, dfh *h)
 
 vfio_token *find_token(const pci_device_t *p, uint32_t region)
 {
-	vfio_token *t = _vfio_tokens;
+	vfio_token *t = p->tokens;
 	while (t) {
-		if (t->region == region &&
-		    !strncmp(t->device->addr, p->addr, PCIADDR_MAX))
+		if (t->region == region)
 			return t;
 		t = t->next;
 	}
 	return t;
 }
 
-vfio_token *get_token(const pci_device_t *p, uint32_t region, int type)
+vfio_token *get_token(pci_device_t *p, uint32_t region, int type)
 {
 	vfio_token *t = find_token(p, region);
 	if (t) return t;
@@ -860,11 +865,38 @@ vfio_token *get_token(const pci_device_t *p, uint32_t region, int type)
 	t->device = p;
 	t->region = region;
 	t->type = type;
-	t->next = _vfio_tokens;
-	_vfio_tokens = t;
+	t->next = p->tokens;
+	p->tokens = t;
 	return t;
 }
 
+bool pci_matches_filter(const fpga_properties *filter, pci_device_t *dev)
+{
+	struct _fpga_properties *_prop = (struct _fpga_properties *)filter;
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_SEGMENT))
+		if (_prop->segment != dev->bdf.segment) return false;
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_BUS))
+		if (_prop->bus != dev->bdf.bus) return false;
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_DEVICE))
+		if (_prop->device != dev->bdf.device) return false;
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_FUNCTION))
+		if (_prop->function != dev->bdf.function) return false;
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_SOCKETID))
+		if (_prop->socket_id != dev->numa_node) return false;
+	return true;
+
+}
+
+bool pci_matches_filters(const fpga_properties *filters, uint32_t num_filters,
+		 pci_device_t *dev)
+{
+	if (!filters) return true;
+	for (uint32_t i = 0; i < num_filters; ++i) {
+		if (pci_matches_filter(filters[i], dev))
+			return true;
+	}
+	return false;
+}
 
 bool matches_filter(const fpga_properties *filter, vfio_token *t)
 {
@@ -881,16 +913,6 @@ bool matches_filter(const fpga_properties *filter, vfio_token *t)
 
 	if (FIELD_VALID(_prop, FPGA_PROPERTY_OBJTYPE))
 		if (_prop->objtype != t->type) return false;
-	if (FIELD_VALID(_prop, FPGA_PROPERTY_SEGMENT))
-		if (_prop->segment != t->device->bdf.segment) return false;
-	if (FIELD_VALID(_prop, FPGA_PROPERTY_BUS))
-		if (_prop->bus != t->device->bdf.bus) return false;
-	if (FIELD_VALID(_prop, FPGA_PROPERTY_DEVICE))
-		if (_prop->device != t->device->bdf.device) return false;
-	if (FIELD_VALID(_prop, FPGA_PROPERTY_FUNCTION))
-		if (_prop->function != t->device->bdf.function) return false;
-	if (FIELD_VALID(_prop, FPGA_PROPERTY_SOCKETID))
-		if (_prop->socket_id != t->device->numa_node) return false;
 	if (FIELD_VALID(_prop, FPGA_PROPERTY_GUID)) {
 		if (memcmp(_prop->guid, t->guid, sizeof(fpga_guid))) return false;
 	}
@@ -902,9 +924,9 @@ bool matches_filters(const fpga_properties *filters, uint32_t num_filters,
 {
 	if (!filters) return true;
 	for (uint32_t i = 0; i < num_filters; ++i) {
-		if (!matches_filter(filters[i], t)) return false;
+		if (matches_filter(filters[i], t)) return true;
 	}
-	return true;
+	return false;
 }
 
 void dump_csr(uint8_t *begin, uint8_t *end, uint32_t index)
@@ -944,19 +966,24 @@ fpga_result vfio_fpgaEnumerate(const fpga_properties *filters,
 			       uint32_t num_filters, fpga_token *tokens,
 			       uint32_t max_tokens, uint32_t *num_matches)
 {
-	vfio_token *ptr = _vfio_tokens;
+	pci_device_t *dev = _pci_devices;
 	uint32_t matches = 0;
-	while(ptr) {
-		if (matches_filters(filters, num_filters, ptr)) {
-			if (matches < max_tokens) {
-				vfio_token *tok = clone_token(ptr);
-				if (ptr->parent)
-					tok->parent = clone_token(tok->parent);
-				tokens[matches] = tok;
+	while(dev) {
+		if (pci_matches_filters(filters, num_filters, dev)) {
+			features_discover(dev);
+			vfio_token *ptr = dev->tokens;
+			while(ptr) {
+				if (matches_filters(filters, num_filters, ptr)) {
+					if (matches < max_tokens) {
+						tokens[matches] =
+							clone_token(ptr);
+					}
+					++matches;
+				}
+				ptr = ptr->next;
 			}
-			++matches;
 		}
-		ptr = ptr->next;
+		dev = dev->next;
 	}
 	*num_matches = matches;
 	return FPGA_OK;

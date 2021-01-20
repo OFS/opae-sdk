@@ -45,18 +45,12 @@ int __VFIO_API__ vfio_plugin_initialize(void)
 	if (res) {
 		OPAE_ERR("error with pci_discover\n");
 	}
-	res = features_discover();
-	if (res) {
-		OPAE_ERR("error discovering features\n");
-	}
-
 	return res;
 }
 
 int __VFIO_API__ vfio_plugin_finalize(void)
 {
 	free_buffer_list();
-	free_token_list();
 	free_device_list();
 	return 0;
 }

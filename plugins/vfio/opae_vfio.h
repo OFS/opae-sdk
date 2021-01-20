@@ -69,6 +69,7 @@ typedef union _bdf
 	};
 	uint32_t bdf;
 } bdf_t;
+struct _vfio_token;
 
 #define PCIADDR_MAX 16
 typedef struct _pci_device
@@ -78,6 +79,7 @@ typedef struct _pci_device
 	uint32_t vendor;
 	uint32_t device;
 	uint32_t numa_node;
+	struct _vfio_token *tokens;
 	struct _pci_device *next;
 } pci_device_t;
 
@@ -92,7 +94,7 @@ typedef struct _vfio_token
 	uint32_t magic;
 	fpga_guid guid;
 	fpga_guid compat_id;
-	const pci_device_t *device;
+	pci_device_t *device;
 	uint32_t region;
 	uint32_t offset;
 	uint32_t mmio_size;
@@ -133,6 +135,6 @@ pci_device_t *get_pci_device(char addr[PCIADDR_MAX]);
 void free_device_list();
 void free_token_list();
 void free_buffer_list();
-vfio_token *get_token(const pci_device_t *p, uint32_t region, int type);
+vfio_token *get_token(pci_device_t *p, uint32_t region, int type);
 fpga_result get_guid(uint64_t* h, fpga_guid guid);
 #endif
