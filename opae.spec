@@ -98,6 +98,7 @@ for s in FindHwloc.cmake \
          OPAEPackaging.cmake 
 do
   cp "opae-libs/cmake/modules/${s}" %{buildroot}%{_usr}/src/opae/opae-libs/cmake/modules
+  chmod a+x %{buildroot}%{_usr}/src/opae/opae-libs/cmake/modules/$s
 done
 
 mkdir -p %{buildroot}%{_usr}/src/opae/samples
@@ -157,15 +158,11 @@ popd
 
 
 
+for file in %{buildroot}%{python_sitelib}/opae/admin/tools/{fpgaflash,fpgaotsu,fpgaport,fpgasupdate,ihex2ipmi,rsu,super_rsu,bitstream_info}.py; do
+   chmod a+x $file
+done
 
-%post
-%systemd_post fpgad.service
 
-%preun
-%systemd_preun fpgad.service
-
-%postun
-%systemd_postun_with_restart fpgad.service
 
 %files
 %dir %{_datadir}/opae
@@ -183,6 +180,16 @@ popd
 %{_libdir}/libopae-c++-utils.so.2
 %{_libdir}/libopae-c++-nlb.so.%{version}
 %{_libdir}/libopae-c++-nlb.so.2
+%{_libdir}/libfpgad-api.so.%{version}
+%{_libdir}/libfpgad-api.so.2
+%{_libdir}/libfpgad-api.so
+
+
+%post devel
+%systemd_post fpgad.service
+
+%preun devel
+%systemd_preun fpgad.service
 
 
 %files devel
@@ -245,11 +252,10 @@ popd
 %{_bindir}/fpga_dma_test
 %{_bindir}/PACSign*
 %{_bindir}/fpgad
-/etc/opae/fpgad.cfg
-/etc/sysconfig/fpgad.conf
-%{_libdir}/libfpgad-api.so*
+%config(noreplace) %{_sysconfdir}/opae/fpgad.cfg*
+%config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
+%{_unitdir}/fpgad.service
 %{_libdir}/opae/libfpgad-vc.so*
-/usr/lib/systemd/system/fpgad.service
 %{_bindir}/eth_group_mdev.sh
 /usr/lib/python*/site-packages/opae*
 /usr/lib/python*/site-packages/pacsign*
