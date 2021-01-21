@@ -51,13 +51,29 @@ class pci_op(object):
             raise KeyError(f'{op} is not a valid operation')
         self.op = op
 
-    def __call__(self, pci_device, args):
+    def __call__(self, pci_device, args, *other):
         if not args.other_endpoints:
             getattr(pci_device.pci_node, self.op)()
         else:
             for p in pci_device.pci_node.root.endpoints:
                 if p.pci_address != args.device:
-                    getattr(p, self.op)()
+                    getattr(p, self.op)(*other)
+
+
+class pci_prop(object):
+    def __init__(self, op, arg_type=str):
+        if op not in dir(pci_node):
+            raise KeyError(f'{op} is not a valid operation')
+        self.op = op
+        self.arg_type = arg_type
+
+    def __call__(self, pci_device, args, value):
+        if not args.other_endpoints:
+            setattr(pci_device.pci_node, self.op, self.arg_type(value))
+        else:
+            for p in pci_device.pci_node.root.endpoints:
+                if p.pci_address != args.device:
+                    setattr(p, self.op, self.arg_type(value))
 
 
 def rescan(pci_device, args):
@@ -77,6 +93,7 @@ def main():
     actions = {'unbind': pci_op('unbind'),
                'rescan': rescan,
                'remove': pci_op('remove'),
+               'vf': pci_prop('sriov_numvfs'),
                'topology': topology}
 
     parser = ArgumentParser()
@@ -89,18 +106,15 @@ def main():
     parser.add_argument('-E', '--other-endpoints', action='store_true',
                         default=False,
                         help='perform action on peer pcie devices')
-    args = parser.parse_args()
+    args, rest = parser.parse_known_args()
 
     pci_devices = pcie_device.enum([{'pci_node.pci_address': args.device}])
+
     if not pci_devices:
         raise SystemExit(f'{args.device} not found')
 
-    if len(pci_devices) > 1:
-        raise SystemExit(f'more than one device found for: {args.device}')
-
-    pci_device = pci_devices[0]
-
-    actions[args.action or 'topology'](pci_device, args)
+    for dev in pci_devices:
+        actions[args.action or 'topology'](dev, args, *rest)
 
 
 if __name__ == '__main__':
