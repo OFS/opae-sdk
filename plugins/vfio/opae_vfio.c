@@ -409,7 +409,7 @@ out_destroy:
 }
 
 
-int walk(pci_device_t *p)
+int vfio_walk(pci_device_t *p)
 {
 	int res = 0;
 	volatile uint8_t *mmio;
@@ -473,16 +473,6 @@ int walk(pci_device_t *p)
 close:
 	close_vfio_pair(&pair);
 	return res;
-}
-
-int features_discover(pci_device_t *p)
-{
-	while(p) {
-		walk(p);
-		p = p->next;
-	}
-
-	return 0;
 }
 
 fpga_result vfio_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
@@ -970,7 +960,7 @@ fpga_result vfio_fpgaEnumerate(const fpga_properties *filters,
 	uint32_t matches = 0;
 	while(dev) {
 		if (pci_matches_filters(filters, num_filters, dev)) {
-			features_discover(dev);
+			vfio_walk(dev);
 			vfio_token *ptr = dev->tokens;
 			while(ptr) {
 				if (matches_filters(filters, num_filters, ptr)) {
