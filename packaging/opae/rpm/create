@@ -71,8 +71,23 @@ do
 done
 
 rm -rf "${RPMBUILD_DIR}"
-mkdir -p "${RPMBUILD_DIR}"
 
+# clone opae legancy and tests
+
+CMAKE_BUILD_DIR="${SDK_DIR}/_build"
+rm -rf ${CMAKE_BUILD_DIR}
+mkdir ${CMAKE_BUILD_DIR}
+
+cmake -S ${SDK_DIR} -B ${CMAKE_BUILD_DIR}  -DOPAE_BUILD_LEGACY=ON  -DOPAE_BUILD_TESTS=ON
+
+
+# Create source tarball.
+cd "${SCRIPT_DIR}"
+
+./create-tarball.sh opae-${version}
+
+# Create rpm build folder
+mkdir -p "${RPMBUILD_DIR}"
 for d in 'SOURCES' \
          'BUILD' \
          'RPMS' \
@@ -83,26 +98,16 @@ do
     mkdir -p "${RPMBUILD_DIR}/$d"
 done
 
-# clone opae legancy and tests
-
-CMAKE_BUILD_DIR="${SDK_DIR}/_build"
-rm -rf ${CMAKE_BUILD_DIR}
-mkdir ${CMAKE_BUILD_DIR}
-
-cmake -S ${SDK_DIR} -B ${CMAKE_BUILD_DIR}  -DOPAE_BUILD_LEGACY=ON  -DOPAE_BUILD_TESTS=ON
-
-#cmake .. -DOPAE_BUILD_LEGACY=ON  -DOPAE_BUILD_TESTS=ON
-
-# Create source tarball.
-cd "${SCRIPT_DIR}"
-
-./create-tarball.sh opae-${version}
-
 mv ${SDK_DIR}/../opae-${version}.tar.gz "${RPMBUILD_DIR}/SOURCES"
 
 cp "${SDK_DIR}/opae.spec" ${SCRIPT_DIR}
 
 cd "${SCRIPT_DIR}"
+
+
+
+
+
 cp ./opae.spec "${RPMBUILD_DIR}/SPECS"
 
 
@@ -128,3 +133,4 @@ mv "${RPMBUILD_DIR}"/SRPMS/opae-*.src.rpm "${SCRIPT_DIR}"
 
 # delete rpmbuild directory
 rm -rf $RPMBUILD_DIR
+rm -rf opae.spec

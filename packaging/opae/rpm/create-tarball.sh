@@ -27,5 +27,9 @@ tar --transform=$trans \
   --exclude=external/opae-legacy/tools/hssi \
   --exclude=tools/extra/pyfpgadiag \
   --exclude=tools/extra/pypackager \
+  --exclude=packaging/opae/rpm/create-tarball.sh \
+  --exclude=packaging/opae/rpm/create   \
+  --exclude=packaging/opae/rpm/opae.spec   \
+  --exclude=packaging/opae/rpm/clean   \
   -z -c -f ${opae_dir}.tar.gz opae-sdk
 

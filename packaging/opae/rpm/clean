@@ -33,3 +33,4 @@ RPMBUILD_DIR="${SCRIPT_DIR}/rpmbuild"
 rm -rf "${RPMBUILD_DIR}"
 rm -f "${SCRIPT_DIR}"/opae-*.src.rpm
 rm -f "${SCRIPT_DIR}"/opae-*.x86_64.rpm
+rm -f "${SCRIPT_DIR}"/opae.spec
