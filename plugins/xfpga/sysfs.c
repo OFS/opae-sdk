@@ -1707,6 +1707,16 @@ enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id)
 			OPAE_ERR("unknown device id: 0x%04x", device_id);
 		}
 
+	} else if (vendor_id == 0x1c2c) { /* Silicom Denmark */
+
+		switch (device_id) {
+		case 0x1000: /* Lightning Creek */
+			hw_type = FPGA_HW_DCP_N5010;
+		break;
+		default:
+			OPAE_ERR("unknown Silicom device id: 0x%04x", device_id);
+		}
+
 	} else {
 		OPAE_ERR("unknown vendor id: 0x%04x", vendor_id);
 	}
