@@ -163,7 +163,6 @@ for file in %{buildroot}%{python3_sitelib}/opae/admin/tools/{fpgaflash,fpgaotsu,
 done
 
 
-
 %files
 %dir %{_datadir}/opae
 %doc %{_datadir}/opae/RELEASE_NOTES.md
@@ -257,14 +256,10 @@ done
 %{_unitdir}/fpgad.service
 %{_libdir}/opae/libfpgad-vc.so*
 %{_bindir}/eth_group_mdev.sh
-/usr/lib/python*/site-packages/opae*
-/usr/lib/python*/site-packages/pacsign*
-
-
 %{_usr}/share/opae/*
 %{_datadir}/doc/opae.admin/LICENSE
-
-
+%{python3_sitelib}/opae*
+%{python3_sitelib}/pacsign*
 
 
 
