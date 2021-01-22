@@ -23,13 +23,13 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 from opae.admin.version import pretty_version
 
 setup(
     name="opae.admin",
     version=pretty_version(),
-    packages=find_packages(),
+    packages=find_namespace_packages(include=['opae.*']),
     entry_points={
         'console_scripts': [
             'fpgasupdate = opae.admin.tools.fpgasupdate:main',
@@ -53,4 +53,5 @@ setup(
     data_files=[('share/doc/opae.admin',
                  ['LICENSE'])],
     url="https://01.org/OPAE",
+    namespace_packages=['opae']
 )
