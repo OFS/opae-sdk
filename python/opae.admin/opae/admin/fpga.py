@@ -379,7 +379,7 @@ class fpga_base(sysfs_device):
     FME_PATTERN = 'intel-fpga-fme.*'
     PORT_PATTERN = 'intel-fpga-port.*'
     PCI_DRIVER = 'intel-fpga-pci'
-    BOOT_TYPES = ['bmcimg', 'retimer']
+    BOOT_TYPES = ['bmcimg', 'retimer', 'fpga']
     BOOT_PAGES = {
         (0x8086, 0x0b30): {'bmcimg': {'user': 0,
                                       'factory': 1},

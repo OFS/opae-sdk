@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright(c) 2019-2020, Intel Corporation
+# Copyright(c) 2019-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -44,13 +44,11 @@ except ImportError:
 RSU_LOCK_DIR = '/var/lib/opae'
 RSU_LOCK_FILE = os.path.join(RSU_LOCK_DIR, 'rsu_lock')
 
-USER_BOOT_PAGE = 'user'
-FACTORY_BOOT_PAGE = 'factory'
-
-BOOT_PAGE = {0x0b30: {'bmcimg': {'user': 0,
-                                 'factory': 1}},
-             0x0b2b: {'bmcimg': {'user': 1,
-                                 'factory': 0}}}
+FPGA_TO_AVAILABLE_IMAGES = {
+    '0': 'fpga_user1',
+    '1': 'fpga_user2',
+    'factory': 'fpga_factory'
+}
 
 logger = logging.getLogger('rsu')
 
@@ -91,6 +89,8 @@ def parse_args():
                         help='reload from factory bank')
     parser.add_argument('-d', '--debug', action='store_true',
                         help='log debug statements')
+    parser.add_argument('-p', '--page', choices=['0', '1', 'factory'],
+                        default='0', help='select fpga page')
     return parser.parse_args()
 
 
@@ -106,13 +106,6 @@ def normalize_bdf(bdf):
 
 
 def do_rsu(rsu_type, device, factory):
-    dev_id = device.pci_node.pci_id
-
-    region = fpga.BOOT_PAGES[dev_id].get(rsu_type, {})
-    if not region:
-        logger.error('%s not supported by device', rsu_type)
-        raise SystemExit(os.EX_SOFTWARE)
-
     device.safe_rsu_boot(factory, type=rsu_type)
 
 
@@ -141,6 +134,9 @@ def main():
             raise SystemExit(os.EX_USAGE)
 
     bdf = normalize_bdf(args.bdf)
+
+    if args.type == 'fpga':
+        args.type = FPGA_TO_AVAILABLE_IMAGES[args.page]
 
     Path(RSU_LOCK_DIR).mkdir(parents=True, exist_ok=True)
 
