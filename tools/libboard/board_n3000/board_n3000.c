@@ -77,7 +77,7 @@
 #define IFCONFIG_STR             "ifconfig"
 #define IFCONFIG_UP_STR          "up"
 #define FPGA_ETHINTERFACE_NAME   "npac"
-#define DFL_ETHINTERFACE         "dfl-fme*/net/npac*"
+#define DFL_ETHINTERFACE         "dfl*.*/net/npac*"
 
 
 #define FPGA_BSID_REVISION(id)	(((id) >> 36) & 0xfff)

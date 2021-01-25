@@ -62,6 +62,7 @@ public:
     , packet_length_(64)
     , src_addr_("11:22:33:44:55:66")
     , dest_addr_("77:88:99:aa:bb:cc")
+    , eth_ifc_("none")
     , rnd_seed0_(0x5eed0000)
     , rnd_seed1_(0x5eed0001)
     , rnd_seed2_(0x00025eed)
@@ -111,6 +112,10 @@ public:
                           "destination MAC address");
     opt->default_val(dest_addr_);
 
+    opt = app->add_option("--eth-ifc", eth_ifc_,
+                          "ethernet interface name");
+    opt->default_val(eth_ifc_);
+
     opt = app->add_option("--rnd-seed0", rnd_seed0_,
                           "prbs generator [31:0]");
     opt->default_val(rnd_seed0_);
@@ -142,7 +147,9 @@ public:
       return test_afu::error;
     }
 
-    std::string eth_ifc = hafu->ethernet_interface();
+    std::string eth_ifc = eth_ifc_;
+    if (eth_ifc_ == "none")
+        eth_ifc = hafu->ethernet_interface();
 
     std::cout << "10G loopback test" << std::endl
               << "  port: " << port_ << std::endl
@@ -289,6 +296,7 @@ protected:
   uint32_t packet_length_;
   std::string src_addr_;
   std::string dest_addr_;
+  std::string eth_ifc_;
   uint32_t rnd_seed0_;
   uint32_t rnd_seed1_;
   uint32_t rnd_seed2_;
