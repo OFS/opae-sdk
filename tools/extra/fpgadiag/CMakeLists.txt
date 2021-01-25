@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2017-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -127,6 +127,7 @@ if (SUPPORTS_VFIO)
        set_source_files_properties(eth_group.cpp  PROPERTIES COMPILE_FLAGS -fno-lto)
     endif()
     pybind11_add_module(eth_group THIN_LTO  eth_group.cpp)
+    target_link_libraries(eth_group PRIVATE  opaeuio)
 else(SUPPORTS_VFIO)
     message(WARNING
         "Could not compile VFIO. See errors in vfio_errors.txt")

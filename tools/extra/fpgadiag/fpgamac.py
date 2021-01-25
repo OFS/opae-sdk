@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2018-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -146,7 +146,7 @@ class FPGAMAC(COMMON):
     def eth_group_mac_mtu(self):
         for keys, values in self.eth_grps.items():
             eth_group_inst = eth_group()
-            ret = eth_group_inst.eth_group_open(int(values[0]), values[1])
+            ret = eth_group_inst.eth_group_open(values[0])
             if ret != 0:
                 return None
 

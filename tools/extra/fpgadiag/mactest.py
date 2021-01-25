@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2020, Intel Corporation
+# Copyright(c) 2018-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -176,14 +176,14 @@ def main():
                                     'bitstream_id', depth=3)
 
     mac_addrs = glob.glob(os.path.join(devs[0].get('path'),
-                                       'dfl-fme*', 'dfl-fme*', '*spi*',
+                                       'dfl-fme*', 'dfl*', '*spi*',
                                        'spi_master', 'spi*', 'spi*',
                                        'mac_address'))
     args.mac_addr = None
     if len(mac_addrs) > 0:
         args.mac_addr = mac_addrs[0]
     mac_cnts = glob.glob(os.path.join(devs[0].get('path'),
-                                      'dfl-fme*', 'dfl-fme*', '*spi*',
+                                      'dfl-fme*', 'dfl*', '*spi*',
                                       'spi_master', 'spi*', 'spi*',
                                       'mac_count'))
     args.mac_cnt = None

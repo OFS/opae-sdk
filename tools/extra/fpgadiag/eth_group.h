@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2020, Intel Corporation
+// Copyright(c) 2019-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,7 +24,6 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-
 #ifndef ETH_VFIO_H
 #define ETH_VFIO_H
 
@@ -41,7 +40,7 @@
 #include <iostream>
 #include <mutex>
 #include <stdexcept>
-
+#include <opae/uio.h>
 
 struct eth_group_info {
 	union {
@@ -118,7 +117,7 @@ public:
 
 	~eth_group() {}
 
-	int eth_group_open(int vfio_id, std::string fpga_mdev_str);
+	int eth_group_open(std::string fpga_uid_str);
 	int eth_group_close();
 	uint32_t read_reg(uint32_t type, uint32_t index,
 		uint32_t flags, uint32_t addr);
@@ -141,11 +140,10 @@ private:
 	int reg_size;
 	int reg_offset;
 
-	struct vfio_device_info device_info;
 	struct eth_group_info eth_info;
 	struct dfh eth_dfh;
-
 	uint8_t *mmap_ptr;
+	struct opae_uio uio;
 };
 
 

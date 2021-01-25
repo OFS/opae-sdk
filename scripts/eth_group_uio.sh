@@ -1,7 +1,7 @@
 #!/bin/bash
 #!/bin/bash
 
-#Create FPGA N3000 Eth group mdev
+#Create FPGA N3000 Eth group uio
 set -m
 FPGA_N3000_ETH_FEATURE_ID=0x10
 FPGA_N3000_DEVICE_HEXID=0x0b30
@@ -10,13 +10,13 @@ FPGA_N3000_DEVICE_ID=0b30
 function usage()
 {
   echo "Input fpga ethernet group arguments options:"
-  echo "-c|--create  Creates/enable fpga ethernet group mdev"
-  echo "-r|--remove  Removes/disable fpga ethernet group mdev"
+  echo "-c|--create  Creates/enable fpga ethernet group uio"
+  echo "-r|--remove  Removes/disable fpga ethernet group uio"
   echo "-B|--bus     Fpga pcie device bus number"
   echo "Usage examples:"
-  echo "./eth_group_mdev.sh -c"
-  echo "./eth_group_mdev.sh -r"
-  echo "./eth_group_mdev.sh -C -B b2"
+  echo "./eth_group_uio.sh -c"
+  echo "./eth_group_uio.sh -r"
+  echo "./eth_group_uio.sh -C -B b2"
 }
 
 if [ "$#" -eq 0 ]; then
@@ -25,18 +25,18 @@ if [ "$#" -eq 0 ]; then
   exit 1
 fi
 
-MDEV_CREATE=false
-MDEV_REMOVE=false
+DFLUIO_CREATE=false
+DFLUIO_REMOVE=false
 # Parse command line input
 for arg in "$@"
 do
     case $arg in
         -c|--create)
-        MDEV_CREATE=true
+        DFLUIO_CREATE=true
         shift
         ;;
         -r|--remove)
-        MDEV_REMOVE=true
+        DFLUIO_REMOVE=true
         shift
         ;;
         -B|--bus)
@@ -47,11 +47,11 @@ do
 done
 
 
-echo "mdev create :${MDEV_CREATE}"
-echo "mdev remove :${MDEV_REMOVE}"
+echo "uio create :${DFLUIO_CREATE}"
+echo "uio remove :${DFLUIO_REMOVE}"
 echo "bus number  :${BUS_NUM}"
 
-if [ $MDEV_CREATE == false ] && [ $MDEV_REMOVE == false ]; then
+if [ $DFLUIO_CREATE == false ] && [ $DFLUIO_REMOVE == false ]; then
   echo "Invalid input arguments:$#"
   usage;
   exit 1
@@ -137,56 +137,45 @@ echo "Eth group Feature:${feature_list[*]}"
 # load module
 modprobe vfio_pci
 modprobe vfio_iommu_type1
-modprobe vfio_mdev
-modprobe vfio_mdev_dfl
-var=0
-guid_array=("83b8f4f2-509f-382f-3c1e-e6bfe0fa1001" "83b8f4f2-509f-382f-3c1e-e6bfe0fa1002")
+modprobe dfl_uio_pdev
 
-if [ $MDEV_CREATE == true ]; then
-    echo "------- Creating eth group mdev START -------"
 
-    # two guid array, Host guid "83b8f4f2-509f-382f-3c1e-e6bfe0fa1001" 
-    # Ethernet guid "83b8f4f2-509f-382f-3c1e-e6bfe0fa1002"
+if [ $DFLUIO_CREATE == true ]; then
+    echo "------- Creating eth group uio START -------"
+
     for name in ${feature_list[@]};
     do
         echo "------eth group features------:$name"
         echo "cmd: $name > /sys/bus/dfl/drivers/dfl-eth-group/unbind"
         bash -c "echo $name > /sys/bus/dfl/drivers/dfl-eth-group/unbind"
 
-        echo "cmd: vfio-mdev-dfl > /sys/bus/dfl/devices/$name/driver_override"
-        bash -c "echo vfio-mdev-dfl > /sys/bus/dfl/devices/$name/driver_override"
+        echo "cmd: dfl-uio-pdev > /sys/bus/dfl/devices/$name/driver_override"
+        bash -c "echo dfl-uio-pdev > /sys/bus/dfl/devices/$name/driver_override"
 
         echo "cmd: echo $name >/sys/bus/dfl/drivers_probe"
         bash -c "echo $name > /sys/bus/dfl/drivers_probe"
 
-        echo "guid_array: ${guid_array[var]} "
-        echo "echo  ${guid_array[var]} > /sys/bus/dfl/devices/$name/mdev_supported_types/vfio-mdev-dfl-1/create"
-        bash -c "echo  ${guid_array[var]} > /sys/bus/dfl/devices/$name/mdev_supported_types/vfio-mdev-dfl-1/create"
-        var=$((var + 1))
     done
-    echo "------- Creating eth group mdev END -------"
+    echo "------- Creating eth group uio END -------"
 fi
 
-if [ $MDEV_REMOVE == true ]; then
-    echo "-------Removing eth group mdev START-------"
+if [ $DFLUIO_REMOVE == true ]; then
+    echo "-------Removing eth group UIO START-------"
 
-    # Remove mdev  and enable eht group driver
+    # Remove UIO  and enable eht group driver
     for name in ${feature_list[@]};
     do
         echo "------eth group features------:$name"
-        echo "cmd: echo 1 | sudo tee /sys/bus/mdev/devices/${guid_array[var]}/remove"
-        bash -c "echo 1 | sudo tee /sys/bus/mdev/devices/${guid_array[var]}/remove"
-
         echo "cmd: echo $name >/sys/bus/dfl/drivers_probe"
         bash -c "echo $name > /sys/bus/dfl/drivers_probe"
 
         echo "cmd: dfl-eth-group > /sys/bus/dfl/devices/$name/driver_override"
         bash -c "echo dfl-eth-group > /sys/bus/dfl/devices/$name/driver_override"
-        var=$((var + 1))
+
     done
 
-        rmmod vfio_mdev_dfl
+        rmmod dfl_uio_pdev
         rmmod dfl_eth_group
         modprobe dfl_eth_group
-    echo "-------Removing eth group mdev END-------"
+    echo "-------Removing eth group UIO END-------"
 fi

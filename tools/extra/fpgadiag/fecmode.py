@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2020, Intel Corporation
+# Copyright(c) 2018-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -126,7 +126,7 @@ def get_fec_mode(sbdf, debug):
     if not fpga_path:
         return None
     else:
-        paths = glob.glob(os.path.join(fpga_path, 'dfl-fme*', 'dfl-fme*',
+        paths = glob.glob(os.path.join(fpga_path, 'dfl-fme*', 'dfl*',
                                        'fec_mode'))
         if not paths:
             return None

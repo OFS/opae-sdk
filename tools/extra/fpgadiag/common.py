@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2018-2020, Intel Corporation
+# Copyright(c) 2018-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -125,19 +125,22 @@ class FpgaFinder(object):
 
     def find_eth_group(self, root):
         eth_group = {}
-        paths = glob.glob(ETH_GROUP_IOMMU_GROUPS)
+        paths = glob.glob("/sys/bus/dfl/devices/dfl_*")
         i = 0
+        feature_id = 0
+        uio_path = 0
         for path in paths:
-            one, guid = os.path.split(path)
-            regex = re.compile(r'(/sys/kernel/iommu_groups/\d+)', re.I)
-            one, group_id = os.path.split(regex.findall(path)[0])
-            fpga_path = glob.glob(os.path.join(
-                                  root,
-                                  'dfl-fme*/dfl-fme*/',
-                                  guid))
-            if len(fpga_path) == 0:
+            with open(os.path.join(path,'feature_id'), 'r') as fd:
+                feature_id = fd.read().strip()
+
+            if feature_id != '0x10':
                 continue
-            eth_group[i] = [group_id, guid]
+
+            uio_path = glob.glob(os.path.join(path,'*/uio/uio*'))
+            if len(uio_path) == 0:
+                continue
+            dfl_dev_name = path.split("/sys/bus/dfl/devices/")
+            eth_group[i] = [dfl_dev_name[1], uio_path]
             i = i + 1
         return eth_group
 
@@ -167,7 +170,7 @@ class COMMON(object):
         info = {}
         for keys, values in eth_grps.items():
             eth_group_inst = eth_group()
-            ret = eth_group_inst.eth_group_open(int(values[0]), values[1])
+            ret = eth_group_inst.eth_group_open(values[0])
             if ret != 0:
                 return None
             print("direction:", eth_group_inst.direction)
