@@ -1,7 +1,7 @@
 Summary:        Open Programmable Acceleration Engine (OPAE) SDK
 Name:           opae
 Version:        2.0.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 License:        BSD
 ExclusiveArch:  x86_64
 
@@ -9,7 +9,9 @@ Group:          Development/Libraries
 Vendor:         Intel Corporation
 Requires:       uuid, json-c, python3
 URL:            https://github.com/OPAE/%{name}-sdk
-Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-1/%{name}.tar.gz
+Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-%{Release}/%{name}-%{version}.tar.gz
+
+
 
 BuildRequires:  gcc, gcc-c++
 BuildRequires:  cmake
@@ -20,7 +22,6 @@ BuildRequires:  rpm-build
 BuildRequires:  hwloc-devel
 BuildRequires:  python3-sphinx
 BuildRequires:  doxygen
-BuildRequires:  systemd-rpm-macros
 BuildRequires:  systemd
 BuildRequires:  pybind11-devel
 BuildRequires:  python3-setuptools
@@ -55,46 +56,22 @@ Requires:   libuuid-devel, %{name}%{?_isa} = %{version}-%{release}
 OPAE headers, tools, sample source, and documentation
 
 
+%{?python_disable_dependency_generator}
 
 
 %prep
-%setup -q -n %{name}
+%setup -q -n %{name}-%{version}
 
 %build
 rm -rf _build
 mkdir _build
 cd _build
 
-%cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_PRESERVE_REPOS=ON -DOPAE_BUILD_LEGACY=ON -B $PWD
+%cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_PRESERVE_REPOS=ON -DOPAE_BUILD_LEGACY=ON -DOPAE_BUILD_SAMPLES=ON -B $PWD
 
-%make_build  opae-c \
-         bitstream \
-         xfpga \
-         modbmc \
-         opae-cxx-core \
-         hello_cxxcore \
-         board_a10gx \
-         board_n3000 \
-         board_d5005 \
-         fpgaconf \
-         fpgametrics \
-         fpgainfo \
-         userclk \
-         object_api \
-         hello_fpga \
-         hello_events \
-         bist_app\
-         fpga_dma_N3000_test\
-         fpga_dma_test\
-         opae-c++-utils\
-         opae-c++-nlb\
-         nlb0\
-         nlb3\
-         nlb7\
-         mmlink\
-         fpgad\
-         fpgad-api\
-         fpgad-vc\
+%make_build 
+
+
 
 
 %install
@@ -121,6 +98,7 @@ for s in FindHwloc.cmake \
          OPAEPackaging.cmake 
 do
   cp "opae-libs/cmake/modules/${s}" %{buildroot}%{_usr}/src/opae/opae-libs/cmake/modules
+  chmod a+x %{buildroot}%{_usr}/src/opae/opae-libs/cmake/modules/$s
 done
 
 mkdir -p %{buildroot}%{_usr}/src/opae/samples
@@ -166,26 +144,24 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad_api -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad_vc -P cmake_install.cmake
 
 prev=$PWD
-pushd %{_topdir}/BUILD/opae/python/opae.admin/
-%{__python3} setup.py install --single-version-externally-managed  --root=%{buildroot} --record=$prev/INSTALLED_OPAE_ADMIN_FILES
+pushd %{_topdir}/BUILD/%{name}-%{version}/python/opae.admin/
+%{__python3} setup.py install --single-version-externally-managed  --root=%{buildroot} 
 popd
 
-pushd %{_topdir}/BUILD/opae/python/pacsign
-%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} --record=$prev/INSTALLED_PACSIGN_FILES
+pushd %{_topdir}/BUILD/%{name}-%{version}/python/pacsign
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} 
 popd
 
-pushd %{_topdir}/BUILD/opae/scripts
+pushd %{_topdir}/BUILD/%{name}-%{version}/scripts
 install -m 755 eth_group_mdev.sh %{buildroot}/usr/bin/eth_group_mdev.sh
 popd
 
-%post
-%systemd_post fpgad.service
 
-%preun
-%systemd_preun fpgad.service
 
-%postun
-%systemd_postun_with_restart fpgad.service
+for file in %{buildroot}%{python3_sitelib}/opae/admin/tools/{fpgaflash,fpgaotsu,fpgaport,fpgasupdate,ihex2ipmi,rsu,super_rsu,bitstream_info}.py; do
+   chmod a+x $file
+done
+
 
 %files
 %dir %{_datadir}/opae
@@ -203,6 +179,15 @@ popd
 %{_libdir}/libopae-c++-utils.so.2
 %{_libdir}/libopae-c++-nlb.so.%{version}
 %{_libdir}/libopae-c++-nlb.so.2
+%{_libdir}/libfpgad-api.so.%{version}
+%{_libdir}/libfpgad-api.so.2
+
+
+%post devel
+%systemd_post fpgad.service
+
+%preun devel
+%systemd_preun fpgad.service
 
 
 %files devel
@@ -223,9 +208,11 @@ popd
 %{_libdir}/libopae-c++-utils.so
 %{_libdir}/libopae-c.so
 %{_libdir}/libbitstream.so
+%{_libdir}/libfpgad-api.so
 %{_libdir}/opae/libxfpga.so*
 %{_libdir}/opae/libmodbmc.so*
 %{_bindir}/bist_app*
+%{_bindir}/dummy_afu
 %{_bindir}/bist_common.py*
 %{_bindir}/bist_dma.py*
 %{_bindir}/bist_def.py*
@@ -262,24 +249,26 @@ popd
 %{_bindir}/fpgametrics
 %{_bindir}/fpga_dma_N3000_test
 %{_bindir}/fpga_dma_test
-%{_bindir}/PACSign
+%{_bindir}/PACSign*
 %{_bindir}/fpgad
-/etc/opae/fpgad.cfg
-/etc/sysconfig/fpgad.conf
-%{_libdir}/libfpgad-api.so*
+%config(noreplace) %{_sysconfdir}/opae/fpgad.cfg*
+%config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
+%{_unitdir}/fpgad.service
 %{_libdir}/opae/libfpgad-vc.so*
-/usr/lib/systemd/system/fpgad.service
 %{_bindir}/eth_group_mdev.sh
-
-
 %{_usr}/share/opae/*
-/usr/lib/python*
 %{_datadir}/doc/opae.admin/LICENSE
-
-
+%{python3_sitelib}/opae*
+%{python3_sitelib}/pacsign*
+# part of the jsonschema testsuite, do not deliver
+%exclude /usr/share/opae/python/jsonschema-2.3.0/json/bin/jsonschema_suite
 
 %changelog
-* Thu Sep 17 2020  Ananda Ravuri <ananda.ravuri@intel.com> 2.0.0-1
+* Mon Dec 14 2020 The OPAE Dev Team <opae@lists.01.org> - 2.0.0-2
+- Update OPAE spec file and tarball generation script
+- Fix build errors
+
+* Thu Sep 17 2020 Ananda Ravuri <ananda.ravuri@intel.com> 2.0.0-1
 - Various Static code scan bug fixes
 - Added support to FPGA Linux kernel Device Feature List (DFL) driver.
 - Added support to PAC card N3000 series.
