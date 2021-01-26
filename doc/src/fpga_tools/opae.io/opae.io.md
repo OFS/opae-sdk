@@ -5,7 +5,6 @@
 `opae.io ls [-v,--viddid VID:DID]`<br>
 `opae.io init [-d PCI_ADDR USER[:GROUP]]`<br>
 `opae.io release [-d PCI_ADDR]`<br>
-`opae.io [-d PCI_ADDR] [-r REGION]`<br>
 `opae.io [-d PCI_ADDR] [-r REGION] walk OFFSET [-u,--show-uuid]`<br>
 `opae.io [-d PCI_ADDR] [-r REGION] peek OFFSET`<br>
 `opae.io [-d PCI_ADDR] [-r REGION] poke OFFSET VALUE`<br>
@@ -113,7 +112,7 @@ objects that allow manipulating the active device and MMIO region.
 The `peek` built-in function reads and displays a CSR value from
 the active device and region, at the offset supplied by its argument.
 
-0000:3f:00.0[0]>> peek(0x28)
+0000:3f:00.0[0]>> peek(0x28)<br>
 0xdeadbeef
 
 `poke(OFFSET, VALUE)`
@@ -128,7 +127,7 @@ MMIO region at the given OFFSET.
 The `read_csr` built-in function returns the value of the CSR at
 the active MMIO region and the given OFFSET.
 
-0000:3f:00.0[0]>> print('0x{:0x}'.format(read_csr(0x28)))
+0000:3f:00.0[0]>> print('0x{:0x}'.format(read_csr(0x28)))<br>
 0xdeadbeef
 
 `write_csr(OFFSET, VALUE)`
@@ -143,7 +142,7 @@ the current MMIO region at the given OFFSET.
 The `device` built-in function allows changing the active
 PCIe device.
 
-0000:3f:00.0[0]>> device('0000:2b:00.0')
+0000:3f:00.0[0]>> device('0000:2b:00.0')<br>
 0000:2b:00.0>>
 
 `region(REGION)`
@@ -151,7 +150,7 @@ PCIe device.
 The `region` built-in function allows changing the active
 MMIO region.
 
-0000:2b:00.0>> region(0)
+0000:2b:00.0>> region(0)<br>
 0000:2b:00.0[0]>>
 
 `allocate_buffer(SIZE)`
@@ -160,8 +159,8 @@ The `allocate_buffer` built-in function creates and returns
 a DMA buffer object. The underlying buffer will be SIZE bytes
 in length.
 
-0000:2b:00.0[0]>> b1 = allocate_buffer(4096)
-0000:2b:00.0[0]>> print(b1.size, '0x{:0x}'.format(b1.address), b1.io_address)
+0000:2b:00.0[0]>> b1 = allocate_buffer(4096)<br>
+0000:2b:00.0[0]>> print(b1.size, '0x{:0x}'.format(b1.address), b1.io_address)<br>
 4096 0x7f9361c66000 0
 
 `version()`
@@ -169,7 +168,7 @@ in length.
 The `version` built-in function returns a tuple containing
 the four components used to identify the opae.io version:
 
-0000:2b:00.0[0]>> print(version())
+0000:2b:00.0[0]>> print(version())<br>
 ('opae.io', 0, 2, 0)
 
 ### BUILT-IN OBJECTS ###
@@ -184,13 +183,13 @@ The `device` class:
 the_device.descriptor() : method that returns the integer file
 descriptor of the `VFIO container`.
 
-0000:2b:00.0[0]>> print(the_device.descriptor())
+0000:2b:00.0[0]>> print(the_device.descriptor())<br>
 5
 
 the_device.__repr__() : method that is invoked when a `device`
 object is printed.
 
-0000:2b:00.0[0]>> print(the_device)
+0000:2b:00.0[0]>> print(the_device)<br>
 0000:2b:00.0
 
 the_device.allocate(SIZE) : method that allocates and returns a
@@ -202,19 +201,19 @@ DMA space of `the_device`.
 the_device.pci_address() : read-only property that returns the
 PCIe address of `the_device`.
 
-0000:2b:00.0[0]>> print(the_device.pci_address)
+0000:2b:00.0[0]>> print(the_device.pci_address)<br>
 0000:2b:00.0
 
 the_device.num_regions : read-only property that returns the
 number of MMIO regions in `the_device`.
 
-0000:2b:00.0[0]>> print(the_device.num_regions)
+0000:2b:00.0[0]>> print(the_device.num_regions)<br>
 2
 
 the_device.regions : read-only property that returns a list
 of the active MMIO regions of `the_device`:
 
-0000:2b:00.0[0]>> print(the_device.regions)
+0000:2b:00.0[0]>> print(the_device.regions)<br>
 [0, 2]
 
 The `region` class:
@@ -225,8 +224,8 @@ the_region.write32(OFFSET, VALUE) : method that writes a
 the_region.read32(OFFSET) : method that returns a 32-bit
 CSR at the given OFFSET.
 
-0000:2b:00.0[0]>> the_region.write32(0x28, 0xdeadbeef)
-0000:2b:00.0[0]>> print('0x{:0x}'.format(the_region.read32(0x28)))
+0000:2b:00.0[0]>> the_region.write32(0x28, 0xdeadbeef)<br>
+0000:2b:00.0[0]>> print('0x{:0x}'.format(the_region.read32(0x28)))<br>
 0xdeadbeef
 
 the_region.write64(OFFSET, VALUE): method that writes a
@@ -235,26 +234,26 @@ the_region.write64(OFFSET, VALUE): method that writes a
 the_region.read64(OFFSET): method that returns a 64-bit
 CSR at the given OFFSET.
 
-0000:2b:00.0[0]>> the_region.write64(0x28, 0xbaddecaf)
-0000:2b:00.0[0]>> print('0x{:0x}'.format(the_region.read64(0x28)))
+0000:2b:00.0[0]>> the_region.write64(0x28, 0xbaddecaf)<br>
+0000:2b:00.0[0]>> print('0x{:0x}'.format(the_region.read64(0x28)))<br>
 0xbaddecaf
 
 the_region.index(): method that returns the MMIO index
 of `the_region`.
 
-0000:2b:00.0[0]>> print(the_region.index())
+0000:2b:00.0[0]>> print(the_region.index())<br>
 0
 
 the_region.__repr__(): method that is invoked when a `region`
 object is printed.
 
-0000:2b:00.0[0]>> print(the_region)
+0000:2b:00.0[0]>> print(the_region)<br>
 0
 
 the_region.__len__(): method that is invoked to determine the
 MMIO region size.
 
-0000:2b:00.0[0]>> print(len(the_region))
+0000:2b:00.0[0]>> print(len(the_region))<br>
 524288
 
 The `allocate_buffer()` built-in function and the
@@ -264,37 +263,37 @@ The `system_buffer` class is as follows:
 
 `buf.size`: read-only property that gives the buffer size.
 
-0000:2b:00.0[0]>> print(b1.size)
+0000:2b:00.0[0]>> print(b1.size)<br>
 4096
 
 `buf.address`: read-only property that gives the buffer's
 user mode virtual address.
 
-0000:2b:00.0[0]>> print('0x{:0x}'.format(b1.address))
+0000:2b:00.0[0]>> print('0x{:0x}'.format(b1.address))<br>
 0x7f2c15d8200
 
 `buf.io_address`: read-only property that gives the buffer's
 IO address.
 
-0000:2b:00.0[0]>> print('0x{:0x}'.format(b1.io_address))
+0000:2b:00.0[0]>> print('0x{:0x}'.format(b1.io_address))<br>
 0x0
 
 `buf.__getitem__` and `buf.__setitem__`: indexing get/set
 of 64-bit data item.
 
-0000:2b:00.0[0]>> b1[0] = 0xdecafbad
-0000:2b:00.0[0]>> print('0x{:0x}'.format(b1[0]))
+0000:2b:00.0[0]>> b1[0] = 0xdecafbad<br>
+0000:2b:00.0[0]>> print('0x{:0x}'.format(b1[0]))<br>
 0xdecafbad
 
-`buf.read8(OFFSET)`
-`buf.read16(OFFSET)`
-`buf.read32(OFFSET)`
+`buf.read8(OFFSET)`<br>
+`buf.read16(OFFSET)`<br>
+`buf.read32(OFFSET)`<br>
 `buf.read64(OFFSET)` : methods that read the given size
 data item from the given buffer OFFSET.
 
-`buf.fill8(VALUE)`
-`buf.fill16(VALUE)`
-`buf.fill32(VALUE)`
+`buf.fill8(VALUE)`<br>
+`buf.fill16(VALUE)`<br>
+`buf.fill32(VALUE)`<br>
 `buf.fill64(VALUE)` : methods that fill the buffer with
 the given VALUE, using the given size.
 
