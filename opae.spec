@@ -260,8 +260,8 @@ done
 %{_datadir}/doc/opae.admin/LICENSE
 %{python3_sitelib}/opae*
 %{python3_sitelib}/pacsign*
-
-
+# part of the jsonschema testsuite, do not deliver
+%exclude /usr/share/opae/python/jsonschema-2.3.0/json/bin/jsonschema_suite
 
 %changelog
 * Mon Dec 14 2020 The OPAE Dev Team <opae@lists.01.org> - 2.0.0-2
