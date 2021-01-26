@@ -380,6 +380,11 @@ class fpga_base(sysfs_device):
     PORT_PATTERN = 'intel-fpga-port.*'
     PCI_DRIVER = 'intel-fpga-pci'
     BOOT_TYPES = ['bmcimg', 'retimer', 'fpga']
+    AVAILABLE_IMAGES = ['bmcimg',
+                        'retimer',
+                        'fpga_user1',
+                        'fpga_user2',
+                        'fpga_factory']
     BOOT_PAGES = {
         (0x8086, 0x0b30): {'bmcimg': {'user': 0,
                                       'factory': 1},
@@ -504,10 +509,10 @@ class fpga_base(sysfs_device):
         wait_time = kwargs.pop('wait', 10)
         boot_type = kwargs.get('type', 'bmcimg')
 
-        if boot_type not in self.BOOT_TYPES:
+        if boot_type not in self.AVAILABLE_IMAGES:
             raise TypeError('type: {} not recognized'.format(boot_type))
 
-        if boot_type == 'fpga':
+        if boot_type[:4] == 'fpga':
             to_remove = self.pci_node.root.endpoints
             to_disable = [ep.parent for ep in to_remove]
         else:
