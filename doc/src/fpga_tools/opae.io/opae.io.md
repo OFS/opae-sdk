@@ -107,6 +107,10 @@ objects that allow manipulating the active device and MMIO region.
 
 ### BUILT-IN FUNCTIONS ###
 
+The ```opae.io``` built-in functions assume an active device and
+MMIO region. Attempting to use the built-in functions without first
+opening a device and region will result in errors.
+
 `peek(OFFSET)`
 
 The `peek` built-in function reads and displays a CSR value from
