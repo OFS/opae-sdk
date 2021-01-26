@@ -188,9 +188,9 @@ PYBIND11_MODULE(libvfio, m)
           .def("compare", &system_buffer::compare)
           .def("__repr__", [](system_buffer *b) -> std::string {
              std::ostringstream oss;
-	     oss << "size: " << b->size
+             oss << "size: " << b->size
                  << " virt: 0x" << std::hex << std::setfill('0') << reinterpret_cast<uint64_t>(b->buf)
-		 << " io: 0x" << std::hex << std::setfill('0') << b->iova;
+                 << " io: 0x" << std::hex << std::setfill('0') << b->iova;
              return oss.str();
           });
 }
