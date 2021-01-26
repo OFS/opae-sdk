@@ -2,14 +2,14 @@
 
 ## SYNOPSIS ##
 
-`opae.io ls [-v,--viddid VID:DID]`
-`opae.io init [-d PCI_ADDR USER[:GROUP]]`
-`opae.io release [-d PCI_ADDR]`
-`opae.io [-d PCI_ADDR] [-r REGION]`
-`opae.io [-d PCI_ADDR] [-r REGION] walk OFFSET [-u,--show-uuid]`
-`opae.io [-d PCI_ADDR] [-r REGION] peek OFFSET`
-`opae.io [-d PCI_ADDR] [-r REGION] poke OFFSET VALUE`
-`opae.io [-d PCI_ADDR] [-r REGION] SCRIPT ARG1 ARG2 ... ARGN`
+`opae.io ls [-v,--viddid VID:DID]`<br>
+`opae.io init [-d PCI_ADDR USER[:GROUP]]`<br>
+`opae.io release [-d PCI_ADDR]`<br>
+`opae.io [-d PCI_ADDR] [-r REGION]`<br>
+`opae.io [-d PCI_ADDR] [-r REGION] walk OFFSET [-u,--show-uuid]`<br>
+`opae.io [-d PCI_ADDR] [-r REGION] peek OFFSET`<br>
+`opae.io [-d PCI_ADDR] [-r REGION] poke OFFSET VALUE`<br>
+`opae.io [-d PCI_ADDR] [-r REGION] SCRIPT ARG1 ARG2 ... ARGN`<br>
 `opae.io [-d PCI_ADDR] [-r REGION]`
 
 ## DESCRIPTION ##
