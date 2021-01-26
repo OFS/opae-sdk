@@ -7,6 +7,7 @@ pci_device -h
 fpgasupdate -h
 hssi -h
 dummy_afu -h
+opae.io  -h
 PACSign -h
 
 dd if=/dev/urandom  of=dummy.bin bs=1 count=1024
