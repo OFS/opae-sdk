@@ -117,7 +117,7 @@ public:
 
 	~eth_group() {}
 
-	int eth_group_open(std::string fpga_uid_str);
+	int eth_group_open(const std::string& fpga_uid_str);
 	int eth_group_close();
 	uint32_t read_reg(uint32_t type, uint32_t index,
 		uint32_t flags, uint32_t addr);

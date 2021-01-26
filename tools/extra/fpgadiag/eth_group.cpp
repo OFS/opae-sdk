@@ -45,16 +45,15 @@
 #define ETH_GROUP_MAC		2
 #define ETH_GROUP_ETHER		3
 
-//#define DEV_VFIO_PATH  "/dev/vfio/vfio"
 #define MAC_CONFIG	0x310
 
 #define ETH_GROUP_TIMEOUT          100
 #define ETH_GROUP_TIMEOUT_COUNT    50
 #define ETH_GROUP_RET_VALUE        0xffff
-
+#define ETH_GROUP_FEATUREID        0x10
 
 // open eth group
-int eth_group::eth_group_open(std::string fpga_uid_str)
+int eth_group::eth_group_open(const std::string& fpga_uid_str)
 {
 	int res       = 0;
 	uint8_t *mem  = NULL;
@@ -69,12 +68,17 @@ int eth_group::eth_group_open(std::string fpga_uid_str)
 		return res;
 	}
 
-
 	mmap_ptr = mem;
 	ptr_ = (uint64_t*)mem;
 
-	eth_info.csr = *(ptr_ + 1);
 	eth_dfh.csr = *(ptr_);
+	// Check ETH group FeatureID
+	if (eth_dfh.id != ETH_GROUP_FEATUREID) {
+		printf("Worng Eth group Feature ID \n");
+		return -1;
+	}
+
+	eth_info.csr = *(ptr_ + 1);
 	direction = eth_info.direction;
 	phy_num = eth_info.no_phys;
 	group_id = eth_info.group_num;
@@ -95,19 +99,11 @@ int eth_group::eth_group_open(std::string fpga_uid_str)
 bool eth_group::mac_reset()
 {
 	uint32_t i       = 0;
-	uint32_t value   = 0;
-	int ret           = 0;
-	struct eth_group_mac mac_value;
 
 	for (i = 0; i < phy_num; i++) {
-		value = read_reg(ETH_GROUP_MAC, i, 0, MAC_CONFIG);
-		if (value == ETH_GROUP_RET_VALUE)
+		if (read_reg(ETH_GROUP_MAC, i, 0, MAC_CONFIG) == ETH_GROUP_RET_VALUE)
 			return false;
-
-		mac_value.csr = value;
-		value |= mac_value.mac_mask;
-		ret = write_reg(ETH_GROUP_MAC, i, 0, MAC_CONFIG, 0x0);
-		if (ret != 0)
+		if (write_reg(ETH_GROUP_MAC, i, 0, MAC_CONFIG, 0x0))
 			return false;
 	}
 
@@ -229,7 +225,7 @@ PYBIND11_MODULE(eth_group, m) {
 
 	py::class_<eth_group>(m, "eth_group")
 		.def(py::init<>())
-		.def("eth_group_open", (int(eth_group::*)(std::string))&eth_group::eth_group_open)
+		.def("eth_group_open", (int(eth_group::*)(const std::string&))&eth_group::eth_group_open)
 		.def("eth_group_close",(int(eth_group::*)(void))&eth_group::eth_group_close)
 		.def("read_reg", (uint32_t(eth_group::*)(uint32_t type, uint32_t index, uint32_t flags, uint32_t addrr))&eth_group::read_reg)
 		.def("write_reg", (int(eth_group::*)(uint32_t type, uint32_t index, uint32_t flags, uint32_t addrr, uint32_t data))&eth_group::write_reg)
