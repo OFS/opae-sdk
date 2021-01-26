@@ -181,7 +181,6 @@ done
 %{_libdir}/libopae-c++-nlb.so.2
 %{_libdir}/libfpgad-api.so.%{version}
 %{_libdir}/libfpgad-api.so.2
-%{_libdir}/libfpgad-api.so
 
 
 %post devel
@@ -209,6 +208,7 @@ done
 %{_libdir}/libopae-c++-utils.so
 %{_libdir}/libopae-c.so
 %{_libdir}/libbitstream.so
+%{_libdir}/libfpgad-api.so
 %{_libdir}/opae/libxfpga.so*
 %{_libdir}/opae/libmodbmc.so*
 %{_bindir}/bist_app*
