@@ -181,7 +181,6 @@ done
 %{_libdir}/libopae-c++-nlb.so.2
 %{_libdir}/libfpgad-api.so.%{version}
 %{_libdir}/libfpgad-api.so.2
-%{_libdir}/libfpgad-api.so
 
 
 %post devel
@@ -209,6 +208,7 @@ done
 %{_libdir}/libopae-c++-utils.so
 %{_libdir}/libopae-c.so
 %{_libdir}/libbitstream.so
+%{_libdir}/libfpgad-api.so
 %{_libdir}/opae/libxfpga.so*
 %{_libdir}/opae/libmodbmc.so*
 %{_bindir}/bist_app*
@@ -260,8 +260,8 @@ done
 %{_datadir}/doc/opae.admin/LICENSE
 %{python3_sitelib}/opae*
 %{python3_sitelib}/pacsign*
-
-
+# part of the jsonschema testsuite, do not deliver
+%exclude /usr/share/opae/python/jsonschema-2.3.0/json/bin/jsonschema_suite
 
 %changelog
 * Mon Dec 14 2020 The OPAE Dev Team <opae@lists.01.org> - 2.0.0-2

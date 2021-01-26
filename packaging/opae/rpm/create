@@ -98,7 +98,10 @@ do
     mkdir -p "${RPMBUILD_DIR}/$d"
 done
 
-mv ${SDK_DIR}/../opae-${version}.tar.gz "${RPMBUILD_DIR}/SOURCES"
+# Move tarball to where the rpms will be created
+mv ${SDK_DIR}/../opae-${version}.tar.gz .
+# Copy the tarball to the rpm SOURCES dir
+cp opae-${version}.tar.gz "${RPMBUILD_DIR}/SOURCES"
 
 cp "${SDK_DIR}/opae.spec" ${SCRIPT_DIR}
 
