@@ -168,7 +168,9 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/hssi
 @CMAKE_INSTALL_PREFIX@/bin/dummy_afu
 @CMAKE_INSTALL_PREFIX@/bin/hello_fpga
+@CMAKE_INSTALL_PREFIX@/bin/hello_cxxcore
 @CMAKE_INSTALL_PREFIX@/bin/n5010-ddr-test
+@CMAKE_INSTALL_PREFIX@/bin/object_api
 %dir @CMAKE_INSTALL_PREFIX@/include/opae
 @CMAKE_INSTALL_PREFIX@/include/opae/*
 %dir @CMAKE_INSTALL_PREFIX@/share/opae
@@ -208,6 +210,7 @@ ldconfig
 %license @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DOCDIR@/LICENSE
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/afu_json_mgr
+@CMAKE_INSTALL_PREFIX@/bin/bist
 @CMAKE_INSTALL_PREFIX@/bin/bist_app
 @CMAKE_INSTALL_PREFIX@/bin/bist_app.py
 @CMAKE_INSTALL_PREFIX@/bin/bist_common.py
@@ -240,6 +243,9 @@ ldconfig
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/python/*
 @CMAKE_INSTALL_PREFIX@/share/opae/python/*
 
+# coreidle applies only to a legacy platform that is no longer supported
+%exclude @CMAKE_INSTALL_PREFIX@/bin/coreidle
+
 %if %with_ase == "ON"
 %files ase
 %license @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DOCDIR@/LICENSE
@@ -247,6 +253,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/afu_sim_setup
 @CMAKE_INSTALL_PREFIX@/bin/with_ase
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libase*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c-ase*
 %dir @CMAKE_INSTALL_PREFIX@/share/opae
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/ase/
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/ase/*
