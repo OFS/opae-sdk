@@ -460,7 +460,7 @@ class fpga_base(sysfs_device):
         if kwargs:
             self.log.exception('unrecognized kwargs: %s', kwargs)
             raise ValueError('unrecognized kwargs: {}'.format(kwargs))
-        if boot_type not in self.BOOT_TYPES:
+        if boot_type not in self.AVAILABLE_IMAGES:
             raise TypeError('type: {} not recognized'.format(boot_type))
 
         fpga_sec = self.secure_dev
