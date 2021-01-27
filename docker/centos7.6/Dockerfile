@@ -10,7 +10,6 @@ RUN yum install -y \
         python3-pip \
         python3-devel \
         python3-pybind11 \
-        cmake \
         make \
         libuuid-devel \
         json-c-devel \
@@ -22,7 +21,10 @@ RUN yum install -y \
         rpm-build \
         rpmdevtools \
         git \
-        libedit-devel
+        libedit-devel \
+        epel-release
+
+RUN yum install -y cmake3
 
 RUN python3 -m pip install setuptools --upgrade
 RUN python3 -m pip install wheel
