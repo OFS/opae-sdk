@@ -29,7 +29,7 @@ from opae.admin.version import pretty_version
 setup(
     name="opae.admin",
     version=pretty_version(),
-    packages=find_packages(),
+    packages=find_packages(include=['opae.*']),
     entry_points={
         'console_scripts': [
             'fpgasupdate = opae.admin.tools.fpgasupdate:main',
@@ -53,4 +53,5 @@ setup(
     data_files=[('share/doc/opae.admin',
                  ['LICENSE'])],
     url="https://01.org/OPAE",
+    namespace_packages=['opae']
 )
