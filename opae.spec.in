@@ -228,9 +228,6 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/nlb3
 @CMAKE_INSTALL_PREFIX@/bin/nlb7
 @CMAKE_INSTALL_PREFIX@/bin/packager
-@CMAKE_INSTALL_PREFIX@/bin/mactest
-@CMAKE_INSTALL_PREFIX@/bin/fpgalpbk
-@CMAKE_INSTALL_PREFIX@/bin/fpgastats
 @CMAKE_INSTALL_PREFIX@/bin/pac_hssi_config.py
 @CMAKE_INSTALL_PREFIX@/bin/userclk
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libmml-srv.so*
