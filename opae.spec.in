@@ -121,7 +121,7 @@ mv %_topdir/tmpBRoot $RPM_BUILD_ROOT
 
 prev=$PWD
 pushd @CMAKE_SOURCE_DIR@/python/opae.admin
-%{__python3} setup.py install --single-version-externally-managed -O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_FILES
+%{__python3} setup.py install --single-version-externally-managed -O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_OPAEADMIN_FILES
 popd
 
 pushd @CMAKE_SOURCE_DIR@/python/pacsign
@@ -131,7 +131,14 @@ popd
 
 pushd @CMAKE_SOURCE_DIR@/tools/extra/fpgadiag/
 %{__python3} setup.py install --single-version-externally-managed -O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_FPGADIAG_FILES
+cat $prev/INSTALLED_FPGADIAG_FILES >> $prev/tools-extra-files.txt
 popd
+
+pushd @CMAKE_SOURCE_DIR@/python/opae.io
+%{__python3} setup.py install --single-version-externally-managed %-O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/OPAEIO_INSTALLED_FILES
+cat $prev/OPAEIO_INSTALLED_FILES >> $prev/devel-files.txt
+popd
+
 
 %clean
 
@@ -169,7 +176,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libafu-test.so*
 
 
-%files devel
+%files devel -f devel-files.txt
 %license @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DOCDIR@/LICENSE
 %defattr(-,root,root,-)
 @CMAKE_INSTALL_PREFIX@/bin/afu_platform_config
@@ -186,6 +193,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/share/opae/*
 %dir @CMAKE_INSTALL_PREFIX@/src/opae
 @CMAKE_INSTALL_PREFIX@/src/opae/*
+@CMAKE_INSTALL_PREFIX@/bin/opae.io
 
 %files tools
 %license @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DOCDIR@/LICENSE
@@ -212,10 +220,9 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libboard_a10gx.so*
 
 
-%files tools-extra
+%files tools-extra -f tools-extra-files.txt
 %license @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DOCDIR@/LICENSE
 %defattr(-,root,root,-)
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/python*
 @CMAKE_INSTALL_PREFIX@/bin/afu_json_mgr
 @CMAKE_INSTALL_PREFIX@/bin/bist_app
 @CMAKE_INSTALL_PREFIX@/bin/bist_app.py
@@ -276,7 +283,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/hello_fpga
 @CMAKE_INSTALL_PREFIX@/bin/hello_events
 
-%files opae.admin -f INSTALLED_FILES
+%files opae.admin -f INSTALLED_OPAEADMIN_FILES
 %defattr(-,root,root,-)
 
 %files PACSign -f INSTALLED_PACSIGN_FILES
