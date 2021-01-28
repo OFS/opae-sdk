@@ -27,5 +27,4 @@
 opae_add_static_library(TARGET argsfilter
     SOURCE argsfilter.c
     LIBS opae-c
-    COMPONENT toolargsfilter
 )
