@@ -14,8 +14,8 @@ drivers.
 ### POSITIONAL ARGUMENTS ###
     `device filter`
 
-    pcie address of a device or vendor/device ID pair.
-    The pcie address follows the format of [segment:]bus:device.function
+    PCIe address of a device or vendor/device ID pair.
+    The PCIe address follows the format of [segment:]bus:device.function
     while the vendor/device ID pair follows the format [vendor ID]:[device ID]
     where at least one of these must be present.
 
@@ -24,10 +24,10 @@ drivers.
     action to perform on device
 
     `aer`
-    Perform AER (Advandced Error Reporting) operations.
-    The aer action has its own sub-commands and listed below:
+    Perform AER (Advanced Error Reporting) operations.
+    The aer action has its own sub-commands which are listed below:
 
-    * `dump` sub-command will print out the aer error counters as reported
+    * `dump` sub-command will print out the AER error counters as reported
        by the sysfs files for the device.
     * `mask` can either print out the current AER mask bits or set them
       * If `show` or `print` (or nothing) is given after the `mask`
@@ -37,7 +37,7 @@ drivers.
       * If `all` is given after the `mask` command, it will mask all bits
         (by setting the values to 0xffffffff and 0xffffffff).
       * If `off` is given after the `mask` command, it will unmask all
-        bits ( by setting the values to 0x0 and 0x0).
+        bits (by setting the values to 0x0 and 0x0).
       * If two numbers are present after the `mask` command, those two
         numbers will be used to set the mask bits.
 	Values for setting the mask can also be read in from an input file if
@@ -52,7 +52,7 @@ drivers.
 
     `rescan`
 
-    Rescan the bus as identified by the bus component of the pcie device address
+    Rescan the bus as identified by the bus component of the PCIe device address
 
     'topology`
 
@@ -106,7 +106,7 @@ drivers.
 
     `-E, --other-endpoints`
 
-    perform action on peer pcie devices
+    perform action on peer PCIe devices
 
 ## EXAMPLES ##
     pci_device 0000:3d:00.0 remove
