@@ -117,7 +117,9 @@ endif(OPAE_BUILD_SIM)
 ############################################################################
 
 opae_add_subdirectory(external)
+opae_add_subdirectory(libopaemem)
 opae_add_subdirectory(libopae-c)
+opae_add_subdirectory(libopaevfio)
 opae_add_subdirectory(libbitstream)
 opae_add_subdirectory(plugins)
 
