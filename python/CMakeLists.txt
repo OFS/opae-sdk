@@ -42,17 +42,3 @@ set(INTEL_SECURITY_TOOLS_VERSION 1.0.3 CACHE STRING "Security Tools Version stri
 add_subdirectory(opae.admin)
 add_subdirectory(opae.io)
 
-execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import virtualenv"
-    RESULT_VARIABLE HAS_VIRTUALENV)
-
-if (HAS_VIRTUALENV)
-    message("no virtualenv found, use 'pip install virtualenv' to install it")
-else(HAS_VIRTUALENV)
-    add_custom_target(pydev
-        COMMAND ${PYTHON_EXECUTABLE} -m virtualenv ${CMAKE_CURRENT_BINARY_DIR}
-        COMMAND ${CMAKE_CURRENT_BINARY_DIR}/bin/pip install -e ${CMAKE_CURRENT_SOURCE_DIR}/opae.admin
-        COMMAND echo "Please source ${CMAKE_CURRENT_BINARY_DIR}/bin/activate to use this virtual environment"
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        COMMENT "Setting up virtualenv..."
-        )
-endif(HAS_VIRTUALENV)
