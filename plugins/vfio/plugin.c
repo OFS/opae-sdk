@@ -42,6 +42,7 @@
 int __VFIO_API__ vfio_plugin_initialize(void)
 {
 	int res = pci_discover();
+
 	if (res) {
 		OPAE_ERR("error with pci_discover\n");
 	}
