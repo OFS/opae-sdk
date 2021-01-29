@@ -67,6 +67,7 @@ static platform_data platform_data_table[] = {
 	{ 0x8086, 0x0b2c, "libxfpga.so", 0 },
 	{ 0x8086, 0x0b30, "libxfpga.so", 0 },
 	{ 0x8086, 0x0b31, "libxfpga.so", 0 },
+	{ 0x8086, 0xaf00, "libxfpga.so", 0 },
 	{      0,      0,          NULL, 0 },
 };
 
