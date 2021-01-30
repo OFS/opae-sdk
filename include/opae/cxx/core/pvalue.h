@@ -28,6 +28,7 @@
 #include <opae/properties.h>
 #include <opae/utils.h>
 #include <uuid/uuid.h>
+
 #include <algorithm>
 #include <array>
 #include <cstring>

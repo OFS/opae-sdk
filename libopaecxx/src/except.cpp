@@ -23,14 +23,13 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#include <opae/cxx/core/except.h>
+#include <opae/utils.h>
+
 #include <cerrno>
 #include <cstring>
 #include <iostream>
 #include <sstream>
-
-#include <opae/utils.h>
-
-#include <opae/cxx/core/except.h>
 
 namespace opae {
 namespace fpga {

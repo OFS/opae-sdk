@@ -24,10 +24,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <opae/event.h>
-
 #include <opae/cxx/core/events.h>
 #include <opae/cxx/core/except.h>
+#include <opae/event.h>
 
 namespace opae {
 namespace fpga {
