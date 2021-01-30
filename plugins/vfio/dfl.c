@@ -120,7 +120,9 @@ int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio, int r
 	for (size_t i = 0; i < FME_PORTS; ++i) {
 		port_offset *offset_r = (port_offset *)(mmio+fme_ports[i]);
 
-		if (!offset_r->implemented) continue;
+		if (!offset_r->implemented)
+			continue;
+
 		int bar = offset_r->bar;
 		uint8_t *port_mmio;
 		size_t size = 0;

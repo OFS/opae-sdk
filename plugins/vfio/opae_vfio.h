@@ -127,7 +127,6 @@ int pci_discover(void);
 int features_discover(void);
 pci_device_t *get_pci_device(char addr[PCIADDR_MAX]);
 void free_device_list(void);
-void free_token_list(void);
 void free_buffer_list(void);
 vfio_token *get_token(pci_device_t *p, uint32_t region, int type);
 fpga_result get_guid(uint64_t *h, fpga_guid guid);
