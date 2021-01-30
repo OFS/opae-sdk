@@ -24,10 +24,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
+#include <opae/types_enum.h>
+
 #include <cstdint>
 #include <exception>
-
-#include <opae/types_enum.h>
 
 namespace opae {
 namespace fpga {
