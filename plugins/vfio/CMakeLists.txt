@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2020, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,6 +24,28 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-add_subdirectory(xfpga)
-add_subdirectory(xfpga/metrics/bmc)
-add_subdirectory(vfio)
+set(SRC
+  plugin.c
+  opae_vfio.c
+  dfl.c
+)
+
+set(CMAKE_C_FLAGS "-std=gnu99 ${CMAKE_C_FLAGS}")
+
+opae_add_module_library(TARGET opae-v
+    SOURCE ${SRC}
+    LIBS
+        dl
+        m
+        ${CMAKE_THREAD_LIBS_INIT}
+        opae-c
+        opaevfio
+        ${libjson-c_LIBRARIES}
+        ${libuuid_LIBRARIES}
+    COMPONENT opaevfio
+)
+
+target_include_directories(opae-v PRIVATE
+    ${OPAE_LIBS_ROOT}/libopae-c
+    ${libuuid_INCLUDE}
+    )

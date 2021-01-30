@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,6 +24,31 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-add_subdirectory(xfpga)
-add_subdirectory(xfpga/metrics/bmc)
-add_subdirectory(vfio)
+try_compile(PLATFORM_SUPPORTS_VFIO
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/vfiocheck.c
+    OUTPUT_VARIABLE TRY_COMPILE_OUTPUT
+)
+
+if (PLATFORM_SUPPORTS_VFIO)
+    set(PLATFORM_SUPPORTS_VFIO TRUE CACHE BOOL "Platform supports vfio driver")
+    opae_add_shared_library(TARGET opaevfio
+        SOURCE opaevfio.c
+        LIBS
+            ${CMAKE_THREAD_LIBS_INIT}
+            opaemem
+        VERSION ${OPAE_VERSION}
+        SOVERSION ${OPAE_VERSION_MAJOR}
+        COMPONENT vfiolib
+    )
+
+    opae_add_executable(TARGET opaevfiotest
+        SOURCE opaevfiotest.c
+        LIBS opaevfio
+        COMPONENT vfiotest
+    )
+else(PLATFORM_SUPPORTS_VFIO)
+    message(WARNING
+        "Could not compile VFIO. See errors in platform_vfio_errors.txt")
+    file(WRITE ${CMAKE_BINARY_DIR}/platform_vfio_errors.txt ${TRY_COMPILE_OUTPUT})
+endif(PLATFORM_SUPPORTS_VFIO)
