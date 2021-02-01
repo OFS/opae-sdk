@@ -50,7 +50,7 @@ struct _args_filter_config {
 	int function;
 };
 
- bool get_pci_address(const char *addr,
+STATIC bool get_pci_address(const char *addr,
 			    struct _args_filter_config *c)
 {
 	regex_t re;
