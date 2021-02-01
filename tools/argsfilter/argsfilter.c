@@ -119,8 +119,7 @@ STATIC bool get_pci_address(const char *addr,
 		if ((res) != FPGA_OK) {                                        \
 			optind = 1;                                            \
 			opterr = old_opterr;                                   \
-			fprintf(stderr, "Error %s: %s\n", (desc),              \
-				fpgaErrStr(res));                              \
+			OPAE_ERR("%s: %s\n", (desc), fpgaErrStr(res));         \
 			return EX_SOFTWARE;                                    \
 		}                                                              \
 	} while (0)
@@ -172,8 +171,7 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			args_filter_config.bus =
 				(int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
-				fprintf(stderr, "invalid bus: %s\n",
-					tmp_optarg);
+				OPAE_ERR("invalid bus: %s\n", tmp_optarg);
 				return EX_USAGE;
 			}
 			found_opts[next_found++] = optind - 2;
@@ -186,8 +184,7 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			args_filter_config.device =
 				(int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
-				fprintf(stderr, "invalid device: %s\n",
-					tmp_optarg);
+				OPAE_ERR("invalid device: %s\n", tmp_optarg);
 				return EX_USAGE;
 			}
 			found_opts[next_found++] = optind - 2;
@@ -200,8 +197,7 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			args_filter_config.function =
 				(int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
-				fprintf(stderr, "invalid function: %s\n",
-					tmp_optarg);
+				OPAE_ERR("invalid function: %s\n", tmp_optarg);
 				return EX_USAGE;
 			}
 			found_opts[next_found++] = optind - 2;
@@ -214,14 +210,13 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			args_filter_config.segment =
 				(int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
-				fprintf(stderr, "invalid segment: %s\n",
-					tmp_optarg);
+				OPAE_ERR("invalid segment: %s\n", tmp_optarg);
 				return EX_USAGE;
 			}
 			found_opts[next_found++] = optind - 2;
 			break;
 		case ':': /* missing option argument */
-			fprintf(stderr, "Missing option argument\n");
+			OPAE_ERR("Missing option argument\n");
 			return EX_USAGE;
 
 		case '?':
@@ -229,7 +224,7 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 		case 1:
 			break;
 		default: /* invalid option */
-			fprintf(stderr, "Invalid cmdline options\n");
+			OPAE_ERR("Invalid cmdline options\n");
 			return EX_USAGE;
 		}
 	}
