@@ -50,25 +50,21 @@ struct _args_filter_config {
 	int function;
 };
 
-STATIC bool get_pci_address(const char *addr,
+ bool get_pci_address(const char *addr,
 			    struct _args_filter_config *c)
 {
 	regex_t re;
-	regmatch_t matches[5];
+	regmatch_t matches[6];
 
 	//           11
 	// 012345678901
 	// ssss:bb:dd.f
 	char address[32];
 
-	const char *sbdf = "([0-9a-fA-F]{4}):"
+	const char *sbdf = "(([0-9a-fA-F]{4}):)?"
 			   "([0-9a-fA-F]{2}):"
 			   "([0-9a-fA-F]{2})\\."
 			   "([0-7])";
-
-	const char *bdf = "([0-9a-fA-F]{2}):"
-			  "([0-9a-fA-F]{2})\\."
-			  "([0-7])";
 
 	bool is_match = false;
 
@@ -94,48 +90,23 @@ STATIC bool get_pci_address(const char *addr,
 	regfree(&re);
 
 	if (is_match) {
-		address[matches[1].rm_eo] = '\0';
-		c->segment = (int) strtoul(&address[matches[1].rm_so],
-					   NULL, 16);
-
-		address[matches[2].rm_eo] = '\0';
-		c->bus = (int) strtoul(&address[matches[2].rm_so],
-				       NULL, 16);
-
-		address[matches[3].rm_eo] = '\0';
-		c->device = (int) strtoul(&address[matches[3].rm_so],
-					  NULL, 16);
-
-		c->function = (int) strtoul(&address[matches[4].rm_so],
-					    NULL, 10);
-		return true;
-	}
-
-	memset(matches, 0, sizeof(matches));
-	regcomp(&re, bdf, REG_EXTENDED);
-
-	if (regexec(&re,
-		    address,
-		    sizeof(matches) / sizeof(matches[0]),
-		    matches,
-		    0) == 0) {
-		is_match = true;
-	}
-
-	regfree(&re);
-
-	if (is_match) {
 		c->segment = 0;
 
-		address[matches[1].rm_eo] = '\0';
-		c->bus = (int) strtoul(&address[matches[1].rm_so],
+		if (matches[2].rm_so != -1) {
+			address[matches[2].rm_eo] = '\0';
+			c->segment = (int) strtoul(&address[matches[2].rm_so],
+						   NULL, 16);
+		}
+
+		address[matches[3].rm_eo] = '\0';
+		c->bus = (int) strtoul(&address[matches[3].rm_so],
 				       NULL, 16);
 
-		address[matches[2].rm_eo] = '\0';
-		c->device = (int) strtoul(&address[matches[2].rm_so],
+		address[matches[4].rm_eo] = '\0';
+		c->device = (int) strtoul(&address[matches[4].rm_so],
 					  NULL, 16);
 
-		c->function = (int) strtoul(&address[matches[3].rm_so],
+		c->function = (int) strtoul(&address[matches[5].rm_so],
 					    NULL, 10);
 		return true;
 	}
