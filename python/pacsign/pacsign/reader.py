@@ -111,7 +111,10 @@ class _READER_BASE(object):
         # Offset 0x009 - 0x009
         b0.append_byte(self.cert_type)
 
-        # Offset 0x00A - 0x00F (reserved)
+        # Offset 0x00A - 0x00A (slot)
+        b0.append_byte(self.args.slot_num)
+
+        # Offset 0x00B - 0x00F (reserved)
         while b0.size() < 0x10:
             b0.append_byte(0)
 
@@ -131,6 +134,9 @@ class _READER_BASE(object):
             b0.size() == 96,
             "Expect data size to be 96 Bytes, but found %d Bytes" % b0.size(),
         )
+
+        for i in range(min(len(self.args.bitstream_version), 32)):
+            b0.append_byte(ord(self.args.bitstream_version[i]))
 
         # Offset 0x060 - 0x07F (reserved)
         while b0.size() < 0x80:

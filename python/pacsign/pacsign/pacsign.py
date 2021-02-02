@@ -82,6 +82,14 @@ def add_common_options(parser):
         help="Config file name for key / signing manager (optional)",
     )
     parser.add_argument(
+        "-s",
+        "--slot_num",
+        help="Slot number for image destination.  Only applies to bitstream"
+        " types with multiple slots.",
+        default=0,
+        type=int,
+    )
+    parser.add_argument(
         "-r",
         "--root_key",
         help="Identifier for the root key. Provided as-is to the key manager",
@@ -102,6 +110,10 @@ def add_common_options(parser):
         "--root_bitstream",
         help="Root entry hash programming bitstream. "
         "Used to verify update & cancel bitstreams.",
+    )
+    parser.add_argument(
+        "-b", "--bitstream_version", help="Add version information to bitstream header",
+        default="",
     )
     parser.add_argument(
         "-i", "--input_file", help="File name for the image to be acted upon"
@@ -150,18 +162,27 @@ def main():
         dest="main_command",
     )
     parser_sr = subparsers.add_parser(
-        "SR", aliases=["FIM", "BBS", "SR2", "FIM2", "BBS2"],
-        help="Static FPGA image. '2' suffix is backup/secondary image."
+        "SR", aliases=["FIM", "BBS"],
+        help="Static FPGA image."
     )
     parser_bmc = subparsers.add_parser("BMC", aliases=["BMC_FW"], help="BMC image")
     parser_pr = subparsers.add_parser(
         "PR", aliases=["AFU", "GBS"], help="Reconfigurable FPGA image"
     )
-    parser_print = subparsers.add_parser("print", help="Print header information")
-
+    parser_factory = subparsers.add_parser("FACTORY", help="Factory image")
+    parser_pxe = subparsers.add_parser("PXE", help="PXE or Option ROM image")
+    parser_therm_sr = subparsers.add_parser("THERM_SR", help="Thermal image for static region")
+    parser_therm_pr = subparsers.add_parser("THERM_PR", help="Thermal image for PR region")
     add_common_options(parser_sr)
     add_common_options(parser_bmc)
     add_common_options(parser_pr)
+    add_common_options(parser_factory)
+    add_common_options(parser_pxe)
+    add_common_options(parser_therm_sr)
+    add_common_options(parser_therm_pr)
+
+    parser_print = subparsers.add_parser("print", help="Print header information")
+
     parser_print.add_argument(
         "files", nargs="+", help="List of files whose contents" " are to be printed"
     )
