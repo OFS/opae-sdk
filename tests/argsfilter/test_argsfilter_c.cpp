@@ -80,22 +80,18 @@ TEST_P(argsfilter_c_p, bdf) {
     char seven[20];
     char eight[20];
     char nine[20];
-    char ten[20];
-    char eleven[20];
     char *argv[] = { zero, one, two, three, four, five,
-                     six, seven, eight, nine, ten, eleven };
-    int argc = 12;
+                     six, seven, eight, nine };
+    int argc = 10;
     fpga_result result;
-    char bus[10];
-    char device[10];
-    char function[10];
-    char socket_id[10];
-    char segment[10];
+    char bus[20];
+    char device[20];
+    char function[20];
+    char segment[20];
 
     sprintf(bus, "0x%x", platform_.devices[0].bus);
     sprintf(device, "0x%x", platform_.devices[0].device);
     sprintf(function, "0x%x", platform_.devices[0].function);
-    sprintf(socket_id, "0x%x", platform_.devices[0].socket_id);
     sprintf(segment, "0x%x", platform_.devices[0].segment);
 
     fpga_properties filter = NULL;
@@ -110,9 +106,7 @@ TEST_P(argsfilter_c_p, bdf) {
     strcpy(six, "-F");
     strcpy(seven, function);
     strcpy(eight, "-S");
-    strcpy(nine, socket_id);
-    strcpy(ten, "--segment");
-    strcpy(eleven, segment);
+    strcpy(nine, segment);
     EXPECT_EQ(set_properties_from_args(filter, &result, &argc, argv), 0);
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
     EXPECT_EQ(result, 0);
@@ -287,62 +281,6 @@ TEST_P(argsfilter_c_p, function_neg) {
 }
 
 /**
- * @test       socket_id
- * @brief      Test: set_properties_from_args
- * @details    When passed with valid argument for the socket_id, <br>
- *             the function returns 0. <br>
- */
-TEST_P(argsfilter_c_p, socket_id) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char three[20];
-    char *argv[] = { zero, one, two, three };
-    int argc = 4;
-    fpga_result result;
-    char socket_id[10];
-
-    sprintf(socket_id, "0x%x", platform_.devices[0].socket_id);
-
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "fme");
-    strcpy(two, "-S");
-    strcpy(three, socket_id);
-    EXPECT_EQ(set_properties_from_args(filter, &result, &argc, argv), 0);
-    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
-    EXPECT_EQ(result, 0);
-}
-
-/**
- * @test       socket_neg
- * @brief      Test: set_properties_from_args
- * @details    When passed with invalid argument for the socket, <br>
- *             the function returns an error. <br>
- */
-TEST_P(argsfilter_c_p, socket_neg) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char three[20];
-    char *argv[] = { zero, one, two, three };
-    int argc = 4;
-    fpga_result result;
-
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "fme");
-    strcpy(two, "-S");
-    strcpy(three, "zxyw");
-    EXPECT_NE(set_properties_from_args(filter, &result, &argc, argv), 0);
-    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
-}
-
-/**
  * @test       segment
  * @brief      Test: set_properties_from_args
  * @details    When passed with valid argument for the segment, <br>
@@ -356,7 +294,7 @@ TEST_P(argsfilter_c_p, segment) {
     char *argv[] = { zero, one, two, three };
     int argc = 4;
     fpga_result result;
-    char segment[10];
+    char segment[20];
 
     sprintf(segment, "0x%x", platform_.devices[0].segment);
 
@@ -375,8 +313,8 @@ TEST_P(argsfilter_c_p, segment) {
 /**
  * @test       segment_neg
  * @brief      Test: set_properties_from_args
- * @details    When passed with valid argument for the segment, <br>
- *             the function returns 0. <br>
+ * @details    When passed an invalid argument for the segment, <br>
+ *             the function returns non-zero. <br>
  */
 TEST_P(argsfilter_c_p, segment_neg) {
     char zero[20];
@@ -420,6 +358,133 @@ TEST_P(argsfilter_c_p, argsfilter_neg) {
     strcpy(two, "-B");
     EXPECT_NE(set_properties_from_args(filter, &result, &argc, argv), 0);
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+}
+
+/**
+ * @test       addr_sbdf
+ * @brief      Test: set_properties_from_args
+ * @details    When the arguments to the function contain<br>
+ *             a properly formatted ssss:bb:dd.f, then the<br>
+ *             properties are set appropriately.
+ */
+TEST_P(argsfilter_c_p, addr_sbdf) {
+    char zero[20];
+    char one[20];
+    char two[20];
+    char three[20];
+    char four[20];
+    char five[20];
+    char six[20];
+    char seven[20];
+    char eight[20];
+    char nine[20];
+    char ten[20];
+    char *argv[] = { zero, one, two, three,
+                     four, five, six, seven,
+                     eight, nine, ten };
+    int argc = 11;
+    fpga_result result;
+
+    fpga_properties filter = NULL;
+    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "fme");
+    strcpy(two, "-S");
+    strcpy(three, "0xff");
+    strcpy(four, "-B");
+    strcpy(five, "0xff");
+    strcpy(six, "-D");
+    strcpy(seven, "0xff");
+    strcpy(eight, "-F");
+    strcpy(nine, "7");
+    strcpy(ten, "1234:56:78.7");
+
+    EXPECT_EQ(set_properties_from_args(filter, &result, &argc, argv), 0);
+
+    uint16_t segment = 0;
+    uint8_t bus = 0;
+    uint8_t device = 0;
+    uint8_t function = 0;
+
+    EXPECT_EQ(fpgaPropertiesGetSegment(filter, &segment), FPGA_OK);
+    EXPECT_EQ(segment, 0x1234);
+
+    EXPECT_EQ(fpgaPropertiesGetBus(filter, &bus), FPGA_OK);
+    EXPECT_EQ(bus, 0x56);
+
+    EXPECT_EQ(fpgaPropertiesGetDevice(filter, &device), FPGA_OK);
+    EXPECT_EQ(device, 0x78);
+
+    EXPECT_EQ(fpgaPropertiesGetFunction(filter, &function), FPGA_OK);
+    EXPECT_EQ(function, 7);
+
+    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    EXPECT_EQ(result, 0);
+}
+
+/**
+ * @test       addr_bdf
+ * @brief      Test: set_properties_from_args
+ * @details    When the arguments to the function contain<br>
+ *             a properly formatted bb:dd.f, then the<br>
+ *             properties are set appropriately. The segment<br>
+ *             field is set to 0.
+ */
+TEST_P(argsfilter_c_p, addr_bdf) {
+    char zero[20];
+    char one[20];
+    char two[20];
+    char three[20];
+    char four[20];
+    char five[20];
+    char six[20];
+    char seven[20];
+    char eight[20];
+    char nine[20];
+    char ten[20];
+    char *argv[] = { zero, one, two, three,
+                     four, five, six, seven,
+                     eight, nine, ten };
+    int argc = 11;
+    fpga_result result;
+
+    fpga_properties filter = NULL;
+    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "fme");
+    strcpy(two, "-S");
+    strcpy(three, "0xff");
+    strcpy(four, "-B");
+    strcpy(five, "0xff");
+    strcpy(six, "-D");
+    strcpy(seven, "0xff");
+    strcpy(eight, "-F");
+    strcpy(nine, "7");
+    strcpy(ten, "56:78.7");
+
+    EXPECT_EQ(set_properties_from_args(filter, &result, &argc, argv), 0);
+
+    uint16_t segment = 0xff;
+    uint8_t bus = 0;
+    uint8_t device = 0;
+    uint8_t function = 0;
+
+    EXPECT_EQ(fpgaPropertiesGetSegment(filter, &segment), FPGA_OK);
+    EXPECT_EQ(segment, 0);
+
+    EXPECT_EQ(fpgaPropertiesGetBus(filter, &bus), FPGA_OK);
+    EXPECT_EQ(bus, 0x56);
+
+    EXPECT_EQ(fpgaPropertiesGetDevice(filter, &device), FPGA_OK);
+    EXPECT_EQ(device, 0x78);
+
+    EXPECT_EQ(fpgaPropertiesGetFunction(filter, &function), FPGA_OK);
+    EXPECT_EQ(function, 7);
+
+    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    EXPECT_EQ(result, 0);
 }
 
 INSTANTIATE_TEST_CASE_P(argsfilter_c, argsfilter_c_p,

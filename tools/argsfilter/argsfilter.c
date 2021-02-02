@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,10 +23,18 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
 #include "argsfilter.h"
 #include <getopt.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+#include <regex.h>
+
 #ifdef _WIN32
 #define EX_OK 0
 #define EX_USAGE (-1)
@@ -35,13 +43,75 @@
 #include <sysexits.h>
 #endif
 
+struct _args_filter_config {
+	int segment;
+	int bus;
+	int device;
+	int function;
+};
+
+STATIC bool get_pci_address(regex_t *re,
+			    const char *addr,
+			    struct _args_filter_config *c)
+{
+	regmatch_t matches[6];
+
+	//           11
+	// 012345678901
+	// ssss:bb:dd.f
+	char address[32];
+
+	bool is_match = false;
+
+	size_t len = strlen(addr);
+
+	if (len > 12)
+		return false;
+
+	memcpy(address, addr, len + 1);
+	address[len] = '\0';
+
+	memset(matches, 0, sizeof(matches));
+
+	if (regexec(re,
+		    address,
+		    sizeof(matches) / sizeof(matches[0]),
+		    matches,
+		    0) == 0) {
+		is_match = true;
+	}
+
+	if (is_match) {
+		c->segment = 0;
+
+		if (matches[2].rm_so != -1) {
+			address[matches[2].rm_eo] = '\0';
+			c->segment = (int) strtoul(&address[matches[2].rm_so],
+						   NULL, 16);
+		}
+
+		address[matches[3].rm_eo] = '\0';
+		c->bus = (int) strtoul(&address[matches[3].rm_so],
+				       NULL, 16);
+
+		address[matches[4].rm_eo] = '\0';
+		c->device = (int) strtoul(&address[matches[4].rm_so],
+					  NULL, 16);
+
+		c->function = (int) strtoul(&address[matches[5].rm_so],
+					    NULL, 10);
+		return true;
+	}
+
+	return false;
+}
+
 #define RETURN_ON_ERR(res, desc)                                               \
 	do {                                                                   \
 		if ((res) != FPGA_OK) {                                        \
 			optind = 1;                                            \
 			opterr = old_opterr;                                   \
-			fprintf(stderr, "Error %s: %s\n", (desc),              \
-				fpgaErrStr(res));                              \
+			OPAE_ERR("%s: %s\n", (desc), fpgaErrStr(res));         \
 			return EX_SOFTWARE;                                    \
 		}                                                              \
 	} while (0)
@@ -53,30 +123,35 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 	// ignored
 	const char *short_opts = "-:B:D:F:S:";
 	struct option longopts[] = {
-		{"bus", required_argument, NULL, 'B'},
-		{"device", required_argument, NULL, 'D'},
-		{"function", required_argument, NULL, 'F'},
-		{"socket-id", required_argument, NULL, 'S'},
-		{"segment", required_argument, NULL, 0xe},
+		{ "segment",  required_argument, NULL, 'S'},
+		{ "bus",      required_argument, NULL, 'B'},
+		{ "device",   required_argument, NULL, 'D'},
+		{ "function", required_argument, NULL, 'F'},
 		{0, 0, 0, 0},
 	};
 	int supported_options = sizeof(longopts) / sizeof(longopts[0]) - 1;
 	int getopt_ret = -1;
 	int option_index = 0;
 	char *endptr = NULL;
-	int found_opts[] = {0, 0, 0, 0, 0};
+	int found_opts[] = {0, 0, 0, 0 };
 	int next_found = 0;
-	int old_opterr = opterr;
+	int old_opterr;
+
+	struct _args_filter_config args_filter_config = {
+		.segment = -1,
+		.bus = -1,
+		.device = -1,
+		.function = -1
+	};
+
+	regex_t re;
+	const char *sbdf = "(([0-9a-fA-F]{4}):)?"
+			   "([0-9a-fA-F]{2}):"
+			   "([0-9a-fA-F]{2})\\."
+			   "([0-7])";
+
+	old_opterr = opterr;
 	opterr = 0;
-	struct _args_filter_config {
-		int bus;
-		int device;
-		int function;
-		int socket_id;
-		int segment;
-	} args_filter_config = {
-		.bus = -1, .device = -1, .function = -1, .socket_id = -1,
-		.segment = -1 };
 
 	while (-1
 	       != (getopt_ret = getopt_long(*argc, argv, short_opts, longopts,
@@ -94,8 +169,7 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			args_filter_config.bus =
 				(int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
-				fprintf(stderr, "invalid bus: %s\n",
-					tmp_optarg);
+				OPAE_ERR("invalid bus: %s\n", tmp_optarg);
 				return EX_USAGE;
 			}
 			found_opts[next_found++] = optind - 2;
@@ -108,8 +182,7 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			args_filter_config.device =
 				(int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
-				fprintf(stderr, "invalid device: %s\n",
-					tmp_optarg);
+				OPAE_ERR("invalid device: %s\n", tmp_optarg);
 				return EX_USAGE;
 			}
 			found_opts[next_found++] = optind - 2;
@@ -122,41 +195,26 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			args_filter_config.function =
 				(int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
-				fprintf(stderr, "invalid function: %s\n",
-					tmp_optarg);
+				OPAE_ERR("invalid function: %s\n", tmp_optarg);
 				return EX_USAGE;
 			}
 			found_opts[next_found++] = optind - 2;
 			break;
 
-		case 'S': /* socket */
-			if (NULL == tmp_optarg)
-				break;
-			endptr = NULL;
-			args_filter_config.socket_id =
-				(int)strtoul(tmp_optarg, &endptr, 0);
-			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
-				fprintf(stderr, "invalid socket: %s\n",
-					tmp_optarg);
-				return EX_USAGE;
-			}
-			found_opts[next_found++] = optind - 2;
-			break;
-		case 0xe: /* segment */
+		case 'S': /* segment */
 			if (NULL == tmp_optarg)
 				break;
 			endptr = NULL;
 			args_filter_config.segment =
 				(int)strtoul(tmp_optarg, &endptr, 0);
 			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
-				fprintf(stderr, "invalid segment: %s\n",
-					tmp_optarg);
+				OPAE_ERR("invalid segment: %s\n", tmp_optarg);
 				return EX_USAGE;
 			}
 			found_opts[next_found++] = optind - 2;
 			break;
 		case ':': /* missing option argument */
-			fprintf(stderr, "Missing option argument\n");
+			OPAE_ERR("Missing option argument\n");
 			return EX_USAGE;
 
 		case '?':
@@ -164,38 +222,11 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 		case 1:
 			break;
 		default: /* invalid option */
-			fprintf(stderr, "Invalid cmdline options\n");
+			OPAE_ERR("Invalid cmdline options\n");
 			return EX_USAGE;
 		}
 	}
 
-	if (-1 != args_filter_config.bus) {
-		*result = fpgaPropertiesSetBus(filter, args_filter_config.bus);
-		RETURN_ON_ERR(*result, "setting bus");
-	}
-	if (-1 != args_filter_config.device) {
-		*result = fpgaPropertiesSetDevice(filter,
-						  args_filter_config.device);
-		RETURN_ON_ERR(*result, "setting device");
-	}
-
-	if (-1 != args_filter_config.function) {
-		*result = fpgaPropertiesSetFunction(
-			filter, args_filter_config.function);
-		RETURN_ON_ERR(*result, "setting function");
-	}
-
-	if (-1 != args_filter_config.socket_id) {
-		*result = fpgaPropertiesSetSocketID(
-			filter, args_filter_config.socket_id);
-		RETURN_ON_ERR(*result, "setting socket id");
-	}
-
-	if (-1 != args_filter_config.segment) {
-		*result = fpgaPropertiesSetSegment(
-			filter, args_filter_config.segment);
-		RETURN_ON_ERR(*result, "setting segment");
-	}
 	// using the list of optind values
 	// shorten the argv vector starting with a decrease
 	// of 2 and incrementing that amount by two for each option found
@@ -212,10 +243,46 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 		}
 	}
 	*argc -= removed;
+
 	// restore getopt variables
 	// setting optind to zero will cause getopt to reinitialize for future
 	// calls within the program
 	optind = 0;
 	opterr = old_opterr;
+
+	if (regcomp(&re, sbdf, REG_EXTENDED)) {
+		OPAE_ERR("failed to compile regex for ssss:bb:dd.f\n");
+	} else {
+		for (i = 1 ; i < *argc ; ++i) {
+			if (get_pci_address(&re, argv[i], &args_filter_config)) {
+				break;
+			}
+		}
+		regfree(&re);
+	}
+
+	if (-1 != args_filter_config.segment) {
+		*result = fpgaPropertiesSetSegment(
+			filter, args_filter_config.segment);
+		RETURN_ON_ERR(*result, "setting segment");
+	}
+
+	if (-1 != args_filter_config.bus) {
+		*result = fpgaPropertiesSetBus(filter, args_filter_config.bus);
+		RETURN_ON_ERR(*result, "setting bus");
+	}
+
+	if (-1 != args_filter_config.device) {
+		*result = fpgaPropertiesSetDevice(filter,
+						  args_filter_config.device);
+		RETURN_ON_ERR(*result, "setting device");
+	}
+
+	if (-1 != args_filter_config.function) {
+		*result = fpgaPropertiesSetFunction(
+			filter, args_filter_config.function);
+		RETURN_ON_ERR(*result, "setting function");
+	}
+
 	return EX_OK;
 }
