@@ -500,7 +500,7 @@ fpga_result errors_command(fpga_token *tokens, int num_tokens, int argc,
 
 	int i = 0;
 	for (i = 0; i < num_tokens; ++i) {
-		uint32_t num_errors;
+		uint32_t num_errors = 0;
 
 		res = fpgaGetProperties(tokens[i], &props);
 		if (res == FPGA_OK) {
