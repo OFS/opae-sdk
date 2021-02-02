@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <chrono>
 #include <future>
+#include <memory>
 #include <random>
 #include <thread>
 
@@ -73,14 +74,18 @@ union pcie_address {
 
   static pcie_address parse(const char *s)
   {
-    regex_t re;
+    auto deleter = [&](regex_t *r){
+      regfree(r);
+      delete r;
+    };
+    std::unique_ptr<regex_t, decltype(deleter)> re(new regex_t, deleter);
     regmatch_t matches[MATCHES_SIZE];
 
-    int reg_res = regcomp(&re, sbdf_pattern, REG_EXTENDED | REG_ICASE);
+    int reg_res = regcomp(re.get(), sbdf_pattern, REG_EXTENDED | REG_ICASE);
     if (reg_res)
       throw std::runtime_error("could not compile regex");
 
-    reg_res = regexec(&re, s, MATCHES_SIZE, matches, 0);
+    reg_res = regexec(re.get(), s, MATCHES_SIZE, matches, 0);
     if (reg_res)
       throw std::runtime_error("pcie address not valid format");
 

@@ -32,7 +32,7 @@ set(SRC
 
 set(CMAKE_C_FLAGS "-std=gnu99 ${CMAKE_C_FLAGS}")
 
-opae_add_module_library(TARGET v-opae
+opae_add_module_library(TARGET opae-v
     SOURCE ${SRC}
     LIBS
         dl
@@ -45,7 +45,7 @@ opae_add_module_library(TARGET v-opae
     COMPONENT opaevfio
 )
 
-target_include_directories(v-opae PRIVATE
+target_include_directories(opae-v PRIVATE
     ${OPAE_LIBS_ROOT}/libopae-c
     ${libuuid_INCLUDE}
     )

@@ -58,10 +58,8 @@
 
 #define GUIDSTR_MAX 36
 
-typedef union _bdf
-{
-	struct
-	{
+typedef union _bdf {
+	struct {
 		uint16_t segment;
 		uint8_t bus;
 		uint8_t device : 5;
@@ -72,8 +70,7 @@ typedef union _bdf
 struct _vfio_token;
 
 #define PCIADDR_MAX 16
-typedef struct _pci_device
-{
+typedef struct _pci_device {
 	char addr[PCIADDR_MAX];
 	bdf_t bdf;
 	uint32_t vendor;
@@ -83,14 +80,12 @@ typedef struct _pci_device
 	struct _pci_device *next;
 } pci_device_t;
 
-typedef struct _vfio_ops
-{
-	fpga_result (*reset)(const pci_device_t *p, volatile uint8_t *mmio);
+typedef struct _vfio_ops {
+	fpga_result(*reset)(const pci_device_t *p, volatile uint8_t *mmio);
 } vfio_ops;
 
 #define USER_MMIO_MAX 8
-typedef struct _vfio_token
-{
+typedef struct _vfio_token {
 	uint32_t magic;
 	fpga_guid guid;
 	fpga_guid compat_id;
@@ -111,30 +106,28 @@ typedef struct _vfio_token
 } vfio_token;
 
 
-typedef struct _vfio_pair
-{
+typedef struct _vfio_pair {
 	fpga_guid secret;
 	struct opae_vfio *device;
 	struct opae_vfio *physfn;
 } vfio_pair_t;
 
-typedef struct _vfio_handle
-{
+typedef struct _vfio_handle {
 	uint32_t magic;
 	struct _vfio_token *token;
 	vfio_pair_t *vfio_pair;
+
 	volatile uint8_t *mmio_base;
 	size_t mmio_size;
 	pthread_mutex_t lock;
 } vfio_handle;
 
 
-int pci_discover();
-int features_discover();
+int pci_discover(void);
+int features_discover(void);
 pci_device_t *get_pci_device(char addr[PCIADDR_MAX]);
-void free_device_list();
-void free_token_list();
-void free_buffer_list();
+void free_device_list(void);
+void free_buffer_list(void);
 vfio_token *get_token(pci_device_t *p, uint32_t region, int type);
-fpga_result get_guid(uint64_t* h, fpga_guid guid);
+fpga_result get_guid(uint64_t *h, fpga_guid guid);
 #endif

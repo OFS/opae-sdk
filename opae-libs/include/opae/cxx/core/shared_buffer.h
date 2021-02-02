@@ -24,16 +24,16 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
+#include <opae/buffer.h>
+#include <opae/cxx/core/except.h>
+#include <opae/cxx/core/handle.h>
+
 #include <chrono>
 #include <cstdint>
 #include <initializer_list>
 #include <memory>
 #include <thread>
 #include <vector>
-
-#include <opae/buffer.h>
-#include <opae/cxx/core/except.h>
-#include <opae/cxx/core/handle.h>
 
 namespace opae {
 namespace fpga {
