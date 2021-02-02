@@ -42,13 +42,15 @@ static fpga_result legacy_port_reset(const pci_device_t *p,
 				     volatile uint8_t *port_base)
 {
 	(void)p;
-	port_control *cntrl = (port_control*)(port_base + PORT_CONTROL);
+	port_control *cntrl = (port_control *)(port_base + PORT_CONTROL);
+
 	cntrl->port_reset = 1;
 	(void)*cntrl;
 	struct timespec ts = { .tv_sec = 0, .tv_nsec = 500 };
 	uint64_t cycles = 0;
 	const uint64_t port_timeout = 1000;
-	while(!cntrl->port_reset_ack) {
+
+	while (!cntrl->port_reset_ack) {
 		(void)*cntrl;
 		nanosleep(&ts, NULL);
 		if (++cycles > port_timeout) {
@@ -61,10 +63,10 @@ static fpga_result legacy_port_reset(const pci_device_t *p,
 }
 
 
-static inline dfh *next_dfh(dfh* h)
+static inline dfh *next_dfh(dfh *h)
 {
 	if (h && h->next && !h->eol)
-		return (dfh*)(((uint8_t*)h)+h->next);
+		return (dfh *)(((uint8_t *)h)+h->next);
 	return NULL;
 }
 
@@ -74,8 +76,9 @@ int walk_port(vfio_token *parent, uint32_t region, volatile uint8_t *mmio)
 {
 	//walk_port
 	vfio_token *port = get_token(parent->device, region, FPGA_ACCELERATOR);
-	port_next_afu *next_afu = (port_next_afu*)(mmio+PORT_NEXT_AFU);
-	port_capability *cap = (port_capability*)(mmio+PORT_CAPABILITY);
+	port_next_afu *next_afu = (port_next_afu *)(mmio+PORT_NEXT_AFU);
+	port_capability *cap = (port_capability *)(mmio+PORT_CAPABILITY);
+
 	port->parent = parent;
 	port->mmio_size = cap->mmio_size;
 	port->user_mmio_count = 1;
@@ -85,12 +88,12 @@ int walk_port(vfio_token *parent, uint32_t region, volatile uint8_t *mmio)
 	if (port->ops.reset(port->device, mmio)) {
 		OPAE_ERR("error resetting port");
 	}
-	get_guid(1+(uint64_t*)(mmio+next_afu->port_afu_dfh_offset), port->guid);
+	get_guid(1+(uint64_t *)(mmio+next_afu->port_afu_dfh_offset), port->guid);
 	// look for stp and if found, add it to user_mmio offsets
 	for_each_dfh(h, mmio) {
 		if (h->id == PORT_STP_ID) {
-			port->user_mmio_count+= 1;
-			port->user_mmio[1] = (uint8_t*)h - mmio;
+			port->user_mmio_count += 1;
+			port->user_mmio[1] = (uint8_t *)h - mmio;
 			break;
 		}
 	}
@@ -100,23 +103,30 @@ int walk_port(vfio_token *parent, uint32_t region, volatile uint8_t *mmio)
 int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio, int region)
 {
 	vfio_token *fme = get_token(p, region, FPGA_DEVICE);
-	get_guid(1+(uint64_t*)mmio, fme->guid);
-	fme->bitstream_id = *(uint64_t*)(mmio+BITSTREAM_ID);
-	fme->bitstream_mdata = *(uint64_t*)(mmio+BITSTREAM_MD);
-	fab_capability *cap = (fab_capability*)(mmio+FAB_CAPABILITY);
+
+	get_guid(1+(uint64_t *)mmio, fme->guid);
+	fme->bitstream_id = *(uint64_t *)(mmio+BITSTREAM_ID);
+	fme->bitstream_mdata = *(uint64_t *)(mmio+BITSTREAM_MD);
+	fab_capability *cap = (fab_capability *)(mmio+FAB_CAPABILITY);
+
 	fme->num_ports = cap->num_ports;
 	for_each_dfh(h, mmio) {
 		if (h->id == PR_FEATURE_ID) {
-			uint8_t *pr_id = PR_INTFC_ID_LO+(uint8_t*)h;
-			get_guid((uint64_t*)pr_id, fme->compat_id);
+			uint8_t *pr_id = PR_INTFC_ID_LO+(uint8_t *)h;
+
+			get_guid((uint64_t *)pr_id, fme->compat_id);
 		}
 	}
 	for (size_t i = 0; i < FME_PORTS; ++i) {
-		port_offset *offset_r = (port_offset*)(mmio+fme_ports[i]);
-		if (!offset_r->implemented) continue;
+		port_offset *offset_r = (port_offset *)(mmio+fme_ports[i]);
+
+		if (!offset_r->implemented)
+			continue;
+
 		int bar = offset_r->bar;
 		uint8_t *port_mmio;
 		size_t size = 0;
+
 		if (opae_vfio_region_get(v, bar, &port_mmio, &size)) {
 			OPAE_ERR("error getting port %lu", i);
 			continue;

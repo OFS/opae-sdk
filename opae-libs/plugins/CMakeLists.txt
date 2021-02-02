@@ -26,3 +26,4 @@
 
 add_subdirectory(xfpga)
 add_subdirectory(xfpga/metrics/bmc)
+add_subdirectory(vfio)

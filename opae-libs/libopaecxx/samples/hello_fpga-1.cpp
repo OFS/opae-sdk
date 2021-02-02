@@ -26,19 +26,18 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif  // HAVE_CONFIG_H
-#include <algorithm>
-#include <chrono>
-#include <iostream>
-#include <string>
-#include <thread>
-
-#include <uuid/uuid.h>
-
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
 #include <opae/cxx/core/shared_buffer.h>
 #include <opae/cxx/core/token.h>
 #include <opae/cxx/core/version.h>
+#include <uuid/uuid.h>
+
+#include <algorithm>
+#include <chrono>
+#include <iostream>
+#include <string>
+#include <thread>
 
 using namespace opae::fpga::types;
 

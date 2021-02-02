@@ -24,13 +24,13 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from setuptools import find_namespace_packages
+from setuptools import find_packages
 from distutils.core import Extension, setup
 
 setup(
     name="opae.io",
     version="0.1",
-    packages=find_namespace_packages(include=['opae.*']),
+    packages=find_packages(include=['opae.*']),
     entry_points={
         'console_scripts': []
     },
