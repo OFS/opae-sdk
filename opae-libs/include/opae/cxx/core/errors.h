@@ -27,6 +27,7 @@
 
 #include <opae/cxx/core/token.h>
 #include <opae/types_enum.h>
+
 #include <memory>
 
 namespace opae {

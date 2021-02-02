@@ -26,6 +26,7 @@
 #include <opae/cxx/core/except.h>
 #include <opae/cxx/core/token.h>
 #include <opae/utils.h>
+
 #include <algorithm>
 
 namespace opae {

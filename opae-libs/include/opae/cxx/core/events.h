@@ -25,11 +25,10 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
-#include <memory>
-
+#include <opae/cxx/core/handle.h>
 #include <opae/types_enum.h>
 
-#include <opae/cxx/core/handle.h>
+#include <memory>
 
 namespace opae {
 namespace fpga {

@@ -1,4 +1,4 @@
-dist: bionic
+dist: focal
 language: c
 compiler: gcc
 matrix:
@@ -22,3 +22,4 @@ matrix:
         - libtbb-dev
         - uuid-dev
         - doxygen
+        - linux-headers-generic

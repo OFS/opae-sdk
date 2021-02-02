@@ -27,9 +27,10 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(opae-libs)
 
+set(OPAE_VERSION_LOCAL   "" CACHE STRING "OPAE local version")
 set(OPAE_VERSION_MAJOR    2 CACHE STRING "OPAE major version" FORCE)
 set(OPAE_VERSION_MINOR    0 CACHE STRING "OPAE minor version" FORCE)
-set(OPAE_VERSION_REVISION 1 CACHE STRING "OPAE revision version" FORCE)
+set(OPAE_VERSION_REVISION 1${OPAE_VERSION_LOCAL} CACHE STRING "OPAE revision version" FORCE)
 set(OPAE_VERSION ${OPAE_VERSION_MAJOR}.${OPAE_VERSION_MINOR}.${OPAE_VERSION_REVISION}
     CACHE STRING "OPAE version" FORCE)
 
@@ -116,7 +117,10 @@ endif(OPAE_BUILD_SIM)
 ############################################################################
 
 opae_add_subdirectory(external)
+opae_add_subdirectory(libopaemem)
 opae_add_subdirectory(libopae-c)
+opae_add_subdirectory(libopaeuio)
+opae_add_subdirectory(libopaevfio)
 opae_add_subdirectory(libbitstream)
 opae_add_subdirectory(plugins)
 
