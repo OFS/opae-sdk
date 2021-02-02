@@ -47,7 +47,6 @@ struct config {
     int bus;
     int device;
     int function;
-    int socket;
   } target;
   char *filename;
 };
@@ -233,9 +232,7 @@ TEST_P(fpgaconf_c_p, parse_args1) {
   char twelve[20];
   char thirteen[20];
   char fourteen[20];
-  char fifteen[20];
-  char sixteen[20];
-  char seventeen[30];
+  char fifteen[30];
   strcpy(zero, "fpgaconf");
   strcpy(one, "-V");
   strcpy(two, "-n");
@@ -248,19 +245,17 @@ TEST_P(fpgaconf_c_p, parse_args1) {
   strcpy(nine, "0xab");
   strcpy(ten, "-F");
   strcpy(eleven, "3");
-  strcpy(twelve, "-S");
-  strcpy(thirteen, "2");
-  strcpy(fourteen, "-A");
-  strcpy(fifteen, "-I");
-  strcpy(sixteen, "--skip-usrclk");
-  strcpy(seventeen, tmpfilename);
+  strcpy(twelve, "-A");
+  strcpy(thirteen, "-I");
+  strcpy(fourteen, "--skip-usrclk");
+  strcpy(fifteen, tmpfilename);
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten, eleven, twelve, thirteen, fourteen,
-                   fifteen, sixteen, seventeen };
+                   ten, eleven, twelve,
+                   thirteen, fourteen, fifteen };
 
-  EXPECT_EQ(parse_args(18, argv), 0);
+  EXPECT_EQ(parse_args(16, argv), 0);
   EXPECT_EQ(config.verbosity, 1);
   EXPECT_NE(config.dry_run, 0);
   EXPECT_NE(config.flags & FPGA_RECONF_FORCE, 0);
@@ -269,7 +264,6 @@ TEST_P(fpgaconf_c_p, parse_args1) {
   EXPECT_EQ(config.target.bus, 0x5e);
   EXPECT_EQ(config.target.device, 0xab);
   EXPECT_EQ(config.target.function, 3);
-  EXPECT_EQ(config.target.socket, 2);
   EXPECT_EQ(config.mode, 0);
   ASSERT_NE(config.filename, nullptr);
   EXPECT_STREQ(basename(config.filename), tmpfilename);
@@ -314,8 +308,6 @@ TEST_P(fpgaconf_c_p, invalid_parse_args1) {
   char nine[32];
   char ten[48];
   char eleven[32];
-  char twelve[32];
-  char thirteen[32];
   strcpy(zero, " fpgaconf Q&%^#;'kk/");
   strcpy(one, "-verbosesss \n\t\b\e\a\?");
   strcpy(two, "--n");
@@ -328,14 +320,12 @@ TEST_P(fpgaconf_c_p, invalid_parse_args1) {
   strcpy(nine, "0xab");
   strcpy(ten, " =====%34 -Function \x09\x0B\x0D");
   strcpy(eleven, "3");
-  strcpy(twelve, "-Socket__ \xF1-\xF3 \x8F");
-  strcpy(thirteen, "2");
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten, eleven, twelve, thirteen };
+                   ten, eleven };
 
-  EXPECT_LT(parse_args(14, argv), 0);
+  EXPECT_LT(parse_args(12, argv), 0);
 }
 
 /**
@@ -560,41 +550,6 @@ TEST_P(fpgaconf_c_p, main_dev_neg) {
   EXPECT_NE(fpgaconf_main(3, argv), 0);
 }
 
-/**
- * @test       main_soc_neg
- * @brief      Test: fpgaconf_main
- * @details    When the command params for socket are invalid,<br>
- *             fpgaconf_main displays an error and returns non-zero.<br>
- */
-TEST_P(fpgaconf_c_p, main_soc_neg) {
-  char zero[20];
-  char one[20];
-  char two[20];
-  strcpy(zero, "fpgaconf");
-  strcpy(one, "-S");
-  strcpy(two, "k");
-
-  char *argv[] = { zero, one, two };
-
-  EXPECT_NE(fpgaconf_main(3, argv), 0);
-}
-
-/**
- * @test       main_missing_arg
- * @brief      Test: fpgaconf_main
- * @details    When the command params is missing an argument,<br>
- *             fpgaconf_main displays an error and returns non-zero.<br>
- */
-TEST_P(fpgaconf_c_p, main_missing_arg) {
-  char zero[20];
-  char one[20];
-  strcpy(zero, "fpgaconf");
-  strcpy(one, "-S");
-
-  char *argv[] = { zero, one };
-
-  EXPECT_NE(fpgaconf_main(2, argv), 0);
-}
 
 /**
  * @test       main_missing_gbs
@@ -886,7 +841,7 @@ class fpgaconf_c_mock_p : public fpgaconf_c_p{
  * @test       ifc_id0
  * @brief      Test: print_interface_id
  * @details    When the config.target struct is populated with<br>
- *             bus, device, function, and socket,<br>
+ *             bus, device, function <br>
  *             print_interface_id uses those settings for enumeration,<br>
  *             returning the number of matches found.<br>
  */
@@ -895,7 +850,6 @@ TEST_P(fpgaconf_c_mock_p, ifc_id0) {
   config.target.bus = platform_.devices[0].bus;
   config.target.device = platform_.devices[0].device;
   config.target.function = platform_.devices[0].function;
-  config.target.socket = platform_.devices[0].socket_id;
   EXPECT_EQ(print_interface_id(test_guid), 1);
 }
 
@@ -903,7 +857,7 @@ TEST_P(fpgaconf_c_mock_p, ifc_id0) {
  * @test       find_fpga1
  * @brief      Test: find_fpga
  * @details    When the config.target struct is populated with<br>
- *             bus, device, function, and socket,<br>
+ *             bus, device, function <br>
  *             find_fpga uses those settings in conjunction with the
  *             given PR interface ID for enumeration,<br>
  *             returning the number of matches found.<br>
@@ -913,7 +867,6 @@ TEST_P(fpgaconf_c_mock_p, find_fpga1) {
   config.target.bus = platform_.devices[0].bus;
   config.target.device = platform_.devices[0].device;
   config.target.function = platform_.devices[0].function;
-  config.target.socket = platform_.devices[0].socket_id;
 
   fpga_guid pr_ifc_id;
   ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, pr_ifc_id), 0);
@@ -936,7 +889,6 @@ TEST_P(fpgaconf_c_mock_p, prog_bs0) {
   config.target.bus = platform_.devices[0].bus;
   config.target.device = platform_.devices[0].device;
   config.target.function = platform_.devices[0].function;
-  config.target.socket = platform_.devices[0].socket_id;
 
   config.dry_run = true;
 
@@ -969,7 +921,6 @@ TEST_P(fpgaconf_c_mock_p, prog_bs1) {
   config.target.bus = platform_.devices[0].bus;
   config.target.device = platform_.devices[0].device;
   config.target.function = platform_.devices[0].function;
-  config.target.socket = platform_.devices[0].socket_id;
 
   ASSERT_EQ(config.dry_run, false);
 
@@ -1008,7 +959,6 @@ TEST_P(fpgaconf_c_mock_p, prog_bs2) {
   config.target.bus = platform_.devices[0].bus;
   config.target.device = platform_.devices[0].device;
   config.target.function = platform_.devices[0].function;
-  config.target.socket = platform_.devices[0].socket_id;
 
   ASSERT_EQ(config.dry_run, false);
 
