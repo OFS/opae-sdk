@@ -218,6 +218,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libboard_n3000.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libboard_d5005.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libboard_a10gx.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libboard_n6010.so*
 
 
 %files tools-extra -f tools-extra-files.txt
