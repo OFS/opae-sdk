@@ -50,21 +50,16 @@ struct _args_filter_config {
 	int function;
 };
 
-STATIC bool get_pci_address(const char *addr,
+STATIC bool get_pci_address(regex_t *re,
+			    const char *addr,
 			    struct _args_filter_config *c)
 {
-	regex_t re;
 	regmatch_t matches[6];
 
 	//           11
 	// 012345678901
 	// ssss:bb:dd.f
 	char address[32];
-
-	const char *sbdf = "(([0-9a-fA-F]{4}):)?"
-			   "([0-9a-fA-F]{2}):"
-			   "([0-9a-fA-F]{2})\\."
-			   "([0-7])";
 
 	bool is_match = false;
 
@@ -77,17 +72,14 @@ STATIC bool get_pci_address(const char *addr,
 	address[len] = '\0';
 
 	memset(matches, 0, sizeof(matches));
-	regcomp(&re, sbdf, REG_EXTENDED);
 
-	if (regexec(&re,
+	if (regexec(re,
 		    address,
 		    sizeof(matches) / sizeof(matches[0]),
 		    matches,
 		    0) == 0) {
 		is_match = true;
 	}
-
-	regfree(&re);
 
 	if (is_match) {
 		c->segment = 0;
@@ -151,6 +143,12 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 		.device = -1,
 		.function = -1
 	};
+
+	regex_t re;
+	const char *sbdf = "(([0-9a-fA-F]{4}):)?"
+			   "([0-9a-fA-F]{2}):"
+			   "([0-9a-fA-F]{2})\\."
+			   "([0-7])";
 
 	old_opterr = opterr;
 	opterr = 0;
@@ -246,11 +244,15 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 	}
 	*argc -= removed;
 
-	for (i = 0 ; i < *argc ; ++i) {
-		if (get_pci_address(argv[i], &args_filter_config)) {
+	regcomp(&re, sbdf, REG_EXTENDED);
+
+	for (i = 1 ; i < *argc ; ++i) {
+		if (get_pci_address(&re, argv[i], &args_filter_config)) {
 			break;
 		}
 	}
+
+	regfree(&re);
 
 	if (-1 != args_filter_config.segment) {
 		*result = fpgaPropertiesSetSegment(
@@ -262,6 +264,7 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 		*result = fpgaPropertiesSetBus(filter, args_filter_config.bus);
 		RETURN_ON_ERR(*result, "setting bus");
 	}
+
 	if (-1 != args_filter_config.device) {
 		*result = fpgaPropertiesSetDevice(filter,
 						  args_filter_config.device);
