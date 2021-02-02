@@ -244,15 +244,22 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 	}
 	*argc -= removed;
 
-	regcomp(&re, sbdf, REG_EXTENDED);
+	// restore getopt variables
+	// setting optind to zero will cause getopt to reinitialize for future
+	// calls within the program
+	optind = 0;
+	opterr = old_opterr;
 
-	for (i = 1 ; i < *argc ; ++i) {
-		if (get_pci_address(&re, argv[i], &args_filter_config)) {
-			break;
+	if (regcomp(&re, sbdf, REG_EXTENDED)) {
+		OPAE_ERR("failed to compile regex for ssss:bb:dd.f\n");
+	} else {
+		for (i = 1 ; i < *argc ; ++i) {
+			if (get_pci_address(&re, argv[i], &args_filter_config)) {
+				break;
+			}
 		}
+		regfree(&re);
 	}
-
-	regfree(&re);
 
 	if (-1 != args_filter_config.segment) {
 		*result = fpgaPropertiesSetSegment(
@@ -277,10 +284,5 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 		RETURN_ON_ERR(*result, "setting function");
 	}
 
-	// restore getopt variables
-	// setting optind to zero will cause getopt to reinitialize for future
-	// calls within the program
-	optind = 0;
-	opterr = old_opterr;
 	return EX_OK;
 }
