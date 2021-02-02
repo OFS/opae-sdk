@@ -2,7 +2,7 @@
 
 ## SYNOPSIS ##
 
-`fpgaconf [-hvVn] [--segment <segment>] [-B <bus>] [-D <device>] [-F <function>] [-S <socket>] <gbs>`
+`fpgaconf [-hvVn] [--segment <segment>] [-B <bus>] [-D <device>] [-F <function>] <gbs>`
 
 ## DESCRIPTION ##
 
@@ -43,10 +43,6 @@ the targeted FPGA and the FPGA Interface Manager (FIM). ```fpgaconf``` takes the
 
 	PCIe function number of the target FPGA.
 
-`-S, --socket`
-
-	Socket number of the target FPGA.
-
 `--force`
 
 	Reconfigure the AFU even if it is in use.
@@ -55,7 +51,7 @@ the targeted FPGA and the FPGA Interface Manager (FIM). ```fpgaconf``` takes the
 compatible FPGAs for configuration. If more than one FPGA is
 compatible with the AF, ```fpgaconf``` exits and asks you to be
 more specific in selecting the target FPGAs by specifying a
-socket number or a PCIe BDF.
+a PCIe BDF.
 
 ## EXAMPLES ##
 
@@ -63,9 +59,9 @@ socket number or a PCIe BDF.
 
 	Program "my_af.gbs" to a compatible FPGA.
 
-`fpgaconf -V -s 0 my_af.gbs`
+`fpgaconf -V -B 0x3b  my_af.gbs`
 
-	Program "my_af.gbs" to the FPGA in socket 0, if compatible,
+	Program "my_af.gbs" to the FPGA in bus 0x3b , if compatible,
 	while printing out slightly more verbose information.
 	
 	## Revision History ##
