@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2019, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -42,12 +42,6 @@ struct config {
          AUTOMATIC    /* choose if ambiguous */
        } mode;
   int flags;
-  struct target {
-    int segment;
-    int bus;
-    int device;
-    int function;
-  } target;
   char *filename;
 };
 extern struct config config;
@@ -60,9 +54,12 @@ void print_msg(unsigned int verbosity, const char *s);
 
 int parse_args(int argc, char *argv[]);
 
-int print_interface_id(fpga_guid actual_interface_id);
+int print_interface_id(fpga_properties device_filter,
+                       fpga_guid actual_interface_id);
 
-int find_fpga(fpga_guid interface_id, fpga_token *fpga);
+int find_fpga(fpga_properties device_filter,
+              fpga_guid interface_id,
+              fpga_token *fpga);
 
 int program_bitstream(fpga_token token, uint32_t slot_num,
                       opae_bitstream_info *info, int flags);
@@ -224,46 +221,24 @@ TEST_P(fpgaconf_c_p, parse_args1) {
   char four[20];
   char five[20];
   char six[20];
-  char seven[20];
-  char eight[20];
-  char nine[20];
-  char ten[20];
-  char eleven[20];
-  char twelve[20];
-  char thirteen[20];
-  char fourteen[20];
-  char fifteen[30];
+  char seven[30];
   strcpy(zero, "fpgaconf");
   strcpy(one, "-V");
   strcpy(two, "-n");
   strcpy(three, "--force");
-  strcpy(four, "--segment");
-  strcpy(five, "0x1234");
-  strcpy(six, "-B");
-  strcpy(seven, "0x5e");
-  strcpy(eight, "-D");
-  strcpy(nine, "0xab");
-  strcpy(ten, "-F");
-  strcpy(eleven, "3");
-  strcpy(twelve, "-A");
-  strcpy(thirteen, "-I");
-  strcpy(fourteen, "--skip-usrclk");
-  strcpy(fifteen, tmpfilename);
+  strcpy(four, "-A");
+  strcpy(five, "-I");
+  strcpy(six, "--skip-usrclk");
+  strcpy(seven, tmpfilename);
 
   char *argv[] = { zero, one, two, three, four,
-                   five, six, seven, eight, nine,
-                   ten, eleven, twelve,
-                   thirteen, fourteen, fifteen };
+                   five, six, seven };
 
-  EXPECT_EQ(parse_args(16, argv), 0);
+  EXPECT_EQ(parse_args(8, argv), 0);
   EXPECT_EQ(config.verbosity, 1);
   EXPECT_NE(config.dry_run, 0);
   EXPECT_NE(config.flags & FPGA_RECONF_FORCE, 0);
   EXPECT_NE(config.flags & FPGA_RECONF_SKIP_USRCLK, 0);
-  EXPECT_EQ(config.target.segment, 0x1234);
-  EXPECT_EQ(config.target.bus, 0x5e);
-  EXPECT_EQ(config.target.device, 0xab);
-  EXPECT_EQ(config.target.function, 3);
   EXPECT_EQ(config.mode, 0);
   ASSERT_NE(config.filename, nullptr);
   EXPECT_STREQ(basename(config.filename), tmpfilename);
@@ -389,25 +364,37 @@ TEST_P(fpgaconf_c_p, parse_args3) {
 /**
  * @test       ifc_id1
  * @brief      Test: print_interface_id
- * @details    When the given config.target settings match no device,<br>
+ * @details    When the given PCIe address settings match no device,<br>
  *             print_interface_id returns 0.<br>
  */
 TEST_P(fpgaconf_c_p, ifc_id1) {
-  config.target.bus = 0xff;
-  EXPECT_EQ(print_interface_id(test_guid), 0);
+  fpga_properties filter = NULL;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetBus(filter, 0xff), FPGA_OK);
+
+  EXPECT_EQ(print_interface_id(filter, test_guid), 0);
+
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
  * @test       find_fpga0
  * @brief      Test: find_fpga
- * @details    When the given config.target settings match no device,<br>
+ * @details    When the given PCIe address settings match no device,<br>
  *             find_fpga returns 0.<br>
  */
 TEST_P(fpgaconf_c_p, find_fpga0) {
-  config.target.bus = 0xff;
+  fpga_properties filter = NULL;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetBus(filter, 0xff), FPGA_OK);
+
   fpga_token tok = nullptr;
-  EXPECT_EQ(find_fpga(test_guid, &tok), 0);
+  EXPECT_EQ(find_fpga(filter, test_guid, &tok), 0);
   EXPECT_EQ(tok, nullptr);
+
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -840,41 +827,54 @@ class fpgaconf_c_mock_p : public fpgaconf_c_p{
 /**
  * @test       ifc_id0
  * @brief      Test: print_interface_id
- * @details    When the config.target struct is populated with<br>
+ * @details    When the fpga_properties struct is populated with<br>
  *             bus, device, function <br>
  *             print_interface_id uses those settings for enumeration,<br>
  *             returning the number of matches found.<br>
  */
 TEST_P(fpgaconf_c_mock_p, ifc_id0) {
-  config.target.segment = platform_.devices[0].segment;
-  config.target.bus = platform_.devices[0].bus;
-  config.target.device = platform_.devices[0].device;
-  config.target.function = platform_.devices[0].function;
-  EXPECT_EQ(print_interface_id(test_guid), 1);
+  fpga_properties filter = NULL;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+
+  ASSERT_EQ(fpgaPropertiesSetSegment(filter, platform_.devices[0].segment), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetBus(filter, platform_.devices[0].bus), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetDevice(filter, platform_.devices[0].device), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetFunction(filter, platform_.devices[0].function), FPGA_OK);
+
+  EXPECT_EQ(print_interface_id(filter, test_guid), 1);
+
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
  * @test       find_fpga1
  * @brief      Test: find_fpga
- * @details    When the config.target struct is populated with<br>
+ * @details    When the fpga_properties struct is populated with<br>
  *             bus, device, function <br>
  *             find_fpga uses those settings in conjunction with the
  *             given PR interface ID for enumeration,<br>
  *             returning the number of matches found.<br>
  */
 TEST_P(fpgaconf_c_mock_p, find_fpga1) {
-  config.target.segment = platform_.devices[0].segment;
-  config.target.bus = platform_.devices[0].bus;
-  config.target.device = platform_.devices[0].device;
-  config.target.function = platform_.devices[0].function;
+  fpga_properties filter = NULL;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+
+  ASSERT_EQ(fpgaPropertiesSetSegment(filter, platform_.devices[0].segment), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetBus(filter, platform_.devices[0].bus), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetDevice(filter, platform_.devices[0].device), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetFunction(filter, platform_.devices[0].function), FPGA_OK);
 
   fpga_guid pr_ifc_id;
   ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, pr_ifc_id), 0);
 
   fpga_token tok = nullptr;
-  EXPECT_EQ(find_fpga(pr_ifc_id, &tok), 1);
+  EXPECT_EQ(find_fpga(filter, pr_ifc_id, &tok), 1);
   ASSERT_NE(tok, nullptr);
   EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
+
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -885,10 +885,14 @@ TEST_P(fpgaconf_c_mock_p, find_fpga1) {
  *             and the fn returns 1.<br>
  */
 TEST_P(fpgaconf_c_mock_p, prog_bs0) {
-  config.target.segment = platform_.devices[0].segment;
-  config.target.bus = platform_.devices[0].bus;
-  config.target.device = platform_.devices[0].device;
-  config.target.function = platform_.devices[0].function;
+  fpga_properties filter = NULL;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+
+  ASSERT_EQ(fpgaPropertiesSetSegment(filter, platform_.devices[0].segment), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetBus(filter, platform_.devices[0].bus), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetDevice(filter, platform_.devices[0].device), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetFunction(filter, platform_.devices[0].function), FPGA_OK);
 
   config.dry_run = true;
 
@@ -899,13 +903,15 @@ TEST_P(fpgaconf_c_mock_p, prog_bs0) {
   ASSERT_EQ(opae_load_bitstream(tmp_gbs_, &info), FPGA_OK);
 
   fpga_token tok = nullptr;
-  EXPECT_EQ(find_fpga(pr_ifc_id, &tok), 1);
+  EXPECT_EQ(find_fpga(filter, pr_ifc_id, &tok), 1);
   ASSERT_NE(tok, nullptr);
 
   EXPECT_EQ(program_bitstream(tok, 0, &info, 0), 1);
 
   EXPECT_EQ(opae_unload_bitstream(&info), FPGA_OK);
   EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
+
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -917,10 +923,14 @@ TEST_P(fpgaconf_c_mock_p, prog_bs0) {
  *             causing the function to return -1.<br>
  */
 TEST_P(fpgaconf_c_mock_p, prog_bs1) {
-  config.target.segment = platform_.devices[0].segment;
-  config.target.bus = platform_.devices[0].bus;
-  config.target.device = platform_.devices[0].device;
-  config.target.function = platform_.devices[0].function;
+  fpga_properties filter = NULL;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+
+  ASSERT_EQ(fpgaPropertiesSetSegment(filter, platform_.devices[0].segment), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetBus(filter, platform_.devices[0].bus), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetDevice(filter, platform_.devices[0].device), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetFunction(filter, platform_.devices[0].function), FPGA_OK);
 
   ASSERT_EQ(config.dry_run, false);
 
@@ -931,13 +941,15 @@ TEST_P(fpgaconf_c_mock_p, prog_bs1) {
   ASSERT_EQ(opae_load_bitstream(tmp_gbs_, &info), FPGA_OK);
 
   fpga_token tok = nullptr;
-  EXPECT_EQ(find_fpga(pr_ifc_id, &tok), 1);
+  EXPECT_EQ(find_fpga(filter, pr_ifc_id, &tok), 1);
   ASSERT_NE(tok, nullptr);
 
   EXPECT_EQ(program_bitstream(tok, 0, &info, 0), -1);
 
   EXPECT_EQ(opae_unload_bitstream(&info), FPGA_OK);
   EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
+
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -955,10 +967,14 @@ TEST_P(fpgaconf_c_mock_p, prog_bs2) {
   gbs.write((const char *) bitstream_valid_.data(), bitstream_valid_.size());
   gbs.close();
 
-  config.target.segment = platform_.devices[0].segment;
-  config.target.bus = platform_.devices[0].bus;
-  config.target.device = platform_.devices[0].device;
-  config.target.function = platform_.devices[0].function;
+  fpga_properties filter = NULL;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+
+  ASSERT_EQ(fpgaPropertiesSetSegment(filter, platform_.devices[0].segment), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetBus(filter, platform_.devices[0].bus), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetDevice(filter, platform_.devices[0].device), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetFunction(filter, platform_.devices[0].function), FPGA_OK);
 
   ASSERT_EQ(config.dry_run, false);
 
@@ -969,13 +985,15 @@ TEST_P(fpgaconf_c_mock_p, prog_bs2) {
   ASSERT_EQ(opae_load_bitstream(tmp_gbs_, &info), FPGA_OK);
 
   fpga_token tok = nullptr;
-  EXPECT_EQ(find_fpga(pr_ifc_id, &tok), 1);
+  EXPECT_EQ(find_fpga(filter, pr_ifc_id, &tok), 1);
   ASSERT_NE(tok, nullptr);
 
   EXPECT_EQ(program_bitstream(tok, 0, &info, 0), -1);
 
   EXPECT_EQ(opae_unload_bitstream(&info), FPGA_OK);
   EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
+
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 INSTANTIATE_TEST_CASE_P(fpgaconf_c, fpgaconf_c_mock_p,
