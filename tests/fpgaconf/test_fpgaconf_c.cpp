@@ -199,7 +199,7 @@ TEST_P(fpgaconf_c_p, parse_args0) {
   strcpy(zero, "fpgaconf");
   strcpy(one, "-Y");
 
-  char *argv[] = { zero, one };
+  char *argv[] = { zero, one, NULL };
 
   EXPECT_LT(parse_args(2, argv), 0);
 }
@@ -232,7 +232,7 @@ TEST_P(fpgaconf_c_p, parse_args1) {
   strcpy(seven, tmpfilename);
 
   char *argv[] = { zero, one, two, three, four,
-                   five, six, seven };
+                   five, six, seven, NULL };
 
   EXPECT_EQ(parse_args(8, argv), 0);
   EXPECT_EQ(config.verbosity, 1);
@@ -258,7 +258,7 @@ TEST_P(fpgaconf_c_p, parse_args2) {
   strcpy(zero, "fpgaconf");
   strcpy(one, "-h");
 
-  char *argv[] = { zero, one };
+  char *argv[] = { zero, one, NULL };
 
   EXPECT_LT(parse_args(2, argv), 0);
 }
@@ -298,7 +298,7 @@ TEST_P(fpgaconf_c_p, invalid_parse_args1) {
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten, eleven };
+                   ten, eleven, NULL };
 
   EXPECT_LT(parse_args(12, argv), 0);
 }
@@ -344,7 +344,7 @@ TEST_P(fpgaconf_c_p, invalid_parse_args2) {
 
   char *argv[] = { zero, one, two, three,
                    ten, eleven, twelve, thirteen, fourteen,
-                   four, five, six, seven, eight, nine};
+                   four, five, six, seven, eight, nine, NULL};
 
   EXPECT_LT(parse_args(15, argv), 0);
 } 
@@ -357,7 +357,7 @@ TEST_P(fpgaconf_c_p, invalid_parse_args2) {
  *             and the fn returns non-zero value
  */
 TEST_P(fpgaconf_c_p, parse_args3) {
-  const char *argv[] = { "fpgaconf", "no-file.gbs" };
+  const char *argv[] = { "fpgaconf", "no-file.gbs", NULL };
   EXPECT_NE(parse_args(2, (char**)argv), 0);
 }
 
@@ -409,7 +409,7 @@ TEST_P(fpgaconf_c_p, main0) {
   strcpy(zero, "fpgaconf");
   strcpy(one, "-Y");
 
-  char *argv[] = { zero, one };
+  char *argv[] = { zero, one, NULL };
 
   EXPECT_EQ(fpgaconf_main(2, argv), 1);
 }
@@ -448,7 +448,7 @@ TEST_P(fpgaconf_c_p, main1) {
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-		   ten };
+		   ten, NULL };
 
   EXPECT_EQ(fpgaconf_main(11, argv), 0);
 }
@@ -475,7 +475,7 @@ TEST_P(fpgaconf_c_p, main2) {
   strcpy(five, tmp_gbs_);
 
   char *argv[] = { zero, one, two, three, four,
-                   five };
+                   five, NULL };
 
   EXPECT_NE(fpgaconf_main(6, argv), 0);
 }
@@ -494,7 +494,7 @@ TEST_P(fpgaconf_c_p, main_seg_neg) {
   strcpy(one, "--segment");
   strcpy(two, "k");
 
-  char *argv[] = { zero, one, two };
+  char *argv[] = { zero, one, two, NULL };
 
   EXPECT_NE(fpgaconf_main(3, argv), 0);
 }
@@ -513,7 +513,7 @@ TEST_P(fpgaconf_c_p, main_bus_neg) {
   strcpy(one, "-B");
   strcpy(two, "k");
 
-  char *argv[] = { zero, one, two };
+  char *argv[] = { zero, one, two, NULL };
 
   EXPECT_NE(fpgaconf_main(3, argv), 0);
 }
@@ -532,7 +532,7 @@ TEST_P(fpgaconf_c_p, main_dev_neg) {
   strcpy(one, "-D");
   strcpy(two, "k");
 
-  char *argv[] = { zero, one, two };
+  char *argv[] = { zero, one, two, NULL };
 
   EXPECT_NE(fpgaconf_main(3, argv), 0);
 }
@@ -548,7 +548,7 @@ TEST_P(fpgaconf_c_p, main_missing_gbs) {
   char zero[20];
   strcpy(zero, "fpgaconf");
 
-  char *argv[] = { zero };
+  char *argv[] = { zero, NULL };
 
   EXPECT_NE(fpgaconf_main(1, argv), 0);
 }
@@ -561,7 +561,7 @@ TEST_P(fpgaconf_c_p, main_missing_gbs) {
  */
 TEST_P(fpgaconf_c_p, embed_nullchar1) {
   copy_bitstream("copy_bitstream.gbs");
-  const char *argv[] = { "fpgaconf", "-B", "0x5e", "copy_bitstream\0.gbs"};
+  const char *argv[] = { "fpgaconf", "-B", "0x5e", "copy_bitstream\0.gbs", NULL};
 
   EXPECT_NE(fpgaconf_main(4, (char**)argv), 0);
   unlink(copy_gbs_.c_str());
@@ -569,7 +569,7 @@ TEST_P(fpgaconf_c_p, embed_nullchar1) {
 
 TEST_P(fpgaconf_c_p, embed_nullchar2) {
   copy_bitstream("copy_bitstream.gbs");
-  const char *argv[] = { "fpgaconf", "-B", "0x5e", "\0 copy_bitstream.gbs"};
+  const char *argv[] = { "fpgaconf", "-B", "0x5e", "\0 copy_bitstream.gbs", NULL};
 
   EXPECT_NE(fpgaconf_main(4, (char**)argv), 0);
   unlink(copy_gbs_.c_str());
@@ -591,24 +591,24 @@ TEST_P(fpgaconf_c_p, encoding_path) {
   strcpy(one, "-B");
   strcpy(two, "0x5e");
 
-  char *argv[] = { zero, one, two, three};
+  char *argv[] = { zero, one, two, three, NULL };
 
   // File not found
   strcpy(three, "copy_bitstream%2egbs");
   EXPECT_NE(fpgaconf_main(4, argv), 0);
 
   // File not found
-  memset(three, 0, sizeof(three));
+  argv[0] = zero; argv[1] = one; argv[2] = two; argv[3] = three; argv[4] = NULL;
   strcpy(three, "copy_bitstream..gbs");
   EXPECT_NE(fpgaconf_main(4, argv), 0);
   
   // File not found
-  memset(three, 0, sizeof(three));
+  argv[0] = zero; argv[1] = one; argv[2] = two; argv[3] = three; argv[4] = NULL;
   strcpy(three, "....copy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(4, argv), 0);
 
   // File not found
-  memset(three, 0, sizeof(three));
+  argv[0] = zero; argv[1] = one; argv[2] = two; argv[3] = three; argv[4] = NULL;
   strcpy(three, "%252E%252E%252Fcopy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(4, argv), 0);
 
@@ -634,28 +634,28 @@ TEST_P(fpgaconf_c_p, relative_path) {
   strcpy(two, "-B");
   strcpy(three, "0x5e");
 
-  char *argv[] = { zero, one, two, three, four};
+  char *argv[] = { zero, one, two, three, four, NULL };
 
   strcpy(four, "../copy_bitstream.gbs");
   EXPECT_EQ(fpgaconf_main(5, argv), 0);
 
   // Fail not found
-  memset(four, 0, sizeof(four));
+  argv[0] = zero; argv[1] = one; argv[2] = two; argv[3] = three; argv[4] = four; argv[5] = NULL;
   strcpy(four, "../..../copy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(5, argv), 0);
 
   // Fail not found
-  memset(four, 0, sizeof(four));
+  argv[0] = zero; argv[1] = one; argv[2] = two; argv[3] = three; argv[4] = four; argv[5] = NULL;
   strcpy(four, "..%2fcopy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(5, argv), 0);
 
   // Fail not found
-  memset(four, 0, sizeof(four));
+  argv[0] = zero; argv[1] = one; argv[2] = two; argv[3] = three; argv[4] = four; argv[5] = NULL;
   strcpy(four, "%2e%2e/copy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(5, argv), 0);
 
   // Fail not found
-  memset(four, 0, sizeof(four));
+  argv[0] = zero; argv[1] = one; argv[2] = two; argv[3] = three; argv[4] = four; argv[5] = NULL;
   strcpy(four, "%2e%2e%2fcopy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(5, argv), 0);
 
@@ -680,7 +680,7 @@ TEST_P(fpgaconf_c_p, absolute_path_pos) {
   strcpy(two, "-B");
   strcpy(three, "0x5e");
 
-  char *argv[] = { zero, one, two, three, four};
+  char *argv[] = { zero, one, two, three, four, NULL };
   char *current_path = get_current_dir_name();
   std::string bitstream_path = (std::string)current_path + "/copy_bitstream.gbs";
 
@@ -714,7 +714,7 @@ TEST_P(fpgaconf_c_p, absolute_path_neg) {
   strcpy(one, "-B");
   strcpy(two, "0x5e");
 
-  char *argv[] = { zero, one, two, three};
+  char *argv[] = { zero, one, two, three, NULL };
   char *current_path = get_current_dir_name();
   std::string bitstream_path = (std::string)current_path + "/copy_bitstream.gbs";
 
@@ -749,7 +749,7 @@ TEST_P(fpgaconf_c_p, main_symlink_bs) {
   strcpy(four, "0x5e");
 
   char *argv[] = { zero, one, two, three, four,
-                   five };
+                   five, NULL };
 
   auto ret = symlink(copy_gbs_.c_str(), symlink_gbs.c_str());
   EXPECT_EQ(ret, 0);
@@ -761,6 +761,8 @@ TEST_P(fpgaconf_c_p, main_symlink_bs) {
   unlink(copy_gbs_.c_str());
 
   // Fail case
+  argv[0] = zero; argv[1] = one; argv[2] = two; argv[3] = three;
+  argv[4] = four; argv[5] = five; argv[6] = NULL;
   EXPECT_NE(fpgaconf_main(6, argv), 0);
   unlink(symlink_gbs.c_str());
 }
@@ -787,7 +789,7 @@ TEST_P(fpgaconf_c_p, circular_symlink) {
   strcpy(four, "0x5e");
 
   char *argv[] = { zero, one, two, three, four,
-                   five };
+                   five, NULL };
 
   // Create link directories
   auto ret = mkdir("./link1", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
@@ -804,7 +806,8 @@ TEST_P(fpgaconf_c_p, circular_symlink) {
   strcpy(five, symlink_A.c_str());
   EXPECT_NE(fpgaconf_main(6, argv), 0);
 
-  memset(five, 0, sizeof(five));
+  argv[0] = zero; argv[1] = one; argv[2] = two; argv[3] = three;
+  argv[4] = four; argv[5] = five; argv[6] = NULL;
   strcpy(five, symlink_B.c_str());
   EXPECT_NE(fpgaconf_main(6, argv), 0);
   
