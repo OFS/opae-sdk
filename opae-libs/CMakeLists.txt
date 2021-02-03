@@ -82,7 +82,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin CACHE PATH "Exe Build directo
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib CACHE PATH "Lib Build directory" FORCE)
 
 ############################################################################
-## Conditional Build Steps #################################################
+## Conditional Build Steps and Features ####################################
 ############################################################################
 option(OPAE_BUILD_LIBOPAE_CXX "Enable building of C++ bindings around libopae-c." ON)
 mark_as_advanced(OPAE_BUILD_LIBOPAE_CXX)
@@ -99,6 +99,15 @@ mark_as_advanced(OPAE_ENABLE_MOCK)
 option(OPAE_BUILD_SIM "Enable building of the AFU simulation environment" OFF)
 mark_as_advanced(OPAE_BUILD_SIM)
 
+option(OPAE_BUILD_LIBOPAEVFIO "Enable building of the opaevfio library" ON)
+mark_as_advanced(OPAE_BUILD_LIBOPAEVFIO)
+
+option(OPAE_BUILD_PLUGIN_VFIO "Enable building of the vfio plugin module" ON)
+mark_as_advanced(OPAE_BUILD_PLUGIN_VFIO)
+
+option(OPAE_BUILD_LIBOPAEUIO "Enable building of the opaeuio library" ON)
+mark_as_advanced(OPAE_BUILD_LIBOPAEUIO)
+
 option(OPAE_PRESERVE_REPOS "Disable refresh of external repos" OFF)
 mark_as_advanced(OPAE_PRESERVE_REPOS)
 
@@ -112,6 +121,33 @@ if(OPAE_BUILD_SIM)
     mark_as_advanced(OPAE_SIM_TAG)
 endif(OPAE_BUILD_SIM)
 
+if (OPAE_BUILD_PLUGIN_VFIO AND NOT OPAE_BUILD_LIBOPAEVFIO)
+    message(STATUS
+        "Enabling vfio plugin automatically enables libopaevfio")
+    set(OPAE_BUILD_LIBOPAEVFIO ON)
+endif (OPAE_BUILD_PLUGIN_VFIO AND NOT OPAE_BUILD_LIBOPAEVFIO)
+
+if (OPAE_BUILD_LIBOPAEVFIO)
+    try_compile(VFIO_CHECK
+        ${CMAKE_BINARY_DIR}
+        ${OPAE_LIBS_ROOT}/libopaevfio/vfiocheck.c
+        OUTPUT_VARIABLE TRY_COMPILE_OUTPUT
+    )
+
+    if (VFIO_CHECK)
+        set(PLATFORM_SUPPORTS_VFIO TRUE CACHE BOOL "Platform supports vfio driver" FORCE)
+        message(STATUS
+            "Compatible VFIO headers found")
+    else(VFIO_CHECK)
+        set(PLATFORM_SUPPORTS_VFIO FALSE CACHE BOOL "Platform supports vfio driver" FORCE)
+        message(WARNING
+            "Could not compile VFIO.
+            This most likely means that kernel( version >= 4.6) headers aren't installed.
+            See errors in platform_vfio_errors.txt")
+        file(WRITE ${CMAKE_BINARY_DIR}/platform_vfio_errors.txt ${TRY_COMPILE_OUTPUT})
+    endif(VFIO_CHECK)
+endif (OPAE_BUILD_LIBOPAEVFIO)
+
 ############################################################################
 ## Add Subdirectories ######################################################
 ############################################################################
@@ -119,8 +155,15 @@ endif(OPAE_BUILD_SIM)
 opae_add_subdirectory(external)
 opae_add_subdirectory(libopaemem)
 opae_add_subdirectory(libopae-c)
-opae_add_subdirectory(libopaeuio)
-opae_add_subdirectory(libopaevfio)
+
+if (OPAE_BUILD_LIBOPAEUIO)
+    opae_add_subdirectory(libopaeuio)
+endif()
+
+if (OPAE_BUILD_LIBOPAEVFIO AND PLATFORM_SUPPORTS_VFIO)
+    opae_add_subdirectory(libopaevfio)
+endif()
+
 opae_add_subdirectory(libbitstream)
 opae_add_subdirectory(plugins)
 
