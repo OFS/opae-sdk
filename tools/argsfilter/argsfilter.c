@@ -150,6 +150,9 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 			   "([0-9a-fA-F]{2})\\."
 			   "([0-7])";
 
+	char *orig_terminator;
+
+	orig_terminator = argv[*argc];
 	old_opterr = opterr;
 	opterr = 0;
 
@@ -243,6 +246,7 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 		}
 	}
 	*argc -= removed;
+	argv[*argc] = orig_terminator;
 
 	// restore getopt variables
 	// setting optind to zero will cause getopt to reinitialize for future
@@ -255,6 +259,11 @@ int set_properties_from_args(fpga_properties filter, fpga_result *result,
 	} else {
 		for (i = 1 ; i < *argc ; ++i) {
 			if (get_pci_address(&re, argv[i], &args_filter_config)) {
+				for (j = i ; j < *argc - 1 ; j++) {
+					argv[j] = argv[j + 1];
+				}
+				*argc -= 1;
+				argv[*argc] = orig_terminator;
 				break;
 			}
 		}
