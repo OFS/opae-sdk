@@ -81,7 +81,7 @@ TEST_P(argsfilter_c_p, bdf) {
     char eight[20];
     char nine[20];
     char *argv[] = { zero, one, two, three, four, five,
-                     six, seven, eight, nine };
+                     six, seven, eight, nine, NULL };
     int argc = 10;
     fpga_result result;
     char bus[20];
@@ -123,7 +123,7 @@ TEST_P(argsfilter_c_p, bus) {
     char one[20];
     char two[20];
     char three[20];
-    char *argv[] = { zero, one, two, three };
+    char *argv[] = { zero, one, two, three, NULL };
     int argc = 4;
     fpga_result result;
     char bus[10];
@@ -153,7 +153,7 @@ TEST_P(argsfilter_c_p, bus_neg) {
     char one[20];
     char two[20];
     char three[20];
-    char *argv[] = { zero, one, two, three };
+    char *argv[] = { zero, one, two, three, NULL };
     int argc = 4;
     fpga_result result;
 
@@ -179,7 +179,7 @@ TEST_P(argsfilter_c_p, device) {
     char one[20];
     char two[20];
     char three[20];
-    char *argv[] = { zero, one, two, three };
+    char *argv[] = { zero, one, two, three, NULL };
     int argc = 4;
     fpga_result result;
     char device[10];
@@ -209,7 +209,7 @@ TEST_P(argsfilter_c_p, device_neg) {
     char one[20];
     char two[20];
     char three[20];
-    char *argv[] = { zero, one, two, three };
+    char *argv[] = { zero, one, two, three, NULL };
     int argc = 4;
     fpga_result result;
 
@@ -235,7 +235,7 @@ TEST_P(argsfilter_c_p, function) {
     char one[20];
     char two[20];
     char three[20];
-    char *argv[] = { zero, one, two, three };
+    char *argv[] = { zero, one, two, three, NULL };
     int argc = 4;
     fpga_result result;
     char function[10];
@@ -265,7 +265,7 @@ TEST_P(argsfilter_c_p, function_neg) {
     char one[20];
     char two[20];
     char three[20];
-    char *argv[] = { zero, one, two, three };
+    char *argv[] = { zero, one, two, three, NULL };
     int argc = 4;
     fpga_result result;
 
@@ -291,7 +291,7 @@ TEST_P(argsfilter_c_p, segment) {
     char one[20];
     char two[20];
     char three[20];
-    char *argv[] = { zero, one, two, three };
+    char *argv[] = { zero, one, two, three, NULL };
     int argc = 4;
     fpga_result result;
     char segment[20];
@@ -321,7 +321,7 @@ TEST_P(argsfilter_c_p, segment_neg) {
     char one[20];
     char two[20];
     char three[20];
-    char *argv[] = { zero, one, two, three };
+    char *argv[] = { zero, one, two, three, NULL };
     int argc = 4;
     fpga_result result;
 
@@ -346,7 +346,7 @@ TEST_P(argsfilter_c_p, argsfilter_neg) {
     char zero[20];
     char one[20];
     char two[20];
-    char *argv[] = { zero, one, two };
+    char *argv[] = { zero, one, two, NULL };
     int argc = 3;
     fpga_result result;
 
@@ -381,7 +381,7 @@ TEST_P(argsfilter_c_p, addr_sbdf) {
     char ten[20];
     char *argv[] = { zero, one, two, three,
                      four, five, six, seven,
-                     eight, nine, ten };
+                     eight, nine, ten, NULL };
     int argc = 11;
     fpga_result result;
 
@@ -445,7 +445,7 @@ TEST_P(argsfilter_c_p, addr_bdf) {
     char ten[20];
     char *argv[] = { zero, one, two, three,
                      four, five, six, seven,
-                     eight, nine, ten };
+                     eight, nine, ten, NULL };
     int argc = 11;
     fpga_result result;
 
