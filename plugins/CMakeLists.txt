@@ -26,4 +26,12 @@
 
 add_subdirectory(xfpga)
 add_subdirectory(xfpga/metrics/bmc)
-add_subdirectory(vfio)
+
+if (OPAE_BUILD_PLUGIN_VFIO AND PLATFORM_SUPPORTS_VFIO)
+    if (OPAE_BUILD_LIBOPAEVFIO)
+        add_subdirectory(vfio)
+    else()
+        message(WARNING
+            "Must enable 'OPAE_BUILD_LIBOPAEVFIO' to build vfio plugin")
+    endif()
+endif()
