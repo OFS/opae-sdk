@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -52,6 +52,7 @@
 
 #include <opae/fpga.h>
 #include <libbitstream/bitstream.h>
+#include <argsfilter.h>
 
 /*
  * macro to check FPGA return codes, print error message, and goto cleanup label
@@ -76,18 +77,11 @@ struct config {
 	       AUTOMATIC    /* choose if ambiguous */
 	} mode;
 	int flags;
-	struct target {
-		int segment;
-		int bus;
-		int device;
-		int function;
-	} target;
 	char *filename;
 } config = {.verbosity = 0,
 	    .dry_run = false,
 	    .mode = NORMAL,
 	    .flags = 0,
-	    .target = {.segment = -1, .bus = -1, .device = -1, .function = -1 },
 	    .filename = NULL };
 
 /*
@@ -127,7 +121,7 @@ void help(void)
 	       "                -n,--dry-run        Don't actually perform actions\n"
 	       "                --force             Don't try to open accelerator resource\n"
 	       "                --skip-usrclk       Don't program user clocks\n"
-	       "                --segment           Set target segment number\n"
+	       "                -S,--segment        Set target segment number\n"
 	       "                -B,--bus            Set target bus number\n"
 	       "                -D,--device         Set target device number\n"
 	       "                -F,--function       Set target function number\n"
@@ -149,17 +143,13 @@ void help(void)
  * Parse command line arguments
  * TODO: uncomment options as they are implemented
  */
-#define GETOPT_STRING ":hVnB:D:F:S:AIQv"
+#define GETOPT_STRING ":hVnAIQv"
 int parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
 		{"help",        no_argument,       NULL, 'h'},
 		{"verbose",     no_argument,       NULL, 'V'},
 		{"dry-run",     no_argument,       NULL, 'n'},
-		{"segment",     required_argument, NULL, 0xe},
-		{"bus",         required_argument, NULL, 'B'},
-		{"device",      required_argument, NULL, 'D'},
-		{"function",    required_argument, NULL, 'F'},
 		{"force",       no_argument,       NULL, 0xf},
 		{"skip-usrclk", no_argument,       NULL, 0x5},
 		{"version",     no_argument,       NULL, 'v'},
@@ -170,7 +160,6 @@ int parse_args(int argc, char *argv[])
 
 	int getopt_ret;
 	int option_index;
-	char *endptr = NULL;
 
 	while (-1
 	       != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING, longopts,
@@ -200,58 +189,6 @@ int parse_args(int argc, char *argv[])
 
 		case 0x5: /* skip-usrclk */
 			config.flags |= FPGA_RECONF_SKIP_USRCLK;
-			break;
-
-		case 0xe: /* segment */
-			if (NULL == tmp_optarg)
-				break;
-			endptr = NULL;
-			config.target.segment =
-				(int)strtoul(tmp_optarg, &endptr, 0);
-			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
-				fprintf(stderr, "invalid segment: %s\n",
-					tmp_optarg);
-				return -1;
-			}
-			break;
-
-		case 'B': /* bus */
-			if (NULL == tmp_optarg)
-				break;
-			endptr = NULL;
-			config.target.bus =
-				(int)strtoul(tmp_optarg, &endptr, 0);
-			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
-				fprintf(stderr, "invalid bus: %s\n",
-					tmp_optarg);
-				return -1;
-			}
-			break;
-
-		case 'D': /* device */
-			if (NULL == tmp_optarg)
-				break;
-			endptr = NULL;
-			config.target.device =
-				(int)strtoul(tmp_optarg, &endptr, 0);
-			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
-				fprintf(stderr, "invalid device: %s\n",
-					tmp_optarg);
-				return -1;
-			}
-			break;
-
-		case 'F': /* function */
-			if (NULL == tmp_optarg)
-				break;
-			endptr = NULL;
-			config.target.function =
-				(int)strtoul(tmp_optarg, &endptr, 0);
-			if (endptr != tmp_optarg + strlen(tmp_optarg)) {
-				fprintf(stderr, "invalid function: %s\n",
-					tmp_optarg);
-				return -1;
-			}
 			break;
 
 		case 'A': /* auto */
@@ -347,7 +284,8 @@ out:
 /*
  * Prints Actual and Expected Interface id
  */
-int print_interface_id(fpga_guid actual_interface_id)
+int print_interface_id(fpga_properties device_filter,
+		       fpga_guid actual_interface_id)
 {
 	fpga_properties filter = NULL;
 	uint32_t num_matches = 0;
@@ -358,32 +296,11 @@ int print_interface_id(fpga_guid actual_interface_id)
 	fpga_guid expt_interface_id = {0};
 	char guid_str[37] = {0};
 
-	res = fpgaGetProperties(NULL, &filter);
-	ON_ERR_GOTO(res, out_err, "creating properties object");
+	res = fpgaCloneProperties(device_filter, &filter);
+	ON_ERR_GOTO(res, out_err, "cloning properties");
 
 	res = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
 	ON_ERR_GOTO(res, out_destroy, "setting object type");
-
-	if (-1 != config.target.segment) {
-		res = fpgaPropertiesSetSegment(filter, config.target.segment);
-		ON_ERR_GOTO(res, out_destroy, "setting segment");
-	}
-
-	if (-1 != config.target.bus) {
-		res = fpgaPropertiesSetBus(filter, config.target.bus);
-		ON_ERR_GOTO(res, out_destroy, "setting bus");
-	}
-
-	if (-1 != config.target.device) {
-		res = fpgaPropertiesSetDevice(filter, config.target.device);
-		ON_ERR_GOTO(res, out_destroy, "setting device");
-	}
-
-	if (-1 != config.target.function) {
-		res = fpgaPropertiesSetFunction(filter, config.target.function);
-		ON_ERR_GOTO(res, out_destroy, "setting function");
-	}
-
 
 	res = fpgaEnumerate(&filter, 1, &fpga_token, 1, &num_matches);
 	ON_ERR_GOTO(res, out_destroy, "enumerating FPGAs");
@@ -426,16 +343,17 @@ out_err:
  *
  * @returns the total number of FPGAs matching the interface ID
  */
-int find_fpga(fpga_guid interface_id, fpga_token *fpga)
+int find_fpga(fpga_properties device_filter,
+	      fpga_guid interface_id,
+	      fpga_token *fpga)
 {
 	fpga_properties filter = NULL;
-	uint32_t num_matches;
+	uint32_t num_matches = 0;
 	fpga_result res;
 	int retval = -1;
 
-	/* Get number of FPGAs in system */
-	res = fpgaGetProperties(NULL, &filter);
-	ON_ERR_GOTO(res, out_err, "creating properties object");
+	res = fpgaCloneProperties(device_filter, &filter);
+	ON_ERR_GOTO(res, out_err, "cloning properties");
 
 	res = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
 	ON_ERR_GOTO(res, out_destroy, "setting object type");
@@ -443,26 +361,7 @@ int find_fpga(fpga_guid interface_id, fpga_token *fpga)
 	res = fpgaPropertiesSetGUID(filter, interface_id);
 	ON_ERR_GOTO(res, out_destroy, "setting interface ID");
 
-	if (-1 != config.target.segment) {
-		res = fpgaPropertiesSetSegment(filter, config.target.segment);
-		ON_ERR_GOTO(res, out_destroy, "setting segment");
-	}
-
-	if (-1 != config.target.bus) {
-		res = fpgaPropertiesSetBus(filter, config.target.bus);
-		ON_ERR_GOTO(res, out_destroy, "setting bus");
-	}
-
-	if (-1 != config.target.device) {
-		res = fpgaPropertiesSetDevice(filter, config.target.device);
-		ON_ERR_GOTO(res, out_destroy, "setting device");
-	}
-
-	if (-1 != config.target.function) {
-		res = fpgaPropertiesSetFunction(filter, config.target.function);
-		ON_ERR_GOTO(res, out_destroy, "setting function");
-	}
-
+	/* Get number of FPGAs in system */
 	res = fpgaEnumerate(&filter, 1, fpga, 1, &num_matches);
 	ON_ERR_GOTO(res, out_destroy, "enumerating FPGAs");
 
@@ -514,11 +413,32 @@ out_err:
 int main(int argc, char *argv[])
 {
 	int res;
-	fpga_result result;
+	fpga_result result = FPGA_OK;
 	int retval = 0;
 	opae_bitstream_info info;
 	fpga_token token;
 	uint32_t slot_num = 0; /* currently, we don't support multiple slots */
+	fpga_properties device_filter = NULL;
+
+	result = fpgaGetProperties(NULL, &device_filter);
+	if (result) {
+		print_err("failed to alloc properties", result);
+		retval = 6;
+		return retval;
+	}
+
+	if (set_properties_from_args(device_filter,
+				     &result,
+				     &argc,
+				     argv)) {
+		print_err("failed arg parse", result);
+		retval = 7;
+		goto out_exit;
+	} else if (result) {
+		print_err("failed to set properties", result);
+		retval = 8;
+		goto out_exit;
+	}
 
 	/* parse command line arguments */
 	res = parse_args(argc, argv);
@@ -540,7 +460,7 @@ int main(int argc, char *argv[])
 
 	/* find suitable slot */
 	print_msg(1, "Looking for slot");
-	res = find_fpga(info.pr_interface_id, &token);
+	res = find_fpga(device_filter, info.pr_interface_id, &token);
 	if (res < 0) {
 		retval = 3;
 		goto out_free;
@@ -549,7 +469,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "No suitable slots found.\n");
 		retval = 4;
 		if (config.verbosity > 0)
-			print_interface_id(info.pr_interface_id);
+			print_interface_id(device_filter, info.pr_interface_id);
 		goto out_free;
 	}
 	if (res > 1) {
@@ -579,5 +499,6 @@ out_exit:
 		free(config.filename);
 		config.filename = NULL;
 	}
+	fpgaDestroyProperties(&device_filter);
 	return retval;
 }
