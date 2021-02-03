@@ -130,7 +130,7 @@ endif (OPAE_BUILD_PLUGIN_VFIO AND NOT OPAE_BUILD_LIBOPAEVFIO)
 if (OPAE_BUILD_LIBOPAEVFIO)
     try_compile(VFIO_CHECK
         ${CMAKE_BINARY_DIR}
-        ${CMAKE_SOURCE_DIR}/libopaevfio/vfiocheck.c
+        ${OPAE_LIBS_ROOT}/libopaevfio/vfiocheck.c
         OUTPUT_VARIABLE TRY_COMPILE_OUTPUT
     )
 
