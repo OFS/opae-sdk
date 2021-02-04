@@ -203,6 +203,8 @@ def main():
     if args.verbose > 2:
         args.verbose = 2
 
+    common_util.assert_in_error(args.slot_num < 0x10, "Slot number must be <= 15")
+
     log.handlers[0].setLevel(LOGLEVELS[args.verbose])
 
     if args.main_command == "print":
