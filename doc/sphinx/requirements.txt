@@ -1,9 +1,9 @@
-requests==2.24.0
+requests==2.25.1
 docutils==0.14
 pygments==2.2.0
-sphinx==3.2.1
+sphinx==3.4.3
 sphinx-rtd-theme==0.4.3
 sphinx_fontawesome==0.0.6
 sphinx-markdown==1.0.2
 recommonmark==0.6.0
-breathe==4.23.0
+breathe==4.26.1
