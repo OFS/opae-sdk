@@ -116,8 +116,8 @@ STATIC bool get_pci_address(regex_t *re,
 		}                                                              \
 	} while (0)
 
-int set_properties_from_args(fpga_properties filter, fpga_result *result,
-			     int *argc, char *argv[])
+int opae_set_properties_from_args(fpga_properties filter, fpga_result *result,
+				  int *argc, char *argv[])
 {
 	// prefix the short options with '-' so that unrecognized options are
 	// ignored

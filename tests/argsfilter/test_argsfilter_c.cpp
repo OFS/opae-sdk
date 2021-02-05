@@ -1,4 +1,4 @@
-// Copyright(c) 2019, Intel Corporation
+// Copyright(c) 2019-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -27,8 +27,8 @@
 #include <opae/fpga.h>
 
 extern "C" {
-int set_properties_from_args(fpga_properties filter, fpga_result *result,
-                             int *argc, char *argv[]);
+int opae_set_properties_from_args(fpga_properties filter, fpga_result *result,
+				  int *argc, char *argv[]);
 }
 
 #include "gtest/gtest.h"
@@ -65,7 +65,7 @@ class argsfilter_c_p : public ::testing::TestWithParam<std::string> {
 
 /**
  * @test       bdf
- * @brief      Test: set_properties_from_args
+ * @brief      Test: opae_set_properties_from_args
  * @details    When passed with valid arguments for bdf, the function <br>
  *             returns 0. <br>
  */
@@ -107,14 +107,14 @@ TEST_P(argsfilter_c_p, bdf) {
     strcpy(seven, function);
     strcpy(eight, "-S");
     strcpy(nine, segment);
-    EXPECT_EQ(set_properties_from_args(filter, &result, &argc, argv), 0);
+    EXPECT_EQ(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
     EXPECT_EQ(result, 0);
 }
 
 /**
  * @test       bus
- * @brief      Test: set_properties_from_args
+ * @brief      Test: opae_set_properties_from_args
  * @details    When passed with valid argument for the bus, <br>
  *             the function returns 0. <br>
  */
@@ -137,14 +137,14 @@ TEST_P(argsfilter_c_p, bus) {
     strcpy(one, "fme");
     strcpy(two, "-B");
     strcpy(three, bus);
-    EXPECT_EQ(set_properties_from_args(filter, &result, &argc, argv), 0);
+    EXPECT_EQ(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
     EXPECT_EQ(result, 0);
 }
 
 /**
  * @test       bus_neg
- * @brief      Test: set_properties_from_args
+ * @brief      Test: opae_set_properties_from_args
  * @details    When passed with invalid argument for the bus, <br>
  *             the function returns an error. <br>
  */
@@ -164,13 +164,13 @@ TEST_P(argsfilter_c_p, bus_neg) {
     strcpy(one, "fme");
     strcpy(two, "-B");
     strcpy(three, "zxyw");
-    EXPECT_NE(set_properties_from_args(filter, &result, &argc, argv), 0);
+    EXPECT_NE(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
  * @test       device
- * @brief      Test: set_properties_from_args
+ * @brief      Test: opae_set_properties_from_args
  * @details    When passed with valid argument for the device, <br>
  *             the function returns 0. <br>
  */
@@ -193,14 +193,14 @@ TEST_P(argsfilter_c_p, device) {
     strcpy(one, "fme");
     strcpy(two, "-D");
     strcpy(three, device);
-    EXPECT_EQ(set_properties_from_args(filter, &result, &argc, argv), 0);
+    EXPECT_EQ(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
     EXPECT_EQ(result, 0);
 }
 
 /**
  * @test       device_neg
- * @brief      Test: set_properties_from_args
+ * @brief      Test: opae_set_properties_from_args
  * @details    When passed with invalid argument for the device, <br>
  *             the function returns an error. <br>
  */
@@ -220,13 +220,13 @@ TEST_P(argsfilter_c_p, device_neg) {
     strcpy(one, "fme");
     strcpy(two, "-D");
     strcpy(three, "zxyw");
-    EXPECT_NE(set_properties_from_args(filter, &result, &argc, argv), 0);
+    EXPECT_NE(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
  * @test       function
- * @brief      Test: set_properties_from_args
+ * @brief      Test: opae_set_properties_from_args
  * @details    When passed with valid argument for the function, <br>
  *             the function returns 0. <br>
  */
@@ -249,14 +249,14 @@ TEST_P(argsfilter_c_p, function) {
     strcpy(one, "fme");
     strcpy(two, "-F");
     strcpy(three, function);
-    EXPECT_EQ(set_properties_from_args(filter, &result, &argc, argv), 0);
+    EXPECT_EQ(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
     EXPECT_EQ(result, 0);
 }
 
 /**
  * @test       function_neg
- * @brief      Test: set_properties_from_args
+ * @brief      Test: opae_set_properties_from_args
  * @details    When passed with invalid argument for the function, <br>
  *             the function returns an error. <br>
  */
@@ -276,13 +276,13 @@ TEST_P(argsfilter_c_p, function_neg) {
     strcpy(one, "fme");
     strcpy(two, "-F");
     strcpy(three, "zxyw");
-    EXPECT_NE(set_properties_from_args(filter, &result, &argc, argv), 0);
+    EXPECT_NE(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
  * @test       segment
- * @brief      Test: set_properties_from_args
+ * @brief      Test: opae_set_properties_from_args
  * @details    When passed with valid argument for the segment, <br>
  *             the function returns 0. <br>
  */
@@ -305,14 +305,14 @@ TEST_P(argsfilter_c_p, segment) {
     strcpy(one, "fme");
     strcpy(two, "--segment");
     strcpy(three, segment);
-    EXPECT_EQ(set_properties_from_args(filter, &result, &argc, argv), 0);
+    EXPECT_EQ(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
     EXPECT_EQ(result, 0);
 }
 
 /**
  * @test       segment_neg
- * @brief      Test: set_properties_from_args
+ * @brief      Test: opae_set_properties_from_args
  * @details    When passed an invalid argument for the segment, <br>
  *             the function returns non-zero. <br>
  */
@@ -332,13 +332,13 @@ TEST_P(argsfilter_c_p, segment_neg) {
     strcpy(one, "fme");
     strcpy(two, "--segment");
     strcpy(three, "zxyw");
-    EXPECT_NE(set_properties_from_args(filter, &result, &argc, argv), 0);
+    EXPECT_NE(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
  * @test       argsfilter_neg
- * @brief      Test: set_properties_from_args
+ * @brief      Test: opae_set_properties_from_args
  * @details    When missing an argument for the bus, <br>
  *             the function returns an error. <br>
  */
@@ -356,13 +356,13 @@ TEST_P(argsfilter_c_p, argsfilter_neg) {
     strcpy(zero, "fpgainfo");
     strcpy(one, "fme");
     strcpy(two, "-B");
-    EXPECT_NE(set_properties_from_args(filter, &result, &argc, argv), 0);
+    EXPECT_NE(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
     EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
  * @test       addr_sbdf
- * @brief      Test: set_properties_from_args
+ * @brief      Test: opae_set_properties_from_args
  * @details    When the arguments to the function contain<br>
  *             a properly formatted ssss:bb:dd.f, then the<br>
  *             properties are set appropriately.
@@ -400,7 +400,7 @@ TEST_P(argsfilter_c_p, addr_sbdf) {
     strcpy(nine, "7");
     strcpy(ten, "1234:56:78.7");
 
-    EXPECT_EQ(set_properties_from_args(filter, &result, &argc, argv), 0);
+    EXPECT_EQ(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
 
     uint16_t segment = 0;
     uint8_t bus = 0;
@@ -425,7 +425,7 @@ TEST_P(argsfilter_c_p, addr_sbdf) {
 
 /**
  * @test       addr_bdf
- * @brief      Test: set_properties_from_args
+ * @brief      Test: opae_set_properties_from_args
  * @details    When the arguments to the function contain<br>
  *             a properly formatted bb:dd.f, then the<br>
  *             properties are set appropriately. The segment<br>
@@ -464,7 +464,7 @@ TEST_P(argsfilter_c_p, addr_bdf) {
     strcpy(nine, "7");
     strcpy(ten, "56:78.7");
 
-    EXPECT_EQ(set_properties_from_args(filter, &result, &argc, argv), 0);
+    EXPECT_EQ(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
 
     uint16_t segment = 0xff;
     uint8_t bus = 0;

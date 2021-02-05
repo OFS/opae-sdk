@@ -114,7 +114,7 @@ void help(void)
 	       "Usage:\n"
 	       //"        fpgaconf [-hvnAIQ] [-B <bus>] [-D <device>] [-F
 	       //<function>]  <gbs>\n"
-	       "        fpgaconf [-hvn] [-B <bus>] [-D <device>] [-F <function>] <gbs>\n"
+	       "        fpgaconf [-hvn] [-B <bus>] [-D <device>] [-F <function>] [PCI_ADDR] <gbs>\n"
 	       "\n"
 	       "                -h,--help           Print this help\n"
 	       "                -V,--verbose        Increase verbosity\n"
@@ -427,10 +427,10 @@ int main(int argc, char *argv[])
 		return retval;
 	}
 
-	if (set_properties_from_args(device_filter,
-				     &result,
-				     &argc,
-				     argv)) {
+	if (opae_set_properties_from_args(device_filter,
+					  &result,
+					  &argc,
+					  argv)) {
 		print_err("failed arg parse", result);
 		retval = 7;
 		goto out_exit;
