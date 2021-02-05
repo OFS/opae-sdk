@@ -173,7 +173,6 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libxfpga.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libmodbmc.so
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libbitstream.so*
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libafu-test.so*
 
 
 %files devel -f devel-files.txt
