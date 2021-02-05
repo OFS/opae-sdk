@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,14 +23,9 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-/*
- * @file argsfilter.h
- *
- * @brief
- */
 
-#ifndef ARGSFILTER_H
-#define ARGSFILTER_H
+#ifndef OPAE_ARGSFILTER_H
+#define OPAE_ARGSFILTER_H
 #include <opae/fpga.h>
 
 #ifdef __cplusplus
@@ -58,10 +53,10 @@ extern "C" {
  *       so that in the end, the resulting argument vector will be missing
  *       those options used for updating the fpga_properties filter.
  */
-int set_properties_from_args(fpga_properties filter, fpga_result *result,
-			     int *argc, char *argv[]);
+int opae_set_properties_from_args(fpga_properties filter, fpga_result *result,
+				  int *argc, char *argv[]);
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* !ARGSFILTER_H */
+#endif /* !OPAE_ARGSFILTER_H */
