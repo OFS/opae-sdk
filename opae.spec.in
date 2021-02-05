@@ -168,6 +168,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/hssi
 @CMAKE_INSTALL_PREFIX@/bin/dummy_afu
 @CMAKE_INSTALL_PREFIX@/bin/hello_fpga
+@CMAKE_INSTALL_PREFIX@/bin/n5010-ddr-test
 %dir @CMAKE_INSTALL_PREFIX@/include/opae
 @CMAKE_INSTALL_PREFIX@/include/opae/*
 %dir @CMAKE_INSTALL_PREFIX@/share/opae
