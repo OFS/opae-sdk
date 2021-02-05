@@ -25,7 +25,7 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE
 
-cmake_minimum_required (VERSION 2.8.12)
+cmake_minimum_required (VERSION 3.10)
 
 macro(opae_external_project_add)
     set(options EXCLUDE_FROM_ALL NO_ADD_SUBDIRECTORY DEFER)
@@ -44,7 +44,7 @@ macro(opae_external_project_add)
     set(download_dir
         ${CMAKE_CURRENT_BINARY_DIR}/${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME}/download)
     file(WRITE ${download_dir}/CMakeLists.txt
-        "cmake_minimum_required(VERSION 2.8.12)\n"
+        "cmake_minimum_required(VERSION 3.10)\n"
         "project(${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME}-download)\n"
         "include(ExternalProject)\n"
         "ExternalProject_Add(${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME}\n"
