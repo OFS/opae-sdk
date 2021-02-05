@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
 	res = fpgaGetProperties(NULL, &filter);
 	ON_FPGAINFO_ERR_GOTO(res, out_err, "creating properties object");
 
-	ret_value = set_properties_from_args(filter, &res, &argc, argv);
+	ret_value = opae_set_properties_from_args(filter, &res, &argc, argv);
 	if (ret_value != EX_OK) {
 		goto out_destroy;
 	}

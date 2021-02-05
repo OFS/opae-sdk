@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2017-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -28,9 +28,15 @@ opae_add_executable(TARGET fpgaconf
     SOURCE fpgaconf.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
+        argsfilter
         bitstream
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
     COMPONENT toolfpgaconf
+)
+
+target_include_directories(fpgaconf
+    PRIVATE
+        ${OPAE_SDK_SOURCE}/tools/argsfilter
 )

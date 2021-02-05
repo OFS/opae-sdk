@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -202,8 +202,8 @@ TEST_P(fpgainfo_c_p, errors_filter0) {
     char one[20];
     char two[20];
     char three[20];
-    char *argv3[] = { zero, one, two };
-    char *argv4[] = { zero, one, two, three };
+    char *argv3[] = { zero, one, two, NULL };
+    char *argv4[] = { zero, one, two, three, NULL };
 
     fpga_properties filter = NULL;
     ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
@@ -253,8 +253,8 @@ TEST_P(fpgainfo_c_p, errors_command0) {
     char one[20];
     char two[20];
     char three[20];
-    char *argv3[] = { zero, one, two };
-    char *argv4[] = { zero, one, two, three };
+    char *argv3[] = { zero, one, two, NULL };
+    char *argv4[] = { zero, one, two, three, NULL };
 
     fpga_properties filter = NULL;
     fpga_token *tokens = NULL;
@@ -341,7 +341,7 @@ TEST_P(fpgainfo_c_p, parse_error_args_errors_clear) {
     char one[20];
     char two[20];
     char three[20];
-    char *argv[] = { zero, one, two, three };
+    char *argv[] = { zero, one, two, three, NULL };
 
     fpga_properties filter = NULL;
     fpga_token *tokens = NULL;
@@ -380,7 +380,7 @@ TEST_P(fpgainfo_c_p, parse_error_args_errors_clear) {
 TEST_P(fpgainfo_c_p, parse_error_args_neg) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     strcpy(zero, "fpgainfo");
     strcpy(one, "-k");
@@ -406,7 +406,7 @@ TEST_P(fpgainfo_c_p, errors_help) {
 TEST_P(fpgainfo_c_p, parse_error_args_help) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     std::string expected = "\nPrint and clear errors\n"
                       "        fpgainfo errors [-h] [-c] {all,fme,port}\n\n"
@@ -438,7 +438,7 @@ TEST_P(fpgainfo_c_p, errors_filter1) {
     char zero[20];
     char one[20];
     char two[20];
-    char *argv[] = { zero, one, two };
+    char *argv[] = { zero, one, two, NULL };
 
     fpga_properties filter = NULL;
     ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
@@ -462,8 +462,8 @@ TEST_P(fpgainfo_c_p, errors_filter2) {
     char zero[20];
     char one[20];
     char two[20];
-    char *argv2[] = { zero, one };
-    char *argv3[] = { zero, one, two };
+    char *argv2[] = { zero, one, NULL };
+    char *argv3[] = { zero, one, two, NULL };
 
     fpga_properties filter = NULL;
     ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
@@ -490,7 +490,7 @@ TEST_P(fpgainfo_c_p, errors_filter2) {
 TEST_P(fpgainfo_c_p, fme_filter0) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     fpga_properties filter = NULL;
     ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
@@ -510,7 +510,7 @@ TEST_P(fpgainfo_c_p, fme_filter0) {
 TEST_P(fpgainfo_c_p, fme_command0) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     fpga_properties filter = NULL;
     fpga_token *tokens = NULL;
@@ -546,7 +546,7 @@ TEST_P(fpgainfo_c_p, fme_command1) {
     char zero[20];
     char one[20];
     char two[20];
-    char *argv[] = { zero, one, two };
+    char *argv[] = { zero, one, two, NULL };
 
     fpga_token *tokens = NULL;
 
@@ -574,7 +574,7 @@ TEST_P(fpgainfo_c_p, fme_help) {
 TEST_P(fpgainfo_c_p, port_filter0) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     fpga_properties filter = NULL;
     ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
@@ -594,7 +594,7 @@ TEST_P(fpgainfo_c_p, port_filter0) {
 TEST_P(fpgainfo_c_p, port_command0) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     fpga_properties filter = NULL;
     fpga_token *tokens = NULL;
@@ -630,7 +630,7 @@ TEST_P(fpgainfo_c_p, port_command1) {
     char zero[20];
     char one[20];
     char two[20];
-    char *argv[] = { zero, one, two };
+    char *argv[] = { zero, one, two, NULL };
 
     fpga_token *tokens = NULL;
 
@@ -658,7 +658,7 @@ TEST_P(fpgainfo_c_p, port_help) {
 TEST_P(fpgainfo_c_p, power_filter0) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     fpga_properties filter = NULL;
     ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
@@ -678,7 +678,7 @@ TEST_P(fpgainfo_c_p, power_filter0) {
 TEST_P(fpgainfo_c_p, power_command0) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     fpga_properties filter = NULL;
     fpga_token *tokens = NULL;
@@ -714,7 +714,7 @@ TEST_P(fpgainfo_c_p, power_command1) {
     char zero[20];
     char one[20];
     char two[20];
-    char *argv[] = { zero, one, two };
+    char *argv[] = { zero, one, two, NULL };
 
     fpga_token *tokens = NULL;
 
@@ -742,7 +742,7 @@ TEST_P(fpgainfo_c_p, power_help) {
 TEST_P(fpgainfo_c_p, temp_filter0) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     fpga_properties filter = NULL;
     ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
@@ -762,7 +762,7 @@ TEST_P(fpgainfo_c_p, temp_filter0) {
 TEST_P(fpgainfo_c_p, temp_command0) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     fpga_properties filter = NULL;
     fpga_token *tokens = NULL;
@@ -798,7 +798,7 @@ TEST_P(fpgainfo_c_p, temp_command1) {
     char zero[20];
     char one[20];
     char two[20];
-    char *argv[] = { zero, one, two };
+    char *argv[] = { zero, one, two, NULL };
 
     fpga_token *tokens = NULL;
 
@@ -826,7 +826,7 @@ TEST_P(fpgainfo_c_p, temp_help) {
 TEST_P(fpgainfo_c_p, bmc_filter0) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     fpga_properties filter = NULL;
     ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
@@ -846,7 +846,7 @@ TEST_P(fpgainfo_c_p, bmc_filter0) {
 TEST_P(fpgainfo_c_p, bmc_command0) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     fpga_properties filter = NULL;
     fpga_token *tokens = NULL;
@@ -882,7 +882,7 @@ TEST_P(fpgainfo_c_p, bmc_command1) {
     char zero[20];
     char one[20];
     char two[20];
-    char *argv[] = { zero, one, two };
+    char *argv[] = { zero, one, two, NULL };
 
     fpga_token *tokens = NULL;
 
@@ -902,7 +902,7 @@ TEST_P(fpgainfo_c_p, bmc_command2) {
     char zero[20];
     char one[20];
     char two[20];
-    char *argv[] = { zero, one, two };
+    char *argv[] = { zero, one, two, NULL };
 
     fpga_token *tokens = NULL;
 
@@ -1156,7 +1156,7 @@ TEST(fpgainfo_c, str_in_list0) {
 TEST_P(fpgainfo_c_p, parse_args0) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     strcpy(zero, "fpgainfo");
     strcpy(one, "fme");
@@ -1181,7 +1181,7 @@ TEST_P(fpgainfo_c_p, parse_args0) {
 TEST_P(fpgainfo_c_p, parse_args1) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     strcpy(zero, "fpgainfo");
     strcpy(one, "-h");
@@ -1201,7 +1201,7 @@ TEST_P(fpgainfo_c_p, parse_args1) {
 TEST_P(fpgainfo_c_p, parse_args2) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     strcpy(zero, "fpgainfo");
     strcpy(one, "?");
@@ -1217,7 +1217,7 @@ TEST_P(fpgainfo_c_p, parse_args2) {
 TEST_P(fpgainfo_c_p, parse_args3) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     strcpy(zero, "fpgainfo");
     strcpy(one, "κόσμε");
@@ -1254,7 +1254,7 @@ TEST_P(fpgainfo_c_p, help) {
  */
 TEST_P(fpgainfo_c_p, main_1) {
     char zero[20];
-    char *argv[] = { zero };
+    char *argv[] = { zero, NULL };
 
     strcpy(zero, "fpgainfo");
 
@@ -1270,7 +1270,7 @@ TEST_P(fpgainfo_c_p, main_1) {
 TEST_P(fpgainfo_c_p, main_2) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     strcpy(zero, "fpgainfo");
     strcpy(one, "-v");
@@ -1287,7 +1287,7 @@ TEST_P(fpgainfo_c_p, main_2) {
 TEST_P(fpgainfo_c_p, main_3) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     strcpy(zero, "fpgainfo");
     strcpy(one, "-B");
@@ -1304,7 +1304,7 @@ TEST_P(fpgainfo_c_p, main_3) {
 TEST_P(fpgainfo_c_p, main_4) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     strcpy(zero, "fpgainfo");
     strcpy(one, "-K");
@@ -1323,7 +1323,7 @@ TEST_P(fpgainfo_c_p, main_5) {
     char one[20];
     char two[20];
     char three[20];
-    char *argv[] = { zero, one, two, three };
+    char *argv[] = { zero, one, two, three, NULL };
     char bus[10];
 
     sprintf(bus, "0x%x", platform_.devices[0].bus);
@@ -1347,7 +1347,7 @@ TEST_P(fpgainfo_c_p, main_6) {
     char one[20];
     char two[20];
     char three[20];
-    char *argv[] = { zero, one, two, three };
+    char *argv[] = { zero, one, two, three, NULL };
 
     strcpy(zero, "fpgainfo");
     strcpy(one, "fme");
@@ -1367,7 +1367,7 @@ TEST_P(fpgainfo_c_p, main_7) {
 	char zero[20];
 	char one[20];
 	char two[20];
-	char *argv[] = { zero, one, two};
+	char *argv[] = { zero, one, two, NULL };
 
 	strcpy(zero, "fpgainfo");
 	strcpy(one, "fme");

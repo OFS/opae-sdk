@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2020-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -26,18 +26,21 @@
 
 opae_test_add_static_lib(TARGET fpgaconf-static
     SOURCE ${OPAE_SDK_SOURCE}/tools/fpgaconf/fpgaconf.c
-    LIBS bitstream
+    LIBS
+        argsfilter
+        bitstream
 )
 
 target_compile_definitions(fpgaconf-static
     PRIVATE main=fpgaconf_main
 )
 
+target_include_directories(fpgaconf-static
+    PRIVATE
+        ${OPAE_SDK_SOURCE}/tools/argsfilter
+)
+
 opae_test_add(TARGET test_fpgaconf_fpgaconf_c
     SOURCE test_fpgaconf_c.cpp
     LIBS fpgaconf-static
 )
-
-#target_include_directories(test_board_vc_c
-#    PRIVATE ${OPAE_SDK_SOURCE}/tools
-#)
