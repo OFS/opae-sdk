@@ -94,6 +94,14 @@ typedef enum {
   HOSTEXE_TEST_TERMINATION = 0x1,
 } hostexe_test_mode;
 
+//how many requests to interleave when TestMode is Throughput
+typedef enum {
+  HOSTEXE_INERLEV_RDWRRDWR = 0x0,
+  HOSTEXE_INERLEV_RDRDWRWR = 0x1,
+  HOSTEXE_INERLEV_RDRDRDRDWRWRWRWE = 0x2,
+} hostexe_interleave;
+
+
 // DFH Header
 union he_dfh  {
   enum {
@@ -172,10 +180,9 @@ union he_cfg {
     uint8_t Continuous : 1;
     uint8_t TestMode : 3;
     uint8_t ReqLen : 2;
-    uint8_t Rsvd_7 : 1;
-    uint8_t Rsvd_8 : 1;
-    uint16_t Rsvd_19_9 : 11;
-    uint8_t TestCfg : 8;
+    uint16_t Rsvd_19_7 : 13;
+    uint8_t TputInterleave : 3;
+    uint8_t TestCfg : 5;
     uint8_t IntrOnErr : 1;
     uint8_t IntrTestMode : 1;
     uint64_t Rsvd_63_30 : 34;
@@ -284,6 +291,13 @@ const std::map<std::string, uint32_t> he_test_mode = {
   { "test_termination", HOSTEXE_TEST_TERMINATION}
 };
 
+const std::map<std::string, uint32_t> he_interleave = {
+  { "rdwrrdwr", HOSTEXE_INERLEV_RDWRRDWR},
+  { "rdrdwrwr", HOSTEXE_INERLEV_RDRDWRWR},
+  { "rdrdrdrdwrwrwrwr", HOSTEXE_INERLEV_RDRDRDRDWRWRWRWE}
+};
+
+
 using test_afu = opae::afu_test::afu;
 using test_command = opae::afu_test::command;
 
@@ -306,6 +320,11 @@ public:
 
     // Delay
     app_.add_option("-d,--delay", he_delay_, "Enables random delay insertion between requests")->default_val(false);
+
+    // how many requests to interleave when TestMode is Throughput
+    app_.add_option("--interleave", he_interleave_, "number of interleave in Throughput mode \
+           {rdwrrdwr, rdrdwrwr, rdrdrdrdwrwrwrwr}")
+          ->transform(CLI::CheckedTransformer(he_interleave))->default_val("rdwrrdwr");
 
   }
 
@@ -429,6 +448,7 @@ public:
   uint32_t he_req_cls_len_;
   bool he_delay_;
   bool he_continuousmode_;
+  uint32_t he_interleave_;
 
   std::map<uint32_t, uint32_t> limits_;
 
