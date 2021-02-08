@@ -1,5 +1,5 @@
 # -*- rpm-spec -*-
-%define with_ase "@BUILD_ASE@"
+%define with_ase "@OPAE_BUILD_SIM@"
 
 BuildRoot:      %_topdir/@CPACK_PACKAGE_FILE_NAME@
 
