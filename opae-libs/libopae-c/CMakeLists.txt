@@ -43,7 +43,7 @@ opae_add_shared_library(TARGET opae-c
     COMPONENT opaeclib
 )
 
-if(BUILD_ASE)
+if(OPAE_BUILD_SIM)
 set(SRC_ASE
     pluginmgr.c
     api-shell.c
@@ -63,4 +63,4 @@ opae_add_shared_library(TARGET opae-c-ase
     SOVERSION ${OPAE_VERSION_MAJOR}
     COMPONENT opaecsimlib
 )
-endif()
+endif(OPAE_BUILD_SIM)
