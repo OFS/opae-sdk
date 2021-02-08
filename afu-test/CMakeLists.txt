@@ -23,26 +23,21 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION  3.10)
 
 project(afu-test)
-opae_add_shared_library(TARGET afu-test
-    SOURCE afu_test.cpp
-    VERSION ${OPAE_VERSION}
-    SOVERSION ${OPAE_VERSION_MAJOR}
-    COMPONENT afutest
-)
+add_library(afu-test INTERFACE)
 
-target_include_directories(afu-test PUBLIC
+target_include_directories(afu-test INTERFACE
     ${OPAE_INCLUDE_PATHS}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CLI11_ROOT}/include
     ${spdlog_ROOT}/include
 )
-target_link_libraries(afu-test PUBLIC
+target_link_libraries(afu-test INTERFACE
     opae-c opae-cxx-core
 )
-target_compile_options(afu-test PUBLIC
+target_compile_options(afu-test INTERFACE
     -Wno-unused-result
 )
 
