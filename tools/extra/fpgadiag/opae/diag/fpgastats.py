@@ -27,15 +27,13 @@
 
 from __future__ import print_function
 from __future__ import absolute_import
-from common import exception_quit, FpgaFinder, COMMON, hexint
+from .common import exception_quit, FpgaFinder, COMMON, hexint
 import argparse
 import time
 import glob
 import os
-import re
 import subprocess
-import eth_group
-from eth_group import *
+from opae.diag.eth_group import eth_group
 
 BUILD_FLAG_MAC_LIGHTWEIGHT = 0x2
 BUILD_FLAG_LIGHTWEIGHT = 0x8

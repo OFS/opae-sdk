@@ -32,14 +32,12 @@ import os
 import glob
 import argparse
 import sys
-import time
 import traceback
 import fcntl
 import stat
 import struct
 import mmap
-import eth_group
-from eth_group import *
+from opae.diag.eth_group import eth_group
 
 PATTERN = (r'.*(?P<segment>\w{4}):(?P<bus>\w{2}):'
            r'(?P<dev>\w{2})\.(?P<func>\d).*')

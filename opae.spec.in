@@ -234,13 +234,6 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/fpga_dma_test
 @CMAKE_INSTALL_PREFIX@/bin/fpga_dma_N3000_test
 @CMAKE_INSTALL_PREFIX@/bin/fpgabist
-@CMAKE_INSTALL_PREFIX@/bin/fecmode
-@CMAKE_INSTALL_PREFIX@/bin/fecmode
-@CMAKE_INSTALL_PREFIX@/bin/fpgamac
-@CMAKE_INSTALL_PREFIX@/bin/fpgastats
-@CMAKE_INSTALL_PREFIX@/bin/fvlbypass
-@CMAKE_INSTALL_PREFIX@/bin/mactest
-@CMAKE_INSTALL_PREFIX@/bin/fpgadiag
 @CMAKE_INSTALL_PREFIX@/bin/hssi_config
 @CMAKE_INSTALL_PREFIX@/bin/hssi_loopback
 @CMAKE_INSTALL_PREFIX@/bin/mmlink
