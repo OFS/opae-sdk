@@ -44,12 +44,6 @@ except ImportError:
 RSU_LOCK_DIR = '/var/lib/opae'
 RSU_LOCK_FILE = os.path.join(RSU_LOCK_DIR, 'rsu_lock')
 
-FPGA_TO_AVAILABLE_IMAGES = {
-    '0': 'fpga_user1',
-    '1': 'fpga_user2',
-    'factory': 'fpga_factory'
-}
-
 logger = logging.getLogger('rsu')
 
 DESCRIPTION = '''
@@ -68,7 +62,7 @@ Example usage:
      of 25:00.0.
      NOTE: Both BMC and FPGA images will be reconfigured from user bank.
 
-     %(prog)s bmcimg 25:00.0 -f
+     %(prog)s bmcimg 25:00.0 --page=factory
      This will trigger a factory boot of the BMC image for a device with a
      pci address of 25:00.0.
      NOTE: Both BMC image will be reconfigured from factory bank and the
@@ -76,21 +70,67 @@ Example usage:
 '''
 
 
+def bmc_available_image(args):
+    return 'bmc_' + args.page
+
+
+def retimer_available_image(args):
+    return 'retimer_fw'
+
+
+def fpga_available_image(args):
+    images = {
+        '1': 'user1',
+        '2': 'user2',
+        'factory': 'factory'
+    }
+    return 'fpga_' + images[args.page]
+
+
 def parse_args():
     fc_ = argparse.RawDescriptionHelpFormatter
     parser = argparse.ArgumentParser(description=DESCRIPTION, epilog=EPILOG,
                                      formatter_class=fc_)
-    parser.add_argument('type', help='type of operation',
-                        choices=fpga.BOOT_TYPES)
-    parser.add_argument('bdf', nargs='?',
-                        help=('PCIe address of device to do rsu '
-                              '(e.g. 04:00.0 or 0000:04:00.0)'))
-    parser.add_argument('-f', '--factory', action='store_true',
-                        help='reload from factory bank')
     parser.add_argument('-d', '--debug', action='store_true',
                         help='log debug statements')
-    parser.add_argument('-p', '--page', choices=['0', '1', 'factory'],
-                        default='0', help='select fpga page')
+
+    subparser = parser.add_subparsers(dest='which')
+
+    bmcimg = subparser.add_parser('bmcimg', help='BMC Image')
+    bmcimg.add_argument('bdf', nargs='?',
+                        help=('PCIe address of device to do rsu '
+                              '(eg 04:00.0 or 0000:04:00.0)'))
+    bmcimg.add_argument('-p', '--page', choices=['user', 'factory'],
+                        default='user', help='select BMC page')
+    bmcimg.set_defaults(func=bmc_available_image)
+
+    retimer = subparser.add_parser('retimer', help='Retimer Image')
+    retimer.add_argument('bdf', nargs='?',
+                         help=('PCIe address of device to do rsu '
+                               '(eg 04:00.0 or 0000:04:00.0)'))
+    retimer.set_defaults(func=retimer_available_image)
+
+    fpga_img = subparser.add_parser('fpga', help='FPGA Image')
+    fpga_img.add_argument('bdf', nargs='?',
+                          help=('PCIe address of device to do rsu '
+                                '(eg 04:00.0 or 0000:04:00.0)'))
+    fpga_img.add_argument('-p', '--page', choices=['1', '2', 'factory'],
+                          default='1', help='select FPGA page')
+    fpga_img.set_defaults(func=fpga_available_image)
+
+    next_boot_help = """
+1 : User1 -> User2 -> Factory,
+2 : User2 -> User1 -> Factory,
+3 : Factory -> User1 -> User2,
+4 : Factory -> User2 -> User1
+"""
+    next_boot = subparser.add_parser('next_boot', help='Next boot sequence')
+    next_boot.add_argument('bdf', nargs='?',
+                           help=('PCIe address of device to set boot sequence '
+                                 '(eg 04:00.0 or 0000:04:00.0)'))
+    next_boot.add_argument('-f', '--fpga', choices=['1', '2', '3', '4'],
+                           default='1', help=next_boot_help)
+
     return parser.parse_args()
 
 
@@ -103,10 +143,6 @@ def normalize_bdf(bdf):
         return "0000:{}".format(bdf)
     logger.warn('invalid bdf: {}'.format(bdf))
     raise SystemExit(os.EX_USAGE)
-
-
-def do_rsu(rsu_type, device, factory):
-    device.safe_rsu_boot(factory, type=rsu_type)
 
 
 def main():
@@ -135,9 +171,6 @@ def main():
 
     bdf = normalize_bdf(args.bdf)
 
-    if args.type == 'fpga':
-        args.type = FPGA_TO_AVAILABLE_IMAGES[args.page]
-
     Path(RSU_LOCK_DIR).mkdir(parents=True, exist_ok=True)
 
     for device in compatible:
@@ -146,7 +179,12 @@ def main():
             with open(RSU_LOCK_FILE, 'w') as flock:
                 fcntl.flock(flock.fileno(), fcntl.LOCK_EX)
                 try:
-                    do_rsu(args.type, device, args.factory)
+                    if args.which == 'next_boot':
+                        security = device.security
+                        power_on_image = security.find_one('power_on_image')
+                        power_on_image.value = args.fpga
+                    else:
+                        device.safe_rsu_boot(args.func(args))
                 except IOError:
                     logging.error('RSU operation failed')
                 else:
