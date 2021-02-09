@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright(c) 2019-2020, Intel Corporation
+# Copyright(c) 2019-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -44,14 +44,6 @@ except ImportError:
 RSU_LOCK_DIR = '/var/lib/opae'
 RSU_LOCK_FILE = os.path.join(RSU_LOCK_DIR, 'rsu_lock')
 
-USER_BOOT_PAGE = 'user'
-FACTORY_BOOT_PAGE = 'factory'
-
-BOOT_PAGE = {0x0b30: {'bmcimg': {'user': 0,
-                                 'factory': 1}},
-             0x0b2b: {'bmcimg': {'user': 1,
-                                 'factory': 0}}}
-
 logger = logging.getLogger('rsu')
 
 DESCRIPTION = '''
@@ -66,31 +58,83 @@ EPILOG = '''
 Example usage:
 
      %(prog)s bmcimg 25:00.0
-     This will trigger a boot of the BMC image for a device with a pci address
+     This will trigger a boot of the BMC image for a device with a PCIe address
      of 25:00.0.
      NOTE: Both BMC and FPGA images will be reconfigured from user bank.
 
-     %(prog)s bmcimg 25:00.0 -f
+     %(prog)s bmcimg 25:00.0 --page=factory
      This will trigger a factory boot of the BMC image for a device with a
-     pci address of 25:00.0.
+     PCIe address of 25:00.0.
      NOTE: Both BMC image will be reconfigured from factory bank and the
            FPGA image will be reconfigured from the user bank.
+
+     %(prog)s nextboot 25:00.0 --fpga=1
+     This sets the FPGA image to load on the next boot of the device with
+     PCIe address 25:00.0 to the FPGA User1 image.
 '''
+
+
+def bmc_available_image(args):
+    return 'bmc_' + args.page
+
+
+def retimer_available_image(args):
+    return 'retimer_fw'
+
+
+def fpga_available_image(args):
+    images = {
+        '1': 'user1',
+        '2': 'user2',
+        'factory': 'factory'
+    }
+    return 'fpga_' + images[args.page]
 
 
 def parse_args():
     fc_ = argparse.RawDescriptionHelpFormatter
     parser = argparse.ArgumentParser(description=DESCRIPTION, epilog=EPILOG,
                                      formatter_class=fc_)
-    parser.add_argument('type', help='type of operation',
-                        choices=fpga.BOOT_TYPES)
-    parser.add_argument('bdf', nargs='?',
-                        help=('PCIe address of device to do rsu '
-                              '(e.g. 04:00.0 or 0000:04:00.0)'))
-    parser.add_argument('-f', '--factory', action='store_true',
-                        help='reload from factory bank')
     parser.add_argument('-d', '--debug', action='store_true',
                         help='log debug statements')
+
+    subparser = parser.add_subparsers(dest='which')
+
+    bmcimg = subparser.add_parser('bmcimg', help='BMC Image')
+    bmcimg.add_argument('bdf', nargs='?',
+                        help=('PCIe address of device to do rsu '
+                              '(eg 04:00.0 or 0000:04:00.0)'))
+    bmcimg.add_argument('-p', '--page', choices=['user', 'factory'],
+                        default='user', help='select BMC page')
+    bmcimg.set_defaults(func=bmc_available_image)
+
+    retimer = subparser.add_parser('retimer', help='Retimer Image')
+    retimer.add_argument('bdf', nargs='?',
+                         help=('PCIe address of device to do rsu '
+                               '(eg 04:00.0 or 0000:04:00.0)'))
+    retimer.set_defaults(func=retimer_available_image)
+
+    fpga_img = subparser.add_parser('fpga', help='FPGA Image')
+    fpga_img.add_argument('bdf', nargs='?',
+                          help=('PCIe address of device to do rsu '
+                                '(eg 04:00.0 or 0000:04:00.0)'))
+    fpga_img.add_argument('-p', '--page', choices=['1', '2', 'factory'],
+                          default='1', help='select FPGA page')
+    fpga_img.set_defaults(func=fpga_available_image)
+
+    next_boot_help = """
+1 : User1 -> User2 -> Factory,
+2 : User2 -> User1 -> Factory,
+3 : Factory -> User1 -> User2,
+4 : Factory -> User2 -> User1
+"""
+    next_boot = subparser.add_parser('nextboot', help='Next boot sequence')
+    next_boot.add_argument('bdf', nargs='?',
+                           help=('PCIe address of device to set boot sequence '
+                                 '(eg 04:00.0 or 0000:04:00.0)'))
+    next_boot.add_argument('-f', '--fpga', choices=['1', '2', '3', '4'],
+                           default='1', help=next_boot_help)
+
     return parser.parse_args()
 
 
@@ -103,17 +147,6 @@ def normalize_bdf(bdf):
         return "0000:{}".format(bdf)
     logger.warn('invalid bdf: {}'.format(bdf))
     raise SystemExit(os.EX_USAGE)
-
-
-def do_rsu(rsu_type, device, factory):
-    dev_id = device.pci_node.pci_id
-
-    region = fpga.BOOT_PAGES[dev_id].get(rsu_type, {})
-    if not region:
-        logger.error('%s not supported by device', rsu_type)
-        raise SystemExit(os.EX_SOFTWARE)
-
-    device.safe_rsu_boot(factory, type=rsu_type)
 
 
 def main():
@@ -150,7 +183,12 @@ def main():
             with open(RSU_LOCK_FILE, 'w') as flock:
                 fcntl.flock(flock.fileno(), fcntl.LOCK_EX)
                 try:
-                    do_rsu(args.type, device, args.factory)
+                    if args.which == 'nextboot':
+                        security = device.security
+                        power_on_image = security.find_one('power_on_image')
+                        power_on_image.value = args.fpga
+                    else:
+                        device.safe_rsu_boot(args.func(args))
                 except IOError:
                     logging.error('RSU operation failed')
                 else:
