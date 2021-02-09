@@ -533,7 +533,7 @@ static T parse_file_int(const std::string &path) {
 
 static std::string make_path(int seg, int bus, int dev, int func){
     std::stringstream num;
-    num << std::setw(2) << std::hex << bus; 
+    num << std::setw(2) << std::setfill('0') << std::hex << bus;
     std::string b (num.str());
     num.clear();
     num.str(std::string());
