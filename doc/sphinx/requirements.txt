@@ -1,4 +1,4 @@
-jinja2==2.11.3
+Jinja2==2.11.3
 requests==2.25.1
 docutils==0.14
 pygments==2.2.0
