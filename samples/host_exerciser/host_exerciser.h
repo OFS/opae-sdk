@@ -94,13 +94,6 @@ typedef enum {
   HOSTEXE_TEST_TERMINATION = 0x1,
 } hostexe_test_mode;
 
-//how many requests to interleave when TestMode is Throughput
-typedef enum {
-  HOSTEXE_INERLEV_RDWRRDWR = 0x0,
-  HOSTEXE_INERLEV_RDRDWRWR = 0x1,
-  HOSTEXE_INERLEV_RDRDRDRDWRWRWRWE = 0x2,
-} hostexe_interleave;
-
 
 // DFH Header
 union he_dfh  {
@@ -291,12 +284,6 @@ const std::map<std::string, uint32_t> he_test_mode = {
   { "test_termination", HOSTEXE_TEST_TERMINATION}
 };
 
-const std::map<std::string, uint32_t> he_interleave = {
-  { "rdwrrdwr", HOSTEXE_INERLEV_RDWRRDWR},
-  { "rdrdwrwr", HOSTEXE_INERLEV_RDRDWRWR},
-  { "rdrdrdrdwrwrwrwr", HOSTEXE_INERLEV_RDRDRDRDWRWRWRWE}
-};
-
 
 using test_afu = opae::afu_test::afu;
 using test_command = opae::afu_test::command;
@@ -323,8 +310,8 @@ public:
 
     // how many requests to interleave when TestMode is Throughput
     app_.add_option("--interleave", he_interleave_, "number of interleave in Throughput mode \
-           {rdwrrdwr, rdrdwrwr, rdrdrdrdwrwrwrwr}")
-          ->transform(CLI::CheckedTransformer(he_interleave))->default_val("rdwrrdwr");
+           input value 0:Rd,Wr,Rd,Wr, 1:Rd,Rd,Wr,Wr, 2:Rd,Rd,Rd,Rd,Wr,Wr,Wr,Wr \
+           {0, 1, 2}")->default_val(0);
 
   }
 
