@@ -169,25 +169,14 @@ done
 %license %{_datadir}/opae/LICENSE
 %license %{_datadir}/opae/COPYING
 
-%{_libdir}/libopae-c.so.%{version}
-%{_libdir}/libopae-c.so.2
-%{_libdir}/libbitstream.so.%{version}
-%{_libdir}/libbitstream.so.2
-%{_libdir}/libopae-cxx-core.so.%{version}
-%{_libdir}/libopae-cxx-core.so.2
-%{_libdir}/libopae-c++-utils.so.%{version}
-%{_libdir}/libopae-c++-utils.so.2
-%{_libdir}/libopae-c++-nlb.so.%{version}
-%{_libdir}/libopae-c++-nlb.so.2
-%{_libdir}/libfpgad-api.so.%{version}
-%{_libdir}/libfpgad-api.so.2
-
-%{_libdir}/libmml-srv.so.%{version}
-%{_libdir}/libmml-srv.so.2
-
-%{_libdir}/libmml-stream.so.%{version}
-%{_libdir}/libmml-stream.so.2
-
+%{_libdir}/libopae-c.so.*
+%{_libdir}/libbitstream.so.*
+%{_libdir}/libopae-cxx-core.so.*
+%{_libdir}/libopae-c++-utils.so.*
+%{_libdir}/libopae-c++-nlb.so.*
+%{_libdir}/libfpgad-api.so.*
+%{_libdir}/libmml-srv.so.*
+%{_libdir}/libmml-stream.so.*
 
 
 %post devel
