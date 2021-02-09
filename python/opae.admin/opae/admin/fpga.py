@@ -1,4 +1,4 @@
-# Copyright(c) 2019-2020, Intel Corporation
+# Copyright(c) 2019-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -350,6 +350,10 @@ class secure_dev(region):
     pass
 
 
+class security(region):
+    pass
+
+
 class avmmi_bmc(region):
     BMC_BOOT_REQ = 0xc0187600
 
@@ -379,7 +383,6 @@ class fpga_base(sysfs_device):
     FME_PATTERN = 'intel-fpga-fme.*'
     PORT_PATTERN = 'intel-fpga-port.*'
     PCI_DRIVER = 'intel-fpga-pci'
-    BOOT_TYPES = ['bmcimg', 'retimer']
     BOOT_PAGES = {
         (0x8086, 0x0b30): {'bmcimg': {'user': 0,
                                       'factory': 1},
@@ -388,7 +391,8 @@ class fpga_base(sysfs_device):
         (0x8086, 0x0b2b): {'bmcimg': {'user': 1,
                                       'factory': 0},
                            'retimer': {'user': 0,
-                                       'factory': 0}}
+                                       'factory': 0}},
+        (0x8086, 0xaf00): None
     }
 
     def __init__(self, path):
@@ -420,6 +424,19 @@ class fpga_base(sysfs_device):
                 return secure_dev(fpga_sec.sysfs_path, self.pci_node)
 
     @property
+    def security(self):
+        f = self.fme
+        if not f:
+            self.log.error('no FME found')
+            return None
+        spi = f.spi_bus
+        if spi:
+            sec = spi.find_one(
+                '*-secure.*.auto/security')
+            if sec:
+                return security(sec.sysfs_path, self.pci_node)
+
+    @property
     def port(self):
         items = self.find_all(self.PORT_PATTERN)
         if len(items) == 1:
@@ -437,26 +454,23 @@ class fpga_base(sysfs_device):
         """
         return self.pci_node.pci_id in self.BOOT_PAGES
 
-    def rsu_boot(self, factory, **kwargs):
+    def rsu_boot(self, available_image, **kwargs):
         # look for non-max10 solution
         fme = self.fme
         if fme:
             bmc = fme.avmmi_bmc
             if bmc is None:
-                self._rsu_boot_sysfs(factory, **kwargs)
+                self._rsu_boot_sysfs(available_image, **kwargs)
             else:
                 bmc.reboot()
         else:
             self.log.warn('do not have FME device')
 
-    def _rsu_boot_sysfs(self, factory, **kwargs):
-        boot_type = kwargs.pop('type', 'bmcimg')
+    def _rsu_boot_sysfs(self, available_image, **kwargs):
 
         if kwargs:
             self.log.exception('unrecognized kwargs: %s', kwargs)
             raise ValueError('unrecognized kwargs: {}'.format(kwargs))
-        if boot_type not in self.BOOT_TYPES:
-            raise TypeError('type: {} not recognized'.format(boot_type))
 
         fpga_sec = self.secure_dev
         if not fpga_sec:
@@ -468,20 +482,12 @@ class fpga_base(sysfs_device):
         available_images = fpga_sec.find_one('update/available_images').value
         image_load = fpga_sec.find_one('update/image_load')
 
-        if boot_type == 'bmcimg':
-            if factory:
-                boot_type = 'bmc_factory'
-            else:
-                boot_type = 'bmc_user'
-        elif boot_type == 'retimer':
-            boot_type = 'retimer_fw'
-
-        if boot_type in available_images:
-            image_load.value = boot_type
+        if available_image in available_images:
+            image_load.value = available_image
         else:
             msg = 'Boot type {} is not supported ' \
                   'by this (0x{:04x},0x{:04x})'.format(
-                      boot_type,
+                      available_image,
                       self.pci_node.pci_id[0],
                       self.pci_node.pci_id[1])
             self.log.exception(msg)
@@ -500,14 +506,10 @@ class fpga_base(sysfs_device):
             for n, v in aer_values:
                 n.aer = v
 
-    def safe_rsu_boot(self, factory, **kwargs):
+    def safe_rsu_boot(self, available_image, **kwargs):
         wait_time = kwargs.pop('wait', 10)
-        boot_type = kwargs.get('type', 'bmcimg')
 
-        if boot_type not in self.BOOT_TYPES:
-            raise TypeError('type: {} not recognized'.format(boot_type))
-
-        if boot_type == 'fpga':
+        if available_image[:4] == 'fpga':
             to_remove = self.pci_node.root.endpoints
             to_disable = [ep.parent for ep in to_remove]
         else:
@@ -531,7 +533,7 @@ class fpga_base(sysfs_device):
                     ep.unbind()
 
             try:
-                self.rsu_boot(factory, **kwargs)
+                self.rsu_boot(available_image, **kwargs)
             except IOError as err:
                 if err.errno == errno.EBUSY:
                     self.log.warn('device busy, cannot perform RSU operation')
