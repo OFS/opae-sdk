@@ -58,15 +58,19 @@ EPILOG = '''
 Example usage:
 
      %(prog)s bmcimg 25:00.0
-     This will trigger a boot of the BMC image for a device with a pci address
+     This will trigger a boot of the BMC image for a device with a PCIe address
      of 25:00.0.
      NOTE: Both BMC and FPGA images will be reconfigured from user bank.
 
      %(prog)s bmcimg 25:00.0 --page=factory
      This will trigger a factory boot of the BMC image for a device with a
-     pci address of 25:00.0.
+     PCIe address of 25:00.0.
      NOTE: Both BMC image will be reconfigured from factory bank and the
            FPGA image will be reconfigured from the user bank.
+
+     %(prog)s nextboot 25:00.0 --fpga=1
+     This sets the FPGA image to load on the next boot of the device with
+     PCIe address 25:00.0 to the FPGA User1 image.
 '''
 
 
