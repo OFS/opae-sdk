@@ -124,7 +124,7 @@ def parse_args():
 3 : Factory -> User1 -> User2,
 4 : Factory -> User2 -> User1
 """
-    next_boot = subparser.add_parser('next_boot', help='Next boot sequence')
+    next_boot = subparser.add_parser('nextboot', help='Next boot sequence')
     next_boot.add_argument('bdf', nargs='?',
                            help=('PCIe address of device to set boot sequence '
                                  '(eg 04:00.0 or 0000:04:00.0)'))
@@ -179,7 +179,7 @@ def main():
             with open(RSU_LOCK_FILE, 'w') as flock:
                 fcntl.flock(flock.fileno(), fcntl.LOCK_EX)
                 try:
-                    if args.which == 'next_boot':
+                    if args.which == 'nextboot':
                         security = device.security
                         power_on_image = security.find_one('power_on_image')
                         power_on_image.value = args.fpga
