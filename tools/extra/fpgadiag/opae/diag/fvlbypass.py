@@ -28,11 +28,10 @@
 from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import division
-import eth_group
-from eth_group import *
-from common import exception_quit, FpgaFinder, COMMON, hexint
-from fpgastats import FPGASTATS
-from fpgalpbk import FPGALPBK
+from opae.diag.eth_group import eth_group
+from .common import exception_quit, FpgaFinder, COMMON, hexint
+from .fpgastats import FPGASTATS
+from .fpgalpbk import FPGALPBK
 import argparse
 import mmap
 import sys
