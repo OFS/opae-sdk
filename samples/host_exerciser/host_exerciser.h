@@ -309,9 +309,8 @@ public:
     app_.add_option("-d,--delay", he_delay_, "Enables random delay insertion between requests")->default_val(false);
 
     // how many requests to interleave when TestMode is Throughput
-    app_.add_option("--interleave", he_interleave_, "number of interleave in Throughput mode \
-           input value 0:Rd,Wr,Rd,Wr, 1:Rd,Rd,Wr,Wr, 2:Rd,Rd,Rd,Rd,Wr,Wr,Wr,Wr \
-           {0, 1, 2}")->default_val(0);
+    app_.add_option("--interleave", he_interleave_, "number of interleave in Throughput mode {0, 1, 2}")
+       ->default_val(0);
 
   }
 
