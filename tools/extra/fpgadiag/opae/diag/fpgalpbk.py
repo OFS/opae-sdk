@@ -27,12 +27,8 @@
 
 from __future__ import print_function
 import argparse
-import time
-import struct
-import os
-import eth_group
-from eth_group import *
-from common import FpgaFinder, exception_quit, COMMON, hexint
+from opae.diag.eth_group import eth_group
+from .common import FpgaFinder, exception_quit, COMMON, hexint
 
 FPGA_PHY_GROUP_ID = {'host': 1, 'line': 0}
 
