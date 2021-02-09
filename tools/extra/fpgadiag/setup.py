@@ -23,13 +23,15 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-import os
 from setuptools import setup, find_packages
 from setuptools.command.build_ext import build_ext
+from distutils.ccompiler import new_compiler
 from distutils.extension import Extension
+from distutils.errors import CompileError, DistutilsExecError
 
 # get the original build_extensions method
 original_build_extensions = build_ext.build_extensions
+
 
 def override_build_extensions(self):
     if '-Wstrict-prototypes' in self.compiler.compiler_so:
@@ -42,6 +44,7 @@ def override_build_extensions(self):
 # replace build_extensions with our custom version
 build_ext.build_extensions = override_build_extensions
 
+
 class pybind_include_dirs(object):
     def __init__(self, user=False):
         self.user = user
@@ -50,35 +53,54 @@ class pybind_include_dirs(object):
         import pybind11
         return pybind11.get_include(self.user)
 
-extensions = [
-    Extension("eth_group",
-              sources=["eth_group.cpp"],
-              language="c++",
-              extra_compile_args=["-std=c++11"],
-              extra_link_args=["-std=c++11"],
-              include_dirs=[
-                  "@CMAKE_INSTALL_PREFIX@/include",
-                  os.environ.get("OPAE_INCLUDE_DIR", ""),
-                  "@PYBIND11_INCLUDE_DIR@",
-                  "@PYTHON_INCLUDE_DIRS@"
-                  #pybind_include_dirs(),
-                  #pybind_include_dirs(True)
-              ],
-              library_dirs=[os.environ.get("OPAE_LIBRARY_DIR", ""),
-                            "@CMAKE_INSTALL_PREFIX@/lib",
-                            "@CMAKE_INSTALL_PREFIX@/lib64"])
-]
+
+def vfio_check():
+    cc = new_compiler()
+    try:
+        cc.compile(['test_vfio.c'])
+    except (CompileError, DistutilsExecError):
+        print('Required version of VFIO not found, disabling eth_group')
+        return False
+
+    return True
+
+
+def extensions():
+    ext = []
+    eth_group_enabled = vfio_check()
+
+    if eth_group_enabled:
+        ext.append(
+            Extension("opae.diag.eth_group",
+                      sources=["src/eth_group.cpp"],
+                      language="c++",
+                      extra_compile_args=["-std=c++11"],
+                      extra_link_args=["-std=c++11"],
+                      )
+        )
+    return ext
+
 
 setup(
-    name='eth_group',
+    name='opae.diag',
     version="2.0",
-    packages=find_packages(),
-    install_requires=['pybind11>=2.0'],
+    packages=find_packages(include=['opae.*']),
+    entry_points={
+        'console_scripts': [
+            'fpgadiag = opae.diag.fpgadiag:main',
+            'fvlbypass = opae.diag.fvlbypass:main',
+            'fpgalpbk = opae.diag.fpgalpbk:main',
+            'mactest = opae.diag.mactest:main',
+            'fpgastats = opae.diag.fpgastats:main',
+            'fpgamac = opae.diag.fpgamac:main',
+            'fecmode = opae.diag.fedmode:main',
+        ]
+    },
     description="eth group provides python bindings"
-                 "for ethernet mdev",
+    "for ethernet mdev",
     license="BSD3",
     keywords="OPAE eth group bindings",
     url="https://01.org/OPAE",
-    ext_modules=extensions,
+    ext_modules=extensions(),
     include_package_data=True,
 )

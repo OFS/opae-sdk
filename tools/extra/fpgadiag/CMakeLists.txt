@@ -26,23 +26,23 @@
 
 opae_add_shared_library(TARGET opae-c++-nlb
     SOURCE
-        nlb.h
-        nlb_cache_prime.h
-        nlb_cache_prime.cpp
-        nlb_stats.h
-        nlb_stats.cpp
-        nlb0.h
-        nlb0.cpp
-        nlb3.h
-        nlb3.cpp
-        nlb7.h
-        nlb7.cpp
-        perf_counters.h
-        perf_counters.cpp
-        diag_utils.cpp
+        src/nlb.h
+        src/nlb_cache_prime.h
+        src/nlb_cache_prime.cpp
+        src/nlb_stats.h
+        src/nlb_stats.cpp
+        src/nlb0.h
+        src/nlb0.cpp
+        src/nlb3.h
+        src/nlb3.cpp
+        src/nlb7.h
+        src/nlb7.cpp
+        src/perf_counters.h
+        src/perf_counters.cpp
+        src/diag_utils.cpp
     LIBS
         opae-c
-        opae-cxx-core 
+        opae-cxx-core
     VERSION ${OPAE_VERSION}
     SOVERSION ${OPAE_VERSION_MAJOR}
     COMPONENT opaecxxnlb
@@ -84,85 +84,37 @@ function(add_fpgadiag_app target source comp)
     )
 endfunction()
 
-add_fpgadiag_app(nlb0 nlb0_main.cpp toolfpgadiagapps)
-add_fpgadiag_app(nlb3 nlb3_main.cpp toolfpgadiagapps)
-add_fpgadiag_app(nlb7 nlb7_main.cpp toolfpgadiagapps)
+add_fpgadiag_app(nlb0 src/nlb0_main.cpp toolfpgadiagapps)
+add_fpgadiag_app(nlb3 src/nlb3_main.cpp toolfpgadiagapps)
+add_fpgadiag_app(nlb7 src/nlb7_main.cpp toolfpgadiagapps)
 
-set(fpgalpbksrc common.py
-                fpgalpbk.py)
+set(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/timestamp)
+file(GLOB_RECURSE PKG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/opae/*)
 
-set(mactestsrc common.py
-               mactest.py)
+set(INCLUDE_DIRS "${OPAE_INCLUDE_PATH}:${pybind11_ROOT}/include")
+set(LINK_DIRS "${LIBRARY_OUTPUT_PATH}")
 
-set(fpgastatssrc common.py
-               fpgastats.py)
-
-set(fvlbypasssrc common.py
-               fpgastats.py
-               fpgalpbk.py
-               fvlbypass.py)
-
-set(fecmodesrc common.py
-               fecmode.py)
-
-set(fpgamacsrc common.py
-               fpgamac.py)
-
-find_package(PythonLibs)
-include_directories(${PYTHON_INCLUDE_DIRS})
-
-target_include_directories(_opae
-    PRIVATE ${PYBIND11_INCLUDE_DIR}
-    PRIVATE ${PYTHON_INCLUDE_DIRS})
-
-
-try_compile(SUPPORTS_VFIO
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/test_vfio.c
-    OUTPUT_VARIABLE TRY_COMPILE_OUTPUT
+add_custom_command(
+    OUTPUT ${OUTPUT}
+    COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext -I ${INCLUDE_DIRS} -L ${LINK_DIRS}
+    COMMAND ${PYTHON_EXECUTABLE} setup.py build
+    COMMAND ${CMAKE_COMMAND} -E touch ${OUTPUT}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    DEPENDS setup.py ${PKG_FILES}
 )
 
-if (SUPPORTS_VFIO)
-    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
-       set_source_files_properties(eth_group.cpp  PROPERTIES COMPILE_FLAGS -fno-lto)
-    endif()
-    pybind11_add_module(eth_group THIN_LTO  eth_group.cpp)
-else(SUPPORTS_VFIO)
-    message(WARNING
-        "Could not compile VFIO. See errors in vfio_errors.txt")
-    file(WRITE ${CMAKE_BINARY_DIR}/vfio_errors.txt ${TRY_COMPILE_OUTPUT})
-endif(SUPPORTS_VFIO)
+set_property(DIRECTORY PROPERTY
+    ADDITIONAL_MAKE_CLEAN_FILES
+        "${CMAKE_CURRENT_SOURCE_DIR}/build"
+        "${CMAKE_CURRENT_SOURCE_DIR}/dist"
+        "${CMAKE_CURRENT_SOURCE_DIR}/test_vfio.o"
+)
 
-CREATE_PYTHON_EXE(fpgalpbk fpgalpbk ${fpgalpbksrc})
-install(PROGRAMS ${PACKAGER_BIN}
-    DESTINATION bin
-    COMPONENT toolfpgadiagapps)
-
-CREATE_PYTHON_EXE(mactest mactest ${mactestsrc})
-install(PROGRAMS ${PACKAGER_BIN}
-    DESTINATION bin
-    COMPONENT toolfpgadiagapps)
-
-CREATE_PYTHON_EXE(fpgastats fpgastats ${fpgastatssrc})
-install(PROGRAMS ${PACKAGER_BIN}
-    DESTINATION bin
-    COMPONENT toolfpgadiagapps)
-
-CREATE_PYTHON_EXE(fvlbypass fvlbypass ${fvlbypasssrc})
-install(PROGRAMS ${PACKAGER_BIN}
-    DESTINATION bin
-    COMPONENT toolfpgadiagapps)
-
-CREATE_PYTHON_EXE(fecmode fecmode ${fecmodesrc})
-install(PROGRAMS ${PACKAGER_BIN}
-    DESTINATION bin
-    COMPONENT toolfpgadiagapps)
-
-CREATE_PYTHON_EXE(fpgamac fpgamac ${fpgamacsrc})
-install(PROGRAMS ${PACKAGER_BIN}
-    DESTINATION bin
-    COMPONENT toolfpgadiagapps)
-
-install(PROGRAMS fpgadiag
-    DESTINATION bin
-    COMPONENT toolfpgadiag)
+add_custom_target(opae.diag-build ALL DEPENDS nlb0 nlb3 nlb7 ${OUTPUT})
+install(
+    CODE "execute_process(
+        COMMAND ${PYTHON_EXECUTABLE} setup.py install
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+	)"
+    COMPONENT toolfpgadiagapps
+)
