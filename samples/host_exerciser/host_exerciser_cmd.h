@@ -62,7 +62,7 @@ public:
         if (host_exe_ == NULL)
             return;
 
-        he_error.value = host_exe_->read64(HE_STATUS0);
+        he_error.value = host_exe_->read64(HE_ERROR);
 
         std::cout << "Host Exerciser Error:" << he_error.error << std::endl;
 
