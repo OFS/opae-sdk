@@ -28,13 +28,9 @@
 from __future__ import print_function
 from __future__ import absolute_import
 import argparse
-import time
-import struct
-import os
 import sys
-import eth_group
-from eth_group import *
-from common import FpgaFinder, exception_quit, COMMON, hexint
+from opae.diag.eth_group import eth_group
+from .common import FpgaFinder, exception_quit, COMMON, hexint
 
 FPGA_MAC_GROUP_ID = {'host': 1, 'line': 0}
 
@@ -66,7 +62,7 @@ class FPGAMAC(COMMON):
                 self.mtu = args.mtu
             else:
                 self.mtu = int(args.mtu, 0)
-        except ValueError as e:
+        except ValueError:
             exception_quit('invalid mtu value {}'.format(args.mtu), 4)
         self.side = args.side
         self.argport = args.port

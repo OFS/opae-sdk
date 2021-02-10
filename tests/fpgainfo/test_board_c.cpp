@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2020, Intel Corporation
+// Copyright(c) 2019-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -112,7 +112,7 @@ TEST_P(fpgainfo_board_c_p, parse_mac_args0) {
     char zero[20];
     char one[20];
     char two[20];
-    char *argv[] = { zero, one, two };
+    char *argv[] = { zero, one, two, NULL };
 
     strcpy(zero, "fpgainfo");
     strcpy(one, "mac");
@@ -134,7 +134,7 @@ TEST_P(fpgainfo_board_c_p, parse_mac_args0) {
 TEST_P(fpgainfo_board_c_p, mac_filter) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     fpga_properties filter = NULL;
     strcpy(zero, "fpgainfo");
@@ -149,7 +149,7 @@ TEST_P(fpgainfo_board_c_p, mac_filter) {
 *             the fn returns FPGA_INVALID_PARAM. <br>
 */
 TEST_P(fpgainfo_board_c_p, mac_command0) {
-    char *argv[] = { };
+    char *argv[] = { NULL };
 
     fpga_token tokens = NULL;
     EXPECT_EQ(mac_command(&tokens, 0, 0, argv), FPGA_OK);
@@ -162,7 +162,7 @@ TEST_P(fpgainfo_board_c_p, mac_command0) {
 *             the fn returns FPGA_INVALID_PARAM. <br>
 */
 TEST_P(fpgainfo_board_c_p, mac_command1) {
-    char *argv[] = { };
+    char *argv[] = { NULL };
 
     fpga_properties filter = NULL;
     fpga_token tokens = NULL;
@@ -199,7 +199,7 @@ TEST_P(fpgainfo_board_c_p, parse_phy_args0) {
     char zero[20];
     char one[20];
     char two[20];
-    char *argv[] = { zero, one, two };
+    char *argv[] = { zero, one, two, NULL };
 
     strcpy(zero, "fpgainfo");
     strcpy(one, "phy");
@@ -224,7 +224,7 @@ TEST_P(fpgainfo_board_c_p, parse_phy_args1) {
     char one[20];
     char two[20];
     char three[20];
-    char *argv[] = { zero, one, two, three};
+    char *argv[] = { zero, one, two, three, NULL };
 
     strcpy(zero, "fpgainfo");
     strcpy(one, "phy");
@@ -251,7 +251,7 @@ TEST_P(fpgainfo_board_c_p, parse_phy_args1) {
 TEST_P(fpgainfo_board_c_p, phy_filter) {
     char zero[20];
     char one[20];
-    char *argv[] = { zero, one };
+    char *argv[] = { zero, one, NULL };
 
     fpga_properties filter = NULL;
     strcpy(zero, "fpgainfo");
@@ -265,7 +265,7 @@ TEST_P(fpgainfo_board_c_p, phy_filter) {
 * @details    The phy_command fn always returen FPGA_OK <br>
 */
 TEST_P(fpgainfo_board_c_p, phy_command0) {
-    char *argv[] = { };
+    char *argv[] = { NULL };
 
     fpga_token tokens = NULL;
     EXPECT_EQ(phy_command(&tokens, 0, 0, argv), FPGA_OK);
@@ -277,7 +277,7 @@ TEST_P(fpgainfo_board_c_p, phy_command0) {
 * @details    The phy_command fn always returen FPGA_OK <br>
 */
 TEST_P(fpgainfo_board_c_p, phy_command1) {
-    char *argv[] = { };
+    char *argv[] = { NULL };
 
     fpga_properties filter = NULL;
     fpga_token tokens = NULL;

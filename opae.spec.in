@@ -1,5 +1,5 @@
 # -*- rpm-spec -*-
-%define with_ase "@BUILD_ASE@"
+%define with_ase "@OPAE_BUILD_SIM@"
 
 BuildRoot:      %_topdir/@CPACK_PACKAGE_FILE_NAME@
 
@@ -173,7 +173,6 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libxfpga.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libmodbmc.so
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libbitstream.so*
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libafu-test.so*
 
 
 %files devel -f devel-files.txt
@@ -236,13 +235,6 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/fpga_dma_test
 @CMAKE_INSTALL_PREFIX@/bin/fpga_dma_N3000_test
 @CMAKE_INSTALL_PREFIX@/bin/fpgabist
-@CMAKE_INSTALL_PREFIX@/bin/fecmode
-@CMAKE_INSTALL_PREFIX@/bin/fecmode
-@CMAKE_INSTALL_PREFIX@/bin/fpgamac
-@CMAKE_INSTALL_PREFIX@/bin/fpgastats
-@CMAKE_INSTALL_PREFIX@/bin/fvlbypass
-@CMAKE_INSTALL_PREFIX@/bin/mactest
-@CMAKE_INSTALL_PREFIX@/bin/fpgadiag
 @CMAKE_INSTALL_PREFIX@/bin/hssi_config
 @CMAKE_INSTALL_PREFIX@/bin/hssi_loopback
 @CMAKE_INSTALL_PREFIX@/bin/mmlink

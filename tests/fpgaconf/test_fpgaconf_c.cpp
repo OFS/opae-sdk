@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2019, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -42,12 +42,6 @@ struct config {
          AUTOMATIC    /* choose if ambiguous */
        } mode;
   int flags;
-  struct target {
-    int segment;
-    int bus;
-    int device;
-    int function;
-  } target;
   char *filename;
 };
 extern struct config config;
@@ -60,9 +54,12 @@ void print_msg(unsigned int verbosity, const char *s);
 
 int parse_args(int argc, char *argv[]);
 
-int print_interface_id(fpga_guid actual_interface_id);
+int print_interface_id(fpga_properties device_filter,
+                       fpga_guid actual_interface_id);
 
-int find_fpga(fpga_guid interface_id, fpga_token *fpga);
+int find_fpga(fpga_properties device_filter,
+              fpga_guid interface_id,
+              fpga_token *fpga);
 
 int program_bitstream(fpga_token token, uint32_t slot_num,
                       opae_bitstream_info *info, int flags);
@@ -202,7 +199,7 @@ TEST_P(fpgaconf_c_p, parse_args0) {
   strcpy(zero, "fpgaconf");
   strcpy(one, "-Y");
 
-  char *argv[] = { zero, one };
+  char *argv[] = { zero, one, NULL };
 
   EXPECT_LT(parse_args(2, argv), 0);
 }
@@ -224,46 +221,24 @@ TEST_P(fpgaconf_c_p, parse_args1) {
   char four[20];
   char five[20];
   char six[20];
-  char seven[20];
-  char eight[20];
-  char nine[20];
-  char ten[20];
-  char eleven[20];
-  char twelve[20];
-  char thirteen[20];
-  char fourteen[20];
-  char fifteen[30];
+  char seven[30];
   strcpy(zero, "fpgaconf");
   strcpy(one, "-V");
   strcpy(two, "-n");
   strcpy(three, "--force");
-  strcpy(four, "--segment");
-  strcpy(five, "0x1234");
-  strcpy(six, "-B");
-  strcpy(seven, "0x5e");
-  strcpy(eight, "-D");
-  strcpy(nine, "0xab");
-  strcpy(ten, "-F");
-  strcpy(eleven, "3");
-  strcpy(twelve, "-A");
-  strcpy(thirteen, "-I");
-  strcpy(fourteen, "--skip-usrclk");
-  strcpy(fifteen, tmpfilename);
+  strcpy(four, "-A");
+  strcpy(five, "-I");
+  strcpy(six, "--skip-usrclk");
+  strcpy(seven, tmpfilename);
 
   char *argv[] = { zero, one, two, three, four,
-                   five, six, seven, eight, nine,
-                   ten, eleven, twelve,
-                   thirteen, fourteen, fifteen };
+                   five, six, seven, NULL };
 
-  EXPECT_EQ(parse_args(16, argv), 0);
+  EXPECT_EQ(parse_args(8, argv), 0);
   EXPECT_EQ(config.verbosity, 1);
   EXPECT_NE(config.dry_run, 0);
   EXPECT_NE(config.flags & FPGA_RECONF_FORCE, 0);
   EXPECT_NE(config.flags & FPGA_RECONF_SKIP_USRCLK, 0);
-  EXPECT_EQ(config.target.segment, 0x1234);
-  EXPECT_EQ(config.target.bus, 0x5e);
-  EXPECT_EQ(config.target.device, 0xab);
-  EXPECT_EQ(config.target.function, 3);
   EXPECT_EQ(config.mode, 0);
   ASSERT_NE(config.filename, nullptr);
   EXPECT_STREQ(basename(config.filename), tmpfilename);
@@ -283,7 +258,7 @@ TEST_P(fpgaconf_c_p, parse_args2) {
   strcpy(zero, "fpgaconf");
   strcpy(one, "-h");
 
-  char *argv[] = { zero, one };
+  char *argv[] = { zero, one, NULL };
 
   EXPECT_LT(parse_args(2, argv), 0);
 }
@@ -323,7 +298,7 @@ TEST_P(fpgaconf_c_p, invalid_parse_args1) {
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten, eleven };
+                   ten, eleven, NULL };
 
   EXPECT_LT(parse_args(12, argv), 0);
 }
@@ -369,7 +344,7 @@ TEST_P(fpgaconf_c_p, invalid_parse_args2) {
 
   char *argv[] = { zero, one, two, three,
                    ten, eleven, twelve, thirteen, fourteen,
-                   four, five, six, seven, eight, nine};
+                   four, five, six, seven, eight, nine, NULL};
 
   EXPECT_LT(parse_args(15, argv), 0);
 } 
@@ -382,32 +357,44 @@ TEST_P(fpgaconf_c_p, invalid_parse_args2) {
  *             and the fn returns non-zero value
  */
 TEST_P(fpgaconf_c_p, parse_args3) {
-  const char *argv[] = { "fpgaconf", "no-file.gbs" };
+  const char *argv[] = { "fpgaconf", "no-file.gbs", NULL };
   EXPECT_NE(parse_args(2, (char**)argv), 0);
 }
 
 /**
  * @test       ifc_id1
  * @brief      Test: print_interface_id
- * @details    When the given config.target settings match no device,<br>
+ * @details    When the given PCIe address settings match no device,<br>
  *             print_interface_id returns 0.<br>
  */
 TEST_P(fpgaconf_c_p, ifc_id1) {
-  config.target.bus = 0xff;
-  EXPECT_EQ(print_interface_id(test_guid), 0);
+  fpga_properties filter = NULL;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetBus(filter, 0xff), FPGA_OK);
+
+  EXPECT_EQ(print_interface_id(filter, test_guid), 0);
+
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
  * @test       find_fpga0
  * @brief      Test: find_fpga
- * @details    When the given config.target settings match no device,<br>
+ * @details    When the given PCIe address settings match no device,<br>
  *             find_fpga returns 0.<br>
  */
 TEST_P(fpgaconf_c_p, find_fpga0) {
-  config.target.bus = 0xff;
+  fpga_properties filter = NULL;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetBus(filter, 0xff), FPGA_OK);
+
   fpga_token tok = nullptr;
-  EXPECT_EQ(find_fpga(test_guid, &tok), 0);
+  EXPECT_EQ(find_fpga(filter, test_guid, &tok), 0);
   EXPECT_EQ(tok, nullptr);
+
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -422,7 +409,7 @@ TEST_P(fpgaconf_c_p, main0) {
   strcpy(zero, "fpgaconf");
   strcpy(one, "-Y");
 
-  char *argv[] = { zero, one };
+  char *argv[] = { zero, one, NULL };
 
   EXPECT_EQ(fpgaconf_main(2, argv), 1);
 }
@@ -461,7 +448,7 @@ TEST_P(fpgaconf_c_p, main1) {
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-		   ten };
+		   ten, NULL };
 
   EXPECT_EQ(fpgaconf_main(11, argv), 0);
 }
@@ -488,7 +475,7 @@ TEST_P(fpgaconf_c_p, main2) {
   strcpy(five, tmp_gbs_);
 
   char *argv[] = { zero, one, two, three, four,
-                   five };
+                   five, NULL };
 
   EXPECT_NE(fpgaconf_main(6, argv), 0);
 }
@@ -507,7 +494,7 @@ TEST_P(fpgaconf_c_p, main_seg_neg) {
   strcpy(one, "--segment");
   strcpy(two, "k");
 
-  char *argv[] = { zero, one, two };
+  char *argv[] = { zero, one, two, NULL };
 
   EXPECT_NE(fpgaconf_main(3, argv), 0);
 }
@@ -526,7 +513,7 @@ TEST_P(fpgaconf_c_p, main_bus_neg) {
   strcpy(one, "-B");
   strcpy(two, "k");
 
-  char *argv[] = { zero, one, two };
+  char *argv[] = { zero, one, two, NULL };
 
   EXPECT_NE(fpgaconf_main(3, argv), 0);
 }
@@ -545,7 +532,7 @@ TEST_P(fpgaconf_c_p, main_dev_neg) {
   strcpy(one, "-D");
   strcpy(two, "k");
 
-  char *argv[] = { zero, one, two };
+  char *argv[] = { zero, one, two, NULL };
 
   EXPECT_NE(fpgaconf_main(3, argv), 0);
 }
@@ -561,7 +548,7 @@ TEST_P(fpgaconf_c_p, main_missing_gbs) {
   char zero[20];
   strcpy(zero, "fpgaconf");
 
-  char *argv[] = { zero };
+  char *argv[] = { zero, NULL };
 
   EXPECT_NE(fpgaconf_main(1, argv), 0);
 }
@@ -574,7 +561,7 @@ TEST_P(fpgaconf_c_p, main_missing_gbs) {
  */
 TEST_P(fpgaconf_c_p, embed_nullchar1) {
   copy_bitstream("copy_bitstream.gbs");
-  const char *argv[] = { "fpgaconf", "-B", "0x5e", "copy_bitstream\0.gbs"};
+  const char *argv[] = { "fpgaconf", "-B", "0x5e", "copy_bitstream\0.gbs", NULL};
 
   EXPECT_NE(fpgaconf_main(4, (char**)argv), 0);
   unlink(copy_gbs_.c_str());
@@ -582,7 +569,7 @@ TEST_P(fpgaconf_c_p, embed_nullchar1) {
 
 TEST_P(fpgaconf_c_p, embed_nullchar2) {
   copy_bitstream("copy_bitstream.gbs");
-  const char *argv[] = { "fpgaconf", "-B", "0x5e", "\0 copy_bitstream.gbs"};
+  const char *argv[] = { "fpgaconf", "-B", "0x5e", "\0 copy_bitstream.gbs", NULL};
 
   EXPECT_NE(fpgaconf_main(4, (char**)argv), 0);
   unlink(copy_gbs_.c_str());
@@ -604,24 +591,24 @@ TEST_P(fpgaconf_c_p, encoding_path) {
   strcpy(one, "-B");
   strcpy(two, "0x5e");
 
-  char *argv[] = { zero, one, two, three};
+  char *argv[] = { zero, one, two, three, NULL };
 
   // File not found
   strcpy(three, "copy_bitstream%2egbs");
   EXPECT_NE(fpgaconf_main(4, argv), 0);
 
   // File not found
-  memset(three, 0, sizeof(three));
+  argv[0] = zero; argv[1] = one; argv[2] = two; argv[3] = three; argv[4] = NULL;
   strcpy(three, "copy_bitstream..gbs");
   EXPECT_NE(fpgaconf_main(4, argv), 0);
   
   // File not found
-  memset(three, 0, sizeof(three));
+  argv[0] = zero; argv[1] = one; argv[2] = two; argv[3] = three; argv[4] = NULL;
   strcpy(three, "....copy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(4, argv), 0);
 
   // File not found
-  memset(three, 0, sizeof(three));
+  argv[0] = zero; argv[1] = one; argv[2] = two; argv[3] = three; argv[4] = NULL;
   strcpy(three, "%252E%252E%252Fcopy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(4, argv), 0);
 
@@ -647,28 +634,28 @@ TEST_P(fpgaconf_c_p, relative_path) {
   strcpy(two, "-B");
   strcpy(three, "0x5e");
 
-  char *argv[] = { zero, one, two, three, four};
+  char *argv[] = { zero, one, two, three, four, NULL };
 
   strcpy(four, "../copy_bitstream.gbs");
   EXPECT_EQ(fpgaconf_main(5, argv), 0);
 
   // Fail not found
-  memset(four, 0, sizeof(four));
+  argv[0] = zero; argv[1] = one; argv[2] = two; argv[3] = three; argv[4] = four; argv[5] = NULL;
   strcpy(four, "../..../copy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(5, argv), 0);
 
   // Fail not found
-  memset(four, 0, sizeof(four));
+  argv[0] = zero; argv[1] = one; argv[2] = two; argv[3] = three; argv[4] = four; argv[5] = NULL;
   strcpy(four, "..%2fcopy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(5, argv), 0);
 
   // Fail not found
-  memset(four, 0, sizeof(four));
+  argv[0] = zero; argv[1] = one; argv[2] = two; argv[3] = three; argv[4] = four; argv[5] = NULL;
   strcpy(four, "%2e%2e/copy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(5, argv), 0);
 
   // Fail not found
-  memset(four, 0, sizeof(four));
+  argv[0] = zero; argv[1] = one; argv[2] = two; argv[3] = three; argv[4] = four; argv[5] = NULL;
   strcpy(four, "%2e%2e%2fcopy_bitstream.gbs");
   EXPECT_NE(fpgaconf_main(5, argv), 0);
 
@@ -693,7 +680,7 @@ TEST_P(fpgaconf_c_p, absolute_path_pos) {
   strcpy(two, "-B");
   strcpy(three, "0x5e");
 
-  char *argv[] = { zero, one, two, three, four};
+  char *argv[] = { zero, one, two, three, four, NULL };
   char *current_path = get_current_dir_name();
   std::string bitstream_path = (std::string)current_path + "/copy_bitstream.gbs";
 
@@ -727,7 +714,7 @@ TEST_P(fpgaconf_c_p, absolute_path_neg) {
   strcpy(one, "-B");
   strcpy(two, "0x5e");
 
-  char *argv[] = { zero, one, two, three};
+  char *argv[] = { zero, one, two, three, NULL };
   char *current_path = get_current_dir_name();
   std::string bitstream_path = (std::string)current_path + "/copy_bitstream.gbs";
 
@@ -762,7 +749,7 @@ TEST_P(fpgaconf_c_p, main_symlink_bs) {
   strcpy(four, "0x5e");
 
   char *argv[] = { zero, one, two, three, four,
-                   five };
+                   five, NULL };
 
   auto ret = symlink(copy_gbs_.c_str(), symlink_gbs.c_str());
   EXPECT_EQ(ret, 0);
@@ -774,6 +761,8 @@ TEST_P(fpgaconf_c_p, main_symlink_bs) {
   unlink(copy_gbs_.c_str());
 
   // Fail case
+  argv[0] = zero; argv[1] = one; argv[2] = two; argv[3] = three;
+  argv[4] = four; argv[5] = five; argv[6] = NULL;
   EXPECT_NE(fpgaconf_main(6, argv), 0);
   unlink(symlink_gbs.c_str());
 }
@@ -800,7 +789,7 @@ TEST_P(fpgaconf_c_p, circular_symlink) {
   strcpy(four, "0x5e");
 
   char *argv[] = { zero, one, two, three, four,
-                   five };
+                   five, NULL };
 
   // Create link directories
   auto ret = mkdir("./link1", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
@@ -817,7 +806,8 @@ TEST_P(fpgaconf_c_p, circular_symlink) {
   strcpy(five, symlink_A.c_str());
   EXPECT_NE(fpgaconf_main(6, argv), 0);
 
-  memset(five, 0, sizeof(five));
+  argv[0] = zero; argv[1] = one; argv[2] = two; argv[3] = three;
+  argv[4] = four; argv[5] = five; argv[6] = NULL;
   strcpy(five, symlink_B.c_str());
   EXPECT_NE(fpgaconf_main(6, argv), 0);
   
@@ -840,41 +830,54 @@ class fpgaconf_c_mock_p : public fpgaconf_c_p{
 /**
  * @test       ifc_id0
  * @brief      Test: print_interface_id
- * @details    When the config.target struct is populated with<br>
+ * @details    When the fpga_properties struct is populated with<br>
  *             bus, device, function <br>
  *             print_interface_id uses those settings for enumeration,<br>
  *             returning the number of matches found.<br>
  */
 TEST_P(fpgaconf_c_mock_p, ifc_id0) {
-  config.target.segment = platform_.devices[0].segment;
-  config.target.bus = platform_.devices[0].bus;
-  config.target.device = platform_.devices[0].device;
-  config.target.function = platform_.devices[0].function;
-  EXPECT_EQ(print_interface_id(test_guid), 1);
+  fpga_properties filter = NULL;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+
+  ASSERT_EQ(fpgaPropertiesSetSegment(filter, platform_.devices[0].segment), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetBus(filter, platform_.devices[0].bus), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetDevice(filter, platform_.devices[0].device), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetFunction(filter, platform_.devices[0].function), FPGA_OK);
+
+  EXPECT_EQ(print_interface_id(filter, test_guid), 1);
+
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
  * @test       find_fpga1
  * @brief      Test: find_fpga
- * @details    When the config.target struct is populated with<br>
+ * @details    When the fpga_properties struct is populated with<br>
  *             bus, device, function <br>
  *             find_fpga uses those settings in conjunction with the
  *             given PR interface ID for enumeration,<br>
  *             returning the number of matches found.<br>
  */
 TEST_P(fpgaconf_c_mock_p, find_fpga1) {
-  config.target.segment = platform_.devices[0].segment;
-  config.target.bus = platform_.devices[0].bus;
-  config.target.device = platform_.devices[0].device;
-  config.target.function = platform_.devices[0].function;
+  fpga_properties filter = NULL;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+
+  ASSERT_EQ(fpgaPropertiesSetSegment(filter, platform_.devices[0].segment), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetBus(filter, platform_.devices[0].bus), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetDevice(filter, platform_.devices[0].device), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetFunction(filter, platform_.devices[0].function), FPGA_OK);
 
   fpga_guid pr_ifc_id;
   ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, pr_ifc_id), 0);
 
   fpga_token tok = nullptr;
-  EXPECT_EQ(find_fpga(pr_ifc_id, &tok), 1);
+  EXPECT_EQ(find_fpga(filter, pr_ifc_id, &tok), 1);
   ASSERT_NE(tok, nullptr);
   EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
+
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -885,10 +888,14 @@ TEST_P(fpgaconf_c_mock_p, find_fpga1) {
  *             and the fn returns 1.<br>
  */
 TEST_P(fpgaconf_c_mock_p, prog_bs0) {
-  config.target.segment = platform_.devices[0].segment;
-  config.target.bus = platform_.devices[0].bus;
-  config.target.device = platform_.devices[0].device;
-  config.target.function = platform_.devices[0].function;
+  fpga_properties filter = NULL;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+
+  ASSERT_EQ(fpgaPropertiesSetSegment(filter, platform_.devices[0].segment), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetBus(filter, platform_.devices[0].bus), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetDevice(filter, platform_.devices[0].device), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetFunction(filter, platform_.devices[0].function), FPGA_OK);
 
   config.dry_run = true;
 
@@ -899,13 +906,15 @@ TEST_P(fpgaconf_c_mock_p, prog_bs0) {
   ASSERT_EQ(opae_load_bitstream(tmp_gbs_, &info), FPGA_OK);
 
   fpga_token tok = nullptr;
-  EXPECT_EQ(find_fpga(pr_ifc_id, &tok), 1);
+  EXPECT_EQ(find_fpga(filter, pr_ifc_id, &tok), 1);
   ASSERT_NE(tok, nullptr);
 
   EXPECT_EQ(program_bitstream(tok, 0, &info, 0), 1);
 
   EXPECT_EQ(opae_unload_bitstream(&info), FPGA_OK);
   EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
+
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -917,10 +926,14 @@ TEST_P(fpgaconf_c_mock_p, prog_bs0) {
  *             causing the function to return -1.<br>
  */
 TEST_P(fpgaconf_c_mock_p, prog_bs1) {
-  config.target.segment = platform_.devices[0].segment;
-  config.target.bus = platform_.devices[0].bus;
-  config.target.device = platform_.devices[0].device;
-  config.target.function = platform_.devices[0].function;
+  fpga_properties filter = NULL;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+
+  ASSERT_EQ(fpgaPropertiesSetSegment(filter, platform_.devices[0].segment), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetBus(filter, platform_.devices[0].bus), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetDevice(filter, platform_.devices[0].device), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetFunction(filter, platform_.devices[0].function), FPGA_OK);
 
   ASSERT_EQ(config.dry_run, false);
 
@@ -931,13 +944,15 @@ TEST_P(fpgaconf_c_mock_p, prog_bs1) {
   ASSERT_EQ(opae_load_bitstream(tmp_gbs_, &info), FPGA_OK);
 
   fpga_token tok = nullptr;
-  EXPECT_EQ(find_fpga(pr_ifc_id, &tok), 1);
+  EXPECT_EQ(find_fpga(filter, pr_ifc_id, &tok), 1);
   ASSERT_NE(tok, nullptr);
 
   EXPECT_EQ(program_bitstream(tok, 0, &info, 0), -1);
 
   EXPECT_EQ(opae_unload_bitstream(&info), FPGA_OK);
   EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
+
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -955,10 +970,14 @@ TEST_P(fpgaconf_c_mock_p, prog_bs2) {
   gbs.write((const char *) bitstream_valid_.data(), bitstream_valid_.size());
   gbs.close();
 
-  config.target.segment = platform_.devices[0].segment;
-  config.target.bus = platform_.devices[0].bus;
-  config.target.device = platform_.devices[0].device;
-  config.target.function = platform_.devices[0].function;
+  fpga_properties filter = NULL;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+
+  ASSERT_EQ(fpgaPropertiesSetSegment(filter, platform_.devices[0].segment), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetBus(filter, platform_.devices[0].bus), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetDevice(filter, platform_.devices[0].device), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetFunction(filter, platform_.devices[0].function), FPGA_OK);
 
   ASSERT_EQ(config.dry_run, false);
 
@@ -969,13 +988,15 @@ TEST_P(fpgaconf_c_mock_p, prog_bs2) {
   ASSERT_EQ(opae_load_bitstream(tmp_gbs_, &info), FPGA_OK);
 
   fpga_token tok = nullptr;
-  EXPECT_EQ(find_fpga(pr_ifc_id, &tok), 1);
+  EXPECT_EQ(find_fpga(filter, pr_ifc_id, &tok), 1);
   ASSERT_NE(tok, nullptr);
 
   EXPECT_EQ(program_bitstream(tok, 0, &info, 0), -1);
 
   EXPECT_EQ(opae_unload_bitstream(&info), FPGA_OK);
   EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
+
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 INSTANTIATE_TEST_CASE_P(fpgaconf_c, fpgaconf_c_mock_p,
