@@ -311,7 +311,7 @@ public:
     // Configure interleave requests in Throughput mode
     app_.add_option("--interleave", he_interleave_, "Interleave requests pattern in Throughput mode {0, 1, 2} \
         Interleave pattern:0 rd-wr-rd-wr  Interleave pattern:1 rd-rd-wr-wr \
-        Interleave pattern:2 rd-rd-rd-rd-wr-wr-wr-Wr ")
+        Interleave pattern:2 rd-rd-rd-rd-wr-wr-wr-wr ")
        ->default_val(0);
 
   }
