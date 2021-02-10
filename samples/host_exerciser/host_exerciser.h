@@ -309,9 +309,9 @@ public:
     app_.add_option("-d,--delay", he_delay_, "Enables random delay insertion between requests")->default_val(false);
 
     // Configure interleave requests in Throughput mode
-    app_.add_option("--interleave", he_interleave_, "Interleave requests {0, 1, 2} in Throughput mode \
-        Request value:0-Rd,Wr,Rd,Wr  Request value:1-Rd, Rd,Wr,Wr \
-        Request value:2-Rd,Rd,Rd,Rd,Wr,Wr,Wr,Wr ")
+    app_.add_option("--interleave", he_interleave_, "Interleave requests pattern in Throughput mode {0, 1, 2} \
+        Interleave pattern:0 rd-wr-rd-wr  Interleave pattern:1 rd-rd-wr-wr \
+        Interleave pattern:2 rd-rd-rd-rd-wr-wr-wr-Wr ")
        ->default_val(0);
 
   }
