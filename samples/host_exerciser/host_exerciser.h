@@ -288,6 +288,14 @@ const std::map<std::string, uint32_t> he_test_mode = {
 using test_afu = opae::afu_test::afu;
 using test_command = opae::afu_test::command;
 
+// Inerleave help
+const char *interleave_help = R"desc(Interleave requests pattern to use in throughput mode {0, 1, 2}
+indicating one of the following series of read/write requests:
+0: rd-wr-rd-wr
+1: rd-rd-wr-wr
+2: rd-rd-rd-rd-wr-wr-wr-wr)desc";
+
+
 class host_exerciser : public test_afu {
 public:
     host_exerciser()
@@ -309,10 +317,7 @@ public:
     app_.add_option("-d,--delay", he_delay_, "Enables random delay insertion between requests")->default_val(false);
 
     // Configure interleave requests in Throughput mode
-    app_.add_option("--interleave", he_interleave_, "Interleave requests pattern in Throughput mode {0, 1, 2} \
-        Interleave pattern:0 rd-wr-rd-wr  Interleave pattern:1 rd-rd-wr-wr \
-        Interleave pattern:2 rd-rd-rd-rd-wr-wr-wr-wr ")
-       ->default_val(0);
+    app_.add_option("--interleave", he_interleave_, interleave_help)->default_val(0);
 
   }
 
