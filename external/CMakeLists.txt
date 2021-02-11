@@ -64,10 +64,9 @@ else(spdlog_FOUND)
     set(spdlog_INCLUDE_DIRS ${spdlog_ROOT}/include
         CACHE STRING "Path to external spdlog" FORCE)
     set(spdlog_LIBRARIES ""
-        CACHE STRING "Do not link against spdloglibrary, using header only"
-        FORCE)
+        CACHE STRING "Do not link against spdlog library, using header-only" FORCE)
     set(spdlog_DEFINES ""
-        CACHE STRING "Do not link against spdlog library" FORCE)
+        CACHE STRING "Do not link against spdlog library, using header-only" FORCE)
 endif(spdlog_FOUND)
 
 if(OPAE_BUILD_LEGACY)
