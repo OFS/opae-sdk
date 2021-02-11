@@ -187,13 +187,15 @@ public:
 
     auto tokens = fpga::token::enumerate({filter});
     if (tokens.size() < 1) {
-      std::cerr << "no accelerator found with id: " << app_afu_id;
-      if (!pci_addr_.empty()) {
-        std::cerr << " at pcie address: " << pci_addr_;
+      if (pci_addr_.empty()) {
+        logger_->error("no accelerator found with id: {0}", app_afu_id);
+      } else {
+        logger_->error("no accelerator found with id: {0} at PCIe address {1}",
+            app_afu_id, pci_addr_);
       }
-      std::cerr << "\n";
       return exit_codes::not_found;
     }
+
     if (tokens.size() > 1) {
       std::cerr << "more than one accelerator found matching filter\n";
     }
@@ -230,11 +232,6 @@ public:
       return exit_codes::not_run;
     }
 
-    int res = open_handle(test->afu_id());
-    if (res != exit_codes::not_run) {
-      return res;
-    }
-
     std::stringstream ss;
     ss << name_ << "_" << test->name() << ".log";
     auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(ss.str(), true);
@@ -242,6 +239,12 @@ public:
     spdlog::sinks_init_list sinks({console_sink, file_sink});
     logger_ = std::make_shared<spdlog::logger>(test->name(), sinks);
     spdlog::register_logger(logger_);
+
+    int res = open_handle(test->afu_id());
+    if (res != exit_codes::not_run) {
+      return res;
+    }
+
     return run(app, test);
   }
 
