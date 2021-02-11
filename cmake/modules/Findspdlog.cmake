@@ -67,7 +67,10 @@ endif (pkgcfg_lib_PC_SPDLOG_spdlog)
 
 if(spdlog_LIBRARIES AND spdlog_INCLUDE_DIRS)
     set(spdlog_FOUND true)
+    set(spdlog_DEFINITIONS
+        "SPDLOG_COMPILED_LIB" CACHE STRING "Compile definitions of spdlog")
 endif(spdlog_LIBRARIES AND spdlog_INCLUDE_DIRS)
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(spdlog REQUIRED_VARS spdlog_INCLUDE_DIRS spdlog_LIBRARIES)
+find_package_handle_standard_args(spdlog
+    REQUIRED_VARS spdlog_INCLUDE_DIRS spdlog_LIBRARIES spdlog_DEFINITIONS)

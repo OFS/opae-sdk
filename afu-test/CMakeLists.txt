@@ -44,7 +44,7 @@ target_compile_options(afu-test INTERFACE
 )
 
 target_compile_definitions(afu-test INTERFACE
-    ${spdlog_DEFINES}
+    ${spdlog_DEFINITIONS}
 )
 
 opae_target_depends_external(afu-test spdlog)

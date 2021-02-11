@@ -41,12 +41,11 @@ opae_external_project_add(PROJECT_NAME CLI11
                           DEFER
 )
 
-find_package(spdlog 1.7)
-if(spdlog_FOUND)
-    set(spdlog_DEFINES
-        "SPDLOG_COMPILED_LIB" CACHE INTERNAL
-        "Link agaings spdlog library" FORCE)
-else(spdlog_FOUND)
+if(NOT spdlog_FOUND)
+    find_package(spdlog 1.7)
+endif(NOT spdlog_FOUND)
+
+if(NOT spdlog_FOUND)
     set(SPDLOG_URL
         https://github.com/gabime/spdlog.git
         CACHE STRING "URL for spdlog Project")
@@ -65,9 +64,10 @@ else(spdlog_FOUND)
         CACHE STRING "Path to external spdlog" FORCE)
     set(spdlog_LIBRARIES ""
         CACHE STRING "Do not link against spdlog library, using header-only" FORCE)
-    set(spdlog_DEFINES ""
+    set(spdlog_DEFINITIONS ""
         CACHE STRING "Do not link against spdlog library, using header-only" FORCE)
-endif(spdlog_FOUND)
+    set(spdlog_FOUND TRUE CACHE BOOL "spdlog found as external")
+endif(NOT spdlog_FOUND)
 
 if(OPAE_BUILD_LEGACY)
     opae_external_project_add(PROJECT_NAME opae-legacy
