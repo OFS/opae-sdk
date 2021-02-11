@@ -164,7 +164,10 @@ public:
     app_.add_flag("-s,--shared", shared_, "open in shared mode, default is off");
     app_.add_option("-t,--timeout", timeout_msec_, "test timeout (msec)")->default_val(timeout_msec_);
   }
-  virtual ~afu() {}
+  virtual ~afu() {
+    if (logger_)
+      spdlog::drop(logger_->name());
+  }
 
   CLI::App & cli() { return app_; }
 
