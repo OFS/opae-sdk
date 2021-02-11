@@ -1,4 +1,5 @@
-## Copyright(c) 2017-2021, Intel Corporation
+#!/usr/bin/cmake -P
+## Copyright(c) 2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -23,29 +24,50 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
-cmake_minimum_required (VERSION  3.10)
 
-project(afu-test)
-add_library(afu-test INTERFACE)
+# - Try to find spdlog
+# Once done, this will define
+#
+#  spdlog_FOUND - system has spdlog
+#  spdlog_INCLUDE_DIRS - the spdlog include directories
+#  spdlog_LIBRARIES - link these to use spdlog
 
-target_include_directories(afu-test INTERFACE
-    ${OPAE_INCLUDE_PATHS}
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CLI11_ROOT}/include
-    ${spdlog_INCLUDE_DIRS}
-)
+find_package(PkgConfig)
+pkg_check_modules(PC_SPDLOG QUIET spdlog)
 
-target_link_libraries(afu-test INTERFACE
-    opae-c opae-cxx-core
-    ${spdlog_LIBRARIES}
-)
-target_compile_options(afu-test INTERFACE
-    -Wno-unused-result
-)
+execute_process(COMMAND pkg-config --cflags spdlog --silence-errors
+    COMMAND cut -d I -f 2
+    OUTPUT_VARIABLE SPDLOG_PKG_CONFIG_INCLUDE_DIRS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+set(SPDLOG_PKG_CONFIG_INCLUDE_DIRS "${EDIT_PKG_CONFIG_INCLUDE_DIRS}" CACHE STRING "Compiler flags for spdlog")
 
-target_compile_definitions(afu-test INTERFACE
-    ${spdlog_DEFINES}
-)
+find_path(spdlog_INCLUDE_DIRS
+    NAMES spdlog/spdlog.h
+    PATHS ${SPDLOG_ROOT}/include
+    ${SPDLOG_PKG_CONFIG_INCLUDE_DIRS}
+    /usr/local/include
+    /usr/include
+    ${CMAKE_EXTRA_INCLUDES})
 
-opae_target_depends_external(afu-test spdlog)
-opae_target_depends_external(afu-test CLI11)
+if (pkgcfg_lib_PC_SPDLOG_spdlog)
+    set(spdlog_LIBRARIES ${pkgcfg_lib_PC_SPDLOG_spdlog}
+        CACHE STRING "Path to spdlog libraries")
+else (pkgcfg_lib_PC_SPDLOG_spdlog)
+    find_library(spdlog_LIBRARIES
+        NAMES spdlog
+        PATHS ${SPDLOG_ROOT}/lib
+        ${PC_SPDLOG_LIBDIR}
+        ${PC_SPDLOG_LIBRARY_DIRS}
+        /usr/local/lib
+        /usr/lib
+        /lib
+        /usr/lib/x86_64-linux-gnu
+        ${CMAKE_EXTRA_LIBS})
+endif (pkgcfg_lib_PC_SPDLOG_spdlog)
+
+if(spdlog_LIBRARIES AND spdlog_INCLUDE_DIRS)
+    set(spdlog_FOUND true)
+endif(spdlog_LIBRARIES AND spdlog_INCLUDE_DIRS)
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(spdlog REQUIRED_VARS spdlog_INCLUDE_DIRS spdlog_LIBRARIES)

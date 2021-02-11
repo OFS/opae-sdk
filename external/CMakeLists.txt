@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2020-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -41,20 +41,34 @@ opae_external_project_add(PROJECT_NAME CLI11
                           DEFER
 )
 
-set(SPDLOG_URL
-    https://github.com/gabime/spdlog.git
-    CACHE STRING "URL for spdlog Project")
-set(SPDLOG_TAG
-    v1.7.0
-    CACHE STRING "Tag for spdlog")
+find_package(spdlog 1.7)
+if(spdlog_FOUND)
+    set(spdlog_DEFINES
+        "SPDLOG_COMPILED_LIB" CACHE INTERNAL
+        "Link agaings spdlog library" FORCE)
+else(spdlog_FOUND)
+    set(SPDLOG_URL
+        https://github.com/gabime/spdlog.git
+        CACHE STRING "URL for spdlog Project")
+    set(SPDLOG_TAG
+        v1.7.0
+        CACHE STRING "Tag for spdlog")
 
-opae_external_project_add(PROJECT_NAME spdlog
-                          GIT_URL ${SPDLOG_URL}
-                          GIT_TAG ${SPDLOG_TAG}
-                          PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
-                          NO_ADD_SUBDIRECTORY
-                          DEFER
-)
+    opae_external_project_add(PROJECT_NAME spdlog
+                              GIT_URL ${SPDLOG_URL}
+                              GIT_TAG ${SPDLOG_TAG}
+                              PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
+                              NO_ADD_SUBDIRECTORY
+                              DEFER
+    )
+    set(spdlog_INCLUDE_DIRS ${spdlog_ROOT}/include
+        CACHE STRING "Path to external spdlog" FORCE)
+    set(spdlog_LIBRARIES ""
+        CACHE STRING "Do not link against spdloglibrary, using header only"
+        FORCE)
+    set(spdlog_DEFINES ""
+        CACHE STRING "Do not link against spdlog library" FORCE)
+endif(spdlog_FOUND)
 
 if(OPAE_BUILD_LEGACY)
     opae_external_project_add(PROJECT_NAME opae-legacy
