@@ -178,6 +178,7 @@ int main(int argc, char *argv[])
 					  &argc,
 					  argv)) {
 		OPAE_ERR("argument parsing error.\n");
+		res = FPGA_EXCEPTION;
 		goto out_destroy;
 	} else if (res != FPGA_OK) {
 		OPAE_ERR("failed to set properties from command line.\n");
