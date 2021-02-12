@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2017-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -32,13 +32,19 @@ target_include_directories(afu-test INTERFACE
     ${OPAE_INCLUDE_PATHS}
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CLI11_ROOT}/include
-    ${spdlog_ROOT}/include
+    ${spdlog_INCLUDE_DIRS}
 )
+
 target_link_libraries(afu-test INTERFACE
     opae-c opae-cxx-core
+    ${spdlog_LIBRARIES}
 )
 target_compile_options(afu-test INTERFACE
     -Wno-unused-result
+)
+
+target_compile_definitions(afu-test INTERFACE
+    ${spdlog_DEFINITIONS}
 )
 
 opae_target_depends_external(afu-test spdlog)
