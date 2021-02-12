@@ -34,8 +34,8 @@ source "${SCRIPT_DIR}/../version"
 version=$PROJECT_VERSION
 echo "version:$version"
 
-release=$PROJECT_RELEASE
-echo "release:$release"
+patch=$PROJECT_RELEASE
+echo "patch:$patch"
 
 
 
@@ -84,7 +84,7 @@ cmake -S ${SDK_DIR} -B ${CMAKE_BUILD_DIR}  -DOPAE_BUILD_LEGACY=ON  -DOPAE_BUILD_
 # Create source tarball.
 cd "${SCRIPT_DIR}"
 
-./create-tarball.sh opae-${version}
+./create-tarball.sh opae-${version}-${patch}
 
 # Create rpm build folder
 mkdir -p "${RPMBUILD_DIR}"
@@ -99,9 +99,9 @@ do
 done
 
 # Move tarball to where the rpms will be created
-mv ${SDK_DIR}/../opae-${version}.tar.gz .
+mv ${SDK_DIR}/../opae-${version}-${patch}.tar.gz .
 # Copy the tarball to the rpm SOURCES dir
-cp opae-${version}.tar.gz "${RPMBUILD_DIR}/SOURCES"
+cp opae-${version}-${patch}.tar.gz "${RPMBUILD_DIR}/SOURCES"
 
 cp "${SDK_DIR}/opae.spec" ${SCRIPT_DIR}
 
