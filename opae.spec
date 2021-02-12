@@ -1,7 +1,7 @@
 Summary:        Open Programmable Acceleration Engine (OPAE) SDK
 Name:           opae
 Version:        2.0.0
-Release:        2%{?dist}
+Release:        2
 License:        BSD
 ExclusiveArch:  x86_64
 
@@ -9,7 +9,7 @@ Group:          Development/Libraries
 Vendor:         Intel Corporation
 Requires:       uuid, json-c, python3
 URL:            https://github.com/OPAE/%{name}-sdk
-Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-2/%{name}-%{version}-2.tar.gz
+Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-%{release}/%{name}-%{version}-%{release}.tar.gz
 
 
 
@@ -60,7 +60,7 @@ OPAE headers, tools, sample source, and documentation
 
 
 %prep
-%setup -q -n %{name}-%{version}-2
+%setup -q -n %{name}-%{version}-%{release}
 
 %build
 rm -rf _build
@@ -144,15 +144,15 @@ DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad_api -P cmake_install.cmake
 DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad_vc -P cmake_install.cmake
 
 prev=$PWD
-pushd %{_topdir}/BUILD/%{name}-%{version}-2/python/opae.admin/
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{release}/python/opae.admin/
 %{__python3} setup.py install --single-version-externally-managed  --root=%{buildroot} 
 popd
 
-pushd %{_topdir}/BUILD/%{name}-%{version}-2/python/pacsign
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{release}/python/pacsign
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} 
 popd
 
-pushd %{_topdir}/BUILD/%{name}-%{version}-2/scripts
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{release}/scripts
 install -m 755 eth_group_mdev.sh %{buildroot}/usr/bin/eth_group_mdev.sh
 popd
 
