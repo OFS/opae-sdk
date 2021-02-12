@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -52,6 +52,7 @@
 #include <pthread.h>
 
 #include <opae/fpga.h>
+#include <argsfilter.h>
 
 int usleep(unsigned);
 
@@ -85,20 +86,6 @@ struct ras_inject_error {
 			uint64_t  rsvd : 61;
 		};
 	};
-};
-
-// Global configuration of bus, set during parse_args()
-
-struct events_config {
-	struct target {
-		int bus;
-	} target;
-}
-
-events_config = {
-	.target = {
-		.bus = -1
-	}
 };
 
 fpga_result inject_ras_fatal_error(fpga_token fme_token, uint8_t err)
@@ -156,21 +143,34 @@ void *error_thread(void *arg)
 	return NULL;
 }
 
+void help(void)
+{
+	printf("\n"
+	       "hello_events\n"
+	       "OPAE Events API sample\n"
+	       "\n"
+	       "Usage:\n"
+	       "	hello_events [-hv] [-S <segment>] [-B <bus>] [-D <device>] [-F <function>] [PCI_ADDR]\n"
+	       "\n"
+	       "                -h,--help           Print this help\n"
+	       "                -v,--version        Print version info and exit\n"
+	       "\n");
+}
+
 /*
  * Parse command line arguments
  */
-#define GETOPT_STRING "B:v"
+#define GETOPT_STRING "hv"
 fpga_result parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
-		{ "bus",     required_argument, NULL, 'B' },
-		{ "version", no_argument,       NULL, 'v' },
-		{ NULL,      0,                 NULL, 0   }
+		{ "help",    no_argument, NULL, 'h' },
+		{ "version", no_argument, NULL, 'v' },
+		{ NULL,      0,           NULL, 0   }
 	};
 
 	int getopt_ret;
 	int option_index;
-	char *endptr = NULL;
 
 	while (-1 != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING, longopts, &option_index))) {
 		const char *tmp_optarg = optarg;
@@ -180,16 +180,9 @@ fpga_result parse_args(int argc, char *argv[])
 		}
 
 	switch (getopt_ret) {
-	case 'B': /* bus */
-		if (NULL == tmp_optarg)
-			return FPGA_EXCEPTION;
-		endptr = NULL;
-		events_config.target.bus = (int) strtoul(tmp_optarg, &endptr, 0);
-		if (endptr != tmp_optarg + strnlen(tmp_optarg, 100)) {
-			fprintf(stderr, "invalid bus: %s\n", tmp_optarg);
-			return FPGA_EXCEPTION;
-		}
-		break;
+	case 'h': /* help */
+		help();
+		return -1;
 
 	case 'v': /* version */
 		printf("hello_events %s %s%s\n",
@@ -207,23 +200,19 @@ fpga_result parse_args(int argc, char *argv[])
 	return FPGA_OK;
 }
 
-fpga_result find_fpga(fpga_token *fpga, uint32_t *num_matches)
+fpga_result find_fpga(fpga_properties device_filter,
+		      fpga_token *fpga,
+		      uint32_t *num_matches)
 {
 	fpga_properties filter = NULL;
 	fpga_result res        = FPGA_OK;
 	fpga_result dres       = FPGA_OK;
 
-	/* Get number of FPGAs in system */
-	res = fpgaGetProperties(NULL, &filter);
-	ON_ERR_GOTO(res, out, "creating properties object");
+	res = fpgaCloneProperties(device_filter, &filter);
+	ON_ERR_GOTO(res, out, "cloning properties object");
 
 	res = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
 	ON_ERR_GOTO(res, out_destroy, "setting interface ID");
-
-	if (-1 != events_config.target.bus) {
-		res = fpgaPropertiesSetBus(filter, events_config.target.bus);
-		ON_ERR_GOTO(res, out_destroy, "setting bus");
-	}
 
 	res = fpgaEnumerate(&filter, 1, fpga, 1, num_matches);
 	ON_ERR_GOTO(res, out_destroy, "enumerating FPGAs");
@@ -233,27 +222,6 @@ out_destroy:
 	ON_ERR_GOTO(dres, out, "destroying properties object");
 out:
 	return (res == FPGA_OK) ? dres : res;
-}
-
-
-/* function to get the bus number when there are multiple buses */
-fpga_result get_bus(fpga_token tok, uint8_t *bus)
-{
-	fpga_result res1 = FPGA_OK;
-	fpga_result res2 = FPGA_OK;
-	fpga_properties props = NULL;
-
-	res1 = fpgaGetProperties(tok, &props);
-	ON_ERR_GOTO(res1, out, "reading properties from Token");
-
-	res1 = fpgaPropertiesGetBus(props, bus);
-	ON_ERR_GOTO(res1, out_destroy, "Reading bus from properties");
-
-out_destroy:
-	res2 = fpgaDestroyProperties(&props);
-	ON_ERR_GOTO(res2, out, "fpgaDestroyProps");
-out:
-	return res1 != FPGA_OK ? res1 : res2;
 }
 
 int main(int argc, char *argv[])
@@ -270,31 +238,44 @@ int main(int argc, char *argv[])
 	int                timeout = 10000;
 	int                poll_ret = 0;
 	ssize_t            bytes_read = 0;
-	uint8_t            bus = 0xff;
 	pthread_t          errthr;
+	fpga_properties    device_filter = NULL;
+
+	res1 = fpgaGetProperties(NULL, &device_filter);
+	if (res1) {
+		print_err("failed to alloc properties", res1);
+		return res1;
+	}
+
+	if (opae_set_properties_from_args(device_filter,
+                                          &res1,
+                                          &argc,
+                                          argv)) {
+                print_err("failed arg parse", res1);
+                res1 = FPGA_EXCEPTION;
+                goto out_exit;
+        } else if (res1) {
+                print_err("failed to set properties", res1);
+                goto out_exit;
+        }
 
 	res1 = parse_args(argc, argv);
 	if ((int)res1 < 0)
 		goto out_exit;
 	ON_ERR_GOTO(res1, out_exit, "parsing arguments");
 
-	res1 = find_fpga(&fpga_device_token, &num_matches);
+	res1 = find_fpga(device_filter, &fpga_device_token, &num_matches);
 	ON_ERR_GOTO(res1, out_exit, "finding FPGA accelerator");
 
 	if (num_matches < 1) {
-		fprintf(stderr, "No matches for bus number provided.\n");
+		fprintf(stderr, "No matches for address provided.\n");
 		res1 = FPGA_NOT_FOUND;
 		goto out_exit;
 	}
 
-	res1 = get_bus(fpga_device_token, &bus);
-	ON_ERR_GOTO(res1, out_destroy_tok, "getting bus num");
-
 	if (num_matches > 1) {
-		fprintf(stderr, "Found more than one suitable slot. ");
+		fprintf(stderr, "Found more than one suitable slot.\n");
 	}
-
-	printf("Running on bus 0x%02x.\n", bus);
 
 	res1 = fpgaOpen(fpga_device_token, &fpga_device_handle, FPGA_OPEN_SHARED);
 	ON_ERR_GOTO(res1, out_destroy_tok, "opening accelerator");
@@ -358,5 +339,6 @@ out_destroy_tok:
 	ON_ERR_GOTO(res2, out_exit, "destroying token");
 
 out_exit:
+	fpgaDestroyProperties(&device_filter);
 	return res1 != FPGA_OK ? res1 : res2;
 }
