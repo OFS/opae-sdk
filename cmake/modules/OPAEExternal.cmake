@@ -36,6 +36,10 @@ macro(opae_external_project_add)
     if(NOT OPAE_EXTERNAL_PROJECT_ADD_GIT_TAG)
         set(OPAE_EXTERNAL_PROJECT_ADD_GIT_TAG "master")
     endif(NOT OPAE_EXTERNAL_PROJECT_ADD_GIT_TAG)
+    string(COMPARE EQUAL "${OPAE_EXTERNAL_PROJECT_ADD_PRESERVE_REPOS}" "" preserve_empty)
+    if(preserve_empty)
+        set(OPAE_EXTERNAL_PROJECT_ADD_PRESERVE_REPOS OFF)
+    endif(preserve_empty)
 
     set(${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME}_ROOT
         ${CMAKE_SOURCE_DIR}/external/${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME}
@@ -43,6 +47,11 @@ macro(opae_external_project_add)
 
     set(download_dir
         ${CMAKE_CURRENT_BINARY_DIR}/${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME}/download)
+    set(src_dir
+        ${CMAKE_SOURCE_DIR}/external/${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME})
+    set(bin_dir
+        ${CMAKE_BINARY_DIR}/external/${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME})
+
     file(WRITE ${download_dir}/CMakeLists.txt
         "cmake_minimum_required(VERSION 3.10)\n"
         "project(${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME}-download)\n"
@@ -50,8 +59,8 @@ macro(opae_external_project_add)
         "ExternalProject_Add(${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME}\n"
         "    GIT_REPOSITORY ${OPAE_EXTERNAL_PROJECT_ADD_GIT_URL}\n"
         "    GIT_TAG ${OPAE_EXTERNAL_PROJECT_ADD_GIT_TAG}\n"
-        "    SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME}\n"
-        "    BINARY_DIR ${CMAKE_BINARY_DIR}/external/${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME}\n"
+        "    SOURCE_DIR ${src_dir}\n"
+        "    BINARY_DIR ${bin_dir}\n"
         "    CONFIGURE_COMMAND \"\"\n"
         "    BUILD_COMMAND \"\"\n"
         "    INSTALL_COMMAND \"\"\n"
@@ -59,6 +68,20 @@ macro(opae_external_project_add)
         "    COMMENT \"adding ${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME}\"\n"
         ")\n"
     )
+
+    get_property(current_clean_files DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES)
+    if(NOT ${OPAE_EXTERNAL_PROJECT_ADD_PRESERVE_REPOS})
+        if(current_clean_files)
+            set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
+                ${current_clean_files}
+                ${download_dir}
+                ${src_dir})
+        else(current_clean_files)
+            set_property(DIRECTORY PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
+                ${download_dir}
+                ${src_dir})
+        endif(current_clean_files)
+    endif(NOT ${OPAE_EXTERNAL_PROJECT_ADD_PRESERVE_REPOS})
 
     if (${OPAE_EXTERNAL_PROJECT_ADD_DEFER})
         set(timestamp ${download_dir}/timestamp)
@@ -96,10 +119,7 @@ macro(opae_external_project_add)
         )
     endif (${OPAE_EXTERNAL_PROJECT_ADD_DEFER})
 
-    set(src_dir
-        ${CMAKE_SOURCE_DIR}/external/${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME})
-    set(bin_dir
-        ${CMAKE_BINARY_DIR}/external/${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME})
+
 
     if(NOT ${OPAE_EXTERNAL_PROJECT_ADD_NO_ADD_SUBDIRECTORY} AND EXISTS ${src_dir}/CMakeLists.txt)
         message(DEBUG "adding subdirectory: ${OPAE_EXTERNAL_PROJECT_ADD_PROJECT_NAME}")
