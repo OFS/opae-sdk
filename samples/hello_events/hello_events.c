@@ -248,16 +248,16 @@ int main(int argc, char *argv[])
 	}
 
 	if (opae_set_properties_from_args(device_filter,
-                                          &res1,
-                                          &argc,
-                                          argv)) {
-                print_err("failed arg parse", res1);
-                res1 = FPGA_EXCEPTION;
-                goto out_exit;
-        } else if (res1) {
-                print_err("failed to set properties", res1);
-                goto out_exit;
-        }
+					  &res1,
+					  &argc,
+					  argv)) {
+		print_err("failed arg parse", res1);
+		res1 = FPGA_EXCEPTION;
+		goto out_exit;
+	} else if (res1) {
+		print_err("failed to set properties", res1);
+		goto out_exit;
+	}
 
 	res1 = parse_args(argc, argv);
 	if ((int)res1 < 0)
