@@ -26,20 +26,33 @@
 
 cmake_minimum_required(VERSION  3.10)
 
-set(CLI11_URL
-    https://github.com/CLIUtils/CLI11.git
-    CACHE STRING "URL for CLI11 Project")
-set(CLI11_TAG
-    v1.9.1
-    CACHE STRING "Tag for CLI11")
+if(NOT CLI11_FOUND)
+    find_package(CLI11 1.8)
+endif(NOT CLI11_FOUND)
 
-opae_external_project_add(PROJECT_NAME CLI11
-                          GIT_URL ${CLI11_URL}
-                          GIT_TAG ${CLI11_TAG}
-                          PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
-                          NO_ADD_SUBDIRECTORY
-                          DEFER
-)
+if(NOT CLI11_FOUND)
+    set(CLI11_URL
+        https://github.com/CLIUtils/CLI11.git
+        CACHE STRING "URL for CLI11 Project")
+    set(CLI11_TAG
+        v1.9.1
+        CACHE STRING "Tag for CLI11")
+
+    opae_external_project_add(PROJECT_NAME CLI11
+                              GIT_URL ${CLI11_URL}
+                              GIT_TAG ${CLI11_TAG}
+                              PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
+                              NO_ADD_SUBDIRECTORY
+                              DEFER
+    )
+    set(CLI11_INCLUDE_DIRS ${CLI11_ROOT}/include
+        CACHE STRING "Path to external CLI11" FORCE)
+    set(CLI11_LIBRARIES ""
+        CACHE STRING "Do not link against CLI11 library, using header-only" FORCE)
+    set(CLI11_DEFINITIONS ""
+        CACHE STRING "Do not link against CLI11 library, using header-only" FORCE)
+    set(CLI11_FOUND TRUE CACHE BOOL "CLI11 found as external")
+endif(NOT CLI11_FOUND)
 
 if(NOT spdlog_FOUND)
     find_package(spdlog 1.8)
