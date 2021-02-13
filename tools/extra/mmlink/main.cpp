@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -37,46 +37,40 @@
 #include "remote_dbg/remote_dbg.h"
 #include "remote_dbg/legacy/legacy_dbg.h"
 #include "remote_dbg/streaming/stream_dbg.h"
+#include <argsfilter.h>
 
 // STP index in AFU
 #define FPGA_PORT_INDEX_STP               1
 #define FPGA_PORT_STP_DFH_REVBIT         12
 
-#define GETOPT_STRING ":hB:D:F:S:P:Iv"
+#define GETOPT_STRING ":hs:P:Iv"
 
 struct option longopts[] = {
-		{"help",        no_argument,       NULL, 'h'},
-		{"segment",     required_argument, NULL, 0xe},
-		{"bus",         required_argument, NULL, 'B'},
-		{"device",      required_argument, NULL, 'D'},
-		{"function",    required_argument, NULL, 'F'},
-		{"socket-id",   required_argument, NULL, 'S'},
-		{"port",        required_argument, NULL, 'P'},
-		{"ip",          required_argument, NULL, 'I'},
-    {"version",     no_argument,       NULL, 'v'},
-		{0,0,0,0}
+	{ "help",        no_argument,       NULL, 'h' },
+	{ "socket-id",   required_argument, NULL, 's' },
+	{ "port",        required_argument, NULL, 'P' },
+	{ "ip",          required_argument, NULL, 'I' },
+	{ "version",     no_argument,       NULL, 'v' },
+	{ 0,             0,                 0,    0   }
 };
 
 // mmlink Command line struct
 struct  MMLinkCommandLine
 {
-	int      segment;
-	int      bus;
-	int      device;
-	int      function;
 	int      socket;
 	int      port;
 	char     ip[16];
 };
 
-struct MMLinkCommandLine mmlinkCmdLine = { -1, -1, -1, -1, -1, 0, { 0, } };
+struct MMLinkCommandLine mmlinkCmdLine = { -1, 0, { 0, } };
 
 // mmlink Command line input help
 void MMLinkAppShowHelp()
 {
 	printf("Usage:\n");
 	printf("mmlink\n");
-	printf("<Segment>             --segment=<SEGMENT NUMBER>\n");
+	printf("<Segment>             --segment=<SEGMENT NUMBER>   "
+		"OR  -S <SEGMENT NUMBER>\n");
 	printf("<Bus>                 --bus=<BUS NUMBER>           "
 		"OR  -B <BUS NUMBER>\n");
 	printf("<Device>              --device=<DEVICE NUMBER>     "
@@ -84,12 +78,12 @@ void MMLinkAppShowHelp()
 	printf("<Function>            --function=<FUNCTION NUMBER> "
 		"OR  -F <FUNCTION NUMBER>\n");
 	printf("<Socket-id>           --socket-id=<SOCKET NUMBER>  "
-		"OR  -S <SOCKET NUMBER>\n");
+		"OR  -s <SOCKET NUMBER>\n");
 	printf("<TCP PORT>            --port=<PORT>                "
 		"OR  -P <PORT>\n");
 	printf("<IP ADDRESS>          --ip=<IP ADDRESS>            "
 		"OR  -I <IP ADDRESS>\n");
-  printf("<Version>             -v,--version Print version and exit\n");
+	printf("<Version>             -v,--version Print version and exit\n");
 	printf("\n");
 
 }
@@ -142,10 +136,27 @@ int main( int argc, char** argv )
 	if ( argc < 2 ) {
 		MMLinkAppShowHelp();
 		return 1;
-	} else if ( 0 != (res = ParseCmds(&mmlinkCmdLine, argc, argv)) ) {
+	}
+
+	result = fpgaGetProperties(NULL, &filter);
+	ON_ERR_GOTO(result, out_exit, "creating properties object");
+
+	if (opae_set_properties_from_args(filter,
+					  &result,
+					  &argc,
+					  argv)) {
+		result = FPGA_EXCEPTION;
+		PRINT_ERR("parsing args.\n");
+		goto out_destroy_prop;
+	} else if (result) {
+		PRINT_ERR("setting properties from args.\n");
+		goto out_destroy_prop;
+	}
+
+	if ( 0 != (res = ParseCmds(&mmlinkCmdLine, argc, argv)) ) {
 		if (res != -2)
-			PRINT_ERR( "Error scanning command line \n.");
-		return 2;
+			PRINT_ERR("Error scanning command line.\n");
+		goto out_destroy_prop;
 	}
 
 	if ('\0' == mmlinkCmdLine.ip[0]) {
@@ -153,15 +164,10 @@ int main( int argc, char** argv )
 		mmlinkCmdLine.ip[7] = '\0';
 	}
 
-	printf(" ------- Command line Input START ----\n\n");
-
-	printf(" Segment               : %d\n", mmlinkCmdLine.segment);
-	printf(" Bus                   : %d\n", mmlinkCmdLine.bus);
-	printf(" Device                : %d\n", mmlinkCmdLine.device);
-	printf(" Function              : %d\n", mmlinkCmdLine.function);
-	printf(" Socket-id             : %d\n", mmlinkCmdLine.socket);
-	printf(" Port                  : %d\n", mmlinkCmdLine.port);
-	printf(" IP address            : %s\n", mmlinkCmdLine.ip);
+	printf(" ------- Command line Input START ----\n");
+	printf(" Socket-id        : %d\n", mmlinkCmdLine.socket);
+	printf(" Port             : %d\n", mmlinkCmdLine.port);
+	printf(" IP address       : %s\n", mmlinkCmdLine.ip);
 	printf(" ------- Command line Input END   ----\n\n");
 
 	// Signal Handler
@@ -171,31 +177,8 @@ int main( int argc, char** argv )
 	sigaction(SIGINT, &act_new, &act_old);
 
 	// Enum FPGA device
-	result = fpgaGetProperties(NULL, &filter);
-	ON_ERR_GOTO(result, out_exit, "creating properties object");
-
 	result = fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR);
 	ON_ERR_GOTO(result, out_destroy_prop, "setting object type");
-
-	if (mmlinkCmdLine.segment > -1){
-		result = fpgaPropertiesSetSegment(filter, mmlinkCmdLine.segment);
-		ON_ERR_GOTO(result, out_destroy_prop, "setting segment");
-	}
-
-	if (mmlinkCmdLine.bus > -1){
-		result = fpgaPropertiesSetBus(filter, mmlinkCmdLine.bus);
-		ON_ERR_GOTO(result, out_destroy_prop, "setting bus");
-	}
-
-	if (mmlinkCmdLine.device > -1) {
-		result = fpgaPropertiesSetDevice(filter, mmlinkCmdLine.device);
-		ON_ERR_GOTO(result, out_destroy_prop, "setting device");
-	}
-
-	if (mmlinkCmdLine.function > -1){
-		result = fpgaPropertiesSetFunction(filter, mmlinkCmdLine.function);
-		ON_ERR_GOTO(result, out_destroy_prop, "setting function");
-	}
 
 	if (mmlinkCmdLine.socket > -1){
 		result = fpgaPropertiesSetSocketID(filter, mmlinkCmdLine.socket);
@@ -332,51 +315,10 @@ int ParseCmds(struct MMLinkCommandLine *mmlinkCmdLine, int argc, char *argv[])
 			return -2;
 			break;
 
-		case 0xe:
-			// segment number
-			if (!tmp_optarg) {
-				PRINT_ERR("Missing required argument for --segment");
-				return -1;
-			}
-			endptr = NULL;
-			mmlinkCmdLine->segment = strtol(tmp_optarg, &endptr, 0);
-			break;
-
-		case 'B':
-			// bus number
-			if (!tmp_optarg) {
-				PRINT_ERR("Missing required argument for --bus");
-				return -1;
-			}
-			endptr = NULL;
-			mmlinkCmdLine->bus = strtol(tmp_optarg, &endptr, 0);
-			break;
-
-		case 'D':
-			// Device number
-			if (!tmp_optarg) {
-				PRINT_ERR("Missing required argument for --device");
-				return -1;
-			}
-			endptr = NULL;
-			mmlinkCmdLine->device = strtol(tmp_optarg, &endptr, 0);
-			break;
-
-		case 'F':
-			// Function number
-			if (!tmp_optarg) {
-				PRINT_ERR("Missing required argument for --function");
-				return -1;
-			}
-			endptr = NULL;
-			mmlinkCmdLine->function = strtol(tmp_optarg,
-							&endptr, 0);
-			break;
-
-		case 'S':
+		case 's':
 			// Socket number
 			if (!tmp_optarg) {
-				PRINT_ERR("Missing required argument for --socket");
+				PRINT_ERR("Missing required argument for --socket-id");
 				return -1;
 			}
 			endptr = NULL;

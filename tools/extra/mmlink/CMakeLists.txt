@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2017-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -28,6 +28,7 @@ opae_add_executable(TARGET mmlink
     SOURCE
         main.cpp
     LIBS
+        argsfilter
         opae-c
         ${libjson-c_LIBRARIES}
         mml-srv
@@ -36,7 +37,9 @@ opae_add_executable(TARGET mmlink
 )
 
 target_include_directories(mmlink
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/remote_dbg
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/remote_dbg
+        ${OPAE_SDK_SOURCE}/tools/argsfilter
 )
 
 set_target_properties(mmlink
