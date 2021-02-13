@@ -172,3 +172,34 @@ macro(CREATE_PYTHON_EXE EXE_NAME MAIN_MODULE)
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 endmacro(CREATE_PYTHON_EXE)
+
+function(opae_python_install)
+    set(options )
+    set(oneValueArgs COMPONENT RECORD_FILE SOURCE_DIR)
+    set(multiValueArgs)
+    cmake_parse_arguments(OPAE_PYTHON_INSTALL "${options}"
+        "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    # this install target generates cmake code that is executed by a make/ninja
+    # target rule at install time. In that context the $DESTDIR environment
+    # variable might be empty (i.e. `make install`) or set (i.e.
+    # `make install DESTDIR=/mnt/root`). Avoid passing an empty variable to
+    # --root= by checking (and possibly set) the $DESTDIR variable before
+    # calling python setuptools.
+    install(
+        CODE "
+            if (\"\$ENV{DESTDIR}\" STREQUAL \"\")
+                set(ENV{DESTDIR} /)
+            endif()
+            execute_process(
+                COMMAND ${PYTHON_EXECUTABLE} setup.py install -O1 \
+                    --single-version-externally-managed \
+                    --root=\$ENV{DESTDIR} \
+                    --prefix=${CMAKE_INSTALL_PREFIX} \
+                    --record=${CMAKE_BINARY_DIR}/${OPAE_PYTHON_INSTALL_RECORD_FILE}
+                WORKING_DIRECTORY ${OPAE_PYTHON_INSTALL_SOURCE_DIR}
+            )
+        "
+        COMPONENT ${OPAE_PYTHON_INSTALL_COMPONENT}
+    )
+endfunction(opae_python_install)

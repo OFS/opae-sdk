@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -33,20 +33,13 @@ extern "C" {
 
 void print_err(const char *s, fpga_result res);
 
-struct events_config {
-  struct target {
-    int bus;
-  } target;
-};
-extern struct events_config events_config;
-
 fpga_result inject_ras_fatal_error(fpga_token fme_token, uint8_t err);
 
 fpga_result parse_args(int argc, char *argv[]);
 
-fpga_result find_fpga(fpga_token *fpga, uint32_t *num_matches);
-
-fpga_result get_bus(fpga_token tok, uint8_t *bus);
+fpga_result find_fpga(fpga_properties device_filter,
+		      fpga_token *fpga,
+		      uint32_t *num_matches);
 
 int hello_events_main(int argc, char *argv[]);
 
@@ -84,11 +77,9 @@ class hello_events_c_p : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(fpgaInitialize(NULL), FPGA_OK);
 
     optind = 0;
-    events_config_ = events_config;
   }
 
   virtual void TearDown() override {
-    events_config = events_config_;
     if (token_) {
       EXPECT_EQ(fpgaDestroyToken(&token_), FPGA_OK);
       token_ = nullptr;
@@ -98,7 +89,6 @@ class hello_events_c_p : public ::testing::TestWithParam<std::string> {
   }
 
   fpga_token token_;
-  struct events_config events_config_;
   std::thread fpgad_;
   test_platform platform_;
   test_system *system_;
@@ -128,7 +118,7 @@ TEST_P(hello_events_c_p, parse_cmd0) {
   strcpy(zero, "hello_events");
   strcpy(one, "-Y");
 
-  char *argv[] = { zero, one };
+  char *argv[] = { zero, one, NULL };
 
   EXPECT_NE(parse_args(2, argv), FPGA_OK);
 }
@@ -146,7 +136,7 @@ TEST_P(hello_events_c_p, parse_args1) {
   strcpy(zero, "hello_events");
   strcpy(one, "-B");
 
-  char *argv[] = { zero, one };
+  char *argv[] = { zero, one, NULL };
 
   EXPECT_NE(parse_args(2, argv), FPGA_OK);
 }
@@ -155,21 +145,15 @@ TEST_P(hello_events_c_p, parse_args1) {
  * @test       parse_args2
  * @brief      Test: parse_args
  * @details    When given valid command options,<br>
- *             parse_args populates the global struct events_config,<br>
- *             and the fn returns FPGA_OK.<br>
+ *             the fn returns FPGA_OK.<br>
  */
 TEST_P(hello_events_c_p, parse_args2) {
   char zero[20];
-  char one[20];
-  char two[20];
   strcpy(zero, "hello_events");
-  strcpy(one, "-B");
-  strcpy(two, "3");
 
-  char *argv[] = { zero, one, two };
+  char *argv[] = { zero, NULL };
 
-  EXPECT_EQ(parse_args(3, argv), FPGA_OK);
-  EXPECT_EQ(events_config.target.bus, 3);
+  EXPECT_EQ(parse_args(1, argv), FPGA_OK);
 }
 
 /**
@@ -180,12 +164,17 @@ TEST_P(hello_events_c_p, parse_args2) {
  *             and num_matches parameter is set to 0.<br>
  */
 TEST_P(hello_events_c_p, find_fpga0) {
-  events_config.target.bus = 99;
+  fpga_properties filter = NULL;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetBus(filter, 99), FPGA_OK);
 
   uint32_t matches = 1;
-  EXPECT_EQ(find_fpga(&token_, &matches), FPGA_OK);
+  EXPECT_EQ(find_fpga(filter, &token_, &matches), FPGA_OK);
   EXPECT_EQ(token_, nullptr);
   EXPECT_EQ(matches, 0);
+
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -196,38 +185,21 @@ TEST_P(hello_events_c_p, find_fpga0) {
  *             and num_matches parameter is set to non-zero.<br>
  */
 TEST_P(hello_events_c_p, find_fpga1) {
-  events_config.target.bus = platform_.devices[0].bus;
+  fpga_properties filter = NULL;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+
+  ASSERT_EQ(fpgaPropertiesSetSegment(filter, platform_.devices[0].segment), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetBus(filter, platform_.devices[0].bus), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetDevice(filter, platform_.devices[0].device), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetFunction(filter, platform_.devices[0].function), FPGA_OK);
 
   uint32_t matches = 0;
-  EXPECT_EQ(find_fpga(&token_, &matches), FPGA_OK);
+  EXPECT_EQ(find_fpga(filter, &token_, &matches), FPGA_OK);
   EXPECT_NE(token_, nullptr);
   EXPECT_GT(matches, 0);
-}
 
-/**
- * @test       get_bus
- * @brief      Test: get_bus
- * @details    When a valid fpga_token is passed to get_bus,<br>
- *             the function retrieves the bus associated with the token,<br>
- *             and the fn returns FPGA_OK.<br>
- */
-TEST_P(hello_events_c_p, get_bus) {
-  uint32_t matches = 0;
-  EXPECT_EQ(find_fpga(&token_, &matches), FPGA_OK);
-  ASSERT_NE(token_, nullptr);
-  EXPECT_GT(matches, 0);
-
-  fpga_properties prop = nullptr;
-  ASSERT_EQ(fpgaGetProperties(token_, &prop), FPGA_OK);
-  ASSERT_NE(prop, nullptr);
-  uint8_t expected_bus = 99;
-
-  ASSERT_EQ(fpgaPropertiesGetBus(prop, &expected_bus), FPGA_OK);
-  EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
-
-  uint8_t bus = 99;
-  EXPECT_EQ(get_bus(token_, &bus), FPGA_OK);
-  EXPECT_EQ(expected_bus, bus);
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -243,7 +215,7 @@ TEST_P(hello_events_c_p, main0) {
   strcpy(zero, "hello_events");
   strcpy(one, "-Y");
 
-  char *argv[] = { zero, one };
+  char *argv[] = { zero, one, NULL };
 
   EXPECT_NE(hello_events_main(2, argv), 0);
 }
@@ -263,7 +235,7 @@ TEST_P(hello_events_c_p, main1) {
   strcpy(one, "-B");
   strcpy(two, "99");
 
-  char *argv[] = { zero, one, two };
+  char *argv[] = { zero, one, two, NULL };
 
   EXPECT_NE(hello_events_main(3, argv), 0);
 }
@@ -288,7 +260,6 @@ class mock_hello_events_c_fpgad_p : public ::testing::TestWithParam<std::string>
     EXPECT_EQ(fpgaInitialize(NULL), FPGA_OK);
 
     optind = 0;
-    events_config_ = events_config;
 
     fpgad_start();
     fpgad_watch();
@@ -296,13 +267,11 @@ class mock_hello_events_c_fpgad_p : public ::testing::TestWithParam<std::string>
 
   virtual void TearDown() override {
     fpgad_stop();
-    events_config = events_config_;
 
     fpgaFinalize();
     system_->finalize();
   }
 
-  struct events_config events_config_;
   test_platform platform_;
   test_system *system_;
 };
@@ -322,7 +291,7 @@ TEST_P(mock_hello_events_c_fpgad_p, main2) {
   strcpy(one, "-B");
   sprintf(two, "%d", platform_.devices[0].bus);
 
-  char *argv[] = { zero, one, two };
+  char *argv[] = { zero, one, two, NULL };
 
   EXPECT_NE(hello_events_main(3, argv), 0);
 }
@@ -351,7 +320,7 @@ TEST_P(hw_hello_events_c_fpgad_p, main2) {
   strcpy(one, "-B");
   sprintf(two, "%d", platform_.devices[0].bus);
 
-  char *argv[] = { zero, one, two };
+  char *argv[] = { zero, one, two, NULL };
 
   EXPECT_EQ(hello_events_main(3, argv), 0);
 }
