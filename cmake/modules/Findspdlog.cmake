@@ -36,6 +36,7 @@ find_package(PkgConfig)
 pkg_check_modules(PC_SPDLOG QUIET spdlog)
 
 execute_process(COMMAND pkg-config --cflags-only-I spdlog --silence-errors
+    COMMAND cut -d I -f 2
     OUTPUT_VARIABLE SPDLOG_PKG_CONFIG_INCLUDE_DIRS
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
