@@ -27,11 +27,17 @@
 opae_test_add_static_lib(TARGET hello_fpga-static
     SOURCE ${OPAE_SDK_SOURCE}/samples/hello_fpga/hello_fpga.c
     LIBS
+        argsfilter
         opae-c
 )
 
 target_compile_definitions(hello_fpga-static
     PRIVATE main=hello_fpga_main
+)
+
+target_include_directories(hello_fpga-static
+    PRIVATE
+        ${OPAE_SDK_SOURCE}/tools/argsfilter
 )
 
 opae_test_add(TARGET test_hello_fpga_c
