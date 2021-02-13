@@ -35,11 +35,14 @@
 find_package(PkgConfig)
 pkg_check_modules(PC_SPDLOG QUIET spdlog)
 
-execute_process(COMMAND pkg-config --cflags spdlog --silence-errors
+execute_process(COMMAND pkg-config --cflags-only-I spdlog --silence-errors
     COMMAND cut -d I -f 2
     OUTPUT_VARIABLE SPDLOG_PKG_CONFIG_INCLUDE_DIRS
     OUTPUT_STRIP_TRAILING_WHITESPACE)
-set(SPDLOG_PKG_CONFIG_INCLUDE_DIRS "${EDIT_PKG_CONFIG_INCLUDE_DIRS}" CACHE STRING "Compiler flags for spdlog")
+
+execute_process(COMMAND pkg-config --cflags-only-other spdlog --silence-errors
+    OUTPUT_VARIABLE SPDLOG_PKG_CONFIG_DEFINITIONS
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 find_path(spdlog_INCLUDE_DIRS
     NAMES spdlog/spdlog.h
@@ -50,8 +53,7 @@ find_path(spdlog_INCLUDE_DIRS
     ${CMAKE_EXTRA_INCLUDES})
 
 if (pkgcfg_lib_PC_SPDLOG_spdlog)
-    set(spdlog_LIBRARIES ${pkgcfg_lib_PC_SPDLOG_spdlog}
-        CACHE STRING "Path to spdlog libraries")
+    set(spdlog_LIBRARIES ${pkgcfg_lib_PC_SPDLOG_spdlog})
 else (pkgcfg_lib_PC_SPDLOG_spdlog)
     find_library(spdlog_LIBRARIES
         NAMES spdlog
@@ -65,10 +67,16 @@ else (pkgcfg_lib_PC_SPDLOG_spdlog)
         ${CMAKE_EXTRA_LIBS})
 endif (pkgcfg_lib_PC_SPDLOG_spdlog)
 
+# some distros require linking to libfmt.so, pkg-config can tell us if so
+if(pkgcfg_lib_PC_SPDLOG_fmt)
+    set(spdlog_LIBRARIES ${spdlog_LIBRARIES} ${pkgcfg_lib_PC_SPDLOG_fmt})
+endif(pkgcfg_lib_PC_SPDLOG_fmt)
+
+set(spdlog_LIBRARIES ${spdlog_LIBRARIES} CACHE PATHS "Paths to spdlog libraries and dependencies")
 if(spdlog_LIBRARIES AND spdlog_INCLUDE_DIRS)
-    set(spdlog_FOUND true)
+    set(spdlog_FOUND TRUE)
     set(spdlog_DEFINITIONS
-        "SPDLOG_COMPILED_LIB" CACHE STRING "Compile definitions of spdlog")
+        ${SPDLOG_PKG_CONFIG_DEFINITIONS} CACHE STRING "Compile definitions of spdlog")
 endif(spdlog_LIBRARIES AND spdlog_INCLUDE_DIRS)
 
 include(FindPackageHandleStandardArgs)
