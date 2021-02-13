@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -38,6 +38,7 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <string.h>
+#include <argsfilter.h>
 
 void print_err(const char *s, fpga_result res)
 {
@@ -98,9 +99,8 @@ typedef struct {
 } token_group;
 
 struct config {
-	int bus;
 	float interval_sec;
-} options = { -1, 1.0};
+} options = { 1.0 };
 
 metric_group *init_metric_group(fpga_token token, const char *name,
 				metric_group *group)
@@ -199,18 +199,30 @@ void print_counters(fpga_object clock, metric_group *group)
 	printf("\n");
 }
 
+void help(void)
+{
+	printf("\n"
+	       "object_api\n"
+	       "OPAE Object API sample\n"
+	       "\n"
+	       "Usage:\n"
+	       "        object_api [-hv] [-S <segment>] [-B <bus>] [-D <device>] [-F <function>] [PCI_ADDR]\n"
+	       "\n"
+	       "                -h,--help           Print this help\n"
+	       "                -v,--version        Print version info and exit\n"
+	       "\n");
+}
 
-#define GETOPT_STRING "B:v"
+#define GETOPT_STRING "hv"
 fpga_result parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
-		{"bus",     required_argument, NULL, 'B'},
-		{"version", no_argument,       NULL, 'v'},
-		{NULL, 0, NULL, 0},
+		{ "help",    no_argument, NULL, 'h' },
+		{ "version", no_argument, NULL, 'v' },
+		{ NULL,      0,           NULL, 0   }
 	};
 	int getopt_ret;
 	int option_index;
-	char *endptr = NULL;
 
 	while (-1 != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING,
 					       longopts, &option_index))) {
@@ -222,18 +234,9 @@ fpga_result parse_args(int argc, char *argv[])
 		}
 
 		switch (getopt_ret) {
-		case 'B': /* bus */
-			if (NULL == tmp_optarg) {
-				return FPGA_EXCEPTION;
-			}
-			endptr = NULL;
-			options.bus = (int)strtoul(tmp_optarg, &endptr, 0);
-			if (endptr != tmp_optarg + strnlen(tmp_optarg, 100)) {
-				fprintf(stderr, "invalid bus: %s\n",
-					tmp_optarg);
-				return FPGA_EXCEPTION;
-			}
-			break;
+		case 'h': /* help */
+			help();
+			return -1;
 
 		case 'v': /* version */
 			printf("object_api %s %s%s\n",
@@ -263,26 +266,31 @@ int main(int argc, char *argv[])
 	uint32_t i = 0, j = 0;
 	token_group *metrics = NULL;
 
-	res = parse_args(argc, argv);
-	if (res != FPGA_OK) {
-		if ((int)res > 0)
-			print_err("error parsing arguments", res);
-		return -1;
-	}
-
-	// create a new filter of type ACCELERATOR
 	res = fpgaGetProperties(NULL, &filter);
 	ON_ERR_GOTO(res, out, "Creating fpga_properties");
 	ADD_TO_CLEANUP(fpgaDestroyProperties, &filter);
 
+	if (opae_set_properties_from_args(filter,
+					  &res,
+					  &argc,
+					  argv)) {
+		print_err("failed arg parse", res);
+		goto out_free;
+	} else if (res) {
+		print_err("failed to set properties", res);
+		goto out_free;
+	}
+
+	res = parse_args(argc, argv);
+	if (res != FPGA_OK) {
+		if ((int)res > 0)
+			print_err("error parsing arguments", res);
+		goto out_free;
+	}
+
 	// set filter to accelerator object
 	res = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
 	ON_ERR_GOTO(res, out_free, "Setting ObjectType");
-
-	if (options.bus >= 0) {
-		res = fpgaPropertiesSetBus(filter, (uint8_t)options.bus);
-		ON_ERR_GOTO(res, out_free, "Setting bus");
-	}
 
 	res = fpgaEnumerate(&filter, 1, tokens, MAX_TOKENS, &num_matches);
 	ON_ERR_GOTO(res, out_free, "Enumerating for properties");
