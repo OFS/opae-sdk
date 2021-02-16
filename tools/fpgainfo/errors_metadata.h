@@ -54,8 +54,8 @@ typedef  struct FPGA_ERRORS {
 	uint64_t arry_size_max;
 	struct {
 		char err_str[256];
-	}str_err[64];
-}fpga_errors;
+	} str_err[64];
+} fpga_errors;
 
 
 

@@ -229,37 +229,32 @@ static void print_errors_str(struct fpga_error_info errinfo,
 
 	if (!strcmp(errinfo.name, FPGA_FME_ERROR_STR)) {
 		error_type = FPGA_FME_ERROR;
-	}
-	else if (!strcmp(errinfo.name, FPGA_PCIE0_ERROR_STR)) {
+	} else if (!strcmp(errinfo.name, FPGA_PCIE0_ERROR_STR)) {
 		error_type = FPGA_PCIE0_ERROR;
-	}
-	else if (!strcmp(errinfo.name, FPGA_INJECT_ERROR_STR)) {
+	} else if (!strcmp(errinfo.name, FPGA_INJECT_ERROR_STR)) {
 		error_type = FPGA_INJECT_ERROR;
-	}
-	else if (!strcmp(errinfo.name, FPGA_CATFATAL_ERROR_STR)) {
+	} else if (!strcmp(errinfo.name, FPGA_CATFATAL_ERROR_STR)) {
 		error_type = FPGA_CATFATAL_ERROR;
-	}
-	else if (!strcmp(errinfo.name, FPGA_NONFATAL_ERROR_STR)) {
+	} else if (!strcmp(errinfo.name, FPGA_NONFATAL_ERROR_STR)) {
 		error_type = FPGA_NONFATAL_ERROR;
-	}
-	else if (!strcmp(errinfo.name, FPGA_PCIE1_ERROR_STR)) {
+	} else if (!strcmp(errinfo.name, FPGA_PCIE1_ERROR_STR)) {
 		error_type = FPGA_PCIE1_ERROR;
-	}if (!strcmp(errinfo.name, FPGA_PORT_ERROR_STR)) {
+	} else if (!strcmp(errinfo.name, FPGA_PORT_ERROR_STR)) {
 		error_type = FPGA_PORT_ERROR;
 	}
 
 	for (i = 0; i < FPGA_ERR_METADATA_COUNT; i++) {
 		if ((fpga_errors_metadata[i].error_type == error_type) &&
-			(fpga_errors_metadata[i].revision == revision))
-		{
+			(fpga_errors_metadata[i].revision == revision)) {
+
 			for (j = 0; j < fpga_errors_metadata[i].arry_size_max; j++) {
 				if (FPGA_BIT_IS_SET(error_value, j)) {
 					printf("bit %ld error:%s\n",
 					j, fpga_errors_metadata[i].str_err[j].err_str);
 				}
-			}// end for
+			} // end for
 		}
-	}// end for
+	} // end for
 	return;
 }
 
