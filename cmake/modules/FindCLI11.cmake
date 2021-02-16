@@ -1,4 +1,5 @@
-## Copyright(c) 2017-2021, Intel Corporation
+#!/usr/bin/cmake -P
+## Copyright(c) 2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -23,29 +24,24 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
-cmake_minimum_required (VERSION  3.10)
 
-project(afu-test)
-add_library(afu-test INTERFACE)
+# - Try to find CLI11
+# Once done, this will define
+#
+#  CLI11_FOUND - system has CLI11
+#  CLI11_INCLUDE_DIRS - the CLI11 include directories
 
-target_include_directories(afu-test INTERFACE
-    ${OPAE_INCLUDE_PATHS}
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CLI11_ROOT}/include
-    ${spdlog_INCLUDE_DIRS}
-)
+find_path(CLI11_INCLUDE_DIRS
+    NAMES CLI/CLI.hpp
+    PATHS ${CLI11_ROOT}/include
+    /usr/local/include
+    /usr/include
+    ${CMAKE_EXTRA_INCLUDES})
 
-target_link_libraries(afu-test INTERFACE
-    opae-c opae-cxx-core
-    ${spdlog_LIBRARIES}
-)
-target_compile_options(afu-test INTERFACE
-    -Wno-unused-result
-)
 
-target_compile_definitions(afu-test INTERFACE
-    ${spdlog_DEFINITIONS}
-)
+if(CLI11_INCLUDE_DIRS)
+    set(CLI11_FOUND TRUE)
+endif(CLI11_INCLUDE_DIRS)
 
-opae_target_depends_external(afu-test spdlog)
-opae_target_depends_external(afu-test CLI11)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(CLI11 REQUIRED_VARS CLI11_INCLUDE_DIRS)

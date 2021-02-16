@@ -2,7 +2,7 @@
 
 ## SYNOPSIS ##
 
-`pci_device [-h] [-E] device {remove,rescan,topology,unbind}`
+`pci_device [-h] [-E] device-filter [{aer,remove,rescan,topology,unbind,vf}]`
 
 ## DESCRIPTION ##
 
@@ -19,7 +19,7 @@ drivers.
     while the vendor/device ID pair follows the format [vendor ID]:[device ID]
     where at least one of these must be present.
 
-    `{aer,remove,rescan,topology,unbind}`
+    `{aer,remove,rescan,topology,unbind,vf}`
 
     action to perform on device
 
@@ -95,7 +95,14 @@ drivers.
 
     `unbind`
 
-    Unbind the driver bound to the device
+    Unbind the driver bound to the device.
+
+    `vf`
+
+    Create/destroy VFs (virtual functions) by setting the number here.
+    The number given here will be written to sriov_numvfs sysfs file triggering
+    the PCIe subsystem to create/destroy VFs so that the current number of VFs
+    will be equal to the given number. If the number given is outside of the total VFs supported, an error message will be displayed to indicate this.
 
 
 

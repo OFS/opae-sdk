@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -34,15 +34,10 @@ extern "C" {
 
 struct config {
 	struct target {
-		int bus;
 		bool fme_metrics;
 		bool afu_metrics;
 		int open_flags;
 	} target;
-};
-
-struct bdf_info {
-	uint8_t bus;
 };
 
 extern struct config config;
@@ -50,7 +45,6 @@ extern struct config config;
 void print_err(const char *s, fpga_result res);
 void FpgaMetricsAppShowHelp(void);
 fpga_result parse_args(int argc, char *argv[]);
-fpga_result get_bus_info(fpga_token tok, struct bdf_info *finfo);
 int fpgametrics_main(int argc, char *argv[]);
 void print_bus_info(struct bdf_info *info);
 }
@@ -127,7 +121,7 @@ TEST_P(fpga_metrics_c_p, parse_args0) {
 	strcpy(zero, "fpgametrics");
 	strcpy(one, "-Y");
 
-	char *argv[] = { zero, one };
+	char *argv[] = { zero, one, NULL };
 	EXPECT_EQ(parse_args(2, argv), 3);
 }
 
@@ -144,7 +138,7 @@ TEST_P(fpga_metrics_c_p, parse_args1) {
 	strcpy(zero, "fpgametrics");
 	strcpy(one, "-B");
 
-	char *argv[] = { zero, one };
+	char *argv[] = { zero, one, NULL };
 	EXPECT_NE(parse_args(2, argv), FPGA_OK);
 }
 
@@ -161,7 +155,7 @@ TEST_P(fpga_metrics_c_p, parse_args2) {
 	strcpy(zero, "fpgametrics");
 	strcpy(one, "-v");
 
-	char *argv[] = { zero, one };
+	char *argv[] = { zero, one, NULL };
 	EXPECT_NE(parse_args(2, argv), FPGA_OK);
 }
 
@@ -175,16 +169,12 @@ TEST_P(fpga_metrics_c_p, parse_args2) {
 TEST_P(fpga_metrics_c_p, parse_args3) {
 	char zero[20];
 	char one[20];
-	char two[20];
-	char three[20];
 	strcpy(zero, "fpgametrics");
-	strcpy(one, "-B");
-	strcpy(two, "3");
-	strcpy(three, "-s");
+	strcpy(one, "-s");
 
-	char *argv[] = { zero, one, two, three };
-	EXPECT_EQ(parse_args(4, argv), FPGA_OK);
-	EXPECT_EQ(config.target.bus, 3);
+	char *argv[] = { zero, one, NULL };
+	EXPECT_EQ(parse_args(2, argv), FPGA_OK);
+	EXPECT_EQ(config.target.open_flags, FPGA_OPEN_SHARED);
 }
 
 /**
@@ -197,16 +187,12 @@ TEST_P(fpga_metrics_c_p, parse_args3) {
 TEST_P(fpga_metrics_c_p, parse_args4) {
 	char zero[20];
 	char one[20];
-	char two[20];
-	char three[20];
 	strcpy(zero, "fpgametrics");
-	strcpy(one, "-B");
-	strcpy(two, "3");
-	strcpy(three, "-F");
+	strcpy(one, "-f");
 
-	char *argv[] = { zero, one, two, three };
-	EXPECT_EQ(parse_args(4, argv), FPGA_OK);
-	EXPECT_EQ(config.target.bus, 3);
+	char *argv[] = { zero, one, NULL };
+	EXPECT_EQ(parse_args(2, argv), FPGA_OK);
+	EXPECT_EQ(config.target.fme_metrics, true);
 }
 
 /**
@@ -219,49 +205,12 @@ TEST_P(fpga_metrics_c_p, parse_args4) {
 TEST_P(fpga_metrics_c_p, parse_args5) {
 	char zero[20];
 	char one[20];
-	char two[20];
-	char three[20];
 	strcpy(zero, "fpgametrics");
-	strcpy(one, "-B");
-	strcpy(two, "3");
-	strcpy(three, "-A");
+	strcpy(one, "-a");
 
-	char *argv[] = { zero, one, two, three };
-	EXPECT_EQ(parse_args(4, argv), FPGA_OK);
-	EXPECT_EQ(config.target.bus, 3);
-}
-
-/**
- * @test       get_bus_info1
- * @brief      Test: get_bus_info,
- *                   print_bus_info
- * @details    When given valid fpga token, <br>
- *             get_bus_info retutns bdf info <br>
- *             and returns FPGA_OK.<br>
- */
-TEST_P(fpga_metrics_c_p, get_bus_info1) {
-	fpga_properties filter = NULL;
-	fpga_token *tokens = NULL;
-	uint32_t matches = 0, num_tokens = 0;;
-
-	ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-	ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
-	ASSERT_GT(matches, 0);
-	tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
-
-	num_tokens = matches;
-	ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
-
-	struct bdf_info bdf_info;
-
-	EXPECT_EQ(get_bus_info(tokens[0], &bdf_info), FPGA_OK);
-	print_bus_info(&bdf_info);
-
-	for (uint32_t i = 0; i < num_tokens; ++i) {
-		fpgaDestroyToken(&tokens[i]);
-	}
-	free(tokens);
-	fpgaDestroyProperties(&filter);
+	char *argv[] = { zero, one, NULL };
+	EXPECT_EQ(parse_args(2, argv), FPGA_OK);
+	EXPECT_EQ(config.target.afu_metrics, true);
 }
 
 /**
@@ -279,13 +228,13 @@ TEST_P(fpga_metrics_c_p, main1) {
 	strcpy(one, "-B");
 	sprintf(two, "%d", platform_.devices[0].bus);
 
-	char *argv[] = { zero, one, two };
+	char *argv[] = { zero, one, two, NULL };
 	EXPECT_EQ(fpgametrics_main(3, argv), FPGA_OK);
 }
 
 /**
  * @test       main2
- * @brief      Test: object_api_main
+ * @brief      Test: fpgametrics_main
  * @details    When given a invalid command line,<br>
  *             fpgametrics_main retuns errors<br>
  *             return 2 or 3.<br>
@@ -294,16 +243,18 @@ TEST_P(fpga_metrics_c_p, main2) {
 	char zero[20];
 	char one[20];
 	char two[20];
+
 	strcpy(zero, "fpgametrics");
 	strcpy(one, "-Y");
 	sprintf(two, "%d", platform_.devices[0].bus);
 
-	char *argv1[] = { zero};
+	char *argv1[] = { zero, NULL};
 	EXPECT_EQ(fpgametrics_main(1, argv1), 1);
 
-	char *argv2[] = { zero, one, two };
-	EXPECT_EQ(fpgametrics_main(3, argv2), 2);
+	char *argv2[] = { zero, one, two, NULL };
+	EXPECT_EQ(fpgametrics_main(3, argv2), 1);
 
 }
+
 INSTANTIATE_TEST_CASE_P(fpgametrics_c, fpga_metrics_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"dfl-d5005","dfl-n3000"})));

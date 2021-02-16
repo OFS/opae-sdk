@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2020-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -26,35 +26,61 @@
 
 cmake_minimum_required(VERSION  3.10)
 
-set(CLI11_URL
-    https://github.com/CLIUtils/CLI11.git
-    CACHE STRING "URL for CLI11 Project")
-set(CLI11_TAG
-    v1.9.1
-    CACHE STRING "Tag for CLI11")
+if(NOT CLI11_FOUND)
+    find_package(CLI11 1.8)
+endif(NOT CLI11_FOUND)
 
-opae_external_project_add(PROJECT_NAME CLI11
-                          GIT_URL ${CLI11_URL}
-                          GIT_TAG ${CLI11_TAG}
-                          PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
-                          NO_ADD_SUBDIRECTORY
-                          DEFER
-)
+if(NOT CLI11_FOUND)
+    set(CLI11_URL
+        https://github.com/CLIUtils/CLI11.git
+        CACHE STRING "URL for CLI11 Project")
+    set(CLI11_TAG
+        v1.9.1
+        CACHE STRING "Tag for CLI11")
 
-set(SPDLOG_URL
-    https://github.com/gabime/spdlog.git
-    CACHE STRING "URL for spdlog Project")
-set(SPDLOG_TAG
-    v1.7.0
-    CACHE STRING "Tag for spdlog")
+    opae_external_project_add(PROJECT_NAME CLI11
+                              GIT_URL ${CLI11_URL}
+                              GIT_TAG ${CLI11_TAG}
+                              PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
+                              NO_ADD_SUBDIRECTORY
+                              DEFER
+    )
+    set(CLI11_INCLUDE_DIRS ${CLI11_ROOT}/include
+        CACHE STRING "Path to external CLI11" FORCE)
+    set(CLI11_LIBRARIES ""
+        CACHE STRING "Do not link against CLI11 library, using header-only" FORCE)
+    set(CLI11_DEFINITIONS ""
+        CACHE STRING "Do not link against CLI11 library, using header-only" FORCE)
+    set(CLI11_FOUND TRUE CACHE BOOL "CLI11 found as external")
+endif(NOT CLI11_FOUND)
 
-opae_external_project_add(PROJECT_NAME spdlog
-                          GIT_URL ${SPDLOG_URL}
-                          GIT_TAG ${SPDLOG_TAG}
-                          PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
-                          NO_ADD_SUBDIRECTORY
-                          DEFER
-)
+if(NOT spdlog_FOUND)
+    find_package(spdlog 1.8)
+endif(NOT spdlog_FOUND)
+
+if(NOT spdlog_FOUND)
+    set(SPDLOG_URL
+        https://github.com/gabime/spdlog.git
+        CACHE STRING "URL for spdlog Project")
+    set(SPDLOG_TAG
+        v1.8.0
+        CACHE STRING "Tag for spdlog")
+
+    opae_external_project_add(PROJECT_NAME spdlog
+                              GIT_URL ${SPDLOG_URL}
+                              GIT_TAG ${SPDLOG_TAG}
+                              PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
+                              NO_ADD_SUBDIRECTORY
+                              DEFER
+    )
+    set(spdlog_INCLUDE_DIRS ${spdlog_ROOT}/include
+        CACHE STRING "Path to external spdlog" FORCE)
+    set(spdlog_LIBRARIES ""
+        CACHE STRING "Do not link against spdlog library, using header-only" FORCE)
+    set(spdlog_DEFINITIONS ""
+        CACHE STRING "Do not link against spdlog library, using header-only" FORCE)
+    set(spdlog_FOUND TRUE CACHE BOOL "spdlog found as external")
+endif(NOT spdlog_FOUND)
 
 if(OPAE_BUILD_LEGACY)
     opae_external_project_add(PROJECT_NAME opae-legacy
