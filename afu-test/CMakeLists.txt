@@ -31,7 +31,7 @@ add_library(afu-test INTERFACE)
 target_include_directories(afu-test INTERFACE
     ${OPAE_INCLUDE_PATHS}
     ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CLI11_ROOT}/include
+    ${CLI11_INCLUDE_DIRS}
     ${spdlog_INCLUDE_DIRS}
 )
 
@@ -39,6 +39,7 @@ target_link_libraries(afu-test INTERFACE
     opae-c opae-cxx-core
     ${spdlog_LIBRARIES}
 )
+
 target_compile_options(afu-test INTERFACE
     -Wno-unused-result
 )
