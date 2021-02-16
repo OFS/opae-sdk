@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -39,165 +39,20 @@
 #include "fpgainfo.h"
 #include <opae/properties.h>
 #include "errors.h"
+#include "errors_metadata.h"
 
 #define FPGA_BIT_IS_SET(val, index) (((val) >> (index)) & 1)
 
 const char *supported_verbs[] = {"all", "fme", "port"};
 enum verbs_index { VERB_ALL = 0, VERB_FME, VERB_PORT, VERB_MAX };
 
-#define FME_ERROR_COUNT 7
-static const char *const FME_ERROR[FME_ERROR_COUNT] = {
-	"Fabric error detected",
-	"Fabric fifo under / overflow error detected",
-	"KTI CDC Parity Error detected",
-	"KTI CDC Parity Error detected",
-	"IOMMU Parity error detected",
-	"AFU PF/VF access mismatch detected",
-	"Indicates an MBP event error detected"};
-
-#define PCIE0_ERROR_COUNT 10
-static const char *const PCIE0_ERROR[PCIE0_ERROR_COUNT] = {
-	"TLP format/type error detected",   "TTLP MW address error detected",
-	"TLP MW length error detected",     "TLP MR address error detected",
-	"TLP MR length error detected",     "TLP CPL tag error detected",
-	"TLP CPL status error detected",    "TLP CPL timeout error detected",
-	"CCI bridge parity error detected", "TLP with EP  error  detected"};
-
-#define PCIE1_ERROR_COUNT 10
-static const char *const PCIE1_ERROR[PCIE1_ERROR_COUNT] = {
-	"TLP format/type error detected",   "TTLP MW address error detected",
-	"TLP MW length error detected",     "TLP MR address error detected",
-	"TLP MR length error detected",     "TLP CPL tag error detected",
-	"TLP CPL status error detected",    "TLP CPL timeout error detected",
-	"CCI bridge parity error detected", "TLP with EP  error  detected"};
-
-#define NONFATAL_ERROR_COUNT 13
-static const char *const NONFATAL_ERROR[NONFATAL_ERROR_COUNT] = {
-	"Temperature threshold triggered AP1 detected",
-	"Temperature threshold triggered AP2 detected",
-	"PCIe error detected",
-	"AFU port Fatal error detected",
-	"ProcHot event error detected",
-	"AFU PF/VF access mismatch error detected",
-	"Injected Warning Error detected",
-	"Reserved",
-	"Reserved",
-	"Temperature threshold triggered AP6 detected",
-	"Power threshold triggered AP1 error detected",
-	"Power threshold triggered AP2 error detected",
-	"MBP event error detected"};
-
-#define CATFATAL_ERROR_COUNT 12
-static const char *const CATFATAL_ERROR[CATFATAL_ERROR_COUNT] = {
-	"KTI link layer error detected.",
-	"tag-n-cache error detected.",
-	"CCI error detected.",
-	"KTI protocol error detected.",
-	"Fatal DRAM error detected",
-	"IOMMU fatal parity error detected.",
-	"Fabric fatal error detected",
-	"Poison error from any of PCIe ports detected",
-	"Injected Fatal Error detected",
-	"Catastrophic CRC error detected",
-	"Catastrophic thermal runaway event detected",
-	"Injected Catastrophic Error detected"};
-
-#define INJECT_ERROR_COUNT 3
-static const char *const INJECT_ERROR[INJECT_ERROR_COUNT] = {
-	"Set Catastrophic  error .", "Set Fatal error.",
-	"Ser Non-fatal error ."};
-
-#define PORT_ERROR_COUNT 61
-static const char *const PORT_ERROR[PORT_ERROR_COUNT] = {
-	// 0
-	"Tx Channel 0 overflow error detected.",
-	"Tx Channel 0 invalid request encoding error detected.",
-	"Tx Channel 0 cl_len=3 not supported error detected.",
-	"Tx Channel 0 request with cl_len=2 does NOT have a 2CL aligned address error detected.",
-	"Tx Channel 0 request with cl_len=4 does NOT have a 4CL aligned address error detected.",
-	"RSVD.",
-	"RSVD.",
-	"RSVD.",
-	"RSVD.",
-	"AFU MMIO RD received while PORT is in reset error detected",
-	// 10
-	"AFU MMIO WR received while PORT is in reset error detected",
-	"RSVD.",
-	"RSVD.",
-	"RSVD.",
-	"RSVD.",
-	"RSVD.",
-	"Tx Channel 1 overflow error detected.",
-	"Tx Channel 1 invalid request encoding error detected",
-	"Tx Channel 1 cl_len=3 not supported error detected.",
-	"Tx Channel 1 request with cl_len=2 does NOT have a 2CL aligned address error detected",
-	// 20
-	"Tx Channel 1 request with cl_len=4 does NOT have a 4CL aligned address error detected",
-	"Tx Channel 1 insufficient data payload Error detected",
-	"Tx Channel 1 data payload overrun error detected",
-	"Tx Channel 1 incorrect address on subsequent payloads error detected",
-	"Tx Channel 1 Non-zero SOP detected for requests!=WrLine_* error detected",
-	"Tx Channel 1 SOP expected to be 0 for req_type!=WrLine_*",
-	"Tx Channel 1 Illegal VC_SEL. Atomic request is only supported on VL0 error detected",
-	"RSVD.",
-	"RSVD.",
-	"RSVD.",
-	// 30
-	"RSVD.",
-	"RSVD.",
-	"RSVD.",
-	"MMIO TimedOut error detected",
-	"Tx Channel 2 fifo overflo error detected",
-	"MMIO Read response received, with no matching request pending error detected",
-	"RSVD.",
-	"RSVD.",
-	"RSVD.",
-	"RSVD.",
-	// 40
-	"RSVD.",
-	"Number of pending requests: counter overflow error detected",
-	"Request with Address violating SMM range error detected",
-	"Request with Address violating second SMM range error detected",
-	"Request with Address violating ME stolen range",
-	"Request with Address violating Generic protected range error detected ",
-	"Request with Address violating Legacy Range Low error detected",
-	"Request with Address violating Legacy Range High error detected",
-	"Request with Address violating VGA memory range error detected",
-	"Page Fault error detected",
-	// 50
-	"PMR Erro error detected",
-	"AP6 event detected",
-	"VF FLR detected on port when PORT configured in PF access mode error detected ",
-	"RSVD.",
-	"RSVD.",
-	"RSVD.",
-	"RSVD.",
-	"Tx Channel 1 byte_len cannot be zero",
-	"Tx Channel 1 illegal operation: sum of byte_len and byte_start should be less than or equal to 64",
-	"Tx Channel 1 illegal operation: cl_len cannot be non-zero when mode is eMOD_BYTE",
-	// 60
-	"Tx Channel 1 byte_len and byte_start should be zero when mode is not eMOD_BYTE"
-};
-
-#define REV2_PORT_ERROR_COUNT 16
-static const char *const REV2_PORT_ERROR[REV2_PORT_ERROR_COUNT] = {
-	"Tx valid violation",
-	"Tx mwr insufficient data",
-	"Tx mwr data payload overrun",
-	"mmio insufficient data",
-	"mmio data payload overrun",
-	"mmio read while reset",
-	"mmio write while reset",
-	"mmio timeout",
-	"unexpected mmio response",
-	"tag occupiied",
-	"unaligned address",
-	"max tag",
-	"max read request size",
-	"max payload",
-	"malformed TLP",
-	"Tx request couter overflow",
-};
+#define FPGA_FME_ERROR_STR          "Fme Errors"
+#define FPGA_PCIE0_ERROR_STR        "PCIe0 Errors"
+#define FPGA_INJECT_ERROR_STR       "Inject Error"
+#define FPGA_CATFATAL_ERROR_STR     "Catfatal Errors"
+#define FPGA_NONFATAL_ERROR_STR     "Nonfatal Errors"
+#define FPGA_PCIE1_ERROR_STR        "PCIe1 Errors"
+#define FPGA_PORT_ERROR_STR         "Errors"
 
 /*
  * errors command configuration, set during parse_args()
@@ -338,12 +193,12 @@ out:
 	return res;
 }
 
-static fpga_result get_port_error_revision(fpga_token token, uint64_t *value)
+static fpga_result get_error_revision(fpga_token token, uint64_t *value)
 {
 	fpga_result res = FPGA_OK;
 	fpga_object fpga_object;
 
-	res = fpgaTokenGetObject(token, "error*/revision", &fpga_object, FPGA_OBJECT_GLOB);
+	res = fpgaTokenGetObject(token, "*error*/revision", &fpga_object, FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
 		OPAE_MSG("Failed to get token Object");
 		return res;
@@ -363,17 +218,59 @@ static fpga_result get_port_error_revision(fpga_token token, uint64_t *value)
 	return res;
 }
 
+// print error string format
+static void print_errors_str(struct fpga_error_info errinfo,
+				uint64_t error_value,
+				uint64_t revision)
+{
+	uint64_t i = 0;
+	uint64_t j = 0;
+	enum fapg_error_type error_type  = FPGA_ERROR_UNKNOWN;
+
+	if (!strcmp(errinfo.name, FPGA_FME_ERROR_STR)) {
+		error_type = FPGA_FME_ERROR;
+	}
+	else if (!strcmp(errinfo.name, FPGA_PCIE0_ERROR_STR)) {
+		error_type = FPGA_PCIE0_ERROR;
+	}
+	else if (!strcmp(errinfo.name, FPGA_INJECT_ERROR_STR)) {
+		error_type = FPGA_INJECT_ERROR;
+	}
+	else if (!strcmp(errinfo.name, FPGA_CATFATAL_ERROR_STR)) {
+		error_type = FPGA_CATFATAL_ERROR;
+	}
+	else if (!strcmp(errinfo.name, FPGA_NONFATAL_ERROR_STR)) {
+		error_type = FPGA_NONFATAL_ERROR;
+	}
+	else if (!strcmp(errinfo.name, FPGA_PCIE1_ERROR_STR)) {
+		error_type = FPGA_PCIE1_ERROR;
+	}if (!strcmp(errinfo.name, FPGA_PORT_ERROR_STR)) {
+		error_type = FPGA_PORT_ERROR;
+	}
+
+	for (i = 0; i < FPGA_ERR_METADATA_COUNT; i++) {
+		if ((fpga_errors_metadata[i].error_type == error_type) &&
+			(fpga_errors_metadata[i].revision == revision))
+		{
+			for (j = 0; j < fpga_errors_metadata[i].arry_size_max; j++) {
+				if (FPGA_BIT_IS_SET(error_value, j)) {
+					printf("bit %ld error:%s\n",
+					j, fpga_errors_metadata[i].str_err[j].err_str);
+				}
+			}// end for
+		}
+	}// end for
+	return;
+}
+
 static void print_errors_info(fpga_token token, fpga_properties props,
 			      struct fpga_error_info *errinfos,
 			      uint32_t num_errors)
 {
 	int i;
-	int j;
 	fpga_result res = FPGA_OK;
 	fpga_objtype objtype;
-	const char *const *error_string = NULL;
-	int size = 0;
-
+	uint64_t revision = 0;
 	if ((NULL == errinfos) || (0 == num_errors)) {
 		return;
 	}
@@ -401,37 +298,15 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 			printf("%-32s : 0x%" PRIX64 "\n", errinfos[i].name,
 			       error_value);
 
-			if (!strcmp(errinfos[i].name, "Errors")) {
-				size = FME_ERROR_COUNT;
-				error_string = FME_ERROR;
-			} else if (!strcmp(errinfos[i].name, "Next Error")) {
-				size = 0;
-				error_string = NULL;
-			} else if (!strcmp(errinfos[i].name, "First Error")) {
-				size = 0;
-				error_string = NULL;
-			} else if (!strcmp(errinfos[i].name, "PCIe0 Errors")) {
-				size = PCIE0_ERROR_COUNT;
-				error_string = PCIE0_ERROR;
-			} else if (!strcmp(errinfos[i].name, "Inject Error")) {
-				size = INJECT_ERROR_COUNT;
-				error_string = INJECT_ERROR;
-			} else if (!strcmp(errinfos[i].name, "Catfatal Errors")) {
-				size = CATFATAL_ERROR_COUNT;
-				error_string = CATFATAL_ERROR;
-			} else if (!strcmp(errinfos[i].name, "Nonfatal Errors")) {
-				size = NONFATAL_ERROR_COUNT;
-				error_string = NONFATAL_ERROR;
-			} else if (!strcmp(errinfos[i].name, "PCIe1 Errors")) {
-				size = PCIE1_ERROR_COUNT;
-				error_string = PCIE1_ERROR;
+			res = get_error_revision(token, &revision);
+			if (res != FPGA_OK) {
+				OPAE_ERR("could not find FME error revision - skipping decode\n");
+				continue;
 			}
 
-			for (j = 0; (j < size) && (NULL != error_string); j++) {
-				if (FPGA_BIT_IS_SET(error_value, j)) {
-					printf("\t %s \n", error_string[j]);
-				}
-			}
+			if (error_value > 0)
+				print_errors_str(errinfos[i], error_value, revision);
+
 		}
 	} else if (((VERB_ALL == errors_config.which)
 		    || (VERB_PORT == errors_config.which))
@@ -446,41 +321,15 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 			printf("%-32s : 0x%" PRIX64 "\n", errinfos[i].name,
 			       error_value);
 
-			if (!strcmp(errinfos[i].name, "Errors")) {
-				uint64_t revision = 0;
-				res = get_port_error_revision(token, &revision);
-				if (res != FPGA_OK) {
-					OPAE_ERR("could not find port error revision - skipping decode\n");
-					continue;
-				}
-
-				switch (revision) {
-				case 2:
-					size = REV2_PORT_ERROR_COUNT;
-					error_string = REV2_PORT_ERROR;
-					break;
-
-				case 1:
-					size = PORT_ERROR_COUNT;
-					error_string = PORT_ERROR;
-					break;
-				default:
-					printf("unknown revision number %ld\n", revision);
-					continue;
-				}
-			} else if (!strcmp(errinfos[i].name, "First Malformed Req")) {
-				size = 0;
-				error_string = NULL;
-			} else if (!strcmp(errinfos[i].name, "First Error")) {
-				size = 0;
-				error_string = NULL;
+			res = get_error_revision(token, &revision);
+			if (res != FPGA_OK) {
+				OPAE_ERR("could not find port error revision - skipping decode\n");
+				continue;
 			}
 
-			for (j = 0; (j < size) && (NULL != error_string); j++) {
-				if (FPGA_BIT_IS_SET(error_value, j)) {
-					printf("\t %s \n", error_string[j]);
-				}
-			}
+			if (error_value > 0)
+				print_errors_str(errinfos[i], error_value, revision);
+
 		}
 	}
 }
