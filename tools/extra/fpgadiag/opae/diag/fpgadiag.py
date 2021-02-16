@@ -44,15 +44,17 @@ cmd_map = {'lpbk1': ['nlb0'],
            'fpgastats': ['fpgastats'],
            'fpgamac': ['fpgamac']}
 
-if __name__ == "__main__":
+
+def main():
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('-t', '--target',
                         default='fpga',
                         choices=['fpga', 'ase'],
                         help='choose target. Default: fpga')
     parser.add_argument('-m', '--mode', choices=cmd_list,
-                        help='choose test mode. Combine this with -h or --help \
-                        to see detail help message for each mode.')
+                        help=('choose test mode. Combine this with'
+                              '-h or --help to see detail help message'
+                              'for each mode.'))
 
     args, leftover = parser.parse_known_args()
 
@@ -70,3 +72,7 @@ if __name__ == "__main__":
         subprocess.check_call(cmdline, shell=True)
     except CalledProcessError as e:
         exit(e.returncode)
+
+
+if __name__ == "__main__":
+    main()
