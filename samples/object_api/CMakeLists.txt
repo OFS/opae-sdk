@@ -1,4 +1,4 @@
-## Copyright(c) 2014-2020, Intel Corporation
+## Copyright(c) 2014-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -27,10 +27,16 @@
 opae_add_executable(TARGET object_api
     SOURCE object_api.c
     LIBS
+        argsfilter
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
     COMPONENT samplebin
+)
+
+target_include_directories(object_api
+    PRIVATE
+        ${OPAE_SDK_SOURCE}/tools/argsfilter
 )
 
 install(FILES object_api.c
