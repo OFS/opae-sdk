@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2017-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -27,7 +27,13 @@
 opae_add_executable(TARGET userclk
     SOURCE main.c
     LIBS
+        argsfilter
         opae-c
         ${libjson-c_LIBRARIES}
     COMPONENT tooluserclk
+)
+
+target_include_directories(userclk
+    PRIVATE
+        ${OPAE_SDK_SOURCE}/tools/argsfilter
 )
