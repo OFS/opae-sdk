@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2020-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -27,11 +27,17 @@
 opae_test_add_static_lib(TARGET object_api-static
     SOURCE ${OPAE_SDK_SOURCE}/samples/object_api/object_api.c
     LIBS
+        argsfilter
         opae-c
 )
 
 target_compile_definitions(object_api-static
     PRIVATE main=object_api_main
+)
+
+target_include_directories(object_api-static
+    PRIVATE
+        ${OPAE_SDK_SOURCE}/tools/argsfilter
 )
 
 opae_test_add(TARGET test_object_api_c
