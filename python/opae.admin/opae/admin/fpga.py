@@ -431,8 +431,7 @@ class fpga_base(sysfs_device):
             return None
         spi = f.spi_bus
         if spi:
-            sec = spi.find_one(
-                '*-secure.*.auto/security')
+            sec = spi.find_one('*-secure.*.auto')
             if sec:
                 return security(sec.sysfs_path, self.pci_node)
 
