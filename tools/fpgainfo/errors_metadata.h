@@ -51,7 +51,7 @@ enum fapg_error_type {
 typedef  struct FPGA_ERRORS {
 	uint64_t revision;
 	enum fapg_error_type error_type;
-	uint64_t arry_size_max;
+	uint64_t array_size_max;
 	struct {
 		char err_str[256];
 	} str_err[64];
@@ -65,7 +65,7 @@ fpga_errors fpga_errors_metadata[] = {
 	{
 		.revision = 0,
 		.error_type = FPGA_FME_ERROR,
-		.arry_size_max = 7,
+		.array_size_max = 7,
 		.str_err = {
 			{ .err_str = "Fabric error detected" },
 			{ .err_str = "Fabric fifo under / overflow error detected" },
@@ -82,7 +82,7 @@ fpga_errors fpga_errors_metadata[] = {
 	{
 		.revision = 1,
 		.error_type = FPGA_FME_ERROR,
-		.arry_size_max = 6,
+		.array_size_max = 6,
 		.str_err = {
 			{.err_str = "Error from Partial Reconfiguration Block reporting \
 			 a FIFO Parity Error has occurred." },
@@ -100,7 +100,7 @@ fpga_errors fpga_errors_metadata[] = {
 	{
 		.revision = 0,
 		.error_type = FPGA_PCIE0_ERROR,
-		.arry_size_max = 10,
+		.array_size_max = 10,
 		.str_err = {
 			{.err_str = "TLP format / type error detected." },
 			{.err_str = "TTLP MW address error detected." },
@@ -120,7 +120,7 @@ fpga_errors fpga_errors_metadata[] = {
 	{
 		.revision = 1,
 		.error_type = FPGA_PCIE0_ERROR,
-		.arry_size_max = 13,
+		.array_size_max = 13,
 		.str_err = {
 			{.err_str = "TLP format/type error detected." },
 			{.err_str = "TTLP MW address error detected." },
@@ -146,7 +146,7 @@ fpga_errors fpga_errors_metadata[] = {
 	{
 		.revision = 0,
 		.error_type = FPGA_PCIE1_ERROR,
-		.arry_size_max = 10,
+		.array_size_max = 10,
 		.str_err = {
 			{.err_str = "TLP format / type error detected." },
 			{.err_str = "TTLP MW address error detected." },
@@ -166,7 +166,7 @@ fpga_errors fpga_errors_metadata[] = {
 	{
 		.revision = 0,
 		.error_type = FPGA_NONFATAL_ERROR,
-		.arry_size_max = 13,
+		.array_size_max = 13,
 		.str_err = {
 			{.err_str = "Temperature threshold triggered AP1 detected." },
 			{.err_str = "Temperature threshold triggered AP2 detected." },
@@ -190,7 +190,7 @@ fpga_errors fpga_errors_metadata[] = {
 	{
 		.revision = 1,
 		.error_type = FPGA_NONFATAL_ERROR,
-		.arry_size_max = 7,
+		.array_size_max = 7,
 		.str_err = {
 			{.err_str = "Reserved." },
 			{.err_str = "Reserved." },
@@ -207,7 +207,7 @@ fpga_errors fpga_errors_metadata[] = {
 	{
 		.revision = 0,
 		.error_type = FPGA_CATFATAL_ERROR,
-		.arry_size_max = 12,
+		.array_size_max = 12,
 		.str_err = {
 			{.err_str = "KTI link layer error detected." },
 			{.err_str = "tag-n-cache error detected." },
@@ -230,7 +230,7 @@ fpga_errors fpga_errors_metadata[] = {
 	{
 		.revision = 1,
 		.error_type = FPGA_CATFATAL_ERROR,
-		.arry_size_max = 12,
+		.array_size_max = 12,
 		.str_err = {
 			{.err_str = "Reserved." },
 			{.err_str = "Reserved." },
@@ -252,7 +252,7 @@ fpga_errors fpga_errors_metadata[] = {
 	{
 		.revision = 0,
 		.error_type = FPGA_INJECT_ERROR,
-		.arry_size_max = 3,
+		.array_size_max = 3,
 		.str_err = {
 			{.err_str = "Set Catastrophic error." },
 			{.err_str = "Set Fatal error." },
@@ -264,7 +264,7 @@ fpga_errors fpga_errors_metadata[] = {
 	{
 		.revision = 1,
 		.error_type = FPGA_INJECT_ERROR,
-		.arry_size_max = 3,
+		.array_size_max = 3,
 		.str_err = {
 			{.err_str = "Set Catastrophic error." },
 			{.err_str = "Set Fatal error." },
@@ -276,7 +276,7 @@ fpga_errors fpga_errors_metadata[] = {
 	{
 		.revision = 0,
 		.error_type = FPGA_PORT_ERROR,
-		.arry_size_max = 61,
+		.array_size_max = 61,
 		.str_err = {
 			{.err_str = "Tx Channel 0 overflow error detected." },
 			{.err_str = "Tx Channel 0 invalid request encoding \
@@ -377,7 +377,7 @@ fpga_errors fpga_errors_metadata[] = {
 	{
 		.revision = 1,
 		.error_type = FPGA_PORT_ERROR,
-		.arry_size_max = 16,
+		.array_size_max = 16,
 		.str_err = {
 			{.err_str = "Tx valid violation error detected." },
 			{.err_str = "Tx mwr insufficient data error detected." },

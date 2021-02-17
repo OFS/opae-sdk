@@ -247,7 +247,7 @@ static void print_errors_str(struct fpga_error_info errinfo,
 		if ((fpga_errors_metadata[i].error_type == error_type) &&
 			(fpga_errors_metadata[i].revision == revision)) {
 
-			for (j = 0; j < fpga_errors_metadata[i].arry_size_max; j++) {
+			for (j = 0; j < fpga_errors_metadata[i].array_size_max; j++) {
 				if (FPGA_BIT_IS_SET(error_value, j)) {
 					printf("bit %ld error:%s\n",
 					j, fpga_errors_metadata[i].str_err[j].err_str);
