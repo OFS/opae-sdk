@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,6 +24,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
 #include <opae/fpga.h>
 
 extern "C" {
@@ -33,11 +37,6 @@ extern "C" {
 
 struct UserClkCommandLine
 {
-	int      segment;
-	int      bus;
-	int      device;
-	int      function;
-	int      socket;
 	int      freq_high;
 	int      freq_low;
 };
@@ -52,8 +51,6 @@ int ParseCmds(struct UserClkCommandLine *userclkCmdLine, int argc, char *argv[])
 int userclk_main(int argc, char *argv[]);
 
 }
-
-#include <config.h>
 
 #include <iostream>
 #include <vector>
@@ -131,7 +128,7 @@ TEST_P(userclk_c_p, parse_cmd0) {
   strcpy(zero, "userclk");
   strcpy(one, "-Y");
 
-  char *argv[] = { zero, one };
+  char *argv[] = { zero, one, NULL };
 
   EXPECT_LT(ParseCmds(&cmd, 2, argv), 0);
 }
@@ -151,7 +148,7 @@ TEST_P(userclk_c_p, parse_cmd1) {
   strcpy(zero, "userclk");
   strcpy(one, "-h");
 
-  char *argv[] = { zero, one };
+  char *argv[] = { zero, one, NULL };
 
   EXPECT_LT(ParseCmds(&cmd, 2, argv), 0);
 }
@@ -170,26 +167,7 @@ TEST_P(userclk_c_p, parse_cmd2) {
   char one[20];
   strcpy(zero, "userclk");
 
-  char *argv[] = { zero, one };
-
-  strcpy(one, "--segment");
-  EXPECT_LT(ParseCmds(&cmd, 2, argv), 0);
-
-  optind = 0;
-  strcpy(one, "-B");
-  EXPECT_LT(ParseCmds(&cmd, 2, argv), 0);
-
-  optind = 0;
-  strcpy(one, "-D");
-  EXPECT_LT(ParseCmds(&cmd, 2, argv), 0);
-
-  optind = 0;
-  strcpy(one, "-F");
-  EXPECT_LT(ParseCmds(&cmd, 2, argv), 0);
-
-  optind = 0;
-  strcpy(one, "-S");
-  EXPECT_LT(ParseCmds(&cmd, 2, argv), 0);
+  char *argv[] = { zero, one, NULL };
 
   optind = 0;
   strcpy(one, "-P");
@@ -219,42 +197,16 @@ TEST_P(userclk_c_p, parse_cmd3) {
   char two[20];
   char three[20];
   char four[20];
-  char five[20];
-  char six[20];
-  char seven[20];
-  char eight[20];
-  char nine[20];
-  char ten[20];
-  char eleven[20];
-  char twelve[20];
-  char thirteen[20];
-  char fourteen[20];
+
   strcpy(zero, "userclk");
-  strcpy(one, "--segment");
-  strcpy(two, "0x1234");
-  strcpy(three, "-B");
-  strcpy(four, "3");
-  strcpy(five, "-D");
-  strcpy(six, "4");
-  strcpy(seven, "-F");
-  strcpy(eight, "5");
-  strcpy(nine, "-S");
-  strcpy(ten, "6");
-  strcpy(eleven, "-H");
-  strcpy(twelve, "8");
-  strcpy(thirteen, "-L");
-  strcpy(fourteen, "9");
+  strcpy(one, "-H");
+  strcpy(two, "8");
+  strcpy(three, "-L");
+  strcpy(four, "9");
 
-  char *argv[] = { zero, one, two, three, four,
-                   five, six, seven, eight, nine,
-                   ten, eleven, twelve, thirteen, fourteen };
+  char *argv[] = { zero, one, two, three, four, NULL };
 
-  EXPECT_EQ(ParseCmds(&cmd, 15, argv), 0);
-  EXPECT_EQ(cmd.segment, 0x1234);
-  EXPECT_EQ(cmd.bus, 3);
-  EXPECT_EQ(cmd.device, 4);
-  EXPECT_EQ(cmd.function, 5);
-  EXPECT_EQ(cmd.socket, 6);
+  EXPECT_EQ(ParseCmds(&cmd, 5, argv), 0);
   EXPECT_EQ(cmd.freq_high, 8);
   EXPECT_EQ(cmd.freq_low, 9);
 }
@@ -284,6 +236,7 @@ TEST_P(userclk_c_p, invalid_cmd_characters_01) {
   char twelve[32];
   char thirteen[32];
   char fourteen[32];
+
   strcpy(zero, "userclk_+*(^> ");
   strcpy(one, "--segm ent");
   strcpy(two, "0x1234");
@@ -302,7 +255,7 @@ TEST_P(userclk_c_p, invalid_cmd_characters_01) {
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten, eleven, twelve, thirteen, fourteen };
+                   ten, eleven, twelve, thirteen, fourteen, NULL };
 
   EXPECT_NE(ParseCmds(&cmd, 15, argv), 0);
   EXPECT_NE(userclk_main(15, argv), 0);
@@ -331,9 +284,8 @@ TEST_P(userclk_c_p, invalid_cmd_characters_02) {
   char ten[32];
   char eleven[32];
   char twelve[32];
-  char thirteen[32];
-  char fourteen[32];
-  strcpy(zero, "");
+
+  strcpy(zero, "userclk");
   strcpy(one, "--segment");
   strcpy(two, "0x0123897349  *(^%$%^$%@^?><? 6121234");
   strcpy(three, " --B");
@@ -342,19 +294,19 @@ TEST_P(userclk_c_p, invalid_cmd_characters_02) {
   strcpy(six, "41278991 02a8974913");
   strcpy(seven, "-F");
   strcpy(eight, "529378190 \t 3haskfhahhi\\ | // o=1-21");
-  strcpy(nine, "-S");
-  strcpy(ten, "        6`1238 \n -349287419=-0;");
-  strcpy(eleven, "-H");
-  strcpy(twelve, "400000000000000000000000000");
-  strcpy(thirteen, "-L");
-  strcpy(fourteen, "9.999");
+  strcpy(nine, "-H");
+  strcpy(ten, "400000000000000000000000000");
+  strcpy(eleven, "-L");
+  strcpy(twelve, "9.999");
 
-  char *argv[] = { zero, one, two, three, four,
-                   eleven, twelve, thirteen, fourteen,
-                   five, six, seven, eight, nine, ten};
+  char *argv0[] = { zero, one, two, three, four,
+                    five, six, seven, eight, nine, ten, 
+                    eleven, twelve, NULL };
 
-  EXPECT_EQ(ParseCmds(&cmd, 15, argv), 0);
-  EXPECT_NE(userclk_main(15, argv), 0);
+  char *argv1[] = { zero, nine, ten, eleven, twelve, NULL };
+
+  EXPECT_EQ(ParseCmds(&cmd, 5, argv1), 0);
+  EXPECT_NE(userclk_main(13, argv0), 0);
 }
 
 
@@ -369,7 +321,7 @@ TEST_P(userclk_c_p, main0) {
   char zero[20];
   strcpy(zero, "userclk");
 
-  char *argv[] = { zero };
+  char *argv[] = { zero, NULL };
 
   EXPECT_NE(userclk_main(1, argv), 0);
 }
@@ -387,7 +339,7 @@ TEST_P(userclk_c_p, main1) {
   strcpy(zero, "userclk");
   strcpy(one, "-h");
 
-  char *argv[] = { zero, one };
+  char *argv[] = { zero, one, NULL };
 
   EXPECT_NE(userclk_main(2, argv), 0);
 }
@@ -408,7 +360,7 @@ TEST_P(userclk_c_p, main2) {
   strcpy(one, "-B");
   strcpy(two, "99");
 
-  char *argv[] = { zero, one, two };
+  char *argv[] = { zero, one, two, NULL };
 
   EXPECT_NE(userclk_main(3, argv), 0);
 }
@@ -441,8 +393,7 @@ TEST_P(userclk_c_hw_p, main3) {
   char eight[20];
   char nine[20];
   char ten[20];
-  char eleven[20];
-  char twelve[20];
+
   strcpy(zero, "userclk");
   strcpy(one, "--segment");
   sprintf(two, "%d", platform_.devices[0].segment);
@@ -452,16 +403,14 @@ TEST_P(userclk_c_hw_p, main3) {
   sprintf(six, "%d", platform_.devices[0].device);
   strcpy(seven, "-F");
   sprintf(eight, "%d", platform_.devices[0].function);
-  strcpy(nine, "-S");
-  sprintf(ten, "%d", platform_.devices[0].socket_id);
-  strcpy(eleven, "-H");
-  strcpy(twelve, "400");
+  strcpy(nine, "-H");
+  strcpy(ten, "400");
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten, eleven, twelve };
+                   ten, NULL };
 
-  EXPECT_EQ(userclk_main(13, argv), FPGA_OK);
+  EXPECT_EQ(userclk_main(11, argv), FPGA_OK);
 }
 
 /**
@@ -484,8 +433,7 @@ TEST_P(userclk_c_hw_p, main4) {
   char eight[20];
   char nine[20];
   char ten[20];
-  char eleven[20];
-  char twelve[20];
+
   strcpy(zero, "userclk");
   strcpy(one, "--segment");
   sprintf(two, "%d", platform_.devices[0].segment);
@@ -495,16 +443,14 @@ TEST_P(userclk_c_hw_p, main4) {
   sprintf(six, "%d", platform_.devices[0].device);
   strcpy(seven, "-F");
   sprintf(eight, "%d", platform_.devices[0].function);
-  strcpy(nine, "-S");
-  sprintf(ten, "%d", platform_.devices[0].socket_id);
-  strcpy(eleven, "-L");
-  strcpy(twelve, "200");
+  strcpy(nine, "-L");
+  strcpy(ten, "200");
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten, eleven, twelve };
+                   ten, NULL };
 
-  EXPECT_EQ(userclk_main(13, argv), FPGA_OK);
+  EXPECT_EQ(userclk_main(11, argv), FPGA_OK);
 }
 
 /**
@@ -529,8 +475,7 @@ TEST_P(userclk_c_hw_p, main5) {
   char ten[20];
   char eleven[20];
   char twelve[20];
-  char thirteen[20];
-  char fourteen[20];
+
   strcpy(zero, "userclk");
   strcpy(one, "--segment");
   sprintf(two, "%d", platform_.devices[0].segment);
@@ -540,18 +485,16 @@ TEST_P(userclk_c_hw_p, main5) {
   sprintf(six, "%d", platform_.devices[0].device);
   strcpy(seven, "-F");
   sprintf(eight, "%d", platform_.devices[0].function);
-  strcpy(nine, "-S");
-  sprintf(ten, "%d", platform_.devices[0].socket_id);
-  strcpy(eleven, "-H");
-  strcpy(twelve, "300");
-  strcpy(thirteen, "-L");
-  strcpy(fourteen, "100");
+  strcpy(nine, "-H");
+  strcpy(ten, "300");
+  strcpy(eleven, "-L");
+  strcpy(twelve, "100");
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten, eleven, twelve, thirteen, fourteen };
+                   ten, eleven, twelve, NULL };
 
-  EXPECT_EQ(userclk_main(15, argv), FPGA_INVALID_PARAM);
+  EXPECT_EQ(userclk_main(13, argv), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -572,8 +515,7 @@ TEST_P(userclk_c_hw_p, main6) {
   char six[20];
   char seven[20];
   char eight[20];
-  char nine[20];
-  char ten[20];
+
   strcpy(zero, "userclk");
   strcpy(one, "--segment");
   sprintf(two, "%d", platform_.devices[0].segment);
@@ -583,14 +525,11 @@ TEST_P(userclk_c_hw_p, main6) {
   sprintf(six, "%d", platform_.devices[0].device);
   strcpy(seven, "-F");
   sprintf(eight, "%d", platform_.devices[0].function);
-  strcpy(nine, "-S");
-  sprintf(ten, "%d", platform_.devices[0].socket_id);
 
   char *argv[] = { zero, one, two, three, four,
-                   five, six, seven, eight, nine,
-                   ten };
+                   five, six, seven, eight, NULL };
 
-  EXPECT_EQ(userclk_main(11, argv), FPGA_INVALID_PARAM);
+  EXPECT_EQ(userclk_main(9, argv), FPGA_INVALID_PARAM);
 }
 
 INSTANTIATE_TEST_CASE_P(userclk_c, userclk_c_hw_p,
@@ -622,8 +561,7 @@ TEST_P(userclk_c_mock_p, main3) {
   char eight[20];
   char nine[20];
   char ten[20];
-  char eleven[20];
-  char twelve[20];
+
   strcpy(zero, "userclk");
   strcpy(one, "--segment");
   sprintf(two, "%d", platform_.devices[0].segment);
@@ -633,14 +571,12 @@ TEST_P(userclk_c_mock_p, main3) {
   sprintf(six, "%d", platform_.devices[0].device);
   strcpy(seven, "-F");
   sprintf(eight, "%d", platform_.devices[0].function);
-  strcpy(nine, "-S");
-  sprintf(ten, "%d", platform_.devices[0].socket_id);
-  strcpy(eleven, "-H");
-  strcpy(twelve, "400");
+  strcpy(nine, "-H");
+  strcpy(ten, "400");
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten, eleven, twelve };
+                   ten, NULL };
 
   /*
   ** FIXME: main should return zero in this case, but
@@ -648,9 +584,9 @@ TEST_P(userclk_c_mock_p, main3) {
   ** timeout. Because the sysfs file never updates in
   ** a mock environment, the API will time out and return
   ** FPGA_NOT_SUPPORTED.
-  EXPECT_EQ(userclk_main(13, argv), 0);
+  EXPECT_EQ(userclk_main(11, argv), 0);
   */
-  EXPECT_EQ(userclk_main(13, argv), FPGA_NOT_SUPPORTED);
+  EXPECT_EQ(userclk_main(11, argv), FPGA_NOT_SUPPORTED);
 }
 
 /**
@@ -673,8 +609,7 @@ TEST_P(userclk_c_mock_p, main4) {
   char eight[20];
   char nine[20];
   char ten[20];
-  char eleven[20];
-  char twelve[20];
+
   strcpy(zero, "userclk");
   strcpy(one, "--segment");
   sprintf(two, "%d", platform_.devices[0].segment);
@@ -684,14 +619,12 @@ TEST_P(userclk_c_mock_p, main4) {
   sprintf(six, "%d", platform_.devices[0].device);
   strcpy(seven, "-F");
   sprintf(eight, "%d", platform_.devices[0].function);
-  strcpy(nine, "-S");
-  sprintf(ten, "%d", platform_.devices[0].socket_id);
-  strcpy(eleven, "-L");
-  strcpy(twelve, "200");
+  strcpy(nine, "-L");
+  strcpy(ten, "200");
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten, eleven, twelve };
+                   ten, NULL };
 
   /*
   ** FIXME: main should return zero in this case, but
@@ -699,9 +632,9 @@ TEST_P(userclk_c_mock_p, main4) {
   ** timeout. Because the sysfs file never updates in
   ** a mock environment, the API will time out and return
   ** FPGA_NOT_SUPPORTED.
-  EXPECT_EQ(userclk_main(13, argv), 0);
+  EXPECT_EQ(userclk_main(11, argv), 0);
   */
-  EXPECT_EQ(userclk_main(13, argv), FPGA_NOT_SUPPORTED);
+  EXPECT_EQ(userclk_main(11, argv), FPGA_NOT_SUPPORTED);
 }
 
 /**
@@ -726,8 +659,7 @@ TEST_P(userclk_c_mock_p, main5) {
   char ten[20];
   char eleven[20];
   char twelve[20];
-  char thirteen[20];
-  char fourteen[20];
+
   strcpy(zero, "userclk");
   strcpy(one, "--segment");
   sprintf(two, "%d", platform_.devices[0].segment);
@@ -737,18 +669,16 @@ TEST_P(userclk_c_mock_p, main5) {
   sprintf(six, "%d", platform_.devices[0].device);
   strcpy(seven, "-F");
   sprintf(eight, "%d", platform_.devices[0].function);
-  strcpy(nine, "-S");
-  sprintf(ten, "%d", platform_.devices[0].socket_id);
-  strcpy(eleven, "-H");
-  strcpy(twelve, "300");
-  strcpy(thirteen, "-L");
-  strcpy(fourteen, "100");
+  strcpy(nine, "-H");
+  strcpy(ten, "300");
+  strcpy(eleven, "-L");
+  strcpy(twelve, "100");
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten, eleven, twelve, thirteen, fourteen };
+                   ten, eleven, twelve, NULL };
 
-  EXPECT_EQ(userclk_main(15, argv), FPGA_INVALID_PARAM);
+  EXPECT_EQ(userclk_main(13, argv), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -769,8 +699,7 @@ TEST_P(userclk_c_mock_p, main6) {
   char six[20];
   char seven[20];
   char eight[20];
-  char nine[20];
-  char ten[20];
+
   strcpy(zero, "userclk");
   strcpy(one, "--segment");
   sprintf(two, "%d", platform_.devices[0].segment);
@@ -780,14 +709,11 @@ TEST_P(userclk_c_mock_p, main6) {
   sprintf(six, "%d", platform_.devices[0].device);
   strcpy(seven, "-F");
   sprintf(eight, "%d", platform_.devices[0].function);
-  strcpy(nine, "-S");
-  sprintf(ten, "%d", platform_.devices[0].socket_id);
 
   char *argv[] = { zero, one, two, three, four,
-                   five, six, seven, eight, nine,
-                   ten };
+                   five, six, seven, eight, NULL };
 
-  EXPECT_EQ(userclk_main(11, argv), FPGA_INVALID_PARAM);
+  EXPECT_EQ(userclk_main(9, argv), FPGA_INVALID_PARAM);
 }
 
 INSTANTIATE_TEST_CASE_P(userclk_c, userclk_c_mock_p,
