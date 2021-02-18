@@ -28,9 +28,10 @@
 import os
 import argparse
 import subprocess
+import sys
 from subprocess import CalledProcessError
 
-cwd = os.path.dirname(os.path.realpath(__file__))
+cwd = os.path.dirname(sys.argv[0])
 cmd_list = ['lpbk1', 'read', 'write', 'trput', 'sw',
             'fvlbypass', 'fpgalpbk', 'mactest', 'fpgastats', 'fpgamac']
 cmd_map = {'lpbk1': ['nlb0'],
