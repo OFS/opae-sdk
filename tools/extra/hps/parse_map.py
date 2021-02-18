@@ -120,7 +120,7 @@ def to_cpp(args):
     fp.write('#pragma once\n')
     fp.write(f'// these structures were auto-generated using {__file__}\n')
     fp.write('// modification of these structures may break the software\n\n')
-    for r in data:
+    for r in data.get('registers'):
         r.width = 64 if max(r.fields, key=ofs_field.max).max() > 32 else 32
         r.pod = f'uint{r.width}_t'
         r.fields = fields_to_cpp(r.pod, r.fields, 4)
