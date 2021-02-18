@@ -117,9 +117,9 @@ specifies which of the slots to which this bitstream is to be acted upon.
 
 User-formatted version information. This can be any string up to 32 bytes in length.
 
-`-S, --SHA256`
+`-S, --SHA384`
 
-Used to specify that PACSign is to use 256-bit crypto.  Default is 384-bit.
+Used to specify that PACSign is to use 384-bit crypto.  Default is 256-bit.
 
 `-R, --ROOT_BITSTREAM <root_bitstream>`
 
@@ -218,3 +218,4 @@ images that CSK 4 signed.
  | 2019.10.04 | 2.0.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 19.2.) | Editorial changes only. |
  | 2020.12.16 | 2.0.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 19.2.) | Added -S; default SHA384. |
  | 2021.02.02 | 2.0.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 19.2.) | Added -s, -b; Added more bitstream types. |
+ | 2021.02.17 | 2.0.1 Beta. <br>(Supported with Intel Quartus Prime Pro Edition 19.2.) | Default to 256-bit crypto. |
