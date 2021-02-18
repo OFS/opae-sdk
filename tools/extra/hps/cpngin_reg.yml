@@ -79,8 +79,8 @@
                                     10: Erroneous\n
                                     11: Rsvd\n
                                     The image that is downloaded from host includes the following:\n
-                                    • Second Stage bootloader / uBoot\n
-                                    • Linux kernel + rootFS (includes the 1588 application)\n
+                                    * Second Stage bootloader / uBoot\n
+                                    * Linux kernel + rootFS (includes the 1588 application)\n
                                     Host will send this complete package to HPS DDR using the copy engine\n
                                     This field depicts the Kernel verification status. Kernel verification is done after SSBL"]
     - [SSBL_VFY, [1, 0], RO, 0x0, "SSBL Verification\n
@@ -89,8 +89,8 @@
                                   10: Erroneous\n
                                   11: Rsvd\n
                                   The image that is downloaded from host includes the following:\n
-                                  • Second Stage bootloader / uBoot\n
-                                  • Linux kernel + rootFS (includes the 1588 application)\n
+                                  * Second Stage bootloader / uBoot\n
+                                  * Linux kernel + rootFS (includes the 1588 application)\n
                                   Host will send this complete package to HPS DDR using the copy engine\n
                                   This field depicts the SSBL Verification status. Once HPS sees host2hps\n
                                   gpio (input to HPS) as high, HPS can issue read to HPS DDR and then start SSBL verification"]
