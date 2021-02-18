@@ -57,6 +57,35 @@ public:
   : test_afu("hssi")
   {}
 
+  bool glob_ethernet_interface(const std::string &glob_pattern, std::string &eth_ifc)
+  {
+    glob_t gl;
+
+    if (glob(glob_pattern.c_str(), 0, nullptr, &gl)) {
+      if (gl.gl_pathv)
+        globfree(&gl);
+      return false;
+    }
+
+    if (!gl.gl_pathc) {
+      if (gl.gl_pathv)
+        globfree(&gl);
+      return false;
+    }
+
+    if (gl.gl_pathc > 1)
+      std::cerr << "Warning: more than one ethernet interface found." << std::endl;
+
+    std::string ifc(gl.gl_pathv[0]);
+    size_t pos = ifc.rfind("/") + 1;
+    eth_ifc = ifc.substr(pos);
+    
+    if (gl.gl_pathv)
+      globfree(&gl);
+
+    return true;
+  }
+
   std::string ethernet_interface()
   {
     auto props = properties::get(handle_);
@@ -68,28 +97,24 @@ public:
         std::setw(2) << std::setfill('0') << std::hex << props->device << "." <<
         std::setw(1) << std::setfill('0') << std::hex << props->function <<
         "/fpga_region/region*/dfl-fme.*/dfl-fme.*.*/net/*";
-    
-    glob_t gl;
-    if (glob(oss.str().c_str(), 0, nullptr, &gl)) {
-      if (gl.gl_pathv)
-        globfree(&gl);
-      return std::string("");
-    }
-    
-    if (gl.gl_pathc > 1)
-      std::cerr << "Warning: more than one ethernet interface found." << std::endl;
-    
-    std::string ifc; 
-    if (gl.gl_pathc) {
-      ifc = gl.gl_pathv[0];
-      size_t pos = ifc.rfind("/") + 1;
-      ifc = ifc.substr(pos);
-    }
-    
-    if (gl.gl_pathv)
-      globfree(&gl);
-  
-    return ifc;
+
+    std::string ifc;
+
+    if (glob_ethernet_interface(oss.str(), ifc))
+        return ifc;
+
+    std::ostringstream oss2;
+    oss2 << "/sys/bus/pci/devices/" <<
+        std::setw(4) << std::setfill('0') << std::hex << props->segment << ":" <<
+        std::setw(2) << std::setfill('0') << std::hex << props->bus << ":" << 
+        std::setw(2) << std::setfill('0') << std::hex << props->device << "." <<
+        std::setw(1) << std::setfill('0') << std::hex << props->function <<
+        "/fpga_region/region*/dfl-fme.*/dfl_dev.*/net/*";
+
+    if (glob_ethernet_interface(oss2.str(), ifc))
+        return ifc;
+
+    return std::string("");
   }
 
   void mbox_write(uint16_t offset, uint32_t data)
