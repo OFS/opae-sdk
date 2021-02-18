@@ -171,7 +171,7 @@ public:
 
   CLI::App & cli() { return app_; }
 
-  int open_handle(const char *afu_id) {
+  virtual int open_handle(const char *afu_id) {
     auto filter = fpga::properties::get();
     auto app_afu_id = afu_id ? afu_id : afu_id_.c_str();
     filter->type = FPGA_ACCELERATOR;
