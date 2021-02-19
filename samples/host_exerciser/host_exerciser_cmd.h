@@ -37,6 +37,8 @@ class host_exerciser_cmd : public test_command
 public:
     host_exerciser_cmd()
         :host_exe_(NULL) {
+          he_lpbk_cfg_.value = 0;
+          he_lpbk_ctl_.value = 0;
     }
     virtual ~host_exerciser_cmd() {}
 

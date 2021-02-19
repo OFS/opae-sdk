@@ -1,4 +1,4 @@
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2019-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -57,8 +57,8 @@ def get_manager_names(append_manager=True):
 def add_common_options(parser):
     parser.add_argument(
         "-S",
-        "--SHA256",
-        help="Generate 256-bit signatures (384-bit default)",
+        "--SHA384",
+        help="Generate 384-bit signatures (256-bit default)",
         action="store_true",
     )
     parser.add_argument(
