@@ -28,8 +28,9 @@ cmake_minimum_required(VERSION 3.10)
 project(opae)
 
 set(OPAE_SDK_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Root directory of opae-sdk project" FORCE)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake"
-    "${CMAKE_CURRENT_SOURCE_DIR}/opae-libs/cmake/modules")
+set(CMAKE_MODULE_PATH
+    ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake/modules"
+   "${CMAKE_CURRENT_SOURCE_DIR}/opae-libs/cmake/modules")
 
 include(OPAE)
 
@@ -63,9 +64,13 @@ opae_add_subdirectory(external)
 opae_add_subdirectory(afu-test)
 opae_add_subdirectory(platforms)
 opae_add_subdirectory(tools)
-opae_add_subdirectory(samples)
 opae_add_subdirectory(python)
 
+option(OPAE_BUILD_SAMPLES "Enable building of OPAE samples" ON)
+mark_as_advanced(OPAE_BUILD_SAMPLES)
+if(OPAE_BUILD_SAMPLES)
+    opae_add_subdirectory(samples)
+endif()
 
 if(OPAE_BUILD_TESTS)
     enable_testing()

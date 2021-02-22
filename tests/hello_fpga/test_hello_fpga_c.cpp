@@ -34,20 +34,17 @@ extern "C" {
 void print_err(const char *s, fpga_result res);
 
 struct config {
-  struct target {
-    int bus;
-  } target;
   int open_flags;
+  int run_n3000;
 };
 extern struct config config;
 
 fpga_result parse_args(int argc, char *argv[]);
 
-fpga_result find_fpga(fpga_guid afu_guid,
+fpga_result find_fpga(fpga_properties device_filter,
+		      fpga_guid afu_guid,
                       fpga_token *accelerator_token,
                       uint32_t *num_matches_accelerators);
-
-fpga_result get_bus(fpga_token tok, uint8_t *bus);
 
 int hello_fpga_main(int argc, char *argv[]);
 
@@ -163,7 +160,7 @@ TEST_P(hello_fpga_c_p, parse_args0) {
   strcpy(zero, "hello_fpga");
   strcpy(one, "-Y");
 
-  char *argv[] = { zero, one };
+  char *argv[] = { zero, one, NULL };
 
   EXPECT_NE(parse_args(2, argv), FPGA_OK);
 }
@@ -181,7 +178,7 @@ TEST_P(hello_fpga_c_p, parse_args1) {
   strcpy(zero, "hello_fpga");
   strcpy(one, "-B");
 
-  char *argv[] = { zero, one };
+  char *argv[] = { zero, one, NULL };
 
   EXPECT_NE(parse_args(2, argv), FPGA_OK);
 }
@@ -196,17 +193,12 @@ TEST_P(hello_fpga_c_p, parse_args1) {
 TEST_P(hello_fpga_c_p, parse_args2) {
   char zero[20];
   char one[20];
-  char two[20];
-  char three[20];
   strcpy(zero, "hello_fpga");
-  strcpy(one, "-B");
-  strcpy(two, "3");
-  strcpy(three, "-s");
+  strcpy(one, "-s");
 
-  char *argv[] = { zero, one, two, three };
+  char *argv[] = { zero, one, NULL };
 
-  EXPECT_EQ(parse_args(4, argv), FPGA_OK);
-  EXPECT_EQ(config.target.bus, 3);
+  EXPECT_EQ(parse_args(2, argv), FPGA_OK);
   EXPECT_EQ(config.open_flags, FPGA_OPEN_SHARED);
 }
 
@@ -222,38 +214,21 @@ TEST_P(hello_fpga_c_p, find_fpga0) {
   fpga_token tok = nullptr;
   uint32_t matches = 0xff;
 
-  config.target.bus = platform_.devices[0].bus;
+  fpga_properties filter = NULL;
+
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+
+  ASSERT_EQ(fpgaPropertiesSetSegment(filter, platform_.devices[0].segment), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetBus(filter, platform_.devices[0].bus), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetDevice(filter, platform_.devices[0].device), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetFunction(filter, platform_.devices[0].function), FPGA_OK);
 
   ASSERT_EQ(uuid_parse(INVALID_AFU_ID, guid), 0);
-  EXPECT_EQ(find_fpga(guid, &tok, &matches), FPGA_OK);
+  EXPECT_EQ(find_fpga(filter, guid, &tok, &matches), FPGA_OK);
   EXPECT_EQ(tok, nullptr);
   EXPECT_EQ(matches, 0);
-}
 
-/**
- * @test       get_bus0
- * @brief      Test: get_bus
- * @details    When passed a valid fpga_token,<br>
- *             get_bus retrieves the associated bus into *bus,<br>
- *             and the fn returns FPGA_OK.<br>
- */
-TEST_P(hello_fpga_c_p, get_bus0) {
-  fpga_guid guid;
-  fpga_token tok = nullptr;
-  uint32_t matches = 0xff;
-
-  config.target.bus = platform_.devices[0].bus;
-
-  ASSERT_EQ(uuid_parse(platform_.devices[0].afu_guid, guid), 0);
-  EXPECT_EQ(find_fpga(guid, &tok, &matches), FPGA_OK);
-  ASSERT_NE(tok, nullptr);
-  ASSERT_GT(matches, 0);
-
-  uint8_t bus = 0xff;
-  EXPECT_EQ(get_bus(tok, &bus), FPGA_OK);
-  EXPECT_EQ(bus, platform_.devices[0].bus);
-
-  EXPECT_EQ(fpgaDestroyToken(&tok), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -269,7 +244,7 @@ TEST_P(hello_fpga_c_p, main0) {
   strcpy(zero, "hello_fpga");
   strcpy(one, "-Y");
 
-  char *argv[] = { zero, one };
+  char *argv[] = { zero, one, NULL };
 
   EXPECT_NE(hello_fpga_main(2, argv), 0);
 }
@@ -298,7 +273,7 @@ TEST_P(mock_hello_fpga_c_p, main1) {
   strcpy(one, "-B");
   sprintf(two, "%d", platform_.devices[0].bus);
 
-  char *argv[] = { zero, one, two };
+  char *argv[] = { zero, one, two, NULL };
 
   system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
   system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
@@ -329,7 +304,7 @@ TEST_P(hw_hello_fpga_c_p, main1) {
   strcpy(one, "-B");
   sprintf(two, "%d", platform_.devices[0].bus);
 
-  char *argv[] = { zero, one, two };
+  char *argv[] = { zero, one, two, NULL };
 
   EXPECT_EQ(hello_fpga_main(3, argv), FPGA_OK);
 }

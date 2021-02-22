@@ -1,4 +1,4 @@
-# Copyright(c) 2019-2020, Intel Corporation
+# Copyright(c) 2019-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -70,7 +70,7 @@ class _READER_BASE(object):
         log.debug(self.bitstream_type)
         self.root_hash = common_util.BYTE_ARRAY()
         self.s10_root_hash = common_util.BYTE_ARRAY()
-        cinfo = database.get_curve_info_from_name("secp256r1" if args.SHA256 else "secp384r1")
+        cinfo = database.get_curve_info_from_name("secp384r1" if args.SHA384 else "secp256r1")
         self.curve_magic_num = cinfo.curve_magic_num
         self.dc_curve_magic_num = cinfo.dc_curve_magic_num
         self.dc_sig_hash_magic_num = cinfo.dc_sig_hash_magic_num
@@ -195,15 +195,15 @@ class _READER_BASE(object):
         root_entry.append_data(root_body.data)
 
         log.info("Calculating Root Entry SHA")
-        if self.args.SHA256:
-            sha = sha256(root_body.data).digest()
-            self.root_hash.append_data(sha)
-            sha = sha256(pub_key.data).digest()
-            self.s10_root_hash.append_data(sha)
-        else:
+        if self.args.SHA384:
             sha = sha384(root_body.data).digest()
             self.root_hash.append_data(sha)
             sha = sha384(pub_key.data).digest()
+            self.s10_root_hash.append_data(sha)
+        else:
+            sha = sha256(root_body.data).digest()
+            self.root_hash.append_data(sha)
+            sha = sha256(pub_key.data).digest()
             self.s10_root_hash.append_data(sha)
         del sha
 
@@ -232,7 +232,7 @@ class _READER_BASE(object):
         xy_body.append_data(pub_key.data[-self.sigsize:])
 
         log.info("Calculating Root Entry SHA for DC PR")
-        sha = sha256(pub_key.data).digest() if self.args.SHA256 else sha384(pub_key.data).digest()
+        sha = sha384(pub_key.data).digest() if self.args.SHA384 else sha256(pub_key.data).digest()
         self.s10_root_hash.append_data(sha)
         sha_msb = sha[0:4]  # get first 4 bytes
         del sha
@@ -315,7 +315,7 @@ class _READER_BASE(object):
 
         log.info("Calculating Code Signing Key Entry SHA")
         if root_key is not None:
-            sha = sha256(csk_body.data).digest() if self.args.SHA256 else sha384(csk_body.data).digest()
+            sha = sha384(csk_body.data).digest() if self.args.SHA384 else sha256(csk_body.data).digest()
 
             rs = self.hsm_manager.sign(sha, root_key)
             del sha
@@ -405,7 +405,7 @@ class _READER_BASE(object):
 
         # Calculate the signature and append to the block
         if root_key is not None:
-            sha = sha256(csk_body.data).digest() if self.args.SHA256 else sha384(csk_body.data).digest()
+            sha = sha384(csk_body.data).digest() if self.args.SHA384 else sha256(csk_body.data).digest()
 
             rs = self.hsm_manager.sign(sha, root_key)
             del sha
@@ -431,7 +431,7 @@ class _READER_BASE(object):
 
         log.info("Calculating Block 0 Entry SHA")
         if CSK_key is not None:
-            sha = sha256(block0.data).digest() if self.args.SHA256 else sha384(block0.data).digest()
+            sha = sha384(block0.data).digest() if self.args.SHA384 else sha256(block0.data).digest()
 
             rs = self.hsm_manager.sign(sha, CSK_key)
             del sha
@@ -486,7 +486,7 @@ class _READER_BASE(object):
 
         # Signature R & S
         if CSK_key is not None:
-            sha = sha256(block0.data).digest() if self.args.SHA256 else sha384(block0.data).digest()
+            sha = sha384(block0.data).digest() if self.args.SHA384 else sha256(block0.data).digest()
             rs = self.hsm_manager.sign(sha, CSK_key)
             del sha
             b0_entry.append_data(rs.data[:self.sigsize])

@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -38,18 +38,13 @@
 #include <limits.h>
 
 #include <opae/fpga.h>
+#include <argsfilter.h>
 
 
-
-#define GETOPT_STRING ":hB:D:F:S:H:L:v"
+#define GETOPT_STRING ":hH:L:v"
 
 struct option longopts[] = {
 	{ "help",      no_argument,       NULL, 'h' },
-	{ "segment",   required_argument, NULL, 0xe },
-	{ "bus",       required_argument, NULL, 'B' },
-	{ "device",    required_argument, NULL, 'D' },
-	{ "function",  required_argument, NULL, 'F' },
-	{ "socket-id", required_argument, NULL, 'S' },
 	{ "freq-high", required_argument, NULL, 'H' },
 	{ "freq-low",  required_argument, NULL, 'L' },
 	{ "version",   no_argument,       NULL, 'v' },
@@ -58,28 +53,21 @@ struct option longopts[] = {
 
 // User clock Command line struct
 struct UserClkCommandLine {
-	int      segment;
-	int      bus;
-	int      device;
-	int      function;
-	int      socket;
 	int      freq_high;
 	int      freq_low;
-
 };
 
-struct UserClkCommandLine userclkCmdLine = { -1, -1, -1, -1, -1, -1, -1 };
+struct UserClkCommandLine userclkCmdLine = { -1, -1 };
 
 // User clock Command line input help
 void UserClkAppShowHelp(void)
 {
 	printf("Usage:\n");
-	printf("userclk\n");
-	printf("<Segment>             --segment=<SEGMENT NUMBER>\n");
+	printf("userclk [PCI_ADDR]\n");
+	printf("<Segment>             --segment=<SEGMENT NUMBER>   OR  -S=<SEGMENT NUMBER>\n");
 	printf("<Bus>                 --bus=<BUS NUMBER>           OR  -B=<BUS NUMBER>\n");
 	printf("<Device>              --device=<DEVICE NUMBER>     OR  -D=<DEVICE NUMBER>\n");
 	printf("<Function>            --function=<FUNCTION NUMBER> OR  -F=<FUNCTION NUMBER>\n");
-	printf("<Socket-id>           --socket-id=<socket NUMBER>  OR  -S=<SOCKET NUMBER>\n");
 	printf("<freq high>           --freq-high                  OR  -H=<User clock high>\n");
 	printf("<freq low>            --freq-low                   OR  -L=<User clock low>\n");
 	printf("<version>             -v,--version\n");
@@ -109,7 +97,7 @@ int ParseCmds(struct UserClkCommandLine *userclkCmdLine, int argc, char *argv[])
 int main(int argc, char *argv[])
 {
 	fpga_properties filter	= NULL;
-	uint32_t num_matches	= 1;
+	uint32_t num_matches	= 0;
 	fpga_result result	= FPGA_OK;
 	fpga_result res		= FPGA_OK;
 	uint64_t userclk_high	= 0;
@@ -117,62 +105,47 @@ int main(int argc, char *argv[])
 	fpga_token accel_token	= NULL;
 	int high		= 0;
 	int low			= 0;
-	fpga_handle		accelerator_handle;
+	fpga_handle accelerator_handle;
 
 	// Parse command line
 	if (argc < 2) {
 		UserClkAppShowHelp();
 		return 1;
-	} else if (0 != ParseCmds(&userclkCmdLine, argc, argv)) {
-		return 2;
+	}
+
+	result = fpgaGetProperties(NULL, &filter);
+	ON_ERR_GOTO(result, out_exit, "creating properties object");
+
+	if (opae_set_properties_from_args(filter,
+					  &res,
+					  &argc,
+					  argv)) {
+		res = FPGA_EXCEPTION;
+		print_err("arg parse failed.\n", res);
+		goto out_destroy_prop;
+	} else if (res) {
+		print_err("setting properties from args.\n", res);
+		goto out_destroy_prop;
+	}
+
+	if (0 != ParseCmds(&userclkCmdLine, argc, argv)) {
+		res = FPGA_EXCEPTION;
+		goto out_destroy_prop;
 	}
 
 	printf(" ------- Command line Input START ----\n \n");
 
-	printf(" Segment               : %d\n", userclkCmdLine.segment);
-	printf(" Bus                   : %d\n", userclkCmdLine.bus);
-	printf(" Device                : %d\n", userclkCmdLine.device);
-	printf(" Function              : %d\n", userclkCmdLine.function);
-	printf(" Socket-id             : %d\n", userclkCmdLine.socket);
 	printf(" Freq High             : %d\n", userclkCmdLine.freq_high);
 	printf(" Freq Low              : %d\n", userclkCmdLine.freq_low);
 
 	printf(" ------- Command line Input END   ----\n\n");
 
 	result = fpgaInitialize(NULL);
-	ON_ERR_GOTO(result, out_exit, "Failed to initilize ");
+	ON_ERR_GOTO(result, out_destroy_prop, "Failed to initilize ");
 
 	// Enum FPGA device
-	result = fpgaGetProperties(NULL, &filter);
-	ON_ERR_GOTO(result, out_exit, "creating properties object");
-
 	result = fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR);
 	ON_ERR_GOTO(result, out_destroy_prop, "setting object type");
-
-	if (-1 != userclkCmdLine.segment) {
-		result = fpgaPropertiesSetSegment(filter, userclkCmdLine.segment);
-		ON_ERR_GOTO(result, out_destroy_prop, "setting segment");
-	}
-
-	if (-1 != userclkCmdLine.bus) {
-		result = fpgaPropertiesSetBus(filter, userclkCmdLine.bus);
-		ON_ERR_GOTO(result, out_destroy_prop, "setting bus");
-	}
-
-	if (-1 != userclkCmdLine.device) {
-		result = fpgaPropertiesSetDevice(filter, userclkCmdLine.device);
-		ON_ERR_GOTO(result, out_destroy_prop, "setting device");
-	}
-
-	if (-1 != userclkCmdLine.function) {
-		result = fpgaPropertiesSetFunction(filter, userclkCmdLine.function);
-		ON_ERR_GOTO(result, out_destroy_prop, "setting function");
-	}
-
-	if (-1 != userclkCmdLine.socket) {
-		result = fpgaPropertiesSetSocketID(filter, userclkCmdLine.socket);
-		ON_ERR_GOTO(result, out_destroy_prop, "setting socket");
-	}
 
 	result = fpgaEnumerate(&filter, 1, &accel_token, 1, &num_matches);
 	ON_ERR_GOTO(result, out_destroy_prop, "enumerating FPGAs");
@@ -265,46 +238,6 @@ int ParseCmds(struct UserClkCommandLine *userclkCmdLine, int argc, char *argv[])
 			// Command line help
 			UserClkAppShowHelp();
 			return -2;
-			break;
-
-		case 0xe:
-			// segment number
-			if (!tmp_optarg)
-				return -1;
-			endptr = NULL;
-			userclkCmdLine->segment = strtol(tmp_optarg, &endptr, 0);
-			break;
-
-		case 'B':
-			// bus number
-			if (!tmp_optarg)
-				return -1;
-			endptr = NULL;
-			userclkCmdLine->bus = strtol(tmp_optarg, &endptr, 0);
-			break;
-
-		case 'D':
-			// Device number
-			if (!tmp_optarg)
-				return -1;
-			endptr = NULL;
-			userclkCmdLine->device = strtol(tmp_optarg, &endptr, 0);
-			break;
-
-		case 'F':
-			// Function number
-			if (!tmp_optarg)
-				return -1;
-			endptr = NULL;
-			userclkCmdLine->function = strtol(tmp_optarg, &endptr, 0);
-			break;
-
-		case 'S':
-			// Socket number
-			if (!tmp_optarg)
-				return -1;
-			endptr = NULL;
-			userclkCmdLine->socket = strtol(tmp_optarg, &endptr, 0);
 			break;
 
 		case 'H':

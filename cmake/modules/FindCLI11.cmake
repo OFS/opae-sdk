@@ -1,4 +1,5 @@
-## Copyright(c) 2020-2021, Intel Corporation
+#!/usr/bin/cmake -P
+## Copyright(c) 2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,23 +25,23 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_test_add_static_lib(TARGET object_api-static
-    SOURCE ${OPAE_SDK_SOURCE}/samples/object_api/object_api.c
-    LIBS
-        argsfilter
-        opae-c
-)
+# - Try to find CLI11
+# Once done, this will define
+#
+#  CLI11_FOUND - system has CLI11
+#  CLI11_INCLUDE_DIRS - the CLI11 include directories
 
-target_compile_definitions(object_api-static
-    PRIVATE main=object_api_main
-)
+find_path(CLI11_INCLUDE_DIRS
+    NAMES CLI/CLI.hpp
+    PATHS ${CLI11_ROOT}/include
+    /usr/local/include
+    /usr/include
+    ${CMAKE_EXTRA_INCLUDES})
 
-target_include_directories(object_api-static
-    PRIVATE
-        ${OPAE_SDK_SOURCE}/tools/argsfilter
-)
 
-opae_test_add(TARGET test_object_api_c
-    SOURCE test_object_api_c.cpp
-    LIBS object_api-static
-)
+if(CLI11_INCLUDE_DIRS)
+    set(CLI11_FOUND TRUE)
+endif(CLI11_INCLUDE_DIRS)
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(CLI11 REQUIRED_VARS CLI11_INCLUDE_DIRS)
