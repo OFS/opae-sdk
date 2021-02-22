@@ -4,6 +4,6 @@ RUN dnf install -y libedit-devel
 RUN python3 -m pip install setuptools --upgrade
 RUN python3 -m pip install python-pkcs11 cython
 WORKDIR /root
-COPY docker/buildit.sh /buildit.sh
+COPY scripts/build-rpms.sh /scripts/build-rpms.sh
+COPY scripts/test-rpms.sh /scripts/test-rpms.sh
 ENTRYPOINT [ "/buildit.sh" ]
-
