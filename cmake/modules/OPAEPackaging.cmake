@@ -175,10 +175,34 @@ endmacro(CREATE_PYTHON_EXE)
 
 function(opae_python_install)
     set(options )
-    set(oneValueArgs COMPONENT RECORD_FILE SOURCE_DIR)
+    set(oneValueArgs COMPONENT RECORD_FILE SOURCE_DIR RPM_PACKAGE)
     set(multiValueArgs)
     cmake_parse_arguments(OPAE_PYTHON_INSTALL "${options}"
         "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+    string(COMPARE EQUAL
+        "${OPAE_PYTHON_INSTALL_RPM_PACKAGE}" "" rpm_package_empty)
+    if(NOT ${rpm_package_empty} AND "${CPACK_GENERATOR}" STREQUAL "RPM")
+        if(CPACK_PACKAGE_DIRECTORY)
+            set(build_root
+                ${CPACK_PACKAGE_DIRECTORY}/_CPack_Packages/Linux/RPM/BUILD
+            )
+        else(CPACK_PACKAGE_DIRECTORY)
+            set(build_root
+                ${CMAKE_BINARY_DIR}/_CPack_Packages/Linux/RPM/BUILD
+            )
+        endif(CPACK_PACKAGE_DIRECTORY)
+        set(APPEND_CODE
+            "
+            file(READ
+                ${CMAKE_BINARY_DIR}/${OPAE_PYTHON_INSTALL_RECORD_FILE} RECORD_FILE
+            )
+            file(APPEND
+                ${build_root}/${OPAE_PYTHON_INSTALL_RPM_PACKAGE}-files.txt
+                \"\${RECORD_FILE}\"
+            )
+            "
+        )
+    endif(NOT ${rpm_package_empty} AND "${CPACK_GENERATOR}" STREQUAL "RPM")
 
     # this install target generates cmake code that is executed by a make/ninja
     # target rule at install time. In that context the $DESTDIR environment
@@ -199,6 +223,7 @@ function(opae_python_install)
                     --record=${CMAKE_BINARY_DIR}/${OPAE_PYTHON_INSTALL_RECORD_FILE}
                 WORKING_DIRECTORY ${OPAE_PYTHON_INSTALL_SOURCE_DIR}
             )
+        ${APPEND_CODE}
         "
         COMPONENT ${OPAE_PYTHON_INSTALL_COMPONENT}
     )
