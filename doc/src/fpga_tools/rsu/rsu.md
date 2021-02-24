@@ -58,9 +58,8 @@ log debug statements
 # rsu bmcimg --page=user 25:00.0
 ```
 
- Triggers a boot of the BMC image for the device with PCIe
+ Triggers a boot of the BMC image (user page) for the device with PCIe
  address 25:00.0.
- NOTE: Both BMC and FPGA images will be reconfigured from the user bank.
 
 ```console
 # rsu bmcimg --page=factory 25:00.0
@@ -68,15 +67,13 @@ log debug statements
 
  Triggers a factory boot of the BMC image for the device with
  PCIe address 25:00.0.
- NOTE: The BMC image will be reconfigured from the factory bank.
 
 ```console
 # rsu fpga --page=2 25:00.0
 ```
 
- Triggers a reconfiguration of the FPGA for the device with
- PCIe address 25:00.0.
- NOTE: The FPGA image will be reconfigured from user2 bank.
+ Triggers a reconfiguration of the FPGA (user2 page) for the
+ device with PCIe address 25:00.0.
 
 ```console
 # rsu fpga --page=factory 25:00.0
@@ -84,4 +81,9 @@ log debug statements
 
  Triggers a factory reconfiguration of the FPGA for the device
  with PCIe address 25:00.0.
- NOTE: The FPGA image will be reconfigured from the factory bank.
+
+```console
+# rsu nextboot --fpga=1 25:00.0
+```
+
+ Sets the next boot image for the fpga to the user1 page.
