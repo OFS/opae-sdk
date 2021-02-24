@@ -89,7 +89,7 @@ void FpgaMetricsAppShowHelp(void)
 {
 	printf("\n"
 	       "fpgametrics\n"
-	       "FPGA Metrics API sample\n"
+	       "OPAE Metrics API sample\n"
 	       "\n");
 	printf("Usage:\n");
 	printf("        fpgametrics [-S <segment>] [-B <bus>] [-D <device>] [-F <function>] [PCI_ADDR]\n");
