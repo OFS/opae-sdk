@@ -104,12 +104,6 @@ pushd @CMAKE_SOURCE_DIR@/python/opae.admin
 %{__python3} setup.py build
 popd
 
-pushd @CMAKE_SOURCE_DIR@/tools/extra/fpgadiag/
-
-%{__python3} setup.py build_ext --include-dirs=@pybind11_ROOT@/include
-%{__python3} setup.py build
-popd
-
 %install
 
 if [ -e $RPM_BUILD_ROOT ];
@@ -128,11 +122,6 @@ pushd @CMAKE_SOURCE_DIR@/python/pacsign
 %{__python3} setup.py install --single-version-externally-managed -O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_PACSIGN_FILES
 popd
 
-
-pushd @CMAKE_SOURCE_DIR@/tools/extra/fpgadiag/
-%{__python3} setup.py install --single-version-externally-managed -O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_FPGADIAG_FILES
-cat $prev/INSTALLED_FPGADIAG_FILES >> $prev/tools-extra-files.txt
-popd
 
 pushd @CMAKE_SOURCE_DIR@/python/opae.io
 %{__python3} setup.py install --single-version-externally-managed %-O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/OPAEIO_INSTALLED_FILES
