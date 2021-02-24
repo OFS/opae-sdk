@@ -6,4 +6,4 @@ RUN python3 -m pip install python-pkcs11 cython
 WORKDIR /root
 COPY scripts/build-rpms.sh /scripts/build-rpms.sh
 COPY scripts/test-rpms.sh /scripts/test-rpms.sh
-ENTRYPOINT [ "/buildit.sh" ]
+ENTRYPOINT [ "/scripts/build-rpms.sh" ]
