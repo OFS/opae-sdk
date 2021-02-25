@@ -111,10 +111,9 @@ set_property(DIRECTORY PROPERTY
 )
 
 add_custom_target(opae.diag-build ALL DEPENDS nlb0 nlb3 nlb7 ${OUTPUT})
-install(
-    CODE "execute_process(
-        COMMAND ${PYTHON_EXECUTABLE} setup.py install
-	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-	)"
+opae_python_install(
     COMPONENT toolfpgadiagapps
+    RECORD_FILE fpgadiag-install.txt
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    RPM_PACKAGE tools-extra
 )

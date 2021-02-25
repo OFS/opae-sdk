@@ -62,17 +62,21 @@ struct UserClkCommandLine userclkCmdLine = { -1, -1 };
 // User clock Command line input help
 void UserClkAppShowHelp(void)
 {
+	printf("\n"
+	       "userclk\n"
+	       "Adjust AFU clock frequency\n"
+	       "\n");
 	printf("Usage:\n");
-	printf("userclk [PCI_ADDR]\n");
-	printf("<Segment>             --segment=<SEGMENT NUMBER>   OR  -S=<SEGMENT NUMBER>\n");
-	printf("<Bus>                 --bus=<BUS NUMBER>           OR  -B=<BUS NUMBER>\n");
-	printf("<Device>              --device=<DEVICE NUMBER>     OR  -D=<DEVICE NUMBER>\n");
-	printf("<Function>            --function=<FUNCTION NUMBER> OR  -F=<FUNCTION NUMBER>\n");
-	printf("<freq high>           --freq-high                  OR  -H=<User clock high>\n");
-	printf("<freq low>            --freq-low                   OR  -L=<User clock low>\n");
-	printf("<version>             -v,--version\n");
+	printf("        userclk [PCI_ADDR] [-H HIGH] [-L LOW]\n");
 	printf("\n");
-
+	printf("                -H,--freq-high      Set user clock high frequency\n"
+	       "                -L,--freq-low       Set user clock low frequency\n"
+	       "                -S,--segment        Set target segment number\n"
+	       "                -B,--bus            Set target bus number\n"
+	       "                -D,--device         Set target device number\n"
+	       "                -F,--function       Set target function number\n"
+	       "                -v,--version        Print version info and exit\n"
+	       "\n");
 }
 
 /*
