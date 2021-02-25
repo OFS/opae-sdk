@@ -38,7 +38,7 @@ if(PLATFORM_SUPPORTS_VFIO)
     else()
         target_link_libraries(opae.io PRIVATE ${PYTHON_LIBRARIES} dl util ${libedit_LIBRARIES} opaevfio)
     endif()
-    
+
     target_include_directories(opae.io
         PUBLIC ${OPAE_INCLUDE_DIR}
         PRIVATE ${PYTHON_INCLUDE_DIRS}
@@ -51,5 +51,5 @@ if(PLATFORM_SUPPORTS_VFIO)
             RUNTIME DESTINATION bin
             COMPONENT opae.io
     )
-    
+
 endif(PLATFORM_SUPPORTS_VFIO)

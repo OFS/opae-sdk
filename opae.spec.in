@@ -122,13 +122,6 @@ pushd @CMAKE_SOURCE_DIR@/python/pacsign
 %{__python3} setup.py install --single-version-externally-managed -O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_PACSIGN_FILES
 popd
 
-
-pushd @CMAKE_SOURCE_DIR@/python/opae.io
-%{__python3} setup.py install --single-version-externally-managed %-O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/OPAEIO_INSTALLED_FILES
-cat $prev/OPAEIO_INSTALLED_FILES >> $prev/devel-files.txt
-popd
-
-
 %clean
 
 

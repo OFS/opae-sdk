@@ -28,10 +28,10 @@ if(PLATFORM_SUPPORTS_VFIO)
 
     set(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/timestamp)
     file(GLOB_RECURSE PKG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/opae/*)
-    
+
     set(INCLUDE_DIRS "${OPAE_INCLUDE_PATH}:${pybind11_ROOT}/include:${OPAE_SDK_SOURCE}/tools/extra/opae.io")
     set(LINK_DIRS "${LIBRARY_OUTPUT_PATH}")
-    
+
     add_custom_command(
         OUTPUT ${OUTPUT}
         COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext -I ${INCLUDE_DIRS} -L ${LINK_DIRS}
@@ -39,14 +39,12 @@ if(PLATFORM_SUPPORTS_VFIO)
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS setup.py ${PKG_FILES}
     )
-    
-    add_custom_target(opae.io-package ALL DEPENDS opaevfio opae.io ${OUTPUT})
-    install(
-        CODE "execute_process(
-            COMMAND ${PYTHON_EXECUTABLE} setup.py install
-    	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    	)"
-        COMPONENT opae.io
-    )
 
+    add_custom_target(opae.io-build ALL DEPENDS opaevfio opae.io ${OUTPUT})
+    opae_python_install(
+        COMPONENT opae.io
+        RECORD_FILE opae.io-install.txt
+        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+        RPM_PACKAGE devel
+    )
 endif(PLATFORM_SUPPORTS_VFIO)
