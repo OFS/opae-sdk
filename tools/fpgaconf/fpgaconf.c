@@ -103,7 +103,6 @@ void print_msg(unsigned int verbosity, const char *s)
 
 /*
  * Print help
- * TODO: uncomment options as they are implemented
  */
 void help(void)
 {
@@ -112,38 +111,25 @@ void help(void)
 	       "FPGA configuration utility\n"
 	       "\n"
 	       "Usage:\n"
-	       //"        fpgaconf [-hvnAIQ] [-B <bus>] [-D <device>] [-F
-	       //<function>]  <gbs>\n"
-	       "        fpgaconf [-hvn] [-B <bus>] [-D <device>] [-F <function>] [PCI_ADDR] <gbs>\n"
+	       "        fpgaconf [-hVvn] [-S <segment>] [-B <bus>] [-D <device>] [-F <function>] [PCI_ADDR] <gbs>\n"
 	       "\n"
 	       "                -h,--help           Print this help\n"
 	       "                -V,--verbose        Increase verbosity\n"
 	       "                -n,--dry-run        Don't actually perform actions\n"
-	       "                --force             Don't try to open accelerator resource\n"
+	       "                --force             Attempt to reconfigure even if in use\n"
 	       "                --skip-usrclk       Don't program user clocks\n"
 	       "                -S,--segment        Set target segment number\n"
 	       "                -B,--bus            Set target bus number\n"
 	       "                -D,--device         Set target device number\n"
 	       "                -F,--function       Set target function number\n"
 	       "                -v,--version        Print version info and exit\n"
-	       /* "                -A,--auto           Automatically choose
-		  target slot if\n" */
-	       /* "                                    multiple valid slots are
-		  available\n" */
-	       /* "                -I,--interactive    Prompt user to choose
-		  target slot if\n" */
-	       /* "                                    multiple valid slots are
-		  available\n" */
-	       /* "                -Q,--quiet          Don't print any messages
-		  except errors\n" */
 	       "\n");
 }
 
 /*
  * Parse command line arguments
- * TODO: uncomment options as they are implemented
  */
-#define GETOPT_STRING ":hVnAIQv"
+#define GETOPT_STRING ":hVvnAIQ"
 int parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
@@ -153,9 +139,6 @@ int parse_args(int argc, char *argv[])
 		{"force",       no_argument,       NULL, 0xf},
 		{"skip-usrclk", no_argument,       NULL, 0x5},
 		{"version",     no_argument,       NULL, 'v'},
-		/* {"auto",          no_argument,       NULL, 'A'}, */
-		/* {"interactive",   no_argument,       NULL, 'I'}, */
-		/* {"quiet",         no_argument,       NULL, 'Q'}, */
 		{0, 0, 0, 0} };
 
 	int getopt_ret;
