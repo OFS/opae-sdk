@@ -36,6 +36,7 @@ union {name} {{
   enum {{
     offset = 0x{offset:0x}
   }};
+  {name}() {{}}
   {name}({pod} v) : value(v) {{}}
   {pod} value;
   struct {{
