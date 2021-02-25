@@ -2,7 +2,7 @@
 
 ## SYNOPSIS  ##
 
-`userclk [-hv] [-S <segment>] [-B <bus>] [-D <device>] [-F <function>] [-H <User clock high frequency>] -L <User clock low frequency>]`
+`userclk [-hv] [-S <segment>] [-B <bus>] [-D <device>] [-F <function>] [PCI_ADDR] [-H <User clock high frequency>] -L <User clock low frequency>]`
 
 
 ## DESCRIPTION ##
