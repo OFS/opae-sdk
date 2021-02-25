@@ -56,8 +56,8 @@ union afu_dfh  {
 
 class hps : public opae::afu_test::afu {
 public:
-  hps()
-  : opae::afu_test::afu("hps", nullptr)
+  hps(const char *guid=nullptr)
+  : opae::afu_test::afu("hps", guid)
   , feature_base_(0)
   {
   }
