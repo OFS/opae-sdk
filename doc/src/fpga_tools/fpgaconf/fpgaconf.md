@@ -2,7 +2,7 @@
 
 ## SYNOPSIS ##
 
-`fpgaconf [-hvVn] [--segment <segment>] [-B <bus>] [-D <device>] [-F <function>] <gbs>`
+`fpgaconf [-hvVn] [-S <segment>] [-B <bus>] [-D <device>] [-F <function>] [PCI_ADDR] <gbs>`
 
 ## DESCRIPTION ##
 
@@ -27,7 +27,7 @@ the targeted FPGA and the FPGA Interface Manager (FIM). ```fpgaconf``` takes the
 	Performs enumeration. Skips any operations with side-effects such as the
 	actual AF configuration. 
 
-`--segment`
+`-S, --segment`
 
 	PCIe segment number of the target FPGA.
 
@@ -59,12 +59,16 @@ a PCIe BDF.
 
 	Program "my_af.gbs" to a compatible FPGA.
 
-`fpgaconf -V -B 0x3b  my_af.gbs`
+`fpgaconf -V -B 0x3b my_af.gbs`
 
-	Program "my_af.gbs" to the FPGA in bus 0x3b , if compatible,
+	Program "my_af.gbs" to the FPGA in bus 0x3b, if compatible,
 	while printing out slightly more verbose information.
-	
-	## Revision History ##
+
+`fpgaconf 0000:3b:00.0 my_af.gbs`
+
+	Program "my_af.gbs" to the FPGA at address 0000:3b:00.0.
+
+## Revision History ##
 
  | Document Version |  Intel Acceleration Stack Version  | Changes  |
  | ---------------- |------------------------------------|----------|
