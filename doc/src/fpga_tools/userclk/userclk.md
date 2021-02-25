@@ -2,7 +2,7 @@
 
 ## SYNOPSIS  ##
 
-`userclk [-v] [-B <bus>] [-D <device>] [-F <function>] [-S <socket>] [-P <Port id>] [-H <User clock high frequency>] -L <User clock low frequency>]`
+`userclk [-hv] [-S <segment>] [-B <bus>] [-D <device>] [-F <function>] [PCI_ADDR] [-H <User clock high frequency>] -L <User clock low frequency>]`
 
 
 ## DESCRIPTION ##
@@ -11,7 +11,7 @@ userclk sets the frequency range for an AFU.
 
 ## EXAMPLES  ##
 
-`./userclk  -B 0x5e -H 400 -L 200`
+`./userclk -B 0x5e -H 400 -L 200`
 
  Sets AFU frequency.
 
@@ -20,6 +20,10 @@ userclk sets the frequency range for an AFU.
 `-v,--version`
 
 Prints version information and exits.
+
+`-S,--segment` 
+
+FPGA segment number.
 
 `-B,--bus` 
 
@@ -32,14 +36,6 @@ FPGA Device number.
 `-F,--function` 
 
 FPGA function number.
-
-`-S,--socket` 
-
-FPGA socket number.
-
-`-P,--port` 
-
-Port ID.
 
 `-H,--freq-high ` 
 
