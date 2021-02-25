@@ -185,8 +185,9 @@ void help(void)
 	       "FPGA information utility\n"
 	       "\n"
 	       "Usage:\n"
-	       "        fpgainfo [-h] [-B <bus>] [-D <device>] "
-	       "[-F <function>] [--segment <Segment>] { ");
+	       "        fpgainfo [-h] [-S <segment>] [-B <bus>] [-D <device>] "
+	       "[-F <function>] [PCI_ADDR]\n");
+	printf("                 {");
 	printf("%s", cmd_array[0].command);
 	for (i = 1; i < sizeof(cmd_array) / sizeof(cmd_array[0]); i++) {
 		printf(",%s", cmd_array[i].command);
@@ -194,10 +195,10 @@ void help(void)
 	printf("}\n\n"
 	       "                -h,--help           Print this help\n"
 	       "                -v,--version        Print version and exit\n"
-	       "                -B,--bus            Set target bus number\n"
-	       "                -D,--device         Set target device number\n"
-	       "                -F,--function       Set target function number\n"
-	       "                --segment           Set target segment\n"
+	       "                -S,--segment        Set target segment\n"
+	       "                -B,--bus            Set target bus\n"
+	       "                -D,--device         Set target device\n"
+	       "                -F,--function       Set target function\n"
 	       "\n");
 
 	printf("Subcommands:\n");

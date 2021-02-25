@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2020-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -27,11 +27,17 @@
 opae_test_add_static_lib(TARGET userclk-static
     SOURCE ${OPAE_SDK_SOURCE}/tools/extra/userclk/main.c
     LIBS
+        argsfilter
         opae-c
 )
 
 target_compile_definitions(userclk-static
     PRIVATE main=userclk_main
+)
+
+target_include_directories(userclk-static
+    PRIVATE
+        ${OPAE_SDK_SOURCE}/tools/argsfilter
 )
 
 opae_test_add(TARGET test_userclk_c

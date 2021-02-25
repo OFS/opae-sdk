@@ -104,12 +104,6 @@ pushd @CMAKE_SOURCE_DIR@/python/opae.admin
 %{__python3} setup.py build
 popd
 
-pushd @CMAKE_SOURCE_DIR@/tools/extra/fpgadiag/
-
-%{__python3} setup.py build_ext --include-dirs=@pybind11_ROOT@/include
-%{__python3} setup.py build
-popd
-
 %install
 
 if [ -e $RPM_BUILD_ROOT ];
@@ -127,18 +121,6 @@ popd
 pushd @CMAKE_SOURCE_DIR@/python/pacsign
 %{__python3} setup.py install --single-version-externally-managed -O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_PACSIGN_FILES
 popd
-
-
-pushd @CMAKE_SOURCE_DIR@/tools/extra/fpgadiag/
-%{__python3} setup.py install --single-version-externally-managed -O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_FPGADIAG_FILES
-cat $prev/INSTALLED_FPGADIAG_FILES >> $prev/tools-extra-files.txt
-popd
-
-pushd @CMAKE_SOURCE_DIR@/python/opae.io
-%{__python3} setup.py install --single-version-externally-managed %-O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/OPAEIO_INSTALLED_FILES
-cat $prev/OPAEIO_INSTALLED_FILES >> $prev/devel-files.txt
-popd
-
 
 %clean
 
@@ -171,6 +153,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-cxx*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libxfpga.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libopae-v.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libmodbmc.so
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libbitstream.so*
 
@@ -230,7 +213,6 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/bist_def.py
 @CMAKE_INSTALL_PREFIX@/bin/bist_nlb3.py
 @CMAKE_INSTALL_PREFIX@/bin/bist_nlb0.py
-@CMAKE_INSTALL_PREFIX@/bin/coreidle
 @CMAKE_INSTALL_PREFIX@/bin/fpga_dma_test
 @CMAKE_INSTALL_PREFIX@/bin/fpga_dma_N3000_test
 @CMAKE_INSTALL_PREFIX@/bin/fpgabist
@@ -245,7 +227,6 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/fpgalpbk
 @CMAKE_INSTALL_PREFIX@/bin/fpgastats
 @CMAKE_INSTALL_PREFIX@/bin/pac_hssi_config.py
-@CMAKE_INSTALL_PREFIX@/bin/ras
 @CMAKE_INSTALL_PREFIX@/bin/userclk
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libmml-srv.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libmml-stream.so*

@@ -37,6 +37,8 @@ class host_exerciser_cmd : public test_command
 public:
     host_exerciser_cmd()
         :host_exe_(NULL) {
+          he_lpbk_cfg_.value = 0;
+          he_lpbk_ctl_.value = 0;
     }
     virtual ~host_exerciser_cmd() {}
 
@@ -49,7 +51,7 @@ public:
         he_status1.value = host_exe_->read64(HE_STATUS1);
 
         std::cout << "Host Exerciser numReads:" << he_status0.numReads << std::endl;
-        std::cout << "Host Exerciser numReads:" << he_status0.numWrites << std::endl;
+        std::cout << "Host Exerciser numWrites:" << he_status0.numWrites << std::endl;
 
         std::cout << "Host Exerciser numPendReads:" << he_status1.numPendReads << std::endl;
         std::cout << "Host Exerciser numPendWrites:" << he_status1.numPendWrites << std::endl;
@@ -62,7 +64,7 @@ public:
         if (host_exe_ == NULL)
             return;
 
-        he_error.value = host_exe_->read64(HE_STATUS0);
+        he_error.value = host_exe_->read64(HE_ERROR);
 
         std::cout << "Host Exerciser Error:" << he_error.error << std::endl;
 
@@ -103,6 +105,11 @@ public:
         //test rollover or test termination
         if (host_exe_->he_continuousmode_)
              he_lpbk_cfg_.Continuous = 1;
+
+        // Set interleave in Throughput
+        if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_TRUPT) {
+              he_lpbk_cfg_.TputInterleave = host_exe_->he_interleave_;
+        }
 
         return 0;
     }
@@ -160,7 +167,7 @@ public:
         // Number of cache lines
         d_afu->write64(HE_NUM_LINES, LPBK1_BUFFER_SIZE / (1 * CL));
 
-        // Write to CSR_CFG
+       // Write to CSR_CFG
         d_afu->write32(HE_CFG, he_lpbk_cfg_.value);
 
         // Write to CSR_CTL
@@ -190,8 +197,10 @@ public:
         host_exerciser_swtestmsg();
         host_exerciser_status();
 
-        /* Compare buffer contents */
-        d_afu->compare(source_, destination_);
+        /* Compare buffer contents only loopback test mode*/
+        if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
+            d_afu->compare(source_, destination_);
+
         return 0;
     }
 

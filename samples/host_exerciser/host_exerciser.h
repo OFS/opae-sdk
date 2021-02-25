@@ -94,6 +94,7 @@ typedef enum {
   HOSTEXE_TEST_TERMINATION = 0x1,
 } hostexe_test_mode;
 
+
 // DFH Header
 union he_dfh  {
   enum {
@@ -172,10 +173,9 @@ union he_cfg {
     uint8_t Continuous : 1;
     uint8_t TestMode : 3;
     uint8_t ReqLen : 2;
-    uint8_t Rsvd_7 : 1;
-    uint8_t Rsvd_8 : 1;
-    uint16_t Rsvd_19_9 : 11;
-    uint8_t TestCfg : 8;
+    uint16_t Rsvd_19_7 : 13;
+    uint8_t TputInterleave : 3;
+    uint8_t TestCfg : 5;
     uint8_t IntrOnErr : 1;
     uint8_t IntrTestMode : 1;
     uint64_t Rsvd_63_30 : 34;
@@ -284,8 +284,17 @@ const std::map<std::string, uint32_t> he_test_mode = {
   { "test_termination", HOSTEXE_TEST_TERMINATION}
 };
 
+
 using test_afu = opae::afu_test::afu;
 using test_command = opae::afu_test::command;
+
+// Inerleave help
+const char *interleave_help = R"desc(Interleave requests pattern to use in throughput mode {0, 1, 2}
+indicating one of the following series of read/write requests:
+0: rd-wr-rd-wr
+1: rd-rd-wr-wr
+2: rd-rd-rd-rd-wr-wr-wr-wr)desc";
+
 
 class host_exerciser : public test_afu {
 public:
@@ -306,6 +315,9 @@ public:
 
     // Delay
     app_.add_option("-d,--delay", he_delay_, "Enables random delay insertion between requests")->default_val(false);
+
+    // Configure interleave requests in Throughput mode
+    app_.add_option("--interleave", he_interleave_, interleave_help)->default_val(0);
 
   }
 
@@ -429,6 +441,7 @@ public:
   uint32_t he_req_cls_len_;
   bool he_delay_;
   bool he_continuousmode_;
+  uint32_t he_interleave_;
 
   std::map<uint32_t, uint32_t> limits_;
 

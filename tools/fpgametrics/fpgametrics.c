@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -45,6 +45,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <sys/stat.h>
+#include <argsfilter.h>
 
 
 /*
@@ -65,11 +66,10 @@ void print_err(const char *s, fpga_result res)
 }
 
 /*
- * Global configuration of bus, set during parse_args()
+ * Global configuration, set during parse_args()
  * */
 struct config {
 	struct target {
-		int bus;
 		bool fme_metrics;
 		bool afu_metrics;
 		int open_flags;
@@ -78,7 +78,6 @@ struct config {
 
 config = {
 	.target = {
-		.bus = -1,
 		.fme_metrics = true,
 		.afu_metrics = false,
 		.open_flags = 0
@@ -88,24 +87,26 @@ config = {
 // Metric Command line input help
 void FpgaMetricsAppShowHelp(void)
 {
+	printf("\n"
+	       "fpgametrics\n"
+	       "OPAE Metrics API sample\n"
+	       "\n");
 	printf("Usage:\n");
-	printf("fpgametrics\n");
-	printf("<Bus>               --bus=<BUS NUMBER>           "
-		"OR  -B=<BUS NUMBER>\n");
-	printf("<FME metrics>       --fme-metrics               OR  -F \n");
-	printf("<AFU metrics>       --afu-metrics               OR  -A \n");
-
+	printf("        fpgametrics [-S <segment>] [-B <bus>] [-D <device>] [-F <function>] [PCI_ADDR]\n");
 	printf("\n");
-
+	printf("                -s,--shared             Open in shared mode\n");
+	printf("                -f,--fme-metrics        Display FME metrics\n");
+	printf("                -a,--afu-metrics        Display AFU metrics\n");
+	printf("                -v,--version            Display version info and exit\n");
+	printf("\n");
 }
 
-#define GETOPT_STRING "B:FAsv"
+#define GETOPT_STRING "fasv"
 fpga_result parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
-		{ "bus",         required_argument, NULL, 'B' },
-		{ "fme-metrics", no_argument,       NULL, 'F' },
-		{ "afu-metrics", no_argument,       NULL, 'A' },
+		{ "fme-metrics", no_argument,       NULL, 'f' },
+		{ "afu-metrics", no_argument,       NULL, 'a' },
 		{ "shared",      no_argument,       NULL, 's' },
 		{ "version",     no_argument,       NULL, 'v' },
 		{ NULL,          0,                 NULL,  0  },
@@ -113,7 +114,6 @@ fpga_result parse_args(int argc, char *argv[])
 
 	int getopt_ret;
 	int option_index;
-	char *endptr = NULL;
 
 	while (-1 != (getopt_ret = getopt_long(argc, argv, GETOPT_STRING,
 						longopts, &option_index))) {
@@ -124,25 +124,14 @@ fpga_result parse_args(int argc, char *argv[])
 		}
 
 		switch (getopt_ret) {
-		case 'B': /* bus */
-			if (NULL == tmp_optarg) {
-				return FPGA_EXCEPTION;
-			}
-			endptr = NULL;
-			config.target.bus = (int) strtoul(tmp_optarg, &endptr, 0);
-			if (endptr != tmp_optarg + strnlen(tmp_optarg, 100)) {
-				fprintf(stderr, "invalid bus: %s\n", tmp_optarg);
-				return FPGA_EXCEPTION;
-			}
-			break;
 		case 's':
 			config.target.open_flags |= FPGA_OPEN_SHARED;
 			break;
-		case 'F':
+		case 'f':
 			config.target.fme_metrics = true;
 			break;
 
-		case 'A':
+		case 'a':
 			config.target.afu_metrics = true;
 			config.target.fme_metrics = false;
 			break;
@@ -164,39 +153,6 @@ fpga_result parse_args(int argc, char *argv[])
 }
 
 
-/* function to get the bus number when there are multiple buses */
-/* TODO: add device and function information */
-struct bdf_info {
-	uint8_t bus;
-};
-
-fpga_result get_bus_info(fpga_token tok, struct bdf_info *finfo)
-{
-	fpga_result res    = FPGA_OK;
-	fpga_result resval = FPGA_OK;
-	fpga_properties props = NULL;
-
-	res = fpgaGetProperties(tok, &props);
-	ON_ERR_GOTO(res, out, "reading properties from Token");
-
-	res = fpgaPropertiesGetBus(props, &finfo->bus);
-	ON_ERR_GOTO(res, out_destroy, "Reading bus from properties");
-
-out_destroy:
-	resval = (res != FPGA_OK) ? res : resval;
-	res = fpgaDestroyProperties(&props);
-	ON_ERR_GOTO(res, out, "fpgaDestroyProps");
-out:
-	resval = (res != FPGA_OK) ? res : resval;
-	return resval;
-}
-
-void print_bus_info(struct bdf_info *info)
-{
-	printf("Running on bus 0x%02X. \n", info->bus);
-}
-
-
 int main(int argc, char *argv[])
 {
 	fpga_token         fpga_token;
@@ -206,7 +162,6 @@ int main(int argc, char *argv[])
 	uint64_t num_metrics                       = 0;
 	fpga_result resval                         = FPGA_OK;
 	fpga_result res                            = FPGA_OK;
-	struct bdf_info info                       = { 0 };
 	uint64_t *id_array                         = NULL;
 	uint64_t i                                 = 0;
 	struct fpga_metric_info  *metric_info      = NULL;
@@ -216,34 +171,42 @@ int main(int argc, char *argv[])
 	if (argc < 2) {
 		FpgaMetricsAppShowHelp();
 		return 1;
-	} else {
-		res = parse_args(argc, argv);
-		if (res != 0) {
-			if ((int)res > 0)
-				OPAE_ERR("Error scanning command line\n.");
-			return 2;
-		}
 	}
 
-	/* Get number of FPGAs in system */
 	res = fpgaGetProperties(NULL, &filter);
-	ON_ERR_GOTO(res, out_exit, "creating properties object");
+	if (res != FPGA_OK) {
+		OPAE_ERR("failed to allocate properties.\n");
+		return 2;
+	}
+
+	if (opae_set_properties_from_args(filter,
+					  &res,
+					  &argc,
+					  argv)) {
+		OPAE_ERR("argument parsing error.\n");
+		res = FPGA_EXCEPTION;
+		goto out_destroy;
+	} else if (res != FPGA_OK) {
+		OPAE_ERR("failed to set properties from command line.\n");
+		goto out_destroy;
+	}
+
+	res = parse_args(argc, argv);
+	if (res != FPGA_OK) {
+		if ((int)res > 0)
+			OPAE_ERR("Error scanning command line.\n");
+		goto out_destroy;
+	}
+
 
 	if (config.target.fme_metrics) {
 		res = fpgaPropertiesSetObjectType(filter, FPGA_DEVICE);
 		ON_ERR_GOTO(res, out_destroy, "setting object type");
-
 	} else if (config.target.afu_metrics) {
-
 		res = fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR);
 		ON_ERR_GOTO(res, out_destroy, "setting object type");
 	}
 
-
-	if (-1 != config.target.bus) {
-		res = fpgaPropertiesSetBus(filter, config.target.bus);
-		ON_ERR_GOTO(res, out_destroy, "setting bus");
-	}
 
 	res = fpgaEnumerate(&filter, 1, &fpga_token, 1, &num_matches_fpgas);
 	ON_ERR_GOTO(res, out_destroy, "enumerating fpga");
@@ -256,9 +219,6 @@ int main(int argc, char *argv[])
 
 	if (num_matches_fpgas > 1) {
 		fprintf(stderr, "Found more than one suitable fpga. ");
-		res = get_bus_info(fpga_token, &info);
-		ON_ERR_GOTO(res, out_destroy_tok, "getting bus num");
-		printf("Running on bus 0x%02X. \n", info.bus);
 	}
 
 	/* Open fpga  */

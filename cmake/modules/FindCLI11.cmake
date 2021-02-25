@@ -1,4 +1,5 @@
-## Copyright(c) 2017-2020, Intel Corporation
+#!/usr/bin/cmake -P
+## Copyright(c) 2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,10 +25,23 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_add_executable(TARGET ras
-    SOURCE main.c
-    LIBS
-        opae-c
-        ${libjson-c_LIBRARIES}
-    COMPONENT toolras
-)
+# - Try to find CLI11
+# Once done, this will define
+#
+#  CLI11_FOUND - system has CLI11
+#  CLI11_INCLUDE_DIRS - the CLI11 include directories
+
+find_path(CLI11_INCLUDE_DIRS
+    NAMES CLI/CLI.hpp
+    PATHS ${CLI11_ROOT}/include
+    /usr/local/include
+    /usr/include
+    ${CMAKE_EXTRA_INCLUDES})
+
+
+if(CLI11_INCLUDE_DIRS)
+    set(CLI11_FOUND TRUE)
+endif(CLI11_INCLUDE_DIRS)
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(CLI11 REQUIRED_VARS CLI11_INCLUDE_DIRS)

@@ -89,11 +89,17 @@ class pci_prop(object):
 
     def __call__(self, pci_device, args, value):
         if not args.other_endpoints:
-            setattr(pci_device.pci_node, self.op, self.arg_type(value))
+            try:
+                setattr(pci_device.pci_node, self.op, self.arg_type(value))
+            except ValueError:
+                print(f'Could not set {self.op} to {value} for {pci_device}')
         else:
             for p in pci_device.pci_node.root.endpoints:
                 if p.pci_address != args.device:
-                    setattr(p, self.op, self.arg_type(value))
+                    try:
+                        setattr(p, self.op, self.arg_type(value))
+                    except ValueError:
+                        print(f'Could not set {self.op} to {value} for {p}')
 
 
 def rescan(pci_device, args, *rest):
