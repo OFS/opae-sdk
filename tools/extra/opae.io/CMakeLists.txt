@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2020-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -38,7 +38,7 @@ if(PLATFORM_SUPPORTS_VFIO)
     else()
         target_link_libraries(opae.io PRIVATE ${PYTHON_LIBRARIES} dl util ${libedit_LIBRARIES} opaevfio)
     endif()
-    
+
     target_include_directories(opae.io
         PUBLIC ${OPAE_INCLUDE_DIR}
         PRIVATE ${PYTHON_INCLUDE_DIRS}
@@ -51,5 +51,29 @@ if(PLATFORM_SUPPORTS_VFIO)
             RUNTIME DESTINATION bin
             COMPONENT opae.io
     )
-    
+
+    # Build and install opae.io Python package
+
+    set(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/timestamp)
+    file(GLOB_RECURSE PKG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/opae/*)
+
+    set(INCLUDE_DIRS "${OPAE_INCLUDE_PATH}:${pybind11_ROOT}/include:${OPAE_SDK_SOURCE}/tools/extra/opae.io")
+    set(LINK_DIRS "${LIBRARY_OUTPUT_PATH}")
+
+    add_custom_command(
+        OUTPUT ${OUTPUT}
+        COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext -I ${INCLUDE_DIRS} -L ${LINK_DIRS}
+        COMMAND ${CMAKE_COMMAND} -E touch ${OUTPUT}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        DEPENDS setup.py ${PKG_FILES}
+    )
+
+    add_custom_target(opae.io-build ALL DEPENDS opaevfio opae.io ${OUTPUT})
+    opae_python_install(
+        COMPONENT opae.io
+        RECORD_FILE opae.io-install.txt
+        SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+        RPM_PACKAGE devel
+    )
+
 endif(PLATFORM_SUPPORTS_VFIO)

@@ -87,11 +87,17 @@ config = {
 // Metric Command line input help
 void FpgaMetricsAppShowHelp(void)
 {
+	printf("\n"
+	       "fpgametrics\n"
+	       "OPAE Metrics API sample\n"
+	       "\n");
 	printf("Usage:\n");
-	printf("fpgametrics [-S <segment>] [-B <bus>] [-D <device>] [-F <function>] [PCI_ADDR]\n");
+	printf("        fpgametrics [-S <segment>] [-B <bus>] [-D <device>] [-F <function>] [PCI_ADDR]\n");
 	printf("\n");
-	printf("<FME metrics> -f,--fme-metrics\n");
-	printf("<AFU metrics> -a,--afu-metrics\n");
+	printf("                -s,--shared             Open in shared mode\n");
+	printf("                -f,--fme-metrics        Display FME metrics\n");
+	printf("                -a,--afu-metrics        Display AFU metrics\n");
+	printf("                -v,--version            Display version info and exit\n");
 	printf("\n");
 }
 

@@ -19,11 +19,11 @@ jobs:
       - name: Build Docker image
         run: docker build . -f docker/${{ matrix.distro }}/Dockerfile -t opae-${{ matrix.distro }}
       - name: Build RPM
-        run: docker run --rm -v ${{ github.workspace }}:/root opae-${{ matrix.distro }} ${{ matrix.distro }}
+        run: |
+          docker run --rm -v ${{ github.workspace }}:/opae-sdk opae-${{ matrix.distro }} /opae-sdk/${{ matrix.distro }} /opae-sdk
       - name: Install and Test RPMs
         run: |
-          sudo cp ${{ github.workspace }}/scripts/test-rpms.sh ${{ matrix.distro }}/.
-          docker run --rm -v ${{ github.workspace }}/${{ matrix.distro }}:/root --entrypoint /bin/bash  opae-${{ matrix.distro }} -c "./test-rpms.sh"
+          docker run --rm -v ${{ github.workspace }}/${{ matrix.distro }}:/build --entrypoint /bin/bash  opae-${{ matrix.distro }} -c "/scripts/test-rpms.sh /build"
       - name: Upload Artifact
         uses: actions/upload-artifact@v2.1.4
         with:

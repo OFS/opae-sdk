@@ -2,7 +2,8 @@
 
 ## SYNOPSIS ##
 ```console
-   fpgainfo [-h] [-B <bus>] [-D <device>] [-F <function>] [--segment <Segment>] {errors,power,temp,fme,port,bmc,mac,phy,security}
+   fpgainfo [-h] [-S <segment>] [-B <bus>] [-D <device>] [-F <function>] [PCI_ADDR]
+            {errors,power,temp,fme,port,bmc,mac,phy,security}
 
 ```
 
@@ -68,6 +69,10 @@ Prints version information and exit.
 ## COMMON ARGUMENTS ##
 The following arguments are common to all commands and are optional.
 
+`-S, --segment`
+
+PCIe segment number of resource.
+
 `-B, --bus`
 
 PCIe bus number of resource.
@@ -79,10 +84,6 @@ PCIe device number of resource.
 `-F, --function`
 
 PCIe function number of resource.
-
-`--segment`
-
-PCIe segment number of resource.
 
 ### ERRORS ARGUMENTS ###
 The first argument to the `errors` command specifies the resource type. It must be one of the following:

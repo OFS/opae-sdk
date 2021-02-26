@@ -1,4 +1,4 @@
-## Copyright(c) 2019-2020, Intel Corporation
+## Copyright(c) 2019-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -40,5 +40,4 @@ find_package(PythonLibs ${OPAE_PYTHON_VERSION})
 set(INTEL_SECURITY_TOOLS_VERSION 1.0.3 CACHE STRING "Security Tools Version string")
 
 add_subdirectory(opae.admin)
-add_subdirectory(opae.io)
 

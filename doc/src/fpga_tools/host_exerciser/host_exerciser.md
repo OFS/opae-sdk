@@ -17,6 +17,11 @@ Options:
                               number of CLs per request{cl_1, cl_2, cl_3, cl_4}
   --ccont BOOLEAN=0           Configures test rollover or test termination
   -d,--delay BOOLEAN=0        Enables random delay insertion between requests
+  --interleave UINT=0         Interleave requests pattern to use in throughput mode {0, 1, 2}
+                              indicating one of the following series of read/write requests:
+                              0: rd-wr-rd-wr
+                              1: rd-rd-wr-wr
+                              2: rd-rd-rd-rd-wr-wr-wr-w
 
 Subcommands:
   lpbk                        run simple loopback test
@@ -99,6 +104,14 @@ Configures test rollover or test termination mode.
 
 Enables random delay insertion between requests.
 
+
+`--interleave`
+
+Enables interleave requests in throughput mode.
+Value:3'b000-Rd,Wr,Rd,Wr
+Value:3'b001-Rd,Rd,Wr,Wr
+Value:3'b010-Rd,Rd,Rd,Rd,Wr,Wr,Wr,Wr
+Value:3'b011-Not supported
 
 
 ## EXAMPLES ##
