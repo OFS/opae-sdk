@@ -25,9 +25,9 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 add_custom_command(
-    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/cpngin_reg.h
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ofs_cpeng.h
     COMMAND
-        ${PYTHON_EXECUTABLE} parse_map.py cpngin_reg.yml cpp ${CMAKE_CURRENT_BINARY_DIR}/cpngin_reg.h
+        ${PYTHON_EXECUTABLE} parse_map.py cpngin_reg.yml headers c ${CMAKE_CURRENT_BINARY_DIR}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/cpngin_reg.yml
@@ -37,11 +37,12 @@ add_custom_command(
 opae_add_executable(TARGET hps
     SOURCE
     hps.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/cpngin_reg.h
+    ${CMAKE_CURRENT_BINARY_DIR}/ofs_cpeng.h
     LIBS
         opae-c
         opae-cxx-core
         afu-test
+        ofs
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
     COMPONENT hps

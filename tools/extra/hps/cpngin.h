@@ -28,7 +28,8 @@
 #include <fstream>
 #include <thread>
 #include "hps.h"
-#include "cpngin_reg.h"
+#include "ofs_cpeng.h"
+#include "ofs_primitives.h"
 
 namespace hps {
 
@@ -77,51 +78,51 @@ public:
 
   virtual int run(opae::afu_test::afu *afu, CLI::App *app)
   {
+    (void)app;
+    auto log = spdlog::get(this->name());
     using opae::fpga::types::shared_buffer;
     using std::chrono::milliseconds;
     using std::chrono::microseconds;
-    (void)app;
-    auto log = spdlog::get(this->name());
-    hps *h = dynamic_cast<hps*>(afu);
+    ofs_cpeng cpeng;
+    ofs_cpeng_init(&cpeng, afu->handle()->mmio_ptr(0), 0);
+    int timeout_status = 0;
+    OFS_WAIT_FOR(cpeng.r_CSR_HPS2HOST_RDY_STATUS->f_HPS_RDY, 1, 100, timeout_status);
 
-    auto rdy_status = h->object64<CSR_HPS2HOST_RDY_STATUS>();
-    uint32_t tries = 5000;
-    while (!rdy_status->f_HPS_RDY && tries--) {
-      std::this_thread::sleep_for(milliseconds(1));
-    }
-    if (!tries) {
+    if (timeout_status) {
       log->warn("HPS is not ready");
       // return 1;
     }
     std::ifstream inp(filename_, std::ios::binary | std::ios::ate);
     auto sz = inp.tellg();
     inp.seekg(0, std::ios::beg);
-    auto buffer = shared_buffer::allocate(h->handle(), sz);
+    auto buffer = shared_buffer::allocate(afu->handle(), sz);
     auto ptr = reinterpret_cast<char*>(const_cast<uint8_t*>(buffer->c_type()));
     if (!inp.read(ptr, sz)){
       log->error("error reading file: {}", filename_);
       return 2;
     }
-
     log->info("opened file {} with size {}", filename_, sz);
-    auto src_addr = h->object64<CSR_SRC_ADDR>();
-    src_addr->f_CSR_SRC_ADDR = buffer->io_address();
-    log->info("src address is 0x{:x}", static_cast<uint64_t>(src_addr->f_CSR_SRC_ADDR));
 
-    auto dst_offset = h->object64<CSR_DST_ADDR>();
-    dst_offset->f_CSR_DST_ADDR = destination_offset_;
+    cpeng.r_CSR_SRC_ADDR->f_CSR_SRC_ADDR = buffer->io_address();
+    log->debug("src_address: 0x{:x}",
+               static_cast<uint64_t>(cpeng.r_CSR_SRC_ADDR->f_CSR_SRC_ADDR));
 
-    auto data_size = h->object64<CSR_DATA_SIZE>();
-    data_size->f_CSR_DATA_SIZE = sz;
+    cpeng.r_CSR_DST_ADDR->f_CSR_DST_ADDR = destination_offset_;
+    log->debug("dst_offset: 0x{:x}",
+               static_cast<uint64_t>(cpeng.r_CSR_DATA_SIZE->f_CSR_DATA_SIZE));
 
-    auto host2ce_start = h->object64<CSR_HOST2CE_MRD_START>();
-    host2ce_start->f_MRD_START = 1;
+    cpeng.r_CSR_DATA_SIZE->f_CSR_DATA_SIZE = sz;
+    log->debug("data_size: {}",
+               static_cast<uint64_t>(cpeng.r_CSR_DATA_SIZE->f_CSR_DATA_SIZE));
 
-    auto ce2host_status = h->object64<CSR_CE2HOST_STATUS>();
+    cpeng.r_CSR_HOST2CE_MRD_START->f_MRD_START = 1;
+    log->debug("mrd_start: {}",
+               static_cast<uint64_t>(cpeng.r_CSR_HOST2CE_MRD_START->f_MRD_START));
+
     log->info("waiting for {:n} usec", timeout_usec_);
     std::future<void> f = std::async(std::launch::async,
-        [ce2host_status](){
-          while(ce2host_status->f_CE_DMA_STS == 0x1) {
+        [cpeng](){
+          while(cpeng.r_CSR_CE2HOST_STATUS->f_CE_DMA_STS == 0x1) {
             std::this_thread::sleep_for(microseconds(100));
           }
         });
@@ -131,17 +132,18 @@ public:
       throw std::runtime_error("timed out waiting for Host to CE tranfer");
     }
 
-    log->info("CE_DMA_STS 0x{:x}", static_cast<uint64_t>(ce2host_status->f_CE_DMA_STS));
-    if (ce2host_status->f_CE_DMA_STS != 0b10) {
-        auto value = static_cast<uint64_t>(ce2host_status->f_CE_DMA_STS);
+    log->debug("ce_dma_status: 0x{:x}",
+               static_cast<uint64_t>(cpeng.r_CSR_CE2HOST_STATUS->f_CE_DMA_STS));
+    if (cpeng.r_CSR_CE2HOST_STATUS->f_CE_DMA_STS != 0b10) {
+        auto value = static_cast<uint64_t>(cpeng.r_CSR_CE2HOST_STATUS->f_CE_DMA_STS);
         log->error("error encountered with Host to CE transfer, value is {}", value);
         throw std::runtime_error("error encountered with Host to CE transfer");
     }
 
-    auto gpio = h->object64<CSR_HOST2HPS_GPIO>();
+    auto gpio = cpeng.r_CSR_HOST2HPS_GPIO;
     gpio->f_HOST_HPS_CPL = 1;
 
-    auto hps2host_vfy_status = h->object64<CSR_HPS2HOST_VFY_STATUS>();
+    auto hps2host_vfy_status = cpeng.r_CSR_HPS2HOST_VFY_STATUS;
     (void)hps2host_vfy_status;
     // verify?
 

@@ -27,11 +27,12 @@
 # vim:fenc=utf-8
 import argparse
 import io
-import sys
+import os
 import yaml
 
 cpp_field_tmpl = '{spaces}{pod} f_{name} : {width};'
 cpp_class_tmpl = '''
+#define {name}_OFFSET 0x{offset:0x}
 union {name} {{
   enum {{
     offset = 0x{offset:0x}
@@ -45,6 +46,31 @@ union {name} {{
 }};
 
 '''
+c_struct_templ = '''
+#define {name}_OFFSET 0x{offset:0x}
+union {name} {{
+  {pod} value;
+  struct {{
+{fields}
+  }};
+}};
+
+'''
+
+driver_struct_templ = '''
+struct {driver} {{
+{members}
+}};
+
+int {driver}_init(struct {driver} *{var}, uint8_t *ptr, int flags)
+{{
+{inits}
+  return 0;
+}}
+'''
+
+templates = {'c': c_struct_templ,
+             'cpp': cpp_class_tmpl}
 
 
 class ofs_field(object):
@@ -58,6 +84,9 @@ class ofs_field(object):
     def max(self):
         return max(self.bits)
 
+    def min(self):
+        return min(self.bits)
+
     def __repr__(self):
         return (f'{self.name}, {self.bits}, {self.access}, {self.default}, '
                 f'{self.description}')
@@ -66,7 +95,7 @@ class ofs_field(object):
         writer.write(cpp_field_tmpl.format(**vars(self)))
         writer.write('\n')
         for line in self.description.split('\n'):
-            writer.write(f'{self.spaces}// {line}\n')
+            writer.write(f'{self.spaces}// {line.strip()}\n')
 
 
 class ofs_register(object):
@@ -81,10 +110,10 @@ class ofs_register(object):
         return (f'{self.name}, 0x{self.offset:0x}, 0x{self.default:0x}, '
                 f'{self.description}, {self.fields}')
 
-    def to_cpp(self, writer):
+    def to_structure(self, tmpl,  writer):
         for line in self.description.split('\n'):
             writer.write(f'// {line}\n')
-        writer.write(cpp_class_tmpl.lstrip().format(**vars(self)))
+        writer.write(tmpl.lstrip().format(**vars(self)))
 
 
 class RegisterTag(yaml.YAMLObject):
@@ -104,39 +133,72 @@ def parse(fp):
     return yaml.load(fp, Loader=yaml.CLoader)
 
 
-def fields_to_cpp(pod, fields, indent=0):
+def declare_fields(pod, fields, indent=0):
     fp = io.StringIO()
-    for f in fields:
+    for f in sorted(fields, key=ofs_field.min, reverse=False):
         f.spaces = ' '*indent
         f.pod = pod
         f.width = max(f.bits)-min(f.bits)+1
         f.to_cpp(fp)
         fp.write('\n')
-    return fp.getvalue()
+    return fp.getvalue().rstrip()
 
 
-def to_cpp(args):
-    data = parse(args.input)
-    fp = args.output
-    fp.write('#pragma once\n')
-    fp.write(f'// these structures were auto-generated using {__file__}\n')
-    fp.write('// modification of these structures may break the software\n\n')
-    for r in data.get('registers'):
+def write_structures(fp, registers, tmpl):
+    for r in registers:
         r.width = 64 if max(r.fields, key=ofs_field.max).max() > 32 else 32
         r.pod = f'uint{r.width}_t'
-        r.fields = fields_to_cpp(r.pod, r.fields, 4)
-        r.to_cpp(fp)
+        r.fields = declare_fields(r.pod, r.fields, 4)
+        r.to_structure(tmpl, fp)
+
+
+def write_driver(driver, fp, registers):
+    members = io.StringIO()
+    inits = io.StringIO()
+    var = 'drv'
+    for r in registers:
+        members.write(f'  volatile {r.name} *r_{r.name};\n')
+        inits.write(f'  {var}->r_{r.name} =\n')
+        inits.write(f'    (volatile {r.name}*)(ptr+{r.name}_OFFSET);\n')
+    fp.write(driver_struct_templ.format(driver=driver,
+                                        var=var,
+                                        members=members.getvalue().rstrip(),
+                                        inits=inits.getvalue().rstrip()))
+
+
+def make_headers(args):
+    data = parse(args.input)
+    for driver in data.get('drivers', []):
+        name = driver['name']
+        registers = driver['registers']
+        with open(os.path.join(args.output, f'{name}.h'), 'w') as fp:
+            fp.write((f'// these structures were auto-generated using'
+                      f'{__file__}\n'))
+            fp.write(('// modification of these structures may break the'
+                      ' software\n\n'))
+            if args.language == 'c':
+                fp.write(f'#ifndef __{name}__\n')
+                fp.write(f'#define __{name}__\n')
+            elif args.language == 'cpp':
+                fp.write('#pragma once\n')
+
+            write_structures(fp, registers, templates.get(args.language))
+            write_driver(name, fp, registers)
+            if args.language == 'c':
+                fp.write(f'#endif //  __{name}__\n')
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("input", type=argparse.FileType('r'))
     parsers = parser.add_subparsers()
-    cpp_parser = parsers.add_parser('cpp')
-    cpp_parser.add_argument('output', type=argparse.FileType('w'),
-                            nargs='?',
-                            default=sys.stdout)
-    cpp_parser.set_defaults(func=to_cpp)
+    headers_parser = parsers.add_parser('headers')
+    headers_parser.add_argument('language', choices=['c', 'cpp'])
+    headers_parser.add_argument('output',
+                                nargs='?',
+                                default=os.getcwd())
+    headers_parser.set_defaults(func=make_headers)
+
     args = parser.parse_args()
     if not hasattr(args, 'func'):
         parser.print_usage()
