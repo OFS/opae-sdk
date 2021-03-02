@@ -112,12 +112,6 @@ then
 fi
 mv %_topdir/tmpBRoot $RPM_BUILD_ROOT
 
-
-prev=$PWD
-pushd @CMAKE_SOURCE_DIR@/python/opae.admin
-%{__python3} setup.py install --single-version-externally-managed -O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_OPAEADMIN_FILES
-popd
-
 %clean
 
 
@@ -258,7 +252,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/hello_fpga
 @CMAKE_INSTALL_PREFIX@/bin/hello_events
 
-%files opae.admin -f INSTALLED_OPAEADMIN_FILES
+%files opae.admin -f opae.admin-files.txt
 %defattr(-,root,root,-)
 
 %files PACSign -f PACSign-files.txt
