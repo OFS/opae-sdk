@@ -49,6 +49,12 @@ opae_test_add_static_lib(TARGET board-d5005-static
         opae-c
 )
 
+opae_test_add_static_lib(TARGET board-n5010-static
+    SOURCE ${OPAE_SDK_SOURCE}/tools/libboard/board_n5010/board_n5010.c
+    LIBS
+        opae-c
+)
+
 opae_test_add(TARGET test_board_n3000_c
     SOURCE test_board_n3000.cpp
     LIBS
@@ -79,5 +85,16 @@ opae_test_add(TARGET test_board_d5005_c
 )
 
 target_include_directories(test_board_d5005_c
+    PRIVATE ${OPAE_SDK_SOURCE}/tools
+)
+
+opae_test_add(TARGET test_board_n5010_c
+    SOURCE test_board_n5010.cpp
+    LIBS
+        board-n5010-static
+        board-common-static
+)
+
+target_include_directories(test_board_n5010_c
     PRIVATE ${OPAE_SDK_SOURCE}/tools
 )
