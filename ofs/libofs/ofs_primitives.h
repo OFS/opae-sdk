@@ -44,9 +44,10 @@
   while(_bit != _value) {                                      \
     nanosleep(&ts, NULL);                                      \
     clock_gettime(CLOCK_MONOTONIC, &now);                      \
-    uint64_t delta_nsec =                                      \
-      (now.tv_sec - begin.tv_sec)*1E9 +                        \
-      (now.tv_nsec - begin.tv_nsec);                           \
+    uint64_t delta_sec = (now.tv_sec - begin.tv_sec)*1E9;      \
+    uint64_t delta_nsec = now.tv_nsec < begin.tv_nsec) ?       \
+      (1E9 + now.tv_nsec) - begin.tv_nsec + (delta_sec-1)*1E9 :\
+      now.tv_nsec - begin.tv_nsec + delta_sec*1E9;             \
     if (_timeout_usec*1E3 > delta_nsec) {                      \
       status = 1;                                              \
       break;                                                   \
@@ -64,9 +65,10 @@
   while(_bit != _value) {                                             \
     nanosleep(&ts, NULL);                                             \
     clock_gettime(CLOCK_MONOTONIC, &now);                             \
-    uint64_t delta_nsec =                                             \
-      (now.tv_sec - begin.tv_sec)*1E9 +                               \
-      (now.tv_nsec - begin.tv_nsec);                                  \
+    uint64_t delta_sec = (now.tv_sec - begin.tv_sec)*1E9;             \
+    uint64_t delta_nsec = now.tv_nsec < begin.tv_nsec) ?              \
+      (1E9 + now.tv_nsec) - begin.tv_nsec + (delta_sec-1)*1E9 :       \
+      now.tv_nsec - begin.tv_nsec + delta_sec*1E9;                    \
     if (_timeout_usec*1E3 > delta_nsec) {                             \
       status = 1;                                                     \
       break;                                                          \
@@ -75,4 +77,7 @@
   status;                                                             \
 })
 
+
+int ofs_diff_timespec(struct timespec *result,
+		      struct timespec *lhs, struct timespec *rhs);
 #endif /* !OFS_PRIMITIVES_H */
