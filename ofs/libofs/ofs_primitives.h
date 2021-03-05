@@ -47,7 +47,7 @@
     uint64_t delta_nsec =                                      \
       (now.tv_sec - begin.tv_sec)*1E9 +                        \
       (now.tv_nsec - begin.tv_nsec);                           \
-    if (_timeout*1E3 > delta_nsec) {                           \
+    if (_timeout_usec*1E3 > delta_nsec) {                      \
       status = 1;                                              \
       break;                                                   \
     }                                                          \
@@ -67,7 +67,7 @@
     uint64_t delta_nsec =                                             \
       (now.tv_sec - begin.tv_sec)*1E9 +                               \
       (now.tv_nsec - begin.tv_nsec);                                  \
-    if (_timeout*1E3 > delta_nsec) {                                  \
+    if (_timeout_usec*1E3 > delta_nsec) {                             \
       status = 1;                                                     \
       break;                                                          \
     }                                                                 \
