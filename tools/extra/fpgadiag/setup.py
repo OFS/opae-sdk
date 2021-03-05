@@ -54,23 +54,11 @@ class pybind_include_dirs(object):
         return pybind11.get_include(self.user)
 
 
-def vfio_check():
-    cc = new_compiler()
-    try:
-        cc.compile(['test_vfio.c'])
-    except (CompileError, DistutilsExecError):
-        print('Required version of VFIO not found, disabling eth_group')
-        return False
-
-    return True
-
 
 def extensions():
     ext = []
-    eth_group_enabled = vfio_check()
 
-    if eth_group_enabled:
-        ext.append(
+    ext.append(
             Extension("opae.diag.eth_group",
                       sources=["src/eth_group.cpp"],
                       language="c++",
@@ -85,6 +73,7 @@ setup(
     name='opae.diag',
     version="2.0",
     packages=find_packages(include=['opae.*']),
+    include_dirs=[pybind_include_dirs()],
     entry_points={
         'console_scripts': [
             'fpgadiag = opae.diag.fpgadiag:main',
