@@ -58,7 +58,6 @@ int eth_group::eth_group_open(const std::string& fpga_uid_str)
 	int res       = 0;
 	uint8_t *mem  = NULL;
 
-	printf("fpga_uid_str.c_str()= %s\n", fpga_uid_str.c_str());
 	res = opae_uio_open(&uio, fpga_uid_str.c_str());
 	if (res) {
 		return res;
