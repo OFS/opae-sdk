@@ -89,9 +89,6 @@ extern "C" {
  * @returns Non-zero on error. Zero on success.
  *
  * Example
- * @code{.sh}
- * $ sudo opaeuio -i -u lab -g lab dfl_dev.10
- * @endcode
  *
  * Example
  * @code{.c}
@@ -159,11 +156,6 @@ int opae_uio_region_get(struct opae_uio *u,
  *   // free the device
  *   opae_uio_close(&u);
  * }
- * @endcode
- *
- * Example
- * @code{.sh}
- * $ sudo opaeuio -r dfl_dev.10
  * @endcode
  */
 void opae_uio_close(struct opae_uio *u);
