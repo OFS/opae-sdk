@@ -29,50 +29,50 @@
 #include <stdint.h>
 #include <time.h>
 
-#define OFS_WAIT_FOR(_bit, _value, _timeout)           \
-({                                                     \
-  struct timespec ts = {                               \
-    .tv_sec = 0,                                       \
-    .tv_nsec = 100                                     \
-  };                                                   \
-  struct timespec begin, now;                          \
-  int status = 0;                                      \
-  clock_gettime(CLOCK_MONOTONIC, &begin);              \
-  while(_bit != _value) {                              \
-    nanosleep(&ts, NULL);                              \
-    clock_gettime(CLOCK_MONOTONIC, &now);              \
-    uint64_t delta_nsec =                              \
-      (now.tv_sec - begin.tv_sec)*1E9 +                \
-      (now.tv_nsec - begin.tv_nsec);                   \
-    if (_timeout*1E3 > delta_nsec) {                   \
-      status = 1;                                      \
-      break;                                           \
-    }                                                  \
-  }                                                    \
-  status;                                              \
+#define OFS_TIMESPEC_USEC(_ts, _usec)             \
+  struct timespec _ts = {                         \
+    .tv_sec = (long)_usec*1E-6,                   \
+    .tv_nsec = _usec*1E3-(long)(_usec*1E-6)*1E9   \
+  }
+
+#define OFS_WAIT_FOR(_bit, _value, _timeout_usec, _sleep_usec) \
+({                                                             \
+  OFS_TIMESPEC_USEC(ts, _sleep_usec);                          \
+  struct timespec begin, now;                                  \
+  int status = 0;                                              \
+  clock_gettime(CLOCK_MONOTONIC, &begin);                      \
+  while(_bit != _value) {                                      \
+    nanosleep(&ts, NULL);                                      \
+    clock_gettime(CLOCK_MONOTONIC, &now);                      \
+    uint64_t delta_nsec =                                      \
+      (now.tv_sec - begin.tv_sec)*1E9 +                        \
+      (now.tv_nsec - begin.tv_nsec);                           \
+    if (_timeout*1E3 > delta_nsec) {                           \
+      status = 1;                                              \
+      break;                                                   \
+    }                                                          \
+  }                                                            \
+  status;                                                      \
 })
 
-#define OFS_WAIT_FOR_CHANGE(_bit, _value, _timeout)    \
-({                                                     \
-  struct timespec ts = {                               \
-    .tv_sec = 0,                                       \
-    .tv_nsec = 100                                     \
-  };                                                   \
-  struct timespec begin, now;                          \
-  int status = 0;                                      \
-  clock_gettime(CLOCK_MONOTONIC, &begin);              \
-  while(_bit != _value) {                              \
-    nanosleep(&ts, NULL);                              \
-    clock_gettime(CLOCK_MONOTONIC, &now);              \
-    uint64_t delta_nsec =                              \
-      (now.tv_sec - begin.tv_sec)*1E9 +                \
-      (now.tv_nsec - begin.tv_nsec);                   \
-    if (_timeout*1E3 > delta_nsec) {                   \
-      status = 1;                                      \
-      break;                                           \
-    }                                                  \
-  }                                                    \
-  status;                                              \
+#define OFS_WAIT_FOR_CHANGE(_bit, _value, _timeout_usec, _sleep_usec) \
+({                                                                    \
+  OFS_TIMESPEC_USEC(ts, _sleep_usec);                                 \
+  struct timespec begin, now;                                         \
+  int status = 0;                                                     \
+  clock_gettime(CLOCK_MONOTONIC, &begin);                             \
+  while(_bit != _value) {                                             \
+    nanosleep(&ts, NULL);                                             \
+    clock_gettime(CLOCK_MONOTONIC, &now);                             \
+    uint64_t delta_nsec =                                             \
+      (now.tv_sec - begin.tv_sec)*1E9 +                               \
+      (now.tv_nsec - begin.tv_nsec);                                  \
+    if (_timeout*1E3 > delta_nsec) {                                  \
+      status = 1;                                                     \
+      break;                                                          \
+    }                                                                 \
+  }                                                                   \
+  status;                                                             \
 })
 
 #endif /* !OFS_PRIMITIVES_H */
