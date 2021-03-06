@@ -250,7 +250,6 @@ done
 %{_bindir}/PACSign*
 %{_bindir}/fpgad*
 %{_bindir}/host_exerciser*
-%{_bindir}/opaeuio*
 %{_bindir}/opaevfio*
 %{_bindir}/pci_device*
 %{_bindir}/regmap-debugfs*
