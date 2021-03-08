@@ -61,7 +61,6 @@ The main documentation for the site is organized into following sections:
    docs/fpga_tools/userclk/userclk
    docs/fpga_tools/hssi/hssi
    docs/fpga_tools/opaevfio/opaevfio
-   docs/fpga_tools/opaeuio/opaeuio
    docs/fpga_tools/pci_device/pci_device
    docs/fpga_tools/opae.io/opae.io
    
