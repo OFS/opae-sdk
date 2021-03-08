@@ -109,11 +109,7 @@ set_property(DIRECTORY PROPERTY
         "${CMAKE_CURRENT_SOURCE_DIR}/dist"
 )
 
-if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
-   set_source_files_properties(src/eth_group.cpp  PROPERTIES COMPILE_FLAGS -fno-lto)
-endif()
 set_target_properties(opaeuio PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
-#target_include_directories(eth_group PRIVATE ${INCLUDE_DIRS} )
 pybind11_add_module(eth_group THIN_LTO  src/eth_group.cpp)
 target_link_libraries(eth_group PRIVATE  opaeuio)
 
