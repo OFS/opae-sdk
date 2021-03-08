@@ -64,6 +64,7 @@ def extensions():
                       language="c++",
                       extra_compile_args=["-std=c++11"],
                       extra_link_args=["-std=c++11"],
+                      libraries = ['opaeuio'],
                       )
         )
     return ext

@@ -74,7 +74,7 @@ int eth_group::eth_group_open(const std::string& fpga_uid_str)
 	eth_dfh.csr = *(ptr_);
 	// Check ETH group FeatureID
 	if (eth_dfh.id != ETH_GROUP_FEATUREID) {
-		printf("Worng Eth group Feature ID \n");
+		printf("Wrong Eth group Feature ID \n");
 		return -1;
 	}
 
