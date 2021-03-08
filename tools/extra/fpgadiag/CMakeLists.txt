@@ -109,11 +109,8 @@ set_property(DIRECTORY PROPERTY
         "${CMAKE_CURRENT_SOURCE_DIR}/dist"
 )
 
-set_target_properties(opaeuio PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 pybind11_add_module(eth_group THIN_LTO  src/eth_group.cpp)
 target_link_libraries(eth_group PRIVATE  opaeuio)
-
-
 
 add_custom_target(opae.diag-build ALL DEPENDS nlb0 nlb3 nlb7 ${OUTPUT})
 opae_python_install(
