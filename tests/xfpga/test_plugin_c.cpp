@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -34,10 +34,8 @@ extern "C" {
 #include "types_int.h"
 #include "adapter.h"
 
-bool xfpga_plugin_supports_device(const char *device_type);
 int xfpga_plugin_initialize(void);
 int xfpga_plugin_finalize(void);
-bool xfpga_plugin_supports_host(const char *hostname);
 int opae_plugin_configure(opae_api_adapter_table *adapter,
 	const char *jsonConfig);
 }
@@ -140,18 +138,6 @@ protected:
 		return res;
 	}
 };
-
-/*
-* @test       plugin
-* @brief      Tests: xfpga_plugin_supports_device
-*                    xfpga_plugin_supports_host
- @details    When passed with valid argument,the fn returns true <br>
-*            When passed with invalid argument,the fn returns false <br>
-*/
-TEST_P(xfpga_plugin_c_p, test_plugin_1) {
-	EXPECT_EQ(xfpga_plugin_supports_device(NULL), true);
-	EXPECT_EQ(xfpga_plugin_supports_host(NULL), true);
-}
 
 /*
 * @test       plugin

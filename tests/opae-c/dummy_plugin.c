@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2019, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -40,18 +40,6 @@ int DUMMY_HIDDEN dummy_plugin_initialize(void)
 int DUMMY_HIDDEN dummy_plugin_finalize(void)
 {
 	return 0;
-}
-
-bool DUMMY_HIDDEN dummy_plugin_supports_device(const char *device_type)
-{
-	UNUSED_PARAM(device_type);
-	return true;
-}
-
-bool DUMMY_HIDDEN dummy_plugin_supports_host(const char *hostname)
-{
-	UNUSED_PARAM(hostname);
-	return true;
 }
 
 typedef struct _dummy_token {
@@ -150,8 +138,6 @@ int __attribute__((visibility("default"))) opae_plugin_configure(opae_api_adapte
 
         adapter->initialize = dummy_plugin_initialize;
 	adapter->finalize = NULL;
-	adapter->supports_device = dummy_plugin_supports_device;
-	adapter->supports_host = NULL;
 	adapter->fpgaEnumerate = dummy_plugin_fpgaEnumerate;
 	adapter->fpgaDestroyToken = dummy_plugin_fpgaDestroyToken;
 	adapter->fpgaOpen = dummy_plugin_fpgaOpen;
