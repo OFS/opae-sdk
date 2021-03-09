@@ -29,55 +29,134 @@
 #include <stdint.h>
 #include <time.h>
 
-#define OFS_TIMESPEC_USEC(_ts, _usec)             \
-  struct timespec _ts = {                         \
-    .tv_sec = (long)_usec*1E-6,                   \
-    .tv_nsec = _usec*1E3-(long)(_usec*1E-6)*1E9   \
+#define SEC2NSEC 1000000000
+#define SEC2USEC 1000000
+#define SEC2MSEC 1000
+#define USEC2NSEC 1000
+#define NSEC2SEC 1E-9
+#define USEC2SEC 1E-6
+#define MSEC2SEC 1E-3
+#define NSEC2USEC 1E-3
+
+#define OFS_TIMESPEC_USEC(_ts, _usec)                           \
+  struct timespec _ts = {                                       \
+    .tv_sec = (long)(_usec*USEC2SEC),                           \
+    .tv_nsec = _usec*USEC2NSEC-(long)(_usec*USEC2SEC)*SEC2NSEC  \
   }
 
-#define OFS_WAIT_FOR(_bit, _value, _timeout_usec, _sleep_usec) \
-({                                                             \
-  OFS_TIMESPEC_USEC(ts, _sleep_usec);                          \
-  struct timespec begin, now;                                  \
-  int status = 0;                                              \
-  clock_gettime(CLOCK_MONOTONIC, &begin);                      \
-  while(_bit != _value) {                                      \
-    nanosleep(&ts, NULL);                                      \
-    clock_gettime(CLOCK_MONOTONIC, &now);                      \
-    uint64_t delta_sec = (now.tv_sec - begin.tv_sec)*1E9;      \
-    uint64_t delta_nsec = now.tv_nsec < begin.tv_nsec) ?       \
-      (1E9 + now.tv_nsec) - begin.tv_nsec + (delta_sec-1)*1E9 :\
-      now.tv_nsec - begin.tv_nsec + delta_sec*1E9;             \
-    if (_timeout_usec*1E3 > delta_nsec) {                      \
-      status = 1;                                              \
-      break;                                                   \
-    }                                                          \
-  }                                                            \
-  status;                                                      \
-})
 
-#define OFS_WAIT_FOR_CHANGE(_bit, _value, _timeout_usec, _sleep_usec) \
-({                                                                    \
-  OFS_TIMESPEC_USEC(ts, _sleep_usec);                                 \
-  struct timespec begin, now;                                         \
-  int status = 0;                                                     \
-  clock_gettime(CLOCK_MONOTONIC, &begin);                             \
-  while(_bit != _value) {                                             \
-    nanosleep(&ts, NULL);                                             \
-    clock_gettime(CLOCK_MONOTONIC, &now);                             \
-    uint64_t delta_sec = (now.tv_sec - begin.tv_sec)*1E9;             \
-    uint64_t delta_nsec = now.tv_nsec < begin.tv_nsec) ?              \
-      (1E9 + now.tv_nsec) - begin.tv_nsec + (delta_sec-1)*1E9 :       \
-      now.tv_nsec - begin.tv_nsec + delta_sec*1E9;                    \
-    if (_timeout_usec*1E3 > delta_nsec) {                             \
-      status = 1;                                                     \
-      break;                                                          \
-    }                                                                 \
-  }                                                                   \
-  status;                                                             \
-})
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ *  Get timespec difference
+ *
+ *  Given two timespec structures, calculate their difference as a timespec
+ *  structure.
+ *
+ *  This takes care of cases when a simple subtraction of nanosecond portion
+ *  might result in an overflow (per guidance offered in gnu libc
+ *  documentation:
+ *  https://www.gnu.org/software/libc/manual/html_node/Calculating-Elapsed-Time.html
+ *
+ *  @param[out] result Result of subraction as a 'struct timespec' structure
+ *  @param[in] lhs     Left hand side of operation
+ *  @param[in] rhs     Right hand side of operation
+ *  @returns 0 if lhs > rhs, 1 otherwise
+ */
+inline int ofs_diff_timespec(struct timespec *result,
+			     struct timespec *lhs, struct timespec *rhs)
+{
+
+	long rhs_sec = rhs->tv_sec;
+	long rhs_nsec = rhs->tv_nsec;
+	if (lhs->tv_nsec < rhs_nsec) {
+		int sec = (rhs_nsec - lhs->tv_nsec)*NSEC2SEC + 1;
+		rhs_nsec -= sec * SEC2NSEC;
+		rhs_sec += sec;
+	}
+
+	if (lhs->tv_nsec - rhs_nsec > SEC2NSEC) {
+		int sec = (lhs->tv_nsec - rhs_nsec) * NSEC2SEC;
+		rhs_nsec += sec * SEC2NSEC;
+		rhs_sec -= sec;
+	}
+
+	result->tv_sec = lhs->tv_sec - rhs_sec;
+	result->tv_nsec = lhs->tv_nsec - rhs_nsec;
+
+	return lhs->tv_sec < rhs_sec;
+}
 
 
-int ofs_diff_timespec(struct timespec *result,
-		      struct timespec *lhs, struct timespec *rhs);
+/**
+ *  Wait for a 32-bit variable to equal a given value
+ *
+ *  Helper function to poll on a variable given its pointer.
+ *  This is helpful for variables derived from MMIO registers where the
+ *  hardware backing the address space can change register.
+ *
+ *  @param[in] var          Pointer to a variable that may change
+ *  @param[in] value        Value to compare to var
+ *  @param[in] timeout_usec Timeout value in usec
+ *  @param[in] sleep_usec   Time (in usec) to sleep while waiting
+ *  @returns 0 if variable changed to value while waiting, 1 otherwise
+ */
+inline int ofs_wait_for_eq32(uint32_t *var, uint32_t value,
+			     uint64_t timeout_usec, uint32_t sleep_usec)
+{
+	OFS_TIMESPEC_USEC(ts, sleep_usec);
+	struct timespec begin, now;
+	clock_gettime(CLOCK_MONOTONIC, &begin);
+	while(*var != value) {
+		if (sleep_usec)
+			nanosleep(&ts, NULL);
+		clock_gettime(CLOCK_MONOTONIC, &now);
+		struct timespec delta;
+		ofs_diff_timespec(&delta, &now, &begin);
+  		uint64_t delta_nsec = delta.tv_nsec + delta.tv_sec*SEC2NSEC;
+		if (delta_nsec > timeout_usec*USEC2NSEC) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+/**
+ *  Wait for a 64-bit variable to equal a given value
+ *
+ *  Helper function to poll on a variable given its pointer.
+ *  This is helpful for variables derived from MMIO registers where the
+ *  hardware backing the address space can change register.
+ *
+ *  @param[in] var          Pointer to a variable that may change
+ *  @param[in] value        Value to compare to var
+ *  @param[in] timeout_usec Timeout value in usec
+ *  @param[in] sleep_usec   Time (in usec) to sleep while waiting
+ *  @returns 0 if variable changed to value while waiting, 1 otherwise
+ */
+inline int ofs_wait_for_eq64(uint64_t *var, uint64_t value,
+			     uint64_t timeout_usec, uint32_t sleep_usec)
+{
+	OFS_TIMESPEC_USEC(ts, sleep_usec);
+	struct timespec begin, now;
+	clock_gettime(CLOCK_MONOTONIC, &begin);
+	while(*var != value) {
+		if (sleep_usec)
+			nanosleep(&ts, NULL);
+		clock_gettime(CLOCK_MONOTONIC, &now);
+		struct timespec delta;
+		ofs_diff_timespec(&delta, &now, &begin);
+  		uint64_t delta_nsec = delta.tv_nsec + delta.tv_sec*SEC2NSEC;
+		if (delta_nsec > timeout_usec*USEC2NSEC) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+#ifdef __cplusplus
+}
+#endif
 #endif /* !OFS_PRIMITIVES_H */
