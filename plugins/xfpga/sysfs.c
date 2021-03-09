@@ -2323,7 +2323,8 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 			// while loop depth 5
 			while (resurse_depth) {
 				memset(full_path, 0, sizeof(full_path));
-				strncat(pattern, "*/", strlen("*/"));
+				len = strnlen(pattern, SYSFS_PATH_MAX - 1);
+				strncat(pattern, "*/", SYSFS_PATH_MAX - len);
 
 				if (snprintf(full_path, SYSFS_PATH_MAX,
 					"%s%s%s", prefix_path, pattern, p + 3) < 0) {
