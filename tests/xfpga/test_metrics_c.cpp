@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -59,10 +59,6 @@ extern "C" {
 #include "xfpga.h"
 #include "mock/test_utils.h"
 
-#undef FPGA_MSG
-#define FPGA_MSG(fmt, ...) \
-	printf("MOCK " fmt "\n", ## __VA_ARGS__)
-
 extern "C" {
 int xfpga_plugin_initialize(void);
 int xfpga_plugin_finalize(void);
@@ -78,19 +74,19 @@ int mmio_ioctl(mock_object *m, int request, va_list argp) {
   struct fpga_port_region_info *rinfo =
       va_arg(argp, struct fpga_port_region_info *);
   if (!rinfo) {
-    FPGA_MSG("rinfo is NULL");
+    OPAE_MSG("rinfo is NULL");
     goto out_EINVAL;
   }
   if (rinfo->argsz != sizeof(*rinfo)) {
-    FPGA_MSG("wrong structure size");
+    OPAE_MSG("wrong structure size");
     goto out_EINVAL;
   }
   if (rinfo->index > 1) {
-    FPGA_MSG("unsupported MMIO index");
+    OPAE_MSG("unsupported MMIO index");
     goto out_EINVAL;
   }
   if (rinfo->padding != 0) {
-    FPGA_MSG("unsupported padding");
+    OPAE_MSG("unsupported padding");
     goto out_EINVAL;
   }
   rinfo->flags = FPGA_REGION_READ | FPGA_REGION_WRITE | FPGA_REGION_MMAP;
