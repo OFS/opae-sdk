@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2021, Intel Corporation
+## Copyright(c) 2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -23,19 +23,24 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
+set(src
+    ofs_primitives.c
+)
 
-cmake_minimum_required (VERSION  3.10)
+opae_add_shared_library(
+    TARGET ofs
+    SOURCE ${src}
+    VERSION ${OPAE_VERSION}
+    SOVERSION ${OPAE_VERSION_MAJOR}
+    COMPONENT libofs
+)
 
-project(testing)
+target_include_directories(ofs
+    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-add_subdirectory(argsfilter)
-add_subdirectory(board)
-add_subdirectory(dummy_afu)
-add_subdirectory(fpgaconf)
-add_subdirectory(fpgainfo)
-add_subdirectory(hello_events)
-add_subdirectory(hello_fpga)
-add_subdirectory(object_api)
-add_subdirectory(userclk)
-add_subdirectory(fpgametrics)
-add_subdirectory(libofs)
+target_link_libraries(ofs
+    rt
+)
+set_property(TARGET ofs PROPERTY C_STANDARD 11)
+
