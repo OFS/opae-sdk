@@ -32,6 +32,14 @@
 
 using hrc = std::chrono::high_resolution_clock;
 
+/**
+ * @test    timespec_usec_macro
+ * @brief   Tests: OFS_TIMESPEC_USEC macro
+ * @details Use number of seconds as a double to converto to microseconds
+ *          Then delcare a variable using OFS_TIMESPEC_USEC macro and those
+ *          microseconds. Verify that converting the timespec variable back to
+ *          seconds (as a double) is equal to the original number.
+ * */
 TEST(libofs, timespec_usec_macro)
 {
   double t = 1.1;
@@ -41,6 +49,15 @@ TEST(libofs, timespec_usec_macro)
   ASSERT_EQ(t, converted);
 }
 
+/**
+ * @test    diff_timespec
+ * @brief   Tests: ofs_diff_timespec
+ * @details Declare two timespec variables differing by only 100 nsec
+ *          Subtract the smaller from the greater and verify that the result is
+ *          only 100nsec.
+ *          Subtract the greater from the smaller and verify the result is -1
+ *          sec and 999999900 nsec
+ * */
 TEST(libofs, diff_timespec)
 {
   struct timespec lhs, rhs, result;
@@ -60,6 +77,7 @@ TEST(libofs, diff_timespec)
   EXPECT_EQ(result.tv_nsec, 999999900);
 
 }
+
 
 template<typename T>
 uint64_t wait_test(int(*wait_fn)(T*, T, uint64_t, uint32_t), bool modify, uint64_t modify_usec, uint64_t timeout_usec)
@@ -92,6 +110,16 @@ uint64_t wait_test(int(*wait_fn)(T*, T, uint64_t, uint32_t), bool modify, uint64
   return delta_usec;
 }
 
+/**
+ * @test    wait_for_eq
+ * @brief   Tests: ofs_wait_for_eq32, ofs_wait_for_eq64
+ * @details Call wait_test template function to call either ofs_wait_for_eq32
+ *          of ofs_wait_for_eq64 using either 32-bit or 64-bit pointer and have
+ *          the pointer changed in a seperate thread before the timeout.
+ *          Verify that the time waiting is greater than the modify time but
+ *          less than the timeout.
+ *
+ * */
 TEST(libofs, wait_for_eq)
 {
   uint64_t modify_usec = 1000;
@@ -107,6 +135,15 @@ TEST(libofs, wait_for_eq)
   EXPECT_LT(delta_usec, timeout_usec);
 }
 
+/**
+ * @test    wait_for_eq
+ * @brief   Tests: ofs_wait_for_eq32, ofs_wait_for_eq64
+ * @details Call wait_test template function to call either ofs_wait_for_eq32
+ *          of ofs_wait_for_eq64 using either 32-bit or 64-bit pointer and have
+ *          the pointer remain unchanged in a seperate thread before the timeout.
+ *          Verify that the time waiting is greater than or equal to the timeout.
+ *
+ * */
 TEST(libofs, wait_for_eq_timeout)
 {
   uint64_t modify_usec = 1000;

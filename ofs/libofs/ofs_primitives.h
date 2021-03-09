@@ -94,8 +94,8 @@ inline int ofs_diff_timespec(struct timespec *result,
  *  Wait for a 32-bit variable to equal a given value
  *
  *  Helper function to poll on a variable given its pointer.
- *  This is helpful for variables derived from MMIO registers where the
- *  hardware backing the address space can change register.
+ *  This is helpful for pointers to MMIO registers that can be
+ *  changed by hardware they are mapped to.
  *
  *  @param[in] var          Pointer to a variable that may change
  *  @param[in] value        Value to compare to var
@@ -127,8 +127,8 @@ inline int ofs_wait_for_eq32(uint32_t *var, uint32_t value,
  *  Wait for a 64-bit variable to equal a given value
  *
  *  Helper function to poll on a variable given its pointer.
- *  This is helpful for variables derived from MMIO registers where the
- *  hardware backing the address space can change register.
+ *  This is helpful for pointers to MMIO registers that can be
+ *  changed by hardware they are mapped to.
  *
  *  @param[in] var          Pointer to a variable that may change
  *  @param[in] value        Value to compare to var
