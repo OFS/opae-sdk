@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2020, Intel Corporation
+// Copyright(c) 2019-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -93,7 +93,7 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 	char buf[FPGA_VAR_BUF_LEN]     = { 0 };
 
 	if (bmcfw_ver == NULL) {
-		FPGA_ERR("Invalid Input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -120,7 +120,7 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 	char *endptr               = NULL;
 	if (buf == NULL ||
 		fw_ver == NULL) {
-		FPGA_ERR("Invalid Input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -147,7 +147,7 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 	if ((rev >= 'A') && (rev <= 'Z')) {// range from 'A' to 'Z'
 		retval = snprintf(fw_ver, len, "%c.%u.%u.%u", (char)rev, (var >> 16) & 0xff, (var >> 8) & 0xff, var & 0xff);
 		if (retval < 0) {
-			FPGA_ERR("error in formatting version");
+			OPAE_ERR("error in formatting version");
 			return FPGA_EXCEPTION;
 		}
 	} else {
@@ -165,7 +165,7 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 	char buf[FPGA_VAR_BUF_LEN]           = { 0 };
 
 	if (max10fw_ver == NULL) {
-		FPGA_ERR("Invalid input parameters");
+		OPAE_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 	res = read_sysfs(token, DFL_SYSFS_MAX10_VER, buf, FPGA_VAR_BUF_LEN - 1);
@@ -207,7 +207,7 @@ fpga_result print_pkvl_version(fpga_token token)
 
 	retval = snprintf(ver_a_buf, FPGA_VAR_BUF_LEN, "%lx.%lx", sub_ver, serdes_ver);
 	if (retval < 0) {
-		FPGA_ERR("error in formatting version");
+		OPAE_ERR("error in formatting version");
 		return FPGA_EXCEPTION;
 	}
 
@@ -224,7 +224,7 @@ fpga_result print_pkvl_version(fpga_token token)
 
 	retval = snprintf(ver_b_buf, FPGA_VAR_BUF_LEN, "%lx.%lx", sub_ver, serdes_ver);
 	if (retval < 0) {
-		FPGA_ERR("error in formatting version");
+		OPAE_ERR("error in formatting version");
 		return FPGA_EXCEPTION;
 	}
 

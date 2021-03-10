@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -44,10 +44,6 @@ int xfpga_plugin_finalize(void);
 #include "mock/test_system.h"
 #include "sysfs_int.h"
 
-#undef FPGA_MSG
-#define FPGA_MSG(fmt, ...) \
-	printf("MOCK " fmt "\n", ## __VA_ARGS__)
-
 
 using namespace opae::testing;
 
@@ -59,11 +55,11 @@ int umsg_port_info(mock_object * m, int request, va_list argp){
     UNUSED_PARAM(request);
     struct fpga_port_info *pinfo = va_arg(argp, struct fpga_port_info *);
     if (!pinfo) {
-        FPGA_MSG("pinfo is NULL");
+        OPAE_MSG("pinfo is NULL");
         goto out_EINVAL;
     }
     if (pinfo->argsz != sizeof(*pinfo)) {
-        FPGA_MSG("wrong structure size");
+        OPAE_MSG("wrong structure size");
         goto out_EINVAL;
     }
     pinfo->flags = 0;
@@ -94,20 +90,20 @@ int umsg_set_mode(mock_object * m, int request, va_list argp){
     UNUSED_PARAM(request);
     struct fpga_port_umsg_cfg *ucfg = va_arg(argp, struct fpga_port_umsg_cfg *);
     if (!ucfg) {
-    	FPGA_MSG("ucfg is NULL");
+    	OPAE_MSG("ucfg is NULL");
     	goto out_EINVAL;
     }
     if (ucfg->argsz != sizeof(*ucfg)) {
-    	FPGA_MSG("wrong structure size");
+    	OPAE_MSG("wrong structure size");
     	goto out_EINVAL;
     }
     if (ucfg->flags != 0) {
-    	FPGA_MSG("unexpected flags %u", ucfg->flags);
+    	OPAE_MSG("unexpected flags %u", ucfg->flags);
     	goto out_EINVAL;
     }
     /* TODO: check hint_bitmap */
     if (ucfg->hint_bitmap >> 8) {
-    	FPGA_MSG("invalid hint_bitmap 0x%x", ucfg->hint_bitmap);
+    	OPAE_MSG("invalid hint_bitmap 0x%x", ucfg->hint_bitmap);
     	goto out_EINVAL;
     }
     retval = 0;
@@ -128,15 +124,15 @@ int umsg_set_base_addr(mock_object * m, int request, va_list argp){
     UNUSED_PARAM(request);
     struct fpga_port_umsg_base_addr *ubase = va_arg(argp, struct fpga_port_umsg_base_addr *);
     if (!ubase) {
-    	FPGA_MSG("ubase is NULL");
+    	OPAE_MSG("ubase is NULL");
     	goto out_EINVAL;
     }
     if (ubase->argsz != sizeof(*ubase)) {
-    	FPGA_MSG("wrong structure size");
+    	OPAE_MSG("wrong structure size");
     	goto out_EINVAL;
     }
     if (ubase->flags != 0) {
-    	FPGA_MSG("unexpected flags %u", ubase->flags);
+    	OPAE_MSG("unexpected flags %u", ubase->flags);
     	goto out_EINVAL;
     }
     /* TODO: check iova */
@@ -541,9 +537,9 @@ TEST_P(umsg_c_mock_p, get_umsg_ptr_ioctl_err_03_DISABLED) {
  * @test       umsg_c_mock_p
  * @brief      invalid_free_umsg_buffer
  * @details    When the drivers are loaded and handle umsg_virt is mapped,
- *             but ioctl fails on FPGA_PORT_UMSG_DISABLE, FPGA_ERR outputs
+ *             but ioctl fails on FPGA_PORT_UMSG_DISABLE, OPAE_ERR outputs
  *             "Failed to disable UMSG" and returns FPGA_OK
- *             When ioctl fails on FPGA_PORT_UMSG_SET_BASE_ADDR, FPGA_ERR outputs
+ *             When ioctl fails on FPGA_PORT_UMSG_SET_BASE_ADDR, OPAE_ERR outputs
  *             "led to zero UMSG address" and returns FPGA_OK
  *
  */
@@ -570,7 +566,7 @@ TEST_P(umsg_c_mock_p, invalid_free_umsg_buffer_DISABLED) {
  * @test       umsg_c_mock_p
  * @brief      invalid_free_umsg_buffer
  * @details    When the drivers are loaded and handle umsg_virt is mapped,
- *             but ioctl fails on FPGA_PORT_DMA_UNMAP, FPGA_ERR outputs
+ *             but ioctl fails on FPGA_PORT_DMA_UNMAP, OPAE_ERR outputs
  *             "Failed to unmap UMSG Buffer" and returns FPGA_OK
  *
  */

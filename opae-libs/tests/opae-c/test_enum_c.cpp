@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -64,11 +64,11 @@ int port_info(mock_object * m, int request, va_list argp){
   UNUSED_PARAM(request);
   struct fpga_port_info *pinfo = va_arg(argp, struct fpga_port_info *);
   if (!pinfo) {
-  	FPGA_MSG("pinfo is NULL");
+  	OPAE_MSG("pinfo is NULL");
   	goto out_EINVAL;
   }
   if (pinfo->argsz != sizeof(*pinfo)) {
-  	FPGA_MSG("wrong structure size");
+  	OPAE_MSG("wrong structure size");
   	goto out_EINVAL;
   }
   pinfo->flags = 0;
@@ -100,11 +100,11 @@ int dfl_port_info(mock_object * m, int request, va_list argp){
   UNUSED_PARAM(request);
   struct dfl_fpga_port_info *pinfo = va_arg(argp, struct dfl_fpga_port_info *);
   if (!pinfo) {
-  	FPGA_MSG("pinfo is NULL");
+  	OPAE_MSG("pinfo is NULL");
   	goto out_EINVAL;
   }
   if (pinfo->argsz != sizeof(*pinfo)) {
-  	FPGA_MSG("wrong structure size");
+  	OPAE_MSG("wrong structure size");
   	goto out_EINVAL;
   }
   pinfo->flags = 0;
