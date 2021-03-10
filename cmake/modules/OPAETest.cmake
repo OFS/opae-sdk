@@ -32,53 +32,10 @@ set(OPAE_TEST_LIBRARIES test_system fpga_db
 
 function(opae_load_gtest)
     message(STATUS "Trying to fetch gtest through git...")
-    find_package(Git REQUIRED)
-
-    include(ExternalProject)
-
-    # Download and install GoogleTest
-    ExternalProject_Add(
-      gtest
-      GIT_REPOSITORY "https://github.com/google/googletest"
-      GIT_TAG "release-1.8.0"
-      UPDATE_COMMAND ""
-      PREFIX ${CMAKE_CURRENT_BINARY_DIR}/gtest
-      CMAKE_ARGS -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-      # Disable install step
-      INSTALL_COMMAND "")
-
-    set(gtest_root "${CMAKE_CURRENT_BINARY_DIR}/gtest/src/gtest/googletest")
-    message(STATUS "gtest located at: ${gtest_root}")
-
-    # Create a libgtest target to be used as a dependency by test programs
-    add_library(libgtest IMPORTED STATIC GLOBAL)
-    add_library(libgtest_main IMPORTED STATIC GLOBAL)
-    add_dependencies(libgtest gtest)
-    add_dependencies(libgtest_main gtest)
-
-    # Get GTest source and binary directories from CMake project
-    ExternalProject_Get_Property(gtest source_dir binary_dir)
-
-    # Set libgtest properties
-    set_target_properties(libgtest PROPERTIES
-        "IMPORTED_LOCATION" "${binary_dir}/googlemock/gtest/libgtest.a"
-        "IMPORTED_LINK_INTERFACE_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}")
-    # Set libgtest_main properties
-    set_target_properties(libgtest_main PROPERTIES
-        "IMPORTED_LOCATION" "${binary_dir}/googlemock/gtest/libgtest_main.a"
-        "IMPORTED_LINK_INTERFACE_LIBRARIES" "${CMAKE_THREAD_LIBS_INIT}")
-
-    # Export gtest variables
-    set(GTEST_ROOT "${gtest_root}" CACHE PATH "GTest root dir." FORCE)
-    set(GTEST_INCLUDE_DIRS "${gtest_root}/include"
-        CACHE PATH "GTest include dir." FORCE)
-    set(GTEST_MAIN_LIBRARY "libgtest_main"
-        CACHE PATH "GTest main lib." FORCE)
-    set(GTEST_LIBRARIES "libgtest"
-        CACHE PATH "GTest test lib." FORCE)
-    set(GTEST_BOTH_LIBRARIES libgtest_main libgtest
-        CACHE INTERNAL "GTest both libs." FORCE)
-    set(GTEST_FOUND TRUE CACHE BOOL "GTest found?" FORCE)
+    opae_external_project_add(PROJECT_NAME gtest
+                              GIT_URL https://github.com/google/googletest
+                              GIT_TAG release-1.10.0
+                              PRESERVE_REPOS ${OPAE_PRESERVE_REPOS})
 endfunction()
 
 function(opae_test_add)
@@ -137,7 +94,7 @@ function(opae_test_add)
         ${OPAE_TEST_LIBRARIES}
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
-        ${GTEST_BOTH_LIBRARIES}
+        gtest_main
         ${OPAE_TEST_ADD_LIBS})
 
     opae_coverage_build(TARGET ${OPAE_TEST_ADD_TARGET}
