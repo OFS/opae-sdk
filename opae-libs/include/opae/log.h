@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -81,18 +81,6 @@
 {	}
 #endif // LIBOPAE_DEBUG
 
-#ifndef FPGA_MSG
-#define FPGA_MSG OPAE_MSG
-#endif // FPGA_MSG
-
-#ifndef FPGA_ERR
-#define FPGA_ERR OPAE_ERR
-#endif // FPGA_ERR
-
-#ifndef FPGA_DBG
-#define FPGA_DBG OPAE_DBG
-#endif // FPGA_DBG
-
 /*
 * Logging functions
 */
@@ -103,10 +91,6 @@ enum opae_loglevel {
 };
 
 #define OPAE_DEFAULT_LOGLEVEL OPAE_LOG_ERROR
-
-#ifndef FPGA_DEFAULT_LOGLEVEL
-#define FPGA_DEFAULT_LOGLEVEL OPAE_DEFAULT_LOGLEVEL
-#endif // FPGA_DEFAULT_LOGLEVEL
 
 #ifdef __cplusplus
 extern "C" {

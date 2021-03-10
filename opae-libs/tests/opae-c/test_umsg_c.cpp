@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -56,11 +56,11 @@ int umsg_port_info(mock_object * m, int request, va_list argp){
     UNUSED_PARAM(request);
     struct fpga_port_info *pinfo = va_arg(argp, struct fpga_port_info *);
     if (!pinfo) {
-        FPGA_MSG("pinfo is NULL");
+        OPAE_MSG("pinfo is NULL");
         goto out_EINVAL;
     }
     if (pinfo->argsz != sizeof(*pinfo)) {
-        FPGA_MSG("wrong structure size");
+        OPAE_MSG("wrong structure size");
         goto out_EINVAL;
     }
     pinfo->flags = 0;
@@ -91,20 +91,20 @@ int umsg_set_mode(mock_object * m, int request, va_list argp){
     UNUSED_PARAM(request);
     struct fpga_port_umsg_cfg *ucfg = va_arg(argp, struct fpga_port_umsg_cfg *);
     if (!ucfg) {
-    	FPGA_MSG("ucfg is NULL");
+    	OPAE_MSG("ucfg is NULL");
     	goto out_EINVAL;
     }
     if (ucfg->argsz != sizeof(*ucfg)) {
-    	FPGA_MSG("wrong structure size");
+    	OPAE_MSG("wrong structure size");
     	goto out_EINVAL;
     }
     if (ucfg->flags != 0) {
-    	FPGA_MSG("unexpected flags %u", ucfg->flags);
+    	OPAE_MSG("unexpected flags %u", ucfg->flags);
     	goto out_EINVAL;
     }
     /* TODO: check hint_bitmap */
     if (ucfg->hint_bitmap >> 8) {
-    	FPGA_MSG("invalid hint_bitmap 0x%x", ucfg->hint_bitmap);
+    	OPAE_MSG("invalid hint_bitmap 0x%x", ucfg->hint_bitmap);
     	goto out_EINVAL;
     }
     retval = 0;
