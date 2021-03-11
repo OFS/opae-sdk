@@ -223,7 +223,7 @@ class ofs_driver_writer(object):
     def ofs_resolve(self, node, line):
         if node is None:
             return line
-        if isinstance(node, ast.Call):
+        if isinstance(node, ast.Call) and node.func.id == 'ofs_addr':
             func = node.func.id
             arg0 = node.args[0].id
             if func == 'ofs_addr' and arg0 in self.registers_names():
