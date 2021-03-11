@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2021, Intel Corporation
+## Copyright(c) 2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -23,21 +23,10 @@
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
+option(OPAE_BUILD_OFS_CPENG "Enable building ofs_cpeng driver" ON)
+mark_as_advanced(OPAE_BUILD_OFS_CPENG)
 
-cmake_minimum_required (VERSION  3.10)
+if (OPAE_BUILD_OFS_CPENG)
+    add_subdirectory(cpeng)
+endif (OPAE_BUILD_OFS_CPENG)
 
-project(testing)
-
-add_subdirectory(argsfilter)
-add_subdirectory(board)
-add_subdirectory(dummy_afu)
-add_subdirectory(fpgaconf)
-add_subdirectory(fpgainfo)
-add_subdirectory(hello_events)
-add_subdirectory(hello_fpga)
-add_subdirectory(object_api)
-add_subdirectory(userclk)
-add_subdirectory(fpgametrics)
-add_subdirectory(libofs)
-add_subdirectory(ofs_driver)
-add_subdirectory(ofs_cpeng)
