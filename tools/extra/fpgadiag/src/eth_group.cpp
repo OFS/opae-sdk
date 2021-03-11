@@ -45,160 +45,65 @@
 #define ETH_GROUP_MAC		2
 #define ETH_GROUP_ETHER		3
 
-#define DEV_VFIO_PATH  "/dev/vfio/vfio"
 #define MAC_CONFIG	0x310
 
 #define ETH_GROUP_TIMEOUT          100
 #define ETH_GROUP_TIMEOUT_COUNT    50
 #define ETH_GROUP_RET_VALUE        0xffff
-
+#define ETH_GROUP_FEATUREID        0x10
 
 // open eth group
-int eth_group::eth_group_open(int vfio_id, std::string fpga_mdev_str)
+int eth_group::eth_group_open(const std::string& fpga_uid_str)
 {
-	char dev_path[256] = { 0 };
-	int i = 0;
-	struct vfio_group_status group_status ;
-	struct vfio_iommu_type1_info iommu_info;
-	struct vfio_iommu_type1_dma_map dma_map;
+	int res       = 0;
+	uint8_t *mem  = NULL;
 
-	memset(&group_status, 0, sizeof(group_status));
-	group_status.argsz = sizeof(group_status);
+	res = opae_uio_open(&uio, fpga_uid_str.c_str());
+	if (res) {
+		return res;
+	}
 
-	memset(&iommu_info, 0, sizeof(iommu_info));
-	iommu_info.argsz = sizeof(iommu_info);
+	res = opae_uio_region_get(&uio, 0, (uint8_t **)&mem, NULL);
+	if (res) {
+		return res;
+	}
 
-	memset(&dma_map, 0, sizeof(dma_map));
-	dma_map.argsz = sizeof(dma_map);
+	mmap_ptr = mem;
+	ptr_ = (uint64_t*)mem;
 
-	memset(&device_info, 0, sizeof(device_info));
-	device_info.argsz = sizeof(device_info);
-
-	memset(&device_info, 0, sizeof(device_info));
-	device_info.argsz = sizeof(device_info);
-
-	container = open(DEV_VFIO_PATH, O_RDWR);
-	if (container < 0) {
-		fprintf(stderr, "error opening container: %s\n",
-			strerror(errno));
+	eth_dfh.csr = *(ptr_);
+	// Check ETH group FeatureID
+	if (eth_dfh.id != ETH_GROUP_FEATUREID) {
+		printf("Wrong Eth group Feature ID \n");
 		return -1;
 	}
 
-	if (ioctl(container, VFIO_GET_API_VERSION) != VFIO_API_VERSION) {
-		printf("Wrong VFIO_API_VERSION \n");
-		return -1;
-	}
-	
-	if (!ioctl(container, VFIO_CHECK_EXTENSION, VFIO_TYPE1_IOMMU)) {
-		printf("Doen't support VFIO_TYPE1_IOMMU \n");
-		return -1;
-	}
+	eth_info.csr = *(ptr_ + 1);
+	direction = eth_info.direction;
+	phy_num = eth_info.no_phys;
+	group_id = eth_info.group_num;
+	speed = eth_info.speed_gbs;
+	df_id = eth_dfh.id;
+	eth_lwmac = eth_info.light_wight_mac;
 
-	if (snprintf(dev_path, sizeof(dev_path),
-		"%s/%d", "/dev/vfio", vfio_id) < 0) {
-		printf("snprint fails \n");
-		return -1;
-	}
-
-	group = open(dev_path, O_RDWR);
-	if (group < 0) {
-		fprintf(stderr, "error opening group: %s\n",
-			strerror(errno));
+	// Reset Mac
+	if (!mac_reset()) {
+		printf("Failed to reset MAC \n");
 		return -1;
 	}
 
-	// checks VFIO group status
-	ioctl(group, VFIO_GROUP_GET_STATUS, &group_status);
-	if (!(group_status.flags & VFIO_GROUP_FLAGS_VIABLE)) {
-		printf("Wrong VFIO_GROUP_FLAGS_VIABLE \n");
-		return -1;
-	}
-
-	// Add the group to the container
-	ioctl(group, VFIO_GROUP_SET_CONTAINER, &container);
-
-	// Enable the IOMMU model
-	ioctl(container, VFIO_SET_IOMMU, VFIO_TYPE1_IOMMU);
-
-	// Get IOMMU info
-	ioctl(container, VFIO_IOMMU_GET_INFO, &iommu_info);
-
-	// Allocate some space and setup a DMA mapping 
-	dma_map.vaddr = (unsigned long int) mmap(0, 1024 * 1024, PROT_READ | PROT_WRITE,
-		MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
-	dma_map.size = 1024 * 1024;
-	dma_map.iova = 0;
-	dma_map.flags = VFIO_DMA_MAP_FLAG_READ | VFIO_DMA_MAP_FLAG_WRITE;
-
-	ioctl(container, VFIO_IOMMU_MAP_DMA, &dma_map);
-
-	// Get FIO a file descriptor for the device
-	device = ioctl(group, VFIO_GROUP_GET_DEVICE_FD, fpga_mdev_str.c_str()	);
-	if (device < 0) {
-		fprintf(stderr, "error getting device fd: %s\n",
-			strerror(errno));
-		return -1;
-	}
-	// Get dvice info
-	ioctl(device, VFIO_DEVICE_GET_INFO, &device_info);
-
-	for (i = 0; i < (int)device_info.num_regions; i++) {
-		struct vfio_region_info reg;
-		memset(&reg, 0, sizeof(reg));
-		reg.argsz = sizeof(reg);
-		reg.index = i;
-		ioctl(device, VFIO_DEVICE_GET_REGION_INFO, &reg);
-		uint8_t *mem;
-		mem = (uint8_t*) mmap(NULL, reg.size, PROT_READ | PROT_WRITE,
-			MAP_SHARED, device, reg.offset);
-
-		if (mem == MAP_FAILED) {
-			printf("Failed to MMAP \n");
-			eth_group_close();
-			return -1;
-		}
-
-		reg_size = reg.size;
-		reg_offset = reg.offset;
-
-		mmap_ptr = mem;
-		ptr_ = (uint64_t*)mem;
-
-		eth_info.csr = *(ptr_ + 1);
-		eth_dfh.csr = *(ptr_);
-		direction = eth_info.direction;
-		phy_num = eth_info.no_phys;
-		group_id = eth_info.group_num;
-		speed = eth_info.speed_gbs;
-		df_id = eth_dfh.id;
-		eth_lwmac = eth_info.light_wight_mac;
-
-		// Reset Mac
-		if (!mac_reset()) {
-			printf("Failed to reset MAC \n");
-			return -1;
-		}
-	}
 	return 0;
 }
 
 // reset mac
 bool eth_group::mac_reset()
 {
-	uint32_t i;
-	uint32_t value;
-	int ret = 0;
-	struct eth_group_mac mac_value;
+	uint32_t i       = 0;
 
 	for (i = 0; i < phy_num; i++) {
-		value = read_reg(ETH_GROUP_MAC, i, 0, MAC_CONFIG);
-		if (value == ETH_GROUP_RET_VALUE)
+		if (read_reg(ETH_GROUP_MAC, i, 0, MAC_CONFIG) == ETH_GROUP_RET_VALUE)
 			return false;
-
-		mac_value.csr = value;
-		value |= mac_value.mac_mask;
-		ret = write_reg(ETH_GROUP_MAC, i, 0, MAC_CONFIG, 0x0);
-		if (ret != 0)
+		if (write_reg(ETH_GROUP_MAC, i, 0, MAC_CONFIG, 0x0))
 			return false;
 	}
 
@@ -208,26 +113,7 @@ bool eth_group::mac_reset()
 // Close eth group
 int eth_group::eth_group_close(void)
 {
-	struct vfio_iommu_type1_dma_unmap dma_unmap;
-
-	memset(&dma_unmap, 0, sizeof(dma_unmap));
-	dma_unmap.argsz = sizeof(struct vfio_iommu_type1_dma_unmap);
-	dma_unmap.size = 1024 * 1024;
-	dma_unmap.iova = 0;
-
-	munmap(ptr_, reg_size);
-
-	if (device > 0)
-		close(device);
-
-	ioctl(container, VFIO_IOMMU_UNMAP_DMA,&dma_unmap);
-
-	if (group > 0)
-		close(group);
-
-	if (container > 0)
-		close(container);
-
+	opae_uio_close(&uio);
 	return 0;
 }
 
@@ -239,12 +125,11 @@ uint32_t eth_group::read_reg(uint32_t type,
 {
 	struct eth_group_ctl eth_ctl;
 	struct eth_group_stat eth_stat;
-	uint32_t data;
-	int timer_count = 0;
-	eth_ctl.csr = 0;
-	eth_stat.csr = 0;
+	uint32_t data           = 0;
+	int timer_count         = 0;
+	eth_ctl.csr             = 0;
+	eth_stat.csr            = 0;
 
-	//printf("read_reg addr: %x  type: %x  index: %x flags: %x \n", addr, type, index, flags);
 
 	if (flags & ETH_GROUP_SELECT_FEAT && type != ETH_GROUP_PHY)
 		return -1;
@@ -295,7 +180,6 @@ int eth_group::write_reg(uint32_t type,
 	eth_ctl.csr = 0;
 	eth_stat.csr = 0;
 
-	//printf("write_reg addr: %x  type: %x  index: %x flags: %x \n", addr, type, index, flags);
 
 	if (flags & ETH_GROUP_SELECT_FEAT && type != ETH_GROUP_PHY)
 		return -1;
@@ -341,7 +225,7 @@ PYBIND11_MODULE(eth_group, m) {
 
 	py::class_<eth_group>(m, "eth_group")
 		.def(py::init<>())
-		.def("eth_group_open", (int(eth_group::*)(int, std::string))&eth_group::eth_group_open)
+		.def("eth_group_open", (int(eth_group::*)(const std::string&))&eth_group::eth_group_open)
 		.def("eth_group_close",(int(eth_group::*)(void))&eth_group::eth_group_close)
 		.def("read_reg", (uint32_t(eth_group::*)(uint32_t type, uint32_t index, uint32_t flags, uint32_t addrr))&eth_group::read_reg)
 		.def("write_reg", (int(eth_group::*)(uint32_t type, uint32_t index, uint32_t flags, uint32_t addrr, uint32_t data))&eth_group::write_reg)
