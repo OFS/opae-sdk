@@ -71,7 +71,7 @@
 	OFS_TIMESPEC_USEC(ts, _sleep_usec);                                 \
 	struct timespec begin, now;                                         \
 	clock_gettime(CLOCK_MONOTONIC, &begin);                             \
-	while(_bit == _value) {                                             \
+	while(_bit != _value) {                                             \
 		if (_sleep_usec)                                            \
 			nanosleep(&ts, NULL);                               \
 		clock_gettime(CLOCK_MONOTONIC, &now);                       \
