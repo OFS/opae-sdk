@@ -44,6 +44,47 @@
     .tv_nsec = _usec*USEC2NSEC-(long)(_usec*USEC2SEC)*SEC2NSEC  \
   }
 
+#define OFS_WAIT_FOR_EQ(_bit, _value, _timeout_usec, _sleep_usec)           \
+({                                                                          \
+	int _status = 0;                                                    \
+	OFS_TIMESPEC_USEC(ts, _sleep_usec);                                 \
+	struct timespec begin, now;                                         \
+	clock_gettime(CLOCK_MONOTONIC, &begin);                             \
+	while(_bit != _value) {                                             \
+		if (_sleep_usec)                                            \
+			nanosleep(&ts, NULL);                               \
+		clock_gettime(CLOCK_MONOTONIC, &now);                       \
+		struct timespec delta;                                      \
+		ofs_diff_timespec(&delta, &now, &begin);                    \
+		uint64_t delta_nsec = delta.tv_nsec + delta.tv_sec*SEC2NSEC;\
+		if (delta_nsec > _timeout_usec*USEC2NSEC) {                 \
+			_status = 1;                                        \
+			break;                                              \
+		}                                                           \
+	}                                                                   \
+        _status;                                                            \
+})                                                                          \
+
+#define OFS_WAIT_FOR_NE(_bit, _value, _timeout_usec, _sleep_usec)           \
+({                                                                          \
+	int _status = 0;                                                    \
+	OFS_TIMESPEC_USEC(ts, _sleep_usec);                                 \
+	struct timespec begin, now;                                         \
+	clock_gettime(CLOCK_MONOTONIC, &begin);                             \
+	while(_bit == _value) {                                             \
+		if (_sleep_usec)                                            \
+			nanosleep(&ts, NULL);                               \
+		clock_gettime(CLOCK_MONOTONIC, &now);                       \
+		struct timespec delta;                                      \
+		ofs_diff_timespec(&delta, &now, &begin);                    \
+		uint64_t delta_nsec = delta.tv_nsec + delta.tv_sec*SEC2NSEC;\
+		if (delta_nsec > _timeout_usec*USEC2NSEC) {                 \
+			_status = 1;                                        \
+			break;                                              \
+		}                                                           \
+	}                                                                   \
+        _status;                                                            \
+})                                                                          \
 
 #ifdef __cplusplus
 extern "C" {
