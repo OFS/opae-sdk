@@ -40,4 +40,7 @@ add_subdirectory(userclk)
 add_subdirectory(fpgametrics)
 add_subdirectory(libofs)
 add_subdirectory(ofs_driver)
-add_subdirectory(ofs_cpeng)
+if (OPAE_BUILD_OFS_CPENG)
+    add_subdirectory(ofs_cpeng)
+endif (OPAE_BUILD_OFS_CPENG)
+
