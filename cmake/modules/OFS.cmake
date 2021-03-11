@@ -1,4 +1,5 @@
-## Copyright(c) 2017-2021, Intel Corporation
+#!/usr/bin/cmake -P
+## Copyright(c) 2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,19 +25,29 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required (VERSION  3.10)
+macro(ofs_add_driver yml_file driver)
+    add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${driver}.h
+        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/ofs_parse.py ${CMAKE_CURRENT_LIST_DIR}/${yml_file} headers c ${CMAKE_CURRENT_BINARY_DIR} --driver ${driver}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        DEPENDS
+            ${CMAKE_CURRENT_LIST_DIR}/${yml_file}
+            ${CMAKE_SOURCE_DIR}/scripts/ofs_parse.py
+    )
+    add_library(${driver} SHARED
+        ${CMAKE_CURRENT_BINARY_DIR}/${driver}.h
+        ${ARGN}
+    )
+target_include_directories(${driver} PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/ofs/libofs>
+    $<BUILD_INTERFACE:${OPAE_INCLUDE_PATH}>
+    $<INSTALL_INTERFACE:opae>
+)
 
-project(testing)
+target_link_libraries(${driver} PUBLIC
+    opae-c
+)
+endmacro(ofs_add_driver yml_file)
 
-add_subdirectory(argsfilter)
-add_subdirectory(board)
-add_subdirectory(dummy_afu)
-add_subdirectory(fpgaconf)
-add_subdirectory(fpgainfo)
-add_subdirectory(hello_events)
-add_subdirectory(hello_fpga)
-add_subdirectory(object_api)
-add_subdirectory(userclk)
-add_subdirectory(fpgametrics)
-add_subdirectory(libofs)
-add_subdirectory(ofs_driver)
+

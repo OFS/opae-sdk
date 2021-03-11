@@ -33,6 +33,7 @@ set(CMAKE_MODULE_PATH
    "${CMAKE_CURRENT_SOURCE_DIR}/opae-libs/cmake/modules")
 
 include(OPAE)
+include(OFS)
 
 ############################################################################
 ## Whether to build opae-legacy ############################################
