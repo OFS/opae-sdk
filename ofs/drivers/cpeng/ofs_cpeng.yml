@@ -3,11 +3,56 @@
 drivers:
   - name: ofs_cpeng
     functions:
-      wait_for_ready:
+      wait_for_hps_ready:
         return: int
         args: [uint64_t timeout_usec]
         body:
           return OFS_WAIT_FOR_EQ(CSR_HPS2HOST_RDY_STATUS.HPS_RDY, 1, timeout_usec, 100)
+      dma_status:
+        return: int
+        body:
+          return CSR_CE2HOST_STATUS.CE_DMA_STS
+      dma_status_success:
+        return: bool
+        body:
+          return dma_status() == 0b10
+      dma_status_error:
+        return: bool
+        body:
+          return CSR_CE2HOST_STATUS.CE_DMA_STS == 0b11
+      image_complete:
+        body:
+          CSR_HOST2HPS_GPIO.HOST_HPS_CPL = 0x1
+      copy_chunk:
+        return: int
+        args: [uint64_t iova, uint64_t offset, uint32_t size]
+        body: |
+          CSR_SRC_ADDR.CSR_SRC_ADDR = iova
+          CSR_DST_ADDR.CSR_DST_ADDR = offset
+          CSR_DATA_SIZE.CSR_DATA_SIZE = size
+          CSR_HOST2CE_MRD_START.MRD_START = 1
+          if OFS_WAIT_FOR_NE(CSR_CE2HOST_STATUS.CE_DMA_STS, 0b01, 10000, 100):
+            return 1
+          if dma_status_success():
+            return 0
+          return 1
+      copy_image:
+        return: int
+        args: [uint64_t iova, uint64_t offset, uint32_t size, uint32_t chunk]
+        body: |
+          if not chunk:
+            return copy_chunk(iova, offset, size)
+          ptr: uint32_t = 0
+          while ptr < size:
+            if copy_chunk(iova+ptr, offset+ptr, chunk):
+              return 1
+            ptr += chunk
+            if size-ptr < chunk:
+              chunk = size-ptr
+            if OFS_WAIT_FOR_EQ(CSR_HOST2CE_MRD_START.MRD_START, 0, 10000, 100):
+              return 1
+          image_complete()
+          return 0
     registers:
       - !!ofs/register
         - [CSR_HPS2HOST_RDY_STATUS, 0x0110, 0x0000000000000000, "HPS Ready Status"]

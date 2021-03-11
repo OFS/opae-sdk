@@ -32,23 +32,61 @@
 
 
 /**
- * @test    wait_for_ready
- * @brief   Tests: ofs_cpeng_wait_for_ready
+ * @test    wait_for_hps_ready
+ * @brief   Tests: ofs_cpeng_wait_for_hps_ready
  * @details Tests ofs_cpeng_wait_for_ready by setting the register pointer to
  *          the address of a local variable of that type. First set the ready
  *          bit to 0, call ofs_cpeng_wait_for_ready, and verify the result is
  *          non-zero. Then set the ready bit to 1, call
  *          ofs_cpeng_wait_for_ready and verify the result is 0.
  * */
-TEST(ofs_cpeng, wait_for_ready)
+TEST(ofs_cpeng, wait_for_hps_ready)
 {
   ofs_cpeng otest;
   CSR_HPS2HOST_RDY_STATUS ready;
   otest.r_CSR_HPS2HOST_RDY_STATUS = &ready;
 
   ready.f_HPS_RDY = 0;
-  EXPECT_EQ(ofs_cpeng_wait_for_ready(&otest, 1000), 1);
+  EXPECT_EQ(ofs_cpeng_wait_for_hps_ready(&otest, 1000), 1);
 
   ready.f_HPS_RDY = 1;
-  EXPECT_EQ(ofs_cpeng_wait_for_ready(&otest, 1000), 0);
+  EXPECT_EQ(ofs_cpeng_wait_for_hps_ready(&otest, 1000), 0);
+}
+
+/**
+ * @test    copy_chunk
+ * @brief   Tests: copy_chunk
+ * @details Tests ofs_cpeng_wait_for_ready by setting the register pointer to
+ * */
+TEST(ofs_cpeng, copy_chunk)
+{
+  ofs_cpeng otest;
+  CSR_SRC_ADDR r_src = {0};
+  CSR_DST_ADDR r_dst = {0};
+  CSR_DATA_SIZE r_size = {0};
+  CSR_HOST2CE_MRD_START r_start = {0};
+  CSR_CE2HOST_STATUS r_status = {0};
+
+  otest.r_CSR_SRC_ADDR = &r_src;
+  otest.r_CSR_DST_ADDR = &r_dst;
+  otest.r_CSR_DATA_SIZE = &r_size;
+  otest.r_CSR_HOST2CE_MRD_START = &r_start;
+  otest.r_CSR_CE2HOST_STATUS = &r_status;
+
+  ASSERT_EQ(r_src.value, 0);
+  ASSERT_EQ(r_dst.value, 0);
+  ASSERT_EQ(r_size.value, 0);
+  ASSERT_EQ(r_start.value, 0);
+  ASSERT_EQ(r_status.value, 0);
+  EXPECT_EQ(ofs_cpeng_copy_chunk(&otest, 0x1000, 0x2000, 4096), 1);
+  EXPECT_EQ(r_src.f_CSR_SRC_ADDR, 0x1000);
+  EXPECT_EQ(r_dst.f_CSR_DST_ADDR, 0x2000);
+  EXPECT_EQ(r_size.f_CSR_DATA_SIZE, 4096);
+
+
+  r_status.f_CE_DMA_STS = 0b10;
+  EXPECT_EQ(ofs_cpeng_copy_chunk(&otest, 0x3000, 0x4000, 8192), 0);
+  EXPECT_EQ(r_src.f_CSR_SRC_ADDR, 0x3000);
+  EXPECT_EQ(r_dst.f_CSR_DST_ADDR, 0x4000);
+  EXPECT_EQ(r_size.f_CSR_DATA_SIZE, 8192);
 }
