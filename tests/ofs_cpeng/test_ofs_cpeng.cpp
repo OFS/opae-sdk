@@ -56,7 +56,10 @@ TEST(ofs_cpeng, wait_for_hps_ready)
 /**
  * @test    copy_chunk
  * @brief   Tests: copy_chunk
- * @details Tests ofs_cpeng_wait_for_ready by setting the register pointer to
+ * @details Tests ofs_cpeng_copy_chunk by setting the register pointers in
+ * ofs_cpeng structure to local variables. Modify bit field variables in the
+ * test before calling ofs_cpeng_copy_chunk then verify that those bit fields
+ * are changed as expected by that call.
  * */
 TEST(ofs_cpeng, copy_chunk)
 {
