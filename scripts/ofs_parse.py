@@ -190,10 +190,18 @@ class ofs_driver_writer(object):
 
     def find_call(self, node):
         if isinstance(node, ast.Call):
-            return node
+            return [node]
         if isinstance(node, ast.Return) or isinstance(node, ast.Expr):
-            if isinstance(node.value, ast.Call):
-                return node.value
+            return self.find_call(node.value)
+        if isinstance(node, ast.Compare) or isinstance(node, ast.BinOp):
+            calls = self.find_call(node.left)
+            if isinstance(node, ast.Compare):
+                for c in node.comparators:
+                    calls.extend(self.find_call(c))
+            else:
+                calls.extend(self.find_call(node.right))
+            return calls
+        return []
 
     def annotation_to_c(self, node):
         if isinstance(node, ast.Subscript):
@@ -213,8 +221,7 @@ class ofs_driver_writer(object):
         # lines = body.split('\n')
         line = ast.get_source_segment(body, node)
 
-        call_node = self.find_call(node)
-        if call_node:
+        for call_node in self.find_call(node):
             fn_name = call_node.func.id
             if fn_name in self.functions:
                 line = re.sub(f'({fn_name})\\((.*?)\\)', arg_repl, line)
