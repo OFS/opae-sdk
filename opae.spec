@@ -199,6 +199,7 @@ done
 %{_libdir}/opae/libboard_a10gx.so*
 %{_libdir}/opae/libboard_n3000.so*
 %{_libdir}/opae/libboard_d5005.so*
+%{_libdir}/opae/libboard_n5010.so*
 %{_libdir}/libopae-c++-nlb.so
 %{_libdir}/libopae-cxx-core.so
 %{_libdir}/libopae-c++-utils.so

@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -54,18 +54,6 @@ int __XFPGA_API__ xfpga_plugin_finalize(void)
 {
 	sysfs_finalize();
 	return 0;
-}
-
-bool __XFPGA_API__ xfpga_plugin_supports_device(const char *device_type)
-{
-	UNUSED_PARAM(device_type);
-	return true;
-}
-
-bool __XFPGA_API__ xfpga_plugin_supports_host(const char *hostname)
-{
-	UNUSED_PARAM(hostname);
-	return true;
 }
 
 int __XFPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
@@ -178,16 +166,6 @@ int __XFPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 	adapter->fpgaGetUserClock =
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetUserClock");
 
-	adapter->initialize =
-		dlsym(adapter->plugin.dl_handle, "xfpga_plugin_initialize");
-	adapter->finalize =
-		dlsym(adapter->plugin.dl_handle, "xfpga_plugin_finalize");
-
-	adapter->supports_device = dlsym(adapter->plugin.dl_handle,
-					 "xfpga_plugin_supports_device");
-	adapter->supports_host =
-		dlsym(adapter->plugin.dl_handle, "xfpga_plugin_supports_host");
-
 	adapter->fpgaGetNumMetrics =
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetNumMetrics");
 
@@ -202,6 +180,11 @@ int __XFPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 
 	adapter->fpgaGetMetricsThresholdInfo =
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaGetMetricsThresholdInfo");
+
+	adapter->initialize =
+		dlsym(adapter->plugin.dl_handle, "xfpga_plugin_initialize");
+	adapter->finalize =
+		dlsym(adapter->plugin.dl_handle, "xfpga_plugin_finalize");
 
 	return 0;
 }

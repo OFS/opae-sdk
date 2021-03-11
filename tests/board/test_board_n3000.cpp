@@ -47,6 +47,7 @@ extern "C" {
 #include <string>
 #include "gtest/gtest.h"
 #include "mock/test_system.h"
+#include "libboard/board_common/board_common.h"
 #include "libboard/board_n3000/board_n3000.h"
 
 using namespace opae::testing;
@@ -291,7 +292,7 @@ TEST_P(board_dfl_n3000_c_p, board_n3000_8) {
 */
 TEST_P(board_dfl_n3000_c_p, board_n3000_12) {
 
-	EXPECT_NE(print_eth_interface_info(tokens_[0]), FPGA_OK);
+	EXPECT_NE(print_eth_interface_info(tokens_[0], "npac"), FPGA_OK);
 }
 
 INSTANTIATE_TEST_CASE_P(board_dfl_n3000_c, board_dfl_n3000_c_p,
