@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,25 +24,8 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required (VERSION 3.10)
-project(tests)
-
-if(${GTest_FOUND})
-    message(STATUS Found GTest)
-else()
-    opae_load_gtest()
-endif()
-
-# Disable some warnings that fire during gtest compilation
-check_cxx_compiler_flag("-Wno-sign-compare" CXX_SUPPORTS_NO_SIGN_COMPARE)
-if(CXX_SUPPORTS_NO_SIGN_COMPARE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
-endif()
-
-add_subdirectory(bitstream)
-add_subdirectory(opae-c)
-add_subdirectory(opae-cxx)
-add_subdirectory(pyopae)
-add_subdirectory(xfpga)
-add_subdirectory(libofs)
-add_subdirectory(ofs_driver)
+opae_test_add(
+    TARGET test_libofs
+    SOURCE test_libofs.cpp
+    LIBS ofs
+)
