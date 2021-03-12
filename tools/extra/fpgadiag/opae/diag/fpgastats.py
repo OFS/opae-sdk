@@ -284,8 +284,7 @@ class FPGASTATS(COMMON):
                 offset = self.demux_offset.get(self.mac_number, 0x100)
                 for keys, values in self.eth_grps.items():
                     eth_group_inst = eth_group()
-                    ret = eth_group_inst.eth_group_open(int(values[0]),
-                                                        values[1])
+                    ret = eth_group_inst.eth_group_open(values[0])
                     if ret != 0:
                         return None
                     for i in range(self.mac_number):
@@ -319,8 +318,7 @@ class FPGASTATS(COMMON):
                 print()
                 for keys, values in self.eth_grps.items():
                     eth_group_inst = eth_group()
-                    ret = eth_group_inst.eth_group_open(int(values[0]),
-                                                        values[1])
+                    ret = eth_group_inst.eth_group_open(values[0])
                     if ret != 0:
                         return None
                     if eth_group_inst.speed != spd:
