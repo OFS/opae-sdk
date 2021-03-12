@@ -32,7 +32,7 @@ macro(ofs_add_driver yml_file driver)
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS
             ${CMAKE_CURRENT_LIST_DIR}/${yml_file}
-            ${CMAKE_SOURCE_DIR}/scripts/ofs_parse.py
+            ${OPAE_LIBS_ROOT}/scripts/ofs_parse.py
     )
     add_library(${driver} SHARED
         ${CMAKE_CURRENT_BINARY_DIR}/${driver}.h
