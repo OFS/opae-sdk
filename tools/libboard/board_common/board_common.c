@@ -266,8 +266,7 @@ fpga_result print_eth_interface_info(fpga_token token, const char *interface_nam
 			if (p) {
 				memset(glob, 0, sizeof(glob));
 				if (snprintf(glob, sizeof(glob),
-						DFL_SYSFS_ETHINTERFACE,
-						interface_name) < 0) {
+					DFL_SYSFS_ETHINTERFACE, p) < 0) {
 					OPAE_ERR("snprintf failed");
 					res = FPGA_EXCEPTION;
 					goto out_free;
@@ -277,7 +276,7 @@ fpga_result print_eth_interface_info(fpga_token token, const char *interface_nam
 				res = fpgaTokenGetObject(token, glob,
 					&fpga_object, FPGA_OBJECT_GLOB);
 				if (res != FPGA_OK) {
-					OPAE_ERR("Failed to get token Object");
+					OPAE_DBG("Failed to get token Object");
 					continue;
 				}
 				res = fpgaDestroyObject(&fpga_object);
