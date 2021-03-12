@@ -26,9 +26,9 @@
 #include <chrono>
 #include <future>
 #include <thread>
+#include <ofs/ofs.h>
 
 #include "gtest/gtest.h"
-#include "ofs_primitives.h"
 
 using hrc = std::chrono::high_resolution_clock;
 

@@ -36,7 +36,8 @@ opae_add_shared_library(
 )
 
 target_include_directories(ofs
-    INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+    PUBLIC
+        $<BUILD_INTERFACE:${OPAE_INCLUDE_PATH}>
 )
 
 target_link_libraries(ofs

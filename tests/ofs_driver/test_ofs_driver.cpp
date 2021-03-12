@@ -27,9 +27,9 @@
 #include <future>
 #include <thread>
 #include <uuid/uuid.h>
+#include <ofs/ofs.h>
 #include "gtest/gtest.h"
 #include "ofs_test.h"
-
 
 union uuid_bytes {
   struct {

@@ -166,7 +166,7 @@ class ofs_driver_writer(object):
             elif language == 'cpp':
                 writer.writeline('#pragma once')
             writer.writeline('#include <opae/fpga.h>')
-            writer.writeline('#include "ofs_primitives.h"')
+            writer.writeline('#include <ofs/ofs.h>')
 
             if language == 'c':
                 writer.writeline('\n#ifdef __cplusplus')

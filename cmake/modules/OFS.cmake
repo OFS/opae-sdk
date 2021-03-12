@@ -28,7 +28,7 @@
 macro(ofs_add_driver yml_file driver)
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${driver}.h
-        COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/scripts/ofs_parse.py ${CMAKE_CURRENT_LIST_DIR}/${yml_file} headers c ${CMAKE_CURRENT_BINARY_DIR} --driver ${driver}
+        COMMAND ${PYTHON_EXECUTABLE} ${OPAE_LIBS_ROOT}/scripts/ofs_parse.py ${CMAKE_CURRENT_LIST_DIR}/${yml_file} headers c ${CMAKE_CURRENT_BINARY_DIR} --driver ${driver}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS
             ${CMAKE_CURRENT_LIST_DIR}/${yml_file}
@@ -40,9 +40,8 @@ macro(ofs_add_driver yml_file driver)
     )
 target_include_directories(${driver} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-    $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/ofs/libofs>
+    $<BUILD_INTERFACE:${OPAE_LIBS_ROOT}/ofs/libofs>
     $<BUILD_INTERFACE:${OPAE_INCLUDE_PATH}>
-    $<INSTALL_INTERFACE:opae>
 )
 
 target_link_libraries(${driver} PUBLIC
