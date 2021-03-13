@@ -285,7 +285,7 @@ public:
     return sub;
   }
 
-  fpga::handle::ptr_t handle() {
+  fpga::handle::ptr_t handle() const {
     return handle_;
   }
 
