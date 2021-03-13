@@ -74,21 +74,75 @@ Example usage:
 '''
 
 
-def bmc_available_image(args):
-    return 'bmc_' + args.page
+def fpga_defaults_valid(pci_id, value):
+    sequences = { (0x8086, 0xaf00): [ 'fpga_user1',
+                                      'fpga_user2',
+                                      'fpga_factory',
+                                      'fpga_factory fpga_user1',
+                                      'fpga_factory fpga_user2'
+                                    ],
+                  (0x8086, 0xaf01): [ 'fpga_user1',
+                                      'fpga_user2',
+                                      'fpga_factory',
+                                      'fpga_factory fpga_user1',
+                                      'fpga_factory fpga_user2'
+                                    ]
+                }
+    return value in sequences[pci_id]
 
 
-def retimer_available_image(args):
-    return 'retimer_fw'
+def set_fpga_default(device, args):
+    security = device.security
+    if not security:
+        logging.error('failed to find secure '
+                      'attributes for {}'.format(device.pci_node.pci_address))
+        raise IOError
+
+    if not args.page and not args.fallback:
+        # Print the available_fpga_images value.
+        available_fpga_images = security.find_one('available_fpga_images')
+        logging.info('available FPGA images: {}'.format(
+                     available_fpga_images.value))
+        return
+    elif not args.page and args.fallback:
+        logging.error('--fallback must be accompanied by a --page selection.')
+        raise IOError
+
+    power_on_image = security.find_one('power_on_image')
+    values = ['fpga_' + args.page]
+
+    if args.fallback:
+        values += ['fpga_' + f for f in args.fallback]
+
+    value = ' '.join(values)
+    try:
+        if fpga_defaults_valid(device.pci_node.pci_id, value):
+            logging.info('Setting default FPGA image: {}'.format(value))
+            power_on_image.value = value
+        else:
+            logging.error('boot sequence {} is not valid for {}'.format(
+                          value, device.pci_node.pci_address))
+            raise IOError
+    except KeyError:
+        logging.error('Setting a default FPGA image '
+                      'is not available for {}'.format(
+                      device.pci_node.pci_address))
 
 
-def fpga_available_image(args):
-    images = {
-        '1': 'user1',
-        '2': 'user2',
-        'factory': 'factory'
-    }
-    return 'fpga_' + images[args.page]
+def device_rsu(device, available_image):
+    device.safe_rsu_boot(available_image)
+
+
+def device_rsu_bmc(device, args):
+    device_rsu(device, 'bmc_' + args.page)
+
+
+def device_rsu_retimer(device, args):
+    device_rsu(device, 'retimer_fw')
+
+
+def device_rsu_fpga(device, args):
+    device_rsu(device, 'fpga_' + args.page)
 
 
 def parse_args():
@@ -102,38 +156,38 @@ def parse_args():
 
     bmcimg = subparser.add_parser('bmcimg', help='BMC Image')
     bmcimg.add_argument('bdf', nargs='?',
-                        help=('PCIe address of device to do rsu '
+                        help=('PCIe address '
                               '(eg 04:00.0 or 0000:04:00.0)'))
     bmcimg.add_argument('-p', '--page', choices=['user', 'factory'],
                         default='user', help='select BMC page')
-    bmcimg.set_defaults(func=bmc_available_image)
+    bmcimg.set_defaults(func=device_rsu_bmc)
 
     retimer = subparser.add_parser('retimer', help='Retimer Image')
     retimer.add_argument('bdf', nargs='?',
-                         help=('PCIe address of device to do rsu '
+                         help=('PCIe address '
                                '(eg 04:00.0 or 0000:04:00.0)'))
-    retimer.set_defaults(func=retimer_available_image)
+    retimer.set_defaults(func=device_rsu_retimer)
 
     fpga_img = subparser.add_parser('fpga', help='FPGA Image')
     fpga_img.add_argument('bdf', nargs='?',
-                          help=('PCIe address of device to do rsu '
+                          help=('PCIe address '
                                 '(eg 04:00.0 or 0000:04:00.0)'))
-    fpga_img.add_argument('-p', '--page', choices=['1', '2', 'factory'],
-                          default='1', help='select FPGA page')
-    fpga_img.set_defaults(func=fpga_available_image)
+    fpga_img.add_argument('-p', '--page',
+                          choices=['user1', 'user2', 'factory'],
+                          default='user1', help='select FPGA page')
+    fpga_img.set_defaults(func=device_rsu_fpga)
 
-    next_boot_help = """
-1 : User1 -> User2 -> Factory,
-2 : User2 -> User1 -> Factory,
-3 : Factory -> User1 -> User2,
-4 : Factory -> User2 -> User1
-"""
-    next_boot = subparser.add_parser('nextboot', help='Next boot sequence')
-    next_boot.add_argument('bdf', nargs='?',
-                           help=('PCIe address of device to set boot sequence '
-                                 '(eg 04:00.0 or 0000:04:00.0)'))
-    next_boot.add_argument('-f', '--fpga', choices=['1', '2', '3', '4'],
-                           default='1', help=next_boot_help)
+    fpgadefault = subparser.add_parser('fpgadefault',
+                                       help='Default FPGA image')
+    fpgadefault.add_argument('bdf', nargs='?',
+                             help=('PCIe address '
+                                   '(eg 04:00.0 or 0000:04:00.0)'))
+    fpgadefault.add_argument('-p', '--page',
+                             choices=['user1', 'user2', 'factory'],
+                             default=None, help='select primary FPGA page')
+    fpgadefault.add_argument('-f', '--fallback',
+                             nargs='*', help='select secondary FPGA page(s)')
+    fpgadefault.set_defaults(func=set_fpga_default)
 
     return parser.parse_args()
 
@@ -183,12 +237,7 @@ def main():
             with open(RSU_LOCK_FILE, 'w') as flock:
                 fcntl.flock(flock.fileno(), fcntl.LOCK_EX)
                 try:
-                    if args.which == 'nextboot':
-                        security = device.security
-                        power_on_image = security.find_one('power_on_image')
-                        power_on_image.value = args.fpga
-                    else:
-                        device.safe_rsu_boot(args.func(args))
+                    args.func(device, args)
                 except IOError:
                     logging.error('RSU operation failed')
                 else:
