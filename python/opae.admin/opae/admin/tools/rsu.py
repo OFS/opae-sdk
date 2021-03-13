@@ -98,17 +98,16 @@ def set_fpga_default(device, args):
                       'attributes for {}'.format(device.pci_node.pci_address))
         raise IOError
 
+    power_on_image = security.find_one('power_on_image')
+
     if not args.page and not args.fallback:
-        # Print the available_fpga_images value.
-        available_fpga_images = security.find_one('available_fpga_images')
-        logging.info('available FPGA images: {}'.format(
-                     available_fpga_images.value))
+        # Print the power_on_image value.
+        logging.info('fallback sequence: {}'.format(power_on_image.value))
         return
     elif not args.page and args.fallback:
         logging.error('--fallback must be accompanied by a --page selection.')
         raise IOError
 
-    power_on_image = security.find_one('power_on_image')
     values = ['fpga_' + args.page]
 
     if args.fallback:
