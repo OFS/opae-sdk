@@ -162,7 +162,11 @@ public:
       default_val(log_level_)->
       check(CLI::IsMember(SPDLOG_LEVEL_NAMES));
     app_.add_flag("-s,--shared", shared_, "open in shared mode, default is off");
+#if CLI11_VERSION_MAJOR <= 1 && CLI11_VERSION_MINOR <= 8
+    app_.add_option("-t,--timeout", timeout_msec_, "test timeout (msec)")->default_val(std::to_string(timeout_msec_));
+#else
     app_.add_option("-t,--timeout", timeout_msec_, "test timeout (msec)")->default_val(timeout_msec_);
+#endif
   }
   virtual ~afu() {
     if (logger_)

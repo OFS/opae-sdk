@@ -311,10 +311,18 @@ public:
        ->transform(CLI::CheckedTransformer(he_req_cls_len))->default_val("cl_1");
 
     // Configures test rollover or test termination
+#if CLI11_VERSION_MAJOR <= 1 && CLI11_VERSION_MINOR <= 8
+    app_.add_option("--continuousmode", he_continuousmode_, "test rollover or test termination")->default_val(std::to_string(false));
+#else
     app_.add_option("--continuousmode", he_continuousmode_, "test rollover or test termination")->default_val(false);
+#endif
 
     // Delay
+#if CLI11_VERSION_MAJOR <= 1 && CLI11_VERSION_MINOR <= 8
+    app_.add_option("-d,--delay", he_delay_, "Enables random delay insertion between requests")->default_val(std::to_string(false));
+#else
     app_.add_option("-d,--delay", he_delay_, "Enables random delay insertion between requests")->default_val(false);
+#endif
 
     // Configure interleave requests in Throughput mode
     app_.add_option("--interleave", he_interleave_, interleave_help)->default_val(0);

@@ -82,7 +82,11 @@ public:
   {
     auto opt = app->add_option("--port", port_,
                                "QSFP port");
+#if CLI11_VERSION_MAJOR <= 1 && CLI11_VERSION_MINOR <= 8
+    opt->check(CLI::Range(0, 7))->default_val(std::to_string(port_));
+#else
     opt->check(CLI::Range(0, 7))->default_val(port_);
+#endif
 
     opt = app->add_option("--eth-loopback", eth_loopback_,
                     "whether to enable loopback on the eth interface");
@@ -90,7 +94,11 @@ public:
 
     opt = app->add_option("--num-packets", num_packets_,
                           "number of packets");
+#if CLI11_VERSION_MAJOR <= 1 && CLI11_VERSION_MINOR <= 8
+    opt->default_val(std::to_string(num_packets_));
+#else
     opt->default_val(num_packets_);
+#endif
 
     opt = app->add_option("--random-length", random_length_,
                           "packet length randomization");
@@ -102,7 +110,11 @@ public:
 
     opt = app->add_option("--packet-length", packet_length_,
                           "packet length");
+#if CLI11_VERSION_MAJOR <= 1 && CLI11_VERSION_MINOR <= 8
+    opt->default_val(std::to_string(packet_length_));
+#else
     opt->default_val(packet_length_);
+#endif
 
     opt = app->add_option("--src-addr", src_addr_,
                           "source MAC address");
@@ -118,15 +130,27 @@ public:
 
     opt = app->add_option("--rnd-seed0", rnd_seed0_,
                           "prbs generator [31:0]");
+#if CLI11_VERSION_MAJOR <= 1 && CLI11_VERSION_MINOR <= 8
+    opt->default_val(std::to_string(rnd_seed0_));
+#else
     opt->default_val(rnd_seed0_);
+#endif
 
     opt = app->add_option("--rnd-seed1", rnd_seed1_,
                           "prbs generator [47:32]");
+#if CLI11_VERSION_MAJOR <= 1 && CLI11_VERSION_MINOR <= 8
+    opt->default_val(std::to_string(rnd_seed1_));
+#else
     opt->default_val(rnd_seed1_);
+#endif
 
     opt = app->add_option("--rnd-seed2", rnd_seed2_,
                           "prbs generator [91:64]");
+#if CLI11_VERSION_MAJOR <= 1 && CLI11_VERSION_MINOR <= 8
+    opt->default_val(std::to_string(rnd_seed2_));
+#else
     opt->default_val(rnd_seed2_);
+#endif
   }
 
   virtual int run(test_afu *afu, CLI::App *app) override

@@ -186,7 +186,11 @@ public:
   : test_afu("dummy_afu", afu_id)
   , count_(1)
   {
+#if CLI11_VERSION_MAJOR <= 1 && CLI11_VERSION_MINOR <= 8
+    app_.add_option("-c,--count", count_, "Number of times to run test")->default_val(std::to_string(count_));
+#else
     app_.add_option("-c,--count", count_, "Number of times to run test")->default_val(count_);
+#endif
   }
 
   virtual int run(CLI::App *app, test_command::ptr_t test) override

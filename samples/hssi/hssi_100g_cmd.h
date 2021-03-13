@@ -63,7 +63,11 @@ public:
   {
     auto opt = app->add_option("--port", port_,
                                "QSFP port");
+#if CLI11_VERSION_MAJOR <= 1 && CLI11_VERSION_MINOR <= 8
+    opt->check(CLI::Range(0, 7))->default_val(std::to_string(port_));
+#else
     opt->check(CLI::Range(0, 7))->default_val(port_);
+#endif
 
     opt = app->add_option("--eth-loopback", eth_loopback_,
                     "whether to enable loopback on the eth interface");
@@ -71,7 +75,11 @@ public:
 
     opt = app->add_option("--num-packets", num_packets_,
                           "number of packets");
+#if CLI11_VERSION_MAJOR <= 1 && CLI11_VERSION_MINOR <= 8
+    opt->default_val(std::to_string(num_packets_));
+#else
     opt->default_val(num_packets_);
+#endif
 
     opt = app->add_option("--gap", gap_,
                           "inter-packet gap");

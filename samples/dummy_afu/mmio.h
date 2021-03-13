@@ -115,15 +115,25 @@ public:
 
   virtual void add_options(CLI::App *app)
   {
+#if CLI11_VERSION_MAJOR <= 1 && CLI11_VERSION_MINOR <= 8
     app->add_option("-c,--count",
                     count_,
-                    "number of repititions")->default_val(1);
+                    "number of repititions")->default_val(std::to_string(1));
+#else
+    app->add_option("-c,--count",
+                    count_,
+		    "number of repititions")->default_val(1);
+#endif
     app->add_option("-s,--scratchpad-index",
                     sp_index_,
                     "index in the scratchpad array")->check(CLI::Range(0, 63));
     app->add_flag("--perf", perf_, "get mmio performace numbers");
     auto opt = app->add_option("-w,--width", width_, "mmio width for mmio performance stats");
+#if CLI11_VERSION_MAJOR <= 1 && CLI11_VERSION_MINOR <= 8
+    opt->check(CLI::IsMember({8, 16, 32, 64}))->default_val(std::to_string(64));
+#else
     opt->check(CLI::IsMember({8, 16, 32, 64}))->default_val(64);
+#endif
     opt = app->add_option("--op", op_, "operation for mmio performance stats");
     opt->check(CLI::IsMember({"rd", "wr"}))->default_val("rd");
   }
