@@ -81,14 +81,14 @@ TEST(ofs_cpeng, copy_chunk)
   ASSERT_EQ(r_size.value, 0);
   ASSERT_EQ(r_start.value, 0);
   ASSERT_EQ(r_status.value, 0);
-  EXPECT_EQ(ofs_cpeng_copy_chunk(&otest, 0x1000, 0x2000, 4096), 1);
+  EXPECT_EQ(ofs_cpeng_copy_chunk(&otest, 0x1000, 0x2000, 4096, 1000), 1);
   EXPECT_EQ(r_src.f_CSR_SRC_ADDR, 0x1000);
   EXPECT_EQ(r_dst.f_CSR_DST_ADDR, 0x2000);
   EXPECT_EQ(r_size.f_CSR_DATA_SIZE, 4096);
 
 
   r_status.f_CE_DMA_STS = 0b10;
-  EXPECT_EQ(ofs_cpeng_copy_chunk(&otest, 0x3000, 0x4000, 8192), 0);
+  EXPECT_EQ(ofs_cpeng_copy_chunk(&otest, 0x3000, 0x4000, 8192, 1000), 0);
   EXPECT_EQ(r_src.f_CSR_SRC_ADDR, 0x3000);
   EXPECT_EQ(r_dst.f_CSR_DST_ADDR, 0x4000);
   EXPECT_EQ(r_size.f_CSR_DATA_SIZE, 8192);
