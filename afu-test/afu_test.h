@@ -285,6 +285,10 @@ public:
     return sub;
   }
 
+  fpga::handle::ptr_t handle() const {
+    return handle_;
+  }
+
   uint64_t read64(uint32_t offset) const {
     return handle_->read_csr64(offset);
   }
