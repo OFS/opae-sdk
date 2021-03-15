@@ -2310,6 +2310,18 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 
 	if (flags & FPGA_OBJECT_GLOB) {
 
+		// serach for search pattern /**/
+		char* p = strstr(sysfspath, "/**/");
+		while (p != NULL) {
+			p++;
+			found++;
+			p = strstr(p, "/**/");
+		};
+
+		if (found > 1) {
+			return FPGA_INVALID_PARAM;
+		}
+		found = 0;
 		// Check "**"recursive pattern in sysfs path
 		if (strstr(sysfspath, "/**/")) {
 			char *p = strstr(sysfspath, "/**/");
