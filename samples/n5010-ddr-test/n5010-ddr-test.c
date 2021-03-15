@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <errno.h>
 #include <error.h>
 #include <time.h>
@@ -51,6 +52,7 @@
 #define DDR_TEST_HBM_PASS     0x4000
 #define DDR_TEST_HBM_FAIL     0x4008
 #define DDR_TEST_HBM_TIMEOUT  0x4010
+#define DDR_TEST_HBM_CTRL     0x4018
 
 struct n5010;
 
@@ -257,25 +259,46 @@ static fpga_result fpga_start(struct n5010 *n5010, uint64_t offset, uint64_t ban
 	fpga_result res = FPGA_OK;
 
 	ctrl = (1 << banks) - 1;
-	printf("starting\n");
+	printf("starting PRBS generators\n");
+
+	fpga_dump(n5010, offset, 1);
 
 	res = fpgaWriteMMIO64(n5010->handle, 0, n5010->base + offset, ctrl);
 	if (res != FPGA_OK) {
-		fprintf(stderr, "failed to start test: %s\n", fpgaErrStr(res));
+		fprintf(stderr, "failed to start PRBS generators: %s\n", fpgaErrStr(res));
 		goto error;
 	}
 
-	res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + offset, &ctrl);
-	if (res != FPGA_OK) {
-		fprintf(stderr, "failed to read banks: %s\n", fpgaErrStr(res));
-		goto error;
-	}
+	usleep(1000000);
 
 	fpga_dump(n5010, offset, 1);
 
 error:
 	return res;
 }
+
+static fpga_result fpga_stop(struct n5010 *n5010, uint64_t offset)
+{
+	uint64_t ctrl = 0;
+	fpga_result res = FPGA_OK;
+
+	printf("stopping PRBS generators\n");
+	fpga_dump(n5010, offset, 1);
+
+	res = fpgaWriteMMIO64(n5010->handle, 0, n5010->base + offset, ctrl);
+	if (res != FPGA_OK) {
+		fprintf(stderr, "failed to stop PRBS generators: %s\n", fpgaErrStr(res));
+		goto error;
+	}
+
+	usleep(1000000);
+
+	fpga_dump(n5010, offset, 1);
+
+error:
+	return res;
+}
+
 static fpga_result fpga_wait(struct n5010 *n5010, uint64_t offset, uint64_t init, uint64_t result)
 {
 	struct timespec ts = { .tv_sec = 0, .tv_nsec = 100000000 };
@@ -313,6 +336,8 @@ static fpga_result fpga_test_directed(struct n5010 *n5010)
 	uint64_t banks;
 	fpga_result res;
 
+	fpga_dump(n5010, DDR_TEST_MODE0_CTRL, 6);
+
 	res = fpga_banks(n5010, DDR_TEST_MODE0_STAT, &banks);
 	if (res != FPGA_OK)
 		goto error;
@@ -321,7 +346,7 @@ static fpga_result fpga_test_directed(struct n5010 *n5010)
 	if (res != FPGA_OK)
 		goto error;
 
-	res = fpga_wait(n5010, DDR_TEST_MODE0_STAT, banks, 0x10101);
+	res = fpga_wait(n5010, DDR_TEST_MODE0_STAT, banks, 0x10102);
 	if (res != FPGA_OK)
 		goto error;
 
@@ -333,19 +358,44 @@ error:
 
 static fpga_result fpga_test_prbs(struct n5010 *n5010)
 {
-	uint64_t banks;
+	uint64_t banks, stat, i;
 	fpga_result res;
 
+	fpga_dump(n5010, DDR_TEST_MODE1_CTRL, 6);
+
+	// Read number of banks from stat
 	res = fpga_banks(n5010, DDR_TEST_MODE1_STAT, &banks);
 	if (res != FPGA_OK)
 		goto error;
 
+	// Clear PRBS start bits
+	res = fpga_stop(n5010, DDR_TEST_MODE1_CTRL);
+	if (res != FPGA_OK)
+		goto error;
+
+	// Expect DDR_TEST_MODE1_BANK_STAT(bank) to return 0 while PRBS not running
+	for (i = 0; i < banks; i++) {
+		res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + DDR_TEST_MODE1_BANK_STAT(i), &stat);
+		if (res != FPGA_OK) {
+			fprintf(stderr, "failed to read DDR_TEST_MODE1_BANK_STAT(%ju): %s\n", i, fpgaErrStr(res));
+			goto error;
+		}
+
+		if (stat != 0x0) {
+			fprintf(stderr, "Error: PRBS stat non-zero while generator idle: 0x%016jx\n", stat);
+			res = FPGA_EXCEPTION;
+			goto error;
+		}
+	}
+
+	// Set PRBS start bits for each bank
 	res = fpga_start(n5010, DDR_TEST_MODE1_CTRL, banks);
 	if (res != FPGA_OK)
 		goto error;
 
-	while (banks--) {
-		res = fpga_wait(n5010, DDR_TEST_MODE1_BANK_STAT(banks), 0LLU, 0x1);
+	// Wait for PRBS pass
+	for (i = 0; i < banks; i++) {
+		res = fpga_wait(n5010, DDR_TEST_MODE1_BANK_STAT(i), 0, 0x39);
 		if (res != FPGA_OK)
 			goto error;
 	}
@@ -356,10 +406,47 @@ error:
 
 static fpga_result fpga_test_hbm(struct n5010 *n5010)
 {
+	struct timespec ts = { .tv_sec = 0, .tv_nsec = 100000000 };
+	uint64_t pass = 0;
+	uint64_t fail = 0;
+	uint64_t timeout = 0;
 	fpga_result res;
 
-	res = fpga_wait(n5010, DDR_TEST_HBM_TIMEOUT, 0, 0);
+	res = fpga_start(n5010, DDR_TEST_HBM_CTRL, 0xffffffff);
+	if (res != FPGA_OK)
+		goto error;
 
+	printf("waiting\n");
+
+	while (pass == 0 && fail == 0 && timeout == 0) {
+		nanosleep(&ts, NULL);
+
+		res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + DDR_TEST_HBM_PASS, &pass);
+		if (res != FPGA_OK) {
+			fprintf(stderr, "failed to read pass: %s\n", fpgaErrStr(res));
+			goto error;
+		}
+
+		res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + DDR_TEST_HBM_FAIL, &fail);
+		if (res != FPGA_OK) {
+			fprintf(stderr, "failed to read fail: %s\n", fpgaErrStr(res));
+			goto error;
+		}
+
+		res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + DDR_TEST_HBM_TIMEOUT, &timeout);
+		if (res != FPGA_OK) {
+			fprintf(stderr, "failed to read timeout: %s\n", fpgaErrStr(res));
+			goto error;
+		}
+
+		if (n5010->debug) {
+			printf("reg: 0x%04x, val: 0x%016jx\n", DDR_TEST_HBM_PASS, pass);
+			printf("reg: 0x%04x, val: 0x%016jx\n", DDR_TEST_HBM_FAIL, fail);
+			printf("reg: 0x%04x, val: 0x%016jx\n", DDR_TEST_HBM_TIMEOUT, timeout);
+		}
+	}
+
+error:
 	return res;
 }
 
@@ -467,7 +554,6 @@ int main(int argc, char **argv)
 		goto error;
 
 	fpga_dump(&n5010, 0, 3);
-	fpga_dump(&n5010, 0x3000, 6);
 
 	res = n5010.test->func(&n5010);
 	if (res != FPGA_OK)
