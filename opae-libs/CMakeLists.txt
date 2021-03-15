@@ -54,6 +54,7 @@ option(OPAE_BUILD_TESTS "Enable building of OPAE unit tests" OFF)
 mark_as_advanced(OPAE_BUILD_TESTS)
 
 include(OPAE)
+include(OFS)
 
 get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
 if ("${LIB64}" STREQUAL "TRUE")
@@ -155,6 +156,7 @@ endif (OPAE_BUILD_LIBOPAEVFIO)
 opae_add_subdirectory(external)
 opae_add_subdirectory(libopaemem)
 opae_add_subdirectory(libopae-c)
+opae_add_subdirectory(libofs)
 
 if (OPAE_BUILD_LIBOPAEUIO)
     opae_add_subdirectory(libopaeuio)
