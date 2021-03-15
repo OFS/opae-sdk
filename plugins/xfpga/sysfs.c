@@ -2311,8 +2311,8 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	if (flags & FPGA_OBJECT_GLOB) {
 
 		// Check "**"recursive pattern in sysfs path
-		if (strstr(sysfspath, "**")) {
-			char *p = strstr(sysfspath, "**/");
+		if (strstr(sysfspath, "/**/")) {
+			char *p = strstr(sysfspath, "/**/");
 			if (p == NULL)
 				return FPGA_INVALID_PARAM;
 
@@ -2327,7 +2327,7 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 				strncat(pattern, "*/", SYSFS_PATH_MAX - len);
 
 				if (snprintf(full_path, SYSFS_PATH_MAX,
-					"%s%s%s", prefix_path, pattern, p + 3) < 0) {
+					"%s%s%s", prefix_path, pattern, p + 4) < 0) {
 					OPAE_ERR("snprintf buffer overflow");
 					return FPGA_EXCEPTION;
 				}
