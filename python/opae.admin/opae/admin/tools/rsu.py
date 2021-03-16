@@ -47,30 +47,31 @@ RSU_LOCK_FILE = os.path.join(RSU_LOCK_DIR, 'rsu_lock')
 logger = logging.getLogger('rsu')
 
 DESCRIPTION = '''
-Perform RSU (remote system update) operation on PAC device
-given its PCIe address.
-An RSU operation sends an instruction to the device to trigger
-a power cycle of the card only. This will force reconfiguration
-from flash for the BMC image.
+Perform RSU (Remote System Update) operation on PAC device given its
+PCIe address. An RSU operation sends an instruction to the device to
+trigger a power cycle of the card only. This will force reconfiguration
+from flash for the given image.
 '''
 
 EPILOG = '''
 Example usage:
 
      %(prog)s bmcimg 25:00.0
-     This will trigger a boot of the BMC image for a device with a PCIe address
-     of 25:00.0.
-     NOTE: Both BMC and FPGA images will be reconfigured from user bank.
+     This will trigger a boot of the BMC image for the device with PCIe
+     address 25:00.0.
+     NOTE: The BMC image will be reconfigured from user bank and the
+           FPGA image will be reconfigured using the default setting.
 
      %(prog)s bmcimg 25:00.0 --page=factory
-     This will trigger a factory boot of the BMC image for a device with a
-     PCIe address of 25:00.0.
-     NOTE: Both BMC image will be reconfigured from factory bank and the
-           FPGA image will be reconfigured from the user bank.
+     This will trigger a factory boot of the BMC image for the device
+     with PCIe address 25:00.0.
+     NOTE: The BMC image will be reconfigured from factory bank and the
+           FPGA image will be reconfigured using the default setting.
 
-     %(prog)s nextboot 25:00.0 --fpga=1
-     This sets the FPGA image to load on the next boot of the device with
-     PCIe address 25:00.0 to the FPGA User1 image.
+     %(prog)s fpgadefault 25:00.0 --page=factory --fallback=user1,user2
+     This sets the default FPGA image of the device with PCIe address
+     25:00.0 to the FPGA Factory image, with a fallback to FPGA user1
+     then FPGA user2.
 '''
 
 
@@ -79,13 +80,17 @@ def fpga_defaults_valid(pci_id, value):
                                       'fpga_user2',
                                       'fpga_factory',
                                       'fpga_factory fpga_user1',
-                                      'fpga_factory fpga_user2'
+                                      'fpga_factory fpga_user2',
+                                      'fpga_factory fpga_user1 fpga_user2',
+                                      'fpga_factory fpga_user2 fpga_user1'
                                     ],
                   (0x8086, 0xaf01): [ 'fpga_user1',
                                       'fpga_user2',
                                       'fpga_factory',
                                       'fpga_factory fpga_user1',
-                                      'fpga_factory fpga_user2'
+                                      'fpga_factory fpga_user2',
+                                      'fpga_factory fpga_user1 fpga_user2',
+                                      'fpga_factory fpga_user2 fpga_user1'
                                     ]
                 }
     return value in sequences[pci_id]
@@ -111,9 +116,17 @@ def set_fpga_default(device, args):
     values = ['fpga_' + args.page]
 
     if args.fallback:
-        values += ['fpga_' + f for f in args.fallback]
+        fb = args.fallback
+        fb = fb.replace(',', ' ')  # allow a comma-separated list
+        while fb.find('  ') >= 0:
+            fb = fb.replace('  ', ' ') # compress spaces
+        fb = fb.strip()
+        fb = fb.rstrip()
+
+        values += ['fpga_' + x for x in fb.split(' ')]
 
     value = ' '.join(values)
+
     try:
         if fpga_defaults_valid(device.pci_node.pci_id, value):
             logging.info('Setting default FPGA image: {}'.format(value))
@@ -126,6 +139,7 @@ def set_fpga_default(device, args):
         logging.error('Setting a default FPGA image '
                       'is not available for {}'.format(
                       device.pci_node.pci_address))
+        raise IOError
 
 
 def device_rsu(device, available_image):
@@ -153,7 +167,7 @@ def parse_args():
 
     subparser = parser.add_subparsers(dest='which')
 
-    bmcimg = subparser.add_parser('bmcimg', help='BMC Image')
+    bmcimg = subparser.add_parser('bmcimg', help='RSU BMC Image')
     bmcimg.add_argument('bdf', nargs='?',
                         help=('PCIe address '
                               '(eg 04:00.0 or 0000:04:00.0)'))
@@ -161,13 +175,13 @@ def parse_args():
                         default='user', help='select BMC page')
     bmcimg.set_defaults(func=device_rsu_bmc)
 
-    retimer = subparser.add_parser('retimer', help='Retimer Image')
+    retimer = subparser.add_parser('retimer', help='RSU Retimer Image')
     retimer.add_argument('bdf', nargs='?',
                          help=('PCIe address '
                                '(eg 04:00.0 or 0000:04:00.0)'))
     retimer.set_defaults(func=device_rsu_retimer)
 
-    fpga_img = subparser.add_parser('fpga', help='FPGA Image')
+    fpga_img = subparser.add_parser('fpga', help='RSU FPGA Image')
     fpga_img.add_argument('bdf', nargs='?',
                           help=('PCIe address '
                                 '(eg 04:00.0 or 0000:04:00.0)'))
@@ -177,7 +191,7 @@ def parse_args():
     fpga_img.set_defaults(func=device_rsu_fpga)
 
     fpgadefault = subparser.add_parser('fpgadefault',
-                                       help='Default FPGA image')
+                                       help='Set default FPGA image')
     fpgadefault.add_argument('bdf', nargs='?',
                              help=('PCIe address '
                                    '(eg 04:00.0 or 0000:04:00.0)'))
@@ -185,7 +199,8 @@ def parse_args():
                              choices=['user1', 'user2', 'factory'],
                              default=None, help='select primary FPGA page')
     fpgadefault.add_argument('-f', '--fallback',
-                             nargs='*', help='select secondary FPGA page(s)')
+                             nargs='?', help='select secondary FPGA page(s) '
+                                             'as comma-separated list')
     fpgadefault.set_defaults(func=set_fpga_default)
 
     return parser.parse_args()
