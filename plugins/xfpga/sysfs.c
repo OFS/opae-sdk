@@ -2288,8 +2288,7 @@ out_err:
 	return res;
 }
 
-
-#define MAX_SYSOBJECT_GLOB 128 
+#define MAX_SYSOBJECT_GLOB 128
 #define MAX_SYSOBJECT_GLOB_RESURSIVE_DEPTH 5
 fpga_result make_sysfs_object(char *sysfspath, const char *name,
 			      fpga_object *object, int flags,
