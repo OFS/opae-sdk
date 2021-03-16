@@ -160,6 +160,7 @@ opae_add_subdirectory(libofs)
 
 if (OPAE_BUILD_LIBOPAEUIO)
     opae_add_subdirectory(libopaeuio)
+    opae_add_subdirectory(pyopaeuio)
 endif()
 
 if (OPAE_BUILD_LIBOPAEVFIO AND PLATFORM_SUPPORTS_VFIO)
