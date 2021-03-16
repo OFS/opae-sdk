@@ -34,6 +34,11 @@ import yaml
 
 from contextlib import contextmanager
 
+try:
+    from yaml import CLoader as YamlLoader
+except ImportError:
+    from yaml import Loader as YamlLoader
+
 cpp_field_tmpl = '{spaces}{pod} f_{name} : {width};'
 cpp_class_tmpl = '''
 #define {name}_OFFSET 0x{offset:0x}
@@ -137,12 +142,12 @@ class RegisterTag(yaml.YAMLObject):
         return ofs_register(*register_meta, register_fields)
 
 
-yaml.CLoader.add_constructor(u'tag:intel.com,2020:ofs/register',
-                             RegisterTag.from_yaml)
+YamlLoader.add_constructor(u'tag:intel.com,2020:ofs/register',
+                           RegisterTag.from_yaml)
 
 
 def parse(fp):
-    return yaml.load(fp, Loader=yaml.CLoader)
+    return yaml.load(fp, Loader=YamlLoader)
 
 
 class ofs_driver_writer(object):
