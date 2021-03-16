@@ -2312,7 +2312,7 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	if (flags & FPGA_OBJECT_GLOB) {
 
 		// search for pattern /**/
-		char* p = strstr(sysfspath, "/**/");
+		p = strstr(sysfspath, "/**/");
 		while (p!= NULL) {
 			p++;
 			found++;
