@@ -264,7 +264,7 @@ class ofs_driver_writer(object):
         for call_node in self.find_call(node):
             fn_name = call_node.func.id
             if fn_name in self.functions:
-                line = re.sub(f'({fn_name})\\((.*?)\\)', arg_repl, line)
+                line = re.sub(f'({fn_name})\\((.*)\\)', arg_repl, line, flags=re.DOTALL)
         return self.ofs_resolve(node, self._c_convert(line))
 
     def ofs_resolve(self, node, line):
