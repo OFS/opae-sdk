@@ -28,7 +28,7 @@ RUN yum install -y cmake3
 
 RUN python3 -m pip install setuptools --upgrade
 RUN python3 -m pip install wheel
-RUN python3 -m pip install python-pkcs11 cython
+RUN python3 -m pip install python-pkcs11 cython pyyaml
 
 WORKDIR /root
 COPY scripts/build-rpms.sh /scripts/build-rpms.sh
