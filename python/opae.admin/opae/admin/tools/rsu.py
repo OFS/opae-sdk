@@ -117,9 +117,8 @@ def set_fpga_default(device, args):
 
     if args.fallback:
         fb = args.fallback
-        fb = fb.replace(',', ' ')  # allow a comma-separated list
-        while fb.find('  ') >= 0:
-            fb = fb.replace('  ', ' ') # compress spaces
+        fb = fb.replace(',', ' ')   # allow a comma-separated list
+        fb = re.sub('\s+', ' ', fb) # compress whitespace
         fb = fb.strip()
         fb = fb.rstrip()
 
