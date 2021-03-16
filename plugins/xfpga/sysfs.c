@@ -2325,7 +2325,7 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 					return FPGA_INVALID_PARAM;
 				}
 				ptr = strstr(ptr, "/**/");
-			};
+			}
 			found = 0;
 
 			// Prefix substring
