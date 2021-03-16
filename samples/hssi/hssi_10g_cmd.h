@@ -56,6 +56,7 @@ public:
   hssi_10g_cmd()
     : port_(0)
     , eth_loopback_("on")
+    , he_loopback_("off")
     , num_packets_(1)
     , random_length_("fixed")
     , random_payload_("incremental")
@@ -91,6 +92,10 @@ public:
     opt = app->add_option("--eth-loopback", eth_loopback_,
                     "whether to enable loopback on the eth interface");
     opt->check(CLI::IsMember({"on", "off"}))->default_val(eth_loopback_);
+
+    opt = app->add_option("--he-loopback", he_loopback_,
+                    "whether to enable loopback in the Hardware Exerciser (HE)");
+    opt->check(CLI::IsMember({"on", "off"}))->default_val(he_loopback_);
 
     opt = app->add_option("--num-packets", num_packets_,
                           "number of packets");
@@ -178,6 +183,7 @@ public:
     std::cout << "10G loopback test" << std::endl
               << "  port: " << port_ << std::endl
               << "  eth_loopback: " << eth_loopback_ << std::endl
+              << "  he_loopback: " << he_loopback_ << std::endl
               << "  num_packets: " << num_packets_ << std::endl
               << "  packet_length: " << packet_length_ << std::endl
               << "  src_address: " << src_addr_ << std::endl
@@ -194,11 +200,17 @@ public:
 
     if (eth_loopback_ == "on")
       enable_eth_loopback(eth_ifc, true);
+    else
+      enable_eth_loopback(eth_ifc, false);
 
     hafu->mbox_write(CSR_STOP, 0);
 
     hafu->write64(TRAFFIC_CTRL_PORT_SEL, port_);
-    hafu->mbox_write(CSR_MAC_LOOP, 0);
+
+    if (he_loopback_ == "on")
+      hafu->mbox_write(CSR_MAC_LOOP, 1);
+    else 
+      hafu->mbox_write(CSR_MAC_LOOP, 0);
 
     hafu->mbox_write(CSR_NUM_PACKETS, num_packets_);
 
@@ -314,6 +326,7 @@ public:
 protected:
   uint32_t port_;
   std::string eth_loopback_;
+  std::string he_loopback_;
   uint32_t num_packets_;
   std::string random_length_;
   std::string random_payload_;
