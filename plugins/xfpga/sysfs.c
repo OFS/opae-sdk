@@ -2307,27 +2307,26 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	char pattern[SYSFS_PATH_MAX] = { 0 };
 	char full_path[SYSFS_PATH_MAX] = { 0 };
 	char prefix_path[SYSFS_PATH_MAX] = { 0 };
-	char* p = NULL;
 
 	if (flags & FPGA_OBJECT_GLOB) {
 
-		// search for pattern /**/
-		p = strstr(sysfspath, "/**/");
-		while (p!= NULL) {
-			p++;
-			found++;
-			if (found > 1) {
-				return FPGA_INVALID_PARAM;
-			}
-			p = strstr(p, "/**/");
-		};
-
-		found = 0;
 		// Check "**"recursive pattern in sysfs path
 		if (strstr(sysfspath, "/**/")) {
 			char *p = strstr(sysfspath, "/**/");
 			if (p == NULL)
 				return FPGA_INVALID_PARAM;
+
+			// search for multipule pattern "/**/"
+			char *ptr = p;
+			while (ptr != NULL) {
+				ptr++;
+				found++;
+				if (found > 1) {
+					return FPGA_INVALID_PARAM;
+				}
+				ptr = strstr(ptr, "/**/");
+			};
+			found = 0;
 
 			// Prefix substring
 			strncpy(prefix_path, sysfspath, p - sysfspath);
