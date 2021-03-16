@@ -65,6 +65,7 @@ opae_add_subdirectory(afu-test)
 opae_add_subdirectory(platforms)
 opae_add_subdirectory(tools)
 opae_add_subdirectory(python)
+opae_add_subdirectory(ofs)
 
 option(OPAE_BUILD_SAMPLES "Enable building of OPAE samples" ON)
 mark_as_advanced(OPAE_BUILD_SAMPLES)
