@@ -249,8 +249,7 @@ def clear_stats(f, info, args):
             _, mac_total, _ = info[w]
             for keys, values in args.items():
                 eth_group_inst = eth_group()
-                ret = eth_group_inst.eth_group_open(int(values[0]),
-                                                    values[1])
+                ret = eth_group_inst.eth_group_open(values[0])
                 if ret != 0:
                     return None
                 for i in args.ports:

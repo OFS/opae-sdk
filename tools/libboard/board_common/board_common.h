@@ -59,6 +59,16 @@ fpga_result read_sysfs(fpga_token token, char *sysfs_path,
 fpga_result print_sec_common_info(fpga_token token);
 
 /**
+* Prints ethernet interface info
+*
+* @param[in] token            fpga_token object for device (FPGA_DEVICE type)
+* @param[in] interface_name  substring to match interface names against
+* @returns FPGA_OK on success. FPGA_EXCEPTION if eth interface not found.
+* FPGA_INVALID_PARAM if invalid parameters were provided
+*/
+fpga_result print_eth_interface_info(fpga_token token, const char *interface_name);
+
+/**
 * Get sysfs value.
 *
 * @param[in] token           fpga_token object for device (FPGA_DEVICE type)

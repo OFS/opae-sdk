@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,24 +24,4 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <linux/vfio.h>
-
-int main(int argc, char *argv[])
-{
-	struct vfio_group_status group_status;
-	struct vfio_iommu_type1_info iommu_info;
-	struct vfio_iommu_type1_dma_map dma_map;
-
-	struct vfio_iommu_type1_dma_unmap dma_unmap;
-
-	(void) argc;
-	(void) argv;
-
-	(void) group_status;
-	(void) iommu_info;
-	(void) dma_map;
-
-	(void) dma_unmap;
-
-	return 0;
-}
+#include <ofs/ofs_primitives.h>

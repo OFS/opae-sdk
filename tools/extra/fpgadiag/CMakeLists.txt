@@ -107,8 +107,10 @@ set_property(DIRECTORY PROPERTY
     ADDITIONAL_MAKE_CLEAN_FILES
         "${CMAKE_CURRENT_SOURCE_DIR}/build"
         "${CMAKE_CURRENT_SOURCE_DIR}/dist"
-        "${CMAKE_CURRENT_SOURCE_DIR}/test_vfio.o"
 )
+
+pybind11_add_module(eth_group THIN_LTO  src/eth_group.cpp)
+target_link_libraries(eth_group PRIVATE  opaeuio)
 
 add_custom_target(opae.diag-build ALL DEPENDS nlb0 nlb3 nlb7 ${OUTPUT})
 opae_python_install(

@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2020-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -400,8 +400,6 @@ int main(int argc, char *argv[])
   py::module builtins = import_builtins();
   globals["builtins"] = builtins;
 
-  builtins.attr("the_device") = the_device;
-  builtins.attr("the_region") = the_region;
   builtins.attr("peek") = opae_io.attr("peek");
   builtins.attr("read_csr") = opae_io.attr("read_csr");
   builtins.attr("write_csr") = opae_io.attr("write_csr");

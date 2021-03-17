@@ -112,6 +112,7 @@ enum fpga_hw_type {
 	FPGA_HW_DCP_RC,
 	FPGA_HW_DCP_D5005,
 	FPGA_HW_DCP_N3000,
+	FPGA_HW_DCP_N5010,        // Silicom Lightning Creek
 	FPGA_HW_UNKNOWN
 };
 
