@@ -39,6 +39,41 @@ try:
 except ImportError:
     from yaml import Loader as YamlLoader
 
+def _ast_get_source_segment(body, node):
+    '''Incomplete reimplementation of ast.get_source_segment()
+
+    This generator script should still work for the target distributions
+    without a shipped Python 3.8+ installation. To be maintainable long term,
+    this script should probably be reworked to avoid source string manipulation
+    and prefer transforming/walking the AST directly to generate target code.
+
+    FIXME -- remove this function
+    '''
+    lines = body.split('\n')
+    first_line = node.lineno-1
+    first_col = node.col_offset
+
+    if hasattr(node, 'end_lineno'):
+        last_line = node.end_lineno-1
+    else:
+        last_line = first_line
+    if hasattr(node, 'end_col_offset'):
+        last_col = node.end_col_offset
+    else:
+        last_col = len(body)
+
+    if first_line == last_line:
+        return lines[first_line][first_col:last_col]
+    else:
+        return '\n'.join([lines[first_line][first_col:],
+                          '\n'.join(lines[first_line+1:last_line]),
+                          lines[last_line][:last_col]])
+
+try:
+    from ast import get_source_segment as ast_get_source_segment
+except ImportError:
+    ast_get_source_segment = _ast_get_source_segment
+
 cpp_field_tmpl = '{spaces}{pod} f_{name} : {width};'
 cpp_class_tmpl = '''
 #define {name}_OFFSET 0x{offset:0x}
@@ -223,13 +258,13 @@ class ofs_driver_writer(object):
             if m.group(2) and m.group(2).strip():
                 return f'{self.name}_{fn}(drv, {args})'
             return f'{self.name}_{fn}(drv)'
-        # lines = body.split('\n')
-        line = ast.get_source_segment(body, node)
+
+        line = ast_get_source_segment(body, node)
 
         for call_node in self.find_call(node):
             fn_name = call_node.func.id
             if fn_name in self.functions:
-                line = re.sub(f'({fn_name})\\((.*?)\\)', arg_repl, line)
+                line = re.sub(f'({fn_name})\\((.*)\\)', arg_repl, line, flags=re.DOTALL)
         return self.ofs_resolve(node, self._c_convert(line))
 
     def ofs_resolve(self, node, line):
