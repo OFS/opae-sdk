@@ -277,6 +277,7 @@ fpga_result print_eth_interface_info(fpga_token token, const char *interface_nam
 					&fpga_object, FPGA_OBJECT_GLOB);
 				if (res != FPGA_OK) {
 					OPAE_DBG("Failed to get token Object");
+					res = FPGA_OK;
 					continue;
 				}
 				res = fpgaDestroyObject(&fpga_object);
