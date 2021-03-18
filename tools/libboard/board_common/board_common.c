@@ -45,8 +45,8 @@
 
 #include "board_common.h"
 
-#define DFL_SYSFS_SEC_GLOB "dfl*/*spi*/spi_master/spi*/spi*/*/*/*/security/"
-#define DFL_SYSFS_SEC_USER_FLASH_COUNT         DFL_SYSFS_SEC_GLOB "user_flash_count"
+#define DFL_SYSFS_SEC_GLOB "dfl*/*spi*/spi_master/spi*/spi*/**/security/"
+#define DFL_SYSFS_SEC_USER_FLASH_COUNT         DFL_SYSFS_SEC_GLOB "*flash_count"
 #define DFL_SYSFS_SEC_BMC_CANCEL               DFL_SYSFS_SEC_GLOB "bmc_canceled_csks"
 #define DFL_SYSFS_SEC_BMC_ROOT                 DFL_SYSFS_SEC_GLOB "bmc_root_entry_hash"
 #define DFL_SYSFS_SEC_PR_CANCEL                DFL_SYSFS_SEC_GLOB "pr_canceled_csks"
