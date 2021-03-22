@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2021, Intel Corporation
+// Copyright(c) 2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -37,21 +37,21 @@ int pyopae_uio::open(const std::string& uio_str)
 	int res = 0;
 	num_regions = 0;
 
-	printf("open uio_str.c_str()=%s\n", uio_str.c_str());
-
 	// opae UIO device
-	res = opae_uio_open(&uio, uio_str.c_str());
+	res = opae_uio_open(&uio_, uio_str.c_str());
 	if (res) {
-		throw std::invalid_argument("Failed to open uio ");
+		std::cout << "Failed to open uio" << std::endl;
+		throw std::invalid_argument("Failed to open uio");
 	}
 
 	// get uio region
-	res = opae_uio_region_get(&uio, 0, (uint8_t **)&mmap_ptr, NULL);
+	res = opae_uio_region_get(&uio_, 0, (uint8_t **)&uio_mmap_ptr_, nullptr);
 	if (res) {
+		std::cout << "Failed to git uio region" << std::endl;
 		throw std::invalid_argument("Failed to git uio region");
 	}
 
-	struct opae_uio_device_region *r = uio.regions;
+	struct opae_uio_device_region *r = uio_.regions;
 	while (r) {
 		++num_regions;
 		r = r->next;
@@ -61,35 +61,34 @@ int pyopae_uio::open(const std::string& uio_str)
 }
 
 // close uio
-int pyopae_uio::close(void)
+void pyopae_uio::close(void)
 {
-	opae_uio_close(&uio);
-	return 0;
+	return opae_uio_close(&uio_);
 }
 
 // get uio region pointer
 uint8_t *pyopae_uio::get_region(uint32_t region_index, uint32_t offset)
 {
-	if (region_index > num_regions)
-		return NULL;
+	uint8_t *vptr = nullptr;
+	size_t size = 0;
 
-	struct opae_uio_device_region *r = uio.regions;
-	while (r) {
-		if (r->region_index == region_index)
-			break;
-		r = r->next;
+	if (opae_uio_region_get(&uio_, region_index, &vptr, &size)) {
+		std::cout << "failed to get uio region" << std::endl;
+		return nullptr;
 	}
 
-	if ((r == NULL) || (offset > r->region_size))
-		return NULL;
+	if (offset >= size) {
+		std::cout << "invalid offset" << std::endl;
+		return nullptr;
+	}
 
-	return r->region_ptr;
+	return vptr + offset;
 }
 
 // read 32 bit value
 uint32_t pyopae_uio::read32(uint32_t region_index, uint32_t offset)
 {
-	uint64_t value = 0;
+	uint32_t value = 0;
 	uint8_t *ptr = get_region(region_index, offset);
 	if (!ptr) {
 		throw std::invalid_argument("Failed to get uio region");
@@ -136,14 +135,13 @@ uint64_t pyopae_uio::write64(uint32_t region_index, uint32_t offset, uint64_t va
 	return 0;
 }
 
-
 namespace py = pybind11;
 PYBIND11_MODULE(pyopaeuio, m) {
 	m.doc() = "pybind11 pyopaeuio plugin";
 	py::class_<pyopae_uio>(m, "pyopaeuio")
 		.def(py::init<>())
 		.def("open", (int(pyopae_uio::*)(const std::string&))&pyopae_uio::open)
-		.def("close", (int(pyopae_uio::*)(void))&pyopae_uio::close)
+		.def("close", (void(pyopae_uio::*)(void))&pyopae_uio::close)
 		.def("read32", (uint32_t(pyopae_uio::*)(uint32_t region_index, uint32_t offset))&pyopae_uio::read32)
 		.def("write32", (uint32_t(pyopae_uio::*)(uint32_t region_index, uint32_t offset, uint32_t value))&pyopae_uio::write32)
 		.def("read64", (uint64_t(pyopae_uio::*)(uint32_t region_index, uint32_t offset))&pyopae_uio::read64)

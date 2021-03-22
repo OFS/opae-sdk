@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2021, Intel Corporation
+// Copyright(c) 2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,7 +24,6 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-
 #ifndef PYOPAE_UIO_H
 #define PYOPAE_UIO_H
 
@@ -36,12 +35,11 @@
 // opae uio python binding class
 class pyopae_uio {
 public:
-	pyopae_uio():num_regions(0), mmap_ptr(NULL)
-		{ }
-	~pyopae_uio() {}
+	pyopae_uio():num_regions(0), uio_mmap_ptr_(nullptr) { }
+	virtual ~pyopae_uio() {}
 
 	int open(const std::string& uio_str);
-	int close();
+	void close();
 	uint32_t read32(uint32_t region_index, uint32_t offset);
 	uint64_t read64(uint32_t region_index, uint32_t offset);
 	uint32_t write32(uint32_t region_index, uint32_t offset, uint32_t value);
@@ -50,8 +48,7 @@ public:
 
 private:
 	uint8_t *get_region(uint32_t region_index, uint32_t offset);
-	uint8_t *mmap_ptr;
-	struct opae_uio uio;
+	uint8_t *uio_mmap_ptr_;
+	struct opae_uio uio_;
 };
-
 #endif //PYOPAE_UIO_H
