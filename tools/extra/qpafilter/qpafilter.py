@@ -36,7 +36,7 @@ from collections import defaultdict
 SCRIPT_VERSION = '1.0.0'
 
 CATEGORY_PATTERN = r'\+-+\+\n;\s*(?P<category>(?:\w+\s?)+)\s*;\n(?P<values>.*?\n)\+-+\+-+\+'
-DATA_ITEM_PATTERN = r';\s*(?P<label>(?:\w+\s?)+)\s*;\s*(?P<value>.*?)\s;'
+DATA_ITEM_PATTERN = r';\s*(?P<label>(?:\w+\s?)+)\s*;\s*(?P<value>\d+\.?\d*)\s+(?P<units>.*?)\s*;'
 
 TEMPERATURE_CATEGORY = 'Temperature and Cooling'
 
@@ -58,8 +58,7 @@ class temp_verifier:
 
     def verify(self, items):
         min_temp_failures = 0
-        for label, value_units in items:
-            value, units = value_units.split(' ')
+        for label, value, units in items:
             value = float(value)
 
             if not self.verify_units(units):
@@ -67,7 +66,7 @@ class temp_verifier:
                 return False
             if not self.verify_min_temp(value):
                 LOG.info(f'QPA threshold value for sensor '
-                         f'{label}: {value_units}\nis lower than the '
+                         f'{label}: {value} {units}\nis lower than the '
                          f'platform\'s recommended minimum of '
                          f'{self.args.min_temp} {DEGREES_C}')
                 min_temp_failures += 1
@@ -123,7 +122,8 @@ def read_qpa(in_file):
         for mv in item_re.finditer(mc.group('values')):
             label = mv.group('label').strip()
             value = mv.group('value').strip()
-            d[mc.group('category').strip()].append((label, value))
+            units = mv.group('units').strip()
+            d[mc.group('category').strip()].append((label, value, units))
     return d
 
 
