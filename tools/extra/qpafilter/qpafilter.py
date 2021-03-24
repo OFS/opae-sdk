@@ -25,7 +25,10 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+""" Convert QPA text file to blob. """
+
 import argparse
+import logging
 import re
 import sys
 from collections import defaultdict
@@ -39,6 +42,8 @@ TEMPERATURE_CATEGORY = 'Temperature and Cooling'
 
 DEGREES_C = '\u00b0C'
 DEGREES_c = '\u00b0c'
+
+LOG = logging.getLogger()
 
 
 class temp_verifier:
@@ -58,21 +63,21 @@ class temp_verifier:
             value = float(value)
 
             if not self.verify_units(units):
-                print('Error: units not {}'.format(DEGREES_C))
+                LOG.error('Units for %s not %s.', value, DEGREES_C)
                 return False
             if not self.verify_min_temp(value):
-                print('INFO: QPA threshold value for sensor {} : {}\n'
-                      'is lower than the platform\'s recommended '
-                      'minimum of {} \u00b0C'.format(label,
-                          value_units, self.args.min_temp))
+                LOG.info(f'QPA threshold value for sensor '
+                         f'{label}: {value_units}\nis lower than the '
+                         f'platform\'s recommended minimum of '
+                         f'{self.args.min_temp} {DEGREES_C}')
                 min_temp_failures += 1
 
             print('{} {} {}'.format(label, value, units))
 
         if min_temp_failures == len(items):
-            print('WARNING: All threshold values are below '
-                  'the recommended minimum ({} \u00b0C).\n'
-                  'Check QPA settings.'.format(self.args.min_temp))
+            LOG.warning(f'WARNING: All threshold values are below the '
+                        f'recommended minimum ({self.args.min_temp} '
+                        f'{DEGREES_C}).\nCheck QPA settings.')
             return False
 
         return True
@@ -91,6 +96,10 @@ def parse_args():
 
     parser.add_argument('file', type=argparse.FileType('r'), nargs='?',
                         help='Input QPA report to process')
+
+    parser.add_argument('-l', '--log-level',
+                        choices=['debug', 'info', 'warning', 'error', 'critical'],
+                        default='info', help='log level to use')
 
     parser.add_argument('-t', '--min-temp', type=float,
                         default=90.0, help='minimum temperature')
@@ -127,16 +136,23 @@ def main():
         parser.print_help(sys.stderr)
         sys.exit(1)
 
+    LOG.setLevel(logging.NOTSET)
+    log_fmt = '[%(levelname)-8s] %(message)s'
+    log_hndlr = logging.StreamHandler(sys.stdout)
+    log_hndlr.setFormatter(logging.Formatter(log_fmt))
+    log_hndlr.setLevel(logging.getLevelName(args.log_level.upper()))
+    LOG.addHandler(log_hndlr)
+
     data = read_qpa(args.file)
     for category, key_vals in data.items():
         try:
             verifier = get_verifier(category)(args)
         except KeyError:
-            print('Error: category {} is not supported.'.format(category))
+            LOG.error('Category %s is not supported. Skipping', category)
             continue
 
         if not verifier.verify(key_vals):
-            print('{}: verification failed.'.format(category))
+            LOG.error('%s: verification failed.', category)
             sys.exit(1)
 
 
