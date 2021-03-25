@@ -58,25 +58,26 @@ class temp_verifier:
 
     def verify(self, items):
         min_temp_failures = 0
-        for label, value, units in items:
-            value = float(value)
+        for i in items:
+            label = i['label']
+            critical = float(i['critical'])
+            units = i['units']
 
             if not self.verify_units(units):
-                LOG.error('Units for %s not %s.', value, DEGREES_C)
+                LOG.error(f'Units for {label} not {DEGREES_C}.')
                 return False
-            if not self.verify_min_temp(value):
+            if not self.verify_min_temp(critical):
                 LOG.info(f'QPA threshold value for sensor '
-                         f'{label}: {value} {units}\nis lower than the '
-                         f'platform\'s recommended minimum of '
-                         f'{self.args.min_temp} {DEGREES_C}')
+                         f'{label}: {critical} {units}')
+                LOG.info(f'is lower than the platform\'s recommended '
+                         f'minimum of {self.args.min_temp} {DEGREES_C}.')
                 min_temp_failures += 1
-
-            print('{} {} {}'.format(label, value, units))
 
         if min_temp_failures == len(items):
             LOG.warning(f'WARNING: All threshold values are below the '
                         f'recommended minimum ({self.args.min_temp} '
-                        f'{DEGREES_C}).\nCheck QPA settings.')
+                        f'{DEGREES_C}).')
+            LOG.warning('Check QPA settings.')
             return False
 
         return True
@@ -87,6 +88,28 @@ def get_verifier(category):
     verifiers = { TEMPERATURE_CATEGORY: temp_verifier
     }
     return verifiers[category]
+
+
+class temp_filter:
+    def __init__(self, args):
+        self.args = args
+
+    def filter(self, items):
+        for i in items:
+            critical = float(i['critical'])
+            warning = (critical * self.args.warn_temp) / self.args.crit_temp
+            i['warning'] = str(warning)
+
+            print('{} w:{} c:{}'.format(i['label'], i['warning'], i['critical']))
+
+        return True
+
+
+def get_filter(category):
+    """Return the filter class, given a category name."""
+    filters = { TEMPERATURE_CATEGORY: temp_filter
+    }
+    return filters[category]
 
 
 def parse_args():
@@ -103,6 +126,12 @@ def parse_args():
     parser.add_argument('-t', '--min-temp', type=float,
                         default=90.0, help='minimum temperature')
 
+    parser.add_argument('-c', '--crit-temp', type=float,
+                        default=100.0, help='critical temperature threshold')
+
+    parser.add_argument('-w', '--warn-temp', type=float,
+                        default=90.0, help='warning temperature threshold')
+
     parser.add_argument('-v', '--version', action='version',
                         version='%(prog)s {}'.format(SCRIPT_VERSION),
                         help='display version information and exit')
@@ -113,17 +142,20 @@ def parse_args():
 def read_qpa(in_file):
     """Read the input file and convert it to our data structure.
        ie a dict keyed by the category name. The value for each
-       entry is a list of 2-tuples of (label, value_and_units).
+       entry is a list of dictionaries with keys = {'label',
+       'critical', 'warning', 'units'}.
     """
     category_re = re.compile(CATEGORY_PATTERN, re.DOTALL|re.UNICODE)
     item_re = re.compile(DATA_ITEM_PATTERN, re.UNICODE)
     d = defaultdict(list)
+    warning = 0.0
     for mc in category_re.finditer(in_file.read()):
         for mv in item_re.finditer(mc.group('values')):
             label = mv.group('label').strip()
-            value = mv.group('value').strip()
+            critical = mv.group('value').strip()
             units = mv.group('units').strip()
-            d[mc.group('category').strip()].append((label, value, units))
+            d[mc.group('category').strip()].append({'label': label,
+                'critical': critical, 'units': units})
     return d
 
 
@@ -147,15 +179,18 @@ def main():
     for category, key_vals in data.items():
         try:
             verifier = get_verifier(category)(args)
+            filt = get_filter(category)(args)
         except KeyError:
-            LOG.error('Category %s is not supported. Skipping', category)
+            LOG.error(f'Category {category} is not supported. Skipping')
             continue
 
         if not verifier.verify(key_vals):
-            LOG.error('%s: verification failed.', category)
+            LOG.error(f'{category}: verification failed.')
             sys.exit(1)
 
-
+        if not filt.filter(key_vals):
+            LOG.error(f'{category}: filtering failed.')
+            sys.exit(1)
 
 
 if __name__ == '__main__':
