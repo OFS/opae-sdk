@@ -97,10 +97,23 @@ class temp_filter:
     def filter(self, items):
         for i in items:
             critical = float(i['critical'])
-            warning = (critical * self.args.warn_temp) / self.args.crit_temp
+            units = i['units']
+
+            if 'override' in i:
+                override = float(i['override'])
+                warning = (override * critical) / 100.0
+            else:
+                override = 0.0
+                warning = (critical * self.args.warn_temp) / self.args.crit_temp
+
             i['warning'] = str(warning)
 
-            print('{} w:{} c:{}'.format(i['label'], i['warning'], i['critical']))
+            msg = (f'{i["label"]} warning: {i["warning"]} {units} '
+                   f'critical: {i["critical"]} {units}')
+            if override != 0.0:
+                msg += f' (override {override}%)'
+
+            print(msg)
 
         return True
 
@@ -120,7 +133,11 @@ def parse_args():
                         help='Input QPA report to process')
 
     parser.add_argument('-l', '--log-level',
-                        choices=['debug', 'info', 'warning', 'error', 'critical'],
+                        choices=['debug',
+                                 'info',
+                                 'warning',
+                                 'error',
+                                 'critical'],
                         default='info', help='log level to use')
 
     parser.add_argument('-t', '--min-temp', type=float,
@@ -132,6 +149,10 @@ def parse_args():
     parser.add_argument('-w', '--warn-temp', type=float,
                         default=90.0, help='warning temperature threshold')
 
+    parser.add_argument('-o', '--override-temp', action='append',
+                        help='specify a temperature override as '
+                        '<label>:<percentage>')
+
     parser.add_argument('-v', '--version', action='version',
                         version='%(prog)s {}'.format(SCRIPT_VERSION),
                         help='display version information and exit')
@@ -139,24 +160,44 @@ def parse_args():
     return parser, parser.parse_args()
 
 
-def read_qpa(in_file):
+def read_qpa(in_file, temp_overrides):
     """Read the input file and convert it to our data structure.
        ie a dict keyed by the category name. The value for each
        entry is a list of dictionaries with keys = {'label',
        'critical', 'warning', 'units'}.
     """
+    temp_overrides.reverse() # In case of multiples, last one given wins.
+
     category_re = re.compile(CATEGORY_PATTERN, re.DOTALL|re.UNICODE)
     item_re = re.compile(DATA_ITEM_PATTERN, re.UNICODE)
-    d = defaultdict(list)
-    warning = 0.0
+    outer_d = defaultdict(list)
     for mc in category_re.finditer(in_file.read()):
         for mv in item_re.finditer(mc.group('values')):
             label = mv.group('label').strip()
             critical = mv.group('value').strip()
             units = mv.group('units').strip()
-            d[mc.group('category').strip()].append({'label': label,
-                'critical': critical, 'units': units})
-    return d
+
+            inner_d = {'label': label,
+                       'critical': critical,
+                       'units': units,
+                       'warning': 0.0 # placeholder
+                      }
+
+            for o in temp_overrides:
+                try:
+                    olabel, opercentage = o.split(':')
+                except ValueError:
+                    LOG.warning(f'{o} is not a valid temperature '
+                                f'override. Skipping')
+                    continue
+
+                if olabel == label:
+                    LOG.info(f'Setting override for \'{label}\' to {opercentage}%')
+                    inner_d['override'] = opercentage
+                    break
+
+            outer_d[mc.group('category').strip()].append(inner_d)
+    return outer_d
 
 
 def main():
@@ -175,7 +216,7 @@ def main():
     log_hndlr.setLevel(logging.getLevelName(args.log_level.upper()))
     LOG.addHandler(log_hndlr)
 
-    data = read_qpa(args.file)
+    data = read_qpa(args.file, args.override_temp)
     for category, key_vals in data.items():
         try:
             verifier = get_verifier(category)(args)
