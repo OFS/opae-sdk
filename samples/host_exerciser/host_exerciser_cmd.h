@@ -165,7 +165,7 @@ public:
 
 
         // Number of cache lines
-        d_afu->write64(HE_NUM_LINES, LPBK1_BUFFER_SIZE / (1 * CL));
+        d_afu->write64(HE_NUM_LINES, (LPBK1_BUFFER_SIZE / (1 * CL)) -1);
 
        // Write to CSR_CFG
         d_afu->write32(HE_CFG, he_lpbk_cfg_.value);
