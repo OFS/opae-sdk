@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2018-2021, Intel Corporation
+# Copyright(c) 2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -53,7 +53,7 @@ DEFAULT_BDF = 'ssss:bb:dd.f'
 # 100 milli seconds
 HSSI_POLL_SLEEP_TIME = 0.1
 # timeout 1 sec
-HSSI_POLL_TIMEOUT = 1
+HSSI_POLL_TIMEOUT = 0.5
 
 
 class HSSI_CSR(Enum):
@@ -263,6 +263,9 @@ class hssi_feature(Union):
     def num_hssi_ports(self):
         return self.bits.num_hssi_ports
 
+    def set_num_hssi_ports(self, value):
+        self.bits.num_hssi_ports = value
+
 
 class HSSI_PORT_BUSWIDTH(Enum):
     """
@@ -285,7 +288,7 @@ class HSSI_PORT_BUSWIDTH(Enum):
 
 class hssi_port_attribute_bits(Structure):
     """
-    HSSI Interface Attribute Port X Parameters CSR bits 
+    HSSI Interface Attribute Port X Parameters CSR bits
     """
     _fields_ = [
                    ("port_profiles", c_uint32, 6),
@@ -306,10 +309,10 @@ class hssi_port_attribute(Union):
     _fields_ = [("bits", hssi_port_attribute_bits),
                 ("value", c_uint32)]
 
-    HSSI_PORT_BUSWIDTH = (( 0, 32),
+    HSSI_PORT_BUSWIDTH = ((0, 32),
                           (1, 64),
                           (2, 128),
-                          (3, 256 ),
+                          (3, 256),
                           (4, 512),
                           (5, 1024))
 
@@ -338,7 +341,7 @@ class hssi_port_attribute(Union):
                           (10, 'General FEC-Direct'),
                           (9, 'TSE MAC'))
 
-    HSSI_SPEED_ETH_INTER = (( 0, 'MII'),
+    HSSI_SPEED_ETH_INTER = ((0, 'MII'),
                             (1, 'GMII'),
                             (2, 'XGMII'))
 
@@ -400,13 +403,13 @@ class hssi_cmd_sts(Union):
     def error(self):
         return self.bits.error
 
-    def read(self, value):
+    def set_read(self, value):
         self.bits.read = value
 
-    def write(self, value):
+    def set_write(self, value):
         self.bits.write = value
 
-    def ack(self, value):
+    def set_ack(self, value):
         self.bits.ack = value
 
 
@@ -466,19 +469,16 @@ class hssi_ctl_addr(Union):
     def addressbit(self):
         return self.bits.addressbit
 
-    def addressbit(self):
-        self.bits.addressbit = value
-
-    def sal_cmd(self, value):
+    def set_sal_cmd(self, value):
         self.bits.sal_cmd = value
 
-    def port_address(self, value):
+    def set_port_address(self, value):
         self.bits.port_address = value
 
-    def ch_address(self, value):
+    def set_ch_address(self, value):
         self.bits.ch_address = value
 
-    def addressbit(self, value):
+    def set_addressbit(self, value):
         self.bits.addressbit = value
 
 
@@ -534,9 +534,116 @@ class hssi_rddata(Union):
         return self.bits.rddata
 
 
+class hssi_eth_port_status_bits(Structure):
+    """
+    HSSI Ethernet Port X Status bits
+    """
+    _fields_ = [
+                   ("o_ehip_ready:", c_uint32, 1),
+                   ("o_rx_hi_ber", c_uint32, 1),
+                   ("o_cdr_lock", c_uint32, 1),
+                   ("rx_am_lock", c_uint32, 1),
+                   ("rx_block_lock", c_uint32, 1),
+                   ("link_fault_gen_en", c_uint32, 1),
+                   ("unidirectional_en", c_uint32, 1),
+                   ("local_fault_status", c_uint32, 1),
+                   ("remote_fault_status", c_uint32, 1),
+                   ("unidirectional_force_remote_faul", c_uint32, 1),
+                   ("unidirectional_remote_fault_dis", c_uint32, 1),
+                   ("pcs_eccstatus", c_uint32, 2),
+                   ("mac_eccstatus", c_uint32, 2),
+                   ("set_10", c_uint32, 1),
+                   ("set_1000", c_uint32, 1),
+                   ("ena_10", c_uint32, 1),
+                   ("eth_mode", c_uint32, 1),
+                   ("reserved", c_uint32, 12)
+    ]
+
+
+class hssi_eth_port_status(Union):
+    """
+    10.1.12	HSSI Ethernet Port X Status
+    Byte Offset: 0x68 + X (0x00 .. 0x0F)*4
+    Addressing Mode: 32 bits
+    """
+    _fields_ = [("bits", hssi_eth_port_status_bits),
+                ("value", c_uint32)]
+
+    def __init__(self, value):
+        self.value = value
+
+    @property
+    def o_ehip_ready(self):
+        return self.bits.o_ehip_ready
+
+    @property
+    def o_rx_hi_ber(self):
+        return self.bits.o_rx_hi_ber
+
+    @property
+    def o_cdr_lock(self):
+        return self.bits.o_cdr_lock
+
+    @property
+    def rx_am_lock(self):
+        return self.bits.rx_am_lock
+
+    @property
+    def rx_block_lock(self):
+        return self.bits.rx_block_lock
+
+    @property
+    def link_fault_gen_en(self):
+        return self.bits.link_fault_gen_en
+
+    @property
+    def unidirectional_en(self):
+        return self.bits.unidirectional_en
+
+    @property
+    def local_fault_status(self):
+        return self.bits.local_fault_status
+
+    @property
+    def remote_fault_status(self):
+        return self.bits.remote_fault_status
+
+    @property
+    def unidirectional_force_remote_fault(self):
+        return self.bits.unidirectional_force_remote_fault
+
+    @property
+    def unidirectional_remote_fault_dis(self):
+        return self.bits.unidirectional_remote_fault_dis
+
+    @property
+    def pcs_eccstatus(self):
+        return self.bits.pcs_eccstatus
+
+    @property
+    def mac_eccstatus(self):
+        return self.bits.mac_eccstatus
+
+    @property
+    def set_10(self):
+        return self.bits.set_10
+
+    @property
+    def set_1000(self):
+        return self.bits.set_1000
+
+    @property
+    def ena_10(self):
+        return self.bits.ena_10
+
+    @property
+    def eth_mode(self):
+        return self.bits.eth_mode
+
+
 class FpgaFinder(object):
-    def __init__(self, piceaddress):
-        self.pice_address = piceaddress
+    def __init__(self, pcie_address):
+        self._pice_address = pcie_address
         self.all_devs = []
         self.match_dev = []
         self.get_fpga_device_list()
@@ -561,9 +668,9 @@ class FpgaFinder(object):
                                                    sbdf.get('dev'),
                                                    sbdf.get('func'))
                     sbdf['pcie_address'] = pcie_address
-                    if self.pice_address == pcie_address:
+                    if self._pice_address == pcie_address:
                         self.all_devs.append(sbdf)
-                    if self.pice_address is None:
+                    if self._pice_address is None:
                         self.all_devs.append(sbdf)
 
     def enum(self):
@@ -609,6 +716,7 @@ class HSSICOMMON(object):
         self.pyopaeuio_inst = pyopaeuio()
         self.num_uio_regions = 0
         self.region_index = 0
+
     def hssi_info(self, hssi_uio):
         """
         Reads info fron hssi feature uio region
@@ -622,7 +730,7 @@ class HSSICOMMON(object):
             hssi_version = hssi_ver(self.read32(0, 0x8))
             hssi_feature_list = hssi_feature(self.read32(0, 0xC))
             ctl_addr = hssi_ctl_addr(0)
-            ctl_addr.sal_cmd(HSSI_SALCMD.FIRMWARE_VER.value)
+            ctl_addr.set_sal_cmd(HSSI_SALCMD.FIRMWARE_VER.value)
             firmware_version = self.read_reg(0, ctl_addr.value)
 
             print("\n--------HSSI IINFO START-------")
@@ -816,3 +924,38 @@ class HSSICOMMON(object):
         reg_data &= ~(mask << idx)
         reg_data |= (value << idx)
         return reg_data
+
+
+def main():
+    """
+    parse input arguemnts pciaddress
+    """
+    parser = argparse.ArgumentParser()
+
+    pcieaddress_help = 'bdf of device to program \
+                        (e.g. 04:00.0 or 0000:04:00.0).' \
+                       ' Optional when one device in system.'
+    parser.add_argument('--pcie-address', '-P',
+                        default=None, help=pcieaddress_help)
+
+    args, left = parser.parse_known_args()
+
+    print(args)
+    print("pcie_address:", args.pcie_address)
+
+    f = FpgaFinder(args.pcie_address)
+    devs = f.enum()
+    for d in devs:
+        print('sbdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))
+        print('FPGA dev:', d)
+    if len(devs) > 1:
+        print('{} FPGAs are found\nplease choose '
+              'one FPGA'.format(len(devs)))
+        sys.exit(1)
+    if not devs:
+        print('no FPGA found')
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

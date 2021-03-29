@@ -1,4 +1,4 @@
-# Copyright(c) 2020, Intel Corporation
+# Copyright(c) 2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -64,11 +64,11 @@ setup(
             'hssistats = hssistats:main',
             'hssimac = hssimac:main',
             'hssiloopback = hssiloopback:main',
-
+            'hssicommon = hssiloopback:main',
         ]
     },
     description="hssi eth tools"
-    "for ethernet mdev",
+    "for ethernet UIO",
     license="BSD3",
     keywords="OPAE hssi tools ",
     url="https://01.org/OPAE",

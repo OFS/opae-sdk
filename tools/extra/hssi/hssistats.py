@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2018-2021, Intel Corporation
+# Copyright(c) 2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -71,8 +71,8 @@ class FPGAHSSISTATS(HSSICOMMON):
                       ('rx_runts', 30))
 
     def __init__(self, args):
-        self.pcieaddress = args.pcieaddress
-        self.hssi_grps = args.hssi_grps
+        self._pcie_address = args.pcie_address
+        self._hssi_grps = args.hssi_grps
         HSSICOMMON.__init__(self)
 
     def get_hssi_stats(self):
@@ -89,29 +89,52 @@ class FPGAHSSISTATS(HSSICOMMON):
         read MSB stats
         print stats
         """
-        self.open(self.hssi_grps[0][0])
+        self.open(self._hssi_grps[0][0])
         ctl_addr = hssi_ctl_addr(0)
-        ctl_addr.sal_cmd(HSSI_SALCMD.READ_MAC_STATISTIC.value)
+        ctl_addr.set_sal_cmd(HSSI_SALCMD.READ_MAC_STATISTIC.value)
         value = 0
+
         print("------------HSSI stats------------")
+
+        port_str = "{0: <32} |".format('HSSI Ports')
+        hssi_feature_list = hssi_feature(self.read32(0, 0xC))
+        print("HSSI num ports:", hssi_feature_list.num_hssi_ports)
+        for port in range(0, hssi_feature_list.num_hssi_ports):
+            port_str += "port:{}|".format(port).rjust(20, ' ')
+
+        print(port_str)
+
+        stats_list = []
         for str, reg in self.hssi_eth_stats:
+            stats_list.append("{0: <32} |".format(str))
 
-            # Read LSB value
-            ctl_addr.addressbit(reg)
-            value_lsb = self.read_reg(0, ctl_addr.value)
+        for port in range(0, hssi_feature_list.num_hssi_ports):
+            port_index = 0
+            for str, reg in self.hssi_eth_stats:
 
-            # Read MSB value
-            ctl_addr.value = self.register_field_set(ctl_addr.value, 31, 1, 1)
-            value_msb = self.read_reg(0, ctl_addr.value)
+                # Read LSB value
+                ctl_addr.set_addressbit(reg)
+                ctl_addr.set_port_address(port)
+                value_lsb = self.read_reg(0, ctl_addr.value)
 
-            # 64 bit value
-            value = (value_msb << 32) | (value_lsb)
+                # Read MSB value
+                ctl_addr.value = self.register_field_set(ctl_addr.value,
+                                                         31, 1, 1)
+                value_msb = self.read_reg(0, ctl_addr.value)
 
-            print("{0: <20}".format(str), end=' | ')
-            print("{0: >12}".format(value), end=' | ')
-            print()
+                # 64 bit value
+                value = (value_msb << 32) | (value_lsb)
+
+                stats_list[port_index] += "{}|".format(value).rjust(20, ' ')
+                port_index = port_index + 1
+
+        print("\n")
+        for i in range(len(self.hssi_eth_stats)):
+            print(stats_list[i])
 
         self.close()
+
+        return 0
 
     def hssi_stats_start(self):
         """
@@ -119,7 +142,7 @@ class FPGAHSSISTATS(HSSICOMMON):
         get hssi stats
         """
         print("----hssi_stats_start----")
-        self.hssi_info(self.hssi_grps[0][0])
+        self.hssi_info(self._hssi_grps[0][0])
         self.get_hssi_stats()
 
 
@@ -134,15 +157,15 @@ def main():
     pcieaddress_help = 'bdf of device to program \
                         (e.g. 04:00.0 or 0000:04:00.0).' \
                        ' Optional when one device in system.'
-    parser.add_argument('--pcieaddress', '-P',
+    parser.add_argument('--pcie-address', '-P',
                         default=None, help=pcieaddress_help)
 
     args, left = parser.parse_known_args()
 
     print(args)
-    print("pcieaddress:", args.pcieaddress)
+    print("pcie_address:", args.pcie_address)
 
-    f = FpgaFinder(args.pcieaddress)
+    f = FpgaFinder(args.pcie_address)
     devs = f.enum()
     for d in devs:
         print('sbdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))

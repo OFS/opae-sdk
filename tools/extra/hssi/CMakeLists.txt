@@ -28,17 +28,8 @@
 set(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/timestamp)
 file(GLOB_RECURSE PKG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.py)
 
-message( " ----------------->"${CMAKE_CURRENT_SOURCE_DIR} )
-message( " ----------------->"${PKG_FILES} )
-
 set(INCLUDE_DIRS "${OPAE_INCLUDE_PATH}:${pybind11_ROOT}/include")
 set(LINK_DIRS "${LIBRARY_OUTPUT_PATH}")
-
-
-message( " -HSSI -------build_ext--------->"${PYTHON_EXECUTABLE} setup.py build_ext -I ${INCLUDE_DIRS} -L ${LINK_DIRS} )
-
-message( " -HSSI --------build-------->"${PYTHON_EXECUTABLE} setup.py build )
-message( " -HSSI ---------------->"${PKG_FILES} )
 
 add_custom_command(
     OUTPUT ${OUTPUT}

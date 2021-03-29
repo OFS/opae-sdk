@@ -36,9 +36,9 @@ from hssicommon import *
 
 class FPGAHSSIMAC(HSSICOMMON):
     def __init__(self, args):
-        self.mtu = args.mtu
-        self.hssi_grps = args.hssi_grps
-        self.pcieaddress = args.pcieaddress
+        self._mtu = args.mtu
+        self._hssi_grps = args.hssi_grps
+        self._pcie_address = args.pcie_address
         HSSICOMMON.__init__(self)
 
     def get_mac_mtu(self):
@@ -51,7 +51,7 @@ class FPGAHSSIMAC(HSSICOMMON):
         HSSI Read Data CSR [15:0] Maximum Rx frame size
         """
         print("-------eth_mac_mtu--------")
-        self.open(self.hssi_grps[0][0])
+        self.open(self._hssi_grps[0][0])
 
         ctl_addr = hssi_ctl_addr(0)
         ctl_addr.sal_cmd(HSSI_SALCMD.GET_MTU.value)
@@ -66,6 +66,8 @@ class FPGAHSSIMAC(HSSICOMMON):
         for x in range(width):
             mask |= (0 << x)
         print("Maximum TX frame size:", (value & mask))
+
+        self.close()
         return 0
 
     def hssi_mtu_start(self):
@@ -74,7 +76,7 @@ class FPGAHSSIMAC(HSSICOMMON):
         get mtu
         """
         print("----hssi_mtu_start----")
-        self.hssi_info(self.hssi_grps[0][0])
+        self.hssi_info(self._hssi_grps[0][0])
         self.get_mac_mtu()
 
 
@@ -89,7 +91,7 @@ def main():
     pcieaddress_help = 'bdf of device to program \
                         (e.g. 04:00.0 or 0000:04:00.0).' \
                        ' Optional when one device in system.'
-    parser.add_argument('--pcieaddress', '-P',
+    parser.add_argument('--pcie-address', '-P',
                         default=DEFAULT_BDF, help=pcieaddress_help)
 
     parser.add_argument('--mtu', nargs='?', const='',
@@ -98,11 +100,11 @@ def main():
     args, left = parser.parse_known_args()
 
     print("args", args)
-    print("pcieaddress:", args.pcieaddress)
+    print("pcie_address:", args.pcie_address)
     print("args.mtu:", args.mtu)
     print(args)
 
-    f = FpgaFinder(args.pcieaddress)
+    f = FpgaFinder(args.pcie_address)
     devs = f.enum()
     for d in devs:
         print('sbdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))

@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2018-2021, Intel Corporation
+# Copyright(c) 2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -40,9 +40,9 @@ from hssicommon import *
 
 class FPGAHSSILPBK(HSSICOMMON):
     def __init__(self, args):
-        self.en = args.en
-        self.hssi_grps = args.hssi_grps
-        self.pcieaddress = args.pcieaddress
+        self._loopback = args.loopback
+        self._hssi_grps = args.hssi_grps
+        self._pcie_address = args.pcie_address
         HSSICOMMON.__init__(self)
 
     def hssi_loopback_en(self):
@@ -53,15 +53,15 @@ class FPGAHSSILPBK(HSSICOMMON):
         poll for status
         clear ctl address and ctl sts CSR
         """
-        print("eth_group_loopback_en", self.en)
+        print("eth_group_loopback_en", self._loopback)
 
-        self.open(self.hssi_grps[0][0])
+        self.open(self._hssi_grps[0][0])
 
         ctl_addr = hssi_ctl_addr(0)
-        if (self.en):
-            ctl_addr.sal_cmd(HSSI_SALCMD.ENABLE_LOOPBACK.value)
+        if (self._loopback):
+            ctl_addr.set_sal_cmd(HSSI_SALCMD.ENABLE_LOOPBACK.value)
         else:
-            ctl_addr.sal_cmd(HSSI_SALCMD.DISABLE_LOOPBACK.value)
+            ctl_addr.set_sal_cmd(HSSI_SALCMD.DISABLE_LOOPBACK.value)
 
         cmd_sts = hssi_cmd_sts(0)
         cmd_sts.value = 0x2
@@ -69,6 +69,7 @@ class FPGAHSSILPBK(HSSICOMMON):
         ret = self.clear_ctl_sts_reg(0)
         if not ret:
             print("Failed to clear HSSI CTL STS csr")
+            self.close()
             return 0
 
         self.write32(0, HSSI_CSR.HSSI_CTL_ADDRESS.value, ctl_addr.value)
@@ -78,12 +79,16 @@ class FPGAHSSILPBK(HSSICOMMON):
                                       HSSI_CSR.HSSI_CTL_STS.value,
                                       0x2):
             print("HSSI ctl sts csr fails to update ACK")
+            self.close()
             return 0
 
         ret = self.clear_ctl_sts_reg(0)
         if not ret:
             print("Failed to clear HSSI CTL STS csr")
+            self.close()
             return 0
+
+        self.close()
 
         return 0
 
@@ -93,7 +98,7 @@ class FPGAHSSILPBK(HSSICOMMON):
         enable/disable hssi loopback
         """
         print("----hssi_loopback_start----")
-        self.hssi_info(self.hssi_grps[0][0])
+        self.hssi_info(self._hssi_grps[0][0])
         self.hssi_loopback_en()
 
 
@@ -108,34 +113,28 @@ def main():
     pcieaddress_help = 'bdf of device to program \
                        (e.g. 04:00.0 or 0000:04:00.0).' \
                        ' Optional when one device in system.'
-    parser.add_argument('--pcieaddress', '-P',
+    parser.add_argument('--pcie-address', '-P',
                         default=DEFAULT_BDF, help=pcieaddress_help)
 
-    parser.add_argument('--enable',
-                        action='store_const',
-                        dest='en',
-                        const=1,
+    parser.add_argument('--loopback',
+                        choices=['enable', 'disable'], nargs='?',
+                        default=None,
                         help='loopback enable')
-    parser.add_argument('--disable',
-                        action='store_const',
-                        dest='en',
-                        const=0,
-                        help='loopback disable')
 
     args, left = parser.parse_known_args()
 
     print("args", args)
-    print("pcieaddress:", args.pcieaddress)
-    print("args.en:", args.en)
+    print("pcie_address:", args.pcie_address)
+    print("args.loopback:", args.loopback)
     print(args)
-    if args.en is None:
-        print('please specify --enable/--disable loopback!')
-        exit(1)
+    if args.loopback is None:
+        print('please specify --loopback enable/disable')
+        sys.exit(1)
     else:
-        op = 'enable' if args.en else 'disable'
+        op = 'enable' if args.loopback else 'disable'
         print('{} fpga loopback'.format(op))
 
-    f = FpgaFinder(args.pcieaddress)
+    f = FpgaFinder(args.pcie_address)
     devs = f.enum()
     for d in devs:
         print('sbdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))
