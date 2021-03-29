@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2019-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,20 +24,9 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required (VERSION  3.10)
 
-project(testing)
+set(INCLUDE_DIRS "${OPAE_INCLUDE_PATH}:${pybind11_ROOT}/include")
+set(LINK_DIRS "${LIBRARY_OUTPUT_PATH}")
 
-add_subdirectory(argsfilter)
-add_subdirectory(board)
-add_subdirectory(dummy_afu)
-add_subdirectory(fpgaconf)
-add_subdirectory(fpgainfo)
-add_subdirectory(hello_events)
-add_subdirectory(hello_fpga)
-add_subdirectory(object_api)
-add_subdirectory(userclk)
-add_subdirectory(fpgametrics)
-if (OPAE_BUILD_LIBOFS)
-    add_subdirectory(ofs_cpeng)
-endif (OPAE_BUILD_LIBOFS)
+pybind11_add_module(pyopaeuio THIN_LTO  pyopaeuio.cpp)
+target_link_libraries(pyopaeuio PRIVATE  opaeuio)

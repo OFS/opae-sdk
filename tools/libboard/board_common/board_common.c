@@ -45,8 +45,8 @@
 
 #include "board_common.h"
 
-#define DFL_SYSFS_SEC_GLOB "dfl*/*spi*/spi_master/spi*/spi*/*/*/*/security/"
-#define DFL_SYSFS_SEC_USER_FLASH_COUNT         DFL_SYSFS_SEC_GLOB "user_flash_count"
+#define DFL_SYSFS_SEC_GLOB "dfl*/*spi*/spi_master/spi*/spi*/**/security/"
+#define DFL_SYSFS_SEC_USER_FLASH_COUNT         DFL_SYSFS_SEC_GLOB "*flash_count"
 #define DFL_SYSFS_SEC_BMC_CANCEL               DFL_SYSFS_SEC_GLOB "bmc_canceled_csks"
 #define DFL_SYSFS_SEC_BMC_ROOT                 DFL_SYSFS_SEC_GLOB "bmc_root_entry_hash"
 #define DFL_SYSFS_SEC_PR_CANCEL                DFL_SYSFS_SEC_GLOB "pr_canceled_csks"
@@ -277,6 +277,7 @@ fpga_result print_eth_interface_info(fpga_token token, const char *interface_nam
 					&fpga_object, FPGA_OBJECT_GLOB);
 				if (res != FPGA_OK) {
 					OPAE_DBG("Failed to get token Object");
+					res = FPGA_OK;
 					continue;
 				}
 				res = fpgaDestroyObject(&fpga_object);
