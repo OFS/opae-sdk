@@ -104,7 +104,8 @@ class temp_filter:
                 warning = (override * critical) / 100.0
             else:
                 override = 0.0
-                warning = (critical * self.args.warn_temp) / self.args.crit_temp
+                warning = ((critical * self.args.virt_warn_temp) /
+                          self.args.virt_fatal_temp)
 
             i['warning'] = str(warning)
 
@@ -113,6 +114,7 @@ class temp_filter:
             if override != 0.0:
                 msg += f' (override {override}%)'
 
+            # TODO: what to print here?
             print(msg)
 
         return True
@@ -143,11 +145,13 @@ def parse_args():
     parser.add_argument('-t', '--min-temp', type=float,
                         default=90.0, help='minimum temperature')
 
-    parser.add_argument('-c', '--crit-temp', type=float,
-                        default=100.0, help='critical temperature threshold')
+    parser.add_argument('-f', '--virt-fatal-temp', type=float,
+                        default=100.0,
+                        help='virtual fatal temperature threshold')
 
-    parser.add_argument('-w', '--warn-temp', type=float,
-                        default=90.0, help='warning temperature threshold')
+    parser.add_argument('-w', '--virt-warn-temp', type=float,
+                        default=90.0,
+                        help='virtual warning temperature threshold')
 
     parser.add_argument('-o', '--override-temp', action='append',
                         help='specify a temperature override as '
@@ -166,7 +170,15 @@ def read_qpa(in_file, temp_overrides):
        entry is a list of dictionaries with keys = {'label',
        'critical', 'warning', 'units'}.
     """
-    temp_overrides.reverse() # In case of multiples, last one given wins.
+    override_d = {}
+    for ot in temp_overrides:
+        try:
+            olabel, opercentage = ot.split(':')
+        except ValueError:
+            LOG.warning(f'{ot} is not a valid temperature '
+                        f'override. Skipping')
+            continue
+        override_d[olabel] = opercentage
 
     category_re = re.compile(CATEGORY_PATTERN, re.DOTALL|re.UNICODE)
     item_re = re.compile(DATA_ITEM_PATTERN, re.UNICODE)
@@ -183,18 +195,9 @@ def read_qpa(in_file, temp_overrides):
                        'warning': 0.0 # placeholder
                       }
 
-            for o in temp_overrides:
-                try:
-                    olabel, opercentage = o.split(':')
-                except ValueError:
-                    LOG.warning(f'{o} is not a valid temperature '
-                                f'override. Skipping')
-                    continue
-
-                if olabel == label:
-                    LOG.info(f'Setting override for \'{label}\' to {opercentage}%')
-                    inner_d['override'] = opercentage
-                    break
+            if label in override_d:
+                inner_d['override'] = override_d[label]
+                LOG.info(f'Setting override for \'{label}\' to {inner_d["override"]}%')
 
             outer_d[mc.group('category').strip()].append(inner_d)
     return outer_d
