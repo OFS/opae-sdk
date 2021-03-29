@@ -47,6 +47,7 @@ LOG = logging.getLogger()
 
 
 class temp_verifier:
+    """Verify temperature sensor settings."""
     def __init__(self, args):
         self.args = args
 
@@ -60,15 +61,15 @@ class temp_verifier:
         min_temp_failures = 0
         for i in items:
             label = i['label']
-            critical = float(i['critical'])
+            fatal = float(i['fatal'])
             units = i['units']
 
             if not self.verify_units(units):
                 LOG.error(f'Units for {label} not {DEGREES_C}.')
                 return False
-            if not self.verify_min_temp(critical):
+            if not self.verify_min_temp(fatal):
                 LOG.info(f'QPA threshold value for sensor '
-                         f'{label}: {critical} {units}')
+                         f'{label}: {fatal} {units}')
                 LOG.info(f'is lower than the platform\'s recommended '
                          f'minimum of {self.args.min_temp} {DEGREES_C}.')
                 min_temp_failures += 1
@@ -91,26 +92,28 @@ def get_verifier(category):
 
 
 class temp_filter:
+    """Calculate Warning Temperature thresholds, given the Fatal
+       value and supporting ratio."""
     def __init__(self, args):
         self.args = args
 
     def filter(self, items):
         for i in items:
-            critical = float(i['critical'])
+            fatal = float(i['fatal'])
             units = i['units']
 
             if 'override' in i:
                 override = float(i['override'])
-                warning = (override * critical) / 100.0
+                warning = (override * fatal) / 100.0
             else:
                 override = 0.0
-                warning = ((critical * self.args.virt_warn_temp) /
+                warning = ((fatal * self.args.virt_warn_temp) /
                           self.args.virt_fatal_temp)
 
             i['warning'] = str(warning)
 
             msg = (f'{i["label"]} warning: {i["warning"]} {units} '
-                   f'critical: {i["critical"]} {units}')
+                   f'fatal: {i["fatal"]} {units}')
             if override != 0.0:
                 msg += f' (override {override}%)'
 
@@ -127,48 +130,11 @@ def get_filter(category):
     return filters[category]
 
 
-def parse_args():
-    """Parses command line arguments"""
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument('file', type=argparse.FileType('r'), nargs='?',
-                        help='Input QPA report to process')
-
-    parser.add_argument('-l', '--log-level',
-                        choices=['debug',
-                                 'info',
-                                 'warning',
-                                 'error',
-                                 'critical'],
-                        default='info', help='log level to use')
-
-    parser.add_argument('-t', '--min-temp', type=float,
-                        default=90.0, help='minimum temperature')
-
-    parser.add_argument('-f', '--virt-fatal-temp', type=float,
-                        default=100.0,
-                        help='virtual fatal temperature threshold')
-
-    parser.add_argument('-w', '--virt-warn-temp', type=float,
-                        default=90.0,
-                        help='virtual warning temperature threshold')
-
-    parser.add_argument('-o', '--override-temp', action='append',
-                        help='specify a temperature override as '
-                        '<label>:<percentage>')
-
-    parser.add_argument('-v', '--version', action='version',
-                        version='%(prog)s {}'.format(SCRIPT_VERSION),
-                        help='display version information and exit')
-
-    return parser, parser.parse_args()
-
-
 def read_qpa(in_file, temp_overrides):
     """Read the input file and convert it to our data structure.
        ie a dict keyed by the category name. The value for each
        entry is a list of dictionaries with keys = {'label',
-       'critical', 'warning', 'units'}.
+       'fatal', 'warning', 'units'}.
     """
     override_d = {}
     for ot in temp_overrides:
@@ -186,11 +152,11 @@ def read_qpa(in_file, temp_overrides):
     for mc in category_re.finditer(in_file.read()):
         for mv in item_re.finditer(mc.group('values')):
             label = mv.group('label').strip()
-            critical = mv.group('value').strip()
+            fatal = mv.group('value').strip()
             units = mv.group('units').strip()
 
             inner_d = {'label': label,
-                       'critical': critical,
+                       'fatal': fatal,
                        'units': units,
                        'warning': 0.0 # placeholder
                       }
@@ -203,22 +169,8 @@ def read_qpa(in_file, temp_overrides):
     return outer_d
 
 
-def main():
-    """The main entry point"""
-    parser, args = parse_args()
-
-    if args.file is None:
-        print('Error: file is a required argument\n')
-        parser.print_help(sys.stderr)
-        sys.exit(1)
-
-    LOG.setLevel(logging.NOTSET)
-    log_fmt = '[%(levelname)-8s] %(message)s'
-    log_hndlr = logging.StreamHandler(sys.stdout)
-    log_hndlr.setFormatter(logging.Formatter(log_fmt))
-    log_hndlr.setLevel(logging.getLevelName(args.log_level.upper()))
-    LOG.addHandler(log_hndlr)
-
+def create_blob_from_qpa(args):
+    """Given the input QPA report, create the binary equivalent."""
     data = read_qpa(args.file, args.override_temp)
     for category, key_vals in data.items():
         try:
@@ -235,6 +187,82 @@ def main():
         if not filt.filter(key_vals):
             LOG.error(f'{category}: filtering failed.')
             sys.exit(1)
+
+
+def dump_blob(args):
+    """Given the binary from a previous 'create' command, print
+       human-readable output."""
+    pass
+
+
+def parse_args():
+    """Parses command line arguments"""
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-l', '--log-level',
+                        choices=['debug',
+                                 'info',
+                                 'warning',
+                                 'error',
+                                 'critical'],
+                        default='info', help='log level to use')
+
+    parser.add_argument('-v', '--version', action='version',
+                        version='%(prog)s {}'.format(SCRIPT_VERSION),
+                        help='display version information and exit')
+
+    subparser = parser.add_subparsers()
+
+    create = subparser.add_parser('create', help='Create blob from QPA')
+
+    create.add_argument('file', type=argparse.FileType('r'), nargs='?',
+                        help='Input QPA report to process')
+
+    create.add_argument('-t', '--min-temp', type=float,
+                        default=90.0, help='minimum temperature')
+
+    create.add_argument('-f', '--virt-fatal-temp', type=float,
+                        default=100.0,
+                        help='virtual fatal temperature threshold')
+
+    create.add_argument('-w', '--virt-warn-temp', type=float,
+                        default=90.0,
+                        help='virtual warning temperature threshold')
+
+    create.add_argument('-o', '--override-temp', action='append',
+                        help='specify a temperature override as '
+                        '<label>:<percentage>')
+
+    create.set_defaults(func=create_blob_from_qpa)
+
+    dump = subparser.add_parser('dump',
+                                help='Convert blob to human-readable format')
+
+    dump.add_argument('file', type=argparse.FileType('r'), nargs='?',
+                      help='Input blob file')
+
+    dump.set_defaults(func=dump_blob)
+
+    return parser, parser.parse_args()
+
+
+def main():
+    """The main entry point"""
+    parser, args = parse_args()
+
+    if args.file is None:
+        print('Error: file is a required argument.\n')
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+
+    LOG.setLevel(logging.NOTSET)
+    log_fmt = '[%(levelname)-8s] %(message)s'
+    log_hndlr = logging.StreamHandler(sys.stdout)
+    log_hndlr.setFormatter(logging.Formatter(log_fmt))
+    log_hndlr.setLevel(logging.getLevelName(args.log_level.upper()))
+    LOG.addHandler(log_hndlr)
+
+    args.func(args)
 
 
 if __name__ == '__main__':
