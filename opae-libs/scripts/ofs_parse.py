@@ -29,9 +29,11 @@ import argparse
 import ast
 import io
 import os
-import re
 import yaml
 
+import umd
+
+from collections import OrderedDict
 from contextlib import contextmanager
 
 try:
@@ -39,40 +41,6 @@ try:
 except ImportError:
     from yaml import Loader as YamlLoader
 
-def _ast_get_source_segment(body, node):
-    '''Incomplete reimplementation of ast.get_source_segment()
-
-    This generator script should still work for the target distributions
-    without a shipped Python 3.8+ installation. To be maintainable long term,
-    this script should probably be reworked to avoid source string manipulation
-    and prefer transforming/walking the AST directly to generate target code.
-
-    FIXME -- remove this function
-    '''
-    lines = body.split('\n')
-    first_line = node.lineno-1
-    first_col = node.col_offset
-
-    if hasattr(node, 'end_lineno'):
-        last_line = node.end_lineno-1
-    else:
-        last_line = first_line
-    if hasattr(node, 'end_col_offset'):
-        last_col = node.end_col_offset
-    else:
-        last_col = len(body)
-
-    if first_line == last_line:
-        return lines[first_line][first_col:last_col]
-    else:
-        return '\n'.join([lines[first_line][first_col:],
-                          '\n'.join(lines[first_line+1:last_line]),
-                          lines[last_line][:last_col]])
-
-try:
-    from ast import get_source_segment as ast_get_source_segment
-except ImportError:
-    ast_get_source_segment = _ast_get_source_segment
 
 cpp_field_tmpl = '{spaces}{pod} f_{name} : {width};'
 cpp_class_tmpl = '''
@@ -189,10 +157,67 @@ class ofs_driver_writer(object):
     def __init__(self, data):
         self.data = data
 
+    def resolve_function(self, fn_name):
+        if fn_name in self.fn_names:
+            return f'{self.name}_{fn_name}'
+        return fn_name
+
+    def resolve_name(self, name):
+        if name in self.reg_names:
+            return f'drv->r_{name}'
+        return name
+
+    @property
+    def fn_names(self):
+        return [fn.name for fn in self.functions]
+
+    @property
+    def reg_names(self):
+        return [r.name for r in self.registers]
+
+    def api_functions(self, code):
+        functions = OrderedDict()
+        try:
+            tree = ast.parse(code)
+        except SyntaxError as err:
+            print(f'sytax error: {err.text}, line: {err.lineno}')
+        else:
+            lines = code.split('\n')
+            for node in tree.body:
+                if isinstance(node, ast.FunctionDef):
+                    fn = {}
+                    args = []
+                    body = self.get_body_text(node.body, lines)
+                    if body:
+                        fn['body'] = body
+                    if node.returns:
+                        fn['return'] = node.returns.id
+                    for a in node.args.args:
+                        name = a.arg
+                        ann = a.annotation
+                        sub = ''
+                        ptr = ''
+                        if isinstance(ann, ast.Call) and ann.func.id == 'ptr':
+                            _type = f'{ann.args[0].id}'
+                            ptr = '*'
+                        elif isinstance(ann, ast.Subscript):
+                            _type = ann.value.id
+                            sub = f'[{ann.slice.value.value}]'
+                        else:
+                            _type = ann.id
+                        args.append(f'{_type} {ptr}{name}{sub}')
+                    if args:
+                        fn['args'] = args
+                    functions[node.name] = fn
+
+        return functions
+
     def write_header(self, output, language='c'):
         self.name = self.data['name']
         self.registers = self.data['registers']
-        self.functions = self.data.get('functions', {})
+        self.functions = umd.get_functions(self.data.get('api', ''), self)
+        if not self.functions:
+            return
         filepath = os.path.join(output, f'{self.name}.h')
         # with open(os.path.join(args.output, f'{name}.h'), 'w') as fp:
         with ofs_header_writer.open(filepath, 'w') as writer:
@@ -228,148 +253,16 @@ class ofs_driver_writer(object):
             r.fields = declare_fields(r.pod, r.fields, 4)
             r.to_structure(tmpl, fp)
 
-    def find_call(self, node):
-        if isinstance(node, ast.Call):
-            return [node]
-        if isinstance(node, ast.Return) or isinstance(node, ast.Expr):
-            return self.find_call(node.value)
-        if isinstance(node, ast.Compare) or isinstance(node, ast.BinOp):
-            calls = self.find_call(node.left)
-            if isinstance(node, ast.Compare):
-                for c in node.comparators:
-                    calls.extend(self.find_call(c))
+    def get_body_text(self, body, lines):
+        text = io.StringIO()
+        first = body[0]
+        beg = first.lineno-1
+        for line in lines[beg:]:
+            if line[:first.col_offset].strip() == '':
+                text.write(f'{line[first.col_offset:]}\n')
             else:
-                calls.extend(self.find_call(node.right))
-            return calls
-        return []
-
-    def annotation_to_c(self, node):
-        if isinstance(node, ast.Subscript):
-            return node.value.id, node.slice.value.value
-        return node.id, None
-
-    def registers_names(self):
-        return [r.name for r in self.registers]
-
-    def c_convert(self, body, node):
-        def arg_repl(m):
-            fn = m.group(1)
-            args = m.group(2)
-            if m.group(2) and m.group(2).strip():
-                return f'{self.name}_{fn}(drv, {args})'
-            return f'{self.name}_{fn}(drv)'
-
-        line = ast_get_source_segment(body, node)
-
-        for call_node in self.find_call(node):
-            fn_name = call_node.func.id
-            if fn_name in self.functions:
-                line = re.sub(f'({fn_name})\\((.*)\\)', arg_repl, line, flags=re.DOTALL)
-        return self.ofs_resolve(node, self._c_convert(line))
-
-    def ofs_resolve(self, node, line):
-        if node is None:
-            return line
-        if isinstance(node, ast.Call) and node.func.id == 'ofs_addr':
-            func = node.func.id
-            arg0 = node.args[0].id
-            if func == 'ofs_addr' and arg0 in self.registers_names():
-                arg1 = node.args[1].id
-                line = re.sub(f'ofs_addr\\(\\s*({arg0})\\s*,\\s*({arg1})\\s*\\)', # noqa
-                              r'(\2*)drv->r_\1', line)
-                return line
-        if isinstance(node, ast.AnnAssign) or isinstance(node, ast.Assign):
-            # line = self.ofs_resolve(node.target, line)
-            line = self.ofs_resolve(node.value, line)
-            return line
-        if isinstance(node, ast.BinOp):
-            line = self.ofs_resolve(node.left, line)
-            line = self.ofs_resolve(node.right, line)
-            return line
-        if isinstance(node, ast.Name) and node.id in self.registers_names():
-            line = line.replace(node.id, f'drv->r_{node.id}->value')
-        return line
-
-    def find_registers(self, node):
-        if node is None:
-            return []
-        if isinstance(node, ast.BinOp):
-            lhs = self.find_registers(node.left)
-            rhs = self.find_registers(node.right)
-            return lhs + rhs
-        value_id = getattr(node, 'id', None)
-        if value_id and value_id in self.registers_names():
-            return [value_id]
-        return []
-
-    def _c_convert(self, line):
-        p = re.compile(r'(.*?)(?:(?P<r>\w+)\.(?P<f>\w+))(.*)')
-        m = p.match(line)
-        if m:
-            line = m.expand(r'\1drv->r_\2->f_\3\4')
-        f = re.compile(r'(\w+)\((.*?)\)')
-        m = f.match(line)
-        if m and m.group(1) in self.functions:
-            line = f.sub(f'{self.name}_\\1(drv, \\2)', line)
-        for py_syntax, c_syntax in [('not ', '!'),
-                                    (' and ', ' && '),
-                                    ('True', 'true'),
-                                    ('False', 'false')]:
-            line = line.replace(py_syntax, c_syntax)
-        return line
-
-    def write_scoped_body(self, fp, body, indent=1):
-        spaces = '  '*indent
-        body = re.sub(r'#(.*)', r'__cmt__("\1")', body)
-        parsed = ast.parse(body)
-        lines = body.strip().split('\n')
-        for s in parsed.body:
-            if isinstance(s, ast.Expr) and isinstance(s.value, ast.Call):
-                line = self.c_convert(body, s)
-                if s.value.func.id == '__cmt__':
-                    line = re.sub(r'__cmt__\("(.*?)"\)', r'//\1', line)
-                    fp.writeline(f'{spaces}{line}')
-            elif type(s) in [ast.If, ast.While, ast.For]:
-                if isinstance(s, ast.For) and s.iter.func.id.endswith('range'):
-                    i = s.target.id
-                    _min = 0 if len(s.iter.args) == 1 else s.iter.args[0].id
-                    _max = s.iter.args[-1].id
-                    test = f'{i} = {_min}; i < {_max}; ++i'
-                    keyword = 'for'
-                else:
-                    test = self.c_convert(body, s.test)
-                    keyword = 'if' if isinstance(s, ast.If) else 'while'
-                fp.write(f'{spaces}{keyword} ({test}) {{\n')
-                inner = io.StringIO()
-                first = s.body[0]
-                beg = first.lineno-1
-                for line in lines[beg:]:
-                    if line[:first.col_offset].strip() == '':
-                        inner.write(f'{line[first.col_offset:]}\n')
-                    else:
-                        break
-                self.write_scoped_body(fp, inner.getvalue(), indent+1)
-                fp.write(f'{spaces}}}\n')
-            else:
-                line = self.c_convert(body, s)
-                if isinstance(s, ast.AnnAssign):
-                    _type, size = self.annotation_to_c(s.annotation)
-                    _var = s.target.id
-                    if _type.endswith('_ptr'):
-                        _type = _type.replace('_ptr', '')
-                        line = re.sub(
-                            f'({_var}):\\s*({_type})(?:_ptr)([{size}])?',
-                            r'\2 *\1\3', line
-                        )
-                    else:
-                        line = re.sub(
-                            f'({_var}):\\s*({_type})([{size}])?',
-                            r'\2 \1\3', line
-                        )
-                    # if _type.endswith('_ptr'):
-                    #     _type = _type.rstrip('_ptr')
-                    #     _var = f'\\*{_var}'
-                fp.write(f'{spaces}{line};\n')
+                break
+        return text.getvalue()
 
     def write_function(self, fp, function_name, info={}, prototype=False):
         rtype = info.get('return', 'void')
@@ -396,15 +289,17 @@ class ofs_driver_writer(object):
                                        members=members.getvalue().rstrip(),
                                        inits=inits.getvalue().rstrip()))
 
-        impls = []
         fp.write('\n\n// *****  function prototypes ******//\n')
-        for k, v in self.functions.items():
-            if v and 'body' in v:
-                impls.append((k, v))
-            self.write_function(fp, k, v or {}, prototype=True)
+        for fn in self.functions:
+            fp.writeline(f'{fn.write_header()};')
+            fn.visit_tree()
         fp.write('\n\n// *****  function implementations ******//\n')
-        for k, v in sorted(impls):
-            self.write_function(fp, k, v or {})
+        for fn in self.functions:
+            if fn.body:
+                fp.writeline(f'{fn.write_header()}')
+                fp.writeline('{')
+                fn.write_body(fp)
+                fp.writeline('}\n')
 
 
 class ofs_header_writer(object):
@@ -449,6 +344,10 @@ def make_headers(args):
             print(f'{name}.h')
         elif args.driver is None or args.driver == name:
             writer = ofs_driver_writer(driver)
+            writer.write_header(args.output, args.language)
+    else:
+        if 'name' in data and 'registers' in data:
+            writer = ofs_driver_writer(data)
             writer.write_header(args.output, args.language)
 
 
