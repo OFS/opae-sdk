@@ -2,66 +2,46 @@
 ---
 drivers:
   - name: ofs_cpeng
-    functions:
-      wait_for_hps_ready:
-        return: int
-        args: [uint64_t timeout_usec]
-        body:
-          return OFS_WAIT_FOR_EQ(CSR_HPS2HOST_RDY_STATUS.HPS_RDY, 1, timeout_usec, 100)
-      dma_status:
-        return: int
-        body:
-          return CSR_CE2HOST_STATUS.CE_DMA_STS
-      dma_status_success:
-        return: bool
-        body:
-          return dma_status() == 0b10
-      dma_status_error:
-        return: bool
-        body:
-          return CSR_CE2HOST_STATUS.CE_DMA_STS == 0b11
-      ce_axist_cpl_sts:
-        return: int
-        body:
-          return CSR_CE2HOST_STATUS.CE_AXIST_CPL_STS
-      ce_acelite_bresp_sts:
-        return: int
-        body:
-          return CSR_CE2HOST_STATUS.CE_ACELITE_BRESP_STS
-      image_complete:
-        body:
-          CSR_HOST2HPS_GPIO.HOST_HPS_CPL = 0x1
-      copy_chunk:
-        return: int
-        args: [uint64_t iova, uint64_t offset, uint32_t size, uint64_t timeout_usec]
-        body: |
-          CSR_SRC_ADDR.CSR_SRC_ADDR = iova
-          CSR_DST_ADDR.CSR_DST_ADDR = offset
-          CSR_DATA_SIZE.CSR_DATA_SIZE = size
-          CSR_HOST2CE_MRD_START.MRD_START = 1
-          if OFS_WAIT_FOR_NE(CSR_CE2HOST_STATUS.CE_DMA_STS, 0b01, timeout_usec, 100):
-            return 1
-          if dma_status_success():
-            return 0
+    api: |
+      def wait_for_hps_ready(timeout_usec: uint64_t) -> int:
+        return OFS_WAIT_FOR_EQ(CSR_HPS2HOST_RDY_STATUS.HPS_RDY, 1, timeout_usec, 100)
+      def dma_status() -> int:
+        return CSR_CE2HOST_STATUS.CE_DMA_STS
+      def dma_status_success() -> bool:
+        return dma_status() == 0b10
+      def dma_status_error() -> bool:
+        return CSR_CE2HOST_STATUS.CE_DMA_STS == 0b11
+      def ce_axist_cpl_sts() -> int:
+        return CSR_CE2HOST_STATUS.CE_AXIST_CPL_STS
+      def ce_acelite_bresp_sts() -> int:
+        return CSR_CE2HOST_STATUS.CE_ACELITE_BRESP_STS
+      def image_complete():
+        CSR_HOST2HPS_GPIO.HOST_HPS_CPL = 0x1
+      def copy_chunk(iova: uint64_t, offset: uint64_t, size: uint32_t, timeout_usec: uint64_t) -> int:
+        CSR_SRC_ADDR.CSR_SRC_ADDR = iova
+        CSR_DST_ADDR.CSR_DST_ADDR = offset
+        CSR_DATA_SIZE.CSR_DATA_SIZE = size
+        CSR_HOST2CE_MRD_START.MRD_START = 1
+        if OFS_WAIT_FOR_NE(CSR_CE2HOST_STATUS.CE_DMA_STS, 0b01, timeout_usec, 100):
           return 1
-      copy_image:
-        return: int
-        args: [uint64_t iova, uint64_t offset, uint32_t size, uint32_t chunk, uint64_t timeout_usec]
-        body: |
-          if not chunk:
-            return copy_chunk(iova, offset, size, timeout_usec)
-          ptr: uint32_t = 0
-          local_timeout: uint64_t = timeout_usec/chunk
-          while ptr < size:
-            if copy_chunk(iova+ptr, offset+ptr, chunk, local_timeout):
-              return 1
-            ptr += chunk
-            if size-ptr < chunk:
-              chunk = size-ptr
-            if OFS_WAIT_FOR_EQ(CSR_HOST2CE_MRD_START.MRD_START, 0, local_timeout, 100):
-              return 1
-          image_complete()
+        if dma_status_success():
           return 0
+        return 1
+      def copy_image(iova: uint64_t, offset: uint64_t, size: uint32_t, chunk: uint32_t, timeout_usec: uint64_t) -> int:
+        if not chunk:
+          return copy_chunk(iova, offset, size, timeout_usec)
+        ptr: uint32_t = 0
+        local_timeout: uint64_t = timeout_usec/chunk
+        while ptr < size:
+          if copy_chunk(iova+ptr, offset+ptr, chunk, local_timeout):
+            return 1
+          ptr += chunk
+          if size-ptr < chunk:
+            chunk = size-ptr
+          if OFS_WAIT_FOR_EQ(CSR_HOST2CE_MRD_START.MRD_START, 0, local_timeout, 100):
+            return 1
+        image_complete()
+        return 0
     registers:
       - !!ofs/register
         - [CSR_HPS2HOST_RDY_STATUS, 0x0110, 0x0000000000000000, "HPS Ready Status"]
