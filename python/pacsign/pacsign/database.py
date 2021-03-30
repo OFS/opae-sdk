@@ -1,4 +1,4 @@
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2019-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -135,6 +135,7 @@ class FAMILY_DATABASE(object):
 SIGN_SR = 0x00000001
 SIGN_BMC = 0x00000002
 SIGN_PR = 0x00000004
+SIGN_SDM = 0x00000008
 
 # Content type
 CONTENT_SR = 0
@@ -144,6 +145,8 @@ CONTENT_FACTORY = 3
 CONTENT_PXE = 4
 CONTENT_THERMAL_SR = 5
 CONTENT_THERMAL_PR = 6
+CONTENT_SDM = 7
+CONTENT_SDM_DEVEL = 8
 
 # Bitstream type
 BITSTREAM_TYPE_UPDATE = 0
@@ -169,6 +172,8 @@ FAMILY_LIST = {
             "PXE": FILE_TYPE_DATABASE(1, 1, CONTENT_PXE, SIGN_SR),
             "THERM_SR": FILE_TYPE_DATABASE(1, 1, CONTENT_THERMAL_SR, SIGN_SR),
             "THERM_PR": FILE_TYPE_DATABASE(1, 1, CONTENT_THERMAL_PR, SIGN_PR),
+            "SDM": FILE_TYPE_DATABASE(1, 1, CONTENT_SDM, SIGN_SDM),
+            "SDM_DEVEL": FILE_TYPE_DATABASE(1, 1, CONTENT_SDM_DEVEL, SIGN_SDM),
         },
         1,
         880,

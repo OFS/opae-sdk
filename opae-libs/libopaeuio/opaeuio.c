@@ -54,8 +54,8 @@
 	p;                                                \
 })
 
-#define ERR(format, ...)                                \
-fprintf(stderr, "%s:%u:%s() **ERROR** [%s] : " format , \
+#define ERR(format, ...)                               \
+fprintf(stderr, "%s:%u:%s() **ERROR** [%s] : " format, \
 	__SHORT_FILE__, __LINE__, __func__, strerror(errno), ##__VA_ARGS__)
 
 // dfl_dev.xxx
