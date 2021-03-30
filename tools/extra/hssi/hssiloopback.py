@@ -59,9 +59,9 @@ class FPGAHSSILPBK(HSSICOMMON):
 
         ctl_addr = hssi_ctl_addr(0)
         if (self._loopback):
-            ctl_addr.set_sal_cmd(HSSI_SALCMD.ENABLE_LOOPBACK.value)
+            ctl_addr.sal_cmd = HSSI_SALCMD.ENABLE_LOOPBACK.value
         else:
-            ctl_addr.set_sal_cmd(HSSI_SALCMD.DISABLE_LOOPBACK.value)
+            ctl_addr.sal_cmd = HSSI_SALCMD.DISABLE_LOOPBACK.value
 
         cmd_sts = hssi_cmd_sts(0)
         cmd_sts.value = 0x2

@@ -91,7 +91,7 @@ class FPGAHSSISTATS(HSSICOMMON):
         """
         self.open(self._hssi_grps[0][0])
         ctl_addr = hssi_ctl_addr(0)
-        ctl_addr.set_sal_cmd(HSSI_SALCMD.READ_MAC_STATISTIC.value)
+        ctl_addr.sal_cmd = HSSI_SALCMD.READ_MAC_STATISTIC.value
         value = 0
 
         print("------------HSSI stats------------")
@@ -112,9 +112,12 @@ class FPGAHSSISTATS(HSSICOMMON):
             port_index = 0
             for str, reg in self.hssi_eth_stats:
 
+                ctl_addr.value = 0
+                ctl_addr.sal_cmd = HSSI_SALCMD.READ_MAC_STATISTIC.value
+
                 # Read LSB value
-                ctl_addr.set_addressbit(reg)
-                ctl_addr.set_port_address(port)
+                ctl_addr.addressbit = reg
+                ctl_addr.port_address = port
                 value_lsb = self.read_reg(0, ctl_addr.value)
 
                 # Read MSB value

@@ -54,7 +54,7 @@ class FPGAHSSIMAC(HSSICOMMON):
         self.open(self._hssi_grps[0][0])
 
         ctl_addr = hssi_ctl_addr(0)
-        ctl_addr.sal_cmd(HSSI_SALCMD.GET_MTU.value)
+        ctl_addr.sal_cmd = HSSI_SALCMD.GET_MTU.value
 
         value = self.read_reg(0, ctl_addr.value)
         mask = 0

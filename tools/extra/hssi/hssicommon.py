@@ -55,6 +55,8 @@ HSSI_POLL_SLEEP_TIME = 0.1
 # timeout 1 sec
 HSSI_POLL_TIMEOUT = 0.5
 
+HSSI_FEATURE_ID = 0x15
+
 
 class HSSI_CSR(Enum):
     """
@@ -263,7 +265,8 @@ class hssi_feature(Union):
     def num_hssi_ports(self):
         return self.bits.num_hssi_ports
 
-    def set_num_hssi_ports(self, value):
+    @num_hssi_ports.setter
+    def num_hssi_ports(self, value):
         self.bits.num_hssi_ports = value
 
 
@@ -403,14 +406,21 @@ class hssi_cmd_sts(Union):
     def error(self):
         return self.bits.error
 
-    def set_read(self, value):
+    @property
+    def read(self):
+        return self.bits.read
+
+    @property
+    def write(self):
+        return self.bits.write
+
+    @read.setter
+    def read(self, value):
         self.bits.read = value
 
-    def set_write(self, value):
+    @write.setter
+    def write(self, value):
         self.bits.write = value
-
-    def set_ack(self, value):
-        self.bits.ack = value
 
 
 class HSSI_SALCMD(Enum):
@@ -469,16 +479,20 @@ class hssi_ctl_addr(Union):
     def addressbit(self):
         return self.bits.addressbit
 
-    def set_sal_cmd(self, value):
+    @sal_cmd.setter
+    def sal_cmd(self, value):
         self.bits.sal_cmd = value
 
-    def set_port_address(self, value):
+    @port_address.setter
+    def port_address(self, value):
         self.bits.port_address = value
 
-    def set_ch_address(self, value):
+    @ch_address.setter
+    def ch_address(self, value):
         self.bits.ch_address = value
 
-    def set_addressbit(self, value):
+    @addressbit.setter
+    def addressbit(self, value):
         self.bits.addressbit = value
 
 
@@ -730,7 +744,7 @@ class HSSICOMMON(object):
             hssi_version = hssi_ver(self.read32(0, 0x8))
             hssi_feature_list = hssi_feature(self.read32(0, 0xC))
             ctl_addr = hssi_ctl_addr(0)
-            ctl_addr.set_sal_cmd(HSSI_SALCMD.FIRMWARE_VER.value)
+            ctl_addr.sal_cmd = HSSI_SALCMD.FIRMWARE_VER.value
             firmware_version = self.read_reg(0, ctl_addr.value)
 
             print("\n--------HSSI IINFO START-------")
