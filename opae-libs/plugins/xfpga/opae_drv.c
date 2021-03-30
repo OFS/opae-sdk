@@ -457,7 +457,7 @@ fpga_result dfl_port_get_err_irq(int fd, uint32_t *num_irqs)
 fpga_result dfl_port_get_user_irq(int fd, uint32_t *num_irqs)
 {
 	ASSERT_NOT_NULL(num_irqs);
-	return opae_ioctl(fd, DFL_FPGA_PORT_UINT_GET_IRQ_NUM, num_irqs);
+	return opae_ioctl(fd, DFL_FPGA_PORT_UINT_GET_IRQ_NUM, num_irqs);;
 }
 
 fpga_result dfl_fme_get_err_irq(int fd, uint32_t *num_irqs)
@@ -466,7 +466,7 @@ fpga_result dfl_fme_get_err_irq(int fd, uint32_t *num_irqs)
 	return opae_ioctl(fd, DFL_FPGA_FME_ERR_GET_IRQ_NUM, num_irqs);
 }
 
-fpga_result dfl_set_irq(int fd, uint32_t start,
+fpga_result dfl_set_irq(int fd,uint32_t start,
 			uint32_t count, int32_t *eventfd,
 			int ioctl_id)
 {
