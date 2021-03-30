@@ -143,18 +143,16 @@ void nlb0(struct opae_vfio *v)
 	volatile uint64_t *test_status;
 
 #define wrcsr64(__offset, __value)                     \
-do                                                     \
-{                                                      \
+do {                                                   \
 	p64 = (volatile uint64_t *)(afu + (__offset)); \
 	*p64 = (__value);                              \
-} while(0)
+} while (0)
 
 #define wrcsr32(__offset, __value)                     \
-do                                                     \
-{                                                      \
+do {                                                   \
 	p32 = (volatile uint32_t *)(afu + (__offset)); \
 	*p32 = (__value);                              \
-} while(0)
+} while (0)
 
 	size_t size = 2 * 1024 * 1024;
 
@@ -173,11 +171,11 @@ do                                                     \
 	if (opae_vfio_buffer_allocate(v, &size,
 				      &afu_dsm_virt, &afu_dsm_iova))
 		printf("whoops alloc afu dsm\n");
-	
+
 	if (opae_vfio_buffer_allocate(v, &size,
 				      &src_virt, &src_iova))
 		printf("whoops alloc src buf\n");
-	
+
 	if (opae_vfio_buffer_allocate(v, &size,
 				      &dst_virt, &dst_iova))
 		printf("whoops alloc dst buf\n");
