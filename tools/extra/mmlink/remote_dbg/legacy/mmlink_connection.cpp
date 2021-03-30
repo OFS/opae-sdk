@@ -115,7 +115,6 @@ int mmlink_connection::handle_management()
 	size_t rem;
 	int fail = 0;
 
-	i = 0;
 	start = 0;
 	for (i = 0; i < m_buf_end; ++i)
 	{
