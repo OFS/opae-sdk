@@ -193,35 +193,9 @@ out:
 	return res;
 }
 
-static fpga_result get_error_revision(fpga_token token, uint64_t *value)
-{
-	fpga_result res = FPGA_OK;
-	fpga_object fpga_object;
-
-	res = fpgaTokenGetObject(token, "*error*/revision", &fpga_object, FPGA_OBJECT_GLOB);
-	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to get token Object");
-		return res;
-	}
-
-	res = fpgaObjectRead64(fpga_object, value, 0);
-	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to Read object ");
-		fpgaDestroyObject(&fpga_object);
-		return res;
-	}
-
-	res = fpgaDestroyObject(&fpga_object);
-	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to Destroy Object");
-	}
-	return res;
-}
-
 // print error string format
 static void print_errors_str(struct fpga_error_info errinfo,
-				uint64_t error_value,
-				uint64_t revision)
+				uint64_t error_value)
 {
 	uint64_t i = 0;
 	uint64_t j = 0;
@@ -244,8 +218,7 @@ static void print_errors_str(struct fpga_error_info errinfo,
 	}
 
 	for (i = 0; i < FPGA_ERR_METADATA_COUNT; i++) {
-		if ((fpga_errors_metadata[i].error_type == error_type) &&
-			(fpga_errors_metadata[i].revision == revision)) {
+		if ((fpga_errors_metadata[i].error_type == error_type)) {
 
 			for (j = 0; j < fpga_errors_metadata[i].array_size_max; j++) {
 				if (FPGA_BIT_IS_SET(error_value, j)) {
@@ -265,7 +238,7 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 	int i;
 	fpga_result res = FPGA_OK;
 	fpga_objtype objtype;
-	uint64_t revision = 0;
+//	uint64_t revision = 0;
 	if ((NULL == errinfos) || (0 == num_errors)) {
 		return;
 	}
@@ -293,14 +266,8 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 			printf("%-32s : 0x%" PRIX64 "\n", errinfos[i].name,
 			       error_value);
 
-			res = get_error_revision(token, &revision);
-			if (res != FPGA_OK) {
-				OPAE_ERR("could not find FME error revision - skipping decode\n");
-				continue;
-			}
-
 			if (error_value > 0)
-				print_errors_str(errinfos[i], error_value, revision);
+				print_errors_str(errinfos[i], error_value);
 
 		}
 	} else if (((VERB_ALL == errors_config.which)
@@ -316,14 +283,8 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 			printf("%-32s : 0x%" PRIX64 "\n", errinfos[i].name,
 			       error_value);
 
-			res = get_error_revision(token, &revision);
-			if (res != FPGA_OK) {
-				OPAE_ERR("could not find port error revision - skipping decode\n");
-				continue;
-			}
-
 			if (error_value > 0)
-				print_errors_str(errinfos[i], error_value, revision);
+				print_errors_str(errinfos[i], error_value);
 
 		}
 	}
