@@ -59,8 +59,8 @@ find_cpp() {
     find "${OPAE_SDK_ROOT}/opae-libs/libopaecxx/src" -type f
     find "${OPAE_SDK_ROOT}/opae-libs/libopaecxx/samples" -type f
     find "${OPAE_SDK_ROOT}/opae-libs/include/opae/cxx/core" -type f
+    find "${OPAE_SDK_ROOT}/opae-libs/pyopaeuio" -iname "*.cpp" -or -iname "*.h"
 }
-#find "${OPAE_SDK_ROOT}/opae-libs/pyopaeuio" -type f
 
 check_cpp () {
     pushd $(dirname $0) >/dev/null
