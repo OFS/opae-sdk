@@ -2,7 +2,7 @@
 
 ## SYNOPSIS ##
 ```console
-rsu [-h] [-d] {bmcimg,retimer,fpga,fpgadefault} [PCIE_ADDR]
+rsu [-h] [-d] {bmc,bmcimg,retimer,fpga,sdm,fpgadefault} [PCIE_ADDR]
 
 ```
 
@@ -11,17 +11,18 @@ rsu [-h] [-d] {bmcimg,retimer,fpga,fpgadefault} [PCIE_ADDR]
 ### Mode 1: RSU ###
 
 ```console
-rsu bmcimg --page=(user|factory) [PCIE_ADDR]
+rsu bmc --page=(user|factory) [PCIE_ADDR]
 rsu retimer [PCIE_ADDR]
 rsu fpga --page=(user1|user2|factory) [PCIE_ADDR]
+rsu sdm [PCIE_ADDR]
 ```
 
 Perform RSU (remote system update) operation on PAC device
 given its PCIe address.
 An RSU operation sends an instruction to the device to trigger
 a power cycle of the card only. This will force reconfiguration
-from flash for either BMC image (on devices that support it) or the
-FPGA.
+from flash for either BMC, Retimer, SDM, (on devices that support these)
+or the FPGA.
 
 ### Mode 2: Default FPGA Image ###
 
@@ -34,7 +35,7 @@ the primary FPGA boot image. The --fallback option allows a comma-separated
 list of values to specify fallback images.
 
 ## POSITIONAL ARGUMENTS ##
-`{bmcimg,retimer,fpga,fpgadefault}`
+`{bmc,bmcimg,retimer,fpga,sdm,fpgadefault}`
 
 type of RSU operation or set Default FPGA Image operation.
    
@@ -51,14 +52,14 @@ log debug statements
 ## EXAMPLE ##
 
 ```console
-# rsu bmcimg --page=user 25:00.0
+# rsu bmc --page=user 25:00.0
 ```
 
  Triggers a boot of the BMC image (user page) for the device with PCIe
  address 25:00.0.
 
 ```console
-# rsu bmcimg --page=factory 25:00.0
+# rsu bmc --page=factory 25:00.0
 ```
 
  Triggers a factory boot of the BMC image for the device with
@@ -77,6 +78,13 @@ log debug statements
 
  Triggers a factory reconfiguration of the FPGA for the device
  with PCIe address 25:00.0.
+
+```console
+# rsu sdm 25:00.0
+```
+
+ Triggers a reconfiguration of the SDM for the device with
+ PCIE address 25:00.0.
 
 ```console
 # rsu fpgadefault --page=factory --fallback=user1,user2 25:00.0
