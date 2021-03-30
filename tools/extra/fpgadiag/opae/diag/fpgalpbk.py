@@ -155,7 +155,7 @@ class FPGALPBK(COMMON):
     def eth_group_loopback_en(self, en):
         for keys, values in self.eth_grps.items():
             eth_group_inst = eth_group()
-            ret = eth_group_inst.eth_group_open(int(values[0]), values[1])
+            ret = eth_group_inst.eth_group_open(values[0])
             if ret != 0:
                 return None
 
