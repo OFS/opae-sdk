@@ -54,8 +54,8 @@
 	p;                                                \
 })
 
-#define ERR(format, ...)                                \
-fprintf(stderr, "%s:%u:%s() **ERROR** [%s] : " format , \
+#define ERR(format, ...)                               \
+fprintf(stderr, "%s:%u:%s() **ERROR** [%s] : " format, \
 	__SHORT_FILE__, __LINE__, __func__, strerror(errno), ##__VA_ARGS__)
 
 STATIC struct opae_vfio_sparse_info *
@@ -387,7 +387,7 @@ STATIC void opae_vfio_destroy_iova_range(struct opae_vfio_iova_range *r)
 }
 
 STATIC void
-opae_vfio_destroy_buffer(struct opae_vfio * , struct opae_vfio_buffer * );
+opae_vfio_destroy_buffer(struct opae_vfio *, struct opae_vfio_buffer *);
 
 STATIC void opae_vfio_destroy(struct opae_vfio *v)
 {
@@ -579,12 +579,12 @@ opae_vfio_destroy_buffer(struct opae_vfio *v,
 #define MAP_2M_HUGEPAGE (0x15 << MAP_HUGE_SHIFT)
 #define MAP_1G_HUGEPAGE (0x1e << MAP_HUGE_SHIFT)
 #ifdef __ia64__
-#define ADDR (void *)(0x8000000000000000UL)
+#define ADDR ((void *)(0x8000000000000000UL))
 #define FLAGS_4K (MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED)
 #define FLAGS_2M (FLAGS_4K|MAP_2M_HUGEPAGE|MAP_HUGETLB)
 #define FLAGS_1G (FLAGS_4K|MAP_1G_HUGEPAGE|MAP_HUGETLB)
 #else
-#define ADDR (void *)(0x0UL)
+#define ADDR ((void *)(0x0UL))
 #define FLAGS_4K (MAP_PRIVATE|MAP_ANONYMOUS)
 #define FLAGS_2M (FLAGS_4K|MAP_2M_HUGEPAGE|MAP_HUGETLB)
 #define FLAGS_1G (FLAGS_4K|MAP_1G_HUGEPAGE|MAP_HUGETLB)
@@ -725,7 +725,7 @@ out_unlock:
 	return res;
 }
 
-STATIC char * opae_vfio_group_for(const char *pciaddr)
+STATIC char *opae_vfio_group_for(const char *pciaddr)
 {
 	char path[256];
 	char rlbuf[256];
@@ -863,10 +863,10 @@ int opae_vfio_open(struct opae_vfio *v,
 }
 
 #define GUID_RE_PATTERN "[0-9a-fA-F]{8}-" \
-                        "[0-9a-fA-F]{4}-" \
-                        "[0-9a-fA-F]{4}-" \
-                        "[0-9a-fA-F]{4}-" \
-                        "[0-9a-fA-F]{12}"
+			"[0-9a-fA-F]{4}-" \
+			"[0-9a-fA-F]{4}-" \
+			"[0-9a-fA-F]{4}-" \
+			"[0-9a-fA-F]{12}"
 
 int opae_vfio_secure_open(struct opae_vfio *v,
 			  const char *pciaddr,
@@ -914,8 +914,7 @@ int opae_vfio_region_get(struct opae_vfio *v,
 		return 1;
 	}
 
-	for (region = v->device.regions ; region ; region = region->next)
-	{
+	for (region = v->device.regions ; region ; region = region->next) {
 		if (index == region->region_index) {
 			if (ptr)
 				*ptr = region->region_ptr;
