@@ -186,18 +186,6 @@ def main():
     add_common_options(parser_sdm)
     add_common_options(parser_sdm_devel)
 
-    parser_print = subparsers.add_parser("print", help="Print header information")
-
-    parser_print.add_argument(
-        "files", nargs="+", help="List of files whose contents" " are to be printed"
-    )
-    parser_print.add_argument(
-        "-v",
-        "--verbose",
-        help="Increase verbosity.  Can be specified multiple times",
-        action="count",
-    )
-
     args = parser.parse_args()
     if len(sys.argv) == 1:
         parser.print_help()
@@ -212,9 +200,6 @@ def main():
         common_util.assert_in_error(args.slot_num < 0x10, "Slot number must be <= 15")
 
     log.handlers[0].setLevel(LOGLEVELS[args.verbose])
-
-    if args.main_command == "print":
-        return reader.print_file_contents(args.files)
 
     manager = args.HSM_manager.rstrip('_manager')
     # Load HSM handler
