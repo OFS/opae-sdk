@@ -24,18 +24,31 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-/*
- * \file ofs.h
- * \brief OFS UMD (User Mode Driver) API
- *
- */
+#ifndef PYOPAE_UIO_H
+#define PYOPAE_UIO_H
 
-#ifndef OFS_H
-#define OFS_H
+#include <string.h>
+#include <iostream>
+#include <stdexcept>
+#include <opae/uio.h>
 
-#include <ofs/ofs_defs.h>
-#include <ofs/ofs_log.h>
-#include <ofs/ofs_primitives.h>
+// opae uio python binding class
+class pyopae_uio {
+public:
+	pyopae_uio():num_regions(0), uio_mmap_ptr_(nullptr) { }
+	virtual ~pyopae_uio() {}
 
+	int open(const std::string& uio_str);
+	void close();
+	uint32_t read32(uint32_t region_index, uint32_t offset);
+	uint64_t read64(uint32_t region_index, uint32_t offset);
+	uint32_t write32(uint32_t region_index, uint32_t offset, uint32_t value);
+	uint64_t write64(uint32_t region_index, uint32_t offset, uint64_t value);
+	uint32_t num_regions;
 
-#endif /* !OFS_H */
+private:
+	uint8_t *get_region(uint32_t region_index, uint32_t offset);
+	uint8_t *uio_mmap_ptr_;
+	struct opae_uio uio_;
+};
+#endif //PYOPAE_UIO_H
