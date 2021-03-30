@@ -251,7 +251,7 @@ def main():
     """The main entry point"""
     parser, args = parse_args()
 
-    if args.file is None:
+    if not hasattr(args, 'file'):
         print('Error: file is a required argument.\n')
         parser.print_help(sys.stderr)
         sys.exit(1)
@@ -263,7 +263,12 @@ def main():
     log_hndlr.setLevel(logging.getLevelName(args.log_level.upper()))
     LOG.addHandler(log_hndlr)
 
-    args.func(args)
+    if hasattr(args, 'func'):
+        args.func(args)
+    else:
+        LOG.error(f'You must specify a sub-command.')
+        parser.print_help(sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == '__main__':
