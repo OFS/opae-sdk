@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -28,6 +28,7 @@
 extern "C"{
 
 struct config {
+  int bus;
   float interval_sec;
 };
 extern struct config options;
@@ -41,7 +42,7 @@ int object_api_main(int argc, char* argv[]);
 #include <intel-fpga.h>
 #include <getopt.h>
 #include <string.h>
-#include <mock/test_system.h>
+#include <test_system.h>
 #include <gtest/gtest.h>
 using namespace opae::testing;
 
@@ -97,7 +98,25 @@ TEST_P(object_api_c_p, parse_args0) {
   strcpy(zero, "object_api");
   strcpy(one, "-Y");
 
-  char *argv[] = { zero, one, NULL };
+  char *argv[] = { zero, one };
+
+  EXPECT_NE(parse_args(2, argv), FPGA_OK);
+}
+
+/**
+ * @test       parse_args1
+ * @brief      Test: parse_args
+ * @details    When given a command option that requires a param,<br>
+ *             omitting the required param causes parse_args to<br>
+ *             return a value other than FPGA_OK.<br>
+ */
+TEST_P(object_api_c_p, parse_args1) {
+  char zero[20];
+  char one[20];
+  strcpy(zero, "object_api");
+  strcpy(one, "-B");
+
+  char *argv[] = { zero, one };
 
   EXPECT_NE(parse_args(2, argv), FPGA_OK);
 }
@@ -111,12 +130,38 @@ TEST_P(object_api_c_p, parse_args0) {
 TEST_P(object_api_c_p, parse_args2) {
   char zero[20];
   char one[20];
+  char two[20];
+  char three[20];
   strcpy(zero, "object_api");
-  strcpy(one, "-s");
+  strcpy(one, "-B");
+  strcpy(two, "3");
+  strcpy(three, "-s");
 
-  char *argv[] = { zero, one, NULL };
+  char *argv[] = { zero, one, two, three };
 
-  EXPECT_EQ(parse_args(2, argv), FPGA_EXCEPTION);
+  EXPECT_EQ(parse_args(4, argv), FPGA_EXCEPTION);
+}
+
+/**
+ * @test       parse_args3
+ * @brief      Test: parse_args
+ * @details    When given valid command options,<br>
+ *             parse_args populates the global config struct,<br>
+ *             and returns FPGA_OK.<br>
+ */
+TEST_P(object_api_c_p, parse_args3) {
+  char zero[20];
+  char one[20];
+  char two[20];
+  strcpy(zero, "object_api");
+  strcpy(one, "-B");
+  strcpy(two, "3");
+
+  char *argv[] = { zero, one, two };
+
+  EXPECT_EQ(options.bus, -1);
+  EXPECT_EQ(parse_args(3, argv), FPGA_OK);
+  EXPECT_EQ(options.bus, 3);
 }
 
 /**
@@ -132,7 +177,7 @@ TEST_P(object_api_c_p, main0) {
   strcpy(zero, "object_api");
   strcpy(one, "-Y");
 
-  char *argv[] = { zero, one, NULL };
+  char *argv[] = { zero, one };
 
   EXPECT_NE(object_api_main(2, argv), 0);
 }
@@ -162,7 +207,7 @@ TEST_P(object_api_c_mock_p, main1) {
   strcpy(one, "-B");
   sprintf(two, "%d", platform_.devices[0].bus);
 
-  char *argv[] = { zero, one, two, NULL };
+  char *argv[] = { zero, one, two };
 
   EXPECT_EQ(object_api_main(3, argv), FPGA_OK);
 }
@@ -189,7 +234,7 @@ TEST_P(object_api_c_mcp_hw_p, main1) {
   strcpy(one, "-B");
   sprintf(two, "%d", platform_.devices[0].bus);
 
-  char *argv[] = { zero, one, two, NULL };
+  char *argv[] = { zero, one, two };
 
   EXPECT_EQ(object_api_main(3, argv), FPGA_OK);
 }
@@ -217,7 +262,7 @@ TEST_P(object_api_c_dcp_hw_p, main1) {
   strcpy(one, "-B");
   sprintf(two, "%d", platform_.devices[0].bus);
 
-  char *argv[] = { zero, one, two, NULL };
+  char *argv[] = { zero, one, two };
 
   EXPECT_NE(object_api_main(3, argv), FPGA_OK);
 }
