@@ -10,9 +10,12 @@ find_c() {
     find "${OPAE_SDK_ROOT}/opae-libs/libopae-c" -iname "*.c" -or -iname "*.h"
     find "${OPAE_SDK_ROOT}/opae-libs/plugins" \( -iname "*.c" -or -iname "*.h" \) -and \
 	    \( ! -path '*/opae-libs/plugins/xfpga/usrclk/*' \)
+    find "${OPAE_SDK_ROOT}/opae-libs/libofs" -iname "*.c" -or -iname "*.h"
+    find "${OPAE_SDK_ROOT}/opae-libs/libopaemem" -iname "*.c" -or -iname "*.h"
+    find "${OPAE_SDK_ROOT}/opae-libs/libopaevfio" -iname "*.c" -or -iname "*.h"
+    find "${OPAE_SDK_ROOT}/opae-libs/libopaeuio" -iname "*.c" -or -iname "*.h"
     find "${OPAE_SDK_ROOT}/samples" -iname "hello_events.c" -or -iname "hello_fpga.c" -or -iname "object_api.c"
     find "${OPAE_SDK_ROOT}/tools/argsfilter" -iname "*.c" -or -iname "*.h"
-    find "${OPAE_SDK_ROOT}/tools/extra/ras" -iname "*.c" -or -iname "*.h"
     find "${OPAE_SDK_ROOT}/tools/extra/userclk" -iname "*.c" -or -iname "*.h"
     find "${OPAE_SDK_ROOT}/tools/fpgaconf" -iname "*.c" -or -iname "*.h"
     find "${OPAE_SDK_ROOT}/tools/fpgainfo" -iname "*.c" -or -iname "*.h"
@@ -57,6 +60,7 @@ find_cpp() {
     find "${OPAE_SDK_ROOT}/opae-libs/libopaecxx/samples" -type f
     find "${OPAE_SDK_ROOT}/opae-libs/include/opae/cxx/core" -type f
 }
+#find "${OPAE_SDK_ROOT}/opae-libs/pyopaeuio" -type f
 
 check_cpp () {
     pushd $(dirname $0) >/dev/null
