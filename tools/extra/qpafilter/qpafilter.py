@@ -230,6 +230,7 @@ def parse_args():
                         help='virtual warning temperature threshold')
 
     create.add_argument('-o', '--override-temp', action='append',
+                        default=[],
                         help='specify a temperature override as '
                         '<label>:<percentage>')
 
