@@ -48,8 +48,8 @@
 	p;                                                \
 })
 
-#define ERR(format, ...)                                \
-fprintf(stderr, "%s:%u:%s() **ERROR** [%s] : " format , \
+#define ERR(format, ...)                               \
+fprintf(stderr, "%s:%u:%s() **ERROR** [%s] : " format, \
 	__SHORT_FILE__, __LINE__, __func__, strerror(errno), ##__VA_ARGS__)
 
 void mem_alloc_init(struct mem_alloc *m)
@@ -84,7 +84,7 @@ void mem_alloc_destroy(struct mem_alloc *m)
 	mem_alloc_init(m);
 }
 
-STATIC struct mem_link * mem_link_alloc(uint64_t address, uint64_t size)
+STATIC struct mem_link *mem_link_alloc(uint64_t address, uint64_t size)
 {
 	struct mem_link *m;
 	m = malloc(sizeof(struct mem_link));
