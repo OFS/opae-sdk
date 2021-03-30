@@ -94,7 +94,7 @@ __attribute__((constructor)) STATIC void ofs_init(void)
 			log_file = fopen(s, "w");
 			if (!log_file) {
 				fprintf(stderr,
-					"Could not open log file for writing: %s. ",s);
+					"Could not open log file for writing: %s. ", s);
 				fprintf(stderr, "Error is: %s\n", strerror(errno));
 			}
 		}
