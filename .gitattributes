@@ -7,6 +7,9 @@ text=auto
 *.yml text
 *.yaml text
 *.json text
+*.py text
+*.rst text
+*.md text
 
 version.py export-subst
 version.py filter=gethash
