@@ -25,23 +25,28 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 set(src
+    ofs_log.c
     ofs_primitives.c
 )
 
 opae_add_shared_library(
     TARGET ofs
     SOURCE ${src}
+    LIBS
+        rt
+	${CMAKE_THREAD_LIBS_INIT}
     VERSION ${OPAE_VERSION}
     SOVERSION ${OPAE_VERSION_MAJOR}
     COMPONENT libofs
 )
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_definitions(ofs PRIVATE LIBOFS_DEBUG=1)
+endif()
 
 target_include_directories(ofs
     PUBLIC
         $<BUILD_INTERFACE:${OPAE_INCLUDE_PATH}>
 )
 
-target_link_libraries(ofs
-    rt
-)
 set_property(TARGET ofs PROPERTY C_STANDARD 11)
