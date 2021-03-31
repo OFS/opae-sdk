@@ -23,19 +23,28 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifndef OFS_DEFS_H
+#define OFS_DEFS_H
+#include <pthread.h>
 
-/*
- * \file ofs.h
- * \brief OFS UMD (User Mode Driver) API
- *
- */
+#define ofs_mutex_lock(__mtx_ptr)                          \
+({                                                         \
+	int __res = pthread_mutex_lock(__mtx_ptr);         \
+	if (__res)                                         \
+		OFS_ERR("pthread_mutex_lock() failed: %s", \
+			strerror(errno));                  \
+	__res;                                             \
+})
 
-#ifndef OFS_H
-#define OFS_H
+#define ofs_mutex_unlock(__mtr_ptr)                          \
+({                                                           \
+	int __res = pthread_mutex_unlock(__mtx_ptr);         \
+	if (__res)                                           \
+		OFS_ERR("pthread_mutex_unlock() failed: %s", \
+			strerror(errno));                    \
+	__res;                                               \
+})
 
-#include <ofs/ofs_defs.h>
-#include <ofs/ofs_log.h>
-#include <ofs/ofs_primitives.h>
+#define UNUSED_PARAM(x) ((void)x)
 
-
-#endif /* !OFS_H */
+#endif /* !OFS_DEFS_H */

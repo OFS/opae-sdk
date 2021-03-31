@@ -1,7 +1,7 @@
 # PACSign #
 
 ## SYNOPSIS ##
-`python PACSign.py [-h] {FIM,SR,BBS,BMC,BMC_FW,AFU,PR,GBS,FACTORY,PXE,THERM_SR,THERM_PR} ...`
+`python PACSign.py [-h] {FIM,SR,BBS,BMC,BMC_FW,AFU,PR,GBS,FACTORY,PXE,THERM_SR,THERM_PR,SDM,SDM_DEVEL} ...`
 
 `python PACSign.py <CMD>  [-h] -t {UPDATE,CANCEL,RK_256,RK_384} -H HSM_MANAGER
                           [-C HSM_CONFIG] [-s SLOT_NUM] [-r ROOT_KEY] [-k CODE_SIGNING_KEY]
@@ -28,7 +28,7 @@ To utilize `PKCS #11`, please ensure that the dummy fields `lib_path`,
 ## BITSTREAM TYPES ##
 The first required argument to `PACSign` is the bitstream type identifier.
 
-`{SR,FIM,BBS,BMC,BMC_FW,PR,AFU,GBS,FACTORY,PXE,THERM_SR,THERM_PR}`
+`{SR,FIM,BBS,BMC,BMC_FW,PR,AFU,GBS,FACTORY,PXE,THERM_SR,THERM_PR,SDM,SDM_DEVEL}`
 
 Supported image types. `FIM` and `BBS` are aliases for the static region (`SR`). `BMC_FW` is an alias for 
 the board management controller (`BMC`). `AFU` and `GBS` are aliases for the partial reconfiguration (`PR`) region.
@@ -61,6 +61,13 @@ the board management controller (`BMC`). `AFU` and `GBS` are aliases for the par
  
  Thermal limits for PR images
 
+ `SDM`
+
+ Secure Device Manager image
+
+ `SDM_DEVEL`
+
+ Secure Device Manager development image
 
 ## REQUIRED OPTIONS ##
 
@@ -161,6 +168,8 @@ describes the options required based on certification type.
 | PXE | Optional[^2] | Optional[^2] | No | Yes | Yes |
 | THERMAL_SR | Optional[^2] | Optional[^2] | No | Yes | Yes |
 | THERMAL_PR | Optional[^2] | Optional[^2] | No | Yes | Yes |
+| SDM | Optional[^2] | Optional[^2] | No | Yes | Yes |
+| SDM_DEVEL | Optional[^2] | Optional[^2] | No | Yes | Yes |
 
 ### CANCEL ###
 
@@ -171,8 +180,11 @@ describes the options required based on certification type.
 | PR | Yes | No | Yes | No | Yes |
 | FACTORY | Yes | No | No | Yes | Yes |
 | PXE | Yes | No | Yes | No | Yes |
-| THERMAL_SR | Yes | No | Yes | No | Yes 
+| THERMAL_SR | Yes | No | Yes | No | Yes |
 | THERMAL_PR | Yes | No | Yes | No | Yes |
+| SDM | Yes | No | Yes | No | Yes |
+| SDM_DEVEL | Yes | No | Yes | No | Yes |
+
 
 ### RK_256 / RK_384[^1] ###
 
@@ -185,6 +197,9 @@ describes the options required based on certification type.
 | PXE | Yes | No | No | No | Yes |
 | THERMAL_SR | Yes | No | No | No | Yes |
 | THERMAL_PR | Yes | No | No | No | Yes |
+| SDM | Yes | No | No | No | Yes |
+| SDM_DEVEL | Yes | No | No | No | Yes |
+
 
 [^2]: For `UPDATE` type, you must specify both keys to produce an authenticated bitstream.
 Omitting one key generates a valid, but unauthenticated bitstream. You can only load the

@@ -173,6 +173,9 @@ def main():
     parser_pxe = subparsers.add_parser("PXE", help="PXE or Option ROM image")
     parser_therm_sr = subparsers.add_parser("THERM_SR", help="Thermal image for static region")
     parser_therm_pr = subparsers.add_parser("THERM_PR", help="Thermal image for PR region")
+    parser_sdm = subparsers.add_parser("SDM", help="Secure Device Manager image")
+    parser_sdm_devel = subparsers.add_parser("SDM_DEVEL",
+                                             help="Secure Device Manager development image")
     add_common_options(parser_sr)
     add_common_options(parser_bmc)
     add_common_options(parser_pr)
@@ -180,18 +183,8 @@ def main():
     add_common_options(parser_pxe)
     add_common_options(parser_therm_sr)
     add_common_options(parser_therm_pr)
-
-    parser_print = subparsers.add_parser("print", help="Print header information")
-
-    parser_print.add_argument(
-        "files", nargs="+", help="List of files whose contents" " are to be printed"
-    )
-    parser_print.add_argument(
-        "-v",
-        "--verbose",
-        help="Increase verbosity.  Can be specified multiple times",
-        action="count",
-    )
+    add_common_options(parser_sdm)
+    add_common_options(parser_sdm_devel)
 
     args = parser.parse_args()
     if len(sys.argv) == 1:
@@ -203,12 +196,10 @@ def main():
     if args.verbose > 2:
         args.verbose = 2
 
-    common_util.assert_in_error(args.slot_num < 0x10, "Slot number must be <= 15")
+    if hasattr(args, 'slot_num'):
+        common_util.assert_in_error(args.slot_num < 0x10, "Slot number must be <= 15")
 
     log.handlers[0].setLevel(LOGLEVELS[args.verbose])
-
-    if args.main_command == "print":
-        return reader.print_file_contents(args.files)
 
     manager = args.HSM_manager.rstrip('_manager')
     # Load HSM handler
