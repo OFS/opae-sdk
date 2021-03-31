@@ -112,7 +112,7 @@ mark_as_advanced(OPAE_BUILD_LIBOPAEUIO)
 option(OPAE_PRESERVE_REPOS "Disable refresh of external repos" OFF)
 mark_as_advanced(OPAE_PRESERVE_REPOS)
 
-option(OPAE_BUILD_LIBOFS "Enable building of the libofs library and framework" OFF)
+option(OPAE_BUILD_LIBOFS "Enable building of the libofs library and framework" ON)
 mark_as_advanced(OPAE_BUILD_LIBOFS)
 
 if(OPAE_BUILD_TESTS)
