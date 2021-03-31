@@ -443,8 +443,7 @@ fpga_result print_retimer_info(fpga_token token,
 	if (speed == 10) {
 		/* 8x10g */
 		mask = 0xff;
-	}
-	else if (speed == 25) {
+	} else if (speed == 25) {
 		switch (fpga_mode) {
 		case 1: /* 4x25g */
 		case 3: /* 6x25g */
