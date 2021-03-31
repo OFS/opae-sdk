@@ -28,7 +28,8 @@ jobs:
           signoff: false
           title: 'ci: merge opae-libs'
           body: |
-            Automated changes by [create-pull-request](https://github.com/peter-evans/create-pull-request) GitHub action
+            Automated changes by [create-pull-request](https://github.com/peter-evans/create-pull-request) GitHub action.
+            Must be use a normal merge (not squash-merge and not rebase-merge)
           branch: auto/update-libs
           delete-branch: true
           assignees: r-rojo

@@ -27,28 +27,29 @@
 #ifndef PYOPAE_UIO_H
 #define PYOPAE_UIO_H
 
+#include <opae/uio.h>
 #include <string.h>
+
 #include <iostream>
 #include <stdexcept>
-#include <opae/uio.h>
 
 // opae uio python binding class
 class pyopae_uio {
-public:
-	pyopae_uio():num_regions(0), uio_mmap_ptr_(nullptr) { }
-	virtual ~pyopae_uio() {}
+ public:
+  pyopae_uio() : num_regions(0), uio_mmap_ptr_(nullptr) {}
+  virtual ~pyopae_uio() {}
 
-	int open(const std::string& uio_str);
-	void close();
-	uint32_t read32(uint32_t region_index, uint32_t offset);
-	uint64_t read64(uint32_t region_index, uint32_t offset);
-	uint32_t write32(uint32_t region_index, uint32_t offset, uint32_t value);
-	uint64_t write64(uint32_t region_index, uint32_t offset, uint64_t value);
-	uint32_t num_regions;
+  int open(const std::string &uio_str);
+  void close();
+  uint32_t read32(uint32_t region_index, uint32_t offset);
+  uint64_t read64(uint32_t region_index, uint32_t offset);
+  uint32_t write32(uint32_t region_index, uint32_t offset, uint32_t value);
+  uint64_t write64(uint32_t region_index, uint32_t offset, uint64_t value);
+  uint32_t num_regions;
 
-private:
-	uint8_t *get_region(uint32_t region_index, uint32_t offset);
-	uint8_t *uio_mmap_ptr_;
-	struct opae_uio uio_;
+ private:
+  uint8_t *get_region(uint32_t region_index, uint32_t offset);
+  uint8_t *uio_mmap_ptr_;
+  struct opae_uio uio_;
 };
-#endif //PYOPAE_UIO_H
+#endif  // PYOPAE_UIO_H
