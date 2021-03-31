@@ -111,9 +111,7 @@ public:
 	eth_group(): direction(0), phy_num(0),
 				group_id(0), speed(0),
 				df_id(0), eth_lwmac(0),
-				ptr_(NULL), container(0),
-				group(0), device(0),
-				reg_size(0), reg_offset(0),
+				ptr_(NULL),
 				mmap_ptr(NULL) { }
 
 	~eth_group() {}
@@ -135,12 +133,6 @@ public:
 
 private:
 	uint64_t* ptr_;
-	int container;
-	int group;
-	int device;
-	int reg_size;
-	int reg_offset;
-
 	struct eth_group_info eth_info;
 	struct dfh eth_dfh;
 	uint8_t *mmap_ptr;

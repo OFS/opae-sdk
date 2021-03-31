@@ -56,13 +56,13 @@ from flash for the given image.
 EPILOG = '''
 Example usage:
 
-     %(prog)s bmcimg 25:00.0
+     %(prog)s bmc 25:00.0
      This will trigger a boot of the BMC image for the device with PCIe
      address 25:00.0.
      NOTE: The BMC image will be reconfigured from user bank and the
            FPGA image will be reconfigured using the default setting.
 
-     %(prog)s bmcimg 25:00.0 --page=factory
+     %(prog)s bmc 25:00.0 --page=factory
      This will trigger a factory boot of the BMC image for the device
      with PCIe address 25:00.0.
      NOTE: The BMC image will be reconfigured from factory bank and the
@@ -157,6 +157,10 @@ def device_rsu_fpga(device, args):
     device_rsu(device, 'fpga_' + args.page)
 
 
+def device_rsu_sdm(device, args):
+    device_rsu(device, 'sdm')
+
+
 def parse_args():
     fc_ = argparse.RawDescriptionHelpFormatter
     parser = argparse.ArgumentParser(description=DESCRIPTION, epilog=EPILOG,
@@ -166,7 +170,8 @@ def parse_args():
 
     subparser = parser.add_subparsers(dest='which')
 
-    bmcimg = subparser.add_parser('bmcimg', help='RSU BMC Image')
+    bmcimg = subparser.add_parser('bmc', aliases=['bmcimg'],
+                                  help='RSU BMC Image')
     bmcimg.add_argument('bdf', nargs='?',
                         help=('PCIe address '
                               '(eg 04:00.0 or 0000:04:00.0)'))
@@ -188,6 +193,12 @@ def parse_args():
                           choices=['user1', 'user2', 'factory'],
                           default='user1', help='select FPGA page')
     fpga_img.set_defaults(func=device_rsu_fpga)
+
+    sdm = subparser.add_parser('sdm', help='RSU SDM Image')
+    sdm.add_argument('bdf', nargs='?',
+                     help=('PCIe address '
+                           '(eg 04:00.0 or 0000:04:00.0)'))
+    sdm.set_defaults(func=device_rsu_sdm)
 
     fpgadefault = subparser.add_parser('fpgadefault',
                                        help='Set default FPGA image')
