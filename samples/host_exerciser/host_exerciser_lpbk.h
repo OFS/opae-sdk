@@ -42,12 +42,12 @@ public:
   host_exerciser_lpbk() { }
 
   virtual ~host_exerciser_lpbk(){}
-  virtual const char *name() const
+  virtual const char *name() const override
   {
     return "lpbk";
   }
 
-  virtual const char *description() const
+  virtual const char *description() const override
   {
     return "run simple loopback test";
   }

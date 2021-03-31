@@ -243,8 +243,7 @@ public:
     ss << name_ << "_" << test->name() << ".log";
     auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(ss.str(), true);
     file_sink->set_level(spdlog::level::trace);
-    spdlog::sinks_init_list sinks({console_sink, file_sink});
-    logger_ = std::make_shared<spdlog::logger>(test->name(), sinks);
+    logger_ = std::make_shared<spdlog::logger>(test->name(), spdlog::sinks_init_list ({console_sink, file_sink}));
     spdlog::register_logger(logger_);
 
     int res = open_handle(test->afu_id());
