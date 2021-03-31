@@ -25,9 +25,11 @@ drivers:
         CSR_DATA_SIZE.CSR_DATA_SIZE = size
         CSR_HOST2CE_MRD_START.MRD_START = 1
         if OFS_WAIT_FOR_NE(CSR_CE2HOST_STATUS.CE_DMA_STS, 0b01, timeout_usec, 100):
+          OFS_ERR("timed out waiting for DMA_STS")
           return 1
         if dma_status_success():
           return 0
+        OFS_ERR("dma status not successful")
         return 1
       def copy_image(iova: uint64_t, offset: uint64_t, size: uint32_t, chunk: uint32_t, timeout_usec: uint64_t) -> int:
         if not chunk:
@@ -41,6 +43,7 @@ drivers:
           if size-ptr < chunk:
             chunk = size-ptr
           if OFS_WAIT_FOR_EQ(CSR_HOST2CE_MRD_START.MRD_START, 0, local_timeout, 100):
+            OFS_ERR("timed out waiting for MRD_START")
             return 1
         image_complete()
         return 0
