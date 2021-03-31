@@ -46,6 +46,7 @@ target_include_directories(${driver} PUBLIC
 
 target_link_libraries(${driver} PUBLIC
     opae-c
+    ofs
 )
 endmacro(ofs_add_driver yml_file)
 
