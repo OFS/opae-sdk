@@ -42,12 +42,12 @@ public:
     {
     }
     virtual ~host_exerciser_mem() {}
-    virtual const char *name() const
+    virtual const char *name() const override
     {
         return "mem";
     }
 
-    virtual const char *description() const
+    virtual const char *description() const override
     {
         return "run simple mem test";
     }
