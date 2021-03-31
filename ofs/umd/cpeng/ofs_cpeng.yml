@@ -46,6 +46,35 @@ drivers:
         return 0
     registers:
       - !!ofs/register
+        - [CE_FEATURE_DFH, 0x0000, 0x1000000010001001, CE Feature DFH]
+        - - [FeatureType, [63, 60], RO, 0x1, Feature Type = AFU]
+          - [Reserved, [59, 41], RsvdZ, 0x0, Reserved]
+          - [EndOfList, [40], RO, 0x0, End Of List]
+          - [NextDfhByteOffset, [39, 16], RO, 0x1000, Next DFH Byte offset]
+          - [FeatureRev, [15, 12], RO, 0x1, Feture Revision]
+          - [FeatureID, [59, 41], RsvdZ, 0x1, Feature ID]
+      - !!ofs/register
+        - [CE_FEATURE_GUID_L, 0x0008, 0xbd4257dc93ea7f91, CE Feature GUID_L]
+        - - [CE_ID_L, [63, 0], RO,  0xbd4257dc93ea7f91, Lower 64-bit of feature GUID]
+      - !!ofs/register
+        - [CE_FEATURE_GUID_H, 0x0010, 0x44bfc10db42a44e5, CE Feature GUID_H]
+        - - [CE_ID_H, [63, 0], RO, 0x44bfc10db42a44e5, Upper 64-bit of feature GUID]
+      - !!ofs/register
+        - [CE_FEATURE_CSR_ADDR, 0x0018, 0x0000000000000100, CE Feature CSR Address]
+        - - [CSR_REL, [63], RO, 0x0, "1'b0 = relative (offset from feature DFH start)\n
+                                      1'b1 = absolute"]
+          - [CSR_ADDR, [62, 0], RO, 0x100, CSR address Offset from start of DFH or absolute address to beginning of CSRs for this Feature or Interface]
+      - !!ofs/register
+        - [CE_FEATURE_CSR_SIZE_GROUP, 0x0020, 0x0000005000000000, CE Feature CSR Size group]
+        - - [CSR_SIZE,  [63, 32], RO, 0x50, Size of CSR block in bytes  total CSR size]
+          - [HAS_PARAMS,  [31], RO, 0x0, Parameters exist or not 1 = Parameters follow this DFH block]
+          - [GROUPING_ID, [30, 0], RO,  0x0, "Used to group features / interfaces Logical grouping ID for features or interfaces.\n
+                                              All features or interfaces with the same ID will be assumed to be logically grouped together.\n
+                                              For instance, 2 channels each with a control and data interface have each pair specify a different ID."]
+      - !!ofs/register
+        - [CSR_HOST_SCRATCHPAD, 0x0100, 0x0000000000000000, Scratchpad register]
+        - - [HOST_SCRATCHPAD, [63, 0], RW, 0x0, Scratchpad register used during board bring up]
+      - !!ofs/register
         - [CSR_HPS2HOST_RDY_TIMEOUT, 0x0108, 0x0000000000000000, "HPS Ready Timeout"]
         - - [Reserved, [63, 1], RsvdZ, 0x0, Reserved]
           - [HPS_RDY_TIMEOUT, [0], RO, 0x0, "0: No timeout\n
