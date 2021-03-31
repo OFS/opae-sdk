@@ -150,6 +150,7 @@ def read_qpa(in_file, temp_overrides):
     item_re = re.compile(DATA_ITEM_PATTERN, re.UNICODE)
     outer_d = defaultdict(list)
     for mc in category_re.finditer(in_file.read()):
+        category = mc.group('category').strip()
         for mv in item_re.finditer(mc.group('values')):
             label = mv.group('label').strip()
             fatal = mv.group('value').strip()
@@ -165,7 +166,7 @@ def read_qpa(in_file, temp_overrides):
                 inner_d['override'] = override_d[label]
                 LOG.info(f'Setting override for \'{label}\' to {inner_d["override"]}%')
 
-            outer_d[mc.group('category').strip()].append(inner_d)
+            outer_d[category].append(inner_d)
     return outer_d
 
 
