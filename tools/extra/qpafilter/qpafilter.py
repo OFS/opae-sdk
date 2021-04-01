@@ -32,6 +32,7 @@ import logging
 import re
 import sys
 from collections import defaultdict
+import yaml
 
 SCRIPT_VERSION = '1.0.0'
 
@@ -130,6 +131,20 @@ def get_filter(category):
     return filters[category]
 
 
+class sensors_map:
+    def __init__(self, label_to_id):
+        self.label_to_id = label_to_id
+        self.id_to_label = {v: k for k,v in label_to_id.items()}
+
+    def get(self, i):
+        if isinstance(i, str):
+            return self.label_to_id[i]
+        elif isinstance(i, int):
+            return self.id_to_label[i]
+        else:
+            raise TypeError('sensors_map index must be str or int')
+
+
 def read_qpa(in_file, temp_overrides):
     """Read the input file and convert it to our data structure.
        ie a dict keyed by the category name. The value for each
@@ -212,6 +227,11 @@ def parse_args():
                         version='%(prog)s {}'.format(SCRIPT_VERSION),
                         help='display version information and exit')
 
+    parser.add_argument('-s', '--sensor-file',
+                        type=argparse.FileType('r'),
+                        default='n5010_bmc_sensors.yml',
+                        help='BMC sensor to id file')
+
     subparser = parser.add_subparsers()
 
     create = subparser.add_parser('create', help='Create blob from QPA')
@@ -240,7 +260,7 @@ def parse_args():
     dump = subparser.add_parser('dump',
                                 help='Convert blob to human-readable format')
 
-    dump.add_argument('file', type=argparse.FileType('r'), nargs='?',
+    dump.add_argument('file', type=argparse.FileType('rb'), nargs='?',
                       help='Input blob file')
 
     dump.set_defaults(func=dump_blob)
@@ -263,6 +283,9 @@ def main():
     log_hndlr.setFormatter(logging.Formatter(log_fmt))
     log_hndlr.setLevel(logging.getLevelName(args.log_level.upper()))
     LOG.addHandler(log_hndlr)
+
+    setattr(args, 'sensor_map',
+            sensors_map(yaml.load(args.sensor_file, Loader=yaml.SafeLoader)))
 
     if hasattr(args, 'func'):
         args.func(args)
