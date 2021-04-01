@@ -32,6 +32,7 @@ import logging
 import re
 import sys
 from collections import defaultdict
+import yaml
 
 SCRIPT_VERSION = '1.0.0'
 
@@ -130,6 +131,20 @@ def get_filter(category):
     return filters[category]
 
 
+class two_way_map:
+    def __init__(self, str_to_int):
+        self.str_to_int = str_to_int
+        self.int_to_str = {v: k for k,v in str_to_int.items()}
+
+    def __getitem__(self, i):
+        if isinstance(i, str):
+            return self.str_to_int[i]
+        elif isinstance(i, int):
+            return self.int_to_str[i]
+        else:
+            raise TypeError('two_way_map index must be str or int')
+
+
 def read_qpa(in_file, temp_overrides):
     """Read the input file and convert it to our data structure.
        ie a dict keyed by the category name. The value for each
@@ -196,6 +211,14 @@ def dump_blob(args):
     pass
 
 
+def read_sensors(fname):
+    """Given the name of a yaml file containing the sensor
+       label to ID mapping, return a two_way_map containing
+       the data."""
+    with open(fname, 'r') as infile:
+        return two_way_map(yaml.load(infile, Loader=yaml.SafeLoader))
+
+
 def parse_args():
     """Parses command line arguments"""
     parser = argparse.ArgumentParser()
@@ -211,6 +234,11 @@ def parse_args():
     parser.add_argument('-v', '--version', action='version',
                         version='%(prog)s {}'.format(SCRIPT_VERSION),
                         help='display version information and exit')
+
+    parser.add_argument('-s', '--sensor-file',
+                        type=read_sensors, dest='sensor_map',
+                        default='n5010_bmc_sensors.yml',
+                        help='BMC sensor to id file')
 
     subparser = parser.add_subparsers()
 
@@ -240,7 +268,7 @@ def parse_args():
     dump = subparser.add_parser('dump',
                                 help='Convert blob to human-readable format')
 
-    dump.add_argument('file', type=argparse.FileType('r'), nargs='?',
+    dump.add_argument('file', type=argparse.FileType('rb'), nargs='?',
                       help='Input blob file')
 
     dump.set_defaults(func=dump_blob)
@@ -263,6 +291,14 @@ def main():
     log_hndlr.setFormatter(logging.Formatter(log_fmt))
     log_hndlr.setLevel(logging.getLevelName(args.log_level.upper()))
     LOG.addHandler(log_hndlr)
+
+    setattr(args, 'threshold_map',
+            two_way_map({'Upper Warning': 0,
+                         'Upper Critical': 1,
+                         'Upper Fatal': 2,
+                         'Lower Warning': 3,
+                         'Lower Critical': 4,
+                         'Lower Fatal': 5}))
 
     if hasattr(args, 'func'):
         args.func(args)
