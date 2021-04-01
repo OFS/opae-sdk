@@ -131,18 +131,18 @@ def get_filter(category):
     return filters[category]
 
 
-class sensors_map:
-    def __init__(self, label_to_id):
-        self.label_to_id = label_to_id
-        self.id_to_label = {v: k for k,v in label_to_id.items()}
+class two_way_map:
+    def __init__(self, str_to_int):
+        self.str_to_int = str_to_int
+        self.int_to_str = {v: k for k,v in str_to_int.items()}
 
     def get(self, i):
         if isinstance(i, str):
-            return self.label_to_id[i]
+            return self.str_to_int[i]
         elif isinstance(i, int):
-            return self.id_to_label[i]
+            return self.int_to_str[i]
         else:
-            raise TypeError('sensors_map index must be str or int')
+            raise TypeError('two_way_map index must be str or int')
 
 
 def read_qpa(in_file, temp_overrides):
@@ -285,7 +285,15 @@ def main():
     LOG.addHandler(log_hndlr)
 
     setattr(args, 'sensor_map',
-            sensors_map(yaml.load(args.sensor_file, Loader=yaml.SafeLoader)))
+            two_way_map(yaml.load(args.sensor_file, Loader=yaml.SafeLoader)))
+
+    setattr(args, 'threshold_map',
+            two_way_map({'Upper Warning': 0,
+                         'Upper Critical': 1,
+                         'Upper Fatal': 2,
+                         'Lower Warning': 3,
+                         'Lower Critical': 4,
+                         'Lower Fatal': 5}))
 
     if hasattr(args, 'func'):
         args.func(args)
