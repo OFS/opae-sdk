@@ -211,6 +211,14 @@ def dump_blob(args):
     pass
 
 
+def read_sensors(fname):
+    """Given the name of a yaml file containing the sensor
+       label to ID mapping, return a two_way_map containing
+       the data."""
+    with open(fname, 'r') as infile:
+        return two_way_map(yaml.load(infile, Loader=yaml.SafeLoader))
+
+
 def parse_args():
     """Parses command line arguments"""
     parser = argparse.ArgumentParser()
@@ -228,7 +236,7 @@ def parse_args():
                         help='display version information and exit')
 
     parser.add_argument('-s', '--sensor-file',
-                        type=argparse.FileType('r'),
+                        type=read_sensors, dest='sensor_map',
                         default='n5010_bmc_sensors.yml',
                         help='BMC sensor to id file')
 
@@ -283,9 +291,6 @@ def main():
     log_hndlr.setFormatter(logging.Formatter(log_fmt))
     log_hndlr.setLevel(logging.getLevelName(args.log_level.upper()))
     LOG.addHandler(log_hndlr)
-
-    setattr(args, 'sensor_map',
-            two_way_map(yaml.load(args.sensor_file, Loader=yaml.SafeLoader)))
 
     setattr(args, 'threshold_map',
             two_way_map({'Upper Warning': 0,
