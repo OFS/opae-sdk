@@ -30,7 +30,7 @@ project(opae-libs)
 set(OPAE_VERSION_LOCAL   "" CACHE STRING "OPAE local version")
 set(OPAE_VERSION_MAJOR    2 CACHE STRING "OPAE major version" FORCE)
 set(OPAE_VERSION_MINOR    0 CACHE STRING "OPAE minor version" FORCE)
-set(OPAE_VERSION_REVISION 1${OPAE_VERSION_LOCAL} CACHE STRING "OPAE revision version" FORCE)
+set(OPAE_VERSION_REVISION 2${OPAE_VERSION_LOCAL} CACHE STRING "OPAE revision version" FORCE)
 set(OPAE_VERSION ${OPAE_VERSION_MAJOR}.${OPAE_VERSION_MINOR}.${OPAE_VERSION_REVISION}
     CACHE STRING "OPAE version" FORCE)
 
@@ -54,6 +54,7 @@ option(OPAE_BUILD_TESTS "Enable building of OPAE unit tests" OFF)
 mark_as_advanced(OPAE_BUILD_TESTS)
 
 include(OPAE)
+include(OFS)
 
 get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
 if ("${LIB64}" STREQUAL "TRUE")
@@ -111,6 +112,9 @@ mark_as_advanced(OPAE_BUILD_LIBOPAEUIO)
 option(OPAE_PRESERVE_REPOS "Disable refresh of external repos" OFF)
 mark_as_advanced(OPAE_PRESERVE_REPOS)
 
+option(OPAE_BUILD_LIBOFS "Enable building of the libofs library and framework" ON)
+mark_as_advanced(OPAE_BUILD_LIBOFS)
+
 if(OPAE_BUILD_TESTS)
     set(OPAE_TEST_TAG "master" CACHE STRING "Desired branch for opae-test")
     mark_as_advanced(OPAE_TEST_TAG)
@@ -155,9 +159,13 @@ endif (OPAE_BUILD_LIBOPAEVFIO)
 opae_add_subdirectory(external)
 opae_add_subdirectory(libopaemem)
 opae_add_subdirectory(libopae-c)
+if (OPAE_BUILD_LIBOFS)
+    opae_add_subdirectory(libofs)
+endif (OPAE_BUILD_LIBOFS)
 
 if (OPAE_BUILD_LIBOPAEUIO)
     opae_add_subdirectory(libopaeuio)
+    opae_add_subdirectory(pyopaeuio)
 endif()
 
 if (OPAE_BUILD_LIBOPAEVFIO AND PLATFORM_SUPPORTS_VFIO)

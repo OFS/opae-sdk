@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2020-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -56,18 +56,6 @@ int __VFIO_API__ vfio_plugin_finalize(void)
 	return 0;
 }
 
-bool __VFIO_API__ vfio_plugin_supports_device(const char *device_type)
-{
-	(void)(device_type);
-	return true;
-}
-
-bool __VFIO_API__ vfio_plugin_supports_host(const char *hostname)
-{
-	(void)(hostname);
-	return true;
-}
-
 int __VFIO_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 				       const char *jsonConfig)
 {
@@ -113,12 +101,6 @@ int __VFIO_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 		dlsym(adapter->plugin.dl_handle, "vfio_plugin_initialize");
 	adapter->finalize =
 		dlsym(adapter->plugin.dl_handle, "vfio_plugin_finalize");
-
-	adapter->supports_device = dlsym(adapter->plugin.dl_handle,
-					 "vfio_plugin_supports_device");
-	adapter->supports_host =
-		dlsym(adapter->plugin.dl_handle, "vfio_plugin_supports_host");
-
 
 	return 0;
 }

@@ -54,9 +54,12 @@
 	p;                                                \
 })
 
-#define ERR(format, ...)                                \
-fprintf(stderr, "%s:%u:%s() **ERROR** [%s] : " format , \
+#define ERR(format, ...)                               \
+fprintf(stderr, "%s:%u:%s() **ERROR** [%s] : " format, \
 	__SHORT_FILE__, __LINE__, __func__, strerror(errno), ##__VA_ARGS__)
+
+// dfl_dev.xxx
+#define MAX_DFL_DEVICE 11
 
 STATIC int opae_uio_read_sysfs_uint64(const char *path, uint64_t *puint)
 {
@@ -246,7 +249,7 @@ STATIC int opae_uio_init(struct opae_uio *u, const char *dfl_device)
 	glob_t globbuf;
 	int res = 0;
 	size_t len;
-	char *p;
+	char *p = NULL;
 	const char *glob_fmts[] = {
 		"/sys/bus/dfl/devices/%s/uio/uio*",
 		"/sys/bus/dfl/devices/%s/uio_pdrv_genirq.*.auto/uio/uio*",
@@ -256,6 +259,8 @@ STATIC int opae_uio_init(struct opae_uio *u, const char *dfl_device)
 
 	memset(u, 0, sizeof(*u));
 	u->device_fd = -1;
+
+	memset(&globbuf, 0, sizeof(globbuf));
 
 	// Use glob to discover the uio device name.
 	for (i = 0 ; glob_fmts[i] ; ++i) {
@@ -343,6 +348,12 @@ int opae_uio_open(struct opae_uio *u, const char *dfl_device)
 	if (!u || !dfl_device) {
 		ERR("NULL param\n");
 		return 1;
+	}
+
+	if (strlen(dfl_device) > MAX_DFL_DEVICE) {
+		ERR("%s is too long to be a DFL device name.\n",
+		    dfl_device);
+		return 2;
 	}
 
 	return opae_uio_init(u, dfl_device);

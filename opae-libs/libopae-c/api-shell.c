@@ -508,14 +508,6 @@ static int opae_enumerate(const opae_api_adapter_table *adapter, void *context)
 	uint32_t i;
 	uint32_t space_remaining;
 
-	// TODO: accept/reject this adapter, based on device support
-	if (adapter->supports_device) {
-	}
-
-	// TODO: accept/reject this adapter, based on host support
-	if (adapter->supports_host) {
-	}
-
 	space_remaining = ctx->max_wrapped_tokens - ctx->num_wrapped_tokens;
 
 	if (ctx->wrapped_tokens && !space_remaining)

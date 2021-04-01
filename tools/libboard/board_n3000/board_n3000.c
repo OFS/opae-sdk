@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2020, Intel Corporation
+// Copyright(c) 2019-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -36,14 +36,11 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <net/ethernet.h>
 #include <opae/properties.h>
 #include <opae/utils.h>
 #include <opae/fpga.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
-#include <ifaddrs.h>
-#include <net/if.h>
 #include <stdlib.h>
 
 #include "../board_common/board_common.h"
@@ -73,13 +70,6 @@
 #define FPGA_PHYGROUP_MODE_6_25G              3
 #define FPGA_PHYGROUP_MODE_2_2_25G            4
 
-#define ETHTOOL_STR              "ethtool"
-#define IFCONFIG_STR             "ifconfig"
-#define IFCONFIG_UP_STR          "up"
-#define FPGA_ETHINTERFACE_NAME   "npac"
-#define DFL_ETHINTERFACE         "dfl*.*/net/npac*"
-
-
 #define FPGA_BSID_REVISION(id)	(((id) >> 36) & 0xfff)
 #define FPGA_BSID_INTERFACE(id)	(((id) >> 32) & 0xf)
 #define FPGA_BSID_FLAGS(id)		(((id) >> 24) & 0xff)
@@ -103,7 +93,7 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 	char buf[FPGA_VAR_BUF_LEN]     = { 0 };
 
 	if (bmcfw_ver == NULL) {
-		FPGA_ERR("Invalid Input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -130,7 +120,7 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 	char *endptr               = NULL;
 	if (buf == NULL ||
 		fw_ver == NULL) {
-		FPGA_ERR("Invalid Input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -157,7 +147,7 @@ fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len)
 	if ((rev >= 'A') && (rev <= 'Z')) {// range from 'A' to 'Z'
 		retval = snprintf(fw_ver, len, "%c.%u.%u.%u", (char)rev, (var >> 16) & 0xff, (var >> 8) & 0xff, var & 0xff);
 		if (retval < 0) {
-			FPGA_ERR("error in formatting version");
+			OPAE_ERR("error in formatting version");
 			return FPGA_EXCEPTION;
 		}
 	} else {
@@ -175,7 +165,7 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 	char buf[FPGA_VAR_BUF_LEN]           = { 0 };
 
 	if (max10fw_ver == NULL) {
-		FPGA_ERR("Invalid input parameters");
+		OPAE_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 	res = read_sysfs(token, DFL_SYSFS_MAX10_VER, buf, FPGA_VAR_BUF_LEN - 1);
@@ -217,7 +207,7 @@ fpga_result print_pkvl_version(fpga_token token)
 
 	retval = snprintf(ver_a_buf, FPGA_VAR_BUF_LEN, "%lx.%lx", sub_ver, serdes_ver);
 	if (retval < 0) {
-		FPGA_ERR("error in formatting version");
+		OPAE_ERR("error in formatting version");
 		return FPGA_EXCEPTION;
 	}
 
@@ -234,7 +224,7 @@ fpga_result print_pkvl_version(fpga_token token)
 
 	retval = snprintf(ver_b_buf, FPGA_VAR_BUF_LEN, "%lx.%lx", sub_ver, serdes_ver);
 	if (retval < 0) {
-		FPGA_ERR("error in formatting version");
+		OPAE_ERR("error in formatting version");
 		return FPGA_EXCEPTION;
 	}
 
@@ -323,75 +313,6 @@ fpga_result print_board_info(fpga_token token)
 	return res;
 }
 
-// prints FPGA ethernet interface info
-fpga_result print_eth_interface_info(fpga_token token)
-{
-	fpga_result res                = FPGA_NOT_FOUND;
-	struct if_nameindex *if_nidxs  = NULL;
-	struct if_nameindex *intf      = NULL;
-	char cmd[SYSFS_PATH_MAX]       = { 0 };
-	int result                     = 0;
-	fpga_object fpga_object;
-
-	if_nidxs = if_nameindex();
-	if (if_nidxs != NULL) {
-		for (intf = if_nidxs; intf->if_index != 0
-			|| intf->if_name != NULL; intf++) {
-
-			char *p = strstr(intf->if_name, FPGA_ETHINTERFACE_NAME);
-			if (p) {
-				// Check interface associated to bdf
-				res = fpgaTokenGetObject(token, DFL_ETHINTERFACE,
-					&fpga_object, FPGA_OBJECT_GLOB);
-				if (res != FPGA_OK) {
-					OPAE_ERR("Failed to get token Object");
-					continue;
-				}
-				res = fpgaDestroyObject(&fpga_object);
-				if (res != FPGA_OK) {
-					OPAE_ERR("Failed to Destroy Object");
-				}
-
-				// Interface up
-				memset(cmd, 0, sizeof(cmd));
-				if (snprintf(cmd, sizeof(cmd),
-					"%s %s %s", IFCONFIG_STR, intf->if_name,
-					IFCONFIG_UP_STR) < 0) {
-					OPAE_ERR("snprintf failed");
-					res = FPGA_EXCEPTION;
-					goto out_free;
-				}
-				result = system(cmd);
-				if (result < 0) {
-					res = FPGA_EXCEPTION;
-					OPAE_ERR("Failed to run cmd: %s  %s",
-						cmd, strerror(errno));
-				}
-				// eth tool command
-				memset(cmd, 0, sizeof(cmd));
-				if (snprintf(cmd, sizeof(cmd),
-					"%s %s", ETHTOOL_STR, intf->if_name) < 0) {
-					OPAE_ERR("snprintf failed");
-					res = FPGA_EXCEPTION;
-					goto out_free;
-				}
-				result = system(cmd);
-				if (result < 0) {
-					res = FPGA_EXCEPTION;
-					OPAE_ERR("Failed to run cmd: %s  %s", cmd,
-						strerror(errno));
-				}
-
-			}
-		}
-
-out_free:
-		if_freenameindex(if_nidxs);
-	}
-
-	return res;
-}
-
 // print phy group information
 fpga_result print_phy_info(fpga_token token)
 {
@@ -403,9 +324,9 @@ fpga_result print_phy_info(fpga_token token)
 		return res;
 	}
 
-	res = print_eth_interface_info(token);
+	res = print_eth_interface_info(token, "npac");
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read phy group count");
+		OPAE_ERR("Failed to read phy info");
 		return res;
 	}
 

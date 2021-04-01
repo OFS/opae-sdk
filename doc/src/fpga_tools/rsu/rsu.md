@@ -2,7 +2,7 @@
 
 ## SYNOPSIS ##
 ```console
-rsu [-h] [-d] {bmcimg,retimer,fpga,nextboot} [PCIE_ADDR]
+rsu [-h] [-d] {bmc,bmcimg,retimer,fpga,sdm,fpgadefault} [PCIE_ADDR]
 
 ```
 
@@ -11,36 +11,33 @@ rsu [-h] [-d] {bmcimg,retimer,fpga,nextboot} [PCIE_ADDR]
 ### Mode 1: RSU ###
 
 ```console
-rsu bmcimg --page=(user|factory) [PCIE_ADDR]
+rsu bmc --page=(user|factory) [PCIE_ADDR]
 rsu retimer [PCIE_ADDR]
-rsu fpga --page=(1|2|factory) [PCIE_ADDR]
+rsu fpga --page=(user1|user2|factory) [PCIE_ADDR]
+rsu sdm [PCIE_ADDR]
 ```
 
 Perform RSU (remote system update) operation on PAC device
 given its PCIe address.
 An RSU operation sends an instruction to the device to trigger
 a power cycle of the card only. This will force reconfiguration
-from flash for either BMC image (on devices that support it) or the
-FPGA.
+from flash for either BMC, Retimer, SDM, (on devices that support these)
+or the FPGA.
 
-### Mode 2: Next Boot Image ###
+### Mode 2: Default FPGA Image ###
 
 ```console
-rsu nextboot --fpga=(1|2|3|4) [PCIE_ADDR]
+rsu fpgadefault --page=(user1|user2|factory) --fallback=<csv> [PCIE_ADDR]
 ```
 
-Set the image that is to boot during the next power cycle.
-Currently, the FPGA image is supported by this mode.
-
-1 : fallback boot sequence is User1 -> User2 -> Factory<br>
-2 : fallback boot sequence is User2 -> User1 -> Factory<br>
-3 : fallback boot sequence is Factory -> User1 -> User2<br>
-4 : fallback boot sequence is Factory -> User2 -> User1
+Set the default FPGA boot sequence. The --page option determines
+the primary FPGA boot image. The --fallback option allows a comma-separated
+list of values to specify fallback images.
 
 ## POSITIONAL ARGUMENTS ##
-`{bmcimg,retimer,fpga,nextboot}`
+`{bmc,bmcimg,retimer,fpga,sdm,fpgadefault}`
 
-type of RSU operation or the Next Boot operation.
+type of RSU operation or set Default FPGA Image operation.
    
 `PCIE_ADDR` 
 PCIe address of device to do rsu (e.g. 04:00.0 or 0000:04:00.0) 
@@ -55,21 +52,21 @@ log debug statements
 ## EXAMPLE ##
 
 ```console
-# rsu bmcimg --page=user 25:00.0
+# rsu bmc --page=user 25:00.0
 ```
 
  Triggers a boot of the BMC image (user page) for the device with PCIe
  address 25:00.0.
 
 ```console
-# rsu bmcimg --page=factory 25:00.0
+# rsu bmc --page=factory 25:00.0
 ```
 
  Triggers a factory boot of the BMC image for the device with
  PCIe address 25:00.0.
 
 ```console
-# rsu fpga --page=2 25:00.0
+# rsu fpga --page=user2 25:00.0
 ```
 
  Triggers a reconfiguration of the FPGA (user2 page) for the
@@ -83,7 +80,14 @@ log debug statements
  with PCIe address 25:00.0.
 
 ```console
-# rsu nextboot --fpga=1 25:00.0
+# rsu sdm 25:00.0
 ```
 
- Sets the next boot image for the fpga to the user1 page.
+ Triggers a reconfiguration of the SDM for the device with
+ PCIE address 25:00.0.
+
+```console
+# rsu fpgadefault --page=factory --fallback=user1,user2 25:00.0
+```
+
+ Sets the FPGA boot sequence to factory with fallbacks user1, user2.

@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2020, Intel Corporation
+// Copyright(c) 2019-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -25,13 +25,13 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 
-#ifndef ETH_VFIO_H
-#define ETH_VFIO_H
+#ifndef ETH_UIO_H
+#define ETH_UIO_H
 
 #include <map>
 #include <memory>
 #include <vector>
-#include <linux/vfio.h>
+
 #include <string.h>
 #include <sys/fcntl.h>
 #include <sys/ioctl.h>
@@ -41,7 +41,7 @@
 #include <iostream>
 #include <mutex>
 #include <stdexcept>
-
+#include <opae/uio.h>
 
 struct eth_group_info {
 	union {
@@ -111,14 +111,12 @@ public:
 	eth_group(): direction(0), phy_num(0),
 				group_id(0), speed(0),
 				df_id(0), eth_lwmac(0),
-				ptr_(NULL), container(0),
-				group(0), device(0),
-				reg_size(0), reg_offset(0),
+				ptr_(NULL),
 				mmap_ptr(NULL) { }
 
 	~eth_group() {}
 
-	int eth_group_open(int vfio_id, std::string fpga_mdev_str);
+	int eth_group_open(const std::string& fpga_uid_str);
 	int eth_group_close();
 	uint32_t read_reg(uint32_t type, uint32_t index,
 		uint32_t flags, uint32_t addr);
@@ -135,17 +133,10 @@ public:
 
 private:
 	uint64_t* ptr_;
-	int container;
-	int group;
-	int device;
-	int reg_size;
-	int reg_offset;
-
-	struct vfio_device_info device_info;
 	struct eth_group_info eth_info;
 	struct dfh eth_dfh;
-
 	uint8_t *mmap_ptr;
+	struct opae_uio uio;
 };
 
 

@@ -792,6 +792,87 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_05) {
 }
 
 
+/*
+* @test      sysfs
+* @brief     Tests: make_sysfs_object
+ @details    When passed with valid sysfs path with "**" to
+*            make_sysfs_object functin recursively walks
+*            in SYSFS directory hierarchy and finds sysfs attributes <br>
+*            Then the return value FPGA_OK <br>
+*/
+
+TEST_P(sysfs_c_mock_p, fpga_sysfs_06) {
+	_fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
+	fpga_object object ;
+	char full_path[SYSFS_PATH_MAX] = { 0 };
+
+	if (snprintf(full_path, SYSFS_PATH_MAX,
+		"%s%s", tok->sysfspath, "/dfl*/*spi*/spi_master/spi*/**/security/*flash_count") < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+	}
+
+	ASSERT_EQ(make_sysfs_object(full_path, "*flash_count", &object,
+		FPGA_OBJECT_GLOB, 0),
+		FPGA_OK);
+
+	EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
+
+}
+/*
+* @test      sysfs
+* @brief     Tests: make_sysfs_object
+ @details    When passed with invalid sysfs path with "**" to
+*            make_sysfs_object functin recursively walks
+*            in SYSFS directory hierarchy and returns error <br>
+*            Then the return value FPGA_NOT_FOUND <br>
+*/
+TEST_P(sysfs_c_mock_p, fpga_sysfs_07) {
+	_fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
+	fpga_object object = NULL;
+	char full_path[SYSFS_PATH_MAX] = { 0 };
+	fpga_result result;
+
+	if (snprintf(full_path, SYSFS_PATH_MAX,
+		"%s%s", tok->sysfspath, "/dfl*/*spi*/spi_master/spi*/**/security/*test_count") < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+	}
+
+	result = make_sysfs_object(full_path, "*test_count", &object,
+		FPGA_OBJECT_GLOB, 0);
+	EXPECT_EQ(result, FPGA_NOT_FOUND);
+
+	if (result == FPGA_OK) {
+		EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
+	}
+}
+
+/*
+* @test      sysfs
+* @brief     Tests: make_sysfs_object
+ @details    When passed with invalid sysfs path with multipule "**" to
+*            make_sysfs_object functin recursively walks
+*            in SYSFS directory hierarchy and returns error <br>
+*            Then the return value FPGA_INVALID_PARAM <br>
+*/
+TEST_P(sysfs_c_mock_p, fpga_sysfs_08) {
+	_fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
+	fpga_object object = NULL;
+	char full_path[SYSFS_PATH_MAX] = { 0 };
+	fpga_result result;
+
+	if (snprintf(full_path, SYSFS_PATH_MAX,
+		"%s%s", tok->sysfspath, "/dfl*/*spi*/spi_master/spi*/**/security/**/*flash_count") < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+	}
+
+	result = make_sysfs_object(full_path, "*flash_count", &object,
+		FPGA_OBJECT_GLOB, 0);
+	EXPECT_EQ(result, FPGA_INVALID_PARAM);
+
+	if (result == FPGA_OK) {
+		EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
+	}
+}
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 

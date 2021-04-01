@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -59,9 +59,6 @@ extern "C" {
 #define MB (1024 * KB)
 #define GB (1024UL * MB)
 #define FPGA_MOCK_IOVA 0xDECAFBADDEADBEEF
-#undef FPGA_MSG
-#define FPGA_MSG(fmt, ...) \
-	printf("MOCK " fmt "\n", ## __VA_ARGS__)
 
 #pragma pack(push, 1)
 struct buffer_params {

@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -216,10 +216,6 @@ typedef struct _opae_api_adapter_table {
 	// configuration functions
 	int (*initialize)(void);
 	int (*finalize)(void);
-
-	// first-level query
-	bool (*supports_device)(const char *device_type);
-	bool (*supports_host)(const char *hostname);
 
 } opae_api_adapter_table;
 

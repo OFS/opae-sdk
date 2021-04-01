@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -61,14 +61,6 @@ int xfpga_plugin_finalize(void);
 #include <linux/ioctl.h>
 #include <poll.h>
 #include <dlfcn.h>
-
-#undef FPGA_MSG
-#define FPGA_MSG(fmt, ...) \
-	printf("MOCK " fmt "\n", ## __VA_ARGS__)
-
-#undef FPGA_ERR
-#define FPGA_ERR(fmt, ...) \
-	printf("MOCK ERROR " fmt "\n", ## __VA_ARGS__)
 
 using namespace opae::testing;
 
@@ -171,11 +163,11 @@ int set_dummy_dfl_irq(mock_object * m, int request, va_list argp) {
 	struct dfl_fpga_irq_set *irq = va_arg(argp, struct dfl_fpga_irq_set *);
 
 	if (!irq) {
-		FPGA_MSG("fme_irq is NULL");
+		OPAE_MSG("fme_irq is NULL");
 		goto out_EINVAL;
 	}
 	if (irq->count <= 0) {
-		FPGA_MSG("wrong structure size");
+		OPAE_MSG("wrong structure size");
 		goto out_EINVAL;
 	}
 
@@ -202,11 +194,11 @@ int set_dfl_irq(mock_object * m, int request, va_list argp) {
 
 	struct dfl_fpga_irq_set *irq = va_arg(argp, struct dfl_fpga_irq_set *);
 	if (!irq) {
-		FPGA_MSG("fme_irq is NULL");
+		OPAE_MSG("fme_irq is NULL");
 		goto out_EINVAL;
 	}
 	if (irq->count <= 0 ) {
-		FPGA_MSG("wrong structure size");
+		OPAE_MSG("wrong structure size");
 		goto out_EINVAL;
 	}
 	if (gEnableIRQ) {
@@ -217,7 +209,7 @@ int set_dfl_irq(mock_object * m, int request, va_list argp) {
 			if (irq->evtfds[i] >= 0)
 				if (write(irq->evtfds[i], &data, sizeof(data)) !=
 					sizeof(data)) {
-					FPGA_ERR("IRQ write < 8 bytes");
+					OPAE_ERR("IRQ write < 8 bytes");
 				}
 		}
 	}
@@ -741,7 +733,7 @@ TEST_P(events_mcp_p, invalid_fme_event_request){
 }
 
 INSTANTIATE_TEST_CASE_P(events, events_mcp_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 
 

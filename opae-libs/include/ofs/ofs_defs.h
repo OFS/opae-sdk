@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,25 +23,28 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifndef OFS_DEFS_H
+#define OFS_DEFS_H
+#include <pthread.h>
 
-#include <linux/vfio.h>
+#define ofs_mutex_lock(__mtx_ptr)                          \
+({                                                         \
+	int __res = pthread_mutex_lock(__mtx_ptr);         \
+	if (__res)                                         \
+		OFS_ERR("pthread_mutex_lock() failed: %s", \
+			strerror(errno));                  \
+	__res;                                             \
+})
 
-int main(int argc, char *argv[])
-{
-	struct vfio_group_status group_status;
-	struct vfio_iommu_type1_info iommu_info;
-	struct vfio_iommu_type1_dma_map dma_map;
+#define ofs_mutex_unlock(__mtr_ptr)                          \
+({                                                           \
+	int __res = pthread_mutex_unlock(__mtx_ptr);         \
+	if (__res)                                           \
+		OFS_ERR("pthread_mutex_unlock() failed: %s", \
+			strerror(errno));                    \
+	__res;                                               \
+})
 
-	struct vfio_iommu_type1_dma_unmap dma_unmap;
+#define UNUSED_PARAM(x) ((void)x)
 
-	(void) argc;
-	(void) argv;
-
-	(void) group_status;
-	(void) iommu_info;
-	(void) dma_map;
-
-	(void) dma_unmap;
-
-	return 0;
-}
+#endif /* !OFS_DEFS_H */
