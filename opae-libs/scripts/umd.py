@@ -203,7 +203,7 @@ class scope_visitor(c_visitor):
         return str(node.n)
 
     def visit_Str(self, node):
-        return f'"{node.str}"'
+        return f'"{node.s}"'
 
     def visit_Starred(self, node):
         return f'*{self.visit(node.value)}'
