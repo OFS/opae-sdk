@@ -136,7 +136,7 @@ class two_way_map:
         self.str_to_int = str_to_int
         self.int_to_str = {v: k for k,v in str_to_int.items()}
 
-    def get(self, i):
+    def __getitem__(self, i):
         if isinstance(i, str):
             return self.str_to_int[i]
         elif isinstance(i, int):
