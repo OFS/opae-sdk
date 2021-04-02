@@ -29,6 +29,7 @@
 
 import argparse
 from collections import defaultdict
+import difflib
 import logging
 import re
 import struct
@@ -249,6 +250,7 @@ def read_qpa(in_file, temp_overrides):
             continue
         override_d[olabel] = opercentage
 
+    sensors_list = []
     category_re = re.compile(CATEGORY_PATTERN, re.DOTALL | re.UNICODE)
     item_re = re.compile(DATA_ITEM_PATTERN, re.UNICODE)
     outer_d = defaultdict(list)
@@ -256,6 +258,7 @@ def read_qpa(in_file, temp_overrides):
         category = cat_match.group('category').strip()
         for val_match in item_re.finditer(cat_match.group('values')):
             label = val_match.group('label').strip()
+            sensors_list.append(label)
             fatal = val_match.group('value').strip()
             units = val_match.group('units').strip()
 
@@ -273,6 +276,8 @@ def read_qpa(in_file, temp_overrides):
 
     for override in override_d:
         LOG.warning(f'Temperature override for {override} unused.')
+        for possible in difflib.get_close_matches(override, sensors_list):
+            LOG.warning(f'Did you mean "{possible}"?')
 
     return outer_d
 
