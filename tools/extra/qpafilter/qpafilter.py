@@ -28,10 +28,11 @@
 """ Convert QPA text file to blob. """
 
 import argparse
+from collections import defaultdict
 import logging
 import re
+import struct
 import sys
-from collections import defaultdict
 import yaml
 
 SCRIPT_VERSION = '1.0.0'
@@ -44,7 +45,54 @@ TEMPERATURE_CATEGORY = 'Temperature and Cooling'
 DEGREES_C = '\u00b0C'
 DEGREES_c = '\u00b0c'
 
+BLOB_START_MARKER = b'\xff\xa5\x5a\xff\xff\xa5\x5a\xff\xff\xa5\x5a\xff'
+BLOB_END_MARKER = b'\xfe\xa5\x5a\xef\xfe\xa5\x5a\xef\xfe\xa5\x5a\xef'
+
 LOG = logging.getLogger()
+
+
+class blob_writer:
+    def __init__(self, fname, sensor_map, threshold_map):
+        self.fname = fname
+        self.sensor_map = sensor_map
+        self.threshold_map = threshold_map
+
+    def __enter__(self):
+        self.outfile = open(self.fname, 'wb')
+        self.write_start_marker()
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        if not exc_type:
+            self.write_end_marker()
+            self.outfile.close()
+        else:
+            return False
+
+    def write_start_marker(self):
+        self.outfile.write(BLOB_START_MARKER)
+
+    def write_end_marker(self):
+        self.outfile.write(BLOB_END_MARKER)
+
+    def write_sensor(self, sensor):
+        label = sensor['label']
+        fatal = sensor['filtered_fatal']
+        warning = sensor['filtered_warning']
+
+        sensor_id = self.sensor_map[label]
+        upper_warning_id = self.threshold_map['Upper Warning']
+        upper_fatal_id = self.threshold_map['Upper Fatal']
+
+        fmt = '<LLL'
+        self.outfile.write(struct.pack(fmt,
+                                       sensor_id,
+                                       upper_warning_id,
+                                       warning))
+        self.outfile.write(struct.pack(fmt,
+                                       sensor_id,
+                                       upper_fatal_id,
+                                       fatal))
 
 
 class temp_verifier:
@@ -113,8 +161,12 @@ class temp_filter:
 
             i['warning'] = str(warning)
 
+            i['filtered_warning'] = int(round(2 * warning))
+            i['filtered_fatal'] = int(round(2 * fatal))
+
             msg = (f'{i["label"]} warning: {i["warning"]} {units} '
-                   f'fatal: {i["fatal"]} {units}')
+                   f'fatal: {i["fatal"]} {units} -> {i["filtered_warning"]} '
+                   f'{i["filtered_fatal"]}')
             if override != 0.0:
                 msg += f' (override {override}%)'
 
@@ -188,21 +240,26 @@ def read_qpa(in_file, temp_overrides):
 def create_blob_from_qpa(args):
     """Given the input QPA report, create the binary equivalent."""
     data = read_qpa(args.file, args.override_temp)
-    for category, key_vals in data.items():
-        try:
-            verifier = get_verifier(category)(args)
-            filt = get_filter(category)(args)
-        except KeyError:
-            LOG.error(f'Category {category} is not supported. Skipping')
-            continue
 
-        if not verifier.verify(key_vals):
-            LOG.error(f'{category}: verification failed.')
-            sys.exit(1)
+    with blob_writer(args.output, args.sensor_map, args.threshold_map) as wr:
+        for category, key_vals in data.items():
+            try:
+                verifier = get_verifier(category)(args)
+                filt = get_filter(category)(args)
+            except KeyError:
+                LOG.error(f'Category {category} is not supported. Skipping')
+                continue
 
-        if not filt.filter(key_vals):
-            LOG.error(f'{category}: filtering failed.')
-            sys.exit(1)
+            if not verifier.verify(key_vals):
+                LOG.error(f'{category}: verification failed.')
+                sys.exit(1)
+
+            if not filt.filter(key_vals):
+                LOG.error(f'{category}: filtering failed.')
+                sys.exit(1)
+
+            for sensor in key_vals:
+                wr.write_sensor(sensor)
 
 
 def dump_blob(args):
@@ -258,10 +315,13 @@ def parse_args():
                         default=90.0,
                         help='virtual warning temperature threshold')
 
-    create.add_argument('-o', '--override-temp', action='append',
+    create.add_argument('-O', '--override-temp', action='append',
                         default=[],
                         help='specify a temperature override as '
                         '<label>:<percentage>')
+
+    create.add_argument('-o', '--output', default='qpafilter.blob',
+                        help='Output blob file')
 
     create.set_defaults(func=create_blob_from_qpa)
 
