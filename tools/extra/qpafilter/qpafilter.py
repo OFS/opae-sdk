@@ -37,8 +37,10 @@ import yaml
 
 SCRIPT_VERSION = '1.0.0'
 
-CATEGORY_PATTERN = r'\+-+\+\n;\s*(?P<category>(?:\w+\s?)+)\s*;\n(?P<values>.*?\n)\+-+\+-+\+'
-DATA_ITEM_PATTERN = r';\s*(?P<label>(?:\w+\s?)+)\s*;\s*(?P<value>\d+\.?\d*)\s+(?P<units>.*?)\s*;'
+CATEGORY_PATTERN = (r'\+-+\+\n;\s*(?P<category>(?:\w+\s?)+)\s*;\n'
+                    r'(?P<values>.*?\n)\+-+\+-+\+')
+DATA_ITEM_PATTERN = (r';\s*(?P<label>(?:\w+\s?)+)\s*;'
+                     r'\s*(?P<value>\d+\.?\d*)\s+(?P<units>.*?)\s*;')
 
 TEMPERATURE_CATEGORY = 'Temperature and Cooling'
 
@@ -52,10 +54,21 @@ LOG = logging.getLogger()
 
 
 class blob_writer:
+    """Given a file name, sensors dict, and thresholds dict,
+       provide the mechanism for writing the binary blob.
+       Implements the with protocol to perform auto file
+       cleanup.
+
+       eg
+         with blob_writer(fname, sensor_map, threshold_map) as wr:
+            <for each sensor>
+                wr.writer_sensor(sensor)
+    """
     def __init__(self, fname, sensor_map, threshold_map):
         self.fname = fname
         self.sensor_map = sensor_map
         self.threshold_map = threshold_map
+        self.outfile = None
 
     def __enter__(self):
         self.outfile = open(self.fname, 'wb')
@@ -66,16 +79,20 @@ class blob_writer:
         if not exc_type:
             self.write_end_marker()
             self.outfile.close()
-        else:
-            return False
+            return True
+        return False
 
     def write_start_marker(self):
+        """Write the start of data marker."""
         self.outfile.write(BLOB_START_MARKER)
 
     def write_end_marker(self):
+        """Write the end of data marker."""
         self.outfile.write(BLOB_END_MARKER)
 
     def write_sensor(self, sensor):
+        """Write the Upper Warning and Upper Fatal blob
+           entries for the given sensor."""
         label = sensor['label']
         fatal = sensor['filtered_fatal']
         warning = sensor['filtered_warning']
@@ -101,12 +118,17 @@ class temp_verifier:
         self.args = args
 
     def verify_units(self, units):
+        """Temperature units must be degrees C."""
         return units in [DEGREES_C, DEGREES_c]
 
     def verify_min_temp(self, value):
+        """Each temperature setting must be greater or
+           equal to the prescribed minimum value."""
         return value >= self.args.min_temp
 
     def verify(self, items):
+        """Perform all validity checks on the input
+           temperature setting."""
         min_temp_failures = 0
         for i in items:
             label = i['label']
@@ -135,8 +157,7 @@ class temp_verifier:
 
 def get_verifier(category):
     """Return the verifier class, given a category name."""
-    verifiers = { TEMPERATURE_CATEGORY: temp_verifier
-    }
+    verifiers = {TEMPERATURE_CATEGORY: temp_verifier}
     return verifiers[category]
 
 
@@ -147,6 +168,17 @@ class temp_filter:
         self.args = args
 
     def filter(self, items):
+        """Perform the necessary translation from temperature
+           input value to temperature output. The Upper Fatal
+           temperature is given in the input data. Calculate
+           the Upper Warning value from the Upper Fatal value,
+           by applying the (Virtual Warning Temp) /
+           (Virtual Fatal Temp) ratio. If there is an override
+           value, then apply it as a percentage of the Upper
+           Fatal value instead.
+           To form the final output, each temperature is
+           multiplied by two, then rounded to the nearest
+           integer."""
         for i in items:
             fatal = float(i['fatal'])
             units = i['units']
@@ -157,7 +189,7 @@ class temp_filter:
             else:
                 override = 0.0
                 warning = ((fatal * self.args.virt_warn_temp) /
-                          self.args.virt_fatal_temp)
+                           self.args.virt_fatal_temp)
 
             i['warning'] = str(warning)
 
@@ -178,23 +210,25 @@ class temp_filter:
 
 def get_filter(category):
     """Return the filter class, given a category name."""
-    filters = { TEMPERATURE_CATEGORY: temp_filter
-    }
+    filters = {TEMPERATURE_CATEGORY: temp_filter}
     return filters[category]
 
 
 class two_way_map:
+    """Given a dict of strings to integers, provide the ability
+       to perform a 2-way translation. That is, given a string
+       key, retrieve the integer value. Given an integer key,
+       return the string value."""
     def __init__(self, str_to_int):
         self.str_to_int = str_to_int
-        self.int_to_str = {v: k for k,v in str_to_int.items()}
+        self.int_to_str = {v: k for k, v in str_to_int.items()}
 
     def __getitem__(self, i):
         if isinstance(i, str):
             return self.str_to_int[i]
-        elif isinstance(i, int):
+        if isinstance(i, int):
             return self.int_to_str[i]
-        else:
-            raise TypeError('two_way_map index must be str or int')
+        raise TypeError('two_way_map index must be str or int')
 
 
 def read_qpa(in_file, temp_overrides):
@@ -204,36 +238,42 @@ def read_qpa(in_file, temp_overrides):
        'fatal', 'warning', 'units'}.
     """
     override_d = {}
-    for ot in temp_overrides:
+    for override in temp_overrides:
         try:
-            olabel, opercentage = ot.split(':')
+            olabel, opercentage = override.split(':')
         except ValueError:
-            LOG.warning(f'{ot} is not a valid temperature '
+            LOG.warning(f'{override} is not a valid temperature '
                         f'override. Skipping')
-            continue
-        override_d[olabel] = opercentage
+            continue         # percentage, was it applied?
+        override_d[olabel] = [opercentage, False]
 
-    category_re = re.compile(CATEGORY_PATTERN, re.DOTALL|re.UNICODE)
+    category_re = re.compile(CATEGORY_PATTERN, re.DOTALL | re.UNICODE)
     item_re = re.compile(DATA_ITEM_PATTERN, re.UNICODE)
     outer_d = defaultdict(list)
-    for mc in category_re.finditer(in_file.read()):
-        category = mc.group('category').strip()
-        for mv in item_re.finditer(mc.group('values')):
-            label = mv.group('label').strip()
-            fatal = mv.group('value').strip()
-            units = mv.group('units').strip()
+    for cat_match in category_re.finditer(in_file.read()):
+        category = cat_match.group('category').strip()
+        for val_match in item_re.finditer(cat_match.group('values')):
+            label = val_match.group('label').strip()
+            fatal = val_match.group('value').strip()
+            units = val_match.group('units').strip()
 
             inner_d = {'label': label,
                        'fatal': fatal,
                        'units': units,
-                       'warning': 0.0 # placeholder
-                      }
+                       'warning': 0.0}  # placeholder
 
             if label in override_d:
-                inner_d['override'] = override_d[label]
-                LOG.info(f'Setting override for \'{label}\' to {inner_d["override"]}%')
+                override_d[label][1] = True
+                inner_d['override'] = override_d[label][0]
+                LOG.info(f'Setting override for \'{label}\' '
+                         f'to {inner_d["override"]}%')
 
             outer_d[category].append(inner_d)
+
+    for override in override_d:
+        if not override_d[override][1]:
+            LOG.warning(f'Temperature override for {override} unused.')
+
     return outer_d
 
 
@@ -241,7 +281,9 @@ def create_blob_from_qpa(args):
     """Given the input QPA report, create the binary equivalent."""
     data = read_qpa(args.file, args.override_temp)
 
-    with blob_writer(args.output, args.sensor_map, args.threshold_map) as wr:
+    with blob_writer(args.output,
+                     args.sensor_map,
+                     args.threshold_map) as writer:
         for category, key_vals in data.items():
             try:
                 verifier = get_verifier(category)(args)
@@ -259,7 +301,7 @@ def create_blob_from_qpa(args):
                 sys.exit(1)
 
             for sensor in key_vals:
-                wr.write_sensor(sensor)
+                writer.write_sensor(sensor)
 
 
 def dump_blob(args):
@@ -363,7 +405,7 @@ def main():
     if hasattr(args, 'func'):
         args.func(args)
     else:
-        LOG.error(f'You must specify a sub-command.')
+        LOG.error('You must specify a sub-command.')
         parser.print_help(sys.stderr)
         sys.exit(1)
 
