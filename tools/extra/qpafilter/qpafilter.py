@@ -101,6 +101,7 @@ class blob_writer:
         upper_warning_id = self.threshold_map['Upper Warning']
         upper_fatal_id = self.threshold_map['Upper Fatal']
 
+        # TODO: endian-ness?
         fmt = '<LLL'
         self.outfile.write(struct.pack(fmt,
                                        sensor_id,
@@ -193,6 +194,7 @@ class temp_filter:
 
             i['warning'] = str(warning)
 
+            # TODO: is this rounding correct?
             i['filtered_warning'] = int(round(2 * warning))
             i['filtered_fatal'] = int(round(2 * fatal))
 
