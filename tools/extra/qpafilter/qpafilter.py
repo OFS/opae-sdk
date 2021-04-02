@@ -51,6 +51,10 @@ DEGREES_c = '\u00b0c'
 BLOB_START_MARKER = b'\xff\xa5\x5a\xff\xff\xa5\x5a\xff\xff\xa5\x5a\xff'
 BLOB_END_MARKER = b'\xfe\xa5\x5a\xef\xfe\xa5\x5a\xef\xfe\xa5\x5a\xef'
 
+# TODO: endian-ness?
+BLOB_STRUCT_FORMAT = '<LLL'
+BLOB_STRUCT_SIZE = 12
+
 LOG = logging.getLogger()
 
 
@@ -102,16 +106,73 @@ class blob_writer:
         upper_warning_id = self.threshold_map['Upper Warning']
         upper_fatal_id = self.threshold_map['Upper Fatal']
 
-        # TODO: endian-ness?
-        fmt = '<LLL'
-        self.outfile.write(struct.pack(fmt,
+        self.outfile.write(struct.pack(BLOB_STRUCT_FORMAT,
                                        sensor_id,
                                        upper_warning_id,
                                        warning))
-        self.outfile.write(struct.pack(fmt,
+        self.outfile.write(struct.pack(BLOB_STRUCT_FORMAT,
                                        sensor_id,
                                        upper_fatal_id,
                                        fatal))
+
+
+class blob_reader:
+    """Given an input file pointer, a sensor map, and a threshold map,
+       provide an iterator interface to reading the raw sensor data
+       items sequentially."""
+    def __init__(self, blobfp, sensor_map, threshold_map):
+        self.blob = blobfp.read()
+        self.start_marker_index = self.blob.find(BLOB_START_MARKER)
+        self.end_marker_index = self.blob.find(BLOB_END_MARKER)
+        self.sensor_map = sensor_map
+        self.threshold_map = threshold_map
+
+    class Iterator:
+        """Iterate over an in-memory blob. Calculate the number of
+           sensor entries by subtracting the offset of the first entry
+           from the offset of the end marker. Iterate and decode each
+           sensor entry, changing the raw data to human-readable output."""
+        def __init__(self,
+                     blob,
+                     start_marker_index,
+                     end_marker_index,
+                     sensor_map,
+                     threshold_map):
+            self.blob = blob
+            self.start_marker_index = start_marker_index
+            self.first_entry_index = self.start_marker_index + BLOB_STRUCT_SIZE
+            self.end_marker_index = end_marker_index
+            self.num_entries = ((self.end_marker_index -
+                                 self.first_entry_index) / BLOB_STRUCT_SIZE)
+            self.entry = 0
+            self.struct_iter = struct.iter_unpack(
+                BLOB_STRUCT_FORMAT,
+                self.blob[self.start_marker_index + len(BLOB_START_MARKER):])
+            self.sensor_map = sensor_map
+            self.threshold_map = threshold_map
+
+        def __next__(self):
+            if self.entry == self.num_entries:
+                raise StopIteration
+            self.entry += 1
+            sensor_id, threshold_id, raw_value = next(self.struct_iter)
+            return (self.sensor_map[sensor_id],
+                    self.threshold_map[threshold_id],
+                    raw_value / 2)
+
+    def __iter__(self):
+        return self.Iterator(self.blob,
+                             self.start_marker_index,
+                             self.end_marker_index,
+                             self.sensor_map,
+                             self.threshold_map)
+
+    @property
+    def valid(self):
+        """Return indication of whether the input blob contains
+           valid start and end markers."""
+        return (self.start_marker_index != -1 and
+                self.end_marker_index != -1)
 
 
 class temp_verifier:
@@ -312,7 +373,14 @@ def create_blob_from_qpa(args):
 def dump_blob(args):
     """Given the binary from a previous 'create' command, print
        human-readable output."""
-    pass
+    reader = blob_reader(args.file, args.sensor_map, args.threshold_map)
+
+    if not reader.valid:
+        LOG.error('No valid start/end marker found in input.')
+        sys.exit(1)
+
+    for sensor, threshold, value in reader:
+        print(f'{sensor} : {threshold} : {value}')
 
 
 def read_sensors(fname):
