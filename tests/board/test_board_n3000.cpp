@@ -262,7 +262,7 @@ TEST_P(board_dfl_n3000_c_p, board_n3000_11) {
 */
 TEST_P(board_dfl_n3000_c_p, board_n3000_7) {
 
-	EXPECT_EQ(print_pkvl_version(tokens_[0]), FPGA_OK);
+	EXPECT_EQ(print_pkvl_version(tokens_[0]), FPGA_EXCEPTION);
 }
 
 /**

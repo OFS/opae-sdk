@@ -324,3 +324,103 @@ out_free:
 
 	return res;
 }
+
+
+
+fpga_result sysfs_read_u64(const char *path, uint64_t *u)
+{
+	int fd = -1;
+	int res = 0;
+	char buf[SYSFS_PATH_MAX] = { 0 };
+	int b = 0;
+
+	if (path == NULL) {
+		OPAE_ERR("Invalid input path");
+		return FPGA_INVALID_PARAM;
+	}
+
+	fd = open(path, O_RDONLY);
+	if (fd < 0) {
+		OPAE_MSG("open(%s) failed", path);
+		return FPGA_NOT_FOUND;
+	}
+
+	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
+		OPAE_MSG("seek failed");
+		goto out_close;
+	}
+
+	do {
+		res = read(fd, buf + b, sizeof(buf) - b);
+		if (res <= 0) {
+			OPAE_MSG("Read from %s failed", path);
+			goto out_close;
+		}
+		b += res;
+		if (((unsigned)b > sizeof(buf)) || (b <= 0)) {
+			OPAE_MSG("Unexpected size reading from %s", path);
+			goto out_close;
+		}
+	} while (buf[b - 1] != '\n' && buf[b - 1] != '\0'
+		&& (unsigned)b < sizeof(buf));
+
+	// erase \n
+	buf[b - 1] = 0;
+
+	*u = strtoull(buf, NULL, 0);
+
+	close(fd);
+	return FPGA_OK;
+
+out_close:
+	close(fd);
+	return FPGA_NOT_FOUND;
+}
+
+
+fpga_result get_fpga_sbdf(fpga_token token,
+			uint16_t *segment,
+			uint8_t *bus,
+			uint8_t *device,
+			uint8_t *function)
+
+{
+	fpga_result res = FPGA_OK;
+	fpga_properties props = NULL;
+
+	if (!segment || !bus ||
+		!device || !function) {
+		OPAE_ERR("Invalid input parameters");
+		return FPGA_INVALID_PARAM;
+	}
+	res = fpgaGetProperties(token, &props);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get properties ");
+		return res;
+	}
+
+	res = fpgaPropertiesGetBus(props, bus);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get bus ");
+		return res;
+	}
+
+	res = fpgaPropertiesGetSegment(props, segment);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get Segment ");
+		return res;
+	}
+	res = fpgaPropertiesGetDevice(props, device);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get Device ");
+		return res;
+	}
+
+	res = fpgaPropertiesGetFunction(props, function);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get Function ");
+		return res;
+	}
+
+	return res;
+}

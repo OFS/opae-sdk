@@ -70,8 +70,6 @@
 #define FPGA_BBS_VER_MINOR(i) (((i) >> 52) & 0xf)
 #define FPGA_BBS_VER_PATCH(i) (((i) >> 48) & 0xf)
 
-
-
 #define ETH_GROUP_FEATURE_ID                  0x10
 #define MAX_LINE_LENGTH                       80
 #define MAX_NUM_LINES                         0x500
@@ -79,6 +77,11 @@
 #define MAX10_PKVL_LINK_STATUS                0x164
 #define MAX10_PKVL1_VAR                       0x254
 #define MAX10_PKVL2_VAR                       0x258
+
+#define FEATURE_DEV "/sys/bus/pci/devices/%x*:%x*:%x*.%x*/fpga_region"\
+					"/region*/dfl-fme*/dfl_dev*"
+#define FEATURE_DEV_SPI "/sys/bus/pci/devices/%x*:%x*:%x*.%x*/fpga_region"\
+					"/region*/dfl-fme*/dfl_dev*/*spi*/spi_master/spi*/spi*"
 
 // Eth group CSR
 struct eth_group_info {
@@ -270,93 +273,142 @@ fpga_result print_board_info(fpga_token token)
 	return res;
 }
 
-//enum eth group feature dfl_dev*
 fpga_result enum_eth_group_feature(fpga_token token,
-				   char eth_feature[ETH_GROUP_COUNT][SYSFS_MAX_SIZE],
-				   uint32_t size)
+			char eth_feature[ETH_GROUP_COUNT][SYSFS_MAX_SIZE],
+			uint32_t size)
 {
-	fpga_result res          = FPGA_OK;
-	uint32_t i               = 0;
-	uint32_t index           = 0;
-	uint64_t value           = 0;
-	char sysfs_path[SYSFS_MAX_SIZE]     = { 0 };
+	fpga_result res                    = FPGA_OK;
+	char sysfs_path[SYSFS_MAX_SIZE]    = { 0 };
+	uint32_t index                     = 0;
+	uint8_t bus                        = (uint8_t)-1;
+	uint16_t segment                   = (uint16_t)-1;
+	uint8_t device                     = (uint8_t)-1;
+	uint8_t function                   = (uint8_t)-1;
+	size_t i                           = 0;
+	uint64_t value                     = 0;
+	int gres                           = 0;
+	glob_t pglob;
 
-	for (i = 0; i < MAX_FPGA_FEATURE_COUNT; i++) {
-
-		value = 0;
-		if (snprintf(sysfs_path, SYSFS_MAX_SIZE,
-				"dfl_dev.%d/feature_id", i) < 0) {
-			OPAE_ERR("snprintf buffer overflow");
-			return FPGA_EXCEPTION;
-		}
-
-		res = read_sysfs_int64(token, sysfs_path, &value);
-		if (res != FPGA_OK) {
-			OPAE_MSG("Failed to read feature id");
-			continue;
-		}
-
-		if (value == ETH_GROUP_FEATURE_ID) {
-			if (snprintf(eth_feature[index], SYSFS_MAX_SIZE,
-				"dfl_dev.%d", i) < 0) {
-				OPAE_ERR("snprintf buffer overflow");
-				return FPGA_EXCEPTION;
-			}
-			index = index + 1;
-		}
-
-		if (index >= size) {
-			break;
-		}
+	res = get_fpga_sbdf(token, &segment, &bus, &device, &function);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get sbdf ");
+		return res;
 	}
 
-	if (index  < size) {
-		OPAE_ERR("Not found eth group Feature");
+	if (snprintf(sysfs_path, sizeof(sysfs_path),
+					FEATURE_DEV,
+					segment, bus, device, function) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
+
+	gres = glob(sysfs_path, GLOB_NOSORT, NULL, &pglob);
+	if (gres) {
+		OPAE_ERR("Failed pattern match %s: %s", sysfs_path, strerror(errno));
+		globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
 
+	// for loop
+	for (i = 0; i < pglob.gl_pathc; i++) {
+		memset(sysfs_path, 0, sizeof(sysfs_path));
+		if (snprintf(sysfs_path, sizeof(sysfs_path),
+			"%s/feature_id", pglob.gl_pathv[i]) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+			res = FPGA_EXCEPTION;
+			goto out;
+		}
+
+		res = sysfs_read_u64(sysfs_path, &value);
+		if (res != FPGA_OK) {
+			OPAE_MSG("Failed to read sysfs value");
+			goto out;
+		}
+
+		if (value == ETH_GROUP_FEATURE_ID) {
+			char *p = strstr(pglob.gl_pathv[i], "dfl_dev");
+			if (p == NULL) {
+				res = FPGA_NOT_FOUND;
+				goto out;
+			}
+
+			if (snprintf(eth_feature[index], SYSFS_MAX_SIZE,
+				"%s", p) < 0) {
+				OPAE_ERR("snprintf buffer overflow");
+				res = FPGA_EXCEPTION;
+				goto out;
+			}
+			index = index + 1;
+			if (index >= size) {
+				goto out;
+			}
+		}
+	}
+
+out:
+	globfree(&pglob);
 	return res;
 }
 
+
 //enum pkvl regmap path
 // /sys/kernel/debug/regmap/spi%d.0/registers
-fpga_result enum_pkvl_sysfs_path(fpga_token token, char *pkvl_path)
+fpga_result enum_pkvl_sysfs_path(fpga_token token,
+			char *pkvl_path)
 {
-	char sysfs_path[SYSFS_MAX_SIZE] = { 0 };
-	fpga_result res                 = FPGA_OK;
-	uint32_t i                      = 0;
-	fpga_object fpga_object;
 
-	for (i = 0; i < MAX_FPGA_FEATURE_COUNT; i++) {
+	char sysfs_path[SYSFS_MAX_SIZE]    = { 0 };
+	fpga_result res                    = FPGA_OK;
+	uint8_t bus                        = (uint8_t)-1;
+	uint16_t segment                   = (uint16_t)-1;
+	uint8_t device                     = (uint8_t)-1;
+	uint8_t function                   = (uint8_t)-1;
+	int gres                           = 0;
+	glob_t pglob;
 
-		if (snprintf(sysfs_path, SYSFS_MAX_SIZE,
-			"dfl*/*spi*/spi_master/spi*/spi%d*/", i) < 0) {
-			OPAE_ERR("snprintf buffer overflow");
-			return FPGA_EXCEPTION;
-		}
+	res = get_fpga_sbdf(token, &segment, &bus, &device, &function);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get sbdf ");
+		return res;
+	}
 
-		res = fpgaTokenGetObject(token, sysfs_path,
-						&fpga_object, FPGA_OBJECT_GLOB);
-		if (res != FPGA_OK) {
-			OPAE_MSG("Failed to get token Object");
-			continue;
-		}
+	if (snprintf(sysfs_path, sizeof(sysfs_path),
+			FEATURE_DEV_SPI,
+			segment, bus, device, function) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
 
-		res = fpgaDestroyObject(&fpga_object);
-		if (res != FPGA_OK) {
-			OPAE_ERR("Failed to Destroy Object");
+	gres = glob(sysfs_path, GLOB_NOSORT, NULL, &pglob);
+	if (gres) {
+		OPAE_ERR("Failed pattern match %s: %s", sysfs_path, strerror(errno));
+		globfree(&pglob);
+		return FPGA_NOT_FOUND;
+	}
+
+	if (pglob.gl_pathc == 1) {
+
+		char *p = strrchr(pglob.gl_pathv[0], '/');
+		//printf("p==========>%s\n", p+1);
+		if (p == NULL) {
+			res = FPGA_INVALID_PARAM;
+			goto out;
 		}
 
 		if (snprintf(pkvl_path, SYSFS_MAX_SIZE,
-					"/sys/kernel/debug/regmap/spi%d.0/registers", i) < 0) {
+			"/sys/kernel/debug/regmap/%s/registers", p+1) < 0) {
 			OPAE_ERR("snprintf buffer overflow");
-			return FPGA_EXCEPTION;
+			res = FPGA_EXCEPTION;
+			goto out;
 		}
-
-		return res;
-
+	} else {
+		res = FPGA_NOT_FOUND;
+		goto out;
 	}
-	return FPGA_NOT_FOUND;
+
+out:
+	globfree(&pglob);
+	return res;
 }
 
 //enum pkvl regmap path
@@ -376,7 +428,7 @@ fpga_result read_regmap(char *sysfs_path,
 		return FPGA_EXCEPTION;
 	}
 
-	fp = fopen(sysfs_path, "rb");
+	fp = fopen(sysfs_path, "r");
 	if (!fp) {
 		OPAE_ERR("Error opening:%s  %s", sysfs_path, strerror(errno));
 		return FPGA_EXCEPTION;
@@ -549,7 +601,6 @@ fpga_result print_phy_info(fpga_token token)
 	}
 
 	for (i = 0; i < ETH_GROUP_COUNT; i++) {
-
 		res = opae_uio_open(&uio, eth_feature_dev[i]);
 		if (res) {
 			OPAE_ERR("Failed to open uio");
@@ -599,7 +650,6 @@ fpga_result print_sec_info(fpga_token token)
 {
 	return print_sec_common_info(token);
 }
-
 
 // print fme verbose info
 fpga_result print_fme_verbose_info(fpga_token token)
