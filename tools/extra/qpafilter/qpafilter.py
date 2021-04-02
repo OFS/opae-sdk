@@ -275,7 +275,7 @@ def read_qpa(in_file, temp_overrides):
             outer_d[category].append(inner_d)
 
     for override in override_d:
-        LOG.warning(f'Temperature override for {override} unused.')
+        LOG.warning(f'Temperature override for "{override}" unused.')
         for possible in difflib.get_close_matches(override, sensors_list):
             LOG.warning(f'Did you mean "{possible}"?')
 
