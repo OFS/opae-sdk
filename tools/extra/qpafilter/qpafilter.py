@@ -246,8 +246,8 @@ def read_qpa(in_file, temp_overrides):
         except ValueError:
             LOG.warning(f'{override} is not a valid temperature '
                         f'override. Skipping')
-            continue         # percentage, was it applied?
-        override_d[olabel] = [opercentage, False]
+            continue
+        override_d[olabel] = opercentage
 
     category_re = re.compile(CATEGORY_PATTERN, re.DOTALL | re.UNICODE)
     item_re = re.compile(DATA_ITEM_PATTERN, re.UNICODE)
@@ -265,16 +265,14 @@ def read_qpa(in_file, temp_overrides):
                        'warning': 0.0}  # placeholder
 
             if label in override_d:
-                override_d[label][1] = True
-                inner_d['override'] = override_d[label][0]
+                inner_d['override'] = override_d.pop(label)
                 LOG.info(f'Setting override for \'{label}\' '
                          f'to {inner_d["override"]}%')
 
             outer_d[category].append(inner_d)
 
     for override in override_d:
-        if not override_d[override][1]:
-            LOG.warning(f'Temperature override for {override} unused.')
+        LOG.warning(f'Temperature override for {override} unused.')
 
     return outer_d
 
