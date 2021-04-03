@@ -167,8 +167,7 @@ class blob_reader:
                              self.sensor_map,
                              self.threshold_map)
 
-    @property
-    def valid(self):
+    def __bool__(self):
         """Return indication of whether the input blob contains
            valid start and end markers."""
         return (self.start_marker_index != -1 and
@@ -375,12 +374,12 @@ def dump_blob(args):
        human-readable output."""
     reader = blob_reader(args.file, args.sensor_map, args.threshold_map)
 
-    if not reader.valid:
+    if reader:
+        for sensor, threshold, value in reader:
+            print(f'{sensor} : {threshold} : {value}')
+    else:
         LOG.error('No valid start/end marker found in input.')
         sys.exit(1)
-
-    for sensor, threshold, value in reader:
-        print(f'{sensor} : {threshold} : {value}')
 
 
 def read_sensors(fname):
