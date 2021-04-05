@@ -43,13 +43,13 @@
 TEST(ofs_cpeng, wait_for_hps_ready)
 {
   ofs_cpeng otest;
-  CSR_HPS2HOST_RDY_STATUS ready;
-  otest.r_CSR_HPS2HOST_RDY_STATUS = &ready;
+  CSR_HPS2HOST_RSP_SHDW ready;
+  otest.r_CSR_HPS2HOST_RSP_SHDW = &ready;
 
-  ready.f_HPS_RDY = 0;
+  ready.f_HPS_RDY_SHDW = 0;
   EXPECT_EQ(ofs_cpeng_wait_for_hps_ready(&otest, 1000), 1);
 
-  ready.f_HPS_RDY = 1;
+  ready.f_HPS_RDY_SHDW = 1;
   EXPECT_EQ(ofs_cpeng_wait_for_hps_ready(&otest, 1000), 0);
 }
 
