@@ -170,8 +170,19 @@ class blob_reader:
     def __bool__(self):
         """Return indication of whether the input blob contains
            valid start and end markers."""
-        return (self.start_marker_index != -1 and
-                self.end_marker_index != -1)
+        if (self.start_marker_index == -1 or self.end_marker_index == -1):
+            return False
+
+        if (self.end_marker_index < (self.start_marker_index +
+            len(BLOB_START_MARKER))):
+            return False
+
+        first_entry_index = self.start_marker_index + BLOB_STRUCT_SIZE
+        if ((self.end_marker_index - first_entry_index) %
+            BLOB_STRUCT_SIZE) != 0:
+            return False
+
+        return True
 
 
 class temp_verifier:
@@ -378,7 +389,7 @@ def dump_blob(args):
         for sensor, threshold, value in reader:
             print(f'{sensor} : {threshold} : {value}')
     else:
-        LOG.error('No valid start/end marker found in input.')
+        LOG.error(f'{args.file.name} is not a valid blob.')
         sys.exit(1)
 
 
