@@ -118,8 +118,7 @@ using qpafilter create ...
 
 ### Mode 2: dump OPTIONAL ARGUMENTS ###
 `-o,--output OUTPUT`
-specify the output binary file name. The default OUTPUT value is
-qpafilter.blob.
+specify the output binary file name.
 
 `-F,--format (csv|json|yaml)`
 
