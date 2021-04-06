@@ -118,7 +118,7 @@ using qpafilter create ...
 
 ### Mode 2: dump OPTIONAL ARGUMENTS ###
 `-o,--output OUTPUT`
-specify the output binary file name.
+specify the output human-readable file name.
 
 `-F,--format (csv|json|yaml)`
 
