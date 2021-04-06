@@ -30,6 +30,7 @@
 import argparse
 from collections import defaultdict
 import difflib
+import json
 import logging
 import re
 import struct
@@ -385,12 +386,20 @@ def dump_blob(args):
        human-readable output."""
     reader = blob_reader(args.file, args.sensor_map, args.threshold_map)
 
-    if reader:
-        for sensor, threshold, value in reader:
-            print(f'{sensor} : {threshold} : {value}')
-    else:
+    if not reader:
         LOG.error(f'{args.file.name} is not a valid blob.')
         sys.exit(1)
+
+    headers = ('sensor', 'threshold', 'value')
+    data = [dict(zip(headers, values)) for values in reader]
+
+    if args.format == 'json':
+        json.dump(data, args.output, indent=4, sort_keys=True)
+    elif args.format == 'yaml':
+        args.output.write(yaml.dump(data))
+    elif args.format == 'csv':
+        for d in data:
+            args.output.write(f"{','.join(map(str, d.values()))}\n")
 
 
 def read_sensors(fname):
@@ -455,6 +464,14 @@ def parse_args():
 
     dump.add_argument('file', type=argparse.FileType('rb'), nargs='?',
                       help='Input blob file')
+
+    dump.add_argument('-o', '--output', type=argparse.FileType('w'),
+                      default=sys.stdout, nargs='?',
+                      help='Output text file (default=stdout)')
+
+    dump.add_argument('-F', '--format',
+                      choices=['csv', 'json', 'yaml'],
+                      default='csv', help='select output format')
 
     dump.set_defaults(func=dump_blob)
 
