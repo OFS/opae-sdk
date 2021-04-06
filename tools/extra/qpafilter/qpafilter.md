@@ -20,16 +20,16 @@ Analyzer. Following is a brief example input file. The temperature
 sensor label is followed by the temperature sensor Upper Fatal
 value and units.
 
-+-----------------------------------------------------------+
-; Temperature and Cooling                                   ;
-+-----------------------------------------------+-----------+
-; FPGA Core dts01 Temperature                   ; 55.0 °C  
-; FPGA Core dts11 Temperature                   ; 54.5 °C  
-
-...
-
-; HSSI_0_1 dts4 Temperature                     ; 90.7 °C  
-+-----------------------------------------------+-----------+
++-----------------------------------------------------------+<br>
+; Temperature and Cooling                                   ;<br>
++-----------------------------------------------+-----------+<br>
+; FPGA Core dts01 Temperature                   ; 55.0 °<br>
+; FPGA Core dts11 Temperature                   ; 54.5 °<br>
+<br>
+...<br>
+<br>
+; HSSI_0_1 dts4 Temperature                     ; 90.7 °<br>
++-----------------------------------------------+-----------+<br>
 
 ### Mode 1: create POSITIONAL ARGUMENTS ###
 `create`
@@ -78,12 +78,12 @@ specify the name of the input sensors map file. The default value
 is n5010_bmc_sensors.yml. This file contains the mapping from
 sensor labels to sensor IDs. A sample input follows:
 
-FPGA Core dts01 Temperature: 8
-FPGA Core dts11 Temperature: 9
-
-...
-
-HSSI_0_1 dts4 Temperature: 5
+FPGA Core dts01 Temperature: 8<br>
+FPGA Core dts11 Temperature: 9<br>
+<br>
+...<br>
+<br>
+HSSI_0_1 dts4 Temperature: 5<br>
 
 ### Mode 1: examples ###
 
@@ -131,12 +131,12 @@ specify the name of the input sensors map file. The default value
 is n5010_bmc_sensors.yml. This file contains the mapping from
 sensor labels to sensor IDs. A sample input follows:
 
-FPGA Core dts01 Temperature: 8
-FPGA Core dts11 Temperature: 9
-
-...
-
-HSSI_0_1 dts4 Temperature: 5
+FPGA Core dts01 Temperature: 8<br>
+FPGA Core dts11 Temperature: 9<br>
+<br>
+...<br>
+<br>
+HSSI_0_1 dts4 Temperature: 5<br>
 
 ### Mode 2: examples ###
 
