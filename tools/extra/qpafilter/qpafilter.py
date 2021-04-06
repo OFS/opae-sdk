@@ -120,12 +120,13 @@ class blob_reader:
     """Given an input file pointer, a sensor map, and a threshold map,
        provide an iterator interface to reading the raw sensor data
        items sequentially."""
-    def __init__(self, blobfp, sensor_map, threshold_map):
+    def __init__(self, blobfp, sensor_map, threshold_map, formatter):
         self.blob = blobfp.read()
         self.start_marker_index = self.blob.find(BLOB_START_MARKER)
         self.end_marker_index = self.blob.find(BLOB_END_MARKER)
         self.sensor_map = sensor_map
         self.threshold_map = threshold_map
+        self.formatter = formatter
 
     class Iterator:
         """Iterate over an in-memory blob. Calculate the number of
@@ -137,7 +138,8 @@ class blob_reader:
                      start_marker_index,
                      end_marker_index,
                      sensor_map,
-                     threshold_map):
+                     threshold_map,
+                     formatter):
             self.blob = blob
             self.start_marker_index = start_marker_index
             self.first_entry_index = self.start_marker_index + BLOB_STRUCT_SIZE
@@ -150,22 +152,38 @@ class blob_reader:
                 self.blob[self.start_marker_index + len(BLOB_START_MARKER):])
             self.sensor_map = sensor_map
             self.threshold_map = threshold_map
+            self.formatter = formatter
 
         def __next__(self):
             if self.entry == self.num_entries:
                 raise StopIteration
+
+            buf = ''
+            if self.entry == 0:
+                buf = self.formatter.header()
+
             self.entry += 1
             sensor_id, threshold_id, raw_value = next(self.struct_iter)
-            return (self.sensor_map[sensor_id],
-                    self.threshold_map[threshold_id],
-                    raw_value / 2)
+
+            buf += self.formatter.sensor(self.sensor_map[sensor_id],
+                                         self.threshold_map[threshold_id],
+                                         raw_value / 2)
+
+            if self.entry == self.num_entries:
+                buf += self.formatter.sensor_separator(True)
+                buf += self.formatter.footer()
+            else:
+                buf += self.formatter.sensor_separator(False)
+
+            return buf
 
     def __iter__(self):
         return self.Iterator(self.blob,
                              self.start_marker_index,
                              self.end_marker_index,
                              self.sensor_map,
-                             self.threshold_map)
+                             self.threshold_map,
+                             self.formatter)
 
     def __bool__(self):
         """Return indication of whether the input blob contains
@@ -288,6 +306,73 @@ def get_filter(category):
     return filters[category]
 
 
+class sensor_formatter:
+    def __init__(self, outfile):
+        self.outfile = outfile
+
+    def emit(self, x):
+        print(x, file=self.outfile, end='')
+
+    def sensor_separator(self, end):
+        return ''
+
+
+class csv_sensor_formatter(sensor_formatter):
+    def header(self):
+        return ''
+
+    def sensor_separator(self, end):
+        return '\n'
+
+    def sensor(self, sensor, threshold, value):
+        return f'{sensor},{threshold},{value}'
+
+    def footer(self):
+        return ''
+
+
+class json_sensor_formatter(sensor_formatter):
+    def header(self):
+        return ('{\n' +
+                '\t"sensors": {\n' +
+                '\t\t[\n')
+
+    def sensor_separator(self, end):
+        s = '\n' if end else ',\n'
+        return s
+
+    def sensor(self, sensor, threshold, value):
+        return f'\t\t\t["{sensor}", "{threshold}", "{value}"]'
+
+    def footer(self):
+        return ('\t\t]\n' +
+                '\t}\n' +
+                '}\n')
+
+
+class yaml_sensor_formatter(sensor_formatter):
+    def header(self):
+        return 'sensors:\n'
+
+    def sensor_separator(self, end):
+        return '\n'
+
+    def sensor(self, sensor, threshold, value):
+        return (f' - name: {sensor}\n' +
+                f'   threshold: {threshold}\n' +
+                f'   value: {value}')
+
+    def footer(self):
+        return ''
+
+
+def get_formatter(name):
+    formatters = {'csv': csv_sensor_formatter,
+                  'json': json_sensor_formatter,
+                  'yaml': yaml_sensor_formatter}
+    return formatters[name]
+
+
 class two_way_map:
     """Given a dict of strings to integers, provide the ability
        to perform a 2-way translation. That is, given a string
@@ -383,14 +468,26 @@ def create_blob_from_qpa(args):
 def dump_blob(args):
     """Given the binary from a previous 'create' command, print
        human-readable output."""
-    reader = blob_reader(args.file, args.sensor_map, args.threshold_map)
 
-    if reader:
-        for sensor, threshold, value in reader:
-            print(f'{sensor} : {threshold} : {value}')
-    else:
+    outfile = (sys.stdout if args.output == 'stdout'
+               else open(args.output, 'w'))
+
+    formatter = get_formatter(args.format)(outfile)
+
+    reader = blob_reader(args.file,
+                         args.sensor_map,
+                         args.threshold_map,
+                         formatter)
+
+    if not reader:
         LOG.error(f'{args.file.name} is not a valid blob.')
         sys.exit(1)
+
+    for entry in reader:
+        formatter.emit(entry)
+
+    if args.output != 'stdout':
+        outfile.close()
 
 
 def read_sensors(fname):
@@ -455,6 +552,13 @@ def parse_args():
 
     dump.add_argument('file', type=argparse.FileType('rb'), nargs='?',
                       help='Input blob file')
+
+    dump.add_argument('-o', '--output', default='stdout',
+                      help='Output text file (default=stdout)')
+
+    dump.add_argument('-F', '--format',
+                      choices=['csv', 'json', 'yaml'],
+                      default='csv', help='select output format')
 
     dump.set_defaults(func=dump_blob)
 
