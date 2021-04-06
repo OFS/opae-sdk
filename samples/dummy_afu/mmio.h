@@ -117,15 +117,15 @@ public:
   {
     app->add_option("-c,--count",
                     count_,
-                    "number of repititions")->default_val(1);
+                    "number of repititions")->default_str(std::to_string(1));
     app->add_option("-s,--scratchpad-index",
                     sp_index_,
                     "index in the scratchpad array")->check(CLI::Range(0, 63));
     app->add_flag("--perf", perf_, "get mmio performace numbers");
     auto opt = app->add_option("-w,--width", width_, "mmio width for mmio performance stats");
-    opt->check(CLI::IsMember({8, 16, 32, 64}))->default_val(64);
+    opt->check(CLI::IsMember({8, 16, 32, 64}))->default_str(std::to_string(64));
     opt = app->add_option("--op", op_, "operation for mmio performance stats");
-    opt->check(CLI::IsMember({"rd", "wr"}))->default_val("rd");
+    opt->check(CLI::IsMember({"rd", "wr"}))->default_str("rd");
   }
 
   virtual int run(test_afu *afu, CLI::App *app)

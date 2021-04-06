@@ -304,20 +304,20 @@ public:
   {
     // Mode
     app_.add_option("-m,--mode", he_modes_, "host exerciser mode {lpbk,read, write, trput}")
-      ->transform(CLI::CheckedTransformer(he_modes))->default_val("lpbk");
+      ->transform(CLI::CheckedTransformer(he_modes))->default_str("lpbk");
 
     // Cache line
     app_.add_option("--cls", he_req_cls_len_, "number of CLs per request{cl_1, cl_2, cl_3, cl_4}")
-       ->transform(CLI::CheckedTransformer(he_req_cls_len))->default_val("cl_1");
+       ->transform(CLI::CheckedTransformer(he_req_cls_len))->default_str("cl_1");
 
     // Configures test rollover or test termination
-    app_.add_option("--continuousmode", he_continuousmode_, "test rollover or test termination")->default_val(false);
+    app_.add_option("--continuousmode", he_continuousmode_, "test rollover or test termination")->default_str(std::to_string(false));
 
     // Delay
-    app_.add_option("-d,--delay", he_delay_, "Enables random delay insertion between requests")->default_val(false);
+    app_.add_option("-d,--delay", he_delay_, "Enables random delay insertion between requests")->default_str(std::to_string(false));
 
     // Configure interleave requests in Throughput mode
-    app_.add_option("--interleave", he_interleave_, interleave_help)->default_val(0);
+    app_.add_option("--interleave", he_interleave_, interleave_help)->default_str(std::to_string(0));
 
   }
 

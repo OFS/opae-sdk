@@ -69,12 +69,12 @@ public:
       ->default_val("hps.img")
       ->check(CLI::ExistingFile);
     app->add_option("-d,--destination", destination_offset_, "HPS DDR Offset")
-      ->default_val(destination_offset_);
+      ->default_str(std::to_string(destination_offset_));
     app->add_option("-t,--timeout", timeout_usec_, "Timeout")
-      ->default_val(timeout_usec_)
+      ->default_str(std::to_string(timeout_usec_))
       ->transform(CLI::AsNumberWithUnit(units));
     app->add_option("-c,--chunk", chunk_, "Chunk size. 0 indicates no chunks")
-      ->default_val(chunk_);
+      ->default_str(std::to_string(chunk_));
   }
 
   virtual int run(opae::afu_test::afu *afu, __attribute__((unused)) CLI::App *app)
