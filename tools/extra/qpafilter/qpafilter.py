@@ -28,13 +28,15 @@
 """ Convert QPA text file to blob. """
 
 import argparse
-from collections import defaultdict
 import difflib
+import io
 import logging
 import re
 import struct
 import sys
 import yaml
+import zlib
+from collections import defaultdict
 
 SCRIPT_VERSION = '1.0.0'
 
@@ -48,9 +50,8 @@ TEMPERATURE_CATEGORY = 'Temperature and Cooling'
 DEGREES_C = '\u00b0C'
 DEGREES_c = '\u00b0c'
 
-BLOB_START_MARKER = b'\xff\xa5\x5a\xff\xff\xa5\x5a\xff\xff\xa5\x5a\xff'
-BLOB_END_MARKER = b'\xfe\xa5\x5a\xef\xfe\xa5\x5a\xef\xfe\xa5\x5a\xef'
-
+BLOB_MAGIC = b'\xA7\xCB\xEF\x29'
+BLOB_HEADER_SIZE = 20
 # TODO: endian-ness?
 BLOB_STRUCT_FORMAT = '<LLL'
 BLOB_STRUCT_SIZE = 12
@@ -69,6 +70,8 @@ class blob_writer:
             <for each sensor>
                 wr.writer_sensor(sensor)
     """
+    version = 0
+
     def __init__(self, fname, sensor_map, threshold_map):
         self.fname = fname
         self.sensor_map = sensor_map
@@ -76,24 +79,23 @@ class blob_writer:
         self.outfile = None
 
     def __enter__(self):
-        self.outfile = open(self.fname, 'wb')
-        self.write_start_marker()
+        self.outbytes = io.BytesIO()
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb):
         if not exc_type:
-            self.write_end_marker()
-            self.outfile.close()
+            hdr = struct.pack('<IIII',
+                              BLOB_MAGIC,
+                              len(self.outbytes),
+                              self.version,
+                              zlib.crc32(self.outbytes.getbuffer()))
+            with open(self.fname, 'wb') as fp:
+                fp.write(hdr)
+                fp.write(zlib.crc32(hdr))
+                fp.write(self.outbytes.getbuffer())
+
             return True
         return False
-
-    def write_start_marker(self):
-        """Write the start of data marker."""
-        self.outfile.write(BLOB_START_MARKER)
-
-    def write_end_marker(self):
-        """Write the end of data marker."""
-        self.outfile.write(BLOB_END_MARKER)
 
     def write_sensor(self, sensor):
         """Write the Upper Warning and Upper Fatal blob
@@ -106,24 +108,26 @@ class blob_writer:
         upper_warning_id = self.threshold_map['Upper Warning']
         upper_fatal_id = self.threshold_map['Upper Fatal']
 
-        self.outfile.write(struct.pack(BLOB_STRUCT_FORMAT,
-                                       sensor_id,
-                                       upper_warning_id,
-                                       warning))
-        self.outfile.write(struct.pack(BLOB_STRUCT_FORMAT,
-                                       sensor_id,
-                                       upper_fatal_id,
-                                       fatal))
+        self.outbytes.write(struct.pack(BLOB_STRUCT_FORMAT,
+                                        sensor_id,
+                                        upper_warning_id,
+                                        warning))
+        self.outbytes.write(struct.pack(BLOB_STRUCT_FORMAT,
+                                        sensor_id,
+                                        upper_fatal_id,
+                                        fatal))
 
 
 class blob_reader:
     """Given an input file pointer, a sensor map, and a threshold map,
        provide an iterator interface to reading the raw sensor data
        items sequentially."""
+
+    version = 0
+
     def __init__(self, blobfp, sensor_map, threshold_map):
-        self.blob = blobfp.read()
-        self.start_marker_index = self.blob.find(BLOB_START_MARKER)
-        self.end_marker_index = self.blob.find(BLOB_END_MARKER)
+        self.blob_hdr = blobfp.read(BLOB_HEADER_SIZE)
+        self.blob_data = blobfp.read()
         self.sensor_map = sensor_map
         self.threshold_map = threshold_map
 
@@ -132,6 +136,7 @@ class blob_reader:
            sensor entries by subtracting the offset of the first entry
            from the offset of the end marker. Iterate and decode each
            sensor entry, changing the raw data to human-readable output."""
+
         def __init__(self,
                      blob,
                      start_marker_index,
@@ -139,47 +144,41 @@ class blob_reader:
                      sensor_map,
                      threshold_map):
             self.blob = blob
-            self.start_marker_index = start_marker_index
-            self.first_entry_index = self.start_marker_index + BLOB_STRUCT_SIZE
-            self.end_marker_index = end_marker_index
-            self.num_entries = ((self.end_marker_index -
-                                 self.first_entry_index) / BLOB_STRUCT_SIZE)
-            self.entry = 0
-            self.struct_iter = struct.iter_unpack(
-                BLOB_STRUCT_FORMAT,
-                self.blob[self.start_marker_index + len(BLOB_START_MARKER):])
+            self.first_entry_index = start_marker_index
+            self.struct_iter = struct.iter_unpack(BLOB_STRUCT_FORMAT,
+                                                  self.blob_data)
             self.sensor_map = sensor_map
             self.threshold_map = threshold_map
 
         def __next__(self):
-            if self.entry == self.num_entries:
-                raise StopIteration
-            self.entry += 1
-            sensor_id, threshold_id, raw_value = next(self.struct_iter)
-            return (self.sensor_map[sensor_id],
-                    self.threshold_map[threshold_id],
-                    raw_value / 2)
+            try:
+                sensor_id, threshold_id, raw_value = next(self.struct_iter)
+            except StopIteration:
+                raise
+            else:
+                return (self.sensor_map[sensor_id],
+                        self.threshold_map[threshold_id],
+                        raw_value / 2)
 
     def __iter__(self):
-        return self.Iterator(self.blob,
-                             self.start_marker_index,
-                             self.end_marker_index,
+        return self.Iterator(self.blob_data,
+                             0,
+                             self.blob_hdr[2],
                              self.sensor_map,
                              self.threshold_map)
 
     def __bool__(self):
         """Return indication of whether the input blob contains
            valid start and end markers."""
-        if (self.start_marker_index == -1 or self.end_marker_index == -1):
+        if self.blob_hdr[0] != BLOB_MAGIC:
             return False
-
-        if (self.end_marker_index < (self.start_marker_index +
-            len(BLOB_START_MARKER))):
+        if self.blob_hdr[1] != self.version:
             return False
-
-        first_entry_index = self.start_marker_index + BLOB_STRUCT_SIZE
-        if ((self.end_marker_index - first_entry_index) %
-            BLOB_STRUCT_SIZE) != 0:
+        if self.blob_hdr[2] != len(self.blob_data):
+            return False
+        if self.blob_hdr[3] != zlib.crc32(self.blob_data):
+            return False
+        if self.blob_hdr[4] != zlib.crc32(self.blob_hdr[:3]):
             return False
 
         return True
@@ -187,6 +186,7 @@ class blob_reader:
 
 class temp_verifier:
     """Verify temperature sensor settings."""
+
     def __init__(self, args):
         self.args = args
 
@@ -237,6 +237,7 @@ def get_verifier(category):
 class temp_filter:
     """Calculate Warning Temperature thresholds, given the Fatal
        value and supporting ratio."""
+
     def __init__(self, args):
         self.args = args
 
@@ -293,6 +294,7 @@ class two_way_map:
        to perform a 2-way translation. That is, given a string
        key, retrieve the integer value. Given an integer key,
        return the string value."""
+
     def __init__(self, str_to_int):
         self.str_to_int = str_to_int
         self.int_to_str = {v: k for k, v in str_to_int.items()}
