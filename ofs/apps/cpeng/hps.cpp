@@ -66,7 +66,7 @@ public:
   {
     std::map<std::string, uint32_t> units = {{"s", 1E6}, {"ms", 1E3}, {"us", 1}};
     app->add_option("-f,--filename", filename_, "Image file to copy")
-      ->default_val("hps.img")
+      ->default_val(filename_)
       ->check(CLI::ExistingFile);
     app->add_option("-d,--destination", destination_offset_, "HPS DDR Offset")
       ->default_str(std::to_string(destination_offset_));
