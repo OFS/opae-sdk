@@ -39,12 +39,12 @@ value and units.
 +-----------------------------------------------------------+<br>
 ; Temperature and Cooling                                   ;<br>
 +-----------------------------------------------+-----------+<br>
-; FPGA Core dts01 Temperature                   ; 55.0 °C<br>
-; FPGA Core dts11 Temperature                   ; 54.5 °C<br>
+; FPGA Core dts01 Temperature                   ; 55.0 °C;<br>
+; FPGA Core dts11 Temperature                   ; 54.5 °C;<br>
 <br>
 ...<br>
 <br>
-; HSSI_0_1 dts4 Temperature                     ; 90.7 °C<br>
+; HSSI_0_1 dts4 Temperature                     ; 90.7 °C;<br>
 +-----------------------------------------------+-----------+<br>
 
 #### `create` POSITIONAL ARGUMENTS ####
