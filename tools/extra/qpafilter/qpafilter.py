@@ -139,30 +139,31 @@ class blob_reader:
 
         def __init__(self,
                      blob,
-                     start_marker_index,
-                     end_marker_index,
+                     data_size,
                      sensor_map,
                      threshold_map):
             self.blob = blob
-            self.first_entry_index = start_marker_index
+            self.size = data_size
+            self.parsed = 0
             self.struct_iter = struct.iter_unpack(BLOB_STRUCT_FORMAT,
                                                   self.blob_data)
             self.sensor_map = sensor_map
             self.threshold_map = threshold_map
 
         def __next__(self):
-            try:
-                sensor_id, threshold_id, raw_value = next(self.struct_iter)
-            except StopIteration:
-                raise
-            else:
-                return (self.sensor_map[sensor_id],
-                        self.threshold_map[threshold_id],
-                        raw_value / 2)
+            if self.pared == self.size:
+                raise StopIteration
+            sensor_id, threshold_id, raw_value = next(self.struct_iter)
+
+            sensor_name = self.sensor_map[sensor_id]
+            threshol_name = self.threshold_map[threshold_id]
+            parsed_value = raw_value/2
+            self.parsed += BLOB_STRUCT_SIZE
+
+            return (sensor_name, threshol_name, parsed_value)
 
     def __iter__(self):
         return self.Iterator(self.blob_data,
-                             0,
                              self.blob_hdr[2],
                              self.sensor_map,
                              self.threshold_map)
