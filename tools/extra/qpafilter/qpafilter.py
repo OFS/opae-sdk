@@ -466,7 +466,7 @@ def parse_args():
                       help='Input blob file')
 
     dump.add_argument('-o', '--output', type=argparse.FileType('w'),
-                      default=sys.stdout, nargs='?',
+                      default=sys.stdout,
                       help='Output text file (default=stdout)')
 
     dump.add_argument('-F', '--format',
