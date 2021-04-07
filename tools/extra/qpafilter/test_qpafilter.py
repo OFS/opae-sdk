@@ -108,6 +108,38 @@ def test_blob_writer():
     with open('/tmp/blob_written.bin','rb') as fIn:
         data = fIn.read()
         assert data == qpafilter.BLOB_START_MARKER + qpafilter.BLOB_END_MARKER
-        
-        
+       
+def test_get_verifier(): 
+    category = "Temperature and Cooling"
+    actual = qpafilter.get_verifier(category)
+    assert actual == qpafilter.temp_verifier
+    # TODO negative case: pass in non existing category... check for key error/exception?
 
+def test_read_sensors():
+    mock_open = mock.mock_open(read_data='Sample sensor 1: 8')
+    with mock.patch('builtins.open', mock_open):
+        result = qpafilter.read_sensors("Sample_thermal.ini")
+        assert result.str_to_int == {"Sample sensor 1": 8}
+        assert result.int_to_str == {8:"Sample sensor 1"}
+
+def test_read_qpa():
+   valid_temp_overrides = ["Sample Sensor 1 Temperature:50", "Sample Sensor 2 Temperature:80"]
+   invalid_temp_overrides = ["Sample Sensor 13 Temp:80", "50"]
+  
+   data = '''
++-----------------------------------------------------------+
+; Temperature and Cooling                                   ;
++-----------------------------------------------+-----------+
+; Sample Sensor 1 Temperature                   ; 55.0 °C   ;
+; Sample Sensor 2 Temperature                   ; 54.5 °F   ;
+; Sample Sensor 3 Temp                          ; 100  °c   ;
++-----------------------------------------------+-----------+
+''' 
+   fileIn = io.StringIO(data)
+
+   valid_actual = qpafilter.read_qpa(fileIn, valid_temp_overrides)
+   assert valid_actual["Temperature and Cooling"] == [{'label': 'Sample Sensor 1 Temperature', 'fatal': '55.0', 'units': '°C', 'warning': 0.0,  'override': '50'}, {'label': 'Sample Sensor 2 Temperature', 'fatal': '54.5', 'units': '°F', 'warning': 0.0, 'override':'80'}, {'label': 'Sample Sensor 3 Temp', 'fatal': '100', 'units': '°c', 'warning': 0.0}]
+
+   # TODO:  Anyway to check this?
+   _ = qpafilter.read_qpa(fileIn, invalid_temp_overrides)
+    
