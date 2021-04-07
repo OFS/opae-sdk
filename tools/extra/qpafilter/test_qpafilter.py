@@ -108,6 +108,12 @@ def test_blob_writer():
     with open('/tmp/blob_written.bin','rb') as fIn:
         data = fIn.read()
         assert data == qpafilter.BLOB_START_MARKER + qpafilter.BLOB_END_MARKER
+
+def test_get_filter():
+    category = "Temperature and Cooling"
+    actual = qpafilter.get_filter(category)
+    assert actual == qpafilter.temp_filter
+    # TODO negative case: pass in non existing category... check for key error/exception?
        
 def test_get_verifier(): 
     category = "Temperature and Cooling"
