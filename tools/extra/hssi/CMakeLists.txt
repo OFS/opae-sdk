@@ -1,4 +1,3 @@
-#!/usr/bin/cmake -P
 ## Copyright(c) 2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -25,30 +24,31 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-macro(ofs_add_driver yml_file driver)
-    add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${driver}.h
-        COMMAND ${PYTHON_EXECUTABLE} ${OPAE_LIBS_ROOT}/scripts/ofs_parse.py ${CMAKE_CURRENT_LIST_DIR}/${yml_file} headers c ${CMAKE_CURRENT_BINARY_DIR} --driver ${driver}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        DEPENDS
-            ${CMAKE_CURRENT_LIST_DIR}/${yml_file}
-            ${OPAE_LIBS_ROOT}/scripts/ofs_parse.py
-            ${OPAE_LIBS_ROOT}/scripts/umd.py
-    )
-    add_library(${driver} SHARED
-        ${CMAKE_CURRENT_BINARY_DIR}/${driver}.h
-        ${ARGN}
-    )
-target_include_directories(${driver} PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-    $<BUILD_INTERFACE:${OPAE_LIBS_ROOT}/ofs/libofs>
-    $<BUILD_INTERFACE:${OPAE_INCLUDE_PATH}>
+
+set(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/timestamp)
+file(GLOB_RECURSE PKG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.py)
+
+set(INCLUDE_DIRS "${OPAE_INCLUDE_PATH}:${pybind11_ROOT}/include")
+set(LINK_DIRS "${LIBRARY_OUTPUT_PATH}")
+
+add_custom_command(
+    OUTPUT ${OUTPUT}
+    COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext -I ${INCLUDE_DIRS} -L ${LINK_DIRS}
+    COMMAND ${PYTHON_EXECUTABLE} setup.py build
+    COMMAND ${CMAKE_COMMAND} -E touch ${OUTPUT}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    DEPENDS setup.py ${PKG_FILES}
 )
 
-target_link_libraries(${driver} PUBLIC
-    opae-c
-    ofs
+set_property(DIRECTORY PROPERTY
+    ADDITIONAL_MAKE_CLEAN_FILES
+        "${CMAKE_CURRENT_SOURCE_DIR}/build"
+        "${CMAKE_CURRENT_SOURCE_DIR}/dist"
 )
-endmacro(ofs_add_driver yml_file)
-
-
+add_custom_target(build ALL DEPENDS  ${OUTPUT})
+opae_python_install(
+    COMPONENT toolhssi
+    RECORD_FILE hssi-install.txt
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    RPM_PACKAGE tools-extra
+)

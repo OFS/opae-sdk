@@ -88,6 +88,23 @@ class c_visitor(ast.NodeVisitor):
     def visit_Eq(self, node):
         return '=='
 
+    def visit_Num(self, node):
+        return str(node.n)
+
+    def visit_Str(self, node):
+        return f'"{node.s}"'
+
+    def visit_Index(self, node):
+        return self.visit(node.value)
+
+    def visit_Constant(self, node):
+        if isinstance(node.value, str):
+            return f'"{node.value}"'
+        return str(node.value)
+
+    def visit_Name(self, node):
+        return node.id
+
 
 class decl_visitor(c_visitor):
     def __init__(self, target):
@@ -102,7 +119,7 @@ class decl_visitor(c_visitor):
             return f'{node.args[0].id} *{self.target}'
 
     def visit_Subscript(self, node):
-        return f'{node.value.id} {self.target}[{node.slice.value.n}]'
+        return f'{node.value.id} {self.target}[{self.visit(node.slice)}]'
 
 
 class scope_visitor(c_visitor):
@@ -199,12 +216,6 @@ class scope_visitor(c_visitor):
             return f'drv->r_{node.id}->value'
         return node.id
 
-    def visit_Num(self, node):
-        return str(node.n)
-
-    def visit_Str(self, node):
-        return f'"{node.s}"'
-
     def visit_Starred(self, node):
         return f'*{self.visit(node.value)}'
 
@@ -212,7 +223,7 @@ class scope_visitor(c_visitor):
         return '-'
 
     def visit_Subscript(self, node):
-        return f'{node.value.id}[{self.visit(node.slice.value)}]'
+        return f'{node.value.id}[{self.visit(node.slice)}]'
 
 
 class c_node(object):

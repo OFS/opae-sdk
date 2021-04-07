@@ -83,55 +83,55 @@ public:
   {
     auto opt = app->add_option("--port", port_,
                                "QSFP port");
-    opt->check(CLI::Range(0, 7))->default_val(port_);
+    opt->check(CLI::Range(0, 7))->default_str(std::to_string(port_));
 
     opt = app->add_option("--eth-loopback", eth_loopback_,
                     "whether to enable loopback on the eth interface");
-    opt->check(CLI::IsMember({"on", "off"}))->default_val(eth_loopback_);
+    opt->check(CLI::IsMember({"on", "off"}))->default_str(eth_loopback_);
 
     opt = app->add_option("--he-loopback", he_loopback_,
                     "whether to enable loopback in the Hardware Exerciser (HE)");
-    opt->check(CLI::IsMember({"on", "off"}))->default_val(he_loopback_);
+    opt->check(CLI::IsMember({"on", "off"}))->default_str(he_loopback_);
 
     opt = app->add_option("--num-packets", num_packets_,
                           "number of packets");
-    opt->default_val(num_packets_);
+    opt->default_str(std::to_string(num_packets_));
 
     opt = app->add_option("--random-length", random_length_,
                           "packet length randomization");
-    opt->check(CLI::IsMember({"fixed", "random"}))->default_val(random_length_);
+    opt->check(CLI::IsMember({"fixed", "random"}))->default_str(random_length_);
 
     opt = app->add_option("--random-payload", random_payload_,
                           "payload randomization");
-    opt->check(CLI::IsMember({"incremental", "random"}))->default_val(random_payload_);
+    opt->check(CLI::IsMember({"incremental", "random"}))->default_str(random_payload_);
 
     opt = app->add_option("--packet-length", packet_length_,
                           "packet length");
-    opt->default_val(packet_length_);
+    opt->default_str(std::to_string(packet_length_));
 
     opt = app->add_option("--src-addr", src_addr_,
                           "source MAC address");
-    opt->default_val(src_addr_);
+    opt->default_str(src_addr_);
 
     opt = app->add_option("--dest-addr", dest_addr_,
                           "destination MAC address");
-    opt->default_val(dest_addr_);
+    opt->default_str(dest_addr_);
 
     opt = app->add_option("--eth-ifc", eth_ifc_,
                           "ethernet interface name");
-    opt->default_val(eth_ifc_);
+    opt->default_str(eth_ifc_);
 
     opt = app->add_option("--rnd-seed0", rnd_seed0_,
                           "prbs generator [31:0]");
-    opt->default_val(rnd_seed0_);
+    opt->default_str(std::to_string(rnd_seed0_));
 
     opt = app->add_option("--rnd-seed1", rnd_seed1_,
                           "prbs generator [47:32]");
-    opt->default_val(rnd_seed1_);
+    opt->default_str(std::to_string(rnd_seed1_));
 
     opt = app->add_option("--rnd-seed2", rnd_seed2_,
                           "prbs generator [91:64]");
-    opt->default_val(rnd_seed2_);
+    opt->default_str(std::to_string(rnd_seed2_));
   }
 
   virtual int run(test_afu *afu, CLI::App *app) override
