@@ -33,6 +33,7 @@ macro(ofs_add_driver yml_file driver)
         DEPENDS
             ${CMAKE_CURRENT_LIST_DIR}/${yml_file}
             ${OPAE_LIBS_ROOT}/scripts/ofs_parse.py
+            ${OPAE_LIBS_ROOT}/scripts/umd.py
     )
     add_library(${driver} SHARED
         ${CMAKE_CURRENT_BINARY_DIR}/${driver}.h
