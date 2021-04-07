@@ -1,4 +1,4 @@
-# Copyright(c) 2020, Intel Corporation
+# Copyright(c) 2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -54,43 +54,23 @@ class pybind_include_dirs(object):
         return pybind11.get_include(self.user)
 
 
-
-def extensions():
-    ext = []
-
-    ext.append(
-            Extension("opae.diag.eth_group",
-                      sources=["src/eth_group.cpp"],
-                      language="c++",
-                      extra_compile_args=["-std=c++11"],
-                      extra_link_args=["-std=c++11"],
-                      libraries = ['opaeuio'],
-                      )
-        )
-    return ext
-
-
 setup(
-    name='opae.diag',
+    name='hssi',
     version="2.0",
-    packages=find_packages(include=['opae.*']),
+    packages=find_packages(include=['*']),
     include_dirs=[pybind_include_dirs()],
     entry_points={
         'console_scripts': [
-            'fpgadiag = opae.diag.fpgadiag:main',
-            'fvlbypass = opae.diag.fvlbypass:main',
-            'fpgalpbk = opae.diag.fpgalpbk:main',
-            'mactest = opae.diag.mactest:main',
-            'fpgastats = opae.diag.fpgastats:main',
-            'fpgamac = opae.diag.fpgamac:main',
-            'fecmode = opae.diag.fecmode:main',
+            'hssistats = hssistats:main',
+            'hssimac = hssimac:main',
+            'hssiloopback = hssiloopback:main',
+            'hssicommon = hssiloopback:main',
         ]
     },
-    description="eth group provides python bindings"
-    "for ethernet mdev",
+    description="hssi eth tools"
+    "for ethernet UIO",
     license="BSD3",
-    keywords="OPAE eth group bindings",
+    keywords="OPAE hssi tools ",
     url="https://01.org/OPAE",
-    ext_modules=extensions(),
     include_package_data=True,
 )

@@ -311,13 +311,13 @@ public:
        ->transform(CLI::CheckedTransformer(he_req_cls_len))->default_val("cl_1");
 
     // Configures test rollover or test termination
-    app_.add_option("--continuousmode", he_continuousmode_, "test rollover or test termination")->default_val(false);
+    app_.add_option("--continuousmode", he_continuousmode_, "test rollover or test termination")->default_val("false");
 
     // Delay
-    app_.add_option("-d,--delay", he_delay_, "Enables random delay insertion between requests")->default_val(false);
+    app_.add_option("-d,--delay", he_delay_, "Enables random delay insertion between requests")->default_val("false");
 
     // Configure interleave requests in Throughput mode
-    app_.add_option("--interleave", he_interleave_, interleave_help)->default_val(0);
+    app_.add_option("--interleave", he_interleave_, interleave_help)->default_val("0");
 
   }
 

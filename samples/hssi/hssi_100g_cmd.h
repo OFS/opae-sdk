@@ -63,31 +63,31 @@ public:
   {
     auto opt = app->add_option("--port", port_,
                                "QSFP port");
-    opt->check(CLI::Range(0, 7))->default_val(port_);
+    opt->check(CLI::Range(0, 7))->default_str(std::to_string(port_));
 
     opt = app->add_option("--eth-loopback", eth_loopback_,
                     "whether to enable loopback on the eth interface");
-    opt->check(CLI::IsMember({"on", "off"}))->default_val(eth_loopback_);
+    opt->check(CLI::IsMember({"on", "off"}))->default_str(eth_loopback_);
 
     opt = app->add_option("--num-packets", num_packets_,
                           "number of packets");
-    opt->default_val(num_packets_);
+    opt->default_str(std::to_string(num_packets_));
 
     opt = app->add_option("--gap", gap_,
                           "inter-packet gap");
-    opt->check(CLI::IsMember({"random", "none"}))->default_val(gap_);
+    opt->check(CLI::IsMember({"random", "none"}))->default_str(gap_);
 
     opt = app->add_option("--pattern", pattern_,
                           "pattern mode");
-    opt->check(CLI::IsMember({"random", "fixed", "increment"}))->default_val(pattern_);
+    opt->check(CLI::IsMember({"random", "fixed", "increment"}))->default_str(pattern_);
 
     opt = app->add_option("--src-addr", src_addr_,
                           "source MAC address");
-    opt->default_val(src_addr_);
+    opt->default_str(src_addr_);
 
     opt = app->add_option("--dest-addr", dest_addr_,
                           "destination MAC address");
-    opt->default_val(dest_addr_);
+    opt->default_str(dest_addr_);
   }
 
   virtual int run(test_afu *afu, CLI::App *app) override
