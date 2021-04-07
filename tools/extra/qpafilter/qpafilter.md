@@ -14,13 +14,16 @@ sensor thresholds. In addition to creating this binary file,
 qpafilter can parse it and dump it in a human-readable format.
 
 ## SUB-COMMANDS ##
-create
- Transform qpa text file into a binary format for the BMC FW.
 
-dump
- Parse an existing binary file and dump in a human-readable format.
+`create`
 
-### Mode 1: create ###
+&nbsp;&nbsp;&nbsp;&nbsp;Transform qpa text file into a binary format for the BMC FW.
+
+`dump`
+
+&nbsp;&nbsp;&nbsp;&nbsp;Parse an existing binary file and dump in a human-readable format.
+
+### Mode 1: `create` ###
 
 ```console
 qpafilter create [-t MIN_TEMP] [-f VIRT_FATAL_TEMP] [-w VIRT_WARN_TEMP] [-O OVERRIDE_TEMP] [-o OUTPUT] [file]
@@ -44,14 +47,11 @@ value and units.
 ; HSSI_0_1 dts4 Temperature                     ; 90.7 °<br>
 +-----------------------------------------------+-----------+<br>
 
-#### Mode 1: create POSITIONAL ARGUMENTS ####
-`create`
-selects create mode
-
+#### `create` POSITIONAL ARGUMENTS ####
 `file`
 the input sensors text file
 
-#### Mode 1: create OPTIONAL ARGUMENTS ####
+#### `create` OPTIONAL ARGUMENTS ####
 `-t,--min-temp MIN_TEMP`
 select the minimum temperature for the input temperature data.
 If an individual temperature is below the minimum temperature
@@ -98,7 +98,7 @@ FPGA Core dts11 Temperature: 9<br>
 <br>
 HSSI_0_1 dts4 Temperature: 5<br>
 
-#### Mode 1: examples ####
+#### `create` examples ####
 
 ```console
 $ qpafilter create thermal.txt
@@ -114,7 +114,7 @@ $ qpafilter create --override-temp='FPGA Core dts11 Temperature:75' -o qpafilter
  temperature for sensor "FPGA Core dts11 Temperature" as 75% of the
  Upper Fatal value.
 
-### Mode 2: dump ###
+### Mode 2: `dump` ###
 
 ```console
 qpafilter dump [-o OUTPUT] [-F {csv,json,yaml}] [file]
@@ -124,12 +124,12 @@ Convert the input binary file to human-readable output. The
 input binary file must have been previously created by a
 qpafilter create ... command.
 
-#### Mode 2: dump POSITIONAL ARGUMENTS ####
+#### `dump` POSITIONAL ARGUMENTS ####
 `file`
 the input binary file. This file must have been created by
 using qpafilter create ...
 
-#### Mode 2: dump OPTIONAL ARGUMENTS ####
+#### `dump` OPTIONAL ARGUMENTS ####
 `-o,--output OUTPUT`
 specify the output human-readable file name.
 
@@ -150,7 +150,7 @@ FPGA Core dts11 Temperature: 9<br>
 <br>
 HSSI_0_1 dts4 Temperature: 5<br>
 
-#### Mode 2: examples ####
+#### `dump` examples ####
 
 ```console
 qpafilter dump qpafilter.blob
