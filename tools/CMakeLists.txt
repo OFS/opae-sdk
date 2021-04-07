@@ -34,6 +34,8 @@ opae_add_subdirectory(fpgaconf)
 opae_add_subdirectory(fpgainfo)
 opae_add_subdirectory(fpgametrics)
 
+
+
 # extra
 # Top level OPAE_BUILD_EXTRA_TOOLS controls building all the extra tools
 # Each extra tool gets its own conditional building variable
@@ -64,6 +66,8 @@ mark_as_advanced(OPAE_BUILD_EXTRA_TOOLS_FPGABIST)
 
 option(OPAE_BUILD_EXTRA_TOOLS_OPAEIO "Enable building extra tool opae.io" ON)
 mark_as_advanced(OPAE_BUILD_EXTRA_TOOLS_OPAEIO)
+
+opae_add_subdirectory(extra/hssi)
 
 if(OPAE_BUILD_EXTRA_TOOLS)
   if(OPAE_BUILD_EXTRA_TOOLS_USERCLK)
