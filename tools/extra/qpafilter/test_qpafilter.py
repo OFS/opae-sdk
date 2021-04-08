@@ -128,7 +128,8 @@ def test_read_sensors():
         assert result.str_to_int == {"Sample sensor 1": 8}
         assert result.int_to_str == {8:"Sample sensor 1"}
 
-def test_read_qpa():
+def test_read_qpa(caplog):
+   caplog.clear()
    valid_temp_overrides = ["Sample Sensor 1 Temperature:50", "Sample Sensor 2 Temperature:80"]
    invalid_temp_overrides = ["Sample Sensor 13 Temp:80", "50"]
   
@@ -147,5 +148,29 @@ def test_read_qpa():
    assert valid_actual["Temperature and Cooling"] == [{'label': 'Sample Sensor 1 Temperature', 'fatal': '55.0', 'units': '°C', 'warning': 0.0,  'override': '50'}, {'label': 'Sample Sensor 2 Temperature', 'fatal': '54.5', 'units': '°F', 'warning': 0.0, 'override':'80'}, {'label': 'Sample Sensor 3 Temp', 'fatal': '100', 'units': '°c', 'warning': 0.0}]
 
    # TODO:  Anyway to check this?
+   fileIn.seek(0)
    _ = qpafilter.read_qpa(fileIn, invalid_temp_overrides)
+
+   warning_msg = [r.message for r in caplog.records]
+   assert '50 is not a valid temperature override' in warning_msg[0]
+   assert '"Sample Sensor 13 Temp" unused' in warning_msg[1]
+   assert 'Did you mean' in warning_msg[2]
     
+@pytest.mark.skip
+def test_create_blob_from_qpa():
+   data = '''
++-----------------------------------------------------------+
+; Temperature and Cooling                                   ;
++-----------------------------------------------+-----------+
+; Sample Sensor 1 Temperature                   ; 55.0 °C   ;
+; Sample Sensor 2 Temperature                   ; 54.5 °F   ;
+; Sample Sensor 3 Temp                          ; 100  °c   ;
++-----------------------------------------------+-----------+
+''' 
+   fileIn = io.StringIO(data)
+
+   m = mock.MagicMock() 
+   m.file = fileIn
+   m.override_temp = ["Sample Sensor 1 Temperature:50", "Sample Sensor 2 Temperature:80"]
+   
+   qpafilter.create_blob_from_qpa(m)
