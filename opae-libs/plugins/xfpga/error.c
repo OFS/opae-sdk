@@ -261,7 +261,7 @@ build_error_list(const char *path, struct error_list **list)
 		if (de->d_name[0] == '.')
 			continue;
 
-		// skip names on blacklist
+		// skip names on the excluded errors list
 		for (i = 0; i < NUM_ERRORS_EXCLUDE; i++) {
 			if (strcmp(de->d_name, errors_exclude[i]) == 0) {
 				break;
@@ -299,7 +299,7 @@ build_error_list(const char *path, struct error_list **list)
 			continue;
 		}
 
-		// not blacklisted, not hidden, accessible, no symlink, no dir -> count and append it!
+		// not an excluded error, not hidden, accessible, no symlink, no dir -> count and append it!
 		n++;
 		if (!el)	// no list
 			continue;

@@ -100,9 +100,14 @@ function(opae_test_add)
     opae_coverage_build(TARGET ${OPAE_TEST_ADD_TARGET}
         SOURCE ${OPAE_TEST_ADD_SOURCE})
 
+    if (OPAE_GTEST_OUTPUT)
+        set(test_args
+            "--gtest_output=xml:${OPAE_GTEST_OUTPUT}/${OPAE_TEST_ADD_TARGET}.xml")
+    endif (OPAE_GTEST_OUTPUT)
+
     add_test(
         NAME ${OPAE_TEST_ADD_TARGET}
-        COMMAND $<TARGET_FILE:${OPAE_TEST_ADD_TARGET}>
+        COMMAND $<TARGET_FILE:${OPAE_TEST_ADD_TARGET}> ${test_args}
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     )
 endfunction()
