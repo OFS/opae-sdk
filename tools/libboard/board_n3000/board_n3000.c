@@ -78,9 +78,9 @@
 #define MAX10_PKVL1_VAR                       0x254
 #define MAX10_PKVL2_VAR                       0x258
 
-#define FEATURE_DEV "/sys/bus/pci/devices/%x*:%x*:%x*.%x*/fpga_region"\
+#define FEATURE_DEV "/sys/bus/pci/devices/*%x*:*%x*:*%x*.*%x*/fpga_region"\
 					"/region*/dfl-fme*/dfl_dev*"
-#define FEATURE_DEV_SPI "/sys/bus/pci/devices/%x*:%x*:%x*.%x*/fpga_region"\
+#define FEATURE_DEV_SPI "/sys/bus/pci/devices/*%x*:*%x*:*%x*.*%x*/fpga_region"\
 					"/region*/dfl-fme*/dfl_dev*/*spi*/spi_master/spi*/spi*"
 
 // Eth group CSR
@@ -366,6 +366,11 @@ fpga_result enum_pkvl_sysfs_path(fpga_token token,
 	int gres                           = 0;
 	glob_t pglob;
 
+	if (!pkvl_path) {
+		OPAE_ERR("Invalid input parameters");
+		return FPGA_INVALID_PARAM;
+	}
+
 	res = get_fpga_sbdf(token, &segment, &bus, &device, &function);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get sbdf ");
@@ -389,7 +394,6 @@ fpga_result enum_pkvl_sysfs_path(fpga_token token,
 	if (pglob.gl_pathc == 1) {
 
 		char *p = strrchr(pglob.gl_pathv[0], '/');
-		//printf("p==========>%s\n", p+1);
 		if (p == NULL) {
 			res = FPGA_INVALID_PARAM;
 			goto out;
@@ -422,6 +426,10 @@ fpga_result read_regmap(char *sysfs_path,
 	char search_str[SYSFS_MAX_SIZE]   = { 0 };
 	char line[MAX_LINE_LENGTH]        = { 0 };
 
+	if (!value || !sysfs_path) {
+		OPAE_ERR("Invalid input parameters");
+		return FPGA_INVALID_PARAM;
+	}
 	if (snprintf(search_str, SYSFS_MAX_SIZE,
 				"%lx", index) < 0) {
 		OPAE_ERR("snprintf buffer overflow");

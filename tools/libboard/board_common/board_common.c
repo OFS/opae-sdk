@@ -334,7 +334,7 @@ fpga_result sysfs_read_u64(const char *path, uint64_t *u)
 	char buf[SYSFS_PATH_MAX] = { 0 };
 	int b = 0;
 
-	if (path == NULL) {
+	if (!path  || !u ) {
 		OPAE_ERR("Invalid input path");
 		return FPGA_INVALID_PARAM;
 	}

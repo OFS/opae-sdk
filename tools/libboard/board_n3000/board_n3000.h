@@ -170,7 +170,7 @@ fpga_result enum_pkvl_sysfs_path(fpga_token token, char *pkvl_path);
 * reads regmap reg registers
 *
 * @param[in] sysfs_path      pointer to regmap sysfs path
-* @param[in] index           rgmap registers index
+* @param[in] index           regmap registers index
 * @param[out] value          pointer to regmap offset value
 * @returns FPGA_OK on success. FPGA_NOT_FOUND if regmap offset not found.
 * FPGA_INVALID_PARAM if invalid parameters were provided
@@ -185,7 +185,7 @@ fpga_result read_regmap(char *sysfs_path,
 *
 * @param[in] token            fpga_token object for device (FPGA_DEVICE type)
 * @param[in] speed            ethernet line side speed
-* @returns FPGA_OK on success. FPGA_NOT_FOUND if regmap offset not found.
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if retimer version offset not found.
 * FPGA_INVALID_PARAM if invalid parameters were provided
 */
 fpga_result print_retimer_info(fpga_token token, uint32_t speed);

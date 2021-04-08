@@ -85,7 +85,7 @@ fpga_result read_sysfs_int64(fpga_token token, char *sysfs_path,
 * Get bdf of fpga device.
 *
 * @param[in] token           fpga_token object for device (FPGA_DEVICE type)
-* @param[out] segment        returns sigment of fpga
+* @param[out] segment        returns segment of fpga
 * @param[out] bus            returns bus of fpga
 * @param[out] device         returns device of fpga
 * @param[out] function       returns function of fpga
