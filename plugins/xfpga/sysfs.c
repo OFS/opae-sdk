@@ -1713,6 +1713,9 @@ enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id)
 		case 0x1000: /* Lightning Creek */
 			hw_type = FPGA_HW_DCP_N5010;
 		break;
+		case 0x1001: /* Lightning Creek featuring E810 Adapter */
+			hw_type = FPGA_HW_DCP_N5011;
+		break;
 		default:
 			OPAE_ERR("unknown Silicom device id: 0x%04x", device_id);
 		}
