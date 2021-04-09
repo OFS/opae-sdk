@@ -28,14 +28,17 @@
 """ Convert QPA text file to blob. """
 
 import argparse
-from collections import defaultdict
 import difflib
+import io
 import json
 import logging
+import os
 import re
 import struct
 import sys
 import yaml
+import zlib
+from collections import defaultdict
 
 SCRIPT_VERSION = '1.0.0'
 
@@ -49,10 +52,10 @@ TEMPERATURE_CATEGORY = 'Temperature and Cooling'
 DEGREES_C = '\u00b0C'
 DEGREES_c = '\u00b0c'
 
-BLOB_START_MARKER = b'\xff\xa5\x5a\xff\xff\xa5\x5a\xff\xff\xa5\x5a\xff'
-BLOB_END_MARKER = b'\xfe\xa5\x5a\xef\xfe\xa5\x5a\xef\xfe\xa5\x5a\xef'
+BLOB_HEADER_MAGIC = 0xa7cbef29
+BLOB_HEADER_SIZE = 20
+BLOB_HEADER_FORMAT = '<IIII'
 
-# TODO: endian-ness?
 BLOB_STRUCT_FORMAT = '<LLL'
 BLOB_STRUCT_SIZE = 12
 
@@ -70,31 +73,33 @@ class blob_writer:
             <for each sensor>
                 wr.writer_sensor(sensor)
     """
+    version = 0
+
     def __init__(self, fname, sensor_map, threshold_map):
         self.fname = fname
         self.sensor_map = sensor_map
         self.threshold_map = threshold_map
-        self.outfile = None
+        self.payload = None
 
     def __enter__(self):
-        self.outfile = open(self.fname, 'wb')
-        self.write_start_marker()
+        self.payload = io.BytesIO()
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb):
         if not exc_type:
-            self.write_end_marker()
-            self.outfile.close()
+            buf = self.payload.getbuffer()
+            length = buf.nbytes
+            hdr = struct.pack(BLOB_HEADER_FORMAT,
+                              BLOB_HEADER_MAGIC,
+                              length,
+                              self.version,
+                              zlib.crc32(buf))
+            with open(self.fname, 'wb') as outfile:
+                outfile.write(hdr)
+                outfile.write(zlib.crc32(hdr).to_bytes(4, byteorder='little'))
+                outfile.write(buf)
             return True
         return False
-
-    def write_start_marker(self):
-        """Write the start of data marker."""
-        self.outfile.write(BLOB_START_MARKER)
-
-    def write_end_marker(self):
-        """Write the end of data marker."""
-        self.outfile.write(BLOB_END_MARKER)
 
     def write_sensor(self, sensor):
         """Write the Upper Warning and Upper Fatal blob
@@ -107,80 +112,99 @@ class blob_writer:
         upper_warning_id = self.threshold_map['Upper Warning']
         upper_fatal_id = self.threshold_map['Upper Fatal']
 
-        self.outfile.write(struct.pack(BLOB_STRUCT_FORMAT,
+        self.payload.write(struct.pack(BLOB_STRUCT_FORMAT,
                                        sensor_id,
                                        upper_warning_id,
                                        warning))
-        self.outfile.write(struct.pack(BLOB_STRUCT_FORMAT,
+        self.payload.write(struct.pack(BLOB_STRUCT_FORMAT,
                                        sensor_id,
                                        upper_fatal_id,
                                        fatal))
 
 
-class blob_reader:
+class blob_reader_v0:
     """Given an input file pointer, a sensor map, and a threshold map,
        provide an iterator interface to reading the raw sensor data
        items sequentially."""
+
+    version = 0
+
     def __init__(self, blobfp, sensor_map, threshold_map):
-        self.blob = blobfp.read()
-        self.start_marker_index = self.blob.find(BLOB_START_MARKER)
-        self.end_marker_index = self.blob.find(BLOB_END_MARKER)
+        self.raw_hdr = blobfp.read(BLOB_HEADER_SIZE)
+        self.blob_hdr = struct.unpack('<IIIII', self.raw_hdr)
+        self.blob_data = blobfp.read()
         self.sensor_map = sensor_map
         self.threshold_map = threshold_map
 
     class Iterator:
-        """Iterate over an in-memory blob. Calculate the number of
-           sensor entries by subtracting the offset of the first entry
-           from the offset of the end marker. Iterate and decode each
+        """Iterate over an in-memory blob. Iterate and decode each
            sensor entry, changing the raw data to human-readable output."""
         def __init__(self,
                      blob,
-                     start_marker_index,
-                     end_marker_index,
+                     data_size,
                      sensor_map,
                      threshold_map):
             self.blob = blob
-            self.start_marker_index = start_marker_index
-            self.first_entry_index = self.start_marker_index + BLOB_STRUCT_SIZE
-            self.end_marker_index = end_marker_index
-            self.num_entries = ((self.end_marker_index -
-                                 self.first_entry_index) / BLOB_STRUCT_SIZE)
-            self.entry = 0
-            self.struct_iter = struct.iter_unpack(
-                BLOB_STRUCT_FORMAT,
-                self.blob[self.start_marker_index + len(BLOB_START_MARKER):])
+            self.size = data_size
+            self.parsed = 0
+            self.struct_iter = struct.iter_unpack(BLOB_STRUCT_FORMAT,
+                                                  self.blob)
             self.sensor_map = sensor_map
             self.threshold_map = threshold_map
 
         def __next__(self):
-            if self.entry == self.num_entries:
+            if self.parsed == self.size:
                 raise StopIteration
-            self.entry += 1
+
             sensor_id, threshold_id, raw_value = next(self.struct_iter)
-            return (self.sensor_map[sensor_id],
-                    self.threshold_map[threshold_id],
-                    raw_value / 2)
+
+            sensor_label = self.sensor_map[sensor_id]
+            threshold_name = self.threshold_map[threshold_id]
+            readable_value = raw_value / 2
+
+            self.parsed += BLOB_STRUCT_SIZE
+
+            return (sensor_label, threshold_name, readable_value)
 
     def __iter__(self):
-        return self.Iterator(self.blob,
-                             self.start_marker_index,
-                             self.end_marker_index,
+        return self.Iterator(self.blob_data,
+                             self.blob_hdr[1],
                              self.sensor_map,
                              self.threshold_map)
 
     def __bool__(self):
-        """Return indication of whether the input blob contains
-           valid start and end markers."""
-        if (self.start_marker_index == -1 or self.end_marker_index == -1):
+        """Return indication of whether the input blob is valid."""
+        if self.blob_hdr[0] != BLOB_HEADER_MAGIC:
+            LOG.error(f'header magic number mismatch. '
+                      f'Got 0x{self.blob_hdr[0]:0x} expected '
+                      f'0x{BLOB_HEADER_MAGIC:0x}.')
             return False
 
-        if (self.end_marker_index < (self.start_marker_index +
-            len(BLOB_START_MARKER))):
+        length = len(self.blob_data)
+        if self.blob_hdr[1] != length:
+            LOG.error(f'payload length mismatch. '
+                      f'Got {length} expected '
+                      f'{self.blob_hdr[2]}.')
             return False
 
-        first_entry_index = self.start_marker_index + BLOB_STRUCT_SIZE
-        if ((self.end_marker_index - first_entry_index) %
-            BLOB_STRUCT_SIZE) != 0:
+        if self.blob_hdr[2] != self.version:
+            LOG.error(f'blob version mismatch. '
+                      f'Got {self.blob_hdr[1]} expected '
+                      f'{self.version}.')
+            return False
+
+        payload_crc = zlib.crc32(self.blob_data)
+        if self.blob_hdr[3] != payload_crc:
+            LOG.error(f'payload CRC mismatch. '
+                      f'Got 0x{payload_crc:0x} expected '
+                      f'0x{self.blob_hdr[3]:0x}.')
+            return False
+
+        hdr_crc = zlib.crc32(self.raw_hdr[:16])
+        if self.blob_hdr[4] != hdr_crc:
+            LOG.error(f'header CRC mismatch. '
+                      f'Got 0x{hdr_crc:0x} expected '
+                      f'0x{self.blob_hdr[4]:0x}.')
             return False
 
         return True
@@ -381,12 +405,31 @@ def create_blob_from_qpa(args):
                 writer.write_sensor(sensor)
 
 
+def get_blob_reader(blobfp, sensor_map, threshold_map):
+    readers = {0: blob_reader_v0}
+
+    raw_hdr = blobfp.read(BLOB_HEADER_SIZE)
+    blobfp.seek(0, os.SEEK_SET)
+
+    blob_hdr = struct.unpack('<IIIII', raw_hdr)
+    version = blob_hdr[2]
+
+    if version not in readers:
+        LOG.error(f'blob version {version} is not '
+                  f'supported by this version of the script.')
+        return None
+
+    return readers[version](blobfp, sensor_map, threshold_map)
+
+
 def dump_blob(args):
     """Given the binary from a previous 'create' command, print
        human-readable output."""
-    reader = blob_reader(args.file, args.sensor_map, args.threshold_map)
+    reader = get_blob_reader(args.file, args.sensor_map, args.threshold_map)
 
-    if not reader:
+    if reader is None:
+        sys.exit(1)
+    elif not reader:
         LOG.error(f'{args.file.name} is not a valid blob.')
         sys.exit(1)
 
