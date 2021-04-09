@@ -29,5 +29,6 @@ opae_add_executable(TARGET hps
     LIBS
         ofs_cpeng
         afu-test
+	fmt
     COMPONENT cpeng
 )

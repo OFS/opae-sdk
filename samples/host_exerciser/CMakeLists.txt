@@ -32,5 +32,6 @@ opae_add_executable(TARGET host_exerciser
         afu-test
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
+	fmt
     COMPONENT samplebin
 )

@@ -30,5 +30,6 @@ opae_add_executable(TARGET hssi
     SOURCE hssi.cpp
     LIBS
         afu-test
+        fmt
     COMPONENT sampleshssi
 )

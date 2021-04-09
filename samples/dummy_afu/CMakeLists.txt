@@ -32,6 +32,7 @@ opae_add_executable(TARGET dummy_afu
         afu-test
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
+	fmt
     COMPONENT samplebin
 )
 
