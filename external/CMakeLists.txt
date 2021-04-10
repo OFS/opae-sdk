@@ -56,6 +56,11 @@ endif(NOT CLI11_FOUND)
 
 if(NOT spdlog_FOUND)
     find_package(spdlog 1.8)
+    string(REGEX MATCH "-DSPDLOG_FMT_EXTERNAL" have_fmt ${spdlog_DEFINITIONS})
+    if (have_fmt)
+        find_package(fmt)
+        set(fmt_LIBRARIES "fmt::fmt" CACHE STRING "fmt library link interface")
+    endif (have_fmt)
 endif(NOT spdlog_FOUND)
 
 if(NOT spdlog_FOUND)
