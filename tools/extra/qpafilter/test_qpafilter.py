@@ -37,6 +37,14 @@ from unittest import mock
 
 
 @pytest.fixture
+def sample_qpa_data():
+   return {'Temperature and Cooling': [
+    {'label': 'Sample Sensor 1 Temperature', 'fatal': '55.0', 'units': '°C', 'warning': 0.0,  'override': '50'}, 
+    {'label': 'Sample Sensor 2 Temperature', 'fatal': '54.5', 'units': '°C', 'warning': 0.0, 'override':'80'}, 
+    {'label': 'Sample Sensor 3 Temp', 'fatal': '100', 'units': '°c', 'warning': 0.0}
+   ]}
+
+@pytest.fixture
 def invalid_qpa_data():
    return {'Temperature and Cooling': [
     {'label': 'Sample Sensor 1 Temperature', 'fatal': '55.0', 'units': '°C', 'warning': 0.0,  'override': '50'}, 
@@ -150,14 +158,6 @@ def test_read_sensors():
         assert result.str_to_int == {"Sample sensor 1": 8}
         assert result.int_to_str == {8:"Sample sensor 1"}
 
-@pytest.fixture
-def sample_qpa_data():
-   return {'Temperature and Cooling': [
-    {'label': 'Sample Sensor 1 Temperature', 'fatal': '55.0', 'units': '°C', 'warning': 0.0,  'override': '50'}, 
-    {'label': 'Sample Sensor 2 Temperature', 'fatal': '54.5', 'units': '°C', 'warning': 0.0, 'override':'80'}, 
-    {'label': 'Sample Sensor 3 Temp', 'fatal': '100', 'units': '°c', 'warning': 0.0}
-   ]}
-
 def test_read_qpa(caplog, sample_qpa_data):
    caplog.clear()
    valid_temp_overrides = ["Sample Sensor 1 Temperature:50", "Sample Sensor 2 Temperature:80"]
@@ -199,4 +199,42 @@ def test_create_blob_from_qpa(sample_qpa_data, sample_sensor_map, sample_thresho
             qpafilter.create_blob_from_qpa(m)
    
             assert Path(tmp.name).stat().st_size > 24 * 3
-            
+
+@mock.patch("qpafilter.read_qpa")
+def test_invalid_create_blob_from_qpa(mock_qpa, caplog, invalid_qpa_data, sample_sensor_map, sample_threshold_map):
+    with tempfile.NamedTemporaryFile() as tmp:
+        invalid_category = {'Temperature ': [
+            {'label': 'Sample Sensor 1 Temperature', 'fatal': '55.0', 'units': '°C', 'warning': 0.0,  'override': '50'}, 
+            {'label': 'Sample Sensor 2 Temperature', 'fatal': '54.5', 'units': '°F', 'warning': 0.0, 'override':'80'}, 
+            {'label': 'Sample Sensor 3 Temp', 'fatal': '100', 'units': '°c', 'warning': 0.0}
+        ]}
+        mock_qpa.return_value = invalid_category
+        m = mock.MagicMock()
+        m.output = tmp.name 
+        m.sensor_map = sample_sensor_map
+        m.threshold_map = sample_threshold_map
+        m.min_temp = 55
+        m.virt_warn_temp = 80
+        m.virt_fatal_temp = 100
+        qpafilter.create_blob_from_qpa(m)
+
+        error_msg = [r.message for r in caplog.records]
+        assert 'is not supported. Skipping' in error_msg[0]
+
+
+def test_invalid_verifier_create_blob_from_qpa(caplog, invalid_qpa_data, sample_sensor_map, sample_threshold_map):
+    with mock.patch("qpafilter.read_qpa", return_value=invalid_qpa_data):
+        with tempfile.NamedTemporaryFile() as tmp:
+            m = mock.MagicMock()
+            m.output = tmp.name 
+            m.sensor_map = sample_sensor_map
+            m.threshold_map = sample_threshold_map
+            m.min_temp = 55
+            m.virt_warn_temp = 80
+            m.virt_fatal_temp = 100
+
+            with pytest.raises(SystemExit) as pytest_wrapped_e:
+                qpafilter.create_blob_from_qpa(m)
+            assert pytest_wrapped_e.type == SystemExit
+            assert pytest_wrapped_e.value.code == 1
+                
