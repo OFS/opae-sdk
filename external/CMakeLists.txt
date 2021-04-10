@@ -56,14 +56,15 @@ endif(NOT CLI11_FOUND)
 
 if(NOT spdlog_FOUND)
     find_package(spdlog 1.8)
+endif(NOT spdlog_FOUND)
+
+if(spdlog_FOUND)
     string(REGEX MATCH "-DSPDLOG_FMT_EXTERNAL" have_fmt ${spdlog_DEFINITIONS})
     if (have_fmt)
         find_package(fmt)
         set(fmt_LIBRARIES "fmt::fmt" CACHE STRING "fmt library link interface")
     endif (have_fmt)
-endif(NOT spdlog_FOUND)
-
-if(NOT spdlog_FOUND)
+else(spdlog_FOUND)
     set(SPDLOG_URL
         https://github.com/gabime/spdlog.git
         CACHE STRING "URL for spdlog Project")
@@ -85,7 +86,7 @@ if(NOT spdlog_FOUND)
     set(spdlog_DEFINITIONS ""
         CACHE STRING "Do not link against spdlog library, using header-only" FORCE)
     set(spdlog_FOUND TRUE CACHE BOOL "spdlog found as external")
-endif(NOT spdlog_FOUND)
+endif(spdlog_FOUND)
 
 if(OPAE_BUILD_LEGACY)
     opae_external_project_add(PROJECT_NAME opae-legacy
