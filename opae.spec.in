@@ -121,16 +121,16 @@ mv %_topdir/tmpBRoot $RPM_BUILD_ROOT
 
 prev=$PWD
 pushd @CMAKE_SOURCE_DIR@/python/opae.admin
-%{__python3} setup.py install --single-version-externally-managed -O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_FILES
+%{__python3} setup.py install --single-version-externally-managed -O1 --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_FILES
 popd
 
 pushd @CMAKE_SOURCE_DIR@/python/pacsign
-%{__python3} setup.py install --single-version-externally-managed -O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_PACSIGN_FILES
+%{__python3} setup.py install --single-version-externally-managed -O1 --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_PACSIGN_FILES
 popd
 
 
 pushd @CMAKE_SOURCE_DIR@/tools/extra/fpgadiag/
-%{__python3} setup.py install --single-version-externally-managed -O@CPACK_PACKAGE_RELEASE@ --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_FPGADIAG_FILES
+%{__python3} setup.py install --single-version-externally-managed -O1 --root=$RPM_BUILD_ROOT --record=$prev/INSTALLED_FPGADIAG_FILES
 popd
 
 %clean
