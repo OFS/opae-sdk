@@ -42,6 +42,7 @@ set_property(DIRECTORY PROPERTY
         "${CMAKE_CURRENT_SOURCE_DIR}/dist"
 )
 pybind11_add_module(pyopaeuio THIN_LTO  pyopaeuio.cpp)
+target_link_libraries(pyopaeuio PRIVATE  opaeuio)
 
 add_custom_target(pyopaeuio-build ALL DEPENDS opaeuio pyopaeuio ${OUTPUT})
 opae_python_install(
