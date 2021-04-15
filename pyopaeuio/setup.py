@@ -74,9 +74,9 @@ setup(
     },
     ext_modules=extensions,
     install_requires=['pybind11>=@PYOPAE_PYBIND11_VERSION@'],
-    description="pyopae provides Python bindings around the "
-                "OPAE C API",
+    description="pyopaeui provides Python bindings around the "
+                "opaeuio",
     license="BSD3",
-    keywords="OPAE accelerator fpga bindings",
+    keywords="paeuio fpga bindings",
     url="https://01.org/OPAE",
 )
