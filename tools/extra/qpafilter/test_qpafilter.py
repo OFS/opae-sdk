@@ -30,9 +30,39 @@ import pytest
 import qpafilter
 import struct
 import unittest
+import tempfile
 
+from pathlib import Path
 from unittest import mock
 
+
+@pytest.fixture
+def sample_qpa_data():
+   return {'Temperature and Cooling': [
+    {'label': 'Sample Sensor 1 Temperature', 'fatal': '55.0', 'units': '°C', 'warning': 0.0,  'override': '50'}, 
+    {'label': 'Sample Sensor 2 Temperature', 'fatal': '54.5', 'units': '°C', 'warning': 0.0, 'override':'80'}, 
+    {'label': 'Sample Sensor 3 Temp', 'fatal': '100', 'units': '°c', 'warning': 0.0}
+   ]}
+
+@pytest.fixture
+def invalid_qpa_data():
+   return {'Temperature and Cooling': [
+    {'label': 'Sample Sensor 1 Temperature', 'fatal': '55.0', 'units': '°C', 'warning': 0.0,  'override': '50'}, 
+    {'label': 'Sample Sensor 2 Temperature', 'fatal': '54.5', 'units': '°F', 'warning': 0.0, 'override':'80'}, 
+    {'label': 'Sample Sensor 3 Temp', 'fatal': '100', 'units': '°c', 'warning': 0.0}
+   ]}
+
+@pytest.fixture
+def sample_sensor_map():
+    return {
+        'Sample Sensor 1 Temperature': 1,
+        'Sample Sensor 2 Temperature': 2,
+        'Sample Sensor 3 Temp': 3,
+     }
+
+@pytest.fixture
+def sample_threshold_map():
+    return {'Upper Warning':100, 'Upper Fatal':120}
 
 def test_two_way_map():
     twp = qpafilter.two_way_map({'sensor_one':1})
@@ -128,7 +158,7 @@ def test_read_sensors():
         assert result.str_to_int == {"Sample sensor 1": 8}
         assert result.int_to_str == {8:"Sample sensor 1"}
 
-def test_read_qpa(caplog):
+def test_read_qpa(caplog, sample_qpa_data):
    caplog.clear()
    valid_temp_overrides = ["Sample Sensor 1 Temperature:50", "Sample Sensor 2 Temperature:80"]
    invalid_temp_overrides = ["Sample Sensor 13 Temp:80", "50"]
@@ -138,16 +168,16 @@ def test_read_qpa(caplog):
 ; Temperature and Cooling                                   ;
 +-----------------------------------------------+-----------+
 ; Sample Sensor 1 Temperature                   ; 55.0 °C   ;
-; Sample Sensor 2 Temperature                   ; 54.5 °F   ;
+; Sample Sensor 2 Temperature                   ; 54.5 °C   ;
 ; Sample Sensor 3 Temp                          ; 100  °c   ;
 +-----------------------------------------------+-----------+
 ''' 
    fileIn = io.StringIO(data)
 
    valid_actual = qpafilter.read_qpa(fileIn, valid_temp_overrides)
-   assert valid_actual["Temperature and Cooling"] == [{'label': 'Sample Sensor 1 Temperature', 'fatal': '55.0', 'units': '°C', 'warning': 0.0,  'override': '50'}, {'label': 'Sample Sensor 2 Temperature', 'fatal': '54.5', 'units': '°F', 'warning': 0.0, 'override':'80'}, {'label': 'Sample Sensor 3 Temp', 'fatal': '100', 'units': '°c', 'warning': 0.0}]
 
-   # TODO:  Anyway to check this?
+   assert valid_actual == sample_qpa_data
+
    fileIn.seek(0)
    _ = qpafilter.read_qpa(fileIn, invalid_temp_overrides)
 
@@ -155,22 +185,56 @@ def test_read_qpa(caplog):
    assert '50 is not a valid temperature override' in warning_msg[0]
    assert '"Sample Sensor 13 Temp" unused' in warning_msg[1]
    assert 'Did you mean' in warning_msg[2]
-    
-@pytest.mark.skip
-def test_create_blob_from_qpa():
-   data = '''
-+-----------------------------------------------------------+
-; Temperature and Cooling                                   ;
-+-----------------------------------------------+-----------+
-; Sample Sensor 1 Temperature                   ; 55.0 °C   ;
-; Sample Sensor 2 Temperature                   ; 54.5 °F   ;
-; Sample Sensor 3 Temp                          ; 100  °c   ;
-+-----------------------------------------------+-----------+
-''' 
-   fileIn = io.StringIO(data)
 
-   m = mock.MagicMock() 
-   m.file = fileIn
-   m.override_temp = ["Sample Sensor 1 Temperature:50", "Sample Sensor 2 Temperature:80"]
+def test_create_blob_from_qpa(sample_qpa_data, sample_sensor_map, sample_threshold_map):
+    with mock.patch("qpafilter.read_qpa", return_value=sample_qpa_data):
+        with tempfile.NamedTemporaryFile() as tmp:
+            m = mock.MagicMock()
+            m.output = tmp.name 
+            m.sensor_map = sample_sensor_map
+            m.threshold_map = sample_threshold_map
+            m.min_temp = 55
+            m.virt_warn_temp = 80
+            m.virt_fatal_temp = 100
+            qpafilter.create_blob_from_qpa(m)
    
-   qpafilter.create_blob_from_qpa(m)
+            assert Path(tmp.name).stat().st_size > 24 * 3
+
+@mock.patch("qpafilter.read_qpa")
+def test_invalid_create_blob_from_qpa(mock_qpa, caplog, invalid_qpa_data, sample_sensor_map, sample_threshold_map):
+    with tempfile.NamedTemporaryFile() as tmp:
+        invalid_category = {'Temperature ': [
+            {'label': 'Sample Sensor 1 Temperature', 'fatal': '55.0', 'units': '°C', 'warning': 0.0,  'override': '50'}, 
+            {'label': 'Sample Sensor 2 Temperature', 'fatal': '54.5', 'units': '°F', 'warning': 0.0, 'override':'80'}, 
+            {'label': 'Sample Sensor 3 Temp', 'fatal': '100', 'units': '°c', 'warning': 0.0}
+        ]}
+        mock_qpa.return_value = invalid_category
+        m = mock.MagicMock()
+        m.output = tmp.name 
+        m.sensor_map = sample_sensor_map
+        m.threshold_map = sample_threshold_map
+        m.min_temp = 55
+        m.virt_warn_temp = 80
+        m.virt_fatal_temp = 100
+        qpafilter.create_blob_from_qpa(m)
+
+        error_msg = [r.message for r in caplog.records]
+        assert 'is not supported. Skipping' in error_msg[0]
+
+
+def test_invalid_verifier_create_blob_from_qpa(caplog, invalid_qpa_data, sample_sensor_map, sample_threshold_map):
+    with mock.patch("qpafilter.read_qpa", return_value=invalid_qpa_data):
+        with tempfile.NamedTemporaryFile() as tmp:
+            m = mock.MagicMock()
+            m.output = tmp.name 
+            m.sensor_map = sample_sensor_map
+            m.threshold_map = sample_threshold_map
+            m.min_temp = 55
+            m.virt_warn_temp = 80
+            m.virt_fatal_temp = 100
+
+            with pytest.raises(SystemExit) as pytest_wrapped_e:
+                qpafilter.create_blob_from_qpa(m)
+            assert pytest_wrapped_e.type == SystemExit
+            assert pytest_wrapped_e.value.code == 1
+                
