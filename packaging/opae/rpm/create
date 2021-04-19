@@ -52,7 +52,7 @@ for pkg in 'make' \
            'hwloc-devel' \
            'json-c-devel' \
            'libuuid-devel' \
-           'python3-devel' \
+           'python3*-devel' \
            'pybind11-devel' \
            'python3-pip' \
            'rpm-build' \
