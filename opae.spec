@@ -147,12 +147,6 @@ pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/pacsign
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} 
 popd
 
-pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/scripts
-install -m 755 eth_group_mdev.sh %{buildroot}/usr/bin/eth_group_mdev.sh
-popd
-
-
-
 for file in %{buildroot}%{python3_sitelib}/opae/admin/tools/{fpgaflash,fpgaotsu,fpgaport,fpgasupdate,ihex2ipmi,rsu,super_rsu,bitstream_info}.py; do
    chmod a+x $file
 done
@@ -254,7 +248,6 @@ done
 %config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
 %{_unitdir}/fpgad.service
 %{_libdir}/opae/libfpgad-vc.so*
-%{_bindir}/eth_group_mdev.sh
 %{_usr}/share/opae/*
 %{_datadir}/doc/opae.admin/LICENSE
 %{python3_sitelib}/opae*
