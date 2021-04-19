@@ -446,6 +446,10 @@ fpga_result read_regmap(char *sysfs_path,
 
 		if (strstr(line, search_str)) {
 			char *p = strstr(line, ":");
+			if (p == NULL) {
+				fclose(fp);
+				return FPGA_NOT_FOUND;
+			}
 			*value = strtoul(p + 1, &endptr, 16);
 			fclose(fp);
 			return FPGA_OK;
@@ -618,6 +622,7 @@ fpga_result print_phy_info(fpga_token token)
 		res = opae_uio_region_get(&uio, 0, (uint8_t **)&mmap_ptr, NULL);
 		if (res) {
 			OPAE_ERR("Failed to get uio region");
+			opae_uio_close(&uio);
 			return res;
 		}
 		_ptr = (uint64_t *)mmap_ptr;
