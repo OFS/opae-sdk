@@ -64,15 +64,12 @@ OPAE headers, tools, sample source, and documentation
 %setup -q -n %{name}-%{version}-%{opae_release}
 
 %build
-rm -rf _build
-mkdir _build
-cd _build
-
-%cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_PRESERVE_REPOS=ON -DOPAE_BUILD_LEGACY=ON -DOPAE_BUILD_SAMPLES=ON -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=ON -B $PWD
-
-%make_build 
-
-
+%cmake -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_PRESERVE_REPOS=ON -DOPAE_BUILD_LEGACY=ON -DOPAE_BUILD_SAMPLES=ON -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=ON .
+%if 0%{?rhel}
+  %make_build
+%else
+  %cmake_build
+%endif
 
 
 %install
@@ -106,37 +103,11 @@ cp samples/hello_fpga/hello_fpga.c %{buildroot}%{_usr}/src/opae/samples/hello_fp
 cp samples/hello_events/hello_events.c %{buildroot}%{_usr}/src/opae/samples/hello_events/
 cp samples/object_api/object_api.c %{buildroot}%{_usr}/src/opae/samples/object_api/
 
-
-cd _build
-
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaeclib -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxcorelib -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=samples -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaetoolslibs -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgainfo -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgaconf -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=tooluserclk -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolmmlink -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=samplebin -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=libopaeheaders -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolpackager -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolmmlink -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaeboardlib -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgametrics -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolbist_app -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpga_dma_test -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpga_dma_N3000_test -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgabist -P cmake_install.cmake
-
-
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxutils -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxnlb -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgadiagapps -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgadiag -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad_api -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad_vc -P cmake_install.cmake
+%if 0%{?rhel}
+  %make_install
+%else
+  %cmake_install
+%endif
 
 prev=$PWD
 pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/opae.admin/
