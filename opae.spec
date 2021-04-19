@@ -96,11 +96,13 @@ mkdir -p %{buildroot}%{_usr}/src/opae/samples
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_fpga/
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_events/
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/object_api/
+mkdir -p %{buildroot}%{_usr}/src/opae/samples/n5010-ddr-test/
 
 
 cp samples/hello_fpga/hello_fpga.c %{buildroot}%{_usr}/src/opae/samples/hello_fpga/
 cp samples/hello_events/hello_events.c %{buildroot}%{_usr}/src/opae/samples/hello_events/
 cp samples/object_api/object_api.c %{buildroot}%{_usr}/src/opae/samples/object_api/
+cp samples/n5010-ddr-test/n5010-ddr-test.c %{buildroot}%{_usr}/src/opae/samples/n5010-ddr-test/
 
 %if 0%{?rhel}
   %make_install
@@ -152,6 +154,7 @@ done
 %{_usr}/src/opae/samples/hello_fpga/hello_fpga.c
 %{_usr}/src/opae/samples/hello_events/hello_events.c
 %{_usr}/src/opae/samples/object_api/object_api.c
+%{_usr}/src/opae/samples/n5010-ddr-test/n5010-ddr-test.c
 %{_usr}/src/opae/cmake/*
 %{_usr}/src/opae/opae-libs/cmake/modules/*
 
