@@ -11,7 +11,7 @@ Group:          Development/Libraries
 Vendor:         Intel Corporation
 Requires:       uuid, json-c, python3
 URL:            https://github.com/OPAE/%{name}-sdk
-Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-%{release}/%{name}-%{version}-%{opae_release}.tar.gz
+Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-%{opae_release}/%{name}-%{version}-%{opae_release}.tar.gz
 
 
 
