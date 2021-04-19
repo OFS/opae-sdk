@@ -59,7 +59,6 @@ for pkg in 'make' \
            'python3-virtualenv' \
            'python3-pip' \
            'systemd' \
-           'systemd-rpm-macros' \
            'rpmdevtools'
 do
     dnf list installed "${pkg}" >/dev/null 2>&1
