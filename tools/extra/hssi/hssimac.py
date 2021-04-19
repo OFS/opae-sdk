@@ -31,7 +31,7 @@ import glob
 import argparse
 import sys
 import struct
-from hssicommon import *
+from hssi.hssicommon import *
 
 
 class FPGAHSSIMAC(HSSICOMMON):

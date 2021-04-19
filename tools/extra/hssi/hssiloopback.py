@@ -35,7 +35,7 @@ import fcntl
 import stat
 import struct
 import mmap
-from hssicommon import *
+from hssi.hssicommon import *
 
 
 class FPGAHSSILPBK(HSSICOMMON):

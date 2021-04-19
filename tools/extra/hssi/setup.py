@@ -44,6 +44,14 @@ def override_build_extensions(self):
 # replace build_extensions with our custom version
 build_ext.build_extensions = override_build_extensions
 
+extensions = [
+            Extension("dummy",
+                      sources=['dummy/dummy.cpp'],
+                      language="c++",
+                      extra_compile_args=["-std=c++11"],
+                      extra_link_args=["-std=c++11"]
+                      )
+]
 
 class pybind_include_dirs(object):
     def __init__(self, user=False):
@@ -57,19 +65,22 @@ class pybind_include_dirs(object):
 setup(
     name='hssi',
     version="2.0",
-    packages=find_packages(include=['*']),
+    package_dir={'hssi': '.'},
+    packages=['hssi', 'hssi.'],
+    platforms='linux-x86_x64',
     include_dirs=[pybind_include_dirs()],
     entry_points={
         'console_scripts': [
-            'hssistats = hssistats:main',
-            'hssimac = hssimac:main',
-            'hssiloopback = hssiloopback:main',
-            'hssicommon = hssiloopback:main',
+            'hssistats = hssi.hssistats:main',
+            'hssimac = hssi.hssimac:main',
+            'hssiloopback = hssi.hssiloopback:main',
+            'hssicommon = hssi.hssicommon:main',
         ]
     },
     description="hssi eth tools"
     "for ethernet UIO",
     license="BSD3",
+    ext_modules=extensions,
     keywords="OPAE hssi tools ",
     url="https://01.org/OPAE",
     include_package_data=True,
