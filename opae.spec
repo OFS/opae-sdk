@@ -226,6 +226,21 @@ done
 %{_bindir}/opaevfio*
 %{_bindir}/pci_device*
 %{_bindir}/regmap-debugfs*
+%{_bindir}/afu_platform_config
+%{_bindir}/afu_platform_info
+%{_bindir}/afu_synth_setup
+%{_bindir}/bist
+%{_bindir}/hps
+%{_bindir}/hssi
+%{_bindir}/hssicommon
+%{_bindir}/hssiloopback
+%{_bindir}/hssimac
+%{_bindir}/hssistats
+%{_bindir}/opae.io
+%{_bindir}/opaememtest
+%{_bindir}/opaeuiotest
+%{_bindir}/pac_hssi_config.py
+%{_bindir}/rtl_src_config
 
 %config(noreplace) %{_sysconfdir}/opae/fpgad.cfg*
 %config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
