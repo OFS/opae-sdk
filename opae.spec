@@ -138,7 +138,10 @@ done
 %{_libdir}/libfpgad-api.so.*
 %{_libdir}/libmml-srv.so.*
 %{_libdir}/libmml-stream.so.*
-
+%{_libdir}/libofs.so.*
+%{_libdir}/libopaemem.so.*
+%{_libdir}/libopaeuio.so.*
+%{_libdir}/libopaevfio.so.*
 
 %post devel
 %systemd_post fpgad.service
@@ -162,6 +165,8 @@ done
 %{_libdir}/opae/libboard_n3000.so*
 %{_libdir}/opae/libboard_d5005.so*
 %{_libdir}/opae/libboard_n5010.so*
+%{_libdir}/opae/libfpgad-xfpga.so*
+%{_libdir}/opae/libopae-v.so*
 %{_libdir}/libopae-c++-nlb.so
 %{_libdir}/libopae-cxx-core.so
 %{_libdir}/libopae-c++-utils.so
@@ -170,6 +175,10 @@ done
 %{_libdir}/libfpgad-api.so
 %{_libdir}/libmml-stream.so
 %{_libdir}/libmml-srv.so
+%{_libdir}/libofs.so
+%{_libdir}/libopaemem.so
+%{_libdir}/libopaeuio.so
+%{_libdir}/libopaevfio.so
 %{_libdir}/opae/libxfpga.so*
 %{_libdir}/opae/libmodbmc.so*
 %{_bindir}/bist_app*
