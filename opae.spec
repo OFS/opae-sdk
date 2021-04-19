@@ -22,7 +22,6 @@ BuildRequires:  json-c-devel
 BuildRequires:  libuuid-devel
 BuildRequires:  rpm-build
 BuildRequires:  hwloc-devel
-BuildRequires:  python3-sphinx
 BuildRequires:  doxygen
 BuildRequires:  systemd
 BuildRequires:  pybind11-devel
@@ -83,12 +82,6 @@ cp LICENSE %{buildroot}%{_datadir}/opae/LICENSE
 cp COPYING %{buildroot}%{_datadir}/opae/COPYING
 
 mkdir -p %{buildroot}%{_usr}/src/opae/cmake/modules
-
-for s in FindSphinx.cmake
-do
-  cp "cmake/${s}" %{buildroot}%{_usr}/src/opae/cmake/
-done
-
 
 mkdir -p %{buildroot}%{_usr}/src/opae/opae-libs/cmake/modules
 for s in FindHwloc.cmake \
