@@ -330,11 +330,11 @@ class two_way_map:
         raise TypeError('two_way_map index must be str or int')
 
 
-def read_qpa(in_file, temp_overrides):
+def read_qpa(in_file, temp_overrides, sensors_map):
     """Read the input file and convert it to our data structure.
        ie a dict keyed by the category name. The value for each
        entry is a list of dictionaries with keys = {'label',
-       'fatal', 'warning', 'units'}.
+       'fatal', 'warning', 'units', 'override'}.
     """
     override_d = {}
     for override in temp_overrides:
@@ -344,7 +344,16 @@ def read_qpa(in_file, temp_overrides):
             LOG.warning(f'{override} is not a valid temperature '
                         f'override. Skipping')
             continue
-        override_d[olabel] = opercentage
+
+        # Allow the override options to specify the numeric sensor
+        # ID. If the label portion is an integer, and if that integer
+        # matches a sensor ID, then convert the integer to the sensor
+        # label using the sensors_map.
+        try:
+            olabel_as_int = int(olabel)
+            override_d[sensors_map[olabel_as_int]] = opercentage
+        except (ValueError, KeyError):
+            override_d[olabel] = opercentage
 
     sensors_list = []
     category_re = re.compile(CATEGORY_PATTERN, re.DOTALL | re.UNICODE)
@@ -380,7 +389,7 @@ def read_qpa(in_file, temp_overrides):
 
 def create_blob_from_qpa(args):
     """Given the input QPA report, create the binary equivalent."""
-    data = read_qpa(args.file, args.override_temp)
+    data = read_qpa(args.file, args.override_temp, args.sensor_map)
 
     with blob_writer(args.output,
                      args.sensor_map,
