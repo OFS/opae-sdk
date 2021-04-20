@@ -2341,7 +2341,7 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 			found = 0;
 
 			// Prefix substring
-			strncpy(prefix_path, sysfspath, p - sysfspath);
+			memcpy(prefix_path, sysfspath, p - sysfspath);
 			*(prefix_path + (p - sysfspath)) = '\0';
 
 			// while loop depth 5
