@@ -74,9 +74,9 @@ setup(
     },
     ext_modules=extensions,
     install_requires=['pybind11>=@PYOPAE_PYBIND11_VERSION@'],
-    description="pyopaeui provides Python bindings around the "
+    description="pyopaeuio provides Python bindings around the "
                 "opaeuio",
     license="BSD3",
-    keywords="paeuio fpga bindings",
+    keywords="opaeuio fpga bindings",
     url="https://01.org/OPAE",
 )
