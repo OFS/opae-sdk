@@ -35,6 +35,7 @@ opae_test_add_static_lib(TARGET board-n3000-static
     SOURCE ${OPAE_SDK_SOURCE}/tools/libboard/board_n3000/board_n3000.c
     LIBS
         opae-c
+        opaeuio
 )
 
 opae_test_add_static_lib(TARGET board-a10gx-static
