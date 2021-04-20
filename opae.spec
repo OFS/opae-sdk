@@ -17,6 +17,7 @@ Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-%{
 
 BuildRequires:  gcc, gcc-c++
 BuildRequires:  cmake
+BuildRequires:  cli11-devel
 BuildRequires:  python3-devel
 BuildRequires:  json-c-devel
 BuildRequires:  libuuid-devel
