@@ -229,7 +229,8 @@ class Block_0:
                                                "THERM_SR",
                                                "THERM_PR",
                                                "SDM",
-                                               "SDM_DEVEL"][con & 0xFF]))
+                                               "SDM_DEVEL",
+                                               "BMC_FACTORY"][con & 0xFF]))
         print("\tCert type =\t\t{}".format(
                   ["UPDATE", "CANCEL", "Root Entry Hash (256)",
                    "Root Entry Hash (384)"][self.cert_type]))

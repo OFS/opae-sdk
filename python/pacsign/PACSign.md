@@ -1,7 +1,7 @@
 # PACSign #
 
 ## SYNOPSIS ##
-`python PACSign.py [-h] {FIM,SR,BBS,BMC,BMC_FW,AFU,PR,GBS,FACTORY,PXE,THERM_SR,THERM_PR,SDM,SDM_DEVEL} ...`
+`python PACSign.py [-h] {FIM,SR,BBS,BMC,BMC_FW,BMC_FACTORY,AFU,PR,GBS,FACTORY,PXE,THERM_SR,THERM_PR,SDM,SDM_DEVEL} ...`
 
 `python PACSign.py <CMD>  [-h] -t {UPDATE,CANCEL,RK_256,RK_384} -H HSM_MANAGER
                           [-C HSM_CONFIG] [-s SLOT_NUM] [-r ROOT_KEY] [-k CODE_SIGNING_KEY]
@@ -28,7 +28,7 @@ To utilize `PKCS #11`, please ensure that the dummy fields `lib_path`,
 ## BITSTREAM TYPES ##
 The first required argument to `PACSign` is the bitstream type identifier.
 
-`{SR,FIM,BBS,BMC,BMC_FW,PR,AFU,GBS,FACTORY,PXE,THERM_SR,THERM_PR,SDM,SDM_DEVEL}`
+`{SR,FIM,BBS,BMC,BMC_FW,BMC_FACTORY,PR,AFU,GBS,FACTORY,PXE,THERM_SR,THERM_PR,SDM,SDM_DEVEL}`
 
 Supported image types. `FIM` and `BBS` are aliases for the static region (`SR`). `BMC_FW` is an alias for 
 the board management controller (`BMC`). `AFU` and `GBS` are aliases for the partial reconfiguration (`PR`) region.
@@ -40,6 +40,10 @@ the board management controller (`BMC`). `AFU` and `GBS` are aliases for the par
  `BMC (BMC_FW)`
  
  BMC image, including firmware for some PACs
+
+ `BMC_FACTORY`
+
+ BMC Factory image
  
  `PR (AFU, GBS)`
  
@@ -163,6 +167,7 @@ describes the options required based on certification type.
 |---|---|---|---|---|---|
 | SR | Optional[^2] | Optional[^2] | No | Yes | Yes |
 | BMC | Optional[^2] | Optional[^2] | No | Yes | Yes |
+| BMC_FACTORY | Optional[^2] | Optional[^2] | No | Yes | Yes |
 | PR | Optional[^2] | Optional[^2] | No | Yes | Yes |
 | FACTORY | Optional[^2] | Optional[^2] | No | Yes | Yes |
 | PXE | Optional[^2] | Optional[^2] | No | Yes | Yes |
@@ -177,6 +182,7 @@ describes the options required based on certification type.
 |---|---|---|---|---|---|
 | SR | Yes | No | Yes | No | Yes |
 | BMC | Yes | No | Yes | No | Yes |
+| BMC_FACTORY | Yes | No | Yes | No | Yes |
 | PR | Yes | No | Yes | No | Yes |
 | FACTORY | Yes | No | No | Yes | Yes |
 | PXE | Yes | No | Yes | No | Yes |
@@ -192,6 +198,7 @@ describes the options required based on certification type.
 |---|---|---|---|---|---|
 | SR | Yes | No | No | No | Yes |
 | BMC | Yes | No | No | No | Yes |
+| BMC_FACTORY | Yes | No | No | No | Yes |
 | PR | Yes | No | No | No | Yes |
 | FACTORY | Yes | No | No | No | Yes |
 | PXE | Yes | No | No | No | Yes |
