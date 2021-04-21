@@ -2,8 +2,7 @@
 ---
 name: ofs_test
 registers:
-- !!ofs/register
-  - [fme_dfh,      0x0000, 0x5010010000000000, "FME DFH"]
+- - [fme_dfh,      0x0000, 0x5010010000000000, "FME DFH"]
   - - [feature_type,      [63, 60], ro, 0x5, "Feature Type"]
     - [dfh_version,       [59, 52], ro, 0x1, "DFH Version"]
     - [feature_minor_rev, [51, 48], ro, 0x0, "Feature Minor Revision"]
@@ -12,14 +11,13 @@ registers:
     - [next_offset,       [39, 16], ro, 0x1000, "Next DFH Offset"]
     - [feature_major_ver, [15, 12], ro, 0x0, "User defined"]
     - [feature_id,        [11,  0], ro, 0x0, "Feature ID"]
-- !!ofs/register
-  - [id_lo,        0x0008, 0xB449F9F67228EBF4, "GUID Lower 64 bits"]
+- - [id_lo,        0x0008, 0xB449F9F67228EBF4, "GUID Lower 64 bits"]
   - - [bits, [63,0], RO, 0xB449F9F67228EBF4, "Lower 64 bits"]
-- !!ofs/register
-  - [id_hi,        0x0010, 0xB449F9F67228EBF4, "GUID Upper 64 bits"]
+- - [id_hi,        0x0010, 0xB449F9F67228EBF4, "GUID Upper 64 bits"]
   - - [bits, [63,0], RO, 0xB449F9F67228EBF4, "Lower 64 bits"]
 api: |
   def read_guid(guid: uint8_t[16]):
+      OFS_ERR("Hello %d", 1)
       sz: size_t = 16
       ptr: uint8_t_ptr = ref(id_lo, uint8_t_ptr) + sz
       i: size_t
