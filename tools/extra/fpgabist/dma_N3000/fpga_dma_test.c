@@ -620,7 +620,7 @@ static int check_config()
 int main(int argc, char *argv[])
 {
 	fpga_result res = FPGA_OK;
-	fpga_dma_handle dma_h;
+	fpga_dma_handle dma_h = NULL;
 	uint64_t count;
 	// fpga_properties filter = NULL;
 	fpga_token afc_token;

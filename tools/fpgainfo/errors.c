@@ -294,7 +294,11 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 			       error_value);
 
 			res = get_error_revision(token, &revision);
-			if (res != FPGA_OK) {
+			if (res == FPGA_NOT_FOUND) {
+				//Todo : fpga-upstream-dev branch remove the revision sysfs node.
+				//if we check the revision is not present, we use the default value
+				revision = 0;
+			} else if (res != FPGA_OK) {
 				OPAE_ERR("could not find FME error revision - skipping decode\n");
 				continue;
 			}
@@ -317,7 +321,11 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 			       error_value);
 
 			res = get_error_revision(token, &revision);
-			if (res != FPGA_OK) {
+			if (res == FPGA_NOT_FOUND) {
+				//Todo : fpga-upstream-dev branch remove the revision sysfs node.
+				//if we check the revision is not present, we use the default value
+				revision = 0;
+			} else if (res != FPGA_OK) {
 				OPAE_ERR("could not find port error revision - skipping decode\n");
 				continue;
 			}

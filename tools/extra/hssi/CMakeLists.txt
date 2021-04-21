@@ -1,4 +1,4 @@
-## Copyright(c) 2019-2020, Intel Corporation
+## Copyright(c) 2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,17 +24,31 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_add_module_library(TARGET board_n3000
-    SOURCE board_n3000.c
-    LIBS
-        ${CMAKE_THREAD_LIBS_INIT}
-        opae-c
-        opaeuio
-        board_common
-    COMPONENT opaeboardlib
+
+set(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/timestamp)
+file(GLOB_RECURSE PKG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.py)
+
+set(INCLUDE_DIRS "${OPAE_INCLUDE_PATH}:${pybind11_ROOT}/include")
+set(LINK_DIRS "${LIBRARY_OUTPUT_PATH}")
+
+add_custom_command(
+    OUTPUT ${OUTPUT}
+    COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext -I ${INCLUDE_DIRS} -L ${LINK_DIRS}
+    COMMAND ${PYTHON_EXECUTABLE} setup.py build
+    COMMAND ${CMAKE_COMMAND} -E touch ${OUTPUT}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    DEPENDS setup.py ${PKG_FILES}
 )
 
-target_include_directories(board_n3000
-    PRIVATE
-        ${OPAE_SDK_SOURCE}/libboard/board_common
+set_property(DIRECTORY PROPERTY
+    ADDITIONAL_MAKE_CLEAN_FILES
+        "${CMAKE_CURRENT_SOURCE_DIR}/build"
+        "${CMAKE_CURRENT_SOURCE_DIR}/dist"
+)
+add_custom_target(build ALL DEPENDS  ${OUTPUT})
+opae_python_install(
+    COMPONENT toolhssi
+    RECORD_FILE hssi-install.txt
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    RPM_PACKAGE tools-extra
 )
