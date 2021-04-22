@@ -166,6 +166,7 @@ def main():
         help="Static FPGA image."
     )
     parser_bmc = subparsers.add_parser("BMC", aliases=["BMC_FW"], help="BMC image")
+    parser_bmc_factory = subparsers.add_parser("BMC_FACTORY", help="BMC Factory image")
     parser_pr = subparsers.add_parser(
         "PR", aliases=["AFU", "GBS"], help="Reconfigurable FPGA image"
     )
@@ -178,6 +179,7 @@ def main():
                                              help="Secure Device Manager development image")
     add_common_options(parser_sr)
     add_common_options(parser_bmc)
+    add_common_options(parser_bmc_factory)
     add_common_options(parser_pr)
     add_common_options(parser_factory)
     add_common_options(parser_pxe)
