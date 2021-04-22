@@ -1,223 +1,205 @@
 %TAG !! tag:intel.com,2020:
 ---
-drivers:
-  - name: ofs_cpeng
-    api: |
-      def wait_for_hps_ready(timeout_usec: uint64_t) -> int:
-        return OFS_WAIT_FOR_EQ(CSR_HPS2HOST_RSP_SHDW.HPS_RDY_SHDW, 1, timeout_usec, 100)
-      def dma_status() -> int:
-        return CSR_CE2HOST_STATUS.CE_DMA_STS
-      def dma_status_idle() -> bool:
-        return dma_status() == 0b00
-      def dma_status_success() -> bool:
-        return dma_status() == 0b10
-      def dma_status_error() -> bool:
-        return CSR_CE2HOST_STATUS.CE_DMA_STS == 0b11
-      def ce_axist_cpl_sts() -> int:
-        return CSR_CE2HOST_STATUS.CE_AXIST_CPL_STS
-      def ce_acelite_bresp_sts() -> int:
-        return CSR_CE2HOST_STATUS.CE_ACELITE_BRESP_STS
-      def image_complete():
-        CSR_HOST2HPS_IMG_XFR.HOST2HPS_IMG_XFR = 0x1
-      def copy_chunk(iova: uint64_t, offset: uint64_t, size: uint32_t, timeout_usec: uint64_t) -> int:
-        CSR_SRC_ADDR.CSR_SRC_ADDR = iova
-        CSR_DST_ADDR.CSR_DST_ADDR = offset
-        CSR_DATA_SIZE.CSR_DATA_SIZE = size
-        CSR_HOST2CE_MRD_START.MRD_START = 1
-        if OFS_WAIT_FOR_NE(CSR_CE2HOST_STATUS.CE_DMA_STS, 0b01, timeout_usec, 100):
-          OFS_ERR("timed out waiting for DMA_STS")
-          return 1
-        if dma_status_success():
-          return 0
-        OFS_ERR("dma status not successful")
+- name: ofs_cpeng
+  api: |
+    def wait_for_hps_ready(timeout_usec: uint64_t) -> int:
+      return OFS_WAIT_FOR_EQ(CSR_HPS2HOST_RSP_SHDW.HPS_RDY_SHDW, 1, timeout_usec, 100)
+    def dma_status() -> int:
+      return CSR_CE2HOST_STATUS.CE_DMA_STS
+    def dma_status_idle() -> bool:
+      return dma_status() == 0b00
+    def dma_status_success() -> bool:
+      return dma_status() == 0b10
+    def dma_status_error() -> bool:
+      return CSR_CE2HOST_STATUS.CE_DMA_STS == 0b11
+    def ce_axist_cpl_sts() -> int:
+      return CSR_CE2HOST_STATUS.CE_AXIST_CPL_STS
+    def ce_acelite_bresp_sts() -> int:
+      return CSR_CE2HOST_STATUS.CE_ACELITE_BRESP_STS
+    def image_complete():
+      CSR_HOST2HPS_IMG_XFR.HOST2HPS_IMG_XFR = 0x1
+    def copy_chunk(iova: uint64_t, offset: uint64_t, size: uint32_t, timeout_usec: uint64_t) -> int:
+      CSR_SRC_ADDR.CSR_SRC_ADDR = iova
+      CSR_DST_ADDR.CSR_DST_ADDR = offset
+      CSR_DATA_SIZE.CSR_DATA_SIZE = size
+      CSR_HOST2CE_MRD_START.MRD_START = 1
+      if OFS_WAIT_FOR_NE(CSR_CE2HOST_STATUS.CE_DMA_STS, 0b01, timeout_usec, 100):
+        OFS_ERR("timed out waiting for DMA_STS")
         return 1
-      def copy_image(iova: uint64_t, offset: uint64_t, size: uint32_t, chunk: uint32_t, timeout_usec: uint64_t) -> int:
-        if not chunk:
-          return copy_chunk(iova, offset, size, timeout_usec)
-        ptr: uint32_t = 0
-        local_timeout: uint64_t = timeout_usec/chunk
-        while ptr < size:
-          if copy_chunk(iova+ptr, offset+ptr, chunk, local_timeout):
-            return 1
-          ptr += chunk
-          if size-ptr < chunk:
-            chunk = size-ptr
-          if OFS_WAIT_FOR_EQ(CSR_HOST2CE_MRD_START.MRD_START, 0, local_timeout, 100):
-            OFS_ERR("timed out waiting for MRD_START")
-            return 1
-        image_complete()
+      if dma_status_success():
         return 0
-    registers:
-      - !!ofs/register
-        - [CE_FEATURE_DFH, 0x0000, 0x1000000010001001, CE Feature DFH]
-        - - [FeatureType, [63, 60], RO, 0x1, Feature Type = AFU]
-          - [Reserved, [59, 41], RsvdZ, 0x0, Reserved]
-          - [EndOfList, [40], RO, 0x0, End Of List]
-          - [NextDfhByteOffset, [39, 16], RO, 0x1000, Next DFH Byte offset]
-          - [FeatureRev, [15, 12], RO, 0x1, Feture Revision]
-          - [FeatureID, [59, 41], RsvdZ, 0x1, Feature ID]
-      - !!ofs/register
-        - [CE_FEATURE_GUID_L, 0x0008, 0xbd4257dc93ea7f91, CE Feature GUID_L]
-        - - [CE_ID_L, [63, 0], RO,  0xbd4257dc93ea7f91, Lower 64-bit of feature GUID]
-      - !!ofs/register
-        - [CE_FEATURE_GUID_H, 0x0010, 0x44bfc10db42a44e5, CE Feature GUID_H]
-        - - [CE_ID_H, [63, 0], RO, 0x44bfc10db42a44e5, Upper 64-bit of feature GUID]
-      - !!ofs/register
-        - [CE_FEATURE_CSR_ADDR, 0x0018, 0x0000000000000100, CE Feature CSR Address]
-        - - [CSR_REL, [63], RO, 0x0, "1'b0 = relative (offset from feature DFH start)\n
-                                      1'b1 = absolute"]
-          - [CSR_ADDR, [62, 0], RO, 0x100, CSR address Offset from start of DFH or absolute address to beginning of CSRs for this Feature or Interface]
-      - !!ofs/register
-        - [CE_FEATURE_CSR_SIZE_GROUP, 0x0020, 0x0000005000000000, CE Feature CSR Size group]
-        - - [CSR_SIZE,  [63, 32], RO, 0x50, Size of CSR block in bytes  total CSR size]
-          - [HAS_PARAMS,  [31], RO, 0x0, Parameters exist or not 1 = Parameters follow this DFH block]
-          - [GROUPING_ID, [30, 0], RO,  0x0, "Used to group features / interfaces Logical grouping ID for features or interfaces.\n
-                                              All features or interfaces with the same ID will be assumed to be logically grouped together.\n
-                                              For instance, 2 channels each with a control and data interface have each pair specify a different ID."]
-      - !!ofs/register
-        - [CSR_HOST_SCRATCHPAD, 0x0100, 0x0000000000000000, Scratchpad register]
-        - - [HOST_SCRATCHPAD, [63, 0], RW, 0x0, Scratchpad register used during board bring up]
-      - !!ofs/register
-        - [CSR_HPS2HOST_RDY_TIMEOUT, 0x0108, 0x0000000000000000, "HPS Ready Timeout"]
-        - - [Reserved, [63, 1], RsvdZ, 0x0, Reserved]
-          - [HPS_RDY_TIMEOUT, [0], RO, 0x0, "0: No timeout\n
-                                             1: HPS Ready timeout\n
-                                             This bit is asserted if HPS doesn't program CSR_HPS2HOST_STATUS.HPS_RDY\n
-                                             for time to equal threshold value.\n
-                                             This is parameterized"]
-      - !!ofs/register
-        - [CSR_SRC_ADDR, 0x0110, 0x0000000000000000, Host DDR Address]
-        - - [Reserved, [63, 32], RsvdZ, 0x0, Reserved]
-          - [CSR_SRC_ADDR, [31, 0], RW, 0x0, Host DDR Physical Address]
-      - !!ofs/register
-        - [CSR_DST_ADDR, 0x0118, 0x0000000000000000, HPS DDR Offset]
-        - - [Reserved, [63, 32], RsvdZ, 0x0, Reserved]
-          - [CSR_DST_ADDR, [31, 0], RW, 0x0, HPS DDR Offset or Destination Offset]
-      - !!ofs/register
-        - [CSR_DATA_SIZE, 0x0120, 0x0000000000000000, Image size in bytes]
-        - - [Reserved, [63, 32], RsvdZ, 0x0, Reserved]
-          - [CSR_DATA_SIZE, [31, 0], RW, 0x0, "Data size in bytes\n
-                                               0x00- Default Value\n
-                                               0x01- 1 byte\n
-                                               0x02 - 2 bytes\n
-                                               and so on"]
-      - !!ofs/register
-        - [CSR_HOST2CE_MRD_START, 0x0128, 0x0000000000000000, Host DDR read start flag]
-        - - [Reserved, [63, 1], RsvdZ, 0x0, Reserved]
-          - [MRD_START, [0], RW, 0x0, "Programmed by host to start host DDR memory read by copy engine\n
-                                       after programming CSR_SRC_ADDR, CSR_DST_ADDR and CSR_DATA_SIZE.\n
-                                       This bit can only be asserted by the SW.\n
-                                       De-assertion is always by the hardware.\n
-                                       SW shouldn't write a zero to this field"]
-      - !!ofs/register
-        - [CSR_CE2HOST_STATUS, 0x0130, 0x0000000000000000, DMA Status]
-        - - [Reserved, [63, 7], RsvdZ, 0x0, Reserved]
-          - [CE_AXIST_CPL_STS, [6, 4], RO, 0x0, "000- Successful completion\n
-                                                 001- Unsupported request\n
-                                                 010- Reserved\n
-                                                 011- Reserved\n
-                                                 100- completer abort\n
-                                                 101- Reserved\n
-                                                 110- Reserved\n
-                                                 111- Reserved\n
-                                                 Host DDR Read completion packet status at AXI Stream interface.\n
-                                                 Bit mapping is same as 'completion status' field in the completion header format.\n
-                                                 If the completion header packet has the status value other than '3'b000',\n
-                                                 copy engine treats as unsuccessful completion."]
-          - [CE_ACELITE_BRESP_STS, [3, 2], RO, 0x0, "00 -OKAY\n
-                                                     01 - EXOKAY - Exclusive Access Okay\n
-                                                     10 - SLVERR - Slave Error\n
-                                                     11- DECERR - Decode Error\n
-                                                     Acelite write response channle status for HPS DDR write.\n
-                                                     Bit mapping is same as the 'BRESP' signal bit mapping of write response channel.\n
-                                                     If the BRESP is not equal to 2'b00, copy engine treats as transfer failure."]
-          - [CE_DMA_STS, [1, 0], RO, 0x0, "Status of data movement from host to copy engine\n
-                                           00-idle\n
-                                           01-DMA in progress (Busy state)\n
-                                           10-Successfully tranfered data from Host to HPS (data size as programmed in CSR_DATA_SIZE)\n
-                                           11-Error in Transfer\n
-                                           This field gets updated for each descriptor programming.\n
-                                           When the copying is in progress, 0x1 is the status.\n
-                                           This field is marked successful only once the complete data as programmed in CSR_DATA_SIZE is transferred from Host to HPS\n
-                                           If any data packet is erroneous, this field is immediately mapped to 2'b11.\n
-                                           Host Software once seeing this field as 2'b11 can read bit[6, 4],\n
-                                           and bit[3, 2], of this CSR to know the source of error(AXI ST side or Acelite side)\n
-                                           Copy Engine expects a soft Reset if this field is 2'b11\n
-                                           Note: Once complete data as per CSR_DATA_SIZE is transferred,\n
-                                           copy engine will write '0' to CSR_HOST2CE_MRD_START.MRD_START"]
-      - !!ofs/register
-        - [CSR_HOST2HPS_IMG_XFR, 0x0138, 0x0000000000000000, DMA Done Flag]
-        - - [Reserved, [63, 1], RsvdZ, 0x0, Reserved]
-          - [HOST2HPS_IMG_XFR, [0], RW, 0x0, "0: Complete Image size not copied from Host to HPS\n
-                                              1: Complete image size copied from Host to HPS.\n
-                                              HPS can start SSBL verification. "]
-      - !!ofs/register
-        - [CSR_HPS2HOST_RSP_SHDW, 0x0140, 0x0000000000000000, HPS Status]
-        - - [Reserved, [63, 5], RsvdZ, 0x0, Reserved]
-          - [HPS_RDY_SHDW, [4], RO, 0x0, "HPS Ready\n
-                                          HPS writes to this field once it is done with FSBL and ready to receive SSBL image.\n
-                                          HPS can program this bit only one time.\n
-                                          The first write to this field is expected as 1'b1.\n
-                                          No further programming will be allowed."]
-          - [KERNEL_VFY_SHDW, [3,2], RO, 0x0, "Kernel Verification\n
-                                               00: reset value\n
-                                               01: successful Kernel verification\n
-                                               10: Erroneous\n
-                                               11: Rsvd\n
-                                               The image that is downloaded from host includes the following:\n
-                                                 *  Second Stage bootloader / uBoot\n
-                                                 *  Linux kernel + rootFS (includes the 1588 application)\n
-                                                 Host will send this complete package to HPS DDR using the copy engine\n
-                                                 This field depicts the Kernel verification status. Kernel verification is done after SSBL"]
-          - [SSBL_VFY_SHDW, [1,0], RO, 0x0, "SSBL Verification\n
+      OFS_ERR("dma status not successful")
+      return 1
+    def copy_image(iova: uint64_t, offset: uint64_t, size: uint32_t, chunk: uint32_t, timeout_usec: uint64_t) -> int:
+      if not chunk:
+        return copy_chunk(iova, offset, size, timeout_usec)
+      ptr: uint32_t = 0
+      local_timeout: uint64_t = timeout_usec/chunk
+      while ptr < size:
+        if copy_chunk(iova+ptr, offset+ptr, chunk, local_timeout):
+          return 1
+        ptr += chunk
+        if size-ptr < chunk:
+          chunk = size-ptr
+        if OFS_WAIT_FOR_EQ(CSR_HOST2CE_MRD_START.MRD_START, 0, local_timeout, 100):
+          OFS_ERR("timed out waiting for MRD_START")
+          return 1
+      image_complete()
+      return 0
+  registers:
+    - - [CE_FEATURE_DFH, 0x0000, 0x1000000010001001, CE Feature DFH]
+      - - [FeatureType, [63, 60], RO, 0x1, Feature Type = AFU]
+        - [Reserved, [59, 41], RsvdZ, 0x0, Reserved]
+        - [EndOfList, [40], RO, 0x0, End Of List]
+        - [NextDfhByteOffset, [39, 16], RO, 0x1000, Next DFH Byte offset]
+        - [FeatureRev, [15, 12], RO, 0x1, Feture Revision]
+        - [FeatureID, [59, 41], RsvdZ, 0x1, Feature ID]
+    - - [CE_FEATURE_GUID_L, 0x0008, 0xbd4257dc93ea7f91, CE Feature GUID_L]
+      - - [CE_ID_L, [63, 0], RO,  0xbd4257dc93ea7f91, Lower 64-bit of feature GUID]
+    - - [CE_FEATURE_GUID_H, 0x0010, 0x44bfc10db42a44e5, CE Feature GUID_H]
+      - - [CE_ID_H, [63, 0], RO, 0x44bfc10db42a44e5, Upper 64-bit of feature GUID]
+    - - [CE_FEATURE_CSR_ADDR, 0x0018, 0x0000000000000100, CE Feature CSR Address]
+      - - [CSR_REL, [63], RO, 0x0, "1'b0 = relative (offset from feature DFH start)\n
+                                    1'b1 = absolute"]
+        - [CSR_ADDR, [62, 0], RO, 0x100, CSR address Offset from start of DFH or absolute address to beginning of CSRs for this Feature or Interface]
+    - - [CE_FEATURE_CSR_SIZE_GROUP, 0x0020, 0x0000005000000000, CE Feature CSR Size group]
+      - - [CSR_SIZE,  [63, 32], RO, 0x50, Size of CSR block in bytes  total CSR size]
+        - [HAS_PARAMS,  [31], RO, 0x0, Parameters exist or not 1 = Parameters follow this DFH block]
+        - [GROUPING_ID, [30, 0], RO,  0x0, "Used to group features / interfaces Logical grouping ID for features or interfaces.\n
+                                            All features or interfaces with the same ID will be assumed to be logically grouped together.\n
+                                            For instance, 2 channels each with a control and data interface have each pair specify a different ID."]
+    - - [CSR_HOST_SCRATCHPAD, 0x0100, 0x0000000000000000, Scratchpad register]
+      - - [HOST_SCRATCHPAD, [63, 0], RW, 0x0, Scratchpad register used during board bring up]
+    - - [CSR_HPS2HOST_RDY_TIMEOUT, 0x0108, 0x0000000000000000, "HPS Ready Timeout"]
+      - - [Reserved, [63, 1], RsvdZ, 0x0, Reserved]
+        - [HPS_RDY_TIMEOUT, [0], RO, 0x0, "0: No timeout\n
+                                           1: HPS Ready timeout\n
+                                           This bit is asserted if HPS doesn't program CSR_HPS2HOST_STATUS.HPS_RDY\n
+                                           for time to equal threshold value.\n
+                                           This is parameterized"]
+    - - [CSR_SRC_ADDR, 0x0110, 0x0000000000000000, Host DDR Address]
+      - - [Reserved, [63, 32], RsvdZ, 0x0, Reserved]
+        - [CSR_SRC_ADDR, [31, 0], RW, 0x0, Host DDR Physical Address]
+    - - [CSR_DST_ADDR, 0x0118, 0x0000000000000000, HPS DDR Offset]
+      - - [Reserved, [63, 32], RsvdZ, 0x0, Reserved]
+        - [CSR_DST_ADDR, [31, 0], RW, 0x0, HPS DDR Offset or Destination Offset]
+    - - [CSR_DATA_SIZE, 0x0120, 0x0000000000000000, Image size in bytes]
+      - - [Reserved, [63, 32], RsvdZ, 0x0, Reserved]
+        - [CSR_DATA_SIZE, [31, 0], RW, 0x0, "Data size in bytes\n
+                                             0x00- Default Value\n
+                                             0x01- 1 byte\n
+                                             0x02 - 2 bytes\n
+                                             and so on"]
+    - - [CSR_HOST2CE_MRD_START, 0x0128, 0x0000000000000000, Host DDR read start flag]
+      - - [Reserved, [63, 1], RsvdZ, 0x0, Reserved]
+        - [MRD_START, [0], RW, 0x0, "Programmed by host to start host DDR memory read by copy engine\n
+                                     after programming CSR_SRC_ADDR, CSR_DST_ADDR and CSR_DATA_SIZE.\n
+                                     This bit can only be asserted by the SW.\n
+                                     De-assertion is always by the hardware.\n
+                                     SW shouldn't write a zero to this field"]
+    - - [CSR_CE2HOST_STATUS, 0x0130, 0x0000000000000000, DMA Status]
+      - - [Reserved, [63, 7], RsvdZ, 0x0, Reserved]
+        - [CE_AXIST_CPL_STS, [6, 4], RO, 0x0, "000- Successful completion\n
+                                               001- Unsupported request\n
+                                               010- Reserved\n
+                                               011- Reserved\n
+                                               100- completer abort\n
+                                               101- Reserved\n
+                                               110- Reserved\n
+                                               111- Reserved\n
+                                               Host DDR Read completion packet status at AXI Stream interface.\n
+                                               Bit mapping is same as 'completion status' field in the completion header format.\n
+                                               If the completion header packet has the status value other than '3'b000',\n
+                                               copy engine treats as unsuccessful completion."]
+        - [CE_ACELITE_BRESP_STS, [3, 2], RO, 0x0, "00 -OKAY\n
+                                                   01 - EXOKAY - Exclusive Access Okay\n
+                                                   10 - SLVERR - Slave Error\n
+                                                   11- DECERR - Decode Error\n
+                                                   Acelite write response channle status for HPS DDR write.\n
+                                                   Bit mapping is same as the 'BRESP' signal bit mapping of write response channel.\n
+                                                   If the BRESP is not equal to 2'b00, copy engine treats as transfer failure."]
+        - [CE_DMA_STS, [1, 0], RO, 0x0, "Status of data movement from host to copy engine\n
+                                         00-idle\n
+                                         01-DMA in progress (Busy state)\n
+                                         10-Successfully tranfered data from Host to HPS (data size as programmed in CSR_DATA_SIZE)\n
+                                         11-Error in Transfer\n
+                                         This field gets updated for each descriptor programming.\n
+                                         When the copying is in progress, 0x1 is the status.\n
+                                         This field is marked successful only once the complete data as programmed in CSR_DATA_SIZE is transferred from Host to HPS\n
+                                         If any data packet is erroneous, this field is immediately mapped to 2'b11.\n
+                                         Host Software once seeing this field as 2'b11 can read bit[6, 4],\n
+                                         and bit[3, 2], of this CSR to know the source of error(AXI ST side or Acelite side)\n
+                                         Copy Engine expects a soft Reset if this field is 2'b11\n
+                                         Note: Once complete data as per CSR_DATA_SIZE is transferred,\n
+                                         copy engine will write '0' to CSR_HOST2CE_MRD_START.MRD_START"]
+    - - [CSR_HOST2HPS_IMG_XFR, 0x0138, 0x0000000000000000, DMA Done Flag]
+      - - [Reserved, [63, 1], RsvdZ, 0x0, Reserved]
+        - [HOST2HPS_IMG_XFR, [0], RW, 0x0, "0: Complete Image size not copied from Host to HPS\n
+                                            1: Complete image size copied from Host to HPS.\n
+                                            HPS can start SSBL verification. "]
+    - - [CSR_HPS2HOST_RSP_SHDW, 0x0140, 0x0000000000000000, HPS Status]
+      - - [Reserved, [63, 5], RsvdZ, 0x0, Reserved]
+        - [HPS_RDY_SHDW, [4], RO, 0x0, "HPS Ready\n
+                                        HPS writes to this field once it is done with FSBL and ready to receive SSBL image.\n
+                                        HPS can program this bit only one time.\n
+                                        The first write to this field is expected as 1'b1.\n
+                                        No further programming will be allowed."]
+        - [KERNEL_VFY_SHDW, [3,2], RO, 0x0, "Kernel Verification\n
                                              00: reset value\n
-                                             01: successful SSBL verification\n
+                                             01: successful Kernel verification\n
                                              10: Erroneous\n
                                              11: Rsvd\n
                                              The image that is downloaded from host includes the following:\n
                                                *  Second Stage bootloader / uBoot\n
                                                *  Linux kernel + rootFS (includes the 1588 application)\n
                                                Host will send this complete package to HPS DDR using the copy engine\n
-                                               This field depicts the SSBL Verification status.\n
-                                               Once HPS sees host2hps_gpio (input to HPS) as high,\n
-                                               HPS can issue read to HPS DDR and then start SSBL verification"]
-      - !!ofs/register
-        - [CSR_HPS_SCRATCHPAD, 0x0148, 0x0000, Scratchpad register (accessible to HPS in RW mode]
-        - - [HPS_SCRATCHPAD, [31, 0], RW, 0x0, Scratchpad register]
-      - !!ofs/register
-        - [CSR_HOST2HPS_IMG_XFR_SHDW, 0x014C, 0x0000, DMA Done Flag]
-        - - [Reserved, [31, 1], RsvdZ, 0x0, Reserve]
-          - [HOST2HPS_IMG_XFR_SHDW, [0], RO, 0x0, "0: Complete Image size not copied from Host to HPS\n
-                                                   1: Complete image size copied from Host to HPS.\n
-                                                   HPS can start SSBL verification.\n
-                                                   HPS can poll this register to see if complete image is transferred from Host to HPS.\n
-                                                   Once this field is found HIGH, HPS can start SSBL verification"]
-      - !!ofs/register
-        - [CSR_HPS2HOST_RSP, 0x0150, 0x0000000000000000, HPS Status]
-        - - [Reserved, [31, 5], RsvdZ, 0x0, Reserved]
-          - [HPS_RDY, [4], RO, 0x0, "HPS Ready.\n
-                                     HPS writes to this field once it is done with FSBL and ready to receive SSBL image.\n
-                                     HPS can program this bit only one time.\n
-                                     The first write to this field is expected as 1'b1.\n
-                                     No further programming will be allowed."]
-          - [KERNEL_VFY, [3, 2], RO, 0x0, "Kernel Verification\n
+                                               This field depicts the Kernel verification status. Kernel verification is done after SSBL"]
+        - [SSBL_VFY_SHDW, [1,0], RO, 0x0, "SSBL Verification\n
                                            00: reset value\n
-                                           01: successful Kernel verification\n
+                                           01: successful SSBL verification\n
                                            10: Erroneous\n
                                            11: Rsvd\n
                                            The image that is downloaded from host includes the following:\n
-                                           * Second Stage bootloader / uBoot\n
-                                           * Linux kernel + rootFS (includes the 1588 application)\n
-                                           Host will send this complete package to HPS DDR using the copy engine\n
-                                           This field depicts the Kernel verification status. Kernel verification is done after SSBL"]
-          - [SSBL_VFY, [1, 0], RO, 0x0, "SSBL Verification\n
+                                             *  Second Stage bootloader / uBoot\n
+                                             *  Linux kernel + rootFS (includes the 1588 application)\n
+                                             Host will send this complete package to HPS DDR using the copy engine\n
+                                             This field depicts the SSBL Verification status.\n
+                                             Once HPS sees host2hps_gpio (input to HPS) as high,\n
+                                             HPS can issue read to HPS DDR and then start SSBL verification"]
+    - - [CSR_HPS_SCRATCHPAD, 0x0148, 0x0000, Scratchpad register (accessible to HPS in RW mode]
+      - - [HPS_SCRATCHPAD, [31, 0], RW, 0x0, Scratchpad register]
+    - - [CSR_HOST2HPS_IMG_XFR_SHDW, 0x014C, 0x0000, DMA Done Flag]
+      - - [Reserved, [31, 1], RsvdZ, 0x0, Reserve]
+        - [HOST2HPS_IMG_XFR_SHDW, [0], RO, 0x0, "0: Complete Image size not copied from Host to HPS\n
+                                                 1: Complete image size copied from Host to HPS.\n
+                                                 HPS can start SSBL verification.\n
+                                                 HPS can poll this register to see if complete image is transferred from Host to HPS.\n
+                                                 Once this field is found HIGH, HPS can start SSBL verification"]
+    - - [CSR_HPS2HOST_RSP, 0x0150, 0x0000000000000000, HPS Status]
+      - - [Reserved, [31, 5], RsvdZ, 0x0, Reserved]
+        - [HPS_RDY, [4], RO, 0x0, "HPS Ready.\n
+                                   HPS writes to this field once it is done with FSBL and ready to receive SSBL image.\n
+                                   HPS can program this bit only one time.\n
+                                   The first write to this field is expected as 1'b1.\n
+                                   No further programming will be allowed."]
+        - [KERNEL_VFY, [3, 2], RO, 0x0, "Kernel Verification\n
                                          00: reset value\n
-                                         01: successful SSBL verification\n
+                                         01: successful Kernel verification\n
                                          10: Erroneous\n
                                          11: Rsvd\n
                                          The image that is downloaded from host includes the following:\n
                                          * Second Stage bootloader / uBoot\n
                                          * Linux kernel + rootFS (includes the 1588 application)\n
                                          Host will send this complete package to HPS DDR using the copy engine\n
-                                         This field depicts the SSBL Verification status. Once HPS sees host2hps\n
-                                         gpio (input to HPS) as high, HPS can issue read to HPS DDR and then start SSBL verification"]
+                                         This field depicts the Kernel verification status. Kernel verification is done after SSBL"]
+        - [SSBL_VFY, [1, 0], RO, 0x0, "SSBL Verification\n
+                                       00: reset value\n
+                                       01: successful SSBL verification\n
+                                       10: Erroneous\n
+                                       11: Rsvd\n
+                                       The image that is downloaded from host includes the following:\n
+                                       * Second Stage bootloader / uBoot\n
+                                       * Linux kernel + rootFS (includes the 1588 application)\n
+                                       Host will send this complete package to HPS DDR using the copy engine\n
+                                       This field depicts the SSBL Verification status. Once HPS sees host2hps\n
+                                       gpio (input to HPS) as high, HPS can issue read to HPS DDR and then start SSBL verification"]
