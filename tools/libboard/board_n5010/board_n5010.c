@@ -48,6 +48,8 @@
 #include "../board_common/board_common.h"
 
 #define MACADDR_LEN 19
+// DEB MOD -1
+
 
 // DFL SYSFS
 #define DFL_SYSFS_BMCFW_VER                     "dfl*/*spi*/spi_master/spi*/spi*/bmcfw_version"

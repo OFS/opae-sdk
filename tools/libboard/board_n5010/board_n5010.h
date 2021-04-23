@@ -35,7 +35,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 #define FPGA_VAR_BUF_LEN       256
-
+// DEB MOD -2
 
 /**
 * Prints BMC, MAX10 and NIOS version.
