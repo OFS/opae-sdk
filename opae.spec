@@ -28,6 +28,7 @@ BuildRequires:  pybind11-devel
 BuildRequires:  python3-setuptools
 BuildRequires:  tbb-devel
 BuildRequires:  git
+BuildRequires:  python3-jsonschema
 BuildRequires:  python3-pip
 BuildRequires:  python3-virtualenv
 

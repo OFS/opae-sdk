@@ -52,12 +52,12 @@ for pkg in 'make' \
            'hwloc-devel' \
            'json-c-devel' \
            'libuuid-devel' \
+	   'pybind11-devel' \
            'python3*-devel' \
-           'pybind11-devel' \
+	   'python3-jsonschema' \
            'python3-pip' \
+	   'python3-virtualenv' \
            'rpm-build' \
-           'python3-virtualenv' \
-           'python3-pip' \
            'systemd' \
            'rpmdevtools'
 do
