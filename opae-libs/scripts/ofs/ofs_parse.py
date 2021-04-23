@@ -27,20 +27,28 @@
 # vim:fenc=utf-8
 import argparse
 import ast
+import atexit
 import io
+import json
+import jsonschema
 import os
+import urllib
 import yaml
 
 import umd
 
 from collections import OrderedDict
 from contextlib import contextmanager
+from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 try:
     from yaml import CLoader as YamlLoader
 except ImportError:
     from yaml import Loader as YamlLoader
 
+
+default_schema = Path(__file__).absolute().parent.joinpath('umd-schema.json')
 
 cpp_field_tmpl = '{spaces}{pod} f_{name} : {width};'
 cpp_class_tmpl = '''
@@ -136,21 +144,62 @@ class ofs_register(object):
         writer.write(tmpl.lstrip().format(**vars(self)))
 
 
-class RegisterTag(yaml.YAMLObject):
-    @classmethod
-    def from_yaml(cls, loader, node):
-        register_meta = loader.construct_sequence(node.value[0])
-        fields = node.value[1].value if len(node.value) > 1 else ()
-        register_fields = tuple(map(loader.construct_sequence, fields))
-        return ofs_register(*register_meta, register_fields)
+def can_open(url):
+    try:
+        _ = urllib.request.urlopen(url)
+    except urllib.error.URLError:
+        return False
+    return True
 
 
-YamlLoader.add_constructor(u'tag:intel.com,2020:ofs/register',
-                           RegisterTag.from_yaml)
+def write_temp(local_file: Path) -> Path:
+    # TODO: Hack for now until we can formalize schemas in a public URL
+    with local_file.open('r') as inp:
+        local_data = json.load(inp)
+    with NamedTemporaryFile('w',
+                            delete=False,
+                            prefix=f'{local_file.stem}-',
+                            suffix='.json') as out:
+        outfile = Path(out.name)
+        local_data['$id'] = outfile.as_uri()
+        json.dump(local_data, out)
+        atexit.register(outfile.unlink)
+        return outfile
 
 
-def parse(fp):
-    return yaml.load(fp, Loader=YamlLoader)
+def use_local_refs(schema):
+    # TODO: Hack for now until we can formalize schemas in a public URL
+    cwd = Path(__file__).parent.absolute()
+    for k, v in schema.items():
+        if k in ['$ref', '$id']:
+            if v.startswith('#'):
+                continue
+            if not can_open(v):
+                comps = jsonschema.validators.urlsplit(v)
+                local_file = cwd.joinpath(Path(comps.path).name).absolute()
+                if local_file.exists():
+                    schema[k] = write_temp(local_file).as_uri()
+        elif isinstance(v, dict):
+            schema[k] = use_local_refs(v)
+    return schema
+
+
+def parse(fp, schemafile=None):
+    data = yaml.load(fp, Loader=YamlLoader)
+    if schemafile:
+        with open(schemafile, 'r') as schema_fp:
+            schema = yaml.safe_load(schema_fp)
+            try:
+                schema = use_local_refs(schema)
+                jsonschema.validate(data, schema)
+            except jsonschema.ValidationError as err:
+                print(f'input file "{fp.name}"  does not follow schema, error:'
+                      f'{err}')
+                raise
+    registers = data.get('registers')
+    data['registers'] = [ofs_register(*r[0], r[1] if len(r) > 1 else ())
+                         for r in registers]
+    return data
 
 
 class ofs_driver_writer(object):
@@ -337,7 +386,7 @@ def declare_fields(pod, fields, indent=0):
 
 
 def make_headers(args):
-    data = parse(args.input)
+    data = parse(args.input, args.schema)
     for driver in data.get('drivers', []):
         name = driver['name']
         if args.list:
@@ -366,6 +415,8 @@ def main():
                                 help='only list driver names in file')
     headers_parser.add_argument('-d', '--driver',
                                 help='process only this driver')
+    headers_parser.add_argument('--schema',
+                                default=default_schema)
 
     args = parser.parse_args()
     if not hasattr(args, 'func'):
