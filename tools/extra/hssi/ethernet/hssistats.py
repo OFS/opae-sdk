@@ -35,7 +35,7 @@ import fcntl
 import stat
 import struct
 import mmap
-from hssicommon import *
+from ethernet.hssicommon import *
 
 
 class FPGAHSSISTATS(HSSICOMMON):
