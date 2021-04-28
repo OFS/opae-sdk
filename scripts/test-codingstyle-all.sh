@@ -29,9 +29,9 @@ check_c () {
     CHECKPATCH=checkpatch.pl
 
     if [ ! -f $CHECKPATCH ]; then
-        wget --no-check-certificate https://raw.githubusercontent.com/torvalds/linux/master/scripts/checkpatch.pl
+        #wget --no-check-certificate https://raw.githubusercontent.com/torvalds/linux/master/scripts/checkpatch.pl
         if [ ! -f $CHECKPATCH ]; then
-            echo "Couldn't download checkpatch.pl - please put a copy into the same"
+            echo "Couldn't find checkpatch.pl - please put a copy into the same"
             echo "directory as this script."
             popd >/dev/null
             echo "test-codingstyle-c FAILED"
