@@ -29,7 +29,6 @@ setup(
     name="pacsign",
     version="1.0.3",
     packages=find_packages(),
-    install_requires=['cython'],
     python_requires='>=3.6',
     extra_requires={'pkcs11': ['python-pkcs11']},
     description="pacsign provides Python classes for interfacing with"
