@@ -65,7 +65,7 @@ static platform_data platform_data_table[] = {
 	{ 0x8086, 0x0b2b, "libboard_d5005.so", NULL },
 	{ 0x8086, 0x0b2c, "libboard_d5005.so", NULL },
 	{ 0x8086, 0xaf00, "libboard_d5005.so", NULL },
-	{ 0x8086, 0xbcce, "libboard_d6010.so", NULL },
+	{ 0x8086, 0xbcce, "libboard_n6010.so", NULL },
 	{ 0,      0,          NULL, NULL },
 };
 
