@@ -38,6 +38,7 @@
 #include <string.h>
 #include <time.h>
 #include <uuid/uuid.h>
+#include <unistd.h>
 #include <sys/stat.h>
 
 #undef _GNU_SOURCE
@@ -432,6 +433,34 @@ out_destroy:
 	return NULL;
 }
 
+#define PCI_COMMAND_OFFSET 0x4
+#define MEM_ENABLE (1 << 1)
+#define BUS_MASTER_ENABLE (1 << 2)
+
+void setup_pci_command(struct opae_vfio *v)
+{
+	int fd = v->device.device_fd;
+	size_t cfg_offset = v->device.device_config_offset;
+	uint16_t cmd = 0;
+	ssize_t sz = sizeof(uint16_t);
+	if (pread(fd, &cmd, sz, cfg_offset + PCI_COMMAND_OFFSET) == sz) {
+		if (!(cmd & MEM_ENABLE) || !(cmd & BUS_MASTER_ENABLE)) {
+			OPAE_DBG("cmd register: 0x%x", cmd);
+			cmd |= (MEM_ENABLE | BUS_MASTER_ENABLE);
+			if (pwrite(fd, &cmd, sz,
+				   cfg_offset + PCI_COMMAND_OFFSET) != sz)
+				OPAE_MSG("Could not write cmd register");
+
+			if (pread(fd, &cmd, sz,
+				  cfg_offset + PCI_COMMAND_OFFSET) == sz) {
+				OPAE_DBG("cmd register after setting: 0x%x", cmd);
+			}
+		}
+	} else {
+		OPAE_MSG("Could not read pci config cmd register");
+	}
+}
+
 
 int vfio_walk(pci_device_t *p)
 {
@@ -446,6 +475,10 @@ int vfio_walk(pci_device_t *p)
 		return 1;
 	}
 	struct opae_vfio *v = pair->device;
+
+	// set bus master enable and mmio space enable in config space
+	setup_pci_command(v);
+
 	// look for legacy FME guids in BAR 0
 	if (opae_vfio_region_get(v, 0, (uint8_t **)&mmio, &size)) {
 		OPAE_ERR("error getting BAR 0");
