@@ -30,109 +30,79 @@ import os
 import glob
 import argparse
 import sys
-import traceback
-import fcntl
-import stat
 import struct
-import mmap
-from hssicommon import *
+from ethernet.hssicommon import *
 
 
-class FPGAHSSILPBK(HSSICOMMON):
+class FPGAHSSIMAC(HSSICOMMON):
     def __init__(self, args):
-        self._loopback = args.loopback
+        self._mtu = args.mtu
         self._hssi_grps = args.hssi_grps
         self._pcie_address = args.pcie_address
         HSSICOMMON.__init__(self)
 
-    def hssi_loopback_en(self):
+    def get_mac_mtu(self):
         """
         clear ctl address and ctl sts CSR
-        write 0x7/0x8 value ctl address
-        write 0x2 value ctl sts csr
+        write 0x4 value ctl address csr
+        write 0x1 value ctl sts csr
         poll for status
-        clear ctl address and ctl sts CSR
+        HSSI Read Data CSR [31:16] Maximum TX frame size
+        HSSI Read Data CSR [15:0] Maximum Rx frame size
         """
-        print("eth_group_loopback_en", self._loopback)
-
+        print("-------eth_mac_mtu--------")
         self.open(self._hssi_grps[0][0])
 
         ctl_addr = hssi_ctl_addr(0)
-        if (self._loopback):
-            ctl_addr.sal_cmd = HSSI_SALCMD.ENABLE_LOOPBACK.value
-        else:
-            ctl_addr.sal_cmd = HSSI_SALCMD.DISABLE_LOOPBACK.value
+        ctl_addr.sal_cmd = HSSI_SALCMD.GET_MTU.value
 
-        cmd_sts = hssi_cmd_sts(0)
-        cmd_sts.value = 0x2
+        value = self.read_reg(0, ctl_addr.value)
+        mask = 0
+        width = 16
+        for x in range(width):
+            mask |= (1 << x)
+        print("Maximum RX frame size:", (value & mask))
 
-        ret = self.clear_ctl_sts_reg(0)
-        if not ret:
-            print("Failed to clear HSSI CTL STS csr")
-            self.close()
-            return 0
-
-        self.write32(0, HSSI_CSR.HSSI_CTL_ADDRESS.value, ctl_addr.value)
-        self.write32(0, HSSI_CSR.HSSI_CTL_STS.value, cmd_sts.value)
-
-        if not self.read_poll_timeout(0,
-                                      HSSI_CSR.HSSI_CTL_STS.value,
-                                      0x2):
-            print("HSSI ctl sts csr fails to update ACK")
-            self.close()
-            return 0
-
-        ret = self.clear_ctl_sts_reg(0)
-        if not ret:
-            print("Failed to clear HSSI CTL STS csr")
-            self.close()
-            return 0
+        for x in range(width):
+            mask |= (0 << x)
+        print("Maximum TX frame size:", (value & mask))
 
         self.close()
-
         return 0
 
-    def hssi_loopback_start(self):
+    def hssi_mtu_start(self):
         """
         print hssi info
-        enable/disable hssi loopback
+        get mtu
         """
-        print("----hssi_loopback_start----")
+        print("----hssi_mtu_start----")
         self.hssi_info(self._hssi_grps[0][0])
-        self.hssi_loopback_en()
+        self.get_mac_mtu()
 
 
 def main():
     """
     parse input arguemnts pciaddress and mtu
     enum fpga pcie devices and find match
-    enable/disable loopback
+    read hssi mtu
     """
-
     parser = argparse.ArgumentParser()
+
     pcieaddress_help = 'bdf of device to program \
-                       (e.g. 04:00.0 or 0000:04:00.0).' \
+                        (e.g. 04:00.0 or 0000:04:00.0).' \
                        ' Optional when one device in system.'
     parser.add_argument('--pcie-address', '-P',
-                        default=DEFAULT_BDF, help=pcieaddress_help)
+                        default=None, help=pcieaddress_help)
 
-    parser.add_argument('--loopback',
-                        choices=['enable', 'disable'], nargs='?',
-                        default=None,
-                        help='loopback enable')
+    parser.add_argument('--mtu', nargs='?', const='',
+                        help='maximum allowable ethernet frame length')
 
     args, left = parser.parse_known_args()
 
     print("args", args)
     print("pcie_address:", args.pcie_address)
-    print("args.loopback:", args.loopback)
+    print("args.mtu:", args.mtu)
     print(args)
-    if args.loopback is None:
-        print('please specify --loopback enable/disable')
-        sys.exit(1)
-    else:
-        op = 'enable' if args.loopback else 'disable'
-        print('{} fpga loopback'.format(op))
 
     f = FpgaFinder(args.pcie_address)
     devs = f.enum()
@@ -155,8 +125,8 @@ def main():
 
     print("fpga uid dev:", args.hssi_grps[0][0])
 
-    lp = FPGAHSSILPBK(args)
-    lp.hssi_loopback_start()
+    lp = FPGAHSSIMAC(args)
+    lp.hssi_mtu_start()
 
 
 if __name__ == "__main__":
