@@ -26,11 +26,25 @@
 #pragma once
 #include "afu_test.h"
 #include "host_exerciser.h"
+#include "fpgaperf_counter.h"
 
 using test_afu = opae::afu_test::afu;
 using opae::fpga::types::shared_buffer;
 
 namespace host_exerciser {
+
+class fpgaperf {
+public:
+  void perfstart (void) {
+                perf_start();
+        }
+  void perfstop (void) {
+                perf_stop();
+        }
+  void perfprint (void) {
+                perf_print();
+        }
+};
 
 class host_exerciser_cmd : public test_command
 {
@@ -122,6 +136,11 @@ public:
         auto d_afu = dynamic_cast<host_exerciser*>(afu);
         host_exe_ = dynamic_cast<host_exerciser*>(afu);
 
+	//fpga perf counter initialization
+        fpgaperf fpgaperf;
+
+        fpgaperf.perfstart();
+
         auto ret = parse_input_options();
         if (ret != 0) {
             std::cerr << "Failed to parese input options" << std::endl;
@@ -194,8 +213,14 @@ public:
 
 
         std::cout << "Test Completed" << std::endl;
+	//stop performance counter
+	fpgaperf.perfstop();
+
         host_exerciser_swtestmsg();
         host_exerciser_status();
+
+	//print the performace counter values
+	fpgaperf.perfprint();
 
         /* Compare buffer contents only loopback test mode*/
         if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
