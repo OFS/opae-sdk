@@ -440,20 +440,23 @@ out_destroy:
 void setup_pci_command(struct opae_vfio *v)
 {
 	int fd = v->device.device_fd;
+	char *addr = v->cont_pciaddr;
 	size_t cfg_offset = v->device.device_config_offset;
 	uint16_t cmd = 0;
 	ssize_t sz = sizeof(uint16_t);
 	if (pread(fd, &cmd, sz, cfg_offset + PCI_COMMAND_OFFSET) == sz) {
 		if (!(cmd & MEM_ENABLE) || !(cmd & BUS_MASTER_ENABLE)) {
-			OPAE_DBG("cmd register: 0x%x", cmd);
+			OPAE_DBG("[%s] cmd: 0x%x", addr, cmd);
 			cmd |= (MEM_ENABLE | BUS_MASTER_ENABLE);
 			if (pwrite(fd, &cmd, sz,
 				   cfg_offset + PCI_COMMAND_OFFSET) != sz)
-				OPAE_MSG("Could not write cmd register");
+				OPAE_MSG("[%s] Could not write cmd register",
+					 addr);
 
 			if (pread(fd, &cmd, sz,
 				  cfg_offset + PCI_COMMAND_OFFSET) == sz) {
-				OPAE_DBG("cmd register after setting: 0x%x", cmd);
+				OPAE_DBG("[%s] cmd after setting: 0x%x",
+					 addr, cmd);
 			}
 		}
 	} else {
