@@ -33,6 +33,45 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#define SYSFS_MAX_SIZE             256
+
+/**
+* Get Max10 firmware version.
+*
+* @param[in] token           fpga_token object for device (FPGA_DEVICE type)
+* @param[inout] max10fw_var  pointer to char pcb_info string
+*                            user allocates memory and free input string
+* @param[in] len             length of char max10fw_var string
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if MAX10  sysfs not found.
+* FPGA_INVALID_PARAM if invalid parameters were provide
+*
+*/
+fpga_result read_max10fw_version(fpga_token token, char *max10fw_var, size_t len);
+
+/**
+* Get BMC/NIOS firmware version.
+*
+* @param[in] token           fpga_token object for device (FPGA_DEVICE type)
+* @param[inout] bmcfw_var    pointer to char bmcfw_var string
+*                            user allocates memory and free input string
+* @param[in] len             length of char bmcfw_var string
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if NIOS sysfs not found.
+* FPGA_INVALID_PARAM if invalid parameters were provide
+*
+*/
+fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_var, size_t len);
+
+/**
+* Parse bmc/max10 version.
+*
+* @param[in] buf             pointer to firmware version
+* @param[inout] fw_ver       pointer to char firmware string
+* @param[in] len             length of char fw var string
+* @returns FPGA_OK on success. FPGA_EXCEPTION if FW version is invlaid.
+*
+*/
+fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len);
+
 
 /**
 * Prints BMC, MAX10 and NIOS version.
@@ -77,10 +116,21 @@ fpga_result print_sec_info(fpga_token token);
 * Prints fme verbose info
 *
 * @param[in] token            fpga_token object for device (FPGA_DEVICE type)
-* @returns FPGA_OK on success. FPGA_EXCEPTION if me verbose info not found.
+* @returns FPGA_OK on success. FPGA_EXCEPTION if fme verbose info not found.
 * FPGA_INVALID_PARAM if invalid parameters were provided
 */
 fpga_result print_fme_verbose_info(fpga_token token);
+
+/**
+* Enumerate hssi feature
+*
+* @param[in] token            fpga_token object for device (FPGA_DEVICE type)
+* @param[inout] feature_dev   pointer to char hssi feature
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if  feature info not found.
+* FPGA_INVALID_PARAM if invalid parameters were provided
+*/
+fpga_result enum_hssi_feature(fpga_token token,
+		char *feature_dev);
 
 #ifdef __cplusplus
 }
