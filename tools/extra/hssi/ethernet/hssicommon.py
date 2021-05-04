@@ -711,7 +711,7 @@ class FpgaFinder(object):
             with open(os.path.join(path, 'feature_id'), 'r') as fd:
                 feature_id = fd.read().strip()
 
-            if feature_id != '0x10':
+            if feature_id != HSSI_FEATURE_ID:
                 continue
 
             uio_path = glob.glob(os.path.join(path, "uio/uio*"))
