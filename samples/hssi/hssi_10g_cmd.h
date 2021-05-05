@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2020-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -63,7 +63,6 @@ public:
     , packet_length_(64)
     , src_addr_("11:22:33:44:55:66")
     , dest_addr_("77:88:99:aa:bb:cc")
-    , eth_ifc_("none")
     , rnd_seed0_(0x5eed0000)
     , rnd_seed1_(0x5eed0001)
     , rnd_seed2_(0x00025eed)
@@ -117,10 +116,6 @@ public:
                           "destination MAC address");
     opt->default_str(dest_addr_);
 
-    opt = app->add_option("--eth-ifc", eth_ifc_,
-                          "ethernet interface name");
-    opt->default_str(eth_ifc_);
-
     opt = app->add_option("--rnd-seed0", rnd_seed0_,
                           "prbs generator [31:0]");
     opt->default_str(std::to_string(rnd_seed0_));
@@ -152,10 +147,6 @@ public:
       return test_afu::error;
     }
 
-    std::string eth_ifc = eth_ifc_;
-    if (eth_ifc_ == "none")
-        eth_ifc = hafu->ethernet_interface();
-
     std::cout << "10G loopback test" << std::endl
               << "  port: " << port_ << std::endl
               << "  eth_loopback: " << eth_loopback_ << std::endl
@@ -171,13 +162,7 @@ public:
               << "  rnd_seed0: " << rnd_seed0_ << std::endl
               << "  rnd_seed1: " << rnd_seed1_ << std::endl
               << "  rnd_seed2: " << rnd_seed2_ << std::endl
-              << "  eth: " << eth_ifc << std::endl
               << std::endl;
-
-    if (eth_loopback_ == "on")
-      enable_eth_loopback(eth_ifc, true);
-    else
-      enable_eth_loopback(eth_ifc, false);
 
     hafu->mbox_write(CSR_STOP, 0);
 
@@ -223,10 +208,6 @@ public:
     } while(count < num_packets_);
 
     std::cout << std::endl;
-    show_eth_stats(eth_ifc);
-
-    if (eth_loopback_ == "on")
-      enable_eth_loopback(eth_ifc, false);
 
     return test_afu::success;
   }
@@ -309,7 +290,6 @@ protected:
   uint32_t packet_length_;
   std::string src_addr_;
   std::string dest_addr_;
-  std::string eth_ifc_;
   uint32_t rnd_seed0_;
   uint32_t rnd_seed1_;
   uint32_t rnd_seed2_;
