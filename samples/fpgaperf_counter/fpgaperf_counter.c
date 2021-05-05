@@ -348,7 +348,7 @@ fpga_result fpgaperfcounterinit(uint16_t segment,uint8_t bus, uint8_t device, ui
 fpga_result fpgaperfcounterstart() {
 	DIR *dir=NULL,*event_dir=NULL,*format_dir=NULL;
 	struct dirent *entry=NULL;
-	char dir_name[BUFSIZ] = "";
+	char dir_name[256] = "";
 	char event_name[BUFSIZ] = "";
 	char temp_name[BUFSIZ] = "";
 	char format_name[BUFSIZ] = "";
