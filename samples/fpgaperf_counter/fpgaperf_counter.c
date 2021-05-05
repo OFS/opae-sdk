@@ -1,3 +1,29 @@
+// Copyright(c) 2021, Intel Corporation
+//
+// Redistribution  and  use  in source  and  binary  forms,  with  or  without
+// modification, are permitted provided that the following conditions are met:
+//
+// * Redistributions of  source code  must retain the  above copyright notice,
+//   this list of conditions and the following disclaimer.
+// * Redistributions in binary form must reproduce the above copyright notice,
+//   this list of conditions and the following disclaimer in the documentation
+//   and/or other materials provided with the distribution.
+// * Neither the name  of Intel Corporation  nor the names of its contributors
+//   may be used to  endorse or promote  products derived  from this  software
+//   without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+// IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+// LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+// CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+// SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+// INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+// CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -11,14 +37,58 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <dirent.h>
+#include <glob.h>
 
 #include "fpgaperf_counter.h"
 
+#define DFL_FME "/sys/bus/pci/devices/*%x*:*%x*:*%x*.*%x*/fpga_region/region*/dfl-fme.*"
+
+#define SYSFS "/sys/bus/event_source/devices/"
+
+#define EVENT_FILTER  {"clock","fab_port_mmio_read","fab_port_mmio_write","fab_port_pcie0_read","fab_port_pcie0_write"}
+
+/* Read format structure*/
+struct read_format {
+    int64_t nr;
+    struct {
+        uint64_t value;
+        uint64_t id;
+    } values[];
+};
+
+struct generic_event_type {
+        const char *name;
+        const char *value;
+        long long config;
+        int fd;
+        uint64_t id;
+        uint64_t start_value;
+        uint64_t stop_value;
+};
+
+struct format_type {
+        const char *name;
+        long long value;
+        int shift;
+};
+
+struct fpga_perf_counter {
+        const char *name;
+        char *fme;
+        int type;
+        int cpumask;
+	int before;
+        int num_formats;
+        int num_generic_events;
+        int num_read_events;
+        struct format_type *formats;
+        struct generic_event_type *generic_events;
+};
 
 /* Not static so other tools can access the PMU data */
-int g_first_fd = 0;
-struct pmu_type *pmus=NULL;
+struct fpga_perf_counter *pmus=NULL;
 
+/*Initialize the perf event attribute structure and return the file descriptor*/
 int  perf_event_attr_initialize(int generic_num, int val)
 {
 	struct perf_event_attr pea;
@@ -28,7 +98,7 @@ int  perf_event_attr_initialize(int generic_num, int val)
 	if(val == 1) {
 		grpfd = -1;
 	} else {
-		grpfd = g_first_fd;
+		grpfd = pmus->generic_events[0].fd;
 	}
 	cpumask = pmus->cpumask;
 	pea.type = pmus->type;
@@ -40,121 +110,140 @@ int  perf_event_attr_initialize(int generic_num, int val)
 	pea.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
 	fd = syscall(__NR_perf_event_open, &pea, -1, cpumask, grpfd, 0);
 	if (fd == -1) {
-		perror("perf_event_open failed");
-		return -1;
+		PERF_ERR("perf_event_open failed");
+		return FPGA_EXCEPTION;
 	} 
 	return fd;
 }
 
 /* read the performance counter values */
-void read_fab_counters(struct counter *perf_counter)
+fpga_result read_fab_counters(int val)
 {
 	int loop=0,inner_loop=0;
-	char buf[4096];
+	char buf[4096] = "";
 	struct read_format* rdft = (struct read_format*) buf;
 
-	if(read(g_first_fd, rdft, sizeof(buf)) == -1) {
-		perror("read fails");
+	if(read(pmus->generic_events[0].fd, rdft, sizeof(buf)) == -1) {
+		PERF_ERR("read fails");
+		return FPGA_EXCEPTION;
     	}		
 		
 	for(loop=0; loop<(int)rdft->nr; loop++) {
-     		for(inner_loop=0; inner_loop<pmus->num_generic_events; inner_loop++) {
-      			if(rdft->values[loop].id == rd_events[inner_loop].id) {
-				perf_counter[inner_loop].name = rd_events[inner_loop].name;
-				perf_counter[inner_loop].value = rdft->values[loop].value;
-      			}
-    		}
+        	for(inner_loop=0; inner_loop<pmus->num_generic_events; inner_loop++) {
+      	    		if(rdft->values[loop].id == pmus->generic_events[inner_loop].id) {
+				if(val == 1) {
+			    		pmus->generic_events[inner_loop].start_value = rdft->values[loop].value;
+				} else {
+			
+			    		pmus->generic_events[inner_loop].stop_value = rdft->values[loop].value;
+      				}
+    	    		}			
+	   	}
    	}
+	return FPGA_OK;
 }
 
-void perf_stop()
+fpga_result fpgaperfcounterstop()
 {
-	if(ioctl(g_first_fd, PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP)==-1) {
-		perror("ioctl fails");
-	}
+	fpga_result res = FPGA_OK;	
 
-	perf_counter = calloc(pmus->num_generic_events, sizeof(struct counter));
+	if(ioctl(pmus->generic_events[0].fd, PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP)==-1) {
+		PERF_ERR("ioctl fails");
+		return FPGA_EXCEPTION;
+	}
+	pmus->before=0;
 	/* read the performance counter for the workload*/
-	read_fab_counters(perf_counter);
+	res=read_fab_counters(pmus->before);
+	if(res!=FPGA_OK)
+		return FPGA_EXCEPTION;
+	return FPGA_OK;
 }
 
-void perf_print()
+void fpgaperfcounterprint()
 {
 	int loop=0;
 	
 	for(loop=0; loop<pmus->num_generic_events; loop++) {
-		printf("%s\t", perf_counter[loop].name);
+		printf("%s\t", pmus->generic_events[loop].name);
 	}	
 	printf("\n");
 	for(loop=0; loop<pmus->num_generic_events; loop++) {
-		printf("%ld\t", perf_counter[loop].value);
+		printf("%ld\t",(pmus->generic_events[loop].stop_value - pmus->generic_events[loop].start_value));
 		printf("\t");
 	}	
 	printf("\n");
-	free(perf_counter);
-	free(rd_events);
-	free(pmus->formats);
-	free(pmus->generic_events);
-	free(pmus);
+	if(pmus->formats!=NULL) 
+		free(pmus->formats);
+	if(pmus->generic_events!=NULL)
+		free(pmus->generic_events);
+	if(pmus!=NULL)
+		free(pmus);
 }
 
 /* provides number of files in the directory */
 int get_num_files(DIR *dir, char **filter, int filter_size) {
 	int loop=0;
 	int num_files=0;
-	struct dirent *entry;
+	struct dirent *entry=NULL;
 
 	while ((entry = readdir(dir)) != NULL) {
                 if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
                         continue;
 		for(loop=0; loop<filter_size;loop++) {
-			if (!strcmp(entry->d_name, filter[loop])) break;
+			if (!strcmp(entry->d_name, filter[loop]))
+				break;
 		}
 		/* if matched with filter then check next file */
-		if(loop != filter_size) continue;
+		if(loop != filter_size)
+			continue;
 		num_files++;
 	}
 	return num_files;
 }
 
 /* parse the each format and get the shift val */
-int prepare_format(DIR *dir, char *dir_name) {
+fpga_result prepare_format(DIR *dir, char *dir_name) {
 	int format_num=0, result=-1;
-	struct dirent *format_entry;
+	struct dirent *format_entry=NULL;;
 	FILE *file=NULL;
 	char temp_name[BUFSIZ] = "";
 	
 	pmus->formats=calloc(pmus->num_formats, sizeof(struct format_type));
 	if (pmus->formats==NULL) {
 		pmus->num_formats=0;
-		return -1;
+		return FPGA_EXCEPTION;
 	}
 	
 	rewinddir(dir);
 	while ((format_entry = readdir(dir)) != NULL) {
-                if (!strcmp(format_entry->d_name, ".") || !strcmp(format_entry->d_name, ".."))
-                        continue;
+        	if (!strcmp(format_entry->d_name, ".") || !strcmp(format_entry->d_name, ".."))
+        		continue;
 		pmus->formats[format_num].name= strdup(format_entry->d_name);
 		sprintf(temp_name,"%s/format/%s",dir_name,format_entry->d_name);
 		file=fopen(temp_name,"r");
 		if(file!=NULL) {
 			result=fscanf(file,"config:%d",&pmus->formats[format_num].shift);
+			/*read config first byte success*/
 			if(result==-1) {
-				perror("format fscanf failed\n");
+				PERF_ERR("format fscanf failed");
+				fclose(file);
+				return FPGA_EXCEPTION;
 			}
 			fclose(file);
-		}
-		if(format_num==pmus->num_formats) break;
+		} else
+			return FPGA_EXCEPTION;
+		if(format_num==pmus->num_formats)
+			break;
 		format_num++;
 	}
-	return 0;
+	return FPGA_OK;
 }
 
 /* parse the event value and get the type specific config value*/
 uint64_t parse_event(char *value) {
 	int loop=0, num=0;
 	uint64_t config=0;
-	char *name_evt_str;
+	char *name_evt_str=NULL;
 	char *sub_str=strtok(value, ",");
 	long val;
 
@@ -176,84 +265,109 @@ uint64_t parse_event(char *value) {
 }
 
 /* parse the evnts for the perticular device directory */
-int prepare_event_mask(DIR *dir, char **filter, int filter_size, char *dir_name) {
+fpga_result prepare_event_mask(DIR *dir, char **filter, int filter_size, char *dir_name) {
 	int loop=0, generic_num=0, result=-1;
-	struct dirent *event_entry;
+	struct dirent *event_entry=NULL;
 	FILE *file=NULL;
 	char temp_name[BUFSIZ] = "";
 	char event_value[BUFSIZ] = "";
-	uint64_t config;
 
 	pmus->generic_events=calloc(pmus->num_generic_events, sizeof(struct generic_event_type));
 	if (pmus->generic_events==NULL) {
 		pmus->num_generic_events=0;
-		return -1;
+		return FPGA_EXCEPTION;
 	}
 	
 	rewinddir(dir);
 	while ((event_entry = readdir(dir)) != NULL) {
-                if (!strcmp(event_entry->d_name, ".") || !strcmp(event_entry->d_name, ".."))
-                        continue;
+        	if (!strcmp(event_entry->d_name, ".") || !strcmp(event_entry->d_name, ".."))
+            		continue;
 		for(loop=0; loop<filter_size;loop++) {
-			if (!strcmp(event_entry->d_name, filter[loop])) break;
+			if (!strcmp(event_entry->d_name, filter[loop]))
+				break;
 		}
-		if(loop!=filter_size) continue;
+		if(loop!=filter_size)
+			continue;
 		pmus->generic_events[generic_num].name= strdup(event_entry->d_name);
 		sprintf(temp_name,"%s/events/%s",dir_name,event_entry->d_name);
 		file=fopen(temp_name,"r");
 		if(file!=NULL) {
 			result=fscanf(file, "%s", event_value);
+			/* read event_value success*/
 			if(result==1) {
 				pmus->generic_events[generic_num].value=strdup(event_value);
-				config=parse_event(event_value);
-				pmus->generic_events[generic_num].config=config;
-			}
+				pmus->generic_events[generic_num].config=parse_event(event_value);
+			} else
+				return FPGA_EXCEPTION;
 			fclose(file);
-		}			
-		if(generic_num==pmus->num_generic_events) break;
+		} else
+			return FPGA_EXCEPTION;			
+		if(generic_num==pmus->num_generic_events)
+			break;
 		generic_num++;
 	}
-	return 0;
+	return FPGA_OK;
 }
 
-int perf_start() {
-	DIR *dir,*event_dir,*format_dir;
-	struct dirent *entry;
+/*Enumerate the dfl-fme based on the sbdf */
+fpga_result fpgaperfcounterinit(uint16_t segment,uint8_t bus, uint8_t device, uint8_t function) {
+    char temp_name[BUFSIZ] = "";
+    char *fme=NULL;
+    glob_t globlist;
+    int val=-1,num=0, cnt=0,offset=0;
+    char *str=NULL;
+    
+    /*allocate memory for PMUs */
+    pmus=malloc(sizeof(struct fpga_perf_counter));
+    if(pmus==NULL)
+        return FPGA_EXCEPTION;
+    function=0;
+    sprintf(temp_name, DFL_FME, segment, bus, device, function);
+
+    if (glob(temp_name, GLOB_PERIOD, NULL, &globlist) == GLOB_NOSPACE
+          || glob(temp_name, GLOB_PERIOD, NULL, &globlist) == GLOB_NOMATCH)
+            return FPGA_EXCEPTION;
+    if (glob(temp_name, GLOB_PERIOD, NULL, &globlist) == GLOB_ABORTED)
+            return FPGA_EXCEPTION;
+
+    str = globlist.gl_pathv[0];
+    fme = strstr(str, "dfl-fme.");
+    if(fme == NULL)
+        return FPGA_EXCEPTION;
+    cnt=strlen(str);
+    num=strlen(fme);
+    offset=cnt-num;
+    val=strtol(str+offset+num-1, NULL, 10);
+    sprintf(fme, "dfl_fme%d", val);
+    pmus->fme=fme;
+
+    return FPGA_OK;
+}
+
+
+fpga_result fpgaperfcounterstart() {
+	DIR *dir=NULL,*event_dir=NULL,*format_dir=NULL;
+	struct dirent *entry=NULL;
 	char dir_name[BUFSIZ] = "";
 	char event_name[BUFSIZ] = "";
 	char temp_name[BUFSIZ] = "";
 	char format_name[BUFSIZ] = "";
 	char *event_filter[] = EVENT_FILTER;
-	int type=0, num_pmus=0;
+	int type=0;
 	FILE *file=NULL;
 	int result = -1;
 	int  loop=0,inner_loop=0,fd=-1;
 	int format_size=0,event_size=0;
 
-	/* Count number of PMUs */
-	dir=opendir(SYSFS);
-	if (dir==NULL) {
-		perror("sysfs open failed");
-		goto out;
-	}
-        while ((entry = readdir(dir)) != NULL) {
-                if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
-                        continue;
-
-                if (!strcmp("dfl_fme0",entry->d_name)) break;
-                num_pmus++;
-        }
-	if (num_pmus<1)
-		goto out;
-
-	pmus=calloc(num_pmus,sizeof(struct pmu_type));
-	if (pmus==NULL)
-		goto out;
-
-	/* Add PMU */
-	rewinddir(dir);
-        while ((entry = readdir(dir)) != NULL) {
-		if (strcmp("dfl_fme0",entry->d_name) != 0) {
+    	dir=opendir(SYSFS);
+    	if (dir==NULL) {
+        	PERF_ERR("sysfs open failed");
+        	goto out;
+    	}	
+    
+    	/* Add PMU */
+    	while ((entry = readdir(dir)) != NULL) {
+		if (strcmp(pmus->fme,entry->d_name) != 0) {
 			continue;
 		} else {
 			/* read name */
@@ -264,17 +378,23 @@ int perf_start() {
 			file=fopen(temp_name,"r");
 			if (file!=NULL) {
 				result=fscanf(file,"%d",&type);
-				if (result==1) pmus->type=type;
+				/* read the pmus type success */
+				if (result==1) 
+					pmus->type=type;
 				fclose(file);
-			}
+			} else
+				goto out;
 			/* read cpumask */
-	                sprintf(temp_name,"%s/cpumask",dir_name);
-        	        file=fopen(temp_name,"r");
-                	if (file!=NULL) {
-                        	result=fscanf(file,"%d",&type);
-                        	if (result==1) pmus->cpumask=type;
-                        	fclose(file);
-                	}
+	        	sprintf(temp_name,"%s/cpumask",dir_name);
+        		file=fopen(temp_name,"r");
+            		if (file!=NULL) {
+                		result=fscanf(file,"%d",&type);
+				/* read the pmus cpumask success*/
+                		if (result==1) 
+					pmus->cpumask=type;
+                    		fclose(file);
+           		} else
+				goto out;
 			/* Scan format strings */
 			sprintf(format_name,"%s/format",dir_name);
 			format_dir=opendir(format_name);
@@ -282,8 +402,13 @@ int perf_start() {
 			/* Count format strings and parse the format*/
 				pmus->num_formats= get_num_files(format_dir, NULL, format_size);
 				result = prepare_format(format_dir, dir_name);
+                		if(result != FPGA_OK) {
+					closedir(format_dir);
+                    			return FPGA_EXCEPTION;
+                		}
 				closedir(format_dir);
-			}
+			} else
+				goto out;
 			sprintf(event_name,"%s/events",dir_name);
 			event_dir=opendir(event_name);
 			if (event_dir!=NULL) {
@@ -291,40 +416,42 @@ int perf_start() {
 				event_size= sizeof(event_filter) / sizeof(event_filter[0]);
 				pmus->num_generic_events=get_num_files(event_dir, event_filter, event_size);
 				result = prepare_event_mask(event_dir, event_filter, event_size, dir_name);
+                		if(result != FPGA_OK) {
+					closedir(event_dir);
+                    			return FPGA_EXCEPTION;
+                		}
 				closedir(event_dir);
-			}
-			/*allocate memory for read event structure*/
-			rd_events = calloc(pmus->num_generic_events, sizeof(struct read_events));
-			if (rd_events == NULL) {
-				pmus->num_generic_events = 0;
+			} else
 				goto out;
-			}
-                        for(loop=0; loop<pmus->num_generic_events; loop++) {
+            		for(loop=0; loop<pmus->num_generic_events; loop++) {
 				/* pass generic num to get perticular config and to store first file descriptor*/
-                        	inner_loop++;
-                                fd = perf_event_attr_initialize(loop, inner_loop);
-                                if(inner_loop == 1) {
-                                      g_first_fd = fd;
-                                 }
-                                 rd_events[loop].fd = fd;
-                                 rd_events[loop].name = pmus->generic_events[loop].name;
-                                 if(ioctl(rd_events[loop].fd, PERF_EVENT_IOC_ID, &rd_events[loop].id)==-1) {
-					perror("ioctl fails");
-				 } 
-                        }
+                		inner_loop++;
+                		fd = perf_event_attr_initialize(loop, inner_loop);
+                		pmus->generic_events[loop].fd = fd;
+                		if(ioctl(pmus->generic_events[loop].fd, PERF_EVENT_IOC_ID, &pmus->generic_events[loop].id)==-1) {
+			        	PERF_ERR("ioctl fails");
+					return FPGA_EXCEPTION;
+				} 
+            		}	
 				/* reset the performance counter to 0 */	
-                        if(ioctl(g_first_fd, PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP)==-1) {
-				perror("ioctl fails");
+            		if(ioctl(pmus->generic_events[0].fd, PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP)==-1) {
+			        PERF_ERR("ioctl fails");
+				return FPGA_EXCEPTION;
 			}
-                        if(ioctl(g_first_fd, PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP)==-1) {
-				perror("ioctl fails");
+			pmus->before=1;
+			read_fab_counters(pmus->before);
+		
+            		if(ioctl(pmus->generic_events[0].fd, PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP)==-1) {
+			        PERF_ERR("ioctl fails");
+				return FPGA_EXCEPTION;
 			}
 		}
 	}
-	result = 0;
+	closedir(dir);
+	return FPGA_OK;
 
 out:
 	closedir(dir);
 
-	return result;
+	return FPGA_EXCEPTION;
 }

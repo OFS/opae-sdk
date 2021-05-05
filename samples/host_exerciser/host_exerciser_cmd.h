@@ -35,15 +35,33 @@ namespace host_exerciser {
 
 class fpgaperf {
 public:
-  void perfstart (void) {
-                perf_start();
-        }
-  void perfstop (void) {
-                perf_stop();
-        }
+  fpga_result perfinit (uint16_t segment, uint8_t bus, uint8_t device, uint8_t function) {
+        fpga_result res=FPGA_OK;
+
+        res=fpgaperfcounterinit(segment, bus,device,function);
+        if(res!=FPGA_OK) return FPGA_EXCEPTION;
+
+        return FPGA_OK;
+  }
+  fpga_result perfstart (void) {
+        fpga_result res=FPGA_OK;
+
+        res=fpgaperfcounterstart();
+        if(res!=FPGA_OK) return FPGA_EXCEPTION;
+
+        return FPGA_OK;
+  }
+  fpga_result perfstop (void) {
+        fpga_result res=FPGA_OK;
+
+        res=fpgaperfcounterstop();
+        if(res!=FPGA_OK) return FPGA_EXCEPTION;
+
+        return FPGA_OK;
+  }
   void perfprint (void) {
-                perf_print();
-        }
+        fpgaperfcounterprint();
+  }
 };
 
 class host_exerciser_cmd : public test_command
@@ -131,15 +149,21 @@ public:
 
     virtual int run(test_afu *afu, CLI::App *app)
     {
+	fpga_result res=FPGA_OK;
         (void)app;
 
         auto d_afu = dynamic_cast<host_exerciser*>(afu);
         host_exe_ = dynamic_cast<host_exerciser*>(afu);
 
 	//fpga perf counter initialization
+	d_afu->get_properties_from_handle();
+
         fpgaperf fpgaperf;
 
-        fpgaperf.perfstart();
+        res = fpgaperf.perfinit(host_exe_->segment_, host_exe_->bus_, host_exe_->device_, host_exe_->function_);
+	if(res!=FPGA_OK) return -1;
+        res = fpgaperf.perfstart();
+	if(res!=FPGA_OK) return -1;
 
         auto ret = parse_input_options();
         if (ret != 0) {
@@ -214,7 +238,8 @@ public:
 
         std::cout << "Test Completed" << std::endl;
 	//stop performance counter
-	fpgaperf.perfstop();
+	res=fpgaperf.perfstop();
+	if(res!=FPGA_OK) return -1;
 
         host_exerciser_swtestmsg();
         host_exerciser_status();
