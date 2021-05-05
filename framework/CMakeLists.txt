@@ -103,9 +103,6 @@ if(OPAE_ENABLE_MOCK)
             ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dcp-rc-nlb3.tar.gz
             ${CMAKE_BINARY_DIR}
         COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dfl0-nlb0.tar.gz
-            ${CMAKE_BINARY_DIR}
-        COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_tmp-dcp-vc.tar.gz
             ${CMAKE_BINARY_DIR}
         COMMAND ${CMAKE_COMMAND} -E copy
