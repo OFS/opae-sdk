@@ -23,9 +23,6 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -351,7 +348,7 @@ fpga_result fpgaperfcounterinit(uint16_t segment,uint8_t bus, uint8_t device, ui
 fpga_result fpgaperfcounterstart() {
 	DIR *dir=NULL,*event_dir=NULL,*format_dir=NULL;
 	struct dirent *entry=NULL;
-	char dir_name[SYSFS_PATH_MAX] = "";
+	char dir_name[BUFSIZ] = "";
 	char event_name[BUFSIZ] = "";
 	char temp_name[BUFSIZ] = "";
 	char format_name[BUFSIZ] = "";
@@ -375,7 +372,7 @@ fpga_result fpgaperfcounterstart() {
 		} else {
 			/* read name */
 			pmus->name=strdup(entry->d_name);
-			sprintf(dir_name,SYSFS"/%s",entry->d_name);
+			sprintf(dir_name,SYSFS"/%s",pmus->name);
 			/* read type */
 			sprintf(temp_name,"%s/type",dir_name);
 			file=fopen(temp_name,"r");
