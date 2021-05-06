@@ -395,6 +395,7 @@ fpga_result print_phy_info(fpga_token token)
 	res = opae_uio_region_get(&uio, 0, (uint8_t **)&mmap_ptr, NULL);
 	if (res) {
 		OPAE_ERR("Failed to get uio region");
+		opae_uio_close(&uio);
 		return res;
 	}
 	_ptr = (uint32_t *)mmap_ptr;
@@ -413,6 +414,7 @@ fpga_result print_phy_info(fpga_token token)
 		}
 	}
 
+	opae_uio_close(&uio);
 	return res;
 }
 
