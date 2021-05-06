@@ -35,32 +35,39 @@ namespace host_exerciser {
 
 class fpgaperf {
 public:
-  fpga_result perfinit (uint16_t segment, uint8_t bus, uint8_t device, uint8_t function) {
-        fpga_result res=FPGA_OK;
+  fpga_result perfinit(uint16_t segment, uint8_t bus, uint8_t device, uint8_t function)
+  {
+	fpga_result res = FPGA_OK;
 
-        res=fpgaperfcounterinit(segment, bus,device,function);
-        if(res!=FPGA_OK) return FPGA_EXCEPTION;
+	res = fpgaperfcounterinit(segment, bus, device, function);
+	if (res != FPGA_OK)
+		return FPGA_EXCEPTION;
 
-        return FPGA_OK;
+	return FPGA_OK;
   }
-  fpga_result perfstart (void) {
-        fpga_result res=FPGA_OK;
+  fpga_result perfstart(void)
+  {
+	fpga_result res = FPGA_OK;
 
-        res=fpgaperfcounterstart();
-        if(res!=FPGA_OK) return FPGA_EXCEPTION;
+	res = fpgaperfcounterstart();
+	if (res != FPGA_OK)
+		return FPGA_EXCEPTION;
 
-        return FPGA_OK;
+	return FPGA_OK;
   }
-  fpga_result perfstop (void) {
-        fpga_result res=FPGA_OK;
+  fpga_result perfstop(void)
+  {
+	fpga_result res = FPGA_OK;
 
-        res=fpgaperfcounterstop();
-        if(res!=FPGA_OK) return FPGA_EXCEPTION;
+	res = fpgaperfcounterstop();
+	if (res != FPGA_OK)
+		return FPGA_EXCEPTION;
 
-        return FPGA_OK;
+	return FPGA_OK;
   }
-  void perfprint (void) {
-        fpgaperfcounterprint();
+  void perfprint(void)
+  {
+	fpgaperfcounterprint();
   }
 };
 
@@ -161,9 +168,11 @@ public:
         fpgaperf fpgaperf;
 
         res = fpgaperf.perfinit(host_exe_->segment_, host_exe_->bus_, host_exe_->device_, host_exe_->function_);
-	if(res!=FPGA_OK) return -1;
+	if (res != FPGA_OK)
+		return -1;
         res = fpgaperf.perfstart();
-	if(res!=FPGA_OK) return -1;
+	if (res != FPGA_OK)
+		return -1;
 
         auto ret = parse_input_options();
         if (ret != 0) {
@@ -238,8 +247,9 @@ public:
 
         std::cout << "Test Completed" << std::endl;
 	//stop performance counter
-	res=fpgaperf.perfstop();
-	if(res!=FPGA_OK) return -1;
+	res = fpgaperf.perfstop();
+	if (res != FPGA_OK)
+		return -1;
 
         host_exerciser_swtestmsg();
         host_exerciser_status();

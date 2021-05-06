@@ -465,11 +465,11 @@ public:
   
   void get_properties_from_handle()
   {
-        props = properties::get(handle_);
-        segment_ = static_cast<uint16_t>(props->segment);
-        bus_ = static_cast<uint8_t>(props->bus);
-        device_ = static_cast<uint8_t>(props->device);
-        function_ = static_cast<uint8_t>(props->function);
+	props = properties::get(handle_);
+	segment_ = static_cast<uint16_t>(props->segment);
+	bus_ = static_cast<uint8_t>(props->bus);
+	device_ = static_cast<uint8_t>(props->device);
+	function_ = static_cast<uint8_t>(props->function);
   }
 
 };

@@ -34,32 +34,19 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define PERF_DBG
-#ifndef PERF_DBG
-#define PERF_DBG(format,...)   \
-                printf("%s:%d:%s() **DEBUG** :" format "\n",__FILE__, __LINE__, __func__)
-#endif // PERF_DBG
-
-#ifndef PERF_ERR
-#define PERF_ERR(format,...)   \
-                printf("%s:%d:%s() **ERROR** :" format "\n",__FILE__, __LINE__, __func__)
-#endif // PERF_ERR
-
-/*initilaize th eperf_counter structureand get the dfl_fme device*/
+/*initilaize the perf_counter structureand get the dfl_fme device*/
 fpga_result fpgaperfcounterinit(uint16_t segment, uint8_t bus, uint8_t device, uint8_t function);
 
- 
 /* Dynamically enumerate sysfs path and get the device type, cpumask, format and generic events
- * Reset the counter to 0 and enable the counters to get workload instructions */
-fpga_result fpgaperfcounterstart();
-
+Reset the counter to 0 and enable the counters to get workload instructions */
+fpga_result fpgaperfcounterstart(void);
 
 /* Stops performance counter and get the counters values */
-fpga_result fpgaperfcounterstop();
+fpga_result fpgaperfcounterstop(void);
 
 /*Print the perf counter values*/
-void fpgaperfcounterprint();
- 
+void fpgaperfcounterprint(void);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
