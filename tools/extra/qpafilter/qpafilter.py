@@ -242,6 +242,8 @@ class temp_verifier:
                 LOG.info(f'is lower than the platform\'s recommended '
                          f'minimum of {self.args.min_temp} {DEGREES_C}.')
                 min_temp_failures += 1
+                # Adjust the fatal value up to the minimum.
+                i['fatal'] = str(self.args.min_temp)
 
         if min_temp_failures == len(items):
             LOG.warning(f'WARNING: All threshold values are below the '
