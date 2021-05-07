@@ -29,6 +29,7 @@
 #endif // HAVE_CONFIG_H
 
 #include <string.h>
+#include <uuid/uuid.h>
 
 #include <opae/properties.h>
 
@@ -86,6 +87,7 @@ out_free:
 	return result;
 }
 
+
 fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 						    fpga_properties prop)
 {
@@ -93,17 +95,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	struct _fpga_properties *_prop = (struct _fpga_properties *)prop;
 
 	struct _fpga_properties _iprop;
-
-	char spath[SYSFS_PATH_MAX] = { 0, };
-	char idpath[SYSFS_PATH_MAX] = { 0, };
-	char *p;
-	int s, b, d, f;
-	int res;
 	int err = 0;
-	int resval = 0;
-	uint64_t value = 0;
-	uint32_t x = 0;
-	size_t len;
 
 	pthread_mutex_t lock;
 
@@ -125,165 +117,76 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	memset(&_iprop, 0, sizeof(struct _fpga_properties));
 	_iprop.magic = FPGA_PROPERTY_MAGIC;
 
-	// read the vendor and device ID from the 'device' path
-	if (snprintf(idpath, sizeof(idpath),
-		     "%s/../device/vendor", _token->sysfspath) < 0) {
-		OPAE_ERR("snprintf buffer overflow");
-		return FPGA_EXCEPTION;
-	}
-
-	x = 0;
-	result = sysfs_read_u32(idpath, &x);
-	if (result != FPGA_OK)
-		return result;
-	_iprop.vendor_id = (uint16_t)x;
+	_iprop.vendor_id = _token->dev->vendor_id;
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_VENDORID);
 
-	if (snprintf(idpath, sizeof(idpath),
-		     "%s/../device/device", _token->sysfspath) < 0) {
-		OPAE_ERR("snprintf buffer overflow");
-		return FPGA_EXCEPTION;
-	}
-
-	x = 0;
-	result = sysfs_read_u32(idpath, &x);
-	if (result != FPGA_OK)
-		return result;
-	_iprop.device_id = (uint16_t)x;
+	_iprop.device_id = _token->dev->device_id;
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICEID);
 
-	// The input token is either for an FME or an AFU.
-	// Go one level back to get to the dev.
+	_iprop.objtype = _token->dev->type;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJTYPE);
 
-	len = strnlen(_token->sysfspath, sizeof(spath) - 1);
-	memcpy(spath, _token->sysfspath, len);
-	spath[len] = '\0';
-
-	p = strrchr(spath, '/');
-	ASSERT_NOT_NULL_MSG(p, "Invalid token sysfs path");
-
-	*p = 0;
-
-	p = strstr(_token->sysfspath, FPGA_SYSFS_AFU);
-	if (NULL != p) {
-		// AFU
-		result = sysfs_get_guid(_token, FPGA_SYSFS_AFU_GUID,
-			 _iprop.guid);
-		if (FPGA_OK != result)
-			return result;
-		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
-
-		_iprop.parent = (fpga_token)token_get_parent(_token);
-		if (NULL != _iprop.parent)
-			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_PARENT);
-
-		_iprop.objtype = FPGA_ACCELERATOR;
-		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJTYPE);
-
-		_iprop.u.accelerator.num_mmio = 0;
-		_iprop.u.accelerator.num_interrupts = 0;
-
-		res = open(_token->devpath, O_RDWR);
-		if (-1 == res) {
-			_iprop.u.accelerator.state = FPGA_ACCELERATOR_ASSIGNED;
-		} else {
-			opae_port_info info = { 0, 0, 0, 0, 0 };
-
-			if (opae_get_port_info(res, &info) == FPGA_OK) {
-				_iprop.u.accelerator.num_mmio = info.num_regions;
-				SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_NUM_MMIO);
-
-				if (info.capability & OPAE_PORT_CAP_UAFU_IRQS) {
-					_iprop.u.accelerator.num_interrupts =
-						info.num_uafu_irqs;
-					SET_FIELD_VALID(&_iprop,
-						FPGA_PROPERTY_NUM_INTERRUPTS);
-				}
-			}
-
-			close(res);
-			_iprop.u.accelerator.state =
-				FPGA_ACCELERATOR_UNASSIGNED;
-		}
-		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_ACCELERATOR_STATE);
-	}
-
-	p = strstr(_token->sysfspath, FPGA_SYSFS_FME);
-	if (NULL != p) {
-		// FME
-		_iprop.objtype = FPGA_DEVICE;
-		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJTYPE);
-		// get bitstream id
-		result = sysfs_get_interface_id(_token, _iprop.guid);
-		if (FPGA_OK != result)
-			return result;
-		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
-
-		resval = sysfs_parse_attribute64(_token->sysfspath,
-			FPGA_SYSFS_NUM_SLOTS, &value);
-		if (resval != 0) {
-			return FPGA_NOT_FOUND;
-		}
-		_iprop.u.fpga.num_slots = (uint32_t)value;
-		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_NUM_SLOTS);
-
-		resval = sysfs_parse_attribute64(_token->sysfspath,
-			FPGA_SYSFS_BITSTREAM_ID, &_iprop.u.fpga.bbs_id);
-		if (resval != 0) {
-			return FPGA_NOT_FOUND;
-		}
-		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_BBSID);
-
-		_iprop.u.fpga.bbs_version.major =
-				FPGA_BBS_VER_MAJOR(_iprop.u.fpga.bbs_id);
-		_iprop.u.fpga.bbs_version.minor =
-				FPGA_BBS_VER_MINOR(_iprop.u.fpga.bbs_id);
-		_iprop.u.fpga.bbs_version.patch =
-				FPGA_BBS_VER_PATCH(_iprop.u.fpga.bbs_id);
-		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_BBSVERSION);
-	}
-
-	result = sysfs_sbdf_from_path(spath, &s, &b, &d, &f);
-	if (result)
-		return result;
-
-	_iprop.segment = (uint16_t)s;
+	_iprop.segment = _token->dev->segment;
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_SEGMENT);
 
-	_iprop.bus = (uint8_t)b;
+	_iprop.bus = _token->dev->bus;
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_BUS);
 
-	_iprop.device = (uint8_t)d;
+	_iprop.device = _token->dev->device;
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICE);
 
-	_iprop.function = (uint8_t)f;
+	_iprop.function = _token->dev->function;
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_FUNCTION);
+	
+	_iprop.object_id = _token->dev->object_id;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJECTID);
 
-	// only set socket id if we have it on sysfs
-	if (sysfs_get_fme_path(_token->sysfspath, spath) == FPGA_OK) {
-		resval = sysfs_parse_attribute64(spath,
-			FPGA_SYSFS_SOCKET_ID, &value);
+	_iprop.socket_id = _token->dev->numa_node;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_SOCKETID);
 
-		if (0 == resval) {
-			_iprop.socket_id = (uint8_t)value;
-			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_SOCKETID);
+	_iprop.num_errors = _token->dev->num_errors;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_NUM_ERRORS);
+
+
+	if (_token->dev->type == FPGA_ACCELERATOR) {
+		// AFU
+		const char *afu_id = dfl_device_get_attr(_token->dev,
+							 FPGA_SYSFS_AFU_GUID);
+		if (afu_id && dfl_parse_guid(afu_id, _iprop.guid)) {
+			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
+		} else {
+			OPAE_MSG("error reading/parsing afu_id: '%s'", afu_id);
+		}
+
+		dfl_device *parent = dfl_device_get_parent(_token->dev);
+		if (parent) {
+			_iprop.parent = fpga_token_new(parent, false);
+			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_PARENT);
+		}
+
+
+	} else if (_token->dev->type == FPGA_DEVICE) {
+		// FME
+		// get bitstream id
+		if (!dfl_device_get_compat_id(_token->dev, _iprop.guid)) {
+			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
+		}
+
+		if (!dfl_device_get_ports_num(_token->dev, &_iprop.u.fpga.num_slots)) {
+			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_NUM_SLOTS);
+		}
+
+		if (!dfl_device_get_bbs_id(_token->dev, &_iprop.u.fpga.bbs_id)) {
+			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_BBSID);
+			_iprop.u.fpga.bbs_version.major =
+					FPGA_BBS_VER_MAJOR(_iprop.u.fpga.bbs_id);
+			_iprop.u.fpga.bbs_version.minor =
+					FPGA_BBS_VER_MINOR(_iprop.u.fpga.bbs_id);
+			_iprop.u.fpga.bbs_version.patch =
+					FPGA_BBS_VER_PATCH(_iprop.u.fpga.bbs_id);
+			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_BBSVERSION);
 		}
 	}
-
-	result = sysfs_objectid_from_path(_token->sysfspath, &_iprop.object_id);
-	if (0 == result)
-		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJECTID);
-
-	char errpath[SYSFS_PATH_MAX] = { 0, };
-
-	if (snprintf(errpath, sizeof(errpath),
-		     "%s/errors", _token->sysfspath) < 0) {
-		OPAE_ERR("snprintf buffer overflow");
-		return FPGA_EXCEPTION;
-	}
-
-	_iprop.num_errors = count_error_files(errpath);
-	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_NUM_ERRORS);
 
 	if (pthread_mutex_lock(&_prop->lock)) {
 		OPAE_MSG("Failed to lock properties mutex");

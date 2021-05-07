@@ -35,12 +35,14 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <libudev.h>
 #include <limits.h>
 #include <pthread.h>
 #include <opae/types.h>
 #include <opae/sysobject.h>
 #include <opae/types_enum.h>
 #include <opae/metrics.h>
+#include <opae/dfl.h>
 #include "metrics/vector.h"
 
 #define SYSFS_FPGA_CLASS_PATH "/sys/class/fpga"
@@ -97,14 +99,31 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct _sysfs_device {
+	struct udev_device *dev;
+  struct udev_device *region;
+  struct udev_device *pci;
+  fpga_objtype objtype;
+	uint32_t segment;
+	uint8_t bus;
+	uint8_t device;
+	uint8_t function;
+	uint32_t device_id;
+	uint32_t vendor_id;
+	struct _sysfs_device *next;
+} sysfs_device;
+
+
 /** System-wide unique FPGA resource identifier */
 struct _fpga_token {
 	uint32_t device_instance;
 	uint32_t subdev_instance;
 	uint64_t magic;
-	char sysfspath[SYSFS_PATH_MAX];
-	char devpath[DEV_PATH_MAX];
+  const char *devpath;
+  const char *sysfspath;
 	struct error_list *errors;
+  dfl_device *dev;
 };
 
 enum fpga_hw_type {

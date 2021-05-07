@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,61 +24,23 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-set(SRC
-  common.c
-  enum.c
-  error.c
-  umsg.c
-  reconf.c
-  open.c
-  close.c
-  reset.c
-  mmio.c
-  buffer.c
-  bitstream.c
-  hostif.c
-  event.c
-  properties.c
-  init.c
-  opae_drv.c
-  sysfs.c
-  wsid_list.c
-  token_list.c
-  mmap.c
-  version.c
-  userclk.c
-  usrclk/user_clk_pgm_uclock.c
-  plugin.c
-  sysobject.c
-  manage.c
-  metrics/metrics.c
-  metrics/metrics_utils.c
-  metrics/afu_metrics.c
-  metrics/vector.c
-  metrics/metrics_max10.c
-  metrics/threshold.c)
+set(src
+    opae_dfl.c
+)
 
-opae_add_module_library(TARGET xfpga
-    SOURCE ${SRC}
+opae_add_shared_library(
+    TARGET dfl
+    SOURCE ${src}
     LIBS
-        dl
-        m
         ${CMAKE_THREAD_LIBS_INIT}
-        opae-c
-        dfl
-        ${libjson-c_LIBRARIES}
-        ${libuuid_LIBRARIES}
-    COMPONENT opaeclib
+        udev
+    VERSION ${OPAE_VERSION}
+    SOVERSION ${OPAE_VERSION_MAJOR}
+    COMPONENT libdfl
 )
 
-target_include_directories(xfpga
-    PRIVATE
-        ${OPAE_LIBS_ROOT}/libopae-c
-)
-        
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_definitions(ofs PRIVATE LIBOFS_DEBUG=1)
+endif()
 
-target_compile_options(xfpga PRIVATE
-    -Wno-unused-function
-    -Wno-unused-variable
-    -Wno-unused-parameter
-)
+set_property(TARGET dfl PROPERTY C_STANDARD 11)

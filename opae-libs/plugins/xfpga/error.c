@@ -28,17 +28,23 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include <sys/stat.h>
-#include <unistd.h>
+#define _GNU_SOURCE
 #include <dirent.h>
+#include <fnmatch.h>
+#include <unistd.h>
 #include <stdio.h>
+#include <sys/stat.h>
+#undef _GNU_SOURCE
 
 #include "common_int.h"
 #include "opae/error.h"
 
 #include "error_int.h"
 
-#define INJECT_ERROR "inject_error"
+#define INJECT_ERROR "?(errors/)inject_error"
+#define CLEARABLE_PATTERN "?(errors/)?(?(pcie?|warning|inject|fme)_)errors"
+#define CAN_CLEAR(_name) !fnmatch(CLEARABLE_PATTERN, _name, FNM_EXTMATCH)
+#define INJECT_CLEAR "0x0"
 
 fpga_result __XFPGA_API__ xfpga_fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
 {
@@ -53,20 +59,14 @@ fpga_result __XFPGA_API__ xfpga_fpgaReadError(fpga_token token, uint32_t error_n
 		return FPGA_INVALID_PARAM;
 	}
 
-	struct error_list *p = _token->errors;
+	dfl_error *p = _token->dev->errors;
 	while (p) {
 		if (i == error_num) {
-			// test if file exists
-			if (stat(p->error_file, &st) == -1) {
-				OPAE_MSG("can't stat %s", p->error_file);
-				return FPGA_EXCEPTION;
-			}
-			res = sysfs_read_u64(p->error_file, value);
+			res = dfl_device_read_attr64(_token->dev, p->attr, value);
 			if (res != FPGA_OK) {
-				OPAE_MSG("can't read error file '%s'", p->error_file);
+				OPAE_MSG("can't read error file '%s'", p->attr);
 				return res;
 			}
-
 			return FPGA_OK;
 		}
 		i++;
@@ -92,39 +92,30 @@ xfpga_fpgaClearError(fpga_token token, uint32_t error_num)
 		return FPGA_INVALID_PARAM;
 	}
 
-	struct error_list *p = _token->errors;
+	dfl_error *p = _token->dev->errors;
 	while (p) {
 		if (i == error_num) {
-			if (!p->info.can_clear) {
-				OPAE_MSG("can't clear error '%s'", p->info.name);
+			if (!CAN_CLEAR(p->attr)) {
+				OPAE_MSG("can't clear error '%s'", p->attr);
 				return FPGA_NOT_SUPPORTED;
 			}
 
-			if (strcmp(p->info.name, INJECT_ERROR) == 0) {
-				value = 0;
-			} else {
-				// read current error value
-				res = xfpga_fpgaReadError(token, error_num, &value);
-				if (res != FPGA_OK)
-					return res;
-			}
-
-			// write to 'clear' file
-			if (stat(p->clear_file, &st) == -1) {
-				OPAE_MSG("can't stat %s", p->clear_file);
-				return FPGA_EXCEPTION;
-			}
-			res = sysfs_write_u64(p->clear_file, value);
-			if (res != FPGA_OK) {
-				OPAE_MSG("can't write clear file '%s'", p->clear_file);
+			const char *clear_value =
+				fnmatch(INJECT_ERROR, p->attr, FNM_EXTMATCH) ?
+					dfl_device_get_attr(_token->dev, p->attr) : INJECT_CLEAR;
+			char buffer[4096] = {0};
+			snprintf(buffer, sizeof(buffer), "%s\n", clear_value);
+			res = dfl_device_set_attr(_token->dev, p->attr, buffer);
+			if (res < 0) {
+				OPAE_MSG("can't write clear file '%s'", p->attr);
 				return res;
 			}
+
 			return FPGA_OK;
 		}
 		i++;
 		p = p->next;
 	}
-
 	OPAE_MSG("error info %d not found", error_num);
 	return FPGA_NOT_FOUND;
 }
@@ -141,10 +132,10 @@ fpga_result __XFPGA_API__ xfpga_fpgaClearAllErrors(fpga_token token)
 		return FPGA_INVALID_PARAM;
 	}
 
-	struct error_list *p = _token->errors;
+	dfl_error *p = _token->dev->errors;
 	while (p) {
 		// if error can be cleared
-		if (p->info.can_clear) {
+		if (CAN_CLEAR(p->attr)) {
 			// clear error
 			res = xfpga_fpgaClearError(token, i);
 			if (res != FPGA_OK)
@@ -174,11 +165,17 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetErrorInfo(fpga_token token,
 		OPAE_MSG("Invalid token");
 		return FPGA_INVALID_PARAM;
 	}
-
-	struct error_list *p = _token->errors;
+	
+	dfl_error *p = _token->dev->errors;
 	while (p) {
 		if (i == error_num) {
-			memcpy(error_info, &p->info, sizeof(struct fpga_error_info));
+			const char *name = strrchr(p->attr, '/');
+			if (!name) {
+				OPAE_MSG("error name %d not found", error_num);
+				return FPGA_EXCEPTION;
+			}
+			strcpy(error_info->name, name+1);
+			error_info->can_clear = CAN_CLEAR(name);
 			return FPGA_OK;
 		}
 		i++;

@@ -173,6 +173,7 @@ if (OPAE_BUILD_LIBOPAEVFIO AND PLATFORM_SUPPORTS_VFIO)
 endif()
 
 opae_add_subdirectory(libbitstream)
+opae_add_subdirectory(libdfl)
 opae_add_subdirectory(plugins)
 
 if(OPAE_BUILD_LIBOPAE_CXX)

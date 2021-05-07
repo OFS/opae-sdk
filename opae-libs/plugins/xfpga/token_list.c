@@ -44,124 +44,124 @@ static struct token_map *token_root;
 /* mutex to protect global data structures */
 extern pthread_mutex_t global_lock;
 
-/**
- * @brief Add entry to linked list for tokens
- *	Will allocate memory (which is freed by token_cleanup())
- *
- * @param sysfspath
- * @param devpath
- *
- * @return
- */
-struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
-{
-	struct token_map *tmp;
-	int err = 0;
-	uint32_t device_instance;
-	uint32_t subdev_instance;
-	char *endptr = NULL;
-	const char *ptr;
-	size_t len;
-
-	/* get the device instance id */
-	ptr = strchr(sysfspath, '.');
-	if (ptr == NULL) {
-		OPAE_MSG("sysfspath does not meet expected format");
-		return NULL;
-	}
-
-	device_instance = strtoul(++ptr, &endptr, 10);
-	/* no digits in path */
-	if (endptr == ptr) {
-		OPAE_MSG("sysfspath does not meet expected format");
-		return NULL;
-	}
-
-	/* get the sub-device (FME/Port) instance id */
-	ptr = strrchr(sysfspath, '.');
-	if (ptr == NULL) {
-		OPAE_MSG("sysfspath does not meet expected format");
-		return NULL;
-	}
-
-	subdev_instance = strtoul(++ptr, &endptr, 10);
-	/* no digits in path */
-	if (endptr == ptr) {
-		OPAE_MSG("sysfspath does not meet expected format");
-		return NULL;
-	}
-
-	if (pthread_mutex_lock(&global_lock)) {
-		OPAE_MSG("Failed to lock global mutex");
-		return NULL;
-	}
-
-	/* Prevent duplicate entries. */
-	for (tmp = token_root ; NULL != tmp ; tmp = tmp->next) {
-		if ((0 == strncmp(sysfspath, tmp->_token.sysfspath,
-						SYSFS_PATH_MAX)) &&
-				(0 == strncmp(devpath, tmp->_token.devpath,
-					      DEV_PATH_MAX))) {
-			err = pthread_mutex_unlock(&global_lock);
-			if (err) {
-				OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-			}
-			return &tmp->_token;
-		}
-	}
-
-	tmp = malloc(sizeof(struct token_map));
-	if (!tmp) {
-		err = pthread_mutex_unlock(&global_lock);
-		if (err) {
-			OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-		}
-		return NULL;
-	}
-
-
-	/* populate error list */
-	tmp->_token.errors = NULL;
-	char errpath[SYSFS_PATH_MAX] = { 0, };
-
-	if (snprintf(errpath, sizeof(errpath),
-		     "%s/errors", sysfspath) < 0) {
-		OPAE_ERR("snprintf buffer overflow");
-		free(tmp);
-		if (pthread_mutex_unlock(&global_lock)) {
-			OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-		}
-		return NULL;
-	}
-
-	build_error_list(errpath, &tmp->_token.errors);
-
-	/* mark data structure as valid */
-	tmp->_token.magic = FPGA_TOKEN_MAGIC;
-
-	/* assign the instances num from above */
-	tmp->_token.device_instance = device_instance;
-	tmp->_token.subdev_instance = subdev_instance;
-
-	/* deep copy token data */
-	len = strnlen(sysfspath, SYSFS_PATH_MAX - 1);
-	memcpy(tmp->_token.sysfspath, sysfspath, len);
-	tmp->_token.sysfspath[len] = '\0';
-
-	len = strnlen(devpath, DEV_PATH_MAX - 1);
-	memcpy(tmp->_token.devpath, devpath, len);
-	tmp->_token.devpath[len] = '\0';
-
-	tmp->next = token_root;
-	token_root = tmp;
-
-	err = pthread_mutex_unlock(&global_lock);
-	if (err) {
-		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-	}
-
-	return &tmp->_token;
-}
+///**
+// * @brief Add entry to linked list for tokens
+// *	Will allocate memory (which is freed by token_cleanup())
+// *
+// * @param sysfspath
+// * @param devpath
+// *
+// * @return
+// */
+//struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
+//{
+//	struct token_map *tmp;
+//	int err = 0;
+//	uint32_t device_instance;
+//	uint32_t subdev_instance;
+//	char *endptr = NULL;
+//	const char *ptr;
+//	size_t len;
+//
+//	/* get the device instance id */
+//	ptr = strchr(sysfspath, '.');
+//	if (ptr == NULL) {
+//		OPAE_MSG("sysfspath does not meet expected format");
+//		return NULL;
+//	}
+//
+//	device_instance = strtoul(++ptr, &endptr, 10);
+//	/* no digits in path */
+//	if (endptr == ptr) {
+//		OPAE_MSG("sysfspath does not meet expected format");
+//		return NULL;
+//	}
+//
+//	/* get the sub-device (FME/Port) instance id */
+//	ptr = strrchr(sysfspath, '.');
+//	if (ptr == NULL) {
+//		OPAE_MSG("sysfspath does not meet expected format");
+//		return NULL;
+//	}
+//
+//	subdev_instance = strtoul(++ptr, &endptr, 10);
+//	/* no digits in path */
+//	if (endptr == ptr) {
+//		OPAE_MSG("sysfspath does not meet expected format");
+//		return NULL;
+//	}
+//
+//	if (pthread_mutex_lock(&global_lock)) {
+//		OPAE_MSG("Failed to lock global mutex");
+//		return NULL;
+//	}
+//
+//	/* Prevent duplicate entries. */
+//	for (tmp = token_root ; NULL != tmp ; tmp = tmp->next) {
+//		if ((0 == strncmp(sysfspath, tmp->_token.sysfspath,
+//						SYSFS_PATH_MAX)) &&
+//				(0 == strncmp(devpath, tmp->_token.devpath,
+//					      DEV_PATH_MAX))) {
+//			err = pthread_mutex_unlock(&global_lock);
+//			if (err) {
+//				OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+//			}
+//			return &tmp->_token;
+//		}
+//	}
+//
+//	tmp = malloc(sizeof(struct token_map));
+//	if (!tmp) {
+//		err = pthread_mutex_unlock(&global_lock);
+//		if (err) {
+//			OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+//		}
+//		return NULL;
+//	}
+//
+//
+//	/* populate error list */
+//	tmp->_token.errors = NULL;
+//	char errpath[SYSFS_PATH_MAX] = { 0, };
+//
+//	if (snprintf(errpath, sizeof(errpath),
+//		     "%s/errors", sysfspath) < 0) {
+//		OPAE_ERR("snprintf buffer overflow");
+//		free(tmp);
+//		if (pthread_mutex_unlock(&global_lock)) {
+//			OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+//		}
+//		return NULL;
+//	}
+//
+//	build_error_list(errpath, &tmp->_token.errors);
+//
+//	/* mark data structure as valid */
+//	tmp->_token.magic = FPGA_TOKEN_MAGIC;
+//
+//	/* assign the instances num from above */
+//	tmp->_token.device_instance = device_instance;
+//	tmp->_token.subdev_instance = subdev_instance;
+//
+//	/* deep copy token data */
+//	len = strnlen(sysfspath, SYSFS_PATH_MAX - 1);
+//	memcpy(tmp->_token.sysfspath, sysfspath, len);
+//	tmp->_token.sysfspath[len] = '\0';
+//
+//	len = strnlen(devpath, DEV_PATH_MAX - 1);
+//	memcpy(tmp->_token.devpath, devpath, len);
+//	tmp->_token.devpath[len] = '\0';
+//
+//	tmp->next = token_root;
+//	token_root = tmp;
+//
+//	err = pthread_mutex_unlock(&global_lock);
+//	if (err) {
+//		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+//	}
+//
+//	return &tmp->_token;
+//}
 
 /**
  * @ brief Find the token that is the parent of _t

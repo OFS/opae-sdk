@@ -69,13 +69,16 @@ typedef struct _sysfs_fpga_device {
 
 int sysfs_initialize(void);
 int sysfs_finalize(void);
+fpga_token fpga_token_new(dfl_device *e, bool clone);
+
 int sysfs_device_count(void);
+
 
 typedef fpga_result (*device_cb)(const sysfs_fpga_device *device, void *context);
 fpga_result sysfs_foreach_device(device_cb cb, void *context);
 
 const sysfs_fpga_device *sysfs_get_device(size_t num);
-int sysfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *value);
+int sysfs_parse_attr64(struct udev_device *dev, const char *attr, uint64_t *value);
 
 fpga_result sysfs_get_fme_pr_interface_id(const char *sysfs_res_path, fpga_guid guid);
 
@@ -101,6 +104,8 @@ fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid);
  */
 
 fpga_result opae_glob_path(char *path, size_t len);
+fpga_result opae_glob_paths(const char *path, size_t found_max, char *found[],
+			    size_t *num_found);
 fpga_result sysfs_sbdf_from_path(const char *sysfspath, int *s, int *b, int *d, int *f);
 fpga_result sysfs_read_int(const char *path, int *i);
 fpga_result sysfs_read_u32(const char *path, uint32_t *u);
@@ -109,6 +114,7 @@ fpga_result sysfs_read_u32_pair(const char *path, uint32_t *u1, uint32_t *u2,
 fpga_result sysfs_read_u64(const char *path, uint64_t *u);
 fpga_result sysfs_write_u64(const char *path, uint64_t u);
 fpga_result sysfs_read_guid(const char *path, fpga_guid guid);
+int sysfs_str_guid(const char *guid_str, fpga_guid guid);
 fpga_result sysfs_get_socket_id(int dev, int subdev, uint8_t *socket_id);
 fpga_result sysfs_get_afu_id(int dev, int subdev, fpga_guid guid);
 fpga_result sysfs_get_pr_id(int dev, int subdev, fpga_guid guid);
