@@ -43,6 +43,7 @@ if(PLATFORM_SUPPORTS_VFIO)
         PUBLIC ${OPAE_INCLUDE_DIR}
         PRIVATE ${PYTHON_INCLUDE_DIRS}
         PRIVATE ${PYBIND11_INCLUDE_DIR}
+        PRIVATE ${libedit_INCLUDE_DIRS}
     )
     target_compile_definitions(opae.io
         PRIVATE LIBVFIO_EMBED
