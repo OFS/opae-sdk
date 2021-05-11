@@ -69,6 +69,10 @@ public:
   {
 	fpgaperfcounterprint();
   }
+  void perffree(void)
+  {
+	fpgaperfcounterfree();
+  }
 };
 
 class host_exerciser_cmd : public test_command
@@ -256,6 +260,8 @@ public:
 
 	//print the performace counter values
 	fpgaperf.perfprint();
+	//free the memory allocated for perf counters
+	fpgaperf.perffree();
 
         /* Compare buffer contents only loopback test mode*/
         if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)

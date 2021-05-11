@@ -34,18 +34,46 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/*initilaize the perf_counter structureand get the dfl_fme device*/
+/**
+ * initilaize the perf_counter structure and get the dfl_fme device.
+ *
+ * @param[in] segment PCI segment number of a resource
+ * @param[in] bus   PCI bus number of a resource
+ * @param[in] device PCI device number of a resource
+ * @param[in] function  PCI function number of a resource
+ * @returns FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
+ * parameters is invalid. FPGA_EXCEPTION if an internal exception occurred
+ * while trying to access the handle.
+ */
 fpga_result fpgaperfcounterinit(uint16_t segment, uint8_t bus, uint8_t device, uint8_t function);
 
-/* Dynamically enumerate sysfs path and get the device type, cpumask, format and generic events
-Reset the counter to 0 and enable the counters to get workload instructions */
+/* 
+ * Dynamically enumerate sysfs path and get the device type, cpumask, format and generic events
+ * Reset the counter to 0 and enable the counters to get workload instructions.
+ * 
+ * @returns FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
+ * parameters is invalid. FPGA_EXCEPTION if an internal exception occurred
+ * while trying to access the handle.
+ */
 fpga_result fpgaperfcounterstart(void);
 
-/* Stops performance counter and get the counters values */
+/*
+ * Stops performance counter and get the counters values
+ *
+ * @returns FPGA_OK on success. FPGA_EXCEPTION if an internal exception occurred
+ * while trying to access the handle.
+ */
 fpga_result fpgaperfcounterstop(void);
 
-/*Print the perf counter values*/
+/*
+ * Print the perf counter values
+ */
 void fpgaperfcounterprint(void);
+
+/*
+ * Release the memory alloacted
+ */
+void fpgaperfcounterfree(void)
 
 #ifdef __cplusplus
 }
