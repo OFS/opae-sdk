@@ -35,7 +35,6 @@ import pdb
 import sys
 import libvfio
 
-from logging.handlers import FileHandler
 from opae.io import utils
 from opae.io.utils import Path
 
@@ -281,7 +280,7 @@ def get_action(args):
 
 def setup_logging():
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    h = FileHandler(f'/tmp/opae.io-{stamp}.log')
+    h = logging.FileHandler(f'/tmp/opae.io-{stamp}.log')
     h.setFormatter(logging.Formatter('[%(asctime)-15s] [%(levelname)s] %(message)s'))
     l = logging.getLogger('opae.io')
     l.setLevel(logging.DEBUG)
