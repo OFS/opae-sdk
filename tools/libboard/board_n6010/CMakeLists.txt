@@ -24,29 +24,17 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-set(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/timestamp)
-file(GLOB_RECURSE PKG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.py)
-
-set(LINK_DIRS "${LIBRARY_OUTPUT_PATH}")
-
-add_custom_command(
-    OUTPUT ${OUTPUT}
-    COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext -L ${LINK_DIRS}
-    COMMAND ${PYTHON_EXECUTABLE} setup.py build
-    COMMAND ${CMAKE_COMMAND} -E touch ${OUTPUT}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    DEPENDS setup.py ${PKG_FILES}
+opae_add_module_library(TARGET board_n6010
+    SOURCE board_n6010.c
+    LIBS
+        ${CMAKE_THREAD_LIBS_INIT}
+        opae-c
+        opaeuio
+        board_common
+    COMPONENT opaeboardlib
 )
 
-set_property(DIRECTORY PROPERTY
-    ADDITIONAL_MAKE_CLEAN_FILES
-        "${CMAKE_CURRENT_SOURCE_DIR}/build"
-        "${CMAKE_CURRENT_SOURCE_DIR}/dist"
-)
-add_custom_target(build ALL DEPENDS  ${OUTPUT})
-opae_python_install(
-    COMPONENT toolhssi
-    RECORD_FILE hssi-install.txt
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    RPM_PACKAGE tools-extra
+target_include_directories(board_n6010
+    PRIVATE
+        ${OPAE_SDK_SOURCE}/libboard/board_common
 )

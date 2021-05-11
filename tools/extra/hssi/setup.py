@@ -24,51 +24,19 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 from setuptools import setup, find_packages
-from setuptools.command.build_ext import build_ext
-from distutils.ccompiler import new_compiler
-from distutils.extension import Extension
-from distutils.errors import CompileError, DistutilsExecError
-
-# get the original build_extensions method
-original_build_extensions = build_ext.build_extensions
-
-
-def override_build_extensions(self):
-    if '-Wstrict-prototypes' in self.compiler.compiler_so:
-        self.compiler.compiler_so.remove('-Wstrict-prototypes')
-    self.compiler.compiler_so.append('-fvisibility=hidden')
-    # call the original build_extensions
-    original_build_extensions(self)
-
-
-# replace build_extensions with our custom version
-build_ext.build_extensions = override_build_extensions
-
-
-class pybind_include_dirs(object):
-    def __init__(self, user=False):
-        self.user = user
-
-    def __str__(self):
-        import pybind11
-        return pybind11.get_include(self.user)
-
 
 setup(
-    name='hssi',
+    name='hssi ethernet',
     version="2.0",
     packages=find_packages(include=['*']),
-    include_dirs=[pybind_include_dirs()],
     entry_points={
         'console_scripts': [
-            'hssistats = hssistats:main',
-            'hssimac = hssimac:main',
-            'hssiloopback = hssiloopback:main',
-            'hssicommon = hssiloopback:main',
+            'hssistats = ethernet.hssistats:main',
+            'hssimac = ethernet.hssimac:main',
+            'hssiloopback = ethernet.hssiloopback:main'
         ]
     },
-    description="hssi eth tools"
-    "for ethernet UIO",
+    description="hssi ethernet tools",
     license="BSD3",
     keywords="OPAE hssi tools ",
     url="https://01.org/OPAE",
