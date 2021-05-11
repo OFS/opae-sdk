@@ -236,8 +236,8 @@ union he_status1 {
   };
   uint64_t value;
   struct {
-    uint32_t numPendReads : 32;
     uint32_t numPendWrites : 32;
+    uint32_t numPendReads : 32;
   };
 };
 
