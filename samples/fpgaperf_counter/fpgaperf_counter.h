@@ -73,7 +73,7 @@ void fpgaperfcounterprint(void);
 /*
  * Release the memory alloacted
  */
-void fpgaperfcounterfree(void)
+void fpgaperfcounterfree(void);
 
 #ifdef __cplusplus
 }
