@@ -39,5 +39,16 @@ find_package(PythonLibs ${OPAE_PYTHON_VERSION})
 
 set(INTEL_SECURITY_TOOLS_VERSION 1.0.3 CACHE STRING "Security Tools Version string")
 
-add_subdirectory(opae.admin)
-add_subdirectory(pacsign)
+option(OPAE_BUILD_OPAE_ADMIN "Enable building opae.admin" ON)
+mark_as_advanced(OPAE_BUILD_OPAE_ADMIN)
+
+option(OPAE_BUILD_PACSIGN "Enable building pacsign" ON)
+mark_as_advanced(OPAE_BUILD_PACSIGN)
+
+if(OPAE_BUILD_OPAE_ADMIN)
+  add_subdirectory(opae.admin)
+endif()
+
+if(OPAE_BUILD_PACSIGN)
+  add_subdirectory(pacsign)
+endif()
