@@ -203,7 +203,7 @@ TEST_P(fpgaperf_counter_c_p, fpgaperf_5) {
 }
 
 INSTANTIATE_TEST_CASE_P(fpgaperf_counter_c, fpgaperf_counter_c_p,
-	::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
+	::testing::ValuesIn(test_platform::hw_platforms({ "dfl-n3000","dfl-d5005" })));
 
 //test invalid attributes
 class fpgaperf_counter_invalid_c_p : public fpgaperf_counter_c_p { };
@@ -228,4 +228,4 @@ TEST_P(fpgaperf_counter_invalid_c_p, fpgaperf_6) {
 }
 
 INSTANTIATE_TEST_CASE_P(fpgaperf_counter_invalid_c, fpgaperf_counter_invalid_c_p,
-	::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
+	::testing::ValuesIn(test_platform::hw_platforms({ "dfl-n3000","dfl-d5005" })));
