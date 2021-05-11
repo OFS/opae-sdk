@@ -218,7 +218,7 @@ fpga_result prepare_format(DIR *dir, char *dir_name)
 	FILE *file = NULL;
 	char sysfspath[DFL_BUFSIZ_MAX] = { 0,};
 
-	if (dir == NULL) {
+	if ((dir == NULL) || (dir_name == NULL)){
 		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
@@ -289,7 +289,7 @@ fpga_result prepare_event_mask(DIR *dir, char **filter, int filter_size, char *d
 	char sysfspath[DFL_BUFSIZ_MAX] = { 0,};
 	char event_value[DFL_BUFSIZ_MAX] = { 0,};
 	
-	if (dir == NULL) {
+	if ((dir == NULL) || (dir_name == NULL)) {
 		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
@@ -374,6 +374,11 @@ fpga_result fpgaperfcounterinit(uint16_t segment, uint8_t bus, uint8_t device, u
 	if (fpga_perf_pmus == NULL)
 		return FPGA_EXCEPTION;
 	function = 0;
+	if (bus == 0) {
+		OPAE_ERR("Invalid Input parameters");
+		return FPGA_INVALID_PARAM;
+	}
+		
 	snprintf(path, sizeof(path), DFL_PERF_FME, segment, bus, device, function);
 
 	int gres = glob(path, GLOB_NOSORT, NULL, &globlist);
