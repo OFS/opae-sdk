@@ -1,7 +1,9 @@
+%define         opae_release 1
+
 Summary:        Open Programmable Acceleration Engine (OPAE) SDK
 Name:           opae
 Version:        2.0.1
-Release:        1%{?dist}
+Release:        %{opae_release}%{?dist}
 License:        BSD
 ExclusiveArch:  x86_64
 
@@ -9,7 +11,7 @@ Group:          Development/Libraries
 Vendor:         Intel Corporation
 Requires:       uuid, json-c, python3
 URL:            https://github.com/OPAE/%{name}-sdk
-Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-%{Release}/%{name}-%{version}.tar.gz
+Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-%{opae_release}/%{name}-%{version}-%{opae_release}.tar.gz
 
 
 
@@ -20,16 +22,15 @@ BuildRequires:  json-c-devel
 BuildRequires:  libuuid-devel
 BuildRequires:  rpm-build
 BuildRequires:  hwloc-devel
-BuildRequires:  python3-sphinx
 BuildRequires:  doxygen
 BuildRequires:  systemd
 BuildRequires:  pybind11-devel
 BuildRequires:  python3-setuptools
 BuildRequires:  tbb-devel
 BuildRequires:  git
+BuildRequires:  python3-jsonschema
 BuildRequires:  python3-pip
 BuildRequires:  python3-virtualenv
-BuildRequires:  systemd-rpm-macros
 
 %description
 Open Programmable Acceleration Engine (OPAE) is a software framework
@@ -60,18 +61,15 @@ OPAE headers, tools, sample source, and documentation
 
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q -n %{name}-%{version}-%{opae_release}
 
 %build
-rm -rf _build
-mkdir _build
-cd _build
-
-%cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_PRESERVE_REPOS=ON -DOPAE_BUILD_LEGACY=ON -DOPAE_BUILD_SAMPLES=ON -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=ON -B $PWD
-
-%make_build 
-
-
+%cmake -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_PRESERVE_REPOS=ON -DOPAE_BUILD_LEGACY=ON -DOPAE_BUILD_SAMPLES=ON -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=ON .
+%if 0%{?rhel}
+  %make_build
+%else
+  %cmake_build
+%endif
 
 
 %install
@@ -81,12 +79,6 @@ cp LICENSE %{buildroot}%{_datadir}/opae/LICENSE
 cp COPYING %{buildroot}%{_datadir}/opae/COPYING
 
 mkdir -p %{buildroot}%{_usr}/src/opae/cmake/modules
-
-for s in FindSphinx.cmake
-do
-  cp "cmake/${s}" %{buildroot}%{_usr}/src/opae/cmake/
-done
-
 
 mkdir -p %{buildroot}%{_usr}/src/opae/opae-libs/cmake/modules
 for s in FindHwloc.cmake \
@@ -105,58 +97,28 @@ mkdir -p %{buildroot}%{_usr}/src/opae/samples
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_fpga/
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_events/
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/object_api/
+mkdir -p %{buildroot}%{_usr}/src/opae/samples/n5010-ddr-test/
 
 
 cp samples/hello_fpga/hello_fpga.c %{buildroot}%{_usr}/src/opae/samples/hello_fpga/
 cp samples/hello_events/hello_events.c %{buildroot}%{_usr}/src/opae/samples/hello_events/
 cp samples/object_api/object_api.c %{buildroot}%{_usr}/src/opae/samples/object_api/
+cp samples/n5010-ddr-test/n5010-ddr-test.c %{buildroot}%{_usr}/src/opae/samples/n5010-ddr-test/
 
-
-cd _build
-
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaeclib -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxcorelib -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=samples -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaetoolslibs -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgainfo -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgaconf -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=tooluserclk -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolmmlink -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=samplebin -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=libopaeheaders -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolpackager -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolmmlink -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaeboardlib -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgametrics -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolbist_app -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpga_dma_test -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpga_dma_N3000_test -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgabist -P cmake_install.cmake
-
-
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxutils -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxnlb -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgadiagapps -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgadiag -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad_api -P cmake_install.cmake
-DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad_vc -P cmake_install.cmake
+%if 0%{?rhel}
+  %make_install
+%else
+  %cmake_install
+%endif
 
 prev=$PWD
-pushd %{_topdir}/BUILD/%{name}-%{version}/python/opae.admin/
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/opae.admin/
 %{__python3} setup.py install --single-version-externally-managed  --root=%{buildroot} 
 popd
 
-pushd %{_topdir}/BUILD/%{name}-%{version}/python/pacsign
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/pacsign
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} 
 popd
-
-pushd %{_topdir}/BUILD/%{name}-%{version}/scripts
-install -m 755 eth_group_mdev.sh %{buildroot}/usr/bin/eth_group_mdev.sh
-popd
-
-
 
 for file in %{buildroot}%{python3_sitelib}/opae/admin/tools/{fpgaflash,fpgaotsu,fpgaport,fpgasupdate,ihex2ipmi,rsu,super_rsu,bitstream_info}.py; do
    chmod a+x $file
@@ -177,7 +139,10 @@ done
 %{_libdir}/libfpgad-api.so.*
 %{_libdir}/libmml-srv.so.*
 %{_libdir}/libmml-stream.so.*
-
+%{_libdir}/libofs.so.*
+%{_libdir}/libopaemem.so.*
+%{_libdir}/libopaeuio.so.*
+%{_libdir}/libopaevfio.so.*
 
 %post devel
 %systemd_post fpgad.service
@@ -193,6 +158,7 @@ done
 %{_usr}/src/opae/samples/hello_fpga/hello_fpga.c
 %{_usr}/src/opae/samples/hello_events/hello_events.c
 %{_usr}/src/opae/samples/object_api/object_api.c
+%{_usr}/src/opae/samples/n5010-ddr-test/n5010-ddr-test.c
 %{_usr}/src/opae/cmake/*
 %{_usr}/src/opae/opae-libs/cmake/modules/*
 
@@ -200,6 +166,8 @@ done
 %{_libdir}/opae/libboard_n3000.so*
 %{_libdir}/opae/libboard_d5005.so*
 %{_libdir}/opae/libboard_n5010.so*
+%{_libdir}/opae/libfpgad-xfpga.so*
+%{_libdir}/opae/libopae-v.so*
 %{_libdir}/libopae-c++-nlb.so
 %{_libdir}/libopae-cxx-core.so
 %{_libdir}/libopae-c++-utils.so
@@ -208,6 +176,10 @@ done
 %{_libdir}/libfpgad-api.so
 %{_libdir}/libmml-stream.so
 %{_libdir}/libmml-srv.so
+%{_libdir}/libofs.so
+%{_libdir}/libopaemem.so
+%{_libdir}/libopaeuio.so
+%{_libdir}/libopaevfio.so
 %{_libdir}/opae/libxfpga.so*
 %{_libdir}/opae/libmodbmc.so*
 %{_bindir}/bist_app*
@@ -248,18 +220,33 @@ done
 %{_bindir}/fpgametrics
 %{_bindir}/fpga_dma_N3000_test
 %{_bindir}/fpga_dma_test
+%{_bindir}/n5010-ddr-test
 %{_bindir}/PACSign*
 %{_bindir}/fpgad*
 %{_bindir}/host_exerciser*
 %{_bindir}/opaevfio*
 %{_bindir}/pci_device*
 %{_bindir}/regmap-debugfs*
+%{_bindir}/afu_platform_config
+%{_bindir}/afu_platform_info
+%{_bindir}/afu_synth_setup
+%{_bindir}/bist
+%{_bindir}/hps
+%{_bindir}/hssi
+%{_bindir}/hssicommon
+%{_bindir}/hssiloopback
+%{_bindir}/hssimac
+%{_bindir}/hssistats
+%{_bindir}/opae.io
+%{_bindir}/opaememtest
+%{_bindir}/opaeuiotest
+%{_bindir}/pac_hssi_config.py
+%{_bindir}/rtl_src_config
 
 %config(noreplace) %{_sysconfdir}/opae/fpgad.cfg*
 %config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
 %{_unitdir}/fpgad.service
 %{_libdir}/opae/libfpgad-vc.so*
-%{_bindir}/eth_group_mdev.sh
 %{_usr}/share/opae/*
 %{_datadir}/doc/opae.admin/LICENSE
 %{python3_sitelib}/opae*
