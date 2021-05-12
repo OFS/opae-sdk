@@ -211,7 +211,7 @@ cp samples/n5010-ddr-test/n5010-ddr-test.c %{buildroot}%{_usr}/src/opae/samples/
 %{_bindir}/fpga_dma_test
 %{_bindir}/n5010-ddr-test
 %{_bindir}/PACSign*
-%{_bindir}/fpgad*
+%{_bindir}/fpgad
 %{_bindir}/host_exerciser*
 %{_bindir}/opaevfio*
 %{_bindir}/pci_device*
