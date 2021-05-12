@@ -113,20 +113,6 @@ cp samples/n5010-ddr-test/n5010-ddr-test.c %{buildroot}%{_usr}/src/opae/samples/
   %cmake_install
 %endif
 
-prev=$PWD
-pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/opae.admin/
-%{__python3} setup.py install --single-version-externally-managed  --root=%{buildroot} 
-popd
-
-pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/pacsign
-%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} 
-popd
-
-for file in %{buildroot}%{python3_sitelib}/opae/admin/tools/{fpgaflash,fpgaotsu,fpgaport,fpgasupdate,ihex2ipmi,rsu,super_rsu,bitstream_info}.py; do
-   chmod a+x $file
-done
-
-
 %files
 %dir %{_datadir}/opae
 %doc %{_datadir}/opae/RELEASE_NOTES.md
