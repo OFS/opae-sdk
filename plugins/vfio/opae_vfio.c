@@ -28,6 +28,7 @@
 #endif // HAVE_CONFIG_H
 
 #define _GNU_SOURCE
+#include <byteswap.h>
 #include <linux/limits.h>
 #include <errno.h>
 #include <glob.h>
@@ -618,12 +619,10 @@ fpga_result vfio_fpgaReset(fpga_handle handle)
 fpga_result get_guid(uint64_t *h, fpga_guid guid)
 {
 	ASSERT_NOT_NULL(h);
-	size_t sz = 16;
-	uint8_t *ptr = ((uint8_t *)h)+sz;
 
-	for (size_t i = 0; i < sz; ++i) {
-		guid[i] = *--ptr;
-	}
+	uint64_t *ptr = (uint64_t *)guid;
+	*ptr = bswap_64(*(h+1));
+	*(ptr+1) = bswap_64(*h);
 	return FPGA_OK;
 }
 
