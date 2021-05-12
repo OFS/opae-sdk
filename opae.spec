@@ -154,6 +154,7 @@ cp samples/n5010-ddr-test/n5010-ddr-test.c %{buildroot}%{_usr}/src/opae/samples/
 %{_libdir}/opae/libboard_n3000.so*
 %{_libdir}/opae/libboard_d5005.so*
 %{_libdir}/opae/libboard_n5010.so*
+%{_libdir}/opae/libboard_n6010.so*
 %{_libdir}/opae/libfpgad-xfpga.so*
 %{_libdir}/opae/libopae-v.so*
 %{_libdir}/libopae-c++-nlb.so
