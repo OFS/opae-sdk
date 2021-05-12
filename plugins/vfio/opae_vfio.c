@@ -620,7 +620,7 @@ fpga_result get_guid(uint64_t *h, fpga_guid guid)
 {
 	ASSERT_NOT_NULL(h);
 
-	uint64_t *ptr = (uint64_t*)guid;
+	uint64_t *ptr = (uint64_t *)guid;
 	*ptr = bswap_64(*(h+1));
 	*(ptr+1) = bswap_64(*h);
 	return FPGA_OK;
