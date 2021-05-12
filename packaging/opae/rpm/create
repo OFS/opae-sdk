@@ -59,6 +59,7 @@ for pkg in 'make' \
            'python3-pip' \
 	   'python3-virtualenv' \
            'rpm-build' \
+	   'spdlog-devel' \
            'systemd' \
            'rpmdevtools'
 do

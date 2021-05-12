@@ -27,6 +27,7 @@ BuildRequires:  doxygen
 BuildRequires:  systemd
 BuildRequires:  pybind11-devel
 BuildRequires:  python3-setuptools
+BuildRequires:  spdlog-devel
 BuildRequires:  tbb-devel
 BuildRequires:  git
 BuildRequires:  python3-jsonschema
