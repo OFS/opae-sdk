@@ -40,12 +40,12 @@ extern "C" {
  * @param[in] segment PCI segment number of a resource
  * @param[in] bus   PCI bus number of a resource
  * @param[in] device PCI device number of a resource
- * @param[in] function  PCI function number of a resource
+ *
  * @returns FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
  * parameters is invalid. FPGA_EXCEPTION if an internal exception occurred
  * while trying to access the handle.
  */
-fpga_result fpgaperfcounterinit(uint16_t segment, uint8_t bus, uint8_t device, uint8_t function);
+fpga_result fpgaperfcounterinit(uint16_t segment, uint8_t bus, uint8_t device);
 
 /* 
  * Dynamically enumerate sysfs path and get the device type, cpumask, format and generic events
@@ -67,13 +67,24 @@ fpga_result fpgaperfcounterstop(void);
 
 /*
  * Print the perf counter values
+ *
+ * @param[in] file FILE * paramter
+ * 	ex: FILE *file = fopen("log.txt", "w");
+ * 	or can pass stdout
+ *
+ * @returns FPGA_OK on success. FPGA_EXCEPTION if an internal exception occurred
+ * while trying to access the handle.
  */
-void fpgaperfcounterprint(void);
+fpga_result fpgaperfcounterprint(FILE **file);
 
 /*
  * Release the memory alloacted
+ *
+ * @returns FPGA_OK on success. FPGA_EXCEPTION if an internal exception occurred
+ * while trying to access the handle.
+ *
  */
-void fpgaperfcounterfree(void);
+fpga_result fpgaperfcounterfree(void);
 
 #ifdef __cplusplus
 }

@@ -35,43 +35,26 @@ namespace host_exerciser {
 
 class fpgaperf {
 public:
-  fpga_result perfinit(uint16_t segment, uint8_t bus, uint8_t device, uint8_t function)
+  fpga_result perfinit(uint16_t segment, uint8_t bus, uint8_t device)
   {
-	fpga_result res = FPGA_OK;
-
-	res = fpgaperfcounterinit(segment, bus, device, function);
-	if (res != FPGA_OK)
-		return FPGA_EXCEPTION;
-
-	return FPGA_OK;
+	return fpgaperfcounterinit(segment, bus, device);
   }
   fpga_result perfstart(void)
   {
-	fpga_result res = FPGA_OK;
-
-	res = fpgaperfcounterstart();
-	if (res != FPGA_OK)
-		return FPGA_EXCEPTION;
-
-	return FPGA_OK;
+	return fpgaperfcounterstart();
   }
   fpga_result perfstop(void)
   {
-	fpga_result res = FPGA_OK;
-
-	res = fpgaperfcounterstop();
-	if (res != FPGA_OK)
-		return FPGA_EXCEPTION;
-
-	return FPGA_OK;
+	return fpgaperfcounterstop();
   }
-  void perfprint(void)
+  fpga_result perfprint(void)
   {
-	fpgaperfcounterprint();
+	FILE *file = stdout;
+	return fpgaperfcounterprint(&file);
   }
-  void perffree(void)
+  fpga_result perffree(void)
   {
-	fpgaperfcounterfree();
+	return fpgaperfcounterfree();
   }
 };
 
@@ -171,7 +154,7 @@ public:
 
         fpgaperf fpgaperf;
 
-        res = fpgaperf.perfinit(host_exe_->segment_, host_exe_->bus_, host_exe_->device_, host_exe_->function_);
+        res = fpgaperf.perfinit(host_exe_->segment_, host_exe_->bus_, host_exe_->device_);
 	if (res != FPGA_OK)
 		return -1;
         res = fpgaperf.perfstart();
@@ -259,9 +242,14 @@ public:
         host_exerciser_status();
 
 	//print the performace counter values
-	fpgaperf.perfprint();
+	res = fpgaperf.perfprint();
+	if (res != FPGA_OK)
+		return -1;
+	
 	//free the memory allocated for perf counters
-	fpgaperf.perffree();
+	res = fpgaperf.perffree();
+	if (res != FPGA_OK)
+		return -1;
 
         /* Compare buffer contents only loopback test mode*/
         if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)

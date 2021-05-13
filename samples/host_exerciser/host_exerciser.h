@@ -447,7 +447,6 @@ public:
   uint16_t segment_;
   uint8_t bus_ ;
   uint8_t device_;
-  uint8_t function_;
   properties::ptr_t props;
 
 
@@ -469,7 +468,6 @@ public:
 	segment_ = static_cast<uint16_t>(props->segment);
 	bus_ = static_cast<uint8_t>(props->bus);
 	device_ = static_cast<uint8_t>(props->device);
-	function_ = static_cast<uint8_t>(props->function);
   }
 
 };

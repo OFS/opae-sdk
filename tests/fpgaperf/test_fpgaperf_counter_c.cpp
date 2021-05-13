@@ -204,28 +204,3 @@ TEST_P(fpgaperf_counter_c_p, fpgaperf_5) {
 
 INSTANTIATE_TEST_CASE_P(fpgaperf_counter_c, fpgaperf_counter_c_p,
 	::testing::ValuesIn(test_platform::hw_platforms({ "dfl-n3000","dfl-d5005" })));
-
-//test invalid attributes
-class fpgaperf_counter_invalid_c_p : public fpgaperf_counter_c_p { };
-
-/**
- * * @test       fpgaperf_6
- * * @brief      Tests: fpgaperfcounterinit,
- * * @details    Validates function with invalid attributes <br>
- * */
-TEST_P(fpgaperf_counter_invalid_c_p, fpgaperf_6) {
-
-	uint16_t segment=0;
-	uint8_t bus=0;
-	uint8_t device=0;
-	uint8_t function=0;
-
-	segment = platform_.devices[0].segment;
-	device = platform_.devices[0].device;
-	function = platform_.devices[0].function;
-
-	EXPECT_EQ(fpgaperfcounterinit(segment, bus, device, function), FPGA_INVALID_PARAM);
-}
-
-INSTANTIATE_TEST_CASE_P(fpgaperf_counter_invalid_c, fpgaperf_counter_invalid_c_p,
-	::testing::ValuesIn(test_platform::hw_platforms({ "dfl-n3000","dfl-d5005" })));
