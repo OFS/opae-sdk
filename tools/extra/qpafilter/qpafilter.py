@@ -59,6 +59,8 @@ BLOB_HEADER_FORMAT = '<IIII'
 BLOB_STRUCT_FORMAT = '<LLL'
 BLOB_STRUCT_SIZE = 12
 
+VIRTUAL_TEMP_SENSOR0 = 'FPGA Virtual Temperature Sensor 0'
+
 LOG = logging.getLogger()
 
 
@@ -108,18 +110,24 @@ class blob_writer:
         fatal = sensor['filtered_fatal']
         warning = sensor['filtered_warning']
 
-        sensor_id = self.sensor_map[label]
-        upper_warning_id = self.threshold_map['Upper Warning']
-        upper_fatal_id = self.threshold_map['Upper Fatal']
+        try:
+            id_list = list(self.sensor_map.sensor_ids(label))
+        except KeyError:
+            LOG.error(f'Sensor "{label}" not found in sensors map.')
+            sys.exit(1)
 
-        self.payload.write(struct.pack(BLOB_STRUCT_FORMAT,
-                                       sensor_id,
-                                       upper_warning_id,
-                                       warning))
-        self.payload.write(struct.pack(BLOB_STRUCT_FORMAT,
-                                       sensor_id,
-                                       upper_fatal_id,
-                                       fatal))
+        for sensor_id in id_list:
+            upper_warning_id = self.threshold_map['Upper Warning']
+            upper_fatal_id = self.threshold_map['Upper Fatal']
+
+            self.payload.write(struct.pack(BLOB_STRUCT_FORMAT,
+                                           sensor_id,
+                                           upper_warning_id,
+                                           warning))
+            self.payload.write(struct.pack(BLOB_STRUCT_FORMAT,
+                                           sensor_id,
+                                           upper_fatal_id,
+                                           fatal))
 
 
 class blob_reader_v0:
@@ -158,7 +166,7 @@ class blob_reader_v0:
 
             sensor_id, threshold_id, raw_value = next(self.struct_iter)
 
-            sensor_label = self.sensor_map[sensor_id]
+            sensor_label = self.sensor_map.sensor_name(sensor_id)
             threshold_name = self.threshold_map[threshold_id]
             readable_value = raw_value / 2
 
@@ -266,7 +274,7 @@ class temp_filter:
     def __init__(self, args):
         self.args = args
 
-    def filter(self, items):
+    def filter(self, items, sensor_map):
         """Perform the necessary translation from temperature
            input value to temperature output. The Upper Fatal
            temperature is given in the input data. Calculate
@@ -279,8 +287,16 @@ class temp_filter:
            multiplied by two, then rounded to the nearest
            integer."""
         for i in items:
-            fatal = float(i['fatal'])
+            label = i['label']
             units = i['units']
+            try:
+                adj = sensor_map.sensor_adjustment(label)
+            except KeyError:
+                adj = 0.0
+            fatal = float(i['fatal']) + adj
+
+            if fatal < self.args.min_temp:
+                fatal = self.args.min_temp
 
             if 'override' in i:
                 override = float(i['override'])
@@ -296,8 +312,8 @@ class temp_filter:
             i['filtered_warning'] = int(round(2 * warning))
             i['filtered_fatal'] = int(round(2 * fatal))
 
-            msg = (f'{i["label"]} warning: {i["warning"]} {units} '
-                   f'fatal: {i["fatal"]} {units} -> {i["filtered_warning"]} '
+            msg = (f'{i["label"]} warning: {warning} {units} '
+                   f'fatal: {fatal} {units} -> {i["filtered_warning"]} '
                    f'{i["filtered_fatal"]}')
             if override != 0.0:
                 msg += f' (override {override}%)'
@@ -329,6 +345,43 @@ class two_way_map:
         if isinstance(i, int):
             return self.int_to_str[i]
         raise TypeError('two_way_map index must be str or int')
+
+
+class qpamap:
+    """Maps a sensors input database into our memory-resident data
+       structure. The input file format is as follows:
+
+       label0:
+         id:
+           - ID0
+           - ID1
+           ...
+           - IDn
+         adjustment: ADJ
+
+       Where ID0, ID1 ... IDn are integer IDs and ADJ is a floating-
+       point adjustment value.
+    """
+    def __init__(self, dictionary):
+        self.data = dictionary
+        self.id_map = {}
+        for k, v in self.data.items():
+            for i in v['id']:
+                self.id_map[i] = k
+
+    def sensor_ids(self, label):
+        """Generator that produces the sequence of integer IDs, given
+           the string label."""
+        for i in self.data[label]['id']:
+            yield i
+
+    def sensor_name(self, ident):
+        """Return the string label for a given integer ID."""
+        return self.id_map[ident]
+
+    def sensor_adjustment(self, label):
+        """Return the adjustment value (float) given the label."""
+        return float(self.data[label]['adjustment'])
 
 
 def read_qpa(in_file, temp_overrides, sensors_map):
@@ -407,12 +460,22 @@ def create_blob_from_qpa(args):
                 LOG.error(f'{category}: verification failed.')
                 sys.exit(1)
 
-            if not filt.filter(key_vals):
+            if not filt.filter(key_vals, args.sensor_map):
                 LOG.error(f'{category}: filtering failed.')
                 sys.exit(1)
 
             for sensor in key_vals:
                 writer.write_sensor(sensor)
+
+            virtual_temperature_sensor_0 = {
+                'label': VIRTUAL_TEMP_SENSOR0,
+                'fatal': args.virt_fatal_temp,
+                'warning': args.virt_warn_temp,
+                'units': DEGREES_C,
+                'filtered_fatal': int(round(2 * args.virt_fatal_temp)),
+                'filtered_warning': int(round(2 * args.virt_warn_temp))}
+
+            writer.write_sensor(virtual_temperature_sensor_0)
 
 
 def get_blob_reader(blobfp, sensor_map, threshold_map):
@@ -457,10 +520,10 @@ def dump_blob(args):
 
 def read_sensors(fname):
     """Given the name of a yaml file containing the sensor
-       label to ID mapping, return a two_way_map containing
+       label to ID mapping, return a qpamap containing
        the data."""
     with open(fname, 'r') as infile:
-        return two_way_map(yaml.load(infile, Loader=yaml.SafeLoader))
+        return qpamap(yaml.load(infile, Loader=yaml.SafeLoader))
 
 
 def parse_args():
