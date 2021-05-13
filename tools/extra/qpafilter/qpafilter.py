@@ -518,6 +518,14 @@ def dump_blob(args):
             args.output.write(f"{','.join(map(str, d.values()))}\n")
 
 
+def show_sensors(args):
+    """Given the input sensors map (args.sensor_map), produce
+       human-readable output for the map."""
+    for k, v in args.sensor_map.data.items():
+        ids = ', '.join(map(str, v['id']))
+        print(f'{k} id: [{ids}] adjustment: {v["adjustment"]}', file=args.output)
+
+
 def read_sensors(fname):
     """Given the name of a yaml file containing the sensor
        label to ID mapping, return a qpamap containing
@@ -591,6 +599,15 @@ def parse_args():
 
     dump.set_defaults(func=dump_blob)
 
+    show = subparser.add_parser('show',
+                                help='Display input sensors map')
+
+    show.add_argument('-o', '--output', type=argparse.FileType('w'),
+                      default=sys.stdout,
+                      help='Output text file (default=stdout)')
+
+    show.set_defaults(func=show_sensors)
+
     return parser, parser.parse_args()
 
 
@@ -598,7 +615,7 @@ def main():
     """The main entry point"""
     parser, args = parse_args()
 
-    if not hasattr(args, 'file'):
+    if not hasattr(args, 'file') and args.func != show_sensors:
         print('Error: file is a required argument.\n')
         parser.print_help(sys.stderr)
         sys.exit(1)

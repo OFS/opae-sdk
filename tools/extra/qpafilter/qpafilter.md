@@ -23,6 +23,10 @@ qpafilter can parse it and dump it in a human-readable format.
 
 &nbsp;&nbsp;&nbsp;&nbsp;Parse an existing binary file and dump in a human-readable format.
 
+`show`
+
+&nbsp;&nbsp;&nbsp;&nbsp;Display the input sensors map file in human-readable format.
+
 ### Mode 1: `create` ###
 
 ```console
@@ -36,16 +40,18 @@ Analyzer. Following is a brief example input file. The temperature
 sensor label is followed by the temperature sensor Upper Fatal
 value and units.
 
-+-----------------------------------------------------------+<br>
-; Temperature and Cooling                                   ;<br>
-+-----------------------------------------------+-----------+<br>
-; FPGA Core dts01 Temperature                   ; 55.0 °C;<br>
-; FPGA Core dts11 Temperature                   ; 54.5 °C;<br>
-<br>
-...<br>
-<br>
-; HSSI_0_1 dts4 Temperature                     ; 90.7 °C;<br>
-+-----------------------------------------------+-----------+<br>
+<pre>
++-----------------------------------------------------------+
+; Temperature and Cooling                                   ;
++-----------------------------------------------+-----------+
+; FPGA Core dts01 Temperature                   ; 55.0 °C;
+; FPGA Core dts11 Temperature                   ; 54.5 °C;
+
+...
+
+; HSSI_0_1 dts4 Temperature                     ; 90.7 °C;
++-----------------------------------------------+-----------+
+</pre>
 
 #### `create` POSITIONAL ARGUMENTS ####
 `file`
@@ -91,12 +97,30 @@ specify the name of the input sensors map file. The default value
 is n5010_bmc_sensors.yml. This file contains the mapping from
 sensor labels to sensor IDs. A sample input follows:
 
-FPGA Core dts01 Temperature: 8<br>
-FPGA Core dts11 Temperature: 9<br>
-<br>
-...<br>
-<br>
-HSSI_0_1 dts4 Temperature: 5<br>
+<pre>
+FPGA Core dts01 Temperature:
+  id:
+    - 8
+  adjustment: 0.0
+FPGA Core dts11 Temperature:
+  id:
+    - 9
+  adjustment: 0.0
+
+...
+
+HSSI_0_1 dts1 Temperature:
+  id:
+    - 2
+    - 3
+    - 4
+    - 5
+  adjustment: -1.5
+FPGA Virtual Temperature Sensor 0:
+  id:
+    - 0x8000
+  adjustment: 0.0
+</pre>
 
 #### `create` examples ####
 
@@ -143,12 +167,30 @@ specify the name of the input sensors map file. The default value
 is n5010_bmc_sensors.yml. This file contains the mapping from
 sensor labels to sensor IDs. A sample input follows:
 
-FPGA Core dts01 Temperature: 8<br>
-FPGA Core dts11 Temperature: 9<br>
-<br>
-...<br>
-<br>
-HSSI_0_1 dts4 Temperature: 5<br>
+<pre>
+FPGA Core dts01 Temperature:
+  id:
+    - 8
+  adjustment: 0.0
+FPGA Core dts11 Temperature:
+  id:
+    - 9
+  adjustment: 0.0
+
+...
+
+HSSI_0_1 dts1 Temperature:
+  id:
+    - 2
+    - 3
+    - 4
+    - 5
+  adjustment: -1.5
+FPGA Virtual Temperature Sensor 0:
+  id:
+    - 0x8000
+  adjustment: 0.0
+</pre>
 
 #### `dump` examples ####
 
@@ -163,3 +205,22 @@ qpafilter dump --format=yaml qpafilter.bin
 ```
 
  displays the sensor data found in qpafilter.bin in yaml format.
+
+### Mode 3: `show` ###
+
+```console
+qpafilter show [-o OUTPUT]
+```
+
+Convert the input sensors map file to human-readable format.
+The -s,--sensor-file option specifies the input sensors map.
+
+#### `show` OPTIONAL ARGUMENTS ####
+`-o,--output OUTPUT`
+specify the output human-readable file name.
+
+#### `show` examples ####
+
+```console
+qpafilter show
+```
