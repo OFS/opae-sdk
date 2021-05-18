@@ -569,7 +569,7 @@ fpga_result vfio_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 #if GCC_VERSION >= 40900
 	__builtin_cpu_init();
 	if (__builtin_cpu_supports("avx512f")) {
-		_handle->flags |= OPAE_FLAG_HAS_MMX512;
+		_handle->flags |= OPAE_FLAG_HAS_AVX512;
 	}
 #endif
 
@@ -880,7 +880,7 @@ fpga_result vfio_fpgaWriteMMIO512(fpga_handle handle,
 		return FPGA_INVALID_PARAM;
 	}
 
-	if (!(h->flags & OPAE_FLAG_HAS_MMX512)) {
+	if (!(h->flags & OPAE_FLAG_HAS_AVX512)) {
 		return FPGA_NOT_SUPPORTED;
 	}
 

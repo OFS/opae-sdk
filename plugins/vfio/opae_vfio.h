@@ -127,7 +127,7 @@ typedef struct _vfio_handle {
 	volatile uint8_t *mmio_base;
 	size_t mmio_size;
 	pthread_mutex_t lock;
-#define OPAE_FLAG_HAS_MMX512 (1u << 0)
+#define OPAE_FLAG_HAS_AVX512 (1u << 0)
 	uint32_t flags;
 } vfio_handle;
 
