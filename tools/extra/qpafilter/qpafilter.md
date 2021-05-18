@@ -2,7 +2,7 @@
 
 ## SYNOPSIS ##
 ```console
-qpafilter [-h] [-v] [-s SENSOR_MAP] {create,dump} ...
+qpafilter [-h] [-v] [-s SENSOR_MAP] {create,dump,show} ...
 ```
 
 ## DESCRIPTION ##
@@ -99,27 +99,22 @@ sensor labels to sensor IDs. A sample input follows:
 
 <pre>
 FPGA Core dts01 Temperature:
-  id:
-    - 8
-  adjustment: 0.0
+- id: 8
 FPGA Core dts11 Temperature:
-  id:
-    - 9
-  adjustment: 0.0
+- id: 9
 
 ...
 
 HSSI_0_1 dts1 Temperature:
-  id:
-    - 2
-    - 3
-    - 4
-    - 5
+- id: 2
+- id: 3
+  adjustment: -1.5
+- id: 4
+  adjustment: -1.5
+- id: 5
   adjustment: -1.5
 FPGA Virtual Temperature Sensor 0:
-  id:
-    - 0x8000
-  adjustment: 0.0
+- id: 0x8000
 </pre>
 
 #### `create` examples ####
@@ -169,27 +164,22 @@ sensor labels to sensor IDs. A sample input follows:
 
 <pre>
 FPGA Core dts01 Temperature:
-  id:
-    - 8
-  adjustment: 0.0
+- id: 8
 FPGA Core dts11 Temperature:
-  id:
-    - 9
-  adjustment: 0.0
+- id: 9
 
 ...
 
 HSSI_0_1 dts1 Temperature:
-  id:
-    - 2
-    - 3
-    - 4
-    - 5
+- id: 2
+- id: 3
+  adjustment: -1.5
+- id: 4
+  adjustment: -1.5
+- id: 5
   adjustment: -1.5
 FPGA Virtual Temperature Sensor 0:
-  id:
-    - 0x8000
-  adjustment: 0.0
+- id: 0x8000
 </pre>
 
 #### `dump` examples ####
