@@ -564,6 +564,15 @@ fpga_result vfio_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 	}
 	_handle->mmio_base = (volatile uint8_t *)(mmio);
 	_handle->mmio_size = size;
+
+	_handle->flags = 0;
+#if GCC_VERSION >= 40900
+	__builtin_cpu_init();
+	if (__builtin_cpu_supports("avx512f")) {
+		_handle->flags |= OPAE_FLAG_HAS_MMX512;
+	}
+#endif
+
 	*handle = _handle;
 	res = FPGA_OK;
 out_attr_destroy:
@@ -844,6 +853,48 @@ fpga_result vfio_fpgaReadMMIO32(fpga_handle handle,
 	*value = *((volatile uint32_t *)get_user_offset(h, mmio_num, offset));
 	pthread_mutex_unlock(&h->lock);
 
+	return FPGA_OK;
+}
+
+static inline void copy512(const void *src, void *dst)
+{
+    asm volatile("vmovdqu64 (%0), %%zmm0;"
+		 "vmovdqu64 %%zmm0, (%1);"
+		 :
+		 : "r"(src), "r"(dst));
+}
+
+fpga_result vfio_fpgaWriteMMIO512(fpga_handle handle,
+				 uint32_t mmio_num,
+				 uint64_t offset,
+				 const void *value)
+{
+	vfio_handle *h = handle_check(handle);
+
+	ASSERT_NOT_NULL(h);
+
+	vfio_token *t = h->token;
+
+	if (offset % 64 != 0) {
+		OPAE_MSG("Misaligned MMIO access");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (!(h->flags & OPAE_FLAG_HAS_MMX512)) {
+		return FPGA_NOT_SUPPORTED;
+	}
+
+	if (t->type == FPGA_DEVICE)
+		return FPGA_NOT_SUPPORTED;
+	if (mmio_num > t->user_mmio_count)
+		return FPGA_INVALID_PARAM;
+	if (pthread_mutex_lock(&h->lock)) {
+		OPAE_MSG("error locking handle mutex");
+		return FPGA_EXCEPTION;
+	}
+
+	copy512(value, (uint8_t *)get_user_offset(h, mmio_num, offset));
+	pthread_mutex_unlock(&h->lock);
 	return FPGA_OK;
 }
 
