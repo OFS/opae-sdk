@@ -910,7 +910,11 @@ fpga_result vfio_fpgaMapMMIO(fpga_handle handle,
 
 	if (mmio_num > t->user_mmio_count)
 		return FPGA_INVALID_PARAM;
-	*mmio_ptr = (uint64_t *)get_user_offset(h, mmio_num, 0);
+
+	/* Store return value only if return pointer has allocated memory */
+	if (mmio_ptr)
+		*mmio_ptr = (uint64_t *)get_user_offset(h, mmio_num, 0);
+
 	return FPGA_OK;
 }
 
