@@ -36,9 +36,10 @@ import os
 import re
 import struct
 import sys
-import yaml
 import zlib
 from collections import defaultdict
+
+import yaml
 
 SCRIPT_VERSION = '1.0.0'
 
@@ -107,8 +108,6 @@ class blob_writer:
         """Write the Upper Warning and Upper Fatal blob
            entries for the given sensor."""
         label = sensor['label']
-        fatal = sensor['filtered_fatal']
-        warning = sensor['filtered_warning']
 
         try:
             id_list = list(self.sensor_map.sensor_ids(label))
@@ -117,6 +116,8 @@ class blob_writer:
             sys.exit(1)
 
         for sensor_id in id_list:
+            warning, fatal = self.sensor_map.values_for(sensor_id)
+
             upper_warning_id = self.threshold_map['Upper Warning']
             upper_fatal_id = self.threshold_map['Upper Fatal']
 
@@ -287,39 +288,10 @@ class temp_filter:
            multiplied by two, then rounded to the nearest
            integer."""
         for i in items:
-            label = i['label']
-            units = i['units']
-            try:
-                adj = sensor_map.sensor_adjustment(label)
-            except KeyError:
-                adj = 0.0
-            fatal = float(i['fatal']) + adj
-
-            if fatal < self.args.min_temp:
-                fatal = self.args.min_temp
-
-            if 'override' in i:
-                override = float(i['override'])
-                warning = (override * fatal) / 100.0
-            else:
-                override = 0.0
-                warning = ((fatal * self.args.virt_warn_temp) /
-                           self.args.virt_fatal_temp)
-
-            i['warning'] = str(warning)
-
-            # TODO: is this rounding correct?
-            i['filtered_warning'] = int(round(2 * warning))
-            i['filtered_fatal'] = int(round(2 * fatal))
-
-            msg = (f'{i["label"]} warning: {warning} {units} '
-                   f'fatal: {fatal} {units} -> {i["filtered_warning"]} '
-                   f'{i["filtered_fatal"]}')
-            if override != 0.0:
-                msg += f' (override {override}%)'
-
-            # TODO: what to print here?
-            print(msg)
+            # Associate this fatal value with each sensor ID matching
+            # sensor name i['label'], and calculate the warning,
+            # filtered_warning, and filtered_fatal values.
+            sensor_map.filter(i, self.args)
 
         return True
 
@@ -352,36 +324,77 @@ class qpamap:
        structure. The input file format is as follows:
 
        label0:
-         id:
-           - ID0
-           - ID1
-           ...
-           - IDn
-         adjustment: ADJ
+       - id: ID0
+         adjustment: ADJ0
+       - id: ID1
+         adjustment: ADJ1
+       ...
+       - id: IDn
+         adjustment: ADJn
 
        Where ID0, ID1 ... IDn are integer IDs and ADJ is a floating-
-       point adjustment value.
+       point adjustment value. If there is no adjustment value for
+       the given id, then adjustment can be omitted.
     """
-    def __init__(self, dictionary):
-        self.data = dictionary
+    def __init__(self, data):
+        self.data = data
         self.id_map = {}
         for k, v in self.data.items():
-            for i in v['id']:
-                self.id_map[i] = k
+            for i in v:
+                adj = i.get('adjustment', 0.0)
+                self.id_map[i['id']] = {'label': k, 'adjustment': adj}
+
+    def filter(self, item, args):
+        """Calculate the fatal/warning temperature values for item,
+           updating self.id_map for each integer identifier matching
+           item['label']."""
+        for ident in self.sensor_ids(item['label']):
+            adjustment = self.id_map[ident]['adjustment']
+            fatal = float(item['fatal']) + adjustment
+
+            if fatal < args.min_temp:
+                fatal = args.min_temp
+
+            if 'override' in item:
+                override = float(item['override'])
+                warning = (override * fatal) / 100.0
+            else:
+                override = 0.0
+                warning = ((fatal * args.virt_warn_temp) /
+                           args.virt_fatal_temp)
+
+            self.id_map[ident]['units'] = item['units']
+            self.id_map[ident]['warning'] = warning
+            self.id_map[ident]['fatal'] = fatal
+            filtered_warning = int(round(2 * warning))
+            filtered_fatal = int(round(2 * fatal))
+            self.id_map[ident]['filtered_warning'] = filtered_warning
+            self.id_map[ident]['filtered_fatal'] = filtered_fatal
+
+            msg = (f'{item["label"]} warning: {warning} {item["units"]} '
+                   f'fatal: {fatal} {item["units"]} -> {filtered_warning} '
+                   f'{filtered_fatal}')
+            if adjustment != 0.0:
+                msg += f' (adjustment {adjustment}{item["units"]})'
+            if override != 0.0:
+                msg += f' (override {override}%)'
+
+            LOG.info(msg)
+
+    def values_for(self, ident):
+        """Return a tuple of the filtered warning and filtered fatal values."""
+        return (self.id_map[ident]['filtered_warning'],
+                self.id_map[ident]['filtered_fatal'])
 
     def sensor_ids(self, label):
         """Generator that produces the sequence of integer IDs, given
            the string label."""
-        for i in self.data[label]['id']:
-            yield i
+        for i in self.data[label]:
+            yield i['id']
 
     def sensor_name(self, ident):
         """Return the string label for a given integer ID."""
-        return self.id_map[ident]
-
-    def sensor_adjustment(self, label):
-        """Return the adjustment value (float) given the label."""
-        return float(self.data[label]['adjustment'])
+        return self.id_map[ident]['label']
 
 
 def read_qpa(in_file, temp_overrides, sensors_map):
@@ -475,10 +488,17 @@ def create_blob_from_qpa(args):
                 'filtered_fatal': int(round(2 * args.virt_fatal_temp)),
                 'filtered_warning': int(round(2 * args.virt_warn_temp))}
 
+            if not filt.filter([virtual_temperature_sensor_0],
+                               args.sensor_map):
+                LOG.error(f'{category}: filtering failed.')
+                sys.exit(1)
+
             writer.write_sensor(virtual_temperature_sensor_0)
 
 
 def get_blob_reader(blobfp, sensor_map, threshold_map):
+    """Examine the version field of the blob header to determine
+       the correct version of blob_reader to retrieve."""
     readers = {0: blob_reader_v0}
 
     raw_hdr = blobfp.read(BLOB_HEADER_SIZE)
@@ -522,8 +542,16 @@ def show_sensors(args):
     """Given the input sensors map (args.sensor_map), produce
        human-readable output for the map."""
     for k, v in args.sensor_map.data.items():
-        ids = ', '.join(map(str, v['id']))
-        print(f'{k} id: [{ids}] adjustment: {v["adjustment"]}', file=args.output)
+        ids_and_adj = ''
+        for index, item in enumerate(v):
+            ident = item['id']
+            ids_and_adj += (f'0x{ident:0x}' if ident & 0x8000
+                            else f'{str(ident)}')
+            if item.get('adjustment'):
+                ids_and_adj += f' ({item["adjustment"]} {DEGREES_C})'
+            if index < len(v) - 1:
+                ids_and_adj += ', '
+        print(f'{k} {{ {ids_and_adj} }}', file=args.output)
 
 
 def read_sensors(fname):
