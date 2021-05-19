@@ -38,6 +38,8 @@ opae_test_add(TARGET test_fpgaperf_c
         fpgaperf-static
 )
 
+target_link_libraries(test_fpgaperf_c "-ludev")
+
 target_include_directories(test_fpgaperf_c
     PRIVATE ${OPAE_SDK_SOURCE}/samples
 )

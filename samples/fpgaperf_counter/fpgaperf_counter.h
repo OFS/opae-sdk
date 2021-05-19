@@ -35,35 +35,35 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
- * initilaize the perf_counter structure and get the dfl_fme device.
+ * Initilaize the fpga_perf_counter structure. Dynamically enumerate sysfs path 
+ * and get the device type, cpumask, format and generic events.
+ * Reset the counter to 0 and enable the counters to get workload instructions.
  *
- * @param[in] segment PCI segment number of a resource
- * @param[in] bus   PCI bus number of a resource
- * @param[in] device PCI device number of a resource
+ * @param[in] token previously opened accelerator resource token
  *
  * @returns FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
  * parameters is invalid. FPGA_EXCEPTION if an internal exception occurred
  * while trying to access the handle.
  */
-fpga_result fpgaperfcounterinit(uint16_t segment, uint8_t bus, uint8_t device);
+fpga_result fpgaPerfCounterEnum(fpga_token token);
 
 /* 
- * Dynamically enumerate sysfs path and get the device type, cpumask, format and generic events
- * Reset the counter to 0 and enable the counters to get workload instructions.
+ * Enable the performance counter, read the start value and update
+ * the fpga_perf_counter start value.
  * 
- * @returns FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
- * parameters is invalid. FPGA_EXCEPTION if an internal exception occurred
+ * @returns FPGA_OK on success. FPGA_EXCEPTION if an internal exception occurred
  * while trying to access the handle.
  */
-fpga_result fpgaperfcounterstart(void);
+fpga_result fpgaPerfCounterStartrecord(void);
 
 /*
- * Stops performance counter and get the counters values
+ * Disable the performance counter, read the stop value and update
+ * the fpga_perf_counter stop value.
  *
  * @returns FPGA_OK on success. FPGA_EXCEPTION if an internal exception occurred
  * while trying to access the handle.
  */
-fpga_result fpgaperfcounterstop(void);
+fpga_result fpgaPerfCounterStoprecord(void);
 
 /*
  * Print the perf counter values
@@ -75,7 +75,7 @@ fpga_result fpgaperfcounterstop(void);
  * @returns FPGA_OK on success. FPGA_EXCEPTION if an internal exception occurred
  * while trying to access the handle.
  */
-fpga_result fpgaperfcounterprint(FILE **file);
+fpga_result fpgaPerfCounterPrint(FILE **file);
 
 /*
  * Release the memory alloacted
@@ -84,7 +84,7 @@ fpga_result fpgaperfcounterprint(FILE **file);
  * while trying to access the handle.
  *
  */
-fpga_result fpgaperfcounterfree(void);
+fpga_result fpgaPerfCounterFree(void);
 
 #ifdef __cplusplus
 }

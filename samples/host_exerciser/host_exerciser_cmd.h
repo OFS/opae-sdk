@@ -30,31 +30,33 @@
 
 using test_afu = opae::afu_test::afu;
 using opae::fpga::types::shared_buffer;
+using opae::fpga::types::token;
+using opae::fpga::types::handle;
 
 namespace host_exerciser {
 
 class fpgaperf {
 public:
-  fpga_result perfinit(uint16_t segment, uint8_t bus, uint8_t device)
+  fpga_result perfenum(token::ptr_t token)
   {
-	return fpgaperfcounterinit(segment, bus, device);
+	return fpgaPerfCounterEnum(token->c_type());
   }
   fpga_result perfstart(void)
   {
-	return fpgaperfcounterstart();
+	return fpgaPerfCounterStartrecord();
   }
   fpga_result perfstop(void)
   {
-	return fpgaperfcounterstop();
+	return fpgaPerfCounterStoprecord();
   }
   fpga_result perfprint(void)
   {
 	FILE *file = stdout;
-	return fpgaperfcounterprint(&file);
+	return fpgaPerfCounterPrint(&file);
   }
   fpga_result perffree(void)
   {
-	return fpgaperfcounterfree();
+	return fpgaPerfCounterFree();
   }
 };
 
@@ -149,17 +151,22 @@ public:
         auto d_afu = dynamic_cast<host_exerciser*>(afu);
         host_exe_ = dynamic_cast<host_exerciser*>(afu);
 
-	//fpga perf counter initialization
-	d_afu->get_properties_from_handle();
+	token_ = d_afu->get_parent_token();
 
+	//fpga perf counter initialization
         fpgaperf fpgaperf;
 
-        res = fpgaperf.perfinit(host_exe_->segment_, host_exe_->bus_, host_exe_->device_);
-	if (res != FPGA_OK)
+        res = fpgaperf.perfenum(token_);
+	if (res != FPGA_OK) {
+		fpgaperf.perffree();
 		return -1;
+	}
+	
         res = fpgaperf.perfstart();
-	if (res != FPGA_OK)
+	if (res != FPGA_OK) {
+		fpgaperf.perffree();
 		return -1;
+	}
 
         auto ret = parse_input_options();
         if (ret != 0) {
@@ -227,6 +234,7 @@ public:
             if (--timeout == 0) {
                 std::cout << "HE LPBK TIME OUT" << std::endl;
                 host_exerciser_errors();
+		fpgaperf.perffree();
                 return -1;
             }
         }
@@ -235,16 +243,20 @@ public:
         std::cout << "Test Completed" << std::endl;
 	//stop performance counter
 	res = fpgaperf.perfstop();
-	if (res != FPGA_OK)
+	if (res != FPGA_OK) {
+		fpgaperf.perffree();
 		return -1;
+	}
 
         host_exerciser_swtestmsg();
         host_exerciser_status();
 
 	//print the performace counter values
 	res = fpgaperf.perfprint();
-	if (res != FPGA_OK)
+	if (res != FPGA_OK) {
+		fpgaperf.perffree();
 		return -1;
+	}
 	
 	//free the memory allocated for perf counters
 	res = fpgaperf.perffree();
@@ -265,6 +277,7 @@ protected:
     shared_buffer::ptr_t source_;
     shared_buffer::ptr_t destination_;
     shared_buffer::ptr_t dsm_;
+    token::ptr_t token_;
 };
 
 } // end of namespace host_exerciser

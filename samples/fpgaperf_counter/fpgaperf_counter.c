@@ -26,38 +26,51 @@
 
 #define _GNU_SOURCE
 #include <pthread.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <glob.h>
+#include <libudev.h>
+#include <stdint.h>
+#include <errno.h>
 #include <unistd.h>
 #include <sys/syscall.h>
-#include <string.h>
 #include <sys/ioctl.h>
 #include <linux/perf_event.h>
 #include <linux/hw_breakpoint.h>
 #include <asm/unistd.h>
-#include <errno.h>
-#include <stdint.h>
-#include <inttypes.h>
-#include <dirent.h>
-#include <glob.h>
 #include <opae/log.h>
 #include "opae_int.h"
-
+#include <opae/properties.h>
+#include <opae/utils.h>
+#include <opae/fpga.h>
+#include <regex.h>
 #include "fpgaperf_counter.h"
+
 
 #define DFL_PERF_FME "/sys/bus/pci/devices/*%x*:*%x*:*%x*.*%x*/fpga_region/region*/dfl-fme.*"
 
-#define DFL_PERF_SYSFS "/sys/bus/event_source/devices/"
+#define DFL_PERF_SYSFS "/sys/bus/event_source/devices/dfl_fme"
 
-/* This filter removes the unwanted events during enumeration */
-#define EVENT_FILTER  {"clock", "fab_port_mmio_read", "fab_port_mmio_write", "fab_port_pcie0_read", "fab_port_pcie0_write"}
+#define DFL_PERF_STR_MAX	256
 
-#define	DFL_PERF_STR_MAX	256
+#define DFL_BUFSIZ_MAX  512
 
-#define DFL_BUFSIZ_MAX	512
+#define PERF_EVNET_PATTERN "event=(0x[0-9a-fA-F]{2}),evtype=(0x[0-9a-fA-F]{2}),portid=(0x[0-9a-fA-F]{2})"
+
+#define PERF_CONFIG_PATTERN "config:([0-9]{1,})-([0-9]{2,})"
+
+#define PARSE_MATCH_INT(_p, _m, _v, _b)				\
+	do {											\
+		errno = 0;									\
+		_v = strtoul(_p + _m, NULL, _b);			\
+		if (errno) {								\
+			OPAE_MSG("error parsing int");			\
+		}											\
+	} while (0)
 
 /* mutex to protect fpga perf pmu data structures */
-pthread_mutex_t fpga_perf_lock = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP;
+pthread_mutex_t fpga_perf_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 /* Read format structure*/
 struct read_format {
@@ -68,631 +81,556 @@ struct read_format {
 	} values[];
 };
 
-struct generic_event_type {
-	const char *event_name;
-	const char *value;
-	long long config;
+typedef struct  {
+	char event_name[DFL_PERF_STR_MAX];
+	uint64_t config;
 	int fd;
 	uint64_t id;
 	uint64_t start_value;
 	uint64_t stop_value;
-};
+}perf_event_type;
 
-struct format_type {
-	const char *format_name;
-	long long value;
-	int shift;
-};
+typedef struct {
+	char format_name[DFL_PERF_STR_MAX];
+	uint64_t shift;
+}perf_format_type;
 
-struct fpga_perf_counter {
-	const char *pmu_name;
-	char *fme;
-	int type;
-	int cpumask;
-	int is_start;
-	int num_formats;
-	int num_generic_events;
-	int num_read_events;
-	struct format_type *formats;
-	struct generic_event_type *generic_events;
-};
+typedef struct {
+	char dfl_fme_name[DFL_PERF_STR_MAX];
+	uint64_t type;
+	uint64_t cpumask;
+	uint64_t num_format;
+	perf_format_type *format_type;
+	uint64_t num_perf_events;
+	perf_event_type *perf_events;
+}fpga_perf_counter;
 
 /* Not static so other tools can access the PMU data */
-struct fpga_perf_counter *fpga_perf_pmus = NULL;
+fpga_perf_counter *g_fpga_perf = NULL;
 
-/*Initialize the perf event attribute structure and return the file descriptor*/
-int  perf_event_attr_initialize(int generic_num, int val)
+/* parse the each format and get the shift val */
+fpga_result parse_perf_format(struct udev *udev, char* sysfs_path)
 {
-	struct perf_event_attr pea;
-	int fd, grpfd, cpumask, res;
+	regex_t re;
+	regmatch_t matches[3] = { {0} };
+	char err[128] = { 0 };
+	int reg_res = 0;
+	int res;
+	uint64_t loop = 0;
+	uint64_t value = 0;
+	struct udev_device *dev = NULL;
 
-	/* initialize the pea structure to 0 */
-	memset(&pea, 0, sizeof(struct perf_event_attr));
-
-	if ((fpga_perf_pmus->formats == NULL) || (fpga_perf_pmus->generic_events == NULL) || (fpga_perf_pmus == NULL))
-		return -1;  
-
+	if ((!sysfs_path) || (!udev)) {
+		OPAE_ERR("Invalid input parameters");
+		return FPGA_INVALID_PARAM;
+	}
+	/* get device based on path */
+	dev = udev_device_new_from_syspath(udev, sysfs_path);
+	if (!dev) {
+		OPAE_ERR("Failed to get device");
+		return FPGA_EXCEPTION;
+	}	
 	if (opae_mutex_lock(res, &fpga_perf_lock)) {
 		OPAE_MSG("Failed to lock handle mutex");
-		return -1;
-	}
-
-	if (val == 1)
-		grpfd = -1;
-	else
-		grpfd = fpga_perf_pmus->generic_events[0].fd;
-	cpumask = fpga_perf_pmus->cpumask;
-	pea.type = fpga_perf_pmus->type;
-	pea.size = sizeof(struct perf_event_attr);
-	pea.config = fpga_perf_pmus->generic_events[generic_num].config;
-	pea.disabled = 1;
-	pea.inherit = 1;
-	pea.sample_type = PERF_SAMPLE_IDENTIFIER;
-	pea.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
-	fd = syscall(__NR_perf_event_open, &pea, -1, cpumask, grpfd, 0);
+		return FPGA_EXCEPTION;
+	}	
+	struct udev_list_entry *attrs = udev_device_get_sysattr_list_entry(dev);
+	struct udev_list_entry *le = NULL;
+	g_fpga_perf->num_format = 0;
 	
+	udev_list_entry_foreach(le, attrs) {
+		g_fpga_perf->num_format++;
+	}	
+	g_fpga_perf->format_type = calloc(g_fpga_perf->num_format,
+			sizeof(perf_format_type));			
+	if (!g_fpga_perf->format_type) {
+		g_fpga_perf->num_format = 0;
+		goto out;
+	}
+	udev_list_entry_foreach(le, attrs) {
+		const char *attr = udev_list_entry_get_name(le);
+		reg_res = regcomp(&re, PERF_CONFIG_PATTERN, REG_EXTENDED | REG_ICASE);
+		if (reg_res) {
+			OPAE_ERR("Error compling regex");
+			goto out;
+		}
+		reg_res = regexec(&re, udev_device_get_sysattr_value(dev, attr), 4, matches, 0);
+		if (reg_res) {
+			regerror(reg_res, &re, err, 128);
+			OPAE_ERR("Error executing regex: %s", err);
+			goto out;
+		} else {
+			const char *attr_value = udev_device_get_sysattr_value(dev, attr);
+			PARSE_MATCH_INT(attr_value, matches[1].rm_so, value, 10);
+			g_fpga_perf->format_type[loop].shift = value;
+			if (snprintf(g_fpga_perf->format_type[loop].format_name,
+				sizeof(g_fpga_perf->format_type[loop].format_name), "%s", attr) < 0) {
+				OPAE_ERR("snprintf buffer overflow");
+				goto out;
+			}
+			loop++;
+
+		}
+	}
+	udev_device_unref(dev);
 	if (opae_mutex_unlock(res, &fpga_perf_lock)) {
 		OPAE_MSG("Failed to unlock handle mutex");
-		return -1;
+		return FPGA_EXCEPTION;
 	}
-	return fd;
+	return FPGA_OK;
+out:
+	udev_device_unref(dev);
+	opae_mutex_unlock(res, &fpga_perf_lock);
+	return FPGA_EXCEPTION;
 }
 
-/* read the performance counter values */
-fpga_result read_fab_counters(int is_start)
-{
-	fpga_result ret = FPGA_OK;
-	int loop = 0, inner_loop = 0, res;
-	char buf[DFL_PERF_STR_MAX] = {0};
-	struct read_format *rdft = (struct read_format *) buf;
+/* parse the events for the perticular device directory */
+fpga_result parse_perf_event(struct udev *udev, char* sysfs_path)
+{	
+	regex_t re;
+	regmatch_t matches[4] = { {0} };
+	char err[128] = { 0 };
+	int reg_res;
+	uint64_t loop = 0;
+	uint64_t inner_loop = 0;
+	struct udev_device *dev = NULL;
+	int res;
 
-	if ((fpga_perf_pmus->formats == NULL) || (fpga_perf_pmus->generic_events == NULL) || (fpga_perf_pmus == NULL))
+	if ((!sysfs_path) || (!udev)) {
+		OPAE_ERR("Invalid input parameters");
+		return FPGA_INVALID_PARAM;
+	}
+	/* get device based on path */
+	dev = udev_device_new_from_syspath(udev, sysfs_path);
+	if (!dev) {
+		OPAE_ERR("Failed to get device");
 		return FPGA_EXCEPTION;
-  
+	}
 	if (opae_mutex_lock(res, &fpga_perf_lock)) {
 		OPAE_MSG("Failed to lock handle mutex");
 		return FPGA_EXCEPTION;
 	}
-	if (read(fpga_perf_pmus->generic_events[0].fd, rdft, sizeof(buf)) == -1) {
-		OPAE_ERR("read fpga perf counter failed");
-		ret = FPGA_EXCEPTION;
-		goto unlock;
+	struct udev_list_entry *attrs = udev_device_get_sysattr_list_entry(dev);
+	struct udev_list_entry *le = NULL;
+	g_fpga_perf->num_perf_events = 0;
+	
+	udev_list_entry_foreach(le, attrs) {
+		g_fpga_perf->num_perf_events++;
+	}
+	g_fpga_perf->perf_events = calloc(g_fpga_perf->num_perf_events,
+			sizeof(perf_event_type));
+	if (!g_fpga_perf->perf_events) {
+		g_fpga_perf->num_perf_events = 0;
+		goto out;
+	}
+	udev_list_entry_foreach(le, attrs) {
+		const char *attr = udev_list_entry_get_name(le);
+		reg_res = regcomp(&re, PERF_EVNET_PATTERN, REG_EXTENDED | REG_ICASE);
+		if (reg_res) {
+			OPAE_ERR("Error compling regex");
+			goto out;
+		}
+		reg_res = regexec(&re, udev_device_get_sysattr_value(dev, attr), 4, matches, 0);
+		if (reg_res) {
+			regerror(reg_res, &re, err, 128);
+			OPAE_MSG("Error executing regex: %s", err);
+		} else {
+			const char *attr_value = udev_device_get_sysattr_value(dev, attr);
+			uint64_t config = 0;
+			uint64_t event = 0;
+			if (snprintf(g_fpga_perf->perf_events[inner_loop].event_name,
+				sizeof(g_fpga_perf->perf_events[inner_loop].event_name), "%s", attr) < 0) {
+				OPAE_ERR("snprintf buffer overflow");
+				goto out;
+			}
+
+			for (loop = 0; loop < g_fpga_perf->num_format; loop++) {
+				PARSE_MATCH_INT(attr_value, matches[loop + 1].rm_so, event, 16);
+				config |= event << g_fpga_perf->format_type[loop].shift;
+			}
+			g_fpga_perf->perf_events[inner_loop].config = config;
+			inner_loop++;
+		}
+	}
+	udev_device_unref(dev);
+	if (opae_mutex_unlock(res, &fpga_perf_lock)) {
+		OPAE_MSG("Failed to unlock handle mutex");
+		return FPGA_EXCEPTION;
+	}
+	return FPGA_OK;
+out:
+	udev_device_unref(dev);
+	opae_mutex_unlock(res, &fpga_perf_lock);
+	return FPGA_EXCEPTION;
+}
+
+
+fpga_result fpgaPerfEvents(char* perf_sysfs_path)
+{
+	struct udev *udev = NULL;
+	struct udev_device *dev = NULL;
+	char sysfs_path[DFL_BUFSIZ_MAX] = { 0 };
+	struct perf_event_attr pea;
+	int fd = 0, grpfd = 0, res;
+	uint64_t loop = 0;
+	
+	if (!perf_sysfs_path) {
+		OPAE_ERR("Invalid input parameters");
+		return FPGA_INVALID_PARAM;
+	}
+	/* create udev object */
+	udev = udev_new();
+	if (!udev) {
+		OPAE_ERR("Cannot create udev context");
+		return FPGA_EXCEPTION;
+	}
+	dev = udev_device_new_from_syspath(udev, perf_sysfs_path);
+	if (!dev) {
+		OPAE_ERR("Failed to get device");
+		return FPGA_EXCEPTION;
+	}	
+	if (opae_mutex_lock(res, &fpga_perf_lock)) {
+			OPAE_MSG("Failed to lock handle mutex");
+			return FPGA_EXCEPTION;
+	}
+	const char * ptr = udev_device_get_sysattr_value(dev, "cpumask");
+	if (ptr)
+		PARSE_MATCH_INT(ptr, 0, g_fpga_perf->cpumask, 10);
+
+	ptr = udev_device_get_sysattr_value(dev, "type");
+	if (ptr)
+		PARSE_MATCH_INT(ptr, 0, g_fpga_perf->type, 10);
+
+	if (opae_mutex_unlock(res, &fpga_perf_lock)) {
+			OPAE_MSG("Failed to unlock handle mutex");
+			return FPGA_EXCEPTION;
+	}
+	if (snprintf(sysfs_path, sizeof(sysfs_path),
+		"%s/%s", perf_sysfs_path, "format") < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+			return FPGA_EXCEPTION;
+	}
+	/* parse the format value */
+	parse_perf_format(udev, sysfs_path);	
+	if (snprintf(sysfs_path, sizeof(sysfs_path),
+		"%s/%s", perf_sysfs_path, "events") < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+			return FPGA_EXCEPTION;
+	}
+	/* parse the event value */
+	parse_perf_event(udev, sysfs_path);
+	/* initialize the pea structure to 0 */
+	memset(&pea, 0, sizeof(struct perf_event_attr));
+	
+	if (opae_mutex_lock(res, &fpga_perf_lock)) {
+			OPAE_MSG("Failed to lock handle mutex");
+			return FPGA_EXCEPTION;
 	}
 
-	for (loop = 0; loop < (int)rdft->nr; loop++) {
-		for (inner_loop = 0; inner_loop < fpga_perf_pmus->num_generic_events; inner_loop++) {
-			if (rdft->values[loop].id == fpga_perf_pmus->generic_events[inner_loop].id) {
-				if (is_start)
-					fpga_perf_pmus->generic_events[inner_loop].start_value = rdft->values[loop].value;
-				else
-					fpga_perf_pmus->generic_events[inner_loop].stop_value = rdft->values[loop].value;
+	for (loop = 0; loop < g_fpga_perf->num_perf_events; loop++) {
+
+		if (g_fpga_perf->perf_events[0].fd <= 0)
+			grpfd = -1;
+		else
+			grpfd = g_fpga_perf->perf_events[0].fd;
+		
+		if (!g_fpga_perf->perf_events[loop].config)
+			continue;
+
+		pea.type = g_fpga_perf->type;
+		pea.size = sizeof(struct perf_event_attr);
+		pea.config = g_fpga_perf->perf_events[loop].config;
+		pea.disabled = 1;
+		pea.inherit = 1;
+		pea.sample_type = PERF_SAMPLE_IDENTIFIER;
+		pea.read_format = PERF_FORMAT_GROUP | PERF_FORMAT_ID;
+		fd = syscall(__NR_perf_event_open, &pea, -1, g_fpga_perf->cpumask, grpfd, 0);
+		if (fd == -1) {
+			perror("opening error\n");
+			OPAE_ERR("Error opening leader %llx\n", pea.config);
+			goto out;
+		} else {
+			g_fpga_perf->perf_events[loop].fd = fd;
+			if (ioctl(g_fpga_perf->perf_events[loop].fd, PERF_EVENT_IOC_ID, &g_fpga_perf->perf_events[loop].id) == -1) {
+				OPAE_ERR("PERF_EVENT_IOC_ID ioctl failed: %s", strerror(errno));
+				goto out;
 			}
 		}
 	}
-unlock:
-	
+	if (ioctl(g_fpga_perf->perf_events[0].fd, PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP) == -1) {
+		OPAE_ERR("PERF_EVENT_IOC_RESET ioctl failed: %s", strerror(errno));
+		opae_mutex_unlock(res, &fpga_perf_lock);
+		return FPGA_EXCEPTION;
+	}
+	udev_unref(udev);
+	udev_device_unref(dev);
 	if (opae_mutex_unlock(res, &fpga_perf_lock)) {
 		OPAE_MSG("Failed to unlock handle mutex");
 		return FPGA_EXCEPTION;
 	}
+	return FPGA_OK;
+out:
+	udev_unref(udev);
+	udev_device_unref(dev);
+	opae_mutex_unlock(res, &fpga_perf_lock);
+	return FPGA_EXCEPTION;
+}
+
+/* get fpga sbdf from token */
+fpga_result get_fpga_sbdf(fpga_token token,
+		uint16_t *segment,
+		uint8_t *bus,
+		uint8_t *device,
+		uint8_t *function)
+{
+	fpga_result res = FPGA_OK;
+	fpga_properties props = NULL;
+
+	if (!segment || !bus ||
+		!device || !function) {
+		OPAE_ERR("Invalid input parameters");
+		return FPGA_INVALID_PARAM;
+	}
+	res = fpgaGetProperties(token, &props);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get properties ");
+		return res;
+	}
+	res = fpgaPropertiesGetBus(props, bus);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get bus ");
+		return res;
+	}
+	res = fpgaPropertiesGetSegment(props, segment);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get Segment ");
+		return res;
+	}
+	res = fpgaPropertiesGetDevice(props, device);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get Device ");
+		return res;
+	}
+	res = fpgaPropertiesGetFunction(props, function);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get Function ");
+		return res;
+	}
+
+	return res;
+}
+
+fpga_result fpgaPerfCounterEnum(fpga_token token)
+{
+	fpga_result ret = FPGA_OK;
+	char sysfs_path[DFL_PERF_STR_MAX] = { 0 };
+	char sysfs_perf[DFL_PERF_STR_MAX] = { 0 };
+	int gres = 0, res;
+	glob_t pglob;
+	uint32_t fpga_id;
+	char *endptr = NULL;
+
+	uint8_t bus = (uint8_t)-1;
+	uint16_t segment = (uint16_t)-1;
+	uint8_t device = (uint8_t)-1;
+	uint8_t function = (uint8_t)-1;
+
+	res = get_fpga_sbdf(token, &segment, &bus, &device, &function);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get sbdf ");
+		return res;
+	}
+	/* when we bind with new device id we will get updated function value */
+	/* not able to read the sysfs path using that */
+	if(function)
+		function = 0;
+	if (snprintf(sysfs_path, sizeof(sysfs_path),
+		DFL_PERF_FME,
+		segment, bus, device, function) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
+	gres = glob(sysfs_path, GLOB_NOSORT, NULL, &pglob);
+	if (gres) {
+		OPAE_ERR("Failed pattern match %s: %s", sysfs_path, strerror(errno));
+		globfree(&pglob);
+		return FPGA_NOT_FOUND;
+	}
+	if (pglob.gl_pathc == 1) {
+		char *ptr = strstr(pglob.gl_pathv[0], "fme");
+		if (!ptr) {
+			ret = FPGA_INVALID_PARAM;
+			goto out;
+		}
+		errno = 0;
+		fpga_id = strtoul(ptr + 3, &endptr, 16);
+
+		if (snprintf(sysfs_perf, sizeof(sysfs_perf),
+			DFL_PERF_SYSFS"%d", fpga_id) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+			ret = FPGA_EXCEPTION;
+			goto out;
+		}		
+		if (opae_mutex_lock(res, &fpga_perf_lock)) {
+			OPAE_MSG("Failed to lock handle mutex");
+			ret = FPGA_EXCEPTION;
+			goto out;
+		}
+		/*allocate memory for PMUs */
+		g_fpga_perf = malloc(sizeof(fpga_perf_counter));
+		if (!g_fpga_perf) {
+			opae_mutex_unlock(res, &fpga_perf_lock);
+			ret = FPGA_EXCEPTION;
+			goto out;
+		}
+		if (snprintf(g_fpga_perf->dfl_fme_name, sizeof(g_fpga_perf->dfl_fme_name),
+			"dfl_fme%d", fpga_id) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+			opae_mutex_unlock(res, &fpga_perf_lock);
+			ret = FPGA_EXCEPTION;
+			goto out;
+		}
+		if (opae_mutex_unlock(res, &fpga_perf_lock)) {
+			OPAE_MSG("Failed to unlock handle mutex");
+			ret = FPGA_EXCEPTION;
+			goto out;
+		}
+		if (fpgaPerfEvents(sysfs_perf) != ret)	{
+			OPAE_ERR("Failed to parse fpga perf event");
+			goto out;
+		}
+
+	} else {
+		ret = FPGA_NOT_FOUND;
+		goto out;
+	}
+
+out:
+	globfree(&pglob);
 	return ret;
 }
 
-fpga_result fpgaperfcounterstop(void)
+fpga_result fpgaPerfCounterStartrecord(void)
 {
-	int res;	
-
-	if ((fpga_perf_pmus->formats == NULL) || (fpga_perf_pmus->generic_events == NULL) || (fpga_perf_pmus == NULL))
-		return FPGA_EXCEPTION;
- 
-	if (ioctl(fpga_perf_pmus->generic_events[0].fd, PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP) == -1) {
-		OPAE_ERR("PERF_EVENT_IOC_DISABLE ioctl failed: %s", strerror(errno));
-		return FPGA_EXCEPTION;
-	}
-	if (opae_mutex_lock(res, &fpga_perf_lock)) {
-		OPAE_MSG("Failed to lock handle mutex");
-		return FPGA_EXCEPTION;
-	}
-
-	fpga_perf_pmus->is_start = 0;
-
-	if (opae_mutex_unlock(res, &fpga_perf_lock)) {
-		OPAE_MSG("Failed to unlock handle mutex");
-		return FPGA_EXCEPTION;
-	}
-	/* read the performance counter for the workload*/
-	return read_fab_counters(fpga_perf_pmus->is_start);
-}
-
-fpga_result fpgaperfcounterprint(FILE **f)
-{
-	int loop = 0, res;
-
-	if ((*f == NULL) || (*f == stdout))
-		*f = stdout;
-
-	if (opae_mutex_lock(res, &fpga_perf_lock)) {
-		OPAE_MSG("Failed to lock handle mutex");
-		return FPGA_EXCEPTION;
-	}
-
-	for (loop = 0; loop < fpga_perf_pmus->num_generic_events; loop++)
-		fprintf(*f, "%s\t", fpga_perf_pmus->generic_events[loop].event_name);
-
-	fprintf(*f, "\n");
-	for (loop = 0; loop < fpga_perf_pmus->num_generic_events; loop++) {
-		fprintf(*f, "%ld\t\t", (fpga_perf_pmus->generic_events[loop].stop_value - fpga_perf_pmus->generic_events[loop].start_value));
-	}
-	fprintf(*f, "\n");
-
-	if (opae_mutex_unlock(res, &fpga_perf_lock)) {
-		OPAE_MSG("Failed to unlock handle mutex");
-		return FPGA_EXCEPTION;
-	}
-	
-	return FPGA_OK;
-}
-
-/* provides number of files in the directory 
- * after removing unwanted files provided in filter */
-int get_num_files(DIR *dir, char **filter, int filter_size)
-{
-	int loop = 0;
-	int num_files = 0;
-	struct dirent *entry = NULL;
-
-	while ((entry = readdir(dir)) != NULL) {
-		if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
-			continue;
-		for (loop = 0; loop < filter_size; loop++) {
-			if (!strcmp(entry->d_name, filter[loop]))
-				break;
-		}
-		/* if matched with filter then check next file */
-		if (loop != filter_size)
-			continue;
-		num_files++;
-	}
-	return num_files;
-}
-
-/* parse the each format and get the shift val */
-fpga_result prepare_format(DIR *dir, char *dir_name)
-{
-	int format_num = 0, result = -1, res;
-	struct dirent *format_entry = NULL;
-	FILE *file = NULL;
-	char sysfspath[DFL_BUFSIZ_MAX] = { 0,};
-
-	if (!dir || !dir_name) {
-		OPAE_ERR("Invalid Input parameters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	fpga_perf_pmus->formats = calloc(fpga_perf_pmus->num_formats, sizeof(struct format_type));
-	if (fpga_perf_pmus->formats == NULL) {
-		fpga_perf_pmus->num_formats = 0;
-		return FPGA_EXCEPTION;
-	}
-
-	rewinddir(dir);
-	while ((format_entry = readdir(dir)) != NULL) {
-		if (!strcmp(format_entry->d_name, ".") || !strcmp(format_entry->d_name, ".."))
-			continue;
-		if (opae_mutex_lock(res, &fpga_perf_lock)) {
-			OPAE_MSG("Failed to lock handle mutex");
-			return FPGA_EXCEPTION;
-		}
-
-		fpga_perf_pmus->formats[format_num].format_name = strdup(format_entry->d_name);
-
-		if (opae_mutex_unlock(res, &fpga_perf_lock)) {
-			OPAE_MSG("Failed to unlock handle mutex");
-			return FPGA_EXCEPTION;
-		}
-
-		snprintf(sysfspath, sizeof(sysfspath), "%s/format/%s", dir_name, format_entry->d_name);
-		file = fopen(sysfspath, "r");
-		if (file != NULL) {
-			if (opae_mutex_lock(res, &fpga_perf_lock)) {
-				OPAE_MSG("Failed to lock handle mutex");
-				fclose(file);
-				return FPGA_EXCEPTION;
-			}
-			
-			result = fscanf(file, "config:%d", &fpga_perf_pmus->formats[format_num].shift);
-
-			if (opae_mutex_unlock(res, &fpga_perf_lock)) {
-				OPAE_MSG("Failed to unlock handle mutex");
-				fclose(file);
-				return FPGA_EXCEPTION;
-			}
-			/*read config first byte success*/
-			if (result == -1) {
-				OPAE_ERR("Failed to read %s", sysfspath);
-				fclose(file);
-				return FPGA_EXCEPTION;
-			}
-			fclose(file);
-		} else
-			return FPGA_EXCEPTION;
-		if (format_num == fpga_perf_pmus->num_formats)
-			break;
-		format_num++;
-	}
-	return FPGA_OK;
-}
-
-/* parse the event value and get the type specific config value*/
-uint64_t parse_event(char *value)
-{
-	int loop = 0, num = 0;
-	uint64_t config = 0;
-	char *name_evt_str = NULL;
-	char *sub_str = strtok(value, ",");
-	long val;
-
-	while (sub_str != NULL) {
-		for (loop = 0; loop < fpga_perf_pmus->num_formats; loop++) {
-			name_evt_str = strstr(sub_str, fpga_perf_pmus->formats[loop].format_name);
-			if (name_evt_str) {
-				num = strlen(fpga_perf_pmus->formats[loop].format_name);
-				/* Ignore '=0x' and convert to hex */
-				val = strtol(sub_str+num+3, NULL, 16);
-				config |= (val << fpga_perf_pmus->formats[loop].shift);
-			}
-
-		}
-		sub_str = strtok(NULL, ",");
-	}
-
-	return config;
-}
-
-/* parse the evnts for the perticular device directory */
-fpga_result prepare_event_mask(DIR *dir, char **filter, int filter_size, char *dir_name)
-{
-	int loop = 0, generic_num = 0, result = -1, res;
-	struct dirent *event_entry = NULL;
-	FILE *file = NULL;
-	char sysfspath[DFL_BUFSIZ_MAX] = { 0,};
-	char event_value[DFL_BUFSIZ_MAX] = { 0,};
-	
-	if (!dir || !dir_name) {
-		OPAE_ERR("Invalid Input parameters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	fpga_perf_pmus->generic_events = calloc(fpga_perf_pmus->num_generic_events, sizeof(struct generic_event_type));
-	if (fpga_perf_pmus->generic_events == NULL) {
-		fpga_perf_pmus->num_generic_events = 0;
-		return FPGA_EXCEPTION;
-	}
-
-	rewinddir(dir);
-	while ((event_entry = readdir(dir)) != NULL) {
-		if (!strcmp(event_entry->d_name, ".") || !strcmp(event_entry->d_name, ".."))
-			continue;
-		for (loop = 0; loop < filter_size; loop++) {
-			if (!strcmp(event_entry->d_name, filter[loop]))
-				break;
-		}
-		if (loop != filter_size)
-			continue;
-		if (opae_mutex_lock(res, &fpga_perf_lock)) {
-			OPAE_MSG("Failed to lock handle mutex");
-			return FPGA_EXCEPTION;
-		}
-
-		fpga_perf_pmus->generic_events[generic_num].event_name = strdup(event_entry->d_name);
-	
-		if (opae_mutex_unlock(res, &fpga_perf_lock)) {
-			OPAE_MSG("Failed to unlock handle mutex");
-			return FPGA_EXCEPTION;
-		}
-
-		snprintf(sysfspath, sizeof(sysfspath), "%s/events/%s", dir_name, event_entry->d_name);
-		file = fopen(sysfspath, "r");
-		if (file != NULL) {
-			result = fscanf(file, "%s", event_value);
-			/* read event_value success*/
-			if (result == 1) {
-				if (opae_mutex_lock(res, &fpga_perf_lock)) {
-					OPAE_MSG("Failed to lock handle mutex");
-					fclose(file);
-					return FPGA_EXCEPTION;
-				}
-
-				fpga_perf_pmus->generic_events[generic_num].value = strdup(event_value);
-				fpga_perf_pmus->generic_events[generic_num].config = parse_event(event_value);
-
-				if (opae_mutex_unlock(res, &fpga_perf_lock)) {
-					OPAE_MSG("Failed to unlock handle mutex");
-					fclose(file);
-					return FPGA_EXCEPTION;
-				}
-			} else
-				return FPGA_EXCEPTION;
-			fclose(file);
-		} else
-			return FPGA_EXCEPTION;
-		if (generic_num == fpga_perf_pmus->num_generic_events)
-			break;
-		generic_num++;
-	}
-	return FPGA_OK;
-}
-
-/* read the type and cpumask from the sysfs path */
-fpga_result read_perf_sysfs(char *sysfs_path, int *val)
-{
-        FILE *file = NULL;
-
-        file = fopen(sysfs_path, "r");
-        if (!file) {
-		OPAE_ERR("fopen(%s) failed\n", sysfs_path);
-                return FPGA_NOT_FOUND;
-        }
-        if(1 != fscanf(file,  "%d", val)) {
-		OPAE_ERR("Failed to read %s", sysfs_path);
-		fclose(file);
-                return FPGA_EXCEPTION;
-        }
-        fclose(file);
-        return FPGA_OK;
-}
-
-/*Enumerate the dfl-fme based on the sbdf */
-fpga_result fpgaperfcounterinit(uint16_t segment, uint8_t bus, uint8_t device)
-{
-	DIR *dir = NULL, *event_dir = NULL, *format_dir = NULL;
-	struct dirent *entry = NULL;
-	char dir_name[DFL_PERF_STR_MAX] = { 0,};
-	char event_path[DFL_BUFSIZ_MAX] = { 0,};
-	char sysfspath[DFL_BUFSIZ_MAX] = { 0,};
-	char format_path[DFL_BUFSIZ_MAX] = { 0,};
-	char *event_filter[] = EVENT_FILTER;
-	char path[DFL_BUFSIZ_MAX] = { 0,};
-	char *fme = NULL;
-	fpga_result result = FPGA_OK;
-	glob_t globlist;
-	int val = -1, num = 0, cnt = 0, len = 0, offset = 0;
-	char *str = NULL;
-	char substr[] = "dfl-fme.";
-	int format_size = 0, event_size = 0;
-	int  loop = 0, inner_loop = 0, fd = -1, res;
-	/* when we bind with new device id we will get updated function value */
-	/* not able to read the sysfs path using that */
-	uint8_t function = 0;
-
-	/*allocate memory for PMUs */
-	fpga_perf_pmus = malloc(sizeof(struct fpga_perf_counter));
-	if (fpga_perf_pmus == NULL)
-		return FPGA_EXCEPTION;
-		
-	snprintf(path, sizeof(path), DFL_PERF_FME, segment, bus, device, function);
-
-	int gres = glob(path, GLOB_NOSORT, NULL, &globlist);
-	if (gres) {
-		OPAE_ERR("Failed pattern match %s: %s", path, strerror(errno));
-		globfree(&globlist);
-		return FPGA_NOT_FOUND;
-	}
-	str = globlist.gl_pathv[0];
-	if (str == NULL) {
-		globfree(&globlist);
-		return FPGA_EXCEPTION;
-	}
-	fme = strstr(str, substr);
-	if (fme == NULL)
-		return FPGA_EXCEPTION;
-	len = strlen(substr);
-	cnt = strlen(str);
-	num = strlen(fme);
-	offset = cnt - num;
-	val = strtol(str+offset+len, NULL, 10);
-	snprintf(fme, num, "dfl_fme%d", val);
-	
-	if (opae_mutex_lock(res, &fpga_perf_lock)) {
-		OPAE_MSG("Failed to lock handle mutex");
-		return FPGA_EXCEPTION;
-	}
-
-	fpga_perf_pmus->fme = fme;
-
-	if (opae_mutex_unlock(res, &fpga_perf_lock)) {
-		OPAE_MSG("Failed to unlock handle mutex");
-		return FPGA_EXCEPTION;
-	}
-
-	dir = opendir(DFL_PERF_SYSFS);
-	if (dir == NULL) {
-		OPAE_ERR("opendir(%s) failed\n", DFL_PERF_SYSFS);
-		goto out;
-	}
-	/* Add PMU */
-	while ((entry = readdir(dir)) != NULL) {
-		if (strcmp(fpga_perf_pmus->fme, entry->d_name) != 0)
-			continue;
-		else {
-			if (opae_mutex_lock(res, &fpga_perf_lock)) {
-				OPAE_MSG("Failed to lock handle mutex");
-				goto out;
-			}
-			/* read name */
-			fpga_perf_pmus->pmu_name = strdup(entry->d_name);
-
-			if (opae_mutex_unlock(res, &fpga_perf_lock)) {
-				OPAE_MSG("Failed to unlock handle mutex");
-				goto out;
-			}
-			snprintf(dir_name, sizeof(dir_name), DFL_PERF_SYSFS"/%s", fpga_perf_pmus->pmu_name);
-			/* read type */
-			snprintf(sysfspath, sizeof(sysfspath), "%s/type", dir_name);
-			if (opae_mutex_lock(res, &fpga_perf_lock)) {
-				OPAE_MSG("Failed to lock handle mutex");
-				goto out;
-			}
-			result = read_perf_sysfs(sysfspath, &fpga_perf_pmus->type);
-			if (opae_mutex_unlock(res, &fpga_perf_lock)) {
-				OPAE_MSG("Failed to unlock handle mutex");
-				goto out;
-			}
-			/* read the pmus type success */
-			if (result != FPGA_OK)
-				goto out;
- 			/* read cpumask */
-			snprintf(sysfspath, sizeof(sysfspath), "%s/cpumask", dir_name);
-			if (opae_mutex_lock(res, &fpga_perf_lock)) {
-				OPAE_MSG("Failed to lock handle mutex");
-				goto out;
-			}
-			result = read_perf_sysfs(sysfspath, &fpga_perf_pmus->cpumask);
-			if (opae_mutex_unlock(res, &fpga_perf_lock)) {
-				OPAE_MSG("Failed to unlock handle mutex");
-				goto out;
-			}
-			/* read the pmus type success */
-			if (result != FPGA_OK)
-				goto out;
-			/* Scan format strings */
-			snprintf(format_path, sizeof(format_path), "%s/format", dir_name);
-			format_dir = opendir(format_path);
-			if (format_dir != NULL) {
-				/* Count format strings and parse the format*/
-				if (opae_mutex_lock(res, &fpga_perf_lock)) {
-					OPAE_MSG("Failed to lock handle mutex");
-					goto out;
-				}
-
-				fpga_perf_pmus->num_formats = get_num_files(format_dir, NULL, format_size);
-
-				if (opae_mutex_unlock(res, &fpga_perf_lock)) {
-					OPAE_MSG("Failed to lock handle mutex");
-					goto out;
-				}
-				result = prepare_format(format_dir, dir_name);
-				if (result != FPGA_OK) {
-					closedir(format_dir);
-					goto out;
-				}
-				closedir(format_dir);
-			} else
-				goto out;
-			snprintf(event_path, sizeof(event_path), "%s/events", dir_name);
-			event_dir = opendir(event_path);
-			if (event_dir != NULL) {
-				/* count generic events and parse the events*/
-				event_size = sizeof(event_filter) / sizeof(event_filter[0]);
-
-				if (opae_mutex_lock(res, &fpga_perf_lock)) {
-					OPAE_MSG("Failed to lock handle mutex");
-					goto out;
-				}
-
-				fpga_perf_pmus->num_generic_events = get_num_files(event_dir, event_filter, event_size);
-	
-				if (opae_mutex_unlock(res, &fpga_perf_lock)) {
-					OPAE_MSG("Failed to unlock handle mutex");
-					goto out;
-				}
-				result = prepare_event_mask(event_dir, event_filter, event_size, dir_name);
-				if (result != FPGA_OK) {
-					closedir(event_dir);
-					goto out;
-				}
-				closedir(event_dir);
-			} else
-				goto out;
-			for (loop = 0; loop < fpga_perf_pmus->num_generic_events; loop++) {
-				/* pass generic num to get perticular config and to store first file descriptor*/
-				inner_loop++;
-				fd = perf_event_attr_initialize(loop, inner_loop);
-				if (fd == -1) {
-					OPAE_ERR("perf_event_open failed");
-					goto out;
-				}
-				
-				if (opae_mutex_lock(res, &fpga_perf_lock)) {
-					OPAE_MSG("Failed to lock handle mutex");
-					goto out;
-				}
-
-				fpga_perf_pmus->generic_events[loop].fd = fd;
-				
-				if (opae_mutex_unlock(res, &fpga_perf_lock)) {
-					OPAE_MSG("Failed to lock handle mutex");
-					goto out;
-				}
-				if (ioctl(fpga_perf_pmus->generic_events[loop].fd, PERF_EVENT_IOC_ID, &fpga_perf_pmus->generic_events[loop].id) == -1) {
-					OPAE_ERR("PERF_EVENT_IOC_ID ioctl failed: %s", strerror(errno));
-					goto out;
-				}
-			}
-		}
-	}
-	/* reset the performance counter to 0 */
-	if (ioctl(fpga_perf_pmus->generic_events[0].fd, PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP) == -1) {
-		OPAE_ERR("PERF_EVENT_IOC_RESET ioctl failed: %s", strerror(errno));
-		goto out;
-	}
-
-	closedir(dir);
-	globfree(&globlist);
-	return FPGA_OK;
-
-out:
-	closedir(dir);
-	globfree(&globlist);
-	return FPGA_EXCEPTION;
-
-}
-
-
-fpga_result fpgaperfcounterstart(void)
-{
-	fpga_result ret = FPGA_OK;
+	uint64_t loop = 0, inner_loop = 0;
+	char buf[DFL_PERF_STR_MAX] = { 0 };
+	struct read_format *rdft = (struct read_format *) buf;
 	int res;
-
+	
 	if (opae_mutex_lock(res, &fpga_perf_lock)) {
 		OPAE_MSG("Failed to lock handle mutex");
 		return FPGA_EXCEPTION;
 	}
-
-	fpga_perf_pmus->is_start = 1;
-
-	if (opae_mutex_unlock(res, &fpga_perf_lock)) {
-		OPAE_MSG("Failed to unlock handle mutex");
-		return FPGA_EXCEPTION;
-	}
-	ret = read_fab_counters(fpga_perf_pmus->is_start);
-        if (ret != FPGA_OK)
-                return FPGA_EXCEPTION;
-
-	if (ioctl(fpga_perf_pmus->generic_events[0].fd, PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP) == -1) {
+	if (ioctl(g_fpga_perf->perf_events[0].fd, PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP) == -1) {
 		OPAE_ERR("PERF_EVENT_IOC_ENABLE ioctl failed: %s", strerror(errno));
+		goto out;
+	}
+	if (read(g_fpga_perf->perf_events[0].fd, rdft, sizeof(buf)) == -1) {
+		OPAE_ERR("read fpga perf counter failed");
+		goto out;
+	}
+	for (loop = 0; loop < (uint64_t)rdft->nr; loop++) {
+		for (inner_loop = 0; inner_loop < g_fpga_perf->num_perf_events; inner_loop++) {
+			if (rdft->values[loop].id == g_fpga_perf->perf_events[inner_loop].id) {
+				g_fpga_perf->perf_events[inner_loop].start_value = rdft->values[loop].value;
+			}
+		}
+	}	
+	if (opae_mutex_unlock(res, &fpga_perf_lock)) {
+		OPAE_MSG("Failed to unlock handle mutex");
 		return FPGA_EXCEPTION;
 	}
 	return FPGA_OK;
+out:
+	opae_mutex_unlock(res, &fpga_perf_lock);
+	return FPGA_EXCEPTION;
 }
 
-fpga_result fpgaperfcounterfree(void)
+fpga_result fpgaPerfCounterStoprecord(void)
 {
+	char buf[DFL_PERF_STR_MAX] = { 0 };
+	uint64_t loop = 0, inner_loop = 0;
+	struct read_format *rdft = (struct read_format *) buf;
 	int res;
-	
-	if (fpga_perf_pmus->formats != NULL)
-		free(fpga_perf_pmus->formats);
-	if (fpga_perf_pmus->generic_events != NULL)
-		free(fpga_perf_pmus->generic_events);
-	if (fpga_perf_pmus != NULL)
-		free(fpga_perf_pmus);
+
 	if (opae_mutex_lock(res, &fpga_perf_lock)) {
 		OPAE_MSG("Failed to lock handle mutex");
 		return FPGA_EXCEPTION;
 	}
-	fpga_perf_pmus->formats = NULL;
-	fpga_perf_pmus->generic_events = NULL;
-	fpga_perf_pmus = NULL;
+	if (ioctl(g_fpga_perf->perf_events[0].fd, PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP) == -1) {
+		OPAE_ERR("PERF_EVENT_IOC_ENABLE ioctl failed: %s", strerror(errno));
+		goto out;
+	}
+	if (read(g_fpga_perf->perf_events[0].fd, rdft, sizeof(buf)) == -1) {
+		OPAE_ERR("read fpga perf counter failed");
+		goto out;
+	}	
+	for (loop = 0; loop < (uint64_t)rdft->nr; loop++) {
+		for (inner_loop = 0; inner_loop < g_fpga_perf->num_perf_events; inner_loop++) {
+			if (rdft->values[loop].id == g_fpga_perf->perf_events[inner_loop].id) {
+				g_fpga_perf->perf_events[inner_loop].stop_value = rdft->values[loop].value;
+			}
+		}
+	}
+	if (opae_mutex_unlock(res, &fpga_perf_lock)) {
+		OPAE_MSG("Failed to unlock handle mutex");
+		return FPGA_EXCEPTION;
+	}
+	return FPGA_OK;
+out:
+	opae_mutex_unlock(res, &fpga_perf_lock);
+	return FPGA_EXCEPTION;
+}
+
+fpga_result fpgaPerfCounterPrint(FILE **f)
+{
+	uint64_t loop = 0;
+	int res;
+
+	if (!*f)
+		return FPGA_EXCEPTION;
+	if (opae_mutex_lock(res, &fpga_perf_lock)) {
+		OPAE_MSG("Failed to lock handle mutex");
+		return FPGA_EXCEPTION;
+	}
+	fprintf(*f, "\n");
+	for (loop = 0; loop < g_fpga_perf->num_perf_events; loop++)
+		fprintf(*f, "%s\t", g_fpga_perf->perf_events[loop].event_name);
+	fprintf(*f, "\n");
+	for (loop = 0; loop < g_fpga_perf->num_perf_events; loop++) {
+		if (!g_fpga_perf->perf_events[loop].config)
+			continue;
+		fprintf(*f, "%ld\t\t", (g_fpga_perf->perf_events[loop].stop_value - g_fpga_perf->perf_events[loop].start_value));
+	}
+	fprintf(*f, "\n");
+	if (opae_mutex_unlock(res, &fpga_perf_lock)) {
+		OPAE_MSG("Failed to unlock handle mutex");
+		return FPGA_EXCEPTION;
+	}
+
+	return FPGA_OK;
+}
+
+fpga_result fpgaPerfCounterFree(void)
+{
+	int res;
+        
+	if (opae_mutex_lock(res, &fpga_perf_lock)) {
+		OPAE_MSG("Failed to lock handle mutex");
+		return FPGA_EXCEPTION;
+	}
+	if (g_fpga_perf->format_type != NULL) {
+		free(g_fpga_perf->format_type);
+		g_fpga_perf->format_type = NULL;
+	}
+	if (g_fpga_perf->perf_events != NULL) {
+		free(g_fpga_perf->perf_events);
+		g_fpga_perf->perf_events = NULL;
+	}
+	if (g_fpga_perf != NULL) {
+		free(g_fpga_perf);
+		g_fpga_perf = NULL;
+	}
 	if (opae_mutex_unlock(res, &fpga_perf_lock)) {
 		OPAE_MSG("Failed to unlock handle mutex");
 		return FPGA_EXCEPTION;

@@ -40,31 +40,43 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
-#define EVENT_FILTER  {(char *)"clock", (char *)"fab_port_mmio_read", (char *)"fab_port_mmio_write", (char *)"fab_port_pcie0_read", (char *)"fab_port_pcie0_write"}
+#include <libudev.h>
 
 #define DFL_PERF_STR_MAX        256
 
-#define DFL_BUFSIZ_MAX  512
+/**
+ * Initilaize the fpga_perf_counter structure. Dynamically enumerate sysfs path 
+ * and get the device type, cpumask, format and generic events.
+ * Reset the counter to 0 and enable the counters to get workload instructions.
+ */
+fpga_result fpgaPerfCounterEnum(fpga_token token);
 
-/*initilaize the perf_counter structureand get the dfl_fme device*/
-fpga_result fpgaperfcounterinit(uint16_t segment, uint8_t bus, uint8_t device, uint8_t function);
+/* 
+ * Enable the performance counter, read the start value and update
+ * the fpga_perf_counter start value.
+ */
+fpga_result fpgaPerfCounterStartrecord(void);
 
-/* Dynamically enumerate sysfs path and get the device type, cpumask, format and generic events
-Reset the counter to 0 and enable the counters to get workload instructions */
-fpga_result fpgaperfcounterstart(void);
+/*
+ * Disable the performance counter, read the stop value and update
+ * the fpga_perf_counter stop value.
+ */
+fpga_result fpgaPerfCounterStoprecord(void);
 
-/* Stops performance counter and get the counters values */
-fpga_result fpgaperfcounterstop(void);
+/*print the performance counter values */
+fpga_result fpgaPerfCounterPrint(FILE **file);
+
+/* parse the events and format value using sysfs_path */
+fpga_result fpgaPerfEvents(char* perf_sysfs_path);
+
+/* parse the events for the perticular device directory */
+fpga_result parse_perf_event(struct udev *udev, char* sysfs_path);
 
 /* parse the each format and get the shift val */
-fpga_result prepare_format(DIR *dir, char *dir_name);
+fpga_result parse_perf_format(struct udev *udev, char* sysfs_path);
 
-/* parse the evnts for the perticular device directory */
-fpga_result prepare_event_mask(DIR *dir, char **filter, int filter_size, char *dir_name);
-
-/* read the performance counter values */
-fpga_result read_fab_counters(int val);
+/*free the allocated memory */
+fpga_result fpgaPerfCounterFree(void);
 
 }
 
@@ -73,6 +85,9 @@ fpga_result read_fab_counters(int val);
 
 #include <cstdlib>
 #include <string>
+#include <opae/properties.h>
+#include <opae/utils.h>
+#include <opae/fpga.h>
 #include "gtest/gtest.h"
 #include "mock/test_system.h"
 
@@ -81,125 +96,149 @@ using namespace opae::testing;
 
 class fpgaperf_counter_c_p : public ::testing::TestWithParam<std::string> {
 protected:
-        fpgaperf_counter_c_p() {}
+        fpgaperf_counter_c_p(): tokens_{ {nullptr, nullptr} } {}
 
         virtual void SetUp() override 
         {
-            std::string platform_key = GetParam();
-            ASSERT_TRUE(test_platform::exists(platform_key));
-            platform_ = test_platform::get(platform_key);
-            system_ = test_system::instance();
-            system_->initialize();
-            system_->prepare_syfs(platform_);
-            EXPECT_EQ(fpgaInitialize(nullptr), FPGA_OK);
+			ASSERT_TRUE(test_platform::exists(GetParam()));
+			platform_ = test_platform::get(GetParam());
+			system_ = test_system::instance();
+			system_->initialize();
+			system_->prepare_syfs(platform_);
 
-            optind = 0;
+			filter_ = nullptr;
+			ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+			ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+			ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
+			num_matches_ = 0;
+			ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+				&num_matches_), FPGA_OK);
+			EXPECT_GT(num_matches_, 0);
+			dev_ = nullptr;
+			ASSERT_EQ(fpgaOpen(tokens_[0], &dev_, 0), FPGA_OK);
         }
 
         virtual void TearDown() override {
+			EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+			if (dev_) {
+				EXPECT_EQ(fpgaClose(dev_), FPGA_OK);
+				dev_ = nullptr;
+			}
+			for (auto &t : tokens_) {
+				if (t) {
+					EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+					t = nullptr;
+				}
+			}
             fpgaFinalize();
             system_->finalize();
         }
-
-        test_platform platform_;
-        test_system *system_;
+		
+		std::array<fpga_token, 2> tokens_;
+		fpga_properties filter_;
+		fpga_handle dev_;
+		test_platform platform_;
+		uint32_t num_matches_;
+		test_system *system_;
 };
-
 
 /**
 * @test       fpgaperf_0
-* @brief      Tests: fpgaperfcounterinit
-* @details    Validates the dfl-fme device path based on pci address  <br>
+* @brief      Tests: fpgaPerfCounterEnum
+* @details    Validates the dfl-fme device path based on token and parse events and formats <br>
 */
 TEST_P(fpgaperf_counter_c_p, fpgaperf_0) {
-
-	uint16_t segment=0;
-	uint8_t bus=0;
-	uint8_t device=0;
-	uint8_t function=0;
 	
-	segment = platform_.devices[0].segment;
-	bus = platform_.devices[0].bus;
-	device = platform_.devices[0].device;
-	function = platform_.devices[0].function;
-	
-	EXPECT_EQ(fpgaperfcounterinit(segment, bus, device, function), FPGA_OK);
+	EXPECT_EQ(fpgaPerfCounterEnum(tokens_[0]), FPGA_OK);
 }
 
 /**
 * @test       fpgaperf_1
-* @brief      Tests: fpgaperfcounterstart
+* @brief      Tests: fpgaPerfCounterStartrecord
 * @details    Validates counter start  <br>
 */
 TEST_P(fpgaperf_counter_c_p, fpgaperf_1) {
 	
-	EXPECT_EQ(fpgaperfcounterstart(), FPGA_OK);
+	EXPECT_EQ(fpgaPerfCounterStartrecord(), FPGA_OK);
 }
 
 /**
 * @test       fpgaperf_2
-* @brief      Tests: fpgaperfcounterstop
+* @brief      Tests: fpgaPerfCounterStoprecord
 * @details    Validates fpga perf counter stop  <br>
 */
 TEST_P(fpgaperf_counter_c_p, fpgaperf_2) {
 
-	EXPECT_EQ(fpgaperfcounterstop(), FPGA_OK);
+	EXPECT_EQ(fpgaPerfCounterStoprecord(), FPGA_OK);
 }
 /**
 * @test       fpgaperf_3
-* @brief      Tests: read_fab_counters
-* @details    Validates fpga perf counter reads  <br>
+* @brief      Tests: fpgaPerfCounterPrint
+* @details    Validates performance counter prints  <br>
 */
 TEST_P(fpgaperf_counter_c_p, fpgaperf_3) {
+	FILE *f = stdout;
 
-	EXPECT_EQ(read_fab_counters(1), FPGA_OK);
+	EXPECT_EQ(fpgaPerfCounterPrint(&f), FPGA_OK);
 }
+
 
 /**
 * @test       fpgaperf_4
-* @brief      Tests: prepare_format
-* @details    Validates format parse and prepare <br>
+* @brief      Tests: fpgaPerfEvents
+* @details    Validates parse the evnts and format <br>
 */
 TEST_P(fpgaperf_counter_c_p, fpgaperf_4) {
-        DIR *format_dir = NULL;
 
-        char dir_name[DFL_PERF_STR_MAX] = "/sys/bus/event_source/devices/dfl_fme0";
-	char format_name[DFL_BUFSIZ_MAX] = "";
+    char sysfs_path[DFL_PERF_STR_MAX] = "/sys/bus/event_source/devices/dfl_fme0";
 
-	snprintf(format_name, sizeof(format_name), "%s/format", dir_name);
-        format_dir = opendir(format_name);
-
-
-	EXPECT_EQ(prepare_format(format_dir, dir_name), FPGA_OK);
-
-	EXPECT_EQ(prepare_format(NULL, dir_name), FPGA_INVALID_PARAM);
-	
-	EXPECT_EQ(prepare_format(format_dir, NULL), FPGA_INVALID_PARAM);
-
+	EXPECT_EQ(fpgaPerfEvents(sysfs_path), FPGA_OK);
+	EXPECT_EQ(fpgaPerfEvents(NULL), FPGA_INVALID_PARAM);
 }
 
 /**
 * @test       fpgaperf_5
-* @brief      Tests: prepare_event_mask
-* @details    Validates events  <br>
+* @brief      Tests: parse_perf_event
+* @details    Validates events values  <br>
 */
 TEST_P(fpgaperf_counter_c_p, fpgaperf_5) {	
-        DIR *event_dir = NULL;
 
-        char dir_name[DFL_PERF_STR_MAX] = "/sys/bus/event_source/devices/dfl_fme0";
-        char event_name[DFL_BUFSIZ_MAX] = "";
-	char *event_filter[] =  EVENT_FILTER;
-	int size = 0;
+    char sysfs_path[DFL_PERF_STR_MAX] = "/sys/bus/event_source/devices/dfl_fme0/events";
+	struct udev *udev = NULL;
 	
-	size = sizeof(event_filter) / sizeof(event_filter[0]);
+	/* create udev object */
+	udev = udev_new();
+	
+	EXPECT_EQ(parse_perf_event(udev, sysfs_path), FPGA_OK);
+	EXPECT_EQ(parse_perf_event(udev, NULL), FPGA_INVALID_PARAM);
+	udev_unref(udev);
+}
+/**
+* @test       fpgaperf_6
+* @brief      Tests: parse_perf_format
+* @details    Validates format value <br>
+*/
+TEST_P(fpgaperf_counter_c_p, fpgaperf_6) {	
 
-        snprintf(event_name, sizeof(event_name), "%s/events", dir_name);
-        event_dir = opendir(event_name);
+    char sysfs_path[DFL_PERF_STR_MAX] = "/sys/bus/event_source/devices/dfl_fme0/format";
+	struct udev *udev = NULL;
+	
+	/* create udev object */
+	udev = udev_new();
 
-	EXPECT_EQ(prepare_event_mask(event_dir, event_filter, size, dir_name), FPGA_OK);
-	EXPECT_EQ(prepare_event_mask(NULL, event_filter, size, dir_name), FPGA_INVALID_PARAM);
-	EXPECT_EQ(prepare_event_mask(event_dir, event_filter, size, NULL), FPGA_INVALID_PARAM);
+	EXPECT_EQ(parse_perf_format(udev, sysfs_path), FPGA_OK);
+	EXPECT_EQ(parse_perf_format(udev, NULL), FPGA_INVALID_PARAM);
+	udev_unref(udev);
+}
 
+/**
+* @test       fpgaperf_6
+* @brief      Tests: fpgaPerfCounterFree
+* @details    Validates frees a memory <br>
+*/
+TEST_P(fpgaperf_counter_c_p, fpgaperf_6) {	
+
+	EXPECT_EQ(fpgaPerfCounterFree(), FPGA_OK);
 }
 
 INSTANTIATE_TEST_CASE_P(fpgaperf_counter_c, fpgaperf_counter_c_p,

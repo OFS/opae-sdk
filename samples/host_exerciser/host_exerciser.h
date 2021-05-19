@@ -26,15 +26,14 @@
 #pragma once
 #include <opae/cxx/core/events.h>
 #include <opae/cxx/core/shared_buffer.h>
-#include <opae/cxx/core/properties.h>
+#include <opae/cxx/core/token.h>
 
 #include "afu_test.h"
-
 
 namespace host_exerciser {
 using opae::fpga::types::event;
 using opae::fpga::types::shared_buffer;
-using opae::fpga::types::properties;
+using opae::fpga::types::token;
 
 static const uint64_t HELPBK_TEST_TIMEOUT = 30000;
 static const uint64_t HELPBK_TEST_SLEEP_INVL = 100;
@@ -344,6 +343,7 @@ public:
       res = exit_codes::exception;
     }
 
+    //tokens_ = perf_token_;
     auto pass = res == exit_codes::success ? "PASS" : "FAIL";
     logger_->info("Test {}({}): {}", test->name(), count, pass);
     spdlog::drop_all();
@@ -444,11 +444,7 @@ public:
   bool he_delay_;
   bool he_continuousmode_;
   uint32_t he_interleave_;
-  uint16_t segment_;
-  uint8_t bus_ ;
-  uint8_t device_;
-  properties::ptr_t props;
-
+  token::ptr_t tokens_;
 
   std::map<uint32_t, uint32_t> limits_;
 
@@ -462,12 +458,10 @@ public:
     return offset;
   }
   
-  void get_properties_from_handle()
+  token::ptr_t get_parent_token()
   {
-	props = properties::get(handle_);
-	segment_ = static_cast<uint16_t>(props->segment);
-	bus_ = static_cast<uint8_t>(props->bus);
-	device_ = static_cast<uint8_t>(props->device);
+	tokens_ = perf_token_;
+    return tokens_;
   }
 
 };
