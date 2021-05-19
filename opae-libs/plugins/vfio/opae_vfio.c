@@ -433,6 +433,13 @@ out_destroy:
 	return NULL;
 }
 
+static fpga_result vfio_reset(const pci_device_t *p, volatile uint8_t *port_base)
+{
+	ASSERT_NOT_NULL(p);
+	ASSERT_NOT_NULL(port_base);
+	OPAE_ERR("fpgaReset for vfio is not implemented yet");
+	return FPGA_OK;
+}
 
 int vfio_walk(pci_device_t *p)
 {
@@ -486,6 +493,7 @@ int vfio_walk(pci_device_t *p)
 	t->mmio_size = size;
 	t->user_mmio_count = 1;
 	t->user_mmio[0] = 0;
+	t->ops.reset = vfio_reset;
 	get_guid(1+(uint64_t *)mmio, t->guid);
 
 	// now let's check other BARs
@@ -564,6 +572,15 @@ fpga_result vfio_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 	}
 	_handle->mmio_base = (volatile uint8_t *)(mmio);
 	_handle->mmio_size = size;
+
+	_handle->flags = 0;
+#if GCC_VERSION >= 40900
+	__builtin_cpu_init();
+	if (__builtin_cpu_supports("avx512f")) {
+		_handle->flags |= OPAE_FLAG_HAS_AVX512;
+	}
+#endif
+
 	*handle = _handle;
 	res = FPGA_OK;
 out_attr_destroy:
@@ -847,6 +864,48 @@ fpga_result vfio_fpgaReadMMIO32(fpga_handle handle,
 	return FPGA_OK;
 }
 
+static inline void copy512(const void *src, void *dst)
+{
+    asm volatile("vmovdqu64 (%0), %%zmm0;"
+		 "vmovdqu64 %%zmm0, (%1);"
+		 :
+		 : "r"(src), "r"(dst));
+}
+
+fpga_result vfio_fpgaWriteMMIO512(fpga_handle handle,
+				 uint32_t mmio_num,
+				 uint64_t offset,
+				 const void *value)
+{
+	vfio_handle *h = handle_check(handle);
+
+	ASSERT_NOT_NULL(h);
+
+	vfio_token *t = h->token;
+
+	if (offset % 64 != 0) {
+		OPAE_MSG("Misaligned MMIO access");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (!(h->flags & OPAE_FLAG_HAS_AVX512)) {
+		return FPGA_NOT_SUPPORTED;
+	}
+
+	if (t->type == FPGA_DEVICE)
+		return FPGA_NOT_SUPPORTED;
+	if (mmio_num > t->user_mmio_count)
+		return FPGA_INVALID_PARAM;
+	if (pthread_mutex_lock(&h->lock)) {
+		OPAE_MSG("error locking handle mutex");
+		return FPGA_EXCEPTION;
+	}
+
+	copy512(value, (uint8_t *)get_user_offset(h, mmio_num, offset));
+	pthread_mutex_unlock(&h->lock);
+	return FPGA_OK;
+}
+
 fpga_result vfio_fpgaMapMMIO(fpga_handle handle,
 			     uint32_t mmio_num,
 			     uint64_t **mmio_ptr)
@@ -859,7 +918,11 @@ fpga_result vfio_fpgaMapMMIO(fpga_handle handle,
 
 	if (mmio_num > t->user_mmio_count)
 		return FPGA_INVALID_PARAM;
-	*mmio_ptr = (uint64_t *)get_user_offset(h, mmio_num, 0);
+
+	/* Store return value only if return pointer has allocated memory */
+	if (mmio_ptr)
+		*mmio_ptr = (uint64_t *)get_user_offset(h, mmio_num, 0);
+
 	return FPGA_OK;
 }
 
