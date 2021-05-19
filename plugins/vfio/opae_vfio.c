@@ -433,6 +433,13 @@ out_destroy:
 	return NULL;
 }
 
+static fpga_result vfio_reset(const pci_device_t *p, volatile uint8_t *port_base)
+{
+	ASSERT_NOT_NULL(p);
+	ASSERT_NOT_NULL(port_base);
+	OPAE_ERR("fpgaReset for vfio is not implemented yet");
+	return FPGA_OK;
+}
 
 int vfio_walk(pci_device_t *p)
 {
@@ -486,6 +493,7 @@ int vfio_walk(pci_device_t *p)
 	t->mmio_size = size;
 	t->user_mmio_count = 1;
 	t->user_mmio[0] = 0;
+	t->ops.reset = vfio_reset;
 	get_guid(1+(uint64_t *)mmio, t->guid);
 
 	// now let's check other BARs
