@@ -210,9 +210,12 @@ class fme(region):
     @property
     def spi_bus(self):
         if os.path.basename(self.sysfs_path).startswith('dfl'):
-            return self.find_one('dfl*.*/'
-                                 '*spi*/'
-                                 'spi_master/spi*/spi*')
+            patterns = ['dfl*.*/*spi*/spi_master/spi*/spi*',
+                        'dfl*.*/spi_master/spi*/spi*']
+            for pattern in patterns:
+                spi = self.find_one(pattern)
+                if spi:
+                    return spi
         return self.find_one('spi*/spi_master/spi*/spi*')
 
     @property
