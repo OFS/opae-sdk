@@ -391,12 +391,14 @@ opae_vfio_destroy_buffer(struct opae_vfio *, struct opae_vfio_buffer *);
 
 STATIC void opae_vfio_destroy(struct opae_vfio *v)
 {
+	// destroy buffers before we close any FDs
+	opae_vfio_destroy_buffer(v, v->cont_buffers);
+	v->cont_buffers = NULL;
+
 	opae_vfio_device_destroy(&v->device);
 	opae_vfio_group_destroy(&v->group);
 	opae_vfio_destroy_iova_range(v->cont_ranges);
 	v->cont_ranges = NULL;
-	opae_vfio_destroy_buffer(v, v->cont_buffers);
-	v->cont_buffers = NULL;
 
 	mem_alloc_destroy(&v->iova_alloc);
 
