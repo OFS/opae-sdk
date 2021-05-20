@@ -151,22 +151,22 @@ public:
         auto d_afu = dynamic_cast<host_exerciser*>(afu);
         host_exe_ = dynamic_cast<host_exerciser*>(afu);
 
-	token_ = d_afu->get_parent_token();
+        token_ = d_afu->get_parent_token();
 
-	//fpga perf counter initialization
+        //fpga perf counter initialization
         fpgaperf fpgaperf;
 
         res = fpgaperf.perfenum(token_);
-	if (res != FPGA_OK) {
-		fpgaperf.perffree();
-		return -1;
-	}
+        if (res != FPGA_OK) {
+                fpgaperf.perffree();
+                return -1;
+        }
 	
         res = fpgaperf.perfstart();
-	if (res != FPGA_OK) {
-		fpgaperf.perffree();
-		return -1;
-	}
+        if (res != FPGA_OK) {
+                fpgaperf.perffree();
+                return -1;
+        }
 
         auto ret = parse_input_options();
         if (ret != 0) {
@@ -241,27 +241,27 @@ public:
 
 
         std::cout << "Test Completed" << std::endl;
-	//stop performance counter
-	res = fpgaperf.perfstop();
-	if (res != FPGA_OK) {
-		fpgaperf.perffree();
-		return -1;
-	}
+        //stop performance counter
+        res = fpgaperf.perfstop();
+        if (res != FPGA_OK) {
+                fpgaperf.perffree();
+                return -1;
+        }
 
         host_exerciser_swtestmsg();
         host_exerciser_status();
 
-	//print the performace counter values
-	res = fpgaperf.perfprint();
-	if (res != FPGA_OK) {
-		fpgaperf.perffree();
-		return -1;
-	}
+        //print the performace counter values
+        res = fpgaperf.perfprint();
+        if (res != FPGA_OK) {
+                fpgaperf.perffree();
+                return -1;
+        }
 	
-	//free the memory allocated for perf counters
-	res = fpgaperf.perffree();
-	if (res != FPGA_OK)
-		return -1;
+        //free the memory allocated for perf counters
+        res = fpgaperf.perffree();
+        if (res != FPGA_OK)
+                return -1;
 
         /* Compare buffer contents only loopback test mode*/
         if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)

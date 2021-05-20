@@ -343,7 +343,6 @@ public:
       res = exit_codes::exception;
     }
 
-    //tokens_ = perf_token_;
     auto pass = res == exit_codes::success ? "PASS" : "FAIL";
     logger_->info("Test {}({}): {}", test->name(), count, pass);
     spdlog::drop_all();
@@ -460,7 +459,7 @@ public:
   
   token::ptr_t get_parent_token()
   {
-	tokens_ = perf_token_;
+    tokens_ = perf_token_;
     return tokens_;
   }
 

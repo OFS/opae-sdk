@@ -232,11 +232,11 @@ TEST_P(fpgaperf_counter_c_p, fpgaperf_6) {
 }
 
 /**
-* @test       fpgaperf_6
+* @test       fpgaperf_7
 * @brief      Tests: fpgaPerfCounterFree
 * @details    Validates frees a memory <br>
 */
-TEST_P(fpgaperf_counter_c_p, fpgaperf_6) {	
+TEST_P(fpgaperf_counter_c_p, fpgaperf_7) {	
 
 	EXPECT_EQ(fpgaPerfCounterFree(), FPGA_OK);
 }
