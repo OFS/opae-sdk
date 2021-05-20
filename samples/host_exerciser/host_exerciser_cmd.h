@@ -206,6 +206,7 @@ public:
         std::cout << "Allocate DSM Buffer" << std::endl;
         dsm_ = d_afu->allocate(LPBK1_DSM_SIZE);
         d_afu->write32(HE_DSM_BASEL, cacheline_aligned_addr(dsm_->io_address()));
+        d_afu->write32(HE_DSM_BASEH, cacheline_aligned_addr(dsm_->io_address()) >> 32);
         std::fill_n(dsm_->c_type(), LPBK1_DSM_SIZE, 0x0);
 
 
