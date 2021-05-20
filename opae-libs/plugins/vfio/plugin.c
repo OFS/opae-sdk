@@ -80,6 +80,8 @@ int __VFIO_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 		dlsym(adapter->plugin.dl_handle, "vfio_fpgaWriteMMIO32");
 	adapter->fpgaReadMMIO32 =
 		dlsym(adapter->plugin.dl_handle, "vfio_fpgaReadMMIO32");
+	adapter->fpgaWriteMMIO512 =
+		dlsym(adapter->plugin.dl_handle, "vfio_fpgaWriteMMIO512");
 	adapter->fpgaMapMMIO =
 		dlsym(adapter->plugin.dl_handle, "vfio_fpgaMapMMIO");
 	adapter->fpgaUnmapMMIO =

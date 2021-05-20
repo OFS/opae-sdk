@@ -464,7 +464,7 @@ TEST_P(reconf_c_hw_skx_p, set_afu_userclock) {
 }
 
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c_hw_skx_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-n3000","dfl-d5005" })));
+                        ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-d5005" })));
 
 class reconf_c_hw_dcp_p : public reconf_c {
   protected:
@@ -483,7 +483,7 @@ TEST_P(reconf_c_hw_dcp_p, set_afu_userclock) {
 }
 
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c_hw_dcp_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-n3000","dfl-d5005" })));
+                        ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-d5005" })));
 
 /**
 * @test    clear_port_errors
