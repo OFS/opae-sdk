@@ -210,9 +210,6 @@ void free_buffer_list(void)
 	while (ptr) {
 		tmp = ptr;
 		ptr = tmp->next;
-		if (opae_vfio_buffer_free(tmp->vfio_device, tmp->virtual)) {
-			OPAE_ERR("error freeing vfio buffer");
-		}
 		free(tmp);
 	}
 }
