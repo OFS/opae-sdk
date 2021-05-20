@@ -267,6 +267,7 @@ out:
 
 fpga_result fpgaPerfEvents(char* perf_sysfs_path)
 {
+	fpga_result ret = FPGA_OK;
 	struct udev *udev = NULL;
 	struct udev_device *dev = NULL;
 	char sysfs_path[DFL_BUFSIZ_MAX] = { 0 };
@@ -290,8 +291,8 @@ fpga_result fpgaPerfEvents(char* perf_sysfs_path)
 		return FPGA_EXCEPTION;
 	}	
 	if (opae_mutex_lock(res, &fpga_perf_lock)) {
-			OPAE_MSG("Failed to lock handle mutex");
-			return FPGA_EXCEPTION;
+		OPAE_MSG("Failed to lock handle mutex");
+		return FPGA_EXCEPTION;
 	}
 	const char * ptr = udev_device_get_sysattr_value(dev, "cpumask");
 	if (ptr)
@@ -302,29 +303,33 @@ fpga_result fpgaPerfEvents(char* perf_sysfs_path)
 		PARSE_MATCH_INT(ptr, 0, g_fpga_perf->type, 10);
 
 	if (opae_mutex_unlock(res, &fpga_perf_lock)) {
-			OPAE_MSG("Failed to unlock handle mutex");
-			return FPGA_EXCEPTION;
+		OPAE_MSG("Failed to unlock handle mutex");
+		return FPGA_EXCEPTION;
 	}
 	if (snprintf(sysfs_path, sizeof(sysfs_path),
 		"%s/%s", perf_sysfs_path, "format") < 0) {
-			OPAE_ERR("snprintf buffer overflow");
-			return FPGA_EXCEPTION;
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
 	}
 	/* parse the format value */
-	parse_perf_format(udev, sysfs_path);	
+	ret = parse_perf_format(udev, sysfs_path);
+	if (ret != FPGA_OK)
+		return FPGA_EXCEPTION;
 	if (snprintf(sysfs_path, sizeof(sysfs_path),
 		"%s/%s", perf_sysfs_path, "events") < 0) {
-			OPAE_ERR("snprintf buffer overflow");
-			return FPGA_EXCEPTION;
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
 	}
 	/* parse the event value */
-	parse_perf_event(udev, sysfs_path);
+	ret = parse_perf_event(udev, sysfs_path);
+	if (ret != FPGA_OK)
+		return FPGA_EXCEPTION;
 	/* initialize the pea structure to 0 */
 	memset(&pea, 0, sizeof(struct perf_event_attr));
 	
 	if (opae_mutex_lock(res, &fpga_perf_lock)) {
-			OPAE_MSG("Failed to lock handle mutex");
-			return FPGA_EXCEPTION;
+		OPAE_MSG("Failed to lock handle mutex");
+		return FPGA_EXCEPTION;
 	}
 
 	for (loop = 0; loop < g_fpga_perf->num_perf_events; loop++) {

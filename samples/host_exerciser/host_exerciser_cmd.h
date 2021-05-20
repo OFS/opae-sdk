@@ -31,7 +31,6 @@
 using test_afu = opae::afu_test::afu;
 using opae::fpga::types::shared_buffer;
 using opae::fpga::types::token;
-using opae::fpga::types::handle;
 
 namespace host_exerciser {
 
@@ -234,7 +233,7 @@ public:
             if (--timeout == 0) {
                 std::cout << "HE LPBK TIME OUT" << std::endl;
                 host_exerciser_errors();
-		fpgaperf.perffree();
+                fpgaperf.perffree();
                 return -1;
             }
         }

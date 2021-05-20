@@ -24,13 +24,11 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-
 opae_test_add_static_lib(TARGET fpgaperf-static
     SOURCE ${OPAE_SDK_SOURCE}/samples/fpgaperf_counter/fpgaperf_counter.c
     LIBS
         opae-c
 )
-
 
 opae_test_add(TARGET test_fpgaperf_c
     SOURCE test_fpgaperf_counter_c.cpp

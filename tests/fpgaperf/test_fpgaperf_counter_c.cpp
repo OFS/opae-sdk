@@ -100,46 +100,46 @@ protected:
 
         virtual void SetUp() override 
         {
-			ASSERT_TRUE(test_platform::exists(GetParam()));
-			platform_ = test_platform::get(GetParam());
-			system_ = test_system::instance();
-			system_->initialize();
-			system_->prepare_syfs(platform_);
+		ASSERT_TRUE(test_platform::exists(GetParam()));
+		platform_ = test_platform::get(GetParam());
+		system_ = test_system::instance();
+		system_->initialize();
+		system_->prepare_syfs(platform_);
 
-			filter_ = nullptr;
-			ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-			ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-			ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-			num_matches_ = 0;
-			ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-				&num_matches_), FPGA_OK);
-			EXPECT_GT(num_matches_, 0);
-			dev_ = nullptr;
-			ASSERT_EQ(fpgaOpen(tokens_[0], &dev_, 0), FPGA_OK);
+		filter_ = nullptr;
+		ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+		ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+		ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
+		num_matches_ = 0;
+		ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
+			&num_matches_), FPGA_OK);
+		EXPECT_GT(num_matches_, 0);
+		dev_ = nullptr;
+		ASSERT_EQ(fpgaOpen(tokens_[0], &dev_, 0), FPGA_OK);
         }
 
         virtual void TearDown() override {
-			EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-			if (dev_) {
-				EXPECT_EQ(fpgaClose(dev_), FPGA_OK);
-				dev_ = nullptr;
+		EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+		if (dev_) {
+			EXPECT_EQ(fpgaClose(dev_), FPGA_OK);
+			dev_ = nullptr;
+		}
+		for (auto &t : tokens_) {
+			if (t) {
+				EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+				t = nullptr;
 			}
-			for (auto &t : tokens_) {
-				if (t) {
-					EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-					t = nullptr;
-				}
-			}
-            fpgaFinalize();
-            system_->finalize();
-        }
+		}
+		fpgaFinalize();
+		system_->finalize();
+	}
 		
-		std::array<fpga_token, 2> tokens_;
-		fpga_properties filter_;
-		fpga_handle dev_;
-		test_platform platform_;
-		uint32_t num_matches_;
-		test_system *system_;
+	std::array<fpga_token, 2> tokens_;
+	fpga_properties filter_;
+	fpga_handle dev_;
+	test_platform platform_;
+	uint32_t num_matches_;
+	test_system *system_;
 };
 
 /**
@@ -155,7 +155,7 @@ TEST_P(fpgaperf_counter_c_p, fpgaperf_0) {
 /**
 * @test       fpgaperf_1
 * @brief      Tests: fpgaPerfCounterStartrecord
-* @details    Validates counter start  <br>
+* @details    Validates fpga perf counter start  <br>
 */
 TEST_P(fpgaperf_counter_c_p, fpgaperf_1) {
 	
@@ -177,6 +177,7 @@ TEST_P(fpgaperf_counter_c_p, fpgaperf_2) {
 * @details    Validates performance counter prints  <br>
 */
 TEST_P(fpgaperf_counter_c_p, fpgaperf_3) {
+
 	FILE *f = stdout;
 
 	EXPECT_EQ(fpgaPerfCounterPrint(&f), FPGA_OK);
@@ -190,7 +191,7 @@ TEST_P(fpgaperf_counter_c_p, fpgaperf_3) {
 */
 TEST_P(fpgaperf_counter_c_p, fpgaperf_4) {
 
-    char sysfs_path[DFL_PERF_STR_MAX] = "/sys/bus/event_source/devices/dfl_fme0";
+	char sysfs_path[DFL_PERF_STR_MAX] = "/sys/bus/event_source/devices/dfl_fme0";
 
 	EXPECT_EQ(fpgaPerfEvents(sysfs_path), FPGA_OK);
 	EXPECT_EQ(fpgaPerfEvents(NULL), FPGA_INVALID_PARAM);
@@ -203,7 +204,7 @@ TEST_P(fpgaperf_counter_c_p, fpgaperf_4) {
 */
 TEST_P(fpgaperf_counter_c_p, fpgaperf_5) {	
 
-    char sysfs_path[DFL_PERF_STR_MAX] = "/sys/bus/event_source/devices/dfl_fme0/events";
+	char sysfs_path[DFL_PERF_STR_MAX] = "/sys/bus/event_source/devices/dfl_fme0/events";
 	struct udev *udev = NULL;
 	
 	/* create udev object */
@@ -220,7 +221,7 @@ TEST_P(fpgaperf_counter_c_p, fpgaperf_5) {
 */
 TEST_P(fpgaperf_counter_c_p, fpgaperf_6) {	
 
-    char sysfs_path[DFL_PERF_STR_MAX] = "/sys/bus/event_source/devices/dfl_fme0/format";
+	char sysfs_path[DFL_PERF_STR_MAX] = "/sys/bus/event_source/devices/dfl_fme0/format";
 	struct udev *udev = NULL;
 	
 	/* create udev object */
