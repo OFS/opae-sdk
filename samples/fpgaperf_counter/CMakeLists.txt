@@ -25,12 +25,12 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 opae_add_shared_library(TARGET fpgaperf_counter
-	SOURCE fpgaperf_counter.c
-	LIBS
-		${CMAKE_THREAD_LIBS_INIT}
-                udev
-		opae-c
-	COMPONENT opaesamplelib
+    SOURCE fpgaperf_counter.c
+    LIBS
+        ${CMAKE_THREAD_LIBS_INIT}
+        udev
+        opae-c
+    COMPONENT opaesamplelib
 )
 
 target_include_directories(fpgaperf_counter PRIVATE ${OPAE_LIBS_ROOT}/libopae-c)
