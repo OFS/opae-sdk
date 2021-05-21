@@ -47,11 +47,11 @@
 #include "board_n3000.h"
 
 // DFL SYSFS
-#define DFL_SYSFS_BMCFW_VER                  "dfl*/**/*spi*/*spi*/bmcfw_version"
-#define DFL_SYSFS_MAX10_VER                  "dfl*/**/*spi*/*spi*/bmc_version"
+#define DFL_SYSFS_BMCFW_VER                  "dfl*/*spi*/spi_master/spi*/spi*/bmcfw_version"
+#define DFL_SYSFS_MAX10_VER                  "dfl*/*spi*/spi_master/spi*/spi*/bmc_version"
 
-#define DFL_SYSFS_MACADDR_PATH               "dfl*/**/*spi*/*spi*/mac_address"
-#define DFL_SYSFS_MACCNT_PATH                "dfl*/**/*spi*/*spi*/mac_count"
+#define DFL_SYSFS_MACADDR_PATH               "dfl*/*spi*/spi_master/spi*/spi*.*/mac_address"
+#define DFL_SYSFS_MACCNT_PATH                "dfl*/*spi*/spi_master/spi*/spi*.*/mac_count"
 
 #define DFL_BITSTREAM_ID                      "bitstream_id"
 
