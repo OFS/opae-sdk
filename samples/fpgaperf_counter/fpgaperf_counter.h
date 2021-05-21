@@ -54,7 +54,7 @@ fpga_result fpgaPerfCounterEnum(fpga_token token);
  * @returns FPGA_OK on success. FPGA_EXCEPTION if an internal exception occurred
  * while trying to access the handle.
  */
-fpga_result fpgaPerfCounterStartrecord(void);
+fpga_result fpgaPerfCounterStartRecord(void);
 
 /*
  * Disable the performance counter, read the stop value and update
@@ -63,7 +63,7 @@ fpga_result fpgaPerfCounterStartrecord(void);
  * @returns FPGA_OK on success. FPGA_EXCEPTION if an internal exception occurred
  * while trying to access the handle.
  */
-fpga_result fpgaPerfCounterStoprecord(void);
+fpga_result fpgaPerfCounterStopRecord(void);
 
 /*
  * Print the perf counter values
@@ -75,7 +75,7 @@ fpga_result fpgaPerfCounterStoprecord(void);
  * @returns FPGA_OK on success. FPGA_EXCEPTION if an internal exception occurred
  * while trying to access the handle.
  */
-fpga_result fpgaPerfCounterPrint(FILE **file);
+fpga_result fpgaPerfCounterPrint(FILE *file);
 
 /*
  * Release the memory alloacted

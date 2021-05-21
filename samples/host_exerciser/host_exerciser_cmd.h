@@ -42,16 +42,16 @@ public:
   }
   fpga_result perfstart(void)
   {
-	return fpgaPerfCounterStartrecord();
+	return fpgaPerfCounterStartRecord();
   }
   fpga_result perfstop(void)
   {
-	return fpgaPerfCounterStoprecord();
+	return fpgaPerfCounterStopRecord();
   }
   fpga_result perfprint(void)
   {
 	FILE *file = stdout;
-	return fpgaPerfCounterPrint(&file);
+	return fpgaPerfCounterPrint(file);
   }
   fpga_result perffree(void)
   {
