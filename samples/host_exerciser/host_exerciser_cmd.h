@@ -144,7 +144,7 @@ public:
 
     virtual int run(test_afu *afu, CLI::App *app)
     {
-	fpga_result res=FPGA_OK;
+        fpga_result res=FPGA_OK;
         (void)app;
 
         auto d_afu = dynamic_cast<host_exerciser*>(afu);
