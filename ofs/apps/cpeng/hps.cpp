@@ -29,6 +29,7 @@
 #include "afu_test.h"
 #include "ofs_cpeng.h"
 
+#define CACHELINE_SZ 64u
 
 const char *cpeng_guid = "44bfc10d-b42a-44e5-bd42-57dc93ea7f91";
 
@@ -90,10 +91,13 @@ public:
 
     // Read file into shared buffer
     std::ifstream inp(filename_, std::ios::binary | std::ios::ate);
-    auto sz = inp.tellg();
+    size_t sz = inp.tellg();
     inp.seekg(0, std::ios::beg);
-    auto buffer = shared_buffer::allocate(afu->handle(), sz);
+    // allocate 64-byte aligned
+    size_t padded_sz = (sz + CACHELINE_SZ) & (CACHELINE_SZ-1);
+    auto buffer = shared_buffer::allocate(afu->handle(), padded_sz);
     auto ptr = reinterpret_cast<char*>(const_cast<uint8_t*>(buffer->c_type()));
+    memset(ptr, 0, padded_sz);
     if (!inp.read(ptr, sz)){
       log_->error("error reading file: {}", filename_);
       return 2;
@@ -103,7 +107,7 @@ public:
     // Call cpeng driver copy_buffer
     auto copy_status =
       ofs_cpeng_copy_image(&cpeng,
-          buffer->io_address(), destination_offset_, sz, chunk_, timeout_usec_);
+          buffer->io_address(), destination_offset_, padded_sz, chunk_, timeout_usec_);
     if (copy_status) {
       log_->error("Erro calling ofs_cpeng_copy_image");
       if (ofs_cpeng_dma_status_error(&cpeng)) {
