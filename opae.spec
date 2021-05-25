@@ -233,7 +233,6 @@ done
 %{_bindir}/bist
 %{_bindir}/hps
 %{_bindir}/hssi
-%{_bindir}/hssicommon
 %{_bindir}/hssiloopback
 %{_bindir}/hssimac
 %{_bindir}/hssistats
