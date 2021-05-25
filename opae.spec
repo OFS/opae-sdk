@@ -166,6 +166,7 @@ done
 %{_libdir}/opae/libboard_n3000.so*
 %{_libdir}/opae/libboard_d5005.so*
 %{_libdir}/opae/libboard_n5010.so*
+%{_libdir}/opae/libboard_n6010.so*
 %{_libdir}/opae/libfpgad-xfpga.so*
 %{_libdir}/opae/libopae-v.so*
 %{_libdir}/libopae-c++-nlb.so
