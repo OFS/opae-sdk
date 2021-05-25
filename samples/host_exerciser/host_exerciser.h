@@ -443,7 +443,6 @@ public:
   bool he_delay_;
   bool he_continuousmode_;
   uint32_t he_interleave_;
-  token::ptr_t tokens_;
 
   std::map<uint32_t, uint32_t> limits_;
 
@@ -459,8 +458,8 @@ public:
   
   token::ptr_t get_parent_token()
   {
-    tokens_ = perf_token_;
-    return tokens_;
+    auto tokens = token::enumerate({properties::get(handle_)});
+    return tokens[0];
   }
 
 };

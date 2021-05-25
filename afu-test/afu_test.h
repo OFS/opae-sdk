@@ -189,7 +189,6 @@ public:
     }
 
     auto tokens = fpga::token::enumerate({filter});
-    perf_token_ = tokens[0];
     if (tokens.size() < 1) {
       if (pci_addr_.empty()) {
         logger_->error("no accelerator found with id: {0}", app_afu_id);
@@ -318,7 +317,6 @@ protected:
   bool shared_;
   uint32_t timeout_msec_;
   fpga::handle::ptr_t handle_;
-  fpga::token::ptr_t perf_token_;
   command::ptr_t current_command_;
   std::map<CLI::App*, command::ptr_t> commands_;
   std::shared_ptr<spdlog::logger> logger_;

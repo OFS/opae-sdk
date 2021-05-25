@@ -215,8 +215,8 @@ TEST_P(fpgaperf_counter_c_p, fpgaperf_5) {
 	
 	EXPECT_EQ(parse_Perf_Event(dev), FPGA_OK);
 	EXPECT_EQ(parse_Perf_Event(NULL), FPGA_INVALID_PARAM);
-	udev_unref(udev);
 	udev_device_unref(dev);
+	udev_unref(udev);
 }
 /**
 * @test       fpgaperf_6
@@ -235,8 +235,8 @@ TEST_P(fpgaperf_counter_c_p, fpgaperf_6) {
 
 	EXPECT_EQ(parse_Perf_Format(dev), FPGA_OK);
 	EXPECT_EQ(parse_Perf_Format(NULL), FPGA_INVALID_PARAM);
-	udev_unref(udev);
 	udev_device_unref(dev);
+	udev_unref(udev);
 }
 
 /**

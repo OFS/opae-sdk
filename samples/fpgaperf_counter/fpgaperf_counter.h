@@ -27,7 +27,7 @@
 #ifndef __FPGA_PERF_COUNTER_H__
 #define __FPGA_PERF_COUNTER_H__
 
-
+#include <stdio.h>
 #include <opae/types.h>
 
 #ifdef __cplusplus

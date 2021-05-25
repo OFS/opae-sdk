@@ -24,29 +24,30 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#define _GNU_SOURCE
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <glob.h>
-#include <libudev.h>
-#include <stdint.h>
-#include <errno.h>
-#include <unistd.h>
-#include <sys/syscall.h>
-#include <sys/ioctl.h>
-#include <linux/perf_event.h>
-#include <linux/hw_breakpoint.h>
-#include <asm/unistd.h>
-#include <opae/log.h>
-#include "opae_int.h"
-#include <opae/properties.h>
-#include <opae/utils.h>
-#include <opae/fpga.h>
-#include <regex.h>
 #include "fpgaperf_counter.h"
 
+#ifndef __USE_GNU
+#define __USE_GNU 1
+#endif
+#include <pthread.h>
+
+#include <errno.h>
+#include <glob.h>
+#include <regex.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <sys/syscall.h>
+#include <libudev.h>
+#include <linux/perf_event.h>
+
+#include <opae/fpga.h>
+#include <opae/log.h>
+#include <opae/properties.h>
+#include <opae/utils.h>
+#include "opae_int.h"
 
 #define DFL_PERF_FME 		"/sys/bus/pci/devices/*%x*:*%x*:*%x*.*%x*/fpga_region/region*/dfl-fme.*"
 
@@ -54,7 +55,7 @@
 
 #define DFL_PERF_STR_MAX	256
 
-#define PERF_EVNET_PATTERN	"event=(0x[0-9a-fA-F]{2}),evtype=(0x[0-9a-fA-F]{2}),portid=(0x[0-9a-fA-F]{2})"
+#define PERF_EVENT_PATTERN	"event=(0x[0-9a-fA-F]{2}),evtype=(0x[0-9a-fA-F]{2}),portid=(0x[0-9a-fA-F]{2})"
 
 #define PERF_CONFIG_PATTERN	"config:([0-9]{1,})-([0-9]{2,})"
 
@@ -216,7 +217,7 @@ fpga_result parse_Perf_Event(struct udev_device *dev)
 	udev_list_entry_foreach(le, attrs) {
 		const char *attr = udev_list_entry_get_name(le);
 		if (strstr(attr, "events")) {
-			reg_res = regcomp(&re, PERF_EVNET_PATTERN,
+			reg_res = regcomp(&re, PERF_EVENT_PATTERN,
 					REG_EXTENDED | REG_ICASE);
 			if (reg_res) {
 				OPAE_ERR("Error compling regex");
@@ -359,13 +360,13 @@ fpga_result fpga_Perf_Events(char* perf_sysfs_path)
 		goto out;
 	}
 out:
-	udev_unref(udev);
 	udev_device_unref(dev);
+	udev_unref(udev);
 	opae_mutex_unlock(res, &fpga_perf_lock);
 	return ret;
 err:
-	udev_unref(udev);
 	udev_device_unref(dev);
+	udev_unref(udev);
 	return FPGA_EXCEPTION;
 }
 
@@ -456,7 +457,7 @@ fpga_result fpgaPerfCounterEnum(fpga_token token)
 			goto out;
 		}
 		errno = 0;
-		fpga_id = strtoul(ptr + 3, &endptr, 16);
+		fpga_id = strtoul(ptr + 4, &endptr, 10);
 
 		if (snprintf(sysfs_perf, sizeof(sysfs_perf),
 			DFL_PERF_SYSFS"%d", fpga_id) < 0) {
@@ -586,8 +587,10 @@ fpga_result fpgaPerfCounterPrint(FILE *f)
 	uint64_t loop 	= 0;
 	int res		= 0;
 
-	if (!f)
-		return FPGA_EXCEPTION;
+	if (!f) {
+		OPAE_ERR("Invalid input parameters");
+		return FPGA_INVALID_PARAM;
+	}
 	if (opae_mutex_lock(res, &fpga_perf_lock)) {
 		OPAE_MSG("Failed to lock perf mutex");
 		return FPGA_EXCEPTION;
