@@ -58,6 +58,8 @@ OPAE headers, tools, sample source, and documentation
 
 
 %{?python_disable_dependency_generator}
+# Workaround a problem with pybind11 *.so not having build-id's
+%undefine _missing_build_ids_terminate_build
 
 
 %prep
