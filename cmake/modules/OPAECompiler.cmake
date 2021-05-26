@@ -359,7 +359,7 @@ function(opae_add_static_library)
     endif(OPAE_ADD_STATIC_LIBRARY_COMPONENT)
 endfunction()
 
-if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+if(NOT TARGET lcov AND CMAKE_BUILD_TYPE STREQUAL "Coverage")
     set(EXCLUDE_COVERAGE
         '/usr/**'
         '*/libopaecxx/samples/**'
@@ -386,4 +386,4 @@ if(CMAKE_BUILD_TYPE STREQUAL "Coverage")
         COMMAND genhtml --function-coverage -o coverage_report coverage.cleaned
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     )
-endif(CMAKE_BUILD_TYPE STREQUAL "Coverage")
+endif(NOT TARGET lcov AND CMAKE_BUILD_TYPE STREQUAL "Coverage")
