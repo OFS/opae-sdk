@@ -77,7 +77,7 @@ uint8_t *pyopae_uio::get_region(uint32_t region_index, uint32_t offset) {
     return nullptr;
   }
 
-  return vptr + offset;
+  return vptr;
 }
 
 // read 32 bit value
