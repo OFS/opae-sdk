@@ -77,7 +77,7 @@ uint8_t *pyopae_uio::get_region(uint32_t region_index, uint32_t offset) {
     return nullptr;
   }
 
-  return vptr;
+  return vptr + offset;
 }
 
 // read 32 bit value
@@ -88,7 +88,7 @@ uint32_t pyopae_uio::read32(uint32_t region_index, uint32_t offset) {
     throw std::invalid_argument("Failed to get uio region");
   }
 
-  value = *reinterpret_cast<uint32_t *>(ptr + offset);
+  value = *reinterpret_cast<uint32_t *>(ptr);
   return value;
 }
 
@@ -100,7 +100,7 @@ uint64_t pyopae_uio::read64(uint32_t region_index, uint32_t offset) {
     throw std::invalid_argument("Failed to get uio region");
   }
 
-  value = *reinterpret_cast<uint64_t *>(ptr + offset);
+  value = *reinterpret_cast<uint64_t *>(ptr);
   return value;
 }
 
@@ -112,7 +112,7 @@ uint32_t pyopae_uio::write32(uint32_t region_index, uint32_t offset,
     throw std::invalid_argument("Failed to get uio region");
   }
 
-  *reinterpret_cast<uint32_t *>(ptr + offset) = value;
+  *reinterpret_cast<uint32_t *>(ptr) = value;
   return 0;
 }
 
@@ -124,7 +124,7 @@ uint64_t pyopae_uio::write64(uint32_t region_index, uint32_t offset,
     throw std::invalid_argument("Failed to get uio region");
   }
 
-  *reinterpret_cast<uint64_t *>(ptr + offset) = value;
+  *reinterpret_cast<uint64_t *>(ptr) = value;
   return 0;
 }
 
