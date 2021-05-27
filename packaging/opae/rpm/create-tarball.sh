@@ -16,7 +16,9 @@ echo ${TOP_DIR}
 
 cd ${TOP_DIR}/..
 tar --transform=$trans \
+  --exclude=__pycache__ \
   --exclude=_build \
+  --exclude=build \
   --exclude=.* \
   --exclude=*~ \
   --exclude=doc/sphinx \
