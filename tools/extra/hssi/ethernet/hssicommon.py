@@ -50,9 +50,10 @@ BDF_PATTERN = re.compile(PATTERN)
 
 DEFAULT_BDF = 'ssss:bb:dd.f'
 
-# 100 milli seconds
-HSSI_POLL_SLEEP_TIME = 0.1
-# timeout 1 sec
+# 50 milli seconds
+HSSI_POLL_SLEEP_TIME = 0.05
+
+# timeout .5 sec
 HSSI_POLL_TIMEOUT = 0.5
 
 HSSI_FEATURE_ID = 0x15
@@ -69,8 +70,8 @@ class HSSI_CSR(Enum):
     HSSI_INTER_ATTRIB_PORT = 0x10
     HSSI_CTL_STS = 0x50
     HSSI_CTL_ADDRESS = 0x54
-    HSSI_WR_DATA = 0x58
-    HSSI_RD_DATA = 0x5C
+    HSSI_RD_DATA = 0x58
+    HSSI_WR_DATA = 0x5C
     HSSI_GM_TX_LATENCY = 0x60
     HSSI_GM_RX_LATENCY = 0x64
     HSSI_ETH_PORT_STATUS = 0x68
@@ -131,7 +132,7 @@ class dfh_hssi_lo_bits(Structure):
     _fields_ = [
                    ("id", c_uint32, 12),
                    ("revision", c_uint32, 4),
-                   ("next_header_offset", c_uint32, 24)
+                   ("next_header_offset", c_uint32, 16)
     ]
 
 
@@ -203,8 +204,8 @@ class hssi_ver_bits(Structure):
     """
     _fields_ = [
                    ("reserved", c_uint32, 8),
-                   ("minor", c_uint32, 1),
-                   ("major", c_uint32, 19)
+                   ("minor", c_uint32, 8),
+                   ("major", c_uint32, 16)
     ]
 
 
@@ -711,7 +712,7 @@ class FpgaFinder(object):
             with open(os.path.join(path, 'feature_id'), 'r') as fd:
                 feature_id = fd.read().strip()
 
-            if feature_id != HSSI_FEATURE_ID:
+            if int(feature_id,16) != HSSI_FEATURE_ID:
                 continue
 
             uio_path = glob.glob(os.path.join(path, "uio/uio*"))
@@ -854,8 +855,7 @@ class HSSICOMMON(object):
         total_time = 0
         while(True):
             reg_data = self.read32(region_index, reg_offset)
-            reg_data &= (1 << bit_index)
-            if reg_data == 1:
+            if ((reg_data >> bit_index)  & 1) == 1:
                 return True
 
             time.sleep(HSSI_POLL_SLEEP_TIME)
@@ -885,7 +885,7 @@ class HSSICOMMON(object):
 
         if not self.read_poll_timeout(region_index,
                                       HSSI_CSR.HSSI_CTL_STS.value,
-                                      0x3):
+                                      2):
             print("HSSI ctl sts csr fails to update ACK")
             return 0
 
@@ -917,7 +917,7 @@ class HSSICOMMON(object):
 
         if not self.read_poll_timeout(region_index,
                                       HSSI_CSR.HSSI_CTL_STS.value,
-                                      0x2):
+                                      2):
             print("HSSI ctl sts csr fails to update ACK")
             return 0
 
