@@ -36,26 +36,27 @@ namespace host_exerciser {
 
 class fpgaperf {
 public:
-  fpga_result perfenum(token::ptr_t token)
+  fpga_result perfget(token::ptr_t token, fpga_perf_counter *fpga_perf)
   {
-	return fpgaPerfCounterEnum(token->c_type());
+      return fpgaPerfCounterGet(token->c_type(), fpga_perf);
   }
-  fpga_result perfstart(void)
+  fpga_result perfstart(fpga_perf_counter *fpga_perf)
   {
-	return fpgaPerfCounterStartRecord();
+      return fpgaPerfCounterStartRecord(fpga_perf);
   }
-  fpga_result perfstop(void)
+  fpga_result perfstop(fpga_perf_counter *fpga_perf)
   {
-	return fpgaPerfCounterStopRecord();
+      return fpgaPerfCounterStopRecord(fpga_perf);
   }
-  fpga_result perfprint(void)
+  fpga_result perfprint(fpga_perf_counter *fpga_perf)
   {
-	FILE *file = stdout;
-	return fpgaPerfCounterPrint(file);
+      FILE *file = stdout;
+
+      return fpgaPerfCounterPrint(file, fpga_perf);
   }
-  fpga_result perffree(void)
+  fpga_result perfdestroy(fpga_perf_counter *fpga_perf)
   {
-	return fpgaPerfCounterFree();
+      return fpgaPerfCounterDestroy(fpga_perf);
   }
 };
 
@@ -155,15 +156,19 @@ public:
         //fpga perf counter initialization
         fpgaperf fpgaperf;
 
-        res = fpgaperf.perfenum(token_);
+        fpga_perf_counter *fpga_perf = new fpga_perf_counter;
+        res = fpgaperf.perfget(token_, fpga_perf);
         if (res != FPGA_OK) {
-                fpgaperf.perffree();
+                fpgaperf.perfdestroy(fpga_perf);
+                delete fpga_perf;
+                fpga_perf = nullptr;
                 return -1;
         }
-	
-        res = fpgaperf.perfstart();
+        res = fpgaperf.perfstart(fpga_perf);
         if (res != FPGA_OK) {
-                fpgaperf.perffree();
+                fpgaperf.perfdestroy(fpga_perf);
+                delete fpga_perf;
+                fpga_perf = nullptr;
                 return -1;
         }
 
@@ -234,7 +239,9 @@ public:
             if (--timeout == 0) {
                 std::cout << "HE LPBK TIME OUT" << std::endl;
                 host_exerciser_errors();
-                fpgaperf.perffree();
+                fpgaperf.perfdestroy(fpga_perf);
+                delete fpga_perf;
+                fpga_perf = nullptr;
                 return -1;
             }
         }
@@ -242,9 +249,11 @@ public:
 
         std::cout << "Test Completed" << std::endl;
         //stop performance counter
-        res = fpgaperf.perfstop();
+        res = fpgaperf.perfstop(fpga_perf);
         if (res != FPGA_OK) {
-                fpgaperf.perffree();
+                fpgaperf.perfdestroy(fpga_perf);
+                delete fpga_perf;
+                fpga_perf = nullptr;
                 return -1;
         }
 
@@ -252,16 +261,20 @@ public:
         host_exerciser_status();
 
         //print the performace counter values
-        res = fpgaperf.perfprint();
+        res = fpgaperf.perfprint(fpga_perf);
         if (res != FPGA_OK) {
-                fpgaperf.perffree();
+                fpgaperf.perfdestroy(fpga_perf);
+                delete fpga_perf;
+                fpga_perf = nullptr;
                 return -1;
         }
 	
         //free the memory allocated for perf counters
-        res = fpgaperf.perffree();
+        res = fpgaperf.perfdestroy(fpga_perf);
         if (res != FPGA_OK)
                 return -1;
+        delete fpga_perf;
+        fpga_perf = nullptr;
 
         /* Compare buffer contents only loopback test mode*/
         if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
