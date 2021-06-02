@@ -159,7 +159,7 @@ TEST_P(fpgaperf_counter_c_p, fpgaperf_3) {
 	FILE *f = stdout;
 
 	EXPECT_EQ(fpgaPerfCounterPrint(f, fpga_perf), FPGA_OK);
-	EXPECT_EQ(fpgaPerfCounterPrint(NULL), FPGA_INVALID_PARAM);
+	EXPECT_EQ(fpgaPerfCounterPrint(f, NULL), FPGA_INVALID_PARAM);
 }
 
 /**
