@@ -45,7 +45,11 @@
 
 #include "board_common.h"
 
+#define PAC_D5005_DEVICE_ID 0x0b2b
+#define PAC_N6010_DEVICE_ID 0xaf00
+
 #define DFL_SYSFS_SEC_GLOB "dfl*/*spi*/spi_master/spi*/spi*/**/security/"
+#define DFL_SYSFS_SEC_GLOB_DCP_D5005 "dfl*/spi_master/spi*/spi*/**/security/"
 #define DFL_SYSFS_SEC_USER_FLASH_COUNT         DFL_SYSFS_SEC_GLOB "*flash_count"
 #define DFL_SYSFS_SEC_BMC_CANCEL               DFL_SYSFS_SEC_GLOB "bmc_canceled_csks"
 #define DFL_SYSFS_SEC_BMC_ROOT                 DFL_SYSFS_SEC_GLOB "bmc_root_entry_hash"
@@ -153,8 +157,24 @@ fpga_result print_sec_common_info(fpga_token token)
 	fpga_result resval = FPGA_OK;
 	fpga_object tcm_object;
 	char name[SYSFS_PATH_MAX] = { 0 };
+	uint16_t device_id = 0;
+	fpga_properties props = NULL;
 
-	res = fpgaTokenGetObject(token, DFL_SYSFS_SEC_GLOB, &tcm_object, FPGA_OBJECT_GLOB);
+	res = fpgaGetProperties(token, &props);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get token Object");
+		return res;
+	}
+	res = fpgaPropertiesGetDeviceID(props, &device_id);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get device ID");
+		return res;
+	}
+	if (device_id == PAC_D5005_DEVICE_ID || PAC_N6010_DEVICE_ID ){
+		res=fpgaTokenGetObject(token, DFL_SYSFS_SEC_GLOB_DCP_D5005, &tcm_object, FPGA_OBJECT_GLOB);
+	} else {
+		res=fpgaTokenGetObject(token, DFL_SYSFS_SEC_GLOB, &tcm_object, FPGA_OBJECT_GLOB);
+	}
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get token Object");
 		return res;

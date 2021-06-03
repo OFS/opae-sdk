@@ -58,6 +58,7 @@
 #define FPGA_SYSFS_PORT_LEN 4
 #define OPAE_KERNEL_DRIVERS 2
 
+const char *sysfs_max10_glob_path_dcp_d5005="dfl*/spi_master/spi*/spi*.*";
 
 typedef struct _sysfs_formats {
 	const char *sysfs_class_path;
@@ -882,7 +883,7 @@ fpga_result sysfs_get_bmc_path(fpga_token token, char *sysfs_bmc)
 	return opae_glob_path(sysfs_bmc, SYSFS_PATH_MAX - 1);
 }
 
-fpga_result sysfs_get_max10_path(fpga_token token, char *sysfs_max10)
+fpga_result sysfs_get_max10_path(fpga_token token, char *sysfs_max10, enum fpga_hw_type hw_type)
 {
 	fpga_result res = FPGA_OK;
 	struct _fpga_token *_token = (struct _fpga_token *)token;
@@ -893,6 +894,11 @@ fpga_result sysfs_get_max10_path(fpga_token token, char *sysfs_max10)
 		return FPGA_INVALID_PARAM;
 	}
 
+	if (hw_type == FPGA_HW_DCP_D5005) {
+		res = cat_token_sysfs_path(sysfs_max10, token, sysfs_max10_glob_path_dcp_d5005);
+	} else {
+		res = cat_token_sysfs_path(sysfs_max10, token, SYSFS_FORMAT(sysfs_max10_glob));
+	}
 	res = cat_token_sysfs_path(sysfs_max10, token, SYSFS_FORMAT(sysfs_max10_glob));
 	if (res != FPGA_OK) {
 		return res;

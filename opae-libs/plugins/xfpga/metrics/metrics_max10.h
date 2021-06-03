@@ -34,7 +34,9 @@
 
 
 #define DFL_MAX10_SYSFS_PATH                     "dfl*/*spi*/spi_master/spi*/spi*/*/hwmon/hwmon*"
+#define DFL_MAX10_SYSFS_PATH_DCP_D5005               "dfl*/spi_master/spi*/spi*/*/hwmon/hwmon*"
 #define DFL_MAX10_SENSOR_SYSFS_PATH              "dfl*/*spi*/spi_master/spi*/spi*/*/hwmon/hwmon*/*_label"
+#define DFL_MAX10_SENSOR_SYSFS_PATH_DCP_D5005        "dfl*/spi_master/spi*/spi*/*/hwmon/hwmon*/*_label"
 #define DFL_TEMPERATURE                         "temp"
 #define DFL_VOLTAGE                             "in"
 #define DFL_CURRENT                             "curr"

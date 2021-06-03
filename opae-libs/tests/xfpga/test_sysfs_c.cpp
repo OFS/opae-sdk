@@ -964,11 +964,13 @@ class sysfs_max10_mock_p : public sysfs_c_mock_p { };
 TEST_P(sysfs_max10_mock_p, fpga_sysfs_11) {
 	fpga_result result;
 	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
+	enum fpga_hw_type hw_type = FPGA_HW_UNKNOWN;
 
-	result = sysfs_get_max10_path(tokens_[0], sysfs_path);
+	get_fpga_hw_type(handle_, &hw_type);
+	result = sysfs_get_max10_path(tokens_[0], sysfs_path, hw_type);
 	EXPECT_EQ(result, FPGA_OK);
 
-	result = sysfs_get_max10_path(tokens_[0], NULL);
+	result = sysfs_get_max10_path(tokens_[0], NULL, hw_type);
 	EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_max10_mock_p,
