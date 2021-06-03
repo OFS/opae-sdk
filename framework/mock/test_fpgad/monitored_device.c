@@ -188,31 +188,28 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 		// The parent token's guid is the PR interface ID.
 
 		res = fpgaPropertiesGetParent(props, &parent);
-		if (res != FPGA_OK) {
-			LOG("failed to get parent token\n");
-			goto err_out_destroy;
-		}
+		if (res == FPGA_OK) {
 
-		res = fpgaGetProperties(parent, &parent_props);
-		if (res != FPGA_OK) {
-			LOG("failed to get parent properties\n");
-			goto err_out_destroy;
-		}
-
-		res = fpgaPropertiesGetGUID(parent_props, &pr_ifc_id);
-		if (res != FPGA_OK) {
-			LOG("failed to get PR interface ID\n");
-			goto err_out_destroy;
-		}
-
-		fpgaDestroyProperties(&parent_props);
-		fpgaDestroyToken(&parent);
-
-		for (i = 0 ; i < c->num_null_gbs ; ++i) {
-			if (!uuid_compare(c->null_gbs[i].pr_interface_id,
-					  pr_ifc_id)) {
-				bitstr = &c->null_gbs[i];
-				break;
+			res = fpgaGetProperties(parent, &parent_props);
+			if (res != FPGA_OK) {
+				LOG("failed to get parent properties\n");
+				goto err_out_destroy;
+			}
+	
+			res = fpgaPropertiesGetGUID(parent_props, &pr_ifc_id);
+			if (res != FPGA_OK) {
+				LOG("failed to get PR interface ID\n");
+				goto err_out_destroy;
+			}
+	
+			fpgaDestroyProperties(&parent_props);
+	
+			for (i = 0 ; i < c->num_null_gbs ; ++i) {
+				if (!uuid_compare(c->null_gbs[i].pr_interface_id,
+						  pr_ifc_id)) {
+					bitstr = &c->null_gbs[i];
+					break;
+				}
 			}
 		}
 	}
@@ -336,8 +333,6 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 err_out_destroy:
 	if (props)
 		fpgaDestroyProperties(&props);
-	if (parent)
-		fpgaDestroyToken(&parent);
 	if (parent_props)
 		fpgaDestroyProperties(&parent_props);
 	return false;
