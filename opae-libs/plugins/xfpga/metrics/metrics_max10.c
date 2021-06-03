@@ -179,6 +179,13 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 		return FPGA_INVALID_PARAM;
 	}
 
+	// get fpga hw type.
+	result = get_fpga_hw_type(_handle, &hw_type);
+	if (result != FPGA_OK) {
+		OPAE_ERR("Failed to discover hardware type.");
+		return result;
+	}
+
 	// metrics group
 	if (hw_type == FPGA_HW_DCP_D5005) {
 		if (snprintf(sysfspath, sizeof(sysfspath),

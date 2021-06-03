@@ -170,10 +170,10 @@ fpga_result print_sec_common_info(fpga_token token)
 		OPAE_ERR("Failed to get device ID");
 		return res;
 	}
-	if (device_id == PAC_D5005_DEVICE_ID || PAC_N6010_DEVICE_ID ){
-		res=fpgaTokenGetObject(token, DFL_SYSFS_SEC_GLOB_DCP_D5005, &tcm_object, FPGA_OBJECT_GLOB);
+	if (device_id == PAC_D5005_DEVICE_ID || PAC_N6010_DEVICE_ID ) {
+		res = fpgaTokenGetObject(token, DFL_SYSFS_SEC_GLOB_DCP_D5005, &tcm_object, FPGA_OBJECT_GLOB);
 	} else {
-		res=fpgaTokenGetObject(token, DFL_SYSFS_SEC_GLOB, &tcm_object, FPGA_OBJECT_GLOB);
+		res = fpgaTokenGetObject(token, DFL_SYSFS_SEC_GLOB, &tcm_object, FPGA_OBJECT_GLOB);
 	}
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get token Object");

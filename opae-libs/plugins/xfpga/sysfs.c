@@ -899,7 +899,6 @@ fpga_result sysfs_get_max10_path(fpga_token token, char *sysfs_max10, enum fpga_
 	} else {
 		res = cat_token_sysfs_path(sysfs_max10, token, SYSFS_FORMAT(sysfs_max10_glob));
 	}
-	res = cat_token_sysfs_path(sysfs_max10, token, SYSFS_FORMAT(sysfs_max10_glob));
 	if (res != FPGA_OK) {
 		return res;
 	}
