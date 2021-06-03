@@ -1,4 +1,4 @@
-// Copyright(c) 2019, Intel Corporation
+// Copyright(c) 2019-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -164,4 +164,4 @@ TEST_P(fpgad_evt_c_p, normal_dispatch) {
 }
 
 INSTANTIATE_TEST_CASE_P(fpgad_evt_c, fpgad_evt_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","skx-p-dfl0" })));
+                        ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
