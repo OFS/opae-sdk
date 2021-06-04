@@ -118,11 +118,13 @@ class FPGAHSSISTATS(HSSICOMMON):
                 # Read LSB value
                 ctl_addr.addressbit = reg
                 ctl_addr.port_address = port
+                ctl_addr.value = self.register_field_set(ctl_addr.value,
+                                                         31, 1, 1)
                 value_lsb = self.read_reg(0, ctl_addr.value)
 
                 # Read MSB value
                 ctl_addr.value = self.register_field_set(ctl_addr.value,
-                                                         31, 1, 1)
+                                                         31, 1, 0)
                 value_msb = self.read_reg(0, ctl_addr.value)
 
                 # 64 bit value
