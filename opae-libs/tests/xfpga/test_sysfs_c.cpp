@@ -807,7 +807,7 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_06) {
 	char full_path[SYSFS_PATH_MAX] = { 0 };
 
 	if (snprintf(full_path, SYSFS_PATH_MAX,
-		"%s%s", tok->sysfspath, "/dfl*/*spi*/spi_master/spi*/**/security/*flash_count") < 0) {
+		"%s%s", tok->sysfspath, "/dfl*/*spi_master/spi*/**/security/*flash_count") < 0) {
 		OPAE_ERR("snprintf buffer overflow");
 	}
 
@@ -833,7 +833,7 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_07) {
 	fpga_result result;
 
 	if (snprintf(full_path, SYSFS_PATH_MAX,
-		"%s%s", tok->sysfspath, "/dfl*/*spi*/spi_master/spi*/**/security/*test_count") < 0) {
+		"%s%s", tok->sysfspath, "/dfl*/*spi_master/spi*/**/security/*test_count") < 0) {
 		OPAE_ERR("snprintf buffer overflow");
 	}
 
@@ -861,7 +861,7 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_08) {
 	fpga_result result;
 
 	if (snprintf(full_path, SYSFS_PATH_MAX,
-		"%s%s", tok->sysfspath, "/dfl*/*spi*/spi_master/spi*/**/security/**/*flash_count") < 0) {
+		"%s%s", tok->sysfspath, "/dfl*/*spi_master/spi*/**/security/**/*flash_count") < 0) {
 		OPAE_ERR("snprintf buffer overflow");
 	}
 
