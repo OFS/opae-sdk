@@ -45,14 +45,17 @@
 
 #include "board_common.h"
 
-#define DFL_SYSFS_SEC_GLOB "dfl*/*spi*/spi_master/spi*/spi*/**/security/"
-#define DFL_SYSFS_SEC_USER_FLASH_COUNT         DFL_SYSFS_SEC_GLOB "*flash_count"
-#define DFL_SYSFS_SEC_BMC_CANCEL               DFL_SYSFS_SEC_GLOB "bmc_canceled_csks"
-#define DFL_SYSFS_SEC_BMC_ROOT                 DFL_SYSFS_SEC_GLOB "bmc_root_entry_hash"
-#define DFL_SYSFS_SEC_PR_CANCEL                DFL_SYSFS_SEC_GLOB "pr_canceled_csks"
-#define DFL_SYSFS_SEC_PR_ROOT                  DFL_SYSFS_SEC_GLOB "pr_root_entry_hash"
-#define DFL_SYSFS_SEC_SR_CANCEL                DFL_SYSFS_SEC_GLOB "sr_canceled_csks"
-#define DFL_SYSFS_SEC_SR_ROOT                  DFL_SYSFS_SEC_GLOB "sr_root_entry_hash"
+#define FEATURE_DEV_PATH "/sys/bus/pci/devices/*%x*:*%x*:*%x*.*%x*/fpga_region"\
+					"/region*/dfl-fme*/"
+#define DFL_SYSFS_SEC_GLOB "**/spi_master/spi*/spi*/**/security/"
+#define DFL_SYSFS_SEC_GLOB2 "dfl*/spi_master/spi*/spi*/**/security/"
+#define DFL_SYSFS_SEC_USER_FLASH_COUNT         "*flash_count"
+#define DFL_SYSFS_SEC_BMC_CANCEL               "bmc_canceled_csks"
+#define DFL_SYSFS_SEC_BMC_ROOT                 "bmc_root_entry_hash"
+#define DFL_SYSFS_SEC_PR_CANCEL                "pr_canceled_csks"
+#define DFL_SYSFS_SEC_PR_ROOT                  "pr_root_entry_hash"
+#define DFL_SYSFS_SEC_SR_CANCEL                "sr_canceled_csks"
+#define DFL_SYSFS_SEC_SR_ROOT                  "sr_root_entry_hash"
 
 #define DFL_SYSFS_ETHINTERFACE   "dfl*.*/net/%s*"
 #define ETHTOOL_STR              "ethtool"
@@ -150,89 +153,171 @@ fpga_result read_sysfs_int64(fpga_token token, char *sysfs_path,
 fpga_result print_sec_common_info(fpga_token token)
 {
 	fpga_result res = FPGA_OK;
-	fpga_result resval = FPGA_OK;
-	fpga_object tcm_object;
+	char sysfs_security_glob_path[SYSFS_PATH_MAX] = { 0 };
+	char sysfs_security_glob_path2[SYSFS_PATH_MAX] = { 0 };
+	char sysfs_security_path[SYSFS_PATH_MAX] = { 0 };
+	glob_t pglob;
+	uint8_t bus = (uint8_t)-1;
+	uint16_t segment = (uint8_t)-1;
+	uint8_t device = (uint8_t)-1;
+	uint8_t function = (uint8_t)-1;
 	char name[SYSFS_PATH_MAX] = { 0 };
 
-	res = fpgaTokenGetObject(token, DFL_SYSFS_SEC_GLOB, &tcm_object, FPGA_OBJECT_GLOB);
+	res = get_fpga_sbdf(token, &segment, &bus, &device, &function);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get token Object");
+		OPAE_ERR("Failed to get sbdf");
 		return res;
 	}
+	if (snprintf(sysfs_security_glob_path, sizeof(sysfs_security_glob_path),
+		FEATURE_DEV_PATH,
+		segment, bus, device, function) < 0){
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
+	res = glob(sysfs_security_glob_path, GLOB_NOSORT, NULL, &pglob);
+	if ((res) || (1 != pglob.gl_pathc)) {
+		OPAE_ERR("Failed pattern match %s: %s", sysfs_security_glob_path, strerror(errno));
+		globfree(&pglob);
+		return FPGA_NOT_FOUND;
+	}
+	for (size_t loop = 0; loop < pglob.gl_pathc; loop++) {
+		if (snprintf(sysfs_security_glob_path, sizeof(sysfs_security_glob_path),
+			"%s%s",
+			pglob.gl_pathv[loop],DFL_SYSFS_SEC_GLOB) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+			globfree(&pglob);
+			return FPGA_EXCEPTION;
+		}
+		if (snprintf(sysfs_security_glob_path2, sizeof(sysfs_security_glob_path2),
+			"%s%s",
+			pglob.gl_pathv[loop],DFL_SYSFS_SEC_GLOB2) < 0) {
+			OPAE_ERR("snprintf buffer overflow");
+			globfree(&pglob);
+			return FPGA_EXCEPTION;
+		}
+	}
+	res = glob(sysfs_security_glob_path, GLOB_NOSORT, NULL, &pglob);
+	if ((res) || (1 != pglob.gl_pathc)) {
+		globfree(&pglob);
+	}
+	res = glob(sysfs_security_glob_path2, GLOB_NOSORT, NULL, &pglob);
+	if ((res) || (1 != pglob.gl_pathc)) {
+		OPAE_ERR("Failed pattern match %s: %s", sysfs_security_glob_path2, strerror(errno));
+		globfree(&pglob);
+		return FPGA_NOT_FOUND;
+	} else {
+		memcpy(sysfs_security_glob_path,sysfs_security_glob_path2,sizeof(sysfs_security_glob_path2));
+	}
+	globfree(&pglob);
 	printf("********** SEC Info START ************ \n");
 
 	// BMC Keys
+	if (snprintf(sysfs_security_path, sizeof(sysfs_security_path),
+		"%s%s",
+		sysfs_security_glob_path, DFL_SYSFS_SEC_BMC_ROOT) < 0){
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
 	memset(name, 0, sizeof(name));
-	res = read_sysfs(token, DFL_SYSFS_SEC_BMC_ROOT, name, SYSFS_PATH_MAX - 1);
+	res = read_sysfs(token, sysfs_security_path, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
 		printf("BMC root entry hash: %s\n", name);
 	} else {
 		OPAE_MSG("Failed to Read TCM BMC root entry hash");
 		printf("BMC root entry hash: %s\n", "None");
-		resval = res;
 	}
 
+	if (snprintf(sysfs_security_path, sizeof(sysfs_security_path),
+		"%s%s",
+		sysfs_security_glob_path, DFL_SYSFS_SEC_BMC_CANCEL) < 0){
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
 	memset(name, 0, sizeof(name));
-	res = read_sysfs(token, DFL_SYSFS_SEC_BMC_CANCEL, name, SYSFS_PATH_MAX - 1);
+	res = read_sysfs(token, sysfs_security_path, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
 		printf("BMC CSK IDs canceled: %s\n", strlen(name) > 0 ? name : "None");
 	} else {
 		OPAE_MSG("Failed to Read BMC CSK IDs canceled");
 		printf("BBMC CSK IDs canceled: %s\n", "None");
-		resval = res;
 	}
 
 	// PR Keys
+	if (snprintf(sysfs_security_path, sizeof(sysfs_security_path),
+		"%s%s",
+		sysfs_security_glob_path, DFL_SYSFS_SEC_PR_ROOT) < 0){
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
 	memset(name, 0, sizeof(name));
-	res = read_sysfs(token, DFL_SYSFS_SEC_PR_ROOT, name, SYSFS_PATH_MAX - 1);
+	res = read_sysfs(token, sysfs_security_path, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
 		printf("PR root entry hash: %s\n", name);
 	} else {
 		OPAE_MSG("Failed to Read PR root entry hash");
 		printf("PR root entry hash: %s\n", "None");
-		resval = res;
 	}
 
+	if (snprintf(sysfs_security_path, sizeof(sysfs_security_path),
+		"%s%s",
+		sysfs_security_glob_path, DFL_SYSFS_SEC_PR_CANCEL) < 0){
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
 	memset(name, 0, sizeof(name));
-	res = read_sysfs(token, DFL_SYSFS_SEC_PR_CANCEL, name, SYSFS_PATH_MAX - 1);
+	res = read_sysfs(token, sysfs_security_path, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
 		printf("AFU/PR CSK IDs canceled: %s\n", strlen(name) > 0 ? name : "None");
 	} else {
 		OPAE_MSG("Failed to Read AFU CSK/PR IDs canceled");
 		printf("AFU/PR CSK IDs canceled: %s\n", "None");
-		resval = res;
 	}
 
 	// SR Keys
+	if (snprintf(sysfs_security_path, sizeof(sysfs_security_path),
+		"%s%s",
+		sysfs_security_glob_path, DFL_SYSFS_SEC_SR_ROOT) < 0){
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
 	memset(name, 0, sizeof(name));
-	res = read_sysfs(token, DFL_SYSFS_SEC_SR_ROOT, name, SYSFS_PATH_MAX - 1);
+	res = read_sysfs(token, sysfs_security_path, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
 		printf("FIM root entry hash: %s\n", name);
 	} else {
 		OPAE_MSG("Failed to Read FIM root entry hash");
 		printf("FIM root entry hash: %s\n", "None");
-		resval = res;
 	}
 
+	if (snprintf(sysfs_security_path, sizeof(sysfs_security_path),
+		"%s%s",
+		sysfs_security_glob_path, DFL_SYSFS_SEC_SR_CANCEL) < 0){
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
 	memset(name, 0, sizeof(name));
-	res = read_sysfs(token, DFL_SYSFS_SEC_SR_CANCEL, name, SYSFS_PATH_MAX - 1);
+	res = read_sysfs(token, sysfs_security_path, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
 		printf("FIM CSK IDs canceled: %s\n", strlen(name) > 0 ? name : "None");
 	} else {
 		OPAE_MSG("Failed to Read FIM CSK IDs canceled");
 		printf("FIM CSK IDs canceled: %s\n", "None");
-		resval = res;
 	}
 
 	// User flash count
+	if (snprintf(sysfs_security_path, sizeof(sysfs_security_path),
+		"%s%s",
+		sysfs_security_glob_path, DFL_SYSFS_SEC_USER_FLASH_COUNT) < 0){
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
 	memset(name, 0, sizeof(name));
-	res = read_sysfs(token, DFL_SYSFS_SEC_USER_FLASH_COUNT, name, SYSFS_PATH_MAX - 1);
+	res = read_sysfs(token, sysfs_security_path, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
 		printf("User flash update counter: %s\n", name);
 	} else {
 		OPAE_MSG("Failed to Read User flash update counter");
 		printf("User flash update counter: %s\n", "None");
-		resval = res;
 	}
 
 	res = fpgaDestroyObject(&tcm_object);
@@ -243,7 +328,7 @@ fpga_result print_sec_common_info(fpga_token token)
 
 	printf("********** SEC Info END ************ \n");
 
-	return resval;
+	return res;
 }
 
 // prints FPGA ethernet interface info
