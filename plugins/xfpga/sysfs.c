@@ -2316,65 +2316,21 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	char *object_paths[MAX_SYSOBJECT_GLOB] = { NULL };
 	size_t found = 0;
 	size_t len;
-	int resurse_depth = MAX_SYSOBJECT_GLOB_RESURSIVE_DEPTH;
-	char pattern[SYSFS_PATH_MAX] = { 0 };
 	char full_path[SYSFS_PATH_MAX] = { 0 };
-	char prefix_path[SYSFS_PATH_MAX] = { 0 };
 
 	if (flags & FPGA_OBJECT_GLOB) {
 
 		// Check "**"recursive pattern in sysfs path
 		if (strstr(sysfspath, "/**/")) {
-			char *p = strstr(sysfspath, "/**/");
-			if (p == NULL)
+			res = find_glob_path(sysfspath, full_path);
+			if (res != FPGA_OK) {
+				OPAE_ERR("Invalid recursive input path");
 				return FPGA_INVALID_PARAM;
-
-			// search for multipule pattern "/**/"
-			char *ptr = p;
-			while (ptr != NULL) {
-				ptr++;
-				found++;
-				if (found > 1) {
-					return FPGA_INVALID_PARAM;
-				}
-				ptr = strstr(ptr, "/**/");
 			}
-			found = 0;
-
-			// Prefix substring
-			memcpy(prefix_path, sysfspath, p - sysfspath);
-			*(prefix_path + (p - sysfspath)) = '\0';
-
-			// while loop depth 5
-			while (resurse_depth) {
-				memset(full_path, 0, sizeof(full_path));
-				len = strnlen(pattern, SYSFS_PATH_MAX - 1);
-				strncat(pattern, "*/", SYSFS_PATH_MAX - len);
-
-				if (snprintf(full_path, SYSFS_PATH_MAX,
-					"%s%s%s", prefix_path, pattern, p + 4) < 0) {
-					OPAE_ERR("snprintf buffer overflow");
-					return FPGA_EXCEPTION;
-				}
-
-				res = opae_glob_paths(full_path, MAX_SYSOBJECT_GLOB,
-					object_paths, &found);
-
-				resurse_depth--;
-
-				if (res) {
-					continue;
-				}
-
-				if (found > 0) {
-					len = strnlen(object_paths[0], SYSFS_PATH_MAX - 1);
-					memcpy(sysfspath, object_paths[0], len);
-					sysfspath[len] = '\0';
-					break;
-				}
-
-			} // end
-		}
+			len = strnlen(full_path, SYSFS_PATH_MAX - 1);
+			memcpy(sysfspath, full_path, len);
+			sysfspath[len] = '\0';
+		}// end
 
 		res = opae_glob_paths(sysfspath, MAX_SYSOBJECT_GLOB,
 				      object_paths, &found);
@@ -2518,11 +2474,11 @@ fpga_result find_glob_path(const char *sysfspath, char *path)
 				break;
 			}
 
-			while (found) {
-				free(object_paths[--found]);
-			}
-
 		} // end
+
+		while (found) {
+			free(object_paths[--found]);
+		}
 	}
 
 	return res;
