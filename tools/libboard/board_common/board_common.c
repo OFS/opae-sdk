@@ -183,14 +183,14 @@ fpga_result print_sec_common_info(fpga_token token)
 	for (size_t loop = 0; loop < pglob.gl_pathc; loop++) {
 		if (snprintf(sysfs_security_glob_path, sizeof(sysfs_security_glob_path),
 			"%s%s",
-			pglob.gl_pathv[loop],DFL_SYSFS_SEC_GLOB) < 0) {
+			pglob.gl_pathv[loop], DFL_SYSFS_SEC_GLOB) < 0) {
 			OPAE_ERR("snprintf buffer overflow");
 			globfree(&pglob);
 			return FPGA_EXCEPTION;
 		}
 		if (snprintf(sysfs_security_glob_path2, sizeof(sysfs_security_glob_path2),
 			"%s%s",
-			pglob.gl_pathv[loop],DFL_SYSFS_SEC_GLOB2) < 0) {
+			pglob.gl_pathv[loop], DFL_SYSFS_SEC_GLOB2) < 0) {
 			OPAE_ERR("snprintf buffer overflow");
 			globfree(&pglob);
 			return FPGA_EXCEPTION;
@@ -206,7 +206,7 @@ fpga_result print_sec_common_info(fpga_token token)
 		globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	} else {
-		memcpy(sysfs_security_glob_path,sysfs_security_glob_path2,sizeof(sysfs_security_glob_path2));
+		memcpy(sysfs_security_glob_path, sysfs_security_glob_path2, sizeof(sysfs_security_glob_path2));
 	}
 	globfree(&pglob);
 	printf("********** SEC Info START ************ \n");
@@ -320,11 +320,6 @@ fpga_result print_sec_common_info(fpga_token token)
 		printf("User flash update counter: %s\n", "None");
 	}
 
-	res = fpgaDestroyObject(&tcm_object);
-	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to Destroy Object");
-		resval = res;
-	}
 
 	printf("********** SEC Info END ************ \n");
 
