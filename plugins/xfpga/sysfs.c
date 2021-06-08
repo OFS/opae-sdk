@@ -2325,7 +2325,7 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 			res = find_glob_path(sysfspath, full_path);
 			if (res != FPGA_OK) {
 				OPAE_ERR("Invalid recursive input path");
-				return FPGA_INVALID_PARAM;
+				return res;
 			}
 			len = strnlen(full_path, SYSFS_PATH_MAX - 1);
 			memcpy(sysfspath, full_path, len);
