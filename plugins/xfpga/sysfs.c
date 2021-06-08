@@ -93,7 +93,7 @@ static sysfs_formats sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
 	 .sysfs_port_err = "errors/errors",
 	 .sysfs_port_err_clear = "errors/errors",
 	 .sysfs_bmc_glob = "avmmi-bmc.*/bmc_info",
-	 .sysfs_max10_glob = "dfl*/*spi_master/spi*/spi*.*"
+	 .sysfs_max10_glob = "dfl*/*spi*/*spi*/*spi*"
 	},
 	// intel driver sysfs formats
 	{.sysfs_class_path = "/sys/class/fpga",
@@ -2448,5 +2448,82 @@ out_free:
 
 
 	free(obj);
+	return res;
+}
+
+
+fpga_result find_glob_path(const char *sysfspath, char *path)
+{
+	int resurse_depth = MAX_SYSOBJECT_GLOB_RESURSIVE_DEPTH;
+	char pattern[SYSFS_PATH_MAX] = { 0 };
+	char full_path[SYSFS_PATH_MAX] = { 0 };
+	char prefix_path[SYSFS_PATH_MAX] = { 0 };
+	char *object_paths[MAX_SYSOBJECT_GLOB] = { NULL };
+	fpga_result res = FPGA_OK;
+	size_t found = 0;
+	size_t len = 0;
+
+	if (sysfspath == NULL ||
+		path == NULL) {
+		OPAE_ERR("Invalid Input parameters");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (strstr(sysfspath, "/**/")) {
+		char *p = strstr(sysfspath, "/**/");
+		if (p == NULL)
+			return FPGA_INVALID_PARAM;
+
+		// search for multipule pattern "/**/"
+		char *ptr = p;
+		while (ptr != NULL) {
+			ptr++;
+			found++;
+			if (found > 1) {
+				return FPGA_INVALID_PARAM;
+			}
+			ptr = strstr(ptr, "/**/");
+		}
+		found = 0;
+
+		// Prefix substring
+		memcpy(prefix_path, sysfspath, p - sysfspath);
+		*(prefix_path + (p - sysfspath)) = '\0';
+
+		// while loop depth 5
+		while (resurse_depth) {
+			memset(full_path, 0, sizeof(full_path));
+			len = strnlen(pattern, SYSFS_PATH_MAX - 1);
+			strncat(pattern, "*/", SYSFS_PATH_MAX - len);
+
+			if (snprintf(full_path, SYSFS_PATH_MAX,
+				"%s%s%s", prefix_path, pattern, p + 4) < 0) {
+				OPAE_ERR("snprintf buffer overflow");
+				return FPGA_EXCEPTION;
+			}
+
+			res = opae_glob_paths(full_path, MAX_SYSOBJECT_GLOB,
+				object_paths, &found);
+
+			resurse_depth--;
+
+			if (res) {
+				continue;
+			}
+
+			if (found > 0) {
+				len = strnlen(object_paths[0], SYSFS_PATH_MAX - 1);
+				memcpy(path, object_paths[0], len);
+				path[len] = '\0';
+				break;
+			}
+
+			while (found) {
+				free(object_paths[--found]);
+			}
+
+		} // end
+	}
+
 	return res;
 }
