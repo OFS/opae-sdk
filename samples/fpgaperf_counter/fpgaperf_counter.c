@@ -92,7 +92,7 @@ fpga_result fpga_perf_check_and_lock(fpga_perf_counter *fpga_perf)
 		return FPGA_INVALID_PARAM;
 
 	if (opae_mutex_lock(res, &fpga_perf->lock)) {
-		OPAE_MSG("Failed to lock perf mutex");
+		OPAE_ERR("Failed to lock perf mutex");
 		return FPGA_EXCEPTION;
 	}
 
@@ -121,7 +121,7 @@ fpga_result parse_perf_format(struct udev_device *dev, fpga_perf_counter *fpga_p
 		return FPGA_INVALID_PARAM;
 	}	
 	if (fpga_perf_check_and_lock(fpga_perf)) {
-		OPAE_MSG("Failed to lock perf mutex");
+		OPAE_ERR("Failed to lock perf mutex");
 		return FPGA_EXCEPTION;
 	}
 
@@ -148,14 +148,14 @@ fpga_result parse_perf_format(struct udev_device *dev, fpga_perf_counter *fpga_p
 			reg_res = regcomp(&re, PERF_CONFIG_PATTERN,
 					REG_EXTENDED | REG_ICASE);
 			if (reg_res) {
-				OPAE_ERR("Error compling regex");
+				OPAE_ERR("Error compiling regex");
 				ret = FPGA_EXCEPTION;
 				goto out;
 			}
 			reg_res = regexec(&re, udev_device_get_sysattr_value(dev, attr),
 					4, matches, 0);
 			if (reg_res) {
-				regerror(reg_res, &re, err, 128);
+				regerror(reg_res, &re, err, sizeof(err));
 				OPAE_ERR("Error executing regex: %s", err);
 				ret = FPGA_EXCEPTION;
 				goto out;
@@ -175,7 +175,7 @@ fpga_result parse_perf_format(struct udev_device *dev, fpga_perf_counter *fpga_p
 		}
 	}
 	if (opae_mutex_unlock(res, &fpga_perf->lock)) {
-		OPAE_MSG("Failed to unlock perf mutex");
+		OPAE_ERR("Failed to unlock perf mutex");
 		return FPGA_EXCEPTION;
 	}
 	return FPGA_OK;
@@ -201,7 +201,7 @@ fpga_result parse_perf_event(struct udev_device *dev, fpga_perf_counter *fpga_pe
 		return FPGA_INVALID_PARAM;
 	}
 	if (fpga_perf_check_and_lock(fpga_perf)) {
-		OPAE_MSG("Failed to lock perf mutex");
+		OPAE_ERR("Failed to lock perf mutex");
 		return FPGA_EXCEPTION;
 	}
 	struct udev_list_entry *attrs = udev_device_get_sysattr_list_entry(dev);
@@ -235,7 +235,7 @@ fpga_result parse_perf_event(struct udev_device *dev, fpga_perf_counter *fpga_pe
 					4, matches, 0);
 			if (reg_res) {
 				regerror(reg_res, &re, err, 128);
-				OPAE_MSG("Error executing regex: %s", err);
+				OPAE_ERR("Error executing regex: %s", err);
 			} else {
 				const char *attr_value = udev_device_get_sysattr_value(dev, attr);
 				uint64_t config = 0;
@@ -259,7 +259,7 @@ fpga_result parse_perf_event(struct udev_device *dev, fpga_perf_counter *fpga_pe
 		}
 	}
 	if (opae_mutex_unlock(res, &fpga_perf->lock)) {
-		OPAE_MSG("Failed to unlock perf mutex");
+		OPAE_ERR("Failed to unlock perf mutex");
 		return FPGA_EXCEPTION;
 	}
 	return FPGA_OK;
@@ -297,7 +297,7 @@ fpga_result fpga_perf_events(char* perf_sysfs_path, fpga_perf_counter *fpga_perf
 		return FPGA_EXCEPTION;
 	}
 	if (fpga_perf_check_and_lock(fpga_perf)) {
-		OPAE_MSG("Failed to lock perf mutex");
+		OPAE_ERR("Failed to lock perf mutex");
 		goto err;
 	}
 	const char * ptr = udev_device_get_sysattr_value(dev, "cpumask");
@@ -308,7 +308,7 @@ fpga_result fpga_perf_events(char* perf_sysfs_path, fpga_perf_counter *fpga_perf
 		PARSE_MATCH_INT(ptr, 0, fpga_perf->type, 10);
 
 	if (opae_mutex_unlock(res, &fpga_perf->lock)) {
-		OPAE_MSG("Failed to unlock perf mutex");
+		OPAE_ERR("Failed to unlock perf mutex");
 		goto err;
 	}
 	/* parse the format value */
@@ -323,7 +323,7 @@ fpga_result fpga_perf_events(char* perf_sysfs_path, fpga_perf_counter *fpga_perf
 	/* initialize the pea structure to 0 */
 	memset(&pea, 0, sizeof(struct perf_event_attr));
 	if (fpga_perf_check_and_lock(fpga_perf)) {
-		OPAE_MSG("Failed to lock perf mutex");
+		OPAE_ERR("Failed to lock perf mutex");
 		goto err;
 	}
 	for (loop = 0; loop < fpga_perf->num_perf_events; loop++) {
@@ -498,7 +498,7 @@ fpga_result fpgaPerfCounterGet(fpga_token token, fpga_perf_counter *fpga_perf)
 
 	ret = get_fpga_sbdf(token, &segment, &bus, &device, &function);
 	if (ret != FPGA_OK) {
-		OPAE_ERR("Failed to get sbdf ");
+		OPAE_ERR("Failed to get sbdf");
 		return ret;
 	}
 	/* when we bind with new device id we will get updated function value */
@@ -535,7 +535,7 @@ fpga_result fpgaPerfCounterGet(fpga_token token, fpga_perf_counter *fpga_perf)
 			goto out;
 		}
 		if (fpga_perf_check_and_lock(fpga_perf)) {
-			OPAE_MSG("Failed to lock perf mutex");
+			OPAE_ERR("Failed to lock perf mutex");
 			ret = FPGA_EXCEPTION;
 			goto out;
 		}
@@ -547,11 +547,11 @@ fpga_result fpgaPerfCounterGet(fpga_token token, fpga_perf_counter *fpga_perf)
 			goto out;
 		}
 		if (opae_mutex_unlock(res, &fpga_perf->lock)) {
-			OPAE_MSG("Failed to unlock perf mutex");
+			OPAE_ERR("Failed to unlock perf mutex");
 			ret = FPGA_EXCEPTION;
 			goto out;
 		}	
-		if (fpga_perf_events(sysfs_perf, fpga_perf)!= ret) {
+		if (fpga_perf_events(sysfs_perf, fpga_perf) != ret) {
 			OPAE_ERR("Failed to parse fpga perf event");
 			goto out;
 		}
@@ -578,7 +578,7 @@ fpga_result fpgaPerfCounterStartRecord(fpga_perf_counter *fpga_perf)
 	}
 
 	if (fpga_perf_check_and_lock(fpga_perf)) {
-		OPAE_MSG("Failed to lock perf mutex");
+		OPAE_ERR("Failed to lock perf mutex");
 		return FPGA_EXCEPTION;
 	}
 	if (ioctl(fpga_perf->perf_events[0].fd, PERF_EVENT_IOC_ENABLE,
@@ -599,7 +599,7 @@ fpga_result fpgaPerfCounterStartRecord(fpga_perf_counter *fpga_perf)
 		}
 	}	
 	if (opae_mutex_unlock(res, &fpga_perf->lock)) {
-		OPAE_MSG("Failed to unlock perf mutex");
+		OPAE_ERR("Failed to unlock perf mutex");
 		return FPGA_EXCEPTION;
 	}
 	return FPGA_OK;
@@ -622,7 +622,7 @@ fpga_result fpgaPerfCounterStopRecord(fpga_perf_counter *fpga_perf)
 	}
 
 	if (fpga_perf_check_and_lock(fpga_perf)) {
-		OPAE_MSG("Failed to lock perf mutex");
+		OPAE_ERR("Failed to lock perf mutex");
 		return FPGA_EXCEPTION;
 	}
 	if (ioctl(fpga_perf->perf_events[0].fd, PERF_EVENT_IOC_DISABLE,
@@ -643,7 +643,7 @@ fpga_result fpgaPerfCounterStopRecord(fpga_perf_counter *fpga_perf)
 		}
 	}
 	if (opae_mutex_unlock(res, &fpga_perf->lock)) {
-		OPAE_MSG("Failed to unlock perf mutex");
+		OPAE_ERR("Failed to unlock perf mutex");
 		return FPGA_EXCEPTION;
 	}
 	return FPGA_OK;
@@ -663,7 +663,7 @@ fpga_result fpgaPerfCounterPrint(FILE *f, fpga_perf_counter *fpga_perf)
 	}
 
 	if (fpga_perf_check_and_lock(fpga_perf)) {
-		OPAE_MSG("Failed to lock perf mutex");
+		OPAE_ERR("Failed to lock perf mutex");
 		return FPGA_EXCEPTION;
 	}
 
@@ -682,7 +682,7 @@ fpga_result fpgaPerfCounterPrint(FILE *f, fpga_perf_counter *fpga_perf)
 	fprintf(f, "\n");
 
 	if (opae_mutex_unlock(res, &fpga_perf->lock)) {
-		OPAE_MSG("Failed to unlock perf mutex");
+		OPAE_ERR("Failed to unlock perf mutex");
 		return FPGA_EXCEPTION;
 	}
 
@@ -698,19 +698,19 @@ fpga_result fpgaPerfCounterDestroy(fpga_perf_counter *fpga_perf)
 		return FPGA_INVALID_PARAM;
 	}
 	if (fpga_perf_check_and_lock(fpga_perf)) {
-		OPAE_MSG("Failed to lock perf mutex");
+		OPAE_ERR("Failed to lock perf mutex");
 		return FPGA_EXCEPTION;
 	}
-	if (fpga_perf->format_type != NULL) {
+	if (fpga_perf->format_type) {
 		free(fpga_perf->format_type);
 		fpga_perf->format_type = NULL;
 	}
-	if (fpga_perf->perf_events != NULL) {
+	if (fpga_perf->perf_events) {
 		free(fpga_perf->perf_events);
 		fpga_perf->perf_events = NULL;
 	}
 	if (opae_mutex_unlock(res, &fpga_perf->lock)) {
-		OPAE_MSG("Failed to unlock perf mutex");
+		OPAE_ERR("Failed to unlock perf mutex");
 		return FPGA_EXCEPTION;
 	}
 
