@@ -2479,6 +2479,8 @@ fpga_result find_glob_path(const char *sysfspath, char *path)
 		while (found) {
 			free(object_paths[--found]);
 		}
+	} else {
+		return FPGA_NOT_FOUND;
 	}
 
 	return res;
