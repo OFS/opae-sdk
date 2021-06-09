@@ -2330,7 +2330,7 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 			len = strnlen(full_path, SYSFS_PATH_MAX - 1);
 			memcpy(sysfspath, full_path, len);
 			sysfspath[len] = '\0';
-		}// end
+		} // end
 
 		res = opae_glob_paths(sysfspath, MAX_SYSOBJECT_GLOB,
 				      object_paths, &found);
