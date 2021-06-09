@@ -36,6 +36,10 @@ namespace host_exerciser {
 
 class fpgaperf {
 public:
+  fpga_result createhandle(fpga_perf_counter *fpga_perf)
+  {
+      return fpgaPerfCreateHandle(fpga_perf);
+  }
   fpga_result perfget(token::ptr_t token, fpga_perf_counter *fpga_perf)
   {
       return fpgaPerfCounterGet(token->c_type(), fpga_perf);
@@ -50,13 +54,15 @@ public:
   }
   fpga_result perfprint(fpga_perf_counter *fpga_perf)
   {
-      FILE *file = stdout;
-
-      return fpgaPerfCounterPrint(file, fpga_perf);
+      return fpgaPerfCounterPrint(stdout, fpga_perf);
   }
   fpga_result perfdestroy(fpga_perf_counter *fpga_perf)
   {
       return fpgaPerfCounterDestroy(fpga_perf);
+  }
+  fpga_result destroyhandle(fpga_perf_counter *fpga_perf)
+  {
+      return fpgaPerfDestroyHandle(fpga_perf);
   }
 };
 
@@ -151,15 +157,22 @@ public:
         auto d_afu = dynamic_cast<host_exerciser*>(afu);
         host_exe_ = dynamic_cast<host_exerciser*>(afu);
 
-        token_ = d_afu->get_parent_token();
+        token_ = d_afu->get_token();
 
         //fpga perf counter initialization
         fpgaperf fpgaperf;
 
         fpga_perf_counter *fpga_perf = new fpga_perf_counter;
+
+        res = fpgaperf.createhandle(fpga_perf);
+        if (res != FPGA_OK) {
+                return -1;
+        }
+
         res = fpgaperf.perfget(token_, fpga_perf);
         if (res != FPGA_OK) {
                 fpgaperf.perfdestroy(fpga_perf);
+                fpgaperf.destroyhandle(fpga_perf);
                 delete fpga_perf;
                 fpga_perf = nullptr;
                 return -1;
@@ -167,6 +180,7 @@ public:
         res = fpgaperf.perfstart(fpga_perf);
         if (res != FPGA_OK) {
                 fpgaperf.perfdestroy(fpga_perf);
+                fpgaperf.destroyhandle(fpga_perf);
                 delete fpga_perf;
                 fpga_perf = nullptr;
                 return -1;
@@ -240,6 +254,7 @@ public:
                 std::cout << "HE LPBK TIME OUT" << std::endl;
                 host_exerciser_errors();
                 fpgaperf.perfdestroy(fpga_perf);
+                fpgaperf.destroyhandle(fpga_perf);
                 delete fpga_perf;
                 fpga_perf = nullptr;
                 return -1;
@@ -252,6 +267,7 @@ public:
         res = fpgaperf.perfstop(fpga_perf);
         if (res != FPGA_OK) {
                 fpgaperf.perfdestroy(fpga_perf);
+                fpgaperf.destroyhandle(fpga_perf);
                 delete fpga_perf;
                 fpga_perf = nullptr;
                 return -1;
@@ -264,6 +280,7 @@ public:
         res = fpgaperf.perfprint(fpga_perf);
         if (res != FPGA_OK) {
                 fpgaperf.perfdestroy(fpga_perf);
+                fpgaperf.destroyhandle(fpga_perf);
                 delete fpga_perf;
                 fpga_perf = nullptr;
                 return -1;
@@ -271,8 +288,20 @@ public:
 	
         //free the memory allocated for perf counters
         res = fpgaperf.perfdestroy(fpga_perf);
-        if (res != FPGA_OK)
+        if (res != FPGA_OK) {
+                fpgaperf.destroyhandle(fpga_perf);
+                delete fpga_perf;
+                fpga_perf = nullptr;
                 return -1;
+        }
+
+        //destroy the pthread mutex
+	res = fpgaperf.destroyhandle(fpga_perf);
+        if (res != FPGA_OK) {
+                delete fpga_perf;
+                fpga_perf = nullptr;
+	}
+
         delete fpga_perf;
         fpga_perf = nullptr;
 

@@ -458,7 +458,7 @@ public:
     return offset;
   }
   
-  token::ptr_t get_parent_token()
+  token::ptr_t get_token()
   {
     auto tokens = token::enumerate({properties::get(handle_)});
     return tokens[0];

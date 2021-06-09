@@ -38,5 +38,5 @@ opae_test_add(TARGET test_fpgaperf_c
 )
 
 target_include_directories(test_fpgaperf_c
-    PRIVATE ${OPAE_SDK_SOURCE}/samples
+    PRIVATE ${OPAE_SDK_SOURCE}/samples/fpgaperf_counter
 )

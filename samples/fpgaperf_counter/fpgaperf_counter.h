@@ -28,13 +28,20 @@
 #define __FPGA_PERF_COUNTER_H__
 
 #include <stdio.h>
+#include <errno.h>
+#ifndef __USE_GNU
+#define __USE_GNU 1
+#endif
+#include <pthread.h>
+
 #include <opae/types.h>
+#include <opae/types_enum.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-
+#define FPGA_PERF_MAGIC		0x46504741584c474c
 #define DFL_PERF_STR_MAX        256
 
 typedef struct  {
@@ -52,6 +59,8 @@ typedef struct {
 } perf_format_type;
 
 typedef struct {
+	pthread_mutex_t lock;
+	uint64_t magic;
 	char dfl_fme_name[DFL_PERF_STR_MAX];
 	uint64_t type;
 	uint64_t cpumask;
@@ -60,6 +69,28 @@ typedef struct {
 	uint64_t num_perf_events;
 	perf_events_type *perf_events;
 } fpga_perf_counter;
+
+/**
+ * Initialize the pthread mutex.
+ *
+ * @param[inout] fpga_perf  Returns the fpga_perf_counter struct
+ *
+ * @returns FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
+ * parameters is invalid. FPGA_EXCEPTION if an internal exception occurred
+ * while trying to access the handle.
+ */
+fpga_result fpgaPerfCreateHandle(fpga_perf_counter *fpga_perf);
+
+/**
+ * Destroy the pthread mutex.
+ *
+ * @param[inout] fpga_perf  Returns the fpga_perf_counter struct
+ *
+ * @returns FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
+ * parameters is invalid. FPGA_EXCEPTION if an internal exception occurred
+ * while trying to access the handle.
+ */
+fpga_result fpgaPerfDestroyHandle(fpga_perf_counter *fpga_perf);
 
 /**
  * Initilaize the fpga_perf_counter structure. 

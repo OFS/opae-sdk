@@ -43,6 +43,7 @@ extern "C" {
 
 #define DFL_PERF_STR_MAX        256
 
+
 /* parse the events and format value using sysfs_path */
 fpga_result fpga_perf_events(char* perf_sysfs_path, fpga_perf_counter *fpga_perf);
 }
@@ -84,11 +85,13 @@ protected:
 			&num_matches_), FPGA_OK);
 		EXPECT_GT(num_matches_, 0);
 		dev_ = nullptr;
-		fpga_perf = new fpga_perf_counter;
 		ASSERT_EQ(fpgaOpen(tokens_[0], &dev_, 0), FPGA_OK);
+		fpga_perf = new fpga_perf_counter;
+		EXPECT_EQ(fpgaPerfCreateHandle(fpga_perf), FPGA_OK);
         }
 
         virtual void TearDown() override {
+		EXPECT_EQ(fpgaPerfDestroyHandle(fpga_perf), FPGA_OK);
 		EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
 		if (dev_) {
 			EXPECT_EQ(fpgaClose(dev_), FPGA_OK);
@@ -123,8 +126,8 @@ protected:
 */
 TEST_P(fpgaperf_counter_c_p, fpgaperf_0) {
 	
-	EXPECT_EQ(fpgaPerfCounterGet(tokens_[0], fpga_perf), FPGA_OK);
 	EXPECT_EQ(fpgaPerfCounterGet(tokens_[0], NULL), FPGA_INVALID_PARAM);
+	EXPECT_EQ(fpgaPerfCounterGet(tokens_[0], fpga_perf), FPGA_OK);
 }
 
 /**
@@ -156,10 +159,8 @@ TEST_P(fpgaperf_counter_c_p, fpgaperf_2) {
 */
 TEST_P(fpgaperf_counter_c_p, fpgaperf_3) {
 
-	FILE *f = stdout;
-
-	EXPECT_EQ(fpgaPerfCounterPrint(f, fpga_perf), FPGA_OK);
-	EXPECT_EQ(fpgaPerfCounterPrint(f, NULL), FPGA_INVALID_PARAM);
+	EXPECT_EQ(fpgaPerfCounterPrint(stdout, fpga_perf), FPGA_OK);
+	EXPECT_EQ(fpgaPerfCounterPrint(stdout, NULL), FPGA_INVALID_PARAM);
 }
 
 /**
