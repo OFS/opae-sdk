@@ -221,6 +221,28 @@ STATIC void opae_vfio_device_destroy(struct opae_vfio_device *d)
 	}
 }
 
+#define PCI_COMMAND_OFFSET 0x4
+#define MEM_ENABLE (1 << 1)
+#define BUS_MASTER_ENABLE (1 << 2)
+
+STATIC int setup_pci_command(int fd, size_t cfg_offset)
+{
+	uint16_t cmd = 0;
+	ssize_t sz = sizeof(uint16_t);
+	if (pread(fd, &cmd, sz, cfg_offset + PCI_COMMAND_OFFSET) == sz) {
+		if (!(cmd & MEM_ENABLE) || !(cmd & BUS_MASTER_ENABLE)) {
+			cmd |= (MEM_ENABLE | BUS_MASTER_ENABLE);
+			if (pwrite(fd, &cmd, sz,
+				   cfg_offset + PCI_COMMAND_OFFSET) != sz)
+				return 1;
+		}
+	} else {
+		return 2;
+	}
+	return 0;
+}
+
+
 STATIC int opae_vfio_device_init(struct opae_vfio_device *d,
 				 int group_fd,
 				 const char *pciaddr,
@@ -261,13 +283,20 @@ STATIC int opae_vfio_device_init(struct opae_vfio_device *d,
 
 	d->device_config_offset = region_info.offset;
 
+	// setup pci config space command register
+	// for bus master and mem enable (mmio)
+	if (setup_pci_command(d->device_fd, region_info.offset)) {
+		ERR("[%s] Could not read/write pci config cmd register", pciaddr);
+		return 4;
+	}
+
 	memset(&device_info, 0, sizeof(device_info));
 	device_info.argsz = sizeof(device_info);
 
 	if (ioctl(d->device_fd, VFIO_DEVICE_GET_INFO, &device_info)) {
-		ERR("ioctl(%d, VFIO_DEVICE_GET_INFO, &device_info)\n",
-		    d->device_fd);
-		return 4;
+		ERR("[%s] ioctl(%d, VFIO_DEVICE_GET_INFO, &device_info)\n",
+		    pciaddr, d->device_fd);
+		return 5;
 	}
 
 	d->device_num_regions = device_info.num_regions;
