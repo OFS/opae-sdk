@@ -91,6 +91,14 @@ def fpga_defaults_valid(pci_id, value):
                                       'fpga_factory fpga_user2',
                                       'fpga_factory fpga_user1 fpga_user2',
                                       'fpga_factory fpga_user2 fpga_user1'
+                                    ],
+                  (0x8086, 0xbcce): [ 'fpga_user1',
+                                      'fpga_user2',
+                                      'fpga_factory',
+                                      'fpga_factory fpga_user1',
+                                      'fpga_factory fpga_user2',
+                                      'fpga_factory fpga_user1 fpga_user2',
+                                      'fpga_factory fpga_user2 fpga_user1'
                                     ]
                 }
     return value in sequences[pci_id]
