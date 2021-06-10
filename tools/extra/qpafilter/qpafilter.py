@@ -41,7 +41,7 @@ from collections import defaultdict
 
 import yaml
 
-SCRIPT_VERSION = '1.0.0'
+SCRIPT_VERSION = '1.0.1'
 
 CATEGORY_PATTERN = (r'\+-+\+\n;\s*(?P<category>(?:\w+\s?)+)\s*;\n'
                     r'(?P<values>.*?\n)\+-+\+-+\+')
@@ -63,6 +63,11 @@ BLOB_STRUCT_SIZE = 12
 VIRTUAL_TEMP_SENSOR0 = 'FPGA Virtual Temperature Sensor 0'
 
 LOG = logging.getLogger()
+
+
+def CRC32(data, value=0):
+    """Find the CRC32 of data, with given start value."""
+    return zlib.crc32(data, value) & 0xffffffff
 
 
 class blob_writer:
@@ -94,12 +99,12 @@ class blob_writer:
             length = buf.nbytes
             hdr = struct.pack(BLOB_HEADER_FORMAT,
                               BLOB_HEADER_MAGIC,
-                              length,
                               self.version,
-                              zlib.crc32(buf))
+                              length,
+                              CRC32(buf))
             with open(self.fname, 'wb') as outfile:
                 outfile.write(hdr)
-                outfile.write(zlib.crc32(hdr).to_bytes(4, byteorder='little'))
+                outfile.write(CRC32(hdr).to_bytes(4, byteorder='little'))
                 outfile.write(buf)
             return True
         return False
@@ -177,7 +182,7 @@ class blob_reader_v0:
 
     def __iter__(self):
         return self.Iterator(self.blob_data,
-                             self.blob_hdr[1],
+                             self.blob_hdr[2],
                              self.sensor_map,
                              self.threshold_map)
 
@@ -189,27 +194,27 @@ class blob_reader_v0:
                       f'0x{BLOB_HEADER_MAGIC:0x}.')
             return False
 
-        length = len(self.blob_data)
-        if self.blob_hdr[1] != length:
-            LOG.error(f'payload length mismatch. '
-                      f'Got {length} expected '
-                      f'{self.blob_hdr[2]}.')
-            return False
-
-        if self.blob_hdr[2] != self.version:
+        if self.blob_hdr[1] != self.version:
             LOG.error(f'blob version mismatch. '
                       f'Got {self.blob_hdr[1]} expected '
                       f'{self.version}.')
             return False
 
-        payload_crc = zlib.crc32(self.blob_data)
+        length = len(self.blob_data)
+        if self.blob_hdr[2] != length:
+            LOG.error(f'payload length mismatch. '
+                      f'Got {length} expected '
+                      f'{self.blob_hdr[2]}.')
+            return False
+
+        payload_crc = CRC32(self.blob_data)
         if self.blob_hdr[3] != payload_crc:
             LOG.error(f'payload CRC mismatch. '
                       f'Got 0x{payload_crc:0x} expected '
                       f'0x{self.blob_hdr[3]:0x}.')
             return False
 
-        hdr_crc = zlib.crc32(self.raw_hdr[:16])
+        hdr_crc = CRC32(self.raw_hdr[:16])
         if self.blob_hdr[4] != hdr_crc:
             LOG.error(f'header CRC mismatch. '
                       f'Got 0x{hdr_crc:0x} expected '
@@ -505,7 +510,7 @@ def get_blob_reader(blobfp, sensor_map, threshold_map):
     blobfp.seek(0, os.SEEK_SET)
 
     blob_hdr = struct.unpack('<IIIII', raw_hdr)
-    version = blob_hdr[2]
+    version = blob_hdr[1]
 
     if version not in readers:
         LOG.error(f'blob version {version} is not '
