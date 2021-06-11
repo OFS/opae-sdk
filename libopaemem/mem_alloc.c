@@ -158,6 +158,7 @@ int mem_alloc_add_free(struct mem_alloc *m, uint64_t address, uint64_t size)
 			return 0;
 		} else if (address == p->address) {
 			// double free
+			free(node);
 			ERR("double free detected 0x%lx\n", address);
 			return 2;
 		} else {
