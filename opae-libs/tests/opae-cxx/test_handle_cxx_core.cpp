@@ -214,5 +214,22 @@ TEST_P(handle_cxx_core, mmio_ptr) {
   ASSERT_NE(nullptr, h);
 }
 
+/**
+ * @test get_token
+ * Verify that handle::get_token can retrieve the token
+ * object and that token::get_parent can retrieve the
+ * parent token object.
+ */
+TEST_P(handle_cxx_core, get_token) {
+  handle_ = handle::open(tokens_[0], 0);
+  ASSERT_NE(nullptr, handle_.get());
+
+  auto tok = handle_->get_token();
+  ASSERT_NE(nullptr, tok.get());
+
+  auto par = tok->get_parent();
+  ASSERT_NE(nullptr, par.get());
+}
+
 INSTANTIATE_TEST_CASE_P(handle, handle_cxx_core,
                         ::testing::ValuesIn(test_platform::keys(true)));
