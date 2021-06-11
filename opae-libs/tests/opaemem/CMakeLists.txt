@@ -24,9 +24,18 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_add_shared_library(TARGET opaemem
-    SOURCE mem_alloc.c
-    VERSION ${OPAE_VERSION}
-    SOVERSION ${OPAE_VERSION_MAJOR}
-    COMPONENT memlib
+opae_test_add_static_lib(TARGET opaemem-static
+    SOURCE
+        ${OPAE_LIBS_ROOT}/libopaemem/mem_alloc.c
+)
+
+opae_test_add(TARGET test_mem_alloc_c
+    SOURCE test_mem_alloc_c.cpp
+    LIBS opaemem-static
+)
+
+opae_add_executable(TARGET opaememtest
+    SOURCE memtest.c
+    LIBS opaemem
+    COMPONENT memtest
 )
