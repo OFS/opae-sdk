@@ -227,15 +227,15 @@ fpga_result parse_perf_event(struct udev_device *dev, fpga_perf_counter *fpga_pe
 			reg_res = regcomp(&re, PERF_EVENT_PATTERN,
 					REG_EXTENDED | REG_ICASE);
 			if (reg_res) {
-				OPAE_ERR("Error compling regex");
+				OPAE_ERR("Error compiling regex");
 				ret = FPGA_EXCEPTION;
 				goto out;
 			}
 			reg_res = regexec(&re, udev_device_get_sysattr_value(dev, attr),
 					4, matches, 0);
 			if (reg_res) {
-				regerror(reg_res, &re, err, 128);
-				OPAE_ERR("Error executing regex: %s", err);
+				regerror(reg_res, &re, err, sizeof(err));
+				OPAE_MSG("Error executing regex: %s", err);
 			} else {
 				const char *attr_value = udev_device_get_sysattr_value(dev, attr);
 				uint64_t config = 0;
@@ -420,12 +420,17 @@ fpga_result get_fpga_sbdf(fpga_token token,
 	return res;
 }
 
-fpga_result fpgaPerfCreateHandle(fpga_perf_counter *fpga_perf)
+/* Initialises magic number, mutex attributes and set the mutex attribute
+ * type to PTHREAD_MUTEX_RECURSIVE. Also initialises the mutex referenced by
+ * fpga_perf->lock with attributes specified by mutex attributes */
+fpga_result fpga_perf_mutex_init(fpga_perf_counter *fpga_perf)
 {
 	pthread_mutexattr_t mattr;
 
-	if (!fpga_perf)
+	if (!fpga_perf) {
+		OPAE_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
+	}
 
 	fpga_perf->magic = FPGA_PERF_MAGIC;
 
@@ -450,30 +455,40 @@ fpga_result fpgaPerfCreateHandle(fpga_perf_counter *fpga_perf)
 	return FPGA_OK;
 }
 
-fpga_result fpgaPerfDestroyHandle(fpga_perf_counter *fpga_perf)
+/* Reset the magic number and destroy the mutex created */
+fpga_result fpga_perf_mutex_destroy(fpga_perf_counter *fpga_perf)
 {
 	fpga_result ret = FPGA_OK;
 	int res		= 0;
 
-	if (!fpga_perf)
+	if (!fpga_perf) {
+		OPAE_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
+	}
 
 	ret = fpga_perf_check_and_lock(fpga_perf);
-	if (ret)
+	if (ret) {
+		OPAE_ERR("Failed to lock perf mutex");
 		return ret;
+	}
 
 	fpga_perf->magic = 0;
 
 	ret = opae_mutex_unlock(res, &fpga_perf->lock);
-	if (ret)
-		OPAE_ERR("opae_mutex_unlock() failed: %S", strerror(errno));
+	if (ret) {
+		OPAE_ERR("Failed to unlock perf mutex");
+		return ret;
+	}
 
 	ret = pthread_mutex_destroy(&fpga_perf->lock);
-	if (ret)
-		OPAE_ERR("pthread_mutex_destroy() failed: %S", strerror(errno));
+	if (ret) {
+		OPAE_ERR("Failed to destroy pthread mutex destroy");
+		return ret;
+	}
 
 	return FPGA_OK;
 }
+
 
 fpga_result fpgaPerfCounterGet(fpga_token token, fpga_perf_counter *fpga_perf)
 {
@@ -501,6 +516,12 @@ fpga_result fpgaPerfCounterGet(fpga_token token, fpga_perf_counter *fpga_perf)
 		OPAE_ERR("Failed to get sbdf");
 		return ret;
 	}
+	ret = fpga_perf_mutex_init(fpga_perf);
+	if (ret != FPGA_OK) {
+		OPAE_ERR("Failed to initialize the mutex");
+		return ret;
+	}
+
 	/* when we bind with new device id we will get updated function value */
 	/* not able to read the sysfs path using that */
 	if(function)
@@ -709,8 +730,13 @@ fpga_result fpgaPerfCounterDestroy(fpga_perf_counter *fpga_perf)
 		free(fpga_perf->perf_events);
 		fpga_perf->perf_events = NULL;
 	}
+
 	if (opae_mutex_unlock(res, &fpga_perf->lock)) {
 		OPAE_ERR("Failed to unlock perf mutex");
+		return FPGA_EXCEPTION;
+	}
+	if (fpga_perf_mutex_destroy(fpga_perf) != FPGA_OK) {
+		OPAE_ERR("Failed to destroy the mutex");
 		return FPGA_EXCEPTION;
 	}
 

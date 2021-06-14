@@ -36,10 +36,6 @@ namespace host_exerciser {
 
 class fpgaperf {
 public:
-  fpga_result createhandle(fpga_perf_counter *fpga_perf)
-  {
-      return fpgaPerfCreateHandle(fpga_perf);
-  }
   fpga_result perfget(token::ptr_t token, fpga_perf_counter *fpga_perf)
   {
       return fpgaPerfCounterGet(token->c_type(), fpga_perf);
@@ -60,10 +56,6 @@ public:
   {
       return fpgaPerfCounterDestroy(fpga_perf);
   }
-  fpga_result destroyhandle(fpga_perf_counter *fpga_perf)
-  {
-      return fpgaPerfDestroyHandle(fpga_perf);
-  }
 };
 
 class host_exerciser_cmd : public test_command
@@ -73,8 +65,14 @@ public:
         :host_exe_(NULL) {
           he_lpbk_cfg_.value = 0;
           he_lpbk_ctl_.value = 0;
+          fpga_perf = new fpga_perf_counter;
     }
-    virtual ~host_exerciser_cmd() {}
+    virtual ~host_exerciser_cmd() {
+          if(fpga_perf) {
+                delete fpga_perf;
+                fpga_perf = nullptr;
+          }
+    }
 
     void host_exerciser_status()
     {
@@ -151,7 +149,7 @@ public:
 
     virtual int run(test_afu *afu, CLI::App *app)
     {
-        fpga_result res=FPGA_OK;
+        fpga_result res = FPGA_OK;
         (void)app;
 
         auto d_afu = dynamic_cast<host_exerciser*>(afu);
@@ -159,30 +157,17 @@ public:
 
         token_ = d_afu->get_token();
 
-        //fpga perf counter initialization
         fpgaperf fpgaperf;
 
-        fpga_perf_counter *fpga_perf = new fpga_perf_counter;
-
-        res = fpgaperf.createhandle(fpga_perf);
-        if (res != FPGA_OK) {
-                return -1;
-        }
-
+        //fpga perf counter initialization
         res = fpgaperf.perfget(token_, fpga_perf);
         if (res != FPGA_OK) {
                 fpgaperf.perfdestroy(fpga_perf);
-                fpgaperf.destroyhandle(fpga_perf);
-                delete fpga_perf;
-                fpga_perf = nullptr;
                 return -1;
         }
         res = fpgaperf.perfstart(fpga_perf);
         if (res != FPGA_OK) {
                 fpgaperf.perfdestroy(fpga_perf);
-                fpgaperf.destroyhandle(fpga_perf);
-                delete fpga_perf;
-                fpga_perf = nullptr;
                 return -1;
         }
 
@@ -254,9 +239,6 @@ public:
                 std::cout << "HE LPBK TIME OUT" << std::endl;
                 host_exerciser_errors();
                 fpgaperf.perfdestroy(fpga_perf);
-                fpgaperf.destroyhandle(fpga_perf);
-                delete fpga_perf;
-                fpga_perf = nullptr;
                 return -1;
             }
         }
@@ -267,9 +249,6 @@ public:
         res = fpgaperf.perfstop(fpga_perf);
         if (res != FPGA_OK) {
                 fpgaperf.perfdestroy(fpga_perf);
-                fpgaperf.destroyhandle(fpga_perf);
-                delete fpga_perf;
-                fpga_perf = nullptr;
                 return -1;
         }
 
@@ -280,30 +259,14 @@ public:
         res = fpgaperf.perfprint(fpga_perf);
         if (res != FPGA_OK) {
                 fpgaperf.perfdestroy(fpga_perf);
-                fpgaperf.destroyhandle(fpga_perf);
-                delete fpga_perf;
-                fpga_perf = nullptr;
                 return -1;
         }
 	
         //free the memory allocated for perf counters
         res = fpgaperf.perfdestroy(fpga_perf);
         if (res != FPGA_OK) {
-                fpgaperf.destroyhandle(fpga_perf);
-                delete fpga_perf;
-                fpga_perf = nullptr;
                 return -1;
         }
-
-        //destroy the pthread mutex
-	res = fpgaperf.destroyhandle(fpga_perf);
-        if (res != FPGA_OK) {
-                delete fpga_perf;
-                fpga_perf = nullptr;
-	}
-
-        delete fpga_perf;
-        fpga_perf = nullptr;
 
         /* Compare buffer contents only loopback test mode*/
         if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
@@ -320,6 +283,7 @@ protected:
     shared_buffer::ptr_t destination_;
     shared_buffer::ptr_t dsm_;
     token::ptr_t token_;
+    fpga_perf_counter *fpga_perf = nullptr;
 };
 
 } // end of namespace host_exerciser

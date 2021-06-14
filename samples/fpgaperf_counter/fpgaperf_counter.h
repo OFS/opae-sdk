@@ -42,7 +42,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 #define FPGA_PERF_MAGIC		0x46504741584c474c
-#define DFL_PERF_STR_MAX        256
+#define DFL_PERF_STR_MAX	256
 
 typedef struct  {
 	char event_name[DFL_PERF_STR_MAX];
@@ -71,28 +71,6 @@ typedef struct {
 } fpga_perf_counter;
 
 /**
- * Initialize the pthread mutex.
- *
- * @param[inout] fpga_perf  Returns the fpga_perf_counter struct
- *
- * @returns FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
- * parameters is invalid. FPGA_EXCEPTION if an internal exception occurred
- * while trying to access the handle.
- */
-fpga_result fpgaPerfCreateHandle(fpga_perf_counter *fpga_perf);
-
-/**
- * Destroy the pthread mutex.
- *
- * @param[inout] fpga_perf  Returns the fpga_perf_counter struct
- *
- * @returns FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
- * parameters is invalid. FPGA_EXCEPTION if an internal exception occurred
- * while trying to access the handle.
- */
-fpga_result fpgaPerfDestroyHandle(fpga_perf_counter *fpga_perf);
-
-/**
  * Initilaize the fpga_perf_counter structure. 
  *
  * Dynamically enumerate sysfs path 
@@ -104,7 +82,7 @@ fpga_result fpgaPerfDestroyHandle(fpga_perf_counter *fpga_perf);
  *
  * @returns FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
  * parameters is invalid. FPGA_EXCEPTION if an internal exception occurred
- * while trying to access the handle.
+ * while trying to update the fpga_perf_counter struct.
  */
 fpga_result fpgaPerfCounterGet(fpga_token token, fpga_perf_counter *fpga_perf);
 
@@ -119,7 +97,7 @@ fpga_result fpgaPerfCounterGet(fpga_token token, fpga_perf_counter *fpga_perf);
  *
  * @returns FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
  * parameters is invalid. FPGA_EXCEPTION if an internal exception occurred
- * while trying to access the handle.
+ * while trying to update the start value.
  */
 fpga_result fpgaPerfCounterStartRecord(fpga_perf_counter *fpga_perf);
 
@@ -134,14 +112,14 @@ fpga_result fpgaPerfCounterStartRecord(fpga_perf_counter *fpga_perf);
  *
  * @returns FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
  * parameters is invalid. FPGA_EXCEPTION if an internal exception occurred
- * while trying to access the handle.
+ * while trying to update the stop value.
  */
 fpga_result fpgaPerfCounterStopRecord(fpga_perf_counter *fpga_perf);
 
 /*
  * Print the perf counter values
  *
- * Calculate the delta of counter values and prints.
+ * Calculate the delta of fpga performance counter values and prints.
  * 
  * @param[in] file FILE * paramter
  *
@@ -149,30 +127,22 @@ fpga_result fpgaPerfCounterStopRecord(fpga_perf_counter *fpga_perf);
  *
  * @returns FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
  * parameters is invalid. FPGA_EXCEPTION if an internal exception occurred
- * while trying to access the handle.
+ * while trying to access the fpga_perf_counter struct variables.
  *
- * Example
- * @code{.c}
- *
- * fpga_perf_counter *fpga_perf;
- * FILE *file = fopen("log.txt", "w");
- * or
- * FILE *file = stdout;
- *
- * ret = fpgaPerfCounterPrint(file, fpga_perf);
- *
- * @endcode
  */
 fpga_result fpgaPerfCounterPrint(FILE *file, fpga_perf_counter *fpga_perf);
 
 /*
- * Release the memory alloacted
+ * Release the memory alloacted.
+ *
+ * Free the resource of format_type and perf_events allocated. Assign the
+ * substructures to NULL.
  *
  * @param[in] fpga_perf Release the memory alloacted to substructures.
  *
  * @returns FPGA_OK on success. FPGA_INVALID_PARAM if any of the supplied
  * parameters is invalid. FPGA_EXCEPTION if an internal exception occurred
- * while trying to access the handle.
+ * while trying to destroy the memory allocated.
  *
  */
 fpga_result fpgaPerfCounterDestroy(fpga_perf_counter *fpga_perf);

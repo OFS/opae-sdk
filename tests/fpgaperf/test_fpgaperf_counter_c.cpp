@@ -1,5 +1,4 @@
-// Original work Copyright(c) 2019-2020, Intel Corporation
-// Modifications Copyright(c) 2021, Silicom Denmark A/S
+// Copyright(c) 2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -43,6 +42,11 @@ extern "C" {
 
 #define DFL_PERF_STR_MAX        256
 
+/* Initialize the pthread mutex */
+fpga_result fpga_perf_mutex_init(fpga_perf_counter *fpga_perf);
+
+/* Destroy the pthred mutex */
+fpga_result fpga_perf_mutex_destroy(fpga_perf_counter *fpga_perf);
 
 /* parse the events and format value using sysfs_path */
 fpga_result fpga_perf_events(char* perf_sysfs_path, fpga_perf_counter *fpga_perf);
@@ -77,6 +81,7 @@ protected:
 		system_->prepare_syfs(platform_);
 
 		filter_ = nullptr;
+		fpga_perf = nullptr;
 		ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
 		ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
 		ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
@@ -85,13 +90,11 @@ protected:
 			&num_matches_), FPGA_OK);
 		EXPECT_GT(num_matches_, 0);
 		dev_ = nullptr;
-		ASSERT_EQ(fpgaOpen(tokens_[0], &dev_, 0), FPGA_OK);
 		fpga_perf = new fpga_perf_counter;
-		EXPECT_EQ(fpgaPerfCreateHandle(fpga_perf), FPGA_OK);
+		ASSERT_EQ(fpgaOpen(tokens_[0], &dev_, 0), FPGA_OK);
         }
 
         virtual void TearDown() override {
-		EXPECT_EQ(fpgaPerfDestroyHandle(fpga_perf), FPGA_OK);
 		EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
 		if (dev_) {
 			EXPECT_EQ(fpgaClose(dev_), FPGA_OK);
@@ -103,8 +106,10 @@ protected:
 				t = nullptr;
 			}
 		}
-		delete fpga_perf;
-		fpga_perf = nullptr;
+		if (fpga_perf) {
+			delete fpga_perf;
+			fpga_perf = nullptr;
+		}
 		fpgaFinalize();
 		system_->finalize();
 	}
@@ -122,70 +127,91 @@ protected:
 * @test       fpgaperf_0
 * @brief      Tests: fpgaPerfCounterGet
 * @details    Validates the dfl-fme device path based on token
-* 		and parse events and formats <br>
+* 		and parse events and formats with valid fpga_perf
+* 		and returns FPGA_OK. With invalid param it sould return
+* 		FPGA_INVALID_PARAM <br>
 */
 TEST_P(fpgaperf_counter_c_p, fpgaperf_0) {
 	
 	EXPECT_EQ(fpgaPerfCounterGet(tokens_[0], NULL), FPGA_INVALID_PARAM);
 	EXPECT_EQ(fpgaPerfCounterGet(tokens_[0], fpga_perf), FPGA_OK);
+	EXPECT_EQ(fpga_perf_mutex_destroy(fpga_perf), FPGA_OK);
 }
 
 /**
 * @test       fpgaperf_1
 * @brief      Tests: fpgaPerfCounterStartRecord
-* @details    Validates fpga perf counter start  <br>
+* @details    Read the fpga performance counter start value with valid fpga_perf
+* 	       and return FPGA_OK. If we pass NULL it should return
+* 	       FPGA_INVALID_PARAM<br>
 */
 TEST_P(fpgaperf_counter_c_p, fpgaperf_1) {
-	
+
+	EXPECT_EQ(fpga_perf_mutex_init(fpga_perf), FPGA_OK);
 	EXPECT_EQ(fpgaPerfCounterStartRecord(fpga_perf), FPGA_OK);
 	EXPECT_EQ(fpgaPerfCounterStartRecord(NULL), FPGA_INVALID_PARAM);
+	EXPECT_EQ(fpga_perf_mutex_destroy(fpga_perf), FPGA_OK);
 }
 
 /**
 * @test       fpgaperf_2
 * @brief      Tests: fpgaPerfCounterStopRecord
-* @details    Validates fpga perf counter stop  <br>
+* @details    Read the fpga performance counter stop value with valid fpga_perf
+* 	       and return FPGA_OK. If we pass NULL it should return
+* 	       FPGA_INVALID_PARAM<br>
 */
 TEST_P(fpgaperf_counter_c_p, fpgaperf_2) {
 
+	EXPECT_EQ(fpga_perf_mutex_init(fpga_perf), FPGA_OK);
 	EXPECT_EQ(fpgaPerfCounterStopRecord(fpga_perf), FPGA_OK);
 	EXPECT_EQ(fpgaPerfCounterStopRecord(NULL), FPGA_INVALID_PARAM);
+	EXPECT_EQ(fpga_perf_mutex_destroy(fpga_perf), FPGA_OK);
 }
 
 /**
 * @test       fpgaperf_3
 * @brief      Tests: fpgaPerfCounterPrint
-* @details    Validates performance counter prints  <br>
+* @details    Calculate the fpga performance counter delta and prints in stdout
+*             with valid fpga_perf and return FPGA_OK. If we pass NULL it will
+*             return FPGA_INVALID_PARAM  <br>
 */
 TEST_P(fpgaperf_counter_c_p, fpgaperf_3) {
 
+	EXPECT_EQ(fpga_perf_mutex_init(fpga_perf), FPGA_OK);
 	EXPECT_EQ(fpgaPerfCounterPrint(stdout, fpga_perf), FPGA_OK);
 	EXPECT_EQ(fpgaPerfCounterPrint(stdout, NULL), FPGA_INVALID_PARAM);
+	EXPECT_EQ(fpga_perf_mutex_destroy(fpga_perf), FPGA_OK);
 }
 
 /**
 * @test       fpgaperf_4
 * @brief      Tests: fpga_perf_events
-* @details    Validates parse the evnts and format <br>
+* @details    It parse the perf_events and perf_format values and return FPGA_OK
+* 	      with valid sysfs and fpga_perf. With invalid param it should return
+* 	      FPGA_INVALID_PARAM <br>
 */
 TEST_P(fpgaperf_counter_c_p, fpgaperf_4) {
 
 	char sysfs_path[DFL_PERF_STR_MAX] = "/sys/bus/event_source/devices/dfl_fme0";
 
+	EXPECT_EQ(fpga_perf_mutex_init(fpga_perf), FPGA_OK);
 	EXPECT_EQ(fpga_perf_events(sysfs_path, fpga_perf), FPGA_OK);
 	EXPECT_EQ(fpga_perf_events(NULL, fpga_perf), FPGA_INVALID_PARAM);
 	EXPECT_EQ(fpga_perf_events(sysfs_path, NULL), FPGA_INVALID_PARAM);
+	EXPECT_EQ(fpga_perf_mutex_destroy(fpga_perf), FPGA_OK);
 }
 
 /**
 * @test       fpgaperf_5
 * @brief      Tests: fpgaPerfCounterDestroy
-* @details    Validates frees a memory <br>
+* @details    It release the memory for substructures allocated with valid
+* 	      fpga_perf and return FPGA_OK. With invalid param it should return
+* 	      FPGA_VALID_PARAM <br>
 */
 TEST_P(fpgaperf_counter_c_p, fpgaperf_5) {	
 
+	EXPECT_EQ(fpga_perf_mutex_init(fpga_perf), FPGA_OK);
 	EXPECT_EQ(fpgaPerfCounterDestroy(fpga_perf), FPGA_OK);
-	EXPECT_EQ(fpgaPerfCounterDestroy(NULL), FPGA_INVALID_PARAM);
 }
 
 INSTANTIATE_TEST_CASE_P(fpgaperf_counter_c, fpgaperf_counter_c_p,
