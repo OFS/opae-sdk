@@ -32,7 +32,7 @@ jobs:
     - name: Test in Debug mode
       if: ${{ matrix.build-type == 'Debug' }}
       working-directory: ${{ github.workspace }}/.build
-      run: ctest --timeout 180
+      run: ctest --timeout 180 --rerun-failed --output-on-failure
       env:
         OPAE_EXPLICIT_INITIALIZE: 1
         LD_LIBRARY_PATH: ${{ github.workspace }}/.build/lib
