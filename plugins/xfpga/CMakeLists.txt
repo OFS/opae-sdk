@@ -39,11 +39,9 @@ set(SRC
   hostif.c
   event.c
   properties.c
-  init.c
   opae_drv.c
   sysfs.c
   wsid_list.c
-  token_list.c
   mmap.c
   version.c
   userclk.c
