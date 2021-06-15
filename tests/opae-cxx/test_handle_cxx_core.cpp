@@ -227,8 +227,8 @@ TEST_P(handle_cxx_core, get_token) {
   auto tok = handle_->get_token();
   ASSERT_NE(nullptr, tok.get());
 
-  auto par = tok->get_parent();
-  ASSERT_NE(nullptr, par.get());
+  token::ptr_t p;
+  ASSERT_NO_THROW(p = tok->get_parent());
 }
 
 INSTANTIATE_TEST_CASE_P(handle, handle_cxx_core,

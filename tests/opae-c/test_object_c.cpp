@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -109,6 +109,9 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
     }
     fpgaFinalize();
     system_->finalize();
+#ifdef LIBOPAE_DEBUG
+    EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
+#endif // LIBOPAE_DEBUG
   }
 
   std::array<fpga_token, 2> tokens_accel_;
@@ -173,6 +176,57 @@ TEST_P(object_c_p, obj_write64) {
   ASSERT_EQ(fpgaHandleGetObject(accel_, "errors/errors", &obj, 0),
 		    FPGA_OK);
   ASSERT_EQ(fpgaObjectWrite64(obj, errors, 0), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
+}
+
+/**
+ * @test       obj_get_obj_at0
+ * @brief      Test: fpgaObjectGetObjectAt
+ * @details    When fpgaObjectGetObjectAt is called with valid parameters,<br>
+ *             the fn opens the underlying object<br>
+ *             and returns FPGA_OK.<br>
+ */
+TEST_P(object_c_p, obj_get_obj_at0) {
+  fpga_object obj = nullptr;
+  fpga_object child_obj = nullptr;
+
+  ASSERT_EQ(fpgaHandleGetObject(accel_,
+			  	"power",
+				&obj,
+				FPGA_OBJECT_RECURSE_ONE),
+		  FPGA_OK);
+
+  EXPECT_EQ(fpgaObjectGetObjectAt(obj, 0, &child_obj), FPGA_OK);
+
+  EXPECT_EQ(fpgaDestroyObject(&child_obj), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
+}
+
+/**
+ * @test       obj_get_type0
+ * @brief      Test: fpgaObjectGetType
+ * @details    When fpgaObjectGetType is called with valid parameters,<br>
+ *             the fn opens the underlying object<br>
+ *             and returns FPGA_OK.<br>
+ */
+TEST_P(object_c_p, obj_get_type0) {
+  fpga_object obj = nullptr;
+  fpga_object ctrl_obj = nullptr;
+  enum fpga_sysobject_type type;
+
+  ASSERT_EQ(fpgaHandleGetObject(accel_, "power", &obj, 0),
+		  FPGA_OK);
+
+  EXPECT_EQ(fpgaObjectGetType(obj, &type), FPGA_OK);
+  EXPECT_EQ(type, FPGA_OBJECT_CONTAINER);
+
+  ASSERT_EQ(fpgaObjectGetObject(obj, "control", &ctrl_obj, 0),
+		  FPGA_OK);
+
+  EXPECT_EQ(fpgaObjectGetType(ctrl_obj, &type), FPGA_OK);
+  EXPECT_EQ(type, FPGA_OBJECT_ATTRIBUTE);
+
+  EXPECT_EQ(fpgaDestroyObject(&ctrl_obj), FPGA_OK);
   EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
 }
 
