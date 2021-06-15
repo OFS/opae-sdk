@@ -34,7 +34,6 @@ opae_test_add_static_lib(TARGET xfpga-static
         ${OPAE_LIBS_ROOT}/plugins/xfpga/error.c
         ${OPAE_LIBS_ROOT}/plugins/xfpga/event.c
         ${OPAE_LIBS_ROOT}/plugins/xfpga/hostif.c
-        ${OPAE_LIBS_ROOT}/plugins/xfpga/init.c
         ${OPAE_LIBS_ROOT}/plugins/xfpga/manage.c
         ${OPAE_LIBS_ROOT}/plugins/xfpga/mmap.c
         ${OPAE_LIBS_ROOT}/plugins/xfpga/mmio.c
@@ -46,7 +45,6 @@ opae_test_add_static_lib(TARGET xfpga-static
         ${OPAE_LIBS_ROOT}/plugins/xfpga/reset.c
         ${OPAE_LIBS_ROOT}/plugins/xfpga/sysfs.c
         ${OPAE_LIBS_ROOT}/plugins/xfpga/sysobject.c
-        ${OPAE_LIBS_ROOT}/plugins/xfpga/token_list.c
         ${OPAE_LIBS_ROOT}/plugins/xfpga/umsg.c
         ${OPAE_LIBS_ROOT}/plugins/xfpga/userclk.c
         ${OPAE_LIBS_ROOT}/plugins/xfpga/version.c
@@ -69,12 +67,6 @@ opae_test_add_static_lib(TARGET bmc-static
         ${OPAE_LIBS_ROOT}/plugins/xfpga/metrics/bmc/bmc_ioctl.c
         ${OPAE_LIBS_ROOT}/plugins/xfpga/metrics/bmc/bmcdata.c
         ${OPAE_LIBS_ROOT}/plugins/xfpga/metrics/bmc/bmcinfo.c
-)
-
-opae_test_add(TARGET test_xfpga_token_list_c
-    SOURCE test_token_list_c.cpp
-    LIBS
-        xfpga-static
 )
 
 opae_test_add(TARGET test_xfpga_error_c
