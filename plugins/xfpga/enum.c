@@ -630,14 +630,14 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 		OPAE_ERR("sysfspath does not meet expected format");
 		return NULL;
 	}
-	
+
 	/* get the sub-device (FME/Port) instance id */
 	ptr = strrchr(sysfspath, '.');
 	if (!ptr) {
 		OPAE_ERR("sysfspath does not meet expected format");
 		return NULL;
 	}
-	
+
 	endptr = NULL;
 	subdev_instance = strtoul(++ptr, &endptr, 10);
 	/* no digits in path */

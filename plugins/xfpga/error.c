@@ -372,7 +372,7 @@ uint32_t count_error_files(const char *path)
 	return build_error_list(path, NULL);
 }
 
-struct error_list * clone_error_list(struct error_list *src)
+struct error_list *clone_error_list(struct error_list *src)
 {
 	struct error_list *clone = NULL;
 	struct error_list **plist = &clone;

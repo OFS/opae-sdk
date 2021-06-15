@@ -44,7 +44,7 @@ struct error_list {
 
 uint32_t count_error_files(const char *path);
 uint32_t build_error_list(const char *path, struct error_list **list);
-struct error_list * clone_error_list(struct error_list *src);
+struct error_list *clone_error_list(struct error_list *src);
 
 #ifdef __cplusplus
 } // extern "C"
