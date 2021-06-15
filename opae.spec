@@ -238,7 +238,6 @@ done
 %{_bindir}/hssimac
 %{_bindir}/hssistats
 %{_bindir}/opae.io
-%{_bindir}/opaememtest
 %{_bindir}/opaeuiotest
 %{_bindir}/pac_hssi_config.py
 %{_bindir}/rtl_src_config
