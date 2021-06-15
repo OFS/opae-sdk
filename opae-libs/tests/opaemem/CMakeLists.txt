@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,48 +24,18 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-set(SRC
-  common.c
-  enum.c
-  error.c
-  umsg.c
-  reconf.c
-  open.c
-  close.c
-  reset.c
-  mmio.c
-  buffer.c
-  bitstream.c
-  hostif.c
-  event.c
-  properties.c
-  opae_drv.c
-  sysfs.c
-  wsid_list.c
-  mmap.c
-  version.c
-  userclk.c
-  usrclk/user_clk_pgm_uclock.c
-  plugin.c
-  sysobject.c
-  manage.c
-  metrics/metrics.c
-  metrics/metrics_utils.c
-  metrics/afu_metrics.c
-  metrics/vector.c
-  metrics/metrics_max10.c
-  metrics/threshold.c)
-
-opae_add_module_library(TARGET xfpga
-    SOURCE ${SRC}
-    LIBS
-        dl
-        m
-        ${CMAKE_THREAD_LIBS_INIT}
-        opae-c
-        ${libjson-c_LIBRARIES}
-        ${libuuid_LIBRARIES}
-    COMPONENT opaeclib
+opae_test_add_static_lib(TARGET opaemem-static
+    SOURCE
+        ${OPAE_LIBS_ROOT}/libopaemem/mem_alloc.c
 )
 
-target_include_directories(xfpga PRIVATE ${OPAE_LIBS_ROOT}/libopae-c)
+opae_test_add(TARGET test_mem_alloc_c
+    SOURCE test_mem_alloc_c.cpp
+    LIBS opaemem-static
+)
+
+opae_add_executable(TARGET opaememtest
+    SOURCE memtest.c
+    LIBS opaemem
+    COMPONENT memtest
+)

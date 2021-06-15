@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -76,6 +76,9 @@ class buffer_c_p : public mock_opae_p<2> {
         accel_ = nullptr;
     }
     fpgaFinalize();
+#ifdef LIBOPAE_DEBUG
+    EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
+#endif // LIBOPAE_DEBUG
   }
 
   fpga_properties filter_;

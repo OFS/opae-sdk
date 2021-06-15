@@ -12,7 +12,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
-
+    strategy:
+      matrix:
+        build-type: [Coverage, Debug, Release, RelWithDebInfo]
     steps:
     - uses: actions/checkout@v2
     - name: update
@@ -21,14 +23,29 @@ jobs:
       uses: mstksg/get-package@v1
       with:
         apt-get: uuid-dev libjson-c-dev libhwloc-dev lcov linux-headers-generic
-    - name: configure
-      run: mkdir ${{ github.workspace }}/.build && cd ${{ github.workspace }}/.build && cmake .. -DCMAKE_BUILD_TYPE=Debug -DOPAE_ENABLE_MOCK=ON -DOPAE_BUILD_TESTS=ON -DOPAE_PYTHON_VERSION=3
+    - name: CMake Configure
+      run: cmake -B .build -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -DOPAE_ENABLE_MOCK=ON -DOPAE_BUILD_TESTS=ON
     - name: make
-      run: cd ${{ github.workspace }}/.build && make -j
+      run: cmake --build .build -- -j $(nproc)
     - name: set hugepages
       run: sudo sysctl -w vm.nr_hugepages=8
-    - name: test
-      run: cd ${{ github.workspace }}/.build && ctest --timeout 180
+    - name: Test in Debug mode
+      if: ${{ matrix.build-type == 'Debug' }}
+      working-directory: ${{ github.workspace }}/.build
+      run: ctest --timeout 180 --rerun-failed --output-on-failure
       env:
         OPAE_EXPLICIT_INITIALIZE: 1
         LD_LIBRARY_PATH: ${{ github.workspace }}/.build/lib
+    - name: Test with Coverage
+      if: ${{ matrix.build-type == 'Coverage' }}
+      working-directory: ${{ github.workspace }}/.build
+      run: make lcov
+      env:
+        OPAE_EXPLICIT_INITIALIZE: 1
+        LD_LIBRARY_PATH: ${{ github.workspace }}/.build/lib
+    - name: Coveralls
+      if: ${{ matrix.build-type == 'Coverage' }}
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: .build/coverage.cleaned
