@@ -88,8 +88,16 @@ token::token(fpga_token tok) {
 
 token::ptr_t token::get_parent() const {
   ptr_t p;
+  fpga_token parent = nullptr;
   auto props = properties::get(token_);
-  if (props->parent) p.reset(new token(props->parent));
+
+  try {
+    parent = props->parent;
+  } catch (except & ) {
+    return p;
+  }
+
+  p.reset(new token(parent));
   return p;
 }
 
