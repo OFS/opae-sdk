@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -48,7 +48,6 @@
 #include "types_int.h"
 #include "sysfs_int.h"
 #include "wsid_list_int.h"
-#include "token_list_int.h"
 #include "mmap_int.h"
 #include "props.h"
 
