@@ -93,7 +93,7 @@ token::ptr_t token::get_parent() const {
 
   try {
     parent = props->parent;
-  } catch (except & ) {
+  } catch (except&) {
     return p;
   }
 
