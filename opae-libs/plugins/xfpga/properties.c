@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -173,9 +173,8 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 			return result;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
 
-		_iprop.parent = (fpga_token)token_get_parent(_token);
-		if (NULL != _iprop.parent)
-			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_PARENT);
+		_iprop.parent = NULL;
+		CLEAR_FIELD_VALID(&_iprop, FPGA_PROPERTY_PARENT);
 
 		_iprop.objtype = FPGA_ACCELERATOR;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJTYPE);
