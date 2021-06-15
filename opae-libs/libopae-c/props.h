@@ -81,8 +81,6 @@
 struct _fpga_properties {
 	pthread_mutex_t lock;
 	uint64_t magic;
-	uint32_t flags;
-#define OPAE_PROPERTIES_FLAG_PARENT_ALLOC 0x00000001
 	/* Common properties */
 	uint64_t valid_fields; // bitmap of valid fields
 	// valid here means the field has been set using the API

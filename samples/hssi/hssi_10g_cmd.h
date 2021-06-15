@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2020-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -56,7 +56,7 @@ public:
   hssi_10g_cmd()
     : port_(0)
     , eth_loopback_("on")
-    , he_loopback_("off")
+    , he_loopback_("none")
     , num_packets_(1)
     , random_length_("fixed")
     , random_payload_("incremental")
@@ -183,10 +183,10 @@ public:
 
     hafu->write64(TRAFFIC_CTRL_PORT_SEL, port_);
 
-    if (he_loopback_ == "on")
-      hafu->mbox_write(CSR_MAC_LOOP, 1);
-    else 
-      hafu->mbox_write(CSR_MAC_LOOP, 0);
+    if (he_loopback_ != "none") {
+        hafu->mbox_write(CSR_MAC_LOOP, (he_loopback_ == "on") ? 1 : 0);
+        return test_afu::success;
+    }
 
     hafu->mbox_write(CSR_NUM_PACKETS, num_packets_);
 

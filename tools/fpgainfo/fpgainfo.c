@@ -115,10 +115,7 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 
 		res = fpgaPropertiesGetObjectType(pprops, &objtype);
 		fpgainfo_print_err("reading objtype from properties", res);
-
-		res = fpgaDestroyToken(&par);
-		fpgainfo_print_err("destroying parent token", res);
-	};
+	}
 
 	res = fpgaPropertiesGetDeviceID(pprops, &device_id);
 	fpgainfo_print_err("reading device_id from properties", res);

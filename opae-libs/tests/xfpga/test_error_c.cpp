@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -30,7 +30,6 @@
 
 extern "C" {
 #include "error_int.h"
-#include "token_list_int.h"
 }
 
 #include <opae/error.h>
@@ -48,6 +47,7 @@ extern "C" {
 extern "C" {
 int xfpga_plugin_initialize(void);
 int xfpga_plugin_finalize(void);
+struct _fpga_token *token_add(const char *sysfspath, const char *devpath);
 }
 
 using namespace opae::testing;
@@ -117,9 +117,8 @@ class error_c_mock_p : public ::testing::TestWithParam<std::string> {
       EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
       filter_ = nullptr;
     }
-    token_cleanup();
     tmpsysfs_ = "";
-	xfpga_plugin_finalize();
+    xfpga_plugin_finalize();
     system_->finalize();
   }
 
@@ -592,14 +591,12 @@ TEST_P(error_c_mock_p, error_12) {
   ASSERT_NE(fme, nullptr);
   auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
   ASSERT_NE(port, nullptr);
-  auto parent = token_get_parent(port);
-  EXPECT_EQ(parent, fme);
-  auto tok = (struct _fpga_token *)parent;
+  auto tok = (struct _fpga_token *)fme;
 
   tok->magic = FPGA_TOKEN_MAGIC;
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaClearAllErrors(parent));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaClearAllErrors(fme));
   tok->magic = 0x123;
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearAllErrors(parent));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearAllErrors(fme));
 }
 
 INSTANTIATE_TEST_CASE_P(error_c, error_c_mock_p,
@@ -621,17 +618,15 @@ TEST_P(error_c_p, error_10) {
   ASSERT_NE(fme, nullptr);
   auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
   ASSERT_NE(port, nullptr);
-  auto parent = token_get_parent(port);
-  EXPECT_EQ(parent, fme);
-  auto tok = (struct _fpga_token *)parent;
+  auto tok = (struct _fpga_token *)fme;
 
   uint64_t val = 0;
   tok->magic = 0x123;
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReadError(parent, 0, &val));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReadError(fme, 0, &val));
 
   tok->magic = FPGA_TOKEN_MAGIC;
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaReadError(parent, 0, &val));
-  EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaReadError(parent, 1000, &val));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaReadError(fme, 0, &val));
+  EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaReadError(fme, 1000, &val));
 }
 
 /**
@@ -648,13 +643,11 @@ TEST_P(error_c_p, error_11) {
   ASSERT_NE(fme, nullptr);
   auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
   ASSERT_NE(port, nullptr);
-  auto parent = token_get_parent(port);
-  EXPECT_EQ(parent, fme);
-  auto tok = (struct _fpga_token *)parent;
+  auto tok = (struct _fpga_token *)fme;
 
-  EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaClearError(parent, 1000));
+  EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaClearError(fme, 1000));
   tok->magic = 0x123;
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearError(parent, 0));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearError(fme, 0));
 }
 
 /**
@@ -669,15 +662,13 @@ TEST_P(error_c_p, error_13) {
   ASSERT_NE(fme, nullptr);
   auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
   ASSERT_NE(port, nullptr);
-  auto parent = token_get_parent(port);
-  EXPECT_EQ(parent, fme);
-  auto tok = (struct _fpga_token *)parent;
+  auto tok = (struct _fpga_token *)fme;
 
   struct fpga_error_info info;
   tok->magic = FPGA_TOKEN_MAGIC;
-  EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaGetErrorInfo(parent, 1000, &info));
+  EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaGetErrorInfo(fme, 1000, &info));
   tok->magic = 0x123;
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetErrorInfo(parent, 0, &info));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetErrorInfo(fme, 0, &info));
 }
 
 INSTANTIATE_TEST_CASE_P(error_c, error_c_p,
