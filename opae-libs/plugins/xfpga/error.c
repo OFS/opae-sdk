@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -370,4 +370,36 @@ build_error_list(const char *path, struct error_list **list)
 uint32_t count_error_files(const char *path)
 {
 	return build_error_list(path, NULL);
+}
+
+struct error_list *clone_error_list(struct error_list *src)
+{
+	struct error_list *clone = NULL;
+	struct error_list **plist = &clone;
+
+	while (src) {
+		struct error_list *p = malloc(sizeof(struct error_list));
+		if (!p) {
+			OPAE_ERR("malloc failed");
+			goto free_list;
+		}
+
+		*p = *src;
+		p->next = NULL;
+
+		*plist = p;
+		plist = &p->next;
+
+		src = src->next;
+	}
+
+	return clone;
+
+free_list:
+	while (clone) {
+		struct error_list *trash = clone;
+		clone = clone->next;
+		free(trash);
+	}
+	return NULL;
 }
