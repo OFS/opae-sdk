@@ -403,7 +403,8 @@ class fpga_base(sysfs_device):
                                       'factory': 0},
                            'retimer': {'user': 0,
                                        'factory': 0}},
-        (0x8086, 0xaf00): None
+        (0x8086, 0xaf00): None,
+        (0x8086, 0xbcce): None
     }
 
     def __init__(self, path):
