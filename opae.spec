@@ -176,6 +176,8 @@ done
 %{_usr}/src/opae/samples/n5010-ddr-test/n5010-ddr-test.c
 %{_usr}/src/opae/cmake/*
 %{_usr}/src/opae/opae-libs/cmake/modules/*
+%{_usr}/src/opae/argsfilter/argsfilter.c
+%{_usr}/src/opae/argsfilter/argsfilter.h
 
 %{_libdir}/opae/libboard_a10gx.so
 %{_libdir}/opae/libboard_n3000.so
