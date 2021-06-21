@@ -407,7 +407,7 @@ def update_fw(args, pac):
     LOG.info('waiting for idle')
     retries = 0
     timeout = 1.0
-    max_retries = 60 * 5
+    max_retries = 60 * 10
     while status.value != 'idle':
         time.sleep(timeout)
         retries += 1
