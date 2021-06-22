@@ -41,7 +41,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define FPGA_PERF_MAGIC		0x46504741584c474c
+#define FPGA_PERF_MAGIC 	0x46504741584c474c
 #define DFL_PERF_STR_MAX	256
 
 typedef struct  {

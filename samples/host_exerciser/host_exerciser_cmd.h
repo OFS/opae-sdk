@@ -36,26 +36,48 @@ namespace host_exerciser {
 
 class fpgaperf {
 public:
-  fpga_result perfget(token::ptr_t token, fpga_perf_counter *fpga_perf)
+  static std::shared_ptr<fpgaperf> get(token::ptr_t token)
   {
-      return fpgaPerfCounterGet(token->c_type(), fpga_perf);
+    /*std::make_shared function doesn’t have access to the private constructor
+     *of fpgaperf, and as such it cannot instantiate it. Created temporary
+     *class that inherits from fpgaperf.*/
+    struct shared_enabler : public fpgaperf {};
+    auto p = std::make_shared<shared_enabler>();
+    if (fpgaPerfCounterGet(token->c_type(), p->counter_) != FPGA_OK) {
+        std::cout << "Failed to get the fpga perf counter" << std::endl;
+        p.reset();
+        return NULL;
+    }
+    return p;
   }
-  fpga_result perfstart(fpga_perf_counter *fpga_perf)
+  ~fpgaperf()
   {
-      return fpgaPerfCounterStartRecord(fpga_perf);
+    if (fpgaPerfCounterDestroy(counter_) != FPGA_OK) {
+        std::cout << "Failed to destroy the fpga perf counter" << std::endl;
+    }
+    if(counter_) {
+        delete counter_;
+        counter_ = nullptr;
+    }
   }
-  fpga_result perfstop(fpga_perf_counter *fpga_perf)
+  fpga_result start()
   {
-      return fpgaPerfCounterStopRecord(fpga_perf);
+      return fpgaPerfCounterStartRecord(counter_);
   }
-  fpga_result perfprint(fpga_perf_counter *fpga_perf)
+  fpga_result stop()
   {
-      return fpgaPerfCounterPrint(stdout, fpga_perf);
+      return fpgaPerfCounterStopRecord(counter_);
   }
-  fpga_result perfdestroy(fpga_perf_counter *fpga_perf)
+  fpga_result print()
   {
-      return fpgaPerfCounterDestroy(fpga_perf);
+      return fpgaPerfCounterPrint(stdout, counter_);
   }
+private:
+  fpgaperf() {
+      counter_ = new fpga_perf_counter;
+  }
+  fpgaperf(const fpgaperf &);
+  fpga_perf_counter *counter_ = nullptr;
 };
 
 class host_exerciser_cmd : public test_command
@@ -65,14 +87,8 @@ public:
         :host_exe_(NULL) {
           he_lpbk_cfg_.value = 0;
           he_lpbk_ctl_.value = 0;
-          fpga_perf = new fpga_perf_counter;
     }
-    virtual ~host_exerciser_cmd() {
-          if(fpga_perf) {
-                delete fpga_perf;
-                fpga_perf = nullptr;
-          }
-    }
+    virtual ~host_exerciser_cmd() {}
 
     void host_exerciser_status()
     {
@@ -149,7 +165,6 @@ public:
 
     virtual int run(test_afu *afu, CLI::App *app)
     {
-        fpga_result res = FPGA_OK;
         (void)app;
 
         auto d_afu = dynamic_cast<host_exerciser*>(afu);
@@ -157,18 +172,16 @@ public:
 
         token_ = d_afu->get_token();
 
-        fpgaperf fpgaperf;
-
         //fpga perf counter initialization
-        res = fpgaperf.perfget(token_, fpga_perf);
-        if (res != FPGA_OK) {
-                fpgaperf.perfdestroy(fpga_perf);
-                return -1;
+        auto perf = fpgaperf::get(token_);
+        if (!perf) {
+            std::cout << "Failed to get the fpgaperf object" << std::endl;
+            return -1;
         }
-        res = fpgaperf.perfstart(fpga_perf);
-        if (res != FPGA_OK) {
-                fpgaperf.perfdestroy(fpga_perf);
-                return -1;
+        //start the fpga perf counter
+        if (perf->start() != FPGA_OK) {
+            std::cout << "Failed to start the fpga perf counter" << std::endl;
+            return -1;
         }
 
         auto ret = parse_input_options();
@@ -238,7 +251,6 @@ public:
             if (--timeout == 0) {
                 std::cout << "HE LPBK TIME OUT" << std::endl;
                 host_exerciser_errors();
-                fpgaperf.perfdestroy(fpga_perf);
                 return -1;
             }
         }
@@ -246,26 +258,17 @@ public:
 
         std::cout << "Test Completed" << std::endl;
         //stop performance counter
-        res = fpgaperf.perfstop(fpga_perf);
-        if (res != FPGA_OK) {
-                fpgaperf.perfdestroy(fpga_perf);
-                return -1;
+        if (perf->stop() != FPGA_OK) {
+            std::cout << "Failed to stop the fpga perf counter" << std::endl;
+            return -1;
         }
-
         host_exerciser_swtestmsg();
         host_exerciser_status();
 
         //print the performace counter values
-        res = fpgaperf.perfprint(fpga_perf);
-        if (res != FPGA_OK) {
-                fpgaperf.perfdestroy(fpga_perf);
-                return -1;
-        }
-	
-        //free the memory allocated for perf counters
-        res = fpgaperf.perfdestroy(fpga_perf);
-        if (res != FPGA_OK) {
-                return -1;
+        if (perf->print() != FPGA_OK) {
+            std::cout << "Failed to print the fpga perf counter" << std::endl;
+            return -1;
         }
 
         /* Compare buffer contents only loopback test mode*/
@@ -283,7 +286,6 @@ protected:
     shared_buffer::ptr_t destination_;
     shared_buffer::ptr_t dsm_;
     token::ptr_t token_;
-    fpga_perf_counter *fpga_perf = nullptr;
 };
 
 } // end of namespace host_exerciser
