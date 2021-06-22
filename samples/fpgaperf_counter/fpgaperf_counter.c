@@ -84,7 +84,7 @@ struct read_format {
  * If fpga_perf_check_and_lock() returns FPGA_OK, assume the mutex to be
  * locked.
  */
-fpga_result fpga_perf_check_and_lock(fpga_perf_counter *fpga_perf)
+STATIC fpga_result fpga_perf_check_and_lock(fpga_perf_counter *fpga_perf)
 {
 	int res = 0;
 
@@ -105,7 +105,7 @@ fpga_result fpga_perf_check_and_lock(fpga_perf_counter *fpga_perf)
 }
 
 /* parse the each format and get the shift val */
-fpga_result parse_perf_format(struct udev_device *dev, fpga_perf_counter *fpga_perf)
+STATIC fpga_result parse_perf_format(struct udev_device *dev, fpga_perf_counter *fpga_perf)
 {
 	regex_t re;
 	regmatch_t matches[3] 	= { {0} };
@@ -170,7 +170,7 @@ fpga_result parse_perf_format(struct udev_device *dev, fpga_perf_counter *fpga_p
 }
 
 /* parse the events for the particular device directory */
-fpga_result parse_perf_event(struct udev_device *dev, fpga_perf_counter *fpga_perf)
+STATIC fpga_result parse_perf_event(struct udev_device *dev, fpga_perf_counter *fpga_perf)
 {	
 	regex_t re;
 	regmatch_t matches[4] 	= { {0} };
@@ -241,7 +241,7 @@ fpga_result parse_perf_event(struct udev_device *dev, fpga_perf_counter *fpga_pe
 }
 
 
-fpga_result fpga_perf_events(char* perf_sysfs_path, fpga_perf_counter *fpga_perf)
+STATIC fpga_result fpga_perf_events(char* perf_sysfs_path, fpga_perf_counter *fpga_perf)
 {
 	fpga_result ret 	= FPGA_OK;
 	struct udev *udev 	= NULL;
@@ -332,7 +332,7 @@ out:
 }
 
 /* get fpga sbdf from token */
-fpga_result get_fpga_sbdf(fpga_token token,
+STATIC fpga_result get_fpga_sbdf(fpga_token token,
 		uint16_t *segment,
 		uint8_t *bus,
 		uint8_t *device,
