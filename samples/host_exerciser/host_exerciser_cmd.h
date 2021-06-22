@@ -111,6 +111,11 @@ public:
               he_lpbk_cfg_.TputInterleave = host_exe_->he_interleave_;
         }
 
+        // Set Interrupt test mode
+        if (host_exe_->he_interrupt_ > 0) {
+            he_lpbk_cfg_.IntrTestMode = 1;
+        }
+
         return 0;
     }
 
@@ -169,7 +174,7 @@ public:
         d_afu->write64(HE_NUM_LINES, (LPBK1_BUFFER_SIZE / (1 * CL)) -1);
 
        // Write to CSR_CFG
-        d_afu->write32(HE_CFG, he_lpbk_cfg_.value);
+        d_afu->write64(HE_CFG, he_lpbk_cfg_.value);
 
         // Write to CSR_CTL
         std::cout << "Start Test" << std::endl;
@@ -182,16 +187,33 @@ public:
         uint32_t           timeout = HELPBK_TEST_TIMEOUT;
         volatile uint8_t* status_ptr = dsm_->c_type() ;
 
+        if (he_lpbk_cfg_.IntrTestMode == 1) {
+            he_intrrupt_.VectorNum = host_exe_->he_interrupt_;
+            d_afu->write32(HE_INTERRUPT0, he_intrrupt_.value);
+            try {
+                event::ptr_t ev = d_afu->register_interrupt();
+                d_afu->interrupt_wait(ev, 10000);
+                if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
+                    d_afu->compare(source_, destination_);
+             }
+             catch (std::exception &ex) {
+                    std::cout << "HE LPBK TIME OUT" << std::endl;
+                    host_exerciser_errors();
+                    return -1;
+             }
+        } else {
+            while (0 == ((*status_ptr) & 0x1))
+            {
+                usleep(HELPBK_TEST_SLEEP_INVL);
+                if (--timeout == 0) {
+                    std::cout << "HE LPBK TIME OUT" << std::endl;
+                    host_exerciser_errors();
+                    return -1;
+                }
+             }
+         }
 
-        while (0 == ((*status_ptr) & 0x1))
-        {
-            usleep(HELPBK_TEST_SLEEP_INVL);
-            if (--timeout == 0) {
-                std::cout << "HE LPBK TIME OUT" << std::endl;
-                host_exerciser_errors();
-                return -1;
-            }
-        }
+
 
 
         std::cout << "Test Completed" << std::endl;
@@ -212,6 +234,7 @@ protected:
     shared_buffer::ptr_t source_;
     shared_buffer::ptr_t destination_;
     shared_buffer::ptr_t dsm_;
+    he_interrupt0 he_intrrupt_;
 };
 
 } // end of namespace host_exerciser
