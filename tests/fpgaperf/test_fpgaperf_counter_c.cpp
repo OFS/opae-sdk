@@ -44,8 +44,6 @@ fpga_result fpga_perf_mutex_init(fpga_perf_counter *fpga_perf);
 /* Destroy the pthred mutex */
 fpga_result fpga_perf_mutex_destroy(fpga_perf_counter *fpga_perf);
 
-/* parse the events and format value using sysfs_path */
-fpga_result fpga_perf_events(char* perf_sysfs_path, fpga_perf_counter *fpga_perf);
 }
 
 #include "intel-fpga.h"
@@ -181,30 +179,12 @@ TEST_P(fpgaperf_counter_c_p, fpgaperf_3) {
 
 /**
 * @test       fpgaperf_4
-* @brief      Tests: fpga_perf_events
-* @details    It parse the perf_events and perf_format values and return FPGA_OK
-* 	      with valid sysfs and fpga_perf. With invalid param it should return
-* 	      FPGA_INVALID_PARAM <br>
-*/
-TEST_P(fpgaperf_counter_c_p, fpgaperf_4) {
-
-	char sysfs_path[DFL_PERF_STR_MAX] = "/sys/bus/event_source/devices/dfl_fme0";
-
-	EXPECT_EQ(fpga_perf_mutex_init(fpga_perf), FPGA_OK);
-	EXPECT_EQ(fpga_perf_events(sysfs_path, fpga_perf), FPGA_OK);
-	EXPECT_EQ(fpga_perf_events(NULL, fpga_perf), FPGA_INVALID_PARAM);
-	EXPECT_EQ(fpga_perf_events(sysfs_path, NULL), FPGA_INVALID_PARAM);
-	EXPECT_EQ(fpga_perf_mutex_destroy(fpga_perf), FPGA_OK);
-}
-
-/**
-* @test       fpgaperf_5
 * @brief      Tests: fpgaPerfCounterDestroy
 * @details    It release the memory for substructures allocated with valid
 * 	      fpga_perf and return FPGA_OK. With invalid param it should return
 * 	      FPGA_VALID_PARAM <br>
 */
-TEST_P(fpgaperf_counter_c_p, fpgaperf_5) {	
+TEST_P(fpgaperf_counter_c_p, fpgaperf_4) {
 
 	EXPECT_EQ(fpga_perf_mutex_init(fpga_perf), FPGA_OK);
 	EXPECT_EQ(fpgaPerfCounterDestroy(fpga_perf), FPGA_OK);
