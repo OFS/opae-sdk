@@ -134,13 +134,15 @@ fpga_result parse_perf_format(struct udev_device *dev, fpga_perf_counter *fpga_p
 		if (strstr(attr, "format"))
 			fpga_perf->num_format++;
 	}
-	fpga_perf->format_type = calloc(fpga_perf->num_format,
-			sizeof(perf_format_type));			
 	if (!fpga_perf->format_type) {
-		fpga_perf->num_format = 0;
-		OPAE_ERR("Failed to allocate Memory");
-		ret = FPGA_NO_MEMORY;
-		goto out;
+		fpga_perf->format_type = calloc(fpga_perf->num_format,
+			sizeof(perf_format_type));
+		if (!fpga_perf->format_type) {
+			fpga_perf->num_format = 0;
+			OPAE_ERR("Failed to allocate Memory");
+			ret = FPGA_NO_MEMORY;
+			goto out;
+		}
 	}
 	udev_list_entry_foreach(le, attrs) {
 		const char *attr = udev_list_entry_get_name(le);
@@ -213,13 +215,15 @@ fpga_result parse_perf_event(struct udev_device *dev, fpga_perf_counter *fpga_pe
 		if (strstr(attr, "events"))
 			fpga_perf->num_perf_events++;
 	}
-	fpga_perf->perf_events = calloc(fpga_perf->num_perf_events,
-			sizeof(perf_events_type));
 	if (!fpga_perf->perf_events) {
-		fpga_perf->num_perf_events = 0;
-		OPAE_ERR("Failed to allocate Memory");
-		ret = FPGA_NO_MEMORY;
-		goto out;
+		fpga_perf->perf_events = calloc(fpga_perf->num_perf_events,
+			sizeof(perf_events_type));
+		if (!fpga_perf->perf_events) {
+			fpga_perf->num_perf_events = 0;
+			OPAE_ERR("Failed to allocate Memory");
+			ret = FPGA_NO_MEMORY;
+			goto out;
+		}
 	}
 	udev_list_entry_foreach(le, attrs) {
 		const char *attr = udev_list_entry_get_name(le);
@@ -423,7 +427,7 @@ fpga_result get_fpga_sbdf(fpga_token token,
 /* Initialises magic number, mutex attributes and set the mutex attribute
  * type to PTHREAD_MUTEX_RECURSIVE. Also initialises the mutex referenced by
  * fpga_perf->lock with attributes specified by mutex attributes */
-fpga_result fpga_perf_mutex_init(fpga_perf_counter *fpga_perf)
+STATIC fpga_result fpga_perf_mutex_init(fpga_perf_counter *fpga_perf)
 {
 	pthread_mutexattr_t mattr;
 
@@ -456,7 +460,7 @@ fpga_result fpga_perf_mutex_init(fpga_perf_counter *fpga_perf)
 }
 
 /* Reset the magic number and destroy the mutex created */
-fpga_result fpga_perf_mutex_destroy(fpga_perf_counter *fpga_perf)
+STATIC fpga_result fpga_perf_mutex_destroy(fpga_perf_counter *fpga_perf)
 {
 	fpga_result ret = FPGA_OK;
 	int res		= 0;
