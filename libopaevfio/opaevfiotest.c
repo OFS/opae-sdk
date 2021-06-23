@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2020-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -214,6 +214,26 @@ do {                                                   \
 		printf("whoops free dst\n");
 }
 
+void irqinfo(struct opae_vfio *v)
+{
+	struct opae_vfio_device_irq *irq;
+
+	for (irq = v->device.irqs ; irq ; irq = irq->next) {
+		printf("IRQ[%u] count: %u flags: ",
+		       irq->index,
+		       irq->count);
+		if (irq->flags & VFIO_IRQ_INFO_EVENTFD)
+			printf("EVENTFD ");
+		if (irq->flags & VFIO_IRQ_INFO_MASKABLE)
+			printf("MASKABLE ");
+		if (irq->flags & VFIO_IRQ_INFO_AUTOMASKED)
+			printf("AUTOMASKED ");
+		if (irq->flags & VFIO_IRQ_INFO_NORESIZE)
+			printf("NORESIZE ");
+		printf("\n");
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	struct opae_vfio v;
@@ -221,7 +241,7 @@ int main(int argc, char *argv[])
 
 	if (argc < 3) {
 		printf("usage: opaevfiotest 0000:00:00.0 <test>\n");
-		printf("\n\twhere <test> is one of { dfh, buf, nlb0 }\n");
+		printf("\n\twhere <test> is one of { dfh, buf, nlb0, irqinfo }\n");
 		return 1;
 	}
 
@@ -236,6 +256,8 @@ int main(int argc, char *argv[])
 		allocate_bufs(&v);
 	else if (!strcmp(argv[2], "nlb0"))
 		nlb0(&v);
+	else if (!strcmp(argv[2], "irqinfo"))
+		irqinfo(&v);
 
 	opae_vfio_close(&v);
 
