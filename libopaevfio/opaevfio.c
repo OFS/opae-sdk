@@ -808,9 +808,9 @@ out_unlock:
 }
 
 int opae_vfio_irq_enable(struct opae_vfio *v,
-                         uint32_t index,
-                         uint32_t subindex,
-                         int event_fd)
+			 uint32_t index,
+			 uint32_t subindex,
+			 int event_fd)
 {
 	struct opae_vfio_device_irq *irq;
 
@@ -854,7 +854,7 @@ int opae_vfio_irq_enable(struct opae_vfio *v,
 }
 
 int opae_vfio_irq_unmask(struct opae_vfio *v,
-                         uint32_t index,
+			 uint32_t index,
 			 uint32_t subindex)
 {
 	struct opae_vfio_device_irq *irq;
@@ -881,7 +881,7 @@ int opae_vfio_irq_unmask(struct opae_vfio *v,
 				    VFIO_DEVICE_SET_IRQS,
 				    &i);
 
- 			if (res < 0)
+			if (res < 0)
 				ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i)"
 				    " [unmask]");
 
@@ -893,7 +893,7 @@ int opae_vfio_irq_unmask(struct opae_vfio *v,
 }
 
 int opae_vfio_irq_mask(struct opae_vfio *v,
-                       uint32_t index,
+		       uint32_t index,
 		       uint32_t subindex)
 {
 	struct opae_vfio_device_irq *irq;
@@ -932,7 +932,7 @@ int opae_vfio_irq_mask(struct opae_vfio *v,
 }
 
 int opae_vfio_irq_disable(struct opae_vfio *v,
-                          uint32_t index,
+			  uint32_t index,
 			  uint32_t subindex)
 {
 	struct opae_vfio_device_irq *irq;
@@ -965,7 +965,7 @@ int opae_vfio_irq_disable(struct opae_vfio *v,
 				    VFIO_DEVICE_SET_IRQS,
 				    i);
 
- 			if (res < 0)
+			if (res < 0)
 				ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i)"
 				    " [disable]");
 
