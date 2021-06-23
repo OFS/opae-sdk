@@ -33,6 +33,7 @@ BuildRequires:  git
 BuildRequires:  python3-jsonschema
 BuildRequires:  python3-pip
 BuildRequires:  python3-virtualenv
+BuildRequires:  systemd-devel
 
 %description
 Open Programmable Acceleration Engine (OPAE) is a software framework
