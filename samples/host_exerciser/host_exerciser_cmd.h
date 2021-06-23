@@ -38,15 +38,9 @@ class fpgaperf {
 public:
   static std::shared_ptr<fpgaperf> get(token::ptr_t token)
   {
-    /*std::make_shared function doesn’t have access to the private constructor
-     *of fpgaperf, and as such it cannot instantiate it. Created temporary
-     *class that inherits from fpgaperf.*/
-    struct shared_enabler : public fpgaperf {};
-    auto p = std::make_shared<shared_enabler>();
+    std::shared_ptr<fpgaperf> p(new fpgaperf());
     if (fpgaPerfCounterGet(token->c_type(), p->counter_) != FPGA_OK) {
-        std::cout << "Failed to get the fpga perf counter" << std::endl;
         p.reset();
-        return NULL;
     }
     return p;
   }
