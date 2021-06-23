@@ -193,6 +193,7 @@ done
 %{_libdir}/libopae-c.so
 %{_libdir}/libbitstream.so
 %{_libdir}/libfpgad-api.so
+%{_libdir}/libfpgaperf_counter.so
 %{_libdir}/libmml-stream.so
 %{_libdir}/libmml-srv.so
 %{_libdir}/libofs.so
