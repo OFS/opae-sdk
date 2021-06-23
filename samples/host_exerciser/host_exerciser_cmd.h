@@ -188,8 +188,8 @@ public:
         volatile uint8_t* status_ptr = dsm_->c_type() ;
 
         if (he_lpbk_cfg_.IntrTestMode == 1) {
-            he_intrrupt_.VectorNum = host_exe_->he_interrupt_;
-            d_afu->write32(HE_INTERRUPT0, he_intrrupt_.value);
+            he_interrupt_.VectorNum = host_exe_->he_interrupt_;
+            d_afu->write32(HE_INTERRUPT0, he_interrupt_.value);
             try {
                 event::ptr_t ev = d_afu->register_interrupt();
                 d_afu->interrupt_wait(ev, 10000);
@@ -234,7 +234,7 @@ protected:
     shared_buffer::ptr_t source_;
     shared_buffer::ptr_t destination_;
     shared_buffer::ptr_t dsm_;
-    he_interrupt0 he_intrrupt_;
+    he_interrupt0 he_interrupt_;
 };
 
 } // end of namespace host_exerciser
