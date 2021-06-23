@@ -15,7 +15,7 @@
         },
         "registers": {
             "description": "Register maps used to create data structures for the UMD API",
-            "$ref": "https://github.com/OPAE/opae-libs/scripts/ofs/ofs-registers-schema.json"
+            "$ref": "https://raw.githubusercontent.com/OPAE/opae-libs/master/scripts/ofs/ofs-registers-schema.json"
         }
     },
     "required": [
