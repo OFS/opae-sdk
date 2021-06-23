@@ -26,11 +26,53 @@
 #pragma once
 #include "afu_test.h"
 #include "host_exerciser.h"
+#include "fpgaperf_counter.h"
 
 using test_afu = opae::afu_test::afu;
 using opae::fpga::types::shared_buffer;
+using opae::fpga::types::token;
 
 namespace host_exerciser {
+
+class fpgaperf {
+public:
+  static std::shared_ptr<fpgaperf> get(token::ptr_t token)
+  {
+    std::shared_ptr<fpgaperf> p(new fpgaperf());
+    if (fpgaPerfCounterGet(token->c_type(), p->counter_) != FPGA_OK) {
+        p.reset();
+    }
+    return p;
+  }
+  ~fpgaperf()
+  {
+    if (fpgaPerfCounterDestroy(counter_) != FPGA_OK) {
+        std::cout << "Failed to destroy the fpga perf counter" << std::endl;
+    }
+    if(counter_) {
+        delete counter_;
+        counter_ = nullptr;
+    }
+  }
+  fpga_result start()
+  {
+      return fpgaPerfCounterStartRecord(counter_);
+  }
+  fpga_result stop()
+  {
+      return fpgaPerfCounterStopRecord(counter_);
+  }
+  fpga_result print()
+  {
+      return fpgaPerfCounterPrint(stdout, counter_);
+  }
+private:
+  fpgaperf() {
+      counter_ = new fpga_perf_counter;
+  }
+  fpgaperf(const fpgaperf &);
+  fpga_perf_counter *counter_ = nullptr;
+};
 
 class host_exerciser_cmd : public test_command
 {
@@ -122,6 +164,20 @@ public:
         auto d_afu = dynamic_cast<host_exerciser*>(afu);
         host_exe_ = dynamic_cast<host_exerciser*>(afu);
 
+        token_ = d_afu->get_token();
+
+        //fpga perf counter initialization
+        auto perf = fpgaperf::get(token_);
+        if (!perf) {
+            std::cout << "Failed to get the fpgaperf object" << std::endl;
+            return -1;
+        }
+        //start the fpga perf counter
+        if (perf->start() != FPGA_OK) {
+            std::cout << "Failed to start the fpga perf counter" << std::endl;
+            return -1;
+        }
+
         auto ret = parse_input_options();
         if (ret != 0) {
             std::cerr << "Failed to parese input options" << std::endl;
@@ -195,8 +251,19 @@ public:
 
 
         std::cout << "Test Completed" << std::endl;
+        //stop performance counter
+        if (perf->stop() != FPGA_OK) {
+            std::cout << "Failed to stop the fpga perf counter" << std::endl;
+            return -1;
+        }
         host_exerciser_swtestmsg();
         host_exerciser_status();
+
+        //print the performace counter values
+        if (perf->print() != FPGA_OK) {
+            std::cout << "Failed to print the fpga perf counter" << std::endl;
+            return -1;
+        }
 
         /* Compare buffer contents only loopback test mode*/
         if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
@@ -212,6 +279,7 @@ protected:
     shared_buffer::ptr_t source_;
     shared_buffer::ptr_t destination_;
     shared_buffer::ptr_t dsm_;
+    token::ptr_t token_;
 };
 
 } // end of namespace host_exerciser

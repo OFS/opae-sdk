@@ -30,7 +30,13 @@ opae_add_executable(TARGET host_exerciser
         opae-c
         opae-cxx-core
         afu-test
+        fpgaperf_counter
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
     COMPONENT samplebin
+)
+
+target_include_directories(host_exerciser
+    PRIVATE
+        ${OPAE_SDK_SOURCE}/samples/fpgaperf_counter
 )
