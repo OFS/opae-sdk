@@ -1,5 +1,5 @@
 {
-    "$id": "https://github.com/OPAE/ofs/ofs-registers-schema.json",
+    "$id": "https://raw.githubusercontent.com/OPAE/opae-libs/master/scripts/ofs/ofs-registers-schema.json",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "definitions": {
         "ofs_register_name": {
