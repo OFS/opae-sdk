@@ -32,7 +32,6 @@ import io
 import json
 import jsonschema
 import os
-import urllib
 import yaml
 
 import umd
@@ -144,14 +143,6 @@ class ofs_register(object):
         writer.write(tmpl.lstrip().format(**vars(self)))
 
 
-def can_open(url):
-    try:
-        _ = urllib.request.urlopen(url)
-    except urllib.error.URLError:
-        return False
-    return True
-
-
 def write_temp(local_file: Path) -> Path:
     # TODO: Hack for now until we can formalize schemas in a public URL
     with local_file.open('r') as inp:
@@ -174,27 +165,30 @@ def use_local_refs(schema):
         if k in ['$ref', '$id']:
             if v.startswith('#'):
                 continue
-            if not can_open(v):
-                comps = jsonschema.validators.urlsplit(v)
-                local_file = cwd.joinpath(Path(comps.path).name).absolute()
-                if local_file.exists():
-                    schema[k] = write_temp(local_file).as_uri()
+            comps = jsonschema.validators.urlsplit(v)
+            local_file = cwd.joinpath(Path(comps.path).name).absolute()
+            if local_file.exists():
+                schema[k] = write_temp(local_file).as_uri()
         elif isinstance(v, dict):
             schema[k] = use_local_refs(v)
     return schema
 
 
-def parse(fp, schemafile=None):
+def parse(fp, schemafile=None, local_refs=False):
     data = yaml.load(fp, Loader=YamlLoader)
     if schemafile:
         with open(schemafile, 'r') as schema_fp:
             schema = yaml.safe_load(schema_fp)
             try:
-                schema = use_local_refs(schema)
+                if local_refs:
+                    schema = use_local_refs(schema)
                 jsonschema.validate(data, schema)
             except jsonschema.ValidationError as err:
                 print(f'input file "{fp.name}"  does not follow schema, error:'
                       f'{err}')
+                raise
+            except KeyError as err:
+                print(f'invalid/incomplete schema({fp.name}): {err}')
                 raise
     registers = data.get('registers')
     data['registers'] = [ofs_register(*r[0], r[1] if len(r) > 1 else ())
@@ -386,7 +380,7 @@ def declare_fields(pod, fields, indent=0):
 
 
 def make_headers(args):
-    data = parse(args.input, args.schema)
+    data = parse(args.input, args.schema, args.use_local_refs)
     for driver in data.get('drivers', []):
         name = driver['name']
         if args.list:
@@ -417,6 +411,9 @@ def main():
                                 help='process only this driver')
     headers_parser.add_argument('--schema',
                                 default=default_schema)
+    headers_parser.add_argument('--use-local-refs', action='store_true',
+                                default=False,
+                                help='Transform refs to local repo files')
 
     args = parser.parse_args()
     if not hasattr(args, 'func'):
