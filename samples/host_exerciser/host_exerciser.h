@@ -26,13 +26,14 @@
 #pragma once
 #include <opae/cxx/core/events.h>
 #include <opae/cxx/core/shared_buffer.h>
+#include <opae/cxx/core/token.h>
 
 #include "afu_test.h"
-
 
 namespace host_exerciser {
 using opae::fpga::types::event;
 using opae::fpga::types::shared_buffer;
+using opae::fpga::types::token;
 
 static const uint64_t HELPBK_TEST_TIMEOUT = 30000;
 static const uint64_t HELPBK_TEST_SLEEP_INVL = 100;
@@ -458,6 +459,11 @@ public:
       throw std::out_of_range("offset out range in csr space");
     }
     return offset;
+  }
+  
+  token::ptr_t get_token()
+  {
+    return handle_->get_token();
   }
 
 };

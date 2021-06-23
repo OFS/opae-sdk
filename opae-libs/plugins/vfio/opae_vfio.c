@@ -684,10 +684,9 @@ fpga_result vfio_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJTYPE);
 
 	if (t->type == FPGA_ACCELERATOR) {
-		if (t->parent) {
-			_prop->parent = clone_token(t->parent);
-			SET_FIELD_VALID(_prop, FPGA_PROPERTY_PARENT);
-		}
+		_prop->parent = NULL;
+		CLEAR_FIELD_VALID(_prop, FPGA_PROPERTY_PARENT);
+
 		memcpy(_prop->guid, t->guid, sizeof(fpga_guid));
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_GUID);
 

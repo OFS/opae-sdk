@@ -60,6 +60,11 @@ opae_test_add(TARGET test_opae_mmio_c
     LIBS opae-c-static
 )
 
+opae_test_add(TARGET test_opae_metrics_c
+    SOURCE test_metrics_c.cpp
+    LIBS opae-c-static
+)
+
 opae_test_add(TARGET test_opae_umsg_c
     SOURCE test_umsg_c.cpp
     LIBS opae-c-static
