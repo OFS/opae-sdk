@@ -131,6 +131,12 @@ typedef struct _vfio_handle {
 	uint32_t flags;
 } vfio_handle;
 
+typedef struct _vfio_event_handle {
+	uint32_t magic;
+	pthread_mutex_t lock;
+	int fd;
+	uint32_t flags;
+} vfio_event_handle;
 
 int pci_discover(void);
 int features_discover(void);
