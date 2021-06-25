@@ -148,6 +148,7 @@ STATIC fpga_result parse_perf_attributes(struct udev_device *dev,
 			if (!fpga_perf->format_type) {
 				fpga_perf->num_format = 0;
 				OPAE_ERR("Failed to allocate Memory");
+				globfree(&pglob);
 				return FPGA_NO_MEMORY;
 			}
 		}
