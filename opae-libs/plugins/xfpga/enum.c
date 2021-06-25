@@ -468,8 +468,12 @@ STATIC fpga_result sync_afu(struct dev_list *afu)
 
 	// If we can't read the afu_id, don't return a token.
 	if (sysfs_read_guid(sysfspath, afu->guid) != FPGA_OK) {
+	// TODO: undo this hack. It was put in place to deal with the lack of
+	// afu_id in dfl-port.X during OFS Rel1.
+#if 0
 		OPAE_MSG("Could not read AFU ID from '%s', ignoring", sysfspath);
 		return FPGA_EXCEPTION;
+#endif
 	}
 
 	return FPGA_OK;
