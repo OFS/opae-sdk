@@ -523,9 +523,13 @@ int vfio_walk(pci_device_t *p)
 	// now let's check other BARs
 	for (uint32_t i = 1; i < BAR_MAX; ++i) {
 		if (!opae_vfio_region_get(v, i, (uint8_t **)&mmio, &size)) {
+			uint64_t *hdr = (uint64_t*)mmio;
+			uint64_t *guid = hdr+1;
+			// workaround for accessible BARS without an AFU
+			if (!*hdr || !*guid) continue;
 			vfio_token *t = get_token(p, i, FPGA_ACCELERATOR);
 
-			get_guid(1+(uint64_t *)mmio, t->guid);
+			get_guid(guid, t->guid);
 			t->mmio_size = size;
 			t->user_mmio_count = 1;
 			t->user_mmio[0] = 0;
