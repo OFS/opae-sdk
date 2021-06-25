@@ -169,7 +169,7 @@ class walk_action(base_action):
 
         offset = 0 if args.offset is None else args.offset
         for offset, dfh in utils.dfh_walk(offset=offset):
-            print('offset: 0x{:04x}'.format(offset))
+            print('offset: 0x{:04x}, value: 0x{:04x}'.format(offset, dfh.value))
             print('    dfh: {}'.format(dfh))
             if args.show_uuid:
                 print('    uuid: {}'.format(utils.read_guid(offset+0x8)))
