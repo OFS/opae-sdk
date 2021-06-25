@@ -105,29 +105,41 @@ STATIC fpga_result fpga_perf_check_and_lock(fpga_perf_counter *fpga_perf)
 }
 
 /* parse the each format and get the shift val */
-STATIC fpga_result parse_perf_format(struct udev_device *dev, fpga_perf_counter *fpga_perf)
+STATIC fpga_result parse_perf_format(struct udev_device *dev,
+		fpga_perf_counter *fpga_perf, const char *attr)
 {
 	regex_t re;
-	regmatch_t matches[3] 	= { {0} };
-	char err[128] 		= { 0 };
-	int reg_res 		= 0;
-	uint64_t loop 		= 0;
-	uint64_t value 		= 0;
+	regmatch_t matches[3]			= { {0} };
+	char err[128] 				= { 0 };
+	int reg_res 				= 0;
+	uint64_t loop 				= 0;
+	uint64_t value 				= 0;
+	char attr_path[DFL_PERF_STR_MAX]	= { 0,};
+	char attr_value[128]			= { 0,};
+	int  gres				= 0;
+	size_t inner_loop			= 0;
+	FILE *file				= NULL;
+	glob_t pglob;
 
 	if (!dev || !fpga_perf) {
 		OPAE_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
-	}	
-
-	struct udev_list_entry *attrs = udev_device_get_sysattr_list_entry(dev);
-	struct udev_list_entry *le = NULL;
-	fpga_perf->num_format = 0;
-	
-	udev_list_entry_foreach(le, attrs) {
-		const char *attr = udev_list_entry_get_name(le);
-		if (strstr(attr, "format"))
-			fpga_perf->num_format++;
 	}
+	
+	if (snprintf(attr_path, sizeof(attr_path), "%s/%s/*",
+				udev_device_get_syspath(dev), attr) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
+	gres = glob(attr_path, GLOB_NOSORT, NULL, &pglob);
+	if (gres || !pglob.gl_pathc) {
+		OPAE_ERR("Failed pattern match %s", attr_path);
+		globfree(&pglob);
+		return FPGA_EXCEPTION;
+	}
+
+	fpga_perf->num_format = pglob.gl_pathc;
+
 	if (!fpga_perf->format_type) {
 		fpga_perf->format_type = calloc(fpga_perf->num_format,
 			sizeof(perf_format_type));
@@ -137,109 +149,147 @@ STATIC fpga_result parse_perf_format(struct udev_device *dev, fpga_perf_counter 
 			return FPGA_NO_MEMORY;
 		}
 	}
-	udev_list_entry_foreach(le, attrs) {
-		const char *attr = udev_list_entry_get_name(le);
-		if (strstr(attr, "format")) {
-			reg_res = regcomp(&re, PERF_CONFIG_PATTERN,
-					REG_EXTENDED | REG_ICASE);
-			if (reg_res) {
-				OPAE_ERR("Error compiling regex");
-				return FPGA_EXCEPTION;
-			}
-			reg_res = regexec(&re, udev_device_get_sysattr_value(dev, attr),
-					4, matches, 0);
-			if (reg_res) {
-				regerror(reg_res, &re, err, sizeof(err));
-				OPAE_ERR("Error executing regex: %s", err);
-				return FPGA_EXCEPTION;
-			} else {
-				const char *attr_value = udev_device_get_sysattr_value(dev, attr);
-				PARSE_MATCH_INT(attr_value, matches[1].rm_so, value, 10);
-				fpga_perf->format_type[loop].shift = value;
-				if (snprintf(fpga_perf->format_type[loop].format_name,
-					sizeof(fpga_perf->format_type[loop].format_name),
-					"%s", (strstr(attr, "/")+1)) < 0) {
-					OPAE_ERR("snprintf buffer overflow");
-					return FPGA_EXCEPTION;
-				}
-				loop++;
-			}
+
+	for (inner_loop = 0; inner_loop < pglob.gl_pathc; inner_loop++) {
+		reg_res = regcomp(&re, PERF_CONFIG_PATTERN,
+				REG_EXTENDED | REG_ICASE);
+		if (reg_res) {
+			OPAE_ERR("Error compiling regex");
+			return FPGA_EXCEPTION;
 		}
+		file = fopen(pglob.gl_pathv[inner_loop], "r");
+		if (!file) {
+			OPAE_ERR("fopen(%s) failed\n", pglob.gl_pathv[inner_loop]);
+			globfree(&pglob);
+			return FPGA_EXCEPTION;
+		}
+		if (fscanf(file, "%s", attr_value) != 1) {
+			OPAE_ERR("Failed to read %s", pglob.gl_pathv[inner_loop]);
+			goto out;
+		}
+		reg_res = regexec(&re, attr_value, 4, matches, 0);
+		if (reg_res) {
+			regerror(reg_res, &re, err, sizeof(err));
+			OPAE_ERR("Error executing regex: %s", err);
+			goto out;
+		} else {
+			PARSE_MATCH_INT(attr_value, matches[1].rm_so, value, 10);
+			fpga_perf->format_type[loop].shift = value;
+			if (snprintf(fpga_perf->format_type[loop].format_name,
+				sizeof(fpga_perf->format_type[loop].format_name),
+				"%s", (strstr(pglob.gl_pathv[inner_loop], attr)+strlen(attr)+1)) < 0) {
+				OPAE_ERR("snprintf buffer overflow");
+				goto out;
+			}
+			loop++;
+		}
+		fclose(file);
 	}
+
+	globfree(&pglob);
 	return FPGA_OK;
+
+out:
+	fclose(file);
+	globfree(&pglob);
+	return FPGA_EXCEPTION;
 }
 
 /* parse the events for the particular device directory */
-STATIC fpga_result parse_perf_event(struct udev_device *dev, fpga_perf_counter *fpga_perf)
+STATIC fpga_result parse_perf_event(struct udev_device *dev,
+		fpga_perf_counter *fpga_perf, const char *attr)
 {	
 	regex_t re;
-	regmatch_t matches[4] 	= { {0} };
-	char err[128] 		= { 0 };
-	int reg_res		= 0;
-	uint64_t loop 		= 0;
-	uint64_t inner_loop 	= 0;
+	regmatch_t matches[4]			= { {0} };
+	char err[128]				= { 0 };
+	int reg_res				= 0;
+	uint64_t loop 				= 0;
+	uint64_t inner_loop			= 0;
+	char attr_path[DFL_PERF_STR_MAX]	= { 0,};
+	char attr_value[128]			= { 0,};
+	int  gres				= 0;
+	size_t i 				= 0;
+	FILE *file				= NULL;
+	glob_t pglob;
 
 	if (!dev || !fpga_perf) {
 		OPAE_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
 	}
-
-	struct udev_list_entry *attrs = udev_device_get_sysattr_list_entry(dev);
-	struct udev_list_entry *le = NULL;
-	fpga_perf->num_perf_events = 0;
 	
-	udev_list_entry_foreach(le, attrs) {
-		const char *attr = udev_list_entry_get_name(le);
-		if (strstr(attr, "events"))
-			fpga_perf->num_perf_events++;
+	if (snprintf(attr_path, sizeof(attr_path), "%s/%s/*",
+			udev_device_get_syspath(dev), attr) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
 	}
+	gres = glob(attr_path, GLOB_NOSORT, NULL, &pglob);
+	if (gres || !pglob.gl_pathc) {
+		OPAE_ERR("Failed pattern match %s", attr_path);
+		globfree(&pglob);
+		return FPGA_EXCEPTION;
+	}
+
+	fpga_perf->num_perf_events = pglob.gl_pathc;
 	if (!fpga_perf->perf_events) {
 		fpga_perf->perf_events = calloc(fpga_perf->num_perf_events,
 			sizeof(perf_events_type));
 		if (!fpga_perf->perf_events) {
 			fpga_perf->num_perf_events = 0;
 			OPAE_ERR("Failed to allocate Memory");
+			globfree(&pglob);
 			return FPGA_NO_MEMORY;
 		}
 	}
-	udev_list_entry_foreach(le, attrs) {
-		const char *attr = udev_list_entry_get_name(le);
-		if (strstr(attr, "events")) {
-			reg_res = regcomp(&re, PERF_EVENT_PATTERN,
-					REG_EXTENDED | REG_ICASE);
-			if (reg_res) {
-				OPAE_ERR("Error compiling regex");
-				return FPGA_EXCEPTION;
-			}
-			reg_res = regexec(&re, udev_device_get_sysattr_value(dev, attr),
-					4, matches, 0);
-			if (reg_res) {
-				regerror(reg_res, &re, err, sizeof(err));
-				OPAE_MSG("Error executing regex: %s", err);
-			} else {
-				const char *attr_value = udev_device_get_sysattr_value(dev, attr);
-				uint64_t config = 0;
-				uint64_t event = 0;
-				if (snprintf(fpga_perf->perf_events[inner_loop].event_name,
-					sizeof(fpga_perf->perf_events[inner_loop].event_name),
-						"%s", (strstr(attr, "/") + 1)) < 0) {
-					OPAE_ERR("snprintf buffer overflow");
-					return FPGA_EXCEPTION;
-				}
-
-				for (loop = 0; loop < fpga_perf->num_format; loop++) {
-					PARSE_MATCH_INT(attr_value,
-							matches[loop + 1].rm_so, event, 16);
-					config |= event << fpga_perf->format_type[loop].shift;
-				}
-				fpga_perf->perf_events[inner_loop].config = config;
-				inner_loop++;
-			}
+	for (i = 0; i < pglob.gl_pathc; i++) {
+		reg_res = regcomp(&re, PERF_EVENT_PATTERN,
+				REG_EXTENDED | REG_ICASE);
+		if (reg_res) {
+			OPAE_ERR("Error compiling regex");
+			globfree(&pglob);
+			return FPGA_EXCEPTION;
 		}
+		file = fopen(pglob.gl_pathv[i], "r");
+		if (!file) {
+			OPAE_ERR("fopen(%s) failed\n", pglob.gl_pathv[i]);
+			globfree(&pglob);
+			return FPGA_EXCEPTION;
+		}
+		if (fscanf(file, "%s", attr_value) != 1) {
+			OPAE_ERR("Failed to read %s", pglob.gl_pathv[i]);
+			goto out;
+		}
+		reg_res = regexec(&re, attr_value, 4, matches, 0);
+		if (reg_res) {
+			regerror(reg_res, &re, err, sizeof(err));
+			OPAE_MSG("Error executing regex: %s", err);
+		} else {
+			uint64_t config = 0;
+			uint64_t event = 0;
+			if (snprintf(fpga_perf->perf_events[inner_loop].event_name,
+				sizeof(fpga_perf->perf_events[inner_loop].event_name),
+				"%s", (strstr(pglob.gl_pathv[i], attr) + strlen(attr)+1)) < 0) {
+				OPAE_ERR("snprintf buffer overflow");
+				goto out;
+			}
+			for (loop = 0; loop < fpga_perf->num_format; loop++) {
+				PARSE_MATCH_INT(attr_value,
+						matches[loop + 1].rm_so, event, 16);
+				config |= event << fpga_perf->format_type[loop].shift;
+			}
+			fpga_perf->perf_events[inner_loop].config = config;
+			inner_loop++;
+		}
+		fclose(file);
 	}
-	return FPGA_OK;
-}
 
+	globfree(&pglob);
+	return FPGA_OK;
+
+out:
+	fclose(file);
+	globfree(&pglob);
+	return FPGA_EXCEPTION;
+}
 
 STATIC fpga_result fpga_perf_events(char* perf_sysfs_path, fpga_perf_counter *fpga_perf)
 {
@@ -275,11 +325,11 @@ STATIC fpga_result fpga_perf_events(char* perf_sysfs_path, fpga_perf_counter *fp
 		PARSE_MATCH_INT(ptr, 0, fpga_perf->type, 10);
 
 	/* parse the format value */
-	ret = parse_perf_format(dev, fpga_perf);
+	ret = parse_perf_format(dev, fpga_perf, "format");
 	if (ret != FPGA_OK)
 		goto out;
 	/* parse the event value */
-	ret = parse_perf_event(dev, fpga_perf);
+	ret = parse_perf_event(dev, fpga_perf, "events");
 	if (ret != FPGA_OK)
 		goto out;
 
