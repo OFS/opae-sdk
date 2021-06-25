@@ -474,7 +474,7 @@ STATIC int find_regions(sysfs_fpga_device *device)
 	if (dir)
 		closedir(dir);
 	if (!device->fme && !device->port) {
-		OPAE_ERR("did not find fme/port in device: %s", device->sysfs_path);
+		OPAE_DBG("did not find fme/port in device: %s", device->sysfs_path);
 		return FPGA_NOT_FOUND;
 	}
 
