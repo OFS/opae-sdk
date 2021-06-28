@@ -98,6 +98,18 @@ struct opae_vfio_device_region {
 };
 
 /**
+ * Interrupt info
+ *
+ * Describes an interrupt capability.
+ */
+struct opae_vfio_device_irq {
+	uint32_t flags;				/**< Flags. See struct vfio_irq_info. */
+	uint32_t index;				/**< The IRQ index. */
+	uint32_t count;				/**< Number of IRQs at this index. */
+	struct opae_vfio_device_irq *next;	/**< Pointer to next in list. */
+};
+
+/**
  * VFIO device
  *
  * Each VFIO device has a file descriptor that is used to query
@@ -108,6 +120,8 @@ struct opae_vfio_device {
 	uint64_t device_config_offset;			/**< Offset of PCIe config space. */
 	uint32_t device_num_regions;			/**< Total MMIO region count. */
 	struct opae_vfio_device_region *regions;	/**< Region list pointer. */
+	uint32_t device_num_irqs;			/**< IRQ index count. */
+	struct opae_vfio_device_irq *irqs;		/**< IRQ list pointer. */
 };
 
 /**
@@ -352,6 +366,63 @@ int opae_vfio_buffer_allocate(struct opae_vfio *v,
  */
 int opae_vfio_buffer_free(struct opae_vfio *v,
 			  uint8_t *buf);
+
+/**
+ * Enable an IRQ
+ *
+ * @param[in, out] v        The open OPAE VFIO device.
+ * @param[in]      index    The IRQ category. For MSI-X,
+ *                          use VFIO_PCI_MSIX_IRQ_INDEX.
+ * @param[in]      subindex The IRQ to enable.
+ * @param[in]      event_fd The file descriptor, created
+ *                          by eventfd(). Interrupts will
+ *                          result in this event_fd being
+ *                          signaled.
+ * @returns Non-zero on error. Zero on success.
+ */
+int opae_vfio_irq_enable(struct opae_vfio *v,
+			 uint32_t index,
+			 uint32_t subindex,
+			 int event_fd);
+
+/**
+ * Unmask an IRQ
+ *
+ * @param[in, out] v        The open OPAE VFIO device.
+ * @param[in]      index    The IRQ category. For MSI-X,
+ *                          use VFIO_PCI_MSIX_IRQ_INDEX.
+ * @param[in]      subindex The IRQ to unmask.
+ * @returns Non-zero on error. Zero on success.
+ */
+int opae_vfio_irq_unmask(struct opae_vfio *v,
+			 uint32_t index,
+			 uint32_t subindex);
+
+/**
+ * Mask an IRQ
+ *
+ * @param[in, out] v        The open OPAE VFIO device.
+ * @param[in]      index    The IRQ category. For MSI-X,
+ *                          use VFIO_PCI_MSIX_IRQ_INDEX.
+ * @param[in]      subindex The IRQ to mask.
+ * @returns Non-zero on error. Zero on success.
+ */
+int opae_vfio_irq_mask(struct opae_vfio *v,
+		       uint32_t index,
+		       uint32_t subindex);
+
+/**
+ * Disable an IRQ
+ *
+ * @param[in, out] v        The open OPAE VFIO device.
+ * @param[in]      index    The IRQ category. For MSI-X,
+ *                          use VFIO_PCI_MSIX_IRQ_INDEX.
+ * @param[in]      subindex The IRQ to disable.
+ * @returns Non-zero on error. Zero on success.
+ */
+int opae_vfio_irq_disable(struct opae_vfio *v,
+			  uint32_t index,
+			  uint32_t subindex);
 
 /**
  * Release and close a VFIO device

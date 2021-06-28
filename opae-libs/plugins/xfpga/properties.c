@@ -169,9 +169,18 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 		// AFU
 		result = sysfs_get_guid(_token, FPGA_SYSFS_AFU_GUID,
 			 _iprop.guid);
+		// TODO: undo this hack. It was put in place to deal
+		// with the lack of afu_id in dfl-port.x during OFS Rel1.
+#if 0
 		if (FPGA_OK != result)
 			return result;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
+#else
+		if (result == FPGA_OK)
+			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
+		else
+			CLEAR_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
+#endif
 
 		_iprop.parent = NULL;
 		CLEAR_FIELD_VALID(&_iprop, FPGA_PROPERTY_PARENT);

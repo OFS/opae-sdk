@@ -46,7 +46,7 @@ PATTERN = (r'.*(?P<segment>\w{4}):(?P<bus>\w{2}):'
 
 FPGA_ROOT_PATH = '/sys/class/fpga_region'
 
-BDF_PATTERN = re.compile(PATTERN)
+BDF_PATTERN = re.compile(PATTERN, re.IGNORECASE)
 
 DEFAULT_BDF = 'ssss:bb:dd.f'
 
@@ -656,6 +656,14 @@ class hssi_eth_port_status(Union):
         return self.bits.eth_mode
 
 
+def veriy_pcie_address(pcie_address):
+    m = BDF_PATTERN.match(pcie_address)
+    if m is None:
+        print("Invalid pcie address foramt",pcie_address)
+        return False
+    return True
+
+
 class FpgaFinder(object):
     def __init__(self, pcie_address):
         self._pice_address = pcie_address
@@ -702,9 +710,11 @@ class FpgaFinder(object):
             paths.extend(r)
         return paths
 
-    def find_hssi_group(self, root):
+    def find_hssi_group(self, pci_address):
         hssi_group = {}
-        paths = glob.glob("/sys/bus/dfl/drivers/uio_dfl/dfl_*")
+        paths = glob.glob(os.path.join("/sys/bus/pci/devices/",
+                                      pci_address,
+                                      "fpga_region/region*/dfl-fme*/dfl_dev*"))
         i = 0
         feature_id = 0
         uio_path = 0
@@ -719,9 +729,10 @@ class FpgaFinder(object):
 
             if len(uio_path) == 0:
                 continue
-            dfl_dev_name = path.split("/sys/bus/dfl/drivers/uio_dfl/")
-            hssi_group[i] = [dfl_dev_name[1], uio_path]
-            i = i + 1
+            m = re.search('dfl_dev(.*)', path)
+            if m:
+                hssi_group[i] = [m.group(0), uio_path]
+                i = i + 1
         return hssi_group
 
 
@@ -946,8 +957,8 @@ def main():
     """
     parser = argparse.ArgumentParser()
 
-    pcieaddress_help = 'bdf of device to program \
-                        (e.g. 04:00.0 or 0000:04:00.0).' \
+    pcieaddress_help = 'sbdf of device to program \
+                        (e.g. 0000:04:00.0).' \
                        ' Optional when one device in system.'
     parser.add_argument('--pcie-address', '-P',
                         default=None, help=pcieaddress_help)

@@ -26,13 +26,14 @@
 #pragma once
 #include <opae/cxx/core/events.h>
 #include <opae/cxx/core/shared_buffer.h>
+#include <opae/cxx/core/token.h>
 
 #include "afu_test.h"
-
 
 namespace host_exerciser {
 using opae::fpga::types::event;
 using opae::fpga::types::shared_buffer;
+using opae::fpga::types::token;
 
 static const uint64_t HELPBK_TEST_TIMEOUT = 30000;
 static const uint64_t HELPBK_TEST_SLEEP_INVL = 100;
@@ -139,7 +140,7 @@ union he_num_lines {
   enum {
     offset = HE_NUM_LINES
   };
-  uint64_t value;
+  uint32_t value;
   struct {
     uint32_t NumCacheLines : 32;
     uint32_t Reserved : 32;
@@ -154,9 +155,9 @@ union he_ctl{
   };
   uint32_t value;
   struct {
-    uint8_t ResetL : 1;
-    uint8_t Start : 1;
-    uint8_t ForcedTestCmpl : 1;
+    uint32_t ResetL : 1;
+    uint32_t Start : 1;
+    uint32_t ForcedTestCmpl : 1;
     uint32_t Reserved : 29;
   };
 };
@@ -169,15 +170,15 @@ union he_cfg {
   };
   uint64_t value;
   struct {
-    uint8_t DelayEn : 1;
-    uint8_t Continuous : 1;
-    uint8_t TestMode : 3;
-    uint8_t ReqLen : 2;
-    uint16_t Rsvd_19_7 : 13;
-    uint8_t TputInterleave : 3;
-    uint8_t TestCfg : 5;
-    uint8_t IntrOnErr : 1;
-    uint8_t IntrTestMode : 1;
+    uint64_t DelayEn : 1;
+    uint64_t Continuous : 1;
+    uint64_t TestMode : 3;
+    uint64_t ReqLen : 2;
+    uint64_t Rsvd_19_7 : 13;
+    uint64_t TputInterleave : 3;
+    uint64_t TestCfg : 5;
+    uint64_t IntrOnErr : 1;
+    uint64_t IntrTestMode : 1;
     uint64_t Rsvd_63_30 : 34;
   };
 };
@@ -200,9 +201,8 @@ union he_interrupt0 {
   };
   uint32_t value;
   struct {
-    uint16_t apci_id : 16;
-    uint16_t VectorNUm : 8;
-    uint16_t Rsvd_31_24 : 8;
+    uint32_t apci_id : 16;
+    uint32_t VectorNum : 16;
   };
 };
 
@@ -224,8 +224,8 @@ union he_status0 {
   };
   uint64_t value;
   struct {
-    uint32_t numWrites : 32;
-    uint32_t numReads : 32;
+    uint64_t numWrites : 32;
+    uint64_t numReads : 32;
   };
 };
 
@@ -236,8 +236,8 @@ union he_status1 {
   };
   uint64_t value;
   struct {
-    uint32_t numPendWrites : 32;
-    uint32_t numPendReads : 32;
+    uint64_t numPendWrites : 32;
+    uint64_t numPendReads : 32;
   };
 };
 
@@ -249,8 +249,8 @@ union he_error {
   };
   uint64_t value;
   struct {
-    uint32_t error : 32;
-    uint32_t Rsvd : 32;
+    uint64_t error : 32;
+    uint64_t Rsvd : 32;
   };
 };
 
@@ -301,6 +301,7 @@ public:
     host_exerciser()
   : test_afu("host_exerciser")
   , count_(1)
+  , perf_(false)
   {
     // Mode
     app_.add_option("-m,--mode", he_modes_, "host exerciser mode {lpbk,read, write, trput}")
@@ -319,6 +320,12 @@ public:
     // Configure interleave requests in Throughput mode
     app_.add_option("--interleave", he_interleave_, interleave_help)->default_val("0");
 
+    // The Interrupt Vector Number for the device
+    app_.add_option("--interrupt", he_interrupt_,
+        "The Interrupt Vector Number for the device")
+        ->transform(CLI::Range(0, 3))->default_val("0");
+
+    app_.add_option("--perf", perf_, "enable perf counters")->default_val("false");
   }
 
   virtual int run(CLI::App *app, test_command::ptr_t test) override
@@ -442,6 +449,8 @@ public:
   bool he_delay_;
   bool he_continuousmode_;
   uint32_t he_interleave_;
+  uint32_t he_interrupt_;
+  bool perf_;
 
   std::map<uint32_t, uint32_t> limits_;
 
@@ -453,6 +462,11 @@ public:
       throw std::out_of_range("offset out range in csr space");
     }
     return offset;
+  }
+  
+  token::ptr_t get_token()
+  {
+    return handle_->get_token();
   }
 
 };

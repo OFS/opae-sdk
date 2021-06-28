@@ -26,11 +26,54 @@
 #pragma once
 #include "afu_test.h"
 #include "host_exerciser.h"
+#include "fpgaperf_counter.h"
 
 using test_afu = opae::afu_test::afu;
 using opae::fpga::types::shared_buffer;
+using opae::fpga::types::token;
 
 namespace host_exerciser {
+
+class fpgaperf {
+public:
+  typedef std::shared_ptr<fpgaperf> ptr_t;
+  static std::shared_ptr<fpgaperf> get(token::ptr_t token)
+  {
+    std::shared_ptr<fpgaperf> p(new fpgaperf());
+    if (fpgaPerfCounterGet(token->c_type(), p->counter_) != FPGA_OK) {
+        p.reset();
+    }
+    return p;
+  }
+  ~fpgaperf()
+  {
+    if (fpgaPerfCounterDestroy(counter_) != FPGA_OK) {
+        std::cout << "Failed to destroy the fpga perf counter" << std::endl;
+    }
+    if(counter_) {
+        delete counter_;
+        counter_ = nullptr;
+    }
+  }
+  fpga_result start()
+  {
+      return fpgaPerfCounterStartRecord(counter_);
+  }
+  fpga_result stop()
+  {
+      return fpgaPerfCounterStopRecord(counter_);
+  }
+  fpga_result print()
+  {
+      return fpgaPerfCounterPrint(stdout, counter_);
+  }
+private:
+  fpgaperf() {
+      counter_ = new fpga_perf_counter;
+  }
+  fpgaperf(const fpgaperf &);
+  fpga_perf_counter *counter_ = nullptr;
+};
 
 class host_exerciser_cmd : public test_command
 {
@@ -111,6 +154,11 @@ public:
               he_lpbk_cfg_.TputInterleave = host_exe_->he_interleave_;
         }
 
+        // Set Interrupt test mode
+        if (host_exe_->he_interrupt_ <= 3) {
+            he_lpbk_cfg_.IntrTestMode = 1;
+        }
+
         return 0;
     }
 
@@ -121,6 +169,23 @@ public:
 
         auto d_afu = dynamic_cast<host_exerciser*>(afu);
         host_exe_ = dynamic_cast<host_exerciser*>(afu);
+
+        token_ = d_afu->get_token();
+
+	fpgaperf::ptr_t perf(nullptr);
+        if (host_exe_->perf_) {
+            //fpga perf counter initialization
+            perf = fpgaperf::get(token_);
+            if (!perf) {
+                std::cout << "Failed to get the fpgaperf object" << std::endl;
+                return -1;
+            }
+            //start the fpga perf counter
+            if (perf->start() != FPGA_OK) {
+                std::cout << "Failed to start the fpga perf counter" << std::endl;
+                return -1;
+            }
+        }
 
         auto ret = parse_input_options();
         if (ret != 0) {
@@ -169,7 +234,14 @@ public:
         d_afu->write64(HE_NUM_LINES, (LPBK1_BUFFER_SIZE / (1 * CL)) -1);
 
        // Write to CSR_CFG
-        d_afu->write32(HE_CFG, he_lpbk_cfg_.value);
+        d_afu->write64(HE_CFG, he_lpbk_cfg_.value);
+
+	event::ptr_t ev = nullptr;
+	if (he_lpbk_cfg_.IntrTestMode == 1) {
+            he_interrupt_.VectorNum = host_exe_->he_interrupt_;
+            d_afu->write32(HE_INTERRUPT0, he_interrupt_.value);
+            ev = d_afu->register_interrupt();
+	}
 
         // Write to CSR_CTL
         std::cout << "Start Test" << std::endl;
@@ -182,17 +254,35 @@ public:
         uint32_t           timeout = HELPBK_TEST_TIMEOUT;
         volatile uint8_t* status_ptr = dsm_->c_type() ;
 
+        if (he_lpbk_cfg_.IntrTestMode == 1) {
+            try {
+                d_afu->interrupt_wait(ev, 10000);
+                if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
+                    d_afu->compare(source_, destination_);
+             }
+             catch (std::exception &ex) {
+                    std::cout << "HE LPBK TIME OUT" << std::endl;
+                    host_exerciser_errors();
+                    return -1;
+             }
+        } else {
+            while (0 == ((*status_ptr) & 0x1))
+            {
+                usleep(HELPBK_TEST_SLEEP_INVL);
+                if (--timeout == 0) {
+                    std::cout << "HE LPBK TIME OUT" << std::endl;
+                    host_exerciser_errors();
+                    return -1;
+                }
+             }
+         }
 
-        while (0 == ((*status_ptr) & 0x1))
-        {
-            usleep(HELPBK_TEST_SLEEP_INVL);
-            if (--timeout == 0) {
-                std::cout << "HE LPBK TIME OUT" << std::endl;
-                host_exerciser_errors();
-                return -1;
+        if (perf) {
+            //stop performance counter
+            if (perf->stop() != FPGA_OK) {
+                std::cout << "Failed to stop the fpga perf counter" << std::endl;
             }
-        }
-
+	}
 
         std::cout << "Test Completed" << std::endl;
         host_exerciser_swtestmsg();
@@ -201,6 +291,13 @@ public:
         /* Compare buffer contents only loopback test mode*/
         if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
             d_afu->compare(source_, destination_);
+
+        if (perf) {
+            //print the performace counter values
+            if (perf->print() != FPGA_OK) {
+                std::cout << "Failed to print the fpga perf counter" << std::endl;
+            }
+        }
 
         return 0;
     }
@@ -212,6 +309,8 @@ protected:
     shared_buffer::ptr_t source_;
     shared_buffer::ptr_t destination_;
     shared_buffer::ptr_t dsm_;
+    he_interrupt0 he_interrupt_;
+    token::ptr_t token_;
 };
 
 } // end of namespace host_exerciser
