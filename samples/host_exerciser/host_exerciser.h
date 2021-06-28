@@ -301,6 +301,7 @@ public:
     host_exerciser()
   : test_afu("host_exerciser")
   , count_(1)
+  , perf_(false)
   {
     // Mode
     app_.add_option("-m,--mode", he_modes_, "host exerciser mode {lpbk,read, write, trput}")
@@ -324,6 +325,7 @@ public:
         "The Interrupt Vector Number for the device")
         ->transform(CLI::Range(0, 3))->default_val("0");
 
+    app_.add_option("--perf", perf_, "enable perf counters")->default_val("false");
   }
 
   virtual int run(CLI::App *app, test_command::ptr_t test) override
@@ -448,6 +450,7 @@ public:
   bool he_continuousmode_;
   uint32_t he_interleave_;
   uint32_t he_interrupt_;
+  bool perf_;
 
   std::map<uint32_t, uint32_t> limits_;
 
