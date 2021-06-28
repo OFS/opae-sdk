@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2020-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -1443,7 +1443,10 @@ STATIC fpga_result register_event(vfio_handle *_h,
 {
 	switch (event_type) {
 	case FPGA_EVENT_ERROR:
+		OPAE_ERR("Error interrupts are not currently supported.");
+		return FPGA_NOT_SUPPORTED;
 
+	case FPGA_EVENT_INTERRUPT:
 		_veh->flags = flags;
 
 		if (opae_vfio_irq_enable(_h->vfio_pair->device,
@@ -1455,17 +1458,7 @@ STATIC fpga_result register_event(vfio_handle *_h,
 			return FPGA_EXCEPTION;
 		}
 
-		if (opae_vfio_irq_unmask(_h->vfio_pair->device,
-					 VFIO_PCI_MSIX_IRQ_INDEX,
-					 flags)) {
-			OPAE_ERR("error unmasking MSIX IRQs");
-			return FPGA_EXCEPTION;
-		}
-
 		return FPGA_OK;
-	case FPGA_EVENT_INTERRUPT:
-		OPAE_ERR("User interrupts are not currently supported.");
-		return FPGA_NOT_SUPPORTED;
 	case FPGA_EVENT_POWER_THERMAL:
 		OPAE_ERR("Thermal interrupts are not currently supported.");
 		return FPGA_NOT_SUPPORTED;
@@ -1515,14 +1508,9 @@ STATIC fpga_result unregister_event(vfio_handle *_h,
 {
 	switch (event_type) {
 	case FPGA_EVENT_ERROR:
-
-		if (opae_vfio_irq_mask(_h->vfio_pair->device,
-				       VFIO_PCI_MSIX_IRQ_INDEX,
-				       _veh->flags)) {
-			OPAE_ERR("masking MSIX IRQs");
-			return FPGA_EXCEPTION;
-		}
-
+		OPAE_ERR("Error interrupts are not currently supported.");
+		return FPGA_NOT_SUPPORTED;
+	case FPGA_EVENT_INTERRUPT:
 		if (opae_vfio_irq_disable(_h->vfio_pair->device,
 					  VFIO_PCI_MSIX_IRQ_INDEX,
 					  _veh->flags)) {
@@ -1530,11 +1518,7 @@ STATIC fpga_result unregister_event(vfio_handle *_h,
 				 _veh->flags, strerror(errno));
 			return FPGA_EXCEPTION;
 		}
-
 		return FPGA_OK;
-	case FPGA_EVENT_INTERRUPT:
-		OPAE_ERR("User interrupts are not currently supported.");
-		return FPGA_NOT_SUPPORTED;
 	case FPGA_EVENT_POWER_THERMAL:
 		OPAE_ERR("Thermal interrupts are not currently supported.");
 		return FPGA_NOT_SUPPORTED;
