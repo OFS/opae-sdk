@@ -173,7 +173,7 @@ public:
         token_ = d_afu->get_token();
 
 	fpgaperf::ptr_t perf(nullptr);
-        if (!host_exe_->no_perf_) {
+        if (host_exe_->perf_) {
             //fpga perf counter initialization
             perf = fpgaperf::get(token_);
             if (!perf) {
@@ -277,30 +277,27 @@ public:
              }
          }
 
-
-        std::cout << "Test Completed" << std::endl;
         if (perf) {
             //stop performance counter
             if (perf->stop() != FPGA_OK) {
                 std::cout << "Failed to stop the fpga perf counter" << std::endl;
-                return -1;
             }
-        }
+	}
 
+        std::cout << "Test Completed" << std::endl;
         host_exerciser_swtestmsg();
         host_exerciser_status();
+
+        /* Compare buffer contents only loopback test mode*/
+        if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
+            d_afu->compare(source_, destination_);
 
         if (perf) {
             //print the performace counter values
             if (perf->print() != FPGA_OK) {
                 std::cout << "Failed to print the fpga perf counter" << std::endl;
-                return -1;
             }
         }
-
-        /* Compare buffer contents only loopback test mode*/
-        if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
-            d_afu->compare(source_, destination_);
 
         return 0;
     }
