@@ -91,8 +91,8 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 
 	if (objtype != FPGA_DEVICE) {
 		res = fpgaPropertiesGetGUID(props, &port_guid);
-		fpgainfo_print_err("reading guid from properties", res);
-		is_accelerator = 1;
+		if (res == FPGA_OK)
+			is_accelerator = 1;
 	}
 
 	// Go up the tree until we find the device
@@ -122,8 +122,7 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 
 	if (has_parent) {
 
-		res = fpgaPropertiesGetGUID(pprops, &guid);
-		fpgainfo_print_err("reading guid from properties", res);
+		fpgaPropertiesGetGUID(pprops, &guid);
 
 		res = fpgaPropertiesGetNumSlots(pprops, &num_slots);
 		fpgainfo_print_err("reading num_slots from properties", res);
