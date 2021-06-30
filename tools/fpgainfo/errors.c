@@ -357,9 +357,8 @@ fpga_result errors_command(fpga_token *tokens, int num_tokens, int argc,
 		res = fpgaGetProperties(tokens[i], &props);
 		if (res == FPGA_OK) {
 			res = fpgaPropertiesGetNumErrors(props, &num_errors);
-			fpgainfo_print_err("reading errors from properties", res);
 
-			if (num_errors != 0) {
+			if ((res == FPGA_OK) && (num_errors != 0)) {
 				int j;
 				errinfos = (struct fpga_error_info *)calloc(
 					num_errors, sizeof(*errinfos));
@@ -379,11 +378,13 @@ fpga_result errors_command(fpga_token *tokens, int num_tokens, int argc,
 						    strnlen(errinfos[j].name, 4096));
 					upcase_first(errinfos[j].name);
 				}
+
+				print_errors_info(tokens[i], props, errinfos, num_errors);
 			}
 
-			print_errors_info(tokens[i], props, errinfos, num_errors);
 		destroy_and_free:
-			free(errinfos);
+			if (errinfos)
+				free(errinfos);
 			errinfos = NULL;
 			fpgaDestroyProperties(&props);
 			if (res == FPGA_NO_MEMORY) {
