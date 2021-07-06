@@ -69,8 +69,10 @@ do {									\
 #define INVALID_MAX_METRICS_PATH "invalid_qualifier_name_with_maxmummmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm_length_for_sdl_testing:invalid_metrics_name_with_maximummmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm_metrics_name_with_maximummmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm_length_for_sdl_testing"
 #define SYSFS_INVALID_MIN_LENGTH_PATH "a"
 #define SYSFS_INVALID_MAX_LENGTH_PATH "This/is/invalid/path/with/maximim/255/\
-		characters/length/so/opae/api/should/return/with/error/for/SDL\
-		testing/"
+		characterssssssssssssssssssssssssssssssssssssssssssssssssssss\
+		/lengthhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh\
+		/so/opaeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\
+		/api/should/return/with/errorrrrrrrrrrrrrrrrr/for/SDL testing/"
 
 int main( void )
 {
