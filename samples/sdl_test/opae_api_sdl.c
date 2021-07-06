@@ -143,7 +143,7 @@ int main( void )
 		printf("fpgaHandleGetObject() failed for invalid minimum path for SDL-CT181.\n");
 		ADD_TO_CLEANUP(fpgaDestroyObject, object);
 	} else {
-		printf("fpgaHandleGetObject() passed for invalid minimum path for SDL-CT181.Error[%0d]\n", res);
+		printf("fpgaHandleGetObject() passed for invalid minimum path for SDL-CT181. Error[%0d]\n", res);
 	}
 
 	// Validate the API by passing maximum length path.
@@ -153,7 +153,7 @@ int main( void )
 		printf("fpgaHandleGetObject() failed for invalid maximum path for SDL-CT181.\n");
 		ADD_TO_CLEANUP(fpgaDestroyObject, object);
 	} else {
-		printf("fpgaHandleGetObject() passed for invalid maximum path for SDL-CT181.Error[%0d]\n", res);
+		printf("fpgaHandleGetObject() passed for invalid maximum path for SDL-CT181. Error[%0d]\n", res);
 	}
 	
 	printf("Done Test\n");
