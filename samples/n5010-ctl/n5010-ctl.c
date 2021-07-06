@@ -1,4 +1,3 @@
-
 // Copyright(c) 2021, Silciom Denmark A/S
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
