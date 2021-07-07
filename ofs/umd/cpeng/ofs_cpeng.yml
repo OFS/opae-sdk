@@ -82,12 +82,12 @@ registers:
     - - [HOST_SCRATCHPAD, [63, 0], RW, 0x0, Scratchpad register used during board bring up]
   - - [CSR_CE2HOST_DATA_REQ_LIMIT, 0x0108, 0x0000000000000000, "Data request limit"]
     - - [Reserved, [63, 2], RsvdZ, 0x0, Reserved]
-      - [HPS_RDY_TIMEOUT, [0], RO, 0x0, "00: 64 Bytes\n
-                                         01: 128 Bytes\n
-                                         10: 512 Bytes\n
-                                         11: 1024 Bytes\n
-                                         Default value is 1kB\n
-                                         This field depicts the maximum data request size by copy engine to host."]
+      - [DATA_REQ_LIMIT, [0], RO, 0x0, "00: 64 Bytes\n
+                                        01: 128 Bytes\n
+                                        10: 512 Bytes\n
+                                        11: 1024 Bytes\n
+                                        Default value is 1kB\n
+                                        This field depicts the maximum data request size by copy engine to host."]
   - - [CSR_SRC_ADDR, 0x0110, 0x0000000000000000, Host DDR Address]
     - - [Reserved, [63, 32], RsvdZ, 0x0, Reserved]
       - [CSR_SRC_ADDR, [31, 0], RW, 0x0, Host DDR Physical Address]
