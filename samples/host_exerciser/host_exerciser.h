@@ -323,7 +323,7 @@ public:
     // The Interrupt Vector Number for the device
     app_.add_option("--interrupt", he_interrupt_,
         "The Interrupt Vector Number for the device")
-        ->transform(CLI::Range(0, 3))->default_val("0");
+        ->transform(CLI::Range(0, 4))->default_val("4");
 
     app_.add_option("--perf", perf_, "enable perf counters")->default_val("false");
   }
