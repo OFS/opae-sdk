@@ -201,11 +201,13 @@ registers:
                                            This field depicts the SSBL Verification status.\n
                                            Once HPS sees host2hps_gpio (input to HPS) as high,\n
                                            HPS can issue read to HPS DDR and then start SSBL verification"]
-  - - [CSR_CE_SFTRST, 0x0148, 0x0000, t to copy engine soft reset (active high)"]
+  - - [CSR_CE_SFTRST, 0x0148, 0x0000, Copy engine soft reset (active high)]
     - - [Reserved, [63, 1], RW, 0x0, Reserved]
       - [CE_SFTRST, [0], RO, 0x0, "Copy engine soft reset.\n
                                    Host SW can program this bit to 0b1 if the bit CSR_CE2HOST_STATUS.CE_DMA_STS is read as 0b11.\n
                                    De-assertion of this bit is by copy engine\n"]
+  - - [CSR_HPS_SCRATCHPAD, 0x0150, 0x0000, Copy engine scratchpad register]
+    - - [HSP_SCRATCHPAD, [31, 0], RW, 0x0, "Used during board bring up"]
   - - [CSR_HOST2HPS_IMG_XFR_SHDW, 0x0154, 0x0000, DMA Done Flag]
     - - [Reserved, [31, 1], RsvdZ, 0x0, Reserve]
       - [HOST2HPS_IMG_XFR_SHDW, [0], RO, 0x0, "0: Complete Image size not copied from Host to HPS\n
