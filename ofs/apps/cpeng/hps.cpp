@@ -44,6 +44,7 @@ public:
     , destination_offset_(0)
     , timeout_usec_(60000000)
     , chunk_(0)
+    , soft_reset_(false)
   {
     log_ = spdlog::get(this->name());
   }
@@ -76,6 +77,7 @@ public:
       ->transform(CLI::AsNumberWithUnit(units));
     app->add_option("-c,--chunk", chunk_, "Chunk size. 0 indicates no chunks")
       ->default_str(std::to_string(chunk_));
+    app->add_flag("--soft-reset", soft_reset_, "Issue soft reset only");
   }
 
   virtual int run(opae::afu_test::afu *afu, __attribute__((unused)) CLI::App *app)
@@ -87,6 +89,12 @@ public:
     if (ofs_cpeng_wait_for_hps_ready(&cpeng, timeout_usec_)) {
       log_->warn("HPS is not ready");
       return 1;
+    }
+
+    if (soft_reset_) {
+      log_->debug("issuing soft reset only");
+      ofs_cpeng_ce_soft_reset(&cpeng);
+      return 0;
     }
 
     // Read file into shared buffer
@@ -113,23 +121,60 @@ public:
       if (ofs_cpeng_dma_status_error(&cpeng)) {
         uint64_t axist_cpl = ofs_cpeng_ce_axist_cpl_sts(&cpeng);
         uint64_t acelite_bresp = ofs_cpeng_ce_acelite_bresp_sts(&cpeng);
+        uint64_t fifo1_status = ofs_cpeng_ce_fifo1_status(&cpeng);
+        uint64_t fifo2_status = ofs_cpeng_ce_fifo2_status(&cpeng);
         if (axist_cpl) {
           log_->error("CE_AXIST_CPL_STS: {:x}", axist_cpl);
         }
         if (acelite_bresp) {
           log_->error("CE_ACELITE_BRESP_STS: {:x}", acelite_bresp);
         }
+        if (fifo1_status) {
+          log_->error("CE_FIFO1_STS: {:x}", fifo1_status);
+        }
+        if (fifo2_status) {
+          log_->error("CE_FIFO2_STS: {:x}", fifo2_status);
+        }
+        ofs_cpeng_ce_soft_reset(&cpeng);
       }
+    } else {
+      wait_for_verify(&cpeng);
     }
     return copy_status;
   }
 
 
 private:
+  void wait_for_verify(ofs_cpeng *cpeng)
+  {
+      // wait for both kernel and ssbl verify
+      auto sleep_time = usec(200);
+      log_->info("waiting for ssbl verify...");
+      uint32_t verify = 0;
+      while(!verify) {
+        verify = ofs_cpeng_hps_ssbl_verify(cpeng);
+        std::this_thread::sleep_for(sleep_time);
+      }
+      if (verify != 0b1){
+        log_->error("error with ssbl verify: {:x}", verify);
+        return;
+      }
+      log_->info("waiting for kernel verify...");
+      verify = 0;
+      while(!verify) {
+        verify = ofs_cpeng_hps_kernel_verify(cpeng);
+        std::this_thread::sleep_for(sleep_time);
+      }
+      if (verify != 0b1){
+        log_->error("error with kernel verify: {:x}", verify);
+      }
+  }
+
   std::string filename_;
   uint64_t destination_offset_;
   uint32_t timeout_usec_;
   uint32_t chunk_;
+  bool soft_reset_;
   std::shared_ptr<spdlog::logger> log_;
 };
 

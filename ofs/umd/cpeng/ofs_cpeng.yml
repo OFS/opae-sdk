@@ -16,6 +16,16 @@ api: |
     return CSR_CE2HOST_STATUS.CE_AXIST_CPL_STS
   def ce_acelite_bresp_sts() -> int:
     return CSR_CE2HOST_STATUS.CE_ACELITE_BRESP_STS
+  def ce_fifo1_status() -> int:
+    return CSR_CE2HOST_STATUS.CE_FIFO1_STS
+  def ce_fifo2_status() -> int:
+    return CSR_CE2HOST_STATUS.CE_FIFO2_STS
+  def hps_kernel_verify() -> int:
+    return CSR_HPS2HOST_RSP.KERNEL_VFY
+  def hps_ssbl_verify() -> int:
+    return CSR_HPS2HOST_RSP.SSBL_VFY
+  def ce_soft_reset():
+    CSR_CE_SFTRST.CE_SFTRST = 1
   def image_complete():
     CSR_HOST2HPS_IMG_XFR.HOST2HPS_IMG_XFR = 0x1
   def copy_chunk(iova: uint64_t, offset: uint64_t, size: uint32_t, timeout_usec: uint64_t) -> int:
@@ -70,13 +80,14 @@ registers:
                                           For instance, 2 channels each with a control and data interface have each pair specify a different ID."]
   - - [CSR_HOST_SCRATCHPAD, 0x0100, 0x0000000000000000, Scratchpad register]
     - - [HOST_SCRATCHPAD, [63, 0], RW, 0x0, Scratchpad register used during board bring up]
-  - - [CSR_HPS2HOST_RDY_TIMEOUT, 0x0108, 0x0000000000000000, "HPS Ready Timeout"]
-    - - [Reserved, [63, 1], RsvdZ, 0x0, Reserved]
-      - [HPS_RDY_TIMEOUT, [0], RO, 0x0, "0: No timeout\n
-                                         1: HPS Ready timeout\n
-                                         This bit is asserted if HPS doesn't program CSR_HPS2HOST_STATUS.HPS_RDY\n
-                                         for time to equal threshold value.\n
-                                         This is parameterized"]
+  - - [CSR_CE2HOST_DATA_REQ_LIMIT, 0x0108, 0x0000000000000000, "Data request limit"]
+    - - [Reserved, [63, 2], RsvdZ, 0x0, Reserved]
+      - [HPS_RDY_TIMEOUT, [0], RO, 0x0, "00: 64 Bytes\n
+                                         01: 128 Bytes\n
+                                         10: 512 Bytes\n
+                                         11: 1024 Bytes\n
+                                         Default value is 1kB\n
+                                         This field depicts the maximum data request size by copy engine to host."]
   - - [CSR_SRC_ADDR, 0x0110, 0x0000000000000000, Host DDR Address]
     - - [Reserved, [63, 32], RsvdZ, 0x0, Reserved]
       - [CSR_SRC_ADDR, [31, 0], RW, 0x0, Host DDR Physical Address]
@@ -93,12 +104,36 @@ registers:
   - - [CSR_HOST2CE_MRD_START, 0x0128, 0x0000000000000000, Host DDR read start flag]
     - - [Reserved, [63, 1], RsvdZ, 0x0, Reserved]
       - [MRD_START, [0], RW, 0x0, "Programmed by host to start host DDR memory read by copy engine\n
-                                   after programming CSR_SRC_ADDR, CSR_DST_ADDR and CSR_DATA_SIZE.\n
+                                   after programming CSR_SRC_ADDR, CSR_DST_ADDR and CSR_DATA_SIZE and DATA_REQ_LIMIT.\n
                                    This bit can only be asserted by the SW.\n
-                                   De-assertion is always by the hardware.\n
-                                   SW shouldn't write a zero to this field"]
+                                   De-assertion is always by the copy engine.\n
+                                   SW shouldn't write a zero to this field\n
+                                   Copy engine de-asserts this bit if CSR_CE2HOST_STATUS.CE_DMA_STS is 0b11 or 0b10"]
   - - [CSR_CE2HOST_STATUS, 0x0130, 0x0000000000000000, DMA Status]
-    - - [Reserved, [63, 7], RsvdZ, 0x0, Reserved]
+    - - [Reserved, [63, 13], RsvdZ, 0x0, Reserved]
+      - [CE_IMG_ADDR_STS, [12, 11], RO, 0x0, "00 - Reset value\n
+                                              11 - Legal descriptor programming by host SW\n
+                                              10 - Illegal descriptor programming by host SW\n
+                                              11 - Reserved\n
+                                              This value is set to 1  by copy engine when the image source \n
+                                              address is programmed more than 32bits(>4GB) and or image destination \n
+                                              address is programmed more than 30bits(>1GB).\n
+                                              Copy engine will de-assert CSR_HOST2CE_MRD_START.MRD_START bit if illegal \n
+                                              value is programmed by host SW.\n
+                                              Host SW needs to reprogram the descriptors and set CSR_HOST2CE_MRD_START.MRD_START again.\n
+                                              This field gets self cleared. Copy engine soft reset is not required in the above case"]
+      - [CE_FIFO2_STS, [10, 9], RO, 0x0, "FIFO2 Flow status\n
+                                          00 - Reset value\n
+                                          01 - FIFO2 underflow\n
+                                          10 - FIFO2 overflow\n
+                                          11 - FIFO2 underflow and FIFO overflow\n
+                                          Host SW should issue a soft reset to copy engine if overflow and or underflow happens"]
+      - [CE_FIFO1_STS, [8, 7], RO, 0x0, "FIFO1 Flow status\n
+                                          00 - Reset value\n
+                                          01 - FIFO1 underflow\n
+                                          10 - FIFO1 overflow\n
+                                          11 - FIFO1 underflow and FIFO overflow\n
+                                          Host SW should issue a soft reset to copy engine if overflow and or underflow happens"]
       - [CE_AXIST_CPL_STS, [6, 4], RO, 0x0, "000- Successful completion\n
                                              001- Unsupported request\n
                                              010- Reserved\n
@@ -166,16 +201,19 @@ registers:
                                            This field depicts the SSBL Verification status.\n
                                            Once HPS sees host2hps_gpio (input to HPS) as high,\n
                                            HPS can issue read to HPS DDR and then start SSBL verification"]
-  - - [CSR_HPS_SCRATCHPAD, 0x0148, 0x0000, Scratchpad register (accessible to HPS in RW mode]
-    - - [HPS_SCRATCHPAD, [31, 0], RW, 0x0, Scratchpad register]
-  - - [CSR_HOST2HPS_IMG_XFR_SHDW, 0x014C, 0x0000, DMA Done Flag]
+  - - [CSR_CE_SFTRST, 0x0148, 0x0000, t to copy engine soft reset (active high)"]
+    - - [Reserved, [63, 1], RW, 0x0, Reserved]
+      - [CE_SFTRST, [0], RO, 0x0, "Copy engine soft reset.\n
+                                   Host SW can program this bit to 0b1 if the bit CSR_CE2HOST_STATUS.CE_DMA_STS is read as 0b11.\n
+                                   De-assertion of this bit is by copy engine\n"]
+  - - [CSR_HOST2HPS_IMG_XFR_SHDW, 0x0154, 0x0000, DMA Done Flag]
     - - [Reserved, [31, 1], RsvdZ, 0x0, Reserve]
       - [HOST2HPS_IMG_XFR_SHDW, [0], RO, 0x0, "0: Complete Image size not copied from Host to HPS\n
                                                1: Complete image size copied from Host to HPS.\n
                                                HPS can start SSBL verification.\n
                                                HPS can poll this register to see if complete image is transferred from Host to HPS.\n
                                                Once this field is found HIGH, HPS can start SSBL verification"]
-  - - [CSR_HPS2HOST_RSP, 0x0150, 0x0000000000000000, HPS Status]
+  - - [CSR_HPS2HOST_RSP, 0x0158, 0x0000000000000000, HPS Status]
     - - [Reserved, [31, 5], RsvdZ, 0x0, Reserved]
       - [HPS_RDY, [4], RO, 0x0, "HPS Ready.\n
                                  HPS writes to this field once it is done with FSBL and ready to receive SSBL image.\n
