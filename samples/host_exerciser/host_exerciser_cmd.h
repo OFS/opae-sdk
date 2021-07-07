@@ -174,10 +174,17 @@ public:
 
 	fpgaperf::ptr_t perf(nullptr);
         if (host_exe_->perf_) {
+            uid_t uid = getuid();
+            if (uid != 0) {
+                std::cout <<"\nFailed to read Perf counter due to unprivileged user access"<<std::endl
+                <<"check --help for more information on setting the capabilities for binary\n" <<std::endl;
+                return -1;
+            }
             //fpga perf counter initialization
             perf = fpgaperf::get(token_);
             if (!perf) {
                 std::cout << "Failed to get the fpgaperf object" << std::endl;
+                return -1;
             }
             //start the fpga perf counter
             if (perf->start() != FPGA_OK) {
