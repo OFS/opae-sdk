@@ -469,6 +469,15 @@ fpga_result fpgaPerfCounterGet(fpga_token token, fpga_perf_counter *fpga_perf)
 
 	memset(fpga_perf, 0, sizeof(fpga_perf_counter));
 
+	//check if its being run as root or not
+	uid_t uid = getuid();
+	if (uid != 0) {
+		fpga_perf->previlege = false;
+		return FPGA_OK;
+	} else {
+		fpga_perf->previlege = true;
+	}
+
 	ret = get_fpga_sbdf(token, &segment, &bus, &device, &function);
 	if (ret != FPGA_OK) {
 		OPAE_ERR("Failed to get sbdf");
@@ -558,6 +567,10 @@ fpga_result fpgaPerfCounterStartRecord(fpga_perf_counter *fpga_perf)
 		return FPGA_INVALID_PARAM;
 	}
 
+	if (!fpga_perf->previlege) {
+		return FPGA_OK;
+	}
+
 	if (fpga_perf_check_and_lock(fpga_perf)) {
 		OPAE_ERR("Failed to lock perf mutex");
 		return FPGA_EXCEPTION;
@@ -602,6 +615,10 @@ fpga_result fpgaPerfCounterStopRecord(fpga_perf_counter *fpga_perf)
 		return FPGA_INVALID_PARAM;
 	}
 
+	if (!fpga_perf->previlege) {
+		return FPGA_OK;
+	}
+
 	if (fpga_perf_check_and_lock(fpga_perf)) {
 		OPAE_ERR("Failed to lock perf mutex");
 		return FPGA_EXCEPTION;
@@ -643,6 +660,12 @@ fpga_result fpgaPerfCounterPrint(FILE *f, fpga_perf_counter *fpga_perf)
 		return FPGA_INVALID_PARAM;
 	}
 
+	if (!fpga_perf->previlege) {
+		printf("\nFailed to read Perf counter due to unprivileged user access\n"
+		"check --help for more information on setting the capabilities for binary\n\n");
+		return FPGA_OK;
+	}
+
 	if (fpga_perf_check_and_lock(fpga_perf)) {
 		OPAE_ERR("Failed to lock perf mutex");
 		return FPGA_EXCEPTION;
@@ -678,6 +701,11 @@ fpga_result fpgaPerfCounterDestroy(fpga_perf_counter *fpga_perf)
 		OPAE_ERR("Invalid input parameters");
 		return FPGA_INVALID_PARAM;
 	}
+
+	if (!fpga_perf->previlege) {
+		return FPGA_OK;
+	}
+
 	if (fpga_perf_check_and_lock(fpga_perf)) {
 		OPAE_ERR("Failed to lock perf mutex");
 		return FPGA_EXCEPTION;

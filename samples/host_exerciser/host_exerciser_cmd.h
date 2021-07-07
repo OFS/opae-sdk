@@ -178,12 +178,10 @@ public:
             perf = fpgaperf::get(token_);
             if (!perf) {
                 std::cout << "Failed to get the fpgaperf object" << std::endl;
-                return -1;
             }
             //start the fpga perf counter
             if (perf->start() != FPGA_OK) {
                 std::cout << "Failed to start the fpga perf counter" << std::endl;
-                return -1;
             }
         }
 

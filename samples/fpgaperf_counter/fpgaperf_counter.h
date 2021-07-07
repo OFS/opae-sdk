@@ -65,6 +65,7 @@ typedef struct {
 typedef struct {
 	pthread_mutex_t lock;
 	uint64_t magic;
+	bool previlege;
 	char dfl_fme_name[DFL_PERF_STR_MAX];
 	uint64_t type;
 	uint64_t cpumask;
