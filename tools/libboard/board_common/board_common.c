@@ -445,10 +445,10 @@ fpga_result find_dev_feature(fpga_token token,
 	glob_t pglob;
 	char feature_path[SYSFS_PATH_MAX] = { 0 };
 
-	res = get_fpga_sbdf(token, &segment, &bus, &device, &function);
-	if (res != FPGA_OK) {
+	retval = get_fpga_sbdf(token, &segment, &bus, &device, &function);
+	if (retval != FPGA_OK) {
 		OPAE_ERR("Failed to get sbdf ");
-		return res;
+		return retval;
 	}
 
 	if (snprintf(feature_path, sizeof(feature_path),
