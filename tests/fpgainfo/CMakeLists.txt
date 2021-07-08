@@ -51,9 +51,11 @@ target_include_directories(fpgainfo-static
 opae_test_add(TARGET test_fpgainfo_c
     SOURCE test_fpgainfo_c.cpp
     LIBS fpgainfo-static
+         board-common-static
 )
 
 opae_test_add(TARGET test_fpgainfo_board_c 
     SOURCE test_board_c.cpp
     LIBS fpgainfo-static
+         board-common-static
 )

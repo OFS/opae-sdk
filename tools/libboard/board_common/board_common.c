@@ -59,8 +59,9 @@
 #define IFCONFIG_STR             "ifconfig"
 #define IFCONFIG_UP_STR          "up"
 
-#define SYSFS_FEATURE_ID "/sys/bus/pci/devices/*%x*:*%x*:*%x*.*%x*/" \
-                       "fpga_region/region*/dfl-fme*/dfl_dev*/feature_id"
+#define SYSFS_FEATURE_ID "/sys/bus/pci/devices/*%x*:*%x*:*%x*.*%x*/"\
+			"fpga_region/region*/dfl-fme*/dfl_dev*/feature_id"
+
 // Read sysfs
 fpga_result read_sysfs(fpga_token token, char *sysfs_path,
 		char *sysfs_name, size_t len)
