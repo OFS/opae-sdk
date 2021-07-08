@@ -295,6 +295,11 @@ indicating one of the following series of read/write requests:
 1: rd-rd-wr-wr
 2: rd-rd-rd-rd-wr-wr-wr-wr)desc";
 
+//Perf counter help
+const char *perf_help = R"desc(Enable perf counters
+Set the capabilities for binary(for non-root user)
+set capabilities: "sudo setcap 38,cap_sys_ptrace,cap_syslog+eip /usr/bin/host_exerciser"
+remove capabilities: "sudo setcap -r /usr/bin/host_exerciser")desc";
 
 class host_exerciser : public test_afu {
 public:
@@ -326,7 +331,7 @@ public:
         "The Interrupt Vector Number for the device")
         ->transform(CLI::Range(0, 3));
 
-    app_.add_option("--perf", perf_, "enable perf counters")->default_val("false");
+    app_.add_option("--perf", perf_, perf_help)->default_val("false");
   }
 
   virtual int run(CLI::App *app, test_command::ptr_t test) override
