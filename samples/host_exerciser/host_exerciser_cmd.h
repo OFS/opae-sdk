@@ -199,14 +199,13 @@ public:
         }
         std::cout << "Input Config:" << he_lpbk_cfg_.value << std::endl;
 
-        // Stop he-lpbk
+        // assert reset he-lpbk
         he_lpbk_ctl_.value = 0;
-        he_lpbk_ctl_.ForcedTestCmpl = 1;
         d_afu->write32(HE_CTL, he_lpbk_ctl_.value);
         usleep(1000);
 
 
-        // Reset he-lpbk
+        // deassert reset he-lpbk
         he_lpbk_ctl_.value = 0;
         he_lpbk_ctl_.ResetL = 1;
         d_afu->write32(HE_CTL, he_lpbk_ctl_.value);
@@ -262,11 +261,20 @@ public:
         if (he_lpbk_cfg_.IntrTestMode == 1) {
             try {
                 d_afu->interrupt_wait(ev, 10000);
+                while (0 == ((*status_ptr) & 0x1)) {
+                    usleep(HELPBK_TEST_SLEEP_INVL);
+                    if (--timeout == 0) {
+                        std::cout << "DSM read timeout" << std::endl;
+                        host_exerciser_errors();
+                        return -1;
+                    }
+                }
+
                 if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
                     d_afu->compare(source_, destination_);
              }
              catch (std::exception &ex) {
-                    std::cout << "HE LPBK TIME OUT" << std::endl;
+                    std::cout << "Exception: " << ex.what() << std::endl;
                     host_exerciser_errors();
                     return -1;
              }
