@@ -186,6 +186,7 @@ PYBIND11_MODULE(libvfio, m)
           .def("fill32", &system_buffer::fill<uint32_t>)
           .def("fill64", &system_buffer::fill<uint64_t>)
           .def("compare", &system_buffer::compare)
+          .def("read_file", &system_buffer::read_file)
           .def("__repr__", [](system_buffer *b) -> std::string {
              std::ostringstream oss;
              oss << "size: " << b->size

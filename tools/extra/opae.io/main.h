@@ -25,8 +25,12 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #pragma once
-
+#include <Python.h>
+#include <pybind11/pybind11.h>
+#include <stdio.h>
 #include <opae/vfio.h>
+
+namespace py = pybind11;
 
 struct mmio_region {
   uint32_t index;
@@ -97,4 +101,26 @@ struct system_buffer {
     }
     return size;
   }
+
+  void read_file(py::object file)
+  {
+    PyObject *obj = file.ptr();
+    int fd = PyObject_AsFileDescriptor(obj);
+    FILE *fp = fdopen(fd, "r");
+    if (!fp) {
+      throw std::runtime_error("could not convert fd to FILE*");
+    }
+    // PyFile_IncUseCount(obj);
+    // is fd object already holding a reference count while in this function?
+    fseek(fp, 0L, SEEK_END);
+    size_t size = ftell(fp);
+    fseek(fp, 0L, SEEK_SET);
+    std::vector<char> buffer(size);
+    if (!fread(buf, size, 1, fp)) {
+      fclose(fp);
+      throw std::runtime_error("error reading from file object");
+    }
+    fclose(fp);
+  }
+
 };
