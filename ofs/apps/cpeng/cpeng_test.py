@@ -2,8 +2,6 @@ import argparse
 import os
 import time
 
-# allocate buffer
-
 CSR_DATA_SRC = 0x0110
 CSR_DATA_DST = 0x0118
 CSR_DATA_SIZE = 0x0120
@@ -40,6 +38,7 @@ def main():
         # write_csr64(CSR_DATA_SRC, io_buffer.io_address())
         # write_csr64(CSR_DATA_DST, 0)
         # write_csr64(CSR_DATA_SIZE, io_buffer.size())
+        # write_csr64(CSR_MRD_START, 0b1)
 
 
 if __name__ == '__main__':
