@@ -244,7 +244,7 @@ public:
 	if (he_lpbk_cfg_.IntrTestMode == 1) {
             he_interrupt_.VectorNum = host_exe_->he_interrupt_;
             d_afu->write32(HE_INTERRUPT0, he_interrupt_.value);
-            ev = d_afu->register_interrupt();
+            ev = d_afu->register_interrupt(host_exe_->he_interrupt_);
 	}
 
         // Write to CSR_CTL
