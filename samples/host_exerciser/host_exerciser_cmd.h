@@ -24,6 +24,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
+
+#include <sys/capability.h>
+
 #include "afu_test.h"
 #include "host_exerciser.h"
 #include "fpgaperf_counter.h"
@@ -166,6 +169,9 @@ public:
     virtual int run(test_afu *afu, CLI::App *app)
     {
         (void)app;
+        cap_t caps;
+        cap_flag_value_t cap_flag_value;
+        int res = 0;
 
         auto d_afu = dynamic_cast<host_exerciser*>(afu);
         host_exe_ = dynamic_cast<host_exerciser*>(afu);
@@ -175,7 +181,10 @@ public:
 	fpgaperf::ptr_t perf(nullptr);
         if (host_exe_->perf_) {
             uid_t uid = getuid();
-            if (uid != 0) {
+            caps = cap_get_file("/usr/bin/host_exerciser");
+            if (caps != 0)
+                res =  cap_get_flag(caps, 38, CAP_EFFECTIVE, &cap_flag_value);
+            if ((uid != 0) && (res == 0)) {
                 std::cout <<"\nFailed to read Perf counter due to unprivileged user access"<<std::endl
                 <<"check --help for more information on setting the capabilities for binary\n" <<std::endl;
                 return -1;
