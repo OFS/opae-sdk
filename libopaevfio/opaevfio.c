@@ -842,28 +842,9 @@ int opae_vfio_irq_enable(struct opae_vfio *v,
 				    VFIO_DEVICE_SET_IRQS,
 				    i);
 
-			if (res < 0) {
-				ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i)"
-				    " [enable]\n");
-				return res;
-			}
-
-			// Following example code from DPDK that says this
-			// action is required in order for IRQ to work.
-			i->argsz = sizeof(*i);
-			i->flags = VFIO_IRQ_SET_DATA_NONE |
-				   VFIO_IRQ_SET_ACTION_TRIGGER;
-			i->index = index;
-			i->start = subindex;
-			i->count = 1;
-
-			res = ioctl(v->device.device_fd,
-				    VFIO_DEVICE_SET_IRQS,
-				    i);
-
 			if (res < 0)
 				ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i)"
-				    " [trigger]\n");
+				    " [enable]\n");
 
 			return res;
 		}
