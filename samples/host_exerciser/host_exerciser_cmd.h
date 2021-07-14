@@ -26,6 +26,7 @@
 #pragma once
 
 #include <sys/capability.h>
+#include <unistd.h>
 
 #include "afu_test.h"
 #include "host_exerciser.h"
@@ -171,7 +172,8 @@ public:
         (void)app;
         cap_t caps;
         cap_flag_value_t cap_flag_value;
-        int res = 0;
+        int res 				= 0;
+        char file_name[DFL_PERF_STR_MAX]	= { 0 };
 
         auto d_afu = dynamic_cast<host_exerciser*>(afu);
         host_exe_ = dynamic_cast<host_exerciser*>(afu);
@@ -181,13 +183,21 @@ public:
 	fpgaperf::ptr_t perf(nullptr);
         if (host_exe_->perf_) {
             uid_t uid = getuid();
-            caps = cap_get_file("/usr/bin/host_exerciser");
-            if (caps != 0)
-                res =  cap_get_flag(caps, 38, CAP_EFFECTIVE, &cap_flag_value);
-            if ((uid != 0) && (res == 0)) {
-                std::cout <<"\nFailed to read Perf counter due to unprivileged user access"<<std::endl
-                <<"check --help for more information on setting the capabilities for binary\n" <<std::endl;
-                return -1;
+            if (uid != 0) {
+                if (readlink("/proc/self/exe", file_name, DFL_PERF_STR_MAX) == -1) {
+                    std::cerr << "\nFailed to get the binary path" << std::endl;
+                    return -1;
+                }
+                caps = cap_get_file(file_name);
+                if (caps != 0)
+                    res =  cap_get_flag(caps, 38, CAP_EFFECTIVE, &cap_flag_value);
+                else
+                    std::cerr << "Failed to get the capability for binary" << std::endl;
+                if (res == 0) {
+                    std::cout <<"\nFailed to read Perf counter due to unprivileged user access"<<std::endl
+                    <<"check --help for more information on setting the capabilities for binary\n" <<std::endl;
+                    return -1;
+                }
             }
             //fpga perf counter initialization
             perf = fpgaperf::get(token_);

@@ -1,4 +1,5 @@
-## Copyright(c) 2020-2021, Intel Corporation
+#!/usr/bin/cmake -P
+## Copyright(c) 2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -22,22 +23,18 @@
 ## INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
-## POSSIBILITY OF SUCH DAMAGE.
+## POSSIBILITY OF SUCH DAMAGE
 
-opae_add_executable(TARGET host_exerciser
-    SOURCE host_exerciser.cpp
-    LIBS
-        opae-c
-        opae-cxx-core
-        afu-test
-        fpgaperf_counter
-        ${libjson-c_LIBRARIES}
-        ${libuuid_LIBRARIES}
-        ${LIBCAP_LIBRARIES}
-    COMPONENT samplebin
-)
+find_path(LIBCAP_INCLUDE_DIRS
+  capability.h
+  PATHS /usr/include/sys
+  NO_DEFAULT_PATH)
 
-target_include_directories(host_exerciser
-    PRIVATE
-        ${OPAE_SDK_SOURCE}/samples/fpgaperf_counter
-)
+find_library(LIBCAP_LIBRARIES
+  NAME cap
+  PATHS /usr/lib64
+  NO_DEFAULT_PATH)
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(libcap DEFAULT_MSG
+  LIBCAP_INCLUDE_DIRS LIBCAP_LIBRARIES)
