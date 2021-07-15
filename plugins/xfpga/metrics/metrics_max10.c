@@ -169,7 +169,8 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 
 	if (_handle == NULL ||
 		vector == NULL ||
-		metric_num == NULL) {
+		metric_num == NULL ||
+		hw_type == FPGA_HW_UNKNOWN) {
 		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
