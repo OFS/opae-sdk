@@ -39,6 +39,7 @@ opae_add_executable(TARGET fpgainfo
     LIBS
         argsfilter
         opae-c
+        board_common
         ${libjson-c_LIBRARIES}
     COMPONENT toolfpgainfo
 )
