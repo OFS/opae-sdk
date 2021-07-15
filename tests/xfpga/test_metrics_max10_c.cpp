@@ -113,7 +113,7 @@ TEST_P(metrics_max10_c_p, test_metric_max10_1) {
   void *buf = NULL;
   char file[] = "curr1_input";
   char sysfs[] =
-		"/sys/class/fpga_region/region*/dfl-fme.*/dfl-fme.*/*spi*/"
+		"/sys/class/fpga_region/region*/dfl-fme.*/dfl*/*spi*/"
 		"spi_master/spi*/spi*/*-hwmon.*.auto/hwmon/hwmon*";
 
   EXPECT_NE(read_sensor_sysfs_file(NULL, file, &buf, &tot_bytes_ret), FPGA_OK);
@@ -180,13 +180,13 @@ TEST_P(metrics_max10_c_p, test_metric_max10_2) {
   EXPECT_NE(FPGA_OK,
 	  dfl_enum_max10_metrics_info(_handle, &vector, NULL, FPGA_HW_DCP_N3000));
 
-  EXPECT_EQ(FPGA_OK, dfl_enum_max10_metrics_info(_handle, &vector, &metric_num,
+  EXPECT_EQ(FPGA_INVALID_PARAM, dfl_enum_max10_metrics_info(_handle, &vector, &metric_num,
                                              FPGA_HW_UNKNOWN));
 
   EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
 }
 INSTANTIATE_TEST_CASE_P(metrics_max10_c, metrics_max10_c_p,
-    ::testing::ValuesIn(test_platform::mock_platforms({"dfl-d5005"})));
+    ::testing::ValuesIn(test_platform::mock_platforms({"dfl-n3000"})));
 
 class metrics_invalid_max10_c_p : public metrics_max10_c_p {};
 
