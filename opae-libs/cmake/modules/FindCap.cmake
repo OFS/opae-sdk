@@ -25,15 +25,18 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE
 
+find_package(PkgConfig)
+pkg_search_module(CAP libcap)
+
 find_path(LIBCAP_INCLUDE_DIRS
-  capability.h
-  PATHS /usr/include/sys
-  NO_DEFAULT_PATH)
+  NAMES sys/capability.h
+  HINTS ${PC_LIBCAP_INCLUDEDIR}
+        ${PC_LIBCAP_INCLUDE_DIRS})
 
 find_library(LIBCAP_LIBRARIES
-  NAME cap
-  PATHS /usr/lib64
-  NO_DEFAULT_PATH)
+  NAMES cap
+  HINTS ${PC_LIBCAP_LIBDIR}
+        ${PC_LIBCAP_LIBRARY_DIRS})
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(libcap DEFAULT_MSG
