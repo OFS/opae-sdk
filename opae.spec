@@ -197,6 +197,7 @@ done
 %{_libdir}/libmml-stream.so
 %{_libdir}/libmml-srv.so
 %{_libdir}/libofs.so
+%{_libdir}/libofs_cpeng.so
 %{_libdir}/libopaemem.so
 %{_libdir}/libopaeuio.so
 %{_libdir}/libopaevfio.so
