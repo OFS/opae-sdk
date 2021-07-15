@@ -31,12 +31,20 @@ pkg_search_module(CAP libcap)
 find_path(LIBCAP_INCLUDE_DIRS
   NAMES sys/capability.h
   HINTS ${PC_LIBCAP_INCLUDEDIR}
-        ${PC_LIBCAP_INCLUDE_DIRS})
+        ${PC_LIBCAP_INCLUDE_DIRS}
+        /usr/local/include
+        /usr/include
+        ${CMAKE_EXTRA_INCLUDES})
 
 find_library(LIBCAP_LIBRARIES
   NAMES cap
   HINTS ${PC_LIBCAP_LIBDIR}
-        ${PC_LIBCAP_LIBRARY_DIRS})
+        ${PC_LIBCAP_LIBRARY_DIRS}
+        /usr/local/lib
+        /usr/lib
+        /lib
+        /usr/lib/x86_64-linux-gnu
+        ${CMAKE_EXTRA_LIBS})
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(libcap DEFAULT_MSG
