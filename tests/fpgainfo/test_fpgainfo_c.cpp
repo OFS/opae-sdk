@@ -1376,4 +1376,4 @@ TEST_P(fpgainfo_c_p, main_7) {
 	EXPECT_EQ(fpgainfo_main(3, argv), 0);
 }
 INSTANTIATE_TEST_CASE_P(fpgainfo_c, fpgainfo_c_p,
-        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
+        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000" })));
