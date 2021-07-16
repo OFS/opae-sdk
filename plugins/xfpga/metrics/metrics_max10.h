@@ -33,8 +33,8 @@
 #define __FPGA_METRICS_MAX10_H__
 
 
-#define DFL_MAX10_SYSFS_PATH                     "*dfl*/*spi*/*spi*/**/hwmon/hwmon*/"
-#define DFL_MAX10_SYSFS_LABEL                    "*_label"
+#define DFL_MAX10_SYSFS_PATH                    "*dfl_*/*/**/*hwmon*/hwmon/hwmon*/"
+#define DFL_MAX10_SYSFS_LABEL                   "*_label"
 #define DFL_TEMPERATURE                         "temp"
 #define DFL_VOLTAGE                             "in"
 #define DFL_CURRENT                             "curr"
