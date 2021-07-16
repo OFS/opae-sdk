@@ -52,6 +52,7 @@ if(NOT libuuid_FOUND)
 endif()
 
 include(FindTbb)
+include(FindCap)
 
 include(OPAECompiler)
 if(OPAE_BUILD_TESTS)
