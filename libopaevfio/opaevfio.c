@@ -38,6 +38,7 @@
 #include <errno.h>
 #include <sys/mman.h>
 #include <regex.h>
+#include <linux/pci_regs.h>
 
 #include <opae/vfio.h>
 
@@ -249,24 +250,23 @@ STATIC void opae_vfio_device_destroy(struct opae_vfio_device *d)
 	}
 }
 
-#define PCI_COMMAND_OFFSET 0x4
-#define MEM_ENABLE (1 << 1)
-#define BUS_MASTER_ENABLE (1 << 2)
-
 STATIC int setup_pci_command(int fd, size_t cfg_offset)
 {
 	uint16_t cmd = 0;
 	ssize_t sz = sizeof(uint16_t);
-	if (pread(fd, &cmd, sz, cfg_offset + PCI_COMMAND_OFFSET) == sz) {
-		if (!(cmd & MEM_ENABLE) || !(cmd & BUS_MASTER_ENABLE)) {
-			cmd |= (MEM_ENABLE | BUS_MASTER_ENABLE);
+
+	if (pread(fd, &cmd, sz, cfg_offset + PCI_COMMAND) == sz) {
+		if (!(cmd & PCI_COMMAND_MEMORY) ||
+		    !(cmd & PCI_COMMAND_MASTER)) {
+			cmd |= (PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 			if (pwrite(fd, &cmd, sz,
-				   cfg_offset + PCI_COMMAND_OFFSET) != sz)
+				   cfg_offset + PCI_COMMAND) != sz)
 				return 1;
 		}
 	} else {
 		return 2;
 	}
+
 	return 0;
 }
 
