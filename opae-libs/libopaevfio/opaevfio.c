@@ -38,6 +38,7 @@
 #include <errno.h>
 #include <sys/mman.h>
 #include <regex.h>
+#include <linux/pci_regs.h>
 
 #include <opae/vfio.h>
 
@@ -249,24 +250,23 @@ STATIC void opae_vfio_device_destroy(struct opae_vfio_device *d)
 	}
 }
 
-#define PCI_COMMAND_OFFSET 0x4
-#define MEM_ENABLE (1 << 1)
-#define BUS_MASTER_ENABLE (1 << 2)
-
 STATIC int setup_pci_command(int fd, size_t cfg_offset)
 {
 	uint16_t cmd = 0;
 	ssize_t sz = sizeof(uint16_t);
-	if (pread(fd, &cmd, sz, cfg_offset + PCI_COMMAND_OFFSET) == sz) {
-		if (!(cmd & MEM_ENABLE) || !(cmd & BUS_MASTER_ENABLE)) {
-			cmd |= (MEM_ENABLE | BUS_MASTER_ENABLE);
+
+	if (pread(fd, &cmd, sz, cfg_offset + PCI_COMMAND) == sz) {
+		if (!(cmd & PCI_COMMAND_MEMORY) ||
+		    !(cmd & PCI_COMMAND_MASTER)) {
+			cmd |= (PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 			if (pwrite(fd, &cmd, sz,
-				   cfg_offset + PCI_COMMAND_OFFSET) != sz)
+				   cfg_offset + PCI_COMMAND) != sz)
 				return 1;
 		}
 	} else {
 		return 2;
 	}
+
 	return 0;
 }
 
@@ -825,7 +825,7 @@ int opae_vfio_irq_enable(struct opae_vfio *v,
 			struct vfio_irq_set *i;
 			char buf[sizeof(*i) + sizeof(int32_t)];
 			int32_t *fdptr;
-			int res;
+			int res = 3;
 
 			i = (struct vfio_irq_set *)buf;
 			i->argsz = sizeof(buf);
@@ -838,13 +838,18 @@ int opae_vfio_irq_enable(struct opae_vfio *v,
 			fdptr = (int32_t *)&i->data;
 			*fdptr = event_fd;
 
-			res = ioctl(v->device.device_fd,
-				    VFIO_DEVICE_SET_IRQS,
-				    i);
+			if (subindex < irq->count) {
+				res = ioctl(v->device.device_fd,
+					    VFIO_DEVICE_SET_IRQS,
+					    i);
 
-			if (res < 0)
-				ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i)"
-				    " [enable]\n");
+				if (res < 0)
+					ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i)"
+					    " [enable]\n");
+			} else {
+				ERR("subindex %u is out of range 0-%u\n",
+				    subindex, irq->count - 1);
+			}
 
 			return res;
 		}
@@ -868,7 +873,7 @@ int opae_vfio_irq_unmask(struct opae_vfio *v,
 		if ((irq->index == index) &&
 		    (irq->flags & VFIO_IRQ_INFO_MASKABLE)) {
 			struct vfio_irq_set i;
-			int res;
+			int res = 3;
 
 			i.argsz = sizeof(i);
 			i.flags = VFIO_IRQ_SET_ACTION_UNMASK |
@@ -877,13 +882,18 @@ int opae_vfio_irq_unmask(struct opae_vfio *v,
 			i.start = subindex;
 			i.count = 1;
 
-			res = ioctl(v->device.device_fd,
-				    VFIO_DEVICE_SET_IRQS,
-				    &i);
+			if (subindex < irq->count) {
+				res = ioctl(v->device.device_fd,
+					    VFIO_DEVICE_SET_IRQS,
+					    &i);
 
-			if (res < 0)
-				ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i)"
-				    " [unmask]\n");
+				if (res < 0)
+					ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i)"
+					    " [unmask]\n");
+			} else {
+				ERR("subindex %u is out of range 0-%u\n",
+				    subindex, irq->count - 1);
+			}
 
 			return res;
 		}
@@ -907,7 +917,7 @@ int opae_vfio_irq_mask(struct opae_vfio *v,
 		if ((irq->index == index) &&
 		    (irq->flags & VFIO_IRQ_INFO_MASKABLE)) {
 			struct vfio_irq_set i;
-			int res;
+			int res = 3;
 
 			i.argsz = sizeof(i);
 			i.flags = VFIO_IRQ_SET_ACTION_MASK |
@@ -916,13 +926,18 @@ int opae_vfio_irq_mask(struct opae_vfio *v,
 			i.start = subindex;
 			i.count = 1;
 
-			res = ioctl(v->device.device_fd,
-				    VFIO_DEVICE_SET_IRQS,
-				    &i);
+			if (subindex < irq->count) {
+				res = ioctl(v->device.device_fd,
+					    VFIO_DEVICE_SET_IRQS,
+					    &i);
 
-			if (res < 0)
-				ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i)"
-				    " [mask]\n");
+				if (res < 0)
+					ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i)"
+					    " [mask]\n");
+			} else {
+				ERR("subindex %u is out of range 0-%u\n",
+				    subindex, irq->count - 1);
+			}
 
 			return res;
 		}
@@ -948,7 +963,7 @@ int opae_vfio_irq_disable(struct opae_vfio *v,
 			struct vfio_irq_set *i;
 			char buf[sizeof(*i) + sizeof(int32_t)];
 			int32_t *fdptr;
-			int res;
+			int res = 3;
 
 			i = (struct vfio_irq_set *)buf;
 			i->argsz = sizeof(buf);
@@ -961,13 +976,18 @@ int opae_vfio_irq_disable(struct opae_vfio *v,
 			fdptr = (int32_t *)&i->data;
 			*fdptr = -1;
 
-			res = ioctl(v->device.device_fd,
-				    VFIO_DEVICE_SET_IRQS,
-				    i);
+			if (subindex < irq->count) {
+				res = ioctl(v->device.device_fd,
+					    VFIO_DEVICE_SET_IRQS,
+					    i);
 
-			if (res < 0)
-				ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i)"
-				    " [disable]\n");
+				if (res < 0)
+					ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i)"
+					    " [disable]\n");
+			} else {
+				ERR("subindex %u is out of range 0-%u\n",
+				    subindex, irq->count - 1);
+			}
 
 			return res;
 		}
