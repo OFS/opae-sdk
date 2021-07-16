@@ -403,9 +403,9 @@ public:
     buffer->fill(value);
   }
 
-  event::ptr_t register_interrupt()
+  event::ptr_t register_interrupt(uint32_t vector)
   {
-    auto event = event::register_event(handle_, FPGA_EVENT_INTERRUPT);
+    auto event = event::register_event(handle_, FPGA_EVENT_INTERRUPT, vector);
     return event;
   }
 

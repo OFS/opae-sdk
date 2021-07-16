@@ -37,6 +37,7 @@ fpga_result phy_filter(fpga_properties *filter, int argc, char *argv[]);
 fpga_result phy_command(fpga_token *tokens, int num_tokens, int argc, char *argv[]);
 fpga_result mac_info(fpga_token token);
 fpga_result phy_group_info(fpga_token token);
+fpga_result find_dev_feature(fpga_token token, uint32_t feature_id, char *dfl_dev_str);
 }
 
 using namespace opae::testing;
