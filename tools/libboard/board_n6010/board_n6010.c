@@ -59,7 +59,7 @@
 
 #define HSSI_FEATURE_LIST                       0xC
 #define HSSI_PORT_ATTRIBUTE                     0x10
-
+#define HSSI_VERSION                            0x8
 // hssi version
 struct hssi_version {
 	union {
@@ -100,6 +100,52 @@ struct hssi_port_attribute {
 		};
 	};
 };
+
+typedef struct hssi_port_profile {
+
+	uint32_t port_index;
+	char profile[FPGA_VAR_BUF_LEN];
+
+} hssi_port_profile;
+
+#define HSS_PORT_PROFILE_SIZE 33
+
+hssi_port_profile hssi_port_profiles[] = {
+
+	{.port_index = 0, .profile = "LL100G"},
+	{.port_index = 1, .profile = "Ultra100G"},
+	{.port_index = 2, .profile = "LL50G"},
+	{.port_index = 3, .profile = "LL40G"},
+	{.port_index = 4, .profile = "Ultra40G"},
+	{.port_index = 5, .profile = "25_50G"},
+	{.port_index = 6, .profile = "10_25G"},
+	{.port_index = 7, .profile = "MRPHY"},
+	{.port_index = 8, .profile = "LL10G"},
+	{.port_index = 9, .profile = "TSE PCS"},
+	{.port_index = 10, .profile = "TSE MAC"},
+	{.port_index = 11, .profile = "Flex-E"},
+	{.port_index = 12, .profile = "OTN"},
+	{.port_index = 13, .profile = "General PCS-Direct"},
+	{.port_index = 14, .profile = "General FEC-Direct"},
+	{.port_index = 15, .profile = "General PMA-Direct"},
+	{.port_index = 16, .profile = "MII"},
+	{.port_index = 17, .profile = "Ethernet PCS-Direct"},
+	{.port_index = 18, .profile = "Ethernet FEC-Direct"},
+	{.port_index = 19, .profile = "Ethernet PMA-Direct"},
+	{.port_index = 20, .profile = "10GbE"},
+	{.port_index = 21, .profile = "25GbE"},
+	{.port_index = 22, .profile = "40GCAUI-4"},
+	{.port_index = 23, .profile = "50GAUI-2"},
+	{.port_index = 24, .profile = "50GAUI-1"},
+	{.port_index = 25, .profile = "100GAUI-1"},
+	{.port_index = 26, .profile = "100GAUI-2"},
+	{.port_index = 27, .profile = "100GCAUI-4"},
+	{.port_index = 28, .profile = "200GAUI-2"},
+	{.port_index = 29, .profile = "200GAUI-4"},
+	{.port_index = 30, .profile = "200GAUI-8"},
+	{.port_index = 31, .profile = "400GAUI-4"},
+	{.port_index = 32, .profile = "400GAUI-8"}
+ };
 
 
 // Parse firmware version
@@ -293,81 +339,8 @@ fpga_result print_board_info(fpga_token token)
 	return resval;
 }
 
-// enumerate hssi feature 0x15
-fpga_result enum_hssi_feature(fpga_token token,
-		char *feature_dev)
-{
-	fpga_result res                 = FPGA_OK;
-	char sysfs_path[SYSFS_MAX_SIZE] = { 0 };
-	uint8_t bus                     = (uint8_t)-1;
-	uint16_t segment                = (uint16_t)-1;
-	uint8_t device                  = (uint8_t)-1;
-	uint8_t function                = (uint8_t)-1;
-	size_t i                        = 0;
-	uint64_t value                  = 0;
-	int gres                        = 0;
-	glob_t pglob;
-
-	res = get_fpga_sbdf(token, &segment, &bus, &device, &function);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get sbdf ");
-		return res;
-	}
-
-	if (snprintf(sysfs_path, sizeof(sysfs_path),
-		FEATURE_DEV,
-		segment, bus, device, function) < 0) {
-		OPAE_ERR("snprintf buffer overflow");
-		return FPGA_EXCEPTION;
-	}
-
-	gres = glob(sysfs_path, GLOB_NOSORT, NULL, &pglob);
-	if (gres) {
-		OPAE_ERR("Failed pattern match %s: %s", sysfs_path, strerror(errno));
-		globfree(&pglob);
-		return FPGA_NOT_FOUND;
-	}
-
-	if (pglob.gl_pathc >= 1) {
-		OPAE_ERR("gl_pathc = 1");
-		memset(sysfs_path, 0, sizeof(sysfs_path));
-		if (snprintf(sysfs_path, sizeof(sysfs_path),
-			"%s/feature_id", pglob.gl_pathv[0]) < 0) {
-			OPAE_ERR("snprintf buffer overflow");
-			res = FPGA_EXCEPTION;
-			goto out;
-		}
-
-		res = sysfs_read_u64(sysfs_path, &value);
-		if (res != FPGA_OK) {
-			OPAE_MSG("Failed to read sysfs value");
-			goto out;
-		}
-
-		if (value == HSSI_FEATURE_ID) {
-			char *p = strstr(pglob.gl_pathv[i], "dfl_dev");
-			if (p == NULL) {
-				res = FPGA_NOT_FOUND;
-				goto out;
-			}
-
-			if (snprintf(feature_dev, SYSFS_MAX_SIZE,
-				"%s", p) < 0) {
-				OPAE_ERR("snprintf buffer overflow");
-				res = FPGA_EXCEPTION;
-				goto out;
-			}
-		}
-	} else {
-		res = FPGA_NOT_FOUND;
-		goto out;
-	}
 
 
-out:
-	globfree(&pglob);
-	return res;
-}
 
 // print phy group information
 fpga_result print_phy_info(fpga_token token)
@@ -377,15 +350,16 @@ fpga_result print_phy_info(fpga_token token)
 	char feature_dev[SYSFS_MAX_SIZE] = { 0 };
 	struct hssi_port_attribute port_profile;
 	struct hssi_feature_list  feature_list;
+	struct hssi_version  hssi_ver;
 	uint8_t *mmap_ptr = NULL;
-	uint32_t *_ptr = NULL;
 	uint32_t i = 0;
 
-	res = enum_hssi_feature(token, feature_dev);
+	res = find_dev_feature(token, HSSI_FEATURE_ID, feature_dev);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get hssi feature");
+		OPAE_ERR("Failed to find feature ");
 		return res;
 	}
+
 	res = opae_uio_open(&uio, feature_dev);
 	if (res) {
 		OPAE_ERR("Failed to open uio");
@@ -398,20 +372,29 @@ fpga_result print_phy_info(fpga_token token)
 		opae_uio_close(&uio);
 		return res;
 	}
-	_ptr = (uint32_t *)mmap_ptr;
-	feature_list.csr = *(_ptr + HSSI_FEATURE_LIST);
-	for (i = 0; i < feature_list.hssi_num; i++) {
-		port_profile.csr = *(_ptr + HSSI_PORT_ATTRIBUTE + i);
 
-		if (port_profile.profile == HSSI_100G_PROFILE) {
-			printf("Port%d : %s \n", i, "100GCAUI-4");
-		} else if (port_profile.profile == HSSI_25G_PROFILE) {
-			printf("Port%d : %s \n", i, "25GbE");
-		} else if (port_profile.profile == HSSI_10_PROFILE) {
-			printf("Port%d : %s \n", i, "10GbE");
-		} else {
-			printf("Invalid port ");
+	feature_list.csr = *((uint32_t *) (mmap_ptr + HSSI_FEATURE_LIST));
+	hssi_ver.csr = *((uint32_t *)(mmap_ptr + HSSI_VERSION));
+
+	printf("//****** HSSI information ******//\n");
+	printf("%-32s : %d.%d  \n", "HSSI version", hssi_ver.major, hssi_ver.minor);
+	printf("%-32s : %d  \n", "Number of ports", feature_list.hssi_num);
+
+	for (i = 0; i < feature_list.hssi_num; i++) {
+		port_profile.csr = *((uint32_t *)(mmap_ptr +
+			HSSI_PORT_ATTRIBUTE + i * 4));
+
+		if (port_profile.profile > HSS_PORT_PROFILE_SIZE) {
+			printf("Port%-28d :%s\n", i, "N/A");
+			continue;
 		}
+
+		for (int j = 0; j < HSS_PORT_PROFILE_SIZE; j++) {
+			if (hssi_port_profiles[j].port_index == port_profile.profile) {
+				printf("Port%-28d :%s\n", i, hssi_port_profiles[j].profile);
+				break;
+			}
+		 }
 	}
 
 	opae_uio_close(&uio);

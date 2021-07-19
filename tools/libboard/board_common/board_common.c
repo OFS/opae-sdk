@@ -430,8 +430,8 @@ fpga_result get_fpga_sbdf(fpga_token token,
 
 
 fpga_result find_dev_feature(fpga_token token,
-	 uint32_t feature_id,
-	 char *dfl_dev_str)
+	uint32_t feature_id,
+	char *dfl_dev_str)
 {
 	fpga_result res          = FPGA_NOT_FOUND;
 	fpga_result retval       = FPGA_OK;
@@ -478,18 +478,24 @@ fpga_result find_dev_feature(fpga_token token,
 				char *p = strstr(pglob.gl_pathv[i], "dfl_dev");
 				if (p == NULL) {
 					res = FPGA_NOT_FOUND;
+					goto free;
 				}
 
-				if (snprintf(dfl_dev_str, SYSFS_PATH_MAX,
-					"%s", p) < 0) {
-					OPAE_ERR("snprintf buffer overflow");
-					res = FPGA_EXCEPTION;
+				char *end = strchr(p, '/');
+				if (end == NULL) {
+					res = FPGA_NOT_FOUND;
+					goto free;
 				}
+				strncpy(dfl_dev_str, p, end - p);
+				*(dfl_dev_str + (end - p)) = '\0';
+
 			}
 			break;
 		}
 
 	}
+
+free:
 	if (gres)
 		globfree(&pglob);
 	return res;
