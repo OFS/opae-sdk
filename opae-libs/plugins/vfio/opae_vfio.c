@@ -1192,7 +1192,7 @@ fpga_result vfio_fpgaDestroyToken(fpga_token *token)
 
 #define HUGE_1G (1*1024*1024*1024)
 #define HUGE_2M (2*1024*1024)
-#define ROUND_UP(N, M) ((N + M - 1) & -M)
+#define ROUND_UP(N, M) ((N + M) & ~(M-1))
 
 fpga_result vfio_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 				   void **buf_addr, uint64_t *wsid,
