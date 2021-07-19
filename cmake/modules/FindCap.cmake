@@ -46,6 +46,10 @@ find_library(LIBCAP_LIBRARIES
         /usr/lib/x86_64-linux-gnu
         ${CMAKE_EXTRA_LIBS})
 
+if(LIBCAP_LIBRARIES AND LIBCAP_INCLUDE_DIRS)
+  set(LIBCAP_FOUND true)
+endif(LIBCAP_LIBRARIES AND LIBCAP_INCLUDE_DIRS)
+
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(libcap DEFAULT_MSG
   LIBCAP_INCLUDE_DIRS LIBCAP_LIBRARIES)
