@@ -102,7 +102,7 @@ public:
     size_t sz = inp.tellg();
     inp.seekg(0, std::ios::beg);
     // allocate 64-byte aligned
-    size_t padded_sz = (sz + CACHELINE_SZ) & (CACHELINE_SZ-1);
+    size_t padded_sz = (sz + CACHELINE_SZ) & ~(CACHELINE_SZ-1);
     auto buffer = shared_buffer::allocate(afu->handle(), padded_sz);
     auto ptr = reinterpret_cast<char*>(const_cast<uint8_t*>(buffer->c_type()));
     memset(ptr, 0, padded_sz);
