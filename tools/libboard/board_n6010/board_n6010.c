@@ -108,7 +108,7 @@ typedef struct hssi_port_profile {
 
 } hssi_port_profile;
 
-#define HSS_PORT_PROFILE_SIZE 32
+#define HSS_PORT_PROFILE_SIZE 33
 
 hssi_port_profile hssi_port_profiles[] = {
 
@@ -141,7 +141,7 @@ hssi_port_profile hssi_port_profiles[] = {
 	{.port_index = 26, .profile = "100GAUI-2"},
 	{.port_index = 27, .profile = "100GCAUI-4"},
 	{.port_index = 28, .profile = "200GAUI-2"},
-	{.port_index = 20, .profile = "200GAUI-4"},
+	{.port_index = 29, .profile = "200GAUI-4"},
 	{.port_index = 30, .profile = "200GAUI-8"},
 	{.port_index = 31, .profile = "400GAUI-4"},
 	{.port_index = 32, .profile = "400GAUI-8"}
