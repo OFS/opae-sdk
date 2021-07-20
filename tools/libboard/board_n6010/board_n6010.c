@@ -392,7 +392,7 @@ fpga_result print_phy_info(fpga_token token)
 		for (int j = 0; j < HSS_PORT_PROFILE_SIZE; j++) {
 			if (hssi_port_profiles[j].port_index == port_profile.profile) {
 				printf("Port%-28d :%s\n", i, hssi_port_profiles[j].profile);
-				continue;
+				break;
 			}
 		 }
 	}
