@@ -121,17 +121,6 @@ fpga_result print_sec_info(fpga_token token);
 */
 fpga_result print_fme_verbose_info(fpga_token token);
 
-/**
-* Enumerate hssi feature
-*
-* @param[in] token            fpga_token object for device (FPGA_DEVICE type)
-* @param[inout] feature_dev   pointer to char hssi feature
-* @returns FPGA_OK on success. FPGA_NOT_FOUND if  feature info not found.
-* FPGA_INVALID_PARAM if invalid parameters were provided
-*/
-fpga_result enum_hssi_feature(fpga_token token,
-		char *feature_dev);
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
