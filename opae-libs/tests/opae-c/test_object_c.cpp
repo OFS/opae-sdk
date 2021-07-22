@@ -284,6 +284,40 @@ TEST_P(object_c_p, handle_get_obj) {
 }
 
 /**
+ * @test       handle_get_obj
+ * @brief      Test: fpgaHandleGetObject
+ * @details    When fpgaHandleGetObject is called with too short name,
+ *             the function returns FPGA_NOT_FOUND. <br>
+ */
+TEST_P(object_c_p, handle_get_obj_too_short) {
+  fpga_object obj = nullptr;
+  const char *too_short_name = "a";
+
+  EXPECT_EQ(fpgaHandleGetObject(accel_, too_short_name, &obj, 0), FPGA_NOT_FOUND);
+  ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
+}
+
+/**
+ * @test       handle_get_obj
+ * @brief      Test: fpgaHandleGetObject
+ * @details    When fpgaHandleGetObject is called with too long name,
+ *             the function returns FPGA_NOT_FOUND. <br>
+ */
+TEST_P(object_c_p, handle_get_obj_too_long) {
+  fpga_object obj = nullptr;
+  const char *too_long_name = "This/is/invalid/path/with/maximim/255/\
+			       characterssssssssssssssssssssssssssssss\
+			       ssssssssssssssssssssssa/lengthhhhhhhhhhh\
+			       hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh\
+			       /so/opaeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\
+			       eeeeeeeeeeeeeeeeeee/api/should/return/with/\
+			       errorrrrrrrrrrrrrrrrr/for/SDL testing/";
+
+  EXPECT_EQ(fpgaHandleGetObject(accel_, too_long_name, &obj, 0), FPGA_NOT_FOUND);
+  ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
+}
+
+/**
  * @test       token_get_obj
  * @brief      Test: fpgaTokenGetObject
  * @details    When fpgaTokenGetObject is called with a name that has a null
@@ -297,6 +331,43 @@ TEST_P(object_c_p, token_get_obj) {
                                 FPGA_NOT_FOUND);
   ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
 }
+
+/**
+ * @test       token_get_obj
+ * @brief      Test: fpgaTokenGetObject
+ * @details    When fpgaTokenGetObject is called with too short path name,
+ *             the function returns FPGA_NOT_FOUND. <br>
+ */
+TEST_P(object_c_p, token_get_obj_too_short) {
+  fpga_object obj = nullptr;
+  const char *too_short_path = "a";
+
+  EXPECT_EQ(fpgaTokenGetObject(tokens_device_[0], too_short_path, &obj, 0),
+                                FPGA_NOT_FOUND);
+  ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
+}
+
+/**
+ * @test       token_get_obj
+ * @brief      Test: fpgaTokenGetObject
+ * @details    When fpgaTokenGetObject is called with too long path name,
+ *             the function returns FPGA_NOT_FOUND. <br>
+ */
+TEST_P(object_c_p, token_get_obj_too_long) {
+  fpga_object obj = nullptr;
+  const char *too_long_path = "This/is/invalid/path/with/maximim/255/\
+			       characterssssssssssssssssssssssssssssss\
+			       ssssssssssssssssssssssa/lengthhhhhhhhhhh\
+			       hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh\
+			       /so/opaeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\
+			       eeeeeeeeeeeeeeeeeee/api/should/return/with/\
+			       errorrrrrrrrrrrrrrrrr/for/SDL testing/";
+
+  EXPECT_EQ(fpgaTokenGetObject(tokens_device_[0], too_long_path, &obj, 0),
+                                FPGA_NOT_FOUND);
+  ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
+}
+
 
 /**
  * @test       obj_get_size

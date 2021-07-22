@@ -208,7 +208,9 @@ class scope_visitor(c_visitor):
 
     def visit_Attribute(self, node):
         if node.value.id in self.driver.reg_names:
-            return f'drv->r_{node.value.id}->f_{node.attr}'
+            # bitfields prefixed with f_ but value member isn't
+            f_prefix = '' if node.attr == 'value' else 'f_'
+            return f'drv->r_{node.value.id}->{f_prefix}{node.attr}'
         return f'{node.value.id}.{node.attr}'
 
     def visit_Name(self, node):

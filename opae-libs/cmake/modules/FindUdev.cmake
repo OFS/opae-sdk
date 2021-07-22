@@ -1,4 +1,5 @@
-## Copyright(c) 2018-2020, Intel Corporation
+#!/usr/bin/cmake -P
+## Copyright(c) 2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -22,29 +23,33 @@
 ## INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
-## POSSIBILITY OF SUCH DAMAGE.
+## POSSIBILITY OF SUCH DAMAGE
 
-opae_add_executable(TARGET fpgainfo
-    SOURCE
-       main.c
-       fpgainfo.c
-       errors.c
-       fmeinfo.c
-       bmcinfo.c
-       bmcdata.c
-       powerinfo.c
-       tempinfo.c
-       portinfo.c
-       board.c
-    LIBS
-        argsfilter
-        opae-c
-        board_common
-        ${libjson-c_LIBRARIES}
-    COMPONENT toolfpgainfo
-)
+find_package(PkgConfig)
+pkg_check_modules(PC_LIBUDEV libudev)
 
-target_include_directories(fpgainfo
-    PRIVATE
-        ${OPAE_SDK_SOURCE}/tools/argsfilter
-)
+find_path(LIBUDEV_INCLUDE_DIRS
+  NAMES libudev.h
+  HINTS ${PC_LIBUDEV_INCLUDEDIR}
+        ${PC_LIBUDEV_INCLUDE_DIRS}
+        /usr/local/include
+        /usr/include
+        ${CMAKE_EXTRA_INCLUDES})
+
+find_library(LIBUDEV_LIBRARIES
+  NAMES udev
+  HINTS ${PC_LIBUDEV_LIBDIR}
+        ${PC_LIBUDEV_LIBRARY_DIRS}
+        /usr/local/lib
+        /usr/lib
+        /lib
+        /usr/lib/x86_64-linux-gnu
+        ${CMAKE_EXTRA_LIBS})
+
+if(LIBUDEV_LIBRARIES AND LIBUDEV_INCLUDE_DIRS)
+        set(LIBUDEV_FOUND true)
+endif(LIBUDEV_LIBRARIES AND LIBUDEV_INCLUDE_DIRS)
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(udev DEFAULT_MSG
+        LIBUDEV_INCLUDE_DIRS LIBUDEV_LIBRARIES)

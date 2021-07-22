@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2020, Intel Corporation
+// Copyright(c) 2019-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -58,6 +58,9 @@
 #define ETHTOOL_STR              "ethtool"
 #define IFCONFIG_STR             "ifconfig"
 #define IFCONFIG_UP_STR          "up"
+
+#define SYSFS_FEATURE_ID "/sys/bus/pci/devices/*%x*:*%x*:*%x*.*%x*/"\
+			"fpga_region/region*/dfl-fme*/dfl_dev*/feature_id"
 
 // Read sysfs
 fpga_result read_sysfs(fpga_token token, char *sysfs_path,
@@ -422,5 +425,78 @@ fpga_result get_fpga_sbdf(fpga_token token,
 		return res;
 	}
 
+	return res;
+}
+
+
+fpga_result find_dev_feature(fpga_token token,
+	uint32_t feature_id,
+	char *dfl_dev_str)
+{
+	fpga_result res          = FPGA_NOT_FOUND;
+	fpga_result retval       = FPGA_OK;
+	int gres                 = 0;
+	size_t i                 = 0;
+	uint64_t value           = 0;
+	uint16_t segment         = 0;
+	uint8_t bus              = 0;
+	uint8_t device           = 0;
+	uint8_t function         = 0;
+	glob_t pglob;
+	char feature_path[SYSFS_PATH_MAX] = { 0 };
+
+	retval = get_fpga_sbdf(token, &segment, &bus, &device, &function);
+	if (retval != FPGA_OK) {
+		OPAE_ERR("Failed to get sbdf ");
+		return retval;
+	}
+
+	if (snprintf(feature_path, sizeof(feature_path),
+		SYSFS_FEATURE_ID,
+		segment, bus, device, function) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
+
+	gres = glob(feature_path, GLOB_NOSORT, NULL, &pglob);
+	if (gres) {
+		OPAE_ERR("Failed pattern match %s: %s",
+			feature_path, strerror(errno));
+		globfree(&pglob);
+		return FPGA_NOT_FOUND;
+	}
+	for (i = 0; i < pglob.gl_pathc; i++) {
+		retval = sysfs_read_u64(pglob.gl_pathv[i], &value);
+		if (retval != FPGA_OK) {
+			OPAE_MSG("Failed to read sysfs value");
+			continue;
+		}
+
+		if (value == feature_id) {
+			res = FPGA_OK;
+			if (dfl_dev_str) {
+				char *p = strstr(pglob.gl_pathv[i], "dfl_dev");
+				if (p == NULL) {
+					res = FPGA_NOT_FOUND;
+					goto free;
+				}
+
+				char *end = strchr(p, '/');
+				if (end == NULL) {
+					res = FPGA_NOT_FOUND;
+					goto free;
+				}
+				strncpy(dfl_dev_str, p, end - p);
+				*(dfl_dev_str + (end - p)) = '\0';
+
+			}
+			break;
+		}
+
+	}
+
+free:
+	if (gres)
+		globfree(&pglob);
 	return res;
 }

@@ -84,8 +84,8 @@ typedef struct _{driver} {{
 
 int {driver}_init({driver} *{var}, fpga_handle h)
 {{
-  uint64_t *ptr = 0;
-  fpga_result res = fpgaMapMMIO(h, 0, &ptr);
+  uint8_t *ptr = 0;
+  fpga_result res = fpgaMapMMIO(h, 0, (uint64_t**)&ptr);
   if (res) {{
     return res;
   }}
