@@ -185,17 +185,16 @@ public:
             uid_t uid = getuid();
             if (uid != 0) {
                 if (readlink("/proc/self/exe", file_name, DFL_PERF_STR_MAX) == -1) {
-                    std::cerr << "\nFailed to get the binary path" << std::endl;
+                    std::cerr << "Failed to get the binary path" << std::endl;
                     return -1;
                 }
                 caps = cap_get_file(file_name);
                 if (caps != 0)
                     res =  cap_get_flag(caps, 38, CAP_EFFECTIVE, &cap_flag_value);
-                else
-                    std::cerr << "Failed to get the capability for binary" << std::endl;
                 if (res == 0) {
-                    std::cout <<"\nFailed to read Perf counter due to unprivileged user access"<<std::endl
-                    <<"check --help for more information on setting the capabilities for binary\n" <<std::endl;
+                    std::cout << std::endl;
+                    std::cout <<"Failed to read Perf counter due to unprivileged user access"<<std::endl
+                    <<"=> check --help for more information on setting the capabilities for binary" <<std::endl << std::endl;
                     return -1;
                 }
             }
