@@ -219,6 +219,16 @@ class fme(region):
         return self.find_one('spi*/spi_master/spi*/spi*')
 
     @property
+    def pmci_bus(self):
+        if os.path.basename(self.sysfs_path).startswith('dfl'):
+            patterns = ['dfl*.*/*n6010bmc-secure*']
+            for pattern in patterns:
+                pmci = self.find_one(pattern)
+                if pmci:
+                    return pmci
+        return self.find_one('n6010bmc-secure*')
+
+    @property
     def altr_asmip(self):
         return self.find_one('altr-asmip*.*.auto')
 
@@ -235,6 +245,12 @@ class fme(region):
             node = spi.find_one('max10_version')
             value = int(node.value, 16)
             return max10_or_nios_version(value)
+        else:
+            pmci = self.pmci_bus
+            if pmci:
+                node = spi.find_one('max10_version')
+                value = int(node.value, 16)
+                return max10_or_nios_version(value)
 
     @property
     def bmcfw_version(self):
@@ -243,6 +259,13 @@ class fme(region):
             node = spi.find_one('bmcfw_flash_ctrl/bmcfw_version')
             value = int(node.value, 16)
             return max10_or_nios_version(value)
+        else:
+            pmci = self.pmci_bus
+            if pmci:
+                node = spi.find_one('bmcfw_flash_ctrl/bmcfw_version')
+                value = int(node.value, 16)
+                return max10_or_nios_version(value)
+
 
     @property
     def fpga_image_load(self):
@@ -434,6 +457,13 @@ class fpga_base(sysfs_device):
                 '*-secure.*.auto/*fpga_sec_mgr/*fpga_sec*')
             if fpga_sec:
                 return secure_dev(fpga_sec.sysfs_path, self.pci_node)
+        else:
+            pmci = f.pmci_bus
+            fpga_sec = pmci.find_one(
+                    '*fpga_sec_mgr*/*fpga_sec*')
+            if fpga_sec:
+                return secure_dev(fpga_sec.sysfs_path, self.pci_node)
+
 
     @property
     def security(self):

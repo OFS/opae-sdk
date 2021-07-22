@@ -52,6 +52,16 @@
 #define DFL_SYSFS_MACADDR_PATH                  "dfl*/mac_address"
 #define DFL_SYSFS_MACCNT_PATH                   "dfl*/mac_count"
 
+#define DFL_SEC_PMCI_GLOB "*dfl*/**/security/"
+#define DFL_SEC_USER_FLASH_COUNT  DFL_SEC_PMCI_GLOB "*flash_count"
+#define DFL_SEC_BMC_CANCEL        DFL_SEC_PMCI_GLOB "bmc_canceled_csks"
+#define DFL_SEC_BMC_ROOT          DFL_SEC_PMCI_GLOB "bmc_root_entry_hash"
+#define DFL_SEC_PR_CANCEL         DFL_SEC_PMCI_GLOB "pr_canceled_csks"
+#define DFL_SEC_PR_ROOT           DFL_SEC_PMCI_GLOB "pr_root_entry_hash"
+#define DFL_SEC_SR_CANCEL         DFL_SEC_PMCI_GLOB "sr_canceled_csks"
+#define DFL_SEC_SR_ROOT           DFL_SEC_PMCI_GLOB "sr_root_entry_hash"
+
+
 #define HSSI_FEATURE_ID                  0x15
 #define HSSI_100G_PROFILE                       27
 #define HSSI_25G_PROFILE                        21
@@ -404,7 +414,104 @@ fpga_result print_phy_info(fpga_token token)
 // Sec info
 fpga_result print_sec_info(fpga_token token)
 {
-	return print_sec_common_info(token);
+	fpga_result res = FPGA_OK;
+	fpga_result resval = FPGA_OK;
+	fpga_object tcm_object;
+	char name[SYSFS_PATH_MAX] = { 0 };
+
+	res = fpgaTokenGetObject(token, DFL_SEC_PMCI_GLOB, &tcm_object,
+		FPGA_OBJECT_GLOB);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get token Object");
+		return res;
+	}
+	printf("********** SEC Info START ************ \n");
+
+	// BMC Keys
+	memset(name, 0, sizeof(name));
+	res = read_sysfs(token, DFL_SEC_BMC_ROOT, name, SYSFS_PATH_MAX - 1);
+	if (res == FPGA_OK) {
+		printf("BMC root entry hash: %s\n", name);
+	} else {
+		OPAE_MSG("Failed to Read TCM BMC root entry hash");
+		printf("BMC root entry hash: %s\n", "None");
+		resval = res;
+	}
+
+	memset(name, 0, sizeof(name));
+	res = read_sysfs(token, DFL_SEC_BMC_CANCEL, name, SYSFS_PATH_MAX - 1);
+	if (res == FPGA_OK) {
+		printf("BMC CSK IDs canceled: %s\n", strlen(name) > 0 ? name : "None");
+	} else {
+		OPAE_MSG("Failed to Read BMC CSK IDs canceled");
+		printf("BBMC CSK IDs canceled: %s\n", "None");
+		resval = res;
+	}
+
+	// PR Keys
+	memset(name, 0, sizeof(name));
+	res = read_sysfs(token, DFL_SEC_PR_ROOT, name, SYSFS_PATH_MAX - 1);
+	if (res == FPGA_OK) {
+		printf("PR root entry hash: %s\n", name);
+	} else {
+		OPAE_MSG("Failed to Read PR root entry hash");
+		printf("PR root entry hash: %s\n", "None");
+		resval = res;
+	}
+
+	memset(name, 0, sizeof(name));
+	res = read_sysfs(token, DFL_SEC_PR_CANCEL, name, SYSFS_PATH_MAX - 1);
+	if (res == FPGA_OK) {
+		printf("AFU/PR CSK IDs canceled: %s\n",
+			strlen(name) > 0 ? name : "None");
+	} else {
+		OPAE_MSG("Failed to Read AFU CSK/PR IDs canceled");
+		printf("AFU/PR CSK IDs canceled: %s\n", "None");
+		resval = res;
+	}
+
+	// SR Keys
+	memset(name, 0, sizeof(name));
+	res = read_sysfs(token, DFL_SEC_SR_ROOT, name, SYSFS_PATH_MAX - 1);
+	if (res == FPGA_OK) {
+		printf("FIM root entry hash: %s\n", name);
+	} else {
+		OPAE_MSG("Failed to Read FIM root entry hash");
+		printf("FIM root entry hash: %s\n", "None");
+		resval = res;
+	}
+
+	memset(name, 0, sizeof(name));
+	res = read_sysfs(token, DFL_SEC_SR_CANCEL, name, SYSFS_PATH_MAX - 1);
+	if (res == FPGA_OK) {
+		printf("FIM CSK IDs canceled: %s\n", strlen(name) > 0 ? name : "None");
+	} else {
+		OPAE_MSG("Failed to Read FIM CSK IDs canceled");
+		printf("FIM CSK IDs canceled: %s\n", "None");
+		resval = res;
+	}
+
+	// User flash count
+	memset(name, 0, sizeof(name));
+	res = read_sysfs(token, DFL_SEC_USER_FLASH_COUNT, name,
+		SYSFS_PATH_MAX - 1);
+	if (res == FPGA_OK) {
+		printf("User flash update counter: %s\n", name);
+	} else {
+		OPAE_MSG("Failed to Read User flash update counter");
+		printf("User flash update counter: %s\n", "None");
+		resval = res;
+	}
+
+	res = fpgaDestroyObject(&tcm_object);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to Destroy Object");
+		resval = res;
+	}
+
+	printf("********** SEC Info END ************ \n");
+
+	return resval;
 }
 
 // print fme verbose info
