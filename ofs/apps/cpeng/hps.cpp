@@ -23,6 +23,7 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#include <algorithm>
 #include <chrono>
 #include <fstream>
 #include <thread>
@@ -43,10 +44,9 @@ public:
     : filename_("hps.img")
     , destination_offset_(0)
     , timeout_usec_(60000000)
-    , chunk_(0)
+    , chunk_(4096)
     , soft_reset_(false)
   {
-    log_ = spdlog::get(this->name());
   }
   virtual ~cpeng(){}
   virtual const char *name() const
@@ -82,6 +82,7 @@ public:
 
   virtual int run(opae::afu_test::afu *afu, __attribute__((unused)) CLI::App *app)
   {
+    log_ = spdlog::get(this->name());
     ofs_cpeng cpeng;
 
     // Initialize cpeng driver
@@ -97,50 +98,47 @@ public:
       return 0;
     }
 
-    // Read file into shared buffer
+    // Open file, get the size
     std::ifstream inp(filename_, std::ios::binary | std::ios::ate);
     size_t sz = inp.tellg();
     inp.seekg(0, std::ios::beg);
-    // allocate 64-byte aligned
-    size_t padded_sz = (sz + CACHELINE_SZ) & ~(CACHELINE_SZ-1);
-    auto buffer = shared_buffer::allocate(afu->handle(), padded_sz);
-    auto ptr = reinterpret_cast<char*>(const_cast<uint8_t*>(buffer->c_type()));
-    memset(ptr, 0, padded_sz);
-    if (!inp.read(ptr, sz)){
-      log_->error("error reading file: {}", filename_);
-      return 2;
-    }
-    log_->info("opened file {} with size {}", filename_, sz);
 
-    // Call cpeng driver copy_buffer
-    auto copy_status =
-      ofs_cpeng_copy_image(&cpeng,
-          buffer->io_address(), destination_offset_, padded_sz, chunk_, timeout_usec_);
-    if (copy_status) {
-      log_->error("Erro calling ofs_cpeng_copy_image");
-      if (ofs_cpeng_dma_status_error(&cpeng)) {
-        uint64_t axist_cpl = ofs_cpeng_ce_axist_cpl_sts(&cpeng);
-        uint64_t acelite_bresp = ofs_cpeng_ce_acelite_bresp_sts(&cpeng);
-        uint64_t fifo1_status = ofs_cpeng_ce_fifo1_status(&cpeng);
-        uint64_t fifo2_status = ofs_cpeng_ce_fifo2_status(&cpeng);
-        if (axist_cpl) {
-          log_->error("CE_AXIST_CPL_STS: {:x}", axist_cpl);
+    // if chunk_ CLI arg is 0, use the file size
+    // otherwise, use the smaller of chunk_ and file size
+    size_t chunk = chunk_ ? std::min(static_cast<size_t>(chunk_), sz) : sz;
+    auto buffer = shared_buffer::allocate(afu->handle(), chunk);
+    auto ptr = reinterpret_cast<char*>(const_cast<uint8_t*>(buffer->c_type()));
+    // get a char* of the buffer so we can read into it every chunk iteration
+    size_t written = 0;
+    while (written < sz) {
+        inp.read(ptr, chunk);
+        if (ofs_cpeng_copy_chunk(
+              &cpeng, buffer->io_address(),
+              destination_offset_ + written, chunk, timeout_usec_)) {
+          log_->error("could not copy chunk");
+          return 1;
         }
-        if (acelite_bresp) {
-          log_->error("CE_ACELITE_BRESP_STS: {:x}", acelite_bresp);
-        }
-        if (fifo1_status) {
-          log_->error("CE_FIFO1_STS: {:x}", fifo1_status);
-        }
-        if (fifo2_status) {
-          log_->error("CE_FIFO2_STS: {:x}", fifo2_status);
-        }
-        ofs_cpeng_ce_soft_reset(&cpeng);
-      }
-    } else {
-      wait_for_verify(&cpeng);
+        written += chunk;
+        chunk = std::min(chunk, sz-written);
     }
-    return copy_status;
+    // by this point we've copied the file itself
+    // check if bytes written are not cacheline aligned
+    // if not, add padding so that total written is cacheline aligned
+    auto padding = ((written + CACHELINE_SZ) & ~(CACHELINE_SZ-1)) - written;
+    if (padding) {
+      // let's reuse our buffer
+      memset(ptr, 0, padding);
+      if (ofs_cpeng_copy_chunk(
+            &cpeng, buffer->io_address(),
+            destination_offset_ + written, padding, timeout_usec_)) {
+        log_->error("could not copy padding");
+        return 2;
+      }
+    }
+    ofs_cpeng_image_complete(&cpeng);
+    wait_for_verify(&cpeng);
+
+    return 0;
   }
 
 
