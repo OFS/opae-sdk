@@ -91,7 +91,7 @@ jobs:
     - name: update
       run: sudo apt-get update -y
     - name: Build Docker image
-        run: docker build . -f docker/docs/Dockerfile -t opae/docs-builder
+      run: docker build . -f docker/docs/Dockerfile -t opae/docs-builder
     - name: Build Documentation
       run: docker run --rm -v ${{ github.workspace }}:/root opae/docs-builder ./scripts/build-documentation.sh
     - name: Upload latest to github.io
