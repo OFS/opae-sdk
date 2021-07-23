@@ -119,7 +119,7 @@ public:
     } catch (opae_exception &ex) {
       log_->error("could not allocate {} bytes of memory", chunk);
       if (chunk > pg_size) {
-	auto hugepage_sz = chunk <= MB(2) ? "2MB" : "1GB";
+        auto hugepage_sz = chunk <= MB(2) ? "2MB" : "1GB";
         log_->error("might need {} hugepages reserved", hugepage_sz);
       }
       return 1;
