@@ -172,7 +172,7 @@ public:
 
         token_ = d_afu->get_token();
 
-	fpgaperf::ptr_t perf(nullptr);
+        fpgaperf::ptr_t perf(nullptr);
         if (host_exe_->perf_) {
             uid_t uid = getuid();
             if (uid != 0) {
@@ -240,12 +240,13 @@ public:
        // Write to CSR_CFG
         d_afu->write64(HE_CFG, he_lpbk_cfg_.value);
 
-	event::ptr_t ev = nullptr;
-	if (he_lpbk_cfg_.IntrTestMode == 1) {
+        event::ptr_t ev = nullptr;
+        if (he_lpbk_cfg_.IntrTestMode == 1) {
             he_interrupt_.VectorNum = host_exe_->he_interrupt_;
             d_afu->write32(HE_INTERRUPT0, he_interrupt_.value);
-            ev = d_afu->register_interrupt();
-	}
+            ev = d_afu->register_interrupt(host_exe_->he_interrupt_);
+            std::cout << "Using Interrupts\n";
+        }
 
         // Write to CSR_CTL
         std::cout << "Start Test" << std::endl;
@@ -256,20 +257,11 @@ public:
 
         /* Wait for test completion */
         uint32_t           timeout = HELPBK_TEST_TIMEOUT;
-        volatile uint8_t* status_ptr = dsm_->c_type() ;
+        volatile uint8_t* status_ptr = dsm_->c_type();
 
         if (he_lpbk_cfg_.IntrTestMode == 1) {
             try {
                 d_afu->interrupt_wait(ev, 10000);
-                while (0 == ((*status_ptr) & 0x1)) {
-                    usleep(HELPBK_TEST_SLEEP_INVL);
-                    if (--timeout == 0) {
-                        std::cout << "DSM read timeout" << std::endl;
-                        host_exerciser_errors();
-                        return -1;
-                    }
-                }
-
                 if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
                     d_afu->compare(source_, destination_);
              }
@@ -295,7 +287,7 @@ public:
             if (perf->stop() != FPGA_OK) {
                 std::cout << "Failed to stop the fpga perf counter" << std::endl;
             }
-	}
+        }
 
         std::cout << "Test Completed" << std::endl;
         host_exerciser_swtestmsg();
