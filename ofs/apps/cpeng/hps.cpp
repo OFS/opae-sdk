@@ -98,33 +98,42 @@ public:
       return 0;
     }
 
-    // Read file into shared buffer
+    // Open file, get the size
     std::ifstream inp(filename_, std::ios::binary | std::ios::ate);
     size_t sz = inp.tellg();
     inp.seekg(0, std::ios::beg);
 
-    // chunk in 4k pages
-    auto buffer = shared_buffer::allocate(afu->handle(), chunk_);
+    // if chunk_ CLI arg is 0, use the file size
+    // otherwise, use the smaller of chunk_ and file size
+    size_t chunk = chunk_ ? std::min(static_cast<size_t>(chunk_), sz) : sz;
+    auto buffer = shared_buffer::allocate(afu->handle(), chunk);
     auto ptr = reinterpret_cast<char*>(const_cast<uint8_t*>(buffer->c_type()));
-    size_t offset = 0;
-    size_t chunk = std::min(static_cast<size_t>(chunk_), sz);
-    while (offset < sz) {
+    // get a char* of the buffer so we can read into it every chunk iteration
+    size_t written = 0;
+    while (written < sz) {
         inp.read(ptr, chunk);
-        if (chunk < chunk_) {
-          auto padded_sz = (chunk+CACHELINE_SZ) & ~(CACHELINE_SZ-1);
-          if (padded_sz > chunk) {
-            memset(ptr+chunk, 0, padded_sz-chunk);
-            chunk = padded_sz;
-          }
-        }
         if (ofs_cpeng_copy_chunk(
               &cpeng, buffer->io_address(),
-              destination_offset_ + offset, chunk, timeout_usec_)) {
+              destination_offset_ + written, chunk, timeout_usec_)) {
           log_->error("could not copy chunk");
           return 1;
         }
-        offset += chunk;
-        chunk = std::min(chunk, sz-offset);
+        written += chunk;
+        chunk = std::min(chunk, sz-written);
+    }
+    // by this point we've copied the file itself
+    // check if bytes written are not cacheline aligned
+    // if not, add padding so that total written is cacheline aligned
+    auto padding = ((written + CACHELINE_SZ) & ~(CACHELINE_SZ-1)) - written;
+    if (padding) {
+      // let's reuse our buffer
+      memset(ptr, 0, padding);
+      if (ofs_cpeng_copy_chunk(
+            &cpeng, buffer->io_address(),
+            destination_offset_ + written, padding, timeout_usec_)) {
+        log_->error("could not copy padding");
+        return 2;
+      }
     }
     ofs_cpeng_image_complete(&cpeng);
     wait_for_verify(&cpeng);
