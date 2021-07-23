@@ -27,6 +27,7 @@
 #include <chrono>
 #include <fstream>
 #include <thread>
+#include <unistd.h>
 #include "afu_test.h"
 #include "ofs_cpeng.h"
 
@@ -35,7 +36,13 @@
 const char *cpeng_guid = "44bfc10d-b42a-44e5-bd42-57dc93ea7f91";
 
 using opae::fpga::types::shared_buffer;
+using opae_exception = opae::fpga::types::exception;
 using usec = std::chrono::microseconds;
+
+const size_t pg_size = sysconf(_SC_PAGESIZE);
+constexpr size_t MB(uint32_t count) {
+  return count * 1024 * 1024;
+}
 
 class cpeng : public opae::afu_test::command
 {
@@ -44,7 +51,7 @@ public:
     : filename_("hps.img")
     , destination_offset_(0)
     , timeout_usec_(60000000)
-    , chunk_(4096)
+    , chunk_(pg_size)
     , soft_reset_(false)
   {
   }
@@ -106,7 +113,17 @@ public:
     // if chunk_ CLI arg is 0, use the file size
     // otherwise, use the smaller of chunk_ and file size
     size_t chunk = chunk_ ? std::min(static_cast<size_t>(chunk_), sz) : sz;
-    auto buffer = shared_buffer::allocate(afu->handle(), chunk);
+    shared_buffer::ptr_t buffer(0);
+    try {
+      buffer = shared_buffer::allocate(afu->handle(), chunk);
+    } catch (opae_exception &ex) {
+      log_->error("could not allocate {} bytes of memory", chunk);
+      if (chunk > pg_size) {
+        auto hugepage_sz = chunk <= MB(2) ? "2MB" : "1GB";
+        log_->error("might need {} hugepages reserved", hugepage_sz);
+      }
+      return 1;
+    }
     auto ptr = reinterpret_cast<char*>(const_cast<uint8_t*>(buffer->c_type()));
     // get a char* of the buffer so we can read into it every chunk iteration
     size_t written = 0;
@@ -116,7 +133,7 @@ public:
               &cpeng, buffer->io_address(),
               destination_offset_ + written, chunk, timeout_usec_)) {
           log_->error("could not copy chunk");
-          return 1;
+          return 2;
         }
         written += chunk;
         chunk = std::min(chunk, sz-written);
@@ -132,7 +149,7 @@ public:
             &cpeng, buffer->io_address(),
             destination_offset_ + written, padding, timeout_usec_)) {
         log_->error("could not copy padding");
-        return 2;
+        return 3;
       }
     }
     ofs_cpeng_image_complete(&cpeng);
