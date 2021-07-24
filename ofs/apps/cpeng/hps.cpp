@@ -124,32 +124,45 @@ public:
       }
       return 1;
     }
-    auto ptr = reinterpret_cast<char*>(const_cast<uint8_t*>(buffer->c_type()));
     // get a char* of the buffer so we can read into it every chunk iteration
+    auto ptr = reinterpret_cast<char*>(const_cast<uint8_t*>(buffer->c_type()));
+
     size_t written = 0;
+    log_->info("starting copy of file:{}, size: {}, chunk size: {}",
+               filename_, sz, chunk);
+    uint32_t n_chunks = 0;
     while (written < sz) {
         inp.read(ptr, chunk);
         if (ofs_cpeng_copy_chunk(
               &cpeng, buffer->io_address(),
               destination_offset_ + written, chunk, timeout_usec_)) {
-          log_->error("could not copy chunk");
-          return 2;
+          log_->warn("copy chunk, dma_status: {:x}",
+                      ofs_cpeng_dma_status(&cpeng));
+          if (dmastatus_err(&cpeng)) {
+            return 2;
+          }
         }
+        ++n_chunks;
         written += chunk;
         chunk = std::min(chunk, sz-written);
     }
+    log_->info("transerred file in {} chunk(s)", n_chunks);
     // by this point we've copied the file itself
     // check if bytes written are not cacheline aligned
     // if not, add padding so that total written is cacheline aligned
     auto padding = ((written + CACHELINE_SZ) & ~(CACHELINE_SZ-1)) - written;
     if (padding) {
+      log_->debug("padded file with {} bytes", padding);
       // let's reuse our buffer
       memset(ptr, 0, padding);
       if (ofs_cpeng_copy_chunk(
             &cpeng, buffer->io_address(),
             destination_offset_ + written, padding, timeout_usec_)) {
-        log_->error("could not copy padding");
-        return 3;
+        log_->error("copying padding, dma_status: {:x}",
+                    ofs_cpeng_dma_status(&cpeng));
+        if (dmastatus_err(&cpeng)) {
+          return 3;
+        }
       }
     }
     ofs_cpeng_image_complete(&cpeng);
@@ -160,6 +173,31 @@ public:
 
 
 private:
+  bool dmastatus_err(ofs_cpeng *cpeng)
+  {
+    if (ofs_cpeng_dma_status_error(cpeng)) {
+        uint64_t axist_cpl = ofs_cpeng_ce_axist_cpl_sts(cpeng);
+        uint64_t acelite_bresp = ofs_cpeng_ce_acelite_bresp_sts(cpeng);
+        uint64_t fifo1_status = ofs_cpeng_ce_fifo1_status(cpeng);
+        uint64_t fifo2_status = ofs_cpeng_ce_fifo2_status(cpeng);
+        if (axist_cpl) {
+          log_->error("CE_AXIST_CPL_STS: {:x}", axist_cpl);
+        }
+        if (acelite_bresp) {
+          log_->error("CE_ACELITE_BRESP_STS: {:x}", acelite_bresp);
+        }
+        if (fifo1_status) {
+          log_->error("CE_FIFO1_STS: {:x}", fifo1_status);
+        }
+        if (fifo2_status) {
+          log_->error("CE_FIFO2_STS: {:x}", fifo2_status);
+        }
+        ofs_cpeng_ce_soft_reset(cpeng);
+        return true;
+      }
+      return false;
+  }
+
   void wait_for_verify(ofs_cpeng *cpeng)
   {
       // wait for both kernel and ssbl verify
