@@ -49,8 +49,8 @@ class cpeng : public opae::afu_test::command
 public:
   cpeng()
     : filename_("hps.img")
-    , destination_offset_(0)
-    , timeout_usec_(60000000)
+    , destination_offset_(0x2000000)
+    , timeout_usec_(100000)
     , chunk_(pg_size)
     , soft_reset_(false)
   {
