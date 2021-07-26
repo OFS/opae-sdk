@@ -174,10 +174,15 @@ public:
               << "  eth: " << eth_ifc << std::endl
               << std::endl;
 
-    if (eth_loopback_ == "on")
-      enable_eth_loopback(eth_ifc, true);
-    else
-      enable_eth_loopback(eth_ifc, false);
+    if (eth_ifc == "") {
+        std::cout << "No eth interface, so not "
+		     "honoring --eth-loopback." << std::endl;
+    } else {
+        if (eth_loopback_ == "on")
+            enable_eth_loopback(eth_ifc, true);
+        else
+            enable_eth_loopback(eth_ifc, false);
+    }
 
     hafu->mbox_write(CSR_STOP, 0);
 
@@ -223,10 +228,16 @@ public:
     } while(count < num_packets_);
 
     std::cout << std::endl;
-    show_eth_stats(eth_ifc);
 
-    if (eth_loopback_ == "on")
-      enable_eth_loopback(eth_ifc, false);
+    if (eth_ifc == "") {
+        std::cout << "No eth interface, so not "
+		     "showing stats." << std::endl;
+    } else {
+        show_eth_stats(eth_ifc);
+
+        if (eth_loopback_ == "on")
+            enable_eth_loopback(eth_ifc, false);
+    }
 
     return test_afu::success;
   }
