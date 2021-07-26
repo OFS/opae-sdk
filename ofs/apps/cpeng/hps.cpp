@@ -38,19 +38,21 @@ const char *cpeng_guid = "44bfc10d-b42a-44e5-bd42-57dc93ea7f91";
 using opae::fpga::types::shared_buffer;
 using opae_exception = opae::fpga::types::exception;
 using usec = std::chrono::microseconds;
+using msec = std::chrono::milliseconds;
 
 const size_t pg_size = sysconf(_SC_PAGESIZE);
 constexpr size_t MB(uint32_t count) {
   return count * 1024 * 1024;
 }
+const usec default_timeout_usec(msec(10));
 
 class cpeng : public opae::afu_test::command
 {
 public:
   cpeng()
-    : filename_("hps.img")
+    : filename_("kernel.itb")
     , destination_offset_(0x2000000)
-    , timeout_usec_(100000)
+    , timeout_usec_(default_timeout_usec.count())
     , chunk_(pg_size)
     , soft_reset_(false)
   {
