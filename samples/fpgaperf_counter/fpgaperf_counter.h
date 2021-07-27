@@ -47,6 +47,7 @@ extern "C" {
 
 #define FPGA_PERF_MAGIC 	0x46504741584c474c
 #define DFL_PERF_STR_MAX	256
+#define CAP_FPGA_PERFMON	38
 
 typedef struct  {
 	char event_name[DFL_PERF_STR_MAX];

@@ -190,7 +190,7 @@ public:
                 }
                 caps = cap_get_file(file_name);
                 if (caps != 0)
-                    res =  cap_get_flag(caps, CAP_PERFMON, CAP_EFFECTIVE, &cap_flag_value);
+                    res =  cap_get_flag(caps, CAP_FPGA_PERFMON, CAP_EFFECTIVE, &cap_flag_value);
                 if (res == 0) {
                     std::cout << std::endl;
                     std::cout <<"Failed to read Perf counter due to unprivileged user access"<<std::endl
