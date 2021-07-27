@@ -388,7 +388,7 @@ TEST_P(object_c_p, obj_get_size) {
  * @brief      Test: fpgaClose
  * @details    
  *             When fpgaClose is called with NULL object<br>
- *             the function returns FPGA_INVALID_PARAMI<br>
+ *             the function returns FPGA_INVALID_PARAM.<br>
  */
 TEST_P(object_c_p, obj_close) {
   EXPECT_EQ(fpgaClose(nullptr), FPGA_INVALID_PARAM);

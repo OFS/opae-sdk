@@ -126,7 +126,7 @@ TEST_P(buffer_c_p, ioaddr) {
  * @test       fpgaGetIOAddress
  * @brief      Test: fpgaGetIOAddress_neg_test
  * @details    When called with a invalid fpga handle,<br>
- *             the method returns <br>
+ *             the method returns FPGA_INVALID_PARAM.<br>
  */
 TEST_P(buffer_c_p, ioaddr_neg_test) {
   void *buf_addr = nullptr;

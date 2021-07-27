@@ -500,7 +500,6 @@ TEST_P(pluginmgr_c_p, no_cfg) {
 }
 
 TEST_P(pluginmgr_c_p, fpgaReset_null_handle) {
-
     EXPECT_EQ(fpgaReset(NULL), FPGA_INVALID_PARAM);
 }
 
