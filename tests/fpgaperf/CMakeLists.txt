@@ -27,7 +27,7 @@
 opae_test_add_static_lib(TARGET fpgaperf-static
     SOURCE ${OPAE_SDK_SOURCE}/samples/fpgaperf_counter/fpgaperf_counter.c
     LIBS
-        udev
+        ${LIBUDEV_LIBRARIES}
         opae-c
 )
 
