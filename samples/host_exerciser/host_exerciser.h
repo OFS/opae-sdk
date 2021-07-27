@@ -84,7 +84,6 @@ typedef enum {
 typedef enum {
   HOSTEXE_CLS_1 = 0x0,
   HOSTEXE_CLS_2 = 0x1,
-  HOSTEXE_CLS_3 = 0x2,
   HOSTEXE_CLS_4 = 0x2,
 } hostexe_req_len;
 
@@ -275,7 +274,6 @@ const std::map<std::string, uint32_t> he_modes = {
 const std::map<std::string, uint32_t> he_req_cls_len= {
   { "cl_1", HOSTEXE_CLS_1},
   { "cl_2", HOSTEXE_CLS_2},
-  { "cl_3", HOSTEXE_CLS_3},
   { "cl_4", HOSTEXE_CLS_4},
 };
 
@@ -314,7 +312,7 @@ public:
       ->transform(CLI::CheckedTransformer(he_modes))->default_val("lpbk");
 
     // Cache line
-    app_.add_option("--cls", he_req_cls_len_, "number of CLs per request{cl_1, cl_2, cl_3, cl_4}")
+    app_.add_option("--cls", he_req_cls_len_, "number of CLs per request{cl_1, cl_2, cl_4}")
        ->transform(CLI::CheckedTransformer(he_req_cls_len))->default_val("cl_1");
 
     // Configures test rollover or test termination
