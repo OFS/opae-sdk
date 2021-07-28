@@ -147,6 +147,29 @@ TEST_P(event_c_p, get_obj_err02) {
 }
 
 /**
+ * @test       fpgaRegisterEvent
+ * @brief      Test: fpgaRegisterEvent
+ * @details    When fpgaRegisterEvent is called with a NULL<br>
+ *             the fpgaRegisterEvent returns FPGA_INVALID_PARAM.<br>
+ */
+TEST_P(event_c_p, get_obj_err03) {
+  EXPECT_EQ(fpgaRegisterEvent(NULL, FPGA_EVENT_ERROR,
+                              event_handle_, 0), FPGA_INVALID_PARAM);
+}
+
+/**
+ * @test       fpgaRegisterEvent
+ * @brief      Test: fpgaRegisterEvent
+ * @details    When fpgaRegisterEvent is called with a NULL<br>
+ *             the fpgaRegisterEvent returns FPGA_INVALID_PARAM.<br>
+ */
+TEST_P(event_c_p, get_obj_err04) {
+  EXPECT_EQ(fpgaUnregisterEvent(NULL, FPGA_EVENT_ERROR,
+                              event_handle_), FPGA_INVALID_PARAM);
+}
+
+
+/**
  * @test       get_obj_success
  * @brief      Test: fpgaRegisterEvent, fpgaUnregisterEvent, fpgaGetOSObjectFromEventHandle
  * @details    When fpgaGetOSObjectFromEventHandle is called after<br>
