@@ -383,6 +383,18 @@ TEST_P(object_c_p, obj_get_size) {
   EXPECT_EQ(value, afu_guid_.size() + 1);
 }
 
+/**
+ * @test       fpgaClose
+ * @brief      Test: fpgaClose
+ * @details    
+ *             When fpgaClose is called with NULL object<br>
+ *             the function returns FPGA_INVALID_PARAM.<br>
+ */
+TEST_P(object_c_p, obj_close) {
+  EXPECT_EQ(fpgaClose(nullptr), FPGA_INVALID_PARAM);
+}
+
+
 INSTANTIATE_TEST_CASE_P(object_c, object_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 

@@ -122,4 +122,43 @@ TEST_P(buffer_c_p, ioaddr) {
   EXPECT_EQ(fpgaReleaseBuffer(accel_, wsid), FPGA_OK);
 }
 
+/**
+ * @test       fpgaGetIOAddress
+ * @brief      Test: fpgaGetIOAddress_neg_test
+ * @details    When called with a invalid fpga handle,<br>
+ *             the method returns FPGA_INVALID_PARAM.<br>
+ */
+TEST_P(buffer_c_p, ioaddr_neg_test) {
+  void *buf_addr = nullptr;
+  uint64_t wsid = 0;
+  uint64_t io = 0xdecafbadbeefdead;
+  ASSERT_EQ(fpgaPrepareBuffer(accel_, (uint64_t) pg_size_,
+                              &buf_addr, &wsid, 0), FPGA_OK);
+  EXPECT_EQ(fpgaGetIOAddress(NULL, wsid, &io), FPGA_INVALID_PARAM);
+}
+
+/**
+ * @test       fpgaPrepareBuffer_neg_test
+ * @brief      Test: fpgaPrepareBuffer
+ * @details    When fpgaPrepareBuffer called with null fpga handle,<br>
+ *             it returns FPGA_INVALID_PARAM.<br>
+ */
+TEST_P(buffer_c_p, neg_test1) {
+  void *buf_addr = nullptr;
+  uint64_t wsid = 0;
+  ASSERT_EQ(fpgaPrepareBuffer(NULL, (uint64_t) pg_size_,
+                              &buf_addr, &wsid, 0), FPGA_INVALID_PARAM);
+}
+
+/**
+ * @test       fpgaReleaseBuffer_neg_test
+ * @brief      Test: fpgaReleaseBuffer
+ * @details    When fpgaReleaseBuffer called with null fpga handle,<br>
+ *             it returns FPGA_INVALID_PARAM.<br>
+ */
+TEST_P(buffer_c_p, neg_test2) {
+  uint64_t wsid = 0;
+  EXPECT_EQ(fpgaReleaseBuffer(NULL, wsid), FPGA_INVALID_PARAM);
+}
+
 INSTANTIATE_TEST_CASE_P(buffer_c, buffer_c_p, ::testing::ValuesIn(test_platform::platforms({})));
