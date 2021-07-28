@@ -50,7 +50,7 @@ class cpeng : public opae::afu_test::command
 {
 public:
   cpeng()
-    : filename_("kernel.itb")
+    : filename_("u-boot.itb")
     , destination_offset_(0x2000000)
     , timeout_usec_(default_timeout_usec.count())
     , chunk_(pg_size)
