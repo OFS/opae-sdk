@@ -34,6 +34,9 @@ BuildRequires:  python3-jsonschema
 BuildRequires:  python3-pip
 BuildRequires:  python3-virtualenv
 BuildRequires:  systemd-devel
+BuildRequires:  libcap-devel
+BuildRequires:  libudev-devel
+
 
 %description
 Open Programmable Acceleration Engine (OPAE) is a software framework
@@ -89,6 +92,8 @@ mkdir -p %{buildroot}%{_usr}/src/opae/opae-libs/cmake/modules
 for s in FindHwloc.cmake \
          OPAE.cmake \
          FindUUID.cmake \
+         FindCap.cmake \
+         FindUdev.cmake \
          Findjson-c.cmake \
          OPAECompiler.cmake \
          OPAEGit.cmake \
