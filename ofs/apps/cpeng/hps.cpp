@@ -92,13 +92,17 @@ public:
   virtual int run(opae::afu_test::afu *afu, __attribute__((unused)) CLI::App *app)
   {
     log_ = spdlog::get(this->name());
+    if (chunk_ % CACHELINE_SZ) {
+      log_->error("chunk size must be cacheline aligned");
+      return 1;
+    }
     ofs_cpeng cpeng;
 
     // Initialize cpeng driver
     ofs_cpeng_init(&cpeng, afu->handle()->c_type());
     if (ofs_cpeng_wait_for_hps_ready(&cpeng, timeout_usec_)) {
       log_->warn("HPS is not ready");
-      return 1;
+      return 2;
     }
 
     if (soft_reset_) {
@@ -132,7 +136,7 @@ public:
         auto hugepage_sz = chunk <= MB(2) ? "2MB" : "1GB";
         log_->error("might need {} hugepages reserved", hugepage_sz);
       }
-      return 1;
+      return 3;
     }
     // get a char* of the buffer so we can read into it every chunk iteration
     auto ptr = reinterpret_cast<char*>(const_cast<uint8_t*>(buffer->c_type()));
@@ -154,7 +158,7 @@ public:
           log_->warn("copy chunk, dma_status: {:x}",
                       ofs_cpeng_dma_status(&cpeng));
           if (dmastatus_err(&cpeng)) {
-            return 2;
+            return 4;
           }
         }
 
