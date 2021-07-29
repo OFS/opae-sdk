@@ -146,6 +146,8 @@ public:
                filename_, sz, chunk);
     uint32_t n_chunks = 0;
 
+    // set the data req. limit to 512 (default is 1k)
+    ofs_cpeng_set_data_req_limit(&cpeng, 0b10);
     while (written < sz) {
         inp.read(ptr, chunk);
         if (padding){
