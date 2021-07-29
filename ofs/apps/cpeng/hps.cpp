@@ -92,13 +92,17 @@ public:
   virtual int run(opae::afu_test::afu *afu, __attribute__((unused)) CLI::App *app)
   {
     log_ = spdlog::get(this->name());
+    if (chunk_ % CACHELINE_SZ) {
+      log_->error("chunk size must be cacheline aligned");
+      return 1;
+    }
     ofs_cpeng cpeng;
 
     // Initialize cpeng driver
     ofs_cpeng_init(&cpeng, afu->handle()->c_type());
     if (ofs_cpeng_wait_for_hps_ready(&cpeng, timeout_usec_)) {
       log_->warn("HPS is not ready");
-      return 1;
+      return 2;
     }
 
     if (soft_reset_) {
@@ -111,10 +115,18 @@ public:
     std::ifstream inp(filename_, std::ios::binary | std::ios::ate);
     size_t sz = inp.tellg();
     inp.seekg(0, std::ios::beg);
-
+    uint32_t padding = 0;
     // if chunk_ CLI arg is 0, use the file size
     // otherwise, use the smaller of chunk_ and file size
     size_t chunk = chunk_ ? std::min(static_cast<size_t>(chunk_), sz) : sz;
+    // If sz and chunk are equal then we have a one shot transfer
+    // equal to the file size. Let's round up to make it cacheline aligned.
+    // Padding will be the difference of
+    // cacheline aligned size (sz) and chunk (file size)
+    if (sz == chunk) {
+      sz = ((sz + CACHELINE_SZ) & ~(CACHELINE_SZ-1));
+      padding = sz - chunk;
+    }
     shared_buffer::ptr_t buffer(0);
     try {
       buffer = shared_buffer::allocate(afu->handle(), chunk);
@@ -124,7 +136,7 @@ public:
         auto hugepage_sz = chunk <= MB(2) ? "2MB" : "1GB";
         log_->error("might need {} hugepages reserved", hugepage_sz);
       }
-      return 1;
+      return 3;
     }
     // get a char* of the buffer so we can read into it every chunk iteration
     auto ptr = reinterpret_cast<char*>(const_cast<uint8_t*>(buffer->c_type()));
@@ -133,42 +145,34 @@ public:
     log_->info("starting copy of file:{}, size: {}, chunk size: {}",
                filename_, sz, chunk);
     uint32_t n_chunks = 0;
+
     // set the data req. limit to 512 (default is 1k)
     ofs_cpeng_set_data_req_limit(&cpeng, 0b10);
     while (written < sz) {
         inp.read(ptr, chunk);
+        if (padding){
+          memset(ptr+chunk, 0, padding);
+          written += padding;
+        }
         if (ofs_cpeng_copy_chunk(
               &cpeng, buffer->io_address(),
               destination_offset_ + written, chunk, timeout_usec_)) {
           log_->warn("copy chunk, dma_status: {:x}",
                       ofs_cpeng_dma_status(&cpeng));
           if (dmastatus_err(&cpeng)) {
-            return 2;
+            return 4;
           }
         }
+
         ++n_chunks;
         written += chunk;
-        chunk = std::min(chunk, sz-written);
+
+        if (sz-written < chunk){
+          padding = ((written + chunk) & ~(chunk-1)) - written;
+          chunk = sz-written;
+        }
     }
     log_->info("transerred file in {} chunk(s)", n_chunks);
-    // by this point we've copied the file itself
-    // check if bytes written are not cacheline aligned
-    // if not, add padding so that total written is cacheline aligned
-    auto padding = ((written + CACHELINE_SZ) & ~(CACHELINE_SZ-1)) - written;
-    if (padding) {
-      log_->debug("padded file with {} bytes", padding);
-      // let's reuse our buffer
-      memset(ptr, 0, padding);
-      if (ofs_cpeng_copy_chunk(
-            &cpeng, buffer->io_address(),
-            destination_offset_ + written, padding, timeout_usec_)) {
-        log_->error("copying padding, dma_status: {:x}",
-                    ofs_cpeng_dma_status(&cpeng));
-        if (dmastatus_err(&cpeng)) {
-          return 3;
-        }
-      }
-    }
     ofs_cpeng_image_complete(&cpeng);
     wait_for_verify(&cpeng);
 
