@@ -50,11 +50,11 @@ BDF_PATTERN = re.compile(PATTERN, re.IGNORECASE)
 
 DEFAULT_BDF = 'ssss:bb:dd.f'
 
-# mailbox register poll interval 1 milliseconds
-HSSI_POLL_SLEEP_TIME = 0.001
+# mailbox register poll interval 1 microseconds
+HSSI_POLL_SLEEP_TIME = 1/1000000
 
-# mailbox register poll timeout 10 milliseconds
-HSSI_POLL_TIMEOUT = 0.01
+# mailbox register poll timeout 1 seconds
+HSSI_POLL_TIMEOUT = 1
 
 HSSI_FEATURE_ID = 0x15
 
