@@ -1,5 +1,5 @@
 #!/usr/bin/cmake -P
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -23,43 +23,33 @@
 ## INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
 ## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
-## POSSIBILITY OF SUCH DAMAGE.
+## POSSIBILITY OF SUCH DAMAGE
 
-# Exports
-#
-# * OPAE_GIT_EXECUTABLE
-# * OPAE_GIT_COMMIT_HASH
-# * OPAE_GIT_SRC_TREE_DIRTY
+find_package(PkgConfig)
+pkg_search_module(CAP libcap)
 
-find_program(OPAE_GIT_EXECUTABLE git)
+find_path(LIBCAP_INCLUDE_DIRS
+  NAMES sys/capability.h
+  HINTS ${PC_LIBCAP_INCLUDEDIR}
+        ${PC_LIBCAP_INCLUDE_DIRS}
+        /usr/local/include
+        /usr/include
+        ${CMAKE_EXTRA_INCLUDES})
 
-if((EXISTS ${OPAE_GIT_EXECUTABLE}) AND (EXISTS "${CMAKE_SOURCE_DIR}/.git"))
-    # Find the abbreviated git commit hash.
-    execute_process(COMMAND ${OPAE_GIT_EXECUTABLE} log -1 --format=%h
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        OUTPUT_VARIABLE OPAE_GIT_COMMIT_HASH
-        RESULT_VARIABLE OPAE_GIT_LOG_RESULT
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
-    if(NOT ${OPAE_GIT_LOG_RESULT} EQUAL 0)
-        set(OPAE_GIT_COMMIT_HASH unknown)
-    endif()
+find_library(LIBCAP_LIBRARIES
+  NAMES cap
+  HINTS ${PC_LIBCAP_LIBDIR}
+        ${PC_LIBCAP_LIBRARY_DIRS}
+        /usr/local/lib
+        /usr/lib
+        /lib
+        /usr/lib/x86_64-linux-gnu
+        ${CMAKE_EXTRA_LIBS})
 
-    # Determine whether the working tree has changes.
-    execute_process(COMMAND ${OPAE_GIT_EXECUTABLE} diff --stat
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-	OUTPUT_VARIABLE OPAE_GIT_DIFF_OUTPUT
-	RESULT_VARIABLE OPAE_GIT_DIFF_RESULT
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
-    if(NOT ${OPAE_GIT_DIFF_RESULT} EQUAL 0)
-        set(OPAE_GIT_SRC_TREE_DIRTY 0)
-    else()
-        if(OPAE_GIT_DIFF_OUTPUT)
-            set(OPAE_GIT_SRC_TREE_DIRTY 1)
-        else()
-            set(OPAE_GIT_SRC_TREE_DIRTY 0)
-        endif()
-    endif()
-else()
-    set(OPAE_GIT_COMMIT_HASH unknown)
-    set(OPAE_GIT_SRC_TREE_DIRTY 0)
-endif()
+if(LIBCAP_LIBRARIES AND LIBCAP_INCLUDE_DIRS)
+  set(LIBCAP_FOUND true)
+endif(LIBCAP_LIBRARIES AND LIBCAP_INCLUDE_DIRS)
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(libcap DEFAULT_MSG
+  LIBCAP_INCLUDE_DIRS LIBCAP_LIBRARIES)

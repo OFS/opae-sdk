@@ -21,13 +21,15 @@ api: |
   def ce_fifo2_status() -> int:
     return CSR_CE2HOST_STATUS.CE_FIFO2_STS
   def hps_kernel_verify() -> int:
-    return CSR_HPS2HOST_RSP.KERNEL_VFY
+    return CSR_HPS2HOST_RSP_SHDW.KERNEL_VFY_SHDW
   def hps_ssbl_verify() -> int:
-    return CSR_HPS2HOST_RSP.SSBL_VFY
+    return CSR_HPS2HOST_RSP_SHDW.SSBL_VFY_SHDW
   def ce_soft_reset():
     CSR_CE_SFTRST.CE_SFTRST = 1
   def image_complete():
     CSR_HOST2HPS_IMG_XFR.HOST2HPS_IMG_XFR = 0x1
+  def set_data_req_limit(value: uint8_t):
+    CSR_CE2HOST_DATA_REQ_LIMIT.DATA_REQ_LIMIT = value
   def copy_chunk(iova: uint64_t, offset: uint64_t, size: uint32_t, timeout_usec: uint64_t) -> int:
     CSR_SRC_ADDR.CSR_SRC_ADDR = iova
     CSR_DST_ADDR.CSR_DST_ADDR = offset
@@ -82,7 +84,7 @@ registers:
     - - [HOST_SCRATCHPAD, [63, 0], RW, 0x0, Scratchpad register used during board bring up]
   - - [CSR_CE2HOST_DATA_REQ_LIMIT, 0x0108, 0x0000000000000000, "Data request limit"]
     - - [Reserved, [63, 2], RsvdZ, 0x0, Reserved]
-      - [DATA_REQ_LIMIT, [0], RO, 0x0, "00: 64 Bytes\n
+      - [DATA_REQ_LIMIT, [1,0], RO, 0x0, "00: 64 Bytes\n
                                         01: 128 Bytes\n
                                         10: 512 Bytes\n
                                         11: 1024 Bytes\n

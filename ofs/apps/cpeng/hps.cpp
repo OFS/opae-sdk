@@ -23,9 +23,11 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#include <algorithm>
 #include <chrono>
 #include <fstream>
 #include <thread>
+#include <unistd.h>
 #include "afu_test.h"
 #include "ofs_cpeng.h"
 
@@ -34,19 +36,28 @@
 const char *cpeng_guid = "44bfc10d-b42a-44e5-bd42-57dc93ea7f91";
 
 using opae::fpga::types::shared_buffer;
+using opae_exception = opae::fpga::types::exception;
 using usec = std::chrono::microseconds;
+using msec = std::chrono::milliseconds;
+
+const size_t pg_size = sysconf(_SC_PAGESIZE);
+constexpr size_t MB(uint32_t count) {
+  return count * 1024 * 1024;
+}
+const usec default_timeout_usec(msec(1000));
 
 class cpeng : public opae::afu_test::command
 {
 public:
   cpeng()
-    : filename_("hps.img")
-    , destination_offset_(0)
-    , timeout_usec_(60000000)
-    , chunk_(0)
+    : filename_("u-boot.itb")
+    , destination_offset_(0x2000000)
+    , timeout_usec_(default_timeout_usec.count())
+    , chunk_(pg_size)
     , soft_reset_(false)
+    , skip_ssbl_verify_(false)
+    , skip_kernel_verify_(false)
   {
-    log_ = spdlog::get(this->name());
   }
   virtual ~cpeng(){}
   virtual const char *name() const
@@ -78,10 +89,13 @@ public:
     app->add_option("-c,--chunk", chunk_, "Chunk size. 0 indicates no chunks")
       ->default_str(std::to_string(chunk_));
     app->add_flag("--soft-reset", soft_reset_, "Issue soft reset only");
+    app->add_flag("--skip-ssbl-verify", skip_ssbl_verify_, "Do not wait for ssbl verify");
+    app->add_flag("--skip-kernel-verify", skip_kernel_verify_, "Do not wait for kernel verify");
   }
 
   virtual int run(opae::afu_test::afu *afu, __attribute__((unused)) CLI::App *app)
   {
+    log_ = spdlog::get(this->name());
     ofs_cpeng cpeng;
 
     // Initialize cpeng driver
@@ -97,32 +111,78 @@ public:
       return 0;
     }
 
-    // Read file into shared buffer
+    // check the chunks size is a multiple of cacheline size
+    if (chunk_ % CACHELINE_SZ) {
+      log_->error("chunk size must be cacheline (64 bytes) aligned");
+      return 2;
+    }
+
+    // Open file, get the size
     std::ifstream inp(filename_, std::ios::binary | std::ios::ate);
     size_t sz = inp.tellg();
     inp.seekg(0, std::ios::beg);
-    // allocate 64-byte aligned
-    size_t padded_sz = (sz + CACHELINE_SZ) & ~(CACHELINE_SZ-1);
-    auto buffer = shared_buffer::allocate(afu->handle(), padded_sz);
-    auto ptr = reinterpret_cast<char*>(const_cast<uint8_t*>(buffer->c_type()));
-    memset(ptr, 0, padded_sz);
-    if (!inp.read(ptr, sz)){
-      log_->error("error reading file: {}", filename_);
-      return 2;
-    }
-    log_->info("opened file {} with size {}", filename_, sz);
 
-    // Call cpeng driver copy_buffer
-    auto copy_status =
-      ofs_cpeng_copy_image(&cpeng,
-          buffer->io_address(), destination_offset_, padded_sz, chunk_, timeout_usec_);
-    if (copy_status) {
-      log_->error("Erro calling ofs_cpeng_copy_image");
-      if (ofs_cpeng_dma_status_error(&cpeng)) {
-        uint64_t axist_cpl = ofs_cpeng_ce_axist_cpl_sts(&cpeng);
-        uint64_t acelite_bresp = ofs_cpeng_ce_acelite_bresp_sts(&cpeng);
-        uint64_t fifo1_status = ofs_cpeng_ce_fifo1_status(&cpeng);
-        uint64_t fifo2_status = ofs_cpeng_ce_fifo2_status(&cpeng);
+    // if chunk_ CLI arg is 0, use the file size
+    // otherwise, use the smaller of chunk_ and file size
+    size_t chunk = chunk_ ? std::min(static_cast<size_t>(chunk_), sz) : sz;
+    shared_buffer::ptr_t buffer(0);
+    try {
+      buffer = shared_buffer::allocate(afu->handle(), chunk);
+    } catch (opae_exception &ex) {
+      log_->error("could not allocate {} bytes of memory", chunk);
+      if (chunk > pg_size) {
+        auto hugepage_sz = chunk <= MB(2) ? "2MB" : "1GB";
+        log_->error("might need {} hugepages reserved", hugepage_sz);
+      }
+      return 3;
+    }
+    // get a char* of the buffer so we can read into it every chunk iteration
+    auto ptr = reinterpret_cast<char*>(const_cast<uint8_t*>(buffer->c_type()));
+
+    size_t written = 0;
+    log_->info("starting copy of file:{}, size: {}, chunk size: {}",
+               filename_, sz, chunk);
+    uint32_t n_chunks = 0;
+    // set the data req. limit to 512 (default is 1k)
+    ofs_cpeng_set_data_req_limit(&cpeng, 0b10);
+    while (written < sz) {
+        inp.read(ptr, chunk);
+        if (ofs_cpeng_copy_chunk(
+              &cpeng, buffer->io_address(),
+              destination_offset_ + written, chunk, timeout_usec_)) {
+          log_->warn("copy chunk, dma_status: {:x}",
+                      ofs_cpeng_dma_status(&cpeng));
+          if (dmastatus_err(&cpeng)) {
+            return 4;
+          }
+        }
+        ++n_chunks;
+        written += chunk;
+        chunk = std::min(chunk, sz-written);
+    }
+    log_->info("transerred file in {} chunk(s)", n_chunks);
+    ofs_cpeng_image_complete(&cpeng);
+
+    // wait for both ssbl and kernel verify (if not skipped)
+    if (!skip_ssbl_verify_) {
+      wait_for_verify("ssbl", &cpeng, ofs_cpeng_hps_ssbl_verify);
+    }
+    if (!skip_kernel_verify_) {
+      wait_for_verify("kernel", &cpeng, ofs_cpeng_hps_kernel_verify);
+    }
+
+    return 0;
+  }
+
+
+private:
+  bool dmastatus_err(ofs_cpeng *cpeng)
+  {
+    if (ofs_cpeng_dma_status_error(cpeng)) {
+        uint64_t axist_cpl = ofs_cpeng_ce_axist_cpl_sts(cpeng);
+        uint64_t acelite_bresp = ofs_cpeng_ce_acelite_bresp_sts(cpeng);
+        uint64_t fifo1_status = ofs_cpeng_ce_fifo1_status(cpeng);
+        uint64_t fifo2_status = ofs_cpeng_ce_fifo2_status(cpeng);
         if (axist_cpl) {
           log_->error("CE_AXIST_CPL_STS: {:x}", axist_cpl);
         }
@@ -135,38 +195,23 @@ public:
         if (fifo2_status) {
           log_->error("CE_FIFO2_STS: {:x}", fifo2_status);
         }
-        ofs_cpeng_ce_soft_reset(&cpeng);
+        ofs_cpeng_ce_soft_reset(cpeng);
+        return true;
       }
-    } else {
-      wait_for_verify(&cpeng);
-    }
-    return copy_status;
+      return false;
   }
 
-
-private:
-  void wait_for_verify(ofs_cpeng *cpeng)
+  void wait_for_verify(const char *stage, ofs_cpeng *cpeng, int (*verify_fn)(ofs_cpeng *))
   {
-      // wait for both kernel and ssbl verify
+      log_->info("waiting for {} verify...", stage);
       auto sleep_time = usec(200);
-      log_->info("waiting for ssbl verify...");
       uint32_t verify = 0;
       while(!verify) {
-        verify = ofs_cpeng_hps_ssbl_verify(cpeng);
+        verify = verify_fn(cpeng);
         std::this_thread::sleep_for(sleep_time);
       }
       if (verify != 0b1){
-        log_->error("error with ssbl verify: {:x}", verify);
-        return;
-      }
-      log_->info("waiting for kernel verify...");
-      verify = 0;
-      while(!verify) {
-        verify = ofs_cpeng_hps_kernel_verify(cpeng);
-        std::this_thread::sleep_for(sleep_time);
-      }
-      if (verify != 0b1){
-        log_->error("error with kernel verify: {:x}", verify);
+        log_->error("error with {} verify: {:x}", stage, verify);
       }
   }
 
@@ -175,6 +220,8 @@ private:
   uint32_t timeout_usec_;
   uint32_t chunk_;
   bool soft_reset_;
+  bool skip_ssbl_verify_;
+  bool skip_kernel_verify_;
   std::shared_ptr<spdlog::logger> log_;
 };
 
