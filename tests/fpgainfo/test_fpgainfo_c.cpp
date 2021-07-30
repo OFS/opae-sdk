@@ -96,7 +96,7 @@ fpga_result get_metrics(fpga_token token, metrics_inquiry inquiry,
 
 void replace_chars(char *str, char match, char rep);
 
-void upcase_pci(char *str, size_t len);
+void upcase_pci(char *str);
 
 void upcase_first(char *str);
 
@@ -1066,7 +1066,7 @@ TEST(fpgainfo_c, replace_chars1) {
 TEST(fpgainfo_c, upcase_pci0) {
     char input[256];
     strcpy(input, "pcie 0");
-    upcase_pci(input, strnlen(input, 256));
+    upcase_pci(input);
     EXPECT_STREQ(input, "PCIe 0");
 }
 
@@ -1077,7 +1077,7 @@ TEST(fpgainfo_c, upcase_pci0) {
 TEST(fpgainfo_c, upcase_pci1) {
     char input[256];
     strcpy(input, "  pcie 0 pcie 1 pcie 2  ");
-    upcase_pci(input, strnlen(input, 256));
+    upcase_pci(input);
     EXPECT_STREQ(input, "  PCIe 0 PCIe 1 PCIe 2  ");
 }
 
@@ -1088,7 +1088,7 @@ TEST(fpgainfo_c, upcase_pci1) {
 TEST(fpgainfo_c, upcase_pci2) {
     char input[256];
     strcpy(input, " pc ");
-    upcase_pci(input, strnlen(input, 256));
+    upcase_pci(input);
     EXPECT_STREQ(input, " pc ");
 }
 
