@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
 
 	if (num_matches < 1) {
 		fprintf(stderr, "accelerator not found.\n");
-		res = fpgaDestroyProperties(&filter);
+		fpgaDestroyProperties(&filter);
 		return FPGA_INVALID_PARAM;
 	}
 
