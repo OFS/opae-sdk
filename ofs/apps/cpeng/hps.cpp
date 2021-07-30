@@ -89,8 +89,8 @@ public:
     app->add_option("-c,--chunk", chunk_, "Chunk size. 0 indicates no chunks")
       ->default_str(std::to_string(chunk_));
     app->add_flag("--soft-reset", soft_reset_, "Issue soft reset only");
-    app->add_flag("--no-ssbl-verify", skip_ssbl_verify_, "Do not wait for ssbl verify");
-    app->add_flag("--no-kernel-verify", skip_kernel_verify_, "Do not wait for kernel verify");
+    app->add_flag("--skip-ssbl-verify", skip_ssbl_verify_, "Do not wait for ssbl verify");
+    app->add_flag("--skip-kernel-verify", skip_kernel_verify_, "Do not wait for kernel verify");
   }
 
   virtual int run(opae::afu_test::afu *afu, __attribute__((unused)) CLI::App *app)
