@@ -26,69 +26,71 @@
 
 cmake_minimum_required(VERSION  3.10)
 
-if(NOT CLI11_FOUND)
+if(OPAE_BUILD_AFU_TEST)
+  if(NOT CLI11_FOUND)
     find_package(CLI11 1.8)
-endif(NOT CLI11_FOUND)
+  endif(NOT CLI11_FOUND)
 
-if(NOT CLI11_FOUND)
+  if(NOT CLI11_FOUND)
     set(CLI11_URL
-        https://github.com/CLIUtils/CLI11.git
-        CACHE STRING "URL for CLI11 Project")
+      https://github.com/CLIUtils/CLI11.git
+      CACHE STRING "URL for CLI11 Project")
     set(CLI11_TAG
-        v1.9.1
-        CACHE STRING "Tag for CLI11")
+      v1.9.1
+      CACHE STRING "Tag for CLI11")
 
     opae_external_project_add(PROJECT_NAME CLI11
-                              GIT_URL ${CLI11_URL}
-                              GIT_TAG ${CLI11_TAG}
-                              PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
-                              NO_ADD_SUBDIRECTORY
-                              DEFER
-    )
+      GIT_URL ${CLI11_URL}
+      GIT_TAG ${CLI11_TAG}
+      PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
+      NO_ADD_SUBDIRECTORY
+      DEFER
+      )
     set(CLI11_INCLUDE_DIRS ${CLI11_ROOT}/include
-        CACHE STRING "Path to external CLI11" FORCE)
+      CACHE STRING "Path to external CLI11" FORCE)
     set(CLI11_LIBRARIES ""
-        CACHE STRING "Do not link against CLI11 library, using header-only" FORCE)
+      CACHE STRING "Do not link against CLI11 library, using header-only" FORCE)
     set(CLI11_DEFINITIONS ""
-        CACHE STRING "Do not link against CLI11 library, using header-only" FORCE)
+      CACHE STRING "Do not link against CLI11 library, using header-only" FORCE)
     set(CLI11_FOUND TRUE CACHE BOOL "CLI11 found as external")
-endif(NOT CLI11_FOUND)
+  endif(NOT CLI11_FOUND)
 
-if(NOT spdlog_FOUND)
+  if(NOT spdlog_FOUND)
     find_package(spdlog 1.8)
-endif(NOT spdlog_FOUND)
+  endif(NOT spdlog_FOUND)
 
-if(NOT spdlog_FOUND)
+  if(NOT spdlog_FOUND)
     set(SPDLOG_URL
-        https://github.com/gabime/spdlog.git
-        CACHE STRING "URL for spdlog Project")
+      https://github.com/gabime/spdlog.git
+      CACHE STRING "URL for spdlog Project")
     set(SPDLOG_TAG
-        v1.8.0
-        CACHE STRING "Tag for spdlog")
+      v1.8.0
+      CACHE STRING "Tag for spdlog")
 
     opae_external_project_add(PROJECT_NAME spdlog
-                              GIT_URL ${SPDLOG_URL}
-                              GIT_TAG ${SPDLOG_TAG}
-                              PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
-                              NO_ADD_SUBDIRECTORY
-                              DEFER
-    )
+      GIT_URL ${SPDLOG_URL}
+      GIT_TAG ${SPDLOG_TAG}
+      PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
+      NO_ADD_SUBDIRECTORY
+      DEFER
+      )
     set(spdlog_INCLUDE_DIRS ${spdlog_ROOT}/include
-        CACHE STRING "Path to external spdlog" FORCE)
+      CACHE STRING "Path to external spdlog" FORCE)
     set(spdlog_LIBRARIES ""
-        CACHE STRING "Do not link against spdlog library, using header-only" FORCE)
+      CACHE STRING "Do not link against spdlog library, using header-only" FORCE)
     set(spdlog_DEFINITIONS ""
-        CACHE STRING "Do not link against spdlog library, using header-only" FORCE)
+      CACHE STRING "Do not link against spdlog library, using header-only" FORCE)
     set(spdlog_FOUND TRUE CACHE BOOL "spdlog found as external")
-else(NOT spdlog_FOUND)
+  else(NOT spdlog_FOUND)
     if(spdlog_DEFINITIONS)
-        string(REGEX MATCH "-DSPDLOG_FMT_EXTERNAL" have_fmt ${spdlog_DEFINITIONS})
-        if (have_fmt)
-            find_package(fmt)
-            set(fmt_LIBRARIES "fmt::fmt" CACHE STRING "fmt library link interface")
-        endif (have_fmt)
+      string(REGEX MATCH "-DSPDLOG_FMT_EXTERNAL" have_fmt ${spdlog_DEFINITIONS})
+      if (have_fmt)
+        find_package(fmt)
+        set(fmt_LIBRARIES "fmt::fmt" CACHE STRING "fmt library link interface")
+      endif (have_fmt)
     endif(spdlog_DEFINITIONS)
-endif(NOT spdlog_FOUND)
+  endif(NOT spdlog_FOUND)
+endif(OPAE_BUILD_AFU_TEST)
 
 if(OPAE_BUILD_LEGACY)
     opae_external_project_add(PROJECT_NAME opae-legacy

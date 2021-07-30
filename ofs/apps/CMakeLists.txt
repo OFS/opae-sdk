@@ -24,5 +24,7 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_add_subdirectory(cpeng)
+if (OPAE_BUILD_AFU_TEST)
+  opae_add_subdirectory(cpeng)
+endif()
 

@@ -115,6 +115,9 @@ mark_as_advanced(OPAE_PRESERVE_REPOS)
 option(OPAE_BUILD_LIBOFS "Enable building of the libofs library and framework" ON)
 mark_as_advanced(OPAE_BUILD_LIBOFS)
 
+option(OPAE_BUILD_AFU_TEST "Enable building of afu_test" ON)
+mark_as_advanced(OPAE_BUILD_AFU_TEST)
+
 if(OPAE_BUILD_TESTS)
     set(OPAE_TEST_TAG "master" CACHE STRING "Desired branch for opae-test")
     mark_as_advanced(OPAE_TEST_TAG)
