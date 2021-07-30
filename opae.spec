@@ -146,10 +146,10 @@ done
 
 %{_libdir}/libopae-c.so.*
 %{_libdir}/libbitstream.so.*
+%{_libdir}/libfpgad-api.so.*
 %{_libdir}/libopae-cxx-core.so.*
 %{_libdir}/libopae-c++-utils.so.*
 %{_libdir}/libopae-c++-nlb.so.*
-%{_libdir}/libfpgad-api.so.*
 %{_libdir}/libmml-srv.so.*
 %{_libdir}/libmml-stream.so.*
 %{_libdir}/libofs.so.*
@@ -186,13 +186,12 @@ done
 %{_libdir}/opae/libboard_n6010.so
 %{_libdir}/opae/libfpgad-xfpga.so
 %{_libdir}/opae/libopae-v.so
+%{_libdir}/libfpgad-api.so
 %{_libdir}/libopae-c++-nlb.so
 %{_libdir}/libopae-cxx-core.so
 %{_libdir}/libopae-c++-utils.so
 %{_libdir}/libopae-c.so
 %{_libdir}/libbitstream.so
-%{_libdir}/libfpgad-api.so
-%{_libdir}/libfpgaperf_counter.so
 %{_libdir}/libmml-stream.so
 %{_libdir}/libmml-srv.so
 %{_libdir}/libofs.so
@@ -203,7 +202,6 @@ done
 %{_libdir}/opae/libxfpga.so*
 %{_libdir}/opae/libmodbmc.so*
 %{_bindir}/bist_app
-%{_bindir}/dummy_afu
 %{_bindir}/bist_app.py
 %{_bindir}/bist_common.py
 %{_bindir}/bist_dma.py
@@ -232,19 +230,14 @@ done
 %{_bindir}/fpgainfo
 %{_bindir}/mmlink
 %{_bindir}/userclk
-%{_bindir}/hello_fpga
-%{_bindir}/object_api
-%{_bindir}/hello_events
 %{_bindir}/hello_cxxcore
 %{_bindir}/afu_json_mgr
 %{_bindir}/packager
 %{_bindir}/fpgametrics
 %{_bindir}/fpga_dma_N3000_test
 %{_bindir}/fpga_dma_test
-%{_bindir}/n5010-ddr-test
 %{_bindir}/PACSign
 %{_bindir}/fpgad
-%{_bindir}/host_exerciser
 %{_bindir}/opaevfio
 %{_bindir}/opaevfiotest
 %{_bindir}/pci_device
@@ -253,8 +246,6 @@ done
 %{_bindir}/afu_platform_info
 %{_bindir}/afu_synth_setup
 %{_bindir}/bist
-%{_bindir}/hps
-%{_bindir}/hssi
 %{_bindir}/hssiloopback
 %{_bindir}/hssimac
 %{_bindir}/hssistats
