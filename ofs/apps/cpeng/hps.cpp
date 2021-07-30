@@ -55,6 +55,8 @@ public:
     , timeout_usec_(default_timeout_usec.count())
     , chunk_(pg_size)
     , soft_reset_(false)
+    , skip_ssbl_verify_(false)
+    , skip_kernel_verify_(false)
   {
   }
   virtual ~cpeng(){}
@@ -87,6 +89,8 @@ public:
     app->add_option("-c,--chunk", chunk_, "Chunk size. 0 indicates no chunks")
       ->default_str(std::to_string(chunk_));
     app->add_flag("--soft-reset", soft_reset_, "Issue soft reset only");
+    app->add_flag("--no-ssbl-verify", skip_ssbl_verify_, "Do not wait for ssbl verify");
+    app->add_flag("--no-kernel-verify", skip_kernel_verify_, "Do not wait for kernel verify");
   }
 
   virtual int run(opae::afu_test::afu *afu, __attribute__((unused)) CLI::App *app)
@@ -158,7 +162,14 @@ public:
     }
     log_->info("transerred file in {} chunk(s)", n_chunks);
     ofs_cpeng_image_complete(&cpeng);
-    wait_for_verify(&cpeng);
+
+    // wait for both ssbl and kernel verify (if not skipped)
+    if (!skip_ssbl_verify_) {
+      wait_for_verify("ssbl", &cpeng, ofs_cpeng_hps_ssbl_verify);
+    }
+    if (!skip_kernel_verify_) {
+      wait_for_verify("kernel", &cpeng, ofs_cpeng_hps_kernel_verify);
+    }
 
     return 0;
   }
@@ -190,28 +201,17 @@ private:
       return false;
   }
 
-  void wait_for_verify(ofs_cpeng *cpeng)
+  void wait_for_verify(const char *stage, ofs_cpeng *cpeng, int (*verify_fn)(ofs_cpeng *))
   {
-      // wait for both kernel and ssbl verify
+      log_->info("waiting for {} verify...", stage);
       auto sleep_time = usec(200);
-      log_->info("waiting for ssbl verify...");
       uint32_t verify = 0;
       while(!verify) {
-        verify = ofs_cpeng_hps_ssbl_verify(cpeng);
+        verify = verify_fn(cpeng);
         std::this_thread::sleep_for(sleep_time);
       }
       if (verify != 0b1){
-        log_->error("error with ssbl verify: {:x}", verify);
-        return;
-      }
-      log_->info("waiting for kernel verify...");
-      verify = 0;
-      while(!verify) {
-        verify = ofs_cpeng_hps_kernel_verify(cpeng);
-        std::this_thread::sleep_for(sleep_time);
-      }
-      if (verify != 0b1){
-        log_->error("error with kernel verify: {:x}", verify);
+        log_->error("error with {} verify: {:x}", stage, verify);
       }
   }
 
@@ -220,6 +220,8 @@ private:
   uint32_t timeout_usec_;
   uint32_t chunk_;
   bool soft_reset_;
+  bool skip_ssbl_verify_;
+  bool skip_kernel_verify_;
   std::shared_ptr<spdlog::logger> log_;
 };
 
