@@ -44,7 +44,7 @@ const size_t pg_size = sysconf(_SC_PAGESIZE);
 constexpr size_t MB(uint32_t count) {
   return count * 1024 * 1024;
 }
-const usec default_timeout_usec(msec(10));
+const usec default_timeout_usec(msec(1000));
 
 class cpeng : public opae::afu_test::command
 {
@@ -107,6 +107,12 @@ public:
       return 0;
     }
 
+    // check the chunks size is a multiple of cacheline size
+    if (chunk_ % CACHELINE_SZ) {
+      log_->error("chunk size must be cacheline (64 bytes) aligned");
+      return 2;
+    }
+
     // Open file, get the size
     std::ifstream inp(filename_, std::ios::binary | std::ios::ate);
     size_t sz = inp.tellg();
@@ -124,7 +130,7 @@ public:
         auto hugepage_sz = chunk <= MB(2) ? "2MB" : "1GB";
         log_->error("might need {} hugepages reserved", hugepage_sz);
       }
-      return 1;
+      return 3;
     }
     // get a char* of the buffer so we can read into it every chunk iteration
     auto ptr = reinterpret_cast<char*>(const_cast<uint8_t*>(buffer->c_type()));
@@ -143,7 +149,7 @@ public:
           log_->warn("copy chunk, dma_status: {:x}",
                       ofs_cpeng_dma_status(&cpeng));
           if (dmastatus_err(&cpeng)) {
-            return 2;
+            return 4;
           }
         }
         ++n_chunks;
