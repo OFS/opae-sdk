@@ -211,7 +211,7 @@ STATIC bool opae_bitstream_path_contains_symlink(const char *path,
 		// If the result of conversion through realpath() is different
 		// than the original path, then the original must have
 		// contained a symlink.
-		if (strcmp(component, path)) {
+		if (pslash == component && strcmp(component, path)) {
 			return true;
 		}
 
