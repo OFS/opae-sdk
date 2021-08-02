@@ -692,7 +692,6 @@ fpga_result get_bmc_metrics_values(fpga_handle handle,
 		_handle->_bmc_metric_cache_value = calloc(sizeof(struct _fpga_bmc_metric), num_sensors);
 		if (_handle->_bmc_metric_cache_value == NULL) {
 			OPAE_ERR("Failed to allocate memory");
-			result = FPGA_NO_MEMORY;
 			goto out_destroy;
 		}
 		_handle->num_bmc_metric = num_sensors;
