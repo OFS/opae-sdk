@@ -55,7 +55,7 @@ if(LSB_RELEASE_EXE)
             message(WARNING "Unrecognized Ubuntu version: ${LSB_RELEASE_NUMBER}. Defaulting to ${JSON_C_DEBIAN_PACKAGE}")
         endif()
 
-    endif(${LSB_DISTRIBUTOR_ID} STREQUAL "Ubuntu")
+    endif()
 endif(LSB_RELEASE_EXE)
 
 
