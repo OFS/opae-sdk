@@ -1192,7 +1192,7 @@ fpga_result vfio_fpgaDestroyToken(fpga_token *token)
 
 #define HUGE_1G (1*1024*1024*1024)
 #define HUGE_2M (2*1024*1024)
-#define ROUND_UP(N, M) ((N + M) & ~(M-1))
+#define ROUND_UP(N, M) ((N + M - 1) & ~(M-1))
 
 fpga_result vfio_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 				   void **buf_addr, uint64_t *wsid,
@@ -1210,8 +1210,13 @@ fpga_result vfio_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 	struct opae_vfio *v = h->vfio_pair->device;
 	uint8_t *virt = NULL;
 	uint64_t iova = 0;
-	size_t sz = len > HUGE_2M ? ROUND_UP(len, HUGE_1G) :
-		    len > 4096 ? ROUND_UP(len, HUGE_2M) : 4096;
+	size_t sz;
+	if (len > HUGE_2M)
+		sz = ROUND_UP(len, HUGE_1G);
+	else if (len > 4096)
+		sz = ROUND_UP(len, HUGE_2M);
+	else
+		sz = 4096;
 	if (opae_vfio_buffer_allocate(v, &sz, &virt, &iova)) {
 		OPAE_ERR("could not allocate buffer");
 		return FPGA_EXCEPTION;
