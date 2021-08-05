@@ -75,6 +75,8 @@ fpga_result sec_info(fpga_token token);
 
 fpga_result fme_verbose_info(fpga_token token);
 
+fpga_result fpga_boot_info(fpga_token token);
+
 #ifdef __cplusplus
 }
 #endif

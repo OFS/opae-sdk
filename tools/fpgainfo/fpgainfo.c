@@ -171,10 +171,6 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 		printf("%-32s : %s\n", "Accelerator Id", guid_str);
 	}
 
-	if (objtype == FPGA_DEVICE) {
-		printf("%-32s : %s\n", "Boot Page",
-			bbs_id & FACTORY_BIT ? "factory" : "user");
-	}
 }
 
 // Replace occurrences of character within string
