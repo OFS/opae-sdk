@@ -93,8 +93,8 @@ hps will enumerate the AFU for that subcommand before executing it.
     mode which will increment the upper 16 bits in the HPS2HOST register.
 
 ## EXAMPLES ##
-The following example loads the image from a file called 'hps.img' into
-offset 0x0000 in one chunk
+The following example loads the image from a file called 'u-boot.itb' into
+offset 0x2000000 in chunks sizes of 4096 bytes
 ```console
 hps cpeng
 
