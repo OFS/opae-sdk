@@ -225,10 +225,65 @@ private:
   std::shared_ptr<spdlog::logger> log_;
 };
 
+
+class heartbeat : public opae::afu_test::command
+{
+public:
+  heartbeat()
+  {
+  }
+  virtual ~heartbeat(){}
+  virtual const char *name() const
+  {
+    return "heartbeat";
+  }
+
+  virtual const char *description() const
+  {
+    return "Check for HPS heartbeat";
+  }
+
+  virtual const char *afu_id() const
+  {
+    return cpeng_guid;
+  }
+
+  virtual int run(opae::afu_test::afu *afu, __attribute__((unused)) CLI::App *app)
+  {
+    log_ = spdlog::get(this->name());
+    ofs_cpeng cpeng;
+
+    // Initialize cpeng driver
+    ofs_cpeng_init(&cpeng, afu->handle()->c_type());
+    return check_heartbeat(&cpeng);
+  }
+
+
+private:
+  int check_heartbeat(ofs_cpeng *cpeng)
+  {
+    uint64_t value = 0;
+    while (true) {
+      std::this_thread::sleep_for(msec(1000));
+      auto next = ofs_cpeng_hps2host_rsp(cpeng);
+      if (next <= value) {
+        log_->warn("could not detect heartbeat, value: 0x{:x}", next);
+      } else {
+        log_->info("heartbeat value: 0x{:x}", next);
+      }
+      value = next;
+    }
+    return 0;
+  }
+
+  std::shared_ptr<spdlog::logger> log_;
+};
+
 int main(int argc, char *argv[])
 {
   opae::afu_test::afu hps(cpeng_guid);
   hps.register_command<cpeng>();
+  hps.register_command<heartbeat>();
   hps.main(argc, argv);
   return 0;
 }
