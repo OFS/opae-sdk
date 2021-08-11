@@ -73,7 +73,7 @@
 #define HSSI_VERSION                            0x8
 
 // boot page info sysfs
-#define DFL_SYSFS_BOOT_GLOB "*dfl*/**/power_on_image"
+#define DFL_SYSFS_BOOT_GLOB "*dfl*/**/fpga_boot_image"
 #define BOOTPAGE_PATTERN "_([0-9a-zA-Z]+)"
 
 // hssi version
