@@ -213,6 +213,7 @@ private:
       if (verify != 0b1){
         log_->error("error with {} verify: {:x}", stage, verify);
       }
+      log_->info("{} verified", stage);
   }
 
   std::string filename_;
