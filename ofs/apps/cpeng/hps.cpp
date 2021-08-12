@@ -163,7 +163,7 @@ public:
               timeout_usec_)) {
           auto status = ofs_cpeng_dma_status(&cpeng);
           log_->warn("copy chunk: {}, size: {}, unread: {}, dma_status: {:x}",
-                      n_chunks, aligned, unread, status);
+                      n_chunks, xfer_sz, unread, status);
           if (dmastatus_err(&cpeng)) {
             return 4;
           }
