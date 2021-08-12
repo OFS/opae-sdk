@@ -180,7 +180,7 @@ public:
           xfer_sz = cacheline_aligned(chunk);
         }
     }
-    log_->info("transerred file in {} chunk(s)", n_chunks);
+    log_->info("transferred file in {} chunk(s)", n_chunks);
     ofs_cpeng_image_complete(&cpeng);
 
     // wait for both ssbl and kernel verify (if not skipped)
