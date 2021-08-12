@@ -379,7 +379,7 @@ bool nlb0::setup()
 
 bool nlb0::run()
 {
-    auto fme_token = get_parent_token(accelerator_);
+    auto fme_token = !suppress_stats_ ? get_parent_token(accelerator_): nullptr;
     shared_buffer::ptr_t inout; // shared workspace, if possible
     shared_buffer::ptr_t inp;   // input workspace
     shared_buffer::ptr_t out;   // output workspace
