@@ -71,7 +71,7 @@ def getIntendedDevFamily(platform_db):
         # Yes -- return the expanded family and the version number
         return families[f[0]] + f[1:]
 
-    return "Unknown"
+    return f
 
 
 #
