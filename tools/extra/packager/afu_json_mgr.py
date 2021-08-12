@@ -118,9 +118,12 @@ def flatten_json(subargs):
             entries['afu_image_' + tag] = v
 
     # Some special names, taken from other levels
-    accel = image['accelerator-clusters'][0]
-    entries['afu_accel_name'] = '"' + accel['name'] + '"'
-    entries['afu_accel_uuid'] = accel['accelerator-type-uuid']
+    entries['afu_accel_name'] = []
+    entries['afu_accel_uuid'] = []
+    for accel in image['accelerator-clusters']:
+        entries['afu_accel_name'].append('"' + accel['name'] + '"')
+        entries['afu_accel_uuid'].append(accel['accelerator-type-uuid'])
+
     try:
         # May not be present.  (Will become required eventually.)
         entries['afu_top_ifc'] = '"' + \
@@ -143,10 +146,20 @@ def json_info(entries, subargs):
             p.write('#ifndef __AFU_JSON_INFO__\n')
             p.write('#define __AFU_JSON_INFO__\n\n')
             for k in sorted(entries.keys()):
-                v = entries[k]
-                if (k == 'afu_accel_uuid'):
-                    v = '"' + v.upper() + '"'
-                p.write('#define {0} {1}\n'.format(k.upper(), v))
+                e = entries[k]
+                if (not isinstance(e, list)):
+                    p.write('#define {0} {1}\n'.format(k.upper(), e))
+                else:
+                    # Vector type -- emit separate #defines for each entry
+                    for i in range(len(e)):
+                        v = e[i]
+                        if (k == 'afu_accel_uuid'):
+                            v = '"' + v.upper() + '"'
+                        if (i == 0):
+                            # Backward compatibility -- always emit index 0 of
+                            # vectors without the trailing 0 in the key
+                            p.write('#define {0} {1}\n'.format(k.upper(), v))
+                        p.write('#define {0}{1} {2}\n'.format(k.upper(), i, v))
             p.write('\n#endif // __AFU_JSON_INFO__\n')
 
     # Verilog header
@@ -157,10 +170,20 @@ def json_info(entries, subargs):
             p.write('`ifndef __AFU_JSON_INFO__\n')
             p.write('`define __AFU_JSON_INFO__\n\n')
             for k in sorted(entries.keys()):
-                v = entries[k]
-                if (k == 'afu_accel_uuid'):
-                    v = "128'h" + entries[k].replace('-', '_')
-                p.write('`define {0} {1}\n'.format(k.upper(), v))
+                e = entries[k]
+                if (not isinstance(e, list)):
+                    p.write('`define {0} {1}\n'.format(k.upper(), e))
+                else:
+                    # Vector type -- emit separate #defines for each entry
+                    for i in range(len(e)):
+                        v = e[i]
+                        if (k == 'afu_accel_uuid'):
+                            v = "128'h" + v.replace('-', '_')
+                        if (i == 0):
+                            # Backward compatibility -- always emit index 0 of
+                            # vectors without the trailing 0 in the key
+                            p.write('`define {0} {1}\n'.format(k.upper(), v))
+                        p.write('`define {0}{1} {2}\n'.format(k.upper(), i, v))
             p.write('\n`endif // __AFU_JSON_INFO__\n')
 
 
