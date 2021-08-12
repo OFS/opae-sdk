@@ -553,11 +553,13 @@ fpga_result fpga_boot_info(fpga_token token)
 		if (reg_res) {
 			regerror(reg_res, &re, err, sizeof(err));
 			OPAE_MSG("Error executing regex: %s", err);
+			regfree(&re);
 			return FPGA_EXCEPTION;
 		}
 		strncpy(page, boot + matches[0].rm_so+1,
 			matches[0].rm_eo - (matches[0].rm_so+1));
 		printf("%-32s : %s\n", "Boot Page", page);
+		regfree(&re);
 	} else {
 		OPAE_MSG("Failed to Read Boot Page");
 		printf("%-32s : %s\n", "Boot Page", "N/A");
