@@ -124,6 +124,15 @@ fpga_result find_dev_feature(fpga_token token,
 	uint32_t feature_id,
 	char *dfl_dev_str);
 
+/**
+* Prints fpga boot page info.
+*
+* @param[in] token           fpga_token object for device (FPGA_DEVICE type)
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if invalid boot info.
+* FPGA_INVALID_PARAM if invalid parameters were provided
+*
+*/
+fpga_result print_common_boot_info(fpga_token token);
 
 #ifdef __cplusplus
 }

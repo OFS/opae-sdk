@@ -748,3 +748,9 @@ out_destroy:
 
 	return res;
 }
+
+// prints fpga boot page info
+fpga_result fpga_boot_info(fpga_token token)
+{
+	return print_common_boot_info(token);
+}
