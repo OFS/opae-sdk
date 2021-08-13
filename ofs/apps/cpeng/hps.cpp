@@ -44,6 +44,10 @@ const size_t pg_size = sysconf(_SC_PAGESIZE);
 constexpr size_t MB(uint32_t count) {
   return count * 1024 * 1024;
 }
+
+constexpr size_t cacheline_aligned(size_t n) {
+  return (n + CACHELINE_SZ-1) & ~(CACHELINE_SZ-1);
+}
 const usec default_timeout_usec(msec(1000));
 
 class cpeng : public opae::afu_test::command
@@ -143,24 +147,40 @@ public:
     log_->info("starting copy of file:{}, size: {}, chunk size: {}",
                filename_, sz, chunk);
     uint32_t n_chunks = 0;
+    // set our xfer size to chunk size
+    // but align it with cacheline size in case
+    // our chunk is the entire file
+    auto xfer_sz = cacheline_aligned(chunk);
     // set the data req. limit to 512 (default is 1k)
     ofs_cpeng_set_data_req_limit(&cpeng, 0b10);
     while (written < sz) {
+        auto unread = sz-written;
         inp.read(ptr, chunk);
         if (ofs_cpeng_copy_chunk(
               &cpeng, buffer->io_address(),
-              destination_offset_ + written, chunk, timeout_usec_)) {
-          log_->warn("copy chunk, dma_status: {:x}",
-                      ofs_cpeng_dma_status(&cpeng));
+              destination_offset_ + written,
+              xfer_sz,
+              timeout_usec_)) {
+          auto status = ofs_cpeng_dma_status(&cpeng);
+          log_->warn("copy chunk: {}, size: {}, unread: {}, dma_status: {:x}",
+                      n_chunks, xfer_sz, unread, status);
           if (dmastatus_err(&cpeng)) {
             return 4;
           }
         }
         ++n_chunks;
         written += chunk;
-        chunk = std::min(chunk, sz-written);
+        // if we're at the last chunk,
+        // 1. zero out our buffer
+        // 2. set 'chunk' to number of unread bytes
+        // 3. set 'xfer_sz' to the cachline aligned value of the last chunk
+        if (unread < chunk) {
+          memset(ptr, 0, chunk);
+          chunk = unread;
+          xfer_sz = cacheline_aligned(chunk);
+        }
     }
-    log_->info("transerred file in {} chunk(s)", n_chunks);
+    log_->info("transferred file in {} chunk(s)", n_chunks);
     ofs_cpeng_image_complete(&cpeng);
 
     // wait for both ssbl and kernel verify (if not skipped)
