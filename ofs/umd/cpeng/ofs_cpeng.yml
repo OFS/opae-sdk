@@ -24,6 +24,8 @@ api: |
     return CSR_HPS2HOST_RSP_SHDW.KERNEL_VFY_SHDW
   def hps_ssbl_verify() -> int:
     return CSR_HPS2HOST_RSP_SHDW.SSBL_VFY_SHDW
+  def hps2host_rsp() -> uint64_t:
+    return CSR_HPS2HOST_RSP_SHDW.value
   def ce_soft_reset():
     CSR_CE_SFTRST.CE_SFTRST = 1
   def image_complete():

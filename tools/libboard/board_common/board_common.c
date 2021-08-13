@@ -62,6 +62,8 @@
 #define SYSFS_FEATURE_ID "/sys/bus/pci/devices/*%x*:*%x*:*%x*.*%x*/"\
 			"fpga_region/region*/dfl-fme*/dfl_dev*/feature_id"
 
+#define FACTORY_BIT (1ULL << 36)
+
 // Read sysfs
 fpga_result read_sysfs(fpga_token token, char *sysfs_path,
 		char *sysfs_name, size_t len)
@@ -499,6 +501,50 @@ fpga_result find_dev_feature(fpga_token token,
 free:
 	if (pglob.gl_pathv)
 		globfree(&pglob);
+
+	return res;
+}
+
+//Prints fpga boot page info
+fpga_result print_common_boot_info(fpga_token token)
+{
+	fpga_properties props       = NULL;
+	fpga_result res             = FPGA_OK;
+	fpga_result retval          = FPGA_OK;
+	uint64_t bbs_id             = (uint64_t)-1;
+	fpga_objtype objtype;
+
+	res = fpgaGetProperties(token, &props);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get Properties ");
+		return res;
+	}
+
+	retval = fpgaPropertiesGetBBSID(props, &bbs_id);
+	if (retval != FPGA_OK) {
+		OPAE_ERR("Failed to get bbsid ");
+		res = retval;
+		goto pro_destroy;
+	}
+
+	retval = fpgaPropertiesGetObjectType(props, &objtype);
+	if (retval != FPGA_OK) {
+		OPAE_ERR("Failed to get object type ");
+		res = retval;
+		goto pro_destroy;
+	}
+
+	if (objtype == FPGA_DEVICE) {
+		printf("%-32s : %s\n", "Boot Page",
+			bbs_id & FACTORY_BIT ? "factory" : "user");
+	}
+
+pro_destroy:
+	retval = fpgaDestroyProperties(&props);
+	if (retval != FPGA_OK) {
+		OPAE_ERR("Failed to destroy Properties ");
+		res = retval;
+	}
 
 	return res;
 }

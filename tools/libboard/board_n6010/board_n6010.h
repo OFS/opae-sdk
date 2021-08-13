@@ -121,6 +121,17 @@ fpga_result print_sec_info(fpga_token token);
 */
 fpga_result print_fme_verbose_info(fpga_token token);
 
+/**
+* Prints fpga boot page info.
+*
+* @param[in] token           fpga_token object for device (FPGA_DEVICE type)
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if invalid boot info.
+* FPGA_INVALID_PARAM if invalid parameters were provided
+*
+*/
+fpga_result fpga_boot_info(fpga_token token);
+
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
