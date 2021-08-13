@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <regex.h>
 #include <opae/properties.h>
 #include <opae/utils.h>
 #include <opae/fpga.h>
@@ -70,6 +71,11 @@
 #define HSSI_FEATURE_LIST                       0xC
 #define HSSI_PORT_ATTRIBUTE                     0x10
 #define HSSI_VERSION                            0x8
+
+// boot page info sysfs
+#define DFL_SYSFS_BOOT_GLOB "*dfl*/**/fpga_boot_image"
+#define BOOTPAGE_PATTERN "_([0-9a-zA-Z]+)"
+
 // hssi version
 struct hssi_version {
 	union {
@@ -519,4 +525,45 @@ fpga_result print_fme_verbose_info(fpga_token token)
 {
 	UNUSED_PARAM(token);
 	return FPGA_OK;;
+}
+
+// prints fpga boot page info
+fpga_result fpga_boot_info(fpga_token token)
+{
+	char boot[SYSFS_PATH_MAX] = { 0 };
+	char page[SYSFS_PATH_MAX] = { 0 };
+	fpga_result res           = FPGA_OK;
+	int reg_res               = 0;
+	char err[128]           = { 0 };
+	regex_t re;
+	regmatch_t matches[3];
+
+	// boot page
+	memset(boot, 0, sizeof(boot));
+	res = read_sysfs(token, DFL_SYSFS_BOOT_GLOB, boot, SYSFS_PATH_MAX - 1);
+	if (res == FPGA_OK) {
+
+		reg_res = regcomp(&re, BOOTPAGE_PATTERN, REG_EXTENDED | REG_ICASE);
+		if (reg_res) {
+			OPAE_ERR("Error compiling regex");
+			return FPGA_EXCEPTION;
+		}
+
+		reg_res = regexec(&re, boot, 3, matches, 0);
+		if (reg_res) {
+			regerror(reg_res, &re, err, sizeof(err));
+			OPAE_MSG("Error executing regex: %s", err);
+			regfree(&re);
+			return FPGA_EXCEPTION;
+		}
+		strncpy(page, boot + matches[0].rm_so+1,
+			matches[0].rm_eo - (matches[0].rm_so+1));
+		printf("%-32s : %s\n", "Boot Page", page);
+		regfree(&re);
+	} else {
+		OPAE_MSG("Failed to Read Boot Page");
+		printf("%-32s : %s\n", "Boot Page", "N/A");
+	}
+
+	return res;
 }

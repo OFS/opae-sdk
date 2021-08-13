@@ -664,3 +664,29 @@ fpga_result fme_verbose_info(fpga_token token)
 out:
 	return res;
 }
+// print fpga boot page info
+fpga_result fpga_boot_info(fpga_token token)
+{
+	fpga_result res = FPGA_OK;
+	void *dl_handle = NULL;
+
+	// fpga boot page information
+	fpga_result(*fpga_boot_info)(fpga_token token);
+
+	res = load_board_plugin(token, &dl_handle);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to load board plugin\n");
+		goto out;
+	}
+
+	fpga_boot_info = dlsym(dl_handle, "fpga_boot_info");
+	if (fpga_boot_info) {
+		res = fpga_boot_info(token);
+	} else {
+		OPAE_MSG("No fpga_boot_info entry point:%s\n", dlerror());
+		res = FPGA_NOT_FOUND;
+	}
+
+out:
+	return res;
+}
