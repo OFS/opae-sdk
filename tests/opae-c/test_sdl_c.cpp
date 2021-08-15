@@ -25,7 +25,6 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 extern "C" {
-//#include <uuid/uuid.h>
 #include "config.h"
 #include "bmc_ioctl.h"
 #include "opae_int.h"
