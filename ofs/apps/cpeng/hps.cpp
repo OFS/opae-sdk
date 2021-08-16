@@ -134,7 +134,7 @@ public:
     // check the chunks size is a multiple of data request limit
     if (chunk_ % data_request_limit_) {
       log_->error("chunk size ({}) must be aligned to request limit size ({})",
-                   chunk_, data_request_limit_)
+                   chunk_, data_request_limit_);
       return 2;
     }
 
