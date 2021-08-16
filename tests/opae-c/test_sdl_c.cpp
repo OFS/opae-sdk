@@ -316,4 +316,4 @@ TEST_P (sdl_c_p, test_opae_port_unmap_for_invalid_fd) {
 }
 
 INSTANTIATE_TEST_CASE_P(sdl_c, sdl_c_p, 
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                        ::testing::ValuesIn(test_platform::platforms({"dfl-n3000","dfl-d5005"})));
