@@ -101,6 +101,9 @@ class sdl_c_p : public ::testing::TestWithParam<std::string> {
     }
     fpgaFinalize();
     system_->finalize();
+#ifdef LIBOPAE_DEBUG
+    EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
+#endif // LIBOPAE_DEBUG
   }
 
   std::array<fpga_token, 2> tokens_;
