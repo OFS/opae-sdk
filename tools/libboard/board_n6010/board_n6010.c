@@ -556,8 +556,10 @@ fpga_result fpga_boot_info(fpga_token token)
 			regfree(&re);
 			return FPGA_EXCEPTION;
 		}
-		strncpy(page, boot + matches[0].rm_so+1,
-			matches[0].rm_eo - (matches[0].rm_so+1));
+		memcpy(page, boot + matches[0].rm_so + 1,
+			matches[0].rm_eo - (matches[0].rm_so + 1));
+		page[matches[0].rm_eo - (matches[0].rm_so + 1)] = '\0';
+
 		printf("%-32s : %s\n", "Boot Page", page);
 		regfree(&re);
 	} else {
