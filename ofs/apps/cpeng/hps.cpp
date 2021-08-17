@@ -27,11 +27,10 @@
 #include <chrono>
 #include <fstream>
 #include <thread>
+#include <vector>
 #include <unistd.h>
 #include "afu_test.h"
 #include "ofs_cpeng.h"
-
-#define CACHELINE_SZ 64u
 
 const char *cpeng_guid = "44bfc10d-b42a-44e5-bd42-57dc93ea7f91";
 
@@ -45,10 +44,18 @@ constexpr size_t MB(uint32_t count) {
   return count * 1024 * 1024;
 }
 
-constexpr size_t cacheline_aligned(size_t n) {
-  return (n + CACHELINE_SZ-1) & ~(CACHELINE_SZ-1);
+constexpr size_t aligned(size_t n, size_t sz) {
+  return (n + sz-1) & ~(sz-1);
 }
 const usec default_timeout_usec(msec(1000));
+
+// TODO: make enums in ofs cpeng yaml spec
+std::map<uint32_t, uint8_t> limit_map {
+  { 64, 0b00},
+  { 128, 0b01},
+  { 512, 0b10},
+  { 1024, 0b11}
+};
 
 class cpeng : public opae::afu_test::command
 {
@@ -58,6 +65,7 @@ public:
     , destination_offset_(0x2000000)
     , timeout_usec_(default_timeout_usec.count())
     , chunk_(pg_size)
+    , data_request_limit_(512)
     , soft_reset_(false)
     , skip_ssbl_verify_(false)
     , skip_kernel_verify_(false)
@@ -82,6 +90,7 @@ public:
   virtual void add_options(CLI::App *app)
   {
     std::map<std::string, uint32_t> units = {{"s", 1E6}, {"ms", 1E3}, {"us", 1}};
+    std::vector<uint32_t> limits = { 64, 128, 512, 1024 };
     app->add_option("-f,--filename", filename_, "Image file to copy")
       ->default_val(filename_)
       ->check(CLI::ExistingFile);
@@ -92,6 +101,11 @@ public:
       ->transform(CLI::AsNumberWithUnit(units));
     app->add_option("-c,--chunk", chunk_, "Chunk size. 0 indicates no chunks")
       ->default_str(std::to_string(chunk_));
+    app->add_option("-r,--data-request-limit",
+                    data_request_limit_,
+                    "data request limit is pcie transfer width")
+      ->default_str(std::to_string(data_request_limit_))
+      ->check(CLI::IsMember(limits));
     app->add_flag("--soft-reset", soft_reset_, "Issue soft reset only");
     app->add_flag("--skip-ssbl-verify", skip_ssbl_verify_, "Do not wait for ssbl verify");
     app->add_flag("--skip-kernel-verify", skip_kernel_verify_, "Do not wait for kernel verify");
@@ -115,9 +129,10 @@ public:
       return 0;
     }
 
-    // check the chunks size is a multiple of cacheline size
-    if (chunk_ % CACHELINE_SZ) {
-      log_->error("chunk size must be cacheline (64 bytes) aligned");
+    // check the chunks size is a multiple of data request limit
+    if (chunk_ % data_request_limit_) {
+      log_->error("chunk size ({}) must be aligned to request limit size ({})",
+                   chunk_, data_request_limit_);
       return 2;
     }
 
@@ -130,8 +145,10 @@ public:
     // otherwise, use the smaller of chunk_ and file size
     size_t chunk = chunk_ ? std::min(static_cast<size_t>(chunk_), sz) : sz;
     shared_buffer::ptr_t buffer(0);
+    // make sure we align our buffer size to data request limit
     try {
-      buffer = shared_buffer::allocate(afu->handle(), chunk);
+      buffer = shared_buffer::allocate(afu->handle(),
+                                       aligned(chunk, data_request_limit_));
     } catch (opae_exception &ex) {
       log_->error("could not allocate {} bytes of memory", chunk);
       if (chunk > pg_size) {
@@ -143,16 +160,17 @@ public:
     // get a char* of the buffer so we can read into it every chunk iteration
     auto ptr = reinterpret_cast<char*>(const_cast<uint8_t*>(buffer->c_type()));
 
+    memset(ptr, 0, buffer->size());
     size_t written = 0;
     log_->info("starting copy of file:{}, size: {}, chunk size: {}",
                filename_, sz, chunk);
     uint32_t n_chunks = 0;
     // set our xfer size to chunk size
-    // but align it with cacheline size in case
+    // but align it with req. limit size in case
     // our chunk is the entire file
-    auto xfer_sz = cacheline_aligned(chunk);
-    // set the data req. limit to 512 (default is 1k)
-    ofs_cpeng_set_data_req_limit(&cpeng, 0b10);
+    auto xfer_sz = aligned(chunk, data_request_limit_);
+    // set the data req. limit to CLI arg (default arg is 512, default in HW is 1k)
+    ofs_cpeng_set_data_req_limit(&cpeng, limit_map[data_request_limit_]);
     while (written < sz) {
         auto unread = sz-written;
         inp.read(ptr, chunk);
@@ -173,11 +191,12 @@ public:
         // if we're at the last chunk,
         // 1. zero out our buffer
         // 2. set 'chunk' to number of unread bytes
-        // 3. set 'xfer_sz' to the cachline aligned value of the last chunk
+        // 3. set 'xfer_sz' to the req. limit aligned value of the last chunk
         if (unread < chunk) {
           memset(ptr, 0, chunk);
           chunk = unread;
-          xfer_sz = cacheline_aligned(chunk);
+          xfer_sz = aligned(chunk, data_request_limit_);
+          log_->info("last chunk {}, aligned {}", chunk, xfer_sz);
         }
     }
     log_->info("transferred file in {} chunk(s)", n_chunks);
@@ -240,6 +259,7 @@ private:
   uint64_t destination_offset_;
   uint32_t timeout_usec_;
   uint32_t chunk_;
+  uint32_t data_request_limit_;
   bool soft_reset_;
   bool skip_ssbl_verify_;
   bool skip_kernel_verify_;
