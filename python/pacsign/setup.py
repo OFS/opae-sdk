@@ -27,7 +27,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pacsign",
-    version="1.0.3",
+    version="1.0.4",
     packages=find_packages(),
     python_requires='>=3.6',
     extra_requires={'pkcs11': ['python-pkcs11']},
