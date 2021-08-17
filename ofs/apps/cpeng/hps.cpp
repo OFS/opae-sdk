@@ -102,6 +102,7 @@ public:
     app->add_option("-c,--chunk", chunk_, "Chunk size. 0 indicates no chunks")
       ->default_str(std::to_string(chunk_));
     app->add_option("-r,--data-request-limit",
+                    data_request_limit_,
                     "data request limit is pcie transfer width")
       ->default_str(std::to_string(data_request_limit_))
       ->check(CLI::IsMember(limits));
