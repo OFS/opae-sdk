@@ -221,6 +221,8 @@ opae_vfio_device_get_irq_info(uint32_t flags,
 		irq->flags = flags;
 		irq->index = index;
 		irq->count = count;
+		irq->event_fds = NULL;
+		irq->masks = NULL;
 		irq->next = NULL;
 	}
 	return irq;
@@ -232,6 +234,10 @@ opae_vfio_destroy_device_irq(struct opae_vfio_device_irq *i)
 	while (i) {
 		struct opae_vfio_device_irq *trash = i;
 		i = i->next;
+		if (trash->event_fds)
+			free(trash->event_fds);
+		if (trash->masks)
+			free(trash->masks);
 		free(trash);
 	}
 }
@@ -807,193 +813,222 @@ out_unlock:
 	return res;
 }
 
+STATIC int
+opae_vfio_device_set_irqs(struct opae_vfio *v,
+			  uint32_t index,
+			  uint32_t subindex,
+			  int event_fd,
+			  int flags)
+{
+	struct opae_vfio_device_irq *irq;
+	struct vfio_irq_set *i;
+	size_t sz;
+	char *buf;
+	int res;
+	uint32_t u;
+
+	for (irq = v->device.irqs ; irq ; irq = irq->next) {
+		if ((irq->index != index) ||
+		    !(irq->flags & VFIO_IRQ_INFO_EVENTFD))
+			continue;
+
+		if (subindex >= irq->count) {
+			ERR("subindex %u is out of range 0-%u\n",
+			    subindex, irq->count ? irq->count - 1 : irq->count);
+			return 3;
+		}
+
+		break;
+	}
+
+	if (!irq)
+		return 4;
+
+	if (flags & VFIO_IRQ_SET_DATA_EVENTFD) {
+		if (!irq->event_fds) {
+
+			irq->event_fds =
+				(int32_t *)malloc(irq->count * sizeof(int32_t));
+			if (!irq->event_fds) {
+				ERR("malloc() failed\n");
+				return 5;
+			}
+
+			for (u = 0 ; u < irq->count ; ++u)
+				irq->event_fds[u] = -1;
+		}
+
+		irq->event_fds[subindex] = event_fd;
+	} else if (flags & VFIO_IRQ_SET_DATA_BOOL) {
+		if (!irq->masks) {
+
+			irq->masks =
+				(int32_t *)malloc(irq->count * sizeof(int32_t));
+			if (!irq->masks) {
+				ERR("malloc() failed\n");
+				return 6;
+			}
+
+			for (u = 0 ; u < irq->count ; ++u)
+				irq->masks[u] = 0;
+		}
+
+		irq->masks[subindex] = event_fd;
+	}
+
+	sz = sizeof(*i) + (irq->count * sizeof(int32_t));
+	buf = malloc(sz);
+	if (!buf) {
+		ERR("malloc() failed\n");
+		return 7;
+	}
+
+	i = (struct vfio_irq_set *)buf;
+	i->argsz = sz;
+	i->flags = flags;
+	i->index = irq->index;
+	i->start = 0;
+	i->count = irq->count;
+
+	if (flags & VFIO_IRQ_SET_DATA_EVENTFD)
+		memcpy(&i->data, irq->event_fds, irq->count * sizeof(int32_t));
+	else if (flags & VFIO_IRQ_SET_DATA_BOOL)
+		memcpy(&i->data, irq->masks, irq->count * sizeof(int32_t));
+
+	res = ioctl(v->device.device_fd, VFIO_DEVICE_SET_IRQS, i);
+
+	free(buf);
+
+	return res;
+}
+
 int opae_vfio_irq_enable(struct opae_vfio *v,
 			 uint32_t index,
 			 uint32_t subindex,
 			 int event_fd)
 {
-	struct opae_vfio_device_irq *irq;
+	int res;
 
 	if (!v) {
 		ERR("NULL param\n");
 		return 1;
 	}
 
-	for (irq = v->device.irqs ; irq ; irq = irq->next) {
-		if ((irq->index == index) &&
-		    (irq->flags & VFIO_IRQ_INFO_EVENTFD)) {
-			struct vfio_irq_set *i;
-			char buf[sizeof(*i) + sizeof(int32_t)];
-			int32_t *fdptr;
-			int res = 3;
-
-			i = (struct vfio_irq_set *)buf;
-			i->argsz = sizeof(buf);
-			i->flags = VFIO_IRQ_SET_DATA_EVENTFD |
-				   VFIO_IRQ_SET_ACTION_TRIGGER;
-			i->index = index;
-			i->start = subindex;
-			i->count = 1;
-
-			fdptr = (int32_t *)&i->data;
-			*fdptr = event_fd;
-
-			if (subindex < irq->count) {
-				res = ioctl(v->device.device_fd,
-					    VFIO_DEVICE_SET_IRQS,
-					    i);
-
-				if (res < 0)
-					ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i)"
-					    " [enable]\n");
-			} else {
-				ERR("subindex %u is out of range 0-%u\n",
-				    subindex, irq->count - 1);
-			}
-
-			return res;
-		}
+	if (pthread_mutex_lock(&v->lock)) {
+		ERR("pthread_mutex_lock() failed\n");
+		return 2;
 	}
 
-	return 2;
+	res = opae_vfio_device_set_irqs(v,
+					index,
+					subindex,
+					event_fd,
+					VFIO_IRQ_SET_DATA_EVENTFD |
+					VFIO_IRQ_SET_ACTION_TRIGGER);
+
+	if (res < 0)
+		ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i) [enable]\n");
+
+	if (pthread_mutex_unlock(&v->lock))
+		ERR("pthread_mutex_unlock() failed\n");
+
+	return res;
 }
 
 int opae_vfio_irq_unmask(struct opae_vfio *v,
 			 uint32_t index,
 			 uint32_t subindex)
 {
-	struct opae_vfio_device_irq *irq;
+	int res;
 
 	if (!v) {
 		ERR("NULL param\n");
 		return 1;
 	}
 
-	for (irq = v->device.irqs ; irq ; irq = irq->next) {
-		if ((irq->index == index) &&
-		    (irq->flags & VFIO_IRQ_INFO_MASKABLE)) {
-			struct vfio_irq_set i;
-			int res = 3;
-
-			i.argsz = sizeof(i);
-			i.flags = VFIO_IRQ_SET_ACTION_UNMASK |
-				  VFIO_IRQ_SET_DATA_NONE;
-			i.index = index;
-			i.start = subindex;
-			i.count = 1;
-
-			if (subindex < irq->count) {
-				res = ioctl(v->device.device_fd,
-					    VFIO_DEVICE_SET_IRQS,
-					    &i);
-
-				if (res < 0)
-					ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i)"
-					    " [unmask]\n");
-			} else {
-				ERR("subindex %u is out of range 0-%u\n",
-				    subindex, irq->count - 1);
-			}
-
-			return res;
-		}
+	if (pthread_mutex_lock(&v->lock)) {
+		ERR("pthread_mutex_lock() failed\n");
+		return 2;
 	}
 
-	return 2;
+	res = opae_vfio_device_set_irqs(v,
+					index,
+					subindex,
+					0,
+					VFIO_IRQ_SET_DATA_BOOL |
+					VFIO_IRQ_SET_ACTION_UNMASK);
+
+	if (res < 0)
+		ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i) [unmask]\n");
+
+	if (pthread_mutex_unlock(&v->lock))
+		ERR("pthread_mutex_unlock() failed\n");
+
+	return res;
 }
 
 int opae_vfio_irq_mask(struct opae_vfio *v,
 		       uint32_t index,
 		       uint32_t subindex)
 {
-	struct opae_vfio_device_irq *irq;
+	int res;
 
 	if (!v) {
 		ERR("NULL param\n");
 		return 1;
 	}
 
-	for (irq = v->device.irqs ; irq ; irq = irq->next) {
-		if ((irq->index == index) &&
-		    (irq->flags & VFIO_IRQ_INFO_MASKABLE)) {
-			struct vfio_irq_set i;
-			int res = 3;
-
-			i.argsz = sizeof(i);
-			i.flags = VFIO_IRQ_SET_ACTION_MASK |
-				  VFIO_IRQ_SET_DATA_NONE;
-			i.index = index;
-			i.start = subindex;
-			i.count = 1;
-
-			if (subindex < irq->count) {
-				res = ioctl(v->device.device_fd,
-					    VFIO_DEVICE_SET_IRQS,
-					    &i);
-
-				if (res < 0)
-					ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i)"
-					    " [mask]\n");
-			} else {
-				ERR("subindex %u is out of range 0-%u\n",
-				    subindex, irq->count - 1);
-			}
-
-			return res;
-		}
+	if (pthread_mutex_lock(&v->lock)) {
+		ERR("pthread_mutex_lock() failed\n");
+		return 2;
 	}
 
-	return 2;
+	res = opae_vfio_device_set_irqs(v,
+					index,
+					subindex,
+					1,
+					VFIO_IRQ_SET_DATA_BOOL |
+					VFIO_IRQ_SET_ACTION_MASK);
+
+	if (res < 0)
+		ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i) [mask]\n");
+
+	if (pthread_mutex_unlock(&v->lock))
+		ERR("pthread_mutex_unlock() failed\n");
+
+	return res;
 }
 
 int opae_vfio_irq_disable(struct opae_vfio *v,
 			  uint32_t index,
 			  uint32_t subindex)
 {
-	struct opae_vfio_device_irq *irq;
+	int res;
 
 	if (!v) {
 		ERR("NULL param\n");
 		return 1;
 	}
 
-	for (irq = v->device.irqs ; irq ; irq = irq->next) {
-		if ((irq->index == index) &&
-		    (irq->flags & VFIO_IRQ_INFO_EVENTFD)) {
-			struct vfio_irq_set *i;
-			char buf[sizeof(*i) + sizeof(int32_t)];
-			int32_t *fdptr;
-			int res = 3;
-
-			i = (struct vfio_irq_set *)buf;
-			i->argsz = sizeof(buf);
-			i->flags = VFIO_IRQ_SET_DATA_EVENTFD |
-				   VFIO_IRQ_SET_ACTION_TRIGGER;
-			i->index = index;
-			i->start = subindex;
-			i->count = 1;
-
-			fdptr = (int32_t *)&i->data;
-			*fdptr = -1;
-
-			if (subindex < irq->count) {
-				res = ioctl(v->device.device_fd,
-					    VFIO_DEVICE_SET_IRQS,
-					    i);
-
-				if (res < 0)
-					ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i)"
-					    " [disable]\n");
-			} else {
-				ERR("subindex %u is out of range 0-%u\n",
-				    subindex, irq->count - 1);
-			}
-
-			return res;
-		}
+	if (pthread_mutex_lock(&v->lock)) {
+		ERR("pthread_mutex_lock() failed\n");
+		return 2;
 	}
 
-	return 2;
+	res = opae_vfio_device_set_irqs(v,
+					index,
+					subindex,
+					-1,
+					VFIO_IRQ_SET_DATA_EVENTFD |
+					VFIO_IRQ_SET_ACTION_TRIGGER);
+
+	if (res < 0)
+		ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i) [disable]\n");
+
+	if (pthread_mutex_unlock(&v->lock))
+		ERR("pthread_mutex_unlock() failed\n");
+
+	return res;
 }
 
 STATIC char *opae_vfio_group_for(const char *pciaddr)
