@@ -50,11 +50,11 @@ constexpr size_t aligned(size_t n, size_t sz) {
 const usec default_timeout_usec(msec(1000));
 
 // TODO: make enums in ofs cpeng yaml spec
-enum data_req_limit {
-  req_64 = 0b00,
-  req_128 = 0b01,
-  req_512 = 0b10,
-  req_1024 = 0b11
+std::map<uint32_t, uint8_t> limit_map {
+  { 64, 0b00},
+  { 128, 0b01},
+  { 512, 0b10},
+  { 1024, 0b11}
 };
 
 class cpeng : public opae::afu_test::command
@@ -65,7 +65,7 @@ public:
     , destination_offset_(0x2000000)
     , timeout_usec_(default_timeout_usec.count())
     , chunk_(pg_size)
-    , data_request_limit_(data_req_limit::req_512)
+    , data_request_limit_(512)
     , soft_reset_(false)
     , skip_ssbl_verify_(false)
     , skip_kernel_verify_(false)
@@ -90,10 +90,7 @@ public:
   virtual void add_options(CLI::App *app)
   {
     std::map<std::string, uint32_t> units = {{"s", 1E6}, {"ms", 1E3}, {"us", 1}};
-    std::vector<data_req_limit> limits = { data_req_limit::req_64,
-                                           data_req_limit::req_128,
-                                           data_req_limit::req_512,
-                                           data_req_limit::req_1024};
+    std::vector<uint32_t> limits = { 64, 128, 512, 1024 };
     app->add_option("-f,--filename", filename_, "Image file to copy")
       ->default_val(filename_)
       ->check(CLI::ExistingFile);
@@ -172,7 +169,7 @@ public:
     // our chunk is the entire file
     auto xfer_sz = aligned(chunk, data_request_limit_);
     // set the data req. limit to CLI arg (default arg is 512, default in HW is 1k)
-    ofs_cpeng_set_data_req_limit(&cpeng, data_request_limit_);
+    ofs_cpeng_set_data_req_limit(&cpeng, limit_map[data_request_limit_]);
     while (written < sz) {
         auto unread = sz-written;
         inp.read(ptr, chunk);
