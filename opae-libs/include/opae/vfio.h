@@ -106,6 +106,8 @@ struct opae_vfio_device_irq {
 	uint32_t flags;				/**< Flags. See struct vfio_irq_info. */
 	uint32_t index;				/**< The IRQ index. */
 	uint32_t count;				/**< Number of IRQs at this index. */
+	int32_t *event_fds;			/**< Event file descriptors. */
+	int32_t *masks;				/**< IRQ masks. */
 	struct opae_vfio_device_irq *next;	/**< Pointer to next in list. */
 };
 
