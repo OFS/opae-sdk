@@ -53,10 +53,10 @@ static void print_port_info(fpga_token token)
 	fpgainfo_print_common("//****** PORT ******//", props);
 
 	res = fpgaPropertiesGetGUID(props, &guid);
-	ON_FPGAINFO_ERR_GOTO(res, out_destroy,
-			     "reading guid from properties");
-	uuid_unparse(guid, guid_str);
-	printf("%-32s : %s\n", "Accelerator GUID", guid_str);
+	if (res == FPGA_OK) {
+		uuid_unparse(guid, guid_str);
+		printf("%-32s : %s\n", "Accelerator GUID", guid_str);
+	}
 
 out_destroy:
 	res = fpgaDestroyProperties(&props);

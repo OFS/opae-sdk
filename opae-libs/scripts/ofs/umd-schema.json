@@ -1,0 +1,26 @@
+{
+    "$id": "https://github.com/OPAE/opae-libs/scripts/ofs/umd-schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "OFS UMD",
+    "description": "OFS UMD describes register maps and APIs to create user mode drivers",
+    "type": "object",
+    "properties": {
+        "name": {
+            "description": "The name of the user mode driver.\nThis will be used for naming the shared library\nas well as for prefixing data structures and functions\nthat correspond to the register map and api.",
+            "type": "string"
+        },
+        "api": {
+            "description": "Contains the UMD API definitions using Python syntax",
+            "type": "string"
+        },
+        "registers": {
+            "description": "Register maps used to create data structures for the UMD API",
+            "$ref": "https://raw.githubusercontent.com/OPAE/opae-libs/master/scripts/ofs/ofs-registers-schema.json"
+        }
+    },
+    "required": [
+        "name",
+        "api",
+        "registers"
+    ]
+}

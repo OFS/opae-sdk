@@ -50,11 +50,11 @@
 #define MACADDR_LEN 19
 
 // DFL SYSFS
-#define DFL_SYSFS_BMCFW_VER                     "dfl*/*spi*/spi_master/spi*/spi*/bmcfw_version"
-#define DFL_SYSFS_MAX10_VER                     "dfl*/*spi*/spi_master/spi*/spi*/bmc_version"
+#define DFL_SYSFS_BMCFW_VER                     "dfl*/**/spi_master/spi*/spi*/bmcfw_version"
+#define DFL_SYSFS_MAX10_VER                     "dfl*/**/spi_master/spi*/spi*/bmc_version"
 
-#define DFL_SYSFS_MACADDR_PATH                  "dfl*/*spi*/spi_master/spi*/spi*.*/mac_address"
-#define DFL_SYSFS_MACCNT_PATH                   "dfl*/*spi*/spi_master/spi*/spi*.*/mac_count"
+#define DFL_SYSFS_MACADDR_PATH                  "dfl*/**/spi_master/spi*/spi*.*/mac_address"
+#define DFL_SYSFS_MACCNT_PATH                   "dfl*/**/spi_master/spi*/spi*.*/mac_count"
 
 
 // Read BMC firmware version
@@ -263,4 +263,10 @@ fpga_result print_phy_info(fpga_token token)
 	}
 
 	return res;
+}
+
+// prints fpga boot page info
+fpga_result fpga_boot_info(fpga_token token)
+{
+	return print_common_boot_info(token);
 }
