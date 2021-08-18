@@ -2308,7 +2308,6 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 			      fpga_object *object, int flags,
 			      fpga_handle handle)
 {
-	uint64_t pg_size = (uint64_t)sysconf(_SC_PAGE_SIZE);
 	struct _fpga_object *obj = NULL;
 	struct stat objstat;
 	int statres;
@@ -2383,8 +2382,8 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	}
 	obj->handle = handle;
 	obj->type = FPGA_SYSFS_FILE;
-	obj->buffer = calloc(pg_size, sizeof(uint8_t));
-	obj->max_size = pg_size;
+	obj->buffer = calloc(objstat.st_size, sizeof(uint8_t));
+	obj->max_size = objstat.st_size;
 	if (handle && (objstat.st_mode & (S_IWUSR | S_IWGRP | S_IWOTH))) {
 		if ((objstat.st_mode & (S_IRUSR | S_IRGRP | S_IROTH))) {
 			obj->perm = O_RDWR;
