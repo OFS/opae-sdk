@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -84,6 +84,21 @@ token::~token() {
 token::token(fpga_token tok) {
   auto res = fpgaCloneToken(tok, &token_);
   ASSERT_FPGA_OK(res);
+}
+
+token::ptr_t token::get_parent() const {
+  ptr_t p;
+  fpga_token parent = nullptr;
+  auto props = properties::get(token_);
+
+  try {
+    parent = props->parent;
+  } catch (except&) {
+    return p;
+  }
+
+  p.reset(new token(parent));
+  return p;
 }
 
 }  // end of namespace types

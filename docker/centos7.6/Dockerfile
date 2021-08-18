@@ -24,11 +24,13 @@ RUN yum install -y \
         libedit-devel \
         epel-release
 
+RUN yum install -y libudev-devel
+RUN yum install -y libcap-devel
 RUN yum install -y cmake3
 
 RUN python3 -m pip install setuptools --upgrade
 RUN python3 -m pip install wheel
-RUN python3 -m pip install python-pkcs11 cython pyyaml
+RUN python3 -m pip install python-pkcs11 pyyaml jsonschema
 
 WORKDIR /root
 COPY scripts/build-rpms.sh /scripts/build-rpms.sh

@@ -60,6 +60,11 @@ opae_test_add(TARGET test_opae_mmio_c
     LIBS opae-c-static
 )
 
+opae_test_add(TARGET test_opae_metrics_c
+    SOURCE test_metrics_c.cpp
+    LIBS opae-c-static
+)
+
 opae_test_add(TARGET test_opae_umsg_c
     SOURCE test_umsg_c.cpp
     LIBS opae-c-static
@@ -91,6 +96,20 @@ opae_test_add(TARGET test_opae_event_c
 target_include_directories(test_opae_event_c
     PRIVATE
         ${OPAE_LIBS_ROOT}/libbitstream
+)
+
+opae_test_add(TARGET test_opae_sdl_c
+    SOURCE test_sdl_c.cpp
+    LIBS
+        opae-c-static
+        bmc-static
+        xfpga-static
+)
+
+target_include_directories(test_opae_sdl_c
+    PRIVATE
+        ${OPAE_LIBS_ROOT}/plugins/xfpga
+        ${OPAE_LIBS_ROOT}/plugins/xfpga/metrics/bmc
 )
 
 opae_test_add(TARGET test_opae_hostif_c

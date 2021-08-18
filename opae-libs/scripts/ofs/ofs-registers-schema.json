@@ -1,0 +1,72 @@
+{
+    "$id": "https://raw.githubusercontent.com/OPAE/opae-libs/master/scripts/ofs/ofs-registers-schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "definitions": {
+        "ofs_register_name": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "number"
+                },
+                {
+                    "type": "number"
+                },
+                {
+                    "type": "string"
+                }
+            ],
+            "additionalItems": false
+        },
+        "ofs_register_field": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "array",
+                    "items": [
+                        {
+                            "type": "integer",
+                            "maximum": 64,
+                            "minimum": 0
+                        },
+                        {
+                            "type": "integer",
+                            "maximum": 64,
+                            "minimum": 0
+                        }
+                    ]
+                }
+            ]
+        },
+        "ofs_register_fields": {
+            "type": "array",
+            "items": [
+                {
+                    "$ref": "#/definitions/ofs_register_field"
+                }
+            ]
+        },
+        "ofs_register": {
+            "type": "array",
+            "items": [
+                {
+                    "$ref": "#/definitions/ofs_register_name"
+                },
+                {
+                    "$ref": "#/definitions/ofs_register_fields"
+                }
+            ]
+        }
+    },
+    "type": "array",
+    "items": [
+        {
+            "$ref": "#/definitions/ofs_register"
+        }
+    ]
+}

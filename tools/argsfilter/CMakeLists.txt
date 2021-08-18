@@ -28,3 +28,7 @@ opae_add_static_library(TARGET argsfilter
     SOURCE argsfilter.c
     LIBS opae-c
 )
+
+install(FILES argsfilter.c argsfilter.h
+  DESTINATION src/opae/argsfilter
+  COMPONENT toolargsfilter)

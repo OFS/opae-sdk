@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2020-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -28,6 +28,7 @@
 #endif // HAVE_CONFIG_H
 
 #define _GNU_SOURCE
+#include <byteswap.h>
 #include <linux/limits.h>
 #include <errno.h>
 #include <glob.h>
@@ -39,6 +40,8 @@
 #include <time.h>
 #include <uuid/uuid.h>
 #include <sys/stat.h>
+#include <sys/eventfd.h>
+#include <unistd.h>
 
 #undef _GNU_SOURCE
 #include <opae/fpga.h>
@@ -50,6 +53,7 @@
 #define BAR_MAX 6
 #define VFIO_TOKEN_MAGIC 0xEF1010FE
 #define VFIO_HANDLE_MAGIC ~VFIO_TOKEN_MAGIC
+#define VFIO_EVENT_HANDLE_MAGIC 0x5a6446a5
 
 #define FPGA_BBS_VER_MAJOR(i) (((i) >> 56) & 0xf)
 #define FPGA_BBS_VER_MINOR(i) (((i) >> 52) & 0xf)
@@ -209,9 +213,6 @@ void free_buffer_list(void)
 	while (ptr) {
 		tmp = ptr;
 		ptr = tmp->next;
-		if (opae_vfio_buffer_free(tmp->vfio_device, tmp->virtual)) {
-			OPAE_ERR("error freeing vfio buffer");
-		}
 		free(tmp);
 	}
 }
@@ -278,8 +279,8 @@ int pci_discover(void)
 	int gres = glob(gpattern, 0, NULL, &pg);
 
 	if (gres) {
-		ERR("error looking in vfio-pci");
-		return res;
+		OPAE_MSG("vfio-pci not bound to any PCIe enpoint");
+		return 0;
 	}
 	if (!pg.gl_pathc) {
 		goto free;
@@ -346,6 +347,18 @@ vfio_handle *handle_check(fpga_handle handle)
 	return h;
 }
 
+vfio_event_handle *event_handle_check(fpga_event_handle event_handle)
+{
+	ASSERT_NOT_NULL_RESULT(event_handle, NULL);
+	vfio_event_handle *eh = (vfio_event_handle *)event_handle;
+
+	if (eh->magic != VFIO_EVENT_HANDLE_MAGIC) {
+		OPAE_ERR("invalid event handle magic");
+		return NULL;
+	}
+	return eh;
+}
+
 vfio_handle *handle_check_and_lock(fpga_handle handle)
 {
 	vfio_handle *h = handle_check(handle);
@@ -355,6 +368,18 @@ vfio_handle *handle_check_and_lock(fpga_handle handle)
 		return NULL;
 	}
 	return h;
+}
+
+vfio_event_handle *
+event_handle_check_and_lock(fpga_event_handle event_handle)
+{
+	vfio_event_handle *eh = event_handle_check(event_handle);
+
+	if (eh && pthread_mutex_lock(&eh->lock)) {
+		OPAE_ERR("failed to lock event handle mutex");
+		return NULL;
+	}
+	return eh;
 }
 
 static int close_vfio_pair(vfio_pair_t **pair)
@@ -432,6 +457,13 @@ out_destroy:
 	return NULL;
 }
 
+static fpga_result vfio_reset(const pci_device_t *p, volatile uint8_t *port_base)
+{
+	ASSERT_NOT_NULL(p);
+	ASSERT_NOT_NULL(port_base);
+	OPAE_ERR("fpgaReset for vfio is not implemented yet");
+	return FPGA_OK;
+}
 
 int vfio_walk(pci_device_t *p)
 {
@@ -485,14 +517,20 @@ int vfio_walk(pci_device_t *p)
 	t->mmio_size = size;
 	t->user_mmio_count = 1;
 	t->user_mmio[0] = 0;
+	t->ops.reset = vfio_reset;
 	get_guid(1+(uint64_t *)mmio, t->guid);
 
 	// now let's check other BARs
 	for (uint32_t i = 1; i < BAR_MAX; ++i) {
 		if (!opae_vfio_region_get(v, i, (uint8_t **)&mmio, &size)) {
+			uint64_t *hdr = (uint64_t *)mmio;
+			uint64_t *guid = hdr+1;
+			// workaround for accessible BARS without an AFU
+			if (!*hdr || !*guid)
+				continue;
 			vfio_token *t = get_token(p, i, FPGA_ACCELERATOR);
 
-			get_guid(1+(uint64_t *)mmio, t->guid);
+			get_guid(guid, t->guid);
 			t->mmio_size = size;
 			t->user_mmio_count = 1;
 			t->user_mmio[0] = 0;
@@ -563,6 +601,15 @@ fpga_result vfio_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 	}
 	_handle->mmio_base = (volatile uint8_t *)(mmio);
 	_handle->mmio_size = size;
+
+	_handle->flags = 0;
+#if GCC_VERSION >= 40900
+	__builtin_cpu_init();
+	if (__builtin_cpu_supports("avx512f")) {
+		_handle->flags |= OPAE_FLAG_HAS_AVX512;
+	}
+#endif
+
 	*handle = _handle;
 	res = FPGA_OK;
 out_attr_destroy:
@@ -618,12 +665,10 @@ fpga_result vfio_fpgaReset(fpga_handle handle)
 fpga_result get_guid(uint64_t *h, fpga_guid guid)
 {
 	ASSERT_NOT_NULL(h);
-	size_t sz = 16;
-	uint8_t *ptr = ((uint8_t *)h)+sz;
 
-	for (size_t i = 0; i < sz; ++i) {
-		guid[i] = *--ptr;
-	}
+	uint64_t *ptr = (uint64_t *)guid;
+	*ptr = bswap_64(*(h+1));
+	*(ptr+1) = bswap_64(*h);
 	return FPGA_OK;
 }
 
@@ -671,10 +716,9 @@ fpga_result vfio_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJTYPE);
 
 	if (t->type == FPGA_ACCELERATOR) {
-		if (t->parent) {
-			_prop->parent = clone_token(t->parent);
-			SET_FIELD_VALID(_prop, FPGA_PROPERTY_PARENT);
-		}
+		_prop->parent = NULL;
+		CLEAR_FIELD_VALID(_prop, FPGA_PROPERTY_PARENT);
+
 		memcpy(_prop->guid, t->guid, sizeof(fpga_guid));
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_GUID);
 
@@ -848,6 +892,48 @@ fpga_result vfio_fpgaReadMMIO32(fpga_handle handle,
 	return FPGA_OK;
 }
 
+static inline void copy512(const void *src, void *dst)
+{
+    asm volatile("vmovdqu64 (%0), %%zmm0;"
+		 "vmovdqu64 %%zmm0, (%1);"
+		 :
+		 : "r"(src), "r"(dst));
+}
+
+fpga_result vfio_fpgaWriteMMIO512(fpga_handle handle,
+				 uint32_t mmio_num,
+				 uint64_t offset,
+				 const void *value)
+{
+	vfio_handle *h = handle_check(handle);
+
+	ASSERT_NOT_NULL(h);
+
+	vfio_token *t = h->token;
+
+	if (offset % 64 != 0) {
+		OPAE_MSG("Misaligned MMIO access");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (!(h->flags & OPAE_FLAG_HAS_AVX512)) {
+		return FPGA_NOT_SUPPORTED;
+	}
+
+	if (t->type == FPGA_DEVICE)
+		return FPGA_NOT_SUPPORTED;
+	if (mmio_num > t->user_mmio_count)
+		return FPGA_INVALID_PARAM;
+	if (pthread_mutex_lock(&h->lock)) {
+		OPAE_MSG("error locking handle mutex");
+		return FPGA_EXCEPTION;
+	}
+
+	copy512(value, (uint8_t *)get_user_offset(h, mmio_num, offset));
+	pthread_mutex_unlock(&h->lock);
+	return FPGA_OK;
+}
+
 fpga_result vfio_fpgaMapMMIO(fpga_handle handle,
 			     uint32_t mmio_num,
 			     uint64_t **mmio_ptr)
@@ -860,7 +946,11 @@ fpga_result vfio_fpgaMapMMIO(fpga_handle handle,
 
 	if (mmio_num > t->user_mmio_count)
 		return FPGA_INVALID_PARAM;
-	*mmio_ptr = (uint64_t *)get_user_offset(h, mmio_num, 0);
+
+	/* Store return value only if return pointer has allocated memory */
+	if (mmio_ptr)
+		*mmio_ptr = (uint64_t *)get_user_offset(h, mmio_num, 0);
+
 	return FPGA_OK;
 }
 
@@ -1102,7 +1192,7 @@ fpga_result vfio_fpgaDestroyToken(fpga_token *token)
 
 #define HUGE_1G (1*1024*1024*1024)
 #define HUGE_2M (2*1024*1024)
-#define ROUND_UP(N, M) ((N + M - 1) & -M)
+#define ROUND_UP(N, M) ((N + M - 1) & ~(M-1))
 
 fpga_result vfio_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 				   void **buf_addr, uint64_t *wsid,
@@ -1120,8 +1210,13 @@ fpga_result vfio_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 	struct opae_vfio *v = h->vfio_pair->device;
 	uint8_t *virt = NULL;
 	uint64_t iova = 0;
-	size_t sz = len > HUGE_2M ? ROUND_UP(len, HUGE_1G) :
-		    len > 4096 ? ROUND_UP(len, HUGE_2M) : 4096;
+	size_t sz;
+	if (len > HUGE_2M)
+		sz = ROUND_UP(len, HUGE_1G);
+	else if (len > 4096)
+		sz = ROUND_UP(len, HUGE_2M);
+	else
+		sz = 4096;
 	if (opae_vfio_buffer_allocate(v, &sz, &virt, &iova)) {
 		OPAE_ERR("could not allocate buffer");
 		return FPGA_EXCEPTION;
@@ -1235,3 +1330,238 @@ out_unlock:
 	return res;
 }
 
+fpga_result vfio_fpgaCreateEventHandle(fpga_event_handle *event_handle)
+{
+	vfio_event_handle *_veh;
+	fpga_result res = FPGA_OK;
+	pthread_mutexattr_t mattr;
+	int err;
+
+	ASSERT_NOT_NULL(event_handle);
+
+	_veh = malloc(sizeof(vfio_event_handle));
+	if (!_veh) {
+		OPAE_ERR("Out of memory");
+		return FPGA_NO_MEMORY;
+	}
+
+	_veh->magic = VFIO_EVENT_HANDLE_MAGIC;
+
+	_veh->fd = eventfd(0, 0);
+	if (_veh->fd < 0) {
+		OPAE_ERR("eventfd : %s", strerror(errno));
+		res = FPGA_EXCEPTION;
+		goto out_free;
+	}
+
+	if (pthread_mutexattr_init(&mattr)) {
+		OPAE_ERR("Failed to init event handle mutex attr");
+		res = FPGA_EXCEPTION;
+		goto out_free;
+	}
+
+	if (pthread_mutexattr_settype(&mattr, PTHREAD_MUTEX_RECURSIVE) ||
+	    pthread_mutex_init(&_veh->lock, &mattr)) {
+		OPAE_ERR("Failed to initialize event handle lock");
+		res = FPGA_EXCEPTION;
+		goto out_attr_destroy;
+	}
+
+	pthread_mutexattr_destroy(&mattr);
+
+	*event_handle = (fpga_event_handle)_veh;
+	return FPGA_OK;
+
+out_attr_destroy:
+	err = pthread_mutexattr_destroy(&mattr);
+	if (err) {
+		OPAE_ERR("pthread_mutexattr_destroy() failed: %s",
+			 strerror(err));
+	}
+out_free:
+	free(_veh);
+	return res;
+}
+
+fpga_result vfio_fpgaDestroyEventHandle(fpga_event_handle *event_handle)
+{
+	vfio_event_handle *_veh;
+	int err;
+
+	ASSERT_NOT_NULL(event_handle);
+
+	_veh = event_handle_check_and_lock(*event_handle);
+	ASSERT_NOT_NULL(_veh);
+
+	if (close(_veh->fd) < 0) {
+		OPAE_ERR("eventfd : %s", strerror(errno));
+		err = pthread_mutex_unlock(&_veh->lock);
+		if (err)
+			OPAE_ERR("pthread_mutex_unlock() failed: %s",
+				 strerror(err));
+		return (errno == EBADF) ? FPGA_INVALID_PARAM : FPGA_EXCEPTION;
+	}
+
+	_veh->magic = ~_veh->magic;
+
+	err = pthread_mutex_unlock(&_veh->lock);
+	if (err)
+		OPAE_ERR("pthread_mutex_unlock() failed: %s",
+			 strerror(errno));
+
+	err = pthread_mutex_destroy(&_veh->lock);
+	if (err)
+		OPAE_ERR("pthread_mutex_destroy() failed: %s",
+			 strerror(errno));
+
+	free(*event_handle);
+	*event_handle = NULL;
+	return FPGA_OK;
+}
+
+fpga_result vfio_fpgaGetOSObjectFromEventHandle(const fpga_event_handle eh,
+						int *fd)
+{
+	vfio_event_handle *_veh;
+	int err;
+
+	ASSERT_NOT_NULL(eh);
+	ASSERT_NOT_NULL(fd);
+
+	_veh = event_handle_check_and_lock(eh);
+	ASSERT_NOT_NULL(_veh);
+
+	*fd = _veh->fd;
+
+	err = pthread_mutex_unlock(&_veh->lock);
+	if (err)
+		OPAE_ERR("pthread_mutex_unlock() failed: %s",
+			 strerror(errno));
+
+	return FPGA_OK;
+}
+
+STATIC fpga_result register_event(vfio_handle *_h,
+				  fpga_event_type event_type,
+				  vfio_event_handle *_veh,
+				  uint32_t flags)
+{
+	switch (event_type) {
+	case FPGA_EVENT_ERROR:
+		OPAE_ERR("Error interrupts are not currently supported.");
+		return FPGA_NOT_SUPPORTED;
+
+	case FPGA_EVENT_INTERRUPT:
+		_veh->flags = flags;
+
+		if (opae_vfio_irq_enable(_h->vfio_pair->device,
+					 VFIO_PCI_MSIX_IRQ_INDEX,
+					 flags,
+					 _veh->fd)) {
+			OPAE_ERR("Couldn't enable MSIX IRQ %u : %s",
+				 flags, strerror(errno));
+			return FPGA_EXCEPTION;
+		}
+
+		return FPGA_OK;
+	case FPGA_EVENT_POWER_THERMAL:
+		OPAE_ERR("Thermal interrupts are not currently supported.");
+		return FPGA_NOT_SUPPORTED;
+	default:
+		OPAE_ERR("Invalid event type");
+		return FPGA_EXCEPTION;
+	}
+}
+
+fpga_result vfio_fpgaRegisterEvent(fpga_handle handle,
+				   fpga_event_type event_type,
+				   fpga_event_handle event_handle,
+				   uint32_t flags)
+{
+	vfio_handle *_h;
+	vfio_event_handle *_veh;
+	fpga_result res = FPGA_OK;
+	int err;
+
+	ASSERT_NOT_NULL(handle);
+	ASSERT_NOT_NULL(event_handle);
+
+	_h = handle_check_and_lock(handle);
+	ASSERT_NOT_NULL(_h);
+
+	_veh = event_handle_check_and_lock(event_handle);
+	if (!_veh)
+		goto out_unlock_handle;
+
+	res = register_event(_h, event_type, _veh, flags);
+
+	err = pthread_mutex_unlock(&_veh->lock);
+	if (err)
+		OPAE_ERR("pthread_mutex_unlock() failed: %s",
+			 strerror(errno));
+out_unlock_handle:
+	err = pthread_mutex_unlock(&_h->lock);
+	if (err)
+		OPAE_ERR("pthread_mutex_unlock() failed: %s",
+			 strerror(errno));
+	return res;
+}
+
+STATIC fpga_result unregister_event(vfio_handle *_h,
+				    fpga_event_type event_type,
+				    vfio_event_handle *_veh)
+{
+	switch (event_type) {
+	case FPGA_EVENT_ERROR:
+		OPAE_ERR("Error interrupts are not currently supported.");
+		return FPGA_NOT_SUPPORTED;
+	case FPGA_EVENT_INTERRUPT:
+		if (opae_vfio_irq_disable(_h->vfio_pair->device,
+					  VFIO_PCI_MSIX_IRQ_INDEX,
+					  _veh->flags)) {
+			OPAE_ERR("Couldn't disable MSIX IRQ %u : %s",
+				 _veh->flags, strerror(errno));
+			return FPGA_EXCEPTION;
+		}
+		return FPGA_OK;
+	case FPGA_EVENT_POWER_THERMAL:
+		OPAE_ERR("Thermal interrupts are not currently supported.");
+		return FPGA_NOT_SUPPORTED;
+	default:
+		OPAE_ERR("Invalid event type");
+		return FPGA_EXCEPTION;
+	}
+}
+
+fpga_result vfio_fpgaUnregisterEvent(fpga_handle handle,
+				     fpga_event_type event_type,
+				     fpga_event_handle event_handle)
+{
+	vfio_handle *_h;
+	vfio_event_handle *_veh;
+	fpga_result res = FPGA_OK;
+	int err;
+
+	ASSERT_NOT_NULL(handle);
+	ASSERT_NOT_NULL(event_handle);
+
+	_h = handle_check_and_lock(handle);
+	ASSERT_NOT_NULL(_h);
+
+	_veh = event_handle_check_and_lock(event_handle);
+	if (!_veh)
+		goto out_unlock_handle;
+
+	res = unregister_event(_h, event_type, _veh);
+
+	err = pthread_mutex_unlock(&_veh->lock);
+	if (err)
+		OPAE_ERR("pthread_mutex_unlock() failed: %s",
+			 strerror(errno));
+out_unlock_handle:
+	err = pthread_mutex_unlock(&_h->lock);
+	if (err)
+		OPAE_ERR("pthread_mutex_unlock() failed: %s",
+			 strerror(errno));
+	return res;
+}

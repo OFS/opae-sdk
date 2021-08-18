@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2020, Intel Corporation
+// Copyright(c) 2019-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -80,8 +80,63 @@ fpga_result print_eth_interface_info(fpga_token token, const char *interface_nam
 */
 fpga_result read_sysfs_int64(fpga_token token, char *sysfs_path,
 	uint64_t *value);
+
+/**
+* Get bdf of fpga device.
+*
+* @param[in] token           fpga_token object for device (FPGA_DEVICE type)
+* @param[out] segment        returns segment of fpga
+* @param[out] bus            returns bus of fpga
+* @param[out] device         returns device of fpga
+* @param[out] function       returns function of fpga
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if invalid sbdf.
+* FPGA_INVALID_PARAM if invalid parameters were provided
+*
+*/
+fpga_result get_fpga_sbdf(fpga_token token,
+			uint16_t *segment,
+			uint8_t *bus,
+			uint8_t *device,
+			uint8_t *function);
+
+/**
+* Get sysfs 64 bit value.
+*
+* @param[in] path             pointer to sysfs path
+* @param[out] u               returns sysfs 64 bit value
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if invalid sysfs path.
+* FPGA_INVALID_PARAM if invalid parameters were provided
+*
+*/
+fpga_result sysfs_read_u64(const char *path, uint64_t *u);
+
+/**
+* find fpga feature id.
+*
+* @param[in] token           fpga_token object for device (FPGA_DEVICE type)
+* @param[in] feature_id      fpga dev feature id
+* @param[inout] dev_str      returns fpga dev str
+* FPGA_INVALID_PARAM if invalid parameters were provided
+* FPGA_NOT_FOUND if feature_id not found
+*
+*/
+fpga_result find_dev_feature(fpga_token token,
+	uint32_t feature_id,
+	char *dfl_dev_str);
+
+/**
+* Prints fpga boot page info.
+*
+* @param[in] token           fpga_token object for device (FPGA_DEVICE type)
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if invalid boot info.
+* FPGA_INVALID_PARAM if invalid parameters were provided
+*
+*/
+fpga_result print_common_boot_info(fpga_token token);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
 #endif /* __FPGA_BOARD_DC_H__ */
+
