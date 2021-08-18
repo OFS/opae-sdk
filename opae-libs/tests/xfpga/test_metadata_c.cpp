@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -28,13 +28,6 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-extern "C" {
-#include "token_list_int.h"
-fpga_result get_interface_id(fpga_handle, uint64_t*, uint64_t*);
-int xfpga_plugin_initialize(void);
-int xfpga_plugin_finalize(void);
-}
-
 #include <uuid/uuid.h>
 #include <bitstream_int.h>
 #include <types_int.h>
@@ -42,6 +35,12 @@ int xfpga_plugin_finalize(void);
 #include "mock/test_system.h"
 #include "xfpga.h"
 #include "sysfs_int.h"
+
+extern "C" {
+fpga_result get_interface_id(fpga_handle, uint64_t*, uint64_t*);
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+}
 
 using namespace opae::testing;
 
@@ -419,7 +418,7 @@ TEST_P(metadata_mock_c, validate_bitstream_metadata) {
 }
 
 INSTANTIATE_TEST_CASE_P(metadata, metadata_mock_c,
-	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
+	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-d5005" })));
 
 class metadata_mock_d5005_c : public metadata_c {};
 

@@ -28,10 +28,6 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-extern "C"{
-#include "token_list_int.h"
-}
-
 #include "gtest/gtest.h"
 #include "mock/test_system.h"
 #include "xfpga.h"

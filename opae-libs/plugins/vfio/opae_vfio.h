@@ -58,6 +58,13 @@
 
 #define GUIDSTR_MAX 36
 
+#ifdef __GNUC__
+#define GCC_VERSION \
+    (__GNUC__*10000 + __GNUC_MINOR__*100 + __GNUC_PATCHLEVEL__)
+#else
+#define GCC_VERSION 0
+#endif
+
 typedef union _bdf {
 	struct {
 		uint16_t segment;
@@ -120,8 +127,16 @@ typedef struct _vfio_handle {
 	volatile uint8_t *mmio_base;
 	size_t mmio_size;
 	pthread_mutex_t lock;
+#define OPAE_FLAG_HAS_AVX512 (1u << 0)
+	uint32_t flags;
 } vfio_handle;
 
+typedef struct _vfio_event_handle {
+	uint32_t magic;
+	pthread_mutex_t lock;
+	int fd;
+	uint32_t flags;
+} vfio_event_handle;
 
 int pci_discover(void);
 int features_discover(void);

@@ -310,17 +310,19 @@ class openssl:
                 continue
 
             if m.group('version') == version:
+                log.info('OpenSSL version "%s" is matching %s"',c_version, version)
                 return dll
 
             log.debug('OpenSSL version "%s" is not equal to "%s"',
                       c_version,
                       version)
 
-    def __init__(self, version='1.1.1g'):
+    def __init__(self, version='1.1.1k'):
         path = "%s/library" % os.path.dirname(os.path.abspath(__file__))
         self.nanotime = None
         if _platform == "win32" or _platform == "win64":
-            dll_name = 'libcrypto-1_1-x64.dll'
+            log.error('Windows platform is not supported for PACSign!!')
+            return
         else:
             dll_name = '*libcrypto*.so'
 

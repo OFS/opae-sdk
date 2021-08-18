@@ -63,8 +63,9 @@ def test_sign():
     _PRIVATE_KEY_test = _PRIVATE_KEY(init_file, init_openssl, init_key_info)
     sign_sha = mock.MagicMock()
     sign_data = mock.MagicMock()
+    public_key = mock.MagicMock()
     sign_fixed_RS_size = mock.MagicMock()
-    _PRIVATE_KEY_test.sign(sign_sha, sign_data, sign_fixed_RS_size)
+    _PRIVATE_KEY_test.sign(sign_sha, sign_data, public_key, fixed_RS_size=sign_fixed_RS_size)
 
 '''test_get_private_key'''
 

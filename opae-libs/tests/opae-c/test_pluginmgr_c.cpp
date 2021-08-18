@@ -499,6 +499,10 @@ TEST_P(pluginmgr_c_p, no_cfg) {
   opae_plugin_mgr_reset_cfg(); 
 }
 
+TEST_P(pluginmgr_c_p, fpgaReset_null_handle) {
+    EXPECT_EQ(fpgaReset(NULL), FPGA_INVALID_PARAM);
+}
+
 class pluginmgr_cfg_p : public ::testing::TestWithParam<const char*> {
  protected:
   pluginmgr_cfg_p() : buffer_ {0} {}

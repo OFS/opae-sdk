@@ -28,6 +28,13 @@ cmake_minimum_required (VERSION  3.10)
 project(afu-test)
 add_library(afu-test INTERFACE)
 
+if (fmt_LIBRARIES)
+    # if we found fmt before (from external/CMakeLists.txt)
+    # then we need to find it again from this directory
+    # so we can "import" the fmt::fmt link target
+    find_package(fmt)
+endif (fmt_LIBRARIES)
+
 target_include_directories(afu-test INTERFACE
     ${OPAE_INCLUDE_PATHS}
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -38,6 +45,7 @@ target_include_directories(afu-test INTERFACE
 target_link_libraries(afu-test INTERFACE
     opae-c opae-cxx-core
     ${spdlog_LIBRARIES}
+    ${fmt_LIBRARIES}
 )
 
 target_compile_options(afu-test INTERFACE
