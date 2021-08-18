@@ -221,12 +221,12 @@ class fme(region):
     @property
     def pmci_bus(self):
         if os.path.basename(self.sysfs_path).startswith('dfl'):
-            patterns = ['dfl*.*/*n6010bmc-secure*']
+            patterns = ['dfl*.*/*-secure.*.auto']
             for pattern in patterns:
                 pmci = self.find_one(pattern)
                 if pmci:
                     return pmci
-        return self.find_one('n6010bmc-secure*')
+        return self.find_one('*-secure.*.auto')
 
     @property
     def altr_asmip(self):
@@ -474,6 +474,11 @@ class fpga_base(sysfs_device):
         spi = f.spi_bus
         if spi:
             sec = spi.find_one('*-secure.*.auto')
+            if sec:
+                return security(sec.sysfs_path, self.pci_node)
+        else:
+            pmci = f.pmci_bus
+            sec = pmci.find_one('*-secure.*.auto')
             if sec:
                 return security(sec.sysfs_path, self.pci_node)
 
