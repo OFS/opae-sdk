@@ -146,62 +146,6 @@ class err_inj_c_p : public ::testing::TestWithParam<std::string> {
   test_system *system_;
 };
 
-
-/**
-* @test    fpga_mock_errinj_03
-* @brief   Tests:fpgaAssignPortToInterface
-* @details fpgaAssignPortToInterface given invalid param
-*          Then the return error code
-*/
-TEST_P(err_inj_c_p, fpga_mock_errinj_03) {
-  int fddev = -1;
-
-  struct _fpga_handle* h = (struct _fpga_handle*)handle_;
-  fddev = h->fddev;
-  h->fddev = -1;
-
-  auto res = xfpga_fpgaAssignPortToInterface(handle_, 1, 0, 0);
-  EXPECT_EQ(FPGA_INVALID_PARAM, res);
-
-  h->fddev = fddev;
-}
-
-/**
-* @test    fpga_mock_errinj_02
-* @brief   Tests:fpgaAssignPortToInterface
-* @details fpgaAssignPortToInterface Assign and Release port
-*          Then the return FPGA_OK 
-*/
-TEST_P(err_inj_c_p, fpga_mock_errinj_02) {
-  fpga_result res;
-   
-  res = xfpga_fpgaAssignPortToInterface(handle_, 2, 0, 0);
-  EXPECT_EQ(FPGA_INVALID_PARAM, res);
-
-  system_->register_ioctl_handler(DFL_FPGA_FME_PORT_RELEASE, dfl_port_release_ioctl);
-  res = xfpga_fpgaAssignPortToInterface(handle_, 1, 0, 0);
-  EXPECT_EQ(FPGA_OK, res);
-
-  system_->register_ioctl_handler(DFL_FPGA_FME_PORT_ASSIGN, dfl_port_assign_ioctl);
-  res = xfpga_fpgaAssignPortToInterface(handle_, 0, 0, 0);
-  EXPECT_EQ(FPGA_OK, res);
-}
-
-/**
- * @test       invalid_max_interface_num
- *
- * @brief      When the interface_num parameter to fpgaAssignPortToInterface
- *             is greater than FPGA_MAX_INTERFACE_NUM,
- *             then the function returns FPGA_INVALID_PARAM.
- */
-TEST_P(err_inj_c_p, invalid_max_interface_num) {
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaAssignPortToInterface(handle_, 99, 0, 0));
-}
-
-INSTANTIATE_TEST_CASE_P(err_inj_c, err_inj_c_p, 
-                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
-
-
 class err_inj_c_usd_p : public err_inj_c_p {};
 
 /**
