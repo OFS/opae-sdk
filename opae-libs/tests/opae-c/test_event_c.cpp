@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -93,6 +93,9 @@ class event_c_p : public ::testing::TestWithParam<std::string>,
     fpgad_stop();
     fpgaFinalize();
     system_->finalize();
+#ifdef LIBOPAE_DEBUG
+    EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
+#endif // LIBOPAE_DEBUG
   }
 
   std::array<fpga_token, 2> tokens_;
@@ -142,6 +145,29 @@ TEST_P(event_c_p, get_obj_err02) {
   EXPECT_EQ(fpgaUnregisterEvent(accel_, FPGA_EVENT_ERROR,
 			  event_handle_), FPGA_OK);
 }
+
+/**
+ * @test       fpgaRegisterEvent
+ * @brief      Test: fpgaRegisterEvent
+ * @details    When fpgaRegisterEvent is called with a NULL<br>
+ *             the fpgaRegisterEvent returns FPGA_INVALID_PARAM.<br>
+ */
+TEST_P(event_c_p, get_obj_err03) {
+  EXPECT_EQ(fpgaRegisterEvent(NULL, FPGA_EVENT_ERROR,
+                              event_handle_, 0), FPGA_INVALID_PARAM);
+}
+
+/**
+ * @test       fpgaRegisterEvent
+ * @brief      Test: fpgaRegisterEvent
+ * @details    When fpgaRegisterEvent is called with a NULL<br>
+ *             the fpgaRegisterEvent returns FPGA_INVALID_PARAM.<br>
+ */
+TEST_P(event_c_p, get_obj_err04) {
+  EXPECT_EQ(fpgaUnregisterEvent(NULL, FPGA_EVENT_ERROR,
+                              event_handle_), FPGA_INVALID_PARAM);
+}
+
 
 /**
  * @test       get_obj_success
@@ -284,6 +310,9 @@ class events_handle_p : public ::testing::TestWithParam<std::string>,
 */
     fpgaFinalize();
     system_->finalize();
+#ifdef LIBOPAE_DEBUG
+    EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
+#endif // LIBOPAE_DEBUG
   }
 
   fpga_properties filter_accel_;

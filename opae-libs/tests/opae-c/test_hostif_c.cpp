@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -84,6 +84,9 @@ class hostif_c_p : public ::testing::TestWithParam<std::string> {
     }
     fpgaFinalize();
     system_->finalize();
+#ifdef LIBOPAE_DEBUG
+    EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
+#endif // LIBOPAE_DEBUG
   }
 
   std::array<fpga_token, 2> tokens_;

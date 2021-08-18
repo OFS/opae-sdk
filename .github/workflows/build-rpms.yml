@@ -13,7 +13,7 @@ jobs:
   RPM:
     strategy:
       matrix:
-        distro: [centos7.6, fedora31, fedora32]
+        distro: [centos7.6, fedora31, fedora32, fedora33]
     runs-on: ubuntu-latest
     name: Build ${{ matrix.distro }}
     steps:

@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2020, Intel Corporation
+// Copyright(c) 2019-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -49,6 +49,7 @@
 #include <dlfcn.h>
 #include <pthread.h>
 
+#include "../libboard/board_common/board_common.h"
 #include "board.h"
 
 
@@ -56,15 +57,23 @@ static pthread_mutex_t board_plugin_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_N
 
 // Board plug-in table
 static platform_data platform_data_table[] = {
-	{ 0x1c2c, 0x1000, "libboard_n5010.so", NULL },
-	{ 0x8086, 0x09c4, "libboard_a10gx.so", NULL },
-	{ 0x8086, 0x09c5, "libboard_a10gx.so", NULL },
-	{ 0x8086, 0x0b30, "libboard_n3000.so", NULL },
-	{ 0x8086, 0x0b31, "libboard_n3000.so", NULL },
-	{ 0x8086, 0x0b2b, "libboard_d5005.so", NULL },
-	{ 0x8086, 0x0b2c, "libboard_d5005.so", NULL },
-	{ 0x8086, 0xaf00, "libboard_d5005.so", NULL },
-	{ 0,      0,          NULL, NULL },
+	{ 0x1c2c, 0x1000,  -1,  "libboard_n5010.so", NULL },
+	{ 0x1c2c, 0x1001,  -1,  "libboard_n5010.so", NULL },
+	{ 0x8086, 0x09c4,  -1,  "libboard_a10gx.so", NULL },
+	{ 0x8086, 0x09c5,  -1,  "libboard_a10gx.so", NULL },
+	{ 0x8086, 0x0b30,  -1,  "libboard_n3000.so", NULL },
+	{ 0x8086, 0x0b31,  -1,  "libboard_n3000.so", NULL },
+	{ 0x8086, 0x0b2b,  -1,  "libboard_d5005.so", NULL },
+	{ 0x8086, 0x0b2c,  -1,  "libboard_d5005.so", NULL },
+	// Max10 SPI feature id 0xe
+	{ 0x8086, 0xaf00, 0xe,  "libboard_d5005.so", NULL },
+	{ 0x8086, 0xbcce, 0xe,  "libboard_d5005.so", NULL },
+	// Max10 PMCI feature id 0x12
+	{ 0x8086, 0xaf00, 0x12, "libboard_n6010.so", NULL },
+	{ 0x8086, 0xbcce, 0x12, "libboard_n6010.so", NULL },
+
+
+	{ 0,      0, -1,         NULL, NULL },
 };
 
 void *find_plugin(const char *libpath)
@@ -133,6 +142,15 @@ fpga_result load_board_plugin(fpga_token token, void **dl_handle)
 		if (platform_data_table[i].device_id == device_id &&
 			platform_data_table[i].vendor_id == vendor_id) {
 
+			// load plugin with matching featureid
+			if (platform_data_table[i].feature_id > 0) {
+				res = find_dev_feature(token,
+					platform_data_table[i].feature_id,
+					NULL);
+					if (res != FPGA_OK) {
+						continue;
+					}
+			}
 			// Loaded lib or found
 			if (platform_data_table[i].dl_handle) {
 				*dl_handle = platform_data_table[i].dl_handle;
@@ -640,6 +658,32 @@ fpga_result fme_verbose_info(fpga_token token)
 		res = print_fme_verbose_info(token);
 	} else {
 		OPAE_MSG("No print_fme_verbose_info entry point:%s\n", dlerror());
+		res = FPGA_NOT_FOUND;
+	}
+
+out:
+	return res;
+}
+// print fpga boot page info
+fpga_result fpga_boot_info(fpga_token token)
+{
+	fpga_result res = FPGA_OK;
+	void *dl_handle = NULL;
+
+	// fpga boot page information
+	fpga_result(*fpga_boot_info)(fpga_token token);
+
+	res = load_board_plugin(token, &dl_handle);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to load board plugin\n");
+		goto out;
+	}
+
+	fpga_boot_info = dlsym(dl_handle, "fpga_boot_info");
+	if (fpga_boot_info) {
+		res = fpga_boot_info(token);
+	} else {
+		OPAE_MSG("No fpga_boot_info entry point:%s\n", dlerror());
 		res = FPGA_NOT_FOUND;
 	}
 

@@ -28,13 +28,13 @@
 
 const char *pymain = R"script(
 import argparse
+import datetime
 import logging
 import os
 import pdb
 import sys
 import libvfio
 
-from logging.handlers import TimedRotatingFileHandler
 from opae.io import utils
 from opae.io.utils import Path
 
@@ -70,7 +70,7 @@ class base_action(object):
         except OSError as oserr:
             LOG.exception(oserr)
             return_code = oserr.errno
-            
+
         cli.return_code(return_code)
 
     def parse_args(self, args):
@@ -169,11 +169,11 @@ class walk_action(base_action):
 
         offset = 0 if args.offset is None else args.offset
         for offset, dfh in utils.dfh_walk(offset=offset):
-            print('offset: 0x{:04x}'.format(offset))
+            print('offset: 0x{:04x}, value: 0x{:04x}'.format(offset, dfh.value))
             print('    dfh: {}'.format(dfh))
             if args.show_uuid:
                 print('    uuid: {}'.format(utils.read_guid(offset+0x8)))
-                
+
 
 class no_action(base_action):
     open_device = True
@@ -253,7 +253,7 @@ def show_help():
 '''.strip()
     print(help_msg)
     cli.return_code(0)
-     
+
 
 def get_action(args):
     action_class = None
@@ -279,7 +279,8 @@ def get_action(args):
 
 
 def setup_logging():
-    h = TimedRotatingFileHandler('opae.io.log', when='midnight')
+    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    h = logging.FileHandler(f'/tmp/opae.io-{stamp}.log')
     h.setFormatter(logging.Formatter('[%(asctime)-15s] [%(levelname)s] %(message)s'))
     l = logging.getLogger('opae.io')
     l.setLevel(logging.DEBUG)
@@ -294,7 +295,7 @@ def main(argv=None):
     LOG.info(version_str)
     if argv is None:
         argv = sys.argv[1:]
-    
+
     parser = default_parser()
     args, rest = parser.parse_known_args(argv)
 

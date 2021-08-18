@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,6 @@ extern "C" {
 #include <opae/properties.h>
 #include "fpga-dfl.h"
 #include "reconf_int.h"
-#include "token_list_int.h"
 #include "xfpga.h"
 #include "sysfs_int.h"
 }
@@ -113,7 +112,6 @@ class reconf_c : public ::testing::TestWithParam<std::string> {
     }
     xfpga_plugin_finalize();
     system_->finalize();
-    token_cleanup();
   }
 
   std::array<fpga_token, 2> tokens_;
@@ -368,7 +366,6 @@ class reconf_c_mock_p : public ::testing::TestWithParam<std::string> {
     }
     xfpga_plugin_finalize();
     system_->finalize();
-    token_cleanup();
   }
 
   std::array<fpga_token, 2> tokens_;
@@ -558,7 +555,6 @@ class reconf_c_hw_p : public reconf_c {
       }
     }
     system_->finalize();
-    token_cleanup();
   }
 
   std::array<fpga_token, 2> tokens_;

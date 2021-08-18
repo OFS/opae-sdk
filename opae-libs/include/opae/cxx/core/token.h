@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -63,10 +63,17 @@ class token {
    */
   operator fpga_token() const { return token_; }
 
+  /** Retrieve the parent token, or an empty pointer
+   * if there is none.
+   */
+  ptr_t get_parent() const;
+
  private:
   token(fpga_token tok);
 
   fpga_token token_;
+
+  friend class handle;
 };
 
 }  // end of namespace types

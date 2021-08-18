@@ -746,7 +746,9 @@ class UPDATE_reader(_READER_BASE):
             log.debug(json.dumps(j_data, sort_keys=True, indent=4))
 
         log.debug(self.bitstream_type)
-        should_swizzle = self.bitstream_type == database.CONTENT_SR
+        should_swizzle = self.bitstream_type in [database.CONTENT_SR,
+                                                 database.CONTENT_FACTORY,
+                                                 database.CONTENT_SR_TEST]
         log.debug("should_swizzle={}".format(should_swizzle))
 
         if should_swizzle and not prev_sig:

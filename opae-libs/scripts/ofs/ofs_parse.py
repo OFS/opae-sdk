@@ -27,7 +27,10 @@
 # vim:fenc=utf-8
 import argparse
 import ast
+import atexit
 import io
+import json
+import jsonschema
 import os
 import yaml
 
@@ -35,12 +38,16 @@ import umd
 
 from collections import OrderedDict
 from contextlib import contextmanager
+from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 try:
     from yaml import CLoader as YamlLoader
 except ImportError:
     from yaml import Loader as YamlLoader
 
+
+default_schema = Path(__file__).absolute().parent.joinpath('umd-schema.json')
 
 cpp_field_tmpl = '{spaces}{pod} f_{name} : {width};'
 cpp_class_tmpl = '''
@@ -77,8 +84,8 @@ typedef struct _{driver} {{
 
 int {driver}_init({driver} *{var}, fpga_handle h)
 {{
-  uint64_t *ptr = 0;
-  fpga_result res = fpgaMapMMIO(h, 0, &ptr);
+  uint8_t *ptr = 0;
+  fpga_result res = fpgaMapMMIO(h, 0, (uint64_t**)&ptr);
   if (res) {{
     return res;
   }}
@@ -136,26 +143,117 @@ class ofs_register(object):
         writer.write(tmpl.lstrip().format(**vars(self)))
 
 
-class RegisterTag(yaml.YAMLObject):
-    @classmethod
-    def from_yaml(cls, loader, node):
-        register_meta = loader.construct_sequence(node.value[0])
-        fields = node.value[1].value if len(node.value) > 1 else ()
-        register_fields = tuple(map(loader.construct_sequence, fields))
-        return ofs_register(*register_meta, register_fields)
+def write_temp(local_file: Path) -> Path:
+    # TODO: Hack for now until we can formalize schemas in a public URL
+    with local_file.open('r') as inp:
+        local_data = json.load(inp)
+    with NamedTemporaryFile('w',
+                            delete=False,
+                            prefix=f'{local_file.stem}-',
+                            suffix='.json') as out:
+        outfile = Path(out.name)
+        local_data['$id'] = outfile.as_uri()
+        json.dump(local_data, out)
+        atexit.register(outfile.unlink)
+        return outfile
 
 
-YamlLoader.add_constructor(u'tag:intel.com,2020:ofs/register',
-                           RegisterTag.from_yaml)
+def use_local_refs(schema):
+    # TODO: Hack for now until we can formalize schemas in a public URL
+    cwd = Path(__file__).parent.absolute()
+    for k, v in schema.items():
+        if k in ['$ref', '$id']:
+            if v.startswith('#'):
+                continue
+            comps = jsonschema.validators.urlsplit(v)
+            local_file = cwd.joinpath(Path(comps.path).name).absolute()
+            if local_file.exists():
+                schema[k] = write_temp(local_file).as_uri()
+        elif isinstance(v, dict):
+            schema[k] = use_local_refs(v)
+    return schema
 
 
-def parse(fp):
-    return yaml.load(fp, Loader=YamlLoader)
+def parse(fp, schemafile=None, local_refs=False):
+    data = yaml.load(fp, Loader=YamlLoader)
+    if schemafile:
+        with open(schemafile, 'r') as schema_fp:
+            schema = yaml.safe_load(schema_fp)
+            try:
+                if local_refs:
+                    schema = use_local_refs(schema)
+                jsonschema.validate(data, schema)
+            except jsonschema.ValidationError as err:
+                print(f'input file "{fp.name}"  does not follow schema, error:'
+                      f'{err}')
+                raise
+            except KeyError as err:
+                print(f'invalid/incomplete schema({fp.name}): {err}')
+                raise
+    registers = data.get('registers')
+    data['registers'] = [ofs_register(*r[0], r[1] if len(r) > 1 else ())
+                         for r in registers]
+    return data
 
 
 class ofs_driver_writer(object):
     def __init__(self, data):
         self.data = data
+
+    def resolve_function(self, fn_name):
+        if fn_name in self.fn_names:
+            return f'{self.name}_{fn_name}'
+        return fn_name
+
+    def resolve_name(self, name):
+        if name in self.reg_names:
+            return f'drv->r_{name}'
+        return name
+
+    @property
+    def fn_names(self):
+        return [fn.name for fn in self.functions]
+
+    @property
+    def reg_names(self):
+        return [r.name for r in self.registers]
+
+    def api_functions(self, code):
+        functions = OrderedDict()
+        try:
+            tree = ast.parse(code)
+        except SyntaxError as err:
+            print(f'sytax error: {err.text}, line: {err.lineno}')
+        else:
+            lines = code.split('\n')
+            for node in tree.body:
+                if isinstance(node, ast.FunctionDef):
+                    fn = {}
+                    args = []
+                    body = self.get_body_text(node.body, lines)
+                    if body:
+                        fn['body'] = body
+                    if node.returns:
+                        fn['return'] = node.returns.id
+                    for a in node.args.args:
+                        name = a.arg
+                        ann = a.annotation
+                        sub = ''
+                        ptr = ''
+                        if isinstance(ann, ast.Call) and ann.func.id == 'ptr':
+                            _type = f'{ann.args[0].id}'
+                            ptr = '*'
+                        elif isinstance(ann, ast.Subscript):
+                            _type = ann.value.id
+                            sub = f'[{ann.slice.value.value}]'
+                        else:
+                            _type = ann.id
+                        args.append(f'{_type} {ptr}{name}{sub}')
+                    if args:
+                        fn['args'] = args
+                    functions[node.name] = fn
+
+        return functions
 
     def resolve_function(self, fn_name):
         if fn_name in self.fn_names:
@@ -337,7 +435,7 @@ def declare_fields(pod, fields, indent=0):
 
 
 def make_headers(args):
-    data = parse(args.input)
+    data = parse(args.input, args.schema, args.use_local_refs)
     for driver in data.get('drivers', []):
         name = driver['name']
         if args.list:
@@ -366,6 +464,11 @@ def main():
                                 help='only list driver names in file')
     headers_parser.add_argument('-d', '--driver',
                                 help='process only this driver')
+    headers_parser.add_argument('--schema',
+                                default=default_schema)
+    headers_parser.add_argument('--use-local-refs', action='store_true',
+                                default=False,
+                                help='Transform refs to local repo files')
 
     args = parser.parse_args()
     if not hasattr(args, 'func'):

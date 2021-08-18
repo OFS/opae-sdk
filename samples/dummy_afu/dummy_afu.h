@@ -186,7 +186,7 @@ public:
   : test_afu("dummy_afu", afu_id)
   , count_(1)
   {
-    app_.add_option("-c,--count", count_, "Number of times to run test")->default_val(count_);
+    app_.add_option("-c,--count", count_, "Number of times to run test")->default_str(std::to_string(count_));
   }
 
   virtual int run(CLI::App *app, test_command::ptr_t test) override
