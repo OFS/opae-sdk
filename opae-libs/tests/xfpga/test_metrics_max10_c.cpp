@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2021, Intel Corporation
+// Copyright(c) 2019-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -46,6 +46,7 @@ extern "C" {
 #include "sysfs_int.h"
 #include "mock/test_system.h"
 #include "mock/test_utils.h"
+#include "token_list_int.h"
 #include "xfpga.h"
 
 extern "C" {
@@ -113,7 +114,7 @@ TEST_P(metrics_max10_c_p, test_metric_max10_1) {
   void *buf = NULL;
   char file[] = "curr1_input";
   char sysfs[] =
-		"/sys/class/fpga_region/region*/dfl-fme.*/dfl*/*spi*/"
+		"/sys/class/fpga_region/region*/dfl-fme.*/dfl-fme.*/*spi*/"
 		"spi_master/spi*/spi*/*-hwmon.*.auto/hwmon/hwmon*";
 
   EXPECT_NE(read_sensor_sysfs_file(NULL, file, &buf, &tot_bytes_ret), FPGA_OK);
@@ -180,13 +181,13 @@ TEST_P(metrics_max10_c_p, test_metric_max10_2) {
   EXPECT_NE(FPGA_OK,
 	  dfl_enum_max10_metrics_info(_handle, &vector, NULL, FPGA_HW_DCP_N3000));
 
-  EXPECT_EQ(FPGA_INVALID_PARAM, dfl_enum_max10_metrics_info(_handle, &vector, &metric_num,
+  EXPECT_EQ(FPGA_OK, dfl_enum_max10_metrics_info(_handle, &vector, &metric_num,
                                              FPGA_HW_UNKNOWN));
 
   EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
 }
 INSTANTIATE_TEST_CASE_P(metrics_max10_c, metrics_max10_c_p,
-    ::testing::ValuesIn(test_platform::mock_platforms({"dfl-n3000"})));
+    ::testing::ValuesIn(test_platform::mock_platforms({"dfl-d5005"})));
 
 class metrics_invalid_max10_c_p : public metrics_max10_c_p {};
 
@@ -227,7 +228,6 @@ protected:
 */
 TEST_P(metrics_max10_vc_c_p, test_metric_max10_4) {
 
-	/*
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle_;
 	EXPECT_EQ(FPGA_OK, enum_fpga_metrics(handle_));
 
@@ -236,7 +236,6 @@ TEST_P(metrics_max10_vc_c_p, test_metric_max10_4) {
 	EXPECT_EQ(FPGA_OK,
 		get_fme_metric_value(handle_, &(_handle->fpga_enum_metric_vector),
 			1, &fpga_metric));
-	*/
 
 	double dvalue = 0;
 	EXPECT_EQ(FPGA_INVALID_PARAM, read_max10_value(NULL, &dvalue));

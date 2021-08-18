@@ -35,7 +35,7 @@ import fcntl
 import re
 import time
 import subprocess
-from .common import exception_quit, FpgaFinder, COMMON, hexint
+from common import exception_quit, FpgaFinder, COMMON, hexint
 
 VCP_ID = 0x0b30
 

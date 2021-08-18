@@ -29,13 +29,10 @@ opae_add_subdirectory(libboard/board_common)
 opae_add_subdirectory(libboard/board_a10gx)
 opae_add_subdirectory(libboard/board_n3000)
 opae_add_subdirectory(libboard/board_d5005)
-opae_add_subdirectory(libboard/board_n6010)
 opae_add_subdirectory(libboard/board_n5010)
 opae_add_subdirectory(fpgaconf)
 opae_add_subdirectory(fpgainfo)
 opae_add_subdirectory(fpgametrics)
-
-
 
 # extra
 # Top level OPAE_BUILD_EXTRA_TOOLS controls building all the extra tools
@@ -67,8 +64,6 @@ mark_as_advanced(OPAE_BUILD_EXTRA_TOOLS_FPGABIST)
 
 option(OPAE_BUILD_EXTRA_TOOLS_OPAEIO "Enable building extra tool opae.io" ON)
 mark_as_advanced(OPAE_BUILD_EXTRA_TOOLS_OPAEIO)
-
-opae_add_subdirectory(extra/hssi)
 
 if(OPAE_BUILD_EXTRA_TOOLS)
   if(OPAE_BUILD_EXTRA_TOOLS_USERCLK)

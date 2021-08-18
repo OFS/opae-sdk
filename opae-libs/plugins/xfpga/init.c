@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,39 +24,24 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-/**
- * \fpga_dma_common.h
- * \brief FPGA DMA Common Header
- */
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-#ifndef __FPGA_DMA_COM_H__
-#define __FPGA_DMA_COM_H__
+#include "common_int.h"
+#include "token_list_int.h"
 
-#define FPGA_DMA_ERR(msg_str) \
-		fprintf(stderr, "Error %s: %s\n", __FUNCTION__, msg_str);
+#include <stdio.h>
+#include <stdarg.h>
+#include <stdlib.h>
 
+__attribute__((constructor))
+STATIC void fpga_init(void)
+{
+}
 
-#define MIN(X,Y) (X<Y)?X:Y
-// Convenience macros
-#ifdef FPGA_DMA_DEBUG
-#define debug_print(fmt, ...) \
-do { \
-	if (FPGA_DMA_DEBUG) {\
-		fprintf(stderr, "%s (%d) : ", __FUNCTION__, __LINE__); \
-		fprintf(stderr, fmt, ##__VA_ARGS__); \
-	} \
-} while (0)
-
-#define error_print(fmt, ...) \
-do { \
-	fprintf(stderr, "%s (%d) : ", __FUNCTION__, __LINE__); \
-	fprintf(stderr, fmt, ##__VA_ARGS__); \
-	err_cnt++; \
- } while (0)
-#else
-#define debug_print(...)
-#define error_print(...)
-#endif
-
-
-#endif // __FPGA_DMA_COM_H__
+__attribute__((destructor))
+STATIC void fpga_release(void)
+{
+	token_cleanup();
+}

@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2021, Intel Corporation
+// Copyright(c) 2019-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -54,6 +54,7 @@ extern "C" {
 #include "gtest/gtest.h"
 #include "mock/test_system.h"
 #include "mock/test_utils.h"
+#include "token_list_int.h"
 
 #include "sysfs_int.h"
 

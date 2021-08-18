@@ -27,16 +27,10 @@
 opae_add_executable(TARGET n5010-ddr-test
     SOURCE n5010-ddr-test.c
     LIBS
-        argsfilter
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
     COMPONENT samplebin
-)
-
-target_include_directories(n5010-ddr-test
-    PRIVATE
-        ${OPAE_SDK_SOURCE}/tools/argsfilter
 )
 
 target_compile_options(n5010-ddr-test PUBLIC

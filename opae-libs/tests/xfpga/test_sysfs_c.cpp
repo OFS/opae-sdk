@@ -873,57 +873,6 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_08) {
 		EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 	}
 }
-/*
-* @test      sysfs
-* @brief     Tests: find_glob_path
- @details    When passed with valid sysfs path with "**" to
-*            find_glob_path functin recursively walks
-*            in SYSFS directory hierarchy and finds sysfs path <br>
-*            Then the return value FPGA_OK <br>
-*            When passed with invalid sysfs path with multipule "**" to
-*            find_glob_path functin recursively walks
-*            in SYSFS directory hierarchy and returns error <br>
-*            Then the return value FPGA_NOT_FOUND <br>
-*/
-TEST_P(sysfs_c_mock_p, fpga_sysfs_30) {
-	char glob_path[SYSFS_PATH_MAX] = { 0 };
-	char path[SYSFS_PATH_MAX] = { 0 };
-	_fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
-
-	if (snprintf(glob_path, SYSFS_PATH_MAX,
-		"%s%s", tok->sysfspath,
-		"/dfl*/*spi*/*spi*/*spi*/**/security/*flash_count") < 0) {
-		OPAE_ERR("snprintf buffer overflow");
-	}
-	EXPECT_EQ(find_glob_path(glob_path, path), FPGA_OK);
-
-	memset(&glob_path, 0, sizeof(SYSFS_PATH_MAX));
-	if (snprintf(glob_path, SYSFS_PATH_MAX,
-		"%s%s", tok->sysfspath,
-		"/dfl*/*spi*/*spi*/*spi*/*spi*/**/security/*flash_count") < 0) {
-		OPAE_ERR("snprintf buffer overflow");
-	}
-	EXPECT_EQ(find_glob_path(glob_path, path), FPGA_OK);
-
-	memset(&glob_path, 0, sizeof(SYSFS_PATH_MAX));
-	if (snprintf(glob_path, SYSFS_PATH_MAX,
-		"%s%s", tok->sysfspath,
-		"/dfl*/*spi*/*spi*/*spi*/*spi*/*/security/*flash_count") < 0) {
-		OPAE_ERR("snprintf buffer overflow");
-	}
-	EXPECT_EQ(find_glob_path(glob_path, path), FPGA_NOT_FOUND);
-
-	memset(&glob_path, 0, sizeof(SYSFS_PATH_MAX));
-	if (snprintf(glob_path, SYSFS_PATH_MAX,
-		"%s%s", tok->sysfspath,
-		"/dfl*/*spi*/*spi*/*spi*/*spi*/**/security/*test_count") < 0) {
-		OPAE_ERR("snprintf buffer overflow");
-	}
-	EXPECT_EQ(find_glob_path(glob_path, path), FPGA_NOT_FOUND);
-
-	EXPECT_EQ(find_glob_path(NULL, path), FPGA_INVALID_PARAM);
-	EXPECT_EQ(find_glob_path(glob_path, NULL), FPGA_INVALID_PARAM);
-}
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 

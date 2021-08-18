@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -43,6 +43,8 @@
 #include "props.h"
 #include "opae_drv.h"
 
+/* mutex to protect global data structures */
+extern pthread_mutex_t global_lock;
 
 struct dev_list {
 	char sysfspath[SYSFS_PATH_MAX];
@@ -468,12 +470,8 @@ STATIC fpga_result sync_afu(struct dev_list *afu)
 
 	// If we can't read the afu_id, don't return a token.
 	if (sysfs_read_guid(sysfspath, afu->guid) != FPGA_OK) {
-	// TODO: undo this hack. It was put in place to deal with the lack of
-	// afu_id in dfl-port.X during OFS Rel1.
-#if 0
 		OPAE_MSG("Could not read AFU ID from '%s', ignoring", sysfspath);
 		return FPGA_EXCEPTION;
-#endif
 	}
 
 	return FPGA_OK;
@@ -599,92 +597,6 @@ bool include_afu(const fpga_properties *filters, uint32_t num_filters)
 	return false;
 }
 
-struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
-{
-	struct _fpga_token *_tok = NULL;
-	uint32_t device_instance;
-	uint32_t subdev_instance;
-	char *endptr = NULL;
-	const char *ptr;
-	size_t len;
-	char errpath[SYSFS_PATH_MAX] = { 0, };
-
-	//                                    11111111112
-	//                          012345678901234567890
-	//                          /fpga_region/regionDD/
-	endptr = strstr(sysfspath, "/fpga_region/");
-
-	if (endptr) {
-		// dfl driver
-		ptr = (const char *)endptr + 18;
-
-	} else {
-		/* get the device instance id */
-		ptr = strchr(sysfspath, '.');
-		if (!ptr) {
-			OPAE_ERR("sysfspath does not meet expected format");
-			return NULL;
-		}
-	}
-
-	endptr = NULL;
-	device_instance = strtoul(++ptr, &endptr, 10);
-	/* no digits in path */
-	if (!endptr || *endptr != '/') {
-		OPAE_ERR("sysfspath does not meet expected format");
-		return NULL;
-	}
-
-	/* get the sub-device (FME/Port) instance id */
-	ptr = strrchr(sysfspath, '.');
-	if (!ptr) {
-		OPAE_ERR("sysfspath does not meet expected format");
-		return NULL;
-	}
-
-	endptr = NULL;
-	subdev_instance = strtoul(++ptr, &endptr, 10);
-	/* no digits in path */
-	if (endptr != ptr + strlen(ptr)) {
-		OPAE_ERR("sysfspath does not meet expected format");
-		return NULL;
-	}
-
-	_tok = (struct _fpga_token *)malloc(sizeof(struct _fpga_token));
-	if (!_tok) {
-		OPAE_ERR("malloc failed");
-		return NULL;
-	}
-
-	if (snprintf(errpath, sizeof(errpath),
-		     "%s/errors", sysfspath) < 0) {
-		OPAE_ERR("snprintf buffer overflow");
-		free(_tok);
-		return NULL;
-	}
-
-	_tok->errors = NULL;
-	build_error_list(errpath, &_tok->errors);
-
-	/* mark data structure as valid */
-	_tok->magic = FPGA_TOKEN_MAGIC;
-
-	/* assign the instances num from above */
-	_tok->device_instance = device_instance;
-	_tok->subdev_instance = subdev_instance;
-
-	/* deep copy token data */
-	len = strnlen(sysfspath, SYSFS_PATH_MAX - 1);
-	memcpy(_tok->sysfspath, sysfspath, len);
-	_tok->sysfspath[len] = '\0';
-
-	len = strnlen(devpath, DEV_PATH_MAX - 1);
-	memcpy(_tok->devpath, devpath, len);
-	_tok->devpath[len] = '\0';
-
-	return _tok;
-}
-
 fpga_result __XFPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 				       uint32_t num_filters, fpga_token *tokens,
 				       uint32_t max_tokens,
@@ -732,6 +644,8 @@ fpga_result __XFPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 
 	/* create and populate token data structures */
 	for (lptr = head.next; NULL != lptr; lptr = lptr->next) {
+		struct _fpga_token *_tok;
+
 		// Skip the "container" device list nodes.
 		if (!lptr->devpath[0])
 			continue;
@@ -744,23 +658,24 @@ fpga_result __XFPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 			continue;
 		}
 
+		/* FIXME: do we need to keep a global list of tokens? */
+		/* For now we do becaue it is used in xfpga_fpgaUpdateProperties
+		 * to lookup a parent from the global list of tokens...*/
+		_tok = token_add(lptr->sysfspath, lptr->devpath);
+
+		if (NULL == _tok) {
+			OPAE_MSG("Failed to allocate memory for token");
+			result = FPGA_NO_MEMORY;
+			goto out_free_trash;
+		}
+
 		if (matches_filters(lptr, filters, num_filters)) {
 			if (*num_matches < max_tokens) {
-
-				tokens[*num_matches] = token_add(lptr->sysfspath, lptr->devpath);
-
-				if (!tokens[*num_matches]) {
-					uint32_t i;
-					OPAE_ERR("Failed to allocate memory for token");
-					result = FPGA_NO_MEMORY;
-
-					for (i = 0 ; i < *num_matches ; ++i)
-						free(tokens[i]);
-					*num_matches = 0;
-
-					goto out_free_trash;
+				if (xfpga_fpgaCloneToken(_tok, &tokens[*num_matches])
+				    != FPGA_OK) {
+					// FIXME: should we error out here?
+					OPAE_MSG("Error cloning token");
 				}
-
 			}
 			++(*num_matches);
 		}
@@ -808,7 +723,8 @@ fpga_result __XFPGA_API__ xfpga_fpgaCloneToken(fpga_token src, fpga_token *dst)
 	len = strnlen(_src->devpath, sizeof(_src->devpath) - 1);
 	strncpy(_dst->devpath, _src->devpath, len + 1);
 
-	_dst->errors = clone_error_list(_src->errors);
+	// shallow-copy error list
+	_dst->errors = _src->errors;
 
 	*dst = _dst;
 
@@ -817,26 +733,25 @@ fpga_result __XFPGA_API__ xfpga_fpgaCloneToken(fpga_token src, fpga_token *dst)
 
 fpga_result __XFPGA_API__ xfpga_fpgaDestroyToken(fpga_token *token)
 {
-	struct error_list *err;
-	struct _fpga_token *_token;
+	fpga_result result = FPGA_OK;
+	int err = 0;
 
 	if (NULL == token || NULL == *token) {
 		OPAE_MSG("Invalid token pointer");
 		return FPGA_INVALID_PARAM;
 	}
 
-	_token = (struct _fpga_token *)*token;
+	struct _fpga_token *_token = (struct _fpga_token *)*token;
+
+	if (pthread_mutex_lock(&global_lock)) {
+		OPAE_MSG("Failed to lock global mutex");
+		return FPGA_EXCEPTION;
+	}
 
 	if (_token->magic != FPGA_TOKEN_MAGIC) {
 		OPAE_MSG("Invalid token");
-		return FPGA_INVALID_PARAM;
-	}
-
-	err = _token->errors;
-	while (err) {
-		struct error_list *trash = err;
-		err = err->next;
-		free(trash);
+		result = FPGA_INVALID_PARAM;
+		goto out_unlock;
 	}
 
 	// invalidate magic (just in case)
@@ -845,5 +760,10 @@ fpga_result __XFPGA_API__ xfpga_fpgaDestroyToken(fpga_token *token)
 	free(*token);
 	*token = NULL;
 
-	return FPGA_OK;
+out_unlock:
+	err = pthread_mutex_unlock(&global_lock);
+	if (err) {
+		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
+	}
+	return result;
 }

@@ -42,7 +42,7 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <stdlib.h>
-#include <opae/uio.h>
+
 #include "../board_common/board_common.h"
 #include "board_n3000.h"
 
@@ -53,9 +53,23 @@
 #define DFL_SYSFS_MACADDR_PATH               "dfl*/*spi*/spi_master/spi*/spi*.*/mac_address"
 #define DFL_SYSFS_MACCNT_PATH                "dfl*/*spi*/spi_master/spi*/spi*.*/mac_count"
 
-#define DFL_BITSTREAM_ID                      "bitstream_id"
+#define DFL_SYSFS_PKVL_A_SBUS_VER            "dfl*/*spi*/spi_master/spi*/spi*.*/*pkvl*/A_sbus_version"
+#define DFL_SYSFS_PKVL_A_SERDES_VER          "dfl*/*spi*/spi_master/spi*/spi*.*/*pkvl*/A_serdes_version"
+
+#define DFL_SYSFS_PKVL_B_SBUS_VER            "dfl*/*spi*/spi_master/spi*/spi*.*/*pkvl*/B_sbus_version"
+#define DFL_SYSFS_PKVL_B_SERDES_VER          "dfl*/*spi*/spi_master/spi*/spi*.*/*pkvl*/B_serdes_version"
+
+
+// driver ioctl id
+#define FPGA_PHY_GROUP_GET_INFO               0xB702
 
 #define FPGA_BSID_SIZE                        32
+
+// fpga phy group mode
+#define FPGA_PHYGROUP_MODE_4_25G              1
+#define FPGA_PHYGROUP_MODE_6_25G              3
+#define FPGA_PHYGROUP_MODE_2_2_25G            4
+
 #define FPGA_BSID_REVISION(id)	(((id) >> 36) & 0xfff)
 #define FPGA_BSID_INTERFACE(id)	(((id) >> 32) & 0xf)
 #define FPGA_BSID_FLAGS(id)		(((id) >> 24) & 0xff)
@@ -69,34 +83,8 @@
 #define FPGA_BBS_VER_MAJOR(i) (((i) >> 56) & 0xf)
 #define FPGA_BBS_VER_MINOR(i) (((i) >> 52) & 0xf)
 #define FPGA_BBS_VER_PATCH(i) (((i) >> 48) & 0xf)
+#define DFL_BITSTREAM_ID    "bitstream_id"
 
-#define ETH_GROUP_FEATURE_ID                  0x10
-#define MAX_LINE_LENGTH                       80
-#define MAX_NUM_LINES                         0x500
-#define MAX10_REG_BASE                        0x300800
-#define MAX10_PKVL_LINK_STATUS                0x164
-#define MAX10_PKVL1_VAR                       0x254
-#define MAX10_PKVL2_VAR                       0x258
-
-#define FEATURE_DEV "/sys/bus/pci/devices/*%x*:*%x*:*%x*.*%x*/fpga_region"\
-					"/region*/dfl-fme*/dfl_dev*"
-#define FEATURE_DEV_SPI "/sys/bus/pci/devices/*%x*:*%x*:*%x*.*%x*/fpga_region"\
-					"/region*/dfl-fme*/dfl_dev*/*spi*/spi_master/spi*/spi*"
-
-// Eth group CSR
-struct eth_group_info {
-	union {
-		uint64_t csr;
-		struct {
-			uint64_t  group_num : 8;
-			uint64_t phy_num : 8;
-			uint64_t speed : 8;
-			uint64_t direction : 1;
-			uint64_t light_wight_mac : 1;
-			uint64_t reserved : 38;
-		};
-	};
-};
 
 // Read BMC firmware version
 fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
@@ -194,6 +182,58 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 	return res;
 }
 
+
+
+// Read pkvl versoin
+fpga_result print_pkvl_version(fpga_token token)
+{
+	fpga_result res                     = FPGA_OK;
+	char ver_a_buf[FPGA_VAR_BUF_LEN]    = { 0 };
+	char ver_b_buf[FPGA_VAR_BUF_LEN]    = { 0 };
+	int retval = 0;
+	uint64_t  sub_ver;
+	uint64_t serdes_ver;
+
+	res = read_sysfs_int64(token, DFL_SYSFS_PKVL_A_SBUS_VER, &sub_ver);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get read object");
+		return res;
+	}
+	res = read_sysfs_int64(token, DFL_SYSFS_PKVL_A_SERDES_VER, &serdes_ver);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get read object");
+		return res;
+	}
+
+	retval = snprintf(ver_a_buf, FPGA_VAR_BUF_LEN, "%lx.%lx", sub_ver, serdes_ver);
+	if (retval < 0) {
+		OPAE_ERR("error in formatting version");
+		return FPGA_EXCEPTION;
+	}
+
+	res = read_sysfs_int64(token, DFL_SYSFS_PKVL_B_SBUS_VER, &sub_ver);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get read object");
+		return res;
+	}
+	res = read_sysfs_int64(token, DFL_SYSFS_PKVL_B_SERDES_VER, &serdes_ver);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get read object");
+		return res;
+	}
+
+	retval = snprintf(ver_b_buf, FPGA_VAR_BUF_LEN, "%lx.%lx", sub_ver, serdes_ver);
+	if (retval < 0) {
+		OPAE_ERR("error in formatting version");
+		return FPGA_EXCEPTION;
+	}
+
+	printf("%-32s : %s \n", "Retimer A Version ", ver_a_buf);
+	printf("%-32s : %s \n", "Retimer B Version ", ver_b_buf);
+
+	return res;
+}
+
 // print mac information
 fpga_result print_mac_info(fpga_token token)
 {
@@ -273,389 +313,25 @@ fpga_result print_board_info(fpga_token token)
 	return res;
 }
 
-fpga_result enum_eth_group_feature(fpga_token token,
-			char eth_feature[ETH_GROUP_COUNT][SYSFS_MAX_SIZE],
-			uint32_t size)
+// print phy group information
+fpga_result print_phy_info(fpga_token token)
 {
-	fpga_result res                    = FPGA_OK;
-	char sysfs_path[SYSFS_MAX_SIZE]    = { 0 };
-	uint32_t index                     = 0;
-	uint8_t bus                        = (uint8_t)-1;
-	uint16_t segment                   = (uint16_t)-1;
-	uint8_t device                     = (uint8_t)-1;
-	uint8_t function                   = (uint8_t)-1;
-	size_t i                           = 0;
-	uint64_t value                     = 0;
-	int gres                           = 0;
-	glob_t pglob;
+	fpga_result res           = FPGA_OK;
 
-	res = get_fpga_sbdf(token, &segment, &bus, &device, &function);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get sbdf ");
-		return res;
-	}
-
-	if (snprintf(sysfs_path, sizeof(sysfs_path),
-					FEATURE_DEV,
-					segment, bus, device, function) < 0) {
-		OPAE_ERR("snprintf buffer overflow");
-		return FPGA_EXCEPTION;
-	}
-
-	gres = glob(sysfs_path, GLOB_NOSORT, NULL, &pglob);
-	if (gres) {
-		OPAE_ERR("Failed pattern match %s: %s", sysfs_path, strerror(errno));
-		globfree(&pglob);
-		return FPGA_NOT_FOUND;
-	}
-
-	// for loop
-	for (i = 0; i < pglob.gl_pathc; i++) {
-		memset(sysfs_path, 0, sizeof(sysfs_path));
-		if (snprintf(sysfs_path, sizeof(sysfs_path),
-			"%s/feature_id", pglob.gl_pathv[i]) < 0) {
-			OPAE_ERR("snprintf buffer overflow");
-			res = FPGA_EXCEPTION;
-			goto out;
-		}
-
-		res = sysfs_read_u64(sysfs_path, &value);
-		if (res != FPGA_OK) {
-			OPAE_MSG("Failed to read sysfs value");
-			goto out;
-		}
-
-		if (value == ETH_GROUP_FEATURE_ID) {
-			char *p = strstr(pglob.gl_pathv[i], "dfl_dev");
-			if (p == NULL) {
-				res = FPGA_NOT_FOUND;
-				goto out;
-			}
-
-			if (snprintf(eth_feature[index], SYSFS_MAX_SIZE,
-				"%s", p) < 0) {
-				OPAE_ERR("snprintf buffer overflow");
-				res = FPGA_EXCEPTION;
-				goto out;
-			}
-			index = index + 1;
-			if (index >= size) {
-				goto out;
-			}
-		}
-	}
-
-out:
-	globfree(&pglob);
-	return res;
-}
-
-
-//enum pkvl regmap path
-// /sys/kernel/debug/regmap/spi%d.0/registers
-fpga_result enum_pkvl_sysfs_path(fpga_token token,
-			char *pkvl_path)
-{
-
-	char sysfs_path[SYSFS_MAX_SIZE]    = { 0 };
-	fpga_result res                    = FPGA_OK;
-	uint8_t bus                        = (uint8_t)-1;
-	uint16_t segment                   = (uint16_t)-1;
-	uint8_t device                     = (uint8_t)-1;
-	uint8_t function                   = (uint8_t)-1;
-	int gres                           = 0;
-	glob_t pglob;
-
-	if (!pkvl_path) {
-		OPAE_ERR("Invalid input parameters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	res = get_fpga_sbdf(token, &segment, &bus, &device, &function);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get sbdf ");
-		return res;
-	}
-
-	if (snprintf(sysfs_path, sizeof(sysfs_path),
-			FEATURE_DEV_SPI,
-			segment, bus, device, function) < 0) {
-		OPAE_ERR("snprintf buffer overflow");
-		return FPGA_EXCEPTION;
-	}
-
-	gres = glob(sysfs_path, GLOB_NOSORT, NULL, &pglob);
-	if (gres) {
-		OPAE_ERR("Failed pattern match %s: %s", sysfs_path, strerror(errno));
-		globfree(&pglob);
-		return FPGA_NOT_FOUND;
-	}
-
-	if (pglob.gl_pathc == 1) {
-
-		char *p = strrchr(pglob.gl_pathv[0], '/');
-		if (p == NULL) {
-			res = FPGA_INVALID_PARAM;
-			goto out;
-		}
-
-		if (snprintf(pkvl_path, SYSFS_MAX_SIZE,
-			"/sys/kernel/debug/regmap/%s/registers", p+1) < 0) {
-			OPAE_ERR("snprintf buffer overflow");
-			res = FPGA_EXCEPTION;
-			goto out;
-		}
-	} else {
-		res = FPGA_NOT_FOUND;
-		goto out;
-	}
-
-out:
-	globfree(&pglob);
-	return res;
-}
-
-//enum pkvl regmap path
-fpga_result read_regmap(char *sysfs_path,
-			uint64_t index,
-			uint32_t *value)
-{
-	FILE *fp                          = NULL;
-	char *endptr                      = NULL;
-	uint64_t line_count               = 0;
-	char search_str[SYSFS_MAX_SIZE]   = { 0 };
-	char line[MAX_LINE_LENGTH]        = { 0 };
-
-	if (!value || !sysfs_path) {
-		OPAE_ERR("Invalid input parameters");
-		return FPGA_INVALID_PARAM;
-	}
-	if (snprintf(search_str, SYSFS_MAX_SIZE,
-				"%lx", index) < 0) {
-		OPAE_ERR("snprintf buffer overflow");
-		return FPGA_EXCEPTION;
-	}
-
-	fp = fopen(sysfs_path, "r");
-	if (!fp) {
-		OPAE_ERR("Error opening:%s  %s", sysfs_path, strerror(errno));
-		return FPGA_EXCEPTION;
-	}
-
-	while (fgets(line, MAX_LINE_LENGTH, fp)) {
-
-		if (strstr(line, search_str)) {
-			char *p = strstr(line, ":");
-			if (p == NULL) {
-				fclose(fp);
-				return FPGA_NOT_FOUND;
-			}
-			*value = strtoul(p + 1, &endptr, 16);
-			fclose(fp);
-			return FPGA_OK;
-
-		}
-		if (line_count > MAX_NUM_LINES) {
-			OPAE_ERR("Not found in regmap");
-			return FPGA_NOT_FOUND;
-		}
-
-	}
-
-	fclose(fp);
-
-	return FPGA_NOT_FOUND;
-}
-
-// print retimer info
-fpga_result print_retimer_info(fpga_token token,
-			uint32_t speed)
-{
-	fpga_result res                   = FPGA_OK;
-	uint32_t link_status              = 0;
-	uint32_t fpga_mode                = 0;
-	char sysfs_path[SYSFS_MAX_SIZE]   = { 0 };
-	char mode[VER_BUF_SIZE]           = { 0 };
-	uint32_t mask                     = 0;
-	uint64_t bs_id                    = 0;
-	uint32_t i                        = 0;
-	uint32_t j                        = 0;
-
-	res = enum_pkvl_sysfs_path(token, sysfs_path);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to enum sysfs path");
-		return res;
-	}
-
-	// read regmap
-	res = read_regmap(sysfs_path,
-					MAX10_REG_BASE + MAX10_PKVL_LINK_STATUS,
-					&link_status);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read regmap");
-		return res;
-	}
-
-	// read bistream Id
-	res = read_sysfs_int64(token, DFL_BITSTREAM_ID, &bs_id);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read feature id");
-	}
-
-	fpga_mode = (bs_id >> FPGA_BSID_SIZE) & 0xf;
-
-	if (speed == 10) {
-		/* 8x10g */
-		mask = 0xff;
-	} else if (speed == 25) {
-		switch (fpga_mode) {
-		case 1: /* 4x25g */
-		case 3: /* 6x25g */
-			mask = 0xf;
-			break;
-		case 2: /* 2x1x25g */
-		case 5: /* 2x1x25gx2FVL */
-			mask = 0x11;
-			break;
-		case 4: /* 2x2x25g */
-			mask = 0x33;
-			break;
-		case 6: /* 1x2x25g */
-			mask = 0x03;
-			break;
-		default:
-			mask = 0x0;
-			break;
-		}
-	}
-
-	printf("//****** Intel C827 Retimer ******//\n");
-	strncpy(mode, speed == 25 ? "25G" : "10G", 4);
-
-	for (i = 0, j = 0; i < MAX_PORTS; i++) {
-		if (mask&(1 << i)) {
-			printf("Port%-2d%-26s : %s\n", j, mode,
-				link_status&(1 << i) ? "Up" : "Down");
-			j++;
-		}
-	}
-
-	return res;
-}
-
-// Read pkvl versoin
-fpga_result print_pkvl_version(fpga_token token)
-{
-	fpga_result res                    = FPGA_OK;
-	uint32_t value                     = 0;
-	char sysfs_path[SYSFS_MAX_SIZE]    = { 0 };
-	char ver_buf[FPGA_VAR_BUF_LEN]     = { 0 };
-
-	res = enum_pkvl_sysfs_path(token, sysfs_path);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to enum sysfs path");
-		return res;
-	}
-
-	res = read_regmap(sysfs_path,
-				MAX10_REG_BASE + MAX10_PKVL1_VAR,
-				&value);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read regmap");
-		return res;
-	}
-
-	if (snprintf(ver_buf, FPGA_VAR_BUF_LEN, "%x.%x",
-				value >> 16, value & 0x0000ffff) < 0) {
-		OPAE_ERR("error in formatting version");
-		return FPGA_EXCEPTION;
-	}
-
-	printf("%-32s : %s \n", "Retimer A Version", ver_buf);
-
-	res = read_regmap(sysfs_path,
-				MAX10_REG_BASE + MAX10_PKVL2_VAR,
-				&value);
+	res = print_pkvl_version(token);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to read phy group count");
 		return res;
 	}
 
-	if (snprintf(ver_buf, FPGA_VAR_BUF_LEN, "%x.%x",
-				value >> 16, value & 0x0000ffff) < 0) {
-		OPAE_ERR("error in formatting version");
-		return FPGA_EXCEPTION;
-	}
-
-	printf("%-32s : %s \n", "Retimer B Version", ver_buf);
-
-	return res;
-}
-
-// print phy group information
-fpga_result print_phy_info(fpga_token token)
-{
-	fpga_result res            = FPGA_OK;
-	uint8_t *mmap_ptr          = NULL;
-	uint32_t i                 = 0;
-	uint64_t *_ptr             = NULL;
-	uint32_t speed             = 10;
-	struct opae_uio uio;
-	struct eth_group_info eth_info;
-	char eth_feature_dev[ETH_GROUP_COUNT][SYSFS_MAX_SIZE];
-
-	res = enum_eth_group_feature(token,
-						eth_feature_dev,
-						ETH_GROUP_COUNT);
+	res = print_eth_interface_info(token, "npac");
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read eth group feature");
-		return res;
-	}
-
-	for (i = 0; i < ETH_GROUP_COUNT; i++) {
-		res = opae_uio_open(&uio, eth_feature_dev[i]);
-		if (res) {
-			OPAE_ERR("Failed to open uio");
-			return res;
-		}
-
-		res = opae_uio_region_get(&uio, 0, (uint8_t **)&mmap_ptr, NULL);
-		if (res) {
-			OPAE_ERR("Failed to get uio region");
-			opae_uio_close(&uio);
-			return res;
-		}
-		_ptr = (uint64_t *)mmap_ptr;
-
-		eth_info.csr = *(_ptr + 1);
-
-		printf("//****** PHY GROUP %d ******//\n", eth_info.group_num);
-		printf("%-32s : %s\n", "Direction",
-			eth_info.direction == 0 ? "Line side" : "Host side");
-
-		printf("%-32s : %d Gbps\n", "Speed", eth_info.speed);
-		printf("%-32s : %d\n", "Number of PHYs", eth_info.phy_num);
-
-		if (eth_info.group_num == 0) {
-			speed = eth_info.speed;
-		}
-
-		opae_uio_close(&uio);
-	}
-
-	res = print_retimer_info(token, speed);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to print retimer info");
-		return res;
-	}
-
-	res = print_pkvl_version(token);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to print pkvl version");
+		OPAE_ERR("Failed to read phy info");
 		return res;
 	}
 
 	return res;
+
 }
 
 // Sec info
@@ -663,6 +339,7 @@ fpga_result print_sec_info(fpga_token token)
 {
 	return print_sec_common_info(token);
 }
+
 
 // print fme verbose info
 fpga_result print_fme_verbose_info(fpga_token token)
@@ -747,10 +424,4 @@ out_destroy:
 	}
 
 	return res;
-}
-
-// prints fpga boot page info
-fpga_result fpga_boot_info(fpga_token token)
-{
-	return print_common_boot_info(token);
 }

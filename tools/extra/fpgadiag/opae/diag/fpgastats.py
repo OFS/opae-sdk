@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python
 # Copyright(c) 2018-2019, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without

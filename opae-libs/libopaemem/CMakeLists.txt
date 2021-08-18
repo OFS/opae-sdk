@@ -30,3 +30,9 @@ opae_add_shared_library(TARGET opaemem
     SOVERSION ${OPAE_VERSION_MAJOR}
     COMPONENT memlib
 )
+    
+opae_add_executable(TARGET opaememtest
+    SOURCE memtest.c
+    LIBS opaemem
+    COMPONENT memtest
+)

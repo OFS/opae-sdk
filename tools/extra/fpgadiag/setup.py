@@ -83,7 +83,7 @@ setup(
             'mactest = opae.diag.mactest:main',
             'fpgastats = opae.diag.fpgastats:main',
             'fpgamac = opae.diag.fpgamac:main',
-            'fecmode = opae.diag.fecmode:main',
+            'fecmode = opae.diag.fedmode:main',
         ]
     },
     description="eth group provides python bindings"

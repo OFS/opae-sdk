@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -88,10 +88,6 @@
 	})
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif // __cplusplus
-
 #ifndef __OPAE_ADAPTER_H__
 typedef struct _opae_api_adapter_table opae_api_adapter_table;
 #endif // __OPAE_ADAPTER_H__
@@ -102,9 +98,6 @@ typedef struct _opae_api_adapter_table opae_api_adapter_table;
 typedef struct _opae_wrapped_token {
 	uint32_t magic;
 	fpga_token opae_token;
-	uint32_t ref_count;
-	struct _opae_wrapped_token *prev;
-	struct _opae_wrapped_token *next;
 	opae_api_adapter_table *adapter_table;
 } opae_wrapped_token;
 
@@ -121,21 +114,11 @@ static inline opae_wrapped_token *opae_validate_wrapped_token(fpga_token t)
 	return (wt->magic == OPAE_WRAPPED_TOKEN_MAGIC) ? wt : NULL;
 }
 
-void opae_upref_wrapped_token(opae_wrapped_token *wt);
-
-fpga_result opae_downref_wrapped_token(opae_wrapped_token *wt);
-
-static inline fpga_result
-opae_destroy_wrapped_token(opae_wrapped_token *wt)
+static inline void opae_destroy_wrapped_token(opae_wrapped_token *wt)
 {
-	return opae_downref_wrapped_token(wt);
+	wt->magic = 0;
+	free(wt);
 }
-
-#ifdef LIBOPAE_DEBUG
-
-uint32_t opae_wrapped_tokens_in_use(void);
-
-#endif // LIBOPAE_DEBUG
 
 //                                   n a h w
 #define OPAE_WRAPPED_HANDLE_MAGIC 0x6e616877
@@ -162,7 +145,6 @@ static inline opae_wrapped_handle *opae_validate_wrapped_handle(fpga_handle h)
 
 static inline void opae_destroy_wrapped_handle(opae_wrapped_handle *wh)
 {
-	opae_downref_wrapped_token(wh->wrapped_token);
 	wh->magic = 0;
 	free(wh);
 }
@@ -233,9 +215,5 @@ static inline void opae_destroy_wrapped_object(opae_wrapped_object *wo)
 	wo->magic = 0;
 	free(wo);
 }
-
-#ifdef __cplusplus
-}
-#endif // __cplusplus
 
 #endif // ___OPAE_OPAE_INT_H__

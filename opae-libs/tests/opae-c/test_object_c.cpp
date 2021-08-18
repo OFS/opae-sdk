@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -109,9 +109,6 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
     }
     fpgaFinalize();
     system_->finalize();
-#ifdef LIBOPAE_DEBUG
-    EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
-#endif // LIBOPAE_DEBUG
   }
 
   std::array<fpga_token, 2> tokens_accel_;
@@ -180,57 +177,6 @@ TEST_P(object_c_p, obj_write64) {
 }
 
 /**
- * @test       obj_get_obj_at0
- * @brief      Test: fpgaObjectGetObjectAt
- * @details    When fpgaObjectGetObjectAt is called with valid parameters,<br>
- *             the fn opens the underlying object<br>
- *             and returns FPGA_OK.<br>
- */
-TEST_P(object_c_p, obj_get_obj_at0) {
-  fpga_object obj = nullptr;
-  fpga_object child_obj = nullptr;
-
-  ASSERT_EQ(fpgaHandleGetObject(accel_,
-			  	"power",
-				&obj,
-				FPGA_OBJECT_RECURSE_ONE),
-		  FPGA_OK);
-
-  EXPECT_EQ(fpgaObjectGetObjectAt(obj, 0, &child_obj), FPGA_OK);
-
-  EXPECT_EQ(fpgaDestroyObject(&child_obj), FPGA_OK);
-  EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
-}
-
-/**
- * @test       obj_get_type0
- * @brief      Test: fpgaObjectGetType
- * @details    When fpgaObjectGetType is called with valid parameters,<br>
- *             the fn opens the underlying object<br>
- *             and returns FPGA_OK.<br>
- */
-TEST_P(object_c_p, obj_get_type0) {
-  fpga_object obj = nullptr;
-  fpga_object ctrl_obj = nullptr;
-  enum fpga_sysobject_type type;
-
-  ASSERT_EQ(fpgaHandleGetObject(accel_, "power", &obj, 0),
-		  FPGA_OK);
-
-  EXPECT_EQ(fpgaObjectGetType(obj, &type), FPGA_OK);
-  EXPECT_EQ(type, FPGA_OBJECT_CONTAINER);
-
-  ASSERT_EQ(fpgaObjectGetObject(obj, "control", &ctrl_obj, 0),
-		  FPGA_OK);
-
-  EXPECT_EQ(fpgaObjectGetType(ctrl_obj, &type), FPGA_OK);
-  EXPECT_EQ(type, FPGA_OBJECT_ATTRIBUTE);
-
-  EXPECT_EQ(fpgaDestroyObject(&ctrl_obj), FPGA_OK);
-  EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
-}
-
-/**
  * @test       obj_get_obj0
  * @brief      Test: fpgaObjectGetObject
  * @details    When fpgaObjectGetObject is called with valid parameters,<br>
@@ -284,40 +230,6 @@ TEST_P(object_c_p, handle_get_obj) {
 }
 
 /**
- * @test       handle_get_obj
- * @brief      Test: fpgaHandleGetObject
- * @details    When fpgaHandleGetObject is called with too short name,
- *             the function returns FPGA_NOT_FOUND. <br>
- */
-TEST_P(object_c_p, handle_get_obj_too_short) {
-  fpga_object obj = nullptr;
-  const char *too_short_name = "a";
-
-  EXPECT_EQ(fpgaHandleGetObject(accel_, too_short_name, &obj, 0), FPGA_NOT_FOUND);
-  ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
-}
-
-/**
- * @test       handle_get_obj
- * @brief      Test: fpgaHandleGetObject
- * @details    When fpgaHandleGetObject is called with too long name,
- *             the function returns FPGA_NOT_FOUND. <br>
- */
-TEST_P(object_c_p, handle_get_obj_too_long) {
-  fpga_object obj = nullptr;
-  const char *too_long_name = "This/is/invalid/path/with/maximim/255/\
-			       characterssssssssssssssssssssssssssssss\
-			       ssssssssssssssssssssssa/lengthhhhhhhhhhh\
-			       hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh\
-			       /so/opaeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\
-			       eeeeeeeeeeeeeeeeeee/api/should/return/with/\
-			       errorrrrrrrrrrrrrrrrr/for/SDL testing/";
-
-  EXPECT_EQ(fpgaHandleGetObject(accel_, too_long_name, &obj, 0), FPGA_NOT_FOUND);
-  ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
-}
-
-/**
  * @test       token_get_obj
  * @brief      Test: fpgaTokenGetObject
  * @details    When fpgaTokenGetObject is called with a name that has a null
@@ -333,43 +245,6 @@ TEST_P(object_c_p, token_get_obj) {
 }
 
 /**
- * @test       token_get_obj
- * @brief      Test: fpgaTokenGetObject
- * @details    When fpgaTokenGetObject is called with too short path name,
- *             the function returns FPGA_NOT_FOUND. <br>
- */
-TEST_P(object_c_p, token_get_obj_too_short) {
-  fpga_object obj = nullptr;
-  const char *too_short_path = "a";
-
-  EXPECT_EQ(fpgaTokenGetObject(tokens_device_[0], too_short_path, &obj, 0),
-                                FPGA_NOT_FOUND);
-  ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
-}
-
-/**
- * @test       token_get_obj
- * @brief      Test: fpgaTokenGetObject
- * @details    When fpgaTokenGetObject is called with too long path name,
- *             the function returns FPGA_NOT_FOUND. <br>
- */
-TEST_P(object_c_p, token_get_obj_too_long) {
-  fpga_object obj = nullptr;
-  const char *too_long_path = "This/is/invalid/path/with/maximim/255/\
-			       characterssssssssssssssssssssssssssssss\
-			       ssssssssssssssssssssssa/lengthhhhhhhhhhh\
-			       hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh\
-			       /so/opaeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\
-			       eeeeeeeeeeeeeeeeeee/api/should/return/with/\
-			       errorrrrrrrrrrrrrrrrr/for/SDL testing/";
-
-  EXPECT_EQ(fpgaTokenGetObject(tokens_device_[0], too_long_path, &obj, 0),
-                                FPGA_NOT_FOUND);
-  ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
-}
-
-
-/**
  * @test       obj_get_size
  * @brief      Test: fpgaObjectGetSize
  * @details    Given an object created using name afu_id<br>
@@ -382,18 +257,6 @@ TEST_P(object_c_p, obj_get_size) {
   EXPECT_EQ(fpgaObjectGetSize(handle_obj_, &value, FPGA_OBJECT_SYNC), FPGA_OK);
   EXPECT_EQ(value, afu_guid_.size() + 1);
 }
-
-/**
- * @test       fpgaClose
- * @brief      Test: fpgaClose
- * @details    
- *             When fpgaClose is called with NULL object<br>
- *             the function returns FPGA_INVALID_PARAM.<br>
- */
-TEST_P(object_c_p, obj_close) {
-  EXPECT_EQ(fpgaClose(nullptr), FPGA_INVALID_PARAM);
-}
-
 
 INSTANTIATE_TEST_CASE_P(object_c, object_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));

@@ -40,10 +40,7 @@ if(LSB_RELEASE_EXE)
 
     message(STATUS "Detecting distribution - ${LSB_DISTRIBUTOR_ID} ${LSB_RELEASE_NUMBER}")
 
-    if("${LSB_DISTRIBUTOR_ID}" STREQUAL "" OR "${LSB_RELEASE_NUMBER}" STREQUAL "")
-        set(JSON_C_DEBIAN_PACKAGE "libjson-c5")
-        message(WARNING "Unrecognized distribution: Defaulting to ${JSON_C_DEBIAN_PACKAGE}")
-    elseif(${LSB_DISTRIBUTOR_ID} STREQUAL "Ubuntu")
+    if(${LSB_DISTRIBUTOR_ID} STREQUAL "Ubuntu")
 
         if(${LSB_RELEASE_NUMBER} STREQUAL "16.04")
             set(JSON_C_DEBIAN_PACKAGE "libjson-c2")
@@ -55,7 +52,7 @@ if(LSB_RELEASE_EXE)
             message(WARNING "Unrecognized Ubuntu version: ${LSB_RELEASE_NUMBER}. Defaulting to ${JSON_C_DEBIAN_PACKAGE}")
         endif()
 
-    endif()
+    endif(${LSB_DISTRIBUTOR_ID} STREQUAL "Ubuntu")
 endif(LSB_RELEASE_EXE)
 
 

@@ -24,8 +24,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGA_BOARD_N3000_H__
-#define __FPGA_BOARD_N3000_H__
+#ifndef __FPGA_BOARD_VC_H__
+#define __FPGA_BOARD_VC_H__
 
 #include <opae/types.h>
 
@@ -33,14 +33,29 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define MAX_PORTS                  8
-#define SYSFS_MAX_SIZE             256
-#define MAC_BYTE_SIZE              4
-#define VER_BUF_SIZE               16
-#define FPGA_VAR_BUF_LEN           256
-#define MAC_BUF_LEN                19
-#define ETH_GROUP_COUNT            2
-#define MAX_FPGA_FEATURE_COUNT     24
+#define CDEV_ID_SIZE           8
+#define MAX_PORTS              8
+#define SYSFS_MAX_SIZE         256
+#define MAC_BYTE_SIZE          4
+#define VER_BUF_SIZE           16
+#define FPGA_VAR_BUF_LEN       256
+#define FPGA_PHYGROUP_SIZE     256
+#define MAC_BUF_SIZE           8
+#define MAC_BUF_LEN           19
+
+typedef struct _fpga_pkvl_info {
+	uint32_t polling_mode;
+	uint32_t status;
+} fpga_pkvl_info;
+
+typedef struct _fpga_phy_group_info {
+	unsigned int    argsz;
+	unsigned int    flags;
+	unsigned char  speed;
+	unsigned char  phy_num;
+	unsigned char  mac_num;
+	unsigned char  group_id;
+} fpga_phy_group_info;
 
 typedef union _pkvl_mac {
 	unsigned int dword;
@@ -76,6 +91,38 @@ fpga_result print_phy_info(fpga_token token);
 *
 */
 fpga_result print_mac_info(fpga_token token);
+
+
+/**
+* Get PHY group information.
+*
+* @param[in] token           fpga_token object for device (FPGA_DEVICE type)
+* @param[inout] group_info   pointer to struct fpga_phy_group_info
+*                            user allocates memory and free phy group info
+* @param[inout] group_num    pointer to group num
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if phy group sysfs not found.
+* FPGA_INVALID_PARAM if invalid parameters were provide
+*
+*/
+fpga_result read_phy_group_info(fpga_token token,
+				fpga_phy_group_info *group_info,
+				uint32_t *group_num);
+
+/**
+* Get PKVL information.
+*
+* @param[in] token           fpga_token object for device (FPGA_DEVICE type)
+* @param[inout] pkvl_info    pointer to struct fpga_pkvl_info
+*                            user allocates memory and free pkvl info
+* @param[inout] fpga_mode    pointer to fpga mode
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if pkvl sysfs not found.
+* FPGA_INVALID_PARAM if invalid parameters were provide
+*
+*/
+fpga_result read_pkvl_info(fpga_token token,
+				fpga_pkvl_info *pkvl_info,
+				int *fpga_mode);
+
 
 /**
 * Get Max10 firmware version.
@@ -115,6 +162,17 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_var, size_t len);
 fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len);
 
 /**
+* get phy group info from driver.
+*
+* @param[in] dev_path        pointer to device path
+* @param[inout] fw_ver       pointer to fpga_phy_group_info
+* @returns FPGA_OK on success. FPGA_EXCEPTION if FW version is invlaid.
+*
+*/
+fpga_result get_phy_info(char *dev_path, fpga_phy_group_info *info);
+
+
+/**
 * Prints pkvl information
 *
 * @param[in] token            fpga_token object for device (FPGA_DEVICE type)
@@ -133,76 +191,25 @@ fpga_result print_pkvl_version(fpga_token token);
 fpga_result print_sec_info(fpga_token token);
 
 /**
+* Prints Security information.
+*
+* @param[in] token            fpga_token object for device (FPGA_DEVICE type)
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if MAX10 or NIOS sysfs not found.
+* FPGA_INVALID_PARAM if invalid parameters were provided
+*/
+fpga_result print_sec_info(fpga_token token);
+
+/**
 * Prints fme verbose info
 *
 * @param[in] token            fpga_token object for device (FPGA_DEVICE type)
-* @returns FPGA_OK on success. FPGA_NOT_FOUND if eth feature not found.
+* @returns FPGA_OK on success. FPGA_EXCEPTION if eth interface not found.
 * FPGA_INVALID_PARAM if invalid parameters were provided
 */
 fpga_result print_fme_verbose_info(fpga_token token);
-
-/**
-* enumerate ethernet group feature
-*
-* @param[in] token            fpga_token object for device (FPGA_DEVICE type)
-* @param[inout] eth_feature   pointer to eth group feature array of strings
-* @param[inout] size          size of eth group feature array
-* @returns FPGA_OK on success. FPGA_NOT_FOUND if eth feature not found.
-* FPGA_INVALID_PARAM if invalid parameters were provided
-*/
-fpga_result enum_eth_group_feature(fpga_token token,
-			char eth_feature[ETH_GROUP_COUNT][SYSFS_MAX_SIZE],
-			uint32_t size);
-
-
-/**
-* enumerate pkvl regmap sysfs path
-*
-* @param[in] token            fpga_token object for device (FPGA_DEVICE type)
-* @param[inout] pkvl_path     pointer to pkvl sysfs path
-* @returns FPGA_OK on success. FPGA_NOT_FOUND if eth feature not found.
-* FPGA_INVALID_PARAM if invalid parameters were provided
-*/
-fpga_result enum_pkvl_sysfs_path(fpga_token token, char *pkvl_path);
-
-
-/**
-* reads regmap reg registers
-*
-* @param[in] sysfs_path      pointer to regmap sysfs path
-* @param[in] index           regmap registers index
-* @param[out] value          pointer to regmap offset value
-* @returns FPGA_OK on success. FPGA_NOT_FOUND if regmap offset not found.
-* FPGA_INVALID_PARAM if invalid parameters were provided
-*/
-fpga_result read_regmap(char *sysfs_path,
-			uint64_t index,
-			uint32_t *value);
-
-
-/**
-* prints retimer info
-*
-* @param[in] token            fpga_token object for device (FPGA_DEVICE type)
-* @param[in] speed            ethernet line side speed
-* @returns FPGA_OK on success. FPGA_NOT_FOUND if retimer version offset not found.
-* FPGA_INVALID_PARAM if invalid parameters were provided
-*/
-fpga_result print_retimer_info(fpga_token token, uint32_t speed);
-
-
-/**
-* Prints fpga boot page info.
-*
-* @param[in] token           fpga_token object for device (FPGA_DEVICE type)
-* @returns FPGA_OK on success. FPGA_NOT_FOUND if invalid boot info.
-* FPGA_INVALID_PARAM if invalid parameters were provided
-*
-*/
-fpga_result fpga_boot_info(fpga_token token);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __FPGA_BOARD_N3000_H__ */
+#endif /* __FPGA_BOARD_VC_H__ */

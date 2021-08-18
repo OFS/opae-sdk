@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -180,11 +180,6 @@ class handle {
    * The destructor for handle will call close.
    */
   fpga_result close();
-
-  /** Retrieve the token corresponding to this handle
-   * object.
-   */
-  token::ptr_t get_token() const;
 
  private:
   handle(fpga_handle h);

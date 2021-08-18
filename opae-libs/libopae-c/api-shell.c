@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -42,12 +42,6 @@
 #include "props.h"
 
 
-STATIC pthread_mutex_t token_list_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-STATIC opae_wrapped_token token_list_head = {
-	.prev = &token_list_head,
-	.next = &token_list_head,
-};
-
 opae_wrapped_token *
 opae_allocate_wrapped_token(fpga_token token,
 			    const opae_api_adapter_table *adapter)
@@ -58,99 +52,11 @@ opae_allocate_wrapped_token(fpga_token token,
 	if (wtok) {
 		wtok->magic = OPAE_WRAPPED_TOKEN_MAGIC;
 		wtok->opae_token = token;
-		wtok->ref_count = 0;
-		wtok->prev = wtok->next = NULL;
 		wtok->adapter_table = (opae_api_adapter_table *)adapter;
-
-		opae_upref_wrapped_token(wtok);
 	}
 
 	return wtok;
 }
-
-void opae_upref_wrapped_token(opae_wrapped_token *wt)
-{
-	int res;
-
-	opae_mutex_lock(res, &token_list_lock);
-
-	++wt->ref_count;
-	if (wt->ref_count == 1) {
-		OPAE_DBG("token ref count begin %p", wt);
-		wt->prev = &token_list_head;
-		wt->next = token_list_head.next;
-		token_list_head.next->prev = wt;
-		token_list_head.next = wt;
-	}
-#ifdef LIBOPAE_DEBUG
-	else {
-		OPAE_DBG("token ref count up %p, %u", wt, wt->ref_count);
-	}
-#endif // LIBOPAE_DEBUG
-
-	opae_mutex_unlock(res, &token_list_lock);
-}
-
-fpga_result opae_downref_wrapped_token(opae_wrapped_token *wt)
-{
-	int res;
-	fpga_result fres = FPGA_OK;
-
-	opae_mutex_lock(res, &token_list_lock);
-
-	--wt->ref_count;
-	if (wt->ref_count == 0) {
-		OPAE_DBG("token ref count end %p", wt);
-		wt->prev->next = wt->next;
-		wt->next->prev = wt->prev;
-		wt->magic = 0;
-
-		if (wt->adapter_table->fpgaDestroyToken)
-			fres = wt->adapter_table->fpgaDestroyToken(
-					&wt->opae_token);
-		else
-			fres = FPGA_NOT_SUPPORTED;
-
-		free(wt);
-
-#ifdef LIBOPAE_DEBUG
-		if ((token_list_head.prev == &token_list_head) &&
-		    (token_list_head.next == &token_list_head)) {
-			OPAE_DBG("token ref count CLEAN HERE");
-		}
-#endif // LIBOPAE_DEBUG
-	}
-#ifdef LIBOPAE_DEBUG
-	else {
-		OPAE_DBG("token ref count down %p, %u", wt, wt->ref_count);
-	}
-#endif // LIBOPAE_DEBUG
-
-	opae_mutex_unlock(res, &token_list_lock);
-	return fres;
-}
-
-#ifdef LIBOPAE_DEBUG
-uint32_t opae_wrapped_tokens_in_use(void)
-{
-	int res;
-	uint32_t count = 0;
-	opae_wrapped_token *wt;
-
-	opae_mutex_lock(res, &token_list_lock);
-
-	for (wt = token_list_head.next ;
-		wt != &token_list_head ;
-		    wt = wt->next) {
-		++count;
-		OPAE_DBG("token ref count %p, %u LEAKED",
-			 wt, wt->ref_count);
-	}
-
-	opae_mutex_unlock(res, &token_list_lock);
-	return count;
-}
-#endif // LIBOPAE_DEBUG
 
 opae_wrapped_handle *
 opae_allocate_wrapped_handle(opae_wrapped_token *wt, fpga_handle opae_handle,
@@ -164,8 +70,6 @@ opae_allocate_wrapped_handle(opae_wrapped_token *wt, fpga_handle opae_handle,
 		whan->wrapped_token = wt;
 		whan->opae_handle = opae_handle;
 		whan->adapter_table = adapter;
-
-		opae_upref_wrapped_token(wt);
 	}
 
 	return whan;
@@ -307,95 +211,6 @@ fpga_result __OPAE_API__ fpgaReset(fpga_handle handle)
 		wrapped_handle->opae_handle);
 }
 
-STATIC opae_wrapped_token *
-opae_get_parent_token(opae_wrapped_token *child)
-{
-	int mres = 0;
-	fpga_objtype child_type = FPGA_DEVICE;
-	uint16_t child_segment = 0;
-	uint8_t child_bus = 0;
-	uint8_t child_device = 0;
-	opae_wrapped_token *p;
-	opae_wrapped_token *parent = NULL;
-	struct _fpga_properties *child_props;
-	struct _fpga_properties *parent_props;
-	fpga_result res;
-
-	if (!child->adapter_table->fpgaUpdateProperties)
-		return NULL;
-
-	child_props = opae_properties_create();
-	if (!child_props)
-		return NULL;
-
-	parent_props = opae_properties_create();
-	if (!parent_props)
-		goto out_destroy_child_props;
-
-	res = child->adapter_table->fpgaUpdateProperties(
-			child->opae_token, child_props);
-	if (res != FPGA_OK)
-		goto out_destroy_props;
-
-	if (fpgaPropertiesGetSegment(child_props, &child_segment) ||
-	    fpgaPropertiesGetBus(child_props, &child_bus) ||
-	    fpgaPropertiesGetDevice(child_props, &child_device) ||
-	    fpgaPropertiesGetObjectType(child_props, &child_type) ||
-	    (child_type == FPGA_DEVICE)) { // FPGA_DEVICE has no parent.
-		goto out_destroy_props;
-	}
-
-	if (opae_mutex_lock(mres, &token_list_lock))
-		goto out_destroy_props;
-
-	for (p = token_list_head.next ;
-		p != &token_list_head ;
-		    p = p->next) {
-		fpga_objtype parent_type = FPGA_ACCELERATOR;
-		uint16_t parent_segment = 0;
-		uint8_t parent_bus = 0;
-		uint8_t parent_device = 0;
-
-		if (!p->adapter_table->fpgaUpdateProperties)
-			continue;
-
-		res = p->adapter_table->fpgaUpdateProperties(
-				p->opae_token, parent_props);
-		if (res != FPGA_OK)
-			goto out_unlock;
-
-		if (fpgaPropertiesGetSegment(parent_props, &parent_segment) ||
-		    fpgaPropertiesGetBus(parent_props, &parent_bus) ||
-		    fpgaPropertiesGetDevice(parent_props, &parent_device) ||
-		    fpgaPropertiesGetObjectType(parent_props, &parent_type) ||
-		    (parent_type == FPGA_ACCELERATOR)) {
-			// FPGA_ACCELERATOR can't be parent.
-			continue;
-		}
-
-		// p->token (the candidate parent) is an FPGA_DEVICE.
-		// We check to see whether the segment, bus, and device
-		// of the PCIe address match, ignoring the function, because
-		// Virtual Functions will have a non-zero function field.
-		// The Physical Function's function field will be 0.
-		if ((parent_segment == child_segment) &&
-		    (parent_bus == child_bus) &&
-		    (parent_device == child_device)) {
-			parent = p;
-			opae_upref_wrapped_token(parent);
-			break;
-		}
-	}
-
-out_unlock:
-	opae_mutex_unlock(mres, &token_list_lock);
-out_destroy_props:
-	fpgaDestroyProperties((fpga_properties *)&parent_props);
-out_destroy_child_props:
-	fpgaDestroyProperties((fpga_properties *)&child_props);
-	return parent;
-}
-
 fpga_result __OPAE_API__ fpgaGetPropertiesFromHandle(fpga_handle handle,
 					fpga_properties *prop)
 {
@@ -403,7 +218,6 @@ fpga_result __OPAE_API__ fpgaGetPropertiesFromHandle(fpga_handle handle,
 	opae_wrapped_handle *wrapped_handle =
 		opae_validate_wrapped_handle(handle);
 	struct _fpga_properties *p;
-	opae_wrapped_token *wrapped_parent;
 	int err;
 
 	ASSERT_NOT_NULL(wrapped_handle);
@@ -417,13 +231,25 @@ fpga_result __OPAE_API__ fpgaGetPropertiesFromHandle(fpga_handle handle,
 
 	ASSERT_RESULT(res);
 
+	// If the output properties has a parent token set,
+	// then it will be a raw token. We need to wrap it.
+
 	p = opae_validate_and_lock_properties(*prop);
+
 	ASSERT_NOT_NULL(p);
 
-	wrapped_parent = opae_get_parent_token(wrapped_handle->wrapped_token);
-	if (wrapped_parent) {
-		SET_FIELD_VALID(p, FPGA_PROPERTY_PARENT);
-		p->parent = wrapped_parent;
+	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)) {
+		opae_wrapped_token *wrapped_parent =
+			opae_allocate_wrapped_token(
+				p->parent, wrapped_handle->adapter_table);
+
+		if (wrapped_parent) {
+			p->parent = wrapped_parent;
+			p->flags |= OPAE_PROPERTIES_FLAG_PARENT_ALLOC;
+		} else {
+			OPAE_ERR("malloc failed");
+			res = FPGA_NO_MEMORY;
+		}
 	}
 
 	opae_mutex_unlock(err, &p->lock);
@@ -453,7 +279,6 @@ fpga_result __OPAE_API__ fpgaGetProperties(fpga_token token,
 
 	} else {
 		struct _fpga_properties *p;
-		opae_wrapped_token *wrapped_parent;
 		int err;
 
 		ASSERT_NOT_NULL(wrapped_token);
@@ -467,13 +292,26 @@ fpga_result __OPAE_API__ fpgaGetProperties(fpga_token token,
 
 		ASSERT_RESULT(res);
 
+		// If the output properties has a parent token set,
+		// then it will be a raw token. We need to wrap it.
+
 		p = opae_validate_and_lock_properties(*prop);
+
 		ASSERT_NOT_NULL(p);
 
-		wrapped_parent = opae_get_parent_token(wrapped_token);
-		if (wrapped_parent) {
-			SET_FIELD_VALID(p, FPGA_PROPERTY_PARENT);
-			p->parent = wrapped_parent;
+		if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)) {
+			opae_wrapped_token *wrapped_parent =
+				opae_allocate_wrapped_token(
+					p->parent,
+					wrapped_token->adapter_table);
+
+			if (wrapped_parent) {
+				p->parent = wrapped_parent;
+				p->flags |= OPAE_PROPERTIES_FLAG_PARENT_ALLOC;
+			} else {
+				OPAE_ERR("malloc failed");
+				res = FPGA_NO_MEMORY;
+			}
 		}
 
 		opae_mutex_unlock(err, &p->lock);
@@ -497,19 +335,18 @@ fpga_result __OPAE_API__ fpgaUpdateProperties(fpga_token token,
 		FPGA_NOT_SUPPORTED);
 
 	// If the input properties already has a parent token
-	// set, then it will be wrapped.
+	// set, then it will be wrapped. If we allocated the wrapper,
+	// Save the wrapper, and reuse it below.
 
 	p = opae_validate_and_lock_properties(prop);
 
 	ASSERT_NOT_NULL(p);
 
-	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)) {
+	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)
+	    && (p->flags & OPAE_PROPERTIES_FLAG_PARENT_ALLOC)) {
 		wrapped_parent = opae_validate_wrapped_token(p->parent);
-		if (wrapped_parent) {
-			opae_destroy_wrapped_token(wrapped_parent);
-		}
-		CLEAR_FIELD_VALID(p, FPGA_PROPERTY_PARENT);
-		p->parent = NULL;
+		if (wrapped_parent)
+			p->parent = wrapped_parent->opae_token;
 	}
 
 	res = wrapped_token->adapter_table->fpgaUpdateProperties(
@@ -520,11 +357,32 @@ fpga_result __OPAE_API__ fpgaUpdateProperties(fpga_token token,
 		return res;
 	}
 
-	wrapped_parent = opae_get_parent_token(wrapped_token);
-	if (wrapped_parent) {
-		SET_FIELD_VALID(p, FPGA_PROPERTY_PARENT);
-		p->parent = wrapped_parent;
-	}
+	// If the output properties has a parent token set,
+	// then it will be a raw token. We need to wrap it.
+
+	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)) {
+		if (!wrapped_parent) {
+			// We need to allocate a wrapper.
+			wrapped_parent = opae_allocate_wrapped_token(
+				p->parent, wrapped_token->adapter_table);
+
+			if (wrapped_parent) {
+				p->parent = wrapped_parent;
+				p->flags |= OPAE_PROPERTIES_FLAG_PARENT_ALLOC;
+			} else {
+				OPAE_ERR("malloc failed");
+				res = FPGA_NO_MEMORY;
+			}
+		} else {
+			// We are re-using the wrapper from above.
+			wrapped_parent->opae_token = p->parent;
+			wrapped_parent->adapter_table =
+				wrapped_token->adapter_table;
+			p->parent = wrapped_parent;
+			p->flags |= OPAE_PROPERTIES_FLAG_PARENT_ALLOC;
+		}
+	} else if (wrapped_parent)
+		opae_destroy_wrapped_token(wrapped_parent);
 
 	opae_mutex_unlock(err, &p->lock);
 
@@ -879,15 +737,21 @@ fpga_result __OPAE_API__ fpgaCloneToken(fpga_token src, fpga_token *dst)
 
 fpga_result __OPAE_API__ fpgaDestroyToken(fpga_token *token)
 {
-	fpga_result res = FPGA_INVALID_PARAM;
+	fpga_result res;
 	opae_wrapped_token *wrapped_token;
 
 	ASSERT_NOT_NULL(token);
 
 	wrapped_token = opae_validate_wrapped_token(*token);
 
-	if (wrapped_token)
-		res = opae_destroy_wrapped_token(wrapped_token);
+	ASSERT_NOT_NULL(wrapped_token);
+	ASSERT_NOT_NULL_RESULT(wrapped_token->adapter_table->fpgaDestroyToken,
+			       FPGA_NOT_SUPPORTED);
+
+	res = wrapped_token->adapter_table->fpgaDestroyToken(
+		&wrapped_token->opae_token);
+
+	opae_destroy_wrapped_token(wrapped_token);
 
 	return res;
 }

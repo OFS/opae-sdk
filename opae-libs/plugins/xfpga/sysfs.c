@@ -93,7 +93,7 @@ static sysfs_formats sysfs_path_table[OPAE_KERNEL_DRIVERS] = {
 	 .sysfs_port_err = "errors/errors",
 	 .sysfs_port_err_clear = "errors/errors",
 	 .sysfs_bmc_glob = "avmmi-bmc.*/bmc_info",
-	 .sysfs_max10_glob = "dfl*/*spi*/*spi*/*spi*"
+	 .sysfs_max10_glob = "dfl*/*spi*/spi_master/spi*/spi*.*"
 	},
 	// intel driver sysfs formats
 	{.sysfs_class_path = "/sys/class/fpga",
@@ -474,7 +474,7 @@ STATIC int find_regions(sysfs_fpga_device *device)
 	if (dir)
 		closedir(dir);
 	if (!device->fme && !device->port) {
-		OPAE_DBG("did not find fme/port in device: %s", device->sysfs_path);
+		OPAE_ERR("did not find fme/port in device: %s", device->sysfs_path);
 		return FPGA_NOT_FOUND;
 	}
 
@@ -1695,7 +1695,6 @@ enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id)
 		case 0x0b2b: /* FALLTHROUGH */
 		case 0x0b2c:
 		case 0xaf00:
-		case 0xbcce:
 			hw_type = FPGA_HW_DCP_D5005;
 		break;
 
@@ -1706,19 +1705,6 @@ enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id)
 
 		default:
 			OPAE_ERR("unknown device id: 0x%04x", device_id);
-		}
-
-	} else if (vendor_id == 0x1c2c) { /* Silicom Denmark */
-
-		switch (device_id) {
-		case 0x1000: /* Lightning Creek */
-			hw_type = FPGA_HW_DCP_N5010;
-		break;
-		case 0x1001: /* Lightning Creek featuring E810 Adapter */
-			hw_type = FPGA_HW_DCP_N5011;
-		break;
-		default:
-			OPAE_ERR("unknown Silicom device id: 0x%04x", device_id);
 		}
 
 	} else {
@@ -2308,6 +2294,7 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 			      fpga_object *object, int flags,
 			      fpga_handle handle)
 {
+	uint64_t pg_size = (uint64_t)sysconf(_SC_PAGE_SIZE);
 	struct _fpga_object *obj = NULL;
 	struct stat objstat;
 	int statres;
@@ -2315,21 +2302,65 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	char *object_paths[MAX_SYSOBJECT_GLOB] = { NULL };
 	size_t found = 0;
 	size_t len;
+	int resurse_depth = MAX_SYSOBJECT_GLOB_RESURSIVE_DEPTH;
+	char pattern[SYSFS_PATH_MAX] = { 0 };
 	char full_path[SYSFS_PATH_MAX] = { 0 };
+	char prefix_path[SYSFS_PATH_MAX] = { 0 };
 
 	if (flags & FPGA_OBJECT_GLOB) {
 
 		// Check "**"recursive pattern in sysfs path
 		if (strstr(sysfspath, "/**/")) {
-			res = find_glob_path(sysfspath, full_path);
-			if (res != FPGA_OK) {
-				OPAE_ERR("Invalid recursive input path");
-				return res;
+			char *p = strstr(sysfspath, "/**/");
+			if (p == NULL)
+				return FPGA_INVALID_PARAM;
+
+			// search for multipule pattern "/**/"
+			char *ptr = p;
+			while (ptr != NULL) {
+				ptr++;
+				found++;
+				if (found > 1) {
+					return FPGA_INVALID_PARAM;
+				}
+				ptr = strstr(ptr, "/**/");
 			}
-			len = strnlen(full_path, SYSFS_PATH_MAX - 1);
-			memcpy(sysfspath, full_path, len);
-			sysfspath[len] = '\0';
-		} // end
+			found = 0;
+
+			// Prefix substring
+			strncpy(prefix_path, sysfspath, p - sysfspath);
+			*(prefix_path + (p - sysfspath)) = '\0';
+
+			// while loop depth 5
+			while (resurse_depth) {
+				memset(full_path, 0, sizeof(full_path));
+				len = strnlen(pattern, SYSFS_PATH_MAX - 1);
+				strncat(pattern, "*/", SYSFS_PATH_MAX - len);
+
+				if (snprintf(full_path, SYSFS_PATH_MAX,
+					"%s%s%s", prefix_path, pattern, p + 4) < 0) {
+					OPAE_ERR("snprintf buffer overflow");
+					return FPGA_EXCEPTION;
+				}
+
+				res = opae_glob_paths(full_path, MAX_SYSOBJECT_GLOB,
+					object_paths, &found);
+
+				resurse_depth--;
+
+				if (res) {
+					continue;
+				}
+
+				if (found > 0) {
+					len = strnlen(object_paths[0], SYSFS_PATH_MAX - 1);
+					memcpy(sysfspath, object_paths[0], len);
+					sysfspath[len] = '\0';
+					break;
+				}
+
+			} // end
+		}
 
 		res = opae_glob_paths(sysfspath, MAX_SYSOBJECT_GLOB,
 				      object_paths, &found);
@@ -2382,8 +2413,8 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	}
 	obj->handle = handle;
 	obj->type = FPGA_SYSFS_FILE;
-	obj->buffer = calloc(objstat.st_size, sizeof(uint8_t));
-	obj->max_size = objstat.st_size;
+	obj->buffer = calloc(pg_size, sizeof(uint8_t));
+	obj->max_size = pg_size;
 	if (handle && (objstat.st_mode & (S_IWUSR | S_IWGRP | S_IWOTH))) {
 		if ((objstat.st_mode & (S_IRUSR | S_IRGRP | S_IROTH))) {
 			obj->perm = O_RDWR;
@@ -2403,84 +2434,5 @@ out_free:
 
 
 	free(obj);
-	return res;
-}
-
-
-fpga_result find_glob_path(const char *sysfspath, char *path)
-{
-	int resurse_depth = MAX_SYSOBJECT_GLOB_RESURSIVE_DEPTH;
-	char pattern[SYSFS_PATH_MAX] = { 0 };
-	char full_path[SYSFS_PATH_MAX] = { 0 };
-	char prefix_path[SYSFS_PATH_MAX] = { 0 };
-	char *object_paths[MAX_SYSOBJECT_GLOB] = { NULL };
-	fpga_result res = FPGA_OK;
-	size_t found = 0;
-	size_t len = 0;
-
-	if (sysfspath == NULL ||
-		path == NULL) {
-		OPAE_ERR("Invalid Input parameters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	if (strstr(sysfspath, "/**/")) {
-		char *p = strstr(sysfspath, "/**/");
-		if (p == NULL)
-			return FPGA_INVALID_PARAM;
-
-		// search for multipule pattern "/**/"
-		char *ptr = p;
-		while (ptr != NULL) {
-			ptr++;
-			found++;
-			if (found > 1) {
-				return FPGA_INVALID_PARAM;
-			}
-			ptr = strstr(ptr, "/**/");
-		}
-		found = 0;
-
-		// Prefix substring
-		memcpy(prefix_path, sysfspath, p - sysfspath);
-		*(prefix_path + (p - sysfspath)) = '\0';
-
-		// while loop depth 5
-		while (resurse_depth) {
-			memset(full_path, 0, sizeof(full_path));
-			len = strnlen(pattern, SYSFS_PATH_MAX - 1);
-			strncat(pattern, "*/", SYSFS_PATH_MAX - len);
-
-			if (snprintf(full_path, SYSFS_PATH_MAX,
-				"%s%s%s", prefix_path, pattern, p + 4) < 0) {
-				OPAE_ERR("snprintf buffer overflow");
-				return FPGA_EXCEPTION;
-			}
-
-			res = opae_glob_paths(full_path, MAX_SYSOBJECT_GLOB,
-				object_paths, &found);
-
-			resurse_depth--;
-
-			if (res) {
-				continue;
-			}
-
-			if (found > 0) {
-				len = strnlen(object_paths[0], SYSFS_PATH_MAX - 1);
-				memcpy(path, object_paths[0], len);
-				path[len] = '\0';
-				break;
-			}
-
-		} // end
-
-		while (found) {
-			free(object_paths[--found]);
-		}
-	} else {
-		return FPGA_NOT_FOUND;
-	}
-
 	return res;
 }

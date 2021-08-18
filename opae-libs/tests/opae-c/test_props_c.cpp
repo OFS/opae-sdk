@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -85,9 +85,6 @@ class properties_c_p : public ::testing::TestWithParam<std::string> {
     }
     fpgaFinalize();
     system_->finalize();
-#ifdef LIBOPAE_DEBUG
-    EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
-#endif // LIBOPAE_DEBUG
   }
 
   std::array<fpga_token, 2> tokens_device_;
@@ -129,11 +126,6 @@ TEST_P(properties_c_p, get_parent01) {
   auto _prop = (_fpga_properties*)prop;
   SET_FIELD_VALID(_prop, FPGA_PROPERTY_PARENT);
   _prop->parent = toks[0];
-  // Wrapped tokens are ref counted now, so the call to
-  // fpgaDestroyProperties(&prop) below will decrement
-  // the wrapped token's ref count. Bump it up one here
-  // to match.
-  opae_upref_wrapped_token((opae_wrapped_token *)_prop->parent);
 
   // now get the parent token from the prop structure
   EXPECT_EQ(fpgaPropertiesGetParent(prop, &parent), FPGA_OK);
@@ -148,6 +140,7 @@ TEST_P(properties_c_p, get_parent01) {
   EXPECT_EQ(fpgaDestroyProperties(&p2), FPGA_OK);
   EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 
+  EXPECT_EQ(fpgaDestroyToken(&parent), FPGA_OK);
   for (auto &t : toks) {
     if (t) {
       EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
@@ -208,7 +201,6 @@ TEST_P(properties_c_p, set_parent01) {
 
   // now get the parent token from the prop structure
   EXPECT_EQ(fpgaPropertiesSetParent(prop, toks[0]), FPGA_OK);
-
   // now get the parent token from the prop structure
   EXPECT_EQ(fpgaPropertiesGetParent(prop, &parent), FPGA_OK);
   // GetParent clones the token so compare object_id of the two
@@ -222,6 +214,7 @@ TEST_P(properties_c_p, set_parent01) {
   EXPECT_EQ(fpgaDestroyProperties(&p2), FPGA_OK);
   EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 
+  EXPECT_EQ(fpgaDestroyToken(&parent), FPGA_OK);
   for (auto &t : toks) {
     if (t) {
       EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
@@ -3361,6 +3354,20 @@ class properties_c_mock_p : public properties_c_p{
 };
 
 /**
+ * @test    from_handle02
+ * @brief   Tests: fpgaGetPropertiesFromHandle
+ * @details When the call to opae_allocate_wrapped_token() fails<br>
+ *          fpgaGetPropertiesFromHandle returns FPGA_NO_MEMORY<br>
+ */
+TEST_P(properties_c_mock_p, from_handle02) {
+  fpga_properties props = nullptr;
+  // Invalidate the allocation of the wrapped token.
+  system_->invalidate_malloc(0, "opae_allocate_wrapped_token");
+  EXPECT_EQ(fpgaGetPropertiesFromHandle(accel_, &props), FPGA_NO_MEMORY);
+  EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
+}
+
+/**
  * @test    from_token01
  * @brief   Tests: fpgaGetProperties
  * @details When the input token is NULL<br>
@@ -3375,13 +3382,28 @@ TEST_P(properties_c_mock_p, from_token01) {
 }
 
 /**
+ * @test    from_token02
+ * @brief   Tests: fpgaGetProperties
+ * @details When the input token is valid<br>
+ *          and the call to opae_allocate_wrapped_token() fails,<br>
+ *          fpgaGetProperties returns FPGA_NO_MEMORY<br>
+ */
+TEST_P(properties_c_mock_p, from_token02) {
+  fpga_properties props = nullptr;
+  // Invalidate the allocation of the wrapped token.
+  system_->invalidate_malloc(0, "opae_allocate_wrapped_token");
+  EXPECT_EQ(fpgaGetProperties(tokens_accel_[0], &props), FPGA_NO_MEMORY);
+  EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
+}
+
+/**
  * @test    update02
  * @brief   Tests: fpgaUpdateProperties
  * @details When the resulting properties object has a parent token set,<br>
  *          but malloc fails during wrapper allocation,<br>
  *          fpgaUpdateProperties returns FPGA_NO_MEMORY.<br>
  */
-TEST_P(properties_c_mock_p, DISABLED_update02) {
+TEST_P(properties_c_mock_p, update02) {
   fpga_properties props = nullptr;
   ASSERT_EQ(fpgaGetProperties(NULL, &props), FPGA_OK);
   system_->invalidate_malloc(0, "opae_allocate_wrapped_token");

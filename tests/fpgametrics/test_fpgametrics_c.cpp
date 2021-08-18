@@ -257,4 +257,4 @@ TEST_P(fpga_metrics_c_p, main2) {
 }
 
 INSTANTIATE_TEST_CASE_P(fpgametrics_c, fpga_metrics_c_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000" })));
+                        ::testing::ValuesIn(test_platform::mock_platforms({"dfl-d5005","dfl-n3000"})));

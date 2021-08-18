@@ -294,11 +294,7 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 			       error_value);
 
 			res = get_error_revision(token, &revision);
-			if (res == FPGA_NOT_FOUND) {
-				//Todo : fpga-upstream-dev branch remove the revision sysfs node.
-				//if we check the revision is not present, we use the default value
-				revision = 0;
-			} else if (res != FPGA_OK) {
+			if (res != FPGA_OK) {
 				OPAE_ERR("could not find FME error revision - skipping decode\n");
 				continue;
 			}
@@ -321,11 +317,7 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 			       error_value);
 
 			res = get_error_revision(token, &revision);
-			if (res == FPGA_NOT_FOUND) {
-				//Todo : fpga-upstream-dev branch remove the revision sysfs node.
-				//if we check the revision is not present, we use the default value
-				revision = 0;
-			} else if (res != FPGA_OK) {
+			if (res != FPGA_OK) {
 				OPAE_ERR("could not find port error revision - skipping decode\n");
 				continue;
 			}
@@ -357,8 +349,9 @@ fpga_result errors_command(fpga_token *tokens, int num_tokens, int argc,
 		res = fpgaGetProperties(tokens[i], &props);
 		if (res == FPGA_OK) {
 			res = fpgaPropertiesGetNumErrors(props, &num_errors);
+			fpgainfo_print_err("reading errors from properties", res);
 
-			if ((res == FPGA_OK) && (num_errors != 0)) {
+			if (num_errors != 0) {
 				int j;
 				errinfos = (struct fpga_error_info *)calloc(
 					num_errors, sizeof(*errinfos));
@@ -378,13 +371,11 @@ fpga_result errors_command(fpga_token *tokens, int num_tokens, int argc,
 						    strnlen(errinfos[j].name, 4096));
 					upcase_first(errinfos[j].name);
 				}
-
-				print_errors_info(tokens[i], props, errinfos, num_errors);
 			}
 
+			print_errors_info(tokens[i], props, errinfos, num_errors);
 		destroy_and_free:
-			if (errinfos)
-				free(errinfos);
+			free(errinfos);
 			errinfos = NULL;
 			fpgaDestroyProperties(&props);
 			if (res == FPGA_NO_MEMORY) {

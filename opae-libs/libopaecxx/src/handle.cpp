@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -122,11 +122,6 @@ uint8_t *handle::mmio_ptr(uint64_t offset, uint32_t csr_space) const {
 
   ASSERT_FPGA_OK(res);
   return base + offset;
-}
-
-token::ptr_t handle::get_token() const {
-  token::ptr_t p(new token(token_));
-  return p;
 }
 
 }  // end of namespace types

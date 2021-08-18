@@ -1,9 +1,7 @@
-%define         opae_release 1
-
 Summary:        Open Programmable Acceleration Engine (OPAE) SDK
 Name:           opae
 Version:        2.0.1
-Release:        %{opae_release}%{?dist}
+Release:        1%{?dist}
 License:        BSD
 ExclusiveArch:  x86_64
 
@@ -11,32 +9,27 @@ Group:          Development/Libraries
 Vendor:         Intel Corporation
 Requires:       uuid, json-c, python3
 URL:            https://github.com/OPAE/%{name}-sdk
-Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-%{opae_release}/%{name}-%{version}-%{opae_release}.tar.gz
+Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-%{Release}/%{name}-%{version}.tar.gz
 
 
 
 BuildRequires:  gcc, gcc-c++
 BuildRequires:  cmake
-BuildRequires:  cli11-devel
 BuildRequires:  python3-devel
 BuildRequires:  json-c-devel
 BuildRequires:  libuuid-devel
 BuildRequires:  rpm-build
 BuildRequires:  hwloc-devel
+BuildRequires:  python3-sphinx
 BuildRequires:  doxygen
 BuildRequires:  systemd
 BuildRequires:  pybind11-devel
 BuildRequires:  python3-setuptools
-BuildRequires:  spdlog-devel
 BuildRequires:  tbb-devel
 BuildRequires:  git
-BuildRequires:  python3-jsonschema
 BuildRequires:  python3-pip
 BuildRequires:  python3-virtualenv
-BuildRequires:  systemd-devel
-BuildRequires:  libcap-devel
-BuildRequires:  libudev-devel
-
+BuildRequires:  systemd-rpm-macros
 
 %description
 Open Programmable Acceleration Engine (OPAE) is a software framework
@@ -64,20 +57,21 @@ OPAE headers, tools, sample source, and documentation
 
 
 %{?python_disable_dependency_generator}
-# Workaround a problem with pybind11 *.so not having build-id's
-%undefine _missing_build_ids_terminate_build
 
 
 %prep
-%setup -q -n %{name}-%{version}-%{opae_release}
+%setup -q -n %{name}-%{version}
 
 %build
-%cmake -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_PRESERVE_REPOS=ON -DOPAE_BUILD_LEGACY=ON -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=ON .
-%if 0%{?rhel}
-  %make_build
-%else
-  %cmake_build
-%endif
+rm -rf _build
+mkdir _build
+cd _build
+
+%cmake .. -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_PRESERVE_REPOS=ON -DOPAE_BUILD_LEGACY=ON -DOPAE_BUILD_SAMPLES=ON -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=ON -B $PWD
+
+%make_build 
+
+
 
 
 %install
@@ -88,12 +82,16 @@ cp COPYING %{buildroot}%{_datadir}/opae/COPYING
 
 mkdir -p %{buildroot}%{_usr}/src/opae/cmake/modules
 
+for s in FindSphinx.cmake
+do
+  cp "cmake/${s}" %{buildroot}%{_usr}/src/opae/cmake/
+done
+
+
 mkdir -p %{buildroot}%{_usr}/src/opae/opae-libs/cmake/modules
 for s in FindHwloc.cmake \
          OPAE.cmake \
          FindUUID.cmake \
-         FindCap.cmake \
-         FindUdev.cmake \
          Findjson-c.cmake \
          OPAECompiler.cmake \
          OPAEGit.cmake \
@@ -107,42 +105,63 @@ mkdir -p %{buildroot}%{_usr}/src/opae/samples
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_fpga/
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_events/
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/object_api/
-mkdir -p %{buildroot}%{_usr}/src/opae/samples/n5010-ddr-test/
 
 
 cp samples/hello_fpga/hello_fpga.c %{buildroot}%{_usr}/src/opae/samples/hello_fpga/
 cp samples/hello_events/hello_events.c %{buildroot}%{_usr}/src/opae/samples/hello_events/
 cp samples/object_api/object_api.c %{buildroot}%{_usr}/src/opae/samples/object_api/
-cp samples/n5010-ddr-test/n5010-ddr-test.c %{buildroot}%{_usr}/src/opae/samples/n5010-ddr-test/
 
-%if 0%{?rhel}
-  %make_install
-%else
-  %cmake_install
-%endif
+
+cd _build
+
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaeclib -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxcorelib -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=samples -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaetoolslibs -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgainfo -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgaconf -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=tooluserclk -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolmmlink -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=samplebin -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=libopaeheaders -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolpackager -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=jsonschema -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolmmlink -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaeboardlib -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgametrics -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolbist_app -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpga_dma_test -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpga_dma_N3000_test -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgabist -P cmake_install.cmake
+
+
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxutils -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=opaecxxnlb -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgadiagapps -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgadiag -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad_api -P cmake_install.cmake
+DESTDIR=%{buildroot}  cmake -DCOMPONENT=toolfpgad_vc -P cmake_install.cmake
 
 prev=$PWD
-pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/opae.admin/
+pushd %{_topdir}/BUILD/%{name}-%{version}/python/opae.admin/
 %{__python3} setup.py install --single-version-externally-managed  --root=%{buildroot} 
 popd
 
-pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/pacsign
+pushd %{_topdir}/BUILD/%{name}-%{version}/python/pacsign
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} 
 popd
 
-# Make rpmlint happy about install permissions
-# admin tools
-for file in %{buildroot}%{python3_sitelib}/opae/admin/tools/{fpgaflash,fpgaotsu,fpgaport,fpgasupdate,ihex2ipmi,rsu,super_rsu,bitstream_info,opaevfio,pci_device}.py; do
+pushd %{_topdir}/BUILD/%{name}-%{version}/scripts
+install -m 755 eth_group_mdev.sh %{buildroot}/usr/bin/eth_group_mdev.sh
+popd
+
+
+
+for file in %{buildroot}%{python3_sitelib}/opae/admin/tools/{fpgaflash,fpgaotsu,fpgaport,fpgasupdate,ihex2ipmi,rsu,super_rsu,bitstream_info}.py; do
    chmod a+x $file
 done
-# ethernet
-for file in %{buildroot}%{python3_sitelib}/ethernet/{hssicommon,hssiloopback,hssimac,hssistats}.py; do
-   chmod a+x $file
-done
-# diag
-for file in %{buildroot}%{python3_sitearch}/opae/diag/{common,fecmode,fpgadiag,fpgalpbk,fpgamac,fpgastats,fvlbypass,mactest,mux}.py; do
-   chmod a+x $file
-done
+
 
 %files
 %dir %{_datadir}/opae
@@ -158,10 +177,7 @@ done
 %{_libdir}/libfpgad-api.so.*
 %{_libdir}/libmml-srv.so.*
 %{_libdir}/libmml-stream.so.*
-%{_libdir}/libofs.so.*
-%{_libdir}/libopaemem.so.*
-%{_libdir}/libopaeuio.so.*
-%{_libdir}/libopaevfio.so.*
+
 
 %post devel
 %systemd_post fpgad.service
@@ -172,68 +188,53 @@ done
 
 %files devel
 %dir %{_includedir}/opae
-%{_includedir}/opae/*.h
-%{_includedir}/opae/cxx/core.h
-%{_includedir}/opae/cxx/core/*.h
+%{_includedir}/opae/*
 %dir %{_usr}/src/opae
 %{_usr}/src/opae/samples/hello_fpga/hello_fpga.c
 %{_usr}/src/opae/samples/hello_events/hello_events.c
 %{_usr}/src/opae/samples/object_api/object_api.c
-%{_usr}/src/opae/samples/n5010-ddr-test/n5010-ddr-test.c
 %{_usr}/src/opae/cmake/*
 %{_usr}/src/opae/opae-libs/cmake/modules/*
-%{_usr}/src/opae/argsfilter/argsfilter.c
-%{_usr}/src/opae/argsfilter/argsfilter.h
 
-%{_libdir}/opae/libboard_a10gx.so
-%{_libdir}/opae/libboard_n3000.so
-%{_libdir}/opae/libboard_d5005.so
-%{_libdir}/opae/libboard_n5010.so
-%{_libdir}/opae/libboard_n6010.so
-%{_libdir}/opae/libfpgad-xfpga.so
-%{_libdir}/opae/libopae-v.so
+%{_libdir}/opae/libboard_a10gx.so*
+%{_libdir}/opae/libboard_n3000.so*
+%{_libdir}/opae/libboard_d5005.so*
+%{_libdir}/opae/libboard_n5010.so*
 %{_libdir}/libopae-c++-nlb.so
 %{_libdir}/libopae-cxx-core.so
 %{_libdir}/libopae-c++-utils.so
 %{_libdir}/libopae-c.so
 %{_libdir}/libbitstream.so
 %{_libdir}/libfpgad-api.so
-%{_libdir}/libfpgaperf_counter.so
 %{_libdir}/libmml-stream.so
 %{_libdir}/libmml-srv.so
-%{_libdir}/libofs.so
-%{_libdir}/libofs_cpeng.so
-%{_libdir}/libopaemem.so
-%{_libdir}/libopaeuio.so
-%{_libdir}/libopaevfio.so
 %{_libdir}/opae/libxfpga.so*
 %{_libdir}/opae/libmodbmc.so*
-%{_bindir}/bist_app
+%{_bindir}/bist_app*
 %{_bindir}/dummy_afu
-%{_bindir}/bist_app.py
-%{_bindir}/bist_common.py
-%{_bindir}/bist_dma.py
-%{_bindir}/bist_def.py
-%{_bindir}/bist_nlb3.py
-%{_bindir}/bist_nlb0.py
-%{_bindir}/fpgabist
-%{_bindir}/nlb0
-%{_bindir}/nlb3
-%{_bindir}/nlb7
-%{_bindir}/fecmode
-%{_bindir}/fpgamac
-%{_bindir}/fvlbypass
-%{_bindir}/mactest
-%{_bindir}/fpgadiag
-%{_bindir}/fpgalpbk
-%{_bindir}/fpgastats
-%{_bindir}/bitstreaminfo
-%{_bindir}/fpgaflash
-%{_bindir}/fpgaotsu
-%{_bindir}/fpgaport
-%{_bindir}/fpgasupdate
-%{_bindir}/rsu
-%{_bindir}/super-rsu
+%{_bindir}/bist_common.py*
+%{_bindir}/bist_dma.py*
+%{_bindir}/bist_def.py*
+%{_bindir}/bist_nlb3.py*
+%{_bindir}/bist_nlb0.py*
+%{_bindir}/fpgabist*
+%{_bindir}/nlb0*
+%{_bindir}/nlb3*
+%{_bindir}/nlb7*
+%{_bindir}/fecmode*
+%{_bindir}/fpgamac*
+%{_bindir}/fvlbypass*
+%{_bindir}/mactest*
+%{_bindir}/fpgadiag*
+%{_bindir}/fpgalpbk*
+%{_bindir}/fpgastats*
+%{_bindir}/bitstreaminfo*
+%{_bindir}/fpgaflash*
+%{_bindir}/fpgaotsu*
+%{_bindir}/fpgaport*
+%{_bindir}/fpgasupdate*
+%{_bindir}/rsu*
+%{_bindir}/super-rsu*
 %{_bindir}/fpgaconf
 %{_bindir}/fpgainfo
 %{_bindir}/mmlink
@@ -247,41 +248,22 @@ done
 %{_bindir}/fpgametrics
 %{_bindir}/fpga_dma_N3000_test
 %{_bindir}/fpga_dma_test
-%{_bindir}/n5010-ddr-test
-%{_bindir}/PACSign
-%{_bindir}/fpgad
-%{_bindir}/host_exerciser
-%{_bindir}/opaevfio
-%{_bindir}/opaevfiotest
-%{_bindir}/pci_device
-%{_bindir}/regmap-debugfs
-%{_bindir}/afu_platform_config
-%{_bindir}/afu_platform_info
-%{_bindir}/afu_synth_setup
-%{_bindir}/bist
-%{_bindir}/hps
-%{_bindir}/hssi
-%{_bindir}/hssiloopback
-%{_bindir}/hssimac
-%{_bindir}/hssistats
-%{_bindir}/opae.io
-%{_bindir}/opaeuiotest
-%{_bindir}/pac_hssi_config.py
-%{_bindir}/rtl_src_config
+%{_bindir}/PACSign*
+%{_bindir}/fpgad*
+%{_bindir}/host_exerciser*
+%{_bindir}/opaevfio*
+%{_bindir}/pci_device*
+%{_bindir}/regmap-debugfs*
 
 %config(noreplace) %{_sysconfdir}/opae/fpgad.cfg*
 %config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
 %{_unitdir}/fpgad.service
 %{_libdir}/opae/libfpgad-vc.so*
+%{_bindir}/eth_group_mdev.sh
 %{_usr}/share/opae/*
 %{_datadir}/doc/opae.admin/LICENSE
-%{python3_sitelib}/ethernet*
-%{python3_sitelib}/hssi_ethernet*
 %{python3_sitelib}/opae*
 %{python3_sitelib}/pacsign*
-%{python3_sitearch}/libvfio*
-%{python3_sitearch}/opae*
-%{python3_sitearch}/pyopaeuio*
 # part of the jsonschema testsuite, do not deliver
 %exclude /usr/share/opae/python/jsonschema-2.3.0/json/bin/jsonschema_suite
 

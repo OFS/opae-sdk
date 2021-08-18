@@ -319,11 +319,8 @@ class feature(object):
             
 fpga_devices = {(0x8086, 0x09c4) : "Intel PAC A10 GX",
                 (0x8086, 0x09c5) : "Intel PAC A10 GX VF",
-                (0x8086, 0xbcce) : "Intel PAC D5005",
                 (0x8086, 0x0b2b) : "Intel PAC D5005",
                 (0x8086, 0x0b2c) : "Intel PAC D5005 VF",
-                (0x8086, 0xaf00) : "Intel PAC N6010",
-                (0x8086, 0xaf01) : "Intel PAC N6010 VF",
                 (0x8086, 0x0b30) : "Intel PAC N3000",
                 (0x8086, 0x0b31) : "Intel PAC N3000 VF"}
 

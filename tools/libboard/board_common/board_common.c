@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2021, Intel Corporation
+// Copyright(c) 2019-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -45,7 +45,7 @@
 
 #include "board_common.h"
 
-#define DFL_SYSFS_SEC_GLOB "*dfl*/*spi*/*spi*/*spi*/**/security/"
+#define DFL_SYSFS_SEC_GLOB "dfl*/*spi*/spi_master/spi*/spi*/**/security/"
 #define DFL_SYSFS_SEC_USER_FLASH_COUNT         DFL_SYSFS_SEC_GLOB "*flash_count"
 #define DFL_SYSFS_SEC_BMC_CANCEL               DFL_SYSFS_SEC_GLOB "bmc_canceled_csks"
 #define DFL_SYSFS_SEC_BMC_ROOT                 DFL_SYSFS_SEC_GLOB "bmc_root_entry_hash"
@@ -58,11 +58,6 @@
 #define ETHTOOL_STR              "ethtool"
 #define IFCONFIG_STR             "ifconfig"
 #define IFCONFIG_UP_STR          "up"
-
-#define SYSFS_FEATURE_ID "/sys/bus/pci/devices/*%x*:*%x*:*%x*.*%x*/"\
-			"fpga_region/region*/dfl-fme*/dfl_dev*/feature_id"
-
-#define FACTORY_BIT (1ULL << 36)
 
 // Read sysfs
 fpga_result read_sysfs(fpga_token token, char *sysfs_path,
@@ -325,225 +320,6 @@ fpga_result print_eth_interface_info(fpga_token token, const char *interface_nam
 
 out_free:
 		if_freenameindex(if_nidxs);
-	}
-
-	return res;
-}
-
-
-
-fpga_result sysfs_read_u64(const char *path, uint64_t *u)
-{
-	int fd = -1;
-	int res = 0;
-	char buf[SYSFS_PATH_MAX] = { 0 };
-	int b = 0;
-
-	if (!path || !u) {
-		OPAE_ERR("Invalid input path");
-		return FPGA_INVALID_PARAM;
-	}
-
-	fd = open(path, O_RDONLY);
-	if (fd < 0) {
-		OPAE_MSG("open(%s) failed", path);
-		return FPGA_NOT_FOUND;
-	}
-
-	if ((off_t)-1 == lseek(fd, 0, SEEK_SET)) {
-		OPAE_MSG("seek failed");
-		goto out_close;
-	}
-
-	do {
-		res = read(fd, buf + b, sizeof(buf) - b);
-		if (res <= 0) {
-			OPAE_MSG("Read from %s failed", path);
-			goto out_close;
-		}
-		b += res;
-		if (((unsigned)b > sizeof(buf)) || (b <= 0)) {
-			OPAE_MSG("Unexpected size reading from %s", path);
-			goto out_close;
-		}
-	} while (buf[b - 1] != '\n' && buf[b - 1] != '\0'
-		&& (unsigned)b < sizeof(buf));
-
-	// erase \n
-	buf[b - 1] = 0;
-
-	*u = strtoull(buf, NULL, 0);
-
-	close(fd);
-	return FPGA_OK;
-
-out_close:
-	close(fd);
-	return FPGA_NOT_FOUND;
-}
-
-
-fpga_result get_fpga_sbdf(fpga_token token,
-			uint16_t *segment,
-			uint8_t *bus,
-			uint8_t *device,
-			uint8_t *function)
-
-{
-	fpga_result res = FPGA_OK;
-	fpga_properties props = NULL;
-
-	if (!segment || !bus ||
-		!device || !function) {
-		OPAE_ERR("Invalid input parameters");
-		return FPGA_INVALID_PARAM;
-	}
-	res = fpgaGetProperties(token, &props);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get properties ");
-		return res;
-	}
-
-	res = fpgaPropertiesGetBus(props, bus);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get bus ");
-		return res;
-	}
-
-	res = fpgaPropertiesGetSegment(props, segment);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get Segment ");
-		return res;
-	}
-	res = fpgaPropertiesGetDevice(props, device);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get Device ");
-		return res;
-	}
-
-	res = fpgaPropertiesGetFunction(props, function);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get Function ");
-		return res;
-	}
-
-	return res;
-}
-
-
-fpga_result find_dev_feature(fpga_token token,
-	uint32_t feature_id,
-	char *dfl_dev_str)
-{
-	fpga_result res          = FPGA_NOT_FOUND;
-	fpga_result retval       = FPGA_OK;
-	int gres                 = 0;
-	size_t i                 = 0;
-	uint64_t value           = 0;
-	uint16_t segment         = 0;
-	uint8_t bus              = 0;
-	uint8_t device           = 0;
-	uint8_t function         = 0;
-	glob_t pglob;
-	char feature_path[SYSFS_PATH_MAX] = { 0 };
-
-	retval = get_fpga_sbdf(token, &segment, &bus, &device, &function);
-	if (retval != FPGA_OK) {
-		OPAE_ERR("Failed to get sbdf ");
-		return retval;
-	}
-
-	if (snprintf(feature_path, sizeof(feature_path),
-		SYSFS_FEATURE_ID,
-		segment, bus, device, function) < 0) {
-		OPAE_ERR("snprintf buffer overflow");
-		return FPGA_EXCEPTION;
-	}
-
-	gres = glob(feature_path, GLOB_NOSORT, NULL, &pglob);
-	if (gres) {
-		OPAE_ERR("Failed pattern match %s: %s",
-			feature_path, strerror(errno));
-		if (pglob.gl_pathv)
-			globfree(&pglob);
-		return FPGA_NOT_FOUND;
-	}
-	for (i = 0; i < pglob.gl_pathc; i++) {
-		retval = sysfs_read_u64(pglob.gl_pathv[i], &value);
-		if (retval != FPGA_OK) {
-			OPAE_MSG("Failed to read sysfs value");
-			continue;
-		}
-
-		if (value == feature_id) {
-			res = FPGA_OK;
-			if (dfl_dev_str) {
-				char *p = strstr(pglob.gl_pathv[i], "dfl_dev");
-				if (p == NULL) {
-					res = FPGA_NOT_FOUND;
-					goto free;
-				}
-
-				char *end = strchr(p, '/');
-				if (end == NULL) {
-					res = FPGA_NOT_FOUND;
-					goto free;
-				}
-				strncpy(dfl_dev_str, p, end - p);
-				*(dfl_dev_str + (end - p)) = '\0';
-
-			}
-			break;
-		}
-
-	}
-
-free:
-	if (pglob.gl_pathv)
-		globfree(&pglob);
-
-	return res;
-}
-
-//Prints fpga boot page info
-fpga_result print_common_boot_info(fpga_token token)
-{
-	fpga_properties props       = NULL;
-	fpga_result res             = FPGA_OK;
-	fpga_result retval          = FPGA_OK;
-	uint64_t bbs_id             = (uint64_t)-1;
-	fpga_objtype objtype;
-
-	res = fpgaGetProperties(token, &props);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get Properties ");
-		return res;
-	}
-
-	retval = fpgaPropertiesGetBBSID(props, &bbs_id);
-	if (retval != FPGA_OK) {
-		OPAE_ERR("Failed to get bbsid ");
-		res = retval;
-		goto pro_destroy;
-	}
-
-	retval = fpgaPropertiesGetObjectType(props, &objtype);
-	if (retval != FPGA_OK) {
-		OPAE_ERR("Failed to get object type ");
-		res = retval;
-		goto pro_destroy;
-	}
-
-	if (objtype == FPGA_DEVICE) {
-		printf("%-32s : %s\n", "Boot Page",
-			bbs_id & FACTORY_BIT ? "factory" : "user");
-	}
-
-pro_destroy:
-	retval = fpgaDestroyProperties(&props);
-	if (retval != FPGA_OK) {
-		OPAE_ERR("Failed to destroy Properties ");
-		res = retval;
 	}
 
 	return res;

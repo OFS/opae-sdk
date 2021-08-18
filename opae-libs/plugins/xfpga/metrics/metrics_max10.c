@@ -163,14 +163,12 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 	char group_sysfs[SYSFS_PATH_MAX]           = { 0, };
 	char qualifier_name[SYSFS_PATH_MAX]        = { 0, };
 	char metric_units[SYSFS_PATH_MAX]          = { 0, };
-	char glob_path[SYSFS_PATH_MAX]             = { 0, };
 	glob_t pglob;
 	size_t len;
 
 	if (_handle == NULL ||
 		vector == NULL ||
-		metric_num == NULL ||
-		hw_type == FPGA_HW_UNKNOWN) {
+		metric_num == NULL) {
 		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
@@ -182,18 +180,11 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 	}
 
 	// metrics group
-	if (snprintf(glob_path, sizeof(glob_path),
+	if (snprintf(sysfspath, sizeof(sysfspath),
 		"%s/%s", _token->sysfspath, DFL_MAX10_SYSFS_PATH) < 0) {
 		OPAE_ERR("snprintf failed");
 		return FPGA_EXCEPTION;
 	}
-
-	result = find_glob_path(glob_path, sysfspath);
-	if (result != FPGA_OK) {
-		OPAE_MSG("Failed to find sysfs path");
-		return result;
-	}
-
 
 	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if ((gres) || (1 != pglob.gl_pathc)) {
@@ -208,12 +199,11 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 	globfree(&pglob);
 
 	// Enum sensors
-	if (strlen(sysfspath) + sizeof(DFL_MAX10_SYSFS_LABEL) >= SYSFS_PATH_MAX) {
-		OPAE_ERR("Invalid sensor sysfs path length");
-		result = FPGA_EXCEPTION;
-		goto out;
+	if (snprintf(sysfspath, sizeof(sysfspath),
+		"%s/%s", _token->sysfspath, DFL_MAX10_SENSOR_SYSFS_PATH) < 0) {
+		OPAE_ERR("snprintf failed");
+		return FPGA_EXCEPTION;
 	}
-	strncat(sysfspath, DFL_MAX10_SYSFS_LABEL, strlen(DFL_MAX10_SYSFS_LABEL) + 1);
 
 	gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {

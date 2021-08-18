@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -94,9 +94,10 @@ fpga_result __OPAE_API__ fpgaDestroyProperties(fpga_properties *prop)
 
 	ASSERT_NOT_NULL(p);
 
-	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)) {
-		// If the parent token has a wrapper that we
-		// allocated, then free it.
+	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT) &&
+	    (p->flags & OPAE_PROPERTIES_FLAG_PARENT_ALLOC)) {
+		// The parent token has a wrapper that we allocated.
+		// Free it.
 		opae_wrapped_token *wrapped_token =
 			opae_validate_wrapped_token(p->parent);
 		if (wrapped_token)
@@ -142,13 +143,6 @@ fpga_result __OPAE_API__ fpgaCloneProperties(fpga_properties src,
 	*clone = *p;
 	clone->lock = save_lock;
 
-	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)) {
-		opae_wrapped_token *wrapped_token =
-			opae_validate_wrapped_token(p->parent);
-		if (wrapped_token)
-			opae_upref_wrapped_token(wrapped_token);
-	}
-
 	*dst = clone;
 
 	opae_mutex_unlock(err, &p->lock);
@@ -163,14 +157,6 @@ fpga_result __OPAE_API__ fpgaClearProperties(fpga_properties props)
 
 	ASSERT_NOT_NULL(p);
 
-	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)) {
-		opae_wrapped_token *wrapped_token =
-			opae_validate_wrapped_token(p->parent);
-		if (wrapped_token) {
-			opae_downref_wrapped_token(wrapped_token);
-			p->parent = NULL;
-		}
-	}
 	p->valid_fields = 0;
 
 	opae_mutex_unlock(err, &p->lock);
@@ -192,9 +178,11 @@ fpga_result __OPAE_API__ fpgaPropertiesGetParent(const fpga_properties prop,
 	ASSERT_NOT_NULL(p);
 
 	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)) {
-		*parent = p->parent;
+		res = fpgaCloneToken(p->parent, parent);
+		if (res != FPGA_OK)
+			OPAE_ERR("cloning token from property");
 	} else {
-		OPAE_DBG("No parent");
+		OPAE_MSG("No parent");
 		res = FPGA_NOT_FOUND;
 	}
 
@@ -208,7 +196,6 @@ fpga_result __OPAE_API__ fpgaPropertiesSetParent(fpga_properties prop,
 {
 	int err;
 	struct _fpga_properties *p;
-	opae_wrapped_token *wrapped_token;
 
 	ASSERT_NOT_NULL(parent);
 
@@ -216,17 +203,20 @@ fpga_result __OPAE_API__ fpgaPropertiesSetParent(fpga_properties prop,
 
 	ASSERT_NOT_NULL(p);
 
-	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT)) {
-		// If we have a wrapped parent token that we
-		// allocated, then free it.
-		wrapped_token = opae_validate_wrapped_token(p->parent);
+	if (FIELD_VALID(p, FPGA_PROPERTY_PARENT) &&
+	    (p->flags & OPAE_PROPERTIES_FLAG_PARENT_ALLOC)) {
+		// We have a wrapped parent token that we allocated.
+		// Free it.
+		opae_wrapped_token *wrapped_token =
+			opae_validate_wrapped_token(p->parent);
 		if (wrapped_token)
 			opae_destroy_wrapped_token(wrapped_token);
 	}
 
-	wrapped_token = opae_validate_wrapped_token(parent);
-	if (wrapped_token)
-		opae_upref_wrapped_token(wrapped_token);
+	// When explicitly setting a parent token,
+	// the caller assumes responsibility for freeing
+	// that token.
+	p->flags &= ~OPAE_PROPERTIES_FLAG_PARENT_ALLOC;
 
 	p->parent = parent;
 	SET_FIELD_VALID(p, FPGA_PROPERTY_PARENT);

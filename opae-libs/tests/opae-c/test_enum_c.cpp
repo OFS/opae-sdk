@@ -150,9 +150,6 @@ class enum_c_p : public mock_opae_p<2, none_> {
       EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
     }
     fpgaFinalize();
-#ifdef LIBOPAE_DEBUG
-    EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
-#endif // LIBOPAE_DEBUG
   }
 
   // Need a concrete way to determine the number of fpgas on the system

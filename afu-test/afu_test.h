@@ -155,14 +155,14 @@ public:
   , current_command_(nullptr)
   {
     if (!afu_id_.empty())
-      app_.add_option("-g,--guid", afu_id_, "GUID")->default_str(afu_id_);
+      app_.add_option("-g,--guid", afu_id_, "GUID")->default_val(afu_id_);
     app_.add_option("-p,--pci-address", pci_addr_,
                     "[<domain>:]<bus>:<device>.<function>");
     app_.add_option("-l,--log-level", log_level_, "stdout logging level")->
-      default_str(log_level_)->
+      default_val(log_level_)->
       check(CLI::IsMember(SPDLOG_LEVEL_NAMES));
     app_.add_flag("-s,--shared", shared_, "open in shared mode, default is off");
-    app_.add_option("-t,--timeout", timeout_msec_, "test timeout (msec)")->default_str(std::to_string(timeout_msec_));
+    app_.add_option("-t,--timeout", timeout_msec_, "test timeout (msec)")->default_val(timeout_msec_);
   }
   virtual ~afu() {
     if (logger_)

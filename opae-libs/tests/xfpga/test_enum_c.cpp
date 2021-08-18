@@ -47,6 +47,7 @@
 #include "mock/mock_opae.h"
 extern "C" {
 #include "fpga-dfl.h"
+#include "token_list_int.h"
 }
 #include "xfpga.h"
 
@@ -101,6 +102,7 @@ class enum_c_p : public mock_opae_p<2, xfpga_> {
 
   virtual void test_teardown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    token_cleanup();
     xfpga_plugin_finalize();
   }
 

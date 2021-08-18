@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2021, Intel Corporation
+// Copyright(c) 2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -26,11 +26,6 @@
 
 #include <string.h>
 #include <unistd.h>
-#include <sys/eventfd.h>
-#include <unistd.h>
-#include <poll.h>
-#include <errno.h>
-#include <pthread.h>
 #include <opae/vfio.h>
 
 #define AFU_OFFSET 0x40000
@@ -219,121 +214,6 @@ do {                                                   \
 		printf("whoops free dst\n");
 }
 
-void irqinfo(struct opae_vfio *v)
-{
-	struct opae_vfio_device_irq *irq;
-
-	for (irq = v->device.irqs ; irq ; irq = irq->next) {
-		printf("IRQ[%u] count: %u flags: ",
-		       irq->index,
-		       irq->count);
-		if (irq->flags & VFIO_IRQ_INFO_EVENTFD)
-			printf("EVENTFD ");
-		if (irq->flags & VFIO_IRQ_INFO_MASKABLE)
-			printf("MASKABLE ");
-		if (irq->flags & VFIO_IRQ_INFO_AUTOMASKED)
-			printf("AUTOMASKED ");
-		if (irq->flags & VFIO_IRQ_INFO_NORESIZE)
-			printf("NORESIZE ");
-		printf("\n");
-	}
-}
-
-#define IRQ_VECTOR 6
-#define MBP_ERROR (1ULL << 6)
-
-#define CSR_FME_ERROR_MASK        0x4008
-#define CSR_PCIE0_ERROR_MASK      0x4018
-#define CSR_PCIE1_ERROR_MASK      0x4028
-#define CSR_RAS_NONFAT_ERROR_MASK 0x4048
-#define CSR_RAS_CATFAT_ERROR_MASK 0x4058
-#define CSR_RAS_ERROR_INJ         0x4068
-
-#define MASK_ALL 0xffffffffffffffffULL
-
-void *errinj_thread(void *arg)
-{
-	volatile uint8_t *fme = (volatile uint8_t *)arg;
-
-	usleep(5000000);
-	printf("writing to RAS_ERROR_INJ to inject error\n");
-	*(volatile uint64_t *)(fme + CSR_RAS_ERROR_INJ) = 1;
-
-	usleep(5000000);
-	printf("writing to RAS_ERROR_INJ to clear error\n");
-	*(volatile uint64_t *)(fme + CSR_RAS_ERROR_INJ) = 0;
-
-	return NULL;
-}
-
-void errinj(struct opae_vfio *v)
-{
-	int event_fd;
-	volatile uint8_t *fme = NULL;
-	struct pollfd pfd;
-	int pollres;
-	pthread_t thr;
-
-	event_fd = eventfd(0, 0);
-	if (event_fd < 0) {
-		printf("whoops eventfd()\n");
-		return;
-	}
-
-	if (opae_vfio_irq_enable(v,
-				 VFIO_PCI_MSIX_IRQ_INDEX,
-				 IRQ_VECTOR,
-				 event_fd)) {
-		printf("whoops opae_vfio_irq_enable\n");
-		return;
-	}
-
-	if (opae_vfio_region_get(v, 0, (uint8_t **)&fme, NULL)) {
-		printf("whoops opae_vfio_region_get\n");
-		return;
-	}
-
-	*(volatile uint64_t *)(fme + CSR_FME_ERROR_MASK) = MBP_ERROR;
-	*(volatile uint64_t *)(fme + CSR_PCIE0_ERROR_MASK) = 0;
-	*(volatile uint64_t *)(fme + CSR_PCIE1_ERROR_MASK) = 0;
-	*(volatile uint64_t *)(fme + CSR_RAS_NONFAT_ERROR_MASK) = 0;
-	*(volatile uint64_t *)(fme + CSR_RAS_CATFAT_ERROR_MASK) = 0;
-
-	pthread_create(&thr, NULL, errinj_thread, (void *)fme);
-
-	pfd.fd = event_fd;
-	pfd.events = POLLIN;
-	pfd.revents = 0;
-
-	printf("polling..\n");
-	pollres = poll(&pfd, 1, 10000);
-
-	if (pollres == 0)
-		printf("whoops poll() TIMEOUT\n");
-	else if (pollres < 0)
-		printf("whoops poll() ERROR: %s\n",
-			strerror(errno));
-	else
-		printf("SUCCESS!\n");
-
-	pthread_join(thr, NULL);
-
-	*(volatile uint64_t *)(fme + CSR_FME_ERROR_MASK) = MASK_ALL;
-	*(volatile uint64_t *)(fme + CSR_PCIE0_ERROR_MASK) = MASK_ALL;
-	*(volatile uint64_t *)(fme + CSR_PCIE1_ERROR_MASK) = MASK_ALL;
-	*(volatile uint64_t *)(fme + CSR_RAS_NONFAT_ERROR_MASK) = MASK_ALL;
-	*(volatile uint64_t *)(fme + CSR_RAS_CATFAT_ERROR_MASK) = MASK_ALL;
-
-	if (opae_vfio_irq_disable(v,
-				  VFIO_PCI_MSIX_IRQ_INDEX,
-				  IRQ_VECTOR)) {
-		printf("whoops opae_vfio_irq_disable\n");
-		return;
-	}
-
-	close(event_fd);
-}
-
 int main(int argc, char *argv[])
 {
 	struct opae_vfio v;
@@ -341,7 +221,7 @@ int main(int argc, char *argv[])
 
 	if (argc < 3) {
 		printf("usage: opaevfiotest 0000:00:00.0 <test>\n");
-		printf("\n\twhere <test> is one of { dfh, buf, nlb0, irqinfo, errinj }\n");
+		printf("\n\twhere <test> is one of { dfh, buf, nlb0 }\n");
 		return 1;
 	}
 
@@ -356,10 +236,6 @@ int main(int argc, char *argv[])
 		allocate_bufs(&v);
 	else if (!strcmp(argv[2], "nlb0"))
 		nlb0(&v);
-	else if (!strcmp(argv[2], "irqinfo"))
-		irqinfo(&v);
-	else if (!strcmp(argv[2], "errinj"))
-		errinj(&v);
 
 	opae_vfio_close(&v);
 

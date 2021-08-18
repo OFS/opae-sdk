@@ -100,7 +100,7 @@ class HSM_MANAGER(object):
     def sign(self, sha, key):
         private_key = self.get_private_key(key)
         data = common_util.BYTE_ARRAY()
-        private_key.sign(sha, data, self.get_public_key(key))
+        private_key.sign(sha, data)
         log.debug("Signature len={}".format(data.size()))
         log.debug("".join("{:02x} ".format(x) for x in data.data))
 
@@ -558,7 +558,7 @@ class _PRIVATE_KEY(_KEY):
         self.key = self.openssl.read_private_key(self.file)
         self.retrive_key_info()
 
-    def sign(self, sha, data, public_key, fixed_RS_size=0):
+    def sign(self, sha, data, fixed_RS_size=0):
         log.debug("Sign: sha_size:{}".format(len(sha)))
         common_util.assert_in_error(
             len(sha) == 32 or len(sha) == 48 or len(sha) == 64,
@@ -572,7 +572,7 @@ class _PRIVATE_KEY(_KEY):
         common_util.assert_in_error(
             self.openssl.lib.ECDSA_do_verify(
                 sha, len(sha),
-                signature, public_key.key),
+                signature, self.key),
             "Fail to verify after the signing",)
 
         r = c_void_p(None)

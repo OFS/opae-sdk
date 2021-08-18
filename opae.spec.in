@@ -120,10 +120,6 @@ mv %_topdir/tmpBRoot $RPM_BUILD_ROOT
 mkdir -p /etc/ld.so.conf.d
 echo "@LDCONFIG_DIR@" > /etc/ld.so.conf.d/opae-c.conf
 ldconfig
-if [ -x %{_sbindir}/setcap ];
-then
-  %{_sbindir}/setcap "38,cap_sys_ptrace,cap_syslog+eip" %{_bindir}/host_exerciser
-fi
 
 %postun
 @CPACK_RPM_SPEC_POSTUNINSTALL@
@@ -164,7 +160,6 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/hello_fpga
 @CMAKE_INSTALL_PREFIX@/bin/hello_cxxcore
 @CMAKE_INSTALL_PREFIX@/bin/n5010-ddr-test
-@CMAKE_INSTALL_PREFIX@/bin/n5010-ctl
 @CMAKE_INSTALL_PREFIX@/bin/object_api
 %dir @CMAKE_INSTALL_PREFIX@/include/opae
 @CMAKE_INSTALL_PREFIX@/include/opae/*
@@ -185,6 +180,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/opaevfiotest
 @CMAKE_INSTALL_PREFIX@/bin/opaeuiotest
 @CMAKE_INSTALL_PREFIX@/bin/host_exerciser
+@CMAKE_INSTALL_PREFIX@/bin/opaememtest
 @CPACK_RPM_RELOCATION_PATHS@/opae/fpgad.cfg
 @CPACK_RPM_RELOCATION_PATHS@/sysconfig/fpgad.conf
 @CPACK_RPM_RELOCATION_PATHS@/systemd/system/fpgad.service
@@ -192,14 +188,12 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopaevfio.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopaeuio.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopaemem.so*
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgaperf_counter.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libfpgad-xfpga.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libfpgad-vc.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libboard_n3000.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libboard_d5005.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libboard_n5010.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libboard_a10gx.so*
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libboard_n6010.so*
 
 
 %files tools-extra -f tools-extra-files.txt
@@ -226,13 +220,11 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/packager
 @CMAKE_INSTALL_PREFIX@/bin/pac_hssi_config.py
 @CMAKE_INSTALL_PREFIX@/bin/userclk
-@CMAKE_INSTALL_PREFIX@/bin/hps
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libmml-srv.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libmml-stream.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libhssi*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c++-nlb.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c++-utils.so*
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libofs*.so*
 %dir @CMAKE_INSTALL_PREFIX@/share/opae
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/python/
 %dir @CMAKE_INSTALL_PREFIX@/share/opae/python/*

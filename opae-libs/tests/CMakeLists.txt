@@ -44,7 +44,6 @@ add_subdirectory(opae-c)
 add_subdirectory(opae-cxx)
 add_subdirectory(pyopae)
 add_subdirectory(xfpga)
-add_subdirectory(opaemem)
 
 if (OPAE_BUILD_LIBOFS)
     add_subdirectory(libofs)

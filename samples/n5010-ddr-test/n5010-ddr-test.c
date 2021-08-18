@@ -36,8 +36,6 @@
 #include <uuid/uuid.h>
 #include <endian.h>
 
-#include <argsfilter.h>
-
 #define DFH_EOL(h)    ((h >> 40) & 1)
 #define DFH_NEXT(h)   ((h >> 16) & 0xffffff)
 #define DFH_TYPE(h)   ((h >> 60) & 0xf)
@@ -67,7 +65,6 @@ struct n5010 {
 	fpga_token token;
 	fpga_handle handle;
 	fpga_guid guid;
-	fpga_properties filter;
 	uint64_t base;
 	const struct n5010_test *test;
 	bool debug;
@@ -94,44 +91,54 @@ static const struct n5010_test n5010_test[] = {
 
 static fpga_result fpga_open(struct n5010 *n5010)
 {
+	fpga_properties filter = NULL;
 	fpga_result res;
 	uint32_t num = 0;
 
-	res = fpgaPropertiesSetObjectType(n5010->filter, FPGA_ACCELERATOR);
+	res = fpgaGetProperties(NULL, &filter);
+	if (res != FPGA_OK) {
+		fprintf(stderr, "failed to get properties: %s\n", fpgaErrStr(res));
+		goto error;
+	}
+
+	res = fpgaPropertiesSetObjectType(filter, FPGA_ACCELERATOR);
 	if (res != FPGA_OK) {
 		fprintf(stderr, "failed to set object type: %s\n", fpgaErrStr(res));
-		return res;
+		goto error;
 	}
 
-	res = fpgaPropertiesSetGUID(n5010->filter, n5010->guid);
+	res = fpgaPropertiesSetGUID(filter, n5010->guid);
 	if (res != FPGA_OK) {
 		fprintf(stderr, "failed to set guid: %s\n", fpgaErrStr(res));
-		return res;
+		goto error;
 	}
 
-	res = fpgaEnumerate(&n5010->filter, 1, &n5010->token, 1, &num);
+	res = fpgaEnumerate(&filter, 1, &n5010->token, 1, &num);
 	if (res != FPGA_OK) {
 		fprintf(stderr, "failed to enumerate fpga: %s\n", fpgaErrStr(res));
-		return res;
+		goto error;
 	}
 
 	res = fpgaOpen(n5010->token, &n5010->handle, 0);
 	if (res != FPGA_OK) {
 		fprintf(stderr, "failed to open fpga: %s\n", fpgaErrStr(res));
-		return res;
+		goto error;
 	}
 
 	res = fpgaMapMMIO(n5010->handle, 0, NULL);
 	if (res != FPGA_OK) {
 		fprintf(stderr, "failed to map io memory: %s\n", fpgaErrStr(res));
-		return res;
+		goto error;
 	}
 
 	res = fpgaReset(n5010->handle);
 	if (res != FPGA_OK) {
 		fprintf(stderr, "failed to reset fpga: %s\n", fpgaErrStr(res));
-		return res;
+		goto error;
 	}
+
+error:
+	fpgaDestroyProperties(&filter);
 
 	return res;
 }
@@ -139,10 +146,6 @@ static fpga_result fpga_open(struct n5010 *n5010)
 static void fpga_close(struct n5010 *n5010)
 {
 	fpga_result res;
-
-	res = fpgaDestroyProperties(&n5010->filter);
-	if (res != FPGA_OK)
-		fprintf(stderr, "failed to destroy device filter: %s\n", fpgaErrStr(res));
 
 	if (n5010->handle != NULL) {
 		res = fpgaUnmapMMIO(n5010->handle, 0);
@@ -453,16 +456,11 @@ static void print_usage(FILE *f)
 		"usage: %s [<options>]\n"
 		"\n"
 		"options:\n"
-		"  [-S <segment>] [-B <bus>] [-D <device>] [-F <function>]"
-		"  -S, --segment   pci segment to look up device from\n"
-		"  -B, --bus       pci bus to look up device from\n"
-		"  -D, --device    pci device number to look up\n"
-		"  -F, --function  pci function to look up\n"
-		"      --help      print this help\n"
-		"      --guid      uuid of accelerator to open\n"
-		"      --mode      test mode to execute. Known modes:\n"
-		"                  directed, prbs, hbm\n"
-		"      --debug     enable debug print of register values\n"
+		"  --help   print this help\n"
+		"  --guid   uuid of accelerator to open\n"
+		"  --mode   test mode to execute. Known modes:\n"
+		"             directed, prbs, hbm\n"
+		"  --debug  enable debug print of register values\n"
 		"\n", program_invocation_short_name);
 }
 
@@ -489,7 +487,7 @@ static bool parse_mode(struct n5010 *n5010, const char *mode)
 	return true;
 }
 
-static fpga_result parse_args(int argc, char **argv, struct n5010 *n5010)
+static int parse_args(int argc, char **argv, struct n5010 *n5010)
 {
 	struct option options[] = {
 		{ "help",  no_argument,       NULL, 'h' },
@@ -499,22 +497,7 @@ static fpga_result parse_args(int argc, char **argv, struct n5010 *n5010)
 		{ NULL,    0,                 NULL, 0   },
 	};
 
-	fpga_result res;
 	int c;
-
-	res = fpgaGetProperties(NULL, &n5010->filter);
-	if (res != FPGA_OK) {
-		fprintf(stderr, "failed to get properties: %s\n", fpgaErrStr(res));
-		return res;
-	}
-
-	if (opae_set_properties_from_args(n5010->filter, &res, &argc, argv)) {
-		fprintf(stderr, "failed to parse device args\n");
-		return FPGA_EXCEPTION;
-	} else if (res) {
-		fprintf(stderr, "failed to set device properties: %s\n", fpgaErrStr(res));
-		return res;
-	}
 
 	while (1) {
 		c = getopt_long_only(argc, argv, "hg:m:d", options, NULL);
@@ -524,43 +507,43 @@ static fpga_result parse_args(int argc, char **argv, struct n5010 *n5010)
 		switch (c) {
 			case 'h':
 				print_usage(stdout);
-				fpga_close(n5010);
 				exit(EXIT_SUCCESS);
 			case 'g':
 				if (uuid_parse(optarg, n5010->guid) < 0) {
 					fprintf(stderr, "unparsable uuid: '%s'\n", optarg);
-					return FPGA_EXCEPTION;
+					return EXIT_FAILURE;
 				}
 				break;
 			case 'm':
 				if (!parse_mode(n5010, optarg))
-					return FPGA_EXCEPTION;
+					return EXIT_FAILURE;
 				break;
 			case 'd':
 				n5010->debug = true;
 				break;
 			case '?':
 			default:
-				return FPGA_EXCEPTION;
+				return EXIT_FAILURE;
 		}
 	}
 
 	if (uuid_is_null(n5010->guid)) {
 		fprintf(stderr, "no guid given\n");
-		return FPGA_EXCEPTION;
+		return EXIT_FAILURE;
 	}
 
-	return FPGA_OK;
+	return EXIT_SUCCESS;
 }
 
 int main(int argc, char **argv)
 {
 	struct n5010 n5010 = { .test = n5010_test };
 	fpga_result res;
+	int err;
 
-	res = parse_args(argc, argv, &n5010);
-	if (res != FPGA_OK)
-		goto error;
+	err = parse_args(argc, argv, &n5010);
+	if (err != 0)
+		return err;
 
 	res = fpga_open(&n5010);
 	if (res != FPGA_OK)

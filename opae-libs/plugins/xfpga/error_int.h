@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -44,7 +44,6 @@ struct error_list {
 
 uint32_t count_error_files(const char *path);
 uint32_t build_error_list(const char *path, struct error_list **list);
-struct error_list *clone_error_list(struct error_list *src);
 
 #ifdef __cplusplus
 } // extern "C"

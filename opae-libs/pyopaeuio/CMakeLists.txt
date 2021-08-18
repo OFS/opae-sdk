@@ -24,29 +24,9 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
+
 set(INCLUDE_DIRS "${OPAE_INCLUDE_PATH}:${pybind11_ROOT}/include")
 set(LINK_DIRS "${LIBRARY_OUTPUT_PATH}")
-set(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/timestamp)
 
-add_custom_command(
-    OUTPUT ${OUTPUT}
-    COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext -I ${INCLUDE_DIRS} -L ${LINK_DIRS}
-    COMMAND ${PYTHON_EXECUTABLE} setup.py build
-    COMMAND ${CMAKE_COMMAND} -E touch ${OUTPUT}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    DEPENDS setup.py ${PKG_FILES}
-)
-set_property(DIRECTORY PROPERTY
-    ADDITIONAL_MAKE_CLEAN_FILES
-        "${CMAKE_CURRENT_SOURCE_DIR}/build"
-        "${CMAKE_CURRENT_SOURCE_DIR}/dist"
-)
 pybind11_add_module(pyopaeuio THIN_LTO  pyopaeuio.cpp)
 target_link_libraries(pyopaeuio PRIVATE  opaeuio)
-
-add_custom_target(pyopaeuio-build ALL DEPENDS opaeuio pyopaeuio ${OUTPUT})
-opae_python_install(
-    COMPONENT pyopaeuio
-    RECORD_FILE pyopaeuio-install.txt
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-    RPM_PACKAGE devel)

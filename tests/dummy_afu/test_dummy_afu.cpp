@@ -85,7 +85,7 @@ public:
   virtual void add_options(CLI::App *app) override
   {
     app->add_option("-s,--sleep",
-                    sleep_msec_, "sleep time (msec)")->default_str(std::to_string(sleep_msec_));
+                    sleep_msec_, "sleep time (msec)")->default_val(sleep_msec_);
 
   }
 

@@ -1,1 +1,0 @@
-../../../python/pacsign/setup.py

@@ -358,32 +358,3 @@ function(opae_add_static_library)
                 COMPONENT ${OPAE_ADD_STATIC_LIBRARY_COMPONENT})
     endif(OPAE_ADD_STATIC_LIBRARY_COMPONENT)
 endfunction()
-
-if(NOT TARGET lcov AND CMAKE_BUILD_TYPE STREQUAL "Coverage")
-    set(EXCLUDE_COVERAGE
-        '/usr/**'
-        '*/libopaecxx/samples/**'
-        '*/pyopae/**'
-        '*/plugins/xfpga/usrclk/**'
-        '*/tests/**'
-        '*/tools/extra/c++utils/**'
-        '*/tools/extra/mmlink/**'
-        '*/tools/extra/fpgabist/**'
-        '*/tools/extra/fpgadiag/**'
-        '*/pybind11/**'
-        '*/external/opae-test/**'
-        '*/external/gtest/**'
-        '*/external/CLI11/**'
-        '*/external/spdlog/**'
-    )
-    add_custom_target(lcov
-        COMMAND lcov --directory .  --zerocounters
-        COMMAND lcov -c -i -d . -o coverage.base
-        COMMAND ${CMAKE_MAKE_PROGRAM} test
-        COMMAND lcov --directory . --capture -o coverage.info
-        COMMAND lcov -a coverage.base -a coverage.info -o coverage.total
-        COMMAND lcov --remove coverage.total ${EXCLUDE_COVERAGE} -o coverage.cleaned
-        COMMAND genhtml --function-coverage -o coverage_report coverage.cleaned
-        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    )
-endif(NOT TARGET lcov AND CMAKE_BUILD_TYPE STREQUAL "Coverage")

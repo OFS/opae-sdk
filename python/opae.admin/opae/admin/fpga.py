@@ -210,23 +210,10 @@ class fme(region):
     @property
     def spi_bus(self):
         if os.path.basename(self.sysfs_path).startswith('dfl'):
-            patterns = ['dfl*.*/*spi*/spi_master/spi*/spi*',
-                        'dfl*.*/spi_master/spi*/spi*']
-            for pattern in patterns:
-                spi = self.find_one(pattern)
-                if spi:
-                    return spi
+            return self.find_one('dfl*.*/'
+                                 '*spi*/'
+                                 'spi_master/spi*/spi*')
         return self.find_one('spi*/spi_master/spi*/spi*')
-
-    @property
-    def pmci_bus(self):
-        if os.path.basename(self.sysfs_path).startswith('dfl'):
-            patterns = ['dfl*.*/*-secure.*.auto']
-            for pattern in patterns:
-                pmci = self.find_one(pattern)
-                if pmci:
-                    return pmci
-        return self.find_one('*-secure.*.auto')
 
     @property
     def altr_asmip(self):
@@ -245,12 +232,6 @@ class fme(region):
             node = spi.find_one('max10_version')
             value = int(node.value, 16)
             return max10_or_nios_version(value)
-        else:
-            pmci = self.pmci_bus
-            if pmci:
-                node = spi.find_one('max10_version')
-                value = int(node.value, 16)
-                return max10_or_nios_version(value)
 
     @property
     def bmcfw_version(self):
@@ -259,13 +240,6 @@ class fme(region):
             node = spi.find_one('bmcfw_flash_ctrl/bmcfw_version')
             value = int(node.value, 16)
             return max10_or_nios_version(value)
-        else:
-            pmci = self.pmci_bus
-            if pmci:
-                node = spi.find_one('bmcfw_flash_ctrl/bmcfw_version')
-                value = int(node.value, 16)
-                return max10_or_nios_version(value)
-
 
     @property
     def fpga_image_load(self):
@@ -422,12 +396,7 @@ class fpga_base(sysfs_device):
                                       'factory': 0},
                            'retimer': {'user': 0,
                                        'factory': 0}},
-        (0x1c2c, 0x1001): {'bmcimg': {'user': 1,
-                                      'factory': 0},
-                           'retimer': {'user': 0,
-                                       'factory': 0}},
-        (0x8086, 0xaf00): None,
-        (0x8086, 0xbcce): None
+        (0x8086, 0xaf00): None
     }
 
     def __init__(self, path):
@@ -457,13 +426,6 @@ class fpga_base(sysfs_device):
                 '*-secure.*.auto/*fpga_sec_mgr/*fpga_sec*')
             if fpga_sec:
                 return secure_dev(fpga_sec.sysfs_path, self.pci_node)
-        else:
-            pmci = f.pmci_bus
-            fpga_sec = pmci.find_one(
-                    '*fpga_sec_mgr*/*fpga_sec*')
-            if fpga_sec:
-                return secure_dev(fpga_sec.sysfs_path, self.pci_node)
-
 
     @property
     def security(self):
@@ -474,11 +436,6 @@ class fpga_base(sysfs_device):
         spi = f.spi_bus
         if spi:
             sec = spi.find_one('*-secure.*.auto')
-            if sec:
-                return security(sec.sysfs_path, self.pci_node)
-        else:
-            pmci = f.pmci_bus
-            sec = pmci.find_one('*-secure.*.auto')
             if sec:
                 return security(sec.sysfs_path, self.pci_node)
 

@@ -55,6 +55,7 @@ extern "C" {
 #include <vector>
 #include "gtest/gtest.h"
 #include "mock/test_system.h"
+#include "token_list_int.h"
 #include "xfpga.h"
 #include "mock/test_utils.h"
 

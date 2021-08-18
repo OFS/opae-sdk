@@ -274,12 +274,12 @@ TEST_P(board_dfl_n3000_c_p, board_n3000_7) {
 TEST_P(board_dfl_n3000_c_p, board_n3000_8) {
 
 	char buf[10] = { 0 };
-	write_sysfs_file((const char *)"dfl_dev*/*spi*/spi_master/spi*/spi*/bmcfw_version", (void*)buf, sizeof(buf));
+	write_sysfs_file((const char *)"dfl-fme*/*spi*/spi_master/spi*/spi*/bmcfw_version", (void*)buf, sizeof(buf));
 
 	char bmcfw_ver[SYSFS_PATH_MAX];
 	EXPECT_NE(read_bmcfw_version(tokens_[0], bmcfw_ver, SYSFS_PATH_MAX), FPGA_OK);
 
-	write_sysfs_file((const char *)"dfl_dev*/*spi*/spi_master/spi*/spi*/bmc_version", (void*)buf, sizeof(buf));
+	write_sysfs_file((const char *)"dfl-fme*/*spi*/spi_master/spi*/spi*/bmc_version", (void*)buf, sizeof(buf));
 
 	char max10fw_ver[SYSFS_PATH_MAX];
 	EXPECT_NE(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_PATH_MAX), FPGA_OK);
@@ -295,154 +295,6 @@ TEST_P(board_dfl_n3000_c_p, board_n3000_12) {
 	EXPECT_NE(print_eth_interface_info(tokens_[0], "npac"), FPGA_OK);
 }
 
-
-/**
-* @test       board_n3000_13
-* @brief      Tests: enum_eth_group_feature
-* @details    Validates enum fpga eth group feature <br>
-*/
-TEST_P(board_dfl_n3000_c_p, board_n3000_13) {
-
-	char eth_feature_dev[2][SYSFS_PATH_MAX];
-
-	EXPECT_EQ(enum_eth_group_feature(tokens_[0],
-		eth_feature_dev,
-		2), FPGA_OK);
-
-	EXPECT_EQ(enum_eth_group_feature(NULL,
-		eth_feature_dev,
-		2), FPGA_NOT_FOUND);
-
-	EXPECT_EQ(enum_eth_group_feature(tokens_[0],
-		eth_feature_dev,
-		1), FPGA_OK);
-}
-/**
-* @test       board_n3000_14
-* @brief      Tests: enum_pkvl_sysfs_path
-* @details    Validates enum pkvl sysfs path <br>
-*/
-TEST_P(board_dfl_n3000_c_p, board_n3000_14) {
-
-	char path[SYSFS_PATH_MAX];
-
-	EXPECT_EQ(enum_pkvl_sysfs_path(tokens_[0], path), FPGA_OK);
-	EXPECT_EQ(enum_pkvl_sysfs_path(tokens_[0], NULL), FPGA_INVALID_PARAM);
-	EXPECT_EQ(enum_pkvl_sysfs_path(NULL, path), FPGA_NOT_FOUND);
-}
-
-/**
-* @test       board_n3000_15
-* @brief      Tests: read_regmap
-* @details    Validates regmap <br>
-*/
-TEST_P(board_dfl_n3000_c_p, board_n3000_15) {
-
-	char path[SYSFS_PATH_MAX];
-	uint64_t index = 0;
-	uint32_t value = 0;
-
-	EXPECT_EQ(read_regmap(path, index, &value), FPGA_EXCEPTION);
-
-	snprintf(path, sizeof(path),
-		"%s", "/sys/kernel/debug/regmap/spi4.0/registers");
-	index = 0x300800+ 0x164;
-	value = 0;
-	EXPECT_EQ(read_regmap(path, index, &value), FPGA_OK);
-
-	EXPECT_EQ(read_regmap(path, 0xabcdabcd,&value), FPGA_NOT_FOUND);
-
-	EXPECT_EQ(read_regmap(path, index, NULL), FPGA_INVALID_PARAM);
-	EXPECT_EQ(read_regmap(NULL, index, &value), FPGA_INVALID_PARAM);
-}
-
-/**
-* @test       board_n3000_16
-* @brief      Tests: print_retimer_info
-* @details    Validates print retimer info <br>
-*/
-TEST_P(board_dfl_n3000_c_p, board_n3000_16) {
-
-	EXPECT_EQ(print_retimer_info(tokens_[0], 40), FPGA_OK);
-
-	EXPECT_EQ(print_retimer_info(NULL, 40), FPGA_NOT_FOUND);
-
-	EXPECT_EQ(print_retimer_info(tokens_[0], 200), FPGA_OK);
-}
-
-/**
-* @test       board_n3000_17
-* @brief      Tests: print_pkvl_version
-* @details    Validates print pkvl info <br>
-*/
-TEST_P(board_dfl_n3000_c_p, board_n3000_17) {
-
-	EXPECT_EQ(print_pkvl_version(tokens_[0]), FPGA_OK);
-	EXPECT_EQ(print_pkvl_version(NULL), FPGA_NOT_FOUND);
-}
-
-/**
-* @test       board_n3000_18
-* @brief      Tests: print_phy_info
-* @details    Validates print phy info <br>
-*/
-TEST_P(board_dfl_n3000_c_p, board_n3000_18) {
-
-	EXPECT_NE(print_phy_info(tokens_[0]), FPGA_OK);
-	EXPECT_NE(print_phy_info(NULL), FPGA_OK);
-}
-
-/**
-* @test       board_n3000_19
-* @brief      Tests: get_fpga_sbdf
-* @details    Validates fpga sbdf <br>
-*/
-TEST_P(board_dfl_n3000_c_p, board_n3000_19) {
-
-	uint8_t bus = (uint8_t)-1;
-	uint16_t segment = (uint16_t)-1;
-	uint8_t device = (uint8_t)-1;
-	uint8_t function = (uint8_t)-1;
-
-	EXPECT_EQ(get_fpga_sbdf(tokens_[0],
-		&segment,
-		&bus,
-		&device,
-		&function), FPGA_OK);
-
-
-	EXPECT_EQ(get_fpga_sbdf(tokens_[0],
-		NULL,
-		&bus,
-		&device,
-		&function), FPGA_INVALID_PARAM);
-
-	EXPECT_EQ(get_fpga_sbdf(NULL,
-		&segment,
-		&bus,
-		&device,
-		&function), FPGA_NOT_FOUND);
-}
-
-/**
-* @test       board_n3000_20
-* @brief      Tests: print_eth_interface_info
-* @details    Validates fpga eth group info  <br>
-*/
-TEST_P(board_dfl_n3000_c_p, board_n3000_20) {
-	char path[SYSFS_PATH_MAX];
-
-	uint64_t value = 0;
-	snprintf(path, sizeof(path),
-		"%s", "/sys/class/fpga_region/region0/dfl-fme.0/bitstream_id");
-	EXPECT_EQ(sysfs_read_u64(path, &value), FPGA_OK);
-	EXPECT_EQ(sysfs_read_u64(NULL, &value), FPGA_INVALID_PARAM);
-	EXPECT_EQ(sysfs_read_u64(path, NULL), FPGA_INVALID_PARAM);
-
-	EXPECT_EQ(sysfs_read_u64("/sys/class/fpga_region1/region*/dfl-fme*",
-		&value), FPGA_NOT_FOUND);
-
-}
 INSTANTIATE_TEST_CASE_P(board_dfl_n3000_c, board_dfl_n3000_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000" })));
 
@@ -472,20 +324,6 @@ TEST_P(board_n3000_invalid_c_p, board_n3000_9) {
 
 	
 	EXPECT_EQ(print_sec_info(tokens_[0]), FPGA_NOT_FOUND);
-	char eth_feature_dev[2][SYSFS_PATH_MAX];
-	EXPECT_EQ(enum_eth_group_feature(tokens_[0],
-		eth_feature_dev,
-		2), FPGA_NOT_FOUND);
-
-	char path[SYSFS_PATH_MAX];
-
-	uint64_t index = 0;
-	uint32_t value = 0;
-	EXPECT_EQ(enum_pkvl_sysfs_path(tokens_[0], path), FPGA_NOT_FOUND);
-	EXPECT_EQ(read_regmap(path, index, &value), FPGA_EXCEPTION);
-	EXPECT_EQ(print_retimer_info(tokens_[0], 40), FPGA_NOT_FOUND);
-	EXPECT_EQ(print_pkvl_version(tokens_[0]), FPGA_NOT_FOUND);
-	EXPECT_NE(print_phy_info(tokens_[0]), FPGA_EXCEPTION);
 }
 INSTANTIATE_TEST_CASE_P(board_n3000_invalid_c, board_n3000_invalid_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));

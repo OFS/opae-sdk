@@ -52,8 +52,6 @@ if(NOT libuuid_FOUND)
 endif()
 
 include(FindTbb)
-include(FindCap)
-include(FindUdev)
 
 include(OPAECompiler)
 if(OPAE_BUILD_TESTS)

@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2020, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -30,6 +30,7 @@
 
 extern "C" {
 #include <opae/utils.h>
+#include <token_list_int.h>
 #include "props.h"
 const char * xfpga_fpgaErrStr(fpga_result);
 fpga_result prop_check_and_lock(struct _fpga_properties*);

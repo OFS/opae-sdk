@@ -25,6 +25,3 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 ofs_add_driver(ofs_cpeng.yml ofs_cpeng ofs_cpeng.c)
-install(TARGETS ofs_cpeng
-        LIBRARY DESTINATION ${OPAE_LIB_INSTALL_DIR}
-        COMPONENT cpeng)

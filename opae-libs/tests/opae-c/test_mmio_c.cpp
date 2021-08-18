@@ -129,9 +129,6 @@ class mmio_c_p : public ::testing::TestWithParam<std::string> {
     }
     fpgaFinalize();
     system_->finalize();
-#ifdef LIBOPAE_DEBUG
-    EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
-#endif // LIBOPAE_DEBUG
   }
 
   std::array<fpga_token, 2> tokens_;
@@ -162,22 +159,6 @@ TEST_P(mmio_c_p, mmio64) {
 }
 
 /**
- * @test       mmio64_neg_test
- * @brief      Test: fpgaWriteMMIO64, fpgaReadMMIO64
- * @details    Write the scratchpad register with fpgaWriteMMIO64 using invalid handle,<br>
- *             read the register back with fpgaReadMMIO64 using invalid handle.<br>
- *             then, API should return FPGA_INVALID_PARAM.<br>
- */
-TEST_P(mmio_c_p, mmio64_neg_test) {
-  const uint64_t val_written = 0xdeadbeefdecafbad;
-  EXPECT_EQ(fpgaWriteMMIO64(NULL, which_mmio_,
-                            CSR_SCRATCHPAD0, val_written), FPGA_INVALID_PARAM);
-  uint64_t val_read = 0;
-  EXPECT_EQ(fpgaReadMMIO64(NULL, which_mmio_,
-                           CSR_SCRATCHPAD0, &val_read), FPGA_INVALID_PARAM);
-}
-
-/**
  * @test       mmio32
  * @brief      Test: fpgaWriteMMIO32, fpgaReadMMIO32
  * @details    Write the scratchpad register with fpgaWriteMMIO32,<br>
@@ -194,27 +175,6 @@ TEST_P(mmio_c_p, mmio32) {
   EXPECT_EQ(val_written, val_read);
 }
 
-/**
- * @test       mmio32_neg_test
- * @brief      Test: fpgaWriteMMIO32, fpgaReadMMIO32
- * @details    Write the scratchpad register with fpgaWriteMMIO32 using invalid handle<br>
- *             read the register back with fpgaReadMMIO32 using invalid handle<br>
- *             then, API should return FPGA_INVALID_PARAM.<br>
- */
-TEST_P(mmio_c_p, mmio32_neg_test) {
-  const uint32_t val_written = 0xc0cac01a;
-  EXPECT_EQ(fpgaWriteMMIO32(NULL, which_mmio_,
-                            CSR_SCRATCHPAD0, val_written), FPGA_INVALID_PARAM);
-  uint32_t val_read = 0;
-  EXPECT_EQ(fpgaReadMMIO32(NULL, which_mmio_,
-                           CSR_SCRATCHPAD0, &val_read), FPGA_INVALID_PARAM);
-}
-
-TEST_P(mmio_c_p, fpgaMapMMIO_neg_test) {
-    uint64_t *mmio_ptr = nullptr;
-    EXPECT_EQ(fpgaMapMMIO(NULL, which_mmio_, &mmio_ptr), FPGA_INVALID_PARAM);
-    EXPECT_EQ(fpgaUnmapMMIO(NULL, which_mmio_), FPGA_INVALID_PARAM);
-}
 /**
  * @test       mmio512
  * @brief      Test: fpgaWriteMMIO512
@@ -236,20 +196,6 @@ TEST_P(mmio_c_p, mmio512) {
     EXPECT_EQ(fpgaReadMMIO64(accel_, which_mmio_,
                              CSR_SCRATCHPAD0, &val_read), FPGA_OK);
     EXPECT_EQ(val_written[i], val_read);
-  }
-}
-TEST_P(mmio_c_p, mmio512_neg_test) {
-  uint64_t val_written[8];
-  int i;
-  for (i = 0; i < 8; i++) {
-    val_written[i] = 0xdeadbeefdecafbad << (i + 1);
-  }
-  EXPECT_EQ(fpgaWriteMMIO512(NULL, which_mmio_,
-                            CSR_SCRATCHPAD0, val_written), FPGA_INVALID_PARAM);
-  for (i = 0; i < 8; i++) {
-    uint64_t val_read = 0;
-    EXPECT_EQ(fpgaReadMMIO64(NULL, which_mmio_,
-                             CSR_SCRATCHPAD0, &val_read), FPGA_INVALID_PARAM);
   }
 }
 #endif // TEST_SUPPORTS_AVX512
