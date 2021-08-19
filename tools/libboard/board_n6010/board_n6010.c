@@ -76,6 +76,12 @@
 #define DFL_SYSFS_BOOT_GLOB "*dfl*/**/fpga_boot_image"
 #define BOOTPAGE_PATTERN "_([0-9a-zA-Z]+)"
 
+// image info sysfs
+#define DFL_SYSFS_IMAGE_INFO_GLOB "*dfl*/**/fpga_image_directory"
+#define IMAGE_INFO_STRIDE 4096
+#define IMAGE_INFO_SIZE     32
+#define IMAGE_INFO_COUNT     3
+
 // hssi version
 struct hssi_version {
 	union {
@@ -566,6 +572,63 @@ fpga_result fpga_boot_info(fpga_token token)
 		OPAE_MSG("Failed to Read Boot Page");
 		printf("%-32s : %s\n", "Boot Page", "N/A");
 	}
+
+	return res;
+}
+
+// prints fpga image info
+fpga_result fpga_image_info(fpga_token token)
+{
+	const char *image_info_label[IMAGE_INFO_COUNT] = {
+		"Factory Image Info",
+		"User1 Image Info",
+		"User2 Image Info",
+	};
+	fpga_object fpga_object;
+	fpga_result res;
+	size_t i;
+
+	res = fpgaTokenGetObject(token, DFL_SYSFS_IMAGE_INFO_GLOB,
+			&fpga_object, FPGA_OBJECT_GLOB);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to get token Object");
+		return res;
+	}
+
+	for (i = 0; i < IMAGE_INFO_COUNT; i++) {
+		size_t offset = IMAGE_INFO_STRIDE * i;
+		uint8_t data[IMAGE_INFO_SIZE + 1] = { 0 };
+		char *image_info = (char *)data;
+		size_t p;
+
+		printf("%-32s : ", image_info_label[i]);
+
+		res = fpgaObjectRead(fpga_object, data, offset,
+				IMAGE_INFO_SIZE, FPGA_OBJECT_RAW);
+		if (res != FPGA_OK) {
+			printf("N/A\n");
+			continue;
+		}
+
+		for (p = 0; p < IMAGE_INFO_SIZE; p++)
+			if (data[p] != 0xff)
+				break;
+
+		if (p >= IMAGE_INFO_SIZE) {
+			printf("None\n");
+			continue;
+		}
+
+		if (strlen(image_info) == 0) {
+			printf("Empty\n");
+			continue;
+		}
+
+		printf("%s\n", image_info);
+	}
+
+	if (fpgaDestroyObject(&fpga_object) != FPGA_OK)
+		OPAE_ERR("Failed to Destroy Object");
 
 	return res;
 }
