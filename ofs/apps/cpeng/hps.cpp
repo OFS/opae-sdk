@@ -99,13 +99,13 @@ public:
     app->add_option("-t,--timeout", timeout_usec_, "Timeout")
       ->default_str(std::to_string(timeout_usec_))
       ->transform(CLI::AsNumberWithUnit(units));
-    app->add_option("-c,--chunk", chunk_, "Chunk size. 0 indicates no chunks")
-      ->default_str(std::to_string(chunk_));
     app->add_option("-r,--data-request-limit",
                     data_request_limit_,
                     "data request limit is pcie transfer width")
       ->default_str(std::to_string(data_request_limit_))
       ->check(CLI::IsMember(limits));
+    app->add_option("-c,--chunk", chunk_, "Chunk size. 0 indicates no chunks")
+      ->default_str(std::to_string(chunk_));
     app->add_flag("--soft-reset", soft_reset_, "Issue soft reset only");
     app->add_flag("--skip-ssbl-verify", skip_ssbl_verify_, "Do not wait for ssbl verify");
     app->add_flag("--skip-kernel-verify", skip_kernel_verify_, "Do not wait for kernel verify");

@@ -67,9 +67,16 @@ hps will enumerate the AFU for that subcommand before executing it.
     Timeout of cpeng command in microseconds.
     Default is 1 sec (1000000 usec).
 
+  -r,--data-request-limit \<size\>
+    Can be 64, 128, 512, or 1024 and represents the PCIe request size in bytes
+    that the copy engine IP will use. This is encoded to 0, 1, 2, or 3 and written
+    to the copy engine DATA_REQUEST_LIMIT register.
+    Default is 512.
+
   -c,--chunk \<size\>
 
     Split the copy into chunks of size <size>. 0 indicates no chunks.
+    Chunk sizes must be aligned with data request limit.
     Default is 4096.
 
   --soft-reset
