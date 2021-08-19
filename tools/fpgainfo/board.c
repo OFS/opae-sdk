@@ -712,3 +712,29 @@ fpga_result fpga_image_info(fpga_token token)
 out:
 	return res;
 }
+
+fpga_result fpga_event_log(fpga_token token, uint32_t first, uint32_t last,
+		bool print_list, bool print_sensors, bool print_bits)
+{
+	fpga_result res = FPGA_OK;
+	void *dl_handle = NULL;
+
+	fpga_result (*fpga_event_log)(fpga_token token, uint32_t first, uint32_t last,
+			bool print_list, bool print_sensors, bool print_bits);
+
+	res = load_board_plugin(token, &dl_handle);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to load board plugin: %s\n", dlerror() ? : "unknown");
+		goto out;
+	}
+
+	fpga_event_log = dlsym(dl_handle, "fpga_event_log");
+	if (fpga_event_log) {
+		res = fpga_event_log(token, first, last, print_list, print_sensors, print_bits);
+	} else {
+		OPAE_MSG("Event is not supported by this board");
+	}
+
+out:
+	return res;
+}
