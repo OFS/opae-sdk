@@ -131,6 +131,13 @@ fpga_result print_fme_verbose_info(fpga_token token);
 */
 fpga_result fpga_boot_info(fpga_token token);
 
+/**
+* Prints fpga image info.
+*
+* @param[in] token           fpga_token object for device (FPGA_DEVICE type)
+* @returns FPGA_OK on success, or FPGA_NOT_FOUND if the sysfs node is not found.
+*/
+fpga_result fpga_image_info(fpga_token token);
 
 #ifdef __cplusplus
 }
