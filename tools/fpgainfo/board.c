@@ -690,3 +690,25 @@ fpga_result fpga_boot_info(fpga_token token)
 out:
 	return res;
 }
+
+fpga_result fpga_image_info(fpga_token token)
+{
+	fpga_result res = FPGA_OK;
+	void *dl_handle = NULL;
+
+	fpga_result (*fpga_image_info)(fpga_token token);
+
+	res = load_board_plugin(token, &dl_handle);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to load board plugin: %s\n", dlerror() ? : "unknown");
+		goto out;
+	}
+
+	fpga_image_info = dlsym(dl_handle, "fpga_image_info");
+	if (fpga_image_info) {
+		res = fpga_image_info(token);
+	}
+
+out:
+	return res;
+}
