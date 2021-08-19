@@ -1,0 +1,36 @@
+FPGA Core dts01 Temperature:
+- id: 8
+FPGA Core dts11 Temperature:
+- id: 9
+FPGA Core dts12 Temperature:
+- id: 13
+FPGA Core dts21 Temperature:
+- id: 10
+FPGA Core dts22 Temperature:
+- id: 14
+FPGA Core dts31 Temperature:
+- id: 11
+FPGA Core dts32 Temperature:
+- id: 15
+FPGA Core dts41 Temperature:
+- id: 12
+FPGA Core dts42 Temperature:
+- id: 16
+HSSI_0_0 dts1 Temperature:
+- id: 6
+HSSI_0_1 dts1 Temperature:
+- id: 2
+- id: 3
+  adjustment: -1.5
+- id: 4
+  adjustment: -1.5
+- id: 5
+  adjustment: -1.5
+HSSI_0_1 dts2 Temperature:
+- id: 3
+HSSI_0_1 dts3 Temperature:
+- id: 4
+HSSI_0_1 dts4 Temperature:
+- id: 5
+FPGA Virtual Temperature Sensor 0:
+- id: 0x8000
