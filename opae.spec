@@ -35,6 +35,7 @@ BuildRequires:  python3-pip
 BuildRequires:  python3-virtualenv
 BuildRequires:  systemd-devel
 BuildRequires:  libcap-devel
+BuildRequires:  libedit-devel
 BuildRequires:  libudev-devel
 
 
