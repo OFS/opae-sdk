@@ -110,12 +110,14 @@ mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_fpga/
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_events/
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/object_api/
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/n5010-ddr-test/
+mkdir -p %{buildroot}%{_usr}/src/opae/samples/n5010-ctl/
 
 
 cp samples/hello_fpga/hello_fpga.c %{buildroot}%{_usr}/src/opae/samples/hello_fpga/
 cp samples/hello_events/hello_events.c %{buildroot}%{_usr}/src/opae/samples/hello_events/
 cp samples/object_api/object_api.c %{buildroot}%{_usr}/src/opae/samples/object_api/
 cp samples/n5010-ddr-test/n5010-ddr-test.c %{buildroot}%{_usr}/src/opae/samples/n5010-ddr-test/
+cp samples/n5010-ctl/n5010-ctl.c %{buildroot}%{_usr}/src/opae/samples/n5010-ctl/
 
 %if 0%{?rhel}
   %make_install
@@ -182,6 +184,7 @@ done
 %{_usr}/src/opae/samples/hello_events/hello_events.c
 %{_usr}/src/opae/samples/object_api/object_api.c
 %{_usr}/src/opae/samples/n5010-ddr-test/n5010-ddr-test.c
+%{_usr}/src/opae/samples/n5010-ctl/n5010-ctl.c
 %{_usr}/src/opae/cmake/*
 %{_usr}/src/opae/opae-libs/cmake/modules/*
 %{_usr}/src/opae/argsfilter/argsfilter.c
@@ -250,6 +253,7 @@ done
 %{_bindir}/fpga_dma_N3000_test
 %{_bindir}/fpga_dma_test
 %{_bindir}/n5010-ddr-test
+%{_bindir}/n5010-ctl
 %{_bindir}/PACSign
 %{_bindir}/fpgad
 %{_bindir}/host_exerciser
