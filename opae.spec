@@ -32,6 +32,7 @@ BuildRequires:  tbb-devel
 BuildRequires:  git
 BuildRequires:  python3-jsonschema
 BuildRequires:  python3-pip
+BuildRequires:  python3-pyyaml
 BuildRequires:  python3-virtualenv
 BuildRequires:  systemd-devel
 BuildRequires:  libcap-devel
