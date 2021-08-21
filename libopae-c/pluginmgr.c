@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -58,25 +58,24 @@ typedef struct _platform_data {
 } platform_data;
 
 static platform_data platform_data_table[] = {
-	{ 0x1c2c, 0x1000, "libxfpga.so", 0 },
-	{ 0x1c2c, 0x1001, "libxfpga.so", 0 },
-	{ 0x8086, 0xbcbd, "libxfpga.so", 0 },
-	{ 0x8086, 0xbcc0, "libxfpga.so", 0 },
-	{ 0x8086, 0xbcc1, "libxfpga.so", 0 },
-	{ 0x8086, 0x09c4, "libxfpga.so", 0 },
-	{ 0x8086, 0x09c5, "libxfpga.so", 0 },
-	{ 0x8086, 0x0b2b, "libxfpga.so", 0 },
-	{ 0x8086, 0x0b2c, "libxfpga.so", 0 },
-	{ 0x8086, 0x0b30, "libxfpga.so", 0 },
-	{ 0x8086, 0x0b31, "libxfpga.so", 0 },
-	{ 0x8086, 0xbcce, "libxfpga.so", 0 },
-	{ 0x8086, 0xbcce, "libopae-v.so", 0 },
-	{ 0x8086, 0xaf00, "libxfpga.so", 0 },
+	{ 0x1c2c, 0x1000, "libxfpga.so",  0 },
+	{ 0x1c2c, 0x1001, "libxfpga.so",  0 },
+	{ 0x8086, 0xbcbd, "libxfpga.so",  0 },
+	{ 0x8086, 0xbcc0, "libxfpga.so",  0 },
+	{ 0x8086, 0xbcc1, "libxfpga.so",  0 },
+	{ 0x8086, 0x09c4, "libxfpga.so",  0 },
+	{ 0x8086, 0x09c5, "libxfpga.so",  0 },
+	{ 0x8086, 0x0b2b, "libxfpga.so",  0 },
+	{ 0x8086, 0x0b2c, "libxfpga.so",  0 },
+	{ 0x8086, 0x0b30, "libxfpga.so",  0 },
+	{ 0x8086, 0x0b31, "libxfpga.so",  0 },
+	{ 0x8086, 0xaf00, "libxfpga.so",  0 },
 	{ 0x8086, 0xaf00, "libopae-v.so", 0 },
 	{ 0x8086, 0xaf01, "libopae-v.so", 0 },
-	{ 0x8086, 0xbcce, "libxfpga.so", 0 },
+	{ 0x8086, 0xbcce, "libxfpga.so",  0 },
+	{ 0x8086, 0xbcce, "libopae-v.so", 0 },
 	{ 0x8086, 0xbccf, "libopae-v.so", 0 },
-	{      0,      0,          NULL, 0 },
+	{      0,      0,          NULL,  0 },
 };
 
 static int initialized;
