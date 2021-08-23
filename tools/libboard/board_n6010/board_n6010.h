@@ -122,15 +122,22 @@ fpga_result print_sec_info(fpga_token token);
 fpga_result print_fme_verbose_info(fpga_token token);
 
 /**
-* Enumerate hssi feature
+* Prints fpga boot page info.
 *
-* @param[in] token            fpga_token object for device (FPGA_DEVICE type)
-* @param[inout] feature_dev   pointer to char hssi feature
-* @returns FPGA_OK on success. FPGA_NOT_FOUND if  feature info not found.
+* @param[in] token           fpga_token object for device (FPGA_DEVICE type)
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if invalid boot info.
 * FPGA_INVALID_PARAM if invalid parameters were provided
+*
 */
-fpga_result enum_hssi_feature(fpga_token token,
-		char *feature_dev);
+fpga_result fpga_boot_info(fpga_token token);
+
+/**
+* Prints fpga image info.
+*
+* @param[in] token           fpga_token object for device (FPGA_DEVICE type)
+* @returns FPGA_OK on success, or FPGA_NOT_FOUND if the sysfs node is not found.
+*/
+fpga_result fpga_image_info(fpga_token token);
 
 #ifdef __cplusplus
 }

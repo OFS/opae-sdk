@@ -265,17 +265,6 @@ TEST_P(board_dfl_n6010_c_p, board_n6010_6) {
 }
 
 /**
-* @test       board_n6010_7
-* @brief      Tests: enum_hssi_feature
-* @details    Validates Enumerate hssi feature in sysfs  <br>
-*/
-TEST_P(board_dfl_n6010_c_p, board_n6010_7) {
-
-	char hssi_feature_dev[SYSFS_PATH_MAX];
-	EXPECT_EQ(enum_hssi_feature(tokens_[0], hssi_feature_dev), FPGA_OK);
-}
-
-/**
 * @test       board_n6010_8
 * @brief      Tests: print_phy_info
 * @details    Validates fpga phy group info  <br>
@@ -343,9 +332,6 @@ TEST_P(board_n6010_invalid_c_p, board_n6010_11) {
 
 	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_NOT_FOUND);
 	EXPECT_EQ(print_sec_info(tokens_[0]), FPGA_NOT_FOUND);
-	char hssi_feature_dev[SYSFS_PATH_MAX];
-	EXPECT_EQ(enum_hssi_feature(tokens_[0],
-		hssi_feature_dev), FPGA_NOT_FOUND);
 
 	EXPECT_NE(print_phy_info(tokens_[0]), FPGA_EXCEPTION);
 }

@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2020, Intel Corporation
+// Copyright(c) 2019-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -109,6 +109,30 @@ fpga_result get_fpga_sbdf(fpga_token token,
 *
 */
 fpga_result sysfs_read_u64(const char *path, uint64_t *u);
+
+/**
+* find fpga feature id.
+*
+* @param[in] token           fpga_token object for device (FPGA_DEVICE type)
+* @param[in] feature_id      fpga dev feature id
+* @param[inout] dev_str      returns fpga dev str
+* FPGA_INVALID_PARAM if invalid parameters were provided
+* FPGA_NOT_FOUND if feature_id not found
+*
+*/
+fpga_result find_dev_feature(fpga_token token,
+	uint32_t feature_id,
+	char *dfl_dev_str);
+
+/**
+* Prints fpga boot page info.
+*
+* @param[in] token           fpga_token object for device (FPGA_DEVICE type)
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if invalid boot info.
+* FPGA_INVALID_PARAM if invalid parameters were provided
+*
+*/
+fpga_result print_common_boot_info(fpga_token token);
 
 #ifdef __cplusplus
 }

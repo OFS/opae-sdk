@@ -159,8 +159,8 @@ def main():
     """
     parser = argparse.ArgumentParser()
 
-    pcieaddress_help = 'bdf of device to program \
-                        (e.g. 04:00.0 or 0000:04:00.0).' \
+    pcieaddress_help = 'sbdf of device to program \
+                        (e.g. 0000:04:00.0).' \
                        ' Optional when one device in system.'
     parser.add_argument('--pcie-address', '-P',
                         default=None, help=pcieaddress_help)
@@ -169,6 +169,8 @@ def main():
 
     print(args)
     print("pcie_address:", args.pcie_address)
+    if not veriy_pcie_address(args.pcie_address):
+         sys.exit(1)
 
     f = FpgaFinder(args.pcie_address)
     devs = f.enum()
@@ -183,11 +185,11 @@ def main():
         print('no FPGA found')
         sys.exit(1)
 
-    args.fpga_root = devs[0].get('path')
     print("devs[0]", devs[0])
-    args.hssi_grps = f.find_hssi_group(args.fpga_root)
+    args.hssi_grps = f.find_hssi_group(devs[0].get('pcie_address'))
     print("args.hssi_grps", args.hssi_grps)
     if len(args.hssi_grps) == 0:
+        print("Failed to find HSSI feature", devs[0].get('pcie_address'))
         sys.exit(1)
 
     print("fpga uid dev:", args.hssi_grps[0][0])

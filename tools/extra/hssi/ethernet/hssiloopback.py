@@ -43,6 +43,7 @@ class FPGAHSSILPBK(HSSICOMMON):
         self._loopback = args.loopback
         self._hssi_grps = args.hssi_grps
         self._pcie_address = args.pcie_address
+        self._port = args.port
         HSSICOMMON.__init__(self)
 
     def hssi_loopback_en(self):
@@ -57,11 +58,20 @@ class FPGAHSSILPBK(HSSICOMMON):
 
         self.open(self._hssi_grps[0][0])
 
+        hssi_feature_list = hssi_feature(self.read32(0, 0xC))
+        if (self._port >= hssi_feature_list.num_hssi_ports):
+            print("Invalid Input port number")
+            self.close()
+            return -1
+
         ctl_addr = hssi_ctl_addr(0)
         if (self._loopback):
             ctl_addr.sal_cmd = HSSI_SALCMD.ENABLE_LOOPBACK.value
         else:
             ctl_addr.sal_cmd = HSSI_SALCMD.DISABLE_LOOPBACK.value
+
+        # set port number
+        ctl_addr.port_address = self._port
 
         cmd_sts = hssi_cmd_sts(0)
         cmd_sts.value = 0x2
@@ -110,8 +120,8 @@ def main():
     """
 
     parser = argparse.ArgumentParser()
-    pcieaddress_help = 'bdf of device to program \
-                       (e.g. 04:00.0 or 0000:04:00.0).' \
+    pcieaddress_help = 'sbdf of device to program \
+                       (e.g. 0000:04:00.0).' \
                        ' Optional when one device in system.'
     parser.add_argument('--pcie-address', '-P',
                         default=None, help=pcieaddress_help)
@@ -121,12 +131,21 @@ def main():
                         default=None,
                         help='loopback enable')
 
+    parser.add_argument('--port', type=int,
+                        default=0,
+                        help='hssi port number')
+
     args, left = parser.parse_known_args()
 
     print("args", args)
     print("pcie_address:", args.pcie_address)
     print("args.loopback:", args.loopback)
+    print("args.port:", args.port)
     print(args)
+
+    if not veriy_pcie_address(args.pcie_address):
+        sys.exit(1)
+
     if args.loopback is None:
         print('please specify --loopback enable/disable')
         sys.exit(1)
@@ -147,10 +166,11 @@ def main():
         print('no FPGA found')
         sys.exit(1)
 
-    args.fpga_root = devs[0].get('path')
-    args.hssi_grps = f.find_hssi_group(args.fpga_root)
+
+    args.hssi_grps = f.find_hssi_group(devs[0].get('pcie_address'))
     print("args.hssi_grps", args.hssi_grps)
     if len(args.hssi_grps) == 0:
+        print("Failed to find HSSI feature", devs[0].get('pcie_address'))
         sys.exit(1)
 
     print("fpga uid dev:", args.hssi_grps[0][0])

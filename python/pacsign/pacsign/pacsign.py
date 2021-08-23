@@ -165,28 +165,37 @@ def main():
         "SR", aliases=["FIM", "BBS"],
         help="Static FPGA image."
     )
+    parser_sr_test = subparsers.add_parser("SR_TEST",
+                                           help="Test Static Region image")
+    parser_sr_cert = subparsers.add_parser("SR_CERT",
+                                           help="Static Region Auth Cert")
+
     parser_bmc = subparsers.add_parser("BMC", aliases=["BMC_FW"], help="BMC image")
     parser_bmc_factory = subparsers.add_parser("BMC_FACTORY", help="BMC Factory image")
     parser_pr = subparsers.add_parser(
         "PR", aliases=["AFU", "GBS"], help="Reconfigurable FPGA image"
     )
+    parser_pr_test = subparsers.add_parser("PR_TEST",
+                                           help="Test Programmable Region image")
+
     parser_factory = subparsers.add_parser("FACTORY", help="Factory image")
     parser_pxe = subparsers.add_parser("PXE", help="PXE or Option ROM image")
     parser_therm_sr = subparsers.add_parser("THERM_SR", help="Thermal image for static region")
     parser_therm_pr = subparsers.add_parser("THERM_PR", help="Thermal image for PR region")
     parser_sdm = subparsers.add_parser("SDM", help="Secure Device Manager image")
-    parser_sdm_devel = subparsers.add_parser("SDM_DEVEL",
-                                             help="Secure Device Manager development image")
+
     add_common_options(parser_sr)
+    add_common_options(parser_sr_test)
+    add_common_options(parser_sr_cert)
     add_common_options(parser_bmc)
     add_common_options(parser_bmc_factory)
     add_common_options(parser_pr)
+    add_common_options(parser_pr_test)
     add_common_options(parser_factory)
     add_common_options(parser_pxe)
     add_common_options(parser_therm_sr)
     add_common_options(parser_therm_pr)
     add_common_options(parser_sdm)
-    add_common_options(parser_sdm_devel)
 
     args = parser.parse_args()
     if len(sys.argv) == 1:

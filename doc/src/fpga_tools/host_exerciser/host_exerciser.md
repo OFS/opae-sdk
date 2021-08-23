@@ -4,6 +4,7 @@
 ```console
 Usage: host_exerciser [OPTIONS] SUBCOMMAND
 
+
 Options:
   -h,--help                   Print this help message and exit
   -p,--pci-address TEXT       [<domain>:]<bus>:<device>.<function>
@@ -13,19 +14,26 @@ Options:
   -t,--timeout UINT=60000     test timeout (msec)
   -m,--mode UINT:value in {lpbk->0,read->1,trput->3,write->2} OR {0,1,3,2}=lpbk
                               host exerciser mode {lpbk,read, write, trput}
-  --cl UINT:value in {cl_1->0,cl_2->1,cl_3->2,cl_4->2} OR {0,1,2,2}=cl_1
-                              number of CLs per request{cl_1, cl_2, cl_3, cl_4}
-  --ccont BOOLEAN=0           Configures test rollover or test termination
-  -d,--delay BOOLEAN=0        Enables random delay insertion between requests
+  --cls UINT:value in {cl_1->0,cl_2->1,cl_4->2} OR {0,1,2}=cl_1
+                              number of CLs per request{cl_1, cl_2, cl_4}
+  --continuousmode UINT=false test rollover or test termination
+  -d,--delay UINT=false       Enables random delay insertion between requests
   --interleave UINT=0         Interleave requests pattern to use in throughput mode {0, 1, 2}
                               indicating one of the following series of read/write requests:
                               0: rd-wr-rd-wr
                               1: rd-rd-wr-wr
-                              2: rd-rd-rd-rd-wr-wr-wr-w
+                              2: rd-rd-rd-rd-wr-wr-wr-wr
+  --interrupt UINT:INT in [0 - 3]
+                              The Interrupt Vector Number for the device
+  --perf UINT=false           Enable perf counters
+                              Set the capabilities for binary(for non-root user)
+                              set capabilities: "sudo setcap 38,cap_sys_ptrace,cap_syslog+eip /usr/bin/host_exerciser"
+                              remove capabilities: "sudo setcap -r /usr/bin/host_exerciser"
 
 Subcommands:
   lpbk                        run simple loopback test
   mem                         run simple mem test
+
 
 
 ```
@@ -92,7 +100,7 @@ host exerciser test modes are lpbk, read, write, trput
 
 `--cls`
 
-Number of cachelines per request 1, 2, 3, 4.
+Number of cachelines per request 1, 2, 4.
 
 
 `--continuousmode`
@@ -112,6 +120,17 @@ Value:3'b000-Rd,Wr,Rd,Wr
 Value:3'b001-Rd,Rd,Wr,Wr
 Value:3'b010-Rd,Rd,Rd,Rd,Wr,Wr,Wr,Wr
 Value:3'b011-Not supported
+
+
+`--interrupt`
+
+Accelerator interrupt vector Number.
+
+
+`--perf`
+
+Enable performance counters.
+
 
 
 ## EXAMPLES ##
