@@ -555,12 +555,8 @@ class fpga_base(sysfs_device):
     def safe_rsu_boot(self, available_image, **kwargs):
         wait_time = kwargs.pop('wait', 10)
 
-        if available_image[:4] == 'fpga':
-            to_remove = self.pci_node.root.endpoints
-            to_disable = [ep.parent for ep in to_remove]
-        else:
-            to_remove = [self.pci_node.root]
-            to_disable = [self.pci_node.root]
+        to_remove = [self.pci_node.root]
+        to_disable = [self.pci_node.root]
         # rescan at the pci bus, if found
         # if for some reason it can't be found, do a full system rescan
         to_rescan = self.pci_node.pci_bus
