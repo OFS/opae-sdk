@@ -97,12 +97,20 @@ public:
             return;
         struct he_dms_status *dms_status;
         dms_status = reinterpret_cast<he_dms_status *>(status_ptr);
+
+        uint64_t num_cache_lines = (LPBK1_BUFFER_SIZE / (1 * CL));
         std::cout << "Number of clocks:" <<
                     dms_status->num_ticks << std::endl;
         std::cout << "Total number of Reads sent:" <<
                     dms_status->num_reads << std::endl;
         std::cout << "Total number of Writes sent :" <<
                     dms_status->num_writes << std::endl;
+
+        double  perf_data = (double)(num_cache_lines * 64) /
+                            (4 * (dms_status->num_ticks));
+        std::cout << "Bandwidth: " << std::setprecision(3) <<
+                   perf_data << " GB/s"<< std::endl;
+
     }
 
     int parse_input_options()

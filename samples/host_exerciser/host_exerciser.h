@@ -42,8 +42,8 @@ static const uint64_t KB = 1024;
 static const uint64_t MB = KB * 1024;
 static const uint64_t LOG2_CL = 6;
 static const size_t LPBK1_DSM_SIZE = 2 * KB;
-static const size_t LPBK1_BUFFER_SIZE = 2 * KB;
-static const size_t LPBK1_BUFFER_ALLOCATION_SIZE = 2 * KB;
+static const size_t LPBK1_BUFFER_SIZE = 64 * KB;
+static const size_t LPBK1_BUFFER_ALLOCATION_SIZE = 64 * KB;
 static const uint32_t DSM_STATUS_TEST_COMPLETE = 0x40;
 
 // Host execiser CSR Offset
