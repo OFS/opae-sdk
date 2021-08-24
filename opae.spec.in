@@ -120,10 +120,6 @@ mv %_topdir/tmpBRoot $RPM_BUILD_ROOT
 mkdir -p /etc/ld.so.conf.d
 echo "@LDCONFIG_DIR@" > /etc/ld.so.conf.d/opae-c.conf
 ldconfig
-if [ -x %{_sbindir}/setcap ];
-then
-  %{_sbindir}/setcap "38,cap_sys_ptrace,cap_syslog+eip" %{_bindir}/host_exerciser
-fi
 
 %postun
 @CPACK_RPM_SPEC_POSTUNINSTALL@
