@@ -28,6 +28,21 @@
 
 #include <opae/vfio.h>
 
+
+static inline void assert_config_op(uint64_t offset,
+                                    ssize_t expected,
+                                    ssize_t actual,
+                                    const char *op)
+{
+  if (actual != expected) {
+    std::stringstream ss;
+    ss << "error: [pci_config:" << op << " @0x" << std::hex << offset
+       << " expected " << std::dec << expected
+       << ", processed " << actual << "\n";
+    throw std::length_error(ss.str().c_str());
+  }
+}
+
 struct mmio_region {
   uint32_t index;
   uint8_t *ptr;
@@ -98,3 +113,111 @@ struct system_buffer {
     return size;
   }
 };
+
+struct vfio_device {
+  ~vfio_device() {
+    close();
+  }
+
+  static vfio_device* open(const char *pci_addr)
+  {
+    opae_vfio *v = new opae_vfio();
+
+    if (opae_vfio_open(v, pci_addr)) {
+      delete v;
+      return nullptr;
+    }
+
+    return new vfio_device(v);
+  }
+
+  void close()
+  {
+    if (v_) {
+      opae_vfio_close(v_);
+      delete v_;
+      v_ = nullptr;
+    }
+  }
+
+  int descriptor() const
+  {
+    return v_->cont_fd;
+  }
+
+  const char *address() const
+  {
+    return v_->cont_pciaddr;
+  }
+
+  template <typename T>
+  T config_read(uint64_t offset) const
+  {
+    T value = 0;
+    ssize_t bytes;
+    bytes = pread(v_->device.device_fd,
+                  &value,
+                  sizeof(T),
+                  v_->device.device_config_offset + offset);
+    assert_config_op(offset, sizeof(T), bytes, "read");
+    return value;
+  }
+
+  template <typename T>
+  void config_write(uint64_t offset, T value)
+  {
+    ssize_t bytes;
+    bytes = pwrite(v_->device.device_fd,
+                   &value,
+                   sizeof(T),
+                   v_->device.device_config_offset + offset);
+    assert_config_op(offset, sizeof(T), bytes, "write");
+  }
+
+  uint32_t num_regions() const
+  {
+    uint32_t count = 0;
+    struct opae_vfio_device_region *r = v_->device.regions;
+    while (r) {
+      ++count;
+      r = r->next;
+    }
+    return count;
+  }
+
+  std::vector<mmio_region> regions()
+  {
+    std::vector<mmio_region> vect;
+    struct opae_vfio_device_region *r = v_->device.regions;
+    while (r) {
+      mmio_region region = { r->region_index, r->region_ptr, r->region_size };
+      vect.push_back(region);
+      r = r->next;
+    }
+    return vect;
+  }
+
+  system_buffer *buffer_allocate(size_t sz)
+  {
+    system_buffer *b = new struct system_buffer();
+
+    b->size = sz;
+    b->buf = nullptr;
+    b->iova = 0;
+
+    if (opae_vfio_buffer_allocate(v_, &b->size, &b->buf, &b->iova)) {
+      delete b;
+      b = nullptr;
+    }
+
+    b->vfio = v_;
+
+    return b;
+  }
+private:
+  opae_vfio *v_;
+  vfio_device(opae_vfio *v)
+    : v_(v){}
+
+};
+
