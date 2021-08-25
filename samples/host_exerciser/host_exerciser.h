@@ -42,8 +42,8 @@ static const uint64_t KB = 1024;
 static const uint64_t MB = KB * 1024;
 static const uint64_t LOG2_CL = 6;
 static const size_t LPBK1_DSM_SIZE = 2 * KB;
-static const size_t LPBK1_BUFFER_SIZE = 2 * KB;
-static const size_t LPBK1_BUFFER_ALLOCATION_SIZE = 2 * KB;
+static const size_t LPBK1_BUFFER_SIZE = 64 * KB;
+static const size_t LPBK1_BUFFER_ALLOCATION_SIZE = 64 * KB;
 static const uint32_t DSM_STATUS_TEST_COMPLETE = 0x40;
 
 // Host execiser CSR Offset
@@ -262,6 +262,24 @@ union he_stride {
   struct {
     uint32_t Stride : 32;
   };
+};
+
+// HE DSM status
+struct he_dms_status {
+	uint64_t test_completed : 1;
+	uint64_t dsm_number : 15;
+	uint64_t res1 : 16;
+	uint64_t err_vector : 32;
+	uint64_t num_ticks : 40;
+	uint64_t res2 : 24;
+	uint64_t num_reads : 32;
+	uint64_t num_writes : 32;
+	uint64_t penalty_start : 16;
+	uint64_t res3 : 16;
+	uint64_t penalty_end : 8;
+	uint64_t res4 : 24;
+	uint64_t ab_error_info : 32;
+	uint32_t res5[7];
 };
 
 const std::map<std::string, uint32_t> he_modes = {

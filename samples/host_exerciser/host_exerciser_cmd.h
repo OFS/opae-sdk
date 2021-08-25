@@ -25,12 +25,10 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 
-#include <sys/capability.h>
 #include <unistd.h>
 
 #include "afu_test.h"
 #include "host_exerciser.h"
-#include "fpgaperf_counter.h"
 
 using test_afu = opae::afu_test::afu;
 using opae::fpga::types::shared_buffer;
@@ -38,46 +36,6 @@ using opae::fpga::types::token;
 
 namespace host_exerciser {
 
-class fpgaperf {
-public:
-  typedef std::shared_ptr<fpgaperf> ptr_t;
-  static std::shared_ptr<fpgaperf> get(token::ptr_t token)
-  {
-    std::shared_ptr<fpgaperf> p(new fpgaperf());
-    if (fpgaPerfCounterGet(token->c_type(), p->counter_) != FPGA_OK) {
-        p.reset();
-    }
-    return p;
-  }
-  ~fpgaperf()
-  {
-    if (fpgaPerfCounterDestroy(counter_) != FPGA_OK) {
-        std::cout << "Failed to destroy the fpga perf counter" << std::endl;
-    }
-    if(counter_) {
-        delete counter_;
-        counter_ = nullptr;
-    }
-  }
-  fpga_result start()
-  {
-      return fpgaPerfCounterStartRecord(counter_);
-  }
-  fpga_result stop()
-  {
-      return fpgaPerfCounterStopRecord(counter_);
-  }
-  fpga_result print()
-  {
-      return fpgaPerfCounterPrint(stdout, counter_);
-  }
-private:
-  fpgaperf() {
-      counter_ = new fpga_perf_counter;
-  }
-  fpgaperf(const fpgaperf &);
-  fpga_perf_counter *counter_ = nullptr;
-};
 
 class host_exerciser_cmd : public test_command
 {
@@ -133,6 +91,28 @@ public:
         return num >> LOG2_CL;
     }
 
+    void host_exerciser_perf_counters(uint8_t *status_ptr)
+    {
+        if (!status_ptr)
+            return;
+        struct he_dms_status *dms_status;
+        dms_status = reinterpret_cast<he_dms_status *>(status_ptr);
+
+        uint64_t num_cache_lines = (LPBK1_BUFFER_SIZE / (1 * CL));
+        std::cout << "Number of clocks:" <<
+                    dms_status->num_ticks << std::endl;
+        std::cout << "Total number of Reads sent:" <<
+                    dms_status->num_reads << std::endl;
+        std::cout << "Total number of Writes sent :" <<
+                    dms_status->num_writes << std::endl;
+
+        double  perf_data = (double)(num_cache_lines * 64) /
+                            (4 * (dms_status->num_ticks));
+        std::cout << "Bandwidth: " << std::setprecision(3) <<
+                   perf_data << " GB/s"<< std::endl;
+
+    }
+
     int parse_input_options()
     {
 
@@ -170,45 +150,11 @@ public:
     virtual int run(test_afu *afu, CLI::App *app)
     {
         (void)app;
-        cap_t caps;
-        cap_flag_value_t cap_flag_value;
-        int res 				= 0;
-        char file_name[DFL_PERF_STR_MAX]	= { 0 };
 
         auto d_afu = dynamic_cast<host_exerciser*>(afu);
         host_exe_ = dynamic_cast<host_exerciser*>(afu);
 
         token_ = d_afu->get_token();
-
-        fpgaperf::ptr_t perf(nullptr);
-        if (host_exe_->perf_) {
-            uid_t uid = getuid();
-            if (uid != 0) {
-                if (readlink("/proc/self/exe", file_name, DFL_PERF_STR_MAX) == -1) {
-                    std::cerr << "Failed to get the binary path" << std::endl;
-                    return -1;
-                }
-                caps = cap_get_file(file_name);
-                if (caps != 0)
-                    res =  cap_get_flag(caps, CAP_PERFMON, CAP_EFFECTIVE, &cap_flag_value);
-                if (res == 0) {
-                    std::cout << std::endl;
-                    std::cout <<"Failed to read Perf counter due to unprivileged user access"<<std::endl
-                    <<"=> check --help for more information on setting the capabilities for binary" <<std::endl << std::endl;
-                    return -1;
-                }
-            }
-            //fpga perf counter initialization
-            perf = fpgaperf::get(token_);
-            if (!perf) {
-                std::cout << "Failed to get the fpgaperf object" << std::endl;
-                return -1;
-            }
-            //start the fpga perf counter
-            if (perf->start() != FPGA_OK) {
-                std::cout << "Failed to start the fpga perf counter" << std::endl;
-            }
-        }
 
         auto ret = parse_input_options();
         if (ret != 0) {
@@ -300,26 +246,19 @@ public:
              }
          }
 
-        if (perf) {
-            //stop performance counter
-            if (perf->stop() != FPGA_OK) {
-                std::cout << "Failed to stop the fpga perf counter" << std::endl;
-            }
-        }
-
         std::cout << "Test Completed" << std::endl;
         host_exerciser_swtestmsg();
-        host_exerciser_status();
 
         /* Compare buffer contents only loopback test mode*/
         if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
             d_afu->compare(source_, destination_);
 
-        if (perf) {
-            //print the performace counter values
-            if (perf->print() != FPGA_OK) {
-                std::cout << "Failed to print the fpga perf counter" << std::endl;
-            }
+        if (host_exe_->perf_) {
+            //print the Performance  counter values
+            std::cout <<"\n****Host Exerciser Performance Counter****"
+                      << std::endl;
+            host_exerciser_status();
+            host_exerciser_perf_counters((uint8_t *)status_ptr);
         }
 
         return 0;
