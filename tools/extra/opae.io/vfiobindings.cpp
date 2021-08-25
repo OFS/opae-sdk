@@ -36,8 +36,6 @@
 
 namespace py = pybind11;
 
-typedef struct opae_vfio *device_ptr;
-
 
 #ifdef LIBVFIO_EMBED
 #include <pybind11/embed.h>
