@@ -63,7 +63,7 @@ rtl_src_config \
 userclk\
 )
 
-declare -ra BIN_DIRS_TO_CLEAN=(\
+declare -a BIN_DIRS_TO_CLEAN=(\
 '/usr/local/bin'\
 )
 
@@ -121,7 +121,7 @@ declare -ra LIBS=(\
 "opae/libxfpga.so"\
 )
 
-declare -ra LIB_DIRS_TO_CLEAN=(\
+declare -a LIB_DIRS_TO_CLEAN=(\
 '/usr/local/lib' \
 '/usr/local/lib64'\
 )
@@ -159,7 +159,7 @@ declare -rai PYTHON_MAJ=(3)
 declare -rai PYTHON_MIN=(0 1 2 3 4 5 6 7 8 9)
 declare -rai PYTHON_REL=(0 1 2 3 4 5 6 7 8 9)
 
-declare -ra PYTHON_DIRS_TO_CLEAN=(\
+declare -a PYTHON_DIRS_TO_CLEAN=(\
 '/usr/lib' \
 '/usr/local/lib' \
 '/usr/local/lib64'\
@@ -296,22 +296,24 @@ clean_python() {
 }
 
 show_help() {
-  printf "Usage: clean [-b] [-l] [-p] [-h] [-c]\n"
+  printf "Usage: clean [-b] [-l] [-p] [-h] [-c] [-B dir] [-L dir] [-P dir]\n"
   printf "\n"
-  printf "  -b : clean OPAE binaries\n"
-  printf "  -l : clean OPAE libraries\n"
-  printf "  -p : clean OPAE Python artifacts\n"
-  printf "  -h : display this help\n"
-  printf "  -c : yes, really delete the files\n"
+  printf "  -b       : clean OPAE binaries\n"
+  printf "  -B <dir> : specify additional bin directory\n"
+  printf "  -l       : clean OPAE libraries\n"
+  printf "  -L <dir> : specify additional lib directory\n"
+  printf "  -p       : clean OPAE Python artifacts\n"
+  printf "  -P <dir> : specify additional python directory\n"
+  printf "  -h       : display this help\n"
+  printf "  -c       : yes, really delete the files\n"
 }
 
-declare -i GOT_CMD=0
+declare -a CMDS=(x)
 
-while getopts ":bclph" o; do
+while getopts ":bclphB:L:P:" o; do
   case "$o" in
     b)
-      clean_bins
-      GOT_CMD=1
+      CMDS=(${CMDS[@]} b)
     ;;
 
     c)
@@ -319,13 +321,23 @@ while getopts ":bclph" o; do
     ;;
 
     l)
-      clean_libs
-      GOT_CMD=1
+      CMDS=(${CMDS[@]} l)
     ;;
 
     p)
-      clean_python
-      GOT_CMD=1
+      CMDS=(${CMDS[@]} p)
+    ;;
+
+    B)
+      BIN_DIRS_TO_CLEAN=(${BIN_DIRS_TO_CLEAN[@]} ${OPTARG})
+    ;;
+
+    L)
+      LIB_DIRS_TO_CLEAN=(${LIB_DIRS_TO_CLEAN[@]} ${OPTARG})
+    ;;
+
+    P)
+      PYTHON_DIRS_TO_CLEAN=(${PYTHON_DIRS_TO_CLEAN[@]} ${OPTARG})
     ;;
 
     h)
@@ -335,7 +347,30 @@ while getopts ":bclph" o; do
   esac
 done
 
-if [ ${GOT_CMD} -eq 0 ]; then
+declare -i DID_SOMETHING=0
+
+for c in ${CMDS[@]} ; do
+  case "$c" in
+    b)
+      clean_bins
+      DID_SOMETHING=1
+    ;;
+
+    l)
+      clean_libs
+      DID_SOMETHING=1
+    ;;
+
+    p)
+      clean_python
+      DID_SOMETHING=1
+    ;;
+  esac
+done
+
+if [ ${DID_SOMETHING} -eq 0 ]; then
   show_help
   exit 1
 fi
+
+exit 0
