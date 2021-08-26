@@ -232,8 +232,17 @@ public:
             he_lpbk_cfg_.IntrTestMode = 1;
         }
 
-        if (host_exe_->he_continuousmode_  && he_lpbk_cfg_.IntrTestMode) {
-            std::cerr << "Interrupts doesn't support in Continuous mode" << std::endl;
+        if (host_exe_->he_continuousmode_  && 
+            (he_lpbk_cfg_.IntrTestMode == 1)) {
+            std::cerr << "Interrupts doesn't support in Continuous mode"
+                << std::endl;
+            return -1;
+        }
+
+        if (host_exe_->he_continuousmode_ &&
+            (host_exe_->he_contmodetime_ == 0)) {
+            std::cerr << "Please add cmd line input continuous mode time"
+                << std::endl;
             return -1;
         }
 
