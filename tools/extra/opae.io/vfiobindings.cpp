@@ -44,7 +44,7 @@ PYBIND11_EMBEDDED_MODULE(libvfio, m)
 PYBIND11_MODULE(libvfio, m)
 #endif
 {
-  py::class_<vfio_device, std::shared_ptr<vfio_device>> pydevice(m, "device", "");
+  py::class_<vfio_device, std::unique_ptr<vfio_device>> pydevice(m, "device", "");
   pydevice.def_static("open", &vfio_device::open)
           .def("descriptor", &vfio_device::descriptor)
           .def("close", &vfio_device::close)
