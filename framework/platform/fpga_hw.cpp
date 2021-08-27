@@ -65,6 +65,7 @@ test_device test_device::unknown() {
                      .fme_num_errors = 0x1234,
                      .port_num_errors = 0x1234,
                      .gbs_guid = "C544CE5C-F630-44E1-8551-59BD87AF432E",
+                     .has_afu = true,
                      .mdata = ""};
 }
 
@@ -210,6 +211,7 @@ static platform_db MOCK_PLATFORMS = {
                        .fme_num_errors = 8,
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                       .has_afu = true,
                        .mdata = skx_mdata}}}},
     {"dcp-rc",
      test_platform{.mock_sysfs = "mock_sys_tmp-dcp-rc-nlb3.tar.gz",
@@ -236,6 +238,7 @@ static platform_db MOCK_PLATFORMS = {
                        .fme_num_errors = 8,
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                       .has_afu = true,
                        .mdata = rc_mdata}}}},
    {"skx-p-dfl0_patchset2",
      test_platform{.mock_sysfs = "mock_sys_tmp-dfl0_patchset2-nlb0.tar.gz",
@@ -262,6 +265,7 @@ static platform_db MOCK_PLATFORMS = {
                        .fme_num_errors = 8,
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                       .has_afu = true,
                        .mdata = skx_mdata}}}},
    {"dcp-rc-dfl0_patchset2",
      test_platform{.mock_sysfs = "mock_sys_tmp-dcp-rc-dfl0_patchset2-nlb0.tar.gz",
@@ -288,6 +292,7 @@ static platform_db MOCK_PLATFORMS = {
                        .fme_num_errors = 8,
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                       .has_afu = true,
                        .mdata = rc_mdata}}}},
    {"dcp-vc",
      test_platform{.mock_sysfs = "mock_sys_tmp-dcp-vc.tar.gz",
@@ -314,6 +319,7 @@ static platform_db MOCK_PLATFORMS = {
                        .fme_num_errors = 9,
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                       .has_afu = true,
                        .mdata = vc_mdata}}}},
    {"dfl-n3000",
      test_platform{.mock_sysfs = "mock_sys_dfl_n3000_nlb0.tar.gz",
@@ -340,6 +346,7 @@ static platform_db MOCK_PLATFORMS = {
                        .fme_num_errors = 8,
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                       .has_afu = true,
                        .mdata = dfl_n3000_mdata}}}},
    { "dfl-d5005",
      test_platform{ .mock_sysfs = "mock_sys_dfl_d5005_nlb0.tar.gz",
@@ -366,13 +373,14 @@ static platform_db MOCK_PLATFORMS = {
                        .fme_num_errors = 8,
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                       .has_afu = true,
                        .mdata = dfl_d5005_mdata}} } },
    {"dfl-n6010",
      test_platform{.mock_sysfs = "mock_sys_dfl_n6010_nlb0.tar.gz",
                    .driver = fpga_driver::linux_dfl0,
                    .devices = {test_device{
                        .fme_guid = "98b4d5bc-98ba-5f4b-98d9-a2841ccf11b0",
-                       .afu_guid = "56e203e9-864f-49a7-b94b-12284c31e02b", // HE lpbk
+                       .afu_guid = INVALID_AFU_ID,
                        .segment = 0x0,
                        .bus = 0x01,
                        .device = 0,
@@ -392,6 +400,7 @@ static platform_db MOCK_PLATFORMS = {
                        .fme_num_errors = 9,
                        .port_num_errors = 4,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                       .has_afu = false,
                        .mdata = dfl_n6010_mdata}}}},
 };
 

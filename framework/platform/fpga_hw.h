@@ -31,7 +31,7 @@
 #include <vector>
 
 #define UUID_LENGTH 37
-#define INVALID_AFU_ID "00000000-0000-0000-0000-000000000000"
+#define INVALID_AFU_ID "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"
 
 namespace opae {
 namespace testing {
@@ -58,6 +58,7 @@ struct test_device {
   uint32_t fme_num_errors;
   uint32_t port_num_errors;
   const char *gbs_guid;
+  bool has_afu;
   const char *mdata;
   static test_device unknown();
 };
