@@ -31,6 +31,7 @@
 #include <vector>
 
 #define UUID_LENGTH 37
+#define INVALID_AFU_ID "00000000-0000-0000-0000-000000000000"
 
 namespace opae {
 namespace testing {
