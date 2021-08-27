@@ -296,21 +296,22 @@ clean_python() {
 }
 
 show_help() {
-  printf "Usage: clean [-b] [-l] [-p] [-h] [-c] [-B dir] [-L dir] [-P dir]\n"
+  printf "Usage: clean [-b] [-l] [-p] [-h] [-c] [-B dir] [-L dir] [-P dir] [-X prefix]\n"
   printf "\n"
-  printf "  -b       : clean OPAE binaries\n"
-  printf "  -B <dir> : specify additional bin directory\n"
-  printf "  -l       : clean OPAE libraries\n"
-  printf "  -L <dir> : specify additional lib directory\n"
-  printf "  -p       : clean OPAE Python artifacts\n"
-  printf "  -P <dir> : specify additional python directory\n"
-  printf "  -h       : display this help\n"
-  printf "  -c       : yes, really delete the files\n"
+  printf "  -b          : clean OPAE binaries\n"
+  printf "  -B <dir>    : specify additional bin directory\n"
+  printf "  -l          : clean OPAE libraries\n"
+  printf "  -L <dir>    : specify additional lib directory\n"
+  printf "  -p          : clean OPAE Python artifacts\n"
+  printf "  -P <dir>    : specify additional python directory\n"
+  printf "  -X <prefix> : specify a prefix to which /bin, /lib, and /lib64 will be added\n"
+  printf "  -h          : display this help\n"
+  printf "  -c          : yes, really delete the files\n"
 }
 
 declare -a CMDS=(x)
 
-while getopts ":bclphB:L:P:" o; do
+while getopts ":bclphB:L:P:X:" o; do
   case "$o" in
     b)
       CMDS=(${CMDS[@]} b)
@@ -338,6 +339,12 @@ while getopts ":bclphB:L:P:" o; do
 
     P)
       PYTHON_DIRS_TO_CLEAN=(${PYTHON_DIRS_TO_CLEAN[@]} ${OPTARG})
+    ;;
+
+    X)
+      BIN_DIRS_TO_CLEAN=(${BIN_DIRS_TO_CLEAN[@]} ${OPTARG}/bin)
+      LIB_DIRS_TO_CLEAN=(${LIB_DIRS_TO_CLEAN[@]} ${OPTARG}/lib)
+      LIB_DIRS_TO_CLEAN=(${LIB_DIRS_TO_CLEAN[@]} ${OPTARG}/lib64)
     ;;
 
     h)
