@@ -52,6 +52,7 @@ extern "C" {
   ssize_t opae_test_readlink(const char *path, char *buf, size_t bufsize);
   int opae_test_xstat(int ver, const char *path, struct stat *buf);
   int opae_test_lstat(int ver, const char *path, struct stat *buf);
+  int opae_test_access(const char *pathname, int mode);
   int opae_test_scandir(const char *dirp, struct dirent ***namelist, filter_func filter, compare_func cmp);
 
   int opae_test_sched_setaffinity(pid_t pid, size_t cpusetsize, const cpu_set_t *mask);

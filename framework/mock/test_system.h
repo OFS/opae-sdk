@@ -142,6 +142,7 @@ class test_system {
   ssize_t readlink(const char *path, char *buf, size_t bufsize);
   int xstat(int ver, const char *path, stat_t *buf);
   int lstat(int ver, const char *path, stat_t *buf);
+  int access(const char *pathname, int mode);
   int scandir(const char *dirp, struct dirent ***namelist, filter_func filter,
               compare_func cmp);
   int sched_setaffinity(pid_t pid, size_t cpusetsize,
@@ -189,6 +190,7 @@ class test_system {
   typedef ssize_t (*readlink_func)(const char *pathname, char *buf,
                                    size_t bufsiz);
   typedef int (*__xstat_func)(int ver, const char *pathname, struct stat *buf);
+  typedef int (*access_func)(const char *pathname, int mode);
   typedef int (*scandir_func)(const char *, struct dirent ***, filter_func,
                               compare_func);
   typedef int (*sched_setaffinity_func)(pid_t pid, size_t cpusetsize,
@@ -211,6 +213,7 @@ class test_system {
   readlink_func readlink_;
   __xstat_func xstat_;
   __xstat_func lstat_;
+  access_func access_;
   scandir_func scandir_;
   sched_setaffinity_func sched_setaffinity_;
   glob_func glob_;

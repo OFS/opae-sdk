@@ -93,6 +93,10 @@ int __lxstat(int ver, const char *pathname, struct stat *buf) {
   return opae_test_xstat(ver, pathname, buf);
 }
 
+int access(const char *pathname, int mode) {
+  return opae_test_access(pathname, mode);
+}
+
 int scandir(const char *__restrict __dir,
             struct dirent ***__restrict __namelist,
             int (*__selector)(const struct dirent *),

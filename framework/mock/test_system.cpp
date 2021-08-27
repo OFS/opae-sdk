@@ -199,6 +199,7 @@ test_system::test_system() : initialized_(false), root_("") {
   readlink_ = (readlink_func)dlsym(RTLD_NEXT, "readlink");
   xstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__xstat");
   lstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__lxstat");
+  access_ = (access_func)dlsym(RTLD_NEXT, "access");
   scandir_ = (scandir_func)dlsym(RTLD_NEXT, "scandir");
   sched_setaffinity_ =
       (sched_setaffinity_func)dlsym(RTLD_NEXT, "sched_setaffinity");
@@ -324,6 +325,7 @@ void test_system::initialize() {
   ASSERT_FN(readlink_);
   ASSERT_FN(xstat_);
   ASSERT_FN(lstat_);
+  ASSERT_FN(access_);
   ASSERT_FN(scandir_);
   ASSERT_FN(sched_setaffinity_);
   ASSERT_FN(glob_);
@@ -676,6 +678,11 @@ int test_system::lstat(int ver, const char *path, struct stat *buf) {
   return res;
 }
 
+int test_system::access(const char *pathname, int mode) {
+  std::string syspath = get_sysfs_path(pathname);
+  return access_(syspath.c_str(), mode);
+}
+
 int test_system::scandir(const char *dirp, struct dirent ***namelist,
                          filter_func filter, compare_func cmp) {
   std::string syspath = get_sysfs_path(dirp);
@@ -850,6 +857,10 @@ int opae_test_xstat(int ver, const char *path, struct stat *buf) {
 
 int opae_test_lstat(int ver, const char *path, struct stat *buf) {
   return opae::testing::test_system::instance()->lstat(ver, path, buf);
+}
+
+int opae_test_access(const char *pathname, int mode) {
+  return opae::testing::test_system::instance()->access(pathname, mode);
 }
 
 int opae_test_scandir(const char *dirp, struct dirent ***namelist,
