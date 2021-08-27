@@ -30,6 +30,8 @@
 #include <opae/cxx/core/properties.h>
 #include <opae/cxx/core/token.h>
 
+#define SKIPPED_AFU_ID "ffffffff-ffff-ffff-ffff-ffffffffffff"
+
 using namespace opae::testing;
 using namespace opae::fpga::types;
 
@@ -92,6 +94,11 @@ TEST_P(properties_cxx_core, get_guid_valid) {
 
   // Retrieve first platform device afu guid.
   guid = platform_.devices[0].afu_guid;
+
+  // skip this test if test_platform is configured with the "skip-uuid"
+  if (strcmp(SKIPPED_AFU_ID, guid) == 0)
+    return;
+
   ASSERT_EQ(0, uuid_parse(guid, valid_guid));
 
   tokens = token::enumerate({properties::get(valid_guid)});
