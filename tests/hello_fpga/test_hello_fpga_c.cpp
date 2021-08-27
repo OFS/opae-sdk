@@ -50,8 +50,6 @@ int hello_fpga_main(int argc, char *argv[]);
 
 }
 
-#define INVALID_AFU_ID "00000000-0000-0000-0000-000000000000"
-
 #include <config.h>
 
 #include <iostream>
@@ -210,6 +208,10 @@ TEST_P(hello_fpga_c_p, parse_args2) {
  *             and the fn returns FPGA_OK.<br>
  */
 TEST_P(hello_fpga_c_p, find_fpga0) {
+  if (!platform_.devices[0].has_afu) {
+    GTEST_SKIP();
+  }
+
   fpga_guid guid;
   fpga_token tok = nullptr;
   uint32_t matches = 0xff;
