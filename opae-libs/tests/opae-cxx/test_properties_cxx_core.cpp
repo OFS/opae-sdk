@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -86,12 +86,17 @@ TEST_P(properties_cxx_core, get_no_filter) {
  * object that will return a token with the same guid when enumerated.
  */
 TEST_P(properties_cxx_core, get_guid_valid) {
+  if (!platform_.devices[0].has_afu) {
+    GTEST_SKIP();
+  }
+
   std::vector<token::ptr_t> tokens;
   const char *guid = nullptr;
   fpga_guid valid_guid;
 
   // Retrieve first platform device afu guid.
   guid = platform_.devices[0].afu_guid;
+
   ASSERT_EQ(0, uuid_parse(guid, valid_guid));
 
   tokens = token::enumerate({properties::get(valid_guid)});
