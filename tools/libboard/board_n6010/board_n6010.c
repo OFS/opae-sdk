@@ -94,14 +94,24 @@ struct hssi_version {
 	};
 };
 
+//Physical Port Enable
+/*
+[6] - Port 0 Enable
+[7] - Port 1 Enable
+:
+[21] - Port 15 Enable
+*/
+#define PORT_ENABLE_INDEX 6
+
 // hssi feature list CSR
 struct hssi_feature_list {
 	union {
 		uint32_t csr;
 		struct {
 			uint32_t axi4_support : 1;
-			uint32_t hssi_num : 4;
-			uint32_t reserved : 27;
+			uint32_t hssi_num : 5;
+			uint32_t port_enable : 16;
+			uint32_t reserved : 10;
 		};
 	};
 };
@@ -116,9 +126,10 @@ struct hssi_port_attribute {
 			uint32_t profile : 6;
 			uint32_t ready_latency : 4;
 			uint32_t data_bus_width : 3;
-			uint32_t low_speed_mac : 1;
+			uint32_t low_speed_mac : 2;
 			uint32_t dynamic_pr : 1;
-			uint32_t reserved : 16;
+			uint32_t sub_profile : 5;
+			uint32_t reserved : 11;
 		};
 	};
 };
@@ -130,7 +141,7 @@ typedef struct hssi_port_profile {
 
 } hssi_port_profile;
 
-#define HSS_PORT_PROFILE_SIZE 33
+#define HSS_PORT_PROFILE_SIZE 34
 
 hssi_port_profile hssi_port_profiles[] = {
 
@@ -166,7 +177,8 @@ hssi_port_profile hssi_port_profiles[] = {
 	{.port_index = 29, .profile = "200GAUI-4"},
 	{.port_index = 30, .profile = "200GAUI-8"},
 	{.port_index = 31, .profile = "400GAUI-4"},
-	{.port_index = 32, .profile = "400GAUI-8"}
+	{.port_index = 32, .profile = "400GAUI-8"},
+	{.port_index = 33, .profile = "CPRI"}
  };
 
 
@@ -375,6 +387,7 @@ fpga_result print_phy_info(fpga_token token)
 	struct hssi_version  hssi_ver;
 	uint8_t *mmap_ptr = NULL;
 	uint32_t i = 0;
+	uint32_t port_count = 0;
 
 	res = find_dev_feature(token, HSSI_FEATURE_ID, feature_dev);
 	if (res != FPGA_OK) {
@@ -401,8 +414,18 @@ fpga_result print_phy_info(fpga_token token)
 	printf("//****** HSSI information ******//\n");
 	printf("%-32s : %d.%d  \n", "HSSI version", hssi_ver.major, hssi_ver.minor);
 	printf("%-32s : %d  \n", "Number of ports", feature_list.hssi_num);
+	for (i = 0; i < feature_list.hssi_num; i++) {
+			if ((feature_list.port_enable >> (i + PORT_ENABLE_INDEX)) == 1)
+				port_count++;
+		}
+	printf("%-32s : %d  \n", "Number of active ports", port_count);
 
 	for (i = 0; i < feature_list.hssi_num; i++) {
+
+		// prints only active/enabled ports
+		if ((feature_list.port_enable >> (i + PORT_ENABLE_INDEX)) != 1)
+			continue;
+
 		port_profile.csr = *((uint32_t *)(mmap_ptr +
 			HSSI_PORT_ATTRIBUTE + i * 4));
 
