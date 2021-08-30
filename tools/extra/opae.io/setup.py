@@ -1,4 +1,4 @@
-# Copyright(c) 2020, Intel Corporation
+# Copyright(c) 2020-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -29,7 +29,7 @@ from distutils.core import Extension, setup
 
 setup(
     name="opae.io",
-    version="0.1",
+    version="0.2",
     packages=find_packages(include=['opae.*']),
     entry_points={
         'console_scripts': []
