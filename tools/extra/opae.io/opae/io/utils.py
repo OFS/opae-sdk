@@ -1,4 +1,4 @@
-# Copyright(c) 2020, Intel Corporation
+# Copyright(c) 2020-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -25,7 +25,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import contextlib
-import glob
 import grp
 import json
 import os
@@ -326,7 +325,7 @@ class feature(object):
         finally:
             if not err:
                 csr.commit()
-            
+
 fpga_devices = {(0x8086, 0x09c4) : "Intel PAC A10 GX",
                 (0x8086, 0x09c5) : "Intel PAC A10 GX VF",
                 (0x8086, 0x0b2b) : "Intel PAC D5005",
@@ -377,7 +376,7 @@ def lsfpga(**kwargs):
                 print('error with vendor/device: {}'.format(k))
             else:
                 conf_ids[(int(vstr, 16), int(dstr, 16))] = v
-            
+
         if conf.get('override', False):
             device_ids.update(conf_ids)
         else:
@@ -436,7 +435,7 @@ def find_device(pci_addr=None):
             LOG.error(errstr)
             raise OSError(os.EX_OSERR, errstr)
         return d
-        
+
     for pci_addr, vid, did, name, driver in lsfpga():
         if driver == 'vfio-pci':
             iommu_group = read_link('/sys/bus/pci/devices', pci_addr, 'iommu_group')
