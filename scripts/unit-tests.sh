@@ -16,8 +16,7 @@ if [ ! -f CMakeCache.txt ]; then
              -DOPAE_BUILD_SIM=OFF
 fi
 
-make -j 4
-
+make -j $(nproc)
 
 LD_LIBRARY_PATH=${PWD}/lib \
 CTEST_OUTPUT_ON_FAILURE=1 \
