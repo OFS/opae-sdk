@@ -1,4 +1,4 @@
-# Copyright(c) 2017, Intel Corporation
+# Copyright(c) 2017-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -27,8 +27,8 @@
 import os
 import json
 import struct
-from metadata import constants
-from metadata import metadata
+from packager.metadata import constants
+from packager.metadata import metadata
 
 RBF_EXT = ".rbf"
 GBS_EXT = ".gbs"

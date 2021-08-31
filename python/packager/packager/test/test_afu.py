@@ -1,4 +1,4 @@
-# test_afu_platform.py
+# test_afu.py
 import unittest
 import packager
 import os

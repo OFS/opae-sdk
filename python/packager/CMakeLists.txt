@@ -1,4 +1,4 @@
-## Copyright(c) 2019-2021, Intel Corporation
+## Copyright(c) 2017-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,21 +24,8 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required (VERSION  3.10)
-
-project(python)
-
-############################################################################
-## Find Python by version     ##############################################
-############################################################################
-set(OPAE_PYTHON_VERSION 3.6 CACHE STRING "Python version to use for building/distributing pyopae")
-set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3.6 3.5 3.4 3.3)
-
-find_package(PythonInterp ${OPAE_PYTHON_VERSION})
-find_package(PythonLibs ${OPAE_PYTHON_VERSION})
-
-set(INTEL_SECURITY_TOOLS_VERSION 1.0.3 CACHE STRING "Security Tools Version string")
-
-add_subdirectory(opae.admin)
-add_subdirectory(pacsign)
-add_subdirectory(packager)
+opae_python_install(COMPONENT packager
+    RECORD_FILE packager-install.txt
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    RPM_PACKAGE packager
+)

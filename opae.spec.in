@@ -90,6 +90,12 @@ Group:      opae PACSign
 %description PACSign
 This package contains PAC Sign tools
 
+%package packager
+Summary:    Green BitStream packager
+Group:      opae packager
+
+%description packager
+This package contains packager tools
 
 # This is a shortcutted spec file generatCed by CMake RPM generator
 # we skip _install step because CPack does that for us.
@@ -230,9 +236,6 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c++-utils.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libofs*.so*
 %dir @CMAKE_INSTALL_PREFIX@/share/opae
-%dir @CMAKE_INSTALL_PREFIX@/share/opae/python/
-%dir @CMAKE_INSTALL_PREFIX@/share/opae/python/*
-@CMAKE_INSTALL_PREFIX@/share/opae/python/*
 
 # coreidle applies only to a legacy platform that is no longer supported
 %exclude @CMAKE_INSTALL_PREFIX@/bin/coreidle
@@ -260,6 +263,9 @@ ldconfig
 %defattr(-,root,root,-)
 
 %files PACSign -f PACSign-files.txt
+%defattr(-,root,root,-)
+
+%files packager -f packager-files.txt
 %defattr(-,root,root,-)
 
 %changelog

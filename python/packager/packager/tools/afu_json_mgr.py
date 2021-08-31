@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-# Copyright(c) 2017, Intel Corporation
+#!/usr/bin/env python3
+# Copyright(c) 2017-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,8 @@ import re
 import json
 import zipfile
 import uuid
-from afu import AFU
+from packager.utils.afu import AFU
+from packager.schema import GetFile
 
 AFU_JSON_MGR_EXEC = "afu_json_mgr"
 DESCRIPTION = 'Intel FPGA AFU JSON Manager'
@@ -54,15 +55,10 @@ The following values for <cmd> are currently supported:
 # Create an AFU JSON file, filling in a few key fields.
 def create_json(subargs):
     # Read the template JSON file
-    filepath = os.path.dirname(os.path.realpath(__file__))
-    template_path = "schema/afu_template.json"
+    filepath = GetFile("afu_template.json")
     afu = AFU()
-    if (zipfile.is_zipfile(filepath)):
-        archive = zipfile.ZipFile(filepath, 'r')
-        afu.load_afu_desc_file_hdl(archive.open(template_path, "r"))
-    else:
-        afu.load_afu_desc_file_hdl(open(os.path.join(filepath,
-                                                     template_path), "r"))
+
+    afu.load_afu_desc_file_hdl(open(filepath, "r"))
 
     accel = afu.afu_json['afu-image']['accelerator-clusters'][0]
     accel['name'] = subargs.name

@@ -1,4 +1,4 @@
-# Copyright(c) 2017, Intel Corporation
+# Copyright(c) 2017-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -28,40 +28,19 @@ import json
 import os
 import shutil
 import sys
-import utils
+import site
 import zipfile
-from metadata import metadata
-from gbs import GBS, GBS_EXT
+from packager.utils import utils
+import packager.metadata.metadata
+from packager.utils.gbs import GBS, GBS_EXT
+from packager.schema import GetFile
 
-# Update sys.path to include jsonschema folder from different locations
-try:
-    # pkgPATH1 : jsonschema search path for opae-sdk/tools/extra/packager
-    pkgPath1 = os.path.join(sys.path[0], 'jsonschema-2.3.0')
+from jsonschema import validators
+from jsonschema import exceptions
 
-    # pkgPath2 : current packager script location
-    pkgPath2 = os.path.abspath(os.path.dirname(sys.argv[0]))
-    dirList = pkgPath2.split("/")
-    dirList = dirList[:-1]
-    pkgPath2 = "/".join(dirList)
-
-    # pkgPath3 : jsonschema search path for current packager location
-    pkgPath3 = pkgPath2 + "/share/opae/python/jsonschema-2.3.0"
-
-    sys.path.append(pkgPath1)
-    sys.path.append(pkgPath3)
-    from jsonschema import validators
-    from jsonschema import exceptions
-except ImportError:
-    print("jsonschema module has no validatiors() or exceptions()")
-    raise
-
-filepath = os.path.dirname(os.path.realpath(__file__))
-schema_path = "schema/afu_schema_v01.json"
-if(zipfile.is_zipfile(filepath)):
-    archive = zipfile.ZipFile(filepath, 'r')
-    afu_schema = json.load(archive.open(schema_path, "r"))
-else:
-    afu_schema = json.load(open(filepath + "/" + schema_path, "r"))
+filepath = GetFile('afu_schema_v01.json')
+with filepath.open("r") as fp:
+    afu_schema = json.load(fp)
 
 ARCHIVE_FORMAT = "zip"
 ARCHIVE_EXT = ".zip"
