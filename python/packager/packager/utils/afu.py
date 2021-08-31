@@ -28,7 +28,6 @@ import json
 import os
 import shutil
 import sys
-import site
 import zipfile
 from packager.utils import utils
 import packager.metadata.metadata
