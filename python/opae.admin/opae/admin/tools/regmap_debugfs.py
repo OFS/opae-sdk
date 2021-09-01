@@ -46,6 +46,12 @@ class RegmapDebugfs():
     def get_register_info(self):
         """get information about regmap"""
         with open(self.registers_path, 'r') as _file:
+            #skip one line for each range with max_offset zero
+            for range_dict in self.ranges:
+                if range_dict['max_offset'] == 0:
+                    _file.readline()
+                else:
+                    break
             line0 = _file.readline()
             line1 = _file.readline()
             self.record_len = len(line0)
@@ -61,8 +67,7 @@ class RegmapDebugfs():
                 range_dict = {
                     'min': int(list0[0], 16),
                     'max': int(list0[1], 16),
-                    'num_records': ((int(list0[1], 16) - int(list0[0], 16)) /
-                                    self.register_stride) + 1,
+                    'max_offset': int(list0[1], 16) - int(list0[0], 16),
                 }
                 self.ranges.append(range_dict)
 
@@ -77,7 +82,7 @@ class RegmapDebugfs():
                 num_records += offset / self.register_stride
                 break
             else:
-                num_records += range_dict['num_records']
+                num_records += range_dict['max_offset'] / self.register_stride + 1
         else:
             sys.exit("bad read address")
 
@@ -147,8 +152,8 @@ def main():
     args = parser.parse_args()
 
     reg_map = RegmapDebugfs(args.regmap)
-    reg_map.get_register_info()
     reg_map.get_range_info()
+    reg_map.get_register_info()
 
     addr = int(args.addr, 16)
 
