@@ -401,24 +401,31 @@ static int close_vfio_pair(vfio_pair_t **pair)
 	return 0;
 }
 
-STATIC vfio_pair_t *open_vfio_pair(const char *addr)
+STATIC fpga_result open_vfio_pair(const char *addr, vfio_pair_t **ppair)
 {
 	char phys_device[PCIADDR_MAX];
 	char phys_driver[PATH_MAX];
 	char secret[GUIDSTR_MAX];
-	vfio_pair_t *pair = malloc(sizeof(vfio_pair_t));
+	vfio_pair_t *pair;
+	int ires;
+	fpga_result res = FPGA_EXCEPTION;
 
-	if (!pair) {
+	*ppair = malloc(sizeof(vfio_pair_t));
+
+	if (!*ppair) {
 		OPAE_ERR("Failed to allocate memory for vfio_pair_t");
-		return NULL;
+		return FPGA_NO_MEMORY;
 	}
+
+	pair = *ppair;
 	memset(pair, 0, sizeof(vfio_pair_t));
 
 	pair->device = malloc(sizeof(struct opae_vfio));
 	if (!pair->device) {
 		OPAE_ERR("Failed to allocate memory for opae_vfio struct");
 		free(pair);
-		return NULL;
+		*ppair = NULL;
+		return FPGA_NO_MEMORY;
 	}
 	memset(pair->device, 0, sizeof(struct opae_vfio));
 
@@ -434,27 +441,42 @@ STATIC vfio_pair_t *open_vfio_pair(const char *addr)
 			goto out_destroy;
 		}
 		memset(pair->physfn, 0, sizeof(struct opae_vfio));
-		if (opae_vfio_secure_open(pair->physfn, phys_device, secret)) {
-			ERR("error opening physfn: %s", phys_device);
+		ires = opae_vfio_secure_open(pair->physfn, phys_device, secret);
+		if (ires) {
+			if (ires == 2)
+				res = FPGA_BUSY;
+			else
+				ERR("error opening physfn: %s", phys_device);
 			free(pair->physfn);
 			pair->physfn = NULL;
 			goto out_destroy;
 		}
-		if (opae_vfio_secure_open(pair->device, addr, secret)) {
-			ERR("error opening vfio device: %s", addr);
+		ires = opae_vfio_secure_open(pair->device, addr, secret);
+		if (ires) {
+			if (ires == 2)
+				res = FPGA_BUSY;
+			else
+				ERR("error opening vfio device: %s", addr);
 			goto out_destroy;
 		}
 	} else {
-		if (opae_vfio_open(pair->device, addr)) {
-			ERR("error opening vfio device: %s", addr);
+		ires = opae_vfio_open(pair->device, addr);
+		if (ires) {
+			if (ires == 2)
+				res = FPGA_BUSY;
+			else
+				ERR("error opening vfio device: %s", addr);
 			goto out_destroy;
 		}
 	}
-	return pair;
+
+	return FPGA_OK;
+
 out_destroy:
 	free(pair->device);
 	free(pair);
-	return NULL;
+	*ppair = NULL;
+	return res;
 }
 
 static fpga_result vfio_reset(const pci_device_t *p, volatile uint8_t *port_base)
@@ -471,11 +493,12 @@ int vfio_walk(pci_device_t *p)
 
 	volatile uint8_t *mmio;
 	size_t size;
-	vfio_pair_t *pair = open_vfio_pair(p->addr);
+	vfio_pair_t *pair = NULL;
 
-	if (!pair) {
-		OPAE_ERR("error opening vfio device: %s", p->addr);
-		return 1;
+	res = open_vfio_pair(p->addr, &pair);
+	if (res) {
+		OPAE_DBG("error opening vfio device: %s", p->addr);
+		return res;
 	}
 	struct opae_vfio *v = pair->device;
 	// look for legacy FME guids in BAR 0
@@ -584,10 +607,9 @@ fpga_result vfio_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 
 	_handle->magic = VFIO_HANDLE_MAGIC;
 	_handle->token = clone_token(_token);
-	_handle->vfio_pair = open_vfio_pair(_token->device->addr);
-	if (!_handle->vfio_pair) {
-		OPAE_ERR("error opening vfio device");
-		res = FPGA_EXCEPTION;
+	res = open_vfio_pair(_token->device->addr, &_handle->vfio_pair);
+	if (res) {
+		OPAE_DBG("error opening vfio device");
 		goto out_attr_destroy;
 	}
 	uint8_t *mmio = NULL;
