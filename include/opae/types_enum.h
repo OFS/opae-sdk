@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -113,6 +113,23 @@ typedef enum {
 	* possibly platform-specific functions. */
 	FPGA_ACCELERATOR
 } fpga_objtype;
+
+/**
+ * OPAE plugin interface
+ *
+ * These are the supported plugin interfaces.
+ */
+typedef enum {
+	/** FPGA_IFC_DFL indicates that the plugin interface is the
+	 * Device Feature List driver suite. */
+	FPGA_IFC_DFL = 0,
+	/** FPGA_IFC_VFIO indicates that the plugin interface is the
+	 * vfio-pci driver. */
+	FPGA_IFC_VFIO,
+	/** FPGA_IFC_SIM indicates that the plugin interface is the
+	 * AFU Simulation Environment. */
+	FPGA_IFC_SIM
+} fpga_interface;
 
 /**
  * Buffer flags

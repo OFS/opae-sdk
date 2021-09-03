@@ -56,6 +56,7 @@ struct dev_list {
 	uint8_t socket_id;
 	uint16_t vendor_id;
 	uint16_t device_id;
+	fpga_interface interface;
 
 	uint32_t fpga_num_slots;
 	uint64_t fpga_bitstream_id;
@@ -203,6 +204,13 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 		}
 	}
 
+	if (FIELD_VALID(_filter, FPGA_PROPERTY_INTERFACE)) {
+		if (_filter->interface != attr->interface) {
+			res = false;
+			goto out_unlock;
+		}
+	}
+
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJTYPE)
 	    && (FPGA_DEVICE == _filter->objtype)) {
 
@@ -344,6 +352,7 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 	pdev->function = parent->function;
 	pdev->vendor_id = parent->vendor_id;
 	pdev->device_id = parent->device_id;
+	pdev->interface = FPGA_IFC_DFL;
 
 	parent->fme = pdev->fme = pdev;
 
@@ -505,6 +514,7 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	pdev->function = parent->function;
 	pdev->vendor_id = parent->vendor_id;
 	pdev->device_id = parent->device_id;
+	pdev->interface = FPGA_IFC_DFL;
 
 	pdev->fme = parent->fme;
 
