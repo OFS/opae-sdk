@@ -128,10 +128,19 @@ declare -a LIB_DIRS_TO_CLEAN=(\
 
 declare -i DELETE=0
 clean() {
-  printf "$1\n"
   if [ ${DELETE} -eq 1 ]; then
-    [ -f "$1" ] && rm -f "$1"
-    [ -d "$1" ] && rm -rf "$1"
+    if [ -f "$1" ]; then
+      printf "rm -f $1\n"
+      rm -f $1
+    elif [ -d "$1" ]; then
+      printf "rm -rf $1\n"
+      rm -rf $1
+    elif [ -L "$1" ]; then
+      printf "unlink $1\n"
+      unlink $1
+    fi
+  else
+    printf "$1\n"
   fi
 }
 
@@ -166,6 +175,21 @@ declare -a PYTHON_DIRS_TO_CLEAN=(\
 )
 
 python_files() {
+  local files
+
+  local -ra dirs=('ethernet' \
+                  'opae' \
+                  'pacsign')
+
+  local -ra globs=('hssi_ethernet-*.egg-info' \
+                   'libvfio*.so' \
+                   'opae.diag-*.egg-info' \
+                   'opae.io-*.pth' \
+                   'opae.io-*.egg-info' \
+                   'pacsign-*.egg-info' \
+                   'pyopaeuio-*.egg-info' \
+                   'pyopaeuio*.so')
+
   for d in ${PYTHON_DIRS_TO_CLEAN[@]} ; do
 
     for maj in ${PYTHON_MAJ[@]} ; do
@@ -175,50 +199,18 @@ python_files() {
           py="$py/site-packages"
           if [ -d "$py" ]; then
 
-            [ -d "$py/ethernet" ] && printf "%s\n" "$py/ethernet"
-
-            files=($py/hssi_ethernet-*.egg-info)
-            for f in ${files[@]} ; do
-              printf "%s\n" "$f"
+            for e in ${dirs[@]} ; do
+              [ -d "$py/$e" ] && printf "%s\n" "$py/$e"
             done
 
-            files=($py/libvfio*.so)
-            for f in ${files[@]} ; do
-              printf "%s\n" "$f"
-            done
-
-            [ -d "$py/opae" ] && printf "%s\n" "$py/opae"
-
-            files=($py/opae.diag-*.egg-info)
-            for f in ${files[@]} ; do
-              printf "%s\n" "$f"
-            done
-
-            files=($py/opae.io-*.pth)
-            for f in ${files[@]} ; do
-              printf "%s\n" "$f"
-            done
-
-            files=($py/opae.io-*.egg-info)
-            for f in ${files[@]} ; do
-              printf "%s\n" "$f"
-            done
-
-            [ -d "$py/pacsign" ] && printf "%s\n" "$py/pacsign"
-
-            files=($py/pacsign-*.egg-info)
-            for f in ${files[@]} ; do
-              printf "%s\n" "$f"
-            done
-
-            files=($py/pyopaeuio-*.egg-info)
-            for f in ${files[@]} ; do
-              printf "%s\n" "$f"
-            done
-
-            files=($py/pyopaeuio*.so)
-            for f in ${files[@]} ; do
-              printf "%s\n" "$f"
+            for g in ${globs[@]} ; do
+              glob=$py/$g
+              files=(${glob})
+              if [ "${files[0]}" != "${glob}" ]; then
+                for f in ${files[@]} ; do
+                  printf "%s\n" "$f"
+                done
+              fi
             done
 
           fi
@@ -234,50 +226,18 @@ python_files() {
             py="$py/site-packages"
             if [ -d "$py" ]; then
 
-              [ -d "$py/ethernet" ] && printf "%s\n" "$py/ethernet"
-
-              files=($py/hssi_ethernet-*.egg-info)
-              for f in ${files[@]} ; do
-                printf "%s\n" "$f"
+              for e in ${dirs[@]} ; do
+                [ -d "$py/$e" ] && printf "%s\n" "$py/$e"
               done
 
-              files=($py/libvfio*.so)
-              for f in ${files[@]} ; do
-                printf "%s\n" "$f"
-              done
-
-              [ -d "$py/opae" ] && printf "%s\n" "$py/opae"
-
-              files=($py/opae.diag-*.egg-info)
-              for f in ${files[@]} ; do
-                printf "%s\n" "$f"
-              done
-
-              files=($py/opae.io-*.pth)
-              for f in ${files[@]} ; do
-                printf "%s\n" "$f"
-              done
-
-              files=($py/opae.io-*.egg-info)
-              for f in ${files[@]} ; do
-                printf "%s\n" "$f"
-              done
-
-              [ -d "$py/pacsign" ] && printf "%s\n" "$py/pacsign"
-
-              files=($py/pacsign-*.egg-info)
-              for f in ${files[@]} ; do
-                printf "%s\n" "$f"
-              done
-
-              files=($py/pyopaeuio-*.egg-info)
-              for f in ${files[@]} ; do
-                printf "%s\n" "$f"
-              done
-
-              files=($py/pyopaeuio*.so)
-              for f in ${files[@]} ; do
-                printf "%s\n" "$f"
+              for g in ${globs[@]} ; do
+                glob=$py/$g
+                files=(${glob})
+                if [ "${files[0]}" != "${glob}" ]; then
+                  for f in ${files[@]} ; do
+                    printf "%s\n" "$f"
+                  done
+                fi
               done
 
             fi
