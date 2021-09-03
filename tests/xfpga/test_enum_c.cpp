@@ -739,6 +739,35 @@ TEST_P(enum_c_p, guid_port_neg) {
 }
 
 /**
+ * @test       interface
+ *
+ * @brief      When the filter interface is set and it is valid, the
+ *             function returns the number of resources that
+ *             match that interface.
+ */
+TEST_P(enum_c_p, interface) {
+  ASSERT_EQ(fpgaPropertiesSetInterface(filter_, FPGA_IFC_DFL), FPGA_OK);
+  EXPECT_EQ(
+      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      FPGA_OK);
+  EXPECT_EQ(num_matches_, 2);
+}
+
+/**
+ * @test       interface_neg
+ *
+ * @brief      When the filter interface is set and it is invalid, 
+ *             the function returns zero matches
+ */
+TEST_P(enum_c_p, interface_neg) {
+  ASSERT_EQ(fpgaPropertiesSetInterface(filter_, FPGA_IFC_SIM), FPGA_OK);
+  EXPECT_EQ(
+      xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(), &num_matches_),
+      FPGA_OK);
+  EXPECT_EQ(num_matches_, 0);
+}
+
+/**
  * @test       clone_token
  *
  * @brief      Given a valid source token and a valid destination,

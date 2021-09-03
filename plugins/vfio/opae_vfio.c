@@ -733,9 +733,11 @@ fpga_result vfio_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	_prop->object_id = ((uint64_t)t->device->bdf.bdf) << 32 | t->region;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJECTID);
 
-
 	_prop->objtype = t->type;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJTYPE);
+
+	_prop->interface = FPGA_IFC_VFIO;
+	SET_FIELD_VALID(_prop, FPGA_PROPERTY_INTERFACE);
 
 	if (t->type == FPGA_ACCELERATOR) {
 		_prop->parent = NULL;
@@ -1090,6 +1092,10 @@ bool matches_filter(const fpga_properties *filter, vfio_token *t)
 		if (memcmp(_prop->guid, t->guid, sizeof(fpga_guid)))
 			return false;
 	}
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_INTERFACE))
+		if (_prop->interface != FPGA_IFC_VFIO)
+			return false;
+
 	return true;
 }
 
