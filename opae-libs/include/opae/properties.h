@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -741,6 +741,31 @@ fpga_result fpgaPropertiesGetNumErrors(const fpga_properties prop,
  */
 fpga_result fpgaPropertiesSetNumErrors(const fpga_properties prop,
 				       uint32_t num_errors);
+
+/**
+ * Get the OPAE plugin interface implemented by a resource
+ *
+ * Returns the plugin interface enumerator.
+ *
+ * @param[in]  prop       Properties object to query
+ * @param[out] interface  Pointer to an fpga_interface location to store the
+ *                        interface in
+ * @returns See "Accessor Return Values" in [properties.h](#properties-h).
+ */
+fpga_result fpgaPropertiesGetInterface(const fpga_properties prop,
+				       fpga_interface *interface);
+
+/**
+ * Set the OPAE plugin interface implemented by a resource
+ *
+ * Set the plugin interface enumerator.
+ *
+ * @param[in]  prop       Properties object to query
+ * @param[in]  interface  The interface enumerator to set
+ * @returns See "Accessor Return Values" in [properties.h](#properties-h).
+ */
+fpga_result fpgaPropertiesSetInterface(const fpga_properties prop,
+				       fpga_interface interface);
 
 #ifdef __cplusplus
 } // extern "C"
