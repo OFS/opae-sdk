@@ -298,6 +298,9 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 		return FPGA_EXCEPTION;
 	}
 
+	_iprop.interface = FPGA_IFC_DFL;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_INTERFACE);
+
 	lock = _prop->lock;
 	*_prop = _iprop;
 	_prop->lock = lock;
