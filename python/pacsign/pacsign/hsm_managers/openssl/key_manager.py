@@ -1,4 +1,4 @@
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2019-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -527,17 +527,41 @@ class _KEY(object):
         if self.key_info is not None:
             return self.key_info["type"]
 
+        if "_sdm_" in self.file:
+            return 7
+
+        if "_sr_test_" in self.file:
+            return 8
+
+        if "_sr_cert_" in self.file:
+            return 11
+
+        if "_bmc_factory_" in self.file:
+            return 9
+
         if "_fim_" in self.file:
             return 0  # TODO: Fix this
 
         if "_bmc_" in self.file:
             return 1
 
+        if "_pr_test_" in self.file:
+            return 10
+
+        if "_therm_pr_" in self.file:
+            return 6
+
         if "_pr_" in self.file:
             return 2
         
         if "_fim2_" in self.file:
             return 3
+
+        if "_pxe_" in self.file:
+            return 4
+
+        if "_therm_sr_" in self.file:
+            return 5
 
         return None
 
