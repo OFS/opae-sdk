@@ -41,6 +41,9 @@ int main(int argc, char* argv[])
   
   // host exerciser signal handler
   struct sigaction act_old, act_new;
+  memset(&act_old, 0, sizeof(act_old));
+  memset(&act_new, 0, sizeof(act_new));
+
   act_new.sa_handler = he_sig_handler;
   sigaction(SIGINT, &act_new, &act_old);
 

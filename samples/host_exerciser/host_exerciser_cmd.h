@@ -41,7 +41,7 @@ volatile bool g_he_exit = false;
 void he_sig_handler(int)
 {
     g_he_exit = true;
-    printf("HE signal handeler exit app \n");
+    printf("HE signal handler exit app \n");
 }
 
 namespace host_exerciser {
@@ -157,15 +157,15 @@ public:
         while (0 == ((*status_ptr) & 0x1)) {
             usleep(HELPBK_TEST_SLEEP_INVL);
             if (--timeout == 0) {
-            std::cout << "HE LPBK TIME OUT" << std::endl;
-            host_exerciser_errors();
-            return false;
+                std::cout << "HE LPBK TIME OUT" << std::endl;
+                host_exerciser_errors();
+                return false;
             }
         }
         return true;
     }
 
-    void he_foretestcmpl()
+    void he_forcetestcmpl()
     {
         // Force stop test
         he_lpbk_ctl_.value = 0;
@@ -197,7 +197,7 @@ public:
                 if (count > host_exe_->he_contmodetime_)
                     break;
             }
-        he_foretestcmpl();
+            he_forcetestcmpl();
         }
         return true;
     }
