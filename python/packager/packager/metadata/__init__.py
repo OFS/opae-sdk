@@ -1,12 +1,12 @@
-# Copyright(c) 2020-2021, Intel Corporation
+# Copyright(c) 2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
 #
 # * Redistributions of  source code  must retain the  above copyright notice,
-#   this list of conditions and the following disclaimer.
+#  this list of conditions and the following disclaimer.
 # * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
+#  this list of conditions and the following disclaimer in the documentation
 #   and/or other materials provided with the distribution.
 # * Neither the name  of Intel Corporation  nor the names of its contributors
 #   may be used to  endorse or promote  products derived  from this  software
@@ -23,28 +23,4 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
-from setuptools import find_packages
-from distutils.core import Extension, setup
-
-setup(
-    name="opae.io",
-    version="0.2.2",
-    packages=find_packages(include=['opae.*']),
-    entry_points={
-        'console_scripts': []
-    },
-    ext_modules=[
-        Extension('libvfio', ['vfiobindings.cpp'],
-                  language="c++",
-                  extra_compile_args=["-std=c++11"],
-                  extra_link_args=["-std=c++11"],
-                  libraries=['opaevfio'])
-    ],
-    description="pyopae provides Python bindings around the "
-                "VFIO API",
-    license="BSD3",
-    keywords="OPAE accelerator vfio bindings",
-    url="https://01.org/OPAE",
-    namespace_packages=['opae']
-)
+__path__ = __import__('pkgutil').extend_path(__path__, __name__)

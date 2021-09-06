@@ -1,12 +1,12 @@
-# Copyright(c) 2020-2021, Intel Corporation
+# Copyright(c) 2017-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
 #
 # * Redistributions of  source code  must retain the  above copyright notice,
-#   this list of conditions and the following disclaimer.
+#  this list of conditions and the following disclaimer.
 # * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
+#  this list of conditions and the following disclaimer in the documentation
 #   and/or other materials provided with the distribution.
 # * Neither the name  of Intel Corporation  nor the names of its contributors
 #   may be used to  endorse or promote  products derived  from this  software
@@ -24,27 +24,31 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from setuptools import find_packages
-from distutils.core import Extension, setup
+import json
+from packager.metadata import constants
+import struct
+from collections import OrderedDict
 
-setup(
-    name="opae.io",
-    version="0.2.2",
-    packages=find_packages(include=['opae.*']),
-    entry_points={
-        'console_scripts': []
-    },
-    ext_modules=[
-        Extension('libvfio', ['vfiobindings.cpp'],
-                  language="c++",
-                  extra_compile_args=["-std=c++11"],
-                  extra_link_args=["-std=c++11"],
-                  libraries=['opaevfio'])
-    ],
-    description="pyopae provides Python bindings around the "
-                "VFIO API",
-    license="BSD3",
-    keywords="OPAE accelerator vfio bindings",
-    url="https://01.org/OPAE",
-    namespace_packages=['opae']
-)
+"""  This is the entrypoint for generating the metadata
+"""
+
+
+def get_metadata(afu_json):
+    ret_list = []
+
+    ret_list.extend(list(constants.METADATA_GUID))
+
+    if len(afu_json) != 0:
+        ret_list.extend(pack_int_to_buf(len(json.dumps(afu_json))))
+        ret_list.extend(list(json.dumps(afu_json)))
+
+    else:
+        ret_list.extend(pack_int_to_buf(0))
+
+    return ret_list
+
+
+def pack_int_to_buf(val):
+    pack_format = "<I"
+    buf = struct.pack(pack_format, val)
+    return list(buf)

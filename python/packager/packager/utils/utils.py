@@ -1,12 +1,12 @@
-# Copyright(c) 2020-2021, Intel Corporation
+# Copyright(c) 2017-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
 #
 # * Redistributions of  source code  must retain the  above copyright notice,
-#   this list of conditions and the following disclaimer.
+#  this list of conditions and the following disclaimer.
 # * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
+#  this list of conditions and the following disclaimer in the documentation
 #   and/or other materials provided with the distribution.
 # * Neither the name  of Intel Corporation  nor the names of its contributors
 #   may be used to  endorse or promote  products derived  from this  software
@@ -24,27 +24,49 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from setuptools import find_packages
-from distutils.core import Extension, setup
+import shutil
+import tempfile
+import collections
 
-setup(
-    name="opae.io",
-    version="0.2.2",
-    packages=find_packages(include=['opae.*']),
-    entry_points={
-        'console_scripts': []
-    },
-    ext_modules=[
-        Extension('libvfio', ['vfiobindings.cpp'],
-                  language="c++",
-                  extra_compile_args=["-std=c++11"],
-                  extra_link_args=["-std=c++11"],
-                  libraries=['opaevfio'])
-    ],
-    description="pyopae provides Python bindings around the "
-                "VFIO API",
-    license="BSD3",
-    keywords="OPAE accelerator vfio bindings",
-    url="https://01.org/OPAE",
-    namespace_packages=['opae']
-)
+__work_dir__ = None
+
+
+def get_work_dir():
+    global __work_dir__
+    if not __work_dir__:
+        __work_dir__ = tempfile.mkdtemp(prefix="packager_work_", dir=".")
+    return __work_dir__
+
+
+def delete_work_dir():
+    global __work_dir__
+    if __work_dir__:
+        shutil.rmtree(__work_dir__)
+
+
+"""
+Utility function to convert input to a native type
+"""
+
+
+def convert_to_native_type(val):
+    try:
+        if isinstance(val, str) and val.startswith('0x'):
+            val = int(val, 16)
+        else:
+            val = int(val)
+        return val
+    except ValueError:
+        pass
+
+    try:
+        val = float(val)
+        return val
+    except ValueError:
+        pass
+
+    try:
+        val = str(val)
+        return val
+    except ValueError:
+        raise Exception("Cannot convert passed argument to native type!")

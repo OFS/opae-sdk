@@ -1,4 +1,4 @@
-# Copyright(c) 2020-2021, Intel Corporation
+# Copyright(c) 2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -23,28 +23,25 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-
-from setuptools import find_packages
-from distutils.core import Extension, setup
+from setuptools import setup, find_packages
 
 setup(
-    name="opae.io",
-    version="0.2.2",
-    packages=find_packages(include=['opae.*']),
+    name="packager",
+    version='1.0.0',
+    packages=find_packages(),
     entry_points={
-        'console_scripts': []
+        'console_scripts': [
+            'packager = packager.tools.packager:main',
+            'afu_json_mgr = packager.tools.afu_json_mgr:main',
+        ]
     },
-    ext_modules=[
-        Extension('libvfio', ['vfiobindings.cpp'],
-                  language="c++",
-                  extra_compile_args=["-std=c++11"],
-                  extra_link_args=["-std=c++11"],
-                  libraries=['opaevfio'])
-    ],
-    description="pyopae provides Python bindings around the "
-                "VFIO API",
+    install_requires=['jsonschema>=2.3.0'],
+    description="packager provides Python classes for creating"
+                " Green BitStreams (GBS)",
     license="BSD3",
-    keywords="OPAE accelerator vfio bindings",
+    keywords="OPAE accelerator GBS AFU",
+    data_files=[('share/opae/packager', ['README']),
+               ],
     url="https://01.org/OPAE",
-    namespace_packages=['opae']
+    include_package_data=True,
 )
