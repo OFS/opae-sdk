@@ -172,8 +172,8 @@ public:
         he_lpbk_ctl_.ResetL = 1;
         he_lpbk_ctl_.ForcedTestCmpl = 1;
         host_exe_->write32(HE_CTL, he_lpbk_ctl_.value);
-        // sleep for 1 seconds to gracefully exit
-        sleep(1);
+        // sleep for 3 seconds to gracefully exit
+        sleep(3);
         he_lpbk_ctl_.value = 0;
         host_exe_->write32(HE_CTL, he_lpbk_ctl_.value);
         usleep(1000);
