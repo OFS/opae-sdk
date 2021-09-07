@@ -3336,6 +3336,137 @@ TEST_P(properties_c_p, get_num_errors02) {
   EXPECT_EQ(fpgaPropertiesGetNumErrors(filter_, &errors), FPGA_NOT_FOUND);
 }
 
+// * Interface field tests *//
+/**
+ * @test    get_interface01
+ * @brief   Tests: fpgaPropertiesGetInterface
+ * @details Given a non-null fpga_properties* object<br>
+ *          And it has the interface field set<br>
+ *          And it is set to a known value<br>
+ *          When I call fpgaPropertiesGetInterface with a pointer to<br>
+ *          an fpga_interface<br>
+ *          Then the return value is FPGA_OK<br>
+ *          And the output value is the known value<br>
+ * */
+TEST_P(properties_c_p, get_interface01) {
+  fpga_properties prop = NULL;
+  fpga_result result = fpgaGetProperties(NULL, &prop);
+
+  ASSERT_EQ(result, FPGA_OK);
+  ASSERT_FALSE(NULL == prop);
+
+  struct _fpga_properties* _prop = (struct _fpga_properties*)prop;
+
+  SET_FIELD_VALID(_prop, FPGA_PROPERTY_INTERFACE);
+  _prop->interface = FPGA_IFC_VFIO;
+
+  // now get the interface using the API
+  fpga_interface ifc = FPGA_IFC_DFL;
+  result = fpgaPropertiesGetInterface(prop, &ifc);
+  EXPECT_EQ(result, FPGA_OK);
+  // Assert it is set to what we set it to above
+  // (Get the subfield manually)
+  EXPECT_EQ(FPGA_IFC_VFIO, ifc);
+
+  result = fpgaDestroyProperties(&prop);
+  ASSERT_EQ(NULL, prop);
+}
+
+/**
+ * @test    get_interface02
+ * @brief   Tests: fpgaPropertiesGetInterface
+ * @details Given a non-null fpga_properties* object<br>
+ *          And it does NOT have the interface field set<br>
+ *          When I call fpgaPropertiesGetInterface with a pointer to<br>
+ *          an fpga_interface<br>
+ *          Then the return value is FPGA_NOT_FOUND<br>
+ * */
+TEST_P(properties_c_p, get_interface02) {
+  fpga_properties prop = NULL;
+  fpga_result result = fpgaGetProperties(NULL, &prop);
+
+  ASSERT_EQ(result, FPGA_OK);
+  ASSERT_TRUE(NULL != prop);
+
+  struct _fpga_properties* _prop = (struct _fpga_properties*)prop;
+
+  // make sure the FPGA_PROPERTY_INTERFACE bit is zero
+  EXPECT_EQ((_prop->valid_fields >> FPGA_PROPERTY_INTERFACE) & 1, 0);
+
+  fpga_interface ifc;
+  result = fpgaPropertiesGetInterface(prop, &ifc);
+  EXPECT_EQ(FPGA_NOT_FOUND, result);
+
+  result = fpgaDestroyProperties(&prop);
+  ASSERT_EQ(NULL, prop);
+}
+
+/**
+ * @test    set_interface01
+ * @brief   Tests: fpgaPropertiesSetInterface
+ * @details Given a non-null fpga_properties* object<br>
+ *          And interface variable set to a known value<br>
+ *          When I call fpgaPropertiesSetInterface with the properties object and<br>
+ *          the interface variable<br>
+ *          Then the interface field in the properties object is the known value<br>
+ */
+TEST_P(properties_c_p, set_interface01) {
+  fpga_properties prop = NULL;
+  fpga_result result = fpgaGetProperties(NULL, &prop);
+  ASSERT_EQ(result, FPGA_OK);
+  ASSERT_FALSE(NULL == prop);
+
+  struct _fpga_properties* _prop = (struct _fpga_properties*)prop;
+
+  fpga_interface ifc = FPGA_IFC_SIM;
+  // make sure the FPGA_PROPERTY_INTERFACE bit is zero
+  EXPECT_EQ((_prop->valid_fields >> FPGA_PROPERTY_INTERFACE) & 1, 0);
+  // Call the API to set the interface on the property
+  result = fpgaPropertiesSetInterface(prop, ifc);
+
+  EXPECT_EQ(result, FPGA_OK);
+
+  // make sure the FPGA_PROPERTY_INTERFACE bit is one
+  EXPECT_EQ((_prop->valid_fields >> FPGA_PROPERTY_INTERFACE) & 1, 1);
+
+  // Assert it is set to what we set it to above
+  EXPECT_EQ(FPGA_IFC_SIM, _prop->interface);
+
+  result = fpgaDestroyProperties(&prop);
+  ASSERT_EQ(NULL, prop);
+}
+
+/**
+ * @test    get_interface03
+ * @brief   Tests: fpgaPropertiesGetInterface
+ * @details Given a null fpga_properties* object<br>
+ *          When I call fpgaPropertiesGetInterface with the null object<br>
+ *          Then the return value is FPGA_INVALID_PARAM<br>
+ * */
+TEST(properties, get_interface03) {
+  fpga_properties prop = NULL;
+
+  fpga_interface ifc = FPGA_IFC_DFL;
+  fpga_result result = fpgaPropertiesGetInterface(prop, &ifc);
+  EXPECT_EQ(FPGA_INVALID_PARAM, result);
+}
+
+/**
+ * @test    set_interface02
+ * @brief   Tests: fpgaPropertiesSetInterface
+ * @details Given a null fpga_properties* object<br>
+ *          When I call fpgaPropertiesSetInterface with the null object<br>
+ *          Then the result is FPGA_INVALID_PARAM<br>
+ */
+TEST(properties, set_interface02) {
+  fpga_properties prop = NULL;
+
+  // Call the API to set the property
+  fpga_result result = fpgaPropertiesSetInterface(prop, FPGA_IFC_DFL);
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, result);
+}
+
 /**
  * @test    validate01
  * @brief   Tests: opae_validate_and_lock_properties

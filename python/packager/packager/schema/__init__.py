@@ -1,4 +1,4 @@
-# Copyright(c) 2019-2021, Intel Corporation
+# Copyright(c) 2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -23,25 +23,9 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from setuptools import setup, find_packages
+__path__ = __import__('pkgutil').extend_path(__path__, __name__)
 
-setup(
-    name="pacsign",
-    version="1.0.5",
-    packages=find_packages(),
-    python_requires='>=3.6',
-    extra_requires={'pkcs11': ['python-pkcs11']},
-    description="pacsign provides Python classes for interfacing with"
-                "OPAE PACSign tool",
-    entry_points={
-        'console_scripts': [
-            'PACSign = pacsign.__main__:main',
-        ],
-    },
-    license="BSD3",
-    keywords="OPAE accelerator fpga signing security",
-    url="https://01.org/OPAE",
-    package_data={'opae.pacsign':
-                  ['pacsign/hsm_managers/openssl/library/*.so']},
-    include_package_data=True,
-)
+from pathlib import Path
+
+def GetFile(fname):
+    return Path(__file__).parent.joinpath(fname)

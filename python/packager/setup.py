@@ -1,4 +1,4 @@
-# Copyright(c) 2019-2021, Intel Corporation
+# Copyright(c) 2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -26,22 +26,22 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="pacsign",
-    version="1.0.5",
+    name="packager",
+    version='1.0.0',
     packages=find_packages(),
-    python_requires='>=3.6',
-    extra_requires={'pkcs11': ['python-pkcs11']},
-    description="pacsign provides Python classes for interfacing with"
-                "OPAE PACSign tool",
     entry_points={
         'console_scripts': [
-            'PACSign = pacsign.__main__:main',
-        ],
+            'packager = packager.tools.packager:main',
+            'afu_json_mgr = packager.tools.afu_json_mgr:main',
+        ]
     },
+    install_requires=['jsonschema>=2.3.0'],
+    description="packager provides Python classes for creating"
+                " Green BitStreams (GBS)",
     license="BSD3",
-    keywords="OPAE accelerator fpga signing security",
+    keywords="OPAE accelerator GBS AFU",
+    data_files=[('share/opae/packager', ['README']),
+               ],
     url="https://01.org/OPAE",
-    package_data={'opae.pacsign':
-                  ['pacsign/hsm_managers/openssl/library/*.so']},
     include_package_data=True,
 )

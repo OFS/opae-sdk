@@ -1,12 +1,12 @@
-# Copyright(c) 2019-2021, Intel Corporation
+# Copyright(c) 2017-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
 #
 # * Redistributions of  source code  must retain the  above copyright notice,
-#   this list of conditions and the following disclaimer.
+#  this list of conditions and the following disclaimer.
 # * Redistributions in binary form must reproduce the above copyright notice,
-#   this list of conditions and the following disclaimer in the documentation
+#  this list of conditions and the following disclaimer in the documentation
 #   and/or other materials provided with the distribution.
 # * Neither the name  of Intel Corporation  nor the names of its contributors
 #   may be used to  endorse or promote  products derived  from this  software
@@ -23,25 +23,32 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from setuptools import setup, find_packages
 
-setup(
-    name="pacsign",
-    version="1.0.5",
-    packages=find_packages(),
-    python_requires='>=3.6',
-    extra_requires={'pkcs11': ['python-pkcs11']},
-    description="pacsign provides Python classes for interfacing with"
-                "OPAE PACSign tool",
-    entry_points={
-        'console_scripts': [
-            'PACSign = pacsign.__main__:main',
-        ],
-    },
-    license="BSD3",
-    keywords="OPAE accelerator fpga signing security",
-    url="https://01.org/OPAE",
-    package_data={'opae.pacsign':
-                  ['pacsign/hsm_managers/openssl/library/*.so']},
-    include_package_data=True,
-)
+import json
+from packager.metadata import constants
+import struct
+from collections import OrderedDict
+
+"""  This is the entrypoint for generating the metadata
+"""
+
+
+def get_metadata(afu_json):
+    ret_list = []
+
+    ret_list.extend(list(constants.METADATA_GUID))
+
+    if len(afu_json) != 0:
+        ret_list.extend(pack_int_to_buf(len(json.dumps(afu_json))))
+        ret_list.extend(list(json.dumps(afu_json)))
+
+    else:
+        ret_list.extend(pack_int_to_buf(0))
+
+    return ret_list
+
+
+def pack_int_to_buf(val):
+    pack_format = "<I"
+    buf = struct.pack(pack_format, val)
+    return list(buf)
