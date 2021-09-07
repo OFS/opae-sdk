@@ -260,8 +260,6 @@ test_fim_cancel() {
   local -r manager="$1"
   printf "test_fim_cancel\n"
   test_cancel "${mgr}" 'fim' 256 0
-  test_cancel "${mgr}" 'fim' 256 0
-  test_cancel "${mgr}" 'fim' 384 0
   test_cancel "${mgr}" 'fim' 384 0
 }
 
@@ -297,8 +295,6 @@ test_factory_cancel() {
   local -r manager="$1"
   printf "test_factory_cancel\n"
   test_cancel "${mgr}" 'fim2' 256 0
-  test_cancel "${mgr}" 'fim2' 256 0
-  test_cancel "${mgr}" 'fim2' 384 0
   test_cancel "${mgr}" 'fim2' 384 0
 }
 
@@ -334,8 +330,6 @@ test_sr_test_cancel() {
   local -r manager="$1"
   printf "test_sr_test_cancel\n"
   test_cancel "${mgr}" 'sr_test' 256 0
-  test_cancel "${mgr}" 'sr_test' 256 0
-  test_cancel "${mgr}" 'sr_test' 384 0
   test_cancel "${mgr}" 'sr_test' 384 0
 }
 
@@ -371,8 +365,6 @@ test_sr_cert_cancel() {
   local -r manager="$1"
   printf "test_sr_cert_cancel\n"
   test_cancel "${mgr}" 'sr_cert' 256 0
-  test_cancel "${mgr}" 'sr_cert' 256 0
-  test_cancel "${mgr}" 'sr_cert' 384 0
   test_cancel "${mgr}" 'sr_cert' 384 0
 }
 
@@ -408,8 +400,6 @@ test_bmc_cancel() {
   local -r manager="$1"
   printf "test_bmc_cancel\n"
   test_cancel "${mgr}" 'bmc' 256 0
-  test_cancel "${mgr}" 'bmc' 256 0
-  test_cancel "${mgr}" 'bmc' 384 0
   test_cancel "${mgr}" 'bmc' 384 0
 }
 
@@ -445,8 +435,6 @@ test_bmc_factory_cancel() {
   local -r manager="$1"
   printf "test_bmc_factory_cancel\n"
   test_cancel "${mgr}" 'bmc_factory' 256 0
-  test_cancel "${mgr}" 'bmc_factory' 256 0
-  test_cancel "${mgr}" 'bmc_factory' 384 0
   test_cancel "${mgr}" 'bmc_factory' 384 0
 }
 
@@ -482,8 +470,6 @@ test_pr_cancel() {
   local -r manager="$1"
   printf "test_pr_cancel\n"
   test_cancel "${mgr}" 'pr' 256 0
-  test_cancel "${mgr}" 'pr' 256 0
-  test_cancel "${mgr}" 'pr' 384 0
   test_cancel "${mgr}" 'pr' 384 0
 }
 
@@ -519,8 +505,6 @@ test_pr_test_cancel() {
   local -r manager="$1"
   printf "test_pr_test_cancel\n"
   test_cancel "${mgr}" 'pr_test' 256 0
-  test_cancel "${mgr}" 'pr_test' 256 0
-  test_cancel "${mgr}" 'pr_test' 384 0
   test_cancel "${mgr}" 'pr_test' 384 0
 }
 
@@ -556,8 +540,6 @@ test_pxe_cancel() {
   local -r manager="$1"
   printf "test_pxe_cancel\n"
   test_cancel "${mgr}" 'pxe' 256 0
-  test_cancel "${mgr}" 'pxe' 256 0
-  test_cancel "${mgr}" 'pxe' 384 0
   test_cancel "${mgr}" 'pxe' 384 0
 }
 
@@ -593,8 +575,6 @@ test_therm_sr_cancel() {
   local -r manager="$1"
   printf "test_therm_sr_cancel\n"
   test_cancel "${mgr}" 'therm_sr' 256 0
-  test_cancel "${mgr}" 'therm_sr' 256 0
-  test_cancel "${mgr}" 'therm_sr' 384 0
   test_cancel "${mgr}" 'therm_sr' 384 0
 }
 
@@ -630,8 +610,6 @@ test_therm_pr_cancel() {
   local -r manager="$1"
   printf "test_therm_pr_cancel\n"
   test_cancel "${mgr}" 'therm_pr' 256 0
-  test_cancel "${mgr}" 'therm_pr' 256 0
-  test_cancel "${mgr}" 'therm_pr' 384 0
   test_cancel "${mgr}" 'therm_pr' 384 0
 }
 
@@ -667,8 +645,6 @@ test_sdm_cancel() {
   local -r manager="$1"
   printf "test_sdm_cancel\n"
   test_cancel "${mgr}" 'sdm' 256 0
-  test_cancel "${mgr}" 'sdm' 256 0
-  test_cancel "${mgr}" 'sdm' 384 0
   test_cancel "${mgr}" 'sdm' 384 0
 }
 
