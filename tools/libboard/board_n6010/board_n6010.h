@@ -34,6 +34,13 @@ extern "C" {
 #endif /* __cplusplus */
 
 #define SYSFS_MAX_SIZE             256
+#define MAC_BYTE_SIZE              4
+#define MAC_BUF_LEN                19
+
+typedef union _cvl_mac {
+	unsigned int dword;
+	unsigned char byte[MAC_BYTE_SIZE];
+} cvl_mac;
 
 /**
 * Get Max10 firmware version.
