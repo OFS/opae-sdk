@@ -302,7 +302,7 @@ fpga_result print_mac_info(fpga_token token)
 	char count[MAC_BUF_LEN] = { 0 };
 	int n = 0;
 	char *endptr = NULL;
-	struct ether_addr mac_addr = { 0 };
+	struct ether_addr mac_addr ;
 	memset(&mac_addr, 0, sizeof(mac_addr));
 
 	res = read_sysfs(token, DFL_SYSFS_MACADDR_PATH, (char *)buf, MAC_BUF_LEN - 1);
