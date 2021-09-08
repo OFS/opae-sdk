@@ -37,12 +37,13 @@
 #include <opae/utils.h>
 #include <opae/fpga.h>
 #include <netinet/ether.h>
+#include <net/ethernet.h>
 #include <opae/uio.h>
 #include "../board_common/board_common.h"
 #include "board_n6010.h"
 
 #define FPGA_VAR_BUF_LEN       256
-#define MACADDR_LEN            19
+#define MAC_BUF_LEN            19
 #define UNUSED_PARAM(x) ((void)x)
 #define FEATURE_DEV "/sys/bus/pci/devices/*%x*:*%x*:*%x*.*%x*/fpga_region"\
 					"/region*/dfl-fme*/dfl_dev*"
@@ -257,17 +258,51 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 	return res;
 }
 
+// print mac address
+void print_mac_address(struct ether_addr *eth_addr, int count)
+{
+	char mac_str[18] = { 0 };
+
+	if (eth_addr == NULL || count <= 0)
+		return;
+
+	printf("%s %-20d : %s \n", "MAC address", 0,
+		ether_ntoa_r(eth_addr, mac_str));
+	for (int i = 1; i < count; ++i) {
+		// increment mac address
+		for (int j = 5; j >= 0; j--) {
+			if (eth_addr->ether_addr_octet[j] == 0xff) {
+				continue;
+			} else {
+				eth_addr->ether_addr_octet[j]++;
+				break;
+			}
+		}
+
+		if ((eth_addr->ether_addr_octet[0] == 0xff) &&
+			(eth_addr->ether_addr_octet[1] == 0xff) &&
+			(eth_addr->ether_addr_octet[2] == 0xff) &&
+			(eth_addr->ether_addr_octet[3] == 0xff) &&
+			(eth_addr->ether_addr_octet[4] == 0xff) &&
+			(eth_addr->ether_addr_octet[5] == 0xff)) {
+			printf("%s %-20d : %s \n", "MAC address", i, "N/A");
+			continue;
+		}
+		printf("%s %-20d : %s \n", "MAC address", i,
+			ether_ntoa_r(eth_addr, mac_str));
+
+	}
+}
+
 // print mac information
 fpga_result print_mac_info(fpga_token token)
 {
-	fpga_result res            = FPGA_OK;
-	char buf[MAC_BUF_LEN]      = { 0 };
-	char count[MAC_BUF_LEN]    = { 0 };
-	int i                      = 0;
-	int n                      = 0;
-	char *endptr               = NULL;
-	cvl_mac mac;
-	unsigned int mac_byte[6]   = { 0 };
+	fpga_result res = FPGA_OK;
+	char buf[MAC_BUF_LEN] = { 0 };
+	char count[MAC_BUF_LEN] = { 0 };
+	int n = 0;
+	char *endptr = NULL;
+	struct ether_addr mac_addr = { 0 };
 
 	res = read_sysfs(token, DFL_SYSFS_MACADDR_PATH, (char *)buf, MAC_BUF_LEN - 1);
 	if (res != FPGA_OK) {
@@ -275,10 +310,7 @@ fpga_result print_mac_info(fpga_token token)
 		return res;
 	}
 
-	sscanf(buf, "%x:%x:%x:%x:%x:%x", &mac_byte[0], &mac_byte[1],
-		&mac_byte[2], &mac_byte[3], &mac_byte[4], &mac_byte[5]);
-	for (i = 0; i < 6; i++)
-		buf[i] = (unsigned char)mac_byte[i];
+	ether_aton_r(buf, &mac_addr);
 
 	res = read_sysfs(token, DFL_SYSFS_MACCNT_PATH, (char *)count, MAC_BUF_LEN - 1);
 	if (res != FPGA_OK) {
@@ -293,25 +325,27 @@ fpga_result print_mac_info(fpga_token token)
 		return FPGA_EXCEPTION;
 	}
 	printf("%-32s : %d\n", "Number of MACs", n);
-	mac.byte[0] = buf[5];
-	mac.byte[1] = buf[4];
-	mac.byte[2] = buf[3];
-	mac.byte[3] = 0;
 
 	if (n < 0 || n > 0xFFFF) {
 		OPAE_ERR("Invalid mac count");
 		return FPGA_EXCEPTION;
 	}
 
-	for (i = 0; i < n; ++i) {
-		printf("%s %-20d : %02X:%02X:%02X:%02X:%02X:%02X\n",
-			"MAC address", i, buf[0], buf[1], buf[2],
-			mac.byte[2], mac.byte[1], mac.byte[0]);
-		mac.dword += 1;
+	if ((mac_addr.ether_addr_octet[0] == 0xff) &&
+		(mac_addr.ether_addr_octet[1] == 0xff) &&
+		(mac_addr.ether_addr_octet[2] == 0xff) &&
+		(mac_addr.ether_addr_octet[3] == 0xff) &&
+		(mac_addr.ether_addr_octet[4] == 0xff) &&
+		(mac_addr.ether_addr_octet[5] == 0xff)) {
+		OPAE_ERR("Invalid MAC address");
+		return FPGA_EXCEPTION;
 	}
+
+	print_mac_address(&mac_addr, n);
 
 	return res;
 }
+
 
 
 // print board information
