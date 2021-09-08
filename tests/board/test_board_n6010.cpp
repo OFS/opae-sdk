@@ -308,7 +308,7 @@ TEST_P(board_dfl_n6010_c_p, board_n6010_10) {
 /**
 * @test       board_n6010_12
 * @brief      Tests: print_mac_info
-* @details    invalid print phy info input <br>
+* @details    prints mac address <br>
 */
 TEST_P(board_dfl_n6010_c_p, board_n6010_12) {
 
@@ -357,8 +357,12 @@ TEST_P(board_dfl_n6010_c_p, board_n6010_12) {
 	write_sysfs_file((char*)"dfl_dev*/mac_address",
 		(void*)mac_buf, 18);
 	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
-}
 
+	strncpy(mac_buf, "00:00:00:00:00:ff", 18);
+	write_sysfs_file((char*)"dfl_dev*/mac_address",
+		(void*)mac_buf, 18);
+	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
+}
 INSTANTIATE_TEST_CASE_P(board_dfl_n6010_c, board_dfl_n6010_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n6010" })));
 
