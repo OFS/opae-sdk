@@ -105,6 +105,7 @@ public:
     {
         struct he_dms_status *dms_status = NULL;
         volatile uint8_t* status_ptr = dsm_->c_type();
+        uint64_t num_cache_lines = 0;
         if (!status_ptr)
 	        return;
 
@@ -112,14 +113,22 @@ public:
         if (!dms_status)
             return;
 
-        // infinite bandwidth if num ticks iz zero
-        if (dms_status->num_ticks == 0)
-            return;
-
         std::cout << "\nHost Exerciser Performance Counter:" << std::endl;
+        // calculate number of cache lines in continuous mode
+        if (host_exe_->he_continuousmode_) {
+            if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
+                num_cache_lines = dms_status->num_writes * 2;
+            if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_READ)
+                num_cache_lines = dms_status->num_reads;
+            if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_WRITE)
+                num_cache_lines = (dms_status->num_writes);
+            if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_TRUPT)
+                num_cache_lines = dms_status->num_writes * 2;
+        } else {
+            num_cache_lines = (LPBK1_BUFFER_SIZE / (1 * CL));
+            host_exerciser_status();
+        }
 
-        host_exerciser_status();
-        uint64_t num_cache_lines = (LPBK1_BUFFER_SIZE / (1 * CL));
         std::cout << "Number of clocks:" <<
             dms_status->num_ticks << std::endl;
         std::cout << "Total number of Reads sent:" <<
@@ -127,10 +136,13 @@ public:
         std::cout << "Total number of Writes sent :" <<
             dms_status->num_writes << std::endl;
 
-        double  perf_data = (double)(num_cache_lines * 64) /
-            (4 * (dms_status->num_ticks));
-        std::cout << "Bandwidth: " << std::setprecision(3) <<
-            perf_data << " GB/s" << std::endl;
+        // print bandwidth
+        if (dms_status->num_ticks > 0) {
+            double  perf_data = (double)(num_cache_lines * 64) /
+                (2.85 * (dms_status->num_ticks));
+            std::cout << "Bandwidth: " << std::setprecision(3) <<
+                perf_data << " GB/s" << std::endl;
+        }
     }
 
     bool he_interrupt(event::ptr_t ev)
@@ -172,8 +184,8 @@ public:
         he_lpbk_ctl_.ResetL = 1;
         he_lpbk_ctl_.ForcedTestCmpl = 1;
         host_exe_->write32(HE_CTL, he_lpbk_ctl_.value);
-        // sleep for 3 seconds to gracefully exit
-        sleep(3);
+        // sleep for 1 seconds to gracefully exit
+        sleep(1);
         he_lpbk_ctl_.value = 0;
         host_exe_->write32(HE_CTL, he_lpbk_ctl_.value);
         usleep(1000);
@@ -202,6 +214,7 @@ public:
                     break;
             }
             he_forcetestcmpl();
+            he_perf_counters();
         }
         return true;
     }
