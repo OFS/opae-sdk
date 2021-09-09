@@ -64,6 +64,13 @@ class FPGAHSSILPBK(HSSICOMMON):
             self.close()
             return -1
 
+        enable = self.register_field_get(hssi_feature_list.port_enable,
+                                             self._port + 6, 1);
+        if enable == 0:
+            print("Input port number is not enabled")
+            self.close()
+            return -1
+
         ctl_addr = hssi_ctl_addr(0)
         if (self._loopback):
             ctl_addr.sal_cmd = HSSI_SALCMD.ENABLE_LOOPBACK.value

@@ -241,8 +241,9 @@ class hssi_feature_bits(Structure):
     """
     _fields_ = [
                    ("axi4_support", c_uint32, 1),
-                   ("num_hssi_ports", c_uint32, 4),
-                   ("reserved", c_uint32, 26)
+                   ("num_hssi_ports", c_uint32, 5),
+                   ("port_enable", c_uint32, 16),
+                   ("reserved", c_uint32, 10)
     ]
 
 
@@ -266,28 +267,13 @@ class hssi_feature(Union):
     def num_hssi_ports(self):
         return self.bits.num_hssi_ports
 
+    @property
+    def port_enable(self):
+        return self.bits.port_enable
+
     @num_hssi_ports.setter
     def num_hssi_ports(self, value):
         self.bits.num_hssi_ports = value
-
-
-class HSSI_PORT_BUSWIDTH(Enum):
-    """
-    HSSI DFH CSR offset
-    """
-    HSSI_400GAUI_8 = 0x0
-    HSSI_400GAUI_4 = 0x1
-    HSSI_VERSION = 0x8
-    HSSI_FEATURE_LIST = 0xC
-    HSSI_INTER_ATTRIB_PORT = 0x10
-    HSSI_CTL_STS = 0x50
-    HSSI_CTL_ADDRESS = 0x54
-    HSSI_WR_DATA = 0x58
-    HSSI_RD_DATA = 0x5C
-    HSSI_GM_TX_LATENCY = 0x60
-    HSSI_GM_RX_LATENCY = 0x64
-    HSSI_ETH_PORT_STATUS = 0x68
-    HSSI_TSE_CONTROL = 0xA8
 
 
 class hssi_port_attribute_bits(Structure):
@@ -299,8 +285,9 @@ class hssi_port_attribute_bits(Structure):
                    ("port_read_latency", c_uint32, 4),
                    ("port_databus_width", c_uint32, 3),
                    ("low_speed_eth", c_uint32, 2),
+                   ("port_sub_profiles", c_uint32, 5),
                    ("dyn_reconf", c_uint32, 1),
-                   ("reserved", c_uint32, 16)
+                   ("reserved", c_uint32, 11)
     ]
 
 
@@ -348,6 +335,23 @@ class hssi_port_attribute(Union):
     HSSI_SPEED_ETH_INTER = ((0, 'MII'),
                             (1, 'GMII'),
                             (2, 'XGMII'))
+
+    HSSI_PORT_SUBPROFILES = ((15, '24G PCS'),
+                             (14, '12G PCS'),
+                             (13, '10G PCS'),
+                             (12, '9.8G PMA'),
+                             (11, '8.1G PMA'),
+                             (10, '6.1G PMA'),
+                             (9, '4.9G PMA'),
+                             (8, '3.0G PMA'),
+                             (7, '2.4G PMA'),
+                             (6, '1.2G PMA'),
+                             (5, '0.6G PMA'),
+                             (4, 'MAC + PCS'),
+                             (3, 'PCS'),
+                             (2, 'Flex-E'),
+                             (1, 'OTN'),
+                             (0, 'None'))
 
     def __init__(self, value):
         self.value = value
@@ -437,6 +441,7 @@ class HSSI_SALCMD(Enum):
     GET_SCR = 0x6
     ENABLE_LOOPBACK = 0x7
     DISABLE_LOOPBACK = 0x8
+    RESET_MAC_STATISTIC = 0x9
     FIRMWARE_VER = 0xFF
 
 
@@ -949,6 +954,13 @@ class HSSICOMMON(object):
         reg_data &= ~(mask << idx)
         reg_data |= (value << idx)
         return reg_data
+
+    def register_field_get(self, reg_data, idx, width):
+        mask = 0
+        for x in range(width):
+            mask |= (1 << x)
+        value =  (mask << idx) & reg_data
+        return value
 
 
 def main():
