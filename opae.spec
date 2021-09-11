@@ -285,6 +285,7 @@ done
 %{python3_sitelib}/hssi_ethernet*
 %{python3_sitelib}/opae*
 %{python3_sitelib}/pacsign*
+%{python3_sitelib}/packager*
 %{python3_sitearch}/libvfio*
 %{python3_sitearch}/opae*
 %{python3_sitearch}/pyopaeuio*
