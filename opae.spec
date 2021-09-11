@@ -64,6 +64,11 @@ Requires:   libuuid-devel, %{name}%{?_isa} = %{version}-%{release}
 %description devel
 OPAE headers, tools, sample source, and documentation
 
+%package tests
+Summary:    tests and internal tools
+
+%description tests
+tests and internal tools
 
 %{?python_disable_dependency_generator}
 # Workaround a problem with pybind11 *.so not having build-id's
@@ -74,7 +79,17 @@ OPAE headers, tools, sample source, and documentation
 %setup -q -n %{name}-%{version}-%{opae_release}
 
 %build
-%cmake -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_PRESERVE_REPOS=ON -DOPAE_BUILD_LEGACY=ON -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=ON .
+%define cmake_opts -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_PRESERVE_REPOS=ON -DOPAE_BUILD_LEGACY=ON -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=ON
+%if 0%{?test}
+  # if the user passes --define "test 1" build the tests
+  %if 0%{?mock}
+    # if the user passes --define "mock 1" build the mock tests
+    %define cmake_test_opts -DOPAE_BUILD_TESTS=ON -DOPAE_BUILD_MOCK=ON
+  %else
+    %define cmake_test_opts -DOPAE_BUILD_TESTS=ON
+  %endif
+%endif
+%cmake %{cmake_opts} %{cmake_test_opts} .
 %if 0%{?rhel}
   %make_build
 %else
@@ -291,6 +306,9 @@ done
 %{python3_sitearch}/pyopaeuio*
 # part of the jsonschema testsuite, do not deliver
 %exclude /usr/share/opae/python/jsonschema-2.3.0/json/bin/jsonschema_suite
+
+%files tests
+%{_bindir}/n5010-ddr-test
 
 %changelog
 * Mon Dec 14 2020 The OPAE Dev Team <opae@lists.01.org> - 2.0.0-2
