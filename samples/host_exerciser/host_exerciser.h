@@ -44,7 +44,6 @@ static const uint64_t LOG2_CL = 6;
 static const size_t LPBK1_DSM_SIZE = 2 * KB;
 static const size_t LPBK1_BUFFER_SIZE = 64 * KB;
 static const size_t LPBK1_BUFFER_ALLOCATION_SIZE = 64 * KB;
-static const uint32_t DSM_STATUS_TEST_COMPLETE = 0x40;
 
 // Host execiser CSR Offset
 enum {
@@ -311,11 +310,6 @@ indicating one of the following series of read/write requests:
 1: rd-rd-wr-wr
 2: rd-rd-rd-rd-wr-wr-wr-wr)desc";
 
-//Perf counter help
-const char *perf_help = R"desc(Enable perf counters
-Set the capabilities for binary(for non-root user)
-set capabilities: "sudo setcap 38,cap_sys_ptrace,cap_syslog+eip /usr/bin/host_exerciser"
-remove capabilities: "sudo setcap -r /usr/bin/host_exerciser")desc";
 
 class host_exerciser : public test_afu {
 public:
@@ -323,7 +317,6 @@ public:
   : test_afu("host_exerciser")
   , count_(1)
   , he_interrupt_(99)
-  , perf_(false)
   {
     // Mode
     app_.add_option("-m,--mode", he_modes_, "host exerciser mode {lpbk,read, write, trput}")
@@ -347,8 +340,11 @@ public:
         "The Interrupt Vector Number for the device")
         ->transform(CLI::Range(0, 3));
 
-    app_.add_option("--perf", perf_, perf_help)->default_val("false");
-  }
+     // Continuous mode time
+    app_.add_option("--contmodetime", he_contmodetime_,
+        "Continuous mode time in seconds")->default_val("0");
+
+   }
 
   virtual int run(CLI::App *app, test_command::ptr_t test) override
   {
@@ -472,7 +468,7 @@ public:
   bool he_continuousmode_;
   uint32_t he_interleave_;
   uint32_t he_interrupt_;
-  bool perf_;
+  uint32_t he_contmodetime_;
 
   std::map<uint32_t, uint32_t> limits_;
 
