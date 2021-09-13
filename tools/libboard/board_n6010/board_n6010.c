@@ -27,7 +27,8 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
-
+//#include <inttypes.h>
+#include <limits.h>
 #include <glob.h>
 #include <stdio.h>
 #include <errno.h>
@@ -258,38 +259,51 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 	return res;
 }
 
+uint64_t macaddress_uint64(const struct ether_addr *eth_addr)
+{
+	uint64_t value   = 0;
+	const uint8_t *ptr = (uint8_t *) eth_addr;
+
+	for (int i = 5; i >= 0; i--) {
+		value |= (uint64_t)*ptr++ << (CHAR_BIT * i);
+	}
+	return value;
+}
+
+void uint64_macaddress(const uint64_t value, struct ether_addr *eth_addr)
+{
+	uint8_t *ptr = (uint8_t *)eth_addr;
+	for (int i = 5; i >= 0; i--) {
+		*ptr++ = value >> (CHAR_BIT * i);
+	}
+}
+
 // print mac address
 void print_mac_address(struct ether_addr *eth_addr, int count)
 {
-	char mac_str[18] = { 0 };
-
+	uint64_t value = 0;
 	if (eth_addr == NULL || count <= 0)
 		return;
 
-	printf("%s %-20d : %s \n", "MAC address", 0,
-		ether_ntoa_r(eth_addr, mac_str));
-	for (int i = 1; i < count; ++i) {
-		// increment mac address
-		for (int j = 5; j >= 0; j--) {
-			if (eth_addr->ether_addr_octet[j] == 0xff) {
-				continue;
-			} else {
-				eth_addr->ether_addr_octet[j]++;
-				break;
-			}
-		}
+	printf("%s %-20d : %02X:%02X:%02X:%02X:%02X:%02X\n",
+		"MAC address", 0, eth_addr->ether_addr_octet[0],
+		eth_addr->ether_addr_octet[1], eth_addr->ether_addr_octet[2],
+		eth_addr->ether_addr_octet[3], eth_addr->ether_addr_octet[4],
+		eth_addr->ether_addr_octet[5]);
 
-		if ((eth_addr->ether_addr_octet[0] == 0xff) &&
-			(eth_addr->ether_addr_octet[1] == 0xff) &&
-			(eth_addr->ether_addr_octet[2] == 0xff) &&
-			(eth_addr->ether_addr_octet[3] == 0xff) &&
-			(eth_addr->ether_addr_octet[4] == 0xff) &&
-			(eth_addr->ether_addr_octet[5] == 0xff)) {
-			printf("%s %-20d : %s \n", "MAC address", i, "N/A");
-			continue;
-		}
-		printf("%s %-20d : %s \n", "MAC address", i,
-			ether_ntoa_r(eth_addr, mac_str));
+	for (int i = 1; i < count; ++i) {
+
+		// convert MAC to uint64
+		value = macaddress_uint64(eth_addr);
+		++value;
+		// convert uint64 to MAC
+		uint64_macaddress(value, eth_addr);
+
+		printf("%s %-20d : %02X:%02X:%02X:%02X:%02X:%02X\n",
+			"MAC address", i, eth_addr->ether_addr_octet[0],
+			eth_addr->ether_addr_octet[1], eth_addr->ether_addr_octet[2],
+			eth_addr->ether_addr_octet[3], eth_addr->ether_addr_octet[4],
+			eth_addr->ether_addr_octet[5]);
 
 	}
 }

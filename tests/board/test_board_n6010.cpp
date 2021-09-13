@@ -328,32 +328,39 @@ TEST_P(board_dfl_n6010_c_p, board_n6010_12) {
 		(void*)mac_buf, 18);
 	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
 
-	strncpy(mac_buf, "78:56:34:12:AB:FE", 18);
+
+    strncpy(mac_buf, "78:56:34:12:AB:FE", 18);
 	write_sysfs_file((char*)"dfl_dev*/mac_address",
 		(void*)mac_buf, 18);
 	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
 
-	strncpy(mac_buf, "78:56:34:12:FE:FE", 18);
+	strncpy(mac_buf, "78:56:34:12:FF:FF", 18);
 	write_sysfs_file((char*)"dfl_dev*/mac_address",
 		(void*)mac_buf, 18);
 	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
 
-	strncpy(mac_buf, "78:56:34:FE:FE:FE", 18);
+	strncpy(mac_buf, "78:56:34:FE:FF:FF", 18);
 	write_sysfs_file((char*)"dfl_dev*/mac_address",
 		(void*)mac_buf, 18);
 	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
 
-	strncpy(mac_buf, "78:56:FE:FE:FE:FE", 18);
+
+    strncpy(mac_buf, "78:56:34:FF:FF:FF", 18);
+    write_sysfs_file((char*)"dfl_dev*/mac_address",
+        (void*)mac_buf, 18);
+    EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
+
+	strncpy(mac_buf, "78:56:FF:FF:FF:FF", 18);
 	write_sysfs_file((char*)"dfl_dev*/mac_address",
 		(void*)mac_buf, 18);
 	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
 
-	strncpy(mac_buf, "78:FE:FE:FE:FE:FE", 18);
+	strncpy(mac_buf, "78:FF:FF:FF:FF:FF", 18);
 	write_sysfs_file((char*)"dfl_dev*/mac_address",
 		(void*)mac_buf, 18);
 	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
 
-	strncpy(mac_buf, "FE:FE:FE:FE:FE:FE", 18);
+	strncpy(mac_buf, "FE:FF:FF:FF:FF:FF", 18);
 	write_sysfs_file((char*)"dfl_dev*/mac_address",
 		(void*)mac_buf, 18);
 	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
@@ -362,6 +369,7 @@ TEST_P(board_dfl_n6010_c_p, board_n6010_12) {
 	write_sysfs_file((char*)"dfl_dev*/mac_address",
 		(void*)mac_buf, 18);
 	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
+
 }
 INSTANTIATE_TEST_CASE_P(board_dfl_n6010_c, board_dfl_n6010_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n6010" })));
