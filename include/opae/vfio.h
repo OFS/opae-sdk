@@ -135,6 +135,7 @@ struct opae_vfio_buffer {
 	uint8_t *buffer_ptr;		/**< Buffer virtual address. */
 	size_t buffer_size;		/**< Buffer size. */
 	uint64_t buffer_iova;		/**< Buffer IOVA address. */
+	int flags;			/**< See opae_vfio_buffer_flags. */
 	struct opae_vfio_buffer *next;	/**< Pointer to next in list. */
 };
 
@@ -333,6 +334,68 @@ int opae_vfio_buffer_allocate(struct opae_vfio *v,
 			      size_t *size,
 			      uint8_t **buf,
 			      uint64_t *iova);
+
+/** Flags for opae_vfio_buffer_allocate_ex().
+ */
+enum opae_vfio_buffer_flags {
+	OPAE_VFIO_BUF_PREALLOCATED = 1, /**< Use existing buffer */
+};
+
+/**
+ * Allocate and map system buffer (extended w/ flags)
+ *
+ * Allocate, map, and retrieve info for a system buffer capable of
+ * DMA. Saves an entry in the v->cont_buffers list. If the buffer
+ * is not explicitly freed by opae_vfio_buffer_free, it will be
+ * freed during opae_vfio_close, unless OPAE_VFIO_BUF_PREALLOCATED
+ * is used in which case the buffer is not freed by this library.
+ *
+ * When not using OPAE_VFIO_BUF_PREALLOCATED, mmap is used for the
+ * allocation. If the size is greater than 2MB, then the allocation
+ * request is fulfilled by a 1GB huge page. Else, if the size is
+ * greater than 4096, then the request is fulfilled by a 2MB huge
+ * page. Else, the request is fulfilled by the non-huge page pool.
+ *
+ * @param[in, out] v    The open OPAE VFIO device.
+ * @param[in, out] size A pointer to the requested size. The size
+ *                      may be rounded to the next page size prior
+ *                      to return from the function.
+ * @param[out]     buf  Optional pointer to receive the virtual address
+ *                      for the buffer/input buffer pointer when
+ *                      using OPAE_VFIO_BUF_PREALLOCATED. Pass NULL
+ *                      to ignore.
+ * @param[out]     iova Optional pointer to receive the IOVA address
+ *                      for the buffer. Pass NULL to ignore.
+ * @returns Non-zero on error. Zero on success.
+ *
+ * Example
+ * @code{.c}
+ * opae_vfio v;
+ *
+ * size_t sz = MY_BUF_SIZE;
+ * uint8_t *prealloc_virt = NULL;
+ * uint64_t iova = 0;
+ *
+ * prealloc_virt = allocate_my_buffer(sz);
+ *
+ * if (opae_vfio_open(&v, "0000:00:00.0")) {
+ *   // handle error
+ * } else {
+ *   if (opae_vfio_buffer_allocate_ex(&v,
+ *                                    &sz,
+ *                                    &prealloc_virt,
+ *                                    &iova,
+ *                                    OPAE_VFIO_BUF_PREALLOCATED)) {
+ *     // handle allocation error
+ *   }
+ * }
+ * @endcode
+ */
+int opae_vfio_buffer_allocate_ex(struct opae_vfio *v,
+				 size_t *size,
+				 uint8_t **buf,
+				 uint64_t *iova,
+				 int flags);
 
 /**
  * Unmap and free a system buffer
