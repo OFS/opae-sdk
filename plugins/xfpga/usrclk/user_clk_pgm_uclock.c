@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -58,12 +58,15 @@
 #define  USER_CLOCK_STS0       "userclk_freqsts"
 #define  USER_CLOCK_STS1       "userclk_freqcntrsts"
 #define  IOPLL_CLOCK_FREQ      "dfl*/userclk/frequency"
+#define  IOPLL_REVISION        "dfl*/feature_rev"
 #define  MAX_FPGA_FREQ          1200
 #define  MIN_FPGA_FREQ          25
 
 // User clock sleep
 #define  USRCLK_SLEEEP_1MS           1000000
 #define  USRCLK_SLEEEP_10MS          10000000
+
+#define  AGILEX_USRCLK_REV          1
 
 struct  QUCPU_Uclock   gQUCPU_Uclock;
 
@@ -132,6 +135,8 @@ fpga_result set_userclock(const char* sysfs_path,
 	char *bufp;
 	size_t cnt;
 	int ret;
+	uint64_t revision = 0;
+	fpga_result result = FPGA_OK;
 
 	if (sysfs_path == NULL) {
 		OPAE_ERR("Invalid Input parameters");
@@ -140,11 +145,28 @@ fpga_result set_userclock(const char* sysfs_path,
 
 	ret = using_iopll(sysfs_usrpath, sysfs_path);
 	if (ret == FPGA_OK) {
-		// Enforce 1x clock within valid range
-		if ((userclk_low > IOPLL_MAX_FREQ) ||
-		    (userclk_low < IOPLL_MIN_FREQ)) {
-			OPAE_ERR("Invalid Input frequency");
-			return FPGA_INVALID_PARAM;
+
+		// Agilex user clock DFH revision 1
+		// S10 & A10 user clock DFH revision 0
+		result = get_userclk_revision(sysfs_path, &revision);
+		if (result == FPGA_OK  && revision == AGILEX_USRCLK_REV) {
+			// Enforce 1x clock within valid range
+			if ((userclk_low > IOPLL_AGILEX_MAX_FREQ) ||
+				(userclk_low < IOPLL_AGILEX_MIN_FREQ)) {
+				OPAE_ERR("Invalid Input frequency");
+				return FPGA_INVALID_PARAM;
+			}
+
+			bufp = (char *)&iopll_agilex_freq_config[userclk_low];
+		} else {
+			// S10 & A10 user clock
+			// Enforce 1x clock within valid range
+			if ((userclk_low > IOPLL_MAX_FREQ) ||
+				(userclk_low < IOPLL_MIN_FREQ)) {
+				OPAE_ERR("Invalid Input frequency");
+				return FPGA_INVALID_PARAM;
+			}
+			bufp = (char *)&iopll_agilex_freq_config[userclk_low];
 		}
 
 		fd = open(sysfs_usrpath, O_WRONLY);
@@ -153,7 +175,7 @@ fpga_result set_userclock(const char* sysfs_path,
 				 sysfs_usrpath, strerror(errno));
 			return FPGA_NOT_FOUND;
 		}
-		bufp = (char *)&iopll_freq_config[userclk_low];
+
 		cnt = sizeof(struct iopll_config);
 		do {
 			res = write(fd, bufp, cnt);
@@ -971,4 +993,33 @@ static int using_iopll(char* sysfs_usrpath, const char* sysfs_path)
 	}
 
 	return FPGA_OK;
+}
+
+
+//Get fpga user clock
+fpga_result get_userclk_revision(const char* sysfs_path,
+	uint64_t* revision)
+{
+	char path[SYSFS_PATH_MAX] = { 0 };
+	fpga_result result        = FPGA_OK;
+
+	if (snprintf(path, SYSFS_PATH_MAX,
+		"%s/%s", sysfs_path, IOPLL_REVISION) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
+
+	result = opae_glob_path(path, SYSFS_PATH_MAX - 1);
+	if (result != FPGA_OK) {
+		OPAE_MSG("Failed to get sysfs path");
+		return result;
+	}
+
+	result = sysfs_read_u64(path, revision);
+	if (result != FPGA_OK) {
+		OPAE_MSG("Failed to read value");
+		return result;
+	}
+
+	return result;
 }
