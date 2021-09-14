@@ -1237,7 +1237,7 @@ fpga_result vfio_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 			** FPGA_BUF_PREALLOCATED is supported by the
 			** library.
 			*/
-		} else if(!buf_addr) {
+		} else if (!buf_addr) {
 			OPAE_ERR("got FPGA_BUF_PREALLOCATED but NULL buf");
 			return FPGA_INVALID_PARAM;
 		} else {
