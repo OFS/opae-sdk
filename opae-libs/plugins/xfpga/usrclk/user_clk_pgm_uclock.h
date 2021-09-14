@@ -218,6 +218,9 @@ int fi_AvmmRead(uint64_t u64i_AvmmAdr, uint64_t *pu64i_ReadData);
 
 const char *fpac_GetErrMsg(int i_ErrMsgInx);
 
+fpga_result get_userclk_revision(const char* sysfs_path,
+	uint64_t* revision);
+
 #ifdef __cplusplus
 extern "C" {
 #endif
