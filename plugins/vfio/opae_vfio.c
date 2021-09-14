@@ -1226,17 +1226,33 @@ fpga_result vfio_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 				   void **buf_addr, uint64_t *wsid,
 				   int flags)
 {
-	ASSERT_NOT_NULL(buf_addr);
-	ASSERT_NOT_NULL(wsid);
-	vfio_handle *h = handle_check(handle);
+	vfio_handle *h;
+	uint8_t *virt = NULL;
 
+	if (flags & FPGA_BUF_PREALLOCATED) {
+		if (!buf_addr && !len) {
+			return FPGA_OK;
+			/* Special case: respond FPGA_OK when
+			** !buf_addr and !len as an indication that
+			** FPGA_BUF_PREALLOCATED is supported by the
+			** library.
+			*/
+		} else if(!buf_addr) {
+			OPAE_ERR("got FPGA_BUF_PREALLOCATED but NULL buf");
+			return FPGA_INVALID_PARAM;
+		} else {
+			virt = *buf_addr;
+		}
+	}
+
+	ASSERT_NOT_NULL(wsid);
+
+	h = handle_check(handle);
 	ASSERT_NOT_NULL(h);
 
-	(void)flags;
 	fpga_result res = FPGA_EXCEPTION;
 
 	struct opae_vfio *v = h->vfio_pair->device;
-	uint8_t *virt = NULL;
 	uint64_t iova = 0;
 	size_t sz;
 	if (len > HUGE_2M)
@@ -1245,7 +1261,7 @@ fpga_result vfio_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 		sz = ROUND_UP(len, HUGE_2M);
 	else
 		sz = 4096;
-	if (opae_vfio_buffer_allocate(v, &sz, &virt, &iova)) {
+	if (opae_vfio_buffer_allocate_ex(v, &sz, &virt, &iova, flags)) {
 		OPAE_ERR("could not allocate buffer");
 		return FPGA_EXCEPTION;
 	}
