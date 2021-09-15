@@ -81,6 +81,7 @@
 #define IMAGE_INFO_STRIDE 4096
 #define IMAGE_INFO_SIZE     32
 #define IMAGE_INFO_COUNT     3
+#define GET_BIT(var, pos) ((var >> pos) & (1))
 
 // hssi version
 struct hssi_version {
@@ -101,7 +102,7 @@ struct hssi_version {
 :
 [21] - Port 15 Enable
 */
-#define PORT_ENABLE_INDEX 6
+#define PORT_ENABLE_COUNT 16
 
 // hssi feature list CSR
 struct hssi_feature_list {
@@ -373,9 +374,6 @@ fpga_result print_board_info(fpga_token token)
 	return resval;
 }
 
-
-
-
 // print phy group information
 fpga_result print_phy_info(fpga_token token)
 {
@@ -387,7 +385,6 @@ fpga_result print_phy_info(fpga_token token)
 	struct hssi_version  hssi_ver;
 	uint8_t *mmap_ptr = NULL;
 	uint32_t i = 0;
-	uint32_t port_count = 0;
 
 	res = find_dev_feature(token, HSSI_FEATURE_ID, feature_dev);
 	if (res != FPGA_OK) {
@@ -414,17 +411,13 @@ fpga_result print_phy_info(fpga_token token)
 	printf("//****** HSSI information ******//\n");
 	printf("%-32s : %d.%d  \n", "HSSI version", hssi_ver.major, hssi_ver.minor);
 	printf("%-32s : %d  \n", "Number of ports", feature_list.hssi_num);
-	for (i = 0; i < feature_list.hssi_num; i++) {
-			if ((feature_list.port_enable >> (i + PORT_ENABLE_INDEX)) == 1)
-				port_count++;
-		}
-	printf("%-32s : %d  \n", "Number of active ports", port_count);
 
-	for (i = 0; i < feature_list.hssi_num; i++) {
+	for (i = 0; i < PORT_ENABLE_COUNT; i++) {
 
 		// prints only active/enabled ports
-		if ((feature_list.port_enable >> (i + PORT_ENABLE_INDEX)) != 1)
+		if ((GET_BIT(feature_list.port_enable, i) == 0)) {
 			continue;
+		}
 
 		port_profile.csr = *((uint32_t *)(mmap_ptr +
 			HSSI_PORT_ATTRIBUTE + i * 4));
