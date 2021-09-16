@@ -52,6 +52,8 @@
 fprintf(stderr, "%s:%u:%s() **ERROR** [%s] : " format, \
 	__SHORT_FILE__, __LINE__, __func__, strerror(errno), ##__VA_ARGS__)
 
+#define ALIGNED(__addr, __size) ((__addr + __size - 1) & ~(__size - 1))
+
 void mem_alloc_init(struct mem_alloc *m)
 {
 	m->free.address = 0;
@@ -103,6 +105,14 @@ static inline void link_before(struct mem_link *a, struct mem_link *b)
 	a->next = b;
 	b->prev = a;
 	a->prev->next = a;
+}
+
+static inline void link_after(struct mem_link *a, struct mem_link *b)
+{
+	a->next = b->next;
+	a->prev = b;
+	b->next->prev = a;
+	b->next = a;
 }
 
 static inline void link_unlink(struct mem_link *x)
@@ -210,13 +220,86 @@ STATIC int mem_alloc_allocate_node(struct mem_alloc *m,
 	return 0;
 }
 
+STATIC int mem_alloc_allocate_split_node(struct mem_alloc *m,
+					 struct mem_link *node,
+					 uint64_t aligned_addr,
+					 uint64_t *address,
+					 uint64_t size)
+{
+	struct mem_link *p;
+	struct mem_link *p2;
+	uint64_t first_size;
+	uint64_t second_size;
+	uint64_t second_addr;
+
+	if ((aligned_addr + size) == (node->address + node->size)) {
+		// We're consuming from aligned_addr to the end of node.
+		p = mem_link_alloc(aligned_addr, size);
+		if (!p) {
+			ERR("malloc() failed\n");
+			return 1;
+		}
+
+		link_before(p, &m->allocated);
+		*address = p->address;
+
+		node->size -= size;
+
+		return 0;
+	}
+
+	first_size = aligned_addr - node->address;
+	second_size = node->size - (first_size + size);
+	second_addr = aligned_addr + size;
+
+	// We need to split node into three nodes:
+	//
+	// first_size         size              second_size
+	// -----------------  ----------------  -----------------------
+	// | node->address |  | aligned_addr |  | aligned_addr + size |
+	// -----------------  ----------------  -----------------------
+
+	p = mem_link_alloc(aligned_addr, size);
+	if (!p) {
+		ERR("malloc() failed\n");
+		return 2;
+	}
+
+	p2 = mem_link_alloc(second_addr, second_size);
+	if (!p2) {
+		ERR("malloc() failed\n");
+		free(p);
+		return 3;
+	}
+
+	node->size = first_size;
+
+	link_before(p, &m->allocated);
+	*address = p->address;
+
+	link_after(p2, node);
+
+	return 0;
+}
+
 int mem_alloc_get(struct mem_alloc *m, uint64_t *address, uint64_t size)
 {
 	struct mem_link *p;
 
 	for (p = m->free.next ; p != &m->free ; p = p->next) {
-		if (size <= p->size) { // First fit.
-			return mem_alloc_allocate_node(m, p, address, size);
+		uint64_t aligned_addr = ALIGNED(p->address, size);
+		if ((aligned_addr + size) <= (p->address + p->size)) { // First fit.
+			if (aligned_addr == p->address)
+				return mem_alloc_allocate_node(m,
+							       p,
+							       address,
+							       size);
+			else
+				return mem_alloc_allocate_split_node(m,
+								     p,
+								     aligned_addr,
+								     address,
+								     size);
 		}
 	}
 
