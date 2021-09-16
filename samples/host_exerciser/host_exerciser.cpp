@@ -25,16 +25,27 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 #include <CLI/CLI.hpp>
+#include <signal.h>
 
 #include "host_exerciser_lpbk.h"
 #include "host_exerciser_mem.h"
 #include "host_exerciser.h"
 
+void he_sig_handler(int);
 
 int main(int argc, char* argv[])
 {
   host_exerciser::host_exerciser app;
   app.register_command<host_exerciser::host_exerciser_lpbk>();
   app.register_command<host_exerciser::host_exerciser_mem>();
+  
+  // host exerciser signal handler
+  struct sigaction act_old, act_new;
+  memset(&act_old, 0, sizeof(act_old));
+  memset(&act_new, 0, sizeof(act_new));
+
+  act_new.sa_handler = he_sig_handler;
+  sigaction(SIGINT, &act_new, &act_old);
+
   return app.main(argc, argv);
 }
