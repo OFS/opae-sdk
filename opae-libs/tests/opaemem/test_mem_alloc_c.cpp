@@ -31,6 +31,8 @@
 
 #include <opae/mem_alloc.h>
 
+#define ALIGNED(__addr, __size) ((__addr + __size - 1) & ~(__size - 1))
+
 extern "C" {
 struct mem_link *mem_link_alloc(uint64_t address, uint64_t size);
 void mem_alloc_coalesce(struct mem_link *head, struct mem_link *l);
@@ -38,6 +40,11 @@ int mem_alloc_allocate_node(struct mem_alloc *m,
                             struct mem_link *node,
                             uint64_t *address,
                             uint64_t size);
+int mem_alloc_allocate_split_node(struct mem_alloc *m,
+				  struct mem_link *node,
+				  uint64_t aligned_addr,
+				  uint64_t *address,
+				  uint64_t size);
 int mem_alloc_free_node(struct mem_alloc *m,
                         struct mem_link *node);
 }
@@ -412,6 +419,108 @@ TEST(mem_alloc, allocate_node1)
   EXPECT_EQ(l->next, &allocator.allocated);
   EXPECT_EQ(l->address, 0);
   EXPECT_EQ(l->size, 512);
+
+  free(l);
+}
+
+/**
+ * @test    alloc_split_node0
+ * @brief   Test: mem_alloc_allocate_split_node()
+ * @details When the given node has an aligned size that matches<br>
+ *          the requested size, the node is readjusted to meet<br>
+ *          the alignment requirement, and a new node is added to<br>
+ *          the allocated list.
+ */
+TEST(mem_alloc, alloc_split_node0)
+{
+  struct mem_alloc allocator;
+  struct mem_link *l;
+  const uint64_t fourK = 4096UL;
+  const uint64_t twoM = 2 * 1024UL * 1024UL;
+  uint64_t addr = 0;
+
+  mem_alloc_init(&allocator);
+
+  EXPECT_EQ(mem_alloc_add_free(&allocator, 0x1000, (2 * twoM) - fourK), 0);
+
+  l = allocator.free.next;
+  EXPECT_EQ(mem_alloc_allocate_split_node(&allocator,
+                                          allocator.free.next,
+                                          ALIGNED(0x1000, twoM),
+                                          &addr,
+                                          twoM), 0);
+
+  EXPECT_EQ(allocator.free.prev, l);
+  EXPECT_EQ(allocator.free.next, l);
+  EXPECT_EQ(l->prev, &allocator.free);
+  EXPECT_EQ(l->next, &allocator.free);
+  EXPECT_EQ(l->address, 0x1000);
+  EXPECT_EQ(l->size, twoM - fourK);
+  EXPECT_EQ(addr, twoM);
+
+  free(l);
+  l = allocator.allocated.next;
+
+  EXPECT_EQ(allocator.allocated.prev, l);
+  EXPECT_EQ(allocator.allocated.next, l);
+  EXPECT_EQ(l->prev, &allocator.allocated);
+  EXPECT_EQ(l->next, &allocator.allocated);
+  EXPECT_EQ(l->address, twoM);
+  EXPECT_EQ(l->size, twoM);
+
+  free(l);
+}
+
+/**
+ * @test    alloc_split_node1
+ * @brief   Test: mem_alloc_allocate_split_node()
+ * @details When the given node has an aligned size that is greater than<br>
+ *          the requested size, the node is split into two allocated nodes<br>
+ *          and the allocation is made from the aligned address.
+ */
+TEST(mem_alloc, alloc_split_node1)
+{
+  struct mem_alloc allocator;
+  struct mem_link *l;
+  struct mem_link *m;
+  const uint64_t fourK = 4096UL;
+  const uint64_t twoM = 2 * 1024UL * 1024UL;
+  uint64_t addr = 0;
+
+  mem_alloc_init(&allocator);
+
+  EXPECT_EQ(mem_alloc_add_free(&allocator, 0x1000, (3 * twoM) - fourK), 0);
+
+  l = allocator.free.next;
+  EXPECT_EQ(mem_alloc_allocate_split_node(&allocator,
+                                          allocator.free.next,
+                                          ALIGNED(0x1000, twoM),
+                                          &addr,
+                                          twoM), 0);
+  m = l->next;
+
+  EXPECT_EQ(allocator.free.prev, m);
+  EXPECT_EQ(allocator.free.next, l);
+  EXPECT_EQ(l->prev, &allocator.free);
+  EXPECT_EQ(l->next, m);
+  EXPECT_EQ(m->prev, l);
+  EXPECT_EQ(m->next, &allocator.free);
+  EXPECT_EQ(l->address, 0x1000);
+  EXPECT_EQ(l->size, twoM - fourK);
+  EXPECT_EQ(m->address, 2 * twoM);
+  EXPECT_EQ(m->size, twoM);
+  EXPECT_EQ(addr, twoM);
+
+  free(l);
+  free(m);
+  l = allocator.allocated.next;
+
+  EXPECT_EQ(allocator.allocated.prev, l);
+  EXPECT_EQ(allocator.allocated.next, l);
+  EXPECT_EQ(l->prev, &allocator.allocated);
+  EXPECT_EQ(l->next, &allocator.allocated);
+  EXPECT_EQ(l->address, twoM);
+  EXPECT_EQ(l->size, twoM);
 
   free(l);
 }
