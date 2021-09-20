@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2017-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -30,7 +30,7 @@ project(opae-libs)
 set(OPAE_VERSION_LOCAL   "" CACHE STRING "OPAE local version")
 set(OPAE_VERSION_MAJOR    2 CACHE STRING "OPAE major version" FORCE)
 set(OPAE_VERSION_MINOR    0 CACHE STRING "OPAE minor version" FORCE)
-set(OPAE_VERSION_REVISION 7${OPAE_VERSION_LOCAL} CACHE STRING "OPAE revision version" FORCE)
+set(OPAE_VERSION_REVISION 8${OPAE_VERSION_LOCAL} CACHE STRING "OPAE revision version" FORCE)
 set(OPAE_VERSION ${OPAE_VERSION_MAJOR}.${OPAE_VERSION_MINOR}.${OPAE_VERSION_REVISION}
     CACHE STRING "OPAE version" FORCE)
 
