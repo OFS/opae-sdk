@@ -554,7 +554,7 @@ class _KEY(object):
         if "_pr_" in self.file:
             return 2
         
-        if "_fim2_" in self.file:
+        if "_fim2_" in self.file or "_factory_" in self.file:
             return 3
 
         if "_pxe_" in self.file:
