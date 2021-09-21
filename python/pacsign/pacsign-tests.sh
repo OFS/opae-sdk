@@ -71,7 +71,7 @@ create_keys_() {
 
 create_keys() {
   create_keys_ fim         prime256v1
-  create_keys_ fim2        prime256v1
+  create_keys_ factory     prime256v1
   create_keys_ sr_test     prime256v1
   create_keys_ sr_cert     prime256v1
   create_keys_ bmc         prime256v1
@@ -84,7 +84,7 @@ create_keys() {
   create_keys_ sdm         prime256v1
 
   create_keys_ fim         secp384r1 
-  create_keys_ fim2        secp384r1 
+  create_keys_ factory     secp384r1 
   create_keys_ sr_test     secp384r1 
   create_keys_ sr_cert     secp384r1 
   create_keys_ bmc         secp384r1 
@@ -107,6 +107,10 @@ image_type_to_PACSign() {
     ;;
 
     fim2)
+      printf "FACTORY"
+    ;;
+
+    factory)
       printf "FACTORY"
     ;;
 
@@ -269,33 +273,33 @@ test_fim_cancel() {
 test_factory_rkh() {
   local -r mgr="$1"
   printf "test_factory_rkh\n"
-  test_rkh "${mgr}" 'fim2' 256
-  test_rkh "${mgr}" 'fim2' 384
+  test_rkh "${mgr}" 'factory' 256
+  test_rkh "${mgr}" 'factory' 384
 }
 
 test_factory_unsigned() {
   local -r mgr="$1"
   printf "test_factory_unsigned\n"
-  test_unsigned "${mgr}" 'fim2' 256 0
-  test_unsigned "${mgr}" 'fim2' 256 1
-  test_unsigned "${mgr}" 'fim2' 384 0
-  test_unsigned "${mgr}" 'fim2' 384 1
+  test_unsigned "${mgr}" 'factory' 256 0
+  test_unsigned "${mgr}" 'factory' 256 1
+  test_unsigned "${mgr}" 'factory' 384 0
+  test_unsigned "${mgr}" 'factory' 384 1
 }
 
 test_factory_signed() {
   local -r mgr="$1"
   printf "test_factory_signed\n"
-  test_signed "${mgr}" 'fim2' 256 0
-  test_signed "${mgr}" 'fim2' 256 1
-  test_signed "${mgr}" 'fim2' 384 0
-  test_signed "${mgr}" 'fim2' 384 1
+  test_signed "${mgr}" 'factory' 256 0
+  test_signed "${mgr}" 'factory' 256 1
+  test_signed "${mgr}" 'factory' 384 0
+  test_signed "${mgr}" 'factory' 384 1
 }
 
 test_factory_cancel() {
   local -r manager="$1"
   printf "test_factory_cancel\n"
-  test_cancel "${mgr}" 'fim2' 256 0
-  test_cancel "${mgr}" 'fim2' 384 0
+  test_cancel "${mgr}" 'factory' 256 0
+  test_cancel "${mgr}" 'factory' 384 0
 }
 
 ################################################################################
