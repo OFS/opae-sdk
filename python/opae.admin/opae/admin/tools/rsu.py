@@ -255,7 +255,7 @@ def main():
             sys.stderr.write('Acceptable commands:\n')
             for dev in compatible:
                 sys.stderr.write('>{} {} {}\n'.format(prog,
-                                                      args.type,
+                                                      args.which,
                                                       dev.pci_node.bdf))
             raise SystemExit(os.EX_USAGE)
 
