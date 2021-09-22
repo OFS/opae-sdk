@@ -99,9 +99,9 @@ extern "C" {
 #endif
 /** System-wide unique FPGA resource identifier */
 struct _fpga_token {
+	fpga_token_header hdr; //< Must appear at offset 0!
 	uint32_t device_instance;
 	uint32_t subdev_instance;
-	uint64_t magic;
 	char sysfspath[SYSFS_PATH_MAX];
 	char devpath[DEV_PATH_MAX];
 	struct error_list *errors;
