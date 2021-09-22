@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -251,5 +251,43 @@ typedef struct metric_threshold {
 	threshold lower_nc_threshold;                  // Lower Non-Critical Threshold
 	threshold hysteresis;                          // Hysteresis
 } metric_threshold;
+
+/** Internal token type header
+ *
+ * Each plugin (dfl: libxfpga.so, vfio: libopae-v.so) implements its own
+ * proprietary token type. This header _must_ appear at offset zero within
+ * that structure.
+ *
+ * eg, see opae-libs/plugins/xfpga/types_int.h:struct _fpga_token and
+ *         opae-libs/plugins/vfio/opae_vfio.h:struct _vfio_token.
+ */
+typedef struct _fpga_token_header {
+	uint64_t magic;
+	uint16_t vendor_id;
+	uint16_t device_id;
+	uint16_t segment;
+	uint8_t bus;
+	uint8_t device;
+	uint8_t function;
+	fpga_interface interface;
+	fpga_objtype objtype;
+	uint64_t object_id;
+	fpga_guid guid;
+} fpga_token_header;
+
+/** Determine token parent/child relationship
+ *
+ * Given pointers to two fpga_token_header structs, determine
+ * whether the first is the parent of the second. A parent will
+ * have objtype == FPGA_DEVICE. A child will have objtype ==
+ * FPGA_ACCELERATOR. The PCIe address of the two headers will
+ * match in all but the function fields.
+ */
+#define fpga_is_parent_child(__parent_hdr, __child_hdr) \
+(((__parent_hdr)->objtype == FPGA_DEVICE) && \
+ ((__child_hdr)->objtype == FPGA_ACCELERATOR) && \
+ ((__parent_hdr)->segment == (__child_hdr)->segment) && \
+ ((__parent_hdr)->bus == (__child_hdr)->bus) && \
+ ((__parent_hdr)->device == (__child_hdr)->device))
 
 #endif // __FPGA_TYPES_H__

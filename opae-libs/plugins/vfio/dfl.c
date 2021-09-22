@@ -88,7 +88,7 @@ int walk_port(vfio_token *parent, uint32_t region, volatile uint8_t *mmio)
 	if (port->ops.reset(port->device, mmio)) {
 		OPAE_ERR("error resetting port");
 	}
-	get_guid(1+(uint64_t *)(mmio+next_afu->port_afu_dfh_offset), port->guid);
+	get_guid(1+(uint64_t *)(mmio+next_afu->port_afu_dfh_offset), port->hdr.guid);
 	// look for stp and if found, add it to user_mmio offsets
 	for_each_dfh(h, mmio) {
 		if (h->id == PORT_STP_ID) {
@@ -104,7 +104,7 @@ int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio, int r
 {
 	vfio_token *fme = get_token(p, region, FPGA_DEVICE);
 
-	get_guid(1+(uint64_t *)mmio, fme->guid);
+	get_guid(1+(uint64_t *)mmio, fme->hdr.guid);
 	fme->bitstream_id = *(uint64_t *)(mmio+BITSTREAM_ID);
 	fme->bitstream_mdata = *(uint64_t *)(mmio+BITSTREAM_MD);
 	fab_capability *cap = (fab_capability *)(mmio+FAB_CAPABILITY);

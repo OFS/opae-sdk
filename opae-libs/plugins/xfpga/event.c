@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -731,7 +731,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaRegisterEvent(fpga_handle handle,
 
 	_token = (struct _fpga_token *)_handle->token;
 
-	if (_token->magic != FPGA_TOKEN_MAGIC) {
+	if (_token->hdr.magic != FPGA_TOKEN_MAGIC) {
 		OPAE_MSG("Invalid token found in handle");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
@@ -794,7 +794,7 @@ xfpga_fpgaUnregisterEvent(fpga_handle handle, fpga_event_type event_type,
 
 	_token = (struct _fpga_token *)_handle->token;
 
-	if (_token->magic != FPGA_TOKEN_MAGIC) {
+	if (_token->hdr.magic != FPGA_TOKEN_MAGIC) {
 		OPAE_MSG("Invalid token found in handle");
 		result = FPGA_INVALID_PARAM;
 		goto out_unlock;
