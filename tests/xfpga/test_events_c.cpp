@@ -378,7 +378,7 @@ TEST(events, event_03) {
   // token setup
   strncpy(_t.sysfspath, sysfs_port.c_str(), sysfs_port.size() + 1);
   strncpy(_t.devpath, dev_port.c_str(), dev_port.size() + 1);
-  _t.magic = FPGA_TOKEN_MAGIC;
+  _t.hdr.magic = FPGA_TOKEN_MAGIC;
   _t.errors = nullptr;
   std::string errpath = sysfs_port + "/errors";
   build_error_list(errpath.c_str(), &_t.errors);
@@ -389,14 +389,14 @@ TEST(events, event_03) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaRegisterEvent(&_h, e, eh, 0));
 
   // handle with bad token.
-  _t.magic = FPGA_INVALID_MAGIC;
+  _t.hdr.magic = FPGA_INVALID_MAGIC;
   _h.magic = FPGA_HANDLE_MAGIC;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaRegisterEvent(&_h, e, eh, 0));
 
   // token/event mismatch.
   strncpy(_t.sysfspath, sysfs_fme.c_str(), sysfs_fme.size() + 1);
   strncpy(_t.devpath, dev_fme.c_str(), dev_fme.size() + 1);
-  _t.magic = FPGA_TOKEN_MAGIC;
+  _t.hdr.magic = FPGA_TOKEN_MAGIC;
   _t.errors = nullptr;
   errpath = sysfs_fme + "/errors";
   build_error_list(errpath.c_str(), &_t.errors);
@@ -434,7 +434,7 @@ TEST(events, event_04) {
   // token setup
   strncpy(_t.sysfspath, sysfs_port.c_str(), sysfs_port.size() + 1);
   strncpy(_t.devpath, dev_port.c_str(), dev_port.size() + 1);
-  _t.magic = FPGA_TOKEN_MAGIC;
+  _t.hdr.magic = FPGA_TOKEN_MAGIC;
   _t.errors = nullptr;
   std::string errpath = sysfs_port + "/errors";
   build_error_list(errpath.c_str(), &_t.errors);
@@ -445,14 +445,14 @@ TEST(events, event_04) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnregisterEvent(&_h, e, eh));
 
   // handle with bad token.
-  _t.magic = FPGA_INVALID_MAGIC;
+  _t.hdr.magic = FPGA_INVALID_MAGIC;
   _h.magic = FPGA_HANDLE_MAGIC;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnregisterEvent(&_h, e, eh));
 
   // token/event mismatch.
   strncpy(_t.sysfspath, sysfs_fme.c_str(), sysfs_fme.size() + 1);
   strncpy(_t.devpath, dev_fme.c_str(), dev_fme.size() + 1);
-  _t.magic = FPGA_TOKEN_MAGIC;
+  _t.hdr.magic = FPGA_TOKEN_MAGIC;
   _t.errors = nullptr;
   errpath = sysfs_fme + "/errors";
   build_error_list(errpath.c_str(), &_t.errors);

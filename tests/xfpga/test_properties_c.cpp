@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -238,7 +238,7 @@ INSTANTIATE_TEST_CASE_P(properties_c, properties_c_p,
 TEST(properties_c, fpga_get_properties) {
   char buf[sizeof(_fpga_token)];
   fpga_token token = buf;
-  ((_fpga_token*)token)->magic = 0xbeef;
+  ((_fpga_token*)token)->hdr.magic = 0xbeef;
   fpga_properties prop;
   EXPECT_EQ(xfpga_fpgaGetProperties(token, &prop), FPGA_INVALID_PARAM);
 }
