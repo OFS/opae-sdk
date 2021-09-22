@@ -355,11 +355,11 @@ TEST_P(metadata_c, get_interface_id_01) {
   ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
 
   // Invalid object type
-  _token->magic = 0x123;
+  _token->hdr.magic = 0x123;
   auto res = get_interface_id(handle_, &id_l, &id_h);
   EXPECT_EQ(res, FPGA_INVALID_PARAM);
 
-  _token->magic = FPGA_TOKEN_MAGIC;
+  _token->hdr.magic = FPGA_TOKEN_MAGIC;
 
   res = get_interface_id(handle_, nullptr, nullptr);
   EXPECT_EQ(res, FPGA_INVALID_PARAM);

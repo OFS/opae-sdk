@@ -43,11 +43,36 @@ extern "C" {
 #include "sysfs_int.h"
 #include "xfpga.h"
 
+struct dev_list {
+	dev_list(const char *spath, const char *dpath)
+	{
+		hdr.magic = FPGA_TOKEN_MAGIC;
+		strcpy(sysfspath, spath);
+		strcpy(devpath, dpath);
+	}
+
+        fpga_token_header hdr;
+
+        char sysfspath[SYSFS_PATH_MAX];
+        char devpath[DEV_PATH_MAX];
+        uint8_t socket_id;
+
+        uint32_t fpga_num_slots;
+        uint64_t fpga_bitstream_id;
+        fpga_version fpga_bbs_version;
+
+        fpga_accelerator_state accelerator_state;
+        uint32_t accelerator_num_mmios;
+        uint32_t accelerator_num_irqs;
+        struct dev_list *next;
+        struct dev_list *parent;
+        struct dev_list *fme;
+};
 
 extern "C" {
 int xfpga_plugin_initialize(void);
 int xfpga_plugin_finalize(void);
-struct _fpga_token *token_add(const char *sysfspath, const char *devpath);
+struct _fpga_token *token_add(struct dev_list *dev);
 }
 
 using namespace opae::testing;
@@ -90,7 +115,7 @@ class error_c_mock_p : public ::testing::TestWithParam<std::string> {
               sysfs_port.c_str(), sysfs_port.size() + 1);
     strncpy(fake_port_token_.devpath,
               dev_port.c_str(), dev_port.size() + 1);
-    fake_port_token_.magic = FPGA_TOKEN_MAGIC;
+    fake_port_token_.hdr.magic = FPGA_TOKEN_MAGIC;
     fake_port_token_.device_instance = 0;
     fake_port_token_.subdev_instance = 0;
     fake_port_token_.errors = nullptr;
@@ -100,7 +125,7 @@ class error_c_mock_p : public ::testing::TestWithParam<std::string> {
               sysfs_fme.c_str(), sysfs_fme.size() + 1);
     strncpy(fake_fme_token_.devpath,
               dev_fme.c_str(), dev_fme.size() + 1);
-    fake_fme_token_.magic = FPGA_TOKEN_MAGIC;
+    fake_fme_token_.hdr.magic = FPGA_TOKEN_MAGIC;
     fake_fme_token_.device_instance = 0;
     fake_fme_token_.subdev_instance = 0;
     fake_fme_token_.errors = nullptr;
@@ -587,16 +612,23 @@ TEST_P(error_c_mock_p, error_09) {
  *             xfpga_fpgaClearAllErrors() should return FPGA_INVALID_PARAM.
  */
 TEST_P(error_c_mock_p, error_12) {
-  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
+  struct dev_list fme_dev(sysfs_fme.c_str(), dev_fme.c_str());
+
+  auto fme = token_add(&fme_dev);
   ASSERT_NE(fme, nullptr);
-  auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
+
+  struct dev_list port_dev(sysfs_port.c_str(), dev_port.c_str());
+  auto port = token_add(&port_dev);
   ASSERT_NE(port, nullptr);
   auto tok = (struct _fpga_token *)fme;
 
-  tok->magic = FPGA_TOKEN_MAGIC;
+  tok->hdr.magic = FPGA_TOKEN_MAGIC;
   EXPECT_EQ(FPGA_OK, xfpga_fpgaClearAllErrors(fme));
-  tok->magic = 0x123;
+  tok->hdr.magic = 0x123;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearAllErrors(fme));
+
+  xfpga_fpgaDestroyToken((fpga_token *)&fme);
+  xfpga_fpgaDestroyToken((fpga_token *)&port);
 }
 
 INSTANTIATE_TEST_CASE_P(error_c, error_c_mock_p,
@@ -614,19 +646,26 @@ class error_c_p : public error_c_mock_p {};
  *
  */
 TEST_P(error_c_p, error_10) {
-  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
+  struct dev_list fme_dev(sysfs_fme.c_str(), dev_fme.c_str());
+  auto fme = token_add(&fme_dev);
   ASSERT_NE(fme, nullptr);
-  auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
+
+  struct dev_list port_dev(sysfs_port.c_str(), dev_port.c_str());
+  auto port = token_add(&port_dev);
   ASSERT_NE(port, nullptr);
+
   auto tok = (struct _fpga_token *)fme;
 
   uint64_t val = 0;
-  tok->magic = 0x123;
+  tok->hdr.magic = 0x123;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReadError(fme, 0, &val));
 
-  tok->magic = FPGA_TOKEN_MAGIC;
+  tok->hdr.magic = FPGA_TOKEN_MAGIC;
   EXPECT_EQ(FPGA_OK, xfpga_fpgaReadError(fme, 0, &val));
   EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaReadError(fme, 1000, &val));
+
+  xfpga_fpgaDestroyToken((fpga_token *)&fme);
+  xfpga_fpgaDestroyToken((fpga_token *)&port);
 }
 
 /**
@@ -639,15 +678,22 @@ TEST_P(error_c_p, error_10) {
  *
  */
 TEST_P(error_c_p, error_11) {
-  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
+  struct dev_list fme_dev(sysfs_fme.c_str(), dev_fme.c_str());
+  auto fme = token_add(&fme_dev);
   ASSERT_NE(fme, nullptr);
-  auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
+
+  struct dev_list port_dev(sysfs_port.c_str(), dev_port.c_str());
+  auto port = token_add(&port_dev);
   ASSERT_NE(port, nullptr);
+
   auto tok = (struct _fpga_token *)fme;
 
   EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaClearError(fme, 1000));
-  tok->magic = 0x123;
+  tok->hdr.magic = 0x123;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearError(fme, 0));
+
+  xfpga_fpgaDestroyToken((fpga_token *)&fme);
+  xfpga_fpgaDestroyToken((fpga_token *)&port);
 }
 
 /**
@@ -658,17 +704,24 @@ TEST_P(error_c_p, error_11) {
  *             xfpga_fpgaClearAllErrors() should return FPGA_NOT_FOUND.
  */
 TEST_P(error_c_p, error_13) {
-  auto fme = token_add(sysfs_fme.c_str(), dev_fme.c_str());
+  struct dev_list fme_dev(sysfs_fme.c_str(), dev_fme.c_str());
+  auto fme = token_add(&fme_dev);
   ASSERT_NE(fme, nullptr);
-  auto port = token_add(sysfs_port.c_str(), dev_port.c_str());
+
+  struct dev_list port_dev(sysfs_port.c_str(), dev_port.c_str());
+  auto port = token_add(&port_dev);
   ASSERT_NE(port, nullptr);
+
   auto tok = (struct _fpga_token *)fme;
 
   struct fpga_error_info info;
-  tok->magic = FPGA_TOKEN_MAGIC;
+  tok->hdr.magic = FPGA_TOKEN_MAGIC;
   EXPECT_EQ(FPGA_NOT_FOUND, xfpga_fpgaGetErrorInfo(fme, 1000, &info));
-  tok->magic = 0x123;
+  tok->hdr.magic = 0x123;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetErrorInfo(fme, 0, &info));
+
+  xfpga_fpgaDestroyToken((fpga_token *)&fme);
+  xfpga_fpgaDestroyToken((fpga_token *)&port);
 }
 
 INSTANTIATE_TEST_CASE_P(error_c, error_c_p,
@@ -704,7 +757,7 @@ TEST(error_c, error_06) {
   struct _fpga_token _t;
   strncpy(_t.sysfspath, sysfs_port.c_str(), sysfs_port.size() + 1);
   strncpy(_t.devpath, dev_port.c_str(), dev_port.size() + 1);
-  _t.magic = FPGA_TOKEN_MAGIC;
+  _t.hdr.magic = FPGA_TOKEN_MAGIC;
   _t.errors = nullptr;
 
   std::string invalid_errpath = sysfs_port + "/errorss";
