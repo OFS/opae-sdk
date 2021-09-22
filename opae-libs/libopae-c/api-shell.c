@@ -311,88 +311,31 @@ STATIC opae_wrapped_token *
 opae_get_parent_token(opae_wrapped_token *child)
 {
 	int mres = 0;
-	fpga_objtype child_type = FPGA_DEVICE;
-	uint16_t child_segment = 0;
-	uint8_t child_bus = 0;
-	uint8_t child_device = 0;
 	opae_wrapped_token *p;
 	opae_wrapped_token *parent = NULL;
-	struct _fpga_properties *child_props;
-	struct _fpga_properties *parent_props;
-	fpga_result res;
+	fpga_token_header *child_hdr;
+	fpga_token_header *parent_hdr;
 
-	if (!child->adapter_table->fpgaUpdateProperties)
-		return NULL;
-
-	child_props = opae_properties_create();
-	if (!child_props)
-		return NULL;
-
-	parent_props = opae_properties_create();
-	if (!parent_props)
-		goto out_destroy_child_props;
-
-	res = child->adapter_table->fpgaUpdateProperties(
-			child->opae_token, child_props);
-	if (res != FPGA_OK)
-		goto out_destroy_props;
-
-	if (fpgaPropertiesGetSegment(child_props, &child_segment) ||
-	    fpgaPropertiesGetBus(child_props, &child_bus) ||
-	    fpgaPropertiesGetDevice(child_props, &child_device) ||
-	    fpgaPropertiesGetObjectType(child_props, &child_type) ||
-	    (child_type == FPGA_DEVICE)) { // FPGA_DEVICE has no parent.
-		goto out_destroy_props;
-	}
+	child_hdr = (fpga_token_header *)child->opae_token;
 
 	if (opae_mutex_lock(mres, &token_list_lock))
-		goto out_destroy_props;
+		return NULL;
 
 	for (p = token_list_head.next ;
 		p != &token_list_head ;
 		    p = p->next) {
-		fpga_objtype parent_type = FPGA_ACCELERATOR;
-		uint16_t parent_segment = 0;
-		uint8_t parent_bus = 0;
-		uint8_t parent_device = 0;
 
-		if (!p->adapter_table->fpgaUpdateProperties)
-			continue;
+		parent_hdr = (fpga_token_header *)p->opae_token;
 
-		res = p->adapter_table->fpgaUpdateProperties(
-				p->opae_token, parent_props);
-		if (res != FPGA_OK)
-			goto out_unlock;
-
-		if (fpgaPropertiesGetSegment(parent_props, &parent_segment) ||
-		    fpgaPropertiesGetBus(parent_props, &parent_bus) ||
-		    fpgaPropertiesGetDevice(parent_props, &parent_device) ||
-		    fpgaPropertiesGetObjectType(parent_props, &parent_type) ||
-		    (parent_type == FPGA_ACCELERATOR)) {
-			// FPGA_ACCELERATOR can't be parent.
-			continue;
-		}
-
-		// p->token (the candidate parent) is an FPGA_DEVICE.
-		// We check to see whether the segment, bus, and device
-		// of the PCIe address match, ignoring the function, because
-		// Virtual Functions will have a non-zero function field.
-		// The Physical Function's function field will be 0.
-		if ((parent_segment == child_segment) &&
-		    (parent_bus == child_bus) &&
-		    (parent_device == child_device)) {
+		if (fpga_is_parent_child(parent_hdr, child_hdr)) {
 			parent = p;
 			opae_upref_wrapped_token(parent);
 			break;
 		}
 	}
 
-out_unlock:
 	opae_mutex_unlock(mres, &token_list_lock);
-out_destroy_props:
-	fpgaDestroyProperties((fpga_properties *)&parent_props);
-out_destroy_child_props:
-	fpgaDestroyProperties((fpga_properties *)&child_props);
+
 	return parent;
 }
 

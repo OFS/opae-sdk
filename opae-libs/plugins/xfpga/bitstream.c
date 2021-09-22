@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -130,7 +130,7 @@ fpga_result get_interface_id(fpga_handle handle, uint64_t *id_l, uint64_t *id_h)
 		return FPGA_INVALID_PARAM;
 	}
 
-	if (_token->magic != FPGA_TOKEN_MAGIC) {
+	if (_token->hdr.magic != FPGA_TOKEN_MAGIC) {
 		OPAE_MSG("Invalid token in handle");
 		return FPGA_INVALID_PARAM;
 	}

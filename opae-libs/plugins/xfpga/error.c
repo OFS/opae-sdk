@@ -48,7 +48,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaReadError(fpga_token token, uint32_t error_n
 	fpga_result res = FPGA_OK;
 
 	ASSERT_NOT_NULL(token);
-	if (_token->magic != FPGA_TOKEN_MAGIC) {
+	if (_token->hdr.magic != FPGA_TOKEN_MAGIC) {
 		OPAE_MSG("Invalid token");
 		return FPGA_INVALID_PARAM;
 	}
@@ -87,7 +87,7 @@ xfpga_fpgaClearError(fpga_token token, uint32_t error_num)
 	fpga_result res = FPGA_OK;
 
 	ASSERT_NOT_NULL(token);
-	if (_token->magic != FPGA_TOKEN_MAGIC) {
+	if (_token->hdr.magic != FPGA_TOKEN_MAGIC) {
 		OPAE_MSG("Invalid token");
 		return FPGA_INVALID_PARAM;
 	}
@@ -136,7 +136,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaClearAllErrors(fpga_token token)
 	fpga_result res = FPGA_OK;
 
 	ASSERT_NOT_NULL(token);
-	if (_token->magic != FPGA_TOKEN_MAGIC) {
+	if (_token->hdr.magic != FPGA_TOKEN_MAGIC) {
 		OPAE_MSG("Invalid token");
 		return FPGA_INVALID_PARAM;
 	}
@@ -170,7 +170,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetErrorInfo(fpga_token token,
 	}
 
 	ASSERT_NOT_NULL(token);
-	if (_token->magic != FPGA_TOKEN_MAGIC) {
+	if (_token->hdr.magic != FPGA_TOKEN_MAGIC) {
 		OPAE_MSG("Invalid token");
 		return FPGA_INVALID_PARAM;
 	}
