@@ -1,4 +1,4 @@
-// Copyright(c) 2019, Intel Corporation
+// Copyright(c) 2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,64 +24,23 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-/*
- * @file board.h
- *
- * @brief
- */
-#ifndef _FPGA_BOARD_H
-#define _FPGA_BOARD_H
+#ifndef __EVENTS_H__
+#define __EVENTS_H__
 
 #include <opae/fpga.h>
+#include <opae/error.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct _platform_data {
-	uint16_t vendor_id;
-	uint16_t device_id;
-	int32_t feature_id;
-	char *board_plugin;
-	void *dl_handle;
-} platform_data;
-
-fpga_result load_board_plugin(fpga_token token, void **dl_handle);
-int unload_board_plugin(void);
-
-// Board info
-fpga_result fpgainfo_board_info(fpga_token token);
-
-// mac info
-fpga_result mac_filter(fpga_properties *filter, int argc, char *argv[]);
-fpga_result mac_command(fpga_token *tokens, int num_tokens, int argc,
-	char *argv[]);
-void mac_help(void);
-fpga_result mac_info(fpga_token token);
-
-// phy group info
-fpga_result phy_filter(fpga_properties *filter, int argc, char *argv[]);
-fpga_result phy_command(fpga_token *tokens, int num_tokens, int argc,
-	char *argv[]);
-void phy_help(void);
-fpga_result phy_group_info(fpga_token token);
-
-// sec group info
-fpga_result sec_filter(fpga_properties *filter, int argc, char *argv[]);
-fpga_result sec_command(fpga_token *tokens, int num_tokens, int argc,
-	char *argv[]);
-void sec_help(void);
-fpga_result sec_info(fpga_token token);
-
-fpga_result fme_verbose_info(fpga_token token);
-
-fpga_result fpga_boot_info(fpga_token token);
-fpga_result fpga_image_info(fpga_token token);
-fpga_result fpga_event_log(fpga_token token, uint32_t first, uint32_t last,
-		bool print_list, bool print_sensors, bool print_bits);
+void events_help(void);
+fpga_result events_filter(fpga_properties *filter, int argc, char *argv[]);
+fpga_result events_command(fpga_token *tokens, int num_tokens, int argc,
+			   char *argv[]);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* !_FPGA_BOARD_H */
+#endif /* !__EVENTS_H__ */

@@ -139,6 +139,20 @@ fpga_result fpga_boot_info(fpga_token token);
 */
 fpga_result fpga_image_info(fpga_token token);
 
+/**
+* Prints fpga event log.
+*
+* @param[in] token           fpga_token object for device (FPGA_DEVICE type)
+* @param[in] first           first boot indenx to print
+* @param[in] last            (one past) last boot index to print
+* @param[in] print_list      print power-on and power-off datetime only
+* @param[in] print_sensors   print sensor data too
+* @param[in] print_bits      print bit fields verbosely too
+* @returns FPGA_OK on success, or FPGA_NOT_FOUND if the sysfs node is not found.
+*/
+fpga_result fpga_event_log(fpga_token token, uint32_t first, uint32_t last,
+	bool print_list, bool print_sensors, bool print_bits);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

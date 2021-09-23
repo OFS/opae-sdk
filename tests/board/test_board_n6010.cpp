@@ -285,11 +285,11 @@ TEST_P(board_dfl_n6010_c_p, board_n6010_9) {
 	char buf[10] = { 0 };
 	memset(&buf, 0xf, sizeof(buf));
 
-	write_sysfs_file((const char *)"dfl_dev*/bmcfw_version", (void*)buf, sizeof(buf));
+	ASSERT_EQ(write_sysfs_file((const char *)"dfl_dev*/bmcfw_version", (void*)buf, sizeof(buf)), FPGA_OK);
 	char bmcfw_ver[SYSFS_PATH_MAX];
 	EXPECT_NE(read_bmcfw_version(tokens_[0], bmcfw_ver, SYSFS_PATH_MAX), FPGA_OK);
 
-	write_sysfs_file((const char *)"dfl_dev*/bmc_version", (void*)buf, sizeof(buf));
+	ASSERT_EQ(write_sysfs_file((const char *)"dfl_dev*/bmc_version", (void*)buf, sizeof(buf)), FPGA_OK);
 	char max10fw_ver[SYSFS_PATH_MAX];
 	EXPECT_NE(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_PATH_MAX), FPGA_OK);
 }

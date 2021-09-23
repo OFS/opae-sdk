@@ -57,7 +57,9 @@ opae_test_add_static_lib(TARGET board-n5010-static
 )
 
 opae_test_add_static_lib(TARGET board-n6010-static
-    SOURCE ${OPAE_SDK_SOURCE}/tools/libboard/board_n6010/board_n6010.c
+    SOURCE
+        ${OPAE_SDK_SOURCE}/tools/libboard/board_n6010/board_n6010.c
+        ${OPAE_SDK_SOURCE}/tools/libboard/board_n6010/board_event_log.c
     LIBS
         opae-c
         opaeuio

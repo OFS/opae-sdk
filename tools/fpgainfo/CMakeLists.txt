@@ -36,6 +36,7 @@ opae_add_executable(TARGET fpgainfo
        tempinfo.c
        portinfo.c
        board.c
+       events.c
     LIBS
         argsfilter
         opae-c
