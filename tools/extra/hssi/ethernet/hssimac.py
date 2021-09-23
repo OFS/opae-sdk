@@ -112,7 +112,7 @@ def main():
     print("args.mtu:", args.mtu)
     print(args)
 
-    if not veriy_pcie_address(args.pcie_address.lower()):
+    if not verify_pcie_address(args.pcie_address.lower()):
         sys.exit(1)
 
     f = FpgaFinder(args.pcie_address.lower())

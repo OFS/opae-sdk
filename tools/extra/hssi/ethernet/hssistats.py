@@ -188,7 +188,7 @@ def main():
 
     print(args)
     print("pcie_address:", args.pcie_address)
-    if not veriy_pcie_address(args.pcie_address.lower()):
+    if not verify_pcie_address(args.pcie_address.lower()):
          sys.exit(1)
 
     f = FpgaFinder(args.pcie_address.lower())

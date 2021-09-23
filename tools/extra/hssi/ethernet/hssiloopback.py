@@ -151,7 +151,7 @@ def main():
     print("args.port:", args.port)
     print(args)
 
-    if not veriy_pcie_address(args.pcie_address.lower()):
+    if not verify_pcie_address(args.pcie_address.lower()):
         sys.exit(1)
 
     if args.loopback is None:
