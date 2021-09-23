@@ -53,6 +53,7 @@
 #include "powerinfo.h"
 #include "bmcinfo.h"
 #include "board.h"
+#include "events.h"
 
 void help(void);
 
@@ -104,6 +105,10 @@ static struct command_handler {
 	 .filter = sec_filter,
 	 .run = sec_command,
 	 .help = sec_help},
+	{.command = "events",
+	 .filter = events_filter,
+	 .run = events_command,
+	 .help = events_help},
 };
 
 /*

@@ -25,7 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 opae_add_module_library(TARGET board_n6010
-    SOURCE board_n6010.c
+    SOURCE board_n6010.c board_event_log.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
         opae-c
