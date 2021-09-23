@@ -656,7 +656,7 @@ class hssi_eth_port_status(Union):
         return self.bits.eth_mode
 
 
-def veriy_pcie_address(pcie_address):
+def verify_pcie_address(pcie_address):
     m = BDF_PATTERN.match(pcie_address)
     if m is None:
         print("Invalid pcie address foramt",pcie_address)
@@ -750,7 +750,7 @@ class HSSICOMMON(object):
         and firmware version
         """
         try:
-            self.pyopaeuio_inst.open(hssi_uio)
+            self.open(hssi_uio)
             self.num_uio_regions = self.pyopaeuio_inst.numregions
             hssi_dfh = dfh(self.read32(0, 0))
             hssi_version = hssi_ver(self.read32(0, 0x8))
@@ -759,7 +759,7 @@ class HSSICOMMON(object):
             ctl_addr.sal_cmd = HSSI_SALCMD.FIRMWARE_VER.value
             firmware_version = self.read_reg(0, ctl_addr.value)
 
-            print("\n--------HSSI IINFO START-------")
+            print("\n--------HSSI INFO START-------")
             print("HSSI id: {0: >12}".format(hex(hssi_dfh.id)))
             print("HSSI version: {0: >12}".format(str(hssi_version)))
             print("HSSI num ports: {0: >12}"
@@ -771,10 +771,12 @@ class HSSICOMMON(object):
 
         except RuntimeError:
             print("opae uio module exception")
+            return False
         except ValueError:
             print("Invalid arguemnts")
+            return False
 
-        return 0
+        return True
 
     def open(self, hssi_uio):
         ret = self.pyopaeuio_inst.open(hssi_uio)
