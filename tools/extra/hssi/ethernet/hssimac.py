@@ -76,7 +76,9 @@ class FPGAHSSIMAC(HSSICOMMON):
         get mtu
         """
         print("----hssi_mtu_start----")
-        self.hssi_info(self._hssi_grps[0][0])
+        if not self.hssi_info(self._hssi_grps[0][0]):
+            print("Failed to read hssi information")
+            sys.exit(1)
         self.get_mac_mtu()
 
 
@@ -97,6 +99,12 @@ def main():
     parser.add_argument('--mtu', nargs='?', const='',
                         help='maximum allowable ethernet frame length')
 
+    # exit if no commad line argument
+    args = parser.parse_args()
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
+
     args, left = parser.parse_known_args()
 
     print("args", args)
@@ -104,10 +112,10 @@ def main():
     print("args.mtu:", args.mtu)
     print(args)
 
-    if not veriy_pcie_address(args.pcie_address):
+    if not veriy_pcie_address(args.pcie_address.lower()):
         sys.exit(1)
 
-    f = FpgaFinder(args.pcie_address)
+    f = FpgaFinder(args.pcie_address.lower())
     devs = f.enum()
     for d in devs:
         print('sbdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))
