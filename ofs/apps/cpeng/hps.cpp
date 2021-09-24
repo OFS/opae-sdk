@@ -117,7 +117,7 @@ public:
     ofs_cpeng cpeng;
 
     // Initialize cpeng driver
-    ofs_cpeng_init(&cpeng, afu->handle()->c_type());
+    ofs_cpeng_init(&cpeng, afu->handle()->mmio_ptr(0, 0));
     if (ofs_cpeng_wait_for_hps_ready(&cpeng, timeout_usec_)) {
       log_->warn("HPS is not ready");
       return 1;
@@ -295,7 +295,7 @@ public:
     ofs_cpeng cpeng;
 
     // Initialize cpeng driver
-    ofs_cpeng_init(&cpeng, afu->handle()->c_type());
+    ofs_cpeng_init(&cpeng, afu->handle()->mmio_ptr(0, 0));
     return check_heartbeat(&cpeng);
   }
 

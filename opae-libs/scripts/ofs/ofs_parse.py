@@ -76,7 +76,7 @@ typedef union _{name} {{
 
 '''
 
-driver_struct_templ = '''
+opae_driver_struct_templ = '''
 typedef struct _{driver} {{
   fpga_handle handle;
 {members}
@@ -90,6 +90,20 @@ int {driver}_init({driver} *{var}, fpga_handle h)
     return res;
   }}
   {var}->handle = h;
+{inits}
+  return 0;
+}}
+
+'''
+
+mmio_driver_struct_templ = '''
+typedef struct _{driver} {{
+  fpga_handle handle;
+{members}
+}} {driver};
+
+int {driver}_init({driver} *{var}, uint8_t *ptr)
+{{
 {inits}
   return 0;
 }}
@@ -196,9 +210,14 @@ def parse(fp, schemafile=None, local_refs=False):
     return data
 
 
+driver_templates = {'opae': opae_driver_struct_templ,
+                    'mmio': mmio_driver_struct_templ}
+
+
 class ofs_driver_writer(object):
-    def __init__(self, data):
+    def __init__(self, data, driver_uses='opae'):
         self.data = data
+        self.driver_template = driver_templates.get(driver_uses)
 
     def resolve_function(self, fn_name):
         if fn_name in self.fn_names:
@@ -326,11 +345,12 @@ class ofs_driver_writer(object):
             members.write(f'  volatile {r.name} *r_{r.name};\n')
             inits.write(f'  {var}->r_{r.name} =\n')
             inits.write(f'    (volatile {r.name}*)(ptr+{r.name}_OFFSET);\n')
+        members_text = members.getvalue().rstrip()
         fp.write(
-            driver_struct_templ.format(driver=self.name,
-                                       var=var,
-                                       members=members.getvalue().rstrip(),
-                                       inits=inits.getvalue().rstrip()))
+            self.driver_template.format(driver=self.name,
+                                        var=var,
+                                        members=members_text,
+                                        inits=inits.getvalue().rstrip()))
 
         fp.write('\n\n// *****  function prototypes ******//\n')
         for fn in self.functions:
@@ -386,11 +406,11 @@ def make_headers(args):
         if args.list:
             print(f'{name}.h')
         elif args.driver is None or args.driver == name:
-            writer = ofs_driver_writer(driver)
+            writer = ofs_driver_writer(driver, args.driver_uses)
             writer.write_header(args.output, args.language)
     else:
         if 'name' in data and 'registers' in data:
-            writer = ofs_driver_writer(data)
+            writer = ofs_driver_writer(data, args.driver_uses)
             writer.write_header(args.output, args.language)
 
 
@@ -414,6 +434,10 @@ def main():
     headers_parser.add_argument('--use-local-refs', action='store_true',
                                 default=False,
                                 help='Transform refs to local repo files')
+    headers_parser.add_argument('--driver-uses',
+                                choices=['opae', 'mmio'],
+                                default='opae',
+                                help='Driver uses raw mmio or OPAE APIs')
 
     args = parser.parse_args()
     if not hasattr(args, 'func'):
