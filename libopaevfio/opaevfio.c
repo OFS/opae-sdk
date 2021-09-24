@@ -734,8 +734,6 @@ opae_vfio_buffer_mmap(struct opae_vfio *v,
 	dma_map.flags = VFIO_DMA_MAP_FLAG_READ|VFIO_DMA_MAP_FLAG_WRITE;
 
 	if (ioctl(v->cont_fd, VFIO_IOMMU_MAP_DMA, &dma_map) < 0) {
-		ERR("ioctl(%d, VFIO_IOMMU_MAP_DMA, &dma_map)\n",
-		    v->cont_fd);
 		mem_alloc_put(&v->iova_alloc, ioaddr);
 		res = 4;
 		goto out_munmap;
