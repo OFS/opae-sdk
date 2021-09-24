@@ -1276,7 +1276,7 @@ fpga_result vfio_fpgaPrepareBuffer(fpga_handle handle, uint64_t len,
 	else
 		sz = 4096;
 	if (opae_vfio_buffer_allocate_ex(v, &sz, &virt, &iova, flags)) {
-		OPAE_ERR("could not allocate buffer");
+		OPAE_DBG("could not allocate buffer");
 		return FPGA_EXCEPTION;
 	}
 	vfio_buffer *buffer = (vfio_buffer *)malloc(sizeof(vfio_buffer));
