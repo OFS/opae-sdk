@@ -103,43 +103,43 @@ public:
 
     void he_perf_counters()
     {
-        struct he_dms_status *dms_status = NULL;
+        struct he_dsm_status *dsm_status = NULL;
         volatile uint8_t* status_ptr = dsm_->c_type();
         uint64_t num_cache_lines = 0;
         if (!status_ptr)
-	        return;
+           return;
 
-        dms_status = reinterpret_cast<he_dms_status *>((uint8_t*)status_ptr);
-        if (!dms_status)
+        dsm_status = reinterpret_cast<he_dsm_status *>((uint8_t*)status_ptr);
+        if (!dsm_status)
             return;
 
         std::cout << "\nHost Exerciser Performance Counter:" << std::endl;
         // calculate number of cache lines in continuous mode
         if (host_exe_->he_continuousmode_) {
             if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
-                num_cache_lines = dms_status->num_writes * 2;
+                num_cache_lines = dsm_status->num_writes * 2;
             if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_READ)
-                num_cache_lines = dms_status->num_reads;
+                num_cache_lines = dsm_status->num_reads;
             if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_WRITE)
-                num_cache_lines = (dms_status->num_writes);
+                num_cache_lines = (dsm_status->num_writes);
             if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_TRUPT)
-                num_cache_lines = dms_status->num_writes * 2;
+                num_cache_lines = dsm_status->num_writes * 2;
         } else {
             num_cache_lines = (LPBK1_BUFFER_SIZE / (1 * CL));
             host_exerciser_status();
         }
 
         std::cout << "Number of clocks:" <<
-            dms_status->num_ticks << std::endl;
+            dsm_status->num_ticks << std::endl;
         std::cout << "Total number of Reads sent:" <<
-            dms_status->num_reads << std::endl;
+            dsm_status->num_reads << std::endl;
         std::cout << "Total number of Writes sent :" <<
-            dms_status->num_writes << std::endl;
+            dsm_status->num_writes << std::endl;
 
         // print bandwidth
-        if (dms_status->num_ticks > 0) {
+        if (dsm_status->num_ticks > 0) {
             double  perf_data = (double)(num_cache_lines * 64) /
-                (2.85 * (dms_status->num_ticks));
+                (2.85 * (dsm_status->num_ticks));
             std::cout << "Bandwidth: " << std::setprecision(3) <<
                 perf_data << " GB/s" << std::endl;
         }
