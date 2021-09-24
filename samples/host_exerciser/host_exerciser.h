@@ -264,7 +264,7 @@ union he_stride {
 };
 
 // HE DSM status
-struct he_dms_status {
+struct he_dsm_status {
 	uint64_t test_completed : 1;
 	uint64_t dsm_number : 15;
 	uint64_t res1 : 16;
