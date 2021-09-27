@@ -83,6 +83,7 @@
 #define IMAGE_INFO_STRIDE 4096
 #define IMAGE_INFO_SIZE     32
 #define IMAGE_INFO_COUNT     3
+#define GET_BIT(var, pos) ((var >> pos) & (1))
 
 // hssi version
 struct hssi_version {
@@ -96,14 +97,24 @@ struct hssi_version {
 	};
 };
 
+//Physical Port Enable
+/*
+[6] - Port 0 Enable
+[7] - Port 1 Enable
+:
+[21] - Port 15 Enable
+*/
+#define PORT_ENABLE_COUNT 16
+
 // hssi feature list CSR
 struct hssi_feature_list {
 	union {
 		uint32_t csr;
 		struct {
 			uint32_t axi4_support : 1;
-			uint32_t hssi_num : 4;
-			uint32_t reserved : 27;
+			uint32_t hssi_num : 5;
+			uint32_t port_enable : 16;
+			uint32_t reserved : 10;
 		};
 	};
 };
@@ -118,9 +129,10 @@ struct hssi_port_attribute {
 			uint32_t profile : 6;
 			uint32_t ready_latency : 4;
 			uint32_t data_bus_width : 3;
-			uint32_t low_speed_mac : 1;
+			uint32_t low_speed_mac : 2;
 			uint32_t dynamic_pr : 1;
-			uint32_t reserved : 16;
+			uint32_t sub_profile : 5;
+			uint32_t reserved : 11;
 		};
 	};
 };
@@ -132,7 +144,7 @@ typedef struct hssi_port_profile {
 
 } hssi_port_profile;
 
-#define HSS_PORT_PROFILE_SIZE 33
+#define HSS_PORT_PROFILE_SIZE 34
 
 hssi_port_profile hssi_port_profiles[] = {
 
@@ -168,7 +180,8 @@ hssi_port_profile hssi_port_profiles[] = {
 	{.port_index = 29, .profile = "200GAUI-4"},
 	{.port_index = 30, .profile = "200GAUI-8"},
 	{.port_index = 31, .profile = "400GAUI-4"},
-	{.port_index = 32, .profile = "400GAUI-8"}
+	{.port_index = 32, .profile = "400GAUI-8"},
+	{.port_index = 33, .profile = "CPRI"}
  };
 
 
@@ -390,9 +403,6 @@ fpga_result print_board_info(fpga_token token)
 	return resval;
 }
 
-
-
-
 // print phy group information
 fpga_result print_phy_info(fpga_token token)
 {
@@ -431,7 +441,13 @@ fpga_result print_phy_info(fpga_token token)
 	printf("%-32s : %d.%d  \n", "HSSI version", hssi_ver.major, hssi_ver.minor);
 	printf("%-32s : %d  \n", "Number of ports", feature_list.hssi_num);
 
-	for (i = 0; i < feature_list.hssi_num; i++) {
+	for (i = 0; i < PORT_ENABLE_COUNT; i++) {
+
+		// prints only active/enabled ports
+		if ((GET_BIT(feature_list.port_enable, i) == 0)) {
+			continue;
+		}
+
 		port_profile.csr = *((uint32_t *)(mmap_ptr +
 			HSSI_PORT_ATTRIBUTE + i * 4));
 
