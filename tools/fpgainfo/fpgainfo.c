@@ -62,7 +62,6 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	fpga_objtype objtype;
 	fpga_properties pprops = props;
 	fpga_token par = NULL;
-	int is_accelerator = 0;
 	bool has_parent = true;
 
 	res = fpgaPropertiesGetObjectID(props, &object_id);
@@ -91,8 +90,6 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 
 	if (objtype != FPGA_DEVICE) {
 		res = fpgaPropertiesGetGUID(props, &port_guid);
-		if (res == FPGA_OK)
-			is_accelerator = 1;
 	}
 
 	// Go up the tree until we find the device
