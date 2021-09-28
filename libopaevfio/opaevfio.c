@@ -55,9 +55,13 @@
 	p;                                                \
 })
 
+#ifdef LIBOPAE_DEBUG
 #define ERR(format, ...)                               \
 fprintf(stderr, "%s:%u:%s() **ERROR** [%s] : " format, \
 	__SHORT_FILE__, __LINE__, __func__, strerror(errno), ##__VA_ARGS__)
+#else
+#define ERR(format, ...) do { } while (0)
+#endif
 
 STATIC struct opae_vfio_sparse_info *
 opae_vfio_create_sparse_info(uint32_t index, uint32_t offset, uint32_t size)
@@ -734,6 +738,7 @@ opae_vfio_buffer_mmap(struct opae_vfio *v,
 	dma_map.flags = VFIO_DMA_MAP_FLAG_READ|VFIO_DMA_MAP_FLAG_WRITE;
 
 	if (ioctl(v->cont_fd, VFIO_IOMMU_MAP_DMA, &dma_map) < 0) {
+		ERR("ioctl(%d, VFIO_IOMMU_MAP_DMA, &dma_map)\n", v->cont_fd);
 		mem_alloc_put(&v->iova_alloc, ioaddr);
 		res = 4;
 		goto out_munmap;
