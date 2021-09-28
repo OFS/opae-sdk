@@ -166,11 +166,6 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 		printf("%-32s : %s\n", "Pr Interface Id", guid_str);
 	}
 
-	if (is_accelerator) {
-		uuid_unparse(port_guid, guid_str);
-		printf("%-32s : %s\n", "Accelerator Id", guid_str);
-	}
-
 }
 
 // Replace occurrences of character within string
