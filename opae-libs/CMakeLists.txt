@@ -30,7 +30,7 @@ project(opae-libs)
 set(OPAE_VERSION_LOCAL   "" CACHE STRING "OPAE local version")
 set(OPAE_VERSION_MAJOR    2 CACHE STRING "OPAE major version" FORCE)
 set(OPAE_VERSION_MINOR    0 CACHE STRING "OPAE minor version" FORCE)
-set(OPAE_VERSION_REVISION 8${OPAE_VERSION_LOCAL} CACHE STRING "OPAE revision version" FORCE)
+set(OPAE_VERSION_REVISION 9${OPAE_VERSION_LOCAL} CACHE STRING "OPAE revision version" FORCE)
 set(OPAE_VERSION ${OPAE_VERSION_MAJOR}.${OPAE_VERSION_MINOR}.${OPAE_VERSION_REVISION}
     CACHE STRING "OPAE version" FORCE)
 
@@ -114,6 +114,9 @@ mark_as_advanced(OPAE_PRESERVE_REPOS)
 
 option(OPAE_BUILD_LIBOFS "Enable building of the libofs library and framework" ON)
 mark_as_advanced(OPAE_BUILD_LIBOFS)
+
+option(OPAE_BUILD_AFU_TEST "Enable building of afu_test and dependent projects" ON)
+mark_as_advanced(OPAE_BUILD_AFU_TEST)
 
 if(OPAE_BUILD_TESTS)
     set(OPAE_TEST_TAG "master" CACHE STRING "Desired branch for opae-test")
