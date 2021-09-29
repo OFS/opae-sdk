@@ -37,6 +37,9 @@ import struct
 import mmap
 from ethernet.hssicommon import *
 
+# Invalid  hssi stats value
+HSSI_INAVLID_STATS = 0xfffffff1
+
 
 class FPGAHSSISTATS(HSSICOMMON):
     hssi_eth_stats = (('tx_packets', 0),
@@ -121,11 +124,19 @@ class FPGAHSSISTATS(HSSICOMMON):
                 ctl_addr.value = self.register_field_set(ctl_addr.value,
                                                          31, 1, 1)
                 value_lsb = self.read_reg(0, ctl_addr.value)
+                if value_lsb  >= HSSI_INAVLID_STATS :
+                    stats_list[port_index] += "{}|".format("N/A").rjust(20, ' ')
+                    port_index = port_index + 1
+                    continue
 
                 # Read MSB value
                 ctl_addr.value = self.register_field_set(ctl_addr.value,
                                                          31, 1, 0)
                 value_msb = self.read_reg(0, ctl_addr.value)
+                if value_msb  >= HSSI_INAVLID_STATS :
+                    stats_list[port_index] += "{}|".format("N/A").rjust(20, ' ')
+                    port_index = port_index + 1
+                    continue
 
                 # 64 bit value
                 value = (value_msb << 32) | (value_lsb)
@@ -147,7 +158,9 @@ class FPGAHSSISTATS(HSSICOMMON):
         get hssi stats
         """
         print("----hssi_stats_start----")
-        self.hssi_info(self._hssi_grps[0][0])
+        if not self.hssi_info(self._hssi_grps[0][0]):
+            print("Failed to read hssi information")
+            sys.exit(1)
         self.get_hssi_stats()
 
 
@@ -165,14 +178,20 @@ def main():
     parser.add_argument('--pcie-address', '-P',
                         default=None, help=pcieaddress_help)
 
+    # exit if no commad line argument
+    args = parser.parse_args()
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
+
     args, left = parser.parse_known_args()
 
     print(args)
     print("pcie_address:", args.pcie_address)
-    if not veriy_pcie_address(args.pcie_address):
+    if not verify_pcie_address(args.pcie_address.lower()):
          sys.exit(1)
 
-    f = FpgaFinder(args.pcie_address)
+    f = FpgaFinder(args.pcie_address.lower())
     devs = f.enum()
     for d in devs:
         print('sbdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))
