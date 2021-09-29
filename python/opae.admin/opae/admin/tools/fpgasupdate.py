@@ -45,6 +45,8 @@ from datetime import datetime, timedelta
 import signal
 import errno
 import logging
+from ctypes import cdll
+from ctypes.util import find_library
 import tempfile
 import shutil
 from opae.admin.fpga import fpga
@@ -75,6 +77,33 @@ BLOCK0_SUBTYPE_ROOT_KEY_HASH_384 = 0x0300
 
 BLOCK0_CONTYPE_MASK = 0x00ff
 BLOCK0_CONSUBTYPE_MASK = 0xff00
+
+IOCTL_FPGA_IMAGE_LOAD_WRITE  = 0x4018b900
+IOCTL_FPGA_IMAGE_LOAD_STATUS = 0x8010b901
+IOCTL_FPGA_IMAGE_LOAD_CANCEL = 0xb902
+
+FPGA_IMAGE_PROG_IDLE        = 0
+FPGA_IMAGE_PROG_STARTING    = 1
+FPGA_IMAGE_PROG_PREPARING   = 2
+FPGA_IMAGE_PROG_WRITING     = 3
+FPGA_IMAGE_PROG_PROGRAMMING = 4
+FPGA_IMAGE_PROG_MAX         = 5
+
+FPGA_IMAGE_ERR_NONE          = 0
+FPGA_IMAGE_ERR_HW_ERROR      = 1
+FPGA_IMAGE_ERR_TIMEOUT       = 2
+FPGA_IMAGE_ERR_CANCELED      = 3
+FPGA_IMAGE_ERR_BUSY          = 4
+FPGA_IMAGE_ERR_INVALID_SIZE  = 5
+FPGA_IMAGE_ERR_RW_ERROR      = 6
+FPGA_IMAGE_ERR_WEAROUT       = 7
+FPGA_IMAGE_ERR_MAX           = 8
+
+# bytes/sec when staging is flash
+FLASH_COPY_BPS   = 43000.0
+# bytes/sec when staging area is dram
+DRAM_COPY_BPS    = 92000.0
+DRAM_COPY_OFFSET = 42.0
 
 LOG = logging.getLogger()
 
@@ -237,6 +266,7 @@ def decode_auth_block0(infile, prompt):
     """Reads and decodes an authentication block 0.
 
     infile - a valid, open file object specified on the command line.
+    prompt - a boolean; set to true to display prompt
 
     Returns a dictionary of the broken out fields for block0.
     """
@@ -351,6 +381,38 @@ def canonicalize_bdf(bdf):
     return None
 
 
+def ioctl_status(sec_dev):
+    # struct fpga_image_status {
+	# /* Output */
+	# __u32 remaining_size;			/* size remaining to transfer */
+	# enum fpga_image_prog progress;		/* current phase of image load */
+	# enum fpga_image_prog err_progress;	/* progress at time of error */
+	# enum fpga_image_err err_code;		/* error code */
+    # };
+    status_header = array.array('B', [0] * 32)
+    fcntl.ioctl(sec_dev, IOCTL_FPGA_IMAGE_LOAD_STATUS, status_header, True)
+    remaining_size, progress, err_prog, err_code = struct.unpack_from('IIII', status_header)
+    return remaining_size, progress, err_prog, err_code
+
+
+def fpga_err_to_string(err_code):
+    if err_code == FPGA_IMAGE_ERR_HW_ERROR:
+        return "hw_error"
+    if err_code == FPGA_IMAGE_ERR_TIMEOUT:
+        return "timeout"
+    if err_code == FPGA_IMAGE_ERR_CANCELED:
+        return "cancelled"
+    if err_code == FPGA_IMAGE_ERR_BUSY:
+        return "busy"
+    if err_code == FPGA_IMAGE_ERR_INVALID_SIZE:
+        return "invalid size"
+    if err_code == FPGA_IMAGE_ERR_RW_ERROR:
+        return "rw_error"
+    if err_code == FPGA_IMAGE_ERR_WEAROUT:
+        return "flash_wearout"
+    return ""
+
+
 class SecureUpdateError(Exception):
     """Secure update exception"""
     def __init__(self, arg):
@@ -358,20 +420,144 @@ class SecureUpdateError(Exception):
         self.errno, self.strerror = arg
 
 
-def update_fw(args, pac):
+def update_fw_ioctl(sec_dev, infile, pac):
     """Writes firmware to secure device.
 
-    args - the object resulting from command-line parsing.
+    sec_dev - an integer file descriptor to the os.open()'ed secure device file.
+    infile - the image to write to the FPGA
+    pac - opae fpga module
 
     returns a 2-tuple of the process exit status and a message.
     """
-    # bytes/sec when staging is flash
-    flash_copy_bps = 43000.0
-    # bytes/sec when staging area is dram
-    dram_copy_bps = 92000.0
-    dram_copy_offset = 42.0
 
-    infile = args.file
+    orig_pos = infile.tell()
+    infile.seek(0, os.SEEK_END)
+    payload_size = infile.tell() - orig_pos
+
+    LOG.info('updating from file %s with size %d',
+            infile.name, payload_size)
+
+    file_buf = array.array('B')
+    infile.seek(orig_pos, os.SEEK_SET)
+    file_buf.fromfile(infile, payload_size)
+    infile.close() # TODO: Is this the right place to call .close()?
+    addr, _ = file_buf.buffer_info()
+
+    # Create the eventfd file descriptor
+    clib = find_library("c")
+    if clib is None:
+        return errno.EINVAL, 'C library not found'
+    libc = cdll.LoadLibrary(clib)
+    evtfd = libc.eventfd(0, 0)
+
+    write_header = array.array('B', [0] * 32)
+    #  struct fpga_image_write {
+    # 	/* Input */
+    # 	__u32 flags;		/* Zero for now */
+    # 	__u32 size;		/* Data size (in bytes) to be written */
+    # 	__s32 evtfd;		/* File descriptor for completion signal */
+    # 	__u64 buf;		/* User space address of source data */
+    # };
+    struct.pack_into('IIIQ', write_header, 0, 0, payload_size, evtfd, addr)
+
+    LOG.info('waiting for idle')
+    retries = 0
+    timeout = 1.0
+    max_retries = 60 * 5
+    _, progress_code, _, _ = ioctl_status(sec_dev)
+    while progress_code != FPGA_IMAGE_PROG_IDLE:
+        time.sleep(timeout)
+        retries += 1
+        if retries > max_retries:
+            return errno.ETIMEDOUT, 'Secure update timed out'
+        _, progress_code, _, _ = ioctl_status(sec_dev)
+
+    # IOCTL Call to kick off the write
+    fcntl.ioctl(sec_dev, IOCTL_FPGA_IMAGE_LOAD_WRITE, write_header, True)
+
+    LOG.info('preparing image file')
+    retries = 0
+    max_retries = 60 * 5
+    _, progress_code, _, _ = ioctl_status(sec_dev)
+    while progress_code in [FPGA_IMAGE_PROG_STARTING, FPGA_IMAGE_PROG_PREPARING]:
+        time.sleep(timeout)
+        retries += 1
+        if retries > max_retries:
+            return errno.ETIMEDOUT, 'Secure update timed out'
+        _, progress_code, _, _ = ioctl_status(sec_dev)
+
+    _, progress_code, _, err_code = ioctl_status(sec_dev)
+    if progress_code == FPGA_IMAGE_PROG_IDLE and err_code != FPGA_IMAGE_ERR_NONE:
+        return 1, fpga_err_to_string(err_code)
+
+    progress_cfg = {}
+    level = min([handler.level for handler in LOG.handlers])
+    if level < logging.INFO:
+        progress_cfg['log'] = LOG.debug
+    else:
+        progress_cfg['stream'] = sys.stdout
+
+    LOG.info('writing image file')
+    retries = 0
+    max_retries = 60 * 60 * 2
+    with progress(bytes=payload_size, **progress_cfg) as prg:
+        remaining_size, _, _, _ = ioctl_status(sec_dev)
+        while int(remaining_size) > 0:
+            time.sleep(timeout)
+            retries += 1
+            if retries > max_retries:
+                return errno.ETIMEDOUT, 'Secure update timed out'
+            prg.update(payload_size - int(remaining_size))
+            remaining_size, _, _, _ = ioctl_status(sec_dev)
+
+    _, progress_code, _, err_code = ioctl_status(sec_dev)
+    if progress_code == FPGA_IMAGE_PROG_IDLE and err_code != FPGA_IMAGE_ERR_NONE:
+        return 1, fpga_err_to_string(err_code)
+
+    if pac.fme.have_node('tcm'):
+        estimated_time = payload_size / DRAM_COPY_BPS + DRAM_COPY_OFFSET
+    else:
+        estimated_time = payload_size / FLASH_COPY_BPS
+    # over-estimate by 1.5 to account for flash performance degradation
+    estimated_time *= 1.5
+
+    LOG.info('programming image file')
+    interrupt_flag = False
+    retries = 0
+    max_retries = 60 * 60 * 3
+    with progress(time=estimated_time, **progress_cfg) as prg:
+        while progress_code in [FPGA_IMAGE_PROG_WRITING, FPGA_IMAGE_PROG_PROGRAMMING]:
+            try:
+                time.sleep(timeout)
+                retries += 1
+                if retries > max_retries:
+                    return errno.ETIMEDOUT, 'Secure update timed out'
+                prg.tick()
+                _, progress_code, _, _ = ioctl_status(sec_dev)
+                if progress_code is FPGA_IMAGE_PROG_PROGRAMMING and interrupt_flag:
+                    LOG.warning('Ignoring Ctrl+C: programming phase is not interruptable')
+                    interrupt_flag = False
+            except KeyboardInterrupt:
+                fcntl.ioctl(sec_dev, IOCTL_FPGA_IMAGE_LOAD_CANCEL)
+                interrupt_flag = True
+
+    _, progress_code, _, err_code = ioctl_status(sec_dev)
+    if progress_code == FPGA_IMAGE_PROG_IDLE and err_code != FPGA_IMAGE_ERR_NONE:
+        return 1, fpga_err_to_string(err_code)
+
+    LOG.info('update of %s complete', pac.pci_node.pci_address)
+
+    return 0, 'Secure update OK'
+
+
+def update_fw_sysfs(infile, pac):
+    """Writes firmware to secure device.
+
+    infile - the image to write to the FPGA
+    pac - opae fpga module
+
+    returns a 2-tuple of the process exit status and a message.
+    """
 
     orig_pos = infile.tell()
     infile.seek(0, os.SEEK_END)
@@ -397,6 +583,9 @@ def update_fw(args, pac):
             LOG.error("Can't create %s", intel_fw_path)
             return 1, 'Secure update failed'
 
+    LOG.info('updating from file %s with size %d',
+             infile.name, payload_size)
+
     tfile = tempfile.NamedTemporaryFile(dir=intel_fw_path, delete=False)
     tfile.close()
 
@@ -415,13 +604,11 @@ def update_fw(args, pac):
             os.remove(tfile.name)
             return errno.ETIMEDOUT, 'Secure update timed out'
 
-    LOG.info('updating from file %s with size %d',
-             infile.name, payload_size)
-
     filename.value = os.path.join('intel', os.path.basename(tfile.name))
 
+    LOG.info('preparing image file')
+
     retries = 0
-    timeout = 1.0
     max_retries = 60 * 5
     # read_file is now deprecated. Leaving it in for backwards compat.
     while status.value in ['read_file', 'reading', 'preparing']:
@@ -444,8 +631,9 @@ def update_fw(args, pac):
     else:
         progress_cfg['stream'] = sys.stdout
 
+    LOG.info('writing image file')
+
     retries = 0
-    timeout = 1.0
     max_retries = 60 * 60 * 2
     with progress(bytes=payload_size, **progress_cfg) as prg:
         while int(size.value) > 0:
@@ -463,16 +651,15 @@ def update_fw(args, pac):
             return 1, e
 
     if pac.fme.have_node('tcm'):
-        estimated_time = payload_size / dram_copy_bps + dram_copy_offset
+        estimated_time = payload_size / DRAM_COPY_BPS + DRAM_COPY_OFFSET
     else:
-        estimated_time = payload_size / flash_copy_bps
+        estimated_time = payload_size / FLASH_COPY_BPS
     # over-estimate by 1.5 to account for flash performance degradation
     estimated_time *= 1.5
 
-    LOG.info('applying update to %s', pac.pci_node.pci_address)
+    LOG.info('programming image file')
 
     retries = 0
-    timeout = 1.0
     max_retries = 60 * 60 * 3
     with progress(time=estimated_time, **progress_cfg) as prg:
         while status.value == 'writing' or status.value == 'programming':
@@ -517,9 +704,7 @@ def main():
                '%(message)s')
     log_hndlr = logging.StreamHandler(sys.stdout)
     log_hndlr.setFormatter(logging.Formatter(log_fmt))
-
     log_hndlr.setLevel(LOG_NAMES_TO_LEVELS[args.log_level])
-
     LOG.addHandler(log_hndlr)
 
     signal.signal(signal.SIGTERM, sig_handler)
@@ -530,6 +715,7 @@ def main():
     stat = 1
     mesg = 'Secure update failed'
     gbs_hdr = None
+    use_ioctl = True
 
     blk0 = decode_auth_block0(args.file, not args.yes)
     if blk0 is None:
@@ -579,6 +765,10 @@ def main():
                     LOG.error('PR interface uuid mismatch.')
                     sys.exit(1)
 
+    # Check for 'update/filename' to determine if we use sysfs or ioctl
+    if pac.secure_dev.find_one(os.path.join('update','filename')):
+        use_ioctl = False
+
     LOG.warning('Update starting. Please do not interrupt.')
 
     start = datetime.now()
@@ -597,16 +787,27 @@ def main():
         LOG.debug('Found secure device for PAC '
                   '%s', pac.pci_node.pci_address)
 
-        try:
-            stat, mesg = update_fw(args, pac)
-        except SecureUpdateError as exc:
-            stat, mesg = exc.errno, exc.strerror
-        except KeyboardInterrupt:
-            if TMPFILE and os.path.isfile(TMPFILE):
-                os.remove(TMPFILE)
-            cancel = sec_dev.find_one(os.path.join('update', 'cancel'))
-            cancel.value = 1
-            stat, mesg = 1, 'Interrupted'
+        if use_ioctl:
+            with pac.fme:
+                with sec_dev as fd:
+                    try:
+                        stat, mesg = update_fw_ioctl(fd, args.file, pac)
+                    except SecureUpdateError as exc:
+                        stat, mesg = exc.errno, exc.strerror
+                    except KeyboardInterrupt:
+                        fcntl.ioctl(fd, IOCTL_FPGA_IMAGE_LOAD_CANCEL)
+                        stat, mesg = 1, 'Interrupted'
+        else:
+            try:
+                stat, mesg = update_fw_sysfs(args.file, pac)
+            except SecureUpdateError as exc:
+                stat, mesg = exc.errno, exc.strerror
+            except KeyboardInterrupt:
+                if TMPFILE and os.path.isfile(TMPFILE):
+                    os.remove(TMPFILE)
+                    cancel = sec_dev.find_one(os.path.join('update', 'cancel'))
+                    cancel.value = 1
+                    stat, mesg = 1, 'Interrupted'
 
     if stat and mesg == 'flash_wearout':
         mesg = ('Secure update is delayed due to excessive flash counts.\n'
@@ -617,7 +818,8 @@ def main():
     else:
         LOG.info(mesg)
 
-    LOG.info('Total time: %s', datetime.now() - start)
+    total_time = str(datetime.now() - start).split('.')[0] # drop the microseconds
+    LOG.info('Total time: %s', total_time)
     sys.exit(stat)
 
 
