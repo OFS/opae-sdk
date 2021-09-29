@@ -123,7 +123,7 @@ fpga_result bmc_c_p::write_sysfs_file(fpga_token token, const char *file,
   size_t len;
 
   struct _fpga_token *tok = (struct _fpga_token *)token;
-  if (FPGA_TOKEN_MAGIC != tok->magic) {
+  if (FPGA_TOKEN_MAGIC != tok->hdr.magic) {
     return FPGA_INVALID_PARAM;
   }
 

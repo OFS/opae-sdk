@@ -200,12 +200,12 @@ TEST_P(openclose_c_p, open_04) {
   ASSERT_EQ(FPGA_INVALID_PARAM, res);
 
   // Invalid token magic
-  _token->magic = 0x123;
+  _token->hdr.magic = 0x123;
   res = xfpga_fpgaOpen(tokens_[0], &handle_, FPGA_OPEN_SHARED);
   ASSERT_EQ(FPGA_INVALID_PARAM, res);
 
   // Reset token magic
-  _token->magic = FPGA_TOKEN_MAGIC;
+  _token->hdr.magic = FPGA_TOKEN_MAGIC;
 }
 
 /**
@@ -382,7 +382,7 @@ TEST_P(openclose_c_mock_p, invalid_open_close) {
   // token setup
   strncpy(_tok.sysfspath, sysfs_port.c_str(), sysfs_port.size() + 1);
   strncpy(_tok.devpath, dev_port.c_str(), dev_port.size() + 1);
-  _tok.magic = FPGA_TOKEN_MAGIC;
+  _tok.hdr.magic = FPGA_TOKEN_MAGIC;
   _tok.errors = nullptr;
   std::string errpath = sysfs_port + "/errors";
   build_error_list(errpath.c_str(), &_tok.errors);
