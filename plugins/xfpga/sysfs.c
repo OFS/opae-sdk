@@ -2201,7 +2201,8 @@ fpga_result sync_object(fpga_object obj)
 	if (_obj->max_size == 0) {
 		res = sync_object_size(_obj, fd);
 		if (res != FPGA_OK) {
-			 return res;
+			close(fd);
+			return res;
 		}
 	}
 
