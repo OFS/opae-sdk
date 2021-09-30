@@ -4,7 +4,7 @@
     "definitions": {
         "ofs_register_name": {
             "type": "array",
-            "items": [
+            "prefixItems": [
                 {
                     "type": "string"
                 },
@@ -22,13 +22,13 @@
         },
         "ofs_register_field": {
             "type": "array",
-            "items": [
+            "prefixItems": [
                 {
                     "type": "string"
                 },
                 {
                     "type": "array",
-                    "items": [
+                    "prefixItems": [
                         {
                             "type": "integer",
                             "maximum": 64,
@@ -45,15 +45,13 @@
         },
         "ofs_register_fields": {
             "type": "array",
-            "items": [
-                {
+            "items": {
                     "$ref": "#/definitions/ofs_register_field"
-                }
-            ]
+            }
         },
         "ofs_register": {
             "type": "array",
-            "items": [
+            "prefixItems": [
                 {
                     "$ref": "#/definitions/ofs_register_name"
                 },
@@ -64,9 +62,7 @@
         }
     },
     "type": "array",
-    "items": [
-        {
+    "items": {
             "$ref": "#/definitions/ofs_register"
-        }
-    ]
+    }
 }
