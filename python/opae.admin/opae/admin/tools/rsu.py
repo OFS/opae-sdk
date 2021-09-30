@@ -245,7 +245,7 @@ def main():
         sys.stderr.write('No compatible devices found\n')
         raise SystemExit(os.EX_USAGE)
 
-    if args.bdf is None:
+    if not hasattr(args, 'bdf'):
         if len(compatible) == 1:
             args.bdf = compatible[0].pci_node.pci_address
         elif len(compatible) > 1:
