@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -65,7 +65,7 @@ xfpga_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 
 	_token = (struct _fpga_token *)token;
 
-	if (_token->magic != FPGA_TOKEN_MAGIC) {
+	if (_token->hdr.magic != FPGA_TOKEN_MAGIC) {
 		OPAE_MSG("Invalid token");
 		return FPGA_INVALID_PARAM;
 	}

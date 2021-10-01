@@ -212,6 +212,25 @@ describes the options required based on certification type.
 Omitting one key generates a valid, but unauthenticated bitstream. You can only load the
 unauthenticated bitstream on a PAC with no root entry hash programmed for that bitstream type.
 
+### Key Naming Convention ###
+
+Key pairs are required to follow the naming format described in the table below.
+
+| Material Type | Naming Convention |
+|---|---|
+| SR | * \_fim\_ * \_private/public\_ *.pem |
+| FACTORY | * \_fim2\_ * \_private/public\_ *.pem OR * \_factory\_ * \_private/public\_ *.pem |
+| SR_TEST | * \_sr\_test\_ * \_private/public\_ *.pem |
+| SR_CERT | * \_sr\_cert\_ * \_private/public\_ *.pem |
+| BMC | * \_bmc\_ * \_private/public\_ *.pem |
+| BMC_FACTORY | * \_bmc\_factory\_ * \_private/public\_ *.pem |
+| PR | * \_pr\_ * \_private/public\_ *.pem |
+| PR_TEST | * \_pr\_test\_ * \_private/public\_ *.pem |
+| PXE | * \_pxe\_ * \_private/public\_ *.pem |
+| THERM_SR | * \_therm\_sr\_ * \_private/public\_ *.pem |
+| THERM_PR | * \_therm\_pr\_ * \_private/public\_ *.pem |
+| SDM | * \_sdm\_ * \_private/public\_ *.pem |
+
 ## EXAMPLES ##
 
 The following command generates a root hash programming PR bitstream.

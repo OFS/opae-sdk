@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2020-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -33,9 +33,13 @@
 #define __FILENAME__ (SLASHPTR ? SLASHPTR+1 : __FILE__)
 #endif
 
+#ifdef LIBOPAE_DEBUG
 #define ERR(format, ...)                                                       \
 	fprintf(stderr, "%s:%u:%s() [ERROR][%s] : " format,                    \
 	__FILENAME__, __LINE__, __func__, strerror(errno), ##__VA_ARGS__)
+#else
+#define ERR(format, ...) do { } while (0)
+#endif
 
 #ifndef ASSERT_NOT_NULL_MSG_RESULT
 #define ASSERT_NOT_NULL_MSG_RESULT(__arg, __msg, __res) \
@@ -93,8 +97,7 @@ typedef struct _vfio_ops {
 
 #define USER_MMIO_MAX 8
 typedef struct _vfio_token {
-	uint32_t magic;
-	fpga_guid guid;
+	fpga_token_header hdr; //< Must appear at offset 0!
 	fpga_guid compat_id;
 	pci_device_t *device;
 	uint32_t region;
@@ -106,7 +109,6 @@ typedef struct _vfio_token {
 	uint64_t bitstream_id;
 	uint64_t bitstream_mdata;
 	uint8_t num_ports;
-	uint32_t type;
 	struct _vfio_token *parent;
 	struct _vfio_token *next;
 	vfio_ops ops;
