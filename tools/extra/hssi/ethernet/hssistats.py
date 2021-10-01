@@ -38,7 +38,7 @@ import mmap
 from ethernet.hssicommon import *
 
 # Sleep 50 millisceonds afte clearing stats.
-HSSI_STATS_CLEAR_SLEEP_TIME = 50/1000000
+HSSI_STATS_CLEAR_SLEEP_TIME = 50/1000
 
 class FPGAHSSISTATS(HSSICOMMON):
     hssi_eth_stats = (('tx_packets', 0),
@@ -101,10 +101,10 @@ class FPGAHSSISTATS(HSSICOMMON):
         port_str = "{0: <32} |".format('HSSI Ports')
         hssi_feature_list = hssi_feature(self.read32(0, 0xC))
         print("HSSI num ports:", hssi_feature_list.num_hssi_ports)
-        for port in range(0, hssi_feature_list.num_hssi_ports):
+        for port in range(0, HSSI_PORT_COUNT):
             # add active ports
             enable = self.register_field_get(hssi_feature_list.port_enable,
-                                             port + 6, 1);
+                                             port);
             if enable == 1:
                 port_str += "port:{}|".format(port).rjust(20, ' ')
 
@@ -114,11 +114,11 @@ class FPGAHSSISTATS(HSSICOMMON):
         for str, reg in self.hssi_eth_stats:
             stats_list.append("{0: <32} |".format(str))
 
-        for port in range(0, hssi_feature_list.num_hssi_ports):
+        for port in range(0, HSSI_PORT_COUNT):
             port_index = 0
             # add active ports
             enable = self.register_field_get(hssi_feature_list.port_enable,
-                                             port + 6, 1);
+                                             port);
             if enable == 0:
                  continue
             for str, reg in self.hssi_eth_stats:
@@ -171,35 +171,43 @@ class FPGAHSSISTATS(HSSICOMMON):
         ctl_addr.sal_cmd = HSSI_SALCMD.RESET_MAC_STATISTIC.value
         value = 0
 
-        print("------------HSSI stats clear------------")
+        print("------------HSSI stats clear start------------")
 
         port_str = "{0: <32} |".format('HSSI Ports')
         hssi_feature_list = hssi_feature(self.read32(0, 0xC))
         print("HSSI num ports:", hssi_feature_list.num_hssi_ports)
-
-        for port in range(0, hssi_feature_list.num_hssi_ports):
-
+        print("HSSI stats clearing ...")
+        for port in range(0, HSSI_PORT_COUNT):
+            # add active ports
+            enable = self.register_field_get(hssi_feature_list.port_enable,
+                                             port);
+            if enable == 0:
+                 continue
             ctl_addr.value = 0
-            ctl_addr.sal_cmd = HSSI_SALCMD.READ_MAC_STATISTIC.value
-
+            ctl_addr.sal_cmd = HSSI_SALCMD.RESET_MAC_STATISTIC.value
             ctl_addr.port_address = port
+            # set bit 16 and 17
             ctl_addr.value = self.register_field_set(ctl_addr.value,
                                                          16, 1, 1)
-
             ctl_addr.value = self.register_field_set(ctl_addr.value,
                                                          17, 1, 1)
             ret = self.clear_ctl_sts_reg(0)
             if not ret:
                  print("Failed to clear HSSI CTL STS csr")
-                 return 0
+                 return False
             self.write32(0, HSSI_CSR.HSSI_CTL_ADDRESS.value, ctl_addr.value)
+            # write to ctl sts reg
+            cmd_sts = hssi_cmd_sts(0x2)
+            self.write32(0,  HSSI_CSR.HSSI_CTL_STS.value, cmd_sts.value)
             time.sleep(HSSI_STATS_CLEAR_SLEEP_TIME)
-
-        print("------------HSSI stats clear------------")
+            ret = self.clear_ctl_sts_reg(0)
+            if not ret:
+                 print("Failed to clear HSSI CTL STS csr")
+                 return False
+        print("-------------HSSI stats cleared------------")
 
         self.close()
-
-        return 0
+        return True
 
     def hssi_stats_start(self):
         """
@@ -217,7 +225,9 @@ class FPGAHSSISTATS(HSSICOMMON):
         """
         print("----hssi_stats_clear----")
         self.hssi_info(self._hssi_grps[0][0])
-        self.clear_hssi_stats()
+        if self.clear_hssi_stats() == False:
+           print("hssi stats clearing failed")
+           sys.exit(1)
 
 
 def main():
@@ -234,7 +244,7 @@ def main():
     parser.add_argument('--pcie-address', '-P',
                         default=None, help=pcieaddress_help)
 
-    parser.add_argument('--clear','-C', default=False,
+    parser.add_argument('--clear','-C', action='store_true',
                         help='clears hssi statistics')
 
     args, left = parser.parse_known_args()

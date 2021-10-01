@@ -58,6 +58,8 @@ HSSI_POLL_TIMEOUT = 1
 
 HSSI_FEATURE_ID = 0x15
 
+# Max port count
+HSSI_PORT_COUNT = 16
 
 class HSSI_CSR(Enum):
     """
@@ -285,8 +287,8 @@ class hssi_port_attribute_bits(Structure):
                    ("port_read_latency", c_uint32, 4),
                    ("port_databus_width", c_uint32, 3),
                    ("low_speed_eth", c_uint32, 2),
-                   ("port_sub_profiles", c_uint32, 5),
                    ("dyn_reconf", c_uint32, 1),
+                   ("port_sub_profiles", c_uint32, 5),
                    ("reserved", c_uint32, 11)
     ]
 
@@ -307,7 +309,8 @@ class hssi_port_attribute(Union):
                           (4, 512),
                           (5, 1024))
 
-    HSSI_PORT_PROFILES = ((32, '400GAUI-8'),
+    HSSI_PORT_PROFILES = ((33, 'CRI'),
+                          (32, '400GAUI-8'),
                           (31, '400GAUI-4'),
                           (30, '200GAUI-8'),
                           (29, '200GAUI-4'),
@@ -318,7 +321,7 @@ class hssi_port_attribute(Union):
                           (24, '50GAUI-1'),
                           (23, '50GAUI-2'),
                           (22, '40GCAUI-4'),
-                          (21, '5GbE'),
+                          (21, '25GbE'),
                           (20, '10GbE'),
                           (19, 'Ethernet PMA-Direct'),
                           (18, 'Ethernet FEC-Direct'),
@@ -329,8 +332,17 @@ class hssi_port_attribute(Union):
                           (13, 'General PCS-Direct'),
                           (12, 'OTN'),
                           (11, 'Flex-E'),
-                          (10, 'General FEC-Direct'),
-                          (9, 'TSE MAC'))
+                          (10, 'TSE MAC'),
+                          (9, 'TSE PCS'),
+                          (8, 'LL10G'),
+                          (7, 'MRPHY'),
+                          (6, '10_25G'),
+                          (5, '25_50G'),
+                          (4, 'Ultra40G'),
+                          (3, 'LL40G'),
+                          (2, 'LL50G'),
+                          (1, 'Ultra100G'),
+                          (0, 'LL100G'))
 
     HSSI_SPEED_ETH_INTER = ((0, 'MII'),
                             (1, 'GMII'),
@@ -357,6 +369,10 @@ class hssi_port_attribute(Union):
         self.value = value
 
     @property
+    def port_profiles(self):
+        return self.bits.port_profiles
+
+    @property
     def port_read_latency(self):
         return self.bits.port_read_latency
 
@@ -371,6 +387,10 @@ class hssi_port_attribute(Union):
     @property
     def dyn_reconf(self):
         return self.bits.dyn_reconf
+		
+    @property
+    def port_sub_profiles(self):
+        return self.bits.port_sub_profiles
 
 
 class hssi_cmd_sts_bits(Structure):
@@ -764,12 +784,21 @@ class HSSICOMMON(object):
             ctl_addr.sal_cmd = HSSI_SALCMD.FIRMWARE_VER.value
             firmware_version = self.read_reg(0, ctl_addr.value)
 
-            print("\n--------HSSI IINFO START-------")
-            print("HSSI id: {0: >12}".format(hex(hssi_dfh.id)))
-            print("HSSI version: {0: >12}".format(str(hssi_version)))
-            print("HSSI num ports: {0: >12}"
-                  .format(hssi_feature_list.num_hssi_ports))
-            print("Firmware Version: {0: >12}".format(firmware_version))
+            print("\n--------HSSI INFO START-------")
+            print("{0: <24}:{1}".format("HSSI ID",hex(hssi_dfh.id)))
+            print("{0: <24}:{1}".format("HSSI version",str(hssi_version)))
+            print("{0: <24}:{1}".format("HSSI num ports",hssi_feature_list.num_hssi_ports))
+            print("{0: <24}:{1}".format("Firmware Version",firmware_version))
+            print("--------Port profile-------")
+            for port in range(0, HSSI_PORT_COUNT):
+               enable = self.register_field_get(hssi_feature_list.port_enable,
+                                             port);
+               if enable == 0:
+                    continue
+               port_attribute = hssi_port_attribute(self.read32(0, 0x10 + port * 4))
+               for profile, pro_str in hssi_port_attribute.HSSI_PORT_PROFILES:
+                  if port_attribute.port_profiles == profile:
+                     print("Port{0:<20}:{1:<25}".format(port,pro_str))
             print("--------HSSI INFO END------- \n")
 
             self.close()
@@ -955,11 +984,8 @@ class HSSICOMMON(object):
         reg_data |= (value << idx)
         return reg_data
 
-    def register_field_get(self, reg_data, idx, width):
-        mask = 0
-        for x in range(width):
-            mask |= (1 << x)
-        value =  (mask << idx) & reg_data
+    def register_field_get(self, reg_data, idx):
+        value = ((reg_data >> idx) & (1))
         return value
 
 
