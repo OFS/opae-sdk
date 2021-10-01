@@ -84,7 +84,7 @@ struct bel_ext_status {
 			uint32_t temp;
 			uint32_t cml;
 		};
-		uint32_t data[1];
+		uint32_t data[6];
 	};
 } __attribute__((__packed__));
 
