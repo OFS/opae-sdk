@@ -24,8 +24,8 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_add_module_library(TARGET board_n6010
-    SOURCE board_n6010.c board_event_log.c
+opae_add_module_library(TARGET board_n6000
+    SOURCE board_n6000.c board_event_log.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
         opae-c
@@ -34,7 +34,7 @@ opae_add_module_library(TARGET board_n6010
     COMPONENT opaeboardlib
 )
 
-target_include_directories(board_n6010
+target_include_directories(board_n6000
     PRIVATE
         ${OPAE_SDK_SOURCE}/libboard/board_common
 )

@@ -42,7 +42,7 @@
 #include <opae/uio.h>
 #include "../board_common/board_common.h"
 #include "board_event_log.h"
-#include "board_n6010.h"
+#include "board_n6000.h"
 
 #define FPGA_VAR_BUF_LEN       256
 #define MAC_BUF_LEN            19
@@ -400,7 +400,7 @@ fpga_result print_board_info(fpga_token token)
 		resval = res;
 	}
 
-	printf("FPGA SmartNIC N6010 Card \n");
+	printf("FPGA SmartNIC N6000 Card \n");
 	printf("Board Management Controller, MAX10 NIOS FW version: %s \n", bmc_ver);
 	printf("Board Management Controller, MAX10 Build version: %s \n", max10_ver);
 
