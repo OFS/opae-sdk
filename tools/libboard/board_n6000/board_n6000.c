@@ -400,7 +400,7 @@ fpga_result print_board_info(fpga_token token)
 		resval = res;
 	}
 
-	printf("FPGA SmartNIC N6000 Card \n");
+	printf("Intel N6000 Acceleration Development Platform\n");
 	printf("Board Management Controller, MAX10 NIOS FW version: %s \n", bmc_ver);
 	printf("Board Management Controller, MAX10 Build version: %s \n", max10_ver);
 
