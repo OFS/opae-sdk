@@ -585,7 +585,7 @@ def parse_args():
 
     parser.add_argument('-s', '--sensor-file',
                         type=read_sensors, dest='sensor_map',
-                        default='n5010_bmc_sensors.yml',
+                        default='n6000_bmc_sensors.yml',
                         help='BMC sensor to id file')
 
     subparser = parser.add_subparsers()
