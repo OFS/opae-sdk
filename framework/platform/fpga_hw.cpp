@@ -166,7 +166,7 @@ R"mdata({"version": 1,
      "platform-name": "PAC"}";
 )mdata";
 
-const char *dfl_n6010_mdata =
+const char *dfl_n6000_mdata =
 R"mdata({"version": 1,
    "afu-image":
     {"clock-frequency-high": 312,
@@ -375,8 +375,8 @@ static platform_db MOCK_PLATFORMS = {
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
                        .has_afu = true,
                        .mdata = dfl_d5005_mdata}} } },
-   {"dfl-n6010",
-     test_platform{.mock_sysfs = "mock_sys_dfl_n6010_nlb0.tar.gz",
+   {"dfl-n6000",
+     test_platform{.mock_sysfs = "mock_sys_dfl_n6000_nlb0.tar.gz",
                    .driver = fpga_driver::linux_dfl0,
                    .devices = {test_device{
                        .fme_guid = "98b4d5bc-98ba-5f4b-98d9-a2841ccf11b0",
@@ -401,7 +401,7 @@ static platform_db MOCK_PLATFORMS = {
                        .port_num_errors = 4,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
                        .has_afu = false,
-                       .mdata = dfl_n6010_mdata}}}},
+                       .mdata = dfl_n6000_mdata}}}},
 };
 
 
@@ -709,8 +709,8 @@ static std::map<platform_cfg, std::string> platform_names = {
   {  platform_cfg(0x8086, 0x0b31, fpga_driver::linux_intel), "dcp-vc-v" },
   {  platform_cfg(0x8086, 0x0b30, fpga_driver::linux_dfl0),  "dfl-n3000" },
   {  platform_cfg(0x8086, 0x0b2b, fpga_driver::linux_dfl0),  "dfl-d5005" },
-  {  platform_cfg(0x8086, 0xbcce, fpga_driver::linux_dfl0),  "dfl-n6010" },
-  {  platform_cfg(0x8086, 0xbccf, fpga_driver::linux_dfl0),  "dfl-n6010" },
+  {  platform_cfg(0x8086, 0xbcce, fpga_driver::linux_dfl0),  "dfl-n6000" },
+  {  platform_cfg(0x8086, 0xbccf, fpga_driver::linux_dfl0),  "dfl-n6000" },
   
 };
 
