@@ -453,10 +453,12 @@ class fpga_base(sysfs_device):
             return None
         spi = f.spi_bus
         if spi:
-            fpga_sec = spi.find_one(
-                '*-secure.*.auto/*fpga_sec_mgr/*fpga_sec*')
-            if fpga_sec:
-                return secure_dev(fpga_sec.sysfs_path, self.pci_node)
+            patterns = ['*-secure.*.auto/*fpga_sec_mgr/*fpga_sec*',
+                        '*-sec-update.*.auto/fpga_image_load/fpga_image*']
+            for pattern in patterns:
+                fpga_sec = spi.find_one(pattern)
+                if fpga_sec:
+                    return secure_dev(fpga_sec.sysfs_path, self.pci_node)
         else:
             pmci = f.pmci_bus
             fpga_sec = pmci.find_one(
