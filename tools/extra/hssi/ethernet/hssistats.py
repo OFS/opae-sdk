@@ -37,7 +37,7 @@ import struct
 import mmap
 from ethernet.hssicommon import *
 
-# Sleep 50 millisceonds afte clearing stats.
+# Sleep 50 milliseconds after clearing stats.
 HSSI_STATS_CLEAR_SLEEP_TIME = 50/1000
 # Invalid  hssi stats value
 HSSI_INAVLID_STATS = 0xfffffff1
