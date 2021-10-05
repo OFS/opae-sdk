@@ -59,8 +59,15 @@ class FPGAHSSILPBK(HSSICOMMON):
         self.open(self._hssi_grps[0][0])
 
         hssi_feature_list = hssi_feature(self.read32(0, 0xC))
-        if (self._port >= hssi_feature_list.num_hssi_ports):
+        if (self._port >= HSSI_PORT_COUNT):
             print("Invalid Input port number")
+            self.close()
+            return -1
+
+        enable = self.register_field_get(hssi_feature_list.port_enable,
+                                             self._port);
+        if enable == 0:
+            print("Input port is not enabled")
             self.close()
             return -1
 
