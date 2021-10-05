@@ -66,6 +66,7 @@ option(OPAE_BUILD_EXTRA_TOOLS_OPAEIO "Enable building extra tool opae.io" ON)
 mark_as_advanced(OPAE_BUILD_EXTRA_TOOLS_OPAEIO)
 
 opae_add_subdirectory(extra/hssi)
+opae_add_subdirectory(extra/ofsreg)
 
 if(OPAE_BUILD_EXTRA_TOOLS)
   if(OPAE_BUILD_EXTRA_TOOLS_USERCLK)
