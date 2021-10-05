@@ -24,8 +24,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGA_BOARD_N6010_H__
-#define __FPGA_BOARD_N6010_H__
+#ifndef __FPGA_BOARD_N6000_H__
+#define __FPGA_BOARD_N6000_H__
 
 #include <opae/types.h>
 
@@ -157,4 +157,4 @@ fpga_result fpga_event_log(fpga_token token, uint32_t first, uint32_t last,
 }
 #endif /* __cplusplus */
 
-#endif /* __FPGA_BOARD_N6010_H__ */
+#endif /* __FPGA_BOARD_N6000_H__ */

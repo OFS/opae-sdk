@@ -69,8 +69,8 @@ static platform_data platform_data_table[] = {
 	{ 0x8086, 0xaf00, 0xe,  "libboard_d5005.so", NULL },
 	{ 0x8086, 0xbcce, 0xe,  "libboard_d5005.so", NULL },
 	// Max10 PMCI feature id 0x12
-	{ 0x8086, 0xaf00, 0x12, "libboard_n6010.so", NULL },
-	{ 0x8086, 0xbcce, 0x12, "libboard_n6010.so", NULL },
+	{ 0x8086, 0xaf00, 0x12, "libboard_n6000.so", NULL },
+	{ 0x8086, 0xbcce, 0x12, "libboard_n6000.so", NULL },
 
 
 	{ 0,      0, -1,         NULL, NULL },
