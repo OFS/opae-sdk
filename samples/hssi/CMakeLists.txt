@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2020-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,11 +24,13 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-set(CMAKE_CXX_STANDARD 11)
+if (OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG)
+    set(CMAKE_CXX_STANDARD 11)
 
-opae_add_executable(TARGET hssi
-    SOURCE hssi.cpp
-    LIBS
-        afu-test
-    COMPONENT sampleshssi
-)
+    opae_add_executable(TARGET hssi
+        SOURCE hssi.cpp
+        LIBS
+            afu-test
+        COMPONENT sampleshssi
+    )
+endif(OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG)

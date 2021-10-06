@@ -16,23 +16,17 @@ Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-%{
 
 
 BuildRequires:  gcc, gcc-c++
-BuildRequires:  cmake
-BuildRequires:  cli11-devel
+BuildRequires:  cmake, make
+BuildRequires:  python3-pip
 BuildRequires:  python3-devel
+BuildRequires:  python3-setuptools
+BuildRequires:  python3-jsonschema
 BuildRequires:  json-c-devel
 BuildRequires:  libuuid-devel
 BuildRequires:  rpm-build
-BuildRequires:  hwloc-devel
-BuildRequires:  doxygen
 BuildRequires:  systemd
-BuildRequires:  pybind11-devel
-BuildRequires:  python3-setuptools
-BuildRequires:  spdlog-devel
 BuildRequires:  tbb-devel
 BuildRequires:  git
-BuildRequires:  python3-jsonschema
-BuildRequires:  python3-pip
-BuildRequires:  python3-virtualenv
 BuildRequires:  systemd-devel
 BuildRequires:  libcap-devel
 BuildRequires:  libudev-devel
@@ -72,7 +66,14 @@ OPAE headers, tools, sample source, and documentation
 %setup -q -n %{name}-%{version}-%{opae_release}
 
 %build
-%cmake -DCMAKE_INSTALL_PREFIX=/usr  -DOPAE_PRESERVE_REPOS=ON -DOPAE_BUILD_LEGACY=ON -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=ON .
+%cmake -DCMAKE_INSTALL_PREFIX=/usr \
+       -DOPAE_PRESERVE_REPOS=ON \
+       -DOPAE_BUILD_LEGACY=ON \
+       -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=OFF \
+       -DOPAE_BUILD_EXTRA_TOOLS_OPAEIO=OFF \
+       -DOPAE_WITH_CLI11=OFF \
+       -DOPAE_WITH_SPDLOG=OFF \
+       -DOPAE_WITH_PYBIND11=OFF .
 %if 0%{?rhel}
   %make_build
 %else
@@ -139,10 +140,10 @@ done
 for file in %{buildroot}%{python3_sitelib}/ethernet/{hssicommon,hssiloopback,hssimac,hssistats}.py; do
    chmod a+x $file
 done
-# diag
-for file in %{buildroot}%{python3_sitearch}/opae/diag/{common,fecmode,fpgadiag,fpgalpbk,fpgamac,fpgastats,fvlbypass,mactest,mux}.py; do
-   chmod a+x $file
-done
+## diag
+#for file in %{buildroot}%{python3_sitearch}/opae/diag/{common,fecmode,fpgadiag,fpgalpbk,fpgamac,fpgastats,fvlbypass,mactest,mux}.py; do
+#   chmod a+x $file
+#done
 
 %files
 %dir %{_datadir}/opae
@@ -154,7 +155,6 @@ done
 %{_libdir}/libbitstream.so.*
 %{_libdir}/libopae-cxx-core.so.*
 %{_libdir}/libopae-c++-utils.so.*
-%{_libdir}/libopae-c++-nlb.so.*
 %{_libdir}/libfpgad-api.so.*
 %{_libdir}/libmml-srv.so.*
 %{_libdir}/libmml-stream.so.*
@@ -180,6 +180,7 @@ done
 %{_usr}/src/opae/samples/hello_events/hello_events.c
 %{_usr}/src/opae/samples/object_api/object_api.c
 %{_usr}/src/opae/samples/n5010-ddr-test/n5010-ddr-test.c
+%{_usr}/src/opae/samples/n5010-ctl/n5010-ctl.c
 %{_usr}/src/opae/cmake/*
 %{_usr}/src/opae/opae-libs/cmake/modules/*
 %{_usr}/src/opae/argsfilter/argsfilter.c
@@ -192,7 +193,6 @@ done
 %{_libdir}/opae/libboard_n6000.so
 %{_libdir}/opae/libfpgad-xfpga.so
 %{_libdir}/opae/libopae-v.so
-%{_libdir}/libopae-c++-nlb.so
 %{_libdir}/libopae-cxx-core.so
 %{_libdir}/libopae-c++-utils.so
 %{_libdir}/libopae-c.so
@@ -208,25 +208,6 @@ done
 %{_libdir}/libopaevfio.so
 %{_libdir}/opae/libxfpga.so*
 %{_libdir}/opae/libmodbmc.so*
-%{_bindir}/bist_app
-%{_bindir}/dummy_afu
-%{_bindir}/bist_app.py
-%{_bindir}/bist_common.py
-%{_bindir}/bist_dma.py
-%{_bindir}/bist_def.py
-%{_bindir}/bist_nlb3.py
-%{_bindir}/bist_nlb0.py
-%{_bindir}/fpgabist
-%{_bindir}/nlb0
-%{_bindir}/nlb3
-%{_bindir}/nlb7
-%{_bindir}/fecmode
-%{_bindir}/fpgamac
-%{_bindir}/fvlbypass
-%{_bindir}/mactest
-%{_bindir}/fpgadiag
-%{_bindir}/fpgalpbk
-%{_bindir}/fpgastats
 %{_bindir}/bitstreaminfo
 %{_bindir}/fpgaflash
 %{_bindir}/fpgaotsu
@@ -245,12 +226,10 @@ done
 %{_bindir}/afu_json_mgr
 %{_bindir}/packager
 %{_bindir}/fpgametrics
-%{_bindir}/fpga_dma_N3000_test
-%{_bindir}/fpga_dma_test
 %{_bindir}/n5010-ddr-test
+%{_bindir}/n5010-ctl
 %{_bindir}/PACSign
 %{_bindir}/fpgad
-%{_bindir}/host_exerciser
 %{_bindir}/opaevfio
 %{_bindir}/opaevfiotest
 %{_bindir}/pci_device
@@ -258,13 +237,9 @@ done
 %{_bindir}/afu_platform_config
 %{_bindir}/afu_platform_info
 %{_bindir}/afu_synth_setup
-%{_bindir}/bist
-%{_bindir}/hps
-%{_bindir}/hssi
 %{_bindir}/hssiloopback
 %{_bindir}/hssimac
 %{_bindir}/hssistats
-%{_bindir}/opae.io
 %{_bindir}/opaeuiotest
 %{_bindir}/pac_hssi_config.py
 %{_bindir}/rtl_src_config
@@ -277,13 +252,9 @@ done
 %{_datadir}/doc/opae.admin/LICENSE
 %{python3_sitelib}/ethernet*
 %{python3_sitelib}/hssi_ethernet*
-%{python3_sitelib}/opae*
 %{python3_sitelib}/pacsign*
-%{python3_sitearch}/libvfio*
-%{python3_sitearch}/opae*
-%{python3_sitearch}/pyopaeuio*
-# part of the jsonschema testsuite, do not deliver
-%exclude /usr/share/opae/python/jsonschema-2.3.0/json/bin/jsonschema_suite
+%{python3_sitelib}/opae*
+%{python3_sitelib}/packager*
 
 %changelog
 * Mon Dec 14 2020 The OPAE Dev Team <opae@lists.01.org> - 2.0.0-2
@@ -302,7 +273,6 @@ done
 - Added python3 support.
 - OPAE USMG API are deprecated.
 - Updated OPAE documentation.  
-
 
 * Tue Dec 17 2019 Korde Nakul <nakul.korde@intel.com> 1.4.0-1
 - Added support to FPGA Linux kernel Device Feature List (DFL) driver patch set2.

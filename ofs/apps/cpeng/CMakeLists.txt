@@ -24,10 +24,12 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_add_executable(TARGET hps
-    SOURCE hps.cpp
-    LIBS
-        ofs_cpeng
-        afu-test
-    COMPONENT cpeng
-)
+if (OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG)
+    opae_add_executable(TARGET hps
+        SOURCE hps.cpp
+        LIBS
+            ofs_cpeng
+            afu-test
+        COMPONENT cpeng
+    )
+endif(OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG)
