@@ -122,6 +122,9 @@ def add_common_options(parser):
         "-o", "--output_file", help="File name in which the result is to be stored"
     )
     parser.add_argument(
+        "-q", "--quartus_cert", help="path to quartus_sign cancelation certificate"
+    )
+    parser.add_argument(
         "--print", help="Print human-readable header information", action="store_true"
     )
     parser.add_argument(
@@ -313,6 +316,12 @@ def main():
                     args, "Output file {} exists. Overwrite".format(args.output_file)
                 ),
                 "Aborting.",
+            )
+
+        if args.quartus_cert:
+            common_util.assert_in_error(
+                os.path.isfile(args.quartus_cert),
+                "File doesn't exist '{}'".format(args.quartus_cert)
             )
 
         maker = reader.CANCEL_reader(args, hsm_manager, args.HSM_config)
