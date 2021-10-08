@@ -88,8 +88,8 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib CACHE PATH "Lib Build directory"
 option(OPAE_BUILD_LIBOPAE_CXX "Enable building of C++ bindings around libopae-c." ON)
 mark_as_advanced(OPAE_BUILD_LIBOPAE_CXX)
 
-option(OPAE_BUILD_LIBOPAE_PY "Enable building of Python bindings around libopae-cxx-core." ON)
-mark_as_advanced(OPAE_BUILD_LIBOPAE_PY)
+option(OPAE_WITH_PYBIND11 "Enable use of pybind11." ON)
+mark_as_advanced(OPAE_WITH_PYBIND11)
 
 option(OPAE_BUILD_PYTHON_DIST "Enable building of Python source and binary distribution" OFF)
 mark_as_advanced(OPAE_BUILD_PYTHON_DIST)
@@ -114,9 +114,6 @@ mark_as_advanced(OPAE_PRESERVE_REPOS)
 
 option(OPAE_BUILD_LIBOFS "Enable building of the libofs library and framework" ON)
 mark_as_advanced(OPAE_BUILD_LIBOFS)
-
-option(OPAE_BUILD_AFU_TEST "Enable building of afu_test and dependent projects" ON)
-mark_as_advanced(OPAE_BUILD_AFU_TEST)
 
 if(OPAE_BUILD_TESTS)
     set(OPAE_TEST_TAG "master" CACHE STRING "Desired branch for opae-test")
@@ -182,7 +179,7 @@ if(OPAE_BUILD_LIBOPAE_CXX)
     opae_add_subdirectory(libopaecxx)
 endif()
 
-if(OPAE_BUILD_LIBOPAE_PY AND OPAE_BUILD_LIBOPAE_CXX)
+if(OPAE_WITH_PYBIND11 AND OPAE_BUILD_LIBOPAE_CXX)
     opae_add_subdirectory(pyopae)
 endif()
 
