@@ -40,6 +40,7 @@ declare -r OPENSSL=`which openssl 2>/dev/null`
 [ "x${OPENSSL}" = "x" ] && die 'openssl not found'
 
 declare -r INFILE='file'
+declare -r QSIGN_CERT='qsign'
 declare -r KEYSTORE='keys'
 declare -r OUTPUT='out'
 
@@ -219,17 +220,20 @@ test_cancel() {
   local -r img="$2"
   local -ri width=$3
   local -ri csk=$4
+  local -r qcert="$5"
+  local qsign_cert=''
   local extra=''
   local img_type=$(image_type_to_PACSign "${img}")
 
   [ -d "${OUTPUT}/${img}" ] || mkdir -p "${OUTPUT}/${img}" 
   [ ${width} -eq 384 ] && extra='S'
+  [ "${qcert}" = 'none' ] || qsign_cert="-q ${qcert}"
 
   ${PACSIGN} "${img_type}" -yv"${extra}" -b "cancel${csk}_${img}_${width}" -t CANCEL \
     -H "${mgr}" \
     -r "${KEYSTORE}/${img}/test_key_${img}_root_public_${width}.pem" \
     -d ${csk} \
-    -o "${OUTPUT}/${img}/${INFILE}.${img}.${width}.cancel_csk${csk}.bin"
+    -o "${OUTPUT}/${img}/${INFILE}.${img}.${width}.cancel_csk${csk}.bin" ${qsign_cert}
 }
 
 ################################################################################
@@ -263,8 +267,10 @@ test_fim_signed() {
 test_fim_cancel() {
   local -r manager="$1"
   printf "test_fim_cancel\n"
-  test_cancel "${mgr}" 'fim' 256 0
-  test_cancel "${mgr}" 'fim' 384 0
+  test_cancel "${mgr}" 'fim' 256 0 'none'
+  test_cancel "${mgr}" 'fim' 256 1 "${QSIGN_CERT}"
+  test_cancel "${mgr}" 'fim' 384 0 'none'
+  test_cancel "${mgr}" 'fim' 384 1 "${QSIGN_CERT}"
 }
 
 ################################################################################
@@ -298,8 +304,10 @@ test_factory_signed() {
 test_factory_cancel() {
   local -r manager="$1"
   printf "test_factory_cancel\n"
-  test_cancel "${mgr}" 'factory' 256 0
-  test_cancel "${mgr}" 'factory' 384 0
+  test_cancel "${mgr}" 'factory' 256 0 'none'
+  test_cancel "${mgr}" 'factory' 256 1 "${QSIGN_CERT}"
+  test_cancel "${mgr}" 'factory' 384 0 'none'
+  test_cancel "${mgr}" 'factory' 384 1 "${QSIGN_CERT}"
 }
 
 ################################################################################
@@ -333,8 +341,10 @@ test_sr_test_signed() {
 test_sr_test_cancel() {
   local -r manager="$1"
   printf "test_sr_test_cancel\n"
-  test_cancel "${mgr}" 'sr_test' 256 0
-  test_cancel "${mgr}" 'sr_test' 384 0
+  test_cancel "${mgr}" 'sr_test' 256 0 'none'
+  test_cancel "${mgr}" 'sr_test' 256 1 "${QSIGN_CERT}"
+  test_cancel "${mgr}" 'sr_test' 384 0 'none'
+  test_cancel "${mgr}" 'sr_test' 384 1 "${QSIGN_CERT}"
 }
 
 ################################################################################
@@ -368,8 +378,10 @@ test_sr_cert_signed() {
 test_sr_cert_cancel() {
   local -r manager="$1"
   printf "test_sr_cert_cancel\n"
-  test_cancel "${mgr}" 'sr_cert' 256 0
-  test_cancel "${mgr}" 'sr_cert' 384 0
+  test_cancel "${mgr}" 'sr_cert' 256 0 'none'
+  test_cancel "${mgr}" 'sr_cert' 256 1 "${QSIGN_CERT}"
+  test_cancel "${mgr}" 'sr_cert' 384 0 'none'
+  test_cancel "${mgr}" 'sr_cert' 384 1 "${QSIGN_CERT}"
 }
 
 ################################################################################
@@ -403,8 +415,10 @@ test_bmc_signed() {
 test_bmc_cancel() {
   local -r manager="$1"
   printf "test_bmc_cancel\n"
-  test_cancel "${mgr}" 'bmc' 256 0
-  test_cancel "${mgr}" 'bmc' 384 0
+  test_cancel "${mgr}" 'bmc' 256 0 'none'
+  test_cancel "${mgr}" 'bmc' 256 1 "${QSIGN_CERT}"
+  test_cancel "${mgr}" 'bmc' 384 0 'none'
+  test_cancel "${mgr}" 'bmc' 384 1 "${QSIGN_CERT}"
 }
 
 ################################################################################
@@ -438,8 +452,10 @@ test_bmc_factory_signed() {
 test_bmc_factory_cancel() {
   local -r manager="$1"
   printf "test_bmc_factory_cancel\n"
-  test_cancel "${mgr}" 'bmc_factory' 256 0
-  test_cancel "${mgr}" 'bmc_factory' 384 0
+  test_cancel "${mgr}" 'bmc_factory' 256 0 'none'
+  test_cancel "${mgr}" 'bmc_factory' 256 1 "${QSIGN_CERT}"
+  test_cancel "${mgr}" 'bmc_factory' 384 0 'none'
+  test_cancel "${mgr}" 'bmc_factory' 384 1 "${QSIGN_CERT}"
 }
 
 ################################################################################
@@ -473,8 +489,10 @@ test_pr_signed() {
 test_pr_cancel() {
   local -r manager="$1"
   printf "test_pr_cancel\n"
-  test_cancel "${mgr}" 'pr' 256 0
-  test_cancel "${mgr}" 'pr' 384 0
+  test_cancel "${mgr}" 'pr' 256 0 'none'
+  test_cancel "${mgr}" 'pr' 256 1 "${QSIGN_CERT}"
+  test_cancel "${mgr}" 'pr' 384 0 'none'
+  test_cancel "${mgr}" 'pr' 384 1 "${QSIGN_CERT}"
 }
 
 ################################################################################
@@ -508,8 +526,10 @@ test_pr_test_signed() {
 test_pr_test_cancel() {
   local -r manager="$1"
   printf "test_pr_test_cancel\n"
-  test_cancel "${mgr}" 'pr_test' 256 0
-  test_cancel "${mgr}" 'pr_test' 384 0
+  test_cancel "${mgr}" 'pr_test' 256 0 'none'
+  test_cancel "${mgr}" 'pr_test' 256 1 "${QSIGN_CERT}"
+  test_cancel "${mgr}" 'pr_test' 384 0 'none'
+  test_cancel "${mgr}" 'pr_test' 384 1 "${QSIGN_CERT}"
 }
 
 ################################################################################
@@ -543,8 +563,10 @@ test_pxe_signed() {
 test_pxe_cancel() {
   local -r manager="$1"
   printf "test_pxe_cancel\n"
-  test_cancel "${mgr}" 'pxe' 256 0
-  test_cancel "${mgr}" 'pxe' 384 0
+  test_cancel "${mgr}" 'pxe' 256 0 'none'
+  test_cancel "${mgr}" 'pxe' 256 1 "${QSIGN_CERT}"
+  test_cancel "${mgr}" 'pxe' 384 0 'none'
+  test_cancel "${mgr}" 'pxe' 384 1 "${QSIGN_CERT}"
 }
 
 ################################################################################
@@ -578,8 +600,10 @@ test_therm_sr_signed() {
 test_therm_sr_cancel() {
   local -r manager="$1"
   printf "test_therm_sr_cancel\n"
-  test_cancel "${mgr}" 'therm_sr' 256 0
-  test_cancel "${mgr}" 'therm_sr' 384 0
+  test_cancel "${mgr}" 'therm_sr' 256 0 'none'
+  test_cancel "${mgr}" 'therm_sr' 256 1 "${QSIGN_CERT}"
+  test_cancel "${mgr}" 'therm_sr' 384 0 'none'
+  test_cancel "${mgr}" 'therm_sr' 384 1 "${QSIGN_CERT}"
 }
 
 ################################################################################
@@ -613,8 +637,10 @@ test_therm_pr_signed() {
 test_therm_pr_cancel() {
   local -r manager="$1"
   printf "test_therm_pr_cancel\n"
-  test_cancel "${mgr}" 'therm_pr' 256 0
-  test_cancel "${mgr}" 'therm_pr' 384 0
+  test_cancel "${mgr}" 'therm_pr' 256 0 'none'
+  test_cancel "${mgr}" 'therm_pr' 256 1 "${QSIGN_CERT}"
+  test_cancel "${mgr}" 'therm_pr' 384 0 'none'
+  test_cancel "${mgr}" 'therm_pr' 384 1 "${QSIGN_CERT}"
 }
 
 ################################################################################
@@ -648,8 +674,10 @@ test_sdm_signed() {
 test_sdm_cancel() {
   local -r manager="$1"
   printf "test_sdm_cancel\n"
-  test_cancel "${mgr}" 'sdm' 256 0
-  test_cancel "${mgr}" 'sdm' 384 0
+  test_cancel "${mgr}" 'sdm' 256 0 'none'
+  test_cancel "${mgr}" 'sdm' 256 1 "${QSIGN_CERT}"
+  test_cancel "${mgr}" 'sdm' 384 0 'none'
+  test_cancel "${mgr}" 'sdm' 384 1 "${QSIGN_CERT}"
 }
 
 ################################################################################
@@ -657,6 +685,7 @@ test_sdm_cancel() {
 run_tests() {
   local mgr
   [ -f "${INFILE}" ] || dd if=/dev/urandom of="${INFILE}" bs=512 count=1
+  [ -f "${QSIGN_CERT}" ] || dd if=/dev/urandom of="${QSIGN_CERT}" bs=376 count=1
   [ -d "${KEYSTORE}" ] || mkdir -p "${KEYSTORE}"
   [ -d "${OUTPUT}" ] || mkdir -p "${OUTPUT}"
   create_keys
