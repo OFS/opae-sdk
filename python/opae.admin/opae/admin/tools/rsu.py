@@ -278,10 +278,10 @@ def main():
                 finally:
                     fcntl.flock(flock.fileno(), fcntl.LOCK_UN)
             raise SystemExit(exit_code)
-
-    logging.error(('PCIe address (%s) is invalid or does not identify a'
-                   'compatible device'), args.bdf)
-
+            
+    logging.error('PCIe address (%s) does not identify a compatible device',
+                  args.bdf)
+    raise SystemExit(os.EX_NOTFOUND)
 
 if __name__ == "__main__":
     main()
