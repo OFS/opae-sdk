@@ -41,7 +41,7 @@ setup(
             'bitstreaminfo = opae.admin.tools.bitstream_info:main',
             'opaevfio = opae.admin.tools.opaevfio:main',
             'pci_device = opae.admin.tools.pci_device:main',
-            'regmap-debugfs = opae.admin.tools.regmap_debugfs:main',
+            'fpgareg = opae.admin.tools.fpgareg:main',
         ]
     },
     install_requires=[],
