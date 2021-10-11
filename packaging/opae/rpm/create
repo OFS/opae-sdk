@@ -141,13 +141,15 @@ cat "${SDK_DIR}/${RPM_SPEC}" | \
 # Create RPMS.
 cd "${RPMBUILD_DIR}/SPECS"
 
-rpmbuild --noclean  --define="_topdir ${RPMBUILD_DIR}" -ba opae.spec
+# --noclean
+rpmbuild --define="_topdir ${RPMBUILD_DIR}" -ba opae.spec
 if [ $? -ne 0 ]; then
     printf "first rpmbuild failed.. exiting\n"
     exit 1
 fi
 
-rpmbuild --noclean  --define="_topdir ${RPMBUILD_DIR}" -bs opae.spec
+# --noclean
+rpmbuild --define="_topdir ${RPMBUILD_DIR}" -bs opae.spec
 if [ $? -eq 1 ]; then
     echo "second rpmbuild failed.. exiting"
     exit 1
@@ -159,5 +161,5 @@ mv "${RPMBUILD_DIR}"/RPMS/x86_64/opae-* "${SCRIPT_DIR}"
 mv "${RPMBUILD_DIR}"/SRPMS/opae-*.src.rpm "${SCRIPT_DIR}"
 
 # delete rpmbuild directory
-# rm -rf "$RPMBUILD_DIR"
+rm -rf "$RPMBUILD_DIR"
 rm -f opae.spec
