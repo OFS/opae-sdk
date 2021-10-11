@@ -38,11 +38,9 @@ CMake options that may be set during the configuration include the following:
 | -DOPAE_BUILD_TESTS         | Optional              | Enable/disable building unit tests  | ON/OFF                                | OFF            |
 | -DOPAE_INSTALL_RPATH       | Optional              | Enable/disable rpath for install    | ON/OFF                                | OFF            |
 | -DOPAE_BUILD_LIBOPAE_CXX   | Optional              | Enable/disable OPAE C++ bindings    | ON/OFF                                | ON             | 
-| -DOPAE_BUILD_LIBOPAE_PY    | Optional              | Enable/disable OPAE Python bindings | ON/OFF                                | ON             |
+| -DOPAE_WITH_PYBIND11       | Optional              | Enable/disable pybind11 binaries    | ON/OFF                                | ON             |
 | -DOPAE_BUILD_PYTHON_DIST   | Optional              | Enable/disable Python Distribution  | ON/OFF                                | OFF            |
 | -DOPAE_ENABLE_MOCK         | Optional              | Enable/disable mocks for unit tests | ON/OFF                                | OFF            |
 | -DOPAE_BUILD_SIM           | Optional              | Enable/disable opae-sim.git         | ON/OFF                                | OFF            |
 
 ```
-
-

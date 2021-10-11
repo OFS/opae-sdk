@@ -35,6 +35,15 @@ set(CMAKE_MODULE_PATH
 include(OPAE)
 
 ############################################################################
+## Whether to use external projects ########################################
+############################################################################
+option(OPAE_WITH_CLI11 "Enable use of CLI11" ON)
+mark_as_advanced(OPAE_WITH_CLI11)
+
+option(OPAE_WITH_SPDLOG "Enable use of spdlog" ON)
+mark_as_advanced(OPAE_WITH_SPDLOG)
+
+############################################################################
 ## Whether to build opae-legacy ############################################
 ############################################################################
 option(OPAE_BUILD_LEGACY "Enable building of OPAE legacy tools" OFF)
@@ -61,9 +70,7 @@ endif()
 ############################################################################
 opae_add_subdirectory(opae-libs)
 opae_add_subdirectory(external)
-if(OPAE_BUILD_AFU_TEST)
-  opae_add_subdirectory(afu-test)
-endif(OPAE_BUILD_AFU_TEST)
+opae_add_subdirectory(afu-test)
 opae_add_subdirectory(platforms)
 opae_add_subdirectory(tools)
 opae_add_subdirectory(python)
@@ -73,7 +80,7 @@ endif (OPAE_BUILD_LIBOFS)
 
 option(OPAE_BUILD_SAMPLES "Enable building of OPAE samples" ON)
 mark_as_advanced(OPAE_BUILD_SAMPLES)
-if(OPAE_BUILD_SAMPLES AND OPAE_BUILD_AFU_TEST)
+if(OPAE_BUILD_SAMPLES)
     opae_add_subdirectory(samples)
 endif()
 
