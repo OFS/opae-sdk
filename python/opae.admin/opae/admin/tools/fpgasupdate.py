@@ -573,7 +573,7 @@ def update_fw_sysfs(infile, pac):
     payload_size = infile.tell() - orig_pos
     infile.close()
 
-    sec_dev = pac.secure_dev
+    sec_dev = pac.upload_dev
     error = sec_dev.find_one(os.path.join('update', 'error'))
     filename = sec_dev.find_one(os.path.join('update', 'filename'))
     size = sec_dev.find_one(os.path.join('update', 'remaining_size'))
@@ -775,7 +775,7 @@ def main():
                     sys.exit(1)
 
     # Check for 'update/filename' to determine if we use sysfs or ioctl
-    if pac.secure_dev.find_one(os.path.join('update', 'filename')):
+    if pac.upload_dev.find_one(os.path.join('update', 'filename')):
         use_ioctl = False
 
     LOG.warning('Update starting. Please do not interrupt.')
@@ -787,7 +787,7 @@ def main():
         stat, mesg = do_partial_reconf(pac.pci_node.pci_address,
                                        args.file.name)
     elif blk0 is not None:
-        sec_dev = pac.secure_dev
+        sec_dev = pac.upload_dev
         if not sec_dev:
             LOG.error('Failed to find secure '
                       'device for PAC %s', pac.pci_node.pci_address)
