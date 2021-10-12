@@ -28,6 +28,7 @@ import re
 import sys
 from argparse import ArgumentParser, FileType
 from opae.admin.sysfs import pcie_device, pci_node
+from opae.admin.utils.process import call_process
 
 
 PCI_ADDRESS_PATTERN = (r'^(?P<pci_address>'
@@ -116,6 +117,15 @@ class aer(object):
         action = myargs.action or 'dump'
         getattr(self, action)(device, *rest)
 
+    def clear(self, device):
+        """
+        clear aer errors and print error status.
+        """
+        call_process("setpci -s " + str(device) +
+                     " ECAP_AER+0x10.L=0xFFFFFFFF")
+        output = call_process("setpci -s " + str(device) +
+                              " ECAP_AER+0x10.L")
+        print("aer clear:", output)
 
     def dump(self, device):
         for key in ['aer_dev_correctable', 'aer_dev_fatal', 'aer_dev_nonfatal']:
