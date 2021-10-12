@@ -24,8 +24,8 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_add_executable(TARGET n5010-ddr-test
-    SOURCE n5010-ddr-test.c
+opae_add_executable(TARGET n5010-test
+    SOURCE n5010-test.c
     LIBS
         argsfilter
         opae-c
@@ -34,15 +34,15 @@ opae_add_executable(TARGET n5010-ddr-test
     COMPONENT samplebin
 )
 
-target_include_directories(n5010-ddr-test
+target_include_directories(n5010-test
     PRIVATE
         ${OPAE_SDK_SOURCE}/tools/argsfilter
 )
 
-target_compile_options(n5010-ddr-test PUBLIC
+target_compile_options(n5010-test PUBLIC
     -D_GNU_SOURCE
 )
 
-install(FILES n5010-ddr-test.c
-  DESTINATION src/opae/samples/n5010-ddr-test
+install(FILES n5010-test.c
+  DESTINATION src/opae/samples/n5010-test
   COMPONENT samplesrc)
