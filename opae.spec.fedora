@@ -144,6 +144,10 @@ pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/pacsign
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} 
 popd
 
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/packager
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
+popd
+
 # Make rpmlint happy about install permissions
 # admin tools
 for file in %{buildroot}%{python3_sitelib}/opae/admin/tools/{fpgaflash,fpgaotsu,fpgaport,fpgasupdate,ihex2ipmi,rsu,super_rsu,bitstream_info,opaevfio,pci_device}.py; do
@@ -177,10 +181,36 @@ done
 %{_libdir}/libopaeuio.so.*
 %{_libdir}/libopaevfio.so.*
 
-%post devel
+%{_libdir}/opae/libxfpga.so
+%{_libdir}/opae/libopae-v.so
+%{_libdir}/opae/libmodbmc.so
+%{_libdir}/opae/libfpgad-xfpga.so
+%{_libdir}/opae/libfpgad-vc.so
+%{_libdir}/opae/libboard_a10gx.so
+%{_libdir}/opae/libboard_n3000.so
+%{_libdir}/opae/libboard_d5005.so
+%{_libdir}/opae/libboard_n5010.so
+%{_libdir}/opae/libboard_n6000.so
+
+%{_bindir}/fpgad
+%{_bindir}/fpgaconf
+%{_bindir}/fpgainfo
+%{_bindir}/fpgasupdate
+%{_bindir}/rsu
+%{_bindir}/pci_device
+
+%{python3_sitelib}/opae*
+
+%config(noreplace) %{_sysconfdir}/opae/fpgad.cfg*
+%config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
+
+%{_datadir}/doc/opae.admin/LICENSE
+%{_unitdir}/fpgad.service
+
+%post
 %systemd_post fpgad.service
 
-%preun devel
+%preun
 %systemd_preun fpgad.service
 
 
@@ -200,13 +230,6 @@ done
 %{_usr}/src/opae/argsfilter/argsfilter.c
 %{_usr}/src/opae/argsfilter/argsfilter.h
 
-%{_libdir}/opae/libboard_a10gx.so
-%{_libdir}/opae/libboard_n3000.so
-%{_libdir}/opae/libboard_d5005.so
-%{_libdir}/opae/libboard_n5010.so
-%{_libdir}/opae/libboard_n6000.so
-%{_libdir}/opae/libfpgad-xfpga.so
-%{_libdir}/opae/libopae-v.so
 %{_libdir}/libopae-c++-nlb.so
 %{_libdir}/libopae-cxx-core.so
 %{_libdir}/libopae-c++-utils.so
@@ -221,8 +244,6 @@ done
 %{_libdir}/libopaemem.so
 %{_libdir}/libopaeuio.so
 %{_libdir}/libopaevfio.so
-%{_libdir}/opae/libxfpga.so*
-%{_libdir}/opae/libmodbmc.so*
 %{_bindir}/bist_app
 %{_bindir}/dummy_afu
 %{_bindir}/bist_app.py
@@ -246,11 +267,7 @@ done
 %{_bindir}/fpgaflash
 %{_bindir}/fpgaotsu
 %{_bindir}/fpgaport
-%{_bindir}/fpgasupdate
-%{_bindir}/rsu
 %{_bindir}/super-rsu
-%{_bindir}/fpgaconf
-%{_bindir}/fpgainfo
 %{_bindir}/mmlink
 %{_bindir}/userclk
 %{_bindir}/hello_fpga
@@ -265,11 +282,9 @@ done
 %{_bindir}/n5010-ddr-test
 %{_bindir}/n5010-ctl
 %{_bindir}/PACSign
-%{_bindir}/fpgad
 %{_bindir}/host_exerciser
 %{_bindir}/opaevfio
 %{_bindir}/opaevfiotest
-%{_bindir}/pci_device
 %{_bindir}/regmap-debugfs
 %{_bindir}/afu_platform_config
 %{_bindir}/afu_platform_info
@@ -285,15 +300,9 @@ done
 %{_bindir}/pac_hssi_config.py
 %{_bindir}/rtl_src_config
 
-%config(noreplace) %{_sysconfdir}/opae/fpgad.cfg*
-%config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
-%{_unitdir}/fpgad.service
-%{_libdir}/opae/libfpgad-vc.so*
 %{_usr}/share/opae/*
-%{_datadir}/doc/opae.admin/LICENSE
 %{python3_sitelib}/ethernet*
 %{python3_sitelib}/hssi_ethernet*
-%{python3_sitelib}/opae*
 %{python3_sitelib}/pacsign*
 %{python3_sitelib}/packager*
 %{python3_sitearch}/libvfio*
