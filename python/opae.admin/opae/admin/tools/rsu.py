@@ -105,13 +105,13 @@ def fpga_defaults_valid(pci_id, value):
 
 
 def set_fpga_default(device, args):
-    security = device.security
-    if not security:
+    secure_update = device.secure_update
+    if not secure_update:
         logging.error('failed to find secure '
                       'attributes for {}'.format(device.pci_node.pci_address))
         raise IOError
 
-    power_on_image = security.find_one('power_on_image')
+    power_on_image = secure_update.find_one('control/power_on_image')
 
     if not args.page and not args.fallback:
         # Print the power_on_image value.
