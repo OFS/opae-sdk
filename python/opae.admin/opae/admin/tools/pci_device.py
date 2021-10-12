@@ -26,6 +26,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 import re
 import sys
+import subprocess
 from argparse import ArgumentParser, FileType
 from opae.admin.sysfs import pcie_device, pci_node
 from opae.admin.utils.process import call_process
@@ -121,11 +122,14 @@ class aer(object):
         """
         clear aer errors and print error status.
         """
-        call_process("setpci -s " + str(device) +
-                     " ECAP_AER+0x10.L=0xFFFFFFFF")
-        output = call_process("setpci -s " + str(device) +
-                              " ECAP_AER+0x10.L")
-        print("aer clear:", output)
+        try:
+            call_process("setpci -s " + str(device) +
+                         " ECAP_AER+0x10.L=0xFFFFFFFF")
+            output = call_process("setpci -s " + str(device) +
+                                  " ECAP_AER+0x10.L")
+            print("aer clear errors:", output)
+        except (subprocess.CalledProcessError, OSError):
+            print("Failed to clear aer errors")
 
     def dump(self, device):
         for key in ['aer_dev_correctable', 'aer_dev_fatal', 'aer_dev_nonfatal']:
