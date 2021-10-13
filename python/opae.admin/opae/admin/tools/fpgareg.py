@@ -30,7 +30,6 @@ import os
 import argparse
 import struct
 import mmap
-import mmap
 import sys
 import binascii
 import glob
@@ -42,7 +41,10 @@ from ctypes import c_uint64, Structure, Union, c_uint32
 MAPSIZE = mmap.PAGESIZE
 MAPMASK = MAPSIZE-1
 
-FPGA_OFS_DEVID = ["0xbcce", "0xbccf", "0xaf00"]
+fpga_devices = {(0x8086, 0xaf00): "Intel N6000 ADP",
+                (0x8086, 0xaf01): "Intel N6000 ADP VF",
+                (0x8086, 0xbcce): "Intel N6000 ADP",
+                (0x8086, 0xbccf): "Intel N6000 ADP VF"}
 
 PATTERN = (r'.*(?P<segment>\w{4}):(?P<bus>\w{2}):'
            r'(?P<dev>\w{2})\.(?P<func>\d).*')
@@ -50,7 +52,7 @@ PATTERN = (r'.*(?P<segment>\w{4}):(?P<bus>\w{2}):'
 BDF_PATTERN = re.compile(PATTERN, re.IGNORECASE)
 
 HSSI_FEATURE_ID = 0x15
-PCIE_DFH_CSR_LEN = 30
+PCIE_DFH_CSR_LEN = 4
 HSSI_DFH_CSR_LEN = 43
 ACCELERATOR_CSR_LEN = 30
 
@@ -62,8 +64,13 @@ def verify_pcie_address(pcie_address):
     """
     m = BDF_PATTERN.match(pcie_address)
     if m is None:
-        print("Invalid pcie address foramt", pcie_address)
+        print("Invalid pcie address format", pcie_address)
         return False
+
+    if int(m.group(3), 16) != 0 or int(m.group(4), 16) != 0:
+        print("Not a valid pf0 pcie address ", pcie_address)
+        return False
+
     return True
 
 
@@ -72,14 +79,21 @@ def verify_fpga_device(pcie_address):
     Returns true if found in list, or
     False if not found in device list.
     """
-    paths = glob.glob(os.path.join("/sys/bus/pci/devices/",
-                                   pcie_address,
-                                   "device*"))
-    for path in paths:
-        with open(path, 'r') as fd:
-            devic_id = fd.read().strip()
-            if devic_id in FPGA_OFS_DEVID:
-                return True
+    path = os.path.join("/sys/bus/pci/devices/", pcie_address)
+
+    try:
+        with open(os.path.join(path, 'vendor'), 'r') as fd:
+            vendor = fd.read().strip()
+        with open(os.path.join(path, 'device'), 'r') as fd:
+            device = fd.read().strip()
+    except FileNotFoundError as err:
+        print("Not found vendor or device id")
+        return False
+
+    if (int(vendor, 16), int(device, 16)) in fpga_devices:
+        print("fpga vender:{} device:{}".format(vendor, device))
+        return True
+
     return False
 
 
@@ -130,19 +144,19 @@ class dfh(Union):
 
 class FPGAREG(object):
     """
-    FPGAREG reads pcie,hssi,bms resoruces and dumps registers.
+    FPGAREG reads pcie, hssi, bmc resources and dumps registers.
     """
-    def __init__(self, args):
-        self._pcie_address = args
+    def __init__(self, addr):
+        self.pcie_addr = addr
         self.handle = None
         self.mm = None
 
     def open(self, address, pcie_address=None):
         """
-        opens pcie resoruces and mmap mmio region.
+        opens pcie resources and mmap mmio region.
         """
         if pcie_address is None:
-            pcie_address = self._pcie_address
+            pcie_address = self.pcie_addr
         paths = glob.glob(os.path.join("/sys/bus/pci/devices/",
                           pcie_address,
                           "resource0"))
@@ -159,7 +173,7 @@ class FPGAREG(object):
 
     def close(self):
         """
-        closes release registers mmio region and close pcie resoruces.
+        closes release registers mmio region and close pcie resources.
         """
         self.mm.close()
         self.handle.close()
@@ -169,6 +183,7 @@ class FPGAREG(object):
         reads 32-bit registers from mmio region.
         """
         data_be = self.mm[offset:offset + 4]
+        # binary representation of the data to hexadecimal.
         data = binascii.hexlify(data_be[::-1])
         return data
 
@@ -177,14 +192,15 @@ class FPGAREG(object):
         reads 64-bit registers from mmio region.
         """
         data_be = self.mm[offset:offset + 8]
+        # binary representation of the data to hexadecimal.
         data = binascii.hexlify(data_be[::-1])
         return data
 
-    def print_pf0_registers(self):
+    def pf0_registers(self):
         """
         walks DFL and prints registers.
         """
-        print("******PCIe Register ******")
+        print("****** PCIe Register ******")
         dfh_offset = 0x0
         offset = 0x0
         while True:
@@ -209,14 +225,14 @@ class FPGAREG(object):
             self.mm.close()
         return True
 
-    def print_hssi_registers(self):
+    def hssi_registers(self):
         """
         walks DFL, finds hssi feature and prints registers.
         """
-        print("******HSSI Register ******")
+        print("****** HSSI Register ******")
         result, hssi_offset = self.find_ofs_feature(0x15)
         if not result:
-            print("Not found HSSI feature")
+            print("No HSSI feature found")
             return False
         if not self.open(hssi_offset):
             return False
@@ -256,11 +272,11 @@ class FPGAREG(object):
             self.close()
         return False, 0
 
-    def print_bmc_registers(self):
+    def bmc_registers(self):
         """
         prints BMC registers.
         """
-        print("******BMC Register ******")
+        print("****** BMC Register ******")
         for path in sorted(glob.glob("/sys/kernel/debug/regmap/dfl_dev.*/*")):
             if path.find("name") >= 0:
                 with open(path, 'r') as fd:
@@ -270,21 +286,21 @@ class FPGAREG(object):
                 with open(path, 'r') as fd:
                     print("registers:\n", fd.read().strip())
 
-    def print_accelerator_registers(self):
+    def accelerator_registers(self):
         """
         prints accelerator registers.
         """
-        print("******Accelerator Register ******")
-        str = self._pcie_address[:-1] + "*"
+        print("****** Accelerator Register ******")
+        str = self.pcie_addr[:-1] + "*"
         for path in sorted(glob.glob(os.path.join("/sys/bus/pci/devices/",
                                      str))):
-            pcie_address = path.rsplit('/', 1)[1]
-            if self._pcie_address == pcie_address:
+            pcie_addr = path.rsplit('/', 1)[1]
+            if self.pcie_addr == pcie_addr:
                 continue
 
-            print("\npcie_address:", pcie_address)
+            print("\npcie_address:", pcie_addr)
             offset = 0x0
-            if not self.open(offset, pcie_address):
+            if not self.open(offset, pcie_addr):
                 return False
             fpga_dfh = dfh(int(self.reg64(offset), 16))
             print("dfh:{}   :{}".format(hex(offset),
@@ -302,21 +318,18 @@ class FPGAREG(object):
 
 def main():
     """
-    parse input arguemnts pciaddress and reg
+    parse input arguments pci address and reg
     prints registers
     """
     parser = argparse.ArgumentParser()
 
-    pcieaddress_help = 'sbdf of device to program \
-                        (e.g. 0000:04:00.0).' \
-                       ' Optional when one device in system.'
-    parser.add_argument('--pcie-address', '-P',
-                        default=None, help=pcieaddress_help)
+    parser.add_argument('addr', nargs='?',
+                        help='pcie address of the device')
 
-    parser.add_argument('-r', '--reg',
+    parser.add_argument('reg', nargs='?',
                         default='pcie',
                         choices=['pcie', 'bmc', 'hssi', 'acc', 'all'],
-                        help='choose reg dump. Default: pcie')
+                        help='choose reg dump, default: pcie')
 
     # exit if no commad line argument
     args = parser.parse_args()
@@ -324,41 +337,39 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-    args, left = parser.parse_known_args()
-
     print(args)
-    print("--pcie_address:", args.pcie_address)
-    if not verify_pcie_address(args.pcie_address.lower()):
+
+    if not verify_pcie_address(args.addr.lower()):
         sys.exit(1)
 
-    if not verify_fpga_device(args.pcie_address.lower()):
+    if not verify_fpga_device(args.addr.lower()):
+        print("Invalid fpga device")
         sys.exit(1)
 
-    print("reg:", args.reg)
-    fpgareg = FPGAREG(args.pcie_address)
+    fpgareg = FPGAREG(args.addr)
 
     """ print pf0/fme registers """
-    if args.reg == 'pcie' and not fpgareg.print_pf0_registers():
-            sys.exit(1)
+    if args.reg == 'pcie' and not fpgareg.pf0_registers():
+        sys.exit(1)
 
     """ print hssi feature registers """
-    if args.reg == 'hssi' and not fpgareg.print_hssi_registers():
-            sys.exit(1)
+    if args.reg == 'hssi' and not fpgareg.hssi_registers():
+        sys.exit(1)
 
     """ print bmc registers """
-    if args.reg == 'bmc'and not fpgareg.print_bmc_registers():
-            sys.exit(1)
+    if args.reg == 'bmc'and not fpgareg.bmc_registers():
+        sys.exit(1)
 
     """ print all accelerator pf/vf's registers """
-    if args.reg == 'acc' and not fpgareg.print_accelerator_registers():
-            sys.exit(1)
+    if args.reg == 'acc' and not fpgareg.accelerator_registers():
+        sys.exit(1)
 
     """ print all registers """
     if args.reg == 'all':
-        fpgareg.print_pf0_registers()
-        fpgareg.print_hssi_registers()
-        fpgareg.print_bmc_registers()
-        fpgareg.print_accelerator_registers()
+        fpgareg.pf0_registers()
+        fpgareg.hssi_registers()
+        fpgareg.bmc_registers()
+        fpgareg.accelerator_registers()
 
     sys.exit(0)
 
