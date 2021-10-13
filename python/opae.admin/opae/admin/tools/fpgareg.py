@@ -52,7 +52,7 @@ PATTERN = (r'.*(?P<segment>\w{4}):(?P<bus>\w{2}):'
 BDF_PATTERN = re.compile(PATTERN, re.IGNORECASE)
 
 HSSI_FEATURE_ID = 0x15
-PCIE_DFH_CSR_LEN = 4
+PCIE_DFH_CSR_LEN = 20
 HSSI_DFH_CSR_LEN = 43
 ACCELERATOR_CSR_LEN = 30
 
@@ -67,7 +67,7 @@ def verify_pcie_address(pcie_address):
         print(f"Invalid pcie address format: {pcie_address}")
         return False
 
-    if int(m.group(3), 16) != 0 or int(m.group(4), 16) != 0:
+    if int(m.group('func'), 16) != 0:
         print(f"Not a valid pf0 pcie address: {pcie_address}")
         return False
 
