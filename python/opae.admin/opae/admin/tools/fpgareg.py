@@ -64,11 +64,11 @@ def verify_pcie_address(pcie_address):
     """
     m = BDF_PATTERN.match(pcie_address)
     if m is None:
-        print("Invalid pcie address format", pcie_address)
+        print("Invalid pcie address format: {}", pcie_address)
         return False
 
     if int(m.group(3), 16) != 0 or int(m.group(4), 16) != 0:
-        print("Not a valid pf0 pcie address ", pcie_address)
+        print("Not a valid pf0 pcie address: {}", pcie_address)
         return False
 
     return True
