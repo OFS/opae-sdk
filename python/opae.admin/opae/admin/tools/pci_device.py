@@ -123,10 +123,9 @@ class aer(object):
         clear aer errors and print error status.
         """
         try:
-            call_process("setpci -s " + str(device) +
-                         " ECAP_AER+0x10.L=0xFFFFFFFF")
-            output = call_process("setpci -s " + str(device) +
-                                  " ECAP_AER+0x10.L")
+            cmd = f'setpci -s {device} ECAP_AER+0x10.L'
+            call_process(f'{cmd}=0xFFFFFFFF')
+            output = call_process(cmd)
             print("aer clear errors:", output)
         except (subprocess.CalledProcessError, OSError):
             print("Failed to clear aer errors")
