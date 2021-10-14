@@ -264,7 +264,7 @@ def main():
     Path(RSU_LOCK_DIR).mkdir(parents=True, exist_ok=True)
 
     for device in compatible:
-        if device.pci_node.pci_address == bdf:
+        if device.pci_node.pci_address.lower() == bdf.lower():
             exit_code = os.EX_IOERR
             with open(RSU_LOCK_FILE, 'w') as flock:
                 fcntl.flock(flock.fileno(), fcntl.LOCK_EX)
