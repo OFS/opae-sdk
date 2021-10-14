@@ -281,7 +281,7 @@ def main():
 
     logging.error('PCIe address (%s) does not identify a compatible device',
                   args.bdf)
-    raise SystemExit(os.EX_NOTFOUND)
+    raise SystemExit(os.EX_UNAVAILABLE)
 
 if __name__ == "__main__":
     main()
