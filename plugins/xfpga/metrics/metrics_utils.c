@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -654,6 +654,7 @@ fpga_result get_bmc_metrics_values(fpga_handle handle,
 				struct fpga_metric *fpga_metric)
 {
 	fpga_result result                  = FPGA_OK;
+	fpga_result res;
 	uint32_t num_sensors                = 0;
 	uint32_t num_values                 = 0;
 	uint32_t x                          = 0;
@@ -741,10 +742,10 @@ fpga_result get_bmc_metrics_values(fpga_handle handle,
 	}
 
 out_destroy:
-	result = xfpga_bmcDestroySDRs(_handle, &records);
-	if (result != FPGA_OK) {
+	res = xfpga_bmcDestroySDRs(_handle, &records);
+	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to Destroy SDR.");
-		return result;
+		return res;
 	}
 
 	return result;
