@@ -55,9 +55,13 @@
 	p;                                                \
 })
 
+#ifdef LIBOPAE_DEBUG
 #define ERR(format, ...)                               \
 fprintf(stderr, "%s:%u:%s() **ERROR** [%s] : " format, \
 	__SHORT_FILE__, __LINE__, __func__, strerror(errno), ##__VA_ARGS__)
+#else
+#define ERR(format, ...) do { } while (0)
+#endif
 
 STATIC struct opae_vfio_sparse_info *
 opae_vfio_create_sparse_info(uint32_t index, uint32_t offset, uint32_t size)
@@ -614,7 +618,8 @@ STATIC int opae_vfio_iova_reserve(struct opae_vfio *v,
 STATIC struct opae_vfio_buffer *
 opae_vfio_create_buffer(uint8_t *vaddr,
 			size_t size,
-			uint64_t iova)
+			uint64_t iova,
+			int flags)
 {
 	struct opae_vfio_buffer *b;
 	b = malloc(sizeof(*b));
@@ -622,6 +627,7 @@ opae_vfio_create_buffer(uint8_t *vaddr,
 		b->buffer_ptr = vaddr;
 		b->buffer_size = size;
 		b->buffer_iova = iova;
+		b->flags = flags;
 		b->next = NULL;
 	}
 	return b;
@@ -646,7 +652,8 @@ opae_vfio_destroy_buffer(struct opae_vfio *v,
 			ERR("ioctl(%d, VFIO_IOMMU_UNMAP_DMA, &dma_unmap)\n",
 			    v->cont_fd);
 
-		if (munmap(trash->buffer_ptr, trash->buffer_size) < 0)
+		if (!(trash->flags & OPAE_VFIO_BUF_PREALLOCATED) &&
+		    munmap(trash->buffer_ptr, trash->buffer_size) < 0)
 			ERR("munmap(%p, %lu) failed\n",
 			    trash->buffer_ptr, trash->buffer_size);
 
@@ -678,17 +685,99 @@ opae_vfio_destroy_buffer(struct opae_vfio *v,
 #define FLAGS_1G (FLAGS_4K|MAP_1G_HUGEPAGE|MAP_HUGETLB)
 #endif
 
-int opae_vfio_buffer_allocate(struct opae_vfio *v,
-			      size_t *size,
-			      uint8_t **buf,
-			      uint64_t *iova)
+STATIC int
+opae_vfio_buffer_mmap(struct opae_vfio *v,
+		      size_t *size,
+		      uint8_t **buf,
+		      uint64_t *iova,
+		      int flags,
+		      struct opae_vfio_buffer **node)
 {
-	int res = 0;
+	uint8_t *vaddr = NULL;
 	uint64_t ioaddr = 0;
-	uint8_t *vaddr;
+	int res;
 	struct vfio_iommu_type1_dma_map dma_map;
 	struct vfio_iommu_type1_dma_unmap dma_unmap;
-	struct opae_vfio_buffer *node;
+
+	if (opae_vfio_iova_reserve(v, size, &ioaddr)) {
+		return 1;
+	}
+
+	if (!(flags & OPAE_VFIO_BUF_PREALLOCATED)) {
+
+		if (*size > (2 * 1024 * 1024))
+			vaddr = mmap(ADDR, *size, PROT_READ|PROT_WRITE,
+				     FLAGS_1G, 0, 0);
+		else if (*size > 4096)
+			vaddr = mmap(ADDR, *size, PROT_READ|PROT_WRITE,
+				     FLAGS_2M, 0, 0);
+		else
+			vaddr = mmap(ADDR, *size, PROT_READ|PROT_WRITE,
+				     FLAGS_4K, 0, 0);
+
+		if (vaddr == MAP_FAILED) {
+			ERR("mmap() failed\n");
+			mem_alloc_put(&v->iova_alloc, ioaddr);
+			return 2;
+		}
+
+	} else if (!buf || !*buf) {
+		ERR("got OPAE_VFIO_BUF_PREALLOCATED, but buf is NULL.\n");
+		mem_alloc_put(&v->iova_alloc, ioaddr);
+		return 3;
+	} else {
+		vaddr = *buf;
+	}
+
+	memset(&dma_map, 0, sizeof(dma_map));
+
+	dma_map.argsz = sizeof(dma_map);
+	dma_map.vaddr = (uint64_t) vaddr;
+	dma_map.size = *size;
+	dma_map.iova = ioaddr;
+	dma_map.flags = VFIO_DMA_MAP_FLAG_READ|VFIO_DMA_MAP_FLAG_WRITE;
+
+	if (ioctl(v->cont_fd, VFIO_IOMMU_MAP_DMA, &dma_map) < 0) {
+		ERR("ioctl(%d, VFIO_IOMMU_MAP_DMA, &dma_map)\n", v->cont_fd);
+		mem_alloc_put(&v->iova_alloc, ioaddr);
+		res = 4;
+		goto out_munmap;
+	}
+
+	*node = opae_vfio_create_buffer(vaddr, *size, ioaddr, flags);
+	if (!*node) {
+		ERR("malloc failed\n");
+		mem_alloc_put(&v->iova_alloc, ioaddr);
+		res = 5;
+		goto out_unmap_ioctl;
+	}
+
+	if (!(flags & OPAE_VFIO_BUF_PREALLOCATED) && buf)
+		*buf = vaddr;
+	if (iova)
+		*iova = ioaddr;
+
+	return 0;
+
+out_unmap_ioctl:
+	memset(&dma_unmap, 0, sizeof(dma_unmap));
+	dma_unmap.argsz = sizeof(dma_unmap);
+	dma_unmap.iova = ioaddr;
+	dma_unmap.size = *size;
+	ioctl(v->cont_fd, VFIO_IOMMU_UNMAP_DMA, &dma_unmap);
+out_munmap:
+	if (!(flags & OPAE_VFIO_BUF_PREALLOCATED))
+		munmap(vaddr, *size);
+	return res;
+}
+
+int opae_vfio_buffer_allocate_ex(struct opae_vfio *v,
+				 size_t *size,
+				 uint8_t **buf,
+				 uint64_t *iova,
+				 int flags)
+{
+	struct opae_vfio_buffer *node = NULL;
 
 	if (!v || !size) {
 		ERR("NULL param\n");
@@ -705,73 +794,36 @@ int opae_vfio_buffer_allocate(struct opae_vfio *v,
 		return 3;
 	}
 
-	if (opae_vfio_iova_reserve(v, size, &ioaddr)) {
-		pthread_mutex_unlock(&v->lock);
+	if (opae_vfio_buffer_mmap(v,
+				  size,
+				  buf,
+				  iova,
+				  flags,
+				  &node)) {
+		if (pthread_mutex_unlock(&v->lock))
+			ERR("pthread_mutex_unlock() failed\n");
 		return 4;
-	}
-
-	if (*size > (2 * 1024 * 1024))
-		vaddr = mmap(ADDR, *size, PROT_READ|PROT_WRITE,
-			     FLAGS_1G, 0, 0);
-	else if (*size > 4096)
-		vaddr = mmap(ADDR, *size, PROT_READ|PROT_WRITE,
-			     FLAGS_2M, 0, 0);
-	else
-		vaddr = mmap(ADDR, *size, PROT_READ|PROT_WRITE,
-			     FLAGS_4K, 0, 0);
-
-	if (vaddr == MAP_FAILED) {
-		ERR("mmap() failed\n");
-		pthread_mutex_unlock(&v->lock);
-		return 5;
-	}
-
-	memset(&dma_map, 0, sizeof(dma_map));
-
-	dma_map.argsz = sizeof(dma_map);
-	dma_map.vaddr = (uint64_t) vaddr;
-	dma_map.size = *size;
-	dma_map.iova = ioaddr;
-	dma_map.flags = VFIO_DMA_MAP_FLAG_READ|VFIO_DMA_MAP_FLAG_WRITE;
-
-	if (ioctl(v->cont_fd, VFIO_IOMMU_MAP_DMA, &dma_map) < 0) {
-		ERR("ioctl(%d, VFIO_IOMMU_MAP_DMA, &dma_map)\n",
-		    v->cont_fd);
-		res = 5;
-		goto out_munmap;
-	}
-
-	node = opae_vfio_create_buffer(vaddr, *size, ioaddr);
-	if (!node) {
-		ERR("malloc failed\n");
-		res = 6;
-		goto out_unmap_ioctl;
 	}
 
 	node->next = v->cont_buffers;
 	v->cont_buffers = node;
 
-	if (buf)
-		*buf = vaddr;
-	if (iova)
-		*iova = ioaddr;
-
 	if (pthread_mutex_unlock(&v->lock))
 		ERR("pthread_mutex_unlock() failed\n");
 
 	return 0;
+}
 
-out_unmap_ioctl:
-	memset(&dma_unmap, 0, sizeof(dma_unmap));
-	dma_unmap.argsz = sizeof(dma_unmap);
-	dma_unmap.iova = ioaddr;
-	dma_unmap.size = *size;
-	ioctl(v->cont_fd, VFIO_IOMMU_UNMAP_DMA, &dma_unmap);
-out_munmap:
-	munmap(vaddr, *size);
-	if (pthread_mutex_unlock(&v->lock))
-		ERR("pthread_mutex_unlock() failed\n");
-	return res;
+int opae_vfio_buffer_allocate(struct opae_vfio *v,
+			      size_t *size,
+			      uint8_t **buf,
+			      uint64_t *iova)
+{
+	return opae_vfio_buffer_allocate_ex(v,
+					    size,
+					    buf,
+					    iova,
+					    0);
 }
 
 int opae_vfio_buffer_free(struct opae_vfio *v,

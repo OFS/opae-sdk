@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -62,7 +62,6 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	fpga_objtype objtype;
 	fpga_properties pprops = props;
 	fpga_token par = NULL;
-	int is_accelerator = 0;
 	bool has_parent = true;
 
 	res = fpgaPropertiesGetObjectID(props, &object_id);
@@ -91,8 +90,6 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 
 	if (objtype != FPGA_DEVICE) {
 		res = fpgaPropertiesGetGUID(props, &port_guid);
-		if (res == FPGA_OK)
-			is_accelerator = 1;
 	}
 
 	// Go up the tree until we find the device
@@ -164,11 +161,6 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 			bbs_version.major, bbs_version.minor, bbs_version.patch);
 		uuid_unparse(guid, guid_str);
 		printf("%-32s : %s\n", "Pr Interface Id", guid_str);
-	}
-
-	if (is_accelerator) {
-		uuid_unparse(port_guid, guid_str);
-		printf("%-32s : %s\n", "Accelerator Id", guid_str);
 	}
 
 }

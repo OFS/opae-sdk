@@ -77,6 +77,8 @@ fpga_result fme_verbose_info(fpga_token token);
 
 fpga_result fpga_boot_info(fpga_token token);
 fpga_result fpga_image_info(fpga_token token);
+fpga_result fpga_event_log(fpga_token token, uint32_t first, uint32_t last,
+		bool print_list, bool print_sensors, bool print_bits);
 
 #ifdef __cplusplus
 }

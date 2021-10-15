@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -69,7 +69,7 @@ fpga_result read_sysfs_file(fpga_token token, const char *file,
 	*tot_bytes_ret = 0;
 
 	struct _fpga_token *tok = (struct _fpga_token *)token;
-	if (FPGA_TOKEN_MAGIC != tok->magic) {
+	if (FPGA_TOKEN_MAGIC != tok->hdr.magic) {
 		return FPGA_INVALID_PARAM;
 	}
 

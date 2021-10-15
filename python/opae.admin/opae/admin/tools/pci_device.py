@@ -191,7 +191,7 @@ def main():
 
 
     if not args.devices:
-        raise SystemExit(f'{args.device} not found')
+        raise SystemExit(f'{sys.argv[1]} not found')
 
     for dev in args.devices:
         actions[args.action or 'topology'](dev, args, *rest)

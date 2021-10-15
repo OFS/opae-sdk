@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2020-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -158,7 +158,7 @@ class walk_action(base_action):
     open_device = True
 
     def add_args(self):
-        self.parser.add_argument('offset', nargs='?', type=utils.hex_int)
+        self.parser.add_argument('offset', nargs='?', type=utils.hex_int, default=0)
         self.parser.add_argument('-u', '--show-uuid', action='store_true', default=False)
 
     def execute(self, args):
@@ -168,11 +168,7 @@ class walk_action(base_action):
             raise SystemExit('walk requires region.')
 
         offset = 0 if args.offset is None else args.offset
-        for offset, dfh in utils.dfh_walk(offset=offset):
-            print('offset: 0x{:04x}, value: 0x{:04x}'.format(offset, dfh.value))
-            print('    dfh: {}'.format(dfh))
-            if args.show_uuid:
-                print('    uuid: {}'.format(utils.read_guid(offset+0x8)))
+        utils.walk(self.region, args.offset, args.show_uuid)
 
 
 class no_action(base_action):

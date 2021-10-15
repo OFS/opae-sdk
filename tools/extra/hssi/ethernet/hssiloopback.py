@@ -54,15 +54,20 @@ class FPGAHSSILPBK(HSSICOMMON):
         poll for status
         clear ctl address and ctl sts CSR
         """
-        print("eth_group_loopback_en", self._loopback)
-
         self.open(self._hssi_grps[0][0])
 
         hssi_feature_list = hssi_feature(self.read32(0, 0xC))
-        if (self._port >= hssi_feature_list.num_hssi_ports):
+        if (self._port >= HSSI_PORT_COUNT):
             print("Invalid Input port number")
             self.close()
-            return -1
+            return False
+
+        enable = self.register_field_get(hssi_feature_list.port_enable,
+                                         self._port)
+        if enable == 0:
+            print("Input port is not enabled or active")
+            self.close()
+            return False
 
         ctl_addr = hssi_ctl_addr(0)
         if (self._loopback):
@@ -80,7 +85,7 @@ class FPGAHSSILPBK(HSSICOMMON):
         if not ret:
             print("Failed to clear HSSI CTL STS csr")
             self.close()
-            return 0
+            return False
 
         self.write32(0, HSSI_CSR.HSSI_CTL_ADDRESS.value, ctl_addr.value)
         self.write32(0, HSSI_CSR.HSSI_CTL_STS.value, cmd_sts.value)
@@ -90,17 +95,16 @@ class FPGAHSSILPBK(HSSICOMMON):
                                       0x2):
             print("HSSI ctl sts csr fails to update ACK")
             self.close()
-            return 0
+            return False
 
         ret = self.clear_ctl_sts_reg(0)
         if not ret:
             print("Failed to clear HSSI CTL STS csr")
             self.close()
-            return 0
+            return False
 
         self.close()
-
-        return 0
+        return True
 
     def hssi_loopback_start(self):
         """
@@ -108,8 +112,12 @@ class FPGAHSSILPBK(HSSICOMMON):
         enable/disable hssi loopback
         """
         print("----hssi_loopback_start----")
-        self.hssi_info(self._hssi_grps[0][0])
-        self.hssi_loopback_en()
+        if not self.hssi_info(self._hssi_grps[0][0]):
+            print("Failed to read hssi information")
+            return False
+        if not self.hssi_loopback_en():
+            return False
+        return True
 
 
 def main():
@@ -135,6 +143,12 @@ def main():
                         default=0,
                         help='hssi port number')
 
+    # exit if no commad line argument
+    args = parser.parse_args()
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
+
     args, left = parser.parse_known_args()
 
     print("args", args)
@@ -143,7 +157,7 @@ def main():
     print("args.port:", args.port)
     print(args)
 
-    if not veriy_pcie_address(args.pcie_address):
+    if not verify_pcie_address(args.pcie_address.lower()):
         sys.exit(1)
 
     if args.loopback is None:
@@ -153,7 +167,7 @@ def main():
         op = 'enable' if args.loopback else 'disable'
         print('{} fpga loopback'.format(op))
 
-    f = FpgaFinder(args.pcie_address)
+    f = FpgaFinder(args.pcie_address.lower())
     devs = f.enum()
     for d in devs:
         print('sbdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))
@@ -166,7 +180,6 @@ def main():
         print('no FPGA found')
         sys.exit(1)
 
-
     args.hssi_grps = f.find_hssi_group(devs[0].get('pcie_address'))
     print("args.hssi_grps", args.hssi_grps)
     if len(args.hssi_grps) == 0:
@@ -176,7 +189,10 @@ def main():
     print("fpga uid dev:", args.hssi_grps[0][0])
 
     lp = FPGAHSSILPBK(args)
-    lp.hssi_loopback_start()
+    if not lp.hssi_loopback_start():
+        print("Failed to Enable loopback")
+        sys.exit(1)
+    print("hssi loopback enabled")
 
 
 if __name__ == "__main__":

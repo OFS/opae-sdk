@@ -42,9 +42,8 @@ static const uint64_t KB = 1024;
 static const uint64_t MB = KB * 1024;
 static const uint64_t LOG2_CL = 6;
 static const size_t LPBK1_DSM_SIZE = 2 * KB;
-static const size_t LPBK1_BUFFER_SIZE = 2 * KB;
-static const size_t LPBK1_BUFFER_ALLOCATION_SIZE = 2 * KB;
-static const uint32_t DSM_STATUS_TEST_COMPLETE = 0x40;
+static const size_t LPBK1_BUFFER_SIZE = 64 * KB;
+static const size_t LPBK1_BUFFER_ALLOCATION_SIZE = 64 * KB;
 
 // Host execiser CSR Offset
 enum {
@@ -85,6 +84,7 @@ typedef enum {
   HOSTEXE_CLS_1 = 0x0,
   HOSTEXE_CLS_2 = 0x1,
   HOSTEXE_CLS_4 = 0x2,
+  HOSTEXE_CLS_8 = 0x3,
 } hostexe_req_len;
 
 
@@ -264,6 +264,24 @@ union he_stride {
   };
 };
 
+// HE DSM status
+struct he_dsm_status {
+	uint64_t test_completed : 1;
+	uint64_t dsm_number : 15;
+	uint64_t res1 : 16;
+	uint64_t err_vector : 32;
+	uint64_t num_ticks : 40;
+	uint64_t res2 : 24;
+	uint64_t num_reads : 32;
+	uint64_t num_writes : 32;
+	uint64_t penalty_start : 16;
+	uint64_t res3 : 16;
+	uint64_t penalty_end : 8;
+	uint64_t res4 : 24;
+	uint64_t ab_error_info : 32;
+	uint32_t res5[7];
+};
+
 const std::map<std::string, uint32_t> he_modes = {
   { "lpbk", HOST_EXEMODE_LPBK1},
   { "read", HOST_EXEMODE_READ},
@@ -275,6 +293,7 @@ const std::map<std::string, uint32_t> he_req_cls_len= {
   { "cl_1", HOSTEXE_CLS_1},
   { "cl_2", HOSTEXE_CLS_2},
   { "cl_4", HOSTEXE_CLS_4},
+  { "cl_8", HOSTEXE_CLS_8},
 };
 
 const std::map<std::string, uint32_t> he_test_mode = {
@@ -293,11 +312,6 @@ indicating one of the following series of read/write requests:
 1: rd-rd-wr-wr
 2: rd-rd-rd-rd-wr-wr-wr-wr)desc";
 
-//Perf counter help
-const char *perf_help = R"desc(Enable perf counters
-Set the capabilities for binary(for non-root user)
-set capabilities: "sudo setcap 38,cap_sys_ptrace,cap_syslog+eip /usr/bin/host_exerciser"
-remove capabilities: "sudo setcap -r /usr/bin/host_exerciser")desc";
 
 class host_exerciser : public test_afu {
 public:
@@ -305,14 +319,13 @@ public:
   : test_afu("host_exerciser")
   , count_(1)
   , he_interrupt_(99)
-  , perf_(false)
   {
     // Mode
     app_.add_option("-m,--mode", he_modes_, "host exerciser mode {lpbk,read, write, trput}")
       ->transform(CLI::CheckedTransformer(he_modes))->default_val("lpbk");
 
     // Cache line
-    app_.add_option("--cls", he_req_cls_len_, "number of CLs per request{cl_1, cl_2, cl_4}")
+    app_.add_option("--cls", he_req_cls_len_, "number of CLs per request{cl_1, cl_2, cl_4, cl_8}")
        ->transform(CLI::CheckedTransformer(he_req_cls_len))->default_val("cl_1");
 
     // Configures test rollover or test termination
@@ -329,8 +342,11 @@ public:
         "The Interrupt Vector Number for the device")
         ->transform(CLI::Range(0, 3));
 
-    app_.add_option("--perf", perf_, perf_help)->default_val("false");
-  }
+     // Continuous mode time
+    app_.add_option("--contmodetime", he_contmodetime_,
+        "Continuous mode time in seconds")->default_val("0");
+
+   }
 
   virtual int run(CLI::App *app, test_command::ptr_t test) override
   {
@@ -454,7 +470,7 @@ public:
   bool he_continuousmode_;
   uint32_t he_interleave_;
   uint32_t he_interrupt_;
-  bool perf_;
+  uint32_t he_contmodetime_;
 
   std::map<uint32_t, uint32_t> limits_;
 

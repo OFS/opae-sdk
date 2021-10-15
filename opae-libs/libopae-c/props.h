@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -54,6 +54,7 @@
 #define FPGA_PROPERTY_GUID 9
 #define FPGA_PROPERTY_OBJECTID 10
 #define FPGA_PROPERTY_NUM_ERRORS 11
+#define FPGA_PROPERTY_INTERFACE 12
 
 /** Fields for FPGA objects */
 #define FPGA_PROPERTY_NUM_SLOTS 32
@@ -101,6 +102,7 @@ struct _fpga_properties {
 	uint16_t vendor_id;
 	uint16_t device_id;
 	uint32_t num_errors;
+	fpga_interface interface;
 
 	/* Object-specific properties
 	 * bitfields start as 0x20

@@ -90,6 +90,12 @@ Group:      opae PACSign
 %description PACSign
 This package contains PAC Sign tools
 
+%package packager
+Summary:    Green BitStream packager
+Group:      opae packager
+
+%description packager
+This package contains packager tools
 
 # This is a shortcutted spec file generatCed by CMake RPM generator
 # we skip _install step because CPack does that for us.
@@ -120,10 +126,6 @@ mv %_topdir/tmpBRoot $RPM_BUILD_ROOT
 mkdir -p /etc/ld.so.conf.d
 echo "@LDCONFIG_DIR@" > /etc/ld.so.conf.d/opae-c.conf
 ldconfig
-if [ -x %{_sbindir}/setcap ];
-then
-  %{_sbindir}/setcap "38,cap_sys_ptrace,cap_syslog+eip" %{_bindir}/host_exerciser
-fi
 
 %postun
 @CPACK_RPM_SPEC_POSTUNINSTALL@
@@ -199,7 +201,7 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libboard_d5005.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libboard_n5010.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libboard_a10gx.so*
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libboard_n6010.so*
+@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libboard_n6000.so*
 
 
 %files tools-extra -f tools-extra-files.txt
@@ -234,9 +236,6 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c++-utils.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libofs*.so*
 %dir @CMAKE_INSTALL_PREFIX@/share/opae
-%dir @CMAKE_INSTALL_PREFIX@/share/opae/python/
-%dir @CMAKE_INSTALL_PREFIX@/share/opae/python/*
-@CMAKE_INSTALL_PREFIX@/share/opae/python/*
 
 # coreidle applies only to a legacy platform that is no longer supported
 %exclude @CMAKE_INSTALL_PREFIX@/bin/coreidle
@@ -264,6 +263,9 @@ ldconfig
 %defattr(-,root,root,-)
 
 %files PACSign -f PACSign-files.txt
+%defattr(-,root,root,-)
+
+%files packager -f packager-files.txt
 %defattr(-,root,root,-)
 
 %changelog

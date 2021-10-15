@@ -372,11 +372,11 @@ class port(region):
         return self.node('afu_id').value
 
 
-class secure_dev(region):
+class upload_dev(region):
     pass
 
 
-class security(region):
+class secure_update(region):
     pass
 
 
@@ -446,41 +446,42 @@ class fpga_base(sysfs_device):
             self.log.warning('found more than one FME')
 
     @property
-    def secure_dev(self):
+    def upload_dev(self):
         f = self.fme
         if not f:
             self.log.error('no FME found')
             return None
         spi = f.spi_bus
         if spi:
-            fpga_sec = spi.find_one(
-                '*-secure.*.auto/*fpga_sec_mgr/*fpga_sec*')
-            if fpga_sec:
-                return secure_dev(fpga_sec.sysfs_path, self.pci_node)
+            patterns = ['*-secure.*.auto/*fpga_sec_mgr/*fpga_sec*',
+                        '*-sec-update.*.auto/fpga_image_load/fpga_image*']
+            for pattern in patterns:
+                fpga_sec = spi.find_one(pattern)
+                if fpga_sec:
+                    return upload_dev(fpga_sec.sysfs_path, self.pci_node)
         else:
             pmci = f.pmci_bus
             fpga_sec = pmci.find_one(
                     '*fpga_sec_mgr*/*fpga_sec*')
             if fpga_sec:
-                return secure_dev(fpga_sec.sysfs_path, self.pci_node)
-
+                return upload_dev(fpga_sec.sysfs_path, self.pci_node)
 
     @property
-    def security(self):
+    def secure_update(self):
         f = self.fme
         if not f:
             self.log.error('no FME found')
             return None
         spi = f.spi_bus
         if spi:
-            sec = spi.find_one('*-secure.*.auto')
+            sec = spi.find_one('*-sec*.*.auto')
             if sec:
-                return security(sec.sysfs_path, self.pci_node)
+                return secure_update(sec.sysfs_path, self.pci_node)
         else:
             pmci = f.pmci_bus
-            sec = pmci.find_one('*-secure.*.auto')
+            sec = pmci.find_one('*-sec*.*.auto')
             if sec:
-                return security(sec.sysfs_path, self.pci_node)
+                return secure_update(sec.sysfs_path, self.pci_node)
 
     @property
     def port(self):
@@ -518,15 +519,26 @@ class fpga_base(sysfs_device):
             self.log.exception('unrecognized kwargs: %s', kwargs)
             raise ValueError('unrecognized kwargs: {}'.format(kwargs))
 
-        fpga_sec = self.secure_dev
-        if not fpga_sec:
+        available_images = None
+        image_load = None
+
+        upload_dev = self.upload_dev
+        if upload_dev:
+            available_images = upload_dev.find_one('update/available_images')
+            image_load = upload_dev.find_one('update/image_load')
+
+        fpga_sec = self.secure_update
+        if fpga_sec and not available_images:
+            available_images = fpga_sec.find_one('control/available_images')
+            image_load = fpga_sec.find_one('control/image_load')
+
+        if not available_images or not image_load:
             msg = 'rsu not supported by this (0x{:04x},0x{:04x})'.format(
                 self.pci_node.pci_id[0], self.pci_node.pci_id[1])
             self.log.exception(msg)
             raise TypeError(msg)
 
-        available_images = fpga_sec.find_one('update/available_images').value
-        image_load = fpga_sec.find_one('update/image_load')
+        available_images = available_images.value
 
         if available_image in available_images:
             image_load.value = available_image
@@ -555,12 +567,8 @@ class fpga_base(sysfs_device):
     def safe_rsu_boot(self, available_image, **kwargs):
         wait_time = kwargs.pop('wait', 10)
 
-        if available_image[:4] == 'fpga':
-            to_remove = self.pci_node.root.endpoints
-            to_disable = [ep.parent for ep in to_remove]
-        else:
-            to_remove = [self.pci_node.root]
-            to_disable = [self.pci_node.root]
+        to_remove = [self.pci_node.root]
+        to_disable = [self.pci_node.root]
         # rescan at the pci bus, if found
         # if for some reason it can't be found, do a full system rescan
         to_rescan = self.pci_node.pci_bus

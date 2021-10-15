@@ -110,7 +110,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	fpga_result result = FPGA_INVALID_PARAM;
 
 	ASSERT_NOT_NULL(token);
-	if (_token->magic != FPGA_TOKEN_MAGIC) {
+	if (_token->hdr.magic != FPGA_TOKEN_MAGIC) {
 		OPAE_MSG("Invalid token");
 		return FPGA_INVALID_PARAM;
 	}
@@ -297,6 +297,9 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 		OPAE_MSG("Failed to lock properties mutex");
 		return FPGA_EXCEPTION;
 	}
+
+	_iprop.interface = FPGA_IFC_DFL;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_INTERFACE);
 
 	lock = _prop->lock;
 	*_prop = _iprop;

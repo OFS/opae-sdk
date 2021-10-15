@@ -252,9 +252,9 @@ class temp_verifier:
                 return False
             if not self.verify_min_temp(fatal):
                 LOG.info(f'QPA threshold value for sensor '
-                         f'{label}: {fatal} {units}')
+                         f'{label}: {fatal:.2f} {units}')
                 LOG.info(f'is lower than the platform\'s recommended '
-                         f'minimum of {self.args.min_temp} {DEGREES_C}.')
+                         f'minimum of {self.args.min_temp:.2f} {DEGREES_C}.')
                 min_temp_failures += 1
                 i['fatal'] = str(self.args.min_temp)
 
@@ -376,8 +376,8 @@ class qpamap:
             self.id_map[ident]['filtered_warning'] = filtered_warning
             self.id_map[ident]['filtered_fatal'] = filtered_fatal
 
-            msg = (f'{item["label"]} warning: {warning} {item["units"]} '
-                   f'fatal: {fatal} {item["units"]} -> {filtered_warning} '
+            msg = (f'{item["label"]} warning: {warning:.2f} {item["units"]} '
+                   f'fatal: {fatal:.2f} {item["units"]} -> {filtered_warning} '
                    f'{filtered_fatal}')
             if adjustment != 0.0:
                 msg += f' (adjustment {adjustment}{item["units"]})'
@@ -585,7 +585,7 @@ def parse_args():
 
     parser.add_argument('-s', '--sensor-file',
                         type=read_sensors, dest='sensor_map',
-                        default='n5010_bmc_sensors.yml',
+                        default='n6000_bmc_sensors.yml',
                         help='BMC sensor to id file')
 
     subparser = parser.add_subparsers()
