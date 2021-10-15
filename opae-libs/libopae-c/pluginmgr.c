@@ -111,7 +111,7 @@ STATIC char *find_cfg(void)
 	int i = 0;
 	char *file_name = NULL;
 	char home_cfg[PATH_MAX] = { 0, };
-	char *home_cfg_ptr = &home_cfg[0];
+	char *home_cfg_ptr = NULL;
 	size_t len;
 
 	// get the user's home directory
