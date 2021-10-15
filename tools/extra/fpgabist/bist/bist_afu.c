@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and	use  in source	and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
 
 	if (num_matches < 1) {
 		fprintf(stderr, "accelerator not found.\n");
-		res = fpgaDestroyProperties(&filter);
+		fpgaDestroyProperties(&filter);
 		return FPGA_INVALID_PARAM;
 	}
 
