@@ -98,6 +98,20 @@ target_include_directories(test_opae_event_c
         ${OPAE_LIBS_ROOT}/libbitstream
 )
 
+opae_test_add(TARGET test_opae_sdl_c
+    SOURCE test_sdl_c.cpp
+    LIBS
+        opae-c-static
+        bmc-static
+        xfpga-static
+)
+
+target_include_directories(test_opae_sdl_c
+    PRIVATE
+        ${OPAE_LIBS_ROOT}/plugins/xfpga
+        ${OPAE_LIBS_ROOT}/plugins/xfpga/metrics/bmc
+)
+
 opae_test_add(TARGET test_opae_hostif_c
     SOURCE test_hostif_c.cpp
     LIBS opae-c-static

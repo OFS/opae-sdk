@@ -1,4 +1,4 @@
-# Copyright(c) 2020, Intel Corporation
+# Copyright(c) 2020-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -25,7 +25,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import contextlib
-import glob
 import grp
 import json
 import os
@@ -196,7 +195,8 @@ def vfio_release(pci_addr):
             os.remove(PICKLE_FILE)
 
 class opae_register(Union):
-    def __init__(self, offset, value=None):
+    def __init__(self, region, offset, value=None):
+        self.region = region
         self.offset = offset
         if value is None:
             self.update()
@@ -222,12 +222,12 @@ class opae_register(Union):
     def commit(self, value=None):
         if value is not None:
             self.value = value
-        write_csr(self.offset, self.value)
+        self.region.write64(self.offset, self.value)
 
     def update(self):
-        if the_region is None:
+        if self.region is None:
             raise OSError(os.EX_OSERR, 'no region open')
-        self.value = read_csr(self.offset)
+        self.value = self.region.read64(self.offset)
 
     def __enter__(self):
       pass
@@ -255,9 +255,9 @@ def register(name="value_register", bits=[('value', c_uint64, 64)]):
     return r_class
 
 
-def read_guid(offset):
-    lo = read_csr(offset)
-    hi = read_csr(offset+0x08)
+def read_guid(region, offset):
+    lo = region.read64(offset)
+    hi = region.read64(offset+0x08)
     return uuid.UUID(bytes=struct.pack('>QQ', hi, lo))
 
 
@@ -272,17 +272,26 @@ dfh0_bits = [
 
 dfh0 = register('dfh0', bits=dfh0_bits)
 
-def dfh_walk(offset=0, header=dfh0, guid=None):
+def dfh_walk(region, offset=0, header=dfh0, guid=None):
     while True:
-        h = header(offset)
-        if guid is None or guid == read_guid(offset+0x8):
+        h = header(region, offset)
+        if guid is None or guid == read_guid(region, offset+0x8):
             yield offset, h
         if h.bits.eol or not h.bits.next:
             break
         offset += h.bits.next
 
+def walk(region, offset=0, show_uuid=False):
+    for offset_, hdr in dfh_walk(region, offset=offset):
+        print(f'offset: 0x{offset_:04x}, value: 0x{hdr.value:04x}')
+        print(f'    dfh: {hdr}')
+        if show_uuid:
+            print(f'    uuid: {read_guid(region, offset_+0x8)}')
+
+
 class feature(object):
-    def __init__(self, offset=0, guid=None):
+    def __init__(self, region, offset=0, guid=None):
+        self._region = region
         self._offset = offset
         self._guid = guid
 
@@ -310,22 +319,23 @@ class feature(object):
         try:
             err = True
             csr_class = opae_register.define(name, bits)
-            csr = csr_class(self._offset + offset)
+            csr = csr_class(self._region, self._offset + offset)
             yield csr
             err = False
         finally:
             if not err:
                 csr.commit()
-            
+
 fpga_devices = {(0x8086, 0x09c4) : "Intel PAC A10 GX",
                 (0x8086, 0x09c5) : "Intel PAC A10 GX VF",
-                (0x8086, 0xbcce) : "Intel PAC D5005",
                 (0x8086, 0x0b2b) : "Intel PAC D5005",
                 (0x8086, 0x0b2c) : "Intel PAC D5005 VF",
-                (0x8086, 0xaf00) : "Intel PAC N6010",
-                (0x8086, 0xaf01) : "Intel PAC N6010 VF",
                 (0x8086, 0x0b30) : "Intel PAC N3000",
-                (0x8086, 0x0b31) : "Intel PAC N3000 VF"}
+                (0x8086, 0x0b31) : "Intel PAC N3000 VF",
+                (0x8086, 0xaf00) : "Intel N6000 ADP",
+                (0x8086, 0xaf01) : "Intel N6000 ADP VF",
+                (0x8086, 0xbcce) : "Intel N6000 ADP",
+                (0x8086, 0xbccf) : "Intel N6000 ADP VF"}
 
 
 
@@ -366,7 +376,7 @@ def lsfpga(**kwargs):
                 print('error with vendor/device: {}'.format(k))
             else:
                 conf_ids[(int(vstr, 16), int(dstr, 16))] = v
-            
+
         if conf.get('override', False):
             device_ids.update(conf_ids)
         else:
@@ -425,7 +435,7 @@ def find_device(pci_addr=None):
             LOG.error(errstr)
             raise OSError(os.EX_OSERR, errstr)
         return d
-        
+
     for pci_addr, vid, did, name, driver in lsfpga():
         if driver == 'vfio-pci':
             iommu_group = read_link('/sys/bus/pci/devices', pci_addr, 'iommu_group')

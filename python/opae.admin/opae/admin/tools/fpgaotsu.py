@@ -617,7 +617,7 @@ def main():
     errors = 0
     updaters = []
     for pac in pacs:
-        if pac.secure_dev:
+        if pac.upload_dev:
             LOG.info('%s %s is already secure.', json_cfg['product'],
                      pac.pci_node.pci_address)
             continue

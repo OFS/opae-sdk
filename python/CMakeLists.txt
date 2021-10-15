@@ -41,3 +41,4 @@ set(INTEL_SECURITY_TOOLS_VERSION 1.0.3 CACHE STRING "Security Tools Version stri
 
 add_subdirectory(opae.admin)
 add_subdirectory(pacsign)
+add_subdirectory(packager)

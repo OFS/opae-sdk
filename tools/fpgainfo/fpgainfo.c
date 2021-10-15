@@ -62,7 +62,6 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	fpga_objtype objtype;
 	fpga_properties pprops = props;
 	fpga_token par = NULL;
-	int is_accelerator = 0;
 	bool has_parent = true;
 
 	res = fpgaPropertiesGetObjectID(props, &object_id);
@@ -91,8 +90,6 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 
 	if (objtype != FPGA_DEVICE) {
 		res = fpgaPropertiesGetGUID(props, &port_guid);
-		fpgainfo_print_err("reading guid from properties", res);
-		is_accelerator = 1;
 	}
 
 	// Go up the tree until we find the device
@@ -122,8 +119,7 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 
 	if (has_parent) {
 
-		res = fpgaPropertiesGetGUID(pprops, &guid);
-		fpgainfo_print_err("reading guid from properties", res);
+		fpgaPropertiesGetGUID(pprops, &guid);
 
 		res = fpgaPropertiesGetNumSlots(pprops, &num_slots);
 		fpgainfo_print_err("reading num_slots from properties", res);
@@ -167,15 +163,6 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 		printf("%-32s : %s\n", "Pr Interface Id", guid_str);
 	}
 
-	if (is_accelerator) {
-		uuid_unparse(port_guid, guid_str);
-		printf("%-32s : %s\n", "Accelerator Id", guid_str);
-	}
-
-	if (objtype == FPGA_DEVICE) {
-		printf("%-32s : %s\n", "Boot Page",
-			bbs_id & FACTORY_BIT ? "factory" : "user");
-	}
 }
 
 // Replace occurrences of character within string

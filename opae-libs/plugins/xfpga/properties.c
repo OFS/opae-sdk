@@ -110,7 +110,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	fpga_result result = FPGA_INVALID_PARAM;
 
 	ASSERT_NOT_NULL(token);
-	if (_token->magic != FPGA_TOKEN_MAGIC) {
+	if (_token->hdr.magic != FPGA_TOKEN_MAGIC) {
 		OPAE_MSG("Invalid token");
 		return FPGA_INVALID_PARAM;
 	}
@@ -169,9 +169,18 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 		// AFU
 		result = sysfs_get_guid(_token, FPGA_SYSFS_AFU_GUID,
 			 _iprop.guid);
+		// TODO: undo this hack. It was put in place to deal
+		// with the lack of afu_id in dfl-port.x during OFS Rel1.
+#if 0
 		if (FPGA_OK != result)
 			return result;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
+#else
+		if (result == FPGA_OK)
+			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
+		else
+			CLEAR_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
+#endif
 
 		_iprop.parent = NULL;
 		CLEAR_FIELD_VALID(&_iprop, FPGA_PROPERTY_PARENT);
@@ -288,6 +297,9 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 		OPAE_MSG("Failed to lock properties mutex");
 		return FPGA_EXCEPTION;
 	}
+
+	_iprop.interface = FPGA_IFC_DFL;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_INTERFACE);
 
 	lock = _prop->lock;
 	*_prop = _iprop;

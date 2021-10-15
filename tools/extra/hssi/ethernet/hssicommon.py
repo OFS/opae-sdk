@@ -46,18 +46,20 @@ PATTERN = (r'.*(?P<segment>\w{4}):(?P<bus>\w{2}):'
 
 FPGA_ROOT_PATH = '/sys/class/fpga_region'
 
-BDF_PATTERN = re.compile(PATTERN)
+BDF_PATTERN = re.compile(PATTERN, re.IGNORECASE)
 
 DEFAULT_BDF = 'ssss:bb:dd.f'
 
-# 50 milli seconds
-HSSI_POLL_SLEEP_TIME = 0.05
+# mailbox register poll interval 1 microseconds
+HSSI_POLL_SLEEP_TIME = 1/1000000
 
-# timeout .5 sec
-HSSI_POLL_TIMEOUT = 0.5
+# mailbox register poll timeout 1 seconds
+HSSI_POLL_TIMEOUT = 1
 
 HSSI_FEATURE_ID = 0x15
 
+# Max port count
+HSSI_PORT_COUNT = 16
 
 class HSSI_CSR(Enum):
     """
@@ -241,8 +243,9 @@ class hssi_feature_bits(Structure):
     """
     _fields_ = [
                    ("axi4_support", c_uint32, 1),
-                   ("num_hssi_ports", c_uint32, 4),
-                   ("reserved", c_uint32, 26)
+                   ("num_hssi_ports", c_uint32, 5),
+                   ("port_enable", c_uint32, 16),
+                   ("reserved", c_uint32, 10)
     ]
 
 
@@ -266,28 +269,13 @@ class hssi_feature(Union):
     def num_hssi_ports(self):
         return self.bits.num_hssi_ports
 
+    @property
+    def port_enable(self):
+        return self.bits.port_enable
+
     @num_hssi_ports.setter
     def num_hssi_ports(self, value):
         self.bits.num_hssi_ports = value
-
-
-class HSSI_PORT_BUSWIDTH(Enum):
-    """
-    HSSI DFH CSR offset
-    """
-    HSSI_400GAUI_8 = 0x0
-    HSSI_400GAUI_4 = 0x1
-    HSSI_VERSION = 0x8
-    HSSI_FEATURE_LIST = 0xC
-    HSSI_INTER_ATTRIB_PORT = 0x10
-    HSSI_CTL_STS = 0x50
-    HSSI_CTL_ADDRESS = 0x54
-    HSSI_WR_DATA = 0x58
-    HSSI_RD_DATA = 0x5C
-    HSSI_GM_TX_LATENCY = 0x60
-    HSSI_GM_RX_LATENCY = 0x64
-    HSSI_ETH_PORT_STATUS = 0x68
-    HSSI_TSE_CONTROL = 0xA8
 
 
 class hssi_port_attribute_bits(Structure):
@@ -300,7 +288,8 @@ class hssi_port_attribute_bits(Structure):
                    ("port_databus_width", c_uint32, 3),
                    ("low_speed_eth", c_uint32, 2),
                    ("dyn_reconf", c_uint32, 1),
-                   ("reserved", c_uint32, 16)
+                   ("port_sub_profiles", c_uint32, 5),
+                   ("reserved", c_uint32, 11)
     ]
 
 
@@ -320,7 +309,8 @@ class hssi_port_attribute(Union):
                           (4, 512),
                           (5, 1024))
 
-    HSSI_PORT_PROFILES = ((32, '400GAUI-8'),
+    HSSI_PORT_PROFILES = ((33, 'CRI'),
+                          (32, '400GAUI-8'),
                           (31, '400GAUI-4'),
                           (30, '200GAUI-8'),
                           (29, '200GAUI-4'),
@@ -331,7 +321,7 @@ class hssi_port_attribute(Union):
                           (24, '50GAUI-1'),
                           (23, '50GAUI-2'),
                           (22, '40GCAUI-4'),
-                          (21, '5GbE'),
+                          (21, '25GbE'),
                           (20, '10GbE'),
                           (19, 'Ethernet PMA-Direct'),
                           (18, 'Ethernet FEC-Direct'),
@@ -342,15 +332,45 @@ class hssi_port_attribute(Union):
                           (13, 'General PCS-Direct'),
                           (12, 'OTN'),
                           (11, 'Flex-E'),
-                          (10, 'General FEC-Direct'),
-                          (9, 'TSE MAC'))
+                          (10, 'TSE MAC'),
+                          (9, 'TSE PCS'),
+                          (8, 'LL10G'),
+                          (7, 'MRPHY'),
+                          (6, '10_25G'),
+                          (5, '25_50G'),
+                          (4, 'Ultra40G'),
+                          (3, 'LL40G'),
+                          (2, 'LL50G'),
+                          (1, 'Ultra100G'),
+                          (0, 'LL100G'))
 
     HSSI_SPEED_ETH_INTER = ((0, 'MII'),
                             (1, 'GMII'),
                             (2, 'XGMII'))
 
+    HSSI_PORT_SUBPROFILES = ((15, '24G PCS'),
+                             (14, '12G PCS'),
+                             (13, '10G PCS'),
+                             (12, '9.8G PMA'),
+                             (11, '8.1G PMA'),
+                             (10, '6.1G PMA'),
+                             (9, '4.9G PMA'),
+                             (8, '3.0G PMA'),
+                             (7, '2.4G PMA'),
+                             (6, '1.2G PMA'),
+                             (5, '0.6G PMA'),
+                             (4, 'MAC + PCS'),
+                             (3, 'PCS'),
+                             (2, 'Flex-E'),
+                             (1, 'OTN'),
+                             (0, 'None'))
+
     def __init__(self, value):
         self.value = value
+
+    @property
+    def port_profiles(self):
+        return self.bits.port_profiles
 
     @property
     def port_read_latency(self):
@@ -367,6 +387,10 @@ class hssi_port_attribute(Union):
     @property
     def dyn_reconf(self):
         return self.bits.dyn_reconf
+		
+    @property
+    def port_sub_profiles(self):
+        return self.bits.port_sub_profiles
 
 
 class hssi_cmd_sts_bits(Structure):
@@ -437,6 +461,7 @@ class HSSI_SALCMD(Enum):
     GET_SCR = 0x6
     ENABLE_LOOPBACK = 0x7
     DISABLE_LOOPBACK = 0x8
+    RESET_MAC_STATISTIC = 0x9
     FIRMWARE_VER = 0xFF
 
 
@@ -656,6 +681,14 @@ class hssi_eth_port_status(Union):
         return self.bits.eth_mode
 
 
+def verify_pcie_address(pcie_address):
+    m = BDF_PATTERN.match(pcie_address)
+    if m is None:
+        print("Invalid pcie address foramt",pcie_address)
+        return False
+    return True
+
+
 class FpgaFinder(object):
     def __init__(self, pcie_address):
         self._pice_address = pcie_address
@@ -702,9 +735,11 @@ class FpgaFinder(object):
             paths.extend(r)
         return paths
 
-    def find_hssi_group(self, root):
+    def find_hssi_group(self, pci_address):
         hssi_group = {}
-        paths = glob.glob("/sys/bus/dfl/drivers/uio_dfl/dfl_*")
+        paths = glob.glob(os.path.join("/sys/bus/pci/devices/",
+                                      pci_address,
+                                      "fpga_region/region*/dfl-fme*/dfl_dev*"))
         i = 0
         feature_id = 0
         uio_path = 0
@@ -719,9 +754,10 @@ class FpgaFinder(object):
 
             if len(uio_path) == 0:
                 continue
-            dfl_dev_name = path.split("/sys/bus/dfl/drivers/uio_dfl/")
-            hssi_group[i] = [dfl_dev_name[1], uio_path]
-            i = i + 1
+            m = re.search('dfl_dev(.*)', path)
+            if m:
+                hssi_group[i] = [m.group(0), uio_path]
+                i = i + 1
         return hssi_group
 
 
@@ -739,7 +775,7 @@ class HSSICOMMON(object):
         and firmware version
         """
         try:
-            self.pyopaeuio_inst.open(hssi_uio)
+            self.open(hssi_uio)
             self.num_uio_regions = self.pyopaeuio_inst.numregions
             hssi_dfh = dfh(self.read32(0, 0))
             hssi_version = hssi_ver(self.read32(0, 0x8))
@@ -748,22 +784,33 @@ class HSSICOMMON(object):
             ctl_addr.sal_cmd = HSSI_SALCMD.FIRMWARE_VER.value
             firmware_version = self.read_reg(0, ctl_addr.value)
 
-            print("\n--------HSSI IINFO START-------")
-            print("HSSI id: {0: >12}".format(hex(hssi_dfh.id)))
-            print("HSSI version: {0: >12}".format(str(hssi_version)))
-            print("HSSI num ports: {0: >12}"
-                  .format(hssi_feature_list.num_hssi_ports))
-            print("Firmware Version: {0: >12}".format(firmware_version))
+            print("\n--------HSSI INFO START-------")
+            print("{0: <24}:{1}".format("HSSI ID",hex(hssi_dfh.id)))
+            print("{0: <24}:{1}".format("HSSI version",str(hssi_version)))
+            print("{0: <24}:{1}".format("HSSI num ports",hssi_feature_list.num_hssi_ports))
+            print("{0: <24}:{1}".format("Firmware Version",firmware_version))
+            print("--------Port profile-------")
+            for port in range(0, HSSI_PORT_COUNT):
+               enable = self.register_field_get(hssi_feature_list.port_enable,
+                                             port);
+               if enable == 0:
+                    continue
+               port_attribute = hssi_port_attribute(self.read32(0, 0x10 + port * 4))
+               for profile, pro_str in hssi_port_attribute.HSSI_PORT_PROFILES:
+                  if port_attribute.port_profiles == profile:
+                     print("Port{0:<20}:{1:<25}".format(port,pro_str))
             print("--------HSSI INFO END------- \n")
 
             self.close()
 
         except RuntimeError:
             print("opae uio module exception")
+            return False
         except ValueError:
             print("Invalid arguemnts")
+            return False
 
-        return 0
+        return True
 
     def open(self, hssi_uio):
         ret = self.pyopaeuio_inst.open(hssi_uio)
@@ -939,6 +986,10 @@ class HSSICOMMON(object):
         reg_data |= (value << idx)
         return reg_data
 
+    def register_field_get(self, reg_data, idx):
+        value = ((reg_data >> idx) & (1))
+        return value
+
 
 def main():
     """
@@ -946,8 +997,8 @@ def main():
     """
     parser = argparse.ArgumentParser()
 
-    pcieaddress_help = 'bdf of device to program \
-                        (e.g. 04:00.0 or 0000:04:00.0).' \
+    pcieaddress_help = 'sbdf of device to program \
+                        (e.g. 0000:04:00.0).' \
                        ' Optional when one device in system.'
     parser.add_argument('--pcie-address', '-P',
                         default=None, help=pcieaddress_help)

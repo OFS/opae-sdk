@@ -1,4 +1,4 @@
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2019-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -27,7 +27,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pacsign",
-    version="1.0.3",
+    version="1.0.5",
     packages=find_packages(),
     python_requires='>=3.6',
     extra_requires={'pkcs11': ['python-pkcs11']},

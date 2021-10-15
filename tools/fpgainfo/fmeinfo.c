@@ -55,6 +55,8 @@ static void print_fme_info(fpga_token token)
 
 	fpgainfo_board_info(token);
 	fpgainfo_print_common("//****** FME ******//", props);
+	fpga_boot_info(token);
+	fpga_image_info(token);
 
 	res = fpgaDestroyProperties(&props);
 	ON_FPGAINFO_ERR_GOTO(res, out_exit,

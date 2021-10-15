@@ -24,6 +24,8 @@ RUN yum install -y \
         libedit-devel \
         epel-release
 
+RUN yum install -y libudev-devel
+RUN yum install -y libcap-devel
 RUN yum install -y cmake3
 
 RUN python3 -m pip install setuptools --upgrade

@@ -105,13 +105,13 @@ def fpga_defaults_valid(pci_id, value):
 
 
 def set_fpga_default(device, args):
-    security = device.security
-    if not security:
+    secure_update = device.secure_update
+    if not secure_update:
         logging.error('failed to find secure '
                       'attributes for {}'.format(device.pci_node.pci_address))
         raise IOError
 
-    power_on_image = security.find_one('power_on_image')
+    power_on_image = secure_update.find_one('control/power_on_image')
 
     if not args.page and not args.fallback:
         # Print the power_on_image value.
@@ -245,7 +245,7 @@ def main():
         sys.stderr.write('No compatible devices found\n')
         raise SystemExit(os.EX_USAGE)
 
-    if args.bdf is None:
+    if not hasattr(args, 'bdf'):
         if len(compatible) == 1:
             args.bdf = compatible[0].pci_node.pci_address
         elif len(compatible) > 1:
@@ -255,7 +255,7 @@ def main():
             sys.stderr.write('Acceptable commands:\n')
             for dev in compatible:
                 sys.stderr.write('>{} {} {}\n'.format(prog,
-                                                      args.type,
+                                                      args.which,
                                                       dev.pci_node.bdf))
             raise SystemExit(os.EX_USAGE)
 
@@ -264,7 +264,7 @@ def main():
     Path(RSU_LOCK_DIR).mkdir(parents=True, exist_ok=True)
 
     for device in compatible:
-        if device.pci_node.pci_address == bdf:
+        if device.pci_node.pci_address.lower() == bdf.lower():
             exit_code = os.EX_IOERR
             with open(RSU_LOCK_FILE, 'w') as flock:
                 fcntl.flock(flock.fileno(), fcntl.LOCK_EX)
@@ -279,9 +279,9 @@ def main():
                     fcntl.flock(flock.fileno(), fcntl.LOCK_UN)
             raise SystemExit(exit_code)
 
-    logging.error(('PCIe address (%s) is invalid or does not identify a'
-                   'compatible device'), args.bdf)
-
+    logging.error('PCIe address (%s) does not identify a compatible device',
+                  args.bdf)
+    raise SystemExit(os.EX_UNAVAILABLE)
 
 if __name__ == "__main__":
     main()

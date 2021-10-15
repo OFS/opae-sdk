@@ -1,7 +1,7 @@
 # PACSign #
 
 ## SYNOPSIS ##
-`python PACSign.py [-h] {FIM,SR,BBS,BMC,BMC_FW,BMC_FACTORY,AFU,PR,GBS,FACTORY,PXE,THERM_SR,THERM_PR,SDM,SDM_DEVEL} ...`
+`python PACSign.py [-h] {FIM,SR,SR_TEST,BBS,BMC,BMC_FW,BMC_FACTORY,AFU,PR,PR_TEST,GBS,FACTORY,PXE,THERM_SR,THERM_PR} ...`
 
 `python PACSign.py <CMD>  [-h] -t {UPDATE,CANCEL,RK_256,RK_384} -H HSM_MANAGER
                           [-C HSM_CONFIG] [-s SLOT_NUM] [-r ROOT_KEY] [-k CODE_SIGNING_KEY]
@@ -28,7 +28,7 @@ To utilize `PKCS #11`, please ensure that the dummy fields `lib_path`,
 ## BITSTREAM TYPES ##
 The first required argument to `PACSign` is the bitstream type identifier.
 
-`{SR,FIM,BBS,BMC,BMC_FW,BMC_FACTORY,PR,AFU,GBS,FACTORY,PXE,THERM_SR,THERM_PR,SDM,SDM_DEVEL}`
+`{SR,SR_TEST,FIM,BBS,BMC,BMC_FW,BMC_FACTORY,PR,PR_TEST,AFU,GBS,FACTORY,PXE,THERM_SR,THERM_PR}`
 
 Supported image types. `FIM` and `BBS` are aliases for the static region (`SR`). `BMC_FW` is an alias for 
 the board management controller (`BMC`). `AFU` and `GBS` are aliases for the partial reconfiguration (`PR`) region.
@@ -36,6 +36,10 @@ the board management controller (`BMC`). `AFU` and `GBS` are aliases for the par
  `SR (FIM, BBS)`
  
  Static FPGA image
+
+ `SR_TEST`
+
+ Static FPGA test image
  
  `BMC (BMC_FW)`
  
@@ -48,6 +52,10 @@ the board management controller (`BMC`). `AFU` and `GBS` are aliases for the par
  `PR (AFU, GBS)`
  
  Reconfigurable FPGA image
+
+ `PR_TEST`
+
+ Reconfigurable FPGA test image
  
  `FACTORY`
  
@@ -64,14 +72,6 @@ the board management controller (`BMC`). `AFU` and `GBS` are aliases for the par
  `THERM_PR`
  
  Thermal limits for PR images
-
- `SDM`
-
- Secure Device Manager image
-
- `SDM_DEVEL`
-
- Secure Device Manager development image
 
 ## REQUIRED OPTIONS ##
 
@@ -173,8 +173,8 @@ describes the options required based on certification type.
 | PXE | Optional[^2] | Optional[^2] | No | Yes | Yes |
 | THERMAL_SR | Optional[^2] | Optional[^2] | No | Yes | Yes |
 | THERMAL_PR | Optional[^2] | Optional[^2] | No | Yes | Yes |
-| SDM | Optional[^2] | Optional[^2] | No | Yes | Yes |
-| SDM_DEVEL | Optional[^2] | Optional[^2] | No | Yes | Yes |
+| SR_TEST | Optional[^2] | Optional[^2] | No | Yes | Yes |
+| PR_TEST | Optional[^2] | Optional[^2] | No | Yes | Yes |
 
 ### CANCEL ###
 
@@ -188,8 +188,8 @@ describes the options required based on certification type.
 | PXE | Yes | No | Yes | No | Yes |
 | THERMAL_SR | Yes | No | Yes | No | Yes |
 | THERMAL_PR | Yes | No | Yes | No | Yes |
-| SDM | Yes | No | Yes | No | Yes |
-| SDM_DEVEL | Yes | No | Yes | No | Yes |
+| SR_TEST | Yes | No | Yes | No | Yes |
+| PR_TEST | Yes | No | Yes | No | Yes |
 
 
 ### RK_256 / RK_384[^1] ###
@@ -204,13 +204,32 @@ describes the options required based on certification type.
 | PXE | Yes | No | No | No | Yes |
 | THERMAL_SR | Yes | No | No | No | Yes |
 | THERMAL_PR | Yes | No | No | No | Yes |
-| SDM | Yes | No | No | No | Yes |
-| SDM_DEVEL | Yes | No | No | No | Yes |
+| SR_TEST | Yes | No | No | No | Yes |
+| PR_TEST | Yes | No | No | No | Yes |
 
 
 [^2]: For `UPDATE` type, you must specify both keys to produce an authenticated bitstream.
 Omitting one key generates a valid, but unauthenticated bitstream. You can only load the
 unauthenticated bitstream on a PAC with no root entry hash programmed for that bitstream type.
+
+### Key Naming Convention ###
+
+Key pairs are required to follow the naming format described in the table below.
+
+| Material Type | Naming Convention |
+|---|---|
+| SR | * \_fim\_ * \_private/public\_ *.pem |
+| FACTORY | * \_fim2\_ * \_private/public\_ *.pem OR * \_factory\_ * \_private/public\_ *.pem |
+| SR_TEST | * \_sr\_test\_ * \_private/public\_ *.pem |
+| SR_CERT | * \_sr\_cert\_ * \_private/public\_ *.pem |
+| BMC | * \_bmc\_ * \_private/public\_ *.pem |
+| BMC_FACTORY | * \_bmc\_factory\_ * \_private/public\_ *.pem |
+| PR | * \_pr\_ * \_private/public\_ *.pem |
+| PR_TEST | * \_pr\_test\_ * \_private/public\_ *.pem |
+| PXE | * \_pxe\_ * \_private/public\_ *.pem |
+| THERM_SR | * \_therm\_sr\_ * \_private/public\_ *.pem |
+| THERM_PR | * \_therm\_pr\_ * \_private/public\_ *.pem |
+| SDM | * \_sdm\_ * \_private/public\_ *.pem |
 
 ## EXAMPLES ##
 

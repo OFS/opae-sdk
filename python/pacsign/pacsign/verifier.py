@@ -1,4 +1,4 @@
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2019-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -355,7 +355,18 @@ class Block_0:
         print("\tBlock 0 magic =\t\t{0:#0{1}x}".format(self.magic, 10))
         print("\tContent length =\t{0:#0{1}x}".format(self.content_len, 10))
         con = self.content_type
-        print("\tContent type =\t\t{}".format(["SR", "BMC", "PR"][con & 0xFF]))
+        print("\tContent type =\t\t{}".format(["SR",
+                                               "BMC",
+                                               "PR",
+                                               "FACTORY",
+                                               "PXE",
+                                               "THERM_SR",
+                                               "THERM_PR",
+                                               "SDM",
+                                               "SR_TEST",
+                                               "BMC_FACTORY",
+                                               "PR_TEST",
+                                               "SR_CERT"][con & 0xFF]))
         print("\tCert type =\t\t{}".format(
                   ["UPDATE", "CANCEL", "Root Entry Hash (256)",
                    "Root Entry Hash (384)"][self.cert_type]))

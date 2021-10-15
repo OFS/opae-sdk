@@ -28,7 +28,8 @@
 macro(ofs_add_driver yml_file driver)
     add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${driver}.h
-        COMMAND ${PYTHON_EXECUTABLE} ${OPAE_LIBS_ROOT}/scripts/ofs/ofs_parse.py ${CMAKE_CURRENT_LIST_DIR}/${yml_file} headers c ${CMAKE_CURRENT_BINARY_DIR} --driver ${driver}
+        COMMAND ${PYTHON_EXECUTABLE} ${OPAE_LIBS_ROOT}/scripts/ofs/ofs_parse.py
+        ${CMAKE_CURRENT_LIST_DIR}/${yml_file} headers c ${CMAKE_CURRENT_BINARY_DIR} --driver ${driver} --use-local-refs
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS
             ${CMAKE_CURRENT_LIST_DIR}/${yml_file}

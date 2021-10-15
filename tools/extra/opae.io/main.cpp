@@ -40,13 +40,13 @@
 
 namespace py = pybind11;
 
-struct opae_vfio *the_device = nullptr;
+struct vfio_device *the_device = nullptr;
 struct mmio_region *the_region = nullptr;
 
 const char *program = "opae.io";
 const int major = 0;
 const int minor = 2;
-const int patch = 1;
+const int patch = 2;
 
 py::tuple version()
 {
@@ -56,7 +56,7 @@ py::tuple version()
 void open_device(const std::string &pci_address)
 {
   if (the_device) {
-    opae_vfio_close(the_device);
+    the_device->close();
     delete the_device;
     the_device = nullptr;
   }
@@ -65,11 +65,7 @@ void open_device(const std::string &pci_address)
     the_region = nullptr;
   }
   if (!pci_address.empty()) {
-    the_device = new struct opae_vfio();
-    if (opae_vfio_open(the_device, pci_address.c_str())) {
-        delete the_device;
-        the_device = nullptr;
-    }
+    the_device = vfio_device::open(pci_address.c_str());
   }
   auto g = py::globals();
   g["the_device"] = the_device;
@@ -86,16 +82,13 @@ void open_region(uint32_t region_num)
   }
   if (the_device) {
     the_region = new mmio_region();
-    if (opae_vfio_region_get(the_device,
-                             region_num,
-                             &the_region->ptr,
-                             &the_region->size)) {
-        delete the_region;
-        the_region = nullptr;
-    } else {
-        the_region->index = region_num;
+    for (auto & r : the_device->regions()) {
+      if (r.index == region_num) {
+        *the_region = r;
+        g["the_region"] = the_region;
+        return;
+      }
     }
-    g["the_region"] = the_region;
   }
 }
 
@@ -135,18 +128,7 @@ void poke(uint64_t offset, uint64_t value)
 
 system_buffer *allocate_buffer(size_t sz)
 {
-  system_buffer *b = new system_buffer();
-
-  b->size = sz;
-  if (opae_vfio_buffer_allocate(the_device,
-                                &b->size,
-				&b->buf,
-				&b->iova)) {
-    delete b;
-    b = nullptr;
-  }
-
-  return b;
+  return the_device->buffer_allocate(sz);
 }
 
 py::module import_builtins()
@@ -169,7 +151,7 @@ class opae_io_cli {
     {
     }
 
-    void update_device(struct opae_vfio *device, struct mmio_region *region)
+    void update_device(vfio_device *device, struct mmio_region *region)
     {
       device_ = device;
       region_ = region;
@@ -180,7 +162,7 @@ class opae_io_cli {
       builtins.attr("the_region") = the_region;
     }
 
-    struct opae_vfio *get_device()
+    struct vfio_device *get_device()
     {
       return device_;
     }
@@ -209,7 +191,7 @@ class opae_io_cli {
   private:
     bool interactive_;
     int return_code_;
-    struct opae_vfio *device_;
+    struct vfio_device *device_;
     struct mmio_region *region_;
 };
 
@@ -240,7 +222,7 @@ char * prompt(void)
   if (!the_device) {
     ss << "opae.io>> ";
   } else {
-    ss << the_device->cont_pciaddr;
+    ss << the_device->address();
     if (the_region)
       ss << "[" << the_region->index << "]";
     ss << ">> ";

@@ -35,6 +35,15 @@ set(CMAKE_MODULE_PATH
 include(OPAE)
 
 ############################################################################
+## Whether to use external projects ########################################
+############################################################################
+option(OPAE_WITH_CLI11 "Enable use of CLI11" ON)
+mark_as_advanced(OPAE_WITH_CLI11)
+
+option(OPAE_WITH_SPDLOG "Enable use of spdlog" ON)
+mark_as_advanced(OPAE_WITH_SPDLOG)
+
+############################################################################
 ## Whether to build opae-legacy ############################################
 ############################################################################
 option(OPAE_BUILD_LEGACY "Enable building of OPAE legacy tools" OFF)

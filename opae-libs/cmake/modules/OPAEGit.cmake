@@ -1,5 +1,5 @@
 #!/usr/bin/cmake -P
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2017-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -59,7 +59,7 @@ if(EXISTS ${OPAE_GIT_EXECUTABLE})
             set(OPAE_GIT_SRC_TREE_DIRTY 0)
         endif()
     endif()
-else(EXISTS ${OPAE_GIT_EXECUTABLE})
+else()
     set(OPAE_GIT_COMMIT_HASH unknown)
     set(OPAE_GIT_SRC_TREE_DIRTY 0)
-endif(EXISTS ${OPAE_GIT_EXECUTABLE})
+endif()

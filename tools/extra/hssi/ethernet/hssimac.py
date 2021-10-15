@@ -76,7 +76,9 @@ class FPGAHSSIMAC(HSSICOMMON):
         get mtu
         """
         print("----hssi_mtu_start----")
-        self.hssi_info(self._hssi_grps[0][0])
+        if not self.hssi_info(self._hssi_grps[0][0]):
+            print("Failed to read hssi information")
+            sys.exit(1)
         self.get_mac_mtu()
 
 
@@ -88,14 +90,20 @@ def main():
     """
     parser = argparse.ArgumentParser()
 
-    pcieaddress_help = 'bdf of device to program \
-                        (e.g. 04:00.0 or 0000:04:00.0).' \
+    pcieaddress_help = 'sbdf of device to program \
+                        (e.g. 0000:04:00.0).' \
                        ' Optional when one device in system.'
     parser.add_argument('--pcie-address', '-P',
                         default=None, help=pcieaddress_help)
 
     parser.add_argument('--mtu', nargs='?', const='',
                         help='maximum allowable ethernet frame length')
+
+    # exit if no commad line argument
+    args = parser.parse_args()
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
 
     args, left = parser.parse_known_args()
 
@@ -104,7 +112,10 @@ def main():
     print("args.mtu:", args.mtu)
     print(args)
 
-    f = FpgaFinder(args.pcie_address)
+    if not verify_pcie_address(args.pcie_address.lower()):
+        sys.exit(1)
+
+    f = FpgaFinder(args.pcie_address.lower())
     devs = f.enum()
     for d in devs:
         print('sbdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))
@@ -117,10 +128,10 @@ def main():
         print('no FPGA found')
         sys.exit(1)
 
-    args.fpga_root = devs[0].get('path')
-    args.hssi_grps = f.find_hssi_group(args.fpga_root)
+    args.hssi_grps = f.find_hssi_group(devs[0].get('pcie_address'))
     print("args.hssi_grps", args.hssi_grps)
     if len(args.hssi_grps) == 0:
+        print("Failed to find HSSI feature", devs[0].get('pcie_address'))
         sys.exit(1)
 
     print("fpga uid dev:", args.hssi_grps[0][0])

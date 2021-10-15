@@ -45,17 +45,11 @@
 
 
 struct dev_list {
+	fpga_token_header hdr;
+
 	char sysfspath[SYSFS_PATH_MAX];
 	char devpath[DEV_PATH_MAX];
-	fpga_objtype objtype;
-	fpga_guid guid;
-	uint16_t segment;
-	uint8_t bus;
-	uint8_t device;
-	uint8_t function;
 	uint8_t socket_id;
-	uint16_t vendor_id;
-	uint16_t device_id;
 
 	uint32_t fpga_num_slots;
 	uint64_t fpga_bitstream_id;
@@ -74,7 +68,6 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 	struct _fpga_properties *_filter = (struct _fpga_properties *)filter;
 	bool res = true;
 	int err = 0;
-	char buffer[PATH_MAX] = {0};
 
 	if (pthread_mutex_lock(&_filter->lock)) {
 		OPAE_MSG("Failed to lock filter mutex");
@@ -82,66 +75,51 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 	}
 
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_PARENT)) {
-		struct _fpga_token *_parent_tok =
-			(struct _fpga_token *)_filter->parent;
-		char spath[PATH_MAX] = {0};
+		fpga_token_header *parent_hdr =
+			(fpga_token_header *)_filter->parent;
 
-		if (FPGA_ACCELERATOR != attr->objtype) {
-			res = false; // Only accelerator can have a parent
-			goto out_unlock;
-		}
-
-		if (NULL == _parent_tok) {
+		if (!parent_hdr) {
 			res = false; // Reject search based on NULL parent token
 			goto out_unlock;
 		}
 
-		if (sysfs_get_fme_path(attr->sysfspath, spath) != FPGA_OK) {
-			res = false;
-			goto out_unlock;
-		}
-		// sysfs_get_fme_path returns the real path
-		// compare that agains the realpath of the parent_tok
-		if (!realpath(_parent_tok->sysfspath, buffer)) {
-			res = false;
-			goto out_unlock;
-		}
-		if (strcmp(spath, buffer)) {
+		if (!fpga_is_parent_child(parent_hdr,
+					  &attr->hdr)) {
 			res = false;
 			goto out_unlock;
 		}
 	}
 
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJTYPE)) {
-		if (_filter->objtype != attr->objtype) {
+		if (_filter->objtype != attr->hdr.objtype) {
 			res = false;
 			goto out_unlock;
 		}
 	}
 
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_SEGMENT)) {
-		if (_filter->segment != attr->segment) {
+		if (_filter->segment != attr->hdr.segment) {
 			res = false;
 			goto out_unlock;
 		}
 	}
 
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_BUS)) {
-		if (_filter->bus != attr->bus) {
+		if (_filter->bus != attr->hdr.bus) {
 			res = false;
 			goto out_unlock;
 		}
 	}
 
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_DEVICE)) {
-		if (_filter->device != attr->device) {
+		if (_filter->device != attr->hdr.device) {
 			res = false;
 			goto out_unlock;
 		}
 	}
 
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_FUNCTION)) {
-		if (_filter->function != attr->function) {
+		if (_filter->function != attr->hdr.function) {
 			res = false;
 			goto out_unlock;
 		}
@@ -155,31 +133,28 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 	}
 
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_GUID)) {
-		if (0 != memcmp(attr->guid, _filter->guid, sizeof(fpga_guid))) {
+		if (0 != memcmp(attr->hdr.guid, _filter->guid, sizeof(fpga_guid))) {
 			res = false;
 			goto out_unlock;
 		}
 	}
 
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJECTID)) {
-		uint64_t objid;
-		fpga_result result;
-		result = sysfs_objectid_from_path(attr->sysfspath, &objid);
-		if (result != FPGA_OK || _filter->object_id != objid) {
+		if (_filter->object_id != attr->hdr.object_id) {
 			res = false;
 			goto out_unlock;
 		}
 	}
 
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_VENDORID)) {
-		if (_filter->vendor_id != attr->vendor_id) {
+		if (_filter->vendor_id != attr->hdr.vendor_id) {
 			res = false;
 			goto out_unlock;
 		}
 	}
 
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_DEVICEID)) {
-		if (_filter->device_id != attr->device_id) {
+		if (_filter->device_id != attr->hdr.device_id) {
 			res = false;
 			goto out_unlock;
 		}
@@ -203,11 +178,18 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 		}
 	}
 
+	if (FIELD_VALID(_filter, FPGA_PROPERTY_INTERFACE)) {
+		if (_filter->interface != attr->hdr.interface) {
+			res = false;
+			goto out_unlock;
+		}
+	}
+
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJTYPE)
 	    && (FPGA_DEVICE == _filter->objtype)) {
 
 		if (FIELD_VALID(_filter, FPGA_PROPERTY_NUM_SLOTS)) {
-			if ((FPGA_DEVICE != attr->objtype)
+			if ((FPGA_DEVICE != attr->hdr.objtype)
 			    || (attr->fpga_num_slots
 				!= _filter->u.fpga.num_slots)) {
 				res = false;
@@ -216,7 +198,7 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 		}
 
 		if (FIELD_VALID(_filter, FPGA_PROPERTY_BBSID)) {
-			if ((FPGA_DEVICE != attr->objtype)
+			if ((FPGA_DEVICE != attr->hdr.objtype)
 			    || (attr->fpga_bitstream_id
 				!= _filter->u.fpga.bbs_id)) {
 				res = false;
@@ -225,7 +207,7 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 		}
 
 		if (FIELD_VALID(_filter, FPGA_PROPERTY_BBSVERSION)) {
-			if ((FPGA_DEVICE != attr->objtype)
+			if ((FPGA_DEVICE != attr->hdr.objtype)
 			    || (attr->fpga_bbs_version.major
 				!= _filter->u.fpga.bbs_version.major)
 			    || (attr->fpga_bbs_version.minor
@@ -241,7 +223,7 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 		   && (FPGA_ACCELERATOR == _filter->objtype)) {
 
 		if (FIELD_VALID(_filter, FPGA_PROPERTY_ACCELERATOR_STATE)) {
-			if ((FPGA_ACCELERATOR != attr->objtype)
+			if ((FPGA_ACCELERATOR != attr->hdr.objtype)
 			    || (attr->accelerator_state
 				!= _filter->u.accelerator.state)) {
 				res = false;
@@ -250,7 +232,7 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 		}
 
 		if (FIELD_VALID(_filter, FPGA_PROPERTY_NUM_MMIO)) {
-			if ((FPGA_ACCELERATOR != attr->objtype)
+			if ((FPGA_ACCELERATOR != attr->hdr.objtype)
 			    || (attr->accelerator_num_mmios
 				!= _filter->u.accelerator.num_mmio)) {
 				res = false;
@@ -259,7 +241,7 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 		}
 
 		if (FIELD_VALID(_filter, FPGA_PROPERTY_NUM_INTERRUPTS)) {
-			if ((FPGA_ACCELERATOR != attr->objtype)
+			if ((FPGA_ACCELERATOR != attr->hdr.objtype)
 			    || (attr->accelerator_num_irqs
 				!= _filter->u.accelerator.num_interrupts)) {
 				res = false;
@@ -336,14 +318,15 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 		return FPGA_NO_MEMORY;
 	}
 
-	pdev->objtype = FPGA_DEVICE;
-
-	pdev->segment = parent->segment;
-	pdev->bus = parent->bus;
-	pdev->device = parent->device;
-	pdev->function = parent->function;
-	pdev->vendor_id = parent->vendor_id;
-	pdev->device_id = parent->device_id;
+	pdev->hdr.magic = FPGA_TOKEN_MAGIC;
+	pdev->hdr.vendor_id = parent->hdr.vendor_id;
+	pdev->hdr.device_id = parent->hdr.device_id;
+	pdev->hdr.segment = parent->hdr.segment;
+	pdev->hdr.bus = parent->hdr.bus;
+	pdev->hdr.device = parent->hdr.device;
+	pdev->hdr.function = parent->hdr.function;
+	pdev->hdr.interface = FPGA_IFC_DFL;
+	pdev->hdr.objtype = FPGA_DEVICE;
 
 	parent->fme = pdev->fme = pdev;
 
@@ -371,8 +354,14 @@ STATIC fpga_result sync_fme(struct dev_list *fme)
 		return FPGA_NOT_FOUND;
 	}
 
+	if (sysfs_objectid_from_path(fme->sysfspath,
+				     &fme->hdr.object_id) != FPGA_OK) {
+		OPAE_DBG("Could not determine object_id from '%s'", fme->sysfspath);
+		return FPGA_EXCEPTION;
+	}
+
 	// PR interface ID is the FME GUID.
-	if (sysfs_get_fme_pr_interface_id(fme->sysfspath, fme->guid)) {
+	if (sysfs_get_fme_pr_interface_id(fme->sysfspath, fme->hdr.guid)) {
 		OPAE_DBG("failed to read PR interface ID.");
 	}
 
@@ -459,6 +448,12 @@ STATIC fpga_result sync_afu(struct dev_list *afu)
 		afu->accelerator_state = FPGA_ACCELERATOR_UNASSIGNED;
 	}
 
+	if (sysfs_objectid_from_path(afu->sysfspath,
+				     &afu->hdr.object_id) != FPGA_OK) {
+		OPAE_DBG("Could not determine object_id from '%s'", afu->sysfspath);
+		return FPGA_EXCEPTION;
+	}
+
 	// Discover the AFU GUID.
 	if (snprintf(sysfspath, sizeof(sysfspath),
 		     "%s/" FPGA_SYSFS_AFU_GUID, afu->sysfspath) < 0) {
@@ -467,9 +462,13 @@ STATIC fpga_result sync_afu(struct dev_list *afu)
 	}
 
 	// If we can't read the afu_id, don't return a token.
-	if (sysfs_read_guid(sysfspath, afu->guid) != FPGA_OK) {
+	if (sysfs_read_guid(sysfspath, afu->hdr.guid) != FPGA_OK) {
+	// TODO: undo this hack. It was put in place to deal with the lack of
+	// afu_id in dfl-port.X during OFS Rel1.
+#if 0
 		OPAE_MSG("Could not read AFU ID from '%s', ignoring", sysfspath);
 		return FPGA_EXCEPTION;
+#endif
 	}
 
 	return FPGA_OK;
@@ -493,14 +492,15 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 		return FPGA_NO_MEMORY;
 	}
 
-	pdev->objtype = FPGA_ACCELERATOR;
-
-	pdev->segment = parent->segment;
-	pdev->bus = parent->bus;
-	pdev->device = parent->device;
-	pdev->function = parent->function;
-	pdev->vendor_id = parent->vendor_id;
-	pdev->device_id = parent->device_id;
+	pdev->hdr.magic = FPGA_TOKEN_MAGIC;
+	pdev->hdr.vendor_id = parent->hdr.vendor_id;
+	pdev->hdr.device_id = parent->hdr.device_id;
+	pdev->hdr.segment = parent->hdr.segment;
+	pdev->hdr.bus = parent->hdr.bus;
+	pdev->hdr.device = parent->hdr.device;
+	pdev->hdr.function = parent->hdr.function;
+	pdev->hdr.interface = FPGA_IFC_DFL;
+	pdev->hdr.objtype = FPGA_ACCELERATOR;
 
 	pdev->fme = parent->fme;
 
@@ -528,12 +528,13 @@ STATIC fpga_result enum_regions(const sysfs_fpga_device *device, void *context)
 		return FPGA_NO_MEMORY;
 	}
 
-	pdev->function = device->function;
-	pdev->segment = device->segment;
-	pdev->bus = device->bus;
-	pdev->device = device->device;
-	pdev->device_id = device->device_id;
-	pdev->vendor_id = device->vendor_id;
+	pdev->hdr.magic = FPGA_TOKEN_MAGIC;
+	pdev->hdr.vendor_id = device->vendor_id;
+	pdev->hdr.device_id = device->device_id;
+	pdev->hdr.segment = device->segment;
+	pdev->hdr.bus = device->bus;
+	pdev->hdr.device = device->device;
+	pdev->hdr.function = device->function;
 
 	// Enum fme
 	if (device->fme) {
@@ -595,7 +596,7 @@ bool include_afu(const fpga_properties *filters, uint32_t num_filters)
 	return false;
 }
 
-struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
+struct _fpga_token *token_add(struct dev_list *dev)
 {
 	struct _fpga_token *_tok = NULL;
 	uint32_t device_instance;
@@ -608,7 +609,7 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 	//                                    11111111112
 	//                          012345678901234567890
 	//                          /fpga_region/regionDD/
-	endptr = strstr(sysfspath, "/fpga_region/");
+	endptr = strstr(dev->sysfspath, "/fpga_region/");
 
 	if (endptr) {
 		// dfl driver
@@ -616,7 +617,7 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 
 	} else {
 		/* get the device instance id */
-		ptr = strchr(sysfspath, '.');
+		ptr = strchr(dev->sysfspath, '.');
 		if (!ptr) {
 			OPAE_ERR("sysfspath does not meet expected format");
 			return NULL;
@@ -632,7 +633,7 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 	}
 
 	/* get the sub-device (FME/Port) instance id */
-	ptr = strrchr(sysfspath, '.');
+	ptr = strrchr(dev->sysfspath, '.');
 	if (!ptr) {
 		OPAE_ERR("sysfspath does not meet expected format");
 		return NULL;
@@ -653,7 +654,7 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 	}
 
 	if (snprintf(errpath, sizeof(errpath),
-		     "%s/errors", sysfspath) < 0) {
+		     "%s/errors", dev->sysfspath) < 0) {
 		OPAE_ERR("snprintf buffer overflow");
 		free(_tok);
 		return NULL;
@@ -662,20 +663,20 @@ struct _fpga_token *token_add(const char *sysfspath, const char *devpath)
 	_tok->errors = NULL;
 	build_error_list(errpath, &_tok->errors);
 
-	/* mark data structure as valid */
-	_tok->magic = FPGA_TOKEN_MAGIC;
+	/* mark data structure as valid/populate header fields */
+	_tok->hdr = dev->hdr;
 
 	/* assign the instances num from above */
 	_tok->device_instance = device_instance;
 	_tok->subdev_instance = subdev_instance;
 
 	/* deep copy token data */
-	len = strnlen(sysfspath, SYSFS_PATH_MAX - 1);
-	memcpy(_tok->sysfspath, sysfspath, len);
+	len = strnlen(dev->sysfspath, SYSFS_PATH_MAX - 1);
+	memcpy(_tok->sysfspath, dev->sysfspath, len);
 	_tok->sysfspath[len] = '\0';
 
-	len = strnlen(devpath, DEV_PATH_MAX - 1);
-	memcpy(_tok->devpath, devpath, len);
+	len = strnlen(dev->devpath, DEV_PATH_MAX - 1);
+	memcpy(_tok->devpath, dev->devpath, len);
 	_tok->devpath[len] = '\0';
 
 	return _tok;
@@ -732,10 +733,10 @@ fpga_result __XFPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 		if (!lptr->devpath[0])
 			continue;
 
-		if (lptr->objtype == FPGA_DEVICE &&
+		if (lptr->hdr.objtype == FPGA_DEVICE &&
 		    sync_fme(lptr) != FPGA_OK) {
 			continue;
-		} else if (lptr->objtype == FPGA_ACCELERATOR &&
+		} else if (lptr->hdr.objtype == FPGA_ACCELERATOR &&
 			   sync_afu(lptr) != FPGA_OK) {
 			continue;
 		}
@@ -743,7 +744,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 		if (matches_filters(lptr, filters, num_filters)) {
 			if (*num_matches < max_tokens) {
 
-				tokens[*num_matches] = token_add(lptr->sysfspath, lptr->devpath);
+				tokens[*num_matches] = token_add(lptr);
 
 				if (!tokens[*num_matches]) {
 					uint32_t i;
@@ -783,7 +784,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaCloneToken(fpga_token src, fpga_token *dst)
 		return FPGA_INVALID_PARAM;
 	}
 
-	if (_src->magic != FPGA_TOKEN_MAGIC) {
+	if (_src->hdr.magic != FPGA_TOKEN_MAGIC) {
 		OPAE_MSG("Invalid src");
 		return FPGA_INVALID_PARAM;
 	}
@@ -794,7 +795,8 @@ fpga_result __XFPGA_API__ xfpga_fpgaCloneToken(fpga_token src, fpga_token *dst)
 		return FPGA_NO_MEMORY;
 	}
 
-	_dst->magic = FPGA_TOKEN_MAGIC;
+	_dst->hdr = _src->hdr;
+
 	_dst->device_instance = _src->device_instance;
 	_dst->subdev_instance = _src->subdev_instance;
 
@@ -823,7 +825,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaDestroyToken(fpga_token *token)
 
 	_token = (struct _fpga_token *)*token;
 
-	if (_token->magic != FPGA_TOKEN_MAGIC) {
+	if (_token->hdr.magic != FPGA_TOKEN_MAGIC) {
 		OPAE_MSG("Invalid token");
 		return FPGA_INVALID_PARAM;
 	}
@@ -835,8 +837,8 @@ fpga_result __XFPGA_API__ xfpga_fpgaDestroyToken(fpga_token *token)
 		free(trash);
 	}
 
-	// invalidate magic (just in case)
-	_token->magic = FPGA_INVALID_MAGIC;
+	// invalidate token header (just in case)
+	memset(&_token->hdr, 0, sizeof(_token->hdr));
 
 	free(*token);
 	*token = NULL;

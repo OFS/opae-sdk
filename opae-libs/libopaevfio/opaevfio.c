@@ -38,6 +38,7 @@
 #include <errno.h>
 #include <sys/mman.h>
 #include <regex.h>
+#include <linux/pci_regs.h>
 
 #include <opae/vfio.h>
 
@@ -54,9 +55,13 @@
 	p;                                                \
 })
 
+#ifdef LIBOPAE_DEBUG
 #define ERR(format, ...)                               \
 fprintf(stderr, "%s:%u:%s() **ERROR** [%s] : " format, \
 	__SHORT_FILE__, __LINE__, __func__, strerror(errno), ##__VA_ARGS__)
+#else
+#define ERR(format, ...) do { } while (0)
+#endif
 
 STATIC struct opae_vfio_sparse_info *
 opae_vfio_create_sparse_info(uint32_t index, uint32_t offset, uint32_t size)
@@ -210,10 +215,44 @@ out_free_buffer:
 	return sparse_list;
 }
 
+STATIC struct opae_vfio_device_irq *
+opae_vfio_device_get_irq_info(uint32_t flags,
+			      uint32_t index,
+			      uint32_t count)
+{
+	struct opae_vfio_device_irq *irq = malloc(sizeof(*irq));
+	if (irq) {
+		irq->flags = flags;
+		irq->index = index;
+		irq->count = count;
+		irq->event_fds = NULL;
+		irq->masks = NULL;
+		irq->next = NULL;
+	}
+	return irq;
+}
+
+STATIC void
+opae_vfio_destroy_device_irq(struct opae_vfio_device_irq *i)
+{
+	while (i) {
+		struct opae_vfio_device_irq *trash = i;
+		i = i->next;
+		if (trash->event_fds)
+			free(trash->event_fds);
+		if (trash->masks)
+			free(trash->masks);
+		free(trash);
+	}
+}
+
 STATIC void opae_vfio_device_destroy(struct opae_vfio_device *d)
 {
 	opae_vfio_destroy_device_region(d->regions);
 	d->regions = NULL;
+
+	opae_vfio_destroy_device_irq(d->irqs);
+	d->irqs = NULL;
 
 	if (d->device_fd >= 0) {
 		close(d->device_fd);
@@ -221,27 +260,25 @@ STATIC void opae_vfio_device_destroy(struct opae_vfio_device *d)
 	}
 }
 
-#define PCI_COMMAND_OFFSET 0x4
-#define MEM_ENABLE (1 << 1)
-#define BUS_MASTER_ENABLE (1 << 2)
-
 STATIC int setup_pci_command(int fd, size_t cfg_offset)
 {
 	uint16_t cmd = 0;
 	ssize_t sz = sizeof(uint16_t);
-	if (pread(fd, &cmd, sz, cfg_offset + PCI_COMMAND_OFFSET) == sz) {
-		if (!(cmd & MEM_ENABLE) || !(cmd & BUS_MASTER_ENABLE)) {
-			cmd |= (MEM_ENABLE | BUS_MASTER_ENABLE);
+
+	if (pread(fd, &cmd, sz, cfg_offset + PCI_COMMAND) == sz) {
+		if (!(cmd & PCI_COMMAND_MEMORY) ||
+		    !(cmd & PCI_COMMAND_MASTER)) {
+			cmd |= (PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 			if (pwrite(fd, &cmd, sz,
-				   cfg_offset + PCI_COMMAND_OFFSET) != sz)
+				   cfg_offset + PCI_COMMAND) != sz)
 				return 1;
 		}
 	} else {
 		return 2;
 	}
+
 	return 0;
 }
-
 
 STATIC int opae_vfio_device_init(struct opae_vfio_device *d,
 				 int group_fd,
@@ -253,6 +290,8 @@ STATIC int opae_vfio_device_init(struct opae_vfio_device *d,
 	uint32_t i;
 	struct opae_vfio_device_region **rlist = &d->regions;
 	char arg[256];
+	struct vfio_irq_info irq_info;
+	struct opae_vfio_device_irq **ilist = &d->irqs;
 
 	if (token) {
 		if (snprintf(arg, sizeof(arg),
@@ -300,6 +339,7 @@ STATIC int opae_vfio_device_init(struct opae_vfio_device *d,
 	}
 
 	d->device_num_regions = device_info.num_regions;
+	d->device_num_irqs = device_info.num_irqs;
 
 	for (i = 0 ; i < d->device_num_regions ; ++i) {
 		struct opae_vfio_sparse_info *sparse_list = NULL;
@@ -340,6 +380,27 @@ STATIC int opae_vfio_device_init(struct opae_vfio_device *d,
 			}
 		}
 
+	}
+
+	for (i = 0 ; i < d->device_num_irqs ; ++i) {
+		struct opae_vfio_device_irq *irq = NULL;
+
+		memset(&irq_info, 0, sizeof(irq_info));
+		irq_info.argsz = sizeof(irq_info);
+		irq_info.index = i;
+
+		if (ioctl(d->device_fd,
+			  VFIO_DEVICE_GET_IRQ_INFO,
+			  &irq_info))
+			continue;
+
+		irq = opae_vfio_device_get_irq_info(irq_info.flags,
+						    irq_info.index,
+						    irq_info.count);
+		if (irq) {
+			*ilist = irq;
+			ilist = &irq->next;
+		}
 	}
 
 	return 0;
@@ -557,7 +618,8 @@ STATIC int opae_vfio_iova_reserve(struct opae_vfio *v,
 STATIC struct opae_vfio_buffer *
 opae_vfio_create_buffer(uint8_t *vaddr,
 			size_t size,
-			uint64_t iova)
+			uint64_t iova,
+			int flags)
 {
 	struct opae_vfio_buffer *b;
 	b = malloc(sizeof(*b));
@@ -565,6 +627,7 @@ opae_vfio_create_buffer(uint8_t *vaddr,
 		b->buffer_ptr = vaddr;
 		b->buffer_size = size;
 		b->buffer_iova = iova;
+		b->flags = flags;
 		b->next = NULL;
 	}
 	return b;
@@ -589,7 +652,8 @@ opae_vfio_destroy_buffer(struct opae_vfio *v,
 			ERR("ioctl(%d, VFIO_IOMMU_UNMAP_DMA, &dma_unmap)\n",
 			    v->cont_fd);
 
-		if (munmap(trash->buffer_ptr, trash->buffer_size) < 0)
+		if (!(trash->flags & OPAE_VFIO_BUF_PREALLOCATED) &&
+		    munmap(trash->buffer_ptr, trash->buffer_size) < 0)
 			ERR("munmap(%p, %lu) failed\n",
 			    trash->buffer_ptr, trash->buffer_size);
 
@@ -621,17 +685,99 @@ opae_vfio_destroy_buffer(struct opae_vfio *v,
 #define FLAGS_1G (FLAGS_4K|MAP_1G_HUGEPAGE|MAP_HUGETLB)
 #endif
 
-int opae_vfio_buffer_allocate(struct opae_vfio *v,
-			      size_t *size,
-			      uint8_t **buf,
-			      uint64_t *iova)
+STATIC int
+opae_vfio_buffer_mmap(struct opae_vfio *v,
+		      size_t *size,
+		      uint8_t **buf,
+		      uint64_t *iova,
+		      int flags,
+		      struct opae_vfio_buffer **node)
 {
-	int res = 0;
+	uint8_t *vaddr = NULL;
 	uint64_t ioaddr = 0;
-	uint8_t *vaddr;
+	int res;
 	struct vfio_iommu_type1_dma_map dma_map;
 	struct vfio_iommu_type1_dma_unmap dma_unmap;
-	struct opae_vfio_buffer *node;
+
+	if (opae_vfio_iova_reserve(v, size, &ioaddr)) {
+		return 1;
+	}
+
+	if (!(flags & OPAE_VFIO_BUF_PREALLOCATED)) {
+
+		if (*size > (2 * 1024 * 1024))
+			vaddr = mmap(ADDR, *size, PROT_READ|PROT_WRITE,
+				     FLAGS_1G, 0, 0);
+		else if (*size > 4096)
+			vaddr = mmap(ADDR, *size, PROT_READ|PROT_WRITE,
+				     FLAGS_2M, 0, 0);
+		else
+			vaddr = mmap(ADDR, *size, PROT_READ|PROT_WRITE,
+				     FLAGS_4K, 0, 0);
+
+		if (vaddr == MAP_FAILED) {
+			ERR("mmap() failed\n");
+			mem_alloc_put(&v->iova_alloc, ioaddr);
+			return 2;
+		}
+
+	} else if (!buf || !*buf) {
+		ERR("got OPAE_VFIO_BUF_PREALLOCATED, but buf is NULL.\n");
+		mem_alloc_put(&v->iova_alloc, ioaddr);
+		return 3;
+	} else {
+		vaddr = *buf;
+	}
+
+	memset(&dma_map, 0, sizeof(dma_map));
+
+	dma_map.argsz = sizeof(dma_map);
+	dma_map.vaddr = (uint64_t) vaddr;
+	dma_map.size = *size;
+	dma_map.iova = ioaddr;
+	dma_map.flags = VFIO_DMA_MAP_FLAG_READ|VFIO_DMA_MAP_FLAG_WRITE;
+
+	if (ioctl(v->cont_fd, VFIO_IOMMU_MAP_DMA, &dma_map) < 0) {
+		ERR("ioctl(%d, VFIO_IOMMU_MAP_DMA, &dma_map)\n", v->cont_fd);
+		mem_alloc_put(&v->iova_alloc, ioaddr);
+		res = 4;
+		goto out_munmap;
+	}
+
+	*node = opae_vfio_create_buffer(vaddr, *size, ioaddr, flags);
+	if (!*node) {
+		ERR("malloc failed\n");
+		mem_alloc_put(&v->iova_alloc, ioaddr);
+		res = 5;
+		goto out_unmap_ioctl;
+	}
+
+	if (!(flags & OPAE_VFIO_BUF_PREALLOCATED) && buf)
+		*buf = vaddr;
+	if (iova)
+		*iova = ioaddr;
+
+	return 0;
+
+out_unmap_ioctl:
+	memset(&dma_unmap, 0, sizeof(dma_unmap));
+	dma_unmap.argsz = sizeof(dma_unmap);
+	dma_unmap.iova = ioaddr;
+	dma_unmap.size = *size;
+	ioctl(v->cont_fd, VFIO_IOMMU_UNMAP_DMA, &dma_unmap);
+out_munmap:
+	if (!(flags & OPAE_VFIO_BUF_PREALLOCATED))
+		munmap(vaddr, *size);
+	return res;
+}
+
+int opae_vfio_buffer_allocate_ex(struct opae_vfio *v,
+				 size_t *size,
+				 uint8_t **buf,
+				 uint64_t *iova,
+				 int flags)
+{
+	struct opae_vfio_buffer *node = NULL;
 
 	if (!v || !size) {
 		ERR("NULL param\n");
@@ -648,73 +794,36 @@ int opae_vfio_buffer_allocate(struct opae_vfio *v,
 		return 3;
 	}
 
-	if (opae_vfio_iova_reserve(v, size, &ioaddr)) {
-		pthread_mutex_unlock(&v->lock);
+	if (opae_vfio_buffer_mmap(v,
+				  size,
+				  buf,
+				  iova,
+				  flags,
+				  &node)) {
+		if (pthread_mutex_unlock(&v->lock))
+			ERR("pthread_mutex_unlock() failed\n");
 		return 4;
-	}
-
-	if (*size > (2 * 1024 * 1024))
-		vaddr = mmap(ADDR, *size, PROT_READ|PROT_WRITE,
-			     FLAGS_1G, 0, 0);
-	else if (*size > 4096)
-		vaddr = mmap(ADDR, *size, PROT_READ|PROT_WRITE,
-			     FLAGS_2M, 0, 0);
-	else
-		vaddr = mmap(ADDR, *size, PROT_READ|PROT_WRITE,
-			     FLAGS_4K, 0, 0);
-
-	if (vaddr == MAP_FAILED) {
-		ERR("mmap() failed\n");
-		pthread_mutex_unlock(&v->lock);
-		return 5;
-	}
-
-	memset(&dma_map, 0, sizeof(dma_map));
-
-	dma_map.argsz = sizeof(dma_map);
-	dma_map.vaddr = (uint64_t) vaddr;
-	dma_map.size = *size;
-	dma_map.iova = ioaddr;
-	dma_map.flags = VFIO_DMA_MAP_FLAG_READ|VFIO_DMA_MAP_FLAG_WRITE;
-
-	if (ioctl(v->cont_fd, VFIO_IOMMU_MAP_DMA, &dma_map) < 0) {
-		ERR("ioctl(%d, VFIO_IOMMU_MAP_DMA, &dma_map)\n",
-		    v->cont_fd);
-		res = 5;
-		goto out_munmap;
-	}
-
-	node = opae_vfio_create_buffer(vaddr, *size, ioaddr);
-	if (!node) {
-		ERR("malloc failed\n");
-		res = 6;
-		goto out_unmap_ioctl;
 	}
 
 	node->next = v->cont_buffers;
 	v->cont_buffers = node;
 
-	if (buf)
-		*buf = vaddr;
-	if (iova)
-		*iova = ioaddr;
-
 	if (pthread_mutex_unlock(&v->lock))
 		ERR("pthread_mutex_unlock() failed\n");
 
 	return 0;
+}
 
-out_unmap_ioctl:
-	memset(&dma_unmap, 0, sizeof(dma_unmap));
-	dma_unmap.argsz = sizeof(dma_unmap);
-	dma_unmap.iova = ioaddr;
-	dma_unmap.size = *size;
-	ioctl(v->cont_fd, VFIO_IOMMU_UNMAP_DMA, &dma_unmap);
-out_munmap:
-	munmap(vaddr, *size);
-	if (pthread_mutex_unlock(&v->lock))
-		ERR("pthread_mutex_unlock() failed\n");
-	return res;
+int opae_vfio_buffer_allocate(struct opae_vfio *v,
+			      size_t *size,
+			      uint8_t **buf,
+			      uint64_t *iova)
+{
+	return opae_vfio_buffer_allocate_ex(v,
+					    size,
+					    buf,
+					    iova,
+					    0);
 }
 
 int opae_vfio_buffer_free(struct opae_vfio *v,
@@ -750,6 +859,224 @@ int opae_vfio_buffer_free(struct opae_vfio *v,
 	res = 3;
 
 out_unlock:
+	if (pthread_mutex_unlock(&v->lock))
+		ERR("pthread_mutex_unlock() failed\n");
+
+	return res;
+}
+
+STATIC int
+opae_vfio_device_set_irqs(struct opae_vfio *v,
+			  uint32_t index,
+			  uint32_t subindex,
+			  int event_fd,
+			  int flags)
+{
+	struct opae_vfio_device_irq *irq;
+	struct vfio_irq_set *i;
+	size_t sz;
+	char *buf;
+	int res;
+	uint32_t u;
+
+	for (irq = v->device.irqs ; irq ; irq = irq->next) {
+		if ((irq->index != index) ||
+		    !(irq->flags & VFIO_IRQ_INFO_EVENTFD))
+			continue;
+
+		if (subindex >= irq->count) {
+			ERR("subindex %u is out of range 0-%u\n",
+			    subindex, irq->count ? irq->count - 1 : irq->count);
+			return 3;
+		}
+
+		break;
+	}
+
+	if (!irq)
+		return 4;
+
+	if (flags & VFIO_IRQ_SET_DATA_EVENTFD) {
+		if (!irq->event_fds) {
+
+			irq->event_fds =
+				(int32_t *)malloc(irq->count * sizeof(int32_t));
+			if (!irq->event_fds) {
+				ERR("malloc() failed\n");
+				return 5;
+			}
+
+			for (u = 0 ; u < irq->count ; ++u)
+				irq->event_fds[u] = -1;
+		}
+
+		irq->event_fds[subindex] = event_fd;
+	} else if (flags & VFIO_IRQ_SET_DATA_BOOL) {
+		if (!irq->masks) {
+
+			irq->masks =
+				(int32_t *)malloc(irq->count * sizeof(int32_t));
+			if (!irq->masks) {
+				ERR("malloc() failed\n");
+				return 6;
+			}
+
+			for (u = 0 ; u < irq->count ; ++u)
+				irq->masks[u] = 0;
+		}
+
+		irq->masks[subindex] = event_fd;
+	}
+
+	sz = sizeof(*i) + (irq->count * sizeof(int32_t));
+	buf = malloc(sz);
+	if (!buf) {
+		ERR("malloc() failed\n");
+		return 7;
+	}
+
+	i = (struct vfio_irq_set *)buf;
+	i->argsz = sz;
+	i->flags = flags;
+	i->index = irq->index;
+	i->start = 0;
+	i->count = irq->count;
+
+	if (flags & VFIO_IRQ_SET_DATA_EVENTFD)
+		memcpy(&i->data, irq->event_fds, irq->count * sizeof(int32_t));
+	else if (flags & VFIO_IRQ_SET_DATA_BOOL)
+		memcpy(&i->data, irq->masks, irq->count * sizeof(int32_t));
+
+	res = ioctl(v->device.device_fd, VFIO_DEVICE_SET_IRQS, i);
+
+	free(buf);
+
+	return res;
+}
+
+int opae_vfio_irq_enable(struct opae_vfio *v,
+			 uint32_t index,
+			 uint32_t subindex,
+			 int event_fd)
+{
+	int res;
+
+	if (!v) {
+		ERR("NULL param\n");
+		return 1;
+	}
+
+	if (pthread_mutex_lock(&v->lock)) {
+		ERR("pthread_mutex_lock() failed\n");
+		return 2;
+	}
+
+	res = opae_vfio_device_set_irqs(v,
+					index,
+					subindex,
+					event_fd,
+					VFIO_IRQ_SET_DATA_EVENTFD |
+					VFIO_IRQ_SET_ACTION_TRIGGER);
+
+	if (res < 0)
+		ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i) [enable]\n");
+
+	if (pthread_mutex_unlock(&v->lock))
+		ERR("pthread_mutex_unlock() failed\n");
+
+	return res;
+}
+
+int opae_vfio_irq_unmask(struct opae_vfio *v,
+			 uint32_t index,
+			 uint32_t subindex)
+{
+	int res;
+
+	if (!v) {
+		ERR("NULL param\n");
+		return 1;
+	}
+
+	if (pthread_mutex_lock(&v->lock)) {
+		ERR("pthread_mutex_lock() failed\n");
+		return 2;
+	}
+
+	res = opae_vfio_device_set_irqs(v,
+					index,
+					subindex,
+					0,
+					VFIO_IRQ_SET_DATA_BOOL |
+					VFIO_IRQ_SET_ACTION_UNMASK);
+
+	if (res < 0)
+		ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i) [unmask]\n");
+
+	if (pthread_mutex_unlock(&v->lock))
+		ERR("pthread_mutex_unlock() failed\n");
+
+	return res;
+}
+
+int opae_vfio_irq_mask(struct opae_vfio *v,
+		       uint32_t index,
+		       uint32_t subindex)
+{
+	int res;
+
+	if (!v) {
+		ERR("NULL param\n");
+		return 1;
+	}
+
+	if (pthread_mutex_lock(&v->lock)) {
+		ERR("pthread_mutex_lock() failed\n");
+		return 2;
+	}
+
+	res = opae_vfio_device_set_irqs(v,
+					index,
+					subindex,
+					1,
+					VFIO_IRQ_SET_DATA_BOOL |
+					VFIO_IRQ_SET_ACTION_MASK);
+
+	if (res < 0)
+		ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i) [mask]\n");
+
+	if (pthread_mutex_unlock(&v->lock))
+		ERR("pthread_mutex_unlock() failed\n");
+
+	return res;
+}
+
+int opae_vfio_irq_disable(struct opae_vfio *v,
+			  uint32_t index,
+			  uint32_t subindex)
+{
+	int res;
+
+	if (!v) {
+		ERR("NULL param\n");
+		return 1;
+	}
+
+	if (pthread_mutex_lock(&v->lock)) {
+		ERR("pthread_mutex_lock() failed\n");
+		return 2;
+	}
+
+	res = opae_vfio_device_set_irqs(v,
+					index,
+					subindex,
+					-1,
+					VFIO_IRQ_SET_DATA_EVENTFD |
+					VFIO_IRQ_SET_ACTION_TRIGGER);
+
+	if (res < 0)
+		ERR("ioctl(fd, VFIO_DEVICE_SET_IRQS, i) [disable]\n");
+
 	if (pthread_mutex_unlock(&v->lock))
 		ERR("pthread_mutex_unlock() failed\n");
 

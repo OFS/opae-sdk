@@ -474,7 +474,7 @@ STATIC int find_regions(sysfs_fpga_device *device)
 	if (dir)
 		closedir(dir);
 	if (!device->fme && !device->port) {
-		OPAE_ERR("did not find fme/port in device: %s", device->sysfs_path);
+		OPAE_DBG("did not find fme/port in device: %s", device->sysfs_path);
 		return FPGA_NOT_FOUND;
 	}
 
@@ -2144,10 +2144,51 @@ out_free:
 	return res;
 }
 
+#define MAX_SYSOBJECT_FILESIZE 0x40000
+static ssize_t find_eof(int fd)
+{
+	uint64_t pg_size = (uint64_t)sysconf(_SC_PAGE_SIZE);
+	char buffer[pg_size];
+	ssize_t bytes_read = 0, total_read = 0;
+	while (total_read <= MAX_SYSOBJECT_FILESIZE) {
+		bytes_read = read(fd, buffer, pg_size);
+		if (bytes_read < 0) {
+			if (errno == EINTR) {
+				continue;
+			}
+			lseek(fd, 0, SEEK_SET);
+			return bytes_read;
+		} else if (bytes_read == 0) {
+			break;
+		} else {
+			total_read += bytes_read;
+		}
+	}
+	lseek(fd, 0, SEEK_SET);
+	return total_read;
+}
+
+static fpga_result sync_object_size(struct _fpga_object *_obj, int fd)
+{
+	off_t size;
+	uint8_t *buffer;
+	size = find_eof(fd);
+	if (size > 0) {
+		buffer = realloc(_obj->buffer, size);
+		if (!buffer) {
+			return FPGA_NO_MEMORY;
+		}
+		_obj->buffer = buffer;
+		_obj->max_size = size;
+	}
+	return FPGA_OK;
+}
+
 fpga_result sync_object(fpga_object obj)
 {
 	struct _fpga_object *_obj;
 	int fd = -1;
+	fpga_result res = FPGA_OK;
 	ssize_t bytes_read = 0;
 	ASSERT_NOT_NULL(obj);
 	_obj = (struct _fpga_object *)obj;
@@ -2156,6 +2197,15 @@ fpga_result sync_object(fpga_object obj)
 		OPAE_ERR("Error opening %s: %s", _obj->path, strerror(errno));
 		return FPGA_EXCEPTION;
 	}
+
+	if (_obj->max_size == 0) {
+		res = sync_object_size(_obj, fd);
+		if (res != FPGA_OK) {
+			close(fd);
+			return res;
+		}
+	}
+
 	bytes_read = eintr_read(fd, _obj->buffer, _obj->max_size);
 	if (bytes_read < 0) {
 		close(fd);
@@ -2308,7 +2358,6 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 			      fpga_object *object, int flags,
 			      fpga_handle handle)
 {
-	uint64_t pg_size = (uint64_t)sysconf(_SC_PAGE_SIZE);
 	struct _fpga_object *obj = NULL;
 	struct stat objstat;
 	int statres;
@@ -2383,8 +2432,8 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	}
 	obj->handle = handle;
 	obj->type = FPGA_SYSFS_FILE;
-	obj->buffer = calloc(pg_size, sizeof(uint8_t));
-	obj->max_size = pg_size;
+	obj->buffer = calloc(objstat.st_size, sizeof(uint8_t));
+	obj->max_size = objstat.st_size;
 	if (handle && (objstat.st_mode & (S_IWUSR | S_IWGRP | S_IWOTH))) {
 		if ((objstat.st_mode & (S_IRUSR | S_IRGRP | S_IROTH))) {
 			obj->perm = O_RDWR;

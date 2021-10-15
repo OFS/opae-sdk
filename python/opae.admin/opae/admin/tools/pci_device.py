@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 # Copyright(c) 2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -191,7 +191,7 @@ def main():
 
 
     if not args.devices:
-        raise SystemExit(f'{args.device} not found')
+        raise SystemExit(f'{sys.argv[1]} not found')
 
     for dev in args.devices:
         actions[args.action or 'topology'](dev, args, *rest)

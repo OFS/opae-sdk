@@ -597,6 +597,7 @@ class CANCEL_reader(_READER_BASE):
             self.csk_id in self.database.SUPPORTED_CANCELS,
             "cancel_id ID of 0x%08X is not supported" % (self.csk_id),
         )
+        self.quartus_cert = args.quartus_cert
         log.debug("Root key is {}".format(args.root_key))
         self.pub_root_key_c = self.hsm_manager.get_public_key(args.root_key)
         common_util.assert_in_error(self.pub_root_key_c is not None,
@@ -625,6 +626,11 @@ class CANCEL_reader(_READER_BASE):
         # Put the key ID into the payload and pad
         payload = common_util.BYTE_ARRAY()
         payload.append_dword(self.csk_id)
+
+        if self.quartus_cert:
+            with open(self.quartus_cert, 'rb') as fp:
+                payload.append_data(fp.read())
+
         # Append the data to be multiple of 128 Bytes aligned
         while payload.size() % 128:
             payload.append_byte(0)
@@ -746,7 +752,9 @@ class UPDATE_reader(_READER_BASE):
             log.debug(json.dumps(j_data, sort_keys=True, indent=4))
 
         log.debug(self.bitstream_type)
-        should_swizzle = self.bitstream_type == database.CONTENT_SR
+        should_swizzle = self.bitstream_type in [database.CONTENT_SR,
+                                                 database.CONTENT_FACTORY,
+                                                 database.CONTENT_SR_TEST]
         log.debug("should_swizzle={}".format(should_swizzle))
 
         if should_swizzle and not prev_sig:

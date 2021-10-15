@@ -1102,3 +1102,45 @@ fpga_result __OPAE_API__ fpgaPropertiesSetNumErrors(const fpga_properties prop,
 
 	return res;
 }
+
+fpga_result __OPAE_API__ fpgaPropertiesGetInterface(const fpga_properties prop,
+						    fpga_interface *interface)
+{
+	fpga_result res = FPGA_OK;
+	int err;
+	struct _fpga_properties *p;
+
+	ASSERT_NOT_NULL(interface);
+
+	p = opae_validate_and_lock_properties(prop);
+
+	ASSERT_NOT_NULL(p);
+
+	if (FIELD_VALID(p, FPGA_PROPERTY_INTERFACE)) {
+		*interface = p->interface;
+	} else {
+		OPAE_DBG("No plugin interface");
+		res = FPGA_NOT_FOUND;
+	}
+
+	opae_mutex_unlock(err, &p->lock);
+
+	return res;
+}
+
+fpga_result __OPAE_API__ fpgaPropertiesSetInterface(const fpga_properties prop,
+						    fpga_interface interface)
+{
+	fpga_result res = FPGA_OK;
+	int err;
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
+
+	ASSERT_NOT_NULL(p);
+
+	SET_FIELD_VALID(p, FPGA_PROPERTY_INTERFACE);
+	p->interface = interface;
+
+	opae_mutex_unlock(err, &p->lock);
+
+	return res;
+}

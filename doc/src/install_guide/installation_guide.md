@@ -29,7 +29,7 @@ Download the Fedora 32 (x86_64 version) installation file in [fedora](https://ge
 For building the OPAE kernel and kernel driver, the kernel development environment is required. So before you build the kernel, you must install the required packages. Run the following commands:
 
 ```console
-$ sudo yum install gcc gcc-c++ make kernel-headers kernel-devel elfutils-libelf-devel ncurses-devel openssl-devel bison flex
+$ sudo dnf install gcc gcc-c++ make kernel-headers kernel-devel elfutils-libelf-devel ncurses-devel openssl-devel bison flex
 ```
 
 Download the OPAE upstream kernel tree from github.
@@ -85,10 +85,36 @@ fpga_mgr               16384  4 dfl_fme_region,fpga_region,dfl_fme_mgr,dfl_fme
 ```
 
 ## Build the OPAE-SDK ##
-Before you build the kernel, you must install the required packages. Run the following commands:
+Before you build the OPAE SDK, you must install the required packages. Run the following commands:
+
+### CentOS 8 ###
 
 ```console
-$ sudo yum install cmake libuuid-devel json-c-devel hwloc-devel tbb-devel rpm-build libedit-devel kernel-devel python3-devel python3-pip python3-virtualenv
+# dnf install -y 'dnf-command(config-manager)'
+# dnf config-manager --set-enabled powertools
+# dnf install -y epel-release
+# dnf check-update
+# dnf upgrade -y
+# dnf install -y python3 python3-pip python3-devel python3-virtualenv git gcc gcc-c++ make cmake libuuid-devel json-c-devel hwloc-devel tbb-devel libedit-devel rpm-build rpmdevtools pybind11-devel yaml-cpp-devel libudev-devel libcap-devel
+# python3 -m pip install jsonschema virtualenv pyyaml
+```
+
+### Fedora 33 ###
+
+```console
+# dnf check-update
+# dnf upgrade -y
+# dnf install -y python3 python3-pip python3-devel python3-virtualenv git gcc g++ make cmake libuuid-devel json-c-devel hwloc-devel tbb-devel libedit-devel rpm-build rpmdevtools pybind11-devel yaml-cpp-devel libudev-devel libcap-devel
+# pip3 install jsonschema virtualenv pyyaml
+```
+
+### Ubuntu 20.04 ###
+
+```console
+# apt-get update
+# apt-get upgrade -y
+# apt-get install -y python3 python3-pip python3-dev git gcc g++ make cmake uuid-dev libjson-c-dev libhwloc-dev libtbb-dev libedit-dev libudev-dev libcap-dev
+# pip3 install jsonschema virtualenv pyyaml
 ```
 
 Download the OPAE-SDK source code from github.
@@ -100,9 +126,10 @@ Compile and build the OPAE-SDK.
 ```console
 $ cd opae-sdk
 $ mkdir build
-$ cmake  ..  -DCPACK_GENERATOR=RPM -DOPAE_BUILD_LEGACY=ON -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=ON
-$ make -j
-$ make -j package_rpm
+$ cd build
+$ cmake .. -DCPACK_GENERATOR=RPM -DOPAE_BUILD_LEGACY=ON -DOPAE_PYTHON_VERSION=3.6 -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=ON -DCMAKE_INSTALL_PREFIX=/usr
+$ make
+$ make package_rpm
 ```
 After compile successful, there are 8 rpm packages generated.
 ```console
@@ -119,15 +146,9 @@ opae-tools-extra-2.0.0-1.x86_64.rpm
 The rpm packages generated in the previous step can be installed using these commands:
 
 ```console
-$ sudo yum install opae-libs-<release>.x86_64.rpm
-$ sudo yum install opae-tools-<release>.x86_64.rpm
-$ sudo yum install opae-tools-extra-<release>.x86_64.rpm
-$ sudo yum install opae-devel-<release>.x86_64.rpm
-$ sudo yum install opae-<release>.x86_64.rpm
-$ sudo yum install opae-opae.admin-<release>.x86_64.rpm
-$ sudo yum install opae-PACSign-<release>.x86_64.rpm
-$ sudo yum install opae-tests-<release>.x86_64.rpm
+$ sudo dnf install ./*.rpm
 ```
+
 When you installed the rpms, you can use fpgainfo command to check the FPGA FME infomation.
 ```console
 [figo@localhost install_guide]$ fpgainfo fme
@@ -147,14 +168,8 @@ Boot Page                        : user
 
 To uninstall the OPAE rpms, you can use this commands
 ```console
-$ sudo yum remove opae-libs
-$ sudo yum remove opae-tools
-$ sudo yum remove opae-tools-extra
-$ sudo yum remove opae-devel
-$ sudo yum remove opae
-$ sudo yum remove opae-opae.admin
-$ sudo yum remove opae-PACSign
-$ sudo yum remove opae-tests
+$ dnf list installed | grep opae
+$ sudo dnf remove '*opae*'
 ```
 
 ## FPGA Device Access Permissions ##

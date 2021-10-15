@@ -40,7 +40,7 @@ if(OPAE_BUILD_SIM)
                               PRESERVE_REPOS ${OPAE_PRESERVE_REPOS})
 endif(OPAE_BUILD_SIM)
 
-if(OPAE_BUILD_LIBOPAE_PY)
+if(OPAE_WITH_PYBIND11)
     if(${CMAKE_VERSION} VERSION_LESS "3.4.0" AND ${PYTHONLIBS_VERSION_STRING} VERSION_LESS "3.9.0")
         set(PYBIND11_TAG "v2.4.3")
     else()
@@ -53,4 +53,4 @@ if(OPAE_BUILD_LIBOPAE_PY)
                               GIT_TAG "${PYBIND11_TAG}"
     )
 
-endif(OPAE_BUILD_LIBOPAE_PY)
+endif(OPAE_WITH_PYBIND11)
