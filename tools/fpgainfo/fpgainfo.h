@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@ void fpgainfo_print_err(const char *s, fpga_result res);
 void replace_chars(char *str, char match, char rep);
 
 // Turn all "pcie" into "PCIe"
-void upcase_pci(char *str, size_t len);
+void upcase_pci(char *str);
 
 // Upper-case the first letter of each word in str
 void upcase_first(char *str);
