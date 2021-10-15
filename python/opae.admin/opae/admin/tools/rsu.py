@@ -221,7 +221,7 @@ def parse_args():
                                              'as comma-separated list')
     fpgadefault.set_defaults(func=set_fpga_default)
 
-    return parser.parse_args()
+    return parser.parse_args(), parser
 
 
 def normalize_bdf(bdf):
@@ -236,7 +236,7 @@ def normalize_bdf(bdf):
 
 
 def main():
-    args = parse_args()
+    args, parser = parse_args()
     level = logging.DEBUG if args.debug else logging.INFO
     logging.basicConfig(level=level,
                         format='%(asctime)s - %(message)s')
@@ -252,11 +252,14 @@ def main():
             prog = os.path.basename(sys.argv[0])
             sys.stderr.write(('Please specify PCIe address as '
                               '[<segment>:]<bus>:<device>.<function>\n'))
-            sys.stderr.write('Acceptable commands:\n')
-            for dev in compatible:
-                sys.stderr.write('>{} {} {}\n'.format(prog,
-                                                      args.which,
-                                                      dev.pci_node.bdf))
+            if args.which:
+                sys.stderr.write('Acceptable commands:\n')
+                for dev in compatible:
+                    sys.stderr.write('>{} {} {}\n'.format(prog,
+                                                          args.which,
+                                                          dev.pci_node.bdf))
+            else:
+                parser.print_help(sys.stderr)
             raise SystemExit(os.EX_USAGE)
 
     args.bdf = normalize_bdf(args.bdf)
