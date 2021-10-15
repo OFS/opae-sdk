@@ -245,7 +245,7 @@ def main():
         sys.stderr.write('No compatible devices found\n')
         raise SystemExit(os.EX_USAGE)
 
-    if not hasattr(args, 'bdf'):
+    if not hasattr(args, 'bdf') or not args.bdf:
         if len(compatible) == 1:
             args.bdf = compatible[0].pci_node.pci_address
         elif len(compatible) > 1:
@@ -259,12 +259,12 @@ def main():
                                                       dev.pci_node.bdf))
             raise SystemExit(os.EX_USAGE)
 
-    bdf = normalize_bdf(args.bdf)
+    args.bdf = normalize_bdf(args.bdf)
 
     Path(RSU_LOCK_DIR).mkdir(parents=True, exist_ok=True)
 
     for device in compatible:
-        if device.pci_node.pci_address.lower() == bdf.lower():
+        if device.pci_node.pci_address.lower() == args.bdf.lower():
             exit_code = os.EX_IOERR
             with open(RSU_LOCK_FILE, 'w') as flock:
                 fcntl.flock(flock.fileno(), fcntl.LOCK_EX)
