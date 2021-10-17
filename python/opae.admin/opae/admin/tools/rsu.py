@@ -221,7 +221,7 @@ def parse_args():
                                              'as comma-separated list')
     fpgadefault.set_defaults(func=set_fpga_default)
 
-    return parser.parse_args()
+    return parser.parse_args(), parser
 
 
 def normalize_bdf(bdf):
@@ -236,7 +236,7 @@ def normalize_bdf(bdf):
 
 
 def main():
-    args = parse_args()
+    args, parser = parse_args()
     level = logging.DEBUG if args.debug else logging.INFO
     logging.basicConfig(level=level,
                         format='%(asctime)s - %(message)s')
@@ -245,26 +245,29 @@ def main():
         sys.stderr.write('No compatible devices found\n')
         raise SystemExit(os.EX_USAGE)
 
-    if not hasattr(args, 'bdf'):
+    if not hasattr(args, 'bdf') or not args.bdf:
         if len(compatible) == 1:
             args.bdf = compatible[0].pci_node.pci_address
         elif len(compatible) > 1:
             prog = os.path.basename(sys.argv[0])
             sys.stderr.write(('Please specify PCIe address as '
                               '[<segment>:]<bus>:<device>.<function>\n'))
-            sys.stderr.write('Acceptable commands:\n')
-            for dev in compatible:
-                sys.stderr.write('>{} {} {}\n'.format(prog,
-                                                      args.which,
-                                                      dev.pci_node.bdf))
+            if args.which:
+                sys.stderr.write('Acceptable commands:\n')
+                for dev in compatible:
+                    sys.stderr.write('>{} {} {}\n'.format(prog,
+                                                          args.which,
+                                                          dev.pci_node.bdf))
+            else:
+                parser.print_help(sys.stderr)
             raise SystemExit(os.EX_USAGE)
 
-    bdf = normalize_bdf(args.bdf)
+    args.bdf = normalize_bdf(args.bdf)
 
     Path(RSU_LOCK_DIR).mkdir(parents=True, exist_ok=True)
 
     for device in compatible:
-        if device.pci_node.pci_address == bdf:
+        if device.pci_node.pci_address.lower() == args.bdf.lower():
             exit_code = os.EX_IOERR
             with open(RSU_LOCK_FILE, 'w') as flock:
                 fcntl.flock(flock.fileno(), fcntl.LOCK_EX)
@@ -281,7 +284,7 @@ def main():
 
     logging.error('PCIe address (%s) does not identify a compatible device',
                   args.bdf)
-    raise SystemExit(os.EX_NOTFOUND)
+    raise SystemExit(os.EX_UNAVAILABLE)
 
 if __name__ == "__main__":
     main()

@@ -519,15 +519,26 @@ class fpga_base(sysfs_device):
             self.log.exception('unrecognized kwargs: %s', kwargs)
             raise ValueError('unrecognized kwargs: {}'.format(kwargs))
 
+        available_images = None
+        image_load = None
+
+        upload_dev = self.upload_dev
+        if upload_dev:
+            available_images = upload_dev.find_one('update/available_images')
+            image_load = upload_dev.find_one('update/image_load')
+
         fpga_sec = self.secure_update
-        if not fpga_sec:
+        if fpga_sec and not available_images:
+            available_images = fpga_sec.find_one('control/available_images')
+            image_load = fpga_sec.find_one('control/image_load')
+
+        if not available_images or not image_load:
             msg = 'rsu not supported by this (0x{:04x},0x{:04x})'.format(
                 self.pci_node.pci_id[0], self.pci_node.pci_id[1])
             self.log.exception(msg)
             raise TypeError(msg)
 
-        available_images = fpga_sec.find_one('control/available_images').value
-        image_load = fpga_sec.find_one('control/image_load')
+        available_images = available_images.value
 
         if available_image in available_images:
             image_load.value = available_image
