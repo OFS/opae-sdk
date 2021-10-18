@@ -221,12 +221,12 @@ class fme(region):
     @property
     def pmci_bus(self):
         if os.path.basename(self.sysfs_path).startswith('dfl'):
-            patterns = ['dfl*.*/*-secure.*.auto']
+            patterns = ['dfl*.*/*-sec*.*.auto']
             for pattern in patterns:
                 pmci = self.find_one(pattern)
                 if pmci:
                     return pmci
-        return self.find_one('*-secure.*.auto')
+        return self.find_one('*-sec*.*.auto')
 
     @property
     def altr_asmip(self):
@@ -461,10 +461,12 @@ class fpga_base(sysfs_device):
                     return upload_dev(fpga_sec.sysfs_path, self.pci_node)
         else:
             pmci = f.pmci_bus
-            fpga_sec = pmci.find_one(
-                    '*fpga_sec_mgr*/*fpga_sec*')
-            if fpga_sec:
-                return upload_dev(fpga_sec.sysfs_path, self.pci_node)
+            patterns = ['*fpga_sec_mgr*/*fpga_sec*',
+                        'fpga_image_load/fpga_image*']
+            for pattern in patterns:
+                fpga_sec = pmci.find_one(pattern)
+                if fpga_sec:
+                    return upload_dev(fpga_sec.sysfs_path, self.pci_node)
 
     @property
     def secure_update(self):
