@@ -250,6 +250,7 @@ done
 %{_bindir}/opaevfio
 %{_bindir}/opaevfiotest
 %{_bindir}/regmap-debugfs
+%{_bindir}/fpgareg
 %{_bindir}/afu_platform_config
 %{_bindir}/afu_platform_info
 %{_bindir}/afu_synth_setup
