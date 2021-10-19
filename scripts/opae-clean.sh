@@ -49,7 +49,7 @@ hssistats \
 mactest \
 mmlink \
 n5010-ctl \
-n5010-ddr-test \
+n5010-test \
 nlb0 \
 nlb3 \
 nlb7 \
