@@ -70,11 +70,7 @@ OPAE headers, tools, sample source, and documentation
 %cmake -DCMAKE_INSTALL_PREFIX=/usr \
        -DOPAE_PRESERVE_REPOS=ON \
        -DOPAE_BUILD_LEGACY=ON \
-       -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=OFF \
-       -DOPAE_BUILD_EXTRA_TOOLS_OPAEIO=OFF \
-       -DOPAE_WITH_CLI11=OFF \
-       -DOPAE_WITH_SPDLOG=OFF \
-       -DOPAE_WITH_PYBIND11=OFF .
+       -DOPAE_MINIMAL_BUILD=ON .
 %if 0%{?rhel}
   %make_build
 %else

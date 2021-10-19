@@ -43,6 +43,26 @@ mark_as_advanced(OPAE_WITH_CLI11)
 option(OPAE_WITH_SPDLOG "Enable use of spdlog" ON)
 mark_as_advanced(OPAE_WITH_SPDLOG)
 
+option(OPAE_WITH_LIBEDIT "Enable use of libedit" ON)
+mark_as_advanced(OPAE_WITH_LIBEDIT)
+
+option(OPAE_WITH_HWLOC "Enable use of hwloc" ON)
+mark_as_advanced(OPAE_WITH_HWLOC)
+
+option(OPAE_WITH_TBB "Enable use of tbb" ON)
+mark_as_advanced(OPAE_WITH_TBB)
+
+option(OPAE_MINIMAL_BUILD "Enable minimal build" OFF)
+mark_as_advanced(OPAE_MINIMAL_BUILD)
+
+if (OPAE_MINIMAL_BUILD)
+    set(OPAE_WITH_CLI11 OFF CACHE BOOL "Enable use of CLI11" FORCE)
+    set(OPAE_WITH_SPDLOG OFF CACHE BOOL "Enable use of spdlog" FORCE)
+    set(OPAE_WITH_LIBEDIT OFF CACHE BOOL "Enable use of libedit" FORCE)
+    set(OPAE_WITH_HWLOC OFF CACHE BOOL "Enable use of hwloc" FORCE)
+    set(OPAE_WITH_TBB OFF CACHE BOOL "Enable use of tbb" FORCE)
+endif(OPAE_MINIMAL_BUILD)
+
 ############################################################################
 ## Whether to build opae-legacy ############################################
 ############################################################################
