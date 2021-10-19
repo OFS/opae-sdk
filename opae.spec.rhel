@@ -106,16 +106,29 @@ do
 done
 
 mkdir -p %{buildroot}%{_usr}/src/opae/samples
-mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_fpga/
-mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_events/
-mkdir -p %{buildroot}%{_usr}/src/opae/samples/object_api/
-mkdir -p %{buildroot}%{_usr}/src/opae/samples/n5010-test/
+mkdir -p %{buildroot}%{_usr}/src/opae/samples/afu-test
+mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_fpga
+mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_events
+mkdir -p %{buildroot}%{_usr}/src/opae/samples/object_api
+mkdir -p %{buildroot}%{_usr}/src/opae/samples/n5010-test
+mkdir -p %{buildroot}%{_usr}/src/opae/samples/dummy_afu
+mkdir -p %{buildroot}%{_usr}/src/opae/samples/host_exerciser
+mkdir -p %{buildroot}%{_usr}/src/opae/samples/hssi
+mkdir -p %{buildroot}%{_usr}/src/opae/samples/opae.io/opae/io
+mkdir -p %{buildroot}%{_usr}/src/opae/samples/opae.io/scripts
 
-
+cp afu-test/*.{cpp,h} %{buildroot}%{_usr}/src/opae/samples/afu-test/
 cp samples/hello_fpga/hello_fpga.c %{buildroot}%{_usr}/src/opae/samples/hello_fpga/
 cp samples/hello_events/hello_events.c %{buildroot}%{_usr}/src/opae/samples/hello_events/
 cp samples/object_api/object_api.c %{buildroot}%{_usr}/src/opae/samples/object_api/
 cp samples/n5010-test/n5010-test.c %{buildroot}%{_usr}/src/opae/samples/n5010-test/
+cp samples/dummy_afu/*.{cpp,h} %{buildroot}%{_usr}/src/opae/samples/dummy_afu/
+cp samples/host_exerciser/*.{cpp,h} %{buildroot}%{_usr}/src/opae/samples/host_exerciser/
+cp samples/hssi/*.{cpp,h} %{buildroot}%{_usr}/src/opae/samples/hssi/
+cp tools/extra/opae.io/*.{cpp,h,py} %{buildroot}%{_usr}/src/opae/samples/opae.io/
+cp tools/extra/opae.io/opae/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae
+cp tools/extra/opae.io/opae/io/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae/io
+cp tools/extra/opae.io/scripts/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/scripts
 
 %if 0%{?rhel}
   %make_install
@@ -207,11 +220,41 @@ done
 %{_includedir}/opae/cxx/core.h
 %{_includedir}/opae/cxx/core/*.h
 %dir %{_usr}/src/opae
+%{_usr}/src/opae/samples/afu-test/afu_test.cpp
+%{_usr}/src/opae/samples/afu-test/afu_test.h
 %{_usr}/src/opae/samples/hello_fpga/hello_fpga.c
 %{_usr}/src/opae/samples/hello_events/hello_events.c
 %{_usr}/src/opae/samples/object_api/object_api.c
 %{_usr}/src/opae/samples/n5010-test/n5010-test.c
 %{_usr}/src/opae/samples/n5010-ctl/n5010-ctl.c
+%{_usr}/src/opae/samples/dummy_afu/ddr.h
+%{_usr}/src/opae/samples/dummy_afu/dummy_afu.cpp
+%{_usr}/src/opae/samples/dummy_afu/dummy_afu.h
+%{_usr}/src/opae/samples/dummy_afu/lpbk.h
+%{_usr}/src/opae/samples/dummy_afu/mmio.h
+%{_usr}/src/opae/samples/host_exerciser/host_exerciser.cpp
+%{_usr}/src/opae/samples/host_exerciser/host_exerciser.h
+%{_usr}/src/opae/samples/host_exerciser/host_exerciser_cmd.h
+%{_usr}/src/opae/samples/host_exerciser/host_exerciser_lpbk.h
+%{_usr}/src/opae/samples/host_exerciser/host_exerciser_mem.h
+%{_usr}/src/opae/samples/hssi/hssi.cpp
+%{_usr}/src/opae/samples/hssi/hssi_100g_cmd.h
+%{_usr}/src/opae/samples/hssi/hssi_10g_cmd.h
+%{_usr}/src/opae/samples/hssi/hssi_afu.h
+%{_usr}/src/opae/samples/hssi/hssi_cmd.h
+%{_usr}/src/opae/samples/opae.io/main.cpp
+%{_usr}/src/opae/samples/opae.io/main.h
+%{_usr}/src/opae/samples/opae.io/pymain.h
+%{_usr}/src/opae/samples/opae.io/setup.py
+%{_usr}/src/opae/samples/opae.io/vfiobindings.cpp
+%{_usr}/src/opae/samples/opae.io/opae/__init__.py
+%{_usr}/src/opae/samples/opae.io/opae/io/__init__.py
+%{_usr}/src/opae/samples/opae.io/opae/io/utils.py
+%{_usr}/src/opae/samples/opae.io/scripts/args.py
+%{_usr}/src/opae/samples/opae.io/scripts/nlb0.py
+%{_usr}/src/opae/samples/opae.io/scripts/nlb_walk.py
+%{_usr}/src/opae/samples/opae.io/scripts/port.py
+%{_usr}/src/opae/samples/opae.io/scripts/walk.py
 %{_usr}/src/opae/cmake/*
 %{_usr}/src/opae/opae-libs/cmake/modules/*
 %{_usr}/src/opae/argsfilter/argsfilter.c
