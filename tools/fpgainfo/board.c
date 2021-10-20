@@ -69,8 +69,8 @@ static platform_data platform_data_table[] = {
 	{ 0x8086, 0xaf00, 0xe,  "libboard_d5005.so", NULL },
 	{ 0x8086, 0xbcce, 0xe,  "libboard_d5005.so", NULL },
 	// Max10 PMCI feature id 0x12
-	{ 0x8086, 0xaf00, 0x12, "libboard_n6010.so", NULL },
-	{ 0x8086, 0xbcce, 0x12, "libboard_n6010.so", NULL },
+	{ 0x8086, 0xaf00, 0x12, "libboard_n6000.so", NULL },
+	{ 0x8086, 0xbcce, 0x12, "libboard_n6000.so", NULL },
 
 
 	{ 0,      0, -1,         NULL, NULL },
@@ -707,6 +707,32 @@ fpga_result fpga_image_info(fpga_token token)
 	fpga_image_info = dlsym(dl_handle, "fpga_image_info");
 	if (fpga_image_info) {
 		res = fpga_image_info(token);
+	}
+
+out:
+	return res;
+}
+
+fpga_result fpga_event_log(fpga_token token, uint32_t first, uint32_t last,
+		bool print_list, bool print_sensors, bool print_bits)
+{
+	fpga_result res = FPGA_OK;
+	void *dl_handle = NULL;
+
+	fpga_result (*fpga_event_log)(fpga_token token, uint32_t first, uint32_t last,
+			bool print_list, bool print_sensors, bool print_bits);
+
+	res = load_board_plugin(token, &dl_handle);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to load board plugin: %s\n", dlerror() ? : "unknown");
+		goto out;
+	}
+
+	fpga_event_log = dlsym(dl_handle, "fpga_event_log");
+	if (fpga_event_log) {
+		res = fpga_event_log(token, first, last, print_list, print_sensors, print_bits);
+	} else {
+		OPAE_MSG("Event is not supported by this board");
 	}
 
 out:

@@ -48,13 +48,13 @@ extern "C" {
 #include "gtest/gtest.h"
 #include "mock/test_system.h"
 #include "libboard/board_common/board_common.h"
-#include "libboard/board_n6010/board_n6010.h"
+#include "libboard/board_n6000/board_n6000.h"
 
 using namespace opae::testing;
 
-class board_n6010_c_p : public ::testing::TestWithParam<std::string> {
+class board_n6000_c_p : public ::testing::TestWithParam<std::string> {
 protected:
-	board_n6010_c_p() : tokens_{ {nullptr, nullptr} } {}
+	board_n6000_c_p() : tokens_{ {nullptr, nullptr} } {}
 
 	fpga_result write_sysfs_file(const char *file,
 		void *buf, size_t count);
@@ -104,7 +104,7 @@ protected:
 	test_system *system_;
 };
 
-ssize_t board_n6010_c_p::eintr_write(int fd, void *buf, size_t count)
+ssize_t board_n6000_c_p::eintr_write(int fd, void *buf, size_t count)
 {
 	ssize_t bytes_written = 0, total_written = 0;
 	char *ptr = (char*)buf;
@@ -127,7 +127,7 @@ ssize_t board_n6010_c_p::eintr_write(int fd, void *buf, size_t count)
 	return total_written;
 
 }
-fpga_result board_n6010_c_p::write_sysfs_file(const char *file,
+fpga_result board_n6000_c_p::write_sysfs_file(const char *file,
 	void *buf, size_t count) {
 	fpga_result res = FPGA_OK;
 	char sysfspath[SYSFS_PATH_MAX];
@@ -160,7 +160,7 @@ fpga_result board_n6010_c_p::write_sysfs_file(const char *file,
 	return res;
 }
 
-fpga_result board_n6010_c_p::delete_sysfs_file(const char *file) {
+fpga_result board_n6000_c_p::delete_sysfs_file(const char *file) {
 	fpga_result res = FPGA_OK;
 	char sysfspath[SYSFS_PATH_MAX];
 	int status = 0;
@@ -187,13 +187,13 @@ fpga_result board_n6010_c_p::delete_sysfs_file(const char *file) {
 }
 
 // test DFL sysfs attributes
-class board_dfl_n6010_c_p : public board_n6010_c_p { };
+class board_dfl_n6000_c_p : public board_n6000_c_p { };
 /**
-* @test       board_n6010_1
+* @test       board_n6000_1
 * @brief      Tests: read_bmcfw_version
 * @details    Validates bmc firmware version  <br>
 */
-TEST_P(board_dfl_n6010_c_p, board_n6010_1) {
+TEST_P(board_dfl_n6000_c_p, board_n6000_1) {
 
 	char bmcfw_ver[SYSFS_PATH_MAX];
 
@@ -205,11 +205,11 @@ TEST_P(board_dfl_n6010_c_p, board_n6010_1) {
 }
 
 /**
-* @test       board_n6010_2
+* @test       board_n6000_2
 * @brief      Tests: read_max10fw_version
 * @details    Validates max10 firmware version  <br>
 */
-TEST_P(board_dfl_n6010_c_p, board_n6010_2) {
+TEST_P(board_dfl_n6000_c_p, board_n6000_2) {
 
 	char max10fw_ver[SYSFS_PATH_MAX];
 
@@ -221,11 +221,11 @@ TEST_P(board_dfl_n6010_c_p, board_n6010_2) {
 }
 
 /**
-* @test       board_n6010_3
+* @test       board_n6000_3
 * @brief      Tests: parse_fw_ver
 * @details    Validates parse fw version  <br>
 */
-TEST_P(board_dfl_n6010_c_p, board_n6010_3) {
+TEST_P(board_dfl_n6000_c_p, board_n6000_3) {
 
 	char buf[SYSFS_PATH_MAX];
 	char fw_ver[SYSFS_PATH_MAX];
@@ -235,82 +235,82 @@ TEST_P(board_dfl_n6010_c_p, board_n6010_3) {
 }
 
 /**
-* @test       board_n6010_4
+* @test       board_n6000_4
 * @brief      Tests: print_sec_info
 * @details    Validates fpga security info  <br>
 */
-TEST_P(board_dfl_n6010_c_p, board_n6010_4) {
+TEST_P(board_dfl_n6000_c_p, board_n6000_4) {
 
 	EXPECT_EQ(print_sec_info(tokens_[0]), FPGA_OK);
 }
 
 /**
-* @test       board_n6010_5
+* @test       board_n6000_5
 * @brief      Tests: print_mac_info
 * @details    Validates prints mac info  <br>
 */
-TEST_P(board_dfl_n6010_c_p, board_n6010_5) {
+TEST_P(board_dfl_n6000_c_p, board_n6000_5) {
 
 	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
 }
 
 /**
-* @test       board_n6010_6
+* @test       board_n6000_6
 * @brief      Tests: print_board_info
 * @details    Validates fpga board info  <br>
 */
-TEST_P(board_dfl_n6010_c_p, board_n6010_6) {
+TEST_P(board_dfl_n6000_c_p, board_n6000_6) {
 
 	EXPECT_EQ(print_board_info(tokens_[0]), FPGA_OK);
 }
 
 /**
-* @test       board_n6010_8
+* @test       board_n6000_8
 * @brief      Tests: print_phy_info
 * @details    Validates fpga phy group info  <br>
 */
-TEST_P(board_dfl_n6010_c_p, board_n6010_8) {
+TEST_P(board_dfl_n6000_c_p, board_n6000_8) {
 
 	EXPECT_EQ(print_phy_info(tokens_[0]), FPGA_NOT_SUPPORTED);
 }
 
 /**
-* @test       board_n6010_9
+* @test       board_n6000_9
 * @brief      Tests: read_max10fw_version
 *             read_bmcfw_version,
 * @details    Validates fpga invalid fpga firmware version  <br>
 */
-TEST_P(board_dfl_n6010_c_p, board_n6010_9) {
+TEST_P(board_dfl_n6000_c_p, board_n6000_9) {
 
 	char buf[10] = { 0 };
 	memset(&buf, 0xf, sizeof(buf));
 
-	write_sysfs_file((const char *)"dfl_dev*/bmcfw_version", (void*)buf, sizeof(buf));
+	ASSERT_EQ(write_sysfs_file((const char *)"dfl_dev*/bmcfw_version", (void*)buf, sizeof(buf)), FPGA_OK);
 	char bmcfw_ver[SYSFS_PATH_MAX];
 	EXPECT_NE(read_bmcfw_version(tokens_[0], bmcfw_ver, SYSFS_PATH_MAX), FPGA_OK);
 
-	write_sysfs_file((const char *)"dfl_dev*/bmc_version", (void*)buf, sizeof(buf));
+	ASSERT_EQ(write_sysfs_file((const char *)"dfl_dev*/bmc_version", (void*)buf, sizeof(buf)), FPGA_OK);
 	char max10fw_ver[SYSFS_PATH_MAX];
 	EXPECT_NE(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_PATH_MAX), FPGA_OK);
 }
 
 /**
-* @test       board_n6010_10
+* @test       board_n6000_10
 * @brief      Tests: print_phy_info
 * @details    invalid print phy info input <br>
 */
-TEST_P(board_dfl_n6010_c_p, board_n6010_10) {
+TEST_P(board_dfl_n6000_c_p, board_n6000_10) {
 
 	EXPECT_NE(print_phy_info(tokens_[0]), FPGA_OK);
 	EXPECT_NE(print_phy_info(NULL), FPGA_OK);
 }
 
 /**
-* @test       board_n6010_12
+* @test       board_n6000_12
 * @brief      Tests: print_mac_info
 * @details    prints mac address <br>
 */
-TEST_P(board_dfl_n6010_c_p, board_n6010_12) {
+TEST_P(board_dfl_n6000_c_p, board_n6000_12) {
 
 	char mac_buf[18] = { 0 };
 	strncpy(mac_buf, "ff:ff:ff:ff:ff:ff", 18);
@@ -371,14 +371,14 @@ TEST_P(board_dfl_n6010_c_p, board_n6010_12) {
 	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
 
 }
-INSTANTIATE_TEST_CASE_P(board_dfl_n6010_c, board_dfl_n6010_c_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n6010" })));
+INSTANTIATE_TEST_CASE_P(board_dfl_n6000_c, board_dfl_n6000_c_p,
+	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n6000" })));
 
 // test invalid sysfs attributes
-class board_n6010_invalid_c_p : public board_n6010_c_p { };
+class board_n6000_invalid_c_p : public board_n6000_c_p { };
 
 /**
-* @test       board_n6010_11
+* @test       board_n6000_11
 * @brief      Tests: read_max10fw_version
 *             read_bmcfw_version
 *             read_mac_info
@@ -387,7 +387,7 @@ class board_n6010_invalid_c_p : public board_n6010_c_p { };
 *             print_mac_info
 * @details    Validates function with invalid sysfs <br>
 */
-TEST_P(board_n6010_invalid_c_p, board_n6010_11) {
+TEST_P(board_n6000_invalid_c_p, board_n6000_11) {
 
 	char bmcfw_ver[SYSFS_PATH_MAX];
 	EXPECT_EQ(read_bmcfw_version(tokens_[0], bmcfw_ver, SYSFS_PATH_MAX), FPGA_NOT_FOUND);
@@ -402,5 +402,5 @@ TEST_P(board_n6010_invalid_c_p, board_n6010_11) {
 
 	EXPECT_NE(print_phy_info(tokens_[0]), FPGA_EXCEPTION);
 }
-INSTANTIATE_TEST_CASE_P(board_n6010_invalid_c, board_n6010_invalid_c_p,
+INSTANTIATE_TEST_CASE_P(board_n6000_invalid_c, board_n6000_invalid_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));

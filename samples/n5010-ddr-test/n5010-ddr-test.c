@@ -43,18 +43,14 @@
 #define DFH_TYPE(h)   ((h >> 60) & 0xf)
 #define DFH_TYPE_AFU  1
 
-#define DDR_TEST_MODE0_CTRL          0x3000
-#define DDR_TEST_MODE0_STAT          0x3008
-#define DDR_TEST_MODE0_FERR_ADDR(x) (0x3010 + 8 * x)
-
 #define DDR_TEST_MODE1_CTRL          0x3000
 #define DDR_TEST_MODE1_STAT          0x3008
 #define DDR_TEST_MODE1_BANK_STAT(x) (0x3010 + 8 * x)
 
-#define DDR_TEST_HBM_PASS     0x4000
-#define DDR_TEST_HBM_FAIL     0x4008
-#define DDR_TEST_HBM_TIMEOUT  0x4010
-#define DDR_TEST_HBM_CTRL     0x4018
+#define HBM_TEST_PASS     0x4000
+#define HBM_TEST_FAIL     0x4008
+#define HBM_TEST_TIMEOUT  0x4010
+#define HBM_TEST_CTRL     0x4018
 
 struct n5010;
 
@@ -71,20 +67,16 @@ struct n5010 {
 	uint64_t base;
 	const struct n5010_test *test;
 	bool debug;
+	uint open_mode;
 };
 
-static fpga_result fpga_test_directed(struct n5010 *n5010);
-static fpga_result fpga_test_prbs(struct n5010 *n5010);
+static fpga_result fpga_test_ddr(struct n5010 *n5010);
 static fpga_result fpga_test_hbm(struct n5010 *n5010);
 
 static const struct n5010_test n5010_test[] = {
 	{
-		.name = "directed",
-		.func = fpga_test_directed,
-	},
-	{
-		.name = "prbs",
-		.func = fpga_test_prbs,
+		.name = "ddr",
+		.func = fpga_test_ddr,
 	},
 	{
 		.name = "hbm",
@@ -115,7 +107,7 @@ static fpga_result fpga_open(struct n5010 *n5010)
 		return res;
 	}
 
-	res = fpgaOpen(n5010->token, &n5010->handle, 0);
+	res = fpgaOpen(n5010->token, &n5010->handle, n5010->open_mode);
 	if (res != FPGA_OK) {
 		fprintf(stderr, "failed to open fpga: %s\n", fpgaErrStr(res));
 		return res;
@@ -198,8 +190,7 @@ static fpga_result fpga_base(struct n5010 *n5010)
 		for (i = 0; i < 2; i++)
 			uuid.u64[i] = be64toh(uuid.u64[i]);
 
-		if (DFH_TYPE(header) == DFH_TYPE_AFU &&
-		    uuid_compare(uuid.u128, n5010->guid) == 0)
+		if (DFH_TYPE(header) == DFH_TYPE_AFU && uuid_compare(uuid.u128, n5010->guid) == 0)
 			break;
 
 		if (DFH_EOL(header)) {
@@ -236,13 +227,13 @@ static void fpga_dump(struct n5010 *n5010, uint64_t offset, size_t count)
 	}
 }
 
-static fpga_result fpga_banks(struct n5010 *n5010, uint64_t offset, uint64_t *banks)
+static fpga_result fpga_banks(struct n5010 *n5010, uint64_t offset, uint64_t *num_banks)
 {
 	fpga_result res = FPGA_OK;
 
-	res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + offset, banks);
+	res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + offset, num_banks);
 	if (res != FPGA_OK) {
-		fprintf(stderr, "failed to read banks: %s\n", fpgaErrStr(res));
+		fprintf(stderr, "failed to read num_banks: %s\n", fpgaErrStr(res));
 		goto error;
 	}
 
@@ -250,12 +241,12 @@ error:
 	return res;
 }
 
-static fpga_result fpga_start(struct n5010 *n5010, uint64_t offset, uint64_t banks)
+static fpga_result fpga_start(struct n5010 *n5010, uint64_t offset, uint64_t num_banks)
 {
 	uint64_t ctrl;
 	fpga_result res = FPGA_OK;
 
-	ctrl = (1 << banks) - 1;
+	ctrl = ((uint64_t)1 << num_banks) - 1;
 	printf("starting PRBS generators\n");
 
 	fpga_dump(n5010, offset, 1);
@@ -298,11 +289,11 @@ error:
 
 static fpga_result fpga_wait(struct n5010 *n5010, uint64_t offset, uint64_t init, uint64_t result)
 {
-	struct timespec ts = { .tv_sec = 0, .tv_nsec = 100000000 };
+	struct timespec ts = {.tv_sec = 0, .tv_nsec = 100000000};
 	uint64_t status = init;
 	fpga_result res;
 
-	printf("waiting\n");
+	printf("waiting for test to complete...\n");
 
 	while (status == init) {
 		nanosleep(&ts, NULL);
@@ -314,12 +305,11 @@ static fpga_result fpga_wait(struct n5010 *n5010, uint64_t offset, uint64_t init
 		}
 
 		if (n5010->debug)
-			printf("reg: 0x%04jx, val: 0x%016jx\n", offset, status);
+			printf("reg: 0x%04jx (DDR status), val: 0x%016jx\n", offset, status);
 	}
 
 	if (status != result) {
-		fprintf(stderr, "failed with unexpected result: expected: 0x%016jx, got: 0x%016jx\n",
-			result, status);
+		fprintf(stderr, "failed with unexpected result: expected: 0x%016jx, got: 0x%016jx\n", result, status);
 		res = FPGA_EXCEPTION;
 		goto error;
 	}
@@ -328,40 +318,17 @@ error:
 	return res;
 }
 
-static fpga_result fpga_test_directed(struct n5010 *n5010)
+static fpga_result fpga_test_ddr(struct n5010 *n5010)
 {
-	uint64_t banks;
+	uint64_t num_banks, stat, i;
 	fpga_result res;
 
-	fpga_dump(n5010, DDR_TEST_MODE0_CTRL, 6);
-
-	res = fpga_banks(n5010, DDR_TEST_MODE0_STAT, &banks);
-	if (res != FPGA_OK)
-		goto error;
-
-	res = fpga_start(n5010, DDR_TEST_MODE0_CTRL, banks);
-	if (res != FPGA_OK)
-		goto error;
-
-	res = fpga_wait(n5010, DDR_TEST_MODE0_STAT, banks, 0x10102);
-	if (res != FPGA_OK)
-		goto error;
-
-	fpga_dump(n5010, DDR_TEST_MODE0_FERR_ADDR(0), banks);
-
-error:
-	return res;
-}
-
-static fpga_result fpga_test_prbs(struct n5010 *n5010)
-{
-	uint64_t banks, stat, i;
-	fpga_result res;
+	printf("starting DDR read/write test\n");
 
 	fpga_dump(n5010, DDR_TEST_MODE1_CTRL, 6);
 
-	// Read number of banks from stat
-	res = fpga_banks(n5010, DDR_TEST_MODE1_STAT, &banks);
+	// Read number of num_banks from stat
+	res = fpga_banks(n5010, DDR_TEST_MODE1_STAT, &num_banks);
 	if (res != FPGA_OK)
 		goto error;
 
@@ -371,7 +338,7 @@ static fpga_result fpga_test_prbs(struct n5010 *n5010)
 		goto error;
 
 	// Expect DDR_TEST_MODE1_BANK_STAT(bank) to return 0 while PRBS not running
-	for (i = 0; i < banks; i++) {
+	for (i = 0; i < num_banks; i++) {
 		res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + DDR_TEST_MODE1_BANK_STAT(i), &stat);
 		if (res != FPGA_OK) {
 			fprintf(stderr, "failed to read DDR_TEST_MODE1_BANK_STAT(%ju): %s\n", i, fpgaErrStr(res));
@@ -386,12 +353,12 @@ static fpga_result fpga_test_prbs(struct n5010 *n5010)
 	}
 
 	// Set PRBS start bits for each bank
-	res = fpga_start(n5010, DDR_TEST_MODE1_CTRL, banks);
+	res = fpga_start(n5010, DDR_TEST_MODE1_CTRL, num_banks);
 	if (res != FPGA_OK)
 		goto error;
 
 	// Wait for PRBS pass
-	for (i = 0; i < banks; i++) {
+	for (i = 0; i < num_banks; i++) {
 		res = fpga_wait(n5010, DDR_TEST_MODE1_BANK_STAT(i), 0, 0x39);
 		if (res != FPGA_OK)
 			goto error;
@@ -403,45 +370,65 @@ error:
 
 static fpga_result fpga_test_hbm(struct n5010 *n5010)
 {
-	struct timespec ts = { .tv_sec = 0, .tv_nsec = 100000000 };
+	struct timespec ts = {.tv_sec = 0, .tv_nsec = 100000000};
 	uint64_t pass = 0;
 	uint64_t fail = 0;
 	uint64_t timeout = 0;
 	fpga_result res;
 
-	res = fpga_start(n5010, DDR_TEST_HBM_CTRL, 0xffffffff);
+	printf("starting HBM read/write test\n");
+
+	res = fpga_start(n5010, HBM_TEST_CTRL, 32);
 	if (res != FPGA_OK)
 		goto error;
 
-	printf("waiting\n");
+	printf("waiting for test to complete...\n");
 
 	while (pass == 0 && fail == 0 && timeout == 0) {
 		nanosleep(&ts, NULL);
 
-		res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + DDR_TEST_HBM_PASS, &pass);
+		res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + HBM_TEST_PASS, &pass);
 		if (res != FPGA_OK) {
 			fprintf(stderr, "failed to read pass: %s\n", fpgaErrStr(res));
 			goto error;
 		}
 
-		res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + DDR_TEST_HBM_FAIL, &fail);
+		res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + HBM_TEST_FAIL, &fail);
 		if (res != FPGA_OK) {
 			fprintf(stderr, "failed to read fail: %s\n", fpgaErrStr(res));
 			goto error;
 		}
 
-		res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + DDR_TEST_HBM_TIMEOUT, &timeout);
+		res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + HBM_TEST_TIMEOUT, &timeout);
 		if (res != FPGA_OK) {
 			fprintf(stderr, "failed to read timeout: %s\n", fpgaErrStr(res));
 			goto error;
 		}
 
 		if (n5010->debug) {
-			printf("reg: 0x%04x, val: 0x%016jx\n", DDR_TEST_HBM_PASS, pass);
-			printf("reg: 0x%04x, val: 0x%016jx\n", DDR_TEST_HBM_FAIL, fail);
-			printf("reg: 0x%04x, val: 0x%016jx\n", DDR_TEST_HBM_TIMEOUT, timeout);
+			printf("reg: 0x%04x (32x HBM channels, pass),    val: 0x%016jx\n", HBM_TEST_PASS, pass);
+			printf("reg: 0x%04x (32x HBM channels, fail),    val: 0x%016jx\n", HBM_TEST_FAIL, fail);
+			printf("reg: 0x%04x (32x HBM channels, timeout), val: 0x%016jx\n", HBM_TEST_TIMEOUT, timeout);
 		}
 	}
+
+	if (fail != 0x0) {
+		fprintf(stderr, "Error: Test failed on the following channels: 0x%016jx\n", fail);
+		res = FPGA_EXCEPTION;
+	};
+
+	if (timeout != 0x0) {
+		fprintf(stderr, "Error: Test timed out on the following channels: 0x%016jx\n", timeout);
+		res = FPGA_EXCEPTION;
+	};
+
+	if (pass != 0xffffffff) {
+		fprintf(stderr, "Error: Test did not pass on all channels: 0x%016jx\n", pass);
+		res = FPGA_EXCEPTION;
+	};
+
+	if (res != FPGA_OK)
+		goto error;
 
 error:
 	return res;
@@ -453,23 +440,25 @@ static void print_usage(FILE *f)
 		"usage: %s [<options>]\n"
 		"\n"
 		"options:\n"
-		"  [-S <segment>] [-B <bus>] [-D <device>] [-F <function>]"
+		"  [-S <segment>] [-B <bus>] [-D <device>] [-F <function>]\n"
 		"  -S, --segment   pci segment to look up device from\n"
 		"  -B, --bus       pci bus to look up device from\n"
 		"  -D, --device    pci device number to look up\n"
-		"  -F, --function  pci function to look up\n"
-		"      --help      print this help\n"
-		"      --guid      uuid of accelerator to open\n"
-		"      --mode      test mode to execute. Known modes:\n"
-		"                  directed, prbs, hbm\n"
-		"      --debug     enable debug print of register values\n"
-		"\n", program_invocation_short_name);
+		"  -F  --function  pci function to look up\n"
+		"  -h  --help      print this help\n"
+		"  -g  --guid      uuid of accelerator to open\n"
+		"  -m  --mode      test mode to execute. Known modes:\n"
+		"                  ddr, hbm\n"
+		"  -d  --debug     enable debug print of register values\n"
+		"  -s  --shared    open FPGA connection in shared mode\n"
+		"\n",
+		program_invocation_short_name);
 }
 
 static bool parse_mode(struct n5010 *n5010, const char *mode)
 {
 	const struct n5010_test *t;
-	size_t count = sizeof(n5010_test)/sizeof(*n5010_test);
+	size_t count = sizeof(n5010_test) / sizeof(*n5010_test);
 	size_t i;
 
 	for (i = 0; i < count; i++) {
@@ -496,6 +485,7 @@ static fpga_result parse_args(int argc, char **argv, struct n5010 *n5010)
 		{ "guid",  required_argument, NULL, 'g' },
 		{ "mode",  required_argument, NULL, 'm' },
 		{ "debug", no_argument,       NULL, 'd' },
+		{ "shared",no_argument,       NULL, 's' },
 		{ NULL,    0,                 NULL, 0   },
 	};
 
@@ -516,32 +506,38 @@ static fpga_result parse_args(int argc, char **argv, struct n5010 *n5010)
 		return res;
 	}
 
+	// Set default connection mode
+	n5010->open_mode = 0;
+
 	while (1) {
 		c = getopt_long_only(argc, argv, "hg:m:d", options, NULL);
 		if (c == -1)
 			break;
 
 		switch (c) {
-			case 'h':
-				print_usage(stdout);
-				fpga_close(n5010);
-				exit(EXIT_SUCCESS);
-			case 'g':
-				if (uuid_parse(optarg, n5010->guid) < 0) {
-					fprintf(stderr, "unparsable uuid: '%s'\n", optarg);
-					return FPGA_EXCEPTION;
-				}
-				break;
-			case 'm':
-				if (!parse_mode(n5010, optarg))
-					return FPGA_EXCEPTION;
-				break;
-			case 'd':
-				n5010->debug = true;
-				break;
-			case '?':
-			default:
+		case 'h':
+			print_usage(stdout);
+			fpga_close(n5010);
+			exit(EXIT_SUCCESS);
+		case 'g':
+			if (uuid_parse(optarg, n5010->guid) < 0) {
+				fprintf(stderr, "unparsable uuid: '%s'\n", optarg);
 				return FPGA_EXCEPTION;
+			}
+			break;
+		case 'm':
+			if (!parse_mode(n5010, optarg))
+				return FPGA_EXCEPTION;
+			break;
+		case 'd':
+			n5010->debug = true;
+			break;
+		case 's':
+			n5010->open_mode = FPGA_OPEN_SHARED;
+			break;
+		case '?':
+		default:
+			return FPGA_EXCEPTION;
 		}
 	}
 
@@ -555,7 +551,7 @@ static fpga_result parse_args(int argc, char **argv, struct n5010 *n5010)
 
 int main(int argc, char **argv)
 {
-	struct n5010 n5010 = { .test = n5010_test };
+	struct n5010 n5010 = {.test = n5010_test};
 	fpga_result res;
 
 	res = parse_args(argc, argv, &n5010);
