@@ -195,7 +195,8 @@ done
 %{_bindir}/rsu
 %{_bindir}/pci_device
 
-%{python3_sitelib}/opae*
+%{python3_sitelib}/opae.admin*
+%{python3_sitelib}/opae/admin*
 
 %config(noreplace) %{_sysconfdir}/opae/fpgad.cfg*
 %config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
@@ -303,7 +304,8 @@ done
 %{python3_sitelib}/pacsign*
 %{python3_sitelib}/packager*
 %{python3_sitearch}/libvfio*
-%{python3_sitearch}/opae*
+%{python3_sitearch}/opae.diag*
+%{python3_sitearch}/opae/diag*
 %{python3_sitearch}/pyopaeuio*
 
 %changelog
