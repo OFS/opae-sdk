@@ -173,12 +173,13 @@ def main():
         sys.exit(1)
 
     args.hssi_grps = f.find_hssi_group(devs[0].get('pcie_address'))
-    print("args.hssi_grps", args.hssi_grps)
+    print("args.hssi_grps{}".format(args.hssi_grps))
     if len(args.hssi_grps) == 0:
-        print("Failed to find HSSI feature", devs[0].get('pcie_address'))
+        print("Failed to find HSSI feature{}".format(devs[0].get(
+                                                    'pcie_address')))
         sys.exit(1)
 
-    print("fpga uio dev:", args.hssi_grps[0][0])
+    print("fpga uio dev:{}".foramt(args.hssi_grps[0][0]))
 
     lp = FPGAHSSILPBK(args)
     if not lp.hssi_loopback_start():
@@ -186,9 +187,9 @@ def main():
         sys.exit(1)
 
     if args.loopback == 'enable':
-        print("hssi loopback enabled to port", args.port)
+        print("hssi loopback enabled to port{}".foramt(args.port))
     else:
-        print("hssi loopback disabled to port", args.port)
+        print("hssi loopback disabled to port{}".foramt(args.port))
 
 
 if __name__ == "__main__":

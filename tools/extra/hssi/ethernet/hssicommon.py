@@ -685,7 +685,7 @@ class hssi_eth_port_status(Union):
 def verify_pcie_address(pcie_address):
     m = BDF_PATTERN.match(pcie_address)
     if m is None:
-        print("Invalid pcie address foramt", pcie_address)
+        print("Invalid pcie address format{}".format(pcie_address))
         return False
     return True
 

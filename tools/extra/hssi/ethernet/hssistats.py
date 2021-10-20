@@ -280,14 +280,14 @@ def main():
         print('no FPGA found')
         sys.exit(1)
 
-    print("devs[0]", devs[0])
     args.hssi_grps = f.find_hssi_group(devs[0].get('pcie_address'))
-    print("args.hssi_grps", args.hssi_grps)
+    print("args.hssi_grps{}".format(args.hssi_grps))
     if len(args.hssi_grps) == 0:
-        print("Failed to find HSSI feature", devs[0].get('pcie_address'))
+        print("Failed to find HSSI feature{}".format(devs[0].get(
+                                                   'pcie_address')))
         sys.exit(1)
 
-    print("fpga uio dev:", args.hssi_grps[0][0])
+    print("fpga uio dev:{}".format(args.hssi_grps[0][0]))
     lp = FPGAHSSISTATS(args)
     if args.clear:
         lp.hssi_stats_clear()
