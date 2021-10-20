@@ -179,7 +179,7 @@ def main():
                                                     'pcie_address')))
         sys.exit(1)
 
-    print("fpga uio dev:{}".foramt(args.hssi_grps[0][0]))
+    print("fpga uio dev:{}".format(args.hssi_grps[0][0]))
 
     lp = FPGAHSSILPBK(args)
     if not lp.hssi_loopback_start():
@@ -187,9 +187,9 @@ def main():
         sys.exit(1)
 
     if args.loopback == 'enable':
-        print("hssi loopback enabled to port{}".foramt(args.port))
+        print("hssi loopback enabled to port{}".format(args.port))
     else:
-        print("hssi loopback disabled to port{}".foramt(args.port))
+        print("hssi loopback disabled to port{}".format(args.port))
 
 
 if __name__ == "__main__":
