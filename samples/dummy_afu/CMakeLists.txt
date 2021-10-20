@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2020-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,14 +24,15 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_add_executable(TARGET dummy_afu
-    SOURCE dummy_afu.cpp
-    LIBS
-        opae-c
-        opae-cxx-core
-        afu-test
-        ${libjson-c_LIBRARIES}
-        ${libuuid_LIBRARIES}
-    COMPONENT samplebin
-)
-
+if (OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG)
+    opae_add_executable(TARGET dummy_afu
+        SOURCE dummy_afu.cpp
+        LIBS
+            opae-c
+            opae-cxx-core
+            afu-test
+            ${libjson-c_LIBRARIES}
+            ${libuuid_LIBRARIES}
+        COMPONENT samplebin
+    )
+endif(OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG)

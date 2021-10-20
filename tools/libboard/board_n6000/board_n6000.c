@@ -41,7 +41,8 @@
 #include <net/ethernet.h>
 #include <opae/uio.h>
 #include "../board_common/board_common.h"
-#include "board_n6010.h"
+#include "board_event_log.h"
+#include "board_n6000.h"
 
 #define FPGA_VAR_BUF_LEN       256
 #define MAC_BUF_LEN            19
@@ -79,11 +80,15 @@
 #define BOOTPAGE_PATTERN "_([0-9a-zA-Z]+)"
 
 // image info sysfs
-#define DFL_SYSFS_IMAGE_INFO_GLOB "*dfl*/**/fpga_image_directory"
+#define DFL_SYSFS_IMAGE_INFO_GLOB "*dfl*/**/fpga_image_directory0/nvmem"
 #define IMAGE_INFO_STRIDE 4096
 #define IMAGE_INFO_SIZE     32
 #define IMAGE_INFO_COUNT     3
 #define GET_BIT(var, pos) ((var >> pos) & (1))
+
+// event log
+#define DFL_SYSFS_EVENT_LOG_GLOB "*dfl*/**/bmc_event_log0/nvmem"
+
 
 // hssi version
 struct hssi_version {
@@ -396,7 +401,7 @@ fpga_result print_board_info(fpga_token token)
 		resval = res;
 	}
 
-	printf("FPGA SmartNIC N6010 Card \n");
+	printf("Intel N6000 Acceleration Development Platform\n");
 	printf("Board Management Controller, MAX10 NIOS FW version: %s \n", bmc_ver);
 	printf("Board Management Controller, MAX10 Build version: %s \n", max10_ver);
 
@@ -676,4 +681,73 @@ fpga_result fpga_image_info(fpga_token token)
 		OPAE_ERR("Failed to Destroy Object");
 
 	return res;
+}
+
+fpga_result fpga_event_log(fpga_token token, uint32_t first, uint32_t last,
+	bool print_list, bool print_sensors, bool print_bits)
+{
+	fpga_object fpga_object;
+	struct bel_event event;
+	uint32_t count = last;
+	uint32_t i = first;
+	fpga_result res;
+	uint32_t ptr;
+
+	if (first > bel_ptr_count()) {
+		fprintf(stderr, "invalid --boot value: %u\n", first);
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (last > bel_ptr_count()) {
+		fprintf(stderr, "invalid --boot + --count value: %u\n", last);
+		return FPGA_INVALID_PARAM;
+	}
+
+	res = fpgaTokenGetObject(token, DFL_SYSFS_EVENT_LOG_GLOB,
+			&fpga_object, FPGA_OBJECT_GLOB);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to get token Object");
+		return res;
+	}
+
+	/* Special case when all events requested */
+	if (first == last) {
+		count = bel_ptr_count();
+		i = 0;
+	}
+
+	/* Get index to latest log event in flash */
+	res = bel_ptr(fpga_object, &ptr);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to read log pointer");
+		goto out;
+	}
+
+	/* Fast forward to the requested event */
+	while (first--)
+		ptr = bel_ptr_next(ptr);
+
+	/* Read and print the requested number of events */
+	while (i++ < count) {
+		res = bel_read(fpga_object, ptr, &event);
+		if (res != FPGA_OK)
+			goto out;
+
+		if (print_list) {
+			bel_timespan(&event, i - 1);
+		} else if (bel_empty(&event)) {
+			printf("Boot %i: Empty\n", i - 1);
+		} else {
+			printf("Boot %i\n", i - 1);
+			bel_print(&event, print_sensors, print_bits);
+		}
+
+		ptr = bel_ptr_next(ptr);
+	}
+
+out:
+	if (fpgaDestroyObject(&fpga_object) != FPGA_OK)
+		OPAE_ERR("Failed to Destroy Object");
+
+	return FPGA_OK;
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/cmake -P
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2017-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@
 
 find_program(OPAE_GIT_EXECUTABLE git)
 
-if((EXISTS ${OPAE_GIT_EXECUTABLE}) AND (EXISTS "${CMAKE_SOURCE_DIR}/.git"))
+if(EXISTS ${OPAE_GIT_EXECUTABLE})
     # Find the abbreviated git commit hash.
     execute_process(COMMAND ${OPAE_GIT_EXECUTABLE} log -1 --format=%h
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}

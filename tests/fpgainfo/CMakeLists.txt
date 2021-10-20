@@ -29,6 +29,7 @@ opae_test_add_static_lib(TARGET fpgainfo-static
         ${OPAE_SDK_SOURCE}/tools/fpgainfo/bmcdata.c
         ${OPAE_SDK_SOURCE}/tools/fpgainfo/bmcinfo.c
         ${OPAE_SDK_SOURCE}/tools/fpgainfo/errors.c
+        ${OPAE_SDK_SOURCE}/tools/fpgainfo/events.c
         ${OPAE_SDK_SOURCE}/tools/fpgainfo/fmeinfo.c
         ${OPAE_SDK_SOURCE}/tools/fpgainfo/fpgainfo.c
         ${OPAE_SDK_SOURCE}/tools/fpgainfo/portinfo.c

@@ -37,6 +37,9 @@ import struct
 import mmap
 from ethernet.hssicommon import *
 
+
+# Sleep 50 milliseconds after clearing stats.
+HSSI_STATS_CLEAR_SLEEP_TIME = 50/1000
 # Invalid  hssi stats value
 HSSI_INAVLID_STATS = 0xfffffff1
 
@@ -102,8 +105,12 @@ class FPGAHSSISTATS(HSSICOMMON):
         port_str = "{0: <32} |".format('HSSI Ports')
         hssi_feature_list = hssi_feature(self.read32(0, 0xC))
         print("HSSI num ports:", hssi_feature_list.num_hssi_ports)
-        for port in range(0, hssi_feature_list.num_hssi_ports):
-            port_str += "port:{}|".format(port).rjust(20, ' ')
+        for port in range(0, HSSI_PORT_COUNT):
+            # add active ports
+            enable = self.register_field_get(hssi_feature_list.port_enable,
+                                             port);
+            if enable == 1:
+                port_str += "port:{}|".format(port).rjust(20, ' ')
 
         print(port_str)
 
@@ -111,8 +118,13 @@ class FPGAHSSISTATS(HSSICOMMON):
         for str, reg in self.hssi_eth_stats:
             stats_list.append("{0: <32} |".format(str))
 
-        for port in range(0, hssi_feature_list.num_hssi_ports):
+        for port in range(0, HSSI_PORT_COUNT):
             port_index = 0
+            # add active ports
+            enable = self.register_field_get(hssi_feature_list.port_enable,
+                                             port);
+            if enable == 0:
+                 continue
             for str, reg in self.hssi_eth_stats:
 
                 ctl_addr.value = 0
@@ -152,6 +164,63 @@ class FPGAHSSISTATS(HSSICOMMON):
 
         return 0
 
+    def clear_hssi_stats(self):
+        """
+        clear ctl address and ctl sts CSR
+        write 0x3 value ctl address and address bit
+        write read cmd 0x1 value ctl sts csr
+        poll for status
+        read LSB stats
+        clear ctl address and ctl sts CSR
+        write 0x3 value ctl address , address bit  and set 31 bit
+        write read 0x1 value ctl sts csr
+        poll for status
+        read MSB stats
+        print stats
+        """
+        self.open(self._hssi_grps[0][0])
+        ctl_addr = hssi_ctl_addr(0)
+        ctl_addr.sal_cmd = HSSI_SALCMD.RESET_MAC_STATISTIC.value
+        value = 0
+
+        print("------------HSSI stats clear start------------")
+
+        port_str = "{0: <32} |".format('HSSI Ports')
+        hssi_feature_list = hssi_feature(self.read32(0, 0xC))
+        print("HSSI num ports:", hssi_feature_list.num_hssi_ports)
+        print("HSSI stats clearing ...")
+        for port in range(0, HSSI_PORT_COUNT):
+            # add active ports
+            enable = self.register_field_get(hssi_feature_list.port_enable,
+                                             port);
+            if enable == 0:
+                 continue
+            ctl_addr.value = 0
+            ctl_addr.sal_cmd = HSSI_SALCMD.RESET_MAC_STATISTIC.value
+            ctl_addr.port_address = port
+            # set bit 16 and 17
+            ctl_addr.value = self.register_field_set(ctl_addr.value,
+                                                         16, 1, 1)
+            ctl_addr.value = self.register_field_set(ctl_addr.value,
+                                                         17, 1, 1)
+            ret = self.clear_ctl_sts_reg(0)
+            if not ret:
+                 print("Failed to clear HSSI CTL STS csr")
+                 return False
+            self.write32(0, HSSI_CSR.HSSI_CTL_ADDRESS.value, ctl_addr.value)
+            # write to ctl sts reg
+            cmd_sts = hssi_cmd_sts(0x2)
+            self.write32(0,  HSSI_CSR.HSSI_CTL_STS.value, cmd_sts.value)
+            time.sleep(HSSI_STATS_CLEAR_SLEEP_TIME)
+            ret = self.clear_ctl_sts_reg(0)
+            if not ret:
+                 print("Failed to clear HSSI CTL STS csr")
+                 return False
+        print("-------------HSSI stats cleared------------")
+
+        self.close()
+        return True
+
     def hssi_stats_start(self):
         """
         print hssi info
@@ -162,6 +231,17 @@ class FPGAHSSISTATS(HSSICOMMON):
             print("Failed to read hssi information")
             sys.exit(1)
         self.get_hssi_stats()
+
+    def hssi_stats_clear(self):
+        """
+        print hssi info
+        get hssi stats
+        """
+        print("----hssi_stats_clear----")
+        self.hssi_info(self._hssi_grps[0][0])
+        if self.clear_hssi_stats() == False:
+           print("hssi stats clearing failed")
+           sys.exit(1)
 
 
 def main():
@@ -178,6 +258,8 @@ def main():
     parser.add_argument('--pcie-address', '-P',
                         default=None, help=pcieaddress_help)
 
+    parser.add_argument('--clear','-C', action='store_true',
+                        help='clears hssi statistics')
     # exit if no commad line argument
     args = parser.parse_args()
     if len(sys.argv) == 1:
@@ -213,7 +295,11 @@ def main():
 
     print("fpga uid dev:", args.hssi_grps[0][0])
     lp = FPGAHSSISTATS(args)
-    lp.hssi_stats_start()
+    if args.clear:
+        lp.hssi_stats_clear()
+        sys.exit(0)
+    else:
+        lp.hssi_stats_start()
 
 
 if __name__ == "__main__":

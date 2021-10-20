@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,51 +23,24 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-/*
- * fpgainfo.h
- */
-#ifndef FPGAINFO_H
-#define FPGAINFO_H
+
+#ifndef __EVENTS_H__
+#define __EVENTS_H__
 
 #include <opae/fpga.h>
-//#include "sysinfo.h"
+#include <opae/error.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define FACTORY_BIT (1ULL << 36)
-
-void fpgainfo_print_common(const char *hdr, fpga_properties props);
-
-void fpgainfo_print_err(const char *s, fpga_result res);
-
-// Replace occurrences of character within string
-void replace_chars(char *str, char match, char rep);
-
-// Turn all "pcie" into "PCIe"
-void upcase_pci(char *str);
-
-// Upper-case the first letter of each word in str
-void upcase_first(char *str);
-
-// Find string in list of strings
-int str_in_list(const char *key, const char *list[], size_t size);
-
-/*
- * macro to check FPGA return codes, print error message, and goto cleanup label
- * NOTE: this changes the program flow (uses goto)!
- */
-#define ON_FPGAINFO_ERR_GOTO(res, label, desc)                                 \
-	do {                                                                   \
-		if ((res) != FPGA_OK) {                                        \
-			fpgainfo_print_err((desc), (res));                     \
-			goto label;                                            \
-		}                                                              \
-	} while (0)
-
+void events_help(void);
+fpga_result events_filter(fpga_properties *filter, int argc, char *argv[]);
+fpga_result events_command(fpga_token *tokens, int num_tokens, int argc,
+			   char *argv[]);
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* !FPGAINFO_H */
+
+#endif /* !__EVENTS_H__ */

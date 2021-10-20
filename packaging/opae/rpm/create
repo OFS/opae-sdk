@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright(c) 2020, Intel Corporation
+# Copyright(c) 2020-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -25,42 +25,59 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-shopt -o -s nounset
-
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 source "${SCRIPT_DIR}/../version"
 
-version=$PROJECT_VERSION
-echo "version:$version"
-
-patch=$PROJECT_RELEASE
-echo "patch:$patch"
-
-
-
 RPMBUILD_DIR="${SCRIPT_DIR}/rpmbuild"
 SDK_DIR="$(cd "${SCRIPT_DIR}/../../../" && pwd)"
 
+declare WHICH_RPM=''
+
+if [ $# -lt 1 -o \( "$1" != 'rhel' -a "$1" != 'fedora' \) ]; then
+  while [ "${WHICH_RPM}" != 'rhel' -a "${WHICH_RPM}" != 'fedora' ]; do
+    read -p "Which RPM would you like to build? rhel or fedora> " WHICH_RPM
+  done
+else
+  WHICH_RPM="$1"
+fi
+printf "Building %s RPM\n" "${WHICH_RPM}"
+
+shopt -o -s nounset
+
+declare -r RPM_SPEC="opae.spec.${WHICH_RPM}"
+
 # Check for prerequisite packages.
-for pkg in 'make' \
-           'cmake' \
-           'cli11-devel' \
-           'git' \
-           'gcc' \
-           'gcc-c++' \
-           'doxygen' \
-           'hwloc-devel' \
-           'json-c-devel' \
-           'libuuid-devel' \
-	   'pybind11-devel' \
-           'python3*-devel' \
-	   'python3-jsonschema' \
-           'python3-pip' \
-	   'python3-virtualenv' \
-           'rpm-build' \
-           'systemd' \
-           'rpmdevtools'
+
+declare -a PKG_DEPS=(\
+'make' \
+'cmake' \
+'git' \
+'gcc' \
+'gcc-c++' \
+'json-c-devel' \
+'libuuid-devel' \
+'python3*-devel' \
+'python3-jsonschema' \
+'python3-pip' \
+'rpm-build' \
+'systemd' \
+'rpmdevtools' \
+'libcap-devel'\
+)
+
+if [ "${WHICH_RPM}" = 'fedora' ]; then
+  PKG_DEPS=(${PKG_DEPS[@]} \
+'python3-setuptools' \
+'tbb-devel' \
+'hwloc-devel' \
+'pybind11-devel' \
+'cli11-devel' \
+'spdlog-devel'\
+)
+fi
+
+for pkg in ${PKG_DEPS[@]}
 do
     dnf list installed "${pkg}" >/dev/null 2>&1
     if [ $? -ne 0 ]; then
@@ -71,19 +88,34 @@ done
 
 rm -rf "${RPMBUILD_DIR}"
 
-# clone opae legancy and tests
-
 CMAKE_BUILD_DIR="${SDK_DIR}/_build"
 rm -rf ${CMAKE_BUILD_DIR}
 mkdir ${CMAKE_BUILD_DIR}
 
-cmake -S ${SDK_DIR} -B ${CMAKE_BUILD_DIR}  -DOPAE_BUILD_LEGACY=ON  -DOPAE_BUILD_TESTS=ON -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=ON
-
+if [ "${WHICH_RPM}" = 'rhel' ]; then
+cmake -S ${SDK_DIR} -B ${CMAKE_BUILD_DIR} \
+  -DOPAE_PRESERVE_REPOS=ON \
+  -DOPAE_BUILD_LEGACY=ON \
+  -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=OFF \
+  -DOPAE_BUILD_EXTRA_TOOLS_OPAEIO=OFF \
+  -DOPAE_WITH_CLI11=OFF \
+  -DOPAE_WITH_SPDLOG=OFF \
+  -DOPAE_WITH_PYBIND11=OFF
+else
+cmake -S ${SDK_DIR} -B ${CMAKE_BUILD_DIR} \
+  -DOPAE_PRESERVE_REPOS=ON \
+  -DOPAE_BUILD_LEGACY=ON \
+  -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=ON \
+  -DOPAE_BUILD_EXTRA_TOOLS_OPAEIO=ON \
+  -DOPAE_WITH_CLI11=ON \
+  -DOPAE_WITH_SPDLOG=ON \
+  -DOPAE_WITH_PYBIND11=ON
+fi
 
 # Create source tarball.
 cd "${SCRIPT_DIR}"
 
-./create-tarball.sh opae-${version}-${patch}
+./create-tarball.sh opae-${PROJECT_VERSION}-${PROJECT_RELEASE}
 
 # Create rpm build folder
 mkdir -p "${RPMBUILD_DIR}"
@@ -98,30 +130,25 @@ do
 done
 
 # Move tarball to where the rpms will be created
-mv ${SDK_DIR}/../opae-${version}-${patch}.tar.gz .
+mv ${SDK_DIR}/../opae-${PROJECT_VERSION}-${PROJECT_RELEASE}.tar.gz .
 # Copy the tarball to the rpm SOURCES dir
-cp opae-${version}-${patch}.tar.gz "${RPMBUILD_DIR}/SOURCES"
+cp opae-${PROJECT_VERSION}-${PROJECT_RELEASE}.tar.gz "${RPMBUILD_DIR}/SOURCES"
 
-cp "${SDK_DIR}/opae.spec" ${SCRIPT_DIR}
-
-cd "${SCRIPT_DIR}"
-
-
-
-
-
-cp ./opae.spec "${RPMBUILD_DIR}/SPECS"
-
+cat "${SDK_DIR}/${RPM_SPEC}" | \
+  sed -e "s/@VERSION@/${PROJECT_VERSION}/" -e "s/@RELEASE@/${PROJECT_RELEASE}/" \
+  > "${RPMBUILD_DIR}/SPECS/opae.spec"
 
 # Create RPMS.
 cd "${RPMBUILD_DIR}/SPECS"
 
+# --noclean
 rpmbuild --define="_topdir ${RPMBUILD_DIR}" -ba opae.spec
 if [ $? -ne 0 ]; then
     printf "first rpmbuild failed.. exiting\n"
     exit 1
 fi
 
+# --noclean
 rpmbuild --define="_topdir ${RPMBUILD_DIR}" -bs opae.spec
 if [ $? -eq 1 ]; then
     echo "second rpmbuild failed.. exiting"
@@ -134,5 +161,5 @@ mv "${RPMBUILD_DIR}"/RPMS/x86_64/opae-* "${SCRIPT_DIR}"
 mv "${RPMBUILD_DIR}"/SRPMS/opae-*.src.rpm "${SCRIPT_DIR}"
 
 # delete rpmbuild directory
-rm -rf $RPMBUILD_DIR
-rm -rf opae.spec
+rm -rf "$RPMBUILD_DIR"
+rm -f opae.spec

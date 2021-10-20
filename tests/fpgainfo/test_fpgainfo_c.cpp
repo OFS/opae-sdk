@@ -27,6 +27,8 @@
 #include <opae/fpga.h>
 #include <limits.h>
 
+#define ARRAY_SIZE(a) (sizeof(a)/sizeof(*a))
+
 extern "C" {
 
 typedef fpga_result (*filter_fn)(fpga_properties *, int, char **);
@@ -89,6 +91,11 @@ fpga_result bmc_command(fpga_token *tokens, int num_tokens, int argc,
 			 char *argv[]);
 void bmc_help(void);
 
+fpga_result events_filter(fpga_properties *filter, int argc, char *argv[]);
+fpga_result events_command(fpga_token *tokens, int num_tokens, int argc,
+        char *argv[]);
+void events_help(void);
+
 
 fpga_result get_metrics(fpga_token token, metrics_inquiry inquiry,
                         fpga_metric_info *metrics_info, uint64_t *num_metrics_info,
@@ -96,7 +103,7 @@ fpga_result get_metrics(fpga_token token, metrics_inquiry inquiry,
 
 void replace_chars(char *str, char match, char rep);
 
-void upcase_pci(char *str, size_t len);
+void upcase_pci(char *str);
 
 void upcase_first(char *str);
 
@@ -922,6 +929,129 @@ TEST_P(fpgainfo_c_p, bmc_help) {
 }
 
 /**
+ * @test     events_filter
+ * @brief    Test: events_filter
+ * @detault  Verify that events_filter doesn't fail
+ */
+TEST_P(fpgainfo_c_p, events_filter) {
+    char zero[20];
+    char one[20];
+    char *argv[] = { zero, one, NULL };
+    fpga_properties filter = NULL;
+
+    strcpy(zero, "fpgainfo");
+    strcpy(one, "events");
+
+    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+    EXPECT_EQ(events_filter(&filter, 2, argv), FPGA_OK);
+    ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+}
+
+/**
+ * @test     events_command0
+ * @brief    Test: events_command0
+ * @details  Parse valid arguments to events_command (but no tokens) to
+ *           verify parsing.
+ */
+TEST_P(fpgainfo_c_p, events_command0) {
+    const char *args[] = {
+        "fpgainfo",
+        "events",
+        "--boot=1",
+        "--count=3",
+        "--sensors",
+        "--bits",
+        "--all",
+    };
+    char *argv[ARRAY_SIZE(args)];
+    size_t i;
+
+    /* copy args to make them non-const */
+    for (i = 0; i < ARRAY_SIZE(args); i++)
+        argv[i] = strdup(args[i]);
+
+    EXPECT_EQ(events_command(NULL, 0, ARRAY_SIZE(argv), argv), FPGA_OK);
+
+    for (i = 0; i < ARRAY_SIZE(args); i++)
+        free(argv[i]);
+}
+
+/**
+ * @test     events_command1
+ * @brief    Test: events_command1
+ * @details  Pass --help to events command and verify it returns FPGA_OK
+ *           verify parsing.
+ */
+TEST_P(fpgainfo_c_p, events_command1) {
+    const char *args[] = {
+        "fpgainfo",
+        "events",
+        "--help",
+    };
+    char *argv[ARRAY_SIZE(args)];
+    size_t i;
+
+    /* copy args to make them non-const */
+    for (i = 0; i < ARRAY_SIZE(args); i++)
+        argv[i] = strdup(args[i]);
+
+    EXPECT_EQ(events_command(NULL, 0, ARRAY_SIZE(argv), argv), FPGA_OK);
+
+    for (i = 0; i < ARRAY_SIZE(args); i++)
+        free(argv[i]);
+}
+
+/**
+ * @test     events_command2
+ * @brief    Test: events_command2
+ * @details  Parse invalid arguments to events_command (but no tokens) to
+ *           verify expected failure.
+ */
+TEST_P(fpgainfo_c_p, events_command2) {
+    const char *args[] = {
+        "fpgainfo",
+        "events",
+        "",
+    };
+    const char *invalids[] = {
+        "--unknown",
+        "--boot=123nan56",
+        "--count=nan123",
+    };
+    char *argv[ARRAY_SIZE(args)];
+    size_t i;
+
+    /* copy args to make them non-const */
+    for (i = 0; i < ARRAY_SIZE(args); i++)
+        argv[i] = strdup(args[i]);
+
+    for (i = 0; i < ARRAY_SIZE(invalids); i++) {
+        const size_t arg = ARRAY_SIZE(argv) - 1;
+
+        /* replace last argument with an invalid one */
+        free(argv[arg]);
+        argv[arg] = strdup(invalids[i]);
+
+        /* reset option index to prepare for (re)parsing arguments */
+        optind = 0;
+
+        EXPECT_EQ(events_command(NULL, 0, ARRAY_SIZE(argv), argv), FPGA_INVALID_PARAM);
+    }
+
+    for (i = 0; i < ARRAY_SIZE(args); i++)
+        free(argv[i]);
+}
+
+/**
+ * @test     events_help
+ * @brief    Test: events_help
+ * @details  The function prints help message for events subcommand.<br>
+ */
+TEST_P(fpgainfo_c_p, events_help) {
+    events_help();
+}
+
+/**
  * @test       get_metrics0
  * @brief      Test: get_metrics
  * @details    When passed with valid arguments, the fn <br>
@@ -1066,7 +1196,7 @@ TEST(fpgainfo_c, replace_chars1) {
 TEST(fpgainfo_c, upcase_pci0) {
     char input[256];
     strcpy(input, "pcie 0");
-    upcase_pci(input, strnlen(input, 256));
+    upcase_pci(input);
     EXPECT_STREQ(input, "PCIe 0");
 }
 
@@ -1077,7 +1207,7 @@ TEST(fpgainfo_c, upcase_pci0) {
 TEST(fpgainfo_c, upcase_pci1) {
     char input[256];
     strcpy(input, "  pcie 0 pcie 1 pcie 2  ");
-    upcase_pci(input, strnlen(input, 256));
+    upcase_pci(input);
     EXPECT_STREQ(input, "  PCIe 0 PCIe 1 PCIe 2  ");
 }
 
@@ -1088,7 +1218,7 @@ TEST(fpgainfo_c, upcase_pci1) {
 TEST(fpgainfo_c, upcase_pci2) {
     char input[256];
     strcpy(input, " pc ");
-    upcase_pci(input, strnlen(input, 256));
+    upcase_pci(input);
     EXPECT_STREQ(input, " pc ");
 }
 

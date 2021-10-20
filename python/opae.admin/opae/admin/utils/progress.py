@@ -130,7 +130,7 @@ class progress(loggable):
             text += u' [{}/{} {}]'.format(ratio[0], ratio[1], self._units)
 
         elapsed = timedelta(seconds=time.time() - self._start_time)
-        text += u'[Time:{}]'.format(elapsed)
+        text += u'[Elapsed Time: {}]'.format(elapsed)
         if self._label:
             text += u'[{}]'.format(self._label)
 
