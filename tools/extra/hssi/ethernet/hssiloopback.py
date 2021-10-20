@@ -70,7 +70,7 @@ class FPGAHSSILPBK(HSSICOMMON):
             return False
 
         ctl_addr = hssi_ctl_addr(0)
-        if (self._loopback):
+        if self._loopback == 'enable':
             ctl_addr.sal_cmd = HSSI_SALCMD.ENABLE_LOOPBACK.value
         else:
             ctl_addr.sal_cmd = HSSI_SALCMD.DISABLE_LOOPBACK.value
@@ -111,7 +111,6 @@ class FPGAHSSILPBK(HSSICOMMON):
         print hssi info
         enable/disable hssi loopback
         """
-        print("----hssi_loopback_start----")
         if not self.hssi_info(self._hssi_grps[0][0]):
             print("Failed to read hssi information")
             return False
@@ -152,10 +151,6 @@ def main():
     args, left = parser.parse_known_args()
 
     print("args", args)
-    print("pcie_address:", args.pcie_address)
-    print("args.loopback:", args.loopback)
-    print("args.port:", args.port)
-    print(args)
 
     if not verify_pcie_address(args.pcie_address.lower()):
         sys.exit(1)
@@ -163,9 +158,6 @@ def main():
     if args.loopback is None:
         print('please specify --loopback enable/disable')
         sys.exit(1)
-    else:
-        op = 'enable' if args.loopback else 'disable'
-        print('{} fpga loopback'.format(op))
 
     f = FpgaFinder(args.pcie_address.lower())
     devs = f.enum()
@@ -186,13 +178,17 @@ def main():
         print("Failed to find HSSI feature", devs[0].get('pcie_address'))
         sys.exit(1)
 
-    print("fpga uid dev:", args.hssi_grps[0][0])
+    print("fpga uio dev:", args.hssi_grps[0][0])
 
     lp = FPGAHSSILPBK(args)
     if not lp.hssi_loopback_start():
-        print("Failed to Enable loopback")
+        print("Failed to enable/disable loopback")
         sys.exit(1)
-    print("hssi loopback enabled")
+
+    if args.loopback == 'enable':
+        print("hssi loopback enabled to port", args.port)
+    else:
+        print("hssi loopback disabled to port", args.port)
 
 
 if __name__ == "__main__":
