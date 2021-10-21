@@ -839,6 +839,32 @@ class HSSICOMMON(object):
         value = self.pyopaeuio_inst.read64(region_index, offset)
         return value
 
+    def clear_reg_bits(self,
+                       region_index,
+                       reg_offset,
+                       idx, width):
+        """
+        Read reg offset
+        Write 0 to bits
+        poll for status
+        """
+        total_time = 0
+        while(True):
+            reg_data = self.read32(region_index, reg_offset)
+            value = self.register_get_bits(reg_data, idx, width)
+            if value == 0:
+                return True
+            value = self.register_field_set(value,
+                                            idx, width, 0)
+            self.write32(region_index, reg_offset, value)
+
+            time.sleep(HSSI_POLL_SLEEP_TIME)
+            if total_time > HSSI_POLL_TIMEOUT:
+                return False
+
+            total_time = HSSI_POLL_SLEEP_TIME + total_time
+        return False
+
     def clear_reg(self,
                   region_index,
                   reg_offset):
@@ -883,8 +909,9 @@ class HSSICOMMON(object):
 
         cmd_sts_value = self.read32(region_index, HSSI_CSR.HSSI_CTL_STS.value)
         if cmd_sts_value != 0:
-            ret = self.clear_reg(region_index,
-                                 HSSI_CSR.HSSI_CTL_STS.value)
+            ret = self.clear_reg_bits(region_index,
+                                      HSSI_CSR.HSSI_CTL_STS.value,
+                                      0, 3)
             if not ret:
                 print("Failed to clear HSSI CTL Address csr")
                 return False
@@ -992,4 +1019,10 @@ class HSSICOMMON(object):
 
     def register_field_get(self, reg_data, idx):
         value = ((reg_data >> idx) & (1))
+        return value
+
+    def register_get_bits(self, reg_data, idx, width):
+        value = 0
+        for x in range(width):
+            value |= (reg_data & (1 << (idx + x)))
         return value
