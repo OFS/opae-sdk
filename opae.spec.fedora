@@ -82,11 +82,7 @@ OPAE headers, tools, sample source, and documentation
 %cmake -DCMAKE_INSTALL_PREFIX=/usr \
        -DOPAE_PRESERVE_REPOS=ON \
        -DOPAE_BUILD_LEGACY=ON \
-       -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=ON \
-       -DOPAE_BUILD_EXTRA_TOOLS_OPAEIO=ON \
-       -DOPAE_WITH_CLI11=ON \
-       -DOPAE_WITH_SPDLOG=ON \
-       -DOPAE_WITH_PYBIND11=ON .
+       -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=ON .
 %if 0%{?rhel}
   %make_build
 %else
@@ -148,6 +144,14 @@ pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/packager
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
 popd
 
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/tools/extra/fpgadiag
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
+popd
+
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/tools/extra/opae.io
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
+popd
+
 # Make rpmlint happy about install permissions
 # admin tools
 for file in %{buildroot}%{python3_sitelib}/opae/admin/tools/{fpgaflash,fpgaotsu,fpgaport,fpgasupdate,ihex2ipmi,rsu,super_rsu,bitstream_info,opaevfio,pci_device}.py; do
@@ -199,7 +203,8 @@ done
 %{_bindir}/rsu
 %{_bindir}/pci_device
 
-%{python3_sitelib}/opae*
+%{python3_sitelib}/opae.admin*
+%{python3_sitelib}/opae/admin*
 
 %config(noreplace) %{_sysconfdir}/opae/fpgad.cfg*
 %config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
@@ -307,7 +312,10 @@ done
 %{python3_sitelib}/pacsign*
 %{python3_sitelib}/packager*
 %{python3_sitearch}/libvfio*
-%{python3_sitearch}/opae*
+%{python3_sitearch}/opae.diag*
+%{python3_sitearch}/opae/diag*
+%{python3_sitearch}/opae.io*
+%{python3_sitearch}/opae/io*
 %{python3_sitearch}/pyopaeuio*
 
 %changelog

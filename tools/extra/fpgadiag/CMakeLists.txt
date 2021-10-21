@@ -24,71 +24,71 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-if (OPAE_WITH_PYBIND11)
-    opae_add_shared_library(TARGET opae-c++-nlb
-        SOURCE
-            src/nlb.h
-            src/nlb_cache_prime.h
-            src/nlb_cache_prime.cpp
-            src/nlb_stats.h
-            src/nlb_stats.cpp
-            src/nlb0.h
-            src/nlb0.cpp
-            src/nlb3.h
-            src/nlb3.cpp
-            src/nlb7.h
-            src/nlb7.cpp
-            src/perf_counters.h
-            src/perf_counters.cpp
-            src/diag_utils.cpp
+opae_add_shared_library(TARGET opae-c++-nlb
+    SOURCE
+        src/nlb.h
+        src/nlb_cache_prime.h
+        src/nlb_cache_prime.cpp
+        src/nlb_stats.h
+        src/nlb_stats.cpp
+        src/nlb0.h
+        src/nlb0.cpp
+        src/nlb3.h
+        src/nlb3.cpp
+        src/nlb7.h
+        src/nlb7.cpp
+        src/perf_counters.h
+        src/perf_counters.cpp
+        src/diag_utils.cpp
+    LIBS
+        opae-c
+        opae-cxx-core
+    VERSION ${OPAE_VERSION}
+    SOVERSION ${OPAE_VERSION_MAJOR}
+    COMPONENT opaecxxnlb
+)
+
+target_include_directories(opae-c++-nlb
+    PRIVATE
+        ${OPAE_SDK_SOURCE}/tools/extra/c++utils
+)
+
+set_target_properties(opae-c++-nlb
+    PROPERTIES
+        CXX_STANDARD 11
+        CXX_STANDARD_REQUIRED YES
+        CXX_EXTENSIONS NO
+)
+
+function(add_fpgadiag_app target source comp)
+    opae_add_executable(TARGET ${target}
+        SOURCE ${source}
         LIBS
             opae-c
             opae-cxx-core
-        VERSION ${OPAE_VERSION}
-        SOVERSION ${OPAE_VERSION_MAJOR}
-        COMPONENT opaecxxnlb
+            opae-c++-utils
+            opae-c++-nlb
+            ${libjson-c_LIBRARIES}
+            ${libuuid_LIBRARIES}
+        COMPONENT ${comp}
     )
-
-    target_include_directories(opae-c++-nlb
-        PRIVATE
-            ${OPAE_SDK_SOURCE}/tools/extra/c++utils
-    )
-
-    set_target_properties(opae-c++-nlb
+    set_target_properties(${target}
         PROPERTIES
             CXX_STANDARD 11
             CXX_STANDARD_REQUIRED YES
             CXX_EXTENSIONS NO
     )
+    target_include_directories(${target}
+        PRIVATE
+            ${OPAE_SDK_SOURCE}/tools/extra/c++utils
+    )
+endfunction()
 
-    function(add_fpgadiag_app target source comp)
-        opae_add_executable(TARGET ${target}
-            SOURCE ${source}
-            LIBS
-                opae-c
-                opae-cxx-core
-                opae-c++-utils
-                opae-c++-nlb
-                ${libjson-c_LIBRARIES}
-                ${libuuid_LIBRARIES}
-            COMPONENT ${comp}
-        )
-        set_target_properties(${target}
-            PROPERTIES
-                CXX_STANDARD 11
-                CXX_STANDARD_REQUIRED YES
-                CXX_EXTENSIONS NO
-        )
-        target_include_directories(${target}
-            PRIVATE
-                ${OPAE_SDK_SOURCE}/tools/extra/c++utils
-        )
-    endfunction()
+add_fpgadiag_app(nlb0 src/nlb0_main.cpp toolfpgadiagapps)
+add_fpgadiag_app(nlb3 src/nlb3_main.cpp toolfpgadiagapps)
+add_fpgadiag_app(nlb7 src/nlb7_main.cpp toolfpgadiagapps)
 
-    add_fpgadiag_app(nlb0 src/nlb0_main.cpp toolfpgadiagapps)
-    add_fpgadiag_app(nlb3 src/nlb3_main.cpp toolfpgadiagapps)
-    add_fpgadiag_app(nlb7 src/nlb7_main.cpp toolfpgadiagapps)
-
+if (OPAE_WITH_PYBIND11)
     set(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/timestamp)
     file(GLOB_RECURSE PKG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/opae/*)
 

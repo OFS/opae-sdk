@@ -67,14 +67,7 @@ OPAE headers, tools, sample source, and documentation
 %setup -q -n %{name}-%{version}-%{opae_release}
 
 %build
-%cmake -DCMAKE_INSTALL_PREFIX=/usr \
-       -DOPAE_PRESERVE_REPOS=ON \
-       -DOPAE_BUILD_LEGACY=ON \
-       -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=OFF \
-       -DOPAE_BUILD_EXTRA_TOOLS_OPAEIO=OFF \
-       -DOPAE_WITH_CLI11=OFF \
-       -DOPAE_WITH_SPDLOG=OFF \
-       -DOPAE_WITH_PYBIND11=OFF .
+%cmake -DOPAE_MINIMAL_BUILD=ON .
 %if 0%{?rhel}
   %make_build
 %else
@@ -158,10 +151,6 @@ done
 for file in %{buildroot}%{python3_sitelib}/ethernet/{hssicommon,hssiloopback,hssimac,hssistats}.py; do
    chmod a+x $file
 done
-## diag
-#for file in %{buildroot}%{python3_sitearch}/opae/diag/{common,fecmode,fpgadiag,fpgalpbk,fpgamac,fpgastats,fvlbypass,mactest,mux}.py; do
-#   chmod a+x $file
-#done
 
 %files
 %dir %{_datadir}/opae
@@ -171,6 +160,7 @@ done
 
 %{_libdir}/libopae-c.so.*
 %{_libdir}/libbitstream.so.*
+%{_libdir}/libopae-c++-nlb.so.*
 %{_libdir}/libopae-cxx-core.so.*
 %{_libdir}/libopae-c++-utils.so.*
 %{_libdir}/libfpgad-api.so.*
@@ -199,7 +189,8 @@ done
 %{_bindir}/rsu
 %{_bindir}/pci_device
 
-%{python3_sitelib}/opae*
+%{python3_sitelib}/opae.admin*
+%{python3_sitelib}/opae/admin*
 
 %config(noreplace) %{_sysconfdir}/opae/fpgad.cfg*
 %config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
@@ -261,6 +252,7 @@ done
 %{_usr}/src/opae/argsfilter/argsfilter.h
 
 %{_libdir}/libfpgad-api.so
+%{_libdir}/libopae-c++-nlb.so
 %{_libdir}/libopae-cxx-core.so
 %{_libdir}/libopae-c++-utils.so
 %{_libdir}/libopae-c.so
@@ -303,6 +295,9 @@ done
 %{_bindir}/opaeuiotest
 %{_bindir}/pac_hssi_config.py
 %{_bindir}/rtl_src_config
+%{_bindir}/nlb0
+%{_bindir}/nlb3
+%{_bindir}/nlb7
 
 %{_usr}/share/opae/*
 %{python3_sitelib}/ethernet*
