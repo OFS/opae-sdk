@@ -39,6 +39,7 @@ class FPGAHSSIMAC(HSSICOMMON):
         self._mtu = args.mtu
         self._hssi_grps = args.hssi_grps
         self._pcie_address = args.pcie_address
+        self._port = args.port
         HSSICOMMON.__init__(self)
 
     def get_mac_mtu(self):
@@ -50,36 +51,58 @@ class FPGAHSSIMAC(HSSICOMMON):
         HSSI Read Data CSR [31:16] Maximum TX frame size
         HSSI Read Data CSR [15:0] Maximum Rx frame size
         """
-        print("-------eth_mac_mtu--------")
         self.open(self._hssi_grps[0][0])
+
+        hssi_feature_list = hssi_feature(self.read32(0, 0xC))
+        if self._port >= HSSI_PORT_COUNT:
+            print("Invalid input port number")
+            self.close()
+            return False
+
+        enable = self.register_field_get(hssi_feature_list.port_enable,
+                                         self._port)
+
+        if enable == 0:
+            print("Input port is not enabled or active")
+            self.close()
+            return False
 
         ctl_addr = hssi_ctl_addr(0)
         ctl_addr.sal_cmd = HSSI_SALCMD.GET_MTU.value
+        # set port number
+        ctl_addr.port_address = self._port
 
-        value = self.read_reg(0, ctl_addr.value)
+        res, value = self.read_reg(0, ctl_addr.value)
+        if not res:
+            self.close()
+            print("Failed to read mtu")
+            return False
+
         mask = 0
         width = 16
         for x in range(width):
             mask |= (1 << x)
-        print("Maximum RX frame size:", (value & mask))
-
-        for x in range(width):
-            mask |= (0 << x)
-        print("Maximum TX frame size:", (value & mask))
+        '''HSSI Read Data CSR [15:0] Maximum Rx frame size'''
+        print("Port{0} Maximum RX frame size:{1}".format(self._port,
+                                                         value & mask))
+        '''HSSI Read Data CSR [31:16] Maximum Tx frame size'''
+        print("Port{0} Maximum TX frame size:{1}".format(self._port,
+                                                         value >> width))
 
         self.close()
-        return 0
+        return True
 
     def hssi_mtu_start(self):
         """
         print hssi info
         get mtu
         """
-        print("----hssi_mtu_start----")
         if not self.hssi_info(self._hssi_grps[0][0]):
             print("Failed to read hssi information")
             sys.exit(1)
-        self.get_mac_mtu()
+        if not self.get_mac_mtu():
+            print("Failed to mtu information")
+            sys.exit(1)
 
 
 def main():
@@ -99,6 +122,10 @@ def main():
     parser.add_argument('--mtu', nargs='?', const='',
                         help='maximum allowable ethernet frame length')
 
+    parser.add_argument('--port', type=int,
+                        default=0,
+                        help='hssi port number')
+
     # exit if no commad line argument
     args = parser.parse_args()
     if len(sys.argv) == 1:
@@ -107,11 +134,7 @@ def main():
 
     args, left = parser.parse_known_args()
 
-    print("args", args)
-    print("pcie_address:", args.pcie_address)
-    print("args.mtu:", args.mtu)
     print(args)
-
     if not verify_pcie_address(args.pcie_address.lower()):
         sys.exit(1)
 
@@ -129,12 +152,12 @@ def main():
         sys.exit(1)
 
     args.hssi_grps = f.find_hssi_group(devs[0].get('pcie_address'))
-    print("args.hssi_grps", args.hssi_grps)
+    print("args.hssi_grps".format(args.hssi_grps))
     if len(args.hssi_grps) == 0:
-        print("Failed to find HSSI feature", devs[0].get('pcie_address'))
+        print("Failed to find HSSI feature".format(devs[0].get('pcie_address')))
         sys.exit(1)
 
-    print("fpga uid dev:", args.hssi_grps[0][0])
+    print("fpga uio dev:".format(args.hssi_grps[0][0]))
 
     lp = FPGAHSSIMAC(args)
     lp.hssi_mtu_start()
