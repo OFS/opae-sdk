@@ -503,6 +503,40 @@ class fpga_base(sysfs_device):
         """
         return self.pci_node.pci_id in self.BOOT_PAGES
 
+    @property
+    def rsu_controls(self):
+        available_images = None
+        image_load = None
+
+        patterns = ['',
+                    '*-sec*.*.auto',
+                    '*-sec*.*.auto/*fpga_sec_mgr/*fpga_sec*',
+                    '*-sec*.*.auto/fpga_image_load/fpga_image*']
+
+        spi = self.fme.spi_bus
+        if spi:
+            for pat in patterns:
+                for d in ['control', 'update']:
+                    available_images = spi.find_one(
+                        os.path.join(pat, d, 'available_images'))
+                    image_load = spi.find_one(
+                        os.path.join(pat, d, 'image_load'))
+                    if available_images:
+                        return available_images, image_load
+
+        pmci = self.fme.pmci_bus
+        if pmci:
+            for pat in patterns:
+                for d in ['control', 'update']:
+                    available_images = pmci.find_one(
+                        os.path.join(pat, d, 'available_images'))
+                    image_load = pmci.find_one(
+                        os.path.join(pat, d, 'image_load'))
+                    if available_images:
+                        return available_images, image_load
+
+        return None, None
+
     def rsu_boot(self, available_image, **kwargs):
         # look for non-max10 solution
         fme = self.fme
@@ -521,18 +555,7 @@ class fpga_base(sysfs_device):
             self.log.exception('unrecognized kwargs: %s', kwargs)
             raise ValueError('unrecognized kwargs: {}'.format(kwargs))
 
-        available_images = None
-        image_load = None
-
-        upload_dev = self.upload_dev
-        if upload_dev:
-            available_images = upload_dev.find_one('update/available_images')
-            image_load = upload_dev.find_one('update/image_load')
-
-        fpga_sec = self.secure_update
-        if fpga_sec and not available_images:
-            available_images = fpga_sec.find_one('control/available_images')
-            image_load = fpga_sec.find_one('control/image_load')
+        available_images, image_load = self.rsu_controls
 
         if not available_images or not image_load:
             msg = 'rsu not supported by this (0x{:04x},0x{:04x})'.format(
