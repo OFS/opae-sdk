@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2017-2021, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,29 +24,31 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
-    "${OPAE_SDK_SOURCE}/opae-libs/cmake/modules")
-include(FindHwloc)
+if (OPAE_WITH_HWLOC AND OPAE_WITH_TBB)
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
+        "${OPAE_SDK_SOURCE}/opae-libs/cmake/modules")
+    include(FindHwloc)
 
-#TODO: Edit the code dependencies here
-set(PYTHON_SRC
-     bist_app.py
-     bist_common.py
-     bist_def.py
-     bist_dma.py
-     bist_nlb0.py
-     bist_nlb3.py
-     fpgabist)
+    #TODO: Edit the code dependencies here
+    set(PYTHON_SRC
+         bist_app.py
+         bist_common.py
+         bist_def.py
+         bist_dma.py
+         bist_nlb0.py
+         bist_nlb3.py
+         fpgabist)
 
-if(TBB_FOUND)
-  add_subdirectory(dma)
-  add_subdirectory(dma_N3000)
-else(TBB_FOUND)
-  message(WARNING "Thread Building Blocks not found: not building fpgabist/dma.")
-endif(TBB_FOUND)
+    if(TBB_FOUND)
+      add_subdirectory(dma)
+      add_subdirectory(dma_N3000)
+    else(TBB_FOUND)
+      message(WARNING "Thread Building Blocks not found: not building fpgabist/dma.")
+    endif(TBB_FOUND)
 
-add_subdirectory(bist)
+    add_subdirectory(bist)
 
-install(PROGRAMS ${PYTHON_SRC}
-    DESTINATION bin
-    COMPONENT toolfpgabist)
+    install(PROGRAMS ${PYTHON_SRC}
+        DESTINATION bin
+        COMPONENT toolfpgabist)
+endif(OPAE_WITH_HWLOC AND OPAE_WITH_TBB)
