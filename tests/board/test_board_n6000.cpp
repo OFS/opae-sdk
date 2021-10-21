@@ -306,6 +306,41 @@ TEST_P(board_dfl_n6000_c_p, board_n6000_10) {
 }
 
 /**
+* @test       board_n6000_11
+* @brief      Tests: print_board_info
+* @details    checks BOM Critical Components specific output from print_board_info <br>
+*/
+TEST_P(board_dfl_n6000_c_p, board_n6000_11) {
+
+	static char bom_info_in[] =
+		"Name1,Value\n"
+		"\n"
+		"Name2,Value2\r\n"
+		"Name3, Value3\n\r"
+		"BOM PBA#,B#FB2CG2@AGF14-A1P2\r\n"
+		"BOM MMID, 115000\r\r\r"
+		"ABC3 ,This is a demo\r"
+		"C cd     	,	 			   s\xFF";
+	const size_t bom_info_in_size = sizeof(bom_info_in) - 1;
+	static const char bom_info_out[] =
+		"Name1: Value\n"
+		"Name2: Value2\n"
+		"Name3: Value3\n"
+		"BOM PBA#: B#FB2CG2@AGF14-A1P2\n"
+		"BOM MMID: 115000\n"
+		"ABC3: This is a demo\n"
+		"C cd: s\n";
+
+	ASSERT_EQ(write_sysfs_file("dfl_dev*/*/bom_info0/nvmem", bom_info_in, bom_info_in_size), FPGA_OK);
+
+	testing::internal::CaptureStdout();
+	EXPECT_EQ(print_board_info(tokens_[0]), FPGA_OK);
+	std::string output = testing::internal::GetCapturedStdout();
+	const char * find_bom_info_out = strstr(output.c_str(), bom_info_out);
+	EXPECT_NE(find_bom_info_out, (const char *)NULL);
+}
+
+/**
 * @test       board_n6000_12
 * @brief      Tests: print_mac_info
 * @details    prints mac address <br>
