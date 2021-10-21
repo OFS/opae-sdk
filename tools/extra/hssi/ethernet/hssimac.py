@@ -82,10 +82,10 @@ class FPGAHSSIMAC(HSSICOMMON):
         width = 16
         for x in range(width):
             mask |= (1 << x)
-        '''HSSI Read Data CSR [15:0] Maximum Rx frame size'''
+        #HSSI Read Data CSR [15:0] Maximum Rx frame size
         print("Port{0} Maximum RX frame size:{1}".format(self._port,
                                                          value & mask))
-        '''HSSI Read Data CSR [31:16] Maximum Tx frame size'''
+        #HSSI Read Data CSR [31:16] Maximum Tx frame size
         print("Port{0} Maximum TX frame size:{1}".format(self._port,
                                                          value >> width))
 
@@ -152,12 +152,12 @@ def main():
         sys.exit(1)
 
     args.hssi_grps = f.find_hssi_group(devs[0].get('pcie_address'))
-    print("args.hssi_grps".format(args.hssi_grps))
+    print("args.hssi_grps{}".format(args.hssi_grps))
     if len(args.hssi_grps) == 0:
-        print("Failed to find HSSI feature".format(devs[0].get('pcie_address')))
+        print("Failed to find HSSI feature{}".format(devs[0].get('pcie_address')))
         sys.exit(1)
 
-    print("fpga uio dev:".format(args.hssi_grps[0][0]))
+    print("fpga uio dev:{}".format(args.hssi_grps[0][0]))
 
     lp = FPGAHSSIMAC(args)
     lp.hssi_mtu_start()
