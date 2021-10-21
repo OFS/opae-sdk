@@ -53,13 +53,14 @@ DEFAULT_BDF = 'ssss:bb:dd.f'
 # mailbox register poll interval 1 microseconds
 HSSI_POLL_SLEEP_TIME = 1/1000000
 
-# mailbox register poll timeout 1 seconds
-HSSI_POLL_TIMEOUT = 1
+# mailbox register poll timeout 100 microseconds
+HSSI_POLL_TIMEOUT = 1/10000
 
 HSSI_FEATURE_ID = 0x15
 
 # Max port count
 HSSI_PORT_COUNT = 16
+
 
 class HSSI_CSR(Enum):
     """
@@ -387,7 +388,7 @@ class hssi_port_attribute(Union):
     @property
     def dyn_reconf(self):
         return self.bits.dyn_reconf
-		
+
     @property
     def port_sub_profiles(self):
         return self.bits.port_sub_profiles
@@ -684,7 +685,7 @@ class hssi_eth_port_status(Union):
 def verify_pcie_address(pcie_address):
     m = BDF_PATTERN.match(pcie_address)
     if m is None:
-        print("Invalid pcie address foramt",pcie_address)
+        print("Invalid pcie address format{}".format(pcie_address))
         return False
     return True
 
@@ -738,8 +739,8 @@ class FpgaFinder(object):
     def find_hssi_group(self, pci_address):
         hssi_group = {}
         paths = glob.glob(os.path.join("/sys/bus/pci/devices/",
-                                      pci_address,
-                                      "fpga_region/region*/dfl-fme*/dfl_dev*"))
+                                       pci_address,
+                                       "fpga_region/region*/dfl-fme*/dfl_dev*"))
         i = 0
         feature_id = 0
         uio_path = 0
@@ -747,11 +748,10 @@ class FpgaFinder(object):
             with open(os.path.join(path, 'feature_id'), 'r') as fd:
                 feature_id = fd.read().strip()
 
-            if int(feature_id,16) != HSSI_FEATURE_ID:
+            if int(feature_id, 16) != HSSI_FEATURE_ID:
                 continue
 
             uio_path = glob.glob(os.path.join(path, "uio/uio*"))
-
             if len(uio_path) == 0:
                 continue
             m = re.search('dfl_dev(.*)', path)
@@ -782,25 +782,28 @@ class HSSICOMMON(object):
             hssi_feature_list = hssi_feature(self.read32(0, 0xC))
             ctl_addr = hssi_ctl_addr(0)
             ctl_addr.sal_cmd = HSSI_SALCMD.FIRMWARE_VER.value
-            firmware_version = self.read_reg(0, ctl_addr.value)
-
+            res, firmware_version = self.read_reg(0, ctl_addr.value)
+            if not res:
+                print("Failed to read  HSSI firmware version")
+                return False
             print("\n--------HSSI INFO START-------")
-            print("{0: <24}:{1}".format("HSSI ID",hex(hssi_dfh.id)))
-            print("{0: <24}:{1}".format("HSSI version",str(hssi_version)))
-            print("{0: <24}:{1}".format("HSSI num ports",hssi_feature_list.num_hssi_ports))
-            print("{0: <24}:{1}".format("Firmware Version",firmware_version))
+            print("{0: <24}:{1}".format("HSSI ID", hex(hssi_dfh.id)))
+            print("{0: <24}:{1}".format("HSSI version", str(hssi_version)))
+            print("{0: <24}:{1}".format("HSSI num ports",
+                                        hssi_feature_list.num_hssi_ports))
+            print("{0: <24}:{1}".format("Firmware Version", firmware_version))
             print("--------Port profile-------")
             for port in range(0, HSSI_PORT_COUNT):
-               enable = self.register_field_get(hssi_feature_list.port_enable,
-                                             port);
-               if enable == 0:
+                enable = self.register_field_get(hssi_feature_list.port_enable,
+                                                 port)
+                if enable == 0:
                     continue
-               port_attribute = hssi_port_attribute(self.read32(0, 0x10 + port * 4))
-               for profile, pro_str in hssi_port_attribute.HSSI_PORT_PROFILES:
-                  if port_attribute.port_profiles == profile:
-                     print("Port{0:<20}:{1:<25}".format(port,pro_str))
+                port_attribute = hssi_port_attribute(self.read32(0,
+                                                                 0x10 + port * 4))
+                for profile, pro_str in hssi_port_attribute.HSSI_PORT_PROFILES:
+                    if port_attribute.port_profiles == profile:
+                        print("Port{0:<20}:{1:<25}".format(port, pro_str))
             print("--------HSSI INFO END------- \n")
-
             self.close()
 
         except RuntimeError:
@@ -835,6 +838,32 @@ class HSSICOMMON(object):
     def read64(self, region_index, offset):
         value = self.pyopaeuio_inst.read64(region_index, offset)
         return value
+
+    def clear_reg_bits(self,
+                       region_index,
+                       reg_offset,
+                       idx, width):
+        """
+        Read reg offset
+        Write 0 to bits
+        poll for status
+        """
+        total_time = 0
+        while(True):
+            reg_data = self.read32(region_index, reg_offset)
+            value = self.register_get_bits(reg_data, idx, width)
+            if value == 0:
+                return True
+            value = self.register_field_set(value,
+                                            idx, width, 0)
+            self.write32(region_index, reg_offset, value)
+
+            time.sleep(HSSI_POLL_SLEEP_TIME)
+            if total_time > HSSI_POLL_TIMEOUT:
+                return False
+
+            total_time = HSSI_POLL_SLEEP_TIME + total_time
+        return False
 
     def clear_reg(self,
                   region_index,
@@ -880,8 +909,9 @@ class HSSICOMMON(object):
 
         cmd_sts_value = self.read32(region_index, HSSI_CSR.HSSI_CTL_STS.value)
         if cmd_sts_value != 0:
-            ret = self.clear_reg(region_index,
-                                 HSSI_CSR.HSSI_CTL_STS.value)
+            ret = self.clear_reg_bits(region_index,
+                                      HSSI_CSR.HSSI_CTL_STS.value,
+                                      0, 3)
             if not ret:
                 print("Failed to clear HSSI CTL Address csr")
                 return False
@@ -902,7 +932,7 @@ class HSSICOMMON(object):
         total_time = 0
         while(True):
             reg_data = self.read32(region_index, reg_offset)
-            if ((reg_data >> bit_index)  & 1) == 1:
+            if ((reg_data >> bit_index) & 1) == 1:
                 return True
 
             time.sleep(HSSI_POLL_SLEEP_TIME)
@@ -923,7 +953,7 @@ class HSSICOMMON(object):
         ret = self.clear_ctl_sts_reg(region_index)
         if not ret:
             print("Failed to clear HSSI CTL STS csr")
-            return 0
+            return False, -1
 
         self.write32(region_index, HSSI_CSR.HSSI_CTL_ADDRESS.value, reg_data)
 
@@ -934,16 +964,16 @@ class HSSICOMMON(object):
                                       HSSI_CSR.HSSI_CTL_STS.value,
                                       2):
             print("HSSI ctl sts csr fails to update ACK")
-            return 0
+            return False, -1
 
         value = self.read32(region_index, HSSI_CSR.HSSI_RD_DATA.value)
 
         ret = self.clear_ctl_sts_reg(region_index)
         if not ret:
             print("Failed to clear HSSI CTL STS csr")
-            return 0
+            return False, -1
 
-        return value
+        return True, value
 
     def write_reg(self, region_index, reg_data, value):
         """
@@ -957,7 +987,10 @@ class HSSICOMMON(object):
         ret = self.clear_ctl_sts_reg(region_index)
         if not ret:
             print("Failed to clear HSSI CTL STS csr")
-            return 0
+            return False
+
+        self.write32(region_index, HSSI_CSR.HSSI_CTL_ADDRESS.value, reg_data)
+        self.write32(region_index, HSSI_CSR.HSSI_WR_DATA.value, value)
 
         cmd_sts = hssi_cmd_sts(0x2)
         self.write32(region_index, HSSI_CSR.HSSI_CTL_STS.value, cmd_sts.value)
@@ -966,14 +999,12 @@ class HSSICOMMON(object):
                                       HSSI_CSR.HSSI_CTL_STS.value,
                                       2):
             print("HSSI ctl sts csr fails to update ACK")
-            return 0
-
-        self.write32(region_index, HSSI_CSR.HSSI_WR_DATA.value, value)
+            return False
 
         ret = self.clear_ctl_sts_reg(region_index)
         if not ret:
             print("Failed to clear HSSI CTL STS csr")
-            return 0
+            return False
 
         return True
 
@@ -990,37 +1021,8 @@ class HSSICOMMON(object):
         value = ((reg_data >> idx) & (1))
         return value
 
-
-def main():
-    """
-    parse input arguemnts pciaddress
-    """
-    parser = argparse.ArgumentParser()
-
-    pcieaddress_help = 'sbdf of device to program \
-                        (e.g. 0000:04:00.0).' \
-                       ' Optional when one device in system.'
-    parser.add_argument('--pcie-address', '-P',
-                        default=None, help=pcieaddress_help)
-
-    args, left = parser.parse_known_args()
-
-    print(args)
-    print("pcie_address:", args.pcie_address)
-
-    f = FpgaFinder(args.pcie_address)
-    devs = f.enum()
-    for d in devs:
-        print('sbdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))
-        print('FPGA dev:', d)
-    if len(devs) > 1:
-        print('{} FPGAs are found\nplease choose '
-              'one FPGA'.format(len(devs)))
-        sys.exit(1)
-    if not devs:
-        print('no FPGA found')
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()
+    def register_get_bits(self, reg_data, idx, width):
+        value = 0
+        for x in range(width):
+            value |= (reg_data & (1 << (idx + x)))
+        return value
