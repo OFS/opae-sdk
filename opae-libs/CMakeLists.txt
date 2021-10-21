@@ -152,6 +152,16 @@ if (OPAE_BUILD_LIBOPAEVFIO)
     endif(VFIO_CHECK)
 endif (OPAE_BUILD_LIBOPAEVFIO)
 
+if (NOT DEFINED OPAE_MINIMAL_BUILD)
+    option(OPAE_MINIMAL_BUILD "Enable minimal build" OFF)
+    mark_as_advanced(OPAE_MINIMAL_BUILD)
+endif(NOT DEFINED OPAE_MINIMAL_BUILD)
+
+if (OPAE_MINIMAL_BUILD)
+    set(OPAE_WITH_PYBIND11 OFF CACHE BOOL "Enable use of pybind11" FORCE)
+    set(OPAE_PRESERVE_REPOS ON CACHE BOOL "Disable refresh of external repos" FORCE)
+endif(OPAE_MINIMAL_BUILD)
+
 ############################################################################
 ## Add Subdirectories ######################################################
 ############################################################################
