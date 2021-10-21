@@ -55,14 +55,6 @@ mark_as_advanced(OPAE_WITH_TBB)
 option(OPAE_MINIMAL_BUILD "Enable minimal build" OFF)
 mark_as_advanced(OPAE_MINIMAL_BUILD)
 
-if (OPAE_MINIMAL_BUILD)
-    set(OPAE_WITH_CLI11 OFF CACHE BOOL "Enable use of CLI11" FORCE)
-    set(OPAE_WITH_SPDLOG OFF CACHE BOOL "Enable use of spdlog" FORCE)
-    set(OPAE_WITH_LIBEDIT OFF CACHE BOOL "Enable use of libedit" FORCE)
-    set(OPAE_WITH_HWLOC OFF CACHE BOOL "Enable use of hwloc" FORCE)
-    set(OPAE_WITH_TBB OFF CACHE BOOL "Enable use of tbb" FORCE)
-endif(OPAE_MINIMAL_BUILD)
-
 ############################################################################
 ## Whether to build opae-legacy ############################################
 ############################################################################
@@ -74,6 +66,16 @@ if(OPAE_BUILD_LEGACY)
     mark_as_advanced(OPAE_LEGACY_TAG)
 endif(OPAE_BUILD_LEGACY)
 
+if (OPAE_MINIMAL_BUILD)
+    set(OPAE_WITH_CLI11 OFF CACHE BOOL "Enable use of CLI11" FORCE)
+    set(OPAE_WITH_SPDLOG OFF CACHE BOOL "Enable use of spdlog" FORCE)
+    set(OPAE_WITH_LIBEDIT OFF CACHE BOOL "Enable use of libedit" FORCE)
+    set(OPAE_WITH_HWLOC OFF CACHE BOOL "Enable use of hwloc" FORCE)
+    set(OPAE_WITH_TBB OFF CACHE BOOL "Enable use of tbb" FORCE)
+    set(OPAE_BUILD_LEGACY ON CACHE BOOL "Enable building of OPAE legacy tools" FORCE)
+    set(CMAKE_INSTALL_PREFIX "/usr" CACHE STRING "" FORCE)
+endif(OPAE_MINIMAL_BUILD)
+
 ############################################################################
 ## Other setup and dependencies ############################################
 ############################################################################
@@ -83,7 +85,6 @@ find_package(Sphinx)
 if(CPACK_GENERATOR)
   set(CMAKE_INSTALL_PREFIX "/usr")
 endif()
-
 
 ############################################################################
 ## Sub-projects ############################################################
