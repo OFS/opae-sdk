@@ -107,6 +107,12 @@ static fpga_result fpga_open(struct n5010 *n5010)
 		return res;
 	}
 
+	if (num == 0) {
+		res = FPGA_NOT_FOUND;
+		fprintf(stderr, "failed to find fpga with guid: %s\n", fpgaErrStr(res));
+		return res;
+	}
+
 	res = fpgaOpen(n5010->token, &n5010->handle, n5010->open_mode);
 	if (res != FPGA_OK) {
 		fprintf(stderr, "failed to open fpga: %s\n", fpgaErrStr(res));
