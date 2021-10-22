@@ -96,7 +96,7 @@ The phc2sys utility is used to synchronize the system clock to the PTP Hardware 
 ToD driver registering as PHC device (clock_name: dfl_tod) to the Linux PTP stack and exposing to the Linux kernel to synchronize the system clock to its ToD information.
 ```console
 # cat /sys/class/ptp/ptp0/clock_name
-# dfl_tod
+dfl_tod
 ```
 
 3.  Configure phc2sys service on a system:
