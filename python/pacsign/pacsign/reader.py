@@ -912,7 +912,10 @@ class RHP_reader(_READER_BASE):
         while payload.size() < 48:
             payload.append_byte(0)
 
-        if self.bitstream_type == database.CONTENT_PR:
+        needs_hash = [database.CONTENT_SR, database.CONTENT_PR,
+                      database.CONTENT_SR_TEST, database.CONTENT_PR_TEST]
+
+        if self.bitstream_type in needs_hash:
             # Add hash to payload and pad
             payload.append_data(self.s10_root_hash.data)
 
