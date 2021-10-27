@@ -43,6 +43,7 @@ declare -r INFILE='file'
 declare -r QSIGN_CERT='qsign'
 declare -r KEYSTORE='keys'
 declare -r OUTPUT='out'
+declare -r FUSE_INFO='fuse_info.txt'
 
 create_keys_() {
   local -r img="$1"
@@ -163,16 +164,19 @@ test_rkh() {
   local -r mgr="$1"
   local -r img="$2"
   local -ri width=$3
+  local -r fuse="$4"
+  local fuse_info=''
   local extra=''
   local img_type=$(image_type_to_PACSign "${img}")
 
   [ -d "${OUTPUT}/${img}" ] || mkdir -p "${OUTPUT}/${img}" 
   [ ${width} -eq 384 ] && extra='S'
+  [ "${fuse}" = 'none' ] || fuse_info="-f ${fuse}"
 
   ${PACSIGN} "${img_type}" -yv"${extra}" -b "RKH_${img}_${width}" -t "RK_${width}" \
              -H "${mgr}" \
              -r "${KEYSTORE}/${img}/test_key_${img}_root_public_${width}.pem" \
-             -o "${OUTPUT}/${img}/test_rkh_${img}_${width}.bin"
+             -o "${OUTPUT}/${img}/test_rkh_${img}_${width}.bin" ${fuse_info}
 }
 
 # Create 'unsigned' bitstream
@@ -242,8 +246,10 @@ test_cancel() {
 test_fim_rkh() {
   local -r mgr="$1"
   printf "test_fim_rkh\n"
-  test_rkh "${mgr}" 'fim' 256
-  test_rkh "${mgr}" 'fim' 384
+  test_rkh "${mgr}" 'fim' 256 'none'
+  test_rkh "${mgr}" 'fim' 256 "${FUSE_INFO}"
+  test_rkh "${mgr}" 'fim' 384 'none'
+  test_rkh "${mgr}" 'fim' 384 "${FUSE_INFO}"
 }
 
 test_fim_unsigned() {
@@ -279,8 +285,10 @@ test_fim_cancel() {
 test_factory_rkh() {
   local -r mgr="$1"
   printf "test_factory_rkh\n"
-  test_rkh "${mgr}" 'factory' 256
-  test_rkh "${mgr}" 'factory' 384
+  test_rkh "${mgr}" 'factory' 256 'none'
+  test_rkh "${mgr}" 'factory' 256 "${FUSE_INFO}"
+  test_rkh "${mgr}" 'factory' 384 'none'
+  test_rkh "${mgr}" 'factory' 384 "${FUSE_INFO}"
 }
 
 test_factory_unsigned() {
@@ -316,8 +324,10 @@ test_factory_cancel() {
 test_sr_test_rkh() {
   local -r mgr="$1"
   printf "test_sr_test_rkh\n"
-  test_rkh "${mgr}" 'sr_test' 256
-  test_rkh "${mgr}" 'sr_test' 384
+  test_rkh "${mgr}" 'sr_test' 256 'none'
+  test_rkh "${mgr}" 'sr_test' 256 "${FUSE_INFO}"
+  test_rkh "${mgr}" 'sr_test' 384 'none'
+  test_rkh "${mgr}" 'sr_test' 384 "${FUSE_INFO}"
 }
 
 test_sr_test_unsigned() {
@@ -353,8 +363,8 @@ test_sr_test_cancel() {
 test_sr_cert_rkh() {
   local -r mgr="$1"
   printf "test_sr_cert_rkh\n"
-  test_rkh "${mgr}" 'sr_cert' 256
-  test_rkh "${mgr}" 'sr_cert' 384
+  test_rkh "${mgr}" 'sr_cert' 256 'none'
+  test_rkh "${mgr}" 'sr_cert' 384 'none'
 }
 
 test_sr_cert_unsigned() {
@@ -390,8 +400,8 @@ test_sr_cert_cancel() {
 test_bmc_rkh() {
   local -r mgr="$1"
   printf "test_bmc_rkh\n"
-  test_rkh "${mgr}" 'bmc' 256
-  test_rkh "${mgr}" 'bmc' 384
+  test_rkh "${mgr}" 'bmc' 256 'none'
+  test_rkh "${mgr}" 'bmc' 384 'none'
 }
 
 test_bmc_unsigned() {
@@ -427,8 +437,8 @@ test_bmc_cancel() {
 test_bmc_factory_rkh() {
   local -r mgr="$1"
   printf "test_bmc_factory_rkh\n"
-  test_rkh "${mgr}" 'bmc_factory' 256
-  test_rkh "${mgr}" 'bmc_factory' 384
+  test_rkh "${mgr}" 'bmc_factory' 256 'none'
+  test_rkh "${mgr}" 'bmc_factory' 384 'none'
 }
 
 test_bmc_factory_unsigned() {
@@ -464,8 +474,10 @@ test_bmc_factory_cancel() {
 test_pr_rkh() {
   local -r mgr="$1"
   printf "test_pr_rkh\n"
-  test_rkh "${mgr}" 'pr' 256
-  test_rkh "${mgr}" 'pr' 384
+  test_rkh "${mgr}" 'pr' 256 'none'
+  test_rkh "${mgr}" 'pr' 256 "${FUSE_INFO}"
+  test_rkh "${mgr}" 'pr' 384 'none'
+  test_rkh "${mgr}" 'pr' 384 "${FUSE_INFO}"
 }
 
 test_pr_unsigned() {
@@ -501,8 +513,10 @@ test_pr_cancel() {
 test_pr_test_rkh() {
   local -r mgr="$1"
   printf "test_pr_test_rkh\n"
-  test_rkh "${mgr}" 'pr_test' 256
-  test_rkh "${mgr}" 'pr_test' 384
+  test_rkh "${mgr}" 'pr_test' 256 'none'
+  test_rkh "${mgr}" 'pr_test' 256 "${FUSE_INFO}"
+  test_rkh "${mgr}" 'pr_test' 384 'none'
+  test_rkh "${mgr}" 'pr_test' 384 "${FUSE_INFO}"
 }
 
 test_pr_test_unsigned() {
@@ -538,8 +552,8 @@ test_pr_test_cancel() {
 test_pxe_rkh() {
   local -r mgr="$1"
   printf "test_pxe_rkh\n"
-  test_rkh "${mgr}" 'pxe' 256
-  test_rkh "${mgr}" 'pxe' 384
+  test_rkh "${mgr}" 'pxe' 256 'none'
+  test_rkh "${mgr}" 'pxe' 384 'none'
 }
 
 test_pxe_unsigned() {
@@ -575,8 +589,8 @@ test_pxe_cancel() {
 test_therm_sr_rkh() {
   local -r mgr="$1"
   printf "test_therm_sr_rkh\n"
-  test_rkh "${mgr}" 'therm_sr' 256
-  test_rkh "${mgr}" 'therm_sr' 384
+  test_rkh "${mgr}" 'therm_sr' 256 'none'
+  test_rkh "${mgr}" 'therm_sr' 384 'none'
 }
 
 test_therm_sr_unsigned() {
@@ -612,8 +626,8 @@ test_therm_sr_cancel() {
 test_therm_pr_rkh() {
   local -r mgr="$1"
   printf "test_therm_pr_rkh\n"
-  test_rkh "${mgr}" 'therm_pr' 256
-  test_rkh "${mgr}" 'therm_pr' 384
+  test_rkh "${mgr}" 'therm_pr' 256 'none'
+  test_rkh "${mgr}" 'therm_pr' 384 'none'
 }
 
 test_therm_pr_unsigned() {
@@ -649,8 +663,8 @@ test_therm_pr_cancel() {
 test_sdm_rkh() {
   local -r mgr="$1"
   printf "test_sdm_rkh\n"
-  test_rkh "${mgr}" 'sdm' 256
-  test_rkh "${mgr}" 'sdm' 384
+  test_rkh "${mgr}" 'sdm' 256 'none'
+  test_rkh "${mgr}" 'sdm' 384 'none'
 }
 
 test_sdm_unsigned() {
@@ -682,10 +696,39 @@ test_sdm_cancel() {
 
 ################################################################################
 
+create_fuse_info() {
+  cat << EOF > "${FUSE_INFO}"
+#################################################
+#
+# This is QKY root key
+#
+# QKY input: root_fim.qky
+#
+#     Format (data is in hexadecimal character):
+#
+#        <Word #0> <Word #1> <Word #2> <Word #3> <Word #3> ... <Word #n-2> <Word #n-1>
+#
+#        Each word is 32bits or 4Bytes with following order
+#
+#           word = <Byte #3><Byte #2><Byte #1><Byte #0>
+#
+#           Example word = 12345678
+#                   Byte #0 is 0x78
+#                   Byte #1 is 0x56
+#                   Byte #2 is 0x34
+#                   Byte #3 is 0x12
+#
+#################################################
+
+Fuse: 41BC953D A2670C14 AF2750AA A329CDD3 1E78C718 E87A1DCE E88EA64A 51CBEEAE 994B8D99 AA4D2A3E B21A4E8C 99598F6B
+EOF
+}
+
 run_tests() {
   local mgr
   [ -f "${INFILE}" ] || dd if=/dev/urandom of="${INFILE}" bs=512 count=1
   [ -f "${QSIGN_CERT}" ] || dd if=/dev/urandom of="${QSIGN_CERT}" bs=376 count=1
+  [ -f "${FUSE_INFO}" ] || create_fuse_info
   [ -d "${KEYSTORE}" ] || mkdir -p "${KEYSTORE}"
   [ -d "${OUTPUT}" ] || mkdir -p "${OUTPUT}"
   create_keys
