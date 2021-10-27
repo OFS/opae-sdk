@@ -42,6 +42,7 @@
 #          by this family
 #
 ##########################
+import io
 import json
 from hashlib import sha256, sha384
 from . import common_util, database, verifier
@@ -874,6 +875,10 @@ class UPDATE_reader(_READER_BASE):
         return True
 
 
+def transpose_word(word):
+    ''''Given a hex string such as, "12345678", return "78563412"'''
+    return word[6:8] + word[4:6] + word[2:4] + word[0:2]
+
 class RHP_reader(_READER_BASE):
     def __init__(self, args, hsm_manager, config):
         super(RHP_reader, self).__init__(args, hsm_manager, config)
@@ -895,6 +900,7 @@ class RHP_reader(_READER_BASE):
             "Root key content type mismatch: key={}, type={}".format(
                 self.pub_root_key_type, self.bitstream_type),
         )
+        self.fuse_info = args.fuse_info
 
     def run(self):
         # Make root entry to get the hash
@@ -912,12 +918,21 @@ class RHP_reader(_READER_BASE):
         while payload.size() < 48:
             payload.append_byte(0)
 
-        needs_hash = [database.CONTENT_SR, database.CONTENT_PR,
-                      database.CONTENT_SR_TEST, database.CONTENT_PR_TEST]
+        if self.fuse_info:
+            needs_sdm_hash = [database.CONTENT_SR,
+                              database.CONTENT_PR,
+                              database.CONTENT_SR_TEST,
+                              database.CONTENT_PR_TEST,
+                              database.CONTENT_FACTORY]
+            with open(self.fuse_info, 'r') as fp:
+                hash_data = self.get_fuse_info(fp)
+        else:
+            needs_sdm_hash = [database.CONTENT_PR]
+            hash_data = self.s10_root_hash.data
 
-        if self.bitstream_type in needs_hash:
+        if self.bitstream_type in needs_sdm_hash:
             # Add hash to payload and pad
-            payload.append_data(self.s10_root_hash.data)
+            payload.append_data(hash_data)
 
         # Append the data to be multiple of 128 Bytes aligned
         while payload.size() % 128:
@@ -929,6 +944,25 @@ class RHP_reader(_READER_BASE):
         # Make block 1 with no signing required
         block1 = self.make_block1()
 
+        b0_start, b0_end = 0, block0.size() - 1
+        b1_start, b1_end = b0_end + 1, block0.size() + block1.size() - 1
+        pl_start, pl_end = b1_end + 1, (block0.size() + block1.size() +
+                                        payload.size() - 1)
+
+        log.debug(f'block0:  0x{b0_start:X} - 0x{b0_end:X}')
+        log.debug(f'block1:  0x{b1_start:X} - 0x{b1_end:X}')
+        log.debug(f'payload: 0x{pl_start:X} - 0x{pl_end:X}')
+
         output_fd = open(self.output_file_name, "wb")
         # Write to the output file
         self.finalize(output_fd, block0, block1, payload)
+
+    def get_fuse_info(self, fp):
+        for line in fp:
+            if line[:6] == 'Fuse: ':
+                log.debug(f'fuse: {line[6:]}')
+                bits = io.BytesIO()
+                for word in line[6:].split(' '):
+                    log.debug(f'fuse word: {word}')
+                    bits.write(bytes.fromhex(transpose_word(word)))
+                return bits.getbuffer()
