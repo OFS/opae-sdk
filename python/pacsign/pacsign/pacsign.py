@@ -125,6 +125,9 @@ def add_common_options(parser):
         "-q", "--quartus_cert", help="path to quartus_sign cancelation certificate"
     )
     parser.add_argument(
+        "-f", "--fuse_info", help="path to quartus_sign fuse info file"
+    )
+    parser.add_argument(
         "--print", help="Print human-readable header information", action="store_true"
     )
     parser.add_argument(
@@ -357,6 +360,12 @@ def main():
                     args, "Output file {} exists. Overwrite".format(args.output_file)
                 ),
                 "Aborting.",
+            )
+
+        if args.fuse_info:
+            common_util.assert_in_error(
+                os.path.isfile(args.fuse_info),
+                "File doesn't exist '{}'".format(args.fuse_info)
             )
 
         maker = reader.RHP_reader(args, hsm_manager, args.HSM_config)
