@@ -726,8 +726,6 @@ class UPDATE_reader(_READER_BASE):
             while self.pub_CSK.size() < 96:
                 self.pub_CSK.append_byte(0)
 
-
-
     def is_Rush_BMC(self, payload, offset):
         if payload.get_word(offset) > 1024:
             return False
