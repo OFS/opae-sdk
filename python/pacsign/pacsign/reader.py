@@ -588,6 +588,26 @@ class _READER_BASE(object):
                     bit_index <<= 1
         return (crc32 ^ xor)
 
+    def assert_types_match(self, msg, key_type, bits_type):
+        sr_types = [database.CONTENT_SR, database.CONTENT_SR_TEST]
+        pr_types = [database.CONTENT_PR, database.CONTENT_PR_TEST]
+
+        if key_type in sr_types:
+            common_util.assert_in_error(
+                bits_type in sr_types,
+                f"{msg} content type mismatch: key={key_type}, type={bits_type}"
+            )
+        elif key_type in pr_types:
+            common_util.assert_in_error(
+                bits_type in pr_types,
+                f"{msg} content type mismatch: key={key_type}, type={bits_type}"
+            )
+        else:
+            common_util.assert_in_error(
+                key_type == bits_type,
+                f"{msg} content type mismatch: key={key_type}, type={bits_type}"
+            )
+
 
 class CANCEL_reader(_READER_BASE):
     def __init__(self, args, hsm_manager, config):
@@ -617,11 +637,9 @@ class CANCEL_reader(_READER_BASE):
         log.debug("FOO: {}".format(self.pub_root_key_type))
         common_util.assert_in_error(self.pub_root_key_type is not None,
                                     "Cannot retrieve root public key type")
-        common_util.assert_in_error(
-            self.pub_root_key_type == self.bitstream_type,
-            "Root key content type mismatch: key={}, type={}".format(
-                self.pub_root_key_type, self.bitstream_type),
-        )
+        self.assert_types_match('Root key',
+                                self.pub_root_key_type,
+                                self.bitstream_type)
 
     def run(self):
         # Put the key ID into the payload and pad
@@ -677,11 +695,9 @@ class UPDATE_reader(_READER_BASE):
             common_util.assert_in_error(
                 self.pub_root_key_type is not None,
                 "Cannot retrieve root public key type")
-            common_util.assert_in_error(
-                self.pub_root_key_type == self.bitstream_type,
-                "Root key content type mismatch: key={}, type={}".format(
-                    self.pub_root_key_type, self.bitstream_type),
-            )
+            self.assert_types_match('Root key',
+                                    self.pub_root_key_type,
+                                    self.bitstream_type)
         else:
             self.pub_root_key = common_util.BYTE_ARRAY()
             while self.pub_root_key.size() < 96:
@@ -702,15 +718,15 @@ class UPDATE_reader(_READER_BASE):
                     self.pub_CSK_type].ENUM
             common_util.assert_in_error(self.pub_CSK_type is not None,
                                         "Cannot retrieve CSK type")
-            common_util.assert_in_error(
-                self.pub_CSK_type == self.bitstream_type,
-                "CSK content type mismatch: key={}, type={}".format(
-                    self.pub_CSK_type, self.bitstream_type),
-            )
+            self.assert_types_match('CSK',
+                                    self.pub_CSK_type,
+                                    self.bitstream_type)
         else:
             self.pub_CSK = common_util.BYTE_ARRAY()
             while self.pub_CSK.size() < 96:
                 self.pub_CSK.append_byte(0)
+
+
 
     def is_Rush_BMC(self, payload, offset):
         if payload.get_word(offset) > 1024:
@@ -895,11 +911,9 @@ class RHP_reader(_READER_BASE):
                 self.pub_root_key_type].ENUM
         common_util.assert_in_error(self.pub_root_key_type is not None,
                                     "Cannot retrieve root public key type")
-        common_util.assert_in_error(
-            self.pub_root_key_type == self.bitstream_type,
-            "Root key content type mismatch: key={}, type={}".format(
-                self.pub_root_key_type, self.bitstream_type),
-        )
+        self.assert_types_match('Root key',
+                                self.pub_root_key_type,
+                                self.bitstream_type)
         self.fuse_info = args.fuse_info
 
     def run(self):
