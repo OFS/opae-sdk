@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2019-2020, Intel Corporation
+# Copyright(c) 2019-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -698,6 +698,17 @@ def sig_handler(signum, frame):
     raise SecureUpdateError((1, 'Caught SIGTERM'))
 
 
+class MyLogFormatter(logging.Formatter):
+    '''Custom logging.Formatter object.
+       Overrides formatTime() to limit the fractional seconds
+       field to hundredths.'''
+    def formatTime(self, record, datefmt=None):
+        dt = super().formatTime(record, datefmt)
+        front = dt[:-4]
+        end = dt[-4:]
+        return front + '.' + end[1:3]
+
+
 def main():
     """The main entry point."""
     parser, args = parse_args()
@@ -712,7 +723,7 @@ def main():
     log_fmt = ('[%(asctime)-15s] [%(levelname)-8s] '
                '%(message)s')
     log_hndlr = logging.StreamHandler(sys.stdout)
-    log_hndlr.setFormatter(logging.Formatter(log_fmt))
+    log_hndlr.setFormatter(MyLogFormatter(log_fmt))
     log_hndlr.setLevel(LOG_NAMES_TO_LEVELS[args.log_level])
     LOG.addHandler(log_hndlr)
 
@@ -831,7 +842,9 @@ def main():
     else:
         LOG.info(mesg)
 
-    LOG.info('Total time: %s', datetime.now() - start)
+    total = datetime.now() - start
+    total_str = str(total)[:-4] # limit to hundredths
+    LOG.info('Total time: %s', total_str)
     sys.exit(stat)
 
 
