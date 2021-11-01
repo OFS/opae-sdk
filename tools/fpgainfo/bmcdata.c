@@ -122,7 +122,7 @@ void print_metrics(const fpga_metric_info *metrics_info,
 		if (metrics[i].isvalid) {
 
 			if (idx < num_metrics_info) {
-				printf("(%2ld) %-27s : ", i + 1, metrics_info[idx].metric_name);
+				printf("(%2ld) %-50s : ", i + 1, metrics_info[idx].metric_name);
 
 				switch (metrics_info[idx].metric_datatype) {
 				case FPGA_METRIC_DATATYPE_INT:
@@ -144,7 +144,7 @@ void print_metrics(const fpga_metric_info *metrics_info,
 			}
 		} else {
 			// Failed to read metric value
-			fprintf(stdout, "(%2ld) %-27s : %s\n", i + 1, metrics_info[idx].metric_name, "N/A");
+			fprintf(stdout, "(%2ld) %-50s : %s\n", i + 1, metrics_info[idx].metric_name, "N/A");
 		}
 
 	}
