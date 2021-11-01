@@ -298,6 +298,7 @@ done
 %{_bindir}/nlb0
 %{_bindir}/nlb3
 %{_bindir}/nlb7
+%{_bindir}/vabtool
 
 %{_usr}/share/opae/*
 %{python3_sitelib}/ethernet*
