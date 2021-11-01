@@ -392,6 +392,7 @@ fpga_result get_fpga_sbdf(fpga_token token,
 {
 	fpga_result res = FPGA_OK;
 	fpga_properties props = NULL;
+	fpga_result resval = FPGA_OK;
 
 	if (!segment || !bus ||
 		!device || !function) {
@@ -407,27 +408,37 @@ fpga_result get_fpga_sbdf(fpga_token token,
 	res = fpgaPropertiesGetBus(props, bus);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get bus ");
-		return res;
+		resval = res;
+		goto out_destroy;
 	}
 
 	res = fpgaPropertiesGetSegment(props, segment);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get Segment ");
-		return res;
+		resval = res;
+		goto out_destroy;
 	}
 	res = fpgaPropertiesGetDevice(props, device);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get Device ");
-		return res;
+		resval = res;
+		goto out_destroy;
 	}
 
 	res = fpgaPropertiesGetFunction(props, function);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to get Function ");
-		return res;
+		resval = res;
+		goto out_destroy;
 	}
 
-	return res;
+out_destroy:
+	res = fpgaDestroyProperties(&props);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to destroy properties");
+	}
+
+	return resval;
 }
 
 
