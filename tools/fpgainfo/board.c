@@ -317,6 +317,10 @@ fpga_result mac_command(fpga_token *tokens, int num_tokens, int argc,
 			printf("mac info is not supported\n");
 		}
 
+		res = fpgaDestroyProperties(&props);
+		if (res != FPGA_OK) {
+			OPAE_ERR("Failed to destroy properties");
+		}
 	}
 
 	return FPGA_OK;
@@ -432,6 +436,11 @@ fpga_result phy_command(fpga_token *tokens, int num_tokens, int argc,
 		res = phy_group_info(tokens[i]);
 		if (res != FPGA_OK) {
 			printf("phy group info is not supported\n");
+		}
+
+		res = fpgaDestroyProperties(&props);
+		if (res != FPGA_OK) {
+			OPAE_ERR("Failed to destroy properties");
 		}
 
 	}
@@ -603,6 +612,11 @@ fpga_result sec_command(fpga_token *tokens, int num_tokens, int argc,
 		res = sec_info(tokens[i]);
 		if (res != FPGA_OK) {
 			printf("Sec info is not supported\n");
+		}
+
+		res = fpgaDestroyProperties(&props);
+		if (res != FPGA_OK) {
+			OPAE_ERR("Failed to destroy properties");
 		}
 
 	}
