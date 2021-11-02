@@ -589,7 +589,7 @@ class _READER_BASE(object):
         return (crc32 ^ xor)
 
     def assert_types_match(self, msg, key_type, bits_type):
-        sr_types = [database.CONTENT_SR, database.CONTENT_SR_TEST]
+        sr_types = [database.CONTENT_SR, database.CONTENT_SR_TEST, database.CONTENT_SR_CERT]
         pr_types = [database.CONTENT_PR, database.CONTENT_PR_TEST]
 
         if key_type in sr_types:
