@@ -138,8 +138,8 @@ public:
 
         // print bandwidth
         if (dsm_status->num_ticks > 0) {
-            double  perf_data = (double)(num_cache_lines * 64) /
-                (2.85 * (dsm_status->num_ticks));
+            double perf_data = (double)(num_cache_lines * 64) /
+                ((1000.0 / host_exe_->he_clock_mhz_ * (dsm_status->num_ticks)));
             std::cout << "Bandwidth: " << std::setprecision(3) <<
                 perf_data << " GB/s" << std::endl;
         }
@@ -184,19 +184,137 @@ public:
         he_lpbk_ctl_.ResetL = 1;
         he_lpbk_ctl_.ForcedTestCmpl = 1;
         host_exe_->write32(HE_CTL, he_lpbk_ctl_.value);
-        // sleep for 1 seconds to gracefully exit
-        sleep(1);
+
+        if (! he_wait_test_completion())
+            sleep(1);
+
         he_lpbk_ctl_.value = 0;
         host_exe_->write32(HE_CTL, he_lpbk_ctl_.value);
         usleep(1000);
     }
 
+    void he_init_src_buffer(shared_buffer::ptr_t buffer)
+    {
+        // Fill the source buffer with random values
+        host_exe_->fill(buffer);
+
+        // Compare and swap? If so, seed the source buffers with values will
+        // match. The hardware tests uses the line index as the test.
+        if (he_lpbk_cfg_.AtomicFunc == HOSTEXE_ATOMIC_CAS_4) {
+            for (uint32_t i = 0; i < buffer->size()/CL; i += 3) {
+                buffer->write<uint32_t>(i, i*CL);
+            }
+        }
+        if (he_lpbk_cfg_.AtomicFunc == HOSTEXE_ATOMIC_CAS_8) {
+            for (uint32_t i = 0; i < buffer->size()/CL; i += 3) {
+                buffer->write<uint64_t>(i, i*CL);
+            }
+        }
+
+        // In atomic mode, at most the first 8 bytes of each line will be
+        // updated and copied. In the source buffer, write a function of
+        // the value at the start of each line to the second postion so
+        // it can be used as a check later.
+        if (he_lpbk_cfg_.AtomicFunc != HOSTEXE_ATOMIC_OFF) {
+            for (uint32_t i = 0; i < buffer->size()/CL; i += 1) {
+                uint64_t v = buffer->read<uint64_t>(i*CL);
+                buffer->write<uint64_t>(v ^ 0xabababababababab, i*CL + 8);
+            }
+        }
+    }
+
+    void he_dump_buffer(shared_buffer::ptr_t buffer, const char* msg)
+    {
+        std::cout << msg << ":" << std::endl;
+
+        // Dump the first 8 lines of a buffer
+        for (uint64_t i = 0; i < 8; i++)
+        {
+            std::cout << std::hex
+                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*CL + 8*7)
+                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*CL + 8*6)
+                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*CL + 8*5)
+                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*CL + 8*4)
+                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*CL + 8*3)
+                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*CL + 8*2)
+                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*CL + 8*1)
+                      << " " << std::setfill('0') << std::setw(16) << buffer->read<uint64_t>(i*CL)
+                      << std::dec << std::endl;
+        }
+
+        std::cout << " ..." << std::endl;
+    }
+
     void he_compare_buffer()
     {
         host_exerciser_swtestmsg();
-        /* Compare buffer contents only loopback test mode*/
-        if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
+
+        // Compare buffer contents only loopback test mode
+        if (he_lpbk_cfg_.TestMode != HOST_EXEMODE_LPBK1)
+            return;
+
+        // Normal (non-atomic) is a simple comparison
+        if (he_lpbk_cfg_.AtomicFunc == HOSTEXE_ATOMIC_OFF) {
             host_exe_->compare(source_, destination_);
+            return;
+        }
+
+        // Atomic mode is a far more complicated comparison. The source buffer
+        // is modified and some of the original state is copied to the destination.
+        bool size_is_4 = ((he_lpbk_cfg_.AtomicFunc & 2) == 0);
+        bool is_fetch_add = (he_lpbk_cfg_.AtomicFunc & 0xc) == 0;
+        bool is_swap = (he_lpbk_cfg_.AtomicFunc & 0xc) == 4;
+        bool is_cas = (he_lpbk_cfg_.AtomicFunc & 0xc) == 8;
+
+        // Ignore the last entry to work around an off by one copy error
+        for (uint64_t i = 0; i < source_->size()/CL; i += 1) {
+            // In source_, the first entry in every line is the atomically modified
+            // value. The second entry holds the original value, hashed with a constant
+            // so it isn't a simple repetition.
+            uint64_t src_a = source_->read<uint64_t>(i*CL);
+            // Read the original value and reverse the hash.
+            uint64_t src_b = source_->read<uint64_t>(i*CL + 8) ^ 0xabababababababab;
+            uint64_t upd_a = 0;
+
+            // Compute expected value
+            if (is_fetch_add) {
+                // Hardware added the line index (i) to each line, either preserving
+                // the high 4 bytes or modifying all 8 bytes.
+                if (size_is_4)
+                    upd_a = (src_b & 0xffffffff00000000) | ((src_b + i) & 0xffffffff);
+                else
+                    upd_a = src_b + i;
+            }
+            if (is_swap) {
+                // Hardware swapped the line index (i) into each line
+                if (size_is_4)
+                    upd_a = (src_b & 0xffffffff00000000) | (i & 0xffffffff);
+                else
+                    upd_a = i;
+            }
+            if (is_cas) {
+                // Hardware swapped the bit inverse of line index (i) in each line when
+                // the original value is the line index.
+                if (size_is_4)
+                    upd_a = ((src_b & 0xffffffff) == i) ? (src_b & 0xffffffff00000000) | (~i & 0xffffffff) : src_b;
+                else
+                    upd_a = (src_b == i) ? ~i : src_b;
+            }
+
+            if (upd_a != src_a)
+                throw std::runtime_error("Atomic update error");
+
+            // The destination is comparatively easy. For all functions it is
+            // simply the original source value.
+            uint64_t dst_a = destination_->read<uint64_t>(i*CL);
+            if (size_is_4) {
+                src_b &= 0xffffffff;
+                dst_a &= 0xffffffff;
+            }
+
+            if (dst_a != src_b)
+                throw std::runtime_error("Atomic read error or write error");
+        }
     }
 
     bool he_continuousmode()
@@ -249,9 +367,18 @@ public:
             he_lpbk_cfg_.IntrTestMode = 1;
         }
 
+        // Atomic functions
+        he_lpbk_cfg_.AtomicFunc = host_exe_->he_req_atomic_func_;
+        if (he_lpbk_cfg_.AtomicFunc != HOSTEXE_ATOMIC_OFF) {
+            if (he_lpbk_cfg_.ReqLen != HOSTEXE_CLS_1) {
+                std::cerr << "Atomic function mode requires cl_1" << std::endl;
+                return -1;
+            }
+        }
+
         if (host_exe_->he_continuousmode_  && 
             (he_lpbk_cfg_.IntrTestMode == 1)) {
-            std::cerr << "Interrupts doesn't support in Continuous mode"
+            std::cerr << "Interrupts not supported in continuous mode"
                 << std::endl;
             return -1;
         }
@@ -278,10 +405,25 @@ public:
 
         auto ret = parse_input_options();
         if (ret != 0) {
-            std::cerr << "Failed to parese input options" << std::endl;
+            std::cerr << "Failed to parse input options" << std::endl;
             return ret;
         }
         std::cout << "Input Config:" << he_lpbk_cfg_.value << std::endl;
+
+        if (0 == host_exe_->he_clock_mhz_) {
+            // Does the AFU record its clock info?
+            uint16_t freq = host_exe_->read64(HE_INFO0);
+            if (freq) {
+                host_exe_->he_clock_mhz_ = freq;
+                std::cout << "AFU clock: "
+                          << host_exe_->he_clock_mhz_ << " MHz" << std::endl;
+            }
+            else {
+                host_exe_->he_clock_mhz_ = 350;
+                std::cout << "Frequency of AFU clock unknown. Assuming "
+                          << host_exe_->he_clock_mhz_ << " MHz." << std::endl;
+            }
+        }
 
         // assert reset he-lpbk
         he_lpbk_ctl_.value = 0;
@@ -300,7 +442,7 @@ public:
         std::cout << "Allocate SRC Buffer" << std::endl;
         source_ = d_afu->allocate(LPBK1_BUFFER_ALLOCATION_SIZE);
         d_afu->write64(HE_SRC_ADDR, cacheline_aligned_addr(source_->io_address()));
-        std::fill_n(source_->c_type(), LPBK1_BUFFER_SIZE, 0xAF);
+        he_init_src_buffer(source_);
 
         /* Allocate Destination Buffer
             Write to CSR_DST_ADDR */
@@ -321,7 +463,7 @@ public:
         // Number of cache lines
         d_afu->write64(HE_NUM_LINES, (LPBK1_BUFFER_SIZE / (1 * CL)) -1);
 
-       // Write to CSR_CFG
+        // Write to CSR_CFG
         d_afu->write64(HE_CFG, he_lpbk_cfg_.value);
 
         event::ptr_t ev = nullptr;
@@ -330,6 +472,13 @@ public:
             d_afu->write32(HE_INTERRUPT0, he_interrupt_.value);
             ev = d_afu->register_interrupt(host_exe_->he_interrupt_);
             std::cout << "Using Interrupts\n";
+        }
+
+        if (host_exe_->should_log(spdlog::level::debug)) {
+            std::cout << std::endl;
+            he_dump_buffer(source_, "Pre-execution source");
+            he_dump_buffer(destination_, "Pre-execution destination");
+            std::cout << std::endl;
         }
 
         // Write to CSR_CTL
@@ -355,6 +504,14 @@ public:
             if (!he_wait_test_completion()) {
                 return -1;
             }
+
+            if (host_exe_->should_log(spdlog::level::debug)) {
+                std::cout << std::endl;
+                he_dump_buffer(source_, "Post-execution source");
+                he_dump_buffer(destination_, "Post-execution destination");
+                std::cout << std::endl;
+            }
+
             he_compare_buffer();
             he_perf_counters();
         }
