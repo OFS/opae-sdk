@@ -213,7 +213,7 @@ public:
 
         // In atomic mode, at most the first 8 bytes of each line will be
         // updated and copied. In the source buffer, write a function of
-        // the value at the start of each line to the second postion so
+        // the value at the start of each line to the second position so
         // it can be used as a check later.
         if (he_lpbk_cfg_.AtomicFunc != HOSTEXE_ATOMIC_OFF) {
             for (uint32_t i = 0; i < buffer->size()/CL; i += 1) {
