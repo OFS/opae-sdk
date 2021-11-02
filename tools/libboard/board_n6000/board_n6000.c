@@ -64,7 +64,7 @@
 #define DFL_SEC_PR_ROOT           DFL_SEC_PMCI_GLOB "pr_root_entry_hash"
 #define DFL_SEC_SR_CANCEL         DFL_SEC_PMCI_GLOB "sr_canceled_csks"
 #define DFL_SEC_SR_ROOT           DFL_SEC_PMCI_GLOB "sr_root_entry_hash"
-
+#define DFL_SEC_SDM_STATUS        DFL_SEC_PMCI_GLOB "sdm_sr_provision_status"
 
 #define HSSI_FEATURE_ID                  0x15
 #define HSSI_100G_PROFILE                       27
@@ -88,6 +88,10 @@
 
 // event log
 #define DFL_SYSFS_EVENT_LOG_GLOB "*dfl*/**/bmc_event_log0/nvmem"
+
+// BOM info
+#define DFL_SYSFS_BOM_INFO_GLOB "*dfl*/**/bom_info0/nvmem"
+#define FPGA_BOM_INFO_BUF_LEN   0x2000
 
 // hssi version
 struct hssi_version {
@@ -378,7 +382,200 @@ fpga_result print_mac_info(fpga_token token)
 	return res;
 }
 
+// Read BOM Critical Components info from the FPGA
+static fpga_result read_bom_info(
+	const fpga_token token,
+	char * const bom_info,
+	const size_t len)
+{
+	if (bom_info == NULL)
+		return FPGA_INVALID_PARAM;
 
+	fpga_result resval = FPGA_OK;
+	fpga_object fpga_object;
+
+	fpga_result res = fpgaTokenGetObject(token, DFL_SYSFS_BOM_INFO_GLOB,
+					     &fpga_object, FPGA_OBJECT_GLOB);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to get token Object");
+		// Simulate reading of empty BOM info filled with 0xFF
+		// so that FPGA with no BOM info produces no output.
+		// Return FPGA_OK!
+		memset(bom_info, 0xFF, len);
+		return FPGA_OK;
+	}
+
+	res = fpgaObjectRead(fpga_object, (uint8_t *)bom_info, 0, len, FPGA_OBJECT_RAW);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to read BOM info");
+		memset(bom_info, 0xFF, len); // Simulate reading of empty BOM info filled with 0xFF
+		resval = res;
+	}
+
+	res = fpgaDestroyObject(&fpga_object);
+	if (res != FPGA_OK) {
+		OPAE_MSG("Failed to Destroy Object");
+		if (resval == FPGA_OK)
+			resval = res;
+	}
+
+	return resval;
+}
+
+// Replace all occurrences of needle in haystack with substitute
+static fpga_result replace_str_in_str(
+	char * const haystack,
+	const char * const needle,
+	const char * const substitute,
+	const size_t max_result_len,
+	fpga_result res)
+{
+	if (res != FPGA_OK)
+		return res;
+
+	if (haystack == NULL || needle == NULL || substitute == NULL)
+		return FPGA_INVALID_PARAM;
+
+	while (true) {
+		const char *haystack_ptr;
+		const char *needle_loc;
+
+		const size_t haystack_len = strlen(haystack);
+		const size_t needle_len = strlen(needle);
+		const size_t substitute_len = strlen(substitute);
+
+		// Find how many times the needle occurs in the haystack
+		size_t needle_count = 0;
+		for (haystack_ptr = haystack; (needle_loc = strstr(haystack_ptr, needle));
+		     haystack_ptr = needle_loc + needle_len)
+			++needle_count;
+
+		if (needle_count == 0)
+			break;    // Nothing to replace
+
+		// Reserve memory for the new string
+		const size_t result_len = haystack_len + needle_count * (substitute_len - needle_len);
+		if (result_len >= max_result_len) {
+			OPAE_ERR("Not enough buffer space: %llu >= %llu", result_len, max_result_len);
+			res = FPGA_INVALID_PARAM;
+			break;
+		}
+		char * const result = (char *)malloc(result_len + 1);
+		if (result == NULL)
+			return FPGA_NO_MEMORY;
+
+		// Copy the haystack, replacing all the instances of the needle
+		char *result_ptr = result;
+		for (haystack_ptr = haystack; (needle_loc = strstr(haystack_ptr, needle));
+		     haystack_ptr = needle_loc + needle_len) {
+
+			size_t const skip_len = needle_loc - haystack_ptr;
+			// Copy the section until the occurence of the needle
+			strncpy(result_ptr, haystack_ptr, skip_len);
+			result_ptr += skip_len;
+			// Copy the substitute
+			memcpy(result_ptr, substitute, substitute_len);
+			result_ptr += substitute_len;
+		}
+
+		strcpy(result_ptr, haystack_ptr);    // Copy the rest of haystack to result
+		strcpy(haystack, result);            // Update haystack with the result
+
+		free(result);
+	}
+
+	return res;
+}
+
+// Reformat BOM Critical Components info to be directly printable.
+// - Keys and values may not include commas.
+// - Spaces and tabs are removed around commas.
+// - Line endings are converted to LF (linefeed).
+// - Empty lines are removed.
+// - All Key,Value pairs are converted to Key: Value
+static fpga_result reformat_bom_info(
+	char * const bom_info,
+	const size_t len,
+	const size_t max_result_len)
+{
+	if (bom_info == NULL)
+		return FPGA_INVALID_PARAM;
+
+	fpga_result res = FPGA_OK;
+
+	// Remove trailing 0xFF:
+	char *bom_info_ptr = bom_info + len - 1;
+	while (bom_info_ptr > bom_info) {
+		if (*bom_info_ptr == '\xFF')
+			--bom_info_ptr;
+		else
+			break;
+	}
+
+	// Append LF if it is missing at the end:
+	if (bom_info_ptr > bom_info) {
+		if (*bom_info_ptr == '\n')
+			++bom_info_ptr;
+		else {
+			++bom_info_ptr;
+			*bom_info_ptr++ = '\n';  // Append missing linefeed
+		}
+	}
+	*bom_info_ptr = '\x00';    // NUL terminate the bom_info string
+
+	// Manipulate the bom_info string so it becomes directly printable.
+	// Starting with line endings:
+	res = replace_str_in_str(bom_info, "\r\n", "\n", max_result_len, res);
+	res = replace_str_in_str(bom_info, "\n\r", "\n", max_result_len, res);
+	res = replace_str_in_str(bom_info, "\r", "\n", max_result_len, res);
+	res = replace_str_in_str(bom_info, "\n\n", "\n", max_result_len, res);  // Remove empty lines!
+
+	// Remove all spaces and tabs before and after commas:
+	while (strstr(bom_info, " ,") || strstr(bom_info, "\t,") ||
+	       strstr(bom_info, ", ") || strstr(bom_info, ",\t")) {
+
+		res = replace_str_in_str(bom_info, " ,", ",", max_result_len, res);
+		res = replace_str_in_str(bom_info, "\t,", ",", max_result_len, res);
+		res = replace_str_in_str(bom_info, ", ", ",", max_result_len, res);
+		res = replace_str_in_str(bom_info, ",\t", ",", max_result_len, res);
+	}
+
+	// Finally replace commas with ': ':
+	res = replace_str_in_str(bom_info, ",", ": ", max_result_len, res);
+
+	return res;
+}
+
+// print BOM info
+fpga_result print_bom_info(const fpga_token token)
+{
+	fpga_result resval = FPGA_OK;
+	const size_t max_result_len = 2 * FPGA_BOM_INFO_BUF_LEN;
+	char * const bom_info = (char *)malloc(max_result_len);
+
+	if (bom_info == NULL)
+		return FPGA_NO_MEMORY;
+
+	fpga_result res = read_bom_info(token, bom_info, FPGA_BOM_INFO_BUF_LEN);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to read BOM info");
+		free(bom_info);
+		return res;
+	}
+
+	res = reformat_bom_info(bom_info, FPGA_BOM_INFO_BUF_LEN, max_result_len);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to reformat BOM info");
+		if (resval == FPGA_OK)
+			resval = res;
+	}
+
+	printf("%s", bom_info);
+
+	free(bom_info);
+
+	return resval;
+}
 
 // print board information
 fpga_result print_board_info(fpga_token token)
@@ -403,6 +600,13 @@ fpga_result print_board_info(fpga_token token)
 	printf("Intel N6000 Acceleration Development Platform\n");
 	printf("Board Management Controller, MAX10 NIOS FW version: %s \n", bmc_ver);
 	printf("Board Management Controller, MAX10 Build version: %s \n", max10_ver);
+
+	res = print_bom_info(token);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to print BOM info");
+		if (resval == FPGA_OK)
+			resval = res;
+	}
 
 	return resval;
 }
@@ -492,20 +696,21 @@ fpga_result print_sec_info(fpga_token token)
 	memset(name, 0, sizeof(name));
 	res = read_sysfs(token, DFL_SEC_BMC_ROOT, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
-		printf("BMC root entry hash: %s\n", name);
+		printf("%-32s : %s\n", "BMC root entry hash", name);
 	} else {
 		OPAE_MSG("Failed to Read TCM BMC root entry hash");
-		printf("BMC root entry hash: %s\n", "None");
+		printf("%-32s : %s\n", "BMC root entry hash", "None");
 		resval = res;
 	}
 
 	memset(name, 0, sizeof(name));
 	res = read_sysfs(token, DFL_SEC_BMC_CANCEL, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
-		printf("BMC CSK IDs canceled: %s\n", strlen(name) > 0 ? name : "None");
+		printf("%-32s : %s\n", "BMC CSK IDs canceled",
+				strlen(name) > 0 ? name : "None");
 	} else {
 		OPAE_MSG("Failed to Read BMC CSK IDs canceled");
-		printf("BBMC CSK IDs canceled: %s\n", "None");
+		printf("%-32s : %s\n", "BMC CSK IDs canceled", "None");
 		resval = res;
 	}
 
@@ -513,21 +718,21 @@ fpga_result print_sec_info(fpga_token token)
 	memset(name, 0, sizeof(name));
 	res = read_sysfs(token, DFL_SEC_PR_ROOT, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
-		printf("PR root entry hash: %s\n", name);
+		printf("%-32s : %s\n", "PR root entry hash", name);
 	} else {
 		OPAE_MSG("Failed to Read PR root entry hash");
-		printf("PR root entry hash: %s\n", "None");
+		printf("%-32s : %s\n", "PR root entry hash", "None");
 		resval = res;
 	}
 
 	memset(name, 0, sizeof(name));
 	res = read_sysfs(token, DFL_SEC_PR_CANCEL, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
-		printf("AFU/PR CSK IDs canceled: %s\n",
+		printf("%-32s : %s\n", "AFU/PR CSK IDs canceled",
 			strlen(name) > 0 ? name : "None");
 	} else {
 		OPAE_MSG("Failed to Read AFU CSK/PR IDs canceled");
-		printf("AFU/PR CSK IDs canceled: %s\n", "None");
+		printf("%-32s : %s\n", "AFU/PR CSK IDs canceled", "None");
 		resval = res;
 	}
 
@@ -535,20 +740,21 @@ fpga_result print_sec_info(fpga_token token)
 	memset(name, 0, sizeof(name));
 	res = read_sysfs(token, DFL_SEC_SR_ROOT, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
-		printf("FIM root entry hash: %s\n", name);
+		printf("%-32s : %s\n", "FIM root entry hash", name);
 	} else {
 		OPAE_MSG("Failed to Read FIM root entry hash");
-		printf("FIM root entry hash: %s\n", "None");
+		printf("%-32s : %s\n", "FIM root entry hash", "None");
 		resval = res;
 	}
 
 	memset(name, 0, sizeof(name));
 	res = read_sysfs(token, DFL_SEC_SR_CANCEL, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
-		printf("FIM CSK IDs canceled: %s\n", strlen(name) > 0 ? name : "None");
+		printf("%-32s : %s\n", "FIM CSK IDs canceled",
+			strlen(name) > 0 ? name : "None");
 	} else {
 		OPAE_MSG("Failed to Read FIM CSK IDs canceled");
-		printf("FIM CSK IDs canceled: %s\n", "None");
+		printf("%-32s : %s\n", "FIM CSK IDs canceled", "None");
 		resval = res;
 	}
 
@@ -557,10 +763,20 @@ fpga_result print_sec_info(fpga_token token)
 	res = read_sysfs(token, DFL_SEC_USER_FLASH_COUNT, name,
 		SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
-		printf("User flash update counter: %s\n", name);
+		printf("%-32s : %s\n", "User flash update counter", name);
 	} else {
 		OPAE_MSG("Failed to Read User flash update counter");
-		printf("User flash update counter: %s\n", "None");
+		printf("%-32s : %s\n", "User flash update counter", "None");
+		resval = res;
+	}
+
+	res = read_sysfs(token, DFL_SEC_SDM_STATUS, name,
+		SYSFS_PATH_MAX - 1);
+	if (res == FPGA_OK) {
+		printf("%-32s : %s\n", "SDM provisioning status", name);
+	} else {
+		OPAE_MSG("Failed to SDM provisioning status");
+		printf("%-32s : %s\n", "SDM provisioning status", "None");
 		resval = res;
 	}
 
