@@ -1,0 +1,332 @@
+#!/bin/bash
+## Copyright(c) 2021, Intel Corporation
+##
+## Redistribution  and  use  in source  and  binary  forms,  with  or  without
+## modification, are permitted provided that the following conditions are met:
+##
+## * Redistributions of  source code  must retain the  above copyright notice,
+##   this list of conditions and the following disclaimer.
+## * Redistributions in binary form must reproduce the above copyright notice,
+##   this list of conditions and the following disclaimer in the documentation
+##   and/or other materials provided with the distribution.
+## * Neither the name  of Intel Corporation  nor the names of its contributors
+##   may be used to  endorse or promote  products derived  from this  software
+##   without specific prior written permission.
+##
+## THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+## AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO,  THE
+## IMPLIED WARRANTIES OF  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+## ARE DISCLAIMED.  IN NO EVENT  SHALL THE COPYRIGHT OWNER  OR CONTRIBUTORS BE
+## LIABLE  FOR  ANY  DIRECT,  INDIRECT,  INCIDENTAL,  SPECIAL,  EXEMPLARY,  OR
+## CONSEQUENTIAL  DAMAGES  (INCLUDING,  BUT  NOT LIMITED  TO,  PROCUREMENT  OF
+## SUBSTITUTE GOODS OR SERVICES;  LOSS OF USE,  DATA, OR PROFITS;  OR BUSINESS
+## INTERRUPTION)  HOWEVER CAUSED  AND ON ANY THEORY  OF LIABILITY,  WHETHER IN
+## CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
+## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
+## POSSIBILITY OF SUCH DAMAGE.
+
+declare -r VERSION='1.0.0'
+
+oops() {
+  printf "fatal: %s\n" "$*"
+  exit 1
+}
+
+declare -i DRY_RUN=0
+declare -i YES=0
+declare -i RETRIES=3
+declare -r FPGASUPDATE=`which fpgasupdate 2>/dev/null`
+declare -r RSU=`which rsu 2>/dev/null`
+
+declare -ra SDM_SR_PROVISION_STATUS=(\
+'Success' \
+'SR Key Hash provision ignored because SR Hash is already provisioned to SDM.' \
+'SDM Provisioning Image configuration ignored; configuration module busy.' \
+'SDM Provisioning Image configuration Failed; Invalid configuration Status from Configuration Module.' \
+'SDM Flush Buffer failed.' \
+'BMC Busy waiting for another SDM command response during SDM Provisioning Image CONFIG_STATUS Check.' \
+'SDM Response timed out during SDM Provisioning Image CONFIG_STATUS Check (after max retries).' \
+'SDM device busy during SDM Provisioning Image CONFIG_STATUS Check.' \
+'SDM Provisioning Img Configuration Failed; Config Status retry count exceeded (Note: Refer register Config Status Error Code @ 0x800 for more information.)' \
+'SDM Provisioning Img Configuration Failed; Config status command returned error (invalid SDM command) (Note: Refer register Config Status Error Code @ 0x800 for more information.)' \
+'BMC Busy waiting for another SDM command response during PUBKEY_PROGRAM command to SDM.' \
+'SDM Response timed out during PUBKEY_PROGRAM command to SDM (after max retries).' \
+'SDM device busy during PUBKEY_PROGRAM command to SDM.' \
+'SR Key Hash program failed with recoverable errors after max retry.' \
+'SR Key Hash program failed with likely permanent device damage.' \
+'SR Key program failed with recoverable errors because of invalid SDM command. (Note: Refer register SDM SR Key Program status @ 0x81C for more information.)'\
+)
+
+declare -r SDM_SR_PROVISION_STATUS_GLOB="/sys/bus/pci/devices/ssss:bb:dd.f/fpga_region/region*/dfl-fme.*/dfl_dev.*/*-sec*.*.auto/security/sdm_sr_provision_status"
+
+sdm_sr_provision_status() {
+  local -r pcie_addr="$1"
+  local -r glob_pattern="${SDM_SR_PROVISION_STATUS_GLOB/ssss:bb:dd.f/${pcie_addr}}"
+  local glob_res=(${glob_pattern})
+  local -i i
+
+  if [ "${glob_res[0]}" = "${glob_pattern}" ]; then
+    oops "Could not glob sdm provision status. Sysfs node not found."
+  fi
+
+  i=$(cat "${glob_res[0]}")
+
+  printf "%d" $i
+}
+
+sdm_sr_provision_status_str() {
+  local -r pcie_addr="$1"
+  local -i i=$(sdm_sr_provision_status "${pcie_addr}")
+
+  if [ $i -ge ${#SDM_SR_PROVISION_STATUS[@]} ]; then
+    oops "sdm provision status index $i out of range"
+  fi
+
+  printf "%s" "${SDM_SR_PROVISION_STATUS[$i]}"
+}
+
+print_sdm_sr_provision_status() {
+  [ $# -lt 1 ] && oops 'Please provide PCIe address'
+
+  local -r pcie_addr="$1"
+
+  [ -e "/sys/bus/pci/devices/${pcie_addr}" ] || oops "${pcie_addr} is not a valid device."
+
+  printf "%s\n" "$(sdm_sr_provision_status_str ${pcie_addr})"
+}
+
+declare -r FPGA_BOOT_PAGE_GLOB="/sys/bus/pci/devices/ssss:bb:dd.f/fpga_region/region*/dfl-fme.*/dfl_dev.*/*-sec*.*.auto/control/fpga_boot_image"
+
+fpga_boot_page() {
+  local -r pcie_addr="$1"
+  local -r glob_pattern="${FPGA_BOOT_PAGE_GLOB/ssss:bb:dd.f/${pcie_addr}}"
+  local glob_res=(${glob_pattern})
+
+  if [ "${glob_res[0]}" = "${glob_pattern}" ]; then
+    oops "Could not glob fpga boot page. Sysfs node not found."
+  fi
+
+  printf "%s\n" $(cat "${glob_res[0]}")
+}
+
+call_fpgasupdate() {
+  [ "x${FPGASUPDATE}" = x ] && oops 'fpgasupdate not found'
+  [ $# -lt 2 ] && oops 'call_fpgasupdate called with invalid # of params'
+
+  local -r file="$1"
+  local -r pcie_addr="$2"
+  local yes=''
+
+  if [ ${DRY_RUN} -ne 0 ]; then
+    printf "dry run: ${FPGASUPDATE} ${file} ${pcie_addr}\n"
+    return 0
+  else
+    [ ${YES} -ne 0 ] && yes='-y'
+    ${FPGASUPDATE} ${yes} "${file}" "${pcie_addr}"
+    return $?
+  fi
+}
+
+call_rsu() {
+  [ "x${RSU}" = x ] && oops 'rsu not found'
+  [ $# -lt 2 ] && oops 'call_rsu called with invalid # of params'
+
+  if [ ${DRY_RUN} -ne 0 ]; then
+    printf "dry run: ${RSU} $@"
+    printf "\n"
+  else
+    ${RSU} $@
+    [ $? -ne 0 ] && oops 'rsu failed'
+  fi
+}
+
+help() {
+  printf "Usage: vabtool {sr_key_provision, sr_status, pr_key_provision} ...\n"
+  printf "\n"
+  printf "\tPerform Vendor Authorized Boot flows for Intel Acceleration Development Platform\n"
+  printf "\n"
+  printf "\t-r,--retries <RETRIES> : control the number of retries on programming failure\n"
+  printf "\t-d,--dry-run           : print the fpgasupdate/rsu commands instead of\n"
+  printf "\t                         executing them\n"
+  printf "\t-y,--yes               : answer Yes to any confirmation prompts\n"
+  printf "\t-v,--version           : display script version and exit\n"
+  printf "\n"
+  exit 1
+}
+
+[ $# -lt 1 ] && help
+
+sr_key_provision_help() {
+  printf "Usage: vabtool sr_key_provision PCIE_ADDRESS SR_RKH_FILE FPGA_IMG_FILE PR_AUTH_CERT_FILE\n"
+  printf "\n"
+  printf "\tStatic Region key provisioning flow\n"
+  printf "\n"
+  printf "\t\tPCIE_ADDRESS      the PCIe address of the ADP in ssss:bb:dd.f form\n"
+  printf "\t\tSR_RKH_FILE       the Static Region root key hash file\n"
+  printf "\t\tFPGA_IMG_FILE     the Static Region update file\n"
+  printf "\t\tPR_AUTH_CERT_FILE the Programmable Region authorization certificate file\n"
+  printf "\n"
+  exit 1
+}
+
+sr_key_provision() {
+  [ $# -lt 4 ] && sr_key_provision_help
+
+  local -r pcie_addr="$1"
+  local -r rkh_file="$2"
+  local -r fpga_file="$3"
+  local -r pr_auth_file="$4"
+  local -i res
+  local -i i
+
+  [ -e "/sys/bus/pci/devices/${pcie_addr}" ] || oops "${pcie_addr} is not a valid device."
+  [ -e "${rkh_file}"  ] || oops "${rkh_file} does not exist."
+  [ -e "${fpga_file}" ] || oops "${fpga_file} does not exist."
+  [ -e "${pr_auth_file}"  ] || oops "${pr_auth_file} does not exist."
+
+  for (( i = 0 ; i < ${RETRIES} ; ++i )); do
+    call_fpgasupdate "${rkh_file}"  "${pcie_addr}" || oops 'fpgasupdate failed'
+    call_fpgasupdate "${fpga_file}" "${pcie_addr}" || oops 'fpgasupdate failed'
+    call_rsu sdm "${pcie_addr}"
+    call_fpgasupdate "${pr_auth_file}"  "${pcie_addr}" || oops 'fpgasupdate failed'
+
+    if [ ${DRY_RUN} -ne 0 ]; then
+      local -r glob_pattern="${SDM_SR_PROVISION_STATUS_GLOB/ssss:bb:dd.f/${pcie_addr}}"
+      local -a resolved=(${glob_pattern})
+      printf "dry run: cat %s\n" "${resolved[0]}"
+      res=0
+      break
+    else
+      res=$(sdm_sr_provision_status "${pcie_addr}")
+      [ ${res} -eq 0 ] && break
+    fi
+
+    printf "Error: retrying[%d]\n" $(( i + 1 ))
+  done
+
+  [ ${res} -eq 0 ] || oops 'exhausted retries (SR key provision)'
+}
+
+pr_key_provision_help() {
+  printf "Usage: vabtool pr_key_provision PCIE_ADDRESS PR_AUTH_CERT_FILE PR_RKH_FILE\n"
+  printf "\n"
+  printf "\tPartial Reconfiguration region key provisioning flow\n"
+  printf "\n"
+  printf "\t\tPCIE_ADDRESS      the PCIe address of the ADP in ssss:bb:dd.f form\n"
+  printf "\t\tPR_AUTH_CERT_FILE the Programmable Region authorization certificate file\n"
+  printf "\t\tPR_RKH_FILE       the Programmable Region root key hash file\n"
+  printf "\n"
+  exit 1
+}
+
+pr_key_provision() {
+  [ $# -lt 3 ] && pr_key_provision_help
+
+  local -r pcie_addr="$1"
+  local -r sr_auth_cert_file="$2"
+  local -r pr_rkh_file="$3"
+  local -i res
+  local -i i
+  local boot_page
+
+  [ -e "/sys/bus/pci/devices/${pcie_addr}" ] || oops "${pcie_addr} is not a valid device."
+  [ -e "${sr_auth_cert_file}"  ] || oops "${sr_auth_cert_file} does not exist."
+  [ -e "${pr_rkh_file}" ] || oops "${pr_rkh_file} does not exist."
+
+  for (( i = 0 ; i < ${RETRIES} ; ++i )); do
+
+    pr_key_provision_worker "${pcie_addr}" "${sr_auth_cert_file}" "${pr_rkh_file}"
+    res=$?
+    [ ${res} -eq 0 ] && break    
+
+    printf "Error: retrying[%d]\n" $(( i + 1 ))
+
+    boot_page=$(fpga_boot_page "${pcie_addr}")
+    boot_page="${boot_page/fpga_/}"
+
+    call_rsu fpga --page "${boot_page}" "${pcie_addr}"
+
+  done
+
+  [ ${res} -eq 0 ] || oops 'exhausted retries (PR key provision)'
+}
+
+pr_key_provision_worker() {
+  local -r pcie_addr="$1"
+  local -r sr_auth_cert_file="$2"
+  local -r pr_rkh_file="$3"
+
+  call_fpgasupdate "${sr_auth_cert_file}" "${pcie_addr}" || return 1
+  call_fpgasupdate "${pr_rkh_file}"       "${pcie_addr}" || return 1
+
+  return 0
+}
+
+declare -a ORIG_ARGS=($@)
+declare -a ARGS=()
+declare -i i
+declare OPERATION='none'
+declare a
+
+add_arg() {
+  local -r arg="$1"
+  if [ ${#ARGS[@]} -eq 0 ]; then
+    ARGS=("${arg}")
+  else
+    ARGS=(${ARGS[@]} "${arg}")
+  fi
+}
+
+for (( i = 0 ; i < ${#ORIG_ARGS[@]} ; ++i )); do
+  case "${ORIG_ARGS[$i]}" in
+    -r|--retries)
+      let $(( ++i ))
+      RETRIES=${ORIG_ARGS[$i]}
+    ;;
+
+    -v|--version)
+      printf "vabtool %s\n" "${VERSION}"
+      exit 1
+    ;;
+
+    -d|--dry-run)
+      DRY_RUN=1
+    ;;
+
+    -y|--yes)
+      YES=1
+    ;;
+
+    sr|sr_key_provision|pr|pr_key_provision)
+      OPERATION="${ORIG_ARGS[$i]}"
+    ;;
+
+    sr_status)
+      OPERATION="${ORIG_ARGS[$i]}"
+    ;;
+
+    *)
+      add_arg "${ORIG_ARGS[$i]}"
+    ;;
+  esac
+done
+
+case "${OPERATION}" in
+  sr|sr_key_provision)
+    sr_key_provision ${ARGS[@]}
+  ;;
+
+  pr|pr_key_provision)
+    pr_key_provision ${ARGS[@]}
+  ;;
+
+  sr_status)
+    print_sdm_sr_provision_status ${ARGS[@]}
+  ;;
+
+  *)
+    help
+  ;;
+esac
+
+exit 0
