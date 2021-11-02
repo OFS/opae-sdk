@@ -68,7 +68,8 @@ enum {
   HE_STATUS0 = 0x0160,
   HE_STATUS1 = 0x0168,
   HE_ERROR = 0x0170,
-  HE_STRIDE = 0x0178
+  HE_STRIDE = 0x0178,
+  HE_INFO0 = 0x0180,
 };
 
 //configures test mode
@@ -87,6 +88,19 @@ typedef enum {
   HOSTEXE_CLS_8 = 0x3,
 } hostexe_req_len;
 
+//configures atomic transactions
+typedef enum {
+  // Bit 0 enables atomic function mode
+  // Bit 1 selects 4 byte or 8 byte requests
+  // Bits [3:2] select the function
+  HOSTEXE_ATOMIC_OFF = 0,
+  HOSTEXE_ATOMIC_FADD_4 = 0x1,
+  HOSTEXE_ATOMIC_FADD_8 = 0x3,
+  HOSTEXE_ATOMIC_SWAP_4 = 0x5,
+  HOSTEXE_ATOMIC_SWAP_8 = 0x7,
+  HOSTEXE_ATOMIC_CAS_4 = 0x9,
+  HOSTEXE_ATOMIC_CAS_8 = 0xb,
+} atomic_func;
 
 //he test type
 typedef enum {
@@ -173,7 +187,8 @@ union he_cfg {
     uint64_t Continuous : 1;
     uint64_t TestMode : 3;
     uint64_t ReqLen : 2;
-    uint64_t Rsvd_19_7 : 13;
+    uint64_t AtomicFunc : 5;
+    uint64_t Rsvd_19_12 : 8;
     uint64_t TputInterleave : 3;
     uint64_t TestCfg : 5;
     uint64_t IntrOnErr : 1;
@@ -296,6 +311,16 @@ const std::map<std::string, uint32_t> he_req_cls_len= {
   { "cl_8", HOSTEXE_CLS_8},
 };
 
+const std::map<std::string, uint32_t> he_req_atomic_func = {
+  { "off", HOSTEXE_ATOMIC_OFF},
+  { "fadd_4", HOSTEXE_ATOMIC_FADD_4},
+  { "fadd_8", HOSTEXE_ATOMIC_FADD_8},
+  { "swap_4", HOSTEXE_ATOMIC_SWAP_4},
+  { "swap_8", HOSTEXE_ATOMIC_SWAP_8},
+  { "cas_4", HOSTEXE_ATOMIC_CAS_4},
+  { "cas_8", HOSTEXE_ATOMIC_CAS_8},
+};
+
 const std::map<std::string, uint32_t> he_test_mode = {
   { "test_rollover", HOSTEXE_TEST_ROLLOVER},
   { "test_termination", HOSTEXE_TEST_TERMINATION}
@@ -331,6 +356,10 @@ public:
     // Configures test rollover or test termination
     app_.add_option("--continuousmode", he_continuousmode_, "test rollover or test termination")->default_val("false");
 
+    // Atomic function
+    app_.add_option("--atomic", he_req_atomic_func_, "atomic requests (only permitted in combination with lpbk/cl_1)")
+      ->transform(CLI::CheckedTransformer(he_req_atomic_func))->default_val("off");
+
     // Delay
     app_.add_option("-d,--delay", he_delay_, "Enables random delay insertion between requests")->default_val("false");
 
@@ -346,12 +375,14 @@ public:
     app_.add_option("--contmodetime", he_contmodetime_,
         "Continuous mode time in seconds")->default_val("0");
 
+    app_.add_option("--clock-mhz", he_clock_mhz_,
+        "Clock frequency (MHz) -- when zero, read the frequency from the AFU")->default_val("0");
    }
 
   virtual int run(CLI::App *app, test_command::ptr_t test) override
   {
     int res = exit_codes::not_run;
-    logger_->set_level(spdlog::level::trace);
+    logger_->set_level(spdlog::level::from_str(log_level_));
     logger_->info("starting test run, count of {0:d}", count_);
     uint32_t count = 0;
     try {
@@ -404,9 +435,9 @@ public:
   {
     std::random_device rd;
     std::mt19937 mt(rd());
-    std::uniform_int_distribution<uint32_t> dist(1, 4096);
+    std::uniform_int_distribution<uint32_t> dist(1, -1);
     auto sz = sizeof(uint32_t);
-    for (uint32_t i = 0; i < buffer->size()/sz; i+=sz){
+    for (uint32_t i = 0; i < buffer->size(); i+=sz){
       buffer->write<uint32_t>(dist(mt), i);
     }
 
@@ -466,11 +497,13 @@ public:
   uint32_t count_;
   uint32_t he_modes_;
   uint32_t he_req_cls_len_;
+  uint32_t he_req_atomic_func_;
   bool he_delay_;
   bool he_continuousmode_;
   uint32_t he_interleave_;
   uint32_t he_interrupt_;
   uint32_t he_contmodetime_;
+  uint32_t he_clock_mhz_;
 
   std::map<uint32_t, uint32_t> limits_;
 
@@ -489,6 +522,10 @@ public:
     return handle_->get_token();
   }
 
+  bool should_log(spdlog::level::level_enum level)
+  {
+      return logger_->should_log(level);
+  }
 };
 } // end of namespace host_exerciser
 
