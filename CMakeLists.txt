@@ -173,7 +173,6 @@ set(CPACK_COMPONENTS_ALL
 	toolras
 	toolcoreidle
 	toolmmlink
-	jsonschema
 	opaecase
 	asertl
 	asescripts
@@ -205,6 +204,7 @@ set(CPACK_COMPONENTS_ALL
 	toolbist_app
 	toolbist
 	testsopae
+	vabtool
 	)
 
 # move component part of file name from *after* version to *before* version
@@ -250,9 +250,9 @@ define_pkg(tools
   toolpachssiconfig
   opaecxxutils
   toolpackager
-  jsonschema
   opaecxxlib
   opaecxxnlb
+  vabtool
   licensefile
   GROUP "tools-extra"
   DISPLAY_NAME "opae-tools-extra"

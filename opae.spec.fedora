@@ -305,6 +305,7 @@ done
 %{_bindir}/opaeuiotest
 %{_bindir}/pac_hssi_config.py
 %{_bindir}/rtl_src_config
+%{_bindir}/vabtool
 
 %{_usr}/share/opae/*
 %{python3_sitelib}/ethernet*
