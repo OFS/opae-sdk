@@ -1,4 +1,4 @@
-# Copyright(c) 2019-2020, Intel Corporation
+# Copyright(c) 2019-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -28,8 +28,7 @@ import codecs
 import os
 import sys
 import threading
-import time
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from opae.admin.utils.log import loggable
 
@@ -78,7 +77,7 @@ class progress(loggable):
         self._units = kwargs.get('units', 'bytes')
         self._bar = kwargs.get('bar', self.BAR)
         self._logfn = kwargs.get('log')
-        self._start_time = time.time()
+        self._start_time = datetime.now()
         self._last_pct = 0
         self._line_ending = '\r'
         label = kwargs.get('label', '')
@@ -129,8 +128,9 @@ class progress(loggable):
         if ratio is not None and len(ratio) == 2:
             text += u' [{}/{} {}]'.format(ratio[0], ratio[1], self._units)
 
-        elapsed = timedelta(seconds=time.time() - self._start_time)
-        text += u'[Elapsed Time: {}]'.format(elapsed)
+        elapsed = datetime.now() - self._start_time
+        elapsed_str = str(elapsed)[:-4] # limit to hundredths
+        text += u'[Elapsed Time: {}]'.format(elapsed_str)
         if self._label:
             text += u'[{}]'.format(self._label)
 
@@ -160,13 +160,13 @@ class progress(loggable):
         """tick Update elapsed time by getting the current time."""
         if self._total_time is None:
             raise RuntimeError('progress not configured with "time" value')
-        elapsed = time.time() - self._start_time
-        pct = elapsed/self._total_time
+        elapsed = datetime.now() - self._start_time
+        pct = elapsed.total_seconds() / self._total_time
         return self.update_percent(pct)
 
     def begin(self):
         """begin Initialize the progress bar (reset time to zero)"""
-        self._start_time = time.time()
+        self._start_time = datetime.now()
         return self.update_percent(0)
 
     def end(self):
