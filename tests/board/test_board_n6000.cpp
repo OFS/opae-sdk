@@ -45,6 +45,7 @@ extern "C" {
 
 #include <cstdlib>
 #include <string>
+#include <regex>
 #include "gtest/gtest.h"
 #include "mock/test_system.h"
 #include "libboard/board_common/board_common.h"
@@ -187,7 +188,19 @@ fpga_result board_n6000_c_p::delete_sysfs_file(const char *file) {
 }
 
 // test DFL sysfs attributes
-class board_dfl_n6000_c_p : public board_n6000_c_p { };
+class board_dfl_n6000_c_p : public board_n6000_c_p {
+
+protected:
+	void erase_bom_info(
+		const char * const bom_info_nvmem,
+		char * const bom_info,
+		size_t bom_info_size);
+	void test_bom_info(
+		const fpga_token token,
+		const char * const bom_info_nvmem,
+		char * const bom_info_in,
+		const char * const bom_info_out);
+};
 /**
 * @test       board_n6000_1
 * @brief      Tests: read_bmcfw_version
@@ -305,14 +318,59 @@ TEST_P(board_dfl_n6000_c_p, board_n6000_10) {
 	EXPECT_NE(print_phy_info(NULL), FPGA_OK);
 }
 
+void board_dfl_n6000_c_p::erase_bom_info(
+	const char * const bom_info_nvmem,
+	char * const bom_info,
+	const size_t bom_info_size)
+{
+	EXPECT_NE(bom_info_nvmem, (char *)NULL);
+	EXPECT_NE(bom_info, (char *)NULL);
+
+	// Fill whole BOM Critical Components with 0xFF:
+	memset(bom_info, 0xFF, bom_info_size);
+	ASSERT_EQ(write_sysfs_file(bom_info_nvmem, bom_info, bom_info_size), FPGA_OK);
+}
+
+void board_dfl_n6000_c_p::test_bom_info(
+	const fpga_token token,
+	const char * const bom_info_nvmem,
+	char * const bom_info_in,
+	const char * const bom_info_out)
+{
+	EXPECT_NE(bom_info_nvmem, (char *)NULL);
+	EXPECT_NE(bom_info_in, (char * )NULL);
+	EXPECT_NE(bom_info_out, (char *)NULL);
+
+	size_t bom_info_in_length = strlen(bom_info_in);
+	if (bom_info_in_length > 0) {
+		ASSERT_EQ(write_sysfs_file(bom_info_nvmem, bom_info_in, bom_info_in_length), FPGA_OK);
+	}
+
+	testing::internal::CaptureStdout();
+	EXPECT_EQ(print_board_info(token), FPGA_OK);
+	std::string stdout = testing::internal::GetCapturedStdout();
+	std::regex reg(bom_info_out, std::regex::extended);
+	bool match_found = std::regex_match(stdout.c_str(), reg);
+	EXPECT_EQ(match_found, true);
+}
+
 /**
 * @test       board_n6000_11
 * @brief      Tests: print_board_info
-* @details    checks BOM Critical Components specific output from print_board_info <br>
+* @details    checks BOM Critical Components specific output from print_board_info<br>
 */
 TEST_P(board_dfl_n6000_c_p, board_n6000_11) {
 
-	static char bom_info_in[] =
+	const char * const bom_info_nvmem = "dfl_dev*/*/bom_info0/nvmem";
+	const char * const last_board_info = ".*Board Management Controller, MAX10 Build version:.*\n";
+	const size_t FPGA_BOM_INFO_NVMEM_SIZE = 0x2000;
+	static char bom_info_in[FPGA_BOM_INFO_NVMEM_SIZE];
+	static char bom_info_out[2 * FPGA_BOM_INFO_NVMEM_SIZE];
+
+	// Test different line endings and white space
+	// and no NUL termination:
+	erase_bom_info(bom_info_nvmem, bom_info_in, sizeof(bom_info_in));
+	strcpy(bom_info_in,
 		"Name1,Value\n"
 		"\n"
 		"Name2,Value2\r\n"
@@ -320,24 +378,64 @@ TEST_P(board_dfl_n6000_c_p, board_n6000_11) {
 		"BOM PBA#,B#FB2CG2@AGF14-A1P2\r\n"
 		"BOM MMID, 115000\r\r\r"
 		"ABC3 ,This is a demo\r"
-		"C cd     	,	 			   s\xFF";
-	const size_t bom_info_in_size = sizeof(bom_info_in) - 1;
-	static const char bom_info_out[] =
+		"C cd     	,	 			   s\xFF");
+	strcpy(bom_info_out,
+		".*"
 		"Name1: Value\n"
 		"Name2: Value2\n"
 		"Name3: Value3\n"
 		"BOM PBA#: B#FB2CG2@AGF14-A1P2\n"
 		"BOM MMID: 115000\n"
 		"ABC3: This is a demo\n"
-		"C cd: s\n";
+		"C cd: s\n");
+	test_bom_info(tokens_[0], bom_info_nvmem, bom_info_in, bom_info_out);
 
-	ASSERT_EQ(write_sysfs_file("dfl_dev*/*/bom_info0/nvmem", bom_info_in, bom_info_in_size), FPGA_OK);
 
-	testing::internal::CaptureStdout();
-	EXPECT_EQ(print_board_info(tokens_[0]), FPGA_OK);
-	std::string output = testing::internal::GetCapturedStdout();
-	const char * find_bom_info_out = strstr(output.c_str(), bom_info_out);
-	EXPECT_NE(find_bom_info_out, (const char *)NULL);
+	// Corner case: test completely empty BOM Critical Components (filled with
+	// FF):
+	erase_bom_info(bom_info_nvmem, bom_info_in, sizeof(bom_info_in));
+	strcpy(bom_info_in, "");
+	test_bom_info(tokens_[0], bom_info_nvmem, bom_info_in, last_board_info);
+
+
+	// Corner case: test completely filled BOM Critical Components
+	// and no NUL termination:
+	size_t bom_info_length = 0;
+	const char *keyValue;
+
+	erase_bom_info(bom_info_nvmem, bom_info_in, sizeof(bom_info_in));
+	strcpy(bom_info_in, "");
+	strcpy(bom_info_out, "");
+	for (size_t i = 0; i < 60; ++i) {
+		keyValue =
+			"looooooooooooooooooooooooooooooooooooo"
+			"oooooooooooooooooooooooong_key\t \t , \t \t"
+			"loooooooooooooooooooooooooooooooooooooo"
+			"ooooooooooong_value\n";
+		strcat(bom_info_in, keyValue);
+		bom_info_length += strlen(keyValue);
+	}
+	keyValue = "looong_key \t \t,\t \t looong_value\n";
+	strcat(bom_info_in, keyValue);
+	bom_info_length += strlen(keyValue);
+	EXPECT_EQ(bom_info_length, sizeof(bom_info_in)); // Verify complete fill
+
+	bom_info_length = 0;
+	strcpy(bom_info_out, last_board_info);
+	for (size_t i = 0; i < 60; ++i) {
+		keyValue =
+			"looooooooooooooooooooooooooooooooooooo"
+			"oooooooooooooooooooooooong_key: "
+			"loooooooooooooooooooooooooooooooooooooo"
+			"ooooooooooong_value\n";
+		strcat(bom_info_out, keyValue);
+		bom_info_length += strlen(keyValue);
+	}
+	keyValue = "looong_key: looong_value\n";
+	bom_info_length += strlen(keyValue);
+	strcat(bom_info_out, keyValue);
+
+	test_bom_info(tokens_[0], bom_info_nvmem, bom_info_in, bom_info_out);
 }
 
 /**
