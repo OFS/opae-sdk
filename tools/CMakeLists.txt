@@ -91,3 +91,5 @@ if(OPAE_BUILD_EXTRA_TOOLS)
     opae_add_subdirectory(extra/opae.io)
   endif()
 endif()
+
+opae_add_subdirectory(extra/vabtool)

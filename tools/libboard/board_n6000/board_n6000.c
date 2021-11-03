@@ -64,7 +64,7 @@
 #define DFL_SEC_PR_ROOT           DFL_SEC_PMCI_GLOB "pr_root_entry_hash"
 #define DFL_SEC_SR_CANCEL         DFL_SEC_PMCI_GLOB "sr_canceled_csks"
 #define DFL_SEC_SR_ROOT           DFL_SEC_PMCI_GLOB "sr_root_entry_hash"
-
+#define DFL_SEC_SDM_STATUS        DFL_SEC_PMCI_GLOB "sdm_sr_provision_status"
 
 #define HSSI_FEATURE_ID                  0x15
 #define HSSI_100G_PROFILE                       27
@@ -696,20 +696,21 @@ fpga_result print_sec_info(fpga_token token)
 	memset(name, 0, sizeof(name));
 	res = read_sysfs(token, DFL_SEC_BMC_ROOT, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
-		printf("BMC root entry hash: %s\n", name);
+		printf("%-32s : %s\n", "BMC root entry hash", name);
 	} else {
 		OPAE_MSG("Failed to Read TCM BMC root entry hash");
-		printf("BMC root entry hash: %s\n", "None");
+		printf("%-32s : %s\n", "BMC root entry hash", "None");
 		resval = res;
 	}
 
 	memset(name, 0, sizeof(name));
 	res = read_sysfs(token, DFL_SEC_BMC_CANCEL, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
-		printf("BMC CSK IDs canceled: %s\n", strlen(name) > 0 ? name : "None");
+		printf("%-32s : %s\n", "BMC CSK IDs canceled",
+				strlen(name) > 0 ? name : "None");
 	} else {
 		OPAE_MSG("Failed to Read BMC CSK IDs canceled");
-		printf("BBMC CSK IDs canceled: %s\n", "None");
+		printf("%-32s : %s\n", "BMC CSK IDs canceled", "None");
 		resval = res;
 	}
 
@@ -717,21 +718,21 @@ fpga_result print_sec_info(fpga_token token)
 	memset(name, 0, sizeof(name));
 	res = read_sysfs(token, DFL_SEC_PR_ROOT, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
-		printf("PR root entry hash: %s\n", name);
+		printf("%-32s : %s\n", "PR root entry hash", name);
 	} else {
 		OPAE_MSG("Failed to Read PR root entry hash");
-		printf("PR root entry hash: %s\n", "None");
+		printf("%-32s : %s\n", "PR root entry hash", "None");
 		resval = res;
 	}
 
 	memset(name, 0, sizeof(name));
 	res = read_sysfs(token, DFL_SEC_PR_CANCEL, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
-		printf("AFU/PR CSK IDs canceled: %s\n",
+		printf("%-32s : %s\n", "AFU/PR CSK IDs canceled",
 			strlen(name) > 0 ? name : "None");
 	} else {
 		OPAE_MSG("Failed to Read AFU CSK/PR IDs canceled");
-		printf("AFU/PR CSK IDs canceled: %s\n", "None");
+		printf("%-32s : %s\n", "AFU/PR CSK IDs canceled", "None");
 		resval = res;
 	}
 
@@ -739,20 +740,21 @@ fpga_result print_sec_info(fpga_token token)
 	memset(name, 0, sizeof(name));
 	res = read_sysfs(token, DFL_SEC_SR_ROOT, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
-		printf("FIM root entry hash: %s\n", name);
+		printf("%-32s : %s\n", "FIM root entry hash", name);
 	} else {
 		OPAE_MSG("Failed to Read FIM root entry hash");
-		printf("FIM root entry hash: %s\n", "None");
+		printf("%-32s : %s\n", "FIM root entry hash", "None");
 		resval = res;
 	}
 
 	memset(name, 0, sizeof(name));
 	res = read_sysfs(token, DFL_SEC_SR_CANCEL, name, SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
-		printf("FIM CSK IDs canceled: %s\n", strlen(name) > 0 ? name : "None");
+		printf("%-32s : %s\n", "FIM CSK IDs canceled",
+			strlen(name) > 0 ? name : "None");
 	} else {
 		OPAE_MSG("Failed to Read FIM CSK IDs canceled");
-		printf("FIM CSK IDs canceled: %s\n", "None");
+		printf("%-32s : %s\n", "FIM CSK IDs canceled", "None");
 		resval = res;
 	}
 
@@ -761,10 +763,20 @@ fpga_result print_sec_info(fpga_token token)
 	res = read_sysfs(token, DFL_SEC_USER_FLASH_COUNT, name,
 		SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
-		printf("User flash update counter: %s\n", name);
+		printf("%-32s : %s\n", "User flash update counter", name);
 	} else {
 		OPAE_MSG("Failed to Read User flash update counter");
-		printf("User flash update counter: %s\n", "None");
+		printf("%-32s : %s\n", "User flash update counter", "None");
+		resval = res;
+	}
+
+	res = read_sysfs(token, DFL_SEC_SDM_STATUS, name,
+		SYSFS_PATH_MAX - 1);
+	if (res == FPGA_OK) {
+		printf("%-32s : %s\n", "SDM provisioning status", name);
+	} else {
+		OPAE_MSG("Failed to SDM provisioning status");
+		printf("%-32s : %s\n", "SDM provisioning status", "None");
 		resval = res;
 	}
 
