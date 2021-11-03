@@ -563,6 +563,9 @@ fpga_result print_bom_info(const fpga_token token)
 		return res;
 	}
 
+	// Terminated by a null character '\0'
+	bom_info[FPGA_BOM_INFO_BUF_LEN] = '\0';
+
 	res = reformat_bom_info(bom_info, FPGA_BOM_INFO_BUF_LEN, max_result_len);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to reformat BOM info");
