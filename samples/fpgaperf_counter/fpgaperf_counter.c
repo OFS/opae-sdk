@@ -173,7 +173,7 @@ STATIC fpga_result parse_perf_attributes(struct udev_device *dev,
 			globfree(&pglob);
 			return FPGA_EXCEPTION;
 		}
-		if (fscanf(file, "%s", attr_value) != 1) {
+		if (fscanf(file, "%127s", attr_value) != 1) {
 			OPAE_ERR("Failed to read %s", pglob.gl_pathv[i]);
 			goto out;
 		}
