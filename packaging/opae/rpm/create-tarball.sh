@@ -21,7 +21,6 @@ tar --transform=$trans \
   --exclude=build \
   --exclude=.* \
   --exclude=*~ \
-  --exclude=*.so \
   --exclude=doc/sphinx \
   --exclude=external/gtest \
   --exclude=external/opae-legacy/tests \
