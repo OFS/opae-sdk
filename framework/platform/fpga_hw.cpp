@@ -585,6 +585,8 @@ static std::string glob_first_path(const std::string path) {
   return found_path;
 }
 
+std::string INVALID_GUID("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx");
+
 static std::string format_uuid(const std::string &uuid) {
   std::string formatted_uuid = uuid;
   formatted_uuid.insert(8, "-");
@@ -634,6 +636,10 @@ static std::string read_afu_id(const std::string &pci_dir) {
   std::string afu_path = pci_dir + "/fpga*/*/*-port.*/afu_id";
 
   afu_path = glob_first_path(afu_path);
+  FILE *fp = fopen(afu_path.c_str(), "r");
+  if (!fp)
+    return INVALID_GUID;
+  fclose(fp);
   return format_uuid(read_file(afu_path));
 }
 
@@ -647,6 +653,18 @@ static std::string read_pr_interface_id(const std::string &pci_dir) {
   }
 
   return format_uuid(read_file(pr_interface_path));
+}
+
+bool has_compat_id(std::string pci_path) {
+  std::string compat_id_path = pci_path + "/fpga_region/region*/dfl-fme.*/dfl-fme-region.*/fpga_region/region*/compat_id";
+  compat_id_path = glob_first_path(compat_id_path);
+  if (compat_id_path.empty())
+    return false;
+  FILE *fp = fopen(compat_id_path.c_str(), "r");
+  if (!fp)
+    return false;
+  fclose(fp);
+  return true;
 }
 
 int filter_fpga(const struct dirent *ent) {
@@ -663,8 +681,13 @@ int filter_fpga(const struct dirent *ent) {
   if (it == devices.end()) {
     return 0;
   }
-  known_devices[ven_dev_id(vid, did)].push_back(pci_path);
-  return 1;
+
+  if (has_compat_id(pci_path)) {
+    known_devices[ven_dev_id(vid, did)].push_back(pci_path);
+    return 1;
+  }
+
+  return 0;
 }
 
 std::vector<std::string> find_supported_devices() {
