@@ -231,5 +231,6 @@ TEST_P(handle_cxx_core, get_token) {
   ASSERT_NO_THROW(p = tok->get_parent());
 }
 
+// TODO: re-enable these for n6000
 INSTANTIATE_TEST_CASE_P(handle, handle_cxx_core,
-                        ::testing::ValuesIn(test_platform::keys(true)));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-d5005" })));

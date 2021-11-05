@@ -285,8 +285,9 @@ TEST(sysfsinit_c_p, sysfs_parse_pcie) {
   EXPECT_EQ(device.function, 0x01);
 }
 
+// TODO re-enable these for n6000.
 INSTANTIATE_TEST_CASE_P(sysfsinit_c, sysfsinit_c_p,
-                        ::testing::ValuesIn(test_platform::platforms()));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-d5005" })));
 
 class sysfs_c_p : public ::testing::TestWithParam<std::string> {
  protected:
