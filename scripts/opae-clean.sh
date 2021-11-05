@@ -85,6 +85,7 @@ declare -ra LIBS=(\
 "opae/libboard_n3000.so*" \
 "opae/libboard_n5010.so*" \
 "opae/libboard_n6010.so*" \
+"opae/libboard_n6000.so*" \
 "opae/libfpgad-vc.so*" \
 "opae/libfpgad-xfpga.so*" \
 "opae/libmodbmc.so*" \
