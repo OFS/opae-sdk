@@ -2,10 +2,6 @@
 
 shopt -o -s nounset
 
-declare -i VER_MAJ=2
-declare -i VER_MIN=0
-declare -i VER_REL=7
-
 declare -ra BINS=(\
 PACSign \
 afu_json_mgr \
@@ -60,7 +56,8 @@ opaevfiotest \
 pac_hssi_config.py \
 packager \
 rtl_src_config \
-userclk\
+userclk \
+vabtool\
 )
 
 declare -a BIN_DIRS_TO_CLEAN=(\
@@ -68,57 +65,31 @@ declare -a BIN_DIRS_TO_CLEAN=(\
 )
 
 declare -ra LIBS=(\
-"libbitstream.so" \
-"libbitstream.so.${VER_MAJ}" \
-"libbitstream.so.${VER_MAJ}.${VER_MIN}.${VER_REL}" \
-"libfpgad-api.so" \
-"libfpgad-api.so.${VER_MAJ}" \
-"libfpgad-api.so.${VER_MAJ}.${VER_MIN}.${VER_REL}" \
-"libfpgaperf_counter.so" \
-"libhssi-io.so" \
-"libhssi-io.so.${VER_MAJ}" \
-"libhssi-io.so.${VER_MAJ}.${VER_MIN}.${VER_REL}" \
-"libmml-srv.so" \
-"libmml-srv.so.${VER_MAJ}" \
-"libmml-srv.so.${VER_MAJ}.${VER_MIN}.${VER_REL}" \
-"libmml-stream.so" \
-"libmml-stream.so.${VER_MAJ}" \
-"libmml-stream.so.${VER_MAJ}.${VER_MIN}.${VER_REL}" \
-"libofs.so" \
-"libofs.so.${VER_MAJ}" \
-"libofs.so.${VER_MAJ}.${VER_MIN}.${VER_REL}" \
-"libofs_cpeng.so" \
-"libopae-c++-nlb.so" \
-"libopae-c++-nlb.so.${VER_MAJ}" \
-"libopae-c++-nlb.so.${VER_MAJ}.${VER_MIN}.${VER_REL}" \
-"libopae-c++-utils.so" \
-"libopae-c++-utils.so.${VER_MAJ}" \
-"libopae-c++-utils.so.${VER_MAJ}.${VER_MIN}.${VER_REL}" \
-"libopae-c.so" \
-"libopae-c.so.${VER_MAJ}" \
-"libopae-c.so.${VER_MAJ}.${VER_MIN}.${VER_REL}" \
-"libopae-cxx-core.so" \
-"libopae-cxx-core.so.${VER_MAJ}" \
-"libopae-cxx-core.so.${VER_MAJ}.${VER_MIN}.${VER_REL}" \
-"libopaemem.so" \
-"libopaemem.so.${VER_MAJ}" \
-"libopaemem.so.${VER_MAJ}.${VER_MIN}.${VER_REL}" \
-"libopaeuio.so" \
-"libopaeuio.so.${VER_MAJ}" \
-"libopaeuio.so.${VER_MAJ}.${VER_MIN}.${VER_REL}" \
-"libopaevfio.so" \
-"libopaevfio.so.${VER_MAJ}" \
-"libopaevfio.so.${VER_MAJ}.${VER_MIN}.${VER_REL}" \
-"opae/libboard_a10gx.so" \
-"opae/libboard_d5005.so" \
-"opae/libboard_n3000.so" \
-"opae/libboard_n5010.so" \
-"opae/libboard_n6010.so" \
-"opae/libfpgad-vc.so" \
-"opae/libfpgad-xfpga.so" \
-"opae/libmodbmc.so" \
-"opae/libopae-v.so" \
-"opae/libxfpga.so"\
+"libbitstream.so*" \
+"libfpgad-api.so*" \
+"libfpgaperf_counter.so*" \
+"libhssi-io.so*" \
+"libmml-srv.so*" \
+"libmml-stream.so*" \
+"libofs.so*" \
+"libofs_cpeng.so*" \
+"libopae-c++-nlb.so*" \
+"libopae-c++-utils.so*" \
+"libopae-c.so*" \
+"libopae-cxx-core.so*" \
+"libopaemem.so*" \
+"libopaeuio.so*" \
+"libopaevfio.so*" \
+"opae/libboard_a10gx.so*" \
+"opae/libboard_d5005.so*" \
+"opae/libboard_n3000.so*" \
+"opae/libboard_n5010.so*" \
+"opae/libboard_n6010.so*" \
+"opae/libfpgad-vc.so*" \
+"opae/libfpgad-xfpga.so*" \
+"opae/libmodbmc.so*" \
+"opae/libopae-v.so*" \
+"opae/libxfpga.so*"\
 )
 
 declare -a LIB_DIRS_TO_CLEAN=(\
@@ -155,11 +126,23 @@ clean_bins() {
 }
 
 clean_libs() {
+  local glob_pattern
+  local glob_result
+  local item
+
   for d in ${LIB_DIRS_TO_CLEAN[@]} ; do
     for l in ${LIBS[@]} ; do
-      if [ -f "$d/$l" -o -L "$d/$l" ]; then
-        clean "$d/$l"
+      glob_pattern="$d/$l"
+      glob_result=(${glob_pattern})
+
+      if [ "${glob_result[0]}" != "${glob_pattern}" ]; then
+        for item in ${glob_result[@]} ; do
+          if [ -f "${item}" -o -L "${item}" ]; then
+            clean "${item}"
+          fi
+        done
       fi
+
     done
   done
 }
@@ -170,6 +153,7 @@ declare -rai PYTHON_REL=(0 1 2 3 4 5 6 7 8 9)
 
 declare -a PYTHON_DIRS_TO_CLEAN=(\
 '/usr/lib' \
+'/usr/lib64' \
 '/usr/local/lib' \
 '/usr/local/lib64'\
 )
@@ -189,63 +173,34 @@ python_files() {
                    'pacsign-*.egg-info' \
                    'pyopaeuio-*.egg-info' \
                    'pyopaeuio*.so')
+  local py_glob
+  local -a py_paths
+  local py
+  local files
 
   for d in ${PYTHON_DIRS_TO_CLEAN[@]} ; do
+    py_glob="$d/python*/site-packages"
+    py_paths=(${py_glob})
 
-    for maj in ${PYTHON_MAJ[@]} ; do
-      for min in ${PYTHON_MIN[@]} ; do
-        py="$d/python${maj}.${min}"
-        if [ -d "$py" ]; then
-          py="$py/site-packages"
-          if [ -d "$py" ]; then
+    if [ "${py_paths[0]}" != "${py_glob}" ]; then
+      for py in ${py_paths[@]} ; do
 
-            for e in ${dirs[@]} ; do
-              [ -d "$py/$e" ] && printf "%s\n" "$py/$e"
+        for e in ${dirs[@]} ; do
+          [ -d "$py/$e" ] && printf "%s\n" "$py/$e"
+        done
+
+        for g in ${globs[@]} ; do
+          glob=$py/$g
+          files=(${glob})
+          if [ "${files[0]}" != "${glob}" ]; then
+            for f in ${files[@]} ; do
+              printf "%s\n" "$f"
             done
-
-            for g in ${globs[@]} ; do
-              glob=$py/$g
-              files=(${glob})
-              if [ "${files[0]}" != "${glob}" ]; then
-                for f in ${files[@]} ; do
-                  printf "%s\n" "$f"
-                done
-              fi
-            done
-
-          fi
-        fi
-      done 
-    done
-
-    for maj in ${PYTHON_MAJ[@]} ; do
-      for min in ${PYTHON_MIN[@]} ; do
-        for rel in ${PYTHON_REL[@]} ; do
-          py="$d/python${maj}.${min}.${rel}"
-          if [ -d "$py" ]; then
-            py="$py/site-packages"
-            if [ -d "$py" ]; then
-
-              for e in ${dirs[@]} ; do
-                [ -d "$py/$e" ] && printf "%s\n" "$py/$e"
-              done
-
-              for g in ${globs[@]} ; do
-                glob=$py/$g
-                files=(${glob})
-                if [ "${files[0]}" != "${glob}" ]; then
-                  for f in ${files[@]} ; do
-                    printf "%s\n" "$f"
-                  done
-                fi
-              done
-
-            fi
           fi
         done
-      done 
-    done
 
+      done
+    fi
   done
 }
 
@@ -256,7 +211,7 @@ clean_python() {
 }
 
 show_help() {
-  printf "Usage: clean [-b] [-l] [-p] [-h] [-c] [-B dir] [-L dir] [-P dir] [-X prefix]\n"
+  printf "Usage: opae-clean [-b] [-l] [-p] [-h] [-c] [-B dir] [-L dir] [-P dir] [-X prefix]\n"
   printf "\n"
   printf "  -b          : clean OPAE binaries\n"
   printf "  -B <dir>    : specify additional bin directory\n"
