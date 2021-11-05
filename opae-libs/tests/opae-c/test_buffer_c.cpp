@@ -161,4 +161,6 @@ TEST_P(buffer_c_p, neg_test2) {
   EXPECT_EQ(fpgaReleaseBuffer(NULL, wsid), FPGA_INVALID_PARAM);
 }
 
-INSTANTIATE_TEST_CASE_P(buffer_c, buffer_c_p, ::testing::ValuesIn(test_platform::platforms({})));
+// TODO: re-enable these for n6000
+INSTANTIATE_TEST_CASE_P(buffer_c, buffer_c_p,
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-d5005" })));
