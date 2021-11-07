@@ -396,6 +396,10 @@ public:
 
         // Encoding
         he_lpbk_cfg_.Encoding = host_exe_->he_req_encoding_;
+        if ((he_lpbk_cfg_.Encoding != HOSTEXE_ENCODING_DEFAULT) && (he_lpbk_api_ver_ == 0)) {
+            std::cerr << "Host exerciser hardware API version 0 does not support encoding changes" << std::endl;
+            return -1;
+        }
 
         if (host_exe_->he_continuousmode_  && 
             (he_lpbk_cfg_.IntrTestMode == 1)) {
