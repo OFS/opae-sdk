@@ -54,6 +54,7 @@ public:
         :host_exe_(NULL) {
           he_lpbk_cfg_.value = 0;
           he_lpbk_ctl_.value = 0;
+          he_lpbk_api_ver_ = 0;
     }
     virtual ~host_exerciser_cmd() {}
 
@@ -65,11 +66,11 @@ public:
         he_status0.value = host_exe_->read64(HE_STATUS0);
         he_status1.value = host_exe_->read64(HE_STATUS1);
 
-        std::cout << "Host Exerciser numReads:" << he_status0.numReads << std::endl;
-        std::cout << "Host Exerciser numWrites:" << he_status0.numWrites << std::endl;
+        host_exe_->logger_->info("Host Exerciser numReads: {0}", he_status0.numReads);
+        host_exe_->logger_->info("Host Exerciser numWrites: {0}", he_status0.numWrites);
 
-        std::cout << "Host Exerciser numPendReads:" << he_status1.numPendReads << std::endl;
-        std::cout << "Host Exerciser numPendWrites:" << he_status1.numPendWrites << std::endl;
+        host_exe_->logger_->info("Host Exerciser numPendReads: {0}", he_status1.numPendReads);
+        host_exe_->logger_->info("Host Exerciser numPendWrites: {0}", he_status1.numPendWrites);
     }
 
     void host_exerciser_errors()
@@ -85,20 +86,29 @@ public:
 
     }
 
-    void host_exerciser_swtestmsg()
+    uint64_t host_exerciser_swtestmsg()
     {
         uint64_t swtest_msg;
 
         if (host_exe_ == NULL)
-            return;
+            return 0;
 
         swtest_msg = host_exe_->read64(HE_SWTEST_MSG);
+        if (swtest_msg) {
+            std::cout << "Host Exerciser swtest msg:" << swtest_msg << std::endl;
+        }
 
-        std::cout << "Host Exerciser swtest msg:" << swtest_msg << std::endl;
+        return swtest_msg;
     }
 
     inline uint64_t cacheline_aligned_addr(uint64_t num) {
         return num >> LOG2_CL;
+    }
+
+    // Convert number of transactions to bandwidth (GB/s)
+    double he_num_xfers_to_bw(uint64_t num_lines, uint64_t num_ticks)
+    {
+        return (double)(num_lines * 64) / ((1000.0 / host_exe_->he_clock_mhz_ * num_ticks));
     }
 
     void he_perf_counters()
@@ -113,7 +123,7 @@ public:
         if (!dsm_status)
             return;
 
-        std::cout << "\nHost Exerciser Performance Counter:" << std::endl;
+        host_exe_->logger_->info("Host Exerciser Performance Counter:");
         // calculate number of cache lines in continuous mode
         if (host_exe_->he_continuousmode_) {
             if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)
@@ -122,26 +132,21 @@ public:
                 num_cache_lines = dsm_status->num_reads;
             if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_WRITE)
                 num_cache_lines = (dsm_status->num_writes);
-            if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_TRUPT)
+            if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_TRPUT)
                 num_cache_lines = dsm_status->num_writes * 2;
         } else {
             num_cache_lines = (LPBK1_BUFFER_SIZE / (1 * CL));
             host_exerciser_status();
         }
 
-        std::cout << "Number of clocks:" <<
-            dsm_status->num_ticks << std::endl;
-        std::cout << "Total number of Reads sent:" <<
-            dsm_status->num_reads << std::endl;
-        std::cout << "Total number of Writes sent :" <<
-            dsm_status->num_writes << std::endl;
+        host_exe_->logger_->info("Number of clocks: {0}", dsm_status->num_ticks);
+        host_exe_->logger_->info("Total number of Reads sent: {0}", dsm_status->num_reads);
+        host_exe_->logger_->info("Total number of Writes sent: {0}", dsm_status->num_writes);
 
         // print bandwidth
         if (dsm_status->num_ticks > 0) {
-            double perf_data = (double)(num_cache_lines * 64) /
-                ((1000.0 / host_exe_->he_clock_mhz_ * (dsm_status->num_ticks)));
-            std::cout << "Bandwidth: " << std::setprecision(3) <<
-                perf_data << " GB/s" << std::endl;
+            double perf_data = he_num_xfers_to_bw(num_cache_lines, dsm_status->num_ticks);
+            host_exe_->logger_->info("Bandwidth: {0:0.3f} GB/s", perf_data);
         }
     }
 
@@ -245,18 +250,21 @@ public:
         std::cout << " ..." << std::endl;
     }
 
-    void he_compare_buffer()
+    uint64_t he_compare_buffer()
     {
-        host_exerciser_swtestmsg();
+        uint64_t status = host_exerciser_swtestmsg();
+        if (status) {
+            std::cerr << "HE LB CSR error flag is set" << std::endl;
+            return status;
+        }
 
         // Compare buffer contents only loopback test mode
         if (he_lpbk_cfg_.TestMode != HOST_EXEMODE_LPBK1)
-            return;
+            return 0;
 
         // Normal (non-atomic) is a simple comparison
         if (he_lpbk_cfg_.AtomicFunc == HOSTEXE_ATOMIC_OFF) {
-            host_exe_->compare(source_, destination_);
-            return;
+            return (source_->compare(destination_, source_->size()));
         }
 
         // Atomic mode is a far more complicated comparison. The source buffer
@@ -301,8 +309,10 @@ public:
                     upd_a = (src_b == i) ? ~i : src_b;
             }
 
-            if (upd_a != src_a)
-                throw std::runtime_error("Atomic update error");
+            if (upd_a != src_a) {
+                std::cerr << "Atomic update error" << std::endl;
+                return 1;
+            }
 
             // The destination is comparatively easy. For all functions it is
             // simply the original source value.
@@ -312,9 +322,13 @@ public:
                 dst_a &= 0xffffffff;
             }
 
-            if (dst_a != src_b)
-                throw std::runtime_error("Atomic read error or write error");
+            if (dst_a != src_b) {
+                std::cerr << "Atomic read error or write error" << std::endl;
+                return 1;
+            }
         }
+
+        return 0;
     }
 
     bool he_continuousmode()
@@ -322,9 +336,9 @@ public:
         uint32_t count = 0;
         if (host_exe_->he_continuousmode_ && host_exe_->he_contmodetime_ > 0)
         { 
-            std::cout << "host exerciser continuous mode time:"<<
-	            host_exe_->he_contmodetime_ << " seconds" << std::endl;
-            std::cout << "Ctrl+C  to stop continuous mode" << std::endl;
+            host_exe_->logger_->debug("continuous mode time: {0} seconds", host_exe_->he_contmodetime_);
+            host_exe_->logger_->debug("Ctrl+C  to stop continuous mode");
+
             while (!g_he_exit) {
                 sleep(1);
                 count++;
@@ -358,7 +372,7 @@ public:
              he_lpbk_cfg_.Continuous = 1;
 
         // Set interleave in Throughput
-        if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_TRUPT) {
+        if (he_lpbk_cfg_.TestMode == HOST_EXEMODE_TRPUT) {
               he_lpbk_cfg_.TputInterleave = host_exe_->he_interleave_;
         }
 
@@ -370,11 +384,18 @@ public:
         // Atomic functions
         he_lpbk_cfg_.AtomicFunc = host_exe_->he_req_atomic_func_;
         if (he_lpbk_cfg_.AtomicFunc != HOSTEXE_ATOMIC_OFF) {
-            if (he_lpbk_cfg_.ReqLen != HOSTEXE_CLS_1) {
-                std::cerr << "Atomic function mode requires cl_1" << std::endl;
+            if (he_lpbk_api_ver_ == 0) {
+                std::cerr << "Host exerciser hardware API version 0 does not support atomic functions" << std::endl;
+                return -1;
+            }
+            if ((he_lpbk_cfg_.ReqLen != HOSTEXE_CLS_1) && (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)) {
+                std::cerr << "Atomic function in lpbk mode requires cl_1" << std::endl;
                 return -1;
             }
         }
+
+        // Encoding
+        he_lpbk_cfg_.Encoding = host_exe_->he_req_encoding_;
 
         if (host_exe_->he_continuousmode_  && 
             (he_lpbk_cfg_.IntrTestMode == 1)) {
@@ -393,6 +414,216 @@ public:
         return 0;
     }
 
+    // The test state has been configured. Run one test instance.
+    int run_single_test()
+    {
+        int status = 0;
+
+        // Clear the status buffer
+        std::fill_n(dsm_->c_type(), LPBK1_DSM_SIZE, 0x0);
+
+        host_exe_->logger_->debug("Start Test");
+
+        // Write to CSR_CFG
+        host_exe_->write64(HE_CFG, he_lpbk_cfg_.value);
+        host_exe_->logger_->debug("Input Config: {0}");
+
+        event::ptr_t ev = nullptr;
+        if (he_lpbk_cfg_.IntrTestMode == 1) {
+            he_interrupt_.VectorNum = host_exe_->he_interrupt_;
+            host_exe_->write32(HE_INTERRUPT0, he_interrupt_.value);
+            ev = host_exe_->register_interrupt(host_exe_->he_interrupt_);
+            std::cout << "Using Interrupts\n";
+        }
+
+        if (host_exe_->logger_->should_log(spdlog::level::debug)) {
+            std::cout << std::endl;
+            he_dump_buffer(source_, "Pre-execution source");
+            he_dump_buffer(destination_, "Pre-execution destination");
+            std::cout << std::endl;
+        }
+
+        // Write to CSR_CTL
+        he_lpbk_ctl_.value = 0;
+        he_lpbk_ctl_.Start = 1;
+        he_lpbk_ctl_.ResetL = 1;
+        host_exe_->write32(HE_CTL, he_lpbk_ctl_.value);
+
+        // Interrupt test mode
+        if (he_lpbk_cfg_.IntrTestMode == 1) {
+            if (!he_interrupt(ev)) {
+	            status = -1;
+            }
+            else {
+                status = he_compare_buffer();
+                he_perf_counters();
+            }
+        } else if (host_exe_->he_continuousmode_) {
+            // Continuous mode
+            he_continuousmode();
+
+            if (host_exe_->logger_->should_log(spdlog::level::debug)) {
+                std::cout << std::endl;
+                he_dump_buffer(source_, "Post-execution source");
+                he_dump_buffer(destination_, "Post-execution destination");
+                std::cout << std::endl;
+            }
+        } else {
+            // Regular mode
+            if (!he_wait_test_completion()) {
+                status = -1;
+            }
+            else {
+                if (host_exe_->logger_->should_log(spdlog::level::debug)) {
+                    std::cout << std::endl;
+                    he_dump_buffer(source_, "Post-execution source");
+                    he_dump_buffer(destination_, "Post-execution destination");
+                    std::cout << std::endl;
+                }
+
+                status = he_compare_buffer();
+                he_perf_counters();
+            }
+        }
+
+        // assert reset he-lpbk
+        he_lpbk_ctl_.value = 0;
+        host_exe_->write32(HE_CTL, he_lpbk_ctl_.value);
+        usleep(1000);
+
+        // deassert reset he-lpbk
+        he_lpbk_ctl_.value = 0;
+        he_lpbk_ctl_.ResetL = 1;
+        host_exe_->write32(HE_CTL, he_lpbk_ctl_.value);
+
+        return status;
+    }
+
+    // Sequence through all the test modes
+    int run_all_tests()
+    {
+        int status = 0;
+
+        // Start with loopback tests
+        he_lpbk_cfg_.TestMode = HOST_EXEMODE_LPBK1;
+        he_lpbk_cfg_.AtomicFunc = HOSTEXE_ATOMIC_OFF;
+        host_exe_->he_continuousmode_ = false;
+        he_lpbk_cfg_.Continuous = 0;
+
+        // Test multiple request sizes
+        std::cout << std::endl << "Testing loopback, varying payload size:" << std::endl;
+        for (std::map<std::string, uint32_t>::const_iterator cls=he_req_cls_len.begin(); cls!=he_req_cls_len.end(); ++cls) {
+            // Set request length
+            he_lpbk_cfg_.ReqLen = cls->second;
+
+            // Initialize buffer values
+            he_init_src_buffer(source_);
+            std::fill_n(destination_->c_type(), LPBK1_BUFFER_SIZE, 0xBE);
+
+            int test_status = run_single_test();
+            status |= test_status;
+
+            std::cout << "  " << cls->first << ": "
+                      << (test_status ? "FAIL" : "PASS") << std::endl;
+        }
+        he_lpbk_cfg_.ReqLen = HOSTEXE_CLS_1;
+
+        // Test atomic functions if the API supports it
+        if (he_lpbk_api_ver_ != 0) {
+            std::cout << std::endl << "Testing atomic functions:" << std::endl;
+            for (std::map<std::string, uint32_t>::const_iterator af=he_req_atomic_func.begin(); af!=he_req_atomic_func.end(); ++af) {
+                // Don't test "off"
+                if (af->second == HOSTEXE_ATOMIC_OFF) continue;
+
+                he_lpbk_cfg_.AtomicFunc = af->second;
+
+                // Initialize buffer values
+                he_init_src_buffer(source_);
+                std::fill_n(destination_->c_type(), LPBK1_BUFFER_SIZE, 0xBE);
+
+                int test_status = run_single_test();
+                status |= test_status;
+
+                std::cout << "  " << af->first << ": "
+                          << (test_status ? "FAIL" : "PASS") << std::endl;
+            }
+
+            std::cout << std::endl << "Testing atomic functions interspersed in continuous mode:" << std::endl;
+            uint32_t trip = 0;
+            for (std::map<std::string, uint32_t>::const_reverse_iterator cls=he_req_cls_len.rbegin(); cls!=he_req_cls_len.rend(); ++cls) {
+                he_lpbk_cfg_.TestMode = HOST_EXEMODE_TRPUT;
+                he_lpbk_cfg_.ReqLen = cls->second;
+                he_lpbk_cfg_.AtomicFunc = (trip & 1 ? HOSTEXE_ATOMIC_FADD_4 : HOSTEXE_ATOMIC_CAS_8);
+                host_exe_->he_continuousmode_ = true;
+                he_lpbk_cfg_.Continuous = 1;
+
+                int test_status = run_single_test();
+                status |= test_status;
+
+                std::cout << "  " << cls->first
+                          <<" and " << (trip & 1 ? "fadd_4" : "cas_8") << ": "
+                          << (test_status ? "FAIL" : "PASS") << std::endl;
+
+                trip += 1;
+            }
+
+            he_lpbk_cfg_.AtomicFunc = HOSTEXE_ATOMIC_OFF;
+        }
+
+        // Test throughput, varying read, write and size
+        std::cout << std::endl << "Testing throughput (GB/s), varying payload size ("
+                  << host_exe_->he_contmodetime_ << " seconds each):" << std::endl;
+        std::cout.setf(std::ios::fixed);
+        std::cout.precision(2);
+
+        // Get a pointer to the device status memory, needed to compute throughput
+        volatile he_dsm_status *dsm_status =
+            reinterpret_cast<he_dsm_status *>((uint8_t*)dsm_->c_type());
+
+        host_exe_->he_continuousmode_ = true;
+        he_lpbk_cfg_.Continuous = 1;
+        for (std::map<std::string, uint32_t>::const_iterator cls=he_req_cls_len.begin(); cls!=he_req_cls_len.end(); ++cls) {
+            he_lpbk_cfg_.ReqLen = cls->second;
+
+            he_lpbk_cfg_.TestMode = HOST_EXEMODE_READ;
+            int test_status = run_single_test();
+            status |= test_status;
+            std::cout << "  " << cls->first << " READ:  ";
+            if (test_status)
+                std::cout << "FAIL" << std::endl;
+            else {
+                std::cout << he_num_xfers_to_bw(dsm_status->num_reads, dsm_status->num_ticks)
+                          << std::endl;
+            }
+
+            he_lpbk_cfg_.TestMode = HOST_EXEMODE_WRITE;
+            test_status = run_single_test();
+            status |= test_status;
+            std::cout << "  " << cls->first << " WRITE: ";
+            if (test_status)
+                std::cout << "FAIL" << std::endl;
+            else {
+                std::cout << he_num_xfers_to_bw(dsm_status->num_writes, dsm_status->num_ticks)
+                          << std::endl;
+            }
+
+            he_lpbk_cfg_.TestMode = HOST_EXEMODE_TRPUT;
+            test_status = run_single_test();
+            status |= test_status;
+            std::cout << "  " << cls->first << " TRPUT: ";
+            if (test_status)
+                std::cout << "FAIL" << std::endl;
+            else {
+                std::cout << he_num_xfers_to_bw(dsm_status->num_reads + dsm_status->num_writes,
+                                                dsm_status->num_ticks)
+                          << std::endl;
+            }
+
+            std::cout << std::endl;
+        }
+
+        return status;
+    }
 
     virtual int run(test_afu *afu, CLI::App *app)
     {
@@ -403,16 +634,13 @@ public:
 
         token_ = d_afu->get_token();
 
-        auto ret = parse_input_options();
-        if (ret != 0) {
-            std::cerr << "Failed to parse input options" << std::endl;
-            return ret;
-        }
-        std::cout << "Input Config:" << he_lpbk_cfg_.value << std::endl;
+        // Read HW details
+        uint64_t he_info = host_exe_->read64(HE_INFO0);
+        he_lpbk_api_ver_ = (he_info >> 16);
+        std::cout << "API version: " << uint32_t(he_lpbk_api_ver_) << std::endl;
 
         if (0 == host_exe_->he_clock_mhz_) {
-            // Does the AFU record its clock info?
-            uint16_t freq = host_exe_->read64(HE_INFO0);
+            uint16_t freq = he_info;
             if (freq) {
                 host_exe_->he_clock_mhz_ = freq;
                 std::cout << "AFU clock: "
@@ -424,18 +652,26 @@ public:
                           << host_exe_->he_clock_mhz_ << " MHz." << std::endl;
             }
         }
+        else {
+            std::cout << "AFU clock from command line: "
+                      << host_exe_->he_clock_mhz_ << " MHz" << std::endl;
+        }
+
+        auto ret = parse_input_options();
+        if (ret != 0) {
+            std::cerr << "Failed to parse input options" << std::endl;
+            return ret;
+        }
 
         // assert reset he-lpbk
         he_lpbk_ctl_.value = 0;
         d_afu->write32(HE_CTL, he_lpbk_ctl_.value);
         usleep(1000);
 
-
         // deassert reset he-lpbk
         he_lpbk_ctl_.value = 0;
         he_lpbk_ctl_.ResetL = 1;
         d_afu->write32(HE_CTL, he_lpbk_ctl_.value);
-
 
         /* Allocate Source Buffer
         Write to CSR_SRC_ADDR */
@@ -459,64 +695,16 @@ public:
         d_afu->write32(HE_DSM_BASEH, cacheline_aligned_addr(dsm_->io_address()) >> 32);
         std::fill_n(dsm_->c_type(), LPBK1_DSM_SIZE, 0x0);
 
-
         // Number of cache lines
         d_afu->write64(HE_NUM_LINES, (LPBK1_BUFFER_SIZE / (1 * CL)) -1);
 
-        // Write to CSR_CFG
-        d_afu->write64(HE_CFG, he_lpbk_cfg_.value);
+        int status = 0;
+        if (host_exe_->he_test_all_)
+            status = run_all_tests();
+        else
+            status = run_single_test();
 
-        event::ptr_t ev = nullptr;
-        if (he_lpbk_cfg_.IntrTestMode == 1) {
-            he_interrupt_.VectorNum = host_exe_->he_interrupt_;
-            d_afu->write32(HE_INTERRUPT0, he_interrupt_.value);
-            ev = d_afu->register_interrupt(host_exe_->he_interrupt_);
-            std::cout << "Using Interrupts\n";
-        }
-
-        if (host_exe_->should_log(spdlog::level::debug)) {
-            std::cout << std::endl;
-            he_dump_buffer(source_, "Pre-execution source");
-            he_dump_buffer(destination_, "Pre-execution destination");
-            std::cout << std::endl;
-        }
-
-        // Write to CSR_CTL
-        std::cout << "Start Test" << std::endl;
-        he_lpbk_ctl_.value = 0;
-        he_lpbk_ctl_.Start = 1;
-        he_lpbk_ctl_.ResetL = 1;
-        d_afu->write32(HE_CTL, he_lpbk_ctl_.value);
-
-        // Interrupt test mode
-        if (he_lpbk_cfg_.IntrTestMode == 1) {
-            if (!he_interrupt(ev)) {
-	            return -1;
-            }
-            he_compare_buffer();
-            he_perf_counters();
-        } else if (host_exe_->he_continuousmode_) {
-            // Continuous mode
-            he_continuousmode();
-            return 0;
-        } else {
-            // Regular mode
-            if (!he_wait_test_completion()) {
-                return -1;
-            }
-
-            if (host_exe_->should_log(spdlog::level::debug)) {
-                std::cout << std::endl;
-                he_dump_buffer(source_, "Post-execution source");
-                he_dump_buffer(destination_, "Post-execution destination");
-                std::cout << std::endl;
-            }
-
-            he_compare_buffer();
-            he_perf_counters();
-        }
-
-        return 0;
+        return status;
     }
 
 protected:
@@ -528,6 +716,7 @@ protected:
     shared_buffer::ptr_t dsm_;
     he_interrupt0 he_interrupt_;
     token::ptr_t token_;
+    uint8_t he_lpbk_api_ver_;
 };
 
 } // end of namespace host_exerciser
