@@ -148,10 +148,6 @@ clean_libs() {
   done
 }
 
-declare -rai PYTHON_MAJ=(3)
-declare -rai PYTHON_MIN=(0 1 2 3 4 5 6 7 8 9)
-declare -rai PYTHON_REL=(0 1 2 3 4 5 6 7 8 9)
-
 declare -a PYTHON_DIRS_TO_CLEAN=(\
 '/usr/lib' \
 '/usr/lib64' \
@@ -168,11 +164,16 @@ python_files() {
 
   local -ra globs=('hssi_ethernet-*.egg-info' \
                    'libvfio*.so' \
+                   'opae.admin-*.egg-info' \
+                   'opae.admin-*.pth' \
                    'opae.diag-*.egg-info' \
-                   'opae.io-*.pth' \
+                   'opae.diag-*.pth' \
                    'opae.io-*.egg-info' \
+                   'opae.io-*.pth' \
                    'pacsign-*.egg-info' \
+                   'pacsign-*.pth' \
                    'pyopaeuio-*.egg-info' \
+                   'pyopaeuio-*.pth' \
                    'pyopaeuio*.so')
   local py_glob
   local -a py_paths
