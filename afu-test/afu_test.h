@@ -143,12 +143,12 @@ public:
     error
   };
 
-  afu(const char *name, const char *afu_id = nullptr)
+  afu(const char *name, const char *afu_id = nullptr, const char *log_level = nullptr)
   : name_(name)
   , afu_id_(afu_id ? afu_id : "")
   , app_(name_)
   , pci_addr_("")
-  , log_level_("info")
+  , log_level_(log_level ? log_level : "info")
   , shared_(false)
   , timeout_msec_(60000)
   , handle_(nullptr)
@@ -219,7 +219,6 @@ public:
     CLI11_PARSE(app_, argc, argv);
 
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-    console_sink->set_level(spdlog::level::from_str(log_level_));
 
     command::ptr_t test(nullptr);
     CLI::App *app = nullptr;
@@ -241,6 +240,7 @@ public:
     file_sink->set_level(spdlog::level::trace);
     logger_ = std::make_shared<spdlog::logger>(test->name(), spdlog::sinks_init_list ({console_sink, file_sink}));
     spdlog::register_logger(logger_);
+    logger_->set_level(spdlog::level::from_str(log_level_));
 
     int res = open_handle(test->afu_id());
     if (res != exit_codes::not_run) {
@@ -319,6 +319,7 @@ protected:
   fpga::handle::ptr_t handle_;
   command::ptr_t current_command_;
   std::map<CLI::App*, command::ptr_t> commands_;
+public:
   std::shared_ptr<spdlog::logger> logger_;
 };
 
