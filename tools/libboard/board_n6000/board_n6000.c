@@ -427,7 +427,7 @@ static fpga_result replace_str_in_str(
 	char * const haystack,
 	const char * const needle,
 	const char * const substitute,
-	const size_t max_result_len,
+	const size_t max_haystack_len,
 	fpga_result res)
 {
 	if (res != FPGA_OK)
@@ -436,13 +436,19 @@ static fpga_result replace_str_in_str(
 	if (haystack == NULL || needle == NULL || substitute == NULL)
 		return FPGA_INVALID_PARAM;
 
+	if (strcmp(needle, substitute) == 0) // Corner case that causes infinite loop!
+		return FPGA_OK;
+
+	const size_t needle_len = strlen(needle);
+	if (needle_len == 0) // Corner case that causes infinite loop!
+		return FPGA_INVALID_PARAM;
+	const size_t substitute_len = strlen(substitute);
+
 	while (true) {
 		const char *haystack_ptr;
 		const char *needle_loc;
 
 		const size_t haystack_len = strlen(haystack);
-		const size_t needle_len = strlen(needle);
-		const size_t substitute_len = strlen(substitute);
 
 		// Find how many times the needle occurs in the haystack
 		size_t needle_count = 0;
@@ -455,8 +461,8 @@ static fpga_result replace_str_in_str(
 
 		// Reserve memory for the new string
 		const size_t result_len = haystack_len + needle_count * (substitute_len - needle_len);
-		if (result_len >= max_result_len) {
-			OPAE_ERR("Not enough buffer space: %llu >= %llu", result_len, max_result_len);
+		if (result_len >= max_haystack_len) {
+			OPAE_ERR("Not enough buffer space: %llu >= %llu", result_len, max_haystack_len);
 			res = FPGA_INVALID_PARAM;
 			break;
 		}
@@ -478,8 +484,9 @@ static fpga_result replace_str_in_str(
 			result_ptr += substitute_len;
 		}
 
-		strcpy(result_ptr, haystack_ptr);    // Copy the rest of haystack to result
-		strcpy(haystack, result);            // Update haystack with the result
+		const size_t remaining_result_size = result_len + 1 - (result_ptr - result);
+		strncpy(result_ptr, haystack_ptr, remaining_result_size);  // Copy the rest of haystack to result
+		strncpy(haystack, result, max_haystack_len);               // Update haystack with the result
 
 		free(result);
 	}
