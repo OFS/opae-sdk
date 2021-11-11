@@ -282,7 +282,8 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 	if (((VERB_ALL == errors_config.which)
 	     || (VERB_FME == errors_config.which))
 	    && (FPGA_DEVICE == objtype)) {
-		fpgainfo_print_common("//****** FME ERRORS ******//", props);
+		fpgainfo_print_common("//****** FME ******//", props);
+		printf("//****** FME ERRORS ******// \n");
 
 		for (i = 0; i < (int)num_errors; i++) {
 			uint64_t error_value = 0;
@@ -310,7 +311,11 @@ static void print_errors_info(fpga_token token, fpga_properties props,
 	} else if (((VERB_ALL == errors_config.which)
 		    || (VERB_PORT == errors_config.which))
 		   && (FPGA_ACCELERATOR == objtype)) {
-		fpgainfo_print_common("//****** PORT ERRORS ******//", props);
+
+		if (VERB_PORT == errors_config.which)
+			fpgainfo_print_common("//****** PORT ******//", props);
+
+		printf("//****** PORT ERRORS ******// \n");
 
 		for (i = 0; i < (int)num_errors; i++) {
 			uint64_t error_value = 0;
