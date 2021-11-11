@@ -77,7 +77,7 @@ typedef enum {
   HOST_EXEMODE_LPBK1 = 0x0,
   HOST_EXEMODE_READ = 0x1,
   HOST_EXEMODE_WRITE = 0x2,
-  HOST_EXEMODE_TRUPT = 0x3,
+  HOST_EXEMODE_TRPUT = 0x3,
 } host_exe_mode;
 
 //request cache line
@@ -100,7 +100,15 @@ typedef enum {
   HOSTEXE_ATOMIC_SWAP_8 = 0x7,
   HOSTEXE_ATOMIC_CAS_4 = 0x9,
   HOSTEXE_ATOMIC_CAS_8 = 0xb,
-} atomic_func;
+} hostexe_atomic_func;
+
+//configures data mover vs. power user encoding of requests
+typedef enum {
+  HOSTEXE_ENCODING_DEFAULT = 0x0,  // Use the RTL PU_MEM_REQ parameter
+  HOSTEXE_ENCODING_DM = 0x1,       // Only data mover
+  HOSTEXE_ENCODING_PU = 0x2,       // Only power user
+  HOSTEXE_ENCODING_RANDOM = 0x3,   // Both DM and PU in the same stream
+} hostexe_encoding;
 
 //he test type
 typedef enum {
@@ -188,7 +196,8 @@ union he_cfg {
     uint64_t TestMode : 3;
     uint64_t ReqLen : 2;
     uint64_t AtomicFunc : 5;
-    uint64_t Rsvd_19_12 : 8;
+    uint64_t Encoding : 2;
+    uint64_t Rsvd_19_14 : 6;
     uint64_t TputInterleave : 3;
     uint64_t TestCfg : 5;
     uint64_t IntrOnErr : 1;
@@ -301,7 +310,7 @@ const std::map<std::string, uint32_t> he_modes = {
   { "lpbk", HOST_EXEMODE_LPBK1},
   { "read", HOST_EXEMODE_READ},
   { "write", HOST_EXEMODE_WRITE},
-  { "trput", HOST_EXEMODE_TRUPT},
+  { "trput", HOST_EXEMODE_TRPUT},
 };
 
 const std::map<std::string, uint32_t> he_req_cls_len= {
@@ -319,6 +328,13 @@ const std::map<std::string, uint32_t> he_req_atomic_func = {
   { "swap_8", HOSTEXE_ATOMIC_SWAP_8},
   { "cas_4", HOSTEXE_ATOMIC_CAS_4},
   { "cas_8", HOSTEXE_ATOMIC_CAS_8},
+};
+
+const std::map<std::string, uint32_t> he_req_encoding = {
+  { "default", HOSTEXE_ENCODING_DEFAULT},
+  { "dm", HOSTEXE_ENCODING_DM},
+  { "pu", HOSTEXE_ENCODING_PU},
+  { "random", HOSTEXE_ENCODING_RANDOM},
 };
 
 const std::map<std::string, uint32_t> he_test_mode = {
@@ -341,7 +357,7 @@ indicating one of the following series of read/write requests:
 class host_exerciser : public test_afu {
 public:
     host_exerciser()
-  : test_afu("host_exerciser")
+  : test_afu("host_exerciser", nullptr, "warning")
   , count_(1)
   , he_interrupt_(99)
   {
@@ -360,6 +376,10 @@ public:
     app_.add_option("--atomic", he_req_atomic_func_, "atomic requests (only permitted in combination with lpbk/cl_1)")
       ->transform(CLI::CheckedTransformer(he_req_atomic_func))->default_val("off");
 
+    // Encoding
+    app_.add_option("--encoding", he_req_encoding_, "data mover or power user encoding -- random interleaves both in the same stream")
+      ->transform(CLI::CheckedTransformer(he_req_encoding))->default_val("default");
+
     // Delay
     app_.add_option("-d,--delay", he_delay_, "Enables random delay insertion between requests")->default_val("false");
 
@@ -373,7 +393,10 @@ public:
 
      // Continuous mode time
     app_.add_option("--contmodetime", he_contmodetime_,
-        "Continuous mode time in seconds")->default_val("0");
+        "Continuous mode time in seconds")->default_val("1");
+
+    // Test all
+    app_.add_option("--testall", he_test_all_, "Run all tests")->default_val("false");
 
     app_.add_option("--clock-mhz", he_clock_mhz_,
         "Clock frequency (MHz) -- when zero, read the frequency from the AFU")->default_val("0");
@@ -382,7 +405,13 @@ public:
   virtual int run(CLI::App *app, test_command::ptr_t test) override
   {
     int res = exit_codes::not_run;
-    logger_->set_level(spdlog::level::from_str(log_level_));
+
+    logger_->set_pattern("    %v");
+    // Info prints details of an individual run. Turn it on if doing only one test
+    // and the user hasn't changed level from the default.
+    if ((log_level_.compare("warning") == 0) && !he_test_all_)
+        logger_->set_level(spdlog::level::info);
+
     logger_->info("starting test run, count of {0:d}", count_);
     uint32_t count = 0;
     try {
@@ -498,8 +527,10 @@ public:
   uint32_t he_modes_;
   uint32_t he_req_cls_len_;
   uint32_t he_req_atomic_func_;
+  uint32_t he_req_encoding_;
   bool he_delay_;
   bool he_continuousmode_;
+  bool he_test_all_;
   uint32_t he_interleave_;
   uint32_t he_interrupt_;
   uint32_t he_contmodetime_;
@@ -522,10 +553,6 @@ public:
     return handle_->get_token();
   }
 
-  bool should_log(spdlog::level::level_enum level)
-  {
-      return logger_->should_log(level);
-  }
 };
 } // end of namespace host_exerciser
 
