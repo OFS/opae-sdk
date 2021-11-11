@@ -271,6 +271,49 @@ free:
 	return NULL;
 }
 
+STATIC struct {
+	uint16_t vendor;
+	uint16_t device;
+} supported_devices[] = {
+	{ 0x1c2c, 0x1000 },
+	{ 0x1c2c, 0x1001 },
+	{ 0x8086, 0xbcbd },
+	{ 0x8086, 0xbcc0 },
+	{ 0x8086, 0xbcc1 },
+	{ 0x8086, 0x09c4 },
+	{ 0x8086, 0x09c5 },
+	{ 0x8086, 0x0b2b },
+	{ 0x8086, 0x0b2c },
+	{ 0x8086, 0x0b30 },
+	{ 0x8086, 0x0b31 },
+	{ 0x8086, 0xaf00 },
+	{ 0x8086, 0xaf01 },
+	{ 0x8086, 0xbcce },
+	{ 0x8086, 0xbccf },
+	{      0,      0 },
+};
+
+bool pci_device_supported(const char *pcie_addr)
+{
+	uint32_t vendor = 0;
+	uint32_t device = 0;
+	size_t i;
+
+	if (read_pci_attr_u32(pcie_addr, "vendor", &vendor) ||
+	    read_pci_attr_u32(pcie_addr, "device", &device)) {
+		OPAE_ERR("couldn't determine VID/DID for %s", pcie_addr);
+		return false;
+	}
+
+	for (i = 0 ; supported_devices[i].vendor ; ++i) {
+		if (((uint16_t)vendor == supported_devices[i].vendor) &&
+		    ((uint16_t)device == supported_devices[i].device))
+			return true;
+	}
+
+	return false;
+}
+
 int pci_discover(void)
 {
 	int res = 1;
@@ -292,6 +335,9 @@ int pci_discover(void)
 			ERR("error with gl_pathv");
 			continue;
 		}
+
+		if (!pci_device_supported(p + 1))
+			continue;
 
 		pci_device_t *dev = get_pci_device(p + 1);
 
