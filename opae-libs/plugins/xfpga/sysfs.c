@@ -608,7 +608,7 @@ int sysfs_initialize(void)
 		}
 	}
 	if (i == OPAE_KERNEL_DRIVERS) {
-		OPAE_ERR(
+		OPAE_DBG(
 			"No valid sysfs class files found - a suitable driver may not be loaded");
 		return FPGA_NO_DRIVER;
 	}
@@ -659,7 +659,7 @@ int sysfs_initialize(void)
 	}
 
 	if (!_sysfs_device_count) {
-		OPAE_ERR("Error discovering fpga devices");
+		OPAE_DBG("Error discovering fpga devices");
 		res = FPGA_NO_DRIVER;
 	}
 out_free:
