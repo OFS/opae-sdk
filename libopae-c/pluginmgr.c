@@ -803,10 +803,16 @@ int opae_plugin_mgr_for_each_adapter
 
 	for (aptr = adapter_list; aptr; aptr = aptr->next) {
 		cb_res = callback(aptr, context);
-		if (cb_res)
+		switch (cb_res) {
+		case FPGA_OK:        // Fall through
+		case FPGA_NO_DRIVER: // Fall through
+		case FPGA_NOT_FOUND:
 			break;
+		default: goto out_unlock;
+		}
 	}
 
+out_unlock:
 	opae_mutex_unlock(res, &adapter_list_lock);
 
 	return cb_res;
