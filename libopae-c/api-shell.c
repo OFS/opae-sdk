@@ -41,6 +41,36 @@
 #include "opae_int.h"
 #include "props.h"
 
+const char *
+__OPAE_API__ fpgaErrStr(fpga_result e)
+{
+	switch (e) {
+	case FPGA_OK:
+		return "success";
+	case FPGA_INVALID_PARAM:
+		return "invalid parameter";
+	case FPGA_BUSY:
+		return "resource busy";
+	case FPGA_EXCEPTION:
+		return "exception";
+	case FPGA_NOT_FOUND:
+		return "not found";
+	case FPGA_NO_MEMORY:
+		return "no memory";
+	case FPGA_NOT_SUPPORTED:
+		return "not supported";
+	case FPGA_NO_DRIVER:
+		return "no driver available";
+	case FPGA_NO_DAEMON:
+		return "no fpga daemon running";
+	case FPGA_NO_ACCESS:
+		return "insufficient privileges";
+	case FPGA_RECONF_ERROR:
+		return "reconfiguration error";
+	default:
+		return "unknown error";
+	}
+}
 
 STATIC pthread_mutex_t token_list_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 STATIC opae_wrapped_token token_list_head = {
@@ -609,8 +639,15 @@ static int opae_enumerate(const opae_api_adapter_table *adapter, void *context)
 				     &num_matches);
 
 	if (res != FPGA_OK) {
-		OPAE_ERR("fpgaEnumerate() failed for \"%s\"",
-			 adapter->plugin.path);
+		OPAE_DBG("fpgaEnumerate() failed for \"%s\": %s",
+			 adapter->plugin.path, fpgaErrStr(res));
+		switch (res) {
+		case FPGA_NO_DRIVER: // Fall through
+		case FPGA_NOT_FOUND:
+			return OPAE_ENUM_CONTINUE;
+		default:
+			break;
+		}
 		++ctx->errors;
 		return OPAE_ENUM_CONTINUE;
 	}
@@ -1003,36 +1040,6 @@ fpga_result __OPAE_API__ fpgaGetErrorInfo(fpga_token token, uint32_t error_num,
 
 	return wrapped_token->adapter_table->fpgaGetErrorInfo(
 		wrapped_token->opae_token, error_num, error_info);
-}
-
-const char * __OPAE_API__ fpgaErrStr(fpga_result e)
-{
-	switch (e) {
-	case FPGA_OK:
-		return "success";
-	case FPGA_INVALID_PARAM:
-		return "invalid parameter";
-	case FPGA_BUSY:
-		return "resource busy";
-	case FPGA_EXCEPTION:
-		return "exception";
-	case FPGA_NOT_FOUND:
-		return "not found";
-	case FPGA_NO_MEMORY:
-		return "no memory";
-	case FPGA_NOT_SUPPORTED:
-		return "not supported";
-	case FPGA_NO_DRIVER:
-		return "no driver available";
-	case FPGA_NO_DAEMON:
-		return "no fpga daemon running";
-	case FPGA_NO_ACCESS:
-		return "insufficient privileges";
-	case FPGA_RECONF_ERROR:
-		return "reconfiguration error";
-	default:
-		return "unknown error";
-	}
 }
 
 fpga_result __OPAE_API__ fpgaCreateEventHandle(fpga_event_handle *event_handle)
