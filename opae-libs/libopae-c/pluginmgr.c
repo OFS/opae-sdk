@@ -808,7 +808,8 @@ int opae_plugin_mgr_for_each_adapter
 		case FPGA_NO_DRIVER: // Fall through
 		case FPGA_NOT_FOUND:
 			break;
-		default: goto out_unlock;
+		default:
+			goto out_unlock;
 		}
 	}
 

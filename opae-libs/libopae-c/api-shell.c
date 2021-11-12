@@ -41,7 +41,8 @@
 #include "opae_int.h"
 #include "props.h"
 
-const char * __OPAE_API__ fpgaErrStr(fpga_result e)
+const char *
+__OPAE_API__ fpgaErrStr(fpga_result e)
 {
 	switch (e) {
 	case FPGA_OK:
@@ -644,7 +645,8 @@ static int opae_enumerate(const opae_api_adapter_table *adapter, void *context)
 		case FPGA_NO_DRIVER: // Fall through
 		case FPGA_NOT_FOUND:
 			return OPAE_ENUM_CONTINUE;
-		default: break;
+		default:
+			break;
 		}
 		++ctx->errors;
 		return OPAE_ENUM_CONTINUE;
