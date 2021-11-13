@@ -684,7 +684,7 @@ fpga_result print_phy_info(fpga_token token)
 			continue;
 		}
 
-		port_profile.csr = *((uint32_t *)(mmap_ptr +
+		port_profile.csr = *((volatile uint32_t *)(mmap_ptr +
 			HSSI_PORT_ATTRIBUTE + i * 4));
 
 		if (port_profile.profile > HSS_PORT_PROFILE_SIZE) {
