@@ -701,8 +701,7 @@ fpga_result print_phy_info(fpga_token token)
 					(GET_BIT(port_status.rxpcsready, i) == 1)) {
 					printf("Port%-28d :%-12s %s\n", i,
 						hssi_port_profiles[j].profile, "UP");
-				}
-				else {
+				} else {
 					printf("Port%-28d :%-12s %s\n", i,
 						hssi_port_profiles[j].profile, "DOWN");
 				}
