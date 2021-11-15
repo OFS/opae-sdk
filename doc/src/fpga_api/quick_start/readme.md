@@ -395,7 +395,7 @@ Done
 
 ## Setup IOFS Release1 Bitstream on FPGA PCIe card  ##
 
-Program IOFS Release1 bitstream on FPGA D5005 or N6010 cards and reboot system.
+Program IOFS Release1 bitstream on FPGA D5005 or N6000 cards and reboot system.
 
 Run command: lspci | grep acc
 
