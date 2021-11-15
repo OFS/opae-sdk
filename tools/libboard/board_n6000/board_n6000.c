@@ -74,6 +74,7 @@
 #define HSSI_FEATURE_LIST                       0xC
 #define HSSI_PORT_ATTRIBUTE                     0x10
 #define HSSI_VERSION                            0x8
+#define HSSI_PORT_STATUS                        0x818
 
 // boot page info sysfs
 #define DFL_SYSFS_BOOT_GLOB "*dfl*/**/fpga_boot_image"
@@ -141,6 +142,20 @@ struct hssi_port_attribute {
 			uint32_t dynamic_pr : 1;
 			uint32_t sub_profile : 5;
 			uint32_t reserved : 11;
+		};
+	};
+};
+
+//HSSI Ethernet Port Status
+//Byte Offset: 0x818
+struct hssi_port_status {
+	union {
+		uint64_t csr;
+		struct {
+			uint64_t txplllocked : 16;
+			uint64_t txlanestable : 16;
+			uint64_t rxpcsready : 16;
+			uint64_t reserved : 16;
 		};
 	};
 };
@@ -427,7 +442,7 @@ static fpga_result replace_str_in_str(
 	char * const haystack,
 	const char * const needle,
 	const char * const substitute,
-	const size_t max_result_len,
+	const size_t max_haystack_len,
 	fpga_result res)
 {
 	if (res != FPGA_OK)
@@ -436,13 +451,19 @@ static fpga_result replace_str_in_str(
 	if (haystack == NULL || needle == NULL || substitute == NULL)
 		return FPGA_INVALID_PARAM;
 
+	if (strcmp(needle, substitute) == 0) // Corner case that causes infinite loop!
+		return FPGA_OK;
+
+	const size_t needle_len = strlen(needle);
+	if (needle_len == 0) // Corner case that causes infinite loop!
+		return FPGA_INVALID_PARAM;
+	const size_t substitute_len = strlen(substitute);
+
 	while (true) {
 		const char *haystack_ptr;
 		const char *needle_loc;
 
 		const size_t haystack_len = strlen(haystack);
-		const size_t needle_len = strlen(needle);
-		const size_t substitute_len = strlen(substitute);
 
 		// Find how many times the needle occurs in the haystack
 		size_t needle_count = 0;
@@ -455,8 +476,8 @@ static fpga_result replace_str_in_str(
 
 		// Reserve memory for the new string
 		const size_t result_len = haystack_len + needle_count * (substitute_len - needle_len);
-		if (result_len >= max_result_len) {
-			OPAE_ERR("Not enough buffer space: %llu >= %llu", result_len, max_result_len);
+		if (result_len >= max_haystack_len) {
+			OPAE_ERR("Not enough buffer space: %llu >= %llu", result_len, max_haystack_len);
 			res = FPGA_INVALID_PARAM;
 			break;
 		}
@@ -478,8 +499,9 @@ static fpga_result replace_str_in_str(
 			result_ptr += substitute_len;
 		}
 
-		strcpy(result_ptr, haystack_ptr);    // Copy the rest of haystack to result
-		strcpy(haystack, result);            // Update haystack with the result
+		const size_t remaining_result_size = result_len + 1 - (result_ptr - result);
+		strncpy(result_ptr, haystack_ptr, remaining_result_size);  // Copy the rest of haystack to result
+		strncpy(haystack, result, max_haystack_len);               // Update haystack with the result
 
 		free(result);
 	}
@@ -623,6 +645,7 @@ fpga_result print_phy_info(fpga_token token)
 	struct hssi_port_attribute port_profile;
 	struct hssi_feature_list  feature_list;
 	struct hssi_version  hssi_ver;
+	struct hssi_port_status port_status;
 	uint8_t *mmap_ptr = NULL;
 	uint32_t i = 0;
 
@@ -647,6 +670,8 @@ fpga_result print_phy_info(fpga_token token)
 
 	feature_list.csr = *((uint32_t *) (mmap_ptr + HSSI_FEATURE_LIST));
 	hssi_ver.csr = *((uint32_t *)(mmap_ptr + HSSI_VERSION));
+	port_status.csr = *((volatile uint64_t *)(mmap_ptr
+		+ HSSI_PORT_STATUS));
 
 	printf("//****** HSSI information ******//\n");
 	printf("%-32s : %d.%d  \n", "HSSI version", hssi_ver.major, hssi_ver.minor);
@@ -659,7 +684,7 @@ fpga_result print_phy_info(fpga_token token)
 			continue;
 		}
 
-		port_profile.csr = *((uint32_t *)(mmap_ptr +
+		port_profile.csr = *((volatile uint32_t *)(mmap_ptr +
 			HSSI_PORT_ATTRIBUTE + i * 4));
 
 		if (port_profile.profile > HSS_PORT_PROFILE_SIZE) {
@@ -669,7 +694,17 @@ fpga_result print_phy_info(fpga_token token)
 
 		for (int j = 0; j < HSS_PORT_PROFILE_SIZE; j++) {
 			if (hssi_port_profiles[j].port_index == port_profile.profile) {
-				printf("Port%-28d :%s\n", i, hssi_port_profiles[j].profile);
+				// lock, tx, rx bits set - link status UP
+				// lock, tx, rx bits not set - link status DOWN
+				if ((GET_BIT(port_status.txplllocked, i) == 1) &&
+					(GET_BIT(port_status.txlanestable, i) == 1) &&
+					(GET_BIT(port_status.rxpcsready, i) == 1)) {
+					printf("Port%-28d :%-12s %s\n", i,
+						hssi_port_profiles[j].profile, "UP");
+				} else {
+					printf("Port%-28d :%-12s %s\n", i,
+						hssi_port_profiles[j].profile, "DOWN");
+				}
 				break;
 			}
 		 }
