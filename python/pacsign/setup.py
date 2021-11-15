@@ -27,7 +27,11 @@ from setuptools import setup, find_packages
 
 setup(
     name="pacsign",
+<<<<<<< HEAD
     version="1.0.3",
+=======
+    version="1.0.6",
+>>>>>>> 47f658ea... PACSign: don't ship libcrypto.so (#2376)
     packages=find_packages(),
     install_requires=['cython', 'python-pkcs11'],
     python_requires='>=3.6',
@@ -41,7 +45,4 @@ setup(
     license="BSD3",
     keywords="OPAE accelerator fpga signing security",
     url="https://01.org/OPAE",
-    package_data={'opae.pacsign':
-                  ['pacsign/hsm_managers/openssl/library/*.so']},
-    include_package_data=True,
 )
