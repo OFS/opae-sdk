@@ -66,7 +66,7 @@ public:
         he_status0.value = host_exe_->read64(HE_STATUS0);
         he_status1.value = host_exe_->read64(HE_STATUS1);
 
-	uint64_t tmp;
+        uint64_t tmp;
 
         tmp = he_status0.numReads;
         host_exe_->logger_->info("Host Exerciser numReads: {0}", tmp);
@@ -145,7 +145,7 @@ public:
             host_exerciser_status();
         }
 
-	uint64_t tmp;
+        uint64_t tmp;
 
         tmp = dsm_status->num_ticks;
         host_exe_->logger_->info("Number of clocks: {0}", tmp);
