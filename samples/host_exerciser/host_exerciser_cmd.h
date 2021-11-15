@@ -68,14 +68,14 @@ public:
 
 	uint64_t tmp;
 
-	tmp = he_status0.numReads;
+        tmp = he_status0.numReads;
         host_exe_->logger_->info("Host Exerciser numReads: {0}", tmp);
-	tmp = he_status0.numWrites;
+        tmp = he_status0.numWrites;
         host_exe_->logger_->info("Host Exerciser numWrites: {0}", tmp);
 
-	tmp = he_status1.numPendReads;
+        tmp = he_status1.numPendReads;
         host_exe_->logger_->info("Host Exerciser numPendReads: {0}", tmp);
-	tmp = he_status1.numPendWrites;
+        tmp = he_status1.numPendWrites;
         host_exe_->logger_->info("Host Exerciser numPendWrites: {0}", tmp);
     }
 
@@ -147,11 +147,11 @@ public:
 
 	uint64_t tmp;
 
-	tmp = dsm_status->num_ticks;
+        tmp = dsm_status->num_ticks;
         host_exe_->logger_->info("Number of clocks: {0}", tmp);
-	tmp = dsm_status->num_reads;
+        tmp = dsm_status->num_reads;
         host_exe_->logger_->info("Total number of Reads sent: {0}", tmp);
-	tmp = dsm_status->num_writes;
+        tmp = dsm_status->num_writes;
         host_exe_->logger_->info("Total number of Writes sent: {0}", tmp);
 
         // print bandwidth
