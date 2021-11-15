@@ -66,11 +66,17 @@ public:
         he_status0.value = host_exe_->read64(HE_STATUS0);
         he_status1.value = host_exe_->read64(HE_STATUS1);
 
-        host_exe_->logger_->info("Host Exerciser numReads: {0}", he_status0.numReads);
-        host_exe_->logger_->info("Host Exerciser numWrites: {0}", he_status0.numWrites);
+        uint64_t tmp;
 
-        host_exe_->logger_->info("Host Exerciser numPendReads: {0}", he_status1.numPendReads);
-        host_exe_->logger_->info("Host Exerciser numPendWrites: {0}", he_status1.numPendWrites);
+        tmp = he_status0.numReads;
+        host_exe_->logger_->info("Host Exerciser numReads: {0}", tmp);
+        tmp = he_status0.numWrites;
+        host_exe_->logger_->info("Host Exerciser numWrites: {0}", tmp);
+
+        tmp = he_status1.numPendReads;
+        host_exe_->logger_->info("Host Exerciser numPendReads: {0}", tmp);
+        tmp = he_status1.numPendWrites;
+        host_exe_->logger_->info("Host Exerciser numPendWrites: {0}", tmp);
     }
 
     void host_exerciser_errors()
@@ -139,9 +145,14 @@ public:
             host_exerciser_status();
         }
 
-        host_exe_->logger_->info("Number of clocks: {0}", dsm_status->num_ticks);
-        host_exe_->logger_->info("Total number of Reads sent: {0}", dsm_status->num_reads);
-        host_exe_->logger_->info("Total number of Writes sent: {0}", dsm_status->num_writes);
+        uint64_t tmp;
+
+        tmp = dsm_status->num_ticks;
+        host_exe_->logger_->info("Number of clocks: {0}", tmp);
+        tmp = dsm_status->num_reads;
+        host_exe_->logger_->info("Total number of Reads sent: {0}", tmp);
+        tmp = dsm_status->num_writes;
+        host_exe_->logger_->info("Total number of Writes sent: {0}", tmp);
 
         // print bandwidth
         if (dsm_status->num_ticks > 0) {
