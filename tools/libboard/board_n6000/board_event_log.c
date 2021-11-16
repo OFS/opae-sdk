@@ -250,8 +250,8 @@ static void bel_print_power_on_status(struct bel_power_on_status *status)
 	/* Register 0x80 */
 	bel_print_value("Status (0x80)",        status->status);
 	reserved_field(NULL,                    status->status,  0, 24);
-reserved_field(NULL,                    0xFF,  0, 24);
-reserved_bit(NULL,                    ~0,  22);
+        reserved_field(NULL,                    0xFF,  0, 24);
+        reserved_bit(NULL,                      ~0,  22);
 	bel_print_field("Power On Code FPGA",   status->status, 24, 28);
 	bel_print_field("Power On Code CVL",    status->status, 28, 32);
 
