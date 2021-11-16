@@ -76,6 +76,12 @@ PEM_PASSWORD_WARNING = """The specified password is considered insecure.
              openssl ec -in <input PEM> -out <output PEM> -aes256
 """
 
+LIBCRYPTO_MSG = """Failed to find crypto library (libcrypto.so).
+
+For RedHat-based distros, install package openssl-devel.
+For Debian-based distros, install package libssl-dev.
+"""
+
 
 class CURVE_INFO:
     def __init__(
@@ -285,9 +291,13 @@ class OPENSSL_AES_KEY(Structure):
 class openssl:
     # Look for something like: OpenSSL 1.1.1d FIPS  10 Sep 2019
     def _find_openssl_so(self, versions):
-        crypto = util.find_library('crypto')
+        try:
+            crypto = util.find_library('crypto')
+            dll = CDLL(crypto)
+        except OSError:
+            common_util.assert_in_error(False, LIBCRYPTO_MSG)
+            return None
 
-        dll = CDLL(crypto)
         if dll is None:
             log.warn('could not open: %s', crypto)
             return None
@@ -320,7 +330,7 @@ class openssl:
             return
 
         self.lib = self._find_openssl_so(versions)
-        common_util.assert_in_error(self.lib, "Failed to find crypto library")
+        common_util.assert_in_error(self.lib, LIBCRYPTO_MSG)
 
         # Initialize OPEN algorithm
         self.lib.OPENSSL_init_crypto.argtypes = [c_uint, c_void_p]
@@ -579,7 +589,7 @@ class openssl:
 
     def close(self):
 
-        if self.lib is not None:
+        if hasattr(self, 'lib') and self.lib is not None:
             del self.lib
             self.lib = None
 
