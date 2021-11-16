@@ -58,7 +58,7 @@ endif(OPAE_WITH_CLI11)
 
 if (OPAE_WITH_SPDLOG)
     if(NOT spdlog_FOUND)
-        find_package(spdlog 1.8)
+        find_package(spdlog 1.9)
     endif(NOT spdlog_FOUND)
 
     if(NOT spdlog_FOUND)
@@ -66,7 +66,7 @@ if (OPAE_WITH_SPDLOG)
             https://github.com/gabime/spdlog.git
             CACHE STRING "URL for spdlog Project")
         set(SPDLOG_TAG
-            v1.8.0
+            v1.9.2
             CACHE STRING "Tag for spdlog")
 
         opae_external_project_add(PROJECT_NAME spdlog

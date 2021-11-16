@@ -160,7 +160,7 @@ public:
                     "[<domain>:]<bus>:<device>.<function>");
     app_.add_option("-l,--log-level", log_level_, "stdout logging level")->
       default_str(log_level_)->
-      check(CLI::IsMember(SPDLOG_LEVEL_NAMES));
+      check(CLI::IsMember({ "trace", "debug", "info", "warn", "error", "critical", "off" }));
     app_.add_flag("-s,--shared", shared_, "open in shared mode, default is off");
     app_.add_option("-t,--timeout", timeout_msec_, "test timeout (msec)")->default_str(std::to_string(timeout_msec_));
   }
