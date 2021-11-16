@@ -36,7 +36,7 @@ if (OPAE_WITH_CLI11)
             https://github.com/CLIUtils/CLI11.git
             CACHE STRING "URL for CLI11 Project")
         set(CLI11_TAG
-            v1.9.1
+            v2.1.2
             CACHE STRING "Tag for CLI11")
 
         opae_external_project_add(PROJECT_NAME CLI11
