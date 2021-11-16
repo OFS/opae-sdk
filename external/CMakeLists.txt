@@ -66,7 +66,7 @@ if (OPAE_WITH_SPDLOG)
             https://github.com/gabime/spdlog.git
             CACHE STRING "URL for spdlog Project")
         set(SPDLOG_TAG
-            v1.9.2
+            v1.9.0
             CACHE STRING "Tag for spdlog")
 
         opae_external_project_add(PROJECT_NAME spdlog
