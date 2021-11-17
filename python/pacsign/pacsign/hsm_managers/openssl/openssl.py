@@ -76,6 +76,12 @@ PEM_PASSWORD_WARNING = """The specified password is considered insecure.
              openssl ec -in <input PEM> -out <output PEM> -aes256
 """
 
+LIBCRYPTO_MSG = """Failed to find crypto library (libcrypto.so).
+
+For RedHat-based distros, install package openssl-devel.
+For Debian-based distros, install package libssl-dev.
+"""
+
 
 class CURVE_INFO:
     def __init__(
@@ -285,34 +291,37 @@ class OPENSSL_AES_KEY(Structure):
 class openssl:
     # Look for something like: OpenSSL 1.1.1d FIPS  10 Sep 2019
     def _find_openssl_so(self, versions):
-        crypto = util.find_library('crypto')
+        for link, vers in versions:
+            try:
+                dll = CDLL(link)
+            except OSError:
+                common_util.assert_in_error(False, LIBCRYPTO_MSG)
+                return None
 
-        dll = CDLL(crypto)
-        if dll is None:
-            log.warn('could not open: %s', crypto)
-            return None
-        try:
-            dll.OpenSSL_version.argtypes = [c_int]
-            dll.OpenSSL_version.restype = c_char_p
-        except AttributeError:
-            log.debug('"%s: does not have OpenSSL_version', crypto)
-            return None
+            if dll is None:
+                log.warn('could not open: %s', crypto)
+                return None
+            try:
+                dll.OpenSSL_version.argtypes = [c_int]
+                dll.OpenSSL_version.restype = c_char_p
+            except AttributeError:
+                log.debug('"%s: does not have OpenSSL_version', crypto)
+                return None
 
-        c_version = dll.OpenSSL_version(0).decode("utf-8")
-        m = OPENSSL_VERSION_RE.match(c_version)
-        if m is None:
-            log.warn('"%s" is not a valid OpenSSL version', c_version)
-            return None
+            c_version = dll.OpenSSL_version(0).decode("utf-8")
+            m = OPENSSL_VERSION_RE.match(c_version)
+            if m is None:
+                log.warn('"%s" is not a valid OpenSSL version', c_version)
+                return None
 
-        for version in versions:
-            if m.group('version')[:-1] == version:
-                log.info('OpenSSL version "%s" matches "%s"', c_version, version)
+            if m.group('version')[:-1] == vers:
+                log.info('OpenSSL version "%s" matches "%s"', c_version, vers)
                 return dll
 
             log.debug('OpenSSL version "%s" fails to match "%s"',
-                      c_version, version)
+                      c_version, vers)
 
-    def __init__(self, versions=['1.1.1']):
+    def __init__(self, versions=[('libcrypto.so.1.1', '1.1.1')]):
         self.nanotime = None
 
         if _platform == "win32" or _platform == "win64":
@@ -320,7 +329,7 @@ class openssl:
             return
 
         self.lib = self._find_openssl_so(versions)
-        common_util.assert_in_error(self.lib, "Failed to find crypto library")
+        common_util.assert_in_error(self.lib, LIBCRYPTO_MSG)
 
         # Initialize OPEN algorithm
         self.lib.OPENSSL_init_crypto.argtypes = [c_uint, c_void_p]
@@ -579,7 +588,7 @@ class openssl:
 
     def close(self):
 
-        if self.lib is not None:
+        if hasattr(self, 'lib') and self.lib is not None:
             del self.lib
             self.lib = None
 
