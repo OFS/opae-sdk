@@ -84,19 +84,21 @@ create_keys() {
   create_keys_ therm_sr    prime256v1
   create_keys_ therm_pr    prime256v1
   create_keys_ sdm         prime256v1
+  create_keys_ sdm_test    prime256v1
 
-  create_keys_ fim         secp384r1 
-  create_keys_ factory     secp384r1 
-  create_keys_ sr_test     secp384r1 
-  create_keys_ sr_cert     secp384r1 
-  create_keys_ bmc         secp384r1 
-  create_keys_ bmc_factory secp384r1 
-  create_keys_ pr          secp384r1 
-  create_keys_ pr_test     secp384r1 
-  create_keys_ pxe         secp384r1 
-  create_keys_ therm_sr    secp384r1 
-  create_keys_ therm_pr    secp384r1 
-  create_keys_ sdm         secp384r1 
+  create_keys_ fim         secp384r1
+  create_keys_ factory     secp384r1
+  create_keys_ sr_test     secp384r1
+  create_keys_ sr_cert     secp384r1
+  create_keys_ bmc         secp384r1
+  create_keys_ bmc_factory secp384r1
+  create_keys_ pr          secp384r1
+  create_keys_ pr_test     secp384r1
+  create_keys_ pxe         secp384r1
+  create_keys_ therm_sr    secp384r1
+  create_keys_ therm_pr    secp384r1
+  create_keys_ sdm         secp384r1
+  create_keys_ sdm_test    secp384r1
 }
 
 ################################################################################
@@ -155,7 +157,11 @@ image_type_to_PACSign() {
     sdm)
       printf "SDM"
     ;;
-  
+
+    sdm_test)
+      printf "SDM_TEST"
+    ;;
+
    esac
 }
 
@@ -695,6 +701,43 @@ test_sdm_cancel() {
 }
 
 ################################################################################
+# SDM_TEST
+
+test_sdm_test_rkh() {
+  local -r mgr="$1"
+  printf "test_sdm_test_rkh\n"
+  test_rkh "${mgr}" 'sdm_test' 256 'none'
+  test_rkh "${mgr}" 'sdm_test' 384 'none'
+}
+
+test_sdm_test_unsigned() {
+  local -r mgr="$1"
+  printf "test_sdm_test_unsigned\n"
+  test_unsigned "${mgr}" 'sdm_test' 256 0
+  test_unsigned "${mgr}" 'sdm_test' 256 1
+  test_unsigned "${mgr}" 'sdm_test' 384 0
+  test_unsigned "${mgr}" 'sdm_test' 384 1
+}
+
+test_sdm_test_signed() {
+  local -r mgr="$1"
+  printf "test_sdm_test_signed\n"
+  test_signed "${mgr}" 'sdm_test' 256 0
+  test_signed "${mgr}" 'sdm_test' 256 1
+  test_signed "${mgr}" 'sdm_test' 384 0
+  test_signed "${mgr}" 'sdm_test' 384 1
+}
+
+test_sdm_test_cancel() {
+  local -r manager="$1"
+  printf "test_sdm_test_cancel\n"
+  test_cancel "${mgr}" 'sdm_test' 256 0 'none'
+  test_cancel "${mgr}" 'sdm_test' 256 1 "${QSIGN_CERT}"
+  test_cancel "${mgr}" 'sdm_test' 384 0 'none'
+  test_cancel "${mgr}" 'sdm_test' 384 1 "${QSIGN_CERT}"
+}
+
+################################################################################
 
 create_fuse_info() {
   cat << EOF > "${FUSE_INFO}"
@@ -793,12 +836,17 @@ run_tests() {
     test_sdm_unsigned "${mgr}"
     test_sdm_signed "${mgr}"
     test_sdm_cancel "${mgr}"
+
+    test_sdm_test_rkh "${mgr}"
+    test_sdm_test_unsigned "${mgr}"
+    test_sdm_test_signed "${mgr}"
+    test_sdm_test_cancel "${mgr}"
   done
 }
 
 clean_tests() {
   rm -rf "${KEYSTORE}" "${OUTPUT}"
-  rm -f "${INFILE}"
+  rm -f "${INFILE}" "${FUSE_INFO}" "${QSIGN_CERT}"
   printf "clean\n"
 }
 

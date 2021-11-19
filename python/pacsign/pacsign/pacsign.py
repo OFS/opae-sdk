@@ -189,6 +189,7 @@ def main():
     parser_therm_sr = subparsers.add_parser("THERM_SR", help="Thermal image for static region")
     parser_therm_pr = subparsers.add_parser("THERM_PR", help="Thermal image for PR region")
     parser_sdm = subparsers.add_parser("SDM", help="Secure Device Manager image")
+    parser_sdm_test = subparsers.add_parser("SDM_TEST", help="Test Secure Device Manager image")
 
     add_common_options(parser_sr)
     add_common_options(parser_sr_test)
@@ -202,6 +203,7 @@ def main():
     add_common_options(parser_therm_sr)
     add_common_options(parser_therm_pr)
     add_common_options(parser_sdm)
+    add_common_options(parser_sdm_test)
 
     args = parser.parse_args()
     if len(sys.argv) == 1:
