@@ -563,6 +563,9 @@ class _KEY(object):
         if "_therm_sr_" in self.file:
             return 5
 
+        if "_sdm_test_" in self.file:
+            return 12
+
         return None
 
 
