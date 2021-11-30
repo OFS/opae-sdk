@@ -52,6 +52,7 @@ the OPAE software stack.
 %package devel
 Summary:    OPAE headers, sample source, and documentation
 Requires:   libuuid-devel, %{name}%{?_isa} = %{version}-%{release}
+Requires:   openssl-devel
 
 %description devel
 OPAE headers, tools, sample source, and documentation

@@ -27,7 +27,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pacsign",
-    version="1.0.5",
+    version="1.0.6",
     packages=find_packages(),
     python_requires='>=3.6',
     extra_requires={'pkcs11': ['python-pkcs11']},
@@ -41,7 +41,4 @@ setup(
     license="BSD3",
     keywords="OPAE accelerator fpga signing security",
     url="https://01.org/OPAE",
-    package_data={'opae.pacsign':
-                  ['pacsign/hsm_managers/openssl/library/*.so']},
-    include_package_data=True,
 )
