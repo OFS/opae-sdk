@@ -183,6 +183,11 @@ fpga_result errors_filter(fpga_properties *filter, int argc, char *argv[])
 							  FPGA_ACCELERATOR);
 			ON_FPGAINFO_ERR_GOTO(
 				res, out, "setting type to FPGA_ACCELERATOR");
+
+			res = fpgaPropertiesSetInterface(*filter,
+				FPGA_IFC_DFL);
+			ON_FPGAINFO_ERR_GOTO(
+				res, out, "setting type to FPGA_IFC_DFL");
 			break;
 		case VERB_ALL:
 		default:
