@@ -151,7 +151,7 @@ TEST_P(reset_c_p, valid_port_reset) {
   EXPECT_EQ(FPGA_OK, xfpga_fpgaReset(handle_));
 } 
 
-INSTANTIATE_TEST_CASE_P(reset_c, reset_c_p, ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
+INSTANTIATE_TEST_CASE_P(reset_c, reset_c_p, ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005","dfl-n6000" })));
 
 class reset_c_mock_p : public reset_c_p {
  protected:
