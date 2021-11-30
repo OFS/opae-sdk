@@ -54,6 +54,9 @@ fpga_result opae_fme_set_err_irq(int fd, uint32_t flags, int32_t eventfd);
 fpga_result opae_port_map(int fd, void *addr, uint64_t len, uint32_t flags,
                           uint64_t *io_addr);
 fpga_result opae_port_unmap(int fd, uint64_t io_addr);
+fpga_result intel_fpga_version(int fd);
+fpga_result intel_fme_port_pr(int fd, uint32_t flags, uint32_t port_id,
+                          uint32_t sz, uint64_t addr, uint64_t *status);
 }
 
 #include <opae/fpga.h>
@@ -315,5 +318,139 @@ TEST_P (sdl_c_p, test_opae_port_unmap_for_invalid_fd) {
   EXPECT_EQ(opae_port_unmap(fd,io_addr), FPGA_EXCEPTION);
 }
 
+/**
+ * @test       sdl_c_p
+ * @brief      test_intel_fpga_version_for_invalid_fd
+ * @details    When the intel_fpga_version() is called with invalid fd,
+ *             this method returns FPGA_EXCEPTION.
+ */
+TEST_P (sdl_c_p, test_intel_fpga_version_for_invalid_fd) {
+  int fd = -1;
+  EXPECT_EQ(intel_fpga_version(fd), FPGA_EXCEPTION);
+}
+
+/**
+ * @test       sdl_c_p
+ * @brief      test_intel_fme_port_pr_for_invalid_fd
+ * @details    When the intel_fme_port_pr() is called with invalid fd,
+ *             this method returns FPGA_EXCEPTION.
+ */
+TEST_P (sdl_c_p, test_intel_fme_port_pr_for_invalid_fd) {
+  int fd = -1;
+  uint64_t status = 0;
+  EXPECT_EQ(intel_fme_port_pr(fd,0,0,0,0,&status), FPGA_EXCEPTION);
+}
+
+/**
+ * @test       sdl_c_p
+ * @brief      Test: test_fpgaHandleGetObject_for_null_byte
+ * @details    When fpgaHandleGetObject is called with a name that has a null
+ *             byte, the function returns FPGA_NOT_FOUND. <br>
+ */
+TEST_P(sdl_c_p, test_fpgaHandleGetObject_for_null_byte) {
+  fpga_object obj = nullptr;
+  const char *bad_name = "err\0rs";
+
+  EXPECT_EQ(fpgaHandleGetObject(handle_, bad_name, &obj, 0), FPGA_NOT_FOUND);
+  ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
+}
+
+/**
+ * @test       sdl_c_p
+ * @brief      Test: test_fpgaHandleGetObject_for_too_short
+ * @details    When fpgaHandleGetObject is called with too short name,
+ *             the function returns FPGA_NOT_FOUND. <br>
+ */
+TEST_P(sdl_c_p, test_fpgaHandleGetObject_for_too_short) {
+  fpga_object obj = nullptr;
+  const char *too_short_name = "a";
+
+  EXPECT_EQ(fpgaHandleGetObject(handle_, too_short_name, &obj, 0), FPGA_NOT_FOUND);
+  ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
+}
+
+/**
+ * @test       sdl_c_p
+ * @brief      Test: test_fpgaHandleGetObject_for_too_long_name
+ * @details    When fpgaHandleGetObject is called with too long name,
+ *             the function returns FPGA_NOT_FOUND. <br>
+ */
+TEST_P(sdl_c_p, test_fpgaHandleGetObject_for_too_long_name) {
+  fpga_object obj = nullptr;
+  const char *too_long_name = "This/is/invalid/path/with/maximim/255/\
+                               characterssssssssssssssssssssssssssssss\
+                               ssssssssssssssssssssssa/lengthhhhhhhhhhh\
+                               hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh\
+                               /so/opaeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\
+                               eeeeeeeeeeeeeeeeeee/api/should/return/with/\
+                               errorrrrrrrrrrrrrrrrr/for/SDL testing/";
+
+  EXPECT_EQ(fpgaHandleGetObject(handle_, too_long_name, &obj, 0), FPGA_NOT_FOUND);
+  ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
+}
+/**
+ * @test       sdl_c_p
+ * @brief      Test: test_fpgaTokenGetObject_for_null_byte
+ * @details    When fpgaTokenGetObject is called with a name that has a null
+ *             byte, the function returns FPGA_NOT_FOUND. <br>
+ */
+TEST_P(sdl_c_p, test_fpgaTokenGetObject_for_null_byte) {
+  fpga_object obj = nullptr;
+  const char *bad_name = "err\0rs";
+
+  EXPECT_EQ(fpgaTokenGetObject(tokens_[0], bad_name, &obj, 0),
+                                FPGA_NOT_FOUND);
+  ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
+}
+
+/**
+ * @test       sdl_c_p
+ * @brief      Test: test_fpgaTokenGetObject_for_too_short
+ * @details    When fpgaTokenGetObject is called with too short path name,
+ *             the function returns FPGA_NOT_FOUND. <br>
+ */
+TEST_P(sdl_c_p, test_fpgaTokenGetObject_for_too_short) {
+  fpga_object obj = nullptr;
+  const char *too_short_path = "a";
+
+  EXPECT_EQ(fpgaTokenGetObject(tokens_[0], too_short_path, &obj, 0),
+                                FPGA_NOT_FOUND);
+  ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
+}
+
+/**
+ * @test       sdl_c_p
+ * @brief      Test: test_fpgaTokenGetObject_for_long_path
+ * @details    When fpgaTokenGetObject is called with too long path name,
+ *             the function returns FPGA_NOT_FOUND. <br>
+ */
+TEST_P(sdl_c_p, test_fpgaTokenGetObject_for_long_path) {
+  fpga_object obj = nullptr;
+  const char *too_long_path = "This/is/invalid/path/with/maximim/255/\
+                               characterssssssssssssssssssssssssssssss\
+                               ssssssssssssssssssssssa/lengthhhhhhhhhhh\
+                               hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh\
+                               /so/opaeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\
+                               eeeeeeeeeeeeeeeeeee/api/should/return/with/\
+                               errorrrrrrrrrrrrrrrrr/for/SDL testing/";
+
+  EXPECT_EQ(fpgaTokenGetObject(tokens_[0], too_long_path, &obj, 0),
+                                FPGA_NOT_FOUND);
+  ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
+}
+
+
+
+/**
+ * @test       sdl_c_p
+ * @brief      Test: test_fpgaClose_for_null_object
+ * @details
+ *             When fpgaClose is called with NULL object<br>
+ *             the function returns FPGA_INVALID_PARAM.<br>
+ */
+TEST_P(sdl_c_p, test_fpgaClose_for_null_object) {
+  EXPECT_EQ(fpgaClose(nullptr), FPGA_INVALID_PARAM);
+}
+
 INSTANTIATE_TEST_CASE_P(sdl_c, sdl_c_p, 
-                        ::testing::ValuesIn(test_platform::platforms({"dfl-n3000","dfl-d5005"})));
+                        ::testing::ValuesIn(test_platform::platforms({"dfl-n3000","dfl-d5005","dfl-n6000"})));
