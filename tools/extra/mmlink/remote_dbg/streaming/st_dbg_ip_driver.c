@@ -273,7 +273,7 @@ void enable_interrupts(int val) {
 }
 
 int get_mgmt_support() {
-    unsigned long rd = (unsigned long)IORD_64DIRECT(g_std_dbg_ip_info.ST_DBG_IP_CSR_BASE_ADDR, ST_DBG_IP_CONFIG_MGMT_MGMT_RSP_DESC_DEPTH);
+    uint32_t rd = (uint32_t)IORD_32DIRECT(g_std_dbg_ip_info.ST_DBG_IP_CSR_BASE_ADDR, ST_DBG_IP_CONFIG_MGMT_MGMT_RSP_DESC_DEPTH);
     if (rd > 0) {
         return 1;
     } else {
