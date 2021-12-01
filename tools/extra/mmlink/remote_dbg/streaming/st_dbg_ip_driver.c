@@ -59,6 +59,8 @@ extern void mgmt_rsp_data_complete();
 extern void assert_h2t_t2h_reset();
 extern uint64_t iord64direct(uint64_t base, uint64_t offset);
 extern void iowr64direct(uint64_t base, uint64_t offset, uint64_t data);
+extern uint32_t iord32direct(uint64_t base, uint64_t offset);
+extern void iowr32direct(uint64_t base, uint64_t offset, uint64_t data);
 #endif
 
 int init_driver() {
