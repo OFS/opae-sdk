@@ -59,6 +59,8 @@ extern void mgmt_rsp_data_complete();
 extern void assert_h2t_t2h_reset();
 extern uint64_t iord64direct(uint64_t base, uint64_t offset);
 extern void iowr64direct(uint64_t base, uint64_t offset, uint64_t data);
+extern uint32_t iord32direct(uint64_t base, uint64_t offset);
+extern void iowr32direct(uint64_t base, uint64_t offset, uint64_t data);
 #endif
 
 int init_driver() {
@@ -245,16 +247,17 @@ int get_mgmt_rsp_data(MGMT_PACKET_HEADER *header, unsigned char **payload) {
 }
 
 void set_loopback_mode(int val) {
-    unsigned long rd = (unsigned long)IORD_64DIRECT(g_std_dbg_ip_info.ST_DBG_IP_CSR_BASE_ADDR, ST_DBG_IP_CONFIG_RESET_AND_LOOPBACK);
+
+    uint32_t rd = (uint32_t)IORD_32DIRECT(g_std_dbg_ip_info.ST_DBG_IP_CSR_BASE_ADDR, ST_DBG_IP_CONFIG_RESET_AND_LOOPBACK);
     if (val == 1) {
-        IOWR_64DIRECT(g_std_dbg_ip_info.ST_DBG_IP_CSR_BASE_ADDR, ST_DBG_IP_CONFIG_RESET_AND_LOOPBACK, rd | ST_DBG_IP_CONFIG_LOOPBACK_FIELD);
+        IOWR_32DIRECT(g_std_dbg_ip_info.ST_DBG_IP_CSR_BASE_ADDR, ST_DBG_IP_CONFIG_RESET_AND_LOOPBACK, rd | ST_DBG_IP_CONFIG_LOOPBACK_FIELD | ST_DBG_IP_CONFIG_H2T_T2H_RESET_FIELD);
     } else {
-        IOWR_64DIRECT(g_std_dbg_ip_info.ST_DBG_IP_CSR_BASE_ADDR, ST_DBG_IP_CONFIG_RESET_AND_LOOPBACK, rd & ~ST_DBG_IP_CONFIG_LOOPBACK_FIELD);
+        IOWR_32DIRECT(g_std_dbg_ip_info.ST_DBG_IP_CSR_BASE_ADDR, ST_DBG_IP_CONFIG_RESET_AND_LOOPBACK, (rd & ~ST_DBG_IP_CONFIG_LOOPBACK_FIELD) | ST_DBG_IP_CONFIG_H2T_T2H_RESET_FIELD);
     }
 }
 
 int get_loopback_mode() {
-    unsigned long rd = (unsigned long)IORD_64DIRECT(g_std_dbg_ip_info.ST_DBG_IP_CSR_BASE_ADDR, ST_DBG_IP_CONFIG_RESET_AND_LOOPBACK);
+    uint32_t rd = (uint32_t)IORD_32DIRECT(g_std_dbg_ip_info.ST_DBG_IP_CSR_BASE_ADDR, ST_DBG_IP_CONFIG_RESET_AND_LOOPBACK);
     if ((rd & ST_DBG_IP_CONFIG_LOOPBACK_FIELD) > 0) {
         return 1;
     } else {
@@ -263,16 +266,16 @@ int get_loopback_mode() {
 }
 
 void enable_interrupts(int val) {
-    unsigned long rd = (unsigned long)IORD_64DIRECT(g_std_dbg_ip_info.ST_DBG_IP_CSR_BASE_ADDR, ST_DBG_IP_CONFIG_RESET_AND_LOOPBACK);
+    uint32_t rd = (uint32_t)IORD_32DIRECT(g_std_dbg_ip_info.ST_DBG_IP_CSR_BASE_ADDR, ST_DBG_IP_CONFIG_RESET_AND_LOOPBACK);
     if (val == 1) {
-        IOWR_64DIRECT(g_std_dbg_ip_info.ST_DBG_IP_CSR_BASE_ADDR, ST_DBG_IP_CONFIG_RESET_AND_LOOPBACK, rd | ST_DBG_IP_CONFIG_ENABLE_INT_FIELD);
+        IOWR_32DIRECT(g_std_dbg_ip_info.ST_DBG_IP_CSR_BASE_ADDR, ST_DBG_IP_CONFIG_RESET_AND_LOOPBACK, rd | ST_DBG_IP_CONFIG_ENABLE_INT_FIELD);
     } else {
-        IOWR_64DIRECT(g_std_dbg_ip_info.ST_DBG_IP_CSR_BASE_ADDR, ST_DBG_IP_CONFIG_RESET_AND_LOOPBACK, rd & ~ST_DBG_IP_CONFIG_ENABLE_INT_FIELD);
+        IOWR_32DIRECT(g_std_dbg_ip_info.ST_DBG_IP_CSR_BASE_ADDR, ST_DBG_IP_CONFIG_RESET_AND_LOOPBACK, rd & ~ST_DBG_IP_CONFIG_ENABLE_INT_FIELD);
     }
 }
 
 int get_mgmt_support() {
-    unsigned long rd = (unsigned long)IORD_64DIRECT(g_std_dbg_ip_info.ST_DBG_IP_CSR_BASE_ADDR, ST_DBG_IP_CONFIG_MGMT_MGMT_RSP_DESC_DEPTH);
+    uint32_t rd = (uint32_t)IORD_32DIRECT(g_std_dbg_ip_info.ST_DBG_IP_CSR_BASE_ADDR, ST_DBG_IP_CONFIG_MGMT_MGMT_RSP_DESC_DEPTH);
     if (rd > 0) {
         return 1;
     } else {
@@ -298,6 +301,8 @@ int set_driver_param(const char *param, const char *val) {
         } else {
             set_loopback_mode(0);
         }
+    } else {
+        set_loopback_mode(0);
     }
 
     return -1;
