@@ -502,6 +502,7 @@ static fpga_result replace_str_in_str(
 		const size_t remaining_result_size = result_len + 1 - (result_ptr - result);
 		strncpy(result_ptr, haystack_ptr, remaining_result_size);  // Copy the rest of haystack to result
 		strncpy(haystack, result, max_haystack_len);               // Update haystack with the result
+		haystack[result_len] = '\0';
 
 		free(result);
 	}

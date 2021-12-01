@@ -190,6 +190,16 @@ public:
 
     if (he_loopback_ != "none") {
         hafu->mbox_write(CSR_MAC_LOOP, (he_loopback_ == "on") ? 1 : 0);
+
+        if (he_loopback_ != "on") // don't loop for "off"
+            return test_afu::success;
+
+        std::cout << "HE loopback enabled. Use Ctrl+C to exit." << std::endl;
+
+        while (running_) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        }
+
         return test_afu::success;
     }
 
