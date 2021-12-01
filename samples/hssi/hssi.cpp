@@ -27,7 +27,7 @@
 #include "hssi_afu.h"
 #include "hssi_10g_cmd.h"
 #include "hssi_100g_cmd.h"
-#include "hssi_uio_cmd.h"
+#include "hssi_pkt_filt_cmd.h"
 
 hssi_afu app;
 
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
   signal(SIGINT, sig_handler);
   app.register_command<hssi_10g_cmd>();
   app.register_command<hssi_100g_cmd>();
-  app.register_command<hssi_uio_cmd>();
+  app.register_command<hssi_pkt_filt_cmd>();
   try {
     res = app.main(argc, argv);
   } catch (std::runtime_error &e) {
