@@ -655,7 +655,7 @@ TEST_P(events_p, irq_event_06) {
 }
 
 INSTANTIATE_TEST_CASE_P(events, events_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005","dfl-6000" })));
+                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-d5005", "dfl-n6000" })));
 
 
 class events_dcp_p : public events_p {};
