@@ -281,12 +281,16 @@ def dfh_walk(region, offset=0, header=dfh0, guid=None):
             break
         offset += h.bits.next
 
-def walk(region, offset=0, show_uuid=False):
+def walk(region, offset=0, show_uuid=False, dump=False):
     for offset_, hdr in dfh_walk(region, offset=offset):
         print(f'offset: 0x{offset_:04x}, value: 0x{hdr.value:04x}')
         print(f'    dfh: {hdr}')
         if show_uuid:
             print(f'    uuid: {read_guid(region, offset_+0x8)}')
+        if dump and not hdr.eol:
+            sz = hdr.next - offset_
+            for i in range(offset_+16, offset_+sz, 16):
+                print(f'0x{i:04x}: 0x{read_guid(region, i):08x}')
 
 
 class feature(object):
