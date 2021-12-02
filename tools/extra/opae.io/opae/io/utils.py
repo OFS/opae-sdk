@@ -288,7 +288,7 @@ def walk(region, offset=0, show_uuid=False, dump=False):
         if show_uuid:
             print(f'    uuid: {read_guid(region, offset_+0x8)}')
         if dump and not hdr.eol:
-            sz = hdr.next - offset_ if not hdr.eol else region.size-offset_
+            sz = hdr.next - offset_ if not hdr.eol else len(region)-offset_
             for i in range(offset_+8, offset_+sz, 8):
                 print(f'0x{i:04x}: 0x{region.read64(i):08x}')
 
