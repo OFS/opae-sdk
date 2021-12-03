@@ -171,6 +171,24 @@ class walk_action(base_action):
         utils.walk(self.region, args.offset, args.show_uuid)
 
 
+class dump_action(base_action):
+    open_device = True
+
+    def add_args(self):
+        self.parser.add_argument('-o', '--output', type=argparse.FileType('wb'), default=sys.stdout)
+        self.parser.add_argument('-f', '--format', choices=['bin', 'hex'], default='hex')
+        self.parser.add_argument('-c', '--count', type=int, default=None)
+
+    def execute(self, args):
+        if not self.device:
+            raise SystemExit('walk requires device.')
+        if not self.region:
+            raise SystemExit('walk requires region.')
+
+        offset = 0 if args.offset is None else args.offset
+        utils.dump(self.region, args.offset, args.output, args.format, args.count)
+
+
 class no_action(base_action):
     open_device = True
 
@@ -185,6 +203,7 @@ actions = {
     'peek': peek_action,
     'poke': poke_action,
     'walk': walk_action,
+    'dump': dump_action,
 }
 
 def do_action(action, args):
@@ -212,7 +231,8 @@ def show_help():
       "opae.io release [-d <PCI_ADDRESS>]"
       "opae.io [-d <PCI_ADDRESS>]"
       "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>]"
-      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] walk <OFFSET> [-u | --show-uuid]"
+      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] walk [<OFFSET>] [-u | --show-uuid]"
+      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] dump [<OFFSET>] [-o | --output <FILE>] [-f | --format (hex, bin)] [ -c | --count <WORD COUNT>]
       "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] peek <OFFSET>"
       "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] poke <OFFSET> <VALUE>"
       "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] <SCRIPT> <ARG1> <ARG2> ... <ARGN>"
