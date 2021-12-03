@@ -288,12 +288,12 @@ def walk(region,
             break
         print(f'offset: 0x{offset_:04x}, value: 0x{hdr.value:04x}')
         print(f'    dfh: {hdr}')
+        if delay:
+            time.sleep(delay)
         if show_uuid:
             print(f'    uuid: {read_guid(region, offset_+0x8)}')
             if delay:
                 time.sleep(delay)
-        if delay:
-            time.sleep(delay)
         if dump and not hdr.bits.eol:
             sz = hdr.bits.next if not hdr.bits.eol else len(region)-offset_
             for i in range(offset_+8, offset_+sz, 8):
