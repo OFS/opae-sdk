@@ -160,6 +160,9 @@ class walk_action(base_action):
     def add_args(self):
         self.parser.add_argument('offset', nargs='?', type=utils.hex_int, default=0)
         self.parser.add_argument('-u', '--show-uuid', action='store_true', default=False)
+        self.parser.add_argument('-D', '--dump', action='store_true', default=False)
+        self.parser.add_argument('-c', --count', type=int, default=None)
+        self.parser.add_argument('-y', --delay', type=int, default=None)
 
     def execute(self, args):
         if not self.device:
@@ -168,7 +171,7 @@ class walk_action(base_action):
             raise SystemExit('walk requires region.')
 
         offset = 0 if args.offset is None else args.offset
-        utils.walk(self.region, args.offset, args.show_uuid)
+        utils.walk(self.region, args.offset, args.show_uuid, args.count, args.delay, args.dump)
 
 
 class no_action(base_action):
