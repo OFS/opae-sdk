@@ -161,8 +161,8 @@ class walk_action(base_action):
         self.parser.add_argument('offset', nargs='?', type=utils.hex_int, default=0)
         self.parser.add_argument('-u', '--show-uuid', action='store_true', default=False)
         self.parser.add_argument('-D', '--dump', action='store_true', default=False)
-        self.parser.add_argument('-c', --count', type=int, default=None)
-        self.parser.add_argument('-y', --delay', type=int, default=None)
+        self.parser.add_argument('-c', '--count', type=int, default=None)
+        self.parser.add_argument('-y', '--delay', type=int, default=None)
 
     def execute(self, args):
         if not self.device:
