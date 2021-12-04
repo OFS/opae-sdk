@@ -283,7 +283,7 @@ def dfh_walk(region, offset=0, header=dfh0, guid=None):
 
 def walk(region,
          offset=0, show_uuid=False, count=None, delay=None, dump=False):
-    for (offset_, hdr), i in enumerate(dfh_walk(region, offset=offset)):
+    for i, (offset_, hdr) in enumerate(dfh_walk(region, offset=offset)):
         if count and i >= count:
             break
         print(f'offset: 0x{offset_:04x}, value: 0x{hdr.value:04x}')

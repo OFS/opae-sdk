@@ -158,11 +158,11 @@ class walk_action(base_action):
     open_device = True
 
     def add_args(self):
-        self.parser.add_argument('offset', nargs='?', type=utils.hex_int, default=0)
+        self.parser.add_argument('--offset', nargs='?', type=utils.hex_int, default=0)
         self.parser.add_argument('-u', '--show-uuid', action='store_true', default=False)
         self.parser.add_argument('-D', '--dump', action='store_true', default=False)
-        self.parser.add_argument('-c', --count', type=int, default=None)
-        self.parser.add_argument('-y', --delay', type=int, default=None)
+        self.parser.add_argument('-c', '--count', type=int, default=None)
+        self.parser.add_argument('-y', '--delay', type=int, default=None)
 
     def execute(self, args):
         if not self.device:
@@ -171,13 +171,14 @@ class walk_action(base_action):
             raise SystemExit('walk requires region.')
 
         offset = 0 if args.offset is None else args.offset
-        utils.walk(self.region, args.offset, args.show_uuid, args.count, args.delay, args.dump)
+        utils.walk(self.region, offset, args.show_uuid, args.count, args.delay, args.dump)
 
 
 class dump_action(base_action):
     open_device = True
 
     def add_args(self):
+        self.parser.add_argument('--offset', nargs='?', type=utils.hex_int, default=0)
         self.parser.add_argument('-o', '--output', type=argparse.FileType('wb'), default=sys.stdout)
         self.parser.add_argument('-f', '--format', choices=['bin', 'hex'], default='hex')
         self.parser.add_argument('-c', '--count', type=int, default=None)
@@ -189,7 +190,7 @@ class dump_action(base_action):
             raise SystemExit('walk requires region.')
 
         offset = 0 if args.offset is None else args.offset
-        utils.dump(self.region, args.offset, args.output, args.format, args.count)
+        utils.dump(self.region, offset, args.output, args.format, args.count)
 
 
 class no_action(base_action):
