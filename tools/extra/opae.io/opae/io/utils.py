@@ -302,6 +302,18 @@ def walk(region,
                     time.sleep(delay)
 
 
+def dump(region, start=0, output=sys.stdout, fmt='hex', count=None):
+    stop_at = start + count*8 if count else len(region)
+    offset = start
+    while offset < stop_at:
+        value = region.read64(offset)
+        if fmt == 'hex':
+            output.write(f'0x{offset:04x}: 0x{value:016x}\n')
+        else:
+            output.write(value)
+        offset += 8
+
+
 class feature(object):
     def __init__(self, region, offset=0, guid=None):
         self._region = region
