@@ -178,6 +178,7 @@ class dump_action(base_action):
     open_device = True
 
     def add_args(self):
+        self.parser.add_argument('offset', nargs='?', type=utils.hex_int, default=0)
         self.parser.add_argument('-o', '--output', type=argparse.FileType('wb'), default=sys.stdout)
         self.parser.add_argument('-f', '--format', choices=['bin', 'hex'], default='hex')
         self.parser.add_argument('-c', '--count', type=int, default=None)
