@@ -281,12 +281,37 @@ def dfh_walk(region, offset=0, header=dfh0, guid=None):
             break
         offset += h.bits.next
 
-def walk(region, offset=0, show_uuid=False):
-    for offset_, hdr in dfh_walk(region, offset=offset):
+def walk(region,
+         offset=0, show_uuid=False, count=None, delay=None, dump=False):
+    for i, (offset_, hdr) in enumerate(dfh_walk(region, offset=offset)):
+        if count and i >= count:
+            break
         print(f'offset: 0x{offset_:04x}, value: 0x{hdr.value:04x}')
         print(f'    dfh: {hdr}')
+        if delay:
+            time.sleep(delay)
         if show_uuid:
             print(f'    uuid: {read_guid(region, offset_+0x8)}')
+            if delay:
+                time.sleep(delay)
+        if dump and not hdr.bits.eol:
+            sz = hdr.bits.next if not hdr.bits.eol else len(region)-offset_
+            for i in range(offset_+8, offset_+sz, 8):
+                print(f'0x{i:04x}: 0x{region.read64(i):08x}')
+                if delay:
+                    time.sleep(delay)
+
+
+def dump(region, start=0, output=sys.stdout, fmt='hex', count=None):
+    stop_at = start + count*8 if count else len(region)
+    offset = start
+    while offset < stop_at:
+        value = region.read64(offset)
+        if fmt == 'hex':
+            output.write(f'0x{offset:04x}: 0x{value:016x}\n')
+        else:
+            output.write(value)
+        offset += 8
 
 
 class feature(object):
