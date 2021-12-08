@@ -39,8 +39,6 @@ from ethernet.hssicommon import *
 
 # Sleep 50 milliseconds after clearing stats.
 HSSI_STATS_CLEAR_SLEEP_TIME = 50/1000
-# Invalid  hssi stats value
-HSSI_INAVLID_STATS = 0xfffffff1
 
 
 class FPGAHSSISTATS(HSSICOMMON):
@@ -132,7 +130,7 @@ class FPGAHSSISTATS(HSSICOMMON):
                 ctl_addr.value = self.register_field_set(ctl_addr.value,
                                                          31, 1, 1)
                 res, value_lsb = self.read_reg(0, ctl_addr.value)
-                if value_lsb >= HSSI_INAVLID_STATS or not res:
+                if not res:
                     stats_list[port_index] += "{}|".format("N/A").rjust(20, ' ')
                     port_index = port_index + 1
                     continue
@@ -141,7 +139,7 @@ class FPGAHSSISTATS(HSSICOMMON):
                 ctl_addr.value = self.register_field_set(ctl_addr.value,
                                                          31, 1, 0)
                 res, value_msb = self.read_reg(0, ctl_addr.value)
-                if value_msb >= HSSI_INAVLID_STATS or not res:
+                if not res:
                     stats_list[port_index] += "{}|".format("N/A").rjust(20, ' ')
                     port_index = port_index + 1
                     continue
