@@ -32,7 +32,7 @@ for a description of vfio-pci.
 `-d DRIVER, --driver DRIVER`
 
     Specifies the device driver to bind to when releasing from vfio.
-    The default value is dfl-pci.
+    When omitted, the device is not rebound to a driver (default).
 
 `-u USER, --user USER`
 
