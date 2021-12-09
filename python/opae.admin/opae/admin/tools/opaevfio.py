@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright(c) 2020, Intel Corporation
+# Copyright(c) 2020-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -73,7 +73,7 @@ def parse_args():
                         help='initialize the given device for vfio')
     parser.add_argument('-r', '--release', default=False, action='store_true',
                         help='release the given device from vfio')
-    parser.add_argument('-d', '--driver', default='dfl-pci',
+    parser.add_argument('-d', '--driver', default=None,
                         help='driver to re-bind on release')
     parser.add_argument('-u', '--user', default='root',
                         help='userid to assign during init')
@@ -207,8 +207,12 @@ def initialize_vfio(addr, new_owner, enable_sriov):
         print('Changing permissions for {} to rw-rw----'.format(device))
         os.chmod(device, 0o660)
 
-    print('To reverse what this command did, use: ' +
-          'opaevfio -r {} -d {}'.format(addr, driver))
+    if driver:
+        print('To reverse what this command did, use: ' +
+              'opaevfio -r {} -d {}'.format(addr, driver))
+    else:
+        print('To reverse what this command did, use: ' +
+              'opaevfio -r {}'.format(addr))
 
 
 def release_vfio(addr, new_driver):
@@ -233,8 +237,9 @@ def release_vfio(addr, new_driver):
     print('Releasing {} from vfio-pci'.format(msg))
     unbind_driver(driver, addr)
 
-    print('Rebinding {} to {}'.format(msg, new_driver))
-    bind_driver(new_driver, addr)
+    if new_driver:
+        print('Rebinding {} to {}'.format(msg, new_driver))
+        bind_driver(new_driver, addr)
 
 
 def main():
