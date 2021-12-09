@@ -252,7 +252,7 @@ def do_partial_reconf(addr, filename):
     LOG.debug('command: %s', ' '.join(conf_args))
 
     try:
-        output = subprocess.check_output(conf_args)
+        output = subprocess.check_output(conf_args, stderr=subprocess.STDOUT)
         output = output.decode(sys.getdefaultencoding())
     except subprocess.CalledProcessError as exc:
         return (exc.returncode,
