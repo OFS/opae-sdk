@@ -42,13 +42,26 @@
 #define CSR_RND_SEED1         0x3c0b
 #define CSR_RND_SEED2         0x3c0c
 #define CSR_PACKET_LENGTH     0x3c0d
+#define CSR_TX_END_TSTAMP     0x3cf4
 
 #define CSR_NUM_PKT           0x3d00
 #define CSR_PKT_GOOD          0x3d01
 #define CSR_PKT_BAD           0x3d02
 #define CSR_AVST_RX_ERR       0x3d07
+#define CSR_RX_STA_TSTAMP     0x3d0b
+#define CSR_RX_END_TSTAMP     0x3d0c
 
 #define CSR_MAC_LOOP          0x3e00
+
+#define ETHERNET_SPEED        10  // Gbps
+
+#define USER_CLKFREQ_S10      156.25  // MHz
+#define USER_CLKFREQ_AC       300.00  // MHz
+#define BITSVER_MAJOR_S10     4
+#define BITSVER_MAJOR_AC      5
+#define DFL_BITSTREAM_ID      "bitstream_id"
+
+#define FPGA_BBS_VER_MAJOR(i) (((i) >> 56) & 0xf)
 
 class hssi_10g_cmd : public hssi_cmd
 {
@@ -239,6 +252,8 @@ public:
 
     std::cout << std::endl;
 
+    hssi_perf(hafu);
+
     if (eth_ifc == "") {
         std::cout << "No eth interface, so not "
 		     "showing stats." << std::endl;
@@ -250,6 +265,96 @@ public:
     }
 
     return test_afu::success;
+  }
+
+  void hssi_perf(hssi_afu *hafu)
+  {
+    fpga_properties pprops = NULL;
+    fpga_result res = FPGA_OK;
+    uint32_t num_matches = 1;
+    uint64_t bitstream_id;
+    double clk_freq = 0;    
+    uint32_t major = 0;
+    fpga_token token;  
+
+    std::cout << "HSSI performance: " << std::endl;
+
+    res = fpgaGetProperties(NULL, &pprops);
+    if (res != FPGA_OK) {
+    	std::cerr << "Failed to get properties" << std::endl;
+    	return;
+    }
+
+    res = fpgaPropertiesSetObjectType(pprops, FPGA_DEVICE);
+    if (res != FPGA_OK) {
+    	std::cerr << "Failed to set type to FPGA_DEVICE" << std::endl;
+    	return;
+    }
+
+    fpgaEnumerate(&pprops, 1, &token, 1, &num_matches);
+
+    if (0 != num_matches) {
+    	// Retrieve the Bitstream ID 
+    	fpgaDestroyProperties(&pprops);
+    	fpgaGetProperties(token, &pprops);
+    	res = fpgaPropertiesGetBBSID(pprops, &bitstream_id);
+    	if (res != FPGA_OK) {
+    		std::cerr << "Failed to read bitstream id from properties" << std::endl;
+    		return;
+    	}
+
+	major = FPGA_BBS_VER_MAJOR(bitstream_id);
+	if (major == BITSVER_MAJOR_S10)
+            clk_freq = USER_CLKFREQ_S10;
+        else if (major == BITSVER_MAJOR_AC)
+            clk_freq = USER_CLKFREQ_AC;
+	else {
+	        fpgaDestroyToken(&token);
+		fpgaDestroyProperties(&pprops);
+		std::cout << "unknown platform" << std::endl;
+		return;
+	}
+
+    	fpgaDestroyToken(&token);
+    }
+    else
+    {
+    	std::cerr << "No FPGA found" << std::endl;
+        fpgaDestroyProperties(&pprops);
+        return;
+    }
+
+    fpgaDestroyProperties(&pprops);
+
+    // Reading traffic control Tx/Rx timestamp registers 
+    uint32_t tx_end_tstamp = hafu->mbox_read(CSR_TX_END_TSTAMP);
+    uint32_t rx_sta_tstamp = hafu->mbox_read(CSR_RX_STA_TSTAMP);
+    uint32_t rx_end_tstamp = hafu->mbox_read(CSR_RX_END_TSTAMP);
+
+    // Convert timestamp register from clock cycles to nanosecond
+    double sample_period_ns = 1000 / clk_freq;
+    double tx_end_tstamp_ns = tx_end_tstamp * sample_period_ns;
+    double rx_sta_tstamp_ns = rx_sta_tstamp * sample_period_ns;
+    double rx_end_tstamp_ns = rx_end_tstamp * sample_period_ns;
+    
+    // Calculate latencies
+    double latency_min_ns = rx_sta_tstamp_ns; 
+    double latency_max_ns = rx_end_tstamp_ns - tx_end_tstamp_ns;
+
+    // Calculate Tx/Rx throughput achieved
+    uint32_t data_pkt_size = packet_length_ - 4;
+    double total_tx_duration_ns = tx_end_tstamp_ns;
+    double total_rx_duration_ns = (rx_end_tstamp_ns - rx_sta_tstamp_ns);
+    uint32_t total_data_size_bits = (num_packets_  * data_pkt_size * 8) ;
+    double achieved_tx_tput_gbps = (total_data_size_bits / total_tx_duration_ns);
+    double achieved_rx_tput_gbps = (total_data_size_bits / total_rx_duration_ns);
+
+    std::cout << "\tSelected clock frequency : "<< clk_freq << " MHz" << std::endl
+    	      << "\tLatency minimum : " << latency_min_ns <<" ns"<<std::endl
+    	      << "\tLatency maximum : " << latency_max_ns <<" ns"<<std::endl
+    	      << "\tAchieved Tx throughput : " << achieved_tx_tput_gbps << " GB/s" << std::endl
+    	      << "\tAchieved Rx throughput : " << achieved_rx_tput_gbps << " GB/s" << std::endl
+    	      << std::endl;
   }
 
   virtual const char *afu_id() const override
