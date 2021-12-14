@@ -171,6 +171,11 @@ public:
 
   CLI::App & cli() { return app_; }
 
+  fpga::properties::ptr_t afu_properties() const
+  {
+    return fpga::properties::get(handle_);
+  }
+
   int open_handle(const char *afu_id) {
     auto filter = fpga::properties::get();
     auto app_afu_id = afu_id ? afu_id : afu_id_.c_str();
