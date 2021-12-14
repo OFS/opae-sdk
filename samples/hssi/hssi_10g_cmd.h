@@ -343,7 +343,9 @@ public:
       int_to_hex(hafu->mbox_read(CSR_RND_SEED2)) << std::endl;
     os << "0x3c0d " << std::setw(22) << "pkt_length" << ": " <<
       int_to_hex(hafu->mbox_read(CSR_PACKET_LENGTH)) << std::endl;
-  
+    os << "0x3cf4 " << std::setw(22) << "tx_end_tstamp" << ": " <<
+      int_to_hex(hafu->mbox_read(CSR_TX_END_TSTAMP)) << std::endl;
+
     os << "0x3d00 " << std::setw(22) << "num_pkt" << ": " <<
       int_to_hex(hafu->mbox_read(CSR_NUM_PKT)) << std::endl;
     os << "0x3d01 " << std::setw(22) << "pkt_good" << ": " <<
