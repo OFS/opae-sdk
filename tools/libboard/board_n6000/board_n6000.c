@@ -649,6 +649,7 @@ fpga_result print_phy_info(fpga_token token)
 	struct hssi_port_status port_status;
 	uint8_t *mmap_ptr = NULL;
 	uint32_t i = 0;
+	uint32_t k = 0;
 
 	res = find_dev_feature(token, HSSI_FEATURE_ID, feature_dev);
 	if (res != FPGA_OK) {
@@ -697,15 +698,16 @@ fpga_result print_phy_info(fpga_token token)
 			if (hssi_port_profiles[j].port_index == port_profile.profile) {
 				// lock, tx, rx bits set - link status UP
 				// lock, tx, rx bits not set - link status DOWN
-				if ((GET_BIT(port_status.txplllocked, i) == 1) &&
-					(GET_BIT(port_status.txlanestable, i) == 1) &&
-					(GET_BIT(port_status.rxpcsready, i) == 1)) {
+				if ((GET_BIT(port_status.txplllocked, k) == 1) &&
+					(GET_BIT(port_status.txlanestable, k) == 1) &&
+					(GET_BIT(port_status.rxpcsready, k) == 1)) {
 					printf("Port%-28d :%-12s %s\n", i,
 						hssi_port_profiles[j].profile, "UP");
 				} else {
 					printf("Port%-28d :%-12s %s\n", i,
 						hssi_port_profiles[j].profile, "DOWN");
 				}
+				k++;
 				break;
 			}
 		 }
