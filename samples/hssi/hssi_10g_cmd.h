@@ -270,12 +270,14 @@ public:
       double achieved_tx_tput_gbps = (total_data_size_bits / total_tx_duration_ns);
       double achieved_rx_tput_gbps = (total_data_size_bits / total_rx_duration_ns);
 
-      std::cout << "\tSelected clock frequency : "<< clk_freq << " MHz" << std::endl
-                << "\tLatency minimum : " << latency_min_ns << " ns" <<std::endl
-                << "\tLatency maximum : " << latency_max_ns << " ns" <<std::endl
-                << "\tAchieved Tx throughput : " << achieved_tx_tput_gbps << " GB/s" << std::endl
-                << "\tAchieved Rx throughput : " << achieved_rx_tput_gbps << " GB/s" << std::endl
-                << std::endl;
+      if(eth_ifc != "") {
+      	std::cout << "\tSelected clock frequency : "<< clk_freq << " MHz" << std::endl
+                  << "\tLatency minimum : " << latency_min_ns << " ns" <<std::endl
+                  << "\tLatency maximum : " << latency_max_ns << " ns" <<std::endl
+                  << "\tAchieved Tx throughput : " << achieved_tx_tput_gbps << " GB/s" << std::endl
+                  << "\tAchieved Rx throughput : " << achieved_rx_tput_gbps << " GB/s" << std::endl
+                  << std::endl;
+      }
     }
 
     if (eth_ifc == "") {
