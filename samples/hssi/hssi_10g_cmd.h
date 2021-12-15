@@ -206,6 +206,8 @@ public:
         return test_afu::success;
     }
 
+    double clk_freq = clock_freq_for(hafu);
+
     hafu->mbox_write(CSR_NUM_PACKETS, num_packets_);
 
     hafu->mbox_write(CSR_PACKET_LENGTH, packet_length_);
@@ -242,11 +244,10 @@ public:
 
     std::cout << std::endl;
 
-    double clk_freq = clock_freq_for(hafu);
     if (clk_freq == INVALID_CLOCK_FREQ) {
       std::cerr << "Couldn't determine user clock freq." << std::endl
                 << "Skipping performance display." << std::endl;
-    } else {
+    } else if (eth_ifc != "") {
       // Read traffic control Tx/Rx timestamp registers
       uint32_t tx_end_tstamp = hafu->mbox_read(CSR_TX_END_TSTAMP);
       uint32_t rx_sta_tstamp = hafu->mbox_read(CSR_RX_STA_TSTAMP);
@@ -270,14 +271,12 @@ public:
       double achieved_tx_tput_gbps = (total_data_size_bits / total_tx_duration_ns);
       double achieved_rx_tput_gbps = (total_data_size_bits / total_rx_duration_ns);
 
-      if(eth_ifc != "") {
-      	std::cout << "\tSelected clock frequency : "<< clk_freq << " MHz" << std::endl
-                  << "\tLatency minimum : " << latency_min_ns << " ns" <<std::endl
-                  << "\tLatency maximum : " << latency_max_ns << " ns" <<std::endl
-                  << "\tAchieved Tx throughput : " << achieved_tx_tput_gbps << " GB/s" << std::endl
-                  << "\tAchieved Rx throughput : " << achieved_rx_tput_gbps << " GB/s" << std::endl
-                  << std::endl;
-      }
+      std::cout << "\tSelected clock frequency : "<< clk_freq << " MHz" << std::endl
+                << "\tLatency minimum : " << latency_min_ns << " ns" <<std::endl
+                << "\tLatency maximum : " << latency_max_ns << " ns" <<std::endl
+                << "\tAchieved Tx throughput : " << achieved_tx_tput_gbps << " GB/s" << std::endl
+                << "\tAchieved Rx throughput : " << achieved_rx_tput_gbps << " GB/s" << std::endl
+                << std::endl;
     }
 
     if (eth_ifc == "") {
