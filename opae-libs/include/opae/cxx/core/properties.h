@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -132,6 +132,7 @@ class properties {
   pvalue<fpga_accelerator_state> accelerator_state;
   pvalue<uint64_t> object_id;
   pvalue<fpga_token> parent;
+  pvalue<fpga_interface> interface;
   guid_t guid;
 };
 
