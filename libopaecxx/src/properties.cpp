@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -63,6 +63,8 @@ properties::properties(bool alloc_props)
                         fpgaPropertiesSetAcceleratorState),
       object_id(&props_, fpgaPropertiesGetObjectID, fpgaPropertiesSetObjectID),
       parent(&props_, fpgaPropertiesGetParent, fpgaPropertiesSetParent),
+      interface(&props_, fpgaPropertiesGetInterface,
+                fpgaPropertiesSetInterface),
       guid(&props_) {
   if (alloc_props) {
     ASSERT_FPGA_OK(fpgaGetProperties(nullptr, &props_));
