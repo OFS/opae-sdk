@@ -27,9 +27,6 @@
 #include <iostream>
 #include <string>
 #include "hssi_10g_cmd.h"
-#include <opae/uio.h>
-
-#define CSR_DEST_ADDR 0x0040
 
 class hssi_pkt_filt_10g_cmd : public hssi_10g_cmd
 {
@@ -75,22 +72,9 @@ public:
                 << "  dfl_dev: " << dfl_dev << std::endl
                 << std::endl;
 
-      struct opae_uio uio;
-
-      if (opae_uio_open(&uio, dfl_dev.c_str())) {
-          return test_afu::error;
-      }
-
-      uint8_t *mmio = nullptr;
-
-      if (opae_uio_region_get(&uio, 0, &mmio, nullptr)) {
-          opae_uio_close(&uio);
-          return test_afu::error;
-      }
-
-      *(volatile uint64_t *)(mmio + CSR_DEST_ADDR) = bin_dest_addr;
-
-      opae_uio_close(&uio);
+      int res = set_pkt_filt_dest(dfl_dev, bin_dest_addr);
+      if (res != test_afu::success)
+        return res;
     }
 
     return hssi_10g_cmd::run(afu, app);
