@@ -31,21 +31,21 @@
 
 #define CSR_DEST_ADDR 0x0040
 
-class hssi_pkt_filt_cmd : public hssi_10g_cmd
+class hssi_pkt_filt_10g_cmd : public hssi_10g_cmd
 {
 public:
-  hssi_pkt_filt_cmd()
+  hssi_pkt_filt_10g_cmd()
     : dfl_dev_("none")
   {}
 
   virtual const char *name() const override
   {
-    return "pkt_filt";
+    return "pkt_filt_10g";
   }
 
   virtual const char *description() const override
   {
-    return "Packet Filter test\n";
+    return "10G Packet Filter test\n";
   }
 
   virtual void add_options(CLI::App *app) override
@@ -94,11 +94,6 @@ public:
     }
 
     return hssi_10g_cmd::run(afu, app);
-  }
-
-  virtual const char *afu_id() const override
-  {
-    return "823c334c-98bf-11ea-bb37-0242ac130002";
   }
 
 protected:

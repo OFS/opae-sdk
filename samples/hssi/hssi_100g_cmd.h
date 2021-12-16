@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2020-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -47,6 +47,7 @@ public:
     , pattern_("random")
     , src_addr_("11:22:33:44:55:66")
     , dest_addr_("77:88:99:aa:bb:cc")
+    , eth_ifc_("none")
   {}
 
   virtual const char *name() const override
@@ -88,6 +89,10 @@ public:
     opt = app->add_option("--dest-addr", dest_addr_,
                           "destination MAC address");
     opt->default_str(dest_addr_);
+
+    opt = app->add_option("--eth-ifc", eth_ifc_,
+                          "ethernet interface name");
+    opt->default_str(eth_ifc_);
   }
 
   virtual int run(test_afu *afu, CLI::App *app) override
@@ -108,7 +113,9 @@ public:
       return test_afu::error;
     }
 
-    std::string eth_ifc = hafu->ethernet_interface();
+    std::string eth_ifc = eth_ifc_;
+    if (eth_ifc == "none")
+      eth_ifc = hafu->ethernet_interface();
 
     std::cout << "100G loopback test" << std::endl
               << "  port: " << port_ << std::endl
@@ -123,8 +130,15 @@ public:
               << "  eth: " << eth_ifc << std::endl
               << std::endl;
 
-    if (eth_loopback_ == "on")
-      enable_eth_loopback(eth_ifc, true);
+    if (eth_ifc == "") {
+      std::cout << "No eth interface, so not "
+                   "honoring --eth-loopback." << std::endl;
+    } else {
+      if (eth_loopback_ == "on")
+        enable_eth_loopback(eth_ifc, true);
+      else
+        enable_eth_loopback(eth_ifc, false);
+    }
 
     hafu->write64(TRAFFIC_CTRL_PORT_SEL, port_);
 
@@ -153,10 +167,16 @@ public:
     print_registers(std::cout, hafu);
 
     std::cout << std::endl;
-    show_eth_stats(eth_ifc);
 
-    if (eth_loopback_ == "on")
-      enable_eth_loopback(eth_ifc, false);
+    if (eth_ifc == "") {
+      std::cout << "No eth interface, so not "
+                   "showing stats." << std::endl;
+    } else {
+      show_eth_stats(eth_ifc);
+
+      if (eth_loopback_ == "on")
+        enable_eth_loopback(eth_ifc, false);
+    }
 
     return test_afu::success;
   }
@@ -215,4 +235,5 @@ protected:
   std::string pattern_;
   std::string src_addr_;
   std::string dest_addr_;
+  std::string eth_ifc_;
 };

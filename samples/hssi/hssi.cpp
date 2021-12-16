@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2020-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -27,7 +27,8 @@
 #include "hssi_afu.h"
 #include "hssi_10g_cmd.h"
 #include "hssi_100g_cmd.h"
-#include "hssi_pkt_filt_cmd.h"
+#include "hssi_pkt_filt_10g_cmd.h"
+#include "hssi_pkt_filt_100g_cmd.h"
 
 hssi_afu app;
 
@@ -49,7 +50,8 @@ int main(int argc, char *argv[])
   signal(SIGINT, sig_handler);
   app.register_command<hssi_10g_cmd>();
   app.register_command<hssi_100g_cmd>();
-  app.register_command<hssi_pkt_filt_cmd>();
+  app.register_command<hssi_pkt_filt_10g_cmd>();
+  app.register_command<hssi_pkt_filt_100g_cmd>();
   try {
     res = app.main(argc, argv);
   } catch (std::runtime_error &e) {
