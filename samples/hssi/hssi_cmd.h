@@ -37,10 +37,10 @@ namespace fpga = opae::fpga::types;
 
 #define INVALID_MAC           0xffffffffffffffffULL
 
-#define INVALID_CLOCK_FREQ    static_cast<double>(0.0)
+#define INVALID_CLOCK_FREQ    0.0
 
-#define USER_CLKFREQ_S10      static_cast<double>(156.25)  // MHz
-#define USER_CLKFREQ_N6000    static_cast<double>(350.00)  // MHz
+#define USER_CLKFREQ_S10      156.25  // MHz
+#define USER_CLKFREQ_N6000    350.00  // MHz
 #define BITSVER_MAJOR_S10     4
 #define BITSVER_MAJOR_N6000   5
 
