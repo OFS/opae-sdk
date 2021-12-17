@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -163,3 +163,8 @@ fpga_accelerator_state properties_get_accelerator_state(
     opae::fpga::types::properties::ptr_t props);
 void properties_set_accelerator_state(
     opae::fpga::types::properties::ptr_t props, fpga_accelerator_state state);
+
+const char *properties_doc_interface();
+fpga_interface properties_get_interface(opae::fpga::types::properties::ptr_t props);
+void properties_set_interface(opae::fpga::types::properties::ptr_t props,
+                              fpga_interface interface);
