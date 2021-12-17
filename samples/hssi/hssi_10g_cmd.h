@@ -248,7 +248,7 @@ public:
       std::cerr << "Couldn't determine user clock freq." << std::endl
                 << "Skipping performance display." << std::endl;
     } else {
-	  std::cout << "HSSI performance: " << std::endl;
+      std::cout << "HSSI performance: " << std::endl;
       // Read traffic control Tx/Rx timestamp registers
       uint32_t tx_end_tstamp = hafu->mbox_read(CSR_TX_END_TSTAMP);
       uint32_t rx_sta_tstamp = hafu->mbox_read(CSR_RX_STA_TSTAMP);
