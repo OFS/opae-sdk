@@ -247,7 +247,8 @@ public:
     if (clk_freq == INVALID_CLOCK_FREQ) {
       std::cerr << "Couldn't determine user clock freq." << std::endl
                 << "Skipping performance display." << std::endl;
-    } else if (eth_ifc != "") {
+    } else {
+	  std::cout << "HSSI performance: " << std::endl;
       // Read traffic control Tx/Rx timestamp registers
       uint32_t tx_end_tstamp = hafu->mbox_read(CSR_TX_END_TSTAMP);
       uint32_t rx_sta_tstamp = hafu->mbox_read(CSR_RX_STA_TSTAMP);
@@ -274,9 +275,11 @@ public:
       std::cout << "\tSelected clock frequency : "<< clk_freq << " MHz" << std::endl
                 << "\tLatency minimum : " << latency_min_ns << " ns" <<std::endl
                 << "\tLatency maximum : " << latency_max_ns << " ns" <<std::endl
-                << "\tAchieved Tx throughput : " << achieved_tx_tput_gbps << " GB/s" << std::endl
-                << "\tAchieved Rx throughput : " << achieved_rx_tput_gbps << " GB/s" << std::endl
-                << std::endl;
+                << "\tAchieved Tx throughput : " << achieved_tx_tput_gbps << " GB/s" << std::endl;
+      if (eth_loopback_ == "on"){
+      	std::cout << "\tAchieved Rx throughput : " << achieved_rx_tput_gbps << " GB/s" << std::endl;
+      }	
+      	std::cout << std::endl;
     }
 
     if (eth_ifc == "") {
