@@ -85,6 +85,7 @@ public:
       return USER_CLKFREQ_N6000;
 
     return INVALID_CLOCK_FREQ;
+  }
 
   int set_pkt_filt_dest(const std::string &dfl_dev,
                         uint64_t bin_dest_addr) const
@@ -117,7 +118,6 @@ public:
     opae_uio_close(&uio);
 
     return test_afu::success;
-
   }
 
   uint64_t mac_bits_for(std::string addr) const
@@ -181,3 +181,4 @@ public:
 protected:
   bool running_;
 };
+
