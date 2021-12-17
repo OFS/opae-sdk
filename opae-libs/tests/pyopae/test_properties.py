@@ -1,4 +1,4 @@
-# Copyright(c) 2018, Intel Corporation
+# Copyright(c) 2018-2021, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -196,4 +196,9 @@ class TestProperties(unittest.TestCase):
         props.accelerator_state = opae.fpga.ACCELERATOR_UNASSIGNED
         assert props.accelerator_state == opae.fpga.ACCELERATOR_UNASSIGNED
 
-
+    def test_set_interface(self):
+        props = opae.fpga.properties(
+            interface=opae.fpga.IFC_DFL)
+        assert props.interface == opae.fpga.IFC_DFL
+        props.interface = opae.fpga.IFC_VFIO
+        assert props.interface == opae.fpga.IFC_VFIO
