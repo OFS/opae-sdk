@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -122,6 +122,13 @@ PYBIND11_MODULE(_opae, m) {
       .value("RECONF_FORCE", FPGA_RECONF_FORCE)
       .export_values();
 
+  py::enum_<fpga_interface>(m, "fpga_interface", py::arithmetic(),
+                            "OPAE interfaces")
+      .value("IFC_DFL", FPGA_IFC_DFL)
+      .value("IFC_VFIO", FPGA_IFC_VFIO)
+      .value("IFC_SIM", FPGA_IFC_SIM)
+      .export_values();
+
   // version method
   m.def("version", &version::as_string,
         "Get the OPAE runtime version as a string");
@@ -177,7 +184,9 @@ PYBIND11_MODULE(_opae, m) {
                     properties_doc_num_interrupts())
       .def_property("accelerator_state", properties_get_accelerator_state,
                     properties_set_accelerator_state,
-                    properties_doc_accelerator_state());
+                    properties_doc_accelerator_state())
+      .def_property("interface", properties_get_interface, properties_set_interface,
+                    properties_doc_interface());
 
   // memory fence
   m.def("memory_barrier",
