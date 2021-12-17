@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -96,6 +96,8 @@ const char *properties_doc_get() {
 
       object_id (uint64_t): The 64-bit number unique within a single node or system.
 
+      interface (fpga_interface): The interface type - IFC_DFL, IFC_VFIO, or IFC_SIM.
+
    )opaedoc";
 }
 properties::ptr_t properties_get(py::kwargs kwargs) {
@@ -143,6 +145,7 @@ properties::ptr_t properties_get(py::kwargs kwargs) {
   kwargs_to_props<fpga_accelerator_state>(props->accelerator_state, kwargs,
                                           "accelerator_state");
   kwargs_to_props<uint64_t>(props->object_id, kwargs, "object_id");
+  kwargs_to_props<fpga_interface>(props->interface, kwargs, "interface");
 
   return props;
 }
@@ -504,4 +507,20 @@ fpga_accelerator_state properties_get_accelerator_state(
 void properties_set_accelerator_state(properties::ptr_t props,
                                       fpga_accelerator_state state) {
   props->accelerator_state = state;
+}
+
+// interface
+const char *properties_doc_interface() {
+  return R"opaedoc(
+    Get or set the interface property of a resource. The interface
+    must be either IFC_DFL, IFC_VFIO, or IFC_SIM
+   )opaedoc";
+}
+
+fpga_interface properties_get_interface(properties::ptr_t props) {
+  return props->interface;
+}
+
+void properties_set_interface(properties::ptr_t props, fpga_interface interface) {
+  props->interface = interface;
 }
