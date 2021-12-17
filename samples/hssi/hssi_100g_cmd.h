@@ -38,6 +38,8 @@
 #define CSR_MLB_RST     0x1016
 #define CSR_TX_COUNT    0x1017
 
+#define STOP_BITS       0xa
+
 class hssi_100g_cmd : public hssi_cmd
 {
 public:
@@ -160,7 +162,7 @@ public:
         enable_eth_loopback(eth_ifc, false);
     }
 
-    hafu->mbox_write(CSR_CTRL1, 0xa);
+    hafu->mbox_write(CSR_CTRL1, STOP_BITS);
 
     hafu->write64(TRAFFIC_CTRL_PORT_SEL, port_);
 
@@ -206,7 +208,7 @@ public:
       count = hafu->mbox_read(CSR_TX_COUNT);
 
       if (!running_) {
-        hafu->mbox_write(CSR_CTRL1, 0xa);
+        hafu->mbox_write(CSR_CTRL1, STOP_BITS);
         return test_afu::error;
       }
 
