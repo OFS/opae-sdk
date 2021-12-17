@@ -276,10 +276,10 @@ public:
                 << "\tLatency minimum : " << latency_min_ns << " ns" <<std::endl
                 << "\tLatency maximum : " << latency_max_ns << " ns" <<std::endl
                 << "\tAchieved Tx throughput : " << achieved_tx_tput_gbps << " GB/s" << std::endl;
-      if (eth_loopback_ == "on"){
-      	std::cout << "\tAchieved Rx throughput : " << achieved_rx_tput_gbps << " GB/s" << std::endl;
-      }	
-      	std::cout << std::endl;
+      if (eth_loopback_ == "on") {
+        std::cout << "\tAchieved Rx throughput : " << achieved_rx_tput_gbps << " GB/s" << std::endl;
+      }
+      std::cout << std::endl;
     }
 
     if (eth_ifc == "") {
