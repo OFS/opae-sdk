@@ -55,6 +55,11 @@ declare -ra SDM_SR_PROVISION_STATUS=(\
 'SR Key Hash program failed with recoverable errors after max retry.' \
 'SR Key Hash program failed with likely permanent device damage.' \
 'SR Key program failed with recoverable errors because of invalid SDM command. (Note: Refer register SDM SR Key Program status @ 0x81C for more information.)'\
+'SDM Provisioning Image configuration Failed; Shell image configured.' \
+'SR Key Hash provision ignored because SR Key Hash not programmed to BMC.' \
+'SDM Response mismatch during SDM Provisioning Image CONFIG_STATUS Check.' \
+'SDM Response mismatch during PUBKEY_PROGRAM command to SDM.' \
+'SR Key Hash provision request ignored because BMC is busy.' \
 )
 
 declare -r SDM_SR_PROVISION_STATUS_GLOB="/sys/bus/pci/devices/ssss:bb:dd.f/fpga_region/region*/dfl-fme.*/dfl_dev.*/*-sec*.*.auto/security/sdm_sr_provision_status"
