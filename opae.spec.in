@@ -86,6 +86,7 @@ This package contains OPAE admin tools
 %package PACSign
 Summary:    PACSign tools package
 Group:      opae PACSign
+Requires:   openssl-devel
 
 %description PACSign
 This package contains PAC Sign tools
