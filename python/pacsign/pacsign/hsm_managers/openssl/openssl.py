@@ -312,12 +312,7 @@ class openssl:
             log.debug('OpenSSL version "%s" fails to match "%s"',
                       c_version, version)
 
-<<<<<<< HEAD
-    def __init__(self, version='1.1.1k'):
-        path = "%s/library" % os.path.dirname(os.path.abspath(__file__))
-=======
     def __init__(self, versions=['1.1.1']):
->>>>>>> 47f658ea... PACSign: don't ship libcrypto.so (#2376)
         self.nanotime = None
 
         if _platform == "win32" or _platform == "win64":
