@@ -27,11 +27,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="pacsign",
-<<<<<<< HEAD
-    version="1.0.3",
-=======
     version="1.0.6",
->>>>>>> 47f658ea... PACSign: don't ship libcrypto.so (#2376)
     packages=find_packages(),
     install_requires=['cython', 'python-pkcs11'],
     python_requires='>=3.6',
