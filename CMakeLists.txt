@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2021, Intel Corporation
+## Copyright(c) 2017-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -123,7 +123,7 @@ else()
   set(CPACK_PACKAGE_VERSION_PATCH "${OPAE_VERSION_REVISION}")
 endif()
 set(CPACK_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH})
-set(CPACK_PACKAGE_RELEASE 4)
+set(CPACK_PACKAGE_RELEASE 5)
 set(CPACK_PACKAGE_CONTACT "opae@lists.01.org")
 set(CPACK_PACKAGING_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
