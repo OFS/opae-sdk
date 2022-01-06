@@ -6,20 +6,20 @@ if [ -z ${1+1} ]; then
 fi
 bld=$(realpath $1)
 src=$(realpath ${2:-$PWD})
-cmake=cmake
 
-if command -v cmake3 > /dev/null ; then
-  cmake=cmake3
+CMAKE=`which cmake3 2>/dev/null`
+if [ -z $CMAKE ]; then
+  CMAKE=`which cmake 2>/dev/null`
 fi
 
 mkdir -p $bld
 echo "Building at $bld from source $src"
-$cmake -S $src -B $bld -DCPACK_GENERATOR=RPM \
+$CMAKE -S $src -B $bld -DCPACK_GENERATOR=RPM \
 	               -DOPAE_BUILD_LEGACY=ON \
 	               -DOPAE_PYTHON_VERSION=3.6 \
 	               -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=ON \
 	               -DCMAKE_INSTALL_PREFIX=/usr
-$cmake --build $bld -- package_rpm -j $(nproc)
+$CMAKE --build $bld -- package_rpm -j $(nproc)
 
 
 
