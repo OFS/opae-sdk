@@ -22,11 +22,11 @@ RUN yum install -y \
         rpmdevtools \
         git \
         libedit-devel \
-        epel-release \
-        libudev-devel \
-        libcap-devel
+        epel-release
 
 RUN yum install -y \
+        libudev-devel \
+        libcap-devel \
         cmake3 \
         openssl11-devel
 
