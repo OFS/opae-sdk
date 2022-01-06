@@ -8,7 +8,7 @@ bld=$(realpath $1)
 src=$(realpath ${2:-$PWD})
 cmake=cmake
 
-if ! command -v cmake > /dev/null && command -v cmake3 > /dev/null; then
+if command -v cmake3 > /dev/null ; then
   cmake=cmake3
 fi
 
