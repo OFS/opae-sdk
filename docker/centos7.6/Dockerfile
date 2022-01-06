@@ -24,7 +24,9 @@ RUN yum install -y \
         libedit-devel \
         epel-release \
         libudev-devel \
-        libcap-devel \
+        libcap-devel
+
+RUN yum install -y \
         cmake3 \
         openssl11-devel
 

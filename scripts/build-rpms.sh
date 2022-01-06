@@ -9,7 +9,13 @@ src=$(realpath ${2:-$PWD})
 
 CMAKE=`which cmake3 2>/dev/null`
 if [ -z $CMAKE ]; then
+  printf "Didn't find cmake3. Looking for cmake.\n"
   CMAKE=`which cmake 2>/dev/null`
+
+  if [ -z $CMAKE ]; then
+    printf "Didn't find cmake. Aborting..\n"
+    exit 1
+  fi
 fi
 
 mkdir -p $bld
