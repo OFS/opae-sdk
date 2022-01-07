@@ -35,7 +35,6 @@
 #define CSR_DST_ADDR_HI 0x1012
 #define CSR_SRC_ADDR_LO 0x1013
 #define CSR_SRC_ADDR_HI 0x1014
-#define CSR_RX_COUNT    0x1015
 #define CSR_MLB_RST     0x1016
 #define CSR_TX_COUNT    0x1017
 
@@ -200,6 +199,8 @@ public:
 
     hafu->mbox_write(CSR_CTRL1, reg);
 
+    print_registers(std::cout, hafu);
+
     uint32_t count;
     const uint64_t interval = 100ULL;
     do
@@ -213,8 +214,6 @@ public:
 
       std::this_thread::sleep_for(std::chrono::microseconds(interval));
     } while(count < num_packets_);
-
-    print_registers(std::cout, hafu);
 
     std::cout << std::endl;
 
@@ -273,8 +272,6 @@ public:
       int_to_hex(hafu->mbox_read(CSR_SRC_ADDR_LO)) << std::endl;
     os << "0x1014 " << std::setw(22) << "src_addr_hi" << ": " <<
       int_to_hex(hafu->mbox_read(CSR_SRC_ADDR_HI)) << std::endl;
-    os << "0x1015 " << std::setw(22) << "rx_count" << ": " <<
-      int_to_hex(hafu->mbox_read(CSR_RX_COUNT)) << std::endl;
     os << "0x1016 " << std::setw(22) << "mlb_rst" << ": " <<
       int_to_hex(hafu->mbox_read(CSR_MLB_RST)) << std::endl;
     os << "0x1017 " << std::setw(22) << "tx_count" << ": " <<
