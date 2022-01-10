@@ -1,4 +1,4 @@
-# Copyright(c) 2019-2021, Intel Corporation
+# Copyright(c) 2019-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -481,9 +481,8 @@ class fpga_base(sysfs_device):
                 return secure_update(sec.sysfs_path, self.pci_node)
         else:
             pmci = f.pmci_bus
-            sec = pmci.find_one('*-sec*.*.auto')
-            if sec:
-                return secure_update(sec.sysfs_path, self.pci_node)
+            if pmci:
+                return secure_update(pmci.sysfs_path, self.pci_node)
 
     @property
     def port(self):
