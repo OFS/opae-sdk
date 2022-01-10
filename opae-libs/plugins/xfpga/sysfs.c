@@ -2373,7 +2373,7 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 		if (strstr(sysfspath, "/**/")) {
 			res = find_glob_path(sysfspath, full_path);
 			if (res != FPGA_OK) {
-				OPAE_ERR("Invalid recursive input path");
+				OPAE_DBG("Invalid recursive input path");
 				return res;
 			}
 			len = strnlen(full_path, SYSFS_PATH_MAX - 1);
