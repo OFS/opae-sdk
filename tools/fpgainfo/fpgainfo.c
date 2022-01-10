@@ -63,6 +63,7 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	fpga_properties pprops = props;
 	fpga_token par = NULL;
 	bool has_parent = true;
+	bool pr_valid = true;
 
 	res = fpgaPropertiesGetObjectID(props, &object_id);
 	fpgainfo_print_err("reading object_id from properties", res);
@@ -119,7 +120,9 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 
 	if (has_parent) {
 
-		fpgaPropertiesGetGUID(pprops, &guid);
+		res = fpgaPropertiesGetGUID(pprops, &guid);
+		if (res != FPGA_OK)
+			pr_valid = false;
 
 		res = fpgaPropertiesGetNumSlots(pprops, &num_slots);
 		fpgainfo_print_err("reading num_slots from properties", res);
@@ -159,8 +162,10 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 		printf("%-32s : 0x%" PRIX64 "\n", "Bitstream Id", bbs_id);
 		printf("%-32s : %d.%d.%d\n", "Bitstream Version",
 			bbs_version.major, bbs_version.minor, bbs_version.patch);
-		uuid_unparse(guid, guid_str);
-		printf("%-32s : %s\n", "Pr Interface Id", guid_str);
+		if (pr_valid) {
+			uuid_unparse(guid, guid_str);
+			printf("%-32s : %s\n", "Pr Interface Id", guid_str);
+		}
 	}
 
 }
