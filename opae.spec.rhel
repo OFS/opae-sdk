@@ -234,6 +234,8 @@ done
 %{_usr}/src/opae/samples/hssi/hssi_10g_cmd.h
 %{_usr}/src/opae/samples/hssi/hssi_afu.h
 %{_usr}/src/opae/samples/hssi/hssi_cmd.h
+%{_usr}/src/opae/samples/hssi/hssi_pkt_filt_100g_cmd.h
+%{_usr}/src/opae/samples/hssi/hssi_pkt_filt_10g_cmd.h
 %{_usr}/src/opae/samples/opae.io/main.cpp
 %{_usr}/src/opae/samples/opae.io/main.h
 %{_usr}/src/opae/samples/opae.io/pymain.h
