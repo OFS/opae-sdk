@@ -27,6 +27,7 @@
 #ifndef __FPGA_BOARD_COMMON_H__
 #define __FPGA_BOARD_COMMON_H__
 
+#include <netinet/ether.h>
 #include <opae/types.h>
 
 #ifdef __cplusplus
@@ -134,6 +135,14 @@ fpga_result find_dev_feature(fpga_token token,
 */
 fpga_result print_common_boot_info(fpga_token token);
 
+/**
+ * Prints a number of incremented MAC addresses.
+ *
+ * @param[in] eth_addr pointer to MAC address in network byte order
+ * @param[in] count    number of MAC address to print
+ *
+ */
+void print_mac_address(struct ether_addr *eth_addr, int count);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
