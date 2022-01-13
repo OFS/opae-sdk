@@ -48,8 +48,8 @@ endif()
 target_include_directories(test_system PUBLIC
   $<BUILD_INTERFACE:${OPAE_INCLUDE_PATH}>
   PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-          $<BUILD_INTERFACE:${OPAE_LIBS_ROOT}/libopae-c>
-          $<BUILD_INTERFACE:${OPAE_LIBS_ROOT}/plugins/xfpga>)
+          $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/lib/libopae-c>
+	  $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/lib/plugins/xfpga>)
 
 opae_add_shared_library(TARGET fpga_db
     SOURCE platform/fpga_hw.cpp
@@ -71,7 +71,7 @@ opae_test_add_static_lib(TARGET test-fpgad-static
 
 target_include_directories(test-fpgad-static
     PRIVATE
-        ${OPAE_LIBS_ROOT}
+        ${OPAE_SDK_SOURCE}/lib
         ${CMAKE_CURRENT_SOURCE_DIR}/mock/test_fpgad
         ${CMAKE_CURRENT_SOURCE_DIR}/mock/test_fpgad/fpgad
         ${CMAKE_CURRENT_SOURCE_DIR}/mock/test_fpgad/fpgad/api

@@ -30,6 +30,7 @@ project(opae)
 set(OPAE_SDK_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Root directory of opae-sdk project" FORCE)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake/modules")
 set(OPAE_INCLUDE_PATH ${OPAE_SDK_SOURCE}/include CACHE PATH "Include directory for opae-sdk")
+set(opae-test_ROOT ${OPAE_SDK_SOURCE}/tests CACHE PATH "Test directory for opae-sdk")
 
 include(OPAE)
 
