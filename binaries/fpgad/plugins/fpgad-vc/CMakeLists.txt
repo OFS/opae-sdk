@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2019-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,26 +24,18 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_test_add_static_lib(TARGET coreidle-static
-    SOURCE
-        ${opae-legacy_ROOT}/tools/coreidle/coreidle.c
-        ${opae-legacy_ROOT}/tools/coreidle/main.c
+opae_add_module_library(TARGET fpgad-vc
+    SOURCE fpgad-vc.c
     LIBS
         opae-c
-)
-
-target_compile_definitions(coreidle-static
-    PRIVATE main=coreidle_main)
-
-opae_test_add(TARGET test_coreidle_coreidle_c
-    SOURCE test_coreidle_c.cpp
-    LIBS coreidle-static
-)
-
-opae_test_add(TARGET test_coreidle_main_c
-    SOURCE test_main_c.cpp
-    LIBS
-        coreidle-static
-        bitstream
+        fpgad-api
         ${libjson-c_LIBRARIES}
+    COMPONENT toolfpgad_vc
+)
+
+target_include_directories(fpgad-vc
+    PRIVATE
+        ${OPAE_BIN_SOURCE}
+	${OPAE_LIB_SOURCE}/libopae-c
+	${OPAE_LIB_SOURCE}/libbitstream
 )

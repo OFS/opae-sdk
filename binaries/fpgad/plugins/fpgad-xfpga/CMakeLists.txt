@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2018-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,5 +24,18 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-opae_add_subdirectory(coreidle)
-opae_add_subdirectory(fpgad)
+opae_add_module_library(TARGET fpgad-xfpga
+    SOURCE fpgad-xfpga.c
+    LIBS
+        opae-c
+        fpgad-api
+        ${libjson-c_LIBRARIES}
+    COMPONENT toolfpgad_xfpga
+)
+
+target_include_directories(fpgad-xfpga
+    PRIVATE
+        ${OPAE_BIN_SOURCE}
+	${OPAE_LIB_SOURCE}/libopae-c
+	${OPAE_LIB_SOURCE}/libbitstream
+)

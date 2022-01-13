@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2020-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -26,14 +26,14 @@
 
 opae_test_add_static_lib(TARGET fpgad-static
     SOURCE
-        ${opae-legacy_ROOT}/tools/fpgad/command_line.c
-        ${opae-legacy_ROOT}/tools/fpgad/config_file.c
-        ${opae-legacy_ROOT}/tools/fpgad/daemonize.c
-        ${opae-legacy_ROOT}/tools/fpgad/event_dispatcher_thread.c
-        ${opae-legacy_ROOT}/tools/fpgad/events_api_thread.c
-        ${opae-legacy_ROOT}/tools/fpgad/fpgad.c
-        ${opae-legacy_ROOT}/tools/fpgad/monitored_device.c
-        ${opae-legacy_ROOT}/tools/fpgad/monitor_thread.c
+        ${OPAE_BIN_SOURCE}/fpgad/command_line.c
+	${OPAE_BIN_SOURCE}/fpgad/config_file.c
+	${OPAE_BIN_SOURCE}/fpgad/daemonize.c
+	${OPAE_BIN_SOURCE}/fpgad/event_dispatcher_thread.c
+	${OPAE_BIN_SOURCE}/fpgad/events_api_thread.c
+	${OPAE_BIN_SOURCE}/fpgad/fpgad.c
+	${OPAE_BIN_SOURCE}/fpgad/monitored_device.c
+	${OPAE_BIN_SOURCE}/fpgad/monitor_thread.c
     LIBS
         bitstream-static
         ${libjson-c_LIBRARIES}
@@ -44,16 +44,16 @@ target_compile_definitions(fpgad-static PRIVATE main=fpgad_main)
 
 target_include_directories(fpgad-static
     PRIVATE
-        ${opae-legacy_ROOT}/tools
-        ${OPAE_LIBS_ROOT}/libbitstream
+        ${OPAE_BIN_SOURCE}
+	${OPAE_LIB_SOURCE}/libbitstream
 )
 
 opae_test_add_static_lib(TARGET fpgad-api-static
     SOURCE
-        ${opae-legacy_ROOT}/tools/fpgad/api/logging.c
-        ${opae-legacy_ROOT}/tools/fpgad/api/opae_events_api.c
-        ${opae-legacy_ROOT}/tools/fpgad/api/device_monitoring.c
-        ${opae-legacy_ROOT}/tools/fpgad/api/sysfs.c
+        ${OPAE_BIN_SOURCE}/fpgad/api/logging.c
+	${OPAE_BIN_SOURCE}/fpgad/api/opae_events_api.c
+	${OPAE_BIN_SOURCE}/fpgad/api/device_monitoring.c
+	${OPAE_BIN_SOURCE}/fpgad/api/sysfs.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
         ${libjson-c_LIBRARIES}
@@ -61,28 +61,28 @@ opae_test_add_static_lib(TARGET fpgad-api-static
 
 target_include_directories(fpgad-api-static
     PRIVATE
-        ${opae-legacy_ROOT}/tools
-        ${OPAE_LIBS_ROOT}/libbitstream
+        ${OPAE_BIN_SOURCE}
+	${OPAE_LIB_SOURCE}/libbitstream
 )
 
 opae_test_add_static_lib(TARGET fpgad-xfpga-static
-    SOURCE ${opae-legacy_ROOT}/tools/fpgad/plugins/fpgad-xfpga/fpgad-xfpga.c
+    SOURCE ${OPAE_BIN_SOURCE}/fpgad/plugins/fpgad-xfpga/fpgad-xfpga.c
 )
 
 target_include_directories(fpgad-xfpga-static
     PRIVATE
-        ${opae-legacy_ROOT}/tools
-        ${OPAE_LIBS_ROOT}/libbitstream
+        ${OPAE_BIN_SOURCE}
+	${OPAE_LIB_SOURCE}/libbitstream
 ) 
 
 opae_test_add_static_lib(TARGET fpgad-vc-static
-    SOURCE ${opae-legacy_ROOT}/tools/fpgad/plugins/fpgad-vc/fpgad-vc.c
+    SOURCE ${OPAE_BIN_SOURCE}/fpgad/plugins/fpgad-vc/fpgad-vc.c
 )
 
 target_include_directories(fpgad-vc-static
     PRIVATE
-        ${opae-legacy_ROOT}/tools
-        ${OPAE_LIBS_ROOT}/libbitstream
+        ${OPAE_BIN_SOURCE}
+	${OPAE_LIB_SOURCE}/libbitstream
 )
 
 function(add_fpgad_test target source)
@@ -94,8 +94,8 @@ function(add_fpgad_test target source)
     )
     target_include_directories(${target}
         PRIVATE
-            ${opae-legacy_ROOT}/tools
-            ${OPAE_LIBS_ROOT}/libbitstream
+            ${OPAE_BIN_SOURCE}
+            ${OPAE_LIB_SOURCE}/libbitstream
     )
 endfunction()
 
@@ -117,8 +117,8 @@ function(add_fpgad_api_test target source)
     )
     target_include_directories(${target}
         PRIVATE
-            ${opae-legacy_ROOT}/tools
-            ${OPAE_LIBS_ROOT}/libbitstream
+            ${OPAE_BIN_SOURCE}
+	    ${OPAE_LIB_SOURCE}/libbitstream
     )
 endfunction()
 
@@ -137,8 +137,8 @@ function(add_fpgad_xfpga_test target source)
     )
     target_include_directories(${target}
         PRIVATE
-            ${opae-legacy_ROOT}/tools
-            ${OPAE_LIBS_ROOT}/libbitstream
+            ${OPAE_BIN_SOURCE}
+	    ${OPAE_LIB_SOURCE}/libbitstream
     )
 endfunction()
 
