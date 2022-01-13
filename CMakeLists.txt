@@ -74,7 +74,6 @@ if (OPAE_MINIMAL_BUILD)
     set(OPAE_WITH_LIBEDIT OFF CACHE BOOL "Enable use of libedit" FORCE)
     set(OPAE_WITH_HWLOC OFF CACHE BOOL "Enable use of hwloc" FORCE)
     set(OPAE_WITH_TBB OFF CACHE BOOL "Enable use of tbb" FORCE)
-    set(OPAE_BUILD_LEGACY ON CACHE BOOL "Enable building of OPAE legacy tools" FORCE)
     set(CMAKE_INSTALL_PREFIX "/usr" CACHE STRING "" FORCE)
 endif(OPAE_MINIMAL_BUILD)
 

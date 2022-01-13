@@ -82,7 +82,6 @@ OPAE headers, tools, sample source, and documentation
 %build
 %cmake -DCMAKE_INSTALL_PREFIX=/usr \
        -DOPAE_PRESERVE_REPOS=ON \
-       -DOPAE_BUILD_LEGACY=ON \
        -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=ON .
 %if 0%{?rhel}
   %make_build

@@ -24,7 +24,7 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required (VERSION  3.10)
+cmake_minimum_required(VERSION 3.10)
 project(testing)
 
 if(${GTest_FOUND})
@@ -70,3 +70,4 @@ add_subdirectory(fpgaperf)
 if (OPAE_BUILD_LIBOFS)
     add_subdirectory(ofs_cpeng)
 endif (OPAE_BUILD_LIBOFS)
+add_subdirectory(fpgad)
