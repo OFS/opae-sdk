@@ -118,7 +118,7 @@ mkdir -p %{buildroot}%{_usr}/src/opae/samples/hssi
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/opae.io/opae/io
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/opae.io/scripts
 
-cp lib/afu-test/*.{cpp,h} %{buildroot}%{_usr}/src/opae/samples/afu-test/
+cp libraries/afu-test/*.{cpp,h} %{buildroot}%{_usr}/src/opae/samples/afu-test/
 cp samples/hello_fpga/hello_fpga.c %{buildroot}%{_usr}/src/opae/samples/hello_fpga/
 cp samples/hello_events/hello_events.c %{buildroot}%{_usr}/src/opae/samples/hello_events/
 cp samples/object_api/object_api.c %{buildroot}%{_usr}/src/opae/samples/object_api/
@@ -126,10 +126,10 @@ cp samples/n5010-test/n5010-test.c %{buildroot}%{_usr}/src/opae/samples/n5010-te
 cp samples/dummy_afu/*.{cpp,h} %{buildroot}%{_usr}/src/opae/samples/dummy_afu/
 cp samples/host_exerciser/*.{cpp,h} %{buildroot}%{_usr}/src/opae/samples/host_exerciser/
 cp samples/hssi/*.{cpp,h} %{buildroot}%{_usr}/src/opae/samples/hssi/
-cp bin/opae.io/*.{cpp,h,py} %{buildroot}%{_usr}/src/opae/samples/opae.io/
-cp bin/opae.io/opae/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae
-cp bin/opae.io/opae/io/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae/io
-cp bin/opae.io/scripts/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/scripts
+cp binaries/opae.io/*.{cpp,h,py} %{buildroot}%{_usr}/src/opae/samples/opae.io/
+cp binaries/opae.io/opae/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae
+cp binaries/opae.io/opae/io/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae/io
+cp binaries/opae.io/scripts/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/scripts
 
 %if 0%{?rhel}
   %make_install
