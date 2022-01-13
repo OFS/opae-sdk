@@ -1,4 +1,5 @@
-## Copyright(c) 2017-2022, Intel Corporation
+#!/usr/bin/cmake -P
+## Copyright(c) 2021-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,49 +25,31 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required (VERSION  3.10)
-project(testing)
-
-if(${GTest_FOUND})
-    message(STATUS Found GTest)
-else()
-    opae_load_gtest()
-endif()
-
-# Disable some warnings that fire during gtest compilation
-check_cxx_compiler_flag("-Wno-sign-compare" CXX_SUPPORTS_NO_SIGN_COMPARE)
-if(CXX_SUPPORTS_NO_SIGN_COMPARE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
-endif()
-
-add_subdirectory(framework)
-
-configure_file(test_opae.py
-    ${CMAKE_BINARY_DIR}/test_opae.py
+macro(ofs_add_driver yml_file driver)
+    add_custom_command(
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${driver}.h
+	COMMAND ${PYTHON_EXECUTABLE} ${OPAE_SDK_SOURCE}/lib/scripts/ofs/ofs_parse.py
+        ${CMAKE_CURRENT_LIST_DIR}/${yml_file} headers c ${CMAKE_CURRENT_BINARY_DIR} --driver ${driver} --use-local-refs
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        DEPENDS
+            ${CMAKE_CURRENT_LIST_DIR}/${yml_file}
+	    ${OPAE_SDK_SOURCE}/lib/scripts/ofs/ofs_parse.py
+	    ${OPAE_SDK_SOURCE}/lib/scripts/ofs/umd.py
+    )
+    add_library(${driver} SHARED
+        ${CMAKE_CURRENT_BINARY_DIR}/${driver}.h
+        ${ARGN}
+    )
+target_include_directories(${driver} PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+    $<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/lib/ofs/libofs>
+    $<BUILD_INTERFACE:${OPAE_INCLUDE_PATH}>
 )
 
-add_subdirectory(bitstream)
-add_subdirectory(opae-c)
-add_subdirectory(opae-cxx)
-add_subdirectory(pyopae)
-add_subdirectory(xfpga)
-add_subdirectory(opaemem)
-if (OPAE_BUILD_LIBOFS)
-    add_subdirectory(libofs)
-    add_subdirectory(ofs_driver)
-endif (OPAE_BUILD_LIBOFS)
+target_link_libraries(${driver} PUBLIC
+    opae-c
+    ofs
+)
+endmacro(ofs_add_driver yml_file)
 
-add_subdirectory(argsfilter)
-add_subdirectory(board)
-add_subdirectory(dummy_afu)
-add_subdirectory(fpgaconf)
-add_subdirectory(fpgainfo)
-add_subdirectory(hello_events)
-add_subdirectory(hello_fpga)
-add_subdirectory(object_api)
-add_subdirectory(userclk)
-add_subdirectory(fpgametrics)
-add_subdirectory(fpgaperf)
-if (OPAE_BUILD_LIBOFS)
-    add_subdirectory(ofs_cpeng)
-endif (OPAE_BUILD_LIBOFS)
+

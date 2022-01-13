@@ -1,4 +1,4 @@
-## Copyright(c) 2021, Intel Corporation
+## Copyright(c) 2021-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -33,4 +33,4 @@ opae_add_shared_library(TARGET fpgaperf_counter
     COMPONENT opaesamplelib
 )
 
-target_include_directories(fpgaperf_counter PRIVATE ${OPAE_LIBS_ROOT}/libopae-c)
+target_include_directories(fpgaperf_counter PRIVATE ${OPAE_SDK_SOURCE}/lib/libopae-c)

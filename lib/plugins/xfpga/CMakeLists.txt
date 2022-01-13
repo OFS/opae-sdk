@@ -24,49 +24,48 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required (VERSION  3.10)
-project(testing)
+set(SRC
+  common.c
+  enum.c
+  error.c
+  umsg.c
+  reconf.c
+  open.c
+  close.c
+  reset.c
+  mmio.c
+  buffer.c
+  bitstream.c
+  hostif.c
+  event.c
+  properties.c
+  opae_drv.c
+  sysfs.c
+  wsid_list.c
+  mmap.c
+  version.c
+  userclk.c
+  usrclk/user_clk_pgm_uclock.c
+  plugin.c
+  sysobject.c
+  manage.c
+  metrics/metrics.c
+  metrics/metrics_utils.c
+  metrics/afu_metrics.c
+  metrics/vector.c
+  metrics/metrics_max10.c
+  metrics/threshold.c)
 
-if(${GTest_FOUND})
-    message(STATUS Found GTest)
-else()
-    opae_load_gtest()
-endif()
-
-# Disable some warnings that fire during gtest compilation
-check_cxx_compiler_flag("-Wno-sign-compare" CXX_SUPPORTS_NO_SIGN_COMPARE)
-if(CXX_SUPPORTS_NO_SIGN_COMPARE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare")
-endif()
-
-add_subdirectory(framework)
-
-configure_file(test_opae.py
-    ${CMAKE_BINARY_DIR}/test_opae.py
+opae_add_module_library(TARGET xfpga
+    SOURCE ${SRC}
+    LIBS
+        dl
+        m
+        ${CMAKE_THREAD_LIBS_INIT}
+        opae-c
+        ${libjson-c_LIBRARIES}
+        ${libuuid_LIBRARIES}
+    COMPONENT opaeclib
 )
 
-add_subdirectory(bitstream)
-add_subdirectory(opae-c)
-add_subdirectory(opae-cxx)
-add_subdirectory(pyopae)
-add_subdirectory(xfpga)
-add_subdirectory(opaemem)
-if (OPAE_BUILD_LIBOFS)
-    add_subdirectory(libofs)
-    add_subdirectory(ofs_driver)
-endif (OPAE_BUILD_LIBOFS)
-
-add_subdirectory(argsfilter)
-add_subdirectory(board)
-add_subdirectory(dummy_afu)
-add_subdirectory(fpgaconf)
-add_subdirectory(fpgainfo)
-add_subdirectory(hello_events)
-add_subdirectory(hello_fpga)
-add_subdirectory(object_api)
-add_subdirectory(userclk)
-add_subdirectory(fpgametrics)
-add_subdirectory(fpgaperf)
-if (OPAE_BUILD_LIBOFS)
-    add_subdirectory(ofs_cpeng)
-endif (OPAE_BUILD_LIBOFS)
+target_include_directories(xfpga PRIVATE ${OPAE_SDK_SOURCE}/lib/libopae-c)
