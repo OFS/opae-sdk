@@ -26,7 +26,7 @@
 
 opae_test_add_static_lib(TARGET opaemem-static
     SOURCE
-        ${OPAE_SDK_SOURCE}/lib/libopaemem/mem_alloc.c
+        ${OPAE_LIB_SOURCE}/libopaemem/mem_alloc.c
 )
 
 opae_test_add(TARGET test_mem_alloc_c

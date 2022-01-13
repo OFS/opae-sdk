@@ -28,10 +28,12 @@ cmake_minimum_required(VERSION 3.10)
 project(opae)
 
 set(OPAE_SDK_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Root directory of opae-sdk project" FORCE)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake/modules")
+set(OPAE_LIB_SOURCE ${OPAE_SDK_SOURCE}/libraries CACHE PATH "Library source directory" FORCE)
+set(OPAE_BIN_SOURCE ${OPAE_SDK_SOURCE}/binaries CACHE PATH "Binary source directory" FORCE)
 set(OPAE_INCLUDE_PATH ${OPAE_SDK_SOURCE}/include CACHE PATH "Include directory for opae-sdk")
 set(opae-test_ROOT ${OPAE_SDK_SOURCE}/tests CACHE PATH "Test directory for opae-sdk")
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake/modules")
 include(OPAE)
 
 ############################################################################
@@ -194,7 +196,7 @@ endif (OPAE_BUILD_PLUGIN_VFIO AND NOT OPAE_BUILD_LIBOPAEVFIO)
 if (OPAE_BUILD_LIBOPAEVFIO)
     try_compile(VFIO_CHECK
         ${CMAKE_BINARY_DIR}
-        ${OPAE_SDK_SOURCE}/lib/libopaevfio/vfiocheck.c
+	${OPAE_LIB_SOURCE}/libopaevfio/vfiocheck.c
         OUTPUT_VARIABLE TRY_COMPILE_OUTPUT
     )
 
@@ -232,12 +234,9 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/config/config.h.in"
 # end opae-libs
 
 opae_add_subdirectory(external)
-
-opae_add_subdirectory(lib)
-
-opae_add_subdirectory(afu-test)
+opae_add_subdirectory(libraries)
 opae_add_subdirectory(platforms)
-opae_add_subdirectory(tools)
+opae_add_subdirectory(binaries)
 opae_add_subdirectory(python)
 if (OPAE_BUILD_LIBOFS)
     opae_add_subdirectory(ofs)

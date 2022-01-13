@@ -26,15 +26,15 @@
 
 opae_test_add_static_lib(TARGET opae-cxx-core-static
     SOURCE
-        ${OPAE_SDK_SOURCE}/lib/libopaecxx/src/errors.cpp
-	${OPAE_SDK_SOURCE}/lib/libopaecxx/src/events.cpp
-	${OPAE_SDK_SOURCE}/lib/libopaecxx/src/except.cpp
-	${OPAE_SDK_SOURCE}/lib/libopaecxx/src/handle.cpp
-	${OPAE_SDK_SOURCE}/lib/libopaecxx/src/properties.cpp
-	${OPAE_SDK_SOURCE}/lib/libopaecxx/src/shared_buffer.cpp
-	${OPAE_SDK_SOURCE}/lib/libopaecxx/src/token.cpp
-	${OPAE_SDK_SOURCE}/lib/libopaecxx/src/sysobject.cpp
-	${OPAE_SDK_SOURCE}/lib/libopaecxx/src/version.cpp
+        ${OPAE_LIB_SOURCE}/libopaecxx/src/errors.cpp
+	${OPAE_LIB_SOURCE}/libopaecxx/src/events.cpp
+	${OPAE_LIB_SOURCE}/libopaecxx/src/except.cpp
+	${OPAE_LIB_SOURCE}/libopaecxx/src/handle.cpp
+	${OPAE_LIB_SOURCE}/libopaecxx/src/properties.cpp
+	${OPAE_LIB_SOURCE}/libopaecxx/src/shared_buffer.cpp
+	${OPAE_LIB_SOURCE}/libopaecxx/src/token.cpp
+	${OPAE_LIB_SOURCE}/libopaecxx/src/sysobject.cpp
+	${OPAE_LIB_SOURCE}/libopaecxx/src/version.cpp
     LIBS
         opae-c
         ${libjson-c_LIBRARIES}
@@ -65,7 +65,7 @@ opae_test_add(TARGET test_opae_events_cxx_core
 
 target_include_directories(test_opae_events_cxx_core
     PRIVATE
-        ${OPAE_SDK_SOURCE}/lib/libbitstream
+        ${OPAE_LIB_SOURCE}/libbitstream
 )
 
 opae_test_add(TARGET test_opae_properties_cxx_core

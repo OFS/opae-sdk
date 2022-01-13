@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -258,8 +258,8 @@ typedef struct metric_threshold {
  * proprietary token type. This header _must_ appear at offset zero within
  * that structure.
  *
- * eg, see opae-libs/plugins/xfpga/types_int.h:struct _fpga_token and
- *         opae-libs/plugins/vfio/opae_vfio.h:struct _vfio_token.
+ * eg, see lib/plugins/xfpga/types_int.h:struct _fpga_token and
+ *         lib/plugins/vfio/opae_vfio.h:struct _vfio_token.
  */
 typedef struct _fpga_token_header {
 	uint64_t magic;

@@ -26,36 +26,36 @@
 
 opae_test_add_static_lib(TARGET xfpga-static
     SOURCE
-        ${OPAE_SDK_SOURCE}/lib/plugins/xfpga/bitstream.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/buffer.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/close.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/common.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/enum.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/error.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/event.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/hostif.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/manage.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/mmap.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/mmio.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/open.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/opae_drv.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/properties.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/plugin.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/reconf.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/reset.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/sysfs.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/sysobject.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/umsg.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/userclk.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/version.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/wsid_list.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/usrclk/user_clk_pgm_uclock.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/metrics/metrics_max10.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/metrics/metrics_utils.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/metrics/afu_metrics.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/metrics/metrics.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/metrics/vector.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/metrics/threshold.c
+        ${OPAE_LIB_SOURCE}/plugins/xfpga/bitstream.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/buffer.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/close.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/common.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/enum.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/error.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/event.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/hostif.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/manage.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/mmap.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/mmio.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/open.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/opae_drv.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/properties.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/plugin.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/reconf.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/reset.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/sysfs.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/sysobject.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/umsg.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/userclk.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/version.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/wsid_list.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/usrclk/user_clk_pgm_uclock.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/metrics/metrics_max10.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/metrics/metrics_utils.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/metrics/afu_metrics.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/metrics/metrics.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/metrics/vector.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/metrics/threshold.c
     LIBS
         ${libjson-c_LIBRARIES}
         opae-c
@@ -63,10 +63,10 @@ opae_test_add_static_lib(TARGET xfpga-static
 
 opae_test_add_static_lib(TARGET bmc-static
     SOURCE 
-        ${OPAE_SDK_SOURCE}/lib/plugins/xfpga/metrics/bmc/bmc.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/metrics/bmc/bmc_ioctl.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/metrics/bmc/bmcdata.c
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/metrics/bmc/bmcinfo.c
+        ${OPAE_LIB_SOURCE}/plugins/xfpga/metrics/bmc/bmc.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/metrics/bmc/bmc_ioctl.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/metrics/bmc/bmcdata.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/metrics/bmc/bmcinfo.c
 )
 
 opae_test_add(TARGET test_xfpga_error_c
@@ -174,7 +174,7 @@ opae_test_add(TARGET test_xfpga_events_c
 
 target_include_directories(test_xfpga_events_c
     PRIVATE
-        ${OPAE_SDK_SOURCE}/lib/libbitstream
+        ${OPAE_LIB_SOURCE}/libbitstream
 )
 
 opae_test_add(TARGET test_xfpga_metrics_vector_c

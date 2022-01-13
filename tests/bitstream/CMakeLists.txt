@@ -26,9 +26,9 @@
 
 opae_test_add_static_lib(TARGET bitstream-static
     SOURCE 
-        ${OPAE_SDK_SOURCE}/lib/libbitstream/bitstream.c
-	${OPAE_SDK_SOURCE}/lib/libbitstream/bits_utils.c
-	${OPAE_SDK_SOURCE}/lib/libbitstream/metadatav1.c
+        ${OPAE_LIB_SOURCE}/libbitstream/bitstream.c
+	${OPAE_LIB_SOURCE}/libbitstream/bits_utils.c
+	${OPAE_LIB_SOURCE}/libbitstream/metadatav1.c
     LIBS
         opae-c
         ${libjson-c_LIBRARIES}

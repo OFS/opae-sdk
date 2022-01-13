@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2017-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -63,7 +63,7 @@ add_custom_target(copy-markdown-files ALL
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/doc/src ${BINARY_BUILD_DIR}/docs)
 
 add_custom_target(copy-include-files ALL
-  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/opae-libs/include ${BINARY_BUILD_DIR}/docs/fpga_api/include
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/include ${BINARY_BUILD_DIR}/docs/fpga_api/include
   DEPENDS copy-markdown-files)
 
 add_custom_target(copy-sample-files ALL
@@ -72,7 +72,7 @@ add_custom_target(copy-sample-files ALL
 
 add_custom_target(copy-python-files ALL
   COMMAND ${CMAKE_COMMAND} -E copy
-  ${CMAKE_SOURCE_DIR}/opae-libs/pyopae/README.md
+  ${CMAKE_SOURCE_DIR}/lib/pyopae/README.md
   ${BINARY_BUILD_DIR}/docs/pyopae/README.md
   DEPENDS copy-markdown-files)
 

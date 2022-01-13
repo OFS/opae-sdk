@@ -65,22 +65,18 @@ tar --transform="s/opae-sdk/opae-${PROJECT_VERSION}/" \
   --exclude=.travis.yml \
   --exclude=opae.spec.in \
   --exclude=opae.spec \
-  --exclude=opae-libs/tests \
-  --exclude=opae-libs/cmake/config/libopae-all.spec.in \
-  --exclude=opae-libs/cmake/config/run_coverage_test.sh.in \
-  --exclude=opae-libs/cmake/config/run_coverage_test_local.sh.in \
   --exclude=samples/base \
   --exclude=samples/hello_afu \
   --exclude=samples/hello_mpf_afu \
   --exclude=samples/intg_xeon_nlb \
   --exclude=tests \
-  --exclude=tools/extra/pyfpgadiag \
-  --exclude=tools/extra/pypackager \
+  --exclude=bin/pyfpgadiag \
+  --exclude=bin/pypackager \
   --exclude=tools/utilities \
-  --exclude=opae-libs/include/opae/cxx/.clang-format \
-  --exclude=opae-libs/libopaecxx/.clang-format \
-  --exclude=opae-libs/pyopae/.clang-format \
-  --exclude=opae-libs/.clang-format \
+  --exclude=include/opae/cxx/.clang-format \
+  --exclude=lib/libopaecxx/.clang-format \
+  --exclude=lib/pyopae/.clang-format \
+  --exclude=lib/.clang-format \
   -z -c -f "opae-${PROJECT_VERSION}.tar.gz" opae-sdk
 
 mv "opae-${PROJECT_VERSION}.tar.gz" "${SCRIPT_DIR}"

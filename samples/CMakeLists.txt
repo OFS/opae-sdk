@@ -1,4 +1,4 @@
-## Copyright(c) 2014-2020, Intel Corporation
+## Copyright(c) 2014-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -28,8 +28,7 @@
 #include(opae_devpkgs_cmake_install)
 #include(ase_add_module)
 
-include_directories(${OPAE_INCLUDE_DIR}
-  ${OPAE_SDK_SOURCE}/libopae/src )
+include_directories(${OPAE_INCLUDE_DIR} ${OPAE_LIB_SOURCE})
 include_directories(base/sw)
 
 if(BUILD_ASE_SAMPLES)

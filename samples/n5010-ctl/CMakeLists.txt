@@ -40,7 +40,7 @@ target_compile_options(n5010-ctl PUBLIC
 
 target_include_directories(n5010-ctl
     PRIVATE
-        ${OPAE_SDK_SOURCE}/tools/argsfilter
+        ${OPAE_LIB_SOURCE}/argsfilter
 )
 
 install(FILES n5010-ctl.c

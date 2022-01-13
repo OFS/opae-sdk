@@ -26,10 +26,10 @@
 
 opae_test_add_static_lib(TARGET opae-c-static
     SOURCE
-        ${OPAE_SDK_SOURCE}/lib/libopae-c/api-shell.c
-	${OPAE_SDK_SOURCE}/lib/libopae-c/init.c
-	${OPAE_SDK_SOURCE}/lib/libopae-c/pluginmgr.c
-	${OPAE_SDK_SOURCE}/lib/libopae-c/props.c
+        ${OPAE_LIB_SOURCE}/libopae-c/api-shell.c
+	${OPAE_LIB_SOURCE}/libopae-c/init.c
+	${OPAE_LIB_SOURCE}/libopae-c/pluginmgr.c
+	${OPAE_LIB_SOURCE}/libopae-c/props.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
 	${libjson-c_LIBRARIES}
@@ -95,7 +95,7 @@ opae_test_add(TARGET test_opae_event_c
 
 target_include_directories(test_opae_event_c
     PRIVATE
-        ${OPAE_SDK_SOURCE}/lib/libbitstream
+        ${OPAE_LIB_SOURCE}/libbitstream
 )
 
 opae_test_add(TARGET test_opae_sdl_c
@@ -108,8 +108,8 @@ opae_test_add(TARGET test_opae_sdl_c
 
 target_include_directories(test_opae_sdl_c
     PRIVATE
-        ${OPAE_SDK_SOURCE}/lib/plugins/xfpga
-	${OPAE_SDK_SOURCE}/lib/plugins/xfpga/metrics/bmc
+        ${OPAE_LIB_SOURCE}/plugins/xfpga
+	${OPAE_LIB_SOURCE}/plugins/xfpga/metrics/bmc
 )
 
 opae_test_add(TARGET test_opae_hostif_c
@@ -151,7 +151,7 @@ add_library(dummy_plugin MODULE dummy_plugin.c)
 target_include_directories(dummy_plugin
     PRIVATE
         ${OPAE_INCLUDE_PATH}
-	${OPAE_SDK_SOURCE}/lib/libopae-c)
+	${OPAE_LIB_SOURCE}/libopae-c)
 
 target_link_libraries(dummy_plugin ${libjson-c_LIBRARIES})
 add_dependencies(test_opae_pluginmgr_c dummy_plugin)

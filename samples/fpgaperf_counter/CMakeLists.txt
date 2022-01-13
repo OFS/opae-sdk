@@ -33,4 +33,4 @@ opae_add_shared_library(TARGET fpgaperf_counter
     COMPONENT opaesamplelib
 )
 
-target_include_directories(fpgaperf_counter PRIVATE ${OPAE_SDK_SOURCE}/lib/libopae-c)
+target_include_directories(fpgaperf_counter PRIVATE ${OPAE_LIB_SOURCE}/libopae-c)

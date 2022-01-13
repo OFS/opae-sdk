@@ -178,7 +178,7 @@ function(opae_add_executable)
 
     target_include_directories(${OPAE_ADD_EXECUTABLE_TARGET} PUBLIC
         $<BUILD_INTERFACE:${OPAE_INCLUDE_PATH}>
-	$<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/lib>
+	$<BUILD_INTERFACE:${OPAE_LIB_SOURCE}>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         PUBLIC ${libjson-c_INCLUDE_DIRS}
@@ -225,7 +225,7 @@ function(opae_add_shared_library)
 
     target_include_directories(${OPAE_ADD_SHARED_LIBRARY_TARGET} PUBLIC
         $<BUILD_INTERFACE:${OPAE_INCLUDE_PATH}>
-	$<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/lib>
+	$<BUILD_INTERFACE:${OPAE_LIB_SOURCE}>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         PUBLIC ${libjson-c_INCLUDE_DIRS}
@@ -278,7 +278,7 @@ function(opae_add_module_library)
 
     target_include_directories(${OPAE_ADD_MODULE_LIBRARY_TARGET} PUBLIC
         $<BUILD_INTERFACE:${OPAE_INCLUDE_PATH}>
-	$<BUILD_INTERFACE:${OPAE_SDK_SOURCE}/lib>
+	$<BUILD_INTERFACE:${OPAE_LIB_SOURCE}>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         PUBLIC ${libjson-c_INCLUDE_DIRS}
@@ -366,10 +366,10 @@ if(NOT TARGET lcov AND CMAKE_BUILD_TYPE STREQUAL "Coverage")
         '*/pyopae/**'
         '*/plugins/xfpga/usrclk/**'
         '*/tests/**'
-        '*/tools/extra/c++utils/**'
-        '*/tools/extra/mmlink/**'
-        '*/tools/extra/fpgabist/**'
-        '*/tools/extra/fpgadiag/**'
+        '*/bin/c++utils/**'
+        '*/bin/mmlink/**'
+        '*/bin/fpgabist/**'
+        '*/bin/fpgadiag/**'
         '*/pybind11/**'
         '*/external/opae-test/**'
         '*/external/gtest/**'

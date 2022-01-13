@@ -6,21 +6,21 @@ declare -i C_CODE_OK=1
 declare -i CPP_CODE_OK=1
 
 find_c() {
-    find "${OPAE_SDK_ROOT}/opae-libs/libbitstream" -iname "*.c" -or -iname "*.h"
-    find "${OPAE_SDK_ROOT}/opae-libs/libopae-c" -iname "*.c" -or -iname "*.h"
-    find "${OPAE_SDK_ROOT}/opae-libs/plugins" \( -iname "*.c" -or -iname "*.h" \) -and \
-	    \( ! -path '*/opae-libs/plugins/xfpga/usrclk/*' \)
-    find "${OPAE_SDK_ROOT}/opae-libs/libofs" -iname "*.c" -or -iname "*.h"
-    find "${OPAE_SDK_ROOT}/opae-libs/libopaemem" -iname "*.c" -or -iname "*.h"
-    find "${OPAE_SDK_ROOT}/opae-libs/libopaevfio" -iname "*.c" -or -iname "*.h"
-    find "${OPAE_SDK_ROOT}/opae-libs/libopaeuio" -iname "*.c" -or -iname "*.h"
+    find "${OPAE_SDK_ROOT}/lib/libbitstream" -iname "*.c" -or -iname "*.h"
+    find "${OPAE_SDK_ROOT}/lib/libopae-c" -iname "*.c" -or -iname "*.h"
+    find "${OPAE_SDK_ROOT}/lib/plugins" \( -iname "*.c" -or -iname "*.h" \) -and \
+	    \( ! -path '*/lib/plugins/xfpga/usrclk/*' \)
+    find "${OPAE_SDK_ROOT}/lib/libofs" -iname "*.c" -or -iname "*.h"
+    find "${OPAE_SDK_ROOT}/lib/libopaemem" -iname "*.c" -or -iname "*.h"
+    find "${OPAE_SDK_ROOT}/lib/libopaevfio" -iname "*.c" -or -iname "*.h"
+    find "${OPAE_SDK_ROOT}/lib/libopaeuio" -iname "*.c" -or -iname "*.h"
     find "${OPAE_SDK_ROOT}/samples" -iname "hello_events.c" -or -iname "hello_fpga.c" -or -iname "object_api.c"
-    find "${OPAE_SDK_ROOT}/tools/argsfilter" -iname "*.c" -or -iname "*.h"
-    find "${OPAE_SDK_ROOT}/tools/extra/userclk" -iname "*.c" -or -iname "*.h"
-    find "${OPAE_SDK_ROOT}/tools/fpgaconf" -iname "*.c" -or -iname "*.h"
-    find "${OPAE_SDK_ROOT}/tools/fpgainfo" -iname "*.c" -or -iname "*.h"
-    find "${OPAE_SDK_ROOT}/tools/fpgametrics" -iname "*.c" -or -iname "*.h"
-    find "${OPAE_SDK_ROOT}/tools/libboard" -iname "*.c" -or -iname "*.h"
+    find "${OPAE_SDK_ROOT}/lib/argsfilter" -iname "*.c" -or -iname "*.h"
+    find "${OPAE_SDK_ROOT}/bin/userclk" -iname "*.c" -or -iname "*.h"
+    find "${OPAE_SDK_ROOT}/bin/fpgaconf" -iname "*.c" -or -iname "*.h"
+    find "${OPAE_SDK_ROOT}/bin/fpgainfo" -iname "*.c" -or -iname "*.h"
+    find "${OPAE_SDK_ROOT}/bin/fpgametrics" -iname "*.c" -or -iname "*.h"
+    find "${OPAE_SDK_ROOT}/lib/libboard" -iname "*.c" -or -iname "*.h"
 }
 
 check_c () {
@@ -56,10 +56,10 @@ check_c () {
 }
 
 find_cpp() {
-    find "${OPAE_SDK_ROOT}/opae-libs/libopaecxx/src" -type f
-    find "${OPAE_SDK_ROOT}/opae-libs/libopaecxx/samples" -type f
-    find "${OPAE_SDK_ROOT}/opae-libs/include/opae/cxx/core" -type f
-    find "${OPAE_SDK_ROOT}/opae-libs/pyopaeuio" -iname "*.cpp" -or -iname "*.h"
+    find "${OPAE_SDK_ROOT}/lib/libopaecxx/src" -type f
+    find "${OPAE_SDK_ROOT}/lib/libopaecxx/samples" -type f
+    find "${OPAE_SDK_ROOT}/lib/include/opae/cxx/core" -type f
+    find "${OPAE_SDK_ROOT}/lib/pyopaeuio" -iname "*.cpp" -or -iname "*.h"
 }
 
 check_cpp () {

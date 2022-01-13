@@ -83,20 +83,27 @@ cp LICENSE %{buildroot}%{_datadir}/opae/LICENSE
 cp COPYING %{buildroot}%{_datadir}/opae/COPYING
 
 mkdir -p %{buildroot}%{_usr}/src/opae/cmake/modules
-
-mkdir -p %{buildroot}%{_usr}/src/opae/opae-libs/cmake/modules
-for s in FindHwloc.cmake \
-         OPAE.cmake \
-         FindUUID.cmake \
-         FindCap.cmake \
-         FindUdev.cmake \
-         Findjson-c.cmake \
-         OPAECompiler.cmake \
-         OPAEGit.cmake \
-         OPAEPackaging.cmake 
+for s in \
+    FindCLI11.cmake \
+    FindCap.cmake \
+    FindHwloc.cmake \
+    FindSphinx.cmake \
+    FindTbb.cmake \
+    FindUUID.cmake \
+    FindUdev.cmake \
+    Findedit.cmake \
+    Findjson-c.cmake \
+    Findspdlog.cmake \
+    OFS.cmake \
+    OPAE.cmake \
+    OPAECompiler.cmake \
+    OPAEExternal.cmake \
+    OPAEGit.cmake \
+    OPAEPackaging.cmake \
+    OPAETest.cmake
 do
-  cp "opae-libs/cmake/modules/${s}" %{buildroot}%{_usr}/src/opae/opae-libs/cmake/modules
-  chmod a+x %{buildroot}%{_usr}/src/opae/opae-libs/cmake/modules/$s
+  cp "cmake/modules/${s}" %{buildroot}%{_usr}/src/opae/cmake/modules
+  chmod a+x %{buildroot}%{_usr}/src/opae/cmake/modules/$s
 done
 
 mkdir -p %{buildroot}%{_usr}/src/opae/samples
@@ -111,7 +118,7 @@ mkdir -p %{buildroot}%{_usr}/src/opae/samples/hssi
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/opae.io/opae/io
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/opae.io/scripts
 
-cp afu-test/*.{cpp,h} %{buildroot}%{_usr}/src/opae/samples/afu-test/
+cp lib/afu-test/*.{cpp,h} %{buildroot}%{_usr}/src/opae/samples/afu-test/
 cp samples/hello_fpga/hello_fpga.c %{buildroot}%{_usr}/src/opae/samples/hello_fpga/
 cp samples/hello_events/hello_events.c %{buildroot}%{_usr}/src/opae/samples/hello_events/
 cp samples/object_api/object_api.c %{buildroot}%{_usr}/src/opae/samples/object_api/
@@ -119,10 +126,10 @@ cp samples/n5010-test/n5010-test.c %{buildroot}%{_usr}/src/opae/samples/n5010-te
 cp samples/dummy_afu/*.{cpp,h} %{buildroot}%{_usr}/src/opae/samples/dummy_afu/
 cp samples/host_exerciser/*.{cpp,h} %{buildroot}%{_usr}/src/opae/samples/host_exerciser/
 cp samples/hssi/*.{cpp,h} %{buildroot}%{_usr}/src/opae/samples/hssi/
-cp tools/extra/opae.io/*.{cpp,h,py} %{buildroot}%{_usr}/src/opae/samples/opae.io/
-cp tools/extra/opae.io/opae/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae
-cp tools/extra/opae.io/opae/io/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae/io
-cp tools/extra/opae.io/scripts/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/scripts
+cp bin/opae.io/*.{cpp,h,py} %{buildroot}%{_usr}/src/opae/samples/opae.io/
+cp bin/opae.io/opae/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae
+cp bin/opae.io/opae/io/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae/io
+cp bin/opae.io/scripts/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/scripts
 
 %if 0%{?rhel}
   %make_install
@@ -250,7 +257,7 @@ done
 %{_usr}/src/opae/samples/opae.io/scripts/port.py
 %{_usr}/src/opae/samples/opae.io/scripts/walk.py
 %{_usr}/src/opae/cmake/*
-%{_usr}/src/opae/opae-libs/cmake/modules/*
+%{_usr}/src/opae/cmake/modules/*
 %{_usr}/src/opae/argsfilter/argsfilter.c
 %{_usr}/src/opae/argsfilter/argsfilter.h
 

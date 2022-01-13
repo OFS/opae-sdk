@@ -98,20 +98,27 @@ cp LICENSE %{buildroot}%{_datadir}/opae/LICENSE
 cp COPYING %{buildroot}%{_datadir}/opae/COPYING
 
 mkdir -p %{buildroot}%{_usr}/src/opae/cmake/modules
-
-mkdir -p %{buildroot}%{_usr}/src/opae/opae-libs/cmake/modules
-for s in FindHwloc.cmake \
-         OPAE.cmake \
-         FindUUID.cmake \
-         FindCap.cmake \
-         FindUdev.cmake \
-         Findjson-c.cmake \
-         OPAECompiler.cmake \
-         OPAEGit.cmake \
-         OPAEPackaging.cmake 
+for s in \
+    FindCLI11.cmake \
+    FindCap.cmake \
+    FindHwloc.cmake \
+    FindSphinx.cmake \
+    FindTbb.cmake \
+    FindUUID.cmake \
+    FindUdev.cmake \
+    Findedit.cmake \
+    Findjson-c.cmake \
+    Findspdlog.cmake \
+    OFS.cmake \
+    OPAE.cmake \
+    OPAECompiler.cmake \
+    OPAEExternal.cmake \
+    OPAEGit.cmake \
+    OPAEPackaging.cmake \
+    OPAETest.cmake
 do
-  cp "opae-libs/cmake/modules/${s}" %{buildroot}%{_usr}/src/opae/opae-libs/cmake/modules
-  chmod a+x %{buildroot}%{_usr}/src/opae/opae-libs/cmake/modules/$s
+  cp "cmake/modules/${s}" %{buildroot}%{_usr}/src/opae/cmake/modules
+  chmod a+x %{buildroot}%{_usr}/src/opae/cmake/modules/$s
 done
 
 mkdir -p %{buildroot}%{_usr}/src/opae/samples
@@ -145,11 +152,11 @@ pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/packager
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
 popd
 
-pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/tools/extra/fpgadiag
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/bin/fpgadiag
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
 popd
 
-pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/tools/extra/opae.io
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/bin/opae.io
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
 popd
 
@@ -232,7 +239,7 @@ done
 %{_usr}/src/opae/samples/n5010-test/n5010-test.c
 %{_usr}/src/opae/samples/n5010-ctl/n5010-ctl.c
 %{_usr}/src/opae/cmake/*
-%{_usr}/src/opae/opae-libs/cmake/modules/*
+%{_usr}/src/opae/cmake/modules/*
 %{_usr}/src/opae/argsfilter/argsfilter.c
 %{_usr}/src/opae/argsfilter/argsfilter.h
 

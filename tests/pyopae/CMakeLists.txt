@@ -36,23 +36,23 @@ if (SUPPORTS_EMBEDDED_PYTHON)
     add_executable(test_pyopae
          ${opae-test_ROOT}/framework/mock/mock.c
          test_pyopae.cpp
-	 ${OPAE_SDK_SOURCE}/lib/pyopae/opae.cpp
-	 ${OPAE_SDK_SOURCE}/lib/pyopae/pycontext.h
-	 ${OPAE_SDK_SOURCE}/lib/pyopae/pycontext.cpp
-	 ${OPAE_SDK_SOURCE}/lib/pyopae/pyproperties.h
-	 ${OPAE_SDK_SOURCE}/lib/pyopae/pyproperties.cpp
-	 ${OPAE_SDK_SOURCE}/lib/pyopae/pyhandle.h
-	 ${OPAE_SDK_SOURCE}/lib/pyopae/pyhandle.cpp
-	 ${OPAE_SDK_SOURCE}/lib/pyopae/pytoken.h
-	 ${OPAE_SDK_SOURCE}/lib/pyopae/pytoken.cpp
-	 ${OPAE_SDK_SOURCE}/lib/pyopae/pyshared_buffer.h
-	 ${OPAE_SDK_SOURCE}/lib/pyopae/pyshared_buffer.cpp
-	 ${OPAE_SDK_SOURCE}/lib/pyopae/pyevents.h
-	 ${OPAE_SDK_SOURCE}/lib/pyopae/pyevents.cpp
-	 ${OPAE_SDK_SOURCE}/lib/pyopae/pyerrors.h
-	 ${OPAE_SDK_SOURCE}/lib/pyopae/pyerrors.cpp
-	 ${OPAE_SDK_SOURCE}/lib/pyopae/pysysobject.h
-	 ${OPAE_SDK_SOURCE}/lib/pyopae/pysysobject.cpp)
+	 ${OPAE_LIB_SOURCE}/pyopae/opae.cpp
+	 ${OPAE_LIB_SOURCE}/pyopae/pycontext.h
+	 ${OPAE_LIB_SOURCE}/pyopae/pycontext.cpp
+	 ${OPAE_LIB_SOURCE}/pyopae/pyproperties.h
+	 ${OPAE_LIB_SOURCE}/pyopae/pyproperties.cpp
+	 ${OPAE_LIB_SOURCE}/pyopae/pyhandle.h
+	 ${OPAE_LIB_SOURCE}/pyopae/pyhandle.cpp
+	 ${OPAE_LIB_SOURCE}/pyopae/pytoken.h
+	 ${OPAE_LIB_SOURCE}/pyopae/pytoken.cpp
+	 ${OPAE_LIB_SOURCE}/pyopae/pyshared_buffer.h
+	 ${OPAE_LIB_SOURCE}/pyopae/pyshared_buffer.cpp
+	 ${OPAE_LIB_SOURCE}/pyopae/pyevents.h
+	 ${OPAE_LIB_SOURCE}/pyopae/pyevents.cpp
+	 ${OPAE_LIB_SOURCE}/pyopae/pyerrors.h
+	 ${OPAE_LIB_SOURCE}/pyopae/pyerrors.cpp
+	 ${OPAE_LIB_SOURCE}/pyopae/pysysobject.h
+	 ${OPAE_LIB_SOURCE}/pyopae/pysysobject.cpp)
     target_compile_definitions(test_pyopae PRIVATE
         OPAE_EMBEDDED)
     target_include_directories(test_pyopae

@@ -77,9 +77,9 @@ function(opae_test_add)
             $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
             $<INSTALL_INTERFACE:include>
         PRIVATE
-            ${OPAE_SDK_SOURCE}/lib
-	    ${OPAE_SDK_SOURCE}/lib/plugins/xfpga
-	    ${OPAE_SDK_SOURCE}/lib/libopae-c
+            ${OPAE_LIB_SOURCE}
+	    ${OPAE_LIB_SOURCE}/plugins/xfpga
+	    ${OPAE_LIB_SOURCE}/libopae-c
             ${opae-test_ROOT}/framework
             ${GTEST_INCLUDE_DIRS})
 
@@ -128,9 +128,9 @@ function(opae_test_add_static_lib)
             $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
             $<INSTALL_INTERFACE:include>
         PRIVATE
-            ${OPAE_SDK_SOURCE}/lib
-	    ${OPAE_SDK_SOURCE}/lib/plugins/xfpga
-	    ${OPAE_SDK_SOURCE}/lib/libopae-c)
+            ${OPAE_LIB_SOURCE}
+	    ${OPAE_LIB_SOURCE}/plugins/xfpga
+	    ${OPAE_LIB_SOURCE}/libopae-c)
 
     set_property(TARGET ${OPAE_TEST_ADD_STATIC_LIB_TARGET}
         PROPERTY
