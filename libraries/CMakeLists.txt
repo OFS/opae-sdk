@@ -27,15 +27,15 @@
 # extra
 # Top level OPAE_BUILD_EXTRA_TOOLS controls building all the extra tools
 # Each extra tool gets its own conditional building variable
-# format is OPAE_BUILD_EXTRA_TOOLS_<TOOL_NAME>
+# format is OPAE_BUILD_<TOOL_NAME>
 option(OPAE_BUILD_EXTRA_TOOLS "Enable building extra tools" ON)
 mark_as_advanced(OPAE_BUILD_EXTRA_TOOLS)
 
-option(OPAE_BUILD_EXTRA_TOOLS_CXXUTILS "Enable building extra tool c++utils" ON)
-mark_as_advanced(OPAE_BUILD_EXTRA_TOOLS_CXXUTILS)
+option(OPAE_BUILD_CXXUTILS "Enable building extra tool c++utils" ON)
+mark_as_advanced(OPAE_BUILD_CXXUTILS)
 
 if(OPAE_BUILD_EXTRA_TOOLS)
-  if(OPAE_BUILD_EXTRA_TOOLS_CXXUTILS)
+  if(OPAE_BUILD_CXXUTILS)
     opae_add_subdirectory(c++utils)
   endif()
 endif()

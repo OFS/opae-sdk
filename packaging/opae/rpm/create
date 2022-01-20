@@ -98,7 +98,7 @@ cmake -S ${SDK_DIR} -B ${CMAKE_BUILD_DIR} \
 else
 cmake -S ${SDK_DIR} -B ${CMAKE_BUILD_DIR} \
   -DOPAE_PRESERVE_REPOS=ON \
-  -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=ON
+  -DOPAE_BUILD_FPGABIST=ON
 fi
 
 # Create source tarball.
