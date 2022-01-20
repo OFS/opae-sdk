@@ -85,20 +85,6 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_var, size_t len);
 fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len);
 
 /**
-* Get mac address.
-*
-* @param[in] token           fpga_token object for device (FPGA_DEVICE type)
-* @param[in] afu_channel_num afu channel number
-* @param[inout] mac_addr  pointer to struct ether_addr
-
-* @returns FPGA_OK on success. FPGA_NOT_FOUND if invalid MAC address.
-* FPGA_INVALID_PARAM if invalid parameters were provided
-*
-*/
-fpga_result read_mac_info(fpga_token token, uint32_t afu_channel_num,
-				struct ether_addr *mac_addr);
-
-/**
 * Prints Security information.
 *
 * @param[in] token            fpga_token object for device (FPGA_DEVICE type)

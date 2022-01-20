@@ -42,12 +42,11 @@
 #include <opae/utils.h>
 #include <opae/fpga.h>
 #include <sys/ioctl.h>
-#include <netinet/ether.h>
 
 #include "board_n5010.h"
 #include "../board_common/board_common.h"
 
-#define MACADDR_LEN 19
+#define MAC_BUF_LEN            19
 
 // DFL SYSFS
 #define DFL_SYSFS_BMCFW_VER                     "dfl*/**/spi_master/spi*/spi*/bmcfw_version"
@@ -142,63 +141,6 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 	return res;
 }
 
-
-// Read mac information
-fpga_result read_mac_info(fpga_token token, uint32_t afu_channel_num,
-						struct ether_addr *mac_addr)
-{
-	fpga_result res                = FPGA_OK;
-	char mac_buf[MACADDR_LEN]      = { 0 };
-	char mac_count[MACADDR_LEN]    = { 0 };
-	uint64_t count                 = 0;
-	char *endptr                   = NULL;
-
-	if (mac_addr == NULL) {
-		OPAE_ERR("Invalid Input parameters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	res = read_sysfs(token, DFL_SYSFS_MACADDR_PATH, mac_buf, MACADDR_LEN - 1);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get read object");
-		return res;
-	}
-
-	ether_aton_r(mac_buf, mac_addr);
-
-	res = read_sysfs(token, DFL_SYSFS_MACCNT_PATH, mac_count, MACADDR_LEN - 1);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get read object");
-		return res;
-	}
-
-	errno = 0;
-	count = strtoul(mac_count, &endptr, 16);
-	if (endptr != mac_count + strlen(mac_count)) {
-		OPAE_ERR("Failed to convert buffer to integer: %s", strerror(errno));
-		return FPGA_EXCEPTION;
-	}
-
-	if (afu_channel_num >= count) {
-		OPAE_ERR("Invalid Input parameters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	if ((mac_addr->ether_addr_octet[0] == 0xff) &&
-		(mac_addr->ether_addr_octet[1] == 0xff) &&
-		(mac_addr->ether_addr_octet[2] == 0xff) &&
-		(mac_addr->ether_addr_octet[3] == 0xff) &&
-		(mac_addr->ether_addr_octet[4] == 0xff) &&
-		(mac_addr->ether_addr_octet[5] == 0xff)) {
-		OPAE_ERR("Invalid MAC address");
-		return FPGA_INVALID_PARAM;
-	}
-
-	mac_addr->ether_addr_octet[5] += afu_channel_num;
-
-	return res;
-}
-
 // print board information
 fpga_result print_board_info(fpga_token token)
 {
@@ -234,19 +176,52 @@ fpga_result print_sec_info(fpga_token token)
 // print mac information
 fpga_result print_mac_info(fpga_token token)
 {
-	char mac_str[18] = { 0 };
-	struct ether_addr MAC;
 	fpga_result res = FPGA_OK;
+	char buf[MAC_BUF_LEN] = { 0 };
+	char count[MAC_BUF_LEN] = { 0 };
+	int n = 0;
+	char *endptr = NULL;
+	struct ether_addr mac_addr ;
+	memset(&mac_addr, 0, sizeof(mac_addr));
 
-	memset((void *)&MAC, 0, sizeof(MAC));
-
-	res = read_mac_info(token, 0, &MAC);
+	res = read_sysfs(token, DFL_SYSFS_MACADDR_PATH, (char *)buf, MAC_BUF_LEN - 1);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read mac address");
-	} else {
-		printf("%-1s : %s\n", "MAC address",
-			ether_ntoa_r(&MAC, mac_str));
+		OPAE_ERR("Failed to read mac information");
+		return res;
 	}
+
+	ether_aton_r(buf, &mac_addr);
+
+	res = read_sysfs(token, DFL_SYSFS_MACCNT_PATH, (char *)count, MAC_BUF_LEN - 1);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to read mac information");
+		return res;
+	}
+
+	errno = 0;
+	n = strtol(count, &endptr, 10);
+	if (endptr != count + strlen(count)) {
+		OPAE_ERR("Failed to convert buffer to integer: %s", strerror(errno));
+		return FPGA_EXCEPTION;
+	}
+	printf("%-32s : %d\n", "Number of MACs", n);
+
+	if (n < 0 || n > 0xFFFF) {
+		OPAE_ERR("Invalid mac count");
+		return FPGA_EXCEPTION;
+	}
+
+	if ((mac_addr.ether_addr_octet[0] == 0xff) &&
+		(mac_addr.ether_addr_octet[1] == 0xff) &&
+		(mac_addr.ether_addr_octet[2] == 0xff) &&
+		(mac_addr.ether_addr_octet[3] == 0xff) &&
+		(mac_addr.ether_addr_octet[4] == 0xff) &&
+		(mac_addr.ether_addr_octet[5] == 0xff)) {
+		OPAE_ERR("Invalid MAC address");
+		return FPGA_EXCEPTION;
+	}
+
+	print_mac_address(&mac_addr, n);
 
 	return res;
 }
