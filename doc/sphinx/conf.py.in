@@ -172,7 +172,6 @@ man_pages = [
     ("docs/fpga_tools/hssi_ethernet/hssistats", 'hssistats', u'High Speed Serial Interface ethernet statistics', [author], 8),
     ("docs/fpga_tools/hssi_ethernet/hssimac", 'hssimac', u'High Speed Serial Interface ethernet max', [author], 8),
     ("docs/fpga_tools/hssi_ethernet/hssiloopback", 'hssiloopback', u'High Speed Serial Interface ethernet loopback', [author], 8),
-    ("docs/fpga_tools/opaeuio/opaeuio", 'opaeuio', u'Binding and Unbinding of a DFL device', [author], 8),
     ("docs/fpga_tools/rsu/rsu", 'rsu', u'FPGA remote system update', [author], 8),
     ("docs/fpga_api/fpga_api", 'fpga_api', u'OPAE C API', [author], 8),
     ("docs/fpga_api/fpga_cxx_api", 'fpga_cxx_api', u'OPAE C++ API', [author], 8),

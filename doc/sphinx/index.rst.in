@@ -66,6 +66,5 @@ The main documentation for the site is organized into following sections:
    docs/fpga_tools/hssi_ethernet/hssistats
    docs/fpga_tools/hssi_ethernet/hssimac
    docs/fpga_tools/hssi_ethernet/hssiloopback
-   docs/fpga_tools/opaeuio/opaeuio
    docs/fpga_tools/rsu/rsu
 
