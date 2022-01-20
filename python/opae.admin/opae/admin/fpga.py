@@ -453,8 +453,8 @@ class fpga_base(sysfs_device):
             return None
         spi = f.spi_bus
         if spi:
-            patterns = ['*-secure.*.auto/*fpga_sec_mgr/*fpga_sec*',
-                        '*-sec-update.*.auto/fpga_image_load/fpga_image*']
+            patterns = ['*-sec*.auto/*fpga_sec_mgr*/*fpga_sec*',
+                        '*-sec*.auto/fpga_image_load/fpga_image*']
             for pattern in patterns:
                 fpga_sec = spi.find_one(pattern)
                 if fpga_sec:
