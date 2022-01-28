@@ -1,4 +1,4 @@
-// Copyright(c) 2020, Intel Corporation
+// Copyright(c) 2020-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -131,6 +131,23 @@ private:
 
 };
 
+#if SPDLOG_VERSION >= 10900
+// spdlog version 1.9.0 defines SPDLOG_LEVEL_NAMES as an array of string_view_t.
+// Convert to vector of std::string to be used in CLI::IsMember().
+inline std::vector<std::string> spdlog_levels() {
+    std::vector<spdlog::string_view_t> levels_view = SPDLOG_LEVEL_NAMES;
+    std::vector<std::string> levels_str(levels_view.size());
+    std::transform(levels_view.begin(), levels_view.end(),
+                   levels_str.begin(),
+                   [](spdlog::string_view_t sv) {
+                     return std::string(sv.data(), sv.size());
+                   });
+    return levels_str;
+}
+#else
+inline std::vector<std::string> spdlog_levels() { return SPDLOG_LEVEL_NAMES; }
+#endif // SPDLOG_VERSION
+
 class afu {
 public:
   typedef int (*command_fn)(afu *afu, CLI::App *app);
@@ -160,7 +177,7 @@ public:
                     "[<domain>:]<bus>:<device>.<function>");
     app_.add_option("-l,--log-level", log_level_, "stdout logging level")->
       default_str(log_level_)->
-      check(CLI::IsMember(SPDLOG_LEVEL_NAMES));
+      check(CLI::IsMember(spdlog_levels()));
     app_.add_flag("-s,--shared", shared_, "open in shared mode, default is off");
     app_.add_option("-t,--timeout", timeout_msec_, "test timeout (msec)")->default_str(std::to_string(timeout_msec_));
   }

@@ -34,6 +34,7 @@ BuildRequires:  python3-devel
 BuildRequires:  python3-jsonschema
 BuildRequires:  python3-pip
 BuildRequires:  python3-setuptools
+BuildRequires:  python3-pyyaml
 BuildRequires:  rpm-build
 BuildRequires:  systemd-devel
 BuildRequires:  libcap-devel
@@ -82,6 +83,7 @@ OPAE headers, tools, sample source, and documentation
 %build
 %cmake -DCMAKE_INSTALL_PREFIX=/usr \
        -DOPAE_PRESERVE_REPOS=ON \
+       -DOPAE_BUILD_PYTHON_DIST=ON \
        -DOPAE_BUILD_FPGABIST=ON .
 %if 0%{?rhel}
   %make_build

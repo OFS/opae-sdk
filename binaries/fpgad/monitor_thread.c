@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -29,6 +29,7 @@
 #endif // HAVE_CONFIG_H
 
 #include <dlfcn.h>
+#include <sched.h>
 #include "monitored_device.h"
 #include "monitor_thread.h"
 #include "event_dispatcher_thread.h"
@@ -58,7 +59,7 @@ STATIC void mon_queue_response(fpgad_detection_status status,
 		if (evt_queue_response_high(response,
 					    d,
 					    response_context)) {
-			pthread_yield();
+			sched_yield();
 		} else {
 			LOG("high priority event queue is full. Dropping!\n");
 		}
@@ -68,7 +69,7 @@ STATIC void mon_queue_response(fpgad_detection_status status,
 		if (evt_queue_response(response,
 				       d,
 				       response_context)) {
-			pthread_yield();
+			sched_yield();
 		} else {
 			LOG("event queue is full. Dropping!\n");
 		}
