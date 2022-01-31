@@ -13,11 +13,9 @@ Requires:       uuid
 Requires:	json-c
 Requires:	python3
 Requires:	systemd
-Requires:	libcap
 Requires:	tbb
 Requires:	hwloc
 Requires:	spdlog
-Requires:	libedit
 
 URL:            https://github.com/OPAE/%{name}-sdk
 Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-%{opae_release}/%{name}-%{version}-%{opae_release}.tar.gz
@@ -163,7 +161,7 @@ popd
 
 # Make rpmlint happy about install permissions
 # admin tools
-for file in %{buildroot}%{python3_sitelib}/opae/admin/tools/{fpgaflash,fpgaotsu,fpgaport,fpgasupdate,ihex2ipmi,rsu,super_rsu,bitstream_info,opaevfio,pci_device}.py; do
+for file in %{buildroot}%{python3_sitelib}/opae/admin/tools/{fpgaflash,fpgaotsu,fpgaport,fpgasupdate,ihex2ipmi,rsu,super_rsu,bitstream_info,opaevfio,pci_device,fpgareg}.py; do
    chmod a+x $file
 done
 # ethernet
@@ -223,6 +221,7 @@ done
 
 %post
 %systemd_post fpgad.service
+/sbin/ldconfig
 
 %preun
 %systemd_preun fpgad.service
