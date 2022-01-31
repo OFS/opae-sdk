@@ -167,7 +167,7 @@ def emitCfg(opts, cfg):
                 # We assume that all bare .tcl files are part of Qsys
                 # and ignore them in Quartus flows. To get a .tcl
                 # file in Quartus, use QI:<path to>.tcl.
-                if (tag is not 'SOURCE_TCL_SCRIPT_FILE'):
+                if (tag != 'SOURCE_TCL_SCRIPT_FILE'):
                     print('set_global_assignment -name {0} "{1}{2}"'
                           .format(tag, rel_prefix, c))
 
