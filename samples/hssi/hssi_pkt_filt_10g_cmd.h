@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2021, Intel Corporation
+// Copyright(c) 2021, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,39 +23,63 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include <csignal>
-#include "hssi_afu.h"
+#pragma once
+#include <iostream>
+#include <string>
 #include "hssi_10g_cmd.h"
-#include "hssi_100g_cmd.h"
-#include "hssi_pkt_filt_10g_cmd.h"
-#include "hssi_pkt_filt_100g_cmd.h"
 
-hssi_afu app;
-
-void sig_handler(int signum)
+class hssi_pkt_filt_10g_cmd : public hssi_10g_cmd
 {
-  switch (signum) {
-  case SIGINT:
-    std::cerr << "caught SIGINT" << std::endl;
-    auto c = std::dynamic_pointer_cast<hssi_cmd>(app.current_command());
-    if (c)
-      c->stop();
-    break;
-  }
-}
+public:
+  hssi_pkt_filt_10g_cmd()
+    : dfl_dev_("none")
+  {}
 
-int main(int argc, char *argv[])
-{
-  int res = 1;
-  signal(SIGINT, sig_handler);
-  app.register_command<hssi_10g_cmd>();
-  app.register_command<hssi_100g_cmd>();
-  app.register_command<hssi_pkt_filt_10g_cmd>();
-  app.register_command<hssi_pkt_filt_100g_cmd>();
-  try {
-    res = app.main(argc, argv);
-  } catch (std::runtime_error &e) {
-    std::cerr << e.what() << std::endl;
+  virtual const char *name() const override
+  {
+    return "pkt_filt_10g";
   }
-  return res;
-}
+
+  virtual const char *description() const override
+  {
+    return "10G Packet Filter test\n";
+  }
+
+  virtual void add_options(CLI::App *app) override
+  {
+    auto opt = app->add_option("--dfl-dev", dfl_dev_,
+                               "dfl device");
+    opt->default_str(dfl_dev_);
+
+    hssi_10g_cmd::add_options(app);
+  }
+
+  virtual int run(test_afu *afu, CLI::App *app) override
+  {
+    uint64_t bin_dest_addr = mac_bits_for(dest_addr_);
+    if (bin_dest_addr == INVALID_MAC) {
+      std::cerr << "invalid MAC address: " << dest_addr_ << std::endl;
+      return test_afu::error;
+    }
+
+    std::string dfl_dev = dfl_dev_;
+    if (dfl_dev == "none") {
+      std::cout << "--dfl-dev is missing." << std::endl
+                << "Skipping Packet Filter." << std::endl
+                << std::endl;
+    } else {
+      std::cout << "Packet Filter" << std::endl
+                << "  dfl_dev: " << dfl_dev << std::endl
+                << std::endl;
+
+      int res = set_pkt_filt_dest(dfl_dev, bin_dest_addr);
+      if (res != test_afu::success)
+        return res;
+    }
+
+    return hssi_10g_cmd::run(afu, app);
+  }
+
+protected:
+  std::string dfl_dev_;
+};

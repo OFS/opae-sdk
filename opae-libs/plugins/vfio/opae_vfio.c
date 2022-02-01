@@ -547,6 +547,10 @@ int vfio_walk(pci_device_t *p)
 		return res;
 	}
 	struct opae_vfio *v = pair->device;
+	// TODO: check PCIe capabilities (VSEC?) for hints to DFLs
+
+
+
 	// look for legacy FME guids in BAR 0
 	if (opae_vfio_region_get(v, 0, (uint8_t **)&mmio, &size)) {
 		OPAE_ERR("error getting BAR 0");
@@ -589,22 +593,7 @@ int vfio_walk(pci_device_t *p)
 	t->ops.reset = vfio_reset;
 	get_guid(1+(uint64_t *)mmio, t->hdr.guid);
 
-	// now let's check other BARs
-	for (uint32_t i = 1; i < BAR_MAX; ++i) {
-		if (!opae_vfio_region_get(v, i, (uint8_t **)&mmio, &size)) {
-			uint64_t *hdr = (uint64_t *)mmio;
-			uint64_t *guid = hdr+1;
-			// workaround for accessible BARS without an AFU
-			if (!*hdr || !*guid)
-				continue;
-			vfio_token *t = get_token(p, i, FPGA_ACCELERATOR);
-
-			get_guid(guid, t->hdr.guid);
-			t->mmio_size = size;
-			t->user_mmio_count = 1;
-			t->user_mmio[0] = 0;
-		}
-	}
+	// only check BAR 0 for an FPGA_ACCELERATOR, skip other BARs
 
 close:
 	close_vfio_pair(&pair);

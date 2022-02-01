@@ -1,4 +1,4 @@
-# Copyright(c) 2019-2021, Intel Corporation
+# Copyright(c) 2019-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -453,8 +453,8 @@ class fpga_base(sysfs_device):
             return None
         spi = f.spi_bus
         if spi:
-            patterns = ['*-secure.*.auto/*fpga_sec_mgr/*fpga_sec*',
-                        '*-sec-update.*.auto/fpga_image_load/fpga_image*']
+            patterns = ['*-sec*.auto/*fpga_sec_mgr*/*fpga_sec*',
+                        '*-sec*.auto/fpga_image_load/fpga_image*']
             for pattern in patterns:
                 fpga_sec = spi.find_one(pattern)
                 if fpga_sec:
@@ -481,9 +481,8 @@ class fpga_base(sysfs_device):
                 return secure_update(sec.sysfs_path, self.pci_node)
         else:
             pmci = f.pmci_bus
-            sec = pmci.find_one('*-sec*.*.auto')
-            if sec:
-                return secure_update(sec.sysfs_path, self.pci_node)
+            if pmci:
+                return secure_update(pmci.sysfs_path, self.pci_node)
 
     @property
     def port(self):

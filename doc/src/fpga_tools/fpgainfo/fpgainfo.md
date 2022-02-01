@@ -11,7 +11,7 @@
 
 ## DESCRIPTION ##
 fpgainfo displays FPGA information derived from sysfs files. The command argument is one of the following:
-`errors`, `power`, `temp`, `port`, `fme`, `bmc`, `phy` or `mac`,`security`.
+`errors`, `power`, `temp`, `port`, `fme`, `bmc`, `phy` or `mac`,`security`,`events`.
 Some commands may also have other arguments or options that control their behavior.
 
 For systems with multiple FPGA devices, you can specify the BDF to limit the output to the FPGA resource
@@ -56,6 +56,10 @@ Show information about the MAC address in ROM attached to the FPGA, if available
 `security`
 
 Show information about the security keys, hashs and flash count, if available.
+
+`events`
+
+Show information about events and sensors, if available.
 
 ## OPTIONAL ARGUMENTS ##
 `--help, -h`
@@ -116,6 +120,39 @@ The optional `<command-args>` argument is:
 Select which PHY group(s) information to show.
 
 
+### EVENTS ARGUMENTS ###
+The optional `<command-args>` argument is:
+
+`--list,-l`
+
+List boots (implies --all).
+
+`--boot,-b`
+
+Boot index to use, i.e:
+&nbsp;&nbsp;&nbsp;&nbsp;0 for current boot (default).
+&nbsp;&nbsp;&nbsp;&nbsp;1 for previous boot, etc.
+
+`--count,-c`
+
+Number of events to print.
+
+`--all,-a`
+
+Print all events.
+
+`--sensors,-s`
+
+Print sensor data too.
+
+`--bits,-i`
+
+Print bit values too.
+
+`--help,-h`
+
+Print this help.
+
 ## EXAMPLES ##
 This command shows the current power telemetry:
 ```console
@@ -142,6 +179,10 @@ This command shows information of the FME on bus 0x5e
 This command shows information of the FPGA security on bus 0x5e
 ```console
 ./fpgainfo security -B 0x5e
+```
+This command shows all events and sensors information including sensor bits:
+```console
+./fpgainfo events -asi
 ```
 
 ## Revision History ##

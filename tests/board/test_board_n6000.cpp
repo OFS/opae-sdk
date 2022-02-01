@@ -362,7 +362,7 @@ void board_dfl_n6000_c_p::test_bom_info(
 TEST_P(board_dfl_n6000_c_p, board_n6000_11) {
 
 	const char * const bom_info_nvmem = "dfl_dev*/*/bom_info0/nvmem";
-	const char * const last_board_info = ".*Board Management Controller, MAX10 Build version:.*\n";
+	const char * const last_board_info = ".*Board Management Controller Build version:.*\n";
 	const size_t FPGA_BOM_INFO_NVMEM_SIZE = 0x2000;
 	static char bom_info_in[FPGA_BOM_INFO_NVMEM_SIZE];
 	static char bom_info_out[2 * FPGA_BOM_INFO_NVMEM_SIZE];

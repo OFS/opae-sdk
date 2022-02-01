@@ -36,7 +36,6 @@ from ethernet.hssicommon import *
 
 class FPGAHSSIMAC(HSSICOMMON):
     def __init__(self, args):
-        self._mtu = args.mtu
         self._hssi_grps = args.hssi_grps
         self._pcie_address = args.pcie_address
         self._port = args.port
@@ -117,10 +116,8 @@ def main():
                         (e.g. 0000:04:00.0).' \
                        ' Optional when one device in system.'
     parser.add_argument('--pcie-address', '-P',
-                        default=None, help=pcieaddress_help)
-
-    parser.add_argument('--mtu', nargs='?', const='',
-                        help='maximum allowable ethernet frame length')
+                        default=None, help=pcieaddress_help,
+                        required=True)
 
     parser.add_argument('--port', type=int,
                         default=0,

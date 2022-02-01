@@ -31,6 +31,7 @@ if (OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG)
         SOURCE hssi.cpp
         LIBS
             afu-test
+            opaeuio
         COMPONENT sampleshssi
     )
 endif(OPAE_WITH_CLI11 AND OPAE_WITH_SPDLOG)

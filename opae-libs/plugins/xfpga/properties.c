@@ -223,9 +223,18 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_OBJTYPE);
 		// get bitstream id
 		result = sysfs_get_interface_id(_token, _iprop.guid);
+		// TODO: undo this hack. It was put in place to deal
+		// with the lack of pr_id in dfl-fme.x in N6000.
+#if 0
 		if (FPGA_OK != result)
 			return result;
 		SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
+#else
+		if (result == FPGA_OK)
+			SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
+		else
+			CLEAR_FIELD_VALID(&_iprop, FPGA_PROPERTY_GUID);
+#endif
 
 		resval = sysfs_parse_attribute64(_token->sysfspath,
 			FPGA_SYSFS_NUM_SLOTS, &value);

@@ -28,6 +28,7 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#include <limits.h>
 #include <glob.h>
 #include <stdio.h>
 #include <errno.h>
@@ -558,4 +559,53 @@ pro_destroy:
 	}
 
 	return res;
+}
+
+static uint64_t macaddress_uint64(const struct ether_addr *eth_addr)
+{
+	uint64_t value   = 0;
+	const uint8_t *ptr = (uint8_t *) eth_addr;
+
+	for (int i = 5; i >= 0; i--) {
+		value |= (uint64_t)*ptr++ << (CHAR_BIT * i);
+	}
+	return value;
+}
+
+static void uint64_macaddress(const uint64_t value, struct ether_addr *eth_addr)
+{
+	uint8_t *ptr = (uint8_t *)eth_addr;
+	for (int i = 5; i >= 0; i--) {
+		*ptr++ = value >> (CHAR_BIT * i);
+	}
+}
+
+// print mac address
+void print_mac_address(struct ether_addr *eth_addr, int count)
+{
+	uint64_t value = 0;
+	if (eth_addr == NULL || count <= 0)
+		return;
+
+	printf("%s %-20d : %02X:%02X:%02X:%02X:%02X:%02X\n",
+		"MAC address", 0, eth_addr->ether_addr_octet[0],
+		eth_addr->ether_addr_octet[1], eth_addr->ether_addr_octet[2],
+		eth_addr->ether_addr_octet[3], eth_addr->ether_addr_octet[4],
+		eth_addr->ether_addr_octet[5]);
+
+	for (int i = 1; i < count; ++i) {
+
+		// convert MAC to uint64
+		value = macaddress_uint64(eth_addr);
+		++value;
+		// convert uint64 to MAC
+		uint64_macaddress(value, eth_addr);
+
+		printf("%s %-20d : %02X:%02X:%02X:%02X:%02X:%02X\n",
+			"MAC address", i, eth_addr->ether_addr_octet[0],
+			eth_addr->ether_addr_octet[1], eth_addr->ether_addr_octet[2],
+			eth_addr->ether_addr_octet[3], eth_addr->ether_addr_octet[4],
+			eth_addr->ether_addr_octet[5]);
+
+	}
 }

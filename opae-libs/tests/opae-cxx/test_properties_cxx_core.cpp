@@ -285,5 +285,18 @@ TEST_P(properties_cxx_core, get_segment) {
   EXPECT_EQ(static_cast<uint16_t>(p->segment), 9090);
 }
 
+/**
+ * @test get_interface
+ * Given a properties properties object with the interface property set to a
+ * known value
+ * When I get the interface property
+ * Then the number is the expected value
+ */
+TEST_P(properties_cxx_core, get_interface) {
+  auto p = properties::get();
+  p->interface = FPGA_IFC_DFL;
+  EXPECT_EQ(static_cast<fpga_interface>(p->interface), FPGA_IFC_DFL);
+}
+
 INSTANTIATE_TEST_CASE_P(properties, properties_cxx_core,
                         ::testing::ValuesIn(test_platform::keys(true)));

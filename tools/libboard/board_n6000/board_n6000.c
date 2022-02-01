@@ -74,6 +74,7 @@
 #define HSSI_FEATURE_LIST                       0xC
 #define HSSI_PORT_ATTRIBUTE                     0x10
 #define HSSI_VERSION                            0x8
+#define HSSI_PORT_STATUS                        0x818
 
 // boot page info sysfs
 #define DFL_SYSFS_BOOT_GLOB "*dfl*/**/fpga_boot_image"
@@ -141,6 +142,20 @@ struct hssi_port_attribute {
 			uint32_t dynamic_pr : 1;
 			uint32_t sub_profile : 5;
 			uint32_t reserved : 11;
+		};
+	};
+};
+
+//HSSI Ethernet Port Status
+//Byte Offset: 0x818
+struct hssi_port_status {
+	union {
+		uint64_t csr;
+		struct {
+			uint64_t txplllocked : 16;
+			uint64_t txlanestable : 16;
+			uint64_t rxpcsready : 16;
+			uint64_t reserved : 16;
 		};
 	};
 };
@@ -278,55 +293,6 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 	}
 
 	return res;
-}
-
-uint64_t macaddress_uint64(const struct ether_addr *eth_addr)
-{
-	uint64_t value   = 0;
-	const uint8_t *ptr = (uint8_t *) eth_addr;
-
-	for (int i = 5; i >= 0; i--) {
-		value |= (uint64_t)*ptr++ << (CHAR_BIT * i);
-	}
-	return value;
-}
-
-void uint64_macaddress(const uint64_t value, struct ether_addr *eth_addr)
-{
-	uint8_t *ptr = (uint8_t *)eth_addr;
-	for (int i = 5; i >= 0; i--) {
-		*ptr++ = value >> (CHAR_BIT * i);
-	}
-}
-
-// print mac address
-void print_mac_address(struct ether_addr *eth_addr, int count)
-{
-	uint64_t value = 0;
-	if (eth_addr == NULL || count <= 0)
-		return;
-
-	printf("%s %-20d : %02X:%02X:%02X:%02X:%02X:%02X\n",
-		"MAC address", 0, eth_addr->ether_addr_octet[0],
-		eth_addr->ether_addr_octet[1], eth_addr->ether_addr_octet[2],
-		eth_addr->ether_addr_octet[3], eth_addr->ether_addr_octet[4],
-		eth_addr->ether_addr_octet[5]);
-
-	for (int i = 1; i < count; ++i) {
-
-		// convert MAC to uint64
-		value = macaddress_uint64(eth_addr);
-		++value;
-		// convert uint64 to MAC
-		uint64_macaddress(value, eth_addr);
-
-		printf("%s %-20d : %02X:%02X:%02X:%02X:%02X:%02X\n",
-			"MAC address", i, eth_addr->ether_addr_octet[0],
-			eth_addr->ether_addr_octet[1], eth_addr->ether_addr_octet[2],
-			eth_addr->ether_addr_octet[3], eth_addr->ether_addr_octet[4],
-			eth_addr->ether_addr_octet[5]);
-
-	}
 }
 
 // print mac information
@@ -487,6 +453,7 @@ static fpga_result replace_str_in_str(
 		const size_t remaining_result_size = result_len + 1 - (result_ptr - result);
 		strncpy(result_ptr, haystack_ptr, remaining_result_size);  // Copy the rest of haystack to result
 		strncpy(haystack, result, max_haystack_len);               // Update haystack with the result
+		haystack[result_len] = '\0';
 
 		free(result);
 	}
@@ -607,9 +574,9 @@ fpga_result print_board_info(fpga_token token)
 		resval = res;
 	}
 
-	printf("Intel N6000 Acceleration Development Platform\n");
-	printf("Board Management Controller, MAX10 NIOS FW version: %s \n", bmc_ver);
-	printf("Board Management Controller, MAX10 Build version: %s \n", max10_ver);
+	printf("Intel Acceleration Development Platform\n");
+	printf("Board Management Controller NIOS FW version: %s \n", bmc_ver);
+	printf("Board Management Controller Build version: %s \n", max10_ver);
 
 	res = print_bom_info(token);
 	if (res != FPGA_OK) {
@@ -630,8 +597,10 @@ fpga_result print_phy_info(fpga_token token)
 	struct hssi_port_attribute port_profile;
 	struct hssi_feature_list  feature_list;
 	struct hssi_version  hssi_ver;
+	struct hssi_port_status port_status;
 	uint8_t *mmap_ptr = NULL;
 	uint32_t i = 0;
+	uint32_t k = 0;
 
 	res = find_dev_feature(token, HSSI_FEATURE_ID, feature_dev);
 	if (res != FPGA_OK) {
@@ -654,6 +623,8 @@ fpga_result print_phy_info(fpga_token token)
 
 	feature_list.csr = *((uint32_t *) (mmap_ptr + HSSI_FEATURE_LIST));
 	hssi_ver.csr = *((uint32_t *)(mmap_ptr + HSSI_VERSION));
+	port_status.csr = *((volatile uint64_t *)(mmap_ptr
+		+ HSSI_PORT_STATUS));
 
 	printf("//****** HSSI information ******//\n");
 	printf("%-32s : %d.%d  \n", "HSSI version", hssi_ver.major, hssi_ver.minor);
@@ -666,7 +637,7 @@ fpga_result print_phy_info(fpga_token token)
 			continue;
 		}
 
-		port_profile.csr = *((uint32_t *)(mmap_ptr +
+		port_profile.csr = *((volatile uint32_t *)(mmap_ptr +
 			HSSI_PORT_ATTRIBUTE + i * 4));
 
 		if (port_profile.profile > HSS_PORT_PROFILE_SIZE) {
@@ -676,7 +647,18 @@ fpga_result print_phy_info(fpga_token token)
 
 		for (int j = 0; j < HSS_PORT_PROFILE_SIZE; j++) {
 			if (hssi_port_profiles[j].port_index == port_profile.profile) {
-				printf("Port%-28d :%s\n", i, hssi_port_profiles[j].profile);
+				// lock, tx, rx bits set - link status UP
+				// lock, tx, rx bits not set - link status DOWN
+				if ((GET_BIT(port_status.txplllocked, k) == 1) &&
+					(GET_BIT(port_status.txlanestable, k) == 1) &&
+					(GET_BIT(port_status.rxpcsready, k) == 1)) {
+					printf("Port%-28d :%-12s %s\n", i,
+						hssi_port_profiles[j].profile, "UP");
+				} else {
+					printf("Port%-28d :%-12s %s\n", i,
+						hssi_port_profiles[j].profile, "DOWN");
+				}
+				k++;
 				break;
 			}
 		 }

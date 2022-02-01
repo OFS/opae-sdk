@@ -43,6 +43,9 @@
 #define DFH_TYPE(h)   ((h >> 60) & 0xf)
 #define DFH_TYPE_AFU  1
 
+#define DDR_TEST_MODE0_CTRL          0x3000
+#define DDR_TEST_MODE0_STAT          0x3008
+
 #define DDR_TEST_MODE1_CTRL          0x3000
 #define DDR_TEST_MODE1_STAT          0x3008
 #define DDR_TEST_MODE1_BANK_STAT(x) (0x3010 + 8 * x)
@@ -70,18 +73,23 @@ struct n5010 {
 	uint open_mode;
 };
 
-static fpga_result fpga_test_ddr(struct n5010 *n5010);
+static fpga_result fpga_test_ddr_directed(struct n5010 *n5010);
+static fpga_result fpga_test_ddr_prbs(struct n5010 *n5010);
 static fpga_result fpga_test_hbm(struct n5010 *n5010);
 
 static const struct n5010_test n5010_test[] = {
 	{
-		.name = "ddr",
-		.func = fpga_test_ddr,
-	},
-	{
 		.name = "hbm",
 		.func = fpga_test_hbm,
 	},
+	{
+		.name = "ddr-directed",
+		.func = fpga_test_ddr_directed,
+	},
+	{
+		.name = "ddr-prbs",
+		.func = fpga_test_ddr_prbs,
+	}
 };
 
 static fpga_result fpga_open(struct n5010 *n5010)
@@ -276,12 +284,12 @@ static fpga_result fpga_stop(struct n5010 *n5010, uint64_t offset)
 	uint64_t ctrl = 0;
 	fpga_result res = FPGA_OK;
 
-	printf("stopping PRBS generators\n");
+	printf("stopping DDR test generators\n");
 	fpga_dump(n5010, offset, 1);
 
 	res = fpgaWriteMMIO64(n5010->handle, 0, n5010->base + offset, ctrl);
 	if (res != FPGA_OK) {
-		fprintf(stderr, "failed to stop PRBS generators: %s\n", fpgaErrStr(res));
+		fprintf(stderr, "failed to stop DDR test generators: %s\n", fpgaErrStr(res));
 		goto error;
 	}
 
@@ -324,12 +332,12 @@ error:
 	return res;
 }
 
-static fpga_result fpga_test_ddr(struct n5010 *n5010)
+static fpga_result fpga_test_ddr_prbs(struct n5010 *n5010)
 {
 	uint64_t num_banks, stat, i;
 	fpga_result res;
 
-	printf("starting DDR read/write test\n");
+	printf("starting DDR PRBS read/write test\n");
 
 	fpga_dump(n5010, DDR_TEST_MODE1_CTRL, 6);
 
@@ -368,6 +376,67 @@ static fpga_result fpga_test_ddr(struct n5010 *n5010)
 		res = fpga_wait(n5010, DDR_TEST_MODE1_BANK_STAT(i), 0, 0x39);
 		if (res != FPGA_OK)
 			goto error;
+	}
+
+error:
+	return res;
+}
+
+static fpga_result fpga_test_ddr_directed(struct n5010 *n5010)
+{
+	uint64_t num_banks, stat;
+	fpga_result res;
+
+	printf("starting DDR directed read/write test\n");
+
+	fpga_dump(n5010, DDR_TEST_MODE0_CTRL, 4);
+
+	// Read number of num_banks from stat
+	res = fpga_banks(n5010, DDR_TEST_MODE0_STAT, &num_banks);
+	if (res != FPGA_OK)
+		goto error;
+
+	// Clear test generator start bits
+	res = fpga_stop(n5010, DDR_TEST_MODE0_CTRL);
+	if (res != FPGA_OK)
+		goto error;
+
+	// Expect error status to return 0 while test generator is not running
+	res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + DDR_TEST_MODE0_STAT, &stat);
+	if (res != FPGA_OK) {
+		fprintf(stderr, "Error: failed to read DDR_TEST_MODE0_STAT: %s\n", fpgaErrStr(res));
+		goto error;
+	}
+	// Check test error bits [23:16]
+	if ((stat & 0xFF0000) != 0x0) {
+		fprintf(stderr, "Error: test generator error status non-zero while generator idle: 0x%016jx\n", stat);
+		res = FPGA_EXCEPTION;
+		goto error;
+	}
+
+	// Set start bits for each bank
+	res = fpga_start(n5010, DDR_TEST_MODE0_CTRL, num_banks);
+	if (res != FPGA_OK)
+		goto error;
+
+	// Wait for test generator pass bits to indicate done for all banks:
+	// DDR_TEST_MODE0_STAT[23:16] : test error = 0x0
+	// DDR_TEST_MODE0_STAT[15:8]  : test done  = (1 << num_banks)-1
+	// DDR_TEST_MODE0_STAT[7:0]   : # banks    = num_banks
+	res = fpga_wait(n5010, DDR_TEST_MODE0_STAT, num_banks, (((1 << num_banks)-1) << 8) + num_banks);
+	if (res != FPGA_OK)
+		goto error;
+
+	// Check for reported errors (DDR_TEST_MODE0_STAT[23:16])
+	res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + DDR_TEST_MODE0_STAT, &stat);
+	if (res != FPGA_OK) {
+		fprintf(stderr, "Error: failed to read DDR_TEST_MODE0_STAT: %s\n", fpgaErrStr(res));
+		goto error;
+	}
+	if ((stat & 0xFF0000) != 0x0) {
+		fprintf(stderr, "Error: Test failed with the following status: 0x%016jx\n", stat);
+		res = FPGA_EXCEPTION;
+		goto error;
 	}
 
 error:
@@ -454,7 +523,7 @@ static void print_usage(FILE *f)
 		"  -h  --help      print this help\n"
 		"  -g  --guid      uuid of accelerator to open\n"
 		"  -m  --mode      test mode to execute. Known modes:\n"
-		"                  ddr, hbm\n"
+		"                  ddr-directed, ddr-prbs, hbm\n"
 		"  -d  --debug     enable debug print of register values\n"
 		"  -s  --shared    open FPGA connection in shared mode\n"
 		"\n",

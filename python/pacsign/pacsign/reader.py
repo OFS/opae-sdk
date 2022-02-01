@@ -591,6 +591,7 @@ class _READER_BASE(object):
     def assert_types_match(self, msg, key_type, bits_type):
         sr_types = [database.CONTENT_SR, database.CONTENT_SR_TEST, database.CONTENT_SR_CERT]
         pr_types = [database.CONTENT_PR, database.CONTENT_PR_TEST]
+        sdm_types = [database.CONTENT_SDM, database.CONTENT_SDM_TEST]
 
         if key_type in sr_types:
             common_util.assert_in_error(
@@ -600,6 +601,11 @@ class _READER_BASE(object):
         elif key_type in pr_types:
             common_util.assert_in_error(
                 bits_type in pr_types,
+                f"{msg} content type mismatch: key={key_type}, type={bits_type}"
+            )
+        elif key_type in sdm_types:
+            common_util.assert_in_error(
+                bits_type in sdm_types,
                 f"{msg} content type mismatch: key={key_type}, type={bits_type}"
             )
         else:
@@ -769,7 +775,9 @@ class UPDATE_reader(_READER_BASE):
         log.debug(self.bitstream_type)
         should_swizzle = self.bitstream_type in [database.CONTENT_SR,
                                                  database.CONTENT_FACTORY,
-                                                 database.CONTENT_SR_TEST]
+                                                 database.CONTENT_SR_TEST,
+                                                 database.CONTENT_SDM,
+                                                 database.CONTENT_SDM_TEST]
         log.debug("should_swizzle={}".format(should_swizzle))
 
         if should_swizzle and not prev_sig:
