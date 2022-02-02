@@ -152,13 +152,11 @@ TEST_P(board_dfl_n5010_c_p, board_n5010_3) {
 /**
 * @test       board_n5010_4
 * @brief      Tests: print_mac_info
-* @details    Validates fpga board info  <br>
+* @details    Validates prints mac info <br>
 */
 TEST_P(board_dfl_n5010_c_p, board_n5010_4) {
 
-	struct ether_addr ea;
-
-	EXPECT_EQ(read_mac_info(tokens_[0], 0, &ea), FPGA_OK);
+	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
 }
 
 /**

@@ -24,9 +24,11 @@ RUN yum install -y \
         libedit-devel \
         epel-release
 
-RUN yum install -y libudev-devel
-RUN yum install -y libcap-devel
-RUN yum install -y cmake3
+RUN yum install -y \
+        libudev-devel \
+        libcap-devel \
+        cmake3 \
+        openssl11-devel
 
 RUN python3 -m pip install setuptools --upgrade
 RUN python3 -m pip install wheel

@@ -310,7 +310,7 @@ def dump(region, start=0, output=sys.stdout, fmt='hex', count=None):
         if fmt == 'hex':
             output.write(f'0x{offset:04x}: 0x{value:016x}\n')
         else:
-            output.write(value)
+            output.write(value.to_bytes(8, 'little'))
         offset += 8
 
 
