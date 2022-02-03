@@ -69,6 +69,7 @@ declare -a PKG_DEPS=(\
 if [ "${WHICH_RPM}" = 'fedora' ]; then
   PKG_DEPS=(${PKG_DEPS[@]} \
 'python3-setuptools' \
+'python3-pyyaml' \
 'tbb-devel' \
 'hwloc-devel' \
 'pybind11-devel' \
