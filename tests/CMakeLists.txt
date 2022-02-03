@@ -41,10 +41,6 @@ endif()
 
 add_subdirectory(framework)
 
-configure_file(test_opae.py
-    ${CMAKE_BINARY_DIR}/test_opae.py
-)
-
 add_subdirectory(bitstream)
 add_subdirectory(opae-c)
 add_subdirectory(opae-cxx)
