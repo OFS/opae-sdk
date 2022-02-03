@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2020-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -26,40 +26,40 @@
 
 
 opae_test_add_static_lib(TARGET board-common-static
-    SOURCE ${OPAE_SDK_SOURCE}/tools/libboard/board_common/board_common.c
+    SOURCE ${OPAE_LIB_SOURCE}/libboard/board_common/board_common.c
     LIBS
         opae-c
 )
 
 opae_test_add_static_lib(TARGET board-n3000-static
-    SOURCE ${OPAE_SDK_SOURCE}/tools/libboard/board_n3000/board_n3000.c
+    SOURCE ${OPAE_LIB_SOURCE}/libboard/board_n3000/board_n3000.c
     LIBS
         opae-c
         opaeuio
 )
 
 opae_test_add_static_lib(TARGET board-a10gx-static
-    SOURCE ${OPAE_SDK_SOURCE}/tools/libboard/board_a10gx/board_a10gx.c
+    SOURCE ${OPAE_LIB_SOURCE}/libboard/board_a10gx/board_a10gx.c
     LIBS
         opae-c
 )
 
 opae_test_add_static_lib(TARGET board-d5005-static
-    SOURCE ${OPAE_SDK_SOURCE}/tools/libboard/board_d5005/board_d5005.c
+    SOURCE ${OPAE_LIB_SOURCE}/libboard/board_d5005/board_d5005.c
     LIBS
         opae-c
 )
 
 opae_test_add_static_lib(TARGET board-n5010-static
-    SOURCE ${OPAE_SDK_SOURCE}/tools/libboard/board_n5010/board_n5010.c
+    SOURCE ${OPAE_LIB_SOURCE}/libboard/board_n5010/board_n5010.c
     LIBS
         opae-c
 )
 
 opae_test_add_static_lib(TARGET board-n6000-static
     SOURCE
-        ${OPAE_SDK_SOURCE}/tools/libboard/board_n6000/board_n6000.c
-        ${OPAE_SDK_SOURCE}/tools/libboard/board_n6000/board_event_log.c
+        ${OPAE_LIB_SOURCE}/libboard/board_n6000/board_n6000.c
+	${OPAE_LIB_SOURCE}/libboard/board_n6000/board_event_log.c
     LIBS
         opae-c
         opaeuio
@@ -73,7 +73,8 @@ opae_test_add(TARGET test_board_n3000_c
 )
 
 target_include_directories(test_board_n3000_c
-    PRIVATE ${OPAE_SDK_SOURCE}/tools
+    PRIVATE
+        ${OPAE_BIN_SOURCE}
 )
 
 opae_test_add(TARGET test_board_a10gx_c
@@ -84,7 +85,8 @@ opae_test_add(TARGET test_board_a10gx_c
 )
 
 target_include_directories(test_board_a10gx_c
-    PRIVATE ${OPAE_SDK_SOURCE}/tools
+    PRIVATE
+        ${OPAE_BIN_SOURCE}
 )
 
 opae_test_add(TARGET test_board_d5005_c
@@ -95,7 +97,8 @@ opae_test_add(TARGET test_board_d5005_c
 )
 
 target_include_directories(test_board_d5005_c
-    PRIVATE ${OPAE_SDK_SOURCE}/tools
+    PRIVATE
+        ${OPAE_BIN_SOURCE}
 )
 
 opae_test_add(TARGET test_board_n5010_c
@@ -106,7 +109,8 @@ opae_test_add(TARGET test_board_n5010_c
 )
 
 target_include_directories(test_board_n5010_c
-    PRIVATE ${OPAE_SDK_SOURCE}/tools
+    PRIVATE
+        ${OPAE_BIN_SOURCE}
 )
 
 opae_test_add(TARGET test_board_n6000_c
@@ -117,5 +121,6 @@ opae_test_add(TARGET test_board_n6000_c
 )
 
 target_include_directories(test_board_n6000_c
-    PRIVATE ${OPAE_SDK_SOURCE}/tools
+    PRIVATE
+        ${OPAE_BIN_SOURCE}
 )

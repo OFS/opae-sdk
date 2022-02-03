@@ -15,9 +15,9 @@ fi
 mkdir -p $bld
 echo "Building at $bld from source $src"
 $cmake -S $src -B $bld -DCPACK_GENERATOR=RPM \
-	               -DOPAE_BUILD_LEGACY=ON \
 	               -DOPAE_PYTHON_VERSION=3.6 \
-	               -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=ON \
+	               -DOPAE_BUILD_FPGABIST=ON \
+	               -DOPAE_BUILD_PYTHON_DIST=ON \
 	               -DCMAKE_INSTALL_PREFIX=/usr
 $cmake --build $bld -- package_rpm -j $(nproc)
 

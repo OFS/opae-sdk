@@ -1,4 +1,4 @@
-## Copyright(c) 2014-2020, Intel Corporation
+## Copyright(c) 2014-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -28,8 +28,7 @@
 #include(opae_devpkgs_cmake_install)
 #include(ase_add_module)
 
-include_directories(${OPAE_INCLUDE_DIR}
-  ${OPAE_SDK_SOURCE}/libopae/src )
+include_directories(${OPAE_INCLUDE_DIR} ${OPAE_LIB_SOURCE})
 include_directories(base/sw)
 
 if(BUILD_ASE_SAMPLES)
@@ -69,7 +68,6 @@ opae_add_subdirectory(hello_events)
 opae_add_subdirectory(object_api)
 opae_add_subdirectory(hssi)
 opae_add_subdirectory(dummy_afu)
-opae_add_subdirectory(fpgaperf_counter)
 opae_add_subdirectory(host_exerciser)
 opae_add_subdirectory(n5010-test)
 opae_add_subdirectory(n5010-ctl)

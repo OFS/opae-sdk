@@ -1,4 +1,4 @@
-## Copyright(c) 2020-2021, Intel Corporation
+## Copyright(c) 2020-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -25,7 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 opae_test_add_static_lib(TARGET fpgametrics-static
-    SOURCE ${OPAE_SDK_SOURCE}/tools/fpgametrics/fpgametrics.c
+    SOURCE ${OPAE_BIN_SOURCE}/fpgametrics/fpgametrics.c
     LIBS
         argsfilter
         bitstream
@@ -37,7 +37,7 @@ target_compile_definitions(fpgametrics-static
 
 target_include_directories(fpgametrics-static
     PRIVATE
-        ${OPAE_SDK_SOURCE}/tools/argsfilter
+        ${OPAE_LIB_SOURCE}/argsfilter
 )
 
 opae_test_add(TARGET test_fpgametrics_c

@@ -36,7 +36,7 @@ opae_add_executable(TARGET n5010-test
 
 target_include_directories(n5010-test
     PRIVATE
-        ${OPAE_SDK_SOURCE}/tools/argsfilter
+        ${OPAE_LIB_SOURCE}/argsfilter
 )
 
 target_compile_options(n5010-test PUBLIC
