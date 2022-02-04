@@ -36,15 +36,14 @@ lcov -a coverage.base -a coverage.info --output-file coverage.total
 lcov --remove coverage.total \
     '/usr/**' \
     '*external/opae-test/**' \
-    '*opae-libs/libopaecxx/samples/**' \
-    '*opae-libs/tests/**' \
-    '*opae-libs/pyopae/**' \
-    '*opae-libs/plugins/xfpga/usrclk/**' \
+    '*lib/libopaecxx/samples/**' \
+    '*lib/pyopae/**' \
+    '*lib/plugins/xfpga/usrclk/**' \
     '*tests/**' \
-    '*tools/extra/c++utils/**' \
-    '*tools/extra/mmlink/**' \
-    '*tools/extra/fpgabist/**' \
-    '*tools/extra/fpgadiag/**' \
+    '*bin/c++utils/**' \
+    '*bin/mmlink/**' \
+    '*bin/fpgabist/**' \
+    '*bin/fpgadiag/**' \
     '*pybind11/**' \
     '*external/CLI11/**' \
     '*external/spdlog/**' \

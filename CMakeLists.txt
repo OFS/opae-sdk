@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2021, Intel Corporation
+## Copyright(c) 2017-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -28,10 +28,12 @@ cmake_minimum_required(VERSION 3.10)
 project(opae)
 
 set(OPAE_SDK_SOURCE ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Root directory of opae-sdk project" FORCE)
-set(CMAKE_MODULE_PATH
-    ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake/modules"
-   "${CMAKE_CURRENT_SOURCE_DIR}/opae-libs/cmake/modules")
+set(OPAE_LIB_SOURCE ${OPAE_SDK_SOURCE}/libraries CACHE PATH "Library source directory" FORCE)
+set(OPAE_BIN_SOURCE ${OPAE_SDK_SOURCE}/binaries CACHE PATH "Binary source directory" FORCE)
+set(OPAE_INCLUDE_PATH ${OPAE_SDK_SOURCE}/include CACHE PATH "Include directory for opae-sdk")
+set(opae-test_ROOT ${OPAE_SDK_SOURCE}/tests CACHE PATH "Test directory for opae-sdk")
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${OPAE_SDK_SOURCE}/cmake/modules")
 include(OPAE)
 
 ############################################################################
@@ -72,7 +74,6 @@ if (OPAE_MINIMAL_BUILD)
     set(OPAE_WITH_LIBEDIT OFF CACHE BOOL "Enable use of libedit" FORCE)
     set(OPAE_WITH_HWLOC OFF CACHE BOOL "Enable use of hwloc" FORCE)
     set(OPAE_WITH_TBB OFF CACHE BOOL "Enable use of tbb" FORCE)
-    set(OPAE_BUILD_LEGACY ON CACHE BOOL "Enable building of OPAE legacy tools" FORCE)
     set(CMAKE_INSTALL_PREFIX "/usr" CACHE STRING "" FORCE)
 endif(OPAE_MINIMAL_BUILD)
 
@@ -89,11 +90,152 @@ endif()
 ############################################################################
 ## Sub-projects ############################################################
 ############################################################################
-opae_add_subdirectory(opae-libs)
+
+# begin opae-libs
+
+set(OPAE_VERSION_LOCAL   "" CACHE STRING "OPAE local version")
+set(OPAE_VERSION_MAJOR    2 CACHE STRING "OPAE major version" FORCE)
+set(OPAE_VERSION_MINOR    0 CACHE STRING "OPAE minor version" FORCE)
+set(OPAE_VERSION_REVISION 10${OPAE_VERSION_LOCAL} CACHE STRING "OPAE revision version" FORCE)
+set(OPAE_VERSION ${OPAE_VERSION_MAJOR}.${OPAE_VERSION_MINOR}.${OPAE_VERSION_REVISION}
+    CACHE STRING "OPAE version" FORCE)
+
+set(SYSFS_PATH_MAX 256 CACHE STRING "Maximum size of sysfs paths")
+set(DEV_PATH_MAX 256 CACHE STRING "Maximum size of device paths")
+
+############################################################################
+## Python Interpreter/Build Env  ###########################################
+############################################################################
+set(OPAE_PYTHON_VERSION 3 CACHE STRING "Python version to use for building/distributing pyopae")
+set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3 3.6 3.7 3.8 3.9)
+find_package(PythonInterp ${OPAE_PYTHON_VERSION})
+find_package(PythonLibs ${OPAE_PYTHON_VERSION})
+
+option(OPAE_BUILD_TESTS "Enable building of OPAE unit tests" OFF)
+mark_as_advanced(OPAE_BUILD_TESTS)
+
+include(OPAE)
+include(OFS)
+
+get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
+if ("${LIB64}" STREQUAL "TRUE")
+    set(OPAE_LIB_INSTALL_DIR "lib64" CACHE INTERNAL "arch specific library")
+else()
+    set(OPAE_LIB_INSTALL_DIR "lib" CACHE INTERNAL "arch specific library")
+endif()
+
+############################################################################
+## RPATH Handling ##########################################################
+############################################################################
+option(OPAE_INSTALL_RPATH "Enable to create RPATH during install" OFF)
+mark_as_advanced(OPAE_INSTALL_RPATH)
+
+set(CMAKE_SKIP_BUILD_RPATH FALSE)
+if(OPAE_INSTALL_RPATH)
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${OPAE_LIB_INSTALL_DIR}")
+    set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+endif()
+
+############################################################################
+## Place all executables and libraries under the same directories ##########
+############################################################################
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin CACHE PATH "Exe Build directory" FORCE)
+set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib CACHE PATH "Lib Build directory" FORCE)
+
+############################################################################
+## Conditional Build Steps and Features ####################################
+############################################################################
+option(OPAE_BUILD_LIBOPAE_CXX "Enable building of C++ bindings around libopae-c." ON)
+mark_as_advanced(OPAE_BUILD_LIBOPAE_CXX)
+
+option(OPAE_WITH_PYBIND11 "Enable use of pybind11." ON)
+mark_as_advanced(OPAE_WITH_PYBIND11)
+
+option(OPAE_BUILD_PYTHON_DIST "Enable building of Python source and binary distribution" OFF)
+mark_as_advanced(OPAE_BUILD_PYTHON_DIST)
+
+option(OPAE_ENABLE_MOCK "Enable building of test infrastructure with mock" OFF)
+mark_as_advanced(OPAE_ENABLE_MOCK)
+
+option(OPAE_BUILD_SIM "Enable building of the AFU simulation environment" OFF)
+mark_as_advanced(OPAE_BUILD_SIM)
+
+option(OPAE_BUILD_LIBOPAEVFIO "Enable building of the opaevfio library" ON)
+mark_as_advanced(OPAE_BUILD_LIBOPAEVFIO)
+
+option(OPAE_BUILD_PLUGIN_VFIO "Enable building of the vfio plugin module" ON)
+mark_as_advanced(OPAE_BUILD_PLUGIN_VFIO)
+
+option(OPAE_BUILD_LIBOPAEUIO "Enable building of the opaeuio library" ON)
+mark_as_advanced(OPAE_BUILD_LIBOPAEUIO)
+
+option(OPAE_PRESERVE_REPOS "Disable refresh of external repos" OFF)
+mark_as_advanced(OPAE_PRESERVE_REPOS)
+
+option(OPAE_BUILD_LIBOFS "Enable building of the libofs library and framework" ON)
+mark_as_advanced(OPAE_BUILD_LIBOFS)
+
+if(OPAE_BUILD_TESTS)
+    set(OPAE_TEST_TAG "master" CACHE STRING "Desired branch for opae-test")
+    mark_as_advanced(OPAE_TEST_TAG)
+endif(OPAE_BUILD_TESTS)
+
+if(OPAE_BUILD_SIM)
+    set(OPAE_SIM_TAG "master" CACHE STRING "Desired branch for opae-sim")
+    mark_as_advanced(OPAE_SIM_TAG)
+endif(OPAE_BUILD_SIM)
+
+if (OPAE_BUILD_PLUGIN_VFIO AND NOT OPAE_BUILD_LIBOPAEVFIO)
+    message(STATUS
+        "Enabling vfio plugin automatically enables libopaevfio")
+    set(OPAE_BUILD_LIBOPAEVFIO ON)
+endif (OPAE_BUILD_PLUGIN_VFIO AND NOT OPAE_BUILD_LIBOPAEVFIO)
+
+if (OPAE_BUILD_LIBOPAEVFIO)
+    try_compile(VFIO_CHECK
+        ${CMAKE_BINARY_DIR}
+	${OPAE_LIB_SOURCE}/libopaevfio/vfiocheck.c
+        OUTPUT_VARIABLE TRY_COMPILE_OUTPUT
+    )
+
+    if (VFIO_CHECK)
+        set(PLATFORM_SUPPORTS_VFIO TRUE CACHE BOOL "Platform supports vfio driver" FORCE)
+        message(STATUS
+            "Compatible VFIO headers found")
+    else(VFIO_CHECK)
+        set(PLATFORM_SUPPORTS_VFIO FALSE CACHE BOOL "Platform supports vfio driver" FORCE)
+        message(WARNING
+            "Could not compile VFIO.
+            This most likely means that kernel( version >= 4.6) headers aren't installed.
+            See errors in platform_vfio_errors.txt")
+        file(WRITE ${CMAKE_BINARY_DIR}/platform_vfio_errors.txt ${TRY_COMPILE_OUTPUT})
+    endif(VFIO_CHECK)
+endif (OPAE_BUILD_LIBOPAEVFIO)
+
+if (NOT DEFINED OPAE_MINIMAL_BUILD)
+    option(OPAE_MINIMAL_BUILD "Enable minimal build" OFF)
+    mark_as_advanced(OPAE_MINIMAL_BUILD)
+endif(NOT DEFINED OPAE_MINIMAL_BUILD)
+
+if (OPAE_MINIMAL_BUILD)
+    set(OPAE_WITH_PYBIND11 OFF CACHE BOOL "Enable use of pybind11" FORCE)
+    set(OPAE_PRESERVE_REPOS ON CACHE BOOL "Disable refresh of external repos" FORCE)
+endif(OPAE_MINIMAL_BUILD)
+
+install(DIRECTORY include/opae
+    DESTINATION include
+    COMPONENT libopaeheaders)
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/config/config.h.in"
+               "${CMAKE_BINARY_DIR}/include/config.h")
+
+# end opae-libs
+
 opae_add_subdirectory(external)
-opae_add_subdirectory(afu-test)
+opae_add_subdirectory(libraries)
 opae_add_subdirectory(platforms)
-opae_add_subdirectory(tools)
+opae_add_subdirectory(binaries)
 opae_add_subdirectory(python)
 if (OPAE_BUILD_LIBOFS)
     opae_add_subdirectory(ofs)

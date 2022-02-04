@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2020-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -26,17 +26,17 @@
 
 opae_test_add_static_lib(TARGET fpgainfo-static
     SOURCE
-        ${OPAE_SDK_SOURCE}/tools/fpgainfo/bmcdata.c
-        ${OPAE_SDK_SOURCE}/tools/fpgainfo/bmcinfo.c
-        ${OPAE_SDK_SOURCE}/tools/fpgainfo/errors.c
-        ${OPAE_SDK_SOURCE}/tools/fpgainfo/events.c
-        ${OPAE_SDK_SOURCE}/tools/fpgainfo/fmeinfo.c
-        ${OPAE_SDK_SOURCE}/tools/fpgainfo/fpgainfo.c
-        ${OPAE_SDK_SOURCE}/tools/fpgainfo/portinfo.c
-        ${OPAE_SDK_SOURCE}/tools/fpgainfo/powerinfo.c
-        ${OPAE_SDK_SOURCE}/tools/fpgainfo/tempinfo.c
-        ${OPAE_SDK_SOURCE}/tools/fpgainfo/board.c
-        ${OPAE_SDK_SOURCE}/tools/fpgainfo/main.c
+        ${OPAE_BIN_SOURCE}/fpgainfo/bmcdata.c
+	${OPAE_BIN_SOURCE}/fpgainfo/bmcinfo.c
+	${OPAE_BIN_SOURCE}/fpgainfo/errors.c
+        ${OPAE_BIN_SOURCE}/fpgainfo/events.c
+        ${OPAE_BIN_SOURCE}/fpgainfo/fmeinfo.c
+        ${OPAE_BIN_SOURCE}/fpgainfo/fpgainfo.c
+        ${OPAE_BIN_SOURCE}/fpgainfo/portinfo.c
+        ${OPAE_BIN_SOURCE}/fpgainfo/powerinfo.c
+        ${OPAE_BIN_SOURCE}/fpgainfo/tempinfo.c
+        ${OPAE_BIN_SOURCE}/fpgainfo/board.c
+        ${OPAE_BIN_SOURCE}/fpgainfo/main.c
     LIBS
         argsfilter-static
 )
@@ -46,7 +46,7 @@ target_compile_definitions(fpgainfo-static
 )
 
 target_include_directories(fpgainfo-static
-    PRIVATE ${OPAE_SDK_SOURCE}/tools/argsfilter
+    PRIVATE ${OPAE_LIB_SOURCE}/argsfilter
 )
 
 opae_test_add(TARGET test_fpgainfo_c

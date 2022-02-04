@@ -2,7 +2,7 @@
 
 set -o xtrace
 
-FILES=$(find ./tools/extra/pyfpgadiag)
+FILES=$(find ./bin/pyfpgadiag)
 if [ "$TRAVIS_COMMIT_RANGE" != "" ]; then
     CHANGED_FILES=$(git diff --name-only $TRAVIS_COMMIT_RANGE)
     printf "Looking at changed files:\n${CHANGED_FILES}"
@@ -28,5 +28,5 @@ make -j4 opae-c opae-cxx-core pyopae-dist
 
 python -m pip install pyopae/stage/dist/opae.fpga*.whl --user
 popd
-LD_LIBRARY_PATH=$PWD/pytests/lib python -m nose2 -C --coverage-report term-missing test_fpgadiag -s pytests/tools/extra/pyfpgadiag/stage --coverage pytests/tools/extra/pyfpgadiag/stage
+LD_LIBRARY_PATH=$PWD/pytests/lib python -m nose2 -C --coverage-report term-missing test_fpgadiag -s pytests/bin/pyfpgadiag/stage --coverage pytests/bin/pyfpgadiag/stage
 pip uninstall opae.fpga -y

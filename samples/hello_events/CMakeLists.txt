@@ -1,4 +1,4 @@
-## Copyright(c) 2014-2021, Intel Corporation
+## Copyright(c) 2014-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -36,7 +36,7 @@ opae_add_executable(TARGET hello_events
 
 target_include_directories(hello_events
     PRIVATE
-        ${OPAE_SDK_SOURCE}/tools/argsfilter
+        ${OPAE_LIB_SOURCE}/argsfilter
 )
 
 install(FILES hello_events.c

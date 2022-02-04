@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2020-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -37,7 +37,7 @@ target_compile_definitions(hello_fpga-static
 
 target_include_directories(hello_fpga-static
     PRIVATE
-        ${OPAE_SDK_SOURCE}/tools/argsfilter
+        ${OPAE_LIB_SOURCE}/argsfilter
 )
 
 opae_test_add(TARGET test_hello_fpga_c

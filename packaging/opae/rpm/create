@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright(c) 2020-2021, Intel Corporation
+# Copyright(c) 2020-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -69,6 +69,7 @@ declare -a PKG_DEPS=(\
 if [ "${WHICH_RPM}" = 'fedora' ]; then
   PKG_DEPS=(${PKG_DEPS[@]} \
 'python3-setuptools' \
+'python3-pyyaml' \
 'tbb-devel' \
 'hwloc-devel' \
 'pybind11-devel' \
@@ -98,8 +99,8 @@ cmake -S ${SDK_DIR} -B ${CMAKE_BUILD_DIR} \
 else
 cmake -S ${SDK_DIR} -B ${CMAKE_BUILD_DIR} \
   -DOPAE_PRESERVE_REPOS=ON \
-  -DOPAE_BUILD_LEGACY=ON \
-  -DOPAE_BUILD_EXTRA_TOOLS_FPGABIST=ON
+  -DOPAE_BUILD_PYTHON_DIST=ON \
+  -DOPAE_BUILD_FPGABIST=ON
 fi
 
 # Create source tarball.
