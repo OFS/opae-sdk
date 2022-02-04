@@ -116,7 +116,8 @@ using namespace opae::testing;
 class mock_port_fpgad_xfpga_c_p : public ::testing::TestWithParam<std::string> {
  protected:
   mock_port_fpgad_xfpga_c_p()
-    : tokens_{{nullptr, nullptr}} {}
+    : tokens_{{nullptr, nullptr}},
+      fme_tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
     std::string platform_key = GetParam();
@@ -139,6 +140,13 @@ class mock_port_fpgad_xfpga_c_p : public ::testing::TestWithParam<std::string> {
     accel_ = nullptr;
     ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
 
+    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
+    num_matches_ = 0;
+    ASSERT_EQ(fpgaEnumerate(&filter_, 1, fme_tokens_.data(), fme_tokens_.size(),
+                            &num_matches_),
+              FPGA_OK);
+    EXPECT_GT(num_matches_, 0);
+
     log_set(stdout);
   }
 
@@ -150,6 +158,14 @@ class mock_port_fpgad_xfpga_c_p : public ::testing::TestWithParam<std::string> {
         EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
         accel_ = nullptr;
     }
+
+    for (auto &t : fme_tokens_) {
+      if (t) {
+        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
+        t = nullptr;
+      }
+    }
+
     for (auto &t : tokens_) {
       if (t) {
         EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
@@ -274,6 +290,7 @@ class mock_port_fpgad_xfpga_c_p : public ::testing::TestWithParam<std::string> {
   }
 
   std::array<fpga_token, 2> tokens_;
+  std::array<fpga_token, 2> fme_tokens_;
   fpga_properties filter_;
   fpga_handle accel_;
   uint32_t num_matches_;
@@ -403,7 +420,7 @@ TEST_P(mock_port_fpgad_xfpga_c_p, power_state) {
  *                   fpgad_xfpga_respond_AP6_and_Null_GBS.
  * @details    Test the plugin's ability to detect/respond to AP6.<br>
  */
-TEST_P(mock_port_fpgad_xfpga_c_p, AP6) {
+TEST_P(mock_port_fpgad_xfpga_c_p, DISABLED_AP6) {
   fpgad_monitored_device d;
   fpgad_supported_device s;
   init_monitored_device(&d, &s);
@@ -590,7 +607,7 @@ class mock_fme_fpgad_xfpga_c_p : public ::testing::TestWithParam<std::string> {
  * @brief      Test: fpgad_xfpga_detect_Error, fpgad_xfpga_respond_AP6
  * @details    Test the plugin's ability to detect/respond to AP6 (FME).<br>
  */
-TEST_P(mock_fme_fpgad_xfpga_c_p, AP6) {
+TEST_P(mock_fme_fpgad_xfpga_c_p, DISABLED_AP6) {
   fpgad_monitored_device d;
   fpgad_supported_device s;
 
@@ -624,7 +641,7 @@ TEST_P(mock_fme_fpgad_xfpga_c_p, AP6) {
  * @brief      Test: fpgad_xfpga_detect_Error, fpgad_xfpga_respond_LogError
  * @details    Test the plugin's ability to detect/respond to KtiLinkFatal.<br>
  */
-TEST_P(mock_fme_fpgad_xfpga_c_p, KtiLinkFatal) {
+TEST_P(mock_fme_fpgad_xfpga_c_p, DISABLED_KtiLinkFatal) {
   fpgad_monitored_device d;
   fpgad_supported_device s;
   init_monitored_device(&d, &s);
