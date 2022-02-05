@@ -35,18 +35,19 @@ lcov -a coverage.base -a coverage.info --output-file coverage.total
 
 lcov --remove coverage.total \
     '/usr/**' \
-    '*external/opae-test/**' \
-    '*lib/libopaecxx/samples/**' \
-    '*lib/pyopae/**' \
-    '*lib/plugins/xfpga/usrclk/**' \
+    '*libraries/libopaecxx/samples/**' \
+    '*libraries/pyopae/**' \
+    '*libraries/plugins/xfpga/usrclk/**' \
+    '*libraries/c++utils/**' \
     '*tests/**' \
-    '*bin/c++utils/**' \
-    '*bin/mmlink/**' \
-    '*bin/fpgabist/**' \
-    '*bin/fpgadiag/**' \
-    '*pybind11/**' \
-    '*external/CLI11/**' \
-    '*external/spdlog/**' \
+    '*binaries/mmlink/**' \
+    '*binaries/fpgabist/**' \
+    '*binaries/fpgadiag/**' \
+    '*external/**' \
+    '*samples/host_exerciser/**' \
+    '*samples/hssi/**' \
+    '*samples/n5010-ctl/**' \
+    '*samples/n5010-test/**' \
     --output-file coverage.info.cleaned
 
 genhtml --function-coverage -o coverage_report coverage.info.cleaned 2> /dev/null
