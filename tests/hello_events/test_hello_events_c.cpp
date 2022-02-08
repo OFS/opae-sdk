@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -325,5 +325,6 @@ TEST_P(hw_hello_events_c_fpgad_p, main2) {
   EXPECT_EQ(hello_events_main(3, argv), 0);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(hw_hello_events_c_fpgad_p);
 INSTANTIATE_TEST_CASE_P(hw_hello_events_c_fpgad, hw_hello_events_c_fpgad_p,
   ::testing::ValuesIn(test_platform::hw_platforms({}, fpga_driver::linux_intel)));

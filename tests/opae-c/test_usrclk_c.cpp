@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -129,6 +129,7 @@ TEST_P(usrclk_c_hw_p, set) {
   EXPECT_EQ(fpgaSetUserClock(accel_, high, low, 0), FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(usrclk_c_hw_p);
 INSTANTIATE_TEST_CASE_P(usrclk_c, usrclk_c_hw_p,
                         ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-d5005"})));
 

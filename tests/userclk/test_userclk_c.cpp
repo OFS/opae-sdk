@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -532,6 +532,7 @@ TEST_P(userclk_c_hw_p, main6) {
   EXPECT_EQ(userclk_main(9, argv), FPGA_INVALID_PARAM);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(userclk_c_hw_p);
 INSTANTIATE_TEST_CASE_P(userclk_c, userclk_c_hw_p,
                         ::testing::ValuesIn(test_platform::hw_platforms({"skx-p","dcp-rc"})));
 

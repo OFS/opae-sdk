@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -466,5 +466,6 @@ TEST_P(metadata_hw_c, validate_bitstream_metadata) {
   EXPECT_EQ(result, FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metadata_hw_c);
 INSTANTIATE_TEST_CASE_P(metadata, metadata_hw_c,
                         ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-d5005" })));
