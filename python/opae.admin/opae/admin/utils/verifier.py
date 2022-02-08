@@ -1,4 +1,4 @@
-# Copyright(c) 2019-2021, Intel Corporation
+# Copyright(c) 2019-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -202,7 +202,7 @@ class Block_0:
         self.content_type = bits[8]
         self.cert_type = bits[9]
         self.slot_num = bits[10] & 0xF
-        self.bitstream_version = bytearray(bits[96:127]).decode()
+        self.bitstream_version = bytearray(bits[96:128]).decode()
         self.sha256 = int_from_bytes(bits[16:48], byteorder="big")
         self.sha384 = int_from_bytes(bits[48:96], byteorder="big")
         self.calc_sha256 = int_from_bytes(
