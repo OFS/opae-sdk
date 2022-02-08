@@ -34,7 +34,7 @@ function(opae_load_gtest)
     message(STATUS "Trying to fetch gtest through git...")
     opae_external_project_add(PROJECT_NAME gtest
                               GIT_URL https://github.com/google/googletest
-                              GIT_TAG release-1.10.0
+                              GIT_TAG release-1.11.0
                               PRESERVE_REPOS ${OPAE_PRESERVE_REPOS})
 endfunction()
 
