@@ -45,7 +45,7 @@ set(SRC
   mmap.c
   version.c
   userclk.c
-  usrclk/user_clk_pgm_uclock.c
+  usrclk/fpga_user_clk.c
   plugin.c
   sysobject.c
   manage.c
@@ -65,6 +65,7 @@ opae_add_module_library(TARGET xfpga
         opae-c
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
+	opaeuio
     COMPONENT opaeclib
 )
 

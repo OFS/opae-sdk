@@ -49,7 +49,7 @@ opae_test_add_static_lib(TARGET xfpga-static
 	${OPAE_LIB_SOURCE}/plugins/xfpga/userclk.c
 	${OPAE_LIB_SOURCE}/plugins/xfpga/version.c
 	${OPAE_LIB_SOURCE}/plugins/xfpga/wsid_list.c
-	${OPAE_LIB_SOURCE}/plugins/xfpga/usrclk/user_clk_pgm_uclock.c
+	${OPAE_LIB_SOURCE}/plugins/xfpga/usrclk/fpga_user_clk.c
 	${OPAE_LIB_SOURCE}/plugins/xfpga/metrics/metrics_max10.c
 	${OPAE_LIB_SOURCE}/plugins/xfpga/metrics/metrics_utils.c
 	${OPAE_LIB_SOURCE}/plugins/xfpga/metrics/afu_metrics.c
@@ -58,6 +58,7 @@ opae_test_add_static_lib(TARGET xfpga-static
 	${OPAE_LIB_SOURCE}/plugins/xfpga/metrics/threshold.c
     LIBS
         ${libjson-c_LIBRARIES}
+        opaeuio
         opae-c
 )
 
@@ -145,6 +146,7 @@ opae_test_add(TARGET test_xfpga_open_close_c
 opae_test_add(TARGET test_xfpga_usrclk_c
     SOURCE test_usrclk_c.cpp
     LIBS xfpga-static
+    LIBS opaeuio
 )
 
 opae_test_add(TARGET test_xfpga_reset_c

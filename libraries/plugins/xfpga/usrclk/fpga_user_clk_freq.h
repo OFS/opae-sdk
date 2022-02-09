@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,8 +23,6 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-//****************************************************************************
-// Russell.H.Weight@Intel.com   Created: 09-04-18
 // Revision: 09-07-18  10:00
 
 // The pll_freq_config[] array of iopll_config data structures contains
@@ -42,6 +40,9 @@
 // For a requested frequency, The opae library will pass the entire
 // data structure as a binary blob to the kernel driver through the
 // sysfs interface.
+
+#ifndef FPGA_USER_CLK_FREQ_H_
+#define FPGA_USER_CLK_FREQ_H_
 
 #define  IOPLL_MAX_FREQ             600
 #define  IOPLL_MIN_FREQ             10
@@ -62,16 +63,16 @@ struct iopll_config {
 
 // Reference frequency: 100MHz
 const struct iopll_config iopll_freq_config[] = {
-	{ 0 }, // Freq 0 not configured
-	{ 0 }, // Freq 1 not configured
-	{ 0 }, // Freq 2 not configured
-	{ 0 }, // Freq 3 not configured
-	{ 0 }, // Freq 4 not configured
-	{ 0 }, // Freq 5 not configured
-	{ 0 }, // Freq 6 not configured
-	{ 0 }, // Freq 7 not configured
-	{ 0 }, // Freq 8 not configured
-	{ 0 }, // Freq 9 not configured
+    { 0 ,0, 0, 0, 0,0 ,0 ,0 }, // Freq 0 not configured
+    { 0 ,0, 0, 0, 0,0 ,0 ,0 }, // Freq 1 not configured
+    { 0 ,0, 0, 0, 0,0 ,0 ,0 }, // Freq 2 not configured
+    { 0 ,0, 0, 0, 0,0 ,0 ,0 },// Freq 3 not configured
+    { 0 ,0, 0, 0, 0,0 ,0 ,0 },// Freq 4 not configured
+    { 0 ,0, 0, 0, 0,0 ,0 ,0 },// Freq 5 not configured
+    { 0 ,0, 0, 0, 0,0 ,0 ,0 }, // Freq 6 not configured
+    { 0 ,0, 0, 0, 0,0 ,0 ,0 }, // Freq 7 not configured
+    { 0 ,0, 0, 0, 0,0 ,0 ,0 }, // Freq 8 not configured
+    { 0 ,0, 0, 0, 0,0 ,0 ,0 }, // Freq 9 not configured
 	{ 10000, 0x808, 0x10000, 0x5050, 0x2828, 0xc0, 0x4, 0x2 },
 	{ 11000, 0x22726, 0x20302, 0x4646, 0x2323, 0x180, 0x4, 0x2 },
 	{ 12000, 0x2727, 0x20302, 0x4141, 0x22120, 0x180, 0x4, 0x2 },
@@ -663,22 +664,23 @@ const struct iopll_config iopll_freq_config[] = {
 	{ 595000, 0x23c3b, 0x505, 0x101, 0x101, 0x180, 0x4, 0x2 },
 	{ 595000, 0x23c3b, 0x505, 0x101, 0x101, 0x180, 0x4, 0x2 },
 	{ 600000, 0x606, 0x10000, 0x101, 0x101, 0xc0, 0x4, 0x0 }
+ 
 };
 
 
 
 // Agilex Reference frequency: 100MHz
 const struct iopll_config iopll_agilex_freq_config[] = {
-    { 0 }, // Freq 0 not configured
-    { 0 }, // Freq 1 not configured
-    { 0 }, // Freq 2 not configured
-    { 0 }, // Freq 3 not configured
-    { 0 }, // Freq 4 not configured
-    { 0 }, // Freq 5 not configured
-    { 0 }, // Freq 6 not configured
-    { 0 }, // Freq 7 not configured
-    { 0 }, // Freq 8 not configured
-    { 0 }, // Freq 9 not configured
+    { 0 ,0, 0, 0, 0,0 ,0 ,0 }, // Freq 0 not configured
+    { 0 ,0, 0, 0, 0,0 ,0 ,0 }, // Freq 1 not configured
+    { 0 ,0, 0, 0, 0,0 ,0 ,0 }, // Freq 2 not configured
+    { 0 ,0, 0, 0, 0,0 ,0 ,0 }, // Freq 3 not configured
+    { 0 ,0, 0, 0, 0,0 ,0 ,0 }, // Freq 4 not configured
+    { 0 ,0, 0, 0, 0,0 ,0 ,0 }, // Freq 5 not configured
+    { 0 ,0, 0, 0, 0,0 ,0 ,0 }, // Freq 6 not configured
+    { 0 ,0, 0, 0, 0,0 ,0 ,0 }, // Freq 7 not configured
+    { 0 ,0, 0, 0, 0,0 ,0 ,0 }, // Freq 8 not configured
+    { 0 ,0, 0, 0, 0,0 ,0 ,0 }, // Freq 9 not configured
     { 10000, 0x22423, 0x20302, 0x4747, 0x22423, 0x180, 0x4, 0x2},
     { 11000, 0x24847, 0x505, 0x4141, 0x22120, 0x180, 0x6, 0x2},
     { 12000, 0x2121, 0x20302, 0x3737, 0x21c1b, 0x180, 0x4, 0x2},
@@ -1471,3 +1473,4 @@ const struct iopll_config iopll_agilex_freq_config[] = {
     { 790000, 0x22827, 0x505, 0x10000, 0x10000, 0x180, 0x4, 0x2},
     { 800000, 0x404, 0x10000, 0x10000, 0x10000, 0xc0, 0x4, 0x0}
 };
+#endif // end  FPGA_USER_CLK_FREQ_H_

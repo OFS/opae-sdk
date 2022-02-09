@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -35,7 +35,7 @@ extern "C" {
 #include <opae/enum.h>
 #include <opae/properties.h>
 #undef  _GNU_SOURCE
-#include "usrclk/user_clk_pgm_uclock.h"
+#include "usrclk/fpga_user_clk.c"
 
 #ifdef __cplusplus
 }
@@ -128,41 +128,6 @@ class usrclk_c
 };
 
 /**
-* @test    afu_usrclk_01
-* @brief   Tests: fpac_GetErrMsg and fv_BugLog
-* @details fpac_GetErrMsg returns error string
-*          fv_BugLog sets bug log
-*/
-TEST(usrclk_c, afu_usrclk_01) {
-  //Get error string
-  const char * pmsg = fpac_GetErrMsg(1);
-  EXPECT_EQ(NULL, !pmsg);
-
-  //Get error string
-  pmsg = fpac_GetErrMsg(5);
-  EXPECT_EQ(NULL, !pmsg);
-
-  //Get error string
-  pmsg = fpac_GetErrMsg(16);
-  EXPECT_EQ(NULL, !pmsg);
-
-  //Get error string for invlaid index
-  pmsg = NULL;
-  pmsg = fpac_GetErrMsg(17);
-  EXPECT_STREQ("ERROR: MSG INDEX OUT OF RANGE", pmsg);
-
-  //Get error string for invlaid index
-  pmsg = NULL;
-  pmsg = fpac_GetErrMsg(-1);
-  EXPECT_STREQ("ERROR: MSG INDEX OUT OF RANGE", pmsg);
-
-  fv_BugLog(1);
-
-  fv_BugLog(2);
-
-}
-
-/**
 * @test    set_user_clock
 * @brief   Tests: set_userclock
 * @details When the sysfs path is NULL, set_userclock
@@ -188,16 +153,6 @@ TEST(usrclk_c, get_userclock_null) {
   // Null handle
   result = get_userclock(NULL, 0, 0);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
-}
-
-/**
-* @test    fi_run_initz
-* @brief   Tests: fi_RunInitz
-* @details When the sysfs path is NULL, fi_RunInitz
-*          returns -1.
-*/
-TEST(usrclk_c, fi_run_initz) {
-  EXPECT_EQ(-1, fi_RunInitz(NULL));
 }
 
 /**
