@@ -286,6 +286,7 @@ TEST(sysfsinit_c_p, sysfs_parse_pcie) {
 }
 
 // TODO re-enable these for n6000.
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfsinit_c_p);
 INSTANTIATE_TEST_CASE_P(sysfsinit_c, sysfsinit_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-d5005" })));
 
@@ -605,6 +606,7 @@ TEST_P(sysfs_c_p, get_fme_path_neg) {
   ASSERT_NE(sysfs_get_fme_path("/a/b/c", found_fme), FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_c_p);
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));
 
@@ -926,6 +928,8 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_30) {
 	EXPECT_EQ(find_glob_path(NULL, path), FPGA_INVALID_PARAM);
 	EXPECT_EQ(find_glob_path(glob_path, NULL), FPGA_INVALID_PARAM);
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_c_mock_p);
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
@@ -952,6 +956,8 @@ TEST_P(sysfs_dfl_c_mock_p, fpga_sysfs_08) {
 	result = sysfs_get_fme_perf_path(tokens_[0], NULL);
 	EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_dfl_c_mock_p);
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_dfl_c_mock_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
@@ -977,6 +983,8 @@ TEST_P(sysfs_power_mock_p, fpga_sysfs_09) {
 	result = sysfs_get_fme_pwr_path(tokens_[0], NULL);
 	EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_power_mock_p);
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_power_mock_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
@@ -1001,6 +1009,7 @@ TEST_P(sysfs_bmc_mock_p, fpga_sysfs_10) {
 	EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_bmc_mock_p);
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_bmc_mock_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-rc" })));
 
@@ -1024,6 +1033,8 @@ TEST_P(sysfs_max10_mock_p, fpga_sysfs_11) {
 	result = sysfs_get_max10_path(tokens_[0], NULL);
 	EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_max10_mock_p);
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_max10_mock_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
@@ -1099,6 +1110,7 @@ TEST_P(sysfs_c_mock_no_drv_p, sysfs_get_bitstream_id) {
   EXPECT_NE(res, FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_c_mock_no_drv_p);
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_mock_no_drv_p,
                         ::testing::ValuesIn(test_platform::mock_platforms()));
 
@@ -1115,6 +1127,7 @@ TEST_P(sysfs_sockid_c_mock_p, fpga_sysfs_02) {
   EXPECT_EQ(result, FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_sockid_c_mock_p);
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_sockid_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
@@ -1312,6 +1325,7 @@ TEST_P(sysfs_sockid_c_p, get_port_sysfs) {
   EXPECT_EQ(get_port_sysfs(handle_, tok->sysfspath), FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_sockid_c_p);
 INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_sockid_c_p,
                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 

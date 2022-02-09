@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2020, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -479,6 +479,7 @@ TEST_P(mock_port_fpgad_xfpga_c_p, configure) {
   fpgad_plugin_destroy(&d);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_port_fpgad_xfpga_c_p);
 INSTANTIATE_TEST_CASE_P(fpgad_c, mock_port_fpgad_xfpga_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
 
@@ -690,5 +691,6 @@ TEST_P(mock_fme_fpgad_xfpga_c_p, configure) {
   fpgad_plugin_destroy(&d);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_fme_fpgad_xfpga_c_p);
 INSTANTIATE_TEST_CASE_P(fpgad_c, mock_fme_fpgad_xfpga_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));

@@ -110,6 +110,7 @@ TEST_P(usrclk_c_p, get) {
 }
 
 // TODO: Fix user clock test for DCP
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(usrclk_c_p);
 INSTANTIATE_TEST_CASE_P(usrclk_c, usrclk_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-d5005" })));
 

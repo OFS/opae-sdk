@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2020, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -443,6 +443,8 @@ TEST_P(board_dfl_n3000_c_p, board_n3000_20) {
 		&value), FPGA_NOT_FOUND);
 
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_dfl_n3000_c_p);
 INSTANTIATE_TEST_CASE_P(board_dfl_n3000_c, board_dfl_n3000_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000" })));
 
@@ -487,5 +489,7 @@ TEST_P(board_n3000_invalid_c_p, board_n3000_9) {
 	EXPECT_EQ(print_pkvl_version(tokens_[0]), FPGA_NOT_FOUND);
 	EXPECT_NE(print_phy_info(tokens_[0]), FPGA_EXCEPTION);
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_n3000_invalid_c_p);
 INSTANTIATE_TEST_CASE_P(board_n3000_invalid_c, board_n3000_invalid_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));

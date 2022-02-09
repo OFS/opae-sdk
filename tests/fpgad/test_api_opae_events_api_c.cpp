@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2021, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -178,5 +178,6 @@ TEST_P(fpgad_opae_events_api_c_p, events03) {
   EXPECT_EQ(event_registry_list, (void *)NULL);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_opae_events_api_c_p);
 INSTANTIATE_TEST_CASE_P(fpgad_c, fpgad_opae_events_api_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));

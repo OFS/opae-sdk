@@ -251,6 +251,7 @@ TEST_P(hello_fpga_c_p, main0) {
   EXPECT_NE(hello_fpga_main(2, argv), 0);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(hello_fpga_c_p);
 INSTANTIATE_TEST_CASE_P(hello_fpga_c, hello_fpga_c_p,
                         ::testing::ValuesIn(test_platform::keys(true)));
 
@@ -283,6 +284,7 @@ TEST_P(mock_hello_fpga_c_p, main1) {
   EXPECT_EQ(hello_fpga_main(3, argv), FPGA_EXCEPTION);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_hello_fpga_c_p);
 INSTANTIATE_TEST_CASE_P(mock_hello_fpga_c, mock_hello_fpga_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"skx-p", "dcp-rc"})));
 

@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -334,5 +334,6 @@ TEST_P(afu_metrics_c_p, test_afu_metrics_04) {
   EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(afu_metrics_c_p);
 INSTANTIATE_TEST_CASE_P(afu_metrics_c, afu_metrics_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p", "dcp-rc","dcp-vc" })));

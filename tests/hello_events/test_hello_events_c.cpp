@@ -240,6 +240,7 @@ TEST_P(hello_events_c_p, main1) {
   EXPECT_NE(hello_events_main(3, argv), 0);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(hello_events_c_p);
 INSTANTIATE_TEST_CASE_P(hello_events_c, hello_events_c_p,
                         ::testing::ValuesIn(test_platform::keys(true)));
 
@@ -296,6 +297,7 @@ TEST_P(mock_hello_events_c_fpgad_p, main2) {
   EXPECT_NE(hello_events_main(3, argv), 0);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_hello_events_c_fpgad_p);
 INSTANTIATE_TEST_CASE_P(mock_hello_events_c_fpgad, mock_hello_events_c_fpgad_p,
   ::testing::ValuesIn(test_platform::mock_platforms()));
 

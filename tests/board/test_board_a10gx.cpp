@@ -403,6 +403,8 @@ TEST_P(board_a10gx_invalid_c_p, board_a10gx_10) {
   char reset_cause[SYSFS_PATH_MAX];
   EXPECT_NE(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_a10gx_invalid_c_p);
 INSTANTIATE_TEST_CASE_P(
     board_a10gx_invalid_c, board_a10gx_invalid_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));

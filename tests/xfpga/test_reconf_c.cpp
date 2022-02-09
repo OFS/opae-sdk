@@ -303,6 +303,7 @@ TEST_P(reconf_c, validate_bitstream) {
   EXPECT_EQ(FPGA_EXCEPTION, result);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reconf_c);
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c,
                         ::testing::ValuesIn(test_platform::platforms({})));
 
@@ -441,6 +442,7 @@ TEST_P(reconf_c_mock_p, fpga_reconf_slot_enotsup) {
   EXPECT_EQ(result, FPGA_EXCEPTION);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reconf_c_mock_p);
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 

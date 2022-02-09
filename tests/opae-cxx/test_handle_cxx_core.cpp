@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -232,5 +232,6 @@ TEST_P(handle_cxx_core, get_token) {
 }
 
 // TODO: re-enable these for n6000
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(handle_cxx_core);
 INSTANTIATE_TEST_CASE_P(handle, handle_cxx_core,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-d5005" })));

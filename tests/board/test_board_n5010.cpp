@@ -209,5 +209,7 @@ TEST_P(board_n5010_invalid_c_p, board_n5010_9) {
 
 	EXPECT_EQ(print_sec_info(tokens_[0]), FPGA_NOT_FOUND);
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_n5010_invalid_c_p);
 INSTANTIATE_TEST_CASE_P(board_n5010_invalid_c, board_n5010_invalid_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
