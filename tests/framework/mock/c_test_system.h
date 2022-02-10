@@ -51,7 +51,7 @@ extern "C" {
   DIR *opae_test_opendir(const char *name);
   ssize_t opae_test_readlink(const char *path, char *buf, size_t bufsize);
   int opae_test_xstat(int ver, const char *path, struct stat *buf);
-  int opae_test_lstat(int ver, const char *path, struct stat *buf);
+  int opae_test_lxstat(int ver, const char *path, struct stat *buf);
   int opae_test_access(const char *pathname, int mode);
   int opae_test_scandir(const char *dirp, struct dirent ***namelist, filter_func filter, compare_func cmp);
 
@@ -61,6 +61,9 @@ extern "C" {
                 int (*errfunc) (const char *epath, int eerrno),
                 glob_t *pglob);
   char *opae_test_realpath(const char *inp, char *dst);
+
+  int opae_test_stat(const char* str, struct stat* buf);
+  int opae_test_lstat(const char* str, struct stat* buf);
 
 #ifdef __cplusplus
 }

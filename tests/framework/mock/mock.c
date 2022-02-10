@@ -90,11 +90,19 @@ int __xstat(int ver, const char *pathname, struct stat *buf) {
 }
 
 int __lxstat(int ver, const char *pathname, struct stat *buf) {
-  return opae_test_xstat(ver, pathname, buf);
+  return opae_test_lxstat(ver, pathname, buf);
 }
 
 int access(const char *pathname, int mode) {
   return opae_test_access(pathname, mode);
+}
+
+int lstat(const char* str, struct stat* buf) {
+    return opae_test_lstat(str, buf);
+}
+
+int stat(const char* str, struct stat* buf) {
+    return opae_test_stat(str, buf);
 }
 
 int scandir(const char *__restrict __dir,

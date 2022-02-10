@@ -141,7 +141,7 @@ class test_system {
   DIR *opendir(const char *name);
   ssize_t readlink(const char *path, char *buf, size_t bufsize);
   int xstat(int ver, const char *path, stat_t *buf);
-  int lstat(int ver, const char *path, stat_t *buf);
+  int lxstat(int ver, const char *path, stat_t *buf);
   int access(const char *pathname, int mode);
   int scandir(const char *dirp, struct dirent ***namelist, filter_func filter,
               compare_func cmp);
@@ -166,6 +166,8 @@ class test_system {
   FILE *register_file(const std::string &path);
 
   void normalize_guid(std::string &guid_str, bool with_hyphens = true);
+  int stat(const char* str, struct stat* buf);
+  int lstat(const char* str, struct stat* buf);
 
  private:
   test_system();
@@ -190,6 +192,7 @@ class test_system {
   typedef ssize_t (*readlink_func)(const char *pathname, char *buf,
                                    size_t bufsiz);
   typedef int (*__xstat_func)(int ver, const char *pathname, struct stat *buf);
+  typedef int (*__lxstat_func)(int ver, const char* pathname, struct stat* buf);
   typedef int (*access_func)(const char *pathname, int mode);
   typedef int (*scandir_func)(const char *, struct dirent ***, filter_func,
                               compare_func);
@@ -200,6 +203,9 @@ class test_system {
   typedef int (*glob_func)(const char *pattern, int flags,
                            int (*errfunc)(const char *epath, int eerrno),
                            glob_t *pglob);
+
+  typedef int (*stat_func)(const char* str, struct stat* buf);
+  typedef int (*lstat_func)(const char* str, struct stat* buf);
 
   open_func open_;
   open_func open_create_;
@@ -212,12 +218,14 @@ class test_system {
   opendir_func opendir_;
   readlink_func readlink_;
   __xstat_func xstat_;
-  __xstat_func lstat_;
+  __lxstat_func lxstat_;
   access_func access_;
   scandir_func scandir_;
   sched_setaffinity_func sched_setaffinity_;
   glob_func glob_;
   realpath_func realpath_;
+  stat_func stat_;
+  lstat_func lstat_;
 
   bool hijack_sched_setaffinity_;
   int hijack_sched_setaffinity_return_val_;

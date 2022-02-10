@@ -199,7 +199,9 @@ test_system::test_system() : initialized_(false), root_("") {
   opendir_ = (opendir_func)dlsym(RTLD_NEXT, "opendir");
   readlink_ = (readlink_func)dlsym(RTLD_NEXT, "readlink");
   xstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__xstat");
-  lstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__lxstat");
+  lxstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__lxstat");
+  lstat_ = (lstat_func)dlsym(RTLD_NEXT, "lstat");
+  stat_ = (stat_func)dlsym(RTLD_NEXT, "stat");
   access_ = (access_func)dlsym(RTLD_NEXT, "access");
   scandir_ = (scandir_func)dlsym(RTLD_NEXT, "scandir");
   sched_setaffinity_ =
@@ -663,14 +665,46 @@ int test_system::xstat(int ver, const char *path, struct stat *buf) {
   return res;
 }
 
-int test_system::lstat(int ver, const char *path, struct stat *buf) {
+int test_system::lxstat(int ver, const char *path, struct stat *buf) {
   std::string syspath = get_sysfs_path(path);
-  int res = lstat_(ver, syspath.c_str(), buf);
+  int res = lxstat_(ver, syspath.c_str(), buf);
 
   if (!res && strlen(path) > 5) {
     // If path is rooted at /dev, assume it is a char device.
     std::string p(path, 5);
     if (p == std::string("/dev/")) {
+            buf->st_mode &= ~S_IFMT;
+            buf->st_mode |= S_IFCHR;
+    }
+  }
+
+  return res;
+}
+
+int test_system::stat(const char* str, struct stat* buf) {
+    std::string syspath = get_sysfs_path(str);
+    int res = stat_(syspath.c_str(), buf);
+
+    if (!res && strlen(str) > 5) {
+        // If path is rooted at /dev, assume it is a char device.
+        std::string p(str, 5);
+        if (p == std::string("/dev/")) {
+            buf->st_mode &= ~S_IFMT;
+            buf->st_mode |= S_IFCHR;
+        }
+    }
+
+    return res;
+}
+
+int test_system::lstat(const char* str, struct stat* buf) {
+    std::string syspath = get_sysfs_path(str);
+    int res = lstat_(syspath.c_str(), buf);
+
+    if (!res && strlen(str) > 5) {
+        // If path is rooted at /dev, assume it is a char device.
+        std::string p(str, 5);
+        if (p == std::string("/dev/")) {
             buf->st_mode &= ~S_IFMT;
             buf->st_mode |= S_IFCHR;
     }
@@ -856,9 +890,18 @@ int opae_test_xstat(int ver, const char *path, struct stat *buf) {
   return opae::testing::test_system::instance()->xstat(ver, path, buf);
 }
 
-int opae_test_lstat(int ver, const char *path, struct stat *buf) {
-  return opae::testing::test_system::instance()->lstat(ver, path, buf);
+int opae_test_lxstat(int ver, const char *path, struct stat *buf) {
+  return opae::testing::test_system::instance()->lxstat(ver, path, buf);
 }
+
+int opae_test_stat(const char* str, struct stat* buf) {
+    return opae::testing::test_system::instance()->stat(str, buf);
+}
+
+int opae_test_lstat(const char* str, struct stat* buf) {
+    return opae::testing::test_system::instance()->lstat(str, buf);
+}
+
 
 int opae_test_access(const char *pathname, int mode) {
   return opae::testing::test_system::instance()->access(pathname, mode);
