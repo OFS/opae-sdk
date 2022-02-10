@@ -36,7 +36,7 @@ import subprocess
 import sys
 import time
 
-OPAEVFIO_VERSION = '1.0.0'
+OPAEVFIO_VERSION = '1.0.1'
 
 ABBREV_PCI_ADDR_PATTERN = r'([\da-fA-F]{2}):' \
                           r'([\da-fA-F]{2})\.' \
@@ -183,8 +183,12 @@ def initialize_vfio(addr, new_owner, enable_sriov):
 
     print('Binding {} to vfio-pci'.format(msg))
     new_id = '/sys/bus/pci/drivers/vfio-pci/new_id'
-    with open(new_id, 'w') as outf:
-        outf.write('{} {}'.format(vid_did[0], vid_did[1]))
+    try:
+        with open(new_id, 'w') as outf:
+            outf.write('{} {}'.format(vid_did[0], vid_did[1]))
+    except OSError as exc:
+        print(exc)
+        return
 
     time.sleep(0.25)
 
