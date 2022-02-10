@@ -181,7 +181,6 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 		if (res != FPGA_OK) {
 			LOG("No PR interface ID\n");
 			pr_valid = false;
-
 		}
 
 		if (pr_valid) {
