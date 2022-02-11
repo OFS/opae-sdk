@@ -141,7 +141,7 @@ def bind_driver(driver, addr):
         try:
             with open(bind, 'w') as outf:
                 outf.write(addr)
-        except OSError as exc:
+        except OSError:
             return False
     return True
 
