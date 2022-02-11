@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -135,6 +135,7 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 	opae_bitstream_info *bitstr = NULL;
 	fpga_guid pr_ifc_id;
 	bool added = false;
+	bool pr_valid = true;
 
 	res = fpgaGetProperties(token, &props);
 	if (res != FPGA_OK) {
@@ -178,17 +179,20 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 
 		res = fpgaPropertiesGetGUID(props, &pr_ifc_id);
 		if (res != FPGA_OK) {
-			LOG("failed to get PR interface ID\n");\
-			goto err_out_destroy;
+			LOG("No PR interface ID\n");
+			pr_valid = false;
 		}
 
-		for (i = 0 ; i < c->num_null_gbs ; ++i) {
-			if (!uuid_compare(c->null_gbs[i].pr_interface_id,
-					  pr_ifc_id)) {
-				bitstr = &c->null_gbs[i];
-				break;
+		if (pr_valid) {
+			for (i = 0; i < c->num_null_gbs; ++i) {
+				if (!uuid_compare(c->null_gbs[i].pr_interface_id,
+					pr_ifc_id)) {
+					bitstr = &c->null_gbs[i];
+					break;
+				}
 			}
 		}
+
 	} else {
 		// The parent token's guid is the PR interface ID.
 
@@ -203,17 +207,19 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 
 			res = fpgaPropertiesGetGUID(parent_props, &pr_ifc_id);
 			if (res != FPGA_OK) {
-				LOG("failed to get PR interface ID\n");
-				goto err_out_destroy;
+				LOG("No PR interface ID\n");
+				pr_valid = false;
 			}
 
 			fpgaDestroyProperties(&parent_props);
 
-			for (i = 0 ; i < c->num_null_gbs ; ++i) {
-				if (!uuid_compare(c->null_gbs[i].pr_interface_id,
-						  pr_ifc_id)) {
-					bitstr = &c->null_gbs[i];
-					break;
+			if (pr_valid) {
+				for (i = 0; i < c->num_null_gbs; ++i) {
+					if (!uuid_compare(c->null_gbs[i].pr_interface_id,
+						pr_ifc_id)) {
+						bitstr = &c->null_gbs[i];
+						break;
+					}
 				}
 			}
 		}
