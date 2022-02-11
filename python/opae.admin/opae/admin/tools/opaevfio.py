@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright(c) 2020-2021, Intel Corporation
+# Copyright(c) 2020-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -28,6 +28,7 @@
 """ Bind/Unbind a PCIe device to/from vfio-pci. """
 
 import argparse
+import errno
 import grp
 import os
 import pwd
@@ -36,7 +37,7 @@ import subprocess
 import sys
 import time
 
-OPAEVFIO_VERSION = '1.0.0'
+OPAEVFIO_VERSION = '1.0.1'
 
 ABBREV_PCI_ADDR_PATTERN = r'([\da-fA-F]{2}):' \
                           r'([\da-fA-F]{2})\.' \
@@ -73,7 +74,7 @@ def parse_args():
                         help='initialize the given device for vfio')
     parser.add_argument('-r', '--release', default=False, action='store_true',
                         help='release the given device from vfio')
-    parser.add_argument('-d', '--driver', default=None,
+    parser.add_argument('-d', '--driver', default='dfl-pci',
                         help='driver to re-bind on release')
     parser.add_argument('-u', '--user', default='root',
                         help='userid to assign during init')
@@ -137,8 +138,12 @@ def bind_driver(driver, addr):
     """
     bind = '/sys/bus/pci/drivers/{}/bind'.format(driver)
     if os.path.exists(bind):
-        with open(bind, 'w') as outf:
-            outf.write(addr)
+        try:
+            with open(bind, 'w') as outf:
+                outf.write(addr)
+        except OSError:
+            return False
+    return True
 
 
 def load_driver(driver, *args):
@@ -183,8 +188,13 @@ def initialize_vfio(addr, new_owner, enable_sriov):
 
     print('Binding {} to vfio-pci'.format(msg))
     new_id = '/sys/bus/pci/drivers/vfio-pci/new_id'
-    with open(new_id, 'w') as outf:
-        outf.write('{} {}'.format(vid_did[0], vid_did[1]))
+    try:
+        with open(new_id, 'w') as outf:
+            outf.write('{} {}'.format(vid_did[0], vid_did[1]))
+    except OSError as exc:
+        if exc.errno != errno.EEXIST:
+            print(exc)
+            return
 
     time.sleep(0.25)
 
@@ -237,9 +247,8 @@ def release_vfio(addr, new_driver):
     print('Releasing {} from vfio-pci'.format(msg))
     unbind_driver(driver, addr)
 
-    if new_driver:
+    if new_driver and bind_driver(new_driver, addr):
         print('Rebinding {} to {}'.format(msg, new_driver))
-        bind_driver(new_driver, addr)
 
 
 def main():
