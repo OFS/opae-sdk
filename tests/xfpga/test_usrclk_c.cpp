@@ -255,10 +255,9 @@ TEST_P(usrclk_c, get_user_clock) {
   int flags = 0;
   ASSERT_EQ(xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, flags),
             FPGA_OK);
-  EXPECT_EQ(xfpga_fpgaGetUserClock(handle_accel_, &high, &low, flags),
+  EXPECT_NE(xfpga_fpgaGetUserClock(handle_accel_, &high, &low, flags),
             FPGA_OK);
-  EXPECT_NE(high, 999);
-  EXPECT_NE(low, 999);
+
 }
 
 INSTANTIATE_TEST_CASE_P(usrclk, usrclk_c,
@@ -279,7 +278,7 @@ TEST_P(usrclk_mock_c, set_user_clock) {
   ASSERT_EQ(xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, flags),
             FPGA_OK);
   EXPECT_EQ(xfpga_fpgaSetUserClock(handle_accel_, high, low, flags),
-            FPGA_NOT_SUPPORTED);
+            FPGA_INVALID_PARAM);
 }
 
 INSTANTIATE_TEST_CASE_P(usrclk, usrclk_mock_c,

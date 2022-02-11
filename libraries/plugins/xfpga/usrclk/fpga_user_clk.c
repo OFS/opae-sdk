@@ -515,7 +515,7 @@ fpga_result get_usrclk_uio(const char* sysfs_path,
 			feature_path, strerror(errno));
 		if (pglob.gl_pathv)
 			globfree(&pglob);
-		return FPGA_NOT_FOUND;
+		return FPGA_INVALID_PARAM;
 	}
 
 	for (i = 0; i < pglob.gl_pathc; i++) {
