@@ -586,7 +586,7 @@ TEST_P(userclk_c_mock_p, main3) {
   ** FPGA_NOT_SUPPORTED.
   EXPECT_EQ(userclk_main(11, argv), 0);
   */
-  EXPECT_EQ(userclk_main(11, argv), FPGA_NOT_SUPPORTED);
+  EXPECT_EQ(userclk_main(11, argv), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -634,7 +634,7 @@ TEST_P(userclk_c_mock_p, main4) {
   ** FPGA_NOT_SUPPORTED.
   EXPECT_EQ(userclk_main(11, argv), 0);
   */
-  EXPECT_EQ(userclk_main(11, argv), FPGA_NOT_SUPPORTED);
+  EXPECT_EQ(userclk_main(11, argv), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -717,6 +717,6 @@ TEST_P(userclk_c_mock_p, main6) {
 }
 
 INSTANTIATE_TEST_CASE_P(userclk_c, userclk_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p", "dcp-rc"})));
+                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 

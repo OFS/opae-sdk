@@ -384,7 +384,7 @@ class reconf_c_mock_p : public ::testing::TestWithParam<std::string> {
  *          returns FPGA_NOT_SUPPORTED on mock platforms.
  */
 TEST_P(reconf_c_mock_p, set_afu_userclock) {
-  EXPECT_EQ(set_afu_userclock(handle_, 312, 156), FPGA_NOT_SUPPORTED);
+  EXPECT_EQ(set_afu_userclock(handle_, 312, 156), FPGA_INVALID_PARAM);
 }
 
 /**
