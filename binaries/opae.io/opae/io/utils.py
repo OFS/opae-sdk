@@ -1,4 +1,4 @@
-# Copyright(c) 2020-2021, Intel Corporation
+# Copyright(c) 2020-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -25,6 +25,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import contextlib
+import errno
 import grp
 import json
 import os
@@ -104,8 +105,13 @@ def unbind_driver(driver, pci_addr):
 def bind_driver(driver, pci_addr):
     bind = '/sys/bus/pci/drivers/{}/bind'.format(driver)
     if os.path.exists(bind):
-        with open(bind, 'w') as outf:
-            outf.write(pci_addr)
+        try:
+            with open(bind, 'w') as outf:
+                outf.write(pci_addr)
+        except OSError:
+            return False
+        return True
+    return False
 
 def get_dev_dict(file_name):
     if os.path.isfile(file_name):
@@ -140,8 +146,12 @@ def vfio_init(pci_addr, new_owner=''):
 
     print('Binding {} to vfio-pci'.format(msg))
     new_id = '/sys/bus/pci/drivers/vfio-pci/new_id'
-    with open(new_id, 'w') as outf:
-        outf.write('{} {}'.format(vid_did[0], vid_did[1]))
+    try:
+        with open(new_id, 'w') as outf:
+            outf.write('{} {}'.format(vid_did[0], vid_did[1]))
+    except OSError as exc:
+        if exc.errno != errno.EEXIST:
+            return
 
     time.sleep(0.25)
 
