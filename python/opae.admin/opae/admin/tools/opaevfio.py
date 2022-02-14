@@ -37,7 +37,7 @@ import subprocess
 import sys
 import time
 
-OPAEVFIO_VERSION = '1.0.1'
+OPAEVFIO_VERSION = '1.0.2'
 
 ABBREV_PCI_ADDR_PATTERN = r'([\da-fA-F]{2}):' \
                           r'([\da-fA-F]{2})\.' \
@@ -173,11 +173,7 @@ def initialize_vfio(addr, new_owner, enable_sriov):
     msg = '(0x{:04x},0x{:04x}) at {}'.format(
         int(vid_did[0], 16), int(vid_did[1], 16), addr)
 
-    if driver and driver == 'vfio-pci':
-        print('{} is already bound to vfio-pci'.format(msg))
-        return
-
-    if driver:
+    if driver and driver != 'vfio-pci':
         print('Unbinding {} from {}'.format(msg, driver))
         unbind_driver(driver, addr)
 
@@ -196,7 +192,16 @@ def initialize_vfio(addr, new_owner, enable_sriov):
             print(exc)
             return
 
-    time.sleep(0.25)
+    time.sleep(0.50)
+
+    try:
+        bind_driver('vfio-pci', addr)
+    except OSError as exc:
+        if exc.errno != errno.EBUSY:
+            print(exc)
+            return
+
+    time.sleep(0.50)
 
     iommu_group = os.path.join('/sys/bus/pci/devices', addr, 'iommu_group')
     group_num = os.readlink(iommu_group).split(os.sep)[-1]
