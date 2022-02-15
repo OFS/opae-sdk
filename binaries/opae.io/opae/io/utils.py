@@ -164,7 +164,16 @@ def vfio_init(pci_addr, new_owner=''):
         if exc.errno != errno.EEXIST:
             return
 
-    time.sleep(0.25)
+    time.sleep(0.50)
+
+    try:
+        bind_driver('vfio-pci', pci_addr)
+    except OSError as exc:
+        if exc.errno != errno.EBUSY:
+            print(exc)
+            return
+
+    time.sleep(0.50)
 
     iommu_group = os.path.join('/sys/bus/pci/devices',
                                pci_addr,
