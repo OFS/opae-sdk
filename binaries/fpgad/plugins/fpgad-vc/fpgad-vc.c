@@ -428,6 +428,8 @@ STATIC const char *glob_patterns[] = {
 	"*-hwmon.*.auto/hwmon/hwmon*/*_label",
 	"/sys/bus/pci/devices/%s/fpga_region/region*/dfl-fme.*/"
 	"dfl_dev.*/*-hwmon.*.auto/hwmon/hwmon*/*_label",
+	"/sys/bus/pci/devices/%s/fpga_region/region*/dfl-fme.*/"
+	"dfl_dev.*/spi*/spi*/spi*/*-hwmon.*.auto/hwmon/hwmon*/*_label",
 	NULL
 };
 

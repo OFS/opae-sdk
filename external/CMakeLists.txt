@@ -37,6 +37,7 @@ if(OPAE_WITH_PYBIND11)
     opae_external_project_add(PROJECT_NAME pybind11
                               GIT_URL https://github.com/pybind/pybind11.git
                               GIT_TAG "${PYBIND11_TAG}"
+                              PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
     )
 
 endif(OPAE_WITH_PYBIND11)
