@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -164,6 +164,7 @@ TEST_P(err_inj_c_usd_p, dfl_tests_neg) {
   EXPECT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaAssignPortToInterface(handle_, 0, 0, 0));
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(err_inj_c_usd_p);
 INSTANTIATE_TEST_CASE_P(err_inj_c, err_inj_c_usd_p, 
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
@@ -239,6 +240,7 @@ TEST_P(err_inj_c_mock_p, port_to_interface_err) {
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(err_inj_c_mock_p);
 INSTANTIATE_TEST_CASE_P(err_inj_c, err_inj_c_mock_p, 
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 

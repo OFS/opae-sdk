@@ -1,4 +1,4 @@
-// Copyright(c) 2021, Intel Corporation
+// Copyright(c) 2021-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -504,6 +504,8 @@ TEST_P(board_dfl_n6000_c_p, board_n6000_12) {
 	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
 
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_dfl_n6000_c_p);
 INSTANTIATE_TEST_CASE_P(board_dfl_n6000_c, board_dfl_n6000_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n6000" })));
 
@@ -535,5 +537,7 @@ TEST_P(board_n6000_invalid_c_p, board_n6000_11) {
 
 	EXPECT_NE(print_phy_info(tokens_[0]), FPGA_EXCEPTION);
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_n6000_invalid_c_p);
 INSTANTIATE_TEST_CASE_P(board_n6000_invalid_c, board_n6000_invalid_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));

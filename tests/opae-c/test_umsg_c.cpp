@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -194,6 +194,7 @@ TEST_P(DISABLED_umsg_c_p, set_attr) {
   EXPECT_EQ(fpgaSetUmsgAttributes(dev_, disable), FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(DISABLED_umsg_c_p);
 INSTANTIATE_TEST_CASE_P(DISABLED_umsg_c, DISABLED_umsg_c_p, 
                         ::testing::ValuesIn(test_platform::platforms({ "skx-p"})));
 
@@ -233,6 +234,7 @@ TEST_P(DISABLED_umsg_c_mock_p, get_ptr) {
   EXPECT_EQ(fpgaSetUmsgAttributes(dev_, disable), FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(DISABLED_umsg_c_mock_p);
 INSTANTIATE_TEST_CASE_P(umsg_c, DISABLED_umsg_c_mock_p, 
                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p"})));
 

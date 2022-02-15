@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -365,6 +365,7 @@ TEST_P(userclk_c_p, main2) {
   EXPECT_NE(userclk_main(3, argv), 0);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(userclk_c_p);
 INSTANTIATE_TEST_CASE_P(userclk_c, userclk_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));
 
@@ -532,6 +533,7 @@ TEST_P(userclk_c_hw_p, main6) {
   EXPECT_EQ(userclk_main(9, argv), FPGA_INVALID_PARAM);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(userclk_c_hw_p);
 INSTANTIATE_TEST_CASE_P(userclk_c, userclk_c_hw_p,
                         ::testing::ValuesIn(test_platform::hw_platforms({"skx-p","dcp-rc"})));
 
@@ -716,7 +718,7 @@ TEST_P(userclk_c_mock_p, main6) {
   EXPECT_EQ(userclk_main(9, argv), FPGA_INVALID_PARAM);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(userclk_c_mock_p);
 INSTANTIATE_TEST_CASE_P(userclk_c, userclk_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"skx-p", "dcp-rc"})));
-
 

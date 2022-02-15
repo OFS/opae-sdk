@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -292,6 +292,7 @@ std::vector<buffer_params> params{
     buffer_params{FPGA_INVALID_PARAM, 11247, FPGA_BUF_PREALLOCATED}};
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(buffer_prepare);
 INSTANTIATE_TEST_CASE_P(buffer_c, buffer_prepare,
                         ::testing::Combine(::testing::ValuesIn(test_platform::keys()),
                                            ::testing::ValuesIn(params)));
@@ -368,5 +369,6 @@ TEST_P(buffer_c_mock_p, port_dma_map) {
   EXPECT_EQ(res, FPGA_INVALID_PARAM) << "result is " << fpgaErrStr(res);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(buffer_c_mock_p);
 INSTANTIATE_TEST_CASE_P(buffer_c, buffer_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));

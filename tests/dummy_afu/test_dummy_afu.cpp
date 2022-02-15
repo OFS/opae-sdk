@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -263,6 +263,7 @@ TEST_P(dummy_afu_p, main_invalid_guid) {
             app_->main(args_.size(), const_cast<char**>(args_.data())));
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(dummy_afu_p);
 INSTANTIATE_TEST_CASE_P(dummy_afu, dummy_afu_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"dfl-d5005"})));
 

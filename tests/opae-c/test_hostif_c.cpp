@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -119,6 +119,7 @@ TEST_P(hostif_c_p, release_from_ifc) {
 		     FPGA_NOT_SUPPORTED);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(hostif_c_p);
 INSTANTIATE_TEST_CASE_P(hostif_c, hostif_c_p, 
                         ::testing::ValuesIn(test_platform::platforms({})));
 
@@ -138,6 +139,7 @@ TEST_P(hostif_c_mock_p, assign_port) {
 			  0, 0), FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(hostif_c_mock_p);
 INSTANTIATE_TEST_CASE_P(hostif_c, hostif_c_mock_p, 
                         ::testing::ValuesIn(test_platform::mock_platforms({})));
 

@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -1096,9 +1096,7 @@ TEST_P(enum_c_p, get_guid) {
   EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 }
 
-
-
-
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(enum_c_p);
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p, 
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
@@ -1145,6 +1143,7 @@ TEST_P(enum_err_c_p, num_errors_port) {
   EXPECT_EQ(num_matches_, GetNumFpgas());
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(enum_err_c_p);
 INSTANTIATE_TEST_CASE_P(enum_c, enum_err_c_p,
                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
@@ -1166,6 +1165,7 @@ TEST_P(enum_socket_c_p, socket_id) {
   EXPECT_EQ(num_matches_, GetNumMatchedFpga() * 2);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(enum_socket_c_p);
 INSTANTIATE_TEST_CASE_P(enum_c, enum_socket_c_p,
                           ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
@@ -1200,5 +1200,6 @@ TEST_P(enum_mock_only, remove_port) {
   EXPECT_EQ(fpgaDestroyProperties(&filterp), FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(enum_mock_only);
 INSTANTIATE_TEST_CASE_P(enum_c, enum_mock_only,
                           ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));

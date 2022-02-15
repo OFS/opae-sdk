@@ -1,4 +1,4 @@
-// Copyright(c) 2021, Intel Corporation
+// Copyright(c) 2021-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -452,5 +452,6 @@ TEST_P(sdl_c_p, test_fpgaClose_for_null_object) {
   EXPECT_EQ(fpgaClose(nullptr), FPGA_INVALID_PARAM);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sdl_c_p);
 INSTANTIATE_TEST_CASE_P(sdl_c, sdl_c_p, 
                         ::testing::ValuesIn(test_platform::platforms({"dfl-n3000","dfl-d5005","dfl-n6000"})));

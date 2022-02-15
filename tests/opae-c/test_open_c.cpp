@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -95,5 +95,6 @@ TEST_P(open_c_p, mallocfails) {
     EXPECT_EQ(accel_, nullptr);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(open_c_p);
 INSTANTIATE_TEST_CASE_P(open_c, open_c_p, 
                         ::testing::ValuesIn(test_platform::mock_platforms({})));
