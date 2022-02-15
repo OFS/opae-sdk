@@ -39,7 +39,7 @@ import uuid
 import time
 
 from enum import Enum
-from ctypes import Union, LittleEndianStructure, c_uint64
+from ctypes import Union, LittleEndianStructure, c_uint64, c_uint32
 
 if sys.version_info[0] == 3:
     from pathlib import Path
@@ -64,14 +64,17 @@ PICKLE_FILE = '/var/lib/opae/opae.io.pickle'
 class pcicfg(Enum):
     command = 0x4
 
+
 def hex_int(inp):
     return int(inp, 0)
+
 
 def vendev(inp):
     m = VENDOR_DEVICE_RE.match(inp)
     if not m:
         raise ValueError('wrong vendor/device format: {}'.format(inp))
     return m.groupdict()
+
 
 def pci_address(inp):
     m = PCI_ADDRESS_RE.match(inp)
@@ -81,14 +84,17 @@ def pci_address(inp):
     d = m.groupdict()
     return '{}:{}'.format(d.get('segment') or '0000', d['bdf'])
 
+
 def vid_did_for_address(pci_addr):
     path = Path('/sys/bus/pci/devices', pci_addr)
     vid = path.joinpath('vendor').read_text().strip()
     did = path.joinpath('device').read_text().strip()
     return (vid, did)
 
+
 def load_driver(driver):
     return subprocess.call(['modprobe', driver])
+
 
 def get_bound_driver(pci_addr):
     link = '/sys/bus/pci/devices/{}/driver'.format(pci_addr)
@@ -96,11 +102,13 @@ def get_bound_driver(pci_addr):
         driver = os.readlink(link).split(os.sep)[-1]
         return driver
 
+
 def unbind_driver(driver, pci_addr):
     unbind = '/sys/bus/pci/drivers/{}/unbind'.format(driver)
     if os.path.exists(unbind):
         with open(unbind, 'w') as outf:
             outf.write(pci_addr)
+
 
 def bind_driver(driver, pci_addr):
     bind = '/sys/bus/pci/drivers/{}/bind'.format(driver)
@@ -113,11 +121,13 @@ def bind_driver(driver, pci_addr):
         return True
     return False
 
+
 def get_dev_dict(file_name):
     if os.path.isfile(file_name):
         with open(file_name, 'rb') as inf:
             dev_dict = pickle.load(inf)
             return dev_dict
+
 
 def put_dev_dict(file_name, dev_dict):
     d = os.path.dirname(file_name)
@@ -125,6 +135,7 @@ def put_dev_dict(file_name, dev_dict):
         os.makedirs(d)
     with open(file_name, 'wb') as outf:
         pickle.dump(dev_dict, outf)
+
 
 def vfio_init(pci_addr, new_owner=''):
     vid_did = vid_did_for_address(pci_addr)
@@ -153,16 +164,7 @@ def vfio_init(pci_addr, new_owner=''):
         if exc.errno != errno.EEXIST:
             return
 
-    time.sleep(0.50)
-
-    try:
-        bind_driver('vfio-pci', pci_addr)
-    except OSError as exc:
-        if exc.errno != errno.EBUSY:
-            print(exc)
-            return
-
-    time.sleep(0.50)
+    time.sleep(0.25)
 
     iommu_group = os.path.join('/sys/bus/pci/devices',
                                pci_addr,
@@ -184,6 +186,7 @@ def vfio_init(pci_addr, new_owner=''):
         os.chown(device, user, group)
         print('Changing permissions for {} to rw-rw----'.format(device))
         os.chmod(device, 0o660)
+
 
 def vfio_release(pci_addr):
     vid_did = vid_did_for_address(pci_addr)
@@ -213,64 +216,74 @@ def vfio_release(pci_addr):
         else:
             os.remove(PICKLE_FILE)
 
+
 class opae_register(Union):
     def __init__(self, region, offset, value=None):
         self.region = region
         self.offset = offset
+        self.rd = getattr(self.region, f'read{self.width}')
+        self.wr = getattr(self.region, f'write{self.width}')
         if value is None:
             self.update()
         else:
             self.value = value
 
     def __str__(self):
-        value = ''
-        return ', '.join(['{name} = 0x{value:x}'.format(name=name,
-                                                       value=getattr(self.bits, name))
-                         for name, _, _ in self.bits._fields_])
+        return ', '.join([f'{name} = 0x{getattr(self.bits, name):x}'
+                          for name, _, _ in self.bits._fields_])
 
     @classmethod
-    def define(cls, name, bits=[('value', c_uint64, 64)], print_hex=True):
+    def define(cls,
+               name, bits=[('value', c_uint64, 64)], print_hex=True, width=64):
         bits_class = type('{name}_bits'.format(**locals()),
                           (LittleEndianStructure, ),
                           dict(_fields_=bits))
+        if width not in [64, 32]:
+            raise ValueError('width must be 64 or 32')
+        int_t = c_uint64 if width == 64 else c_uint32
         return type(name,
                     (cls,),
                     dict(_fields_=[('bits', bits_class),
-                                   ('value', c_uint64)]))
+                                   ('value', int_t)],
+                         width=width))
 
     def commit(self, value=None):
         if value is not None:
             self.value = value
-        self.region.write64(self.offset, self.value)
+        self.wr(self.offset, self.value)
 
     def update(self):
         if self.region is None:
             raise OSError(os.EX_OSERR, 'no region open')
-        self.value = self.region.read64(self.offset)
+        self.value = self.rd(self.offset)
 
     def __enter__(self):
-      pass
+        pass
 
     def __exit__(self, exc_type, exc_value, tb):
-      if exc_type and exc_value and tb:
-          return False
-      self.commit()
+        if exc_type and exc_value and tb:
+            return False
+        self.commit()
 
-def register(name="value_register", bits=[('value', c_uint64, 64)]):
+
+def register(name="value_register", bits=[('value', c_uint64, 64)], width=64):
     '''Create a register class dynamicaly using a list of bitfield tuples.
 
     Args:
         name: The name of the register class. Defaults to "value_register".
         bits: A list of three-element tuples describing the bitfields.
               The first element in the tuple is the name of the field.
-              The second element in the tuple is the width of the register. Must be c_uint64.
+              The second element in the tuple is the width of the register.
+              Must be c_uint32 or c_uint64.
               The third element in the tuple is the size of the field in bits.
+        width: The register width. Must be either 32 or 64. Default is 64
+
 
     Note:
-        The register class is a little endian structure with bitfields starting at bit 0 going
-        from top to bottom.
+        The register class is a little endian structure with bitfields starting
+        at bit 0 going from top to bottom.
     '''
-    r_class = opae_register.define(name, bits)
+    r_class = opae_register.define(name, bits, width)
     return r_class
 
 
@@ -283,13 +296,14 @@ def read_guid(region, offset):
 dfh0_bits = [
         ('id', c_uint64, 12),
         ('rev', c_uint64, 4),
-        ('next', c_uint64,24),
+        ('next', c_uint64, 24),
         ('eol', c_uint64, 1),
         ('reserved', c_uint64, 19),
         ('feature_type', c_uint64, 4)
 ]
 
 dfh0 = register('dfh0', bits=dfh0_bits)
+
 
 def dfh_walk(region, offset=0, header=dfh0, guid=None):
     while True:
@@ -299,6 +313,7 @@ def dfh_walk(region, offset=0, header=dfh0, guid=None):
         if h.bits.eol or not h.bits.next:
             break
         offset += h.bits.next
+
 
 def walk(region,
          offset=0, show_uuid=False, count=None, delay=None, dump=False):
@@ -370,23 +385,24 @@ class feature(object):
             if not err:
                 csr.commit()
 
-fpga_devices = {(0x8086, 0x09c4) : "Intel PAC A10 GX",
-                (0x8086, 0x09c5) : "Intel PAC A10 GX VF",
-                (0x8086, 0x0b2b) : "Intel PAC D5005",
-                (0x8086, 0x0b2c) : "Intel PAC D5005 VF",
-                (0x8086, 0x0b30) : "Intel PAC N3000",
-                (0x8086, 0x0b31) : "Intel PAC N3000 VF",
-                (0x8086, 0xaf00) : "Intel N6000 ADP",
-                (0x8086, 0xaf01) : "Intel N6000 ADP VF",
-                (0x8086, 0xbcce) : "Intel N6000 ADP",
-                (0x8086, 0xbccf) : "Intel N6000 ADP VF"}
 
+fpga_devices = {(0x8086, 0x09c4): "Intel PAC A10 GX",
+                (0x8086, 0x09c5): "Intel PAC A10 GX VF",
+                (0x8086, 0x0b2b): "Intel PAC D5005",
+                (0x8086, 0x0b2c): "Intel PAC D5005 VF",
+                (0x8086, 0x0b30): "Intel PAC N3000",
+                (0x8086, 0x0b31): "Intel PAC N3000 VF",
+                (0x8086, 0xaf00): "Intel N6000 ADP",
+                (0x8086, 0xaf01): "Intel N6000 ADP VF",
+                (0x8086, 0xbcce): "Intel N6000 ADP",
+                (0x8086, 0xbccf): "Intel N6000 ADP VF"}
 
 
 def read_attr(dirname, attr):
     fname = Path(dirname, attr)
     if fname.exists():
         return fname.read_text().strip()
+
 
 def read_link(dirname, *attr):
     fname = Path(dirname, *attr)
@@ -413,7 +429,7 @@ def lsfpga(**kwargs):
     conf = get_conf()
     conf_ids = {}
     if conf:
-        for k,v in conf.get('fpga_devices', {}).items():
+        for k, v in conf.get('fpga_devices', {}).items():
             try:
                 vstr, dstr = k.split(':')
             except:
