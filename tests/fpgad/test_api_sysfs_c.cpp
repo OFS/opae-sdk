@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2021, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -126,5 +126,6 @@ TEST_P(fpgad_sysfs_c_p, dup02) {
   free(s);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_sysfs_c_p);
 INSTANTIATE_TEST_CASE_P(fpgad_c, fpgad_sysfs_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));

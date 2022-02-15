@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -155,6 +155,8 @@ TEST_P(xfpga_plugin_c_p, test_plugin_2) {
 		opae_plugin_mgr_free_adapter_test(adapter_table);
 
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(xfpga_plugin_c_p);
 INSTANTIATE_TEST_CASE_P(xfpga_plugin_c, xfpga_plugin_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({"skx-p","dcp-rc"})));
 
@@ -174,6 +176,7 @@ TEST_P(xfpga_plugin_mock_c_p, test_plugin_neg) {
 	EXPECT_EQ(xfpga_plugin_finalize(), FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(xfpga_plugin_mock_c_p);
 INSTANTIATE_TEST_CASE_P(xfpga_plugin_mock_c, xfpga_plugin_mock_c_p,
      ::testing::ValuesIn(test_platform::mock_platforms()));
 

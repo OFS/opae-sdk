@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -349,6 +349,7 @@ TEST_P(metrics_utils_c_p, test_metric_utils_15) {
   EXPECT_NE(FPGA_OK, get_fpga_object_type(handle_, NULL));
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_utils_c_p);
 INSTANTIATE_TEST_CASE_P(metrics_utils_c, metrics_utils_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
 
@@ -444,5 +445,6 @@ TEST_P(metrics_utils_dcp_c_p, test_metric_utils_14) {
   EXPECT_EQ(FPGA_OK, get_bmc_metrics_values(handle_, &_fpga_enum_metric, &fpga_metric));
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_utils_dcp_c_p);
 INSTANTIATE_TEST_CASE_P(metrics_utils_c, metrics_utils_dcp_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));

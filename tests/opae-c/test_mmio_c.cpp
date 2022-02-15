@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -254,5 +254,6 @@ TEST_P(mmio_c_p, mmio512_neg_test) {
 }
 #endif // TEST_SUPPORTS_AVX512
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mmio_c_p);
 INSTANTIATE_TEST_CASE_P(mmio_c, mmio_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));

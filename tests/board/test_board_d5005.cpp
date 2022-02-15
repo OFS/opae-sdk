@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2020, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -340,6 +340,7 @@ TEST_P(board_dfl_d5005_c_p, board_d5005_9) {
 	EXPECT_EQ(read_mac_info(tokens_[0], 100, &mac_addr), FPGA_INVALID_PARAM);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_dfl_d5005_c_p);
 INSTANTIATE_TEST_CASE_P(baord_d5005_c, board_dfl_d5005_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-d5005" })));
 
@@ -367,5 +368,7 @@ TEST_P(board_d5005_invalid_c_p, invalid_board_d5005_1) {
 	EXPECT_EQ(read_mac_info(tokens_[0], 0, &mac_addr), FPGA_NOT_FOUND);
 
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_d5005_invalid_c_p);
 INSTANTIATE_TEST_CASE_P(board_d5005_invalid_c, board_d5005_invalid_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));

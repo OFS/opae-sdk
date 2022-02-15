@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -244,6 +244,7 @@ TEST_P(sysobject_cxx_p, read_bytes) {
   }
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysobject_cxx_p);
 INSTANTIATE_TEST_CASE_P(sysobject_cxx, sysobject_cxx_p,
          ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));
 

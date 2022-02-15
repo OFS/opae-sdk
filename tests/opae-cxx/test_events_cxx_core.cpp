@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -143,4 +143,5 @@ TEST_P(events_cxx_core, get_os_object) {
   ASSERT_NE(res, -1);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(events_cxx_core);
 INSTANTIATE_TEST_CASE_P(events, events_cxx_core, ::testing::ValuesIn(test_platform::keys(true)));
