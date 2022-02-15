@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -309,6 +309,7 @@ TEST_P(openclose_c_p, close_03) {
   EXPECT_EQ(res, FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(openclose_c_p);
 INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_p, 
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
@@ -332,6 +333,7 @@ TEST_P(openclose_c_skx_dcp_p, open_share) {
   EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(h2));
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(openclose_c_skx_dcp_p);
 INSTANTIATE_TEST_CASE_P(openclose_c_skx_dcp, openclose_c_skx_dcp_p,
                         ::testing::ValuesIn(test_platform::platforms({}, fpga_driver::linux_intel)));
 
@@ -354,6 +356,7 @@ TEST_P(openclose_c_dfl_p, open_share) {
   EXPECT_EQ(FPGA_OK, xfpga_fpgaClose(h1));
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(openclose_c_dfl_p);
 INSTANTIATE_TEST_CASE_P(openclose_c_dfl, openclose_c_dfl_p,
                         ::testing::ValuesIn(test_platform::hw_platforms({}, fpga_driver::linux_dfl0)));
 
@@ -397,5 +400,6 @@ TEST_P(openclose_c_mock_p, invalid_open_close) {
 #endif
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(openclose_c_mock_p);
 INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_mock_p, 
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));

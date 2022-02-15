@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -99,5 +99,6 @@ TEST_P(reset_c_p, success) {
     EXPECT_EQ(fpgaReset(accel_), FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reset_c_p);
 INSTANTIATE_TEST_CASE_P(reset_c, reset_c_p, 
                         ::testing::ValuesIn(test_platform::platforms({})));

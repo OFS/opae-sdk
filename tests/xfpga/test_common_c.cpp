@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -182,5 +182,5 @@ TEST_P(common_c_p, event_handle_check_and_lock) {
   EXPECT_EQ(FPGA_OK,res);
 }
 
-
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(common_c_p);
 INSTANTIATE_TEST_CASE_P(common_c, common_c_p, ::testing::ValuesIn(test_platform::keys(true)));

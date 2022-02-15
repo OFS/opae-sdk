@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -399,7 +399,9 @@ TEST_P(metadata_c, get_interface_id_03) {
   EXPECT_EQ(res, FPGA_EXCEPTION);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metadata_c);
 INSTANTIATE_TEST_CASE_P(metadata, metadata_c, ::testing::ValuesIn(test_platform::platforms({ "dfl-d5005" })));
+
 class metadata_mock_c : public metadata_c {};
 
 /**
@@ -417,6 +419,7 @@ TEST_P(metadata_mock_c, validate_bitstream_metadata) {
   EXPECT_EQ(result, FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metadata_mock_c);
 INSTANTIATE_TEST_CASE_P(metadata, metadata_mock_c,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-d5005" })));
 
@@ -445,6 +448,7 @@ TEST_P(metadata_mock_d5005_c, validate_bitstream_metadata_1) {
 	EXPECT_EQ(result, FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metadata_mock_d5005_c);
 INSTANTIATE_TEST_CASE_P(metadata, metadata_mock_d5005_c,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-d5005" })));
 
@@ -466,5 +470,6 @@ TEST_P(metadata_hw_c, validate_bitstream_metadata) {
   EXPECT_EQ(result, FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metadata_hw_c);
 INSTANTIATE_TEST_CASE_P(metadata, metadata_hw_c,
                         ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-d5005" })));

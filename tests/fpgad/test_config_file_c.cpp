@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2021, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -455,6 +455,7 @@ TEST_P(fpgad_config_file_c_p, process_plugin8) {
   EXPECT_NE(cfg_load_config(&config_), 0);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_config_file_c_p);
 INSTANTIATE_TEST_CASE_P(fpgad_config_file_c, fpgad_config_file_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
 
@@ -681,6 +682,7 @@ TEST_P(fpgad_config_file_devices_p, process_plugin_devices9) {
   free(ids);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_config_file_devices_p);
 INSTANTIATE_TEST_CASE_P(fpgad_config_file_c, fpgad_config_file_devices_p,
                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
 
@@ -820,6 +822,7 @@ TEST_P(mock_fpgad_config_file_c_p, process_plugin10) {
   EXPECT_NE(cfg_load_config(&config_), 0);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_fpgad_config_file_c_p);
 INSTANTIATE_TEST_CASE_P(fpgad_config_file_c, mock_fpgad_config_file_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
 
@@ -871,5 +874,6 @@ TEST_P(mock_fpgad_config_file_devices_p, process_plugin_devices8) {
   EXPECT_EQ(cfg_process_plugin_devices("a", devices), nullptr);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_fpgad_config_file_devices_p);
 INSTANTIATE_TEST_CASE_P(fpgad_config_file_c, mock_fpgad_config_file_devices_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));

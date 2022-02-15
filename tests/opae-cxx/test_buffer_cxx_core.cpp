@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -217,5 +217,6 @@ TEST_P(buffer_cxx_core, read_write) {
   EXPECT_EQ(0xdecafbad, buf->read<uint32_t>(0));
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(buffer_cxx_core);
 INSTANTIATE_TEST_CASE_P(buffer, buffer_cxx_core,
                         ::testing::ValuesIn(test_platform::keys(true)));

@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -728,6 +728,7 @@ TEST(wrapper, validate) {
   EXPECT_EQ(NULL, opae_validate_wrapped_object(NULL));
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(enum_c_p);
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-d5005" })));
 
@@ -745,6 +746,7 @@ TEST_P(enum_c_mock_p, clone_token02) {
   EXPECT_EQ(fpgaCloneToken(src, &dst), FPGA_NO_MEMORY);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(enum_c_mock_p);
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000", "dfl-d5005" })));
 
@@ -782,6 +784,7 @@ TEST_P(enum_c_err_p, num_errors) {
   EXPECT_EQ(num_matches_, 0);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(enum_c_err_p);
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_err_p,
                         ::testing::ValuesIn(test_platform::platforms({"dfl-n3000", "dfl-d5005" })));
 
@@ -805,5 +808,6 @@ TEST_P(enum_c_socket_p, socket_id) {
   EXPECT_EQ(num_matches_, 0);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(enum_c_socket_p);
 INSTANTIATE_TEST_CASE_P(enum_c, enum_c_socket_p,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));

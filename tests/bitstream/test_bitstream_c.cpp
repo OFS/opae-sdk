@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2020, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -359,6 +359,7 @@ TEST_P(bitstream_c_p, unload_err1) {
   free(save);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(bitstream_c_p);
 INSTANTIATE_TEST_CASE_P(bitstream_c, bitstream_c_p,
     ::testing::ValuesIn(test_platform::platforms({})));
 
@@ -398,5 +399,6 @@ TEST_P(mock_bitstream_c_p, resolve_err2) {
   EXPECT_EQ(opae_resolve_bitstream(&info), FPGA_NO_MEMORY);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_bitstream_c_p);
 INSTANTIATE_TEST_CASE_P(bitstream_c, mock_bitstream_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({})));

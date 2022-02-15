@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -225,6 +225,7 @@ TEST_P(properties_c_p, valid_gets) {
   EXPECT_EQ(objtype, FPGA_DEVICE);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(properties_c_p);
 INSTANTIATE_TEST_CASE_P(properties_c, properties_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
