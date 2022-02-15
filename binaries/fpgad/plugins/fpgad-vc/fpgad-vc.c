@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2021, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -43,6 +43,7 @@
 log_printf("fpgad-vc: " format, ##__VA_ARGS__)
 
 #define FME_ERR_NAME "errors"
+#define FME_ERR_NAME2 "fme_errors"
 #define SEU_ERR_NAME "seu_emr"
 #define CATFATAL_ERR_NAME "catfatal_errors"
 
@@ -765,7 +766,8 @@ STATIC void vc_handle_err_event(vc_device *vc)
 		if (error_value != 0) {
 			LOG("detect %s 0x%zx @ %s\n", errinfo.name, error_value, vc->sbdf);
 		}
-		if (!strcmp(errinfo.name, FME_ERR_NAME)) {
+		if (!strcmp(errinfo.name, FME_ERR_NAME) ||
+		    !strcmp(errinfo.name, FME_ERR_NAME2)) {
 			if (error_value & (1 << FPGA_SEU_ERR_BIT)) {
 				vc->fpga_seu_err = true;
 				LOG("SEU error occurred on fpga @ %s\n", vc->sbdf);
