@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2020, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -801,6 +801,7 @@ TEST_P(metadatav1_c_p, parse_v1_ok) {
   opae_bitstream_release_metadata_v1(md);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metadatav1_c_p);
 INSTANTIATE_TEST_CASE_P(metadatav1_c, metadatav1_c_p,
     ::testing::ValuesIn(test_platform::platforms({})));
 
@@ -891,5 +892,6 @@ TEST_P(mock_metadatav1_c_p, parse_v1_err0) {
             nullptr);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_metadatav1_c_p);
 INSTANTIATE_TEST_CASE_P(metadatav1_c, mock_metadatav1_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({})));

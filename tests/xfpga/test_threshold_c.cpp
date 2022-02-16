@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2021, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -157,6 +157,8 @@ TEST_P(metrics_threshold_c_p, metrics_threshold_2) {
 
   EXPECT_NE(get_bmc_threshold_info(handle_, NULL, &num_thresholds), FPGA_OK);
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_threshold_c_p);
 INSTANTIATE_TEST_CASE_P(metrics_threshold_c_c, metrics_threshold_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({"dcp-vc"})));
 
@@ -213,6 +215,8 @@ TEST_P(metrics_bmc_threshold_c_p, metrics_threshold_4) {
 
   EXPECT_NE(get_max10_threshold_info(handle_, NULL, &num_thresholds), FPGA_OK);
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_bmc_threshold_c_p);
 INSTANTIATE_TEST_CASE_P(metrics_threshold_c_c, metrics_bmc_threshold_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
 
@@ -241,6 +245,7 @@ TEST_P(metrics_mcp_threshold_c_p, metrics_threshold_5) {
   EXPECT_NE(get_bmc_threshold_info(handle_, NULL, &num_thresholds), FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_mcp_threshold_c_p);
 INSTANTIATE_TEST_CASE_P(metrics_threshold_c_c, metrics_mcp_threshold_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
 
@@ -304,5 +309,7 @@ TEST_P(metrics_afu_threshold_c_p, metrics_threshold_6) {
             FPGA_OK);
   EXPECT_NE(xfpga_fpgaGetMetricsThresholdInfo(handle_, NULL, NULL), FPGA_OK);
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_afu_threshold_c_p);
 INSTANTIATE_TEST_CASE_P(metrics_threshold_c_c, metrics_afu_threshold_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({"dcp-vc"})));

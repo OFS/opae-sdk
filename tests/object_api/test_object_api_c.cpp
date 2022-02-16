@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -137,6 +137,7 @@ TEST_P(object_api_c_p, main0) {
   EXPECT_NE(object_api_main(2, argv), 0);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(object_api_c_p);
 INSTANTIATE_TEST_CASE_P(object_api_c, object_api_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));
 
@@ -167,6 +168,7 @@ TEST_P(object_api_c_mock_p, main1) {
   EXPECT_EQ(object_api_main(3, argv), FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(object_api_c_mock_p);
 INSTANTIATE_TEST_CASE_P(object_api_c, object_api_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
 
@@ -194,6 +196,7 @@ TEST_P(object_api_c_mcp_hw_p, main1) {
   EXPECT_EQ(object_api_main(3, argv), FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(object_api_c_mcp_hw_p);
 INSTANTIATE_TEST_CASE_P(object_api_c, object_api_c_mcp_hw_p,
                         ::testing::ValuesIn(test_platform::hw_platforms({"skx-p"})));
 
@@ -222,5 +225,6 @@ TEST_P(object_api_c_dcp_hw_p, main1) {
   EXPECT_NE(object_api_main(3, argv), FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(object_api_c_dcp_hw_p);
 INSTANTIATE_TEST_CASE_P(object_api_c, object_api_c_dcp_hw_p,
                         ::testing::ValuesIn(test_platform::hw_platforms({"dcp-rc"})));

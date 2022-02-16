@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -357,6 +357,7 @@ TEST_P(umsg_c_p, test_umsg_drv_08_DISABLED) {
   _handle->fddev = fddev;
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(umsg_c_p);
 INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_p, ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
 
 class umsg_c_mcp_p : public umsg_c_p {
@@ -396,6 +397,7 @@ TEST_P(umsg_c_mcp_p, test_umsg_drv_04_DISABLED) {
   EXPECT_EQ(FPGA_OK, xfpga_fpgaSetUmsgAttributes(handle_, Umsghit_Disble));
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(umsg_c_mcp_p);
 INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_mcp_p,
                         ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
 
@@ -615,6 +617,7 @@ TEST_P(umsg_c_mock_p, test_umsg_09_DISABLED) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaTriggerUmsg(handle_, 0));
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(umsg_c_mock_p);
 INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p"})));
 

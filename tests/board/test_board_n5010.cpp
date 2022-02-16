@@ -1,4 +1,4 @@
-// Original work Copyright(c) 2019-2020, Intel Corporation
+// Original work Copyright(c) 2019-2022, Intel Corporation
 // Modifications Copyright(c) 2021, Silicom Denmark A/S
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
@@ -97,7 +97,7 @@ class board_dfl_n5010_c_p : public board_n5010_c_p { };
 * @brief      Tests: print_board_info
 * @details    Validates fpga board info  <br>
 */
-TEST_P(board_dfl_n5010_c_p, board_n5010_0) {
+TEST_P(board_dfl_n5010_c_p, DISABLED_board_n5010_0) {
 
 	EXPECT_EQ(print_board_info(tokens_[0]), FPGA_OK);
 }
@@ -107,7 +107,7 @@ TEST_P(board_dfl_n5010_c_p, board_n5010_0) {
 * @brief      Tests: read_max10fw_version
 * @details    Validates max10 firmware version  <br>
 */
-TEST_P(board_dfl_n5010_c_p, board_n5010_1) {
+TEST_P(board_dfl_n5010_c_p, DISABLED_board_n5010_1) {
 
 	char max10fw_ver[SYSFS_PATH_MAX];
 
@@ -123,7 +123,7 @@ TEST_P(board_dfl_n5010_c_p, board_n5010_1) {
 * @brief      Tests: read_bmcfw_version
 * @details    Validates bmc firmware version  <br>
 */
-TEST_P(board_dfl_n5010_c_p, board_n5010_2) {
+TEST_P(board_dfl_n5010_c_p, DISABLED_board_n5010_2) {
 
 	char bmcfw_ver[SYSFS_PATH_MAX];
 
@@ -154,7 +154,7 @@ TEST_P(board_dfl_n5010_c_p, board_n5010_3) {
 * @brief      Tests: print_mac_info
 * @details    Validates prints mac info <br>
 */
-TEST_P(board_dfl_n5010_c_p, board_n5010_4) {
+TEST_P(board_dfl_n5010_c_p, DISABLED_board_n5010_4) {
 
 	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
 }
@@ -164,7 +164,7 @@ TEST_P(board_dfl_n5010_c_p, board_n5010_4) {
 * @brief      Tests: print_sec_info
 * @details    Validates fpga board info  <br>
 */
-TEST_P(board_dfl_n5010_c_p, board_n5010_5) {
+TEST_P(board_dfl_n5010_c_p, DISABLED_board_n5010_5) {
 
 	EXPECT_EQ(print_sec_info(tokens_[0]), FPGA_OK);
 }
@@ -174,10 +174,14 @@ TEST_P(board_dfl_n5010_c_p, board_n5010_5) {
 * @brief      Tests: print_mac_info
 * @details    Validates prints mac info  <br>
 */
-TEST_P(board_dfl_n5010_c_p, board_n5010_6) {
+TEST_P(board_dfl_n5010_c_p, DISABLED_board_n5010_6) {
 
 	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_dfl_n5010_c_p);
+INSTANTIATE_TEST_CASE_P(board_n5010_c, board_dfl_n5010_c_p,
+	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n6000" })));
 
 // test invalid sysfs attributes
 class board_n5010_invalid_c_p : public board_n5010_c_p { };
@@ -205,5 +209,7 @@ TEST_P(board_n5010_invalid_c_p, board_n5010_9) {
 
 	EXPECT_EQ(print_sec_info(tokens_[0]), FPGA_NOT_FOUND);
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_n5010_invalid_c_p);
 INSTANTIATE_TEST_CASE_P(board_n5010_invalid_c, board_n5010_invalid_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));

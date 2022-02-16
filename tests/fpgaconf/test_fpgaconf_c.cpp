@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -818,6 +818,7 @@ TEST_P(fpgaconf_c_p, circular_symlink) {
   remove("link2");
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgaconf_c_p);
 INSTANTIATE_TEST_CASE_P(fpgaconf_c, fpgaconf_c_p,
                         ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
 
@@ -999,6 +1000,7 @@ TEST_P(fpgaconf_c_mock_p, prog_bs2) {
   EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgaconf_c_mock_p);
 INSTANTIATE_TEST_CASE_P(fpgaconf_c, fpgaconf_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
 

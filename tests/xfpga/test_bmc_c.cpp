@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -558,5 +558,6 @@ TEST_P(bmc_c_p, test_bmc_7) {
   }
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(bmc_c_p);
 INSTANTIATE_TEST_CASE_P(bmc_c, bmc_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));

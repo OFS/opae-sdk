@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2021, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -134,5 +134,6 @@ TEST_P(fpgad_device_monitoring_c_p, mon02) {
   EXPECT_EQ(d.num_error_occurrences, 0);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_device_monitoring_c_p);
 INSTANTIATE_TEST_CASE_P(fpgad_c, fpgad_device_monitoring_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
