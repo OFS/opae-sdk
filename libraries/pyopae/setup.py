@@ -1,4 +1,4 @@
-# Copyright(c) 2018, Intel Corporation
+# Copyright(c) 2018-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -70,12 +70,12 @@ extensions = [
               extra_link_args=["-std=c++11"],
               include_dirs=[
                   "@CMAKE_INSTALL_PREFIX@/include",
-                  os.environ.get("OPAE_INCLUDE_DIR", ""),
+                  "@OPAE_INCLUDE_PATH@",
                   pybind_include_dirs(),
                   pybind_include_dirs(True)
               ],
               libraries=["opae-c", "opae-cxx-core", "uuid"],
-              library_dirs=[os.environ.get("OPAE_LIBRARY_DIR", ""),
+              library_dirs=["@LIBRARY_OUTPUT_PATH@",
                             "@CMAKE_INSTALL_PREFIX@/lib",
                             "@CMAKE_INSTALL_PREFIX@/lib64"])
 ]
