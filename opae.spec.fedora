@@ -34,6 +34,7 @@ BuildRequires:  python3-jsonschema
 BuildRequires:  python3-pip
 BuildRequires:  python3-setuptools
 BuildRequires:  python3-pyyaml
+BuildRequires:  python3-pybind11
 BuildRequires:  rpm-build
 BuildRequires:  systemd-devel
 BuildRequires:  tbb-devel
@@ -139,15 +140,11 @@ cp samples/n5010-test/n5010-test.c %{buildroot}%{_usr}/src/opae/samples/n5010-te
 %endif
 
 prev=$PWD
-pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/opae.admin/
-%{__python3} setup.py install --single-version-externally-managed  --root=%{buildroot} 
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/binaries/opae.io
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
 popd
 
-pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/pacsign
-%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} 
-popd
-
-pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/packager
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/binaries/hssi
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
 popd
 
@@ -155,7 +152,23 @@ pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/binaries/fpgadiag
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
 popd
 
-pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/binaries/opae.io
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/%__cmake_builddir/libraries/pyopae/stage
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
+popd
+
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/libraries/pyopaeuio
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
+popd
+
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/opae.admin
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
+popd
+
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/pacsign
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
+popd
+
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/packager
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
 popd
 
@@ -325,6 +338,9 @@ done
 %{python3_sitearch}/opae.io*
 %{python3_sitearch}/opae/io*
 %{python3_sitearch}/pyopaeuio*
+%{python3_sitearch}/opae.fpga*
+%{python3_sitearch}/opae/fpga*
+%{python3_sitearch}/opae*
 
 %changelog
 * Mon Dec 14 2020 The OPAE Dev Team <opae@lists.01.org> - 2.0.0-2
