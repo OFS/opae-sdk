@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2021, Intel Corporation
+// Copyright(c) 2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -114,10 +114,17 @@ public:
   mem_tg(const char *afu_id = AFU_ID)
   : test_afu("mem_traffic_afu", afu_id)
   , count_(1)
+  , mem_ch_(0)
+  , loop_(1)
+  , wcnt_(1)
+  , rcnt_(1)
+  , bcnt_(1)
+  , stride_(1)
+  , mem_speed_(0)
   {
     // Channel
     app_.add_option("-m,--mem-channel", mem_ch_, "Target memory bank for test to run on (0 indexed)")
-      ->default_val("1");
+      ->default_val("0");
 
     // Loops
     app_.add_option("--loops", loop_, "Number of read/write loops to be run")

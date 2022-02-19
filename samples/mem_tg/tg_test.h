@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2021, Intel Corporation
+// Copyright(c) 2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -180,10 +180,7 @@ public:
             return ret;
         }
 
-        int status = 0;
-        status = run_mem_test();
-
-        return status;
+        return run_mem_test();
     }
 
 protected:
