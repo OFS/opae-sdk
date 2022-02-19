@@ -208,6 +208,7 @@ done
 
 %post
 %systemd_post fpgad.service
+/sbin/ldconfig
 
 %preun
 %systemd_preun fpgad.service
@@ -219,13 +220,16 @@ done
 %{_includedir}/opae/cxx/core.h
 %{_includedir}/opae/cxx/core/*.h
 %dir %{_usr}/src/opae
-%{_usr}/src/opae/samples/afu-test/afu_test.cpp
-%{_usr}/src/opae/samples/afu-test/afu_test.h
 %{_usr}/src/opae/samples/hello_fpga/hello_fpga.c
 %{_usr}/src/opae/samples/hello_events/hello_events.c
 %{_usr}/src/opae/samples/object_api/object_api.c
 %{_usr}/src/opae/samples/n5010-test/n5010-test.c
 %{_usr}/src/opae/samples/n5010-ctl/n5010-ctl.c
+%{_usr}/src/opae/cmake/modules/*
+%{_usr}/src/opae/argsfilter/argsfilter.c
+%{_usr}/src/opae/argsfilter/argsfilter.h
+%{_usr}/src/opae/samples/afu-test/afu_test.cpp
+%{_usr}/src/opae/samples/afu-test/afu_test.h
 %{_usr}/src/opae/samples/dummy_afu/ddr.h
 %{_usr}/src/opae/samples/dummy_afu/dummy_afu.cpp
 %{_usr}/src/opae/samples/dummy_afu/dummy_afu.h
@@ -256,10 +260,6 @@ done
 %{_usr}/src/opae/samples/opae.io/scripts/nlb_walk.py
 %{_usr}/src/opae/samples/opae.io/scripts/port.py
 %{_usr}/src/opae/samples/opae.io/scripts/walk.py
-%{_usr}/src/opae/cmake/*
-%{_usr}/src/opae/cmake/modules/*
-%{_usr}/src/opae/argsfilter/argsfilter.c
-%{_usr}/src/opae/argsfilter/argsfilter.h
 
 %{_libdir}/libfpgad-api.so
 %{_libdir}/libopae-c++-nlb.so
@@ -274,6 +274,7 @@ done
 %{_libdir}/libopaemem.so
 %{_libdir}/libopaeuio.so
 %{_libdir}/libopaevfio.so
+
 %{_bindir}/bitstreaminfo
 %{_bindir}/fpgaflash
 %{_bindir}/fpgaotsu
