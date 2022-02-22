@@ -129,9 +129,6 @@ public:
 	tg_exe_->write32(tg_offset_+TG_ADDR_MODE_WR, /*TG_ADDR_INCR*/ 0x2);
 	tg_exe_->write32(tg_offset_+TG_ADDR_MODE_RD, /*TG_ADDR_INCR*/ 0x2);
 
-	uint32_t rd = tg_exe_->read64(tg_offset_+TG_READ_COUNT);
-
-	std::cout << "Rd=" << rd << std::endl;
         return 0;
     }
 
