@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -151,6 +151,7 @@ TEST_P(reset_c_p, valid_port_reset) {
   EXPECT_EQ(FPGA_OK, xfpga_fpgaReset(handle_));
 } 
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reset_c_p);
 INSTANTIATE_TEST_CASE_P(reset_c, reset_c_p, ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005","dfl-n6000" })));
 
 class reset_c_mock_p : public reset_c_p {
@@ -170,5 +171,6 @@ TEST_P(reset_c_mock_p, test_port_drv_reset_01) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReset(handle_));
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reset_c_mock_p);
 INSTANTIATE_TEST_CASE_P(reset_c, reset_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));

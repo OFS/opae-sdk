@@ -28,10 +28,12 @@
 import argparse
 import ast
 import atexit
+import ctypes
 import io
 import json
 import jsonschema
 import os
+import struct
 import yaml
 
 import umd
@@ -107,6 +109,7 @@ class ofs_field(object):
         self.access = access
         self.default = default
         self.description = description
+        self._sorted = sorted(bits)
 
     def max(self):
         return max(self.bits)
@@ -123,6 +126,15 @@ class ofs_field(object):
         writer.write('\n')
         for line in self.description.split('\n'):
             writer.write(f'{self.spaces}// {line.strip()}\n')
+
+    def lo(self):
+        return self._sorted[0]
+
+    def hi(self):
+        return self._sorted[-1]
+
+    def width(self):
+        return 1 if len(self.bits) == 1 else (self.hi() - self.lo() + 1)
 
 
 class ofs_register(object):
@@ -379,8 +391,46 @@ def declare_fields(pod, fields, indent=0):
     return fp.getvalue().rstrip()
 
 
+def bitfield64(name, fields):
+    le_fields = sorted(fields, key=ofs_field.lo)
+    ct = ctypes.c_uint64 if le_fields[-1].hi() > 31 else ctypes.c_uint32
+    stype = type('{}_fields'.format(name),
+                 (ctypes.LittleEndianStructure,),
+                 dict(_fields_=[(f.name, ct, f.width()) for f in le_fields]))
+    utype = type(name,
+                 (ctypes.Union,),
+                 dict(_fields_=[('value', ct),
+                                ('bits', stype)]))
+    u = utype()
+    for f in le_fields:
+        setattr(u.bits, f.name, f.default)
+    return u
+
+
+def dump(args):
+    data = parse(args.input, args.schema, args.use_local_refs)
+    registers = data['registers']
+    bindata = bytearray()
+    offset = 0
+    outp = args.output
+    for r in registers:
+        if args.pad is not None:
+            delta = r.offset - offset
+            if delta:
+                bindata.extend(bytearray([args.pad]*delta))
+                offset = r.offset
+        v = bitfield64(r.name, r.fields).value if r.fields else r.default
+        bindata.extend(struct.pack('<Q', v))
+        offset += 8
+    outp.write(bindata)
+
+
 def make_headers(args):
     data = parse(args.input, args.schema, args.use_local_refs)
+    if args.language == 'bin':
+        with open(f'{args.input.name}.bin', 'wb') as fp:
+            dump(data, fp)
+            return
     for driver in data.get('drivers', []):
         name = driver['name']
         if args.list:
@@ -394,9 +444,21 @@ def make_headers(args):
             writer.write_header(args.output, args.language)
 
 
+def hex_int(inp):
+    try:
+        return int(inp, 0)
+    except BaseException:
+        print('error parsing int: {}'.format(inp))
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("input", type=argparse.FileType('r'))
+    parser.add_argument('--schema',
+                        default=default_schema)
+    parser.add_argument('--use-local-refs', action='store_true',
+                        default=False,
+                        help='Transform refs to local repo files')
     parsers = parser.add_subparsers()
     headers_parser = parsers.add_parser('headers')
     headers_parser.add_argument('language', choices=['c', 'cpp'])
@@ -409,12 +471,13 @@ def main():
                                 help='only list driver names in file')
     headers_parser.add_argument('-d', '--driver',
                                 help='process only this driver')
-    headers_parser.add_argument('--schema',
-                                default=default_schema)
-    headers_parser.add_argument('--use-local-refs', action='store_true',
-                                default=False,
-                                help='Transform refs to local repo files')
 
+    dump_parser = parsers.add_parser('dump')
+    dump_parser.set_defaults(func=dump)
+    dump_parser.add_argument('--pad', type=hex_int)
+    dump_parser.add_argument('-o', '--output',
+                             type=argparse.FileType('wb'),
+                             default='dump.bin')
     args = parser.parse_args()
     if not hasattr(args, 'func'):
         parser.print_usage()

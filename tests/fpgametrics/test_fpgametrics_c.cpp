@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -256,5 +256,6 @@ TEST_P(fpga_metrics_c_p, main2) {
 
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpga_metrics_c_p);
 INSTANTIATE_TEST_CASE_P(fpgametrics_c, fpga_metrics_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000" })));

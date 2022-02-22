@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -3483,6 +3483,7 @@ TEST_P(properties_c_p, validate01) {
   p->magic = FPGA_PROPERTY_MAGIC;
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(properties_c_p);
 INSTANTIATE_TEST_CASE_P(properties_c, properties_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));
 
@@ -3532,6 +3533,7 @@ TEST_P(properties_c_mock_p, fpga_clone_properties02) {
   ASSERT_EQ(fpgaCloneProperties(filter_, &clone), FPGA_EXCEPTION);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(properties_c_mock_p);
 INSTANTIATE_TEST_CASE_P(properties_c, properties_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({})));
 

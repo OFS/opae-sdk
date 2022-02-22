@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -303,6 +303,7 @@ TEST_P(reconf_c, validate_bitstream) {
   EXPECT_EQ(FPGA_EXCEPTION, result);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reconf_c);
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c,
                         ::testing::ValuesIn(test_platform::platforms({})));
 
@@ -441,6 +442,7 @@ TEST_P(reconf_c_mock_p, fpga_reconf_slot_enotsup) {
   EXPECT_EQ(result, FPGA_EXCEPTION);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reconf_c_mock_p);
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
@@ -460,6 +462,7 @@ TEST_P(reconf_c_hw_skx_p, set_afu_userclock) {
   EXPECT_EQ(set_afu_userclock(handle_, 312, 156), FPGA_OK);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reconf_c_hw_skx_p);
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c_hw_skx_p,
                         ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-d5005" })));
 
@@ -479,6 +482,7 @@ TEST_P(reconf_c_hw_dcp_p, set_afu_userclock) {
   EXPECT_EQ(set_afu_userclock(handle_, 312, 156), FPGA_NOT_SUPPORTED);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reconf_c_hw_dcp_p);
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c_hw_dcp_p,
                         ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-d5005" })));
 
@@ -586,5 +590,6 @@ TEST_P(reconf_c_hw_p, fpga_reconf_slot_inv_len) {
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reconf_c_hw_p);
 INSTANTIATE_TEST_CASE_P(reconf, reconf_c_hw_p,
 	::testing::ValuesIn(test_platform::hw_platforms({ "dfl-n3000","dfl-d5005" })));

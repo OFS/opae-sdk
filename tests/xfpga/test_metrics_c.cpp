@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -300,6 +300,7 @@ TEST_P(metrics_c_p, test_metric_04) {
   free(metric_array_search);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_c_p);
 INSTANTIATE_TEST_CASE_P(metrics_c, metrics_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
 
@@ -584,5 +585,7 @@ TEST_P(metrics_afu_c_p, test_afc_metric_04) {
 
   free(metric_array_search);
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_afu_c_p);
 INSTANTIATE_TEST_CASE_P(metrics_c, metrics_afu_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));

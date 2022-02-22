@@ -1,4 +1,4 @@
-## Copyright(c) 2018-2020, Intel Corporation
+## Copyright(c) 2018-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -87,7 +87,7 @@ add_custom_command(TARGET _opae
     COMMENT "Copying Python test files")
 
 if (OPAE_BUILD_PYTHON_DIST)
-    set(SETUP_INCLUDE_DIRS "${OPAE_INCLUDE_DIR}:${PYBIND_INCLUDE_DIR}")
+    set(SETUP_INCLUDE_DIRS "${OPAE_INCLUDE_PATH}:${PYBIND_INCLUDE_DIR}")
 
     set(PYFILES
         setup.py
@@ -110,7 +110,7 @@ if (OPAE_BUILD_PYTHON_DIST)
     add_custom_target(pyopae-dist
         COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
         COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext
-        --include-dirs=${OPAE_INCLUDE_DIR}
+	--include-dirs=${OPAE_INCLUDE_PATH}
         --library-dirs=${LIBRARY_OUTPUT_PATH}
         COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_wheel
         DEPENDS ${PYFILES} ${PYOPAE_SRC}

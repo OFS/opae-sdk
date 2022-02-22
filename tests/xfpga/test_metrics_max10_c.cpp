@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2021, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -185,6 +185,8 @@ TEST_P(metrics_max10_c_p, test_metric_max10_2) {
 
   EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_max10_c_p);
 INSTANTIATE_TEST_CASE_P(metrics_max10_c, metrics_max10_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({"dfl-n3000"})));
 
@@ -209,6 +211,8 @@ TEST_P(metrics_invalid_max10_c_p, test_metric_max10_3) {
 
   EXPECT_EQ(FPGA_OK, fpga_vector_free(&vector));
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_invalid_max10_c_p);
 INSTANTIATE_TEST_CASE_P(metrics_max10_c, metrics_invalid_max10_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
 
@@ -241,5 +245,7 @@ TEST_P(metrics_max10_vc_c_p, test_metric_max10_4) {
 	double dvalue = 0;
 	EXPECT_EQ(FPGA_INVALID_PARAM, read_max10_value(NULL, &dvalue));
 }
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_max10_vc_c_p);
 INSTANTIATE_TEST_CASE_P(metrics_max10_c, metrics_max10_vc_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-d5005" })));

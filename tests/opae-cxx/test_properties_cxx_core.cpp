@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -298,5 +298,6 @@ TEST_P(properties_cxx_core, get_interface) {
   EXPECT_EQ(static_cast<fpga_interface>(p->interface), FPGA_IFC_DFL);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(properties_cxx_core);
 INSTANTIATE_TEST_CASE_P(properties, properties_cxx_core,
                         ::testing::ValuesIn(test_platform::keys(true)));

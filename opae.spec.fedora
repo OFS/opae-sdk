@@ -34,6 +34,7 @@ BuildRequires:  python3-jsonschema
 BuildRequires:  python3-pip
 BuildRequires:  python3-setuptools
 BuildRequires:  python3-pyyaml
+BuildRequires:  python3-pybind11
 BuildRequires:  rpm-build
 BuildRequires:  systemd-devel
 BuildRequires:  tbb-devel
@@ -68,6 +69,13 @@ Requires:   openssl-devel
 
 %description devel
 OPAE headers, tools, sample source, and documentation
+
+
+%package extra-tools
+Summary:    Additional OPAE tools
+
+%description extra-tools
+Additional OPAE tools
 
 
 %{?python_disable_dependency_generator}
@@ -139,15 +147,11 @@ cp samples/n5010-test/n5010-test.c %{buildroot}%{_usr}/src/opae/samples/n5010-te
 %endif
 
 prev=$PWD
-pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/opae.admin/
-%{__python3} setup.py install --single-version-externally-managed  --root=%{buildroot} 
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/binaries/opae.io
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
 popd
 
-pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/pacsign
-%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot} 
-popd
-
-pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/packager
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/binaries/hssi
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
 popd
 
@@ -155,7 +159,23 @@ pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/binaries/fpgadiag
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
 popd
 
-pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/binaries/opae.io
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/%__cmake_builddir/libraries/pyopae/stage
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
+popd
+
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/libraries/pyopaeuio
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
+popd
+
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/opae.admin
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
+popd
+
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/pacsign
+%{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
+popd
+
+pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/packager
 %{__python3} setup.py install --single-version-externally-managed --root=%{buildroot}
 popd
 
@@ -238,17 +258,16 @@ done
 %{_usr}/src/opae/samples/object_api/object_api.c
 %{_usr}/src/opae/samples/n5010-test/n5010-test.c
 %{_usr}/src/opae/samples/n5010-ctl/n5010-ctl.c
-%{_usr}/src/opae/cmake/*
 %{_usr}/src/opae/cmake/modules/*
 %{_usr}/src/opae/argsfilter/argsfilter.c
 %{_usr}/src/opae/argsfilter/argsfilter.h
 
+%{_libdir}/libfpgad-api.so
 %{_libdir}/libopae-c++-nlb.so
 %{_libdir}/libopae-cxx-core.so
 %{_libdir}/libopae-c++-utils.so
 %{_libdir}/libopae-c.so
 %{_libdir}/libbitstream.so
-%{_libdir}/libfpgad-api.so
 %{_libdir}/libmml-stream.so
 %{_libdir}/libmml-srv.so
 %{_libdir}/libofs.so
@@ -256,25 +275,7 @@ done
 %{_libdir}/libopaemem.so
 %{_libdir}/libopaeuio.so
 %{_libdir}/libopaevfio.so
-%{_bindir}/bist_app
-%{_bindir}/dummy_afu
-%{_bindir}/bist_app.py
-%{_bindir}/bist_common.py
-%{_bindir}/bist_dma.py
-%{_bindir}/bist_def.py
-%{_bindir}/bist_nlb3.py
-%{_bindir}/bist_nlb0.py
-%{_bindir}/fpgabist
-%{_bindir}/nlb0
-%{_bindir}/nlb3
-%{_bindir}/nlb7
-%{_bindir}/fecmode
-%{_bindir}/fpgamac
-%{_bindir}/fvlbypass
-%{_bindir}/mactest
-%{_bindir}/fpgadiag
-%{_bindir}/fpgalpbk
-%{_bindir}/fpgastats
+
 %{_bindir}/bitstreaminfo
 %{_bindir}/fpgaflash
 %{_bindir}/fpgaotsu
@@ -289,12 +290,9 @@ done
 %{_bindir}/afu_json_mgr
 %{_bindir}/packager
 %{_bindir}/fpgametrics
-%{_bindir}/fpga_dma_N3000_test
-%{_bindir}/fpga_dma_test
 %{_bindir}/n5010-test
 %{_bindir}/n5010-ctl
 %{_bindir}/PACSign
-%{_bindir}/host_exerciser
 %{_bindir}/opaevfio
 %{_bindir}/opaevfiotest
 %{_bindir}/regmap-debugfs
@@ -302,17 +300,17 @@ done
 %{_bindir}/afu_platform_config
 %{_bindir}/afu_platform_info
 %{_bindir}/afu_synth_setup
-%{_bindir}/bist
-%{_bindir}/hps
-%{_bindir}/hssi
 %{_bindir}/hssiloopback
 %{_bindir}/hssimac
 %{_bindir}/hssistats
-%{_bindir}/opae.io
 %{_bindir}/opaeuiotest
 %{_bindir}/pac_hssi_config.py
 %{_bindir}/rtl_src_config
+%{_bindir}/nlb0
+%{_bindir}/nlb3
+%{_bindir}/nlb7
 %{_bindir}/vabtool
+
 
 %{_usr}/share/opae/*
 %{python3_sitelib}/ethernet*
@@ -320,6 +318,36 @@ done
 %{python3_sitelib}/pacsign*
 %{python3_sitelib}/packager*
 %{python3_sitearch}/libvfio*
+
+%{python3_sitearch}/opae.fpga*
+%{python3_sitearch}/opae/fpga*
+%{python3_sitearch}/opae*
+
+%files extra-tools
+%{_bindir}/bist_app
+%{_bindir}/dummy_afu
+%{_bindir}/bist_app.py
+%{_bindir}/bist_common.py
+%{_bindir}/bist_dma.py
+%{_bindir}/bist_def.py
+%{_bindir}/bist_nlb3.py
+%{_bindir}/bist_nlb0.py
+%{_bindir}/fpgabist
+%{_bindir}/fecmode
+%{_bindir}/fpgamac
+%{_bindir}/fvlbypass
+%{_bindir}/mactest
+%{_bindir}/fpgadiag
+%{_bindir}/fpgalpbk
+%{_bindir}/fpgastats
+%{_bindir}/fpga_dma_N3000_test
+%{_bindir}/fpga_dma_test
+%{_bindir}/host_exerciser
+%{_bindir}/bist
+%{_bindir}/hps
+%{_bindir}/hssi
+%{_bindir}/opae.io
+
 %{python3_sitearch}/opae.diag*
 %{python3_sitearch}/opae/diag*
 %{python3_sitearch}/opae.io*

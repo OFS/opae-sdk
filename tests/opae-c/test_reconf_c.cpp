@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -109,5 +109,6 @@ TEST_P(reconf_c_p, pr) {
 		  bitstream, 5, 0), FPGA_INVALID_PARAM);
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reconf_c_p);
 INSTANTIATE_TEST_CASE_P(reconf_c, reconf_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));
