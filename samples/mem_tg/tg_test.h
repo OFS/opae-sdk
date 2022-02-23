@@ -116,7 +116,6 @@ public:
 	  return -1;
 	} else {
 	  tg_offset_ = AFU_DFH + (MEM_TG_CFG_OFFSET * (1+tg_exe_->mem_ch_));
-	  std::cout << "TG OFFSET: " << std::hex << tg_offset_ << std::endl;
 	}
 	
 	tg_exe_->write32(tg_offset_+TG_LOOP_COUNT,  tg_exe_->loop_);

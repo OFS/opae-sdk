@@ -47,7 +47,7 @@ enum {
   TG_ADDR_SEQ      = 1,
   TG_ADDR_RAND_SEQ = 2,
   TG_ADDR_ONE_HOT  = 3
-}
+};
 
 enum {
   AFU_DFH         = 0x0000,
