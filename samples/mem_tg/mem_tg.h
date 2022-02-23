@@ -41,7 +41,14 @@ enum {
   TG_STATUS_ERROR = 0x4,
   TG_STATUS_PASS  = 0x8
 };
-  
+
+enum {
+  TG_ADDR_RAND     = 0,
+  TG_ADDR_SEQ      = 1,
+  TG_ADDR_RAND_SEQ = 2,
+  TG_ADDR_ONE_HOT  = 3
+}
+
 enum {
   AFU_DFH         = 0x0000,
   AFU_ID_L        = 0x0008,

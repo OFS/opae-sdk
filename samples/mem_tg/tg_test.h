@@ -126,8 +126,8 @@ public:
 	tg_exe_->write32(tg_offset_+TG_SEQ_ADDR_INCR, tg_exe_->stride_);
 
 	// address increment mode
-	tg_exe_->write32(tg_offset_+TG_ADDR_MODE_WR, /*TG_ADDR_INCR*/ 0x2);
-	tg_exe_->write32(tg_offset_+TG_ADDR_MODE_RD, /*TG_ADDR_INCR*/ 0x2);
+	tg_exe_->write32(tg_offset_+TG_ADDR_MODE_WR, TG_ADDR_SEQ);
+	tg_exe_->write32(tg_offset_+TG_ADDR_MODE_RD, TG_ADDR_SEQ);
 
         return 0;
     }
