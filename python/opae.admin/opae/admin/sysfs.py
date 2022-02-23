@@ -30,7 +30,7 @@ import os
 import re
 from contextlib import contextmanager
 from pathlib import Path
-from subprocess import CalledProcessError
+from subprocess import CalledProcessError, check_call
 from opae.admin.path import sysfs_path
 from opae.admin.utils.process import call_process, DRY_RUN
 from opae.admin.utils.log import loggable, LOG
@@ -568,6 +568,14 @@ class pci_node(sysfs_node):
             True if this pci_node supports SR-IOV functions.
         """
         return bool(self.sriov_totalvfs)
+
+    def supports_ecap(self, cap):
+        ecap = cap.upper()
+        if ecap in ['AER', 'DPC']:
+            cmd = ['/usr/sbin/setpci',
+                   '-s', self.pci_address, f'ECAP_{ecap}.L']
+            return check_call(cmd) == 0
+        raise NameError(f'{ecap} not a known or supported extended capability')
 
 
 class sysfs_driver(sysfs_node):

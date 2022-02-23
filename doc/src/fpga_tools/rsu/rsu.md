@@ -49,6 +49,9 @@ show this help message and exit
 `-d, --debug`
 log debug statements
 
+`--force`
+force rsu operation
+
 ## EXAMPLE ##
 
 ```console
@@ -71,6 +74,18 @@ log debug statements
 
  Triggers a reconfiguration of the FPGA (user2 page) for the
  device with PCIe address 25:00.0.
+
+```console
+# rsu --force fpga --page=user2 25:00.0
+```
+
+ Forces a reconfiguration of the FPGA (user2 page) for the
+ device with PCIe address 25:00.0. Default behavior is to not perform
+ the rsu operation if DPC (downstream port containment) is not supported
+ and AER (advanced error reporting) is also not supported. Using --force
+ changes this behavior to perform rsu operation regardless but may result
+ in a surprise removal of pci devices which may cause the Linux kernel
+ to panic.
 
 ```console
 # rsu fpga --page=factory 25:00.0
