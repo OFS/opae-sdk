@@ -347,6 +347,7 @@ done
 %{_bindir}/hps
 %{_bindir}/hssi
 %{_bindir}/opae.io
+%{_bindir}/mem_tg
 
 %{python3_sitearch}/opae.diag*
 %{python3_sitearch}/opae/diag*
