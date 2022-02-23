@@ -40,36 +40,36 @@
 
 
 // user clock sysfs
-#define  IOPLL_CLOCK_FREQ      "dfl*/userclk/frequency"
-#define  IOPLL_REVISION        "dfl*/feature_rev"
-#define  MAX_FPGA_FREQ          1200
-#define  MIN_FPGA_FREQ          25
-#define  AGILEX_USRCLK_REV      1
+#define  IOPLL_CLOCK_FREQ             "dfl*/userclk/frequency"
+#define  IOPLL_REVISION               "dfl*/feature_rev"
+#define  MAX_FPGA_FREQ                1200
+#define  MIN_FPGA_FREQ                25
+#define  AGILEX_USRCLK_REV            1
 
 /*
  * USER CLK CSR register definitions
  */
  /* Field definitions for both USERCLK_FREQ_CMD0 and USERCLK_FREQ_STS0 */
-#define IOPLL_FREQ_CMD0		    0x8
-#define IOPLL_DATA		        GENMASK_ULL(31, 0)
-#define IOPLL_ADDR		        GENMASK_ULL(41, 32)
-#define IOPLL_WRITE		        BIT_ULL(44)
-#define IOPLL_SEQ		        GENMASK_ULL(49, 48)
-#define IOPLL_AVMM_RESET_N	    BIT_ULL(52)
-#define IOPLL_MGMT_RESET	    BIT_ULL(56)
-#define IOPLL_RESET		        BIT_ULL(57)
+#define IOPLL_FREQ_CMD0               0x8
+#define IOPLL_DATA                    GENMASK_ULL(31, 0)
+#define IOPLL_ADDR                    GENMASK_ULL(41, 32)
+#define IOPLL_WRITE                   BIT_ULL(44)
+#define IOPLL_SEQ                     GENMASK_ULL(49, 48)
+#define IOPLL_AVMM_RESET_N            BIT_ULL(52)
+#define IOPLL_MGMT_RESET              BIT_ULL(56)
+#define IOPLL_RESET                   BIT_ULL(57)
 
-#define IOPLL_FREQ_CMD1		    0x10
+#define IOPLL_FREQ_CMD1               0x10
 /* Field definitions for both USERCLKL_FREQ_CMD1 and USERCLK_FREQ_STS1 */
-#define IOPLL_CLK_MEASURE	    BIT_ULL(32)	/* Measure clk: 0=1x, 1=2x */
-#define IOPLL_FREQ_STS0		    0x18
-#define IOPLL_LOCKED		    BIT_ULL(60)
-#define IOPLL_AVMM_ERROR	    BIT_ULL(63)
+#define IOPLL_CLK_MEASURE             BIT_ULL(32)
+#define IOPLL_FREQ_STS0               0x18
+#define IOPLL_LOCKED                  BIT_ULL(60)
+#define IOPLL_AVMM_ERROR              BIT_ULL(63)
 
-#define IOPLL_FREQ_STS1		    0x20
-#define IOPLL_FREQUENCY	        GENMASK_ULL(16, 0)	/* 10 kHz units */
-#define IOPLL_REF_FREQ	        GENMASK_ULL(50, 33)	/* Reference Freq */
-#define IOPLL_VERSION		    GENMASK_ULL(63, 60)	/* User clock version */
+#define IOPLL_FREQ_STS1               0x20
+#define IOPLL_FREQUENCY               GENMASK_ULL(16, 0)
+#define IOPLL_REF_FREQ                GENMASK_ULL(50, 33)
+#define IOPLL_VERSION                 GENMASK_ULL(63, 60)	
 
 /*
  * Control and status registers for the IOPLL
@@ -77,63 +77,62 @@
  * Section 7.2
  */
 
-#define CFG_PLL_LOW			    GENMASK_ULL(7, 0)
-#define CFG_PLL_HIGH			GENMASK_ULL(15, 8)
-#define CFG_PLL_BYPASS_EN		BIT_ULL(16)
-#define CFG_PLL_EVEN_DUTY_EN    BIT_ULL(17)
+#define CFG_PLL_LOW                   GENMASK_ULL(7, 0)
+#define CFG_PLL_HIGH                  GENMASK_ULL(15, 8)
+#define CFG_PLL_BYPASS_EN             BIT_ULL(16)
+#define CFG_PLL_EVEN_DUTY_EN          BIT_ULL(17)
 
-#define PLL_EVEN_DUTY_EN_SHIFT	7
+#define PLL_EVEN_DUTY_EN_SHIFT        7
 
-#define PLL_N_HIGH_ADDR			0x100
-#define PLL_N_BYPASS_EN_ADDR    0x101 /* Same as PLL_CP1_ADDR */
-#define PLL_N_EVEN_DUTY_EN_ADDR	0x101 /* Same as PLL_CP1_ADDR */
-#define PLL_N_LOW_ADDR			0x102
+#define PLL_N_HIGH_ADDR               0x100
+#define PLL_N_BYPASS_EN_ADDR          0x101
+#define PLL_N_EVEN_DUTY_EN_ADDR       0x101 
+#define PLL_N_LOW_ADDR                0x102
 
-#define PLL_M_HIGH_ADDR			0x104
-#define PLL_M_BYPASS_EN_ADDR	0x105
-#define PLL_M_EVEN_DUTY_EN_ADDR	0x106
-#define PLL_M_LOW_ADDR			0x107
+#define PLL_M_HIGH_ADDR               0x104
+#define PLL_M_BYPASS_EN_ADDR          0x105
+#define PLL_M_EVEN_DUTY_EN_ADDR       0x106
+#define PLL_M_LOW_ADDR                0x107
 
-#define PLL_C0_HIGH_ADDR		0x11b
-#define PLL_C0_BYPASS_EN_ADDR	0x11c
-#define PLL_C0_EVEN_DUTY_EN_ADDR 0x11d
-#define PLL_C0_LOW_ADDR			0x11e
+#define PLL_C0_HIGH_ADDR              0x11b
+#define PLL_C0_BYPASS_EN_ADDR         0x11c
+#define PLL_C0_EVEN_DUTY_EN_ADDR      0x11d
+#define PLL_C0_LOW_ADDR               0x11e
 
-#define PLL_C1_HIGH_ADDR		0x11f
-#define PLL_C1_BYPASS_EN_ADDR	0x120
-#define PLL_C1_EVEN_DUTY_EN_ADDR 0x121
-#define PLL_C1_LOW_ADDR			0x122
+#define PLL_C1_HIGH_ADDR              0x11f
+#define PLL_C1_BYPASS_EN_ADDR         0x120
+#define PLL_C1_EVEN_DUTY_EN_ADDR      0x121
+#define PLL_C1_LOW_ADDR               0x122
 
-#define CFG_PLL_CP1			    GENMASK_ULL(2, 0)
-#define PLL_CP1_ADDR			0x101 /* Same as PLL_N_BYPASS_EN_ADDR */
-#define PLL_CP1_SHIFT			4
+#define CFG_PLL_CP1                   GENMASK_ULL(2, 0)
+#define PLL_CP1_ADDR                  0x101
+#define PLL_CP1_SHIFT                 4
 
-#define CFG_PLL_LF			    GENMASK_ULL(13, 6)
-#define PLL_LF_ADDR			    0x10a
-#define PLL_LF_SHIFT			3
+#define CFG_PLL_LF                    GENMASK_ULL(13, 6)
+#define PLL_LF_ADDR                   0x10a
+#define PLL_LF_SHIFT                  3
 
-#define CFG_PLL_CP2			    GENMASK_ULL(5, 3)
-#define PLL_CP2_ADDR			0x10d
-#define PLL_CP2_SHIFT			5
+#define CFG_PLL_CP2                   GENMASK_ULL(5, 3)
+#define PLL_CP2_ADDR                  0x10d
+#define PLL_CP2_SHIFT                 5
 
-#define CFG_PLL_RC			    GENMASK_ULL(1, 0)
-#define PLL_RC_SHIFT			1
+#define CFG_PLL_RC                    GENMASK_ULL(1, 0)
+#define PLL_RC_SHIFT                  1
 
-#define PLL_REQUEST_CAL_ADDR	0x149
-#define PLL_REQUEST_CALIBRATION	BIT(6)
+#define PLL_REQUEST_CAL_ADDR          0x149
+#define PLL_REQUEST_CALIBRATION       BIT(6)
 
-#define PLL_ENABLE_CAL_ADDR		0x14a
-#define PLL_ENABLE_CALIBRATION	0x03
+#define PLL_ENABLE_CAL_ADDR           0x14a
+#define PLL_ENABLE_CALIBRATION        0x03
 
-#define IOPLL_MEASURE_LOW		0
-#define IOPLL_MEASURE_HIGH		1
-#define IOPLL_MEASURE_DELAY_MS	4000
-#define IOPLL_RESET_DELAY_MS	1000
-#define IOPLL_CAL_DELAY_MS		1000
+#define IOPLL_MEASURE_LOW             0
+#define IOPLL_MEASURE_HIGH            1
+#define IOPLL_MEASURE_DELAY_MS        4000
+#define IOPLL_RESET_DELAY_MS          1000
+#define IOPLL_CAL_DELAY_MS            1000
 
-#define IOPLL_WRITE_POLL_INVL_US	10	/* Write poll interval */
-#define IOPLL_WRITE_POLL_TIMEOUT_US	1000000	/* Write poll timeout */
-
+#define IOPLL_WRITE_POLL_INVL_US      10 /* Write poll interval */
+#define IOPLL_WRITE_POLL_TIMEOUT_US   1000000 /* Write poll timeout */
 
 
 fpga_result usrclk_reset(uint8_t* uio_ptr)
@@ -142,7 +141,7 @@ fpga_result usrclk_reset(uint8_t* uio_ptr)
 	fpga_result res = FPGA_OK;
 
 	if (uio_ptr == NULL) {
-		OPAE_ERR("Invalid input parameters");
+		OPAE_ERR("Invalid Input parameters");
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -177,7 +176,7 @@ fpga_result usrclk_reset(uint8_t* uio_ptr)
 fpga_result usrclk_read_freq(uint8_t* uio_ptr,
 	uint8_t clock_sel, uint32_t* freq)
 {
-	uint64_t v = 0 ;
+	uint64_t v = 0;
 
 	if (uio_ptr == NULL) {
 		OPAE_ERR("Invalid input parameters");
@@ -205,9 +204,9 @@ fpga_result usrclk_read_freq(uint8_t* uio_ptr,
 fpga_result usrclk_write(uint8_t* uio_ptr, uint16_t address,
 	uint32_t data, uint8_t seq)
 {
-	fpga_result res  = FPGA_OK;
-	uint64_t v       = 0;
-	uint32_t timeout = IOPLL_WRITE_POLL_TIMEOUT_US;
+	fpga_result res   = FPGA_OK;
+	uint64_t v        = 0;
+	uint32_t timeout  = IOPLL_WRITE_POLL_TIMEOUT_US;
 
 	if (uio_ptr == NULL) {
 		OPAE_ERR("Invalid input parameters");
@@ -242,8 +241,8 @@ fpga_result usrclk_write(uint8_t* uio_ptr, uint16_t address,
 fpga_result usrclk_read(uint8_t* uio_ptr, uint16_t address,
 	uint32_t* data, uint8_t seq)
 {
-	uint64_t v        = 0;
-	uint32_t timeout  = IOPLL_WRITE_POLL_TIMEOUT_US;
+	uint64_t v       = 0;
+	uint32_t timeout = IOPLL_WRITE_POLL_TIMEOUT_US;
 
 	if (uio_ptr == NULL) {
 		OPAE_ERR("Invalid input parameters");
@@ -298,8 +297,8 @@ fpga_result usrclk_update_bits(uint8_t* uio_ptr, uint16_t address,
 fpga_result usrclk_m_write(uint8_t* uio_ptr,
 	uint32_t cfg_pll_m, uint8_t* seq)
 {
-	uint32_t high, low, bypass_en, even_duty_en;
-	fpga_result res = FPGA_OK;
+	uint32_t high, low, bypass_en, even_duty_en = 0;
+	fpga_result res                             = FPGA_OK;
 
 	if (uio_ptr == NULL) {
 		OPAE_ERR("Invalid input parameters");
@@ -330,8 +329,8 @@ fpga_result usrclk_m_write(uint8_t* uio_ptr,
 fpga_result usrclk_n_write(uint8_t* uio_ptr, uint32_t cfg_pll_n,
 	uint32_t cfg_pll_cp, uint8_t* seq)
 {
-	uint32_t high, low, bypass_en, even_duty_en, cp1;
-	fpga_result res = FPGA_OK;
+	uint32_t high, low, bypass_en, even_duty_en, cp1 = 0;
+	fpga_result res                                  = FPGA_OK;
 
 	if (uio_ptr == NULL) {
 		OPAE_ERR("Invalid input parameters");
@@ -359,8 +358,8 @@ fpga_result usrclk_n_write(uint8_t* uio_ptr, uint32_t cfg_pll_n,
 fpga_result usrclk_c0_write(uint8_t* uio_ptr,
 	uint32_t cfg_pll_c0, uint8_t* seq)
 {
-	uint32_t high, low, bypass_en, even_duty_en;
-	fpga_result res = FPGA_OK;
+	uint32_t high, low, bypass_en, even_duty_en = 0;
+	fpga_result res                             = FPGA_OK;
 
 	if (uio_ptr == NULL) {
 		OPAE_ERR("Invalid input parameters");
@@ -391,8 +390,8 @@ fpga_result usrclk_c0_write(uint8_t* uio_ptr,
 fpga_result usrclk_c1_write(uint8_t* uio_ptr,
 	uint32_t cfg_pll_c1, uint8_t* seq)
 {
-	uint32_t high, low, bypass_en, even_duty_en;
-	fpga_result res = FPGA_OK;
+	uint32_t high, low, bypass_en, even_duty_en = 0;
+	fpga_result res                             = FPGA_OK;
 
 	if ((uio_ptr == NULL) ||
 		(seq == NULL)) {
@@ -424,8 +423,8 @@ fpga_result usrclk_c1_write(uint8_t* uio_ptr,
 fpga_result usrclk_set_freq(uint8_t* uio_ptr,
 	struct pll_config* c, uint8_t* seq)
 {
-	uint32_t cp2, lf, rc;
-	fpga_result res = FPGA_OK;
+	uint32_t cp2, lf, rc  = 0;
+	fpga_result res       = FPGA_OK;
 
 	if ((uio_ptr == NULL) ||
 		(seq == NULL)) {
@@ -485,16 +484,15 @@ fpga_result usrclk_calibrate(uint8_t* uio_ptr, uint8_t* seq)
 
 fpga_result get_usrclk_uio(const char* sysfs_path,
 	uint32_t feature_id,
-	struct opae_uio *uio,
-    uint8_t** uio_ptr )
+	struct opae_uio* uio,
+	uint8_t** uio_ptr)
 {
 	fpga_result res                   = FPGA_NOT_FOUND;
 	char feature_path[SYSFS_PATH_MAX] = { 0 };
 	char dfl_dev_str[SYSFS_PATH_MAX]  = { 0 };
-	int gres                          = 0;
+	int gres, ret                     = 0;
 	size_t i                          = 0;
 	uint64_t value                    = 0;
-	int ret                           = 0;
 	glob_t pglob;
 
 	if (sysfs_path == NULL) {
@@ -532,10 +530,10 @@ fpga_result get_usrclk_uio(const char* sysfs_path,
 				res = FPGA_NOT_FOUND;
 				goto free;
 			}
-	
+
 			char* end = strchr(p, '/');
 			if (end == NULL) {
-					res = FPGA_NOT_FOUND;
+				res = FPGA_NOT_FOUND;
 				goto free;
 			}
 			strncpy(dfl_dev_str, p, end - p);
@@ -555,9 +553,9 @@ fpga_result get_usrclk_uio(const char* sysfs_path,
 			}
 
 
-			}
-			break;
 		}
+		break;
+	}
 
 
 free:
@@ -571,15 +569,17 @@ static int using_iopll(char* sysfs_usrpath, const char* sysfs_path);
 
 //Get fpga user clock
 fpga_result get_userclock(const char* sysfs_path,
-					uint64_t* userclk_high,
-					uint64_t* userclk_low)
+	uint64_t* userclk_high,
+	uint64_t* userclk_low)
 {
-	char sysfs_usrpath[SYSFS_PATH_MAX];
-	fpga_result result;
-	uint32_t high, low;
-	int ret;
+	char sysfs_usrpath[SYSFS_PATH_MAX]  = {0};
+	fpga_result result                  = FPGA_OK;
+	uint32_t high, low                  = 0;
+	int ret                             = 0;
+	uint8_t* uio_ptr                    = NULL;
 	struct opae_uio uio;
-	uint8_t* uio_ptr = NULL;
+
+	memset(&uio, 0, sizeof(uio));
 
 	if ((sysfs_path == NULL) ||
 		(userclk_high == NULL) ||
@@ -599,7 +599,8 @@ fpga_result get_userclock(const char* sysfs_path,
 		*userclk_high = high * 1000;	// Adjust to Hz
 		*userclk_low = low * 1000;
 		return FPGA_OK;
-	} else if (ret == FPGA_NO_ACCESS) {
+	}
+	else if (ret == FPGA_NO_ACCESS) {
 		return FPGA_NO_ACCESS;
 	}
 
@@ -638,19 +639,20 @@ fpga_result get_userclock(const char* sysfs_path,
 
 // set fpga user clock
 fpga_result set_userclock(const char* sysfs_path,
-					uint64_t userclk_high,
-					uint64_t userclk_low)
+	uint64_t userclk_high,
+	uint64_t userclk_low)
 {
-	char sysfs_usrpath[SYSFS_PATH_MAX] = { 0, };
-	int fd, res;
-	char *bufp;
-	size_t cnt;
-	int ret;
-	uint64_t revision = 0;
-	uint8_t seq = 1;
+	char sysfs_usrpath[SYSFS_PATH_MAX] = { 0 };
+	int fd, res, ret                   = 0;
+	char* bufp                         = NULL;
+	size_t cnt                         = 0;
+	uint64_t revision                  = 0;
+	uint8_t seq                        = 1;
+	uint8_t* uio_ptr                   = NULL;
+	fpga_result result                 = FPGA_OK;
 	struct opae_uio uio;
-	uint8_t* uio_ptr = NULL;
-	fpga_result result = FPGA_OK;
+
+	memset(&uio, 0, sizeof(uio));
 
 	if (sysfs_path == NULL) {
 		OPAE_ERR("Invalid Input parameters");
@@ -692,7 +694,7 @@ fpga_result set_userclock(const char* sysfs_path,
 		fd = open(sysfs_usrpath, O_WRONLY);
 		if (fd < 0) {
 			OPAE_MSG("open(%s) failed: %s",
-				 sysfs_usrpath, strerror(errno));
+				sysfs_usrpath, strerror(errno));
 			return FPGA_NOT_FOUND;
 		}
 
@@ -709,10 +711,10 @@ fpga_result set_userclock(const char* sysfs_path,
 		close(fd);
 
 		return FPGA_OK;
-	} else if (ret == FPGA_NO_ACCESS) {
+	}
+	else if (ret == FPGA_NO_ACCESS) {
 		return FPGA_NO_ACCESS;
 	}
-
 
 	struct pll_config* iopll_config = (struct pll_config*)bufp;
 	if ((iopll_config->pll_freq_khz > IOPLL_MAX_FREQ * 1000) ||
@@ -759,14 +761,14 @@ fpga_result set_userclock(const char* sysfs_path,
 static int using_iopll(char* sysfs_usrpath, const char* sysfs_path)
 {
 	glob_t iopll_glob;
-	size_t len;
-	int res;
+	size_t len        = 0;
+	int res           = 0;
 
 	// Test for the existence of the userclk_frequency file
 	// which indicates an S10 driver
 
 	if (snprintf(sysfs_usrpath, SYSFS_PATH_MAX,
-		     "%s/%s", sysfs_path, IOPLL_CLOCK_FREQ) < 0) {
+		"%s/%s", sysfs_path, IOPLL_CLOCK_FREQ) < 0) {
 		OPAE_ERR("snprintf buffer overflow");
 		return FPGA_EXCEPTION;
 	}

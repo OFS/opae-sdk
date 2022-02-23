@@ -30,51 +30,42 @@
 #include <stdint.h>
 #include "common_int.h"
 
-
-
-
-
-
-fpga_result get_userclk_revision(const char* sysfs_path,
-	uint64_t* revision);
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
-#define BITS_PER_LONG_LONG 64
-#define UL(x) ((unsigned long) (x))
-#define ULL(x) ((unsigned long long) (x))
-#define BIT_ULL(nr)		(ULL(1) << (nr))
-#define BIT(nr)		(UL(1) << (nr))
-#define GENMASK_ULL(h, l) \
-	(((~0ULL) << (l)) & (~0ULL >> (BITS_PER_LONG_LONG - 1 - (h))))
+#define  BITS_PER_LONG_LONG 64
+#define  UL(x) ((unsigned long) (x))
+#define  ULL(x) ((unsigned long long) (x))
+#define  BIT_ULL(nr) (ULL(1) << (nr))
+#define  BIT(nr) (UL(1) << (nr))
+#define  GENMASK_ULL(h, l) \
+        (((~0ULL) << (l)) & (~0ULL >> (BITS_PER_LONG_LONG - 1 - (h))))
 #define __bf_shf(x) (__builtin_ffsll(x) - 1)
 
-#define FIELD_PREP(_mask, _val)						\
-	({								\
-		((__typeof__(_mask))(_val) << __bf_shf(_mask)) & (_mask);	\
-	})
-#define FIELD_GET(_mask, _reg)						\
-	({								\
-		(__typeof__(_mask))(((_reg) & (_mask)) >> __bf_shf(_mask));	\
-	})
+#define  FIELD_PREP(_mask, _val)                                    \
+    ({                                                             \
+        ((__typeof__(_mask))(_val) << __bf_shf(_mask)) & (_mask);  \
+    })
 
-	struct pll_config {
-		unsigned int pll_freq_khz;
-		unsigned int pll_m;
-		unsigned int pll_n;
-		unsigned int pll_c1;
-		unsigned int pll_c0;
-		unsigned int pll_lf;
-		unsigned int pll_cp;
-		unsigned int pll_rc;
-	};
+#define  FIELD_GET(_mask, _reg)                                     \
+    ({                                                             \
+        (__typeof__(_mask))(((_reg) & (_mask)) >> __bf_shf(_mask));\
+    })
 
+struct pll_config {
+	unsigned int pll_freq_khz;
+	unsigned int pll_m;
+	unsigned int pll_n;
+	unsigned int pll_c1;
+	unsigned int pll_c0;
+	unsigned int pll_lf;
+	unsigned int pll_cp;
+	unsigned int pll_rc;
+};
 
-
-
+fpga_result get_userclk_revision(const char* sysfs_path,
+		uint64_t* revision);
 
 /**
  * @brief Get fpga user clock
