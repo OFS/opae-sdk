@@ -40,18 +40,19 @@ extern "C" {
 #define  BIT_ULL(nr) (ULL(1) << (nr))
 #define  BIT(nr) (UL(1) << (nr))
 #define  GENMASK_ULL(h, l) \
-        (((~0ULL) << (l)) & (~0ULL >> (BITS_PER_LONG_LONG - 1 - (h))))
+	(((~0ULL) << (l)) & (~0ULL >> (BITS_PER_LONG_LONG - 1 - (h))))
+
 #define __bf_shf(x) (__builtin_ffsll(x) - 1)
 
 #define  FIELD_PREP(_mask, _val)                                    \
-    ({                                                             \
-        ((__typeof__(_mask))(_val) << __bf_shf(_mask)) & (_mask);  \
-    })
+	({                                                             \
+		((__typeof__(_mask))(_val) << __bf_shf(_mask)) & (_mask);  \
+	})
 
 #define  FIELD_GET(_mask, _reg)                                     \
-    ({                                                             \
-        (__typeof__(_mask))(((_reg) & (_mask)) >> __bf_shf(_mask));\
-    })
+	({                                                             \
+		(__typeof__(_mask))(((_reg) & (_mask)) >> __bf_shf(_mask));\
+	})
 
 struct pll_config {
 	unsigned int pll_freq_khz;
@@ -64,8 +65,8 @@ struct pll_config {
 	unsigned int pll_rc;
 };
 
-fpga_result get_userclk_revision(const char* sysfs_path,
-		uint64_t* revision);
+fpga_result get_userclk_revision(const char *sysfs_path,
+		uint64_t *revision);
 
 /**
  * @brief Get fpga user clock
