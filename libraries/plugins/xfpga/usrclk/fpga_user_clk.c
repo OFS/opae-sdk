@@ -134,6 +134,8 @@
 #define IOPLL_WRITE_POLL_INVL_US      10 /* Write poll interval */
 #define IOPLL_WRITE_POLL_TIMEOUT_US   1000000 /* Write poll timeout */
 
+#define USRCLK_FEATURE_ID             0x14
+
 static int using_iopll(char *sysfs_usrpath, const char *sysfs_path);
 
 fpga_result usrclk_reset(uint8_t *uio_ptr)
@@ -149,7 +151,6 @@ fpga_result usrclk_reset(uint8_t *uio_ptr)
 	/* Assert all resets. IOPLL_AVMM_RESET_N is asserted implicitly */
 	v = IOPLL_MGMT_RESET | IOPLL_RESET;
 	*((volatile uint64_t *)(uio_ptr + IOPLL_FREQ_CMD0)) = v;
-
 
 	usleep(IOPLL_RESET_DELAY_MS);
 
@@ -222,7 +223,6 @@ fpga_result usrclk_write(uint8_t *uio_ptr, uint16_t address,
 	v |= IOPLL_AVMM_RESET_N;
 	*((volatile uint64_t *)(uio_ptr + IOPLL_FREQ_CMD0)) = v;
 
-
 	v = *((volatile uint64_t *)(uio_ptr + IOPLL_FREQ_STS0));
 
 	while (!(FIELD_GET(IOPLL_SEQ, v) == seq)) {
@@ -237,7 +237,6 @@ fpga_result usrclk_write(uint8_t *uio_ptr, uint16_t address,
 
 	return res;
 }
-
 
 fpga_result usrclk_read(uint8_t *uio_ptr, uint16_t address,
 	uint32_t *data, uint8_t seq)
@@ -599,7 +598,7 @@ fpga_result get_userclock(const char *sysfs_path,
 	}
 
 	result = get_usrclk_uio(sysfs_path,
-		0x14,
+		USRCLK_FEATURE_ID,
 		&uio,
 		&uio_ptr);
 	if (result != FPGA_OK) {
@@ -628,20 +627,20 @@ fpga_result get_userclock(const char *sysfs_path,
 	return FPGA_OK;
 }
 
-
 // set fpga user clock
 fpga_result set_userclock(const char *sysfs_path,
 	uint64_t userclk_high,
 	uint64_t userclk_low)
 {
 	char sysfs_usrpath[SYSFS_PATH_MAX] = { 0 };
-	int fd, res, ret                   = 0;
+	int fd, ret                        = 0;
 	char *bufp                         = NULL;
-	size_t cnt                         = 0;
+	ssize_t cnt                        = 0;
 	uint64_t revision                  = 0;
 	uint8_t seq                        = 1;
 	uint8_t *uio_ptr                   = NULL;
 	fpga_result result                 = FPGA_OK;
+	ssize_t bytes_written              = 0;
 	struct opae_uio uio;
 
 	memset(&uio, 0, sizeof(uio));
@@ -688,17 +687,14 @@ fpga_result set_userclock(const char *sysfs_path,
 				sysfs_usrpath, strerror(errno));
 			return FPGA_NOT_FOUND;
 		}
-
 		cnt = sizeof(struct iopll_config);
-		do {
-			res = write(fd, bufp, cnt);
-			if (res < 0) {
-				OPAE_ERR("Failed to write");
-				break;
-			}
-			bufp += res;
-			cnt -= res;
-		} while (cnt > 0);
+
+		bytes_written = eintr_write(fd, bufp, cnt);
+		if (bytes_written != cnt) {
+			OPAE_ERR("Failed to write: %s", strerror(errno));
+			close(fd);
+			return FPGA_EXCEPTION;
+		}
 		close(fd);
 
 		return FPGA_OK;
@@ -712,7 +708,7 @@ fpga_result set_userclock(const char *sysfs_path,
 		return FPGA_EXCEPTION;
 
 	result = get_usrclk_uio(sysfs_path,
-		0x14,
+		USRCLK_FEATURE_ID,
 		&uio,
 		&uio_ptr);
 	if (result != FPGA_OK) {
@@ -723,26 +719,24 @@ fpga_result set_userclock(const char *sysfs_path,
 	result = usrclk_set_freq(uio_ptr, iopll_config, &seq);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to set user clock");
-		opae_uio_close(&uio);
-		return result;
+		goto uio_close;
 	}
 
 	result = usrclk_reset(uio_ptr);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to reset user clock");
-		opae_uio_close(&uio);
-		return result;
+		goto uio_close;
 	}
 
 	result = usrclk_calibrate(uio_ptr, &seq);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Failed to calibrate user clock");
-		opae_uio_close(&uio);
-		return result;
+		goto uio_close;
 	}
 
+uio_close:
 	opae_uio_close(&uio);
-	return FPGA_OK;
+	return result;
 }
 
 // Determine whether or not the IOPLL is serving as the source of
