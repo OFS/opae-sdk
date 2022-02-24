@@ -149,24 +149,24 @@ def set_fpga_default(device, args):
         raise IOError
 
 
-def device_rsu(device, available_image):
+def device_rsu(device, available_image, **kwargs):
     device.safe_rsu_boot(available_image)
 
 
 def device_rsu_bmc(device, args):
-    device_rsu(device, 'bmc_' + args.page)
+    device_rsu(device, 'bmc_' + args.page, force=args.force)
 
 
 def device_rsu_retimer(device, args):
-    device_rsu(device, 'retimer_fw')
+    device_rsu(device, 'retimer_fw', force=args.force)
 
 
 def device_rsu_fpga(device, args):
-    device_rsu(device, 'fpga_' + args.page)
+    device_rsu(device, 'fpga_' + args.page, force=args.force)
 
 
 def device_rsu_sdm(device, args):
-    device_rsu(device, 'sdm')
+    device_rsu(device, 'sdm', force=args.force)
 
 
 def parse_args():
@@ -175,6 +175,8 @@ def parse_args():
                                      formatter_class=fc_)
     parser.add_argument('-d', '--debug', action='store_true',
                         help='log debug statements')
+    parser.add_argument('--force', action='store_true', default=False,
+                        help='perform operation without disabling AER')
 
     subparser = parser.add_subparsers(dest='which')
 

@@ -266,7 +266,6 @@ class fme(region):
                 value = int(node.value, 16)
                 return max10_or_nios_version(value)
 
-
     @property
     def fpga_image_load(self):
         spi = self.spi_bus
@@ -589,10 +588,22 @@ class fpga_base(sysfs_device):
                 n.aer = v
 
     def safe_rsu_boot(self, available_image, **kwargs):
-        wait_time = kwargs.pop('wait', 10)
+        root_port = self.pci_node.root
+        force = kwargs.pop('force', False)
+        if root_port.supports_ecap('dpc') or force:
+            self.log.debug('ECAP_DPC supported')
+            self.rsu_routine(available_image, **kwargs)
+        else:
+            if root_port.supports_ecap('aer'):
+                self.log.debug('ECAP_AER is supported')
+                with self.disable_aer(root_port):
+                    self.rsu_routine(available_image, **kwargs)
+            else:
+                self.log.error('ECAP_DPC and ECAP_AER not supported')
 
+    def rsu_routine(self, available_image, **kwargs):
+        wait_time = kwargs.pop('wait', 10)
         to_remove = [self.pci_node.root]
-        to_disable = [self.pci_node.root]
         # rescan at the pci bus, if found
         # if for some reason it can't be found, do a full system rescan
         to_rescan = self.pci_node.pci_bus
@@ -601,31 +612,30 @@ class fpga_base(sysfs_device):
                               'system pci rescan'))
             to_rescan = sysfs_node('/sys/bus/pci')
 
-        with self.disable_aer(*to_disable):
-            self.log.info('[%s] performing RSU operation', self.pci_node)
+        self.log.info('[%s] performing RSU operation', self.pci_node)
 
-            self.log.debug('unbinding drivers from other endpoints')
+        self.log.debug('unbinding drivers from other endpoints')
 
-            for ep in self.pci_node.root.endpoints:
-                if ep.pci_address != self.pci_node.pci_address:
-                    ep.unbind()
+        for ep in self.pci_node.root.endpoints:
+            if ep.pci_address != self.pci_node.pci_address:
+                ep.unbind()
 
-            try:
-                self.rsu_boot(available_image, **kwargs)
-            except IOError as err:
-                if err.errno == errno.EBUSY:
-                    self.log.warn('device busy, cannot perform RSU operation')
-                else:
-                    self.log.error('error triggering RSU operation: %s', err)
-                raise
+        try:
+            self.rsu_boot(available_image, **kwargs)
+        except IOError as err:
+            if err.errno == errno.EBUSY:
+                self.log.warn('device busy, cannot perform RSU operation')
+            else:
+                self.log.error('error triggering RSU operation: %s', err)
+            raise
 
-            for node in to_remove:
-                self.log.info('[%s] removing device from PCIe bus', node)
-                node.remove()
-            self.log.info('waiting %s seconds for boot', wait_time)
-            time.sleep(wait_time)
-            self.log.info('rescanning PCIe bus: %s', to_rescan.sysfs_path)
-            to_rescan.node('rescan').value = 1
+        for node in to_remove:
+            self.log.info('[%s] removing device from PCIe bus', node)
+            node.remove()
+        self.log.info('waiting %s seconds for boot', wait_time)
+        time.sleep(wait_time)
+        self.log.info('rescanning PCIe bus: %s', to_rescan.sysfs_path)
+        to_rescan.node('rescan').value = 1
 
 
 class fpga_region(fpga_base):
