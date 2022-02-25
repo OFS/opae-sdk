@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -40,7 +40,7 @@
 #include "bitstream_int.h"
 #include "common_int.h"
 #include "opae_drv.h"
-#include "usrclk/user_clk_pgm_uclock.h"
+#include "usrclk/fpga_user_clk.h"
 
 #include "reconf_int.h"
 // sysfs attributes

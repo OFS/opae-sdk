@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,7 @@
 #include "common_int.h"
 #include "intel-fpga.h"
 
-#include "usrclk/user_clk_pgm_uclock.h"
+#include "usrclk/fpga_user_clk.h"
 
 fpga_result __XFPGA_API__ xfpga_fpgaSetUserClock(fpga_handle handle,
 						uint64_t high_clk,
