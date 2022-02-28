@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2021, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -143,6 +143,18 @@ fpga_result print_common_boot_info(fpga_token token);
  *
  */
 void print_mac_address(struct ether_addr *eth_addr, int count);
+
+/**
+* find fpga feature path
+*
+* @param[in] token             fpga_token object for device (FPGA_DEVICE type)
+* @param[in] feature_name      fpga dev feature id
+* @returns FPGA_OK on success. FPGA_NOT_FOUND if invalid feature name.
+*
+*/
+fpga_result find_dev_feature_path(fpga_token token,
+	char *feature_name);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

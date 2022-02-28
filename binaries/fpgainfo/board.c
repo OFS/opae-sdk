@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2021, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -57,23 +57,22 @@ static pthread_mutex_t board_plugin_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_N
 
 // Board plug-in table
 static platform_data platform_data_table[] = {
-	{ 0x1c2c, 0x1000,  -1,  "libboard_n5010.so", NULL },
-	{ 0x1c2c, 0x1001,  -1,  "libboard_n5010.so", NULL },
-	{ 0x8086, 0x09c4,  -1,  "libboard_a10gx.so", NULL },
-	{ 0x8086, 0x09c5,  -1,  "libboard_a10gx.so", NULL },
-	{ 0x8086, 0x0b30,  -1,  "libboard_n3000.so", NULL },
-	{ 0x8086, 0x0b31,  -1,  "libboard_n3000.so", NULL },
-	{ 0x8086, 0x0b2b,  -1,  "libboard_d5005.so", NULL },
-	{ 0x8086, 0x0b2c,  -1,  "libboard_d5005.so", NULL },
+	{ 0x1c2c, 0x1000, -1, NULL, "libboard_n5010.so", NULL },
+	{ 0x1c2c, 0x1001, -1, NULL, "libboard_n5010.so", NULL },
+	{ 0x8086, 0x09c4, -1, NULL, "libboard_a10gx.so", NULL },
+	{ 0x8086, 0x09c5, -1, NULL, "libboard_a10gx.so", NULL },
+	{ 0x8086, 0x0b30, -1, NULL, "libboard_n3000.so", NULL },
+	{ 0x8086, 0x0b31, -1, NULL, "libboard_n3000.so", NULL },
+	{ 0x8086, 0x0b2b, -1, NULL, "libboard_d5005.so", NULL },
+	{ 0x8086, 0x0b2c, -1, NULL, "libboard_d5005.so", NULL},
 	// Max10 SPI feature id 0xe
-	{ 0x8086, 0xaf00, 0xe,  "libboard_d5005.so", NULL },
-	{ 0x8086, 0xbcce, 0xe,  "libboard_d5005.so", NULL },
+	{ 0x8086, 0xaf00, 0xe, NULL, "libboard_d5005.so", NULL},
+	{ 0x8086, 0xbcce, 0xe, NULL, "libboard_d5005.so", NULL},
 	// Max10 PMCI feature id 0x12
-	{ 0x8086, 0xaf00, 0x12, "libboard_n6000.so", NULL },
-	{ 0x8086, 0xbcce, 0x12, "libboard_n6000.so", NULL },
-
-
-	{ 0,      0, -1,         NULL, NULL },
+	{ 0x8086, 0xaf00, 0x12, NULL, "libboard_n6000.so", NULL },
+	{ 0x8086, 0xbcce, 0x12, "*6000*hwmon*", "libboard_n6000.so", NULL },
+	{ 0x8086, 0xbcce, 0x12, "*6100*hwmon*", "libboard_n6100.so", NULL },
+	{ 0,      0, -1,         NULL, NULL, NULL },
 };
 
 void *find_plugin(const char *libpath)
@@ -150,7 +149,17 @@ fpga_result load_board_plugin(fpga_token token, void **dl_handle)
 					if (res != FPGA_OK) {
 						continue;
 					}
+
+				// load plugin with matching hwmon attribute
+				if (platform_data_table[i].feature_path != NULL) {
+					res = find_dev_feature_path(token,
+						platform_data_table[i].feature_path);
+					if (res != FPGA_OK) {
+						continue;
+					}
+				}
 			}
+
 			// Loaded lib or found
 			if (platform_data_table[i].dl_handle) {
 				*dl_handle = platform_data_table[i].dl_handle;

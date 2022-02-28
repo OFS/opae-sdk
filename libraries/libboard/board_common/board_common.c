@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2021, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -62,6 +62,9 @@
 
 #define SYSFS_FEATURE_ID "/sys/bus/pci/devices/*%x*:*%x*:*%x*.*%x*/"\
 			"fpga_region/region*/dfl-fme*/dfl_dev*/feature_id"
+
+#define SYSFS_FEATURE_PATH "/sys/bus/pci/devices/*%x*:*%x*:*%x*.*%x*/"\
+			"fpga_region/region*/dfl-fme*/dfl_dev*/%s"
 
 #define FACTORY_BIT (1ULL << 36)
 
@@ -383,7 +386,6 @@ out_close:
 	return FPGA_NOT_FOUND;
 }
 
-
 fpga_result get_fpga_sbdf(fpga_token token,
 			uint16_t *segment,
 			uint8_t *bus,
@@ -511,6 +513,46 @@ fpga_result find_dev_feature(fpga_token token,
 	}
 
 free:
+	if (pglob.gl_pathv)
+		globfree(&pglob);
+
+	return res;
+}
+
+fpga_result find_dev_feature_path(fpga_token token,
+	char *feature_name)
+{
+	fpga_result res          = FPGA_OK;
+	int gres                 = 0;
+	uint16_t segment         = 0;
+	uint8_t bus              = 0;
+	uint8_t device           = 0;
+	uint8_t function          = 0;
+	glob_t pglob;
+	char feature_path[SYSFS_PATH_MAX] = { 0 };
+
+	res = get_fpga_sbdf(token, &segment, &bus, &device, &function);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get sbdf ");
+		return res;
+	}
+
+	if (snprintf(feature_path, sizeof(feature_path),
+		SYSFS_FEATURE_PATH,
+		segment, bus, device, function, feature_name) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
+
+	gres = glob(feature_path, GLOB_NOSORT, NULL, &pglob);
+	if (gres) {
+		OPAE_MSG("Failed pattern match %s: %s",
+			feature_path, strerror(errno));
+		if (pglob.gl_pathv)
+			globfree(&pglob);
+		return FPGA_NOT_FOUND;
+	}
+
 	if (pglob.gl_pathv)
 		globfree(&pglob);
 

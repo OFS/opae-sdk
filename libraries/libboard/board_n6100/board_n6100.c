@@ -1,4 +1,4 @@
-// Copyright(c) 2021, Intel Corporation
+// Copyright(c) 2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -41,8 +41,8 @@
 #include <net/ethernet.h>
 #include <opae/uio.h>
 #include "../board_common/board_common.h"
-#include "board_event_log.h"
-#include "board_n6000.h"
+#include "board_n6100_event_log.h"
+#include "board_n6100.h"
 
 #define FPGA_VAR_BUF_LEN       256
 #define MAC_BUF_LEN            19
@@ -64,7 +64,10 @@
 #define DFL_SEC_PR_ROOT           DFL_SEC_PMCI_GLOB "pr_root_entry_hash"
 #define DFL_SEC_SR_CANCEL         DFL_SEC_PMCI_GLOB "sr_canceled_csks"
 #define DFL_SEC_SR_ROOT           DFL_SEC_PMCI_GLOB "sr_root_entry_hash"
-#define DFL_SEC_SDM_STATUS        DFL_SEC_PMCI_GLOB "sdm_sr_provision_status"
+#define DFL_SEC_PR_SDM_CANCEL     DFL_SEC_PMCI_GLOB "pr_sdm_canceled_csks"
+#define DFL_SEC_PR_SDM_ROOT       DFL_SEC_PMCI_GLOB "pr_sdm_root_entry_hash"
+#define DFL_SEC_SR_SDM_CANCEL     DFL_SEC_PMCI_GLOB "sr_sdm_canceled_csks"
+#define DFL_SEC_SR_SDM_ROOT       DFL_SEC_PMCI_GLOB "sr_sdm_root_entry_hash"
 
 #define HSSI_FEATURE_ID                  0x15
 #define HSSI_100G_PROFILE                       27
@@ -81,17 +84,17 @@
 #define BOOTPAGE_PATTERN "_([0-9a-zA-Z]+)"
 
 // image info sysfs
-#define DFL_SYSFS_IMAGE_INFO_GLOB "*dfl*/**/fpga_image_directory0/nvmem"
-#define IMAGE_INFO_STRIDE 4096
+#define DFL_SYSFS_IMAGE_INFO_GLOB "*dfl*/**/fpga_image_directory*/nvmem"
+#define IMAGE_INFO_STRIDE 65536
 #define IMAGE_INFO_SIZE     32
 #define IMAGE_INFO_COUNT     3
 #define GET_BIT(var, pos) ((var >> pos) & (1))
 
 // event log
-#define DFL_SYSFS_EVENT_LOG_GLOB "*dfl*/**/bmc_event_log0/nvmem"
+#define DFL_SYSFS_EVENT_LOG_GLOB "*dfl*/**/bmc_event_log*/nvmem"
 
 // BOM info
-#define DFL_SYSFS_BOM_INFO_GLOB "*dfl*/**/bom_info0/nvmem"
+#define DFL_SYSFS_BOM_INFO_GLOB "*dfl*/**/bom_info*/nvmem"
 #define FPGA_BOM_INFO_BUF_LEN   0x2000
 
 // hssi version
@@ -574,7 +577,7 @@ fpga_result print_board_info(fpga_token token)
 		resval = res;
 	}
 
-	printf("Intel Acceleration Development Platform N6000\n");
+	printf("Intel Acceleration Development Platform N6100\n");
 	printf("Board Management Controller NIOS FW version: %s \n", bmc_ver);
 	printf("Board Management Controller Build version: %s \n", max10_ver);
 
@@ -762,13 +765,45 @@ fpga_result print_sec_info(fpga_token token)
 		resval = res;
 	}
 
-	res = read_sysfs(token, DFL_SEC_SDM_STATUS, name,
+	// PR SDM Keys
+	res = read_sysfs(token, DFL_SEC_PR_SDM_CANCEL, name,
 		SYSFS_PATH_MAX - 1);
 	if (res == FPGA_OK) {
-		printf("%-32s : %s\n", "SDM provisioning status", name);
+		printf("%-32s : %s\n", "PR SDM CSK IDs canceled", name);
 	} else {
-		OPAE_MSG("Failed to SDM provisioning status");
-		printf("%-32s : %s\n", "SDM provisioning status", "None");
+		OPAE_MSG("Failed to PR SDM CSK IDs canceled");
+		printf("%-32s : %s\n", "PR SDM CSK IDs canceled", "None");
+		resval = res;
+	}
+
+	res = read_sysfs(token, DFL_SEC_PR_SDM_ROOT, name,
+		SYSFS_PATH_MAX - 1);
+	if (res == FPGA_OK) {
+		printf("%-32s : %s\n", "PR SDM root entry hash", name);
+	} else {
+		OPAE_MSG("Failed to PR SDM root entry hash");
+		printf("%-32s : %s\n", "PR SDM root entry hash", "None");
+		resval = res;
+	}
+
+	// SR SDM Keys
+	res = read_sysfs(token, DFL_SEC_SR_SDM_CANCEL, name,
+		SYSFS_PATH_MAX - 1);
+	if (res == FPGA_OK) {
+		printf("%-32s : %s\n", "SR SDM CSK IDs canceled", name);
+	} else {
+		OPAE_MSG("Failed to SR SDM CSK IDs canceled");
+		printf("%-32s : %s\n", "SR SDM CSK IDs canceled", "None");
+		resval = res;
+	}
+
+	res = read_sysfs(token, DFL_SEC_SR_SDM_ROOT, name,
+		SYSFS_PATH_MAX - 1);
+	if (res == FPGA_OK) {
+		printf("%-32s : %s\n", "SR SDM root entry hash", name);
+	} else {
+		OPAE_MSG("Failed to SR SDM root entry hash");
+		printf("%-32s : %s\n", "SR SDM root entry hash", "None");
 		resval = res;
 	}
 
