@@ -64,6 +64,7 @@ the OPAE software stack.
 
 %package devel
 Summary:    OPAE headers, sample source, and documentation
+Requires:   opae
 Requires:   libuuid-devel, %{name}%{?_isa} = %{version}-%{release}
 Requires:   openssl-devel
 
@@ -73,9 +74,18 @@ OPAE headers, tools, sample source, and documentation
 
 %package extra-tools
 Summary:    Additional OPAE tools
+Requires:   opae-devel
 
 %description extra-tools
 Additional OPAE tools
+
+
+%package ase
+Summary:    OPAE AFU Simulation Environment
+Requires:   opae-devel
+
+%description ase
+OPAE AFU Simulation Environment
 
 
 %{?python_disable_dependency_generator}
@@ -90,7 +100,10 @@ Additional OPAE tools
 %cmake -DCMAKE_INSTALL_PREFIX=/usr \
        -DOPAE_PRESERVE_REPOS=ON \
        -DOPAE_BUILD_PYTHON_DIST=ON \
-       -DOPAE_BUILD_FPGABIST=ON .
+       -DOPAE_BUILD_FPGABIST=ON \
+       -DOPAE_BUILD_SIM=ON \
+       -DOPAE_SIM_TAG=@OPAE_SIM_TAG@ \
+       .
 %if 0%{?rhel}
   %make_build
 %else
@@ -134,11 +147,14 @@ mkdir -p %{buildroot}%{_usr}/src/opae/samples/hello_events/
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/object_api/
 mkdir -p %{buildroot}%{_usr}/src/opae/samples/n5010-test/
 
-
 cp samples/hello_fpga/hello_fpga.c %{buildroot}%{_usr}/src/opae/samples/hello_fpga/
 cp samples/hello_events/hello_events.c %{buildroot}%{_usr}/src/opae/samples/hello_events/
 cp samples/object_api/object_api.c %{buildroot}%{_usr}/src/opae/samples/object_api/
 cp samples/n5010-test/n5010-test.c %{buildroot}%{_usr}/src/opae/samples/n5010-test/
+
+mkdir -p %{buildroot}%{_usr}/share/opae/ase
+cp external/opae-sim/LICENSE %{buildroot}%{_usr}/share/opae/ase
+
 
 %if 0%{?rhel}
   %make_install
@@ -354,6 +370,28 @@ done
 %{python3_sitearch}/opae.io*
 %{python3_sitearch}/opae/io*
 %{python3_sitearch}/pyopaeuio*
+
+
+%files ase
+%dir %{_usr}/share/opae/ase
+%license %{_usr}/share/opae/ase/LICENSE
+%{_usr}/share/opae/ase/rtl/*
+%{_usr}/share/opae/ase/sw/*
+%{_usr}/share/opae/ase/scripts/*
+%{_usr}/share/opae/ase/Makefile
+%{_usr}/share/opae/ase/ase.cfg
+%{_usr}/share/opae/ase/ase_regress.sh
+%{_usr}/share/opae/ase/opae_ase.cfg
+
+%{_bindir}/afu_sim_setup
+%{_bindir}/with_ase
+
+%{_libdir}/libopae-c-ase.so.*
+%{_libdir}/libase.so.*
+
+%{_libdir}/libopae-c-ase.so
+%{_libdir}/libase.so
+
 
 %changelog
 * Mon Dec 14 2020 The OPAE Dev Team <opae@lists.01.org> - 2.0.0-2

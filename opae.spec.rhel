@@ -52,11 +52,20 @@ the OPAE software stack.
 
 %package devel
 Summary:    OPAE headers, sample source, and documentation
+Requires:   opae
 Requires:   libuuid-devel, %{name}%{?_isa} = %{version}-%{release}
 Requires:   openssl-devel
 
 %description devel
 OPAE headers, tools, sample source, and documentation
+
+
+%package ase
+Summary:    OPAE AFU Simulation Environment
+Requires:   opae-devel
+
+%description ase
+OPAE AFU Simulation Environment
 
 
 %{?python_disable_dependency_generator}
@@ -68,7 +77,10 @@ OPAE headers, tools, sample source, and documentation
 %setup -q -n %{name}-%{version}-%{opae_release}
 
 %build
-%cmake -DOPAE_MINIMAL_BUILD=ON .
+%cmake -DOPAE_MINIMAL_BUILD=ON \
+       -DOPAE_BUILD_SIM=ON \
+       -DOPAE_SIM_TAG=@OPAE_SIM_TAG@ \
+       .
 %if 0%{?rhel}
   %make_build
 %else
@@ -130,6 +142,10 @@ cp binaries/opae.io/*.{cpp,h,py} %{buildroot}%{_usr}/src/opae/samples/opae.io/
 cp binaries/opae.io/opae/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae
 cp binaries/opae.io/opae/io/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae/io
 cp binaries/opae.io/scripts/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/scripts
+
+mkdir -p %{buildroot}%{_usr}/share/opae/ase
+cp external/opae-sim/LICENSE %{buildroot}%{_usr}/share/opae/ase
+
 
 %if 0%{?rhel}
   %make_install
@@ -315,6 +331,28 @@ done
 %{python3_sitelib}/hssi_ethernet*
 %{python3_sitelib}/pacsign*
 %{python3_sitelib}/packager*
+
+
+%files ase
+%dir %{_usr}/share/opae/ase
+%license %{_usr}/share/opae/ase/LICENSE
+%{_usr}/share/opae/ase/rtl/*
+%{_usr}/share/opae/ase/sw/*
+%{_usr}/share/opae/ase/scripts/*
+%{_usr}/share/opae/ase/Makefile
+%{_usr}/share/opae/ase/ase.cfg
+%{_usr}/share/opae/ase/ase_regress.sh
+%{_usr}/share/opae/ase/opae_ase.cfg
+
+%{_bindir}/afu_sim_setup
+%{_bindir}/with_ase
+
+%{_libdir}/libopae-c-ase.so.*
+%{_libdir}/libase.so.*
+
+%{_libdir}/libopae-c-ase.so
+%{_libdir}/libase.so
+
 
 %changelog
 * Mon Dec 14 2020 The OPAE Dev Team <opae@lists.01.org> - 2.0.0-2
