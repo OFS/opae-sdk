@@ -32,7 +32,7 @@ namespace mem_tg {
 using opae::fpga::types::token;
 const char *AFU_ID  = "4DADEA34-2C78-48CB-A3DC-5B831F5CECBB";
 
-static const uint64_t TEST_TIMEOUT = 30000;
+static const uint64_t MEM_TG_TEST_TIMEOUT = 30000;
 static const uint64_t TEST_SLEEP_INVL = 100;
 
 enum {

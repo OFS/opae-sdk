@@ -79,7 +79,7 @@ public:
     bool tg_wait_test_completion ()
     {
         /* Wait for test completion */
-        uint32_t           timeout = TEST_TIMEOUT;
+        uint32_t           timeout = MEM_TG_TEST_TIMEOUT;
 
 	// poll while active bit is set (channel status = {pass,fail,timeout,active})
 	uint32_t tg_status = 0x1;

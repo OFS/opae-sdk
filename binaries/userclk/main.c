@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -172,6 +172,10 @@ int main(int argc, char *argv[])
 		"Low clock  = %5.1f MHz\n \n",
 		userclk_high / 1.0e6, userclk_low / 1.0e6);
 
+	if (userclkCmdLine.freq_high <= -1 &&  userclkCmdLine.freq_low <= -1) {
+		goto out_close;
+	}
+
 	if (userclkCmdLine.freq_high > 0 || userclkCmdLine.freq_low > 0) {
 		high = userclkCmdLine.freq_high;
 		low = userclkCmdLine.freq_low;
@@ -184,22 +188,23 @@ int main(int argc, char *argv[])
 			OPAE_ERR("High freq must be ~ (2 * Low freq)");
 			goto out_close;
 		}
+
+		res = fpgaSetUserClock(accelerator_handle, high, low, 0);
+		ON_ERR_GOTO(res, out_close, "Failed to set user clock");
+
+		res = fpgaGetUserClock(accelerator_handle, &userclk_high, &userclk_low, 0);
+		ON_ERR_GOTO(res, out_close, "Failed to get user clock");
+
+		printf("\nApproximate frequency:\n"
+			"High clock = %5.1f MHz\n"
+			"Low clock  = %5.1f MHz\n \n",
+			userclk_high / 1.0e6, userclk_low / 1.0e6);
+
 	} else {
 		res = FPGA_INVALID_PARAM;
 		OPAE_ERR("Please specify one or both of -H and -L");
 		goto out_close;
 	}
-
-	res = fpgaSetUserClock(accelerator_handle, high, low, 0);
-	ON_ERR_GOTO(res, out_close, "Failed to set user clock");
-
-	res = fpgaGetUserClock(accelerator_handle, &userclk_high, &userclk_low, 0);
-	ON_ERR_GOTO(res, out_close, "Failed to get user clock");
-
-	printf("\nApproximate frequency:\n"
-		"High clock = %5.1f MHz\n"
-		"Low clock  = %5.1f MHz\n \n",
-		userclk_high / 1.0e6, userclk_low / 1.0e6);
 
 out_close:
 	result = fpgaClose(accelerator_handle);
