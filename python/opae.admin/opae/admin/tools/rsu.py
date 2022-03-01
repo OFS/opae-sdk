@@ -150,7 +150,7 @@ def set_fpga_default(device, args):
 
 
 def device_rsu(device, available_image, **kwargs):
-    device.safe_rsu_boot(available_image)
+    device.safe_rsu_boot(available_image, **kwargs)
 
 
 def device_rsu_bmc(device, args):
