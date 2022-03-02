@@ -590,8 +590,12 @@ class fpga_base(sysfs_device):
     def safe_rsu_boot(self, available_image, **kwargs):
         root_port = self.pci_node.root
         force = kwargs.pop('force', False)
-        if root_port.supports_ecap('dpc') or force:
-            self.log.debug('ECAP_DPC supported')
+        supports_dpc = root_port.supports_ecap('dpc')
+        if supports_dpc or force:
+            if supports_dpc:
+                self.log.debug('ECAP_DPC supported')
+            elif force:
+                self.log.warn('forcing rsu routine')
             self.rsu_routine(available_image, **kwargs)
         else:
             if root_port.supports_ecap('aer'):
@@ -599,7 +603,9 @@ class fpga_base(sysfs_device):
                 with self.disable_aer(root_port):
                     self.rsu_routine(available_image, **kwargs)
             else:
-                self.log.error('ECAP_DPC and ECAP_AER not supported')
+                msg = 'ECAP_AER and ECAP_DPC not supported'
+                self.log.error(msg)
+                raise IOError(msg)
 
     def rsu_routine(self, available_image, **kwargs):
         wait_time = kwargs.pop('wait', 10)
