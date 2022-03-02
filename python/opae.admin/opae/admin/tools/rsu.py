@@ -275,8 +275,8 @@ def main():
                 fcntl.flock(flock.fileno(), fcntl.LOCK_EX)
                 try:
                     args.func(device, args)
-                except IOError:
-                    logging.error('RSU operation failed')
+                except IOError as err:
+                    logging.error(f'RSU operation failed: {err}')
                 else:
                     exit_code = os.EX_OK
                     logging.info('RSU operation complete')
