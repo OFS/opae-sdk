@@ -44,12 +44,12 @@ public:
     }
     virtual ~tg_test(){}
 
-    virtual const char *name() const
+    virtual  const char *name() const override
     {
         return "tg_test";
     }
 
-    virtual const char *description() const
+    virtual  const char *description() const override
     {
       return "configure & run mem traffic generator test";
     }
@@ -149,7 +149,7 @@ public:
     }
 
 
-    virtual int run(test_afu *afu, CLI::App *app)
+    virtual int run(test_afu *afu, CLI::App *app) override
     {
         (void)app;
 
