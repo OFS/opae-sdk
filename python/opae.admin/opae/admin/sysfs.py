@@ -574,7 +574,11 @@ class pci_node(sysfs_node):
         if ecap in ['AER', 'DPC']:
             cmd = ['/usr/sbin/setpci',
                    '-s', self.pci_address, f'ECAP_{ecap}.L']
-            return check_call(cmd) == 0
+            try:
+                return check_call(cmd) == 0
+            except CalledProcessError as err:
+                self.log.debug(f'{cmd} resulted in error: {err}')
+                return False
         raise NameError(f'{ecap} not a known or supported extended capability')
 
 
