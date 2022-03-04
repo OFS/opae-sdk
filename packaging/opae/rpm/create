@@ -32,7 +32,6 @@ source "${SCRIPT_DIR}/../version"
 RPMBUILD_DIR="${SCRIPT_DIR}/rpmbuild"
 SDK_DIR="$(cd "${SCRIPT_DIR}/../../../" && pwd)"
 
-let ${OPAE_SIM_TAG:=master}
 
 declare WHICH_RPM=''
 
@@ -98,16 +97,12 @@ mkdir ${CMAKE_BUILD_DIR}
 
 if [ "${WHICH_RPM}" = 'rhel' ]; then
 cmake -S ${SDK_DIR} -B ${CMAKE_BUILD_DIR} \
-  -DOPAE_MINIMAL_BUILD=ON \
-  -DOPAE_BUILD_SIM=ON \
-  -DOPAE_SIM_TAG=${OPAE_SIM_TAG}
+  -DOPAE_MINIMAL_BUILD=ON 
 else
 cmake -S ${SDK_DIR} -B ${CMAKE_BUILD_DIR} \
   -DOPAE_PRESERVE_REPOS=ON \
   -DOPAE_BUILD_PYTHON_DIST=ON \
-  -DOPAE_BUILD_FPGABIST=ON \
-  -DOPAE_BUILD_SIM=ON \
-  -DOPAE_SIM_TAG=${OPAE_SIM_TAG}
+  -DOPAE_BUILD_FPGABIST=ON 
 fi
 
 # Create source tarball.
@@ -135,7 +130,6 @@ cp opae-${PROJECT_VERSION}-${PROJECT_RELEASE}.tar.gz "${RPMBUILD_DIR}/SOURCES"
 cat "${SDK_DIR}/${RPM_SPEC}" | \
   sed -e "s/@VERSION@/${PROJECT_VERSION}/" \
       -e "s/@RELEASE@/${PROJECT_RELEASE}/" \
-      -e "s/@OPAE_SIM_TAG@/${OPAE_SIM_TAG}/" \
   > "${RPMBUILD_DIR}/SPECS/opae.spec"
 
 # Create RPMS.
