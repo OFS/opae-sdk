@@ -80,14 +80,6 @@ Requires:   opae-devel
 Additional OPAE tools
 
 
-%package ase
-Summary:    OPAE AFU Simulation Environment
-Requires:   opae-devel
-
-%description ase
-OPAE AFU Simulation Environment
-
-
 %{?python_disable_dependency_generator}
 # Workaround a problem with pybind11 *.so not having build-id's
 %undefine _missing_build_ids_terminate_build
@@ -100,10 +92,8 @@ OPAE AFU Simulation Environment
 %cmake -DCMAKE_INSTALL_PREFIX=/usr \
        -DOPAE_PRESERVE_REPOS=ON \
        -DOPAE_BUILD_PYTHON_DIST=ON \
-       -DOPAE_BUILD_FPGABIST=ON \
-       -DOPAE_BUILD_SIM=ON \
-       -DOPAE_SIM_TAG=@OPAE_SIM_TAG@ \
-       .
+       -DOPAE_BUILD_FPGABIST=ON 
+
 %if 0%{?rhel}
   %make_build
 %else
@@ -151,9 +141,6 @@ cp samples/hello_fpga/hello_fpga.c %{buildroot}%{_usr}/src/opae/samples/hello_fp
 cp samples/hello_events/hello_events.c %{buildroot}%{_usr}/src/opae/samples/hello_events/
 cp samples/object_api/object_api.c %{buildroot}%{_usr}/src/opae/samples/object_api/
 cp samples/n5010-test/n5010-test.c %{buildroot}%{_usr}/src/opae/samples/n5010-test/
-
-mkdir -p %{buildroot}%{_usr}/share/opae/ase
-cp external/opae-sim/LICENSE %{buildroot}%{_usr}/share/opae/ase
 
 
 %if 0%{?rhel}
@@ -209,6 +196,12 @@ for file in %{buildroot}%{python3_sitearch}/opae/diag/{common,fecmode,fpgadiag,f
    chmod a+x $file
 done
 
+# packager
+for file in %{buildroot}%{python3_sitelib}/packager/tools/{afu_json_mgr,packager}.py; do
+   chmod a+x $file
+done
+
+
 %files
 %dir %{_datadir}/opae
 %doc %{_datadir}/opae/RELEASE_NOTES.md
@@ -227,6 +220,7 @@ done
 %{_libdir}/libopaemem.so.*
 %{_libdir}/libopaeuio.so.*
 %{_libdir}/libopaevfio.so.*
+%{_libdir}/libofs_cpeng.so.*
 
 %{_libdir}/opae/libxfpga.so
 %{_libdir}/opae/libopae-v.so
@@ -371,26 +365,6 @@ done
 %{python3_sitearch}/opae/io*
 %{python3_sitearch}/pyopaeuio*
 
-
-%files ase
-%dir %{_usr}/share/opae/ase
-%license %{_usr}/share/opae/ase/LICENSE
-%{_usr}/share/opae/ase/rtl/*
-%{_usr}/share/opae/ase/sw/*
-%{_usr}/share/opae/ase/scripts/*
-%{_usr}/share/opae/ase/Makefile
-%{_usr}/share/opae/ase/ase.cfg
-%{_usr}/share/opae/ase/ase_regress.sh
-%{_usr}/share/opae/ase/opae_ase.cfg
-
-%{_bindir}/afu_sim_setup
-%{_bindir}/with_ase
-
-%{_libdir}/libopae-c-ase.so.*
-%{_libdir}/libase.so.*
-
-%{_libdir}/libopae-c-ase.so
-%{_libdir}/libase.so
 
 
 %changelog

@@ -122,26 +122,26 @@ Download the OPAE-SDK source code from github.
 $ git clone https://github.com/OPAE/opae-sdk.git
 ```
 
-Compile and build the OPAE-SDK.
+Compile and build the OPAE-SDK RPMs (Fedora, CentOS).
 ```console
-$ cd opae-sdk
-$ mkdir build
-$ cd build
-$ cmake .. -DCPACK_GENERATOR=RPM -DOPAE_BUILD_LEGACY=ON -DOPAE_PYTHON_VERSION=3.6 -DOPAE_BUILD_FPGABIST=ON -DCMAKE_INSTALL_PREFIX=/usr
-$ make
-$ make package_rpm
+$ cd opae-sdk/packaging/opae/rpm
+$ ./create fedora
 ```
-After compile successful, there are 8 rpm packages generated.
+Compile and build the OPAE-SDK RPMs (RHEL).
 ```console
-opae-2.0.0-1.x86_64.rpm
-opae-devel-2.0.0-1.x86_64.rpm
-opae-libs-2.0.0-1.x86_64.rpm
-opae-opae.admin-2.0.0-1.x86_64.rpm
-opae-PACSign-2.0.0-1.x86_64.rpm
-opae-tests-2.0.0-1.x86_64.rpm
-opae-tools-2.0.0-1.x86_64.rpm
-opae-tools-extra-2.0.0-1.x86_64.rpm
+$ cd opae-sdk/packaging/opae/rpm
+$ ./create rhel
 ```
+
+After a successful compile, there are 3 rpm packages generated (Fedora, CentOS).
+```console
+opae-2.1.0-1.fc34.x86_64.rpm
+opae-devel-2.1.0-1.fc34.x86_64.rpm
+opae-extra-tools-2.1.0-1.fc34.x86_64.rpm
+```
+
+Note that the RHEL RPM build does not produce a opae-extra-tools RPM.
+
 ## OPAE SDK installation with rpm packages ##
 The rpm packages generated in the previous step can be installed using these commands:
 

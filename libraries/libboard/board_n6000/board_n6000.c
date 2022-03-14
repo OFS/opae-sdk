@@ -85,17 +85,17 @@
 #define BOOTPAGE_PATTERN "_([0-9a-zA-Z]+)"
 
 // image info sysfs
-#define DFL_SYSFS_IMAGE_INFO_GLOB "*dfl*/**/fpga_image_directory0/nvmem"
+#define DFL_SYSFS_IMAGE_INFO_GLOB "*dfl*/**/fpga_image_directory*/nvmem"
 #define IMAGE_INFO_STRIDE 4096
 #define IMAGE_INFO_SIZE     32
 #define IMAGE_INFO_COUNT     3
 #define GET_BIT(var, pos) ((var >> pos) & (1))
 
 // event log
-#define DFL_SYSFS_EVENT_LOG_GLOB "*dfl*/**/bmc_event_log0/nvmem"
+#define DFL_SYSFS_EVENT_LOG_GLOB "*dfl*/**/bmc_event_log*/nvmem"
 
 // BOM info
-#define DFL_SYSFS_BOM_INFO_GLOB "*dfl*/**/bom_info0/nvmem"
+#define DFL_SYSFS_BOM_INFO_GLOB "*dfl*/**/bom_info*/nvmem"
 #define FPGA_BOM_INFO_BUF_LEN   0x2000
 
 // hssi version

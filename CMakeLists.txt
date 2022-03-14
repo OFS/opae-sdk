@@ -95,8 +95,8 @@ endif()
 
 set(OPAE_VERSION_LOCAL   "" CACHE STRING "OPAE local version")
 set(OPAE_VERSION_MAJOR    2 CACHE STRING "OPAE major version" FORCE)
-set(OPAE_VERSION_MINOR    0 CACHE STRING "OPAE minor version" FORCE)
-set(OPAE_VERSION_REVISION 11${OPAE_VERSION_LOCAL} CACHE STRING "OPAE revision version" FORCE)
+set(OPAE_VERSION_MINOR    1 CACHE STRING "OPAE minor version" FORCE)
+set(OPAE_VERSION_REVISION 0 ${OPAE_VERSION_LOCAL} CACHE STRING "OPAE revision version" FORCE)
 set(OPAE_VERSION ${OPAE_VERSION_MAJOR}.${OPAE_VERSION_MINOR}.${OPAE_VERSION_REVISION}
     CACHE STRING "OPAE version" FORCE)
 
@@ -158,9 +158,6 @@ mark_as_advanced(OPAE_BUILD_PYTHON_DIST)
 option(OPAE_ENABLE_MOCK "Enable building of test infrastructure with mock" OFF)
 mark_as_advanced(OPAE_ENABLE_MOCK)
 
-option(OPAE_BUILD_SIM "Enable building of the AFU simulation environment" OFF)
-mark_as_advanced(OPAE_BUILD_SIM)
-
 option(OPAE_BUILD_LIBOPAEVFIO "Enable building of the opaevfio library" ON)
 mark_as_advanced(OPAE_BUILD_LIBOPAEVFIO)
 
@@ -180,11 +177,6 @@ if(OPAE_BUILD_TESTS)
     set(OPAE_TEST_TAG "master" CACHE STRING "Desired branch for opae-test")
     mark_as_advanced(OPAE_TEST_TAG)
 endif(OPAE_BUILD_TESTS)
-
-if(OPAE_BUILD_SIM)
-    set(OPAE_SIM_TAG "master" CACHE STRING "Desired branch for opae-sim")
-    mark_as_advanced(OPAE_SIM_TAG)
-endif(OPAE_BUILD_SIM)
 
 if (OPAE_BUILD_PLUGIN_VFIO AND NOT OPAE_BUILD_LIBOPAEVFIO)
     message(STATUS
