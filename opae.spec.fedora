@@ -196,6 +196,12 @@ for file in %{buildroot}%{python3_sitearch}/opae/diag/{common,fecmode,fpgadiag,f
    chmod a+x $file
 done
 
+# packager
+for file in %{buildroot}%{python3_sitelib}/packager/tools/{afu_json_mgr,packager}.py; do
+   chmod a+x $file
+done
+
+
 %files
 %dir %{_datadir}/opae
 %doc %{_datadir}/opae/RELEASE_NOTES.md
@@ -214,6 +220,7 @@ done
 %{_libdir}/libopaemem.so.*
 %{_libdir}/libopaeuio.so.*
 %{_libdir}/libopaevfio.so.*
+%{_libdir}/libofs_cpeng.so.*
 
 %{_libdir}/opae/libxfpga.so
 %{_libdir}/opae/libopae-v.so
