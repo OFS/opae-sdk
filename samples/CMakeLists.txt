@@ -59,9 +59,6 @@ endif()
 ######################################################################
 # Client application #################################################
 ######################################################################
-if(OPAE_BUILD_SIM)
-  add_definitions(-DTEST_TIMEOUT=130000000)
-endif(OPAE_BUILD_SIM)
 
 opae_add_subdirectory(hello_fpga)
 opae_add_subdirectory(hello_events)
