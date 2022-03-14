@@ -26,13 +26,6 @@ processors, you will not be able to run the examples below. However, you can
 still make use of the AFU simulation environment (ASE) to develop and test
 accelerator RTL with OPAE applications.
 
-For more information about ASE, see the [OPAE AFU Simulation Environment
-(ASE) User Guide](../../ase_userguide/ase_userguide.html).
-
-```eval_rst
-.. note::
-    The AFU simulation environment is not available for the Intel PAC N3000.
-```
 
 The source for the OPAE SDK Linux device drivers is available at the
 [OPAE Linux DFL drivers repository](https://github.com/OPAE/linux-dfl).
