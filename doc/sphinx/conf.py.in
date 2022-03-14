@@ -132,7 +132,6 @@ drv_arch_doc = 'docs/drv_arch/drv_arch'
 hssi_tuner_doc = 'docs/fpga_tools/mhssi_tuner/readme'
 alaska_fw_loader_doc = 'docs/fpga_tools/alaska_fw_loader/readme'
 fpga_tools_doc = 'docs/fpga_tools/readme'
-ase_userguide_doc = 'docs/ase_userguide/ase_userguide'
 api_build_doc = 'docs/build_chain/fpga_api/api_build'
 install_guide_doc = 'docs/install_guide/installation_guide'
 
@@ -141,7 +140,6 @@ latex_documents = [
     (quick_start_doc, 'quick_start.tex', u'Intel FPGA Quick Start Guide', u'FPT SW Development Team', 'howto'),
     (prog_guide_doc, 'prog_guide.tex', u'Intel FPGA Programming Guide', u'FPT SW Development Team', 'howto'),
     (fpga_tools_doc, 'fpga_tools.tex', u'Intel FPGA Tools', u'FPT SW Development Team', 'howto'),
-    (ase_userguide_doc, 'ase_userguide.tex', u'Intel AFU Simulation Environment (ASE) User Guide', u'FPT SW Development Team', 'howto'),
     (api_build_doc, 'api_build.tex', u'apiBuild', u'FPT SW Development Team', 'howto'),
     (install_guide_doc, 'install_guide.tex', u'Intel FPGA Software Stack Installation Guide', u'FPT SW Development Team', 'howto'),
     (drv_arch_doc, 'drv_arch.tex', u'FPGA Driver Architecture', u'FPT SW Development Team', 'manual'),
