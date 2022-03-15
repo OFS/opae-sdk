@@ -536,7 +536,7 @@ fpga_result get_usrclk_uio(const char *sysfs_path,
 				res = FPGA_NOT_FOUND;
 				goto free;
 			}
-			strncpy(dfl_dev_str, p, end - p);
+			memcpy(dfl_dev_str, p, end - p);
 			*(dfl_dev_str + (end - p)) = '\0';
 
 			ret = opae_uio_open(uio, dfl_dev_str);
