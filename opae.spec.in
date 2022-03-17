@@ -1,5 +1,4 @@
 # -*- rpm-spec -*-
-%define with_ase "@OPAE_BUILD_SIM@"
 
 BuildRoot:      %_topdir/@CPACK_PACKAGE_FILE_NAME@
 
@@ -12,9 +11,7 @@ Group:          @CPACK_META_GROUP_NAME@
 Vendor:         @CPACK_PACKAGE_VENDOR@
 Prefix:         @CMAKE_INSTALL_PREFIX@
 Requires:       opae-libs , opae-devel , opae-tools, opae-tools-extra
-%if %with_ase == "ON"
-Requires:       opae-ase
-%endif
+
 Source0:        @CPACK_PACKAGE_NAME@.tar.gz
 
 %description
@@ -57,16 +54,6 @@ Prefix:     @CPACK_RPM_RELOCATION_PATHS@
 
 %description tools-extra
 This package contains OPAE extra tools binaries
-
-%if %with_ase == "ON"
-%package ase
-Summary:    OPAE AFU Simulation Environment
-Group:      ase
-Requires:   opae-libs , opae-devel
-
-%description ase
-This package contains OPAE AFU Simulation Environment
-%endif
 
 %package tests
 Summary:    OPAE tests package
@@ -239,19 +226,6 @@ ldconfig
 # coreidle applies only to a legacy platform that is no longer supported
 %exclude @CMAKE_INSTALL_PREFIX@/bin/coreidle
 
-%if %with_ase == "ON"
-%files ase
-%license @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DOCDIR@/LICENSE
-%defattr(-,root,root,-)
-@CMAKE_INSTALL_PREFIX@/bin/afu_sim_setup
-@CMAKE_INSTALL_PREFIX@/bin/with_ase
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libase*
-@CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c-ase*
-%dir @CMAKE_INSTALL_PREFIX@/share/opae
-%dir @CMAKE_INSTALL_PREFIX@/share/opae/ase/
-%dir @CMAKE_INSTALL_PREFIX@/share/opae/ase/*
-@CMAKE_INSTALL_PREFIX@/share/opae/ase/*
-%endif
 
 %files tests
 %defattr(-,root,root,-)

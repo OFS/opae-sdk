@@ -404,8 +404,9 @@ fpga_devices = {(0x8086, 0x09c4): "Intel PAC A10 GX",
                 (0x8086, 0xaf00): "Intel N6000 ADP",
                 (0x8086, 0xaf01): "Intel N6000 ADP VF",
                 (0x8086, 0xbcce): "Intel N6000 ADP",
-                (0x8086, 0xbccf): "Intel N6000 ADP VF"}
-
+                (0x8086, 0xbccf): "Intel N6000 ADP VF",
+                (0x1c2c, 0x1000): "Silicom SmartNIC N5010",
+                (0x1c2c, 0x1001): "Silicom SmartNIC N5011"}
 
 def read_attr(dirname, attr):
     fname = Path(dirname, attr)

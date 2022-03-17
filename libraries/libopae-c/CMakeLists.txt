@@ -42,25 +42,3 @@ opae_add_shared_library(TARGET opae-c
     SOVERSION ${OPAE_VERSION_MAJOR}
     COMPONENT opaeclib
 )
-
-if(OPAE_BUILD_SIM)
-set(SRC_ASE
-    pluginmgr.c
-    api-shell.c
-    init.c
-    init_ase.c
-    props.c
-)
-
-opae_add_shared_library(TARGET opae-c-ase
-    SOURCE ${SRC_ASE}
-    LIBS
-        dl
-        ${CMAKE_THREAD_LIBS_INIT}
-        ${libjson-c_LIBRARIES}
-        ${libuuid_LIBRARIES}
-    VERSION ${OPAE_VERSION}
-    SOVERSION ${OPAE_VERSION_MAJOR}
-    COMPONENT opaecsimlib
-)
-endif(OPAE_BUILD_SIM)
