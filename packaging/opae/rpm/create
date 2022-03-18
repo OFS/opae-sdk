@@ -64,7 +64,7 @@ declare -a PKG_DEPS=(\
 'rpm-build' \
 'systemd' \
 'rpmdevtools' \
-'libcap-devel'\
+'systemd-devel'\
 )
 
 if [ "${WHICH_RPM}" = 'fedora' ]; then
