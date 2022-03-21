@@ -9,11 +9,11 @@ ExclusiveArch:  x86_64
 
 Group:          Development/Libraries
 Vendor:         Intel Corporation
-Requires:       uuid
-Requires:	json-c
-Requires:	python3
-Requires:	systemd
 
+Requires:       uuid
+Requires:       json-c
+Requires:       python3
+Requires:       systemd
 
 URL:            https://github.com/OPAE/%{name}-sdk
 Source0:        https://github.com/OPAE/opae-sdk/releases/download/%{version}-%{opae_release}/%{name}-%{version}-%{opae_release}.tar.gz
@@ -33,7 +33,6 @@ BuildRequires:  python3-setuptools
 BuildRequires:  python3-pyyaml
 BuildRequires:  rpm-build
 BuildRequires:  systemd-devel
-
 
 
 %description
@@ -72,10 +71,10 @@ OPAE headers, tools, sample source, and documentation
 %setup -q -n %{name}-%{version}-%{opae_release}
 
 %build
-%cmake -DOPAE_MINIMAL_BUILD=ON 
+%cmake -DOPAE_MINIMAL_BUILD=ON
 
 %if 0%{?rhel}
-  %make_build
+  %cmake_build
 %else
   %cmake_build
 %endif
@@ -138,7 +137,7 @@ cp binaries/opae.io/scripts/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/sc
 
 
 %if 0%{?rhel}
-  %make_install
+  %cmake_install
 %else
   %cmake_install
 %endif
@@ -329,7 +328,18 @@ done
 %{python3_sitelib}/packager*
 
 
+
 %changelog
+* Tue Mar 15 2022 The OPAE Dev Team <opae@lists.01.org> - 2.1.0-1
+- Update OPAE spec file and tarball generation script.
+- Added support to FPGA Linux kernel DFL driver patchset-6.
+- Added support to Intel FPGA PCIe N6000/D5005/N3000 series.
+- Various bug fixes
+- Various memory leak fixes.
+- Various Static code scan bug fixes.
+- Updated OPAE documentation.
+- Fix build errors
+
 * Mon Dec 14 2020 The OPAE Dev Team <opae@lists.01.org> - 2.0.0-2
 - Update OPAE spec file and tarball generation script
 - Fix build errors
