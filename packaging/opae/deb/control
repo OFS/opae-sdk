@@ -16,11 +16,12 @@ Section: libs
 Homepage: https://github.com/OPAE/opae-sdk.git
 Vcs-Git: https://github.com/OPAE/opae-sdk.git
 
-Package: opae-libs
+Package: opae
 Section: libs
 Priority: optional
 Architecture: any
-Depends: uuid-dev, libjson-c3, libhwloc-dev, libtbb-dev, ${shlibs:Depends}, ${misc:Depends}
+Depends: uuid, libjson-c3,
+         ${python3:Depends}, ${shlibs:Depends}, ${misc:Depends}
 Description: OPAE runtime
 
 Package: opae-devel
@@ -28,31 +29,16 @@ Section: libdevel
 Priority: optional
 Architecture: any
 Multi-Arch: same
-Depends: opae-libs (= ${binary:Version}), python3, ${shlibs:Depends}, ${misc:Depends}
+Depends: opae (= ${binary:Version}),
+         ${python3:Depends}, ${shlibs:Depends}, ${misc:Depends}
 Description: OPAE headers, sample source, and documentation
 
-Package: opae-tools
+Package: opae-extra-tools
 Section: utils
 Priority: optional
 Architecture: any
 Multi-Arch: same
-Depends: opae-libs (= ${binary:Version}), opae-devel (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
-Description: OPAE base tool binaries
-
-Package: opae-tools-extra
-Section: utils
-Priority: optional
-Architecture: any
-Multi-Arch: same
-Depends: opae-libs (= ${binary:Version}), opae-devel (= ${binary:Version}),
-         ${shlibs:Depends}, ${misc:Depends},
-         python3
+Depends: opae (= ${binary:Version}), opae-devel (= ${binary:Version}),
+         libhwloc, libtbb, libedit,
+         ${python3:Depends}, ${shlibs:Depends}, ${misc:Depends},
 Description: OPAE extra tool binaries
-
-Package: opae-ase
-Section: utils
-Priority: optional
-Architecture: any
-Multi-Arch: same
-Depends: opae-libs (= ${binary:Version}), opae-devel (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
-Description: OPAE AFU Simulation Environment

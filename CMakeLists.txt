@@ -224,6 +224,9 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/config/config.h.in"
 
 # end opae-libs
 
+install(DIRECTORY cmake/modules
+    DESTINATION src/opae/cmake)
+
 opae_add_subdirectory(external)
 opae_add_subdirectory(libraries)
 opae_add_subdirectory(platforms)
