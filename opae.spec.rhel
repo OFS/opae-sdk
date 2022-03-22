@@ -73,11 +73,7 @@ OPAE headers, tools, sample source, and documentation
 %build
 %cmake -DOPAE_MINIMAL_BUILD=ON
 
-%if 0%{?rhel}
-  %cmake_build
-%else
-  %cmake_build
-%endif
+%cmake_build
 
 
 %install
@@ -136,11 +132,8 @@ cp binaries/opae.io/opae/io/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/op
 cp binaries/opae.io/scripts/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/scripts
 
 
-%if 0%{?rhel}
-  %cmake_install
-%else
-  %cmake_install
-%endif
+%cmake_install
+
 
 prev=$PWD
 pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/opae.admin/
