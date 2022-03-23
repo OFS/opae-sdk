@@ -25,3 +25,14 @@
 
 override_dh_auto_configure:
 	dh_auto_configure -- -DCMAKE_INSTALL_PREFIX=/usr -DOPAE_PRESERVE_REPOS=ON -DOPAE_BUILD_PYTHON_DIST=ON -DOPAE_BUILD_FPGABIST=ON
+
+override_dh_auto_install:
+	cd $(CURDIR)/binaries/opae.io && python3 setup.py install --single-version-externally-managed --root=$(CURDIR)/debian/tmp --install-layout=deb && cd $(CURDIR)
+	cd $(CURDIR)/binaries/hssi && python3 setup.py install --single-version-externally-managed --root=$(CURDIR)/debian/tmp --install-layout=deb && cd $(CURDIR)
+	cd $(CURDIR)/binaries/fpgadiag && python3 setup.py install --single-version-externally-managed --root=$(CURDIR)/debian/tmp --install-layout=deb && cd $(CURDIR)
+	cd $(CURDIR)/obj-x86_64-linux-gnu/libraries/pyopae/stage && python3 setup.py install --single-version-externally-managed --root=$(CURDIR)/debian/tmp --install-layout=deb && cd $(CURDIR)
+	cd $(CURDIR)/libraries/pyopaeuio && python3 setup.py install --single-version-externally-managed --root=$(CURDIR)/debian/tmp --install-layout=deb && cd $(CURDIR)
+	cd $(CURDIR)/python/opae.admin && python3 setup.py install --single-version-externally-managed --root=$(CURDIR)/debian/tmp --install-layout=deb && cd $(CURDIR)
+	cd $(CURDIR)/python/pacsign && python3 setup.py install --single-version-externally-managed --root=$(CURDIR)/debian/tmp --install-layout=deb && cd $(CURDIR)
+	cd $(CURDIR)/python/packager && python3 setup.py install --single-version-externally-managed --root=$(CURDIR)/debian/tmp --install-layout=deb && cd $(CURDIR)
+	dh_auto_install

@@ -60,4 +60,7 @@ usr/lib/python*/site-packages/ethernet*
 usr/lib/python*/site-packages/hssi_ethernet*
 usr/lib/python*/site-packages/pacsign*
 usr/lib/python*/site-packages/packager*
-usr/lib/python*/site-packages/libvfio*
+usr/lib/python*/dist-packages/libvfio*
+usr/lib/python*/dist-packages/opae.fpga*
+usr/lib/python*/dist-packages/opae/fpga*
+usr/lib/python*/dist-packages/opae*
