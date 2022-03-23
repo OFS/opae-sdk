@@ -116,7 +116,7 @@ def set_fpga_default(device, args):
     if not args.page and not args.fallback:
         # Print the power_on_image value.
         logging.info('fallback sequence: {}'.format(
-            power_on_image.value.replace('fpga_', ''))
+            power_on_image.value.replace('fpga_', '')))
         return
     elif not args.page and args.fallback:
         logging.error('--fallback must be accompanied by a --page selection.')
