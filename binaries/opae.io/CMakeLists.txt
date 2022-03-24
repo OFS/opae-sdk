@@ -26,7 +26,7 @@
 
 if (PLATFORM_SUPPORTS_VFIO AND OPAE_WITH_PYBIND11 AND OPAE_WITH_LIBEDIT)
 
-    find_package(edit REQUIRED)
+    find_package(libedit REQUIRED)
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
     set(PYBIND11_CPP_STANDARD -std=c++11)
