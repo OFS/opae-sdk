@@ -182,6 +182,7 @@ done
 %{_libdir}/libopaemem.so.*
 %{_libdir}/libopaeuio.so.*
 %{_libdir}/libopaevfio.so.*
+%{_libdir}/libofs_cpeng.so.*
 
 %{_libdir}/opae/libxfpga.so
 %{_libdir}/opae/libopae-v.so
