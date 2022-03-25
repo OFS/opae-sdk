@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright(c) 2019-2021, Intel Corporation
+# Copyright(c) 2019-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -115,7 +115,8 @@ def set_fpga_default(device, args):
 
     if not args.page and not args.fallback:
         # Print the power_on_image value.
-        logging.info('fallback sequence: {}'.format(power_on_image.value))
+        logging.info('fallback sequence: {}'.format(
+            power_on_image.value.replace('fpga_', '')))
         return
     elif not args.page and args.fallback:
         logging.error('--fallback must be accompanied by a --page selection.')
