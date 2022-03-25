@@ -116,7 +116,7 @@ for s in \
     FindTbb.cmake \
     FindUUID.cmake \
     FindUdev.cmake \
-    Findedit.cmake \
+    Findlibedit.cmake \
     Findjson-c.cmake \
     Findspdlog.cmake \
     OFS.cmake \
