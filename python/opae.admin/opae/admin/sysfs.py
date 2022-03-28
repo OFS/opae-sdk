@@ -30,7 +30,7 @@ import os
 import re
 from contextlib import contextmanager
 from pathlib import Path
-from subprocess import CalledProcessError, check_call
+from subprocess import CalledProcessError, check_call, DEVNULL
 from opae.admin.path import sysfs_path
 from opae.admin.utils.process import call_process, DRY_RUN
 from opae.admin.utils.log import loggable, LOG
@@ -572,10 +572,10 @@ class pci_node(sysfs_node):
     def supports_ecap(self, cap):
         ecap = cap.upper()
         if ecap in ['AER', 'DPC']:
-            cmd = ['/usr/sbin/setpci',
+            cmd = ['setpci',
                    '-s', self.pci_address, f'ECAP_{ecap}.L']
             try:
-                return check_call(cmd) == 0
+                return check_call(cmd, stdout=DEVNULL, stderr=DEVNULL) == 0
             except CalledProcessError as err:
                 self.log.debug(f'{cmd} resulted in error: {err}')
                 return False
