@@ -7,10 +7,9 @@
 ## DESCRIPTION ##
 
 The ```hssi``` application provides a means of interacting with the 10G and
-with the 100G HSSI AFUs. In both 10G and 100G operating modes, the application
-initializes the AFU, completes the desired transfer as described by the mode-
-specific options, and displays the ethernet statistics by invoking
-```ethtool --statistics INTERFACE```.
+with the 100G HE-HSSI AFUs. In both 10G and 100G operating modes, the application
+initializes the AFU and completes the desired transfer as described by the mode-
+specific options.
 
 COMMON_OPTIONS - application options common to both 10G and 100G modes.
 
@@ -116,6 +115,30 @@ MODE_OPTIONS [hssi_100g] - application options specific to the 100G AFU.
 `--dest-addr ADDR`
 
     Specify the destination MAC address. The default value is 77:88:99:aa:bb:cc.
+
+`--start-size SIZE`
+
+    Specify the packet size in bytes, or the first packet size for --pattern increment.
+
+`--end-size SIZE`
+
+    Specify the end packet size in bytes.
+
+`--end-select pkt_num|gen_idle`
+
+    Specify packet generation end mode.
+
+MODE_OPTIONS [pkt_filt_10g] - application options specific to the Packet Filter 10G AFU.
+
+`--dfl-dev DFL_DEV`
+
+    Packet Filter DFL device, eg --dfl-dev dfl_dev.0
+
+MODE_OPTIONS [pkt_filt_100g] - application options specific to the Packet Filter 100G AFU.
+
+`--dfl-dev DFL_DEV`
+
+    Packet Filter DFL device, eg --dfl-dev dfl_dev.1
 
 ## EXAMPLES ##
 
