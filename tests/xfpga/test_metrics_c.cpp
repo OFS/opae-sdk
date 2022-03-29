@@ -560,7 +560,7 @@ TEST_P(metrics_afu_c_p, test_afc_metric_04) {
   create_metric_bbb_csr();
 
   // valid afu Metrics name
-  const char *metric_string[2] = {"AFU:2:a", "AFU:3:b"};
+  const char *metric_string[2] = {"a", "b"};
   uint64_t array_size = 2;
 
   struct fpga_metric *metric_array_search =

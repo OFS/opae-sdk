@@ -863,16 +863,10 @@ fpga_result  parse_metric_num_name(const char *search_string,
 				uint64_t *metric_num)
 {
 	fpga_result result                          = FPGA_OK;
-	char *str                                   = NULL;
-	char *str_last                              = NULL;
 	uint64_t i                                  = 0;
 	struct _fpga_enum_metric *fpga_enum_metric  = NULL;
-	char qualifier_name[SYSFS_PATH_MAX]         = { 0, };
-	char metrics_name[SYSFS_PATH_MAX]           = { 0, };
-	int qualifier_indicator                     = 0;
 	int metric_indicator                        = 0;
 	uint64_t num_enun_metrics                   = 0;
-	size_t len;
 
 	if (search_string == NULL ||
 		fpga_enum_metrics_vector == NULL ||
@@ -881,26 +875,6 @@ fpga_result  parse_metric_num_name(const char *search_string,
 		return FPGA_INVALID_PARAM;
 	}
 
-	str = strrchr(search_string, ':');
-	if (!str) {
-		OPAE_ERR("Invalid Input Paramters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	// Metric Name
-	len = strnlen(str + 1, FPGA_METRIC_STR_SIZE - 1);
-	memcpy(metrics_name, str + 1, len);
-	metrics_name[len] = '\0';
-
-	// qualifier_name
-	str_last = strrchr(search_string, ':');
-	if (!str_last) {
-		OPAE_ERR("Invalid Input Paramters");
-		return FPGA_INVALID_PARAM;
-	}
-
-	memcpy(qualifier_name, search_string, str_last - search_string);
-	qualifier_name[str_last - search_string] = '\0';
 
 	result = fpga_vector_total(fpga_enum_metrics_vector, &num_enun_metrics);
 	if (result != FPGA_OK) {
@@ -908,16 +882,12 @@ fpga_result  parse_metric_num_name(const char *search_string,
 		return FPGA_NOT_FOUND;
 	}
 
-
 	for (i = 0; i < num_enun_metrics; i++) {
 		fpga_enum_metric = (struct _fpga_enum_metric *) fpga_vector_get(fpga_enum_metrics_vector, i);
 
-		qualifier_indicator = strcasecmp(fpga_enum_metric->qualifier_name, qualifier_name);
-		metric_indicator = strcasecmp(fpga_enum_metric->metric_name, metrics_name);
+		metric_indicator = strcasecmp(fpga_enum_metric->metric_name, search_string);
 
-		if (qualifier_indicator == 0 &&
-			metric_indicator == 0) {
-
+		if (metric_indicator == 0) {
 			*metric_num = fpga_enum_metric->metric_num;
 			return result;
 		}
