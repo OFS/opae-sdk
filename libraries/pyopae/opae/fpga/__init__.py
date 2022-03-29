@@ -1,4 +1,4 @@
-from _opae import (
+from ._opae import (
     properties,
     token,
     handle,
@@ -14,9 +14,10 @@ from _opae import (
     version,
     build,
     memory_barrier)
-from _opae import (DEVICE, ACCELERATOR, OPEN_SHARED, EVENT_ERROR,
+from ._opae import (DEVICE, ACCELERATOR, OPEN_SHARED, EVENT_ERROR,
                    EVENT_INTERRUPT, EVENT_POWER_THERMAL, ACCELERATOR_ASSIGNED,
-                   ACCELERATOR_UNASSIGNED, RECONF_FORCE, SYSOBJECT_GLOB)
+                   ACCELERATOR_UNASSIGNED, RECONF_FORCE, SYSOBJECT_GLOB,
+                   IFC_DFL, IFC_VFIO, IFC_SIM)
 __all__ = ['properties',
            'token',
            'handle',
@@ -41,5 +42,8 @@ __all__ = ['properties',
            'ACCELERATOR_ASSIGNED',
            'ACCELERATOR_UNASSIGNED',
            'RECONF_FORCE',
-           'SYSOBJECT_GLOB'
+           'SYSOBJECT_GLOB',
+           'IFC_DFL',
+           'IFC_VFIO',
+           'IFC_SIM'
            ]
