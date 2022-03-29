@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright(c) 2020, Intel Corporation
+# Copyright(c) 2020-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -45,7 +45,8 @@ for pkg in 'devscripts' \
            'libtbb-dev' \
            'libhwloc-dev' \
            'python3-dev' \
-           'doxygen'
+           'doxygen' \
+           'libedit-dev'
 do
     apt list --installed "${pkg}" >/dev/null 2>&1
     if [ $? -ne 0 ]; then
@@ -59,24 +60,19 @@ rm -rf "${TARBALL_DIR}"
 # Create source tarball.
 cd "${SDK_DIR}/.."
 tar --transform="s/opae-sdk/opae-${PROJECT_VERSION}/" \
-  --exclude=.git \
-  --exclude=.gitignore \
-  --exclude=.github \
-  --exclude=.travis.yml \
-  --exclude=opae.spec.in \
-  --exclude=opae.spec \
-  --exclude=samples/base \
-  --exclude=samples/hello_afu \
-  --exclude=samples/hello_mpf_afu \
-  --exclude=samples/intg_xeon_nlb \
-  --exclude=tests \
+  --exclude=__pycache__ \
+  --exclude=_build \
+  --exclude=build \
+  --exclude=.* \
+  --exclude=*~ \
+  --exclude=*.so \
+  --exclude=doc/sphinx \
+  --exclude=external/gtest \
+  --exclude=external/opae-legacy \
+  --exclude=external/opae-test \
   --exclude=bin/pyfpgadiag \
   --exclude=bin/pypackager \
-  --exclude=tools/utilities \
-  --exclude=include/opae/cxx/.clang-format \
-  --exclude=lib/libopaecxx/.clang-format \
-  --exclude=lib/pyopae/.clang-format \
-  --exclude=lib/.clang-format \
+  --exclude=packaging \
   -z -c -f "opae-${PROJECT_VERSION}.tar.gz" opae-sdk
 
 mv "opae-${PROJECT_VERSION}.tar.gz" "${SCRIPT_DIR}"
@@ -86,11 +82,9 @@ tar zxf "opae-${PROJECT_VERSION}.tar.gz"
 mkdir -p "${TARBALL_DIR}/debian/source"
 
 for f in 'changelog' \
-         'opae-libs.install' \
+         'opae.install' \
          'opae-devel.install' \
-         'opae-tools.install' \
-         'opae-tools-extra.install' \
-         'opae-ase.install'
+         'opae-extra-tools.install'
 do
     sed -e "s/@VERSION@/${PROJECT_VERSION}/" \
         -e "s/@RELEASE@/${PROJECT_RELEASE}/" \
@@ -100,11 +94,9 @@ done
 for f in 'compat' \
          'control' \
          'copyright' \
-         'opae-libs.dirs' \
+         'opae.dirs' \
          'opae-devel.dirs' \
-         'opae-tools.dirs' \
-         'opae-tools-extra.dirs' \
-         'opae-ase.dirs' \
+         'opae-extra-tools.dirs' \
          'rules'
 do
     cp $f "${TARBALL_DIR}/debian/$f"

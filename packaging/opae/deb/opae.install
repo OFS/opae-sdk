@@ -1,0 +1,37 @@
+RELEASE_NOTES.md usr/share/opae
+LICENSE usr/share/opae
+COPYING usr/share/opae
+usr/lib/libopae-c.so.*
+usr/lib/libbitstream.so.*
+usr/lib/libopae-c++-nlb.so.*
+usr/lib/libopae-cxx-core.so.*
+usr/lib/libopae-c++-utils.so.*
+usr/lib/libfpgad-api.so.*
+usr/lib/libmml-srv.so.*
+usr/lib/libmml-stream.so.*
+usr/lib/libofs.so.*
+usr/lib/libopaemem.so.*
+usr/lib/libopaeuio.so.*
+usr/lib/libopaevfio.so.*
+usr/lib/libofs_cpeng.so.*
+usr/lib/opae/libxfpga.so
+usr/lib/opae/libopae-v.so
+usr/lib/opae/libmodbmc.so
+usr/lib/opae/libfpgad-xfpga.so
+usr/lib/opae/libfpgad-vc.so
+usr/lib/opae/libboard_a10gx.so
+usr/lib/opae/libboard_n3000.so
+usr/lib/opae/libboard_d5005.so
+usr/lib/opae/libboard_n5010.so
+usr/lib/opae/libboard_n6000.so
+usr/bin/fpgad
+usr/bin/fpgaconf
+usr/bin/fpgainfo
+usr/bin/fpgasupdate
+usr/bin/rsu
+usr/bin/pci_device
+usr/lib/python*/site-packages/opae.admin*
+usr/lib/python*/site-packages/opae/admin*
+etc/opae/fpgad.cfg
+etc/sysconfig/fpgad.conf
+usr/lib/systemd/system/fpgad.service
