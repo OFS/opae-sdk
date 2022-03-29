@@ -72,7 +72,7 @@ if(pkgcfg_lib_PC_SPDLOG_fmt)
     set(spdlog_LIBRARIES ${spdlog_LIBRARIES} ${pkgcfg_lib_PC_SPDLOG_fmt})
 endif(pkgcfg_lib_PC_SPDLOG_fmt)
 
-set(spdlog_LIBRARIES ${spdlog_LIBRARIES} CACHE PATHS "Paths to spdlog libraries and dependencies")
+set(spdlog_LIBRARIES ${spdlog_LIBRARIES} CACHE STRING "Paths to spdlog libraries and dependencies")
 if(spdlog_LIBRARIES AND spdlog_INCLUDE_DIRS)
     set(spdlog_FOUND TRUE)
     set(spdlog_DEFINITIONS
