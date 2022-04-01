@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright(c) 2021, Intel Corporation
+# Copyright(c) 2021-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -29,6 +29,6 @@ set -e
 set -x
 
 apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-pip python3-dev git gcc g++ make cmake uuid-dev libjson-c-dev libhwloc-dev libtbb-dev libedit-dev libudev-dev libcap-dev bsdmainutils
+DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-pip python3-dev git gcc g++ make cmake uuid-dev libjson-c-dev libhwloc-dev libtbb-dev libedit-dev libudev-dev bsdmainutils pandoc devscripts debhelper doxygen
 
-pip3 install jsonschema pyyaml
+pip3 install jsonschema pyyaml pybind11

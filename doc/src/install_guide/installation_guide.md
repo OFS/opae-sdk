@@ -95,16 +95,16 @@ Before you build the OPAE SDK, you must install the required packages. Run the f
 # dnf install -y epel-release
 # dnf check-update
 # dnf upgrade -y
-# dnf install -y python3 python3-pip python3-devel python3-virtualenv git gcc gcc-c++ make cmake libuuid-devel json-c-devel hwloc-devel tbb-devel libedit-devel rpm-build rpmdevtools pybind11-devel yaml-cpp-devel libudev-devel libcap-devel linuxptp
+# dnf install -y python3 python3-pip python3-devel python3-jsonschema python3-pyyaml python3-pybind11 git gcc gcc-c++ make cmake libuuid-devel json-c-devel hwloc-devel tbb-devel cli11-devel spdlog-devel libedit-devel systemd-devel rpm-build rpmdevtools pybind11-devel yaml-cpp-devel libudev-devel linuxptp
 # python3 -m pip install jsonschema virtualenv pyyaml
 ```
 
-### Fedora 33 ###
+### Fedora 35 ###
 
 ```console
 # dnf check-update
 # dnf upgrade -y
-# dnf install -y python3 python3-pip python3-devel python3-virtualenv git gcc g++ make cmake libuuid-devel json-c-devel hwloc-devel tbb-devel libedit-devel rpm-build rpmdevtools pybind11-devel yaml-cpp-devel libudev-devel libcap-devel linuxptp
+# dnf install -y python3 python3-pip python3-devel python3-jsonschema python3-pyyaml python3-pybind11 git gcc g++ make cmake libuuid-devel json-c-devel hwloc-devel tbb-devel libedit-devel rpm-build rpmdevtools pybind11-devel yaml-cpp-devel libudev-devel cli11-devel spdlog-devel linuxptp
 # pip3 install jsonschema virtualenv pyyaml
 ```
 
@@ -113,8 +113,8 @@ Before you build the OPAE SDK, you must install the required packages. Run the f
 ```console
 # apt-get update
 # apt-get upgrade -y
-# apt-get install -y python3 python3-pip python3-dev git gcc g++ make cmake uuid-dev libjson-c-dev libhwloc-dev libtbb-dev libedit-dev libudev-dev libcap-dev linuxptp
-# pip3 install jsonschema virtualenv pyyaml
+# apt-get install -y python3 python3-pip python3-dev git gcc g++ make cmake uuid-dev libjson-c-dev libhwloc-dev libtbb-dev libedit-dev libudev-dev linuxptp pandoc devscripts debhelper doxygen
+# pip3 install jsonschema virtualenv pyyaml pybind11
 ```
 
 Download the OPAE-SDK source code from github.

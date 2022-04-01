@@ -63,8 +63,7 @@ declare -a PKG_DEPS=(\
 'python3-pip' \
 'rpm-build' \
 'systemd' \
-'rpmdevtools' \
-'libcap-devel'\
+'rpmdevtools'\
 )
 
 if [ "${WHICH_RPM}" = 'fedora' ]; then

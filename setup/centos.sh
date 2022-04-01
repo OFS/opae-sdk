@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright(c) 2021, Intel Corporation
+# Copyright(c) 2021-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -32,5 +32,5 @@ dnf install -y 'dnf-command(config-manager)'
 dnf config-manager --set-enabled powertools
 dnf install -y epel-release
 dnf check-update || true
-dnf install -y python3 python3-pip python3-devel python3-jsonschema git gcc gcc-c++ make cmake libuuid-devel json-c-devel hwloc-devel tbb-devel libedit-devel rpm-build rpmdevtools pybind11-devel python3-virtualenv yaml-cpp-devel libudev-devel libcap-devel
+dnf install -y python3 python3-pip python3-devel python3-jsonschema python3-pybind11 git gcc gcc-c++ make cmake libuuid-devel json-c-devel hwloc-devel tbb-devel cli11-devel spdlog-devel libedit-devel systemd-devel rpm-build rpmdevtools pybind11-devel python3-virtualenv yaml-cpp-devel libudev-devel
 python3 -m pip install --user jsonschema pyyaml
