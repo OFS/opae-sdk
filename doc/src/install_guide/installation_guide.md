@@ -87,7 +87,7 @@ fpga_mgr               16384  4 dfl_fme_region,fpga_region,dfl_fme_mgr,dfl_fme
 ## Build the OPAE-SDK ##
 Before you build the OPAE SDK, you must install the required packages. Run the following commands:
 
-### CentOS 8 ###
+### Rocky Linux 8.5 ###
 
 ```console
 # dnf install -y 'dnf-command(config-manager)'
@@ -95,16 +95,16 @@ Before you build the OPAE SDK, you must install the required packages. Run the f
 # dnf install -y epel-release
 # dnf check-update
 # dnf upgrade -y
-# dnf install -y python3 python3-pip python3-devel python3-virtualenv git gcc gcc-c++ make cmake libuuid-devel json-c-devel hwloc-devel tbb-devel libedit-devel rpm-build rpmdevtools pybind11-devel yaml-cpp-devel libudev-devel libcap-devel linuxptp
+# dnf install -y python3 python3-pip python3-devel python3-jsonschema python3-pyyaml python3-pybind11 git gcc gcc-c++ make cmake libuuid-devel json-c-devel hwloc-devel tbb-devel cli11-devel spdlog-devel libedit-devel systemd-devel rpm-build rpmdevtools pybind11-devel yaml-cpp-devel libudev-devel linuxptp
 # python3 -m pip install jsonschema virtualenv pyyaml
 ```
 
-### Fedora 33 ###
+### Fedora 35 ###
 
 ```console
 # dnf check-update
 # dnf upgrade -y
-# dnf install -y python3 python3-pip python3-devel python3-virtualenv git gcc g++ make cmake libuuid-devel json-c-devel hwloc-devel tbb-devel libedit-devel rpm-build rpmdevtools pybind11-devel yaml-cpp-devel libudev-devel libcap-devel linuxptp
+# dnf install -y python3 python3-pip python3-devel python3-jsonschema python3-pyyaml python3-pybind11 git gcc g++ make cmake libuuid-devel json-c-devel hwloc-devel tbb-devel libedit-devel rpm-build rpmdevtools pybind11-devel yaml-cpp-devel libudev-devel cli11-devel spdlog-devel linuxptp
 # pip3 install jsonschema virtualenv pyyaml
 ```
 
@@ -113,8 +113,8 @@ Before you build the OPAE SDK, you must install the required packages. Run the f
 ```console
 # apt-get update
 # apt-get upgrade -y
-# apt-get install -y python3 python3-pip python3-dev git gcc g++ make cmake uuid-dev libjson-c-dev libhwloc-dev libtbb-dev libedit-dev libudev-dev libcap-dev linuxptp
-# pip3 install jsonschema virtualenv pyyaml
+# apt-get install -y python3 python3-pip python3-dev git gcc g++ make cmake uuid-dev libjson-c-dev libhwloc-dev libtbb-dev libedit-dev libudev-dev linuxptp pandoc devscripts debhelper doxygen
+# pip3 install jsonschema virtualenv pyyaml pybind11
 ```
 
 Download the OPAE-SDK source code from github.
@@ -122,7 +122,7 @@ Download the OPAE-SDK source code from github.
 $ git clone https://github.com/OPAE/opae-sdk.git
 ```
 
-Compile and build the OPAE-SDK RPMs (Fedora, CentOS).
+Compile and build the OPAE-SDK RPMs (Fedora, Rocky).
 ```console
 $ cd opae-sdk/packaging/opae/rpm
 $ ./create fedora
@@ -133,7 +133,7 @@ $ cd opae-sdk/packaging/opae/rpm
 $ ./create rhel
 ```
 
-After a successful compile, there are 3 rpm packages generated (Fedora, CentOS).
+After a successful compile, there are 3 rpm packages generated (Fedora, Rocky).
 ```console
 opae-2.1.0-1.fc34.x86_64.rpm
 opae-devel-2.1.0-1.fc34.x86_64.rpm
