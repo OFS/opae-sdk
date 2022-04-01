@@ -87,7 +87,7 @@ fpga_mgr               16384  4 dfl_fme_region,fpga_region,dfl_fme_mgr,dfl_fme
 ## Build the OPAE-SDK ##
 Before you build the OPAE SDK, you must install the required packages. Run the following commands:
 
-### CentOS 8 ###
+### Rocky Linux 8.5 ###
 
 ```console
 # dnf install -y 'dnf-command(config-manager)'
@@ -122,7 +122,7 @@ Download the OPAE-SDK source code from github.
 $ git clone https://github.com/OPAE/opae-sdk.git
 ```
 
-Compile and build the OPAE-SDK RPMs (Fedora, CentOS).
+Compile and build the OPAE-SDK RPMs (Fedora, Rocky).
 ```console
 $ cd opae-sdk/packaging/opae/rpm
 $ ./create fedora
@@ -133,7 +133,7 @@ $ cd opae-sdk/packaging/opae/rpm
 $ ./create rhel
 ```
 
-After a successful compile, there are 3 rpm packages generated (Fedora, CentOS).
+After a successful compile, there are 3 rpm packages generated (Fedora, Rocky).
 ```console
 opae-2.1.0-1.fc34.x86_64.rpm
 opae-devel-2.1.0-1.fc34.x86_64.rpm
