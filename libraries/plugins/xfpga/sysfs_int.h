@@ -65,6 +65,8 @@ typedef struct _sysfs_fpga_device {
 	uint8_t function;
 	uint32_t device_id;
 	uint32_t vendor_id;
+	uint16_t subsystem_device_id;
+	uint16_t subsystem_vendor_id;
 } sysfs_fpga_device;
 
 int sysfs_initialize(void);
