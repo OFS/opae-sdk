@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -51,6 +51,10 @@ properties::properties(bool alloc_props)
                   fpgaPropertiesSetBBSVersion),
       vendor_id(&props_, fpgaPropertiesGetVendorID, fpgaPropertiesSetVendorID),
       device_id(&props_, fpgaPropertiesGetDeviceID, fpgaPropertiesSetDeviceID),
+      subsystem_vendor_id(&props_, fpgaPropertiesGetSubsystemVendorID,
+                          fpgaPropertiesSetSubsystemVendorID),
+      subsystem_device_id(&props_, fpgaPropertiesGetSubsystemDeviceID,
+                          fpgaPropertiesSetSubsystemDeviceID),
       model(&props_, fpgaPropertiesGetModel, fpgaPropertiesSetModel),
       local_memory_size(&props_, fpgaPropertiesGetLocalMemorySize,
                         fpgaPropertiesSetLocalMemorySize),
