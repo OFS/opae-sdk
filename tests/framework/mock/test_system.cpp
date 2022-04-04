@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -178,6 +178,8 @@ test_device test_device::unknown() {
                      .port_object_id = 9,
                      .vendor_id = 0x1234,
                      .device_id = 0x1234,
+                     .subsystem_vendor_id = 0x1234,
+                     .subsystem_device_id = 0x1234,
                      .fme_num_errors = 0x1234,
                      .port_num_errors = 0x1234,
                      .gbs_guid = "C544CE5C-F630-44E1-8551-59BD87AF432E",

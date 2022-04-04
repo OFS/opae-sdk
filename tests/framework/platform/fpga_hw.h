@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -54,7 +54,9 @@ struct test_device {
   uint64_t fme_object_id;
   uint64_t port_object_id;
   uint16_t vendor_id;
-  uint32_t device_id;
+  uint16_t device_id;
+  uint16_t subsystem_vendor_id;
+  uint16_t subsystem_device_id;
   uint32_t fme_num_errors;
   uint32_t port_num_errors;
   const char *gbs_guid;
