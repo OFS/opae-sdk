@@ -1073,8 +1073,8 @@ class HSSICOMMON(object):
                                                   hex(self.hssi_csr.HSSI_DFHV05_GUILDH)))
                 return False
 
-            csr_addr = csr_addr(self.read64(0, self.hssi_csr.FEATUR_ADDR_CSR))
-            self.hssi_csr.set_csr_dfhv05_offset(csr_addr.addr)
+            hssi_csr_addr = csr_addr(self.read64(0, self.hssi_csr.FEATUR_ADDR_CSR))
+            self.hssi_csr.set_csr_dfhv05_offset(hssi_csr_addr.addr)
         else:
             print("dfh version not supported:", hex(hssi_dfh.feature_rev))
             return False
