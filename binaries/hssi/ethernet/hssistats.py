@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2021, Intel Corporation
+# Copyright(c) 2021-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -95,13 +95,13 @@ class FPGAHSSISTATS(HSSICOMMON):
         """
         self.open(self._hssi_grps[0][0])
         ctl_addr = hssi_ctl_addr(0)
-        ctl_addr.sal_cmd = HSSI_SALCMD.READ_MAC_STATISTIC.value
+        ctl_addr.sal_cmd = HSSI_SAL_CMD.READ_MAC_STATISTIC.value
         value = 0
 
         port_str = "{0: <32} |".format('HSSI Ports')
-        hssi_feature_list = hssi_feature(self.read32(0, 0xC))
+        hssi_feature_list = hssi_feature(self.read32(0, self.hssi_csr.HSSI_FEATURE_LIST))
         print("HSSI num ports:", hssi_feature_list.num_hssi_ports)
-        for port in range(0, HSSI_PORT_COUNT):
+        for port in range(0, self.hssi_csr.HSSI_PORT_COUNT):
             # add active ports
             enable = self.register_field_get(hssi_feature_list.port_enable,
                                              port)
@@ -114,7 +114,7 @@ class FPGAHSSISTATS(HSSICOMMON):
         for str, reg in self.hssi_eth_stats:
             stats_list.append("{0: <32} |".format(str))
 
-        for port in range(0, HSSI_PORT_COUNT):
+        for port in range(0, self.hssi_csr.HSSI_PORT_COUNT):
             port_index = 0
             # add active ports
             enable = self.register_field_get(hssi_feature_list.port_enable,
@@ -123,7 +123,7 @@ class FPGAHSSISTATS(HSSICOMMON):
                 continue
             for str, reg in self.hssi_eth_stats:
                 ctl_addr.value = 0
-                ctl_addr.sal_cmd = HSSI_SALCMD.READ_MAC_STATISTIC.value
+                ctl_addr.sal_cmd = HSSI_SAL_CMD.READ_MAC_STATISTIC.value
 
                 # Read LSB value
                 ctl_addr.addressbit = reg
@@ -175,21 +175,21 @@ class FPGAHSSISTATS(HSSICOMMON):
         """
         self.open(self._hssi_grps[0][0])
         ctl_addr = hssi_ctl_addr(0)
-        ctl_addr.sal_cmd = HSSI_SALCMD.RESET_MAC_STATISTIC.value
+        ctl_addr.sal_cmd = HSSI_SAL_CMD.RESET_MAC_STATISTIC.value
         value = 0
 
         port_str = "{0: <32} |".format('HSSI Ports')
-        hssi_feature_list = hssi_feature(self.read32(0, 0xC))
+        hssi_feature_list = hssi_feature(self.read32(0, self.hssi_csr.HSSI_FEATURE_LIST))
         print("HSSI num ports:", hssi_feature_list.num_hssi_ports)
         print("HSSI stats clearing ...")
-        for port in range(0, HSSI_PORT_COUNT):
+        for port in range(0, self.hssi_csr.HSSI_PORT_COUNT):
             # add active ports
             enable = self.register_field_get(hssi_feature_list.port_enable,
                                              port)
             if enable == 0:
                 continue
             ctl_addr.value = 0
-            ctl_addr.sal_cmd = HSSI_SALCMD.RESET_MAC_STATISTIC.value
+            ctl_addr.sal_cmd = HSSI_SAL_CMD.RESET_MAC_STATISTIC.value
             ctl_addr.port_address = port
             # set bit 16 and 17
             ctl_addr.value = self.register_field_set(ctl_addr.value,
@@ -200,10 +200,10 @@ class FPGAHSSISTATS(HSSICOMMON):
             if not ret:
                 print("Failed to clear HSSI CTL STS csr")
                 return False
-            self.write32(0, HSSI_CSR.HSSI_CTL_ADDRESS.value, ctl_addr.value)
+            self.write32(0, self.hssi_csr.HSSI_CTL_ADDRESS, ctl_addr.value)
             # write to ctl sts reg
             cmd_sts = hssi_cmd_sts(0x2)
-            self.write32(0,  HSSI_CSR.HSSI_CTL_STS.value, cmd_sts.value)
+            self.write32(0, self.hssi_csr.HSSI_CTL_STS, cmd_sts.value)
             time.sleep(HSSI_STATS_CLEAR_SLEEP_TIME)
             ret = self.clear_ctl_sts_reg(0)
             if not ret:

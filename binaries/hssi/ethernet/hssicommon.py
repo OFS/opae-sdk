@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2021, Intel Corporation
+# Copyright(c) 2021-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -58,39 +58,82 @@ HSSI_POLL_TIMEOUT = 1/10000
 
 HSSI_FEATURE_ID = 0x15
 
-# Max port count
-HSSI_PORT_COUNT = 16
+
+class HSSI_DFHV0_CSR(object):
+    """
+    HSSI DFHV0 csr offsets
+    """
+    def __init__(self):
+        self.HSSI_DFH = 0x0
+        self.HSSI_VERSION = 0x8
+        self.HSSI_FEATURE_LIST = 0xC
+        self.HSSI_INTER_ATTRIB_PORT = 0x10
+        self.HSSI_CTL_STS = 0x50
+        self.HSSI_CTL_ADDRESS = 0x54
+        self.HSSI_RD_DATA = 0x58
+        self.HSSI_WR_DATA = 0x5C
+        self.HSSI_GM_TX_LATENCY = 0x60
+        self.HSSI_GM_RX_LATENCY = 0x64
+        self.HSSI_ETH_PORT_STATUS = 0x68
+        self.HSSI_TSE_CONTROL = 0xA8
+        self.HSSI_PORT_COUNT = 16
 
 
-class HSSI_CSR(Enum):
+class HSSI_DFHV05_CSR(object):
     """
-    HSSI DFH CSR offset
+    HSSI DFHV 0.5 csr offset
     """
-    HSSI_DFH_LOW = 0x0
-    HSSI_DFH_HIGH = 0x4
-    HSSI_VERSION = 0x8
-    HSSI_FEATURE_LIST = 0xC
-    HSSI_INTER_ATTRIB_PORT = 0x10
-    HSSI_CTL_STS = 0x50
-    HSSI_CTL_ADDRESS = 0x54
-    HSSI_RD_DATA = 0x58
-    HSSI_WR_DATA = 0x5C
-    HSSI_GM_TX_LATENCY = 0x60
-    HSSI_GM_RX_LATENCY = 0x64
-    HSSI_ETH_PORT_STATUS = 0x68
-    HSSI_TSE_CONTROL = 0xA8
+    def __init__(self):
+        self.csr_offset = 0
+        self.HSSI_DFH = 0x0
+        self.HSSI_GUID_L = 0x8
+        self.HSSI_GUID_H = 0x10
+        self.FEATUR_ADDR_CSR = 0x18
+        self.FEATURE_SIZE_GROUP = 0x20
+        self.HSSI_VERSION = 0
+        self.HSSI_FEATURE_LIST = 0
+        self.HSSI_INTER_ATTRIB_PORT = 0
+        self.HSSI_CTL_STS = 0
+        self.HSSI_CTL_ADDRESS = 0
+        self.HSSI_RD_DATA = 0
+        self.HSSI_WR_DATA = 0
+        self.HSSI_GM_TX_LATENCY = 0
+        self.HSSI_GM_RX_LATENCY = 0
+        self.HSSI_PORT_STATUS = 0
+        self.HSSI_TSE_CONTROL = 0
+        self.HSSI_DBG_CONTROL = 0
+        self.HSSI_PORT_COUNT = 20
+        self.HSSI_DFHV05_GUILDL = 0x99a078ad18418b9d
+        self.HSSI_DFHV05_GUILDH = 0x4118a7cbd9db4a9b
+
+    def set_csr_dfhv05_offset(self, offset):
+        self.csr_offset = offset
+        self.HSSI_VERSION = self.csr_offset
+        self.HSSI_FEATURE_LIST = 0x4 + self.csr_offset
+        self.HSSI_INTER_ATTRIB_PORT = 0x8 + self.csr_offset
+        self.HSSI_CTL_STS = 0x48 + self.csr_offset
+        self.HSSI_CTL_ADDRESS = 0x4C + self.csr_offset
+        self.HSSI_RD_DATA = 0x50 + self.csr_offset
+        self.HSSI_WR_DATA = 0x54 + self.csr_offset
+        self.HSSI_GM_TX_LATENCY = 0x58 + self.csr_offset
+        self.HSSI_GM_RX_LATENCY = 0x5C + self.csr_offset
+        self.HSSI_PORT_STATUS = 0xC0 + self.csr_offset
+        self.HSSI_TSE_CONTROL = 0xA0 + self.csr_offset
+        self.HSSI_DBG_CONTROL = 0xB8 + self.csr_offset
 
 
 class dfh_bits(Structure):
     """
-    HSSI Device Feature Header Low CSR bits
+    HSSI Device Feature Header CSR bits
     """
     _fields_ = [
                     ("id", c_uint64, 12),
-                    ("revision", c_uint64, 4),
+                    ("feature_rev", c_uint64, 4),
                     ("next_header_offset", c_uint64, 24),
                     ("eol", c_uint64, 1),
-                    ("reserved", c_uint64, 19),
+                    ("reserved", c_uint64, 7),
+                    ("feature_minor_rev", c_uint64, 4),
+                    ("dfh_verion", c_uint64, 8),
                     ("type", c_uint64, 4)
     ]
 
@@ -112,8 +155,8 @@ class dfh(Union):
         return self.bits.id
 
     @property
-    def revision(self):
-        return self.bits.revision
+    def feature_rev(self):
+        return self.bits.feature_rev
 
     @property
     def next_header_offset(self):
@@ -122,6 +165,14 @@ class dfh(Union):
     @property
     def eol(self):
         return self.bits.eol
+
+    @property
+    def feature_minor_rev(self):
+        return self.bits.feature_minor_rev
+
+    @property
+    def dfh_verion(self):
+        return self.bits.dfh_verion
 
     @property
     def type(self):
@@ -134,7 +185,7 @@ class dfh_hssi_lo_bits(Structure):
     """
     _fields_ = [
                    ("id", c_uint32, 12),
-                   ("revision", c_uint32, 4),
+                   ("feature_rev", c_uint32, 4),
                    ("next_header_offset", c_uint32, 16)
     ]
 
@@ -156,8 +207,8 @@ class dfh_hssi_lo(Union):
         return self.bits.id
 
     @property
-    def revision(self):
-        return self.bits.revision
+    def feature_rev(self):
+        return self.bits.feature_rev
 
     @property
     def next_header_offset(self):
@@ -171,7 +222,9 @@ class dfh_hssi_hi_bits(Structure):
     _fields_ = [
                    ("next_header_offset", c_uint32, 8),
                    ("eol", c_uint32, 1),
-                   ("reserved", c_uint32, 19),
+                   ("reserved", c_uint32, 7),
+                   ("feature_minor_rev", c_uint64, 4),
+                   ("dfh_verion", c_uint64, 8),
                    ("type", c_uint32, 4)
     ]
 
@@ -197,8 +250,92 @@ class dfh_hssi_hi(Union):
         return self.bits.eol
 
     @property
+    def feature_minor_rev(self):
+        return self.bits.feature_minor_rev
+
+    @property
     def type(self):
         return self.bits.type
+
+    @property
+    def dfh_verion(self):
+        return self.bits.dfh_verion
+
+    @property
+    def type(self):
+        return self.bits.type
+
+
+class csr_addr_bits(Structure):
+    """
+    HSSI Feature CSR address CSR bits
+    """
+    _fields_ = [
+                    ("rel", c_uint64, 1),
+                    ("addr", c_uint64, 63)
+    ]
+
+
+class csr_addr(Union):
+    """
+    HSSI Feature CSR address
+    Byte Offset: 0x18
+    Addressing Mode: 64 bits
+    """
+    _fields_ = [("bits", csr_addr_bits),
+                ("value", c_uint64)]
+
+    def __init__(self, value):
+        self.value = value
+
+    @property
+    def addr(self):
+        return self.bits.addr
+
+    @property
+    def rel(self):
+        return self.bits.rel
+
+
+class csr_group_bits(Structure):
+    """
+    HSSI Feature CSR size group bits
+    """
+    _fields_ = [
+                    ("instance_id", c_uint64, 16),
+                    ("grouping_id", c_uint64, 15),
+                    ("has_params", c_uint64, 1),
+                    ("size", c_uint64, 32)
+    ]
+
+
+class csr_size(Union):
+    """
+    HSSI Feature CSR size group
+    Byte Offset: 0x20
+    Addressing Mode: 64 bits
+    """
+    _fields_ = [("bits", csr_group_bits),
+                ("value", c_uint64)]
+
+    def __init__(self, value):
+        self.value = value
+
+    @property
+    def size(self):
+        return self.bits.size
+
+    @property
+    def has_params(self):
+        return self.bits.has_params
+
+    @property
+    def instance_id(self):
+        return self.bits.instance_id
+
+    @property
+    def grouping_id(self):
+        return self.bits.grouping_id
 
 
 class hssi_ver_bits(Structure):
@@ -215,7 +352,8 @@ class hssi_ver_bits(Structure):
 class hssi_ver(Union):
     """
     HSSI feature version
-    Byte Offset: 0x8
+    Byte Offset dfv0: 0x8
+    Byte Offset dfv0.5: CSR_ADDROFF
     Addressing Mode: 32 bits
     """
     _fields_ = [("bits", hssi_ver_bits),
@@ -245,15 +383,16 @@ class hssi_feature_bits(Structure):
     _fields_ = [
                    ("axi4_support", c_uint32, 1),
                    ("num_hssi_ports", c_uint32, 5),
-                   ("port_enable", c_uint32, 16),
-                   ("reserved", c_uint32, 10)
+                   ("port_enable", c_uint32, 20),
+                   ("reserved", c_uint32, 6)
     ]
 
 
 class hssi_feature(Union):
     """
     HSSI feature list
-    Byte Offset: 0xc
+    Byte Offset dfv0: 0xc
+    Byte Offset dfv0.5: 0x4 + CSR_ADDROFF
     Addressing Mode: 32 bits
     """
     _fields_ = [("bits", hssi_feature_bits),
@@ -290,14 +429,18 @@ class hssi_port_attribute_bits(Structure):
                    ("low_speed_eth", c_uint32, 2),
                    ("dyn_reconf", c_uint32, 1),
                    ("port_sub_profiles", c_uint32, 5),
-                   ("reserved", c_uint32, 11)
+                   ("rsfec_enabled", c_uint32, 1),
+                   ("anlt_enabled", c_uint32, 1),
+                   ("ptp_enabled", c_uint32, 1),
+                   ("reserved", c_uint32, 8)
     ]
 
 
 class hssi_port_attribute(Union):
     """
     HSSI Interface Attribute Port X Parameters
-    Byte Offset: 0x10 + X * 4 (X = 0 - 15)
+    Byte Offset dfv0: 0x10 + X * 4 (X = 0 - num ports)
+    Byte Offset dfv0.5: 0x8 + X * 4 (X = 0 - num ports) + CSR_ADDROFF
     Addressing Mode: 32 bits
     """
     _fields_ = [("bits", hssi_port_attribute_bits),
@@ -393,6 +536,18 @@ class hssi_port_attribute(Union):
     def port_sub_profiles(self):
         return self.bits.port_sub_profiles
 
+    @property
+    def rsfec_enabled(self):
+        return self.bits.rsfec_enabled
+
+    @property
+    def anlt_enabled(self):
+        return self.bits.anlt_enabled
+
+    @property
+    def ptp_enabled(self):
+        return self.bits.ptp_enabled
+
 
 class hssi_cmd_sts_bits(Structure):
     """
@@ -404,14 +559,16 @@ class hssi_cmd_sts_bits(Structure):
                    ("ack", c_uint32, 1),
                    ("busy", c_uint32, 1),
                    ("error", c_uint32, 1),
-                   ("reserved", c_uint32, 27)
+                   ("regoffset", c_uint32, 2),
+                   ("reserved", c_uint32, 25)
     ]
 
 
 class hssi_cmd_sts(Union):
     """
     HSSI feature Feature Command/Status
-    Byte Offset: 0x50
+    Byte Offset dfv0: 0x50
+    Byte Offset dfv0.5: 0x48 + CSR_ADDROFF
     Addressing Mode: 32 bits
     """
     _fields_ = [("bits", hssi_cmd_sts_bits),
@@ -440,6 +597,10 @@ class hssi_cmd_sts(Union):
     def write(self):
         return self.bits.write
 
+    @property
+    def regoffset(self):
+        return self.bits.regoffset
+
     @read.setter
     def read(self, value):
         self.bits.read = value
@@ -448,8 +609,16 @@ class hssi_cmd_sts(Union):
     def write(self, value):
         self.bits.write = value
 
+    @ack.setter
+    def ack(self, value):
+        self.bits.ack = value
 
-class HSSI_SALCMD(Enum):
+    @regoffset.setter
+    def regoffset(self, value):
+        self.bits.regoffset = value
+
+
+class HSSI_SAL_CMD(Enum):
     """
     HSSI Feature Control/Address Enum
     """
@@ -481,7 +650,8 @@ class hssi_ctl_addr_bits(Structure):
 class hssi_ctl_addr(Union):
     """
     HSSI Feature Control/Address CSR
-    Byte Offset: 0x54
+    Byte Offset dfv0: 0x54
+    Byte Offset dfv0.5: 0x4C + CSR_ADDROFF
     Addressing Mode: 32 bits
     """
     _fields_ = [("bits", hssi_ctl_addr_bits),
@@ -535,7 +705,8 @@ class hssi_wrdata_bits(Structure):
 class hssi_wrdata(Union):
     """
     HSSI Feature Write Data CSR
-    Byte Offset: 0x58
+    Byte Offset dfv0: 0x58
+    Byte Offset dfv0.5: 0x54 + CSR_ADDROFF
     Addressing Mode: 32 bits
     """
     _fields_ = [("bits", hssi_wrdata_bits),
@@ -561,7 +732,8 @@ class hssi_rddata_bits(Structure):
 class hssi_rddata(Union):
     """
     HSSI Feature Read Data CSR
-    Byte Offset: 0x5c
+    Byte Offset dfv0: 0x5c
+    Byte Offset dfv0.5: 0x50 + CSR_ADDROFF
     Addressing Mode: 32 bits
     """
     _fields_ = [("bits", hssi_rddata_bits),
@@ -597,14 +769,21 @@ class hssi_eth_port_status_bits(Structure):
                    ("set_1000", c_uint32, 1),
                    ("ena_10", c_uint32, 1),
                    ("eth_mode", c_uint32, 1),
-                   ("reserved", c_uint32, 12)
+                   ("load_recipe_error", c_uint32, 1),
+                   ("ical_pcal_errors", c_uint32, 1),
+                   ("tx_lanes_stable", c_uint32, 1),
+                   ("rx_pcs_ready", c_uint32, 1),
+                   ("tx_pll_locked", c_uint32, 1),
+                   ("tx_pll_locked", c_uint32, 2),
+                   ("reserved", c_uint32, 5)
     ]
 
 
 class hssi_eth_port_status(Union):
     """
-    10.1.12	HSSI Ethernet Port X Status
-    Byte Offset: 0x68 + X (0x00 .. 0x0F)*4
+    HSSI Ethernet Port X Status
+    Byte Offset dfv0:  0x68 + X (0x00 .. 0x0F)*4
+    Byte Offset dfv0.5: 0xC0 + X (0x00 .. 0x0F) * 4 + CSR_ADDROFF
     Addressing Mode: 32 bits
     """
     _fields_ = [("bits", hssi_eth_port_status_bits),
@@ -680,6 +859,105 @@ class hssi_eth_port_status(Union):
     @property
     def eth_mode(self):
         return self.bits.eth_mode
+
+
+class hssi_dbg_ctl_bits(Structure):
+    """
+    HSSI Debug Control CSR bits
+    """
+    _fields_ = [
+                   ("portn_led_speed", c_uint32, 3),
+                   ("portn_led_status", c_uint32, 3),
+                   ("portn_led_status_override", c_uint32, 4),
+                   ("led_status_override_enable", c_uint32, 1),
+                   ("led_blink_rate", c_uint32, 8),
+                   ("reserved", c_uint32, 13)
+    ]
+
+
+class hssi_dbg_ctl(Union):
+    """
+    HSSI Debug Control CSR
+    Byte Offset dfv0.5: 0xB8 + CSR_ADDROFF
+    Addressing Mode: 32 bits
+    """
+    _fields_ = [("bits", hssi_dbg_ctl_bits),
+                ("value", c_uint32)]
+
+    def __init__(self, value):
+        self.value = value
+
+    @property
+    def portn_led_speed(self):
+        return self.bits.portn_led_speed
+
+    @property
+    def portn_led_status_override(self):
+        return self.bits.portn_led_status_override
+
+    @property
+    def led_status_override_enable(self):
+        return self.bits.led_status_override_enable
+
+    @property
+    def led_blink_rate(self):
+        return self.bits.led_blink_rate
+
+    @property
+    def led_blink_rate(self):
+        return self.bits.led_blink_rate
+
+    @portn_led_speed.setter
+    def portn_led_speed(self, value):
+        self.bits.portn_led_speed = value
+
+    @portn_led_status_override.setter
+    def portn_led_status_override(self, value):
+        self.bits.portn_led_status_override = value
+
+    @portn_led_status_override.setter
+    def portn_led_status_override(self, value):
+        self.bits.portn_led_status_override = value
+
+    @led_status_override_enable.setter
+    def led_status_override_enable(self, value):
+        self.bits.led_status_override_enable = value
+
+    @led_blink_rate.setter
+    def led_blink_rate(self, value):
+        self.bits.led_blink_rate = value
+
+
+class hssi_tse_ctl_bits(Structure):
+    """
+    HSSI TSE Control CSR bits
+    """
+    _fields_ = [
+                   ("magic_wakeup", c_uint32, 1),
+                   ("magic_sleep_n", c_uint32, 3),
+                   ("reserved", c_uint32, 30)
+    ]
+
+
+class hssi_tse_ctl(Union):
+    """
+    HSSI tse Control CSR
+    Byte Offset dfv0.5: 0x2C + CSR_ADDROFF
+    Addressing Mode: 32 bits
+    """
+    _fields_ = [("bits", hssi_tse_ctl_bits),
+                ("value", c_uint32)]
+
+    def __init__(self, value):
+        self.value = value
+
+    @property
+    def magic_wakeup(self):
+        return self.bits.magic_wakeup
+
+    @property
+    def magic_sleep_n(self):
+        return self.bits.magic_sleep_n
 
 
 def verify_pcie_address(pcie_address):
@@ -767,6 +1045,71 @@ class HSSICOMMON(object):
         self.pyopaeuio_inst = pyopaeuio()
         self.num_uio_regions = 0
         self.region_index = 0
+        self.hssi_csr = 0
+
+    def verify_hssi_dfh_ver(self):
+        hssi_dfh = dfh(self.read64(0, 0))
+        print("{0: <24}:{1}".format("DFH", hex(self.read64(0, 0))))
+        print("{0: <24}:{1}".format("HSSI ID", hex(hssi_dfh.id)))
+
+        if (hssi_dfh.feature_rev == 0x1) or (hssi_dfh.feature_rev == 0):
+            print("{0: <24}:{1}".format("DFHv", 0))
+            self.hssi_csr = HSSI_DFHV0_CSR()
+        elif (hssi_dfh.feature_rev == 0x2):
+            self.hssi_csr = HSSI_DFHV05_CSR()
+            guidl = self.read64(0, self.hssi_csr.HSSI_GUID_L)
+            guidh = self.read64(0, self.hssi_csr.HSSI_GUID_H)
+            print("{0: <24}:{1}".format("DFHv", 0.5))
+            print("{0: <24}:{1}".format("guidl", hex(guidl)))
+            print("{0: <24}:{1}".format("guidh", hex(guidh)))
+
+            if guidl != self.hssi_csr.HSSI_DFHV05_GUILDL:
+                print("bad guidh {0}!={1}".format(hex(guidl),
+                                                  hex(self.hssi_csr.HSSI_DFHV05_GUILDL)))
+                return False
+
+            if guidh != self.hssi_csr.HSSI_DFHV05_GUILDH:
+                print("bad guidh {0}!={1}".format(hex(guidh),
+                                                  hex(self.hssi_csr.HSSI_DFHV05_GUILDH)))
+                return False
+
+            csr_addr = csr_addr(self.read64(0, self.hssi_csr.FEATUR_ADDR_CSR))
+            self.hssi_csr.set_csr_dfhv05_offset(csr_addr.addr)
+        else:
+            print("dfh version not supported:", hex(hssi_dfh.feature_rev))
+            return False
+
+        return True
+
+    def hssi_ver(self):
+        hssi_version = hssi_ver(self.read32(0, self.hssi_csr.HSSI_VERSION))
+        print("{0: <24}:{1}".format("HSSI version", str(hssi_version)))
+        ctl_addr = hssi_ctl_addr(0)
+        ctl_addr.sal_cmd = HSSI_SAL_CMD.FIRMWARE_VER.value
+        res, firmware_version = self.read_reg(0, ctl_addr.value)
+        if not res:
+            print("Failed to read  HSSI firmware version")
+            return False
+
+        print("{0: <24}:{1}".format("Firmware Version", firmware_version))
+        return True
+
+    def hssi_port_info(self):
+        hssi_feature_list = hssi_feature(self.read32(0,
+                                         self.hssi_csr.HSSI_FEATURE_LIST))
+        print("{0: <24}:{1}".format("HSSI num ports",
+                                    hssi_feature_list.num_hssi_ports))
+        for port in range(0, self.hssi_csr.HSSI_PORT_COUNT):
+            enable = self.register_field_get(hssi_feature_list.port_enable,
+                                             port)
+            if enable == 0:
+                continue
+            port_attribute = hssi_port_attribute(self.read32(0,
+                                                 self.hssi_csr.HSSI_INTER_ATTRIB_PORT + port * 4))
+            for profile, pro_str in hssi_port_attribute.HSSI_PORT_PROFILES:
+                if port_attribute.port_profiles == profile:
+                    print("Port{0:<20}:{1:<25}".format(port, pro_str))
+        return True
 
     def hssi_info(self, hssi_uio):
         """
@@ -777,32 +1120,16 @@ class HSSICOMMON(object):
         try:
             self.open(hssi_uio)
             self.num_uio_regions = self.pyopaeuio_inst.numregions
-            hssi_dfh = dfh(self.read32(0, 0))
-            hssi_version = hssi_ver(self.read32(0, 0x8))
-            hssi_feature_list = hssi_feature(self.read32(0, 0xC))
-            ctl_addr = hssi_ctl_addr(0)
-            ctl_addr.sal_cmd = HSSI_SALCMD.FIRMWARE_VER.value
-            res, firmware_version = self.read_reg(0, ctl_addr.value)
-            if not res:
-                print("Failed to read  HSSI firmware version")
-                return False
             print("\n--------HSSI INFO START-------")
-            print("{0: <24}:{1}".format("HSSI ID", hex(hssi_dfh.id)))
-            print("{0: <24}:{1}".format("HSSI version", str(hssi_version)))
-            print("{0: <24}:{1}".format("HSSI num ports",
-                                        hssi_feature_list.num_hssi_ports))
-            print("{0: <24}:{1}".format("Firmware Version", firmware_version))
-            print("--------Port profile-------")
-            for port in range(0, HSSI_PORT_COUNT):
-                enable = self.register_field_get(hssi_feature_list.port_enable,
-                                                 port)
-                if enable == 0:
-                    continue
-                port_attribute = hssi_port_attribute(self.read32(0,
-                                                                 0x10 + port * 4))
-                for profile, pro_str in hssi_port_attribute.HSSI_PORT_PROFILES:
-                    if port_attribute.port_profiles == profile:
-                        print("Port{0:<20}:{1:<25}".format(port, pro_str))
+            if not self.verify_hssi_dfh_ver():
+                self.close()
+                return False
+
+            if not self.hssi_ver():
+                self.close()
+                return False
+
+            self.hssi_port_info()
             print("--------HSSI INFO END------- \n")
             self.close()
 
@@ -899,18 +1226,18 @@ class HSSICOMMON(object):
         Read Data
         """
         ctl_addr_value = self.read32(region_index,
-                                     HSSI_CSR.HSSI_CTL_ADDRESS.value)
+                                     self.hssi_csr.HSSI_CTL_ADDRESS)
         if ctl_addr_value != 0:
             ret = self.clear_reg(region_index,
-                                 HSSI_CSR.HSSI_CTL_ADDRESS.value)
+                                 self.hssi_csr.HSSI_CTL_ADDRESS)
             if not ret:
                 print("Failed to clear HSSI CTL Address csr")
                 return False
 
-        cmd_sts_value = self.read32(region_index, HSSI_CSR.HSSI_CTL_STS.value)
+        cmd_sts_value = self.read32(region_index, self.hssi_csr.HSSI_CTL_STS)
         if cmd_sts_value != 0:
             ret = self.clear_reg_bits(region_index,
-                                      HSSI_CSR.HSSI_CTL_STS.value,
+                                      self.hssi_csr.HSSI_CTL_STS,
                                       0, 3)
             if not ret:
                 print("Failed to clear HSSI CTL Address csr")
@@ -955,18 +1282,18 @@ class HSSICOMMON(object):
             print("Failed to clear HSSI CTL STS csr")
             return False, -1
 
-        self.write32(region_index, HSSI_CSR.HSSI_CTL_ADDRESS.value, reg_data)
+        self.write32(region_index, self.hssi_csr.HSSI_CTL_ADDRESS, reg_data)
 
         cmd_sts = hssi_cmd_sts(0x1)
-        self.write32(region_index, HSSI_CSR.HSSI_CTL_STS.value, cmd_sts.value)
+        self.write32(region_index, self.hssi_csr.HSSI_CTL_STS, cmd_sts.value)
 
         if not self.read_poll_timeout(region_index,
-                                      HSSI_CSR.HSSI_CTL_STS.value,
+                                      self.hssi_csr.HSSI_CTL_STS,
                                       2):
             print("HSSI ctl sts csr fails to update ACK")
             return False, -1
 
-        value = self.read32(region_index, HSSI_CSR.HSSI_RD_DATA.value)
+        value = self.read32(region_index, self.hssi_csr.HSSI_RD_DATA)
 
         ret = self.clear_ctl_sts_reg(region_index)
         if not ret:
@@ -989,14 +1316,14 @@ class HSSICOMMON(object):
             print("Failed to clear HSSI CTL STS csr")
             return False
 
-        self.write32(region_index, HSSI_CSR.HSSI_CTL_ADDRESS.value, reg_data)
-        self.write32(region_index, HSSI_CSR.HSSI_WR_DATA.value, value)
+        self.write32(region_index, self.hssi_csr.HSSI_CTL_ADDRESS, reg_data)
+        self.write32(region_index, self.hssi_csr.HSSI_WR_DATA, value)
 
         cmd_sts = hssi_cmd_sts(0x2)
-        self.write32(region_index, HSSI_CSR.HSSI_CTL_STS.value, cmd_sts.value)
+        self.write32(region_index, self.hssi_csr.HSSI_CTL_STS, cmd_sts.value)
 
         if not self.read_poll_timeout(region_index,
-                                      HSSI_CSR.HSSI_CTL_STS.value,
+                                      self.hssi_csr.HSSI_CTL_STS,
                                       2):
             print("HSSI ctl sts csr fails to update ACK")
             return False
