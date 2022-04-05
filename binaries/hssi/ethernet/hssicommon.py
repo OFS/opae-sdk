@@ -1064,7 +1064,7 @@ class HSSICOMMON(object):
             print("{0: <24}:{1}".format("guidh", hex(guidh)))
 
             if guidl != self.hssi_csr.HSSI_DFHV05_GUILDL:
-                print("bad guidh {0}!={1}".format(hex(guidl),
+                print("bad guidl {0}!={1}".format(hex(guidl),
                                                   hex(self.hssi_csr.HSSI_DFHV05_GUILDL)))
                 return False
 
