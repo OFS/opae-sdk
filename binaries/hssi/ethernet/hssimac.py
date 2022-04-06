@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2021, Intel Corporation
+# Copyright(c) 2021-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -52,8 +52,8 @@ class FPGAHSSIMAC(HSSICOMMON):
         """
         self.open(self._hssi_grps[0][0])
 
-        hssi_feature_list = hssi_feature(self.read32(0, 0xC))
-        if self._port >= HSSI_PORT_COUNT:
+        hssi_feature_list = hssi_feature(self.read32(0, self.hssi_csr.HSSI_FEATURE_LIST))
+        if self._port >= self.hssi_csr.HSSI_PORT_COUNT:
             print("Invalid input port number")
             self.close()
             return False
@@ -67,10 +67,10 @@ class FPGAHSSIMAC(HSSICOMMON):
             return False
 
         ctl_addr = hssi_ctl_addr(0)
-        ctl_addr.sal_cmd = HSSI_SALCMD.GET_MTU.value
+        ctl_addr.sal_cmd = HSSI_SAL_CMD.GET_MTU.value
+
         # set port number
         ctl_addr.port_address = self._port
-
         res, value = self.read_reg(0, ctl_addr.value)
         if not res:
             self.close()
@@ -81,10 +81,10 @@ class FPGAHSSIMAC(HSSICOMMON):
         width = 16
         for x in range(width):
             mask |= (1 << x)
-        #HSSI Read Data CSR [15:0] Maximum Rx frame size
+        """HSSI Read Data CSR [15:0] Maximum Rx frame size"""
         print("Port{0} Maximum RX frame size:{1}".format(self._port,
                                                          value & mask))
-        #HSSI Read Data CSR [31:16] Maximum Tx frame size
+        """HSSI Read Data CSR [31:16] Maximum Tx frame size"""
         print("Port{0} Maximum TX frame size:{1}".format(self._port,
                                                          value >> width))
 
