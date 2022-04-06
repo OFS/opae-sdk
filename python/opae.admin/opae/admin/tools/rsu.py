@@ -78,27 +78,39 @@ Example usage:
 def fpga_defaults_valid(pci_id, value):
     sequences = { (0x8086, 0xaf00): [ 'fpga_user1',
                                       'fpga_user2',
+                                      'fpga_user1 fpga_user2',
+                                      'fpga_user2 fpga_user1',
                                       'fpga_factory',
                                       'fpga_factory fpga_user1',
                                       'fpga_factory fpga_user2',
                                       'fpga_factory fpga_user1 fpga_user2',
-                                      'fpga_factory fpga_user2 fpga_user1'
+                                      'fpga_factory fpga_user2 fpga_user1',
+                                      'fpga_user1 fpga_user2 fpga_factory',
+                                      'fpga_user2 fpga_user1 fpga_factory'
                                     ],
                   (0x8086, 0xaf01): [ 'fpga_user1',
                                       'fpga_user2',
+                                      'fpga_user1 fpga_user2',
+                                      'fpga_user2 fpga_user1',
                                       'fpga_factory',
                                       'fpga_factory fpga_user1',
                                       'fpga_factory fpga_user2',
                                       'fpga_factory fpga_user1 fpga_user2',
-                                      'fpga_factory fpga_user2 fpga_user1'
+                                      'fpga_factory fpga_user2 fpga_user1',
+                                      'fpga_user1 fpga_user2 fpga_factory',
+                                      'fpga_user2 fpga_user1 fpga_factory'
                                     ],
                   (0x8086, 0xbcce): [ 'fpga_user1',
                                       'fpga_user2',
+                                      'fpga_user1 fpga_user2',
+                                      'fpga_user2 fpga_user1',
                                       'fpga_factory',
                                       'fpga_factory fpga_user1',
                                       'fpga_factory fpga_user2',
                                       'fpga_factory fpga_user1 fpga_user2',
-                                      'fpga_factory fpga_user2 fpga_user1'
+                                      'fpga_factory fpga_user2 fpga_user1',
+                                      'fpga_user1 fpga_user2 fpga_factory',
+                                      'fpga_user2 fpga_user1 fpga_factory'
                                     ]
                 }
     return value in sequences[pci_id]
