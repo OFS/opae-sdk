@@ -767,6 +767,56 @@ fpga_result fpgaPropertiesGetInterface(const fpga_properties prop,
 fpga_result fpgaPropertiesSetInterface(const fpga_properties prop,
 				       fpga_interface interface);
 
+/**
+ * Get the subsystem vendor id of an FPGA resource property
+ *
+ * Returns the subsystem vendor id of an FPGA.
+ *
+ * @param[in]  prop      Properties object to query
+ * @param[out] subsystem_vendor_id Pointer to a vendor id variable of the FPGA
+ * @returns FPGA_OK on success. See also
+ * "Accessor Return Values" in [properties.h](#properties-h).
+ */
+fpga_result fpgaPropertiesGetSubsystemVendorID(const fpga_properties prop,
+					       uint16_t *subsystem_vendor_id);
+
+
+/**
+ * Set the subsystem vendor id of an FPGA resource property
+ *
+ * @param[in]  prop      Properties object to modify
+ * @param[in]  subsystem_vendor_id Subsystem Vendor id of the FPGA resource
+ * @returns FPGA_OK on success. See also
+ * "Accessor Return Values" in [properties.h](#properties-h).
+ */
+fpga_result fpgaPropertiesSetSubsystemVendorID(fpga_properties prop,
+					       uint16_t subsystem_vendor_id);
+
+/**
+ * Get the subsystem device id of an FPGA resource property
+ *
+ * Returns the subsystem device id of an FPGA.
+ *
+ * @param[in]  prop      Properties object to query
+ * @param[out] subsystem_device_id Pointer to a device id variable of the FPGA
+ * @returns FPGA_OK on success. See also
+ * "Accessor Return Values" in [properties.h](#properties-h).
+ */
+fpga_result fpgaPropertiesGetSubsystemDeviceID(const fpga_properties prop,
+					       uint16_t *subsystem_device_id);
+
+
+/**
+ * Set the subsystem device id of an FPGA resource property
+ *
+ * @param[in]  prop      Properties object to modify
+ * @param[in]  subsystem_device_id Subsystem Device id of the FPGA resource
+ * @returns FPGA_OK on success. See also
+ * "Accessor Return Values" in [properties.h](#properties-h).
+ */
+fpga_result fpgaPropertiesSetSubsystemDeviceID(fpga_properties prop,
+					       uint16_t subsystem_device_id);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus

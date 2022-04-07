@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -1139,6 +1139,94 @@ fpga_result __OPAE_API__ fpgaPropertiesSetInterface(const fpga_properties prop,
 
 	SET_FIELD_VALID(p, FPGA_PROPERTY_INTERFACE);
 	p->interface = interface;
+
+	opae_mutex_unlock(err, &p->lock);
+
+	return res;
+}
+
+fpga_result __OPAE_API__ fpgaPropertiesGetSubsystemVendorID(
+			const fpga_properties prop,
+			uint16_t *subsystem_vendor_id)
+{
+	fpga_result res = FPGA_OK;
+	int err;
+	struct _fpga_properties *p;
+
+	ASSERT_NOT_NULL(subsystem_vendor_id);
+
+	p = opae_validate_and_lock_properties(prop);
+
+	ASSERT_NOT_NULL(p);
+
+	if (FIELD_VALID(p, FPGA_PROPERTY_SUB_VENDORID)) {
+		*subsystem_vendor_id = p->subsystem_vendor_id;
+	} else {
+		OPAE_MSG("No Subsystem Vendor ID");
+		res = FPGA_NOT_FOUND;
+	}
+
+	opae_mutex_unlock(err, &p->lock);
+
+	return res;
+}
+
+fpga_result __OPAE_API__ fpgaPropertiesSetSubsystemVendorID(
+			fpga_properties prop,
+			uint16_t subsystem_vendor_id)
+{
+	fpga_result res = FPGA_OK;
+	int err;
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
+
+	ASSERT_NOT_NULL(p);
+
+	SET_FIELD_VALID(p, FPGA_PROPERTY_SUB_VENDORID);
+	p->subsystem_vendor_id = subsystem_vendor_id;
+
+	opae_mutex_unlock(err, &p->lock);
+
+	return res;
+}
+
+fpga_result __OPAE_API__ fpgaPropertiesGetSubsystemDeviceID(
+			const fpga_properties prop,
+			uint16_t *subsystem_device_id)
+{
+	fpga_result res = FPGA_OK;
+	int err;
+	struct _fpga_properties *p;
+
+	ASSERT_NOT_NULL(subsystem_device_id);
+
+	p = opae_validate_and_lock_properties(prop);
+
+	ASSERT_NOT_NULL(p);
+
+	if (FIELD_VALID(p, FPGA_PROPERTY_SUB_DEVICEID)) {
+		*subsystem_device_id = p->subsystem_device_id;
+	} else {
+		OPAE_MSG("No Subsystem Device ID");
+		res = FPGA_NOT_FOUND;
+	}
+
+	opae_mutex_unlock(err, &p->lock);
+
+	return res;
+}
+
+fpga_result __OPAE_API__ fpgaPropertiesSetSubsystemDeviceID(
+			fpga_properties prop,
+			uint16_t subsystem_device_id)
+{
+	fpga_result res = FPGA_OK;
+	int err;
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
+
+	ASSERT_NOT_NULL(p);
+
+	SET_FIELD_VALID(p, FPGA_PROPERTY_SUB_DEVICEID);
+	p->subsystem_device_id = subsystem_device_id;
 
 	opae_mutex_unlock(err, &p->lock);
 

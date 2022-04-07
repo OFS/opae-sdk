@@ -273,6 +273,8 @@ typedef struct _fpga_token_header {
 	fpga_objtype objtype;
 	uint64_t object_id;
 	fpga_guid guid;
+	uint16_t subsystem_vendor_id;
+	uint16_t subsystem_device_id;
 } fpga_token_header;
 
 /** Determine token parent/child relationship
