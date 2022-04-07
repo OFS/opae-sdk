@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -84,6 +84,10 @@ const char *properties_doc_get() {
 
       device_id (uint16_t): The device ID in PCI config space.
 
+      subsystem_vendor_id (uint16_t): The subsystem vendor ID in PCI config space.
+
+      subsystem_device_id (uint16_t): The subsystem device ID in PCI config space.
+
       model (str): The model of the FPGA.
 
       local_memory_size (uint64_t): The size (in bytes) of the FPGA local memory.
@@ -131,6 +135,11 @@ properties::ptr_t properties_get(py::kwargs kwargs) {
   }
   kwargs_to_props<uint16_t>(props->vendor_id, kwargs, "vendor_id");
   kwargs_to_props<uint16_t>(props->device_id, kwargs, "device_id");
+
+  kwargs_to_props<uint16_t>(props->subsystem_vendor_id,
+                            kwargs, "subsystem_vendor_id");
+  kwargs_to_props<uint16_t>(props->subsystem_device_id,
+                            kwargs, "subsystem_device_id");
 
   if (kwargs.contains("model")) {
     props->model =
@@ -414,6 +423,42 @@ uint32_t properties_get_device_id(properties::ptr_t props) {
 
 void properties_set_device_id(properties::ptr_t props, uint32_t device_id) {
   props->device_id = device_id;
+}
+
+// subsystem vendor id
+const char *properties_doc_subsystem_vendor_id() {
+  return R"opaedoc(
+    Get or set the subsystem vendor ID property of a resource.
+    The subsystem vendor ID is part of the PCI ID and is
+    assigned by the vendor.
+   )opaedoc";
+}
+
+uint32_t properties_get_subsystem_vendor_id(properties::ptr_t props) {
+  return props->subsystem_vendor_id;
+}
+
+void properties_set_subsystem_vendor_id(properties::ptr_t props,
+                                        uint32_t subsystem_vendor_id) {
+  props->subsystem_vendor_id = subsystem_vendor_id;
+}
+
+// subsystem device id
+const char *properties_doc_subsystem_device_id() {
+  return R"opaedoc(
+    Get or set the subsystem device ID property of a resource.
+    The subsystem device ID is part of the PCI ID and is
+    assigned by the vendor.
+   )opaedoc";
+}
+
+uint32_t properties_get_subsystem_device_id(properties::ptr_t props) {
+  return props->subsystem_device_id;
+}
+
+void properties_set_subsystem_device_id(properties::ptr_t props,
+                                        uint32_t subsystem_device_id) {
+  props->subsystem_device_id = subsystem_device_id;
 }
 
 // model

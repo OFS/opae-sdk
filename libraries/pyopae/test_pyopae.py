@@ -160,6 +160,18 @@ class TestProperties(unittest.TestCase):
         props.device_id = 0xda
         assert props.device_id == 0xda
 
+    def test_set_subsystem_vendor_id(self):
+        props = opae.fpga.properties(subsystem_vendor_id=0xfafa)
+        assert props.subsystem_vendor_id == 0xfafa
+        props.subsystem_vendor_id = 0xdada
+        assert props.subsystem_vendor_id == 0xdada
+
+    def test_set_subsystem_device_id(self):
+        props = opae.fpga.properties(subsystem_device_id=0xfa)
+        assert props.subsystem_device_id == 0xfa
+        props.subsystem_device_id = 0xda
+        assert props.subsystem_device_id == 0xda
+
     @unittest.skip("model not implemented yet")
     def test_set_model(self):
         props = opae.fpga.properties(model="intel skxp")

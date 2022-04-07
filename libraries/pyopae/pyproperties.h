@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -129,6 +129,16 @@ const char *properties_doc_device_id();
 uint32_t properties_get_device_id(opae::fpga::types::properties::ptr_t props);
 void properties_set_device_id(opae::fpga::types::properties::ptr_t props,
                               uint32_t device_id);
+
+const char *properties_doc_subsystem_vendor_id();
+uint32_t properties_get_subsystem_vendor_id(opae::fpga::types::properties::ptr_t props);
+void properties_set_subsystem_vendor_id(opae::fpga::types::properties::ptr_t props,
+                                        uint32_t subsystem_vendor_id);
+
+const char *properties_doc_subsystem_device_id();
+uint32_t properties_get_subsystem_device_id(opae::fpga::types::properties::ptr_t props);
+void properties_set_subsystem_device_id(opae::fpga::types::properties::ptr_t props,
+                                        uint32_t subsystem_device_id);
 
 const char *properties_doc_model();
 std::string properties_get_model(opae::fpga::types::properties::ptr_t props);

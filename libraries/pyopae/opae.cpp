@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -170,6 +170,10 @@ PYBIND11_MODULE(_opae, m) {
                     properties_set_vendor_id, properties_doc_vendor_id())
       .def_property("device_id", properties_get_device_id,
                     properties_set_device_id, properties_doc_device_id())
+      .def_property("subsystem_vendor_id", properties_get_subsystem_vendor_id,
+                    properties_set_subsystem_vendor_id, properties_doc_subsystem_vendor_id())
+      .def_property("subsystem_device_id", properties_get_subsystem_device_id,
+                    properties_set_subsystem_device_id, properties_doc_subsystem_device_id())
       .def_property("model", properties_get_model, properties_set_model,
                     properties_doc_model())
       .def_property("local_memory_size", properties_get_local_memory_size,
