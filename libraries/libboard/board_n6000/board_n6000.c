@@ -98,6 +98,9 @@
 #define DFL_SYSFS_BOM_INFO_GLOB "*dfl*/**/bom_info*/nvmem"
 #define FPGA_BOM_INFO_BUF_LEN   0x2000
 
+#define DFH_CSR_ADDR                  0x18
+#define DFH_CSR_SIZE                  0x20
+
 // hssi version
 struct hssi_version {
 	union {
@@ -117,7 +120,7 @@ struct hssi_version {
 :
 [21] - Port 15 Enable
 */
-#define PORT_ENABLE_COUNT 16
+#define PORT_ENABLE_COUNT 20
 
 // hssi feature list CSR
 struct hssi_feature_list {
@@ -126,8 +129,8 @@ struct hssi_feature_list {
 		struct {
 			uint32_t axi4_support : 1;
 			uint32_t hssi_num : 5;
-			uint32_t port_enable : 16;
-			uint32_t reserved : 10;
+			uint32_t port_enable : 20;
+			uint32_t reserved : 6;
 		};
 	};
 };
@@ -163,6 +166,47 @@ struct hssi_port_status {
 		};
 	};
 };
+
+
+struct dfh {
+	union {
+		uint64_t csr;
+		struct {
+			uint64_t id : 12;
+			uint64_t feature_rev : 4;
+			uint64_t next : 24;
+			uint64_t eol : 1;
+			uint64_t reserved41 : 7;
+			uint64_t feature_minor_rev : 4;
+			uint64_t dfh_version : 8;
+			uint64_t type : 4;
+		};
+	};
+};
+
+struct dfh_csr_addr {
+	union {
+		uint32_t csr;
+		struct {
+			uint64_t rel : 1;
+			uint64_t addr : 63;
+		};
+	};
+};
+
+struct dfh_csr_group {
+	union {
+		uint32_t csr;
+		struct {
+			uint64_t instance_id : 16;
+			uint64_t grouping_id : 15;
+			uint64_t has_params : 1;
+			uint64_t csr_size : 32;
+		};
+	};
+};
+
+
 
 typedef struct hssi_port_profile {
 
@@ -598,13 +642,7 @@ fpga_result print_phy_info(fpga_token token)
 	fpga_result res = FPGA_OK;
 	struct opae_uio uio;
 	char feature_dev[SYSFS_MAX_SIZE] = { 0 };
-	struct hssi_port_attribute port_profile;
-	struct hssi_feature_list  feature_list;
-	struct hssi_version  hssi_ver;
-	struct hssi_port_status port_status;
 	uint8_t *mmap_ptr = NULL;
-	uint32_t i = 0;
-	uint32_t k = 0;
 
 	res = find_dev_feature(token, HSSI_FEATURE_ID, feature_dev);
 	if (res != FPGA_OK) {
@@ -625,47 +663,9 @@ fpga_result print_phy_info(fpga_token token)
 		return res;
 	}
 
-	feature_list.csr = *((uint32_t *) (mmap_ptr + HSSI_FEATURE_LIST));
-	hssi_ver.csr = *((uint32_t *)(mmap_ptr + HSSI_VERSION));
-	port_status.csr = *((volatile uint64_t *)(mmap_ptr
-		+ HSSI_PORT_STATUS));
-
-	printf("//****** HSSI information ******//\n");
-	printf("%-32s : %d.%d  \n", "HSSI version", hssi_ver.major, hssi_ver.minor);
-	printf("%-32s : %d  \n", "Number of ports", feature_list.hssi_num);
-
-	for (i = 0; i < PORT_ENABLE_COUNT; i++) {
-
-		// prints only active/enabled ports
-		if ((GET_BIT(feature_list.port_enable, i) == 0)) {
-			continue;
-		}
-
-		port_profile.csr = *((volatile uint32_t *)(mmap_ptr +
-			HSSI_PORT_ATTRIBUTE + i * 4));
-
-		if (port_profile.profile > HSS_PORT_PROFILE_SIZE) {
-			printf("Port%-28d :%s\n", i, "N/A");
-			continue;
-		}
-
-		for (int j = 0; j < HSS_PORT_PROFILE_SIZE; j++) {
-			if (hssi_port_profiles[j].port_index == port_profile.profile) {
-				// lock, tx, rx bits set - link status UP
-				// lock, tx, rx bits not set - link status DOWN
-				if ((GET_BIT(port_status.txplllocked, k) == 1) &&
-					(GET_BIT(port_status.txlanestable, k) == 1) &&
-					(GET_BIT(port_status.rxpcsready, k) == 1)) {
-					printf("Port%-28d :%-12s %s\n", i,
-						hssi_port_profiles[j].profile, "UP");
-				} else {
-					printf("Port%-28d :%-12s %s\n", i,
-						hssi_port_profiles[j].profile, "DOWN");
-				}
-				k++;
-				break;
-			}
-		 }
+	res = print_hssi_port_status(mmap_ptr);
+	if (res) {
+		OPAE_ERR("Failed to read hssi port status");
 	}
 
 	opae_uio_close(&uio);
@@ -991,6 +991,92 @@ fpga_result fpga_event_log(fpga_token token, uint32_t first, uint32_t last,
 out:
 	if (fpgaDestroyObject(&fpga_object) != FPGA_OK)
 		OPAE_ERR("Failed to Destroy Object");
+
+	return FPGA_OK;
+}
+
+fpga_result print_hssi_port_status(uint8_t *uio_ptr)
+{
+	uint32_t i                     = 0;
+	uint32_t k                     = 0;
+	uint32_t ver_offset            = 0;
+	uint32_t feature_list_offset   = 0;
+	uint32_t port_sts_offset       = 0;
+	uint32_t port_attr_offset      = 0;
+	struct dfh dfh_csr;
+	struct dfh_csr_addr csr_addr;
+	struct hssi_port_attribute port_profile;
+	struct hssi_feature_list  feature_list;
+	struct hssi_version  hssi_ver;
+	struct hssi_port_status port_status;
+
+	if (uio_ptr == NULL) {
+		OPAE_ERR("Invalid Input parameters");
+		return FPGA_INVALID_PARAM;
+	}
+
+	dfh_csr.csr = *((uint64_t *)(uio_ptr + 0x0));
+	// dfhv0
+	if ((dfh_csr.feature_rev == 0) ||
+		(dfh_csr.feature_rev == 0x1)) {
+		ver_offset = HSSI_VERSION;
+		feature_list_offset = HSSI_FEATURE_LIST;
+		port_sts_offset = HSSI_PORT_STATUS;
+		port_attr_offset = HSSI_PORT_ATTRIBUTE;
+	} else if (dfh_csr.feature_rev == 0x2) { // dfhv0.5
+		csr_addr.csr = *((uint64_t *)(uio_ptr + DFH_CSR_ADDR));
+		ver_offset = csr_addr.addr;
+		feature_list_offset = csr_addr.addr + 0x4;
+		port_sts_offset = HSSI_PORT_STATUS;
+		port_attr_offset = csr_addr.addr + 0x8;
+
+	} else {
+		printf("DFH veriosn not supported:%x \n", dfh_csr.feature_rev);
+		return FPGA_NOT_SUPPORTED;
+	}
+
+	feature_list.csr = *((uint32_t *)(uio_ptr + feature_list_offset));
+	hssi_ver.csr = *((uint32_t *)(uio_ptr + ver_offset));
+	port_status.csr = *((volatile uint64_t *)(uio_ptr
+		+ port_sts_offset));
+
+	printf("//****** HSSI information ******//\n");
+	printf("%-32s : %d.%d  \n", "HSSI version", hssi_ver.major, hssi_ver.minor);
+	printf("%-32s : %d  \n", "Number of ports", feature_list.hssi_num);
+
+	for (i = 0; i < PORT_ENABLE_COUNT; i++) {
+
+		// prints only active/enabled ports
+		if ((GET_BIT(feature_list.port_enable, i) == 0)) {
+			continue;
+		}
+
+		port_profile.csr = *((volatile uint32_t *)(uio_ptr +
+			port_attr_offset + i * 4));
+
+		if (port_profile.profile > HSS_PORT_PROFILE_SIZE) {
+			printf("Port%-28d :%s\n", i, "N/A");
+			continue;
+		}
+
+		for (int j = 0; j < HSS_PORT_PROFILE_SIZE; j++) {
+			if (hssi_port_profiles[j].port_index == port_profile.profile) {
+				// lock, tx, rx bits set - link status UP
+				// lock, tx, rx bits not set - link status DOWN
+				if ((GET_BIT(port_status.txplllocked, k) == 1) &&
+					(GET_BIT(port_status.txlanestable, k) == 1) &&
+					(GET_BIT(port_status.rxpcsready, k) == 1)) {
+					printf("Port%-28d :%-12s %s\n", i,
+						hssi_port_profiles[j].profile, "UP");
+				} else {
+					printf("Port%-28d :%-12s %s\n", i,
+						hssi_port_profiles[j].profile, "DOWN");
+				}
+				k++;
+				break;
+			}
+		}
+	}
 
 	return FPGA_OK;
 }
