@@ -153,6 +153,14 @@ fpga_result fpga_image_info(fpga_token token);
 fpga_result fpga_event_log(fpga_token token, uint32_t first, uint32_t last,
 	bool print_list, bool print_sensors, bool print_bits);
 
+/**
+* Prints hssi port status.
+*
+* @param[in] uio_ptr          dfh uio mmap ptr
+* @returns FPGA_OK on success, or FPGA_NOT_SUPPORTED if dfh version found.
+*/
+fpga_result print_hssi_port_status(uint8_t *uio_ptr);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
