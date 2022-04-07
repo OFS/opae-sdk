@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2021, Intel Corporation
+# Copyright(c) 2021-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -56,8 +56,8 @@ class FPGAHSSILPBK(HSSICOMMON):
         """
         self.open(self._hssi_grps[0][0])
 
-        hssi_feature_list = hssi_feature(self.read32(0, 0xC))
-        if (self._port >= HSSI_PORT_COUNT):
+        hssi_feature_list = hssi_feature(self.read32(0, self.hssi_csr.HSSI_FEATURE_LIST))
+        if (self._port >= self.hssi_csr.HSSI_PORT_COUNT):
             print("Invalid Input port number")
             self.close()
             return False
@@ -71,9 +71,9 @@ class FPGAHSSILPBK(HSSICOMMON):
 
         ctl_addr = hssi_ctl_addr(0)
         if self._loopback == 'enable':
-            ctl_addr.sal_cmd = HSSI_SALCMD.ENABLE_LOOPBACK.value
+            ctl_addr.sal_cmd = HSSI_SAL_CMD.ENABLE_LOOPBACK.value
         else:
-            ctl_addr.sal_cmd = HSSI_SALCMD.DISABLE_LOOPBACK.value
+            ctl_addr.sal_cmd = HSSI_SAL_CMD.DISABLE_LOOPBACK.value
 
         # set port number
         ctl_addr.port_address = self._port
@@ -87,11 +87,11 @@ class FPGAHSSILPBK(HSSICOMMON):
             self.close()
             return False
 
-        self.write32(0, HSSI_CSR.HSSI_CTL_ADDRESS.value, ctl_addr.value)
-        self.write32(0, HSSI_CSR.HSSI_CTL_STS.value, cmd_sts.value)
+        self.write32(0, self.hssi_csr.HSSI_CTL_ADDRESS, ctl_addr.value)
+        self.write32(0, self.hssi_csr.HSSI_CTL_STS, cmd_sts.value)
 
         if not self.read_poll_timeout(0,
-                                      HSSI_CSR.HSSI_CTL_STS.value,
+                                      self.hssi_csr.HSSI_CTL_STS,
                                       0x2):
             print("HSSI ctl sts csr fails to update ACK")
             self.close()
