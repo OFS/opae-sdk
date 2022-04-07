@@ -298,6 +298,34 @@ TEST_P(properties_cxx_core, get_interface) {
   EXPECT_EQ(static_cast<fpga_interface>(p->interface), FPGA_IFC_DFL);
 }
 
+/**
+ * @test get_subsystem_vendor_id
+ * Given a properties properties object with the subsystem_vendor_id
+ * property set to a known value
+ * When I get the subsystem_vendor_id property
+ * Then the number is the expected value.
+ */
+TEST_P(properties_cxx_core, get_subsystem_vendor_id) {
+  auto p = properties::get();
+  uint16_t v = 0x8087;
+  p->subsystem_vendor_id = v;
+  EXPECT_EQ(static_cast<uint16_t>(p->subsystem_vendor_id), v);
+}
+
+/**
+ * @test get_subsystem_device_id
+ * Given a properties properties object with the subsystem_device_id
+ * property set to a known value
+ * When I get the subsystem_device_id property
+ * Then the number is the expected value.
+ */
+TEST_P(properties_cxx_core, get_subsystem_device_id) {
+  auto p = properties::get();
+  uint16_t d = 0xa55a;
+  p->subsystem_device_id = d;
+  EXPECT_EQ(static_cast<uint16_t>(p->subsystem_device_id), d);
+}
+
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(properties_cxx_core);
 INSTANTIATE_TEST_CASE_P(properties, properties_cxx_core,
                         ::testing::ValuesIn(test_platform::keys(true)));
