@@ -152,6 +152,32 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 	_iprop.device_id = (uint16_t)x;
 	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_DEVICEID);
 
+	if (snprintf(idpath, sizeof(idpath),
+		     "%s/../device/subsystem_vendor", _token->sysfspath) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
+
+	x = 0;
+	result = sysfs_read_u32(idpath, &x);
+	if (result != FPGA_OK)
+		return result;
+	_iprop.subsystem_vendor_id = (uint16_t)x;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_SUB_VENDORID);
+
+	if (snprintf(idpath, sizeof(idpath),
+		     "%s/../device/subsystem_device", _token->sysfspath) < 0) {
+		OPAE_ERR("snprintf buffer overflow");
+		return FPGA_EXCEPTION;
+	}
+
+	x = 0;
+	result = sysfs_read_u32(idpath, &x);
+	if (result != FPGA_OK)
+		return result;
+	_iprop.subsystem_device_id = (uint16_t)x;
+	SET_FIELD_VALID(&_iprop, FPGA_PROPERTY_SUB_DEVICEID);
+
 	// The input token is either for an FME or an AFU.
 	// Go one level back to get to the dev.
 

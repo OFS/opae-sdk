@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -155,6 +155,20 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_DEVICEID)) {
 		if (_filter->device_id != attr->hdr.device_id) {
+			res = false;
+			goto out_unlock;
+		}
+	}
+
+	if (FIELD_VALID(_filter, FPGA_PROPERTY_SUB_VENDORID)) {
+		if (_filter->subsystem_vendor_id != attr->hdr.subsystem_vendor_id) {
+			res = false;
+			goto out_unlock;
+		}
+	}
+
+	if (FIELD_VALID(_filter, FPGA_PROPERTY_SUB_DEVICEID)) {
+		if (_filter->subsystem_device_id != attr->hdr.subsystem_device_id) {
 			res = false;
 			goto out_unlock;
 		}
@@ -321,6 +335,8 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 	pdev->hdr.magic = FPGA_TOKEN_MAGIC;
 	pdev->hdr.vendor_id = parent->hdr.vendor_id;
 	pdev->hdr.device_id = parent->hdr.device_id;
+	pdev->hdr.subsystem_vendor_id = parent->hdr.subsystem_vendor_id;
+	pdev->hdr.subsystem_device_id = parent->hdr.subsystem_device_id;
 	pdev->hdr.segment = parent->hdr.segment;
 	pdev->hdr.bus = parent->hdr.bus;
 	pdev->hdr.device = parent->hdr.device;
@@ -495,6 +511,8 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	pdev->hdr.magic = FPGA_TOKEN_MAGIC;
 	pdev->hdr.vendor_id = parent->hdr.vendor_id;
 	pdev->hdr.device_id = parent->hdr.device_id;
+	pdev->hdr.subsystem_vendor_id = parent->hdr.subsystem_vendor_id;
+	pdev->hdr.subsystem_device_id = parent->hdr.subsystem_device_id;
 	pdev->hdr.segment = parent->hdr.segment;
 	pdev->hdr.bus = parent->hdr.bus;
 	pdev->hdr.device = parent->hdr.device;
@@ -535,6 +553,8 @@ STATIC fpga_result enum_regions(const sysfs_fpga_device *device, void *context)
 	pdev->hdr.bus = device->bus;
 	pdev->hdr.device = device->device;
 	pdev->hdr.function = device->function;
+	pdev->hdr.subsystem_vendor_id = device->subsystem_vendor_id;
+	pdev->hdr.subsystem_device_id = device->subsystem_device_id;
 
 	// Enum fme
 	if (device->fme) {

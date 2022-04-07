@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -234,20 +234,38 @@ STATIC int parse_device_vendor_id(sysfs_fpga_device *device)
 	uint64_t value = 0;
 	int res = sysfs_parse_attribute64(device->sysfs_path, "device/device", &value);
 	if (res) {
-		OPAE_MSG("Error parsing device_id for device: %s",
+		OPAE_DBG("Error parsing device_id for device: %s",
 			 device->sysfs_path);
 		return res;
 	}
 	device->device_id = value;
 
+	value = 0;
 	res = sysfs_parse_attribute64(device->sysfs_path, "device/vendor", &value);
-
 	if (res) {
-		OPAE_ERR("Error parsing vendor_id for device: %s",
+		OPAE_DBG("Error parsing vendor_id for device: %s",
 			 device->sysfs_path);
 		return res;
 	}
 	device->vendor_id = value;
+
+	value = 0;
+	res = sysfs_parse_attribute64(device->sysfs_path, "device/subsystem_device", &value);
+	if (res) {
+		OPAE_DBG("Error parsing subsystem_device_id for device: %s",
+			 device->sysfs_path);
+		return res;
+	}
+	device->subsystem_device_id = (uint16_t)value;
+
+	value = 0;
+	res = sysfs_parse_attribute64(device->sysfs_path, "device/subsystem_vendor", &value);
+	if (res) {
+		OPAE_DBG("Error parsing subsystem_vendor_id for device: %s",
+			 device->sysfs_path);
+		return res;
+	}
+	device->subsystem_vendor_id = (uint16_t)value;
 
 	return FPGA_OK;
 }
@@ -594,6 +612,9 @@ int sysfs_initialize(void)
 	int num = -1;
 	char prefix[64] = {0};
 
+	memset(&_devices, 0, sizeof(_devices));
+	_sysfs_device_count = 0;
+
 	for (i = 0; i < OPAE_KERNEL_DRIVERS; ++i) {
 		errno = 0;
 		stat_res = stat(sysfs_path_table[i].sysfs_class_path, &st);
@@ -612,8 +633,6 @@ int sysfs_initialize(void)
 			"No valid sysfs class files found - a suitable driver may not be loaded");
 		return FPGA_NO_DRIVER;
 	}
-
-	_sysfs_device_count = 0;
 
 	const char *sysfs_class_fpga = SYSFS_FORMAT(sysfs_class_path);
 	if (!sysfs_class_fpga) {

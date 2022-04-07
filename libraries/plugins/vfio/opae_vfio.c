@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2021, Intel Corporation
+// Copyright(c) 2020-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -229,6 +229,7 @@ pci_device_t *find_pci_device(char addr[PCIADDR_MAX])
 
 pci_device_t *get_pci_device(char addr[PCIADDR_MAX])
 {
+	uint32_t value;
 	pci_device_t *p = find_pci_device(addr);
 
 	if (p)
@@ -247,10 +248,26 @@ pci_device_t *get_pci_device(char addr[PCIADDR_MAX])
 		goto free;
 	}
 
+	value = 0;
+	if (read_pci_attr_u32(addr, "subsystem_vendor", &value)) {
+		OPAE_ERR("error reading 'subsystem_vendor' attribute: %s",
+			 addr);
+		goto free;
+	}
+	p->subsystem_vendor = (uint16_t)value;
+
 	if (read_pci_attr_u32(addr, "device", &p->device)) {
 		OPAE_ERR("error reading 'device' attribute: %s", addr);
 		goto free;
 	}
+
+	value = 0;
+	if (read_pci_attr_u32(addr, "subsystem_device", &value)) {
+		OPAE_ERR("error reading 'subsystem_device' attribute: %s",
+			 addr);
+		goto free;
+	}
+	p->subsystem_device = (uint16_t)value;
 
 	if (read_pci_attr_u32(addr, "numa_node", &p->numa_node)) {
 		OPAE_ERR("error opening 'numa_node' attribute: %s", addr);
@@ -750,6 +767,12 @@ fpga_result vfio_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	_prop->device_id = t->device->device;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_DEVICEID);
 
+	_prop->subsystem_vendor_id = t->device->subsystem_vendor;
+	SET_FIELD_VALID(_prop, FPGA_PROPERTY_SUB_VENDORID);
+
+	_prop->subsystem_device_id = t->device->subsystem_device;
+	SET_FIELD_VALID(_prop, FPGA_PROPERTY_SUB_DEVICEID);
+
 	_prop->segment = t->device->bdf.segment;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_SEGMENT);
 
@@ -1086,8 +1109,14 @@ bool pci_matches_filter(const fpga_properties *filter, pci_device_t *dev)
 	if (FIELD_VALID(_prop, FPGA_PROPERTY_SOCKETID))
 		if (_prop->socket_id != dev->numa_node)
 			return false;
-	return true;
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_SUB_VENDORID))
+		if (_prop->subsystem_vendor_id != dev->subsystem_vendor)
+			return false;
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_SUB_DEVICEID))
+		if (_prop->subsystem_device_id != dev->subsystem_device)
+			return false;
 
+	return true;
 }
 
 bool pci_matches_filters(const fpga_properties *filters, uint32_t num_filters,
@@ -1201,6 +1230,8 @@ fpga_result vfio_fpgaEnumerate(const fpga_properties *filters,
 
 				ptr->hdr.vendor_id = (uint16_t)ptr->device->vendor;
 				ptr->hdr.device_id = (uint16_t)ptr->device->device;
+				ptr->hdr.subsystem_vendor_id = ptr->device->subsystem_vendor;
+				ptr->hdr.subsystem_device_id = ptr->device->subsystem_device;
 				ptr->hdr.segment = ptr->device->bdf.segment;
 				ptr->hdr.bus = ptr->device->bdf.bus;
 				ptr->hdr.device = ptr->device->bdf.device;

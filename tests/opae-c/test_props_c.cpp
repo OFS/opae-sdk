@@ -3483,6 +3483,186 @@ TEST_P(properties_c_p, validate01) {
   p->magic = FPGA_PROPERTY_MAGIC;
 }
 
+/**
+ * @test    get_sub_vendor_id01
+ * @brief   Tests: fpgaPropertiesGetSubsystemVendorID
+ * @details Given a null fpga_properties* object<br>
+ *          When I call fpgaPropertiesGetSubsystemVendorID with the null object<br>
+ *          Then the return value is FPGA_INVALID_PARAM<br>
+ * */
+TEST(properties, get_sub_vendor_id01) {
+  fpga_properties prop = NULL;
+
+  uint16_t subsystem_vendor_id;
+  fpga_result result = fpgaPropertiesGetSubsystemVendorID(prop, &subsystem_vendor_id);
+  EXPECT_EQ(FPGA_INVALID_PARAM, result);
+}
+
+/**
+ * @test    set_sub_vendor_id01
+ * @brief   Tests: fpgaPropertiesSetSubsystemVendorID
+ * @details Given a null fpga_properties* object<br>
+ *          When I call fpgaPropertiesSetSubsystemVendorID with the null object<br>
+ *          Then the result is FPGA_INVALID_PARAM<br>
+ */
+TEST(properties, set_sub_vendor_id01) {
+  fpga_properties prop = NULL;
+  // Call the API to set the subsystem_vendor_id on the property
+  fpga_result result = fpgaPropertiesSetSubsystemVendorID(prop, 0);
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, result);
+}
+
+/**
+ * @test    get_sub_vendor_id02
+ * @brief   Tests: fpgaPropertiesGetSubsystemVendorID
+ * @details Given a non-null fpga_properties* object<br>
+ *          And its object type is FPGA_ACCELERATOR<br>
+ *          And it has the subsystem_vendor_id field set to a known value<br>
+ *          When I call fpgaPropertiesGetSubsystemVendorID with a pointer to an
+ *          16-bit integer variable<br>
+ *          Then the return value is FPGA_OK<br>
+ *          And the output value is the known value<br>
+ * */
+TEST_P(properties_c_p, get_sub_vendor_id02) {
+  fpga_properties prop = NULL;
+  fpga_result result = fpgaGetProperties(NULL, &prop);
+
+  ASSERT_EQ(result, FPGA_OK);
+  ASSERT_FALSE(NULL == prop);
+
+  struct _fpga_properties* _prop = (struct _fpga_properties*)prop;
+
+  // set the object type and subsystem_vendor_id fields as valid
+  SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJTYPE);
+  SET_FIELD_VALID(_prop, FPGA_PROPERTY_SUB_VENDORID);
+
+  // set the object type field
+  _prop->objtype = FPGA_ACCELERATOR;
+  // set the slot num_interrupts to a known value
+  _prop->subsystem_vendor_id = 0x8087;
+
+  // now get the subsystem_vendor_id from the prop structure
+  uint16_t sub_vendor_id;
+  result = fpgaPropertiesGetSubsystemVendorID(prop, &sub_vendor_id);
+
+  // assert the result was ok
+  EXPECT_EQ(FPGA_OK, result);
+
+  // assert it is set to what we set it to above
+  EXPECT_EQ(0x8087, sub_vendor_id);
+
+  // now delete the properties object
+  result = fpgaDestroyProperties(&prop);
+  ASSERT_EQ(NULL, prop);
+}
+
+/**
+ * @test    get_sub_vendor_id03
+ * @brief   Tests: fpgaPropertiesGetSubsystemVendorID
+ * @details Given a non-null fpga_properties* object<br>
+ *          And its object type is FPGA_ACCELERATOR<br>
+ *          But the subsystem_vendor_id field is not set,<br>
+ *          When I call fpgaPropertiesGetSubsystemVendorID with a pointer to an
+ *          16-bit integer variable<br>
+ *          Then the return value is FPGA_NOT_FOUND.<br>
+ */
+TEST_P(properties_c_p, get_sub_vendor_id03) {
+  uint16_t sub_vendor = 0;
+  EXPECT_EQ(fpgaPropertiesGetSubsystemVendorID(filter_, &sub_vendor), FPGA_NOT_FOUND);
+}
+
+/**
+ * @test    get_sub_device_id01
+ * @brief   Tests: fpgaPropertiesGetSubsystemDeviceID
+ * @details Given a null fpga_properties* object<br>
+ *          When I call fpgaPropertiesGetSubsystemDeviceID with the null object<br>
+ *          Then the return value is FPGA_INVALID_PARAM<br>
+ * */
+TEST(properties, get_sub_device_id01) {
+  fpga_properties prop = NULL;
+
+  uint16_t subsystem_device_id;
+  fpga_result result = fpgaPropertiesGetSubsystemDeviceID(prop, &subsystem_device_id);
+  EXPECT_EQ(FPGA_INVALID_PARAM, result);
+}
+
+/**
+ * @test    set_sub_device_id01
+ * @brief   Tests: fpgaPropertiesSetSubsystemDeviceID
+ * @details Given a null fpga_properties* object<br>
+ *          When I call fpgaPropertiesSetSubsystemDeviceID with the null object<br>
+ *          Then the result is FPGA_INVALID_PARAM<br>
+ */
+TEST(properties, set_sub_device_id01) {
+#ifndef BUILD_ASE
+  fpga_properties prop = NULL;
+  // Call the API to set the device_id on the property
+  fpga_result result = fpgaPropertiesSetSubsystemDeviceID(prop, 0);
+
+  EXPECT_EQ(FPGA_INVALID_PARAM, result);
+#endif
+}
+
+/**
+ * @test    get_sub_device_id02
+ * @brief   Tests: fpgaPropertiesGetSubsystemDeviceID
+ * @details Given a non-null fpga_properties* object<br>
+ *          And its object type is FPGA_ACCELERATOR<br>
+ *          And it has the subsystem_device_id field set to a known value<br>
+ *          When I call fpgaPropertiesGetSubsystemDeviceID with a pointer to an
+ *          16-bit integer variable<br>
+ *          Then the return value is FPGA_OK<br>
+ *          And the output value is the known value<br>
+ * */
+TEST_P(properties_c_p, get_sub_device_id02) {
+  fpga_properties prop = NULL;
+  fpga_result result = fpgaGetProperties(NULL, &prop);
+
+  ASSERT_EQ(result, FPGA_OK);
+  ASSERT_FALSE(NULL == prop);
+
+  struct _fpga_properties* _prop = (struct _fpga_properties*)prop;
+
+  // set the object type and subsystem_device_id fields as valid
+  SET_FIELD_VALID(_prop, FPGA_PROPERTY_OBJTYPE);
+  SET_FIELD_VALID(_prop, FPGA_PROPERTY_SUB_DEVICEID);
+
+  // set the object type field
+  _prop->objtype = FPGA_ACCELERATOR;
+  // set the slot num_interrupts to a known value
+  _prop->subsystem_device_id = 0xAFFE;
+
+  // now get the num_interrupts from the prop structure
+  uint16_t sub_device_id;
+  result = fpgaPropertiesGetSubsystemDeviceID(prop, &sub_device_id);
+
+  // assert the result was ok
+  EXPECT_EQ(FPGA_OK, result);
+
+  // assert it is set to what we set it to above
+  EXPECT_EQ(0xAFFE, sub_device_id);
+
+  // now delete the properties object
+  result = fpgaDestroyProperties(&prop);
+  ASSERT_EQ(NULL, prop);
+}
+
+/**
+ * @test    get_sub_device_id03
+ * @brief   Tests: fpgaPropertiesGetSubsystemDeviceID
+ * @details Given a non-null fpga_properties* object<br>
+ *          And its object type is FPGA_ACCELERATOR<br>
+ *          But the subsystem_device_id field is not set,<br>
+ *          When I call fpgaPropertiesGetSubsystemDeviceID with a pointer to an
+ *          16-bit integer variable<br>
+ *          Then the return value is FPGA_NOT_FOUND.<br>
+ */
+TEST_P(properties_c_p, get_sub_device_id03) {
+  uint16_t sub_devid = 0;
+  EXPECT_EQ(fpgaPropertiesGetSubsystemDeviceID(filter_, &sub_devid), FPGA_NOT_FOUND);
+}
+
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(properties_c_p);
 INSTANTIATE_TEST_CASE_P(properties_c, properties_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));
