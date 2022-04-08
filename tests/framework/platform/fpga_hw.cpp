@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -62,6 +62,8 @@ test_device test_device::unknown() {
                      .port_object_id = 9,
                      .vendor_id = 0x1234,
                      .device_id = 0x1234,
+                     .subsystem_vendor_id = 0x1234,
+                     .subsystem_device_id = 0x1234,
                      .fme_num_errors = 0x1234,
                      .port_num_errors = 0x1234,
                      .gbs_guid = "C544CE5C-F630-44E1-8551-59BD87AF432E",
@@ -208,6 +210,8 @@ static platform_db MOCK_PLATFORMS = {
                        .port_object_id = 0xf400000,
                        .vendor_id = 0x8086,
                        .device_id = 0xbcc0,
+                       .subsystem_vendor_id = 0x8086,
+                       .subsystem_device_id = 0x0000,
                        .fme_num_errors = 8,
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
@@ -235,6 +239,8 @@ static platform_db MOCK_PLATFORMS = {
                        .port_object_id = 0xf400000,
                        .vendor_id = 0x8086,
                        .device_id = 0x09c4,
+                       .subsystem_vendor_id = 0x8086,
+                       .subsystem_device_id = 0x0000,
                        .fme_num_errors = 8,
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
@@ -262,6 +268,8 @@ static platform_db MOCK_PLATFORMS = {
                        .port_object_id = 0xf400000,
                        .vendor_id = 0x8086,
                        .device_id = 0xbcc0,
+                       .subsystem_vendor_id = 0x8086,
+                       .subsystem_device_id = 0x0000,
                        .fme_num_errors = 8,
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
@@ -289,6 +297,8 @@ static platform_db MOCK_PLATFORMS = {
                        .port_object_id = 0xf400000,
                        .vendor_id = 0x8086,
                        .device_id = 0x09c4,
+                       .subsystem_vendor_id = 0x8086,
+                       .subsystem_device_id = 0x0000,
                        .fme_num_errors = 8,
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
@@ -316,6 +326,8 @@ static platform_db MOCK_PLATFORMS = {
                        .port_object_id = 0xf400000,
                        .vendor_id = 0x8086,
                        .device_id = 0x0b30,
+                       .subsystem_vendor_id = 0x8086,
+                       .subsystem_device_id = 0x0000,
                        .fme_num_errors = 9,
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
@@ -343,6 +355,8 @@ static platform_db MOCK_PLATFORMS = {
                        .port_object_id = 0xf400000,
                        .vendor_id = 0x8086,
                        .device_id = 0x0b30,
+                       .subsystem_vendor_id = 0x8086,
+                       .subsystem_device_id = 0x0000,
                        .fme_num_errors = 8,
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
@@ -370,6 +384,8 @@ static platform_db MOCK_PLATFORMS = {
                        .port_object_id = 0xf400000,
                        .vendor_id = 0x8086,
                        .device_id = 0x0b2b,
+                       .subsystem_vendor_id = 0x8086,
+                       .subsystem_device_id = 0x0000,
                        .fme_num_errors = 8,
                        .port_num_errors = 3,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
@@ -397,6 +413,8 @@ static platform_db MOCK_PLATFORMS = {
                        .port_object_id = 0xf400000,
                        .vendor_id = 0x8086,
                        .device_id = 0xbcce,
+                       .subsystem_vendor_id = 0x8086,
+                       .subsystem_device_id = 0x1770,
                        .fme_num_errors = 9,
                        .port_num_errors = 4,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
@@ -472,17 +490,17 @@ std::vector<std::string> test_platform::hw_platforms(
 
 const std::string PCI_DEVICES = "/sys/bus/pci/devices";
 
-typedef std::pair<uint16_t, uint64_t> ven_dev_id;
-typedef std::tuple<uint16_t, uint64_t, fpga_driver> platform_cfg;
+typedef std::tuple<uint16_t, uint16_t, uint16_t, uint16_t> ven_dev_id;
+typedef std::tuple<uint16_t, uint16_t, uint16_t, uint16_t, fpga_driver> platform_cfg;
 std::map<ven_dev_id, std::vector<std::string>> known_devices = {
-  { { 0x8086, 0xbcc0}, std::vector<std::string>() },
-  { { 0x8086, 0xbcc1}, std::vector<std::string>() },
-  { { 0x8086, 0xbcce}, std::vector<std::string>() },
-  { { 0x8086, 0xbccf}, std::vector<std::string>() },
-  { { 0x8086, 0x09c4}, std::vector<std::string>() },
-  { { 0x8086, 0x09c5}, std::vector<std::string>() },
-  { { 0x8086, 0x0b30}, std::vector<std::string>() },
-  { { 0x8086, 0x0b31}, std::vector<std::string>() },
+  { { 0x8086, 0xbcc0, 0x8086, 0x0000 }, std::vector<std::string>() },
+  { { 0x8086, 0xbcc1, 0x8086, 0x0000 }, std::vector<std::string>() },
+  { { 0x8086, 0x09c4, 0x8086, 0x0000 }, std::vector<std::string>() },
+  { { 0x8086, 0x09c5, 0x8086, 0x0000 }, std::vector<std::string>() },
+  { { 0x8086, 0x0b30, 0x8086, 0x0000 }, std::vector<std::string>() },
+  { { 0x8086, 0x0b31, 0x8086, 0x0000 }, std::vector<std::string>() },
+  { { 0x8086, 0xbcce, 0x8086, 0x1770 }, std::vector<std::string>() },
+  { { 0x8086, 0xbccf, 0x8086, 0x1770 }, std::vector<std::string>() },
 };
 
 static std::vector<ven_dev_id> supported_devices() {
@@ -511,6 +529,7 @@ static std::string read_file(const std::string &path) {
   df >> value_string;
   return value_string;
 }
+
 template<typename T>
 static T parse_file_int(const std::string &path) {
   std::string value_string = read_file(path);
@@ -626,6 +645,16 @@ static uint16_t read_vendor_id(const std::string &pci_dir) {
   return parse_file_int<uint16_t>(vendor_path);
 }
 
+static uint16_t read_subsystem_device_id(const std::string &pci_dir) {
+  std::string device_path = pci_dir + "/subsystem_device";
+  return parse_file_int<uint16_t>(device_path);
+}
+
+static uint16_t read_subsystem_vendor_id(const std::string &pci_dir) {
+  std::string vendor_path = pci_dir + "/subsystem_vendor";
+  return parse_file_int<uint16_t>(vendor_path);
+}
+
 static uint64_t read_bitstream_id(const std::string &pci_dir) {
   std::string bitstream_path = pci_dir + "/fpga*/*/*-fme.*/bitstream_id";
   bitstream_path = glob_first_path(bitstream_path);
@@ -675,15 +704,19 @@ int filter_fpga(const struct dirent *ent) {
   std::string pci_path = PCI_DEVICES + "/" + ename;
   auto did = read_device_id(pci_path);
   auto vid = read_vendor_id(pci_path);
+  auto sub_vid = read_subsystem_vendor_id(pci_path);
+  auto sub_did = read_subsystem_device_id(pci_path);
 
   auto devices = supported_devices();
-  std::vector<ven_dev_id>::const_iterator it = std::find(devices.begin(), devices.end(), ven_dev_id(vid, did));
+  std::vector<ven_dev_id>::const_iterator it =
+    std::find(devices.begin(), devices.end(),
+              ven_dev_id(vid, did, sub_vid, sub_did));
   if (it == devices.end()) {
     return 0;
   }
 
   if (has_compat_id(pci_path)) {
-    known_devices[ven_dev_id(vid, did)].push_back(pci_path);
+    known_devices[ven_dev_id(vid, did, sub_vid, sub_did)].push_back(pci_path);
     return 1;
   }
 
@@ -722,24 +755,28 @@ fpga_db *fpga_db::instance() {
 }
 
 static std::map<platform_cfg, std::string> platform_names = {
-  {  platform_cfg(0x8086, 0xbcc0, fpga_driver::linux_intel), "skx-p" },
-  {  platform_cfg(0x8086, 0xbcc1, fpga_driver::linux_intel), "skx-p-v" },
-  {  platform_cfg(0x8086, 0x09c4, fpga_driver::linux_intel), "dcp-rc" },
-  {  platform_cfg(0x8086, 0x09c5, fpga_driver::linux_intel), "dcp-rc-v" },
-  {  platform_cfg(0x8086, 0xbcc0, fpga_driver::linux_dfl0),  "skx-p-dfl0_patchset2" },
-  {  platform_cfg(0x8086, 0x09c4, fpga_driver::linux_dfl0),  "dcp-rc-dfl0_patchset2" },
-  {  platform_cfg(0x8086, 0x0b30, fpga_driver::linux_intel), "dcp-vc" },
-  {  platform_cfg(0x8086, 0x0b31, fpga_driver::linux_intel), "dcp-vc-v" },
-  {  platform_cfg(0x8086, 0x0b30, fpga_driver::linux_dfl0),  "dfl-n3000" },
-  {  platform_cfg(0x8086, 0x0b2b, fpga_driver::linux_dfl0),  "dfl-d5005" },
-  {  platform_cfg(0x8086, 0xbcce, fpga_driver::linux_dfl0),  "dfl-n6000" },
-  {  platform_cfg(0x8086, 0xbccf, fpga_driver::linux_dfl0),  "dfl-n6000" },
-  
+  { platform_cfg(0x8086, 0xbcc0, 0x8086, 0x0000, fpga_driver::linux_intel), "skx-p"                 },
+  { platform_cfg(0x8086, 0xbcc1, 0x8086, 0x0000, fpga_driver::linux_intel), "skx-p-v"               },
+  { platform_cfg(0x8086, 0x09c4, 0x8086, 0x0000, fpga_driver::linux_intel), "dcp-rc"                },
+  { platform_cfg(0x8086, 0x09c5, 0x8086, 0x0000, fpga_driver::linux_intel), "dcp-rc-v"              },
+  { platform_cfg(0x8086, 0xbcc0, 0x8086, 0x0000, fpga_driver::linux_dfl0),  "skx-p-dfl0_patchset2"  },
+  { platform_cfg(0x8086, 0x09c4, 0x8086, 0x0000, fpga_driver::linux_dfl0),  "dcp-rc-dfl0_patchset2" },
+  { platform_cfg(0x8086, 0x0b30, 0x8086, 0x0000, fpga_driver::linux_intel), "dcp-vc"                },
+  { platform_cfg(0x8086, 0x0b31, 0x8086, 0x0000, fpga_driver::linux_intel), "dcp-vc-v"              },
+  { platform_cfg(0x8086, 0x0b30, 0x8086, 0x0000, fpga_driver::linux_dfl0),  "dfl-n3000"             },
+  { platform_cfg(0x8086, 0x0b2b, 0x8086, 0x0000, fpga_driver::linux_dfl0),  "dfl-d5005"             },
+  { platform_cfg(0x8086, 0xbcce, 0x8086, 0x1770, fpga_driver::linux_dfl0),  "dfl-n6000"             },
+  { platform_cfg(0x8086, 0xbccf, 0x8086, 0x1770, fpga_driver::linux_dfl0),  "dfl-n6000"             },
 };
 
 const char *PCI_DEV_PATTERN = "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([0-9])";
 
-test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &platform, const std::string &pci_path) {
+test_device make_device(uint16_t ven_id,
+                        uint16_t dev_id,
+                        uint16_t sub_ven_id,
+                        uint16_t sub_dev_id,
+                        const std::string &platform,
+                        const std::string &pci_path) {
   test_device dev = MOCK_PLATFORMS[platform].devices[0];
 
   auto r = regex<>::create(PCI_DEV_PATTERN);
@@ -752,6 +789,8 @@ test_device make_device(uint16_t ven_id, uint16_t dev_id, const std::string &pla
     dev.num_vfs = read_attribute<uint8_t>(pci_path, "sriov_numvfs");
     dev.vendor_id = ven_id;
     dev.device_id = dev_id;
+    dev.subsystem_vendor_id = sub_ven_id;
+    dev.subsystem_device_id = sub_dev_id;
 
     std::string device_string = make_path(dev.segment, dev.bus, dev.device, dev.function);
     dev.socket_id = read_socket_id(device_string);
@@ -796,7 +835,12 @@ fpga_driver get_driver(const std::string &path)
   return fpga_driver::none;
 }
 
-std::pair<std::string, test_platform> make_platform(uint16_t ven_id, uint16_t dev_id, const std::vector<std::string> &pci_paths) {
+std::pair<std::string, test_platform>
+make_platform(uint16_t ven_id,
+              uint16_t dev_id,
+              uint16_t sub_ven_id,
+              uint16_t sub_dev_id,
+              const std::vector<std::string> &pci_paths) {
   test_platform platform;
   // test_platform data structure only supports one driver (for now)
   // TODO: assert that all devices represented by pci_patsh are all bound to
@@ -804,9 +848,9 @@ std::pair<std::string, test_platform> make_platform(uint16_t ven_id, uint16_t de
   platform.driver = get_driver(pci_paths[0]);
   // this is discovered hw platform, set mock_sysfs to null
   platform.mock_sysfs = nullptr;
-  std::string name = platform_names[platform_cfg(ven_id, dev_id, platform.driver)];
+  std::string name = platform_names[platform_cfg(ven_id, dev_id, sub_ven_id, sub_dev_id, platform.driver)];
   for (auto p : pci_paths) {
-    platform.devices.push_back(make_device(ven_id, dev_id, name, p));
+    platform.devices.push_back(make_device(ven_id, dev_id, sub_ven_id, sub_dev_id, name, p));
   }
   return std::make_pair(name, platform);
 }
@@ -822,7 +866,11 @@ void fpga_db::discover_hw() {
   for (auto kv : known_devices) {
     if (!kv.second.empty()) {
       ven_dev_id id = kv.first;
-      platforms_.insert(make_platform(id.first, id.second, kv.second));
+      platforms_.insert(make_platform(std::get<0>(id),
+                                      std::get<1>(id),
+                                      std::get<2>(id),
+                                      std::get<3>(id),
+                                      kv.second));
     }
   }
 #endif // OPAE_ENABLE_MOCK
