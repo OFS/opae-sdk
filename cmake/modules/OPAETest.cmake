@@ -40,6 +40,8 @@ function(opae_load_gtest)
     set(GTEST_INCLUDE_DIR ${gtest_ROOT}/googletest/include CACHE PATH "gtest include directory" FORCE)
     set(GTEST_LIBRARY ${LIBRARY_OUTPUT_PATH}/libgtest.a CACHE PATH "path to gtest library" FORCE)
     set(GTEST_MAIN_LIBRARY ${LIBRARY_OUTPUT_PATH}/libgtest_main.a CACHE PATH "path to gtest main library" FORCE)
+    set(GTEST_LIBRARY_DEBUG ${LIBRARY_OUTPUT_PATH}/libgtestd.a CACHE PATH "path to (debug) gtest library" FORCE)
+    set(GTEST_MAIN_LIBRARY_DEBUG ${LIBRARY_OUTPUT_PATH}/libgtest_maind.a CACHE PATH "path to (debug) gtest main library" FORCE)
 endfunction()
 
 function(opae_test_add)
@@ -93,13 +95,18 @@ function(opae_test_add)
                 ${opae-test_ROOT}/framework/mock/test_fpgad)
     endif(${OPAE_TEST_ADD_TEST_FPGAD})
 
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+        set(GTEST_LIBRARIES ${GTEST_LIBRARY_DEBUG} ${GTEST_MAIN_LIBRARY_DEBUG})
+    else()
+        set(GTEST_LIBRARIES ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY})
+    endif()
+
     target_link_libraries(${OPAE_TEST_ADD_TARGET}
         ${CMAKE_THREAD_LIBS_INIT}
         ${OPAE_TEST_LIBRARIES}
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
-        ${GTEST_LIBRARY}
-        ${GTEST_MAIN_LIBRARY}
+        ${GTEST_LIBRARIES}
         ${OPAE_TEST_ADD_LIBS})
 
     opae_coverage_build(TARGET ${OPAE_TEST_ADD_TARGET}
