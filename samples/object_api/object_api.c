@@ -61,7 +61,7 @@ struct {
 	void *param;
 } cleanup[MAX_CLEANUP];
 
-STATIC int cleanup_size = 0;
+STATIC int cleanup_size;
 
 #define ADD_TO_CLEANUP(func, p)                                         \
 do {									\
