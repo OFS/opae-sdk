@@ -252,7 +252,7 @@ TEST_P(event_c_p, destroy_err) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(event_c_p);
-INSTANTIATE_TEST_CASE_P(event_c, event_c_p, 
+INSTANTIATE_TEST_SUITE_P(event_c, event_c_p, 
                         ::testing::ValuesIn(test_platform::platforms({})));
 
 
@@ -379,5 +379,5 @@ TEST_P(events_handle_p, manual_ap6) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(events_handle_p);
-INSTANTIATE_TEST_CASE_P(events, events_handle_p,
+INSTANTIATE_TEST_SUITE_P(events, events_handle_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));

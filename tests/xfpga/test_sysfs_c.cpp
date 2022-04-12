@@ -287,7 +287,7 @@ TEST(sysfsinit_c_p, sysfs_parse_pcie) {
 
 // TODO re-enable these for n6000.
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfsinit_c_p);
-INSTANTIATE_TEST_CASE_P(sysfsinit_c, sysfsinit_c_p,
+INSTANTIATE_TEST_SUITE_P(sysfsinit_c, sysfsinit_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-d5005" })));
 
 class sysfs_c_p : public ::testing::TestWithParam<std::string> {
@@ -607,7 +607,7 @@ TEST_P(sysfs_c_p, get_fme_path_neg) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_c_p);
-INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_p,
+INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));
 
 class sysfs_c_hw_p : public sysfs_c_p {
@@ -658,7 +658,7 @@ TEST_P(sysfs_c_hw_p, make_object_glob) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_c_hw_p);
-INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_hw_p,
+INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_c_hw_p,
                         ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-n3000","dfl-d5005" })));
 
 class sysfs_c_mock_p : public sysfs_c_p {
@@ -930,7 +930,7 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_30) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_c_mock_p);
-INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_mock_p,
+INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 
@@ -958,7 +958,7 @@ TEST_P(sysfs_dfl_c_mock_p, fpga_sysfs_08) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_dfl_c_mock_p);
-INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_dfl_c_mock_p,
+INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_dfl_c_mock_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 class sysfs_power_mock_p : public sysfs_c_mock_p { };
@@ -985,7 +985,7 @@ TEST_P(sysfs_power_mock_p, fpga_sysfs_09) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_power_mock_p);
-INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_power_mock_p,
+INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_power_mock_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 
@@ -1010,7 +1010,7 @@ TEST_P(sysfs_bmc_mock_p, fpga_sysfs_10) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_bmc_mock_p);
-INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_bmc_mock_p,
+INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_bmc_mock_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-rc" })));
 
 
@@ -1035,7 +1035,7 @@ TEST_P(sysfs_max10_mock_p, fpga_sysfs_11) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_max10_mock_p);
-INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_max10_mock_p,
+INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_max10_mock_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 
@@ -1111,7 +1111,7 @@ TEST_P(sysfs_c_mock_no_drv_p, sysfs_get_bitstream_id) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_c_mock_no_drv_p);
-INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_c_mock_no_drv_p,
+INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_c_mock_no_drv_p,
                         ::testing::ValuesIn(test_platform::mock_platforms()));
 
 class sysfs_sockid_c_mock_p : public sysfs_c_mock_p { };
@@ -1128,7 +1128,7 @@ TEST_P(sysfs_sockid_c_mock_p, fpga_sysfs_02) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_sockid_c_mock_p);
-INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_sockid_c_mock_p,
+INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_sockid_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 
@@ -1326,7 +1326,7 @@ TEST_P(sysfs_sockid_c_p, get_port_sysfs) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_sockid_c_p);
-INSTANTIATE_TEST_CASE_P(sysfs_c, sysfs_sockid_c_p,
+INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_sockid_c_p,
                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 /**

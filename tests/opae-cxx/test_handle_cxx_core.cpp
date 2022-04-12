@@ -205,7 +205,7 @@ TEST_P(handle_cxx_core, mmio_ptr) {
   int flags = 0;
   uint64_t offset = 0x100;
   uint32_t csr_space = 0;
-  uint8_t *h;
+  uint8_t *h = nullptr;
 
   handle_ = handle::open(tokens_[0], flags);
   ASSERT_NE(nullptr, handle_.get());
@@ -233,5 +233,5 @@ TEST_P(handle_cxx_core, get_token) {
 
 // TODO: re-enable these for n6000
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(handle_cxx_core);
-INSTANTIATE_TEST_CASE_P(handle, handle_cxx_core,
+INSTANTIATE_TEST_SUITE_P(handle, handle_cxx_core,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-d5005" })));

@@ -166,7 +166,7 @@ TEST_P(sysobject_p, xfpga_fpgaDestroyObject) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysobject_p);
-INSTANTIATE_TEST_CASE_P(sysobject_c, sysobject_p,
+INSTANTIATE_TEST_SUITE_P(sysobject_c, sysobject_p,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 
@@ -277,5 +277,5 @@ TEST_P(sysobject_mock_p, xfpga_fpgaGetSize) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysobject_mock_p);
-INSTANTIATE_TEST_CASE_P(sysobject_c, sysobject_mock_p,
+INSTANTIATE_TEST_SUITE_P(sysobject_c, sysobject_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));

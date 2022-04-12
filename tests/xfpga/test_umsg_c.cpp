@@ -358,7 +358,7 @@ TEST_P(umsg_c_p, test_umsg_drv_08_DISABLED) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(umsg_c_p);
-INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_p, ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
+INSTANTIATE_TEST_SUITE_P(umsg_c, umsg_c_p, ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
 
 class umsg_c_mcp_p : public umsg_c_p {
 };
@@ -398,7 +398,7 @@ TEST_P(umsg_c_mcp_p, test_umsg_drv_04_DISABLED) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(umsg_c_mcp_p);
-INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_mcp_p,
+INSTANTIATE_TEST_SUITE_P(umsg_c, umsg_c_mcp_p,
                         ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
 
 class umsg_c_mock_p : public umsg_c_p {
@@ -618,6 +618,6 @@ TEST_P(umsg_c_mock_p, test_umsg_09_DISABLED) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(umsg_c_mock_p);
-INSTANTIATE_TEST_CASE_P(umsg_c, umsg_c_mock_p,
+INSTANTIATE_TEST_SUITE_P(umsg_c, umsg_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p"})));
 

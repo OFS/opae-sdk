@@ -245,6 +245,6 @@ TEST_P(sysobject_cxx_p, read_bytes) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysobject_cxx_p);
-INSTANTIATE_TEST_CASE_P(sysobject_cxx, sysobject_cxx_p,
+INSTANTIATE_TEST_SUITE_P(sysobject_cxx, sysobject_cxx_p,
          ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));
 

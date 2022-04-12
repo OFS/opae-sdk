@@ -187,7 +187,7 @@ TEST_P(metrics_max10_c_p, test_metric_max10_2) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_max10_c_p);
-INSTANTIATE_TEST_CASE_P(metrics_max10_c, metrics_max10_c_p,
+INSTANTIATE_TEST_SUITE_P(metrics_max10_c, metrics_max10_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({"dfl-n3000"})));
 
 class metrics_invalid_max10_c_p : public metrics_max10_c_p {};
@@ -213,7 +213,7 @@ TEST_P(metrics_invalid_max10_c_p, test_metric_max10_3) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_invalid_max10_c_p);
-INSTANTIATE_TEST_CASE_P(metrics_max10_c, metrics_invalid_max10_c_p,
+INSTANTIATE_TEST_SUITE_P(metrics_max10_c, metrics_invalid_max10_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
 
 
@@ -247,5 +247,5 @@ TEST_P(metrics_max10_vc_c_p, test_metric_max10_4) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_max10_vc_c_p);
-INSTANTIATE_TEST_CASE_P(metrics_max10_c, metrics_max10_vc_c_p,
+INSTANTIATE_TEST_SUITE_P(metrics_max10_c, metrics_max10_vc_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-d5005" })));

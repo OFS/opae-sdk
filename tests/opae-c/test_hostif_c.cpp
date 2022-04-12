@@ -120,7 +120,7 @@ TEST_P(hostif_c_p, release_from_ifc) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(hostif_c_p);
-INSTANTIATE_TEST_CASE_P(hostif_c, hostif_c_p, 
+INSTANTIATE_TEST_SUITE_P(hostif_c, hostif_c_p, 
                         ::testing::ValuesIn(test_platform::platforms({})));
 
 class hostif_c_mock_p : public hostif_c_p{
@@ -140,6 +140,6 @@ TEST_P(hostif_c_mock_p, assign_port) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(hostif_c_mock_p);
-INSTANTIATE_TEST_CASE_P(hostif_c, hostif_c_mock_p, 
+INSTANTIATE_TEST_SUITE_P(hostif_c, hostif_c_mock_p, 
                         ::testing::ValuesIn(test_platform::mock_platforms({})));
 

@@ -157,7 +157,7 @@ TEST_P(xfpga_plugin_c_p, test_plugin_2) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(xfpga_plugin_c_p);
-INSTANTIATE_TEST_CASE_P(xfpga_plugin_c, xfpga_plugin_c_p,
+INSTANTIATE_TEST_SUITE_P(xfpga_plugin_c, xfpga_plugin_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({"skx-p","dcp-rc"})));
 
 class xfpga_plugin_mock_c_p : public ::testing::TestWithParam<std::string> {
@@ -177,6 +177,6 @@ TEST_P(xfpga_plugin_mock_c_p, test_plugin_neg) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(xfpga_plugin_mock_c_p);
-INSTANTIATE_TEST_CASE_P(xfpga_plugin_mock_c, xfpga_plugin_mock_c_p,
+INSTANTIATE_TEST_SUITE_P(xfpga_plugin_mock_c, xfpga_plugin_mock_c_p,
      ::testing::ValuesIn(test_platform::mock_platforms()));
 

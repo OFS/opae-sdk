@@ -218,5 +218,5 @@ TEST_P(buffer_cxx_core, read_write) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(buffer_cxx_core);
-INSTANTIATE_TEST_CASE_P(buffer, buffer_cxx_core,
+INSTANTIATE_TEST_SUITE_P(buffer, buffer_cxx_core,
                         ::testing::ValuesIn(test_platform::keys(true)));

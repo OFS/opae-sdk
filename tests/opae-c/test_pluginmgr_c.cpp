@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -234,7 +234,7 @@ TEST_P(pluginmgr_c_p, bad_final_all) {
   EXPECT_EQ(2, test_plugin_finalize_called);
 }
 
-INSTANTIATE_TEST_CASE_P(pluginmgr_c, pluginmgr_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_SUITE_P(pluginmgr_c, pluginmgr_c_p, ::testing::ValuesIn(test_platform::keys(true)));
 
 const char *plugin_cfg_1 = R"plug(
 {
@@ -598,5 +598,5 @@ TEST_P(pluginmgr_cfg_p, find_and_parse_cfg) {
   opae_plugin_mgr_reset_cfg(); 
 }
 
-INSTANTIATE_TEST_CASE_P(pluginmgr_cfg, pluginmgr_cfg_p,
+INSTANTIATE_TEST_SUITE_P(pluginmgr_cfg, pluginmgr_cfg_p,
                         ::testing::ValuesIn(_opae_home_configs));

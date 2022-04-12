@@ -252,7 +252,7 @@ TEST_P(hello_fpga_c_p, main0) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(hello_fpga_c_p);
-INSTANTIATE_TEST_CASE_P(hello_fpga_c, hello_fpga_c_p,
+INSTANTIATE_TEST_SUITE_P(hello_fpga_c, hello_fpga_c_p,
                         ::testing::ValuesIn(test_platform::keys(true)));
 
 class mock_hello_fpga_c_p : public hello_fpga_c_p {
@@ -285,7 +285,7 @@ TEST_P(mock_hello_fpga_c_p, main1) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_hello_fpga_c_p);
-INSTANTIATE_TEST_CASE_P(mock_hello_fpga_c, mock_hello_fpga_c_p,
+INSTANTIATE_TEST_SUITE_P(mock_hello_fpga_c, mock_hello_fpga_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"skx-p", "dcp-rc"})));
 
 class hw_hello_fpga_c_p : public mock_hello_fpga_c_p {
@@ -314,5 +314,5 @@ TEST_P(hw_hello_fpga_c_p, main1) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(hw_hello_fpga_c_p);
-INSTANTIATE_TEST_CASE_P(hw_hello_fpga_c, hw_hello_fpga_c_p,
+INSTANTIATE_TEST_SUITE_P(hw_hello_fpga_c, hw_hello_fpga_c_p,
                         ::testing::ValuesIn(test_platform::hw_platforms({"skx-p","dcp-rc"})));

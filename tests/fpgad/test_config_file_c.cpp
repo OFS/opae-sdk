@@ -456,7 +456,7 @@ TEST_P(fpgad_config_file_c_p, process_plugin8) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_config_file_c_p);
-INSTANTIATE_TEST_CASE_P(fpgad_config_file_c, fpgad_config_file_c_p,
+INSTANTIATE_TEST_SUITE_P(fpgad_config_file_c, fpgad_config_file_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
 
 
@@ -683,7 +683,7 @@ TEST_P(fpgad_config_file_devices_p, process_plugin_devices9) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_config_file_devices_p);
-INSTANTIATE_TEST_CASE_P(fpgad_config_file_c, fpgad_config_file_devices_p,
+INSTANTIATE_TEST_SUITE_P(fpgad_config_file_c, fpgad_config_file_devices_p,
                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
 
 
@@ -823,7 +823,7 @@ TEST_P(mock_fpgad_config_file_c_p, process_plugin10) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_fpgad_config_file_c_p);
-INSTANTIATE_TEST_CASE_P(fpgad_config_file_c, mock_fpgad_config_file_c_p,
+INSTANTIATE_TEST_SUITE_P(fpgad_config_file_c, mock_fpgad_config_file_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
 
 
@@ -875,5 +875,5 @@ TEST_P(mock_fpgad_config_file_devices_p, process_plugin_devices8) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_fpgad_config_file_devices_p);
-INSTANTIATE_TEST_CASE_P(fpgad_config_file_c, mock_fpgad_config_file_devices_p,
+INSTANTIATE_TEST_SUITE_P(fpgad_config_file_c, mock_fpgad_config_file_devices_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));

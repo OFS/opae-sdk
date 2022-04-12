@@ -100,5 +100,5 @@ TEST_P(reset_c_p, success) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reset_c_p);
-INSTANTIATE_TEST_CASE_P(reset_c, reset_c_p, 
+INSTANTIATE_TEST_SUITE_P(reset_c, reset_c_p, 
                         ::testing::ValuesIn(test_platform::platforms({})));

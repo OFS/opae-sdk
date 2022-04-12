@@ -36,6 +36,10 @@ function(opae_load_gtest)
                               GIT_URL https://github.com/google/googletest
                               GIT_TAG release-1.11.0
                               PRESERVE_REPOS ${OPAE_PRESERVE_REPOS})
+
+    set(GTEST_INCLUDE_DIR ${gtest_ROOT}/googletest/include CACHE PATH "gtest include directory" FORCE)
+    set(GTEST_LIBRARY ${LIBRARY_OUTPUT_PATH}/libgtest.a CACHE PATH "path to gtest library" FORCE)
+    set(GTEST_MAIN_LIBRARY ${LIBRARY_OUTPUT_PATH}/libgtest_main.a CACHE PATH "path to gtest main library" FORCE)
 endfunction()
 
 function(opae_test_add)
@@ -81,7 +85,7 @@ function(opae_test_add)
 	    ${OPAE_LIB_SOURCE}/plugins/xfpga
 	    ${OPAE_LIB_SOURCE}/libopae-c
             ${opae-test_ROOT}/framework
-            ${GTEST_INCLUDE_DIRS})
+            ${GTEST_INCLUDE_DIR})
 
     if(${OPAE_TEST_ADD_TEST_FPGAD})
         target_include_directories(${OPAE_TEST_ADD_TARGET}
@@ -94,7 +98,8 @@ function(opae_test_add)
         ${OPAE_TEST_LIBRARIES}
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
-        gtest_main
+        ${GTEST_LIBRARY}
+        ${GTEST_MAIN_LIBRARY}
         ${OPAE_TEST_ADD_LIBS})
 
     opae_coverage_build(TARGET ${OPAE_TEST_ADD_TARGET}

@@ -24,7 +24,7 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.10)
 
 # projectname is the same as the main-executable
 project(framework)
@@ -37,19 +37,29 @@ check_cxx_compiler_flag("-Wno-error=frame-address"
   CXX_SUPPORTS_NO_ERROR_FRAME_ADDRESS)
 
 opae_add_shared_library(TARGET test_system
-    SOURCE mock/test_system.cpp mock/ioctl_handlers.cpp
-    LIBS fpga_db dl
+    SOURCE
+        mock/test_system.cpp
+	mock/ioctl_handlers.cpp
+        mock/opae_fixtures.cpp
+    LIBS
+        opae-c
+        fpga_db
+        dl
 )
 
 if (CXX_SUPPORTS_NO_ERROR_FRAME_ADDRESS)
   set_target_properties(test_system PROPERTIES COMPILE_FLAGS "-Wno-error=frame-address")
 endif()
 
-target_include_directories(test_system PUBLIC
-  $<BUILD_INTERFACE:${OPAE_INCLUDE_PATH}>
-  PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-          $<BUILD_INTERFACE:${OPAE_LIB_SOURCE}/libopae-c>
-	  $<BUILD_INTERFACE:${OPAE_LIB_SOURCE}/plugins/xfpga>)
+target_include_directories(test_system
+    PUBLIC
+        $<BUILD_INTERFACE:${OPAE_INCLUDE_PATH}>
+        $<BUILD_INTERFACE:${GTEST_INCLUDE_DIR}>
+    PRIVATE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${OPAE_LIB_SOURCE}/libopae-c>
+        $<BUILD_INTERFACE:${OPAE_LIB_SOURCE}/plugins/xfpga>
+)
 
 opae_add_shared_library(TARGET fpga_db
     SOURCE platform/fpga_hw.cpp

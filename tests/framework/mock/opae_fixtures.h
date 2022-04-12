@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2019, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,19 +24,32 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 /*
- * mock_opae.h
+ * opae_fixtures.h
  */
 #pragma once
-
-
 
 #include <opae/fpga.h>
 #include <dlfcn.h>
 #include "gtest/gtest.h"
 #include "test_system.h"
 
+#include <string>
+#include <vector>
+
 namespace opae {
 namespace testing {
+
+class opae_p : public ::testing::TestWithParam<std::string> {
+ protected:
+
+
+
+  std::vector<fpga_token> device_tokens_;
+
+ private:
+  uint32_t num_tokens_for(fpga_properties filter);
+  void enumerate_device_tokens();
+};
 
 extern const char xfpga_[] = "xfpga_";
 extern const char none_[] = "";
