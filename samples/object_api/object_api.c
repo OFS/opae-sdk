@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -61,7 +61,7 @@ struct {
 	void *param;
 } cleanup[MAX_CLEANUP];
 
-static int cleanup_size;
+STATIC int cleanup_size = 0;
 
 #define ADD_TO_CLEANUP(func, p)                                         \
 do {									\

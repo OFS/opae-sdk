@@ -35,6 +35,8 @@ extern struct config options;
 void print_err(const char*, fpga_result);
 fpga_result parse_args(int argc, char* argv[]);
 int object_api_main(int argc, char* argv[]);
+
+extern int cleanup_size;
 }
 
 #include <config.h>
@@ -61,6 +63,8 @@ class object_api_c_p : public ::testing::TestWithParam<std::string> {
 
     optind = 0;
     options_ = options;
+
+    cleanup_size = 0;
   }
 
   virtual void TearDown() override {
