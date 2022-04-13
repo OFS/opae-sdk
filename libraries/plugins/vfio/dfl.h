@@ -31,7 +31,7 @@
 typedef struct _dfh {
 	uint64_t id : 12;
 	uint64_t major_rev : 4;
-	uint64_t  next : 24;
+	uint64_t next : 24;
 	uint64_t eol : 1;
 	uint64_t reserved41 : 7;
 	uint64_t minor_rev : 4;
@@ -43,7 +43,7 @@ typedef volatile dfh *dfh_ptr;
 typedef struct _dfh0 {
 	uint64_t cci_version : 12;
 	uint64_t cci_minor_rev : 4;
-	uint64_t  next : 24;
+	uint64_t next : 24;
 	uint64_t eol : 1;
 	uint64_t reserved41 : 20;
 	uint64_t type : 4;
@@ -94,7 +94,7 @@ typedef volatile port_control *port_control_ptr;
 #define PORT_NEXT_AFU 0x18
 typedef struct _port_next_afu {
 	uint64_t port_afu_dfh_offset : 24;
-	uint64_t reserved24: 40;
+	uint64_t reserved24 : 40;
 } port_next_afu;
 typedef volatile port_next_afu *port_next_afu_ptr;
 
@@ -127,9 +127,11 @@ typedef struct _dfl {
 	dfh *next;
 } dfl;
 
-#define for_each_dfh(H, ADDR)
+#define for_each_dfh(H, ADDR)                                                  \
 	for (dfh_ptr H = (dfh_ptr)ADDR; H; H = next_dfh(H))
-int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio, int region);
+
+int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio,
+	           int region);
 int walk_port(vfio_token *parent, uint32_t region, volatile uint8_t *mmio);
 
 #endif /* !VFIO_DFL_H */
