@@ -36,6 +36,12 @@ include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-Wno-error=frame-address"
   CXX_SUPPORTS_NO_ERROR_FRAME_ADDRESS)
 
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(GTEST_LIB ${GTEST_LIBRARY_DEBUG})
+else()
+    set(GTEST_LIB ${GTEST_LIBRARY})
+endif()
+
 opae_add_shared_library(TARGET test_system
     SOURCE
         mock/test_system.cpp
@@ -45,6 +51,7 @@ opae_add_shared_library(TARGET test_system
         opae-c
         fpga_db
         dl
+	${GTEST_LIB}
 )
 
 if (CXX_SUPPORTS_NO_ERROR_FRAME_ADDRESS)

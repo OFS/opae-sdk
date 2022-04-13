@@ -95,12 +95,6 @@ function(opae_test_add)
                 ${opae-test_ROOT}/framework/mock/test_fpgad)
     endif(${OPAE_TEST_ADD_TEST_FPGAD})
 
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-        set(GTEST_LIBRARIES ${GTEST_LIBRARY_DEBUG} ${GTEST_MAIN_LIBRARY_DEBUG})
-    else()
-        set(GTEST_LIBRARIES ${GTEST_LIBRARY} ${GTEST_MAIN_LIBRARY})
-    endif()
-
     target_link_libraries(${OPAE_TEST_ADD_TARGET}
         ${CMAKE_THREAD_LIBS_INIT}
         ${OPAE_TEST_LIBRARIES}
