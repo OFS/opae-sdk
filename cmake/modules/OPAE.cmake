@@ -57,7 +57,7 @@ include(FindUdev)
 
 include(OPAECompiler)
 if(OPAE_BUILD_TESTS)
-    find_package(GTest 1.8.0)
+    find_package(GTest 1.11.0)
 endif(OPAE_BUILD_TESTS)
 include(OPAETest)
 include(OPAEPackaging)
