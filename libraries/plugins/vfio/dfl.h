@@ -31,22 +31,24 @@
 typedef struct _dfh {
 	uint64_t id : 12;
 	uint64_t major_rev : 4;
-	uint64_t  next : 24;
+	uint64_t next : 24;
 	uint64_t eol : 1;
 	uint64_t reserved41 : 7;
 	uint64_t minor_rev : 4;
 	uint64_t version : 8;
 	uint64_t type : 4;
 } dfh;
+typedef volatile dfh *dfh_ptr;
 
 typedef struct _dfh0 {
 	uint64_t cci_version : 12;
 	uint64_t cci_minor_rev : 4;
-	uint64_t  next : 24;
+	uint64_t next : 24;
 	uint64_t eol : 1;
 	uint64_t reserved41 : 20;
 	uint64_t type : 4;
 } dfh0;
+typedef volatile dfh0 *dfh0_ptr;
 
 typedef struct _port_offset {
 	uint64_t offset : 24;
@@ -59,6 +61,7 @@ typedef struct _port_offset {
 	uint64_t implemented : 1;
 	uint64_t reserved61 : 3;
 } port_offset;
+typedef volatile port_offset *port_offset_ptr;
 
 #define PR_FEATURE_ID 0x5
 #define PR_INTFC_ID_LO 0xA8
@@ -74,6 +77,7 @@ typedef struct _bitstream_id {
 	uint64_t ver_minor : 4;
 	uint64_t ver_major : 4;
 } bitstream_id;
+typedef volatile bitstream_id *bitstream_id_ptr;
 
 #define BITSTREAM_MD 0x68
 #define PORT_CONTROL 0x38
@@ -85,12 +89,14 @@ typedef struct _port_control {
 	uint64_t port_reset_ack : 1;
 	uint64_t reserved5 : 59;
 } port_control;
+typedef volatile port_control *port_control_ptr;
 
 #define PORT_NEXT_AFU 0x18
 typedef struct _port_next_afu {
 	uint64_t port_afu_dfh_offset : 24;
-	uint64_t reserved24: 40;
+	uint64_t reserved24 : 40;
 } port_next_afu;
+typedef volatile port_next_afu *port_next_afu_ptr;
 
 #define FAB_CAPABILITY 0x30
 typedef struct _fab_capability {
@@ -103,6 +109,7 @@ typedef struct _fab_capability {
 	uint64_t address_width : 6;
 	uint64_t reserved30 : 34;
 } fab_capability;
+typedef volatile fab_capability *fab_capability_ptr;
 
 #define PORT_CAPABILITY 0x30
 typedef struct _port_capability {
@@ -113,14 +120,18 @@ typedef struct _port_capability {
 	uint64_t num_supported_int : 4;
 	uint64_t reserved36 : 28;
 } port_capability;
+typedef volatile port_capability *port_capability_ptr;
 
 typedef struct _dfl {
 	dfh h;
 	dfh *next;
 } dfl;
 
-#define for_each_dfh(H, ADDR) for (dfh *H = (dfh *)ADDR; H; H = next_dfh(H))
-int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio, int region);
+#define for_each_dfh(H, ADDR)                                                  \
+	for (dfh_ptr H = (dfh_ptr)ADDR; H; H = next_dfh(H))
+
+int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio,
+	int region);
 int walk_port(vfio_token *parent, uint32_t region, volatile uint8_t *mmio);
 
 #endif /* !VFIO_DFL_H */
