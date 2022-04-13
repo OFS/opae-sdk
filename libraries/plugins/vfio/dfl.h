@@ -131,7 +131,7 @@ typedef struct _dfl {
 	for (dfh_ptr H = (dfh_ptr)ADDR; H; H = next_dfh(H))
 
 int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio,
-	           int region);
+	int region);
 int walk_port(vfio_token *parent, uint32_t region, volatile uint8_t *mmio);
 
 #endif /* !VFIO_DFL_H */
