@@ -42,7 +42,8 @@ static fpga_result legacy_port_reset(const pci_device_t *p,
 				     volatile uint8_t *port_base)
 {
 	(void)p;
-	port_control *cntrl = (port_control *)(port_base + PORT_CONTROL);
+	port_control_ptr cntrl =
+		(port_control_ptr)(port_base + PORT_CONTROL);
 
 	cntrl->port_reset = 1;
 	(void)*cntrl;
@@ -63,10 +64,10 @@ static fpga_result legacy_port_reset(const pci_device_t *p,
 }
 
 
-static inline dfh *next_dfh(dfh *h)
+static inline dfh_ptr next_dfh(dfh_ptr h)
 {
 	if (h && h->next && !h->eol)
-		return (dfh *)(((uint8_t *)h)+h->next);
+		return (dfh_ptr)(((volatile uint8_t *)h)+h->next);
 	return NULL;
 }
 
@@ -76,8 +77,8 @@ int walk_port(vfio_token *parent, uint32_t region, volatile uint8_t *mmio)
 {
 	//walk_port
 	vfio_token *port = get_token(parent->device, region, FPGA_ACCELERATOR);
-	port_next_afu *next_afu = (port_next_afu *)(mmio+PORT_NEXT_AFU);
-	port_capability *cap = (port_capability *)(mmio+PORT_CAPABILITY);
+	port_next_afu_ptr next_afu = (port_next_afu_ptr)(mmio+PORT_NEXT_AFU);
+	port_capability_ptr cap = (port_capability_ptr)(mmio+PORT_CAPABILITY);
 
 	port->parent = parent;
 	port->mmio_size = cap->mmio_size;
@@ -107,7 +108,7 @@ int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio, int r
 	get_guid(1+(uint64_t *)mmio, fme->hdr.guid);
 	fme->bitstream_id = *(uint64_t *)(mmio+BITSTREAM_ID);
 	fme->bitstream_mdata = *(uint64_t *)(mmio+BITSTREAM_MD);
-	fab_capability *cap = (fab_capability *)(mmio+FAB_CAPABILITY);
+	fab_capability_ptr cap = (fab_capability_ptr)(mmio+FAB_CAPABILITY);
 
 	fme->num_ports = cap->num_ports;
 	for_each_dfh(h, mmio) {
@@ -118,7 +119,8 @@ int walk_fme(pci_device_t *p, struct opae_vfio *v, volatile uint8_t *mmio, int r
 		}
 	}
 	for (size_t i = 0; i < FME_PORTS; ++i) {
-		port_offset *offset_r = (port_offset *)(mmio+fme_ports[i]);
+		port_offset_ptr offset_r =
+			(port_offset_ptr)(mmio+fme_ports[i]);
 
 		if (!offset_r->implemented)
 			continue;
