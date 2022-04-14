@@ -557,3 +557,19 @@ add_custom_target(package_deb
 )
 
 include(CPack)
+
+install(EXPORT opae-targets
+    DESTINATION lib/opae-${OPAE_VERSION})
+configure_file(
+    ${CMAKE_SOURCE_DIR}/cmake/pkg/opae-config.cmake.in
+    ${CMAKE_BINARY_DIR}/cmake/pkg/opae-config.cmake @ONLY)
+
+configure_file(
+    ${CMAKE_SOURCE_DIR}/cmake/pkg/opae-config-version.cmake.in
+    ${CMAKE_BINARY_DIR}/cmake/pkg/opae-config-version.cmake @ONLY)
+
+install(FILES
+    ${CMAKE_BINARY_DIR}/cmake/pkg/opae-config.cmake
+    ${CMAKE_BINARY_DIR}/cmake/pkg/opae-config-version.cmake
+    DESTINATION lib/opae-${OPAE_VERSION})
+

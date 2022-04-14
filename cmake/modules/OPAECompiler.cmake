@@ -207,6 +207,7 @@ function(opae_add_executable)
         endif(OPAE_ADD_EXECUTABLE_DESTINATION)
 
         install(TARGETS ${OPAE_ADD_EXECUTABLE_TARGET}
+                EXPORT opae-targets
                 RUNTIME DESTINATION ${dest}
                 COMPONENT ${OPAE_ADD_EXECUTABLE_COMPONENT})
     endif(OPAE_ADD_EXECUTABLE_COMPONENT)
@@ -260,6 +261,7 @@ function(opae_add_shared_library)
         endif(OPAE_ADD_SHARED_LIBRARY_DESTINATION)
 
         install(TARGETS ${OPAE_ADD_SHARED_LIBRARY_TARGET}
+                EXPORT opae-targets
                 LIBRARY DESTINATION ${dest}
                 COMPONENT ${OPAE_ADD_SHARED_LIBRARY_COMPONENT})
     endif(OPAE_ADD_SHARED_LIBRARY_COMPONENT)
