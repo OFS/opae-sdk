@@ -1,5 +1,5 @@
 #!/usr/bin/cmake -P
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2020-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -57,7 +57,7 @@ include(FindUdev)
 
 include(OPAECompiler)
 if(OPAE_BUILD_TESTS)
-    find_package(GTest 1.11.0)
+    find_package(GTest ${GTEST_VERSION})
 endif(OPAE_BUILD_TESTS)
 include(OPAETest)
 include(OPAEPackaging)
