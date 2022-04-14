@@ -144,4 +144,4 @@ TEST_P(events_cxx_core, get_os_object) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(events_cxx_core);
-INSTANTIATE_TEST_CASE_P(events, events_cxx_core, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_SUITE_P(events, events_cxx_core, ::testing::ValuesIn(test_platform::keys(true)));

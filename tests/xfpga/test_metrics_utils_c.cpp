@@ -350,7 +350,7 @@ TEST_P(metrics_utils_c_p, test_metric_utils_15) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_utils_c_p);
-INSTANTIATE_TEST_CASE_P(metrics_utils_c, metrics_utils_c_p,
+INSTANTIATE_TEST_SUITE_P(metrics_utils_c, metrics_utils_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
 
 class metrics_utils_dcp_c_p : public ::testing::TestWithParam<std::string> {
@@ -446,5 +446,5 @@ TEST_P(metrics_utils_dcp_c_p, test_metric_utils_14) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_utils_dcp_c_p);
-INSTANTIATE_TEST_CASE_P(metrics_utils_c, metrics_utils_dcp_c_p,
+INSTANTIATE_TEST_SUITE_P(metrics_utils_c, metrics_utils_dcp_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));

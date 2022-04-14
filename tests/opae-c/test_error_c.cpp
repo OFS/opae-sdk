@@ -163,5 +163,5 @@ TEST_P(error_c_p, clear_all) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(error_c_p);
-INSTANTIATE_TEST_CASE_P(error_c, error_c_p,
+INSTANTIATE_TEST_SUITE_P(error_c, error_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));

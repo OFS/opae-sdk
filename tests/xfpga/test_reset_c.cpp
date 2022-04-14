@@ -152,7 +152,8 @@ TEST_P(reset_c_p, valid_port_reset) {
 } 
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reset_c_p);
-INSTANTIATE_TEST_CASE_P(reset_c, reset_c_p, ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005","dfl-n6000" })));
+INSTANTIATE_TEST_SUITE_P(reset_c, reset_c_p,
+                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005","dfl-n6000" })));
 
 class reset_c_mock_p : public reset_c_p {
  protected:
@@ -172,5 +173,5 @@ TEST_P(reset_c_mock_p, test_port_drv_reset_01) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reset_c_mock_p);
-INSTANTIATE_TEST_CASE_P(reset_c, reset_c_mock_p,
+INSTANTIATE_TEST_SUITE_P(reset_c, reset_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));

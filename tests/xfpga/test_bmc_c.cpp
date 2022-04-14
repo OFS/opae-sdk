@@ -559,5 +559,5 @@ TEST_P(bmc_c_p, test_bmc_7) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(bmc_c_p);
-INSTANTIATE_TEST_CASE_P(bmc_c, bmc_c_p,
+INSTANTIATE_TEST_SUITE_P(bmc_c, bmc_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));

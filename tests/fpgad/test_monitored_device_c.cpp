@@ -109,7 +109,7 @@ TEST_P(fpgad_monitored_device_c_p, enum_err) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_monitored_device_c_p);
-INSTANTIATE_TEST_CASE_P(fpgad_monitored_device_c, fpgad_monitored_device_c_p,
+INSTANTIATE_TEST_SUITE_P(fpgad_monitored_device_c, fpgad_monitored_device_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
 
 class mock_fpgad_monitored_device_c_p : public ::testing::TestWithParam<std::string> {
@@ -150,5 +150,5 @@ TEST_P(mock_fpgad_monitored_device_c_p, enum_err0) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_fpgad_monitored_device_c_p);
-INSTANTIATE_TEST_CASE_P(mock_fpgad_monitored_device_c, mock_fpgad_monitored_device_c_p,
+INSTANTIATE_TEST_SUITE_P(mock_fpgad_monitored_device_c, mock_fpgad_monitored_device_c_p,
   ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));

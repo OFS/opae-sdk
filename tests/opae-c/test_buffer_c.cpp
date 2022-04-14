@@ -42,7 +42,7 @@ extern "C" {
 #include <string>
 #include <vector>
 #include <unistd.h>
-#include "mock/mock_opae.h"
+#include "mock/opae_fixtures.h"
 
 using namespace opae::testing;
 
@@ -163,5 +163,5 @@ TEST_P(buffer_c_p, neg_test2) {
 
 // TODO: re-enable these for n6000
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(buffer_c_p);
-INSTANTIATE_TEST_CASE_P(buffer_c, buffer_c_p,
+INSTANTIATE_TEST_SUITE_P(buffer_c, buffer_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-d5005" })));

@@ -241,7 +241,7 @@ TEST_P(hello_events_c_p, main1) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(hello_events_c_p);
-INSTANTIATE_TEST_CASE_P(hello_events_c, hello_events_c_p,
+INSTANTIATE_TEST_SUITE_P(hello_events_c, hello_events_c_p,
                         ::testing::ValuesIn(test_platform::keys(true)));
 
 
@@ -298,7 +298,7 @@ TEST_P(mock_hello_events_c_fpgad_p, main2) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_hello_events_c_fpgad_p);
-INSTANTIATE_TEST_CASE_P(mock_hello_events_c_fpgad, mock_hello_events_c_fpgad_p,
+INSTANTIATE_TEST_SUITE_P(mock_hello_events_c_fpgad, mock_hello_events_c_fpgad_p,
   ::testing::ValuesIn(test_platform::mock_platforms()));
 
 
@@ -328,5 +328,5 @@ TEST_P(hw_hello_events_c_fpgad_p, main2) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(hw_hello_events_c_fpgad_p);
-INSTANTIATE_TEST_CASE_P(hw_hello_events_c_fpgad, hw_hello_events_c_fpgad_p,
+INSTANTIATE_TEST_SUITE_P(hw_hello_events_c_fpgad, hw_hello_events_c_fpgad_p,
   ::testing::ValuesIn(test_platform::hw_platforms({}, fpga_driver::linux_intel)));

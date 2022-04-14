@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2021, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -487,5 +487,5 @@ TEST_P(argsfilter_c_p, addr_bdf) {
     EXPECT_EQ(result, 0);
 }
 
-INSTANTIATE_TEST_CASE_P(argsfilter_c, argsfilter_c_p,
+INSTANTIATE_TEST_SUITE_P(argsfilter_c, argsfilter_c_p,
         ::testing::ValuesIn(test_platform::platforms()));

@@ -306,6 +306,6 @@ TEST_P(fpgainfo_board_c_p, phy_group_info) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgainfo_board_c_p);
-INSTANTIATE_TEST_CASE_P(fpgainfo_c, fpgainfo_board_c_p,
+INSTANTIATE_TEST_SUITE_P(fpgainfo_c, fpgainfo_board_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));
 

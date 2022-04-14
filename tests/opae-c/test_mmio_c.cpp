@@ -255,5 +255,5 @@ TEST_P(mmio_c_p, mmio512_neg_test) {
 #endif // TEST_SUPPORTS_AVX512
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mmio_c_p);
-INSTANTIATE_TEST_CASE_P(mmio_c, mmio_c_p,
+INSTANTIATE_TEST_SUITE_P(mmio_c, mmio_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));

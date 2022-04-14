@@ -257,5 +257,5 @@ TEST_P(fpga_metrics_c_p, main2) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpga_metrics_c_p);
-INSTANTIATE_TEST_CASE_P(fpgametrics_c, fpga_metrics_c_p,
+INSTANTIATE_TEST_SUITE_P(fpgametrics_c, fpga_metrics_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000" })));

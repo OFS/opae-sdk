@@ -819,7 +819,7 @@ TEST_P(fpgaconf_c_p, circular_symlink) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgaconf_c_p);
-INSTANTIATE_TEST_CASE_P(fpgaconf_c, fpgaconf_c_p,
+INSTANTIATE_TEST_SUITE_P(fpgaconf_c, fpgaconf_c_p,
                         ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
 
 
@@ -1001,6 +1001,6 @@ TEST_P(fpgaconf_c_mock_p, prog_bs2) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgaconf_c_mock_p);
-INSTANTIATE_TEST_CASE_P(fpgaconf_c, fpgaconf_c_mock_p,
+INSTANTIATE_TEST_SUITE_P(fpgaconf_c, fpgaconf_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
 

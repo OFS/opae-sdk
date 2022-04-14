@@ -335,5 +335,5 @@ TEST_P(afu_metrics_c_p, test_afu_metrics_04) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(afu_metrics_c_p);
-INSTANTIATE_TEST_CASE_P(afu_metrics_c, afu_metrics_c_p,
+INSTANTIATE_TEST_SUITE_P(afu_metrics_c, afu_metrics_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p", "dcp-rc","dcp-vc" })));

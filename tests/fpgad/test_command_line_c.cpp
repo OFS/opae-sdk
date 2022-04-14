@@ -424,5 +424,5 @@ TEST_P(fpgad_command_line_c_p, symlink4) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_command_line_c_p);
-INSTANTIATE_TEST_CASE_P(fpgad_command_line_c, fpgad_command_line_c_p,
+INSTANTIATE_TEST_SUITE_P(fpgad_command_line_c, fpgad_command_line_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));

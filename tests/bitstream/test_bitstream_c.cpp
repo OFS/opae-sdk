@@ -360,7 +360,7 @@ TEST_P(bitstream_c_p, unload_err1) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(bitstream_c_p);
-INSTANTIATE_TEST_CASE_P(bitstream_c, bitstream_c_p,
+INSTANTIATE_TEST_SUITE_P(bitstream_c, bitstream_c_p,
     ::testing::ValuesIn(test_platform::platforms({})));
 
 
@@ -400,5 +400,5 @@ TEST_P(mock_bitstream_c_p, resolve_err2) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_bitstream_c_p);
-INSTANTIATE_TEST_CASE_P(bitstream_c, mock_bitstream_c_p,
+INSTANTIATE_TEST_SUITE_P(bitstream_c, mock_bitstream_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({})));

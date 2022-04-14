@@ -183,4 +183,4 @@ TEST_P(common_c_p, event_handle_check_and_lock) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(common_c_p);
-INSTANTIATE_TEST_CASE_P(common_c, common_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_SUITE_P(common_c, common_c_p, ::testing::ValuesIn(test_platform::keys(true)));

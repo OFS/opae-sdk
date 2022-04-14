@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -526,5 +526,5 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
       unlink(tmpfile3_);
 }
 
-INSTANTIATE_TEST_CASE_P(init_ase_cfg, init_ase_cfg_p,
+INSTANTIATE_TEST_SUITE_P(init_ase_cfg, init_ase_cfg_p,
                         ::testing::ValuesIn(_ase_home_configs));

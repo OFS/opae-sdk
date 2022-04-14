@@ -802,7 +802,7 @@ TEST_P(metadatav1_c_p, parse_v1_ok) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metadatav1_c_p);
-INSTANTIATE_TEST_CASE_P(metadatav1_c, metadatav1_c_p,
+INSTANTIATE_TEST_SUITE_P(metadatav1_c, metadatav1_c_p,
     ::testing::ValuesIn(test_platform::platforms({})));
 
 
@@ -893,5 +893,5 @@ TEST_P(mock_metadatav1_c_p, parse_v1_err0) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_metadatav1_c_p);
-INSTANTIATE_TEST_CASE_P(metadatav1_c, mock_metadatav1_c_p,
+INSTANTIATE_TEST_SUITE_P(metadatav1_c, mock_metadatav1_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({})));

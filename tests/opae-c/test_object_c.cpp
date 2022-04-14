@@ -395,7 +395,7 @@ TEST_P(object_c_p, obj_close) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(object_c_p);
-INSTANTIATE_TEST_CASE_P(object_c, object_c_p,
+INSTANTIATE_TEST_SUITE_P(object_c, object_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 class object_c_mock_p : public object_c_p {
@@ -453,6 +453,6 @@ TEST_P(object_c_mock_p, obj_get_obj_err) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(object_c_mock_p);
-INSTANTIATE_TEST_CASE_P(object_c, object_c_mock_p,
+INSTANTIATE_TEST_SUITE_P(object_c, object_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 

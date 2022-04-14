@@ -96,5 +96,5 @@ TEST_P(open_c_p, mallocfails) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(open_c_p);
-INSTANTIATE_TEST_CASE_P(open_c, open_c_p, 
+INSTANTIATE_TEST_SUITE_P(open_c, open_c_p, 
                         ::testing::ValuesIn(test_platform::mock_platforms({})));

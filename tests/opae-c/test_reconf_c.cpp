@@ -110,5 +110,5 @@ TEST_P(reconf_c_p, pr) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reconf_c_p);
-INSTANTIATE_TEST_CASE_P(reconf_c, reconf_c_p,
+INSTANTIATE_TEST_SUITE_P(reconf_c, reconf_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));

@@ -327,5 +327,5 @@ TEST_P(properties_cxx_core, get_subsystem_device_id) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(properties_cxx_core);
-INSTANTIATE_TEST_CASE_P(properties, properties_cxx_core,
+INSTANTIATE_TEST_SUITE_P(properties, properties_cxx_core,
                         ::testing::ValuesIn(test_platform::keys(true)));

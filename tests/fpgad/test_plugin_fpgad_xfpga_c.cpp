@@ -480,7 +480,7 @@ TEST_P(mock_port_fpgad_xfpga_c_p, configure) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_port_fpgad_xfpga_c_p);
-INSTANTIATE_TEST_CASE_P(fpgad_c, mock_port_fpgad_xfpga_c_p,
+INSTANTIATE_TEST_SUITE_P(fpgad_c, mock_port_fpgad_xfpga_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
 
 
@@ -692,5 +692,5 @@ TEST_P(mock_fme_fpgad_xfpga_c_p, configure) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_fme_fpgad_xfpga_c_p);
-INSTANTIATE_TEST_CASE_P(fpgad_c, mock_fme_fpgad_xfpga_c_p,
+INSTANTIATE_TEST_SUITE_P(fpgad_c, mock_fme_fpgad_xfpga_c_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));

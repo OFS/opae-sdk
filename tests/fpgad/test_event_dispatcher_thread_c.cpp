@@ -164,5 +164,5 @@ TEST_P(fpgad_evt_c_p, normal_dispatch) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_evt_c_p);
-INSTANTIATE_TEST_CASE_P(fpgad_evt_c, fpgad_evt_c_p,
+INSTANTIATE_TEST_SUITE_P(fpgad_evt_c, fpgad_evt_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));

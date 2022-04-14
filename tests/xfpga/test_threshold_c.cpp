@@ -159,7 +159,7 @@ TEST_P(metrics_threshold_c_p, metrics_threshold_2) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_threshold_c_p);
-INSTANTIATE_TEST_CASE_P(metrics_threshold_c_c, metrics_threshold_c_p,
+INSTANTIATE_TEST_SUITE_P(metrics_threshold_c_c, metrics_threshold_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({"dcp-vc"})));
 
 class metrics_bmc_threshold_c_p : public metrics_threshold_c_p {};
@@ -217,7 +217,7 @@ TEST_P(metrics_bmc_threshold_c_p, metrics_threshold_4) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_bmc_threshold_c_p);
-INSTANTIATE_TEST_CASE_P(metrics_threshold_c_c, metrics_bmc_threshold_c_p,
+INSTANTIATE_TEST_SUITE_P(metrics_threshold_c_c, metrics_bmc_threshold_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
 
 class metrics_mcp_threshold_c_p : public metrics_threshold_c_p {};
@@ -246,7 +246,7 @@ TEST_P(metrics_mcp_threshold_c_p, metrics_threshold_5) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_mcp_threshold_c_p);
-INSTANTIATE_TEST_CASE_P(metrics_threshold_c_c, metrics_mcp_threshold_c_p,
+INSTANTIATE_TEST_SUITE_P(metrics_threshold_c_c, metrics_mcp_threshold_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
 
 class metrics_afu_threshold_c_p : public ::testing::TestWithParam<std::string> {
@@ -311,5 +311,5 @@ TEST_P(metrics_afu_threshold_c_p, metrics_threshold_6) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_afu_threshold_c_p);
-INSTANTIATE_TEST_CASE_P(metrics_threshold_c_c, metrics_afu_threshold_c_p,
+INSTANTIATE_TEST_SUITE_P(metrics_threshold_c_c, metrics_afu_threshold_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({"dcp-vc"})));

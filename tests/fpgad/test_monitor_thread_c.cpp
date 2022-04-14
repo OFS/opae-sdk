@@ -205,5 +205,5 @@ TEST_P(fpgad_monitor_c_p, null_response0) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_monitor_c_p);
-INSTANTIATE_TEST_CASE_P(fpgad_monitor_c, fpgad_monitor_c_p,
+INSTANTIATE_TEST_SUITE_P(fpgad_monitor_c, fpgad_monitor_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
