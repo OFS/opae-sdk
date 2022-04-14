@@ -1,0 +1,7 @@
+get_filename_component(_dir "${CMAKE_CURRENT_LIST_FILE}" PATH)
+get_filename_component(_prefix "${_dir}/../.." ABSOLUTE)
+
+# import targets
+include("${_prefix}/lib/opae-@OPAE_VERSION@/opae-targets.cmake")
+
+set(opae_INCLUDE_DIRS "${_prefix}/include/opae")
