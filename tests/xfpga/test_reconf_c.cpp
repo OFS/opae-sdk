@@ -304,7 +304,7 @@ TEST_P(reconf_c, validate_bitstream) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reconf_c);
-INSTANTIATE_TEST_CASE_P(reconf, reconf_c,
+INSTANTIATE_TEST_SUITE_P(reconf, reconf_c,
                         ::testing::ValuesIn(test_platform::platforms({})));
 
 class reconf_c_mock_p : public ::testing::TestWithParam<std::string> {
@@ -443,7 +443,7 @@ TEST_P(reconf_c_mock_p, fpga_reconf_slot_enotsup) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reconf_c_mock_p);
-INSTANTIATE_TEST_CASE_P(reconf, reconf_c_mock_p,
+INSTANTIATE_TEST_SUITE_P(reconf, reconf_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 class reconf_c_hw_skx_p : public reconf_c {
@@ -463,7 +463,7 @@ TEST_P(reconf_c_hw_skx_p, set_afu_userclock) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reconf_c_hw_skx_p);
-INSTANTIATE_TEST_CASE_P(reconf, reconf_c_hw_skx_p,
+INSTANTIATE_TEST_SUITE_P(reconf, reconf_c_hw_skx_p,
                         ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-d5005" })));
 
 class reconf_c_hw_dcp_p : public reconf_c {
@@ -483,7 +483,7 @@ TEST_P(reconf_c_hw_dcp_p, set_afu_userclock) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reconf_c_hw_dcp_p);
-INSTANTIATE_TEST_CASE_P(reconf, reconf_c_hw_dcp_p,
+INSTANTIATE_TEST_SUITE_P(reconf, reconf_c_hw_dcp_p,
                         ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-d5005" })));
 
 /**
@@ -591,5 +591,5 @@ TEST_P(reconf_c_hw_p, fpga_reconf_slot_inv_len) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reconf_c_hw_p);
-INSTANTIATE_TEST_CASE_P(reconf, reconf_c_hw_p,
+INSTANTIATE_TEST_SUITE_P(reconf, reconf_c_hw_p,
 	::testing::ValuesIn(test_platform::hw_platforms({ "dfl-n3000","dfl-d5005" })));

@@ -49,7 +49,7 @@ extern "C" {
 #include <memory>
 #include <string>
 #include <vector>
-#include "mock/mock_opae.h"
+#include "mock/opae_fixtures.h"
 #include <algorithm>
 #include <cstdarg>
 
@@ -729,7 +729,7 @@ TEST(wrapper, validate) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(enum_c_p);
-INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p,
+INSTANTIATE_TEST_SUITE_P(enum_c, enum_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-d5005" })));
 
 class enum_c_mock_p : public enum_c_p {};
@@ -747,7 +747,7 @@ TEST_P(enum_c_mock_p, clone_token02) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(enum_c_mock_p);
-INSTANTIATE_TEST_CASE_P(enum_c, enum_c_mock_p,
+INSTANTIATE_TEST_SUITE_P(enum_c, enum_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000", "dfl-d5005" })));
 
 class enum_c_err_p : public enum_c_p {};
@@ -785,7 +785,7 @@ TEST_P(enum_c_err_p, num_errors) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(enum_c_err_p);
-INSTANTIATE_TEST_CASE_P(enum_c, enum_c_err_p,
+INSTANTIATE_TEST_SUITE_P(enum_c, enum_c_err_p,
                         ::testing::ValuesIn(test_platform::platforms({"dfl-n3000", "dfl-d5005" })));
 
 class enum_c_socket_p : public enum_c_p {};
@@ -809,5 +809,5 @@ TEST_P(enum_c_socket_p, socket_id) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(enum_c_socket_p);
-INSTANTIATE_TEST_CASE_P(enum_c, enum_c_socket_p,
+INSTANTIATE_TEST_SUITE_P(enum_c, enum_c_socket_p,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));

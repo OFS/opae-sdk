@@ -453,5 +453,5 @@ TEST_P(sdl_c_p, test_fpgaClose_for_null_object) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sdl_c_p);
-INSTANTIATE_TEST_CASE_P(sdl_c, sdl_c_p, 
+INSTANTIATE_TEST_SUITE_P(sdl_c, sdl_c_p, 
                         ::testing::ValuesIn(test_platform::platforms({"dfl-n3000","dfl-d5005","dfl-n6000"})));

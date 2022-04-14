@@ -165,7 +165,7 @@ TEST_P(err_inj_c_usd_p, dfl_tests_neg) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(err_inj_c_usd_p);
-INSTANTIATE_TEST_CASE_P(err_inj_c, err_inj_c_usd_p, 
+INSTANTIATE_TEST_SUITE_P(err_inj_c, err_inj_c_usd_p, 
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 class err_inj_c_mock_p : public err_inj_c_p {
@@ -241,7 +241,7 @@ TEST_P(err_inj_c_mock_p, port_to_interface_err) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(err_inj_c_mock_p);
-INSTANTIATE_TEST_CASE_P(err_inj_c, err_inj_c_mock_p, 
+INSTANTIATE_TEST_SUITE_P(err_inj_c, err_inj_c_mock_p, 
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 
 /**

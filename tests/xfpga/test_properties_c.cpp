@@ -226,7 +226,7 @@ TEST_P(properties_c_p, valid_gets) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(properties_c_p);
-INSTANTIATE_TEST_CASE_P(properties_c, properties_c_p,
+INSTANTIATE_TEST_SUITE_P(properties_c, properties_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 /**

@@ -366,7 +366,7 @@ TEST_P(userclk_c_p, main2) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(userclk_c_p);
-INSTANTIATE_TEST_CASE_P(userclk_c, userclk_c_p,
+INSTANTIATE_TEST_SUITE_P(userclk_c, userclk_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));
 
 class userclk_c_hw_p : public userclk_c_p{
@@ -534,7 +534,7 @@ TEST_P(userclk_c_hw_p, main6) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(userclk_c_hw_p);
-INSTANTIATE_TEST_CASE_P(userclk_c, userclk_c_hw_p,
+INSTANTIATE_TEST_SUITE_P(userclk_c, userclk_c_hw_p,
                         ::testing::ValuesIn(test_platform::hw_platforms({"skx-p","dcp-rc"})));
 
 
@@ -719,6 +719,6 @@ TEST_P(userclk_c_mock_p, main6) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(userclk_c_mock_p);
-INSTANTIATE_TEST_CASE_P(userclk_c, userclk_c_mock_p,
+INSTANTIATE_TEST_SUITE_P(userclk_c, userclk_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
 

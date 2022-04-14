@@ -139,5 +139,5 @@ TEST_P(fpgad_daemonize_c_p, test) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_daemonize_c_p);
-INSTANTIATE_TEST_CASE_P(fpgad_daemonize_c, fpgad_daemonize_c_p,
+INSTANTIATE_TEST_SUITE_P(fpgad_daemonize_c, fpgad_daemonize_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));

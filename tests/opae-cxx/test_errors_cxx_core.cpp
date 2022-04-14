@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -102,4 +102,4 @@ TEST_P(errors_cxx_core, throw_error) {
 
 
 
-INSTANTIATE_TEST_CASE_P(error, errors_cxx_core, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_SUITE_P(error, errors_cxx_core, ::testing::ValuesIn(test_platform::keys(true)));

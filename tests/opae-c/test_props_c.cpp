@@ -3664,7 +3664,7 @@ TEST_P(properties_c_p, get_sub_device_id03) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(properties_c_p);
-INSTANTIATE_TEST_CASE_P(properties_c, properties_c_p,
+INSTANTIATE_TEST_SUITE_P(properties_c, properties_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));
 
 class properties_c_mock_p : public properties_c_p{
@@ -3714,6 +3714,6 @@ TEST_P(properties_c_mock_p, fpga_clone_properties02) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(properties_c_mock_p);
-INSTANTIATE_TEST_CASE_P(properties_c, properties_c_mock_p,
+INSTANTIATE_TEST_SUITE_P(properties_c, properties_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({})));
 

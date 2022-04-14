@@ -264,7 +264,7 @@ TEST_P(dummy_afu_p, main_invalid_guid) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(dummy_afu_p);
-INSTANTIATE_TEST_CASE_P(dummy_afu, dummy_afu_p,
+INSTANTIATE_TEST_SUITE_P(dummy_afu, dummy_afu_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({"dfl-d5005"})));
 
 TEST(dummy_afu, parse_pcie_address)

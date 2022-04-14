@@ -195,7 +195,7 @@ TEST_P(DISABLED_umsg_c_p, set_attr) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(DISABLED_umsg_c_p);
-INSTANTIATE_TEST_CASE_P(DISABLED_umsg_c, DISABLED_umsg_c_p, 
+INSTANTIATE_TEST_SUITE_P(DISABLED_umsg_c, DISABLED_umsg_c_p, 
                         ::testing::ValuesIn(test_platform::platforms({ "skx-p"})));
 
 class DISABLED_umsg_c_mock_p: public DISABLED_umsg_c_p{
@@ -235,6 +235,6 @@ TEST_P(DISABLED_umsg_c_mock_p, get_ptr) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(DISABLED_umsg_c_mock_p);
-INSTANTIATE_TEST_CASE_P(umsg_c, DISABLED_umsg_c_mock_p, 
+INSTANTIATE_TEST_SUITE_P(umsg_c, DISABLED_umsg_c_mock_p, 
                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p"})));
 

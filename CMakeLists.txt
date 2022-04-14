@@ -91,6 +91,8 @@ endif()
 ## Sub-projects ############################################################
 ############################################################################
 
+set(GTEST_VERSION "1.11.0" CACHE STRING "googletest version in use" FORCE)
+
 # begin opae-libs
 
 set(OPAE_VERSION_LOCAL   "" CACHE STRING "OPAE local version")

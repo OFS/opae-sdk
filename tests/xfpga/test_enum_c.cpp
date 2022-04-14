@@ -44,7 +44,7 @@
 #include "opae_drv.h"
 #include "types_int.h"
 #include "sysfs_int.h"
-#include "mock/mock_opae.h"
+#include "mock/opae_fixtures.h"
 extern "C" {
 #include "fpga-dfl.h"
 }
@@ -1097,7 +1097,7 @@ TEST_P(enum_c_p, get_guid) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(enum_c_p);
-INSTANTIATE_TEST_CASE_P(enum_c, enum_c_p, 
+INSTANTIATE_TEST_SUITE_P(enum_c, enum_c_p, 
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 class enum_err_c_p : public enum_c_p {};
@@ -1144,7 +1144,7 @@ TEST_P(enum_err_c_p, num_errors_port) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(enum_err_c_p);
-INSTANTIATE_TEST_CASE_P(enum_c, enum_err_c_p,
+INSTANTIATE_TEST_SUITE_P(enum_c, enum_err_c_p,
                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 class enum_socket_c_p : public enum_c_p {};
@@ -1166,7 +1166,7 @@ TEST_P(enum_socket_c_p, socket_id) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(enum_socket_c_p);
-INSTANTIATE_TEST_CASE_P(enum_c, enum_socket_c_p,
+INSTANTIATE_TEST_SUITE_P(enum_c, enum_socket_c_p,
                           ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 class enum_mock_only : public enum_c_p {};
@@ -1201,5 +1201,5 @@ TEST_P(enum_mock_only, remove_port) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(enum_mock_only);
-INSTANTIATE_TEST_CASE_P(enum_c, enum_mock_only,
+INSTANTIATE_TEST_SUITE_P(enum_c, enum_mock_only,
                           ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));

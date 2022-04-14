@@ -179,5 +179,5 @@ TEST_P(fpgad_opae_events_api_c_p, events03) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_opae_events_api_c_p);
-INSTANTIATE_TEST_CASE_P(fpgad_c, fpgad_opae_events_api_c_p,
+INSTANTIATE_TEST_SUITE_P(fpgad_c, fpgad_opae_events_api_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));

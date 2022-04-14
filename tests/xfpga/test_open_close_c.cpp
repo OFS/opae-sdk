@@ -310,7 +310,7 @@ TEST_P(openclose_c_p, close_03) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(openclose_c_p);
-INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_p, 
+INSTANTIATE_TEST_SUITE_P(openclose_c, openclose_c_p, 
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
 
 class openclose_c_skx_dcp_p
@@ -334,7 +334,7 @@ TEST_P(openclose_c_skx_dcp_p, open_share) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(openclose_c_skx_dcp_p);
-INSTANTIATE_TEST_CASE_P(openclose_c_skx_dcp, openclose_c_skx_dcp_p,
+INSTANTIATE_TEST_SUITE_P(openclose_c_skx_dcp, openclose_c_skx_dcp_p,
                         ::testing::ValuesIn(test_platform::platforms({}, fpga_driver::linux_intel)));
 
 class openclose_c_dfl_p
@@ -357,7 +357,7 @@ TEST_P(openclose_c_dfl_p, open_share) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(openclose_c_dfl_p);
-INSTANTIATE_TEST_CASE_P(openclose_c_dfl, openclose_c_dfl_p,
+INSTANTIATE_TEST_SUITE_P(openclose_c_dfl, openclose_c_dfl_p,
                         ::testing::ValuesIn(test_platform::hw_platforms({}, fpga_driver::linux_dfl0)));
 
 /**
@@ -401,5 +401,5 @@ TEST_P(openclose_c_mock_p, invalid_open_close) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(openclose_c_mock_p);
-INSTANTIATE_TEST_CASE_P(openclose_c, openclose_c_mock_p, 
+INSTANTIATE_TEST_SUITE_P(openclose_c, openclose_c_mock_p, 
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));

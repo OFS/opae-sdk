@@ -619,7 +619,7 @@ TEST_P(bits_utils_c_p, is_valid6) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(bits_utils_c_p);
-INSTANTIATE_TEST_CASE_P(bits_utils_c, bits_utils_c_p,
+INSTANTIATE_TEST_SUITE_P(bits_utils_c, bits_utils_c_p,
     ::testing::ValuesIn(test_platform::platforms({})));
 
 
@@ -651,5 +651,5 @@ TEST_P(mock_bits_utils_c_p, string_err2) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_bits_utils_c_p);
-INSTANTIATE_TEST_CASE_P(bits_utils_c, mock_bits_utils_c_p,
+INSTANTIATE_TEST_SUITE_P(bits_utils_c, mock_bits_utils_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({})));

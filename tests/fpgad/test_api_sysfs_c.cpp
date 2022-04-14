@@ -127,5 +127,5 @@ TEST_P(fpgad_sysfs_c_p, dup02) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_sysfs_c_p);
-INSTANTIATE_TEST_CASE_P(fpgad_c, fpgad_sysfs_c_p,
+INSTANTIATE_TEST_SUITE_P(fpgad_c, fpgad_sysfs_c_p,
                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));

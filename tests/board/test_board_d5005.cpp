@@ -341,7 +341,7 @@ TEST_P(board_dfl_d5005_c_p, board_d5005_9) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_dfl_d5005_c_p);
-INSTANTIATE_TEST_CASE_P(baord_d5005_c, board_dfl_d5005_c_p,
+INSTANTIATE_TEST_SUITE_P(baord_d5005_c, board_dfl_d5005_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-d5005" })));
 
 // test invalid sysfs attributes
@@ -370,5 +370,5 @@ TEST_P(board_d5005_invalid_c_p, invalid_board_d5005_1) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_d5005_invalid_c_p);
-INSTANTIATE_TEST_CASE_P(board_d5005_invalid_c, board_d5005_invalid_c_p,
+INSTANTIATE_TEST_SUITE_P(board_d5005_invalid_c, board_d5005_invalid_c_p,
 	::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));

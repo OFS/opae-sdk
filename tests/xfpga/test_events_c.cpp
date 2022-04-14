@@ -655,7 +655,7 @@ TEST_P(events_p, irq_event_06) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(events_p);
-INSTANTIATE_TEST_CASE_P(events, events_p,
+INSTANTIATE_TEST_SUITE_P(events, events_p,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-d5005", "dfl-n6000" })));
 
 
@@ -694,7 +694,7 @@ TEST_P(events_dcp_p, invalid_fme_event_request){
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(events_dcp_p);
-INSTANTIATE_TEST_CASE_P(events, events_dcp_p,
+INSTANTIATE_TEST_SUITE_P(events, events_dcp_p,
                         ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-n3000","dfl-d5005" })));
 
 
@@ -735,7 +735,7 @@ TEST_P(events_mcp_p, invalid_fme_event_request){
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(events_mcp_p);
-INSTANTIATE_TEST_CASE_P(events, events_mcp_p,
+INSTANTIATE_TEST_SUITE_P(events, events_mcp_p,
                         ::testing::ValuesIn(test_platform::platforms({ "dfl-d5005" })));
 
 
@@ -1288,5 +1288,5 @@ TEST_P(events_mock_p, irq_event_03) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(events_mock_p);
-INSTANTIATE_TEST_CASE_P(events, events_mock_p,
+INSTANTIATE_TEST_SUITE_P(events, events_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));

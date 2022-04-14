@@ -365,7 +365,7 @@ TEST_P(board_a10gx_c_p, board_a10gx_7) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_a10gx_c_p);
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     baord_a10gx_c, board_a10gx_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({"dcp-a10gx"})));
 
@@ -405,6 +405,6 @@ TEST_P(board_a10gx_invalid_c_p, board_a10gx_10) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_a10gx_invalid_c_p);
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     board_a10gx_invalid_c, board_a10gx_invalid_c_p,
     ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));

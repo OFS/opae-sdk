@@ -35,6 +35,8 @@ extern struct config options;
 void print_err(const char*, fpga_result);
 fpga_result parse_args(int argc, char* argv[]);
 int object_api_main(int argc, char* argv[]);
+
+extern int cleanup_size;
 }
 
 #include <config.h>
@@ -61,6 +63,8 @@ class object_api_c_p : public ::testing::TestWithParam<std::string> {
 
     optind = 0;
     options_ = options;
+
+    cleanup_size = 0;
   }
 
   virtual void TearDown() override {
@@ -138,7 +142,7 @@ TEST_P(object_api_c_p, main0) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(object_api_c_p);
-INSTANTIATE_TEST_CASE_P(object_api_c, object_api_c_p,
+INSTANTIATE_TEST_SUITE_P(object_api_c, object_api_c_p,
                         ::testing::ValuesIn(test_platform::platforms({})));
 
 
@@ -169,7 +173,7 @@ TEST_P(object_api_c_mock_p, main1) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(object_api_c_mock_p);
-INSTANTIATE_TEST_CASE_P(object_api_c, object_api_c_mock_p,
+INSTANTIATE_TEST_SUITE_P(object_api_c, object_api_c_mock_p,
                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
 
 class object_api_c_mcp_hw_p : public object_api_c_p {
@@ -197,7 +201,7 @@ TEST_P(object_api_c_mcp_hw_p, main1) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(object_api_c_mcp_hw_p);
-INSTANTIATE_TEST_CASE_P(object_api_c, object_api_c_mcp_hw_p,
+INSTANTIATE_TEST_SUITE_P(object_api_c, object_api_c_mcp_hw_p,
                         ::testing::ValuesIn(test_platform::hw_platforms({"skx-p"})));
 
 
@@ -226,5 +230,5 @@ TEST_P(object_api_c_dcp_hw_p, main1) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(object_api_c_dcp_hw_p);
-INSTANTIATE_TEST_CASE_P(object_api_c, object_api_c_dcp_hw_p,
+INSTANTIATE_TEST_SUITE_P(object_api_c, object_api_c_dcp_hw_p,
                         ::testing::ValuesIn(test_platform::hw_platforms({"dcp-rc"})));
