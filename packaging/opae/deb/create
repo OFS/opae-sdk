@@ -83,6 +83,7 @@ mkdir -p "${TARBALL_DIR}/debian/source"
 
 for f in 'changelog' \
          'opae.install' \
+         'opae-devel.dirs' \
          'opae-devel.install' \
          'opae-extra-tools.install'
 do

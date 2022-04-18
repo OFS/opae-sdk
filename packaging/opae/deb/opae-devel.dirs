@@ -2,3 +2,4 @@ usr/include/opae
 usr/include/opae/cxx/core
 usr/src/opae
 usr/share/opae
+usr/lib/opae-@VERSION@

@@ -277,6 +277,7 @@ done
 %{_libdir}/libopaemem.so
 %{_libdir}/libopaeuio.so
 %{_libdir}/libopaevfio.so
+%{_prefix}/lib/opae-%{version}
 
 %{_bindir}/bitstreaminfo
 %{_bindir}/fpgaflash
