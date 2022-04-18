@@ -43,3 +43,8 @@ opae_add_shared_library(TARGET opae-c
     SOVERSION ${OPAE_VERSION_MAJOR}
     COMPONENT opaeclib
 )
+
+install(FILES adapter.h
+    DESTINATION include/opae/plugin
+)
+
