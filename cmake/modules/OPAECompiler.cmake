@@ -169,7 +169,7 @@ endfunction()
 #   opae_add_executable(TARGET fpgaconf SOURCE a.c b.c LIBS opae-c)
 function(opae_add_executable)
     set(options )
-    set(oneValueArgs TARGET COMPONENT DESTINATION)
+    set(oneValueArgs TARGET COMPONENT DESTINATION EXPORT)
     set(multiValueArgs SOURCE LIBS)
     cmake_parse_arguments(OPAE_ADD_EXECUTABLE "${options}"
         "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -205,11 +205,16 @@ function(opae_add_executable)
         else(OPAE_ADD_EXECUTABLE_DESTINATION)
             set(dest bin)
         endif(OPAE_ADD_EXECUTABLE_DESTINATION)
-
-        install(TARGETS ${OPAE_ADD_EXECUTABLE_TARGET}
-                EXPORT opae-targets
-                RUNTIME DESTINATION ${dest}
-                COMPONENT ${OPAE_ADD_EXECUTABLE_COMPONENT})
+        if(OPAE_ADD_EXECUTABLE_EXPORT)
+            install(TARGETS ${OPAE_ADD_EXECUTABLE_TARGET}
+                    EXPORT ${OPAE_ADD_EXECUTABLE_EXPORT}
+                    RUNTIME DESTINATION ${dest}
+                    COMPONENT ${OPAE_ADD_EXECUTABLE_COMPONENT})
+        else(OPAE_ADD_EXECUTABLE_EXPORT)
+            install(TARGETS ${OPAE_ADD_EXECUTABLE_TARGET}
+                    RUNTIME DESTINATION ${dest}
+                    COMPONENT ${OPAE_ADD_EXECUTABLE_COMPONENT})
+        endif(OPAE_ADD_EXECUTABLE_EXPORT)
     endif(OPAE_ADD_EXECUTABLE_COMPONENT)
 endfunction()
 
@@ -217,7 +222,7 @@ endfunction()
 #   opae_add_shared_library(TARGET opae-c SOURCE a.c b.c LIBS dl)
 function(opae_add_shared_library)
     set(options )
-    set(oneValueArgs TARGET VERSION SOVERSION COMPONENT DESTINATION)
+    set(oneValueArgs TARGET VERSION SOVERSION COMPONENT DESTINATION EXPORT)
     set(multiValueArgs SOURCE LIBS)
     cmake_parse_arguments(OPAE_ADD_SHARED_LIBRARY "${options}"
         "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -226,7 +231,7 @@ function(opae_add_shared_library)
 
     target_include_directories(${OPAE_ADD_SHARED_LIBRARY_TARGET} PUBLIC
         $<BUILD_INTERFACE:${OPAE_INCLUDE_PATH}>
-	$<BUILD_INTERFACE:${OPAE_LIB_SOURCE}>
+        $<BUILD_INTERFACE:${OPAE_LIB_SOURCE}>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
         PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         PUBLIC ${libjson-c_INCLUDE_DIRS}
@@ -260,10 +265,16 @@ function(opae_add_shared_library)
             set(dest ${OPAE_LIB_INSTALL_DIR})
         endif(OPAE_ADD_SHARED_LIBRARY_DESTINATION)
 
-        install(TARGETS ${OPAE_ADD_SHARED_LIBRARY_TARGET}
-                EXPORT opae-targets
-                LIBRARY DESTINATION ${dest}
-                COMPONENT ${OPAE_ADD_SHARED_LIBRARY_COMPONENT})
+        if(OPAE_ADD_SHARED_LIBRARY_EXPORT)
+            install(TARGETS ${OPAE_ADD_SHARED_LIBRARY_TARGET}
+                    EXPORT ${OPAE_ADD_SHARED_LIBRARY_EXPORT}
+                    LIBRARY DESTINATION ${dest}
+                    COMPONENT ${OPAE_ADD_SHARED_LIBRARY_COMPONENT})
+        else(OPAE_ADD_SHARED_LIBRARY_EXPORT)
+            install(TARGETS ${OPAE_ADD_SHARED_LIBRARY_TARGET}
+                    LIBRARY DESTINATION ${dest}
+                    COMPONENT ${OPAE_ADD_SHARED_LIBRARY_COMPONENT})
+        endif(OPAE_ADD_SHARED_LIBRARY_EXPORT)
     endif(OPAE_ADD_SHARED_LIBRARY_COMPONENT)
 endfunction()
 

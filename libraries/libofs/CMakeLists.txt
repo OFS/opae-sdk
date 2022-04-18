@@ -31,6 +31,7 @@ set(src
 
 opae_add_shared_library(
     TARGET ofs
+    EXPORT opae-targets
     SOURCE ${src}
     LIBS
         rt

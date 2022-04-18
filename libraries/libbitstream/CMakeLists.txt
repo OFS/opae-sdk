@@ -25,6 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 opae_add_shared_library(TARGET bitstream
+    EXPORT opae-targets
     SOURCE
         bitstream.c
         bits_utils.c

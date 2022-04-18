@@ -32,6 +32,7 @@ set(SRC
 )
 
 opae_add_shared_library(TARGET opae-c
+    EXPORT opae-targets
     SOURCE ${SRC}
     LIBS
         dl
