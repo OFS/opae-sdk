@@ -25,6 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 opae_add_shared_library(TARGET opaeuio
+    EXPORT opae-targets
     SOURCE opaeuio.c
     VERSION ${OPAE_VERSION}
     SOVERSION ${OPAE_VERSION_MAJOR}

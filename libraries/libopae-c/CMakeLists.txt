@@ -32,6 +32,7 @@ set(SRC
 )
 
 opae_add_shared_library(TARGET opae-c
+    EXPORT opae-targets
     SOURCE ${SRC}
     LIBS
         dl
@@ -42,3 +43,11 @@ opae_add_shared_library(TARGET opae-c
     SOVERSION ${OPAE_VERSION_MAJOR}
     COMPONENT opaeclib
 )
+
+install(FILES adapter.h props.h opae_int.h
+    DESTINATION include/opae/plugin
+)
+install(FILES plugin.h
+    DESTINATION include/opae
+)
+

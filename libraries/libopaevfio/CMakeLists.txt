@@ -25,6 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 opae_add_shared_library(TARGET opaevfio
+    EXPORT opae-targets
     SOURCE opaevfio.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}

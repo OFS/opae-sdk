@@ -25,6 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 opae_add_executable(TARGET fpgaconf
+    EXPORT opae-targets
     SOURCE fpgaconf.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
