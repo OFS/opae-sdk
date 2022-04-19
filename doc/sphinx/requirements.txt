@@ -1,5 +1,5 @@
 babel==2.9.1
-Jinja2==2.11.3
+Jinja2==3.1.1
 requests==2.25.1
 docutils==0.14
 pygments==2.7.4
