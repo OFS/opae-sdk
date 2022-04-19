@@ -575,3 +575,7 @@ install(FILES
     ${CMAKE_BINARY_DIR}/cmake/pkg/opae-config-version.cmake
     DESTINATION lib/opae-${OPAE_VERSION})
 
+install(FILES
+    ${OPAE_SDK_SOURCE}/cmake/modules/OPAEGit.cmake
+    DESTINATION lib/opae-${OPAE_VERSION}/modules
+)

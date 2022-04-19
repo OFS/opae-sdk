@@ -53,6 +53,9 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	uint8_t device = (uint8_t)-1;
 	uint8_t function = (uint8_t)-1;
 	uint16_t device_id = (uint16_t)-1;
+	uint16_t vendor_id = (uint16_t)-1;
+	uint16_t subdevice_id = (uint16_t)-1;
+	uint16_t subvendor_id = (uint16_t)-1;
 	uint8_t socket_id = (uint8_t)-1;
 	fpga_guid guid = {0};
 	fpga_guid port_guid = {0};
@@ -88,6 +91,15 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 
 	res = fpgaPropertiesGetObjectType(props, &objtype);
 	fpgainfo_print_err("reading objtype from properties", res);
+
+	res = fpgaPropertiesGetVendorID(props, &vendor_id);
+	fpgainfo_print_err("reading vendor_id from properties", res);
+
+	res = fpgaPropertiesGetSubsystemVendorID(props, &subvendor_id);
+	fpgainfo_print_err("reading subvendor_id from properties", res);
+
+	res = fpgaPropertiesGetSubsystemDeviceID(props, &subdevice_id);
+	fpgainfo_print_err("reading subdevice_id from properties", res);
 
 	if (objtype != FPGA_DEVICE) {
 		res = fpgaPropertiesGetGUID(props, &port_guid);
@@ -154,7 +166,10 @@ void fpgainfo_print_common(const char *hdr, fpga_properties props)
 	printf("%-32s : 0x%2" PRIX64 "\n", "Object Id", object_id);
 	printf("%-32s : %04X:%02X:%02X.%01X\n", "PCIe s:b:d.f", segment, bus,
 	       device, function);
+	printf("%-32s : 0x%04X\n", "Vendor Id", vendor_id);
 	printf("%-32s : 0x%04X\n", "Device Id", device_id);
+	printf("%-32s : 0x%04X\n", "SubVendor Id", subvendor_id);
+	printf("%-32s : 0x%04X\n", "SubDevice Id", subdevice_id);
 	printf("%-32s : 0x%02X\n", "Socket Id", socket_id);
 
 	if (has_parent) {

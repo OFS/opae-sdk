@@ -44,7 +44,10 @@ opae_add_shared_library(TARGET opae-c
     COMPONENT opaeclib
 )
 
-install(FILES adapter.h
+install(FILES adapter.h props.h opae_int.h
     DESTINATION include/opae/plugin
+)
+install(FILES plugin.h
+    DESTINATION include/opae
 )
 
