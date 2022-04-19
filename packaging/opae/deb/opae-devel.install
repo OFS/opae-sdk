@@ -1,5 +1,6 @@
 usr/include/opae/*.h
 usr/include/opae/cxx/core/*.h
+usr/include/opae/plugin/*.h
 usr/src/opae/samples/hello_fpga/hello_fpga.c
 usr/src/opae/samples/hello_events/hello_events.c
 usr/src/opae/samples/object_api/object_api.c
