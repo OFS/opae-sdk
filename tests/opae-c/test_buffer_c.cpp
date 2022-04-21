@@ -23,68 +23,51 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-extern "C" {
-
-#include <json-c/json.h>
-#include <uuid/uuid.h>
-#include "opae_int.h"
-
-}
-
-#include <opae/fpga.h>
-
-#include <array>
-#include <cstdlib>
-#include <cstdarg>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
 #include <unistd.h>
 #include "mock/opae_fixtures.h"
 
 using namespace opae::testing;
 
-class buffer_c_p : public mock_opae_p<2> {
- protected:
-  buffer_c_p() {}
+class buffer_c_p : public opae_p<> {
+ public:
 
-  virtual void test_setup() override {
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    auto device_id = platform_.devices[0].device_id;
-    if (platform_.devices[0].num_vfs) {
-      device_id++;
-    }
-
-    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, device_id), FPGA_OK);
-    num_matches_ = 0;
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_), FPGA_OK);
-
-    accel_ = nullptr;
-    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
+  virtual void SetUp() override {
+    opae_p::SetUp();
     pg_size_ = (size_t) sysconf(_SC_PAGE_SIZE);
   }
 
-  virtual void test_teardown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (accel_) {
-        EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
-        accel_ = nullptr;
-    }
-    fpgaFinalize();
+  virtual void TearDown() override {
+    opae_p::TearDown();
 #ifdef LIBOPAE_DEBUG
     EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
 #endif // LIBOPAE_DEBUG
   }
 
-  fpga_properties filter_;
-  fpga_handle accel_;
+  virtual fpga_properties accelerator_filter(fpga_token parent) const override {
+    fpga_properties filter = opae_p<>::accelerator_filter(parent);
+
+    if (!filter)
+      return nullptr;
+
+    auto device_id = platform_.devices[0].device_id;
+    if (platform_.devices[0].num_vfs) {
+      device_id++;
+    }
+
+    if (fpgaPropertiesSetDeviceID(filter, device_id) != FPGA_OK) {
+      fpgaDestroyProperties(&filter);
+      return nullptr;
+    }
+
+    return filter;
+  }
+
+ protected:
   size_t pg_size_;
-  uint32_t num_matches_;
 };
 
 /**
@@ -164,4 +147,4 @@ TEST_P(buffer_c_p, neg_test2) {
 // TODO: re-enable these for n6000
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(buffer_c_p);
 INSTANTIATE_TEST_SUITE_P(buffer_c, buffer_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-d5005" })));
