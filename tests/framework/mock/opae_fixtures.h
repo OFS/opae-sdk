@@ -48,6 +48,7 @@ extern opae_api_adapter_table *adapter_list;
 #include <fstream>
 #include <string>
 #include <vector>
+#include <stack>
 #include <algorithm>
 #include <sstream>
 #include <cstdarg>
@@ -226,6 +227,26 @@ class opae_base_p : public ::testing::TestWithParam<std::string> {
     return destroy_token(token);
   }
 
+  fpga_result Open(fpga_token token, fpga_handle *handle, int flags) const
+  {
+    std::string fn_name = fn_prefix_ + std::string("fpgaOpen");
+    void *dl_handle = get_dl_handle(plugin_hint_);
+    open_fn_t open_fn = reinterpret_cast<open_fn_t>(dlsym(dl_handle, fn_name.c_str()));
+    if (!open_fn)
+      return FPGA_EXCEPTION;
+    return open_fn(token, handle, flags);
+  }
+
+  fpga_result Close(fpga_handle handle) const
+  {
+    std::string fn_name = fn_prefix_ + std::string("fpgaClose");
+    void *dl_handle = get_dl_handle(plugin_hint_);
+    close_fn_t close_fn = reinterpret_cast<close_fn_t>(dlsym(dl_handle, fn_name.c_str()));
+    if (!close_fn)
+      return FPGA_EXCEPTION;
+    return close_fn(handle);
+  }
+
   virtual void OPAEInitialize()
   {
     ASSERT_EQ(fpgaInitialize(nullptr), FPGA_OK);
@@ -255,6 +276,12 @@ class opae_base_p : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(system_->remove_sysfs(), 0) << "error removing tmpsysfs: "
                                           << strerror(errno);
     system_->finalize();
+
+#ifndef NO_OPAE_C
+#ifdef LIBOPAE_DEBUG
+    EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
+#endif // LIBOPAE_DEBUG
+#endif // NO_OPAE_C
   }
 
   fpga_token get_device_token(size_t i)
@@ -503,31 +530,11 @@ template <const char *_P = none_>
 class opae_p : public opae_base_p<_P> {
  public:
 
-  opae_p() :
+  opae_p() : opae_base_p<_P>(),
     device_token_(nullptr),
     accel_token_(nullptr),
     accel_(nullptr)
   {}
-
-  fpga_result Open(fpga_token token, fpga_handle *handle, int flags) const
-  {
-    std::string fn_name = opae_base_p<_P>::fn_prefix_ + std::string("fpgaOpen");
-    void *dl_handle = opae_base_p<_P>::get_dl_handle(opae_base_p<_P>::plugin_hint_);
-    open_fn_t open_fn = reinterpret_cast<open_fn_t>(dlsym(dl_handle, fn_name.c_str()));
-    if (!open_fn)
-      return FPGA_EXCEPTION;
-    return open_fn(token, handle, flags);
-  }
-
-  fpga_result Close(fpga_handle handle) const
-  {
-    std::string fn_name = opae_base_p<_P>::fn_prefix_ + std::string("fpgaClose");
-    void *dl_handle = opae_base_p<_P>::get_dl_handle(opae_base_p<_P>::plugin_hint_);
-    close_fn_t close_fn = reinterpret_cast<close_fn_t>(dlsym(dl_handle, fn_name.c_str()));
-    if (!close_fn)
-      return FPGA_EXCEPTION;
-    return close_fn(handle);
-  }
 
   virtual void SetUp() override
   {
@@ -537,12 +544,13 @@ class opae_p : public opae_base_p<_P> {
     accel_token_ = opae_base_p<_P>::get_accelerator_token(device_token_, 0);
     ASSERT_NE(accel_token_, nullptr);
 
-    ASSERT_EQ(Open(accel_token_, &accel_, opae_base_p<_P>::open_flags()), FPGA_OK);
+    ASSERT_EQ(opae_base_p<_P>::Open(accel_token_, &accel_,
+                                    opae_base_p<_P>::open_flags()), FPGA_OK);
   }
 
   virtual void TearDown() override
   {
-    ASSERT_EQ(Close(accel_), FPGA_OK);
+    ASSERT_EQ(opae_base_p<_P>::Close(accel_), FPGA_OK);
     accel_ = nullptr;
     opae_base_p<_P>::TearDown();
   }
@@ -551,6 +559,41 @@ class opae_p : public opae_base_p<_P> {
   fpga_token device_token_;
   fpga_token accel_token_;
   fpga_handle accel_;
+};
+
+template <const char *_P = none_>
+class opae_device_p : public opae_base_p<_P> {
+ public:
+
+  opae_device_p() : opae_base_p<_P>(),
+    device_token_(nullptr),
+    accel_token_(nullptr),
+    device_(nullptr)
+  {}
+
+  virtual void SetUp() override
+  {
+    opae_base_p<_P>::SetUp();
+    device_token_ = opae_base_p<_P>::get_device_token(0);
+    ASSERT_NE(device_token_, nullptr);
+    accel_token_ = opae_base_p<_P>::get_accelerator_token(device_token_, 0);
+    ASSERT_NE(accel_token_, nullptr);
+
+    ASSERT_EQ(opae_base_p<_P>::Open(device_token_, &device_,
+                                    opae_base_p<_P>::open_flags()), FPGA_OK);
+  }
+
+  virtual void TearDown() override
+  {
+    ASSERT_EQ(opae_base_p<_P>::Close(device_), FPGA_OK);
+    device_ = nullptr;
+    opae_base_p<_P>::TearDown();
+  }
+
+ protected:
+  fpga_token device_token_;
+  fpga_token accel_token_;
+  fpga_handle device_;
 };
 
 } // end of namespace testing

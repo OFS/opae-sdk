@@ -23,28 +23,14 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-extern "C" {
-
-#include <json-c/json.h>
-#include <uuid/uuid.h>
-#include "opae_int.h"
-
-}
-
-#include <opae/fpga.h>
-#include "fpga-dfl.h"
 #include <linux/ioctl.h>
 
-#include <array>
-#include <cstdlib>
-#include <cstdarg>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#include "fpga-dfl.h"
+#include "mock/opae_fixtures.h"
 
 using namespace opae::testing;
 
@@ -84,64 +70,30 @@ out_EINVAL:
     goto out;
 }
 
-class mmio_c_p : public ::testing::TestWithParam<std::string> {
+class mmio_c_p : public opae_p<> {
  protected:
-  mmio_c_p() : tokens_{{nullptr, nullptr}} {}
+  mmio_c_p() :
+    which_mmio_(0)
+  {}
 
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    filter_ = nullptr;
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    num_matches_ = 0;
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_), FPGA_OK);
-
-    EXPECT_GT(num_matches_, 0);
-    accel_ = nullptr;
-    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
+  virtual void SetUp() override
+  {
+    opae_p<>::SetUp();
     system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
-
     which_mmio_ = 0;
     uint64_t *mmio_ptr = nullptr;
     EXPECT_EQ(fpgaMapMMIO(accel_, which_mmio_, &mmio_ptr), FPGA_OK);
     EXPECT_NE(mmio_ptr, nullptr);
   }
 
-  virtual void TearDown() override {
+  virtual void TearDown() override
+  {
     EXPECT_EQ(fpgaUnmapMMIO(accel_, which_mmio_), FPGA_OK);
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (accel_) {
-        EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
-        accel_ = nullptr;
-    }
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    fpgaFinalize();
-    system_->finalize();
-#ifdef LIBOPAE_DEBUG
-    EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
-#endif // LIBOPAE_DEBUG
+    opae_p<>::TearDown();
   }
 
-  std::array<fpga_token, 2> tokens_;
-  fpga_properties filter_;
-  fpga_handle accel_;
   uint32_t which_mmio_;
   const uint64_t CSR_SCRATCHPAD0 = 0x100;
-  test_platform platform_;
-  uint32_t num_matches_;
-  test_system *system_;
 };
 
 /**
@@ -256,4 +208,8 @@ TEST_P(mmio_c_p, mmio512_neg_test) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mmio_c_p);
 INSTANTIATE_TEST_SUITE_P(mmio_c, mmio_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::platforms({
+                                                                        "dfl-d5005",
+                                                                        "dfl-n3000",
+                                                                        "dfl-n6000"
+                                                                      })));

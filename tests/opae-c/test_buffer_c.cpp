@@ -40,13 +40,6 @@ class buffer_c_p : public opae_p<> {
     pg_size_ = (size_t) sysconf(_SC_PAGE_SIZE);
   }
 
-  virtual void TearDown() override {
-    opae_p::TearDown();
-#ifdef LIBOPAE_DEBUG
-    EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
-#endif // LIBOPAE_DEBUG
-  }
-
   virtual fpga_properties accelerator_filter(fpga_token parent) const override {
     fpga_properties filter = opae_p<>::accelerator_filter(parent);
 
@@ -144,7 +137,10 @@ TEST_P(buffer_c_p, neg_test2) {
   EXPECT_EQ(fpgaReleaseBuffer(NULL, wsid), FPGA_INVALID_PARAM);
 }
 
-// TODO: re-enable these for n6000
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(buffer_c_p);
 INSTANTIATE_TEST_SUITE_P(buffer_c, buffer_c_p,
-                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::platforms({
+                                                                        "dfl-d5005",
+                                                                        "dfl-n3000",
+                                                                        "dfl-n6000"
+                                                                      })));
