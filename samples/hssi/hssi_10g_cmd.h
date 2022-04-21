@@ -42,11 +42,14 @@
 #define CSR_RND_SEED1         0x3c0b
 #define CSR_RND_SEED2         0x3c0c
 #define CSR_PACKET_LENGTH     0x3c0d
+#define CSR_TX_END_TSTAMP     0x3cf4
 
 #define CSR_NUM_PKT           0x3d00
 #define CSR_PKT_GOOD          0x3d01
 #define CSR_PKT_BAD           0x3d02
 #define CSR_AVST_RX_ERR       0x3d07
+#define CSR_RX_STA_TSTAMP     0x3d0b
+#define CSR_RX_END_TSTAMP     0x3d0c
 
 #define CSR_MAC_LOOP          0x3e00
 
@@ -203,6 +206,8 @@ public:
         return test_afu::success;
     }
 
+    double clk_freq = clock_freq_for(hafu);
+
     hafu->mbox_write(CSR_NUM_PACKETS, num_packets_);
 
     hafu->mbox_write(CSR_PACKET_LENGTH, packet_length_);
@@ -238,6 +243,48 @@ public:
     } while(count < num_packets_);
 
     std::cout << std::endl;
+
+    if (clk_freq == INVALID_CLOCK_FREQ) {
+      std::cerr << "Couldn't determine user clock freq." << std::endl
+                << "Skipping performance display." << std::endl;
+    } else {
+      std::cout << "HSSI performance: " << std::endl;
+      // Read traffic control Tx/Rx timestamp registers
+      uint32_t tx_end_tstamp = hafu->mbox_read(CSR_TX_END_TSTAMP);
+      uint32_t rx_sta_tstamp = hafu->mbox_read(CSR_RX_STA_TSTAMP);
+      uint32_t rx_end_tstamp = hafu->mbox_read(CSR_RX_END_TSTAMP);
+
+      // Convert timestamp register from clock cycles to nanoseconds
+      double sample_period_ns = 1000 / clk_freq;
+      double tx_end_tstamp_ns = tx_end_tstamp * sample_period_ns;
+      double rx_sta_tstamp_ns = rx_sta_tstamp * sample_period_ns;
+      double rx_end_tstamp_ns = rx_end_tstamp * sample_period_ns;
+
+      // Calculate latencies
+      double latency_min_ns = rx_sta_tstamp_ns;
+      double latency_max_ns = rx_end_tstamp_ns - tx_end_tstamp_ns;
+
+      // Calculate Tx/Rx throughput achieved
+      uint32_t data_pkt_size;
+      if (clk_freq == USER_CLKFREQ_S10)
+	      data_pkt_size = packet_length_ - 4;
+      else
+	      data_pkt_size = packet_length_ - 8;
+      double total_tx_duration_ns = tx_end_tstamp_ns;
+      double total_rx_duration_ns = (rx_end_tstamp_ns - rx_sta_tstamp_ns);
+      uint32_t total_data_size_bits = (num_packets_  * data_pkt_size * 8) ;
+      double achieved_tx_tput_gbps = (total_data_size_bits / total_tx_duration_ns);
+      double achieved_rx_tput_gbps = (total_data_size_bits / total_rx_duration_ns);
+
+      std::cout << "\tSelected clock frequency : "<< clk_freq << " MHz" << std::endl
+                << "\tLatency minimum : " << latency_min_ns << " ns" <<std::endl
+                << "\tLatency maximum : " << latency_max_ns << " ns" <<std::endl
+                << "\tAchieved Tx throughput : " << achieved_tx_tput_gbps << " GB/s" << std::endl;
+      if (eth_loopback_ == "on") {
+        std::cout << "\tAchieved Rx throughput : " << achieved_rx_tput_gbps << " GB/s" << std::endl;
+      }
+      std::cout << std::endl;
+    }
 
     if (eth_ifc == "") {
         std::cout << "No eth interface, so not "
@@ -304,6 +351,8 @@ public:
       int_to_hex(hafu->mbox_read(CSR_RND_SEED2)) << std::endl;
     os << "0x3c0d " << std::setw(22) << "pkt_length" << ": " <<
       int_to_hex(hafu->mbox_read(CSR_PACKET_LENGTH)) << std::endl;
+    os << "0x3cf4 " << std::setw(22) << "tx_end_tstamp" << ": " <<
+      int_to_hex(hafu->mbox_read(CSR_TX_END_TSTAMP)) << std::endl;
   
     os << "0x3d00 " << std::setw(22) << "num_pkt" << ": " <<
       int_to_hex(hafu->mbox_read(CSR_NUM_PKT)) << std::endl;
@@ -313,6 +362,10 @@ public:
       int_to_hex(hafu->mbox_read(CSR_PKT_BAD)) << std::endl;
     os << "0x3d07 " << std::setw(22) << "avst_rx_err" << ": " <<
       int_to_hex(hafu->mbox_read(CSR_AVST_RX_ERR)) << std::endl;
+    os << "0x3d0b " << std::setw(22) << "rx_sta_tstamp" << ": " <<
+      int_to_hex(hafu->mbox_read(CSR_RX_STA_TSTAMP)) << std::endl;
+    os << "0x3d0c " << std::setw(22) << "rx_end_tstamp" << ": " <<
+      int_to_hex(hafu->mbox_read(CSR_RX_END_TSTAMP)) << std::endl;
   
     os << "0x3e00 " << std::setw(22) << "mac_loop" << ": " <<
       int_to_hex(hafu->mbox_read(CSR_MAC_LOOP)) << std::endl;
