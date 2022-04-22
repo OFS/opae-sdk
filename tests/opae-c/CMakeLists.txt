@@ -35,6 +35,11 @@ opae_test_add_static_lib(TARGET opae-c-static
 	${libjson-c_LIBRARIES}
 )
 
+opae_test_add(TARGET self_test
+    SOURCE self_test.cpp
+    LIBS opae-c-static
+)
+
 opae_test_add(TARGET test_opae_enum_c
     SOURCE test_enum_c.cpp
     LIBS opae-c-static

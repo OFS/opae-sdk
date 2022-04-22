@@ -28,19 +28,6 @@
 namespace opae {
 namespace testing {
 
-uint32_t opae_p::num_tokens_for(fpga_properties filter)
-{
-  uint32_t num_tokens = 0;
-
-  fpgaEnumerate(&filter, 1, NULL, 0, &num_tokens);
-
-  return num_tokens;
-}
-
-void opae_p::enumerate_device_tokens()
-{
-
-}
 
 } // end of namespace testing
 } // end of namespace opae
