@@ -64,4 +64,3 @@ usr/lib/python*/site-packages/packager*
 usr/lib/python*/dist-packages/libvfio*
 usr/lib/python*/dist-packages/opae.fpga*
 usr/lib/python*/dist-packages/opae/fpga*
-usr/lib/python*/dist-packages/opae*
