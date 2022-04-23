@@ -60,7 +60,7 @@ TEST_P(error_c_p, read) {
  *             it retrieves the info of the requested error,<br>
  *             and the fn returns FPGA_OK.<br>
  */
-TEST_P(error_c_p, get_info) {
+TEST_P(error_c_p, DISABLED_get_info) {
   fpga_properties props = nullptr;
   uint32_t num_errors = 0;
 

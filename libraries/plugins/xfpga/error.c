@@ -199,13 +199,12 @@ const char *errors_exclude[NUM_ERRORS_EXCLUDE] = {
 };
 
 /* files that can be cleared by writing their value to them */
-#define NUM_ERRORS_CLEARABLE 7
+#define NUM_ERRORS_CLEARABLE 6
 const char *errors_clearable[] = {
 	"pcie0_errors",
 	"pcie1_errors",
 	"warning_errors",
 	"inject_error",
-	"inject_errors",
 	"fme_errors",
 	"errors"
 };
