@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,26 +23,11 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
-extern "C" {
-
-#include <json-c/json.h>
-#include <uuid/uuid.h>
-#include "opae_int.h"
-
-}
-
+#ifdef HAVE_CONFIG_H
 #include <config.h>
-#include <opae/fpga.h>
+#endif // HAVE_CONFIG_H
 
-#include <array>
-#include <cstdlib>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#include "mock/opae_fixtures.h"
 
 using namespace opae::testing;
 

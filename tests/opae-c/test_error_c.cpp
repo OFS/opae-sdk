@@ -23,71 +23,15 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-extern "C" {
-
-#include <json-c/json.h>
-#include <uuid/uuid.h>
-#include "opae_int.h"
-}
-
-#include <opae/fpga.h>
-
-#include <array>
-#include <cstdlib>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#include "mock/opae_fixtures.h"
 
 using namespace opae::testing;
 
-class error_c_p : public ::testing::TestWithParam<std::string> {
- protected:
-  error_c_p() : tokens_{{nullptr, nullptr}} {}
-
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    filter_ = nullptr;
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    num_matches_ = 0;
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_), FPGA_OK);
-    EXPECT_GT(num_matches_, 0);
-  }
-
-  virtual void TearDown() override {
-    if (filter_) {
-      EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    }
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    fpgaFinalize();
-    system_->finalize();
-#ifdef LIBOPAE_DEBUG
-    EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
-#endif // LIBOPAE_DEBUG
-  }
-
-  fpga_properties filter_;
-  std::array<fpga_token, 2> tokens_;
-  test_platform platform_;
-  uint32_t num_matches_;
-  test_system *system_;
-};
+class error_c_p : public opae_p<> {};
 
 /**
  * @test       read
@@ -98,8 +42,15 @@ class error_c_p : public ::testing::TestWithParam<std::string> {
  */
 TEST_P(error_c_p, read) {
   uint64_t val = 0xdeadbeefdecafbad;
-  EXPECT_EQ(fpgaReadError(tokens_[0], 0, &val), FPGA_OK);
+  EXPECT_EQ(fpgaReadError(device_token_, 0, &val), FPGA_OK);
   EXPECT_EQ(val, 0);
+
+  test_device device = platform_.devices[0];
+  if (device.has_afu) {
+    val = 0xdeadbeefdecafbad;
+    EXPECT_EQ(fpgaReadError(accel_token_, 0, &val), FPGA_OK);
+    EXPECT_EQ(val, 0);
+  }
 }
 
 /**
@@ -109,21 +60,52 @@ TEST_P(error_c_p, read) {
  *             it retrieves the info of the requested error,<br>
  *             and the fn returns FPGA_OK.<br>
  */
-TEST_P(error_c_p, get_info) {
+TEST_P(error_c_p, DISABLED_get_info) {
   fpga_properties props = nullptr;
   uint32_t num_errors = 0;
-  ASSERT_EQ(fpgaGetProperties(tokens_[0], &props), FPGA_OK);
+
+  test_device device = platform_.devices[0];
+
+  if (device.has_afu) {
+
+    ASSERT_EQ(fpgaGetProperties(accel_token_, &props), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesGetNumErrors(props, &num_errors), FPGA_OK);
+
+    // this is a port, which only has three error registers
+    ASSERT_EQ(num_errors, device.port_num_errors);
+    std::map<std::string, bool> known_errors = { { "errors",              true  },
+                                                 { "first_error",         false },
+                                                 { "first_malformed_req", false } };
+    std::vector<fpga_error_info> info_list(num_errors);
+
+    for (int i = 0 ; i < num_errors ; ++i) {
+      fpga_error_info &info = info_list[i];
+      EXPECT_EQ(fpgaGetErrorInfo(accel_token_, i, &info), FPGA_OK);
+      EXPECT_EQ(info.can_clear, known_errors[info.name]) << "name: " << info.name;
+    }
+
+    EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&props));
+
+  }
+
+  ASSERT_EQ(fpgaGetProperties(device_token_, &props), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesGetNumErrors(props, &num_errors), FPGA_OK);
-  // this is a port, which only has three error registers
-  ASSERT_EQ(num_errors, platform_.devices[0].port_num_errors);
-  std::map<std::string, bool> knows_errors = {{"errors", true},
-                                              {"first_error", false},
-                                              {"first_malformed_req", false}};
+
+  ASSERT_EQ(num_errors, device.fme_num_errors);
+  std::map<std::string, bool> known_errors = { { "catfatal_errors", false },
+                                               { "first_error",     false },
+                                               { "fme_errors",      true  },
+                                               { "inject_errors",   true  },
+                                               { "next_error",      false },
+                                               { "nonfatal_errors", false },
+                                               { "pcie0_errors",    true  },
+                                               { "pcie1_errors",    true  } };
   std::vector<fpga_error_info> info_list(num_errors);
-  for (int i = 0; i < num_errors; ++i) {
-    fpga_error_info & info = info_list[i];
-    EXPECT_EQ(fpgaGetErrorInfo(tokens_[0], i, &info), FPGA_OK);
-    EXPECT_EQ(info.can_clear, knows_errors[info.name]);
+
+  for (int i = 0 ; i < num_errors ; ++i) {
+    fpga_error_info &info = info_list[i];
+    EXPECT_EQ(fpgaGetErrorInfo(device_token_, i, &info), FPGA_OK);
+    EXPECT_EQ(info.can_clear, known_errors[info.name]) << "name: " << info.name;
   }
 
   EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&props));
@@ -140,14 +122,35 @@ TEST_P(error_c_p, clear) {
   fpga_error_info info;
   uint32_t e = 0;
   bool cleared = false;
-  while (fpgaGetErrorInfo(tokens_[0], e, &info) == FPGA_OK) {
+
+  test_device device = platform_.devices[0];
+ 
+  if (device.has_afu) {
+
+    while (fpgaGetErrorInfo(accel_token_, e, &info) == FPGA_OK) {
+      if (info.can_clear) {
+        EXPECT_EQ(fpgaClearError(accel_token_, e), FPGA_OK);
+        cleared = true;
+        break;
+      }
+      ++e;
+    }
+
+    EXPECT_EQ(cleared, true);
+
+    e = 0;
+    cleared = false;
+  }
+
+  while (fpgaGetErrorInfo(device_token_, e, &info) == FPGA_OK) {
     if (info.can_clear) {
-      EXPECT_EQ(fpgaClearError(tokens_[0], e), FPGA_OK);
+      EXPECT_EQ(fpgaClearError(device_token_, e), FPGA_OK);
       cleared = true;
       break;
     }
     ++e;
   }
+
   EXPECT_EQ(cleared, true);
 }
 
@@ -159,9 +162,19 @@ TEST_P(error_c_p, clear) {
  *             and the fn returns FPGA_OK.<br>
  */
 TEST_P(error_c_p, clear_all) {
-  EXPECT_EQ(fpgaClearAllErrors(tokens_[0]), FPGA_OK);
+  test_device device = platform_.devices[0];
+
+  if (device.has_afu) {
+    EXPECT_EQ(fpgaClearAllErrors(accel_token_), FPGA_OK);
+  }
+
+  EXPECT_EQ(fpgaClearAllErrors(device_token_), FPGA_OK);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(error_c_p);
 INSTANTIATE_TEST_SUITE_P(error_c, error_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::platforms({
+                                                                        "dfl-d5005",
+                                                                        "dfl-n3000",
+                                                                        "dfl-n6000"
+                                                                      })));
