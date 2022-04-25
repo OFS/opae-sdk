@@ -46,7 +46,6 @@ opae_add_shared_library(TARGET test_system
     SOURCE
         mock/test_system.cpp
 	mock/ioctl_handlers.cpp
-        mock/opae_fixtures.cpp
     LIBS
         opae-c
         fpga_db

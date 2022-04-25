@@ -23,11 +23,28 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#pragma once
+
 #include "opae_fixtures.h"
+#include "fpgad_control.h"
 
 namespace opae {
 namespace testing {
 
+template <const char *_P = none_>
+class opae_fpgad_p : public opae_p<_P>, public fpgad_control {
+ public:
+
+  virtual void SetUp() override {
+    opae_p<_P>::SetUp();
+    fpgad_start();
+  }
+
+  virtual void TearDown() override {
+    fpgad_stop();
+    opae_p<_P>::TearDown();
+  }
+};
 
 } // end of namespace testing
 } // end of namespace opae

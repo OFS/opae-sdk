@@ -23,13 +23,16 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
 extern "C" {
-#include "config.h"
 #include "bmc_ioctl.h"
 #include "opae_int.h"
 #include "types_int.h"
 #include "opae_drv.h"
+
 fpga_result _bmcGetThreshold(int fd, uint32_t sensor,
         bmc_get_thresh_response *resp);
 fpga_result _bmcSetThreshold(int fd, uint32_t sensor,
@@ -59,63 +62,11 @@ fpga_result intel_fme_port_pr(int fd, uint32_t flags, uint32_t port_id,
                           uint32_t sz, uint64_t addr, uint64_t *status);
 }
 
-#include <opae/fpga.h>
-#include <linux/ioctl.h>
-#include <string>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#include "mock/opae_fixtures.h"
 
 using namespace opae::testing;
 
-class sdl_c_p : public ::testing::TestWithParam<std::string> {
- protected:
-  sdl_c_p() : tokens_{{nullptr, nullptr}} {}
-
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    filter_ = nullptr;
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    num_matches_ = 0;
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_), FPGA_OK);
-    EXPECT_GT(num_matches_, 0);
-    handle_ = nullptr;
-    ASSERT_EQ(fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
-  }
-
-  virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (handle_) {
-        EXPECT_EQ(fpgaClose(handle_), FPGA_OK);
-        handle_ = nullptr;
-    }
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    fpgaFinalize();
-    system_->finalize();
-#ifdef LIBOPAE_DEBUG
-    EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
-#endif // LIBOPAE_DEBUG
-  }
-
-  std::array<fpga_token, 2> tokens_;
-  fpga_properties filter_;
-  fpga_handle handle_;
-  test_platform platform_;
-  uint32_t num_matches_;
-  test_system *system_;
-};
+class sdl_c_p : public opae_p<> {};
 
 /**
  * @test       sdl_c_p
@@ -123,7 +74,7 @@ class sdl_c_p : public ::testing::TestWithParam<std::string> {
  * @details    When the _bmcGetThreshold() is called with invalid fd,
  *             this method returns FPGA_INVALID_PARAM.
  */
-TEST_P (sdl_c_p, test_bmc_Get_Threshold_for_invalid_fd) {
+TEST_P(sdl_c_p, test_bmc_Get_Threshold_for_invalid_fd) {
   // Get  threshold with invalid parameter.
   bmc_get_thresh_response thres;
   int fd = -1;
@@ -135,7 +86,7 @@ TEST_P (sdl_c_p, test_bmc_Get_Threshold_for_invalid_fd) {
  * @details    When the _bmcSetThreshold() is called with invalid fd,
  *             this method returns FPGA_INVALID_PARAM.
  */
-TEST_P (sdl_c_p, test_bmc_Set_Threshold_for_invalid_fd) {
+TEST_P(sdl_c_p, test_bmc_Set_Threshold_for_invalid_fd) {
   // Set  threshold with invalid parameter.
   bmc_set_thresh_request req;
   int fd = -1;
@@ -148,7 +99,7 @@ TEST_P (sdl_c_p, test_bmc_Set_Threshold_for_invalid_fd) {
  * @details    When the opae_get_fme_info() is called with invalid fd,
  *             this method returns FPGA_EXCEPTION.
  */
-TEST_P (sdl_c_p, test_opae_get_port_info_for_invalid_fd) {
+TEST_P(sdl_c_p, test_opae_get_port_info_for_invalid_fd) {
   opae_port_info info = { 0, 0, 0, 0, 0 };
   int fd = -1;
 
@@ -161,10 +112,10 @@ TEST_P (sdl_c_p, test_opae_get_port_info_for_invalid_fd) {
  * @details    When the opae_get_port_region_info() is called with invalid fd,
  *             this method returns FPGA_EXCEPTION.
  */
-TEST_P (sdl_c_p, test_opae_get_port_region_info_for_invalid_fd) {
+TEST_P(sdl_c_p, test_opae_get_port_region_info_for_invalid_fd) {
   opae_port_region_info rinfo;
   int fd = -1;
-  EXPECT_EQ(opae_get_port_region_info(fd,0,&rinfo), FPGA_EXCEPTION);
+  EXPECT_EQ(opae_get_port_region_info(fd, 0, &rinfo), FPGA_EXCEPTION);
 }
 
 /**
@@ -173,7 +124,7 @@ TEST_P (sdl_c_p, test_opae_get_port_region_info_for_invalid_fd) {
  * @details    When the opae_get_port_region_info() is called with invalid fd,
  *             this method returns FPGA_NOT_SUPPORTED.
  */
-TEST_P (sdl_c_p, test_opae_get_fme_info_for_invalid_fd) {
+TEST_P(sdl_c_p, test_opae_get_fme_info_for_invalid_fd) {
   opae_fme_info info;
   int fd = -1;
   EXPECT_EQ(opae_get_fme_info(fd,&info), FPGA_NOT_SUPPORTED);
@@ -185,7 +136,7 @@ TEST_P (sdl_c_p, test_opae_get_fme_info_for_invalid_fd) {
  * @details    When the opae_dfl_port_get_err_irq() is called with invalid fd,
  *             this method returns FPGA_EXCEPTION.
  */
-TEST_P (sdl_c_p, test_opae_dfl_port_get_err_irq_for_invalid_fd) {
+TEST_P(sdl_c_p, test_opae_dfl_port_get_err_irq_for_invalid_fd) {
   uint32_t num_irqs = 0;
   int fd = -1;
   EXPECT_EQ(opae_dfl_port_get_err_irq(fd,&num_irqs), FPGA_EXCEPTION);
@@ -197,7 +148,7 @@ TEST_P (sdl_c_p, test_opae_dfl_port_get_err_irq_for_invalid_fd) {
  * @details    When the opae_dfl_port_get_user_irq() is called with invalid fd,
  *             this method returns FPGA_EXCEPTION.
  */
-TEST_P (sdl_c_p, test_opae_dfl_port_get_user_irq_for_invalid_fd) {
+TEST_P(sdl_c_p, test_opae_dfl_port_get_user_irq_for_invalid_fd) {
   uint32_t num_irqs = 0;
   int fd = -1;
   EXPECT_EQ(opae_dfl_port_get_user_irq(fd,&num_irqs), FPGA_EXCEPTION);
@@ -209,7 +160,7 @@ TEST_P (sdl_c_p, test_opae_dfl_port_get_user_irq_for_invalid_fd) {
  * @details    When the opae_dfl_fme_get_err_irq() is called with invalid fd,
  *             this method returns FPGA_EXCEPTION.
  */
-TEST_P (sdl_c_p, test_opae_dfl_fme_get_err_irq_for_invalid_fd) {
+TEST_P(sdl_c_p, test_opae_dfl_fme_get_err_irq_for_invalid_fd) {
   uint32_t num_irqs = 0;
   int fd = -1;
   EXPECT_EQ(opae_dfl_fme_get_err_irq(fd,&num_irqs), FPGA_EXCEPTION);
@@ -221,10 +172,10 @@ TEST_P (sdl_c_p, test_opae_dfl_fme_get_err_irq_for_invalid_fd) {
  * @details    When the opae_dfl_fme_set_err_irq() is called with invalid fd,
  *             this method returns FPGA_EXCEPTION.
  */
-TEST_P (sdl_c_p, test_opae_dfl_fme_set_err_irq_for_invalid_fd) {
+TEST_P(sdl_c_p, test_opae_dfl_fme_set_err_irq_for_invalid_fd) {
   int fd = -1;
-  int event_handle = FILE_DESCRIPTOR(handle_);
-  EXPECT_EQ(opae_dfl_fme_set_err_irq(fd,0,1,&event_handle), FPGA_EXCEPTION);
+  int event_handle = FILE_DESCRIPTOR(accel_);
+  EXPECT_EQ(opae_dfl_fme_set_err_irq(fd, 0, 1, &event_handle), FPGA_EXCEPTION);
 }
 
 /**
@@ -233,10 +184,10 @@ TEST_P (sdl_c_p, test_opae_dfl_fme_set_err_irq_for_invalid_fd) {
  * @details    When the opae_dfl_port_set_user_irq() is called with invalid fd,
  *             this method returns FPGA_EXCEPTION.
  */
-TEST_P (sdl_c_p, test_opae_dfl_port_set_user_irq_for_invalid_fd) {
+TEST_P(sdl_c_p, test_opae_dfl_port_set_user_irq_for_invalid_fd) {
   int fd = -1;
-  int event_handle = FILE_DESCRIPTOR(handle_);
-  EXPECT_EQ(opae_dfl_port_set_user_irq(fd,0,1,&event_handle), FPGA_EXCEPTION);
+  int event_handle = FILE_DESCRIPTOR(accel_);
+  EXPECT_EQ(opae_dfl_port_set_user_irq(fd, 0, 1, &event_handle), FPGA_EXCEPTION);
 }
 
 /**
@@ -245,10 +196,10 @@ TEST_P (sdl_c_p, test_opae_dfl_port_set_user_irq_for_invalid_fd) {
  * @details    When the opae_dfl_port_set_err_irq() is called with invalid fd,
  *             this method returns FPGA_EXCEPTION.
  */
-TEST_P (sdl_c_p, test_opae_dfl_port_err_user_irq_for_invalid_fd) {
+TEST_P(sdl_c_p, test_opae_dfl_port_err_user_irq_for_invalid_fd) {
   int fd = -1;
-  int event_handle = FILE_DESCRIPTOR(handle_);
-  EXPECT_EQ(opae_dfl_port_set_err_irq(fd,0,1,&event_handle), FPGA_EXCEPTION);
+  int event_handle = FILE_DESCRIPTOR(accel_);
+  EXPECT_EQ(opae_dfl_port_set_err_irq(fd, 0, 1, &event_handle), FPGA_EXCEPTION);
 }
 
 /**
@@ -257,9 +208,9 @@ TEST_P (sdl_c_p, test_opae_dfl_port_err_user_irq_for_invalid_fd) {
  * @details    When the opae_port_set_err_irq() is called with invalid fd,
  *             this method returns FPGA_NOT_SUPPORTED.
  */
-TEST_P (sdl_c_p, test_opae_port_set_err_irq_for_invalid_fd) {
+TEST_P(sdl_c_p, test_opae_port_set_err_irq_for_invalid_fd) {
   int fd = -1;
-  EXPECT_EQ(opae_port_set_err_irq(fd,0,0), FPGA_NOT_SUPPORTED);
+  EXPECT_EQ(opae_port_set_err_irq(fd, 0, 0), FPGA_NOT_SUPPORTED);
 }
 
 /**
@@ -268,9 +219,9 @@ TEST_P (sdl_c_p, test_opae_port_set_err_irq_for_invalid_fd) {
  * @details    When the opae_port_set_user_irq() is called with invalid fd,
  *             this method returns FPGA_NOT_SUPPORTED.
  */
-TEST_P (sdl_c_p, test_opae_port_set_user_irq_for_invalid_fd) {
+TEST_P(sdl_c_p, test_opae_port_set_user_irq_for_invalid_fd) {
   int fd = -1;
-  EXPECT_EQ(opae_port_set_user_irq(fd,0,0,1,0), FPGA_NOT_SUPPORTED);
+  EXPECT_EQ(opae_port_set_user_irq(fd, 0, 0, 1, 0), FPGA_NOT_SUPPORTED);
 }
 
 /**
@@ -279,9 +230,9 @@ TEST_P (sdl_c_p, test_opae_port_set_user_irq_for_invalid_fd) {
  * @details    When the opae_fme_set_err_irq() is called with invalid fd,
  *             this method returns FPGA_NOT_SUPPORTED.
  */
-TEST_P (sdl_c_p, test_opae_fme_set_err_irq_for_invalid_fd) {
+TEST_P(sdl_c_p, test_opae_fme_set_err_irq_for_invalid_fd) {
   int fd = -1;
-  EXPECT_EQ(opae_fme_set_err_irq(fd,0,0), FPGA_NOT_SUPPORTED);
+  EXPECT_EQ(opae_fme_set_err_irq(fd, 0, 0), FPGA_NOT_SUPPORTED);
 }
 
 /**
@@ -290,7 +241,7 @@ TEST_P (sdl_c_p, test_opae_fme_set_err_irq_for_invalid_fd) {
  * @details    When the opae_port_map() is called with invalid fd,
  *             this method returns FPGA_EXCEPTION.
  */
-TEST_P (sdl_c_p, test_opae_port_map_for_invalid_fd) {
+TEST_P(sdl_c_p, test_opae_port_map_for_invalid_fd) {
   uint64_t buf_len;
   uint64_t wsid;
   uint64_t* buf_addr = nullptr;
@@ -299,11 +250,11 @@ TEST_P (sdl_c_p, test_opae_port_map_for_invalid_fd) {
 
   // Allocate a buffer
   buf_len = 1024;
-  EXPECT_EQ(FPGA_OK, fpgaPrepareBuffer(handle_, buf_len, (void**) &buf_addr, &wsid, 0));
-  EXPECT_EQ(opae_port_map(fd,buf_addr,buf_len,0,&io_addr), FPGA_EXCEPTION);
+  EXPECT_EQ(FPGA_OK, fpgaPrepareBuffer(accel_, buf_len, (void**) &buf_addr, &wsid, 0));
+  EXPECT_EQ(opae_port_map(fd, buf_addr, buf_len, 0, &io_addr), FPGA_EXCEPTION);
 
   // Release buffer
-  EXPECT_EQ(FPGA_OK, fpgaReleaseBuffer(handle_, wsid));
+  EXPECT_EQ(FPGA_OK, fpgaReleaseBuffer(accel_, wsid));
 }
 
 /**
@@ -312,10 +263,10 @@ TEST_P (sdl_c_p, test_opae_port_map_for_invalid_fd) {
  * @details    When the opae_port_unmap() is called with invalid fd,
  *             this method returns FPGA_EXCEPTION.
  */
-TEST_P (sdl_c_p, test_opae_port_unmap_for_invalid_fd) {
+TEST_P(sdl_c_p, test_opae_port_unmap_for_invalid_fd) {
   uint64_t io_addr = 0;
   int fd = -1;
-  EXPECT_EQ(opae_port_unmap(fd,io_addr), FPGA_EXCEPTION);
+  EXPECT_EQ(opae_port_unmap(fd, io_addr), FPGA_EXCEPTION);
 }
 
 /**
@@ -324,7 +275,7 @@ TEST_P (sdl_c_p, test_opae_port_unmap_for_invalid_fd) {
  * @details    When the intel_fpga_version() is called with invalid fd,
  *             this method returns FPGA_EXCEPTION.
  */
-TEST_P (sdl_c_p, test_intel_fpga_version_for_invalid_fd) {
+TEST_P(sdl_c_p, test_intel_fpga_version_for_invalid_fd) {
   int fd = -1;
   EXPECT_EQ(intel_fpga_version(fd), FPGA_EXCEPTION);
 }
@@ -335,10 +286,10 @@ TEST_P (sdl_c_p, test_intel_fpga_version_for_invalid_fd) {
  * @details    When the intel_fme_port_pr() is called with invalid fd,
  *             this method returns FPGA_EXCEPTION.
  */
-TEST_P (sdl_c_p, test_intel_fme_port_pr_for_invalid_fd) {
+TEST_P(sdl_c_p, test_intel_fme_port_pr_for_invalid_fd) {
   int fd = -1;
   uint64_t status = 0;
-  EXPECT_EQ(intel_fme_port_pr(fd,0,0,0,0,&status), FPGA_EXCEPTION);
+  EXPECT_EQ(intel_fme_port_pr(fd, 0, 0, 0, 0, &status), FPGA_EXCEPTION);
 }
 
 /**
@@ -351,7 +302,7 @@ TEST_P(sdl_c_p, test_fpgaHandleGetObject_for_null_byte) {
   fpga_object obj = nullptr;
   const char *bad_name = "err\0rs";
 
-  EXPECT_EQ(fpgaHandleGetObject(handle_, bad_name, &obj, 0), FPGA_NOT_FOUND);
+  EXPECT_EQ(fpgaHandleGetObject(accel_, bad_name, &obj, 0), FPGA_NOT_FOUND);
   ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
 }
 
@@ -365,7 +316,7 @@ TEST_P(sdl_c_p, test_fpgaHandleGetObject_for_too_short) {
   fpga_object obj = nullptr;
   const char *too_short_name = "a";
 
-  EXPECT_EQ(fpgaHandleGetObject(handle_, too_short_name, &obj, 0), FPGA_NOT_FOUND);
+  EXPECT_EQ(fpgaHandleGetObject(accel_, too_short_name, &obj, 0), FPGA_NOT_FOUND);
   ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
 }
 
@@ -385,7 +336,7 @@ TEST_P(sdl_c_p, test_fpgaHandleGetObject_for_too_long_name) {
                                eeeeeeeeeeeeeeeeeee/api/should/return/with/\
                                errorrrrrrrrrrrrrrrrr/for/SDL testing/";
 
-  EXPECT_EQ(fpgaHandleGetObject(handle_, too_long_name, &obj, 0), FPGA_NOT_FOUND);
+  EXPECT_EQ(fpgaHandleGetObject(accel_, too_long_name, &obj, 0), FPGA_NOT_FOUND);
   ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
 }
 /**
@@ -398,7 +349,7 @@ TEST_P(sdl_c_p, test_fpgaTokenGetObject_for_null_byte) {
   fpga_object obj = nullptr;
   const char *bad_name = "err\0rs";
 
-  EXPECT_EQ(fpgaTokenGetObject(tokens_[0], bad_name, &obj, 0),
+  EXPECT_EQ(fpgaTokenGetObject(accel_token_, bad_name, &obj, 0),
                                 FPGA_NOT_FOUND);
   ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
 }
@@ -413,7 +364,7 @@ TEST_P(sdl_c_p, test_fpgaTokenGetObject_for_too_short) {
   fpga_object obj = nullptr;
   const char *too_short_path = "a";
 
-  EXPECT_EQ(fpgaTokenGetObject(tokens_[0], too_short_path, &obj, 0),
+  EXPECT_EQ(fpgaTokenGetObject(accel_token_, too_short_path, &obj, 0),
                                 FPGA_NOT_FOUND);
   ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
 }
@@ -434,7 +385,7 @@ TEST_P(sdl_c_p, test_fpgaTokenGetObject_for_long_path) {
                                eeeeeeeeeeeeeeeeeee/api/should/return/with/\
                                errorrrrrrrrrrrrrrrrr/for/SDL testing/";
 
-  EXPECT_EQ(fpgaTokenGetObject(tokens_[0], too_long_path, &obj, 0),
+  EXPECT_EQ(fpgaTokenGetObject(accel_token_, too_long_path, &obj, 0),
                                 FPGA_NOT_FOUND);
   ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
 }
@@ -454,4 +405,8 @@ TEST_P(sdl_c_p, test_fpgaClose_for_null_object) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sdl_c_p);
 INSTANTIATE_TEST_SUITE_P(sdl_c, sdl_c_p, 
-                        ::testing::ValuesIn(test_platform::platforms({"dfl-n3000","dfl-d5005","dfl-n6000"})));
+                         ::testing::ValuesIn(test_platform::platforms({
+                                                                        "dfl-d5005",
+                                                                        "dfl-n3000",
+                                                                        "dfl-n6000"
+                                                                      })));
