@@ -23,13 +23,11 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
 extern "C" {
-#include <json-c/json.h>
-#include <uuid/uuid.h>
-#include "opae_int.h"
-#include <libgen.h>
-
 char *find_ase_cfg();
 void opae_init(void);
 void opae_release(void);
@@ -42,19 +40,8 @@ const char *_ase_home_configs[HOME_CFG_PATHS] = {
 };
 }
 
-#include <config.h>
-#include <opae/fpga.h>
-
-#include <array>
-#include <cstdlib>
-#include <fstream>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-#include <stack>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#include <libgen.h>
+#include "mock/opae_fixtures.h"
 
 using namespace opae::testing;
 
