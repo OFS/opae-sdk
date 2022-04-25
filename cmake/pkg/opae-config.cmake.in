@@ -8,4 +8,4 @@ set(CMAKE_MODULE_PATH
 	"${_prefix}/lib/opae-@OPAE_VERSION@/modules"
 )
 
-set(opae_INCLUDE_DIRS "${_prefix}/include/opae")
+set(opae_INCLUDE_DIRS "${_prefix}/include")
