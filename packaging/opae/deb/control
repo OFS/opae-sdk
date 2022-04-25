@@ -39,6 +39,6 @@ Priority: optional
 Architecture: any
 Multi-Arch: same
 Depends: opae (= ${binary:Version}), opae-devel (= ${binary:Version}),
-         libhwloc, libtbb, libedit,
+         libhwloc-dev, libtbb-dev, libedit-dev,
          ${python3:Depends}, ${shlibs:Depends}, ${misc:Depends},
 Description: OPAE extra tool binaries
