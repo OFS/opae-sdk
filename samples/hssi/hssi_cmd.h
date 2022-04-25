@@ -33,10 +33,20 @@
 #include <opae/uio.h>
 
 using test_command = opae::afu_test::command;
+namespace fpga = opae::fpga::types;
 
 #define PKT_FILT_CSR_DEST_ADDR 0x0040
 
 #define INVALID_MAC 0xffffffffffffffffULL
+
+#define INVALID_CLOCK_FREQ    0.0
+
+#define USER_CLKFREQ_S10      156.25  // MHz
+#define USER_CLKFREQ_N6000    402.83203125  // MHz
+#define BITSVER_MAJOR_S10     4
+#define BITSVER_MAJOR_N6000   5
+
+#define FPGA_BBS_VER_MAJOR(i) (((i) >> 56) & 0xf)
 
 class hssi_cmd : public test_command
 {
@@ -44,6 +54,38 @@ public:
   hssi_cmd()
   : running_(true)
   {}
+
+  double clock_freq_for(test_afu *afu) const
+  {
+    auto afu_props = afu->afu_properties();
+    auto filter = fpga::properties::get();
+
+    // To get the FME matching our accelerator, we filter
+    // for the ssss:bb:dd and for FPGA_DEVICE object type.
+    filter->segment = afu_props->segment;
+    filter->bus = afu_props->bus;
+    filter->device = afu_props->device;
+    filter->type = FPGA_DEVICE;
+
+    std::vector<fpga::token::ptr_t> toks =
+	    fpga::token::enumerate({filter});
+
+    if (toks.empty()) {
+      std::cerr << "Couldn't find FME for AFU!" << std::endl;
+      return INVALID_CLOCK_FREQ;
+    }
+
+    auto fme_props = fpga::properties::get(toks[0]);
+
+    uint32_t major = FPGA_BBS_VER_MAJOR(fme_props->bbs_id);
+
+    if (major == BITSVER_MAJOR_S10)
+      return USER_CLKFREQ_S10;
+    else if (major == BITSVER_MAJOR_N6000)
+      return USER_CLKFREQ_N6000;
+
+    return INVALID_CLOCK_FREQ;
+  }
 
   int set_pkt_filt_dest(const std::string &dfl_dev,
                         uint64_t bin_dest_addr) const

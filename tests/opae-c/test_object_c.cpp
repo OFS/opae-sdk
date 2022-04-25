@@ -23,108 +23,49 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-extern "C" {
-
-#include <json-c/json.h>
-#include <uuid/uuid.h>
-#include "opae_int.h"
-
-}
-
-#include <opae/fpga.h>
-#include <linux/ioctl.h>
-
-#include <array>
-#include <cstdlib>
-#include <cstdarg>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#include "mock/opae_fixtures.h"
 
 using namespace opae::testing;
 
-class object_c_p : public ::testing::TestWithParam<std::string> {
+class object_c_p : public opae_p<> {
  protected:
-  object_c_p()
-  : tokens_accel_{{nullptr, nullptr}},
-    tokens_device_{{nullptr, nullptr}} {}
+  object_c_p() :
+    token_obj_(nullptr),
+    handle_obj_(nullptr)
+  {}
 
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
+  virtual void SetUp() override
+  {
+    opae_p<>::SetUp();
 
-    filter_ = nullptr;
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, platform_.devices[0].device_id), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    num_matches_accel_ = 0;
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_accel_.data(), tokens_accel_.size(),
-                            &num_matches_accel_), FPGA_OK);
-    EXPECT_GT(num_matches_accel_, 0);
+    EXPECT_EQ(fpgaTokenGetObject(device_token_,
+                                 "ports_num",
+                                 &token_obj_,
+                                 0), FPGA_OK);
 
-    accel_ = nullptr;
-    ASSERT_EQ(fpgaOpen(tokens_accel_[0], &accel_, 0), FPGA_OK);
-
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-    num_matches_device_ = 0;
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_device_.data(), tokens_device_.size(),
-                            &num_matches_device_), FPGA_OK);
-    EXPECT_GT(num_matches_device_, 0);
-
-    EXPECT_EQ(fpgaTokenGetObject(tokens_device_[0], "ports_num", &token_obj_, 0),
-		    FPGA_OK);
-    EXPECT_EQ(fpgaHandleGetObject(accel_, "afu_id", &handle_obj_, 0),
-		    FPGA_OK);
-    afu_guid_ = platform_.devices[0].afu_guid;
-    system_->normalize_guid(afu_guid_, false);
+    EXPECT_EQ(fpgaHandleGetObject(accel_,
+                                  "power_state",
+                                  &handle_obj_,
+                                  0), FPGA_OK);
   }
 
-  virtual void TearDown() override {
+  virtual void TearDown() override
+  {
     EXPECT_EQ(fpgaDestroyObject(&handle_obj_), FPGA_OK);
+    handle_obj_ = nullptr;
+
     EXPECT_EQ(fpgaDestroyObject(&token_obj_), FPGA_OK);
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (accel_) {
-        EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
-        accel_ = nullptr;
-    }
-    for (auto &t : tokens_accel_) {
-      if (t) {
-        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    for (auto &t : tokens_device_) {
-      if (t) {
-        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    fpgaFinalize();
-    system_->finalize();
-#ifdef LIBOPAE_DEBUG
-    EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
-#endif // LIBOPAE_DEBUG
+    token_obj_ = nullptr;
+
+    opae_p<>::TearDown();
   }
 
-  std::array<fpga_token, 2> tokens_accel_;
-  std::array<fpga_token, 2> tokens_device_;
   fpga_object token_obj_;
   fpga_object handle_obj_;
-  fpga_properties filter_;
-  fpga_handle accel_;
-  uint32_t num_matches_accel_;
-  uint32_t num_matches_device_;
-  test_platform platform_;
-  test_system *system_;
-  std::string afu_guid_;
 };
 
 /**
@@ -135,11 +76,11 @@ class object_c_p : public ::testing::TestWithParam<std::string> {
  *             and returns FPGA_OK.<br>
  */
 TEST_P(object_c_p, obj_read) {
-  char afu_id[33];
-  EXPECT_EQ(fpgaObjectRead(handle_obj_, (uint8_t *) afu_id, 0,
-                           32, 0), FPGA_OK);
-  afu_id[32] = 0;
-  EXPECT_STREQ(afu_id, afu_guid_.c_str());
+  char power_state[32] = { 0, };
+  EXPECT_EQ(fpgaObjectRead(handle_obj_, (uint8_t *) power_state, 0,
+                           4, 0), FPGA_OK);
+  power_state[4] = 0;
+  EXPECT_STREQ(power_state, "0x0\n");
 }
 
 /**
@@ -166,17 +107,19 @@ TEST_P(object_c_p, obj_write64) {
   uint64_t errors = 0xbaddecaf;
   fpga_object obj = nullptr;
 
-  // read the port errors
-  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors/errors", &obj, 0),
-		    FPGA_OK);
-  ASSERT_EQ(fpgaObjectRead64(obj, &errors, 0), FPGA_OK);
-  EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
+  test_device device = platform_.devices[0];
 
-  // clear the port errors
-  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors/errors", &obj, 0),
-		    FPGA_OK);
-  ASSERT_EQ(fpgaObjectWrite64(obj, errors, 0), FPGA_OK);
-  EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
+  if (device.has_afu) {
+    // read the port errors
+    ASSERT_EQ(fpgaHandleGetObject(accel_, "errors/errors", &obj, 0), FPGA_OK);
+    ASSERT_EQ(fpgaObjectRead64(obj, &errors, 0), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
+
+    // clear the port errors
+    ASSERT_EQ(fpgaHandleGetObject(accel_, "errors/errors", &obj, 0), FPGA_OK);
+    ASSERT_EQ(fpgaObjectWrite64(obj, errors, 0), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
+  }
 }
 
 /**
@@ -191,10 +134,9 @@ TEST_P(object_c_p, obj_get_obj_at0) {
   fpga_object child_obj = nullptr;
 
   ASSERT_EQ(fpgaHandleGetObject(accel_,
-			  	"power",
-				&obj,
-				FPGA_OBJECT_RECURSE_ONE),
-		  FPGA_OK);
+                                "power",
+                                &obj,
+                                FPGA_OBJECT_RECURSE_ONE), FPGA_OK);
 
   EXPECT_EQ(fpgaObjectGetObjectAt(obj, 0, &child_obj), FPGA_OK);
 
@@ -214,14 +156,12 @@ TEST_P(object_c_p, obj_get_type0) {
   fpga_object ctrl_obj = nullptr;
   enum fpga_sysobject_type type;
 
-  ASSERT_EQ(fpgaHandleGetObject(accel_, "power", &obj, 0),
-		  FPGA_OK);
+  ASSERT_EQ(fpgaHandleGetObject(accel_, "power", &obj, 0), FPGA_OK);
 
   EXPECT_EQ(fpgaObjectGetType(obj, &type), FPGA_OK);
   EXPECT_EQ(type, FPGA_OBJECT_CONTAINER);
 
-  ASSERT_EQ(fpgaObjectGetObject(obj, "control", &ctrl_obj, 0),
-		  FPGA_OK);
+  ASSERT_EQ(fpgaObjectGetObject(obj, "control", &ctrl_obj, 0), FPGA_OK);
 
   EXPECT_EQ(fpgaObjectGetType(ctrl_obj, &type), FPGA_OK);
   EXPECT_EQ(type, FPGA_OBJECT_ATTRIBUTE);
@@ -241,13 +181,16 @@ TEST_P(object_c_p, obj_get_obj0) {
   fpga_object errors_obj = nullptr;
   fpga_object clear_obj = nullptr;
 
-  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors", &errors_obj, 0),
-		    FPGA_OK);
-  ASSERT_EQ(fpgaObjectGetObject(errors_obj, "errors",
-                                &clear_obj, 0), FPGA_OK);
-  ASSERT_EQ(fpgaObjectWrite64(clear_obj, 0, 0), FPGA_OK);
-  EXPECT_EQ(fpgaDestroyObject(&clear_obj), FPGA_OK);
-  EXPECT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
+  test_device device = platform_.devices[0];
+
+  if (device.has_afu) {
+    ASSERT_EQ(fpgaHandleGetObject(accel_, "errors", &errors_obj, 0), FPGA_OK);
+    ASSERT_EQ(fpgaObjectGetObject(errors_obj, "errors",
+                                  &clear_obj, 0), FPGA_OK);
+    ASSERT_EQ(fpgaObjectWrite64(clear_obj, 0, 0), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyObject(&clear_obj), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
+  }
 }
 
 /**
@@ -262,11 +205,15 @@ TEST_P(object_c_p, obj_get_obj1) {
   fpga_object obj = nullptr;
   const char *bad_name = "err\0rs";
 
-  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors", &errors_obj, 0), FPGA_OK);
-  EXPECT_EQ(fpgaObjectGetObject(errors_obj, bad_name, &obj, 0),FPGA_NOT_FOUND);
+  test_device device = platform_.devices[0];
 
-  ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
-  ASSERT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
+  if (device.has_afu) {
+    ASSERT_EQ(fpgaHandleGetObject(accel_, "errors", &errors_obj, 0), FPGA_OK);
+    EXPECT_EQ(fpgaObjectGetObject(errors_obj, bad_name, &obj, 0),FPGA_NOT_FOUND);
+
+    ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
+    ASSERT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
+  }
 }
 
 /**
@@ -327,7 +274,7 @@ TEST_P(object_c_p, token_get_obj) {
   fpga_object obj = nullptr;
   const char *bad_name = "err\0rs";
 
-  EXPECT_EQ(fpgaTokenGetObject(tokens_device_[0], bad_name, &obj, 0), 
+  EXPECT_EQ(fpgaTokenGetObject(device_token_, bad_name, &obj, 0), 
                                 FPGA_NOT_FOUND);
   ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
 }
@@ -342,7 +289,7 @@ TEST_P(object_c_p, token_get_obj_too_short) {
   fpga_object obj = nullptr;
   const char *too_short_path = "a";
 
-  EXPECT_EQ(fpgaTokenGetObject(tokens_device_[0], too_short_path, &obj, 0),
+  EXPECT_EQ(fpgaTokenGetObject(device_token_, too_short_path, &obj, 0),
                                 FPGA_NOT_FOUND);
   ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
 }
@@ -363,7 +310,7 @@ TEST_P(object_c_p, token_get_obj_too_long) {
 			       eeeeeeeeeeeeeeeeeee/api/should/return/with/\
 			       errorrrrrrrrrrrrrrrrr/for/SDL testing/";
 
-  EXPECT_EQ(fpgaTokenGetObject(tokens_device_[0], too_long_path, &obj, 0),
+  EXPECT_EQ(fpgaTokenGetObject(device_token_, too_long_path, &obj, 0),
                                 FPGA_NOT_FOUND);
   ASSERT_NE(fpgaDestroyObject(&obj), FPGA_OK);
 }
@@ -372,15 +319,15 @@ TEST_P(object_c_p, token_get_obj_too_long) {
 /**
  * @test       obj_get_size
  * @brief      Test: fpgaObjectGetSize
- * @details    Given an object created using name afu_id<br>
+ * @details    Given an object created using name power_state<br>
  *             When fpgaObjectGetSize is called with that object<br>
- *             Then the size retrieved equals the length of the afu_id
+ *             Then the size retrieved equals the length of the power_state
  *             string + one for the new line character<br>
  */
 TEST_P(object_c_p, obj_get_size) {
   uint32_t value = 0;
   EXPECT_EQ(fpgaObjectGetSize(handle_obj_, &value, FPGA_OBJECT_SYNC), FPGA_OK);
-  EXPECT_EQ(value, afu_guid_.size() + 1);
+  EXPECT_EQ(value, /* 0x0\n */ 4);
 }
 
 /**
@@ -396,12 +343,13 @@ TEST_P(object_c_p, obj_close) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(object_c_p);
 INSTANTIATE_TEST_SUITE_P(object_c, object_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::platforms({
+                                                                        "dfl-d5005",
+                                                                        "dfl-n3000",
+                                                                        "dfl-n6000"
+                                                                      })));
 
-class object_c_mock_p : public object_c_p {
-  protected:
-    object_c_mock_p() {};
-};
+class object_c_mock_p : public object_c_p {};
 
 /**
  * @test       tok_get_err
@@ -413,7 +361,7 @@ class object_c_mock_p : public object_c_p {
 TEST_P(object_c_mock_p, tok_get_err) {
   fpga_object obj = nullptr;
   system_->invalidate_malloc(0, "opae_allocate_wrapped_object");
-  EXPECT_EQ(fpgaTokenGetObject(tokens_device_[0], "ports_num",
+  EXPECT_EQ(fpgaTokenGetObject(device_token_, "ports_num",
                                &obj, 0), FPGA_NO_MEMORY);
 }
 
@@ -442,17 +390,23 @@ TEST_P(object_c_mock_p, obj_get_obj_err) {
   fpga_object errors_obj = nullptr;
   fpga_object clear_obj = nullptr;
 
-  ASSERT_EQ(fpgaHandleGetObject(accel_, "errors", &errors_obj, 0),
-		    FPGA_OK);
+  test_device device = platform_.devices[0];
 
-  system_->invalidate_malloc(0, "opae_allocate_wrapped_object");
-  ASSERT_EQ(fpgaObjectGetObject(errors_obj, "errors",
-                                &clear_obj, 0), FPGA_NO_MEMORY);
+  if (device.has_afu) {
+    ASSERT_EQ(fpgaHandleGetObject(accel_, "errors", &errors_obj, 0), FPGA_OK);
 
-  EXPECT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
+    system_->invalidate_malloc(0, "opae_allocate_wrapped_object");
+    ASSERT_EQ(fpgaObjectGetObject(errors_obj, "errors",
+                                  &clear_obj, 0), FPGA_NO_MEMORY);
+
+    EXPECT_EQ(fpgaDestroyObject(&errors_obj), FPGA_OK);
+  }
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(object_c_mock_p);
 INSTANTIATE_TEST_SUITE_P(object_c, object_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
-
+                         ::testing::ValuesIn(test_platform::mock_platforms({
+                                                                             "dfl-d5005",
+                                                                             "dfl-n3000",
+                                                                             "dfl-n6000"
+                                                                           })));

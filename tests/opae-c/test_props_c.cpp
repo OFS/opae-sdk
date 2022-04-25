@@ -23,14 +23,11 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-#include <algorithm>
-
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
-
-#include <opae/fpga.h>
-#include "opae_int.h"
+#include "mock/opae_fixtures.h"
 #include "props.h"
 
 fpga_guid known_guid = {0xc5, 0x14, 0x92, 0x82, 0xe3, 0x4f, 0x11, 0xe6,
@@ -38,66 +35,25 @@ fpga_guid known_guid = {0xc5, 0x14, 0x92, 0x82, 0xe3, 0x4f, 0x11, 0xe6,
 
 using namespace opae::testing;
 
-class properties_c_p : public ::testing::TestWithParam<std::string> {
+class properties_c_p : public opae_p<> {
  protected:
-  properties_c_p()
-  : tokens_device_{{nullptr, nullptr}},
-    tokens_accel_{{nullptr, nullptr}} {}
+  properties_c_p() :
+    filter_(nullptr)
+  {}
 
   virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    filter_ = nullptr;
-    accel_ = nullptr;
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_device_.data(), tokens_device_.size(),
-                            &num_matches_device_), FPGA_OK);
-
-    ASSERT_EQ(fpgaClearProperties(filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_accel_.data(), tokens_accel_.size(),
-                            &num_matches_accel_), FPGA_OK);
-
-    ASSERT_EQ(fpgaOpen(tokens_accel_[0], &accel_, 0), FPGA_OK);
-    ASSERT_EQ(fpgaClearProperties(filter_), FPGA_OK);
+    opae_p<>::SetUp();
+    EXPECT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    EXPECT_NE(filter_, nullptr);
   }
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
-    for (auto &t : tokens_accel_) {
-      if (t) {
-        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    for (auto &t : tokens_device_) {
-      if (t) {
-        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    fpgaFinalize();
-    system_->finalize();
-#ifdef LIBOPAE_DEBUG
-    EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
-#endif // LIBOPAE_DEBUG
+    filter_ = nullptr;
+    opae_p<>::TearDown();
   }
 
-  std::array<fpga_token, 2> tokens_device_;
-  std::array<fpga_token, 2> tokens_accel_;
   fpga_properties filter_;
-  fpga_handle accel_;
-  uint32_t num_matches_device_;
-  uint32_t num_matches_accel_;
-  test_platform platform_;
-  test_system* system_;
 };
 
 /**
@@ -206,7 +162,6 @@ TEST_P(properties_c_p, set_parent01) {
 
   EXPECT_EQ(fpgaClearProperties(prop), FPGA_OK);
 
-  // now get the parent token from the prop structure
   EXPECT_EQ(fpgaPropertiesSetParent(prop, toks[0]), FPGA_OK);
 
   // now get the parent token from the prop structure
@@ -241,9 +196,9 @@ TEST_P(properties_c_p, set_parent01) {
 TEST_P(properties_c_p, set_parent02) {
   fpga_properties prop = nullptr;
   // The accelerator token will have a parent token set.
-  ASSERT_EQ(fpgaGetProperties(tokens_accel_[0], &prop), FPGA_OK);
+  ASSERT_EQ(fpgaGetProperties(accel_token_, &prop), FPGA_OK);
   // When this parent is set explicitly, the parent token wrapper is freed.
-  EXPECT_EQ(fpgaPropertiesSetParent(prop, tokens_device_[0]), FPGA_OK);
+  EXPECT_EQ(fpgaPropertiesSetParent(prop, device_token_), FPGA_OK);
   EXPECT_EQ(fpgaDestroyProperties(&prop), FPGA_OK);
 }
 
@@ -262,7 +217,7 @@ TEST_P(properties_c_p, from_handle01) {
  */
 TEST_P(properties_c_p, from_token03) {
   fpga_properties props = nullptr;
-  EXPECT_EQ(fpgaGetProperties(tokens_accel_[0], &props), FPGA_OK);
+  EXPECT_EQ(fpgaGetProperties(accel_token_, &props), FPGA_OK);
   EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
 }
 
@@ -278,15 +233,15 @@ TEST_P(properties_c_p, from_token03) {
 TEST_P(properties_c_p, update01) {
   fpga_properties props = nullptr;
   ASSERT_EQ(fpgaGetProperties(NULL, &props), FPGA_OK);
-  EXPECT_EQ(fpgaUpdateProperties(tokens_accel_[0], props), FPGA_OK);
+  EXPECT_EQ(fpgaUpdateProperties(accel_token_, props), FPGA_OK);
   // The output properties for the accelerator will have a parent token.
 
   // Updating the properties again (accelerator) will re-use the existing token wrapper.
-  EXPECT_EQ(fpgaUpdateProperties(tokens_accel_[0], props), FPGA_OK);
+  EXPECT_EQ(fpgaUpdateProperties(accel_token_, props), FPGA_OK);
 
   // Updating the properties for a device token will not result in
   // a parent token. The token wrapper will be destroyed.
-  EXPECT_EQ(fpgaUpdateProperties(tokens_device_[0], props), FPGA_OK);
+  EXPECT_EQ(fpgaUpdateProperties(device_token_, props), FPGA_OK);
 
   EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
 }
@@ -3665,12 +3620,9 @@ TEST_P(properties_c_p, get_sub_device_id03) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(properties_c_p);
 INSTANTIATE_TEST_SUITE_P(properties_c, properties_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                         ::testing::ValuesIn(test_platform::platforms({})));
 
-class properties_c_mock_p : public properties_c_p{
-  protected:
-    properties_c_mock_p() {};
-};
+class properties_c_mock_p : public properties_c_p {};
 
 /**
  * @test    from_token01
@@ -3687,21 +3639,6 @@ TEST_P(properties_c_mock_p, from_token01) {
 }
 
 /**
- * @test    update02
- * @brief   Tests: fpgaUpdateProperties
- * @details When the resulting properties object has a parent token set,<br>
- *          but malloc fails during wrapper allocation,<br>
- *          fpgaUpdateProperties returns FPGA_NO_MEMORY.<br>
- */
-TEST_P(properties_c_mock_p, DISABLED_update02) {
-  fpga_properties props = nullptr;
-  ASSERT_EQ(fpgaGetProperties(NULL, &props), FPGA_OK);
-  system_->invalidate_malloc(0, "opae_allocate_wrapped_token");
-  EXPECT_EQ(fpgaUpdateProperties(tokens_accel_[0], props), FPGA_NO_MEMORY);
-  EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
-}
-
-/**
  * @test    fpga_clone_properties02
  * @brief   Tests: fpgaCloneProperties
  * @details When calloc fails to allocate the new properties object,<br>
@@ -3715,5 +3652,4 @@ TEST_P(properties_c_mock_p, fpga_clone_properties02) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(properties_c_mock_p);
 INSTANTIATE_TEST_SUITE_P(properties_c, properties_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({})));
-
+                         ::testing::ValuesIn(test_platform::mock_platforms({})));

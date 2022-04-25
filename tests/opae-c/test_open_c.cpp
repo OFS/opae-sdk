@@ -23,78 +23,43 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-extern "C" {
-
-#include <json-c/json.h>
-#include <uuid/uuid.h>
-#include "opae_int.h"
-
-}
-
-#include <opae/fpga.h>
-
-#include <array>
-#include <cstdlib>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#include "mock/opae_fixtures.h"
 
 using namespace opae::testing;
 
-class open_c_p : public ::testing::TestWithParam<std::string> {
+class open_c_p : public opae_base_p<> {
  protected:
-  open_c_p() : tokens_{{nullptr, nullptr}} {}
+  open_c_p() :
+    accel_token_(nullptr)
+  {}
 
   virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
+    opae_base_p<>::SetUp();
 
-    filter_ = nullptr;
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    num_matches_ = 0;
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_),
-              FPGA_OK);
-    EXPECT_EQ(num_matches_, platform_.devices.size());
-    accel_ = nullptr;
+    fpga_token device_token = opae_base_p<>::get_device_token(0);
+    ASSERT_NE(device_token, nullptr);
+
+    accel_token_ = opae_base_p<>::get_accelerator_token(device_token, 0);
+    ASSERT_NE(accel_token_, nullptr);
   }
 
-  virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    fpgaFinalize();
-    system_->finalize();
-  }
-
-  std::array<fpga_token, 2> tokens_;
-  fpga_properties filter_;
-  fpga_handle accel_;
-  test_platform platform_;
-  uint32_t num_matches_;
-  test_system *system_;
+  fpga_token accel_token_;
 };
 
 TEST_P(open_c_p, mallocfails) {
-    // Invalidate the allocation of the wrapped handle.
-    system_->invalidate_malloc(0, "opae_allocate_wrapped_handle");
-    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_NO_MEMORY);
-    EXPECT_EQ(accel_, nullptr);
+  fpga_handle accel_handle = nullptr;
+
+  // Invalidate the allocation of the wrapped handle.
+  system_->invalidate_malloc(0, "opae_allocate_wrapped_handle");
+
+  ASSERT_EQ(fpgaOpen(accel_token_, &accel_handle, 0), FPGA_NO_MEMORY);
+  EXPECT_EQ(accel_handle, nullptr);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(open_c_p);
 INSTANTIATE_TEST_SUITE_P(open_c, open_c_p, 
-                        ::testing::ValuesIn(test_platform::mock_platforms({})));
+                         ::testing::ValuesIn(test_platform::mock_platforms({})));

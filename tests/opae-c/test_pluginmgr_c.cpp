@@ -23,12 +23,11 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
 extern "C" {
-
-#include <json-c/json.h>
-#include <uuid/uuid.h>
-#include <libgen.h>
 #include "opae_int.h"
 #include "pluginmgr.h"
 
@@ -45,19 +44,10 @@ extern opae_api_adapter_table *adapter_list;
 int opae_plugin_mgr_finalize_all(void);
 }
 
-#include <config.h>
-#include <opae/fpga.h>
+#include "mock/opae_fixtures.h"
 
-#include <array>
-#include <cstdlib>
-#include <fstream>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
+#include <libgen.h>
 #include <stack>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
 
 using namespace opae::testing;
 
@@ -140,19 +130,17 @@ static int test_plugin_bad_finalize(void)
 
 }
 
-class pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
+class pluginmgr_c_p : public opae_base_p<> {
  protected:
-  pluginmgr_c_p() {}
+  pluginmgr_c_p() :
+    adapter_list_(nullptr),
+    faux_adapter0_(nullptr),
+    faux_adapter1_(nullptr)
+  {}
 
   virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-    invalid_device_ = test_device::unknown();
+    opae_base_p<>::SetUp();
 
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
     // save the global adapter list.
     adapter_list_ = adapter_list;
     adapter_list = nullptr;
@@ -178,16 +166,13 @@ class pluginmgr_c_p : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     // restore the global adapter list.
     adapter_list = adapter_list_;
-    fpgaFinalize();
-    system_->finalize();
+
+    opae_base_p<>::TearDown();
   }
 
   opae_api_adapter_table *adapter_list_;
   opae_api_adapter_table *faux_adapter0_;
   opae_api_adapter_table *faux_adapter1_;
-  test_platform platform_;
-  test_device invalid_device_;
-  test_system *system_;
 };
 
 /**
@@ -234,7 +219,8 @@ TEST_P(pluginmgr_c_p, bad_final_all) {
   EXPECT_EQ(2, test_plugin_finalize_called);
 }
 
-INSTANTIATE_TEST_SUITE_P(pluginmgr_c, pluginmgr_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_SUITE_P(pluginmgr_c, pluginmgr_c_p,
+                         ::testing::ValuesIn(test_platform::platforms({})));
 
 const char *plugin_cfg_1 = R"plug(
 {
@@ -263,7 +249,7 @@ const char *plugin_cfg_1 = R"plug(
 }
 )plug";
 
-// missing comma (,) on line 272
+// missing comma (,) at the end of "plugin1": {
 const char *plugin_cfg_2 = R"plug(
 {
     "configurations": {
@@ -599,4 +585,4 @@ TEST_P(pluginmgr_cfg_p, find_and_parse_cfg) {
 }
 
 INSTANTIATE_TEST_SUITE_P(pluginmgr_cfg, pluginmgr_cfg_p,
-                        ::testing::ValuesIn(_opae_home_configs));
+                         ::testing::ValuesIn(_opae_home_configs));
