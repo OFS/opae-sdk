@@ -818,3 +818,32 @@ out_unlock:
 
 	return cb_res;
 }
+
+int opae_plugin_mgr_register_plugin(const char *name, const char *cfg)
+{
+	opae_api_adapter_table *adapter = opae_plugin_mgr_alloc_adapter(name);
+	if (!adapter) {
+		OPAE_ERR("malloc failed");
+		return 1;
+	}
+
+
+	int res = opae_plugin_mgr_configure_plugin(adapter, cfg);
+	if (res) {
+		opae_plugin_mgr_free_adapter(adapter);
+		OPAE_ERR("failed to configure plugin \"%s\"", name);
+		return res;
+	}
+
+	res = opae_plugin_mgr_register_adapter(adapter);
+	if (res) {
+		opae_plugin_mgr_free_adapter(adapter);
+		OPAE_ERR("Failed to register \"%s\"", name);
+		return res;
+	}
+
+
+
+	return 0;
+}
+

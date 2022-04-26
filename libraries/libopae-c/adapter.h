@@ -219,4 +219,5 @@ typedef struct _opae_api_adapter_table {
 
 } opae_api_adapter_table;
 
+int opae_plugin_mgr_register_plugin(const char *name, const char *cfg);
 #endif /* __OPAE_ADAPTER_H__ */
