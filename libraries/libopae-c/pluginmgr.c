@@ -836,7 +836,7 @@ int opae_plugin_mgr_register_plugin(const char *name, const char *cfg)
 	}
 
 	if (opae_mutex_lock(lock_res, &adapter_list_lock))
-		return res;
+		return lock_res;
 	res = opae_plugin_mgr_register_adapter(adapter);
 	opae_mutex_unlock(lock_res, &adapter_list_lock);
 
