@@ -23,24 +23,28 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#pragma once
+
 #include "opae_fixtures.h"
+#include "fpgad_control.h"
 
 namespace opae {
 namespace testing {
 
-uint32_t opae_p::num_tokens_for(fpga_properties filter)
-{
-  uint32_t num_tokens = 0;
+template <const char *_P = none_>
+class opae_fpgad_p : public opae_p<_P>, public fpgad_control {
+ public:
 
-  fpgaEnumerate(&filter, 1, NULL, 0, &num_tokens);
+  virtual void SetUp() override {
+    opae_p<_P>::SetUp();
+    fpgad_start();
+  }
 
-  return num_tokens;
-}
-
-void opae_p::enumerate_device_tokens()
-{
-
-}
+  virtual void TearDown() override {
+    fpgad_stop();
+    opae_p<_P>::TearDown();
+  }
+};
 
 } // end of namespace testing
 } // end of namespace opae

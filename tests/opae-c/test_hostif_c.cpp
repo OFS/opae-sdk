@@ -23,79 +23,15 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-extern "C" {
-
-#include <json-c/json.h>
-#include <uuid/uuid.h>
-#include "opae_int.h"
-
-}
-
-#include <opae/fpga.h>
-#include <linux/ioctl.h>
-
-#include <array>
-#include <cstdlib>
-#include <cstdarg>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#include "mock/opae_fixtures.h"
 
 using namespace opae::testing;
 
-class hostif_c_p : public ::testing::TestWithParam<std::string> {
- protected:
-  hostif_c_p() : tokens_{{nullptr, nullptr}} {}
-
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    filter_ = nullptr;
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    num_matches_ = 0;
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_), FPGA_OK);
-    EXPECT_GT(num_matches_, 0);
-    accel_ = nullptr;
-    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
-  }
-
-  virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (accel_) {
-        EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
-        accel_ = nullptr;
-    }
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    fpgaFinalize();
-    system_->finalize();
-#ifdef LIBOPAE_DEBUG
-    EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
-#endif // LIBOPAE_DEBUG
-  }
-
-  std::array<fpga_token, 2> tokens_;
-  fpga_properties filter_;
-  fpga_handle accel_;
-  test_platform platform_;
-  uint32_t num_matches_;
-  test_system *system_;
-};
+class hostif_c_p : public opae_p<> {};
 
 /**
  * @test       assign_to_ifc
@@ -104,8 +40,8 @@ class hostif_c_p : public ::testing::TestWithParam<std::string> {
  *             and returns FPGA_NOT_SUPPORTED.<br>
  */
 TEST_P(hostif_c_p, assign_to_ifc) {
-  EXPECT_EQ(fpgaAssignToInterface(accel_, tokens_[0],
-		    0, 0), FPGA_NOT_SUPPORTED);
+  EXPECT_EQ(fpgaAssignToInterface(accel_, accel_token_,
+                                  0, 0), FPGA_NOT_SUPPORTED);
 }
 
 /**
@@ -115,18 +51,15 @@ TEST_P(hostif_c_p, assign_to_ifc) {
  *             and returns FPGA_NOT_SUPPORTED.<br>
  */
 TEST_P(hostif_c_p, release_from_ifc) {
-  EXPECT_EQ(fpgaReleaseFromInterface(accel_, tokens_[0]),
-		     FPGA_NOT_SUPPORTED);
+  EXPECT_EQ(fpgaReleaseFromInterface(accel_, accel_token_),
+            FPGA_NOT_SUPPORTED);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(hostif_c_p);
 INSTANTIATE_TEST_SUITE_P(hostif_c, hostif_c_p, 
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                         ::testing::ValuesIn(test_platform::platforms({})));
 
-class hostif_c_mock_p : public hostif_c_p{
-  protected:
-    hostif_c_mock_p() {};
-};
+class hostif_c_mock_p : public hostif_c_p {};
 
 /**
  * @test       assign_port
@@ -135,11 +68,9 @@ class hostif_c_mock_p : public hostif_c_p{
  *             then the fn returns FPGA_OK.<br>
  */
 TEST_P(hostif_c_mock_p, assign_port) {
-  EXPECT_EQ(fpgaAssignPortToInterface(accel_, 0,
-			  0, 0), FPGA_OK);
+  EXPECT_EQ(fpgaAssignPortToInterface(accel_, 0, 0, 0), FPGA_OK);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(hostif_c_mock_p);
 INSTANTIATE_TEST_SUITE_P(hostif_c, hostif_c_mock_p, 
-                        ::testing::ValuesIn(test_platform::mock_platforms({})));
-
+                         ::testing::ValuesIn(test_platform::mock_platforms({})));

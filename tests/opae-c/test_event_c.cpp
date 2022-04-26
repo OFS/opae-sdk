@@ -23,88 +23,33 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-extern "C" {
-#include <json-c/json.h>
-#include <uuid/uuid.h>
-}
-
-#include <opae/fpga.h>
-#include "intel-fpga.h"
-#include <linux/ioctl.h>
-
-#include <array>
-#include <cstdlib>
-#include <cstring>
-#include <chrono>
-#include <thread>
-#include <fstream>
-#include <unistd.h>
 #include <poll.h>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
-#include "mock/fpgad_control.h"
+#include "mock/opae_fpgad_fixtures.h"
 
 using namespace opae::testing;
 
-class event_c_p : public ::testing::TestWithParam<std::string>,
-                  public fpgad_control {
+class event_c_p : public opae_fpgad_p<> {
  protected:
-  event_c_p()
-    : tokens_{{nullptr, nullptr}} {}
+  event_c_p() :
+    event_handle_(nullptr)
+  {}
 
   virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    num_matches_ = 0;
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_),
-              FPGA_OK);
-    EXPECT_GT(num_matches_, 0);
-    accel_ = nullptr;
-    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
-
+    opae_fpgad_p<>::SetUp();
     event_handle_ = nullptr;
     EXPECT_EQ(fpgaCreateEventHandle(&event_handle_), FPGA_OK);
-
-    fpgad_start();
   }
 
   virtual void TearDown() override {
     EXPECT_EQ(fpgaDestroyEventHandle(&event_handle_), FPGA_OK);
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (accel_) {
-        EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
-        accel_ = nullptr;
-    }
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    fpgad_stop();
-    fpgaFinalize();
-    system_->finalize();
-#ifdef LIBOPAE_DEBUG
-    EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
-#endif // LIBOPAE_DEBUG
+    opae_fpgad_p<>::TearDown();
   }
 
-  std::array<fpga_token, 2> tokens_;
-  fpga_properties filter_;
-  fpga_handle accel_;
   fpga_event_handle event_handle_;
-  test_platform platform_;
-  uint32_t num_matches_;
-  test_system *system_;
 };
 
 /**
@@ -153,7 +98,7 @@ TEST_P(event_c_p, get_obj_err02) {
  *             the fpgaRegisterEvent returns FPGA_INVALID_PARAM.<br>
  */
 TEST_P(event_c_p, get_obj_err03) {
-  EXPECT_EQ(fpgaRegisterEvent(NULL, FPGA_EVENT_ERROR,
+  EXPECT_EQ(fpgaRegisterEvent(nullptr, FPGA_EVENT_ERROR,
                               event_handle_, 0), FPGA_INVALID_PARAM);
 }
 
@@ -164,8 +109,8 @@ TEST_P(event_c_p, get_obj_err03) {
  *             the fpgaRegisterEvent returns FPGA_INVALID_PARAM.<br>
  */
 TEST_P(event_c_p, get_obj_err04) {
-  EXPECT_EQ(fpgaUnregisterEvent(NULL, FPGA_EVENT_ERROR,
-                              event_handle_), FPGA_INVALID_PARAM);
+  EXPECT_EQ(fpgaUnregisterEvent(nullptr, FPGA_EVENT_ERROR,
+                                event_handle_), FPGA_INVALID_PARAM);
 }
 
 
@@ -183,7 +128,7 @@ TEST_P(event_c_p, get_obj_success) {
   EXPECT_EQ(fpgaGetOSObjectFromEventHandle(event_handle_, &fd), FPGA_OK);
 
   EXPECT_EQ(fpgaUnregisterEvent(accel_, FPGA_EVENT_ERROR,
-			  event_handle_), FPGA_OK);
+                                event_handle_), FPGA_OK);
 }
 
 /**
@@ -195,7 +140,7 @@ TEST_P(event_c_p, get_obj_success) {
  */
 TEST_P(event_c_p, unreg_err01) {
   EXPECT_EQ(fpgaUnregisterEvent(accel_, FPGA_EVENT_ERROR,
-			  event_handle_), FPGA_INVALID_PARAM);
+                                event_handle_), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -210,19 +155,19 @@ TEST_P(event_c_p, unreg_err02) {
                               event_handle_, 0), FPGA_OK);
 
   opae_wrapped_event_handle *wrapped_evt_handle =
-	  opae_validate_wrapped_event_handle(event_handle_);
+    opae_validate_wrapped_event_handle(event_handle_);
   ASSERT_NE(wrapped_evt_handle, nullptr);
 
   fpga_event_handle eh = wrapped_evt_handle->opae_event_handle;
   wrapped_evt_handle->opae_event_handle = nullptr;
 
   EXPECT_EQ(fpgaUnregisterEvent(accel_, FPGA_EVENT_ERROR,
-			  event_handle_), FPGA_INVALID_PARAM);
+                                event_handle_), FPGA_INVALID_PARAM);
 
   wrapped_evt_handle->opae_event_handle = eh;
 
   EXPECT_EQ(fpgaUnregisterEvent(accel_, FPGA_EVENT_ERROR,
-			  event_handle_), FPGA_OK);
+                                event_handle_), FPGA_OK);
 }
 
 /**
@@ -237,7 +182,7 @@ TEST_P(event_c_p, destroy_err) {
                               event_handle_, 0), FPGA_OK);
 
   opae_wrapped_event_handle *wrapped_evt_handle =
-	  opae_validate_wrapped_event_handle(event_handle_);
+    opae_validate_wrapped_event_handle(event_handle_);
   ASSERT_NE(wrapped_evt_handle, nullptr);
 
   fpga_event_handle eh = wrapped_evt_handle->opae_event_handle;
@@ -248,81 +193,41 @@ TEST_P(event_c_p, destroy_err) {
   wrapped_evt_handle->opae_event_handle = eh;
 
   EXPECT_EQ(fpgaUnregisterEvent(accel_, FPGA_EVENT_ERROR,
-			  event_handle_), FPGA_OK);
+                                event_handle_), FPGA_OK);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(event_c_p);
 INSTANTIATE_TEST_SUITE_P(event_c, event_c_p, 
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                         ::testing::ValuesIn(test_platform::platforms({})));
 
-
-class events_handle_p : public ::testing::TestWithParam<std::string>,
-                        public fpgad_control {
+class events_handle_p : public opae_fpgad_p<> {
  protected:
-  events_handle_p()
-      : filter_accel_(nullptr),
-        tokens_accel_{{nullptr, nullptr}},
-        handle_accel_(nullptr) {}
+  events_handle_p() :
+    event_handle_(nullptr)
+  {}
 
   virtual void SetUp() override {
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
+    opae_fpgad_p<>::SetUp();
 
-    ASSERT_EQ(FPGA_OK, fpgaInitialize(NULL));
+    event_handle_ = nullptr;
+    EXPECT_EQ(fpgaCreateEventHandle(&event_handle_), FPGA_OK);
 
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_accel_,
-                                        platform_.devices[0].device_id), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(),
-              tokens_accel_.size(), &num_matches_), FPGA_OK);
-
-    ASSERT_EQ(fpgaOpen(tokens_accel_[0], &handle_accel_, 0), FPGA_OK);
-
-    ASSERT_EQ(fpgaCreateEventHandle(&eh_), FPGA_OK);
-
-    fpgad_start();
-    uint32_t i;
-    for (i = 0 ; i < num_matches_ ; ++i) {
-      fpgad_watch(tokens_accel_[i]);
-    }
+    fpgad_watch(accel_token_);
   }
 
   virtual void TearDown() override {
-    fpgad_stop();
+    EXPECT_EQ(fpgaDestroyEventHandle(&event_handle_), FPGA_OK);
 
-    EXPECT_EQ(fpgaDestroyEventHandle(&eh_), FPGA_OK);
-    EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
-
-    if (handle_accel_) { EXPECT_EQ(fpgaClose(handle_accel_), FPGA_OK); }
-
-/* Don't destroy the tokens, because fpgad's monitor_thread() will
-   destroy them by calling mon_destroy() when it is exiting.
-    for (auto &t : tokens_accel_) {
-      if (t) {
-        EXPECT_EQ(FPGA_OK, fpgaDestroyToken(&t));
-        t = nullptr;
-      }
-    }
-*/
-    fpgaFinalize();
-    system_->finalize();
-#ifdef LIBOPAE_DEBUG
-    EXPECT_EQ(opae_wrapped_tokens_in_use(), 0);
-#endif // LIBOPAE_DEBUG
+    /*
+    ** Don't destroy the ACCELERATOR token, because fpgad's
+    ** monitor_thread() will destroy it by calling mon_destroy()
+    ** when it is exiting.
+    */
+    state_ &= ~got_accelerator_tokens;
+    opae_fpgad_p<>::TearDown();
   }
 
-  fpga_properties filter_accel_;
-  std::array<fpga_token, 2> tokens_accel_;
-  fpga_handle handle_accel_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_system *system_;
-  fpga_event_handle eh_;
+  fpga_event_handle event_handle_;
 };
 
 /**
@@ -341,8 +246,8 @@ TEST_P(events_handle_p, manual_ap6) {
   struct pollfd poll_fd;
   int maxpolls = 20;
 
-  ASSERT_EQ(FPGA_OK, fpgaRegisterEvent(handle_accel_, FPGA_EVENT_POWER_THERMAL, eh_, 0));
-  EXPECT_EQ(FPGA_OK, fpgaGetOSObjectFromEventHandle(eh_, &fd));
+  ASSERT_EQ(FPGA_OK, fpgaRegisterEvent(accel_, FPGA_EVENT_POWER_THERMAL, event_handle_, 0));
+  EXPECT_EQ(FPGA_OK, fpgaGetOSObjectFromEventHandle(event_handle_, &fd));
   EXPECT_GE(fd, 0);
 
   // Write to error file
@@ -375,9 +280,9 @@ TEST_P(events_handle_p, manual_ap6) {
   f << zero_csr;
   f.close();
 
-  EXPECT_EQ(FPGA_OK, fpgaUnregisterEvent(handle_accel_, FPGA_EVENT_POWER_THERMAL, eh_));
+  EXPECT_EQ(FPGA_OK, fpgaUnregisterEvent(accel_, FPGA_EVENT_POWER_THERMAL, event_handle_));
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(events_handle_p);
 INSTANTIATE_TEST_SUITE_P(events, events_handle_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
+                         ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));

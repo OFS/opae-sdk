@@ -82,7 +82,7 @@ def pci_address(inp):
         raise ValueError('wrong pci address format: {}'.format(inp))
 
     d = m.groupdict()
-    return '{}:{}'.format(d.get('segment') or '0000', d['bdf'])
+    return '{}:{}'.format(d.get('segment') or '0000', d['bdf']).lower()
 
 
 def vid_did_for_address(pci_addr):
