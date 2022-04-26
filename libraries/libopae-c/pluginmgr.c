@@ -821,12 +821,12 @@ out_unlock:
 
 int opae_plugin_mgr_register_plugin(const char *name, const char *cfg)
 {
+	int lock_res = 0;
 	opae_api_adapter_table *adapter = opae_plugin_mgr_alloc_adapter(name);
 	if (!adapter) {
 		OPAE_ERR("malloc failed");
 		return 1;
 	}
-
 
 	int res = opae_plugin_mgr_configure_plugin(adapter, cfg);
 	if (res) {
@@ -835,14 +835,16 @@ int opae_plugin_mgr_register_plugin(const char *name, const char *cfg)
 		return res;
 	}
 
+	if (opae_mutex_lock(lock_res, &adapter_list_lock))
+		return res;
 	res = opae_plugin_mgr_register_adapter(adapter);
+	opae_mutex_unlock(lock_res, &adapter_list_lock);
+
 	if (res) {
 		opae_plugin_mgr_free_adapter(adapter);
 		OPAE_ERR("Failed to register \"%s\"", name);
 		return res;
 	}
-
-
 
 	return 0;
 }
