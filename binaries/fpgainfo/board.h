@@ -41,9 +41,12 @@ extern "C" {
 typedef struct _platform_data {
 	uint16_t vendor_id;
 	uint16_t device_id;
+	uint16_t subvendor_id;
+	uint16_t subdevice_id;
 	int32_t feature_id;
 	char *board_plugin;
 	void *dl_handle;
+	char product_name[256];
 } platform_data;
 
 fpga_result load_board_plugin(fpga_token token, void **dl_handle);
@@ -79,6 +82,8 @@ fpga_result fpga_boot_info(fpga_token token);
 fpga_result fpga_image_info(fpga_token token);
 fpga_result fpga_event_log(fpga_token token, uint32_t first, uint32_t last,
 		bool print_list, bool print_sensors, bool print_bits);
+
+fpga_result fpgainfo_product_name(fpga_token token);
 
 #ifdef __cplusplus
 }

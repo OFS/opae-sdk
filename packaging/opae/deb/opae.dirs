@@ -1,4 +1,3 @@
 usr/share/opae
 usr/lib/opae
-usr/lib/python*/site-packages/opae/admin
 etc/opae
