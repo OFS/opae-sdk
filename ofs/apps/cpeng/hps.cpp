@@ -325,7 +325,6 @@ int main(int argc, char *argv[])
   opae::afu_test::afu hps(cpeng_guid);
   hps.register_command<cpeng>();
   hps.register_command<heartbeat>();
-  hps.main(argc, argv);
-  return 0;
+  return hps.main(argc, argv);
 }
 
