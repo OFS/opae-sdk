@@ -92,8 +92,9 @@ void FpgaMetricsAppShowHelp(void)
 	       "OPAE Metrics API sample\n"
 	       "\n");
 	printf("Usage:\n");
-	printf("        fpgametrics [-S <segment>] [-B <bus>] [-D <device>] [-F <function>] [PCI_ADDR]\n");
+	printf("        fpgametrics [-h]  [-S <segment>] [-B <bus>] [-D <device>] [-F <function>] [PCI_ADDR]\n");
 	printf("\n");
+	printf("                -h,--help               Print this help\n");
 	printf("                -s,--shared             Open in shared mode\n");
 	printf("                -f,--fme-metrics        Display FME metrics\n");
 	printf("                -a,--afu-metrics        Display AFU metrics\n");
@@ -101,10 +102,11 @@ void FpgaMetricsAppShowHelp(void)
 	printf("\n");
 }
 
-#define GETOPT_STRING "fasv"
+#define GETOPT_STRING "hfasv"
 fpga_result parse_args(int argc, char *argv[])
 {
 	struct option longopts[] = {
+		{ "help",        no_argument,       NULL, 'h'},
 		{ "fme-metrics", no_argument,       NULL, 'f' },
 		{ "afu-metrics", no_argument,       NULL, 'a' },
 		{ "shared",      no_argument,       NULL, 's' },
@@ -124,6 +126,9 @@ fpga_result parse_args(int argc, char *argv[])
 		}
 
 		switch (getopt_ret) {
+		case 'h': /* help */
+			FpgaMetricsAppShowHelp();
+			return -1;
 		case 's':
 			config.target.open_flags |= FPGA_OPEN_SHARED;
 			break;
