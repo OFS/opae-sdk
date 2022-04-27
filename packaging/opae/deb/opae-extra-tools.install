@@ -22,8 +22,8 @@ usr/bin/hps
 usr/bin/hssi
 usr/bin/opae.io
 usr/bin/mem_tg
-usr/lib/python*/dist-packages/opae.diag*
-usr/lib/python*/dist-packages/opae/diag*
-usr/lib/python*/dist-packages/opae.io*
-usr/lib/python*/dist-packages/opae/io*
-usr/lib/python*/dist-packages/pyopaeuio*
+usr/lib/python3/dist-packages/opae.diag*
+usr/lib/python3/dist-packages/opae/diag*
+usr/lib/python3/dist-packages/opae.io*
+usr/lib/python3/dist-packages/opae/io*
+usr/lib/python3/dist-packages/pyopaeuio*
