@@ -359,6 +359,7 @@ public:
     host_exerciser()
   : test_afu("host_exerciser", nullptr, "warning")
   , count_(1)
+  , he_interleave_(0)
   , he_interrupt_(99)
   {
     // Mode
@@ -384,7 +385,7 @@ public:
     app_.add_option("-d,--delay", he_delay_, "Enables random delay insertion between requests")->default_val("false");
 
     // Configure interleave requests in Throughput mode
-    app_.add_option("--interleave", he_interleave_, interleave_help)->default_val("0");
+    app_.add_option("--interleave", he_interleave_, interleave_help)->transform(CLI::Range(0, 2));
 
     // The Interrupt Vector Number for the device
     app_.add_option("--interrupt", he_interrupt_,

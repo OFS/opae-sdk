@@ -242,6 +242,8 @@ done
 
 %{python3_sitelib}/opae.admin*
 %{python3_sitelib}/opae/admin*
+%{python3_sitearch}/opae/__init__.py
+%{python3_sitearch}/opae/__pycache__*
 
 %config(noreplace) %{_sysconfdir}/opae/fpgad.cfg*
 %config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
@@ -333,7 +335,6 @@ done
 
 %{python3_sitearch}/opae.fpga*
 %{python3_sitearch}/opae/fpga*
-%{python3_sitearch}/opae*
 
 %files extra-tools
 %{_bindir}/bist_app

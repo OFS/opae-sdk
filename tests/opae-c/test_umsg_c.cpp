@@ -23,28 +23,14 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-extern "C" {
-
-#include <json-c/json.h>
-#include <uuid/uuid.h>
-#include "opae_int.h"
-
-}
-
-#include <opae/fpga.h>
-#include "intel-fpga.h"
 #include <linux/ioctl.h>
+#include "intel-fpga.h"
 
-#include <array>
-#include <cstdlib>
-#include <cstdarg>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#include "mock/opae_fixtures.h"
 
 using namespace opae::testing;
 
@@ -118,54 +104,15 @@ out_EINVAL:
     goto out;
 }
 
-class DISABLED_umsg_c_p : public ::testing::TestWithParam<std::string> {
+class DISABLED_umsg_c_p : public opae_p<> {
  protected:
-  DISABLED_umsg_c_p() : tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    filter_ = nullptr;
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, platform_.devices[0].device_id), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    num_matches_ = 0;
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_), FPGA_OK);
-    EXPECT_GT(num_matches_, 0);
-    dev_ = nullptr;
-    ASSERT_EQ(fpgaOpen(tokens_[0], &dev_, 0), FPGA_OK);
+    opae_p<>::SetUp();
     system_->register_ioctl_handler(FPGA_PORT_GET_INFO, umsg_port_info);
     system_->register_ioctl_handler(FPGA_PORT_UMSG_SET_MODE, umsg_set_mode);
   }
 
-  virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (dev_) {
-        EXPECT_EQ(fpgaClose(dev_), FPGA_OK);
-        dev_ = nullptr;
-    }
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    fpgaFinalize();
-    system_->finalize();
-  }
-
-  std::array<fpga_token, 2> tokens_;
-  fpga_properties filter_;
-  fpga_handle dev_;
-  test_platform platform_;
-  uint32_t num_matches_;
-  test_system *system_;
 };
 
 /**
@@ -177,7 +124,7 @@ class DISABLED_umsg_c_p : public ::testing::TestWithParam<std::string> {
  */
 TEST_P(DISABLED_umsg_c_p, get_num) {
   uint64_t num = 0;
-  EXPECT_EQ(fpgaGetNumUmsg(dev_, &num), FPGA_OK);
+  EXPECT_EQ(fpgaGetNumUmsg(accel_, &num), FPGA_OK);
   EXPECT_GT(num, 0);
 }
 
@@ -190,18 +137,16 @@ TEST_P(DISABLED_umsg_c_p, get_num) {
 TEST_P(DISABLED_umsg_c_p, set_attr) {
   uint64_t enable  = 0xff;
   uint64_t disable = 0;
-  EXPECT_EQ(fpgaSetUmsgAttributes(dev_, enable), FPGA_OK);
-  EXPECT_EQ(fpgaSetUmsgAttributes(dev_, disable), FPGA_OK);
+  EXPECT_EQ(fpgaSetUmsgAttributes(accel_, enable), FPGA_OK);
+  EXPECT_EQ(fpgaSetUmsgAttributes(accel_, disable), FPGA_OK);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(DISABLED_umsg_c_p);
 INSTANTIATE_TEST_SUITE_P(DISABLED_umsg_c, DISABLED_umsg_c_p, 
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p"})));
+                         ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
 
-class DISABLED_umsg_c_mock_p: public DISABLED_umsg_c_p{
-  protected:
-    DISABLED_umsg_c_mock_p() {};
-};
+class DISABLED_umsg_c_mock_p: public DISABLED_umsg_c_p {};
+
 /**
  * @test       trigger
  * @brief      Test: fpgaTriggerUmsg
@@ -212,9 +157,9 @@ class DISABLED_umsg_c_mock_p: public DISABLED_umsg_c_p{
 TEST_P(DISABLED_umsg_c_mock_p, trigger) {
   uint64_t enable  = 0xff;
   uint64_t disable = 0;
-  EXPECT_EQ(fpgaSetUmsgAttributes(dev_, enable), FPGA_OK);
-  EXPECT_EQ(fpgaTriggerUmsg(dev_, 1), FPGA_OK);
-  EXPECT_EQ(fpgaSetUmsgAttributes(dev_, disable), FPGA_OK);
+  EXPECT_EQ(fpgaSetUmsgAttributes(accel_, enable), FPGA_OK);
+  EXPECT_EQ(fpgaTriggerUmsg(accel_, 1), FPGA_OK);
+  EXPECT_EQ(fpgaSetUmsgAttributes(accel_, disable), FPGA_OK);
 }
 
 /**
@@ -228,13 +173,13 @@ TEST_P(DISABLED_umsg_c_mock_p, get_ptr) {
   uint64_t enable  = 0xff;
   uint64_t disable = 0;
   uint64_t *umsg_ptr = nullptr;
-  EXPECT_EQ(fpgaSetUmsgAttributes(dev_, enable), FPGA_OK);
-  EXPECT_EQ(fpgaGetUmsgPtr(dev_, &umsg_ptr), FPGA_OK);
+  EXPECT_EQ(fpgaSetUmsgAttributes(accel_, enable), FPGA_OK);
+  EXPECT_EQ(fpgaGetUmsgPtr(accel_, &umsg_ptr), FPGA_OK);
   EXPECT_NE(umsg_ptr, nullptr);
-  EXPECT_EQ(fpgaSetUmsgAttributes(dev_, disable), FPGA_OK);
+  EXPECT_EQ(fpgaSetUmsgAttributes(accel_, disable), FPGA_OK);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(DISABLED_umsg_c_mock_p);
 INSTANTIATE_TEST_SUITE_P(umsg_c, DISABLED_umsg_c_mock_p, 
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p"})));
+                         ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
 
