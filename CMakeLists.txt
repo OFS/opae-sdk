@@ -577,5 +577,6 @@ install(FILES
 
 install(FILES
     ${OPAE_SDK_SOURCE}/cmake/modules/OPAEGit.cmake
+    ${OPAE_SDK_SOURCE}/cmake/modules/OPAEPlugin.cmake
     DESTINATION lib/opae-${OPAE_VERSION}/modules
 )
