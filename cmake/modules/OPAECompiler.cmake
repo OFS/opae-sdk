@@ -328,7 +328,7 @@ endfunction()
 #   opae_add_static_library(TARGET sometarget SOURCE ${SRC})
 function(opae_add_static_library)
     set(options )
-    set(oneValueArgs TARGET COMPONENT DESTINATION)
+    set(oneValueArgs TARGET COMPONENT DESTINATION EXPORT)
     set(multiValueArgs SOURCE LIBS)
     cmake_parse_arguments(OPAE_ADD_STATIC_LIBRARY "${options}"
         "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -366,9 +366,16 @@ function(opae_add_static_library)
             set(dest ${OPAE_LIB_INSTALL_DIR})
         endif(OPAE_ADD_STATIC_LIBRARY_DESTINATION)
 
-        install(TARGETS ${OPAE_ADD_STATIC_LIBRARY_TARGET}
-                ARCHIVE DESTINATION ${dest}
-                COMPONENT ${OPAE_ADD_STATIC_LIBRARY_COMPONENT})
+        if(OPAE_ADD_STATIC_LIBRARY_EXPORT)
+            install(TARGETS ${OPAE_ADD_STATIC_LIBRARY_TARGET}
+                    EXPORT ${OPAE_ADD_STATIC_LIBRARY_EXPORT}
+                    LIBRARY DESTINATION ${dest}
+                    COMPONENT ${OPAE_ADD_STATIC_LIBRARY_COMPONENT})
+        else(OPAE_ADD_STATIC_LIBRARY_EXPORT)
+            install(TARGETS ${OPAE_ADD_STATIC_LIBRARY_TARGET}
+                    LIBRARY DESTINATION ${dest}
+                    COMPONENT ${OPAE_ADD_STATIC_LIBRARY_COMPONENT})
+        endif(OPAE_ADD_STATIC_LIBRARY_EXPORT)
     endif(OPAE_ADD_STATIC_LIBRARY_COMPONENT)
 endfunction()
 
