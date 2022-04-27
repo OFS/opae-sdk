@@ -20,7 +20,7 @@ Package: opae
 Section: libs
 Priority: optional
 Architecture: any
-Depends: uuid, libjson-c3,
+Depends: libuuid1, libjson-c5,
          ${python3:Depends}, ${shlibs:Depends}, ${misc:Depends}
 Description: OPAE runtime
 
@@ -39,6 +39,6 @@ Priority: optional
 Architecture: any
 Multi-Arch: same
 Depends: opae (= ${binary:Version}), opae-devel (= ${binary:Version}),
-         libhwloc, libtbb, libedit,
+         libhwloc15, libtbb12, libedit2,
          ${python3:Depends}, ${shlibs:Depends}, ${misc:Depends},
 Description: OPAE extra tool binaries
