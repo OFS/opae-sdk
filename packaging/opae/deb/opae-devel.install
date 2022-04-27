@@ -14,6 +14,7 @@ usr/lib/libopae-c++-nlb.so
 usr/lib/libopae-cxx-core.so
 usr/lib/libopae-c++-utils.so
 usr/lib/libopae-c.so
+usr/lib/libopae-c-archive.a
 usr/lib/libbitstream.so
 usr/lib/libmml-stream.so
 usr/lib/libmml-srv.so
