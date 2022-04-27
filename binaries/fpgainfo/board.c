@@ -83,14 +83,17 @@ static platform_data platform_data_table[] = {
 
 	// Max10 SPI feature id 0xe
 	{ 0x8086, 0xaf00, 0x8086, 0x0, 0xe, "libboard_d5005.so", NULL,
-	"Intel FPGA Programmable Acceleration Card" },
+	"Intel Open FPGA Stack Platform" },
 
 	{ 0x8086, 0xbcce, 0x8086, 0x0, 0xe, "libboard_d5005.so", NULL,
-	"Intel FPGA Programmable Acceleration Card" },
+	"Intel Open FPGA Stack Platform" },
+
+	{ 0x8086, 0xbcce, 0x8086, 0x138d, 0xe, "libboard_d5005.so", NULL,
+	"Intel Open FPGA Stack Platform" },
 
 	// Max10 PMCI feature id 0x12
 	{ 0x8086, 0xaf00, 0x8086, 0x0, 0x12, "libboard_n6000.so", NULL,
-	"Intel Acceleration Development Platform" },
+	"Intel Open FPGA Stack Platform" },
 
 	{ 0x8086, 0xbcce, 0x8086, 0x1770, 0x12, "libboard_n6000.so", NULL,
 	"Intel Acceleration Development Platform N6000" },
