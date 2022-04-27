@@ -44,6 +44,17 @@ opae_add_shared_library(TARGET opae-c
     COMPONENT opaeclib
 )
 
+opae_add_static_library(TARGET opae-c-static
+    EXPORT opae-targets
+    SOURCE ${SRC}
+    LIBS
+        dl
+        ${CMAKE_THREAD_LIBS_INIT}
+        ${libjson-c_LIBRARIES}
+        ${libuuid_LIBRARIES}
+    COMPONENT opaeclib
+)
+
 install(FILES adapter.h props.h opae_int.h
     DESTINATION include/opae/plugin
 )
