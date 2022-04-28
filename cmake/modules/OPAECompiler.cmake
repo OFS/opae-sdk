@@ -369,11 +369,11 @@ function(opae_add_static_library)
         if(OPAE_ADD_STATIC_LIBRARY_EXPORT)
             install(TARGETS ${OPAE_ADD_STATIC_LIBRARY_TARGET}
                     EXPORT ${OPAE_ADD_STATIC_LIBRARY_EXPORT}
-                    LIBRARY DESTINATION ${dest}
+                    ARCHIVE DESTINATION ${dest}
                     COMPONENT ${OPAE_ADD_STATIC_LIBRARY_COMPONENT})
         else(OPAE_ADD_STATIC_LIBRARY_EXPORT)
             install(TARGETS ${OPAE_ADD_STATIC_LIBRARY_TARGET}
-                    LIBRARY DESTINATION ${dest}
+                    ARCHIVE DESTINATION ${dest}
                     COMPONENT ${OPAE_ADD_STATIC_LIBRARY_COMPONENT})
         endif(OPAE_ADD_STATIC_LIBRARY_EXPORT)
     endif(OPAE_ADD_STATIC_LIBRARY_COMPONENT)
