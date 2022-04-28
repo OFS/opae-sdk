@@ -2454,7 +2454,9 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	}
 	obj->handle = handle;
 	obj->type = FPGA_SYSFS_FILE;
-	obj->max_size = MIN_SYSOBJECT_FILESIZE;
+	obj->max_size = objstat.st_size;
+	if (obj->max_size < MIN_SYSOBJECT_FILESIZE)
+		obj->max_size = MIN_SYSOBJECT_FILESIZE;
 	obj->buffer = calloc(obj->max_size, sizeof(uint8_t));
 	if (handle && (objstat.st_mode & (S_IWUSR | S_IWGRP | S_IWOTH))) {
 		if ((objstat.st_mode & (S_IRUSR | S_IRGRP | S_IROTH))) {
