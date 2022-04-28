@@ -9,7 +9,7 @@ ExclusiveArch:  x86_64
 
 Group:          Development/Libraries
 Vendor:         Intel Corporation
-Requires:       uuid
+Requires:       libuuid
 Requires:	json-c
 Requires:	python3
 Requires:	systemd
@@ -67,15 +67,8 @@ OPAE headers, tools, sample source, and documentation
 %setup -q -n %{name}-%{version}-%{opae_release}
 
 %build
-%cmake -DOPAE_MINIMAL_BUILD=ON \
-       .
-
-%if 0%{?rhel}
-  %make_build
-%else
-  %cmake_build
-%endif
-
+%cmake -DOPAE_MINIMAL_BUILD=ON
+%cmake_build
 
 %install
 mkdir -p %{buildroot}%{_datadir}/opae
@@ -132,12 +125,7 @@ cp binaries/opae.io/opae/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae
 cp binaries/opae.io/opae/io/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae/io
 cp binaries/opae.io/scripts/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/scripts
 
-
-%if 0%{?rhel}
-  %make_install
-%else
-  %cmake_install
-%endif
+%cmake_install
 
 prev=$PWD
 pushd %{_topdir}/BUILD/%{name}-%{version}-%{opae_release}/python/opae.admin/
