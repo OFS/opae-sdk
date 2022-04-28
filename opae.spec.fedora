@@ -124,6 +124,7 @@ for s in \
     OPAECompiler.cmake \
     OPAEExternal.cmake \
     OPAEGit.cmake \
+    OPAEPlugin.cmake \
     OPAEPackaging.cmake \
     OPAETest.cmake
 do
