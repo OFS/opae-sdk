@@ -2163,6 +2163,7 @@ out_free:
 	return res;
 }
 
+#define MIN_SYSOBJECT_FILESIZE 256
 #define MAX_SYSOBJECT_FILESIZE 0x40000
 static ssize_t find_eof(int fd)
 {
@@ -2192,6 +2193,8 @@ static fpga_result sync_object_size(struct _fpga_object *_obj, int fd)
 	off_t size;
 	uint8_t *buffer;
 	size = find_eof(fd);
+	if (size < MIN_SYSOBJECT_FILESIZE)
+		size = MIN_SYSOBJECT_FILESIZE;
 	if (size > 0) {
 		buffer = realloc(_obj->buffer, size);
 		if (!buffer) {
@@ -2217,7 +2220,7 @@ fpga_result sync_object(fpga_object obj)
 		return FPGA_EXCEPTION;
 	}
 
-	if (_obj->max_size == 0) {
+	if (_obj->max_size <= MIN_SYSOBJECT_FILESIZE) {
 		res = sync_object_size(_obj, fd);
 		if (res != FPGA_OK) {
 			close(fd);
@@ -2451,8 +2454,8 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	}
 	obj->handle = handle;
 	obj->type = FPGA_SYSFS_FILE;
-	obj->buffer = calloc(objstat.st_size, sizeof(uint8_t));
-	obj->max_size = objstat.st_size;
+	obj->max_size = MIN_SYSOBJECT_FILESIZE;
+	obj->buffer = calloc(obj->max_size, sizeof(uint8_t));
 	if (handle && (objstat.st_mode & (S_IWUSR | S_IWGRP | S_IWOTH))) {
 		if ((objstat.st_mode & (S_IRUSR | S_IRGRP | S_IROTH))) {
 			obj->perm = O_RDWR;
