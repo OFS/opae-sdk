@@ -161,7 +161,7 @@ STATIC char *find_ase_cfg(void)
 	return NULL;
 }
 
-__attribute__((constructor)) STATIC void opae_init(void)
+__attribute__((constructor(1000))) STATIC void opae_init(void)
 {
 	fpga_result res;
 	g_logfile = NULL;
