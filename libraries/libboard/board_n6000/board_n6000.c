@@ -622,7 +622,6 @@ fpga_result print_board_info(fpga_token token)
 		resval = res;
 	}
 
-	printf("Intel Acceleration Development Platform\n");
 	printf("Board Management Controller NIOS FW version: %s \n", bmc_ver);
 	printf("Board Management Controller Build version: %s \n", max10_ver);
 
