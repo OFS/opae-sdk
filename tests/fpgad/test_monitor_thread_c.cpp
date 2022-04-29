@@ -23,11 +23,11 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
-#include <signal.h>
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
 extern "C" {
-
 #include "fpgad/api/logging.h"
 #include "fpgad/monitored_device.h"
 #include "fpgad/monitor_thread.h"
@@ -51,36 +51,18 @@ void mon_queue_response(fpgad_detection_status status,
                         void *response_context);
 
 void mon_monitor(fpgad_monitored_device *d);
-
 }
 
-#include <config.h>
-#include <opae/fpga.h>
-
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <errno.h>
-#include <unistd.h>
-#include <fstream>
-#include <thread>
-#include <chrono>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
 
 using namespace opae::testing;
 
-class fpgad_monitor_c_p : public ::testing::TestWithParam<std::string> {
+class fpgad_monitor_c_p : public opae_base_p<> {
  protected:
-  fpgad_monitor_c_p() {}
 
   virtual void SetUp() override {
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
+    opae_base_p<>::SetUp();
 
     log_set(stdout);
   }
@@ -88,11 +70,9 @@ class fpgad_monitor_c_p : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     log_close();
 
-    system_->finalize();
+    opae_base_p<>::TearDown();
   }
 
-  test_platform platform_;
-  test_system *system_;
 };
 
 static void test_evt_response(fpgad_monitored_device *dev,
@@ -206,4 +186,4 @@ TEST_P(fpgad_monitor_c_p, null_response0) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_monitor_c_p);
 INSTANTIATE_TEST_SUITE_P(fpgad_monitor_c, fpgad_monitor_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
+                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));

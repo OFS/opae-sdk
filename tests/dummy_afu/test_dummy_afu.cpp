@@ -23,18 +23,15 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
-#include <stdarg.h>
-#include <linux/ioctl.h>
+#ifdef HAVE_CONFIG_H
 #include <config.h>
-#include "fpga-dfl.h"
-
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
-#include "mock/fpgad_control.h"
-#include <opae/fpga.h>
+#endif // HAVE_CONFIG_H
 
 #include <CLI/CLI.hpp>
+
+#include "fpga-dfl.h"
+#define NO_OPAE_C
+#include "mock/opae_fpgad_fixtures.h"
 
 #include "mmio.h"
 #include "lpbk.h"
@@ -91,42 +88,32 @@ public:
 
 private:
   uint32_t sleep_msec_;
-
 };
 
-class dummy_afu_p : public ::testing::TestWithParam<std::string>,
-                    public fpgad_control {
+class dummy_afu_p : public opae_fpgad_p<> {
  protected:
-  dummy_afu_p()
-  : app_(0)
-  {
-  }
+  dummy_afu_p() :
+    app_(nullptr)
+  {}
 
   virtual void SetUp() override {
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
+    opae_fpgad_p<>::SetUp();
 
-    EXPECT_EQ(fpgaInitialize(NULL), FPGA_OK);
     system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
+
     app_ = new dummy_afu::dummy_afu(AFU_ID);
     app_->register_command<dummy_afu::mmio_test>();
     app_->register_command<dummy_afu::ddr_test>();
     app_->register_command<dummy_afu::lpbk_test>();
     app_->register_command<sleep_test>();
-    fpgad_start();
   }
 
   virtual void TearDown() override {
-    fpgad_stop();
     delete app_;
-    app_ = 0;
-    fpgaFinalize();
-    system_->finalize();
+    app_ = nullptr;
     clear_args();
+
+    opae_fpgad_p<>::TearDown();
   }
 
   void clear_args() {
@@ -134,8 +121,6 @@ class dummy_afu_p : public ::testing::TestWithParam<std::string>,
     args_.clear();
   }
 
-  test_platform platform_;
-  test_system *system_;
   dummy_afu::dummy_afu *app_;
   std::vector<char*> args_;
 };
@@ -265,7 +250,7 @@ TEST_P(dummy_afu_p, main_invalid_guid) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(dummy_afu_p);
 INSTANTIATE_TEST_SUITE_P(dummy_afu, dummy_afu_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"dfl-d5005"})));
+                         ::testing::ValuesIn(test_platform::mock_platforms({"dfl-d5005"})));
 
 TEST(dummy_afu, parse_pcie_address)
 {

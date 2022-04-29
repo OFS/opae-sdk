@@ -23,30 +23,27 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
 #include <opae/cxx/core/sysobject.h>
 
-#include <array>
-#include <string>
-#include <vector>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
 
 using namespace opae::testing;
 using namespace opae::fpga::types;
 
-class sysobject_cxx_p : public ::testing::TestWithParam<std::string> {
+class sysobject_cxx_p : public opae_base_p<> {
  protected:
-  sysobject_cxx_p() {}
+  sysobject_cxx_p() :
+    handle_(nullptr),
+    handle_dev_(nullptr)
+  {}
 
   virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-    invalid_device_ = test_device::unknown();
-
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    opae_base_p<>::SetUp();
 
     properties::ptr_t props = properties::get(FPGA_ACCELERATOR);
     props->device_id = platform_.devices[0].device_id;
@@ -68,21 +65,24 @@ class sysobject_cxx_p : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     tokens_.clear();
     tokens_dev_.clear();
-    if (handle_.get())
+
+    if (handle_.get()) {
       handle_->close();
-    handle_.reset();
-    handle_dev_.reset();
-    fpgaFinalize();
-    system_->finalize();
+      handle_.reset();
+    }
+
+    if (handle_dev_.get()) {
+      handle_dev_->close();
+      handle_dev_.reset();
+    }
+
+    opae_base_p<>::TearDown();
   }
 
-  std::vector<token::ptr_t> tokens_;
-  std::vector<token::ptr_t> tokens_dev_;
   handle::ptr_t handle_;
   handle::ptr_t handle_dev_;
-  test_platform platform_;
-  test_device invalid_device_;
-  test_system *system_;
+  std::vector<token::ptr_t> tokens_;
+  std::vector<token::ptr_t> tokens_dev_;
 };
 
 /**
@@ -135,7 +135,7 @@ TEST_P(sysobject_cxx_p, handle_object) {
  * Then no exceptions are thrown
  */
 TEST_P(sysobject_cxx_p, handle_object_write) {
-  std::string path = "iperf/fabric/freeze";;
+  std::string path = "iperf/fabric/freeze";
 
   if (platform_.devices[0].device_id == 0x09c4 || 
       platform_.devices[0].device_id == 0x09c5 ||
@@ -246,5 +246,8 @@ TEST_P(sysobject_cxx_p, read_bytes) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysobject_cxx_p);
 INSTANTIATE_TEST_SUITE_P(sysobject_cxx, sysobject_cxx_p,
-         ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));
-
+                         ::testing::ValuesIn(test_platform::platforms({
+                                                                        "skx-p",
+                                                                        "dcp-rc",
+                                                                        "dcp-vc"
+                                                                      })));

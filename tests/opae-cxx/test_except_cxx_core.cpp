@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,6 +23,9 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
 #include "gtest/gtest.h"
 #include <opae/cxx/core/except.h>
@@ -40,7 +43,7 @@ TEST(except_cxx_core, except_01) {
 
   EXPECT_STREQ("test_except_cxx_core.cpp", loc.file());
   EXPECT_STREQ("TestBody", loc.fn());
-  EXPECT_EQ(39, loc.line());
+  EXPECT_EQ(42, loc.line());
 }
 
 /**
@@ -68,7 +71,7 @@ TEST(except_cxx_core, except_03) {
 
   EXPECT_EQ(FPGA_INVALID_PARAM, e);
   EXPECT_STREQ("failed with error invalid parameter at: "
-               "test_except_cxx_core.cpp:TestBody():67",
+               "test_except_cxx_core.cpp:TestBody():70",
                e.what());
 }
 

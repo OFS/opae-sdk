@@ -23,9 +23,14 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-#include <opae/fpga.h>
 #include <limits.h>
+
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
 
 #define ARRAY_SIZE(a) (sizeof(a)/sizeof(*a))
 
@@ -115,43 +120,16 @@ int parse_error_args(int argc, char *argv[]);
 
 }
 
-#include <iostream>
-#include <vector>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <errno.h>
-#include <unistd.h>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
-
 using namespace opae::testing;
 
-class fpgainfo_c_p : public ::testing::TestWithParam<std::string> {
-    protected:
-        fpgainfo_c_p() {}
+class fpgainfo_c_p : public opae_base_p<> {
+ protected:
 
-        virtual void SetUp() override 
-        {
-            std::string platform_key = GetParam();
-            ASSERT_TRUE(test_platform::exists(platform_key));
-            platform_ = test_platform::get(platform_key);
-            system_ = test_system::instance();
-            system_->initialize();
-            system_->prepare_syfs(platform_);
-
-            EXPECT_EQ(fpgaInitialize(nullptr), FPGA_OK);
-
-            optind = 0;
-        }
-
-        virtual void TearDown() override {
-            fpgaFinalize();
-            system_->finalize();
-        }
-
-        test_platform platform_;
-        test_system *system_;
+  virtual void SetUp() override
+  {
+    opae_base_p<>::SetUp();
+    optind = 0;
+  }
 };
 
 /**
@@ -161,27 +139,27 @@ class fpgainfo_c_p : public ::testing::TestWithParam<std::string> {
  *             returns non-nullptr <br>
  */
 TEST_P(fpgainfo_c_p, get_command0) {
-    char cmd[20];
+  char cmd[20];
 
-    strcpy(cmd, "errors");
-    EXPECT_NE(get_command(cmd), nullptr);
+  strcpy(cmd, "errors");
+  EXPECT_NE(get_command(cmd), nullptr);
 
-    strcpy(cmd, "power");
-    EXPECT_NE(get_command(cmd), nullptr);
+  strcpy(cmd, "power");
+  EXPECT_NE(get_command(cmd), nullptr);
 
-    strcpy(cmd, "temp");
-    EXPECT_NE(get_command(cmd), nullptr);
+  strcpy(cmd, "temp");
+  EXPECT_NE(get_command(cmd), nullptr);
 
-    strcpy(cmd, "fme");
-    EXPECT_NE(get_command(cmd), nullptr);
+  strcpy(cmd, "fme");
+  EXPECT_NE(get_command(cmd), nullptr);
 
-    strcpy(cmd, "port");
-    EXPECT_NE(get_command(cmd), nullptr);
+  strcpy(cmd, "port");
+  EXPECT_NE(get_command(cmd), nullptr);
 
-    /*
-    strcpy(cmd, "bmc");
-    EXPECT_NE(get_command(cmd), nullptr);
-    */
+  /*
+  strcpy(cmd, "bmc");
+  EXPECT_NE(get_command(cmd), nullptr);
+  */
 }
 
 /**
@@ -191,10 +169,10 @@ TEST_P(fpgainfo_c_p, get_command0) {
  *             returns nullptr <br>
  */
 TEST_P(fpgainfo_c_p, get_command1) {
-    char cmd[20];
+  char cmd[20];
 
-    strcpy(cmd, "???");
-    EXPECT_EQ(get_command(cmd), nullptr);
+  strcpy(cmd, "???");
+  EXPECT_EQ(get_command(cmd), nullptr);
 }
 
 
@@ -205,48 +183,48 @@ TEST_P(fpgainfo_c_p, get_command1) {
  *             returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, errors_filter0) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char three[20];
-    char *argv3[] = { zero, one, two, NULL };
-    char *argv4[] = { zero, one, two, three, NULL };
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char *argv3[] = { zero, one, two, NULL };
+  char *argv4[] = { zero, one, two, three, NULL };
 
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  fpga_properties filter = NULL;
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "errors");
-    strcpy(two, "fme");
-    EXPECT_EQ(errors_filter(&filter, 3, argv3), FPGA_OK);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "errors");
+  strcpy(two, "fme");
+  EXPECT_EQ(errors_filter(&filter, 3, argv3), FPGA_OK);
 
-    strcpy(two, "port");
-    EXPECT_EQ(errors_filter(&filter, 3, argv3), FPGA_OK);
+  strcpy(two, "port");
+  EXPECT_EQ(errors_filter(&filter, 3, argv3), FPGA_OK);
 
-    strcpy(two, "all");
-    EXPECT_EQ(errors_filter(&filter, 3, argv3), FPGA_OK);
+  strcpy(two, "all");
+  EXPECT_EQ(errors_filter(&filter, 3, argv3), FPGA_OK);
 
-    strcpy(two, "fme");
-    strcpy(three, "-c");
-    EXPECT_EQ(errors_filter(&filter, 4, argv4), FPGA_OK);
+  strcpy(two, "fme");
+  strcpy(three, "-c");
+  EXPECT_EQ(errors_filter(&filter, 4, argv4), FPGA_OK);
 
-    strcpy(two, "port");
-    EXPECT_EQ(errors_filter(&filter, 4, argv4), FPGA_OK);
+  strcpy(two, "port");
+  EXPECT_EQ(errors_filter(&filter, 4, argv4), FPGA_OK);
 
-    strcpy(two, "all");
-    EXPECT_EQ(errors_filter(&filter, 4, argv4), FPGA_OK);
+  strcpy(two, "all");
+  EXPECT_EQ(errors_filter(&filter, 4, argv4), FPGA_OK);
 
-    strcpy(two, "fme");
-    strcpy(three, "--force");
-    EXPECT_EQ(errors_filter(&filter, 4, argv4), FPGA_OK);
+  strcpy(two, "fme");
+  strcpy(three, "--force");
+  EXPECT_EQ(errors_filter(&filter, 4, argv4), FPGA_OK);
 
-    strcpy(two, "port");
-    EXPECT_EQ(errors_filter(&filter, 4, argv4), FPGA_OK);
+  strcpy(two, "port");
+  EXPECT_EQ(errors_filter(&filter, 4, argv4), FPGA_OK);
 
-    strcpy(two, "all");
-    EXPECT_EQ(errors_filter(&filter, 4, argv4), FPGA_OK);
+  strcpy(two, "all");
+  EXPECT_EQ(errors_filter(&filter, 4, argv4), FPGA_OK);
 
-    ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+  ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -256,85 +234,85 @@ TEST_P(fpgainfo_c_p, errors_filter0) {
  *             relevant information and returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, errors_command0) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char three[20];
-    char *argv3[] = { zero, one, two, NULL };
-    char *argv4[] = { zero, one, two, three, NULL };
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char *argv3[] = { zero, one, two, NULL };
+  char *argv4[] = { zero, one, two, three, NULL };
 
-    fpga_properties filter = NULL;
-    fpga_token *tokens = NULL;
-    uint32_t matches = 0, num_tokens = 0;;
+  fpga_properties filter = NULL;
+  fpga_token *tokens = NULL;
+  uint32_t matches = 0, num_tokens = 0;;
 
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
-    ASSERT_GT(matches, 0);
-    tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
+  ASSERT_GT(matches, 0);
+  tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
 
-    num_tokens = matches;
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
+  num_tokens = matches;
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "errors");
-    strcpy(two, "all");
-    EXPECT_EQ(errors_command(tokens, num_tokens, 3, argv3), FPGA_OK);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "errors");
+  strcpy(two, "all");
+  EXPECT_EQ(errors_command(tokens, num_tokens, 3, argv3), FPGA_OK);
 
-    strcpy(two, "fme");
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
-    EXPECT_EQ(errors_command(tokens, num_tokens, 3, argv3), FPGA_OK);
+  strcpy(two, "fme");
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
+  EXPECT_EQ(errors_command(tokens, num_tokens, 3, argv3), FPGA_OK);
 
-    strcpy(two, "port");
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_ACCELERATOR), FPGA_OK);
-    EXPECT_EQ(errors_command(tokens, num_tokens, 3, argv3), FPGA_OK);
+  strcpy(two, "port");
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_ACCELERATOR), FPGA_OK);
+  EXPECT_EQ(errors_command(tokens, num_tokens, 3, argv3), FPGA_OK);
 
-    strcpy(two, "all");
-    strcpy(three, "-h");
-    EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv4), FPGA_OK);
+  strcpy(two, "all");
+  strcpy(three, "-h");
+  EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv4), FPGA_OK);
 
-    strcpy(two, "fme");
-    strcpy(three, "-h");
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
-    EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv4), FPGA_OK);
+  strcpy(two, "fme");
+  strcpy(three, "-h");
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
+  EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv4), FPGA_OK);
 
-    strcpy(two, "port");
-    strcpy(three, "-h");
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_ACCELERATOR), FPGA_OK);
-    EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv4), FPGA_OK);
+  strcpy(two, "port");
+  strcpy(three, "-h");
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_ACCELERATOR), FPGA_OK);
+  EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv4), FPGA_OK);
 
-    strcpy(two, "all");
-    strcpy(three, "-c");
-    EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv4), FPGA_OK);
+  strcpy(two, "all");
+  strcpy(three, "-c");
+  EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv4), FPGA_OK);
 
-    strcpy(two, "fme");
-    strcpy(three, "-c");
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
-    EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv4), FPGA_OK);
+  strcpy(two, "fme");
+  strcpy(three, "-c");
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
+  EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv4), FPGA_OK);
 
-    strcpy(two, "port");
-    strcpy(three, "-c");
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_ACCELERATOR), FPGA_OK);
-    EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv4), FPGA_OK);
+  strcpy(two, "port");
+  strcpy(three, "-c");
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_ACCELERATOR), FPGA_OK);
+  EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv4), FPGA_OK);
 
-    strcpy(two, "all");
-    strcpy(three, "--force");
-    EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv4), FPGA_OK);
+  strcpy(two, "all");
+  strcpy(three, "--force");
+  EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv4), FPGA_OK);
 
-    strcpy(two, "fme");
-    strcpy(three, "--force");
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
-    EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv4), FPGA_OK);
+  strcpy(two, "fme");
+  strcpy(three, "--force");
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
+  EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv4), FPGA_OK);
 
-    strcpy(two, "port");
-    strcpy(three, "--force");
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_ACCELERATOR), FPGA_OK);
-    EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv4), FPGA_OK);
+  strcpy(two, "port");
+  strcpy(three, "--force");
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_ACCELERATOR), FPGA_OK);
+  EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv4), FPGA_OK);
 
-    for (uint32_t i = 0; i < num_tokens; ++i) {
-        fpgaDestroyToken(&tokens[i]);
-    }
-    free(tokens);
-    fpgaDestroyProperties(&filter);
+  for (uint32_t i = 0; i < num_tokens; ++i) {
+      fpgaDestroyToken(&tokens[i]);
+  }
+  free(tokens);
+  fpgaDestroyProperties(&filter);
 }
 
 /**
@@ -344,37 +322,37 @@ TEST_P(fpgainfo_c_p, errors_command0) {
  *             prints and clears errors.<br>
  */
 TEST_P(fpgainfo_c_p, parse_error_args_errors_clear) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char three[20];
-    char *argv[] = { zero, one, two, three, NULL };
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char *argv[] = { zero, one, two, three, NULL };
 
-    fpga_properties filter = NULL;
-    fpga_token *tokens = NULL;
-    uint32_t matches = 0, num_tokens = 0;;
+  fpga_properties filter = NULL;
+  fpga_token *tokens = NULL;
+  uint32_t matches = 0, num_tokens = 0;;
 
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
-    ASSERT_GT(matches, 0);
-    tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
+  ASSERT_GT(matches, 0);
+  tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
 
-    num_tokens = matches;
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
+  num_tokens = matches;
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "errors");
-    strcpy(two, "all");
-    strcpy(three, "-c");
-    EXPECT_EQ(parse_error_args(4, argv), 0);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "errors");
+  strcpy(two, "all");
+  strcpy(three, "-c");
+  EXPECT_EQ(parse_error_args(4, argv), 0);
 
-    EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv), FPGA_OK);
+  EXPECT_EQ(errors_command(tokens, num_tokens, 4, argv), FPGA_OK);
 
-    for (uint32_t i = 0; i < num_tokens; ++i) {
-        fpgaDestroyToken(&tokens[i]);
-    }
-    free(tokens);
-    fpgaDestroyProperties(&filter);
+  for (uint32_t i = 0; i < num_tokens; ++i) {
+    fpgaDestroyToken(&tokens[i]);
+  }
+  free(tokens);
+  fpgaDestroyProperties(&filter);
 }
 
 /**
@@ -385,13 +363,13 @@ TEST_P(fpgainfo_c_p, parse_error_args_errors_clear) {
  *             an error.<br>
  */
 TEST_P(fpgainfo_c_p, parse_error_args_neg) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "-k");
-    EXPECT_NE(parse_error_args(2, argv), 0);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "-k");
+  EXPECT_NE(parse_error_args(2, argv), 0);
 }
 
 /**
@@ -401,7 +379,7 @@ TEST_P(fpgainfo_c_p, parse_error_args_neg) {
  *             subcommand.<br>
  */
 TEST_P(fpgainfo_c_p, errors_help) {
-    errors_help();
+  errors_help();
 }
 
 /**
@@ -411,28 +389,28 @@ TEST_P(fpgainfo_c_p, errors_help) {
  *             help message for errors subcommand.<br>
  */
 TEST_P(fpgainfo_c_p, parse_error_args_help) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    std::string expected = "\nPrint and clear errors\n"
-                      "        fpgainfo errors [-h] [-c] {all,fme,port}\n\n"
-                      "                -h,--help           Print this help\n"
-                      "                -c,--clear          Clear all errors\n"
-                      "                --force             Retry clearing errors 64 times\n"
-                      "                                    to clear certain error conditions\n"
-                      "\n";
+  std::string expected = "\nPrint and clear errors\n"
+                    "        fpgainfo errors [-h] [-c] {all,fme,port}\n\n"
+                    "                -h,--help           Print this help\n"
+                    "                -c,--clear          Clear all errors\n"
+                    "                --force             Retry clearing errors 64 times\n"
+                    "                                    to clear certain error conditions\n"
+                    "\n";
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "-h");
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "-h");
 
-    testing::internal::CaptureStdout();
+  testing::internal::CaptureStdout();
 
-    EXPECT_NE(parse_error_args(2, argv), 0);
+  EXPECT_NE(parse_error_args(2, argv), 0);
 
-    std::string log_stdout = testing::internal::GetCapturedStdout();
+  std::string log_stdout = testing::internal::GetCapturedStdout();
 
-    EXPECT_TRUE(log_stdout.find(expected) != std::string::npos);
+  EXPECT_TRUE(log_stdout.find(expected) != std::string::npos);
 }
 
 /**
@@ -442,20 +420,20 @@ TEST_P(fpgainfo_c_p, parse_error_args_help) {
  *             prints help message and returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, errors_filter1) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char *argv[] = { zero, one, two, NULL };
+  char zero[20];
+  char one[20];
+  char two[20];
+  char *argv[] = { zero, one, two, NULL };
 
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  fpga_properties filter = NULL;
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "errors");
-    strcpy(two, "???");
-    EXPECT_EQ(errors_filter(&filter, 3, argv), FPGA_OK);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "errors");
+  strcpy(two, "???");
+  EXPECT_EQ(errors_filter(&filter, 3, argv), FPGA_OK);
 
-    ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+  ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -466,26 +444,26 @@ TEST_P(fpgainfo_c_p, errors_filter1) {
  *             help messages and return FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, errors_filter2) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char *argv2[] = { zero, one, NULL };
-    char *argv3[] = { zero, one, two, NULL };
+  char zero[20];
+  char one[20];
+  char two[20];
+  char *argv2[] = { zero, one, NULL };
+  char *argv3[] = { zero, one, two, NULL };
 
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  fpga_properties filter = NULL;
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "errors");
-    EXPECT_EQ(errors_filter(&filter, 2, argv2), FPGA_OK);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "errors");
+  EXPECT_EQ(errors_filter(&filter, 2, argv2), FPGA_OK);
 
-    strcpy(two, "-c");
-    EXPECT_EQ(errors_filter(&filter, 3, argv3), FPGA_OK);
+  strcpy(two, "-c");
+  EXPECT_EQ(errors_filter(&filter, 3, argv3), FPGA_OK);
 
-    strcpy(two, "--force");
-    EXPECT_EQ(errors_filter(&filter, 3, argv3), FPGA_OK);
+  strcpy(two, "--force");
+  EXPECT_EQ(errors_filter(&filter, 3, argv3), FPGA_OK);
 
-    ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+  ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -495,17 +473,17 @@ TEST_P(fpgainfo_c_p, errors_filter2) {
  *             returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, fme_filter0) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  fpga_properties filter = NULL;
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "fme");
-    EXPECT_EQ(fme_filter(&filter, 2, argv), FPGA_OK);
-    ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "fme");
+  EXPECT_EQ(fme_filter(&filter, 2, argv), FPGA_OK);
+  ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -515,32 +493,32 @@ TEST_P(fpgainfo_c_p, fme_filter0) {
  *             relevant information and returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, fme_command0) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    fpga_properties filter = NULL;
-    fpga_token *tokens = NULL;
-    uint32_t matches = 0, num_tokens = 0;;
+  fpga_properties filter = NULL;
+  fpga_token *tokens = NULL;
+  uint32_t matches = 0, num_tokens = 0;;
 
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
-    ASSERT_GT(matches, 0);
-    tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
+  ASSERT_GT(matches, 0);
+  tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
 
-    num_tokens = matches;
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
+  num_tokens = matches;
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "fme");
-    EXPECT_EQ(fme_command(tokens, num_tokens, 2, argv), FPGA_OK);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "fme");
+  EXPECT_EQ(fme_command(tokens, num_tokens, 2, argv), FPGA_OK);
 
-    for (uint32_t i = 0; i < num_tokens; ++i) {
-        fpgaDestroyToken(&tokens[i]);
-    }
-    free(tokens);
-    fpgaDestroyProperties(&filter);
+  for (uint32_t i = 0; i < num_tokens; ++i) {
+    fpgaDestroyToken(&tokens[i]);
+  }
+  free(tokens);
+  fpgaDestroyProperties(&filter);
 }
 
 /**
@@ -550,17 +528,17 @@ TEST_P(fpgainfo_c_p, fme_command0) {
  *             fme help message and returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, fme_command1) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char *argv[] = { zero, one, two, NULL };
+  char zero[20];
+  char one[20];
+  char two[20];
+  char *argv[] = { zero, one, two, NULL };
 
-    fpga_token *tokens = NULL;
+  fpga_token *tokens = NULL;
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "fme");
-    strcpy(two, "-h");
-    EXPECT_EQ(fme_command(tokens, 0, 3, argv), FPGA_OK);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "fme");
+  strcpy(two, "-h");
+  EXPECT_EQ(fme_command(tokens, 0, 3, argv), FPGA_OK);
 }
 
 /**
@@ -569,7 +547,7 @@ TEST_P(fpgainfo_c_p, fme_command1) {
  * @details    The function prints help message for fme subcommand.<br>
  */
 TEST_P(fpgainfo_c_p, fme_help) {
-    fme_help();
+  fme_help();
 }
 
 /**
@@ -579,17 +557,17 @@ TEST_P(fpgainfo_c_p, fme_help) {
  *             returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, port_filter0) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  fpga_properties filter = NULL;
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "port");
-    EXPECT_EQ(port_filter(&filter, 2, argv), FPGA_OK);
-    ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "port");
+  EXPECT_EQ(port_filter(&filter, 2, argv), FPGA_OK);
+  ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -599,32 +577,32 @@ TEST_P(fpgainfo_c_p, port_filter0) {
  *             relevant information and returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, port_command0) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    fpga_properties filter = NULL;
-    fpga_token *tokens = NULL;
-    uint32_t matches = 0, num_tokens = 0;;
+  fpga_properties filter = NULL;
+  fpga_token *tokens = NULL;
+  uint32_t matches = 0, num_tokens = 0;;
 
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
-    ASSERT_GT(matches, 0);
-    tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_ACCELERATOR), FPGA_OK);
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
+  ASSERT_GT(matches, 0);
+  tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
 
-    num_tokens = matches;
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
+  num_tokens = matches;
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "port");
-    EXPECT_EQ(port_command(tokens, num_tokens, 2, argv), FPGA_OK);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "port");
+  EXPECT_EQ(port_command(tokens, num_tokens, 2, argv), FPGA_OK);
 
-    for (uint32_t i = 0; i < num_tokens; ++i) {
-        fpgaDestroyToken(&tokens[i]);
-    }
-    free(tokens);
-    fpgaDestroyProperties(&filter);
+  for (uint32_t i = 0; i < num_tokens; ++i) {
+    fpgaDestroyToken(&tokens[i]);
+  }
+  free(tokens);
+  fpgaDestroyProperties(&filter);
 }
 
 /**
@@ -634,17 +612,17 @@ TEST_P(fpgainfo_c_p, port_command0) {
  *             port help message and returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, port_command1) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char *argv[] = { zero, one, two, NULL };
+  char zero[20];
+  char one[20];
+  char two[20];
+  char *argv[] = { zero, one, two, NULL };
 
-    fpga_token *tokens = NULL;
+  fpga_token *tokens = NULL;
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "port");
-    strcpy(two, "-h");
-    EXPECT_EQ(port_command(tokens, 0, 3, argv), FPGA_OK);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "port");
+  strcpy(two, "-h");
+  EXPECT_EQ(port_command(tokens, 0, 3, argv), FPGA_OK);
 }
 
 /**
@@ -653,7 +631,7 @@ TEST_P(fpgainfo_c_p, port_command1) {
  * @details    The function prints help message for port subcommand.<br>
  */
 TEST_P(fpgainfo_c_p, port_help) {
-    port_help();
+  port_help();
 }
 
 /**
@@ -663,17 +641,17 @@ TEST_P(fpgainfo_c_p, port_help) {
  *             returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, power_filter0) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  fpga_properties filter = NULL;
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "power");
-    EXPECT_EQ(power_filter(&filter, 2, argv), FPGA_OK);
-    ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "power");
+  EXPECT_EQ(power_filter(&filter, 2, argv), FPGA_OK);
+  ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -683,32 +661,32 @@ TEST_P(fpgainfo_c_p, power_filter0) {
  *             relevant information and returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, power_command0) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    fpga_properties filter = NULL;
-    fpga_token *tokens = NULL;
-    uint32_t matches = 0, num_tokens = 0;;
+  fpga_properties filter = NULL;
+  fpga_token *tokens = NULL;
+  uint32_t matches = 0, num_tokens = 0;;
 
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
-    ASSERT_GT(matches, 0);
-    tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
+  ASSERT_GT(matches, 0);
+  tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
 
-    num_tokens = matches;
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
+  num_tokens = matches;
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "power");
-    EXPECT_EQ(power_command(tokens, num_tokens, 2, argv), FPGA_OK);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "power");
+  EXPECT_EQ(power_command(tokens, num_tokens, 2, argv), FPGA_OK);
 
-    for (uint32_t i = 0; i < num_tokens; ++i) {
-        fpgaDestroyToken(&tokens[i]);
-    }
-    free(tokens);
-    fpgaDestroyProperties(&filter);
+  for (uint32_t i = 0; i < num_tokens; ++i) {
+    fpgaDestroyToken(&tokens[i]);
+  }
+  free(tokens);
+  fpgaDestroyProperties(&filter);
 }
 
 /**
@@ -718,17 +696,17 @@ TEST_P(fpgainfo_c_p, power_command0) {
  *             power help message and returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, power_command1) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char *argv[] = { zero, one, two, NULL };
+  char zero[20];
+  char one[20];
+  char two[20];
+  char *argv[] = { zero, one, two, NULL };
 
-    fpga_token *tokens = NULL;
+  fpga_token *tokens = NULL;
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "power");
-    strcpy(two, "-h");
-    EXPECT_EQ(power_command(tokens, 0, 3, argv), FPGA_OK);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "power");
+  strcpy(two, "-h");
+  EXPECT_EQ(power_command(tokens, 0, 3, argv), FPGA_OK);
 }
 
 /**
@@ -737,7 +715,7 @@ TEST_P(fpgainfo_c_p, power_command1) {
  * @details    The function prints help message for power subcommand.<br>
  */
 TEST_P(fpgainfo_c_p, power_help) {
-    power_help();
+  power_help();
 }
 
 /**
@@ -747,17 +725,17 @@ TEST_P(fpgainfo_c_p, power_help) {
  *             returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, temp_filter0) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  fpga_properties filter = NULL;
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "temp");
-    EXPECT_EQ(temp_filter(&filter, 2, argv), FPGA_OK);
-    ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "temp");
+  EXPECT_EQ(temp_filter(&filter, 2, argv), FPGA_OK);
+  ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -767,32 +745,32 @@ TEST_P(fpgainfo_c_p, temp_filter0) {
  *             relevant information and returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, temp_command0) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    fpga_properties filter = NULL;
-    fpga_token *tokens = NULL;
-    uint32_t matches = 0, num_tokens = 0;;
+  fpga_properties filter = NULL;
+  fpga_token *tokens = NULL;
+  uint32_t matches = 0, num_tokens = 0;;
 
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
-    ASSERT_GT(matches, 0);
-    tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
+  ASSERT_GT(matches, 0);
+  tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
 
-    num_tokens = matches;
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
+  num_tokens = matches;
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "temp");
-    EXPECT_EQ(temp_command(tokens, num_tokens, 2, argv), FPGA_OK);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "temp");
+  EXPECT_EQ(temp_command(tokens, num_tokens, 2, argv), FPGA_OK);
 
-    for (uint32_t i = 0; i < num_tokens; ++i) {
-        fpgaDestroyToken(&tokens[i]);
-    }
-    free(tokens);
-    fpgaDestroyProperties(&filter);
+  for (uint32_t i = 0; i < num_tokens; ++i) {
+    fpgaDestroyToken(&tokens[i]);
+  }
+  free(tokens);
+  fpgaDestroyProperties(&filter);
 }
 
 /**
@@ -802,17 +780,17 @@ TEST_P(fpgainfo_c_p, temp_command0) {
  *             temp help message and returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, temp_command1) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char *argv[] = { zero, one, two, NULL };
+  char zero[20];
+  char one[20];
+  char two[20];
+  char *argv[] = { zero, one, two, NULL };
 
-    fpga_token *tokens = NULL;
+  fpga_token *tokens = NULL;
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "temp");
-    strcpy(two, "-h");
-    EXPECT_EQ(temp_command(tokens, 0, 3, argv), FPGA_OK);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "temp");
+  strcpy(two, "-h");
+  EXPECT_EQ(temp_command(tokens, 0, 3, argv), FPGA_OK);
 }
 
 /**
@@ -821,7 +799,7 @@ TEST_P(fpgainfo_c_p, temp_command1) {
  * @details    The function prints help message for temp subcommand.<br>
  */
 TEST_P(fpgainfo_c_p, temp_help) {
-    temp_help();
+  temp_help();
 }
 
 /**
@@ -831,17 +809,17 @@ TEST_P(fpgainfo_c_p, temp_help) {
  *             returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, bmc_filter0) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  fpga_properties filter = NULL;
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "bmc");
-    EXPECT_EQ(bmc_filter(&filter, 2, argv), FPGA_OK);
-    ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "bmc");
+  EXPECT_EQ(bmc_filter(&filter, 2, argv), FPGA_OK);
+  ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -851,32 +829,32 @@ TEST_P(fpgainfo_c_p, bmc_filter0) {
  *             relevant information and returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, bmc_command0) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    fpga_properties filter = NULL;
-    fpga_token *tokens = NULL;
-    uint32_t matches = 0, num_tokens = 0;;
+  fpga_properties filter = NULL;
+  fpga_token *tokens = NULL;
+  uint32_t matches = 0, num_tokens = 0;;
 
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
-    ASSERT_GT(matches, 0);
-    tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
+  ASSERT_GT(matches, 0);
+  tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
 
-    num_tokens = matches;
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
+  num_tokens = matches;
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "bmc");
-    EXPECT_EQ(bmc_command(tokens, num_tokens, 2, argv), FPGA_OK);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "bmc");
+  EXPECT_EQ(bmc_command(tokens, num_tokens, 2, argv), FPGA_OK);
 
-    for (uint32_t i = 0; i < num_tokens; ++i) {
-        fpgaDestroyToken(&tokens[i]);
-    }
-    free(tokens);
-    fpgaDestroyProperties(&filter);
+  for (uint32_t i = 0; i < num_tokens; ++i) {
+    fpgaDestroyToken(&tokens[i]);
+  }
+  free(tokens);
+  fpgaDestroyProperties(&filter);
 }
 
 /**
@@ -886,17 +864,17 @@ TEST_P(fpgainfo_c_p, bmc_command0) {
  *             bmc help message and returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, bmc_command1) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char *argv[] = { zero, one, two, NULL };
+  char zero[20];
+  char one[20];
+  char two[20];
+  char *argv[] = { zero, one, two, NULL };
 
-    fpga_token *tokens = NULL;
+  fpga_token *tokens = NULL;
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "bmc");
-    strcpy(two, "-h");
-    EXPECT_EQ(bmc_command(tokens, 0, 3, argv), FPGA_OK);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "bmc");
+  strcpy(two, "-h");
+  EXPECT_EQ(bmc_command(tokens, 0, 3, argv), FPGA_OK);
 }
 
 /**
@@ -906,17 +884,17 @@ TEST_P(fpgainfo_c_p, bmc_command1) {
  *             bmc help message and returns FPGA_INVALID_PARAM. <br>
  */
 TEST_P(fpgainfo_c_p, bmc_command2) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char *argv[] = { zero, one, two, NULL };
+  char zero[20];
+  char one[20];
+  char two[20];
+  char *argv[] = { zero, one, two, NULL };
 
-    fpga_token *tokens = NULL;
+  fpga_token *tokens = NULL;
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "bmc");
-    strcpy(two, "-xyz");
-    EXPECT_EQ(bmc_command(tokens, 0, 3, argv), FPGA_INVALID_PARAM);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "bmc");
+  strcpy(two, "-xyz");
+  EXPECT_EQ(bmc_command(tokens, 0, 3, argv), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -925,7 +903,7 @@ TEST_P(fpgainfo_c_p, bmc_command2) {
  * @details    The function prints help message for bmc subcommand.<br>
  */
 TEST_P(fpgainfo_c_p, bmc_help) {
-    bmc_help();
+  bmc_help();
 }
 
 /**
@@ -934,17 +912,17 @@ TEST_P(fpgainfo_c_p, bmc_help) {
  * @detault  Verify that events_filter doesn't fail
  */
 TEST_P(fpgainfo_c_p, events_filter) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
-    fpga_properties filter = NULL;
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
+  fpga_properties filter = NULL;
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "events");
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "events");
 
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    EXPECT_EQ(events_filter(&filter, 2, argv), FPGA_OK);
-    ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  EXPECT_EQ(events_filter(&filter, 2, argv), FPGA_OK);
+  ASSERT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -954,26 +932,26 @@ TEST_P(fpgainfo_c_p, events_filter) {
  *           verify parsing.
  */
 TEST_P(fpgainfo_c_p, events_command0) {
-    const char *args[] = {
-        "fpgainfo",
-        "events",
-        "--boot=1",
-        "--count=3",
-        "--sensors",
-        "--bits",
-        "--all",
-    };
-    char *argv[ARRAY_SIZE(args)];
-    size_t i;
+  const char *args[] = {
+      "fpgainfo",
+      "events",
+      "--boot=1",
+      "--count=3",
+      "--sensors",
+      "--bits",
+      "--all",
+  };
+  char *argv[ARRAY_SIZE(args)];
+  size_t i;
 
-    /* copy args to make them non-const */
-    for (i = 0; i < ARRAY_SIZE(args); i++)
-        argv[i] = strdup(args[i]);
+  /* copy args to make them non-const */
+  for (i = 0; i < ARRAY_SIZE(args); i++)
+    argv[i] = strdup(args[i]);
 
-    EXPECT_EQ(events_command(NULL, 0, ARRAY_SIZE(argv), argv), FPGA_OK);
+  EXPECT_EQ(events_command(NULL, 0, ARRAY_SIZE(argv), argv), FPGA_OK);
 
-    for (i = 0; i < ARRAY_SIZE(args); i++)
-        free(argv[i]);
+  for (i = 0; i < ARRAY_SIZE(args); i++)
+    free(argv[i]);
 }
 
 /**
@@ -983,22 +961,22 @@ TEST_P(fpgainfo_c_p, events_command0) {
  *           verify parsing.
  */
 TEST_P(fpgainfo_c_p, events_command1) {
-    const char *args[] = {
-        "fpgainfo",
-        "events",
-        "--help",
-    };
-    char *argv[ARRAY_SIZE(args)];
-    size_t i;
+  const char *args[] = {
+      "fpgainfo",
+      "events",
+      "--help",
+  };
+  char *argv[ARRAY_SIZE(args)];
+  size_t i;
 
-    /* copy args to make them non-const */
-    for (i = 0; i < ARRAY_SIZE(args); i++)
-        argv[i] = strdup(args[i]);
+  /* copy args to make them non-const */
+  for (i = 0; i < ARRAY_SIZE(args); i++)
+    argv[i] = strdup(args[i]);
 
-    EXPECT_EQ(events_command(NULL, 0, ARRAY_SIZE(argv), argv), FPGA_OK);
+  EXPECT_EQ(events_command(NULL, 0, ARRAY_SIZE(argv), argv), FPGA_OK);
 
-    for (i = 0; i < ARRAY_SIZE(args); i++)
-        free(argv[i]);
+  for (i = 0; i < ARRAY_SIZE(args); i++)
+    free(argv[i]);
 }
 
 /**
@@ -1008,38 +986,38 @@ TEST_P(fpgainfo_c_p, events_command1) {
  *           verify expected failure.
  */
 TEST_P(fpgainfo_c_p, events_command2) {
-    const char *args[] = {
-        "fpgainfo",
-        "events",
-        "",
-    };
-    const char *invalids[] = {
-        "--unknown",
-        "--boot=123nan56",
-        "--count=nan123",
-    };
-    char *argv[ARRAY_SIZE(args)];
-    size_t i;
+  const char *args[] = {
+      "fpgainfo",
+      "events",
+      "",
+  };
+  const char *invalids[] = {
+      "--unknown",
+      "--boot=123nan56",
+      "--count=nan123",
+  };
+  char *argv[ARRAY_SIZE(args)];
+  size_t i;
 
-    /* copy args to make them non-const */
-    for (i = 0; i < ARRAY_SIZE(args); i++)
-        argv[i] = strdup(args[i]);
+  /* copy args to make them non-const */
+  for (i = 0; i < ARRAY_SIZE(args); i++)
+    argv[i] = strdup(args[i]);
 
-    for (i = 0; i < ARRAY_SIZE(invalids); i++) {
-        const size_t arg = ARRAY_SIZE(argv) - 1;
+  for (i = 0; i < ARRAY_SIZE(invalids); i++) {
+    const size_t arg = ARRAY_SIZE(argv) - 1;
 
-        /* replace last argument with an invalid one */
-        free(argv[arg]);
-        argv[arg] = strdup(invalids[i]);
+    /* replace last argument with an invalid one */
+    free(argv[arg]);
+    argv[arg] = strdup(invalids[i]);
 
-        /* reset option index to prepare for (re)parsing arguments */
-        optind = 0;
+    /* reset option index to prepare for (re)parsing arguments */
+    optind = 0;
 
-        EXPECT_EQ(events_command(NULL, 0, ARRAY_SIZE(argv), argv), FPGA_INVALID_PARAM);
-    }
+    EXPECT_EQ(events_command(NULL, 0, ARRAY_SIZE(argv), argv), FPGA_INVALID_PARAM);
+  }
 
-    for (i = 0; i < ARRAY_SIZE(args); i++)
-        free(argv[i]);
+  for (i = 0; i < ARRAY_SIZE(args); i++)
+    free(argv[i]);
 }
 
 /**
@@ -1048,7 +1026,7 @@ TEST_P(fpgainfo_c_p, events_command2) {
  * @details  The function prints help message for events subcommand.<br>
  */
 TEST_P(fpgainfo_c_p, events_help) {
-    events_help();
+  events_help();
 }
 
 /**
@@ -1060,22 +1038,22 @@ TEST_P(fpgainfo_c_p, events_help) {
  */
 
 TEST_P(fpgainfo_c_p, get_metrics0) {
-    fpga_properties filter = NULL;
-    fpga_token token;
-    fpga_metric_info metrics_info[64];
-    fpga_metric metrics[64];
-    uint64_t num_metrics;
-    uint64_t num_metrics_info;
-    uint32_t matches = 0;
+  fpga_properties filter = NULL;
+  fpga_token token;
+  fpga_metric_info metrics_info[64];
+  fpga_metric metrics[64];
+  uint64_t num_metrics;
+  uint64_t num_metrics_info;
+  uint32_t matches = 0;
 
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
 
-    EXPECT_EQ(get_metrics(token, FPGA_ALL, metrics_info, &num_metrics_info, metrics, &num_metrics), FPGA_OK);
+  EXPECT_EQ(get_metrics(token, FPGA_ALL, metrics_info, &num_metrics_info, metrics, &num_metrics), FPGA_OK);
 
-    fpgaDestroyToken(&token);
-    fpgaDestroyProperties(&filter);
+  fpgaDestroyToken(&token);
+  fpgaDestroyProperties(&filter);
 }
 
 /**
@@ -1086,22 +1064,22 @@ TEST_P(fpgainfo_c_p, get_metrics0) {
  *             returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, get_metrics1) {
-    fpga_properties filter = NULL;
-    fpga_token token;
-    fpga_metric_info metrics_info[64];
-    fpga_metric metrics[64];
-    uint64_t num_metrics;
-    uint64_t num_metrics_info;
-    uint32_t matches = 0;
+  fpga_properties filter = NULL;
+  fpga_token token;
+  fpga_metric_info metrics_info[64];
+  fpga_metric metrics[64];
+  uint64_t num_metrics;
+  uint64_t num_metrics_info;
+  uint32_t matches = 0;
 
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
 
-    EXPECT_EQ(get_metrics(token, FPGA_POWER, metrics_info, &num_metrics_info, metrics, &num_metrics), FPGA_OK);
+  EXPECT_EQ(get_metrics(token, FPGA_POWER, metrics_info, &num_metrics_info, metrics, &num_metrics), FPGA_OK);
 
-    fpgaDestroyToken(&token);
-    fpgaDestroyProperties(&filter);
+  fpgaDestroyToken(&token);
+  fpgaDestroyProperties(&filter);
 }
 
 /**
@@ -1112,22 +1090,22 @@ TEST_P(fpgainfo_c_p, get_metrics1) {
  *             returns FPGA_OK. <br>
  */
 TEST_P(fpgainfo_c_p, get_metrics2) {
-    fpga_properties filter = NULL;
-    fpga_token token;
-    fpga_metric_info metrics_info[64];
-    fpga_metric metrics[64];
-    uint64_t num_metrics;
-    uint64_t num_metrics_info;
-    uint32_t matches = 0;
+  fpga_properties filter = NULL;
+  fpga_token token;
+  fpga_metric_info metrics_info[64];
+  fpga_metric metrics[64];
+  uint64_t num_metrics;
+  uint64_t num_metrics_info;
+  uint32_t matches = 0;
 
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
 
-    EXPECT_EQ(get_metrics(token, FPGA_THERMAL, metrics_info, &num_metrics_info, metrics, &num_metrics), FPGA_OK);
+  EXPECT_EQ(get_metrics(token, FPGA_THERMAL, metrics_info, &num_metrics_info, metrics, &num_metrics), FPGA_OK);
 
-    fpgaDestroyToken(&token);
-    fpgaDestroyProperties(&filter);
+  fpgaDestroyToken(&token);
+  fpgaDestroyProperties(&filter);
 }
 
 /**
@@ -1135,18 +1113,18 @@ TEST_P(fpgainfo_c_p, get_metrics2) {
  * @brief      Test: fpgainfo_print_common
  */
 TEST_P(fpgainfo_c_p, fpgainfo_print_common) {
-    fpga_properties filter = NULL;
-    fpga_token token = nullptr;
-    uint32_t matches = 0;;
+  fpga_properties filter = NULL;
+  fpga_token token = nullptr;
+  uint32_t matches = 0;;
 
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, &token, 1, &matches), FPGA_OK);
 
-    fpgainfo_print_common("//****** HEADER ******//", filter);
+  fpgainfo_print_common("//****** HEADER ******//", filter);
 
-    fpgaDestroyToken(&token);
-    fpgaDestroyProperties(&filter);
+  fpgaDestroyToken(&token);
+  fpgaDestroyProperties(&filter);
 }
 
 /**
@@ -1154,28 +1132,27 @@ TEST_P(fpgainfo_c_p, fpgainfo_print_common) {
  * @brief      Test: fpgainfo_print_err
  */
 TEST_P(fpgainfo_c_p, fpgainfo_print_err) {
-    fpgainfo_print_err("ERROR:", FPGA_INVALID_PARAM);
-    fpgainfo_print_err("ERROR:", FPGA_BUSY);
-    fpgainfo_print_err("ERROR:", FPGA_EXCEPTION);
-    fpgainfo_print_err("ERROR:", FPGA_NOT_FOUND);
-    fpgainfo_print_err("ERROR:", FPGA_NO_MEMORY);
-    fpgainfo_print_err("ERROR:", FPGA_NOT_SUPPORTED);
-    fpgainfo_print_err("ERROR:", FPGA_NO_DRIVER);
-    fpgainfo_print_err("ERROR:", FPGA_NO_DAEMON);
-    fpgainfo_print_err("ERROR:", FPGA_NO_ACCESS);
-    fpgainfo_print_err("ERROR:", FPGA_NO_ACCESS);
+  fpgainfo_print_err("ERROR:", FPGA_INVALID_PARAM);
+  fpgainfo_print_err("ERROR:", FPGA_BUSY);
+  fpgainfo_print_err("ERROR:", FPGA_EXCEPTION);
+  fpgainfo_print_err("ERROR:", FPGA_NOT_FOUND);
+  fpgainfo_print_err("ERROR:", FPGA_NO_MEMORY);
+  fpgainfo_print_err("ERROR:", FPGA_NOT_SUPPORTED);
+  fpgainfo_print_err("ERROR:", FPGA_NO_DRIVER);
+  fpgainfo_print_err("ERROR:", FPGA_NO_DAEMON);
+  fpgainfo_print_err("ERROR:", FPGA_NO_ACCESS);
+  fpgainfo_print_err("ERROR:", FPGA_NO_ACCESS);
 }
-
 
 /**
  * @test       replace_chars0
  * @brief      Test: replace_chars
  */
 TEST(fpgainfo_c, replace_chars0) {
-    char input[256];
-    strcpy(input, "one_two_three_four");
-    replace_chars(input, '_', ' ');
-    EXPECT_STREQ(input, "one two three four");
+  char input[256];
+  strcpy(input, "one_two_three_four");
+  replace_chars(input, '_', ' ');
+  EXPECT_STREQ(input, "one two three four");
 }
 
 /**
@@ -1183,10 +1160,10 @@ TEST(fpgainfo_c, replace_chars0) {
  * @brief      Test: replace_chars
  */
 TEST(fpgainfo_c, replace_chars1) {
-    char input[256];
-    strcpy(input, "one_two_three_four");
-    replace_chars(input, ':', ' ');
-    EXPECT_STREQ(input, "one_two_three_four");
+  char input[256];
+  strcpy(input, "one_two_three_four");
+  replace_chars(input, ':', ' ');
+  EXPECT_STREQ(input, "one_two_three_four");
 }
 
 /**
@@ -1194,10 +1171,10 @@ TEST(fpgainfo_c, replace_chars1) {
  * @brief      Test: upcase_pci
  */
 TEST(fpgainfo_c, upcase_pci0) {
-    char input[256];
-    strcpy(input, "pcie 0");
-    upcase_pci(input);
-    EXPECT_STREQ(input, "PCIe 0");
+  char input[256];
+  strcpy(input, "pcie 0");
+  upcase_pci(input);
+  EXPECT_STREQ(input, "PCIe 0");
 }
 
 /**
@@ -1205,10 +1182,10 @@ TEST(fpgainfo_c, upcase_pci0) {
  * @brief      Test: upcase_pci
  */
 TEST(fpgainfo_c, upcase_pci1) {
-    char input[256];
-    strcpy(input, "  pcie 0 pcie 1 pcie 2  ");
-    upcase_pci(input);
-    EXPECT_STREQ(input, "  PCIe 0 PCIe 1 PCIe 2  ");
+  char input[256];
+  strcpy(input, "  pcie 0 pcie 1 pcie 2  ");
+  upcase_pci(input);
+  EXPECT_STREQ(input, "  PCIe 0 PCIe 1 PCIe 2  ");
 }
 
 /**
@@ -1216,10 +1193,10 @@ TEST(fpgainfo_c, upcase_pci1) {
  * @brief      Test: upcase_pci
  */
 TEST(fpgainfo_c, upcase_pci2) {
-    char input[256];
-    strcpy(input, " pc ");
-    upcase_pci(input);
-    EXPECT_STREQ(input, " pc ");
+  char input[256];
+  strcpy(input, " pc ");
+  upcase_pci(input);
+  EXPECT_STREQ(input, " pc ");
 }
 
 /**
@@ -1227,10 +1204,10 @@ TEST(fpgainfo_c, upcase_pci2) {
  * @brief      Test: upcase_first
  */
 TEST(fpgainfo_c, upcase_first0) {
-    char input[256];
-    strcpy(input, "one two three four");
-    upcase_first(input);
-    EXPECT_STREQ(input, "One Two Three Four");
+  char input[256];
+  strcpy(input, "one two three four");
+  upcase_first(input);
+  EXPECT_STREQ(input, "One Two Three Four");
 }
 
 /**
@@ -1238,10 +1215,10 @@ TEST(fpgainfo_c, upcase_first0) {
  * @brief      Test: upcase_first
  */
 TEST(fpgainfo_c, upcase_first1) {
-    char input[256];
-    strcpy(input, "One Two Three Four");
-    upcase_first(input);
-    EXPECT_STREQ(input, "One Two Three Four");
+  char input[256];
+  strcpy(input, "One Two Three Four");
+  upcase_first(input);
+  EXPECT_STREQ(input, "One Two Three Four");
 }
 
 /**
@@ -1249,10 +1226,10 @@ TEST(fpgainfo_c, upcase_first1) {
  * @brief      Test: upcase_first
  */
 TEST(fpgainfo_c, upcase_first2) {
-    char input[256] = { 0 };
-    strcpy(input, "");
-    upcase_first(input);
-    EXPECT_STREQ(input, "");
+  char input[256] = { 0 };
+  strcpy(input, "");
+  upcase_first(input);
+  EXPECT_STREQ(input, "");
 }
 
 /**
@@ -1260,21 +1237,21 @@ TEST(fpgainfo_c, upcase_first2) {
  * @brief      Test: upcase_first
  */
 TEST(fpgainfo_c, str_in_list0) {
-    const char *slist[] = { "one", "two", "two", "three", "four" };
-    int idx = str_in_list("one", slist, 5);
-    EXPECT_EQ(idx, 0);
+  const char *slist[] = { "one", "two", "two", "three", "four" };
+  int idx = str_in_list("one", slist, 5);
+  EXPECT_EQ(idx, 0);
 
-    idx = str_in_list("two", slist, 5);
-    EXPECT_EQ(idx, 1);
+  idx = str_in_list("two", slist, 5);
+  EXPECT_EQ(idx, 1);
 
-    idx = str_in_list("three", slist, 5);
-    EXPECT_EQ(idx, 3);
+  idx = str_in_list("three", slist, 5);
+  EXPECT_EQ(idx, 3);
 
-    idx = str_in_list("four", slist, 5);
-    EXPECT_EQ(idx, 4);
+  idx = str_in_list("four", slist, 5);
+  EXPECT_EQ(idx, 4);
 
-    idx = str_in_list("five", slist, 5);
-    EXPECT_EQ(idx, INT_MAX);
+  idx = str_in_list("five", slist, 5);
+  EXPECT_EQ(idx, INT_MAX);
 }
 
 /**
@@ -1284,22 +1261,22 @@ TEST(fpgainfo_c, str_in_list0) {
  *             the fn returns 0. <br>
  */
 TEST_P(fpgainfo_c_p, parse_args0) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "fme");
-    EXPECT_EQ(parse_args(2, argv), 0);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "fme");
+  EXPECT_EQ(parse_args(2, argv), 0);
 
-    strcpy(one, "port");
-    EXPECT_EQ(parse_args(2, argv), 0);
+  strcpy(one, "port");
+  EXPECT_EQ(parse_args(2, argv), 0);
 
-    strcpy(one, "power");
-    EXPECT_EQ(parse_args(2, argv), 0);
+  strcpy(one, "power");
+  EXPECT_EQ(parse_args(2, argv), 0);
 
-    strcpy(one, "temp");
-    EXPECT_EQ(parse_args(2, argv), 0);
+  strcpy(one, "temp");
+  EXPECT_EQ(parse_args(2, argv), 0);
 }
 
 /**
@@ -1309,17 +1286,17 @@ TEST_P(fpgainfo_c_p, parse_args0) {
  *             prints help message and return non-zero. <br>
  */
 TEST_P(fpgainfo_c_p, parse_args1) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "-h");
-    EXPECT_NE(parse_args(2, argv), 0);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "-h");
+  EXPECT_NE(parse_args(2, argv), 0);
 
-    optind = 0;
-    strcpy(one, "--help");
-    EXPECT_NE(parse_args(2, argv), 0);
+  optind = 0;
+  strcpy(one, "--help");
+  EXPECT_NE(parse_args(2, argv), 0);
 }
 
 /**
@@ -1329,13 +1306,13 @@ TEST_P(fpgainfo_c_p, parse_args1) {
  *             prints error message and return zero. <br>
  */
 TEST_P(fpgainfo_c_p, parse_args2) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "?");
-    EXPECT_EQ(parse_args(2, argv), 0);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "?");
+  EXPECT_EQ(parse_args(2, argv), 0);
 }
 
 /**
@@ -1345,26 +1322,26 @@ TEST_P(fpgainfo_c_p, parse_args2) {
  *             returns zero. <br>
  */
 TEST_P(fpgainfo_c_p, parse_args3) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "κόσμε");
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "κόσμε");
 
-    /* FIXME: Parse_arg will return 0 on all inputs
-              that doesn't match MAIN_GETOPT_STRING.
-              Main fails on get_command call but
-              will return 0.
+  /* FIXME: Parse_arg will return 0 on all inputs
+            that doesn't match MAIN_GETOPT_STRING.
+            Main fails on get_command call but
+            will return 0.
 
-    */
-    EXPECT_EQ(parse_args(2, argv), 0);
-    EXPECT_EQ(fpgainfo_main(2, argv), 0);
+  */
+  EXPECT_EQ(parse_args(2, argv), 0);
+  EXPECT_EQ(fpgainfo_main(2, argv), 0);
 
-    strcpy(one, "\x00 \x09\x0A\x0D\x20\x7E");
+  strcpy(one, "\x00 \x09\x0A\x0D\x20\x7E");
 
-    EXPECT_EQ(parse_args(2, argv), 0);
-    EXPECT_EQ(fpgainfo_main(2, argv), 0);
+  EXPECT_EQ(parse_args(2, argv), 0);
+  EXPECT_EQ(fpgainfo_main(2, argv), 0);
 }
 
 /**
@@ -1373,7 +1350,7 @@ TEST_P(fpgainfo_c_p, parse_args3) {
  * @details    help displays the application help message.<br>
  */
 TEST_P(fpgainfo_c_p, help) {
-    help();
+  help();
 }
 
 /**
@@ -1383,12 +1360,12 @@ TEST_P(fpgainfo_c_p, help) {
  *             returns an error. <br>
  */
 TEST_P(fpgainfo_c_p, main_1) {
-    char zero[20];
-    char *argv[] = { zero, NULL };
+  char zero[20];
+  char *argv[] = { zero, NULL };
 
-    strcpy(zero, "fpgainfo");
+  strcpy(zero, "fpgainfo");
 
-    EXPECT_NE(fpgainfo_main(1, argv), 0);
+  EXPECT_NE(fpgainfo_main(1, argv), 0);
 }
 
 /**
@@ -1398,14 +1375,14 @@ TEST_P(fpgainfo_c_p, main_1) {
  *             returns zero. <br>
  */
 TEST_P(fpgainfo_c_p, main_2) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "-v");
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "-v");
 
-    EXPECT_EQ(fpgainfo_main(2, argv), 0);
+  EXPECT_EQ(fpgainfo_main(2, argv), 0);
 }
 
 /**
@@ -1415,14 +1392,14 @@ TEST_P(fpgainfo_c_p, main_2) {
  *             returns an error. <br>
  */
 TEST_P(fpgainfo_c_p, main_3) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "-B");
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "-B");
 
-    EXPECT_NE(fpgainfo_main(2, argv), 0);
+  EXPECT_NE(fpgainfo_main(2, argv), 0);
 }
 
 /**
@@ -1432,14 +1409,14 @@ TEST_P(fpgainfo_c_p, main_3) {
  *             returns an error. <br>
  */
 TEST_P(fpgainfo_c_p, main_4) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "-K");
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "-K");
 
-    EXPECT_NE(fpgainfo_main(2, argv), 0);
+  EXPECT_NE(fpgainfo_main(2, argv), 0);
 }
 
 /**
@@ -1449,21 +1426,21 @@ TEST_P(fpgainfo_c_p, main_4) {
  *             returns 0. <br>
  */
 TEST_P(fpgainfo_c_p, main_5) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char three[20];
-    char *argv[] = { zero, one, two, three, NULL };
-    char bus[10];
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char *argv[] = { zero, one, two, three, NULL };
+  char bus[10];
 
-    sprintf(bus, "0x%x", platform_.devices[0].bus);
+  sprintf(bus, "0x%x", platform_.devices[0].bus);
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "fme");
-    strcpy(two, "-B");
-    strcpy(three, bus);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "fme");
+  strcpy(two, "-B");
+  strcpy(three, bus);
 
-    EXPECT_EQ(fpgainfo_main(4, argv), 0);
+  EXPECT_EQ(fpgainfo_main(4, argv), 0);
 }
 
 /**
@@ -1473,18 +1450,18 @@ TEST_P(fpgainfo_c_p, main_5) {
  *             returns an error. <br>
  */
 TEST_P(fpgainfo_c_p, main_6) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char three[20];
-    char *argv[] = { zero, one, two, three, NULL };
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char *argv[] = { zero, one, two, three, NULL };
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "fme");
-    strcpy(two, "-B");
-    strcpy(three, "0xFF");
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "fme");
+  strcpy(two, "-B");
+  strcpy(three, "0xFF");
 
-    EXPECT_NE(fpgainfo_main(4, argv), 0);
+  EXPECT_NE(fpgainfo_main(4, argv), 0);
 }
 
 /**
@@ -1494,18 +1471,18 @@ TEST_P(fpgainfo_c_p, main_6) {
  *             returns 0. <br>
  */
 TEST_P(fpgainfo_c_p, main_7) {
-	char zero[20];
-	char one[20];
-	char two[20];
-	char *argv[] = { zero, one, two, NULL };
+  char zero[20];
+  char one[20];
+  char two[20];
+  char *argv[] = { zero, one, two, NULL };
 
-	strcpy(zero, "fpgainfo");
-	strcpy(one, "fme");
-	strcpy(two, "--verbose");
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "fme");
+  strcpy(two, "--verbose");
 
-	EXPECT_EQ(fpgainfo_main(3, argv), 0);
+  EXPECT_EQ(fpgainfo_main(3, argv), 0);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgainfo_c_p);
 INSTANTIATE_TEST_SUITE_P(fpgainfo_c, fpgainfo_c_p,
-        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000" })));
+                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000" })));

@@ -23,177 +23,124 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-extern "C" {
-
-#include <json-c/json.h>
-#include <uuid/uuid.h>
-#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include "opae_int.h"
-
-fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len);
-fpga_result read_mac_info(fpga_token token, uint32_t afu_channel_num,
-	struct ether_addr *mac_addr);
-}
-
-#include <opae/fpga.h>
-#include "intel-fpga.h"
-#include <linux/ioctl.h>
 #include <netinet/ether.h>
-#include <cstdlib>
-#include <string>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
+
 #include "libboard/board_d5005/board_d5005.h"
 #include "libboard/board_common/board_common.h"
 
+extern "C" {
+fpga_result parse_fw_ver(char *buf, char *fw_ver, size_t len);
+fpga_result read_mac_info(fpga_token token, uint32_t afu_channel_num,
+                          struct ether_addr *mac_addr);
+}
+
 using namespace opae::testing;
 
-class board_d5005_c_p : public ::testing::TestWithParam<std::string> {
-protected:
-	board_d5005_c_p() : tokens_{ {nullptr, nullptr} } {}
-
-	fpga_result write_sysfs_file(const char *file,
-		void *buf, size_t count);
-	ssize_t eintr_write(int fd, void *buf, size_t count);
-	fpga_result delete_sysfs_file(const char *file);
-
-	virtual void SetUp() override {
-		ASSERT_TRUE(test_platform::exists(GetParam()));
-		std::cout << GetParam();
-		platform_ = test_platform::get(GetParam());
-		system_ = test_system::instance();
-		system_->initialize();
-		system_->prepare_syfs(platform_);
-
-		filter_ = nullptr;
-		ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-		ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-		ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-		num_matches_ = 0;
-		ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-			&num_matches_), FPGA_OK);
-		EXPECT_GT(num_matches_, 0);
-		dev_ = nullptr;
-		ASSERT_EQ(fpgaOpen(tokens_[0], &dev_, 0), FPGA_OK);
-	}
-
-	virtual void TearDown() override {
-		EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-		if (dev_) {
-			EXPECT_EQ(fpgaClose(dev_), FPGA_OK);
-			dev_ = nullptr;
-		}
-		for (auto &t : tokens_) {
-			if (t) {
-				EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-				t = nullptr;
-			}
-		}
-		fpgaFinalize();
-		system_->finalize();
-	}
-
-	std::array<fpga_token, 2> tokens_;
-	fpga_properties filter_;
-	fpga_handle dev_;
-	test_platform platform_;
-	uint32_t num_matches_;
-	test_system *system_;
+class board_d5005_c_p : public opae_device_p<> {
+ protected:
+  fpga_result write_sysfs_file(const char *file,
+                               void *buf, size_t count);
+  ssize_t eintr_write(int fd, void *buf, size_t count);
+  fpga_result delete_sysfs_file(const char *file);
 };
 
 ssize_t board_d5005_c_p::eintr_write(int fd, void *buf, size_t count)
 {
-	ssize_t bytes_written = 0, total_written = 0;
-	char *ptr = (char*)buf;
+  ssize_t bytes_written = 0, total_written = 0;
+  char *ptr = (char*)buf;
 
-	if (!buf) {
-		return -1;
-	}
+  if (!buf) {
+    return -1;
+  }
 
-	while (total_written < (ssize_t)count) {
-		bytes_written =
-			write(fd, ptr + total_written, count - total_written);
-		if (bytes_written < 0) {
-			if (errno == EINTR) {
-				continue;
-			}
-			return bytes_written;
-		}
-		total_written += bytes_written;
-	}
-	return total_written;
+  while (total_written < (ssize_t)count) {
+    bytes_written =
+      write(fd, ptr + total_written, count - total_written);
+    if (bytes_written < 0) {
+      if (errno == EINTR) {
+        continue;
+      }
+      return bytes_written;
+    }
+    total_written += bytes_written;
+  }
 
+  return total_written;
 }
+
 fpga_result board_d5005_c_p::write_sysfs_file(const char *file,
-	void *buf, size_t count) {
-	fpga_result res = FPGA_OK;
-	char sysfspath[SYSFS_PATH_MAX];
-	int fd = 0;
+                                              void *buf, size_t count) {
+  fpga_result res = FPGA_OK;
+  char sysfspath[SYSFS_PATH_MAX];
+  int fd = 0;
 
-	snprintf(sysfspath, sizeof(sysfspath),
-		 "%s/%s", "/sys/class/fpga_region/region*/dfl-fme*", file);
+  snprintf(sysfspath, sizeof(sysfspath),
+           "%s/%s", "/sys/class/fpga_region/region*/dfl-fme*", file);
 
-	glob_t pglob;
-	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
-	if ((gres) || (1 != pglob.gl_pathc)) {
-		globfree(&pglob);
-		return FPGA_NOT_FOUND;
-	}
-	printf("pglob.gl_pathv[0]= %s\n", pglob.gl_pathv[0]);
-	fd = open(pglob.gl_pathv[0], O_WRONLY);
-	globfree(&pglob);
-	if (fd < 0) {
-		printf("open failed \n");
-		return FPGA_NOT_FOUND;
-	}
+  glob_t pglob;
+  int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
+  if ((gres) || (1 != pglob.gl_pathc)) {
+    globfree(&pglob);
+    return FPGA_NOT_FOUND;
+  }
 
-	ssize_t total_written = eintr_write(fd, buf, count);
-	if (total_written == 0) {
-		close(fd);
-		printf("total_written failed \n");
-		return FPGA_INVALID_PARAM;
-	}
+  printf("pglob.gl_pathv[0]= %s\n", pglob.gl_pathv[0]);
+  fd = open(pglob.gl_pathv[0], O_WRONLY);
+  globfree(&pglob);
+  if (fd < 0) {
+    printf("open failed \n");
+    return FPGA_NOT_FOUND;
+  }
 
-	close(fd);
-	return res;
+  ssize_t total_written = eintr_write(fd, buf, count);
+  if (total_written == 0) {
+    close(fd);
+    printf("total_written failed \n");
+    return FPGA_INVALID_PARAM;
+  }
+
+  close(fd);
+  return res;
 }
 
 fpga_result board_d5005_c_p::delete_sysfs_file(const char *file) {
-	fpga_result res = FPGA_OK;
-	char sysfspath[SYSFS_PATH_MAX];
-	int status = 0;
+  fpga_result res = FPGA_OK;
+  char sysfspath[SYSFS_PATH_MAX];
+  int status = 0;
 
-	snprintf(sysfspath, sizeof(sysfspath),
-		 "%s/%s", "/sys/class/fpga_region/region*/dfl-fme*", file);
+  snprintf(sysfspath, sizeof(sysfspath),
+           "%s/%s", "/sys/class/fpga_region/region*/dfl-fme*", file);
 
-	glob_t pglob;
-	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
-	if ((gres) || (1 != pglob.gl_pathc)) {
-		globfree(&pglob);
-		return FPGA_NOT_FOUND;
-	}
-	std::string syspath = system_->get_sysfs_path(pglob.gl_pathv[0]);
-	status = remove(syspath.c_str());
+  glob_t pglob;
+  int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
+  if ((gres) || (1 != pglob.gl_pathc)) {
+    globfree(&pglob);
+    return FPGA_NOT_FOUND;
+  }
+  std::string syspath = system_->get_sysfs_path(pglob.gl_pathv[0]);
+  status = remove(syspath.c_str());
 
-	globfree(&pglob);
-	if (status < 0) {
-		printf("delete failed = %d \n", status);
-		return FPGA_NOT_FOUND;
-	}
+  globfree(&pglob);
+  if (status < 0) {
+    printf("delete failed = %d \n", status);
+    return FPGA_NOT_FOUND;
+  }
 
-	return res;
+  return res;
 }
 
 // test DFL sysfs attributes
-class board_dfl_d5005_c_p : public board_d5005_c_p { };
+class board_dfl_d5005_c_p : public board_d5005_c_p {};
 
 /**
 * @test       board_d5005_1
@@ -204,11 +151,11 @@ class board_dfl_d5005_c_p : public board_d5005_c_p { };
 *             return FPGA_INVALID_PARAM.<br>
 */
 TEST_P(board_dfl_d5005_c_p, board_d5005_1) {
-	char bmcfw_ver[SYSFS_PATH_MAX];
+  char bmcfw_ver[SYSFS_PATH_MAX];
 
-	EXPECT_EQ(read_bmcfw_version(tokens_[0], bmcfw_ver, SYSFS_PATH_MAX), FPGA_OK);
-	EXPECT_EQ(read_bmcfw_version(tokens_[0], NULL, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
-	EXPECT_EQ(read_bmcfw_version(NULL, bmcfw_ver, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
+  EXPECT_EQ(read_bmcfw_version(device_token_, bmcfw_ver, SYSFS_PATH_MAX), FPGA_OK);
+  EXPECT_EQ(read_bmcfw_version(device_token_, NULL, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
+  EXPECT_EQ(read_bmcfw_version(NULL, bmcfw_ver, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -220,11 +167,11 @@ TEST_P(board_dfl_d5005_c_p, board_d5005_1) {
 *             return FPGA_INVALID_PARAM.<br>
 */
 TEST_P(board_dfl_d5005_c_p, board_d5005_2) {
-	char max10fw_ver[SYSFS_PATH_MAX];
+  char max10fw_ver[SYSFS_PATH_MAX];
 
-	EXPECT_EQ(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_PATH_MAX), FPGA_OK);
-	EXPECT_EQ(read_max10fw_version(tokens_[0], NULL, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
-	EXPECT_EQ(read_max10fw_version(NULL, max10fw_ver, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
+  EXPECT_EQ(read_max10fw_version(device_token_, max10fw_ver, SYSFS_PATH_MAX), FPGA_OK);
+  EXPECT_EQ(read_max10fw_version(device_token_, NULL, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
+  EXPECT_EQ(read_max10fw_version(NULL, max10fw_ver, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -233,11 +180,11 @@ TEST_P(board_dfl_d5005_c_p, board_d5005_2) {
 * @details    Validates parse fw version  <br>
 */
 TEST_P(board_dfl_d5005_c_p, board_d5005_3) {
-	char buf[FPGA_VAR_BUF_LEN] = { 0 };
-	char fw_ver[FPGA_VAR_BUF_LEN] = { 0 };
+  char buf[FPGA_VAR_BUF_LEN] = { 0 };
+  char fw_ver[FPGA_VAR_BUF_LEN] = { 0 };
 
-	EXPECT_EQ(parse_fw_ver(NULL, fw_ver, 0), FPGA_INVALID_PARAM);
-	EXPECT_EQ(parse_fw_ver(buf, NULL, 0), FPGA_INVALID_PARAM);
+  EXPECT_EQ(parse_fw_ver(NULL, fw_ver, 0), FPGA_INVALID_PARAM);
+  EXPECT_EQ(parse_fw_ver(buf, NULL, 0), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -246,8 +193,7 @@ TEST_P(board_dfl_d5005_c_p, board_d5005_3) {
 * @details    Validates fpga sec info  <br>
 */
 TEST_P(board_dfl_d5005_c_p, board_d5005_4) {
-
-	EXPECT_EQ(print_sec_info(tokens_[0]), FPGA_OK);
+  EXPECT_EQ(print_sec_info(device_token_), FPGA_OK);
 }
 
 /**
@@ -256,16 +202,16 @@ TEST_P(board_dfl_d5005_c_p, board_d5005_4) {
 * @details    Validates read sysfs function  <br>
 */
 TEST_P(board_dfl_d5005_c_p, board_d5005_5) {
+  char sysfs_name[SYSFS_PATH_MAX];
+  char sysfs_path[SYSFS_PATH_MAX];
+  size_t len = 0;
 
-	char sysfs_name[SYSFS_PATH_MAX];
-	char sysfs_path[SYSFS_PATH_MAX];
-	size_t len = 0;
-
-	EXPECT_EQ(read_sysfs(tokens_[0], NULL, sysfs_name,len), FPGA_INVALID_PARAM);
-	EXPECT_EQ(read_sysfs(tokens_[0], sysfs_path, NULL, len), FPGA_INVALID_PARAM);
-	EXPECT_EQ(read_sysfs(tokens_[0], NULL, NULL, len), FPGA_INVALID_PARAM);
-	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count",
-		sysfs_name, 0), FPGA_EXCEPTION);
+  EXPECT_EQ(read_sysfs(device_token_, NULL, sysfs_name,len), FPGA_INVALID_PARAM);
+  EXPECT_EQ(read_sysfs(device_token_, sysfs_path, NULL, len), FPGA_INVALID_PARAM);
+  EXPECT_EQ(read_sysfs(device_token_, NULL, NULL, len), FPGA_INVALID_PARAM);
+  EXPECT_EQ(read_sysfs(device_token_,
+                       (char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count",
+                       sysfs_name, 0), FPGA_EXCEPTION);
 }
 
 /**
@@ -274,16 +220,17 @@ TEST_P(board_dfl_d5005_c_p, board_d5005_5) {
 * @details    Validates function with invalid sysfs  <br>
 */
 TEST_P(board_dfl_d5005_c_p, board_d5005_6) {
+  char name[SYSFS_PATH_MAX] = { 0 };
 
-	char name[SYSFS_PATH_MAX] = { 0 };
+  EXPECT_EQ(read_sysfs(device_token_,
+                       (char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count",
+                       name, SYSFS_PATH_MAX), FPGA_OK);
+  EXPECT_EQ(read_sysfs(device_token_,
+                       (char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count1",
+                       name, SYSFS_PATH_MAX), FPGA_NOT_FOUND);
 
-	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count",
-		name, SYSFS_PATH_MAX), FPGA_OK);
-	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count1",
-		name, SYSFS_PATH_MAX), FPGA_NOT_FOUND);
-
-	EXPECT_EQ(read_sysfs(tokens_[0], (char*)"dfl-fme*", NULL, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
-	EXPECT_EQ(read_sysfs(tokens_[0], NULL, name, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
+  EXPECT_EQ(read_sysfs(device_token_, (char*)"dfl-fme*", NULL, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
+  EXPECT_EQ(read_sysfs(device_token_, NULL, name, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -292,13 +239,12 @@ TEST_P(board_dfl_d5005_c_p, board_d5005_6) {
 * @details    Validates function with invalid sysfs  <br>
 */
 TEST_P(board_dfl_d5005_c_p, board_d5005_7) {
-
-	delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count");
-	delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/bmc_canceled_csks");
-	delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/bmc_root_entry_hash");
-	delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/sr_canceled_csks");
-	delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/sr_root_entry_hash");
-	EXPECT_NE(print_sec_info(tokens_[0]), FPGA_OK);
+  delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/user_flash_count");
+  delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/bmc_canceled_csks");
+  delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/bmc_root_entry_hash");
+  delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/sr_canceled_csks");
+  delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/sr_root_entry_hash");
+  EXPECT_NE(print_sec_info(device_token_), FPGA_OK);
 }
 
 /**
@@ -307,10 +253,9 @@ TEST_P(board_dfl_d5005_c_p, board_d5005_7) {
 * @details    Validates function with invalid sysfs  <br>
 */
 TEST_P(board_dfl_d5005_c_p, board_d5005_8) {
-
-	delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/pr_canceled_csks");
-	delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/pr_root_entry_hash");
-	EXPECT_NE(print_sec_info(tokens_[0]), FPGA_OK);
+  delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/pr_canceled_csks");
+  delete_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*/m10bmc-*/ifpga_sec_mgr/ifpga_sec*/security/pr_root_entry_hash");
+  EXPECT_NE(print_sec_info(device_token_), FPGA_OK);
 }
 
 /**
@@ -322,30 +267,29 @@ TEST_P(board_dfl_d5005_c_p, board_d5005_8) {
 *             return FPGA_INVALID_PARAM.<br>
 */
 TEST_P(board_dfl_d5005_c_p, board_d5005_9) {
+  EXPECT_EQ(print_mac_info(device_token_), FPGA_OK);
+  EXPECT_EQ(print_mac_info(NULL), FPGA_INVALID_PARAM);
 
-	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
-	EXPECT_EQ(print_mac_info(NULL), FPGA_INVALID_PARAM);
+  EXPECT_EQ(read_mac_info(device_token_,0,NULL), FPGA_INVALID_PARAM);
 
-	EXPECT_EQ(read_mac_info(tokens_[0],0,NULL), FPGA_INVALID_PARAM);
+  struct ether_addr mac_addr;
+  EXPECT_EQ(read_mac_info(device_token_, 0, &mac_addr), FPGA_OK);
 
-	struct ether_addr mac_addr;
-	EXPECT_EQ(read_mac_info(tokens_[0], 0, &mac_addr), FPGA_OK);
+  char mac_buf[18] = { 0 };
+  strncpy(mac_buf, "ff:ff:ff:ff:ff:ff", 18);
+  write_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*.*/mac_address",
+                   (void*)mac_buf, 18);
+  EXPECT_EQ(read_mac_info(device_token_, 0, &mac_addr), FPGA_INVALID_PARAM);
 
-	char mac_buf[18] = { 0 };
-	strncpy(mac_buf, "ff:ff:ff:ff:ff:ff", 18);
-	write_sysfs_file((char*)"dfl-fme*/*spi*/spi_master/spi*/spi*.*/mac_address",
-	(void*)mac_buf,18);
-	EXPECT_EQ(read_mac_info(tokens_[0], 0, &mac_addr), FPGA_INVALID_PARAM);
-
-	EXPECT_EQ(read_mac_info(tokens_[0], 100, &mac_addr), FPGA_INVALID_PARAM);
+  EXPECT_EQ(read_mac_info(device_token_, 100, &mac_addr), FPGA_INVALID_PARAM);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_dfl_d5005_c_p);
-INSTANTIATE_TEST_SUITE_P(baord_d5005_c, board_dfl_d5005_c_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-d5005" })));
+INSTANTIATE_TEST_SUITE_P(board_d5005_c, board_dfl_d5005_c_p,
+                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-d5005" })));
 
 // test invalid sysfs attributes
-class board_d5005_invalid_c_p : public board_d5005_c_p { };
+class board_d5005_invalid_c_p : public board_d5005_c_p {};
 
 /**
 * @test       invalid_board_d5005_1
@@ -354,21 +298,19 @@ class board_d5005_invalid_c_p : public board_d5005_c_p { };
 * @details    Validates function with invalid sysfs <br>
 */
 TEST_P(board_d5005_invalid_c_p, invalid_board_d5005_1) {
+  char bmcfw_ver[SYSFS_PATH_MAX];
+  EXPECT_EQ(read_bmcfw_version(device_token_, bmcfw_ver, SYSFS_PATH_MAX), FPGA_NOT_FOUND);
 
-	char bmcfw_ver[SYSFS_PATH_MAX];
-	EXPECT_EQ(read_bmcfw_version(tokens_[0], bmcfw_ver, SYSFS_PATH_MAX), FPGA_NOT_FOUND);
+  char max10fw_ver[SYSFS_PATH_MAX];
+  EXPECT_EQ(read_max10fw_version(device_token_, max10fw_ver, SYSFS_PATH_MAX), FPGA_NOT_FOUND);
 
-	char max10fw_ver[SYSFS_PATH_MAX];
-	EXPECT_EQ(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_PATH_MAX), FPGA_NOT_FOUND);
+  EXPECT_EQ(print_sec_info(device_token_), FPGA_NOT_FOUND);
+  EXPECT_EQ(print_mac_info(device_token_), FPGA_NOT_FOUND);
 
-	EXPECT_EQ(print_sec_info(tokens_[0]), FPGA_NOT_FOUND);
-	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_NOT_FOUND);
-
-	struct ether_addr mac_addr;
-	EXPECT_EQ(read_mac_info(tokens_[0], 0, &mac_addr), FPGA_NOT_FOUND);
-
+  struct ether_addr mac_addr;
+  EXPECT_EQ(read_mac_info(device_token_, 0, &mac_addr), FPGA_NOT_FOUND);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_d5005_invalid_c_p);
 INSTANTIATE_TEST_SUITE_P(board_d5005_invalid_c, board_d5005_invalid_c_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));

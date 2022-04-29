@@ -23,12 +23,11 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
 extern "C" {
-
-#include <json-c/json.h>
-#include <uuid/uuid.h>
-
 #include "fpgad/api/opae_events_api.h"
 #include "fpgad/api/device_monitoring.h"
 
@@ -98,89 +97,34 @@ extern fpgad_detect_event_t fpgad_xfpga_fme_detections[1];
 extern void *fpgad_xfpga_fme_detection_contexts[1];
 extern fpgad_respond_event_t fpgad_xfpga_fme_responses[1];
 extern void *fpgad_xfpga_fme_response_contexts[1];
-
 }
 
-#include <config.h>
-#include <opae/fpga.h>
-
-#include <array>
-#include <vector>
-#include <cstdlib>
-#include <cstring>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
 
 using namespace opae::testing;
 
-class mock_port_fpgad_xfpga_c_p : public ::testing::TestWithParam<std::string> {
+class mock_port_fpgad_xfpga_c_p : public opae_p<> {
  protected:
-  mock_port_fpgad_xfpga_c_p()
-    : tokens_{{nullptr, nullptr}},
-      fme_tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
+    opae_p<>::SetUp();
 
     bitstream_ = system_->assemble_gbs_header(platform_.devices[0]);
-
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    num_matches_ = 0;
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_),
-              FPGA_OK);
-    EXPECT_GT(num_matches_, 0);
-    accel_ = nullptr;
-    ASSERT_EQ(fpgaOpen(tokens_[0], &accel_, 0), FPGA_OK);
-
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-    num_matches_ = 0;
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, fme_tokens_.data(), fme_tokens_.size(),
-                            &num_matches_),
-              FPGA_OK);
-    EXPECT_GT(num_matches_, 0);
-
     log_set(stdout);
   }
 
   virtual void TearDown() override {
     log_close();
 
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (accel_) {
-        EXPECT_EQ(fpgaClose(accel_), FPGA_OK);
-        accel_ = nullptr;
-    }
-
-    for (auto &t : fme_tokens_) {
-      if (t) {
-        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    fpgaFinalize();
-    system_->finalize();
+    opae_p<>::TearDown();
   }
 
   void init_monitored_device(fpgad_monitored_device *d,
                              fpgad_supported_device *s)
   {
     memset(d, 0, sizeof(fpgad_monitored_device));
-    d->token = tokens_[0];
+    d->token = accel_token_;
     d->object_type = FPGA_ACCELERATOR;
     d->num_error_occurrences = 0;
     d->supported = s;
@@ -289,14 +233,7 @@ class mock_port_fpgad_xfpga_c_p : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
   }
 
-  std::array<fpga_token, 2> tokens_;
-  std::array<fpga_token, 2> fme_tokens_;
-  fpga_properties filter_;
-  fpga_handle accel_;
-  uint32_t num_matches_;
   std::vector<uint8_t> bitstream_;
-  test_platform platform_;
-  test_system *system_;
 };
 
 /**
@@ -420,7 +357,7 @@ TEST_P(mock_port_fpgad_xfpga_c_p, power_state) {
  *                   fpgad_xfpga_respond_AP6_and_Null_GBS.
  * @details    Test the plugin's ability to detect/respond to AP6.<br>
  */
-TEST_P(mock_port_fpgad_xfpga_c_p, DISABLED_AP6) {
+TEST_P(mock_port_fpgad_xfpga_c_p, AP6) {
   fpgad_monitored_device d;
   fpgad_supported_device s;
   init_monitored_device(&d, &s);
@@ -481,32 +418,13 @@ TEST_P(mock_port_fpgad_xfpga_c_p, configure) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_port_fpgad_xfpga_c_p);
 INSTANTIATE_TEST_SUITE_P(fpgad_c, mock_port_fpgad_xfpga_c_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
 
-
-class mock_fme_fpgad_xfpga_c_p : public ::testing::TestWithParam<std::string> {
+class mock_fme_fpgad_xfpga_c_p : public opae_device_p<> {
  protected:
-  mock_fme_fpgad_xfpga_c_p()
-    : tokens_{{nullptr, nullptr}} {}
 
   virtual void SetUp() override {
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-    num_matches_ = 0;
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_),
-              FPGA_OK);
-    EXPECT_GT(num_matches_, 0);
-    device_ = nullptr;
-    ASSERT_EQ(fpgaOpen(tokens_[0], &device_, 0), FPGA_OK);
+    opae_device_p<>::SetUp();
 
     log_set(stdout);
   }
@@ -514,26 +432,14 @@ class mock_fme_fpgad_xfpga_c_p : public ::testing::TestWithParam<std::string> {
   virtual void TearDown() override {
     log_close();
 
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (device_) {
-        EXPECT_EQ(fpgaClose(device_), FPGA_OK);
-        device_ = nullptr;
-    }
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    fpgaFinalize();
-    system_->finalize();
+    opae_device_p<>::TearDown();
   }
 
   void init_monitored_device(fpgad_monitored_device *d,
                              fpgad_supported_device *s)
   {
     memset(d, 0, sizeof(fpgad_monitored_device));
-    d->token = tokens_[0];
+    d->token = device_token_;
     d->object_type = FPGA_DEVICE;
     d->num_error_occurrences = 0;
     d->supported = s;
@@ -595,12 +501,6 @@ class mock_fme_fpgad_xfpga_c_p : public ::testing::TestWithParam<std::string> {
     EXPECT_EQ(fpgaDestroyObject(&obj), FPGA_OK);
   }
 
-  std::array<fpga_token, 2> tokens_;
-  fpga_handle device_;
-  fpga_properties filter_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_system *system_;
 };
 
 /**
@@ -608,7 +508,7 @@ class mock_fme_fpgad_xfpga_c_p : public ::testing::TestWithParam<std::string> {
  * @brief      Test: fpgad_xfpga_detect_Error, fpgad_xfpga_respond_AP6
  * @details    Test the plugin's ability to detect/respond to AP6 (FME).<br>
  */
-TEST_P(mock_fme_fpgad_xfpga_c_p, DISABLED_AP6) {
+TEST_P(mock_fme_fpgad_xfpga_c_p, AP6) {
   fpgad_monitored_device d;
   fpgad_supported_device s;
 
@@ -642,7 +542,7 @@ TEST_P(mock_fme_fpgad_xfpga_c_p, DISABLED_AP6) {
  * @brief      Test: fpgad_xfpga_detect_Error, fpgad_xfpga_respond_LogError
  * @details    Test the plugin's ability to detect/respond to KtiLinkFatal.<br>
  */
-TEST_P(mock_fme_fpgad_xfpga_c_p, DISABLED_KtiLinkFatal) {
+TEST_P(mock_fme_fpgad_xfpga_c_p, KtiLinkFatal) {
   fpgad_monitored_device d;
   fpgad_supported_device s;
   init_monitored_device(&d, &s);
@@ -693,4 +593,4 @@ TEST_P(mock_fme_fpgad_xfpga_c_p, configure) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_fme_fpgad_xfpga_c_p);
 INSTANTIATE_TEST_SUITE_P(fpgad_c, mock_fme_fpgad_xfpga_c_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));

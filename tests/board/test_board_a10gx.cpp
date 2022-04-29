@@ -23,35 +23,17 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-extern "C" {
-#include <fcntl.h>
-#include <json-c/json.h>
-#include <stdlib.h>
-#include <sys/stat.h>
 #include <sys/types.h>
-#include <uuid/uuid.h>
-}
+#include <sys/stat.h>
+#include <fcntl.h>
 
-#include <linux/ioctl.h>
-#include <opae/fpga.h>
-#include <array>
-#include <cstdarg>
-#include <cstdlib>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-
-#include "gtest/gtest.h"
-#include "intel-fpga.h"
 #include "libboard/board_a10gx/board_a10gx.h"
-#include "opae_int.h"
-#include "mock/test_system.h"
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
 
 #define SYSFS_FME_PATH "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0"
 
@@ -130,55 +112,10 @@ typedef struct _bmc_device_id {
 
 using namespace opae::testing;
 
-class board_a10gx_c_p : public ::testing::TestWithParam<std::string> {
+class board_a10gx_c_p : public opae_device_p<> {
  protected:
-  board_a10gx_c_p() : tokens_{{nullptr, nullptr}} {}
-
   fpga_result write_sysfs_file(const char *file, void *buf, size_t count);
   ssize_t eintr_write(int fd, void *buf, size_t count);
-
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    filter_ = nullptr;
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-    ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-    num_matches_ = 0;
-    ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_),
-              FPGA_OK);
-    EXPECT_GT(num_matches_, 0);
-    dev_ = nullptr;
-    ASSERT_EQ(fpgaOpen(tokens_[0], &dev_, 0), FPGA_OK);
-  }
-
-  virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (dev_) {
-      EXPECT_EQ(fpgaClose(dev_), FPGA_OK);
-      dev_ = nullptr;
-    }
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    fpgaFinalize();
-    system_->finalize();
-  }
-
-  std::array<fpga_token, 2> tokens_;
-  fpga_properties filter_;
-  fpga_handle dev_;
-  test_platform platform_;
-  uint32_t num_matches_;
-  test_system *system_;
 };
 
 ssize_t board_a10gx_c_p::eintr_write(int fd, void *buf, size_t count) {
@@ -201,8 +138,9 @@ ssize_t board_a10gx_c_p::eintr_write(int fd, void *buf, size_t count) {
   }
   return total_written;
 }
+
 fpga_result board_a10gx_c_p::write_sysfs_file(const char *file, void *buf,
-                                           size_t count) {
+                                              size_t count) {
   fpga_result res = FPGA_OK;
   char sysfspath[SYSFS_PATH_MAX];
   int fd = 0;
@@ -240,9 +178,9 @@ fpga_result board_a10gx_c_p::write_sysfs_file(const char *file, void *buf,
 TEST_P(board_a10gx_c_p, board_a10gx_1) {
   int version;
 
-  EXPECT_EQ(read_bmc_version(tokens_[0], &version), FPGA_OK);
+  EXPECT_EQ(read_bmc_version(device_token_, &version), FPGA_OK);
 
-  EXPECT_EQ(read_bmc_version(tokens_[0], NULL), FPGA_INVALID_PARAM);
+  EXPECT_EQ(read_bmc_version(device_token_, NULL), FPGA_INVALID_PARAM);
 
   EXPECT_NE(read_bmc_version(NULL, &version), FPGA_OK);
 }
@@ -255,9 +193,9 @@ TEST_P(board_a10gx_c_p, board_a10gx_1) {
 TEST_P(board_a10gx_c_p, board_a10gx_2) {
   char pwr_down_cause[SYSFS_PATH_MAX];
 
-  EXPECT_EQ(read_bmc_pwr_down_cause(tokens_[0], pwr_down_cause), FPGA_OK);
+  EXPECT_EQ(read_bmc_pwr_down_cause(device_token_, pwr_down_cause), FPGA_OK);
 
-  EXPECT_EQ(read_bmc_pwr_down_cause(tokens_[0], NULL), FPGA_INVALID_PARAM);
+  EXPECT_EQ(read_bmc_pwr_down_cause(device_token_, NULL), FPGA_INVALID_PARAM);
 
   EXPECT_NE(read_bmc_pwr_down_cause(NULL, pwr_down_cause), FPGA_OK);
 }
@@ -270,9 +208,9 @@ TEST_P(board_a10gx_c_p, board_a10gx_2) {
 TEST_P(board_a10gx_c_p, board_a10gx_3) {
   char reset_cause[SYSFS_PATH_MAX];
 
-  EXPECT_EQ(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
+  EXPECT_EQ(read_bmc_reset_cause(device_token_, reset_cause), FPGA_OK);
 
-  EXPECT_EQ(read_bmc_reset_cause(tokens_[0], NULL), FPGA_INVALID_PARAM);
+  EXPECT_EQ(read_bmc_reset_cause(device_token_, NULL), FPGA_INVALID_PARAM);
 
   EXPECT_NE(read_bmc_reset_cause(NULL, reset_cause), FPGA_OK);
 }
@@ -283,7 +221,7 @@ TEST_P(board_a10gx_c_p, board_a10gx_3) {
  * @details    Validates print board information <br>
  */
 TEST_P(board_a10gx_c_p, board_a10gx_4) {
-  EXPECT_EQ(print_board_info(tokens_[0]), FPGA_OK);
+  EXPECT_EQ(print_board_info(device_token_), FPGA_OK);
   EXPECT_NE(print_board_info(NULL), FPGA_OK);
 }
 
@@ -299,7 +237,7 @@ TEST_P(board_a10gx_c_p, board_a10gx_5) {
                    (void *)&bmc_a10gx, sizeof(bmc_reset_cause));
   char reset_cause[SYSFS_PATH_MAX];
 
-  EXPECT_NE(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
+  EXPECT_NE(read_bmc_reset_cause(device_token_, reset_cause), FPGA_OK);
 }
 
 /**
@@ -315,37 +253,37 @@ TEST_P(board_a10gx_c_p, board_a10gx_6) {
                    (void *)&bmc_a10gx, sizeof(bmc_reset_cause));
 
   char reset_cause[SYSFS_PATH_MAX];
-  EXPECT_EQ(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
+  EXPECT_EQ(read_bmc_reset_cause(device_token_, reset_cause), FPGA_OK);
 
   bmc_a10gx.reset_cause = CHIP_RESET_CAUSE_EXTRST;
   write_sysfs_file((const char *)"avmmi-bmc.3.auto/bmc_info/reset_cause",
                    (void *)&bmc_a10gx, sizeof(bmc_reset_cause));
-  EXPECT_EQ(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
+  EXPECT_EQ(read_bmc_reset_cause(device_token_, reset_cause), FPGA_OK);
 
   bmc_a10gx.reset_cause = CHIP_RESET_CAUSE_BOD_IO;
   write_sysfs_file((const char *)"avmmi-bmc.3.auto/bmc_info/reset_cause",
                    (void *)&bmc_a10gx, sizeof(bmc_reset_cause));
-  EXPECT_EQ(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
+  EXPECT_EQ(read_bmc_reset_cause(device_token_, reset_cause), FPGA_OK);
 
   bmc_a10gx.reset_cause = CHIP_RESET_CAUSE_WDT;
   write_sysfs_file((const char *)"avmmi-bmc.3.auto/bmc_info/reset_cause",
                    (void *)&bmc_a10gx, sizeof(bmc_reset_cause));
-  EXPECT_EQ(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
+  EXPECT_EQ(read_bmc_reset_cause(device_token_, reset_cause), FPGA_OK);
 
   bmc_a10gx.reset_cause = CHIP_RESET_CAUSE_OCD;
   write_sysfs_file((const char *)"avmmi-bmc.3.auto/bmc_info/reset_cause",
                    (void *)&bmc_a10gx, sizeof(bmc_reset_cause));
-  EXPECT_EQ(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
+  EXPECT_EQ(read_bmc_reset_cause(device_token_, reset_cause), FPGA_OK);
 
   bmc_a10gx.reset_cause = CHIP_RESET_CAUSE_SOFT;
   write_sysfs_file((const char *)"avmmi-bmc.3.auto/bmc_info/reset_cause",
                    (void *)&bmc_a10gx, sizeof(bmc_reset_cause));
-  EXPECT_EQ(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
+  EXPECT_EQ(read_bmc_reset_cause(device_token_, reset_cause), FPGA_OK);
 
   bmc_a10gx.reset_cause = CHIP_RESET_CAUSE_SPIKE;
   write_sysfs_file((const char *)"avmmi-bmc.3.auto/bmc_info/reset_cause",
                    (void *)&bmc_a10gx, sizeof(bmc_reset_cause));
-  EXPECT_EQ(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
+  EXPECT_EQ(read_bmc_reset_cause(device_token_, reset_cause), FPGA_OK);
 }
 
 /**
@@ -361,13 +299,13 @@ TEST_P(board_a10gx_c_p, board_a10gx_7) {
                    (void *)&bmc_pd, sizeof(bmc_powerdown_cause));
 
   char pwr_down_cause[SYSFS_PATH_MAX];
-  EXPECT_NE(read_bmc_pwr_down_cause(tokens_[0], pwr_down_cause), FPGA_OK);
+  EXPECT_NE(read_bmc_pwr_down_cause(device_token_, pwr_down_cause), FPGA_OK);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_a10gx_c_p);
 INSTANTIATE_TEST_SUITE_P(
-    baord_a10gx_c, board_a10gx_c_p,
-    ::testing::ValuesIn(test_platform::mock_platforms({"dcp-a10gx"})));
+    board_a10gx_c, board_a10gx_c_p,
+    ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
 
 class board_a10gx_invalid_c_p : public board_a10gx_c_p {};
 
@@ -379,7 +317,7 @@ class board_a10gx_invalid_c_p : public board_a10gx_c_p {};
  */
 TEST_P(board_a10gx_invalid_c_p, board_a10gx_8) {
   int version;
-  EXPECT_NE(read_bmc_version(tokens_[0], &version), FPGA_OK);
+  EXPECT_NE(read_bmc_version(device_token_, &version), FPGA_OK);
 }
 
 /**
@@ -390,7 +328,7 @@ TEST_P(board_a10gx_invalid_c_p, board_a10gx_8) {
  */
 TEST_P(board_a10gx_invalid_c_p, board_a10gx_9) {
   char pwr_down_cause[SYSFS_PATH_MAX];
-  EXPECT_NE(read_bmc_pwr_down_cause(tokens_[0], pwr_down_cause), FPGA_OK);
+  EXPECT_NE(read_bmc_pwr_down_cause(device_token_, pwr_down_cause), FPGA_OK);
 }
 
 /**
@@ -401,7 +339,7 @@ TEST_P(board_a10gx_invalid_c_p, board_a10gx_9) {
  */
 TEST_P(board_a10gx_invalid_c_p, board_a10gx_10) {
   char reset_cause[SYSFS_PATH_MAX];
-  EXPECT_NE(read_bmc_reset_cause(tokens_[0], reset_cause), FPGA_OK);
+  EXPECT_NE(read_bmc_reset_cause(device_token_, reset_cause), FPGA_OK);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_a10gx_invalid_c_p);
