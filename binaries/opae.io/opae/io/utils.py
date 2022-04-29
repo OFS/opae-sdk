@@ -228,7 +228,7 @@ def vfio_release(pci_addr):
 
 
 class opae_register(Union):
-    _upper_mask = 0xFFFFFFFF00000000
+    _upper_mask = 0x00000000FFFFFFFF
     def __init__(self, region, offset, value=None):
         self.region = region
         self.offset = offset
