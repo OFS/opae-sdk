@@ -272,7 +272,7 @@ class opae_register(Union):
             raise OSError(os.EX_OSERR, 'no region open')
         if ACCESS_MODE == 32 and self.width == 64:
             lo = self.region.read32(self.offset)
-            self.value = self.reaion.read32(self.offset+4) << 32
+            self.value = self.region.read32(self.offset+4) << 32
             self.value |= lo
         else:
             self.value = self.rd(self.offset)
