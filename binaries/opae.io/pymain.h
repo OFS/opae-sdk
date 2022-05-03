@@ -43,6 +43,7 @@ def default_parser():
     parser.add_argument('command', nargs='?')
     parser.add_argument('-d', '--device', type=utils.pci_address)
     parser.add_argument('-r', '--region', type=int, default=0)
+    parser.add_argument('-a', '--access-mode', type=int, default=64, choices=[64, 32])
     parser.add_argument('--version', action='store_true', default=False)
     parser.add_argument('-h', '--help', action='store_true', default=False)
     parser.add_argument('--pdb', action='store_true', default=False)
@@ -122,7 +123,8 @@ class peek_action(base_action):
             raise SystemExit('Need device for peek.')
         if not self.region:
             raise SystemExit('Need region for peek.')
-        print('0x{:0x}'.format(self.region.read64(args.offset)))
+        rd = self.region.read64 if utils.ACCESS_MODE == 64 else self.region.read32
+        print('0x{:0x}'.format(rd(args.offset)))
         raise SystemExit(0)
 
 class poke_action(base_action):
@@ -137,7 +139,8 @@ class poke_action(base_action):
             raise SystemExit('Need device for poke.')
         if not self.region:
             raise SystemExit('Need region for poke.')
-        self.region.write64(args.offset, args.value)
+        wr = self.region.write64 if utils.ACCESS_MODE == 64 else self.region.write32
+        wr(args.offset, args.value)
         raise SystemExit(0)
 
 class script_action(base_action):
@@ -230,16 +233,16 @@ def show_help():
       "opae.io -v | --version"
       "opae.io -h | --help"
       "opae.io ls [-v | --viddid <VID:DID>]"
-      "opae.io [-d | --device <PCI_ADDRESS>] [-r | --region <REGION_NUMBER>] [init | release | peek | poke | <script> [arg1...argN]]
+      "opae.io [-d | --device <PCI_ADDRESS>] [-r | --region <REGION_NUMBER>] [-a <ACCESS_MODE>] [init | release | peek | poke | <script> [arg1...argN]]
       "opae.io init [-d <PCI_ADDRESS>] <USER>[:<GROUP>]"
       "opae.io release [-d <PCI_ADDRESS>]"
       "opae.io [-d <PCI_ADDRESS>]"
-      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>]"
-      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] walk [<OFFSET>] [-u | --show-uuid]"
-      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] dump [<OFFSET>] [-o | --output <FILE>] [-f | --format (hex, bin)] [ -c | --count <WORD COUNT>]
-      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] peek <OFFSET>"
-      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] poke <OFFSET> <VALUE>"
-      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] <SCRIPT> <ARG1> <ARG2> ... <ARGN>"
+      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] [-a <ACCESS_MODE>]"
+      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] [-a <ACCESS_MODE>] walk [<OFFSET>] [-u | --show-uuid]"
+      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] [-a <ACCESS_MODE>] dump [<OFFSET>] [-o | --output <FILE>] [-f | --format (hex, bin)] [ -c | --count <WORD COUNT>]
+      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] [-a <ACCESS_MODE>] peek <OFFSET>"
+      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] [-a <ACCESS_MODE>] poke <OFFSET> <VALUE>"
+      "opae.io [-d <PCI_ADDRESS>] [-r <REGION_NUMBER>] [-a <ACCESS_MODE>] <SCRIPT> <ARG1> <ARG2> ... <ARGN>"
 
   NOTE
   If -d or --device is omitted, opae.io will attempt to open the first device found.
@@ -332,6 +335,7 @@ def main(argv=None):
     if action is None:
         show_help()
     else:
+        utils.ACCESS_MODE = args.access_mode
         action(rest)
 
 if __name__ == '__main__':

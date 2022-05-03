@@ -59,6 +59,7 @@ VENDOR_DEVICE_PATTERN = r'(?P<vendor>[\da-f]{0,4}):(?P<device>[\da-f]{0,4})'
 VENDOR_DEVICE_RE = re.compile(VENDOR_DEVICE_PATTERN, re.IGNORECASE)
 
 PICKLE_FILE = '/var/lib/opae/opae.io.pickle'
+ACCESS_MODE = 64
 
 
 class pcicfg(Enum):
@@ -227,6 +228,7 @@ def vfio_release(pci_addr):
 
 
 class opae_register(Union):
+    _upper_mask = 0x00000000FFFFFFFF
     def __init__(self, region, offset, value=None):
         self.region = region
         self.offset = offset
@@ -259,12 +261,21 @@ class opae_register(Union):
     def commit(self, value=None):
         if value is not None:
             self.value = value
-        self.wr(self.offset, self.value)
+        if ACCESS_MODE == 32 and self.width == 64:
+            self.region.write32(self.offset, self._upper_mask & value)
+            self.region.write32(self.offset + 4, value >> 32)
+        else:
+            self.wr(self.offset, self.value)
 
     def update(self):
         if self.region is None:
             raise OSError(os.EX_OSERR, 'no region open')
-        self.value = self.rd(self.offset)
+        if ACCESS_MODE == 32 and self.width == 64:
+            lo = self.region.read32(self.offset)
+            self.value = self.region.read32(self.offset+4) << 32
+            self.value |= lo
+        else:
+            self.value = self.rd(self.offset)
 
     def __enter__(self):
         pass
@@ -348,13 +359,19 @@ def walk(region,
 def dump(region, start=0, output=sys.stdout, fmt='hex', count=None):
     stop_at = start + count*8 if count else len(region)
     offset = start
+    if ACCESS_MODE == 64:
+        rd = region.read64
+        byte_length = 8
+    else:
+        rd = region.read32
+        byte_length = 4
     while offset < stop_at:
-        value = region.read64(offset)
+        value = rd(offset)
         if fmt == 'hex':
             output.write(f'0x{offset:04x}: 0x{value:016x}\n')
         else:
-            output.write(value.to_bytes(8, 'little'))
-        offset += 8
+            output.write(value.to_bytes(byte_length, 'little'))
+        offset += byte_length
 
 
 class feature(object):
