@@ -123,7 +123,7 @@ class peek_action(base_action):
             raise SystemExit('Need device for peek.')
         if not self.region:
             raise SystemExit('Need region for peek.')
-        rd = self.region.read64 if args.access_mode == 64 else self.region.read32
+        rd = self.region.read64 if utils.ACCESS_MODE == 64 else self.region.read32
         print('0x{:0x}'.format(rd(args.offset)))
         raise SystemExit(0)
 
@@ -139,7 +139,7 @@ class poke_action(base_action):
             raise SystemExit('Need device for poke.')
         if not self.region:
             raise SystemExit('Need region for poke.')
-        wr = self.region.write64 if args.access_mode == 64 else self.region.write32
+        wr = self.region.write64 if utils.ACCESS_MODE == 64 else self.region.write32
         wr(args.offset, args.value)
         raise SystemExit(0)
 
