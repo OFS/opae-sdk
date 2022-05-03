@@ -23,14 +23,14 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-#include <opae/fpga.h>
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
 
 extern "C" {
-
-#include <json-c/json.h>
-#include <uuid/uuid.h>
-
 void print_err(const char *s, fpga_result res);
 
 struct config {
@@ -47,22 +47,8 @@ fpga_result find_fpga(fpga_properties device_filter,
                       uint32_t *num_matches_accelerators);
 
 int hello_fpga_main(int argc, char *argv[]);
-
 }
 
-#include <config.h>
-
-#include <iostream>
-#include <vector>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <errno.h>
-#include <unistd.h>
-#include <getopt.h>
-#include <stdarg.h>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
 #include <linux/ioctl.h>
 #include "intel-fpga.h"
 #include "fpga-dfl.h"
@@ -105,19 +91,11 @@ out_EINVAL:
     goto out;
 }
 
-class hello_fpga_c_p : public ::testing::TestWithParam<std::string> {
+class hello_fpga_c_p : public opae_base_p<> {
  protected:
-  hello_fpga_c_p() {}
 
   virtual void SetUp() override {
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    EXPECT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    opae_base_p<>::SetUp();
 
     optind = 0;
     config_ = config;
@@ -125,13 +103,11 @@ class hello_fpga_c_p : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     config = config_;
-    fpgaFinalize();
-    system_->finalize();
+
+    opae_base_p<>::TearDown();
   }
 
   struct config config_;
-  test_platform platform_;
-  test_system *system_;
 };
 
 /**
@@ -208,29 +184,28 @@ TEST_P(hello_fpga_c_p, parse_args2) {
  *             and the fn returns FPGA_OK.<br>
  */
 TEST_P(hello_fpga_c_p, find_fpga0) {
-  if (!platform_.devices[0].has_afu) {
-    GTEST_SKIP();
+  test_device device = platform_.devices[0];
+  if (device.has_afu) {
+    fpga_guid guid;
+    fpga_token tok = nullptr;
+    uint32_t matches = 0xff;
+
+    fpga_properties filter = NULL;
+
+    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+
+    ASSERT_EQ(fpgaPropertiesSetSegment(filter, platform_.devices[0].segment), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetBus(filter, platform_.devices[0].bus), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetDevice(filter, platform_.devices[0].device), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetFunction(filter, platform_.devices[0].function), FPGA_OK);
+
+    ASSERT_EQ(uuid_parse(INVALID_AFU_ID, guid), 0);
+    EXPECT_EQ(find_fpga(filter, guid, &tok, &matches), FPGA_OK);
+    EXPECT_EQ(tok, nullptr);
+    EXPECT_EQ(matches, 0);
+
+    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
   }
-
-  fpga_guid guid;
-  fpga_token tok = nullptr;
-  uint32_t matches = 0xff;
-
-  fpga_properties filter = NULL;
-
-  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-
-  ASSERT_EQ(fpgaPropertiesSetSegment(filter, platform_.devices[0].segment), FPGA_OK);
-  ASSERT_EQ(fpgaPropertiesSetBus(filter, platform_.devices[0].bus), FPGA_OK);
-  ASSERT_EQ(fpgaPropertiesSetDevice(filter, platform_.devices[0].device), FPGA_OK);
-  ASSERT_EQ(fpgaPropertiesSetFunction(filter, platform_.devices[0].function), FPGA_OK);
-
-  ASSERT_EQ(uuid_parse(INVALID_AFU_ID, guid), 0);
-  EXPECT_EQ(find_fpga(filter, guid, &tok, &matches), FPGA_OK);
-  EXPECT_EQ(tok, nullptr);
-  EXPECT_EQ(matches, 0);
-
-  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
 }
 
 /**
@@ -253,12 +228,9 @@ TEST_P(hello_fpga_c_p, main0) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(hello_fpga_c_p);
 INSTANTIATE_TEST_SUITE_P(hello_fpga_c, hello_fpga_c_p,
-                        ::testing::ValuesIn(test_platform::keys(true)));
+                         ::testing::ValuesIn(test_platform::platforms({})));
 
-class mock_hello_fpga_c_p : public hello_fpga_c_p {
- protected:
-  mock_hello_fpga_c_p() {}
-};
+class mock_hello_fpga_c_p : public hello_fpga_c_p {};
 
 /**
  * @test       main1
@@ -286,12 +258,9 @@ TEST_P(mock_hello_fpga_c_p, main1) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_hello_fpga_c_p);
 INSTANTIATE_TEST_SUITE_P(mock_hello_fpga_c, mock_hello_fpga_c_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p", "dcp-rc"})));
+                         ::testing::ValuesIn(test_platform::mock_platforms({"skx-p", "dcp-rc"})));
 
-class hw_hello_fpga_c_p : public mock_hello_fpga_c_p {
- protected:
-  hw_hello_fpga_c_p() {}
-};
+class hw_hello_fpga_c_p : public mock_hello_fpga_c_p {};
 
 /**
  * @test       main1
@@ -315,4 +284,4 @@ TEST_P(hw_hello_fpga_c_p, main1) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(hw_hello_fpga_c_p);
 INSTANTIATE_TEST_SUITE_P(hw_hello_fpga_c, hw_hello_fpga_c_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms({"skx-p","dcp-rc"})));
+                         ::testing::ValuesIn(test_platform::hw_platforms({"skx-p", "dcp-rc"})));

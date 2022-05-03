@@ -23,48 +23,20 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
 extern "C" {
-
-#include <json-c/json.h>
-#include <uuid/uuid.h>
-
 #include "fpgad/api/sysfs.h"
-
 }
 
-#include <config.h>
-#include <opae/fpga.h>
-
-#include <fstream>
-#include <array>
-#include <cstdlib>
-#include <cstring>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
 
 using namespace opae::testing;
 
-class fpgad_sysfs_c_p : public ::testing::TestWithParam<std::string> {
- protected:
-  fpgad_sysfs_c_p() {}
-
-  virtual void SetUp() override {
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-  }
-
-  virtual void TearDown() override {
-    system_->finalize();
-  }
-
-  test_platform platform_;
-  test_system *system_;
-};
+class fpgad_sysfs_c_p : public opae_base_p<> {};
 
 /**
  * @test       write01
@@ -128,4 +100,4 @@ TEST_P(fpgad_sysfs_c_p, dup02) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_sysfs_c_p);
 INSTANTIATE_TEST_SUITE_P(fpgad_c, fpgad_sysfs_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
+                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));

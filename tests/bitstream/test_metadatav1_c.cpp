@@ -23,6 +23,9 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
 #include "libbitstream/bitstream.h"
 #include "libbitstream/metadatav1.h"
@@ -38,34 +41,26 @@ fpga_result opae_bitstream_parse_afu_image_v1(json_object *j_afu_image,
 
 }
 
-#include <config.h>
-#include <opae/fpga.h>
-
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
 
 using namespace opae::testing;
 
-class metadatav1_c_p : public ::testing::TestWithParam<std::string> {
+class metadatav1_c_p : public opae_base_p<> {
  protected:
+  metadatav1_c_p() :
+    j_root_(nullptr)
+  {}
 
   virtual void SetUp() override {
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
+    opae_base_p<>::SetUp();
     j_root_ = nullptr;
   }
 
   virtual void TearDown() override {
-
     if (j_root_)
       json_object_put(j_root_);
-
-    system_->finalize();
+    opae_base_p<>::TearDown();
   }
 
   json_object *parse(const char *json_str)
@@ -75,8 +70,6 @@ class metadatav1_c_p : public ::testing::TestWithParam<std::string> {
   }
 
   json_object *j_root_;
-  test_platform platform_;
-  test_system *system_;
 };
 
 /**
@@ -803,7 +796,7 @@ TEST_P(metadatav1_c_p, parse_v1_ok) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metadatav1_c_p);
 INSTANTIATE_TEST_SUITE_P(metadatav1_c, metadatav1_c_p,
-    ::testing::ValuesIn(test_platform::platforms({})));
+                         ::testing::ValuesIn(test_platform::platforms({})));
 
 
 class mock_metadatav1_c_p : public metadatav1_c_p {};
@@ -894,4 +887,4 @@ TEST_P(mock_metadatav1_c_p, parse_v1_err0) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_metadatav1_c_p);
 INSTANTIATE_TEST_SUITE_P(metadatav1_c, mock_metadatav1_c_p,
-    ::testing::ValuesIn(test_platform::mock_platforms({})));
+                         ::testing::ValuesIn(test_platform::mock_platforms({})));

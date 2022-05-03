@@ -23,15 +23,17 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
 #include <signal.h>
-#include "mock/test_system.h"
+#include <unistd.h>
+
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
 
 extern "C" {
-
-#include <json-c/json.h>
-#include <uuid/uuid.h>
-
 int daemonize(void (*hndlr)(int, siginfo_t *, void *), mode_t mask, const char *dir);
 
 void test_sig_handler(int sig, siginfo_t *info, void *unused)
@@ -40,53 +42,30 @@ void test_sig_handler(int sig, siginfo_t *info, void *unused)
   UNUSED_PARAM(info);
   UNUSED_PARAM(unused);
 }
-
 }
-
-#include <config.h>
-#include <opae/fpga.h>
-
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <errno.h>
-#include <thread>
-#include <chrono>
-#include <unistd.h>
-#include <linux/limits.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include "gtest/gtest.h"
 
 using namespace opae::testing;
 
-class fpgad_daemonize_c_p : public ::testing::TestWithParam<std::string> {
+class fpgad_daemonize_c_p : public opae_base_p<> {
  protected:
-  fpgad_daemonize_c_p() {}
 
   virtual void SetUp() override {
+    opae_base_p<>::SetUp();
+
     strcpy(daemonize_result_, "daem-XXXXXX.pid");
     close(mkstemps(daemonize_result_, 4));
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
   }
 
   virtual void TearDown() override {
-    system_->finalize();
-
     if (!::testing::Test::HasFatalFailure() &&
         !::testing::Test::HasNonfatalFailure()) {
       unlink(daemonize_result_);
     }
+
+    opae_base_p<>::TearDown();
   }
 
   char daemonize_result_[20];
-  test_platform platform_;
-  test_system *system_;
 };
 
 /**
@@ -140,4 +119,4 @@ TEST_P(fpgad_daemonize_c_p, test) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_daemonize_c_p);
 INSTANTIATE_TEST_SUITE_P(fpgad_daemonize_c, fpgad_daemonize_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
+                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));

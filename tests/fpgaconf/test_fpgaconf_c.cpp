@@ -23,16 +23,16 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-#include <opae/fpga.h>
 #include <libbitstream/bitstream.h>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
 #include "mock/test_utils.h"
-extern "C" {
 
-#include <json-c/json.h>
-#include <uuid/uuid.h>
+extern "C" {
 
 struct config {
   unsigned int verbosity;
@@ -71,32 +71,17 @@ int fpgaconf_main(int argc, char *argv[]);
 fpga_guid test_guid = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
                         0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef };
 
-#include <config.h>
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <errno.h>
-#include <unistd.h>
 using namespace opae::testing;
 
-class fpgaconf_c_p : public ::testing::TestWithParam<std::string> {
+class fpgaconf_c_p : public opae_base_p<> {
  protected:
   fpgaconf_c_p() {}
 
   virtual void SetUp() override {
+    opae_base_p<>::SetUp();
+
     strcpy(tmp_gbs_, "tmp-XXXXXX.gbs");
     close(mkstemps(tmp_gbs_, 4));
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    EXPECT_EQ(fpgaInitialize(NULL), FPGA_OK);
 
     // assemble valid bitstream header
     auto fme_guid = platform_.devices[0].fme_guid;
@@ -134,12 +119,12 @@ class fpgaconf_c_p : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     config = config_;
-    fpgaFinalize();
-    system_->finalize();
     if (!::testing::Test::HasFatalFailure() &&
         !::testing::Test::HasNonfatalFailure()) {
       unlink(tmp_gbs_);
     }
+
+    opae_base_p<>::TearDown();
   }
 
   void copy_bitstream(std::string path) {
@@ -154,8 +139,6 @@ class fpgaconf_c_p : public ::testing::TestWithParam<std::string> {
   std::string copy_gbs_;
   std::vector<uint8_t> bitstream_valid_;
   struct config config_;
-  test_platform platform_;
-  test_system *system_;
 };
 
 /**
@@ -820,13 +803,9 @@ TEST_P(fpgaconf_c_p, circular_symlink) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgaconf_c_p);
 INSTANTIATE_TEST_SUITE_P(fpgaconf_c, fpgaconf_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
+                         ::testing::ValuesIn(test_platform::platforms({"skx-p"})));
 
-
-class fpgaconf_c_mock_p : public fpgaconf_c_p{
-  protected:
-    fpgaconf_c_mock_p(){}
-};
+class fpgaconf_c_mock_p : public fpgaconf_c_p {};
 
 /**
  * @test       ifc_id0
@@ -1002,5 +981,4 @@ TEST_P(fpgaconf_c_mock_p, prog_bs2) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgaconf_c_mock_p);
 INSTANTIATE_TEST_SUITE_P(fpgaconf_c, fpgaconf_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));
-
+                         ::testing::ValuesIn(test_platform::mock_platforms({"skx-p"})));

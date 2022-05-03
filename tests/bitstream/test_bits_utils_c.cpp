@@ -23,6 +23,9 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
 #include "libbitstream/bits_utils.h"
 
@@ -40,34 +43,26 @@ bool opae_bitstream_path_contains_symlink(const char *path,
 					  size_t len);
 }
 
-#include <config.h>
-#include <opae/fpga.h>
-
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
 
 using namespace opae::testing;
 
-class bits_utils_c_p : public ::testing::TestWithParam<std::string> {
+class bits_utils_c_p : public opae_base_p<> {
  protected:
+  bits_utils_c_p() :
+    j_root_(nullptr)
+  {}
 
   virtual void SetUp() override {
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
+    opae_base_p<>::SetUp();
     j_root_ = nullptr;
   }
 
   virtual void TearDown() override {
-
     if (j_root_)
       json_object_put(j_root_);
-
-    system_->finalize();
+    opae_base_p<>::TearDown();
   }
 
   json_object *parse(const char *json_str)
@@ -77,8 +72,6 @@ class bits_utils_c_p : public ::testing::TestWithParam<std::string> {
   }
 
   json_object *j_root_;
-  test_platform platform_;
-  test_system *system_;
 };
 
 /**
@@ -620,7 +613,7 @@ TEST_P(bits_utils_c_p, is_valid6) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(bits_utils_c_p);
 INSTANTIATE_TEST_SUITE_P(bits_utils_c, bits_utils_c_p,
-    ::testing::ValuesIn(test_platform::platforms({})));
+                         ::testing::ValuesIn(test_platform::platforms({})));
 
 
 class mock_bits_utils_c_p : public bits_utils_c_p {};
@@ -652,4 +645,4 @@ TEST_P(mock_bits_utils_c_p, string_err2) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_bits_utils_c_p);
 INSTANTIATE_TEST_SUITE_P(bits_utils_c, mock_bits_utils_c_p,
-    ::testing::ValuesIn(test_platform::mock_platforms({})));
+                         ::testing::ValuesIn(test_platform::mock_platforms({})));

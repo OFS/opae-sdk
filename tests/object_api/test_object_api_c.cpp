@@ -23,10 +23,14 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-#include <opae/fpga.h>
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
+
 extern "C"{
-
 struct config {
   float interval_sec;
 };
@@ -39,27 +43,13 @@ int object_api_main(int argc, char* argv[]);
 extern int cleanup_size;
 }
 
-#include <config.h>
-#include <intel-fpga.h>
-#include <getopt.h>
-#include <string.h>
-#include <mock/test_system.h>
-#include <gtest/gtest.h>
 using namespace opae::testing;
 
-class object_api_c_p : public ::testing::TestWithParam<std::string> {
+class object_api_c_p : public opae_base_p<> {
  protected:
-  object_api_c_p() {}
 
   virtual void SetUp() override {
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    EXPECT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    opae_base_p<>::SetUp();
 
     optind = 0;
     options_ = options;
@@ -69,13 +59,11 @@ class object_api_c_p : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     options = options_;
-    fpgaFinalize();
-    system_->finalize();
+
+    opae_base_p<>::TearDown();
   }
 
   struct config options_;
-  test_platform platform_;
-  test_system *system_;
 };
 
 /**
@@ -143,13 +131,9 @@ TEST_P(object_api_c_p, main0) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(object_api_c_p);
 INSTANTIATE_TEST_SUITE_P(object_api_c, object_api_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                         ::testing::ValuesIn(test_platform::platforms({})));
 
-
-class object_api_c_mock_p : public object_api_c_p {
- protected:
-  object_api_c_mock_p() {}
-};
+class object_api_c_mock_p : public object_api_c_p {};
 
 /**
  * @test       main1
@@ -174,10 +158,9 @@ TEST_P(object_api_c_mock_p, main1) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(object_api_c_mock_p);
 INSTANTIATE_TEST_SUITE_P(object_api_c, object_api_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
 
-class object_api_c_mcp_hw_p : public object_api_c_p {
-};
+class object_api_c_mcp_hw_p : public object_api_c_p {};
 
 /**
  * @test       main1
@@ -202,11 +185,9 @@ TEST_P(object_api_c_mcp_hw_p, main1) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(object_api_c_mcp_hw_p);
 INSTANTIATE_TEST_SUITE_P(object_api_c, object_api_c_mcp_hw_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms({"skx-p"})));
+                         ::testing::ValuesIn(test_platform::hw_platforms({"skx-p"})));
 
-
-class object_api_c_dcp_hw_p : public object_api_c_p {
-};
+class object_api_c_dcp_hw_p : public object_api_c_p {};
 
 /**
  * @test       main1
@@ -231,4 +212,4 @@ TEST_P(object_api_c_dcp_hw_p, main1) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(object_api_c_dcp_hw_p);
 INSTANTIATE_TEST_SUITE_P(object_api_c, object_api_c_dcp_hw_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms({"dcp-rc"})));
+                         ::testing::ValuesIn(test_platform::hw_platforms({"dcp-rc"})));

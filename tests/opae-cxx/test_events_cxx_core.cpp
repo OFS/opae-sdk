@@ -23,36 +23,32 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-#include <chrono>
-#include <thread>
+#define NO_OPAE_C
+#include "mock/opae_fpgad_fixtures.h"
+
 #include <unistd.h>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
-#include "mock/fpgad_control.h"
+#include <fcntl.h>
+
 #include <opae/cxx/core/events.h>
 #include <opae/cxx/core/token.h>
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
 
-#include "intel-fpga.h"
-
 using namespace opae::testing;
 using namespace opae::fpga::types;
 
-class events_cxx_core : public ::testing::TestWithParam<std::string>,
-                        public fpgad_control {
+class events_cxx_core : public opae_fpgad_p<> {
  protected:
-  events_cxx_core() : handle_(nullptr) {}
+  events_cxx_core() :
+    handle_(nullptr)
+  {}
 
   virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    ASSERT_EQ(fpgaInitialize(nullptr), FPGA_OK);
+    opae_fpgad_p<>::SetUp();
 
     properties::ptr_t props = properties::get(FPGA_ACCELERATOR);
 
@@ -67,22 +63,21 @@ class events_cxx_core : public ::testing::TestWithParam<std::string>,
 
     handle_= handle::open(tokens_[0], 0);
     ASSERT_NE(nullptr, handle_.get());
-
-    fpgad_start();
   }
 
   virtual void TearDown() override {
-    fpgad_stop();
-    handle_.reset();
     ASSERT_NO_THROW(tokens_.clear());
-    fpgaFinalize();
-    system_->finalize();
+
+    if (handle_) {
+      handle_->close();
+      handle_.reset();
+    }
+
+    opae_fpgad_p<>::TearDown();
   }
 
-  std::vector<token::ptr_t> tokens_;
   handle::ptr_t handle_;
-  test_platform platform_;
-  test_system *system_;
+  std::vector<token::ptr_t> tokens_;
 };
 
 /**
@@ -144,4 +139,5 @@ TEST_P(events_cxx_core, get_os_object) {
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(events_cxx_core);
-INSTANTIATE_TEST_SUITE_P(events, events_cxx_core, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_SUITE_P(events, events_cxx_core,
+                         ::testing::ValuesIn(test_platform::platforms({})));

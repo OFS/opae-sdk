@@ -23,8 +23,12 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
 
 extern "C" {
 fpga_result load_board_plugin(fpga_token token, void** dl_handle);
@@ -42,30 +46,14 @@ fpga_result find_dev_feature(fpga_token token, uint32_t feature_id, char *dfl_de
 
 using namespace opae::testing;
 
-class fpgainfo_board_c_p : public ::testing::TestWithParam<std::string> {
-  protected:
-    fpgainfo_board_c_p() {}
+class fpgainfo_board_c_p : public opae_base_p<> {
+ protected:
 
-    virtual void SetUp() override 
-    {
-        ASSERT_TRUE(test_platform::exists(GetParam()));
-        platform_ = test_platform::get(GetParam());
-        system_ = test_system::instance();
-        system_->initialize();
-        system_->prepare_syfs(platform_);
-    
-        EXPECT_EQ(fpgaInitialize(nullptr), FPGA_OK);
-    
-        optind = 0;
-    }
-    
-    virtual void TearDown() override {
-        fpgaFinalize();
-        system_->finalize();
-    }
-    
-    test_platform platform_;
-    test_system *system_;
+  virtual void SetUp() override 
+  {
+    opae_base_p<>::SetUp();
+    optind = 0;
+  }
 };
 
 /**
@@ -76,9 +64,9 @@ class fpgainfo_board_c_p : public ::testing::TestWithParam<std::string> {
  *                     unload_board_plugin return FPGA_OK
  */  
 TEST(fpgainfo_board_c, invalid_loading_tests) {
-    EXPECT_EQ(load_board_plugin(NULL, NULL), FPGA_INVALID_PARAM);
+  EXPECT_EQ(load_board_plugin(NULL, NULL), FPGA_INVALID_PARAM);
 
-    EXPECT_EQ(unload_board_plugin(), FPGA_OK);
+  EXPECT_EQ(unload_board_plugin(), FPGA_OK);
 }
 
 /**
@@ -88,19 +76,19 @@ TEST(fpgainfo_board_c, invalid_loading_tests) {
  *             load_board_plugin returns FPGA_INVALID_PARAM
  */
 TEST_P(fpgainfo_board_c_p, load_board_plugin) {
-    void* dl_handle = NULL;
-    fpga_properties filter = NULL;
-    fpga_token tokens = NULL;
-    uint32_t matches = 0;
+  void* dl_handle = NULL;
+  fpga_properties filter = NULL;
+  fpga_token tokens = NULL;
+  uint32_t matches = 0;
 
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, &tokens, 1, &matches), FPGA_OK);
-    ASSERT_GT(matches, 0);
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, &tokens, 1, &matches), FPGA_OK);
+  ASSERT_GT(matches, 0);
 
-    EXPECT_EQ(load_board_plugin(&tokens, &dl_handle), FPGA_INVALID_PARAM);
+  EXPECT_EQ(load_board_plugin(&tokens, &dl_handle), FPGA_INVALID_PARAM);
 
-    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
-    EXPECT_EQ(fpgaDestroyToken(&tokens), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyToken(&tokens), FPGA_OK);
 }
 
 /**
@@ -110,20 +98,20 @@ TEST_P(fpgainfo_board_c_p, load_board_plugin) {
  *             the fn returns 0. For invalid options, fn returns -1. <br>
  */
 TEST_P(fpgainfo_board_c_p, parse_mac_args0) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char *argv[] = { zero, one, two, NULL };
+  char zero[20];
+  char one[20];
+  char two[20];
+  char *argv[] = { zero, one, two, NULL };
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "mac");
-    EXPECT_EQ(parse_mac_args(2, argv), 0);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "mac");
+  EXPECT_EQ(parse_mac_args(2, argv), 0);
 
-    strcpy(two, "-h");
-    EXPECT_EQ(parse_mac_args(3, argv), -1);
+  strcpy(two, "-h");
+  EXPECT_EQ(parse_mac_args(3, argv), -1);
 
-    strcpy(two, "-z");
-    EXPECT_EQ(parse_mac_args(3, argv), -1);
+  strcpy(two, "-z");
+  EXPECT_EQ(parse_mac_args(3, argv), -1);
 }
 
 /**
@@ -133,14 +121,14 @@ TEST_P(fpgainfo_board_c_p, parse_mac_args0) {
  *             the fn returns FPGA_INVALID_PARAM. <br>
  */
 TEST_P(fpgainfo_board_c_p, mac_filter) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    fpga_properties filter = NULL;
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "mac");
-    EXPECT_EQ(mac_filter(&filter, 2, argv), FPGA_INVALID_PARAM);
+  fpga_properties filter = NULL;
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "mac");
+  EXPECT_EQ(mac_filter(&filter, 2, argv), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -150,10 +138,10 @@ TEST_P(fpgainfo_board_c_p, mac_filter) {
 *             the fn returns FPGA_INVALID_PARAM. <br>
 */
 TEST_P(fpgainfo_board_c_p, mac_command0) {
-    char *argv[] = { NULL };
+  char *argv[] = { NULL };
 
-    fpga_token tokens = NULL;
-    EXPECT_EQ(mac_command(&tokens, 0, 0, argv), FPGA_OK);
+  fpga_token tokens = NULL;
+  EXPECT_EQ(mac_command(&tokens, 0, 0, argv), FPGA_OK);
 }
 
 /**
@@ -163,20 +151,20 @@ TEST_P(fpgainfo_board_c_p, mac_command0) {
 *             the fn returns FPGA_INVALID_PARAM. <br>
 */
 TEST_P(fpgainfo_board_c_p, mac_command1) {
-    char *argv[] = { NULL };
+  char *argv[] = { NULL };
 
-    fpga_properties filter = NULL;
-    fpga_token tokens = NULL;
-    uint32_t matches = 0, num_tokens = 0;
+  fpga_properties filter = NULL;
+  fpga_token tokens = NULL;
+  uint32_t matches = 0, num_tokens = 0;
 
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, &tokens, 1, &matches), FPGA_OK);
-    ASSERT_GT(matches, 0);
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, &tokens, 1, &matches), FPGA_OK);
+  ASSERT_GT(matches, 0);
 
-    EXPECT_EQ(mac_command(&tokens, num_tokens, 0, argv), FPGA_OK);
+  EXPECT_EQ(mac_command(&tokens, num_tokens, 0, argv), FPGA_OK);
 
-    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
-    EXPECT_EQ(fpgaDestroyToken(&tokens), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyToken(&tokens), FPGA_OK);
 }
 
 /**
@@ -186,8 +174,8 @@ TEST_P(fpgainfo_board_c_p, mac_command1) {
 *             the fn returns FPGA_INVALID_PARAM. <br>
 */
 TEST_P(fpgainfo_board_c_p, mac_info) {
-    fpga_token tokens = NULL;
-    EXPECT_EQ(mac_info(tokens), FPGA_INVALID_PARAM);
+  fpga_token tokens = NULL;
+  EXPECT_EQ(mac_info(tokens), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -197,20 +185,20 @@ TEST_P(fpgainfo_board_c_p, mac_info) {
  *             the fn returns 0. For invalid options, fn returns -1. <br>
  */
 TEST_P(fpgainfo_board_c_p, parse_phy_args0) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char *argv[] = { zero, one, two, NULL };
+  char zero[20];
+  char one[20];
+  char two[20];
+  char *argv[] = { zero, one, two, NULL };
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "phy");
-    EXPECT_EQ(parse_phy_args(2, argv), 0);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "phy");
+  EXPECT_EQ(parse_phy_args(2, argv), 0);
 
-    strcpy(two, "-h");
-    EXPECT_EQ(parse_phy_args(3, argv), -1);
+  strcpy(two, "-h");
+  EXPECT_EQ(parse_phy_args(3, argv), -1);
 
-    strcpy(two, "-z");
-    EXPECT_EQ(parse_phy_args(3, argv), -1);
+  strcpy(two, "-z");
+  EXPECT_EQ(parse_phy_args(3, argv), -1);
 }
 
 /**
@@ -221,26 +209,26 @@ TEST_P(fpgainfo_board_c_p, parse_phy_args0) {
  *             For invalid options, fn returns -1. <br>
  */
 TEST_P(fpgainfo_board_c_p, parse_phy_args1) {
-    char zero[20];
-    char one[20];
-    char two[20];
-    char three[20];
-    char *argv[] = { zero, one, two, three, NULL };
+  char zero[20];
+  char one[20];
+  char two[20];
+  char three[20];
+  char *argv[] = { zero, one, two, three, NULL };
 
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "phy");
-    strcpy(two, "-G");
-    strcpy(three, "all");
-    EXPECT_EQ(parse_phy_args(4, argv), 0);
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "phy");
+  strcpy(two, "-G");
+  strcpy(three, "all");
+  EXPECT_EQ(parse_phy_args(4, argv), 0);
 
-    strcpy(three, "0");
-    EXPECT_EQ(parse_phy_args(4, argv), 0);
+  strcpy(three, "0");
+  EXPECT_EQ(parse_phy_args(4, argv), 0);
 
-    strcpy(three, "1");
-    EXPECT_EQ(parse_phy_args(4, argv), 0);
+  strcpy(three, "1");
+  EXPECT_EQ(parse_phy_args(4, argv), 0);
 
-    strcpy(three, "99");
-    EXPECT_EQ(parse_phy_args(4, argv), -1);
+  strcpy(three, "99");
+  EXPECT_EQ(parse_phy_args(4, argv), -1);
 }
 
 /**
@@ -250,14 +238,14 @@ TEST_P(fpgainfo_board_c_p, parse_phy_args1) {
  *             the fn returns FPGA_INVALID_PARAM. <br>
  */
 TEST_P(fpgainfo_board_c_p, phy_filter) {
-    char zero[20];
-    char one[20];
-    char *argv[] = { zero, one, NULL };
+  char zero[20];
+  char one[20];
+  char *argv[] = { zero, one, NULL };
 
-    fpga_properties filter = NULL;
-    strcpy(zero, "fpgainfo");
-    strcpy(one, "phy");
-    EXPECT_EQ(phy_filter(&filter, 2, argv), FPGA_INVALID_PARAM);
+  fpga_properties filter = NULL;
+  strcpy(zero, "fpgainfo");
+  strcpy(one, "phy");
+  EXPECT_EQ(phy_filter(&filter, 2, argv), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -266,10 +254,10 @@ TEST_P(fpgainfo_board_c_p, phy_filter) {
 * @details    The phy_command fn always returen FPGA_OK <br>
 */
 TEST_P(fpgainfo_board_c_p, phy_command0) {
-    char *argv[] = { NULL };
+  char *argv[] = { NULL };
 
-    fpga_token tokens = NULL;
-    EXPECT_EQ(phy_command(&tokens, 0, 0, argv), FPGA_OK);
+  fpga_token tokens = NULL;
+  EXPECT_EQ(phy_command(&tokens, 0, 0, argv), FPGA_OK);
 }
 
 /**
@@ -278,20 +266,20 @@ TEST_P(fpgainfo_board_c_p, phy_command0) {
 * @details    The phy_command fn always returen FPGA_OK <br>
 */
 TEST_P(fpgainfo_board_c_p, phy_command1) {
-    char *argv[] = { NULL };
+  char *argv[] = { NULL };
 
-    fpga_properties filter = NULL;
-    fpga_token tokens = NULL;
-    uint32_t matches = 0, num_tokens = 0;
+  fpga_properties filter = NULL;
+  fpga_token tokens = NULL;
+  uint32_t matches = 0, num_tokens = 0;
 
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-    ASSERT_EQ(fpgaEnumerate(&filter, 1, &tokens, 1, &matches), FPGA_OK);
-    ASSERT_GT(matches, 0);
+  ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
+  ASSERT_EQ(fpgaEnumerate(&filter, 1, &tokens, 1, &matches), FPGA_OK);
+  ASSERT_GT(matches, 0);
 
-    EXPECT_EQ(phy_command(&tokens, num_tokens, 0, argv), FPGA_OK);
+  EXPECT_EQ(phy_command(&tokens, num_tokens, 0, argv), FPGA_OK);
 
-    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
-    EXPECT_EQ(fpgaDestroyToken(&tokens), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+  EXPECT_EQ(fpgaDestroyToken(&tokens), FPGA_OK);
 }
 
 /**
@@ -301,11 +289,14 @@ TEST_P(fpgainfo_board_c_p, phy_command1) {
 *             fn returns FPGA_INVALID_PARAM. <br>
 */
 TEST_P(fpgainfo_board_c_p, phy_group_info) {
-    fpga_token tokens = NULL;
-    EXPECT_EQ(phy_group_info(tokens), FPGA_INVALID_PARAM);
+  fpga_token tokens = NULL;
+  EXPECT_EQ(phy_group_info(tokens), FPGA_INVALID_PARAM);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgainfo_board_c_p);
 INSTANTIATE_TEST_SUITE_P(fpgainfo_c, fpgainfo_board_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p","dcp-rc","dcp-vc" })));
-
+                         ::testing::ValuesIn(test_platform::platforms({
+                                                                        "skx-p",
+                                                                        "dcp-rc",
+                                                                        "dcp-vc"
+                                                                      })));

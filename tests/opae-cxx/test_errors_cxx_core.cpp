@@ -23,32 +23,29 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
+
 #include <opae/cxx/core/token.h>
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
 #include <opae/cxx/core/errors.h>
 
-#include "intel-fpga.h"
-
 using namespace opae::testing;
 using namespace opae::fpga::types;
 
-
-class errors_cxx_core : public ::testing::TestWithParam<std::string> {
+class errors_cxx_core : public opae_base_p<> {
  protected:
-  errors_cxx_core() : handle_(nullptr) {}
+  errors_cxx_core() :
+    handle_(nullptr)
+  {}
 
   virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    ASSERT_EQ(fpgaInitialize(nullptr), FPGA_OK);
+    opae_base_p<>::SetUp();
 
     tokens_ = token::enumerate({properties::get(FPGA_ACCELERATOR)});
     ASSERT_TRUE(tokens_.size() > 0);
@@ -56,20 +53,17 @@ class errors_cxx_core : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     tokens_.clear();
+
     if (handle_) {
       handle_->close();
       handle_.reset();
     }
 
-    fpgaFinalize();
-
-    system_->finalize();
+    opae_base_p<>::TearDown();
   }
 
-  std::vector<token::ptr_t> tokens_;
   handle::ptr_t handle_;
-  test_platform platform_;
-  test_system *system_;
+  std::vector<token::ptr_t> tokens_;
 };
 
 /**
@@ -100,6 +94,6 @@ TEST_P(errors_cxx_core, throw_error) {
   ASSERT_THROW(error::get(nullptr, 0), std::invalid_argument);
 }
 
-
-
-INSTANTIATE_TEST_SUITE_P(error, errors_cxx_core, ::testing::ValuesIn(test_platform::keys(true)));
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(errors_cxx_core);
+INSTANTIATE_TEST_SUITE_P(error, errors_cxx_core,
+                         ::testing::ValuesIn(test_platform::platforms({})));

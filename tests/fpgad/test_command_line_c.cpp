@@ -23,46 +23,31 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-#include "mock/test_system.h"
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
 
 extern "C" {
-
 #include "fpgad/api/logging.h"
 #include "fpgad/command_line.h"
 
 bool cmd_register_null_gbs(struct fpgad_config *c, char *null_gbs_path);
-
 }
 
-#include <config.h>
-#include <opae/fpga.h>
-
-#include <fstream>
-#include <vector>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <errno.h>
-#include <unistd.h>
 #include <linux/limits.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include "gtest/gtest.h"
 
 using namespace opae::testing;
 
-class fpgad_command_line_c_p : public ::testing::TestWithParam<std::string> {
+class fpgad_command_line_c_p : public opae_base_p<> {
  protected:
-  fpgad_command_line_c_p() {}
 
   virtual void SetUp() override {
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
+    opae_base_p<>::SetUp();
 
     log_set(stdout);
 
@@ -98,22 +83,20 @@ class fpgad_command_line_c_p : public ::testing::TestWithParam<std::string> {
     cmd_destroy(&config_);
     log_close();
 
-    system_->finalize();
-
     if (!::testing::Test::HasFatalFailure() &&
         !::testing::Test::HasNonfatalFailure()) {
       unlink(tmpnull_gbs_);
       unlink(cfg_file_);
     }
     unlink(invalid_gbs_);
+
+    opae_base_p<>::TearDown();
   }
 
   char tmpnull_gbs_[20];
   char invalid_gbs_[20];
   char cfg_file_[20];
   struct fpgad_config config_;
-  test_platform platform_;
-  test_system *system_;
 };
 
 /**
@@ -425,4 +408,4 @@ TEST_P(fpgad_command_line_c_p, symlink4) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_command_line_c_p);
 INSTANTIATE_TEST_SUITE_P(fpgad_command_line_c, fpgad_command_line_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
+                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));

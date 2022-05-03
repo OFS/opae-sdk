@@ -23,11 +23,13 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
 #include <signal.h>
 
 extern "C" {
-
 #include "fpgad/command_line.h"
 #include "fpgad/api/logging.h"
 #include "fpgad/monitored_device.h"
@@ -39,39 +41,21 @@ void sig_handler(int sig, siginfo_t *info, void *unused);
 int fpgad_main(int argc, char *argv[]);
 
 extern fpgad_supported_device default_supported_devices_table[];
-
 }
 
-#include <config.h>
-#include <opae/fpga.h>
-
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <errno.h>
-#include <unistd.h>
-#include <fstream>
-#include <vector>
 #include <thread>
 #include <chrono>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
 
 using namespace opae::testing;
 
-class fpgad_fpgad_c_p : public ::testing::TestWithParam<std::string> {
+class fpgad_fpgad_c_p : public opae_base_p<> {
  protected:
-  fpgad_fpgad_c_p() {}
 
   virtual void SetUp() override {
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    opae_base_p<>::SetUp();
 
     log_set(stdout);
 
@@ -98,18 +82,15 @@ class fpgad_fpgad_c_p : public ::testing::TestWithParam<std::string> {
     cmd_destroy(&global_config);
     log_close();
 
-    fpgaFinalize();
-    system_->finalize();
-
     if (!::testing::Test::HasFatalFailure() &&
         !::testing::Test::HasNonfatalFailure()) {
       unlink(tmpnull_gbs_);
     }
+
+    opae_base_p<>::TearDown();
   }
 
   char tmpnull_gbs_[20];
-  test_platform platform_;
-  test_system *system_;
 };
 
 /**
@@ -319,4 +300,4 @@ TEST_P(fpgad_fpgad_c_p, main_valid) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_fpgad_c_p);
 INSTANTIATE_TEST_SUITE_P(fpgad_fpgad_c, fpgad_fpgad_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
+                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));

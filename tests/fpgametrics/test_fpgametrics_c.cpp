@@ -23,15 +23,14 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-#include <opae/fpga.h>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
-#include "mock/test_utils.h"
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
+
 extern "C" {
-#include <json-c/json.h>
-#include <uuid/uuid.h>
-
 struct config {
 	struct target {
 		bool fme_metrics;
@@ -49,44 +48,25 @@ int fpgametrics_main(int argc, char *argv[]);
 void print_bus_info(struct bdf_info *info);
 }
 
-#include <config.h>
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <errno.h>
-#include <unistd.h>
 using namespace opae::testing;
 
+class fpga_metrics_c_p : public opae_base_p<> {
+ protected:
 
-class fpga_metrics_c_p : public ::testing::TestWithParam<std::string> {
-protected:
-	fpga_metrics_c_p() {}
+  virtual void SetUp() override {
+    opae_base_p<>::SetUp();
 
-	virtual void SetUp() override {
-		std::string platform_key = GetParam();
-		ASSERT_TRUE(test_platform::exists(platform_key));
-		platform_ = test_platform::get(platform_key);
-		system_ = test_system::instance();
-		system_->initialize();
-		system_->prepare_syfs(platform_);
+    optind = 0;
+    config_ = config;
+  }
 
-		EXPECT_EQ(fpgaInitialize(NULL), FPGA_OK);
-		optind = 0;
-		config_ = config;
-	}
+  virtual void TearDown() override {
+    config = config_;
 
-	virtual void TearDown() override {
-		config = config_;
-		fpgaFinalize();
-		system_->finalize();
-	}
+    opae_base_p<>::TearDown();
+  }
 
-	struct config config_;
-	test_platform platform_;
-	test_system *system_;
+  struct config config_;
 };
 
 /**
@@ -95,7 +75,7 @@ protected:
  * @details    help displays the application help message.<br>
  */
 TEST_P(fpga_metrics_c_p, help) {
-	FpgaMetricsAppShowHelp();
+  FpgaMetricsAppShowHelp();
 }
 
 /**
@@ -106,7 +86,7 @@ TEST_P(fpga_metrics_c_p, help) {
  *             to stderr.<br>
  */
 TEST_P(fpga_metrics_c_p, print_err) {
-	print_err("msg", FPGA_OK);
+  print_err("msg", FPGA_OK);
 }
 
 /**
@@ -116,13 +96,13 @@ TEST_P(fpga_metrics_c_p, print_err) {
  *             parse_args returns a negative value.<br>
  */
 TEST_P(fpga_metrics_c_p, parse_args0) {
-	char zero[20];
-	char one[20];
-	strcpy(zero, "fpgametrics");
-	strcpy(one, "-Y");
+  char zero[20];
+  char one[20];
+  strcpy(zero, "fpgametrics");
+  strcpy(one, "-Y");
 
-	char *argv[] = { zero, one, NULL };
-	EXPECT_EQ(parse_args(2, argv), 3);
+  char *argv[] = { zero, one, NULL };
+  EXPECT_EQ(parse_args(2, argv), 3);
 }
 
 /**
@@ -133,13 +113,13 @@ TEST_P(fpga_metrics_c_p, parse_args0) {
  *             return a value other than FPGA_OK.<br>
  */
 TEST_P(fpga_metrics_c_p, parse_args1) {
-	char zero[20];
-	char one[20];
-	strcpy(zero, "fpgametrics");
-	strcpy(one, "-B");
+  char zero[20];
+  char one[20];
+  strcpy(zero, "fpgametrics");
+  strcpy(one, "-B");
 
-	char *argv[] = { zero, one, NULL };
-	EXPECT_NE(parse_args(2, argv), FPGA_OK);
+  char *argv[] = { zero, one, NULL };
+  EXPECT_NE(parse_args(2, argv), FPGA_OK);
 }
 
 /**
@@ -150,13 +130,13 @@ TEST_P(fpga_metrics_c_p, parse_args1) {
  *             return a value other than FPGA_OK.<br>
  */
 TEST_P(fpga_metrics_c_p, parse_args2) {
-	char zero[20];
-	char one[20];
-	strcpy(zero, "fpgametrics");
-	strcpy(one, "-v");
+  char zero[20];
+  char one[20];
+  strcpy(zero, "fpgametrics");
+  strcpy(one, "-v");
 
-	char *argv[] = { zero, one, NULL };
-	EXPECT_NE(parse_args(2, argv), FPGA_OK);
+  char *argv[] = { zero, one, NULL };
+  EXPECT_NE(parse_args(2, argv), FPGA_OK);
 }
 
 /**
@@ -167,14 +147,14 @@ TEST_P(fpga_metrics_c_p, parse_args2) {
  *             and returns FPGA_OK.<br>
  */
 TEST_P(fpga_metrics_c_p, parse_args3) {
-	char zero[20];
-	char one[20];
-	strcpy(zero, "fpgametrics");
-	strcpy(one, "-s");
+  char zero[20];
+  char one[20];
+  strcpy(zero, "fpgametrics");
+  strcpy(one, "-s");
 
-	char *argv[] = { zero, one, NULL };
-	EXPECT_EQ(parse_args(2, argv), FPGA_OK);
-	EXPECT_EQ(config.target.open_flags, FPGA_OPEN_SHARED);
+  char *argv[] = { zero, one, NULL };
+  EXPECT_EQ(parse_args(2, argv), FPGA_OK);
+  EXPECT_EQ(config.target.open_flags, FPGA_OPEN_SHARED);
 }
 
 /**
@@ -185,14 +165,14 @@ TEST_P(fpga_metrics_c_p, parse_args3) {
  *             and returns FPGA_OK.<br>
  */
 TEST_P(fpga_metrics_c_p, parse_args4) {
-	char zero[20];
-	char one[20];
-	strcpy(zero, "fpgametrics");
-	strcpy(one, "-f");
+  char zero[20];
+  char one[20];
+  strcpy(zero, "fpgametrics");
+  strcpy(one, "-f");
 
-	char *argv[] = { zero, one, NULL };
-	EXPECT_EQ(parse_args(2, argv), FPGA_OK);
-	EXPECT_EQ(config.target.fme_metrics, true);
+  char *argv[] = { zero, one, NULL };
+  EXPECT_EQ(parse_args(2, argv), FPGA_OK);
+  EXPECT_EQ(config.target.fme_metrics, true);
 }
 
 /**
@@ -203,14 +183,14 @@ TEST_P(fpga_metrics_c_p, parse_args4) {
  *             and returns FPGA_OK.<br>
  */
 TEST_P(fpga_metrics_c_p, parse_args5) {
-	char zero[20];
-	char one[20];
-	strcpy(zero, "fpgametrics");
-	strcpy(one, "-a");
+  char zero[20];
+  char one[20];
+  strcpy(zero, "fpgametrics");
+  strcpy(one, "-a");
 
-	char *argv[] = { zero, one, NULL };
-	EXPECT_EQ(parse_args(2, argv), FPGA_OK);
-	EXPECT_EQ(config.target.afu_metrics, true);
+  char *argv[] = { zero, one, NULL };
+  EXPECT_EQ(parse_args(2, argv), FPGA_OK);
+  EXPECT_EQ(config.target.afu_metrics, true);
 }
 
 /**
@@ -221,15 +201,15 @@ TEST_P(fpga_metrics_c_p, parse_args5) {
  *             return FPGA_OK.<br>
  */
 TEST_P(fpga_metrics_c_p, main1) {
-	char zero[20];
-	char one[20];
-	char two[20];
-	strcpy(zero, "fpgametrics");
-	strcpy(one, "-B");
-	sprintf(two, "%d", platform_.devices[0].bus);
+  char zero[20];
+  char one[20];
+  char two[20];
+  strcpy(zero, "fpgametrics");
+  strcpy(one, "-B");
+  sprintf(two, "%d", platform_.devices[0].bus);
 
-	char *argv[] = { zero, one, two, NULL };
-	EXPECT_EQ(fpgametrics_main(3, argv), FPGA_OK);
+  char *argv[] = { zero, one, two, NULL };
+  EXPECT_EQ(fpgametrics_main(3, argv), FPGA_OK);
 }
 
 /**
@@ -240,22 +220,21 @@ TEST_P(fpga_metrics_c_p, main1) {
  *             return 2 or 3.<br>
  */
 TEST_P(fpga_metrics_c_p, main2) {
-	char zero[20];
-	char one[20];
-	char two[20];
+  char zero[20];
+  char one[20];
+  char two[20];
 
-	strcpy(zero, "fpgametrics");
-	strcpy(one, "-Y");
-	sprintf(two, "%d", platform_.devices[0].bus);
+  strcpy(zero, "fpgametrics");
+  strcpy(one, "-Y");
+  sprintf(two, "%d", platform_.devices[0].bus);
 
-	char *argv1[] = { zero, NULL};
-	EXPECT_EQ(fpgametrics_main(1, argv1), 1);
+  char *argv1[] = { zero, NULL};
+  EXPECT_EQ(fpgametrics_main(1, argv1), 1);
 
-	char *argv2[] = { zero, one, two, NULL };
-	EXPECT_EQ(fpgametrics_main(3, argv2), 1);
-
+  char *argv2[] = { zero, one, two, NULL };
+  EXPECT_EQ(fpgametrics_main(3, argv2), 1);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpga_metrics_c_p);
 INSTANTIATE_TEST_SUITE_P(fpgametrics_c, fpga_metrics_c_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000" })));
