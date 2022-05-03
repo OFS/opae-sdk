@@ -23,44 +23,40 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-#include <opae/fpga.h>
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
 
 extern "C" {
 int opae_set_properties_from_args(fpga_properties filter, fpga_result *result,
 				  int *argc, char *argv[]);
 }
 
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
-
 using namespace opae::testing;
 
-class argsfilter_c_p : public ::testing::TestWithParam<std::string> {
-    protected:
-        argsfilter_c_p() {}
+class argsfilter_c_p : public opae_base_p<> {
+ protected:
+  argsfilter_c_p() :
+    filter_(nullptr)
+  {}
 
-        virtual void SetUp() override 
-        {
-            std::string platform_key = GetParam();
-            ASSERT_TRUE(test_platform::exists(platform_key));
-            platform_ = test_platform::get(platform_key);
-            system_ = test_system::instance();
-            system_->initialize();
-            system_->prepare_syfs(platform_);
+  virtual void SetUp() override {
+    opae_base_p<>::SetUp();
+    EXPECT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
+    EXPECT_NE(filter_, nullptr);
 
-            EXPECT_EQ(fpgaInitialize(nullptr), FPGA_OK);
+    optind = 0;
+  }
 
-            optind = 0;
-        }
+  virtual void TearDown() override {
+    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
+    opae_base_p<>::TearDown();
+  }
 
-        virtual void TearDown() override {
-            fpgaFinalize();
-            system_->finalize();
-        }
-
-        test_platform platform_;
-        test_system *system_;
+  fpga_properties filter_;
 };
 
 /**
@@ -94,9 +90,6 @@ TEST_P(argsfilter_c_p, bdf) {
     sprintf(function, "0x%x", platform_.devices[0].function);
     sprintf(segment, "0x%x", platform_.devices[0].segment);
 
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-
     strcpy(zero, "fpgainfo");
     strcpy(one, "fme");
     strcpy(two, "-B");
@@ -107,8 +100,7 @@ TEST_P(argsfilter_c_p, bdf) {
     strcpy(seven, function);
     strcpy(eight, "-S");
     strcpy(nine, segment);
-    EXPECT_EQ(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
-    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    EXPECT_EQ(opae_set_properties_from_args(filter_, &result, &argc, argv), 0);
     EXPECT_EQ(result, 0);
 }
 
@@ -130,15 +122,11 @@ TEST_P(argsfilter_c_p, bus) {
 
     sprintf(bus, "0x%x", platform_.devices[0].bus);
 
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-
     strcpy(zero, "fpgainfo");
     strcpy(one, "fme");
     strcpy(two, "-B");
     strcpy(three, bus);
-    EXPECT_EQ(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
-    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    EXPECT_EQ(opae_set_properties_from_args(filter_, &result, &argc, argv), 0);
     EXPECT_EQ(result, 0);
 }
 
@@ -157,15 +145,11 @@ TEST_P(argsfilter_c_p, bus_neg) {
     int argc = 4;
     fpga_result result;
 
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-
     strcpy(zero, "fpgainfo");
     strcpy(one, "fme");
     strcpy(two, "-B");
     strcpy(three, "zxyw");
-    EXPECT_NE(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
-    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    EXPECT_NE(opae_set_properties_from_args(filter_, &result, &argc, argv), 0);
 }
 
 /**
@@ -186,15 +170,11 @@ TEST_P(argsfilter_c_p, device) {
 
     sprintf(device, "0x%x", platform_.devices[0].device);
 
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-
     strcpy(zero, "fpgainfo");
     strcpy(one, "fme");
     strcpy(two, "-D");
     strcpy(three, device);
-    EXPECT_EQ(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
-    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    EXPECT_EQ(opae_set_properties_from_args(filter_, &result, &argc, argv), 0);
     EXPECT_EQ(result, 0);
 }
 
@@ -213,15 +193,12 @@ TEST_P(argsfilter_c_p, device_neg) {
     int argc = 4;
     fpga_result result;
 
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-
     strcpy(zero, "fpgainfo");
     strcpy(one, "fme");
     strcpy(two, "-D");
     strcpy(three, "zxyw");
-    EXPECT_NE(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
-    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    EXPECT_NE(opae_set_properties_from_args(filter_, &result, &argc, argv), 0);
+    EXPECT_NE(result, FPGA_OK);
 }
 
 /**
@@ -242,15 +219,11 @@ TEST_P(argsfilter_c_p, function) {
 
     sprintf(function, "0x%x", platform_.devices[0].function);
 
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-
     strcpy(zero, "fpgainfo");
     strcpy(one, "fme");
     strcpy(two, "-F");
     strcpy(three, function);
-    EXPECT_EQ(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
-    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    EXPECT_EQ(opae_set_properties_from_args(filter_, &result, &argc, argv), 0);
     EXPECT_EQ(result, 0);
 }
 
@@ -269,15 +242,11 @@ TEST_P(argsfilter_c_p, function_neg) {
     int argc = 4;
     fpga_result result;
 
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-
     strcpy(zero, "fpgainfo");
     strcpy(one, "fme");
     strcpy(two, "-F");
     strcpy(three, "zxyw");
-    EXPECT_NE(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
-    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    EXPECT_NE(opae_set_properties_from_args(filter_, &result, &argc, argv), 0);
 }
 
 /**
@@ -298,15 +267,11 @@ TEST_P(argsfilter_c_p, segment) {
 
     sprintf(segment, "0x%x", platform_.devices[0].segment);
 
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-
     strcpy(zero, "fpgainfo");
     strcpy(one, "fme");
     strcpy(two, "--segment");
     strcpy(three, segment);
-    EXPECT_EQ(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
-    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    EXPECT_EQ(opae_set_properties_from_args(filter_, &result, &argc, argv), 0);
     EXPECT_EQ(result, 0);
 }
 
@@ -325,15 +290,11 @@ TEST_P(argsfilter_c_p, segment_neg) {
     int argc = 4;
     fpga_result result;
 
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-
     strcpy(zero, "fpgainfo");
     strcpy(one, "fme");
     strcpy(two, "--segment");
     strcpy(three, "zxyw");
-    EXPECT_NE(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
-    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    EXPECT_NE(opae_set_properties_from_args(filter_, &result, &argc, argv), 0);
 }
 
 /**
@@ -350,14 +311,10 @@ TEST_P(argsfilter_c_p, argsfilter_neg) {
     int argc = 3;
     fpga_result result;
 
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-
     strcpy(zero, "fpgainfo");
     strcpy(one, "fme");
     strcpy(two, "-B");
-    EXPECT_NE(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
-    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
+    EXPECT_NE(opae_set_properties_from_args(filter_, &result, &argc, argv), 0);
 }
 
 /**
@@ -385,9 +342,6 @@ TEST_P(argsfilter_c_p, addr_sbdf) {
     int argc = 11;
     fpga_result result;
 
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-
     strcpy(zero, "fpgainfo");
     strcpy(one, "fme");
     strcpy(two, "-S");
@@ -400,26 +354,25 @@ TEST_P(argsfilter_c_p, addr_sbdf) {
     strcpy(nine, "7");
     strcpy(ten, "1234:56:78.7");
 
-    EXPECT_EQ(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
+    EXPECT_EQ(opae_set_properties_from_args(filter_, &result, &argc, argv), 0);
 
     uint16_t segment = 0;
     uint8_t bus = 0;
     uint8_t device = 0;
     uint8_t function = 0;
 
-    EXPECT_EQ(fpgaPropertiesGetSegment(filter, &segment), FPGA_OK);
+    EXPECT_EQ(fpgaPropertiesGetSegment(filter_, &segment), FPGA_OK);
     EXPECT_EQ(segment, 0x1234);
 
-    EXPECT_EQ(fpgaPropertiesGetBus(filter, &bus), FPGA_OK);
+    EXPECT_EQ(fpgaPropertiesGetBus(filter_, &bus), FPGA_OK);
     EXPECT_EQ(bus, 0x56);
 
-    EXPECT_EQ(fpgaPropertiesGetDevice(filter, &device), FPGA_OK);
+    EXPECT_EQ(fpgaPropertiesGetDevice(filter_, &device), FPGA_OK);
     EXPECT_EQ(device, 0x78);
 
-    EXPECT_EQ(fpgaPropertiesGetFunction(filter, &function), FPGA_OK);
+    EXPECT_EQ(fpgaPropertiesGetFunction(filter_, &function), FPGA_OK);
     EXPECT_EQ(function, 7);
 
-    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
     EXPECT_EQ(result, 0);
 }
 
@@ -449,9 +402,6 @@ TEST_P(argsfilter_c_p, addr_bdf) {
     int argc = 11;
     fpga_result result;
 
-    fpga_properties filter = NULL;
-    ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
-
     strcpy(zero, "fpgainfo");
     strcpy(one, "fme");
     strcpy(two, "-S");
@@ -464,28 +414,27 @@ TEST_P(argsfilter_c_p, addr_bdf) {
     strcpy(nine, "7");
     strcpy(ten, "56:78.7");
 
-    EXPECT_EQ(opae_set_properties_from_args(filter, &result, &argc, argv), 0);
+    EXPECT_EQ(opae_set_properties_from_args(filter_, &result, &argc, argv), 0);
 
     uint16_t segment = 0xff;
     uint8_t bus = 0;
     uint8_t device = 0;
     uint8_t function = 0;
 
-    EXPECT_EQ(fpgaPropertiesGetSegment(filter, &segment), FPGA_OK);
+    EXPECT_EQ(fpgaPropertiesGetSegment(filter_, &segment), FPGA_OK);
     EXPECT_EQ(segment, 0);
 
-    EXPECT_EQ(fpgaPropertiesGetBus(filter, &bus), FPGA_OK);
+    EXPECT_EQ(fpgaPropertiesGetBus(filter_, &bus), FPGA_OK);
     EXPECT_EQ(bus, 0x56);
 
-    EXPECT_EQ(fpgaPropertiesGetDevice(filter, &device), FPGA_OK);
+    EXPECT_EQ(fpgaPropertiesGetDevice(filter_, &device), FPGA_OK);
     EXPECT_EQ(device, 0x78);
 
-    EXPECT_EQ(fpgaPropertiesGetFunction(filter, &function), FPGA_OK);
+    EXPECT_EQ(fpgaPropertiesGetFunction(filter_, &function), FPGA_OK);
     EXPECT_EQ(function, 7);
 
-    EXPECT_EQ(fpgaDestroyProperties(&filter), FPGA_OK);
     EXPECT_EQ(result, 0);
 }
 
 INSTANTIATE_TEST_SUITE_P(argsfilter_c, argsfilter_c_p,
-        ::testing::ValuesIn(test_platform::platforms()));
+                         ::testing::ValuesIn(test_platform::platforms({})));

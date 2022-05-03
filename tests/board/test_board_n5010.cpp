@@ -24,73 +24,22 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-extern "C" {
-#include <net/ethernet.h>
-#include "opae_int.h"
-}
-
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
 
 #include "libboard/board_common/board_common.h"
 #include "libboard/board_n5010/board_n5010.h"
 
 using namespace opae::testing;
 
-class board_n5010_c_p : public ::testing::TestWithParam<std::string> {
-protected:
-	board_n5010_c_p() : tokens_{ { nullptr, nullptr } } {}
-
-	virtual void SetUp() override {
-		ASSERT_TRUE(test_platform::exists(GetParam()));
-		platform_ = test_platform::get(GetParam());
-		system_ = test_system::instance();
-		system_->initialize();
-		system_->prepare_syfs(platform_);
-
-		filter_ = nullptr;
-		ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
-		ASSERT_EQ(fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-		ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-		num_matches_ = 0;
-		ASSERT_EQ(fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-			&num_matches_), FPGA_OK);
-		EXPECT_GT(num_matches_, 0);
-		dev_ = nullptr;
-		ASSERT_EQ(fpgaOpen(tokens_[0], &dev_, 0), FPGA_OK);
-	}
-
-	virtual void TearDown() override {
-		EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-		if (dev_) {
-			EXPECT_EQ(fpgaClose(dev_), FPGA_OK);
-			dev_ = nullptr;
-		}
-		for (auto &t : tokens_) {
-			if (t) {
-				EXPECT_EQ(fpgaDestroyToken(&t), FPGA_OK);
-				t = nullptr;
-			}
-		}
-		fpgaFinalize();
-		system_->finalize();
-	}
-
-	std::array<fpga_token, 2> tokens_;
-	fpga_properties filter_;
-	fpga_handle dev_;
-	test_platform platform_;
-	uint32_t num_matches_;
-	test_system *system_;
-};
+class board_n5010_c_p : public opae_device_p<> {};
 
 // test DFL sysfs attributes
-class board_dfl_n5010_c_p : public board_n5010_c_p { };
+class board_dfl_n5010_c_p : public board_n5010_c_p {};
 
 /**
 * @test       board_n5010_0
@@ -98,8 +47,7 @@ class board_dfl_n5010_c_p : public board_n5010_c_p { };
 * @details    Validates fpga board info  <br>
 */
 TEST_P(board_dfl_n5010_c_p, DISABLED_board_n5010_0) {
-
-	EXPECT_EQ(print_board_info(tokens_[0]), FPGA_OK);
+  EXPECT_EQ(print_board_info(device_token_), FPGA_OK);
 }
 
 /**
@@ -108,14 +56,13 @@ TEST_P(board_dfl_n5010_c_p, DISABLED_board_n5010_0) {
 * @details    Validates max10 firmware version  <br>
 */
 TEST_P(board_dfl_n5010_c_p, DISABLED_board_n5010_1) {
+  char max10fw_ver[SYSFS_PATH_MAX];
 
-	char max10fw_ver[SYSFS_PATH_MAX];
+  EXPECT_EQ(read_max10fw_version(device_token_, max10fw_ver, SYSFS_PATH_MAX), FPGA_OK);
 
-	EXPECT_EQ(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_PATH_MAX), FPGA_OK);
+  EXPECT_EQ(read_max10fw_version(device_token_, NULL, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
 
-	EXPECT_EQ(read_max10fw_version(tokens_[0], NULL, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
-
-	EXPECT_EQ(read_max10fw_version(NULL, max10fw_ver, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
+  EXPECT_EQ(read_max10fw_version(NULL, max10fw_ver, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -124,14 +71,13 @@ TEST_P(board_dfl_n5010_c_p, DISABLED_board_n5010_1) {
 * @details    Validates bmc firmware version  <br>
 */
 TEST_P(board_dfl_n5010_c_p, DISABLED_board_n5010_2) {
+  char bmcfw_ver[SYSFS_PATH_MAX];
 
-	char bmcfw_ver[SYSFS_PATH_MAX];
+  EXPECT_EQ(read_bmcfw_version(device_token_, bmcfw_ver, SYSFS_PATH_MAX), FPGA_OK);
 
-	EXPECT_EQ(read_bmcfw_version(tokens_[0], bmcfw_ver, SYSFS_PATH_MAX), FPGA_OK);
+  EXPECT_EQ(read_bmcfw_version(device_token_, NULL, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
 
-	EXPECT_EQ(read_bmcfw_version(tokens_[0], NULL, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
-
-	EXPECT_EQ(read_bmcfw_version(NULL, bmcfw_ver, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
+  EXPECT_EQ(read_bmcfw_version(NULL, bmcfw_ver, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -140,13 +86,11 @@ TEST_P(board_dfl_n5010_c_p, DISABLED_board_n5010_2) {
 * @details    Validates parse fw version  <br>
 */
 TEST_P(board_dfl_n5010_c_p, board_n5010_3) {
+  char buf[SYSFS_PATH_MAX];
+  char fw_ver[SYSFS_PATH_MAX];
 
-	char buf[SYSFS_PATH_MAX];
-	char fw_ver[SYSFS_PATH_MAX];
-
-	EXPECT_EQ(parse_fw_ver(buf, NULL, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
-	EXPECT_EQ(parse_fw_ver(NULL, fw_ver, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
-
+  EXPECT_EQ(parse_fw_ver(buf, NULL, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
+  EXPECT_EQ(parse_fw_ver(NULL, fw_ver, SYSFS_PATH_MAX), FPGA_INVALID_PARAM);
 }
 
 /**
@@ -155,8 +99,7 @@ TEST_P(board_dfl_n5010_c_p, board_n5010_3) {
 * @details    Validates prints mac info <br>
 */
 TEST_P(board_dfl_n5010_c_p, DISABLED_board_n5010_4) {
-
-	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
+  EXPECT_EQ(print_mac_info(device_token_), FPGA_OK);
 }
 
 /**
@@ -165,8 +108,7 @@ TEST_P(board_dfl_n5010_c_p, DISABLED_board_n5010_4) {
 * @details    Validates fpga board info  <br>
 */
 TEST_P(board_dfl_n5010_c_p, DISABLED_board_n5010_5) {
-
-	EXPECT_EQ(print_sec_info(tokens_[0]), FPGA_OK);
+  EXPECT_EQ(print_sec_info(device_token_), FPGA_OK);
 }
 
 /**
@@ -175,16 +117,15 @@ TEST_P(board_dfl_n5010_c_p, DISABLED_board_n5010_5) {
 * @details    Validates prints mac info  <br>
 */
 TEST_P(board_dfl_n5010_c_p, DISABLED_board_n5010_6) {
-
-	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_OK);
+  EXPECT_EQ(print_mac_info(device_token_), FPGA_OK);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_dfl_n5010_c_p);
 INSTANTIATE_TEST_SUITE_P(board_n5010_c, board_dfl_n5010_c_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n6000" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n6000" })));
 
 // test invalid sysfs attributes
-class board_n5010_invalid_c_p : public board_n5010_c_p { };
+class board_n5010_invalid_c_p : public board_n5010_c_p {};
 
 /**
 * @test       board_n5010_9
@@ -196,20 +137,19 @@ class board_n5010_invalid_c_p : public board_n5010_c_p { };
 * @details    Validates function with invalid sysfs <br>
 */
 TEST_P(board_n5010_invalid_c_p, board_n5010_9) {
+  char bmcfw_ver[SYSFS_PATH_MAX];
+  EXPECT_EQ(read_bmcfw_version(device_token_, bmcfw_ver, SYSFS_PATH_MAX), FPGA_NOT_FOUND);
 
-	char bmcfw_ver[SYSFS_PATH_MAX];
-	EXPECT_EQ(read_bmcfw_version(tokens_[0], bmcfw_ver, SYSFS_PATH_MAX), FPGA_NOT_FOUND);
+  char max10fw_ver[SYSFS_PATH_MAX];
+  EXPECT_EQ(read_max10fw_version(device_token_, max10fw_ver, SYSFS_PATH_MAX), FPGA_NOT_FOUND);
 
-	char max10fw_ver[SYSFS_PATH_MAX];
-	EXPECT_EQ(read_max10fw_version(tokens_[0], max10fw_ver, SYSFS_PATH_MAX), FPGA_NOT_FOUND);
+  EXPECT_EQ(print_board_info(device_token_), FPGA_NOT_FOUND);
 
-	EXPECT_EQ(print_board_info(tokens_[0]), FPGA_NOT_FOUND);
+  EXPECT_EQ(print_mac_info(device_token_), FPGA_NOT_FOUND);
 
-	EXPECT_EQ(print_mac_info(tokens_[0]), FPGA_NOT_FOUND);
-
-	EXPECT_EQ(print_sec_info(tokens_[0]), FPGA_NOT_FOUND);
+  EXPECT_EQ(print_sec_info(device_token_), FPGA_NOT_FOUND);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_n5010_invalid_c_p);
 INSTANTIATE_TEST_SUITE_P(board_n5010_invalid_c, board_n5010_invalid_c_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));

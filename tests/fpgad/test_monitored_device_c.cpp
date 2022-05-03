@@ -23,11 +23,11 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
-#include <signal.h>
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
 extern "C" {
-
 #include "fpgad/api/logging.h"
 #include "fpgad/monitored_device.h"
 #include "fpgad/monitor_thread.h"
@@ -39,36 +39,18 @@ allocate_monitored_device(struct fpgad_config *config,
                           uint64_t object_id,
                           fpga_objtype object_type,
                           opae_bitstream_info *bitstr);
-
 }
 
-#include <config.h>
-#include <opae/fpga.h>
-
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <errno.h>
-#include <unistd.h>
-#include <fstream>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
 
 using namespace opae::testing;
 
-class fpgad_monitored_device_c_p : public ::testing::TestWithParam<std::string> {
+class fpgad_monitored_device_c_p : public opae_base_p<> {
  protected:
-  fpgad_monitored_device_c_p() {}
 
   virtual void SetUp() override {
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    ASSERT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    opae_base_p<>::SetUp();
 
     log_set(stdout);
   }
@@ -76,12 +58,9 @@ class fpgad_monitored_device_c_p : public ::testing::TestWithParam<std::string> 
   virtual void TearDown() override {
     log_close();
 
-    fpgaFinalize();
-    system_->finalize();
+    opae_base_p<>::TearDown();
   }
 
-  test_platform platform_;
-  test_system *system_;
 };
 
 /**
@@ -110,11 +89,10 @@ TEST_P(fpgad_monitored_device_c_p, enum_err) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_monitored_device_c_p);
 INSTANTIATE_TEST_SUITE_P(fpgad_monitored_device_c, fpgad_monitored_device_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
 
 class mock_fpgad_monitored_device_c_p : public ::testing::TestWithParam<std::string> {
  protected:
-  mock_fpgad_monitored_device_c_p() {}
 
   virtual void SetUp() override {
     std::string platform_key = GetParam();
@@ -123,6 +101,8 @@ class mock_fpgad_monitored_device_c_p : public ::testing::TestWithParam<std::str
     system_ = test_system::instance();
     system_->initialize();
     system_->prepare_syfs(platform_);
+
+    /* no call to fpgaInitialize() */
 
     log_set(stdout);
   }
@@ -151,4 +131,4 @@ TEST_P(mock_fpgad_monitored_device_c_p, enum_err0) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_fpgad_monitored_device_c_p);
 INSTANTIATE_TEST_SUITE_P(mock_fpgad_monitored_device_c, mock_fpgad_monitored_device_c_p,
-  ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));

@@ -23,6 +23,9 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
 #include "libbitstream/bitstream.h"
 
@@ -44,14 +47,8 @@ extern fpga_guid valid_GBS_guid;
 
 }
 
-#include <config.h>
-#include <opae/fpga.h>
-
-#include <fstream>
-#include <vector>
-
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
 
 const fpga_guid guid = {
   0x02, 0x7f, 0x3a, 0x1a,
@@ -70,16 +67,11 @@ const fpga_guid guid_reversed = {
 
 using namespace opae::testing;
 
-class bitstream_c_p : public ::testing::TestWithParam<std::string> {
+class bitstream_c_p : public opae_base_p<> {
  protected:
 
   virtual void SetUp() override {
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
+    opae_base_p<>::SetUp();
 
     strcpy(tmpnull_gbs_, "tmpnull-XXXXXX.gbs");
     close(mkstemps(tmpnull_gbs_, 4));
@@ -93,18 +85,16 @@ class bitstream_c_p : public ::testing::TestWithParam<std::string> {
   }
 
   virtual void TearDown() override {
-    system_->finalize();
-
     if (!::testing::Test::HasFatalFailure() &&
         !::testing::Test::HasNonfatalFailure()) {
         unlink(tmpnull_gbs_);
     }
+
+    opae_base_p<>::TearDown();
   }
 
   char tmpnull_gbs_[20];
   std::vector<uint8_t> null_gbs_;
-  test_platform platform_;
-  test_system *system_;
 };
 
 /**
@@ -361,7 +351,7 @@ TEST_P(bitstream_c_p, unload_err1) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(bitstream_c_p);
 INSTANTIATE_TEST_SUITE_P(bitstream_c, bitstream_c_p,
-    ::testing::ValuesIn(test_platform::platforms({})));
+                         ::testing::ValuesIn(test_platform::platforms({})));
 
 
 class mock_bitstream_c_p : public bitstream_c_p {};
@@ -401,4 +391,4 @@ TEST_P(mock_bitstream_c_p, resolve_err2) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_bitstream_c_p);
 INSTANTIATE_TEST_SUITE_P(bitstream_c, mock_bitstream_c_p,
-    ::testing::ValuesIn(test_platform::mock_platforms({})));
+                         ::testing::ValuesIn(test_platform::mock_platforms({})));

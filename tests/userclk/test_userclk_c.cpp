@@ -23,22 +23,18 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include <opae/fpga.h>
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
 
 extern "C" {
-
-#include <json-c/json.h>
-#include <uuid/uuid.h>
-
 struct UserClkCommandLine
 {
-	int      freq_high;
-	int      freq_low;
+  int freq_high;
+  int freq_low;
 };
 extern struct UserClkCommandLine userclkCmdLine;
 
@@ -49,34 +45,15 @@ void print_err(const char *s, fpga_result res);
 int ParseCmds(struct UserClkCommandLine *userclkCmdLine, int argc, char *argv[]);
 
 int userclk_main(int argc, char *argv[]);
-
 }
-
-#include <iostream>
-#include <vector>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <errno.h>
-#include <unistd.h>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
 
 using namespace opae::testing;
 
-class userclk_c_p : public ::testing::TestWithParam<std::string> {
+class userclk_c_p : public opae_base_p<> {
  protected:
-  userclk_c_p() {}
 
   virtual void SetUp() override {
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    EXPECT_EQ(fpgaInitialize(NULL), FPGA_OK);
+    opae_base_p<>::SetUp();
 
     optind = 0;
     cmd_line_ = userclkCmdLine;
@@ -84,13 +61,11 @@ class userclk_c_p : public ::testing::TestWithParam<std::string> {
 
   virtual void TearDown() override {
     userclkCmdLine = cmd_line_;
-    fpgaFinalize();
-    system_->finalize();
+
+    opae_base_p<>::TearDown();
   }
 
   struct UserClkCommandLine cmd_line_;
-  test_platform platform_;
-  test_system *system_;
 };
 
 /**
@@ -367,12 +342,9 @@ TEST_P(userclk_c_p, main2) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(userclk_c_p);
 INSTANTIATE_TEST_SUITE_P(userclk_c, userclk_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                         ::testing::ValuesIn(test_platform::platforms({})));
 
-class userclk_c_hw_p : public userclk_c_p{
-  protected:
-    userclk_c_hw_p() {};
-};
+class userclk_c_hw_p : public userclk_c_p {};
 
 /**
  * @test       main3
@@ -535,13 +507,12 @@ TEST_P(userclk_c_hw_p, main6) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(userclk_c_hw_p);
 INSTANTIATE_TEST_SUITE_P(userclk_c, userclk_c_hw_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms({"skx-p","dcp-rc"})));
+                         ::testing::ValuesIn(test_platform::hw_platforms({
+                                                                           "skx-p",
+                                                                           "dcp-rc"
+                                                                         })));
 
-
-class userclk_c_mock_p : public userclk_c_p{
-  protected:
-    userclk_c_mock_p() {};
-};
+class userclk_c_mock_p : public userclk_c_p {};
 
 /**
  * @test       main3
@@ -720,5 +691,7 @@ TEST_P(userclk_c_mock_p, main6) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(userclk_c_mock_p);
 INSTANTIATE_TEST_SUITE_P(userclk_c, userclk_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
-
+                         ::testing::ValuesIn(test_platform::mock_platforms({
+                                                                             "dfl-n3000",
+                                                                             "dfl-d5005"
+                                                                           })));

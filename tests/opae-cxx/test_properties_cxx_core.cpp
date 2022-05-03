@@ -23,9 +23,13 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-#include "mock/test_system.h"
-#include "gtest/gtest.h"
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
+
 #include <opae/cxx/core/handle.h>
 #include <opae/cxx/core/properties.h>
 #include <opae/cxx/core/token.h>
@@ -33,18 +37,14 @@
 using namespace opae::testing;
 using namespace opae::fpga::types;
 
-class properties_cxx_core : public ::testing::TestWithParam<std::string> {
-protected:
-  properties_cxx_core() : handle_(nullptr) {}
+class properties_cxx_core : public opae_base_p<> {
+ protected:
+  properties_cxx_core() :
+    handle_(nullptr)
+  {}
 
   virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    ASSERT_EQ(fpgaInitialize(nullptr), FPGA_OK);
+    opae_base_p<>::SetUp();
 
     tokens_ = token::enumerate({properties::get(FPGA_ACCELERATOR)});
     ASSERT_TRUE(tokens_.size() > 0);
@@ -52,15 +52,17 @@ protected:
 
   virtual void TearDown() override {
     tokens_.clear();
-    handle_.reset();
-    fpgaFinalize();
-    system_->finalize();
+
+    if (handle_.get()) {
+      handle_->close();
+      handle_.reset();
+    }
+
+    opae_base_p<>::TearDown();
   }
 
-  std::vector<token::ptr_t> tokens_;
   handle::ptr_t handle_;
-  test_platform platform_;
-  test_system *system_;
+  std::vector<token::ptr_t> tokens_;
 };
 
 fpga_guid guid_invalid = {0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
@@ -86,21 +88,21 @@ TEST_P(properties_cxx_core, get_no_filter) {
  * object that will return a token with the same guid when enumerated.
  */
 TEST_P(properties_cxx_core, get_guid_valid) {
-  if (!platform_.devices[0].has_afu) {
-    GTEST_SKIP();
+  test_device device = platform_.devices[0];
+
+  if (device.has_afu) {
+    std::vector<token::ptr_t> tokens;
+    const char *guid = nullptr;
+    fpga_guid valid_guid;
+
+    // Retrieve first platform device afu guid.
+    guid = platform_.devices[0].afu_guid;
+
+    ASSERT_EQ(0, uuid_parse(guid, valid_guid));
+
+    tokens = token::enumerate({properties::get(valid_guid)});
+    EXPECT_GT(tokens.size(), 0);
   }
-
-  std::vector<token::ptr_t> tokens;
-  const char *guid = nullptr;
-  fpga_guid valid_guid;
-
-  // Retrieve first platform device afu guid.
-  guid = platform_.devices[0].afu_guid;
-
-  ASSERT_EQ(0, uuid_parse(guid, valid_guid));
-
-  tokens = token::enumerate({properties::get(valid_guid)});
-  EXPECT_GT(tokens.size(), 0);
 }
 
 /**
@@ -328,4 +330,4 @@ TEST_P(properties_cxx_core, get_subsystem_device_id) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(properties_cxx_core);
 INSTANTIATE_TEST_SUITE_P(properties, properties_cxx_core,
-                        ::testing::ValuesIn(test_platform::keys(true)));
+                         ::testing::ValuesIn(test_platform::platforms({})));

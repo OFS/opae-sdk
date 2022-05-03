@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,19 +23,14 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-#include "mock/test_system.h"
-#include "gtest/gtest.h"
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
+
 #include <opae/cxx/core/version.h>
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include "config.h"
-
-#ifdef __cplusplus
-}
-#endif
 
 using namespace opae::testing;
 using namespace opae::fpga::types;
@@ -75,5 +70,10 @@ TEST(version_cxx_core, as_string) {
  */
 TEST(version_cxx_core, build) {
   auto v = version::build();
-  EXPECT_STREQ(v.c_str(), OPAE_GIT_COMMIT_HASH);
+
+  if (OPAE_GIT_SRC_TREE_DIRTY) {
+    EXPECT_STREQ(v.c_str(), OPAE_GIT_COMMIT_HASH "*");
+  } else {
+    EXPECT_STREQ(v.c_str(), OPAE_GIT_COMMIT_HASH);
+  }
 }

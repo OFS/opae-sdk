@@ -23,13 +23,14 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
 
-#include "mock/test_system.h"
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
 
 extern "C" {
-
-#include <json-c/json.h>
-
 #include "fpgad/api/logging.h"
 #include "fpgad/config_file.h"
 
@@ -44,37 +45,19 @@ typedef struct _cfg_vendor_device_id {
 cfg_vendor_device_id *
 cfg_process_plugin_devices(const char *name,
                            json_object *j_devices);
-
 }
 
-#include <config.h>
-#include <opae/fpga.h>
-
-#include <fstream>
-#include <vector>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <errno.h>
-#include <unistd.h>
 #include <linux/limits.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include "gtest/gtest.h"
 
 using namespace opae::testing;
 
-class fpgad_config_file_c_p : public ::testing::TestWithParam<std::string> {
+class fpgad_config_file_c_p : public opae_base_p<> {
  protected:
-  fpgad_config_file_c_p() {}
 
   virtual void SetUp() override {
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
+    opae_base_p<>::SetUp();
 
     log_set(stdout);
 
@@ -92,12 +75,12 @@ class fpgad_config_file_c_p : public ::testing::TestWithParam<std::string> {
     cmd_destroy(&config_);
     log_close();
 
-    system_->finalize();
-
     if (!::testing::Test::HasFatalFailure() &&
         !::testing::Test::HasNonfatalFailure()) {
       unlink(cfg_file_);
     }
+
+    opae_base_p<>::TearDown();
   }
 
   void write_cfg(const char *s)
@@ -110,8 +93,6 @@ class fpgad_config_file_c_p : public ::testing::TestWithParam<std::string> {
 
   char cfg_file_[20];
   struct fpgad_config config_;
-  test_platform platform_;
-  test_system *system_;
 };
 
 /**
@@ -457,32 +438,30 @@ TEST_P(fpgad_config_file_c_p, process_plugin8) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_config_file_c_p);
 INSTANTIATE_TEST_SUITE_P(fpgad_config_file_c, fpgad_config_file_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
+                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
 
 
-class fpgad_config_file_devices_p : public ::testing::TestWithParam<std::string> {
+class fpgad_config_file_devices_p : public opae_base_p<> {
  protected:
-  fpgad_config_file_devices_p() {}
+  fpgad_config_file_devices_p() :
+    root_(nullptr)
+  {}
 
   virtual void SetUp() override {
-    std::string platform_key = GetParam();
-    ASSERT_TRUE(test_platform::exists(platform_key));
-    platform_ = test_platform::get(platform_key);
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
+    opae_base_p<>::SetUp();
 
     log_set(stdout);
-    root_ = nullptr;
   }
 
   virtual void TearDown() override {
     log_close();
 
-    if (root_)
-	    json_object_put(root_);
+    if (root_) {
+      json_object_put(root_);
+      root_ = nullptr;
+    }
 
-    system_->finalize();
+    opae_base_p<>::TearDown();
   }
 
   json_object *parse(const char *cfg) {
@@ -498,8 +477,6 @@ class fpgad_config_file_devices_p : public ::testing::TestWithParam<std::string>
   }
 
   json_object *root_;
-  test_platform platform_;
-  test_system *system_;
 };
 
 /**
@@ -684,7 +661,7 @@ TEST_P(fpgad_config_file_devices_p, process_plugin_devices9) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_config_file_devices_p);
 INSTANTIATE_TEST_SUITE_P(fpgad_config_file_c, fpgad_config_file_devices_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
+                         ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));
 
 
 class mock_fpgad_config_file_c_p : public fpgad_config_file_c_p {};
@@ -824,7 +801,7 @@ TEST_P(mock_fpgad_config_file_c_p, process_plugin10) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_fpgad_config_file_c_p);
 INSTANTIATE_TEST_SUITE_P(fpgad_config_file_c, mock_fpgad_config_file_c_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
 
 
 class mock_fpgad_config_file_devices_p : public fpgad_config_file_devices_p {};
@@ -876,4 +853,4 @@ TEST_P(mock_fpgad_config_file_devices_p, process_plugin_devices8) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mock_fpgad_config_file_devices_p);
 INSTANTIATE_TEST_SUITE_P(fpgad_config_file_c, mock_fpgad_config_file_devices_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({ "skx-p" })));
