@@ -26,15 +26,21 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 function(opae_add_shared_plugin)
     set(options )
-    set(oneValueArgs TARGET PLUGIN)
+    set(oneValueArgs TARGET PLUGIN PRIORITY)
     set(multiValueArgs SOURCE)
     cmake_parse_arguments(OPAE_ADD_SHARED_PLUGIN  "${options}"
         "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
     set(register_c ${OPAE_ADD_SHARED_PLUGIN_PLUGIN}_register)
     set(plugin_so lib${OPAE_ADD_SHARED_PLUGIN_PLUGIN}.so)
+    if (OPAE_ADD_SHARED_PLUGIN_PRIORITY)
+        set(priority ${OPAE_ADD_SHARED_PLUGIN_PRIORITY})
+    else()
+        set(priority 1100)
+    endif()
+
     set(source_code
 "#include <opae/plugin.h>
-__attribute__ ((constructor)) static void ${register_c}(void)
+__attribute__ ((constructor(${priority}))) static void ${register_c}(void)
 {
     opae_plugin_mgr_register_plugin(\"${plugin_so}\", NULL)\;
 }"
