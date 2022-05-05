@@ -77,22 +77,24 @@ Download the OPAE SDK source package:
 1. Go to the section corresponding to the desired release on
 [GitHub](https://github.com/OPAE/opae-sdk/releases):
 2. Click the `Source code (tar.gz)` link under the section's `Assets`.
+3. On the command line, go through the following steps to install it:
 
-After downloading the source, unpack, configure, and compile it:
-
-```bash
-tar xfvz opae-sdk-<release>.tar.gz
-cd opae-sdk-<release>
-mkdir build
-cd build
-# The default installation prefix is `/usr/local`
-# You have the option to pick a different location:
-cmake [-DCMAKE_INSTALL_PREFIX=<prefix>] ..
-make
-# You need system administration privileges (`sudo`)
-# if you have elected to install in the default location:
-[sudo] make install
-```
+   ```bash
+   # Unpack
+   tar xfvz opae-sdk-<release>.tar.gz
+   # Configure
+   cd opae-sdk-<release>
+   mkdir build
+   cd build
+   # The default installation prefix is `/usr/local`;
+   # You have the option to configure for a different location
+   cmake [-DCMAKE_INSTALL_PREFIX=<prefix>] ..
+   # Compile
+   make
+   # Install: you need system administration privileges (`sudo`)
+   # if you have elected to install in the default location
+   [sudo] make install
+   ```
 
 The remainder of this guide assumes you installed into `/usr/local`.
 
