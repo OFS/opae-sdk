@@ -23,24 +23,17 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#ifdef __cplusplus
-
 extern "C" {
-#endif
 #include <opae/utils.h>
 #include "wsid_list_int.h"
-
-#ifdef __cplusplus
 }
-#endif
+
 #include <random>
-#include <chrono>
-#include <thread>
+
 #include "gtest/gtest.h"
 
 #ifndef BUILD_ASE

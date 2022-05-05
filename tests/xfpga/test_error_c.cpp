@@ -23,22 +23,24 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
+KEEP_XFPGA_SYMBOLS
+
 extern "C" {
 #include "error_int.h"
+
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+struct _fpga_token *token_add(struct dev_list *dev);
 }
 
 #include <opae/error.h>
 #include <props.h>
-#include <fstream>
-#include <string>
-#include <cstring>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
 #include "types_int.h"
 #include "sysfs_int.h"
 #include "xfpga.h"
@@ -69,12 +71,6 @@ struct dev_list {
         struct dev_list *fme;
 };
 
-extern "C" {
-int xfpga_plugin_initialize(void);
-int xfpga_plugin_finalize(void);
-struct _fpga_token *token_add(struct dev_list *dev);
-}
-
 using namespace opae::testing;
 const std::string sysfs_fme =
     "/sys/class/fpga_region/region0/dfl-fme.0";
@@ -83,21 +79,29 @@ const std::string sysfs_port =
     "/sys/class/fpga_region/region0/dfl-port.0";
 const std::string dev_port = "/dev/dfl-port.0";
 
-class error_c_mock_p : public ::testing::TestWithParam<std::string> {
+class error_c_mock_p : public opae_base_p<xfpga_> {
  public:
   int delete_errors(std::string, std::string);
 
  protected:
-  error_c_mock_p() : filter_(nullptr) {}
+  error_c_mock_p() :
+    filter_(nullptr),
+    tmpsysfs_("")
+  {}
+
+  virtual void OPAEInitialize() override {
+    ASSERT_EQ(xfpga_plugin_initialize(), 0);
+  }
+
+  virtual void OPAEFinalize() override {
+    ASSERT_EQ(xfpga_plugin_finalize(), 0);
+  }
 
   virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
+    opae_base_p<xfpga_>::SetUp();
+
     tmpsysfs_ = system_->get_root();
-    ASSERT_EQ(FPGA_OK, xfpga_plugin_initialize());
+
     if (sysfs_device_count() > 0) {
       const sysfs_fpga_device *device = sysfs_get_device(0);
       ASSERT_NE(device, nullptr);
@@ -138,27 +142,27 @@ class error_c_mock_p : public ::testing::TestWithParam<std::string> {
     if (fake_port_token_.errors) {
       free_error_list(fake_port_token_.errors);
     }
+
+    tmpsysfs_ = "";
+
     if (filter_) {
       EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
       filter_ = nullptr;
     }
-    tmpsysfs_ = "";
-    xfpga_plugin_finalize();
-    system_->finalize();
+
+    opae_base_p<xfpga_>::TearDown();
   }
 
   void free_error_list(struct error_list *p) {
     while (p) {
-      struct error_list *q = p->next;
-      free(p);
-      p = q;
+      struct error_list *q = p;
+      p = p->next;
+      free(q);
     }
   }
 
   fpga_properties filter_;
   std::string tmpsysfs_;
-  test_platform platform_;
-  test_system *system_;
   _fpga_token fake_fme_token_;
   _fpga_token fake_port_token_;
   std::string sysfs_fme;
@@ -305,6 +309,11 @@ TEST_P(error_c_mock_p, error_02) {
  *
  */
 TEST_P(error_c_mock_p, error_03) {
+  test_device device = platform_.devices[0];
+  if (!device.has_afu) {
+    GTEST_SKIP();
+  }
+
   std::fstream clear_file;
   std::ofstream error_file;
   std::string clear_name = tmpsysfs_ + sysfs_port + "/errors/errors";
@@ -384,6 +393,11 @@ TEST_P(error_c_mock_p, error_03) {
  *
  */
 TEST_P(error_c_mock_p, error_04) {
+  test_device device = platform_.devices[0];
+  if (!device.has_afu) {
+    GTEST_SKIP();
+  }
+
   std::fstream clear_file;
   std::ofstream error_file;
   std::string clear_name = tmpsysfs_ + sysfs_port + "/errors/errors";
@@ -463,6 +477,11 @@ TEST_P(error_c_mock_p, error_04) {
  *
  */
 TEST_P(error_c_mock_p, error_05) {
+  test_device device = platform_.devices[0];
+  if (!device.has_afu) {
+    GTEST_SKIP();
+  }
+
   unsigned int n = 0;
   fpga_token t = &fake_port_token_;
 
@@ -633,7 +652,11 @@ TEST_P(error_c_mock_p, error_12) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(error_c_mock_p);
 INSTANTIATE_TEST_SUITE_P(error_c, error_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({
+                                                                             "dfl-d5005",
+                                                                             "dfl-n3000",
+                                                                             "dfl-n6000"
+                                                                           })));
 
 class error_c_p : public error_c_mock_p {};
 
@@ -727,7 +750,11 @@ TEST_P(error_c_p, error_13) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(error_c_p);
 INSTANTIATE_TEST_SUITE_P(error_c, error_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::platforms({
+                                                                        "dfl-d5005",
+                                                                        "dfl-n3000",
+                                                                        "dfl-n6000"
+                                                                      })));
 
 /**
  * @test       error_01

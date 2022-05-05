@@ -23,33 +23,23 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-extern "C" {
-
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <fcntl.h>
-#include <json-c/json.h>
-#include <stdlib.h>
-#include <uuid/uuid.h>
-#include "opae_int.h"
-#include "types_int.h"
+
+extern "C" {
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
 }
 
-#include <config.h>
-#include <opae/fpga.h>
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
+KEEP_XFPGA_SYMBOLS
 
-#include <dlfcn.h>
-#include <array>
-#include <cstdlib>
-#include <cstring>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-#include "gtest/gtest.h"
 #include "metrics/bmc/bmc.h"
 #include "metrics/bmc/bmc_ioctl.h"
 #include "metrics/bmc/bmcdata.h"
@@ -59,60 +49,21 @@ extern "C" {
 #include "mock/test_utils.h"
 #include "xfpga.h"
 
-extern "C" {
-int xfpga_plugin_initialize(void);
-int xfpga_plugin_finalize(void);
-}
-
 using namespace opae::testing;
 
-class bmc_c_p : public ::testing::TestWithParam<std::string> {
-  protected:
-    bmc_c_p() 
-      : tokens_{{nullptr, nullptr}}, 
-        handle_(nullptr) {}
+class bmc_c_p : public opae_device_p<xfpga_> {
+ protected:
 
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
-
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                                  &num_matches_), FPGA_OK);
-    ASSERT_GT(num_matches_, 0);
-    ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
+  virtual void OPAEInitialize() override {
+    ASSERT_EQ(xfpga_plugin_initialize(), 0);
   }
 
-  virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    if (handle_ != nullptr) {
-      EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
-      handle_ = nullptr;
-    }
-    xfpga_plugin_finalize();
-    system_->finalize();
+  virtual void OPAEFinalize() override {
+    ASSERT_EQ(xfpga_plugin_finalize(), 0);
   }
 
   fpga_result write_sysfs_file(fpga_token token, const char *file, void *buf,
                                size_t count);
-
-  std::array<fpga_token, 2> tokens_;
-  fpga_handle handle_;
-  fpga_properties filter_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_system *system_;
 };
 
 fpga_result bmc_c_p::write_sysfs_file(fpga_token token, const char *file,
@@ -176,25 +127,25 @@ TEST_P(bmc_c_p, test_bmc_1) {
 
   // Get Reset & Power down cause
 
-  EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
+  EXPECT_EQ(bmcGetLastResetCause(device_token_, &string), FPGA_OK);
   if (string) {
     free(string);
     string = NULL;
   }
-  EXPECT_NE(bmcGetLastResetCause(tokens_[0], NULL), FPGA_OK);
+  EXPECT_NE(bmcGetLastResetCause(device_token_, NULL), FPGA_OK);
 
-  EXPECT_EQ(bmcGetLastPowerdownCause(tokens_[0], &string), FPGA_OK);
+  EXPECT_EQ(bmcGetLastPowerdownCause(device_token_, &string), FPGA_OK);
   if (string) {
     free(string);
     string = NULL;
   }
-  EXPECT_NE(bmcGetLastPowerdownCause(tokens_[0], NULL), FPGA_OK);
+  EXPECT_NE(bmcGetLastPowerdownCause(device_token_, NULL), FPGA_OK);
 
   // Get firmware version
-  EXPECT_EQ(bmcGetFirmwareVersion(tokens_[0], &version), FPGA_OK);
+  EXPECT_EQ(bmcGetFirmwareVersion(device_token_, &version), FPGA_OK);
   printf("bmc version=%d \n", version);
 
-  EXPECT_NE(bmcGetFirmwareVersion(tokens_[0], NULL), FPGA_OK);
+  EXPECT_NE(bmcGetFirmwareVersion(device_token_, NULL), FPGA_OK);
 }
 
 /**
@@ -223,7 +174,7 @@ TEST_P(bmc_c_p, test_bmc_2) {
   memset(&details, 0, sizeof(sdr_details));
 
   // Load SDR
-  EXPECT_EQ(bmcLoadSDRs(tokens_[0], &sdrs, &num_sensors), FPGA_OK);
+  EXPECT_EQ(bmcLoadSDRs(device_token_, &sdrs, &num_sensors), FPGA_OK);
   EXPECT_EQ(bmcReadSensorValues(sdrs, &values, &num_values), FPGA_OK);
 
   // Read sensor details & value
@@ -265,7 +216,7 @@ TEST_P(bmc_c_p, test_bmc_3) {
 
   memset(&details, 0, sizeof(details));
   // Load SDR
-  EXPECT_EQ(bmcLoadSDRs(tokens_[0], &sdrs, &num_sensors), FPGA_OK);
+  EXPECT_EQ(bmcLoadSDRs(device_token_, &sdrs, &num_sensors), FPGA_OK);
   EXPECT_EQ(bmcReadSensorValues(sdrs, &values, &num_values), FPGA_OK);
 
   // Get threshold trip point
@@ -306,7 +257,7 @@ TEST_P(bmc_c_p, test_bmc_4) {
 
   memset(&details, 0, sizeof(details));
   // Load SDR
-  EXPECT_EQ(bmcLoadSDRs(tokens_[0], &sdrs, &num_sensors), FPGA_OK);
+  EXPECT_EQ(bmcLoadSDRs(device_token_, &sdrs, &num_sensors), FPGA_OK);
   EXPECT_EQ(bmcReadSensorValues(sdrs, &values, &num_values), FPGA_OK);
 
   threshold_list thresh;
@@ -366,7 +317,7 @@ TEST_P(bmc_c_p, test_bmc_5) {
   void *buf = NULL;
 
   read_sysfs_file(
-      tokens_[0],
+      device_token_,
       (const char *)"/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.0/",
       (void **)&buf, &tot_bytes_ret);
 
@@ -374,10 +325,10 @@ TEST_P(bmc_c_p, test_bmc_5) {
   reset_cause reset;
   memset(&reset, 0, sizeof(reset_cause));
   reset.completion_code = 1;
-  write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void *)(&reset),
+  write_sysfs_file(device_token_, SYSFS_RESET_FILE, (void *)(&reset),
                    sizeof(reset_cause));
 
-  EXPECT_NE(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
+  EXPECT_NE(bmcGetLastResetCause(device_token_, &string), FPGA_OK);
   printf("string= %s", string);
   if (string) {
     free(string);
@@ -386,9 +337,9 @@ TEST_P(bmc_c_p, test_bmc_5) {
 
   reset.completion_code = 0;
   reset.reset_cause = CHIP_RESET_CAUSE_EXTRST;
-  write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void *)(&reset),
+  write_sysfs_file(device_token_, SYSFS_RESET_FILE, (void *)(&reset),
                    sizeof(reset_cause));
-  EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
+  EXPECT_EQ(bmcGetLastResetCause(device_token_, &string), FPGA_OK);
   printf("string= %s", string);
   if (string) {
     free(string);
@@ -396,9 +347,9 @@ TEST_P(bmc_c_p, test_bmc_5) {
   }
 
   reset.reset_cause = CHIP_RESET_CAUSE_BOD_IO;
-  write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void *)(&reset),
+  write_sysfs_file(device_token_, SYSFS_RESET_FILE, (void *)(&reset),
                    sizeof(reset_cause));
-  EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
+  EXPECT_EQ(bmcGetLastResetCause(device_token_, &string), FPGA_OK);
   printf("string= %s", string);
   if (string) {
     free(string);
@@ -406,9 +357,9 @@ TEST_P(bmc_c_p, test_bmc_5) {
   }
 
   reset.reset_cause = CHIP_RESET_CAUSE_OCD;
-  write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void *)(&reset),
+  write_sysfs_file(device_token_, SYSFS_RESET_FILE, (void *)(&reset),
                    sizeof(reset_cause));
-  EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
+  EXPECT_EQ(bmcGetLastResetCause(device_token_, &string), FPGA_OK);
   printf("string= %s", string);
   if (string) {
     free(string);
@@ -416,9 +367,9 @@ TEST_P(bmc_c_p, test_bmc_5) {
   }
 
   reset.reset_cause = CHIP_RESET_CAUSE_POR;
-  write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void *)(&reset),
+  write_sysfs_file(device_token_, SYSFS_RESET_FILE, (void *)(&reset),
                    sizeof(reset_cause));
-  EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
+  EXPECT_EQ(bmcGetLastResetCause(device_token_, &string), FPGA_OK);
   printf("string= %s", string);
   if (string) {
     free(string);
@@ -426,9 +377,9 @@ TEST_P(bmc_c_p, test_bmc_5) {
   }
 
   reset.reset_cause = CHIP_RESET_CAUSE_SOFT;
-  write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void *)(&reset),
+  write_sysfs_file(device_token_, SYSFS_RESET_FILE, (void *)(&reset),
                    sizeof(reset_cause));
-  EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
+  EXPECT_EQ(bmcGetLastResetCause(device_token_, &string), FPGA_OK);
   printf("string= %s", string);
   if (string) {
     free(string);
@@ -436,9 +387,9 @@ TEST_P(bmc_c_p, test_bmc_5) {
   }
 
   reset.reset_cause = CHIP_RESET_CAUSE_SPIKE;
-  write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void *)(&reset),
+  write_sysfs_file(device_token_, SYSFS_RESET_FILE, (void *)(&reset),
                    sizeof(reset_cause));
-  EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
+  EXPECT_EQ(bmcGetLastResetCause(device_token_, &string), FPGA_OK);
   printf("string= %s", string);
   if (string) {
     free(string);
@@ -446,9 +397,9 @@ TEST_P(bmc_c_p, test_bmc_5) {
   }
 
   reset.reset_cause = CHIP_RESET_CAUSE_WDT;
-  write_sysfs_file(tokens_[0], SYSFS_RESET_FILE, (void *)(&reset),
+  write_sysfs_file(device_token_, SYSFS_RESET_FILE, (void *)(&reset),
                    sizeof(reset_cause));
-  EXPECT_EQ(bmcGetLastResetCause(tokens_[0], &string), FPGA_OK);
+  EXPECT_EQ(bmcGetLastResetCause(device_token_, &string), FPGA_OK);
   printf("string= %s", string);
   if (string) {
     free(string);
@@ -471,9 +422,9 @@ TEST_P(bmc_c_p, test_bmc_6) {
   memset(&reset, 0, sizeof(powerdown_cause));
   memset(&dev_id, 0, sizeof(device_id));
   reset.completion_code = 1;
-  write_sysfs_file(tokens_[0], SYSFS_PWRDN_FILE, (void *)(&reset),
+  write_sysfs_file(device_token_, SYSFS_PWRDN_FILE, (void *)(&reset),
                    sizeof(powerdown_cause));
-  EXPECT_NE(bmcGetLastPowerdownCause(tokens_[0], &string), FPGA_OK);
+  EXPECT_NE(bmcGetLastPowerdownCause(device_token_, &string), FPGA_OK);
   if (string) {
     printf("string= %s", string);
     free(string);
@@ -482,9 +433,9 @@ TEST_P(bmc_c_p, test_bmc_6) {
 
   dev_id.completion_code = 1;
   uint32_t version;
-  write_sysfs_file(tokens_[0], SYSFS_DEVID_FILE, (void *)(&dev_id),
+  write_sysfs_file(device_token_, SYSFS_DEVID_FILE, (void *)(&dev_id),
                    sizeof(device_id));
-  EXPECT_NE(bmcGetFirmwareVersion(tokens_[0], &version), FPGA_OK);
+  EXPECT_NE(bmcGetFirmwareVersion(device_token_, &version), FPGA_OK);
 }
 
 /**
@@ -560,4 +511,4 @@ TEST_P(bmc_c_p, test_bmc_7) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(bmc_c_p);
 INSTANTIATE_TEST_SUITE_P(bmc_c, bmc_c_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
+                         ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));

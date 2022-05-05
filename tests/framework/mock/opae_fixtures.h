@@ -367,7 +367,13 @@ class opae_base_p : public ::testing::TestWithParam<std::string> {
     if (GetProperties(nullptr, &filter) != FPGA_OK)
       return nullptr;
 
-    if (fpgaPropertiesSetObjectType(filter, FPGA_DEVICE) != FPGA_OK) {
+    test_device device = platform_.devices[0];
+
+    if ((fpgaPropertiesSetObjectType(filter, FPGA_DEVICE) != FPGA_OK) ||
+        (fpgaPropertiesSetVendorID(filter, device.vendor_id) != FPGA_OK) ||
+        (fpgaPropertiesSetDeviceID(filter, device.device_id) != FPGA_OK) ||
+        (fpgaPropertiesSetSubsystemVendorID(filter, device.subsystem_vendor_id) != FPGA_OK) ||
+        (fpgaPropertiesSetSubsystemDeviceID(filter, device.subsystem_device_id) != FPGA_OK)) {
       fpgaDestroyProperties(&filter);
       return nullptr;
     }
@@ -550,8 +556,10 @@ class opae_p : public opae_base_p<_P> {
 
   virtual void TearDown() override
   {
-    ASSERT_EQ(opae_base_p<_P>::Close(accel_), FPGA_OK);
-    accel_ = nullptr;
+    if (accel_) {
+      ASSERT_EQ(opae_base_p<_P>::Close(accel_), FPGA_OK);
+      accel_ = nullptr;
+    }
     opae_base_p<_P>::TearDown();
   }
 
@@ -585,8 +593,10 @@ class opae_device_p : public opae_base_p<_P> {
 
   virtual void TearDown() override
   {
-    ASSERT_EQ(opae_base_p<_P>::Close(device_), FPGA_OK);
-    device_ = nullptr;
+    if (device_) {
+      ASSERT_EQ(opae_base_p<_P>::Close(device_), FPGA_OK);
+      device_ = nullptr;
+    }
     opae_base_p<_P>::TearDown();
   }
 
@@ -595,6 +605,28 @@ class opae_device_p : public opae_base_p<_P> {
   fpga_token accel_token_;
   fpga_handle device_;
 };
+
+#define KEEP_XFPGA_SYMBOLS                                                \
+extern "C" {                                                              \
+fpga_result xfpga_fpgaEnumerate(const fpga_properties *filters,           \
+                                uint32_t num_filters, fpga_token *tokens, \
+                                uint32_t max_tokens,                      \
+                                uint32_t *num_matches);                   \
+fpga_result xfpga_fpgaOpen(fpga_token token,                              \
+                           fpga_handle *handle, int flags);               \
+fpga_result xfpga_fpgaClose(fpga_handle handle);                          \
+fpga_result xfpga_fpgaGetProperties(fpga_token token,                     \
+                                    fpga_properties *props);              \
+fpga_result xfpga_fpgaDestroyToken(fpga_token *token);                    \
+__attribute__((unused)) void keep_xfpga_symbols(void)                     \
+{                                                                         \
+  xfpga_fpgaEnumerate(nullptr, 0, nullptr, 0, nullptr);                   \
+  xfpga_fpgaOpen(nullptr, nullptr, 0);                                    \
+  xfpga_fpgaClose(nullptr);                                               \
+  xfpga_fpgaGetProperties(nullptr, nullptr);                              \
+  xfpga_fpgaDestroyToken(nullptr);                                        \
+}                                                                         \
+}
 
 } // end of namespace testing
 } // end of namespace opae

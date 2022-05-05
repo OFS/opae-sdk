@@ -23,42 +23,25 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-extern "C" {
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
+KEEP_XFPGA_SYMBOLS
 
-#include <json-c/json.h>
-#include <uuid/uuid.h>
+#include <linux/ioctl.h>
+
+extern "C" {
 #include "intel-fpga.h"
 #include "types_int.h"
 #include "sysfs_int.h"
 #include "metrics/metrics_int.h"
 #include "metrics/vector.h"
 #include "opae_int.h"
-}
-
-#include <config.h>
-#include <opae/fpga.h>
-
-#include <linux/ioctl.h>
-#include <sys/mman.h>
-#include <array>
-#include <cstdarg>
-#include <cstdlib>
-#include <cstdarg>
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
 #include "xfpga.h"
-#include "mock/test_utils.h"
 
-extern "C" {
 int xfpga_plugin_initialize(void);
 int xfpga_plugin_finalize(void);
 }
@@ -103,48 +86,17 @@ out_EINVAL:
   goto out;
 }
 
-class metrics_c_p : public ::testing::TestWithParam<std::string> {
+class metrics_c_p : public opae_device_p<xfpga_> {
  protected:
-  metrics_c_p() : tokens_{{nullptr, nullptr}}, handle_(nullptr) {}
 
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                                  &num_matches_), FPGA_OK);
-    ASSERT_GT(num_matches_, 0);
-    ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
+  virtual void OPAEInitialize() override {
+    ASSERT_EQ(xfpga_plugin_initialize(), 0);
   }
 
-  virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    if (handle_) {
-      EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
-      handle_ = nullptr;
-    }
-    xfpga_plugin_finalize();
-    system_->finalize();
+  virtual void OPAEFinalize() override {
+    ASSERT_EQ(xfpga_plugin_finalize(), 0);
   }
 
-  std::array<fpga_token, 2> tokens_;
-  fpga_handle handle_;
-  fpga_properties filter_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_system *system_;
 };
 
 /**
@@ -156,19 +108,19 @@ class metrics_c_p : public ::testing::TestWithParam<std::string> {
 TEST_P(metrics_c_p, test_metric_01) {
   // get number of metrics
   uint64_t num_metrics;
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetNumMetrics(handle_, &num_metrics));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetNumMetrics(device_, &num_metrics));
 
   // NULL input parameters
-  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumMetrics(handle_, NULL));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumMetrics(device_, NULL));
 
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumMetrics(NULL, &num_metrics));
 
-  struct _fpga_handle *_handle = (struct _fpga_handle *)handle_;
+  struct _fpga_handle *_handle = (struct _fpga_handle *)device_;
 
   int fddev = _handle->fddev;
   _handle->fddev = -1;
 
-  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumMetrics(handle_, &num_metrics));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumMetrics(device_, &num_metrics));
   _handle->fddev = fddev;
 }
 
@@ -182,26 +134,26 @@ TEST_P(metrics_c_p, test_metric_02) {
   struct _fpga_handle *_handle = NULL;
   uint64_t num_metrics;
 
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetNumMetrics(handle_, &num_metrics));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetNumMetrics(device_, &num_metrics));
 
   struct fpga_metric_info *fpga_metric_info = (struct fpga_metric_info *)calloc(
          sizeof(struct fpga_metric_info), num_metrics);
 
   EXPECT_EQ(FPGA_OK,
-            xfpga_fpgaGetMetricsInfo(handle_, fpga_metric_info, &num_metrics));
+            xfpga_fpgaGetMetricsInfo(device_, fpga_metric_info, &num_metrics));
 
   EXPECT_NE(FPGA_OK,
             xfpga_fpgaGetMetricsInfo(NULL, fpga_metric_info, &num_metrics));
 
-  EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsInfo(handle_, NULL, &num_metrics));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsInfo(device_, NULL, &num_metrics));
 
-  _handle = (struct _fpga_handle *)handle_;
+  _handle = (struct _fpga_handle *)device_;
 
   int fddev = _handle->fddev;
   _handle->fddev = -1;
 
   EXPECT_NE(FPGA_OK,
-            xfpga_fpgaGetMetricsInfo(handle_, fpga_metric_info, &num_metrics));
+            xfpga_fpgaGetMetricsInfo(device_, fpga_metric_info, &num_metrics));
 
   _handle->fddev = fddev;
 
@@ -223,22 +175,22 @@ TEST_P(metrics_c_p, test_metric_03) {
          (struct fpga_metric *)calloc(sizeof(struct fpga_metric), 5);
 
   EXPECT_EQ(FPGA_OK,
-            xfpga_fpgaGetMetricsByIndex(handle_, id_array, 5, metric_array));
+            xfpga_fpgaGetMetricsByIndex(device_, id_array, 5, metric_array));
 
   EXPECT_NE(FPGA_OK,
             xfpga_fpgaGetMetricsByIndex(NULL, id_array, 5, metric_array));
 
   EXPECT_NE(FPGA_OK,
-            xfpga_fpgaGetMetricsByIndex(handle_, NULL, 5, metric_array));
+            xfpga_fpgaGetMetricsByIndex(device_, NULL, 5, metric_array));
 
-  EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByIndex(handle_, id_array, 5, NULL));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByIndex(device_, id_array, 5, NULL));
 
-  _handle = (struct _fpga_handle *)handle_;
+  _handle = (struct _fpga_handle *)device_;
   int fddev = _handle->fddev;
 
   _handle->fddev = -1;
   EXPECT_NE(FPGA_OK,
-            xfpga_fpgaGetMetricsByIndex(handle_, id_array, 5, metric_array));
+            xfpga_fpgaGetMetricsByIndex(device_, id_array, 5, metric_array));
 
   _handle->fddev = fddev;
 
@@ -261,7 +213,7 @@ TEST_P(metrics_c_p, test_metric_04) {
   struct fpga_metric *metric_array_search =
          (struct fpga_metric *)calloc(sizeof(struct fpga_metric), array_size);
 
-  xfpga_fpgaGetMetricsByName(handle_, (char **)metric_string, array_size,
+  xfpga_fpgaGetMetricsByName(device_, (char **)metric_string, array_size,
                              metric_array_search);
 
   const char *metric_string_invalid[2] = {
@@ -269,7 +221,7 @@ TEST_P(metrics_c_p, test_metric_04) {
   struct fpga_metric *metric_array_search_invalid =
          (struct fpga_metric *)calloc(sizeof(struct fpga_metric), array_size);
 
-  xfpga_fpgaGetMetricsByName(handle_, (char **)metric_string_invalid,
+  xfpga_fpgaGetMetricsByName(device_, (char **)metric_string_invalid,
                              array_size, metric_array_search_invalid);
 
   free(metric_array_search_invalid);
@@ -278,22 +230,22 @@ TEST_P(metrics_c_p, test_metric_04) {
             xfpga_fpgaGetMetricsByName(NULL, (char **)metric_string, array_size,
                                        metric_array_search));
 
-  EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(handle_, NULL, array_size,
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(device_, NULL, array_size,
                                                 metric_array_search));
 
-  EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(handle_, (char **)metric_string,
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(device_, (char **)metric_string,
                                                 array_size, NULL));
 
-  EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(handle_, (char **)metric_string,
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByName(device_, (char **)metric_string,
                                                 0, metric_array_search));
 
-  _handle = (struct _fpga_handle *)handle_;
+  _handle = (struct _fpga_handle *)device_;
 
   int fddev = _handle->fddev;
   _handle->fddev = -1;
 
   EXPECT_NE(FPGA_OK,
-            xfpga_fpgaGetMetricsByName(handle_, (char **)metric_string,
+            xfpga_fpgaGetMetricsByName(device_, (char **)metric_string,
                                        array_size, metric_array_search));
 
   _handle->fddev = fddev;
@@ -302,66 +254,48 @@ TEST_P(metrics_c_p, test_metric_04) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_c_p);
 INSTANTIATE_TEST_SUITE_P(metrics_c, metrics_c_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
+                         ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
 
 /**
 * @brief metrics afu gtest fixture
 *
 */
-class metrics_afu_c_p : public ::testing::TestWithParam<std::string> {
+
+class metrics_afu_c_p : public opae_p<xfpga_> {
  protected:
-  metrics_afu_c_p() 
-    : tokens_{{nullptr, nullptr}}, 
-      handle_(nullptr) {}
+  metrics_afu_c_p() :
+    which_mmio_(0)
+  {}
 
   void create_metric_bbb_dfh();
   void create_metric_bbb_csr();
+
+  virtual void OPAEInitialize() override {
+    ASSERT_EQ(xfpga_plugin_initialize(), 0);
+  }
+
+  virtual void OPAEFinalize() override {
+    ASSERT_EQ(xfpga_plugin_finalize(), 0);
+  }
+
   virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                                  &num_matches_), FPGA_OK);
-    ASSERT_GT(num_matches_, 0);
-    ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
+    opae_p<xfpga_>::SetUp();
 
     system_->register_ioctl_handler(FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
+
     which_mmio_ = 0;
     uint64_t *mmio_ptr = nullptr;
-    EXPECT_EQ(xfpga_fpgaMapMMIO(handle_, which_mmio_, &mmio_ptr), FPGA_OK);
+    EXPECT_EQ(xfpga_fpgaMapMMIO(accel_, which_mmio_, &mmio_ptr), FPGA_OK);
     EXPECT_NE(mmio_ptr, nullptr);
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(xfpga_fpgaUnmapMMIO(handle_, which_mmio_), FPGA_OK);
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    if (handle_) {
-      EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
-      handle_ = nullptr;
-    }
+    EXPECT_EQ(xfpga_fpgaUnmapMMIO(accel_, which_mmio_), FPGA_OK);
 
-    xfpga_plugin_finalize();
-    system_->finalize();
+    opae_p<xfpga_>::TearDown();
   }
 
   uint32_t which_mmio_;
-  std::array<fpga_token, 2> tokens_;
-  fpga_handle handle_;
-  fpga_properties filter_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_system *system_;
 };
 
 void metrics_afu_c_p::create_metric_bbb_dfh() {
@@ -374,12 +308,12 @@ void metrics_afu_c_p::create_metric_bbb_dfh() {
   dfh.type = 0x1;
 
   printf("------dfh.csr = %lx \n", dfh.csr);
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(handle_, 0, 0x0, dfh.csr));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, 0, 0x0, dfh.csr));
 
   EXPECT_EQ(FPGA_OK,
-            xfpga_fpgaWriteMMIO64(handle_, 0, 0x8, 0xf89e433683f9040b));
+            xfpga_fpgaWriteMMIO64(accel_, 0, 0x8, 0xf89e433683f9040b));
   EXPECT_EQ(FPGA_OK,
-            xfpga_fpgaWriteMMIO64(handle_, 0, 0x10, 0xd8424dc4a4a3c413));
+            xfpga_fpgaWriteMMIO64(accel_, 0, 0x10, 0xd8424dc4a4a3c413));
 
   struct DFH dfh_bbb = {0};
 
@@ -391,12 +325,12 @@ void metrics_afu_c_p::create_metric_bbb_dfh() {
   dfh_bbb.reserved = 0;
   printf("------dfh_bbb.csr = %lx \n", dfh_bbb.csr);
 
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(handle_, 0, 0x100, dfh_bbb.csr));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, 0, 0x100, dfh_bbb.csr));
 
   EXPECT_EQ(FPGA_OK,
-            xfpga_fpgaWriteMMIO64(handle_, 0, 0x108, 0x9D73E8F258E9E3D7));
+            xfpga_fpgaWriteMMIO64(accel_, 0, 0x108, 0x9D73E8F258E9E3D7));
   EXPECT_EQ(FPGA_OK,
-            xfpga_fpgaWriteMMIO64(handle_, 0, 0x110, 0x87816958C1484CD0));
+            xfpga_fpgaWriteMMIO64(accel_, 0, 0x110, 0x87816958C1484CD0));
 }
 
 void metrics_afu_c_p::create_metric_bbb_csr() {
@@ -408,21 +342,21 @@ void metrics_afu_c_p::create_metric_bbb_csr() {
   group_csr.units = 0x2;
   group_csr.next_group_offset = 0x30;
 
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(handle_, 0, 0x120, group_csr.csr));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, 0, 0x120, group_csr.csr));
   printf("------group_csr.csr = %lx \n", group_csr.csr);
 
   value_csr.eol = 0x0;
   value_csr.counter_id = 0xa;
   value_csr.value = 0x99;
 
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(handle_, 0, 0x128, value_csr.csr));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, 0, 0x128, value_csr.csr));
   printf("------value_csr.csr = %lx \n", value_csr.csr);
 
   value_csr.eol = 0x1;
   value_csr.counter_id = 0xb;
   value_csr.value = 0x89;
 
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(handle_, 0, 0x130, value_csr.csr));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, 0, 0x130, value_csr.csr));
   printf("------value_csr.csr = %lx \n", value_csr.csr);
 
   // second group
@@ -432,7 +366,7 @@ void metrics_afu_c_p::create_metric_bbb_csr() {
   group_csr.next_group_offset = 0x0;
 
   EXPECT_EQ(FPGA_OK,
-            xfpga_fpgaWriteMMIO64(handle_, 0, 0x120 + 0x30, group_csr.csr));
+            xfpga_fpgaWriteMMIO64(accel_, 0, 0x120 + 0x30, group_csr.csr));
   printf("------group_csr.csr = %lx \n", group_csr.csr);
   // second value
   value_csr.eol = 0x0;
@@ -440,7 +374,7 @@ void metrics_afu_c_p::create_metric_bbb_csr() {
   value_csr.value = 0x79;
 
   EXPECT_EQ(FPGA_OK,
-            xfpga_fpgaWriteMMIO64(handle_, 0, 0x120 + 0x38, value_csr.csr));
+            xfpga_fpgaWriteMMIO64(accel_, 0, 0x120 + 0x38, value_csr.csr));
   printf("------value_csr.csr = %lx \n", value_csr.csr);
 
   value_csr.eol = 0x1;
@@ -448,7 +382,7 @@ void metrics_afu_c_p::create_metric_bbb_csr() {
   value_csr.value = 0x69;
 
   EXPECT_EQ(FPGA_OK,
-            xfpga_fpgaWriteMMIO64(handle_, 0, 0x120 + 0x40, value_csr.csr));
+            xfpga_fpgaWriteMMIO64(accel_, 0, 0x120 + 0x40, value_csr.csr));
   printf("------value_csr.csr = %lx \n", value_csr.csr);
 }
 
@@ -466,14 +400,14 @@ TEST_P(metrics_afu_c_p, test_afc_metric_01) {
 
   uint64_t num_metrics = 0;
 
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetNumMetrics(handle_, &num_metrics));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaGetNumMetrics(accel_, &num_metrics));
   printf("num_metrics =%ld \n", num_metrics);
 
   struct fpga_metric_info *fpga_metric_info = (struct fpga_metric_info *)calloc(
          sizeof(struct fpga_metric_info), num_metrics);
 
   EXPECT_EQ(FPGA_OK,
-            xfpga_fpgaGetMetricsInfo(handle_, fpga_metric_info, &num_metrics));
+            xfpga_fpgaGetMetricsInfo(accel_, fpga_metric_info, &num_metrics));
 
   free(fpga_metric_info);
 }
@@ -488,9 +422,9 @@ TEST_P(metrics_afu_c_p, test_afc_metric_01) {
 */
 TEST_P(metrics_afu_c_p, test_afc_metric_02) {
   uint64_t num_metrics = 0;
-  auto handle = (struct _fpga_handle*)handle_;
+  auto handle = (struct _fpga_handle*)accel_;
 
-  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumMetrics(handle_, &num_metrics));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumMetrics(accel_, &num_metrics));
   printf("num_metrics =%ld \n", num_metrics);
   EXPECT_EQ(FPGA_OK, free_fpga_enum_metrics_vector(handle));
 
@@ -499,7 +433,7 @@ TEST_P(metrics_afu_c_p, test_afc_metric_02) {
          sizeof(struct fpga_metric_info), num_metrics);
 
   EXPECT_NE(FPGA_OK,
-            xfpga_fpgaGetMetricsInfo(handle_, fpga_metric_info, &num_metrics));
+            xfpga_fpgaGetMetricsInfo(accel_, fpga_metric_info, &num_metrics));
   free(fpga_metric_info);
 
   EXPECT_EQ(FPGA_OK, free_fpga_enum_metrics_vector(handle));
@@ -510,7 +444,7 @@ TEST_P(metrics_afu_c_p, test_afc_metric_02) {
          (struct fpga_metric *)calloc(sizeof(struct fpga_metric), 3);
 
   EXPECT_NE(FPGA_OK,
-            xfpga_fpgaGetMetricsByIndex(handle_, id_array, 3, metric_array));
+            xfpga_fpgaGetMetricsByIndex(accel_, id_array, 3, metric_array));
 
   free(metric_array);
 }
@@ -531,10 +465,10 @@ TEST_P(metrics_afu_c_p, test_afc_metric_03) {
          (struct fpga_metric *)calloc(sizeof(struct fpga_metric), 3);
 
   EXPECT_EQ(FPGA_OK,
-            xfpga_fpgaGetMetricsByIndex(handle_, id_array, 3, metric_array));
+            xfpga_fpgaGetMetricsByIndex(accel_, id_array, 3, metric_array));
 
   EXPECT_NE(FPGA_OK,
-            xfpga_fpgaGetMetricsByIndex(handle_, id_array, 0, metric_array));
+            xfpga_fpgaGetMetricsByIndex(accel_, id_array, 0, metric_array));
 
   free(metric_array);
 
@@ -543,7 +477,7 @@ TEST_P(metrics_afu_c_p, test_afc_metric_03) {
   struct fpga_metric *metric_array_invalid =
          (struct fpga_metric *)calloc(sizeof(struct fpga_metric), 3);
 
-  EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByIndex(handle_, id_array_invalid, 3,
+  EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByIndex(accel_, id_array_invalid, 3,
                                                  metric_array_invalid));
 
   free(metric_array_invalid);
@@ -567,7 +501,7 @@ TEST_P(metrics_afu_c_p, test_afc_metric_04) {
          (struct fpga_metric *)calloc(sizeof(struct fpga_metric), array_size);
 
   EXPECT_EQ(FPGA_OK,
-            xfpga_fpgaGetMetricsByName(handle_, (char **)metric_string,
+            xfpga_fpgaGetMetricsByName(accel_, (char **)metric_string,
                                        array_size, metric_array_search));
 
   free(metric_array_search);
@@ -580,7 +514,7 @@ TEST_P(metrics_afu_c_p, test_afc_metric_04) {
          (struct fpga_metric *)calloc(sizeof(struct fpga_metric), array_size);
 
   EXPECT_NE(FPGA_OK,
-            xfpga_fpgaGetMetricsByName(handle_, (char **)metric_string_invalid,
+            xfpga_fpgaGetMetricsByName(accel_, (char **)metric_string_invalid,
                                        array_size, metric_array_search));
 
   free(metric_array_search);
@@ -588,4 +522,4 @@ TEST_P(metrics_afu_c_p, test_afc_metric_04) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_afu_c_p);
 INSTANTIATE_TEST_SUITE_P(metrics_c, metrics_afu_c_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
+                         ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));

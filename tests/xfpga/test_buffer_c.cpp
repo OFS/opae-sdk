@@ -23,36 +23,35 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include <opae/fpga.h>
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
+KEEP_XFPGA_SYMBOLS
 
 extern "C" {
-    fpga_result buffer_allocate(void*,uint64_t,int);
-    fpga_result buffer_release(void*,uint64_t);
-    int xfpga_plugin_initialize(void);
-    int xfpga_plugin_finalize(void);
+  fpga_result buffer_allocate(void*,uint64_t,int);
+  fpga_result buffer_release(void*,uint64_t);
+  int xfpga_plugin_initialize(void);
+  int xfpga_plugin_finalize(void);
 }
+
+#include <linux/ioctl.h>
+#include <sys/mman.h>
+
+#include <tuple>
 
 #include "error_int.h"
 #include "common_int.h"
-#include <tuple>
 #include "xfpga.h"
 #include "gtest/gtest.h"
 #include "mock/test_system.h"
 #include "fpga-dfl.h"
-#include <linux/ioctl.h>
-#include <cstdarg>
 #include "types_int.h"
-#include <sys/mman.h>
 #include <opae/buffer.h>
 #include <opae/mmio.h>
-#include <string>
-#include <algorithm>
-
 
 #define NLB_DSM_SIZE (2 * 1024 * 1024)
 #define KB 1024
@@ -294,66 +293,31 @@ std::vector<buffer_params> params{
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(buffer_prepare);
 INSTANTIATE_TEST_SUITE_P(buffer_c, buffer_prepare,
-                        ::testing::Combine(::testing::ValuesIn(test_platform::keys()),
-                                           ::testing::ValuesIn(params)));
+                         ::testing::Combine(::testing::ValuesIn(test_platform::keys()),
+                                            ::testing::ValuesIn(params)));
 
-class buffer_c_mock_p : public ::testing::TestWithParam<std::string> {
+class buffer_c_mock_p : public opae_p<xfpga_> {
  protected:
-  buffer_c_mock_p()
-  : tokens_{{nullptr, nullptr}},
-    handle_(nullptr) {}
 
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_), FPGA_OK);
-    ASSERT_GT(num_matches_, 0);
-    ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
+  virtual void OPAEInitialize() override {
+    ASSERT_EQ(xfpga_plugin_initialize(), 0);
   }
 
-  virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(FPGA_OK,xfpga_fpgaDestroyToken(&t));
-        t = nullptr;
-      }
-    }
-
-    if (handle_ != nullptr) { 
-      EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); 
-      handle_ = nullptr;
-    }
-
-    xfpga_plugin_finalize();
-    system_->finalize();
+  virtual void OPAEFinalize() override {
+    ASSERT_EQ(xfpga_plugin_finalize(), 0);
   }
 
-  std::array<fpga_token, 2> tokens_;
-  fpga_handle handle_;
-  fpga_properties filter_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_system *system_;
 };
 
 TEST_P(buffer_c_mock_p, port_dma_unmap) {
   void *buf_addr = nullptr;
   uint64_t wsid = 0;
   uint64_t buf_len = KiB(1);
-  auto res = xfpga_fpgaPrepareBuffer(handle_, buf_len, (void **)&buf_addr, &wsid, 0);
+  auto res = xfpga_fpgaPrepareBuffer(accel_, buf_len, (void **)&buf_addr, &wsid, 0);
   EXPECT_EQ(res, FPGA_OK);
 
   system_->register_ioctl_handler(DFL_FPGA_PORT_DMA_UNMAP, dummy_ioctl<-1, EINVAL>);
-  EXPECT_EQ(res = xfpga_fpgaReleaseBuffer(handle_, wsid), FPGA_INVALID_PARAM)
+  EXPECT_EQ(res = xfpga_fpgaReleaseBuffer(accel_, wsid), FPGA_INVALID_PARAM)
         << "result is " << fpgaErrStr(res);
 
   buf_addr = nullptr;
@@ -365,10 +329,14 @@ TEST_P(buffer_c_mock_p, port_dma_map) {
   uint64_t buf_len = KiB(1);
 
   system_->register_ioctl_handler(DFL_FPGA_PORT_DMA_MAP, dummy_ioctl<-1, EINVAL>);
-  auto res = xfpga_fpgaPrepareBuffer(handle_, buf_len, (void **)&buf_addr, &wsid, 0);
+  auto res = xfpga_fpgaPrepareBuffer(accel_, buf_len, (void **)&buf_addr, &wsid, 0);
   EXPECT_EQ(res, FPGA_INVALID_PARAM) << "result is " << fpgaErrStr(res);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(buffer_c_mock_p);
 INSTANTIATE_TEST_SUITE_P(buffer_c, buffer_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({
+                                                                             "dfl-d5005",
+                                                                             "dfl-n3000",
+                                                                             "dfl-n6000"
+                                                                           })));
