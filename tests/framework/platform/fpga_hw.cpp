@@ -391,8 +391,8 @@ static platform_db MOCK_PLATFORMS = {
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
                        .has_afu = true,
                        .mdata = dfl_d5005_mdata}} } },
-   {"dfl-n6000",
-     test_platform{.mock_sysfs = "mock_sys_dfl_n6000_nlb0.tar.gz",
+   {"dfl-n6000-sku0",
+     test_platform{.mock_sysfs = "mock_sys_dfl_n6000_sku0_nlb0.tar.gz",
                    .driver = fpga_driver::linux_dfl0,
                    .devices = {test_device{
                        .fme_guid = "98b4d5bc-98ba-5f4b-98d9-a2841ccf11b0",
@@ -765,8 +765,8 @@ static std::map<platform_cfg, std::string> platform_names = {
   { platform_cfg(0x8086, 0x0b31, 0x8086, 0x0000, fpga_driver::linux_intel), "dcp-vc-v"              },
   { platform_cfg(0x8086, 0x0b30, 0x8086, 0x0000, fpga_driver::linux_dfl0),  "dfl-n3000"             },
   { platform_cfg(0x8086, 0x0b2b, 0x8086, 0x0000, fpga_driver::linux_dfl0),  "dfl-d5005"             },
-  { platform_cfg(0x8086, 0xbcce, 0x8086, 0x1770, fpga_driver::linux_dfl0),  "dfl-n6000"             },
-  { platform_cfg(0x8086, 0xbccf, 0x8086, 0x1770, fpga_driver::linux_dfl0),  "dfl-n6000"             },
+  { platform_cfg(0x8086, 0xbcce, 0x8086, 0x1770, fpga_driver::linux_dfl0),  "dfl-n6000-sku0"        },
+  { platform_cfg(0x8086, 0xbccf, 0x8086, 0x1770, fpga_driver::linux_dfl0),  "dfl-n6000-sku0"        },
 };
 
 const char *PCI_DEV_PATTERN = "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([0-9])";

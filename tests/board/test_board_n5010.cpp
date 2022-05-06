@@ -122,7 +122,9 @@ TEST_P(board_dfl_n5010_c_p, DISABLED_board_n5010_6) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(board_dfl_n5010_c_p);
 INSTANTIATE_TEST_SUITE_P(board_n5010_c, board_dfl_n5010_c_p,
-                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n6000" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({
+                                                                             "dfl-n6000-sku0"
+                                                                           })));
 
 // test invalid sysfs attributes
 class board_n5010_invalid_c_p : public board_n5010_c_p {};

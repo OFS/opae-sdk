@@ -134,7 +134,7 @@ if(OPAE_ENABLE_MOCK)
             ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_dfl_n3000_nlb0.tar.gz
             ${CMAKE_BINARY_DIR}
         COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_dfl_n6000_nlb0.tar.gz
+            ${CMAKE_CURRENT_SOURCE_DIR}/mock_sys_dfl_n6000_sku0_nlb0.tar.gz
             ${CMAKE_BINARY_DIR}
     )
 endif(OPAE_ENABLE_MOCK)

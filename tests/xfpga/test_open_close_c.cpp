@@ -298,7 +298,7 @@ INSTANTIATE_TEST_SUITE_P(openclose_c, openclose_c_p,
                          ::testing::ValuesIn(test_platform::platforms({
                                                                         "dfl-d5005",
                                                                         "dfl-n3000",
-                                                                        "dfl-n6000"
+                                                                        "dfl-n6000-sku0"
                                                                       })));
 
 class openclose_c_skx_dcp_p : public openclose_c_p {};
@@ -386,5 +386,5 @@ INSTANTIATE_TEST_SUITE_P(openclose_c, openclose_c_mock_p,
                          ::testing::ValuesIn(test_platform::mock_platforms({
                                                                              "dfl-d5005",
                                                                              "dfl-n3000",
-                                                                             "dfl-n6000"
+                                                                             "dfl-n6000-sku0"
                                                                            })));
