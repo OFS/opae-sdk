@@ -136,7 +136,7 @@ INSTANTIATE_TEST_SUITE_P(err_inj_c, err_inj_c_usd_p,
                          ::testing::ValuesIn(test_platform::mock_platforms({
                                                                              "dfl-d5005",
                                                                              "dfl-n3000",
-                                                                             "dfl-n6000"
+                                                                             "dfl-n6000-sku0"
                                                                            })));
 
 class err_inj_c_mock_p : public err_inj_c_p {};
@@ -213,7 +213,7 @@ INSTANTIATE_TEST_SUITE_P(err_inj_c, err_inj_c_mock_p,
                          ::testing::ValuesIn(test_platform::mock_platforms({
                                                                              "dfl-d5005",
                                                                              "dfl-n3000",
-                                                                             "dfl-n6000"
+                                                                             "dfl-n6000-sku0"
                                                                            })));
 
 /**

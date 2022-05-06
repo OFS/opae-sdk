@@ -123,5 +123,5 @@ INSTANTIATE_TEST_SUITE_P(xfpga_plugin_c, xfpga_plugin_c_p,
                          ::testing::ValuesIn(test_platform::mock_platforms({
                                                                              "dfl-d5005",
                                                                              "dfl-n3000",
-                                                                             "dfl-n6000"
+                                                                             "dfl-n6000-sku0"
                                                                            })));

@@ -245,7 +245,7 @@ INSTANTIATE_TEST_SUITE_P(mock_hello_events_c_fpgad, mock_hello_events_c_fpgad_p,
                          ::testing::ValuesIn(test_platform::mock_platforms({
                                                                              "dfl-d5005",
                                                                              "dfl-n3000",
-                                                                             "dfl-n6000"
+                                                                             "dfl-n6000-sku0"
                                                                            })));
 
 class hw_hello_events_c_fpgad_p : public mock_hello_events_c_fpgad_p {};

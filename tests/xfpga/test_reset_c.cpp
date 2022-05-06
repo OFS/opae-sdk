@@ -23,68 +23,39 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
+KEEP_XFPGA_SYMBOLS
+
+extern "C" {
 #include "types_int.h"
 #include "xfpga.h"
 #include "fpga-dfl.h"
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
 #include "sysfs_int.h"
-#include <linux/ioctl.h>
 
-extern "C" {
 int xfpga_plugin_initialize(void);
 int xfpga_plugin_finalize(void);
 }
 
+#include <linux/ioctl.h>
+
 using namespace opae::testing;
 
-class reset_c_p
-    : public ::testing::TestWithParam<std::string> {
+class reset_c_p : public opae_p<xfpga_> {
  protected:
-  reset_c_p()
-  : handle_(nullptr),
-    tokens_{{nullptr, nullptr}} {}
 
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_),
-              FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
+  virtual void OPAEInitialize() override {
+    ASSERT_EQ(xfpga_plugin_initialize(), 0);
   }
 
-  virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    xfpga_plugin_finalize();
-    system_->finalize();
+  virtual void OPAEFinalize() override {
+    ASSERT_EQ(xfpga_plugin_finalize(), 0);
   }
 
-  fpga_handle handle_;
-  std::array<fpga_token, 2> tokens_;
-  fpga_properties filter_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_system *system_;
 };
 
 /**
@@ -110,10 +81,10 @@ TEST_P(reset_c_p, test_port_drv_reset_02) {
   // Reset slot
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReset(NULL));
 
-  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
+  struct _fpga_handle* _handle = (struct _fpga_handle*)accel_;
   _handle->magic = 0x123;
 
-  EXPECT_NE(FPGA_OK, xfpga_fpgaReset(handle_));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaReset(accel_));
 
   _handle->magic = FPGA_HANDLE_MAGIC;
 }
@@ -127,15 +98,15 @@ TEST_P(reset_c_p, test_port_drv_reset_02) {
  */
 TEST_P(reset_c_p, test_port_drv_reset_03) {
   int fddev = -1;
-  struct _fpga_handle* _handle = (struct _fpga_handle*)handle_;
+  struct _fpga_handle* _handle = (struct _fpga_handle*)accel_;
 
 #ifndef BUILD_ASE
   fddev = _handle->fddev;
   _handle->fddev = -1;
 
-  EXPECT_NE(FPGA_OK, xfpga_fpgaReset(handle_));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaReset(accel_));
 #else
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaReset(handle_));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaReset(accel_));
 #endif
   _handle->fddev = fddev;
 }
@@ -148,17 +119,18 @@ TEST_P(reset_c_p, test_port_drv_reset_03) {
  *
  */
 TEST_P(reset_c_p, valid_port_reset) {
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaReset(handle_));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaReset(accel_));
 } 
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reset_c_p);
 INSTANTIATE_TEST_SUITE_P(reset_c, reset_c_p,
-                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005","dfl-n6000" })));
+                         ::testing::ValuesIn(test_platform::platforms({
+                                                                        "dfl-d5005",
+                                                                        "dfl-n3000",
+                                                                        "dfl-n6000-sku0"
+                                                                      })));
 
-class reset_c_mock_p : public reset_c_p {
- protected:
-  reset_c_mock_p() {}
-};
+class reset_c_mock_p : public reset_c_p {};
 
 /**
  * @test       reset_c
@@ -169,9 +141,13 @@ class reset_c_mock_p : public reset_c_p {
  */
 TEST_P(reset_c_mock_p, test_port_drv_reset_01) {
   system_->register_ioctl_handler(DFL_FPGA_PORT_RESET, dummy_ioctl<-1, EINVAL>);
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReset(handle_));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReset(accel_));
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(reset_c_mock_p);
 INSTANTIATE_TEST_SUITE_P(reset_c, reset_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({
+                                                                             "dfl-d5005",
+                                                                             "dfl-n3000",
+                                                                             "dfl-n6000-sku0"
+                                                                           })));

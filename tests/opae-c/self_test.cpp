@@ -89,7 +89,10 @@ TEST_P(self_test_base_p, accelerator_tokens) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(self_test_base_p);
 INSTANTIATE_TEST_SUITE_P(self_test_base, self_test_base_p,
-                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-n6000" })));
+                         ::testing::ValuesIn(test_platform::platforms({
+                                                                        "dfl-n3000",
+                                                                        "dfl-n6000-sku0"
+                                                                      })));
 
 
 class self_test_base_xfpga_p : public opae_base_p<xfpga_> {};
@@ -150,7 +153,10 @@ TEST_P(self_test_base_xfpga_p, accelerator_tokens_xfpga) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(self_test_base_xfpga_p);
 INSTANTIATE_TEST_SUITE_P(self_test_base_xfpga, self_test_base_xfpga_p,
-                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-n6000" })));
+                         ::testing::ValuesIn(test_platform::platforms({
+                                                                        "dfl-n3000",
+                                                                        "dfl-n6000-sku0"
+                                                                      })));
 
 
 class self_test_p : public opae_p<none_> {};
@@ -173,4 +179,7 @@ TEST_P(self_test_p, accelerator_token) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(self_test_p);
 INSTANTIATE_TEST_SUITE_P(self_test, self_test_p,
-                         ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-n6000" })));
+                         ::testing::ValuesIn(test_platform::platforms({
+                                                                        "dfl-n3000",
+                                                                        "dfl-n6000-sku0"
+                                                                      })));
