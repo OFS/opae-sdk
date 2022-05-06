@@ -23,20 +23,19 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include <uuid/uuid.h>
-#include <fstream>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
+KEEP_XFPGA_SYMBOLS
+
+extern "C" {
 #include "types_int.h"
 #include "xfpga.h"
 #include "sysfs_int.h"
 
-extern "C" {
 int xfpga_plugin_initialize(void);
 int xfpga_plugin_finalize(void);
 }
@@ -46,108 +45,80 @@ using namespace opae::testing;
 const std::string DATA =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-class sysobject_p : public ::testing::TestWithParam<std::string> {
+class sysobject_p : public opae_device_p<xfpga_> {
  protected:
-  sysobject_p()
-  : tokens_{{nullptr, nullptr}},
-    handle_(nullptr) {}
 
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
+  virtual void OPAEInitialize() override {
+    ASSERT_EQ(xfpga_plugin_initialize(), 0);
+  }
+
+  virtual void OPAEFinalize() override {
+    ASSERT_EQ(xfpga_plugin_finalize(), 0);
+  }
+
+  virtual fpga_properties device_filter() const override {
+    fpga_properties filter = nullptr;
+
+    if (GetProperties(nullptr, &filter) != FPGA_OK)
+      return nullptr;
+
     fpga_guid fme_guid;
-
-    ASSERT_EQ(uuid_parse(platform_.devices[0].fme_guid, fme_guid), 0);
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &dev_filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetGUID(dev_filter_, fme_guid), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(dev_filter_, FPGA_DEVICE), FPGA_OK);
-  }
-
-  virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&dev_filter_), FPGA_OK); 
-    if (handle_) {
-      EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
-      handle_ = nullptr;
+    if (uuid_parse(platform_.devices[0].fme_guid, fme_guid) != 0) {
+      fpgaDestroyProperties(&filter);
+      return nullptr;
     }
 
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    xfpga_plugin_finalize();
-    system_->finalize();
+    fpgaPropertiesSetGUID(filter, fme_guid);
+
+    return filter;
   }
 
-  std::array<fpga_token, 2> tokens_;
-  fpga_handle handle_;
-  test_platform platform_;
-  test_system *system_;
-  fpga_properties dev_filter_;
 };
 
 TEST_P(sysobject_p, xfpga_fpgaTokenGetObject) {
-  uint32_t num_matches = 0;
-  ASSERT_EQ(xfpga_fpgaEnumerate(&dev_filter_, 1, tokens_.data(), tokens_.size(),
-                                &num_matches),
-            FPGA_OK);
-  ASSERT_GT(num_matches, 0);
   const char *name = "bitstream_id";
   fpga_object object;
   int flags = 0;
-  EXPECT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], name, &object, flags),
+
+  EXPECT_EQ(xfpga_fpgaTokenGetObject(device_token_, name, &object, flags),
             FPGA_OK);
   uint64_t bitstream_id = 0;
   EXPECT_EQ(xfpga_fpgaObjectRead64(object, &bitstream_id, 0),
             FPGA_OK);
   EXPECT_EQ(bitstream_id, platform_.devices[0].bbs_id);
-  EXPECT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], "invalid_name", &object, 0),
+  EXPECT_EQ(xfpga_fpgaTokenGetObject(device_token_, "invalid_name", &object, 0),
             FPGA_NOT_FOUND);
-  EXPECT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], "../../../fpga", &object, 0),
+  EXPECT_EQ(xfpga_fpgaTokenGetObject(device_token_, "../../../fpga", &object, 0),
             FPGA_INVALID_PARAM);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
 
 TEST_P(sysobject_p, xfpga_fpgaHandleGetObject) {
-  uint32_t num_matches = 0;
-  ASSERT_EQ(xfpga_fpgaEnumerate(&dev_filter_, 1, tokens_.data(), tokens_.size(),
-                                &num_matches),
-            FPGA_OK);
-  ASSERT_GT(num_matches, 0);
-  ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
   const char *name = "bitstream_id";
   fpga_object object;
   int flags = 0;
-  ASSERT_EQ(xfpga_fpgaHandleGetObject(handle_, name, &object, flags), FPGA_OK);
+
+  ASSERT_EQ(xfpga_fpgaHandleGetObject(device_, name, &object, flags), FPGA_OK);
   uint64_t bitstream_id = 0;
   EXPECT_EQ(xfpga_fpgaObjectRead64(object, &bitstream_id, 0),
             FPGA_OK);
   EXPECT_EQ(bitstream_id, platform_.devices[0].bbs_id);
-  EXPECT_EQ(xfpga_fpgaHandleGetObject(handle_, "invalid_name", &object, 0),
+  EXPECT_EQ(xfpga_fpgaHandleGetObject(device_, "invalid_name", &object, 0),
             FPGA_NOT_FOUND);
-  EXPECT_EQ(xfpga_fpgaHandleGetObject(handle_, "../../../fpga", &object, 0),
+  EXPECT_EQ(xfpga_fpgaHandleGetObject(device_, "../../../fpga", &object, 0),
             FPGA_INVALID_PARAM);
-  EXPECT_EQ(xfpga_fpgaHandleGetObject(handle_, "errors/../../../../fpga", &object, 0),
+  EXPECT_EQ(xfpga_fpgaHandleGetObject(device_, "errors/../../../../fpga", &object, 0),
             FPGA_INVALID_PARAM);
 
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
 
 TEST_P(sysobject_p, xfpga_fpgaObjectGetObject) {
-  uint32_t num_matches = 0;
-  ASSERT_EQ(xfpga_fpgaEnumerate(&dev_filter_, 1, tokens_.data(), tokens_.size(),
-                                &num_matches),
-            FPGA_OK);
-  ASSERT_GT(num_matches, 0);
   fpga_object err_object, object, non_object;
   int flags = 0;
   const char *name = "errors";
-  EXPECT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], name, &err_object, flags),
+
+  EXPECT_EQ(xfpga_fpgaTokenGetObject(device_token_, name, &err_object, flags),
             FPGA_OK);
   ASSERT_EQ(xfpga_fpgaObjectGetObject(err_object, "fme_errors", &object,
                                       flags),
@@ -167,21 +138,16 @@ TEST_P(sysobject_p, xfpga_fpgaDestroyObject) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysobject_p);
 INSTANTIATE_TEST_SUITE_P(sysobject_c, sysobject_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::platforms({
+                                                                        "dfl-d5005",
+                                                                        "dfl-n3000",
+                                                                        "dfl-n6000"
+                                                                      })));
 
-
-class sysobject_mock_p : public sysobject_p{
-  protected:
-    sysobject_mock_p() {};
-};
+class sysobject_mock_p : public sysobject_p {};
 
 TEST_P(sysobject_mock_p, xfpga_fpgaObjectRead) {
-  uint32_t num_matches = 0;
-  ASSERT_EQ(xfpga_fpgaEnumerate(&dev_filter_, 1, tokens_.data(), tokens_.size(),
-                                &num_matches),
-            FPGA_OK);
-  ASSERT_GT(num_matches, 0);
-  _fpga_token *tk = static_cast<_fpga_token *>(tokens_[0]);
+  _fpga_token *tk = static_cast<_fpga_token *>(device_token_);
   std::string syspath(tk->sysfspath);
   syspath += "/testdata";
   auto fp = system_->register_file(syspath);
@@ -190,7 +156,7 @@ TEST_P(sysobject_mock_p, xfpga_fpgaObjectRead) {
   fflush(fp);
   fpga_object object;
   int flags = 0;
-  ASSERT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], "testdata", &object, flags),
+  ASSERT_EQ(xfpga_fpgaTokenGetObject(device_token_, "testdata", &object, flags),
             FPGA_OK);
   std::vector<uint8_t> buffer(DATA.size());
   EXPECT_EQ(xfpga_fpgaObjectRead(object, buffer.data(), 0, DATA.size() + 1, 0),
@@ -212,19 +178,13 @@ TEST_P(sysobject_mock_p, xfpga_fpgaObjectRead) {
 }
 
 TEST_P(sysobject_mock_p, xfpga_fpgaObjectWrite64) {
-  uint32_t num_matches = 0;
-  ASSERT_EQ(xfpga_fpgaEnumerate(&dev_filter_, 1, tokens_.data(), tokens_.size(),
-                                &num_matches),
-            FPGA_OK);
-  ASSERT_GT(num_matches, 0);
-  ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
-  _fpga_handle *h = static_cast<_fpga_handle *>(handle_);
+  _fpga_handle *h = static_cast<_fpga_handle *>(device_);
   _fpga_token *tok = static_cast<_fpga_token *>(h->token);
   std::string syspath(tok->sysfspath);
   syspath += "/testdata";
   auto fp = system_->register_file(syspath);
   fpga_object object;
-  ASSERT_EQ(xfpga_fpgaHandleGetObject(handle_, "testdata", &object, 0),
+  ASSERT_EQ(xfpga_fpgaHandleGetObject(device_, "testdata", &object, 0),
             FPGA_OK);
   EXPECT_EQ(xfpga_fpgaObjectWrite64(object, 0xc0c0cafe, 0), FPGA_OK);
   EXPECT_EQ(xfpga_fpgaObjectWrite64(object, 0xc0c0cafe, 0),
@@ -253,12 +213,7 @@ TEST_P(sysobject_mock_p, xfpga_fpgaObjectWrite64) {
 }
 
 TEST_P(sysobject_mock_p, xfpga_fpgaGetSize) {
-  uint32_t num_matches = 0;
-  ASSERT_EQ(xfpga_fpgaEnumerate(&dev_filter_, 1, tokens_.data(), tokens_.size(),
-                                &num_matches),
-            FPGA_OK);
-  ASSERT_GT(num_matches, 0);
-  _fpga_token *tk = static_cast<_fpga_token *>(tokens_[0]);
+  _fpga_token *tk = static_cast<_fpga_token *>(device_token_);
   std::string syspath(tk->sysfspath);
   syspath += "/testdata";
   auto fp = system_->register_file(syspath);
@@ -268,7 +223,7 @@ TEST_P(sysobject_mock_p, xfpga_fpgaGetSize) {
   fclose(fp);
   fpga_object object;
   int flags = 0;
-  ASSERT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], "testdata", &object, flags),
+  ASSERT_EQ(xfpga_fpgaTokenGetObject(device_token_, "testdata", &object, flags),
             FPGA_OK);
   uint32_t value = 0;
   EXPECT_EQ(xfpga_fpgaObjectGetSize(object, &value, 0), FPGA_OK);
@@ -278,4 +233,8 @@ TEST_P(sysobject_mock_p, xfpga_fpgaGetSize) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysobject_mock_p);
 INSTANTIATE_TEST_SUITE_P(sysobject_c, sysobject_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({
+                                                                             "dfl-d5005",
+                                                                             "dfl-n3000",
+                                                                             "dfl-n6000"
+                                                                           })));

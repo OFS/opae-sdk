@@ -23,15 +23,23 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
+KEEP_XFPGA_SYMBOLS
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 extern "C" {
-#include <opae/utils.h>
 #include "sysfs_int.h"
 #include "types_int.h"
+#include "xfpga.h"
+
 fpga_result cat_token_sysfs_path(char *, fpga_token, const char *);
 fpga_result get_port_sysfs(fpga_handle, char *);
 fpga_result sysfs_get_socket_id(int, int, fpga_guid);
@@ -50,24 +58,11 @@ char* cstr_dup(const char *str);
 int parse_pcie_info(sysfs_fpga_device *device, char *buffer);
 fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid);
 sysfs_fpga_region* make_region(sysfs_fpga_device*, char*, int, fpga_objtype);
-int xfpga_plugin_initialize(void);
-int xfpga_plugin_finalize(void);
 fpga_result re_match_region(const char *fmt, char *inpstr, char type[], size_t,
                             int *num);
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
 }
-
-#include <fstream>
-#include <opae/enum.h>
-#include <opae/fpga.h>
-#include <opae/properties.h>
-#include <sys/types.h>
-#include <uuid/uuid.h>
-#include <string>
-#include <vector>
-#include "xfpga.h"
-#include <fcntl.h>
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
 
 const std::string single_sysfs_fme =
     "/sys/class/fpga_region/region0/dfl-fme.0";
@@ -78,22 +73,25 @@ const std::string single_dev_port = "/dev/dfl-port.0";
 
 using namespace opae::testing;
 
-
-class sysfsinit_c_p : public ::testing::TestWithParam<std::string> {
+class sysfsinit_c_p : public opae_base_p<xfpga_> {
  protected:
-  sysfsinit_c_p(){}
+
+  virtual void OPAEInitialize() override {
+    ASSERT_EQ(xfpga_plugin_initialize(), 0);
+  }
+
+  virtual void OPAEFinalize() override {
+    ASSERT_EQ(xfpga_plugin_finalize(), 0);
+  }
 
   virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
+    opae_base_p<xfpga_>::SetUp();
+
     ASSERT_GT(sysfs_device_count(), 0);
+
     sysfs_fpga_region *fme = nullptr;
     sysfs_fpga_region *port = nullptr;
-    for (int i = 0; i < sysfs_device_count(); ++i) {
+    for (int i = 0 ; i < sysfs_device_count() ; ++i) {
       fme = (fme == nullptr) ? sysfs_get_device(i)->fme : fme;
       port = (port == nullptr) ? sysfs_get_device(i)->port : port;
       if (fme && port) break;
@@ -101,14 +99,10 @@ class sysfsinit_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_NE(fme, nullptr);
     ASSERT_NE(port, nullptr);
 
-    sysfs_fme = std::string(fme->sysfs_path);
-    dev_fme = std::string("/dev/") + std::string(fme->sysfs_name);
-    sysfs_port = std::string(port->sysfs_path);
-    dev_port = std::string("/dev/") + std::string(port->sysfs_name);
-  }
-  virtual void TearDown() override {
-    xfpga_plugin_finalize();
-    system_->finalize();
+    sysfs_fme_ = std::string(fme->sysfs_path);
+    dev_fme_ = std::string("/dev/") + std::string(fme->sysfs_name);
+    sysfs_port_ = std::string(port->sysfs_path);
+    dev_port_ = std::string("/dev/") + std::string(port->sysfs_name);
   }
 
   int GetNumFpgas() {
@@ -158,12 +152,10 @@ class sysfsinit_c_p : public ::testing::TestWithParam<std::string> {
     value = std::stoi(line);
   }
 
-  test_platform platform_;
-  test_system *system_;
-  std::string sysfs_fme;
-  std::string dev_fme;
-  std::string sysfs_port;
-  std::string dev_port;
+  std::string sysfs_fme_;
+  std::string dev_fme_;
+  std::string sysfs_port_;
+  std::string dev_port_;
 };
 
 // convert segment, bus, device, function to a 32 bit number
@@ -178,7 +170,7 @@ TEST_P(sysfsinit_c_p, sysfs_initialize) {
   // define a callback to be used with sysfs_foreach_device
   // this callback is given a map of devices using the sbdf as the key
   // (as a 32-bit number);
-  auto cb = [](const sysfs_fpga_device *r, void* data) -> fpga_result {
+  auto cb = [](const sysfs_fpga_device *r, void *data) -> fpga_result {
     auto& devs = *reinterpret_cast<std::map<uint64_t, test_device>*>(data);
     auto id = to_uint32(r->segment, r->bus, r->device, r->function);
     auto it = devs.find(id);
@@ -285,36 +277,32 @@ TEST(sysfsinit_c_p, sysfs_parse_pcie) {
   EXPECT_EQ(device.function, 0x01);
 }
 
-// TODO re-enable these for n6000.
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfsinit_c_p);
 INSTANTIATE_TEST_SUITE_P(sysfsinit_c, sysfsinit_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000", "dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::platforms({
+                                                                        "dfl-d5005",
+                                                                        "dfl-n3000",
+                                                                        "dfl-n6000"
+                                                                      })));
 
-class sysfs_c_p : public ::testing::TestWithParam<std::string> {
+class sysfs_c_p : public opae_device_p<xfpga_> {
  protected:
-  sysfs_c_p()
-  : tokens_{{nullptr, nullptr}},
-    handle_(nullptr){}
+
+  virtual void OPAEInitialize() override {
+    ASSERT_EQ(xfpga_plugin_initialize(), 0);
+  }
+
+  virtual void OPAEFinalize() override {
+    ASSERT_EQ(xfpga_plugin_finalize(), 0);
+  }
 
   virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, 
-                                        platform_.devices[0].device_id), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                                  &num_matches_),
-              FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
+    opae_device_p<xfpga_>::SetUp();
+
     sysfs_fpga_region *fme = nullptr;
     sysfs_fpga_region *port = nullptr;
     if (sysfs_device_count() > 0) {
-      for (int i = 0; i < sysfs_device_count(); ++i) {
+      for (int i = 0 ; i < sysfs_device_count() ; ++i) {
         fme = fme == nullptr ? sysfs_get_device(i)->fme : fme;
         port = port == nullptr ? sysfs_get_device(i)->port : port;
       }
@@ -322,42 +310,17 @@ class sysfs_c_p : public ::testing::TestWithParam<std::string> {
     ASSERT_NE(fme, nullptr);
     ASSERT_NE(port, nullptr);
 
-    sysfs_fme = std::string(fme->sysfs_path);
-    dev_fme = std::string("/dev/") + std::string(fme->sysfs_name);
-    sysfs_port = std::string(port->sysfs_path);
-    dev_port = std::string("/dev/") + std::string(port->sysfs_name);
+    sysfs_fme_ = std::string(fme->sysfs_path);
+    dev_fme_ = std::string("/dev/") + std::string(fme->sysfs_name);
+    sysfs_port_ = std::string(port->sysfs_path);
+    dev_port_ = std::string("/dev/") + std::string(port->sysfs_name);
   }
 
-  virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (handle_) { 
-        EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); 
-        handle_ = nullptr;
-    }
-
-    for (auto &t : tokens_) {
-      if (t) {
-          EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
-          t = nullptr;
-      }
-    }
-    xfpga_plugin_finalize();
-    system_->finalize();
-  }
-
-  std::array<fpga_token, 2> tokens_;
-  fpga_handle handle_;
-  fpga_properties filter_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_system *system_;
-  std::string sysfs_fme;
-  std::string dev_fme;
-  std::string sysfs_port;
-  std::string dev_port;
+  std::string sysfs_fme_;
+  std::string dev_fme_;
+  std::string sysfs_port_;
+  std::string dev_port_;
 };
-
-
 
 /**
 * @test    eintr_write_tests
@@ -385,7 +348,7 @@ TEST(sysfs_c, eintr_write_tests) {
 */
 TEST_P(sysfs_c_p, sysfs_invalid_tests) {
   const std::string sysfs_fme = "/sys/class/fpga/intel-fpga-dev/intel-fpga-fme";
-  auto h = (struct _fpga_handle *)handle_;
+  auto h = (struct _fpga_handle *)device_;
   auto t = (struct _fpga_token *)h->token;
 
   char spath[SYSFS_PATH_MAX];
@@ -393,11 +356,11 @@ TEST_P(sysfs_c_p, sysfs_invalid_tests) {
 
   char invalid_string[] = "...";
   strncpy(t->sysfspath, invalid_string, 4);
-  res = get_port_sysfs(handle_, spath);
+  res = get_port_sysfs(device_, spath);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 
   h->token = NULL;
-  res = get_port_sysfs(handle_, spath);
+  res = get_port_sysfs(device_, spath);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 }
 
@@ -406,20 +369,20 @@ TEST_P(sysfs_c_p, sysfs_invalid_tests) {
 * @details
 */
 TEST_P(sysfs_c_p, hw_type_invalid_tests) {
-  auto h = (struct _fpga_handle *)handle_;
+  auto h = (struct _fpga_handle *)device_;
   enum fpga_hw_type hw_type = FPGA_HW_UNKNOWN;
   fpga_token tok;
 
-  auto res = get_fpga_hw_type(handle_, NULL);
+  auto res = get_fpga_hw_type(device_, NULL);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 
   tok = h->token;
   h->token = NULL;
-  res = get_fpga_hw_type(handle_, &hw_type);
+  res = get_fpga_hw_type(device_, &hw_type);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 
   h->token = tok;
-  res = get_fpga_hw_type(handle_, &hw_type);
+  res = get_fpga_hw_type(device_, &hw_type);
   EXPECT_EQ(FPGA_OK, res);
 }
 
@@ -440,7 +403,7 @@ TEST_P(sysfs_c_p, glob_tests) {
 
 TEST_P(sysfs_c_p, glob_paths) {
   char *paths[16];
-  auto bitstream_glob = sysfs_fme + "/bitstream*";
+  auto bitstream_glob = sysfs_fme_ + "/bitstream*";
   size_t found = 0;
   ASSERT_EQ(opae_glob_paths(bitstream_glob.c_str(), 16, paths, &found),
             FPGA_OK);
@@ -516,7 +479,7 @@ TEST(sysfs_c, cat_handle_sysfs_path) {
 * @details
 */
 TEST_P(sysfs_c_p, make_object) {
-  _fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
+  _fpga_token *tok = static_cast<_fpga_token *>(device_token_);
   fpga_object object;
   // errors is a sysfs directory - this should call make_sysfs_group()
   ASSERT_EQ(make_sysfs_object(tok->sysfspath, "errors", &object, 0, 0),
@@ -549,7 +512,7 @@ TEST_P(sysfs_c_p, hw_type) {
   uint64_t real_vendorid = platform_.devices[0].vendor_id;
   uint64_t real_deviceid = platform_.devices[0].device_id;
 
-  auto res = get_fpga_hw_type(handle_, &hw_type);
+  auto res = get_fpga_hw_type(device_, &hw_type);
   EXPECT_EQ(res, FPGA_OK);
 
   EXPECT_EQ(hw_type, opae_id_to_hw_type(real_vendorid, real_deviceid));
@@ -589,8 +552,8 @@ TEST_P(sysfs_c_p, get_fme_path) {
   char found_fme[PATH_MAX];
   char rpath1[PATH_MAX];
   char rpath2[PATH_MAX];
-  ASSERT_EQ(sysfs_get_fme_path(sysfs_port.c_str(), found_fme), FPGA_OK);
-  ASSERT_NE(realpath(sysfs_fme.c_str(), rpath1), nullptr);
+  ASSERT_EQ(sysfs_get_fme_path(sysfs_port_.c_str(), found_fme), FPGA_OK);
+  ASSERT_NE(realpath(sysfs_fme_.c_str(), rpath1), nullptr);
   ASSERT_NE(realpath(found_fme, rpath2), nullptr);
   ASSERT_STREQ(rpath1, rpath2);
 }
@@ -608,12 +571,9 @@ TEST_P(sysfs_c_p, get_fme_path_neg) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_c_p);
 INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_c_p,
-                        ::testing::ValuesIn(test_platform::platforms({})));
+                         ::testing::ValuesIn(test_platform::platforms({})));
 
-class sysfs_c_hw_p : public sysfs_c_p {
-  protected:
-    sysfs_c_hw_p() {}
-};
+class sysfs_c_hw_p : public sysfs_c_p {};
 
 /**
  * @test    make_sysfs_group
@@ -622,23 +582,23 @@ class sysfs_c_hw_p : public sysfs_c_p {
 TEST_P(sysfs_c_hw_p, make_sysfs) {
   const std::string invalid_path =
       "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme";
-  _fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
+  _fpga_token *tok = static_cast<_fpga_token *>(device_token_);
   fpga_object obj;
-  auto res = make_sysfs_group(tok->sysfspath, "errors", &obj, 0, handle_);
+  auto res = make_sysfs_group(tok->sysfspath, "errors", &obj, 0, device_);
   EXPECT_EQ(res, FPGA_OK);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&obj), FPGA_OK);
 
   res = make_sysfs_group(tok->sysfspath, "errors", &obj, FPGA_OBJECT_GLOB,
-                         handle_);
+                         device_);
   EXPECT_EQ(res, FPGA_OK);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&obj), FPGA_OK);
 
   res = make_sysfs_group(const_cast<char *>(invalid_path.c_str()), "errors",
-                         &obj, 0, handle_);
+                         &obj, 0, device_);
   EXPECT_EQ(res, FPGA_NOT_FOUND);
 
   res = make_sysfs_group(tok->sysfspath, "errors", &obj,
-                         FPGA_OBJECT_RECURSE_ONE, handle_);
+                         FPGA_OBJECT_RECURSE_ONE, device_);
   EXPECT_EQ(res, FPGA_OK);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&obj), FPGA_OK);
 }
@@ -648,7 +608,7 @@ TEST_P(sysfs_c_hw_p, make_sysfs) {
  * @details
  */
 TEST_P(sysfs_c_hw_p, make_object_glob) {
-  _fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
+  _fpga_token *tok = static_cast<_fpga_token *>(device_token_);
   fpga_object object;
   // errors is a sysfs directory - this should call make_sysfs_group()
   ASSERT_EQ(make_sysfs_object(tok->sysfspath, "errors", &object,
@@ -659,12 +619,13 @@ TEST_P(sysfs_c_hw_p, make_object_glob) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_c_hw_p);
 INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_c_hw_p,
-                        ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-n3000","dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::hw_platforms({
+                                                                           "dfl-d5005",
+                                                                           "dfl-n3000",
+                                                                           "dfl-n6000"
+                                                                         })));
 
-class sysfs_c_mock_p : public sysfs_c_p {
- protected:
-  sysfs_c_mock_p() {}
-};
+class sysfs_c_mock_p : public sysfs_c_p {};
 
 /**
  * @test    make_sysfs_group
@@ -673,24 +634,24 @@ class sysfs_c_mock_p : public sysfs_c_p {
 TEST_P(sysfs_c_mock_p, make_sysfs) {
   const std::string invalid_path =
       "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme";
-  _fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
+  _fpga_token *tok = static_cast<_fpga_token *>(device_token_);
   fpga_object obj;
 
-  auto res = make_sysfs_group(tok->sysfspath, "errors", &obj, 0, handle_);
+  auto res = make_sysfs_group(tok->sysfspath, "errors", &obj, 0, device_);
   EXPECT_EQ(res, FPGA_OK);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&obj), FPGA_OK);
 
   res = make_sysfs_group(tok->sysfspath, "errors", &obj, FPGA_OBJECT_GLOB,
-                         handle_);
+                         device_);
   EXPECT_EQ(res, FPGA_OK);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&obj), FPGA_OK);
 
   res = make_sysfs_group(const_cast<char *>(invalid_path.c_str()), "errors",
-                         &obj, 0, handle_);
+                         &obj, 0, device_);
   EXPECT_EQ(res, FPGA_NOT_FOUND);
 
   res = make_sysfs_group(tok->sysfspath, "errors", &obj,
-                         FPGA_OBJECT_RECURSE_ONE, handle_);
+                         FPGA_OBJECT_RECURSE_ONE, device_);
   EXPECT_EQ(res, FPGA_OK);
 
   EXPECT_EQ(xfpga_fpgaDestroyObject(&obj), FPGA_OK);
@@ -701,7 +662,7 @@ TEST_P(sysfs_c_mock_p, make_sysfs) {
  * @details
  */
 TEST_P(sysfs_c_mock_p, make_object_glob) {
-  _fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
+  _fpga_token *tok = static_cast<_fpga_token *>(device_token_);
   fpga_object object;
   // errors is a sysfs directory - this should call make_sysfs_group()
   ASSERT_EQ(make_sysfs_object(tok->sysfspath, "errors", &object, 
@@ -712,7 +673,7 @@ TEST_P(sysfs_c_mock_p, make_object_glob) {
 
 TEST_P(sysfs_c_mock_p, glob_bitstream_objs) {
   fpga_object container, bitstream1, bitstream2;
-  ASSERT_EQ(xfpga_fpgaTokenGetObject(tokens_[0], "bitstream*", &container,
+  ASSERT_EQ(xfpga_fpgaTokenGetObject(device_token_, "bitstream*", &container,
                                      FPGA_OBJECT_GLOB),
             FPGA_OK);
   enum fpga_sysobject_type type;
@@ -738,7 +699,7 @@ TEST_P(sysfs_c_mock_p, glob_bitstream_objs) {
  */
 TEST_P(sysfs_c_mock_p, fpga_sysfs_02) {
   fpga_result result;
-  std::string str = sysfs_fme.c_str() + std::string("/socket_id");
+  std::string str = sysfs_fme_.c_str() + std::string("/socket_id");
   // valid path
   result = sysfs_write_u64(str.c_str(), 0);
   EXPECT_EQ(result, FPGA_OK);
@@ -751,7 +712,7 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_02) {
 
 TEST_P(sysfs_c_mock_p, fpga_sysfs_03) {
   fpga_result result;
-  std::string str = sysfs_fme.c_str() + std::string("/socket_id");
+  std::string str = sysfs_fme_.c_str() + std::string("/socket_id");
   // valid path
   result = sysfs_write_u64_decimal(str.c_str(), 0x100);
   EXPECT_EQ(result, FPGA_OK);
@@ -769,10 +730,10 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_04) {
 	fpga_result result;
 	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
 
-	result =  sysfs_get_port_error_path(handle_, sysfs_path);
+	result =  sysfs_get_port_error_path(device_, sysfs_path);
 	EXPECT_EQ(result, FPGA_OK);
 
-	result = sysfs_get_port_error_path(handle_, NULL);
+	result = sysfs_get_port_error_path(device_, NULL);
 	EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
 
@@ -788,10 +749,10 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_05) {
 	fpga_result result;
 	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
 
-	result = sysfs_get_port_error_clear_path(handle_, sysfs_path);
+	result = sysfs_get_port_error_clear_path(device_, sysfs_path);
 	EXPECT_EQ(result, FPGA_OK);
 
-	result = sysfs_get_port_error_clear_path(handle_, NULL);
+	result = sysfs_get_port_error_clear_path(device_, NULL);
 	EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
 
@@ -806,7 +767,7 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_05) {
 */
 
 TEST_P(sysfs_c_mock_p, fpga_sysfs_06) {
-	_fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
+	_fpga_token *tok = static_cast<_fpga_token *>(device_token_);
 	fpga_object object ;
 	char full_path[SYSFS_PATH_MAX] = { 0 };
 
@@ -831,7 +792,7 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_06) {
 *            Then the return value FPGA_NOT_FOUND <br>
 */
 TEST_P(sysfs_c_mock_p, fpga_sysfs_07) {
-	_fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
+	_fpga_token *tok = static_cast<_fpga_token *>(device_token_);
 	fpga_object object = NULL;
 	char full_path[SYSFS_PATH_MAX] = { 0 };
 	fpga_result result;
@@ -859,7 +820,7 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_07) {
 *            Then the return value FPGA_INVALID_PARAM <br>
 */
 TEST_P(sysfs_c_mock_p, fpga_sysfs_08) {
-	_fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
+	_fpga_token *tok = static_cast<_fpga_token *>(device_token_);
 	fpga_object object = NULL;
 	char full_path[SYSFS_PATH_MAX] = { 0 };
 	fpga_result result;
@@ -892,7 +853,7 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_08) {
 TEST_P(sysfs_c_mock_p, fpga_sysfs_30) {
 	char glob_path[SYSFS_PATH_MAX] = { 0 };
 	char path[SYSFS_PATH_MAX] = { 0 };
-	_fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
+	_fpga_token *tok = static_cast<_fpga_token *>(device_token_);
 
 	if (snprintf(glob_path, SYSFS_PATH_MAX,
 		"%s%s", tok->sysfspath,
@@ -931,10 +892,13 @@ TEST_P(sysfs_c_mock_p, fpga_sysfs_30) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_c_mock_p);
 INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({
+                                                                             "dfl-d5005",
+                                                                             "dfl-n3000"
+                                                                           })));
 
+class sysfs_dfl_c_mock_p : public sysfs_c_mock_p {};
 
-class sysfs_dfl_c_mock_p : public sysfs_c_mock_p { };
 /*
 * @test       sysfs
 * @brief      Tests: sysfs_get_fme_perf_path
@@ -947,21 +911,26 @@ class sysfs_dfl_c_mock_p : public sysfs_c_mock_p { };
 *            FPGA_NOT_FOUND <br>
 */
 TEST_P(sysfs_dfl_c_mock_p, fpga_sysfs_08) {
-	fpga_result result;
-	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
+  fpga_result result;
+  char sysfs_path[SYSFS_PATH_MAX] = { 0 };
 
-	result = sysfs_get_fme_perf_path(tokens_[0], sysfs_path);
-	EXPECT_EQ(result, FPGA_NOT_FOUND);
+  result = sysfs_get_fme_perf_path(device_token_, sysfs_path);
+  EXPECT_EQ(result, FPGA_NOT_FOUND);
 
-	result = sysfs_get_fme_perf_path(tokens_[0], NULL);
-	EXPECT_EQ(result, FPGA_INVALID_PARAM);
+  result = sysfs_get_fme_perf_path(device_token_, NULL);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_dfl_c_mock_p);
 INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_dfl_c_mock_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({
+                                                                             "dfl-d5005",
+                                                                             "dfl-n3000",
+                                                                             "dfl-n6000"
+                                                                           })));
 
-class sysfs_power_mock_p : public sysfs_c_mock_p { };
+class sysfs_power_mock_p : public sysfs_c_mock_p {};
+
 /*
 * @test       sysfs
 * @brief      Tests: sysfs_get_fme_pwr_path
@@ -977,19 +946,23 @@ TEST_P(sysfs_power_mock_p, fpga_sysfs_09) {
 	fpga_result result;
 	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
 
-	result = sysfs_get_fme_pwr_path(tokens_[0], sysfs_path);
+	result = sysfs_get_fme_pwr_path(device_token_, sysfs_path);
 	EXPECT_EQ(result, FPGA_NOT_FOUND);
 
-	result = sysfs_get_fme_pwr_path(tokens_[0], NULL);
+	result = sysfs_get_fme_pwr_path(device_token_, NULL);
 	EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_power_mock_p);
 INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_power_mock_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({
+                                                                             "dfl-d5005",
+                                                                             "dfl-n3000",
+                                                                             "dfl-n6000"
+                                                                           })));
 
+class sysfs_bmc_mock_p : public sysfs_c_mock_p {};
 
-class sysfs_bmc_mock_p : public sysfs_c_mock_p { };
 /*
 * @test       sysfs
 * @brief      Tests: sysfs_get_bmc_path
@@ -1002,19 +975,19 @@ TEST_P(sysfs_bmc_mock_p, fpga_sysfs_10) {
 	fpga_result result;
 	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
 
-	result = sysfs_get_bmc_path(tokens_[0], sysfs_path);
+	result = sysfs_get_bmc_path(device_token_, sysfs_path);
 	EXPECT_EQ(result, FPGA_OK);
 
-	result = sysfs_get_bmc_path(tokens_[0], NULL);
+	result = sysfs_get_bmc_path(device_token_, NULL);
 	EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_bmc_mock_p);
 INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_bmc_mock_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "dcp-rc" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({ "dcp-rc" })));
 
+class sysfs_max10_mock_p : public sysfs_c_mock_p {};
 
-class sysfs_max10_mock_p : public sysfs_c_mock_p { };
 /*
 * @test       sysfs
 * @brief      Tests: sysfs_get_max10_path
@@ -1024,25 +997,24 @@ class sysfs_max10_mock_p : public sysfs_c_mock_p { };
 *            FPGA_INVALID_PARAM <br>
 */
 TEST_P(sysfs_max10_mock_p, fpga_sysfs_11) {
-	fpga_result result;
-	char sysfs_path[SYSFS_PATH_MAX] = { 0 };
+  fpga_result result;
+  char sysfs_path[SYSFS_PATH_MAX] = { 0 };
 
-	result = sysfs_get_max10_path(tokens_[0], sysfs_path);
-	EXPECT_EQ(result, FPGA_OK);
+  result = sysfs_get_max10_path(device_token_, sysfs_path);
+  EXPECT_EQ(result, FPGA_OK);
 
-	result = sysfs_get_max10_path(tokens_[0], NULL);
-	EXPECT_EQ(result, FPGA_INVALID_PARAM);
+  result = sysfs_get_max10_path(device_token_, NULL);
+  EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_max10_mock_p);
 INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_max10_mock_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({
+                                                                             "dfl-d5005",
+                                                                             "dfl-n3000"
+                                                                           })));
 
-
-class sysfs_c_mock_no_drv_p : public ::testing::TestWithParam<std::string> {
- protected:
-  sysfs_c_mock_no_drv_p() {}
-};
+class sysfs_c_mock_no_drv_p : public ::testing::TestWithParam<std::string> {};
 
 /**
  * @test    sysfs_get_pr_id
@@ -1112,16 +1084,17 @@ TEST_P(sysfs_c_mock_no_drv_p, sysfs_get_bitstream_id) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_c_mock_no_drv_p);
 INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_c_mock_no_drv_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms()));
+                         ::testing::ValuesIn(test_platform::mock_platforms({})));
 
-class sysfs_sockid_c_mock_p : public sysfs_c_mock_p { };
+class sysfs_sockid_c_mock_p : public sysfs_c_mock_p {};
+
 /**
  * @test    fpga_sysfs_02
  *          sysfs_write_u64
  */
 TEST_P(sysfs_sockid_c_mock_p, fpga_sysfs_02) {
   fpga_result result;
-  std::string str = sysfs_fme.c_str() + std::string("/socket_id");
+  std::string str = sysfs_fme_.c_str() + std::string("/socket_id");
   // valid path
   result = sysfs_write_u64(str.c_str(), 0);
   EXPECT_EQ(result, FPGA_OK);
@@ -1129,10 +1102,12 @@ TEST_P(sysfs_sockid_c_mock_p, fpga_sysfs_02) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_sockid_c_mock_p);
 INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_sockid_c_mock_p,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({
+                                                                             "dfl-d5005",
+                                                                             "dfl-n3000"
+                                                                           })));
 
-
-class sysfs_sockid_c_p : public sysfs_c_p { };
+class sysfs_sockid_c_p : public sysfs_c_p {};
 
 /**
 * @test    fpga_sysfs_02
@@ -1162,11 +1137,11 @@ TEST_P(sysfs_sockid_c_p, fpga_sysfs_02) {
     NULL);
   EXPECT_NE(result, FPGA_OK);
 
-  result = sysfs_read_int(sysfs_fme.c_str(), NULL);
+  result = sysfs_read_int(sysfs_fme_.c_str(), NULL);
   EXPECT_NE(result, FPGA_OK);
 
   // Valid input path
-  std::string str = sysfs_fme.c_str() + std::string("/socket_id");
+  std::string str = sysfs_fme_.c_str() + std::string("/socket_id");
   result = sysfs_read_int(str.c_str(), &i);
   EXPECT_EQ(result, FPGA_OK);
 
@@ -1183,7 +1158,7 @@ TEST_P(sysfs_sockid_c_p, fpga_sysfs_02) {
     NULL);
   EXPECT_NE(result, FPGA_OK);
 
-  result = sysfs_read_u32(sysfs_fme.c_str(), NULL);
+  result = sysfs_read_u32(sysfs_fme_.c_str(), NULL);
   EXPECT_NE(result, FPGA_OK);
 
   // Valid input path
@@ -1207,7 +1182,7 @@ TEST_P(sysfs_sockid_c_p, fpga_sysfs_02) {
   EXPECT_NE(result, FPGA_OK);
 
   // Invalid input path type
-  result = sysfs_read_u32_pair(sysfs_fme.c_str(), &u1, &u2, 'a');
+  result = sysfs_read_u32_pair(sysfs_fme_.c_str(), &u1, &u2, 'a');
   EXPECT_NE(result, FPGA_OK);
 
   // Invalid input path
@@ -1236,13 +1211,13 @@ TEST_P(sysfs_sockid_c_p, fpga_sysfs_02) {
   result = sysfs_write_u64(NULL, 0);
   EXPECT_NE(result, FPGA_OK);
 
-  result = sysfs_write_u64(sysfs_fme.c_str(), 0x100);
+  result = sysfs_write_u64(sysfs_fme_.c_str(), 0x100);
   EXPECT_NE(result, FPGA_OK);
 
   result = sysfs_write_u64_decimal(NULL, 0);
   EXPECT_NE(result, FPGA_OK);
 
-  result = sysfs_write_u64_decimal(sysfs_fme.c_str(), 0x100);
+  result = sysfs_write_u64_decimal(sysfs_fme_.c_str(), 0x100);
   EXPECT_NE(result, FPGA_OK);
 
   // Invalid input parameters
@@ -1291,17 +1266,17 @@ TEST_P(sysfs_sockid_c_p, make_regions) {
  */
 TEST_P(sysfs_sockid_c_p, sysfs_get_guid_neg) {
   fpga_guid guid;
-  _fpga_token *tok = static_cast<_fpga_token *>(tokens_[0]);
+  _fpga_token *tok = static_cast<_fpga_token *>(device_token_);
   std::string sysfspath = tok->sysfspath;
  
   EXPECT_EQ(sysfs_get_guid(nullptr, nullptr, guid),FPGA_EXCEPTION); 
 
-  EXPECT_EQ(sysfs_get_guid(tokens_[0], nullptr, guid),FPGA_EXCEPTION); 
+  EXPECT_EQ(sysfs_get_guid(device_token_, nullptr, guid),FPGA_EXCEPTION); 
 
   EXPECT_EQ(sysfs_get_guid(nullptr, const_cast<char*>(sysfspath.c_str()), guid),FPGA_EXCEPTION); 
 
   sysfspath = "";
-  EXPECT_EQ(sysfs_get_guid(tokens_[0], const_cast<char*>(sysfspath.c_str()), guid),FPGA_NOT_FOUND); 
+  EXPECT_EQ(sysfs_get_guid(device_token_, const_cast<char*>(sysfspath.c_str()), guid),FPGA_NOT_FOUND); 
 }
 
 /**
@@ -1319,15 +1294,19 @@ TEST_P(sysfs_sockid_c_p, sysfs_path_is_valid) {
  *          it returns FPGA_INVALID_PARAM. 
  */
 TEST_P(sysfs_sockid_c_p, get_port_sysfs) {
-  _fpga_handle *h = static_cast<_fpga_handle *>(handle_);
+  _fpga_handle *h = static_cast<_fpga_handle *>(device_);
   _fpga_token *tok = static_cast<_fpga_token *>(h->token);
 
-  EXPECT_EQ(get_port_sysfs(handle_, tok->sysfspath), FPGA_OK);
+  EXPECT_EQ(get_port_sysfs(device_, tok->sysfspath), FPGA_OK);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_sockid_c_p);
 INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_sockid_c_p,
-                       ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::platforms({
+                                                                        "dfl-d5005",
+                                                                        "dfl-n3000",
+                                                                        "dfl-n6000"
+                                                                      })));
 
 /**
  * @test    match_region

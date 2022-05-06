@@ -23,22 +23,19 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include <opae/fpga.h>
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
+KEEP_XFPGA_SYMBOLS
 
-#include "fpga-dfl.h"
-#include "gtest/gtest.h"
-#include "mock/test_system.h"
-#include <opae/access.h>
-#include <opae/mmio.h>
-#include <sys/mman.h>
-#include <cstdarg>
 #include <linux/ioctl.h>
 
+#include "fpga-dfl.h"
+#include <opae/access.h>
+#include <opae/mmio.h>
 #include "xfpga.h"
 #include "types_int.h"
 #include "sysfs_int.h"
@@ -78,9 +75,7 @@ static bool mmio_map_is_empty(struct wsid_map *root) {
 
 #endif
 
-
-
-int mmio_ioctl(mock_object * m, int request, va_list argp){
+int mmio_ioctl(mock_object * m, int request, va_list argp) {
     int retval = -1;
     errno = EINVAL;
     UNUSED_PARAM(m);
@@ -116,55 +111,26 @@ out_EINVAL:
     goto out;
 }
 
-class mmio_c_p
-    : public ::testing::TestWithParam<std::string> {
+class mmio_c_p : public opae_p<xfpga_> {
  protected:
-  mmio_c_p()
-  : handle_(nullptr),
-    tokens_{{nullptr, nullptr}} {}
+
+  virtual void OPAEInitialize() override {
+    ASSERT_EQ(xfpga_plugin_initialize(), 0);
+  }
+
+  virtual void OPAEFinalize() override {
+    ASSERT_EQ(xfpga_plugin_finalize(), 0);
+  }
 
   virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
+    opae_p<xfpga_>::SetUp();
 
-    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_),
-              FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
     system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
   }
 
-  virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
-    xfpga_plugin_finalize();
-    system_->finalize();
-  }
-
-  fpga_handle handle_;
-  std::array<fpga_token, 2> tokens_;
-  fpga_properties filter_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_system *system_;
   const uint64_t CSR_SCRATCHPAD0 = 0x100;
-  const uint64_t MMIO_OUT_REGION_ADDRESS = 1024 * 1024 * 256;;
+  const uint64_t MMIO_OUT_REGION_ADDRESS = 1024 * 1024 * 256;
 };
-
-
-
 
 /**
 * @test       mmio_c_p
@@ -175,18 +141,18 @@ class mmio_c_p
 */
 TEST_P (mmio_c_p, test_pos_map_mmio) {
   uint64_t * mmio_ptr = NULL;
-  EXPECT_TRUE(mmio_map_is_empty(((struct _fpga_handle*)handle_)->mmio_root));
+  EXPECT_TRUE(mmio_map_is_empty(((struct _fpga_handle*)accel_)->mmio_root));
 
   // Open  port device
 #ifndef BUILD_ASE
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(accel_, 0, &mmio_ptr));
   EXPECT_NE(mmio_ptr,nullptr);
-  EXPECT_FALSE(mmio_map_is_empty(((struct _fpga_handle*)handle_)->mmio_root));
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnmapMMIO(handle_, 0));
+  EXPECT_FALSE(mmio_map_is_empty(((struct _fpga_handle*)accel_)->mmio_root));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnmapMMIO(accel_, 0));
 #else
   // ASE
-  ASSERT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
-  EXPECT_TRUE(mmio_map_is_empty(((struct _fpga_handle*)handle_)->mmio_root));
+  ASSERT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaMapMMIO(accel_, 0, &mmio_ptr));
+  EXPECT_TRUE(mmio_map_is_empty(((struct _fpga_handle*)accel_)->mmio_root));
   EXPECT_NE(mmio_ptr,nullptr);
 #endif 
 }
@@ -201,26 +167,25 @@ TEST_P (mmio_c_p, test_pos_map_mmio) {
 */
 TEST_P (mmio_c_p, test_neg_map_mmio) {
   uint64_t * mmio_ptr = NULL;
-  EXPECT_TRUE(mmio_map_is_empty(((struct _fpga_handle*)handle_)->mmio_root));
+  EXPECT_TRUE(mmio_map_is_empty(((struct _fpga_handle*)accel_)->mmio_root));
 
   // Open  port device
 #ifndef BUILD_ASE
-  EXPECT_NE(FPGA_OK, xfpga_fpgaMapMMIO(handle_, -1, &mmio_ptr));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaMapMMIO(accel_, -1, &mmio_ptr));
 #else
-  EXPECT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaMapMMIO(handle_, -1, &mmio_ptr));
+  EXPECT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaMapMMIO(accel_, -1, &mmio_ptr));
 #endif
 
   // Do not modify mmio_ptr and mmio_root
-  EXPECT_TRUE(mmio_map_is_empty(((struct _fpga_handle*)handle_)->mmio_root));
+  EXPECT_TRUE(mmio_map_is_empty(((struct _fpga_handle*)accel_)->mmio_root));
 
 // Unmap memory range otherwise, will not accept open from same process
 #ifndef BUILD_ASE
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaMapMMIO(NULL, 0, NULL));
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnmapMMIO(NULL, 0));
-  EXPECT_NE(FPGA_OK, xfpga_fpgaUnmapMMIO(handle_, 0));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaUnmapMMIO(accel_, 0));
 #endif
 }
-
 
 /**
 * @test       mmio_c_p
@@ -232,33 +197,29 @@ TEST_P (mmio_c_p, test_port_map_region_err) {
   uint64_t * mmio_ptr = NULL;
 
   system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,EINVAL>);
-  EXPECT_EQ(FPGA_NO_ACCESS, xfpga_fpgaMapMMIO(handle_,-1,&mmio_ptr));
+  EXPECT_EQ(FPGA_NO_ACCESS, xfpga_fpgaMapMMIO(accel_, -1, &mmio_ptr));
 
   system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,EFAULT>);
-  EXPECT_EQ(FPGA_NO_ACCESS, xfpga_fpgaMapMMIO(handle_,-1,&mmio_ptr));
+  EXPECT_EQ(FPGA_NO_ACCESS, xfpga_fpgaMapMMIO(accel_, -1, &mmio_ptr));
 
   system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,ENOTSUP>);
-  EXPECT_EQ(FPGA_NO_ACCESS, xfpga_fpgaMapMMIO(handle_,-1,&mmio_ptr));
+  EXPECT_EQ(FPGA_NO_ACCESS, xfpga_fpgaMapMMIO(accel_, -1, &mmio_ptr));
 
 }
-
 
 TEST_P (mmio_c_p, test_port_unmap_region_err) {
   uint64_t * mmio_ptr = NULL;
-  EXPECT_NE(FPGA_OK, xfpga_fpgaMapMMIO(handle_,-1,&mmio_ptr));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaMapMMIO(accel_, -1, &mmio_ptr));
 
   system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,EINVAL>);
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnmapMMIO(handle_, 0));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnmapMMIO(accel_, 0));
 
   system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,EFAULT>);
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnmapMMIO(handle_, 0));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnmapMMIO(accel_, 0));
 
   system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, dummy_ioctl<-1,ENOTSUP>);
-  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnmapMMIO(handle_, 0));
+  EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnmapMMIO(accel_, 0));
 }
-
-
-
 
 /**
 * @test       mmio_c_p
@@ -275,26 +236,25 @@ TEST_P (mmio_c_p, test_pos_read_write_32) {
 
   // Open  port device
 #ifndef BUILD_ASE
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(accel_, 0, &mmio_ptr));
   EXPECT_NE(mmio_ptr,nullptr);
 #else
-  ASSERT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
+  ASSERT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaMapMMIO(accel_, 0, &mmio_ptr));
   EXPECT_EQ(mmio_ptr,nullptr);
 #endif
 
   // Write value and check correctness
   for (value = 0; value < 100; value += 10) {
-    EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO32(handle_, 0, CSR_SCRATCHPAD0, value));
-    EXPECT_EQ(FPGA_OK, xfpga_fpgaReadMMIO32(handle_, 0, CSR_SCRATCHPAD0, &read_value));
+    EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO32(accel_, 0, CSR_SCRATCHPAD0, value));
+    EXPECT_EQ(FPGA_OK, xfpga_fpgaReadMMIO32(accel_, 0, CSR_SCRATCHPAD0, &read_value));
     EXPECT_EQ(read_value, value);
   }
 
 // Unmap memory range otherwise, will not accept open from same process
 #ifndef BUILD_ASE
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnmapMMIO(handle_, 0));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnmapMMIO(accel_, 0));
 #endif
 }
-
 
 /**
 * @test       mmio_c_p
@@ -311,27 +271,26 @@ TEST_P (mmio_c_p, test_neg_read_write_32) {
 
   // Open  port device
 #ifndef BUILD_ASE
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(accel_, 0, &mmio_ptr));
   EXPECT_NE(mmio_ptr,nullptr);
 #else
-  ASSERT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
+  ASSERT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaMapMMIO(accel_, 0, &mmio_ptr));
   EXPECT_EQ(mmio_ptr,nullptr);
 #endif
 
   // Check errors for misaligned or out of boundary memory accesses
-  EXPECT_NE(FPGA_OK, xfpga_fpgaWriteMMIO32(handle_, 0, CSR_SCRATCHPAD0 + 1, value));
-  EXPECT_NE(FPGA_OK, xfpga_fpgaReadMMIO32(handle_, 0, CSR_SCRATCHPAD0 + 1, &read_value));
-  EXPECT_NE(FPGA_OK, xfpga_fpgaWriteMMIO32(handle_, 0, MMIO_OUT_REGION_ADDRESS, value));
-  EXPECT_NE(FPGA_OK, xfpga_fpgaReadMMIO32(handle_, 0, MMIO_OUT_REGION_ADDRESS, &read_value));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaWriteMMIO32(accel_, 0, CSR_SCRATCHPAD0 + 1, value));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaReadMMIO32(accel_, 0, CSR_SCRATCHPAD0 + 1, &read_value));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaWriteMMIO32(accel_, 0, MMIO_OUT_REGION_ADDRESS, value));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaReadMMIO32(accel_, 0, MMIO_OUT_REGION_ADDRESS, &read_value));
 
 // Unmap memory range otherwise, will not accept open from same process
 #ifndef BUILD_ASE
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReadMMIO32(NULL, 0, CSR_SCRATCHPAD0, &read_value));
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaWriteMMIO32(NULL, 0, MMIO_OUT_REGION_ADDRESS, value));
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnmapMMIO(handle_, 0));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnmapMMIO(accel_, 0));
 #endif
 }
-
 
 /**
 *  @test      mmio_c_p
@@ -348,27 +307,27 @@ TEST_P (mmio_c_p, test_mmio_read_write_64) {
   uint64_t read_value = 0;
 
 #ifndef BUILD_ASE
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(accel_, 0, &mmio_ptr));
   EXPECT_NE(mmio_ptr,nullptr);
 #else
-  ASSERT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
+  ASSERT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaMapMMIO(accel_, 0, &mmio_ptr));
   EXPECT_EQ(mmio_ptr,nullptr);
   mmio_ptr = 0;
 #endif
 
   // Write value and check correctness
   for (value = 0; value < 100; value += 10) {
-    EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(handle_, 0, CSR_SCRATCHPAD0, value));
+    EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, 0, CSR_SCRATCHPAD0, value));
 #ifndef BUILD_ASE
     EXPECT_EQ(value,*((volatile uint64_t*)(mmio_ptr + CSR_SCRATCHPAD0 / sizeof(uint64_t))));
 #endif
-    EXPECT_EQ(FPGA_OK, xfpga_fpgaReadMMIO64(handle_, 0, CSR_SCRATCHPAD0, &read_value));
+    EXPECT_EQ(FPGA_OK, xfpga_fpgaReadMMIO64(accel_, 0, CSR_SCRATCHPAD0, &read_value));
     EXPECT_EQ(read_value, value);
   }
 
 // Unmap memory range otherwise, will not accept open from same process
 #ifndef BUILD_ASE
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnmapMMIO(handle_, 0));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnmapMMIO(accel_, 0));
 #endif
 }
 
@@ -382,34 +341,32 @@ TEST_P (mmio_c_p, test_mmio_read_write_64) {
 *             xfpga_fpgaReadMMIO64 must fail for out-of-region offset.
 *
 */
-
 TEST_P (mmio_c_p, test_neg_read_write_64) {
   uint64_t* mmio_ptr = NULL;
   uint64_t value = 0;
   uint64_t read_value = 0;
 
 #ifndef BUILD_ASE
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(accel_, 0, &mmio_ptr));
   EXPECT_NE(mmio_ptr,nullptr);
 #else
-  EXPECT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
+  EXPECT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaMapMMIO(accel_, 0, &mmio_ptr));
   EXPECT_EQ(mmio_ptr,nullptr);
 #endif
 
   // Check errors for misalinged or out of boundary memory accesses
-  EXPECT_NE(FPGA_OK, xfpga_fpgaWriteMMIO64(handle_, 0, CSR_SCRATCHPAD0 + 1, value));
-  EXPECT_NE(FPGA_OK, xfpga_fpgaReadMMIO64(handle_, 0, CSR_SCRATCHPAD0 + 1, &read_value));
-  EXPECT_NE(FPGA_OK, xfpga_fpgaWriteMMIO64(handle_, 0, MMIO_OUT_REGION_ADDRESS, value));
-  EXPECT_NE(FPGA_OK, xfpga_fpgaReadMMIO64(handle_, 0, MMIO_OUT_REGION_ADDRESS, &read_value));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, 0, CSR_SCRATCHPAD0 + 1, value));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaReadMMIO64(accel_, 0, CSR_SCRATCHPAD0 + 1, &read_value));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaWriteMMIO64(accel_, 0, MMIO_OUT_REGION_ADDRESS, value));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaReadMMIO64(accel_, 0, MMIO_OUT_REGION_ADDRESS, &read_value));
 
 // Unmap memory range otherwise, will not accept open from same process
 #ifndef BUILD_ASE
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReadMMIO64(NULL, 0, CSR_SCRATCHPAD0, &read_value));
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaWriteMMIO64(NULL, 0, CSR_SCRATCHPAD0, value));
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnmapMMIO(handle_, 0));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnmapMMIO(accel_, 0));
 #endif
 }
-
 
 /**
 * @test       mmio_c_p
@@ -432,10 +389,10 @@ TEST_P (mmio_c_p, test_pos_read_write_512) {
 
   // Open  port device
 #ifndef BUILD_ASE
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(accel_, 0, &mmio_ptr));
   EXPECT_NE(mmio_ptr,nullptr);
 #else
-  ASSERT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
+  ASSERT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaMapMMIO(accel_, 0, &mmio_ptr));
   EXPECT_EQ(mmio_ptr,nullptr);
 #endif
 
@@ -443,20 +400,19 @@ TEST_P (mmio_c_p, test_pos_read_write_512) {
   for (i = 0; i < 100; i += 10) {
     value[0] += i;
     value[7] += i;
-    EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO512(handle_, 0, CSR_SCRATCHPAD0, value));
-    EXPECT_EQ(FPGA_OK, xfpga_fpgaReadMMIO64(handle_, 0, CSR_SCRATCHPAD0, &read_value));
+    EXPECT_EQ(FPGA_OK, xfpga_fpgaWriteMMIO512(accel_, 0, CSR_SCRATCHPAD0, value));
+    EXPECT_EQ(FPGA_OK, xfpga_fpgaReadMMIO64(accel_, 0, CSR_SCRATCHPAD0, &read_value));
     EXPECT_EQ(read_value, value[0]);
-    EXPECT_EQ(FPGA_OK, xfpga_fpgaReadMMIO64(handle_, 0, CSR_SCRATCHPAD0 + 56, &read_value));
+    EXPECT_EQ(FPGA_OK, xfpga_fpgaReadMMIO64(accel_, 0, CSR_SCRATCHPAD0 + 56, &read_value));
     EXPECT_EQ(read_value, value[7]);
   }
 
 // Unmap memory range otherwise, will not accept open from same process
 #ifndef BUILD_ASE
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnmapMMIO(handle_, 0));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnmapMMIO(accel_, 0));
 #endif
 }
 #endif // TEST_SUPPORTS_AVX512
-
 
 /**
 * @test       mmio_c_p
@@ -472,23 +428,28 @@ TEST_P (mmio_c_p, test_neg_read_write_512) {
 
   // Open  port device
 #ifndef BUILD_ASE
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
+  ASSERT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(accel_, 0, &mmio_ptr));
   EXPECT_NE(mmio_ptr,nullptr);
 #else
-  ASSERT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaMapMMIO(handle_, 0, &mmio_ptr));
+  ASSERT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaMapMMIO(accel_, 0, &mmio_ptr));
   EXPECT_EQ(mmio_ptr,nullptr);
 #endif
 
   // Check errors for misaligned or out of boundary memory accesses
-  EXPECT_NE(FPGA_OK, xfpga_fpgaWriteMMIO512(handle_, 0, CSR_SCRATCHPAD0 + 1, value));
-  EXPECT_NE(FPGA_OK, xfpga_fpgaWriteMMIO512(handle_, 0, MMIO_OUT_REGION_ADDRESS, value));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaWriteMMIO512(accel_, 0, CSR_SCRATCHPAD0 + 1, value));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaWriteMMIO512(accel_, 0, MMIO_OUT_REGION_ADDRESS, value));
 
 // Unmap memory range otherwise, will not accept open from same process
 #ifndef BUILD_ASE
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaWriteMMIO512(NULL, 0, MMIO_OUT_REGION_ADDRESS, value));
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnmapMMIO(handle_, 0));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaUnmapMMIO(accel_, 0));
 #endif
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mmio_c_p);
-INSTANTIATE_TEST_SUITE_P(mmio_c, mmio_c_p, ::testing::ValuesIn(test_platform::platforms({ "dfl-n3000","dfl-d5005" })));
+INSTANTIATE_TEST_SUITE_P(mmio_c, mmio_c_p,
+                         ::testing::ValuesIn(test_platform::platforms({
+                                                                        "dfl-d5005",
+                                                                        "dfl-n3000",
+                                                                        "dfl-n6000"
+                                                                      })));

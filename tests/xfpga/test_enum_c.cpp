@@ -31,6 +31,8 @@
 
 #define NO_OPAE_C
 #include "mock/opae_fixtures.h"
+KEEP_XFPGA_SYMBOLS
+
 #include "opae_drv.h"
 #include "types_int.h"
 #include "sysfs_int.h"

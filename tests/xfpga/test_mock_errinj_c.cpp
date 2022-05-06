@@ -23,28 +23,29 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include <opae/enum.h>
-#include <opae/properties.h>
-#include "gtest/gtest.h"
-#include "types_int.h"
-#include "mock/test_system.h"
-#include <opae/mmio.h>
-#include <cstdarg>
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
+KEEP_XFPGA_SYMBOLS
+
 #include <linux/ioctl.h>
+
+extern "C" {
+#include "types_int.h"
 #include "xfpga.h"
 #include "fpga-dfl.h"
 #include "sysfs_int.h"
 
-extern "C" {
 int xfpga_plugin_initialize(void);
 int xfpga_plugin_finalize(void);
 }
 
+#include <opae/enum.h>
+#include <opae/properties.h>
+#include <opae/mmio.h>
 
 using namespace opae::testing;
 
@@ -99,51 +100,17 @@ out_EINVAL:
   goto out;
 }
 
-class err_inj_c_p : public ::testing::TestWithParam<std::string> {
+class err_inj_c_p : public opae_device_p<xfpga_> {
  protected:
-   err_inj_c_p() : tokens_{{nullptr, nullptr}},
-                   handle_ {nullptr} {}
 
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-
-    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_), FPGA_OK);
-    ASSERT_GT(num_matches_, 0);
-    // Open port device
-    ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+  virtual void OPAEInitialize() override {
+    ASSERT_EQ(xfpga_plugin_initialize(), 0);
   }
 
-  virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (handle_) { 
-      ASSERT_EQ(FPGA_OK, xfpga_fpgaClose(handle_)); 
-      handle_ = nullptr;
-    }
-
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
-        t = nullptr;
-      }
-    }
-    xfpga_plugin_finalize();
-    system_->finalize();
+  virtual void OPAEFinalize() override {
+    ASSERT_EQ(xfpga_plugin_finalize(), 0);
   }
 
-  std::array<fpga_token, 2> tokens_;
-  fpga_properties filter_;
-  fpga_handle handle_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_system *system_;
 };
 
 class err_inj_c_usd_p : public err_inj_c_p {};
@@ -158,20 +125,21 @@ class err_inj_c_usd_p : public err_inj_c_p {};
 
 TEST_P(err_inj_c_usd_p, dfl_tests_neg) {
   system_->register_ioctl_handler(DFL_FPGA_FME_PORT_RELEASE, dummy_ioctl<-1, ENOTSUP>);
-  EXPECT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaAssignPortToInterface(handle_, 1, 0, 0));
+  EXPECT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaAssignPortToInterface(device_, 1, 0, 0));
 
   system_->register_ioctl_handler(DFL_FPGA_FME_PORT_ASSIGN, dummy_ioctl<-1, ENOTSUP>);
-  EXPECT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaAssignPortToInterface(handle_, 0, 0, 0));
+  EXPECT_EQ(FPGA_NOT_SUPPORTED, xfpga_fpgaAssignPortToInterface(device_, 0, 0, 0));
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(err_inj_c_usd_p);
 INSTANTIATE_TEST_SUITE_P(err_inj_c, err_inj_c_usd_p, 
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({
+                                                                             "dfl-d5005",
+                                                                             "dfl-n3000",
+                                                                             "dfl-n6000"
+                                                                           })));
 
-class err_inj_c_mock_p : public err_inj_c_p {
- protected:
-   err_inj_c_mock_p() {}
-};
+class err_inj_c_mock_p : public err_inj_c_p {};
 
 /**
 * @test    fpga_mock_errinj_01
@@ -186,10 +154,10 @@ TEST_P(err_inj_c_mock_p, fpga_mock_errinj_01) {
  
   // Allocate a buffer
   buf_len = 1024;
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaPrepareBuffer(handle_, buf_len, (void**) &buf_addr, &wsid, 0));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaPrepareBuffer(device_, buf_len, (void**) &buf_addr, &wsid, 0));
   
   // Release buffer
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaReleaseBuffer(handle_, wsid));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaReleaseBuffer(device_, wsid));
 }
 
 /**
@@ -201,7 +169,7 @@ TEST_P(err_inj_c_mock_p, fpga_mock_errinj_01) {
 TEST_P(err_inj_c_mock_p, fpga_mock_errinj_04) {
   // Reset
   system_->register_ioctl_handler(DFL_FPGA_PORT_RESET,dummy_ioctl<0,ENOTSUP>);
-  EXPECT_EQ(FPGA_OK, xfpga_fpgaReset(handle_));
+  EXPECT_EQ(FPGA_OK, xfpga_fpgaReset(device_));
 }
 
 /**
@@ -218,7 +186,7 @@ TEST_P(err_inj_c_mock_p, fpga_mock_errinj_05) {
   mmio_num = 0;
 
   system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO,dummy_ioctl<0,EINVAL>);
-  EXPECT_NE(FPGA_OK, xfpga_fpgaMapMMIO(handle_, mmio_num, &mmio_ptr));
+  EXPECT_NE(FPGA_OK, xfpga_fpgaMapMMIO(device_, mmio_num, &mmio_ptr));
 }
 
 
@@ -232,17 +200,21 @@ TEST_P(err_inj_c_mock_p, port_to_interface_err) {
   fpga_result res;
    
   system_->register_ioctl_handler(DFL_FPGA_FME_PORT_RELEASE, dummy_ioctl<-1,EINVAL>);
-  res = xfpga_fpgaAssignPortToInterface(handle_, 1, 0, 0);
+  res = xfpga_fpgaAssignPortToInterface(device_, 1, 0, 0);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 
   system_->register_ioctl_handler(DFL_FPGA_FME_PORT_ASSIGN, dummy_ioctl<-1,EINVAL>);
-  res = xfpga_fpgaAssignPortToInterface(handle_, 0, 0, 0);
+  res = xfpga_fpgaAssignPortToInterface(device_, 0, 0, 0);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(err_inj_c_mock_p);
 INSTANTIATE_TEST_SUITE_P(err_inj_c, err_inj_c_mock_p, 
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({
+                                                                             "dfl-d5005",
+                                                                             "dfl-n3000",
+                                                                             "dfl-n6000"
+                                                                           })));
 
 /**
  * @test       invalid_handle

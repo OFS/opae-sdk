@@ -23,80 +23,40 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
+KEEP_XFPGA_SYMBOLS
+
 extern "C" {
-#include <json-c/json.h>
-#include <uuid/uuid.h>
 #include "metrics/metrics_int.h"
 #include "metrics/metrics_max10.h"
 #include "metrics/vector.h"
 #include "opae_int.h"
 #include "types_int.h"
-}
-
-#include <config.h>
-#include <opae/fpga.h>
-
-#include <vector>
-#include "gtest/gtest.h"
 #include "sysfs_int.h"
-#include "mock/test_system.h"
-#include "mock/test_utils.h"
 #include "xfpga.h"
 
-extern "C" {
 int xfpga_plugin_initialize(void);
 int xfpga_plugin_finalize(void);
 }
 
 using namespace opae::testing;
 
-class metrics_max10_c_p : public ::testing::TestWithParam<std::string> {
+class metrics_max10_c_p : public opae_device_p<xfpga_> {
  protected:
-  metrics_max10_c_p() : tokens_{{nullptr, nullptr}}, handle_(nullptr) {}
 
-  virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                                  &num_matches_),
-              FPGA_OK);
-    ASSERT_GT(num_matches_, 0);
-    ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
+  virtual void OPAEInitialize() override {
+    ASSERT_EQ(xfpga_plugin_initialize(), 0);
   }
 
-  virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    if (handle_ != nullptr) {
-      EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK);
-      handle_ = nullptr;
-    }
-    xfpga_plugin_finalize();
-    system_->finalize();
+  virtual void OPAEFinalize() override {
+    ASSERT_EQ(xfpga_plugin_finalize(), 0);
   }
 
-  std::array<fpga_token, 2> tokens_;
-  fpga_handle handle_;
-  fpga_properties filter_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_system *system_;
 };
 
 /**
@@ -159,7 +119,7 @@ TEST_P(metrics_max10_c_p, test_metric_max10_1) {
 *
 */
 TEST_P(metrics_max10_c_p, test_metric_max10_2) {
-  struct _fpga_handle *_handle = (struct _fpga_handle *)handle_;
+  struct _fpga_handle *_handle = (struct _fpga_handle *)device_;
   fpga_metric_vector vector;
   uint64_t metric_num = 0;
 
@@ -188,7 +148,7 @@ TEST_P(metrics_max10_c_p, test_metric_max10_2) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_max10_c_p);
 INSTANTIATE_TEST_SUITE_P(metrics_max10_c, metrics_max10_c_p,
-    ::testing::ValuesIn(test_platform::mock_platforms({"dfl-n3000"})));
+                         ::testing::ValuesIn(test_platform::mock_platforms({"dfl-n3000"})));
 
 class metrics_invalid_max10_c_p : public metrics_max10_c_p {};
 
@@ -200,7 +160,7 @@ class metrics_invalid_max10_c_p : public metrics_max10_c_p {};
 *
 */
 TEST_P(metrics_invalid_max10_c_p, test_metric_max10_3) {
-  struct _fpga_handle *_handle = (struct _fpga_handle *)handle_;
+  struct _fpga_handle *_handle = (struct _fpga_handle *)device_;
   fpga_metric_vector vector;
   uint64_t metric_num = 0;
 
@@ -214,13 +174,9 @@ TEST_P(metrics_invalid_max10_c_p, test_metric_max10_3) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_invalid_max10_c_p);
 INSTANTIATE_TEST_SUITE_P(metrics_max10_c, metrics_invalid_max10_c_p,
-    ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
+                         ::testing::ValuesIn(test_platform::mock_platforms({"dcp-rc"})));
 
-
-class metrics_max10_vc_c_p : public metrics_max10_c_p {
-protected:
-	metrics_max10_vc_c_p() {}
-};
+class metrics_max10_vc_c_p : public metrics_max10_c_p {};
 
 /**
 * @test       test_metric_max10_4
@@ -232,13 +188,13 @@ protected:
 TEST_P(metrics_max10_vc_c_p, test_metric_max10_4) {
 
 	/*
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle_;
-	EXPECT_EQ(FPGA_OK, enum_fpga_metrics(handle_));
+	struct _fpga_handle *_handle = (struct _fpga_handle *)device_;
+	EXPECT_EQ(FPGA_OK, enum_fpga_metrics(device_));
 
 	struct fpga_metric fpga_metric;
 
 	EXPECT_EQ(FPGA_OK,
-		get_fme_metric_value(handle_, &(_handle->fpga_enum_metric_vector),
+		get_fme_metric_value(device_, &(_handle->fpga_enum_metric_vector),
 			1, &fpga_metric));
 	*/
 
@@ -248,4 +204,4 @@ TEST_P(metrics_max10_vc_c_p, test_metric_max10_4) {
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_max10_vc_c_p);
 INSTANTIATE_TEST_SUITE_P(metrics_max10_c, metrics_max10_vc_c_p,
-	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-d5005" })));

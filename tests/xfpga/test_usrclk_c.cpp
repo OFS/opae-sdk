@@ -23,108 +23,54 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#ifdef __cplusplus
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
+KEEP_XFPGA_SYMBOLS
 
 extern "C" {
-#endif
-#include <opae/enum.h>
-#include <opae/properties.h>
 #undef  _GNU_SOURCE
 #include "usrclk/fpga_user_clk.c"
-
-#ifdef __cplusplus
-}
-#endif
-
-
-#include "gtest/gtest.h"
 #include "types_int.h"
-#include "mock/test_system.h"
 #include "xfpga.h"
 #include "sysfs_int.h"
 
-extern "C" {
 int xfpga_plugin_initialize(void);
 int xfpga_plugin_finalize(void);
 }
 
-
 using namespace opae::testing;
 
-class usrclk_c
-    : public ::testing::TestWithParam<std::string> {
+class usrclk_c : public opae_p<xfpga_> {
  protected:
-  usrclk_c()
-  : handle_dev_(nullptr),
-    handle_accel_(nullptr),
-    tokens_dev_{{nullptr, nullptr}},
-    tokens_accel_{{nullptr, nullptr}},
-    filter_dev_(nullptr),
-    filter_accel_(nullptr) {}
+  usrclk_c() :
+    device_(nullptr)
+  {}
+
+  virtual void OPAEInitialize() override {
+    ASSERT_EQ(xfpga_plugin_initialize(), 0);
+  }
+
+  virtual void OPAEFinalize() override {
+    ASSERT_EQ(xfpga_plugin_finalize(), 0);
+  }
 
   virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
+    opae_p<xfpga_>::SetUp();
 
-    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_dev_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_dev_,
-                                        platform_.devices[0].device_id), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_dev_, FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_dev_, 1, tokens_dev_.data(),
-              tokens_dev_.size(), &num_matches_), FPGA_OK);
-    ASSERT_GT(num_matches_, 0);
-
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_accel_), FPGA_OK);
-    auto devid = platform_.devices[0].device_id + platform_.devices[0].num_vfs;
-    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_accel_, devid), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_accel_, FPGA_ACCELERATOR), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_accel_, 1, tokens_accel_.data(),
-              tokens_accel_.size(), &num_matches_), FPGA_OK);
-    ASSERT_GT(num_matches_, 0);
+    ASSERT_EQ(xfpga_fpgaOpen(device_token_, &device_, 0), FPGA_OK);
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_dev_), FPGA_OK);
-    EXPECT_EQ(fpgaDestroyProperties(&filter_accel_), FPGA_OK);
+    EXPECT_EQ(xfpga_fpgaClose(device_), FPGA_OK);
 
-    for (auto &t : tokens_dev_) {
-      if (t) {
-        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
-        t = nullptr;
-      }
-    }
-
-    for (auto &t : tokens_accel_) {
-      if (t) {
-        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
-        t = nullptr;
-      }
-    }
-
-    if (handle_dev_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_dev_), FPGA_OK); }
-    if (handle_accel_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_accel_), FPGA_OK); }
-    xfpga_plugin_finalize();
-    system_->finalize();
+    opae_p<xfpga_>::TearDown();
   }
 
-  fpga_handle handle_dev_;
-  fpga_handle handle_accel_;
-  std::array<fpga_token, 2> tokens_dev_;
-  std::array<fpga_token, 2> tokens_accel_;
-  fpga_properties filter_dev_;
-  fpga_properties filter_accel_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_system *system_;
+  fpga_handle device_;
 };
 
 /**
@@ -168,35 +114,29 @@ TEST_P(usrclk_c, set_user_clock_neg) {
   result = xfpga_fpgaSetUserClock(NULL, 0, 0, flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
-  // Invalid object type
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_dev_[0], &handle_dev_, 0));
-
   // Invalid clk
-  result = xfpga_fpgaSetUserClock(handle_dev_, 0, 0, flags);
+  result = xfpga_fpgaSetUserClock(device_, 0, 0, flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
   // Valid clk
-  result = xfpga_fpgaSetUserClock(handle_dev_, 312, 156, flags);
+  result = xfpga_fpgaSetUserClock(device_, 312, 156, flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
-
-  // Valid object type
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, 0));
 
   // Invalid clk
-  result = xfpga_fpgaSetUserClock(handle_accel_, 0, 0, flags);
+  result = xfpga_fpgaSetUserClock(accel_, 0, 0, flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
-  struct _fpga_handle  *_handle = (struct _fpga_handle *)handle_accel_;
+  struct _fpga_handle  *_handle = (struct _fpga_handle *)accel_;
   int fddev = _handle->fddev;
 
   // Token not found
   _handle->token = NULL;
-  result = xfpga_fpgaSetUserClock(handle_accel_, 312, 156, flags);
+  result = xfpga_fpgaSetUserClock(accel_, 312, 156, flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
   // Invalid file handle descriptor
   _handle->fddev = -1;
-  result = xfpga_fpgaSetUserClock(handle_accel_, 312, 156, flags);
+  result = xfpga_fpgaSetUserClock(accel_, 312, 156, flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
   _handle->fddev = fddev;
@@ -217,27 +157,22 @@ TEST_P(usrclk_c, get_user_clock_neg) {
   result = xfpga_fpgaGetUserClock(NULL, &high, &low, flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
-  // Invalid object type
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_dev_[0], &handle_dev_, 0));
-
   // Valid params, invalid object type
-  result = xfpga_fpgaGetUserClock(handle_dev_, &high, &low, flags);
+  result = xfpga_fpgaGetUserClock(device_, &high, &low, flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
   // Valid object type
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, 0));
-
-  struct _fpga_handle  *_handle = (struct _fpga_handle *)handle_accel_;
+  struct _fpga_handle  *_handle = (struct _fpga_handle *)accel_;
   int fddev = _handle->fddev;
 
   // Token not found
   _handle->token = NULL;
-  result = xfpga_fpgaGetUserClock(handle_accel_, &high, &low, flags);
+  result = xfpga_fpgaGetUserClock(accel_, &high, &low, flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
   // Invalid file handle descriptor
   _handle->fddev = -1;
-  result = xfpga_fpgaGetUserClock(handle_accel_, &high, &low, flags);
+  result = xfpga_fpgaGetUserClock(accel_, &high, &low, flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
   _handle->fddev = fddev;
@@ -253,16 +188,16 @@ TEST_P(usrclk_c, get_user_clock) {
   uint64_t high = 999;
   uint64_t low = 999;
   int flags = 0;
-  ASSERT_EQ(xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, flags),
+  EXPECT_NE(xfpga_fpgaGetUserClock(accel_, &high, &low, flags),
             FPGA_OK);
-  EXPECT_NE(xfpga_fpgaGetUserClock(handle_accel_, &high, &low, flags),
-            FPGA_OK);
-
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(usrclk_c);
 INSTANTIATE_TEST_SUITE_P(usrclk, usrclk_c,
-                        ::testing::ValuesIn(test_platform::platforms({ "dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::platforms({
+                                                                        "dfl-d5005",
+                                                                        "dfl-n3000"
+                                                                      })));
 
 class usrclk_mock_c : public usrclk_c {};
 
@@ -276,15 +211,16 @@ TEST_P(usrclk_mock_c, set_user_clock) {
   uint64_t high = 312;
   uint64_t low = 156;
   int flags = 0;
-  ASSERT_EQ(xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, flags),
-            FPGA_OK);
-  EXPECT_EQ(xfpga_fpgaSetUserClock(handle_accel_, high, low, flags),
+  EXPECT_EQ(xfpga_fpgaSetUserClock(accel_, high, low, flags),
             FPGA_INVALID_PARAM);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(usrclk_mock_c);
 INSTANTIATE_TEST_SUITE_P(usrclk, usrclk_mock_c,
-                        ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-n3000","dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({
+                                                                             "dfl-d5005",
+                                                                             "dfl-n3000"
+                                                                           })));
 
 class usrclk_hw_c : public usrclk_c {};
 
@@ -298,12 +234,13 @@ TEST_P(usrclk_hw_c, set_user_clock) {
 uint64_t high = 312;
   uint64_t low = 156;
   int flags = 0;
-  ASSERT_EQ(xfpga_fpgaOpen(tokens_accel_[0], &handle_accel_, flags),
-            FPGA_OK);
-  EXPECT_EQ(xfpga_fpgaSetUserClock(handle_accel_, high, low, flags),
+  EXPECT_EQ(xfpga_fpgaSetUserClock(accel_, high, low, flags),
             FPGA_OK);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(usrclk_hw_c);
 INSTANTIATE_TEST_SUITE_P(usrclk, usrclk_hw_c,
-                        ::testing::ValuesIn(test_platform::hw_platforms({ "skx-p","dcp-rc" })));
+                         ::testing::ValuesIn(test_platform::hw_platforms({
+                                                                           "skx-p",
+                                                                           "dcp-rc"
+                                                                         })));

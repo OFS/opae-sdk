@@ -23,16 +23,17 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include <uuid/uuid.h>
-#include <bitstream_int.h>
-#include <types_int.h>
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
+KEEP_XFPGA_SYMBOLS
+
+#include "bitstream_int.h"
+#include "types_int.h"
 #include "gtest/gtest.h"
-#include "mock/test_system.h"
 #include "xfpga.h"
 #include "sysfs_int.h"
 
@@ -44,50 +45,27 @@ int xfpga_plugin_finalize(void);
 
 using namespace opae::testing;
 
-class metadata_c
-    : public ::testing::TestWithParam<std::string> {
+class metadata_c : public opae_device_p<xfpga_> {
  protected:
-  metadata_c()
-  : handle_(nullptr),
-    tokens_{{nullptr, nullptr}} {}
+  metadata_c() :
+    mdata_("")
+  {}
+
+  virtual void OPAEInitialize() override {
+    ASSERT_EQ(xfpga_plugin_initialize(), 0);
+  }
+
+  virtual void OPAEFinalize() override {
+    ASSERT_EQ(xfpga_plugin_finalize(), 0);
+  }
 
   virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
-    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
+    opae_device_p<xfpga_>::SetUp();
 
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetVendorID(filter_, platform_.devices[0].vendor_id), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, platform_.devices[0].device_id), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-						&num_matches_),  FPGA_OK);
-    bitstream_valid_ = system_->assemble_gbs_header(platform_.devices[0]);
     mdata_ = platform_.devices[0].mdata;
+    bitstream_valid_ = system_->assemble_gbs_header(platform_.devices[0]);
   }
 
-  virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(xfpga_fpgaDestroyToken(&t), FPGA_OK);
-        t = nullptr;
-      }
-    }
-    xfpga_plugin_finalize();
-    system_->finalize();
-  }
-
-  fpga_handle handle_;
-  std::array<fpga_token, 2> tokens_;
-  fpga_properties filter_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_system *system_;
   std::string mdata_;
   std::vector<uint8_t> bitstream_valid_;
 };
@@ -245,8 +223,6 @@ TEST_P(metadata_c, read_gbs_metadata) {
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 }
 
-
-
 /**
 * @test    validate_bitstream_metadata_neg
 * @brief   Tests: validate_bitstream_metadata
@@ -256,48 +232,46 @@ TEST_P(metadata_c, read_gbs_metadata) {
 TEST_P(metadata_c, validate_bitstream_metadata_neg) {
   fpga_result result;
 
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
-
   test_system::instance()->invalidate_malloc();
 
   // Valid metadata - malloc fail
-  result = validate_bitstream_metadata(handle_, bitstream_valid_.data());
+  result = validate_bitstream_metadata(device_, bitstream_valid_.data());
   EXPECT_EQ(result, FPGA_NO_MEMORY);
 
   // Invalid input bitstream
-  result = validate_bitstream_metadata(handle_, bitstream_invalid_guid);
+  result = validate_bitstream_metadata(device_, bitstream_invalid_guid);
   EXPECT_NE(result, FPGA_OK);
 
   // Empty metadata
-  result = validate_bitstream_metadata(handle_, bitstream_empty);
+  result = validate_bitstream_metadata(device_, bitstream_empty);
   EXPECT_EQ(result, FPGA_OK);
 
   // Invalid metadata size
-  result = validate_bitstream_metadata(handle_, bitstream_metadata_size);
+  result = validate_bitstream_metadata(device_, bitstream_metadata_size);
   EXPECT_EQ(result, FPGA_EXCEPTION);
 
   // Invalid metadata - no magic-no
-  result = validate_bitstream_metadata(handle_, bitstream_no_magic_no);
+  result = validate_bitstream_metadata(device_, bitstream_no_magic_no);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
   // Invalid metadata - invalid interface id
-  result = validate_bitstream_metadata(handle_, bitstream_invalid_interface_id);
+  result = validate_bitstream_metadata(device_, bitstream_invalid_interface_id);
   EXPECT_NE(result, FPGA_OK);
 
   // Invalid metadata - interface ID check failed
-  result = validate_bitstream_metadata(handle_, bitstream_mismatch_interface_id);
+  result = validate_bitstream_metadata(device_, bitstream_mismatch_interface_id);
   EXPECT_NE(result, FPGA_OK);
 
   // Invalid metadata - interface ID check failed
-  result = validate_bitstream_metadata(handle_, bitstream_error_interface_id);
+  result = validate_bitstream_metadata(device_, bitstream_error_interface_id);
   EXPECT_NE(result, FPGA_OK);
 
   // Invalid metadata - no afu-image
-  result = validate_bitstream_metadata(handle_, bitstream_no_afu_image);
+  result = validate_bitstream_metadata(device_, bitstream_no_afu_image);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
   // Invalid metadata - invalid magic-no
-  result = validate_bitstream_metadata(handle_, bitstream_invalid_magic_no);
+  result = validate_bitstream_metadata(device_, bitstream_invalid_magic_no);
   EXPECT_EQ(result, FPGA_NOT_FOUND);
 }
 
@@ -351,17 +325,16 @@ TEST_P(metadata_c, get_bitstream_json_len) {
 TEST_P(metadata_c, get_interface_id_01) {
   uint64_t id_l;
   uint64_t id_h;
-  auto _token = (struct _fpga_token *)tokens_[0];
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+  auto _token = (struct _fpga_token *)device_token_;
 
   // Invalid object type
   _token->hdr.magic = 0x123;
-  auto res = get_interface_id(handle_, &id_l, &id_h);
+  auto res = get_interface_id(device_, &id_l, &id_h);
   EXPECT_EQ(res, FPGA_INVALID_PARAM);
 
   _token->hdr.magic = FPGA_TOKEN_MAGIC;
 
-  res = get_interface_id(handle_, nullptr, nullptr);
+  res = get_interface_id(device_, nullptr, nullptr);
   EXPECT_EQ(res, FPGA_INVALID_PARAM);
 }
 
@@ -373,12 +346,16 @@ TEST_P(metadata_c, get_interface_id_01) {
 TEST_P(metadata_c, get_interface_id_02) {
   uint64_t id_l;
   uint64_t id_h;
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
-  struct _fpga_handle  *handle = (struct _fpga_handle *)handle_;
 
+  struct _fpga_handle *handle = (struct _fpga_handle *)device_;
+
+  fpga_token save_token = handle->token;
   handle->token = NULL;
-  auto res = get_interface_id(handle_, &id_l, &id_h);
+
+  auto res = get_interface_id(device_, &id_l, &id_h);
   EXPECT_EQ(res, FPGA_INVALID_PARAM);
+
+  handle->token = save_token;
 }
 
 /**
@@ -390,17 +367,17 @@ TEST_P(metadata_c, get_interface_id_03) {
   std::string sysfs_fme = "/sys/class/fpga/intel-fpga-dev.0/intel-fpga-fme.01";
   uint64_t id_l;
   uint64_t id_h;
-  auto _token = (struct _fpga_token *)tokens_[0];
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
+  auto _token = (struct _fpga_token *)device_token_;
 
   // invalid file
   strncpy(_token->sysfspath, sysfs_fme.c_str(), sysfs_fme.size() + 1);
-  auto res = get_interface_id(handle_, &id_l, &id_h);
+  auto res = get_interface_id(device_, &id_l, &id_h);
   EXPECT_EQ(res, FPGA_EXCEPTION);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metadata_c);
-INSTANTIATE_TEST_SUITE_P(metadata, metadata_c, ::testing::ValuesIn(test_platform::platforms({ "dfl-d5005" })));
+INSTANTIATE_TEST_SUITE_P(metadata, metadata_c,
+                         ::testing::ValuesIn(test_platform::platforms({ "dfl-d5005" })));
 
 class metadata_mock_c : public metadata_c {};
 
@@ -413,15 +390,13 @@ class metadata_mock_c : public metadata_c {};
 TEST_P(metadata_mock_c, validate_bitstream_metadata) {
   fpga_result result;
 
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
-
-  result = validate_bitstream_metadata(handle_, bitstream_valid_.data());
+  result = validate_bitstream_metadata(device_, bitstream_valid_.data());
   EXPECT_EQ(result, FPGA_OK);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metadata_mock_c);
 INSTANTIATE_TEST_SUITE_P(metadata, metadata_mock_c,
-	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-d5005" })));
 
 class metadata_mock_d5005_c : public metadata_c {};
 
@@ -440,17 +415,15 @@ uint8_t bitstream_d5005_guid[] = "XeonFPGA\xb7GBSv001\53\02\00\00 {\"version\": 
 */
 
 TEST_P(metadata_mock_d5005_c, validate_bitstream_metadata_1) {
-	fpga_result result;
+  fpga_result result;
 
-	ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
-
-	result = validate_bitstream_metadata(handle_, bitstream_d5005_guid);
-	EXPECT_EQ(result, FPGA_OK);
+  result = validate_bitstream_metadata(device_, bitstream_d5005_guid);
+  EXPECT_EQ(result, FPGA_OK);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metadata_mock_d5005_c);
 INSTANTIATE_TEST_SUITE_P(metadata, metadata_mock_d5005_c,
-	::testing::ValuesIn(test_platform::mock_platforms({ "dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::mock_platforms({ "dfl-d5005" })));
 
 
 class metadata_hw_c : public metadata_c {};
@@ -464,12 +437,10 @@ class metadata_hw_c : public metadata_c {};
 TEST_P(metadata_hw_c, validate_bitstream_metadata) {
   fpga_result result;
 
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaOpen(tokens_[0], &handle_, 0));
-
-  result = validate_bitstream_metadata(handle_, bitstream_valid_.data());
+  result = validate_bitstream_metadata(device_, bitstream_valid_.data());
   EXPECT_EQ(result, FPGA_OK);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metadata_hw_c);
 INSTANTIATE_TEST_SUITE_P(metadata, metadata_hw_c,
-                        ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-d5005" })));
+                         ::testing::ValuesIn(test_platform::hw_platforms({ "dfl-d5005" })));

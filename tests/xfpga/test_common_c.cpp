@@ -23,83 +23,59 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#define NO_OPAE_C
+#include "mock/opae_fixtures.h"
+KEEP_XFPGA_SYMBOLS
+
 extern "C" {
-#include <opae/utils.h>
-#include "props.h"
 const char * xfpga_fpgaErrStr(fpga_result);
 fpga_result prop_check_and_lock(struct _fpga_properties*);
 fpga_result handle_check_and_lock(struct _fpga_handle*);
 fpga_result event_handle_check_and_lock(struct _fpga_event_handle*);
+
+int xfpga_plugin_initialize(void);
+int xfpga_plugin_finalize(void);
+
+#include "props.h"
 }
-#include <opae/properties.h>
-#include "mock/test_system.h"
-#include "gtest/gtest.h"
+
 #include "types_int.h"
 #include "sysfs_int.h"
 #include "intel-fpga.h"
-#include <opae/fpga.h>
 #include "xfpga.h"
-#include <cstdarg>
-
-
-extern "C" {
-int xfpga_plugin_initialize(void);
-int xfpga_plugin_finalize(void);
-}
 
 using namespace opae::testing;
 
-class common_c_p
-    : public ::testing::TestWithParam<std::string> {
+class common_c_p : public opae_device_p<xfpga_> {
  protected:
-  common_c_p()
-  : tokens_{{nullptr, nullptr}},
-    handle_(nullptr) {}
+  common_c_p() :
+    eh_(nullptr)
+  {}
+
+  virtual void OPAEInitialize() override {
+    ASSERT_EQ(xfpga_plugin_initialize(), 0);
+  }
+
+  virtual void OPAEFinalize() override {
+    ASSERT_EQ(xfpga_plugin_finalize(), 0);
+  }
 
   virtual void SetUp() override {
-    ASSERT_TRUE(test_platform::exists(GetParam()));
-    platform_ = test_platform::get(GetParam());
-    system_ = test_system::instance();
-    system_->initialize();
-    system_->prepare_syfs(platform_);
+    opae_device_p<xfpga_>::SetUp();
 
-    ASSERT_EQ(xfpga_plugin_initialize(), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaGetProperties(nullptr, &filter_), FPGA_OK);
-    ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_DEVICE), FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaEnumerate(&filter_, 1, tokens_.data(), tokens_.size(),
-                            &num_matches_),
-              FPGA_OK);
-    ASSERT_EQ(xfpga_fpgaOpen(tokens_[0], &handle_, 0), FPGA_OK);
     ASSERT_EQ(xfpga_fpgaCreateEventHandle(&eh_), FPGA_OK);
   }
 
   virtual void TearDown() override {
-    EXPECT_EQ(fpgaDestroyProperties(&filter_), FPGA_OK);
-
-    for (auto &t : tokens_) {
-      if (t) {
-        EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyToken(&t));
-        t = nullptr;
-      }
-    }
-
     EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&eh_), FPGA_OK);
-    if (handle_ != nullptr) { EXPECT_EQ(xfpga_fpgaClose(handle_), FPGA_OK); }
-    xfpga_plugin_finalize();
-    system_->finalize();
+
+    opae_device_p<xfpga_>::TearDown();
   }
 
-  std::array<fpga_token, 2> tokens_;
-  fpga_handle handle_;
-  fpga_properties filter_;
-  uint32_t num_matches_;
-  test_platform platform_;
-  test_system *system_;
   fpga_event_handle eh_;
 };
 
@@ -135,11 +111,11 @@ TEST(common, prop_check_and_lock) {
   prop = opae_properties_create();
 
   auto res = prop_check_and_lock(prop);
-  EXPECT_EQ(FPGA_OK,res);
+  EXPECT_EQ(FPGA_OK, res);
 
   prop->magic = 0x123;
   res = prop_check_and_lock(prop);
-  EXPECT_EQ(FPGA_INVALID_PARAM,res);
+  EXPECT_EQ(FPGA_INVALID_PARAM, res);
 
   free(prop);
   prop = nullptr;
@@ -152,13 +128,13 @@ TEST(common, prop_check_and_lock) {
  *             fpga_result returns FPGA_INVALID_PARAM
  */
 TEST_P(common_c_p, handle_check_and_lock) {
-  struct _fpga_handle *h = (struct _fpga_handle*)handle_;
+  struct _fpga_handle *h = (struct _fpga_handle*)device_;
   h->magic = 0x123;
-  auto res = handle_check_and_lock((struct _fpga_handle*)handle_);
-  EXPECT_EQ(FPGA_INVALID_PARAM,res);
+  auto res = handle_check_and_lock((struct _fpga_handle*)device_);
+  EXPECT_EQ(FPGA_INVALID_PARAM, res);
   h->magic = FPGA_HANDLE_MAGIC;
-  res = handle_check_and_lock((struct _fpga_handle*)handle_);
-  EXPECT_EQ(FPGA_OK,res);
+  res = handle_check_and_lock((struct _fpga_handle*)device_);
+  EXPECT_EQ(FPGA_OK, res);
 }
 
 /**
@@ -175,12 +151,13 @@ TEST_P(common_c_p, event_handle_check_and_lock) {
 
   eh->magic = 0x123;
   res = event_handle_check_and_lock((struct _fpga_event_handle*)eh_);
-  EXPECT_EQ(FPGA_INVALID_PARAM,res);
+  EXPECT_EQ(FPGA_INVALID_PARAM, res);
 
   eh->magic = FPGA_EVENT_HANDLE_MAGIC;
   res = event_handle_check_and_lock((struct _fpga_event_handle*)eh_);
-  EXPECT_EQ(FPGA_OK,res);
+  EXPECT_EQ(FPGA_OK, res);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(common_c_p);
-INSTANTIATE_TEST_SUITE_P(common_c, common_c_p, ::testing::ValuesIn(test_platform::keys(true)));
+INSTANTIATE_TEST_SUITE_P(common_c, common_c_p,
+                         ::testing::ValuesIn(test_platform::platforms({})));
