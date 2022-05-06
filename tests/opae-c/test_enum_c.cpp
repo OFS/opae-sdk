@@ -725,7 +725,8 @@ INSTANTIATE_TEST_SUITE_P(enum_c, enum_c_p,
                          ::testing::ValuesIn(test_platform::platforms({
                                                                         "dfl-n3000",
                                                                         "dfl-d5005",
-                                                                        "dfl-n6000-sku0"
+                                                                        "dfl-n6000-sku0",
+                                                                        "dfl-n6000-sku1"
                                                                       })));
 
 class enum_c_mock_p : public enum_c_p {};
@@ -750,7 +751,8 @@ INSTANTIATE_TEST_SUITE_P(enum_c, enum_c_mock_p,
                          ::testing::ValuesIn(test_platform::mock_platforms({
                                                                              "dfl-n3000",
                                                                              "dfl-d5005",
-                                                                             "dfl-n6000-sku0"
+                                                                             "dfl-n6000-sku0",
+                                                                             "dfl-n6000-sku1"
                                                                            })));
 
 class enum_c_err_p : public enum_c_p {};
@@ -795,7 +797,8 @@ INSTANTIATE_TEST_SUITE_P(enum_c, enum_c_err_p,
                          ::testing::ValuesIn(test_platform::platforms({
                                                                         "dfl-n3000",
                                                                         "dfl-d5005",
-                                                                        "dfl-n6000-sku0"
+                                                                        "dfl-n6000-sku0",
+                                                                        "dfl-n6000-sku1"
                                                                       })));
 
 class enum_c_socket_p : public enum_c_p {};
@@ -823,5 +826,6 @@ INSTANTIATE_TEST_SUITE_P(enum_c, enum_c_socket_p,
                          ::testing::ValuesIn(test_platform::platforms({
                                                                         "dfl-n3000",
                                                                         "dfl-d5005",
-                                                                        "dfl-n6000-sku0"
+                                                                        "dfl-n6000-sku0",
+                                                                        "dfl-n6000-sku1"
                                                                       })));

@@ -593,7 +593,8 @@ INSTANTIATE_TEST_SUITE_P(events, events_p,
                          ::testing::ValuesIn(test_platform::platforms({
                                                                         "dfl-d5005",
                                                                         "dfl-n3000",
-                                                                        "dfl-n6000-sku0"
+                                                                        "dfl-n6000-sku0",
+                                                                        "dfl-n6000-sku1"
                                                                       })));
 
 
@@ -636,7 +637,8 @@ INSTANTIATE_TEST_SUITE_P(events, events_dcp_p,
                          ::testing::ValuesIn(test_platform::hw_platforms({
                                                                            "dfl-d5005",
                                                                            "dfl-n3000",
-                                                                           "dfl-n6000-sku0"
+                                                                           "dfl-n6000-sku0",
+                                                                           "dfl-n6000-sku1"
                                                                          })));
 
 
@@ -1233,5 +1235,6 @@ INSTANTIATE_TEST_SUITE_P(events, events_mock_p,
                          ::testing::ValuesIn(test_platform::mock_platforms({
                                                                              "dfl-d5005",
                                                                              "dfl-n3000",
-                                                                             "dfl-n6000-sku0"
+                                                                             "dfl-n6000-sku0",
+                                                                             "dfl-n6000-sku1"
                                                                            })));

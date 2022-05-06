@@ -414,7 +414,36 @@ static platform_db MOCK_PLATFORMS = {
                        .vendor_id = 0x8086,
                        .device_id = 0xbcce,
                        .subsystem_vendor_id = 0x8086,
-                       .subsystem_device_id = 0x1770,
+                       .subsystem_device_id = 0x1770, // SKU0
+                       .fme_num_errors = 8,
+                       .port_num_errors = 0,
+                       .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                       .has_afu = false,
+                       .mdata = dfl_n6000_mdata}}}},
+   {"dfl-n6000-sku1",
+     test_platform{.mock_sysfs = "mock_sys_dfl_n6000_sku1_nlb0.tar.gz",
+                   .driver = fpga_driver::linux_dfl0,
+                   .devices = {test_device{
+                       .fme_guid = "ce3139c9-59cf-528c-a277-51c50829797a",
+                       .afu_guid = INVALID_AFU_ID,
+                       .segment = 0x0,
+                       .bus = 0xb1,
+                       .device = 0,
+                       .function = 0,
+                       .num_vfs = 0,
+                       .socket_id = 0,
+                       .num_slots = 1,
+                       .bbs_id = 0x5010202aecbd6e5,
+                       .bbs_version = {5, 0, 1},
+                       .state = FPGA_ACCELERATOR_UNASSIGNED,
+                       .num_mmio = 0x2,
+                       .num_interrupts = 0,
+                       .fme_object_id = 0xf500000,
+                       .port_object_id = 0xf400000,
+                       .vendor_id = 0x8086,
+                       .device_id = 0xbcce,
+                       .subsystem_vendor_id = 0x8086,
+                       .subsystem_device_id = 0x1771, // SKU1
                        .fme_num_errors = 8,
                        .port_num_errors = 0,
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
@@ -501,6 +530,8 @@ std::map<ven_dev_id, std::vector<std::string>> known_devices = {
   { { 0x8086, 0x0b31, 0x8086, 0x0000 }, std::vector<std::string>() },
   { { 0x8086, 0xbcce, 0x8086, 0x1770 }, std::vector<std::string>() },
   { { 0x8086, 0xbccf, 0x8086, 0x1770 }, std::vector<std::string>() },
+  { { 0x8086, 0xbcce, 0x8086, 0x1771 }, std::vector<std::string>() },
+  { { 0x8086, 0xbccf, 0x8086, 0x1771 }, std::vector<std::string>() },
 };
 
 static std::vector<ven_dev_id> supported_devices() {
@@ -767,6 +798,8 @@ static std::map<platform_cfg, std::string> platform_names = {
   { platform_cfg(0x8086, 0x0b2b, 0x8086, 0x0000, fpga_driver::linux_dfl0),  "dfl-d5005"             },
   { platform_cfg(0x8086, 0xbcce, 0x8086, 0x1770, fpga_driver::linux_dfl0),  "dfl-n6000-sku0"        },
   { platform_cfg(0x8086, 0xbccf, 0x8086, 0x1770, fpga_driver::linux_dfl0),  "dfl-n6000-sku0"        },
+  { platform_cfg(0x8086, 0xbcce, 0x8086, 0x1771, fpga_driver::linux_dfl0),  "dfl-n6000-sku1"        },
+  { platform_cfg(0x8086, 0xbccf, 0x8086, 0x1771, fpga_driver::linux_dfl0),  "dfl-n6000-sku1"        },
 };
 
 const char *PCI_DEV_PATTERN = "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([0-9])";

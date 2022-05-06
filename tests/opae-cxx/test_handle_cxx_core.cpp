@@ -232,5 +232,6 @@ INSTANTIATE_TEST_SUITE_P(handle, handle_cxx_core,
                          ::testing::ValuesIn(test_platform::platforms({
                                                                         "dfl-n3000",
                                                                         "dfl-d5005",
-                                                                        "dfl-n6000-sku0"
+                                                                        "dfl-n6000-sku0",
+                                                                        "dfl-n6000-sku1"
                                                                       })));

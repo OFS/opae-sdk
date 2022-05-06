@@ -141,7 +141,8 @@ INSTANTIATE_TEST_SUITE_P(sysobject_c, sysobject_p,
                          ::testing::ValuesIn(test_platform::platforms({
                                                                         "dfl-d5005",
                                                                         "dfl-n3000",
-                                                                        "dfl-n6000-sku0"
+                                                                        "dfl-n6000-sku0",
+                                                                        "dfl-n6000-sku1"
                                                                       })));
 
 class sysobject_mock_p : public sysobject_p {};
@@ -236,5 +237,6 @@ INSTANTIATE_TEST_SUITE_P(sysobject_c, sysobject_mock_p,
                          ::testing::ValuesIn(test_platform::mock_platforms({
                                                                              "dfl-d5005",
                                                                              "dfl-n3000",
-                                                                             "dfl-n6000-sku0"
+                                                                             "dfl-n6000-sku0",
+                                                                             "dfl-n6000-sku1"
                                                                            })));

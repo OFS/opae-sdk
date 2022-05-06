@@ -490,5 +490,6 @@ INSTANTIATE_TEST_SUITE_P(reconf, reconf_c_hw_p,
                          ::testing::ValuesIn(test_platform::hw_platforms({
                                                                            "dfl-d5005",
                                                                            "dfl-n3000",
-                                                                           "dfl-n6000-sku0"
+                                                                           "dfl-n6000-sku0",
+                                                                           "dfl-n6000-sku1"
                                                                          })));

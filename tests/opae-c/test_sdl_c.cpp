@@ -408,5 +408,6 @@ INSTANTIATE_TEST_SUITE_P(sdl_c, sdl_c_p,
                          ::testing::ValuesIn(test_platform::platforms({
                                                                         "dfl-d5005",
                                                                         "dfl-n3000",
-                                                                        "dfl-n6000-sku0"
+                                                                        "dfl-n6000-sku0",
+                                                                        "dfl-n6000-sku1"
                                                                       })));

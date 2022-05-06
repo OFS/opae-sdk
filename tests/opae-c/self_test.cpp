@@ -91,7 +91,8 @@ GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(self_test_base_p);
 INSTANTIATE_TEST_SUITE_P(self_test_base, self_test_base_p,
                          ::testing::ValuesIn(test_platform::platforms({
                                                                         "dfl-n3000",
-                                                                        "dfl-n6000-sku0"
+                                                                        "dfl-n6000-sku0",
+                                                                        "dfl-n6000-sku1"
                                                                       })));
 
 
@@ -155,7 +156,8 @@ GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(self_test_base_xfpga_p);
 INSTANTIATE_TEST_SUITE_P(self_test_base_xfpga, self_test_base_xfpga_p,
                          ::testing::ValuesIn(test_platform::platforms({
                                                                         "dfl-n3000",
-                                                                        "dfl-n6000-sku0"
+                                                                        "dfl-n6000-sku0",
+                                                                        "dfl-n6000-sku1"
                                                                       })));
 
 
@@ -181,5 +183,6 @@ GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(self_test_p);
 INSTANTIATE_TEST_SUITE_P(self_test, self_test_p,
                          ::testing::ValuesIn(test_platform::platforms({
                                                                         "dfl-n3000",
-                                                                        "dfl-n6000-sku0"
+                                                                        "dfl-n6000-sku0",
+                                                                        "dfl-n6000-sku1"
                                                                       })));
