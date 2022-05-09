@@ -390,7 +390,7 @@ fpga_devices = {pci.pci_id(0x8086, 0x09c4): "Intel PAC A10 GX",
                 pci.pci_id(0x8086, 0xbcce, 0x8086, 0x1770): "Intel N6000 ADP",
                 pci.pci_id(0x8086, 0xbccf, 0x8086, 0x1770): "Intel N6000 ADP VF",
                 pci.pci_id(0x8086, 0xbcce, 0x8086, 0x1771): "Intel N6001 ADP",
-                pci.pci_id(0x8086, 0xbccf, 0x8086, 0x1771): "Intel N6001 ADP VF",                
+                pci.pci_id(0x8086, 0xbccf, 0x8086, 0x1771): "Intel N6001 ADP VF",
                 pci.pci_id(0x1c2c, 0x1000): "Silicom SmartNIC N5010",
                 pci.pci_id(0x1c2c, 0x1001): "Silicom SmartNIC N5011"}
 
@@ -425,7 +425,7 @@ def get_conf_devices(data):
         except:
             print(f'error with vendor/device: {k}')
         else:
-            conf_ids[pci_id(*[int(i, 16) for i in ids])] = v
+            conf_ids[pci.pci_id(*[int(i, 16) for i in ids])] = v
     return conf_ids
 
 
