@@ -237,7 +237,7 @@ def show_help():
       "opae.io"
       "opae.io -v | --version"
       "opae.io -h | --help"
-      "opae.io ls [-v | --viddid <VID:DID>]"
+      "opae.io ls [-v | --viddid <VID:DID>] [-s | --sub-viddid <SVID:SDID>] [--all] [--system-class]"
       "opae.io [-d | --device <PCI_ADDRESS>] [-r | --region <REGION_NUMBER>] [-a <ACCESS_MODE>] [init | release | peek | poke | <script> [arg1...argN]]
       "opae.io init [-d <PCI_ADDRESS>] <USER>[:<GROUP>]"
       "opae.io release [-d <PCI_ADDRESS>]"
