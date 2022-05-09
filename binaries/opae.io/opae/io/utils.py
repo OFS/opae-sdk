@@ -381,18 +381,24 @@ class feature(object):
                 csr.commit()
 
 
-fpga_devices = {pci.pci_id(0x8086, 0x09c4): "Intel PAC A10 GX",
-                pci.pci_id(0x8086, 0x09c5): "Intel PAC A10 GX VF",
-                pci.pci_id(0x8086, 0x0b2b): "Intel PAC D5005",
-                pci.pci_id(0x8086, 0x0b2c): "Intel PAC D5005 VF",
-                pci.pci_id(0x8086, 0x0b30): "Intel PAC N3000",
-                pci.pci_id(0x8086, 0x0b31): "Intel PAC N3000 VF",
-                pci.pci_id(0x8086, 0xbcce, 0x8086, 0x1770): "Intel N6000 ADP",
-                pci.pci_id(0x8086, 0xbccf, 0x8086, 0x1770): "Intel N6000 ADP VF",
-                pci.pci_id(0x8086, 0xbcce, 0x8086, 0x1771): "Intel N6001 ADP",
-                pci.pci_id(0x8086, 0xbccf, 0x8086, 0x1771): "Intel N6001 ADP VF",
-                pci.pci_id(0x1c2c, 0x1000): "Silicom SmartNIC N5010",
-                pci.pci_id(0x1c2c, 0x1001): "Silicom SmartNIC N5011"}
+fpga_devices = {
+    pci.pci_id(0x8086, 0x09c4): "Intel PAC A10 GX",
+    pci.pci_id(0x8086, 0x09c5): "Intel PAC A10 GX VF",
+    pci.pci_id(0x8086, 0x0b2b): "Intel PAC D5005",
+    pci.pci_id(0x8086, 0x0b2c): "Intel PAC D5005 VF",
+    pci.pci_id(0x8086, 0x0b30): "Intel PAC N3000",
+    pci.pci_id(0x8086, 0x0b31): "Intel PAC N3000 VF",
+    pci.pci_id(0x8086, 0xbcce, 0x8086, 0x1770): "Intel N6000 ADP",
+    pci.pci_id(0x8086, 0xbccf, 0x8086, 0x1770): "Intel N6000 ADP VF",
+    pci.pci_id(0x8086, 0xbcce, 0x8086, 0x1771): "Intel N6001 ADP",
+    pci.pci_id(0x8086, 0xbccf, 0x8086, 0x1771): "Intel N6001 ADP VF",
+    pci.pci_id(0x8086, 0xbcce, 0x8086, 0x17d4): "Intel C6100 ADP",
+    pci.pci_id(0x8086, 0xbccf, 0x8086, 0x17d4): "Intel C6100 ADP VF",
+    pci.pci_id(0x8086, 0xbcce, 0x8086, 0x138d): "Intel D5005 ADP",
+    pci.pci_id(0x8086, 0xbccf, 0x8086, 0x138e): "Intel D5005 ADP VF",
+    pci.pci_id(0x1c2c, 0x1000): "Silicom SmartNIC N5010",
+    pci.pci_id(0x1c2c, 0x1001): "Silicom SmartNIC N5011",
+}
 
 def read_attr(dirname, attr):
     fname = Path(dirname, attr)
