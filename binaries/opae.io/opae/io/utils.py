@@ -437,7 +437,7 @@ def get_conf_devices(data):
 
 
 def lsfpga(**kwargs):
-     _all = kwargs.pop('all', False)
+    _all = kwargs.pop('all', False)
     device_ids = dict(fpga_devices)
     use_class = kwargs.pop('system_class', False)
     conf = get_conf()
