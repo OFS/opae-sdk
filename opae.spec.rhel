@@ -68,10 +68,10 @@ OPAE headers, tools, sample source, and documentation
 
 %build
 %cmake -DOPAE_MINIMAL_BUILD=ON
-%if 0%{?rhel}
-  %make_build
-%else
+%if 0%{rhel} > 8
   %cmake_build
+%else
+  %make_build
 %endif
 
 %install
@@ -130,10 +130,10 @@ cp binaries/opae.io/opae/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae
 cp binaries/opae.io/opae/io/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae/io
 cp binaries/opae.io/scripts/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/scripts
 
-%if 0%{?rhel}
-  %make_install
-%else
+%if 0%{rhel} > 8
   %cmake_install
+%else
+  %make_install
 %endif
 
 prev=$PWD
