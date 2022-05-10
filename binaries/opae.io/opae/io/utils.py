@@ -437,7 +437,7 @@ def get_conf_devices(data):
 
 
 def lsfpga(**kwargs):
-    _all = kwargs.pop('all', False)
+     _all = kwargs.pop('all', False)
     device_ids = dict(fpga_devices)
     use_class = kwargs.pop('system_class', False)
     conf = get_conf()
@@ -450,7 +450,8 @@ def lsfpga(**kwargs):
                 if k not in device_ids:
                     device_ids[k] = v
 
-
+    # create a filter function that uses attributes in kwargs to match devices
+    # as well "known" devices as those listed in 'fpga_devices'
     def filter_fn(d: pci.device):
         for k,v in kwargs.items():
             try:
