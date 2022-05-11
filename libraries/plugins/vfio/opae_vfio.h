@@ -111,6 +111,8 @@ typedef struct _vfio_token {
 	uint64_t bitstream_id;
 	uint64_t bitstream_mdata;
 	uint8_t num_ports;
+	fpga_accelerator_state afu_state;
+	uint32_t num_afu_irqs;
 	struct _vfio_token *parent;
 	struct _vfio_token *next;
 	vfio_ops ops;

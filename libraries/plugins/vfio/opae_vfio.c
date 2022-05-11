@@ -1109,6 +1109,12 @@ bool pci_matches_filter(const fpga_properties *filter, pci_device_t *dev)
 	if (FIELD_VALID(_prop, FPGA_PROPERTY_SOCKETID))
 		if (_prop->socket_id != dev->numa_node)
 			return false;
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_VENDORID))
+		if (_prop->vendor_id != dev->vendor)
+			return false;
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_DEVICEID))
+		if (_prop->device_id != dev->device)
+			return false;
 	if (FIELD_VALID(_prop, FPGA_PROPERTY_SUB_VENDORID))
 		if (_prop->subsystem_vendor_id != dev->subsystem_vendor)
 			return false;
@@ -1146,9 +1152,25 @@ bool matches_filter(const fpga_properties *filter, vfio_token *t)
 			return false;
 	}
 
-	if (FIELD_VALID(_prop, FPGA_PROPERTY_OBJTYPE))
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_OBJTYPE)) {
 		if (_prop->objtype != t->hdr.objtype)
 			return false;
+
+		if ((t->hdr.objtype == FPGA_ACCELERATOR) &&
+		    FIELD_VALID(_prop, FPGA_PROPERTY_ACCELERATOR_STATE))
+			if (_prop->u.accelerator.state != t->afu_state)
+				return false;
+
+		if ((t->hdr.objtype == FPGA_ACCELERATOR) &&
+		    FIELD_VALID(_prop, FPGA_PROPERTY_NUM_INTERRUPTS))
+			if (_prop->u.accelerator.num_interrupts != t->num_afu_irqs)
+				return false;
+	}
+
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_OBJECTID))
+		if (_prop->object_id != t->hdr.object_id)
+			return false;
+
 	if (FIELD_VALID(_prop, FPGA_PROPERTY_GUID)) {
 		if ((t->hdr.objtype == FPGA_ACCELERATOR) &&
 		    memcmp(_prop->guid, t->hdr.guid, sizeof(fpga_guid)))
@@ -1214,6 +1236,20 @@ dfh *next_feature(dfh *h)
 	return NULL;
 }
 
+STATIC uint32_t vfio_irq_count(struct opae_vfio *device)
+{
+	struct opae_vfio_device_irq *irq =
+		device->device.irqs;
+
+	while (irq) {
+		if (irq->index == VFIO_PCI_MSIX_IRQ_INDEX)
+			return irq->count;
+		irq = irq->next;
+	}
+
+	return 0;
+}
+
 fpga_result vfio_fpgaEnumerate(const fpga_properties *filters,
 			       uint32_t num_filters, fpga_token *tokens,
 			       uint32_t max_tokens, uint32_t *num_matches)
@@ -1227,6 +1263,8 @@ fpga_result vfio_fpgaEnumerate(const fpga_properties *filters,
 			vfio_token *ptr = dev->tokens;
 
 			while (ptr) {
+				vfio_pair_t *pair = NULL;
+				fpga_result res;
 
 				ptr->hdr.vendor_id = (uint16_t)ptr->device->vendor;
 				ptr->hdr.device_id = (uint16_t)ptr->device->device;
@@ -1241,6 +1279,16 @@ fpga_result vfio_fpgaEnumerate(const fpga_properties *filters,
 				ptr->hdr.object_id = ((uint64_t)ptr->device->bdf.bdf) << 32 | ptr->region;
 				if (ptr->hdr.objtype == FPGA_DEVICE)
 					memcpy(ptr->hdr.guid, ptr->compat_id, sizeof(fpga_guid));
+
+				res = open_vfio_pair(ptr->device->addr, &pair);
+				if (res == FPGA_OK) {
+					ptr->num_afu_irqs = vfio_irq_count(pair->device);
+
+					close_vfio_pair(&pair);
+					ptr->afu_state = FPGA_ACCELERATOR_UNASSIGNED;
+				} else {
+					ptr->afu_state = FPGA_ACCELERATOR_ASSIGNED;
+				}
 
 				if (matches_filters(filters, num_filters, ptr)) {
 					if (matches < max_tokens) {

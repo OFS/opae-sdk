@@ -155,62 +155,6 @@ TEST_P(handle_cxx_core, reconfigure_null) {
 }
 
 /**
- * @test mmio_32
- * write_csr32 should be able to write a value and read_csr32
- * should be able to read it back.
- */
-TEST_P(handle_cxx_core, mmio_32) {
-  int flags = 0;
-  uint64_t offset = 0x100;
-  uint32_t csr_space = 0;
-  uint32_t value = 10;
-
-  handle_ = handle::open(tokens_[0], flags);
-  ASSERT_NE(nullptr, handle_.get());
-
-  ASSERT_NO_THROW(handle_->write_csr32(offset, value, csr_space));
-  value = handle_->read_csr32(offset, csr_space);
-  EXPECT_EQ(value, 10);
-}
-
-/**
- * @test mmio_64
- * write_csr64 should be able to write a value and read_csr64
- * should be able to read it back.
- */
-TEST_P(handle_cxx_core, mmio_64) {
-  int flags = 0;
-  uint64_t offset = 0x100;
-  uint32_t csr_space = 0;
-  uint64_t value = 10;
-
-  handle_ = handle::open(tokens_[0], flags);
-  ASSERT_NE(nullptr, handle_.get());
-
-  ASSERT_NO_THROW(handle_->write_csr64(offset, value, csr_space));
-  value = handle_->read_csr64(offset, csr_space);
-  EXPECT_EQ(value, 10);
-}
-
-/**
- * @test mmio_ptr
- * Verify that handle::mmio_ptr is able to map mmio and retrieve
- * the pointer.
- */
-TEST_P(handle_cxx_core, mmio_ptr) {
-  int flags = 0;
-  uint64_t offset = 0x100;
-  uint32_t csr_space = 0;
-  uint8_t *h = nullptr;
-
-  handle_ = handle::open(tokens_[0], flags);
-  ASSERT_NE(nullptr, handle_.get());
-
-  ASSERT_NO_THROW(h = handle_->mmio_ptr(offset, csr_space));
-  ASSERT_NE(nullptr, h);
-}
-
-/**
  * @test get_token
  * Verify that handle::get_token can retrieve the token
  * object and that token::get_parent can retrieve the
@@ -234,4 +178,69 @@ INSTANTIATE_TEST_SUITE_P(handle, handle_cxx_core,
                                                                         "dfl-d5005",
                                                                         "dfl-n6000-sku0",
                                                                         "dfl-n6000-sku1"
+                                                                      })));
+
+class handle_cxx_core_mmio : public handle_cxx_core {};
+
+/**
+ * @test mmio_32
+ * write_csr32 should be able to write a value and read_csr32
+ * should be able to read it back.
+ */
+TEST_P(handle_cxx_core_mmio, mmio_32) {
+  int flags = 0;
+  uint64_t offset = 0x100;
+  uint32_t csr_space = 0;
+  uint32_t value = 10;
+
+  handle_ = handle::open(tokens_[0], flags);
+  ASSERT_NE(nullptr, handle_.get());
+
+  ASSERT_NO_THROW(handle_->write_csr32(offset, value, csr_space));
+  value = handle_->read_csr32(offset, csr_space);
+  EXPECT_EQ(value, 10);
+}
+
+/**
+ * @test mmio_64
+ * write_csr64 should be able to write a value and read_csr64
+ * should be able to read it back.
+ */
+TEST_P(handle_cxx_core_mmio, mmio_64) {
+  int flags = 0;
+  uint64_t offset = 0x100;
+  uint32_t csr_space = 0;
+  uint64_t value = 10;
+
+  handle_ = handle::open(tokens_[0], flags);
+  ASSERT_NE(nullptr, handle_.get());
+
+  ASSERT_NO_THROW(handle_->write_csr64(offset, value, csr_space));
+  value = handle_->read_csr64(offset, csr_space);
+  EXPECT_EQ(value, 10);
+}
+
+/**
+ * @test mmio_ptr
+ * Verify that handle::mmio_ptr is able to map mmio and retrieve
+ * the pointer.
+ */
+TEST_P(handle_cxx_core_mmio, mmio_ptr) {
+  int flags = 0;
+  uint64_t offset = 0x100;
+  uint32_t csr_space = 0;
+  uint8_t *h = nullptr;
+
+  handle_ = handle::open(tokens_[0], flags);
+  ASSERT_NE(nullptr, handle_.get());
+
+  ASSERT_NO_THROW(h = handle_->mmio_ptr(offset, csr_space));
+  ASSERT_NE(nullptr, h);
+}
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(handle_cxx_core_mmio);
+INSTANTIATE_TEST_SUITE_P(handle, handle_cxx_core_mmio,
+                         ::testing::ValuesIn(test_platform::platforms({
+                                                                        "dfl-d5005",
+                                                                        "dfl-n3000"
                                                                       })));

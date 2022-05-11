@@ -135,7 +135,11 @@ TEST_P(properties_c_p, device_id_afu) {
   uint16_t x = 0;
   ASSERT_EQ(xfpga_fpgaGetPropertiesFromHandle(accel_, &prop_), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesGetDeviceID(prop_, &x), FPGA_OK);
-  auto expected_id = device.device_id + (device.num_vfs > 0 ? 1 : 0);
+  uint16_t expected_id;
+  if (!device.has_afu)
+    expected_id = device.device_id; // Port on the PF.
+  else
+    expected_id = device.device_id + (device.num_vfs > 0 ? 1 : 0);
   EXPECT_EQ(static_cast<uint32_t>(x), expected_id);
 #endif
 }

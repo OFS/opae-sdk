@@ -382,6 +382,11 @@ TEST_P(enum_c_p, device) {
 
 TEST_P(enum_c_p, function) {
   test_device device = platform_.devices[0];
+  if (!device.has_afu) {
+    // This test is only valid for the original definition of Port.
+    // On a platform that has HEMs, the following rules do not hold.
+    GTEST_SKIP();
+  }
 
   matches_ = 0;
   ASSERT_EQ(fpgaPropertiesSetFunction(filter_, device.function), FPGA_OK);
@@ -403,6 +408,12 @@ TEST_P(enum_c_p, function) {
 }
 
 TEST_P(enum_c_p, invalid_function) {
+  test_device device = platform_.devices[0];
+  if (!device.has_afu) {
+    // A device that has HEM's may have up to 7 functions.
+    GTEST_SKIP();
+  }
+
   matches_ = 0;
   ASSERT_EQ(fpgaPropertiesSetFunction(filter_, invalid_device_.function), FPGA_OK);
   EXPECT_EQ(fpgaEnumerate(&filter_, 1,
@@ -433,6 +444,11 @@ TEST_P(enum_c_p, invalid_vendor_id) {
 
 TEST_P(enum_c_p, device_id) {
   test_device device = platform_.devices[0];
+  if (!device.has_afu) {
+    // This test is only valid for the original definition of Port.
+    // On a platform that has HEMs, the following rules do not hold.
+    GTEST_SKIP();
+  }
 
   matches_ = 0;
   ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, device.device_id), FPGA_OK);
@@ -521,6 +537,11 @@ TEST_P(enum_c_p, object_id_port_neg) {
 
 TEST_P(enum_c_p, guid) {
   test_device device = platform_.devices[0];
+  if (!device.has_afu) {
+    // Can't compare afu_id's if there aren't any.
+    GTEST_SKIP();
+  }
+
   fpga_guid fme_guid, afu_guid, random_guid;
 
   ASSERT_EQ(uuid_parse(device.fme_guid, fme_guid), 0);

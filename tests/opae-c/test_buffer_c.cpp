@@ -72,11 +72,11 @@ class buffer_c_p : public opae_p<> {
  */
 TEST_P(buffer_c_p, prep_rel) {
   void *buf_addr = nullptr;
-  uint64_t wsid = 0;
+  uint64_t wsid = 0xabadbeef;
   ASSERT_EQ(fpgaPrepareBuffer(accel_, (uint64_t) pg_size_,
                               &buf_addr, &wsid, 0), FPGA_OK);
   EXPECT_NE(buf_addr, nullptr);
-  EXPECT_NE(wsid, 0);
+  EXPECT_NE(wsid, 0xabadbeef);
   EXPECT_EQ(fpgaReleaseBuffer(accel_, wsid), FPGA_OK);
 }
 

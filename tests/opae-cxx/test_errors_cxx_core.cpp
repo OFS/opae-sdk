@@ -77,6 +77,8 @@ TEST_P(errors_cxx_core, get_error) {
   for (auto &t : tokens_) {
     auto props = properties::get(t);
     ASSERT_NE(props, nullptr);
+    if (props->interface != FPGA_IFC_DFL) // otherwise, no sysfs
+	    continue;
     for (int i = 0; i < static_cast<uint32_t>(props->num_errors); ++i) {
       auto err = error::get(t, i);
       std::cout << "Error [" << err->name() << "]: " << err->read_value() << "\n";

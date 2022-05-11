@@ -187,17 +187,20 @@ TEST_P(sysfsinit_c_p, sysfs_initialize) {
   for (const auto &d : platform_.devices) {
     devices[to_uint32(d.segment, d.bus, d.device, d.function)] = d;
   }
-  if (platform_.devices[0].num_vfs) {
-    auto d = platform_.devices[0];
-    d.function = 1;
-    d.device_id++;
-    devices[to_uint32(d.segment, d.bus, d.device, 1)] = d;
+
+  test_device device = platform_.devices[0];
+  if (device.has_afu) {
+    if (device.num_vfs) {
+      auto d = platform_.devices[0];
+      d.function = 1;
+      d.device_id++;
+      devices[to_uint32(d.segment, d.bus, d.device, 1)] = d;
+    }
+    // the size of this map should be equal to the number of devices in our
+    // platform
+    ASSERT_EQ(devices.size(), platform_.devices.size() + device.num_vfs);
+    EXPECT_EQ(GetNumFpgas(), sysfs_device_count() - device.num_vfs);
   }
-  auto num_vfs = platform_.devices[0].num_vfs;
-  // the size of this map should be equal to the number of devices in our
-  // platform
-  ASSERT_EQ(devices.size(), platform_.devices.size() + num_vfs);
-  EXPECT_EQ(GetNumFpgas(), sysfs_device_count() - num_vfs);
   // call sysfs_foreach_device with our callback, cb
   sysfs_foreach_device(cb, &devices);
   // our devices map should be empty after this call as this callback removes
@@ -216,8 +219,11 @@ TEST_P(sysfsinit_c_p, sysfs_get_device) {
   // the size of this map should be equal to the number of devices in our
   // platform
   ASSERT_EQ(devices.size(), platform_.devices.size());
-  auto num_vfs = platform_.devices[0].num_vfs;
-  EXPECT_EQ(GetNumFpgas(), sysfs_device_count() - num_vfs);
+
+  test_device device = platform_.devices[0];
+  if (device.has_afu) {
+    EXPECT_EQ(GetNumFpgas(), sysfs_device_count() - device.num_vfs);
+  }
 
   // use sysfs_get_device API to count how many devices match our devices map
   for (int i = 0; i < sysfs_device_count(); ++i) {
@@ -246,12 +252,16 @@ TEST_P(sysfsinit_c_p, get_interface_id) {
   fpga_token fme;
   uint32_t matches = 0;
   fpga_guid parsed_guid;
+  test_device device = platform_.devices[0];
   ASSERT_EQ(fpgaGetProperties(nullptr, &props), FPGA_OK);
-  ASSERT_EQ(fpgaPropertiesSetDeviceID(props,platform_.devices[0].device_id), FPGA_OK);
-  ASSERT_EQ(fpgaPropertiesSetVendorID(props,platform_.devices[0].vendor_id), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetDeviceID(props, device.device_id), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetVendorID(props, device.vendor_id), FPGA_OK);
   ASSERT_EQ(fpgaPropertiesSetObjectType(props, FPGA_DEVICE), FPGA_OK);
   ASSERT_EQ(xfpga_fpgaEnumerate(&props, 1, &fme, 1, &matches), FPGA_OK);
-  EXPECT_EQ(matches, GetNumMatchedFpga());
+  if (device.has_afu) {
+    // The lspci trick only works with the old-style hardware (without HEMs).
+    EXPECT_EQ(matches, GetNumMatchedFpga());
+  }
   ASSERT_EQ(sysfs_get_interface_id(fme, guid), 0);
   EXPECT_EQ(uuid_parse(platform_.devices[0].fme_guid, parsed_guid), 0);
   EXPECT_EQ(uuid_compare(parsed_guid, guid), 0);
