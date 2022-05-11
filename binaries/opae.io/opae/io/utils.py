@@ -41,22 +41,14 @@ import time
 from enum import Enum
 from ctypes import Union, LittleEndianStructure, c_uint64, c_uint32
 
+from . import pci
+
 if sys.version_info[0] == 3:
     from pathlib import Path
 else:
     from pathlib2 import Path
 
 import libvfio
-
-PCI_ADDRESS_PATTERN = (r'(?P<pci_address>'
-                       r'(?:(?P<segment>[\da-f]{4}):)?'
-                       r'(?P<bdf>(?P<bus>[\da-f]{2}):'
-                       r'(?P<device>[\da-f]{2})\.(?P<function>\d)))')
-PCI_ADDRESS_RE = re.compile(PCI_ADDRESS_PATTERN, re.IGNORECASE)
-
-
-VENDOR_DEVICE_PATTERN = r'(?P<vendor>[\da-f]{0,4}):(?P<device>[\da-f]{0,4})'
-VENDOR_DEVICE_RE = re.compile(VENDOR_DEVICE_PATTERN, re.IGNORECASE)
 
 PICKLE_FILE = '/var/lib/opae/opae.io.pickle'
 ACCESS_MODE = 64
@@ -68,29 +60,6 @@ class pcicfg(Enum):
 
 def hex_int(inp):
     return int(inp, 0)
-
-
-def vendev(inp):
-    m = VENDOR_DEVICE_RE.match(inp)
-    if not m:
-        raise ValueError('wrong vendor/device format: {}'.format(inp))
-    return m.groupdict()
-
-
-def pci_address(inp):
-    m = PCI_ADDRESS_RE.match(inp)
-    if not m:
-        raise ValueError('wrong pci address format: {}'.format(inp))
-
-    d = m.groupdict()
-    return '{}:{}'.format(d.get('segment') or '0000', d['bdf']).lower()
-
-
-def vid_did_for_address(pci_addr):
-    path = Path('/sys/bus/pci/devices', pci_addr)
-    vid = path.joinpath('vendor').read_text().strip()
-    did = path.joinpath('device').read_text().strip()
-    return (vid, did)
 
 
 def load_driver(driver):
@@ -412,18 +381,24 @@ class feature(object):
                 csr.commit()
 
 
-fpga_devices = {(0x8086, 0x09c4): "Intel PAC A10 GX",
-                (0x8086, 0x09c5): "Intel PAC A10 GX VF",
-                (0x8086, 0x0b2b): "Intel PAC D5005",
-                (0x8086, 0x0b2c): "Intel PAC D5005 VF",
-                (0x8086, 0x0b30): "Intel PAC N3000",
-                (0x8086, 0x0b31): "Intel PAC N3000 VF",
-                (0x8086, 0xaf00): "Intel N6000 ADP",
-                (0x8086, 0xaf01): "Intel N6000 ADP VF",
-                (0x8086, 0xbcce): "Intel N6000 ADP",
-                (0x8086, 0xbccf): "Intel N6000 ADP VF",
-                (0x1c2c, 0x1000): "Silicom SmartNIC N5010",
-                (0x1c2c, 0x1001): "Silicom SmartNIC N5011"}
+fpga_devices = {
+    pci.pci_id(0x8086, 0x09c4): "Intel PAC A10 GX",
+    pci.pci_id(0x8086, 0x09c5): "Intel PAC A10 GX VF",
+    pci.pci_id(0x8086, 0x0b2b): "Intel PAC D5005",
+    pci.pci_id(0x8086, 0x0b2c): "Intel PAC D5005 VF",
+    pci.pci_id(0x8086, 0x0b30): "Intel PAC N3000",
+    pci.pci_id(0x8086, 0x0b31): "Intel PAC N3000 VF",
+    pci.pci_id(0x8086, 0xbcce, 0x8086, 0x1770): "Intel N6000 ADP",
+    pci.pci_id(0x8086, 0xbccf, 0x8086, 0x1770): "Intel N6000 ADP VF",
+    pci.pci_id(0x8086, 0xbcce, 0x8086, 0x1771): "Intel N6001 ADP",
+    pci.pci_id(0x8086, 0xbccf, 0x8086, 0x1771): "Intel N6001 ADP VF",
+    pci.pci_id(0x8086, 0xbcce, 0x8086, 0x17d4): "Intel C6100 ADP",
+    pci.pci_id(0x8086, 0xbccf, 0x8086, 0x17d4): "Intel C6100 ADP VF",
+    pci.pci_id(0x8086, 0xbcce, 0x8086, 0x138d): "Intel D5005 ADP",
+    pci.pci_id(0x8086, 0xbccf, 0x8086, 0x138e): "Intel D5005 ADP VF",
+    pci.pci_id(0x1c2c, 0x1000): "Silicom SmartNIC N5010",
+    pci.pci_id(0x1c2c, 0x1001): "Silicom SmartNIC N5011",
+}
 
 def read_attr(dirname, attr):
     fname = Path(dirname, attr)
@@ -448,22 +423,26 @@ def get_conf():
     return {}
 
 
-def lsfpga(**kwargs):
-    vendor = kwargs.get('vendor')
-    device = kwargs.get('device')
-    driver = kwargs.get('driver')
-    device_ids = dict(fpga_devices)
-    conf = get_conf()
+def get_conf_devices(data):
     conf_ids = {}
-    if conf:
-        for k, v in conf.get('fpga_devices', {}).items():
-            try:
-                vstr, dstr = k.split(':')
-            except:
-                print('error with vendor/device: {}'.format(k))
-            else:
-                conf_ids[(int(vstr, 16), int(dstr, 16))] = v
+    for k, v in data.items():
+        try:
+            ids = k.split(':')
+        except:
+            print(f'error with vendor/device: {k}')
+        else:
+            conf_ids[pci.pci_id(*[int(i, 16) for i in ids])] = v
+    return conf_ids
 
+
+
+def lsfpga(**kwargs):
+    _all = kwargs.pop('all', False)
+    device_ids = dict(fpga_devices)
+    use_class = kwargs.pop('system_class', False)
+    conf = get_conf()
+    if conf:
+        conf_ids = get_conf_devices(conf.get('fpga_devices', {}))
         if conf.get('override', False):
             device_ids.update(conf_ids)
         else:
@@ -471,31 +450,37 @@ def lsfpga(**kwargs):
                 if k not in device_ids:
                     device_ids[k] = v
 
-    if kwargs.get('all'):
-        device_ids = {}
+    # create a filter function that uses attributes in kwargs to match devices
+    # as well "known" devices as those listed in 'fpga_devices'
+    def filter_fn(d: pci.device):
+        for k,v in kwargs.items():
+            try:
+                attr_value = getattr(d, k)
+            except FileNotFoundError:
+                return False
+            if attr_value != v:
+                return False
+        known = (d.pci_id in device_ids or d.pci_id.short() in device_ids)
+        if not _all and not known:
+            return False
+        return True
 
-    for pcidir in Path('/sys/bus/pci/devices').glob('*'):
-        vid = read_attr(pcidir, 'vendor')
-        did = read_attr(pcidir, 'device')
-        drv = read_link(pcidir, 'driver')
-        if drv:
-            drv = drv.stem
-        if vid is None or did is None:
-            continue
-        if vendor and int(vid, 16) != int(vendor, 16):
-            continue
-        if device and int(did, 16) != int(device, 16):
-            continue
-        id_tuple = (int(vid, 0), int(did, 0))
-        if not device_ids or id_tuple in device_ids:
-            if not driver or (driver and drv and driver == drv):
-                yield (pcidir.parts[-1], vid, did, device_ids.get(id_tuple, ''), drv)
+    def describe(d: pci.device):
+        desc = device_ids.get(d.pci_id) or device_ids.get(d.pci_id.short())
+        if desc:
+            d._desc = desc
+        return d
+    devices = pci.ls(filter=filter_fn)
+    if use_class:
+        return devices
+    return map(describe, devices)
+
 
 
 def ls(**kwargs):
     """Enumerate FPGA devices"""
-    for pci_addr, vid, did, name, drv in lsfpga(**kwargs):
-        print('[{}] ({}, {}) {} (Driver: {})'.format(pci_addr, vid, did, name, drv))
+    for device in lsfpga(**kwargs):
+        print(f'[{device}] ({device.vendor}, {device.device}) {device.desc} (Driver: {device.driver})')
 
 
 def open_pciaddr(pci_addr):
