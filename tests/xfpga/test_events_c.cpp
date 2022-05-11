@@ -605,7 +605,13 @@ class events_dcp_p : public events_p {};
  * @brief      When passed a valid event handle, handle and flag.
  *             It returns FPGA_OK for dcp only.
  */
-TEST_P(events_dcp_p, invalid_port_event_request){
+TEST_P(events_dcp_p, invalid_port_event_request) {
+  test_device device = platform_.devices[0];
+  if (!device.has_afu) {
+    // No AFU means no interrupts.
+    GTEST_SKIP();
+  }
+
   int port_op = FPGA_IRQ_ASSIGN;
   auto res = send_port_event_request(accel_, eh_, port_op);
   EXPECT_EQ(FPGA_OK, res) << "\t result is " << res;

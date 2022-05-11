@@ -450,7 +450,5 @@ GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(mmio_c_p);
 INSTANTIATE_TEST_SUITE_P(mmio_c, mmio_c_p,
                          ::testing::ValuesIn(test_platform::platforms({
                                                                         "dfl-d5005",
-                                                                        "dfl-n3000",
-                                                                        "dfl-n6000-sku0",
-                                                                        "dfl-n6000-sku1"
+                                                                        "dfl-n3000"
                                                                       })));

@@ -52,30 +52,37 @@ class TestSysObject(unittest.TestCase):
         cls.system.finalize()
 
     def test_token_object(self):
-        afuid = self.afu_toks[0].afu_id.bytes()[:-1]
-        afu_guid = self.platform.devices[0].afu_guid
-        u1 = uuid.UUID(afuid)
-        u2 = uuid.UUID(afu_guid)
-        assert u1 == u2
-        afuid2 = self.afu_toks[0]["afu_id"].bytes()[:-1]
-        assert afuid == afuid2
-        self.assertEquals(self.afu_toks[0].wrong, None)
-        with self.assertRaises(RuntimeError):
-            print(self.afu_toks[0]['../fpga'].read64())
+        if len(self.afu_toks) > 0:
+            if hasattr(self.afu_toks[0], 'afu_id'):
+                if self.afu_toks[0].afu_id:
+                    afuid = self.afu_toks[0].afu_id.bytes()[:-1]
+                    afu_guid = self.platform.devices[0].afu_guid
+                    u1 = uuid.UUID(afuid)
+                    u2 = uuid.UUID(afu_guid)
+                    assert u1 == u2
+                    afuid2 = self.afu_toks[0]["afu_id"].bytes()[:-1]
+                    assert afuid == afuid2
+                    self.assertEquals(self.afu_toks[0].wrong, None)
+                    with self.assertRaises(RuntimeError):
+                        print(self.afu_toks[0]['../fpga'].read64())
 
     def test_handle_object(self):
-        afuid = self.afu_handle.afu_id.bytes()[:-1]
-        afu_guid = self.platform.devices[0].afu_guid
-        u1 = uuid.UUID(afuid)
-        u2 = uuid.UUID(afu_guid)
-        assert u1 == u2
+        if self.afu_handle:
+            if hasattr(self.afu_handle, 'afu_id'):
+                if self.afu_handle.afu_id:
+                    afuid = self.afu_handle.afu_id.bytes()[:-1]
+                    afu_guid = self.platform.devices[0].afu_guid
+                    u1 = uuid.UUID(afuid)
+                    u2 = uuid.UUID(afu_guid)
+                    assert u1 == u2
 
     def test_object_object(self):
-        pr = self.fme_handle.find('dfl-fme-region.*/fpga_region/region*')
-        compat_id = pr.compat_id
-        u1 = uuid.UUID(compat_id.bytes()[:-1])
-        u2 = uuid.UUID(self.platform.devices[0].fme_guid)
-        assert u1 == u2
+        if len(self.platform.devices) > 0:
+            pr = self.fme_handle.find('dfl-fme-region.*/fpga_region/region*')
+            compat_id = pr.compat_id
+            u1 = uuid.UUID(compat_id.bytes()[:-1])
+            u2 = uuid.UUID(self.platform.devices[0].fme_guid)
+            assert u1 == u2
 
     def test_object_read64(self):
         errors = self.afu_handle.errors

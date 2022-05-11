@@ -445,6 +445,13 @@ TEST_P(enum_c_p, device_neg) {
  */
 TEST_P(enum_c_p, function) {
   test_device device = platform_.devices[0];
+  if (!device.has_afu) {
+    // The assumptions below are based on the old-style Port which
+    // would detach and then increment its device ID. These conditions
+    // don't hold for the new hardware style with HEMs.
+    GTEST_SKIP();
+  }
+
   ASSERT_EQ(fpgaPropertiesSetFunction(filter_, device.function), FPGA_OK);
   matches_ = 0;
   EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1,
@@ -532,6 +539,13 @@ TEST_P(enum_c_p, vendor_id_neg) {
  */
 TEST_P(enum_c_p, device_id) {
   test_device device = platform_.devices[0];
+  if (!device.has_afu) {
+    // The assumptions below are based on the old-style Port which
+    // would detach and then increment its device ID. These conditions
+    // don't hold for the new hardware style with HEMs.
+    GTEST_SKIP();
+  }
+
   ASSERT_EQ(fpgaPropertiesSetDeviceID(filter_, device.device_id), FPGA_OK);
   matches_ = 0;
   EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1,
@@ -998,6 +1012,12 @@ TEST_P(enum_c_p, state_neg) {
  */
 TEST_P(enum_c_p, num_mmio) {
   test_device device = platform_.devices[0];
+  if (!device.has_afu) {
+    // If the Port doesn't contain an AFU, then there are no
+    // MMIO regions.
+    GTEST_SKIP();
+  }
+
   system_->register_ioctl_handler(DFL_FPGA_PORT_GET_INFO, dfl_port_info);
 
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter_, FPGA_ACCELERATOR), FPGA_OK);

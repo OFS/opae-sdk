@@ -273,7 +273,6 @@ TEST_P(openclose_c_p, invalid_close) {
  *
  * @brief      When the flags parameter to xfpga_fpgaOpen is valid, it 
  *             returns FPGA_OK.  
- *             the function returns FPGA_INVALID_PARAM.
  *
  */
 TEST_P(openclose_c_p, close_03) {
@@ -285,8 +284,11 @@ TEST_P(openclose_c_p, close_03) {
   system_->register_ioctl_handler(DFL_FPGA_PORT_GET_REGION_INFO, mmio_ioctl);
   EXPECT_TRUE(mmio_map_is_empty(((struct _fpga_handle*)accel_)->mmio_root));
 
-  ASSERT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(accel_, 0, &mmio_ptr));
-  EXPECT_NE(mmio_ptr,nullptr);
+  test_device device = platform_.devices[0];
+  if (device.has_afu) {
+    ASSERT_EQ(FPGA_OK, xfpga_fpgaMapMMIO(accel_, 0, &mmio_ptr));
+    EXPECT_NE(mmio_ptr,nullptr);
+  }
 
   res = xfpga_fpgaClose(accel_);
   EXPECT_EQ(res, FPGA_OK);
