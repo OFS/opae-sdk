@@ -282,7 +282,8 @@ INSTANTIATE_TEST_SUITE_P(sysfsinit_c, sysfsinit_c_p,
                          ::testing::ValuesIn(test_platform::platforms({
                                                                         "dfl-d5005",
                                                                         "dfl-n3000",
-                                                                        "dfl-n6000-sku0"
+                                                                        "dfl-n6000-sku0",
+                                                                        "dfl-n6000-sku1"
                                                                       })));
 
 class sysfs_c_p : public opae_device_p<xfpga_> {
@@ -622,7 +623,8 @@ INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_c_hw_p,
                          ::testing::ValuesIn(test_platform::hw_platforms({
                                                                            "dfl-d5005",
                                                                            "dfl-n3000",
-                                                                           "dfl-n6000-sku0"
+                                                                           "dfl-n6000-sku0",
+                                                                           "dfl-n6000-sku1"
                                                                          })));
 
 class sysfs_c_mock_p : public sysfs_c_p {};
@@ -926,7 +928,8 @@ INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_dfl_c_mock_p,
                          ::testing::ValuesIn(test_platform::mock_platforms({
                                                                              "dfl-d5005",
                                                                              "dfl-n3000",
-                                                                             "dfl-n6000-sku0"
+                                                                             "dfl-n6000-sku0",
+                                                                             "dfl-n6000-sku1"
                                                                            })));
 
 class sysfs_power_mock_p : public sysfs_c_mock_p {};
@@ -958,7 +961,8 @@ INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_power_mock_p,
                          ::testing::ValuesIn(test_platform::mock_platforms({
                                                                              "dfl-d5005",
                                                                              "dfl-n3000",
-                                                                             "dfl-n6000-sku0"
+                                                                             "dfl-n6000-sku0",
+                                                                             "dfl-n6000-sku1"
                                                                            })));
 
 class sysfs_bmc_mock_p : public sysfs_c_mock_p {};
@@ -1305,7 +1309,8 @@ INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_sockid_c_p,
                          ::testing::ValuesIn(test_platform::platforms({
                                                                         "dfl-d5005",
                                                                         "dfl-n3000",
-                                                                        "dfl-n6000-sku0"
+                                                                        "dfl-n6000-sku0",
+                                                                        "dfl-n6000-sku1"
                                                                       })));
 
 /**
