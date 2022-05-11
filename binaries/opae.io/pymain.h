@@ -35,13 +35,13 @@ import pdb
 import sys
 import libvfio
 
-from opae.io import utils
+from opae.io import utils, pci
 from opae.io.utils import Path
 
 def default_parser():
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('command', nargs='?')
-    parser.add_argument('-d', '--device', type=utils.pci_address)
+    parser.add_argument('-d', '--device', type=pci.pci_address)
     parser.add_argument('-r', '--region', type=int, default=0)
     parser.add_argument('-a', '--access-mode', type=int, default=64, choices=[64, 32])
     parser.add_argument('--version', action='store_true', default=False)
@@ -85,11 +85,16 @@ class base_action(object):
 
 class ls_action(base_action):
     def add_args(self):
-        self.parser.add_argument('-v', '--viddid', default={}, type=utils.vendev)
+        self.parser.add_argument('-v', '--viddid', default={}, type=pci.vendev)
+        self.parser.add_argument('-s', '--sub-viddid', default={}, type=pci.vendev)
         self.parser.add_argument('--all', action='store_true', default=False)
+        self.parser.add_argument('--system-class', action='store_true', default=False)
 
     def execute(self, args):
-        utils.ls(all=args.all, **args.viddid)
+        kwargs = args.viddid
+        kwargs.update(dict((f'subsystem_{k}', v)
+                           for k,v in args.sub_viddid.items()))
+        utils.ls(all=args.all, system_class=args.system_class, **kwargs)
         raise SystemExit(0)
 
 class init_action(base_action):
@@ -232,7 +237,7 @@ def show_help():
       "opae.io"
       "opae.io -v | --version"
       "opae.io -h | --help"
-      "opae.io ls [-v | --viddid <VID:DID>]"
+      "opae.io ls [-v | --viddid <VID:DID>] [-s | --sub-viddid <SVID:SDID>] [--all] [--system-class]"
       "opae.io [-d | --device <PCI_ADDRESS>] [-r | --region <REGION_NUMBER>] [-a <ACCESS_MODE>] [init | release | peek | poke | <script> [arg1...argN]]
       "opae.io init [-d <PCI_ADDRESS>] <USER>[:<GROUP>]"
       "opae.io release [-d <PCI_ADDRESS>]"
