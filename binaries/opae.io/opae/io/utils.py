@@ -293,10 +293,27 @@ dfh0_bits = [
 
 dfh0 = register('dfh0', bits=dfh0_bits)
 
+dfh1_bits = [
+        ('reserved0', c_uint64, 12),
+        ('rev', c_uint64, 4),
+        ('next', c_uint64, 24),
+        ('eol', c_uint64, 1),
+        ('reserved', c_uint64, 7),
+        ('rev_minor', c_uint64, 4),
+        ('dfh_version', c_uint64, 8),
+        ('feature_type', c_uint64, 4)
+]
 
-def dfh_walk(region, offset=0, header=dfh0, guid=None):
+dfh1 = register('dfh1', bits=dfh1_bits)
+
+
+def dfh_walk(region, offset=0, header=None, guid=None):
     while True:
-        h = header(region, offset)
+        h = dfh1(region, offset)
+        if header:
+            h = header(region, offset, h.value)
+        elif h.dfh_version == 0:
+            h = dfh0(region, offset, h.value)
         if guid is None or guid == read_guid(region, offset+0x8):
             yield offset, h
         if h.bits.eol or not h.bits.next:
