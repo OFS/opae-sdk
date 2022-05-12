@@ -30,6 +30,7 @@ Priority: optional
 Architecture: any
 Multi-Arch: same
 Depends: opae (= ${binary:Version}),
+         libssl-dev,
          ${python3:Depends}, ${shlibs:Depends}, ${misc:Depends}
 Description: OPAE headers, sample source, and documentation
 

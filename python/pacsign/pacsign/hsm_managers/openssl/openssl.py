@@ -292,36 +292,43 @@ class openssl:
     # Look for something like: OpenSSL 1.1.1d FIPS  10 Sep 2019
     def _find_openssl_so(self, versions):
         for link, vers in versions:
+            dll = None
+
             try:
                 dll = CDLL(link)
             except OSError:
-                common_util.assert_in_error(False, LIBCRYPTO_MSG)
-                return None
+                log.warn('CDLL(%s) failed', link)
+                continue
 
             if dll is None:
-                log.warn('could not open: %s', crypto)
-                return None
+                log.warn('could not open: %s', link)
+                continue
+
             try:
                 dll.OpenSSL_version.argtypes = [c_int]
                 dll.OpenSSL_version.restype = c_char_p
             except AttributeError:
-                log.debug('"%s: does not have OpenSSL_version', crypto)
-                return None
+                log.debug('"%s: does not have OpenSSL_version', link)
+                continue
 
             c_version = dll.OpenSSL_version(0).decode("utf-8")
+
             m = OPENSSL_VERSION_RE.match(c_version)
             if m is None:
                 log.warn('"%s" is not a valid OpenSSL version', c_version)
                 return None
 
-            if m.group('version')[:-1] == vers:
+            if c_version == vers:
                 log.info('OpenSSL version "%s" matches "%s"', c_version, vers)
                 return dll
 
             log.debug('OpenSSL version "%s" fails to match "%s"',
                       c_version, vers)
 
-    def __init__(self, versions=[('libcrypto.so.1.1', '1.1.1')]):
+        common_util.assert_in_error(False, LIBCRYPTO_MSG)
+
+    def __init__(self, versions=[('libcrypto.so.1.1', '1.1.1'),
+                                 ('libcrypto.so.3', 'OpenSSL 3.0.2 15 Mar 2022')]):
         self.nanotime = None
 
         if _platform == "win32" or _platform == "win64":
