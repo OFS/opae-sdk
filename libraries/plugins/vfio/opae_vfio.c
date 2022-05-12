@@ -761,6 +761,8 @@ fpga_result vfio_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 		OPAE_ERR("Invalid properties object");
 		return FPGA_INVALID_PARAM;
 	}
+	_prop->valid_fields = 0;
+
 	_prop->vendor_id = t->device->vendor;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_VENDORID);
 
@@ -798,6 +800,9 @@ fpga_result vfio_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_INTERFACE);
 
 	if (t->hdr.objtype == FPGA_ACCELERATOR) {
+		vfio_pair_t *pair = NULL;
+		fpga_result res;
+
 		_prop->parent = NULL;
 		CLEAR_FIELD_VALID(_prop, FPGA_PROPERTY_PARENT);
 
@@ -806,6 +811,21 @@ fpga_result vfio_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 
 		_prop->u.accelerator.num_mmio = t->user_mmio_count;
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_MMIO);
+
+		_prop->u.accelerator.num_interrupts = t->num_afu_irqs;
+		SET_FIELD_VALID(_prop, FPGA_PROPERTY_NUM_INTERRUPTS);
+
+		SET_FIELD_VALID(_prop, FPGA_PROPERTY_ACCELERATOR_STATE);
+		res = open_vfio_pair(t->device->addr, &pair);
+		if (res == FPGA_OK) {
+			close_vfio_pair(&pair);
+			_prop->u.accelerator.state =
+				t->afu_state = FPGA_ACCELERATOR_UNASSIGNED;
+		} else {
+			_prop->u.accelerator.state =
+				t->afu_state = FPGA_ACCELERATOR_ASSIGNED;
+		}
+
 	} else {
 		memcpy(_prop->guid, t->compat_id, sizeof(fpga_guid));
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_GUID);
@@ -817,7 +837,7 @@ fpga_result vfio_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 			FPGA_BBS_VER_MAJOR(t->bitstream_id);
 		_prop->u.fpga.bbs_version.minor =
 			FPGA_BBS_VER_MINOR(t->bitstream_id);
-		_prop->u.fpga.bbs_version.major =
+		_prop->u.fpga.bbs_version.patch =
 			FPGA_BBS_VER_PATCH(t->bitstream_id);
 		SET_FIELD_VALID(_prop, FPGA_PROPERTY_BBSVERSION);
 
