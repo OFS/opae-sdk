@@ -40,9 +40,13 @@ VENDOR_DEVICE_RE = re.compile(VENDOR_DEVICE_PATTERN, re.IGNORECASE)
 
 pci_id = namedtuple(
     'pci_id', [
-        'vendor', 'device', 'subsystem_vendor', 'subsystem_device'], defaults=[
-            0, 0])
-pci_id.short = lambda i: pci_id(i.vendor, i.device)
+        'vendor', 'device', 'subsystem_vendor', 'subsystem_device'])
+
+pci_id.short = lambda i: pci_id(i.vendor, i.device, 0, 0)
+
+
+def make_id(vendor, device, s_vendor=0, s_device=0):
+    return pci_id(vendor, device, s_vendor, s_device)
 
 
 SYSFS_PCI_DEVICES = '/sys/bus/pci/devices'
@@ -155,7 +159,10 @@ class device:
             except FileNotFoundError:
                 values[a] = 0
         if values:
-            return pci_id(**values)
+            return pci_id(values['vendor'],
+                          values['device'],
+                          values['subsystem_vendor'],
+                          values['subsystem_device'])
         return None
 
 
