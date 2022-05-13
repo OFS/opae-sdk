@@ -99,7 +99,7 @@ class ls_action(base_action):
 
 class init_action(base_action):
     def add_args(self):
-        self.parser.add_argument('user_group', default='root:root')
+        self.parser.add_argument('user_group', default='root:root', nargs='?')
 
     def execute(self, args):
         if not self.device:
