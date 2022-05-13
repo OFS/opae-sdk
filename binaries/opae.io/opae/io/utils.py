@@ -108,7 +108,7 @@ def put_dev_dict(file_name, dev_dict):
 
 
 def vfio_init(pci_addr, new_owner=''):
-    vid_did = vid_did_for_address(pci_addr)
+    vid_did = pci.vid_did_for_address(pci_addr)
     driver = get_bound_driver(pci_addr)
 
     msg = '(0x{:04x},0x{:04x}) at {}'.format(
@@ -168,7 +168,7 @@ def vfio_init(pci_addr, new_owner=''):
 
 
 def vfio_release(pci_addr):
-    vid_did = vid_did_for_address(pci_addr)
+    vid_did = pci.vid_did_for_address(pci_addr)
     driver = get_bound_driver(pci_addr)
 
     msg = '(0x{:04x},0x{:04x}) at {}'.format(
