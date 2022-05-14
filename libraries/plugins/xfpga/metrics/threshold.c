@@ -358,13 +358,13 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		return FPGA_EXCEPTION;
 	}
 
-	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
+	int gres = opae_glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if ((gres) || (1 != pglob.gl_pathc)) {
 		OPAE_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
-		globfree(&pglob);
+		opae_globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
-	globfree(&pglob);
+	opae_globfree(&pglob);
 
 
 	// scan sensors
@@ -374,10 +374,10 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		return FPGA_EXCEPTION;
 	}
 
-	gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
+	gres = opae_glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		OPAE_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
-		globfree(&pglob);
+		opae_globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
 
@@ -394,7 +394,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		result = read_sensor_sysfs_file(pglob.gl_pathv[i], SENSOR_SYSFS_NAME, (void **)&tmp, &tot_bytes);
 		if (FPGA_OK != result || !tmp) {
 			if (tmp) {
-				free(tmp);
+				opae_free(tmp);
 				tmp = NULL;
 			}
 			continue;
@@ -405,7 +405,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 		memcpy(metric_thresholds[i].metric_name, tmp, len);
 		metric_thresholds[i].metric_name[len] = '\0';
 		if (tmp) {
-			free(tmp);
+			opae_free(tmp);
 			tmp = NULL;
 		}
 
@@ -492,6 +492,6 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 	} //end for loop
 
 out:
-	globfree(&pglob);
+	opae_globfree(&pglob);
 	return result;
 }

@@ -447,7 +447,7 @@ STATIC fpga_result sync_afu(struct dev_list *afu)
 	afu->accelerator_num_mmios = 0;
 	afu->accelerator_num_irqs = 0;
 
-	res = open(afu->devpath, O_RDWR);
+	res = opae_open(afu->devpath, O_RDWR);
 	if (-1 == res) {
 		afu->accelerator_state = FPGA_ACCELERATOR_ASSIGNED;
 	} else {
@@ -459,7 +459,7 @@ STATIC fpga_result sync_afu(struct dev_list *afu)
 				afu->accelerator_num_irqs = info.num_uafu_irqs;
 		}
 
-		close(res);
+		opae_close(res);
 
 		afu->accelerator_state = FPGA_ACCELERATOR_UNASSIGNED;
 	}
@@ -676,7 +676,7 @@ struct _fpga_token *token_add(struct dev_list *dev)
 	if (snprintf(errpath, sizeof(errpath),
 		     "%s/errors", dev->sysfspath) < 0) {
 		OPAE_ERR("snprintf buffer overflow");
-		free(_tok);
+		opae_free(_tok);
 		return NULL;
 	}
 
@@ -772,7 +772,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 					result = FPGA_NO_MEMORY;
 
 					for (i = 0 ; i < *num_matches ; ++i)
-						free(tokens[i]);
+						opae_free(tokens[i]);
 					*num_matches = 0;
 
 					goto out_free_trash;
@@ -787,7 +787,7 @@ out_free_trash:
 	for (lptr = head.next; NULL != lptr;) {
 		struct dev_list *trash = lptr;
 		lptr = lptr->next;
-		free(trash);
+		opae_free(trash);
 	}
 
 	return result;
@@ -809,7 +809,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaCloneToken(fpga_token src, fpga_token *dst)
 		return FPGA_INVALID_PARAM;
 	}
 
-	_dst = calloc(1, sizeof(struct _fpga_token));
+	_dst = opae_calloc(1, sizeof(struct _fpga_token));
 	if (NULL == _dst) {
 		OPAE_MSG("Failed to allocate memory for token");
 		return FPGA_NO_MEMORY;
@@ -854,13 +854,13 @@ fpga_result __XFPGA_API__ xfpga_fpgaDestroyToken(fpga_token *token)
 	while (err) {
 		struct error_list *trash = err;
 		err = err->next;
-		free(trash);
+		opae_free(trash);
 	}
 
 	// invalidate token header (just in case)
 	memset(&_token->hdr, 0, sizeof(_token->hdr));
 
-	free(*token);
+	opae_free(*token);
 	*token = NULL;
 
 	return FPGA_OK;

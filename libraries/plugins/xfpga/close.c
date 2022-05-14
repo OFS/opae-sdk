@@ -71,9 +71,9 @@ fpga_result __XFPGA_API__ xfpga_fpgaClose(fpga_handle handle)
 	// free metric enum vector
 	free_fpga_enum_metrics_vector(_handle);
 
-	close(_handle->fddev);
+	opae_close(_handle->fddev);
 	if (_handle->fdfpgad >= 0)
-		close(_handle->fdfpgad);
+		opae_close(_handle->fdfpgad);
 
 	// invalidate magic (just in case)
 	_handle->magic = FPGA_INVALID_MAGIC;
@@ -87,7 +87,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaClose(fpga_handle handle)
 		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
 	}
 
-	free(_handle);
+	opae_free(_handle);
 
 	return FPGA_OK;
 }

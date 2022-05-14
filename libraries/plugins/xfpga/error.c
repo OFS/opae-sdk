@@ -248,7 +248,7 @@ build_error_list(const char *path, struct error_list **list)
 
 	// now we've added one to length
 
-	dir = opendir(path);
+	dir = opae_opendir(path);
 	if (!dir) {
 		OPAE_MSG("unable to open %s", path);
 		return 0;
@@ -306,7 +306,7 @@ build_error_list(const char *path, struct error_list **list)
 			continue;
 
 		// append error info to list
-		struct error_list *new_entry = malloc(sizeof(struct error_list));
+		struct error_list *new_entry = opae_malloc(sizeof(struct error_list));
 		if (!new_entry) {
 			OPAE_MSG("can't allocate memory");
 			n--;
@@ -363,7 +363,7 @@ build_error_list(const char *path, struct error_list **list)
 			*el = new_entry;
 		el = &new_entry->next;
 	}
-	closedir(dir);
+	opae_closedir(dir);
 
 	return n;
 }
@@ -379,7 +379,7 @@ struct error_list *clone_error_list(struct error_list *src)
 	struct error_list **plist = &clone;
 
 	while (src) {
-		struct error_list *p = malloc(sizeof(struct error_list));
+		struct error_list *p = opae_malloc(sizeof(struct error_list));
 		if (!p) {
 			OPAE_ERR("malloc failed");
 			goto free_list;
@@ -400,7 +400,7 @@ free_list:
 	while (clone) {
 		struct error_list *trash = clone;
 		clone = clone->next;
-		free(trash);
+		opae_free(trash);
 	}
 	return NULL;
 }

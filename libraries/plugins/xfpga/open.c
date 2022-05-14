@@ -70,7 +70,7 @@ xfpga_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 		return FPGA_INVALID_PARAM;
 	}
 
-	_handle = malloc(sizeof(struct _fpga_handle));
+	_handle = opae_malloc(sizeof(struct _fpga_handle));
 	if (NULL == _handle) {
 		OPAE_MSG("Failed to allocate memory for handle");
 		return FPGA_NO_MEMORY;
@@ -106,7 +106,7 @@ xfpga_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 
 	// Open resources in exclusive mode unless FPGA_OPEN_SHARED is given
 	open_flags = O_RDWR | ((flags & FPGA_OPEN_SHARED) ? 0 : O_EXCL);
-	fddev = open(_token->devpath, open_flags);
+	fddev = opae_open(_token->devpath, open_flags);
 	if (-1 == fddev) {
 		OPAE_MSG("open(%s) failed: %s", _token->devpath, strerror(errno));
 		switch (errno) {
@@ -162,10 +162,10 @@ out_free:
 out_free2:
 	wsid_tracker_cleanup(_handle->mmio_root, NULL);
 out_free1:
-	free(_handle);
+	opae_free(_handle);
 
 	if (-1 != fddev) {
-		close(fddev);
+		opae_close(fddev);
 	}
 
 	return result;

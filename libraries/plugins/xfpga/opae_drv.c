@@ -286,7 +286,7 @@ fpga_result intel_port_set_user_irq(int fd, uint32_t flags, uint32_t start,
 			"flags currently not supported in FPGA_FME_ERR_SET_IRQ");
 	}
 
-	irq = malloc(sz);
+	irq = opae_malloc(sz);
 	if (!irq) {
 		OPAE_ERR("Could not allocate memory for irq request");
 		return FPGA_NO_MEMORY;
@@ -301,7 +301,7 @@ fpga_result intel_port_set_user_irq(int fd, uint32_t flags, uint32_t start,
 
 	res = opae_ioctl(fd, FPGA_PORT_UAFU_SET_IRQ, irq);
 
-	free(irq);
+	opae_free(irq);
 	return res;
 }
 
@@ -481,7 +481,7 @@ fpga_result dfl_set_irq(int fd, uint32_t start,
 		return FPGA_INVALID_PARAM;
 	}
 
-	irq = malloc(sz);
+	irq = opae_malloc(sz);
 
 	if (!irq) {
 		OPAE_ERR("Could not allocate memory for irq request");
@@ -497,7 +497,7 @@ fpga_result dfl_set_irq(int fd, uint32_t start,
 		OPAE_ERR("Ioctl error=%d", res);
 	}
 
-	free(irq);
+	opae_free(irq);
 	return res;
 }
 

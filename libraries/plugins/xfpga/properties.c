@@ -82,7 +82,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetProperties(fpga_token token,
 	return result;
 
 out_free:
-	free(_prop);
+	opae_free(_prop);
 	return result;
 }
 
@@ -217,7 +217,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 		_iprop.u.accelerator.num_mmio = 0;
 		_iprop.u.accelerator.num_interrupts = 0;
 
-		res = open(_token->devpath, O_RDWR);
+		res = opae_open(_token->devpath, O_RDWR);
 		if (-1 == res) {
 			_iprop.u.accelerator.state = FPGA_ACCELERATOR_ASSIGNED;
 		} else {
@@ -235,7 +235,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaUpdateProperties(fpga_token token,
 				}
 			}
 
-			close(res);
+			opae_close(res);
 			_iprop.u.accelerator.state =
 				FPGA_ACCELERATOR_UNASSIGNED;
 		}
