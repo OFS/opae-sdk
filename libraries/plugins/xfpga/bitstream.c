@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -38,6 +38,7 @@
 
 #include "common_int.h"
 #include "bitstream_int.h"
+#include "mock/opae_std.h"
 
 #define METADATA_GUID "58656F6E-4650-4741-B747-425376303031"
 #define METADATA_GUID_LEN 16

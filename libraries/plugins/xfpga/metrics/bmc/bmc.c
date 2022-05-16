@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -32,6 +32,7 @@
 #define _TIMESPEC_DEFINED
 #include "../../types_int.h"
 #include "bmcdata.h"
+#include "mock/opae_std.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <string.h>

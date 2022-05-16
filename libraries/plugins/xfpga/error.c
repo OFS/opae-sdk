@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -37,6 +37,7 @@
 #include "opae/error.h"
 
 #include "error_int.h"
+#include "mock/opae_std.h"
 
 #define INJECT_ERROR "inject_error"
 

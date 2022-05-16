@@ -37,7 +37,7 @@
 
 #include "fpga_user_clk.h"
 #include "fpga_user_clk_freq.h"
-
+#include "mock/opae_std.h"
 
 // user clock sysfs
 #define  IOPLL_CLOCK_FREQ             "dfl*/userclk/frequency"

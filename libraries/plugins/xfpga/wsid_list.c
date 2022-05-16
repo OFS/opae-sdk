@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include "wsid_list_int.h"
+#include "mock/opae_std.h"
 
 /*
  * The code here assumes the caller handles any required mutexes.

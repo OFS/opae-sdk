@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -44,6 +44,7 @@
 #include "opae_drv.h"
 #include "types_int.h"
 #include "intel-fpga.h"
+#include "mock/opae_std.h"
 
 #define EVENT_SOCKET_NAME "/tmp/fpga_event_socket"
 #define EVENT_SOCKET_NAME_LEN 23

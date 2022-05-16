@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -57,6 +57,7 @@
 #include "metrics/vector.h"
 #include "xfpga.h"
 #include "metrics_max10.h"
+#include "mock/opae_std.h"
 
 // Max10 Metric limits
 #define THERMAL_HIGH_LIMIT             300.00

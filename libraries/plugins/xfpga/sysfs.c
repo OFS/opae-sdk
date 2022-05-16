@@ -49,6 +49,7 @@
 #include "types_int.h"
 #include "sysfs_int.h"
 #include "common_int.h"
+#include "mock/opae_std.h"
 
 // substring that identifies a sysfs directory as the FME device.
 #define FPGA_SYSFS_FME "fme"

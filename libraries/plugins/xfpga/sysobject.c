@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -36,6 +36,7 @@
 #include "common_int.h"
 #include "sysfs_int.h"
 #include "types_int.h"
+#include "mock/opae_std.h"
 #include <opae/types_enum.h>
 #include <opae/sysobject.h>
 #include <opae/log.h>

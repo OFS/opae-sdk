@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -37,6 +37,7 @@
 #include "props.h"
 #include "error_int.h"
 #include "opae_drv.h"
+#include "mock/opae_std.h"
 
 
 fpga_result __XFPGA_API__

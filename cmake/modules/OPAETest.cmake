@@ -52,7 +52,7 @@ function(opae_test_add)
         "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     if(OPAE_ENABLE_MOCK)
-        set(MOCK_C ${opae-test_ROOT}/framework/mock/mock.c)
+        set(MOCK_C ${opae-test_ROOT}/framework/mock/mock.c ${opae-test_ROOT}/framework/mock/opae_std.c)
     endif()
 
     add_executable(${OPAE_TEST_ADD_TARGET}
@@ -136,7 +136,9 @@ function(opae_test_add_static_lib)
         PRIVATE
             ${OPAE_LIB_SOURCE}
 	    ${OPAE_LIB_SOURCE}/plugins/xfpga
-	    ${OPAE_LIB_SOURCE}/libopae-c)
+	    ${OPAE_LIB_SOURCE}/libopae-c
+            ${opae-test_ROOT}/framework
+    )
 
     set_property(TARGET ${OPAE_TEST_ADD_STATIC_LIB_TARGET}
         PROPERTY

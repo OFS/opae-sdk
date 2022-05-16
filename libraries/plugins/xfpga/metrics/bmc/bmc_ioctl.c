@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -31,6 +31,7 @@
 #include <opae/fpga.h>
 #include "bmc.h"
 #include "bmcdata.h"
+#include "mock/opae_std.h"
 #include <sys/types.h>
 #include <string.h>
 #ifndef _WIN32

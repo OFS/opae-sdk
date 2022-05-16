@@ -795,11 +795,75 @@ char *test_system::realpath(const char *inp, char *dst)
   return retvalue;
 }
 
+void *test_system::malloc(size_t size) {
+  if (_invalidate_malloc) {
+    if (!_invalidate_malloc_when_called_from) {
+      if (!_invalidate_malloc_after) {
+        _invalidate_malloc = false;
+        return nullptr;
+      }
+
+      --_invalidate_malloc_after;
+
+    } else {
+      void *caller = __builtin_return_address(0);
+      int res;
+      Dl_info info;
+
+      dladdr(caller, &info);
+      if (!info.dli_sname)
+        res = 1;
+      else
+        res = strcmp(info.dli_sname, _invalidate_malloc_when_called_from);
+
+      if (!_invalidate_malloc_after && !res) {
+        _invalidate_malloc = false;
+        _invalidate_malloc_when_called_from = nullptr;
+        return nullptr;
+      } else if (!res)
+        --_invalidate_malloc_after;
+    }
+  }
+  return __libc_malloc(size);
+}
+
 void test_system::invalidate_malloc(uint32_t after,
                                     const char *when_called_from) {
   _invalidate_malloc = true;
   _invalidate_malloc_after = after;
   _invalidate_malloc_when_called_from = when_called_from;
+}
+
+void *test_system::calloc(size_t nmemb, size_t size) {
+  if (_invalidate_calloc) {
+    if (!_invalidate_calloc_when_called_from) {
+      if (!_invalidate_calloc_after) {
+        _invalidate_calloc = false;
+        return nullptr;
+      }
+
+      --_invalidate_calloc_after;
+
+    } else {
+      void *caller = __builtin_return_address(0);
+      int res;
+      Dl_info info;
+
+      dladdr(caller, &info);
+      if (!info.dli_sname)
+        res = 1;
+      else
+        res = strcmp(info.dli_sname, _invalidate_calloc_when_called_from);
+
+      if (!_invalidate_calloc_after && !res) {
+        _invalidate_calloc = false;
+        _invalidate_calloc_when_called_from = nullptr;
+        return nullptr;
+      } else if (!res)
+        --_invalidate_calloc_after;
+    }
+  }
+  return __libc_calloc(nmemb, size);
 }
 
 void test_system::invalidate_calloc(uint32_t after,

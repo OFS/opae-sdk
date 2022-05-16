@@ -42,6 +42,7 @@
 #include "error_int.h"
 #include "props.h"
 #include "opae_drv.h"
+#include "mock/opae_std.h"
 
 
 struct dev_list {

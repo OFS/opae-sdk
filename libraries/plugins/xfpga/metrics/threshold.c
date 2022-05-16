@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -49,6 +49,7 @@
 #include "metrics_int.h"
 #include "metrics_max10.h"
 #include "threshold.h"
+#include "mock/opae_std.h"
 
 
 fpga_result xfpga_fpgaGetMetricsThresholdInfo(fpga_handle handle,
