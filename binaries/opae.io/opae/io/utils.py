@@ -312,7 +312,7 @@ def dfh_walk(region, offset=0, header=None, guid=None):
         h = dfh1(region, offset)
         if header:
             h = header(region, offset, h.value)
-        elif h.dfh_version == 0:
+        elif h.bits.dfh_version == 0:
             h = dfh0(region, offset, h.value)
         if guid is None or guid == read_guid(region, offset+0x8):
             yield offset, h
