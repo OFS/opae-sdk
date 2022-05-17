@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2022, Intel Corporation
+// Copyright(c) 2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -23,72 +23,60 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
-
-#include <opae/access.h>
-#include "common_int.h"
-#include "wsid_list_int.h"
-#include "metrics/metrics_int.h"
-#include "mock/opae_std.h"
-
+#ifndef __OPAE_STD_H__
+#define __OPAE_STD_H__
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <errno.h>
+#include <unistd.h>
+#include <stdarg.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <dirent.h>
+#include <glob.h>
+#include <limits.h>
 
-STATIC void unmap_mmio_region(struct wsid_map *wm)
-{
-	if (munmap((void *)wm->offset, wm->len)) {
-		OPAE_MSG("munmap failed: %s",
-			 strerror(errno));
-	}
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
+void *opae_malloc(size_t size);
+void *opae_calloc(size_t nmemb, size_t size);
+void opae_free(void *ptr);
+
+int opae_open(const char *path, int flags);
+int opae_open_create(const char *path, int flags, mode_t mode);
+int opae_ioctl(int fd, unsigned long request, ...);
+int opae_close(int fd);
+
+FILE *opae_fopen(const char *path, const char *mode);
+int opae_fclose(FILE *stream);
+
+DIR *opae_opendir(const char *name);
+int opae_scandir(const char *dirp,
+		 struct dirent ***namelist,
+		 int (*filter)(const struct dirent * ),
+		 int (*compar)(const struct dirent ** , const struct dirent **));
+int opae_closedir(DIR *dirp);
+
+ssize_t opae_readlink(const char *pathname, char *buf, size_t bufsiz);
+
+int opae_lstat(const char *pathname, struct stat *statbuf);
+
+int opae_glob(const char *pattern,
+	      int flags,
+	      int (*errfunc)(const char *epath, int eerrno),
+	      glob_t *pglob);
+void opae_globfree(glob_t *pglob);
+
+char *opae_realpath(const char *path, char *resolved_path);
+
+#ifdef __cplusplus
 }
+#endif // __cplusplus
 
-fpga_result __XFPGA_API__ xfpga_fpgaClose(fpga_handle handle)
-{
-	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
-	fpga_result result = FPGA_OK;
-	int err = 0;
-
-	result = handle_check_and_lock(_handle);
-	if (result)
-		return result;
-
-	if (-1 == _handle->fddev) {
-		OPAE_ERR("Invalid handle file descriptor");
-		err = pthread_mutex_unlock(&_handle->lock);
-		if (err) {
-			OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-		}
-		return FPGA_INVALID_PARAM;
-	}
-
-	wsid_tracker_cleanup(_handle->wsid_root, NULL);
-	wsid_tracker_cleanup(_handle->mmio_root, unmap_mmio_region);
-	free_umsg_buffer(handle);
-
-	// free metric enum vector
-	free_fpga_enum_metrics_vector(_handle);
-
-	opae_close(_handle->fddev);
-	if (_handle->fdfpgad >= 0)
-		opae_close(_handle->fdfpgad);
-
-	// invalidate magic (just in case)
-	_handle->magic = FPGA_INVALID_MAGIC;
-
-	err = pthread_mutex_unlock(&_handle->lock);
-	if (err) {
-		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-	}
-	err = pthread_mutex_destroy(&_handle->lock);
-	if (err) {
-		OPAE_ERR("pthread_mutex_unlock() failed: %S", strerror(err));
-	}
-
-	opae_free(_handle);
-
-	return FPGA_OK;
-}
+#endif // __OPAE_STD_H__

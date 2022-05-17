@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -44,6 +44,7 @@
 #include "opae_drv.h"
 #include "types_int.h"
 #include "intel-fpga.h"
+#include "mock/opae_std.h"
 
 #define EVENT_SOCKET_NAME "/tmp/fpga_event_socket"
 #define EVENT_SOCKET_NAME_LEN 23
@@ -524,7 +525,7 @@ STATIC fpga_result daemon_register_event(fpga_handle handle,
 	return result;
 
 out_close_conn:
-	close(_handle->fdfpgad);
+	opae_close(_handle->fdfpgad);
 	_handle->fdfpgad = -1;
 	return result;
 }
@@ -578,7 +579,7 @@ STATIC fpga_result daemon_unregister_event(fpga_handle handle,
 	return result;
 
 out_close_conn:
-	close(_handle->fdfpgad);
+	opae_close(_handle->fdfpgad);
 	_handle->fdfpgad = -1;
 	return result;
 }
@@ -593,7 +594,7 @@ xfpga_fpgaCreateEventHandle(fpga_event_handle *event_handle)
 
 	ASSERT_NOT_NULL(event_handle);
 
-	_eh = malloc(sizeof(struct _fpga_event_handle));
+	_eh = opae_malloc(sizeof(struct _fpga_event_handle));
 	if (NULL == _eh) {
 		OPAE_ERR("Could not allocate memory for event handle");
 		return FPGA_NO_MEMORY;
@@ -639,7 +640,7 @@ out_attr_destroy:
 			 strerror(err));
 
 out_free:
-	free(_eh);
+	opae_free(_eh);
 	return result;
 }
 
@@ -684,7 +685,7 @@ xfpga_fpgaDestroyEventHandle(fpga_event_handle *event_handle)
 	if (err)
 		OPAE_ERR("pthread_mutex_destroy() failed: %S", strerror(err));
 
-	free(*event_handle);
+	opae_free(*event_handle);
 	*event_handle = NULL;
 	return FPGA_OK;
 }

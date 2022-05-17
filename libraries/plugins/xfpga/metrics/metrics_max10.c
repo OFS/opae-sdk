@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -57,6 +57,7 @@
 #include "metrics/vector.h"
 #include "xfpga.h"
 #include "metrics_max10.h"
+#include "mock/opae_std.h"
 
 // Max10 Metric limits
 #define THERMAL_HIGH_LIMIT             300.00
@@ -94,20 +95,20 @@ fpga_result read_sensor_sysfs_file(const char *sysfs, const char *file,
 	}
 
 	glob_t pglob;
-	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
+	int gres = opae_glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if ((gres) || (1 != pglob.gl_pathc)) {
-		globfree(&pglob);
+		opae_globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
 
-	fd = open(pglob.gl_pathv[0], O_RDONLY);
-	globfree(&pglob);
+	fd = opae_open(pglob.gl_pathv[0], O_RDONLY);
+	opae_globfree(&pglob);
 	if (fd < 0) {
 		return FPGA_NOT_FOUND;
 	}
 
 	if (fstat(fd, &stats) != 0) {
-		close(fd);
+		opae_close(fd);
 		return FPGA_NOT_FOUND;
 	}
 
@@ -128,11 +129,11 @@ fpga_result read_sensor_sysfs_file(const char *sysfs, const char *file,
 		tot_bytes += bytes_read;
 	} while ((tot_bytes < stats.st_size) && (bytes_read > 0));
 
-	close(fd);
+	opae_close(fd);
 
 	if ((tot_bytes > stats.st_size) || (bytes_read < 0)) {
 		res = FPGA_EXCEPTION;
-		free(*buf);
+		opae_free(*buf);
 		*buf = NULL;
 		goto out;
 	}
@@ -195,17 +196,17 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 	}
 
 
-	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
+	int gres = opae_glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if ((gres) || (1 != pglob.gl_pathc)) {
 		OPAE_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
-		globfree(&pglob);
+		opae_globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
 
 	len = strnlen(pglob.gl_pathv[0], sizeof(group_sysfs) - 1);
 	memcpy(group_sysfs, pglob.gl_pathv[0], len);
 	group_sysfs[len] = '\0';
-	globfree(&pglob);
+	opae_globfree(&pglob);
 
 	// Enum sensors
 	if (strlen(sysfspath) + sizeof(DFL_MAX10_SYSFS_LABEL) >= SYSFS_PATH_MAX) {
@@ -215,10 +216,10 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 	}
 	strncat(sysfspath, DFL_MAX10_SYSFS_LABEL, strlen(DFL_MAX10_SYSFS_LABEL) + 1);
 
-	gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
+	gres = opae_glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		OPAE_ERR("Failed pattern match %s: %s", sysfspath, strerror(errno));
-		globfree(&pglob);
+		opae_globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
 
@@ -230,7 +231,7 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 		result = read_sensor_sysfs_file(pglob.gl_pathv[i], NULL, (void **)&tmp, &tot_bytes);
 		if (FPGA_OK != result || !tmp) {
 			if (tmp) {
-				free(tmp);
+				opae_free(tmp);
 				tmp = NULL;
 			}
 			continue;
@@ -244,7 +245,7 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 			metric_name[len - 1] = '\0';
 
 		if (tmp) {
-			free(tmp);
+			opae_free(tmp);
 			tmp = NULL;
 		}
 
@@ -351,7 +352,7 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 	} // end for loop
 
 out:
-	globfree(&pglob);
+	opae_globfree(&pglob);
 	return result;
 }
 

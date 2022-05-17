@@ -37,7 +37,7 @@
 
 #include "fpga_user_clk.h"
 #include "fpga_user_clk_freq.h"
-
+#include "mock/opae_std.h"
 
 // user clock sysfs
 #define  IOPLL_CLOCK_FREQ             "dfl*/userclk/frequency"
@@ -507,12 +507,12 @@ fpga_result get_usrclk_uio(const char *sysfs_path,
 		return FPGA_EXCEPTION;
 	}
 
-	gres = glob(feature_path, GLOB_NOSORT, NULL, &pglob);
+	gres = opae_glob(feature_path, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		OPAE_ERR("Failed pattern match %s: %s",
 			feature_path, strerror(errno));
 		if (pglob.gl_pathv)
-			globfree(&pglob);
+			opae_globfree(&pglob);
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -557,7 +557,7 @@ fpga_result get_usrclk_uio(const char *sysfs_path,
 
 free:
 	if (pglob.gl_pathv)
-		globfree(&pglob);
+		opae_globfree(&pglob);
 	return res;
 }
 
@@ -681,7 +681,7 @@ fpga_result set_userclock(const char *sysfs_path,
 	ret = using_iopll(sysfs_usrpath, sysfs_path);
 	if (ret == FPGA_OK) {
 
-		fd = open(sysfs_usrpath, O_WRONLY);
+		fd = opae_open(sysfs_usrpath, O_WRONLY);
 		if (fd < 0) {
 			OPAE_MSG("open(%s) failed: %s",
 				sysfs_usrpath, strerror(errno));
@@ -692,10 +692,10 @@ fpga_result set_userclock(const char *sysfs_path,
 		bytes_written = eintr_write(fd, bufp, cnt);
 		if (bytes_written != cnt) {
 			OPAE_ERR("Failed to write: %s", strerror(errno));
-			close(fd);
+			opae_close(fd);
 			return FPGA_EXCEPTION;
 		}
-		close(fd);
+		opae_close(fd);
 
 		return FPGA_OK;
 	} else if (ret == FPGA_NO_ACCESS) {
@@ -756,10 +756,10 @@ static int using_iopll(char *sysfs_usrpath, const char *sysfs_path)
 		return FPGA_EXCEPTION;
 	}
 
-	res = glob(sysfs_usrpath, 0, NULL, &iopll_glob);
+	res = opae_glob(sysfs_usrpath, 0, NULL, &iopll_glob);
 	if (res) {
 		if (iopll_glob.gl_pathv)
-			globfree(&iopll_glob);
+			opae_globfree(&iopll_glob);
 		return FPGA_NOT_FOUND;
 	}
 
@@ -770,7 +770,7 @@ static int using_iopll(char *sysfs_usrpath, const char *sysfs_path)
 	memcpy(sysfs_usrpath, iopll_glob.gl_pathv[0], len);
 	sysfs_usrpath[len] = '\0';
 
-	globfree(&iopll_glob);
+	opae_globfree(&iopll_glob);
 
 	if (access(sysfs_usrpath, F_OK | R_OK | W_OK) != 0) {
 		OPAE_ERR("Unable to access sysfs frequency file");

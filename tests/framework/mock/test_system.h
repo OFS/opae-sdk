@@ -157,7 +157,10 @@ class test_system {
   void hijack_sched_setaffinity(int return_val, uint32_t after=0,
                                 const char *when_called_from=nullptr);
 
+  void *malloc(size_t size);
   void invalidate_malloc(uint32_t after=0, const char *when_called_from=nullptr);
+
+  void *calloc(size_t nmemb, size_t size);
   void invalidate_calloc(uint32_t after=0, const char *when_called_from=nullptr);
 
   bool default_ioctl_handler(int request, ioctl_handler_t);

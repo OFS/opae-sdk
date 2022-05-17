@@ -54,7 +54,8 @@ set(SRC
   metrics/afu_metrics.c
   metrics/vector.c
   metrics/metrics_max10.c
-  metrics/threshold.c)
+  metrics/threshold.c
+  ${opae-test_ROOT}/framework/mock/opae_std.c)
 
 opae_add_module_library(TARGET xfpga
     SOURCE ${SRC}
@@ -69,4 +70,8 @@ opae_add_module_library(TARGET xfpga
     COMPONENT opaeclib
 )
 
-target_include_directories(xfpga PRIVATE ${OPAE_LIB_SOURCE}/libopae-c)
+target_include_directories(xfpga
+    PRIVATE
+        ${OPAE_LIB_SOURCE}/libopae-c
+        ${opae-test_ROOT}/framework
+)
