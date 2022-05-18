@@ -1066,7 +1066,7 @@ fpga_result sysfs_read_int(const char *path, int *i)
 
 	fd = opae_open(path, O_RDONLY);
 	if (fd < 0) {
-		OPAE_MSG("open(%s) failed", path);
+		OPAE_MSG("opae_open(%s) failed", path);
 		return FPGA_NOT_FOUND;
 	}
 
@@ -1118,7 +1118,7 @@ fpga_result sysfs_read_u32(const char *path, uint32_t *u)
 
 	fd = opae_open(path, O_RDONLY);
 	if (fd < 0) {
-		OPAE_MSG("open(%s) failed", path);
+		OPAE_MSG("opae_open(%s) failed", path);
 		return FPGA_NOT_FOUND;
 	}
 
@@ -1179,7 +1179,7 @@ fpga_result sysfs_read_u32_pair(const char *path, uint32_t *u1, uint32_t *u2,
 
 	fd = opae_open(path, O_RDONLY);
 	if (fd < 0) {
-		OPAE_MSG("open(%s) failed", path);
+		OPAE_MSG("opae_open(%s) failed", path);
 		return FPGA_NOT_FOUND;
 	}
 
@@ -1246,7 +1246,7 @@ fpga_result sysfs_read_u64(const char *path, uint64_t *u)
 
 	fd = opae_open(path, O_RDONLY);
 	if (fd < 0) {
-		OPAE_MSG("open(%s) failed", path);
+		OPAE_MSG("opae_open(%s) failed", path);
 		return FPGA_NOT_FOUND;
 	}
 
@@ -1297,7 +1297,7 @@ fpga_result sysfs_write_u64(const char *path, uint64_t u)
 
 	fd = opae_open(path, O_WRONLY);
 	if (fd < 0) {
-		OPAE_MSG("open(%s) failed: %s", path, strerror(errno));
+		OPAE_MSG("opae_open(%s) failed: %s", path, strerror(errno));
 		return FPGA_NOT_FOUND;
 	}
 
@@ -1348,7 +1348,7 @@ fpga_result sysfs_write_u64_decimal(const char *path, uint64_t u)
 
 	fd = opae_open(path, O_WRONLY);
 	if (fd < 0) {
-		OPAE_MSG("open(%s) failed: %s", path, strerror(errno));
+		OPAE_MSG("opae_open(%s) failed: %s", path, strerror(errno));
 		return FPGA_NOT_FOUND;
 	}
 
@@ -1401,7 +1401,7 @@ fpga_result sysfs_read_guid(const char *path, fpga_guid guid)
 
 	fd = opae_open(path, O_RDONLY);
 	if (fd < 0) {
-		OPAE_MSG("open(%s) failed", path);
+		OPAE_MSG("opae_open(%s) failed", path);
 		return FPGA_NOT_FOUND;
 	}
 

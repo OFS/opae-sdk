@@ -683,7 +683,7 @@ fpga_result set_userclock(const char *sysfs_path,
 
 		fd = opae_open(sysfs_usrpath, O_WRONLY);
 		if (fd < 0) {
-			OPAE_MSG("open(%s) failed: %s",
+			OPAE_MSG("opae_open(%s) failed: %s",
 				sysfs_usrpath, strerror(errno));
 			return FPGA_NOT_FOUND;
 		}

@@ -109,7 +109,7 @@ xfpga_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 	open_flags = O_RDWR | ((flags & FPGA_OPEN_SHARED) ? 0 : O_EXCL);
 	fddev = opae_open(_token->devpath, open_flags);
 	if (-1 == fddev) {
-		OPAE_MSG("open(%s) failed: %s", _token->devpath, strerror(errno));
+		OPAE_MSG("opae_open(%s) failed: %s", _token->devpath, strerror(errno));
 		switch (errno) {
 		case EACCES:
 			result = FPGA_NO_ACCESS;
