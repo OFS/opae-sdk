@@ -286,7 +286,7 @@ build_error_list(const char *path, struct error_list **list)
 		strncpy(basedir + len, de->d_name, subpath_len + 1);
 
 		// try accessing file/dir
-		if (lstat(basedir, &st) == -1) {
+		if (opae_lstat(basedir, &st) == -1) {
 			OPAE_MSG("can't stat %s", basedir);
 			continue;
 		}
@@ -331,7 +331,7 @@ build_error_list(const char *path, struct error_list **list)
 			!stat(FPGA_SYSFS_CLASS_PATH_INTEL, &st)) {
 			strncpy(basedir + len, "clear", 6);
 			// try accessing clear file
-			if (lstat(basedir, &st) != -1) {
+			if (opae_lstat(basedir, &st) != -1) {
 				new_entry->info.can_clear = true;
 				memcpy(new_entry->clear_file, basedir, blen);
 				new_entry->clear_file[blen] = '\0';
@@ -342,7 +342,7 @@ build_error_list(const char *path, struct error_list **list)
 					memcpy(basedir + len, de->d_name, dlen);
 					*(basedir + len + dlen) = '\0';
 					// try accessing clear file
-					if (lstat(basedir, &st) != -1) {
+					if (opae_lstat(basedir, &st) != -1) {
 						new_entry->info.can_clear = true;
 						memcpy(new_entry->clear_file, basedir, blen);
 						new_entry->clear_file[blen] = '\0';

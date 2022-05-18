@@ -662,7 +662,7 @@ xfpga_fpgaDestroyEventHandle(fpga_event_handle *event_handle)
 	if (result)
 		return result;
 
-	if (close(_eh->fd) < 0) {
+	if (opae_close(_eh->fd) < 0) {
 		OPAE_ERR("eventfd : %s", strerror(errno));
 		err = pthread_mutex_unlock(&_eh->lock);
 		if (err)

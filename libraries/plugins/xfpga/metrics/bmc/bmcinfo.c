@@ -143,7 +143,7 @@ static size_t max_base_units = (sizeof(base_units) / sizeof(base_units[0]));
 Values *bmc_build_values(sensor_reading *reading, sdr_header *header,
 			 sdr_key *key, sdr_body *body)
 {
-	Values *val = (Values *)calloc(1, sizeof(Values));
+	Values *val = (Values *)opae_calloc(1, sizeof(Values));
 
 	(void)header;
 

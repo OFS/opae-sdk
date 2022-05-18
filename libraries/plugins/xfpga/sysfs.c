@@ -1042,7 +1042,7 @@ fpga_result sysfs_get_fme_path(const char *sysfs_port, char *sysfs_fme)
 		return result;
 
 	// copy the assembled and verified path to the output param
-	if (!realpath(sysfs_path, sysfs_fme))
+	if (!opae_realpath(sysfs_path, sysfs_fme))
 		return FPGA_EXCEPTION;
 
 	return FPGA_OK;
@@ -1683,7 +1683,7 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 
 
 	// copy the assembled and verified path to the output param
-	if (!realpath(sysfs_path, sysfs_port)) {
+	if (!opae_realpath(sysfs_path, sysfs_port)) {
 		return FPGA_EXCEPTION;
 	}
 

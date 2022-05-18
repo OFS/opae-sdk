@@ -97,7 +97,7 @@ fpga_result opae_internal_ioctl(int fd, int request, ...)
 	va_start(argp, request);
 	void *msg = va_arg(argp, void *);
 	errno = 0;
-	if (ioctl(fd, request, msg) != 0) {
+	if (opae_ioctl(fd, request, msg) != 0) {
 		OPAE_MSG("error executing ioctl: %s", strerror(errno));
 		switch (errno) {
 		case EINVAL:

@@ -295,7 +295,7 @@ STATIC struct dev_list *add_dev(const char *sysfspath, const char *devpath,
 	struct dev_list *pdev;
 	size_t len;
 
-	pdev = (struct dev_list *)calloc(1, sizeof(*pdev));
+	pdev = (struct dev_list *)opae_calloc(1, sizeof(*pdev));
 	if (NULL == pdev)
 		return NULL;
 
@@ -668,7 +668,7 @@ struct _fpga_token *token_add(struct dev_list *dev)
 		return NULL;
 	}
 
-	_tok = (struct _fpga_token *)malloc(sizeof(struct _fpga_token));
+	_tok = (struct _fpga_token *)opae_malloc(sizeof(struct _fpga_token));
 	if (!_tok) {
 		OPAE_ERR("malloc failed");
 		return NULL;
