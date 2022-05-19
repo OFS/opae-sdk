@@ -50,6 +50,23 @@ enum {
 };
 
 enum {
+  TG_DATA_FIXED    = 0,
+  TG_DATA_PRBS7    = 1,
+  TG_DATA_PRBS15   = 2,
+  TG_DATA_PRBS31   = 3,
+  TG_DATA_ROTATING = 4
+};
+
+const std::map<std::string, uint32_t> tg_pattern = {
+  { "fixed",  TG_DATA_FIXED},
+  { "prbs7",  TG_DATA_PRBS7},
+  { "prbs15", TG_DATA_PRBS15},
+  { "prbs31", TG_DATA_PRBS31},
+  { "rot1",   TG_DATA_PRBS31},
+};
+
+  
+enum {
   AFU_DFH         = 0x0000,
   AFU_ID_L        = 0x0008,
   AFU_ID_H        = 0x0010,
@@ -153,6 +170,10 @@ public:
     app_.add_option("--stride", stride_, "Address stride for each sequential transaction")
       ->default_val("1");
 
+    // Data pattern
+    app_.add_option("--data", pattern_, "Memory traffic data pattern: fixed, prbs7, prbs15, prbs31, rot1")
+      ->transform(CLI::CheckedTransformer(tg_pattern))->default_val("fixed");
+
     // AFU memory clock speed
     app_.add_option("-f,--mem-frequency", mem_speed_, "Memory traffic clock frequency in MHz")
       ->default_val("0");
@@ -169,7 +190,6 @@ public:
     try {
       while (count < count_) {
         logger_->debug("starting iteration: {0:d}", count+1);
-        handle_->reset();
         res = test_afu::run(app, test);
         count++;
         logger_->debug("end iteration: {0:d}", count);
@@ -180,7 +200,6 @@ public:
       logger_->error(ex.what());
       res = exit_codes::exception;
     }
-    handle_->reset();
     auto pass = res == exit_codes::success ? "PASS" : "FAIL";
     logger_->info("Test {}({}): {}", test->name(), count, pass);
     spdlog::drop_all();
@@ -195,6 +214,7 @@ public:
   uint32_t rcnt_;
   uint32_t bcnt_;
   uint32_t stride_;
+  uint32_t pattern_;
   uint32_t mem_speed_;
 
   std::map<uint32_t, uint32_t> limits_;

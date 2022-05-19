@@ -72,6 +72,7 @@ public:
       std::cout << "Mem Clock Cycles: " << std::dec << num_ticks << std::endl;
       uint64_t write_bytes = 64 * (tg_exe_->loop_*tg_exe_->wcnt_*tg_exe_->bcnt_);
       uint64_t read_bytes  = 64 * (tg_exe_->loop_*tg_exe_->rcnt_*tg_exe_->bcnt_);
+
       std::cout << "Write BW: " << bw_calc(write_bytes,num_ticks) << " GB/s" << std::endl;
       std::cout << "Read BW: "  << bw_calc(read_bytes,num_ticks)  << " GB/s" << std::endl;
     }
@@ -96,8 +97,16 @@ public:
 	  std::cout << "TG TIMEOUT" << std::endl;
 	  return false;
 	}
+	uint32_t tg_fail_exp  = 0;
+	uint32_t tg_fail_act  = 0;
+	uint64_t tg_fail_addr = 0;
+
 	if (tg_status == TG_STATUS_ERROR) {
 	  std::cout << "TG ERROR" << std::endl;
+	  tg_fail_addr = tg_exe_->read64(tg_offset_ + TG_FIRST_FAIL_ADDR_L);
+	  tg_fail_exp  = tg_exe_->read64(tg_offset_ + TG_FAIL_EXPECTED_DATA);
+	  tg_fail_act  = tg_exe_->read64(tg_offset_ + TG_FAIL_READ_DATA);
+	  std::cout << "Failed at address 0x" << std::hex << tg_fail_addr << " exp=0x" << tg_fail_exp << " act=0x" << tg_fail_act << std::endl;
 	  return false;
 	}
 	std::cout << "TG PASS" << std::endl;
@@ -123,6 +132,7 @@ public:
 	tg_exe_->write32(tg_offset_+TG_READ_COUNT,  tg_exe_->rcnt_);
 	tg_exe_->write32(tg_offset_+TG_BURST_LENGTH, tg_exe_->bcnt_);
 	tg_exe_->write32(tg_offset_+TG_SEQ_ADDR_INCR, tg_exe_->stride_);
+	tg_exe_->write32(tg_offset_+TG_PPPG_SEL, tg_exe_->pattern_);
 
 	// address increment mode
 	tg_exe_->write32(tg_offset_+TG_ADDR_MODE_WR, TG_ADDR_SEQ);
