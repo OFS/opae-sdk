@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -45,6 +45,7 @@
 #include <opae/utils.h>
 #include "pluginmgr.h"
 #include "opae_int.h"
+#include "mock/opae_std.h"
 
 /* global loglevel */
 static int g_loglevel = OPAE_DEFAULT_LOGLEVEL;
@@ -185,7 +186,7 @@ __attribute__((constructor(1000))) STATIC void opae_init(void)
 	s = getenv("LIBOPAE_LOGFILE");
 	if (s) {
 		if (s[0] != '/' || !strncmp(s, "/tmp/", 5)) {
-			g_logfile = fopen(s, "w");
+			g_logfile = opae_fopen(s, "w");
 			if (g_logfile == NULL) {
 				fprintf(stderr,
 					"Could not open log file for writing: %s. ", s);
@@ -210,7 +211,7 @@ __attribute__((constructor(1000))) STATIC void opae_init(void)
 		if (res != FPGA_OK)
 			OPAE_ERR("fpgaInitialize: %s", fpgaErrStr(res));
 
-		free(cfg_path);
+		opae_free(cfg_path);
 	}
 	// If the environment hasn't requested explicit initialization,
 	// perform the initialization implicitly here.
@@ -227,7 +228,7 @@ __attribute__((destructor)) STATIC void opae_release(void)
 		OPAE_ERR("fpgaFinalize: %s", fpgaErrStr(res));
 
 	if (g_logfile != NULL && g_logfile != stdout) {
-		fclose(g_logfile);
+		opae_fclose(g_logfile);
 	}
 	g_logfile = NULL;
 }

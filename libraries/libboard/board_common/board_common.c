@@ -45,6 +45,7 @@
 #include <sys/ioctl.h>
 
 #include "board_common.h"
+#include "mock/opae_std.h"
 
 #define DFL_SYSFS_SEC_GLOB "*dfl*/*spi*/*spi*/*spi*/**/security/"
 #define DFL_SYSFS_SEC_USER_FLASH_COUNT         DFL_SYSFS_SEC_GLOB "*flash_count"
@@ -345,7 +346,7 @@ fpga_result sysfs_read_u64(const char *path, uint64_t *u)
 		return FPGA_INVALID_PARAM;
 	}
 
-	fd = open(path, O_RDONLY);
+	fd = opae_open(path, O_RDONLY);
 	if (fd < 0) {
 		OPAE_MSG("open(%s) failed", path);
 		return FPGA_NOT_FOUND;
@@ -357,7 +358,7 @@ fpga_result sysfs_read_u64(const char *path, uint64_t *u)
 	}
 
 	do {
-		res = read(fd, buf + b, sizeof(buf) - b);
+		res = opae_read(fd, buf + b, sizeof(buf) - b);
 		if (res <= 0) {
 			OPAE_MSG("Read from %s failed", path);
 			goto out_close;
@@ -375,11 +376,11 @@ fpga_result sysfs_read_u64(const char *path, uint64_t *u)
 
 	*u = strtoull(buf, NULL, 0);
 
-	close(fd);
+	opae_close(fd);
 	return FPGA_OK;
 
 out_close:
-	close(fd);
+	opae_close(fd);
 	return FPGA_NOT_FOUND;
 }
 
@@ -472,12 +473,12 @@ fpga_result find_dev_feature(fpga_token token,
 		return FPGA_EXCEPTION;
 	}
 
-	gres = glob(feature_path, GLOB_NOSORT, NULL, &pglob);
+	gres = opae_glob(feature_path, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		OPAE_ERR("Failed pattern match %s: %s",
 			feature_path, strerror(errno));
 		if (pglob.gl_pathv)
-			globfree(&pglob);
+			opae_globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
 	for (i = 0; i < pglob.gl_pathc; i++) {
@@ -512,7 +513,7 @@ fpga_result find_dev_feature(fpga_token token,
 
 free:
 	if (pglob.gl_pathv)
-		globfree(&pglob);
+		opae_globfree(&pglob);
 
 	return res;
 }

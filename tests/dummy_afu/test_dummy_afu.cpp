@@ -117,7 +117,7 @@ class dummy_afu_p : public opae_fpgad_p<> {
   }
 
   void clear_args() {
-    for (auto p : args_) free(p);
+    for (auto p : args_) opae_free(p);
     args_.clear();
   }
 

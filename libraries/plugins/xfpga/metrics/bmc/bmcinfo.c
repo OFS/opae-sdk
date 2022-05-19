@@ -43,6 +43,7 @@
 #include "bmcinfo.h"
 #include "bmcdata.h"
 #include <opae/fpga.h>
+#include "mock/opae_std.h"
 
 static wchar_t *base_units[] = {L"unspecified",
 				L"\x00b0\x0043", // degrees C
@@ -143,7 +144,7 @@ static size_t max_base_units = (sizeof(base_units) / sizeof(base_units[0]));
 Values *bmc_build_values(sensor_reading *reading, sdr_header *header,
 			 sdr_key *key, sdr_body *body)
 {
-	Values *val = (Values *)calloc(1, sizeof(Values));
+	Values *val = (Values *)opae_calloc(1, sizeof(Values));
 
 	(void)header;
 

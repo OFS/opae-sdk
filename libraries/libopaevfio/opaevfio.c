@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2021, Intel Corporation
+// Copyright(c) 2020-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -41,6 +41,7 @@
 #include <linux/pci_regs.h>
 
 #include <opae/vfio.h>
+#include "mock/opae_std.h"
 
 #define __SHORT_FILE__                                    \
 ({                                                        \
@@ -66,7 +67,7 @@ fprintf(stderr, "%s:%u:%s() **ERROR** [%s] : " format, \
 STATIC struct opae_vfio_sparse_info *
 opae_vfio_create_sparse_info(uint32_t index, uint32_t offset, uint32_t size)
 {
-	struct opae_vfio_sparse_info *p = malloc(sizeof(*p));
+	struct opae_vfio_sparse_info *p = opae_malloc(sizeof(*p));
 	if (p) {
 		p->next = NULL;
 		p->index = index;
@@ -86,7 +87,7 @@ STATIC void opae_vfio_destroy_sparse_info(struct opae_vfio_sparse_info *s)
 			if (munmap(trash->ptr, trash->size) < 0)
 				ERR("munmap failed\n");
 		}
-		free(trash);
+		opae_free(trash);
 	}
 }
 
@@ -97,7 +98,7 @@ opae_vfio_map_sparse_device_region(uint32_t index,
 				   size_t sz,
 				   struct opae_vfio_sparse_info *slist)
 {
-	struct opae_vfio_device_region *r = malloc(sizeof(*r));
+	struct opae_vfio_device_region *r = opae_malloc(sizeof(*r));
 	if (r) {
 		r->next = NULL;
 		r->region_index = index;
@@ -105,7 +106,7 @@ opae_vfio_map_sparse_device_region(uint32_t index,
 				     MAP_ANONYMOUS|MAP_PRIVATE,
 				     -1, 0);
 		if (r->region_ptr == MAP_FAILED) {
-			free(r);
+			opae_free(r);
 			return NULL;
 		}
 		r->region_size = sz;
@@ -130,7 +131,7 @@ opae_vfio_map_device_region(uint32_t index,
 			    uint64_t offset,
 			    size_t sz)
 {
-	struct opae_vfio_device_region *r = malloc(sizeof(*r));
+	struct opae_vfio_device_region *r = opae_malloc(sizeof(*r));
 	if (r) {
 		r->next = NULL;
 		r->region_index = index;
@@ -139,7 +140,7 @@ opae_vfio_map_device_region(uint32_t index,
 		r->region_size = sz;
 		r->region_sparse = NULL;
 		if (r->region_ptr == MAP_FAILED) {
-			free(r);
+			opae_free(r);
 			return NULL;
 		}
 	}
@@ -155,7 +156,7 @@ opae_vfio_destroy_device_region(struct opae_vfio_device_region *r)
 		if (munmap(trash->region_ptr, trash->region_size) < 0)
 			ERR("munmap failed\n");
 		opae_vfio_destroy_sparse_info(trash->region_sparse);
-		free(trash);
+		opae_free(trash);
 	}
 }
 
@@ -174,7 +175,7 @@ opae_vfio_device_get_sparse_info(struct opae_vfio_device *d,
 	if (!(rinfo->flags & VFIO_REGION_INFO_FLAG_CAPS))
 		return NULL;
 
-	buffer = malloc(rinfo->argsz);
+	buffer = opae_malloc(rinfo->argsz);
 	if (!buffer) {
 		ERR("malloc failed\n");
 		return NULL;
@@ -183,7 +184,7 @@ opae_vfio_device_get_sparse_info(struct opae_vfio_device *d,
 	memcpy(buffer, rinfo, sizeof(*rinfo));
 	rinfo_ptr = (struct vfio_region_info *) buffer;
 
-	if (ioctl(d->device_fd, VFIO_DEVICE_GET_REGION_INFO, buffer)) {
+	if (opae_ioctl(d->device_fd, VFIO_DEVICE_GET_REGION_INFO, buffer)) {
 		ERR("ioctl(%d, VFIO_DEVICE_GET_REGION_INFO, buffer)\n",
 		    d->device_fd);
 		goto out_free_buffer;
@@ -210,7 +211,7 @@ opae_vfio_device_get_sparse_info(struct opae_vfio_device *d,
 	}
 
 out_free_buffer:
-	free(buffer);
+	opae_free(buffer);
 
 	return sparse_list;
 }
@@ -220,7 +221,7 @@ opae_vfio_device_get_irq_info(uint32_t flags,
 			      uint32_t index,
 			      uint32_t count)
 {
-	struct opae_vfio_device_irq *irq = malloc(sizeof(*irq));
+	struct opae_vfio_device_irq *irq = opae_malloc(sizeof(*irq));
 	if (irq) {
 		irq->flags = flags;
 		irq->index = index;
@@ -239,10 +240,10 @@ opae_vfio_destroy_device_irq(struct opae_vfio_device_irq *i)
 		struct opae_vfio_device_irq *trash = i;
 		i = i->next;
 		if (trash->event_fds)
-			free(trash->event_fds);
+			opae_free(trash->event_fds);
 		if (trash->masks)
-			free(trash->masks);
-		free(trash);
+			opae_free(trash->masks);
+		opae_free(trash);
 	}
 }
 
@@ -255,7 +256,7 @@ STATIC void opae_vfio_device_destroy(struct opae_vfio_device *d)
 	d->irqs = NULL;
 
 	if (d->device_fd >= 0) {
-		close(d->device_fd);
+		opae_close(d->device_fd);
 		d->device_fd = -1;
 	}
 }
@@ -303,7 +304,7 @@ STATIC int opae_vfio_device_init(struct opae_vfio_device *d,
 		memcpy(arg, pciaddr, strlen(pciaddr) + 1);
 	}
 
-	d->device_fd = ioctl(group_fd, VFIO_GROUP_GET_DEVICE_FD, arg);
+	d->device_fd = opae_ioctl(group_fd, VFIO_GROUP_GET_DEVICE_FD, arg);
 	if (d->device_fd < 0) {
 		ERR("ioctl(%d, VFIO_GROUP_GET_DEVICE_FD, \"%s\")\n",
 		    group_fd, pciaddr);
@@ -314,7 +315,7 @@ STATIC int opae_vfio_device_init(struct opae_vfio_device *d,
 	region_info.argsz = sizeof(region_info);
 	region_info.index = VFIO_PCI_CONFIG_REGION_INDEX;
 
-	if (ioctl(d->device_fd, VFIO_DEVICE_GET_REGION_INFO, &region_info)) {
+	if (opae_ioctl(d->device_fd, VFIO_DEVICE_GET_REGION_INFO, &region_info)) {
 		ERR("ioctl(%d, VFIO_DEVICE_GET_REGION_INFO, &region_info)\n",
 		    d->device_fd);
 		return 3;
@@ -332,7 +333,7 @@ STATIC int opae_vfio_device_init(struct opae_vfio_device *d,
 	memset(&device_info, 0, sizeof(device_info));
 	device_info.argsz = sizeof(device_info);
 
-	if (ioctl(d->device_fd, VFIO_DEVICE_GET_INFO, &device_info)) {
+	if (opae_ioctl(d->device_fd, VFIO_DEVICE_GET_INFO, &device_info)) {
 		ERR("[%s] ioctl(%d, VFIO_DEVICE_GET_INFO, &device_info)\n",
 		    pciaddr, d->device_fd);
 		return 5;
@@ -348,7 +349,7 @@ STATIC int opae_vfio_device_init(struct opae_vfio_device *d,
 		region_info.argsz = sizeof(region_info);
 		region_info.index = i;
 
-		if (ioctl(d->device_fd,
+		if (opae_ioctl(d->device_fd,
 			  VFIO_DEVICE_GET_REGION_INFO,
 			  &region_info))
 			continue;
@@ -389,7 +390,7 @@ STATIC int opae_vfio_device_init(struct opae_vfio_device *d,
 		irq_info.argsz = sizeof(irq_info);
 		irq_info.index = i;
 
-		if (ioctl(d->device_fd,
+		if (opae_ioctl(d->device_fd,
 			  VFIO_DEVICE_GET_IRQ_INFO,
 			  &irq_info))
 			continue;
@@ -409,16 +410,16 @@ STATIC int opae_vfio_device_init(struct opae_vfio_device *d,
 STATIC void opae_vfio_group_destroy(struct opae_vfio_group *g)
 {
 	if (g->group_fd >= 0) {
-		if (ioctl(g->group_fd, VFIO_GROUP_UNSET_CONTAINER)) {
+		if (opae_ioctl(g->group_fd, VFIO_GROUP_UNSET_CONTAINER)) {
 			ERR("ioctl(%d, VFIO_GROUP_UNSET_CONTAINER)\n",
 			    g->group_fd);
 		}
-		close(g->group_fd);
+		opae_close(g->group_fd);
 		g->group_fd = -1;
 	}
 
 	if (g->group_device) {
-		free(g->group_device);
+		opae_free(g->group_device);
 		g->group_device = NULL;
 	}
 }
@@ -437,7 +438,7 @@ STATIC int opae_vfio_group_init(struct opae_vfio_group *g,
 		goto out_destroy;
 	}
 
-	g->group_fd = open(g->group_device, O_RDWR);
+	g->group_fd = opae_open(g->group_device, O_RDWR);
 	if (g->group_fd < 0) {
 		ERR("open(\"%s\", O_RDWR)\n", g->group_device);
 		res = 2;
@@ -447,7 +448,7 @@ STATIC int opae_vfio_group_init(struct opae_vfio_group *g,
 	memset(&group_status, 0, sizeof(group_status));
 	group_status.argsz = sizeof(group_status);
 
-	if (ioctl(g->group_fd, VFIO_GROUP_GET_STATUS, &group_status)) {
+	if (opae_ioctl(g->group_fd, VFIO_GROUP_GET_STATUS, &group_status)) {
 		ERR("ioctl(%d, VFIO_GROUP_GET_STATUS, &group_status)\n",
 		    g->group_fd);
 		res = 3;
@@ -472,7 +473,7 @@ STATIC void opae_vfio_destroy_iova_range(struct opae_vfio_iova_range *r)
 	while (r) {
 		struct opae_vfio_iova_range *trash = r;
 		r = r->next;
-		free(trash);
+		opae_free(trash);
 	}
 }
 
@@ -493,17 +494,17 @@ STATIC void opae_vfio_destroy(struct opae_vfio *v)
 	mem_alloc_destroy(&v->iova_alloc);
 
 	if (v->cont_fd >= 0) {
-		close(v->cont_fd);
+		opae_close(v->cont_fd);
 		v->cont_fd = -1;
 	}
 
 	if (v->cont_device) {
-		free(v->cont_device);
+		opae_free(v->cont_device);
 		v->cont_device = NULL;
 	}
 
 	if (v->cont_pciaddr) {
-		free(v->cont_pciaddr);
+		opae_free(v->cont_pciaddr);
 		v->cont_pciaddr = NULL;
 	}
 
@@ -518,7 +519,7 @@ STATIC struct opae_vfio_iova_range *
 opae_vfio_create_iova_range(uint64_t start, uint64_t end)
 {
 	struct opae_vfio_iova_range *r;
-	r = malloc(sizeof(*r));
+	r = opae_malloc(sizeof(*r));
 	if (r) {
 		r->start = start;
 		r->end = end;
@@ -540,13 +541,13 @@ opae_vfio_iova_discover(struct opae_vfio *v)
 	memset(&iommu_info, 0, sizeof(iommu_info));
 	iommu_info.argsz = sizeof(iommu_info);
 
-	if (ioctl(v->cont_fd, VFIO_IOMMU_GET_INFO, &iommu_info)) {
+	if (opae_ioctl(v->cont_fd, VFIO_IOMMU_GET_INFO, &iommu_info)) {
 		ERR("ioctl(%d, VFIO_IOMMU_GET_INFO, &iommu_info\n",
 		    v->cont_fd);
 		return NULL;
 	}
 
-	info_buf = calloc(1, iommu_info.argsz);
+	info_buf = opae_calloc(1, iommu_info.argsz);
 	if (!info_buf) {
 		ERR("calloc(1, iommu_info.argsz)\n");
 		return NULL;
@@ -555,7 +556,7 @@ opae_vfio_iova_discover(struct opae_vfio *v)
 	info_ptr = (struct vfio_iommu_type1_info *) info_buf;
 	info_ptr->argsz = iommu_info.argsz;
 
-	if (ioctl(v->cont_fd, VFIO_IOMMU_GET_INFO, info_ptr)) {
+	if (opae_ioctl(v->cont_fd, VFIO_IOMMU_GET_INFO, info_ptr)) {
 		ERR("ioctl(%d, VFIO_IOMMU_GET_INFO, info_ptr)\n",
 		    v->cont_fd);
 		goto out_free;
@@ -597,7 +598,7 @@ opae_vfio_iova_discover(struct opae_vfio *v)
 	}
 
 out_free:
-	free(info_buf);
+	opae_free(info_buf);
 	return iova_list;
 }
 
@@ -622,7 +623,7 @@ opae_vfio_create_buffer(uint8_t *vaddr,
 			int flags)
 {
 	struct opae_vfio_buffer *b;
-	b = malloc(sizeof(*b));
+	b = opae_malloc(sizeof(*b));
 	if (b) {
 		b->buffer_ptr = vaddr;
 		b->buffer_size = size;
@@ -648,7 +649,7 @@ opae_vfio_destroy_buffer(struct opae_vfio *v,
 		dma_unmap.iova = trash->buffer_iova;
 		dma_unmap.size = trash->buffer_size;
 
-		if (ioctl(v->cont_fd, VFIO_IOMMU_UNMAP_DMA, &dma_unmap) < 0)
+		if (opae_ioctl(v->cont_fd, VFIO_IOMMU_UNMAP_DMA, &dma_unmap) < 0)
 			ERR("ioctl(%d, VFIO_IOMMU_UNMAP_DMA, &dma_unmap)\n",
 			    v->cont_fd);
 
@@ -661,7 +662,7 @@ opae_vfio_destroy_buffer(struct opae_vfio *v,
 			ERR("mem_alloc_put(..., 0x%lx) failed\n",
 			    trash->buffer_iova);
 
-		free(trash);
+		opae_free(trash);
 	}
 }
 
@@ -737,7 +738,7 @@ opae_vfio_buffer_mmap(struct opae_vfio *v,
 	dma_map.iova = ioaddr;
 	dma_map.flags = VFIO_DMA_MAP_FLAG_READ|VFIO_DMA_MAP_FLAG_WRITE;
 
-	if (ioctl(v->cont_fd, VFIO_IOMMU_MAP_DMA, &dma_map) < 0) {
+	if (opae_ioctl(v->cont_fd, VFIO_IOMMU_MAP_DMA, &dma_map) < 0) {
 		ERR("ioctl(%d, VFIO_IOMMU_MAP_DMA, &dma_map)\n", v->cont_fd);
 		mem_alloc_put(&v->iova_alloc, ioaddr);
 		res = 4;
@@ -764,7 +765,7 @@ out_unmap_ioctl:
 	dma_unmap.argsz = sizeof(dma_unmap);
 	dma_unmap.iova = ioaddr;
 	dma_unmap.size = *size;
-	ioctl(v->cont_fd, VFIO_IOMMU_UNMAP_DMA, &dma_unmap);
+	opae_ioctl(v->cont_fd, VFIO_IOMMU_UNMAP_DMA, &dma_unmap);
 out_munmap:
 	if (!(flags & OPAE_VFIO_BUF_PREALLOCATED))
 		munmap(vaddr, *size);
@@ -900,7 +901,7 @@ opae_vfio_device_set_irqs(struct opae_vfio *v,
 		if (!irq->event_fds) {
 
 			irq->event_fds =
-				(int32_t *)malloc(irq->count * sizeof(int32_t));
+				(int32_t *)opae_malloc(irq->count * sizeof(int32_t));
 			if (!irq->event_fds) {
 				ERR("malloc() failed\n");
 				return 5;
@@ -915,7 +916,7 @@ opae_vfio_device_set_irqs(struct opae_vfio *v,
 		if (!irq->masks) {
 
 			irq->masks =
-				(int32_t *)malloc(irq->count * sizeof(int32_t));
+				(int32_t *)opae_malloc(irq->count * sizeof(int32_t));
 			if (!irq->masks) {
 				ERR("malloc() failed\n");
 				return 6;
@@ -929,7 +930,7 @@ opae_vfio_device_set_irqs(struct opae_vfio *v,
 	}
 
 	sz = sizeof(*i) + (irq->count * sizeof(int32_t));
-	buf = malloc(sz);
+	buf = opae_malloc(sz);
 	if (!buf) {
 		ERR("malloc() failed\n");
 		return 7;
@@ -947,9 +948,9 @@ opae_vfio_device_set_irqs(struct opae_vfio *v,
 	else if (flags & VFIO_IRQ_SET_DATA_BOOL)
 		memcpy(&i->data, irq->masks, irq->count * sizeof(int32_t));
 
-	res = ioctl(v->device.device_fd, VFIO_DEVICE_SET_IRQS, i);
+	res = opae_ioctl(v->device.device_fd, VFIO_DEVICE_SET_IRQS, i);
 
-	free(buf);
+	opae_free(buf);
 
 	return res;
 }
@@ -1093,7 +1094,7 @@ STATIC char *opae_vfio_group_for(const char *pciaddr)
 		 "/sys/bus/pci/devices/%s/iommu_group", pciaddr);
 
 	memset(rlbuf, 0, sizeof(rlbuf));
-	if (readlink(path, rlbuf, sizeof(rlbuf)) < 0) {
+	if (opae_readlink(path, rlbuf, sizeof(rlbuf)) < 0) {
 		ERR("readlink() failed\n");
 		return strdup("ERROR");
 	}
@@ -1141,20 +1142,20 @@ STATIC int opae_vfio_init(struct opae_vfio *v,
 
 	v->cont_device = strdup("/dev/vfio/vfio");
 	v->cont_pciaddr = strdup(pciaddr);
-	v->cont_fd = open(v->cont_device, O_RDWR);
+	v->cont_fd = opae_open(v->cont_device, O_RDWR);
 	if (v->cont_fd < 0) {
 		ERR("open(\"%s\")\n", v->cont_device);
 		res = 4;
 		goto out_destroy_container;
 	}
 
-	if (ioctl(v->cont_fd, VFIO_GET_API_VERSION) != VFIO_API_VERSION) {
+	if (opae_ioctl(v->cont_fd, VFIO_GET_API_VERSION) != VFIO_API_VERSION) {
 		ERR("ioctl(%d, VFIO_GET_API_VERSION)\n", v->cont_fd);
 		res = 5;
 		goto out_destroy_container;
 	}
 
-	if (!ioctl(v->cont_fd, VFIO_CHECK_EXTENSION, VFIO_TYPE1_IOMMU)) {
+	if (!opae_ioctl(v->cont_fd, VFIO_CHECK_EXTENSION, VFIO_TYPE1_IOMMU)) {
 		ERR("ioctl(%d, VFIO_CHECK_EXTENSION, VFIO_TYPE1_IOMMU)\n",
 		    v->cont_fd);
 		res = 6;
@@ -1166,14 +1167,14 @@ STATIC int opae_vfio_init(struct opae_vfio *v,
 		goto out_destroy_container;
 
 	cont_fd = v->cont_fd;
-	if (ioctl(v->group.group_fd, VFIO_GROUP_SET_CONTAINER, &cont_fd)) {
+	if (opae_ioctl(v->group.group_fd, VFIO_GROUP_SET_CONTAINER, &cont_fd)) {
 		ERR("ioctl(%d, VFIO_GROUP_SET_CONTAINER, &cont_fd)\n",
 		    v->group.group_fd);
 		res = 7;
 		goto out_destroy_container;
 	}
 
-	if (ioctl(v->cont_fd, VFIO_SET_IOMMU, VFIO_TYPE1_IOMMU) < 0) {
+	if (opae_ioctl(v->cont_fd, VFIO_SET_IOMMU, VFIO_TYPE1_IOMMU) < 0) {
 		ERR("ioctl(%d, VFIO_SET_IOMMU, VFIO_TYPE1_IOMMU)\n",
 		    v->cont_fd);
 		res = 8;

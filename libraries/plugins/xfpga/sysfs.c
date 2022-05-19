@@ -618,7 +618,7 @@ int sysfs_initialize(void)
 
 	for (i = 0; i < OPAE_KERNEL_DRIVERS; ++i) {
 		errno = 0;
-		stat_res = stat(sysfs_path_table[i].sysfs_class_path, &st);
+		stat_res = opae_stat(sysfs_path_table[i].sysfs_class_path, &st);
 		if (!stat_res) {
 			_sysfs_format_ptr = &sysfs_path_table[i];
 			break;
@@ -1042,14 +1042,14 @@ fpga_result sysfs_get_fme_path(const char *sysfs_port, char *sysfs_fme)
 		return result;
 
 	// copy the assembled and verified path to the output param
-	if (!realpath(sysfs_path, sysfs_fme))
+	if (!opae_realpath(sysfs_path, sysfs_fme))
 		return FPGA_EXCEPTION;
 
 	return FPGA_OK;
 }
 
 //
-// sysfs access (read/write) functions
+// sysfs opae_access(read/write) functions
 //
 
 fpga_result sysfs_read_int(const char *path, int *i)
@@ -1078,7 +1078,7 @@ fpga_result sysfs_read_int(const char *path, int *i)
 	b = 0;
 
 	do {
-		res = read(fd, buf + b, sizeof(buf) - b);
+		res = opae_read(fd, buf + b, sizeof(buf) - b);
 		if (res <= 0) {
 			OPAE_MSG("Read from %s failed", path);
 			goto out_close;
@@ -1130,7 +1130,7 @@ fpga_result sysfs_read_u32(const char *path, uint32_t *u)
 	b = 0;
 
 	do {
-		res = read(fd, buf + b, sizeof(buf) - b);
+		res = opae_read(fd, buf + b, sizeof(buf) - b);
 		if (res <= 0) {
 			OPAE_MSG("Read from %s failed", path);
 			goto out_close;
@@ -1191,7 +1191,7 @@ fpga_result sysfs_read_u32_pair(const char *path, uint32_t *u1, uint32_t *u2,
 	b = 0;
 
 	do {
-		res = read(fd, buf + b, sizeof(buf) - b);
+		res = opae_read(fd, buf + b, sizeof(buf) - b);
 		if (res <= 0) {
 			OPAE_MSG("Read from %s failed", path);
 			goto out_close;
@@ -1256,7 +1256,7 @@ fpga_result sysfs_read_u64(const char *path, uint64_t *u)
 	}
 
 	do {
-		res = read(fd, buf + b, sizeof(buf) - b);
+		res = opae_read(fd, buf + b, sizeof(buf) - b);
 		if (res <= 0) {
 			OPAE_MSG("Read from %s failed", path);
 			goto out_close;
@@ -1413,7 +1413,7 @@ fpga_result sysfs_read_guid(const char *path, fpga_guid guid)
 	b = 0;
 
 	do {
-		res = read(fd, buf + b, sizeof(buf) - b);
+		res = opae_read(fd, buf + b, sizeof(buf) - b);
 		if (res <= 0) {
 			OPAE_MSG("Read from %s failed", path);
 			goto out_close;
@@ -1469,7 +1469,7 @@ fpga_result check_sysfs_path_is_valid(const char *sysfs_path)
 		return result;
 	}
 
-	if (stat(path, &stats) != 0) {
+	if (opae_stat(path, &stats) != 0) {
 		OPAE_ERR("stat failed: %s", strerror(errno));
 		return FPGA_NOT_FOUND;
 	}
@@ -1501,7 +1501,7 @@ fpga_result sysfs_path_is_valid(const char *root, const char *attr_path)
 		return result;
 	}
 
-	if (stat(path, &stats) != 0) {
+	if (opae_stat(path, &stats) != 0) {
 		OPAE_ERR("stat failed: %s", strerror(errno));
 		return FPGA_NOT_FOUND;
 	}
@@ -1683,7 +1683,7 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 
 
 	// copy the assembled and verified path to the output param
-	if (!realpath(sysfs_path, sysfs_port)) {
+	if (!opae_realpath(sysfs_path, sysfs_port)) {
 		return FPGA_EXCEPTION;
 	}
 
@@ -1896,7 +1896,7 @@ ssize_t eintr_read(int fd, void *buf, size_t count)
 	ssize_t bytes_read = 0, total_read = 0;
 	char *ptr = buf;
 	while (total_read < (ssize_t)count) {
-		bytes_read = read(fd, ptr + total_read, count - total_read);
+		bytes_read = opae_read(fd, ptr + total_read, count - total_read);
 
 		if (bytes_read < 0) {
 			if (errno == EINTR) {
@@ -2172,7 +2172,7 @@ static ssize_t find_eof(int fd)
 	char buffer[pg_size];
 	ssize_t bytes_read = 0, total_read = 0;
 	while (total_read <= MAX_SYSOBJECT_FILESIZE) {
-		bytes_read = read(fd, buffer, pg_size);
+		bytes_read = opae_read(fd, buffer, pg_size);
 		if (bytes_read < 0) {
 			if (errno == EINTR) {
 				continue;
@@ -2428,7 +2428,7 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 		return res;
 	}
 
-	statres = stat(sysfspath, &objstat);
+	statres = opae_stat(sysfspath, &objstat);
 	if (statres < 0) {
 		OPAE_MSG("Error accessing %s: %s", sysfspath, strerror(errno));
 		switch (errno) {

@@ -25,7 +25,9 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 opae_add_executable(TARGET object_api
-    SOURCE object_api.c
+    SOURCE
+        object_api.c
+        ${opae-test_ROOT}/framework/mock/opae_std.c
     LIBS
         argsfilter
         opae-c

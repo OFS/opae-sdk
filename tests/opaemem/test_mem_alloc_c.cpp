@@ -1,4 +1,4 @@
-// Copyright(c) 2021, Intel Corporation
+// Copyright(c) 2021-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -28,6 +28,7 @@
 #endif // HAVE_CONFIG_H
 
 #include "gtest/gtest.h"
+#include "mock/opae_std.h"
 
 #include <opae/mem_alloc.h>
 
@@ -79,9 +80,9 @@ TEST(mem_alloc, destroy)
   struct mem_alloc m;
 
   struct mem_link *free_link = (struct mem_link *)
-	  malloc(sizeof(struct mem_link));
+	  opae_malloc(sizeof(struct mem_link));
   struct mem_link *allocated_link = (struct mem_link *)
-	  malloc(sizeof(struct mem_link));
+	  opae_malloc(sizeof(struct mem_link));
 
   ASSERT_NE(free_link, nullptr);
   ASSERT_NE(allocated_link, nullptr);
@@ -124,7 +125,7 @@ TEST(mem_alloc, link_alloc)
   EXPECT_EQ(link->prev, link);
   EXPECT_EQ(link->next, link);
 
-  free(link);
+  opae_free(link);
 }
 
 /**
@@ -153,7 +154,7 @@ TEST(mem_alloc, coalesce0)
   EXPECT_EQ(link->prev, link);
   EXPECT_EQ(link->next, link);
 
-  free(link);
+  opae_free(link);
 }
 
 /**
@@ -195,7 +196,7 @@ TEST(mem_alloc, coalesce1)
   EXPECT_EQ(one->address, 0);
   EXPECT_EQ(one->size, 2048);
 
-  free(one);
+  opae_free(one);
 }
 
 /**
@@ -238,7 +239,7 @@ TEST(mem_alloc, coalesce2)
   EXPECT_EQ(one->address, 0);
   EXPECT_EQ(one->size, 2048);
 
-  free(one);
+  opae_free(one);
 }
 
 /**
@@ -266,7 +267,7 @@ TEST(mem_alloc, add_free0)
   EXPECT_EQ(l->address, 0);
   EXPECT_EQ(l->size, 1024);
 
-  free(l);
+  opae_free(l);
 }
 
 /**
@@ -300,7 +301,7 @@ TEST(mem_alloc, add_free1)
 
   trash = l;
   l = l->next;
-  free(trash);
+  opae_free(trash);
 
   EXPECT_EQ(l->prev, trash);
   EXPECT_EQ(l->address, 2048);
@@ -308,14 +309,14 @@ TEST(mem_alloc, add_free1)
 
   trash =l;
   l = l->next;
-  free(trash);
+  opae_free(trash);
 
   EXPECT_EQ(l->prev, trash);
   EXPECT_EQ(l->next, &allocator.free);
   EXPECT_EQ(l->address, 4096);
   EXPECT_EQ(l->size, size);
 
-  free(l);
+  opae_free(l);
 }
 
 /**
@@ -336,7 +337,7 @@ TEST(mem_alloc, add_free2)
   EXPECT_NE(mem_alloc_add_free(&allocator, 4096, size), 0);
 
   l = allocator.free.next;
-  free(l);
+  opae_free(l);
 }
 
 /**
@@ -374,7 +375,7 @@ TEST(mem_alloc, allocate_node0)
   EXPECT_EQ(l->address, 0);
   EXPECT_EQ(l->size, size);
 
-  free(l);
+  opae_free(l);
 }
 
 /**
@@ -410,7 +411,7 @@ TEST(mem_alloc, allocate_node1)
   EXPECT_EQ(l->address, 512);
   EXPECT_EQ(l->size, 512);
 
-  free(l);
+  opae_free(l);
   l = allocator.allocated.next;
 
   EXPECT_EQ(allocator.allocated.prev, l);
@@ -420,7 +421,7 @@ TEST(mem_alloc, allocate_node1)
   EXPECT_EQ(l->address, 0);
   EXPECT_EQ(l->size, 512);
 
-  free(l);
+  opae_free(l);
 }
 
 /**
@@ -458,7 +459,7 @@ TEST(mem_alloc, alloc_split_node0)
   EXPECT_EQ(l->size, twoM - fourK);
   EXPECT_EQ(addr, twoM);
 
-  free(l);
+  opae_free(l);
   l = allocator.allocated.next;
 
   EXPECT_EQ(allocator.allocated.prev, l);
@@ -468,7 +469,7 @@ TEST(mem_alloc, alloc_split_node0)
   EXPECT_EQ(l->address, twoM);
   EXPECT_EQ(l->size, twoM);
 
-  free(l);
+  opae_free(l);
 }
 
 /**
@@ -511,8 +512,8 @@ TEST(mem_alloc, alloc_split_node1)
   EXPECT_EQ(m->size, twoM);
   EXPECT_EQ(addr, twoM);
 
-  free(l);
-  free(m);
+  opae_free(l);
+  opae_free(m);
   l = allocator.allocated.next;
 
   EXPECT_EQ(allocator.allocated.prev, l);
@@ -522,7 +523,7 @@ TEST(mem_alloc, alloc_split_node1)
   EXPECT_EQ(l->address, twoM);
   EXPECT_EQ(l->size, twoM);
 
-  free(l);
+  opae_free(l);
 }
 
 /**
@@ -555,18 +556,18 @@ TEST(mem_alloc, get0)
 
   trash = l;
   l = l->next;
-  free(trash);
+  opae_free(trash);
 
   EXPECT_EQ(l->address, 2048);
   EXPECT_EQ(l->size, size);
 
-  free(l);
+  opae_free(l);
   l = allocator.allocated.next;
 
   EXPECT_EQ(l->address, 0);
   EXPECT_EQ(l->size, 512);
 
-  free(l);
+  opae_free(l);
 }
 
 /**
@@ -589,7 +590,7 @@ TEST(mem_alloc, get1)
 
   EXPECT_NE(mem_alloc_get(&allocator, &addr, size * 2), 0);
 
-  free(allocator.free.next);
+  opae_free(allocator.free.next);
 }
 
 /**
@@ -629,7 +630,7 @@ TEST(mem_alloc, free_node)
   EXPECT_EQ(node->address, addr);
   EXPECT_EQ(node->size, size);
 
-  free(node);
+  opae_free(node);
 }
 
 /**
@@ -671,7 +672,7 @@ TEST(mem_alloc, put0)
   EXPECT_EQ(node->address, addr);
   EXPECT_EQ(node->size, size);
 
-  free(node);
+  opae_free(node);
 }
 
 /**
@@ -708,5 +709,5 @@ TEST(mem_alloc, put1)
   EXPECT_EQ(node->prev, &allocator.allocated);
   EXPECT_EQ(node->next, &allocator.allocated);
 
-  free(node);
+  opae_free(node);
 }

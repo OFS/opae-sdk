@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2020, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -39,6 +39,7 @@
 #include <opae/fpga.h>
 
 #include "board_a10gx.h"
+#include "mock/opae_std.h"
 
 // BMC sysfs path
 #define SYSFS_DEVID_FILE "avmmi-bmc.*.auto/bmc_info/device_id"
@@ -314,7 +315,7 @@ fpga_result print_board_info(fpga_token token)
 	fpga_object bmc_object;
 
 
-	if (!stat("/sys/bus/pci/drivers/dfl-pci", &st)) {
+	if (!opae_stat("/sys/bus/pci/drivers/dfl-pci", &st)) {
 		res = fpgaTokenGetObject(token, SYSFS_DEVID_FILE, &bmc_object, FPGA_OBJECT_GLOB);
 		if (res != FPGA_OK) {
 			printf("Board Management Controller, microcontroller FW version: %s\n", "Not Supported");

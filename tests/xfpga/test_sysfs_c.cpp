@@ -343,11 +343,11 @@ TEST(sysfs_c, eintr_write_tests) {
   std::string filename = "empty_file.txt";
   EXPECT_EQ(std::system("touch empty_file.txt"), 0);
 
-  int fd = open(filename.c_str(), O_RDWR);
+  int fd = opae_open(filename.c_str(), O_RDWR);
   EXPECT_NE(fd, -1);
   size_t count = 1024;
   EXPECT_EQ(-1, eintr_write(fd, data, count));
-  EXPECT_EQ(close(fd), 0);
+  EXPECT_EQ(opae_close(fd), 0);
   EXPECT_EQ(std::system("rm empty_file.txt"), 0);
 }
 
@@ -422,7 +422,7 @@ TEST_P(sysfs_c_p, glob_paths) {
   // opae_glob_paths allocates memory for each path found
   // let's free it here since we don't need it any longer
   for (int i = 0; i < found; ++i) {
-    free(paths[i]);
+    opae_free(paths[i]);
   }
 }
 
@@ -537,7 +537,7 @@ TEST_P(sysfs_c_p, cstr_dup) {
   std::string inp("this is an input string");
   char *dup = cstr_dup(inp.c_str());
   EXPECT_STREQ(dup, inp.c_str());
-  free(dup);
+  opae_free(dup);
 }
 
 /**
@@ -564,8 +564,8 @@ TEST_P(sysfs_c_p, get_fme_path) {
   char rpath1[PATH_MAX];
   char rpath2[PATH_MAX];
   ASSERT_EQ(sysfs_get_fme_path(sysfs_port_.c_str(), found_fme), FPGA_OK);
-  ASSERT_NE(realpath(sysfs_fme_.c_str(), rpath1), nullptr);
-  ASSERT_NE(realpath(found_fme, rpath2), nullptr);
+  ASSERT_NE(opae_realpath(sysfs_fme_.c_str(), rpath1), nullptr);
+  ASSERT_NE(opae_realpath(found_fme, rpath2), nullptr);
   ASSERT_STREQ(rpath1, rpath2);
 }
 

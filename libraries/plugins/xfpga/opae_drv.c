@@ -97,7 +97,7 @@ fpga_result opae_internal_ioctl(int fd, int request, ...)
 	va_start(argp, request);
 	void *msg = va_arg(argp, void *);
 	errno = 0;
-	if (ioctl(fd, request, msg) != 0) {
+	if (opae_ioctl(fd, request, msg) != 0) {
 		OPAE_MSG("error executing ioctl: %s", strerror(errno));
 		switch (errno) {
 		case EINVAL:
@@ -572,11 +572,11 @@ static ioctl_ops *io_ptr;
 int opae_ioctl_initialize(void)
 {
 	struct stat st;
-	if (!stat("/sys/class/fpga_region", &st)) {
+	if (!opae_stat("/sys/class/fpga_region", &st)) {
 		io_ptr = &ioctl_table[0];
 		return 0;
 	}
-	if (!stat("/sys/class/fpga", &st)) {
+	if (!opae_stat("/sys/class/fpga", &st)) {
 		io_ptr = &ioctl_table[1];
 		return 0;
 	}

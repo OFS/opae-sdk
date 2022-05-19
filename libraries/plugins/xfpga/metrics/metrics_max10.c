@@ -114,12 +114,12 @@ fpga_result read_sensor_sysfs_file(const char *sysfs, const char *file,
 
 	// fstat for a sysfs file is not accurate for the BMC
 	// Read the entire file into a temp buffer to get actual size of file
-	*buf = (void *)calloc(stats.st_size, 1);
+	*buf = (void *)opae_calloc(stats.st_size, 1);
 
 	int32_t tot_bytes = 0;
 	int32_t bytes_read = 0;
 	do {
-		bytes_read = (int32_t)read(fd, *buf + tot_bytes, stats.st_size - tot_bytes);
+		bytes_read = (int32_t)opae_read(fd, *buf + tot_bytes, stats.st_size - tot_bytes);
 		if (bytes_read < 0) {
 			if (errno == EINTR) {
 				bytes_read = 1; // Fool the while loop

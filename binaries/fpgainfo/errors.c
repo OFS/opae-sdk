@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -40,6 +40,7 @@
 #include <opae/properties.h>
 #include "errors.h"
 #include "errors_metadata.h"
+#include "mock/opae_std.h"
 
 #define FPGA_BIT_IS_SET(val, index) (((val) >> (index)) & 1)
 
@@ -370,7 +371,7 @@ fpga_result errors_command(fpga_token *tokens, int num_tokens, int argc,
 
 			if ((res == FPGA_OK) && (num_errors != 0)) {
 				int j;
-				errinfos = (struct fpga_error_info *)calloc(
+				errinfos = (struct fpga_error_info *)opae_calloc(
 					num_errors, sizeof(*errinfos));
 				if (!errinfos) {
 					res = FPGA_NO_MEMORY;
@@ -393,7 +394,7 @@ fpga_result errors_command(fpga_token *tokens, int num_tokens, int argc,
 
 		destroy_and_free:
 			if (errinfos)
-				free(errinfos);
+				opae_free(errinfos);
 			errinfos = NULL;
 			fpgaDestroyProperties(&props);
 			if (res == FPGA_NO_MEMORY) {

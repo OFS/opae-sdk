@@ -1,4 +1,4 @@
-## Copyright(c) 2021, Intel Corporation
+## Copyright(c) 2021-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -26,7 +26,9 @@
 
 opae_add_shared_library(TARGET opaevfio
     EXPORT opae-targets
-    SOURCE opaevfio.c
+    SOURCE
+        opaevfio.c
+        ${opae-test_ROOT}/framework/mock/opae_std.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
         opaemem

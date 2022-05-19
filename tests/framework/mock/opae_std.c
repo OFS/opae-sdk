@@ -27,22 +27,7 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include "opae_std.h"
-
-void *opae_malloc(size_t size)
-{
-	return malloc(size);
-}
-
-void *opae_calloc(size_t nmemb, size_t size)
-{
-	return calloc(nmemb, size);
-}
-
-void opae_free(void *ptr)
-{
-	free(ptr);
-}
+#include "mock/opae_std.h"
 
 int opae_open(const char *path, int flags)
 {
@@ -52,6 +37,36 @@ int opae_open(const char *path, int flags)
 int opae_open_create(const char *path, int flags, mode_t mode)
 {
 	return open(path, flags, mode);
+}
+
+int opae_close(int fd)
+{
+	return close(fd);
+}
+
+ssize_t opae_read(int fd, void *buf, size_t count)
+{
+	return read(fd, buf, count);
+}
+
+FILE *opae_fopen(const char *path, const char *mode)
+{
+	return fopen(path, mode);
+}
+
+int opae_fclose(FILE *stream)
+{
+	return fclose(stream);
+}
+
+FILE *opae_popen(const char *command, const char *type)
+{
+	return popen(command, type);
+}
+
+int opae_pclose(FILE *stream)
+{
+	return pclose(stream);
 }
 
 int opae_ioctl(int fd, unsigned long request, ...)
@@ -66,32 +81,9 @@ int opae_ioctl(int fd, unsigned long request, ...)
 	return res;
 }
 
-int opae_close(int fd)
-{
-	return close(fd);
-}
-
-FILE *opae_fopen(const char *path, const char *mode)
-{
-	return fopen(path, mode);
-}
-
-int opae_fclose(FILE *stream)
-{
-	return fclose(stream);
-}
-
 DIR *opae_opendir(const char *name)
 {
 	return opendir(name);
-}
-
-int opae_scandir(const char *dirp,
-		 struct dirent ***namelist,
-		 int (*filter)(const struct dirent * ),
-		 int (*compar)(const struct dirent ** , const struct dirent **))
-{
-	return scandir(dirp, namelist, filter, compar);
 }
 
 int opae_closedir(DIR *dirp)
@@ -104,9 +96,38 @@ ssize_t opae_readlink(const char *pathname, char *buf, size_t bufsiz)
 	return readlink(pathname, buf, bufsiz);
 }
 
+int opae_stat(const char *pathname, struct stat *statbuf)
+{
+	return stat(pathname, statbuf);
+}
+
 int opae_lstat(const char *pathname, struct stat *statbuf)
 {
 	return lstat(pathname, statbuf);
+}
+
+int opae_fstatat(int dirfd, const char *pathname,
+		 struct stat *statbuf, int flags)
+{
+	return fstatat(dirfd, pathname, statbuf, flags);
+}
+
+int opae_access(const char *pathname, int mode)
+{
+	return access(pathname, mode);
+}
+
+int opae_scandir(const char *dirp,
+		 struct dirent ***namelist,
+		 int (*filter)(const struct dirent * ),
+		 int (*compar)(const struct dirent ** , const struct dirent **))
+{
+	return scandir(dirp, namelist, filter, compar);
+}
+
+int opae_sched_setaffinity(pid_t pid, size_t cpusetsize, const cpu_set_t *mask)
+{
+	return sched_setaffinity(pid, cpusetsize, mask);
 }
 
 int opae_glob(const char *pattern,
@@ -126,4 +147,19 @@ void opae_globfree(glob_t *pglob)
 char *opae_realpath(const char *path, char *resolved_path)
 {
 	return realpath(path, resolved_path);
+}
+
+void *opae_malloc(size_t size)
+{
+	return malloc(size);
+}
+
+void *opae_calloc(size_t nmemb, size_t size)
+{
+	return calloc(nmemb, size);
+}
+
+void opae_free(void *ptr)
+{
+	free(ptr);
 }

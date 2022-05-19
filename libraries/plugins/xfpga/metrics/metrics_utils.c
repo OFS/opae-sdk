@@ -61,7 +61,7 @@ fpga_result metric_sysfs_path_is_dir(const char *path)
 		return FPGA_INVALID_PARAM;
 	}
 
-	if ((stat(path, &astats)) != 0) {
+	if ((opae_stat(path, &astats)) != 0) {
 		return FPGA_NOT_FOUND;
 	}
 
@@ -80,7 +80,7 @@ fpga_result metric_sysfs_path_is_file(const char *path)
 		return FPGA_INVALID_PARAM;
 	}
 
-	if ((stat(path, &astats)) != 0) {
+	if ((opae_stat(path, &astats)) != 0) {
 		return FPGA_NOT_FOUND;
 	}
 
@@ -121,7 +121,7 @@ fpga_result add_metric_vector(fpga_metric_vector *vector,
 		return FPGA_INVALID_PARAM;
 	}
 
-	fpga_enum_metric = (struct _fpga_enum_metric *)malloc(sizeof(struct _fpga_enum_metric));
+	fpga_enum_metric = (struct _fpga_enum_metric *)opae_malloc(sizeof(struct _fpga_enum_metric));
 	if (fpga_enum_metric == NULL) {
 		OPAE_ERR("Failed to allocate memory");
 		return FPGA_NO_MEMORY;

@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -30,6 +30,7 @@
 
 #include <time.h>
 #include "logging.h"
+#include "mock/opae_std.h"
 
 #ifdef LOG
 #undef LOG
@@ -49,7 +50,7 @@ int log_open(const char *filename)
 
 	fpgad_mutex_lock(err, &log_lock);
 
-	log_file = fopen(filename, "a");
+	log_file = opae_fopen(filename, "a");
 	if (log_file) {
 		time_t raw;
 		struct tm tm;
@@ -123,7 +124,7 @@ void log_close(void)
 	if (log_file) {
 		if (log_file != stdout &&
 		    log_file != stderr) {
-			fclose(log_file);
+			opae_fclose(log_file);
 		}
 		log_file = NULL;
 	}

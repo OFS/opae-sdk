@@ -172,7 +172,7 @@ TEST_P(sysobject_mock_p, xfpga_fpgaObjectRead) {
   uint64_t value = 0;
   fwrite(c0c0str.c_str(), c0c0str.size(), 1, fp);
   fflush(fp);
-  fclose(fp);
+  opae_fclose(fp);
   EXPECT_EQ(xfpga_fpgaObjectRead64(object, &value, FPGA_OBJECT_SYNC), FPGA_OK);
   EXPECT_EQ(value, 0xc0c0cafe);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
@@ -209,7 +209,7 @@ TEST_P(sysobject_mock_p, xfpga_fpgaObjectWrite64) {
   std::vector<char> buffer(256);
   auto result = fread(buffer.data(), buffer.size(), 1, fp);
   (void) result;
-  fclose(fp);
+  opae_fclose(fp);
   EXPECT_EQ(xfpga_fpgaDestroyObject(&object), FPGA_OK);
 }
 
@@ -221,7 +221,7 @@ TEST_P(sysobject_mock_p, xfpga_fpgaGetSize) {
   ASSERT_NE(fp, nullptr) << strerror(errno);
   fwrite(DATA.c_str(), DATA.size(), 1, fp);
   fflush(fp);
-  fclose(fp);
+  opae_fclose(fp);
   fpga_object object;
   int flags = 0;
   ASSERT_EQ(xfpga_fpgaTokenGetObject(device_token_, "testdata", &object, flags),

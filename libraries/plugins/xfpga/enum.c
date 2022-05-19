@@ -295,7 +295,7 @@ STATIC struct dev_list *add_dev(const char *sysfspath, const char *devpath,
 	struct dev_list *pdev;
 	size_t len;
 
-	pdev = (struct dev_list *)calloc(1, sizeof(*pdev));
+	pdev = (struct dev_list *)opae_calloc(1, sizeof(*pdev));
 	if (NULL == pdev)
 		return NULL;
 
@@ -356,7 +356,7 @@ STATIC fpga_result sync_fme(struct dev_list *fme)
 	uint64_t value = 0;
 
 	// The sysfspath must be a directory.
-	if (stat(fme->sysfspath, &stats) ||
+	if (opae_stat(fme->sysfspath, &stats) ||
 	    !S_ISDIR(stats.st_mode)) {
 		OPAE_DBG("stat(%s) failed: %s",
 			 fme->sysfspath, strerror(errno));
@@ -364,7 +364,7 @@ STATIC fpga_result sync_fme(struct dev_list *fme)
 	}
 
 	// The device path must be a char device.
-	if (stat(fme->devpath, &stats) ||
+	if (opae_stat(fme->devpath, &stats) ||
 	    !S_ISCHR(stats.st_mode)) {
 		OPAE_DBG("stat(%s) failed: %s",
 			 fme->devpath, strerror(errno));
@@ -427,7 +427,7 @@ STATIC fpga_result sync_afu(struct dev_list *afu)
 	char sysfspath[SYSFS_PATH_MAX];
 
 	// The sysfspath must be a directory.
-	if (stat(afu->sysfspath, &stats) ||
+	if (opae_stat(afu->sysfspath, &stats) ||
 	    !S_ISDIR(stats.st_mode)) {
 		OPAE_DBG("stat(%s) failed: %s",
 			 afu->sysfspath, strerror(errno));
@@ -435,7 +435,7 @@ STATIC fpga_result sync_afu(struct dev_list *afu)
 	}
 
 	// The device path must be a char device.
-	if (stat(afu->devpath, &stats) ||
+	if (opae_stat(afu->devpath, &stats) ||
 	    !S_ISCHR(stats.st_mode)) {
 		OPAE_DBG("stat(%s) failed: %s",
 			 afu->devpath, strerror(errno));
@@ -668,7 +668,7 @@ struct _fpga_token *token_add(struct dev_list *dev)
 		return NULL;
 	}
 
-	_tok = (struct _fpga_token *)malloc(sizeof(struct _fpga_token));
+	_tok = (struct _fpga_token *)opae_malloc(sizeof(struct _fpga_token));
 	if (!_tok) {
 		OPAE_ERR("malloc failed");
 		return NULL;

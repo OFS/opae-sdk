@@ -30,26 +30,6 @@
 #include "opae_std.h"
 #include "mock/test_system.h"
 
-// TODO: popen(), pclose()
-// TODO: need opae_fclose()?
-// TODO: need opae_free()?
-
-void *opae_malloc(size_t size)
-{
-  return opae::testing::test_system::instance()->malloc(size);
-}
-
-void *opae_calloc(size_t nmemb, size_t size)
-{
-  return opae::testing::test_system::instance()->calloc(nmemb, size);
-}
-
-void opae_free(void *ptr)
-{
-// TODO
-	free(ptr);
-}
-
 int opae_open(const char *path, int flags)
 {
   return opae::testing::test_system::instance()->open(path, flags);
@@ -58,6 +38,36 @@ int opae_open(const char *path, int flags)
 int opae_open_create(const char *path, int flags, mode_t mode)
 {
   return opae::testing::test_system::instance()->open(path, flags, mode);
+}
+
+int opae_close(int fd)
+{
+  return opae::testing::test_system::instance()->close(fd);
+}
+
+ssize_t opae_read(int fd, void *buf, size_t count)
+{
+  return opae::testing::test_system::instance()->read(fd, buf, count);
+}
+
+FILE *opae_fopen(const char *path, const char *mode)
+{
+  return opae::testing::test_system::instance()->fopen(path, mode);
+}
+
+int opae_fclose(FILE *stream)
+{
+  return opae::testing::test_system::instance()->fclose(stream);
+}
+
+FILE *opae_popen(const char *command, const char *type)
+{
+  return opae::testing::test_system::instance()->popen(command, type);
+}
+
+int opae_pclose(FILE *stream)
+{
+  return opae::testing::test_system::instance()->pclose(stream);
 }
 
 int opae_ioctl(int fd, unsigned long request, ...)
@@ -72,25 +82,40 @@ int opae_ioctl(int fd, unsigned long request, ...)
 	return res;
 }
 
-int opae_close(int fd)
-{
-  return opae::testing::test_system::instance()->close(fd);
-}
-
-FILE *opae_fopen(const char *path, const char *mode)
-{
-  return opae::testing::test_system::instance()->fopen(path, mode);
-}
-
-int opae_fclose(FILE *stream)
-{
-// TODO
-	return fclose(stream);
-}
-
 DIR *opae_opendir(const char *name)
 {
   return opae::testing::test_system::instance()->opendir(name);
+}
+
+int opae_closedir(DIR *dirp)
+{
+  return opae::testing::test_system::instance()->closedir(dirp);
+}
+
+ssize_t opae_readlink(const char *pathname, char *buf, size_t bufsize)
+{
+  return opae::testing::test_system::instance()->readlink(pathname, buf, bufsize);
+}
+
+int opae_stat(const char *pathname, struct stat *statbuf)
+{
+  return opae::testing::test_system::instance()->stat(pathname, statbuf);
+}
+
+int opae_lstat(const char *pathname, struct stat *statbuf)
+{
+  return opae::testing::test_system::instance()->lstat(pathname, statbuf);
+}
+
+int opae_fstatat(int dirfd, const char *pathname, struct stat *statbuf, int flags)
+{
+  return opae::testing::test_system::instance()->fstatat(dirfd, pathname,
+                                                         statbuf, flags);
+}
+
+int opae_access(const char *pathname, int mode)
+{
+  return opae::testing::test_system::instance()->access(pathname, mode);
 }
 
 int opae_scandir(const char *dirp,
@@ -102,21 +127,9 @@ int opae_scandir(const char *dirp,
                                                          filter, compar);
 }
 
-int opae_closedir(DIR *dirp)
+int opae_sched_setaffinity(pid_t pid, size_t cpusetsize, const cpu_set_t *mask)
 {
-// TODO
-	return closedir(dirp);
-}
-
-ssize_t opae_readlink(const char *pathname, char *buf, size_t bufsize)
-{
-  return opae::testing::test_system::instance()->readlink(pathname, buf, bufsize);
-}
-
-int opae_lstat(const char *pathname, struct stat *statbuf)
-{
-// TODO
-	return lstat(pathname, statbuf);
+  return opae::testing::test_system::instance()->sched_setaffinity(pid, cpusetsize, mask);
 }
 
 int opae_glob(const char *pattern,
@@ -130,11 +143,25 @@ int opae_glob(const char *pattern,
 
 void opae_globfree(glob_t *pglob)
 {
-	if (pglob->gl_pathv)
-		globfree(pglob);
+  return opae::testing::test_system::instance()->globfree(pglob);
 }
 
 char *opae_realpath(const char *path, char *resolved_path)
 {
   return opae::testing::test_system::instance()->realpath(path, resolved_path);
+}
+
+void *opae_malloc(size_t size)
+{
+  return opae::testing::test_system::instance()->malloc(size);
+}
+
+void *opae_calloc(size_t nmemb, size_t size)
+{
+  return opae::testing::test_system::instance()->calloc(nmemb, size);
+}
+
+void opae_free(void *ptr)
+{
+  opae::testing::test_system::instance()->free(ptr);
 }

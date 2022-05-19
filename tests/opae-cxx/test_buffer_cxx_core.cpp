@@ -151,7 +151,7 @@ TEST_P(buffer_cxx_core, attach_valid) {
   buf = shared_buffer::attach(handle_, base_addr, pg_size);
   ASSERT_NE(nullptr, buf.get());
   EXPECT_EQ(static_cast<shared_buffer::size_t>(pg_size), buf->size());
-  free(base_addr);
+  opae_free(base_addr);
 }
 
 /**

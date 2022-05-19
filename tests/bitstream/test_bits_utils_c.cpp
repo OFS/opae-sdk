@@ -312,7 +312,7 @@ TEST_P(bits_utils_c_p, not_file2) {
   char tmpfile[20];
 
   strcpy(tmpfile, "tmp-XXXXXX.gbs");
-  close(mkstemps(tmpfile, 4));
+  opae_close(mkstemps(tmpfile, 4));
 
   EXPECT_FALSE(opae_bitstream_path_not_file(tmpfile));
 
@@ -377,7 +377,7 @@ TEST_P(bits_utils_c_p, symlink2) {
   char tmpfile[20];
 
   strcpy(tmpfile, "tmp-XXXXXX.gbs");
-  close(mkstemps(tmpfile, 4));
+  opae_close(mkstemps(tmpfile, 4));
 
   ASSERT_EQ(symlink(tmpfile, "mylink"), 0);
   EXPECT_TRUE(opae_bitstream_path_contains_symlink("mylink", 6));
@@ -397,7 +397,7 @@ TEST_P(bits_utils_c_p, symlink3) {
   char tmpfile[20];
 
   strcpy(tmpfile, "tmp-XXXXXX.gbs");
-  close(mkstemps(tmpfile, 4));
+  opae_close(mkstemps(tmpfile, 4));
       
   std::string s;
 
@@ -448,7 +448,7 @@ TEST_P(bits_utils_c_p, symlink4) {
   char tmpfile[20];
 
   strcpy(tmpfile, "tmp-XXXXXX.gbs");
-  close(mkstemps(tmpfile, 4));
+  opae_close(mkstemps(tmpfile, 4));
       
   std::string s;
   char *d = get_current_dir_name();
@@ -462,7 +462,7 @@ TEST_P(bits_utils_c_p, symlink4) {
   ASSERT_EQ(unlink("foo"), 0);
   ASSERT_EQ(unlink(tmpfile), 0);
 
-  free(d);
+  opae_free(d);
 }
 
 /**
@@ -475,7 +475,7 @@ TEST_P(bits_utils_c_p, symlink5) {
   char tmpfile[20];
 
   strcpy(tmpfile, "tmp-XXXXXX.gbs");
-  close(mkstemps(tmpfile, 4));
+  opae_close(mkstemps(tmpfile, 4));
 
   EXPECT_FALSE(opae_bitstream_path_contains_symlink(tmpfile, strlen(tmpfile)));
 
@@ -530,7 +530,7 @@ TEST_P(bits_utils_c_p, is_valid3) {
 
   ASSERT_EQ(mkdir("bar", 0755), 0); 
   strcpy(tmpfile, "tmp-XXXXXX.gbs");
-  close(mkstemps(tmpfile, 4));
+  opae_close(mkstemps(tmpfile, 4));
 
   std::string s = std::string("bar/../") + std::string(tmpfile);
 
@@ -555,7 +555,7 @@ TEST_P(bits_utils_c_p, is_valid4) {
 
   ASSERT_EQ(mkdir("bar", 0755), 0); 
   strcpy(tmpfile, "tmp-XXXXXX.gbs");
-  close(mkstemps(tmpfile, 4));
+  opae_close(mkstemps(tmpfile, 4));
 
   std::string s = std::string("bar/../") + std::string(tmpfile);
 
@@ -578,7 +578,7 @@ TEST_P(bits_utils_c_p, is_valid5) {
   char tmpfile[20];
 
   strcpy(tmpfile, "tmp-XXXXXX.gbs");
-  close(mkstemps(tmpfile, 4));
+  opae_close(mkstemps(tmpfile, 4));
 
   ASSERT_EQ(symlink(tmpfile, "foo"), 0);
 
@@ -600,7 +600,7 @@ TEST_P(bits_utils_c_p, is_valid6) {
   char tmpfile[20];
 
   strcpy(tmpfile, "tmp-XXXXXX.gbs");
-  close(mkstemps(tmpfile, 4));
+  opae_close(mkstemps(tmpfile, 4));
 
   ASSERT_EQ(symlink(tmpfile, "foo"), 0);
 

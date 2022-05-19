@@ -46,7 +46,7 @@ class fpgad_sysfs_c_p : public opae_base_p<> {};
 TEST_P(fpgad_sysfs_c_p, write01) {
   char tmp_file[20];
   strcpy(tmp_file, "tmp-XXXXXX.fil");
-  close(mkstemps(tmp_file, 4));
+  opae_close(mkstemps(tmp_file, 4));
 
   EXPECT_EQ(file_write_string(tmp_file, "hello", 5), 0);
 
@@ -68,7 +68,7 @@ TEST_P(fpgad_sysfs_c_p, write01) {
 TEST_P(fpgad_sysfs_c_p, write02) {
   char tmp_file[20];
   strcpy(tmp_file, "tmp-XXXXXX.fil");
-  close(mkstemps(tmp_file, 4));
+  opae_close(mkstemps(tmp_file, 4));
 
   EXPECT_NE(file_write_string(tmp_file, "hello", 0), 0);
   unlink(tmp_file);
@@ -95,7 +95,7 @@ TEST_P(fpgad_sysfs_c_p, dup02) {
   s = cstr_dup("blah");
   ASSERT_NE(s, (void *)NULL);
   EXPECT_STREQ(s, "blah");
-  free(s);
+  opae_free(s);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_sysfs_c_p);

@@ -30,42 +30,58 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <errno.h>
-#include <unistd.h>
 #include <stdarg.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <dirent.h>
 #include <glob.h>
 #include <limits.h>
+
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE 1
+#endif // _GNU_SOURCE
+#ifndef __USE_GNU
+#define __USE_GNU 1
+#endif // __USE_GNU
+#include <sched.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
 
-void *opae_malloc(size_t size);
-void *opae_calloc(size_t nmemb, size_t size);
-void opae_free(void *ptr);
-
 int opae_open(const char *path, int flags);
 int opae_open_create(const char *path, int flags, mode_t mode);
-int opae_ioctl(int fd, unsigned long request, ...);
 int opae_close(int fd);
+ssize_t opae_read(int fd, void *buf, size_t count);
 
 FILE *opae_fopen(const char *path, const char *mode);
 int opae_fclose(FILE *stream);
 
+FILE *opae_popen(const char *command, const char *type);
+int opae_pclose(FILE *stream);
+
+int opae_ioctl(int fd, unsigned long request, ...);
+
 DIR *opae_opendir(const char *name);
+int opae_closedir(DIR *dirp);
+
+ssize_t opae_readlink(const char *pathname, char *buf, size_t bufsize);
+
+int opae_stat(const char *pathname, struct stat *statbuf);
+int opae_lstat(const char *pathname, struct stat *statbuf);
+int opae_fstatat(int dirfd, const char *pathname, struct stat *statbuf, int flags);
+
+int opae_access(const char *pathname, int mode);
+
 int opae_scandir(const char *dirp,
 		 struct dirent ***namelist,
 		 int (*filter)(const struct dirent * ),
 		 int (*compar)(const struct dirent ** , const struct dirent **));
-int opae_closedir(DIR *dirp);
 
-ssize_t opae_readlink(const char *pathname, char *buf, size_t bufsiz);
-
-int opae_lstat(const char *pathname, struct stat *statbuf);
+int opae_sched_setaffinity(pid_t pid, size_t cpusetsize, const cpu_set_t *mask);
 
 int opae_glob(const char *pattern,
 	      int flags,
@@ -74,6 +90,10 @@ int opae_glob(const char *pattern,
 void opae_globfree(glob_t *pglob);
 
 char *opae_realpath(const char *path, char *resolved_path);
+
+void *opae_malloc(size_t size);
+void *opae_calloc(size_t nmemb, size_t size);
+void opae_free(void *ptr);
 
 #ifdef __cplusplus
 }

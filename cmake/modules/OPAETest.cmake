@@ -53,6 +53,8 @@ function(opae_test_add)
 
     if(OPAE_ENABLE_MOCK)
         set(MOCK_CPP ${opae-test_ROOT}/framework/mock/opae_mock.cpp)
+    else()
+        set(MOCK_CPP ${opae-test_ROOT}/framework/mock/opae_std.c)
     endif()
 
     add_executable(${OPAE_TEST_ADD_TARGET}

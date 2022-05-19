@@ -97,7 +97,7 @@ TEST_P(metrics_threshold_c_p, metrics_threshold_2) {
 
   EXPECT_EQ(get_max10_threshold_info(device_, NULL, &num_thresholds), FPGA_OK);
 
-  pmetric_thresholds = (struct metric_threshold *)calloc(
+  pmetric_thresholds = (struct metric_threshold *)opae_calloc(
       sizeof(struct metric_threshold), num_thresholds);
   ASSERT_NE(pmetric_thresholds, (void *)nullptr);
 
@@ -105,7 +105,7 @@ TEST_P(metrics_threshold_c_p, metrics_threshold_2) {
       get_max10_threshold_info(device_, pmetric_thresholds, &num_thresholds),
       FPGA_OK);
 
-  if (pmetric_thresholds) free(pmetric_thresholds);
+  if (pmetric_thresholds) opae_free(pmetric_thresholds);
 
   EXPECT_NE(get_bmc_threshold_info(device_, NULL, &num_thresholds), FPGA_OK);
 }
@@ -155,7 +155,7 @@ TEST_P(metrics_bmc_threshold_c_p, metrics_threshold_4) {
 
   EXPECT_EQ(get_bmc_threshold_info(device_, NULL, &num_thresholds), FPGA_OK);
 
-  pmetric_thresholds = (struct metric_threshold *)calloc(
+  pmetric_thresholds = (struct metric_threshold *)opae_calloc(
       sizeof(struct metric_threshold), num_thresholds);
   ASSERT_NE(pmetric_thresholds, (void *)nullptr);
 
@@ -163,7 +163,7 @@ TEST_P(metrics_bmc_threshold_c_p, metrics_threshold_4) {
       get_bmc_threshold_info(device_, pmetric_thresholds, &num_thresholds),
       FPGA_OK);
 
-  if (pmetric_thresholds) free(pmetric_thresholds);
+  if (pmetric_thresholds) opae_free(pmetric_thresholds);
 
   EXPECT_NE(get_max10_threshold_info(device_, NULL, &num_thresholds), FPGA_OK);
 }

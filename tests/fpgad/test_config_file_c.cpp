@@ -62,7 +62,7 @@ class fpgad_config_file_c_p : public opae_base_p<> {
     log_set(stdout);
 
     strcpy(cfg_file_, "fpgad-XXXXXX.cfg");
-    close(mkstemps(cfg_file_, 4));
+    opae_close(mkstemps(cfg_file_, 4));
 
     memset(&config_, 0, sizeof(config_));
     config_.poll_interval_usec = 100 * 1000;
@@ -655,8 +655,8 @@ TEST_P(fpgad_config_file_devices_p, process_plugin_devices9) {
   EXPECT_EQ(ids->next->vendor_id, 0x8086);
   EXPECT_EQ(ids->next->device_id, 0xbcc0);
 
-  free(ids->next);
-  free(ids);
+  opae_free(ids->next);
+  opae_free(ids);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_config_file_devices_p);

@@ -1,4 +1,4 @@
-// Copyright(c) 2021, Intel Corporation
+// Copyright(c) 2021-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -43,6 +43,7 @@
 #include "../board_common/board_common.h"
 #include "board_event_log.h"
 #include "board_n6000.h"
+#include "mock/opae_std.h"
 
 #define FPGA_VAR_BUF_LEN       256
 #define MAC_BUF_LEN            19
@@ -480,7 +481,7 @@ static fpga_result replace_str_in_str(
 			res = FPGA_INVALID_PARAM;
 			break;
 		}
-		char * const result = (char *)malloc(result_len + 1);
+		char * const result = (char *)opae_malloc(result_len + 1);
 		if (result == NULL)
 			return FPGA_NO_MEMORY;
 
@@ -503,7 +504,7 @@ static fpga_result replace_str_in_str(
 		strncpy(haystack, result, max_haystack_len);               // Update haystack with the result
 		haystack[result_len] = '\0';
 
-		free(result);
+		opae_free(result);
 	}
 
 	return res;
@@ -573,7 +574,7 @@ fpga_result print_bom_info(const fpga_token token)
 {
 	fpga_result resval = FPGA_OK;
 	const size_t max_result_len = 2 * FPGA_BOM_INFO_BUF_LEN;
-	char * const bom_info = (char *)malloc(max_result_len);
+	char * const bom_info = (char *)opae_malloc(max_result_len);
 
 	if (bom_info == NULL)
 		return FPGA_NO_MEMORY;
@@ -581,7 +582,7 @@ fpga_result print_bom_info(const fpga_token token)
 	fpga_result res = read_bom_info(token, bom_info, FPGA_BOM_INFO_BUF_LEN);
 	if (res != FPGA_OK) {
 		OPAE_ERR("Failed to read BOM info");
-		free(bom_info);
+		opae_free(bom_info);
 		return res;
 	}
 
@@ -597,7 +598,7 @@ fpga_result print_bom_info(const fpga_token token)
 
 	printf("%s", bom_info);
 
-	free(bom_info);
+	opae_free(bom_info);
 
 	return resval;
 }
