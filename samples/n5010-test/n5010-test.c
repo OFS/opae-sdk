@@ -1,4 +1,4 @@
-// Copyright(c) 2021, Silciom Denmark A/S
+// Copyright(c) 2021-2022 , Silciom Denmark A/S
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,6 +24,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+// compile: gcc -DSTATIC=static -D_GNU_SOURCE -I /usr/src/opae/argsfilter /usr/src/opae/argsfilter/argsfilter.c n5010-test.c -o n5010-test -l opae-c -l uuid
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -37,6 +39,10 @@
 #include <endian.h>
 
 #include <argsfilter.h>
+
+#define  BITS_PER_LONG_LONG 64
+#define  GENMASK_ULL(h, l) \
+	(((~0ULL) << (l)) & (~0ULL >> (BITS_PER_LONG_LONG - 1 - (h))))
 
 #define DFH_EOL(h)    ((h >> 40) & 1)
 #define DFH_NEXT(h)   ((h >> 16) & 0xffffff)
@@ -54,6 +60,13 @@
 #define HBM_TEST_FAIL     0x4008
 #define HBM_TEST_TIMEOUT  0x4010
 #define HBM_TEST_CTRL     0x4018
+
+#define ESRAM_TEST_STAT    0x6000
+#define ESRAM_TEST_TIMEOUT GENMASK_ULL(47,32)
+#define ESRAM_TEST_FAIL    GENMASK_ULL(31,16)
+#define ESRAM_TEST_PASS    GENMASK_ULL(15,0)
+
+#define ESRAM_TEST_CTRL    0x6008
 
 struct n5010;
 
@@ -76,6 +89,7 @@ struct n5010 {
 static fpga_result fpga_test_ddr_directed(struct n5010 *n5010);
 static fpga_result fpga_test_ddr_prbs(struct n5010 *n5010);
 static fpga_result fpga_test_hbm(struct n5010 *n5010);
+static fpga_result fpga_test_esram(struct n5010 *n5010);
 
 static const struct n5010_test n5010_test[] = {
 	{
@@ -89,6 +103,10 @@ static const struct n5010_test n5010_test[] = {
 	{
 		.name = "ddr-prbs",
 		.func = fpga_test_ddr_prbs,
+	},
+	{
+		.name = "esram",
+		.func = fpga_test_esram,
 	}
 };
 
@@ -443,6 +461,66 @@ error:
 	return res;
 }
 
+static fpga_result fpga_test_esram(struct n5010 *n5010)
+{
+	struct timespec ts = {.tv_sec = 0, .tv_nsec = 100000000};
+	uint64_t stat = 0;
+	uint64_t pass = 0;
+	uint64_t fail = 0;
+	uint64_t timeout = 0;
+	fpga_result res ;
+
+	printf("starting eSRAM read/write test\n");
+
+	res = fpgaWriteMMIO64(n5010->handle, 0, n5010->base + ESRAM_TEST_CTRL, 1);
+	if (res != FPGA_OK) {
+		fprintf(stderr, "failed to start test: %s\n", fpgaErrStr(res));
+		goto error;
+	}
+	printf("waiting for test to complete...\n");
+
+	do {
+		res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + ESRAM_TEST_STAT, &stat);
+		if (res != FPGA_OK) {
+			fprintf(stderr, "failed to read stat: %s\n", fpgaErrStr(res));
+			goto error;
+		}
+		pass	= stat & ESRAM_TEST_PASS;
+		fail	= stat & ESRAM_TEST_FAIL;
+		timeout = stat & ESRAM_TEST_TIMEOUT;
+
+
+		if (n5010->debug) {
+			printf("pass (16x eSRAM channels)   : 0x%04jx\n", pass);
+			printf("fail (16x eSRAM channels)   : 0x%04jx\n", fail);
+			printf("timeout (16x eSRAM channels): 0x%04jx\n", timeout);
+		}
+		nanosleep(&ts, NULL);
+
+	} while ( (pass | fail | timeout) != 0xffff);
+
+	if (fail != 0x0) {
+		fprintf(stderr, "Error: Test failed on the following channels: 0x%04jx\n", fail);
+		res = FPGA_EXCEPTION;
+	};
+
+	if (timeout != 0x0) {
+		fprintf(stderr, "Error: Test timed out on the following channels: 0x%04jx\n", timeout);
+		res = FPGA_EXCEPTION;
+	};
+
+	if (pass != 0xffff) {
+		fprintf(stderr, "Error: Test did not pass on all channels: 0x%04jx\n", pass);
+		res = FPGA_EXCEPTION;
+	};
+
+	if (res != FPGA_OK)
+		goto error;
+
+error:
+	return res;
+}
+
 static fpga_result fpga_test_hbm(struct n5010 *n5010)
 {
 	struct timespec ts = {.tv_sec = 0, .tv_nsec = 100000000};
@@ -523,7 +601,7 @@ static void print_usage(FILE *f)
 		"  -h  --help      print this help\n"
 		"  -g  --guid      uuid of accelerator to open\n"
 		"  -m  --mode      test mode to execute. Known modes:\n"
-		"                  ddr-directed, ddr-prbs, hbm\n"
+		"                  ddr-directed, ddr-prbs, hbm, esram\n"
 		"  -d  --debug     enable debug print of register values\n"
 		"  -s  --shared    open FPGA connection in shared mode\n"
 		"\n",
