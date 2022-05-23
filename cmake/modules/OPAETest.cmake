@@ -52,11 +52,13 @@ function(opae_test_add)
         "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     if(OPAE_ENABLE_MOCK)
-        set(MOCK_C ${opae-test_ROOT}/framework/mock/mock.c ${opae-test_ROOT}/framework/mock/opae_std.c)
+        set(MOCK_CPP ${opae-test_ROOT}/framework/mock/opae_mock.cpp)
+    else()
+        set(MOCK_CPP ${opae-test_ROOT}/framework/mock/opae_std.c)
     endif()
 
     add_executable(${OPAE_TEST_ADD_TARGET}
-        ${OPAE_TEST_ADD_SOURCE} ${MOCK_C})
+        ${OPAE_TEST_ADD_SOURCE} ${MOCK_CPP})
 
     set_target_properties(${OPAE_TEST_ADD_TARGET}
         PROPERTIES

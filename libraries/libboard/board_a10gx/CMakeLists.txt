@@ -25,7 +25,9 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 opae_add_module_library(TARGET board_a10gx
-    SOURCE board_a10gx.c
+    SOURCE
+        board_a10gx.c
+        ${opae-test_ROOT}/framework/mock/opae_std.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
         opae-c

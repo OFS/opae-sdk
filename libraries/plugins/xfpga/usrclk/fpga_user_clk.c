@@ -772,7 +772,7 @@ static int using_iopll(char *sysfs_usrpath, const char *sysfs_path)
 
 	opae_globfree(&iopll_glob);
 
-	if (access(sysfs_usrpath, F_OK | R_OK | W_OK) != 0) {
+	if (opae_access(sysfs_usrpath, F_OK | R_OK | W_OK) != 0) {
 		OPAE_ERR("Unable to access sysfs frequency file");
 		return FPGA_NO_ACCESS;
 	}

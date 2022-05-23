@@ -35,6 +35,7 @@
 #include "event_dispatcher_thread.h"
 
 #include "logging.h"
+#include "mock/opae_std.h"
 
 #ifdef LOG
 #undef LOG
@@ -244,7 +245,7 @@ void mon_destroy(struct fpgad_config *c)
 		if (trash->token)
 			fpgaDestroyToken(&trash->token);
 
-		free(trash);
+		opae_free(trash);
 	}
 	monitored_device_list = NULL;
 

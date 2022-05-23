@@ -136,7 +136,7 @@ TEST_P(metrics_c_p, test_metric_02) {
 
   EXPECT_EQ(FPGA_OK, xfpga_fpgaGetNumMetrics(device_, &num_metrics));
 
-  struct fpga_metric_info *fpga_metric_info = (struct fpga_metric_info *)calloc(
+  struct fpga_metric_info *fpga_metric_info = (struct fpga_metric_info *)opae_calloc(
          sizeof(struct fpga_metric_info), num_metrics);
 
   EXPECT_EQ(FPGA_OK,
@@ -157,7 +157,7 @@ TEST_P(metrics_c_p, test_metric_02) {
 
   _handle->fddev = fddev;
 
-  free(fpga_metric_info);
+  opae_free(fpga_metric_info);
 }
 
 /**
@@ -172,7 +172,7 @@ TEST_P(metrics_c_p, test_metric_03) {
   uint64_t id_array[] = {1, 5, 30, 35, 10};
 
   struct fpga_metric *metric_array =
-         (struct fpga_metric *)calloc(sizeof(struct fpga_metric), 5);
+         (struct fpga_metric *)opae_calloc(sizeof(struct fpga_metric), 5);
 
   EXPECT_EQ(FPGA_OK,
             xfpga_fpgaGetMetricsByIndex(device_, id_array, 5, metric_array));
@@ -194,7 +194,7 @@ TEST_P(metrics_c_p, test_metric_03) {
 
   _handle->fddev = fddev;
 
-  free(metric_array);
+  opae_free(metric_array);
 }
 
 /**
@@ -211,7 +211,7 @@ TEST_P(metrics_c_p, test_metric_04) {
   uint64_t array_size = 2;
 
   struct fpga_metric *metric_array_search =
-         (struct fpga_metric *)calloc(sizeof(struct fpga_metric), array_size);
+         (struct fpga_metric *)opae_calloc(sizeof(struct fpga_metric), array_size);
 
   xfpga_fpgaGetMetricsByName(device_, (char **)metric_string, array_size,
                              metric_array_search);
@@ -219,12 +219,12 @@ TEST_P(metrics_c_p, test_metric_04) {
   const char *metric_string_invalid[2] = {
       "power_mgmtconsumed1", "performance1:fabric:port0:mmio_read1"};
   struct fpga_metric *metric_array_search_invalid =
-         (struct fpga_metric *)calloc(sizeof(struct fpga_metric), array_size);
+         (struct fpga_metric *)opae_calloc(sizeof(struct fpga_metric), array_size);
 
   xfpga_fpgaGetMetricsByName(device_, (char **)metric_string_invalid,
                              array_size, metric_array_search_invalid);
 
-  free(metric_array_search_invalid);
+  opae_free(metric_array_search_invalid);
 
   EXPECT_NE(FPGA_OK,
             xfpga_fpgaGetMetricsByName(NULL, (char **)metric_string, array_size,
@@ -249,7 +249,7 @@ TEST_P(metrics_c_p, test_metric_04) {
                                        array_size, metric_array_search));
 
   _handle->fddev = fddev;
-  free(metric_array_search);
+  opae_free(metric_array_search);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_c_p);
@@ -403,13 +403,13 @@ TEST_P(metrics_afu_c_p, test_afc_metric_01) {
   EXPECT_EQ(FPGA_OK, xfpga_fpgaGetNumMetrics(accel_, &num_metrics));
   printf("num_metrics =%ld \n", num_metrics);
 
-  struct fpga_metric_info *fpga_metric_info = (struct fpga_metric_info *)calloc(
+  struct fpga_metric_info *fpga_metric_info = (struct fpga_metric_info *)opae_calloc(
          sizeof(struct fpga_metric_info), num_metrics);
 
   EXPECT_EQ(FPGA_OK,
             xfpga_fpgaGetMetricsInfo(accel_, fpga_metric_info, &num_metrics));
 
-  free(fpga_metric_info);
+  opae_free(fpga_metric_info);
 }
 
 /**
@@ -429,24 +429,24 @@ TEST_P(metrics_afu_c_p, test_afc_metric_02) {
   EXPECT_EQ(FPGA_OK, free_fpga_enum_metrics_vector(handle));
 
   // No AFU metrics
-  struct fpga_metric_info *fpga_metric_info = (struct fpga_metric_info *)calloc(
+  struct fpga_metric_info *fpga_metric_info = (struct fpga_metric_info *)opae_calloc(
          sizeof(struct fpga_metric_info), num_metrics);
 
   EXPECT_NE(FPGA_OK,
             xfpga_fpgaGetMetricsInfo(accel_, fpga_metric_info, &num_metrics));
-  free(fpga_metric_info);
+  opae_free(fpga_metric_info);
 
   EXPECT_EQ(FPGA_OK, free_fpga_enum_metrics_vector(handle));
 
   // No AFU metrics
   uint64_t id_array[] = {1, 2, 3};
   struct fpga_metric *metric_array =
-         (struct fpga_metric *)calloc(sizeof(struct fpga_metric), 3);
+         (struct fpga_metric *)opae_calloc(sizeof(struct fpga_metric), 3);
 
   EXPECT_NE(FPGA_OK,
             xfpga_fpgaGetMetricsByIndex(accel_, id_array, 3, metric_array));
 
-  free(metric_array);
+  opae_free(metric_array);
 }
 
 /**
@@ -462,7 +462,7 @@ TEST_P(metrics_afu_c_p, test_afc_metric_03) {
   // valid index
   uint64_t id_array[] = {1, 2, 3};
   struct fpga_metric *metric_array =
-         (struct fpga_metric *)calloc(sizeof(struct fpga_metric), 3);
+         (struct fpga_metric *)opae_calloc(sizeof(struct fpga_metric), 3);
 
   EXPECT_EQ(FPGA_OK,
             xfpga_fpgaGetMetricsByIndex(accel_, id_array, 3, metric_array));
@@ -470,17 +470,17 @@ TEST_P(metrics_afu_c_p, test_afc_metric_03) {
   EXPECT_NE(FPGA_OK,
             xfpga_fpgaGetMetricsByIndex(accel_, id_array, 0, metric_array));
 
-  free(metric_array);
+  opae_free(metric_array);
 
   // invalid index
   uint64_t id_array_invalid[] = {10, 20, 30};
   struct fpga_metric *metric_array_invalid =
-         (struct fpga_metric *)calloc(sizeof(struct fpga_metric), 3);
+         (struct fpga_metric *)opae_calloc(sizeof(struct fpga_metric), 3);
 
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetMetricsByIndex(accel_, id_array_invalid, 3,
                                                  metric_array_invalid));
 
-  free(metric_array_invalid);
+  opae_free(metric_array_invalid);
 }
 
 /**
@@ -498,26 +498,26 @@ TEST_P(metrics_afu_c_p, test_afc_metric_04) {
   uint64_t array_size = 2;
 
   struct fpga_metric *metric_array_search =
-         (struct fpga_metric *)calloc(sizeof(struct fpga_metric), array_size);
+         (struct fpga_metric *)opae_calloc(sizeof(struct fpga_metric), array_size);
 
   EXPECT_EQ(FPGA_OK,
             xfpga_fpgaGetMetricsByName(accel_, (char **)metric_string,
                                        array_size, metric_array_search));
 
-  free(metric_array_search);
+  opae_free(metric_array_search);
 
   // invalid afu Metrics name
   const char *metric_string_invalid[2] = {"power_mgmt:consumed",
                                           "performance:fabric:port0:mmio_read"};
 
   metric_array_search =
-         (struct fpga_metric *)calloc(sizeof(struct fpga_metric), array_size);
+         (struct fpga_metric *)opae_calloc(sizeof(struct fpga_metric), array_size);
 
   EXPECT_NE(FPGA_OK,
             xfpga_fpgaGetMetricsByName(accel_, (char **)metric_string_invalid,
                                        array_size, metric_array_search));
 
-  free(metric_array_search);
+  opae_free(metric_array_search);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(metrics_afu_c_p);

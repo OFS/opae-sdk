@@ -200,10 +200,10 @@ TEST_P(metadatav1_c_p, image_err0) {
 					      ifc_id),
             FPGA_OK);
 
-  free(img.interface_uuid);
-  free(img.accelerator_clusters[0].name);
-  free(img.accelerator_clusters[0].accelerator_type_uuid);
-  free(img.accelerator_clusters);
+  opae_free(img.interface_uuid);
+  opae_free(img.accelerator_clusters[0].name);
+  opae_free(img.accelerator_clusters[0].accelerator_type_uuid);
+  opae_free(img.accelerator_clusters);
 }
 
 /**
@@ -247,10 +247,10 @@ TEST_P(metadatav1_c_p, image_err1) {
   EXPECT_EQ(img.clock_frequency_high, 31.2);
   EXPECT_EQ(img.power, 50.0);
 
-  free(img.interface_uuid);
-  free(img.accelerator_clusters[0].name);
-  free(img.accelerator_clusters[0].accelerator_type_uuid);
-  free(img.accelerator_clusters);
+  opae_free(img.interface_uuid);
+  opae_free(img.accelerator_clusters[0].name);
+  opae_free(img.accelerator_clusters[0].accelerator_type_uuid);
+  opae_free(img.accelerator_clusters);
 }
 
 /**
@@ -294,10 +294,10 @@ TEST_P(metadatav1_c_p, image_err2) {
   EXPECT_EQ(img.clock_frequency_high, 3.12);
   EXPECT_EQ(img.clock_frequency_low, 1.56);
 
-  free(img.interface_uuid);
-  free(img.accelerator_clusters[0].name);
-  free(img.accelerator_clusters[0].accelerator_type_uuid);
-  free(img.accelerator_clusters);
+  opae_free(img.interface_uuid);
+  opae_free(img.accelerator_clusters[0].name);
+  opae_free(img.accelerator_clusters[0].accelerator_type_uuid);
+  opae_free(img.accelerator_clusters);
 }
 
 /**

@@ -509,7 +509,7 @@ class pluginmgr_cfg_p : public ::testing::TestWithParam<const char*> {
     cfg_dir_ = dirname(buffer_);
     struct stat st;
     // if the directory doesn't exist, create the entire path
-    if (stat(cfg_dir_, &st)) {
+    if (opae_stat(cfg_dir_, &st)) {
       std::string dir = cfg_dir_;
       // find the first '/' after $HOME
       size_t pos = dir.find('/', home.size());
@@ -517,7 +517,7 @@ class pluginmgr_cfg_p : public ::testing::TestWithParam<const char*> {
         std::string sub = dir.substr(0, pos);
         // sub is $HOME/<dir1>, then $HOME/<dir1>/<dir2>, ...
         // if this directory doesn't exist, create it
-        if (stat(sub.c_str(), &st) && sub != "") {
+        if (opae_stat(sub.c_str(), &st) && sub != "") {
           ASSERT_EQ(mkdir(sub.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH),
                     0)
               << "Error creating subdirectory (" << sub
@@ -535,7 +535,7 @@ class pluginmgr_cfg_p : public ::testing::TestWithParam<const char*> {
       dirs_.push(cfg_dir_);
     }
 
-    if (stat(cfg_file_.c_str(), &st) == 0) {
+    if (opae_stat(cfg_file_.c_str(), &st) == 0) {
       unlink(cfg_file_.c_str());
     }
 

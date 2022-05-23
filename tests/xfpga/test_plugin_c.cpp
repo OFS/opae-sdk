@@ -71,7 +71,7 @@ opae_api_adapter_table * xfpga_plugin_c_p::opae_plugin_mgr_alloc_adapter_test(co
     return NULL;
   }
 
-  adapter = (opae_api_adapter_table *)calloc(
+  adapter = (opae_api_adapter_table *)opae_calloc(
              1, sizeof(opae_api_adapter_table));
 
   if (!adapter) {
@@ -97,7 +97,7 @@ int xfpga_plugin_c_p::opae_plugin_mgr_free_adapter_test(opae_api_adapter_table *
     OPAE_ERR("dlclose failed with %d %s", res, err ? err : "");
   }
 
-  free(adapter);
+  opae_free(adapter);
 
   return res;
 }

@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -46,6 +46,7 @@
 #include <stdbool.h>
 #include <sys/stat.h>
 #include <argsfilter.h>
+#include "mock/opae_std.h"
 
 
 /*
@@ -235,7 +236,7 @@ int main(int argc, char *argv[])
 	ON_ERR_GOTO(res, out_close, "get num of metrics");
 	printf("\n\n ------Number of Metrics Discovered = %ld ------- \n\n\n", num_metrics);
 
-	metric_info = calloc(sizeof(struct fpga_metric_info), num_metrics);
+	metric_info = opae_calloc(sizeof(struct fpga_metric_info), num_metrics);
 	if (metric_info == NULL) {
 		printf(" Failed to allocate memroy \n");
 		res = FPGA_NO_MEMORY;
@@ -245,7 +246,7 @@ int main(int argc, char *argv[])
 	res = fpgaGetMetricsInfo(fpga_handle, metric_info, &num_metrics);
 	ON_ERR_GOTO(res, out_close, "get num of metrics info");
 
-	id_array = calloc(sizeof(uint64_t), num_metrics);
+	id_array = opae_calloc(sizeof(uint64_t), num_metrics);
 	if (id_array == NULL) {
 		printf(" Failed to allocate memroy \n");
 		res = FPGA_NO_MEMORY;
@@ -267,7 +268,7 @@ int main(int argc, char *argv[])
 		id_array[i] = i;
 	}
 
-	metric_array = calloc(sizeof(struct fpga_metric), num_metrics);
+	metric_array = opae_calloc(sizeof(struct fpga_metric), num_metrics);
 	if (metric_array == NULL) {
 		printf(" Failed to allocate memroy \n");
 		res = FPGA_NO_MEMORY;
@@ -318,13 +319,13 @@ int main(int argc, char *argv[])
 out_close:
 	resval = (res != FPGA_OK) ? res : resval;
 	if (metric_array)
-		free(metric_array);
+		opae_free(metric_array);
 
 	if (metric_info)
-		free(metric_info);
+		opae_free(metric_info);
 
 	if (id_array)
-		free(id_array);
+		opae_free(id_array);
 
 	res = fpgaClose(fpga_handle);
 	ON_ERR_GOTO(res, out_destroy_tok, "closing fpga");

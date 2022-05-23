@@ -1,4 +1,4 @@
-## Copyright(c) 2018-2020, Intel Corporation
+## Copyright(c) 2018-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -29,6 +29,7 @@ set(SRC
     api-shell.c
     init.c
     props.c
+    ${opae-test_ROOT}/framework/mock/opae_std.c
 )
 
 opae_add_shared_library(TARGET opae-c
@@ -61,4 +62,3 @@ install(FILES adapter.h props.h opae_int.h
 install(FILES plugin.h
     DESTINATION include/opae
 )
-

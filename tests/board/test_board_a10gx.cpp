@@ -147,13 +147,13 @@ fpga_result board_a10gx_c_p::write_sysfs_file(const char *file, void *buf,
 
   snprintf(sysfspath, sizeof(sysfspath), "%s/%s", SYSFS_FME_PATH, file);
   glob_t pglob;
-  int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
+  int gres = opae_glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
   if ((gres) || (1 != pglob.gl_pathc)) {
-    globfree(&pglob);
+    opae_globfree(&pglob);
     return FPGA_NOT_FOUND;
   }
-  fd = open(pglob.gl_pathv[0], O_WRONLY);
-  globfree(&pglob);
+  fd = opae_open(pglob.gl_pathv[0], O_WRONLY);
+  opae_globfree(&pglob);
   if (fd < 0) {
     printf("open failed \n");
     return FPGA_NOT_FOUND;
@@ -161,12 +161,12 @@ fpga_result board_a10gx_c_p::write_sysfs_file(const char *file, void *buf,
 
   ssize_t total_written = eintr_write(fd, buf, count);
   if (total_written == 0) {
-    close(fd);
+    opae_close(fd);
     printf("total_written failed \n");
     return FPGA_INVALID_PARAM;
   }
 
-  close(fd);
+  opae_close(fd);
   return res;
 }
 

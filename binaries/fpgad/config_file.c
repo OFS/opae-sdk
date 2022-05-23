@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -33,6 +33,7 @@
 #include "config_file.h"
 #include "monitored_device.h"
 #include "api/sysfs.h"
+#include "mock/opae_std.h"
 
 #include <json-c/json.h>
 
@@ -44,7 +45,7 @@ log_printf("cfg: " format, ##__VA_ARGS__)
 
 #define CFG_TRY_FILE(__f) \
 do { \
-	canon = canonicalize_file_name(__f); \
+	canon = opae_canonicalize_file_name(__f); \
 	if (canon) { \
  \
 		if (!cmd_path_is_symlink(__f)) { \
@@ -54,11 +55,11 @@ do { \
 				canon, \
 				len); \
 			c->cfgfile[len] = '\0'; \
-			free(canon); \
+			opae_free(canon); \
 			return 0; \
 		} \
  \
-		free(canon); \
+		opae_free(canon); \
 	} \
 } while (0)
 
@@ -107,7 +108,7 @@ STATIC char *cfg_read_file(const char *file)
 	size_t len;
 	char *buf;
 
-	fp = fopen(file, "r");
+	fp = opae_fopen(file, "r");
 	if (!fp) {
 		LOG("fopen failed.\n");
 		return NULL;
@@ -115,7 +116,7 @@ STATIC char *cfg_read_file(const char *file)
 
 	if (fseek(fp, 0, SEEK_END)) {
 		LOG("fseek failed.\n");
-		fclose(fp);
+		opae_fclose(fp);
 		return NULL;
 	}
 
@@ -124,32 +125,32 @@ STATIC char *cfg_read_file(const char *file)
 
 	if (len == 1) {
 		LOG("%s is empty.\n", file);
-		fclose(fp);
+		opae_fclose(fp);
 		return NULL;
 	}
 
 	if (fseek(fp, 0, SEEK_SET)) {
 		LOG("fseek failed.\n");
-		fclose(fp);
+		opae_fclose(fp);
 		return NULL;
 	}
 
-	buf = (char *)malloc(len);
+	buf = (char *)opae_malloc(len);
 	if (!buf) {
 		LOG("malloc failed.\n");
-		fclose(fp);
+		opae_fclose(fp);
 		return NULL;
 	}
 
 	if ((fread(buf, 1, len - 1, fp) != len - 1) ||
 	    ferror(fp)) {
 		LOG("fread failed.\n");
-		fclose(fp);
-		free(buf);
+		opae_fclose(fp);
+		opae_free(buf);
 		return NULL;
 	}
 
-	fclose(fp);
+	opae_fclose(fp);
 	buf[len - 1] = '\0';
 
 	return buf;
@@ -174,7 +175,7 @@ STATIC cfg_vendor_device_id *alloc_device(uint16_t vendor_id,
 {
 	cfg_vendor_device_id *p;
 
-	p = (cfg_vendor_device_id *)malloc(sizeof(cfg_vendor_device_id));
+	p = (cfg_vendor_device_id *)opae_malloc(sizeof(cfg_vendor_device_id));
 	if (p) {
 		p->vendor_id = vendor_id;
 		p->device_id = device_id;
@@ -192,7 +193,7 @@ STATIC cfg_plugin_configuration *alloc_configuration(char *configuration,
 	cfg_plugin_configuration *p;
 
 	p = (cfg_plugin_configuration *)
-		malloc(sizeof(cfg_plugin_configuration));
+		opae_malloc(sizeof(cfg_plugin_configuration));
 	if (p) {
 		p->configuration = configuration;
 		p->enabled = enabled;
@@ -305,7 +306,7 @@ out_free:
 	for (id = head ; id ; ) {
 		cfg_vendor_device_id *trash = id;
 		id = id->next;
-		free(trash);
+		opae_free(trash);
 	}
 	return NULL;
 }
@@ -347,9 +348,9 @@ STATIC int cfg_process_plugin(const char *name,
 		return 1;
 	}
 
-	configuration = cstr_dup(configuration);
+	configuration = opae_strdup(configuration);
 	if (!configuration) {
-		LOG("cstr_dup failed.\n");
+		LOG("strdup() failed.\n");
 		return 1;
 	}
 
@@ -381,9 +382,9 @@ STATIC int cfg_process_plugin(const char *name,
 		goto out_free;
 	}
 
-	plugin = cstr_dup(json_object_get_string(j_plugin));
+	plugin = opae_strdup(json_object_get_string(j_plugin));
 	if (!plugin) {
-		LOG("cstr_dup failed.\n");
+		LOG("strdup() failed.\n");
 		goto out_free;
 	}
 
@@ -428,11 +429,11 @@ STATIC int cfg_process_plugin(const char *name,
 
 out_free:
 	if (configuration)
-		free(configuration);
+		opae_free(configuration);
 	if (plugin)
-		free(plugin);
+		opae_free(plugin);
 	if (c)
-		free(c);
+		opae_free(c);
 	return 1;
 }
 
@@ -456,7 +457,7 @@ cfg_json_to_supported(cfg_plugin_configuration *configurations)
 
 	++num_devices; // +1 for NULL terminator
 
-	supported = calloc(num_devices, sizeof(fpgad_supported_device));
+	supported = opae_calloc(num_devices, sizeof(fpgad_supported_device));
 	if (!supported) {
 		LOG("calloc failed.\n");
 		return NULL;
@@ -471,8 +472,8 @@ cfg_json_to_supported(cfg_plugin_configuration *configurations)
 
 			dev->vendor_id = d->vendor_id;
 			dev->device_id = d->device_id;
-			dev->library_path = cstr_dup(c->library);
-			dev->config = cstr_dup(c->configuration);
+			dev->library_path = opae_strdup(c->library);
+			dev->config = opae_strdup(c->configuration);
 		}
 	}
 
@@ -482,16 +483,16 @@ cfg_json_to_supported(cfg_plugin_configuration *configurations)
 		for (d = c->devices ; d ; ) {
 			cfg_vendor_device_id *dtrash = d;
 			d = d->next;
-			free(dtrash);
+			opae_free(dtrash);
 		}
 
 		c = c->next;
 
 		if (ctrash->configuration)
-			free(ctrash->configuration);
+			opae_free(ctrash->configuration);
 		if (ctrash->library)
-			free(ctrash->library);
-		free(ctrash);
+			opae_free(ctrash->library);
+		opae_free(ctrash);
 	}
 
 	return supported;
@@ -600,14 +601,14 @@ int cfg_load_config(struct fpgad_config *c)
 			LOG("invalid configuration file\n");
 
 			while (trash->library_path) {
-				free((void *)trash->library_path);
+				opae_free((void *)trash->library_path);
 				if (trash->config)
-					free((void *)trash->config);
+					opae_free((void *)trash->config);
 
 				++trash;
 			}
 
-			free(c->supported_devices);
+			opae_free(c->supported_devices);
 			c->supported_devices = NULL;
 		}
 
@@ -616,6 +617,6 @@ int cfg_load_config(struct fpgad_config *c)
 out_put:
 	json_object_put(root);
 out_free:
-	free(cfg_buf);
+	opae_free(cfg_buf);
 	return res;
 }

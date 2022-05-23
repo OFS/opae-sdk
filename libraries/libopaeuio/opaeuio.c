@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2021, Intel Corporation
+// Copyright(c) 2020-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -40,6 +40,7 @@
 #include <dirent.h>
 
 #include <opae/uio.h>
+#include "mock/opae_std.h"
 
 #define __SHORT_FILE__                                    \
 ({                                                        \
@@ -65,7 +66,7 @@ STATIC int opae_uio_read_sysfs_uint64(const char *path, uint64_t *puint)
 {
 	FILE *fp;
 
-	fp = fopen(path, "r");
+	fp = opae_fopen(path, "r");
 	if (!fp) {
 		ERR("failed to fopen(\"%s\", \"r\")\n", path);
 		return 1;
@@ -73,11 +74,11 @@ STATIC int opae_uio_read_sysfs_uint64(const char *path, uint64_t *puint)
 
 	if (fscanf(fp, "%lx", puint) != 1) {
 		ERR("fscanf() failed\n");
-		fclose(fp);
+		opae_fclose(fp);
 		return 2;
 	}
 
-	fclose(fp);
+	opae_fclose(fp);
 
 	return 0;
 }
@@ -89,7 +90,7 @@ opae_uio_device_region_create(uint32_t index,
 			      size_t size)
 {
 	struct opae_uio_device_region *r;
-	r = malloc(sizeof(*r));
+	r = opae_malloc(sizeof(*r));
 	if (r) {
 		r->region_index = index;
 		r->region_ptr = ptr;
@@ -110,7 +111,7 @@ opae_uio_device_region_destroy(struct opae_uio_device_region *r)
 			if (munmap(trash->region_ptr, trash->region_size) < 0)
 				ERR("munmap() failed\n");
 		}
-		free(trash);
+		opae_free(trash);
 	}
 }
 
@@ -120,7 +121,7 @@ STATIC void opae_uio_destroy(struct opae_uio *u)
 	u->regions = NULL;
 
 	if (u->device_fd >= 0) {
-		close(u->device_fd);
+		opae_close(u->device_fd);
 		u->device_fd = -1;
 	}
 }
@@ -208,7 +209,7 @@ opae_uio_enum_regions(int fd, const char *path)
 	struct dirent *dirent;
 	char sysfs_path[OPAE_UIO_PATH_MAX];
 
-	dir = opendir(path);
+	dir = opae_opendir(path);
 	if (!dir) {
 		ERR("opendir(\"%s\") failed\n", path);
 		return NULL;
@@ -237,7 +238,7 @@ opae_uio_enum_regions(int fd, const char *path)
 	}
 
 out_close:
-	if (closedir(dir) < 0)
+	if (opae_closedir(dir) < 0)
 		ERR("closedir() failed\n");
 
 	return region_list;
@@ -272,10 +273,10 @@ STATIC int opae_uio_init(struct opae_uio *u, const char *dfl_device)
 			return 1;
 		}
 
-		glob_res = glob(path_expr, GLOB_NOSORT, NULL, &globbuf);
+		glob_res = opae_glob(path_expr, GLOB_NOSORT, NULL, &globbuf);
 		if (glob_res || !globbuf.gl_pathc) {
 			if (globbuf.gl_pathv)
-				globfree(&globbuf);
+				opae_globfree(&globbuf);
 			continue;
 		}
 
@@ -316,7 +317,7 @@ STATIC int opae_uio_init(struct opae_uio *u, const char *dfl_device)
 		goto out_glob_free;
 	}
 
-	u->device_fd = open(u->device_path, O_RDWR);
+	u->device_fd = opae_open(u->device_path, O_RDWR);
 	if (u->device_fd < 0) {
 		ERR("failed to open(\"%s\")\n", u->device_path);
 		res = 7;
@@ -339,7 +340,7 @@ out_destroy:
 	opae_uio_destroy(u);
 out_glob_free:
 	if (globbuf.gl_pathv)
-		globfree(&globbuf);
+		opae_globfree(&globbuf);
 	return res;
 }
 

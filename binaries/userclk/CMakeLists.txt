@@ -25,7 +25,9 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 opae_add_executable(TARGET userclk
-    SOURCE main.c
+    SOURCE
+        main.c
+        ${opae-test_ROOT}/framework/mock/opae_std.c
     LIBS
         argsfilter
         opae-c

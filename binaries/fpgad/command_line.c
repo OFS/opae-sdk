@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -37,6 +37,7 @@
 #include "command_line.h"
 #include "config_file.h"
 #include "monitored_device.h"
+#include "mock/opae_std.h"
 
 #ifdef LOG
 #undef LOG
@@ -86,7 +87,7 @@ STATIC bool cmd_register_null_gbs(struct fpgad_config *c, char *null_gbs_path)
 	char *canon_path = NULL;
 
 	if (c->num_null_gbs < (sizeof(c->null_gbs) / sizeof(c->null_gbs[0]))) {
-		canon_path = canonicalize_file_name(null_gbs_path);
+		canon_path = opae_canonicalize_file_name(null_gbs_path);
 
 		if (canon_path) {
 
@@ -97,7 +98,7 @@ STATIC bool cmd_register_null_gbs(struct fpgad_config *c, char *null_gbs_path)
 						&c->null_gbs[c->num_null_gbs])) {
 				LOG("failed to load NULL GBS \"%s\"\n", canon_path);
 				opae_unload_bitstream(&c->null_gbs[c->num_null_gbs]);
-				free(canon_path);
+				opae_free(canon_path);
 				return false;
 			}
 
@@ -252,12 +253,12 @@ int cmd_canonicalize_paths(struct fpgad_config *c)
 
 		passwd = getpwuid(uid);
 
-		canon_path = canonicalize_file_name(passwd->pw_dir);
+		canon_path = opae_canonicalize_file_name(passwd->pw_dir);
 
 		if (canon_path) {
 			snprintf(c->directory, sizeof(c->directory),
 					"%s/.opae", canon_path);
-			free(canon_path);
+			opae_free(canon_path);
 		} else {
 			// ${HOME} not found or invalid - use current dir.
 			if (getcwd(buf, sizeof(buf))) {
@@ -288,7 +289,7 @@ int cmd_canonicalize_paths(struct fpgad_config *c)
 	LOG("daemon working directory is %s\n", c->directory);
 
 	// Create the directory if it doesn't exist.
-	if (lstat(c->directory, &stat_buf) && (errno == ENOENT)) {
+	if (opae_lstat(c->directory, &stat_buf) && (errno == ENOENT)) {
 		if (mkdir(c->directory, mode)) {
 			LOG("mkdir failed\n");
 			return 1;
@@ -384,7 +385,7 @@ int cmd_canonicalize_paths(struct fpgad_config *c)
 	if (def || (c->cfgfile[0] == '\0')) {
 		search = true;
 	} else {
-		canon_path = canonicalize_file_name(c->cfgfile);
+		canon_path = opae_canonicalize_file_name(c->cfgfile);
 		if (canon_path) {
 
 			if (!cmd_path_is_symlink(c->cfgfile)) {
@@ -404,7 +405,7 @@ int cmd_canonicalize_paths(struct fpgad_config *c)
 
 			}
 
-			free(canon_path);
+			opae_free(canon_path);
 		}
 	}
 
@@ -439,7 +440,7 @@ void cmd_destroy(struct fpgad_config *c)
 
 	for (i = 0 ; i < c->num_null_gbs ; ++i) {
 		if (c->null_gbs[i].filename)
-			free((char *)c->null_gbs[i].filename);
+			opae_free((char *)c->null_gbs[i].filename);
 		opae_unload_bitstream(&c->null_gbs[i]);
 	}
 	c->num_null_gbs = 0;
@@ -450,12 +451,12 @@ void cmd_destroy(struct fpgad_config *c)
 		for (i = 0 ; c->supported_devices[i].library_path ; ++i) {
 			fpgad_supported_device *d = &c->supported_devices[i];
 			if (d->library_path)
-				free((void *)d->library_path);
+				opae_free((void *)d->library_path);
 			if (d->config)
-				free((void *)d->config);
+				opae_free((void *)d->config);
 		}
 
-		free(c->supported_devices);
+		opae_free(c->supported_devices);
 	}
 	c->supported_devices = NULL;
 }
@@ -477,7 +478,7 @@ bool cmd_path_is_symlink(const char *path)
 	if (component[0] == '/') {
 		// absolute path
 
-		pslash = realpath(path, component);
+		pslash = opae_realpath(path, component);
 
 		if (strcmp(component, path))
 			return true;
@@ -490,7 +491,7 @@ bool cmd_path_is_symlink(const char *path)
 
 		while (pslash) {
 
-			if (fstatat(AT_FDCWD, component,
+			if (opae_fstatat(AT_FDCWD, component,
 				    &stat_buf, AT_SYMLINK_NOFOLLOW)) {
 				return false;
 			}
@@ -502,7 +503,7 @@ bool cmd_path_is_symlink(const char *path)
 			pslash = strrchr(component, '/');
 		}
 
-		if (fstatat(AT_FDCWD, component,
+		if (opae_fstatat(AT_FDCWD, component,
 			    &stat_buf, AT_SYMLINK_NOFOLLOW)) {
 			return false;
 		}

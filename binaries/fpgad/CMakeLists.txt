@@ -38,6 +38,7 @@ opae_add_executable(TARGET fpgad
         monitor_thread.c
         daemonize.c
         monitored_device.c
+        ${opae-test_ROOT}/framework/mock/opae_std.c
     LIBS
         opae-c
         bitstream

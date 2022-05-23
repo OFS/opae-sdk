@@ -38,6 +38,7 @@
 #include "monitored_device.h"
 #include "monitor_thread.h"
 #include "api/sysfs.h"
+#include "mock/opae_std.h"
 
 #ifdef LOG
 #undef LOG
@@ -82,7 +83,7 @@ allocate_monitored_device(struct fpgad_config *config,
 {
 	fpgad_monitored_device *d;
 
-	d = (fpgad_monitored_device *) calloc(
+	d = (fpgad_monitored_device *) opae_calloc(
 			1, sizeof(fpgad_monitored_device));
 
 	if (!d) {
@@ -295,7 +296,7 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 				LOG("failed to find %s in \"%s\"\n",
 					FPGAD_PLUGIN_CONFIGURE,
 					d->library_path);
-				free(monitored);
+				opae_free(monitored);
 				continue;
 			}
 
@@ -305,7 +306,7 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 				    FPGAD_PLUGIN_CONFIGURE,
 				    d->library_path,
 				    res);
-				free(monitored);
+				opae_free(monitored);
 				continue;
 			}
 
@@ -320,14 +321,14 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 						LOG("failed to create thread"
 						    " for \"%s\"\n",
 						    d->library_path);
-						free(monitored);
+						opae_free(monitored);
 						continue;
 					}
 
 				} else {
 					LOG("Thread plugin \"%s\" has no "
 					    "thread_fn\n", d->library_path);
-					free(monitored);
+					opae_free(monitored);
 					continue;
 				}
 
@@ -368,7 +369,7 @@ int mon_enumerate(struct fpgad_config *c)
 		return res;
 	}
 
-	tokens = calloc(num_matches, sizeof(fpga_token));
+	tokens = opae_calloc(num_matches, sizeof(fpga_token));
 	if (!tokens) {
 		res = 1;
 		LOG("out of memory\n");
@@ -392,6 +393,6 @@ int mon_enumerate(struct fpgad_config *c)
 
 out_exit:
 	if (tokens)
-		free(tokens);
+		opae_free(tokens);
 	return res + (monitored_devices ? 0 : 1);
 }

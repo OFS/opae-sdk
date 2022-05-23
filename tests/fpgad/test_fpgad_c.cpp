@@ -60,7 +60,7 @@ class fpgad_fpgad_c_p : public opae_base_p<> {
     log_set(stdout);
 
     strcpy(tmpnull_gbs_, "tmpnull-XXXXXX.gbs");
-    close(mkstemps(tmpnull_gbs_, 4));
+    opae_close(mkstemps(tmpnull_gbs_, 4));
 
     std::vector<uint8_t> gbs_hdr =
       system_->assemble_gbs_header(platform_.devices[0]);

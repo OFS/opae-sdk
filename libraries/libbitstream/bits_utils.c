@@ -39,6 +39,7 @@
 #include <opae/log.h>
 
 #include "bits_utils.h"
+#include "mock/opae_std.h"
 
 fpga_result opae_bitstream_get_json_string(json_object *parent,
 					   const char *name,
@@ -64,7 +65,7 @@ fpga_result opae_bitstream_get_json_string(json_object *parent,
 
 	len = strlen(s);
 
-	*value = malloc(len + 1);
+	*value = opae_malloc(len + 1);
 	if (!*value) {
 		OPAE_ERR("malloc failed");
 		return FPGA_NO_MEMORY;
@@ -144,7 +145,7 @@ STATIC bool opae_bitstream_path_not_file(const char *path)
 {
 	struct stat sb;
 
-	if (stat(path, &sb) < 0)
+	if (opae_stat(path, &sb) < 0)
 		return true; // can't determine
 
 	if (!S_ISREG(sb.st_mode))
@@ -206,7 +207,7 @@ STATIC bool opae_bitstream_path_contains_symlink(const char *path,
 	if (component[0] == '/') {
 		// absolute path
 
-		pslash = realpath(path, component);
+		pslash = opae_realpath(path, component);
 
 		// If the result of conversion through realpath() is different
 		// than the original path, then the original must have
@@ -222,7 +223,7 @@ STATIC bool opae_bitstream_path_contains_symlink(const char *path,
 
 		while (pslash) {
 
-			if (fstatat(AT_FDCWD, component,
+			if (opae_fstatat(AT_FDCWD, component,
 				    &stat_buf, AT_SYMLINK_NOFOLLOW)) {
 				OPAE_ERR("fstatat failed.");
 				return true;
@@ -235,7 +236,7 @@ STATIC bool opae_bitstream_path_contains_symlink(const char *path,
 			pslash = strrchr(component, '/');
 		}
 
-		if (fstatat(AT_FDCWD, component,
+		if (opae_fstatat(AT_FDCWD, component,
 			    &stat_buf, AT_SYMLINK_NOFOLLOW)) {
 			OPAE_ERR("fstatat failed.");
 			return true;

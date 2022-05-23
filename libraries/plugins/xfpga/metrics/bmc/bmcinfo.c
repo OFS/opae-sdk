@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -43,6 +43,7 @@
 #include "bmcinfo.h"
 #include "bmcdata.h"
 #include <opae/fpga.h>
+#include "mock/opae_std.h"
 
 static wchar_t *base_units[] = {L"unspecified",
 				L"\x00b0\x0043", // degrees C
@@ -143,7 +144,7 @@ static size_t max_base_units = (sizeof(base_units) / sizeof(base_units[0]));
 Values *bmc_build_values(sensor_reading *reading, sdr_header *header,
 			 sdr_key *key, sdr_body *body)
 {
-	Values *val = (Values *)calloc(1, sizeof(Values));
+	Values *val = (Values *)opae_calloc(1, sizeof(Values));
 
 	(void)header;
 
@@ -168,13 +169,13 @@ Values *bmc_build_values(sensor_reading *reading, sdr_header *header,
 		uint8_t len =
 			body->id_string_type_length_code.bits.len_in_characters;
 		if ((len == 0x1f) || (len == 0)) {
-			val->name = strdup("**INVALID**");
+			val->name = opae_strdup("**INVALID**");
 			val->is_valid = false;
 		} else {
-			val->name = strdup((char *)&body->string_bytes[0]);
+			val->name = opae_strdup((char *)&body->string_bytes[0]);
 		}
 	} else {
-		val->name = strdup("**String type unimplemented**");
+		val->name = opae_strdup("**String type unimplemented**");
 		DBG_PRINT("String type other than ASCII8\n");
 	}
 

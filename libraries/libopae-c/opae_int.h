@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -39,6 +39,8 @@
 #define __USE_GNU
 #endif // __USE_GNU
 #include <pthread.h>
+
+#include "mock/opae_std.h"
 
 #define ASSERT_NOT_NULL_MSG_RESULT(__arg, __msg, __result) \
 	do {                                                   \
@@ -164,7 +166,7 @@ static inline void opae_destroy_wrapped_handle(opae_wrapped_handle *wh)
 {
 	opae_downref_wrapped_token(wh->wrapped_token);
 	wh->magic = 0;
-	free(wh);
+	opae_free(wh);
 }
 
 //                                         e v e w
@@ -203,7 +205,7 @@ opae_destroy_wrapped_event_handle(opae_wrapped_event_handle *we)
 	opae_mutex_unlock(err, &we->lock);
 	if (pthread_mutex_destroy(&we->lock))
 		OPAE_ERR("pthread_mutex_destroy() failed");
-	free(we);
+	opae_free(we);
 }
 
 //                                   j b o w
@@ -231,7 +233,7 @@ static inline opae_wrapped_object *opae_validate_wrapped_object(fpga_object o)
 static inline void opae_destroy_wrapped_object(opae_wrapped_object *wo)
 {
 	wo->magic = 0;
-	free(wo);
+	opae_free(wo);
 }
 
 #ifdef __cplusplus

@@ -53,7 +53,7 @@ class fpgad_daemonize_c_p : public opae_base_p<> {
     opae_base_p<>::SetUp();
 
     strcpy(daemonize_result_, "daem-XXXXXX.pid");
-    close(mkstemps(daemonize_result_, 4));
+    opae_close(mkstemps(daemonize_result_, 4));
   }
 
   virtual void TearDown() override {
@@ -86,10 +86,10 @@ TEST_P(fpgad_daemonize_c_p, test) {
     res = daemonize(test_sig_handler, 0, getcwd(cwd, sizeof(cwd)));
 
     // pass the result of daemonize to the parent proc via the tmp file.
-    FILE *fp = fopen(daemonize_result_, "w");
+    FILE *fp = opae_fopen(daemonize_result_, "w");
     if (fp) {
       fprintf(fp, "%d\n", res);
-      fclose(fp);
+      opae_fclose(fp);
     }
 
     exit(0);
@@ -99,7 +99,7 @@ TEST_P(fpgad_daemonize_c_p, test) {
     int res = -1;
     int timeout = 15;
 
-    FILE *fp = fopen(daemonize_result_, "r");
+    FILE *fp = opae_fopen(daemonize_result_, "r");
     ASSERT_NE(nullptr, fp);
 
     while (fscanf(fp, "%d", &res) != 1) {
@@ -107,10 +107,10 @@ TEST_P(fpgad_daemonize_c_p, test) {
       rewind(fp);
       timeout--;
       if (!timeout)
-	      fclose(fp);
+	      opae_fclose(fp);
       ASSERT_GT(timeout, 0);
     }
-    fclose(fp);
+    opae_fclose(fp);
 
     EXPECT_EQ(res, 0);
   }

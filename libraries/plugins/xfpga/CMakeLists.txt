@@ -73,5 +73,4 @@ opae_add_module_library(TARGET xfpga
 target_include_directories(xfpga
     PRIVATE
         ${OPAE_LIB_SOURCE}/libopae-c
-        ${opae-test_ROOT}/framework
 )

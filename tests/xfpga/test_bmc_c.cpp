@@ -85,13 +85,13 @@ fpga_result bmc_c_p::write_sysfs_file(fpga_token token, const char *file,
   strncat(sysfspath, file, len + 1);
 
   glob_t pglob;
-  int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
+  int gres = opae_glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
   if ((gres) || (1 != pglob.gl_pathc)) {
-    globfree(&pglob);
+    opae_globfree(&pglob);
     return FPGA_NOT_FOUND;
   }
-  fd = open(pglob.gl_pathv[0], O_WRONLY);
-  globfree(&pglob);
+  fd = opae_open(pglob.gl_pathv[0], O_WRONLY);
+  opae_globfree(&pglob);
   if (fd < 0) {
     printf("open faild \n");
     return FPGA_NOT_FOUND;
@@ -102,12 +102,12 @@ fpga_result bmc_c_p::write_sysfs_file(fpga_token token, const char *file,
   printf("total_written %ld \n", total_written);
 
   if (total_written == 0) {
-    close(fd);
+    opae_close(fd);
     printf("total_written faild \n");
     return FPGA_INVALID_PARAM;
   }
 
-  close(fd);
+  opae_close(fd);
 
   return res;
 }
@@ -129,14 +129,14 @@ TEST_P(bmc_c_p, test_bmc_1) {
 
   EXPECT_EQ(bmcGetLastResetCause(device_token_, &string), FPGA_OK);
   if (string) {
-    free(string);
+    opae_free(string);
     string = NULL;
   }
   EXPECT_NE(bmcGetLastResetCause(device_token_, NULL), FPGA_OK);
 
   EXPECT_EQ(bmcGetLastPowerdownCause(device_token_, &string), FPGA_OK);
   if (string) {
-    free(string);
+    opae_free(string);
     string = NULL;
   }
   EXPECT_NE(bmcGetLastPowerdownCause(device_token_, NULL), FPGA_OK);
@@ -331,7 +331,7 @@ TEST_P(bmc_c_p, test_bmc_5) {
   EXPECT_NE(bmcGetLastResetCause(device_token_, &string), FPGA_OK);
   printf("string= %s", string);
   if (string) {
-    free(string);
+    opae_free(string);
     string = NULL;
   }
 
@@ -342,7 +342,7 @@ TEST_P(bmc_c_p, test_bmc_5) {
   EXPECT_EQ(bmcGetLastResetCause(device_token_, &string), FPGA_OK);
   printf("string= %s", string);
   if (string) {
-    free(string);
+    opae_free(string);
     string = NULL;
   }
 
@@ -352,7 +352,7 @@ TEST_P(bmc_c_p, test_bmc_5) {
   EXPECT_EQ(bmcGetLastResetCause(device_token_, &string), FPGA_OK);
   printf("string= %s", string);
   if (string) {
-    free(string);
+    opae_free(string);
     string = NULL;
   }
 
@@ -362,7 +362,7 @@ TEST_P(bmc_c_p, test_bmc_5) {
   EXPECT_EQ(bmcGetLastResetCause(device_token_, &string), FPGA_OK);
   printf("string= %s", string);
   if (string) {
-    free(string);
+    opae_free(string);
     string = NULL;
   }
 
@@ -372,7 +372,7 @@ TEST_P(bmc_c_p, test_bmc_5) {
   EXPECT_EQ(bmcGetLastResetCause(device_token_, &string), FPGA_OK);
   printf("string= %s", string);
   if (string) {
-    free(string);
+    opae_free(string);
     string = NULL;
   }
 
@@ -382,7 +382,7 @@ TEST_P(bmc_c_p, test_bmc_5) {
   EXPECT_EQ(bmcGetLastResetCause(device_token_, &string), FPGA_OK);
   printf("string= %s", string);
   if (string) {
-    free(string);
+    opae_free(string);
     string = NULL;
   }
 
@@ -392,7 +392,7 @@ TEST_P(bmc_c_p, test_bmc_5) {
   EXPECT_EQ(bmcGetLastResetCause(device_token_, &string), FPGA_OK);
   printf("string= %s", string);
   if (string) {
-    free(string);
+    opae_free(string);
     string = NULL;
   }
 
@@ -402,7 +402,7 @@ TEST_P(bmc_c_p, test_bmc_5) {
   EXPECT_EQ(bmcGetLastResetCause(device_token_, &string), FPGA_OK);
   printf("string= %s", string);
   if (string) {
-    free(string);
+    opae_free(string);
     string = NULL;
   }
 }
@@ -427,7 +427,7 @@ TEST_P(bmc_c_p, test_bmc_6) {
   EXPECT_NE(bmcGetLastPowerdownCause(device_token_, &string), FPGA_OK);
   if (string) {
     printf("string= %s", string);
-    free(string);
+    opae_free(string);
     string = NULL;
   }
 
@@ -460,8 +460,8 @@ TEST_P(bmc_c_p, test_bmc_7) {
   reading.sensor_validity.sensor_state.sensor_scanning_disabled = true;
   vals = bmc_build_values(&reading, &header, &key, &body);
   if (vals) {
-    free(vals->name);
-    free(vals);
+    opae_free(vals->name);
+    opae_free(vals);
     vals = NULL;
   }
 
@@ -469,8 +469,8 @@ TEST_P(bmc_c_p, test_bmc_7) {
   reading.sensor_validity.sensor_state.event_messages_disabled = true;
   vals = bmc_build_values(&reading, &header, &key, &body);
   if (vals) {
-    free(vals->name);
-    free(vals);
+    opae_free(vals->name);
+    opae_free(vals);
     vals = NULL;
   }
 
@@ -478,8 +478,8 @@ TEST_P(bmc_c_p, test_bmc_7) {
   reading.sensor_validity.sensor_state.event_messages_disabled = false;
   vals = bmc_build_values(&reading, &header, &key, &body);
   if (vals) {
-    free(vals->name);
-    free(vals);
+    opae_free(vals->name);
+    opae_free(vals);
     vals = NULL;
   }
 
@@ -487,24 +487,24 @@ TEST_P(bmc_c_p, test_bmc_7) {
   body.id_string_type_length_code.bits.len_in_characters = 0;
   vals = bmc_build_values(&reading, &header, &key, &body);
   if (vals) {
-    free(vals->name);
-    free(vals);
+    opae_free(vals->name);
+    opae_free(vals);
     vals = NULL;
   }
 
   body.sensor_units_1.bits.analog_data_format = 0x3;
   vals = bmc_build_values(&reading, &header, &key, &body);
   if (vals) {
-    free(vals->name);
-    free(vals);
+    opae_free(vals->name);
+    opae_free(vals);
     vals = NULL;
   }
 
   body.sensor_units_2 = 0xff;
   vals = bmc_build_values(&reading, &header, &key, &body);
   if (vals) {
-    free(vals->name);
-    free(vals);
+    opae_free(vals->name);
+    opae_free(vals);
     vals = NULL;
   }
 }

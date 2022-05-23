@@ -100,12 +100,12 @@ fpga_result read_sysfs_file(fpga_token token, const char *file,
 
 	// fstat for a sysfs file is not accurate for the BMC
 	// Read the entire file into a temp buffer to get actual size of file
-	*buf = (void *)calloc(stats.st_size, 1);
+	*buf = (void *)opae_calloc(stats.st_size, 1);
 
 	int32_t tot_bytes = 0;
 	int32_t bytes_read = 0;
 	do {
-		bytes_read = (int32_t)read(fd, *buf, stats.st_size);
+		bytes_read = (int32_t)opae_read(fd, *buf, stats.st_size);
 		if (bytes_read < 0) {
 			if (errno == EINTR) {
 				bytes_read = 1; // Fool the while loop
@@ -161,7 +161,7 @@ fpga_result bmcLoadSDRs(fpga_token token, bmc_sdr_handle *records,
 		return FPGA_OK;
 	}
 
-	*records = (bmc_sdr_handle)calloc(1, sizeof(struct _sdr_rec));
+	*records = (bmc_sdr_handle)opae_calloc(1, sizeof(struct _sdr_rec));
 	if (NULL == *records) {
 		opae_free(tmp);
 		return FPGA_NO_MEMORY;
@@ -228,7 +228,7 @@ fpga_result bmcReadSensorValues(bmc_sdr_handle records, bmc_values_handle *value
 
 	*num_values = sdr->num_records;
 
-	*values = (bmc_values_handle)calloc(1, sizeof(struct _bmc_values));
+	*values = (bmc_values_handle)opae_calloc(1, sizeof(struct _bmc_values));
 	if (NULL == *values) {
 		opae_free(tmp);
 		return FPGA_NO_MEMORY;
@@ -240,7 +240,7 @@ fpga_result bmcReadSensorValues(bmc_sdr_handle records, bmc_values_handle *value
 	vals->magic = BMC_VALUES_MAGIC;
 	vals->num_records = sdr->num_records;
 
-	vals->values = (Values **)calloc(sdr->num_records, sizeof(Values *));
+	vals->values = (Values **)opae_calloc(sdr->num_records, sizeof(Values *));
 	if (NULL == vals->values) {
 		return FPGA_NO_MEMORY;
 	}
@@ -317,7 +317,7 @@ fpga_result bmcThresholdsTripped(bmc_values_handle values,
 		goto out;
 	}
 
-	*tripped = (tripped_thresholds *)calloc(num_tripd,
+	*tripped = (tripped_thresholds *)opae_calloc(num_tripd,
 						sizeof(tripped_thresholds));
 	if (NULL == *tripped) {
 		return FPGA_NO_MEMORY;

@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -44,6 +44,7 @@
 
 #include "pluginmgr.h"
 #include "opae_int.h"
+#include "mock/opae_std.h"
 
 #define OPAE_PLUGIN_CONFIGURE "opae_plugin_configure"
 typedef int (*opae_plugin_configure_t)(opae_api_adapter_table *, const char *);
@@ -130,7 +131,7 @@ STATIC char *find_cfg(void)
 		memcpy(home_cfg_ptr, _opae_home_cfg_files[i], len);
 		home_cfg_ptr[len] = '\0';
 
-		file_name = canonicalize_file_name(home_cfg);
+		file_name = opae_canonicalize_file_name(home_cfg);
 		if (file_name)
 			return file_name;
 
@@ -143,7 +144,7 @@ STATIC char *find_cfg(void)
 		memcpy(home_cfg, _opae_sys_cfg_files[i], len);
 		home_cfg[len] = '\0';
 
-		file_name = canonicalize_file_name(home_cfg);
+		file_name = opae_canonicalize_file_name(home_cfg);
 		if (file_name)
 			return file_name;
 	}
@@ -186,7 +187,7 @@ STATIC opae_api_adapter_table *opae_plugin_mgr_alloc_adapter(const char *lib_pat
 		return NULL;
 	}
 
-	adapter = (opae_api_adapter_table *)calloc(
+	adapter = (opae_api_adapter_table *)opae_calloc(
 		1, sizeof(opae_api_adapter_table));
 
 	if (!adapter) {
@@ -213,7 +214,7 @@ STATIC int opae_plugin_mgr_free_adapter(opae_api_adapter_table *adapter)
 		OPAE_ERR("dlclose failed with %d %s", res, err ? err : "");
 	}
 
-	free(adapter);
+	opae_free(adapter);
 
 	return res;
 }
@@ -242,8 +243,8 @@ STATIC void opae_plugin_mgr_reset_cfg(void)
 	while (ptr) {
 		tmp = ptr;
 		ptr = ptr->next;
-		free(tmp->cfg);
-		free(tmp);
+		opae_free(tmp->cfg);
+		opae_free(tmp);
 	}
 	opae_plugin_mgr_config_list = NULL;
 	opae_plugin_mgr_plugin_count = 0;
@@ -358,7 +359,7 @@ STATIC int process_plugin(const char *name, json_object *j_config)
 		return 1;
 	}
 
-	plugin_cfg *cfg = malloc(sizeof(plugin_cfg));
+	plugin_cfg *cfg = opae_malloc(sizeof(plugin_cfg));
 	if (!cfg) {
 		OPAE_ERR("Could not allocate memory for plugin cfg");
 		return 1;
@@ -367,7 +368,7 @@ STATIC int process_plugin(const char *name, json_object *j_config)
 	stringified = json_object_to_json_string_ext(j_plugin_cfg, JSON_C_TO_STRING_PLAIN);
 	if (!stringified) {
 		OPAE_ERR("error getting plugin configuration");
-		free(cfg);
+		opae_free(cfg);
 		return 1;
 	}
 
@@ -375,15 +376,15 @@ STATIC int process_plugin(const char *name, json_object *j_config)
 
 	if (cfg->cfg_size >= MAX_PLUGIN_CFG_SIZE) {
 		OPAE_ERR("plugin config too large");
-		free(cfg);
+		opae_free(cfg);
 		return 1;
 	}
 
-	cfg->cfg = malloc(cfg->cfg_size);
+	cfg->cfg = opae_malloc(cfg->cfg_size);
 	if (!cfg->cfg) {
 		OPAE_ERR("error allocating memory for plugin configuration");
 		cfg->cfg_size = 0;
-		free(cfg);
+		opae_free(cfg);
 		return 1;
 	}
 
@@ -470,7 +471,7 @@ STATIC int opae_plugin_mgr_parse_config(const char *filename)
 	size_t bytes_read = 0, total_read = 0;
 	FILE *fp = NULL;
 	if (filename) {
-		fp = fopen(filename, "r");
+		fp = opae_fopen(filename, "r");
 	} else {
 		OPAE_MSG("config file is NULL");
 		return 1;
@@ -494,12 +495,12 @@ STATIC int opae_plugin_mgr_parse_config(const char *filename)
 		OPAE_ERR("Unknown error reading config file: %s", filename);
 		goto out_err;
 	}
-	fclose(fp);
+	opae_fclose(fp);
 	fp = NULL;
 
 	return process_cfg_buffer(buffer, filename);
 out_err:
-	fclose(fp);
+	opae_fclose(fp);
 	fp = NULL;
 	return 1;
 }
@@ -556,7 +557,7 @@ STATIC int opae_plugin_mgr_detect_platforms(void)
 
 	memcpy(base_dir, "/sys/bus/pci/devices", 21);
 
-	dir = opendir(base_dir);
+	dir = opae_opendir(base_dir);
 	if (!dir) {
 		OPAE_ERR("Failed to open %s. Aborting platform detection.", base_dir);
 		return 1;
@@ -581,7 +582,7 @@ STATIC int opae_plugin_mgr_detect_platforms(void)
 			goto out_close;
 		}
 
-		fp = fopen(file_path, "r");
+		fp = opae_fopen(file_path, "r");
 		if (!fp) {
 			OPAE_ERR("Failed to open %s. Aborting platform detection.", file_path);
 			++errors;
@@ -590,12 +591,12 @@ STATIC int opae_plugin_mgr_detect_platforms(void)
 
 		if (EOF == fscanf(fp, "%x", &vendor)) {
 			OPAE_ERR("Failed to read %s. Aborting platform detection.", file_path);
-			fclose(fp);
+			opae_fclose(fp);
 			++errors;
 			goto out_close;
 		}
 
-		fclose(fp);
+		opae_fclose(fp);
 
 		// Read the 'device' file.
 		if (snprintf(file_path, sizeof(file_path),
@@ -607,7 +608,7 @@ STATIC int opae_plugin_mgr_detect_platforms(void)
 			goto out_close;
 		}
 
-		fp = fopen(file_path, "r");
+		fp = opae_fopen(file_path, "r");
 		if (!fp) {
 			OPAE_ERR("Failed to open %s. Aborting platform detection.", file_path);
 			++errors;
@@ -616,19 +617,19 @@ STATIC int opae_plugin_mgr_detect_platforms(void)
 
 		if (EOF == fscanf(fp, "%x", &device)) {
 			OPAE_ERR("Failed to read %s. Aborting platform detection.", file_path);
-			fclose(fp);
+			opae_fclose(fp);
 			++errors;
 			goto out_close;
 		}
 
-		fclose(fp);
+		opae_fclose(fp);
 
 		// Detect platform for this (vendor, device).
 		opae_plugin_mgr_detect_platform((uint16_t) vendor, (uint16_t) device);
 	}
 
 out_close:
-	closedir(dir);
+	opae_closedir(dir);
 	return errors;
 }
 
@@ -761,7 +762,7 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 	if (use_cfg) {
 		opae_plugin_mgr_parse_config(use_cfg);
 		if (found_cfg) {
-			free(found_cfg);
+			opae_free(found_cfg);
 		}
 	}
 

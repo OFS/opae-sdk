@@ -157,7 +157,7 @@ class error_c_mock_p : public opae_base_p<xfpga_> {
     while (p) {
       struct error_list *q = p;
       p = p->next;
-      free(q);
+      opae_free(q);
     }
   }
 

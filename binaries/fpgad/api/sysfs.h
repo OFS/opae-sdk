@@ -36,13 +36,12 @@
 
 #include <opae/types.h>
 #include <stdint.h>
+#include "mock/opae_std.h"
 
 // 0 on success
 int file_write_string(const char *path, const char *str, size_t len);
 
 // 0 on success
 int file_read_string(const char *path, char *str, size_t len);
-
-char *cstr_dup(const char *s);
 
 #endif /* __FPGAD_API_SYSFS_H__ */

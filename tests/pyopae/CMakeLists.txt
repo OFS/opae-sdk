@@ -34,7 +34,7 @@ try_compile(SUPPORTS_EMBEDDED_PYTHON
 
 if (SUPPORTS_EMBEDDED_PYTHON)
     add_executable(test_pyopae
-         ${opae-test_ROOT}/framework/mock/mock.c
+         ${opae-test_ROOT}/framework/mock/opae_mock.cpp
          test_pyopae.cpp
 	 ${OPAE_LIB_SOURCE}/pyopae/opae.cpp
 	 ${OPAE_LIB_SOURCE}/pyopae/pycontext.h

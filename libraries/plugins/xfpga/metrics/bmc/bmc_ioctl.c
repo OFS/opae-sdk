@@ -43,6 +43,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include "bmc_ioctl.h"
+#include "mock/opae_std.h"
 
 #include <glob.h>
 
@@ -155,7 +156,7 @@ fpga_result _bmcSetThreshold(int fd, uint32_t sensor,
 	req->header[1] = BMC_THRESH_HEADER_1;
 	req->header[2] = BMC_SET_THRESH_CMD;
 
-	if (ioctl(fd, _IOWR(AVMMI_BMC_MAGIC, 0, struct avmmi_bmc_xact), &xact)
+	if (opae_ioctl(fd, _IOWR(AVMMI_BMC_MAGIC, 0, struct avmmi_bmc_xact), &xact)
 	    != 0) {
 		res = FPGA_INVALID_PARAM;
 		goto out_close;
@@ -188,7 +189,7 @@ fpga_result _bmcGetThreshold(int fd, uint32_t sensor,
 	req.header[1] = BMC_THRESH_HEADER_1;
 	req.header[2] = BMC_GET_THRESH_CMD;
 
-	if (ioctl(fd, _IOWR(AVMMI_BMC_MAGIC, 0, struct avmmi_bmc_xact), &xact)
+	if (opae_ioctl(fd, _IOWR(AVMMI_BMC_MAGIC, 0, struct avmmi_bmc_xact), &xact)
 	    != 0) {
 		res = FPGA_INVALID_PARAM;
 		goto out_close;

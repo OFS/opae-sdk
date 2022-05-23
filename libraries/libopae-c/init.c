@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -45,6 +45,7 @@
 #include <opae/utils.h>
 #include "pluginmgr.h"
 #include "opae_int.h"
+#include "mock/opae_std.h"
 
 /* global loglevel */
 static int g_loglevel = OPAE_DEFAULT_LOGLEVEL;
@@ -110,12 +111,12 @@ STATIC char *find_ase_cfg(void)
 	struct passwd *user_passwd = getpwuid(getuid());
 
 	// first look in the OPAE source directory
-	file_name = canonicalize_file_name(OPAE_ASE_CFG_SRC_PATH);
+	file_name = opae_canonicalize_file_name(OPAE_ASE_CFG_SRC_PATH);
 	if (file_name)
 		return file_name;
 
 	// second look in OPAE installation directory
-	file_name = canonicalize_file_name(OPAE_ASE_CFG_INST_PATH);
+	file_name = opae_canonicalize_file_name(OPAE_ASE_CFG_INST_PATH);
 	if (file_name)
 		return file_name;
 
@@ -127,7 +128,7 @@ STATIC char *find_ase_cfg(void)
 			 "%s/share/opae/ase/opae_ase.cfg", opae_path) < 0) {
 			OPAE_ERR("snprintf buffer overflow");
 		} else {
-			file_name = canonicalize_file_name(cfg_path);
+			file_name = opae_canonicalize_file_name(cfg_path);
 			if (file_name)
 				return file_name;
 		}
@@ -141,7 +142,7 @@ STATIC char *find_ase_cfg(void)
 				     _ase_home_cfg_files[i]) < 0) {
 				OPAE_ERR("snprintf buffer overflow");
 			} else {
-				file_name = canonicalize_file_name(home_cfg);
+				file_name = opae_canonicalize_file_name(home_cfg);
 				if (file_name)
 					return file_name;
 			}
@@ -153,7 +154,7 @@ STATIC char *find_ase_cfg(void)
 		len = strnlen(_ase_sys_cfg_files[i], CFG_PATH_MAX - 1);
 		memcpy(home_cfg, _ase_sys_cfg_files[i], len);
 		home_cfg[len] = '\0';
-		file_name = canonicalize_file_name(home_cfg);
+		file_name = opae_canonicalize_file_name(home_cfg);
 		if (file_name)
 			return file_name;
 	}
@@ -185,7 +186,7 @@ __attribute__((constructor(1000))) STATIC void opae_init(void)
 	s = getenv("LIBOPAE_LOGFILE");
 	if (s) {
 		if (s[0] != '/' || !strncmp(s, "/tmp/", 5)) {
-			g_logfile = fopen(s, "w");
+			g_logfile = opae_fopen(s, "w");
 			if (g_logfile == NULL) {
 				fprintf(stderr,
 					"Could not open log file for writing: %s. ", s);
@@ -210,7 +211,7 @@ __attribute__((constructor(1000))) STATIC void opae_init(void)
 		if (res != FPGA_OK)
 			OPAE_ERR("fpgaInitialize: %s", fpgaErrStr(res));
 
-		free(cfg_path);
+		opae_free(cfg_path);
 	}
 	// If the environment hasn't requested explicit initialization,
 	// perform the initialization implicitly here.
@@ -227,7 +228,7 @@ __attribute__((destructor)) STATIC void opae_release(void)
 		OPAE_ERR("fpgaFinalize: %s", fpgaErrStr(res));
 
 	if (g_logfile != NULL && g_logfile != stdout) {
-		fclose(g_logfile);
+		opae_fclose(g_logfile);
 	}
 	g_logfile = NULL;
 }

@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2021, Intel Corporation
+// Copyright(c) 2020-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -34,6 +34,7 @@
 #include <errno.h>
 
 #include <opae/mem_alloc.h>
+#include "mock/opae_std.h"
 
 #define __SHORT_FILE__                                    \
 ({                                                        \
@@ -74,13 +75,13 @@ void mem_alloc_destroy(struct mem_alloc *m)
 	for (p = m->free.next ; p != &m->free ; ) {
 		trash = p;
 		p = p->next;
-		free(trash);
+		opae_free(trash);
 	}
 
 	for (p = m->allocated.next ; p != &m->allocated ; ) {
 		trash = p;
 		p = p->next;
-		free(trash);
+		opae_free(trash);
 	}
 
 	mem_alloc_init(m);
@@ -89,7 +90,7 @@ void mem_alloc_destroy(struct mem_alloc *m)
 STATIC struct mem_link *mem_link_alloc(uint64_t address, uint64_t size)
 {
 	struct mem_link *m;
-	m = malloc(sizeof(struct mem_link));
+	m = opae_malloc(sizeof(struct mem_link));
 	if (m) {
 		m->address = address;
 		m->size = size;
@@ -135,7 +136,7 @@ STATIC void mem_alloc_coalesce(struct mem_link *head,
 			l->address = prev->address;
 			l->size += prev->size;
 			link_unlink(prev);
-			free(prev);
+			opae_free(prev);
 		}
 	}
 
@@ -145,7 +146,7 @@ STATIC void mem_alloc_coalesce(struct mem_link *head,
 			next->address = l->address;
 			next->size += l->size;
 			link_unlink(l);
-			free(l);
+			opae_free(l);
 		}
 	}
 }
@@ -168,7 +169,7 @@ int mem_alloc_add_free(struct mem_alloc *m, uint64_t address, uint64_t size)
 			return 0;
 		} else if (address == p->address) {
 			// double free
-			free(node);
+			opae_free(node);
 			ERR("double free detected 0x%lx\n", address);
 			return 2;
 		} else {
@@ -268,7 +269,7 @@ STATIC int mem_alloc_allocate_split_node(struct mem_alloc *m,
 	p2 = mem_link_alloc(second_addr, second_size);
 	if (!p2) {
 		ERR("malloc() failed\n");
-		free(p);
+		opae_free(p);
 		return 3;
 	}
 
@@ -317,7 +318,7 @@ STATIC int mem_alloc_free_node(struct mem_alloc *m,
 	size = node->size;
 
 	link_unlink(node);
-	free(node);
+	opae_free(node);
 
 	return mem_alloc_add_free(m, address, size);
 }

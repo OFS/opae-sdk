@@ -27,46 +27,47 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include "mock/opae_std.h"
+#include "opae_std.h"
+#include "mock/test_system.h"
 
 int opae_open(const char *path, int flags)
 {
-	return open(path, flags);
+  return opae::testing::test_system::instance()->open(path, flags);
 }
 
 int opae_open_create(const char *path, int flags, mode_t mode)
 {
-	return open(path, flags, mode);
+  return opae::testing::test_system::instance()->open(path, flags, mode);
 }
 
 int opae_close(int fd)
 {
-	return close(fd);
+  return opae::testing::test_system::instance()->close(fd);
 }
 
 ssize_t opae_read(int fd, void *buf, size_t count)
 {
-	return read(fd, buf, count);
+  return opae::testing::test_system::instance()->read(fd, buf, count);
 }
 
 FILE *opae_fopen(const char *path, const char *mode)
 {
-	return fopen(path, mode);
+  return opae::testing::test_system::instance()->fopen(path, mode);
 }
 
 int opae_fclose(FILE *stream)
 {
-	return fclose(stream);
+  return opae::testing::test_system::instance()->fclose(stream);
 }
 
 FILE *opae_popen(const char *command, const char *type)
 {
-	return popen(command, type);
+  return opae::testing::test_system::instance()->popen(command, type);
 }
 
 int opae_pclose(FILE *stream)
 {
-	return pclose(stream);
+  return opae::testing::test_system::instance()->pclose(stream);
 }
 
 int opae_ioctl(int fd, unsigned long request, ...)
@@ -75,7 +76,7 @@ int opae_ioctl(int fd, unsigned long request, ...)
 	int res;
 
 	va_start(argp, request);
-	res = ioctl(fd, request, va_arg(argp, char *));
+	res = opae::testing::test_system::instance()->ioctl(fd, request, argp);
 	va_end(argp);
 
 	return res;
@@ -83,38 +84,38 @@ int opae_ioctl(int fd, unsigned long request, ...)
 
 DIR *opae_opendir(const char *name)
 {
-	return opendir(name);
+  return opae::testing::test_system::instance()->opendir(name);
 }
 
 int opae_closedir(DIR *dirp)
 {
-	return closedir(dirp);
+  return opae::testing::test_system::instance()->closedir(dirp);
 }
 
-ssize_t opae_readlink(const char *pathname, char *buf, size_t bufsiz)
+ssize_t opae_readlink(const char *pathname, char *buf, size_t bufsize)
 {
-	return readlink(pathname, buf, bufsiz);
+  return opae::testing::test_system::instance()->readlink(pathname, buf, bufsize);
 }
 
 int opae_stat(const char *pathname, struct stat *statbuf)
 {
-	return stat(pathname, statbuf);
+  return opae::testing::test_system::instance()->stat(pathname, statbuf);
 }
 
 int opae_lstat(const char *pathname, struct stat *statbuf)
 {
-	return lstat(pathname, statbuf);
+  return opae::testing::test_system::instance()->lstat(pathname, statbuf);
 }
 
-int opae_fstatat(int dirfd, const char *pathname,
-		 struct stat *statbuf, int flags)
+int opae_fstatat(int dirfd, const char *pathname, struct stat *statbuf, int flags)
 {
-	return fstatat(dirfd, pathname, statbuf, flags);
+  return opae::testing::test_system::instance()->fstatat(dirfd, pathname,
+                                                         statbuf, flags);
 }
 
 int opae_access(const char *pathname, int mode)
 {
-	return access(pathname, mode);
+  return opae::testing::test_system::instance()->access(pathname, mode);
 }
 
 int opae_scandir(const char *dirp,
@@ -122,12 +123,13 @@ int opae_scandir(const char *dirp,
 		 int (*filter)(const struct dirent * ),
 		 int (*compar)(const struct dirent ** , const struct dirent **))
 {
-	return scandir(dirp, namelist, filter, compar);
+  return opae::testing::test_system::instance()->scandir(dirp, namelist,
+                                                         filter, compar);
 }
 
 int opae_sched_setaffinity(pid_t pid, size_t cpusetsize, const cpu_set_t *mask)
 {
-	return sched_setaffinity(pid, cpusetsize, mask);
+  return opae::testing::test_system::instance()->sched_setaffinity(pid, cpusetsize, mask);
 }
 
 int opae_glob(const char *pattern,
@@ -135,41 +137,41 @@ int opae_glob(const char *pattern,
 	      int (*errfunc)(const char *epath, int eerrno),
 	      glob_t *pglob)
 {
-	return glob(pattern, flags, errfunc, pglob);
+  return opae::testing::test_system::instance()->glob(pattern, flags,
+                                                      errfunc, pglob);
 }
 
 void opae_globfree(glob_t *pglob)
 {
-	if (pglob->gl_pathv)
-		globfree(pglob);
+  return opae::testing::test_system::instance()->globfree(pglob);
 }
 
 char *opae_realpath(const char *path, char *resolved_path)
 {
-	return realpath(path, resolved_path);
+  return opae::testing::test_system::instance()->realpath(path, resolved_path);
 }
 
 void *opae_malloc(size_t size)
 {
-	return malloc(size);
+  return opae::testing::test_system::instance()->malloc(size);
 }
 
 void *opae_calloc(size_t nmemb, size_t size)
 {
-	return calloc(nmemb, size);
+  return opae::testing::test_system::instance()->calloc(nmemb, size);
 }
 
 void opae_free(void *ptr)
 {
-	free(ptr);
+  opae::testing::test_system::instance()->free(ptr);
 }
 
 char *opae_canonicalize_file_name(const char *path)
 {
-	return canonicalize_file_name(path);
+  return opae::testing::test_system::instance()->canonicalize_file_name(path);
 }
 
 char *opae_strdup(const char *s)
 {
-	return strdup(s);
+  return opae::testing::test_system::instance()->strdup(s);
 }

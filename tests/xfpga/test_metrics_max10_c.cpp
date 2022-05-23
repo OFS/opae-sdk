@@ -78,32 +78,32 @@ TEST_P(metrics_max10_c_p, test_metric_max10_1) {
 
   EXPECT_NE(read_sensor_sysfs_file(NULL, file, &buf, &tot_bytes_ret), FPGA_OK);
   if (buf) {
-      free(buf);
+      opae_free(buf);
       buf = NULL;
   }
 
   EXPECT_NE(read_sensor_sysfs_file(sysfs, NULL, &buf, &tot_bytes_ret), FPGA_OK);
   if (buf) {
-      free(buf);
+      opae_free(buf);
       buf = NULL;
   }
 
   EXPECT_NE(read_sensor_sysfs_file(sysfs, file, &buf, NULL), FPGA_OK);
   if (buf) {
-      free(buf);
+      opae_free(buf);
       buf = NULL;
   }
 
   EXPECT_EQ(read_sensor_sysfs_file(sysfs, file, &buf, &tot_bytes_ret), FPGA_OK);
   if (buf) {
-      free(buf);
+      opae_free(buf);
       buf = NULL;
   }
 
   EXPECT_NE(read_sensor_sysfs_file(sysfs, "test", &buf, &tot_bytes_ret),
             FPGA_OK);
   if (buf) {
-      free(buf);
+      opae_free(buf);
       buf = NULL;
   }
 

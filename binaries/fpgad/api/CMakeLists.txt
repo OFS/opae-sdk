@@ -30,6 +30,7 @@ opae_add_shared_library(TARGET fpgad-api
         opae_events_api.c
         device_monitoring.c
         sysfs.c
+        ${opae-test_ROOT}/framework/mock/opae_std.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
         ${libjson-c_LIBRARIES}
