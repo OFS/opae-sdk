@@ -1989,29 +1989,6 @@ fpga_result cat_handle_sysfs_path(char *dest, fpga_handle handle,
 	return cat_token_sysfs_path(dest, _handle->token, path);
 }
 
-STATIC char *cstr_dup(const char *str)
-{
-	size_t s;
-	char *p;
-
-	if (!str) {
-		OPAE_ERR("NULL param to cstr_dup");
-		return NULL;
-	}
-
-	s = strnlen(str, PATH_MAX - 1);
-	p = opae_malloc(s+1);
-	if (!p) {
-		OPAE_ERR("malloc failed");
-		return NULL;
-	}
-
-	strncpy(p, str, s + 1);
-	p[s] = '\0';
-
-	return p;
-}
-
 struct _fpga_object *alloc_fpga_object(const char *sysfspath, const char *name)
 {
 	struct _fpga_object *obj = opae_calloc(1, sizeof(struct _fpga_object));
@@ -2035,8 +2012,8 @@ struct _fpga_object *alloc_fpga_object(const char *sysfspath, const char *name)
 
 		pthread_mutexattr_destroy(&mattr);
 		obj->handle = NULL;
-		obj->path = cstr_dup(sysfspath);
-		obj->name = cstr_dup(name);
+		obj->path = opae_strdup(sysfspath);
+		obj->name = opae_strdup(name);
 		obj->perm = 0;
 		obj->size = 0;
 		obj->max_size = 0;
@@ -2130,7 +2107,7 @@ fpga_result opae_glob_paths(const char *path, size_t found_max, char *found[],
 		*num_found = pglob.gl_pathc;
 		to_copy = *num_found < found_max ? *num_found : found_max;
 		while (found && i < to_copy) {
-			found[i] = cstr_dup(pglob.gl_pathv[i]);
+			found[i] = opae_strdup(pglob.gl_pathv[i]);
 			if (!found[i]) {
 				// we had an error duplicating the string
 				// undo what we've duplicated so far

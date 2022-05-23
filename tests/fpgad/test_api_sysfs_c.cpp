@@ -74,30 +74,6 @@ TEST_P(fpgad_sysfs_c_p, write02) {
   unlink(tmp_file);
 }
 
-/**
- * @test       dup01
- * @brief      Test: cstr_dup
- * @details    When malloc returns NULL, the fn fails with NULL.<br>
- */
-TEST_P(fpgad_sysfs_c_p, dup01) {
-  system_->invalidate_malloc(0, "cstr_dup");
-  EXPECT_EQ(cstr_dup("blah"), (void *)NULL);
-}
-
-/**
- * @test       dup02
- * @brief      Test: cstr_dup
- * @details    When successful, the fn returns a duplicate<br>
- *             the given string.<br>
- */
-TEST_P(fpgad_sysfs_c_p, dup02) {
-  char *s;
-  s = cstr_dup("blah");
-  ASSERT_NE(s, (void *)NULL);
-  EXPECT_STREQ(s, "blah");
-  opae_free(s);
-}
-
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_sysfs_c_p);
 INSTANTIATE_TEST_SUITE_P(fpgad_c, fpgad_sysfs_c_p,
                          ::testing::ValuesIn(test_platform::platforms({ "skx-p" })));

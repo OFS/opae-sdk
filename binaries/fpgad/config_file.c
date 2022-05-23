@@ -45,7 +45,7 @@ log_printf("cfg: " format, ##__VA_ARGS__)
 
 #define CFG_TRY_FILE(__f) \
 do { \
-	canon = canonicalize_file_name(__f); \
+	canon = opae_canonicalize_file_name(__f); \
 	if (canon) { \
  \
 		if (!cmd_path_is_symlink(__f)) { \
@@ -348,9 +348,9 @@ STATIC int cfg_process_plugin(const char *name,
 		return 1;
 	}
 
-	configuration = cstr_dup(configuration);
+	configuration = opae_strdup(configuration);
 	if (!configuration) {
-		LOG("cstr_dup failed.\n");
+		LOG("strdup() failed.\n");
 		return 1;
 	}
 
@@ -382,9 +382,9 @@ STATIC int cfg_process_plugin(const char *name,
 		goto out_free;
 	}
 
-	plugin = cstr_dup(json_object_get_string(j_plugin));
+	plugin = opae_strdup(json_object_get_string(j_plugin));
 	if (!plugin) {
-		LOG("cstr_dup failed.\n");
+		LOG("strdup() failed.\n");
 		goto out_free;
 	}
 
@@ -472,8 +472,8 @@ cfg_json_to_supported(cfg_plugin_configuration *configurations)
 
 			dev->vendor_id = d->vendor_id;
 			dev->device_id = d->device_id;
-			dev->library_path = cstr_dup(c->library);
-			dev->config = cstr_dup(c->configuration);
+			dev->library_path = opae_strdup(c->library);
+			dev->config = opae_strdup(c->configuration);
 		}
 	}
 

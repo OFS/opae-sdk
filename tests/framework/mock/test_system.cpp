@@ -236,6 +236,10 @@ void test_system::initialize() {
   hijack_sched_setaffinity_after_ = 0;
   hijack_sched_setaffinity_caller_ = nullptr;
 
+  invalidate_strdup_ = false;
+  invalidate_strdup_after_ = 0;
+  invalidate_strdup_when_called_from_ = nullptr;
+
   for (const auto &kv : default_ioctl_handlers_) {
     register_ioctl_handler(kv.first, kv.second);
   }
@@ -802,6 +806,53 @@ void test_system::invalidate_calloc(uint32_t after,
 
 void test_system::free(void *ptr) {
   ::free(ptr);
+}
+
+char *test_system::canonicalize_file_name(const std::string &path)
+{
+  std::string syspath = get_sysfs_path(path);
+  return ::canonicalize_file_name(syspath.c_str());
+}
+
+char *test_system::strdup(const char *s)
+{
+  if (invalidate_strdup_) {
+    if (!invalidate_strdup_when_called_from_) {
+      if (!invalidate_strdup_after_) {
+        invalidate_strdup_ = false;
+        return nullptr;
+      }
+
+      --invalidate_strdup_after_;
+
+    } else {
+      void *caller = __builtin_return_address(1);
+      int res;
+      Dl_info info;
+
+      dladdr(caller, &info);
+      if (!info.dli_sname)
+        res = 1;
+      else
+        res = strcmp(info.dli_sname, invalidate_strdup_when_called_from_);
+
+      if (!invalidate_strdup_after_ && !res) {
+        invalidate_strdup_ = false;
+        invalidate_strdup_when_called_from_ = nullptr;
+        return nullptr;
+      } else if (!res)
+        --invalidate_strdup_after_;
+    }
+  }
+  return ::strdup(s);
+}
+
+void test_system::invalidate_strdup(uint32_t after,
+                                    const char *when_called_from)
+{
+  invalidate_strdup_ = true;
+  invalidate_strdup_after_ = after;
+  invalidate_strdup_when_called_from_ = when_called_from;
 }
 
 }  // end of namespace testing

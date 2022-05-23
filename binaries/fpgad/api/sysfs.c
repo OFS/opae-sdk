@@ -85,18 +85,3 @@ int file_read_string(const char *path, char *str, size_t len)
 
 	return 0;
 }
-
-char *cstr_dup(const char *s)
-{
-	char *p;
-	size_t len = strnlen(s, 8192);
-
-	p = opae_malloc(len+1);
-	if (!p)
-		return NULL;
-
-	memcpy(p, s, len);
-	p[len] = '\0';
-
-	return p;
-}

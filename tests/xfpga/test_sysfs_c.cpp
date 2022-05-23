@@ -54,7 +54,6 @@ fpga_result opae_glob_paths(const char *path, size_t found_max,
 fpga_result make_sysfs_group(char *, const char *, fpga_object *, int,
                              fpga_handle);
 ssize_t eintr_write(int, void *, size_t);
-char* cstr_dup(const char *str);
 int parse_pcie_info(sysfs_fpga_device *device, char *buffer);
 fpga_result sysfs_get_interface_id(fpga_token token, fpga_guid guid);
 sysfs_fpga_region* make_region(sysfs_fpga_device*, char*, int, fpga_objtype);
@@ -527,28 +526,6 @@ TEST_P(sysfs_c_p, hw_type) {
   EXPECT_EQ(res, FPGA_OK);
 
   EXPECT_EQ(hw_type, opae_id_to_hw_type(real_vendorid, real_deviceid));
-}
-
-/**
-* @test    cstr_dup
-* @details Duplicate an input string
-*/
-TEST_P(sysfs_c_p, cstr_dup) {
-  std::string inp("this is an input string");
-  char *dup = cstr_dup(inp.c_str());
-  EXPECT_STREQ(dup, inp.c_str());
-  opae_free(dup);
-}
-
-/**
-* @test    cstr_dup
-* @details Invalidate malloc call
-*/
-TEST_P(sysfs_c_p, cstr_dup_1) {
-  std::string inp("this is an input string");
-  test_system::instance()->invalidate_malloc();
-  char *dup = cstr_dup(inp.c_str());
-  EXPECT_EQ(dup, nullptr);
 }
 
 /**

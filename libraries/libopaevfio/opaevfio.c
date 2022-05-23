@@ -1096,16 +1096,16 @@ STATIC char *opae_vfio_group_for(const char *pciaddr)
 	memset(rlbuf, 0, sizeof(rlbuf));
 	if (opae_readlink(path, rlbuf, sizeof(rlbuf)) < 0) {
 		ERR("readlink() failed\n");
-		return strdup("ERROR");
+		return opae_strdup("ERROR");
 	}
 
 	p = strrchr(rlbuf, '/');
 	if (!p)
-		return strdup("ERROR");
+		return opae_strdup("ERROR");
 
 	snprintf(path, sizeof(path), "/dev/vfio/%s", p + 1);
 
-	return strdup(path);
+	return opae_strdup(path);
 }
 
 STATIC int opae_vfio_init(struct opae_vfio *v,
@@ -1140,8 +1140,8 @@ STATIC int opae_vfio_init(struct opae_vfio *v,
 		goto out_destroy_attr;
 	}
 
-	v->cont_device = strdup("/dev/vfio/vfio");
-	v->cont_pciaddr = strdup(pciaddr);
+	v->cont_device = opae_strdup("/dev/vfio/vfio");
+	v->cont_pciaddr = opae_strdup(pciaddr);
 	v->cont_fd = opae_open(v->cont_device, O_RDWR);
 	if (v->cont_fd < 0) {
 		ERR("open(\"%s\")\n", v->cont_device);

@@ -210,7 +210,7 @@ int parse_args(int argc, char *argv[])
 		fprintf(stderr, "No GBS file\n");
 		return -1;
 	}
-	config.filename = canonicalize_file_name(argv[optind]);
+	config.filename = opae_canonicalize_file_name(argv[optind]);
 	if (config.filename) {
 		return 0;
 	} else {

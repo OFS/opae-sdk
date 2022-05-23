@@ -27,7 +27,6 @@
 #define __OPAE_STD_H__
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 #include <stdint.h>
 #include <errno.h>
 #include <stdarg.h>
@@ -46,6 +45,7 @@
 #ifndef __USE_GNU
 #define __USE_GNU 1
 #endif // __USE_GNU
+#include <stdlib.h>
 #include <sched.h>
 
 #ifdef __cplusplus
@@ -94,6 +94,9 @@ char *opae_realpath(const char *path, char *resolved_path);
 void *opae_malloc(size_t size);
 void *opae_calloc(size_t nmemb, size_t size);
 void opae_free(void *ptr);
+
+char *opae_canonicalize_file_name(const char *path);
+char *opae_strdup(const char *s);
 
 #ifdef __cplusplus
 }

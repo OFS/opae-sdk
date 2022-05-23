@@ -168,6 +168,10 @@ class test_system {
 
   void free(void *ptr);
 
+  char *canonicalize_file_name(const std::string &path);
+  char *strdup(const char *s);
+  void invalidate_strdup(uint32_t after=0, const char *when_called_from=nullptr);
+
   bool default_ioctl_handler(int request, ioctl_handler_t);
   bool register_ioctl_handler(int request, ioctl_handler_t);
 
@@ -203,6 +207,10 @@ class test_system {
   int hijack_sched_setaffinity_return_val_;
   uint32_t hijack_sched_setaffinity_after_;
   const char *hijack_sched_setaffinity_caller_;
+
+  bool invalidate_strdup_;
+  uint32_t invalidate_strdup_after_;
+  const char *invalidate_strdup_when_called_from_;
 };
 
 }  // end of namespace testing

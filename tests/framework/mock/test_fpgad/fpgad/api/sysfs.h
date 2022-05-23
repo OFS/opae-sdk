@@ -1,4 +1,4 @@
-// Copyright(c) 2019, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -36,10 +36,9 @@
 
 #include <opae/types.h>
 #include <stdint.h>
+#include "mock/opae_std.h"
 
 // 0 on success
 int file_write_string(const char *path, const char *str, size_t len);
-
-char *cstr_dup(const char *s);
 
 #endif /* __FPGAD_API_SYSFS_H__ */

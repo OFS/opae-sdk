@@ -163,3 +163,13 @@ void opae_free(void *ptr)
 {
 	free(ptr);
 }
+
+char *opae_canonicalize_file_name(const char *path)
+{
+	return canonicalize_file_name(path);
+}
+
+char *opae_strdup(const char *s)
+{
+	return strdup(s);
+}

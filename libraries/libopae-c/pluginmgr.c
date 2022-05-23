@@ -131,7 +131,7 @@ STATIC char *find_cfg(void)
 		memcpy(home_cfg_ptr, _opae_home_cfg_files[i], len);
 		home_cfg_ptr[len] = '\0';
 
-		file_name = canonicalize_file_name(home_cfg);
+		file_name = opae_canonicalize_file_name(home_cfg);
 		if (file_name)
 			return file_name;
 
@@ -144,7 +144,7 @@ STATIC char *find_cfg(void)
 		memcpy(home_cfg, _opae_sys_cfg_files[i], len);
 		home_cfg[len] = '\0';
 
-		file_name = canonicalize_file_name(home_cfg);
+		file_name = opae_canonicalize_file_name(home_cfg);
 		if (file_name)
 			return file_name;
 	}

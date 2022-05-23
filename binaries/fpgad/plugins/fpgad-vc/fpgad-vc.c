@@ -245,22 +245,22 @@ STATIC fpga_result vc_sensor_get(vc_device *vc, char *label, vc_sensor *s)
 	if (file_read_string(label, buf, sizeof(buf))) {
 		return FPGA_EXCEPTION;
 	}
-	s->name = cstr_dup(buf);
+	s->name = opae_strdup(buf);
 	if (!s->name)
 		return FPGA_NO_MEMORY;
 
 	// Determine sensor type.
 	p = strrchr(label, '/') + 1;
 	if (!strncmp("curr", p, 4)) {
-		s->type = cstr_dup("Current");
+		s->type = opae_strdup("Current");
 	} else if (!strncmp("in", p, 2)) {
-		s->type = cstr_dup("Voltage");
+		s->type = opae_strdup("Voltage");
 	} else if (!strncmp("power", p, 5)) {
-		s->type = cstr_dup("Power");
+		s->type = opae_strdup("Power");
 	} else if (!strncmp("temp", p, 4)) {
-		s->type = cstr_dup("Temperature");
+		s->type = opae_strdup("Temperature");
 	} else {
-		s->type = cstr_dup("Unknown");
+		s->type = opae_strdup("Unknown");
 	}
 
 	if (!s->type)

@@ -87,7 +87,7 @@ STATIC bool cmd_register_null_gbs(struct fpgad_config *c, char *null_gbs_path)
 	char *canon_path = NULL;
 
 	if (c->num_null_gbs < (sizeof(c->null_gbs) / sizeof(c->null_gbs[0]))) {
-		canon_path = canonicalize_file_name(null_gbs_path);
+		canon_path = opae_canonicalize_file_name(null_gbs_path);
 
 		if (canon_path) {
 
@@ -253,7 +253,7 @@ int cmd_canonicalize_paths(struct fpgad_config *c)
 
 		passwd = getpwuid(uid);
 
-		canon_path = canonicalize_file_name(passwd->pw_dir);
+		canon_path = opae_canonicalize_file_name(passwd->pw_dir);
 
 		if (canon_path) {
 			snprintf(c->directory, sizeof(c->directory),
@@ -385,7 +385,7 @@ int cmd_canonicalize_paths(struct fpgad_config *c)
 	if (def || (c->cfgfile[0] == '\0')) {
 		search = true;
 	} else {
-		canon_path = canonicalize_file_name(c->cfgfile);
+		canon_path = opae_canonicalize_file_name(c->cfgfile);
 		if (canon_path) {
 
 			if (!cmd_path_is_symlink(c->cfgfile)) {

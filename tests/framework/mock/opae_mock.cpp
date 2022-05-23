@@ -165,3 +165,13 @@ void opae_free(void *ptr)
 {
   opae::testing::test_system::instance()->free(ptr);
 }
+
+char *opae_canonicalize_file_name(const char *path)
+{
+  return opae::testing::test_system::instance()->canonicalize_file_name(path);
+}
+
+char *opae_strdup(const char *s)
+{
+  return opae::testing::test_system::instance()->strdup(s);
+}

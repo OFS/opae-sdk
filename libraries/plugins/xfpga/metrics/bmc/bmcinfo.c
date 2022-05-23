@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -169,13 +169,13 @@ Values *bmc_build_values(sensor_reading *reading, sdr_header *header,
 		uint8_t len =
 			body->id_string_type_length_code.bits.len_in_characters;
 		if ((len == 0x1f) || (len == 0)) {
-			val->name = strdup("**INVALID**");
+			val->name = opae_strdup("**INVALID**");
 			val->is_valid = false;
 		} else {
-			val->name = strdup((char *)&body->string_bytes[0]);
+			val->name = opae_strdup((char *)&body->string_bytes[0]);
 		}
 	} else {
-		val->name = strdup("**String type unimplemented**");
+		val->name = opae_strdup("**String type unimplemented**");
 		DBG_PRINT("String type other than ASCII8\n");
 	}
 

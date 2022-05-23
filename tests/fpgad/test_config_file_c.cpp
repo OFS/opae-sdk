@@ -681,7 +681,7 @@ TEST_P(mock_fpgad_config_file_c_p, read_file1) {
 /**
  * @test       process_plugin2
  * @brief      Test: cfg_process_plugin
- * @details    If cstr_dup fails to clone the "configuration" key,<br>
+ * @details    If strdup fails to clone the "configuration" key,<br>
  *             then the fn returns non-zero.<br>
  */
 TEST_P(mock_fpgad_config_file_c_p, process_plugin2) {
@@ -699,14 +699,14 @@ TEST_P(mock_fpgad_config_file_c_p, process_plugin2) {
 )cfg";
 
   write_cfg(cfg);
-  system_->invalidate_malloc(0, "cstr_dup");
+  system_->invalidate_strdup(0, "cfg_load_config");
   EXPECT_NE(cfg_load_config(&config_), 0);
 }
 
 /**
  * @test       process_plugin7
  * @brief      Test: cfg_process_plugin
- * @details    If cstr_dup fails to clone the "plugin" key,<br>
+ * @details    If strdup fails to clone the "plugin" key,<br>
  *             then the fn returns non-zero.<br>
  */
 TEST_P(mock_fpgad_config_file_c_p, process_plugin7) {
@@ -726,7 +726,7 @@ TEST_P(mock_fpgad_config_file_c_p, process_plugin7) {
 )cfg";
 
   write_cfg(cfg);
-  system_->invalidate_malloc(1, "cstr_dup");
+  system_->invalidate_strdup(1, "cfg_load_config");
   EXPECT_NE(cfg_load_config(&config_), 0);
 }
 

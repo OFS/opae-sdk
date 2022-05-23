@@ -946,7 +946,7 @@ TEST_P(fpgainfo_c_p, events_command0) {
 
   /* copy args to make them non-const */
   for (i = 0; i < ARRAY_SIZE(args); i++)
-    argv[i] = strdup(args[i]);
+    argv[i] = opae_strdup(args[i]);
 
   EXPECT_EQ(events_command(NULL, 0, ARRAY_SIZE(argv), argv), FPGA_OK);
 
@@ -971,7 +971,7 @@ TEST_P(fpgainfo_c_p, events_command1) {
 
   /* copy args to make them non-const */
   for (i = 0; i < ARRAY_SIZE(args); i++)
-    argv[i] = strdup(args[i]);
+    argv[i] = opae_strdup(args[i]);
 
   EXPECT_EQ(events_command(NULL, 0, ARRAY_SIZE(argv), argv), FPGA_OK);
 
@@ -1001,14 +1001,14 @@ TEST_P(fpgainfo_c_p, events_command2) {
 
   /* copy args to make them non-const */
   for (i = 0; i < ARRAY_SIZE(args); i++)
-    argv[i] = strdup(args[i]);
+    argv[i] = opae_strdup(args[i]);
 
   for (i = 0; i < ARRAY_SIZE(invalids); i++) {
     const size_t arg = ARRAY_SIZE(argv) - 1;
 
     /* replace last argument with an invalid one */
     opae_free(argv[arg]);
-    argv[arg] = strdup(invalids[i]);
+    argv[arg] = opae_strdup(invalids[i]);
 
     /* reset option index to prepare for (re)parsing arguments */
     optind = 0;
