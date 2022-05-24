@@ -528,18 +528,10 @@ ssize_t test_system::read(int fd, void *buf, size_t count) {
       --invalidate_read_after_;
 
     } else {
-      // 1 here, because we were called through..
-      // 0 opae_mock.cpp:opae_read()
-      // 1 <caller>
-      void *caller = __builtin_return_address(1);
       int res;
-      Dl_info info;
+      std::string call = caller();
 
-      dladdr(caller, &info);
-      if (!info.dli_sname)
-        res = 1;
-      else
-        res = strcmp(info.dli_sname, invalidate_read_when_called_from_);
+      res = call.compare(invalidate_read_when_called_from_);
 
       if (!invalidate_read_after_ && !res) {
         invalidate_read_ = false;
@@ -746,18 +738,10 @@ int test_system::sched_setaffinity(pid_t pid, size_t cpusetsize,
       --hijack_sched_setaffinity_after_;
 
     } else {
-      // 1 here, because we were called through..
-      // 0 opae_mock.cpp:opae_sched_setaffinity()
-      // 1 <caller>
-      void *caller = __builtin_return_address(1);
       int res;
-      Dl_info info;
+      std::string call = caller();
 
-      dladdr(caller, &info);
-      if (!info.dli_sname)
-        res = 1;
-      else
-        res = strcmp(info.dli_sname, hijack_sched_setaffinity_caller_);
+      res = call.compare(hijack_sched_setaffinity_caller_);
 
       if (!hijack_sched_setaffinity_after_ && !res) {
         hijack_sched_setaffinity_ = false;
@@ -854,15 +838,10 @@ void *test_system::malloc(size_t size) {
       --invalidate_malloc_after_;
 
     } else {
-      void *caller = __builtin_return_address(1);
       int res;
-      Dl_info info;
+      std::string call = caller();
 
-      dladdr(caller, &info);
-      if (!info.dli_sname)
-        res = 1;
-      else
-        res = strcmp(info.dli_sname, invalidate_malloc_when_called_from_);
+      res = call.compare(invalidate_malloc_when_called_from_);
 
       if (!invalidate_malloc_after_ && !res) {
         invalidate_malloc_ = false;
@@ -899,15 +878,10 @@ void *test_system::calloc(size_t nmemb, size_t size) {
       --invalidate_calloc_after_;
 
     } else {
-      void *caller = __builtin_return_address(1);
       int res;
-      Dl_info info;
+      std::string call = caller();
 
-      dladdr(caller, &info);
-      if (!info.dli_sname)
-        res = 1;
-      else
-        res = strcmp(info.dli_sname, invalidate_calloc_when_called_from_);
+      res = call.compare(invalidate_calloc_when_called_from_);
 
       if (!invalidate_calloc_after_ && !res) {
         invalidate_calloc_ = false;
@@ -1080,15 +1054,10 @@ char *test_system::strdup(const char *s)
       --invalidate_strdup_after_;
 
     } else {
-      void *caller = __builtin_return_address(1);
       int res;
-      Dl_info info;
+      std::string call = caller();
 
-      dladdr(caller, &info);
-      if (!info.dli_sname)
-        res = 1;
-      else
-        res = strcmp(info.dli_sname, invalidate_strdup_when_called_from_);
+      res = call.compare(invalidate_strdup_when_called_from_);
 
       if (!invalidate_strdup_after_ && !res) {
         invalidate_strdup_ = false;
