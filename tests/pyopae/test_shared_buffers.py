@@ -44,6 +44,7 @@ class TestSharedBuffer(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        opae.fpga.finalize()
         cls.system.finalize()
 
     def test_allocate(self):

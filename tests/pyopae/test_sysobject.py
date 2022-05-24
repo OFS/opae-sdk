@@ -49,6 +49,7 @@ class TestSysObject(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        opae.fpga.finalize()
         cls.system.finalize()
 
     def test_token_object(self):
