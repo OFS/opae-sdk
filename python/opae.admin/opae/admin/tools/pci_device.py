@@ -185,6 +185,7 @@ def topology(pci_device, args):
 
 def main():
     actions = {'unbind': pci_op('unbind'),
+               'bind': pci_op('bind'),
                'rescan': rescan,
                'remove': pci_op('remove'),
                'vf': pci_prop('sriov_numvfs', int),
