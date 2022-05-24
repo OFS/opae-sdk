@@ -95,6 +95,7 @@ Additional OPAE tools
        -DOPAE_BUILD_FPGABIST=ON 
 
 %if 0%{?rhel}
+  %{?!__cmake_builddir: %global __cmake_builddir %{?__builddir}%{!?__builddir:.}}
   %make_build
 %else
   %cmake_build
