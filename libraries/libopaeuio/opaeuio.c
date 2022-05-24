@@ -275,8 +275,7 @@ STATIC int opae_uio_init(struct opae_uio *u, const char *dfl_device)
 
 		glob_res = opae_glob(path_expr, GLOB_NOSORT, NULL, &globbuf);
 		if (glob_res || !globbuf.gl_pathc) {
-			if (globbuf.gl_pathv)
-				opae_globfree(&globbuf);
+			opae_globfree(&globbuf);
 			continue;
 		}
 
@@ -339,8 +338,7 @@ STATIC int opae_uio_init(struct opae_uio *u, const char *dfl_device)
 out_destroy:
 	opae_uio_destroy(u);
 out_glob_free:
-	if (globbuf.gl_pathv)
-		opae_globfree(&globbuf);
+	opae_globfree(&globbuf);
 	return res;
 }
 

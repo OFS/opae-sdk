@@ -477,8 +477,7 @@ fpga_result find_dev_feature(fpga_token token,
 	if (gres) {
 		OPAE_ERR("Failed pattern match %s: %s",
 			feature_path, strerror(errno));
-		if (pglob.gl_pathv)
-			opae_globfree(&pglob);
+		opae_globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
 	for (i = 0; i < pglob.gl_pathc; i++) {
@@ -512,9 +511,7 @@ fpga_result find_dev_feature(fpga_token token,
 	}
 
 free:
-	if (pglob.gl_pathv)
-		opae_globfree(&pglob);
-
+	opae_globfree(&pglob);
 	return res;
 }
 

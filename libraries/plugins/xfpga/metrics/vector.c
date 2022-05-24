@@ -42,7 +42,7 @@
 #include "common_int.h"
 #include "mock/opae_std.h"
 
-#define FPGA_VECTOR_CAPACITY     20
+#define FPGA_VECTOR_CAPACITY 64
 
 fpga_result fpga_vector_init(fpga_metric_vector *vector)
 {
@@ -53,7 +53,7 @@ fpga_result fpga_vector_init(fpga_metric_vector *vector)
 
 	vector->capacity = FPGA_VECTOR_CAPACITY;
 	vector->total = 0;
-	vector->fpga_metric_item = opae_malloc(sizeof(void *) * vector->capacity);
+	vector->fpga_metric_item = opae_calloc(vector->capacity, sizeof(void *));
 
 	if (vector->fpga_metric_item == NULL)
 		return FPGA_NO_MEMORY;
@@ -79,6 +79,8 @@ fpga_result fpga_vector_free(fpga_metric_vector *vector)
 		opae_free(vector->fpga_metric_item);
 
 	vector->fpga_metric_item = NULL;
+	vector->capacity = 0;
+	vector->total = 0;
 
 	return result;
 }

@@ -219,9 +219,6 @@ TEST_P(pluginmgr_c_p, bad_final_all) {
   EXPECT_EQ(2, test_plugin_finalize_called);
 }
 
-INSTANTIATE_TEST_SUITE_P(pluginmgr_c, pluginmgr_c_p,
-                         ::testing::ValuesIn(test_platform::platforms({})));
-
 const char *plugin_cfg_1 = R"plug(
 {
     "configurations": {
@@ -428,7 +425,6 @@ const char *dummy_cfg = R"plug(
 
 const char *err_contains = "wrapped_handle->adapter_table->fpgaReset is NULL";
 
-
 TEST_P(pluginmgr_c_p, dummy_plugin) {
   auto ldl_path = getenv("LD_LIBRARY_PATH");
   opae_plugin_mgr_reset_cfg();
@@ -486,8 +482,12 @@ TEST_P(pluginmgr_c_p, no_cfg) {
 }
 
 TEST_P(pluginmgr_c_p, fpgaReset_null_handle) {
-    EXPECT_EQ(fpgaReset(NULL), FPGA_INVALID_PARAM);
+  EXPECT_EQ(fpgaReset(NULL), FPGA_INVALID_PARAM);
+  opae_plugin_mgr_finalize_all();
 }
+
+INSTANTIATE_TEST_SUITE_P(pluginmgr_c, pluginmgr_c_p,
+                         ::testing::ValuesIn(test_platform::platforms({})));
 
 class pluginmgr_cfg_p : public ::testing::TestWithParam<const char*> {
  protected:

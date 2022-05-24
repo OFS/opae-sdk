@@ -179,16 +179,66 @@ class test_system {
 
   void normalize_guid(std::string &guid_str, bool with_hyphens = true);
 
+  std::string caller() const;
+  bool check_resources();
+
+  template <typename E>
+  class Resource
+  {
+   public:
+    Resource() :
+      allocator_(""),
+      origin_(""),
+      extra_(nullptr)
+    {}
+
+    Resource(const char *allocator, const std::string &origin, E *extra=nullptr):
+      allocator_(allocator),
+      origin_(origin),
+      extra_(extra)
+    {}
+
+    Resource(const Resource &other) :
+      allocator_(other.allocator_),
+      origin_(other.origin_),
+      extra_(other.extra_)
+    {}
+
+    Resource & operator=(const Resource &other)
+    {
+      if (&other != this) {
+        allocator_ = other.allocator_;
+        origin_ = other.origin_;
+        extra_ = other.extra_;
+      }
+      return *this;
+    }
+
+    std::string allocator_; // "open", "malloc", etc.
+    std::string origin_;    // calling function
+    E *extra_;              // extra data associated with the allocation
+  };
+
  private:
   test_system();
   std::mutex fds_mutex_;
   std::atomic_bool initialized_;
   std::string root_;
-  std::map<int, mock_object *> fds_;
+  std::map<int, Resource<mock_object>> fds_;
+  std::mutex fopens_mutex_;
+  std::map<FILE *, Resource<void>> fopens_;
+  std::mutex mem_allocs_mutex_;
+  std::map<void *, Resource<void>> mem_allocs_;
+  std::mutex popens_mutex_;
+  std::map<FILE *, Resource<std::string>> popen_requests_;
+  std::mutex opendirs_mutex_;
+  std::map<DIR *, Resource<void>> opendirs_;
+  std::mutex globs_mutex_;
+  std::map<glob_t *, Resource<glob_t>> globs_;
+
   std::map<int, ioctl_handler_t> default_ioctl_handlers_;
   std::map<int, ioctl_handler_t> ioctl_handlers_;
   std::map<std::string, std::string> registered_files_;
-  std::map<FILE * , std::string> popen_requests_;
   static test_system *instance_;
 
   bool invalidate_malloc_;
