@@ -935,6 +935,8 @@ fpga_result fpga_event_log(fpga_token token, uint32_t first, uint32_t last,
 	fpga_result res;
 	uint32_t ptr;
 
+	memset(&event, 0, sizeof(event));
+
 	if (first > bel_ptr_count()) {
 		fprintf(stderr, "invalid --boot value: %u\n", first);
 		return FPGA_INVALID_PARAM;

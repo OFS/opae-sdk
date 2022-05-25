@@ -1,4 +1,4 @@
-// Copyright(c) 2021, Intel Corporation
+// Copyright(c) 2021-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -46,16 +46,18 @@ struct bel_power_on_status {
 	uint32_t status;
 	uint32_t fpga_status;
 	uint32_t fpga_config_status;
+	uint32_t sequencer_status_1;
+	uint32_t sequencer_status_2;
+	uint32_t power_good_status;
 	uint32_t reserved[2];
 } __attribute__((__packed__));
 
 struct bel_power_off_status {
 	struct bel_header header;
-	uint32_t power_good_status;
+	uint32_t fpga_status;
+	uint32_t fpga_config_status;
 	uint32_t record_1;
 	uint32_t record_2;
-	uint32_t sequencer_status_1;
-	uint32_t sequencer_status_2;
 	uint32_t general_purpose_input_status;
 	uint32_t sensor_failed;
 	uint32_t sensor_alert_1;
@@ -99,19 +101,41 @@ struct bel_sensors_status {
 	uint32_t ed8401_status;
 } __attribute__((__packed__));
 
+struct bel_timeoff_day {
+	struct bel_header header;
+	uint32_t timeofday_low;
+	uint32_t timeofday_high;
+} __attribute__((__packed__));
+
+struct bel_max10_seu {
+	struct bel_header header;
+	uint32_t max10_seu;
+} __attribute__((__packed__));
+
+struct bel_fpga_seu {
+	struct bel_header header;
+	uint32_t fpga_seu;
+} __attribute__((__packed__));
+
 struct bel_pci_error_status {
 	struct bel_header header;
+	uint32_t pcie_link_status;
+	uint32_t pcie_uncorr_err;
+	uint32_t reserved[7];
 } __attribute__((__packed__));
 
 struct bel_event {
 	union {
 		struct {
 			struct bel_power_on_status power_on_status;
+			struct bel_timeoff_day timeoff_day;
+			struct bel_max10_seu max10_seu;
+			struct bel_fpga_seu fpga_seu;
+			struct bel_pci_error_status pci_error_status;
 			struct bel_power_off_status power_off_status;
 			struct bel_sensors_state sensors_state;
 			uint32_t reserved[8];
 			struct bel_sensors_status sensors_status;
-			struct bel_pci_error_status pci_error_status;
 		};
 		uint32_t data[1];
 	};
