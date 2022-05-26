@@ -2,7 +2,9 @@ name: C/C++ CI Build and Test
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master
+      - feature/**
     paths-ignore:
       - 'python/**'
       - 'tools/extra/fpgabist/**'
