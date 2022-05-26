@@ -221,9 +221,11 @@ __attribute__((constructor(1000))) STATIC void opae_init(void)
 
 __attribute__((destructor)) STATIC void opae_release(void)
 {
-	fpga_result res;
+	fpga_result res = FPGA_OK;
 
-	res = fpgaFinalize();
+	if (getenv("OPAE_EXPLICIT_INITIALIZE") == NULL)
+		res = fpgaFinalize();
+
 	if (res != FPGA_OK)
 		OPAE_ERR("fpgaFinalize: %s", fpgaErrStr(res));
 

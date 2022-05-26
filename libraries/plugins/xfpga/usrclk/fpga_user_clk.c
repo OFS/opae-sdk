@@ -511,8 +511,7 @@ fpga_result get_usrclk_uio(const char *sysfs_path,
 	if (gres) {
 		OPAE_ERR("Failed pattern match %s: %s",
 			feature_path, strerror(errno));
-		if (pglob.gl_pathv)
-			opae_globfree(&pglob);
+		opae_globfree(&pglob);
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -556,8 +555,7 @@ fpga_result get_usrclk_uio(const char *sysfs_path,
 	}
 
 free:
-	if (pglob.gl_pathv)
-		opae_globfree(&pglob);
+	opae_globfree(&pglob);
 	return res;
 }
 
@@ -758,8 +756,7 @@ static int using_iopll(char *sysfs_usrpath, const char *sysfs_path)
 
 	res = opae_glob(sysfs_usrpath, 0, NULL, &iopll_glob);
 	if (res) {
-		if (iopll_glob.gl_pathv)
-			opae_globfree(&iopll_glob);
+		opae_globfree(&iopll_glob);
 		return FPGA_NOT_FOUND;
 	}
 

@@ -2072,7 +2072,6 @@ fpga_result opae_glob_path(char *path, size_t len)
 		glob_len = strnlen(pglob.gl_pathv[0], len-1);
 		memcpy(path, pglob.gl_pathv[0], glob_len);
 		path[glob_len] = '\0';
-		opae_globfree(&pglob);
 	} else {
 		switch (globres) {
 		case GLOB_NOSPACE:
@@ -2084,10 +2083,8 @@ fpga_result opae_glob_path(char *path, size_t len)
 		default:
 			res = FPGA_EXCEPTION;
 		}
-		if (pglob.gl_pathv) {
-			opae_globfree(&pglob);
-		}
 	}
+	opae_globfree(&pglob);
 	return res;
 }
 
@@ -2135,9 +2132,7 @@ fpga_result opae_glob_paths(const char *path, size_t found_max, char *found[],
 		}
 	}
 out_free:
-	if (pglob.gl_pathv) {
-		opae_globfree(&pglob);
-	}
+	opae_globfree(&pglob);
 	return res;
 }
 

@@ -44,6 +44,8 @@ extern "C" {
 
 int xfpga_plugin_initialize(void);
 int xfpga_plugin_finalize(void);
+
+fpga_result free_fpga_enum_metrics_vector(struct _fpga_handle *_handle);
 }
 
 using namespace opae::testing;
@@ -110,12 +112,13 @@ TEST_P(metrics_c_p, test_metric_01) {
   uint64_t num_metrics;
   EXPECT_EQ(FPGA_OK, xfpga_fpgaGetNumMetrics(device_, &num_metrics));
 
+  struct _fpga_handle *_handle = (struct _fpga_handle *)device_;
+  free_fpga_enum_metrics_vector(_handle);
+
   // NULL input parameters
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumMetrics(device_, NULL));
 
   EXPECT_NE(FPGA_OK, xfpga_fpgaGetNumMetrics(NULL, &num_metrics));
-
-  struct _fpga_handle *_handle = (struct _fpga_handle *)device_;
 
   int fddev = _handle->fddev;
   _handle->fddev = -1;

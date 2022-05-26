@@ -795,7 +795,7 @@ TEST_P(mock_fpgad_config_file_c_p, process_plugin10) {
 )cfg";
 
   write_cfg(cfg);
-  system_->invalidate_malloc(1, "alloc_configuration");
+  system_->invalidate_malloc(0, "alloc_configuration");
   EXPECT_NE(cfg_load_config(&config_), 0);
 }
 
