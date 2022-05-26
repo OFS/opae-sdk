@@ -1,4 +1,4 @@
-# Copyright(c) 2018, Intel Corporation
+# Copyright(c) 2018-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -44,6 +44,9 @@ class TestSharedBuffer(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        del cls.props
+        cls.handle.close()
+        del cls.toks
         opae.fpga.finalize()
         cls.system.finalize()
 
