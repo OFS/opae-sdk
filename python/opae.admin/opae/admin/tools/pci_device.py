@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2021, Intel Corporation
+# Copyright(c) 2021-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@ def pci_devices(inp):
     m = PCI_ADDRESS_RE.match(inp)
     if m:
         d = m.groupdict()
-        pci_address =  '{}:{}'.format(d.get('segment') or '0000', d['bdf'])
+        pci_address = '{}:{}'.format(d.get('segment') or '0000', d['bdf'])
         pci_devices = pcie_device.enum([{'pci_node.pci_address': pci_address}])
         return pci_devices
     m = PCI_VENDOR_DEVICE_RE.match(inp)
@@ -75,7 +75,7 @@ class pci_op(object):
 
     def __call__(self, pci_device, args, *other):
         if not args.other_endpoints:
-            getattr(pci_device.pci_node, self.op)()
+            getattr(pci_device.pci_node, self.op)(*other)
         else:
             for p in pci_device.pci_node.root.endpoints:
                 if p.pci_address != args.device:
@@ -111,8 +111,10 @@ def rescan(pci_device, args, *rest):
 class aer(object):
     def __init__(self):
         self.parser = ArgumentParser('pci_device [device] aer')
-        self.parser.add_argument('action', choices=['dump', 'mask', 'clear'], nargs='?',
-                                 help='AER related operation to perform')
+        self.parser.add_argument(
+            'action', choices=['dump', 'mask', 'clear'],
+            nargs='?', help='AER related operation to perform')
+
     def __call__(self, device, args, *rest):
         myargs, rest = self.parser.parse_known_args(rest)
         action = myargs.action or 'dump'
@@ -131,14 +133,15 @@ class aer(object):
             print("Failed to clear aer errors")
 
     def dump(self, device):
-        for key in ['aer_dev_correctable', 'aer_dev_fatal', 'aer_dev_nonfatal']:
+        for key in ['aer_dev_correctable',
+                    'aer_dev_fatal', 'aer_dev_nonfatal']:
             if device.pci_node.have_node(key):
                 print('-' * 64)
                 label = f'{key.lstrip("aer_dev").upper()} ({device})'
                 print(f'|{label:^62}|')
                 print('-' * 64)
                 for line in device.node(key).value.split('\n'):
-                    k,v = line.split()
+                    k, v = line.split()
                     print(f'|{k:>30}: {v:30}|')
                 print('-' * 64)
                 print()
@@ -182,6 +185,7 @@ def topology(pci_device, args):
 
 def main():
     actions = {'unbind': pci_op('unbind'),
+               'bind': pci_op('bind'),
                'rescan': rescan,
                'remove': pci_op('remove'),
                'vf': pci_prop('sriov_numvfs', int),
@@ -201,7 +205,6 @@ def main():
                         default=False,
                         help='perform action on peer pcie devices')
     args, rest = parser.parse_known_args()
-
 
     if not args.devices:
         raise SystemExit(f'{sys.argv[1]} not found')

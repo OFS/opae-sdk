@@ -1,8 +1,11 @@
 name: C/C++ CI Build and Test
 
 on:
+  workflow_dispatch:
   push:
-    branches: [master]
+    branches:
+      - master
+      - feature/**
     paths-ignore:
       - 'python/**'
       - 'tools/extra/fpgabist/**'
@@ -16,7 +19,9 @@ on:
       - 'platforms/scripts/platmgr/**'
       - '.github/workflows/python-static-analysis.yml'
   pull_request:
-    branches: [master]
+    branches:
+      - master
+      - feature/**
     paths-ignore:
       - 'python/**'
       - 'tools/extra/fpgabist/**'
