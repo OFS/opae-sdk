@@ -338,6 +338,12 @@ class pci_node(sysfs_node):
         return endpoints
 
     @property
+    def driver(self):
+        d = self.find_one('driver')
+        if d:
+            return pci_driver(os.path.realpath(d.sysfs_path))
+
+    @property
     def pci_address(self):
         """pci_address get the pci address of the node"""
         return self._pci_address['pci_address']
@@ -486,6 +492,20 @@ class pci_node(sysfs_node):
         else:
             self.log.debug('no driver to unbind')
 
+    def bind(self, driver_name):
+        if driver_name is None:
+            raise NameError('No driver specified')
+
+        new_driver = pci_driver(driver_name)
+        old_driver = self.driver
+        if old_driver:
+            if new_driver.name == old_driver.name:
+                self.log.warn(f'{new_driver} already bound to device {self}')
+                return
+            old_driver.unbind(self)
+
+        new_driver.bind(self)
+
     @property
     def aer(self):
         """aer Gets the current AER settings of the device represented by this
@@ -583,12 +603,36 @@ class pci_node(sysfs_node):
 
 
 class sysfs_driver(sysfs_node):
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
     def unbind(self, device):
         if not self.have_node('unbind'):
             self.log.warn('unbind not supported')
             return
-        name = device.name if isinstance(device, sysfs_device) else device
+        name = device.name if isinstance(device, sysfs_node) else device
         self.node('unbind').value = name
+
+    def bind(self, device):
+        if not self.have_node('unbind'):
+            self.log.warn('unbind not supported')
+            return
+        name = device.name if isinstance(device, sysfs_node) else device
+        self.node('bind').value = name
+
+
+class pci_driver(sysfs_driver):
+    DRIVER_ROOT = '/sys/bus/pci/drivers'
+
+    def __init__(self, name):
+        if not os.path.isabs(name):
+            super().__init__(f'{self.DRIVER_ROOT}/{name}')
+        else:
+            super().__init__(name)
+
 
 
 class sysfs_device(sysfs_node):
@@ -752,6 +796,19 @@ class sysfs_device(sysfs_node):
             driver.unbind(self.name)
         else:
             self.log.debug('no driver bound')
+
+    def bind(self, driver_name):
+        if driver_name is None:
+            raise NameError('No driver specified')
+
+        driver = pci_driver(driver_name)
+        if self.driver:
+            if driver.name == self.driver.name:
+                self.log.warn(f'{driver} already bound to device {self}')
+                return
+            self.driver.unbind(self)
+
+        driver.bind(self)
 
     @property
     def driver_override(self):
