@@ -81,7 +81,7 @@ class fpgaconf_c_p : public opae_base_p<> {
     opae_base_p<>::SetUp();
 
     strcpy(tmp_gbs_, "tmp-XXXXXX.gbs");
-    close(mkstemps(tmp_gbs_, 4));
+    opae_close(mkstemps(tmp_gbs_, 4));
 
     // assemble valid bitstream header
     auto fme_guid = platform_.devices[0].fme_guid;
@@ -196,7 +196,7 @@ TEST_P(fpgaconf_c_p, parse_args0) {
  */
 TEST_P(fpgaconf_c_p, parse_args1) {
   char tmpfilename[] = "tmp-empty-XXXXXX.gbs";
-  close(mkstemps(tmpfilename, 4));
+  opae_close(mkstemps(tmpfilename, 4));
   char zero[20];
   char one[20];
   char two[20];
@@ -225,7 +225,7 @@ TEST_P(fpgaconf_c_p, parse_args1) {
   EXPECT_EQ(config.mode, 0);
   ASSERT_NE(config.filename, nullptr);
   EXPECT_STREQ(basename(config.filename), tmpfilename);
-  free(config.filename);
+  opae_free(config.filename);
   unlink(tmpfilename);
 }
 
@@ -670,7 +670,7 @@ TEST_P(fpgaconf_c_p, absolute_path_pos) {
   strcpy(four, bitstream_path.c_str());
   EXPECT_EQ(fpgaconf_main(5, argv), 0);
 
-  free(current_path);
+  opae_free(current_path);
   unlink(copy_gbs_.c_str());
 }
 
@@ -704,7 +704,7 @@ TEST_P(fpgaconf_c_p, absolute_path_neg) {
   strcpy(three, bitstream_path.c_str());
   EXPECT_NE(fpgaconf_main(4, argv), 0);
 
-  free(current_path);
+  opae_free(current_path);
   unlink(copy_gbs_.c_str());
 }
 

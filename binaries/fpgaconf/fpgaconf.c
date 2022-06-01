@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -53,6 +53,7 @@
 #include <opae/fpga.h>
 #include <libbitstream/bitstream.h>
 #include <argsfilter.h>
+#include "mock/opae_std.h"
 
 /*
  * macro to check FPGA return codes, print error message, and goto cleanup label
@@ -209,7 +210,7 @@ int parse_args(int argc, char *argv[])
 		fprintf(stderr, "No GBS file\n");
 		return -1;
 	}
-	config.filename = canonicalize_file_name(argv[optind]);
+	config.filename = opae_canonicalize_file_name(argv[optind]);
 	if (config.filename) {
 		return 0;
 	} else {
@@ -479,7 +480,7 @@ out_free:
 	opae_unload_bitstream(&info);
 out_exit:
 	if (config.filename) {
-		free(config.filename);
+		opae_free(config.filename);
 		config.filename = NULL;
 	}
 	fpgaDestroyProperties(&device_filter);

@@ -248,7 +248,7 @@ TEST_P(fpgainfo_c_p, errors_command0) {
   ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
   ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
   ASSERT_GT(matches, 0);
-  tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
+  tokens = (fpga_token *)opae_malloc(matches * sizeof(fpga_token));
 
   num_tokens = matches;
   ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
@@ -311,7 +311,7 @@ TEST_P(fpgainfo_c_p, errors_command0) {
   for (uint32_t i = 0; i < num_tokens; ++i) {
       fpgaDestroyToken(&tokens[i]);
   }
-  free(tokens);
+  opae_free(tokens);
   fpgaDestroyProperties(&filter);
 }
 
@@ -335,7 +335,7 @@ TEST_P(fpgainfo_c_p, parse_error_args_errors_clear) {
   ASSERT_EQ(fpgaGetProperties(NULL, &filter), FPGA_OK);
   ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
   ASSERT_GT(matches, 0);
-  tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
+  tokens = (fpga_token *)opae_malloc(matches * sizeof(fpga_token));
 
   num_tokens = matches;
   ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
@@ -351,7 +351,7 @@ TEST_P(fpgainfo_c_p, parse_error_args_errors_clear) {
   for (uint32_t i = 0; i < num_tokens; ++i) {
     fpgaDestroyToken(&tokens[i]);
   }
-  free(tokens);
+  opae_free(tokens);
   fpgaDestroyProperties(&filter);
 }
 
@@ -505,7 +505,7 @@ TEST_P(fpgainfo_c_p, fme_command0) {
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
   ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
   ASSERT_GT(matches, 0);
-  tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
+  tokens = (fpga_token *)opae_malloc(matches * sizeof(fpga_token));
 
   num_tokens = matches;
   ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
@@ -517,7 +517,7 @@ TEST_P(fpgainfo_c_p, fme_command0) {
   for (uint32_t i = 0; i < num_tokens; ++i) {
     fpgaDestroyToken(&tokens[i]);
   }
-  free(tokens);
+  opae_free(tokens);
   fpgaDestroyProperties(&filter);
 }
 
@@ -589,7 +589,7 @@ TEST_P(fpgainfo_c_p, port_command0) {
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_ACCELERATOR), FPGA_OK);
   ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
   ASSERT_GT(matches, 0);
-  tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
+  tokens = (fpga_token *)opae_malloc(matches * sizeof(fpga_token));
 
   num_tokens = matches;
   ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
@@ -601,7 +601,7 @@ TEST_P(fpgainfo_c_p, port_command0) {
   for (uint32_t i = 0; i < num_tokens; ++i) {
     fpgaDestroyToken(&tokens[i]);
   }
-  free(tokens);
+  opae_free(tokens);
   fpgaDestroyProperties(&filter);
 }
 
@@ -673,7 +673,7 @@ TEST_P(fpgainfo_c_p, power_command0) {
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
   ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
   ASSERT_GT(matches, 0);
-  tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
+  tokens = (fpga_token *)opae_malloc(matches * sizeof(fpga_token));
 
   num_tokens = matches;
   ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
@@ -685,7 +685,7 @@ TEST_P(fpgainfo_c_p, power_command0) {
   for (uint32_t i = 0; i < num_tokens; ++i) {
     fpgaDestroyToken(&tokens[i]);
   }
-  free(tokens);
+  opae_free(tokens);
   fpgaDestroyProperties(&filter);
 }
 
@@ -757,7 +757,7 @@ TEST_P(fpgainfo_c_p, temp_command0) {
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
   ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
   ASSERT_GT(matches, 0);
-  tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
+  tokens = (fpga_token *)opae_malloc(matches * sizeof(fpga_token));
 
   num_tokens = matches;
   ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
@@ -769,7 +769,7 @@ TEST_P(fpgainfo_c_p, temp_command0) {
   for (uint32_t i = 0; i < num_tokens; ++i) {
     fpgaDestroyToken(&tokens[i]);
   }
-  free(tokens);
+  opae_free(tokens);
   fpgaDestroyProperties(&filter);
 }
 
@@ -841,7 +841,7 @@ TEST_P(fpgainfo_c_p, bmc_command0) {
   ASSERT_EQ(fpgaPropertiesSetObjectType(filter,FPGA_DEVICE), FPGA_OK);
   ASSERT_EQ(fpgaEnumerate(&filter, 1, NULL, 0, &matches), FPGA_OK);
   ASSERT_GT(matches, 0);
-  tokens = (fpga_token *)malloc(matches * sizeof(fpga_token));
+  tokens = (fpga_token *)opae_malloc(matches * sizeof(fpga_token));
 
   num_tokens = matches;
   ASSERT_EQ(fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches), FPGA_OK);
@@ -853,7 +853,7 @@ TEST_P(fpgainfo_c_p, bmc_command0) {
   for (uint32_t i = 0; i < num_tokens; ++i) {
     fpgaDestroyToken(&tokens[i]);
   }
-  free(tokens);
+  opae_free(tokens);
   fpgaDestroyProperties(&filter);
 }
 
@@ -946,12 +946,12 @@ TEST_P(fpgainfo_c_p, events_command0) {
 
   /* copy args to make them non-const */
   for (i = 0; i < ARRAY_SIZE(args); i++)
-    argv[i] = strdup(args[i]);
+    argv[i] = opae_strdup(args[i]);
 
   EXPECT_EQ(events_command(NULL, 0, ARRAY_SIZE(argv), argv), FPGA_OK);
 
   for (i = 0; i < ARRAY_SIZE(args); i++)
-    free(argv[i]);
+    opae_free(argv[i]);
 }
 
 /**
@@ -971,12 +971,12 @@ TEST_P(fpgainfo_c_p, events_command1) {
 
   /* copy args to make them non-const */
   for (i = 0; i < ARRAY_SIZE(args); i++)
-    argv[i] = strdup(args[i]);
+    argv[i] = opae_strdup(args[i]);
 
   EXPECT_EQ(events_command(NULL, 0, ARRAY_SIZE(argv), argv), FPGA_OK);
 
   for (i = 0; i < ARRAY_SIZE(args); i++)
-    free(argv[i]);
+    opae_free(argv[i]);
 }
 
 /**
@@ -1001,14 +1001,14 @@ TEST_P(fpgainfo_c_p, events_command2) {
 
   /* copy args to make them non-const */
   for (i = 0; i < ARRAY_SIZE(args); i++)
-    argv[i] = strdup(args[i]);
+    argv[i] = opae_strdup(args[i]);
 
   for (i = 0; i < ARRAY_SIZE(invalids); i++) {
     const size_t arg = ARRAY_SIZE(argv) - 1;
 
     /* replace last argument with an invalid one */
-    free(argv[arg]);
-    argv[arg] = strdup(invalids[i]);
+    opae_free(argv[arg]);
+    argv[arg] = opae_strdup(invalids[i]);
 
     /* reset option index to prepare for (re)parsing arguments */
     optind = 0;
@@ -1017,7 +1017,7 @@ TEST_P(fpgainfo_c_p, events_command2) {
   }
 
   for (i = 0; i < ARRAY_SIZE(args); i++)
-    free(argv[i]);
+    opae_free(argv[i]);
 }
 
 /**

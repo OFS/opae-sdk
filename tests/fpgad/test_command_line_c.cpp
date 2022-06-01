@@ -52,13 +52,13 @@ class fpgad_command_line_c_p : public opae_base_p<> {
     log_set(stdout);
 
     strcpy(tmpnull_gbs_, "tmpnull-XXXXXX.gbs");
-    close(mkstemps(tmpnull_gbs_, 4));
+    opae_close(mkstemps(tmpnull_gbs_, 4));
 
     strcpy(invalid_gbs_, "invalid-XXXXXX.gbs");
-    close(mkstemps(invalid_gbs_, 4));
+    opae_close(mkstemps(invalid_gbs_, 4));
 
     strcpy(cfg_file_, "fpgad-XXXXXX.cfg");
-    close(mkstemps(cfg_file_, 4));
+    opae_close(mkstemps(cfg_file_, 4));
 
     std::vector<uint8_t> gbs_hdr =
       system_->assemble_gbs_header(platform_.devices[0]);
@@ -301,7 +301,7 @@ TEST_P(fpgad_command_line_c_p, canonicalize4) {
   std::string cfg_file = std::string(d) + std::string("/") + std::string(cfg_file_);
 
   EXPECT_STREQ(config_.cfgfile, cfg_file.c_str());
-  free(d);
+  opae_free(d);
 }
 
 /**
@@ -403,7 +403,7 @@ TEST_P(fpgad_command_line_c_p, symlink4) {
   EXPECT_TRUE(cmd_path_is_symlink(s.c_str()));
   ASSERT_EQ(unlink("foo"), 0);
 
-  free(d);
+  opae_free(d);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_command_line_c_p);

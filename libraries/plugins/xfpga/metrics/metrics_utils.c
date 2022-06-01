@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -51,6 +51,7 @@
 #include "metrics/bmc/bmc.h"
 #include "metrics/metrics_metadata.h"
 #include "metrics_max10.h"
+#include "mock/opae_std.h"
 
 fpga_result metric_sysfs_path_is_dir(const char *path)
 {
@@ -60,7 +61,7 @@ fpga_result metric_sysfs_path_is_dir(const char *path)
 		return FPGA_INVALID_PARAM;
 	}
 
-	if ((stat(path, &astats)) != 0) {
+	if ((opae_stat(path, &astats)) != 0) {
 		return FPGA_NOT_FOUND;
 	}
 
@@ -79,7 +80,7 @@ fpga_result metric_sysfs_path_is_file(const char *path)
 		return FPGA_INVALID_PARAM;
 	}
 
-	if ((stat(path, &astats)) != 0) {
+	if ((opae_stat(path, &astats)) != 0) {
 		return FPGA_NOT_FOUND;
 	}
 
@@ -120,7 +121,7 @@ fpga_result add_metric_vector(fpga_metric_vector *vector,
 		return FPGA_INVALID_PARAM;
 	}
 
-	fpga_enum_metric = (struct _fpga_enum_metric *)malloc(sizeof(struct _fpga_enum_metric));
+	fpga_enum_metric = (struct _fpga_enum_metric *)opae_malloc(sizeof(struct _fpga_enum_metric));
 	if (fpga_enum_metric == NULL) {
 		OPAE_ERR("Failed to allocate memory");
 		return FPGA_NO_MEMORY;
@@ -690,7 +691,7 @@ fpga_result get_bmc_metrics_values(fpga_handle handle,
 	}
 
 	if (_handle->_bmc_metric_cache_value == NULL) {
-		_handle->_bmc_metric_cache_value = calloc(sizeof(struct _fpga_bmc_metric), num_sensors);
+		_handle->_bmc_metric_cache_value = opae_calloc(sizeof(struct _fpga_bmc_metric), num_sensors);
 		if (_handle->_bmc_metric_cache_value == NULL) {
 			OPAE_ERR("Failed to allocate memory");
 			result = FPGA_NO_MEMORY;
@@ -904,7 +905,7 @@ fpga_result  clear_cached_values(fpga_handle handle)
 	fpga_result result           = FPGA_OK;
 
 	if (_handle->_bmc_metric_cache_value) {
-		free(_handle->_bmc_metric_cache_value);
+		opae_free(_handle->_bmc_metric_cache_value);
 		_handle->_bmc_metric_cache_value = NULL;
 	}
 

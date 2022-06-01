@@ -34,6 +34,7 @@
 #include "bitstream.h"
 #include "metadatav1.h"
 #include "bits_utils.h"
+#include "mock/opae_std.h"
 
 STATIC fpga_result
 opae_bitstream_parse_accelerator_cluster_v1(json_object *j_cluster,
@@ -63,7 +64,7 @@ opae_bitstream_parse_accelerator_cluster_v1(json_object *j_cluster,
 
 out_free:
 	if (cluster->name) {
-		free(cluster->name);
+		opae_free(cluster->name);
 		cluster->name = NULL;
 	}
 	return res;
@@ -175,7 +176,7 @@ STATIC fpga_result opae_bitstream_parse_afu_image_v1(json_object *j_afu_image,
 	img->num_clusters = json_object_array_length(j_accelerator_clusters);
 
 	img->accelerator_clusters =
-		calloc(img->num_clusters,
+		opae_calloc(img->num_clusters,
 		       sizeof(opae_metadata_accelerator_cluster_v1));
 	if (!img->accelerator_clusters) {
 		OPAE_ERR("calloc failed");
@@ -197,17 +198,17 @@ STATIC fpga_result opae_bitstream_parse_afu_image_v1(json_object *j_afu_image,
 
 out_free:
 	if (img->interface_uuid) {
-		free(img->interface_uuid);
+		opae_free(img->interface_uuid);
 		img->interface_uuid = NULL;
 	}
 	if (img->accelerator_clusters) {
 		int j;
 		for (j = 0 ; j < i ; ++j) {
-			free(img->accelerator_clusters[j].name);
-			free(img->accelerator_clusters[j].accelerator_type_uuid);
+			opae_free(img->accelerator_clusters[j].name);
+			opae_free(img->accelerator_clusters[j].accelerator_type_uuid);
 		}
 
-		free(img->accelerator_clusters);
+		opae_free(img->accelerator_clusters);
 		img->accelerator_clusters = NULL;
 	}
 	return res;
@@ -221,7 +222,7 @@ opae_bitstream_parse_metadata_v1(json_object *root,
 	fpga_result res;
 	json_object *j_afu_image = NULL;
 
-	md = calloc(1, sizeof(opae_bitstream_metadata_v1));
+	md = opae_calloc(1, sizeof(opae_bitstream_metadata_v1));
 	if (!md) {
 		OPAE_ERR("calloc failed");
 		return NULL;
@@ -255,8 +256,8 @@ opae_bitstream_parse_metadata_v1(json_object *root,
 
 out_free:
 	if (md->platform_name)
-		free(md->platform_name);
-	free(md);
+		opae_free(md->platform_name);
+	opae_free(md);
 	return NULL;
 }
 
@@ -271,19 +272,19 @@ void opae_bitstream_release_metadata_v1(opae_bitstream_metadata_v1 *md)
 				&md->afu_image.accelerator_clusters[i];
 
 			if (c->name)
-				free(c->name);
+				opae_free(c->name);
 			if (c->accelerator_type_uuid)
-				free(c->accelerator_type_uuid);
+				opae_free(c->accelerator_type_uuid);
 		}
 
-		free(md->afu_image.accelerator_clusters);
+		opae_free(md->afu_image.accelerator_clusters);
 	}
 
 	if (md->afu_image.interface_uuid)
-		free(md->afu_image.interface_uuid);
+		opae_free(md->afu_image.interface_uuid);
 
 	if (md->platform_name)
-		free(md->platform_name);
+		opae_free(md->platform_name);
 
-	free(md);
+	opae_free(md);
 }

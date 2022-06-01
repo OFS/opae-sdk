@@ -53,6 +53,7 @@
 
 #include <opae/fpga.h>
 #include <argsfilter.h>
+#include "mock/opae_std.h"
 
 int usleep(unsigned);
 
@@ -312,7 +313,7 @@ int main(int argc, char *argv[])
 		 goto out_join;
 	} else {
 		 printf("FME Interrupt occurred\n");
-		 bytes_read = read(pfd.fd, &count, sizeof(count));
+		 bytes_read = opae_read(pfd.fd, &count, sizeof(count));
 		 if (bytes_read <= 0)
 			 printf("WARNING: error reading from poll fd: %s\n",
 					 bytes_read < 0 ? strerror(errno) : "zero bytes read");

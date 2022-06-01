@@ -62,7 +62,7 @@ class fpgad_config_file_c_p : public opae_base_p<> {
     log_set(stdout);
 
     strcpy(cfg_file_, "fpgad-XXXXXX.cfg");
-    close(mkstemps(cfg_file_, 4));
+    opae_close(mkstemps(cfg_file_, 4));
 
     memset(&config_, 0, sizeof(config_));
     config_.poll_interval_usec = 100 * 1000;
@@ -655,8 +655,8 @@ TEST_P(fpgad_config_file_devices_p, process_plugin_devices9) {
   EXPECT_EQ(ids->next->vendor_id, 0x8086);
   EXPECT_EQ(ids->next->device_id, 0xbcc0);
 
-  free(ids->next);
-  free(ids);
+  opae_free(ids->next);
+  opae_free(ids);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(fpgad_config_file_devices_p);
@@ -681,7 +681,7 @@ TEST_P(mock_fpgad_config_file_c_p, read_file1) {
 /**
  * @test       process_plugin2
  * @brief      Test: cfg_process_plugin
- * @details    If cstr_dup fails to clone the "configuration" key,<br>
+ * @details    If strdup fails to clone the "configuration" key,<br>
  *             then the fn returns non-zero.<br>
  */
 TEST_P(mock_fpgad_config_file_c_p, process_plugin2) {
@@ -699,14 +699,14 @@ TEST_P(mock_fpgad_config_file_c_p, process_plugin2) {
 )cfg";
 
   write_cfg(cfg);
-  system_->invalidate_malloc(0, "cstr_dup");
+  system_->invalidate_strdup(0, "cfg_load_config");
   EXPECT_NE(cfg_load_config(&config_), 0);
 }
 
 /**
  * @test       process_plugin7
  * @brief      Test: cfg_process_plugin
- * @details    If cstr_dup fails to clone the "plugin" key,<br>
+ * @details    If strdup fails to clone the "plugin" key,<br>
  *             then the fn returns non-zero.<br>
  */
 TEST_P(mock_fpgad_config_file_c_p, process_plugin7) {
@@ -726,7 +726,7 @@ TEST_P(mock_fpgad_config_file_c_p, process_plugin7) {
 )cfg";
 
   write_cfg(cfg);
-  system_->invalidate_malloc(1, "cstr_dup");
+  system_->invalidate_strdup(1, "cfg_load_config");
   EXPECT_NE(cfg_load_config(&config_), 0);
 }
 
@@ -795,7 +795,7 @@ TEST_P(mock_fpgad_config_file_c_p, process_plugin10) {
 )cfg";
 
   write_cfg(cfg);
-  system_->invalidate_malloc(1, "alloc_configuration");
+  system_->invalidate_malloc(0, "alloc_configuration");
   EXPECT_NE(cfg_load_config(&config_), 0);
 }
 

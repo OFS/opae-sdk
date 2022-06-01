@@ -26,7 +26,9 @@
 
 opae_add_executable(TARGET fpgaconf
     EXPORT opae-targets
-    SOURCE fpgaconf.c
+    SOURCE
+        fpgaconf.c
+        ${opae-test_ROOT}/framework/mock/opae_std.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
         argsfilter

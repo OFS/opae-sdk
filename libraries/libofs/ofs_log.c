@@ -1,4 +1,4 @@
-// Copyright(c) 2021, Intel Corporation
+// Copyright(c) 2021-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -37,6 +37,8 @@
 #define __USE_GNU
 #endif // __USE_GNU
 #include <pthread.h>
+
+#include "mock/opae_std.h"
 
 static int log_level = OFS_DEFAULT_LOG_LEVEL;
 static FILE *log_file;
@@ -91,7 +93,7 @@ __attribute__((constructor)) STATIC void ofs_init(void)
 	s = getenv("LIBOFS_LOGFILE");
 	if (s) {
 		if (s[0] != '/' || !strncmp(s, "/tmp/", 5)) {
-			log_file = fopen(s, "w");
+			log_file = opae_fopen(s, "w");
 			if (!log_file) {
 				fprintf(stderr,
 					"Could not open log file for writing: %s. ", s);
@@ -107,6 +109,6 @@ __attribute__((constructor)) STATIC void ofs_init(void)
 __attribute__((destructor)) STATIC void ofs_release(void)
 {
 	if (log_file && log_file != stdout)
-		fclose(log_file);
+		opae_fclose(log_file);
 	log_file = NULL;
 }

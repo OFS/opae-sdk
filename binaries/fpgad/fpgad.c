@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -33,6 +33,7 @@
 #include "monitor_thread.h"
 #include "event_dispatcher_thread.h"
 #include "events_api_thread.h"
+#include "mock/opae_std.h"
 
 #ifdef LOG
 #undef LOG
@@ -125,14 +126,14 @@ int main(int argc, char *argv[])
 		goto out_destroy;
 	}
 
-	fp = fopen(global_config.pidfile, "w");
+	fp = opae_fopen(global_config.pidfile, "w");
 	if (NULL == fp) {
 		LOG("failed to open pid file\n");
 		res = 1;
 		goto out_destroy;
 	}
 	fprintf(fp, "%d\n", getpid());
-	fclose(fp);
+	opae_fclose(fp);
 
 	res = mon_enumerate(&global_config);
 	if (res) {

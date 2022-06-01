@@ -66,7 +66,7 @@ TEST_P(metrics_c_p, by_name0) {
                                     "performance:fabric:port0:mmio_read" };
 
   struct fpga_metric *metrics = (struct fpga_metric *)
-    calloc(sizeof(struct fpga_metric), array_size);
+    opae_calloc(sizeof(struct fpga_metric), array_size);
   ASSERT_NE(metrics, nullptr);
 
   EXPECT_NE(fpgaGetMetricsByName(accel_,
@@ -74,7 +74,7 @@ TEST_P(metrics_c_p, by_name0) {
                                  array_size,
                                  metrics), FPGA_OK);
 
-  free(metrics);
+  opae_free(metrics);
 }
 
 /**

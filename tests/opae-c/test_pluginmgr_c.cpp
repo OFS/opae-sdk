@@ -219,9 +219,6 @@ TEST_P(pluginmgr_c_p, bad_final_all) {
   EXPECT_EQ(2, test_plugin_finalize_called);
 }
 
-INSTANTIATE_TEST_SUITE_P(pluginmgr_c, pluginmgr_c_p,
-                         ::testing::ValuesIn(test_platform::platforms({})));
-
 const char *plugin_cfg_1 = R"plug(
 {
     "configurations": {
@@ -428,7 +425,6 @@ const char *dummy_cfg = R"plug(
 
 const char *err_contains = "wrapped_handle->adapter_table->fpgaReset is NULL";
 
-
 TEST_P(pluginmgr_c_p, dummy_plugin) {
   auto ldl_path = getenv("LD_LIBRARY_PATH");
   opae_plugin_mgr_reset_cfg();
@@ -486,8 +482,12 @@ TEST_P(pluginmgr_c_p, no_cfg) {
 }
 
 TEST_P(pluginmgr_c_p, fpgaReset_null_handle) {
-    EXPECT_EQ(fpgaReset(NULL), FPGA_INVALID_PARAM);
+  EXPECT_EQ(fpgaReset(NULL), FPGA_INVALID_PARAM);
+  opae_plugin_mgr_finalize_all();
 }
+
+INSTANTIATE_TEST_SUITE_P(pluginmgr_c, pluginmgr_c_p,
+                         ::testing::ValuesIn(test_platform::platforms({})));
 
 class pluginmgr_cfg_p : public ::testing::TestWithParam<const char*> {
  protected:
@@ -509,7 +509,7 @@ class pluginmgr_cfg_p : public ::testing::TestWithParam<const char*> {
     cfg_dir_ = dirname(buffer_);
     struct stat st;
     // if the directory doesn't exist, create the entire path
-    if (stat(cfg_dir_, &st)) {
+    if (opae_stat(cfg_dir_, &st)) {
       std::string dir = cfg_dir_;
       // find the first '/' after $HOME
       size_t pos = dir.find('/', home.size());
@@ -517,7 +517,7 @@ class pluginmgr_cfg_p : public ::testing::TestWithParam<const char*> {
         std::string sub = dir.substr(0, pos);
         // sub is $HOME/<dir1>, then $HOME/<dir1>/<dir2>, ...
         // if this directory doesn't exist, create it
-        if (stat(sub.c_str(), &st) && sub != "") {
+        if (opae_stat(sub.c_str(), &st) && sub != "") {
           ASSERT_EQ(mkdir(sub.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH),
                     0)
               << "Error creating subdirectory (" << sub
@@ -535,7 +535,7 @@ class pluginmgr_cfg_p : public ::testing::TestWithParam<const char*> {
       dirs_.push(cfg_dir_);
     }
 
-    if (stat(cfg_file_.c_str(), &st) == 0) {
+    if (opae_stat(cfg_file_.c_str(), &st) == 0) {
       unlink(cfg_file_.c_str());
     }
 

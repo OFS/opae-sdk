@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -32,6 +32,7 @@
 #define _TIMESPEC_DEFINED
 #include "../../types_int.h"
 #include "bmcdata.h"
+#include "mock/opae_std.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <string.h>
@@ -80,31 +81,31 @@ fpga_result read_sysfs_file(fpga_token token, const char *file,
 	}
 
 	glob_t pglob;
-	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
+	int gres = opae_glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if ((gres) || (1 != pglob.gl_pathc)) {
-		globfree(&pglob);
+		opae_globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
 
-	fd = open(pglob.gl_pathv[0], O_RDONLY);
-	globfree(&pglob);
+	fd = opae_open(pglob.gl_pathv[0], O_RDONLY);
+	opae_globfree(&pglob);
 	if (fd < 0) {
 		return FPGA_NOT_FOUND;
 	}
 
 	if (fstat(fd, &stats) != 0) {
-		close(fd);
+		opae_close(fd);
 		return FPGA_NOT_FOUND;
 	}
 
 	// fstat for a sysfs file is not accurate for the BMC
 	// Read the entire file into a temp buffer to get actual size of file
-	*buf = (void *)calloc(stats.st_size, 1);
+	*buf = (void *)opae_calloc(stats.st_size, 1);
 
 	int32_t tot_bytes = 0;
 	int32_t bytes_read = 0;
 	do {
-		bytes_read = (int32_t)read(fd, *buf, stats.st_size);
+		bytes_read = (int32_t)opae_read(fd, *buf, stats.st_size);
 		if (bytes_read < 0) {
 			if (errno == EINTR) {
 				bytes_read = 1; // Fool the while loop
@@ -114,11 +115,11 @@ fpga_result read_sysfs_file(fpga_token token, const char *file,
 		tot_bytes += bytes_read;
 	} while ((tot_bytes < stats.st_size) && (bytes_read > 0));
 
-	close(fd);
+	opae_close(fd);
 
 	if ((tot_bytes > stats.st_size) || (bytes_read < 0)) {
 		res = FPGA_EXCEPTION;
-		free(*buf);
+		opae_free(*buf);
 		*buf = NULL;
 		goto out;
 	}
@@ -146,7 +147,7 @@ fpga_result bmcLoadSDRs(fpga_token token, bmc_sdr_handle *records,
 	res = read_sysfs_file(token, SYSFS_SDR_FILE, (void **)&tmp, &tot_bytes);
 	if (FPGA_OK != res) {
 		if (tmp) {
-			free(tmp);
+			opae_free(tmp);
 		}
 		goto out;
 	}
@@ -156,13 +157,13 @@ fpga_result bmcLoadSDRs(fpga_token token, bmc_sdr_handle *records,
 
 	*num_sensors = num_of_sensors;
 	if (NULL == records) {
-		free(tmp);
+		opae_free(tmp);
 		return FPGA_OK;
 	}
 
-	*records = (bmc_sdr_handle)calloc(1, sizeof(struct _sdr_rec));
+	*records = (bmc_sdr_handle)opae_calloc(1, sizeof(struct _sdr_rec));
 	if (NULL == *records) {
-		free(tmp);
+		opae_free(tmp);
 		return FPGA_NO_MEMORY;
 	}
 	recs = (struct _sdr_rec *)*records;
@@ -210,7 +211,7 @@ fpga_result bmcReadSensorValues(bmc_sdr_handle records, bmc_values_handle *value
 	if ((NULL == tmp) || (FPGA_OK != res)) {
 		fprintf(stderr, "Cannot read sensor file.\n");
 		if (tmp) {
-			free(tmp);
+			opae_free(tmp);
 		}
 		return FPGA_EXCEPTION;
 	}
@@ -221,15 +222,15 @@ fpga_result bmcReadSensorValues(bmc_sdr_handle records, bmc_values_handle *value
 			" struct size %d.\n",
 			(int)tot_bytes,
 			(int)(sdr->num_records * sizeof(sensor_reading)));
-		free(tmp);
+		opae_free(tmp);
 		return FPGA_EXCEPTION;
 	}
 
 	*num_values = sdr->num_records;
 
-	*values = (bmc_values_handle)calloc(1, sizeof(struct _bmc_values));
+	*values = (bmc_values_handle)opae_calloc(1, sizeof(struct _bmc_values));
 	if (NULL == *values) {
-		free(tmp);
+		opae_free(tmp);
 		return FPGA_NO_MEMORY;
 	}
 	vals = (struct _bmc_values *)*values;
@@ -239,7 +240,7 @@ fpga_result bmcReadSensorValues(bmc_sdr_handle records, bmc_values_handle *value
 	vals->magic = BMC_VALUES_MAGIC;
 	vals->num_records = sdr->num_records;
 
-	vals->values = (Values **)calloc(sdr->num_records, sizeof(Values *));
+	vals->values = (Values **)opae_calloc(sdr->num_records, sizeof(Values *));
 	if (NULL == vals->values) {
 		return FPGA_NO_MEMORY;
 	}
@@ -316,7 +317,7 @@ fpga_result bmcThresholdsTripped(bmc_values_handle values,
 		goto out;
 	}
 
-	*tripped = (tripped_thresholds *)calloc(num_tripd,
+	*tripped = (tripped_thresholds *)opae_calloc(num_tripd,
 						sizeof(tripped_thresholds));
 	if (NULL == *tripped) {
 		return FPGA_NO_MEMORY;
@@ -357,10 +358,10 @@ fpga_result bmcDestroySDRs(bmc_sdr_handle *records)
 		goto out;
 	}
 
-	free(sdr->contents);
+	opae_free(sdr->contents);
 
 	sdr->magic = 0;
-	free(sdr);
+	opae_free(sdr);
 
 	*records = NULL;
 
@@ -383,15 +384,15 @@ fpga_result bmcDestroySensorValues(bmc_values_handle *values)
 	}
 
 	for (i = 0; i < vals->num_records; i++) {
-		free(vals->values[i]->name);
-		free(vals->values[i]);
+		opae_free(vals->values[i]->name);
+		opae_free(vals->values[i]);
 	}
 
-	free(vals->contents);
-	free(vals->values);
+	opae_free(vals->contents);
+	opae_free(vals->values);
 
 	vals->magic = 0;
-	free(vals);
+	opae_free(vals);
 
 	*values = NULL;
 
@@ -499,7 +500,7 @@ fpga_result bmcDestroyTripped(tripped_thresholds *tripped)
 
 	NULL_CHECK(tripped);
 
-	free(tripped);
+	opae_free(tripped);
 
 	return res;
 }
@@ -537,7 +538,7 @@ fpga_result bmcGetFirmwareVersion(fpga_token token, uint32_t *version)
 
 out:
 	if (tmp) {
-		free(tmp);
+		opae_free(tmp);
 	}
 
 	return res;
@@ -575,7 +576,7 @@ fpga_result bmcGetLastPowerdownCause(fpga_token token, char **cause)
 
 out:
 	if (tmp) {
-		free(tmp);
+		opae_free(tmp);
 	}
 
 	return res;
@@ -663,7 +664,7 @@ fpga_result bmcGetLastResetCause(fpga_token token, char **cause)
 
 out:
 	if (tmp) {
-		free(tmp);
+		opae_free(tmp);
 	}
 
 	return res;

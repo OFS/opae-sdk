@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -37,6 +37,7 @@
 #include "opae/error.h"
 
 #include "error_int.h"
+#include "mock/opae_std.h"
 
 #define INJECT_ERROR "inject_error"
 
@@ -57,7 +58,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaReadError(fpga_token token, uint32_t error_n
 	while (p) {
 		if (i == error_num) {
 			// test if file exists
-			if (stat(p->error_file, &st) == -1) {
+			if (opae_stat(p->error_file, &st) == -1) {
 				OPAE_MSG("can't stat %s", p->error_file);
 				return FPGA_EXCEPTION;
 			}
@@ -110,7 +111,7 @@ xfpga_fpgaClearError(fpga_token token, uint32_t error_num)
 			}
 
 			// write to 'clear' file
-			if (stat(p->clear_file, &st) == -1) {
+			if (opae_stat(p->clear_file, &st) == -1) {
 				OPAE_MSG("can't stat %s", p->clear_file);
 				return FPGA_EXCEPTION;
 			}
@@ -248,7 +249,7 @@ build_error_list(const char *path, struct error_list **list)
 
 	// now we've added one to length
 
-	dir = opendir(path);
+	dir = opae_opendir(path);
 	if (!dir) {
 		OPAE_MSG("unable to open %s", path);
 		return 0;
@@ -285,7 +286,7 @@ build_error_list(const char *path, struct error_list **list)
 		strncpy(basedir + len, de->d_name, subpath_len + 1);
 
 		// try accessing file/dir
-		if (lstat(basedir, &st) == -1) {
+		if (opae_lstat(basedir, &st) == -1) {
 			OPAE_MSG("can't stat %s", basedir);
 			continue;
 		}
@@ -306,7 +307,7 @@ build_error_list(const char *path, struct error_list **list)
 			continue;
 
 		// append error info to list
-		struct error_list *new_entry = malloc(sizeof(struct error_list));
+		struct error_list *new_entry = opae_malloc(sizeof(struct error_list));
 		if (!new_entry) {
 			OPAE_MSG("can't allocate memory");
 			n--;
@@ -327,10 +328,10 @@ build_error_list(const char *path, struct error_list **list)
 		//   * if the name is in the "errors_clearable" table
 		new_entry->info.can_clear = false;
 		if (strcmp(de->d_name, "errors") == 0 &&
-			!stat(FPGA_SYSFS_CLASS_PATH_INTEL, &st)) {
+			!opae_stat(FPGA_SYSFS_CLASS_PATH_INTEL, &st)) {
 			strncpy(basedir + len, "clear", 6);
 			// try accessing clear file
-			if (lstat(basedir, &st) != -1) {
+			if (opae_lstat(basedir, &st) != -1) {
 				new_entry->info.can_clear = true;
 				memcpy(new_entry->clear_file, basedir, blen);
 				new_entry->clear_file[blen] = '\0';
@@ -341,7 +342,7 @@ build_error_list(const char *path, struct error_list **list)
 					memcpy(basedir + len, de->d_name, dlen);
 					*(basedir + len + dlen) = '\0';
 					// try accessing clear file
-					if (lstat(basedir, &st) != -1) {
+					if (opae_lstat(basedir, &st) != -1) {
 						new_entry->info.can_clear = true;
 						memcpy(new_entry->clear_file, basedir, blen);
 						new_entry->clear_file[blen] = '\0';
@@ -363,7 +364,7 @@ build_error_list(const char *path, struct error_list **list)
 			*el = new_entry;
 		el = &new_entry->next;
 	}
-	closedir(dir);
+	opae_closedir(dir);
 
 	return n;
 }
@@ -379,7 +380,7 @@ struct error_list *clone_error_list(struct error_list *src)
 	struct error_list **plist = &clone;
 
 	while (src) {
-		struct error_list *p = malloc(sizeof(struct error_list));
+		struct error_list *p = opae_malloc(sizeof(struct error_list));
 		if (!p) {
 			OPAE_ERR("malloc failed");
 			goto free_list;
@@ -400,7 +401,7 @@ free_list:
 	while (clone) {
 		struct error_list *trash = clone;
 		clone = clone->next;
-		free(trash);
+		opae_free(trash);
 	}
 	return NULL;
 }

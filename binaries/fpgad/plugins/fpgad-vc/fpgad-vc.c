@@ -35,6 +35,7 @@
 #include "fpgad/api/opae_events_api.h"
 #include "fpgad/api/device_monitoring.h"
 #include "fpgad/api/sysfs.h"
+#include "mock/opae_std.h"
 
 #ifdef LOG
 #undef LOG
@@ -165,11 +166,11 @@ STATIC void stop_vc_threads(void)
 STATIC void vc_destroy_sensor(vc_sensor *sensor)
 {
 	if (sensor->name) {
-		free(sensor->name);
+		opae_free(sensor->name);
 		sensor->name = NULL;
 	}
 	if (sensor->type) {
-		free(sensor->type);
+		opae_free(sensor->type);
 		sensor->type = NULL;
 	}
 	if (sensor->value_object) {
@@ -190,12 +191,12 @@ STATIC void vc_destroy_sensors(vc_device *vc)
 	vc->num_sensors = 0;
 
 	if (vc->state_tripped) {
-		free(vc->state_tripped);
+		opae_free(vc->state_tripped);
 		vc->state_tripped = NULL;
 	}
 
 	if (vc->state_last) {
-		free(vc->state_last);
+		opae_free(vc->state_last);
 		vc->state_last = NULL;
 	}
 }
@@ -204,7 +205,7 @@ STATIC void vc_destroy_device(vc_device *vc)
 {
 	vc_destroy_sensors(vc);
 	if (vc->config_sensors) {
-		free(vc->config_sensors);
+		opae_free(vc->config_sensors);
 		vc->config_sensors = NULL;
 		vc->num_config_sensors = 0;
 	}
@@ -232,34 +233,34 @@ STATIC fpga_result vc_sensor_get(vc_device *vc, char *label, vc_sensor *s)
 	s->flags = 0;
 
 	if (s->name) {
-		free(s->name);
+		opae_free(s->name);
 		s->name = NULL;
 	}
 
 	if (s->type) {
-		free(s->type);
+		opae_free(s->type);
 		s->type = NULL;
 	}
 
 	if (file_read_string(label, buf, sizeof(buf))) {
 		return FPGA_EXCEPTION;
 	}
-	s->name = cstr_dup(buf);
+	s->name = opae_strdup(buf);
 	if (!s->name)
 		return FPGA_NO_MEMORY;
 
 	// Determine sensor type.
 	p = strrchr(label, '/') + 1;
 	if (!strncmp("curr", p, 4)) {
-		s->type = cstr_dup("Current");
+		s->type = opae_strdup("Current");
 	} else if (!strncmp("in", p, 2)) {
-		s->type = cstr_dup("Voltage");
+		s->type = opae_strdup("Voltage");
 	} else if (!strncmp("power", p, 5)) {
-		s->type = cstr_dup("Power");
+		s->type = opae_strdup("Power");
 	} else if (!strncmp("temp", p, 4)) {
-		s->type = cstr_dup("Temperature");
+		s->type = opae_strdup("Temperature");
 	} else {
-		s->type = cstr_dup("Unknown");
+		s->type = opae_strdup("Unknown");
 	}
 
 	if (!s->type)
@@ -445,11 +446,11 @@ STATIC fpga_result vc_enum_sensors(vc_device *vc)
 		snprintf(glob_pattern, sizeof(glob_pattern),
 			 glob_patterns[i], vc->sbdf);
 
-		ires = glob(glob_pattern, 0, NULL, &glob_data);
+		ires = opae_glob(glob_pattern, 0, NULL, &glob_data);
 
 		if (ires) {
 			if (glob_data.gl_pathv)
-				globfree(&glob_data);
+				opae_globfree(&glob_data);
 			continue;
 		}
 
@@ -463,11 +464,11 @@ STATIC fpga_result vc_enum_sensors(vc_device *vc)
 		vc_enum_sensor(vc, glob_data.gl_pathv[i]);
 	}
 
-	globfree(&glob_data);
+	opae_globfree(&glob_data);
 
 	if (vc->num_sensors > 0) {
-		vc->state_tripped = calloc((vc->num_sensors + 7) / 8, 1);
-		vc->state_last = calloc((vc->num_sensors + 7) / 8, 1);
+		vc->state_tripped = opae_calloc((vc->num_sensors + 7) / 8, 1);
+		vc->state_last = opae_calloc((vc->num_sensors + 7) / 8, 1);
 
 		return (vc->state_tripped && vc->state_last) ?
 			FPGA_OK : FPGA_NO_MEMORY;
@@ -492,7 +493,7 @@ STATIC fpga_result vc_disable_aer(vc_device *vc)
 
 	memset(rlpath, 0, sizeof(rlpath));
 
-	if (readlink(path, rlpath, sizeof(rlpath)) < 0) {
+	if (opae_readlink(path, rlpath, sizeof(rlpath)) < 0) {
 		LOG("readlink \"%s\" failed.\n", path);
 		return FPGA_EXCEPTION;
 	}
@@ -513,7 +514,7 @@ STATIC fpga_result vc_disable_aer(vc_device *vc)
 	snprintf(cmd, sizeof(cmd),
 		 vc->get_aer[0], p);
 
-	fp = popen(cmd, "r");
+	fp = opae_popen(cmd, "r");
 	if (!fp) {
 		LOG("popen(\"%s\") failed\n", cmd);
 		return FPGA_EXCEPTION;
@@ -525,7 +526,7 @@ STATIC fpga_result vc_disable_aer(vc_device *vc)
 		sz = sizeof(output) - 1;
 	output[sz] = '\0';
 
-	pclose(fp);
+	opae_pclose(fp);
 
 	vc->previous_ecap_aer[0] = strtoul(output, NULL, 16);
 
@@ -536,7 +537,7 @@ STATIC fpga_result vc_disable_aer(vc_device *vc)
 	snprintf(cmd, sizeof(cmd),
 		 vc->get_aer[1], p);
 
-	fp = popen(cmd, "r");
+	fp = opae_popen(cmd, "r");
 	if (!fp) {
 		LOG("popen(\"%s\") failed\n", cmd);
 		return FPGA_EXCEPTION;
@@ -548,7 +549,7 @@ STATIC fpga_result vc_disable_aer(vc_device *vc)
 		sz = sizeof(output) - 1;
 	output[sz] = '\0';
 
-	pclose(fp);
+	opae_pclose(fp);
 
 	vc->previous_ecap_aer[1] = strtoul(output, NULL, 16);
 
@@ -561,24 +562,24 @@ STATIC fpga_result vc_disable_aer(vc_device *vc)
 	snprintf(cmd, sizeof(cmd),
 		 vc->disable_aer[0], p);
 
-	fp = popen(cmd, "r");
+	fp = opae_popen(cmd, "r");
 	if (!fp) {
 		LOG("popen(\"%s\") failed\n", cmd);
 		return FPGA_EXCEPTION;
 	}
 
-	pclose(fp);
+	opae_pclose(fp);
 
 	snprintf(cmd, sizeof(cmd),
 		 vc->disable_aer[1], p);
 
-	fp = popen(cmd, "r");
+	fp = opae_popen(cmd, "r");
 	if (!fp) {
 		LOG("popen(\"%s\") failed\n", cmd);
 		return FPGA_EXCEPTION;
 	}
 
-	pclose(fp);
+	opae_pclose(fp);
 
 	return FPGA_OK;
 }
@@ -597,7 +598,7 @@ STATIC fpga_result vc_enable_aer(vc_device *vc)
 
 	memset(rlpath, 0, sizeof(rlpath));
 
-	if (readlink(path, rlpath, sizeof(rlpath)) < 0) {
+	if (opae_readlink(path, rlpath, sizeof(rlpath)) < 0) {
 		LOG("readlink \"%s\" failed.\n", path);
 		return FPGA_EXCEPTION;
 	}
@@ -619,13 +620,13 @@ STATIC fpga_result vc_enable_aer(vc_device *vc)
 		 vc->set_aer[0],
 		 p, vc->previous_ecap_aer[0]);
 
-	fp = popen(cmd, "r");
+	fp = opae_popen(cmd, "r");
 	if (!fp) {
 		LOG("popen(\"%s\") failed\n", cmd);
 		return FPGA_EXCEPTION;
 	}
 
-	pclose(fp);
+	opae_pclose(fp);
 
 	LOG("restored previous ECAP_AER+0x08 value 0x%08x for %s\n",
 	    vc->previous_ecap_aer[0], p);
@@ -635,13 +636,13 @@ STATIC fpga_result vc_enable_aer(vc_device *vc)
 		 vc->set_aer[1],
 		 p, vc->previous_ecap_aer[1]);
 
-	fp = popen(cmd, "r");
+	fp = opae_popen(cmd, "r");
 	if (!fp) {
 		LOG("popen(\"%s\") failed\n", cmd);
 		return FPGA_EXCEPTION;
 	}
 
-	pclose(fp);
+	opae_pclose(fp);
 
 	LOG("restored previous ECAP_AER+0x14 value 0x%08x for %s\n",
 	    vc->previous_ecap_aer[1], p);
@@ -876,7 +877,7 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 		}
 
 		if (save_state_last) {
-			free(vc->state_last);
+			opae_free(vc->state_last);
 			vc->state_last = save_state_last;
 			save_state_last = NULL;
 		}
@@ -887,8 +888,8 @@ STATIC void *monitor_fme_vc_thread(void *arg)
 				if (poll_ret > 0) {
 					LOG("error interrupt event received.\n");
 					uint64_t count = 0;
-					ssize_t bytes_read = read(vc->event_fd.fd, &count,
-											  sizeof(count));
+					ssize_t bytes_read = opae_read(vc->event_fd.fd, &count,
+								       sizeof(count));
 					if (bytes_read > 0) {
 						LOG("poll count = %zu.\n", count);
 					}
@@ -1140,7 +1141,7 @@ STATIC int vc_parse_config(vc_device *vc, const char *cfg)
 		goto out_put;
 	}
 
-	vc->config_sensors = calloc(sensor_entries, sizeof(vc_config_sensor));
+	vc->config_sensors = opae_calloc(sensor_entries, sizeof(vc_config_sensor));
 	if (!vc->config_sensors) {
 		LOG("calloc failed. Skipping user sensor config.\n");
 		goto out_put;
@@ -1270,7 +1271,7 @@ int fpgad_plugin_configure(fpgad_monitored_device *d,
 		d->thread_fn = monitor_fme_vc_thread;
 		d->thread_stop_fn = stop_vc_threads;
 
-		vc = calloc(1, sizeof(vc_device));
+		vc = opae_calloc(1, sizeof(vc_device));
 		if (!vc)
 			return res;
 
@@ -1279,7 +1280,7 @@ int fpgad_plugin_configure(fpgad_monitored_device *d,
 
 		res = vc_parse_config(vc, cfg);
 		if (res) {
-			free(vc);
+			opae_free(vc);
 			goto out_exit;
 		}
 
@@ -1326,7 +1327,7 @@ void fpgad_plugin_destroy(fpgad_monitored_device *d)
 
 	if (d->thread_context) {
 		vc_destroy_device((vc_device *)d->thread_context);
-		free(d->thread_context);
+		opae_free(d->thread_context);
 		d->thread_context = NULL;
 	}
 }

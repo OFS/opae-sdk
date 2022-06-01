@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -43,6 +43,7 @@
 #include "api/opae_events_api.h"
 
 #include "logging.h"
+#include "mock/opae_std.h"
 
 #ifdef LOG
 #undef LOG
@@ -71,7 +72,7 @@ STATIC void remove_client(int conn_socket)
 
 	opae_api_unregister_all_events_for(conn_socket);
 	LOG("closing connection conn_socket=%d.\n", conn_socket);
-	close(conn_socket);
+	opae_close(conn_socket);
 
 	for (i = j = FIRST_CLIENT_SOCKET ; i < num_fds ; ++i) {
 		if (conn_socket != pollfds[i].fd) {
@@ -285,12 +286,12 @@ void *events_api_thread(void *thread_context)
 
 	// close any active client sockets
 	for (i = FIRST_CLIENT_SOCKET ; i < num_fds ; ++i) {
-		close(pollfds[i].fd);
+		opae_close(pollfds[i].fd);
 	}
 
 out_close_server:
 	evt_api_is_ready = false;
-	close(server_socket);
+	opae_close(server_socket);
 out_exit:
 	LOG("exiting\n");
 	return NULL;

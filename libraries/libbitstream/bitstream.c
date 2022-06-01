@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -39,6 +39,7 @@
 #include "bitstream.h"
 #include "bits_utils.h"
 #include "metadatav1.h"
+#include "mock/opae_std.h"
 
 #include <opae/log.h>
 #include <opae/properties.h>
@@ -53,7 +54,7 @@ STATIC fpga_result opae_bitstream_read_file(const char *file,
 	long pos;
 	size_t sz;
 
-	fp = fopen(file, "rb");
+	fp = opae_fopen(file, "rb");
 	if (!fp) {
 		OPAE_ERR("fopen failed");
 		return FPGA_EXCEPTION;
@@ -72,7 +73,7 @@ STATIC fpga_result opae_bitstream_read_file(const char *file,
 
 	*len = (size_t)pos;
 
-	*buf = (uint8_t *)malloc(*len);
+	*buf = (uint8_t *)opae_malloc(*len);
 	if (!*buf) {
 		OPAE_ERR("malloc failed");
 		res = FPGA_NO_MEMORY;
@@ -97,15 +98,15 @@ STATIC fpga_result opae_bitstream_read_file(const char *file,
 		goto out_free;
 	}
 
-	fclose(fp);
+	opae_fclose(fp);
 	return FPGA_OK;
 
 out_free:
-	free(*buf);
+	opae_free(*buf);
 	*buf = NULL;
 	*len = 0;
 out_close:
-	fclose(fp);
+	opae_fclose(fp);
 	return res;
 }
 
@@ -234,7 +235,7 @@ STATIC fpga_result opae_resolve_bitstream(opae_bitstream_info *info)
 	info->rbf_data = info->data + sz;
 	info->rbf_len = info->data_len - sz;
 
-	buf = (char *)malloc(hdr->metadata_length + 1);
+	buf = (char *)opae_malloc(hdr->metadata_length + 1);
 	if (!buf) {
 		OPAE_ERR("malloc failed");
 		return FPGA_NO_MEMORY;
@@ -248,7 +249,7 @@ STATIC fpga_result opae_resolve_bitstream(opae_bitstream_info *info)
 					      info->pr_interface_id,
 					      &info->metadata_version);
 
-	free(buf);
+	opae_free(buf);
 
 	return info->parsed_metadata ? FPGA_OK : FPGA_EXCEPTION;
 }
@@ -295,7 +296,7 @@ fpga_result opae_unload_bitstream(opae_bitstream_info *info)
 		return FPGA_INVALID_PARAM;
 
 	if (info->data)
-		free(info->data);
+		opae_free(info->data);
 
 	if (info->parsed_metadata) {
 

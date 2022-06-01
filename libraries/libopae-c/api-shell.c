@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -40,6 +40,7 @@
 #include "pluginmgr.h"
 #include "opae_int.h"
 #include "props.h"
+#include "mock/opae_std.h"
 
 const char *
 __OPAE_API__ fpgaErrStr(fpga_result e)
@@ -83,7 +84,7 @@ opae_allocate_wrapped_token(fpga_token token,
 			    const opae_api_adapter_table *adapter)
 {
 	opae_wrapped_token *wtok =
-		(opae_wrapped_token *)malloc(sizeof(opae_wrapped_token));
+		(opae_wrapped_token *)opae_malloc(sizeof(opae_wrapped_token));
 
 	if (wtok) {
 		wtok->magic = OPAE_WRAPPED_TOKEN_MAGIC;
@@ -141,7 +142,7 @@ fpga_result opae_downref_wrapped_token(opae_wrapped_token *wt)
 		else
 			fres = FPGA_NOT_SUPPORTED;
 
-		free(wt);
+		opae_free(wt);
 
 #ifdef LIBOPAE_DEBUG
 		if ((token_list_head.prev == &token_list_head) &&
@@ -187,7 +188,7 @@ opae_allocate_wrapped_handle(opae_wrapped_token *wt, fpga_handle opae_handle,
 			     opae_api_adapter_table *adapter)
 {
 	opae_wrapped_handle *whan =
-		(opae_wrapped_handle *)malloc(sizeof(opae_wrapped_handle));
+		(opae_wrapped_handle *)opae_malloc(sizeof(opae_wrapped_handle));
 
 	if (whan) {
 		whan->magic = OPAE_WRAPPED_HANDLE_MAGIC;
@@ -206,7 +207,7 @@ opae_allocate_wrapped_event_handle(fpga_event_handle opae_event_handle,
 				   opae_api_adapter_table *adapter)
 {
 	pthread_mutexattr_t mattr;
-	opae_wrapped_event_handle *wevent = (opae_wrapped_event_handle *)malloc(
+	opae_wrapped_event_handle *wevent = (opae_wrapped_event_handle *)opae_malloc(
 		sizeof(opae_wrapped_event_handle));
 
 	if (wevent) {
@@ -237,7 +238,7 @@ opae_allocate_wrapped_event_handle(fpga_event_handle opae_event_handle,
 out_destroy:
 	pthread_mutexattr_destroy(&mattr);
 out_free:
-	free(wevent);
+	opae_free(wevent);
 	return NULL;
 }
 
@@ -246,7 +247,7 @@ opae_allocate_wrapped_object(fpga_object opae_object,
 			     opae_api_adapter_table *adapter)
 {
 	opae_wrapped_object *wobj =
-		(opae_wrapped_object *)malloc(sizeof(opae_wrapped_object));
+		(opae_wrapped_object *)opae_malloc(sizeof(opae_wrapped_object));
 
 	if (wobj) {
 		wobj->magic = OPAE_WRAPPED_OBJECT_MAGIC;
@@ -727,7 +728,7 @@ fpga_result __OPAE_API__ fpgaEnumerate(const fpga_properties *filters,
 
 	if (tokens) {
 		adapter_tokens =
-			(fpga_token *)calloc(max_tokens, sizeof(fpga_token));
+			(fpga_token *)opae_calloc(max_tokens, sizeof(fpga_token));
 		if (!adapter_tokens) {
 			OPAE_ERR("out of memory");
 			return FPGA_NO_MEMORY;
@@ -764,7 +765,7 @@ fpga_result __OPAE_API__ fpgaEnumerate(const fpga_properties *filters,
 				goto out_free_tokens;
 			}
 
-			fixup = (parent_token_fixup *)malloc(
+			fixup = (parent_token_fixup *)opae_malloc(
 				sizeof(parent_token_fixup));
 
 			if (!fixup) {
@@ -799,7 +800,7 @@ fpga_result __OPAE_API__ fpgaEnumerate(const fpga_properties *filters,
 
 out_free_tokens:
 	if (adapter_tokens)
-		free(adapter_tokens);
+		opae_free(adapter_tokens);
 
 	// Re-establish any wrapped parent tokens.
 	while (ptf_list) {
@@ -814,7 +815,7 @@ out_free_tokens:
 			opae_mutex_unlock(err, &p->lock);
 		}
 
-		free(trash);
+		opae_free(trash);
 	}
 
 	return res;

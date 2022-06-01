@@ -39,6 +39,7 @@
 #include <getopt.h>
 #include <string.h>
 #include <argsfilter.h>
+#include "mock/opae_std.h"
 
 void print_err(const char *s, fpga_result res)
 {
@@ -298,7 +299,7 @@ int main(int argc, char *argv[])
 		ADD_TO_CLEANUP(fpgaDestroyToken, &tokens[i]);
 	}
 
-	metrics = calloc(num_matches, sizeof(token_group));
+	metrics = opae_calloc(num_matches, sizeof(token_group));
 	if (metrics == NULL) {
 		fprintf(stderr, "Could not allocate array for metrics\n");
 		goto out_free;
@@ -307,7 +308,7 @@ int main(int argc, char *argv[])
 	for (i = 0; i < num_matches; ++i) {
 		metrics[i].token = tokens[i];
 		add_clock(&metrics[i]);
-		metrics[i].groups = calloc(3, sizeof(metric_group));
+		metrics[i].groups = opae_calloc(3, sizeof(metric_group));
 		metrics[i].count = 1;
 		metric_group *g_fabric = init_metric_group(
 			tokens[i], "*perf/fabric", &metrics[i].groups[0]);
@@ -343,9 +344,9 @@ out_free:
 	if (metrics) {
 		for (i = 0; i < num_matches; ++i) {
 			if (metrics[i].groups)
-				free(metrics[i].groups);
+				opae_free(metrics[i].groups);
 		}
-		free(metrics);
+		opae_free(metrics);
 	}
 out:
 	return exit_code;

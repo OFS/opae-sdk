@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -36,6 +36,7 @@
 #include "common_int.h"
 #include "sysfs_int.h"
 #include "types_int.h"
+#include "mock/opae_std.h"
 #include <opae/types_enum.h>
 #include <opae/sysobject.h>
 #include <opae/log.h>
@@ -134,11 +135,11 @@ xfpga_fpgaCloneObject(fpga_object src, fpga_object *dst)
 	_dst->type = _src->type;
 	_dst->max_size = _src->max_size;
 	if (_src->type == FPGA_SYSFS_FILE) {
-		_dst->buffer = calloc(_dst->max_size, sizeof(uint8_t));
+		_dst->buffer = opae_calloc(_dst->max_size, sizeof(uint8_t));
 		memcpy(_dst->buffer, _src->buffer, _src->max_size);
 	} else {
 		_dst->buffer = NULL;
-		_dst->objects = calloc(_src->size, sizeof(fpga_object));
+		_dst->objects = opae_calloc(_src->size, sizeof(fpga_object));
 		if (!_dst->objects) {
 			res = FPGA_NO_MEMORY;
 			goto out_err;
@@ -307,7 +308,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaObjectWrite64(fpga_object obj,
 			     value);
 		_obj->size = (size_t)strlen((const char *)_obj->buffer);
 	}
-	fd = open(_obj->path, _obj->perm);
+	fd = opae_open(_obj->path, _obj->perm);
 	if (fd < 0) {
 		OPAE_ERR("Error opening %s: %s", _obj->path, strerror(errno));
 		res = FPGA_EXCEPTION;
@@ -321,7 +322,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaObjectWrite64(fpga_object obj,
 	}
 out_unlock:
 	if (fd >= 0)
-		close(fd);
+		opae_close(fd);
 	err = pthread_mutex_unlock(
 		&((struct _fpga_handle *)_obj->handle)->lock);
 	if (err) {

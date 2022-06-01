@@ -40,6 +40,7 @@ class TestProperties(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        opae.fpga.finalize()
         cls.system.finalize()
 
     def test_set_parent(self):

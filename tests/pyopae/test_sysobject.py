@@ -1,4 +1,4 @@
-# Copyright(c) 2018, Intel Corporation
+# Copyright(c) 2018-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -49,6 +49,11 @@ class TestSysObject(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        cls.afu_handle.close()
+        cls.fme_handle.close()
+        del cls.afu_toks
+        del cls.fme_toks
+        opae.fpga.finalize()
         cls.system.finalize()
 
     def test_token_object(self):
