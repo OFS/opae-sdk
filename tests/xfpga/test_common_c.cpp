@@ -117,7 +117,7 @@ TEST(common, prop_check_and_lock) {
   res = prop_check_and_lock(prop);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 
-  free(prop);
+  opae_free(prop);
   prop = nullptr;
 }
 

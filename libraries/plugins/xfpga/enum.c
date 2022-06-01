@@ -42,6 +42,7 @@
 #include "error_int.h"
 #include "props.h"
 #include "opae_drv.h"
+#include "mock/opae_std.h"
 
 
 struct dev_list {
@@ -294,7 +295,7 @@ STATIC struct dev_list *add_dev(const char *sysfspath, const char *devpath,
 	struct dev_list *pdev;
 	size_t len;
 
-	pdev = (struct dev_list *)calloc(1, sizeof(*pdev));
+	pdev = (struct dev_list *)opae_calloc(1, sizeof(*pdev));
 	if (NULL == pdev)
 		return NULL;
 
@@ -355,7 +356,7 @@ STATIC fpga_result sync_fme(struct dev_list *fme)
 	uint64_t value = 0;
 
 	// The sysfspath must be a directory.
-	if (stat(fme->sysfspath, &stats) ||
+	if (opae_stat(fme->sysfspath, &stats) ||
 	    !S_ISDIR(stats.st_mode)) {
 		OPAE_DBG("stat(%s) failed: %s",
 			 fme->sysfspath, strerror(errno));
@@ -363,7 +364,7 @@ STATIC fpga_result sync_fme(struct dev_list *fme)
 	}
 
 	// The device path must be a char device.
-	if (stat(fme->devpath, &stats) ||
+	if (opae_stat(fme->devpath, &stats) ||
 	    !S_ISCHR(stats.st_mode)) {
 		OPAE_DBG("stat(%s) failed: %s",
 			 fme->devpath, strerror(errno));
@@ -426,7 +427,7 @@ STATIC fpga_result sync_afu(struct dev_list *afu)
 	char sysfspath[SYSFS_PATH_MAX];
 
 	// The sysfspath must be a directory.
-	if (stat(afu->sysfspath, &stats) ||
+	if (opae_stat(afu->sysfspath, &stats) ||
 	    !S_ISDIR(stats.st_mode)) {
 		OPAE_DBG("stat(%s) failed: %s",
 			 afu->sysfspath, strerror(errno));
@@ -434,7 +435,7 @@ STATIC fpga_result sync_afu(struct dev_list *afu)
 	}
 
 	// The device path must be a char device.
-	if (stat(afu->devpath, &stats) ||
+	if (opae_stat(afu->devpath, &stats) ||
 	    !S_ISCHR(stats.st_mode)) {
 		OPAE_DBG("stat(%s) failed: %s",
 			 afu->devpath, strerror(errno));
@@ -447,7 +448,7 @@ STATIC fpga_result sync_afu(struct dev_list *afu)
 	afu->accelerator_num_mmios = 0;
 	afu->accelerator_num_irqs = 0;
 
-	res = open(afu->devpath, O_RDWR);
+	res = opae_open(afu->devpath, O_RDWR);
 	if (-1 == res) {
 		afu->accelerator_state = FPGA_ACCELERATOR_ASSIGNED;
 	} else {
@@ -459,7 +460,7 @@ STATIC fpga_result sync_afu(struct dev_list *afu)
 				afu->accelerator_num_irqs = info.num_uafu_irqs;
 		}
 
-		close(res);
+		opae_close(res);
 
 		afu->accelerator_state = FPGA_ACCELERATOR_UNASSIGNED;
 	}
@@ -667,7 +668,7 @@ struct _fpga_token *token_add(struct dev_list *dev)
 		return NULL;
 	}
 
-	_tok = (struct _fpga_token *)malloc(sizeof(struct _fpga_token));
+	_tok = (struct _fpga_token *)opae_malloc(sizeof(struct _fpga_token));
 	if (!_tok) {
 		OPAE_ERR("malloc failed");
 		return NULL;
@@ -676,7 +677,7 @@ struct _fpga_token *token_add(struct dev_list *dev)
 	if (snprintf(errpath, sizeof(errpath),
 		     "%s/errors", dev->sysfspath) < 0) {
 		OPAE_ERR("snprintf buffer overflow");
-		free(_tok);
+		opae_free(_tok);
 		return NULL;
 	}
 
@@ -772,7 +773,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaEnumerate(const fpga_properties *filters,
 					result = FPGA_NO_MEMORY;
 
 					for (i = 0 ; i < *num_matches ; ++i)
-						free(tokens[i]);
+						opae_free(tokens[i]);
 					*num_matches = 0;
 
 					goto out_free_trash;
@@ -787,7 +788,7 @@ out_free_trash:
 	for (lptr = head.next; NULL != lptr;) {
 		struct dev_list *trash = lptr;
 		lptr = lptr->next;
-		free(trash);
+		opae_free(trash);
 	}
 
 	return result;
@@ -809,7 +810,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaCloneToken(fpga_token src, fpga_token *dst)
 		return FPGA_INVALID_PARAM;
 	}
 
-	_dst = calloc(1, sizeof(struct _fpga_token));
+	_dst = opae_calloc(1, sizeof(struct _fpga_token));
 	if (NULL == _dst) {
 		OPAE_MSG("Failed to allocate memory for token");
 		return FPGA_NO_MEMORY;
@@ -854,13 +855,13 @@ fpga_result __XFPGA_API__ xfpga_fpgaDestroyToken(fpga_token *token)
 	while (err) {
 		struct error_list *trash = err;
 		err = err->next;
-		free(trash);
+		opae_free(trash);
 	}
 
 	// invalidate token header (just in case)
 	memset(&_token->hdr, 0, sizeof(_token->hdr));
 
-	free(*token);
+	opae_free(*token);
 	*token = NULL;
 
 	return FPGA_OK;

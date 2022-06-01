@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2021, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -54,6 +54,7 @@
 #include "bmcinfo.h"
 #include "board.h"
 #include "events.h"
+#include "mock/opae_std.h"
 
 void help(void);
 
@@ -262,7 +263,7 @@ int main(int argc, char *argv[])
 	}
 
 	num_tokens = matches;
-	tokens = (fpga_token *)malloc(num_tokens * sizeof(fpga_token));
+	tokens = (fpga_token *)opae_malloc(num_tokens * sizeof(fpga_token));
 	res = fpgaEnumerate(&filter, 1, tokens, num_tokens, &matches);
 	ON_FPGAINFO_ERR_GOTO(res, out_destroy_tokens, "enumerating resources");
 	if (num_tokens != matches) {
@@ -277,7 +278,7 @@ out_destroy_tokens:
 	for (i = 0; i < num_tokens; i++) {
 	    fpgaDestroyToken(&tokens[i]);
 	}
-	free(tokens);
+	opae_free(tokens);
 
 out_destroy:
 	if (res != FPGA_OK)

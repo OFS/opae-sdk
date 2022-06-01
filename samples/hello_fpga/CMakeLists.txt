@@ -25,7 +25,9 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 opae_add_executable(TARGET hello_fpga
-    SOURCE hello_fpga.c
+    SOURCE
+        hello_fpga.c
+        ${opae-test_ROOT}/framework/mock/opae_std.c
     LIBS
         argsfilter
         opae-c

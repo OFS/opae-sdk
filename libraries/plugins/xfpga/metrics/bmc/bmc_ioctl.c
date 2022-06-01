@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -31,6 +31,7 @@
 #include <opae/fpga.h>
 #include "bmc.h"
 #include "bmcdata.h"
+#include "mock/opae_std.h"
 #include <sys/types.h>
 #include <string.h>
 #ifndef _WIN32
@@ -42,6 +43,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include "bmc_ioctl.h"
+#include "mock/opae_std.h"
 
 #include <glob.h>
 
@@ -154,7 +156,7 @@ fpga_result _bmcSetThreshold(int fd, uint32_t sensor,
 	req->header[1] = BMC_THRESH_HEADER_1;
 	req->header[2] = BMC_SET_THRESH_CMD;
 
-	if (ioctl(fd, _IOWR(AVMMI_BMC_MAGIC, 0, struct avmmi_bmc_xact), &xact)
+	if (opae_ioctl(fd, _IOWR(AVMMI_BMC_MAGIC, 0, struct avmmi_bmc_xact), &xact)
 	    != 0) {
 		res = FPGA_INVALID_PARAM;
 		goto out_close;
@@ -187,7 +189,7 @@ fpga_result _bmcGetThreshold(int fd, uint32_t sensor,
 	req.header[1] = BMC_THRESH_HEADER_1;
 	req.header[2] = BMC_GET_THRESH_CMD;
 
-	if (ioctl(fd, _IOWR(AVMMI_BMC_MAGIC, 0, struct avmmi_bmc_xact), &xact)
+	if (opae_ioctl(fd, _IOWR(AVMMI_BMC_MAGIC, 0, struct avmmi_bmc_xact), &xact)
 	    != 0) {
 		res = FPGA_INVALID_PARAM;
 		goto out_close;
@@ -232,15 +234,15 @@ fpga_result bmcSetHWThresholds(bmc_sdr_handle sdr_h, uint32_t sensor,
 	}
 
 	glob_t pglob;
-	int gres = glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
+	int gres = opae_glob(sysfspath, GLOB_NOSORT, NULL, &pglob);
 	if ((gres) || (1 != pglob.gl_pathc)) {
-		globfree(&pglob);
+		opae_globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
 
 	char *avmmi = strrchr(pglob.gl_pathv[0], '/');
 	if (NULL == avmmi) {
-		globfree(&pglob);
+		opae_globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
 
@@ -248,8 +250,8 @@ fpga_result bmcSetHWThresholds(bmc_sdr_handle sdr_h, uint32_t sensor,
 	len = strnlen(&avmmi[1], sizeof(sysfspath) - 6);
 	strncat(sysfspath, &avmmi[1], len + 1);
 
-	fd = open(sysfspath, O_RDWR);
-	globfree(&pglob);
+	fd = opae_open(sysfspath, O_RDWR);
+	opae_globfree(&pglob);
 	if (fd < 0) {
 		return FPGA_NOT_FOUND;
 	}
@@ -262,7 +264,7 @@ fpga_result bmcSetHWThresholds(bmc_sdr_handle sdr_h, uint32_t sensor,
 				&sdr->contents[sensor].body);
 
 	if (NULL == vals) {
-		close(fd);
+		opae_close(fd);
 		return FPGA_NO_MEMORY;
 	}
 
@@ -284,14 +286,14 @@ fpga_result bmcSetHWThresholds(bmc_sdr_handle sdr_h, uint32_t sensor,
 	fill_set_request(vals, thresh, &req);
 
 	if (vals->name)
-		free(vals->name);
+		opae_free(vals->name);
 
 	if (vals)
-		free(vals);
+		opae_free(vals);
 
 	res = _bmcSetThreshold(fd, sensor, &req);
 
-	close(fd);
+	opae_close(fd);
 
 	return res;
 }

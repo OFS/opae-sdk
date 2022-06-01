@@ -1,4 +1,4 @@
-## Copyright(c) 2020, Intel Corporation
+## Copyright(c) 2020-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -26,7 +26,9 @@
 
 opae_add_shared_library(TARGET opaeuio
     EXPORT opae-targets
-    SOURCE opaeuio.c
+    SOURCE
+        opaeuio.c
+        ${opae-test_ROOT}/framework/mock/opae_std.c
     VERSION ${OPAE_VERSION}
     SOVERSION ${OPAE_VERSION_MAJOR}
     COMPONENT uiolib

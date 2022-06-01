@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2018, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include "wsid_list_int.h"
+#include "mock/opae_std.h"
 
 /*
  * The code here assumes the caller handles any required mutexes.
@@ -49,14 +50,14 @@ struct wsid_tracker *wsid_tracker_init(uint32_t n_hash_buckets)
 	if (!n_hash_buckets || (n_hash_buckets > 16384))
 		return NULL;
 
-	struct wsid_tracker *root = malloc(sizeof(struct wsid_tracker));
+	struct wsid_tracker *root = opae_malloc(sizeof(struct wsid_tracker));
 	if (!root)
 		return NULL;
 
 	root->n_hash_buckets = n_hash_buckets;
-	root->table = calloc(n_hash_buckets, sizeof(struct wsid_map *));
+	root->table = opae_calloc(n_hash_buckets, sizeof(struct wsid_map *));
 	if (!root->table) {
-		free(root);
+		opae_free(root);
 		return NULL;
 	}
 
@@ -100,7 +101,7 @@ bool wsid_add(struct wsid_tracker *root,
 	      int flags)
 {
 	uint32_t idx = wsid_hash(root, wsid);
-	struct wsid_map *tmp = malloc(sizeof(struct wsid_map));
+	struct wsid_map *tmp = opae_malloc(sizeof(struct wsid_map));
 
 	if (!tmp)
 		return false;
@@ -136,7 +137,7 @@ bool wsid_del(struct wsid_tracker *root, uint64_t wsid)
 
 	if (tmp->wsid == wsid) { /* first entry */
 		root->table[idx] = root->table[idx]->next;
-		free(tmp);
+		opae_free(tmp);
 		return true;
 	}
 
@@ -149,7 +150,7 @@ bool wsid_del(struct wsid_tracker *root, uint64_t wsid)
 
 	struct wsid_map *tmp2 = tmp->next;
 	tmp->next = tmp->next->next;
-	free(tmp2);
+	opae_free(tmp2);
 
 	return true;
 }
@@ -175,13 +176,13 @@ void wsid_tracker_cleanup(struct wsid_tracker *root,
 			struct wsid_map *tmp2 = tmp->next;
 			if (clean)
 				clean(tmp);
-			free(tmp);
+			opae_free(tmp);
 			tmp = tmp2;
 		}
 	}
 
-	free(root->table);
-	free(root);
+	opae_free(root->table);
+	opae_free(root);
 }
 
 /**

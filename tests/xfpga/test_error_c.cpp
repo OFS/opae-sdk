@@ -157,7 +157,7 @@ class error_c_mock_p : public opae_base_p<xfpga_> {
     while (p) {
       struct error_list *q = p;
       p = p->next;
-      free(q);
+      opae_free(q);
     }
   }
 
@@ -646,6 +646,7 @@ TEST_P(error_c_mock_p, error_12) {
   tok->hdr.magic = 0x123;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearAllErrors(fme));
 
+  tok->hdr.magic = FPGA_TOKEN_MAGIC;
   xfpga_fpgaDestroyToken((fpga_token *)&fme);
   xfpga_fpgaDestroyToken((fpga_token *)&port);
 }
@@ -717,6 +718,7 @@ TEST_P(error_c_p, error_11) {
   tok->hdr.magic = 0x123;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaClearError(fme, 0));
 
+  tok->hdr.magic = FPGA_TOKEN_MAGIC;
   xfpga_fpgaDestroyToken((fpga_token *)&fme);
   xfpga_fpgaDestroyToken((fpga_token *)&port);
 }
@@ -745,6 +747,7 @@ TEST_P(error_c_p, error_13) {
   tok->hdr.magic = 0x123;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaGetErrorInfo(fme, 0, &info));
 
+  tok->hdr.magic = FPGA_TOKEN_MAGIC;
   xfpga_fpgaDestroyToken((fpga_token *)&fme);
   xfpga_fpgaDestroyToken((fpga_token *)&port);
 }

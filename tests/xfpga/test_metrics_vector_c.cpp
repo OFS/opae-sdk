@@ -79,7 +79,7 @@ TEST(metric_vector, test_metric_vector_02) {
   fpga_metric_vector metric_vector;
   struct _fpga_enum_metric *fpga_metric = NULL;
 
-  fpga_metric = (struct _fpga_enum_metric *)malloc(sizeof(struct _fpga_enum_metric));
+  fpga_metric = (struct _fpga_enum_metric *)opae_malloc(sizeof(struct _fpga_enum_metric));
   EXPECT_EQ(NULL, !fpga_metric);
 
   // Init vector
@@ -114,7 +114,7 @@ TEST(metric_vector, test_metric_vector_03) {
   EXPECT_EQ(FPGA_OK, fpga_vector_init(&metric_vector));
 
   struct _fpga_enum_metric *fpga_enum_metric = NULL;
-  fpga_enum_metric = (struct _fpga_enum_metric *)malloc(sizeof(struct _fpga_enum_metric));
+  fpga_enum_metric = (struct _fpga_enum_metric *)opae_malloc(sizeof(struct _fpga_enum_metric));
   EXPECT_EQ(NULL, !fpga_enum_metric);
 
   EXPECT_EQ(FPGA_OK, fpga_vector_push(&metric_vector, fpga_enum_metric));
@@ -122,7 +122,7 @@ TEST(metric_vector, test_metric_vector_03) {
   EXPECT_EQ(FPGA_OK, fpga_vector_total(&metric_vector, &total));
 
   struct _fpga_enum_metric *fpga_metric_next = NULL;
-  fpga_metric_next = (struct _fpga_enum_metric *)calloc(sizeof(struct _fpga_enum_metric), 1);
+  fpga_metric_next = (struct _fpga_enum_metric *)opae_calloc(sizeof(struct _fpga_enum_metric), 1);
   EXPECT_EQ(NULL, !fpga_metric_next);
 
   // push item to vector

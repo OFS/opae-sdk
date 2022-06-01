@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2020, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -40,8 +40,9 @@
 #include "opae/enum.h"
 #include "opae/properties.h"
 #include "common_int.h"
+#include "mock/opae_std.h"
 
-#define FPGA_VECTOR_CAPACITY     20
+#define FPGA_VECTOR_CAPACITY 64
 
 fpga_result fpga_vector_init(fpga_metric_vector *vector)
 {
@@ -52,7 +53,7 @@ fpga_result fpga_vector_init(fpga_metric_vector *vector)
 
 	vector->capacity = FPGA_VECTOR_CAPACITY;
 	vector->total = 0;
-	vector->fpga_metric_item = malloc(sizeof(void *) * vector->capacity);
+	vector->fpga_metric_item = opae_calloc(vector->capacity, sizeof(void *));
 
 	if (vector->fpga_metric_item == NULL)
 		return FPGA_NO_MEMORY;
@@ -70,14 +71,16 @@ fpga_result fpga_vector_free(fpga_metric_vector *vector)
 	}
 	for (i = 0; i < vector->total; i++) {
 		if (vector->fpga_metric_item[i]) {
-			free(vector->fpga_metric_item[i]);
+			opae_free(vector->fpga_metric_item[i]);
 			vector->fpga_metric_item[i] = NULL;
 		}
 	}
 	if (vector->fpga_metric_item)
-		free(vector->fpga_metric_item);
+		opae_free(vector->fpga_metric_item);
 
 	vector->fpga_metric_item = NULL;
+	vector->capacity = 0;
+	vector->total = 0;
 
 	return result;
 }
@@ -154,7 +157,7 @@ fpga_result fpga_vector_delete(fpga_metric_vector *vector, uint64_t index)
 		return FPGA_INVALID_PARAM;
 
 	if (vector->fpga_metric_item[index])
-		free(vector->fpga_metric_item[index]);
+		opae_free(vector->fpga_metric_item[index]);
 
 	vector->fpga_metric_item[index] = NULL;
 

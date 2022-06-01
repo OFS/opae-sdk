@@ -117,7 +117,7 @@ class dummy_afu_p : public opae_fpgad_p<> {
   }
 
   void clear_args() {
-    for (auto p : args_) free(p);
+    for (auto p : args_) opae_free(p);
     args_.clear();
   }
 
@@ -131,7 +131,7 @@ class dummy_afu_p : public opae_fpgad_p<> {
  * @details    Test the main entry point for dummy_afu
  */
 TEST_P(dummy_afu_p, main_noargs) {
-  args_.push_back(strdup("dummy_afu"));
+  args_.push_back(opae_strdup("dummy_afu"));
   EXPECT_NE(0, app_->main(args_.size(), const_cast<char**>(args_.data())));
 }
 
@@ -141,8 +141,8 @@ TEST_P(dummy_afu_p, main_noargs) {
  * @details    Test the main entry point for dummy_afu
  */
 TEST_P(dummy_afu_p, main_mmio) {
-  args_.push_back(strdup("dummy_afu"));
-  args_.push_back(strdup("mmio"));
+  args_.push_back(opae_strdup("dummy_afu"));
+  args_.push_back(opae_strdup("mmio"));
   EXPECT_EQ(0, app_->main(args_.size(), const_cast<char**>(args_.data())));
 }
 
@@ -152,10 +152,10 @@ TEST_P(dummy_afu_p, main_mmio) {
  * @details    Test the main entry point for dummy_afu
  */
 TEST_P(dummy_afu_p, main_mmio_count) {
-  args_.push_back(strdup("dummy_afu"));
-  args_.push_back(strdup("-c"));
-  args_.push_back(strdup("100"));
-  args_.push_back(strdup("mmio"));
+  args_.push_back(opae_strdup("dummy_afu"));
+  args_.push_back(opae_strdup("-c"));
+  args_.push_back(opae_strdup("100"));
+  args_.push_back(opae_strdup("mmio"));
   testing::internal::CaptureStdout();
   EXPECT_EQ(0, app_->main(args_.size(), const_cast<char**>(args_.data())));
   auto s_out = testing::internal::GetCapturedStdout();
@@ -168,10 +168,10 @@ TEST_P(dummy_afu_p, main_mmio_count) {
  * @details    Test the main entry point for dummy_afu
  */
 TEST_P(dummy_afu_p, main_sleep_timeout) {
-  args_.push_back(strdup("dummy_afu"));
-  args_.push_back(strdup("-t"));
-  args_.push_back(strdup("100"));
-  args_.push_back(strdup("sleep"));
+  args_.push_back(opae_strdup("dummy_afu"));
+  args_.push_back(opae_strdup("-t"));
+  args_.push_back(opae_strdup("100"));
+  args_.push_back(opae_strdup("sleep"));
   EXPECT_NE(0, app_->main(args_.size(), const_cast<char**>(args_.data())));
 }
 
@@ -182,12 +182,12 @@ TEST_P(dummy_afu_p, main_sleep_timeout) {
  * @details    Test the main entry point for dummy_afu
  */
 TEST_P(dummy_afu_p, main_sleep_notimeout) {
-  args_.push_back(strdup("dummy_afu"));
-  args_.push_back(strdup("-t"));
-  args_.push_back(strdup("1000"));
-  args_.push_back(strdup("sleep"));
-  args_.push_back(strdup("-s"));
-  args_.push_back(strdup("100"));
+  args_.push_back(opae_strdup("dummy_afu"));
+  args_.push_back(opae_strdup("-t"));
+  args_.push_back(opae_strdup("1000"));
+  args_.push_back(opae_strdup("sleep"));
+  args_.push_back(opae_strdup("-s"));
+  args_.push_back(opae_strdup("100"));
   EXPECT_EQ(0, app_->main(args_.size(), const_cast<char**>(args_.data())));
 }
 
@@ -197,8 +197,8 @@ TEST_P(dummy_afu_p, main_sleep_notimeout) {
  * @details    Test the main entry point for dummy_afu
  */
 TEST_P(dummy_afu_p, main_ddr) {
-  args_.push_back(strdup("dummy_afu"));
-  args_.push_back(strdup("ddr"));
+  args_.push_back(opae_strdup("dummy_afu"));
+  args_.push_back(opae_strdup("ddr"));
   EXPECT_EQ(4, app_->main(args_.size(), const_cast<char**>(args_.data())));
 }
 
@@ -208,8 +208,8 @@ TEST_P(dummy_afu_p, main_ddr) {
  * @details    Test the main entry point for dummy_afu
  */
 TEST_P(dummy_afu_p, main_lpbk) {
-  args_.push_back(strdup("dummy_afu"));
-  args_.push_back(strdup("lpbk"));
+  args_.push_back(opae_strdup("dummy_afu"));
+  args_.push_back(opae_strdup("lpbk"));
   EXPECT_EQ(4, app_->main(args_.size(), const_cast<char**>(args_.data())));
 }
 
@@ -222,10 +222,10 @@ TEST_P(dummy_afu_p, main_lpbk) {
  *             I get not_found exit code
  */
 TEST_P(dummy_afu_p, main_invalid_pci_addr) {
-  args_.push_back(strdup("dummy_afu"));
-  args_.push_back(strdup("-p"));
-  args_.push_back(strdup("00:00.1"));
-  args_.push_back(strdup("mmio"));
+  args_.push_back(opae_strdup("dummy_afu"));
+  args_.push_back(opae_strdup("-p"));
+  args_.push_back(opae_strdup("00:00.1"));
+  args_.push_back(opae_strdup("mmio"));
   EXPECT_EQ(test_afu::exit_codes::not_found,
             app_->main(args_.size(), const_cast<char**>(args_.data())));
 }
@@ -240,10 +240,10 @@ TEST_P(dummy_afu_p, main_invalid_pci_addr) {
  */
 TEST_P(dummy_afu_p, main_invalid_guid) {
   const char *guid = "8a38d6c4-d29c-11ea-9b96-005056ac13c8";
-  args_.push_back(strdup("dummy_afu"));
-  args_.push_back(strdup("-g"));
-  args_.push_back(strdup(guid));
-  args_.push_back(strdup("mmio"));
+  args_.push_back(opae_strdup("dummy_afu"));
+  args_.push_back(opae_strdup("-g"));
+  args_.push_back(opae_strdup(guid));
+  args_.push_back(opae_strdup("mmio"));
   EXPECT_EQ(test_afu::exit_codes::not_found,
             app_->main(args_.size(), const_cast<char**>(args_.data())));
 }

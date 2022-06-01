@@ -74,7 +74,7 @@ class bitstream_c_p : public opae_base_p<> {
     opae_base_p<>::SetUp();
 
     strcpy(tmpnull_gbs_, "tmpnull-XXXXXX.gbs");
-    close(mkstemps(tmpnull_gbs_, 4));
+    opae_close(mkstemps(tmpnull_gbs_, 4));
 
     null_gbs_ = system_->assemble_gbs_header(platform_.devices[0]);
 
@@ -340,13 +340,13 @@ TEST_P(bitstream_c_p, unload_err0) {
 TEST_P(bitstream_c_p, unload_err1) {
   opae_bitstream_info info;
   info.data = nullptr;
-  info.parsed_metadata = malloc(4);
+  info.parsed_metadata = opae_malloc(4);
   uint8_t *save = (uint8_t *)info.parsed_metadata;
   info.metadata_version = 99;
 
   EXPECT_EQ(opae_unload_bitstream(&info), FPGA_EXCEPTION);
 
-  free(save);
+  opae_free(save);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(bitstream_c_p);

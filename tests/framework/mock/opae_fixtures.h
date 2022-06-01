@@ -275,6 +275,7 @@ class opae_base_p : public ::testing::TestWithParam<std::string> {
     OPAEFinalize();
     EXPECT_EQ(system_->remove_sysfs(), 0) << "error removing tmpsysfs: "
                                           << strerror(errno);
+    EXPECT_EQ(system_->check_resources(), true);
     system_->finalize();
 
 #ifndef NO_OPAE_C

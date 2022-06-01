@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2020, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -32,6 +32,7 @@
 
 #include "logging.h"
 #include "sysfs.h"
+#include "mock/opae_std.h"
 
 #ifdef LOG
 #undef LOG
@@ -44,18 +45,18 @@ int file_write_string(const char *path, const char *str, size_t len)
 	FILE *fp;
 	size_t num;
 
-	fp = fopen(path, "w");
+	fp = opae_fopen(path, "w");
 	if (!fp)
 		return 1;
 
 	num = fwrite(str, 1, len, fp);
 
 	if (!num || ferror(fp)) {
-		fclose(fp);
+		opae_fclose(fp);
 		return 1;
 	}
 
-	fclose(fp);
+	opae_fclose(fp);
 
 	return 0;
 }
@@ -65,37 +66,22 @@ int file_read_string(const char *path, char *str, size_t len)
 	FILE *fp;
 	size_t num;
 
-	fp = fopen(path, "r");
+	fp = opae_fopen(path, "r");
 	if (!fp)
 		return 1;
 
 	num = fread(str, 1, len - 1, fp);
 
 	if (!num || ferror(fp)) {
-		fclose(fp);
+		opae_fclose(fp);
 		return 1;
 	}
 
-	fclose(fp);
+	opae_fclose(fp);
 
 	str[num] = '\0';
 	if (str[num - 1] == '\n')
 		str[num - 1] = '\0';
 
 	return 0;
-}
-
-char *cstr_dup(const char *s)
-{
-	char *p;
-	size_t len = strnlen(s, 8192);
-
-	p = malloc(len+1);
-	if (!p)
-		return NULL;
-
-	memcpy(p, s, len);
-	p[len] = '\0';
-
-	return p;
 }

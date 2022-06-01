@@ -35,7 +35,6 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
-#include "c_test_system.h"
 #include "test_utils.h"
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE 1
@@ -43,82 +42,11 @@
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <sys/ioctl.h>
 #include <uuid/uuid.h>
 #include <ftw.h>
 
 void *__builtin_return_address(unsigned level);
-
-// hijack malloc
-static bool _invalidate_malloc = false;
-static uint32_t _invalidate_malloc_after = 0;
-static const char *_invalidate_malloc_when_called_from = nullptr;
-void *malloc(size_t size) {
-  if (_invalidate_malloc) {
-    if (!_invalidate_malloc_when_called_from) {
-      if (!_invalidate_malloc_after) {
-        _invalidate_malloc = false;
-        return nullptr;
-      }
-
-      --_invalidate_malloc_after;
-
-    } else {
-      void *caller = __builtin_return_address(0);
-      int res;
-      Dl_info info;
-
-      dladdr(caller, &info);
-      if (!info.dli_sname)
-        res = 1;
-      else
-        res = strcmp(info.dli_sname, _invalidate_malloc_when_called_from);
-
-      if (!_invalidate_malloc_after && !res) {
-        _invalidate_malloc = false;
-        _invalidate_malloc_when_called_from = nullptr;
-        return nullptr;
-      } else if (!res)
-        --_invalidate_malloc_after;
-    }
-  }
-  return __libc_malloc(size);
-}
-
-// hijack calloc
-static bool _invalidate_calloc = false;
-static uint32_t _invalidate_calloc_after = 0;
-static const char *_invalidate_calloc_when_called_from = nullptr;
-void *calloc(size_t nmemb, size_t size) {
-  if (_invalidate_calloc) {
-    if (!_invalidate_calloc_when_called_from) {
-      if (!_invalidate_calloc_after) {
-        _invalidate_calloc = false;
-        return nullptr;
-      }
-
-      --_invalidate_calloc_after;
-
-    } else {
-      void *caller = __builtin_return_address(0);
-      int res;
-      Dl_info info;
-
-      dladdr(caller, &info);
-      if (!info.dli_sname)
-        res = 1;
-      else
-        res = strcmp(info.dli_sname, _invalidate_calloc_when_called_from);
-
-      if (!_invalidate_calloc_after && !res) {
-        _invalidate_calloc = false;
-        _invalidate_calloc_when_called_from = nullptr;
-        return nullptr;
-      } else if (!res)
-        --_invalidate_calloc_after;
-    }
-  }
-  return __libc_calloc(nmemb, size);
-}
 
 namespace opae {
 namespace testing {
@@ -187,35 +115,9 @@ test_device test_device::unknown() {
                      .mdata = ""};
 }
 
+test_system::test_system() : initialized_(false), root_("") {}
+
 test_system *test_system::instance_ = nullptr;
-
-test_system::test_system() : initialized_(false), root_("") {
-  open_ = (open_func)dlsym(RTLD_NEXT, "open");
-  open_create_ = open_;
-  read_ = (read_func)dlsym(RTLD_NEXT, "read");
-  fopen_ = (fopen_func)dlsym(RTLD_NEXT, "fopen");
-  popen_ = (popen_func)dlsym(RTLD_NEXT, "popen");
-  pclose_ = (pclose_func)dlsym(RTLD_NEXT, "pclose");
-  close_ = (close_func)dlsym(RTLD_NEXT, "close");
-  ioctl_ = (ioctl_func)dlsym(RTLD_NEXT, "ioctl");
-  opendir_ = (opendir_func)dlsym(RTLD_NEXT, "opendir");
-  readlink_ = (readlink_func)dlsym(RTLD_NEXT, "readlink");
-  xstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__xstat");
-  lstat_ = (__xstat_func)dlsym(RTLD_NEXT, "__lxstat");
-  access_ = (access_func)dlsym(RTLD_NEXT, "access");
-  scandir_ = (scandir_func)dlsym(RTLD_NEXT, "scandir");
-  sched_setaffinity_ =
-      (sched_setaffinity_func)dlsym(RTLD_NEXT, "sched_setaffinity");
-
-  glob_ = (glob_func)dlsym(RTLD_NEXT, "glob");
-  realpath_ = (realpath_func)dlsym(RTLD_NEXT, "realpath");
-
-  hijack_sched_setaffinity_ = false;
-  hijack_sched_setaffinity_return_val_ = 0;
-  hijack_sched_setaffinity_after_ = 0;
-  hijack_sched_setaffinity_caller_ = nullptr;
-}
-
 test_system *test_system::instance() {
   if (test_system::instance_ == nullptr) {
     test_system::instance_ = new test_system();
@@ -317,25 +219,31 @@ std::vector<uint8_t> test_system::assemble_gbs_header(const test_device &td,
 }
 
 void test_system::initialize() {
-  ASSERT_FN(open_);
-  ASSERT_FN(open_create_);
-  ASSERT_FN(read_);
-  ASSERT_FN(fopen_);
-  ASSERT_FN(popen_);
-  ASSERT_FN(pclose_);
-  ASSERT_FN(close_);
-  ASSERT_FN(ioctl_);
-  ASSERT_FN(readlink_);
-  ASSERT_FN(xstat_);
-  ASSERT_FN(lstat_);
-  ASSERT_FN(access_);
-  ASSERT_FN(scandir_);
-  ASSERT_FN(sched_setaffinity_);
-  ASSERT_FN(glob_);
-  ASSERT_FN(realpath_);
+  invalidate_malloc_ = false;
+  invalidate_malloc_after_ = 0;
+  invalidate_malloc_when_called_from_ = nullptr;
+
+  invalidate_calloc_ = false;
+  invalidate_calloc_after_ = 0;
+  invalidate_calloc_when_called_from_ = nullptr;
+
+  invalidate_read_ = false;
+  invalidate_read_after_ = 0;
+  invalidate_read_when_called_from_ = nullptr;
+
+  hijack_sched_setaffinity_ = false;
+  hijack_sched_setaffinity_return_val_ = 0;
+  hijack_sched_setaffinity_after_ = 0;
+  hijack_sched_setaffinity_caller_ = nullptr;
+
+  invalidate_strdup_ = false;
+  invalidate_strdup_after_ = 0;
+  invalidate_strdup_when_called_from_ = nullptr;
+
   for (const auto &kv : default_ioctl_handlers_) {
     register_ioctl_handler(kv.first, kv.second);
   }
+
   initialized_ = true;
 }
 
@@ -343,22 +251,71 @@ void test_system::finalize() {
   if (!initialized_) {
     return;
   }
-  initialized_ = false;
-  std::lock_guard<std::mutex> guard(fds_mutex_);
-  for (auto kv : fds_) {
-    if (kv.second) {
-      delete kv.second;
-      kv.second = nullptr;
+
+  {
+    std::lock_guard<std::mutex> guard(fds_mutex_);
+    for (auto kv : fds_) {
+      if (kv.second.extra_)
+        delete kv.second.extra_;
     }
+    fds_.clear();
   }
+
+  {
+    std::lock_guard<std::mutex> guard(fopens_mutex_);
+    for (auto kv : fopens_) {
+      if (kv.first)
+        ::fclose(kv.first);
+    }
+    fopens_.clear();
+  }
+
+  {
+    std::lock_guard<std::mutex> guard(popens_mutex_);
+    for (auto kv : popen_requests_) {
+      ::fclose(kv.first);
+      unlink(kv.second.extra_->c_str());
+      delete kv.second.extra_;
+    }
+    popen_requests_.clear();
+  }
+
+  {
+    std::lock_guard<std::mutex> guard(opendirs_mutex_);
+    for (auto kv : opendirs_) {
+      ::closedir(kv.first);
+    }
+    opendirs_.clear();
+  }
+
+  {
+    std::lock_guard<std::mutex> guard(globs_mutex_);
+    for (auto kv : globs_) {
+      ::globfree(kv.second.extra_);
+      delete kv.second.extra_;
+    }
+    globs_.clear();
+  }
+
+  {
+    std::lock_guard<std::mutex> guard(mem_allocs_mutex_);
+    for (auto kv : mem_allocs_) {
+      ::free(kv.first);
+    }
+    mem_allocs_.clear();
+  }
+
   remove_sysfs();
   root_ = "";
-  fds_.clear();
+
   for (auto kv : registered_files_) {
     unlink(kv.second.c_str());
   }
   registered_files_.clear();
+
   ioctl_handlers_.clear();
+
+  initialized_ = false;
 }
 
 bool test_system::default_ioctl_handler(int request, ioctl_handler_t h) {
@@ -381,9 +338,7 @@ FILE *test_system::register_file(const std::string &path) {
     registered_files_[path] =
         "/tmp/testfile" + std::to_string(registered_files_.size());
   }
-
-  auto fptr = fopen(path.c_str(), "w+");
-  return fptr;
+  return this->fopen(path.c_str(), "w+");
 }
 
 void test_system::normalize_guid(std::string &guid_str, bool with_hyphens) {
@@ -450,13 +405,15 @@ std::string test_system::get_sysfs_claass_path(const std::string &path) {
 
 int test_system::open(const std::string &path, int flags) {
   if (!initialized_) {
-    return open_(path.c_str(), flags);
+    return ::open(path.c_str(), flags);
   }
   std::string syspath = get_sysfs_path(path);
   int fd;
   auto r1 = regex<>::create(sysclass_pattern);
   auto r2 = regex<>::create(dev_pattern);
   match_t::ptr_t m;
+
+  mock_object *mo;
 
   // check if we are opening a driver attribute file
   // or a device file to save the fd in an internal map
@@ -470,97 +427,140 @@ int test_system::open(const std::string &path, int flags) {
       flags |= O_TRUNC;
     }
 
-    fd = open_(syspath.c_str(), flags);
+    fd = ::open(syspath.c_str(), flags);
     auto sysclass_path = m->group(0);
     auto device_id = get_device_id(get_sysfs_path(sysclass_path));
-    std::lock_guard<std::mutex> guard(fds_mutex_);
-    fds_[fd] = new mock_object(path, sysclass_path, device_id);
+
+    if (fd >= 0) {
+      std::lock_guard<std::mutex> guard(fds_mutex_);
+      mo = new mock_object(path, sysclass_path, device_id);
+      fds_[fd] = Resource<mock_object>("open()", caller(), mo);
+    }
+
   } else if (r2 && (m = r2->match(path))) {
     // path matches /dev/intel-fpga-(fme|port)\..*
     // we are opening a device
-    fd = open_(syspath.c_str(), flags);
+    fd = ::open(syspath.c_str(), flags);
     auto sysclass_path = get_sysfs_claass_path(path) + m->group(3);
     auto device_id = get_device_id(get_sysfs_path(sysclass_path));
     if (m->group(2) == "fme") {
-      std::lock_guard<std::mutex> guard(fds_mutex_);
-      fds_[fd] = new mock_fme(path, sysclass_path, device_id);
+      if (fd >= 0) {
+        std::lock_guard<std::mutex> guard(fds_mutex_);
+        mo = new mock_fme(path, sysclass_path, device_id);
+        fds_[fd] = Resource<mock_object>("open()", caller(), mo);
+      }
     } else if (m->group(2) == "port") {
-      std::lock_guard<std::mutex> guard(fds_mutex_);
-      fds_[fd] = new mock_port(path, sysclass_path, device_id);
+      if (fd >= 0) {
+        std::lock_guard<std::mutex> guard(fds_mutex_);
+        mo = new mock_port(path, sysclass_path, device_id);
+        fds_[fd] = Resource<mock_object>("open()", caller(), mo);
+      }
     }
   } else {
-    fd = open_(syspath.c_str(), flags);
+    fd = ::open(syspath.c_str(), flags);
+    if (fd >= 0) {
+      std::lock_guard<std::mutex> guard(fds_mutex_);
+      fds_[fd] = Resource<mock_object>("open()", caller());
+    }
   }
   return fd;
 }
 
 int test_system::open(const std::string &path, int flags, mode_t mode) {
   if (!initialized_) {
-    return open_create_(path.c_str(), flags, mode);
+    return ::open(path.c_str(), flags, mode);
   }
 
   std::string syspath = get_sysfs_path(path);
-  int fd = open_create_(syspath.c_str(), flags, mode);
+  int fd = ::open(syspath.c_str(), flags, mode);
+
   if (syspath.find(root_) == 0) {
-    std::lock_guard<std::mutex> guard(fds_mutex_);
-    std::map<int, mock_object *>::iterator it = fds_.find(fd);
-    if (it != fds_.end()) {
-      delete it->second;
+    if (fd >= 0) {
+      std::lock_guard<std::mutex> guard(fds_mutex_);
+
+      std::map<int, Resource<mock_object>>::iterator it = fds_.find(fd);
+      if (it != fds_.end()) {
+        if (it->second.extra_) {
+          delete it->second.extra_;
+          it->second.extra_ = nullptr;
+        }
+      }
+      mock_object *mo = new mock_object(path, "", 0);
+
+      fds_[fd] = Resource<mock_object>("open_create()", caller(), mo);
     }
-    fds_[fd] = new mock_object(path, "", 0);
+  } else if (fd >= 0) {
+    std::lock_guard<std::mutex> guard(fds_mutex_);
+    fds_[fd] = Resource<mock_object>("open_create()", caller());
   }
+
   return fd;
 }
 
-static bool _invalidate_read = false;
-static uint32_t _invalidate_read_after = 0;
-static const char *_invalidate_read_when_called_from = nullptr;
+int test_system::close(int fd) {
+  if (initialized_ && fd >= 0) {
+    std::lock_guard<std::mutex> guard(fds_mutex_);
+    std::map<int, Resource<mock_object>>::iterator it = fds_.find(fd);
+    if (it != fds_.end()) {
+      if (it->second.extra_)
+        delete it->second.extra_;
+      fds_.erase(it);
+    }
+  }
+  return ::close(fd);
+}
+
 void test_system::invalidate_read(uint32_t after,
                                   const char *when_called_from) {
-  _invalidate_read = true;
-  _invalidate_read_after = after;
-  _invalidate_read_when_called_from = when_called_from;
+  invalidate_read_ = true;
+  invalidate_read_after_ = after;
+  invalidate_read_when_called_from_ = when_called_from;
 }
 
 ssize_t test_system::read(int fd, void *buf, size_t count) {
-  if (_invalidate_read) {
-    if (!_invalidate_read_when_called_from) {
-      if (!_invalidate_read_after) {
-        _invalidate_read = false;
+  if (invalidate_read_) {
+    if (!invalidate_read_when_called_from_) {
+      if (!invalidate_read_after_) {
+        invalidate_read_ = false;
         return -1;
       }
 
-      --_invalidate_read_after;
+      --invalidate_read_after_;
 
     } else {
-      // 2 here, because we were called through..
-      // 0 test_system.cpp:opae_test_read()
-      // 1 mock.c:read()
-      // 2 <caller>
-      void *caller = __builtin_return_address(2);
       int res;
-      Dl_info info;
+      std::string call = caller();
 
-      dladdr(caller, &info);
-      if (!info.dli_sname)
-        res = 1;
-      else
-        res = strcmp(info.dli_sname, _invalidate_read_when_called_from);
+      res = call.compare(invalidate_read_when_called_from_);
 
-      if (!_invalidate_read_after && !res) {
-        _invalidate_read = false;
-        _invalidate_read_when_called_from = nullptr;
+      if (!invalidate_read_after_ && !res) {
+        invalidate_read_ = false;
+        invalidate_read_when_called_from_ = nullptr;
         return -1;
       } else if (!res)
-        --_invalidate_read_after;
+        --invalidate_read_after_;
     }
   }
-  return read_(fd, buf, count);
+  return ::read(fd, buf, count);
 }
 
 FILE *test_system::fopen(const std::string &path, const std::string &mode) {
   std::string syspath = get_sysfs_path(path);
-  return fopen_(syspath.c_str(), mode.c_str());
+  FILE *fp = ::fopen(syspath.c_str(), mode.c_str());
+  if (fp) {
+    std::lock_guard<std::mutex> guard(fopens_mutex_);
+    fopens_[fp] = Resource<void>("fopen()", caller());
+  }
+  return fp;
+}
+
+int test_system::fclose(FILE *stream) {
+  std::lock_guard<std::mutex> guard(fopens_mutex_);
+  std::map<FILE *, Resource<void>>::iterator it = fopens_.find(stream);
+  if (it != fopens_.end()) {
+    fopens_.erase(it);
+  }
+  return ::fclose(stream);
 }
 
 FILE *test_system::popen(const std::string &cmd, const std::string &type) {
@@ -568,9 +568,9 @@ FILE *test_system::popen(const std::string &cmd, const std::string &type) {
   if (0 == cmd.compare(0, 5, "rdmsr")) {
     char tmpfile[20];
     strcpy(tmpfile, "popen-XXXXXX.tmp");
-    close(mkstemps(tmpfile, 4));
+    ::close(mkstemps(tmpfile, 4));
 
-    FILE *fp = fopen(tmpfile, "w+");
+    FILE *fp = ::fopen(tmpfile, "w+");
 
     size_t last_spc = cmd.find_last_of(' ');
     std::string msr(cmd.substr(last_spc + 1));
@@ -584,36 +584,30 @@ FILE *test_system::popen(const std::string &cmd, const std::string &type) {
     }
 
     fseek(fp, 0, SEEK_SET);
-    popen_requests_.insert(std::make_pair(fp, tmpfile));
+
+    {
+      std::lock_guard<std::mutex> guard(popens_mutex_);
+      popen_requests_[fp] = Resource<std::string>("popen()", caller(), new std::string(tmpfile));
+    }
 
     return fp;
   } else {
-    return popen_(cmd.c_str(), type.c_str());
+    return ::popen(cmd.c_str(), type.c_str());
   }
 }
 
 int test_system::pclose(FILE *stream) {
+  std::lock_guard<std::mutex> guard(popens_mutex_);
   // Is this something we intercepted?
-  std::map<FILE *, std::string>::iterator it = popen_requests_.find(stream);
+  std::map<FILE *, Resource<std::string>>::iterator it = popen_requests_.find(stream);
   if (it != popen_requests_.end()) {
-    unlink(it->second.c_str());
+    unlink(it->second.extra_->c_str());
+    delete it->second.extra_;
+    ::fclose(stream);
     popen_requests_.erase(it);
-    fclose(stream);
     return 0;  // process exit status
   }
-  return pclose_(stream);
-}
-
-int test_system::close(int fd) {
-  if (initialized_) {
-    std::lock_guard<std::mutex> guard(fds_mutex_);
-    std::map<int, mock_object *>::iterator it = fds_.find(fd);
-    if (it != fds_.end()) {
-      delete it->second;
-      fds_.erase(it);
-    }
-  }
-  return close_(fd);
+  return ::pclose(stream);
 }
 
 int test_system::ioctl(int fd, unsigned long request, va_list argp) {
@@ -622,74 +616,109 @@ int test_system::ioctl(int fd, unsigned long request, va_list argp) {
     std::lock_guard<std::mutex> guard(fds_mutex_);
     auto mi = fds_.find(fd);
     if (mi != fds_.end()) {
-      mo = mi->second;
+      mo = mi->second.extra_;
     }
   }
 
   if (mo == nullptr) {
     char *arg = va_arg(argp, char *);
-    return ioctl_(fd, request, arg);
+    return ::ioctl(fd, request, arg);
   }
 
-  // replace mock_it->second with mo
+  // replace handler_it->second with mo.
   auto handler_it = ioctl_handlers_.find(request);
   if (handler_it != ioctl_handlers_.end()) {
     return handler_it->second(mo, request, argp);
   }
+
   return mo->ioctl(request, argp);
 }
 
-DIR *test_system::opendir(const char *path) {
+DIR *test_system::opendir(const std::string &path) {
   std::string syspath = get_sysfs_path(path);
-  return opendir_(syspath.c_str());
-}
+  DIR *dir = ::opendir(syspath.c_str());
 
-ssize_t test_system::readlink(const char *path, char *buf, size_t bufsize) {
-  std::string syspath = get_sysfs_path(path);
-  return readlink_(syspath.c_str(), buf, bufsize);
-}
-
-int test_system::xstat(int ver, const char *path, struct stat *buf) {
-  std::string syspath = get_sysfs_path(path);
-  int res = xstat_(ver, syspath.c_str(), buf);
-
-  if (!res && strlen(path) > 5) {
-    // If path is rooted at /dev, assume it is a char device.
-    std::string p(path, 5);
-    if (p == std::string("/dev/")) {
-            buf->st_mode &= ~S_IFMT;
-            buf->st_mode |= S_IFCHR;
-    }
+  if (dir) {
+    std::lock_guard<std::mutex> guard(opendirs_mutex_);
+    opendirs_[dir] = Resource<void>("opendir()", caller());
   }
 
-  return res;
+  return dir;
 }
 
-int test_system::lstat(int ver, const char *path, struct stat *buf) {
-  std::string syspath = get_sysfs_path(path);
-  int res = lstat_(ver, syspath.c_str(), buf);
-
-  if (!res && strlen(path) > 5) {
-    // If path is rooted at /dev, assume it is a char device.
-    std::string p(path, 5);
-    if (p == std::string("/dev/")) {
-            buf->st_mode &= ~S_IFMT;
-            buf->st_mode |= S_IFCHR;
-    }
+int test_system::closedir(DIR *dir) {
+  std::lock_guard<std::mutex> guard(opendirs_mutex_);
+  std::map<DIR *, Resource<void>>::iterator it = opendirs_.find(dir);
+  if (it != opendirs_.end()) {
+    opendirs_.erase(it);
   }
-
-  return res;
+  return ::closedir(dir);
 }
 
-int test_system::access(const char *pathname, int mode) {
+ssize_t test_system::readlink(const std::string &path, char *buf, size_t bufsize) {
+  std::string syspath = get_sysfs_path(path);
+  return ::readlink(syspath.c_str(), buf, bufsize);
+}
+
+int test_system::stat(const std::string &pathname, struct stat *statbuf) {
   std::string syspath = get_sysfs_path(pathname);
-  return access_(syspath.c_str(), mode);
+  int res = ::stat(syspath.c_str(), statbuf);
+
+  if (!res && pathname.length() > 5) {
+    // If path is rooted at /dev, assume it is a char device.
+    std::string p(pathname, 0, 5);
+    if (p == std::string("/dev/")) {
+            statbuf->st_mode &= ~S_IFMT;
+            statbuf->st_mode |= S_IFCHR;
+    }
+  }
+
+  return res;
+}
+
+int test_system::lstat(const std::string &pathname, struct stat *statbuf) {
+  std::string syspath = get_sysfs_path(pathname);
+  int res = ::lstat(syspath.c_str(), statbuf);
+
+  if (!res && pathname.length() > 5) {
+    // If path is rooted at /dev, assume it is a char device.
+    std::string p(pathname, 0, 5);
+    if (p == std::string("/dev/")) {
+            statbuf->st_mode &= ~S_IFMT;
+            statbuf->st_mode |= S_IFCHR;
+    }
+  }
+
+  return res;
+}
+
+int test_system::fstatat(int dirfd, const std::string &pathname,
+                         struct stat *statbuf, int flags)
+{
+  std::string syspath = get_sysfs_path(pathname);
+  int res = ::fstatat(dirfd, syspath.c_str(), statbuf, flags);
+
+  if (!res && pathname.length() > 5) {
+    // If path is rooted at /dev, assume it is a char device.
+    std::string p(pathname, 0, 5);
+    if (p == std::string("/dev/")) {
+            statbuf->st_mode &= ~S_IFMT;
+            statbuf->st_mode |= S_IFCHR;
+    }
+  }
+
+  return res;
+}
+
+int test_system::access(const std::string &pathname, int mode) {
+  std::string syspath = get_sysfs_path(pathname);
+  return ::access(syspath.c_str(), mode);
 }
 
 int test_system::scandir(const char *dirp, struct dirent ***namelist,
                          filter_func filter, compare_func cmp) {
   std::string syspath = get_sysfs_path(dirp);
-  return scandir_(syspath.c_str(), namelist, filter, cmp);
+  return ::scandir(syspath.c_str(), namelist, filter, cmp);
 }
 
 int test_system::sched_setaffinity(pid_t pid, size_t cpusetsize,
@@ -709,19 +738,10 @@ int test_system::sched_setaffinity(pid_t pid, size_t cpusetsize,
       --hijack_sched_setaffinity_after_;
 
     } else {
-      // 2 here, because we were called through..
-      // 0 test_system.cpp:opae_test_sched_setaffinity()
-      // 1 mock.c:sched_setaffinity()
-      // 2 <caller>
-      void *caller = __builtin_return_address(2);
       int res;
-      Dl_info info;
+      std::string call = caller();
 
-      dladdr(caller, &info);
-      if (!info.dli_sname)
-        res = 1;
-      else
-        res = strcmp(info.dli_sname, hijack_sched_setaffinity_caller_);
+      res = call.compare(hijack_sched_setaffinity_caller_);
 
       if (!hijack_sched_setaffinity_after_ && !res) {
         hijack_sched_setaffinity_ = false;
@@ -749,12 +769,12 @@ int test_system::glob(const char *pattern, int flags,
                       int (*errfunc)(const char *epath, int eerrno),
                       glob_t *pglob) {
   if (pattern == nullptr) {
-    return glob_(pattern, flags, errfunc, pglob);
+    return ::glob(pattern, flags, errfunc, pglob);
   }
 
-  auto path = get_sysfs_path(pattern);
+  std::string path = get_sysfs_path(pattern);
 
-  auto res = glob_(path.c_str(), flags, errfunc, pglob);
+  int res = ::glob(path.c_str(), flags, errfunc, pglob);
   if (!res) {
     for (unsigned int i = 0; i < pglob->gl_pathc; ++i) {
       std::string tmppath(pglob->gl_pathv[i]);
@@ -768,21 +788,34 @@ int test_system::glob(const char *pattern, int flags,
     }
   }
 
+  std::lock_guard<std::mutex> guard(globs_mutex_);
+  globs_[pglob] = Resource<glob_t>("glob()", caller(), new glob_t(*pglob));
+
   return res;
 }
 
-char *test_system::realpath(const char *inp, char *dst)
+void test_system::globfree(glob_t *pglob) {
+  if (pglob->gl_pathv)
+    ::globfree(pglob);
+
+  std::lock_guard<std::mutex> guard(globs_mutex_);
+  std::map<glob_t *, Resource<glob_t>>::iterator it = globs_.find(pglob);
+  if (it != globs_.end()) {
+    delete it->second.extra_;
+    globs_.erase(it);
+  }
+}
+
+char *test_system::realpath(const std::string &inpath, char *dst)
 {
   if (!initialized_ || root_.empty()) {
-    return realpath_(inp, dst);
+    return ::realpath(inpath.c_str(), dst);
   }
-  bool current_inv_state = _invalidate_malloc;
-  _invalidate_malloc = false;
-  char *retvalue = realpath_(get_sysfs_path(inp).c_str(), dst);
+  char *retvalue = ::realpath(get_sysfs_path(inpath).c_str(), dst);
   if (retvalue) {
     std::string dst_str(dst);
     char prefix[PATH_MAX] = {0};
-    char *prefix_ptr = realpath_(root_.c_str(), prefix);
+    char *prefix_ptr = ::realpath(root_.c_str(), prefix);
     std::string prefix_str(prefix_ptr ? prefix_ptr : "");
     if (prefix_str.size() && dst_str.find(prefix_str) == 0) {
       auto cleaned_str = dst_str.substr(prefix_str.size());
@@ -791,100 +824,265 @@ char *test_system::realpath(const char *inp, char *dst)
       retvalue = &dst[0];
     }
   }
-  _invalidate_malloc = current_inv_state;
   return retvalue;
+}
+
+void *test_system::malloc(size_t size) {
+  if (invalidate_malloc_) {
+    if (!invalidate_malloc_when_called_from_) {
+      if (!invalidate_malloc_after_) {
+        invalidate_malloc_ = false;
+        return nullptr;
+      }
+
+      --invalidate_malloc_after_;
+
+    } else {
+      int res;
+      std::string call = caller();
+
+      res = call.compare(invalidate_malloc_when_called_from_);
+
+      if (!invalidate_malloc_after_ && !res) {
+        invalidate_malloc_ = false;
+        invalidate_malloc_when_called_from_ = nullptr;
+        return nullptr;
+      } else if (!res)
+        --invalidate_malloc_after_;
+    }
+  }
+
+  void *p = ::malloc(size);
+  if (p) {
+    std::lock_guard<std::mutex> guard(mem_allocs_mutex_);
+    mem_allocs_[p] = Resource<void>("malloc()", caller());
+  }
+  return p;
 }
 
 void test_system::invalidate_malloc(uint32_t after,
                                     const char *when_called_from) {
-  _invalidate_malloc = true;
-  _invalidate_malloc_after = after;
-  _invalidate_malloc_when_called_from = when_called_from;
+  invalidate_malloc_ = true;
+  invalidate_malloc_after_ = after;
+  invalidate_malloc_when_called_from_ = when_called_from;
+}
+
+void *test_system::calloc(size_t nmemb, size_t size) {
+  if (invalidate_calloc_) {
+    if (!invalidate_calloc_when_called_from_) {
+      if (!invalidate_calloc_after_) {
+        invalidate_calloc_ = false;
+        return nullptr;
+      }
+
+      --invalidate_calloc_after_;
+
+    } else {
+      int res;
+      std::string call = caller();
+
+      res = call.compare(invalidate_calloc_when_called_from_);
+
+      if (!invalidate_calloc_after_ && !res) {
+        invalidate_calloc_ = false;
+        invalidate_calloc_when_called_from_ = nullptr;
+        return nullptr;
+      } else if (!res)
+        --invalidate_calloc_after_;
+    }
+  }
+
+  void *p = ::calloc(nmemb, size);
+  if (p) {
+    std::lock_guard<std::mutex> guard(mem_allocs_mutex_);
+    mem_allocs_[p] = Resource<void>("calloc()", caller());
+  }
+  return p;
 }
 
 void test_system::invalidate_calloc(uint32_t after,
                                     const char *when_called_from) {
-  _invalidate_calloc = true;
-  _invalidate_calloc_after = after;
-  _invalidate_calloc_when_called_from = when_called_from;
+  invalidate_calloc_ = true;
+  invalidate_calloc_after_ = after;
+  invalidate_calloc_when_called_from_ = when_called_from;
+}
+
+void test_system::free(void *ptr) {
+  if (ptr) {
+    std::lock_guard<std::mutex> guard(mem_allocs_mutex_);
+    std::map<void *, Resource<void>>::iterator it = mem_allocs_.find(ptr);
+    if (it != mem_allocs_.end()) {
+      mem_allocs_.erase(it);
+    }
+    ::free(ptr);
+  }
+}
+
+std::string test_system::caller() const
+{
+  void *addr = __builtin_return_address(2);
+  Dl_info info;
+  dladdr(addr, &info);
+  return std::string(info.dli_sname ? info.dli_sname : "<unknown>");
+}
+
+bool test_system::check_resources()
+{
+  bool res = true;
+
+  // open() / close()
+  {
+    std::lock_guard<std::mutex> guard(fds_mutex_);
+    for (auto kv : fds_) {
+      std::cerr << "*** Leak Detected *** "
+                << kv.second.allocator_
+                << " created file descriptor "
+                << kv.first
+                << " at "
+                << kv.second.origin_
+                << "(), requiring a close()."
+                << std::endl;
+      res = false;
+    }
+  }
+
+  // fopen() / fclose()
+  {
+    std::lock_guard<std::mutex> guard(fopens_mutex_);
+    for (auto kv : fopens_) {
+      std::cerr << "*** Leak Detected *** "
+                << kv.second.allocator_
+                << " created FILE * "
+                << kv.first
+                << " at "
+                << kv.second.origin_
+                << "(), requiring an fclose()."
+                << std::endl;
+        res = false;
+    }
+  }
+
+  // popen() / pclose()
+  {
+    std::lock_guard<std::mutex> guard(popens_mutex_);
+    for (auto kv : popen_requests_) {
+      std::cerr << "*** Leak Detected *** "
+                << kv.second.allocator_
+                << " created FILE * "
+                << kv.first
+                << " at "
+                << kv.second.origin_
+                << "(), requiring a pclose()."
+                << std::endl;
+      res = false;
+    }
+  }
+
+  // opendir() / closedir()
+  {
+    std::lock_guard<std::mutex> guard(opendirs_mutex_);
+    for (auto kv : opendirs_) {
+      std::cerr << "*** Leak Detected *** "
+                << kv.second.allocator_
+                << " created DIR * "
+                << kv.first
+                << " at "
+                << kv.second.origin_
+                << "(), requiring a closedir()."
+                << std::endl;
+      res = false;
+    }
+  }
+
+  // glob() / globfree()
+  {
+    std::lock_guard<std::mutex> guard(globs_mutex_);
+    for (auto kv : globs_) {
+      std::cerr << "*** Leak Detected *** "
+                << kv.second.allocator_
+                << " allocated memory in "
+                << kv.first
+                << " at "
+                << kv.second.origin_
+                << "(), requiring a globfree()."
+                << std::endl;
+      res = false;
+    }
+  }
+
+  // malloc() / calloc() / free()
+  {
+    std::lock_guard<std::mutex> guard(mem_allocs_mutex_);
+    for (auto kv : mem_allocs_) {
+      std::cerr << "*** Leak Detected *** "
+                << kv.second.allocator_
+                << " allocated memory "
+                << kv.first
+                << " at "
+                << kv.second.origin_
+                << "(), requiring a free()."
+                << std::endl;
+        res = false;
+    }
+  }
+
+  return res;
+}
+
+char *test_system::canonicalize_file_name(const std::string &path)
+{
+  std::string syspath = get_sysfs_path(path);
+  char *p = ::canonicalize_file_name(syspath.c_str());
+
+  if (p) {
+    std::lock_guard<std::mutex> guard(mem_allocs_mutex_);
+    mem_allocs_[p] = Resource<void>("canonicalize_file_name()", caller());
+  }
+
+  return p;
+}
+
+char *test_system::strdup(const char *s)
+{
+  if (invalidate_strdup_) {
+    if (!invalidate_strdup_when_called_from_) {
+      if (!invalidate_strdup_after_) {
+        invalidate_strdup_ = false;
+        return nullptr;
+      }
+
+      --invalidate_strdup_after_;
+
+    } else {
+      int res;
+      std::string call = caller();
+
+      res = call.compare(invalidate_strdup_when_called_from_);
+
+      if (!invalidate_strdup_after_ && !res) {
+        invalidate_strdup_ = false;
+        invalidate_strdup_when_called_from_ = nullptr;
+        return nullptr;
+      } else if (!res)
+        --invalidate_strdup_after_;
+    }
+  }
+
+  char *p = ::strdup(s);
+  if (p) {
+    std::lock_guard<std::mutex> guard(mem_allocs_mutex_);
+    mem_allocs_[p] = Resource<void>("strdup()", caller());
+  }
+  return p;
+}
+
+void test_system::invalidate_strdup(uint32_t after,
+                                    const char *when_called_from)
+{
+  invalidate_strdup_ = true;
+  invalidate_strdup_after_ = after;
+  invalidate_strdup_when_called_from_ = when_called_from;
 }
 
 }  // end of namespace testing
 }  // end of namespace opae
-
-// C functions
-
-int opae_test_open(const char *path, int flags) {
-  return opae::testing::test_system::instance()->open(path, flags);
-}
-
-int opae_test_open_create(const char *path, int flags, mode_t mode) {
-  return opae::testing::test_system::instance()->open(path, flags, mode);
-}
-
-ssize_t opae_test_read(int fd, void *buf, size_t count) {
-  return opae::testing::test_system::instance()->read(fd, buf, count);
-}
-
-FILE *opae_test_fopen(const char *path, const char *mode) {
-  return opae::testing::test_system::instance()->fopen(path, mode);
-}
-
-FILE *opae_test_popen(const char *cmd, const char *type) {
-  return opae::testing::test_system::instance()->popen(cmd, type);
-}
-
-int opae_test_pclose(FILE *stream) {
-  return opae::testing::test_system::instance()->pclose(stream);
-}
-
-int opae_test_close(int fd) {
-  return opae::testing::test_system::instance()->close(fd);
-}
-
-int opae_test_ioctl(int fd, unsigned long request, va_list argp) {
-  return opae::testing::test_system::instance()->ioctl(fd, request, argp);
-}
-
-DIR *opae_test_opendir(const char *name) {
-  return opae::testing::test_system::instance()->opendir(name);
-}
-
-ssize_t opae_test_readlink(const char *path, char *buf, size_t bufsize) {
-  return opae::testing::test_system::instance()->readlink(path, buf, bufsize);
-}
-
-int opae_test_xstat(int ver, const char *path, struct stat *buf) {
-  return opae::testing::test_system::instance()->xstat(ver, path, buf);
-}
-
-int opae_test_lstat(int ver, const char *path, struct stat *buf) {
-  return opae::testing::test_system::instance()->lstat(ver, path, buf);
-}
-
-int opae_test_access(const char *pathname, int mode) {
-  return opae::testing::test_system::instance()->access(pathname, mode);
-}
-
-int opae_test_scandir(const char *dirp, struct dirent ***namelist,
-                      filter_func filter, compare_func cmp) {
-  return opae::testing::test_system::instance()->scandir(dirp, namelist, filter,
-                                                         cmp);
-}
-
-int opae_test_sched_setaffinity(pid_t pid, size_t cpusetsize,
-                                const cpu_set_t *mask) {
-  return opae::testing::test_system::instance()->sched_setaffinity(
-      pid, cpusetsize, mask);
-}
-
-int opae_test_glob(const char *pattern, int flags,
-                   int (*errfunc)(const char *epath, int eerrno),
-                   glob_t *pglob) {
-  return opae::testing::test_system::instance()->glob(pattern, flags, errfunc,
-                                                      pglob);
-}
-
-char *opae_test_realpath(const char *inp, char *dst) {
-  return opae::testing::test_system::instance()->realpath(inp, dst);
-}

@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2021, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -45,6 +45,7 @@
 #include <opae/uio.h>
 #include "../board_common/board_common.h"
 #include "board_n3000.h"
+#include "mock/opae_std.h"
 
 // DFL SYSFS
 #define DFL_SYSFS_BMCFW_VER                  "dfl*/*spi*/spi_master/spi*/spi*/bmcfw_version"
@@ -302,10 +303,10 @@ fpga_result enum_eth_group_feature(fpga_token token,
 		return FPGA_EXCEPTION;
 	}
 
-	gres = glob(sysfs_path, GLOB_NOSORT, NULL, &pglob);
+	gres = opae_glob(sysfs_path, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		OPAE_ERR("Failed pattern match %s: %s", sysfs_path, strerror(errno));
-		globfree(&pglob);
+		opae_globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
 
@@ -346,7 +347,7 @@ fpga_result enum_eth_group_feature(fpga_token token,
 	}
 
 out:
-	globfree(&pglob);
+	opae_globfree(&pglob);
 	return res;
 }
 
@@ -384,10 +385,10 @@ fpga_result enum_pkvl_sysfs_path(fpga_token token,
 		return FPGA_EXCEPTION;
 	}
 
-	gres = glob(sysfs_path, GLOB_NOSORT, NULL, &pglob);
+	gres = opae_glob(sysfs_path, GLOB_NOSORT, NULL, &pglob);
 	if (gres) {
 		OPAE_ERR("Failed pattern match %s: %s", sysfs_path, strerror(errno));
-		globfree(&pglob);
+		opae_globfree(&pglob);
 		return FPGA_NOT_FOUND;
 	}
 
@@ -411,7 +412,7 @@ fpga_result enum_pkvl_sysfs_path(fpga_token token,
 	}
 
 out:
-	globfree(&pglob);
+	opae_globfree(&pglob);
 	return res;
 }
 
@@ -436,7 +437,7 @@ fpga_result read_regmap(char *sysfs_path,
 		return FPGA_EXCEPTION;
 	}
 
-	fp = fopen(sysfs_path, "r");
+	fp = opae_fopen(sysfs_path, "r");
 	if (!fp) {
 		OPAE_ERR("Error opening:%s  %s", sysfs_path, strerror(errno));
 		return FPGA_EXCEPTION;
@@ -447,11 +448,11 @@ fpga_result read_regmap(char *sysfs_path,
 		if (strstr(line, search_str)) {
 			char *p = strstr(line, ":");
 			if (p == NULL) {
-				fclose(fp);
+				opae_fclose(fp);
 				return FPGA_NOT_FOUND;
 			}
 			*value = strtoul(p + 1, &endptr, 16);
-			fclose(fp);
+			opae_fclose(fp);
 			return FPGA_OK;
 
 		}
@@ -462,7 +463,7 @@ fpga_result read_regmap(char *sysfs_path,
 
 	}
 
-	fclose(fp);
+	opae_fclose(fp);
 
 	return FPGA_NOT_FOUND;
 }

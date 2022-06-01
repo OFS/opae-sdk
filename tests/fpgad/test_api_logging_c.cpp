@@ -43,7 +43,7 @@ class fpgad_log_c_p : public opae_base_p<> {
     opae_base_p<>::SetUp();
 
     strcpy(tmpfpgad_log_, "tmpfpgad-XXXXXX.log");
-    close(mkstemps(tmpfpgad_log_, 4));
+    opae_close(mkstemps(tmpfpgad_log_, 4));
     EXPECT_GT(log_open(tmpfpgad_log_), 0);
   }
 

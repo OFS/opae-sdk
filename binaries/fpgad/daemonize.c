@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -36,6 +36,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
+#include "mock/opae_std.h"
 
 int daemonize(void (*hndlr)(int, siginfo_t *, void *), mode_t mask, const char *dir)
 {
@@ -92,7 +93,7 @@ int daemonize(void (*hndlr)(int, siginfo_t *, void *), mode_t mask, const char *
 	// 7) Close all open file descriptors
 	fd = sysconf(_SC_OPEN_MAX);
 	while (fd >= 0)
-		close(fd--);
+		opae_close(fd--);
 
 	return 0;
 }

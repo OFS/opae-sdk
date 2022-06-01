@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -41,6 +41,7 @@
 #include "opae_drv.h"
 #include "intel-fpga.h"
 #include "fpga-dfl.h"
+#include "mock/opae_std.h"
 
 typedef struct _ioctl_ops {
 	fpga_result (*get_fme_info)(int fd, opae_fme_info *info);
@@ -89,14 +90,14 @@ typedef struct _ioctl_ops {
 		uint32_t count, int32_t *eventfd);
 } ioctl_ops;
 
-fpga_result opae_ioctl(int fd, int request, ...)
+fpga_result opae_internal_ioctl(int fd, int request, ...)
 {
 	fpga_result res = FPGA_OK;
 	va_list argp;
 	va_start(argp, request);
 	void *msg = va_arg(argp, void *);
 	errno = 0;
-	if (ioctl(fd, request, msg) != 0) {
+	if (opae_ioctl(fd, request, msg) != 0) {
 		OPAE_MSG("error executing ioctl: %s", strerror(errno));
 		switch (errno) {
 		case EINVAL:
@@ -124,14 +125,14 @@ fpga_result opae_ioctl(int fd, int request, ...)
 
 fpga_result intel_fpga_version(int fd)
 {
-	return opae_ioctl(fd, FPGA_GET_API_VERSION, NULL);
+	return opae_internal_ioctl(fd, FPGA_GET_API_VERSION, NULL);
 }
 
 fpga_result intel_get_fme_info(int fd, opae_fme_info *info)
 {
 	ASSERT_NOT_NULL(info);
 	struct fpga_fme_info fme_info = {.argsz = sizeof(fme_info), .flags = 0};
-	int res = opae_ioctl(fd, FPGA_FME_GET_INFO, &fme_info);
+	int res = opae_internal_ioctl(fd, FPGA_FME_GET_INFO, &fme_info);
 	if (!res) {
 		info->flags = fme_info.flags;
 		info->capability = fme_info.capability;
@@ -143,7 +144,7 @@ fpga_result intel_get_port_info(int fd, opae_port_info *info)
 {
 	ASSERT_NOT_NULL(info);
 	struct fpga_port_info pinfo = {.argsz = sizeof(pinfo), .flags = 0};
-	int res = opae_ioctl(fd, FPGA_PORT_GET_INFO, &pinfo);
+	int res = opae_internal_ioctl(fd, FPGA_PORT_GET_INFO, &pinfo);
 	if (!res) {
 		info->flags = pinfo.flags;
 		info->capability = pinfo.capability;
@@ -163,7 +164,7 @@ fpga_result intel_get_port_region_info(int fd, uint32_t index,
 	ASSERT_NOT_NULL(info);
 	struct fpga_port_region_info rinfo = {
 		.argsz = sizeof(rinfo), .padding = 0, .index = index};
-	int res = opae_ioctl(fd, FPGA_PORT_GET_REGION_INFO, &rinfo);
+	int res = opae_internal_ioctl(fd, FPGA_PORT_GET_REGION_INFO, &rinfo);
 	if (!res) {
 		info->flags = rinfo.flags;
 		info->size = rinfo.size;
@@ -190,7 +191,7 @@ fpga_result intel_port_map(int fd, void *addr, uint64_t len, uint32_t flags,
 	req = FPGA_PORT_DMA_MAP;
 	msg = &dma_map;
 
-	res = opae_ioctl(fd, req, msg);
+	res = opae_internal_ioctl(fd, req, msg);
 	if (!res) {
 		*io_addr = dma_map.iova;
 	}
@@ -204,7 +205,7 @@ fpga_result intel_port_unmap(int fd, uint64_t io_addr)
 		.argsz = sizeof(dma_unmap), .flags = 0, .iova = io_addr};
 
 	/* Dispatch ioctl command */
-	return opae_ioctl(fd, FPGA_PORT_DMA_UNMAP, &dma_unmap);
+	return opae_internal_ioctl(fd, FPGA_PORT_DMA_UNMAP, &dma_unmap);
 }
 
 fpga_result intel_port_umsg_cfg(int fd, uint32_t flags, uint32_t hint_bitmap)
@@ -217,7 +218,7 @@ fpga_result intel_port_umsg_cfg(int fd, uint32_t flags, uint32_t hint_bitmap)
 	struct fpga_port_umsg_cfg umsg_cfg = {.argsz = sizeof(umsg_cfg),
 					      .flags = 0,
 					      .hint_bitmap = hint_bitmap};
-	return opae_ioctl(fd, FPGA_PORT_UMSG_SET_MODE, &umsg_cfg);
+	return opae_internal_ioctl(fd, FPGA_PORT_UMSG_SET_MODE, &umsg_cfg);
 }
 
 fpga_result intel_port_umsg_set_base_addr(int fd, uint32_t flags,
@@ -230,17 +231,17 @@ fpga_result intel_port_umsg_set_base_addr(int fd, uint32_t flags,
 
 	struct fpga_port_umsg_base_addr baseaddr = {
 		.argsz = sizeof(baseaddr), .flags = 0, .iova = io_addr};
-	return opae_ioctl(fd, FPGA_PORT_UMSG_SET_BASE_ADDR, &baseaddr);
+	return opae_internal_ioctl(fd, FPGA_PORT_UMSG_SET_BASE_ADDR, &baseaddr);
 }
 
 fpga_result intel_port_umsg_enable(int fd)
 {
-	return opae_ioctl(fd, FPGA_PORT_UMSG_ENABLE, NULL);
+	return opae_internal_ioctl(fd, FPGA_PORT_UMSG_ENABLE, NULL);
 }
 
 fpga_result intel_port_umsg_disable(int fd)
 {
-	return opae_ioctl(fd, FPGA_PORT_UMSG_DISABLE, NULL);
+	return opae_internal_ioctl(fd, FPGA_PORT_UMSG_DISABLE, NULL);
 }
 
 fpga_result intel_fme_set_err_irq(int fd, uint32_t flags, int32_t evtfd)
@@ -252,7 +253,7 @@ fpga_result intel_fme_set_err_irq(int fd, uint32_t flags, int32_t evtfd)
 
 	struct fpga_fme_err_irq_set irq = {
 		.argsz = sizeof(irq), .flags = flags, .evtfd = evtfd};
-	return opae_ioctl(fd, FPGA_FME_ERR_SET_IRQ, &irq);
+	return opae_internal_ioctl(fd, FPGA_FME_ERR_SET_IRQ, &irq);
 }
 
 fpga_result intel_port_set_err_irq(int fd, uint32_t flags, int32_t evtfd)
@@ -264,7 +265,7 @@ fpga_result intel_port_set_err_irq(int fd, uint32_t flags, int32_t evtfd)
 
 	struct fpga_port_err_irq_set irq = {
 		.argsz = sizeof(irq), .flags = flags, .evtfd = evtfd};
-	return opae_ioctl(fd, FPGA_PORT_ERR_SET_IRQ, &irq);
+	return opae_internal_ioctl(fd, FPGA_PORT_ERR_SET_IRQ, &irq);
 }
 
 fpga_result intel_port_set_user_irq(int fd, uint32_t flags, uint32_t start,
@@ -286,7 +287,7 @@ fpga_result intel_port_set_user_irq(int fd, uint32_t flags, uint32_t start,
 			"flags currently not supported in FPGA_FME_ERR_SET_IRQ");
 	}
 
-	irq = malloc(sz);
+	irq = opae_malloc(sz);
 	if (!irq) {
 		OPAE_ERR("Could not allocate memory for irq request");
 		return FPGA_NO_MEMORY;
@@ -299,9 +300,9 @@ fpga_result intel_port_set_user_irq(int fd, uint32_t flags, uint32_t start,
 
 	memcpy(irq->evtfd, eventfd, count * sizeof(int32_t));
 
-	res = opae_ioctl(fd, FPGA_PORT_UAFU_SET_IRQ, irq);
+	res = opae_internal_ioctl(fd, FPGA_PORT_UAFU_SET_IRQ, irq);
 
-	free(irq);
+	opae_free(irq);
 	return res;
 }
 
@@ -313,7 +314,7 @@ fpga_result intel_fme_port_assign(int fd, uint32_t flags, uint32_t port_id)
 		OPAE_MSG(
 			"flags currently not supported in FPGA_FME_PORT_ASSIGN");
 	}
-	return opae_ioctl(fd, FPGA_FME_PORT_ASSIGN, &assign);
+	return opae_internal_ioctl(fd, FPGA_FME_PORT_ASSIGN, &assign);
 }
 
 fpga_result intel_fme_port_release(int fd, uint32_t flags, uint32_t port_id)
@@ -324,7 +325,7 @@ fpga_result intel_fme_port_release(int fd, uint32_t flags, uint32_t port_id)
 		OPAE_MSG(
 			"flags currently not supported in FPGA_FME_PORT_RELEASE");
 	}
-	return opae_ioctl(fd, FPGA_FME_PORT_RELEASE, &assign);
+	return opae_internal_ioctl(fd, FPGA_FME_PORT_RELEASE, &assign);
 }
 
 fpga_result intel_fme_port_pr(int fd, uint32_t flags, uint32_t port_id,
@@ -340,26 +341,26 @@ fpga_result intel_fme_port_pr(int fd, uint32_t flags, uint32_t port_id,
 		OPAE_MSG("flags currently not supported in FPGA_FME_PORT_PR");
 	}
 	ASSERT_NOT_NULL(status);
-	res = opae_ioctl(fd, FPGA_FME_PORT_PR, &port_pr);
+	res = opae_internal_ioctl(fd, FPGA_FME_PORT_PR, &port_pr);
 	*status = port_pr.status;
 	return res;
 }
 
 fpga_result intel_fme_port_reset(int fd)
 {
-	return opae_ioctl(fd, FPGA_PORT_RESET, NULL);
+	return opae_internal_ioctl(fd, FPGA_PORT_RESET, NULL);
 }
 
 fpga_result dfl_fpga_version(int fd)
 {
-	return opae_ioctl(fd, DFL_FPGA_GET_API_VERSION, NULL);
+	return opae_internal_ioctl(fd, DFL_FPGA_GET_API_VERSION, NULL);
 }
 
 fpga_result dfl_get_port_info(int fd, opae_port_info *info)
 {
 	ASSERT_NOT_NULL(info);
 	struct dfl_fpga_port_info pinfo = {.argsz = sizeof(pinfo), .flags = 0};
-	int res = opae_ioctl(fd, DFL_FPGA_PORT_GET_INFO, &pinfo);
+	int res = opae_internal_ioctl(fd, DFL_FPGA_PORT_GET_INFO, &pinfo);
 	if (!res) {
 		info->flags = pinfo.flags;
 		info->num_regions = pinfo.num_regions;
@@ -374,7 +375,7 @@ fpga_result dfl_get_port_region_info(int fd, uint32_t index,
 	ASSERT_NOT_NULL(info);
 	struct dfl_fpga_port_region_info rinfo = {
 		.argsz = sizeof(rinfo), .padding = 0, .index = index};
-	int res = opae_ioctl(fd, DFL_FPGA_PORT_GET_REGION_INFO, &rinfo);
+	int res = opae_internal_ioctl(fd, DFL_FPGA_PORT_GET_REGION_INFO, &rinfo);
 	if (!res) {
 		info->flags = rinfo.flags;
 		info->size = rinfo.size;
@@ -395,7 +396,7 @@ fpga_result dfl_port_map(int fd, void *addr, uint64_t len, uint32_t flags,
 						.iova = 0};
 	ASSERT_NOT_NULL(io_addr);
 	/* Dispatch ioctl command */
-	res = opae_ioctl(fd, DFL_FPGA_PORT_DMA_MAP, &dma_map);
+	res = opae_internal_ioctl(fd, DFL_FPGA_PORT_DMA_MAP, &dma_map);
 	if (!res) {
 		*io_addr = dma_map.iova;
 	}
@@ -409,20 +410,20 @@ fpga_result dfl_port_unmap(int fd, uint64_t io_addr)
 		.argsz = sizeof(dma_unmap), .flags = 0, .iova = io_addr};
 
 	/* Dispatch ioctl command */
-	return opae_ioctl(fd, DFL_FPGA_PORT_DMA_UNMAP, &dma_unmap);
+	return opae_internal_ioctl(fd, DFL_FPGA_PORT_DMA_UNMAP, &dma_unmap);
 }
 
 
 fpga_result dfl_fme_port_assign(int fd, uint32_t flags, uint32_t port_id)
 {
 	UNUSED_PARAM(flags);
-	return opae_ioctl(fd, DFL_FPGA_FME_PORT_ASSIGN, &port_id);
+	return opae_internal_ioctl(fd, DFL_FPGA_FME_PORT_ASSIGN, &port_id);
 }
 
 fpga_result dfl_fme_port_release(int fd, uint32_t flags, uint32_t port_id)
 {
 	UNUSED_PARAM(flags);
-	return opae_ioctl(fd, DFL_FPGA_FME_PORT_RELEASE, &port_id);
+	return opae_internal_ioctl(fd, DFL_FPGA_FME_PORT_RELEASE, &port_id);
 }
 
 fpga_result dfl_fme_port_pr(int fd, uint32_t flags, uint32_t port_id,
@@ -438,32 +439,32 @@ fpga_result dfl_fme_port_pr(int fd, uint32_t flags, uint32_t port_id,
 		OPAE_MSG("flags currently not supported in FPGA_FME_PORT_PR");
 	}
 	ASSERT_NOT_NULL(status);
-	res = opae_ioctl(fd, DFL_FPGA_FME_PORT_PR, &port_pr);
+	res = opae_internal_ioctl(fd, DFL_FPGA_FME_PORT_PR, &port_pr);
 	*status = 0;
 	return res;
 }
 
 fpga_result dfl_fme_port_reset(int fd)
 {
-	return opae_ioctl(fd, DFL_FPGA_PORT_RESET, NULL);
+	return opae_internal_ioctl(fd, DFL_FPGA_PORT_RESET, NULL);
 }
 
 fpga_result dfl_port_get_err_irq(int fd, uint32_t *num_irqs)
 {
 	ASSERT_NOT_NULL(num_irqs);
-	return opae_ioctl(fd, DFL_FPGA_PORT_ERR_GET_IRQ_NUM, num_irqs);
+	return opae_internal_ioctl(fd, DFL_FPGA_PORT_ERR_GET_IRQ_NUM, num_irqs);
 }
 
 fpga_result dfl_port_get_user_irq(int fd, uint32_t *num_irqs)
 {
 	ASSERT_NOT_NULL(num_irqs);
-	return opae_ioctl(fd, DFL_FPGA_PORT_UINT_GET_IRQ_NUM, num_irqs);;
+	return opae_internal_ioctl(fd, DFL_FPGA_PORT_UINT_GET_IRQ_NUM, num_irqs);;
 }
 
 fpga_result dfl_fme_get_err_irq(int fd, uint32_t *num_irqs)
 {
 	ASSERT_NOT_NULL(num_irqs);
-	return opae_ioctl(fd, DFL_FPGA_FME_ERR_GET_IRQ_NUM, num_irqs);
+	return opae_internal_ioctl(fd, DFL_FPGA_FME_ERR_GET_IRQ_NUM, num_irqs);
 }
 
 fpga_result dfl_set_irq(int fd, uint32_t start,
@@ -481,7 +482,7 @@ fpga_result dfl_set_irq(int fd, uint32_t start,
 		return FPGA_INVALID_PARAM;
 	}
 
-	irq = malloc(sz);
+	irq = opae_malloc(sz);
 
 	if (!irq) {
 		OPAE_ERR("Could not allocate memory for irq request");
@@ -492,12 +493,12 @@ fpga_result dfl_set_irq(int fd, uint32_t start,
 	irq->count = count;
 	memcpy(irq->evtfds, eventfd, count * sizeof(int32_t));
 
-	res = opae_ioctl(fd, ioctl_id, irq);
+	res = opae_internal_ioctl(fd, ioctl_id, irq);
 	if (res) {
 		OPAE_ERR("Ioctl error=%d", res);
 	}
 
-	free(irq);
+	opae_free(irq);
 	return res;
 }
 
@@ -571,11 +572,11 @@ static ioctl_ops *io_ptr;
 int opae_ioctl_initialize(void)
 {
 	struct stat st;
-	if (!stat("/sys/class/fpga_region", &st)) {
+	if (!opae_stat("/sys/class/fpga_region", &st)) {
 		io_ptr = &ioctl_table[0];
 		return 0;
 	}
-	if (!stat("/sys/class/fpga", &st)) {
+	if (!opae_stat("/sys/class/fpga", &st)) {
 		io_ptr = &ioctl_table[1];
 		return 0;
 	}

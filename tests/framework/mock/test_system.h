@@ -1,4 +1,4 @@
-// Copyright(c) 2017, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -42,10 +42,6 @@
 #include "platform/fpga_hw.h"
 #include <glob.h>
 
-extern "C" {
-extern void *__libc_malloc(size_t size);
-extern void *__libc_calloc(size_t nmemb, size_t size);
-}
 typedef struct stat stat_t;
 typedef int (*filter_func)(const struct dirent *);
 typedef int (*compare_func)(const struct dirent **, const struct dirent **);
@@ -127,38 +123,54 @@ class test_system {
 
   int open(const std::string &path, int flags);
   int open(const std::string &path, int flags, mode_t m);
+  int close(int fd);
+
   void invalidate_read(uint32_t after=0, const char *when_called_from=nullptr);
   ssize_t read(int fd, void *buf, size_t count);
 
   FILE * fopen(const std::string &path, const std::string &mode);
+  int fclose(FILE *stream);
 
   FILE * popen(const std::string &cmd, const std::string &type);
   int pclose(FILE *stream);
 
-  int close(int fd);
   int ioctl(int fd, unsigned long request, va_list argp);
 
-  DIR *opendir(const char *name);
-  ssize_t readlink(const char *path, char *buf, size_t bufsize);
-  int xstat(int ver, const char *path, stat_t *buf);
-  int lstat(int ver, const char *path, stat_t *buf);
-  int access(const char *pathname, int mode);
+  DIR *opendir(const std::string &path);
+  int closedir(DIR *dir);
+
+  ssize_t readlink(const std::string &path, char *buf, size_t bufsize);
+
+  int stat(const std::string &pathname, struct stat *statbuf);
+  int lstat(const std::string &pathname, struct stat *statbuf);
+  int fstatat(int dirfd, const std::string &pathname, struct stat *statbuf, int flags);
+  int access(const std::string &pathname, int mode);
   int scandir(const char *dirp, struct dirent ***namelist, filter_func filter,
               compare_func cmp);
+
   int sched_setaffinity(pid_t pid, size_t cpusetsize,
                         const cpu_set_t *mask);
-                        
-  int glob(const char *pattern, int flags,
-                int (*errfunc) (const char *epath, int eerrno),
-                glob_t *pglob);
-
-  char *realpath(const char *inp, char *dst);
-                
   void hijack_sched_setaffinity(int return_val, uint32_t after=0,
                                 const char *when_called_from=nullptr);
+                        
+  int glob(const char *pattern, int flags,
+           int (*errfunc) (const char *epath, int eerrno),
+           glob_t *pglob);
+  void globfree(glob_t *pglob);
 
+  char *realpath(const std::string &inpath, char *dst);
+                
+  void *malloc(size_t size);
   void invalidate_malloc(uint32_t after=0, const char *when_called_from=nullptr);
+
+  void *calloc(size_t nmemb, size_t size);
   void invalidate_calloc(uint32_t after=0, const char *when_called_from=nullptr);
+
+  void free(void *ptr);
+
+  char *canonicalize_file_name(const std::string &path);
+  char *strdup(const char *s);
+  void invalidate_strdup(uint32_t after=0, const char *when_called_from=nullptr);
 
   bool default_ioctl_handler(int request, ioctl_handler_t);
   bool register_ioctl_handler(int request, ioctl_handler_t);
@@ -167,62 +179,88 @@ class test_system {
 
   void normalize_guid(std::string &guid_str, bool with_hyphens = true);
 
+  std::string caller() const;
+  bool check_resources();
+
+  template <typename E>
+  class Resource
+  {
+   public:
+    Resource() :
+      allocator_(""),
+      origin_(""),
+      extra_(nullptr)
+    {}
+
+    Resource(const char *allocator, const std::string &origin, E *extra=nullptr):
+      allocator_(allocator),
+      origin_(origin),
+      extra_(extra)
+    {}
+
+    Resource(const Resource &other) :
+      allocator_(other.allocator_),
+      origin_(other.origin_),
+      extra_(other.extra_)
+    {}
+
+    Resource & operator=(const Resource &other)
+    {
+      if (&other != this) {
+        allocator_ = other.allocator_;
+        origin_ = other.origin_;
+        extra_ = other.extra_;
+      }
+      return *this;
+    }
+
+    std::string allocator_; // "open", "malloc", etc.
+    std::string origin_;    // calling function
+    E *extra_;              // extra data associated with the allocation
+  };
+
  private:
   test_system();
   std::mutex fds_mutex_;
   std::atomic_bool initialized_;
   std::string root_;
-  std::map<int, mock_object *> fds_;
+  std::map<int, Resource<mock_object>> fds_;
+  std::mutex fopens_mutex_;
+  std::map<FILE *, Resource<void>> fopens_;
+  std::mutex mem_allocs_mutex_;
+  std::map<void *, Resource<void>> mem_allocs_;
+  std::mutex popens_mutex_;
+  std::map<FILE *, Resource<std::string>> popen_requests_;
+  std::mutex opendirs_mutex_;
+  std::map<DIR *, Resource<void>> opendirs_;
+  std::mutex globs_mutex_;
+  std::map<glob_t *, Resource<glob_t>> globs_;
+
   std::map<int, ioctl_handler_t> default_ioctl_handlers_;
   std::map<int, ioctl_handler_t> ioctl_handlers_;
   std::map<std::string, std::string> registered_files_;
-  std::map<FILE * , std::string> popen_requests_;
   static test_system *instance_;
 
-  typedef int (*open_func)(const char *pathname, int flags, ...);
-  typedef ssize_t (*read_func)(int fd, void *buf, size_t count);
-  typedef FILE * (*fopen_func)(const char *path, const char *mode);
-  typedef FILE * (*popen_func)(const char *cmd, const char *type);
-  typedef int (*pclose_func)(FILE *stream);
-  typedef int (*close_func)(int fd);
-  typedef int (*ioctl_func)(int fd, unsigned long request, char *argp);
-  typedef DIR *(*opendir_func)(const char *name);
-  typedef ssize_t (*readlink_func)(const char *pathname, char *buf,
-                                   size_t bufsiz);
-  typedef int (*__xstat_func)(int ver, const char *pathname, struct stat *buf);
-  typedef int (*access_func)(const char *pathname, int mode);
-  typedef int (*scandir_func)(const char *, struct dirent ***, filter_func,
-                              compare_func);
-  typedef int (*sched_setaffinity_func)(pid_t pid, size_t cpusetsize,
-                                        const cpu_set_t *mask);
-  typedef char *(*realpath_func)(const char *, char *);
+  bool invalidate_malloc_;
+  uint32_t invalidate_malloc_after_;
+  const char *invalidate_malloc_when_called_from_;
 
-  typedef int (*glob_func)(const char *pattern, int flags,
-                           int (*errfunc)(const char *epath, int eerrno),
-                           glob_t *pglob);
+  bool invalidate_calloc_;
+  uint32_t invalidate_calloc_after_;
+  const char *invalidate_calloc_when_called_from_;
 
-  open_func open_;
-  open_func open_create_;
-  read_func read_;
-  fopen_func fopen_;
-  popen_func popen_;
-  pclose_func pclose_;
-  close_func close_;
-  ioctl_func ioctl_;
-  opendir_func opendir_;
-  readlink_func readlink_;
-  __xstat_func xstat_;
-  __xstat_func lstat_;
-  access_func access_;
-  scandir_func scandir_;
-  sched_setaffinity_func sched_setaffinity_;
-  glob_func glob_;
-  realpath_func realpath_;
+  bool invalidate_read_;
+  uint32_t invalidate_read_after_;
+  const char *invalidate_read_when_called_from_;
 
   bool hijack_sched_setaffinity_;
   int hijack_sched_setaffinity_return_val_;
   uint32_t hijack_sched_setaffinity_after_;
-  const char * hijack_sched_setaffinity_caller_;
+  const char *hijack_sched_setaffinity_caller_;
+
+  bool invalidate_strdup_;
+  uint32_t invalidate_strdup_after_;
+  const char *invalidate_strdup_when_called_from_;
 };
 
 }  // end of namespace testing

@@ -49,6 +49,7 @@
 #include "types_int.h"
 #include "sysfs_int.h"
 #include "common_int.h"
+#include "mock/opae_std.h"
 
 // substring that identifies a sysfs directory as the FME device.
 #define FPGA_SYSFS_FME "fme"
@@ -163,7 +164,7 @@ static sysfs_fpga_device _devices[SYSFS_MAX_DEVICES];
 #define FREE_IF(var)                                                           \
 	do {                                                                   \
 		if (var) {                                                     \
-			free(var);                                             \
+			opae_free(var);                                             \
 			var = NULL;                                            \
 		}                                                              \
 	} while (0)
@@ -210,7 +211,7 @@ int sysfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *v
 	snprintf(path, sizeof(path),
 		 "%s/%s", root, attr_path);
 
-	fd = open(path, O_RDONLY);
+	fd = opae_open(path, O_RDONLY);
 	if (fd < 0) {
 		OPAE_MSG("Error opening %s: %s", path, strerror(errno));
 		return FPGA_EXCEPTION;
@@ -219,13 +220,13 @@ int sysfs_parse_attribute64(const char *root, const char *attr_path, uint64_t *v
 	if (bytes_read < 0) {
 		OPAE_ERR("Error reading from %s: %s", path,
 			 strerror(errno));
-		close(fd);
+		opae_close(fd);
 		return FPGA_EXCEPTION;
 	}
 
 	*value = strtoull(buffer, NULL, 0);
 
-	close(fd);
+	opae_close(fd);
 	return FPGA_OK;
 }
 
@@ -275,7 +276,7 @@ STATIC sysfs_fpga_region *make_region(sysfs_fpga_device *device, char *name,
 {
 	size_t len;
 
-	sysfs_fpga_region *region = malloc(sizeof(sysfs_fpga_region));
+	sysfs_fpga_region *region = opae_malloc(sizeof(sysfs_fpga_region));
 	if (region == NULL) {
 		OPAE_ERR("error creating region");
 		return NULL;
@@ -287,7 +288,7 @@ STATIC sysfs_fpga_region *make_region(sysfs_fpga_device *device, char *name,
 	// sysfs path of region is sysfs path of device + / + name
 	if (snprintf(region->sysfs_path, SYSFS_PATH_MAX,
 		     "%s/%s", device->sysfs_path, name) < 0) {
-		free(region);
+		opae_free(region);
 		OPAE_ERR("snprintf buffer overflow");
 		return NULL;
 	}
@@ -450,7 +451,7 @@ STATIC int find_regions(sysfs_fpga_device *device)
 	fpga_objtype region_type = FPGA_DEVICE;
 	sysfs_fpga_region **region_ptr = NULL;
 	struct dirent *dirent = NULL;
-	DIR *dir = opendir(device->sysfs_path);
+	DIR *dir = opae_opendir(device->sysfs_path);
 	if (!dir) {
 		OPAE_ERR("failed to open device path: %s", device->sysfs_path);
 		return FPGA_EXCEPTION;
@@ -490,7 +491,7 @@ STATIC int find_regions(sysfs_fpga_device *device)
 	}
 
 	if (dir)
-		closedir(dir);
+		opae_closedir(dir);
 	if (!device->fme && !device->port) {
 		OPAE_DBG("did not find fme/port in device: %s", device->sysfs_path);
 		return FPGA_NOT_FOUND;
@@ -518,7 +519,7 @@ STATIC int make_device(sysfs_fpga_device *device, const char *sysfs_class_fpga,
 	memcpy(device->sysfs_name, dir_name, len);
 	device->sysfs_name[len] = '\0';
 
-	sym_link_len = readlink(device->sysfs_path, buffer, SYSFS_PATH_MAX);
+	sym_link_len = opae_readlink(device->sysfs_path, buffer, SYSFS_PATH_MAX);
 	if (sym_link_len < 0) {
 		OPAE_ERR("Error reading sysfs link: %s", device->sysfs_path);
 		return FPGA_EXCEPTION;
@@ -547,11 +548,11 @@ STATIC int sysfs_device_destroy(sysfs_fpga_device *device)
 {
 	ASSERT_NOT_NULL(device);
 	if (device->fme) {
-		free(device->fme);
+		opae_free(device->fme);
 		device->fme = NULL;
 	}
 	if (device->port) {
-		free(device->port);
+		opae_free(device->port);
 		device->port = NULL;
 	}
 	return FPGA_OK;
@@ -617,7 +618,7 @@ int sysfs_initialize(void)
 
 	for (i = 0; i < OPAE_KERNEL_DRIVERS; ++i) {
 		errno = 0;
-		stat_res = stat(sysfs_path_table[i].sysfs_class_path, &st);
+		stat_res = opae_stat(sysfs_path_table[i].sysfs_class_path, &st);
 		if (!stat_res) {
 			_sysfs_format_ptr = &sysfs_path_table[i];
 			break;
@@ -643,7 +644,7 @@ int sysfs_initialize(void)
 
 	// open the root sysfs class directory
 	// look in the directory and get device objects
-	dir = opendir(sysfs_class_fpga);
+	dir = opae_opendir(sysfs_class_fpga);
 	if (!dir) {
 		OPAE_MSG("failed to open device path: %s", sysfs_class_fpga);
 		res = FPGA_EXCEPTION;
@@ -683,7 +684,7 @@ int sysfs_initialize(void)
 	}
 out_free:
 	if (dir)
-		closedir(dir);
+		opae_closedir(dir);
 	return res;
 }
 
@@ -1041,14 +1042,14 @@ fpga_result sysfs_get_fme_path(const char *sysfs_port, char *sysfs_fme)
 		return result;
 
 	// copy the assembled and verified path to the output param
-	if (!realpath(sysfs_path, sysfs_fme))
+	if (!opae_realpath(sysfs_path, sysfs_fme))
 		return FPGA_EXCEPTION;
 
 	return FPGA_OK;
 }
 
 //
-// sysfs access (read/write) functions
+// sysfs opae_access(read/write) functions
 //
 
 fpga_result sysfs_read_int(const char *path, int *i)
@@ -1063,7 +1064,7 @@ fpga_result sysfs_read_int(const char *path, int *i)
 		return FPGA_INVALID_PARAM;
 	}
 
-	fd = open(path, O_RDONLY);
+	fd = opae_open(path, O_RDONLY);
 	if (fd < 0) {
 		OPAE_MSG("open(%s) failed", path);
 		return FPGA_NOT_FOUND;
@@ -1077,7 +1078,7 @@ fpga_result sysfs_read_int(const char *path, int *i)
 	b = 0;
 
 	do {
-		res = read(fd, buf + b, sizeof(buf) - b);
+		res = opae_read(fd, buf + b, sizeof(buf) - b);
 		if (res <= 0) {
 			OPAE_MSG("Read from %s failed", path);
 			goto out_close;
@@ -1095,11 +1096,11 @@ fpga_result sysfs_read_int(const char *path, int *i)
 
 	*i = atoi(buf);
 
-	close(fd);
+	opae_close(fd);
 	return FPGA_OK;
 
 out_close:
-	close(fd);
+	opae_close(fd);
 	return FPGA_NOT_FOUND;
 }
 
@@ -1115,7 +1116,7 @@ fpga_result sysfs_read_u32(const char *path, uint32_t *u)
 		return FPGA_INVALID_PARAM;
 	}
 
-	fd = open(path, O_RDONLY);
+	fd = opae_open(path, O_RDONLY);
 	if (fd < 0) {
 		OPAE_MSG("open(%s) failed", path);
 		return FPGA_NOT_FOUND;
@@ -1129,7 +1130,7 @@ fpga_result sysfs_read_u32(const char *path, uint32_t *u)
 	b = 0;
 
 	do {
-		res = read(fd, buf + b, sizeof(buf) - b);
+		res = opae_read(fd, buf + b, sizeof(buf) - b);
 		if (res <= 0) {
 			OPAE_MSG("Read from %s failed", path);
 			goto out_close;
@@ -1147,11 +1148,11 @@ fpga_result sysfs_read_u32(const char *path, uint32_t *u)
 
 	*u = strtoul(buf, NULL, 0);
 
-	close(fd);
+	opae_close(fd);
 	return FPGA_OK;
 
 out_close:
-	close(fd);
+	opae_close(fd);
 	return FPGA_NOT_FOUND;
 }
 
@@ -1176,7 +1177,7 @@ fpga_result sysfs_read_u32_pair(const char *path, uint32_t *u1, uint32_t *u2,
 		return FPGA_INVALID_PARAM;
 	}
 
-	fd = open(path, O_RDONLY);
+	fd = opae_open(path, O_RDONLY);
 	if (fd < 0) {
 		OPAE_MSG("open(%s) failed", path);
 		return FPGA_NOT_FOUND;
@@ -1190,7 +1191,7 @@ fpga_result sysfs_read_u32_pair(const char *path, uint32_t *u1, uint32_t *u2,
 	b = 0;
 
 	do {
-		res = read(fd, buf + b, sizeof(buf) - b);
+		res = opae_read(fd, buf + b, sizeof(buf) - b);
 		if (res <= 0) {
 			OPAE_MSG("Read from %s failed", path);
 			goto out_close;
@@ -1223,11 +1224,11 @@ fpga_result sysfs_read_u32_pair(const char *path, uint32_t *u1, uint32_t *u2,
 	*u1 = x1;
 	*u2 = x2;
 
-	close(fd);
+	opae_close(fd);
 	return FPGA_OK;
 
 out_close:
-	close(fd);
+	opae_close(fd);
 	return FPGA_NOT_FOUND;
 }
 
@@ -1243,7 +1244,7 @@ fpga_result sysfs_read_u64(const char *path, uint64_t *u)
 		return FPGA_INVALID_PARAM;
 	}
 
-	fd = open(path, O_RDONLY);
+	fd = opae_open(path, O_RDONLY);
 	if (fd < 0) {
 		OPAE_MSG("open(%s) failed", path);
 		return FPGA_NOT_FOUND;
@@ -1255,7 +1256,7 @@ fpga_result sysfs_read_u64(const char *path, uint64_t *u)
 	}
 
 	do {
-		res = read(fd, buf + b, sizeof(buf) - b);
+		res = opae_read(fd, buf + b, sizeof(buf) - b);
 		if (res <= 0) {
 			OPAE_MSG("Read from %s failed", path);
 			goto out_close;
@@ -1273,11 +1274,11 @@ fpga_result sysfs_read_u64(const char *path, uint64_t *u)
 
 	*u = strtoull(buf, NULL, 0);
 
-	close(fd);
+	opae_close(fd);
 	return FPGA_OK;
 
 out_close:
-	close(fd);
+	opae_close(fd);
 	return FPGA_NOT_FOUND;
 }
 
@@ -1294,7 +1295,7 @@ fpga_result sysfs_write_u64(const char *path, uint64_t u)
 		return FPGA_INVALID_PARAM;
 	}
 
-	fd = open(path, O_WRONLY);
+	fd = opae_open(path, O_WRONLY);
 	if (fd < 0) {
 		OPAE_MSG("open(%s) failed: %s", path, strerror(errno));
 		return FPGA_NOT_FOUND;
@@ -1323,11 +1324,11 @@ fpga_result sysfs_write_u64(const char *path, uint64_t u)
 	} while (buf[b - 1] != '\n' && buf[b - 1] != '\0'
 		 && b < len);
 
-	close(fd);
+	opae_close(fd);
 	return FPGA_OK;
 
 out_close:
-	close(fd);
+	opae_close(fd);
 	return FPGA_NOT_FOUND;
 }
 
@@ -1345,7 +1346,7 @@ fpga_result sysfs_write_u64_decimal(const char *path, uint64_t u)
 		return FPGA_INVALID_PARAM;
 	}
 
-	fd = open(path, O_WRONLY);
+	fd = opae_open(path, O_WRONLY);
 	if (fd < 0) {
 		OPAE_MSG("open(%s) failed: %s", path, strerror(errno));
 		return FPGA_NOT_FOUND;
@@ -1374,11 +1375,11 @@ fpga_result sysfs_write_u64_decimal(const char *path, uint64_t u)
 	} while (buf[b - 1] != '\n' && buf[b - 1] != '\0'
 		 && b < len);
 
-	close(fd);
+	opae_close(fd);
 	return FPGA_OK;
 
 out_close:
-	close(fd);
+	opae_close(fd);
 	return FPGA_NOT_FOUND;
 }
 
@@ -1398,7 +1399,7 @@ fpga_result sysfs_read_guid(const char *path, fpga_guid guid)
 		return FPGA_INVALID_PARAM;
 	}
 
-	fd = open(path, O_RDONLY);
+	fd = opae_open(path, O_RDONLY);
 	if (fd < 0) {
 		OPAE_MSG("open(%s) failed", path);
 		return FPGA_NOT_FOUND;
@@ -1412,7 +1413,7 @@ fpga_result sysfs_read_guid(const char *path, fpga_guid guid)
 	b = 0;
 
 	do {
-		res = read(fd, buf + b, sizeof(buf) - b);
+		res = opae_read(fd, buf + b, sizeof(buf) - b);
 		if (res <= 0) {
 			OPAE_MSG("Read from %s failed", path);
 			goto out_close;
@@ -1439,11 +1440,11 @@ fpga_result sysfs_read_guid(const char *path, fpga_guid guid)
 		buf[i + 2] = tmp;
 	}
 
-	close(fd);
+	opae_close(fd);
 	return FPGA_OK;
 
 out_close:
-	close(fd);
+	opae_close(fd);
 	return FPGA_NOT_FOUND;
 }
 
@@ -1468,7 +1469,7 @@ fpga_result check_sysfs_path_is_valid(const char *sysfs_path)
 		return result;
 	}
 
-	if (stat(path, &stats) != 0) {
+	if (opae_stat(path, &stats) != 0) {
 		OPAE_ERR("stat failed: %s", strerror(errno));
 		return FPGA_NOT_FOUND;
 	}
@@ -1500,7 +1501,7 @@ fpga_result sysfs_path_is_valid(const char *root, const char *attr_path)
 		return result;
 	}
 
-	if (stat(path, &stats) != 0) {
+	if (opae_stat(path, &stats) != 0) {
 		OPAE_ERR("stat failed: %s", strerror(errno));
 		return FPGA_NOT_FOUND;
 	}
@@ -1682,7 +1683,7 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 
 
 	// copy the assembled and verified path to the output param
-	if (!realpath(sysfs_path, sysfs_port)) {
+	if (!opae_realpath(sysfs_path, sysfs_port)) {
 		return FPGA_EXCEPTION;
 	}
 
@@ -1827,7 +1828,7 @@ fpga_result sysfs_sbdf_from_path(const char *sysfspath, int *s, int *b, int *d,
 	char rlpath[SYSFS_PATH_MAX];
 	char *p;
 
-	res = readlink(sysfspath, rlpath, sizeof(rlpath)-1);
+	res = opae_readlink(sysfspath, rlpath, sizeof(rlpath)-1);
 	if (-1 == res) {
 		OPAE_MSG("Can't read link %s (no driver?)", sysfspath);
 		return FPGA_NO_DRIVER;
@@ -1895,7 +1896,7 @@ ssize_t eintr_read(int fd, void *buf, size_t count)
 	ssize_t bytes_read = 0, total_read = 0;
 	char *ptr = buf;
 	while (total_read < (ssize_t)count) {
-		bytes_read = read(fd, ptr + total_read, count - total_read);
+		bytes_read = opae_read(fd, ptr + total_read, count - total_read);
 
 		if (bytes_read < 0) {
 			if (errno == EINTR) {
@@ -1988,32 +1989,9 @@ fpga_result cat_handle_sysfs_path(char *dest, fpga_handle handle,
 	return cat_token_sysfs_path(dest, _handle->token, path);
 }
 
-STATIC char *cstr_dup(const char *str)
-{
-	size_t s;
-	char *p;
-
-	if (!str) {
-		OPAE_ERR("NULL param to cstr_dup");
-		return NULL;
-	}
-
-	s = strnlen(str, PATH_MAX - 1);
-	p = malloc(s+1);
-	if (!p) {
-		OPAE_ERR("malloc failed");
-		return NULL;
-	}
-
-	strncpy(p, str, s + 1);
-	p[s] = '\0';
-
-	return p;
-}
-
 struct _fpga_object *alloc_fpga_object(const char *sysfspath, const char *name)
 {
-	struct _fpga_object *obj = calloc(1, sizeof(struct _fpga_object));
+	struct _fpga_object *obj = opae_calloc(1, sizeof(struct _fpga_object));
 	if (obj) {
 		pthread_mutexattr_t mattr;
 		if (pthread_mutexattr_init(&mattr)) {
@@ -2034,8 +2012,8 @@ struct _fpga_object *alloc_fpga_object(const char *sysfspath, const char *name)
 
 		pthread_mutexattr_destroy(&mattr);
 		obj->handle = NULL;
-		obj->path = cstr_dup(sysfspath);
-		obj->name = cstr_dup(name);
+		obj->path = opae_strdup(sysfspath);
+		obj->name = opae_strdup(name);
 		obj->perm = 0;
 		obj->size = 0;
 		obj->max_size = 0;
@@ -2045,7 +2023,7 @@ struct _fpga_object *alloc_fpga_object(const char *sysfspath, const char *name)
 	return obj;
 out_err:
 	if (obj) {
-		free(obj);
+		opae_free(obj);
 		obj = NULL;
 	}
 	return obj;
@@ -2075,7 +2053,7 @@ fpga_result destroy_fpga_object(struct _fpga_object *obj)
 		OPAE_ERR("Error destroying mutex");
 		res = FPGA_EXCEPTION;
 	}
-	free(obj);
+	opae_free(obj);
 	return res;
 }
 
@@ -2085,7 +2063,7 @@ fpga_result opae_glob_path(char *path, size_t len)
 	glob_t pglob;
 	pglob.gl_pathc = 0;
 	pglob.gl_pathv = NULL;
-	int globres = glob(path, 0, NULL, &pglob);
+	int globres = opae_glob(path, 0, NULL, &pglob);
 	size_t glob_len;
 	if (!globres) {
 		if (pglob.gl_pathc > 1) {
@@ -2094,7 +2072,6 @@ fpga_result opae_glob_path(char *path, size_t len)
 		glob_len = strnlen(pglob.gl_pathv[0], len-1);
 		memcpy(path, pglob.gl_pathv[0], glob_len);
 		path[glob_len] = '\0';
-		globfree(&pglob);
 	} else {
 		switch (globres) {
 		case GLOB_NOSPACE:
@@ -2106,10 +2083,8 @@ fpga_result opae_glob_path(char *path, size_t len)
 		default:
 			res = FPGA_EXCEPTION;
 		}
-		if (pglob.gl_pathv) {
-			globfree(&pglob);
-		}
 	}
+	opae_globfree(&pglob);
 	return res;
 }
 
@@ -2121,7 +2096,7 @@ fpga_result opae_glob_paths(const char *path, size_t found_max, char *found[],
 	glob_t pglob;
 	pglob.gl_pathc = 0;
 	pglob.gl_pathv = NULL;
-	int globres = glob(path, 0, NULL, &pglob);
+	int globres = opae_glob(path, 0, NULL, &pglob);
 	size_t i = 0;
 	size_t to_copy = 0;
 
@@ -2129,12 +2104,12 @@ fpga_result opae_glob_paths(const char *path, size_t found_max, char *found[],
 		*num_found = pglob.gl_pathc;
 		to_copy = *num_found < found_max ? *num_found : found_max;
 		while (found && i < to_copy) {
-			found[i] = cstr_dup(pglob.gl_pathv[i]);
+			found[i] = opae_strdup(pglob.gl_pathv[i]);
 			if (!found[i]) {
 				// we had an error duplicating the string
 				// undo what we've duplicated so far
 				while (i) {
-					free(found[--i]);
+					opae_free(found[--i]);
 					found[i] = NULL;
 				}
 				OPAE_ERR("Could not copy globbed path");
@@ -2157,9 +2132,7 @@ fpga_result opae_glob_paths(const char *path, size_t found_max, char *found[],
 		}
 	}
 out_free:
-	if (pglob.gl_pathv) {
-		globfree(&pglob);
-	}
+	opae_globfree(&pglob);
 	return res;
 }
 
@@ -2171,7 +2144,7 @@ static ssize_t find_eof(int fd)
 	char buffer[pg_size];
 	ssize_t bytes_read = 0, total_read = 0;
 	while (total_read <= MAX_SYSOBJECT_FILESIZE) {
-		bytes_read = read(fd, buffer, pg_size);
+		bytes_read = opae_read(fd, buffer, pg_size);
 		if (bytes_read < 0) {
 			if (errno == EINTR) {
 				continue;
@@ -2214,7 +2187,7 @@ fpga_result sync_object(fpga_object obj)
 	ssize_t bytes_read = 0;
 	ASSERT_NOT_NULL(obj);
 	_obj = (struct _fpga_object *)obj;
-	fd = open(_obj->path, _obj->perm);
+	fd = opae_open(_obj->path, _obj->perm);
 	if (fd < 0) {
 		OPAE_ERR("Error opening %s: %s", _obj->path, strerror(errno));
 		return FPGA_EXCEPTION;
@@ -2223,18 +2196,18 @@ fpga_result sync_object(fpga_object obj)
 	if (_obj->max_size <= MIN_SYSOBJECT_FILESIZE) {
 		res = sync_object_size(_obj, fd);
 		if (res != FPGA_OK) {
-			close(fd);
+			opae_close(fd);
 			return res;
 		}
 	}
 
 	bytes_read = eintr_read(fd, _obj->buffer, _obj->max_size);
 	if (bytes_read < 0) {
-		close(fd);
+		opae_close(fd);
 		return FPGA_EXCEPTION;
 	}
 	_obj->size = bytes_read;
-	close(fd);
+	opae_close(fd);
 	return FPGA_OK;
 }
 
@@ -2256,7 +2229,7 @@ fpga_result make_sysfs_group(char *sysfspath, const char *name,
 		return res;
 	}
 
-	n = scandir(sysfspath, &namelist, sysfs_filter, alphasort);
+	n = opae_scandir(sysfspath, &namelist, sysfs_filter, alphasort);
 	if (n < 0) {
 		OPAE_ERR("Error calling scandir: %s", strerror(errno));
 		switch (errno) {
@@ -2285,7 +2258,7 @@ fpga_result make_sysfs_group(char *sysfspath, const char *name,
 	    || flags & FPGA_OBJECT_RECURSE_ALL) {
 		ptr = sysfspath + pathlen;
 		*ptr++ = '/';
-		group->objects = calloc(n, sizeof(fpga_object));
+		group->objects = opae_calloc(n, sizeof(fpga_object));
 		if (!group->objects) {
 			res = FPGA_NO_MEMORY;
 			goto out_free_group;
@@ -2302,14 +2275,14 @@ fpga_result make_sysfs_group(char *sysfspath, const char *name,
 				    &subobj, flags, handle)) {
 				group->objects[group->size++] = subobj;
 			}
-			free(namelist[n]);
+			opae_free(namelist[n]);
 		}
-		free(namelist);
+		opae_free(namelist);
 	} else {
 		while (n--) {
-			free(namelist[n]);
+			opae_free(namelist[n]);
 		}
-		free(namelist);
+		opae_free(namelist);
 	}
 
 	*object = (fpga_object)group;
@@ -2322,8 +2295,8 @@ out_free_group:
 
 out_free_namelist:
 	while (n--)
-		free(namelist[n]);
-	free(namelist);
+		opae_free(namelist[n]);
+	opae_free(namelist);
 
 	return res;
 }
@@ -2342,7 +2315,7 @@ fpga_result make_sysfs_array(char *sysfspath, const char *name,
 			"Error allocating memory for container of fpga_objects");
 		return FPGA_NO_MEMORY;
 	}
-	array->objects = calloc(num_objects, sizeof(fpga_object));
+	array->objects = opae_calloc(num_objects, sizeof(fpga_object));
 	if (!array->objects) {
 		OPAE_ERR("Error allocating memory for array of fpga_objects");
 		destroy_fpga_object(array);
@@ -2422,12 +2395,12 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 		// opae_glob_paths allocates memory for each path found
 		// let's free it here since we don't need it any longer
 		while (found) {
-			free(object_paths[--found]);
+			opae_free(object_paths[--found]);
 		}
 		return res;
 	}
 
-	statres = stat(sysfspath, &objstat);
+	statres = opae_stat(sysfspath, &objstat);
 	if (statres < 0) {
 		OPAE_MSG("Error accessing %s: %s", sysfspath, strerror(errno));
 		switch (errno) {
@@ -2457,7 +2430,7 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 	obj->max_size = objstat.st_size;
 	if (obj->max_size < MIN_SYSOBJECT_FILESIZE)
 		obj->max_size = MIN_SYSOBJECT_FILESIZE;
-	obj->buffer = calloc(obj->max_size, sizeof(uint8_t));
+	obj->buffer = opae_calloc(obj->max_size, sizeof(uint8_t));
 	if (handle && (objstat.st_mode & (S_IWUSR | S_IWGRP | S_IWOTH))) {
 		if ((objstat.st_mode & (S_IRUSR | S_IRGRP | S_IROTH))) {
 			obj->perm = O_RDWR;
@@ -2476,7 +2449,7 @@ fpga_result make_sysfs_object(char *sysfspath, const char *name,
 out_free:
 
 
-	free(obj);
+	opae_free(obj);
 	return res;
 }
 
@@ -2550,7 +2523,7 @@ fpga_result find_glob_path(const char *sysfspath, char *path)
 		} // end
 
 		while (found) {
-			free(object_paths[--found]);
+			opae_free(object_paths[--found]);
 		}
 	} else {
 		return FPGA_NOT_FOUND;

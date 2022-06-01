@@ -63,7 +63,7 @@ fpga_result DUMMY_HIDDEN dummy_plugin_fpgaEnumerate(const fpga_properties *filte
 	*num_matches = _fake_tokens;
 
 	for ( ; i < min; ++i) {
-		dummy_token *t = (dummy_token*)malloc(sizeof(dummy_token));
+		dummy_token *t = (dummy_token*)opae_malloc(sizeof(dummy_token));
 		if (!t) {
 			goto err_enum;
 		}
@@ -73,16 +73,16 @@ fpga_result DUMMY_HIDDEN dummy_plugin_fpgaEnumerate(const fpga_properties *filte
 	return FPGA_OK;
 err_enum:
 	while (--i) {
-		free(tokens[i]);
+		opae_free(tokens[i]);
 	}
-	free(tokens[0]);
+	opae_free(tokens[0]);
 	return FPGA_NO_MEMORY;
 }
 
 fpga_result DUMMY_HIDDEN dummy_plugin_fpgaDestroyToken(fpga_token *t)
 {
 	dummy_token *dt = (dummy_token *)*t;
-	free(dt);
+	opae_free(dt);
 	*t = NULL;
 	return FPGA_OK;
 }
@@ -91,7 +91,7 @@ fpga_result DUMMY_HIDDEN dummy_plugin_fpgaOpen(fpga_token t, fpga_handle *h, int
 {
 	UNUSED_PARAM(h);
 	dummy_token *dt = (dummy_token*)t;
-	dummy_handle *dh = (dummy_handle*)malloc(sizeof(dummy_handle));
+	dummy_handle *dh = (dummy_handle*)opae_malloc(sizeof(dummy_handle));
 	//printf("dummy/fpgaOpen %d %d\n", dh->number, flags);
 	dh->number = dt->number*flags*2;
 	dh->token = dt;
@@ -103,7 +103,7 @@ fpga_result DUMMY_HIDDEN dummy_plugin_fpgaClose(fpga_handle h)
 {
 	dummy_handle *dh = (dummy_handle *)h;
 	//printf("dummy/fpgaClose %d\n", dh->number);
-	free(dh);
+	opae_free(dh);
 	return FPGA_OK;
 }
 

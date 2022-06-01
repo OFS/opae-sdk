@@ -25,7 +25,9 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 opae_add_module_library(TARGET board_d5005
-    SOURCE board_d5005.c
+    SOURCE
+        board_d5005.c
+        ${opae-test_ROOT}/framework/mock/opae_std.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
         opae-c 

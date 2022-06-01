@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -38,6 +38,7 @@
 
 #include "common_int.h"
 #include "bitstream_int.h"
+#include "mock/opae_std.h"
 
 #define METADATA_GUID "58656F6E-4650-4741-B747-425376303031"
 #define METADATA_GUID_LEN 16
@@ -264,7 +265,7 @@ fpga_result validate_bitstream_metadata(fpga_handle handle,
 
 	json_metadata_ptr = bitstream + METADATA_GUID_LEN + sizeof(uint32_t);
 
-	json_metadata = (char *) malloc(json_len + 1);
+	json_metadata = (char *) opae_malloc(json_len + 1);
 	if (json_metadata == NULL) {
 		OPAE_ERR("Could not allocate memory for metadata");
 		return FPGA_NO_MEMORY;
@@ -323,7 +324,7 @@ out_free:
 	if (root)
 		json_object_put(root);
 	if (json_metadata)
-		free(json_metadata);
+		opae_free(json_metadata);
 
 	return result;
 }
@@ -372,7 +373,7 @@ fpga_result read_gbs_metadata(const uint8_t *bitstream,
 
 	json_metadata_ptr = bitstream + METADATA_GUID_LEN + sizeof(uint32_t);
 
-	json_metadata = (char *) malloc(json_len + 1);
+	json_metadata = (char *) opae_malloc(json_len + 1);
 	if (!json_metadata) {
 		OPAE_ERR("Could not allocate memory for metadata");
 		return FPGA_NO_MEMORY;
@@ -480,7 +481,7 @@ out_free:
 	if (root)
 		json_object_put(root);
 	if (json_metadata)
-		free(json_metadata);
+		opae_free(json_metadata);
 
 	return result;
 }

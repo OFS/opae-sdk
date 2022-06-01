@@ -39,6 +39,7 @@
 #include <opae/enum.h>
 
 #include "props.h"
+#include "mock/opae_std.h"
 
 struct _fpga_properties *opae_properties_create(void)
 {
@@ -46,7 +47,7 @@ struct _fpga_properties *opae_properties_create(void)
 	pthread_mutexattr_t mattr;
 	int err;
 
-	props = (struct _fpga_properties *)calloc(
+	props = (struct _fpga_properties *)opae_calloc(
 		1, sizeof(struct _fpga_properties));
 
 	if (!props)
@@ -79,7 +80,7 @@ out_destroy_attr:
 		OPAE_ERR("pthread_mutexattr_destroy() failed: %s",
 			 strerror(err));
 out_free:
-	free(props);
+	opae_free(props);
 	return NULL;
 }
 
@@ -111,7 +112,7 @@ fpga_result __OPAE_API__ fpgaDestroyProperties(fpga_properties *prop)
 	if (err)
 		OPAE_ERR("pthread_mutex_destroy() failed: %s", strerror(err));
 
-	free(p);
+	opae_free(p);
 	*prop = NULL;
 
 	return FPGA_OK;

@@ -57,6 +57,7 @@ const char *memory_barrier_doc = R"opaedoc(
 #include <pybind11/embed.h>
 PYBIND11_EMBEDDED_MODULE(_opae, m) {
   m.def("initialize", &fpgaInitialize);
+  m.def("finalize", &fpgaFinalize);
 #else
 PYBIND11_MODULE(_opae, m) {
   fpgaInitialize(nullptr);

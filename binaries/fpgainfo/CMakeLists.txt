@@ -26,17 +26,18 @@
 
 opae_add_executable(TARGET fpgainfo
     SOURCE
-       main.c
-       fpgainfo.c
-       errors.c
-       fmeinfo.c
-       bmcinfo.c
-       bmcdata.c
-       powerinfo.c
-       tempinfo.c
-       portinfo.c
-       board.c
-       events.c
+        main.c
+        fpgainfo.c
+        errors.c
+        fmeinfo.c
+        bmcinfo.c
+        bmcdata.c
+        powerinfo.c
+        tempinfo.c
+        portinfo.c
+        board.c
+        events.c
+        ${opae-test_ROOT}/framework/mock/opae_std.c
     LIBS
         argsfilter
         opae-c

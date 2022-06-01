@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2019, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -31,8 +31,8 @@
 #include <inttypes.h>
 
 #include "opae_events_api.h"
-
 #include "logging.h"
+#include "mock/opae_std.h"
 
 #ifdef LOG
 #undef LOG
@@ -49,7 +49,7 @@ int opae_api_register_event(int conn_socket,
 			    uint64_t object_id)
 {
 	api_client_event_registry *r =
-		(api_client_event_registry *) malloc(sizeof(*r));
+		(api_client_event_registry *) opae_malloc(sizeof(*r));
 	//errno_t err;
 	int err;
 
@@ -74,8 +74,8 @@ int opae_api_register_event(int conn_socket,
 
 STATIC void release_event_registry(api_client_event_registry *r)
 {
-	close(r->fd);
-	free(r);
+	opae_close(r->fd);
+	opae_free(r);
 }
 
 int opae_api_unregister_event(int conn_socket,

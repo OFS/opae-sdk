@@ -151,12 +151,12 @@ TEST(init, log_error) {
 TEST(init, log_file) {
   struct stat buf;
 
-  EXPECT_NE(0, stat("opae_log.log", &buf));
+  EXPECT_NE(0, opae_stat("opae_log.log", &buf));
 
   ASSERT_EQ(0, putenv((char*)"LIBOPAE_LOGFILE=opae_log.log"));
   opae_init();
 
-  EXPECT_EQ(0, stat("opae_log.log", &buf));
+  EXPECT_EQ(0, opae_stat("opae_log.log", &buf));
 
   opae_release();
   EXPECT_EQ(0, unsetenv("LIBOPAE_LOGFILE"));
@@ -180,7 +180,7 @@ TEST(init, DISABLED_find_ase_cfg) {
 
   EXPECT_EQ(0, unsetenv("WITH_ASE"));
   if (cfg_path)
-    free(cfg_path);
+    opae_free(cfg_path);
 }
 
 const char *ase_cfg = R"plug(
@@ -216,11 +216,11 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
 
     // rename opae_ase.cfg under installation directory
     strcpy(tmpfile_, "opae_ase.cfg.XXXXXX");
-    close(mkstemp(tmpfile_));
+    opae_close(mkstemp(tmpfile_));
     src_cfg_file_ = cfg_dir + std::string("/") + std::string(tmpfile_);
     struct stat st;
     // check if the file exists or not
-    if (!stat(OPAE_ASE_CFG_SRC_PATH, &st)) {
+    if (!opae_stat(OPAE_ASE_CFG_SRC_PATH, &st)) {
         rename_f = rename(OPAE_ASE_CFG_SRC_PATH, src_cfg_file_.c_str());
         EXPECT_EQ(rename_f, 0);
      }
@@ -242,7 +242,7 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
     // get the directory name of the file
     cfg_dir_ = dirname(buffer_);
     // if the directory doesn't exist, create the entire path
-    if (stat(cfg_dir_, &st)) {
+    if (opae_stat(cfg_dir_, &st)) {
       std::string dir = cfg_dir_;
       // find the first '/' after $HOME
       size_t pos = dir.find('/', home.size());
@@ -250,7 +250,7 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
         std::string sub = dir.substr(0, pos);
         // sub is $HOME/<dir1>, then $HOME/<dir1>/<dir2>, ...
         // if this directory doesn't exist, create it
-        if (stat(sub.c_str(), &st) && sub != "") {
+        if (opae_stat(sub.c_str(), &st) && sub != "") {
           ASSERT_EQ(mkdir(sub.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH),
                     0)
               << "Error creating subdirectory (" << sub
@@ -268,7 +268,7 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
       dirs_.push(cfg_dir_);
     }
 
-    if (stat(cfg_file_.c_str(), &st) == 0) {
+    if (opae_stat(cfg_file_.c_str(), &st) == 0) {
       EXPECT_EQ(unlink(cfg_file_.c_str()), 0);
     }
 
@@ -293,7 +293,7 @@ class init_ase_cfg_p : public ::testing::TestWithParam<const char*> {
         EXPECT_EQ(ret, 0);
     }
     struct stat st;
-    if (stat(tmpfile_, &st) == 0) {
+    if (opae_stat(tmpfile_, &st) == 0) {
       EXPECT_EQ(unlink(tmpfile_), 0);
     }
   }
@@ -327,7 +327,7 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_2) {
     cfg_file = find_ase_cfg();
     EXPECT_NE(cfg_file, nullptr);
     if (cfg_file)
-        free(cfg_file);
+        opae_free(cfg_file);
 
     // copy it to a temporary buffer that we can use dirname with
     std::string inst_cfg_path = (OPAE_ASE_CFG_INST_PATH? OPAE_ASE_CFG_INST_PATH : "");
@@ -337,11 +337,11 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_2) {
 
     // rename opae_ase.cfg under installation directory
     strcpy(tmpfile2_, "opae_ase.cfg.XXXXXX");
-    close(mkstemp(tmpfile2_));
+    opae_close(mkstemp(tmpfile2_));
     inst_cfg_file_ = cfg_dir + std::string("/") + std::string(tmpfile2_);
     struct stat st;
     // check if the file exists or not
-    if (!stat(OPAE_ASE_CFG_INST_PATH, &st)) {
+    if (!opae_stat(OPAE_ASE_CFG_INST_PATH, &st)) {
         rename_fail = rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str());
         EXPECT_EQ(rename_fail, 0);
     }
@@ -352,12 +352,12 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_2) {
     cfg_file = find_ase_cfg();
     EXPECT_NE(cfg_file, nullptr);
     if (cfg_file)
-        free(cfg_file);
+        opae_free(cfg_file);
     if (!rename_fail) {
         int ret = rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH);
         EXPECT_EQ(ret, 0);
     }
-    if (stat(tmpfile2_, &st) == 0) {
+    if (opae_stat(tmpfile2_, &st) == 0) {
       EXPECT_EQ(unlink(tmpfile2_), 0);
     }
 }
@@ -389,11 +389,11 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
 
     // rename opae_ase.cfg under installation directory
     strcpy(tmpfile2_, "opae_ase.cfg.XXXXXX");
-    close(mkstemp(tmpfile2_));
+    opae_close(mkstemp(tmpfile2_));
     inst_cfg_file_ = cfg_dir + std::string("/") + std::string(tmpfile2_);
     struct stat st;
     // check if the file exists or not
-    if (!stat(OPAE_ASE_CFG_INST_PATH, &st)) {
+    if (!opae_stat(OPAE_ASE_CFG_INST_PATH, &st)) {
         rename_fail = rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str());
         EXPECT_EQ(rename_fail, 0);
     }
@@ -405,11 +405,11 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
     if (opae_path) {
         std::string rel_cfg_path = (opae_path? opae_path: "");
         strcpy(tmpfile3_, "opae_ase.cfg.XXXXXX");
-        close(mkstemp(tmpfile3_));        
+        opae_close(mkstemp(tmpfile3_));        
         rel_cfg_file_ = rel_cfg_path + std::string("/share/opae/ase/opae_ase.cfg");
         rel_cfg_file2_ = rel_cfg_path + std::string("/share/opae/ase/") + std::string(tmpfile3_);
         // check if the file exists or not
-        if (!stat(rel_cfg_file_.c_str(), &st)) {
+        if (!opae_stat(rel_cfg_file_.c_str(), &st)) {
             rename_fail2 = rename(rel_cfg_file_.c_str(), rel_cfg_file2_.c_str());
             EXPECT_EQ(rename_fail2, 0);
         }
@@ -420,7 +420,7 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
     cfg_file = find_ase_cfg();
     EXPECT_NE(cfg_file, nullptr);
     if (cfg_file)
-        free(cfg_file);
+        opae_free(cfg_file);
 
     if (opae_path && !rename_fail2) {
         ret = rename(rel_cfg_file2_.c_str(), rel_cfg_file_.c_str());
@@ -430,9 +430,9 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_3) {
         ret = rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH);
         EXPECT_EQ(ret, 0);
     }
-    if (stat(tmpfile2_, &st) == 0)
+    if (opae_stat(tmpfile2_, &st) == 0)
       unlink(tmpfile2_);
-    if (opae_path && stat(tmpfile3_, &st) == 0)
+    if (opae_path && opae_stat(tmpfile3_, &st) == 0)
       unlink(tmpfile3_);
 }
 
@@ -463,11 +463,11 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
 
     // rename opae_ase.cfg under installation directory
     strcpy(tmpfile2_, "opae_ase.cfg.XXXXXX");
-    close(mkstemp(tmpfile2_));
+    opae_close(mkstemp(tmpfile2_));
     inst_cfg_file_ = cfg_dir + std::string("/") + std::string(tmpfile2_);
     struct stat st;
     // check if the file exists or not
-    if (!stat(OPAE_ASE_CFG_INST_PATH, &st)) {
+    if (!opae_stat(OPAE_ASE_CFG_INST_PATH, &st)) {
         rename_fail = rename(OPAE_ASE_CFG_INST_PATH, inst_cfg_file_.c_str());
         EXPECT_EQ(rename_fail, 0);
     }
@@ -479,11 +479,11 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
     if (opae_path) {
         std::string rel_cfg_path = (opae_path? opae_path: "");
         strcpy(tmpfile3_, "opae_ase.cfg.XXXXXX");
-        close(mkstemp(tmpfile3_));        
+        opae_close(mkstemp(tmpfile3_));        
         rel_cfg_file_ = rel_cfg_path + std::string("/share/opae/ase/opae_ase.cfg");
         rel_cfg_file2_ = rel_cfg_path + std::string("/share/opae/ase/") + std::string(tmpfile3_);
         // check if the file exists or not
-        if (!stat(rel_cfg_file_.c_str(), &st)) {
+        if (!opae_stat(rel_cfg_file_.c_str(), &st)) {
             rename_fail2 = rename(rel_cfg_file_.c_str(), rel_cfg_file2_.c_str());
             EXPECT_EQ(rename_fail2, 0);
         }
@@ -495,7 +495,7 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
     cfg_file = find_ase_cfg();
     EXPECT_NE(cfg_file, nullptr);
     if (cfg_file)
-        free(cfg_file);
+        opae_free(cfg_file);
 
     opae_init();
 
@@ -507,9 +507,9 @@ TEST_P(init_ase_cfg_p, find_ase_cfg_4) {
         ret = rename(inst_cfg_file_.c_str(), OPAE_ASE_CFG_INST_PATH);
         EXPECT_EQ(ret, 0);
     }
-    if (stat(tmpfile2_, &st) == 0)
+    if (opae_stat(tmpfile2_, &st) == 0)
       unlink(tmpfile2_);
-    if (opae_path && stat(tmpfile3_, &st) == 0)
+    if (opae_path && opae_stat(tmpfile3_, &st) == 0)
       unlink(tmpfile3_);
 }
 
