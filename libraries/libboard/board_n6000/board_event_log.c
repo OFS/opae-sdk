@@ -211,7 +211,7 @@ static void bel_print_value(const char *label, uint32_t value)
 
 static void bel_print_header(const char *label, struct bel_header *header)
 {
-	time_t time_sec = ((uint64_t)header->timespamp_high << 32) | header->timestamp_low;
+	time_t time_sec = (((uint64_t)header->timespamp_high << 32) | header->timestamp_low) / 1000;
 	char time_str[26] = { 0 };
 
 	if (ctime_r(&time_sec, time_str) == NULL) {
@@ -241,6 +241,20 @@ static void reserved_bit(const char *label, uint32_t value, size_t offset)
 
 	if (bit)
 		printf("      " BEL_LABEL_FMT "*** RESERVED BIT [%lu] IS NOT ZERO: %d\n", 46, label, offset, bit);
+}
+
+static void bel_print_timestamp(const char *label, uint32_t timestamp_low, uint32_t timestamp_high)
+{
+	time_t time_sec = (((uint64_t)timestamp_high << 32) |timestamp_low) / 1000;
+	char time_str[26] = { 0 };
+
+	if (ctime_r(&time_sec, time_str) == NULL) {
+		OPAE_ERR("Failed to format time: %s", strerror(errno));
+		printf("Failed to format time: %s \n", strerror(errno));
+		return;
+	}
+
+	printf("  " BEL_LABEL_FMT "%s", 50, label, time_str);
 }
 
 static void bel_print_power_on_status(struct bel_power_on_status *status, bool print_bits)
@@ -399,6 +413,8 @@ static void bel_print_power_off_status(struct bel_power_off_status *status, bool
 	if (status->header.magic != BEL_POWER_OFF_STATUS)
 		return;
 
+	bel_print_header("Power Off Status Time", &status->header);
+
 	/* Register 0xa0 */
 	bel_print_value("FPGA_Status (0xA0)", status->fpga_status);
 	bel_print_field("FPGA Page", status->fpga_status, 0, 3);
@@ -543,7 +559,7 @@ static void bel_print_power_off_status(struct bel_power_off_status *status, bool
 
 static size_t bel_print_sensor(struct bel_sensor_state *state, size_t last)
 {
-	struct bel_sensor_info *info;
+	struct bel_sensor_info *info = NULL;
 	size_t next = last + 1;
 
 	/* Search the info array starting from one past the previous printed sensor */
@@ -560,6 +576,8 @@ static size_t bel_print_sensor(struct bel_sensor_state *state, size_t last)
 	if (next == last)
 		return last;
 
+	if (info->id == 0)
+		return last;
 	printf("    " BEL_LABEL_FMT, 48, info->label);
 	if (state->reading != INT_MAX)
 		printf("%6u %s\n", state->reading / info->resolution, info->unit);
@@ -654,6 +672,9 @@ static void bel_print_timeoff_day(struct bel_timeoff_day *timeoff_day)
 		return;
 
 	bel_print_header("Time off day", &timeoff_day->header);
+	bel_print_timestamp("TimeOfDay offset", timeoff_day->timeofday_low,
+		timeoff_day->timeofday_high);
+
 	bel_print_value("TimeOfDay offset low", timeoff_day->timeofday_low);
 	bel_print_value("TimeOfDay offset high", timeoff_day->timeofday_high);
 }
@@ -690,8 +711,8 @@ static void bel_print_pci_error_status(struct bel_pci_error_status *status, bool
 	bel_print_value("PCIe Uncorrectable Error", status->pcie_uncorr_err);
 	if (print_bits) {
 		bel_print_bit("Data Link Protocol error Status", status->pcie_uncorr_err, 4);
-		bel_print_bit("Surprise link down error Status", status->pcie_uncorr_err, 5);
-		bel_print_bit("Poisoned TLP was received", status->pcie_uncorr_err, 12);
+		bel_print_bit("Surprise down error Status", status->pcie_uncorr_err, 5);
+		bel_print_bit("Poisoned TLP received", status->pcie_uncorr_err, 12);
 		bel_print_bit("Flow Control Protocol Errors Status", status->pcie_uncorr_err, 13);
 		bel_print_bit("Completion Timeout Status", status->pcie_uncorr_err, 14);
 		bel_print_bit("Completer Abort error Status", status->pcie_uncorr_err, 15);
