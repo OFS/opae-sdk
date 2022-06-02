@@ -74,6 +74,7 @@ struct bel_sensor_state {
 struct bel_sensors_state {
 	struct bel_header header;
 	struct bel_sensor_state sensor_state[BEL_SENSOR_COUNT];
+	uint32_t reserved[8];
 } __attribute__((__packed__));
 
 struct bel_ext_status {
@@ -101,10 +102,10 @@ struct bel_sensors_status {
 	uint32_t ed8401_status;
 } __attribute__((__packed__));
 
-struct bel_timeoff_day {
+struct bel_timeof_day {
 	struct bel_header header;
-	uint32_t timeofday_low;
-	uint32_t timeofday_high;
+	uint32_t timeofday_offset_low;
+	uint32_t timeofday_offset_high;
 } __attribute__((__packed__));
 
 struct bel_max10_seu {
@@ -128,13 +129,12 @@ struct bel_event {
 	union {
 		struct {
 			struct bel_power_on_status power_on_status;
-			struct bel_timeoff_day timeoff_day;
+			struct bel_timeof_day timeof_day;
 			struct bel_max10_seu max10_seu;
 			struct bel_fpga_seu fpga_seu;
 			struct bel_pci_error_status pci_error_status;
 			struct bel_power_off_status power_off_status;
 			struct bel_sensors_state sensors_state;
-			uint32_t reserved[8];
 			struct bel_sensors_status sensors_status;
 		};
 		uint32_t data[1];

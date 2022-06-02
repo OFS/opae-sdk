@@ -209,9 +209,35 @@ static void bel_print_value(const char *label, uint32_t value)
 	printf("    " BEL_LABEL_FMT "0x%08x\n", 48, label, value);
 }
 
+static void bel_print_timeofday(struct bel_timeof_day *time_of_day)
+{
+	char time_str[26] = { 0 };
+	time_t time_sec = 0;
+
+	// Timestamps are 64-bit milliseconds:
+	uint64_t correct_time = ((uint64_t)time_of_day->header.timespamp_high << 32) +
+		time_of_day->header.timestamp_low;
+
+	if (time_of_day->header.timespamp_high == 0) {
+		uint64_t offset = ((uint64_t)time_of_day->timeofday_offset_high << 32) +
+			time_of_day->timeofday_offset_low;
+		correct_time += offset;
+	}
+
+	// Convert milliseconds to seconds; no rounding up from 500 milliseconds!
+	time_sec = correct_time / 1000UL;
+
+	if (ctime_r(&time_sec, time_str) == NULL) {
+		OPAE_ERR("Failed to format time: %s", strerror(errno));
+		return;
+	}
+	printf("  " BEL_LABEL_FMT "%s", 50, "Time of day offset", time_str);
+}
+
 static void bel_print_header(const char *label, struct bel_header *header)
 {
-	time_t time_sec = (((uint64_t)header->timespamp_high << 32) | header->timestamp_low) / 1000;
+	// Convert milliseconds to seconds;
+	time_t time_sec = (((uint64_t)header->timespamp_high << 32) | header->timestamp_low) / 1000UL;
 	char time_str[26] = { 0 };
 
 	if (ctime_r(&time_sec, time_str) == NULL) {
@@ -241,20 +267,6 @@ static void reserved_bit(const char *label, uint32_t value, size_t offset)
 
 	if (bit)
 		printf("      " BEL_LABEL_FMT "*** RESERVED BIT [%lu] IS NOT ZERO: %d\n", 46, label, offset, bit);
-}
-
-static void bel_print_timestamp(const char *label, uint32_t timestamp_low, uint32_t timestamp_high)
-{
-	time_t time_sec = (((uint64_t)timestamp_high << 32) |timestamp_low) / 1000;
-	char time_str[26] = { 0 };
-
-	if (ctime_r(&time_sec, time_str) == NULL) {
-		OPAE_ERR("Failed to format time: %s", strerror(errno));
-		printf("Failed to format time: %s \n", strerror(errno));
-		return;
-	}
-
-	printf("  " BEL_LABEL_FMT "%s", 50, label, time_str);
 }
 
 static void bel_print_power_on_status(struct bel_power_on_status *status, bool print_bits)
@@ -666,17 +678,17 @@ static void bel_print_max10_seu(struct bel_max10_seu *status)
 	bel_print_bit("MAX10 SEU error status", status->max10_seu, 0);
 
 }
-static void bel_print_timeoff_day(struct bel_timeoff_day *timeoff_day)
+
+static void bel_print_timeof_day(struct bel_timeof_day *timeof_day)
 {
-	if (timeoff_day->header.magic != BEL_TIMEOF_DAY_STATUS)
+	if (timeof_day->header.magic != BEL_TIMEOF_DAY_STATUS)
 		return;
 
-	bel_print_header("Time off day", &timeoff_day->header);
-	bel_print_timestamp("TimeOfDay offset", timeoff_day->timeofday_low,
-		timeoff_day->timeofday_high);
+	bel_print_header("Time of day", &timeof_day->header);
+	bel_print_timeofday(timeof_day);
 
-	bel_print_value("TimeOfDay offset low", timeoff_day->timeofday_low);
-	bel_print_value("TimeOfDay offset high", timeoff_day->timeofday_high);
+	bel_print_value("TimeOfDay offset low", timeof_day->timeofday_offset_low);
+	bel_print_value("TimeOfDay offset high", timeof_day->timeofday_offset_high);
 }
 
 static void bel_print_fpga_seu(struct bel_fpga_seu *status)
@@ -786,7 +798,7 @@ fpga_result bel_read(fpga_object fpga_object, uint32_t ptr, struct bel_event *ev
 void bel_print(struct bel_event *event, bool print_sensors, bool print_bits)
 {
 	bel_print_power_on_status(&event->power_on_status, print_bits);
-	bel_print_timeoff_day(&event->timeoff_day);
+	bel_print_timeof_day(&event->timeof_day);
 	bel_print_max10_seu(&event->max10_seu);
 	bel_print_fpga_seu(&event->fpga_seu);
 	bel_print_pci_error_status(&event->pci_error_status, print_bits);
