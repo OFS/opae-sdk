@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2020, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -319,6 +319,7 @@ out_unlock:
 	return result;
 }
 
+#if (defined(__i386__) || defined(__x86_64__) || defined(__ia64__)) && GCC_VERSION >= 40900
 static inline void copy512(const void *src, void *dst)
 {
     asm volatile("vmovdqu64 (%0), %%zmm0;"
@@ -326,6 +327,11 @@ static inline void copy512(const void *src, void *dst)
 		 :
 		 : "r"(src), "r"(dst));
 }
+#else
+static inline void copy512(const void *src, void *dst)
+{
+}
+#endif // x86
 
 fpga_result __XFPGA_API__ xfpga_fpgaWriteMMIO512(fpga_handle handle,
 					 uint32_t mmio_num,
