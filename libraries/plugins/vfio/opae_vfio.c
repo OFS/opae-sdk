@@ -677,12 +677,14 @@ fpga_result vfio_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 	_handle->mmio_size = size;
 
 	_handle->flags = 0;
+#if defined(__i386__) || defined(__x86_64__) || defined(__ia64__)
 #if GCC_VERSION >= 40900
 	__builtin_cpu_init();
 	if (__builtin_cpu_supports("avx512f")) {
 		_handle->flags |= OPAE_FLAG_HAS_AVX512;
 	}
-#endif
+#endif // GCC_VERSION
+#endif // x86
 
 	*handle = _handle;
 	res = FPGA_OK;
