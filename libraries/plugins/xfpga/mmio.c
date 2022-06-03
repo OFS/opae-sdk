@@ -330,6 +330,8 @@ static inline void copy512(const void *src, void *dst)
 #else
 static inline void copy512(const void *src, void *dst)
 {
+	UNUSED_PARAM(src);
+	UNUSED_PARAM(dst);
 }
 #endif // x86
 
