@@ -1,4 +1,4 @@
-# Copyright(c) 2020-2021, Intel Corporation
+# Copyright(c) 2020-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -24,13 +24,13 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-from setuptools import find_packages
+from setuptools import find_namespace_packages
 from distutils.core import Extension, setup
 
 setup(
     name="opae.io",
     version="0.2.2",
-    packages=find_packages(include=['opae.*']),
+    packages=find_namespace_packages(include=['opae.*']),
     entry_points={
         'console_scripts': []
     },
@@ -46,5 +46,4 @@ setup(
     license="BSD3",
     keywords="OPAE accelerator vfio bindings",
     url="https://01.org/OPAE",
-    namespace_packages=['opae']
 )

@@ -253,7 +253,6 @@ done
 %{_usr}/src/opae/samples/opae.io/pymain.h
 %{_usr}/src/opae/samples/opae.io/setup.py
 %{_usr}/src/opae/samples/opae.io/vfiobindings.cpp
-%{_usr}/src/opae/samples/opae.io/opae/__init__.py
 %{_usr}/src/opae/samples/opae.io/opae/io/__init__.py
 %{_usr}/src/opae/samples/opae.io/opae/io/utils.py
 %{_usr}/src/opae/samples/opae.io/opae/io/pci.py
