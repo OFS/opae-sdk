@@ -1,4 +1,4 @@
-// Copyright(c) 2021, Intel Corporation
+// Copyright(c) 2021-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -41,11 +41,14 @@
 #define ARRAY_SIZE(a) (sizeof(a)/sizeof(*a))
 
 enum bel_magic {
-	BEL_POWER_ON_STATUS  = 0x53696C12,
-	BEL_POWER_OFF_STATUS = 0x53696C34,
-	BEL_SENSORS_STATE    = 0x53696C56,
-	BEL_SENSORS_STATUS   = 0x53696C78,
-	BEL_PCI_ERROR_STATUS = 0x53696C9A
+	BEL_POWER_ON_STATUS     = 0x53696C12,
+	BEL_TIMEOF_DAY_STATUS   = 0x53696CF0,
+	BEL_MAX10_SEU_STATUS    = 0x53696CBC,
+	BEL_FPGA_SEU_STATUS     = 0x53696CDE,
+	BEL_POWER_OFF_STATUS    = 0x53696C34,
+	BEL_SENSORS_STATE       = 0x53696C56,
+	BEL_SENSORS_STATUS      = 0x53696C78,
+	BEL_PCI_ERROR_STATUS    = 0x53696C9A
 };
 
 enum bel_power_regulator {
@@ -206,10 +209,36 @@ static void bel_print_value(const char *label, uint32_t value)
 	printf("    " BEL_LABEL_FMT "0x%08x\n", 48, label, value);
 }
 
+static void bel_print_timeofday(struct bel_timeof_day *time_of_day)
+{
+	char time_str[26] = { 0 };
+	time_t time_sec = 0;
+
+	// Timestamps are 64-bit milliseconds:
+	uint64_t correct_time = ((uint64_t)time_of_day->header.timespamp_high << 32) +
+		time_of_day->header.timestamp_low;
+
+	if (time_of_day->header.timespamp_high == 0) {
+		uint64_t offset = ((uint64_t)time_of_day->timeofday_offset_high << 32) +
+			time_of_day->timeofday_offset_low;
+		correct_time += offset;
+	}
+
+	// Convert milliseconds to seconds; no rounding up from 500 milliseconds!
+	time_sec = correct_time / 1000UL;
+
+	if (ctime_r(&time_sec, time_str) == NULL) {
+		OPAE_ERR("Failed to format time: %s", strerror(errno));
+		return;
+	}
+	printf("  " BEL_LABEL_FMT "%s", 50, "Time of day offset", time_str);
+}
+
 static void bel_print_header(const char *label, struct bel_header *header)
 {
-	time_t time_sec = ((uint64_t)header->timespamp_high << 32) | header->timestamp_low;
-	char time_str[26];
+	// Convert milliseconds to seconds;
+	time_t time_sec = (((uint64_t)header->timespamp_high << 32) | header->timestamp_low) / 1000UL;
+	char time_str[26] = { 0 };
 
 	if (ctime_r(&time_sec, time_str) == NULL) {
 		OPAE_ERR("Failed to format time: %s", strerror(errno));
@@ -240,7 +269,7 @@ static void reserved_bit(const char *label, uint32_t value, size_t offset)
 		printf("      " BEL_LABEL_FMT "*** RESERVED BIT [%lu] IS NOT ZERO: %d\n", 46, label, offset, bit);
 }
 
-static void bel_print_power_on_status(struct bel_power_on_status *status)
+static void bel_print_power_on_status(struct bel_power_on_status *status, bool print_bits)
 {
 	if (status->header.magic != BEL_POWER_ON_STATUS)
 		return;
@@ -276,6 +305,107 @@ static void bel_print_power_on_status(struct bel_power_on_status *status)
 	bel_print_field("2nd Power On Page number",   status->fpga_config_status, 13, 16);
 	bel_print_field("3nd Power On Page number",   status->fpga_config_status, 16, 19);
 	reserved_field(NULL,                          status->fpga_config_status, 19, 32);
+
+	/* Register 0x90 */
+	bel_print_value("Sequencer Status 1 (0x90)", status->sequencer_status_1);
+	if (print_bits) {
+		bel_print_bit("IDLE_ST", status->sequencer_status_1, 0);
+		bel_print_bit("PWR_CLS_DEC_FPGA_ST", status->sequencer_status_1, 1);
+		bel_print_bit("PG_3V3_5V_ST", status->sequencer_status_1, 2);
+		bel_print_bit("WAIT_10MS_FPGA_ST", status->sequencer_status_1, 3);
+		bel_print_bit("FPGA_GRP1_EN_ST", status->sequencer_status_1, 4);
+		bel_print_bit("FPGA_GRP2_EN_ST", status->sequencer_status_1, 5);
+		bel_print_bit("FPGA_GRP3_EN_ST", status->sequencer_status_1, 6);
+		bel_print_bit("PG_VTT_0V6_CHK_ST", status->sequencer_status_1, 7);
+		bel_print_bit("FPGA_GRP1_PWR_DWN_ST", status->sequencer_status_1, 8);
+		bel_print_bit("FPGA_GRP2_PWR_DWN_ST", status->sequencer_status_1, 9);
+		bel_print_bit("FPGA_GRP3_PWR_DWN_ST", status->sequencer_status_1, 10);
+		bel_print_bit("FPGA_PWR_ON_ST", status->sequencer_status_1, 11);
+		bel_print_bit("FPGA_PWR_OFF_ST", status->sequencer_status_1, 12);
+		reserved_field(NULL, status->sequencer_status_1, 13, 16);
+		bel_print_bit("PWR_CLS_DEC_CVL_ST", status->sequencer_status_1, 16);
+		bel_print_bit("CVL_VCC_1V1_ST", status->sequencer_status_1, 17);
+		bel_print_bit("CVL_WAIT_100US_ST", status->sequencer_status_1, 18);
+		bel_print_bit("CVL_3V3_1V8_EN_ST", status->sequencer_status_1, 19);
+		bel_print_bit("CVL_VDD_0V8_EN_ST", status->sequencer_status_1, 20);
+		bel_print_bit("CVL_AVDD_ETH_EN_ST", status->sequencer_status_1, 21);
+		bel_print_bit("CVL_AVDD_PCIE_1V1_EN_ST", status->sequencer_status_1, 22);
+		bel_print_bit("CVL_SI5392_CHK_ST", status->sequencer_status_1, 23);
+		bel_print_bit("CVL_LAN_100US_WAIT_ST", status->sequencer_status_1, 24);
+		bel_print_bit("CVL_LAN_PG_ST", status->sequencer_status_1, 25);
+		bel_print_bit("CVL_PWR_ON_ST", status->sequencer_status_1, 26);
+		bel_print_bit("CVL_LAN_PWR_DWN_ST", status->sequencer_status_1, 27);
+		bel_print_bit("CVL_AVDD_PWR_DWN_ST", status->sequencer_status_1, 28);
+		bel_print_bit("CVL_VDD_0V8_PWR_DWN_ST", status->sequencer_status_1, 29);
+		bel_print_bit("CVL_3V3_1V8_PWR_DWN_ST", status->sequencer_status_1, 30);
+		bel_print_bit("CVL_PWR_OFF_ST", status->sequencer_status_1, 31);
+	}
+
+	/* Register 0x94 */
+	bel_print_value("Sequencer Status 2 (0x94)", status->sequencer_status_2);
+	if (print_bits) {
+		bel_print_bit("EN_VCCL_FPGA_VID", status->sequencer_status_2, 0);
+		bel_print_bit("EN_VCCL_SDM_0V8_VCCH_0V9", status->sequencer_status_2, 1);
+		bel_print_bit("EN_FPGA_GRP2", status->sequencer_status_2, 2);
+		bel_print_bit("EN_VPP_2V5", status->sequencer_status_2, 3);
+		bel_print_bit("EN_VCCIO_1V8_SDM_1V8", status->sequencer_status_2, 4);
+		bel_print_bit("EN_VCC_1V2", status->sequencer_status_2, 5);
+		bel_print_bit("EN_3V3_CVL", status->sequencer_status_2, 6);
+		bel_print_bit("EN_1V8_CVL", status->sequencer_status_2, 7);
+		bel_print_bit("EN_VDD_0V8_CVL", status->sequencer_status_2, 8);
+		bel_print_bit("EN_AVDD_ETH_0V9_CVL", status->sequencer_status_2, 9);
+		bel_print_bit("EN_AVDD_PCIE_0V9_CVL", status->sequencer_status_2, 10);
+		bel_print_bit("EN_AVDDH_1V1_CVL", status->sequencer_status_2, 11);
+		bel_print_bit("EN_PWR_QSFP0", status->sequencer_status_2, 12);
+		bel_print_bit("EN_PWR_QSFP1", status->sequencer_status_2, 13);
+		bel_print_bit("FLT_CFP_ISL", status->sequencer_status_2, 14);
+		reserved_bit(NULL, status->sequencer_status_2, 15);
+		bel_print_bit("SI5392_LOL", status->sequencer_status_2, 16);
+		bel_print_bit("POWER_GOOD", status->sequencer_status_2, 17);
+		bel_print_bit("LAN_PWR_GOOD", status->sequencer_status_2, 18);
+		bel_print_bit("PM_ALERTN_3V3", status->sequencer_status_2, 19);
+		bel_print_bit("FPGA_VID_ALERTN", status->sequencer_status_2, 20);
+		bel_print_bit("VR_VID_ALERTN", status->sequencer_status_2, 21);
+		bel_print_bit("FPGA_THERM_ALERTN", status->sequencer_status_2, 22);
+		bel_print_bit("CVL_THERM_ALERTN", status->sequencer_status_2, 23);
+		bel_print_bit("EDGE_PWR_WARN", status->sequencer_status_2, 24);
+	}
+	/* Register 0x98 */
+	bel_print_value("Power Good Status (0x98)", status->power_good_status);
+	if (print_bits) {
+		bel_print_bit("pg_12v_aux_efuse", status->power_good_status, 0);
+		bel_print_bit("pg_12v_pcie_efuse", status->power_good_status, 1);
+		bel_print_bit("pg_vcc_5v", status->power_good_status, 2);
+		bel_print_bit("pg_vcc_3v3", status->power_good_status, 3);
+		bel_print_bit("pg_vccl_fpga_vid", status->power_good_status, 4);
+		bel_print_bit("pg_vccl_sdm_0v8", status->power_good_status, 5);
+		bel_print_bit("pg_vcch_0v9", status->power_good_status, 6);
+		bel_print_bit("pg_vcch_gxer_1v1", status->power_good_status, 7);
+		bel_print_bit("pg_vcca_1v8", status->power_good_status, 8);
+		bel_print_bit("pg_vccclk_gxer_2v5", status->power_good_status, 9);
+		bel_print_bit("pg_vpp_2v5", status->power_good_status, 10);
+		bel_print_bit("pg_vccio_1v8", status->power_good_status, 11);
+		bel_print_bit("pg_sdm_1v8", status->power_good_status, 12);
+		bel_print_bit("pg_vcc_1v2", status->power_good_status, 13);
+		bel_print_bit("pg_vtt_0v6", status->power_good_status, 14);
+		bel_print_bit("pg_vcc_1v1_cvl", status->power_good_status, 15);
+		bel_print_bit("pg_3v3_1v8_cvl", status->power_good_status, 16);
+		bel_print_bit("pg_vdd_0v8_cvl", status->power_good_status, 17);
+		bel_print_bit("pg_avdd_eth_0v9_cvl", status->power_good_status, 18);
+		bel_print_bit("pg_avdd_pcie_0v9_cvl", status->power_good_status, 19);
+		bel_print_bit("pg_avddh_1v1_cvl", status->power_good_status, 20);
+		bel_print_bit("pg_pwr_qsfp0n", status->power_good_status, 21);
+		bel_print_bit("pg_pwr_qsfp1n", status->power_good_status, 22);
+		bel_print_bit("FPGA_THERM_SHDN", status->power_good_status, 23);
+		bel_print_bit("EDGE_PWR_SHDN", status->power_good_status, 24);
+		bel_print_bit("FPGA_NCATTRIP", status->power_good_status, 25);
+		bel_print_bit("VCC_12V_AUX_UV", status->power_good_status, 26);
+		bel_print_bit("VCC_12V_PCIE_UV", status->power_good_status, 27);
+		bel_print_bit("VCC_3V3_PCIE_UV", status->power_good_status, 28);
+		bel_print_bit("VCC_12V_3V3_IN_OV", status->power_good_status, 29);
+		bel_print_bit("QSFPA_MODPRES", status->power_good_status, 30);
+		bel_print_bit("QSFPB_MODPRES", status->power_good_status, 31);
+	}
 }
 
 static void bel_print_sensor_alert(uint32_t sensor_alert, size_t offset)
@@ -290,52 +420,37 @@ static void bel_print_sensor_alert(uint32_t sensor_alert, size_t offset)
 	for (i = 0; i < last; i++, info++)
 		bel_print_fail(info->label, sensor_alert, i);
 }
-
 static void bel_print_power_off_status(struct bel_power_off_status *status, bool print_bits)
 {
 	if (status->header.magic != BEL_POWER_OFF_STATUS)
 		return;
 
-	bel_print_value("Power Good Status (0x98)", status->power_good_status);
+	bel_print_header("Power Off Status Time", &status->header);
 
-	if (print_bits) {
-		bel_print_bit("pg_12v_aux_efuse",     status->power_good_status,  0);
-		bel_print_bit("pg_12v_pcie_efuse",    status->power_good_status,  1);
-		bel_print_bit("pg_vcc_5v",            status->power_good_status,  2);
-		bel_print_bit("pg_vcc_3v3",           status->power_good_status,  3);
-		bel_print_bit("pg_vccl_fpga_vid",     status->power_good_status,  4);
-		bel_print_bit("pg_vccl_sdm_0v8",      status->power_good_status,  5);
-		bel_print_bit("pg_vcch_0v9",          status->power_good_status,  6);
-		bel_print_bit("pg_vcch_gxer_1v1",     status->power_good_status,  7);
-		bel_print_bit("pg_vcca_1v8",          status->power_good_status,  8);
-		bel_print_bit("pg_vccclk_gxer_2v5",   status->power_good_status,  9);
-		bel_print_bit("pg_vpp_2v5",           status->power_good_status, 10);
-		bel_print_bit("pg_vccio_1v8",         status->power_good_status, 11);
-		bel_print_bit("pg_sdm_1v8",           status->power_good_status, 12);
-		bel_print_bit("pg_vcc_1v2",           status->power_good_status, 13);
-		bel_print_bit("pg_vtt_0v6",           status->power_good_status, 14);
-		bel_print_bit("pg_vcc_1v1_cvl",       status->power_good_status, 15);
-		bel_print_bit("pg_3v3_1v8_cvl",       status->power_good_status, 16);
-		bel_print_bit("pg_vdd_0v8_cvl",       status->power_good_status, 17);
-		bel_print_bit("pg_avdd_eth_0v9_cvl",  status->power_good_status, 18);
-		bel_print_bit("pg_avdd_pcie_0v9_cvl", status->power_good_status, 19);
-		bel_print_bit("pg_avddh_1v1_cvl",     status->power_good_status, 20);
-		bel_print_bit("pg_pwr_qsfp0n",        status->power_good_status, 21);
-		bel_print_bit("pg_pwr_qsfp1n",        status->power_good_status, 22);
-		bel_print_bit("FPGA_THERM_SHDN",      status->power_good_status, 23);
-		bel_print_bit("EDGE_PWR_SHDN",        status->power_good_status, 24);
-		bel_print_bit("FPGA_NCATTRIP",        status->power_good_status, 25);
-		bel_print_bit("VCC_12V_AUX_UV",       status->power_good_status, 26);
-		bel_print_bit("VCC_12V_PCIE_UV",      status->power_good_status, 27);
-		bel_print_bit("VCC_3V3_PCIE_UV",      status->power_good_status, 28);
-		bel_print_bit("VCC_12V_3V3_IN_OV",    status->power_good_status, 29);
-		bel_print_bit("QSFPA_MODPRES",        status->power_good_status, 30);
-		bel_print_bit("QSFPB_MODPRES",        status->power_good_status, 31);
-	}
+	/* Register 0xa0 */
+	bel_print_value("FPGA_Status (0xA0)", status->fpga_status);
+	bel_print_field("FPGA Page", status->fpga_status, 0, 3);
+	bel_print_bit("FPGA Configured Page", status->fpga_status, 3);
+	bel_print_bit("FPGA Config Timeline", status->fpga_status, 4);
+	bel_print_bit("Flow Done", status->fpga_status, 5);
+	reserved_field(NULL, status->fpga_status, 6, 12);
+	bel_print_field("FSM State", status->fpga_status, 12, 16);
+	bel_print_field("Duration", status->fpga_status, 16, 30);
+	reserved_field(NULL, status->fpga_status, 30, 32);
+
+	/* Register 0xa4 */
+	bel_print_value("FPGA_Config Status (0xA4)", status->fpga_config_status);
+	bel_print_field("Config Status", status->fpga_config_status, 0, 4);
+	bel_print_bit("Config FW Seq Fail", status->fpga_config_status, 4);
+	bel_print_field("nStatus Stuck Low Restarts", status->fpga_config_status, 5, 8);
+	bel_print_field("Image Fail Recycle Count", status->fpga_config_status, 8, 10);
+	bel_print_field("1st Power On Page number", status->fpga_config_status, 10, 13);
+	bel_print_field("2nd Power On Page number", status->fpga_config_status, 13, 16);
+	bel_print_field("3nd Power On Page number", status->fpga_config_status, 16, 19);
+	reserved_field(NULL, status->fpga_config_status, 19, 32);
 
 	/* Register 0x84 */
 	bel_print_value("Power Good Record 1 (0x84)", status->record_1);
-
 	if (print_bits) {
 		bel_print_bit("pg_12v_aux_efuse",     status->record_1,  0);
 		bel_print_bit("pg_12v_pcie_efuse",    status->record_1,  1);
@@ -373,7 +488,6 @@ static void bel_print_power_off_status(struct bel_power_off_status *status, bool
 
 	/* Register 0x88 */
 	bel_print_value("Power Good Record 2 (0x88)", status->record_2);
-
 	if (print_bits) {
 		bel_print_bit("PM_ALERTN_3V3",      status->record_2,  0);
 		bel_print_bit("FPGA_VID_ALERTN",    status->record_2,  1);
@@ -383,76 +497,8 @@ static void bel_print_power_off_status(struct bel_power_off_status *status, bool
 		reserved_field(NULL,                status->record_2,  5, 32);
 	}
 
-	/* Register 0x90 */
-	bel_print_value("Sequencer Status 1 (0x90)",            status->sequencer_status_1);
-
-	if (print_bits) {
-		bel_print_bit("IDLE_ST",                 status->sequencer_status_1,  0);
-		bel_print_bit("PWR_CLS_DEC_FPGA_ST",     status->sequencer_status_1,  1);
-		bel_print_bit("PG_3V3_5V_ST",            status->sequencer_status_1,  2);
-		bel_print_bit("WAIT_10MS_FPGA_ST",       status->sequencer_status_1,  3);
-		bel_print_bit("FPGA_GRP1_EN_ST",         status->sequencer_status_1,  4);
-		bel_print_bit("FPGA_GRP2_EN_ST",         status->sequencer_status_1,  5);
-		bel_print_bit("FPGA_GRP3_EN_ST",         status->sequencer_status_1,  6);
-		bel_print_bit("PG_VTT_0V6_CHK_ST",       status->sequencer_status_1,  7);
-		bel_print_bit("FPGA_GRP1_PWR_DWN_ST",    status->sequencer_status_1,  8);
-		bel_print_bit("FPGA_GRP2_PWR_DWN_ST",    status->sequencer_status_1,  9);
-		bel_print_bit("FPGA_GRP3_PWR_DWN_ST",    status->sequencer_status_1, 10);
-		bel_print_bit("FPGA_PWR_ON_ST",          status->sequencer_status_1, 11);
-		bel_print_bit("FPGA_PWR_OFF_ST",         status->sequencer_status_1, 12);
-		reserved_field(NULL,                     status->sequencer_status_1, 13, 16);
-		bel_print_bit("PWR_CLS_DEC_CVL_ST",      status->sequencer_status_1, 16);
-		bel_print_bit("CVL_VCC_1V1_ST",          status->sequencer_status_1, 17);
-		bel_print_bit("CVL_WAIT_100US_ST",       status->sequencer_status_1, 18);
-		bel_print_bit("CVL_3V3_1V8_EN_ST",       status->sequencer_status_1, 19);
-		bel_print_bit("CVL_VDD_0V8_EN_ST",       status->sequencer_status_1, 20);
-		bel_print_bit("CVL_AVDD_ETH_EN_ST",      status->sequencer_status_1, 21);
-		bel_print_bit("CVL_AVDD_PCIE_1V1_EN_ST", status->sequencer_status_1, 22);
-		bel_print_bit("CVL_SI5392_CHK_ST",       status->sequencer_status_1, 23);
-		bel_print_bit("CVL_LAN_100US_WAIT_ST",   status->sequencer_status_1, 24);
-		bel_print_bit("CVL_LAN_PG_ST",           status->sequencer_status_1, 25);
-		bel_print_bit("CVL_PWR_ON_ST",           status->sequencer_status_1, 26);
-		bel_print_bit("CVL_LAN_PWR_DWN_ST",      status->sequencer_status_1, 27);
-		bel_print_bit("CVL_AVDD_PWR_DWN_ST",     status->sequencer_status_1, 28);
-		bel_print_bit("CVL_VDD_0V8_PWR_DWN_ST",  status->sequencer_status_1, 29);
-		bel_print_bit("CVL_3V3_1V8_PWR_DWN_ST",  status->sequencer_status_1, 30);
-		bel_print_bit("CVL_PWR_OFF_ST",          status->sequencer_status_1, 31);
-	}
-
-	/* Register 0x94 */
-	bel_print_value("Sequencer Status 2 (0x94)", status->sequencer_status_2);
-
-	if (print_bits) {
-		bel_print_bit("EN_VCCL_FPGA_VID",         status->sequencer_status_2,  0);
-		bel_print_bit("EN_VCCL_SDM_0V8_VCCH_0V9", status->sequencer_status_2,  1);
-		bel_print_bit("EN_FPGA_GRP2",             status->sequencer_status_2,  2);
-		bel_print_bit("EN_VPP_2V5",               status->sequencer_status_2,  3);
-		bel_print_bit("EN_VCCIO_1V8_SDM_1V8",     status->sequencer_status_2,  4);
-		bel_print_bit("EN_VCC_1V2",               status->sequencer_status_2,  5);
-		bel_print_bit("EN_3V3_CVL",               status->sequencer_status_2,  6);
-		bel_print_bit("EN_1V8_CVL",               status->sequencer_status_2,  7);
-		bel_print_bit("EN_VDD_0V8_CVL",           status->sequencer_status_2,  8);
-		bel_print_bit("EN_AVDD_ETH_0V9_CVL",      status->sequencer_status_2,  9);
-		bel_print_bit("EN_AVDD_PCIE_0V9_CVL",     status->sequencer_status_2, 10);
-		bel_print_bit("EN_AVDDH_1V1_CVL",         status->sequencer_status_2, 11);
-		bel_print_bit("EN_PWR_QSFP0",             status->sequencer_status_2, 12);
-		bel_print_bit("EN_PWR_QSFP1",             status->sequencer_status_2, 13);
-		bel_print_bit("FLT_CFP_ISL",              status->sequencer_status_2, 14);
-		reserved_bit(NULL,                        status->sequencer_status_2, 15);
-		bel_print_bit("SI5392_LOL",               status->sequencer_status_2, 16);
-		bel_print_bit("POWER_GOOD",               status->sequencer_status_2, 17);
-		bel_print_bit("LAN_PWR_GOOD",             status->sequencer_status_2, 18);
-		bel_print_bit("PM_ALERTN_3V3",            status->sequencer_status_2, 19);
-		bel_print_bit("FPGA_VID_ALERTN",          status->sequencer_status_2, 20);
-		bel_print_bit("VR_VID_ALERTN",            status->sequencer_status_2, 21);
-		bel_print_bit("FPGA_THERM_ALERTN",        status->sequencer_status_2, 22);
-		bel_print_bit("CVL_THERM_ALERTN",         status->sequencer_status_2, 23);
-		bel_print_bit("EDGE_PWR_WARN",            status->sequencer_status_2, 24);
-	}
-
 	/* Register 0x50 */
 	bel_print_value("GPI Status (0x50)", status->general_purpose_input_status);
-
 	if (print_bits) {
 		bel_print_bit("Board revision strap LSB, hard strap",       status->general_purpose_input_status,  0);
 		bel_print_bit("Board revision strap",                       status->general_purpose_input_status,  1);
@@ -478,7 +524,6 @@ static void bel_print_power_off_status(struct bel_power_off_status *status, bool
 
 	/* Register 0x410 */
 	bel_print_value("Sensor Failed (0x410)", status->sensor_failed);
-
 	if (print_bits) {
 		bel_print_pass("fpga_remote_temp",        status->sensor_failed,  0);
 		bel_print_pass("board_temp",              status->sensor_failed,  1);
@@ -526,7 +571,7 @@ static void bel_print_power_off_status(struct bel_power_off_status *status, bool
 
 static size_t bel_print_sensor(struct bel_sensor_state *state, size_t last)
 {
-	struct bel_sensor_info *info;
+	struct bel_sensor_info *info = NULL;
 	size_t next = last + 1;
 
 	/* Search the info array starting from one past the previous printed sensor */
@@ -543,6 +588,8 @@ static size_t bel_print_sensor(struct bel_sensor_state *state, size_t last)
 	if (next == last)
 		return last;
 
+	if (info->id == 0)
+		return last;
 	printf("    " BEL_LABEL_FMT, 48, info->label);
 	if (state->reading != INT_MAX)
 		printf("%6u %s\n", state->reading / info->resolution, info->unit);
@@ -623,12 +670,76 @@ static void bel_print_sensors_status(struct bel_sensors_status *status)
 	bel_print_value("ED8401 Status", status->ed8401_status);
 }
 
-static void bel_print_pci_error_status(struct bel_pci_error_status *status)
+static void bel_print_max10_seu(struct bel_max10_seu *status)
+{
+	if (status->header.magic != BEL_MAX10_SEU_STATUS)
+		return;
+	bel_print_header("Max10 SEU Time", &status->header);
+	bel_print_bit("MAX10 SEU error status", status->max10_seu, 0);
+
+}
+
+static void bel_print_timeof_day(struct bel_timeof_day *timeof_day)
+{
+	if (timeof_day->header.magic != BEL_TIMEOF_DAY_STATUS)
+		return;
+
+	bel_print_header("Time of day", &timeof_day->header);
+	bel_print_timeofday(timeof_day);
+
+	bel_print_value("TimeOfDay offset low", timeof_day->timeofday_offset_low);
+	bel_print_value("TimeOfDay offset high", timeof_day->timeofday_offset_high);
+}
+
+static void bel_print_fpga_seu(struct bel_fpga_seu *status)
+{
+	if (status->header.magic != BEL_FPGA_SEU_STATUS)
+		return;
+
+	bel_print_header("FPGA SEU Time", &status->header);
+	bel_print_bit("FPGA SEU error status", status->fpga_seu, 1);
+}
+
+static void bel_print_pci_error_status(struct bel_pci_error_status *status, bool print_bits)
 {
 	if (status->header.magic != BEL_PCI_ERROR_STATUS)
 		return;
 
 	bel_print_header("PCI Error Status Time", &status->header);
+
+	// PCIe Link Status
+	bel_print_value("PCIe Link Status", status->pcie_link_status);
+	if (print_bits) {
+		bel_print_field("Current Link Speed", status->pcie_link_status, 0, 3);
+		bel_print_field("Negotiated Link Speed", status->pcie_link_status, 4, 9);
+		bel_print_bit("Link Training ", status->pcie_link_status, 11);
+		bel_print_bit("Slot Clock Configuration", status->pcie_link_status, 12);
+		bel_print_bit("Data link layer link active", status->pcie_link_status, 13);
+		bel_print_bit("Link Bandwidth Management Status", status->pcie_link_status, 14);
+		bel_print_bit("Link Autonomous Management Status", status->pcie_link_status, 15);
+	}
+
+	// PCIe Uncorrectable Error
+	bel_print_value("PCIe Uncorrectable Error", status->pcie_uncorr_err);
+	if (print_bits) {
+		bel_print_bit("Data Link Protocol error Status", status->pcie_uncorr_err, 4);
+		bel_print_bit("Surprise down error Status", status->pcie_uncorr_err, 5);
+		bel_print_bit("Poisoned TLP received", status->pcie_uncorr_err, 12);
+		bel_print_bit("Flow Control Protocol Errors Status", status->pcie_uncorr_err, 13);
+		bel_print_bit("Completion Timeout Status", status->pcie_uncorr_err, 14);
+		bel_print_bit("Completer Abort error Status", status->pcie_uncorr_err, 15);
+		bel_print_bit("Unexpected Completion Status", status->pcie_uncorr_err, 16);
+		bel_print_bit("Receiver Overflow Status", status->pcie_uncorr_err, 17);
+		bel_print_bit("Malformed TLP Status", status->pcie_uncorr_err, 18);
+		bel_print_bit("ECRC Error Status", status->pcie_uncorr_err, 19);
+		bel_print_bit("Unsupported Request Error Status", status->pcie_uncorr_err, 20);
+		bel_print_bit("ACS Violation Status", status->pcie_uncorr_err, 21);
+		bel_print_bit("Uncorrectable Internal Error Status", status->pcie_uncorr_err, 22);
+		bel_print_bit("MC Blocked TLP Status", status->pcie_uncorr_err, 23);
+		bel_print_bit("AtomicOp Egress Blocked Status", status->pcie_uncorr_err, 24);
+		bel_print_bit("TLP Prefix Blocked Status", status->pcie_uncorr_err, 25);
+		bel_print_bit("Poisoned TLP Egress Blocked Status", status->pcie_uncorr_err, 26);
+	}
 
 }
 
@@ -686,7 +797,12 @@ fpga_result bel_read(fpga_object fpga_object, uint32_t ptr, struct bel_event *ev
 
 void bel_print(struct bel_event *event, bool print_sensors, bool print_bits)
 {
-	bel_print_power_on_status(&event->power_on_status);
+	bel_print_power_on_status(&event->power_on_status, print_bits);
+	bel_print_timeof_day(&event->timeof_day);
+	bel_print_max10_seu(&event->max10_seu);
+	bel_print_fpga_seu(&event->fpga_seu);
+	bel_print_pci_error_status(&event->pci_error_status, print_bits);
+
 	bel_print_power_off_status(&event->power_off_status, print_bits);
 
 	if (print_sensors) {
@@ -694,7 +810,6 @@ void bel_print(struct bel_event *event, bool print_sensors, bool print_bits)
 		bel_print_sensors_status(&event->sensors_status);
 	}
 
-	bel_print_pci_error_status(&event->pci_error_status);
 }
 
 void bel_timespan(struct bel_event *event, uint32_t idx)
