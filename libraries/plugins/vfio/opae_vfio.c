@@ -677,12 +677,14 @@ fpga_result vfio_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 	_handle->mmio_size = size;
 
 	_handle->flags = 0;
+#if defined(__i386__) || defined(__x86_64__) || defined(__ia64__)
 #if GCC_VERSION >= 40900
 	__builtin_cpu_init();
 	if (__builtin_cpu_supports("avx512f")) {
 		_handle->flags |= OPAE_FLAG_HAS_AVX512;
 	}
-#endif
+#endif // GCC_VERSION
+#endif // x86
 
 	*handle = _handle;
 	res = FPGA_OK;
@@ -994,6 +996,7 @@ fpga_result vfio_fpgaReadMMIO32(fpga_handle handle,
 	return FPGA_OK;
 }
 
+#if defined(__i386__) || defined(__x86_64__) || defined(__ia64__) && GCC_VERSION >= 40900
 static inline void copy512(const void *src, void *dst)
 {
     asm volatile("vmovdqu64 (%0), %%zmm0;"
@@ -1001,6 +1004,13 @@ static inline void copy512(const void *src, void *dst)
 		 :
 		 : "r"(src), "r"(dst));
 }
+#else
+static inline void copy512(const void *src, void *dst)
+{
+	UNUSED_PARAM(src);
+	UNUSED_PARAM(dst);
+}
+#endif // x86
 
 fpga_result vfio_fpgaWriteMMIO512(fpga_handle handle,
 				 uint32_t mmio_num,

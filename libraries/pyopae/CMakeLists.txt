@@ -72,9 +72,6 @@ opae_target_depends_external(_opae pybind11)
 add_custom_command(TARGET _opae
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
-    ${CMAKE_CURRENT_SOURCE_DIR}/opae/__init__.py
-    ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae
-    COMMAND ${CMAKE_COMMAND} -E copy
     ${CMAKE_CURRENT_SOURCE_DIR}/opae/fpga/__init__.py
     ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae/fpga
     COMMENT "Copying namespace package files")
@@ -91,7 +88,6 @@ if (OPAE_BUILD_PYTHON_DIST)
 
     set(PYFILES
         setup.py
-        opae/__init__.py
         opae/fpga/__init__.py
         test_pyopae.py
         )
@@ -110,10 +106,15 @@ if (OPAE_BUILD_PYTHON_DIST)
     add_custom_target(pyopae-dist
         COMMAND ${PYTHON_EXECUTABLE} setup.py sdist
         COMMAND ${PYTHON_EXECUTABLE} setup.py build_ext
-	--include-dirs=${OPAE_INCLUDE_PATH}
-        --library-dirs=${LIBRARY_OUTPUT_PATH}
+            --include-dirs=${OPAE_INCLUDE_PATH}
+            --library-dirs=${LIBRARY_OUTPUT_PATH}
         COMMAND ${PYTHON_EXECUTABLE} setup.py bdist_wheel
         DEPENDS ${PYFILES} ${PYOPAE_SRC}
         WORKING_DIRECTORY ${PYDIST_STAGE_DIR}
         COMMENT "Building Python distrubutions")
+    opae_python_install(
+        COMPONONENT opae.fpga
+        RECORD_FILE opae.fpga-install.txt
+        SOURCE_DIR ${PYDIST_STAGE_DIR}
+    )
 endif (OPAE_BUILD_PYTHON_DIST)
