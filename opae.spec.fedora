@@ -244,7 +244,6 @@ done
 
 %{python3_sitelib}/opae.admin*
 %{python3_sitelib}/opae/admin*
-%{python3_sitearch}/opae/__pycache__*
 
 %config(noreplace) %{_sysconfdir}/opae/fpgad.cfg*
 %config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
