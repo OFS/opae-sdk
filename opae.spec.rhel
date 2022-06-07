@@ -126,7 +126,6 @@ cp samples/dummy_afu/*.{cpp,h} %{buildroot}%{_usr}/src/opae/samples/dummy_afu/
 cp samples/host_exerciser/*.{cpp,h} %{buildroot}%{_usr}/src/opae/samples/host_exerciser/
 cp samples/hssi/*.{cpp,h} %{buildroot}%{_usr}/src/opae/samples/hssi/
 cp binaries/opae.io/*.{cpp,h,py} %{buildroot}%{_usr}/src/opae/samples/opae.io/
-cp binaries/opae.io/opae/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae
 cp binaries/opae.io/opae/io/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/opae/io
 cp binaries/opae.io/scripts/*.py %{buildroot}%{_usr}/src/opae/samples/opae.io/scripts
 
@@ -253,7 +252,6 @@ done
 %{_usr}/src/opae/samples/opae.io/pymain.h
 %{_usr}/src/opae/samples/opae.io/setup.py
 %{_usr}/src/opae/samples/opae.io/vfiobindings.cpp
-%{_usr}/src/opae/samples/opae.io/opae/__init__.py
 %{_usr}/src/opae/samples/opae.io/opae/io/__init__.py
 %{_usr}/src/opae/samples/opae.io/opae/io/utils.py
 %{_usr}/src/opae/samples/opae.io/opae/io/pci.py

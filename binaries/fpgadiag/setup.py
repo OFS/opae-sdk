@@ -1,4 +1,4 @@
-# Copyright(c) 2020, Intel Corporation
+# Copyright(c) 2020-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -23,7 +23,7 @@
 # CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 from setuptools.command.build_ext import build_ext
 from distutils.ccompiler import new_compiler
 from distutils.extension import Extension
@@ -64,7 +64,7 @@ def extensions():
                       language="c++",
                       extra_compile_args=["-std=c++11"],
                       extra_link_args=["-std=c++11"],
-                      libraries = ['opaeuio'],
+                      libraries=['opaeuio'],
                       )
         )
     return ext
@@ -73,7 +73,7 @@ def extensions():
 setup(
     name='opae.diag',
     version="2.0",
-    packages=find_packages(include=['opae.*']),
+    packages=find_namespace_packages(include=['opae.*']),
     include_dirs=[pybind_include_dirs()],
     entry_points={
         'console_scripts': [
