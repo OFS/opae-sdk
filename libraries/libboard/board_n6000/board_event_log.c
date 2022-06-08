@@ -816,8 +816,10 @@ void bel_timespan(struct bel_event *event, uint32_t idx)
 {
 	struct bel_header *header_off = &event->power_off_status.header;
 	struct bel_header *header_on = &event->power_on_status.header;
-	time_t off_sec = ((uint64_t)header_off->timespamp_high << 32) | header_off->timestamp_low;
-	time_t on_sec = ((uint64_t)header_on->timespamp_high << 32) | header_on->timestamp_low;
+	time_t off_sec = (((uint64_t)header_off->timespamp_high << 32) |
+		header_off->timestamp_low) /1000UL;
+	time_t on_sec = (((uint64_t)header_on->timespamp_high << 32) |
+		header_on->timestamp_low) / 1000UL;
 	char off_str[26] = { '\0' };
 	char on_str[26] = { '\0' };
 
