@@ -35,7 +35,7 @@ import pdb
 import sys
 import libvfio
 
-from opae.io import utils, pci
+from opae.io import utils, pci, run
 from opae.io.utils import Path
 
 def default_parser():
@@ -200,6 +200,11 @@ class dump_action(base_action):
         offset = 0 if args.offset is None else args.offset
         utils.dump(self.region, offset, args.output, args.format, args.count)
 
+class run_action(base_action):
+    open_device = False
+
+    def execute(self, args):
+        run.run(args)
 
 class no_action(base_action):
     open_device = True
@@ -216,6 +221,7 @@ actions = {
     'poke': poke_action,
     'walk': walk_action,
     'dump': dump_action,
+    'run': run_action,
 }
 
 def do_action(action, args):
