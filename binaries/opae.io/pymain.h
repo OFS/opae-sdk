@@ -203,6 +203,9 @@ class dump_action(base_action):
 class run_action(base_action):
     open_device = False
 
+    def add_args(self):
+        self.parser.add_argument('-p', '--port', type=int, default=8080)
+
     def execute(self, args):
         run.run(args)
 

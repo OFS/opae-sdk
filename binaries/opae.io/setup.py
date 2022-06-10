@@ -46,4 +46,5 @@ setup(
     license="BSD3",
     keywords="OPAE accelerator vfio bindings",
     url="https://01.org/OPAE",
+    include_package_data=True,
 )
