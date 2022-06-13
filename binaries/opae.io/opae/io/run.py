@@ -1,5 +1,5 @@
 import json
-from flask import Flask, request
+from flask import Flask, request, abort
 from opae import fpga
 
 DEFAULT_SRV_PORT = 8080
@@ -69,6 +69,8 @@ def partial_reconfig(object_id):
     if file:
         print(f'received {file.filename} to PR object_id={object_id}')
         t = fpga.enumerate(object_id=int(object_id, 16))
+        if not t:
+            abort(404)
         print(f'Starting PR..')
         try:
             with fpga.open(t[0], 0) as handle:
