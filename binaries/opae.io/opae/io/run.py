@@ -1,8 +1,10 @@
 import json
-from flask import Flask
+from flask import Flask, request, abort
 from opae import fpga
 
-app = Flask('opae.io')
+DEFAULT_SRV_PORT = 8080
+
+app = Flask('opae.io', static_folder='static')
 
 attrs = {
         'accelerator_state': (fpga.ACCELERATOR, ),
@@ -46,9 +48,8 @@ def token_info(t: fpga.token):
                     info[a] = getattr(p, a)
             except RuntimeError as err:
                 print(a, err)
+    #info['fpga_url'] = request.base_url.replace(remove_from_url, '')
     return info
-    # return dict(((a, getattr(p, a))
-    #             for a, types in attrs.items() if p.type in types))
 
 
 @app.route('/api/v0/status')
@@ -56,22 +57,37 @@ def status():
     return 'ok'
 
 
-@app.route('/api/v0/fpga')
+@app.route('/api/v0/fpga', methods=['GET'])
 def enum():
     tokens = fpga.enumerate()
     return json.dumps([token_info(t) for t in tokens])
 
 
+@app.route('/api/v0/fpga/<object_id>/pr', methods=['POST'])
+def partial_reconfig(object_id):
+    file = request.files['gbs']
+    if file:
+        print(f'received {file.filename} to PR object_id={object_id}')
+        t = fpga.enumerate(object_id=int(object_id, 16))
+        if not t:
+            abort(404)
+        print(f'Starting PR..')
+        try:
+            with fpga.open(t[0], 0) as handle:
+                handle.reconfigure(0, file)
+            print(f'PR Complete')
+        except RuntimeError as err:
+            print(err)
+    return 'ok'
+
+
 def run(args):
-    app.run(host='0.0.0.0', port=8080)
+    app.run(host='0.0.0.0', port=args.port)
 
 
 def __main__():
-    run(None)
+    run({'port': DEFAULT_SRV_PORT})
 
 
 if __name__ == '__main__':
-    t = fpga.enumerate()
-    run(None)
-
-
+    run({'port': DEFAULT_SRV_PORT})
