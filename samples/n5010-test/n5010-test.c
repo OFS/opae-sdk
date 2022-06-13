@@ -61,6 +61,13 @@
 #define HBM_TEST_TIMEOUT  0x4010
 #define HBM_TEST_CTRL     0x4018
 
+#define QDR_TEST_STAT    0x5000
+#define QDR_TEST_TIMEOUT GENMASK_ULL(23,16)
+#define QDR_TEST_FAIL    GENMASK_ULL(15,8)
+#define QDR_TEST_PASS    GENMASK_ULL(7,0)
+
+#define QDR_TEST_CTRL    0x5008
+
 #define ESRAM_TEST_STAT    0x6000
 #define ESRAM_TEST_TIMEOUT GENMASK_ULL(47,32)
 #define ESRAM_TEST_FAIL    GENMASK_ULL(31,16)
@@ -90,6 +97,7 @@ static fpga_result fpga_test_ddr_directed(struct n5010 *n5010);
 static fpga_result fpga_test_ddr_prbs(struct n5010 *n5010);
 static fpga_result fpga_test_hbm(struct n5010 *n5010);
 static fpga_result fpga_test_esram(struct n5010 *n5010);
+static fpga_result fpga_test_qdr(struct n5010 *n5010);
 
 static const struct n5010_test n5010_test[] = {
 	{
@@ -107,6 +115,10 @@ static const struct n5010_test n5010_test[] = {
 	{
 		.name = "esram",
 		.func = fpga_test_esram,
+	},
+	{
+		.name = "qdr",
+		.func = fpga_test_qdr,
 	}
 };
 
@@ -472,6 +484,12 @@ static fpga_result fpga_test_esram(struct n5010 *n5010)
 
 	printf("starting eSRAM read/write test\n");
 
+	res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + ESRAM_TEST_STAT, &stat);
+	if (res != FPGA_OK || stat != 0) {
+		fprintf(stderr, "FPGA not ready for test, status: 0x%016jx\n", stat);
+		goto error;
+	}
+
 	res = fpgaWriteMMIO64(n5010->handle, 0, n5010->base + ESRAM_TEST_CTRL, 1);
 	if (res != FPGA_OK) {
 		fprintf(stderr, "failed to start test: %s\n", fpgaErrStr(res));
@@ -502,17 +520,83 @@ static fpga_result fpga_test_esram(struct n5010 *n5010)
 	if (fail != 0x0) {
 		fprintf(stderr, "Error: Test failed on the following channels: 0x%04jx\n", fail);
 		res = FPGA_EXCEPTION;
-	};
+	}
 
 	if (timeout != 0x0) {
 		fprintf(stderr, "Error: Test timed out on the following channels: 0x%04jx\n", timeout);
 		res = FPGA_EXCEPTION;
-	};
+	}
 
 	if (pass != 0xffff) {
 		fprintf(stderr, "Error: Test did not pass on all channels: 0x%04jx\n", pass);
 		res = FPGA_EXCEPTION;
-	};
+	}
+
+	if (res != FPGA_OK)
+		goto error;
+
+error:
+	return res;
+}
+
+static fpga_result fpga_test_qdr(struct n5010 *n5010)
+{
+	struct timespec ts = {.tv_sec = 0, .tv_nsec = 100000000};
+	uint64_t stat = 0;
+	uint64_t pass = 0;
+	uint64_t fail = 0;
+	uint64_t timeout = 0;
+	fpga_result res ;
+
+	printf("starting QDR read/write test\n");
+
+	res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + QDR_TEST_STAT, &stat);
+	if (res != FPGA_OK || stat != 0) {
+		fprintf(stderr, "FPGA not ready for test, status: 0x%016jx\n", stat);
+		goto error;
+	}
+
+	res = fpgaWriteMMIO64(n5010->handle, 0, n5010->base + QDR_TEST_CTRL, 1);
+	if (res != FPGA_OK) {
+		fprintf(stderr, "failed to start test: %s\n", fpgaErrStr(res));
+		goto error;
+	}
+	printf("waiting for test to complete...\n");
+
+	do {
+		res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + QDR_TEST_STAT, &stat);
+		if (res != FPGA_OK) {
+			fprintf(stderr, "failed to read stat: %s\n", fpgaErrStr(res));
+			goto error;
+		}
+		pass	= stat & QDR_TEST_PASS;
+		fail	= stat & QDR_TEST_FAIL;
+		timeout = stat & QDR_TEST_TIMEOUT;
+
+
+		if (n5010->debug) {
+			printf("pass (8x QDR channels)   : 0x%02jx\n", pass);
+			printf("fail (8x QDR channels)   : 0x%02jx\n", fail);
+			printf("timeout (8x QDR channels): 0x%02jx\n", timeout);
+		}
+		nanosleep(&ts, NULL);
+
+	} while ( (pass | fail | timeout) != 0xffff);
+
+	if (fail != 0x0) {
+		fprintf(stderr, "Error: Test failed on the following channels: 0x%02jx\n", fail);
+		res = FPGA_EXCEPTION;
+	}
+
+	if (timeout != 0x0) {
+		fprintf(stderr, "Error: Test timed out on the following channels: 0x%02jx\n", timeout);
+		res = FPGA_EXCEPTION;
+	}
+
+	if (pass != 0xff) {
+		fprintf(stderr, "Error: Test did not pass on all channels: 0x%02jx\n", pass);
+		res = FPGA_EXCEPTION;
+	}
 
 	if (res != FPGA_OK)
 		goto error;
@@ -568,17 +652,17 @@ static fpga_result fpga_test_hbm(struct n5010 *n5010)
 	if (fail != 0x0) {
 		fprintf(stderr, "Error: Test failed on the following channels: 0x%016jx\n", fail);
 		res = FPGA_EXCEPTION;
-	};
+	}
 
 	if (timeout != 0x0) {
 		fprintf(stderr, "Error: Test timed out on the following channels: 0x%016jx\n", timeout);
 		res = FPGA_EXCEPTION;
-	};
+	}
 
 	if (pass != 0xffffffff) {
 		fprintf(stderr, "Error: Test did not pass on all channels: 0x%016jx\n", pass);
 		res = FPGA_EXCEPTION;
-	};
+	}
 
 	if (res != FPGA_OK)
 		goto error;
@@ -601,7 +685,7 @@ static void print_usage(FILE *f)
 		"  -h  --help      print this help\n"
 		"  -g  --guid      uuid of accelerator to open\n"
 		"  -m  --mode      test mode to execute. Known modes:\n"
-		"                  ddr-directed, ddr-prbs, hbm, esram\n"
+		"                  ddr-directed, ddr-prbs, hbm, esram, qdr\n"
 		"  -d  --debug     enable debug print of register values\n"
 		"  -s  --shared    open FPGA connection in shared mode\n"
 		"\n",
