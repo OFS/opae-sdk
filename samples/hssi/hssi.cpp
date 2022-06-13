@@ -34,10 +34,16 @@ hssi_afu app;
 
 void sig_handler(int signum)
 {
+  auto c = std::dynamic_pointer_cast<hssi_cmd>(app.current_command());
   switch (signum) {
-  case SIGINT:
+  case SIGINT: // Handling signal interrupt(SIGINT) ctrl+C
     std::cerr << "caught SIGINT" << std::endl;
-    auto c = std::dynamic_pointer_cast<hssi_cmd>(app.current_command());
+    if (c)
+      c->stop();
+    break;
+
+  case SIGTSTP: // Handling signal terminal stop(SIGSTP) ctrl+Z
+    std::cerr << "caught SIGTSTP" << std::endl;
     if (c)
       c->stop();
     break;
@@ -48,6 +54,7 @@ int main(int argc, char *argv[])
 {
   int res = 1;
   signal(SIGINT, sig_handler);
+  signal(SIGTSTP, sig_handler);
   app.register_command<hssi_10g_cmd>();
   app.register_command<hssi_100g_cmd>();
   app.register_command<hssi_pkt_filt_10g_cmd>();
