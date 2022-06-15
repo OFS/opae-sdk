@@ -35,15 +35,15 @@ $ make olddefconfig
 
 Compile and install the new kernel.
 ```console
-$ make -j
-$ sudo make modules_install
+$ make -j $(nproc)
+$ sudo make modules_install -j $(nproc)
 $ sudo make install
 ```
 
 Build linux DFL Kernel instructions please also refer to: https://github.com/OPAE/linux-dfl/wiki/Build-the-linux-dfl-kernel
 
 When install finished, reboot your system.
-When the system login again, verify the kernel version is correct.
+When the system login again, verify the kernel version is correct, For example:
 ```console
 [figo@localhost linux-dfl]$ uname -a
 Linux localhost.localdomain 5.15.lts-dfl-g73e16386cda0 #6 SMP Mon Jun 13 21:21:31 -04 2022 x86_64 x86_64 x86_64
@@ -123,7 +123,7 @@ Set the RHEL version and install packages. Set proxy name and port number
 # dnf install -y python3-jsonschema json-c-devel tbb-devel rpmdevtools libcap-devel 
 # dnf check-update || true
 # dnf install -y spdlog-devel cli11-devel python3-pyyaml python3-pybind11 hwloc-devel libedit-devel
-python3 -m pip install --user jsonschema virtualenv pudb pyyaml
+# python3 -m pip install --user jsonschema virtualenv pudb pyyaml
 ```
 
 Download the OPAE-SDK source code from github. For example, download from Master branch.
@@ -196,13 +196,15 @@ Boot Page                        : user
 To uninstall the OPAE rpms, you can use this commands
 ```console
 $ dnf list installed | grep opae
-$ sudo dnf remove '*opae*'
+$ sudo dnf remove opae*.x86_64
 ```
 
 To uninstall the OPAE deb, you can use this commands
 ```console
 $ dpkg -l  | grep opae
-$ sudo dpkg -r '*opae*'
+$ dpkg -r opae-extra-tools:amd64
+$ dpkg -r opae-devel:amd64
+$ dpkg -r opae
 ```
 
 
