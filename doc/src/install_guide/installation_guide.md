@@ -15,9 +15,9 @@ For building the OPAE kernel and kernel driver, the kernel development environme
 $ sudo dnf install gcc gcc-c++ make kernel-headers kernel-devel elfutils-libelf-devel ncurses-devel openssl-devel bison flex
 ```
 
-Download the OPAE upstream kernel tree from github.
+Download the OPAE upstream kernel tree from github, for example download from fpga-ofs-dev-5.15-lts branch.
 ```console
-$ git clone https://github.com/OPAE/linux-dfl.git -b fpga-ofs-dev-5.15.lts
+$ git clone https://github.com/OPAE/linux-dfl.git -b fpga-ofs-dev-5.15-lts
 ```
 
 Configure the kernel.
@@ -40,16 +40,16 @@ $ sudo make modules_install
 $ sudo make install
 ```
 
-Build linux DFL Kernel instructions wiki https://github.com/OPAE/linux-dfl/wiki/Build-the-linux-dfl-kernel
+Build linux DFL Kernel instructions please also refer to: https://github.com/OPAE/linux-dfl/wiki/Build-the-linux-dfl-kernel
 
-When installed finished, reboot your system.
-When the system login again, check the kernel version is correctly or not.
+When install finished, reboot your system.
+When the system login again, verify the kernel version is correct.
 ```console
 [figo@localhost linux-dfl]$ uname -a
 Linux localhost.localdomain 5.15.lts-dfl-g73e16386cda0 #6 SMP Mon Jun 13 21:21:31 -04 2022 x86_64 x86_64 x86_64
 ```
 
-And also you can check the OPAE dfl drivers have auto-loaded or not.
+And also you can check the OPAE dfl drivers have auto-loaded.
 ```console
 [figo@localhost linux-dfl]$ lsmod | grep fpga
 ifpga_sec_mgr          20480  1 intel_m10_bmc_secure
@@ -112,19 +112,22 @@ Register and enable Red Hat subscription to install any packages on the system.
 # subscription-manager register --proxy=PROXY --username=USER --password=PASSWORD --auto-attach
 ```
 
-Set the RHEL version and install packages
+Set the RHEL version and install packages. Set proxy name and port number 
 
 ```console
-# subscription-manager release --set=8.2 --proxy proxy-xyz.com:xyz
+# subscription-manager release --set=8.2 --proxy proxy-name.com:port number
+# subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
 # dnf upgrade -y
 # dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
 # dnf install -y python3 python3-pip python3-devel gdb vim git gcc gcc-c++ make cmake libuuid-devel rpm-build systemd-devel  nmap
-# dnf install -y python3-jsonschema json-c-devel tbb-devel rpmdevtools libcap-develdnf check-update || true
+# dnf install -y python3-jsonschema json-c-devel tbb-devel rpmdevtools libcap-devel 
+# dnf check-update || true
 # dnf install -y spdlog-devel cli11-devel python3-pyyaml python3-pybind11 hwloc-devel libedit-devel
 python3 -m pip install --user jsonschema virtualenv pudb pyyaml
 ```
 
-Download the OPAE-SDK source code from github.
+Download the OPAE-SDK source code from github. For example, download from Master branch.
+
 ```console
 $ git clone https://github.com/OPAE/opae-sdk.git
 ```
@@ -135,22 +138,45 @@ $ cd opae-sdk/packaging/opae/rpm
 $ ./create fedora
 ```
 
-After a successful compile, there are 3 rpm packages generated (Fedora, Rocky, RHEL8.2).
+
+
+After a successful compile, there are 3 rpm packages generated (Fedora, Rocky, RHEL8.2). For example:
 ```console
 opae-2.1.0-1.fc34.x86_64.rpm
 opae-devel-2.1.0-1.fc34.x86_64.rpm
 opae-extra-tools-2.1.0-1.fc34.x86_64.rpm
 ```
 
+Compile and build the OPAE-SDK deb packages (Ubuntu 22.04).
+```console
+$ cd opae-sdk/packaging/opae/deb
+$ ./create
+```
 
-## OPAE SDK installation with rpm packages ##
+After a successful compile, there are 3 deb packages generated (Ubuntu 22.04). For example:
+```console
+opae_2.1.1-1_amd64.deb  
+opae-devel_2.1.1-1_amd64.deb  
+opae-extra-tools_2.1.1-1_amd64.deb
+```
+
+
+
+## OPAE SDK installation with rpm/deb packages ##
 The rpm packages generated in the previous step can be installed using these commands:
 
 ```console
 $ sudo dnf install ./*.rpm
 ```
 
-When you installed the rpms, you can use fpgainfo command to check the FPGA FME infomation.
+The deb packages generated in the previous step can be installed using these commands:
+
+```console
+$ sudo dpkg -i  ./*.deb
+```
+
+
+When you installed the rpms, you can run fpgainfo command to check the FPGA FME infomation.
 ```console
 [figo@localhost install_guide]$ fpgainfo fme
 Board Management Controller, MAX10 NIOS FW version: D.2.1.24
@@ -172,6 +198,13 @@ To uninstall the OPAE rpms, you can use this commands
 $ dnf list installed | grep opae
 $ sudo dnf remove '*opae*'
 ```
+
+To uninstall the OPAE deb, you can use this commands
+```console
+$ dpkg -l  | grep opae
+$ sudo dpkg -r '*opae*'
+```
+
 
 ## FPGA Device Access Permissions ##
 
