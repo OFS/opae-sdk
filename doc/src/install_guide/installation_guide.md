@@ -43,7 +43,7 @@ $ sudo make install
 Build linux DFL Kernel instructions please also refer to: https://github.com/OPAE/linux-dfl/wiki/Build-the-linux-dfl-kernel
 
 When install finished, reboot your system.
-When the system login again, verify the kernel version is correct, For example:
+When the system login again, verify the kernel version is correct. For example:
 ```console
 [figo@localhost linux-dfl]$ uname -a
 Linux localhost.localdomain 5.15.lts-dfl-g73e16386cda0 #6 SMP Mon Jun 13 21:21:31 -04 2022 x86_64 x86_64 x86_64
@@ -176,7 +176,7 @@ $ sudo dpkg -i  ./*.deb
 ```
 
 
-When you installed the rpms, you can run fpgainfo command to check the FPGA FME infomation.
+When you installed the rpms, you can run fpgainfo command to check the FPGA FME infomation. For example:
 ```console
 [figo@localhost install_guide]$ fpgainfo fme
 Board Management Controller, MAX10 NIOS FW version: D.2.1.24
