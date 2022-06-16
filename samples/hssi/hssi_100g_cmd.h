@@ -65,6 +65,7 @@
 #define DATA_CNF_FIXED_MODE       0x80000000
 #define CURSOR_UP                 "A"
 #define CURSOR_DOWN               "B"
+#define MAX_PORT                  2
 
 class hssi_100g_cmd : public hssi_cmd
 {
@@ -99,7 +100,7 @@ public:
   {
     auto opt = app->add_option("--port", port_,
                                "QSFP port");
-    opt->check(CLI::Range(0, 7))->expected(1, 2);
+    opt->check(CLI::Range(0, 7));
 
     opt = app->add_option("--eth-loopback", eth_loopback_,
                     "whether to enable loopback on the eth interface");
@@ -369,6 +370,12 @@ public:
   virtual int run(test_afu *afu, CLI::App *app) override
   {
     (void)app;
+
+    if (port_.size() > MAX_PORT)
+    {
+      std::cerr<< "more than " << MAX_PORT << " ports are not supported"<<std::endl;
+      return test_afu::error;
+    }
 
     hssi_afu *hafu = dynamic_cast<hssi_afu *>(afu);
 
