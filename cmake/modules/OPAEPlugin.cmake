@@ -39,7 +39,13 @@ function(opae_add_shared_plugin)
     endif()
 
     set(source_code
-"#include <opae/plugin.h>
+"#ifndef _GNU_SOURCE
+#define _GNU_SOURCE 1
+#endif // _GNU_SOURCE
+#ifndef __USE_GNU
+#define __USE_GNU 1
+#endif // __USE_GNU
+#include <opae/plugin.h>
 __attribute__ ((constructor(${priority}))) static void ${register_c}(void)
 {
     opae_plugin_mgr_register_plugin(\"${plugin_so}\", NULL)\;
