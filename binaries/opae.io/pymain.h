@@ -313,6 +313,9 @@ def setup_logging():
     l = logging.getLogger('opae.io')
     l.setLevel(logging.DEBUG)
     l.addHandler(h)
+    stdout_h = logging.StreamHandler(sys.stdout)
+    stdout_h.setLevel(logging.INFO)
+    l.addHandler(stdout_h)
     return l
 
 
