@@ -136,7 +136,7 @@ fpga_result load_board_plugin(fpga_token token, void **dl_handle)
 	uint16_t vendor_id             = 0;
 	uint16_t device_id             = 0;
 	uint16_t subvendor_id          = 0;
-	uint16_t subdevice_id = 0;
+	uint16_t subdevice_id          = 0;
 	int i                          = 0;
 
 	if (token == NULL || dl_handle == NULL) {

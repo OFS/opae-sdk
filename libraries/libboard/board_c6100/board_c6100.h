@@ -1,4 +1,4 @@
-// Copyright(c) 2021, Intel Corporation
+// Copyright(c) 2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#define SYSFS_MAX_SIZE             256
 
 /**
 * Get Max10 firmware version.
@@ -111,15 +110,6 @@ fpga_result print_mac_info(fpga_token token);
 * FPGA_INVALID_PARAM if invalid parameters were provided
 */
 fpga_result print_sec_info(fpga_token token);
-
-/**
-* Prints fme verbose info
-*
-* @param[in] token            fpga_token object for device (FPGA_DEVICE type)
-* @returns FPGA_OK on success. FPGA_EXCEPTION if fme verbose info not found.
-* FPGA_INVALID_PARAM if invalid parameters were provided
-*/
-fpga_result print_fme_verbose_info(fpga_token token);
 
 /**
 * Prints fpga boot page info.

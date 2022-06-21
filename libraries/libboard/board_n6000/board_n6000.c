@@ -24,10 +24,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
-//#include <inttypes.h>
+
 #include <limits.h>
 #include <glob.h>
 #include <stdio.h>
@@ -437,137 +434,6 @@ static fpga_result read_bom_info(
 	return resval;
 }
 
-// Replace all occurrences of needle in haystack with substitute
-static fpga_result replace_str_in_str(
-	char * const haystack,
-	const char * const needle,
-	const char * const substitute,
-	const size_t max_haystack_len,
-	fpga_result res)
-{
-	if (res != FPGA_OK)
-		return res;
-
-	if (haystack == NULL || needle == NULL || substitute == NULL)
-		return FPGA_INVALID_PARAM;
-
-	if (strcmp(needle, substitute) == 0) // Corner case that causes infinite loop!
-		return FPGA_OK;
-
-	const size_t needle_len = strlen(needle);
-	if (needle_len == 0) // Corner case that causes infinite loop!
-		return FPGA_INVALID_PARAM;
-	const size_t substitute_len = strlen(substitute);
-
-	while (true) {
-		const char *haystack_ptr;
-		const char *needle_loc;
-
-		const size_t haystack_len = strlen(haystack);
-
-		// Find how many times the needle occurs in the haystack
-		size_t needle_count = 0;
-		for (haystack_ptr = haystack; (needle_loc = strstr(haystack_ptr, needle));
-		     haystack_ptr = needle_loc + needle_len)
-			++needle_count;
-
-		if (needle_count == 0)
-			break;    // Nothing to replace
-
-		// Reserve memory for the new string
-		const size_t result_len = haystack_len + needle_count * (substitute_len - needle_len);
-		if (result_len >= max_haystack_len) {
-			OPAE_ERR("Not enough buffer space: %llu >= %llu", result_len, max_haystack_len);
-			res = FPGA_INVALID_PARAM;
-			break;
-		}
-		char * const result = (char *)opae_malloc(result_len + 1);
-		if (result == NULL)
-			return FPGA_NO_MEMORY;
-
-		// Copy the haystack, replacing all the instances of the needle
-		char *result_ptr = result;
-		for (haystack_ptr = haystack; (needle_loc = strstr(haystack_ptr, needle));
-		     haystack_ptr = needle_loc + needle_len) {
-
-			size_t const skip_len = needle_loc - haystack_ptr;
-			// Copy the section until the occurence of the needle
-			strncpy(result_ptr, haystack_ptr, skip_len);
-			result_ptr += skip_len;
-			// Copy the substitute
-			memcpy(result_ptr, substitute, substitute_len);
-			result_ptr += substitute_len;
-		}
-
-		const size_t remaining_result_size = result_len + 1 - (result_ptr - result);
-		strncpy(result_ptr, haystack_ptr, remaining_result_size);  // Copy the rest of haystack to result
-		strncpy(haystack, result, max_haystack_len);               // Update haystack with the result
-		haystack[result_len] = '\0';
-
-		opae_free(result);
-	}
-
-	return res;
-}
-
-// Reformat BOM Critical Components info to be directly printable.
-// - Keys and values may not include commas.
-// - Spaces and tabs are removed around commas.
-// - Line endings are converted to LF (linefeed).
-// - Empty lines are removed.
-// - All Key,Value pairs are converted to Key: Value
-static fpga_result reformat_bom_info(
-	char * const bom_info,
-	const size_t len,
-	const size_t max_result_len)
-{
-	if (bom_info == NULL)
-		return FPGA_INVALID_PARAM;
-
-	fpga_result res = FPGA_OK;
-
-	// Remove trailing 0xFF:
-	char *bom_info_ptr = bom_info + len - 1;
-	while (bom_info_ptr > bom_info) {
-		if (*bom_info_ptr == '\xFF')
-			--bom_info_ptr;
-		else
-			break;
-	}
-
-	// Append LF if it is missing at the end:
-	if (bom_info_ptr > bom_info) {
-		if (*bom_info_ptr == '\n')
-			++bom_info_ptr;
-		else {
-			++bom_info_ptr;
-			*bom_info_ptr++ = '\n';  // Append missing linefeed
-		}
-	}
-	*bom_info_ptr = '\x00';    // NUL terminate the bom_info string
-
-	// Manipulate the bom_info string so it becomes directly printable.
-	// Starting with line endings:
-	res = replace_str_in_str(bom_info, "\r\n", "\n", max_result_len, res);
-	res = replace_str_in_str(bom_info, "\n\r", "\n", max_result_len, res);
-	res = replace_str_in_str(bom_info, "\r", "\n", max_result_len, res);
-	res = replace_str_in_str(bom_info, "\n\n", "\n", max_result_len, res);  // Remove empty lines!
-
-	// Remove all spaces and tabs before and after commas:
-	while (strstr(bom_info, " ,") || strstr(bom_info, "\t,") ||
-	       strstr(bom_info, ", ") || strstr(bom_info, ",\t")) {
-
-		res = replace_str_in_str(bom_info, " ,", ",", max_result_len, res);
-		res = replace_str_in_str(bom_info, "\t,", ",", max_result_len, res);
-		res = replace_str_in_str(bom_info, ", ", ",", max_result_len, res);
-		res = replace_str_in_str(bom_info, ",\t", ",", max_result_len, res);
-	}
-
-	// Finally replace commas with ': ':
-	res = replace_str_in_str(bom_info, ",", ": ", max_result_len, res);
-
-	return res;
-}
 
 // print BOM info
 fpga_result print_bom_info(const fpga_token token)
@@ -641,7 +507,7 @@ fpga_result print_phy_info(fpga_token token)
 {
 	fpga_result res = FPGA_OK;
 	struct opae_uio uio;
-	char feature_dev[SYSFS_MAX_SIZE] = { 0 };
+	char feature_dev[SYSFS_PATH_MAX] = { 0 };
 	uint8_t *mmap_ptr = NULL;
 
 	res = find_dev_feature(token, HSSI_FEATURE_ID, feature_dev);
@@ -819,12 +685,6 @@ fpga_result print_sec_info(fpga_token token)
 	return resval;
 }
 
-// print fme verbose info
-fpga_result print_fme_verbose_info(fpga_token token)
-{
-	UNUSED_PARAM(token);
-	return FPGA_OK;;
-}
 
 // prints fpga boot page info
 fpga_result fpga_boot_info(fpga_token token)
