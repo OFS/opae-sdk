@@ -40,7 +40,7 @@ import time
 
 from enum import Enum
 from ctypes import Union, LittleEndianStructure, c_uint64, c_uint32
-
+from logging import StreamHandler
 from . import pci
 
 if sys.version_info[0] == 3:
@@ -107,7 +107,7 @@ def put_dev_dict(file_name, dev_dict):
         pickle.dump(dev_dict, outf)
 
 
-def vfio_init(pci_addr, new_owner=''):
+def vfio_init(pci_addr, new_owner='', force=False):
     vid_did = pci.vid_did_for_address(pci_addr)
     driver = get_bound_driver(pci_addr)
 
@@ -119,8 +119,13 @@ def vfio_init(pci_addr, new_owner=''):
         if not dev_dict:
             dev_dict = {}
         dev_dict[pci_addr] = driver
-        put_dev_dict(PICKLE_FILE, dev_dict)
-        print('Unbinding {} from {}'.format(msg, driver))
+        try:
+            put_dev_dict(PICKLE_FILE, dev_dict)
+        except PermissionError:
+            LOG.warn('Do not have sufficient permissions to save current state')
+            if not force:
+                return
+        LOG.info('Unbinding {} from {}'.format(msg, driver))
         unbind_driver(driver, pci_addr)
 
     load_driver('vfio-pci')
@@ -132,6 +137,7 @@ def vfio_init(pci_addr, new_owner=''):
             outf.write('{} {}'.format(vid_did[0], vid_did[1]))
     except OSError as exc:
         if exc.errno != errno.EEXIST:
+            LOG.error(f'Cannot write new_id to vfio-pci for: {msg}')
             return
 
     time.sleep(0.50)
@@ -140,7 +146,7 @@ def vfio_init(pci_addr, new_owner=''):
         bind_driver('vfio-pci', pci_addr)
     except OSError as exc:
         if exc.errno != errno.EBUSY:
-            print(exc)
+            LOG.error(exc)
             return
 
     time.sleep(0.50)
@@ -150,7 +156,7 @@ def vfio_init(pci_addr, new_owner=''):
                                'iommu_group')
     group_num = os.readlink(iommu_group).split(os.sep)[-1]
 
-    print('iommu group for {} is {}'.format(msg, group_num))
+    LOG.info('iommu group for {} is {}'.format(msg, group_num))
 
     if new_owner != 'root:root':
         device = os.path.join('/dev/vfio', group_num)
@@ -159,11 +165,11 @@ def vfio_init(pci_addr, new_owner=''):
         group = -1
         if len(items) > 1:
             group = grp.getgrnam(items[1]).gr_gid
-            print('Assigning {} to {}:{}'.format(device, items[0], items[1]))
+            LOG.info('Assigning {} to {}:{}'.format(device, items[0], items[1]))
         else:
-            print('Assigning {} to {}'.format(device, items[0]))
+            LOG.info('Assigning {} to {}'.format(device, items[0]))
         os.chown(device, user, group)
-        print('Changing permissions for {} to rw-rw----'.format(device))
+        LOG.info('Changing permissions for {} to rw-rw----'.format(device))
         os.chmod(device, 0o660)
 
 
