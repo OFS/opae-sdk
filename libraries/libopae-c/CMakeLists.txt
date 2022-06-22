@@ -62,3 +62,6 @@ install(FILES adapter.h props.h opae_int.h
 install(FILES plugin.h
     DESTINATION include/opae
 )
+install(FILES ${OPAE_SDK_SOURCE}/tests/framework/mock/opae_std.h
+    DESTINATION include/mock
+)
