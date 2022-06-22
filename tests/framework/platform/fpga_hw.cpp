@@ -127,7 +127,7 @@ const char *vc_mdata =
         }
       ]
      },
-     "platform-name": "PAC"}";
+     "platform-name": "PAC"}"
 )mdata";
 
 const char *dfl_n3000_mdata =
@@ -146,7 +146,7 @@ R"mdata({"version": 1,
         }
       ]
      },
-     "platform-name": "PAC"}";
+     "platform-name": "PAC"}"
 )mdata";
 
 const char *dfl_d5005_mdata =
@@ -165,7 +165,7 @@ R"mdata({"version": 1,
         }
       ]
      },
-     "platform-name": "PAC"}";
+     "platform-name": "PAC"}"
 )mdata";
 
 const char *dfl_n6000_mdata =
@@ -184,7 +184,7 @@ R"mdata({"version": 1,
         }
       ]
      },
-     "platform-name": "PAC"}";
+     "platform-name": "PAC"}"
 )mdata";
 
 const char* dfl_c6100_mdata =
@@ -203,7 +203,7 @@ R"mdata({"version": 1,
         }
       ]
      },
-     "platform-name": "PAC"}";
+     "platform-name": "PAC"}"
 )mdata";
 
 static platform_db MOCK_PLATFORMS = {
