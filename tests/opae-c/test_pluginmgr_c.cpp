@@ -486,7 +486,7 @@ TEST_P(pluginmgr_c_p, fpgaReset_null_handle) {
   opae_plugin_mgr_finalize_all();
 }
 
-GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(pluginxtest_c_p);
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(pluginmgr_c_p);
 INSTANTIATE_TEST_SUITE_P(pluginmgr_c, pluginmgr_c_p,
                          ::testing::ValuesIn(test_platform::platforms({})));
 
