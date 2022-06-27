@@ -266,6 +266,7 @@ done
 %{_includedir}/opae/cxx/core.h
 %{_includedir}/opae/cxx/core/*.h
 %{_includedir}/opae/plugin/*.h
+%{_includedir}/mock/opae_std.h
 %dir %{_usr}/src/opae
 %{_usr}/src/opae/samples/hello_fpga/hello_fpga.c
 %{_usr}/src/opae/samples/hello_events/hello_events.c

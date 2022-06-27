@@ -143,5 +143,6 @@ INSTANTIATE_TEST_SUITE_P(buffer_c, buffer_c_p,
                                                                         "dfl-d5005",
                                                                         "dfl-n3000",
                                                                         "dfl-n6000-sku0",
-                                                                        "dfl-n6000-sku1"
+                                                                        "dfl-n6000-sku1",
+                                                                        "dfl-c6100"
                                                                       })));
