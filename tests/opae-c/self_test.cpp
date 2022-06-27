@@ -92,7 +92,8 @@ INSTANTIATE_TEST_SUITE_P(self_test_base, self_test_base_p,
                          ::testing::ValuesIn(test_platform::platforms({
                                                                         "dfl-n3000",
                                                                         "dfl-n6000-sku0",
-                                                                        "dfl-n6000-sku1"
+                                                                        "dfl-n6000-sku1",
+                                                                        "dfl-c6100"
                                                                       })));
 
 
@@ -157,7 +158,8 @@ INSTANTIATE_TEST_SUITE_P(self_test_base_xfpga, self_test_base_xfpga_p,
                          ::testing::ValuesIn(test_platform::platforms({
                                                                         "dfl-n3000",
                                                                         "dfl-n6000-sku0",
-                                                                        "dfl-n6000-sku1"
+                                                                        "dfl-n6000-sku1",
+                                                                        "dfl-c6100"
                                                                       })));
 
 
@@ -184,5 +186,6 @@ INSTANTIATE_TEST_SUITE_P(self_test, self_test_p,
                          ::testing::ValuesIn(test_platform::platforms({
                                                                         "dfl-n3000",
                                                                         "dfl-n6000-sku0",
-                                                                        "dfl-n6000-sku1"
+                                                                        "dfl-n6000-sku1",
+                                                                        "dfl-c6100"
                                                                       })));

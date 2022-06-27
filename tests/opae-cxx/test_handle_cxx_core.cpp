@@ -177,7 +177,8 @@ INSTANTIATE_TEST_SUITE_P(handle, handle_cxx_core,
                                                                         "dfl-n3000",
                                                                         "dfl-d5005",
                                                                         "dfl-n6000-sku0",
-                                                                        "dfl-n6000-sku1"
+                                                                        "dfl-n6000-sku1",
+                                                                        "dfl-c6100"
                                                                       })));
 
 class handle_cxx_core_mmio : public handle_cxx_core {};
