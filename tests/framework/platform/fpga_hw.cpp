@@ -127,7 +127,7 @@ const char *vc_mdata =
         }
       ]
      },
-     "platform-name": "PAC"}";
+     "platform-name": "PAC"}"
 )mdata";
 
 const char *dfl_n3000_mdata =
@@ -146,7 +146,7 @@ R"mdata({"version": 1,
         }
       ]
      },
-     "platform-name": "PAC"}";
+     "platform-name": "PAC"}"
 )mdata";
 
 const char *dfl_d5005_mdata =
@@ -165,7 +165,7 @@ R"mdata({"version": 1,
         }
       ]
      },
-     "platform-name": "PAC"}";
+     "platform-name": "PAC"}"
 )mdata";
 
 const char *dfl_n6000_mdata =
@@ -184,7 +184,26 @@ R"mdata({"version": 1,
         }
       ]
      },
-     "platform-name": "PAC"}";
+     "platform-name": "PAC"}"
+)mdata";
+
+const char* dfl_c6100_mdata =
+R"mdata({"version": 1,
+   "afu-image":
+    {"clock-frequency-high": 312,
+     "clock-frequency-low": 156,
+     "interface-uuid": "98b4d5bc-98ba-5f4b-98d9-a2841ccf11b0",
+     "magic-no": 488605312,
+     "accelerator-clusters":
+      [
+        {
+          "total-contexts": 1,
+          "name": "nlb0",
+          "accelerator-type-uuid": "9aeffe5f-8457-0612-c000-c9660d824272"
+        }
+      ]
+     },
+     "platform-name": "PAC"}"
 )mdata";
 
 static platform_db MOCK_PLATFORMS = {
@@ -449,6 +468,35 @@ static platform_db MOCK_PLATFORMS = {
                        .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
                        .has_afu = false,
                        .mdata = dfl_n6000_mdata}}}},
+   { "dfl-c6100",
+     test_platform{.mock_sysfs = "mock_sys_dfl_c6100_nlb0.tar.gz",
+                 .driver = fpga_driver::linux_dfl0,
+                 .devices = {test_device{
+                     .fme_guid = "ce3139c9-59cf-528c-a277-51c50829797a",
+                     .afu_guid = INVALID_AFU_ID,
+                     .segment = 0x0,
+                     .bus = 0x15,
+                     .device = 0,
+                     .function = 0,
+                     .num_vfs = 0,
+                     .socket_id = 0,
+                     .num_slots = 1,
+                     .bbs_id = 0x5010102c03ea89a,
+                     .bbs_version = {5, 0, 1},
+                     .state = FPGA_ACCELERATOR_UNASSIGNED,
+                     .num_mmio = 0x2,
+                     .num_interrupts = 0,
+                     .fme_object_id = 0xf500000,
+                     .port_object_id = 0xf400000,
+                     .vendor_id = 0x8086,
+                     .device_id = 0xbcce,
+                     .subsystem_vendor_id = 0x8086,
+                     .subsystem_device_id = 0x17D4,
+                     .fme_num_errors = 8,
+                     .port_num_errors = 0,
+                     .gbs_guid = "58656f6e-4650-4741-b747-425376303031",
+                     .has_afu = false,
+                     .mdata = dfl_c6100_mdata}}} },
 };
 
 
@@ -532,6 +580,7 @@ std::map<ven_dev_id, std::vector<std::string>> known_devices = {
   { { 0x8086, 0xbccf, 0x8086, 0x1770 }, std::vector<std::string>() },
   { { 0x8086, 0xbcce, 0x8086, 0x1771 }, std::vector<std::string>() },
   { { 0x8086, 0xbccf, 0x8086, 0x1771 }, std::vector<std::string>() },
+  { { 0x8086, 0xbcce, 0x8086, 0x17D4 }, std::vector<std::string>() },
 };
 
 static std::vector<ven_dev_id> supported_devices() {
@@ -800,6 +849,7 @@ static std::map<platform_cfg, std::string> platform_names = {
   { platform_cfg(0x8086, 0xbccf, 0x8086, 0x1770, fpga_driver::linux_dfl0),  "dfl-n6000-sku0"        },
   { platform_cfg(0x8086, 0xbcce, 0x8086, 0x1771, fpga_driver::linux_dfl0),  "dfl-n6000-sku1"        },
   { platform_cfg(0x8086, 0xbccf, 0x8086, 0x1771, fpga_driver::linux_dfl0),  "dfl-n6000-sku1"        },
+  { platform_cfg(0x8086, 0xbcce, 0x8086, 0x17D4, fpga_driver::linux_dfl0),  "dfl-c6100"             },
 };
 
 const char *PCI_DEV_PATTERN = "([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9]{2})\\.([0-9])";

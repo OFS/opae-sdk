@@ -657,7 +657,8 @@ INSTANTIATE_TEST_SUITE_P(error_c, error_c_mock_p,
                                                                              "dfl-d5005",
                                                                              "dfl-n3000",
                                                                              "dfl-n6000-sku0",
-                                                                             "dfl-n6000-sku1"
+                                                                             "dfl-n6000-sku1",
+                                                                             "dfl-c6100"
                                                                            })));
 
 class error_c_p : public error_c_mock_p {};
@@ -758,7 +759,8 @@ INSTANTIATE_TEST_SUITE_P(error_c, error_c_p,
                                                                         "dfl-d5005",
                                                                         "dfl-n3000",
                                                                         "dfl-n6000-sku0",
-                                                                        "dfl-n6000-sku1"
+                                                                        "dfl-n6000-sku1",
+                                                                        "dfl-c6100"
                                                                       })));
 
 /**

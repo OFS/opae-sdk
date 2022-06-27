@@ -239,34 +239,6 @@ TEST_P(sysfsinit_c_p, sysfs_get_device) {
   EXPECT_EQ(devices.size(), 0);
 }
 
-/**
-* @test   get_interface_id
-* @details Given a valid token
-           When I call sysfs_get_interface_id with that token
-*          I get the expected interface_id
-*/
-TEST_P(sysfsinit_c_p, get_interface_id) {
-  fpga_guid guid;
-  fpga_properties props;
-  fpga_token fme;
-  uint32_t matches = 0;
-  fpga_guid parsed_guid;
-  test_device device = platform_.devices[0];
-  ASSERT_EQ(fpgaGetProperties(nullptr, &props), FPGA_OK);
-  ASSERT_EQ(fpgaPropertiesSetDeviceID(props, device.device_id), FPGA_OK);
-  ASSERT_EQ(fpgaPropertiesSetVendorID(props, device.vendor_id), FPGA_OK);
-  ASSERT_EQ(fpgaPropertiesSetObjectType(props, FPGA_DEVICE), FPGA_OK);
-  ASSERT_EQ(xfpga_fpgaEnumerate(&props, 1, &fme, 1, &matches), FPGA_OK);
-  if (device.has_afu) {
-    // The lspci trick only works with the old-style hardware (without HEMs).
-    EXPECT_EQ(matches, GetNumMatchedFpga());
-  }
-  ASSERT_EQ(sysfs_get_interface_id(fme, guid), 0);
-  EXPECT_EQ(uuid_parse(platform_.devices[0].fme_guid, parsed_guid), 0);
-  EXPECT_EQ(uuid_compare(parsed_guid, guid), 0);
-  EXPECT_EQ(xfpga_fpgaDestroyToken(&fme), FPGA_OK);
-  EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
-}
 
 TEST(sysfsinit_c_p, sysfs_parse_pcie) {
   sysfs_fpga_device device;
@@ -292,8 +264,50 @@ INSTANTIATE_TEST_SUITE_P(sysfsinit_c, sysfsinit_c_p,
                                                                         "dfl-d5005",
                                                                         "dfl-n3000",
                                                                         "dfl-n6000-sku0",
-                                                                        "dfl-n6000-sku1"
+                                                                        "dfl-n6000-sku1",
+                                                                        "dfl-c6100"
                                                                       })));
+
+class sysfsinit_bbsid_c_p :public  sysfsinit_c_p
+{ };
+/**
+* @test   get_interface_id
+* @details Given a valid token
+           When I call sysfs_get_interface_id with that token
+*          I get the expected interface_id
+*/
+TEST_P(sysfsinit_bbsid_c_p, get_interface_id) {
+    fpga_guid guid;
+    fpga_properties props;
+    fpga_token fme;
+    uint32_t matches = 0;
+    fpga_guid parsed_guid;
+    test_device device = platform_.devices[0];
+    ASSERT_EQ(fpgaGetProperties(nullptr, &props), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetDeviceID(props, device.device_id), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetVendorID(props, device.vendor_id), FPGA_OK);
+    ASSERT_EQ(fpgaPropertiesSetObjectType(props, FPGA_DEVICE), FPGA_OK);
+    ASSERT_EQ(xfpga_fpgaEnumerate(&props, 1, &fme, 1, &matches), FPGA_OK);
+    if (device.has_afu) {
+        // The lspci trick only works with the old-style hardware (without HEMs).
+        EXPECT_EQ(matches, GetNumMatchedFpga());
+    }
+    ASSERT_EQ(sysfs_get_interface_id(fme, guid), 0);
+    EXPECT_EQ(uuid_parse(platform_.devices[0].fme_guid, parsed_guid), 0);
+    EXPECT_EQ(uuid_compare(parsed_guid, guid), 0);
+    EXPECT_EQ(xfpga_fpgaDestroyToken(&fme), FPGA_OK);
+    EXPECT_EQ(fpgaDestroyProperties(&props), FPGA_OK);
+}
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfsinit_bbsid_c_p);
+INSTANTIATE_TEST_SUITE_P(sysfsinit_c, sysfsinit_bbsid_c_p,
+    ::testing::ValuesIn(test_platform::platforms({
+                                                   "dfl-d5005",
+                                                   "dfl-n3000",
+                                                   "dfl-n6000-sku0",
+                                                   "dfl-n6000-sku1"
+        })));
+
 
 class sysfs_c_p : public opae_device_p<xfpga_> {
  protected:
@@ -611,7 +625,8 @@ INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_c_hw_p,
                                                                            "dfl-d5005",
                                                                            "dfl-n3000",
                                                                            "dfl-n6000-sku0",
-                                                                           "dfl-n6000-sku1"
+                                                                           "dfl-n6000-sku1",
+                                                                           "dfl-c6100"
                                                                          })));
 
 class sysfs_c_mock_p : public sysfs_c_p {};
@@ -916,7 +931,8 @@ INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_dfl_c_mock_p,
                                                                              "dfl-d5005",
                                                                              "dfl-n3000",
                                                                              "dfl-n6000-sku0",
-                                                                             "dfl-n6000-sku1"
+                                                                             "dfl-n6000-sku1",
+                                                                             "dfl-c6100"
                                                                            })));
 
 class sysfs_power_mock_p : public sysfs_c_mock_p {};
@@ -949,7 +965,8 @@ INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_power_mock_p,
                                                                              "dfl-d5005",
                                                                              "dfl-n3000",
                                                                              "dfl-n6000-sku0",
-                                                                             "dfl-n6000-sku1"
+                                                                             "dfl-n6000-sku1",
+                                                                             "dfl-c6100"
                                                                            })));
 
 class sysfs_bmc_mock_p : public sysfs_c_mock_p {};
@@ -1297,7 +1314,8 @@ INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_sockid_c_p,
                                                                         "dfl-d5005",
                                                                         "dfl-n3000",
                                                                         "dfl-n6000-sku0",
-                                                                        "dfl-n6000-sku1"
+                                                                        "dfl-n6000-sku1",
+                                                                        "dfl-c6100"
                                                                       })));
 
 /**
