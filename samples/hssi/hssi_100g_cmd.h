@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2021, Intel Corporation
+// Copyright(c) 2020-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -358,13 +358,11 @@ public:
   void move_cursor(uint8_t size, std::string move) const
   {
     /* Moves the cursor position (up/down) based on port size*/
-    char cursor[20] = "\x1b[";
-    std::ostringstream buffer;
-    buffer<<(int)size;
+    std::ostringstream oss;
 
-    strcat(cursor, buffer.str().c_str());
-    strcat(cursor, move.c_str());
-    std::cout << cursor;
+    oss << "\x1b[" << (int)size << move;
+
+    std::cout << oss.str().c_str();
   }
 
   virtual int run(test_afu *afu, CLI::App *app) override
