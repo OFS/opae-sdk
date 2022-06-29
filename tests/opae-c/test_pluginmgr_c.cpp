@@ -153,6 +153,11 @@ class pluginmgr_c_p : public opae_base_p<> {
   }
 
   virtual void TearDown() override {
+    opae_plugin_mgr_free_adapter(faux_adapter0_);
+    faux_adapter0_ = nullptr;
+    opae_plugin_mgr_free_adapter(faux_adapter1_);
+    faux_adapter1_ = nullptr;
+
     // restore the global adapter list.
     adapter_list = adapter_list_;
 
@@ -489,7 +494,7 @@ class pluginmgr_mock_c_p : public pluginmgr_c_p {};
  *             opae_plugin_mgr_alloc_adapter returns NULL.<br>
  */
 TEST_P(pluginmgr_mock_c_p, alloc_adapter02) {
-  test_system::instance()->invalidate_calloc(0, "opae_plugin_mgr_alloc_adapter");
+  system_->invalidate_calloc(0, "opae_plugin_mgr_alloc_adapter");
   EXPECT_EQ(NULL, opae_plugin_mgr_alloc_adapter("libxfpga.so"));
 }
 
