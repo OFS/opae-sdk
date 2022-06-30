@@ -522,21 +522,6 @@ TEST_P(events_p, event_drv_12) {
 }
 
 /**
- * @test       create_destory_invalid
- * @brief      Given a malloc failure, fpgaCreateEventHandle returns 
- *             FPGA_NO_MEMORY.
- */
-TEST_P(events_p, create_destroy_invalid) {
-  // fail malloc to check edge case
-  EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&eh_), FPGA_OK);
-  test_system::instance()->invalidate_malloc();
-
-  auto res = xfpga_fpgaCreateEventHandle(&eh_);
-  EXPECT_EQ(FPGA_NO_MEMORY,res);
-  ASSERT_EQ(xfpga_fpgaCreateEventHandle(&eh_), FPGA_OK);
-}
-
-/**
  * @test       irq_event_04
  *
  * @brief      Given a driver with IRQ support<br>
@@ -1238,6 +1223,21 @@ TEST_P(events_mock_p, irq_event_03) {
                                          eh_));
 }
 
+/**
+ * @test       create_destory_invalid
+ * @brief      Given a malloc failure, fpgaCreateEventHandle returns 
+ *             FPGA_NO_MEMORY.
+ */
+TEST_P(events_mock_p, create_destroy_invalid) {
+  // fail malloc to check edge case
+  EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&eh_), FPGA_OK);
+  test_system::instance()->invalidate_malloc();
+
+  auto res = xfpga_fpgaCreateEventHandle(&eh_);
+  EXPECT_EQ(FPGA_NO_MEMORY,res);
+  ASSERT_EQ(xfpga_fpgaCreateEventHandle(&eh_), FPGA_OK);
+}
+
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(events_mock_p);
 INSTANTIATE_TEST_SUITE_P(events, events_mock_p,
                          ::testing::ValuesIn(test_platform::mock_platforms({
@@ -1245,5 +1245,5 @@ INSTANTIATE_TEST_SUITE_P(events, events_mock_p,
                                                                              "dfl-n3000",
                                                                              "dfl-n6000-sku0",
                                                                              "dfl-n6000-sku1",
-		                                                                     "dfl-c6100"
+                                                                             "dfl-c6100"
                                                                            })));
