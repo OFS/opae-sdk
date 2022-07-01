@@ -54,6 +54,15 @@ int xfpga_plugin_finalize(void);
 #include <opae/properties.h>
 #include <opae/access.h>
 
+void free_error_list(struct error_list *l)
+{
+  while (l) {
+    struct error_list *trash = l;
+    l = l->next;
+    opae_free(trash);
+  }
+}
+
 using namespace opae::testing;
 
 static std::string sysfs_fme = "/sys/class/fpga_region/region0/dfl-fme.0";
@@ -322,6 +331,9 @@ TEST(events, event_03) {
   _h.magic = FPGA_INVALID_MAGIC;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaRegisterEvent(&_h, e, eh, 0));
 
+  free_error_list(_t.errors);
+  _t.errors = nullptr;
+
   // handle with bad token.
   _t.hdr.magic = FPGA_INVALID_MAGIC;
   _h.magic = FPGA_HANDLE_MAGIC;
@@ -337,6 +349,9 @@ TEST(events, event_03) {
 
   EXPECT_EQ(FPGA_INVALID_PARAM,
             xfpga_fpgaRegisterEvent(&_h, FPGA_EVENT_INTERRUPT, eh, 0));
+
+  free_error_list(_t.errors);
+  _t.errors = nullptr;
 
   EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyEventHandle(&eh));
 }
@@ -378,6 +393,9 @@ TEST(events, event_04) {
   _h.magic = FPGA_INVALID_MAGIC;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnregisterEvent(&_h, e, eh));
 
+  free_error_list(_t.errors);
+  _t.errors = nullptr;
+
   // handle with bad token.
   _t.hdr.magic = FPGA_INVALID_MAGIC;
   _h.magic = FPGA_HANDLE_MAGIC;
@@ -393,6 +411,9 @@ TEST(events, event_04) {
 
   EXPECT_EQ(FPGA_INVALID_PARAM,
             xfpga_fpgaUnregisterEvent(&_h, FPGA_EVENT_INTERRUPT, eh));
+
+  free_error_list(_t.errors);
+  _t.errors = nullptr;
 
   EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyEventHandle(&eh));
 }
