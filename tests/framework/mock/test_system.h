@@ -56,11 +56,33 @@ constexpr size_t MiB(size_t n) { return n * 1024 * KiB(1); }
 #define UNUSED_PARAM(x) ((void)x)
 #endif  // UNUSED_PARAM
 
+struct fpga_device_id
+{
+  fpga_device_id(uint16_t v, uint16_t d, uint16_t sv, uint16_t sd) :
+    vendor(v),
+    device(d),
+    subsystem_vendor(sv),
+    subsystem_device(sd)
+  {}
+
+  bool is_n6000_sku1() const
+  {
+    return vendor == 0x8086 && device == 0xbcce &&
+           subsystem_vendor == 0x8086 &&
+           subsystem_device == 0x1771;
+  }
+
+  uint16_t vendor;
+  uint16_t device;
+  uint16_t subsystem_vendor;
+  uint16_t subsystem_device;
+};
+
 class mock_object {
  public:
   enum type_t { sysfs_attr = 0, fme, afu };
   mock_object(const std::string &devpath, const std::string &sysclass,
-              uint32_t device_id, type_t type = sysfs_attr);
+              fpga_device_id device_id, type_t type = sysfs_attr);
   virtual ~mock_object() {}
 
   virtual int ioctl(int request, va_list arg) {
@@ -71,20 +93,20 @@ class mock_object {
   }
 
   std::string sysclass() const { return sysclass_; }
-  uint32_t device_id() const { return device_id_; }
+  fpga_device_id device_id() const { return device_id_; }
   type_t type() const { return type_; }
 
  private:
   std::string devpath_;
   std::string sysclass_;
-  uint32_t device_id_;
+  fpga_device_id device_id_;
   type_t type_;
 };
 
 class mock_fme : public mock_object {
  public:
   mock_fme(const std::string &devpath, const std::string &sysclass,
-           uint32_t device_id)
+           fpga_device_id device_id)
       : mock_object(devpath, sysclass, device_id, fme) {}
   virtual int ioctl(int request, va_list argp) override;
 };
@@ -92,7 +114,7 @@ class mock_fme : public mock_object {
 class mock_port : public mock_object {
  public:
   mock_port(const std::string &devpath, const std::string &sysclass,
-            uint32_t device_id)
+            fpga_device_id device_id)
       : mock_object(devpath, sysclass, device_id, fme) {}
   virtual int ioctl(int request, va_list argp) override;
 };

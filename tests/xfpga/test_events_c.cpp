@@ -54,6 +54,15 @@ int xfpga_plugin_finalize(void);
 #include <opae/properties.h>
 #include <opae/access.h>
 
+void free_error_list(struct error_list *l)
+{
+  while (l) {
+    struct error_list *trash = l;
+    l = l->next;
+    opae_free(trash);
+  }
+}
+
 using namespace opae::testing;
 
 static std::string sysfs_fme = "/sys/class/fpga_region/region0/dfl-fme.0";
@@ -322,6 +331,9 @@ TEST(events, event_03) {
   _h.magic = FPGA_INVALID_MAGIC;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaRegisterEvent(&_h, e, eh, 0));
 
+  free_error_list(_t.errors);
+  _t.errors = nullptr;
+
   // handle with bad token.
   _t.hdr.magic = FPGA_INVALID_MAGIC;
   _h.magic = FPGA_HANDLE_MAGIC;
@@ -337,6 +349,9 @@ TEST(events, event_03) {
 
   EXPECT_EQ(FPGA_INVALID_PARAM,
             xfpga_fpgaRegisterEvent(&_h, FPGA_EVENT_INTERRUPT, eh, 0));
+
+  free_error_list(_t.errors);
+  _t.errors = nullptr;
 
   EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyEventHandle(&eh));
 }
@@ -378,6 +393,9 @@ TEST(events, event_04) {
   _h.magic = FPGA_INVALID_MAGIC;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnregisterEvent(&_h, e, eh));
 
+  free_error_list(_t.errors);
+  _t.errors = nullptr;
+
   // handle with bad token.
   _t.hdr.magic = FPGA_INVALID_MAGIC;
   _h.magic = FPGA_HANDLE_MAGIC;
@@ -393,6 +411,9 @@ TEST(events, event_04) {
 
   EXPECT_EQ(FPGA_INVALID_PARAM,
             xfpga_fpgaUnregisterEvent(&_h, FPGA_EVENT_INTERRUPT, eh));
+
+  free_error_list(_t.errors);
+  _t.errors = nullptr;
 
   EXPECT_EQ(FPGA_OK, xfpga_fpgaDestroyEventHandle(&eh));
 }
@@ -519,21 +540,6 @@ TEST_P(events_p, event_drv_12) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaRegisterEvent(accel_, FPGA_EVENT_INTERRUPT, bad_handle, 0));
   h->magic = valid_magic;
   EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&bad_handle), FPGA_OK);
-}
-
-/**
- * @test       create_destory_invalid
- * @brief      Given a malloc failure, fpgaCreateEventHandle returns 
- *             FPGA_NO_MEMORY.
- */
-TEST_P(events_p, create_destroy_invalid) {
-  // fail malloc to check edge case
-  EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&eh_), FPGA_OK);
-  test_system::instance()->invalidate_malloc();
-
-  auto res = xfpga_fpgaCreateEventHandle(&eh_);
-  EXPECT_EQ(FPGA_NO_MEMORY,res);
-  ASSERT_EQ(xfpga_fpgaCreateEventHandle(&eh_), FPGA_OK);
 }
 
 /**
@@ -1238,6 +1244,21 @@ TEST_P(events_mock_p, irq_event_03) {
                                          eh_));
 }
 
+/**
+ * @test       create_destory_invalid
+ * @brief      Given a malloc failure, fpgaCreateEventHandle returns 
+ *             FPGA_NO_MEMORY.
+ */
+TEST_P(events_mock_p, create_destroy_invalid) {
+  // fail malloc to check edge case
+  EXPECT_EQ(xfpga_fpgaDestroyEventHandle(&eh_), FPGA_OK);
+  test_system::instance()->invalidate_malloc();
+
+  auto res = xfpga_fpgaCreateEventHandle(&eh_);
+  EXPECT_EQ(FPGA_NO_MEMORY,res);
+  ASSERT_EQ(xfpga_fpgaCreateEventHandle(&eh_), FPGA_OK);
+}
+
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(events_mock_p);
 INSTANTIATE_TEST_SUITE_P(events, events_mock_p,
                          ::testing::ValuesIn(test_platform::mock_platforms({
@@ -1245,5 +1266,5 @@ INSTANTIATE_TEST_SUITE_P(events, events_mock_p,
                                                                              "dfl-n3000",
                                                                              "dfl-n6000-sku0",
                                                                              "dfl-n6000-sku1",
-		                                                                     "dfl-c6100"
+                                                                             "dfl-c6100"
                                                                            })));

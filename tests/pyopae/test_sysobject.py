@@ -50,7 +50,9 @@ class TestSysObject(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.afu_handle.close()
+        del cls.afu_handle
         cls.fme_handle.close()
+        del cls.fme_handle
         del cls.afu_toks
         del cls.fme_toks
         opae.fpga.finalize()
