@@ -44,6 +44,7 @@ class FPGAHSSILPBK(HSSICOMMON):
         self._hssi_grps = args.hssi_grps
         self._pcie_address = args.pcie_address
         self._port = args.port
+        self._channel = args.ncsi_ch_sel
         HSSICOMMON.__init__(self)
 
     def hssi_loopback_en(self):
@@ -74,6 +75,11 @@ class FPGAHSSILPBK(HSSICOMMON):
             ctl_addr.sal_cmd = HSSI_SAL_CMD.ENABLE_LOOPBACK.value
         else:
             ctl_addr.sal_cmd = HSSI_SAL_CMD.DISABLE_LOOPBACK.value
+
+        if self._channel != None and self._channel <=2: # add limit that is 2
+            ncsi_ch_sel_reg = self.hssi_csr.HSSI_NCSI_CH_SEL
+            self.write64(0, ncsi_ch_sel_reg, self._channel)
+            print("NCSI register offset has been set to", hex(self.read64(0, ncsi_ch_sel_reg)))
 
         # set port number
         ctl_addr.port_address = self._port
@@ -141,6 +147,10 @@ def main():
     parser.add_argument('--port', type=int,
                         default=0,
                         help='hssi port number')
+
+    parser.add_argument('--ncsi_ch_sel', type=int,
+                        default=None,
+                        help='hssi NCSI_CH_SEL; Value 2 to disable NCSI')
 
     # exit if no commad line argument
     args = parser.parse_args()

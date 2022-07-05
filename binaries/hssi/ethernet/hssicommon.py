@@ -105,6 +105,7 @@ class HSSI_DFHV05_CSR(object):
         self.HSSI_PORT_COUNT = 20
         self.HSSI_DFHV05_GUILDL = 0x99a078ad18418b9d
         self.HSSI_DFHV05_GUILDH = 0x4118a7cbd9db4a9b
+        self.HSSI_NCSI_CH_SEL = 0x830
 
     def set_csr_dfhv05_offset(self, offset):
         self.csr_offset = offset

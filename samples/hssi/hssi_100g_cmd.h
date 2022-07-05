@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2021, Intel Corporation
+// Copyright(c) 2020-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -25,21 +25,47 @@
 // POSSIBILITY OF SUCH DAMAGE.
 #pragma once
 #include "hssi_cmd.h"
+#include <cmath>
 
-#define CSR_SCRATCH     0x1000
-#define CSR_BLOCK_ID    0x1001
-#define CSR_PKT_SIZE    0x1008
-#define CSR_CTRL0       0x1009
-#define CSR_CTRL1       0x1010
-#define CSR_DST_ADDR_LO 0x1011
-#define CSR_DST_ADDR_HI 0x1012
-#define CSR_SRC_ADDR_LO 0x1013
-#define CSR_SRC_ADDR_HI 0x1014
-#define CSR_RX_COUNT    0x1015
-#define CSR_MLB_RST     0x1016
-#define CSR_TX_COUNT    0x1017
+#define CSR_SCRATCH               0x1000
+#define CSR_BLOCK_ID              0x1001
+#define CSR_PKT_SIZE              0x1008
+#define CSR_CTRL0                 0x1009
+#define CSR_CTRL1                 0x1010
+#define CSR_DST_ADDR_LO           0x1011
+#define CSR_DST_ADDR_HI           0x1012
+#define CSR_SRC_ADDR_LO           0x1013
+#define CSR_SRC_ADDR_HI           0x1014
+#define CSR_RX_COUNT              0x1015
+#define CSR_MLB_RST               0x1016
+#define CSR_TX_COUNT              0x1017
+#define CSR_STATS_CTRL            0x1018
+#define CSR_STATS_TX_CNT_LO       0x1019
+#define CSR_STATS_TX_CNT_HI       0x101A
+#define CSR_STATS_RX_CNT_LO       0x101B
+#define CSR_STATS_RX_CNT_HI       0x101C
+#define CSR_STATS_RX_GD_CNT_LO    0x101D
+#define CSR_STATS_RX_GD_CNT_HI    0x101E
+#define CSR_TX_START_TIMESTAMP_LO 0x101F
+#define CSR_TX_START_TIMESTAMP_HI 0x1020
+#define CSR_TX_END_TIMESTAMP_LO   0x1021
+#define CSR_TX_END_TIMESTAMP_HI   0x1022
+#define CSR_RX_START_TIMESTAMP_LO 0x1023
+#define CSR_RX_START_TIMESTAMP_HI 0x1024
+#define CSR_RX_END_TIMESTAMP_LO   0x1025
+#define CSR_RX_END_TIMESTAMP_HI   0x1026
 
-#define STOP_BITS       0xa
+#define STOP_BITS                 0xa
+#define ZERO                      0x0
+#define ONE                       0x1
+#define CSR_SHIFT                 32
+#define CONV_SEC                  402832031
+#define DATA_CNF_PKT_NUM          0x80000000
+#define DATA_CNF_CONTINUOUS_MODE  0x00000000
+#define DATA_CNF_FIXED_MODE       0x80000000
+#define CURSOR_UP                 "A"
+#define CURSOR_DOWN               "B"
+#define MAX_PORT                  2
 
 class hssi_100g_cmd : public hssi_cmd
 {
@@ -56,6 +82,8 @@ public:
     , start_size_(64)
     , end_size_(9600)
     , end_select_("pkt_num")
+    , continuous_("off")
+    , contmonitor_(0)
   {}
 
   virtual const char *name() const override
@@ -72,7 +100,7 @@ public:
   {
     auto opt = app->add_option("--port", port_,
                                "QSFP port");
-    opt->check(CLI::Range(0, 7))->default_str(std::to_string(port_));
+    opt->check(CLI::Range(0, 7));
 
     opt = app->add_option("--eth-loopback", eth_loopback_,
                     "whether to enable loopback on the eth interface");
@@ -113,11 +141,239 @@ public:
     opt = app->add_option("--end-select", end_select_,
                           "end of packet generation control");
     opt->check(CLI::IsMember({"pkt_num", "gen_idle"}))->default_str(end_select_);
+
+    opt = app->add_option("--continuous", continuous_,
+                          "continuous mode");
+    opt->check(CLI::IsMember({"on","off"}))->default_str(continuous_);
+
+    opt = app->add_option("--contmonitor", contmonitor_,
+                          "time period(in seconds) for performance monitor");
+    opt->default_str(std::to_string(contmonitor_));
+  }
+
+  uint64_t timestamp_in_seconds(uint64_t x) const
+  {
+    return round(x/CONV_SEC);
+  }
+
+  uint64_t total_per_second(uint64_t y, uint64_t z) const
+  {
+    if (timestamp_in_seconds(z) != 0)
+      return round(y/timestamp_in_seconds(z));
+    return 0;
+  }
+
+  typedef struct DFH {
+    union {
+      uint64_t csr;
+      struct {
+        uint64_t id : 12;
+        uint64_t major_rev : 4;
+        uint64_t next : 24;
+        uint64_t eol : 1;
+        uint64_t reserved41 : 7;
+        uint64_t minor_rev : 4;
+        uint64_t version : 8;
+        uint64_t type : 4;
+      };
+    };
+  } DFH;
+
+  typedef struct ctrl_config{
+    uint32_t pkt_size_data;
+    uint32_t ctrl0_data;
+    uint32_t ctrl1_data;
+  } ctrl_config;
+
+  typedef struct perf_data{
+    volatile uint64_t tx_count;
+    volatile uint64_t rx_count;
+    volatile uint64_t rx_good_packet_count;
+    volatile uint64_t rx_pkt_sec;
+    uint64_t bw;
+  } perf_data;
+
+  uint64_t data_64(uint32_t lowerbytes, uint32_t higherbytes) const
+  {
+    return (uint64_t)higherbytes << CSR_SHIFT | lowerbytes;
+  }
+
+  void read_performance(perf_data *perf, hssi_afu *hafu) const
+  {
+    perf->tx_count = data_64(hafu->mbox_read(CSR_STATS_TX_CNT_LO), hafu->mbox_read(CSR_STATS_TX_CNT_HI));
+    perf->rx_count = data_64(hafu->mbox_read(CSR_STATS_RX_CNT_LO), hafu->mbox_read(CSR_STATS_RX_CNT_HI));
+    perf->rx_good_packet_count = data_64(hafu->mbox_read(CSR_STATS_RX_GD_CNT_LO), hafu->mbox_read(CSR_STATS_RX_GD_CNT_HI));
+    perf->rx_pkt_sec = data_64(hafu->mbox_read(CSR_RX_END_TIMESTAMP_LO), hafu->mbox_read(CSR_RX_END_TIMESTAMP_HI));
+  }
+
+  void calc_performance(perf_data *old_perf, perf_data *new_perf, perf_data *perf, uint64_t size) const
+  {
+    perf->tx_count = new_perf->tx_count;
+    perf->rx_count = new_perf->rx_count;
+    perf->rx_good_packet_count = new_perf->rx_good_packet_count;
+    perf->rx_pkt_sec = total_per_second((new_perf->rx_count - old_perf->rx_count), (new_perf->rx_pkt_sec - old_perf->rx_pkt_sec));
+    perf->bw = (perf->rx_pkt_sec * size) >> 27;
+  }
+
+  uint8_t stall_enable(hssi_afu *hafu) const
+  {
+    volatile uint32_t reg;
+    reg = hafu->mbox_read(CSR_STATS_CTRL);
+    reg |= 1 << 1;
+    hafu->mbox_write(CSR_STATS_CTRL, reg);
+    return 1;
+  }
+
+  uint8_t stall_disable(hssi_afu *hafu) const
+  {
+    volatile uint32_t reg;
+    reg = hafu->mbox_read(CSR_STATS_CTRL);
+    reg &= ~(1 << 1);
+    hafu->mbox_write(CSR_STATS_CTRL, reg);
+    return 1;
+  }
+
+  void write_ctrl_config(hssi_afu *hafu, ctrl_config config_data) const
+  {
+    hafu->mbox_write(CSR_PKT_SIZE, config_data.pkt_size_data);
+    hafu->mbox_write(CSR_CTRL0, config_data.ctrl0_data);
+    hafu->mbox_write(CSR_CTRL1, config_data.ctrl1_data);
+  }
+
+  void write_csr_addr(hssi_afu *hafu, uint64_t bin_src_addr, uint64_t bin_dest_addr) const
+  {
+    hafu->mbox_write(CSR_SRC_ADDR_LO, static_cast<uint32_t>(bin_src_addr));
+    hafu->mbox_write(CSR_SRC_ADDR_HI, static_cast<uint32_t>(bin_src_addr >> 32));
+
+    hafu->mbox_write(CSR_DST_ADDR_LO, static_cast<uint32_t>(bin_dest_addr));
+    hafu->mbox_write(CSR_DST_ADDR_HI, static_cast<uint32_t>(bin_dest_addr >> 32));
+  }
+
+  std::ostream & print_monitor_headers(std::ostream &os, uint32_t max_timer) const
+  {
+    os<< std::dec << "\r\n"<<"Monitor mode for "<< max_timer <<" sec, Press 'q' to quit and 'r' to reset"<<"\r";
+    os<< "\r\n___________________________________________________________________________________________________\r\n";
+
+    os<< "\r\n"
+    << std::left
+    << "| "
+    << std::setw(5)
+    << "Port" << " | " << std::setw(7)
+    << "Time(sec)" << " | " << std::setw(15)
+    << "Tx count" << " | " << std::setw(15)
+    << "Rx count" << " | " << std::setw(15)
+    << "Rx good"  << " | " << std::setw(10)
+    << "Rx pkt/s" << " | " << std::setw(8)
+    << "BW" << " | "
+    << "\r";
+
+    os<< "\n---------------------------------------------------------------------------------------------------\r\n";
+    return os;
+  }
+
+  std::ostream & print_monitor_data(std::ostream &os, perf_data *data, int port, uint32_t timer) const
+  {
+    os << std::dec
+    << std::left
+    << "| "
+    << std::setw(5)
+    << port << " | " << std::setw(6)
+    << timer<< "   " << " | " << std::setw(15)
+    << data->tx_count << " | " << std::setw(15)
+    << data->rx_count << " | " << std::setw(15)
+    << data->rx_good_packet_count<< " | " << std::setw(10)
+    << data->rx_pkt_sec << " | " << std::setw(4)
+    << data->bw << "Gbps" << " | "
+    << "\r";
+    return os;
+  }
+
+  void select_port(int port, ctrl_config config_data, hssi_afu *hafu) const
+  {
+    /* Selects the port before performing read/write to traffic controller reg space */
+    hafu->write64(TRAFFIC_CTRL_PORT_SEL, port);
+    write_ctrl_config(hafu, config_data);
+    write_csr_addr(hafu, mac_bits_for(src_addr_), mac_bits_for(dest_addr_));
+  }
+
+  void capture_perf(perf_data *old_perf_data, hssi_afu *hafu) const
+  {
+    memset(old_perf_data, 0, sizeof(perf_data));
+    if (stall_enable(hafu))
+    {
+      read_performance(old_perf_data, hafu);
+      stall_disable(hafu);
+    }
+  }
+
+  std::ostream & run_monitor(std::ostream &os, perf_data *old_perf_data, int port, hssi_afu *hafu, uint32_t timer)
+  {
+    perf_data *cur_perf_data = (perf_data*)malloc(sizeof(perf_data));
+    perf_data *new_perf_data = (perf_data*)malloc(sizeof(perf_data));
+
+    memset(cur_perf_data, 0, sizeof(perf_data));
+
+    capture_perf(new_perf_data, hafu);
+    calc_performance(old_perf_data, new_perf_data, cur_perf_data, start_size_);
+
+    print_monitor_data(os, cur_perf_data, port, timer);
+    memcpy(old_perf_data, new_perf_data, sizeof(perf_data));
+
+    return os;
+  }
+
+  char get_user_input(char key) const
+  {
+    /* Waits for user input for 1 second */
+    key = '\0';      // initialized to null
+    std::thread t1([&](){
+      std::cin>>key;
+    });
+    t1.detach();
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    return key;
+  }
+
+  void quit_monitor(uint8_t size, std::string move, hssi_afu *hafu) const
+  {
+    /* Quit the monitor*/
+    move_cursor(size, move);
+    hafu->mbox_write(CSR_CTRL0, DATA_CNF_PKT_NUM);
+    hafu->mbox_write(CSR_STATS_CTRL, ZERO);
+  }
+
+  void reset_monitor(std::vector<int> port_, std::string move, ctrl_config config_data, hssi_afu *hafu) const
+  {
+    /* Reset the monitor ports traffic data*/
+    uint8_t size = (uint8_t)port_.size();
+    for(uint8_t port=0; port < size; port++)
+      {
+        select_port(port_[port], config_data, hafu);
+        hafu->mbox_write(CSR_STATS_CTRL, ONE);
+        hafu->mbox_write(CSR_STATS_CTRL, ZERO);
+      }
+     move_cursor(1, move);
+  }
+
+  void move_cursor(uint8_t size, std::string move) const
+  {
+    /* Moves the cursor position (up/down) based on port size*/
+    std::ostringstream oss;
+
+    oss << "\x1b[" << (int)size << move;
+
+    std::cout << oss.str().c_str();
   }
 
   virtual int run(test_afu *afu, CLI::App *app) override
   {
     (void)app;
+
+    if (port_.size() > MAX_PORT)
+    {
+      std::cerr<< "more than " << MAX_PORT << " ports are not supported"<<std::endl;
+      return test_afu::error;
+    }
 
     hssi_afu *hafu = dynamic_cast<hssi_afu *>(afu);
 
@@ -138,7 +394,7 @@ public:
       eth_ifc = hafu->ethernet_interface();
 
     std::cout << "100G loopback test" << std::endl
-              << "  port: " << port_ << std::endl
+              << "  port: " << port_[0] << std::endl
               << "  eth_loopback: " << eth_loopback_ << std::endl
               << "  num_packets: " << num_packets_ << std::endl
               << "  gap: " << gap_ << std::endl
@@ -151,6 +407,8 @@ public:
               << "  end size: " << end_size_ << std::endl
               << "  end select: " << end_select_ << std::endl
               << "  eth: " << eth_ifc << std::endl
+              << "  continuous mode: " << continuous_ << std::endl
+              << "  monitor duration: " << std::dec << contmonitor_ << " sec" << std::endl
               << std::endl;
 
     if (eth_ifc == "") {
@@ -162,20 +420,33 @@ public:
       else
         enable_eth_loopback(eth_ifc, false);
     }
+    ctrl_config config_data;
 
+    DFH dfh;
+    dfh.csr = hafu->read64(ETH_AFU_DFH);
+
+    hafu->write64(TRAFFIC_CTRL_PORT_SEL, port_[0]);
     hafu->mbox_write(CSR_CTRL1, STOP_BITS);
-
-    hafu->write64(TRAFFIC_CTRL_PORT_SEL, port_);
 
     uint32_t reg;
 
     reg = start_size_ | (end_size_ << 16);
     hafu->mbox_write(CSR_PKT_SIZE, reg);
+    config_data.pkt_size_data = reg;
 
     reg = num_packets_;
-    if (reg)
-      reg |= 0x80000000;
+    if (dfh.major_rev < 2){
+        reg |= DATA_CNF_FIXED_MODE;
+    }
+    else {
+      if(continuous_ == "on")
+        reg = DATA_CNF_CONTINUOUS_MODE;
+      if(continuous_ == "off")
+        reg |= DATA_CNF_FIXED_MODE;
+    }
+
     hafu->mbox_write(CSR_CTRL0, reg);
+    config_data.ctrl0_data = reg;
 
     hafu->mbox_write(CSR_SRC_ADDR_LO, static_cast<uint32_t>(bin_src_addr));
     hafu->mbox_write(CSR_SRC_ADDR_HI, static_cast<uint32_t>(bin_src_addr >> 32));
@@ -184,11 +455,17 @@ public:
     hafu->mbox_write(CSR_DST_ADDR_HI, static_cast<uint32_t>(bin_dest_addr >> 32));
 
     reg = 0;
-    if (gap_ == "random")
-      reg |= 1 << 7;
+    if (dfh.major_rev < 2){
+      if (gap_ == "random")
+        reg |= 1 << 7;
 
-    if (end_select_ == "pkt_num")
-      reg |= 1 << 6;
+      if (end_select_ == "pkt_num")
+        reg |= 1 << 6;
+    }
+    else{
+      if (gap_ == "random")
+        reg |= 1 << 6;
+    }
 
     if (pattern_ == "fixed")
       reg |= 1 << 4;
@@ -199,12 +476,18 @@ public:
       reg |= 1 << 3;
 
     hafu->mbox_write(CSR_CTRL1, reg);
+    config_data.ctrl1_data = reg;
 
-    uint32_t count;
+    if(port_.size() > 1) // Supporting for 2nd port register setting
+      select_port(port_[1], config_data, hafu);
+
+    volatile uint32_t count;
     const uint64_t interval = 100ULL;
     do
     {
       count = hafu->mbox_read(CSR_TX_COUNT);
+      if (count == 0)  // Added to eliminate infinite loop occured when CSR_TX_COUNT is 0
+        break;
 
       if (!running_) {
         hafu->mbox_write(CSR_CTRL1, STOP_BITS);
@@ -228,6 +511,66 @@ public:
         enable_eth_loopback(eth_ifc, false);
     }
 
+    if ((dfh.major_rev < 2) && (continuous_ == "on" || (contmonitor_ > 0)))
+    {
+        std::cout << "\nHSSI doesn't support continuous mode\n" << std::endl;
+        return test_afu::error;
+    }
+
+    /* Monitor Implementation */
+
+    if (continuous_ != "off" && contmonitor_ != 0)
+    {
+      uint32_t timer = 0;
+      uint32_t max_timer = contmonitor_;
+      char key;
+
+      uint8_t port_size = (uint8_t)port_.size();
+      sort(port_.begin(), port_.end());
+      std::vector<perf_data*> old_perf_data(port_size);    // old performance
+
+      /* Initialise performance data and initiate monitor */
+      print_monitor_headers(std::cout, max_timer);
+      for(uint8_t port=0; port < port_size; port++)
+      {
+        old_perf_data[port] = (perf_data*)malloc(sizeof(perf_data));
+        select_port(port_[port], config_data, hafu);
+        capture_perf(old_perf_data[port], hafu);           // captures the monitor data for first time
+      }
+
+      /* Calculate performance and run monitor */
+      while(timer < max_timer)
+      {
+        for(uint8_t port=0; port < port_size; port++)
+        {
+          select_port(port_[port], config_data, hafu);
+          run_monitor(std::cout, old_perf_data[port], port_[port], hafu, timer+1) << std::endl;
+        }
+        move_cursor(port_size, CURSOR_UP);
+        timer+=1;
+
+        key = get_user_input(key);
+        if(key=='q')
+        {
+          quit_monitor(port_size, CURSOR_DOWN, hafu);
+          return test_afu::success;
+        }
+        if(key=='r')
+          reset_monitor(port_, CURSOR_UP, config_data, hafu);
+
+        //Handling CTL+C and CTL+Z
+        if (!running_) {
+          quit_monitor(port_size, CURSOR_DOWN, hafu);
+          return test_afu::error;
+        }
+      }
+      quit_monitor(port_size, CURSOR_DOWN, hafu);
+    }
+    else if (contmonitor_ > 0)
+    {
+      std::cout << "Please use --continuous and --contmonitor together" << std::endl;
+      return test_afu::error;
+    }
     return test_afu::success;
   }
 
@@ -284,7 +627,7 @@ public:
   }
 
 protected:
-  uint32_t port_;
+  std::vector<int> port_;
   std::string eth_loopback_;
   uint32_t num_packets_;
   std::string gap_;
@@ -295,4 +638,6 @@ protected:
   uint32_t start_size_;
   uint32_t end_size_;
   std::string end_select_;
+  std::string continuous_;
+  uint32_t contmonitor_;
 };
