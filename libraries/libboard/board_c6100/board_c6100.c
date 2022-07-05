@@ -92,10 +92,6 @@
 // event log
 #define DFL_SYSFS_EVENT_LOG_GLOB "*dfl*/**/bmc_event_log*/nvmem"
 
-// BOM info
-#define DFL_SYSFS_BOM_INFO_GLOB "*dfl*/**/bom_info*/nvmem"
-#define FPGA_BOM_INFO_BUF_LEN   0x2000
-
 #define DFH_CSR_ADDR                  0x18
 #define DFH_CSR_SIZE                  0x20
 
@@ -393,80 +389,6 @@ fpga_result print_mac_info(fpga_token token)
 	return res;
 }
 
-// Read BOM Critical Components info from the FPGA
-static fpga_result read_bom_info(
-	const fpga_token token,
-	char * const bom_info,
-	const size_t len)
-{
-	if (bom_info == NULL)
-		return FPGA_INVALID_PARAM;
-
-	fpga_result resval = FPGA_OK;
-	fpga_object fpga_object;
-
-	fpga_result res = fpgaTokenGetObject(token, DFL_SYSFS_BOM_INFO_GLOB,
-					     &fpga_object, FPGA_OBJECT_GLOB);
-	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to get token Object");
-		// Simulate reading of empty BOM info filled with 0xFF
-		// so that FPGA with no BOM info produces no output.
-		// Return FPGA_OK!
-		memset(bom_info, 0xFF, len);
-		return FPGA_OK;
-	}
-
-	res = fpgaObjectRead(fpga_object, (uint8_t *)bom_info, 0, len, FPGA_OBJECT_RAW);
-	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to read BOM info");
-		memset(bom_info, 0xFF, len); // Simulate reading of empty BOM info filled with 0xFF
-		resval = res;
-	}
-
-	res = fpgaDestroyObject(&fpga_object);
-	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to Destroy Object");
-		if (resval == FPGA_OK)
-			resval = res;
-	}
-
-	return resval;
-}
-
-// print BOM info
-fpga_result print_bom_info(const fpga_token token)
-{
-	fpga_result resval = FPGA_OK;
-	const size_t max_result_len = 2 * FPGA_BOM_INFO_BUF_LEN;
-	char * const bom_info = (char *)opae_malloc(max_result_len);
-
-	if (bom_info == NULL)
-		return FPGA_NO_MEMORY;
-
-	fpga_result res = read_bom_info(token, bom_info, FPGA_BOM_INFO_BUF_LEN);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read BOM info");
-		opae_free(bom_info);
-		return res;
-	}
-
-	// Terminated by a null character '\0'
-	bom_info[FPGA_BOM_INFO_BUF_LEN] = '\0';
-
-	res = reformat_bom_info(bom_info, FPGA_BOM_INFO_BUF_LEN, max_result_len);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to reformat BOM info");
-		if (resval == FPGA_OK)
-			resval = res;
-	}
-
-	printf("%s", bom_info);
-
-	opae_free(bom_info);
-
-	return resval;
-}
-
 // print board information
 fpga_result print_board_info(fpga_token token)
 {
@@ -489,13 +411,6 @@ fpga_result print_board_info(fpga_token token)
 
 	printf("Board Management Controller NIOS FW version: %s \n", bmc_ver);
 	printf("Board Management Controller Build version: %s \n", max10_ver);
-
-	res = print_bom_info(token);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to print BOM info");
-		if (resval == FPGA_OK)
-			resval = res;
-	}
 
 	return resval;
 }
