@@ -62,17 +62,6 @@ TEST(pluginmgr, alloc_adapter01) {
 }
 
 /**
- * @test       alloc_adapter02
- * @brief      Test: opae_plugin_mgr_alloc_adapter
- * @details    When calloc fails,<br>
- *             opae_plugin_mgr_alloc_adapter returns NULL.<br>
- */
-TEST(pluginmgr, alloc_adapter02) {
-  test_system::instance()->invalidate_calloc(0, "opae_plugin_mgr_alloc_adapter");
-  EXPECT_EQ(NULL, opae_plugin_mgr_alloc_adapter("libxfpga.so"));
-}
-
-/**
  * @test       free_adapter01
  * @brief      Test: opae_plugin_mgr_free_adapter
  * @details    opae_plugin_mgr_free_adapter frees the given adapter table<br>
@@ -486,8 +475,29 @@ TEST_P(pluginmgr_c_p, fpgaReset_null_handle) {
   opae_plugin_mgr_finalize_all();
 }
 
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(pluginmgr_c_p);
 INSTANTIATE_TEST_SUITE_P(pluginmgr_c, pluginmgr_c_p,
                          ::testing::ValuesIn(test_platform::platforms({})));
+
+
+class pluginmgr_mock_c_p : public pluginmgr_c_p {};
+
+/**
+ * @test       alloc_adapter02
+ * @brief      Test: opae_plugin_mgr_alloc_adapter
+ * @details    When calloc fails,<br>
+ *             opae_plugin_mgr_alloc_adapter returns NULL.<br>
+ */
+TEST_P(pluginmgr_mock_c_p, alloc_adapter02) {
+  system_->invalidate_calloc(0, "opae_plugin_mgr_alloc_adapter");
+  EXPECT_EQ(NULL, opae_plugin_mgr_alloc_adapter("libxfpga.so"));
+  opae_plugin_mgr_finalize_all();
+}
+
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(pluginmgr_mock_c_p);
+INSTANTIATE_TEST_SUITE_P(pluginmgr_c, pluginmgr_mock_c_p,
+                         ::testing::ValuesIn(test_platform::mock_platforms({})));
+
 
 class pluginmgr_cfg_p : public ::testing::TestWithParam<const char*> {
  protected:
@@ -572,6 +582,7 @@ class pluginmgr_cfg_p : public ::testing::TestWithParam<const char*> {
  *             And the number of plugins in the global plugin list is 1
  */
 TEST_P(pluginmgr_cfg_p, find_and_parse_cfg) {
+  opae_plugin_mgr_finalize_all();
   opae_plugin_mgr_reset_cfg();
   EXPECT_EQ(opae_plugin_mgr_plugin_count, 0);
   ASSERT_EQ(opae_plugin_mgr_initialize(nullptr), 0);

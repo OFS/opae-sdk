@@ -435,6 +435,6 @@ TEST_P(argsfilter_c_p, addr_bdf) {
 
     EXPECT_EQ(result, 0);
 }
-
+GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(argsfilter_c_p);
 INSTANTIATE_TEST_SUITE_P(argsfilter_c, argsfilter_c_p,
                          ::testing::ValuesIn(test_platform::platforms({})));

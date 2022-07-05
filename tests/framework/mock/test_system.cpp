@@ -61,7 +61,8 @@ static std::map<std::string, std::string> fpga_sysfs_path_map = {
     {"/dev/dfl", "/sys/class/fpga_region/region"}};
 
 mock_object::mock_object(const std::string &devpath,
-                         const std::string &sysclass, uint32_t device_id,
+                         const std::string &sysclass,
+                         fpga_device_id device_id,
                          type_t type)
     : devpath_(devpath),
       sysclass_(sysclass),
@@ -381,17 +382,30 @@ void test_system::normalize_guid(std::string &guid_str, bool with_hyphens) {
   }
 }
 
-uint32_t get_device_id(const std::string &sysclass) {
-  uint32_t res(0);
+template <typename T>
+T get_sysfs_unsigned(const std::string &sysclass, const std::string &target)
+{
+  T t = 0;
   std::ifstream fs;
-  fs.open(sysclass + "/device/device");
+  fs.open(sysclass + target);
   if (fs.is_open()) {
     std::string line;
     std::getline(fs, line);
     fs.close();
-    return std::stoul(line, 0, 16);
+    return static_cast<T>(std::stoul(line, 0, 16));
   }
-  return res;
+  return t;
+}
+
+fpga_device_id get_fpga_device_id(const std::string &sysclass) {
+  uint16_t vendor = get_sysfs_unsigned<uint16_t>(sysclass, "/device/vendor");
+  uint16_t device = get_sysfs_unsigned<uint16_t>(sysclass, "/device/device");
+  uint16_t subsystem_vendor =
+    get_sysfs_unsigned<uint16_t>(sysclass, "/device/subsystem_vendor");
+  uint16_t subsystem_device =
+    get_sysfs_unsigned<uint16_t>(sysclass, "/device/subsystem_device");
+
+  return fpga_device_id(vendor, device, subsystem_vendor, subsystem_device);
 }
 
 std::string test_system::get_sysfs_claass_path(const std::string &path) {
@@ -429,7 +443,7 @@ int test_system::open(const std::string &path, int flags) {
 
     fd = ::open(syspath.c_str(), flags);
     auto sysclass_path = m->group(0);
-    auto device_id = get_device_id(get_sysfs_path(sysclass_path));
+    auto device_id = get_fpga_device_id(get_sysfs_path(sysclass_path));
 
     if (fd >= 0) {
       std::lock_guard<std::mutex> guard(fds_mutex_);
@@ -442,7 +456,7 @@ int test_system::open(const std::string &path, int flags) {
     // we are opening a device
     fd = ::open(syspath.c_str(), flags);
     auto sysclass_path = get_sysfs_claass_path(path) + m->group(3);
-    auto device_id = get_device_id(get_sysfs_path(sysclass_path));
+    auto device_id = get_fpga_device_id(get_sysfs_path(sysclass_path));
     if (m->group(2) == "fme") {
       if (fd >= 0) {
         std::lock_guard<std::mutex> guard(fds_mutex_);
@@ -485,7 +499,7 @@ int test_system::open(const std::string &path, int flags, mode_t mode) {
           it->second.extra_ = nullptr;
         }
       }
-      mock_object *mo = new mock_object(path, "", 0);
+      mock_object *mo = new mock_object(path, "", fpga_device_id(0, 0, 0, 0));
 
       fds_[fd] = Resource<mock_object>("open_create()", caller(), mo);
     }

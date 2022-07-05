@@ -92,6 +92,8 @@ int dfl_port_info(mock_object * m, int request, va_list argp){
   }
   pinfo->flags = 0;
   pinfo->num_regions = 2;
+  if (m->device_id().is_n6000_sku1())
+    pinfo->num_regions = 1;
   pinfo->num_umsgs = 0;
 /*
   if (gEnableIRQ) {
@@ -747,7 +749,8 @@ INSTANTIATE_TEST_SUITE_P(enum_c, enum_c_p,
                                                                         "dfl-n3000",
                                                                         "dfl-d5005",
                                                                         "dfl-n6000-sku0",
-                                                                        "dfl-n6000-sku1"
+                                                                        "dfl-n6000-sku1",
+                                                                        "dfl-c6100"
                                                                       })));
 
 class enum_c_mock_p : public enum_c_p {};
@@ -773,7 +776,8 @@ INSTANTIATE_TEST_SUITE_P(enum_c, enum_c_mock_p,
                                                                              "dfl-n3000",
                                                                              "dfl-d5005",
                                                                              "dfl-n6000-sku0",
-                                                                             "dfl-n6000-sku1"
+                                                                             "dfl-n6000-sku1",
+                                                                             "dfl-c6100"
                                                                            })));
 
 class enum_c_err_p : public enum_c_p {};
@@ -819,7 +823,8 @@ INSTANTIATE_TEST_SUITE_P(enum_c, enum_c_err_p,
                                                                         "dfl-n3000",
                                                                         "dfl-d5005",
                                                                         "dfl-n6000-sku0",
-                                                                        "dfl-n6000-sku1"
+                                                                        "dfl-n6000-sku1",
+                                                                        "dfl-c6100"
                                                                       })));
 
 class enum_c_socket_p : public enum_c_p {};
@@ -848,5 +853,6 @@ INSTANTIATE_TEST_SUITE_P(enum_c, enum_c_socket_p,
                                                                         "dfl-n3000",
                                                                         "dfl-d5005",
                                                                         "dfl-n6000-sku0",
-                                                                        "dfl-n6000-sku1"
+                                                                        "dfl-n6000-sku1",
+                                                                        "dfl-c6100"
                                                                       })));
