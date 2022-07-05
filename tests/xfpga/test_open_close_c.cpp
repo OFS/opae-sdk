@@ -217,20 +217,6 @@ TEST_P(openclose_c_p, open_05) {
 }
 
 /**
- * @test       open_06
- *
- * @brief      When the flags parameter to xfpga_fpgaOpen is valid, 
- *             but malloc fails. the function returns FPGA_NO_MEMORY.
- *
- */
-TEST_P(openclose_c_p, open_06) {
-  system_->invalidate_malloc();
-  auto res = xfpga_fpgaOpen(accel_token_, &accel_, 0);
-  ASSERT_EQ(FPGA_NO_MEMORY, res);
-  EXPECT_EQ(accel_, nullptr);
-}
-
-/**
  * @test       close_01 
  *
  * @brief      When the flags parameter to xfpga_fpgaOpen is valid, 
@@ -383,6 +369,20 @@ TEST_P(openclose_c_mock_p, invalid_open_close) {
 #else
   EXPECT_EQ(FPGA_NO_DRIVER, xfpga_fpgaOpen(tok, &h, 0));
 #endif
+}
+
+/**
+ * @test       open_06
+ *
+ * @brief      When the flags parameter to xfpga_fpgaOpen is valid, 
+ *             but malloc fails. the function returns FPGA_NO_MEMORY.
+ *
+ */
+TEST_P(openclose_c_mock_p, open_06) {
+  system_->invalidate_malloc();
+  auto res = xfpga_fpgaOpen(accel_token_, &accel_, 0);
+  ASSERT_EQ(FPGA_NO_MEMORY, res);
+  EXPECT_EQ(accel_, nullptr);
 }
 
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(openclose_c_mock_p);
