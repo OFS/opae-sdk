@@ -58,7 +58,9 @@ declare -a PKG_DEPS=(\
 'gcc-c++' \
 'json-c-devel' \
 'libuuid-devel' \
-'python3*-devel' \
+'libedit-devel' \
+'python3-devel' \
+'systemd-devel' \
 'python3-jsonschema' \
 'python3-pip' \
 'rpm-build' \
