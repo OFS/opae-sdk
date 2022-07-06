@@ -1108,6 +1108,22 @@ TEST_P(sysfs_sockid_c_mock_p, fpga_sysfs_02) {
   EXPECT_EQ(result, FPGA_OK);
 }
 
+/**
+ * @test    make_region
+ * @details Given valid parameters to make_regions but failed on malloc,
+ *          it returns nullptr for sysfs_fpga_region. 
+ */
+TEST_P(sysfs_sockid_c_mock_p, make_regions) {
+  sysfs_fpga_region *fpga_region;
+  sysfs_fpga_device device;
+  std::string name = "fme";
+  int num = 1;
+  fpga_objtype type = FPGA_DEVICE;
+  test_system::instance()->invalidate_malloc();
+  fpga_region = make_region(&device, const_cast<char*>(name.c_str()), num, type);
+  EXPECT_EQ(fpga_region, nullptr);
+}
+
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(sysfs_sockid_c_mock_p);
 INSTANTIATE_TEST_SUITE_P(sysfs_c, sysfs_sockid_c_mock_p,
                          ::testing::ValuesIn(test_platform::mock_platforms({
@@ -1248,22 +1264,6 @@ TEST_P(sysfs_sockid_c_p, fpga_sysfs_02) {
   // NULL handle
   result = get_fpga_hw_type(NULL, NULL);
   EXPECT_NE(result, FPGA_OK);
-}
-
-/**
- * @test    make_region
- * @details Given valid parameters to make_regions but failed on malloc,
- *          it returns nullptr for sysfs_fpga_region. 
- */
-TEST_P(sysfs_sockid_c_p, make_regions) {
-  sysfs_fpga_region *fpga_region;
-  sysfs_fpga_device device;
-  std::string name = "fme";
-  int num = 1;
-  fpga_objtype type = FPGA_DEVICE;
-  test_system::instance()->invalidate_malloc();
-  fpga_region = make_region(&device, const_cast<char*>(name.c_str()), num, type);
-  EXPECT_EQ(fpga_region, nullptr);
 }
 
 /**

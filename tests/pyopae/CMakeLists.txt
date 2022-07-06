@@ -33,8 +33,7 @@ try_compile(SUPPORTS_EMBEDDED_PYTHON
 )
 
 if (SUPPORTS_EMBEDDED_PYTHON)
-    add_executable(test_pyopae
-         ${opae-test_ROOT}/framework/mock/opae_mock.cpp
+    set(SRC
          test_pyopae.cpp
 	 ${OPAE_LIB_SOURCE}/pyopae/opae.cpp
 	 ${OPAE_LIB_SOURCE}/pyopae/pycontext.h
@@ -52,7 +51,15 @@ if (SUPPORTS_EMBEDDED_PYTHON)
 	 ${OPAE_LIB_SOURCE}/pyopae/pyerrors.h
 	 ${OPAE_LIB_SOURCE}/pyopae/pyerrors.cpp
 	 ${OPAE_LIB_SOURCE}/pyopae/pysysobject.h
-	 ${OPAE_LIB_SOURCE}/pyopae/pysysobject.cpp)
+	 ${OPAE_LIB_SOURCE}/pyopae/pysysobject.cpp
+    )
+    if(OPAE_ENABLE_MOCK)
+        set(SRC ${SRC} ${opae-test_ROOT}/framework/mock/opae_mock.cpp)
+    else(OPAE_ENABLE_MOCK)
+        set(SRC ${SRC} ${opae-test_ROOT}/framework/mock/opae_std.c)
+    endif(OPAE_ENABLE_MOCK)
+
+    add_executable(test_pyopae ${SRC})
     target_compile_definitions(test_pyopae PRIVATE
         OPAE_EMBEDDED)
     target_include_directories(test_pyopae
