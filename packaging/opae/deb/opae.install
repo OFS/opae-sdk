@@ -24,6 +24,7 @@ usr/lib/opae/libboard_n3000.so
 usr/lib/opae/libboard_d5005.so
 usr/lib/opae/libboard_n5010.so
 usr/lib/opae/libboard_n6000.so
+usr/lib/opae/libboard_c6100.so
 usr/bin/fpgad
 usr/bin/fpgaconf
 usr/bin/fpgainfo

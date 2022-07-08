@@ -1,4 +1,4 @@
-// Copyright(c) 2021, Intel Corporation
+// Copyright(c) 2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -24,8 +24,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __FPGA_BOARD_N6000_H__
-#define __FPGA_BOARD_N6000_H__
+#ifndef __FPGA_BOARD_C6100_H__
+#define __FPGA_BOARD_C6100_H__
 
 #include <opae/types.h>
 
@@ -111,7 +111,6 @@ fpga_result print_mac_info(fpga_token token);
 */
 fpga_result print_sec_info(fpga_token token);
 
-
 /**
 * Prints fpga boot page info.
 *
@@ -156,4 +155,4 @@ fpga_result print_hssi_port_status(uint8_t *uio_ptr);
 }
 #endif /* __cplusplus */
 
-#endif /* __FPGA_BOARD_N6000_H__ */
+#endif /* __FPGA_BOARD_C6100_H__ */
