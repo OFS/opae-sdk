@@ -64,6 +64,14 @@ opae_test_add_static_lib(TARGET board-n6000-static
         opae-c
         opaeuio
 )
+opae_test_add_static_lib(TARGET board-c6100-static
+    SOURCE
+        ${OPAE_LIB_SOURCE}/libboard/board_c6100/board_c6100.c
+	${OPAE_LIB_SOURCE}/libboard/board_c6100/board_event_log.c
+    LIBS
+        opae-c
+        opaeuio
+)
 
 opae_test_add(TARGET test_board_n3000_c
     SOURCE test_board_n3000.cpp
@@ -121,6 +129,18 @@ opae_test_add(TARGET test_board_n6000_c
 )
 
 target_include_directories(test_board_n6000_c
+    PRIVATE
+        ${OPAE_BIN_SOURCE}
+)
+
+opae_test_add(TARGET test_board_c6100_c
+    SOURCE test_board_c6100.cpp
+    LIBS
+        board-c6100-static
+        board-common-static
+)
+
+target_include_directories(test_board_c6100_c
     PRIVATE
         ${OPAE_BIN_SOURCE}
 )
