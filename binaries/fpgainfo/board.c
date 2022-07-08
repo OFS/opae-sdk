@@ -101,7 +101,7 @@ static platform_data platform_data_table[] = {
 	{ 0x8086, 0xbcce, 0x8086, 0x1771, 0x12, "libboard_n6000.so", NULL,
 	"Intel Acceleration Development Platform N6001" },
 
-	{ 0x8086, 0xbcce, 0x8086, 0x17d4, 0x12, "libboard_n6000.so", NULL,
+	{ 0x8086, 0xbcce, 0x8086, 0x17d4, 0x12, "libboard_c6100.so", NULL,
 	"Intel Acceleration Development Platform C6100" },
 
 	{ 0,      0, 0, 0, -1,         NULL, NULL, "" },
@@ -135,6 +135,8 @@ fpga_result load_board_plugin(fpga_token token, void **dl_handle)
 	fpga_properties props          = NULL;
 	uint16_t vendor_id             = 0;
 	uint16_t device_id             = 0;
+	uint16_t subvendor_id          = 0;
+	uint16_t subdevice_id          = 0;
 	int i                          = 0;
 
 	if (token == NULL || dl_handle == NULL) {
@@ -168,10 +170,26 @@ fpga_result load_board_plugin(fpga_token token, void **dl_handle)
 		goto destroy;
 	}
 
+	res = fpgaPropertiesGetSubsystemVendorID(props, &subvendor_id);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get sub vendor ID\n");
+		resval = res;
+		goto destroy;
+	}
+
+	res = fpgaPropertiesGetSubsystemDeviceID(props, &subdevice_id);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to get sub device ID\n");
+		resval = res;
+		goto destroy;
+	}
+
 	for (i = 0; platform_data_table[i].board_plugin; ++i) {
 
 		if (platform_data_table[i].device_id == device_id &&
-			platform_data_table[i].vendor_id == vendor_id) {
+			platform_data_table[i].vendor_id == vendor_id &&
+			platform_data_table[i].subvendor_id == subvendor_id &&
+			platform_data_table[i].subdevice_id == subdevice_id) {
 
 			// load plugin with matching featureid
 			if (platform_data_table[i].feature_id > 0) {

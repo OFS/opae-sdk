@@ -1,4 +1,4 @@
-// Copyright(c) 2021-2022, Intel Corporation
+// Copyright(c) 2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -39,7 +39,7 @@
 #include <opae/uio.h>
 #include "../board_common/board_common.h"
 #include "board_event_log.h"
-#include "board_n6000.h"
+#include "board_c6100.h"
 #include "mock/opae_std.h"
 
 #define FPGA_VAR_BUF_LEN       256
@@ -68,7 +68,7 @@
 #define DFL_SEC_SR_SDM_ROOT       DFL_SEC_PMCI_GLOB "sr_sdm_root_entry_hash"
 
 
-#define HSSI_FEATURE_ID                  0x15
+#define HSSI_FEATURE_ID                         0x15
 #define HSSI_100G_PROFILE                       27
 #define HSSI_25G_PROFILE                        21
 #define HSSI_10_PROFILE                         20
@@ -84,17 +84,13 @@
 
 // image info sysfs
 #define DFL_SYSFS_IMAGE_INFO_GLOB "*dfl*/**/fpga_image_directory*/nvmem"
-#define IMAGE_INFO_STRIDE 4096
+#define IMAGE_INFO_STRIDE 0x10000
 #define IMAGE_INFO_SIZE     32
 #define IMAGE_INFO_COUNT     3
 #define GET_BIT(var, pos) ((var >> pos) & (1))
 
 // event log
 #define DFL_SYSFS_EVENT_LOG_GLOB "*dfl*/**/bmc_event_log*/nvmem"
-
-// BOM info
-#define DFL_SYSFS_BOM_INFO_GLOB "*dfl*/**/bom_info*/nvmem"
-#define FPGA_BOM_INFO_BUF_LEN   0x2000
 
 #define DFH_CSR_ADDR                  0x18
 #define DFH_CSR_SIZE                  0x20
@@ -315,7 +311,6 @@ fpga_result read_bmcfw_version(fpga_token token, char *bmcfw_ver, size_t len)
 	return res;
 }
 
-
 // Read MAX10 firmware version
 fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len)
 {
@@ -394,81 +389,6 @@ fpga_result print_mac_info(fpga_token token)
 	return res;
 }
 
-// Read BOM Critical Components info from the FPGA
-static fpga_result read_bom_info(
-	const fpga_token token,
-	char * const bom_info,
-	const size_t len)
-{
-	if (bom_info == NULL)
-		return FPGA_INVALID_PARAM;
-
-	fpga_result resval = FPGA_OK;
-	fpga_object fpga_object;
-
-	fpga_result res = fpgaTokenGetObject(token, DFL_SYSFS_BOM_INFO_GLOB,
-					     &fpga_object, FPGA_OBJECT_GLOB);
-	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to get token Object");
-		// Simulate reading of empty BOM info filled with 0xFF
-		// so that FPGA with no BOM info produces no output.
-		// Return FPGA_OK!
-		memset(bom_info, 0xFF, len);
-		return FPGA_OK;
-	}
-
-	res = fpgaObjectRead(fpga_object, (uint8_t *)bom_info, 0, len, FPGA_OBJECT_RAW);
-	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to read BOM info");
-		memset(bom_info, 0xFF, len); // Simulate reading of empty BOM info filled with 0xFF
-		resval = res;
-	}
-
-	res = fpgaDestroyObject(&fpga_object);
-	if (res != FPGA_OK) {
-		OPAE_MSG("Failed to Destroy Object");
-		if (resval == FPGA_OK)
-			resval = res;
-	}
-
-	return resval;
-}
-
-
-// print BOM info
-fpga_result print_bom_info(const fpga_token token)
-{
-	fpga_result resval = FPGA_OK;
-	const size_t max_result_len = 2 * FPGA_BOM_INFO_BUF_LEN;
-	char * const bom_info = (char *)opae_malloc(max_result_len);
-
-	if (bom_info == NULL)
-		return FPGA_NO_MEMORY;
-
-	fpga_result res = read_bom_info(token, bom_info, FPGA_BOM_INFO_BUF_LEN);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read BOM info");
-		opae_free(bom_info);
-		return res;
-	}
-
-	// Terminated by a null character '\0'
-	bom_info[FPGA_BOM_INFO_BUF_LEN] = '\0';
-
-	res = reformat_bom_info(bom_info, FPGA_BOM_INFO_BUF_LEN, max_result_len);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to reformat BOM info");
-		if (resval == FPGA_OK)
-			resval = res;
-	}
-
-	printf("%s", bom_info);
-
-	opae_free(bom_info);
-
-	return resval;
-}
-
 // print board information
 fpga_result print_board_info(fpga_token token)
 {
@@ -491,13 +411,6 @@ fpga_result print_board_info(fpga_token token)
 
 	printf("Board Management Controller NIOS FW version: %s \n", bmc_ver);
 	printf("Board Management Controller Build version: %s \n", max10_ver);
-
-	res = print_bom_info(token);
-	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to print BOM info");
-		if (resval == FPGA_OK)
-			resval = res;
-	}
 
 	return resval;
 }
@@ -693,7 +606,7 @@ fpga_result fpga_boot_info(fpga_token token)
 	char page[SYSFS_PATH_MAX] = { 0 };
 	fpga_result res           = FPGA_OK;
 	int reg_res               = 0;
-	char err[128]           = { 0 };
+	char err[128]             = { 0 };
 	regex_t re;
 	regmatch_t matches[3];
 
@@ -733,10 +646,11 @@ fpga_result fpga_boot_info(fpga_token token)
 fpga_result fpga_image_info(fpga_token token)
 {
 	const char *image_info_label[IMAGE_INFO_COUNT] = {
-		"Factory Image Info",
-		"User1 Image Info",
-		"User2 Image Info",
+	"User1 Image Info",
+	"User2 Image Info",
+	"User2 ImFactory Info"
 	};
+
 	fpga_object fpga_object;
 	fpga_result res;
 	size_t i;
@@ -758,6 +672,7 @@ fpga_result fpga_image_info(fpga_token token)
 
 		res = fpgaObjectRead(fpga_object, data, offset,
 				IMAGE_INFO_SIZE, FPGA_OBJECT_RAW);
+
 		if (res != FPGA_OK) {
 			printf("N/A\n");
 			continue;

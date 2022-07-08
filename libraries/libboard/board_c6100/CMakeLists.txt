@@ -1,4 +1,4 @@
-## Copyright(c) 2022, Intel Corporation
+## Copyright(c) 2021-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -24,54 +24,20 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-# extra
-# Top level OPAE_BUILD_EXTRA_TOOLS controls building all the extra tools
-# Each extra tool gets its own conditional building variable
-# format is OPAE_BUILD_<TOOL_NAME>
-option(OPAE_BUILD_EXTRA_TOOLS "Enable building extra tools" ON)
-mark_as_advanced(OPAE_BUILD_EXTRA_TOOLS)
+opae_add_module_library(TARGET board_c6100
+    SOURCE
+        board_c6100.c
+        board_event_log.c
+        ${opae-test_ROOT}/framework/mock/opae_std.c
+    LIBS
+        ${CMAKE_THREAD_LIBS_INIT}
+        opae-c
+        opaeuio
+        board_common
+    COMPONENT opaeboardlib
+)
 
-option(OPAE_BUILD_CXXUTILS "Enable building extra tool c++utils" ON)
-mark_as_advanced(OPAE_BUILD_CXXUTILS)
-
-if(OPAE_BUILD_EXTRA_TOOLS)
-  if(OPAE_BUILD_CXXUTILS)
-    opae_add_subdirectory(c++utils)
-  endif()
-endif()
-
-opae_add_subdirectory(argsfilter)
-opae_add_subdirectory(afu-test)
-opae_add_subdirectory(libopaemem)
-opae_add_subdirectory(libopae-c)
-if (OPAE_BUILD_LIBOFS)
-    opae_add_subdirectory(libofs)
-endif (OPAE_BUILD_LIBOFS)
-
-if (OPAE_BUILD_LIBOPAEUIO)
-    opae_add_subdirectory(libopaeuio)
-    opae_add_subdirectory(pyopaeuio)
-endif()
-
-if (OPAE_BUILD_LIBOPAEVFIO AND PLATFORM_SUPPORTS_VFIO)
-    opae_add_subdirectory(libopaevfio)
-endif()
-
-opae_add_subdirectory(libbitstream)
-opae_add_subdirectory(plugins)
-
-if(OPAE_BUILD_LIBOPAE_CXX)
-    opae_add_subdirectory(libopaecxx)
-endif()
-
-if(OPAE_WITH_PYBIND11 AND OPAE_BUILD_LIBOPAE_CXX)
-    opae_add_subdirectory(pyopae)
-endif()
-
-opae_add_subdirectory(libboard/board_common)
-opae_add_subdirectory(libboard/board_a10gx)
-opae_add_subdirectory(libboard/board_n3000)
-opae_add_subdirectory(libboard/board_d5005)
-opae_add_subdirectory(libboard/board_n6000)
-opae_add_subdirectory(libboard/board_n5010)
-opae_add_subdirectory(libboard/board_c6100)
+target_include_directories(board_c6100
+    PRIVATE
+        ${OPAE_LIB_SOURCE}/libboard/board_common
+)
