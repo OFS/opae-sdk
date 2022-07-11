@@ -1,4 +1,4 @@
-// Copyright(c) 2021-2022 , Silciom Denmark A/S
+// Copyright(c) 2021-2022 , Silicom Denmark A/S
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -40,10 +40,6 @@
 
 #include <argsfilter.h>
 
-#define  BITS_PER_LONG_LONG 64
-#define  GENMASK_ULL(h, l) \
-	(((~0ULL) << (l)) & (~0ULL >> (BITS_PER_LONG_LONG - 1 - (h))))
-
 #define DFH_EOL(h)    ((h >> 40) & 1)
 #define DFH_NEXT(h)   ((h >> 16) & 0xffffff)
 #define DFH_TYPE(h)   ((h >> 60) & 0xf)
@@ -61,19 +57,23 @@
 #define HBM_TEST_TIMEOUT  0x4010
 #define HBM_TEST_CTRL     0x4018
 
-#define QDR_TEST_STAT    0x5000
-#define QDR_TEST_TIMEOUT GENMASK_ULL(23,16)
-#define QDR_TEST_FAIL    GENMASK_ULL(15,8)
-#define QDR_TEST_PASS    GENMASK_ULL(7,0)
+#define QDR_TEST_STAT       0x5000
+#define QDR_FM              0xff
+#define QDR_TEST_TIMEOUT(h) ((h >> 16) & QDR_FM)
+#define QDR_TEST_FAIL(h)    ((h >>  8) & QDR_FM)
+#define QDR_TEST_PASS(h)    ((h >>  0) & QDR_FM)
 
-#define QDR_TEST_CTRL    0x5008
+#define QDR_TEST_CTRL       0x5008
 
-#define ESRAM_TEST_STAT    0x6000
-#define ESRAM_TEST_TIMEOUT GENMASK_ULL(47,32)
-#define ESRAM_TEST_FAIL    GENMASK_ULL(31,16)
-#define ESRAM_TEST_PASS    GENMASK_ULL(15,0)
+#define ESRAM_TEST_STAT       0x6000
+#define ESRAM_FM              0xffff
+#define ESRAM_TEST_TIMEOUT(h) ((h >> 32) & ESRAM_FM)
+#define ESRAM_TEST_FAIL(h)    ((h >> 16) & ESRAM_FM)
+#define ESRAM_TEST_PASS(h)    ((h >>  0) & ESRAM_FM)
 
 #define ESRAM_TEST_CTRL    0x6008
+
+#define MAX_POLLS 10
 
 struct n5010;
 
@@ -477,16 +477,19 @@ static fpga_result fpga_test_esram(struct n5010 *n5010)
 {
 	struct timespec ts = {.tv_sec = 0, .tv_nsec = 100000000};
 	uint64_t stat = 0;
-	uint64_t pass = 0;
-	uint64_t fail = 0;
-	uint64_t timeout = 0;
+	uint16_t pass = 0;
+	uint16_t fail = 0;
+	uint16_t timeout = 0;
 	fpga_result res ;
+	uint32_t polls = 0;
 
 	printf("starting eSRAM read/write test\n");
 
 	res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + ESRAM_TEST_STAT, &stat);
 	if (res != FPGA_OK || stat != 0) {
 		fprintf(stderr, "FPGA not ready for test, status: 0x%016jx\n", stat);
+		if (res == FPGA_OK)
+			res = FPGA_EXCEPTION;
 		goto error;
 	}
 
@@ -498,37 +501,43 @@ static fpga_result fpga_test_esram(struct n5010 *n5010)
 	printf("waiting for test to complete...\n");
 
 	do {
+		++polls;
 		res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + ESRAM_TEST_STAT, &stat);
 		if (res != FPGA_OK) {
 			fprintf(stderr, "failed to read stat: %s\n", fpgaErrStr(res));
 			goto error;
 		}
-		pass	= stat & ESRAM_TEST_PASS;
-		fail	= stat & ESRAM_TEST_FAIL;
-		timeout = stat & ESRAM_TEST_TIMEOUT;
+		pass	= ESRAM_TEST_PASS(stat);
+		fail	= ESRAM_TEST_FAIL(stat);
+		timeout = ESRAM_TEST_TIMEOUT(stat);
 
 
 		if (n5010->debug) {
-			printf("pass (16x eSRAM channels)   : 0x%04jx\n", pass);
-			printf("fail (16x eSRAM channels)   : 0x%04jx\n", fail);
-			printf("timeout (16x eSRAM channels): 0x%04jx\n", timeout);
+			printf("pass (16x eSRAM channels)   : 0x%04x\n", pass);
+			printf("fail (16x eSRAM channels)   : 0x%04x\n", fail);
+			printf("timeout (16x eSRAM channels): 0x%04x\n", timeout);
 		}
 		nanosleep(&ts, NULL);
 
-	} while ( (pass | fail | timeout) != 0xffff);
+	} while (((pass | fail | timeout) != ESRAM_FM) && polls < MAX_POLLS);
+
+	if (polls == MAX_POLLS) {
+		fprintf(stderr, "Error: Test failed FPGA not returning result within time\n");
+		res = FPGA_EXCEPTION;
+	}
 
 	if (fail != 0x0) {
-		fprintf(stderr, "Error: Test failed on the following channels: 0x%04jx\n", fail);
+		fprintf(stderr, "Error: Test failed on the following channels: 0x%04x\n", fail);
 		res = FPGA_EXCEPTION;
 	}
 
 	if (timeout != 0x0) {
-		fprintf(stderr, "Error: Test timed out on the following channels: 0x%04jx\n", timeout);
+		fprintf(stderr, "Error: Test timed out on the following channels: 0x%04x\n", timeout);
 		res = FPGA_EXCEPTION;
 	}
 
-	if (pass != 0xffff) {
-		fprintf(stderr, "Error: Test did not pass on all channels: 0x%04jx\n", pass);
+	if (pass != ESRAM_FM) {
+		fprintf(stderr, "Error: Test did not pass on all channels: 0x%04x\n", pass);
 		res = FPGA_EXCEPTION;
 	}
 
@@ -543,16 +552,19 @@ static fpga_result fpga_test_qdr(struct n5010 *n5010)
 {
 	struct timespec ts = {.tv_sec = 0, .tv_nsec = 100000000};
 	uint64_t stat = 0;
-	uint64_t pass = 0;
-	uint64_t fail = 0;
-	uint64_t timeout = 0;
-	fpga_result res ;
+	uint8_t  pass = 0;
+	uint8_t  fail = 0;
+	uint8_t timeout = 0;
+	fpga_result res;
+	uint32_t polls = 0;
 
 	printf("starting QDR read/write test\n");
 
 	res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + QDR_TEST_STAT, &stat);
 	if (res != FPGA_OK || stat != 0) {
 		fprintf(stderr, "FPGA not ready for test, status: 0x%016jx\n", stat);
+		if (res == FPGA_OK)
+			res = FPGA_EXCEPTION;
 		goto error;
 	}
 
@@ -564,37 +576,43 @@ static fpga_result fpga_test_qdr(struct n5010 *n5010)
 	printf("waiting for test to complete...\n");
 
 	do {
+		++polls;
 		res = fpgaReadMMIO64(n5010->handle, 0, n5010->base + QDR_TEST_STAT, &stat);
 		if (res != FPGA_OK) {
 			fprintf(stderr, "failed to read stat: %s\n", fpgaErrStr(res));
 			goto error;
 		}
-		pass	= stat & QDR_TEST_PASS;
-		fail	= stat & QDR_TEST_FAIL;
-		timeout = stat & QDR_TEST_TIMEOUT;
+		pass	= QDR_TEST_PASS(stat);
+		fail	= QDR_TEST_FAIL(stat);
+		timeout = QDR_TEST_TIMEOUT(stat);
 
 
 		if (n5010->debug) {
-			printf("pass (8x QDR channels)   : 0x%02jx\n", pass);
-			printf("fail (8x QDR channels)   : 0x%02jx\n", fail);
-			printf("timeout (8x QDR channels): 0x%02jx\n", timeout);
+			printf("pass (8x QDR channels)   : 0x%02x\n", pass);
+			printf("fail (8x QDR channels)   : 0x%02x\n", fail);
+			printf("timeout (8x QDR channels): 0x%02x\n", timeout);
 		}
 		nanosleep(&ts, NULL);
 
-	} while ( (pass | fail | timeout) != 0xffff);
+	} while (((pass | fail | timeout) != QDR_FM) && polls < MAX_POLLS);
+
+	if (polls == MAX_POLLS) {
+		fprintf(stderr, "Error: Test failed FPGA not returning result within time\n");
+		res = FPGA_EXCEPTION;
+	}
 
 	if (fail != 0x0) {
-		fprintf(stderr, "Error: Test failed on the following channels: 0x%02jx\n", fail);
+		fprintf(stderr, "Error: Test failed on the following channels: 0x%02x\n", fail);
 		res = FPGA_EXCEPTION;
 	}
 
 	if (timeout != 0x0) {
-		fprintf(stderr, "Error: Test timed out on the following channels: 0x%02jx\n", timeout);
+		fprintf(stderr, "Error: Test timed out on the following channels: 0x%02x\n", timeout);
 		res = FPGA_EXCEPTION;
 	}
 
-	if (pass != 0xff) {
-		fprintf(stderr, "Error: Test did not pass on all channels: 0x%02jx\n", pass);
+	if (pass != QDR_FM) {
+		fprintf(stderr, "Error: Test did not pass on all channels: 0x%02x\n", pass);
 		res = FPGA_EXCEPTION;
 	}
 
