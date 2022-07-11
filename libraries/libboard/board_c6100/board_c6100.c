@@ -648,7 +648,7 @@ fpga_result fpga_image_info(fpga_token token)
 	const char *image_info_label[IMAGE_INFO_COUNT] = {
 	"User1 Image Info",
 	"User2 Image Info",
-	"User2 ImFactory Info"
+	"Factory Image Info"
 	};
 
 	fpga_object fpga_object;
