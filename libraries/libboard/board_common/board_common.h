@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2021, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -33,6 +33,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+#define SYSFS_PATH_MAX             256
 
 /**
 * Get sysfs value.
@@ -143,6 +145,48 @@ fpga_result print_common_boot_info(fpga_token token);
  *
  */
 void print_mac_address(struct ether_addr *eth_addr, int count);
+
+
+/**
+* Replace all occurrences of needle in haystack with substitute.
+*
+* @param[inout] haystack         Input event log str
+* @param[in] needle              needle in a haystack
+* @param[in] substitute          substitute string
+* @param[in] max_haystack_len    max length of heystack
+* @param[in] res                 FPGA_OK on success
+*
+* @returns FPGA_OK on success. FPGA_NO_MEMORY if fails to allocte memory.
+* FPGA_INVALID_PARAM if invalid parameters were provided
+*/
+fpga_result replace_str_in_str(
+	char *const haystack,
+	const char *const needle,
+	const char *const substitute,
+	const size_t max_haystack_len,
+	fpga_result res);
+
+/**
+* Replace all occurrences of needle in haystack with substitute.
+*
+* Reformat BOM Critical Components info to be directly printable.
+* Keys and values may not include commas.
+* Spaces and tabs are removed around commas.
+* Line endings are converted to LF (linefeed).
+* Empty lines are removed.
+* All Key,Value pairs are converted to Key: Value
+* @param[inout] bom_info            bmc info str
+* @param[in] len                 length of bmc info
+* @param[in] max_result_len      max result len
+*
+* @returns FPGA_OK on success.
+* FPGA_INVALID_PARAM if invalid parameters were provided
+*/
+fpga_result reformat_bom_info(
+	char *const bom_info,
+	const size_t len,
+	const size_t max_result_len);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

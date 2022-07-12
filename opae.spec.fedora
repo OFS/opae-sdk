@@ -95,12 +95,18 @@ Additional OPAE tools
        -DOPAE_BUILD_FPGABIST=ON 
 
 %if 0%{?rhel}
+%if 0%{rhel} <= 8
+  echo "Building for RHEL <= 8"
   %{?!__cmake_builddir: %global __cmake_builddir %{?__builddir}%{!?__builddir:.}}
   %make_build
 %else
+  echo "Building for RHEL >= 9"
   %cmake_build
 %endif
-
+%else
+  echo "Building for non-RHEL"
+  %cmake_build
+%endif
 
 %install
 mkdir -p %{buildroot}%{_datadir}/opae
@@ -146,8 +152,15 @@ cp samples/n5010-test/n5010-test.c %{buildroot}%{_usr}/src/opae/samples/n5010-te
 
 
 %if 0%{?rhel}
+%if 0%{rhel} <= 8
+  echo "Installing for RHEL <= 8"
   %make_install
 %else
+  echo "Installing for RHEL >= 9"
+  %cmake_install
+%endif
+%else
+  echo "Installing for non-RHEL"
   %cmake_install
 %endif
 
@@ -234,6 +247,7 @@ done
 %{_libdir}/opae/libboard_d5005.so
 %{_libdir}/opae/libboard_n5010.so
 %{_libdir}/opae/libboard_n6000.so
+%{_libdir}/opae/libboard_c6100.so
 
 %{_bindir}/fpgad
 %{_bindir}/fpgaconf
