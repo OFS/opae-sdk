@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2021, Intel Corporation
+// Copyright(c) 2020-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@ struct mmio_region *the_region = nullptr;
 const char *program = "opae.io";
 const int major = 0;
 const int minor = 2;
-const int patch = 2;
+const int patch = 3;
 
 py::tuple version()
 {
