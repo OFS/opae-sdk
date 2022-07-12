@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2021, Intel Corporation
+// Copyright(c) 2020-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -26,9 +26,7 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <memory>
 #include <sstream>
-#include <vector>
 #include <iomanip>
 
 #include <opae/vfio.h>
@@ -44,8 +42,8 @@ PYBIND11_EMBEDDED_MODULE(libvfio, m)
 PYBIND11_MODULE(libvfio, m)
 #endif
 {
-  py::class_<vfio_device, std::unique_ptr<vfio_device>> pydevice(m, "device", "");
-  pydevice.def_static("open", &vfio_device::open)
+  py::class_<vfio_device> pydevice(m, "device", "");
+  pydevice.def_static("open", &vfio_device::open, py::return_value_policy::reference)
           .def("descriptor", &vfio_device::descriptor)
           .def("close", &vfio_device::close)
           .def("__getitem__", &vfio_device::config_read<uint32_t>)
