@@ -57,12 +57,6 @@ static pthread_mutex_t board_plugin_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_N
 
 // Board plug-in table
 static platform_data platform_data_table[] = {
-	{ 0x1c2c, 0x1000, 0x1c2c, 0x0, -1, "libboard_n5010.so", NULL,
-	"Silicom FPGA SmartNIC N5010 Series" },
-
-	{ 0x1c2c, 0x1001, 0x1c2c, 0x0, -1, "libboard_n5010.so", NULL,
-	"Silicom FPGA SmartNIC N5010 Series" },
-
 	{ 0x8086, 0x09c4, 0x8086, 0x0, -1, "libboard_a10gx.so", NULL,
 	"Intel Programmable Acceleration Card with Intel Arria® 10 GX FPGA" },
 
@@ -82,6 +76,12 @@ static platform_data platform_data_table[] = {
 	"Intel FPGA Programmable Acceleration Card D5005" },
 
 	// Max10 SPI feature id 0xe
+	{ 0x1c2c, 0x1000, 0x0, 0x0, 0xe, "libboard_n5010.so", NULL,
+	"Silicom FPGA SmartNIC N5010 Series" },
+
+	{ 0x1c2c, 0x1001, 0x0, 0x0, 0xe, "libboard_n5010.so", NULL,
+	"Silicom FPGA SmartNIC N5010 Series" },
+
 	{ 0x8086, 0xaf00, 0x8086, 0x0, 0xe, "libboard_d5005.so", NULL,
 	"Intel Open FPGA Stack Platform" },
 
