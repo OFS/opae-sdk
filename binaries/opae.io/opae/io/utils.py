@@ -531,14 +531,14 @@ def find_device(pci_addr=None):
             raise OSError(os.EX_OSERR, errstr)
         return d
 
-    for pci_addr, vid, did, name, driver in lsfpga():
-        if driver == 'vfio-pci':
-            iommu_group = read_link('/sys/bus/pci/devices', pci_addr, 'iommu_group')
+    for fpga in lsfpga():
+        if fpga.driver == 'vfio-pci':
+            iommu_group = read_link('/sys/bus/pci/devices', fpga.addr, 'iommu_group')
             vfiodev = Path('/dev/vfio', iommu_group.stem)
             if vfiodev.exists():
-                device = open_pciaddr(pci_addr)
-                if device:
-                    return device
+                dev = open_pciaddr(fpga.addr)
+                if dev:
+                    return dev
 
 
 def find_region(device, region):
