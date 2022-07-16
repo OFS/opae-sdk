@@ -162,12 +162,16 @@ STATIC char *find_ase_cfg(void)
 	return NULL;
 }
 
+extern int initialized;
 __attribute__((constructor(1000))) STATIC void opae_init(void)
 {
 	fpga_result res;
 	g_logfile = NULL;
 	char *cfg_path = NULL;
 	char *with_ase = NULL;
+
+	if (initialized)
+		return;
 
 	/* try to read loglevel from environment */
 	char *s = getenv("LIBOPAE_LOG");
