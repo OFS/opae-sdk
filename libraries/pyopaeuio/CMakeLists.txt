@@ -25,6 +25,7 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 if (OPAE_WITH_PYBIND11)
+    find_package(pybind11) 
     set(INCLUDE_DIRS "${OPAE_INCLUDE_PATH}:${pybind11_ROOT}/include")
     set(LINK_DIRS "${LIBRARY_OUTPUT_PATH}")
     set(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/timestamp)

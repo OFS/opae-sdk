@@ -54,6 +54,7 @@ endif()
 include(FindTbb)
 include(FindCap)
 include(FindUdev)
+include(FindPybind11)
 
 include(OPAECompiler)
 if(OPAE_BUILD_TESTS)

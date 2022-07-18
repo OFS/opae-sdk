@@ -89,6 +89,7 @@ add_fpgadiag_app(nlb3 src/nlb3_main.cpp toolfpgadiagapps)
 add_fpgadiag_app(nlb7 src/nlb7_main.cpp toolfpgadiagapps)
 
 if (OPAE_WITH_PYBIND11)
+    find_package(pybind11) 
     set(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/timestamp)
     file(GLOB_RECURSE PKG_FILES ${CMAKE_CURRENT_SOURCE_DIR}/opae/*)
 
