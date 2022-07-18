@@ -79,7 +79,7 @@ static platform_data platform_data_table[] = {
 	{      0,      0,          NULL,  0 },
 };
 
-int initialized = 0;
+int initialized;
 static int finalizing;
 
 STATIC opae_api_adapter_table *adapter_list = (void *)0;
