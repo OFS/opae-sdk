@@ -92,7 +92,8 @@ int dfl_port_info(mock_object * m, int request, va_list argp){
   }
   pinfo->flags = 0;
   pinfo->num_regions = 2;
-  if (m->device_id().is_n6000_sku1())
+  if (m->device_id().is_n6000_sku0() ||
+      m->device_id().is_n6000_sku1())
     pinfo->num_regions = 1;
   pinfo->num_umsgs = 0;
 /*
