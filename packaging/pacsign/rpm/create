@@ -130,4 +130,4 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-mv "${RPMBUILD_DIR}"/RPMS/x86_64/pacsign*.rpm "${SCRIPT_DIR}"
+mv "${RPMBUILD_DIR}"/RPMS/noarch/pacsign*.rpm "${SCRIPT_DIR}"

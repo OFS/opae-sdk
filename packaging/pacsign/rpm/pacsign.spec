@@ -5,7 +5,7 @@ Name:           pacsign
 Version:        @VERSION@
 Release:        %{opae_release}%{?dist}
 License:        BSD
-ExclusiveArch:  x86_64
+BuildArch:      noarch
 
 Group:          Development/Libraries
 Vendor:         Intel Corporation
