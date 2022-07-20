@@ -35,12 +35,10 @@ find_path(PYBIND11_INCLUDE_DIRS
         ${CMAKE_EXTRA_INCLUDES})
 if(PYBIND11_INCLUDE_DIRS)
         set(PYBIND11_FOUND true)
-        set(pybind11_ROOT ${PYBIND11_INCLUDE_DIRS}/pybind11)
 endif(PYBIND11_INCLUDE_DIRS)
 
 message(STATUS "PYBIND11_INCLUDE_DIRS: ${PYBIND11_INCLUDE_DIRS}")
 message(STATUS "PYBIND11_FOUND: ${PYBIND11_FOUND}")
-message(STATUS "pybind11_ROOT: ${pybind11_ROOT}")
 
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(pybind11 DEFAULT_MSG

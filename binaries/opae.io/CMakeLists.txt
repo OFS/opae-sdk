@@ -25,9 +25,6 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 if (PLATFORM_SUPPORTS_VFIO AND OPAE_WITH_PYBIND11 AND OPAE_WITH_LIBEDIT)
-    if (POLICY CMP0074)
-      cmake_policy(SET CMP0074 NEW)
-    endif()
     find_package(pybind11)
     find_package(libedit REQUIRED)
 

@@ -25,9 +25,6 @@
 ## POSSIBILITY OF SUCH DAMAGE.
 
 if (OPAE_WITH_PYBIND11)
-    if (POLICY CMP0074)
-      cmake_policy(SET CMP0074 NEW)
-    endif()
     find_package(pybind11)
     set(INCLUDE_DIRS "${OPAE_INCLUDE_PATH}:${pybind11_ROOT}/include")
     set(LINK_DIRS "${LIBRARY_OUTPUT_PATH}")
