@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright(c) 2021, Intel Corporation
+# Copyright(c) 2021-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -36,8 +36,7 @@ SDK_DIR="$(cd "${SCRIPT_DIR}/../../../" && pwd)"
 PYTHON_DIR="${SDK_DIR}/python"
 
 # Check for prerequisite packages.
-for pkg in 'python3-devel' \
-           'rpm-build' \
+for pkg in 'rpm-build' \
            'rpmdevtools' \
            'pandoc'
 do
@@ -47,6 +46,27 @@ do
         exit 1
     fi
 done
+
+declare -ra PYTHON_PKG_DEPS=(\
+'python3-devel' \
+'python36-devel' \
+'python38-devel'\
+)
+declare -i HAVE_PYTHON_DEVEL=0
+
+for pkg in ${PYTHON_PKG_DEPS[@]}
+do
+    dnf list installed "${pkg}" >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        HAVE_PYTHON_DEVEL=1
+        break
+    fi
+done
+
+if [ ${HAVE_PYTHON_DEVEL} -eq 0 ]; then
+    printf "No suitable Python Development package found.. exiting\n"
+    exit 1
+fi
 
 rm -rf "${RPMBUILD_DIR}"
 mkdir -p "${RPMBUILD_DIR}"
@@ -63,7 +83,7 @@ done
 
 # Create source tarball.
 cd "${PYTHON_DIR}"
-tar --transform="s/pacsign/pacsign-${PROJECT_VERSION}/" \
+tar --transform="s/pacsign/pacsign-${PROJECT_VERSION}-${PROJECT_RELEASE}/" \
   --exclude=CMakeLists.txt \
   --exclude=MANIFEST.in \
   --exclude=PACSign.md \
@@ -74,21 +94,21 @@ tar --transform="s/pacsign/pacsign-${PROJECT_VERSION}/" \
   --exclude=tests \
   --exclude=test.py \
   --exclude=Version.txt \
-  -z -c -f pacsign-${PROJECT_VERSION}.tar.gz pacsign
+  -z -c -f pacsign-${PROJECT_VERSION}-${PROJECT_RELEASE}.tar.gz pacsign
 
-mv pacsign-${PROJECT_VERSION}.tar.gz "${RPMBUILD_DIR}/SOURCES"
+mv pacsign-${PROJECT_VERSION}-${PROJECT_RELEASE}.tar.gz "${RPMBUILD_DIR}/SOURCES"
 
 # Add man pages.
 cd "${RPMBUILD_DIR}/SOURCES"
-tar zxf pacsign-${PROJECT_VERSION}.tar.gz 
-rm -f pacsign-${PROJECT_VERSION}.tar.gz 
-cd pacsign-${PROJECT_VERSION}
+tar zxf pacsign-${PROJECT_VERSION}-${PROJECT_RELEASE}.tar.gz 
+rm -f pacsign-${PROJECT_VERSION}-${PROJECT_RELEASE}.tar.gz 
+cd pacsign-${PROJECT_VERSION}-${PROJECT_RELEASE}
 mkdir docs
 
 pandoc --standalone --to man "${PYTHON_DIR}/pacsign/PACSign.md" -o ./docs/PACSign.1
 
 cd ..
-tar zcf pacsign-${PROJECT_VERSION}.tar.gz pacsign-${PROJECT_VERSION}
+tar zcf pacsign-${PROJECT_VERSION}-${PROJECT_RELEASE}.tar.gz pacsign-${PROJECT_VERSION}-${PROJECT_RELEASE}
 
 cd "${SCRIPT_DIR}"
 cat ./pacsign.spec | \
@@ -104,10 +124,10 @@ ${SDK_DIR}/packaging/changelog.py rpm \
 # Create RPMS.
 cd "${RPMBUILD_DIR}/SPECS"
 
-rpmbuild --define="_topdir ${RPMBUILD_DIR}" -ba pacsign.spec
+rpmbuild --define="_topdir ${RPMBUILD_DIR}" -bb pacsign.spec
 if [ $? -ne 0 ]; then
     printf "rpmbuild failed.. exiting\n"
     exit 1
 fi
 
-mv "${RPMBUILD_DIR}"/RPMS/noarch/pacsign*.rpm "${SCRIPT_DIR}"
+mv "${RPMBUILD_DIR}"/RPMS/x86_64/pacsign*.rpm "${SCRIPT_DIR}"
