@@ -65,6 +65,13 @@ struct fpga_device_id
     subsystem_device(sd)
   {}
 
+  bool is_n6000_sku0() const
+  {
+    return vendor == 0x8086 && device == 0xbcce &&
+           subsystem_vendor == 0x8086 &&
+           subsystem_device == 0x1770;
+  }
+
   bool is_n6000_sku1() const
   {
     return vendor == 0x8086 && device == 0xbcce &&

@@ -79,7 +79,7 @@ static platform_data platform_data_table[] = {
 	{      0,      0,          NULL,  0 },
 };
 
-static int initialized;
+int initialized;
 static int finalizing;
 
 STATIC opae_api_adapter_table *adapter_list = (void *)0;
@@ -757,6 +757,8 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 		opae_mutex_unlock(res, &adapter_list_lock);
 		return 0;
 	}
+	initialized = 1;
+
 	found_cfg = find_cfg();
 	use_cfg = cfg_file ? cfg_file : found_cfg;
 	if (use_cfg) {
@@ -779,6 +781,7 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 	// Call each plugin's initialization routine.
 	errors += opae_plugin_mgr_initialize_all();
 
+	initialized = 0;
 	if (!errors && (opae_plugin_mgr_plugin_count || platforms_detected))
 		initialized = 1;
 

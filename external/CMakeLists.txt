@@ -27,26 +27,24 @@
 cmake_minimum_required(VERSION  3.10)
 
 if(OPAE_WITH_PYBIND11)
-
     if(NOT PYBIND11_FOUND)
         find_package(pybind11 CONFIG)
     endif(NOT PYBIND11_FOUND)
-    
+
     if(NOT PYBIND11_FOUND)
       if(${CMAKE_VERSION} VERSION_LESS "3.4.0" AND ${PYTHONLIBS_VERSION_STRING} VERSION_LESS "3.9.0")
           set(PYBIND11_TAG "v2.4.3")
       else()
       # Otherwise, pull recent pybind11 tag to enable Python 3.9 support.
-          set(PYBIND11_TAG "v2.9.2")
+          set(PYBIND11_TAG "v2.10.0")
       endif()
       message(STATUS "Using pybind11 ${PYBIND11_TAG}")
-	  opae_external_project_add(PROJECT_NAME pybind11
-								  GIT_URL https://github.com/pybind/pybind11.git
-								  GIT_TAG "${PYBIND11_TAG}"
-								  PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
-		)
-    endif(NOT PYBIND11_FOUND)  
-
+      opae_external_project_add(PROJECT_NAME pybind11
+                                GIT_URL https://github.com/pybind/pybind11.git
+                                GIT_TAG "${PYBIND11_TAG}"
+                                PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
+    )
+    endif(NOT PYBIND11_FOUND)
 endif(OPAE_WITH_PYBIND11)
 
 if (OPAE_WITH_CLI11)
