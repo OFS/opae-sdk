@@ -1,0 +1,16 @@
+Source: pacsign
+Priority: optional
+Maintainer: OPAE Dev Team, <opae@lists.01.org>
+Build-Depends: debhelper (>= 10), python3, dh-python
+Standards-Version: 4.1.2
+Section: python
+Homepage: https://github.com/OPAE/opae-sdk.git
+Vcs-Git: https://github.com/OPAE/opae-sdk.git
+
+Package: python3-pacsign
+Section: python
+Priority: optional
+Architecture: any
+Depends: ${misc:Depends}, ${python3:Depends}
+Description: OPAE Utility
+ Signing utility for Intel FPGA PAC devices.

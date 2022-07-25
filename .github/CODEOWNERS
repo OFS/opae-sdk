@@ -4,31 +4,46 @@
 # of responsibility (which is defined by the paths of the files touched by a
 # pull request).
 
+# @OPAE/api reviews everything, unless overridden below.
+*                               @OPAE/api
+
 # API specification, implementation, and samples
-/common/include/OPAE/          @OPAE/api
-/libopae/                      @OPAE/api
-/libopaecxx/                   @OPAE/api
-/samples/                      @OPAE/api
+CMakeLists.txt                  @OPAE/api
+/include/                       @OPAE/api
+/libraries/                     @OPAE/api
+/ofs/                           @OPAE/api
+/python/                        @OPAE/api
 
 # Tools
-/tools/                        @OPAE/tools
+/binaries/                      @OPAE/tools
+/samples/                       @OPAE/tools
 
-# ASE & platforms database
-/ase/                          @OPAE/ase
-/platforms/                    @OPAE/ase
+# Platforms database
+/platforms/                     @OPAE/ase
 
 # Documentation
-/doc/                          @OPAE/doc
+AUTHORS                         @OPAE/doc
+CONTRIBUTING.md                 @OPAE/doc
+COPYING                         @OPAE/doc
+LICENSE                         @OPAE/doc
+README.md                       @OPAE/doc
+RELEASE_NOTES.md                @OPAE/doc
+
+/doc/                           @OPAE/doc
+/scripts/build-documentation.sh @OPAE/doc
+/scripts/push-documentation.sh  @OPAE/doc
+/setup/                         @OPAE/doc
 
 # Build toolchain & continuous integration
-CMakeLists.txt                 @OPAE/ci
-/scripts/                      @OPAE/ci
-/tests/                        @OPAE/ci
-/testing/                      @OPAE/ci
-.travis.yml                    @OPAE/ci
-/cmake/                        @OPAE/ci
-opae.spec.in                   @OPAE/ci
-
-# Safestring library
-/common/include/safe_string/   @OPAE/safe
-/safe_string/                  @OPAE/safe
+buildit.py                      @OPAE/ci
+opae.spec.in                    @OPAE/ci
+opae.spec.rhel                  @OPAE/ci
+opae.spec.fedora                @OPAE/ci
+.gitattributes                  @OPAE/ci
+.gitconfig                      @OPAE/ci
+.gitignore                      @OPAE/ci
+/.github/                       @OPAE/ci
+/packaging/                     @OPAE/ci
+/scripts/                       @OPAE/ci
+/tests/                         @OPAE/ci
+/cmake/                         @OPAE/ci
