@@ -318,7 +318,9 @@ class openssl:
                 log.warn('"%s" is not a valid OpenSSL version', c_version)
                 return None
 
-            if (c_version == vers or m.group('version')[:-1] == vers):
+            if (c_version == vers or
+                m.group('version') == vers or
+                m.group('version')[:-1] == vers):
                 log.info('OpenSSL version "%s" matches "%s"', c_version, vers)
                 return dll
 
