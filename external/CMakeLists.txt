@@ -31,7 +31,7 @@ if(OPAE_WITH_PYBIND11)
         set(PYBIND11_TAG "v2.4.3")
     else()
     # Otherwise, pull recent pybind11 tag to enable Python 3.9 support.
-        set(PYBIND11_TAG "v2.9.2")
+        set(PYBIND11_TAG "v2.10.0")
     endif()
     message(STATUS "Using pybind11 ${PYBIND11_TAG}")
     opae_external_project_add(PROJECT_NAME pybind11
