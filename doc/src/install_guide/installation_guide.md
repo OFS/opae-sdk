@@ -126,6 +126,8 @@ Set the RHEL version and install packages. Set proxy name and port number
 # python3 -m pip install --user jsonschema virtualenv pudb pyyaml
 ```
 
+### Create opae-sdk packages ###
+
 Download the OPAE-SDK source code from github. For example, download from Master branch.
 
 ```console
