@@ -327,11 +327,20 @@ def dfh_walk(region, offset=0, header=None, guid=None):
         offset += h.bits.next
 
 
+def w_aligned(offset: int):
+    mask = 0b11 if ACCESS_MODE == 32 else 0b111
+    return (offset & mask) == 0
+
+
 def walk(region,
-         offset=0, show_uuid=False, count=None, delay=None, dump=False):
+         offset=0, show_uuid=False, count=None, delay=None, dump=False,
+         safe_walk=True):
     for i, (offset_, hdr) in enumerate(dfh_walk(region, offset=offset)):
         if count and i >= count:
             break
+        if safe_walk and not w_aligned(offset_):
+            raise ValueError(
+                f'offset 0x{offset_:04x} not {ACCESS_MODE}-bit aligned')
         print(f'offset: 0x{offset_:04x}, value: 0x{hdr.value:04x}')
         print(f'    dfh: {hdr}')
         if delay:
