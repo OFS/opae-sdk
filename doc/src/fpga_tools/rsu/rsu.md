@@ -14,7 +14,7 @@ rsu [-h] [-d] {bmc,bmcimg,retimer,fpga,sdm,fpgadefault} [PCIE_ADDR]
 rsu bmc --page=(user|factory) [PCIE_ADDR]
 rsu retimer [PCIE_ADDR]
 rsu fpga --page=(user1|user2|factory) [PCIE_ADDR]
-rsu sdm [PCIE_ADDR]
+rsu sdm --type=(sr|pr|sr_cancel|pr_cancel) [PCIE_ADDR]
 ```
 
 Perform RSU (remote system update) operation on PAC device
@@ -95,10 +95,10 @@ force rsu operation
  with PCIe address 25:00.0.
 
 ```console
-# rsu sdm 25:00.0
+# rsu sdm --type=sr 25:00.0
 ```
 
- Triggers a reconfiguration of the SDM for the device with
+ Triggers Static Region key programming for the device with
  PCIE address 25:00.0.
 
 ```console
