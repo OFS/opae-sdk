@@ -50,6 +50,27 @@ declare -r RPM_SPEC="opae.spec.${WHICH_RPM}"
 
 # Check for prerequisite packages.
 
+declare -ra PYTHON_PKG_DEPS=(\
+'python3-devel' \
+'python36-devel' \
+'python38-devel'\
+)
+declare -i HAVE_PYTHON_DEVEL=0
+
+for pkg in ${PYTHON_PKG_DEPS[@]}
+do
+    dnf list installed "${pkg}" >/dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        HAVE_PYTHON_DEVEL=1
+        break
+    fi
+done
+
+if [ ${HAVE_PYTHON_DEVEL} -eq 0 ]; then
+    printf "No suitable Python Development package found.. exiting\n"
+    exit 1
+fi
+
 declare -a PKG_DEPS=(\
 'make' \
 'cmake' \
@@ -58,7 +79,6 @@ declare -a PKG_DEPS=(\
 'gcc-c++' \
 'json-c-devel' \
 'libuuid-devel' \
-'python3*-devel' \
 'python3-jsonschema' \
 'python3-pip' \
 'rpm-build' \
@@ -75,7 +95,9 @@ if [ "${WHICH_RPM}" = 'fedora' ]; then
 'hwloc-devel' \
 'pybind11-devel' \
 'cli11-devel' \
-'spdlog-devel'\
+'spdlog-devel' \
+'libedit-devel' \
+'systemd-devel'\
 )
 fi
 
