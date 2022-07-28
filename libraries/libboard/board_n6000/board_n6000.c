@@ -512,7 +512,7 @@ fpga_result print_phy_info(fpga_token token)
 
 	res = find_dev_feature(token, HSSI_FEATURE_ID, feature_dev);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to find feature ");
+		OPAE_MSG("Failed to find feature HSSI");
 		return res;
 	}
 
@@ -549,7 +549,7 @@ fpga_result print_sec_info(fpga_token token)
 	res = fpgaTokenGetObject(token, DFL_SEC_PMCI_GLOB, &tcm_object,
 		FPGA_OBJECT_GLOB);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to get token Object");
+		OPAE_MSG("Failed to get token Object");
 		return res;
 	}
 	printf("********** SEC Info START ************ \n");
