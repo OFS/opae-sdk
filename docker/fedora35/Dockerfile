@@ -4,7 +4,7 @@ RUN dnf install -y libedit-devel
 RUN dnf install -y libudev-devel
 RUN dnf install -y libcap-devel
 RUN python3 -m pip install setuptools --upgrade
-RUN python3 -m pip install python-pkcs11 pyyaml jsonschema
+RUN python3 -m pip install pyyaml jsonschema
 WORKDIR /root
 COPY scripts/build-rpms.sh /scripts/build-rpms.sh
 COPY scripts/test-rpms.sh /scripts/test-rpms.sh
