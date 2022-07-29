@@ -179,7 +179,7 @@ def device_rsu_fpga(device, args):
 
 
 def device_rsu_sdm(device, args):
-    device_rsu(device, 'sdm', force=args.force)
+    device_rsu(device, 'sdm_' + args.type, force=args.force)
 
 
 def parse_args():
@@ -221,6 +221,9 @@ def parse_args():
     sdm.add_argument('bdf', nargs='?',
                      help=('PCIe address '
                            '(eg 04:00.0 or 0000:04:00.0)'))
+    sdm.add_argument('-t', '--type',
+                     choices=['sr', 'pr', 'sr_cancel', 'pr_cancel'],
+                     default='sr', help='select SDM type')
     sdm.set_defaults(func=device_rsu_sdm)
 
     fpgadefault = subparser.add_parser('fpgadefault',
