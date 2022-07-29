@@ -29,7 +29,7 @@
 
 #include <opae/types.h>
 
-#define BEL_SENSOR_COUNT 83
+#define BEL_SENSOR_COUNT 44
 
 #ifdef __cplusplus
 extern "C" {
@@ -74,7 +74,7 @@ struct bel_sensor_state {
 struct bel_sensors_state {
 	struct bel_header header;
 	struct bel_sensor_state sensor_state[BEL_SENSOR_COUNT];
-	uint32_t reserved[8];
+	uint32_t reserved[424];
 } __attribute__((__packed__));
 
 struct bel_ext_status {
@@ -96,7 +96,6 @@ struct bel_sensors_status {
 	uint32_t ina3221_1_mask_enable;
 	uint32_t ina3221_2_mask_enable;
 	uint32_t ina3221_3_mask_enable;
-	struct bel_ext_status ir38062;
 	struct bel_ext_status ir38063;
 	struct bel_ext_status isl68220;
 	uint32_t ed8401_status;

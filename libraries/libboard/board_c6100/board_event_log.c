@@ -52,11 +52,7 @@ enum bel_magic {
 };
 
 enum bel_power_regulator {
-	BEL_PWR_REG_IR38062_VOUT = 0,
-	BEL_PWR_REG_IR38062_IOUT,
-	BEL_PWR_REG_IR38062_VIN,
-	BEL_PWR_REG_IR38062_TEMP,
-	BEL_PWR_REG_IR38063_VOUT,
+	BEL_PWR_REG_IR38063_VOUT = 0,
 	BEL_PWR_REG_IR38063_IOUT,
 	BEL_PWR_REG_IR38063_VIN,
 	BEL_PWR_REG_IR38063_TEMP,
@@ -80,90 +76,47 @@ static struct bel_sensor_info bel_sensor_info[] = {
 	{ .id =  4, .label = "FPGA E-TILE Temperature#3", .unit = "°C", .resolution = 2 },
 	{ .id =  5, .label = "FPGA E-TILE Temperature#4", .unit = "°C", .resolution = 2 },
 	{ .id =  6, .label = "FPGA P-TILE Temperature", .unit = "°C", .resolution = 2 },
-	{ .id =  7, .label = "FPGA FABRIC Max Temperature", .unit = "°C", .resolution = 2 },
-	{ .id =  8, .label = "FPGA FABRIC DTS#1", .unit = "°C", .resolution = 2 },
-	{ .id =  9, .label = "FPGA FABRIC DTS#2", .unit = "°C", .resolution = 2 },
-	{ .id = 10, .label = "FPGA FABRIC DTS#3", .unit = "°C", .resolution = 2 },
-	{ .id = 11, .label = "FPGA FABRIC DTS#4", .unit = "°C", .resolution = 2 },
-	{ .id = 12, .label = "FPGA FABRIC DTS#5", .unit = "°C", .resolution = 2 },
-	{ .id = 13, .label = "FPGA FABRIC RDTS#1", .unit = "°C", .resolution = 2 },
-	{ .id = 14, .label = "FPGA FABRIC RDTS#2", .unit = "°C", .resolution = 2 },
-	{ .id = 15, .label = "FPGA FABRIC RDTS#3", .unit = "°C", .resolution = 2 },
-	{ .id = 16, .label = "FPGA FABRIC RDTS#4", .unit = "°C", .resolution = 2 },
-	{ .id = 60, .label = "Board Top Near FPGA", .unit = "°C", .resolution = 2 },
-	{ .id = 61, .label = "Board Bottom Near CVL", .unit = "°C", .resolution = 2 },
-	{ .id = 62, .label = "Board Top East Near VRs Temperature", .unit = "°C", .resolution = 2 },
-	{ .id = 63, .label = "Columbiaville Die Temperature", .unit = "°C", .resolution = 2 },
-	{ .id = 64, .label = "Board Rear Side Temperature", .unit = "°C", .resolution = 2 },
-	{ .id = 65, .label = "Board Front Side Temperature", .unit = "°C", .resolution = 2 },
-	{ .id = 66, .label = "QSFP1(Primary) Case Temperature", .unit = "°C", .resolution = 2 },
-	{ .id = 67, .label = "QSFP2(Secondary) Case Temperature", .unit = "°C", .resolution = 2 },
-	{ .id = 68, .label = "FPGA Core Voltage Phase 0 VR Temperature", .unit = "°C", .resolution = 2 },
-	{ .id = 69, .label = "FPGA Core Voltage Phase 1 VR Temperature", .unit = "°C", .resolution = 2 },
-	{ .id = 70, .label = "FPGA Core Voltage Phase 2 VR Temperature", .unit = "°C", .resolution = 2 },
-	{ .id = 71, .label = "FPGA Core Voltage VR Controller Temperature", .unit = "°C", .resolution = 2 },
-	{ .id = 72, .label = "FPGA VCCH VR Temperature", .unit = "°C", .resolution = 2 },
-	{ .id = 73, .label = "FPGA VCC_1V2 VR Temperature", .unit = "°C", .resolution = 2 },
-	{ .id = 74, .label = "FPGA VCCH & VCC_1V2 VR Controller Temperature", .unit = "°C", .resolution = 2 },
-	{ .id = 75, .label = "3V3 VR Temperature", .unit = "°C", .resolution = 2 },
-	{ .id = 76, .label = "CVL Core Voltage VR Temperature", .unit = "°C", .resolution = 2 },
-	{ .id = 77, .label = "FPGA P-Tile Temperature [Remote]", .unit = "°C", .resolution = 2 },
-	{ .id = 78, .label = "FPGA E-Tile Temperature [Remote]", .unit = "°C", .resolution = 2 },
-	{ .id = 79, .label = "FPGA Core Temperature [Remote]", .unit = "°C", .resolution = 2 },
-	{ .id = 80, .label = "FPGA Corner Temperature [Remote]", .unit = "°C", .resolution = 2 },
-	{ .id = 100, .label = "Inlet 12V PCIe Rail [Voltage]", .unit = "mV", .resolution = 1 },
-	{ .id = 101, .label = "Inlet 12V PCIe Rail [Current]", .unit = "mA", .resolution = 1 },
-	{ .id = 102, .label = "Inlet 12V Aux Rail [Voltage]", .unit = "mV", .resolution = 1 },
-	{ .id = 103, .label = "Inlet 12V Aux Rail [Current]", .unit = "mA", .resolution = 1 },
-	{ .id = 104, .label = "Inlet 3V3 PCIe Rail [Voltage]", .unit = "mV", .resolution = 1 },
-	{ .id = 105, .label = "Inlet 3V3 PCIe Rail [Current]", .unit = "mA", .resolution = 1 },
-	{ .id = 108, .label = "Board Power", .unit = "mW", .resolution = 1 },
-	{ .id = 130, .label = "FPGA Core Voltage Rail [Voltage]", .unit = "mV", .resolution = 1 },
-	{ .id = 131, .label = "FPGA Core Voltage Rail [Current]", .unit = "mA", .resolution = 1 },
-	{ .id = 132, .label = "FPGA VCCH Rail [Voltage]", .unit = "mV", .resolution = 1 },
-	{ .id = 133, .label = "FPGA VCCH Rail [Current]", .unit = "mA", .resolution = 1 },
-	{ .id = 134, .label = "FPGA VCC_1V2 Rail [Voltage]", .unit = "mV", .resolution = 1 },
-	{ .id = 135, .label = "FPGA VCC_1V2 Rail [Current]", .unit = "mA", .resolution = 1 },
-	{ .id = 136, .label = "FPGA VCCH_GXER_1V1 & VCCA_1V8 [Voltage]", .unit = "mV", .resolution = 1 },
-	{ .id = 137, .label = "FPGA VCCH_GXER_1V1 & VCCA_1V8 [Current]", .unit = "mA", .resolution = 1 },
-	{ .id = 138, .label = "FPGA VCCIO_1V2 [Voltage]", .unit = "mV", .resolution = 1 },
-	{ .id = 139, .label = "FPGA VCCIO_1V2 [Current]", .unit = "mA", .resolution = 1 },
-	{ .id = 140, .label = "CVL Non Core Rails Inlet [Voltage]", .unit = "mV", .resolution = 1 },
-	{ .id = 141, .label = "CVL Non Core Rails Inlet [Current]", .unit = "mA", .resolution = 1 },
-	{ .id = 142, .label = "MAX10 & Board CLK PWR 3V3 Inlet [Voltage]", .unit = "mV", .resolution = 1 },
-	{ .id = 143, .label = "MAX10 & Board CLK PWR 3V3 Inlet [Current]", .unit = "mA", .resolution = 1 },
-	{ .id = 144, .label = "CVL Core Voltage Rail [Voltage]", .unit = "mV", .resolution = 1 },
-	{ .id = 145, .label = "CVL Core Voltage Rail [Current]", .unit = "mA", .resolution = 1 },
-	{ .id = 148, .label = "Board 3V3 VR [Voltage]", .unit = "mV", .resolution = 1 },
-	{ .id = 149, .label = "Board 3V3 VR [Current]", .unit = "mA", .resolution = 1 },
-	{ .id = 150, .label = "QSFP 3V3 Rail [Voltage]", .unit = "mV", .resolution = 1 },
-	{ .id = 151, .label = "QSFP 3V3 Rail [Current]", .unit = "mA", .resolution = 1 },
-	{ .id = 152, .label = "QSFP (Primary) Supply Voltage Rail [Voltage]", .unit = "mV", .resolution = 1 },
-	{ .id = 153, .label = "QSFP (Secondary) Supply Voltage Rail [Voltage]", .unit = "mV", .resolution = 1 },
-	{ .id = 180, .label = "VCCCLK_GXER_2V5 Voltage", .unit = "mV", .resolution = 1 },
-	{ .id = 181, .label = "AVDDH_1V1_CVL Voltage", .unit = "mV", .resolution = 1 },
-	{ .id = 182, .label = "VDDH_1V8_CVL Voltage", .unit = "mV", .resolution = 1 },
-	{ .id = 183, .label = "VCCA_PLL Voltage", .unit = "mV", .resolution = 1 },
-	{ .id = 184, .label = "VCCRT_GXER_0V9 Voltage", .unit = "mV", .resolution = 1 },
-	{ .id = 185, .label = "VCCRT_GXPL_0V9 Voltage", .unit = "mV", .resolution = 1 },
-	{ .id = 186, .label = "VCCH_GXPL_1V8 Voltage", .unit = "mV", .resolution = 1 },
-	{ .id = 187, .label = "VCCPT_1V8 Voltage", .unit = "mV", .resolution = 1 },
-	{ .id = 188, .label = "VCC_3V3_M10 Voltage", .unit = "mV", .resolution = 1 },
-	{ .id = 189, .label = "VCC_1V8_M10 Voltage", .unit = "mV", .resolution = 1 },
-	{ .id = 190, .label = "VCC_1V2_EMIF1_2_3 Voltage", .unit = "mV", .resolution = 1 },
-	{ .id = 191, .label = "VCC_1V2_EMIF4_5 Voltage", .unit = "mV", .resolution = 1 },
-	{ .id = 192, .label = "VCCA_1V8 Voltage", .unit = "mV", .resolution = 1 },
-	{ .id = 193, .label = "VCCH_GXER_1V1 Voltage", .unit = "mV", .resolution = 1 },
-	{ .id = 194, .label = "AVDD_ETH_0V9_CVL Voltage", .unit = "mV", .resolution = 1 },
-	{ .id = 195, .label = "AVDD_PCIE_0V9_CVL Voltage", .unit = "mV", .resolution = 1 },
-	{ .id = 32768, .label = "Virt FPGA Temperature", .unit = "°C", .resolution = 2 }
+	{ .id =  7, .label = "FPGA P-TILE DTS Temperature", .unit = "°C", .resolution = 2 },
+	{ .id =  8, .label = "FPGA P-TILE Max Temperature", .unit = "°C", .resolution = 2 },
+	{ .id =  9, .label = "FPGA FABRIC DTS#1", .unit = "°C", .resolution = 2 },
+	{ .id = 10, .label = "FPGA FABRIC DTS#2", .unit = "°C", .resolution = 2 },
+	{ .id = 11, .label = "FPGA FABRIC DTS#3", .unit = "°C", .resolution = 2 },
+	{ .id = 12, .label = "FPGA FABRIC DTS#4", .unit = "°C", .resolution = 2 },
+	{ .id = 13, .label = "FPGA FABRIC DTS#5", .unit = "°C", .resolution = 2 },
+	{ .id = 14, .label = "FPGA FABRIC RDTS#1", .unit = "°C", .resolution = 2 },
+	{ .id = 15, .label = "FPGA FABRIC RDTS#2", .unit = "°C", .resolution = 2 },
+	{ .id = 16, .label = "FPGA FABRIC RDTS#3", .unit = "°C", .resolution = 2 },
+	{ .id = 17, .label = "FPGA FABRIC RDTS#4", .unit = "°C", .resolution = 2 },
+	{ .id = 18, .label = "Board Bottom", .unit = "°C", .resolution = 2 },
+	{ .id = 19, .label = "FPGA Corner (SDM)Temperature", .unit = "°C", .resolution = 2 },
+	{ .id = 20, .label = "FPGA Core Fabric Temperature", .unit = "°C", .resolution = 2 },
+	{ .id = 21, .label = "FPGA P-Tile Temperature", .unit = "°C", .resolution = 2 },
+	{ .id = 22, .label = "FPGA E-Tile Temperature", .unit = "°C", .resolution = 2 },
+	{ .id = 23, .label = "Board Top Temperature", .unit = "°C", .resolution = 2 },
+	{ .id = 24, .label = "Board Rear Side Temperature", .unit = "°C", .resolution = 2 },
+	{ .id = 25, .label = "Board Front Side Temperature", .unit = "°C", .resolution = 2 },
+	{ .id = 26, .label = "FPGA Ambient Temperature", .unit = "°C", .resolution = 2 },
+	{ .id = 27, .label = "FPGA PTILE2 External Temperature", .unit = "°C", .resolution = 2 },
+	{ .id = 28, .label = "QSFP1(Primary) Case Temperature", .unit = "°C", .resolution = 2 },
+	{ .id = 29, .label = "QSFP2(Secondary) Case Temperature", .unit = "°C", .resolution = 2 },
+	{ .id = 30, .label = "Inlet 12V PCIe Rail [Voltage]", .unit = "mV", .resolution = 1 },
+	{ .id = 31, .label = "Inlet 12V PCIe Rail [Current]", .unit = "mA", .resolution = 1 },
+	{ .id = 32, .label = "Inlet 12V Aux Rail [Voltage]", .unit = "mV", .resolution = 1 },
+	{ .id = 33, .label = "Inlet 12V Aux Rail [Current]", .unit = "mA", .resolution = 1 },
+	{ .id = 34, .label = "Inlet 3V3 PCIe Rail [Voltage]", .unit = "mV", .resolution = 1 },
+	{ .id = 35, .label = "Inlet 3V3 PCIe Rail [Current]", .unit = "mA", .resolution = 1 },
+	{ .id = 36, .label = "Board Power", .unit = "mW", .resolution = 1 },
+	{ .id = 37, .label = "QSFP 3V3 Rail [Voltage]", .unit = "mV", .resolution = 1 },
+	{ .id = 38, .label = "QSFP 3V3 Rail [Current]", .unit = "mA", .resolution = 1 },
+	{ .id = 39, .label = "QSFP(Primary) Supply Voltage Rail[Voltage]", .unit = "mV", .resolution = 1 },
+	{ .id = 40, .label = "QSFP(Secondary) Supply Voltage Rail[Voltage]", .unit = "mV", .resolution = 1 },
+	{ .id = 41, .label = "Virt FPGA Temperature", .unit = "°C", .resolution = 2 },
+	{ .id = 42, .label = "SOC Package Power", .unit = "mW", .resolution = 2 },
+	{ .id = 43, .label = "SOC Package Temperature", .unit = "°C", .resolution = 2 },
+	{ .id = 44, .label = "FPGA Package Power", .unit = "mW", .resolution = 2 }
 };
 
 static struct bel_sensor_info bel_power_regulator_info[] = {
-	[BEL_PWR_REG_IR38062_VOUT]  = { .label = "IR38062 Voltage",      .unit = "mV", .resolution = 1 },
-	[BEL_PWR_REG_IR38062_IOUT]  = { .label = "IR38062 Current",      .unit = "mA", .resolution = 1 },
-	[BEL_PWR_REG_IR38062_VIN]   = { .label = "IR38062 Temperature",  .unit = "°C", .resolution = 1 },
-	[BEL_PWR_REG_IR38062_TEMP]  = { .label = "IR38062 Input",        .unit = "mV", .resolution = 1 },
 	[BEL_PWR_REG_IR38063_VOUT]  = { .label = "IR38063 Voltage",      .unit = "mV", .resolution = 1 },
 	[BEL_PWR_REG_IR38063_IOUT]  = { .label = "IR38063 Current",      .unit = "mA", .resolution = 1 },
 	[BEL_PWR_REG_IR38063_VIN]   = { .label = "IR38063 Temperature",  .unit = "°C", .resolution = 1 },
@@ -252,6 +205,7 @@ static void reserved_field(const char *label, uint32_t value, size_t first, size
 {
 	uint32_t mask = UINT_MAX >> (32 - (last - first));
 	uint32_t field = (value >> first) & mask;
+
 	if (label == NULL)
 		label = "Reserved";
 
@@ -262,6 +216,7 @@ static void reserved_field(const char *label, uint32_t value, size_t first, size
 static void reserved_bit(const char *label, uint32_t value, size_t offset)
 {
 	bool bit = (value >> offset) & 0x1;
+
 	if (label == NULL)
 		label = "Reserved";
 
@@ -282,10 +237,10 @@ void bel_print_power_on_status(struct bel_power_on_status *status, bool print_bi
 	reserved_field(NULL,                    0xFF,  0, 24);
 	reserved_bit(NULL,                      ~0,  22);
 	bel_print_field("Power On Code FPGA",   status->status, 24, 28);
-	bel_print_field("Power On Code CVL",    status->status, 28, 32);
+	bel_print_field("Power On Code ICXD",    status->status, 28, 32);
 
 	/* Register 0xa0 */
-	bel_print_value("FPGA_Status (0xA0)",   status->fpga_status);
+	bel_print_value("FPGA Config Status (0xA0)",   status->fpga_status);
 	bel_print_field("FPGA Page",            status->fpga_status,  0, 3);
 	bel_print_bit("FPGA Configured Page",   status->fpga_status,  3);
 	bel_print_bit("FPGA Config Timeline",   status->fpga_status,  4);
@@ -296,7 +251,7 @@ void bel_print_power_on_status(struct bel_power_on_status *status, bool print_bi
 	reserved_field(NULL, status->fpga_status, 30, 32);
 
 	/* Register 0xa4 */
-	bel_print_value("FPGA_Config Status (0xA4)",  status->fpga_config_status);
+	bel_print_value("FPGA_Config Sts (0xA4)",  status->fpga_config_status);
 	bel_print_field("Config Status",              status->fpga_config_status,  0, 4);
 	bel_print_bit("Config FW Seq Fail",           status->fpga_config_status,  4);
 	bel_print_field("nStatus Stuck Low Restarts", status->fpga_config_status,  5, 8);
@@ -309,102 +264,65 @@ void bel_print_power_on_status(struct bel_power_on_status *status, bool print_bi
 	/* Register 0x90 */
 	bel_print_value("Sequencer Status 1 (0x90)", status->sequencer_status_1);
 	if (print_bits) {
-		bel_print_bit("IDLE_ST", status->sequencer_status_1, 0);
-		bel_print_bit("PWR_CLS_DEC_FPGA_ST", status->sequencer_status_1, 1);
-		bel_print_bit("PG_3V3_5V_ST", status->sequencer_status_1, 2);
-		bel_print_bit("WAIT_10MS_FPGA_ST", status->sequencer_status_1, 3);
-		bel_print_bit("FPGA_GRP1_EN_ST", status->sequencer_status_1, 4);
-		bel_print_bit("FPGA_GRP2_EN_ST", status->sequencer_status_1, 5);
-		bel_print_bit("FPGA_GRP3_EN_ST", status->sequencer_status_1, 6);
-		bel_print_bit("PG_VTT_0V6_CHK_ST", status->sequencer_status_1, 7);
-		bel_print_bit("FPGA_GRP1_PWR_DWN_ST", status->sequencer_status_1, 8);
-		bel_print_bit("FPGA_GRP2_PWR_DWN_ST", status->sequencer_status_1, 9);
-		bel_print_bit("FPGA_GRP3_PWR_DWN_ST", status->sequencer_status_1, 10);
-		bel_print_bit("FPGA_PWR_ON_ST", status->sequencer_status_1, 11);
-		bel_print_bit("FPGA_PWR_OFF_ST", status->sequencer_status_1, 12);
-		reserved_field(NULL, status->sequencer_status_1, 13, 16);
-		bel_print_bit("PWR_CLS_DEC_CVL_ST", status->sequencer_status_1, 16);
-		bel_print_bit("CVL_VCC_1V1_ST", status->sequencer_status_1, 17);
-		bel_print_bit("CVL_WAIT_100US_ST", status->sequencer_status_1, 18);
-		bel_print_bit("CVL_3V3_1V8_EN_ST", status->sequencer_status_1, 19);
-		bel_print_bit("CVL_VDD_0V8_EN_ST", status->sequencer_status_1, 20);
-		bel_print_bit("CVL_AVDD_ETH_EN_ST", status->sequencer_status_1, 21);
-		bel_print_bit("CVL_AVDD_PCIE_1V1_EN_ST", status->sequencer_status_1, 22);
-		bel_print_bit("CVL_SI5392_CHK_ST", status->sequencer_status_1, 23);
-		bel_print_bit("CVL_LAN_100US_WAIT_ST", status->sequencer_status_1, 24);
-		bel_print_bit("CVL_LAN_PG_ST", status->sequencer_status_1, 25);
-		bel_print_bit("CVL_PWR_ON_ST", status->sequencer_status_1, 26);
-		bel_print_bit("CVL_LAN_PWR_DWN_ST", status->sequencer_status_1, 27);
-		bel_print_bit("CVL_AVDD_PWR_DWN_ST", status->sequencer_status_1, 28);
-		bel_print_bit("CVL_VDD_0V8_PWR_DWN_ST", status->sequencer_status_1, 29);
-		bel_print_bit("CVL_3V3_1V8_PWR_DWN_ST", status->sequencer_status_1, 30);
-		bel_print_bit("CVL_PWR_OFF_ST", status->sequencer_status_1, 31);
+		bel_print_field("FSM state of FPGA power sequencer state", status->fpga_config_status, 0, 8);
+		bel_print_field("FSM state of FPGA power sequencer (n-1) state", status->fpga_config_status, 8, 16);
+		bel_print_field("FSM state of ICXD LCC SOC power sequencer state", status->fpga_config_status, 16, 24);
+		bel_print_field("FSM state of FPGA power sequencer (n-1) state", status->fpga_config_status, 24, 32);
 	}
 
 	/* Register 0x94 */
 	bel_print_value("Sequencer Status 2 (0x94)", status->sequencer_status_2);
 	if (print_bits) {
-		bel_print_bit("EN_VCCL_FPGA_VID", status->sequencer_status_2, 0);
-		bel_print_bit("EN_VCCL_SDM_0V8_VCCH_0V9", status->sequencer_status_2, 1);
-		bel_print_bit("EN_FPGA_GRP2", status->sequencer_status_2, 2);
-		bel_print_bit("EN_VPP_2V5", status->sequencer_status_2, 3);
-		bel_print_bit("EN_VCCIO_1V8_SDM_1V8", status->sequencer_status_2, 4);
-		bel_print_bit("EN_VCC_1V2", status->sequencer_status_2, 5);
-		bel_print_bit("EN_3V3_CVL", status->sequencer_status_2, 6);
-		bel_print_bit("EN_1V8_CVL", status->sequencer_status_2, 7);
-		bel_print_bit("EN_VDD_0V8_CVL", status->sequencer_status_2, 8);
-		bel_print_bit("EN_AVDD_ETH_0V9_CVL", status->sequencer_status_2, 9);
-		bel_print_bit("EN_AVDD_PCIE_0V9_CVL", status->sequencer_status_2, 10);
-		bel_print_bit("EN_AVDDH_1V1_CVL", status->sequencer_status_2, 11);
-		bel_print_bit("EN_PWR_QSFP0", status->sequencer_status_2, 12);
-		bel_print_bit("EN_PWR_QSFP1", status->sequencer_status_2, 13);
-		bel_print_bit("FLT_CFP_ISL", status->sequencer_status_2, 14);
-		reserved_bit(NULL, status->sequencer_status_2, 15);
-		bel_print_bit("SI5392_LOL", status->sequencer_status_2, 16);
-		bel_print_bit("POWER_GOOD", status->sequencer_status_2, 17);
-		bel_print_bit("LAN_PWR_GOOD", status->sequencer_status_2, 18);
-		bel_print_bit("PM_ALERTN_3V3", status->sequencer_status_2, 19);
-		bel_print_bit("FPGA_VID_ALERTN", status->sequencer_status_2, 20);
-		bel_print_bit("VR_VID_ALERTN", status->sequencer_status_2, 21);
-		bel_print_bit("FPGA_THERM_ALERTN", status->sequencer_status_2, 22);
-		bel_print_bit("CVL_THERM_ALERTN", status->sequencer_status_2, 23);
-		bel_print_bit("EDGE_PWR_WARN", status->sequencer_status_2, 24);
+		reserved_field(NULL, status->sequencer_status_2, 0, 2);
+		bel_print_bit("fm71_fatal_therm", status->sequencer_status_2, 3);
+		bel_print_bit("fpga_therm_shdn_n", status->sequencer_status_2, 4);
+		bel_print_bit("fpga_therm_alert_n", status->sequencer_status_2, 5);
+		bel_print_bit("board_therm_shdn_n", status->sequencer_status_2, 6);
+		bel_print_bit("board_therm_alert_n", status->sequencer_status_2, 7);
+		bel_print_bit("fpga_cattrip_n", status->sequencer_status_2, 8);
+		bel_print_bit("fpga_vid_alert_n", status->sequencer_status_2, 9);
+		bel_print_bit("edge_ina_pwr_shdn_n", status->sequencer_status_2, 10);
+		bel_print_bit("qsfpb_pg", status->sequencer_status_2, 11);
+		bel_print_bit("qsfpa_pg", status->sequencer_status_2, 12);
+		bel_print_bit("fpga_grp3_vccio_1v8_sdm_1v8_pg", status->sequencer_status_2, 13);
+		bel_print_bit("fpga_grp3_vcc_1v2_pg", status->sequencer_status_2, 14);
+		bel_print_bit("fpga_grp2_ddr4_vpp_2v5_pg", status->sequencer_status_2, 15);
+		bel_print_bit("fpga_grp2_vcca_1v8_pg", status->sequencer_status_2, 16);
+		bel_print_bit("fpga_grp2_vcch_gxer_1v1_pg", status->sequencer_status_2, 17);
+		bel_print_bit("fpga_grp2_vccclk_gxer_2v5_pg", status->sequencer_status_2, 18);
+		bel_print_bit("fpga_grp1_vcch_0v9_pg", status->sequencer_status_2, 19);
+		bel_print_bit("fpga_grp1_vccl_vid_pg", status->sequencer_status_2, 20);
+		bel_print_bit("vcc_5v_pg", status->sequencer_status_2, 21);
+		bel_print_bit("vcc_3v3_pg", status->sequencer_status_2, 22);
+		bel_print_bit("pcie_3v3_uv_n", status->sequencer_status_2, 23);
+		bel_print_bit("pcie_3v3_ov_n", status->sequencer_status_2, 24);
+		bel_print_bit("power_class", status->sequencer_status_2, 25);
+		bel_print_bit("aux_12v_uv_n", status->sequencer_status_2, 26);
+		bel_print_bit("aux_12v_ov_n", status->sequencer_status_2, 27);
+		bel_print_bit("aux_12v_efuse_pg", status->sequencer_status_2, 28);
+		bel_print_bit("pcie_12v_uv_n", status->sequencer_status_2, 29);
+		bel_print_bit("pcie_12v_ov_n", status->sequencer_status_2, 30);
+		bel_print_bit("pcie_12v_efuse_pg", status->sequencer_status_2, 31);
 	}
+
 	/* Register 0x98 */
 	bel_print_value("Power Good Status (0x98)", status->power_good_status);
 	if (print_bits) {
-		bel_print_bit("pg_12v_aux_efuse", status->power_good_status, 0);
-		bel_print_bit("pg_12v_pcie_efuse", status->power_good_status, 1);
-		bel_print_bit("pg_vcc_5v", status->power_good_status, 2);
-		bel_print_bit("pg_vcc_3v3", status->power_good_status, 3);
-		bel_print_bit("pg_vccl_fpga_vid", status->power_good_status, 4);
-		bel_print_bit("pg_vccl_sdm_0v8", status->power_good_status, 5);
-		bel_print_bit("pg_vcch_0v9", status->power_good_status, 6);
-		bel_print_bit("pg_vcch_gxer_1v1", status->power_good_status, 7);
-		bel_print_bit("pg_vcca_1v8", status->power_good_status, 8);
-		bel_print_bit("pg_vccclk_gxer_2v5", status->power_good_status, 9);
-		bel_print_bit("pg_vpp_2v5", status->power_good_status, 10);
-		bel_print_bit("pg_vccio_1v8", status->power_good_status, 11);
-		bel_print_bit("pg_sdm_1v8", status->power_good_status, 12);
-		bel_print_bit("pg_vcc_1v2", status->power_good_status, 13);
-		bel_print_bit("pg_vtt_0v6", status->power_good_status, 14);
-		bel_print_bit("pg_vcc_1v1_cvl", status->power_good_status, 15);
-		bel_print_bit("pg_3v3_1v8_cvl", status->power_good_status, 16);
-		bel_print_bit("pg_vdd_0v8_cvl", status->power_good_status, 17);
-		bel_print_bit("pg_avdd_eth_0v9_cvl", status->power_good_status, 18);
-		bel_print_bit("pg_avdd_pcie_0v9_cvl", status->power_good_status, 19);
-		bel_print_bit("pg_avddh_1v1_cvl", status->power_good_status, 20);
-		bel_print_bit("pg_pwr_qsfp0n", status->power_good_status, 21);
-		bel_print_bit("pg_pwr_qsfp1n", status->power_good_status, 22);
-		bel_print_bit("FPGA_THERM_SHDN", status->power_good_status, 23);
-		bel_print_bit("EDGE_PWR_SHDN", status->power_good_status, 24);
-		bel_print_bit("FPGA_NCATTRIP", status->power_good_status, 25);
-		bel_print_bit("VCC_12V_AUX_UV", status->power_good_status, 26);
-		bel_print_bit("VCC_12V_PCIE_UV", status->power_good_status, 27);
-		bel_print_bit("VCC_3V3_PCIE_UV", status->power_good_status, 28);
-		bel_print_bit("VCC_12V_3V3_IN_OV", status->power_good_status, 29);
-		bel_print_bit("QSFPA_MODPRES", status->power_good_status, 30);
-		bel_print_bit("QSFPB_MODPRES", status->power_good_status, 31);
+		bel_print_bit("soc_icx_p1v8_cpu_pg", status->power_good_status, 0);
+		bel_print_bit("soc_icx_pvnn_pch_pg", status->power_good_status, 1);
+		bel_print_bit("soc_icx_pvccio_p1v05_pch_pg", status->power_good_status, 2);
+		bel_print_bit("soc_icx_pvddq_abc_pg", status->power_good_status, 3);
+		bel_print_bit("soc_ddr4_vtt_pg", status->power_good_status, 4);
+		bel_print_bit("soc_icx_pvccana_cpu_pg", status->power_good_status, 5);
+		bel_print_bit("soc_icx_pvccin_cpu_pg", status->power_good_status, 6);
+		bel_print_bit("soc_ddr_dram_pwr_ok", status->power_good_status, 7);
+		bel_print_bit("soc_pch_pwr_ok", status->power_good_status, 8);
+		bel_print_bit("soc_pwrgood_pch_out", status->power_good_status, 9);
+		bel_print_bit("soc_plt_rst_n", status->power_good_status, 10);
+		bel_print_bit("soc_thermtrip_n", status->power_good_status, 11);
+		bel_print_bit("soc_memtrip_n", status->power_good_status, 12);
+		bel_print_bit("soc_caterr_n", status->power_good_status, 13);
+		bel_print_bit("soc_sleep_s45_n", status->power_good_status, 14);
 	}
 }
 
@@ -428,73 +346,75 @@ void bel_print_power_off_status(struct bel_power_off_status *status, bool print_
 	bel_print_header("Power Off Status Time", &status->header);
 
 	/* Register 0xa0 */
-	bel_print_value("FPGA_Status (0xA0)", status->fpga_status);
-	bel_print_field("FPGA Page", status->fpga_status, 0, 3);
-	bel_print_bit("FPGA Configured Page", status->fpga_status, 3);
-	bel_print_bit("FPGA Config Timeline", status->fpga_status, 4);
-	bel_print_bit("Flow Done", status->fpga_status, 5);
+	bel_print_value("FPGA_Status (0xA0)",           status->fpga_status);
+	bel_print_field("FPGA Page",                    status->fpga_status, 0, 3);
+	bel_print_bit("FPGA Configured Page",           status->fpga_status, 3);
+	bel_print_bit("FPGA Config Timeline",           status->fpga_status, 4);
+	bel_print_bit("Flow Done",                      status->fpga_status, 5);
 	reserved_field(NULL, status->fpga_status, 6, 12);
-	bel_print_field("FSM State", status->fpga_status, 12, 16);
-	bel_print_field("Duration", status->fpga_status, 16, 30);
+	bel_print_field("FSM State",                    status->fpga_status, 12, 16);
+	bel_print_field("Duration",                     status->fpga_status, 16, 30);
 	reserved_field(NULL, status->fpga_status, 30, 32);
 
 	/* Register 0xa4 */
-	bel_print_value("FPGA_Config Status (0xA4)", status->fpga_config_status);
-	bel_print_field("Config Status", status->fpga_config_status, 0, 4);
-	bel_print_bit("Config FW Seq Fail", status->fpga_config_status, 4);
-	bel_print_field("nStatus Stuck Low Restarts", status->fpga_config_status, 5, 8);
-	bel_print_field("Image Fail Recycle Count", status->fpga_config_status, 8, 10);
-	bel_print_field("1st Power On Page number", status->fpga_config_status, 10, 13);
-	bel_print_field("2nd Power On Page number", status->fpga_config_status, 13, 16);
-	bel_print_field("3nd Power On Page number", status->fpga_config_status, 16, 19);
+	bel_print_value("FPGA_Config Status (0xA4)",      status->fpga_config_status);
+	bel_print_field("Config Status",                  status->fpga_config_status, 0, 4);
+	bel_print_bit("Config FW Seq Fail",               status->fpga_config_status, 4);
+	bel_print_field("nStatus Stuck Low Restarts",     status->fpga_config_status, 5, 8);
+	bel_print_field("Image Fail Recycle Count",       status->fpga_config_status, 8, 10);
+	bel_print_field("1st Power On Page number",       status->fpga_config_status, 10, 13);
+	bel_print_field("2nd Power On Page number",       status->fpga_config_status, 13, 16);
+	bel_print_field("3nd Power On Page number",       status->fpga_config_status, 16, 19);
 	reserved_field(NULL, status->fpga_config_status, 19, 32);
 
 	/* Register 0x84 */
 	bel_print_value("Power Good Record 1 (0x84)", status->record_1);
 	if (print_bits) {
-		bel_print_bit("pg_12v_aux_efuse",     status->record_1,  0);
-		bel_print_bit("pg_12v_pcie_efuse",    status->record_1,  1);
-		bel_print_bit("pg_vcc_5v",            status->record_1,  2);
-		bel_print_bit("pg_vcc_3v3",           status->record_1,  3);
-		bel_print_bit("pg_vccl_fpga_vid",     status->record_1,  4);
-		bel_print_bit("pg_vccl_sdm_0v8",      status->record_1,  5);
-		bel_print_bit("pg_vcch_0v9",          status->record_1,  6);
-		bel_print_bit("pg_vcch_gxer_1v1",     status->record_1,  7);
-		bel_print_bit("pg_vcca_1v8",          status->record_1,  8);
-		bel_print_bit("pg_vccclk_gxer_2v5",   status->record_1,  9);
-		bel_print_bit("pg_vpp_2v5",           status->record_1, 10);
-		bel_print_bit("pg_vccio_1v8",         status->record_1, 11);
-		bel_print_bit("pg_sdm_1v8",           status->record_1, 12);
-		bel_print_bit("pg_vcc_1v2",           status->record_1, 13);
-		bel_print_bit("pg_vtt_0v6",           status->record_1, 14);
-		bel_print_bit("pg_vcc_1v1_cvl",       status->record_1, 15);
-		bel_print_bit("pg_3v3_1v8_cvl",       status->record_1, 16);
-		bel_print_bit("pg_vdd_0v8_cvl",       status->record_1, 17);
-		bel_print_bit("pg_avdd_eth_0v9_cvl",  status->record_1, 18);
-		bel_print_bit("pg_avdd_pcie_0v9_cvl", status->record_1, 19);
-		bel_print_bit("pg_avddh_1v1_cvl",     status->record_1, 20);
-		bel_print_bit("vcc_12v_aux_uv",       status->record_1, 21);
-		bel_print_bit("vcc_3v3_pcie_uv",      status->record_1, 22);
-		bel_print_bit("vcc_3v3_pcie_uv",      status->record_1, 23);
-		bel_print_bit("vcc_12v_3v3_in_ov",    status->record_1, 24);
-		bel_print_bit("fpga_therm_shdn",      status->record_1, 25);
-		bel_print_bit("edge_pwr_shdn",        status->record_1, 26);
-		bel_print_bit("fpga_ncattrip",        status->record_1, 27);
-		bel_print_bit("si5392_lol",           status->record_1, 28);
-		reserved_bit(NULL,                    status->record_1, 29);
-		reserved_bit(NULL,                    status->record_1, 30);
-		bel_print_bit("user request",         status->record_1, 31);
+		reserved_field(NULL, status->fpga_status, 0, 2);
+		bel_print_bit("qsfpb_pg",                            status->record_1, 3);
+		bel_print_bit("qsfpa_pg",                            status->record_1, 4);
+		bel_print_bit("fpga_grp3_vccio_1v8_sdm_1v8_pg",      status->record_1, 5);
+		bel_print_bit("fpga_grp3_vcc_1v2_pg",                status->record_1, 6);
+		bel_print_bit("fpga_grp2_ddr4_vpp_2v5_pg",           status->record_1, 7);
+		bel_print_bit("fpga_grp2_vcca_1v8_pg",               status->record_1,  8);
+		bel_print_bit("fpga_grp2_vcch_gxer_1v1_pg",          status->record_1,  9);
+		bel_print_bit("fpga_grp2_vccclk_gxer_2v5_pg",        status->record_1, 10);
+		bel_print_bit("fpga_grp1_vcch_0v9_pg",               status->record_1, 11);
+		bel_print_bit("fpga_grp1_vccl_vid_pg",               status->record_1, 12);
+		bel_print_bit("vcc_5v_pg",                           status->record_1, 13);
+		bel_print_bit("pcie_3v3_uv_n",                       status->record_1, 14);
+		bel_print_bit("pcie_3v3_ov_n",                       status->record_1, 15);
+		bel_print_bit("vcc_3v3_pg",                          status->record_1, 16);
+		bel_print_bit("aux_12v_uv_n",                        status->record_1, 17);
+		bel_print_bit("aux_12v_ov_n",                        status->record_1, 18);
+		bel_print_bit("pcie_12v_uv_n",                       status->record_1, 19);
+		bel_print_bit("pcie_12v_ov_n",                       status->record_1, 20);
+		bel_print_bit("aux_12v_efuse_pg",                    status->record_1, 21);
+		bel_print_bit("pcie_12v_efuse_pg",                   status->record_1, 22);
+		bel_print_bit("aux_12v_efuse_pg",                    status->record_1, 23);
+		bel_print_bit("pcie_12v_efuse_pg",                   status->record_1, 24);
+		reserved_field(NULL, status->fpga_status, 24, 25);
+		bel_print_bit("fm71_fatal_therm",                    status->record_1, 27);
+		bel_print_bit("fpga_cattrip_n",                      status->record_1, 28);
+		bel_print_bit("edge_ina_pwr_shdn_n",                 status->record_1, 29);
+		bel_print_bit("fpga_therm_shdn_n",                   status->record_1, 30);
+		bel_print_bit("board_therm_shdn_n",                  status->record_1, 31);
 	}
 
 	/* Register 0x88 */
 	bel_print_value("Power Good Record 2 (0x88)", status->record_2);
 	if (print_bits) {
-		bel_print_bit("PM_ALERTN_3V3",      status->record_2,  0);
-		bel_print_bit("FPGA_VID_ALERTN",    status->record_2,  1);
-		bel_print_bit("VR_VID_ALERTN",      status->record_2,  2);
-		bel_print_bit("FPGA_THERM_ALERTN",  status->record_2,  3);
-		bel_print_bit("EDGE_PWR_WARN",      status->record_2,  4);
-		reserved_field(NULL,                status->record_2,  5, 32);
+		bel_print_bit("soc_pchhot_n",                        status->record_2,  0);
+		bel_print_bit("soc_memhot_out_n",                    status->record_2,  1);
+		bel_print_bit("soc_memtrip_n",                       status->record_2,  2);
+		bel_print_bit("soc_thermtrip_n",                     status->record_2,  3);
+		bel_print_bit("soc_icx_pvccin_cpu_pg",               status->record_2,  4);
+		bel_print_bit("soc_icx_pvccana_cpu_pg",              status->record_2, 5);
+		bel_print_bit("soc_ddr4_vtt_pg",                     status->record_2, 6);
+		bel_print_bit("soc_icx_pvddq_abc_pg",                status->record_2, 7);
+		bel_print_bit("soc_icx_pvnn_pch_pg",                 status->record_2, 9);
+		bel_print_bit("soc_icx_p1v8_cpu_pg",                 status->record_2, 10);
+		reserved_field(NULL,                status->record_2,  11, 32);
 	}
 
 	/* Register 0x50 */
@@ -525,16 +445,16 @@ void bel_print_power_off_status(struct bel_power_off_status *status, bool print_
 	/* Register 0x410 */
 	bel_print_value("Sensor Failed (0x410)", status->sensor_failed);
 	if (print_bits) {
-		bel_print_pass("fpga_remote_temp",        status->sensor_failed,  0);
-		bel_print_pass("board_temp",              status->sensor_failed,  1);
-		bel_print_pass("inlet_12v_pcie",          status->sensor_failed,  2);
-		bel_print_pass("fpga_vcch_gxer",          status->sensor_failed,  3);
-		bel_print_pass("max10_board_clk_pwr",     status->sensor_failed,  4);
-		bel_print_pass("cvl_core_vol_temp",       status->sensor_failed,  5);
-		bel_print_pass("board_3v3_vol_temp",      status->sensor_failed,  6);
-		bel_print_pass("fpga_vcch",               status->sensor_failed,  7);
-		bel_print_pass("fpga_core_vol_pwr_temp",  status->sensor_failed,  8);
-		bel_print_pass("fpga_fab_tile_temp",      status->sensor_failed,  9);
+		bel_print_pass("fpga_remote_temp",        status->sensor_failed, 2);
+		bel_print_pass("board_temp",              status->sensor_failed, 2);
+		bel_print_pass("inlet_12v_pcie",          status->sensor_failed, 2);
+		bel_print_pass("fpga_vcch_gxer",          status->sensor_failed, 3);
+		bel_print_pass("max10_board_clk_pwr",     status->sensor_failed, 4);
+		bel_print_pass("icxd_voltage",            status->sensor_failed, 5);
+		bel_print_pass("icxd_voltage",            status->sensor_failed, 6);
+		bel_print_pass("fpga_vcch",               status->sensor_failed, 7);
+		bel_print_pass("fpga_core_vol_pwr_temp",  status->sensor_failed, 8);
+		bel_print_pass("fpga_fab_tile_temp",      status->sensor_failed, 9);
 		bel_print_pass("qsfp1_sts",               status->sensor_failed, 10);
 		bel_print_pass("qsfp2_sts",               status->sensor_failed, 11);
 		bel_print_pass("io_expander_sts",         status->sensor_failed, 12);
@@ -546,7 +466,15 @@ void bel_print_power_off_status(struct bel_power_off_status *status, bool print_
 		bel_print_pass("qsfp2_module_plugged",    status->sensor_failed, 18);
 		bel_print_pass("qsfp2_module_supported",  status->sensor_failed, 19);
 		bel_print_pass("qsfp2_diag_data_avl",     status->sensor_failed, 20);
-		reserved_field(NULL,                      status->sensor_failed, 21, 31);
+		bel_print_pass("ADS7128_I2C_SA15H",       status->sensor_failed, 21);
+		bel_print_pass("ADS7128_I2C_SA16H",       status->sensor_failed, 22);
+		bel_print_pass("ADS7128_I2C_SA17H",       status->sensor_failed, 23);
+		bel_print_pass("ICXD_LCC_SMBUS_PECI",     status->sensor_failed, 24);
+		bel_print_pass("ICXD_LCC_IR38163",        status->sensor_failed, 25);
+		bel_print_pass("ICXD_LCC_IR38363",        status->sensor_failed, 26);
+		bel_print_pass("PXE1410_ICXD_LCC",        status->sensor_failed, 27);
+		bel_print_pass("PXM1310_ICXD_LCC",        status->sensor_failed, 28);
+		reserved_field(NULL,                      status->sensor_failed, 29, 30);
 		bel_print_pass("overall_devices",         status->sensor_failed, 31);
 	}
 
@@ -664,12 +592,11 @@ void bel_print_sensors_status(struct bel_sensors_status *status)
 
 	bel_print_header("Sensor Status Time", &status->header);
 
-	bel_print_value("INA3221 1 Mask Enable", status->ina3221_1_mask_enable);
-	bel_print_value("INA3221 2 Mask Enable", status->ina3221_2_mask_enable);
-	bel_print_value("INA3221 3 Mask Enable", status->ina3221_3_mask_enable);
-	bel_print_sensors_status_ext("IR38062", &status->ir38062, BEL_PWR_REG_IR38062_VOUT);
-	bel_print_sensors_status_ext("IR38063", &status->ir38063, BEL_PWR_REG_IR38063_VOUT);
-	bel_print_sensors_status_ext("ISL68220", &status->isl68220, BEL_PWR_REG_ISL68220_VOUT);
+	bel_print_value("INA3221 Reg 0xF @i2c Addr 0x40 ", status->ina3221_1_mask_enable);
+	bel_print_value("INA3221 Reg 0xF @i2c Addr 0x41", status->ina3221_2_mask_enable);
+	bel_print_value("INA3221 Reg 0xF @i2c Addr 0x42", status->ina3221_3_mask_enable);
+	bel_print_sensors_status_ext("PMBUS IR38063", &status->ir38063, BEL_PWR_REG_IR38063_VOUT);
+	bel_print_sensors_status_ext("PMBUS ISL68220", &status->isl68220, BEL_PWR_REG_ISL68220_VOUT);
 	bel_print_value("ED8401 Status", status->ed8401_status);
 }
 
@@ -820,7 +747,7 @@ void bel_timespan(struct bel_event *event, uint32_t idx)
 	struct bel_header *header_off = &event->power_off_status.header;
 	struct bel_header *header_on = &event->power_on_status.header;
 	time_t off_sec = (((uint64_t)header_off->timespamp_high << 32) |
-		header_off->timestamp_low) /1000UL;
+		header_off->timestamp_low) / 1000UL;
 	time_t on_sec = (((uint64_t)header_on->timespamp_high << 32) |
 		header_on->timestamp_low) / 1000UL;
 	char off_str[26] = { '\0' };
