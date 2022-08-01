@@ -494,7 +494,7 @@ void bel_print_power_off_status(struct bel_power_off_status *status, bool print_
 	bel_print_value("Sensor Alert 3 (0x41C)", status->sensor_alert_3);
 
 	if (print_bits)
-		bel_print_sensor_alert(status->sensor_alert_1, 64);
+		bel_print_sensor_alert(status->sensor_alert_1, 40);
 }
 
 size_t bel_print_sensor(struct bel_sensor_state *state, size_t last)
