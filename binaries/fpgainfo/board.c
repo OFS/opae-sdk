@@ -95,6 +95,9 @@ static platform_data platform_data_table[] = {
 	{ 0x8086, 0xaf00, 0x8086, 0x0, 0x12, "libboard_n6000.so", NULL,
 	"Intel Open FPGA Stack Platform" },
 
+	{ 0x8086, 0xbcce, 0x8086, 0x0, 0x12, "libboard_n6000.so", NULL,
+	"Intel Acceleration Development Platform N6000" },
+
 	{ 0x8086, 0xbcce, 0x8086, 0x1770, 0x12, "libboard_n6000.so", NULL,
 	"Intel Acceleration Development Platform N6000" },
 
