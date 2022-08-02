@@ -28,6 +28,7 @@
  */
 #pragma once
 #include <json-c/json.h>
+#include<bits/stdc++.h>
 #include <regex.h>
 #include <memory>
 #include <string>

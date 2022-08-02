@@ -607,60 +607,60 @@ fpga_result bmcGetLastResetCause(fpga_token token, char **cause)
 	if (tmp->completion_code != 0) {
 		res = FPGA_NOT_FOUND;
 		*cause = strndup((const char *)"Unavailable",
-			strnlen((const char *)"Unavailable", SYSFS_PATH_MAX));
+			strnlen((const char *)"Unavailable", sizeof("Unavailable")));
 		goto out;
 	}
 
 	if (0 == tmp->reset_cause) {
 		*cause = strndup((const char *)"None",
-			strnlen((const char *)"None", SYSFS_PATH_MAX));
+			strnlen((const char *)"None", sizeof("None")));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_EXTRST) {
 		*cause = strndup((const char *)"External reset",
-			strnlen((const char *)"External reset", SYSFS_PATH_MAX));
+			strnlen((const char *)"External reset", sizeof("External reset")));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_BOD_IO) {
 		*cause = strndup((const char *)"Brown-out detected",
-			strnlen((const char *)"Brown-out detected", SYSFS_PATH_MAX));
+			strnlen((const char *)"Brown-out detected", sizeof("Brown-out detected")));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_OCD) {
 		*cause = strndup((const char *)"On-chip debug system",
-			strnlen((const char *)"On-chip debug system", SYSFS_PATH_MAX));
+			strnlen((const char *)"On-chip debug system", sizeof("On-chip debug system")));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_POR) {
 		*cause = strndup((const char *)"Power-on-reset",
-			strnlen((const char *)"Power-on-reset", SYSFS_PATH_MAX));
+			strnlen((const char *)"Power-on-reset", sizeof("Power-on-reset")));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_SOFT) {
 		*cause = strndup((const char *)"Software reset",
-			strnlen((const char *)"Software reset", SYSFS_PATH_MAX));
+			strnlen((const char *)"Software reset", sizeof("Software reset")));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_SPIKE) {
 		*cause = strndup((const char *)"Spike detected",
-			strnlen((const char *)"Spike detected", SYSFS_PATH_MAX));
+			strnlen((const char *)"Spike detected", sizeof("Spike detected")));
 		goto out;
 	}
 
 	if (tmp->reset_cause & CHIP_RESET_CAUSE_WDT) {
 		*cause = strndup((const char *)"Watchdog timeout",
-			strnlen((const char *)"Watchdog timeout", SYSFS_PATH_MAX));
+			strnlen((const char *)"Watchdog timeout", sizeof("Watchdog timeout")));
 		goto out;
 	}
 
 	*cause = strndup((const char *)"Unknown",
-		strnlen((const char *)"Unknown", SYSFS_PATH_MAX));
+		strnlen((const char *)"Unknown", sizeof("Unknown")));
 
 out:
 	if (tmp) {
