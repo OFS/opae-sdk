@@ -71,7 +71,7 @@ sdm_sr_provision_status() {
   local -i i
 
   if [ "${glob_res[0]}" = "${glob_pattern}" ]; then
-    oops "Could not glob sdm provision status. Sysfs node not found."
+    oops "Could not glob sdm SR provision status. Sysfs node not found."
   fi
 
   i=$(cat "${glob_res[0]}")
@@ -84,7 +84,7 @@ sdm_sr_provision_status_str() {
   local -i i=$(sdm_sr_provision_status "${pcie_addr}")
 
   if [ $i -ge ${#SDM_SR_PROVISION_STATUS[@]} ]; then
-    oops "sdm provision status index $i out of range"
+    oops "sdm SR provision status index $i out of range"
   fi
 
   printf "%s" "${SDM_SR_PROVISION_STATUS[$i]}"
@@ -98,6 +98,55 @@ print_sdm_sr_provision_status() {
   [ -e "/sys/bus/pci/devices/${pcie_addr}" ] || oops "${pcie_addr} is not a valid device."
 
   printf "%s\n" "$(sdm_sr_provision_status_str ${pcie_addr})"
+}
+
+declare -ra SDM_PR_PROVISION_STATUS=(\
+'Success' \
+'Fail' \
+'Auth Cert Not Programmed' \
+'Recent Key Operation Mismatch' \
+'Flush Buffer Failed' \
+'Command Send Error' \
+'PubKey Program Command Failed' \
+'Response Receive Error'\
+)
+
+declare -r SDM_PR_PROVISION_STATUS_GLOB="/sys/bus/pci/devices/ssss:bb:dd.f/fpga_region/region*/dfl-fme.*/dfl_dev.*/*-sec*.*.auto/security/sdm_pr_provision_status"
+
+sdm_pr_provision_status() {
+  local -r pcie_addr="$1"
+  local -r glob_pattern="${SDM_PR_PROVISION_STATUS_GLOB/ssss:bb:dd.f/${pcie_addr}}"
+  local glob_res=(${glob_pattern})
+  local -i i
+
+  if [ "${glob_res[0]}" = "${glob_pattern}" ]; then
+    oops "Could not glob sdm PR provision status. Sysfs node not found."
+  fi
+
+  i=$(cat "${glob_res[0]}")
+
+  printf "%d" $i
+}
+
+sdm_pr_provision_status_str() {
+  local -r pcie_addr="$1"
+  local -i i=$(sdm_pr_provision_status "${pcie_addr}")
+
+  if [ $i -ge ${#SDM_PR_PROVISION_STATUS[@]} ]; then
+    oops "sdm PR provision status index $i out of range"
+  fi
+
+  printf "%s" "${SDM_PR_PROVISION_STATUS[$i]}"
+}
+
+print_sdm_pr_provision_status() {
+  [ $# -lt 1 ] && oops 'Please provide PCIe address'
+
+  local -r pcie_addr="$1"
+
+  [ -e "/sys/bus/pci/devices/${pcie_addr}" ] || oops "${pcie_addr} is not a valid device."
+
+  printf "%s\n" "$(sdm_pr_provision_status_str ${pcie_addr})"
 }
 
 declare -r FPGA_BOOT_PAGE_GLOB="/sys/bus/pci/devices/ssss:bb:dd.f/fpga_region/region*/dfl-fme.*/dfl_dev.*/*-sec*.*.auto/control/fpga_boot_image"
@@ -192,8 +241,8 @@ sr_key_provision() {
   for (( i = 0 ; i < ${RETRIES} ; ++i )); do
     call_fpgasupdate "${rkh_file}"  "${pcie_addr}" || oops 'fpgasupdate failed'
     call_fpgasupdate "${fpga_file}" "${pcie_addr}" || oops 'fpgasupdate failed'
-    call_rsu sdm "${pcie_addr}"
-    call_fpgasupdate "${pr_auth_file}"  "${pcie_addr}" || oops 'fpgasupdate failed'
+    call_rsu sdm --type=sr "${pcie_addr}"
+    call_fpgasupdate "${pr_auth_file}" "${pcie_addr}" || oops 'fpgasupdate failed'
 
     if [ ${DRY_RUN} -ne 0 ]; then
       local -r glob_pattern="${SDM_SR_PROVISION_STATUS_GLOB/ssss:bb:dd.f/${pcie_addr}}"
@@ -260,11 +309,21 @@ pr_key_provision_worker() {
   local -r pcie_addr="$1"
   local -r sr_auth_cert_file="$2"
   local -r pr_rkh_file="$3"
+  local -i res=0
 
   call_fpgasupdate "${sr_auth_cert_file}" "${pcie_addr}" || return 1
   call_fpgasupdate "${pr_rkh_file}"       "${pcie_addr}" || return 1
+  call_rsu sdm --type=pr "${pcie_addr}"
 
-  return 0
+  if [ ${DRY_RUN} -ne 0 ]; then
+    local -r glob_pattern="${SDM_PR_PROVISION_STATUS_GLOB/ssss:bb:dd.f/${pcie_addr}}"
+    local -a resolved=(${glob_pattern})
+    printf "dry run: cat %s\n" "${resolved[0]}"
+  else
+    res=$(sdm_pr_provision_status "${pcie_addr}")
+  fi
+
+  return ${res}
 }
 
 declare -a ORIG_ARGS=($@)
@@ -310,6 +369,10 @@ for (( i = 0 ; i < ${#ORIG_ARGS[@]} ; ++i )); do
       OPERATION="${ORIG_ARGS[$i]}"
     ;;
 
+    pr_status)
+      OPERATION="${ORIG_ARGS[$i]}"
+    ;;
+
     *)
       add_arg "${ORIG_ARGS[$i]}"
     ;;
@@ -327,6 +390,10 @@ case "${OPERATION}" in
 
   sr_status)
     print_sdm_sr_provision_status ${ARGS[@]}
+  ;;
+
+  pr_status)
+    print_sdm_pr_provision_status ${ARGS[@]}
   ;;
 
   *)
