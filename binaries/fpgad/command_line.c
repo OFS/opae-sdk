@@ -311,7 +311,7 @@ int cmd_canonicalize_paths(struct fpgad_config *c)
 		if (snprintf(c->logfile, sizeof(c->logfile),
 			     "%s/%s", c->directory, DEFAULT_LOG) < 0) {
 			len = strnlen("./" DEFAULT_LOG,
-					sizeof("./"));
+					sizeof("./" DEFAULT_LOG));
 			memcpy(c->logfile, "./" DEFAULT_LOG, len);
 			c->logfile[len] = '\0';
 		}
@@ -323,7 +323,7 @@ int cmd_canonicalize_paths(struct fpgad_config *c)
 		if (snprintf(c->logfile, sizeof(c->logfile),
 			     "%s/%s", c->directory, buf) < 0) {
 			len = strnlen("./" DEFAULT_LOG,
-					sizeof("./"));
+					sizeof("./" DEFAULT_LOG));
 			memcpy(c->logfile, "./" DEFAULT_LOG, len);
 			c->logfile[len] = '\0';
 		}
@@ -350,7 +350,7 @@ int cmd_canonicalize_paths(struct fpgad_config *c)
 		if (snprintf(c->pidfile, sizeof(c->pidfile),
 			     "%s/%s", c->directory, DEFAULT_PID) < 0) {
 			len = strnlen("./" DEFAULT_PID,
-					sizeof("./"));
+					sizeof("./" DEFAULT_PID));
 			memcpy(c->pidfile, "./" DEFAULT_PID, len);
 			c->pidfile[len] = '\0';
 		}
@@ -363,7 +363,7 @@ int cmd_canonicalize_paths(struct fpgad_config *c)
 		if (snprintf(c->pidfile, sizeof(c->pidfile),
 			     "%s/%s", c->directory, buf) < 0) {
 			len = strnlen("./" DEFAULT_PID,
-					sizeof("./"));
+					sizeof("./" DEFAULT_PID));
 			memcpy(c->pidfile, "./" DEFAULT_PID, len);
 			c->pidfile[len] = '\0';
 		}
