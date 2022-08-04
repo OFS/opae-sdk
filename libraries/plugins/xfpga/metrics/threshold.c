@@ -219,7 +219,7 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 			if (details.thresholds.upper_nr_thresh.is_valid) {
 
 				len = strnlen(UPPER_NR_THRESHOLD,
-					sizeof(metric_thresholds[x].upper_nr_threshold.threshold_name) - 1);
+					sizeof(UPPER_NR_THRESHOLD));
 				memcpy(metric_thresholds[x].upper_nr_threshold.threshold_name,
 					UPPER_NR_THRESHOLD, len);
 				metric_thresholds[x].upper_nr_threshold.threshold_name[len] = '\0';
@@ -234,7 +234,7 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 			if (details.thresholds.upper_c_thresh.is_valid) {
 
 				len = strnlen(UPPER_C_THRESHOLD,
-					sizeof(metric_thresholds[x].upper_c_threshold.threshold_name) - 1);
+					sizeof(UPPER_C_THRESHOLD));
 				memcpy(metric_thresholds[x].upper_c_threshold.threshold_name,
 					UPPER_C_THRESHOLD, len);
 				metric_thresholds[x].upper_c_threshold.threshold_name[len] = '\0';
@@ -248,7 +248,7 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 			if (details.thresholds.upper_nc_thresh.is_valid) {
 
 				len = strnlen(UPPER_NC_THRESHOLD,
-						sizeof(metric_thresholds[x].upper_nc_threshold.threshold_name) - 1);
+						sizeof(UPPER_NC_THRESHOLD));
 				memcpy(metric_thresholds[x].upper_nc_threshold.threshold_name,
 					UPPER_NC_THRESHOLD, len);
 				metric_thresholds[x].upper_nc_threshold.threshold_name[len] = '\0';
@@ -262,7 +262,7 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 			if (details.thresholds.lower_nr_thresh.is_valid) {
 
 				len = strnlen(LOWER_NR_THRESHOLD,
-					sizeof(metric_thresholds[x].lower_nr_threshold.threshold_name) - 1);
+					sizeof(LOWER_NR_THRESHOLD));
 				memcpy(metric_thresholds[x].lower_nr_threshold.threshold_name,
 					LOWER_NR_THRESHOLD, len);
 				metric_thresholds[x].lower_nr_threshold.threshold_name[len] = '\0';
@@ -276,7 +276,7 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 			if (details.thresholds.lower_c_thresh.is_valid) {
 
 				len = strnlen(LOWER_C_THRESHOLD,
-						sizeof(metric_thresholds[x].lower_c_threshold.threshold_name) - 1);
+						sizeof(LOWER_C_THRESHOLD));
 				memcpy(metric_thresholds[x].lower_c_threshold.threshold_name,
 					LOWER_C_THRESHOLD, len);
 				metric_thresholds[x].lower_c_threshold.threshold_name[len] = '\0';
@@ -289,7 +289,7 @@ fpga_result get_bmc_threshold_info(fpga_handle handle,
 			if (details.thresholds.lower_nc_thresh.is_valid) {
 
 				len = strnlen(LOWER_NC_THRESHOLD,
-					sizeof(metric_thresholds[x].lower_nc_threshold.threshold_name) - 1);
+					sizeof(LOWER_NC_THRESHOLD));
 				memcpy(metric_thresholds[x].lower_nc_threshold.threshold_name,
 					LOWER_NC_THRESHOLD, len);
 				metric_thresholds[x].lower_nc_threshold.threshold_name[len] = '\0';
@@ -412,7 +412,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 
 		// Upper Critical Threshold
 		len = strnlen(UPPER_C_THRESHOLD,
-			sizeof(metric_thresholds[i].upper_c_threshold.threshold_name) - 1);
+			sizeof(UPPER_C_THRESHOLD));
 		memcpy(metric_thresholds[i].upper_c_threshold.threshold_name,
 			UPPER_C_THRESHOLD, len);
 		metric_thresholds[i].upper_c_threshold.threshold_name[len] = '\0';
@@ -428,7 +428,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 
 		// Upper Non-Critical Threshold
 		len = strnlen(UPPER_NC_THRESHOLD,
-				sizeof(metric_thresholds[i].upper_nc_threshold.threshold_name) - 1);
+				sizeof(UPPER_NC_THRESHOLD));
 		memcpy(metric_thresholds[i].upper_nc_threshold.threshold_name,
 			UPPER_NC_THRESHOLD, len);
 		metric_thresholds[i].upper_nc_threshold.threshold_name[len] = '\0';
@@ -444,7 +444,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 
 		// Lower Critical Threshold
 		len = strnlen(LOWER_C_THRESHOLD,
-				sizeof(metric_thresholds[i].upper_nc_threshold.threshold_name) - 1);
+				sizeof(LOWER_C_THRESHOLD));
 		memcpy(metric_thresholds[i].upper_nc_threshold.threshold_name,
 			LOWER_C_THRESHOLD, len);
 		metric_thresholds[i].upper_nc_threshold.threshold_name[len] = '\0';
@@ -460,7 +460,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 
 		// Lower Non-Critical Threshold
 		len = strnlen(LOWER_NC_THRESHOLD,
-				sizeof(metric_thresholds[i].lower_nc_threshold.threshold_name) - 1);
+				sizeof(LOWER_NC_THRESHOLD));
 		memcpy(metric_thresholds[i].lower_nc_threshold.threshold_name,
 			LOWER_NC_THRESHOLD, len);
 		metric_thresholds[i].lower_nc_threshold.threshold_name[len] = '\0';
@@ -476,7 +476,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 
 		// Lower Non-Critical Threshold
 		len = strnlen(SYSFS_HYSTERESIS,
-				sizeof(metric_thresholds[i].hysteresis.threshold_name) - 1);
+				sizeof(SYSFS_HYSTERESIS));
 		memcpy(metric_thresholds[i].hysteresis.threshold_name,
 			SYSFS_HYSTERESIS, len);
 		metric_thresholds[i].hysteresis.threshold_name[len] = '\0';
