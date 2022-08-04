@@ -333,11 +333,11 @@ fpga_result  enum_bmc_metrics_info(struct _fpga_handle *_handle,
 
 			metric_type = FPGA_METRIC_TYPE_THERMAL;
 
-			len = strnlen(THERLGMT, sizeof(group_name) - 1);
+			len = strnlen(THERLGMT, sizeof(THERLGMT));
 			memcpy(group_name, THERLGMT, len);
 			group_name[len] = '\0';
 
-			len = strnlen(TEMP, sizeof(units) - 1);
+			len = strnlen(TEMP, sizeof(TEMP));
 			memcpy(units, TEMP, len);
 			units[len] = '\0';
 
@@ -348,7 +348,7 @@ fpga_result  enum_bmc_metrics_info(struct _fpga_handle *_handle,
 
 			metric_type = FPGA_METRIC_TYPE_POWER;
 
-			len = strnlen(PWRMGMT, sizeof(group_name) - 1);
+			len = strnlen(PWRMGMT, sizeof(PWRMGMT));
 			memcpy(group_name, PWRMGMT, len);
 			group_name[len] = '\0';
 
