@@ -27,7 +27,8 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include<bits/stdc++.h>
+#include <array>
+
 extern "C" {
 #include "opae_int.h"
 #include "pluginmgr.h"
