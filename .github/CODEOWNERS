@@ -8,6 +8,7 @@
 *                               @OPAE/api
 
 # API specification, implementation, and samples
+opae.cfg                        @OPAE/api
 CMakeLists.txt                  @OPAE/api
 /include/                       @OPAE/api
 /libraries/                     @OPAE/api
