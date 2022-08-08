@@ -14,7 +14,7 @@ rsu [-h] [-d] {bmc,bmcimg,retimer,fpga,sdm,fpgadefault} [PCIE_ADDR]
 rsu bmc --page=(user|factory) [PCIE_ADDR]
 rsu retimer [PCIE_ADDR]
 rsu fpga --page=(user1|user2|factory) [PCIE_ADDR]
-rsu sdm --type=(sr|pr|sr_cancel|pr_cancel) [PCIE_ADDR]
+rsu sdm --type=(sr|pr) [PCIE_ADDR]
 ```
 
 Perform RSU (remote system update) operation on PAC device
