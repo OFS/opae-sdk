@@ -487,7 +487,7 @@ fpga_result phy_command(fpga_token *tokens, int num_tokens, int argc,
 		fpgainfo_print_common("//****** PHY ******//", props);
 		res = phy_group_info(tokens[i]);
 		if (res != FPGA_OK) {
-			printf("phy group info is not supported\n");
+			printf("phy group info is not supported - Feature unavailable\n");
 		}
 
 		res = fpgaDestroyProperties(&props);
