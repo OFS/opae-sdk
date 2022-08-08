@@ -61,12 +61,12 @@ class sleep_test : public test_command
 public:
   sleep_test() : sleep_msec_(1000){}
   virtual ~sleep_test(){}
-  virtual const char *name() const
+  virtual const char *name() const override
   {
     return "sleep";
   }
 
-  virtual const char *description() const
+  virtual const char *description() const override
   {
     return "none";
   }
