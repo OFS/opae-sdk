@@ -58,10 +58,10 @@ static pthread_mutex_t board_plugin_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_N
 // Board plug-in table
 static platform_data platform_data_table[] = {
 	{ 0x8086, 0x09c4, 0x8086, 0x0, -1, "libboard_a10gx.so", NULL,
-	"Intel Programmable Acceleration Card with Intel Arria® 10 GX FPGA" },
+	"Intel Programmable Acceleration Card with Intel Arria 10 GX FPGA" },
 
 	{ 0x8086, 0x09c5, 0x8086, 0x0, -1, "libboard_a10gx.so", NULL,
-	"Intel Programmable Acceleration Card with Intel Arria® 10 GX FPGA" },
+	"Intel Programmable Acceleration Card with Intel Arria 10 GX FPGA" },
 
 	{ 0x8086, 0x0b30, 0x8086, 0x0, -1, "libboard_n3000.so", NULL,
 	"Intel FPGA Programmable Acceleration Card N3000" },
