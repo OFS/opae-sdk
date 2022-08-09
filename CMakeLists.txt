@@ -217,6 +217,9 @@ if (OPAE_MINIMAL_BUILD)
     set(OPAE_PRESERVE_REPOS ON CACHE BOOL "Disable refresh of external repos" FORCE)
 endif(OPAE_MINIMAL_BUILD)
 
+############################################################################
+## Install headers #########################################################
+############################################################################
 install(DIRECTORY include/opae
     DESTINATION include
     COMPONENT libopaeheaders)
@@ -226,6 +229,18 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/config/config.h.in"
 
 # end opae-libs
 
+############################################################################
+## Install configuration file ##############################################
+############################################################################
+if ("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr")
+  install(FILES opae.cfg DESTINATION /etc/opae)
+else()
+  install(FILES opae.cfg DESTINATION ${CMAKE_INSTALL_PREFIX}/etc/opae)
+endif()
+
+############################################################################
+## Install cmake modules ###################################################
+############################################################################
 install(DIRECTORY cmake/modules
     DESTINATION src/opae/cmake)
 
