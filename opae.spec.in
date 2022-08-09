@@ -134,6 +134,7 @@ ldconfig
 %files libs
 %license @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DOCDIR@/LICENSE
 %defattr(-,root,root,-)
+@CPACK_RPM_RELOCATION_PATHS@/opae/opae.cfg
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-cxx*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libxfpga.so*

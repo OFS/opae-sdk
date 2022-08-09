@@ -259,6 +259,7 @@ done
 %{python3_sitelib}/opae.admin*
 %{python3_sitelib}/opae/admin*
 
+%config(noreplace) %{_sysconfdir}/opae/opae.cfg*
 %config(noreplace) %{_sysconfdir}/opae/fpgad.cfg*
 %config(noreplace) %{_sysconfdir}/sysconfig/fpgad.conf*
 
