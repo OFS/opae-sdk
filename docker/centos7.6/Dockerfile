@@ -31,7 +31,7 @@ RUN yum install -y \
         openssl11-devel
 
 RUN /usr/bin/python3 -m pip install setuptools --upgrade --prefix /usr
-RUN /usr/bin/python3 -m pip install python-pkcs11 pyyaml jsonschema --prefix=/usr
+RUN /usr/bin/python3 -m pip install pyyaml jsonschema --prefix=/usr
 
 WORKDIR /root
 COPY scripts/build-rpms.sh /scripts/build-rpms.sh

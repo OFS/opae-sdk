@@ -58,10 +58,10 @@ static pthread_mutex_t board_plugin_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_N
 // Board plug-in table
 static platform_data platform_data_table[] = {
 	{ 0x8086, 0x09c4, 0x8086, 0x0, -1, "libboard_a10gx.so", NULL,
-	"Intel Programmable Acceleration Card with Intel Arria® 10 GX FPGA" },
+	"Intel Programmable Acceleration Card with Intel Arria 10 GX FPGA" },
 
 	{ 0x8086, 0x09c5, 0x8086, 0x0, -1, "libboard_a10gx.so", NULL,
-	"Intel Programmable Acceleration Card with Intel Arria® 10 GX FPGA" },
+	"Intel Programmable Acceleration Card with Intel Arria 10 GX FPGA" },
 
 	{ 0x8086, 0x0b30, 0x8086, 0x0, -1, "libboard_n3000.so", NULL,
 	"Intel FPGA Programmable Acceleration Card N3000" },
@@ -94,6 +94,9 @@ static platform_data platform_data_table[] = {
 	// Max10 PMCI feature id 0x12
 	{ 0x8086, 0xaf00, 0x8086, 0x0, 0x12, "libboard_n6000.so", NULL,
 	"Intel Open FPGA Stack Platform" },
+
+	{ 0x8086, 0xbcce, 0x8086, 0x0, 0x12, "libboard_n6000.so", NULL,
+	"Intel Acceleration Development Platform N6000" },
 
 	{ 0x8086, 0xbcce, 0x8086, 0x1770, 0x12, "libboard_n6000.so", NULL,
 	"Intel Acceleration Development Platform N6000" },
@@ -484,7 +487,7 @@ fpga_result phy_command(fpga_token *tokens, int num_tokens, int argc,
 		fpgainfo_print_common("//****** PHY ******//", props);
 		res = phy_group_info(tokens[i]);
 		if (res != FPGA_OK) {
-			printf("phy group info is not supported\n");
+			printf("phy group info is not supported - Feature unavailable\n");
 		}
 
 		res = fpgaDestroyProperties(&props);

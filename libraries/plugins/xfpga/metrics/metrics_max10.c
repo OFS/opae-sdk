@@ -255,7 +255,7 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 			metric_type = FPGA_METRIC_TYPE_POWER;
 
 			// group name
-			len = strnlen(PWRMGMT, sizeof(group_name) - 1);
+			len = strnlen(PWRMGMT, sizeof(PWRMGMT));
 			memcpy(group_name, PWRMGMT, len);
 			group_name[len] = '\0';
 
@@ -271,7 +271,7 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 			metric_type = FPGA_METRIC_TYPE_THERMAL;
 
 			// group name
-			len = strnlen(THERLGMT, sizeof(group_name) - 1);
+			len = strnlen(THERLGMT, sizeof(THERLGMT));
 			memcpy(group_name, THERLGMT, len);
 			group_name[len] = '\0';
 
@@ -291,31 +291,31 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 		// Metric Units
 		if (strstr(pglob.gl_pathv[i], DFL_POWER)) {
 
-			len = strnlen(POWER_UNITS, sizeof(metric_units) - 1);
+			len = strnlen(POWER_UNITS, sizeof(POWER_UNITS));
 			memcpy(metric_units, POWER_UNITS, len);
 			metric_units[len] = '\0';
 
 		} else if (strstr(pglob.gl_pathv[i], DFL_VOLTAGE)) {
 
-			len = strnlen(VOLTAGE_UNITS, sizeof(metric_units) - 1);
+			len = strnlen(VOLTAGE_UNITS, sizeof(VOLTAGE_UNITS));
 			memcpy(metric_units, VOLTAGE_UNITS, len);
 			metric_units[len] = '\0';
 
 		} else if (strstr(pglob.gl_pathv[i], DFL_CURRENT)) {
 
-			len = strnlen(CURRENT_UNITS, sizeof(metric_units) - 1);
+			len = strnlen(CURRENT_UNITS, sizeof(CURRENT_UNITS));
 			memcpy(metric_units, CURRENT_UNITS, len);
 			metric_units[len] = '\0';
 
 		} else if (strstr(pglob.gl_pathv[i], DFL_TEMPERATURE)) {
 
-			len = strnlen(TEMPERATURE_UNITS, sizeof(metric_units) - 1);
+			len = strnlen(TEMPERATURE_UNITS, sizeof(TEMPERATURE_UNITS));
 			memcpy(metric_units, TEMPERATURE_UNITS, len);
 			metric_units[len] = '\0';
 
 		} else if (strstr(pglob.gl_pathv[i], CLOCK)) {
 
-			len = strnlen(CLOCK_UNITS, sizeof(metric_units) - 1);
+			len = strnlen(CLOCK_UNITS, sizeof(CLOCK_UNITS));
 			memcpy(metric_units, CLOCK_UNITS, len);
 			metric_units[len] = '\0';
 

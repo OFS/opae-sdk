@@ -427,7 +427,7 @@ fpga_devices = {
     pci.make_id(0x8086, 0xbcce, 0x8086, 0x17d4): "Intel C6100 ADP",
     pci.make_id(0x8086, 0xbccf, 0x8086, 0x17d4): "Intel C6100 ADP VF",
     pci.make_id(0x8086, 0xbcce, 0x8086, 0x138d): "Intel D5005 ADP",
-    pci.make_id(0x8086, 0xbccf, 0x8086, 0x138e): "Intel D5005 ADP VF",
+    pci.make_id(0x8086, 0xbccf, 0x8086, 0x138d): "Intel D5005 ADP VF",
     pci.make_id(0x1c2c, 0x1000): "Silicom SmartNIC N5010",
     pci.make_id(0x1c2c, 0x1001): "Silicom SmartNIC N5011",
 }

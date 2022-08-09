@@ -27,6 +27,7 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#include <array>
 #define NO_OPAE_C
 #include "mock/opae_fixtures.h"
 KEEP_XFPGA_SYMBOLS

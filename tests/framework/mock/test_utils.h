@@ -31,6 +31,7 @@
 #include <regex.h>
 #include <memory>
 #include <string>
+#include <array>
 
 namespace opae {
 namespace testing {
