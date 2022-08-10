@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2019-2021, Intel Corporation
+# Copyright(c) 2019-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -571,36 +571,53 @@ def update_fw_sysfs(infile, pac):
     orig_pos = infile.tell()
     infile.seek(0, os.SEEK_END)
     payload_size = infile.tell() - orig_pos
-    infile.close()
 
     sec_dev = pac.upload_dev
-    error = sec_dev.find_one(os.path.join('update', 'error'))
-    filename = sec_dev.find_one(os.path.join('update', 'filename'))
-    size = sec_dev.find_one(os.path.join('update', 'remaining_size'))
-    status = sec_dev.find_one(os.path.join('update', 'status'))
 
-    fw_path = os.path.join(os.sep, 'usr', 'lib', 'firmware')
-    if not os.path.isdir(fw_path):
-        LOG.error("Can't find %s", fw_path)
-        return 1, 'Secure update failed'
+    # This function supports two variations of the sysfs-based loading mechanism.
+    # The first is identified by the presence of "update/filename" in the path.
 
-    intel_fw_path = os.path.join(fw_path, 'intel')
-    if not os.path.isdir(intel_fw_path):
-        try:
-            os.mkdir(intel_fw_path, 0o755)
-        except OSError:
-            LOG.error("Can't create %s", intel_fw_path)
+    if sec_dev.find_one(os.path.join('update', 'filename')):
+        legacy = True
+        infile.close()
+        error = sec_dev.find_one(os.path.join('update', 'error'))
+        filename = sec_dev.find_one(os.path.join('update', 'filename'))
+        size = sec_dev.find_one(os.path.join('update', 'remaining_size'))
+        status = sec_dev.find_one(os.path.join('update', 'status'))
+    else:
+        legacy = False
+        infile.seek(0, os.SEEK_SET)
+        error = sec_dev.find_one('error')
+        size = sec_dev.find_one('remaining_size')
+        status = sec_dev.find_one('status')
+
+        data = sec_dev.find_one('data')
+        loading = sec_dev.find_one('loading')
+
+    if legacy:
+        fw_path = os.path.join(os.sep, 'usr', 'lib', 'firmware')
+        if not os.path.isdir(fw_path):
+            LOG.error("Can't find %s", fw_path)
             return 1, 'Secure update failed'
+
+        intel_fw_path = os.path.join(fw_path, 'intel')
+        if not os.path.isdir(intel_fw_path):
+            try:
+                os.mkdir(intel_fw_path, 0o755)
+            except OSError:
+                LOG.error("Can't create %s", intel_fw_path)
+                return 1, 'Secure update failed'
 
     LOG.info('updating from file %s with size %d',
              infile.name, payload_size)
 
-    tfile = tempfile.NamedTemporaryFile(dir=intel_fw_path, delete=False)
-    tfile.close()
+    if legacy:
+        tfile = tempfile.NamedTemporaryFile(dir=intel_fw_path, delete=False)
+        tfile.close()
 
-    shutil.copy(infile.name, tfile.name)
-    global TMPFILE
-    TMPFILE = tfile.name
+        shutil.copy(infile.name, tfile.name)
+        global TMPFILE
+        TMPFILE = tfile.name
 
     LOG.info('waiting for idle')
     retries = 0
@@ -610,27 +627,37 @@ def update_fw_sysfs(infile, pac):
         time.sleep(timeout)
         retries += 1
         if retries >= max_retries:
-            os.remove(tfile.name)
+            if legacy:
+                os.remove(tfile.name)
             return errno.ETIMEDOUT, 'Secure update timed out'
 
-    filename.value = os.path.join('intel', os.path.basename(tfile.name))
+    if legacy:
+        filename.value = os.path.join('intel', os.path.basename(tfile.name))
+    else:
+        loading.value = '1'
+        data.bin_value = infile.read()
+        loading.value = '0'
 
     LOG.info('preparing image file')
 
     retries = 0
     max_retries = 60 * 5
     # read_file is now deprecated. Leaving it in for backwards compat.
-    while status.value in ['read_file', 'reading', 'preparing']:
+    while status.value in ['read_file', 'receiving', 'reading', 'preparing']:
         time.sleep(timeout)
         retries += 1
         if retries >= max_retries:
-            os.remove(tfile.name)
+            if legacy:
+                os.remove(tfile.name)
             return errno.ETIMEDOUT, 'Secure update timed out'
+
+    if legacy:
+        os.remove(tfile.name)
+        TMPFILE = ''
 
     if status.value == 'idle':
         e = error.value
         if e:
-            os.remove(tfile.name)
             return 1, e
 
     progress_cfg = {}
@@ -649,14 +676,12 @@ def update_fw_sysfs(infile, pac):
             time.sleep(timeout)
             retries += 1
             if retries >= max_retries:
-                os.remove(tfile.name)
                 return errno.ETIMEDOUT, 'Secure update timed out'
             prg.update(payload_size - int(size.value))
 
     if status.value == 'idle':
         e = error.value
         if e:
-            os.remove(tfile.name)
             return 1, e
 
     if pac.fme.have_node('tcm'):
@@ -671,23 +696,19 @@ def update_fw_sysfs(infile, pac):
     retries = 0
     max_retries = 60 * 60 * 3
     with progress(time=estimated_time, **progress_cfg) as prg:
-        while status.value in ('writing', 'programming'):
+        while status.value in ('writing', 'programming', 'transferring'):
             time.sleep(timeout)
             retries += 1
             if retries >= max_retries:
-                os.remove(tfile.name)
                 return errno.ETIMEDOUT, 'Secure update timed out'
             prg.tick()
 
     if status.value == 'idle':
         e = error.value
         if e:
-            os.remove(tfile.name)
             return 1, e
 
     LOG.info('update of %s complete', pac.pci_node.pci_address)
-
-    os.remove(tfile.name)
 
     return 0, 'Secure update OK'
 
@@ -786,7 +807,8 @@ def main():
                     sys.exit(1)
 
     # Check for 'update/filename' to determine if we use sysfs or ioctl
-    if pac.upload_dev.find_one(os.path.join('update', 'filename')):
+    if (pac.upload_dev.find_one(os.path.join('update', 'filename')) or
+        pac.upload_dev.find_one('loading')):
         use_ioctl = False
 
     LOG.warning('Update starting. Please do not interrupt.')
@@ -828,10 +850,13 @@ def main():
                     global TMPFILE
                     if TMPFILE and os.path.isfile(TMPFILE):
                         os.remove(TMPFILE)
-                        cancel = sec_dev.find_one(os.path.join('update',
+
+                    cancel = sec_dev.find_one(os.path.join('update',
                                                   'cancel'))
-                        cancel.value = 1
-                        stat, mesg = 1, 'Interrupted'
+                    if not cancel:
+                        cancel = sec_dev.find_one('cancel')
+                    cancel.value = 1
+                    stat, mesg = 1, 'Interrupted'
 
     if stat and mesg == 'flash_wearout':
         mesg = ('Secure update is delayed due to excessive flash counts.\n'
