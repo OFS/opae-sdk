@@ -1,4 +1,4 @@
-# Copyright(c) 2019, Intel Corporation
+# Copyright(c) 2019-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -177,6 +177,23 @@ class sysfs_node(loggable):
         else:
             with self._open('w') as fd:
                 fd.write(str(val))
+
+    @property
+    def bin_value(self):
+        try:
+            with self._open('rb') as fd:
+                return fd.read()
+        except IOError as err:
+            self.log.exception('error (bin)opening: %s - %s', self.sysfs_path, err)
+            raise
+
+    @bin_value.setter
+    def bin_value(self, val):
+        if DRY_RUN:
+            print('echo {} > {}'.format('(bin)', self._sysfs_path))
+        else:
+            with self._open('w+b') as fd:
+                fd.write(val)
 
     @property
     def sysfs_path(self):

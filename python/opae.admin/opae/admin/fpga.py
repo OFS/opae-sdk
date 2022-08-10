@@ -453,7 +453,8 @@ class fpga_base(sysfs_device):
         spi = f.spi_bus
         if spi:
             patterns = ['*-sec*.auto/*fpga_sec_mgr*/*fpga_sec*',
-                        '*-sec*.auto/fpga_image_load/fpga_image*']
+                        '*-sec*.auto/fpga_image_load/fpga_image*',
+                        '*-sec*.auto/firmware/secure-update*' ]
             for pattern in patterns:
                 fpga_sec = spi.find_one(pattern)
                 if fpga_sec:
@@ -461,7 +462,8 @@ class fpga_base(sysfs_device):
         else:
             pmci = f.pmci_bus
             patterns = ['*fpga_sec_mgr*/*fpga_sec*',
-                        'fpga_image_load/fpga_image*']
+                        'fpga_image_load/fpga_image*',
+                        'firmware/secure-update*' ]
             for pattern in patterns:
                 fpga_sec = pmci.find_one(pattern)
                 if fpga_sec:
