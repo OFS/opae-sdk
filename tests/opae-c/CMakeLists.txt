@@ -27,12 +27,16 @@
 opae_test_add_static_lib(TARGET opae-c-static
     SOURCE
         ${OPAE_LIB_SOURCE}/libopae-c/api-shell.c
-	${OPAE_LIB_SOURCE}/libopae-c/init.c
-	${OPAE_LIB_SOURCE}/libopae-c/pluginmgr.c
-	${OPAE_LIB_SOURCE}/libopae-c/props.c
+        ${OPAE_LIB_SOURCE}/libopae-c/init.c
+        ${OPAE_LIB_SOURCE}/libopae-c/pluginmgr.c
+        ${OPAE_LIB_SOURCE}/libopae-c/props.c
+        ${OPAE_LIB_SOURCE}/libopae-c/cfg-file.c
+        ${OPAE_LIB_SOURCE}/libopae-c/fpgad-cfg.c
+        ${OPAE_LIB_SOURCE}/libopae-c/fpgainfo-cfg.c
+        ${OPAE_LIB_SOURCE}/libopae-c/opae-cfg.c
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
-	${libjson-c_LIBRARIES}
+        ${libjson-c_LIBRARIES}
 )
 
 opae_test_add(TARGET self_test
