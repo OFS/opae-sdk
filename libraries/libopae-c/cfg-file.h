@@ -47,7 +47,7 @@ char *opae_find_cfg_file(void);
 char *opae_read_cfg_file(char *config_file_path);
 
 // VID, DID, SVID, SDID
-#define ID_SIZE              4
+#define ID_SIZE		     4
 
 #define MAX_DEV_NAME       256
 
@@ -88,14 +88,14 @@ void opae_free_libopae_config(libopae_config_data *cfg);
 
 #define OPAE_FEATURE_ID_ANY -1
 typedef struct _fpgainfo_config_data {
-        uint16_t vendor_id;
-        uint16_t device_id;
-        uint16_t subvendor_id;
-        uint16_t subdevice_id;
-        int32_t feature_id;
-        char *board_plugin;
-        void *dl_handle;
-        char product_name[256];
+	uint16_t vendor_id;
+	uint16_t device_id;
+	uint16_t subvendor_id;
+	uint16_t subdevice_id;
+	int32_t feature_id;
+	char *board_plugin;
+	void *dl_handle;
+	char product_name[256];
 } fpgainfo_config_data;
 
 fpgainfo_config_data *
@@ -134,14 +134,14 @@ parse_json_array(json_object *parent, const char *name, int *len)
 	json_object *jname = NULL;
 
 	if (!json_object_object_get_ex(parent, name, &jname)) {
-                OPAE_DBG("Error parsing JSON: missing '%s'", name);
+		OPAE_DBG("Error parsing JSON: missing '%s'", name);
 		return NULL;
-        }
+	}
 
 	if (!json_object_is_type(jname, json_type_array)) {
-                OPAE_DBG("'%s' JSON object not array type", name);
-                return NULL;
-        }
+		OPAE_DBG("'%s' JSON object not array type", name);
+		return NULL;
+	}
 
 	if (len)
 		*len = json_object_array_length(jname);
@@ -155,14 +155,14 @@ parse_json_boolean(json_object *parent, const char *name, bool *value)
 	json_object *jname = NULL;
 
 	if (!json_object_object_get_ex(parent, name, &jname)) {
-                OPAE_DBG("Error parsing JSON: missing '%s'", name);
+		OPAE_DBG("Error parsing JSON: missing '%s'", name);
 		return NULL;
-        }
+	}
 
 	if (!json_object_is_type(jname, json_type_boolean)) {
-                OPAE_DBG("'%s' JSON object not boolean", name);
-                return NULL;
-        }
+		OPAE_DBG("'%s' JSON object not boolean", name);
+		return NULL;
+	}
 
 	if (value)
 		*value = json_object_get_boolean(jname);
@@ -176,14 +176,14 @@ parse_json_string(json_object *parent, const char *name, char **value)
 	json_object *jname = NULL;
 
 	if (!json_object_object_get_ex(parent, name, &jname)) {
-                OPAE_DBG("Error parsing JSON: missing '%s'", name);
+		OPAE_DBG("Error parsing JSON: missing '%s'", name);
 		return NULL;
-        }
+	}
 
 	if (!json_object_is_type(jname, json_type_string)) {
-                OPAE_DBG("'%s' JSON object not string", name);
-                return NULL;
-        }
+		OPAE_DBG("'%s' JSON object not string", name);
+		return NULL;
+	}
 
 	if (value)
 		*value = (char *)json_object_get_string(jname);

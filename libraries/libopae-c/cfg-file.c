@@ -138,15 +138,14 @@ char *opae_read_cfg_file(char *config_file_path)
 		goto out_close;
 	}
 
-	do
-	{
+	do {
 		bytes_read = fread(ptr + total_read,
 				   1,
 				   file_size - total_read,
 				   fp);
 		total_read += bytes_read;
-	
-	} while((total_read < file_size) && !ferror(fp));
+
+	} while ((total_read < file_size) && !ferror(fp));
 
 	if (ferror(fp)) {
 		OPAE_ERR("Error reading config file: %s - %s",
@@ -236,43 +235,43 @@ int opae_parse_device_id(json_object *j_id,
 
 
 STATIC libopae_config_data default_libopae_config_table[] = {
-        { 0x1c2c, 0x1000, 0x0000,          0x0000,          "libxfpga.so",  "{}", 0 }, // N5010
-        { 0x1c2c, 0x1001, 0x0000,          0x0000,          "libxfpga.so",  "{}", 0 }, // N5010
-        { 0x8086, 0xbcbd, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // MCP
-        { 0x8086, 0xbcc0, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // MCP
-        { 0x8086, 0xbcc1, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // MCP
-        { 0x8086, 0x09c4, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // A10GX
-        { 0x8086, 0x09c5, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // A10GX
+	{ 0x1c2c, 0x1000, 0x0000,          0x0000,          "libxfpga.so",  "{}", 0 }, // N5010
+	{ 0x1c2c, 0x1001, 0x0000,          0x0000,          "libxfpga.so",  "{}", 0 }, // N5010
+	{ 0x8086, 0xbcbd, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // MCP
+	{ 0x8086, 0xbcc0, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // MCP
+	{ 0x8086, 0xbcc1, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // MCP
+	{ 0x8086, 0x09c4, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // A10GX
+	{ 0x8086, 0x09c5, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // A10GX
 
-        { 0x8086, 0x0b2b, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // D5005
-        { 0x8086, 0x0b2c, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // D5005
-        { 0x8086, 0xbcce, 0x8086,          0x138d,          "libxfpga.so",  "{}", 0 }, // D5005
-        { 0x8086, 0xbcce, 0x8086,          0x138d,          "libopae-v.so", "{}", 0 }, // D5005
-        { 0x8086, 0xbccf, 0x8086,          0x138d,          "libopae-v.so", "{}", 0 }, // D5005
+	{ 0x8086, 0x0b2b, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // D5005
+	{ 0x8086, 0x0b2c, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // D5005
+	{ 0x8086, 0xbcce, 0x8086,          0x138d,          "libxfpga.so",  "{}", 0 }, // D5005
+	{ 0x8086, 0xbcce, 0x8086,          0x138d,          "libopae-v.so", "{}", 0 }, // D5005
+	{ 0x8086, 0xbccf, 0x8086,          0x138d,          "libopae-v.so", "{}", 0 }, // D5005
 
-        { 0x8086, 0x0b30, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // N3000
-        { 0x8086, 0x0b31, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // N3000
-        { 0x8086, 0xaf00, 0x8086,          0x0000,          "libxfpga.so",  "{}", 0 }, // OFS EA
-        { 0x8086, 0xaf00, 0x8086,          0x0000,          "libopae-v.so", "{}", 0 }, // OFS EA
-        { 0x8086, 0xaf01, 0x8086,          0x0000,          "libopae-v.so", "{}", 0 }, // OFS EA
+	{ 0x8086, 0x0b30, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // N3000
+	{ 0x8086, 0x0b31, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // N3000
+	{ 0x8086, 0xaf00, 0x8086,          0x0000,          "libxfpga.so",  "{}", 0 }, // OFS EA
+	{ 0x8086, 0xaf00, 0x8086,          0x0000,          "libopae-v.so", "{}", 0 }, // OFS EA
+	{ 0x8086, 0xaf01, 0x8086,          0x0000,          "libopae-v.so", "{}", 0 }, // OFS EA
 
-        { 0x8086, 0xbcce, 0x8086,          0x0000,          "libxfpga.so",  "{}", 0 }, // OFS
-        { 0x8086, 0xbcce, 0x8086,          0x0000,          "libopae-v.so", "{}", 0 }, // OFS
-        { 0x8086, 0xbccf, 0x8086,          0x0000,          "libopae-v.so", "{}", 0 }, // OFS
+	{ 0x8086, 0xbcce, 0x8086,          0x0000,          "libxfpga.so",  "{}", 0 }, // OFS
+	{ 0x8086, 0xbcce, 0x8086,          0x0000,          "libopae-v.so", "{}", 0 }, // OFS
+	{ 0x8086, 0xbccf, 0x8086,          0x0000,          "libopae-v.so", "{}", 0 }, // OFS
 
-        { 0x8086, 0xbcce, 0x8086,          0x1770,          "libxfpga.so",  "{}", 0 }, // N6000
-        { 0x8086, 0xbcce, 0x8086,          0x1770,          "libopae-v.so", "{}", 0 }, // N6000
-        { 0x8086, 0xbccf, 0x8086,          0x1770,          "libopae-v.so", "{}", 0 }, // N6000
+	{ 0x8086, 0xbcce, 0x8086,          0x1770,          "libxfpga.so",  "{}", 0 }, // N6000
+	{ 0x8086, 0xbcce, 0x8086,          0x1770,          "libopae-v.so", "{}", 0 }, // N6000
+	{ 0x8086, 0xbccf, 0x8086,          0x1770,          "libopae-v.so", "{}", 0 }, // N6000
 
-        { 0x8086, 0xbcce, 0x8086,          0x1771,          "libxfpga.so",  "{}", 0 }, // N6001
-        { 0x8086, 0xbcce, 0x8086,          0x1771,          "libopae-v.so", "{}", 0 }, // N6001
-        { 0x8086, 0xbccf, 0x8086,          0x1771,          "libopae-v.so", "{}", 0 }, // N6001
+	{ 0x8086, 0xbcce, 0x8086,          0x1771,          "libxfpga.so",  "{}", 0 }, // N6001
+	{ 0x8086, 0xbcce, 0x8086,          0x1771,          "libopae-v.so", "{}", 0 }, // N6001
+	{ 0x8086, 0xbccf, 0x8086,          0x1771,          "libopae-v.so", "{}", 0 }, // N6001
 
-        { 0x8086, 0xbcce, 0x8086,          0x17d4,          "libxfpga.so",  "{}", 0 }, // C6100
-        { 0x8086, 0xbcce, 0x8086,          0x17d4,          "libopae-v.so", "{}", 0 }, // C6100
-        { 0x8086, 0xbccf, 0x8086,          0x17d4,          "libopae-v.so", "{}", 0 }, // C6100
+	{ 0x8086, 0xbcce, 0x8086,          0x17d4,          "libxfpga.so",  "{}", 0 }, // C6100
+	{ 0x8086, 0xbcce, 0x8086,          0x17d4,          "libopae-v.so", "{}", 0 }, // C6100
+	{ 0x8086, 0xbccf, 0x8086,          0x17d4,          "libopae-v.so", "{}", 0 }, // C6100
 
-        {      0,      0,      0,               0,          NULL,           NULL, 0 },
+	{      0,      0,      0,               0,          NULL,           NULL, 0 },
 };
 
 libopae_config_data *
@@ -340,54 +339,54 @@ void opae_free_libopae_config(libopae_config_data *cfg)
 
 
 STATIC fpgainfo_config_data default_fpgainfo_config_table[] = {
-        { 0x8086, 0x09c4, 0x8086, 0x0, OPAE_FEATURE_ID_ANY, "libboard_a10gx.so", NULL,
-        "Intel Programmable Acceleration Card with Intel Arria 10 GX FPGA" },
+	{ 0x8086, 0x09c4, 0x8086, 0x0, OPAE_FEATURE_ID_ANY, "libboard_a10gx.so", NULL,
+	"Intel Programmable Acceleration Card with Intel Arria 10 GX FPGA" },
 
-        { 0x8086, 0x09c5, 0x8086, 0x0, OPAE_FEATURE_ID_ANY, "libboard_a10gx.so", NULL,
-        "Intel Programmable Acceleration Card with Intel Arria 10 GX FPGA" },
+	{ 0x8086, 0x09c5, 0x8086, 0x0, OPAE_FEATURE_ID_ANY, "libboard_a10gx.so", NULL,
+	"Intel Programmable Acceleration Card with Intel Arria 10 GX FPGA" },
 
-        { 0x8086, 0x0b30, 0x8086, 0x0, OPAE_FEATURE_ID_ANY, "libboard_n3000.so", NULL,
-        "Intel FPGA Programmable Acceleration Card N3000" },
+	{ 0x8086, 0x0b30, 0x8086, 0x0, OPAE_FEATURE_ID_ANY, "libboard_n3000.so", NULL,
+	"Intel FPGA Programmable Acceleration Card N3000" },
 
-        { 0x8086, 0x0b31, 0x8086, 0x0, OPAE_FEATURE_ID_ANY, "libboard_n3000.so", NULL,
-        "Intel FPGA Programmable Acceleration Card N3000" },
+	{ 0x8086, 0x0b31, 0x8086, 0x0, OPAE_FEATURE_ID_ANY, "libboard_n3000.so", NULL,
+	"Intel FPGA Programmable Acceleration Card N3000" },
 
-        { 0x8086, 0x0b2b, 0x8086, 0x0, OPAE_FEATURE_ID_ANY, "libboard_d5005.so", NULL,
-        "Intel FPGA Programmable Acceleration Card D5005" },
+	{ 0x8086, 0x0b2b, 0x8086, 0x0, OPAE_FEATURE_ID_ANY, "libboard_d5005.so", NULL,
+	"Intel FPGA Programmable Acceleration Card D5005" },
 
-        { 0x8086, 0x0b2c, 0x8086, 0x0, OPAE_FEATURE_ID_ANY, "libboard_d5005.so", NULL,
-        "Intel FPGA Programmable Acceleration Card D5005" },
+	{ 0x8086, 0x0b2c, 0x8086, 0x0, OPAE_FEATURE_ID_ANY, "libboard_d5005.so", NULL,
+	"Intel FPGA Programmable Acceleration Card D5005" },
 
-        // Max10 SPI feature id 0xe
-        { 0x1c2c, 0x1000, 0x0, 0x0, 0xe, "libboard_n5010.so", NULL,
-        "Silicom FPGA SmartNIC N5010 Series" },
+	// Max10 SPI feature id 0xe
+	{ 0x1c2c, 0x1000, 0x0, 0x0, 0xe, "libboard_n5010.so", NULL,
+	"Silicom FPGA SmartNIC N5010 Series" },
 
-        { 0x1c2c, 0x1001, 0x0, 0x0, 0xe, "libboard_n5010.so", NULL,
-        "Silicom FPGA SmartNIC N5010 Series" },
+	{ 0x1c2c, 0x1001, 0x0, 0x0, 0xe, "libboard_n5010.so", NULL,
+	"Silicom FPGA SmartNIC N5010 Series" },
 
-        { 0x8086, 0xaf00, 0x8086, 0x0, 0xe, "libboard_d5005.so", NULL,
-        "Intel Open FPGA Stack Platform" },
+	{ 0x8086, 0xaf00, 0x8086, 0x0, 0xe, "libboard_d5005.so", NULL,
+	"Intel Open FPGA Stack Platform" },
 
-        { 0x8086, 0xbcce, 0x8086, 0x0, 0xe, "libboard_d5005.so", NULL,
-        "Intel Open FPGA Stack Platform" },
+	{ 0x8086, 0xbcce, 0x8086, 0x0, 0xe, "libboard_d5005.so", NULL,
+	"Intel Open FPGA Stack Platform" },
 
-        { 0x8086, 0xbcce, 0x8086, 0x138d, 0xe, "libboard_d5005.so", NULL,
-        "Intel Open FPGA Stack Platform" },
+	{ 0x8086, 0xbcce, 0x8086, 0x138d, 0xe, "libboard_d5005.so", NULL,
+	"Intel Open FPGA Stack Platform" },
 
-        // Max10 PMCI feature id 0x12
-        { 0x8086, 0xaf00, 0x8086, 0x0, 0x12, "libboard_n6000.so", NULL,
-        "Intel Open FPGA Stack Platform" },
+	// Max10 PMCI feature id 0x12
+	{ 0x8086, 0xaf00, 0x8086, 0x0, 0x12, "libboard_n6000.so", NULL,
+	"Intel Open FPGA Stack Platform" },
 
-        { 0x8086, 0xbcce, 0x8086, 0x1770, 0x12, "libboard_n6000.so", NULL,
-        "Intel Acceleration Development Platform N6000" },
+	{ 0x8086, 0xbcce, 0x8086, 0x1770, 0x12, "libboard_n6000.so", NULL,
+	"Intel Acceleration Development Platform N6000" },
 
-        { 0x8086, 0xbcce, 0x8086, 0x1771, 0x12, "libboard_n6000.so", NULL,
-        "Intel Acceleration Development Platform N6001" },
+	{ 0x8086, 0xbcce, 0x8086, 0x1771, 0x12, "libboard_n6000.so", NULL,
+	"Intel Acceleration Development Platform N6001" },
 
-        { 0x8086, 0xbcce, 0x8086, 0x17d4, 0x12, "libboard_c6100.so", NULL,
-        "Intel Acceleration Development Platform C6100" },
+	{ 0x8086, 0xbcce, 0x8086, 0x17d4, 0x12, "libboard_c6100.so", NULL,
+	"Intel Acceleration Development Platform C6100" },
 
-        { 0,      0, 0, 0, -1,         NULL, NULL, "" }
+	{ 0,      0, 0, 0, -1,         NULL, NULL, "" }
 };
 
 fpgainfo_config_data *
