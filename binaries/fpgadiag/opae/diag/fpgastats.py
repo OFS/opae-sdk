@@ -129,10 +129,8 @@ class FPGASTATS(COMMON):
     def __init__(self, args):
         if not hasattr(args, "build_flags"):
             setattr(args, "build_flags", 0)
-        self.mac_lightweight = (True if args.build_flags &
-                                BUILD_FLAG_MAC_LIGHTWEIGHT else False)
-        self.lightweight = (True if args.build_flags & BUILD_FLAG_LIGHTWEIGHT
-                            else False)
+        self.mac_lightweight = (args.build_flags & BUILD_FLAG_MAC_LIGHTWEIGHT != 0)
+        self.lightweight = (args.build_flags & BUILD_FLAG_LIGHTWEIGHT != 0)
         self.eth_grps = args.eth_grps
         self.mac_number = 0
         self.sbdf = args.sbdf
@@ -410,23 +408,29 @@ def main():
         if args.debug:
             s = 'bdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d)
             print(s)
-    if len(devs) > 1:
-        exception_quit('{} FPGAs are found\nplease choose '
-                       'one FPGA'.format(len(devs)))
     if not devs:
         exception_quit('no FPGA found')
 
-    args.sbdf = '{segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**devs[0])
     bitstream_id_path = f.find_node(devs[0].get('path'),
                                     'dfl-fme*/bitstream_id', depth=1)
     with open(bitstream_id_path[0], 'r') as fd:
         bitstream_id = fd.read().strip()
     args.build_flags = (int(bitstream_id, 16) >> 24) & 0xff
-    args.fpga_root = devs[0].get('path')
-    args.eth_grps = f.find_eth_group(args.fpga_root)
-    print("args.eth_grps", args.eth_grps)
-    if len(args.eth_grps) == 0:
+
+    #args.fpga_root = devs[0].get('path')
+    args.eth_grps = f.find_eth_group(None)
+    if args.debug:
+        print("args.eth_grps", args.eth_grps)
+    boards = set()
+    for keys, values in args.eth_grps.items():
+        sbdf_fmt = '{segment:04x}:{bus:02x}:{dev:02x}.{func:x}'
+        args.sbdf = sbdf_fmt.format(**values[2])
+        boards.add(args.sbdf)
+    if len(boards) == 0:
         exception_quit("Invalid Eth group MDEV")
+    if len(boards) > 1:
+        exception_quit('{} FPGAs are found: {}\nPlease choose one FPGA'.format(
+            len(args.eth_grps), boards))
 
     f = FPGASTATS(args)
     if args.clear:
