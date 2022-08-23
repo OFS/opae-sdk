@@ -222,7 +222,7 @@ def parse_args():
                      help=('PCIe address '
                            '(eg 04:00.0 or 0000:04:00.0)'))
     sdm.add_argument('-t', '--type',
-                     choices=['sr', 'pr'],
+                     choices=['sr', 'pr', 'sr_cancel', 'pr_cancel'],
                      default='sr', help='select SDM type')
     sdm.set_defaults(func=device_rsu_sdm)
 
