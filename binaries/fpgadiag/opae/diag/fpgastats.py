@@ -417,7 +417,7 @@ def main():
         bitstream_id = fd.read().strip()
     args.build_flags = (int(bitstream_id, 16) >> 24) & 0xff
 
-    #args.fpga_root = devs[0].get('path')
+    args.fpga_root = devs[0].get('path')
     args.eth_grps = f.find_eth_group(None)
     if args.debug:
         print("args.eth_grps", args.eth_grps)
