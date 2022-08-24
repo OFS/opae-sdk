@@ -241,7 +241,7 @@ sr_key_provision() {
   for (( i = 0 ; i < ${RETRIES} ; ++i )); do
     call_fpgasupdate "${rkh_file}"  "${pcie_addr}" || oops 'fpgasupdate failed'
     call_fpgasupdate "${fpga_file}" "${pcie_addr}" || oops 'fpgasupdate failed'
-    call_rsu sdm --type=sr "${pcie_addr}"
+    call_rsu --wait 20 sdm --type=sr "${pcie_addr}"
     call_fpgasupdate "${pr_auth_file}" "${pcie_addr}" || oops 'fpgasupdate failed'
 
     if [ ${DRY_RUN} -ne 0 ]; then
@@ -313,7 +313,7 @@ pr_key_provision_worker() {
 
   call_fpgasupdate "${sr_auth_cert_file}" "${pcie_addr}" || return 1
   call_fpgasupdate "${pr_rkh_file}"       "${pcie_addr}" || return 1
-  call_rsu sdm --type=pr "${pcie_addr}"
+  call_rsu --wait 20 sdm --type=pr "${pcie_addr}"
 
   if [ ${DRY_RUN} -ne 0 ]; then
     local -r glob_pattern="${SDM_PR_PROVISION_STATUS_GLOB/ssss:bb:dd.f/${pcie_addr}}"
