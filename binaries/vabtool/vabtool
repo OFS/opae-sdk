@@ -298,7 +298,7 @@ pr_key_provision() {
     boot_page=$(fpga_boot_page "${pcie_addr}")
     boot_page="${boot_page/fpga_/}"
 
-    call_rsu fpga --page "${boot_page}" "${pcie_addr}"
+    call_rsu fpga --wait 20 --page "${boot_page}" "${pcie_addr}"
 
   done
 
