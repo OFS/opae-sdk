@@ -3,6 +3,7 @@ name: C/C++ CI Build and Test (dummy)
 on:
   workflow_dispatch:
   push:
+  pull_request:
 jobs:
   build:
     runs-on: ubuntu-latest
