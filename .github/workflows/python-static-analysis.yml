@@ -1,7 +1,10 @@
 name: python static analysis
 
 on:
-  push:
+  pull_request:
+    branches:
+      - master
+      - feature/**
     paths:
       - '**.py'
       - '.github/workflows/python-static-analysis.yml'
