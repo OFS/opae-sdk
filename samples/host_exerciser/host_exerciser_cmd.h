@@ -55,6 +55,7 @@ public:
           he_lpbk_cfg_.value = 0;
           he_lpbk_ctl_.value = 0;
           he_lpbk_api_ver_ = 0;
+          he_lpbk_atomics_supported_ = false;
     }
     virtual ~host_exerciser_cmd() {}
 
@@ -77,6 +78,11 @@ public:
         host_exe_->logger_->info("Host Exerciser numPendReads: {0}", tmp);
         tmp = he_status1.numPendWrites;
         host_exe_->logger_->info("Host Exerciser numPendWrites: {0}", tmp);
+
+        tmp = he_status1.numPendEmifReads;
+        host_exe_->logger_->info("Host Exerciser numPendEmifReads: {0}", tmp);
+        tmp = he_status1.numPendEmifWrites;
+        host_exe_->logger_->info("Host Exerciser numPendEmifWrites: {0}", tmp);
     }
 
     void host_exerciser_errors()
@@ -142,8 +148,9 @@ public:
                 num_cache_lines = dsm_status->num_writes * 2;
         } else {
             num_cache_lines = (LPBK1_BUFFER_SIZE / (1 * CL));
-            host_exerciser_status();
         }
+
+        host_exerciser_status();
 
         uint64_t tmp;
 
@@ -187,6 +194,7 @@ public:
             if (--timeout == 0) {
                 std::cout << "HE LPBK TIME OUT" << std::endl;
                 host_exerciser_errors();
+                host_exerciser_status();
                 return false;
             }
         }
@@ -395,8 +403,8 @@ public:
         // Atomic functions
         he_lpbk_cfg_.AtomicFunc = host_exe_->he_req_atomic_func_;
         if (he_lpbk_cfg_.AtomicFunc != HOSTEXE_ATOMIC_OFF) {
-            if (he_lpbk_api_ver_ == 0) {
-                std::cerr << "Host exerciser hardware API version 0 does not support atomic functions" << std::endl;
+            if (!he_lpbk_atomics_supported_) {
+                std::cerr << "The platform does not support atomic functions" << std::endl;
                 return -1;
             }
             if ((he_lpbk_cfg_.ReqLen != HOSTEXE_CLS_1) && (he_lpbk_cfg_.TestMode == HOST_EXEMODE_LPBK1)) {
@@ -544,7 +552,7 @@ public:
         he_lpbk_cfg_.ReqLen = HOSTEXE_CLS_1;
 
         // Test atomic functions if the API supports it
-        if (he_lpbk_api_ver_ != 0) {
+        if (he_lpbk_atomics_supported_) {
             std::cout << std::endl << "Testing atomic functions:" << std::endl;
             for (std::map<std::string, uint32_t>::const_iterator af=he_req_atomic_func.begin(); af!=he_req_atomic_func.end(); ++af) {
                 // Don't test "off"
@@ -654,6 +662,10 @@ public:
         he_lpbk_api_ver_ = (he_info >> 16);
         std::cout << "API version: " << uint32_t(he_lpbk_api_ver_) << std::endl;
 
+        // For atomics support, the version must not be zero and bit 24 must be 0.
+        he_lpbk_atomics_supported_ = (he_lpbk_api_ver_ != 0) &&
+                                     (0 == ((he_info >> 24) & 1));
+
         if (0 == host_exe_->he_clock_mhz_) {
             uint16_t freq = he_info;
             if (freq) {
@@ -692,6 +704,8 @@ public:
         Write to CSR_SRC_ADDR */
         std::cout << "Allocate SRC Buffer" << std::endl;
         source_ = d_afu->allocate(LPBK1_BUFFER_ALLOCATION_SIZE);
+        host_exe_->logger_->debug("    VA 0x{0}  IOVA 0x{1:x}",
+                                  (void*)source_->c_type(), source_->io_address());
         d_afu->write64(HE_SRC_ADDR, cacheline_aligned_addr(source_->io_address()));
         he_init_src_buffer(source_);
 
@@ -699,6 +713,8 @@ public:
             Write to CSR_DST_ADDR */
         std::cout << "Allocate DST Buffer" << std::endl;
         destination_ = d_afu->allocate(LPBK1_BUFFER_ALLOCATION_SIZE);
+        host_exe_->logger_->debug("    VA 0x{0}  IOVA 0x{1:x}",
+                                  (void*)destination_->c_type(), destination_->io_address());
         d_afu->write64(HE_DST_ADDR, cacheline_aligned_addr(destination_->io_address()));
         std::fill_n(destination_->c_type(), LPBK1_BUFFER_SIZE, 0xBE);
 
@@ -706,6 +722,8 @@ public:
             Write to CSR_AFU_DSM_BASEL */
         std::cout << "Allocate DSM Buffer" << std::endl;
         dsm_ = d_afu->allocate(LPBK1_DSM_SIZE);
+        host_exe_->logger_->debug("    VA 0x{0}  IOVA 0x{1:x}",
+                                  (void*)dsm_->c_type(), dsm_->io_address());
         d_afu->write32(HE_DSM_BASEL, cacheline_aligned_addr(dsm_->io_address()));
         d_afu->write32(HE_DSM_BASEH, cacheline_aligned_addr(dsm_->io_address()) >> 32);
         std::fill_n(dsm_->c_type(), LPBK1_DSM_SIZE, 0x0);
@@ -732,6 +750,7 @@ protected:
     he_interrupt0 he_interrupt_;
     token::ptr_t token_;
     uint8_t he_lpbk_api_ver_;
+    bool he_lpbk_atomics_supported_;
 };
 
 } // end of namespace host_exerciser
