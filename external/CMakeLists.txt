@@ -28,13 +28,7 @@ cmake_minimum_required(VERSION  3.10)
 
 if(OPAE_WITH_PYBIND11)
 
-    find_package(pybind11 QUIET)
-
-    if (pybind11_FOUND)
-        set(PYBIND11_INSTALLATION_FOUND TRUE CACHE BOOL "Found installed pybind11 pkg" FORCE)
-        message(STATUS "PYBIND11_INSTALLATION_FOUND ${PYBIND11_INSTALLATION_FOUND}")
-
-    else(pybind11_FOUND)
+    if (NOT pybind11_FOUND)
         set(PYBIND11_INSTALLATION_FOUND FALSE CACHE BOOL "Found installed pybind11 pkg" FORCE)
 
         if(${CMAKE_VERSION} VERSION_LESS "3.4.0" AND ${PYTHONLIBS_VERSION_STRING} VERSION_LESS "3.9.0")
@@ -49,7 +43,7 @@ if(OPAE_WITH_PYBIND11)
                                   GIT_TAG "${PYBIND11_TAG}"
                                   PRESERVE_REPOS ${OPAE_PRESERVE_REPOS}
     )
-    endif(pybind11_FOUND)
+    endif(NOT pybind11_FOUND)
 
 endif(OPAE_WITH_PYBIND11)
 

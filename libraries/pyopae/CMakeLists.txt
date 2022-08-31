@@ -67,9 +67,9 @@ set_target_properties(_opae
     ${LIBRARY_OUTPUT_PATH}/python${OPAE_PYTHON_VERSION}/opae/fpga
 )
 
-if(NOT PYBIND11_INSTALLATION_FOUND)
+if(NOT pybind11_FOUND)
     opae_target_depends_external(_opae pybind11)
-endif(NOT PYBIND11_INSTALLATION_FOUND)
+endif(NOT pybind11_FOUND)
 
 add_custom_command(TARGET _opae
     POST_BUILD
