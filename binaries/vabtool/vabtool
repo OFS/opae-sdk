@@ -350,6 +350,11 @@ sr_key_provision() {
     else
       res=$(sdm_sr_provision_status "${pcie_addr}")
       [ ${res} -eq 0 ] && break
+      if [ ${res} -ge ${#SDM_SR_PROVISION_STATUS[@]} ]; then
+        printf "Error code: ${res}\n"
+      else
+        printf "%s\n" "${SDM_SR_PROVISION_STATUS[${res}]}"
+      fi
     fi
 
     printf "Error: retrying[%d]\n" $(( i + 1 ))
@@ -389,6 +394,12 @@ pr_key_provision() {
     pr_key_provision_worker "${pcie_addr}" "${sr_auth_cert_file}" "${pr_rkh_file}"
     res=$?
     [ ${res} -eq 0 ] && break    
+
+    if [ ${res} -ge ${#SDM_PR_PROVISION_STATUS[@]} ]; then
+      printf "Error code: ${res}\n"
+    else
+      printf "%s\n" "${SDM_PR_PROVISION_STATUS[${res}]}"
+    fi
 
     printf "Error: retrying[%d]\n" $(( i + 1 ))
 
