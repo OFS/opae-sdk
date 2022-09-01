@@ -182,7 +182,7 @@ STATIC int parse_fpgainfo_plugin_config(json_object *root,
 					&id_len);
 		if (!j_id || id_len != ID_SIZE) {
 			OPAE_ERR("devices[%d] \"id\" field not present "
-				 " or wrong size", d);
+				 "or wrong size", d);
 			res = 7;
 			goto out_free;
 		}
@@ -227,7 +227,7 @@ STATIC int parse_fpgainfo_plugin_config(json_object *root,
 
 		j_devices =
 			parse_json_array(j_fpgainfo_i, "devices", &num_devices_i);
-		if (!j_devices || !num_devices) {
+		if (!j_devices || !num_devices_i) {
 			OPAE_DBG("fpgainfo[%d] \"devices\" in %s missing "
 				 "or empty. skipping", i, cfg_name);
 			continue;
@@ -264,7 +264,7 @@ STATIC int parse_fpgainfo_plugin_config(json_object *root,
 
 		j_devices =
 			parse_json_array(j_fpgainfo_i, "devices", &num_devices_i);
-		if (!j_devices || !num_devices) {
+		if (!j_devices || !num_devices_i) {
 			OPAE_DBG("fpgainfo[%d] \"devices\" in %s missing "
 				 "or empty. skipping", i, cfg_name);
 			continue;
@@ -348,6 +348,12 @@ STATIC int parse_fpgainfo_plugin_config(json_object *root,
 			pcfg->feature_id = l;
 
 			pcfg->board_plugin = opae_strdup(module);
+			if (!pcfg->board_plugin) {
+				OPAE_ERR("strdup() failed");
+				res = 16;
+				goto out_free;
+			}
+
 			memcpy(pcfg->product_name,
 			       platform,
 			       strlen(platform) + 1);

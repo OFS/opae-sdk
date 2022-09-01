@@ -102,7 +102,7 @@ char *opae_find_cfg_file(void)
 }
 
 #define MAX_CFG_SIZE (8 * 4096)
-char *opae_read_cfg_file(char *config_file_path)
+char *opae_read_cfg_file(const char *config_file_path)
 {
 	char *ptr = NULL;
 	size_t file_size = 0;
@@ -162,7 +162,6 @@ out_free:
 out_close:
 	opae_fclose(fp);
 out:
-	opae_free(config_file_path);
 	return ptr;
 }
 

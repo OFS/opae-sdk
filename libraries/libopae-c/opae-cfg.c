@@ -170,7 +170,7 @@ STATIC int parse_plugin_config(json_object *root,
 					&id_len);
 		if (!j_id || id_len != ID_SIZE) {
 			OPAE_ERR("devices[%d] \"id\" field not present "
-				 " or wrong size", d);
+				 "or wrong size", d);
 			res = 6;
 			goto out_free;
 		}
@@ -215,7 +215,7 @@ STATIC int parse_plugin_config(json_object *root,
 
 		j_devices =
 			parse_json_array(j_plugin_i, "devices", &num_devices_i);
-		if (!j_devices || !num_devices) {
+		if (!j_devices || !num_devices_i) {
 			OPAE_DBG("plugin[%d] \"devices\" in %s missing "
 				 "or empty. skipping", i, cfg_name);
 			continue;
@@ -254,7 +254,7 @@ STATIC int parse_plugin_config(json_object *root,
 
 		j_devices =
 			parse_json_array(j_plugin_i, "devices", &num_devices_i);
-		if (!j_devices || !num_devices) {
+		if (!j_devices || !num_devices_i) {
 			OPAE_DBG("plugin[%d] \"devices\" in %s missing "
 				 "or empty. skipping", i, cfg_name);
 			continue;
@@ -324,6 +324,12 @@ STATIC int parse_plugin_config(json_object *root,
 
 			pcfg->module_library = opae_strdup(module);
 			pcfg->config_json = opae_strdup(configuration);
+
+			if (!pcfg->module_library || !pcfg->config_json) {
+				OPAE_ERR("strdup() failed");
+				res = 13;
+				goto out_free;
+			}
 		}
 	}
 

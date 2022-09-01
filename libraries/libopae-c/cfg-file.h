@@ -31,6 +31,10 @@
 #include <opae/log.h>
 #include <json-c/json.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
 // Returns the canonicalized path to the first config
 // file found, or NULL if not found. When the return
 // value is non-NULL, it was allocated by the function.
@@ -38,13 +42,10 @@
 char *opae_find_cfg_file(void);
 
 // Returns an allocated buffer containing the contents
-// of the config file found at config_file_path. The
-// config_file_path parameter is assumed to have been
-// allocated by opae_find_cfg_file(), and is freed by
-// this function.
+// of the config file found at config_file_path.
 // return: NULL on error or an allocated buffer on success.
 // Caller must free any allocated buffer.
-char *opae_read_cfg_file(char *config_file_path);
+char *opae_read_cfg_file(const char *config_file_path);
 
 // VID, DID, SVID, SDID
 #define ID_SIZE		     4
@@ -238,5 +239,9 @@ string_to_signed_wildcard(const char *s,
 
 	return 1;
 }
+
+#ifdef __cplusplus
+}
+#endif // __cplusplus
 
 #endif // __OPAE_CFG_FILE_H__

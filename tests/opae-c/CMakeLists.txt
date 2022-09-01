@@ -155,6 +155,31 @@ opae_test_add(TARGET test_opae_pluginmgr_c
 set_tests_properties(test_opae_pluginmgr_c
     PROPERTIES
         ENVIRONMENT "LD_LIBRARY_PATH=${LIBRARY_OUTPUT_PATH}")
+
+opae_test_add(TARGET test_cfg_file_c
+    SOURCE test_cfg_file_c.cpp
+    LIBS
+	opae-c-static
+)
+
+opae_test_add(TARGET test_opae_cfg_c
+    SOURCE test_opae_cfg_c.cpp
+    LIBS
+	opae-c-static
+)
+
+opae_test_add(TARGET test_fpgainfo_cfg_c
+    SOURCE test_fpgainfo_cfg_c.cpp
+    LIBS
+	opae-c-static
+)
+
+opae_test_add(TARGET test_fpgad_cfg_c
+    SOURCE test_fpgad_cfg_c.cpp
+    LIBS
+	opae-c-static
+)
+
 add_library(dummy_plugin MODULE dummy_plugin.c)
 
 target_include_directories(dummy_plugin
