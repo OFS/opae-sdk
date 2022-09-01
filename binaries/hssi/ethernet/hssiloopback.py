@@ -25,16 +25,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import re
-import os
-import glob
 import argparse
 import sys
-import traceback
-import fcntl
-import stat
-import struct
-import mmap
 from ethernet.hssicommon import *
 
 
@@ -127,14 +119,14 @@ class FPGAHSSILPBK(HSSICOMMON):
 
 def main():
     """
-    parse input arguemnts pciaddress and mtu
+    parse input arguments pciaddress and mtu
     enum fpga pcie devices and find match
     enable/disable loopback
     """
-
     parser = argparse.ArgumentParser()
+
     pcieaddress_help = 'sbdf of device to program \
-                       (e.g. 0000:04:00.0).' \
+                        (e.g. 0000:04:00.0).' \
                        ' Optional when one device in system.'
     parser.add_argument('--pcie-address', '-P',
                         default=None, help=pcieaddress_help)
@@ -152,41 +144,35 @@ def main():
                         default=None,
                         help='hssi NCSI_CH_SEL; Value 2 to disable NCSI')
 
-    # exit if no commad line argument
     args = parser.parse_args()
-    if len(sys.argv) == 1:
-        parser.print_help()
-        sys.exit(1)
-
-    args, left = parser.parse_known_args()
 
     print("args", args)
 
-    if not verify_pcie_address(args.pcie_address.lower()):
+    if args.pcie_address and not verify_pcie_address(args.pcie_address.lower()):
         sys.exit(1)
 
     if args.loopback is None:
         print('please specify --loopback enable/disable')
         sys.exit(1)
 
-    f = FpgaFinder(args.pcie_address.lower())
+    args.hssi_grps = []
+    f = FpgaFinder(args.pcie_address.lower() if args.pcie_address else None)
     devs = f.enum()
-    for d in devs:
-        print('sbdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))
-        print('FPGA dev:', d)
-    if len(devs) > 1:
-        print('{} FPGAs are found\nplease choose '
-              'one FPGA'.format(len(devs)))
-        sys.exit(1)
     if not devs:
         print('no FPGA found')
         sys.exit(1)
 
-    args.hssi_grps = f.find_hssi_group(devs[0].get('pcie_address'))
+    for d in devs:
+        print('sbdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))
+        print('FPGA dev:', d)
+        args.hssi_grps += f.find_hssi_group(d['pcie_address'])
     print("args.hssi_grps{}".format(args.hssi_grps))
     if len(args.hssi_grps) == 0:
-        print("Failed to find HSSI feature{}".format(devs[0].get(
-                                                    'pcie_address')))
+        print("Failed to find HSSI feature")
+        sys.exit(1)
+    if len(args.hssi_grps) > 1:
+        print('{} FPGAs are found: {}\nPlease choose one FPGA'
+            .format(len(args.hssi_grps), [d[2] for d in args.hssi_grps]))
         sys.exit(1)
 
     print("fpga uio dev:{}".format(args.hssi_grps[0][0]))

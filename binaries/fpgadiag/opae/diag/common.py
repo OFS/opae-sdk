@@ -57,11 +57,16 @@ UPL_INDIRECT_DATA_REG = 0x20
 DFH_TYPE_SHIFT = 60
 DFH_TYPE_MASK = 0xf
 DFH_TYPE_AFU = 0x1
+DFH_TYPE_PRIVATE = 0x3
 DFH_TYPE_FIU = 0x4
 
 DFH_ID_SHIFT = 0
 DFH_ID_MASK = 0xfff
 DFH_ID_UPL = 0x1f
+
+NEXT_DFH_OFFSET_SHIFT = 16
+NEXT_DFH_OFFSET_MASK = 0xffffff
+DFH_EOL_MASK = 0x0000010000000000
 
 NEXT_AFU_OFFSET_REG = 0x18
 NEXT_AFU_OFFSET_MASK = 0xffffff
@@ -125,8 +130,6 @@ class FpgaFinder(object):
         eth_group = {}
         paths = glob.glob("/sys/bus/dfl/drivers/uio_dfl/dfl_*")
         i = 0
-        feature_id = 0
-        uio_path = 0
         for path in paths:
             with open(os.path.join(path,'feature_id'), 'r') as fd:
                 feature_id = fd.read().strip()
@@ -138,9 +141,9 @@ class FpgaFinder(object):
 
             if len(uio_path) == 0:
                 continue
-            dfl_dev_name = path.split("/sys/bus/dfl/drivers/uio_dfl")
-            eth_group[i] = [dfl_dev_name[1], uio_path]
-            i = i + 1
+            dfl_dev_name = path.split("/sys/bus/dfl/drivers/uio_dfl/")
+            sbdf = self.read_bdf(path)
+            eth_group[i] = (dfl_dev_name[1], uio_path, sbdf, feature_id)
         return eth_group
 
 
@@ -174,8 +177,8 @@ class COMMON(object):
                 return None
             print("direction:", eth_group_inst.direction)
             print("speed    :", eth_group_inst.speed)
-            print("phy_num  :", eth_group_inst.direction)
-            print("group_id :", eth_group_inst.direction)
+            print("phy_num  :", eth_group_inst.phy_num)
+            print("group_id :", eth_group_inst.group_id)
             print("df_id    :", eth_group_inst.df_id)
             print("eth_lwmac:", eth_group_inst.eth_lwmac)
             self.mac_lightweight \
@@ -361,7 +364,7 @@ class COMMON(object):
         else:       # write
             cmd = (2 << 62) | (addr << 32) | (data & 0xffffffff)
             self.pci_bar2_rw(self.upl_base + UPL_INDIRECT_CTRL_REG, cmd)
-            if (rdata >> 32) != 0x1:     # waiting for write complete
+            while (rdata >> 32) != 0x1:     # waiting for write complete
                 rdata = self.pci_bar2_rw(self.upl_base + UPL_INDIRECT_DATA_REG)
 
     def get_upl_base(self):
@@ -370,15 +373,16 @@ class COMMON(object):
             header = self.pci_bar2_rw(addr)
             feature_type = (header >> DFH_TYPE_SHIFT) & DFH_TYPE_MASK
             feature_id = (header >> DFH_ID_SHIFT) & DFH_ID_MASK
+            next_afu_offset = 0
+            #or? next_afu_offset = (header >> NEXT_DFH_OFFSET_SHIFT) & NEXT_DFH_OFFSET_MASK
             if feature_type == DFH_TYPE_AFU and feature_id == DFH_ID_UPL:
                 self.upl_base = addr
                 break
-            if feature_type in [DFH_TYPE_AFU, DFH_TYPE_FIU]:
+            if feature_type in (DFH_TYPE_AFU, DFH_TYPE_FIU):
                 next_afu_offset = self.pci_bar2_rw(addr+NEXT_AFU_OFFSET_REG)
                 next_afu_offset &= NEXT_AFU_OFFSET_MASK
-            if next_afu_offset == 0 or (next_afu_offset & 0xffff) == 0xffff:
-                print("Use default UPL base address {:#x}".format(
-                                                                self.upl_base))
+            if next_afu_offset == 0 or (next_afu_offset & 0xffff) == 0xffff or header & DFH_EOL_MASK:
+                print("Use default UPL base address {:#x}".format(self.upl_base))
                 break
             else:
                 addr += next_afu_offset
@@ -399,9 +403,14 @@ def main():
 
     finder = FpgaFinder(args.segment, args.bus, args.device, args.function)
     finder.find()
-    print('find {} node'.format(len(finder.match_dev)))
+    print('Found {} fpgaregion nodes:'.format(len(finder.match_dev)))
     for n in finder.match_dev:
         print(n)
+
+    eth_grps = finder.find_eth_group(None)
+    print('Found {} uio nodes:'.format(len(eth_grps)))
+    for keys, values in eth_grps.items():
+        print(values)
 
 
 if __name__ == "__main__":
