@@ -292,7 +292,7 @@ help() {
   printf "Usage: vabtool {sr_key_provision, sr_status,\n"
   printf "		  pr_key_provision, pr_status,\n"
   printf "		  sr_key_cancel, sr_cancel_status,\n"
-  printf "		  pr_key_cancel, pr_cancel_status,\n"
+  printf "		  pr_key_cancel, pr_cancel_status} ...\n"
   printf "\n"
   printf "\tPerform Vendor Authorized Boot flows for Intel Acceleration Development Platform\n"
   printf "\n"
