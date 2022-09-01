@@ -429,7 +429,7 @@ STATIC int opae_plugin_mgr_load_plugins(int *platforms_detected)
 	int res = 0;
 	opae_api_adapter_table *adapter = NULL;
 	int errors;
-       
+
 	errors = opae_plugin_mgr_detect_platforms();
 	if (errors)
 		return errors;
