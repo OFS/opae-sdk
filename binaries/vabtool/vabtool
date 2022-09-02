@@ -25,7 +25,7 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-declare -r VERSION='1.0.1'
+declare -r VERSION='1.0.2'
 
 oops() {
   printf "fatal: %s\n" "$*"
@@ -71,7 +71,7 @@ sdm_sr_provision_status() {
   local -i i
 
   if [ "${glob_res[0]}" = "${glob_pattern}" ]; then
-    oops "Could not glob sdm provision status. Sysfs node not found."
+    oops "Could not glob sdm SR provision status. Sysfs node not found."
   fi
 
   i=$(cat "${glob_res[0]}")
@@ -84,7 +84,7 @@ sdm_sr_provision_status_str() {
   local -i i=$(sdm_sr_provision_status "${pcie_addr}")
 
   if [ $i -ge ${#SDM_SR_PROVISION_STATUS[@]} ]; then
-    oops "sdm provision status index $i out of range"
+    oops "sdm SR provision status index $i out of range"
   fi
 
   printf "%s" "${SDM_SR_PROVISION_STATUS[$i]}"
@@ -98,6 +98,149 @@ print_sdm_sr_provision_status() {
   [ -e "/sys/bus/pci/devices/${pcie_addr}" ] || oops "${pcie_addr} is not a valid device."
 
   printf "%s\n" "$(sdm_sr_provision_status_str ${pcie_addr})"
+}
+
+declare -ra SDM_PR_PROVISION_STATUS=(\
+'Success' \
+'Fail' \
+'Auth Cert Not Programmed' \
+'Recent Key Operation Mismatch' \
+'Flush Buffer Failed' \
+'Command Send Error' \
+'PubKey Program Command Failed' \
+'Response Receive Error'\
+)
+
+declare -r SDM_PR_PROVISION_STATUS_GLOB="/sys/bus/pci/devices/ssss:bb:dd.f/fpga_region/region*/dfl-fme.*/dfl_dev.*/*-sec*.*.auto/security/sdm_pr_provision_status"
+
+sdm_pr_provision_status() {
+  local -r pcie_addr="$1"
+  local -r glob_pattern="${SDM_PR_PROVISION_STATUS_GLOB/ssss:bb:dd.f/${pcie_addr}}"
+  local glob_res=(${glob_pattern})
+  local -i i
+
+  if [ "${glob_res[0]}" = "${glob_pattern}" ]; then
+    oops "Could not glob sdm PR provision status. Sysfs node not found."
+  fi
+
+  i=$(cat "${glob_res[0]}")
+
+  printf "%d" $i
+}
+
+sdm_pr_provision_status_str() {
+  local -r pcie_addr="$1"
+  local -i i=$(sdm_pr_provision_status "${pcie_addr}")
+
+  if [ $i -ge ${#SDM_PR_PROVISION_STATUS[@]} ]; then
+    oops "sdm PR provision status index $i out of range"
+  fi
+
+  printf "%s" "${SDM_PR_PROVISION_STATUS[$i]}"
+}
+
+print_sdm_pr_provision_status() {
+  [ $# -lt 1 ] && oops 'Please provide PCIe address'
+
+  local -r pcie_addr="$1"
+
+  [ -e "/sys/bus/pci/devices/${pcie_addr}" ] || oops "${pcie_addr} is not a valid device."
+
+  printf "%s\n" "$(sdm_pr_provision_status_str ${pcie_addr})"
+}
+
+declare -ra SDM_CANCEL_STATUS=(\
+['0x000']='Success' \
+['0x004']='Invalid command parameters' \
+['0x006']='Command invalid on source' \
+['0x00a']='Authentication failure' \
+['0x00f']='Function not supported' \
+['0x080']='Invalid_certificate' \
+['0x081']='EFuse write failure' \
+['0x082']='EFuse system failure' \
+['0x085']='Not allowed under security settings' \
+['0x086']='PUF not available' \
+['0x087']='Fuse already blown' \
+['0x1ff']='Device busy' \
+['0x3ff']='General_error'\
+)
+
+declare -r SDM_SR_CANCEL_STATUS_GLOB="/sys/bus/pci/devices/ssss:bb:dd.f/fpga_region/region*/dfl-fme.*/dfl_dev.*/*-sec*.*.auto/security/sdm_sr_cancel_status"
+
+sdm_sr_cancel_status() {
+  local -r pcie_addr="$1"
+  local -r glob_pattern="${SDM_SR_CANCEL_STATUS_GLOB/ssss:bb:dd.f/${pcie_addr}}"
+  local glob_res=(${glob_pattern})
+  local -i i
+
+  if [ "${glob_res[0]}" = "${glob_pattern}" ]; then
+    oops "Could not glob sdm SR key cancelation status. Sysfs node not found."
+  fi
+
+  i=$(cat "${glob_res[0]}")
+
+  printf "%d" $i
+}
+
+sdm_sr_cancel_status_str() {
+  local -r pcie_addr="$1"
+  local -i i=$(sdm_sr_cancel_status "${pcie_addr}")
+  local key=$(printf "0x%03x" $i)
+
+  if [ -z "${SDM_CANCEL_STATUS[$key]}" ]; then
+    oops "Invalid sdm SR cancelation status: $key"
+  fi
+
+  printf "%s" "${SDM_CANCEL_STATUS[$key]}"
+}
+
+print_sdm_sr_cancel_status() {
+  [ $# -lt 1 ] && oops 'Please provide PCIe address'
+
+  local -r pcie_addr="$1"
+
+  [ -e "/sys/bus/pci/devices/${pcie_addr}" ] || oops "${pcie_addr} is not a valid device."
+
+  printf "%s\n" "$(sdm_sr_cancel_status_str ${pcie_addr})"
+}
+
+declare -r SDM_PR_CANCEL_STATUS_GLOB="/sys/bus/pci/devices/ssss:bb:dd.f/fpga_region/region*/dfl-fme.*/dfl_dev.*/*-sec*.*.auto/security/sdm_pr_cancel_status"
+
+sdm_pr_cancel_status() {
+  local -r pcie_addr="$1"
+  local -r glob_pattern="${SDM_PR_CANCEL_STATUS_GLOB/ssss:bb:dd.f/${pcie_addr}}"
+  local glob_res=(${glob_pattern})
+  local -i i
+
+  if [ "${glob_res[0]}" = "${glob_pattern}" ]; then
+    oops "Could not glob sdm PR key cancelation status. Sysfs node not found."
+  fi
+
+  i=$(cat "${glob_res[0]}")
+
+  printf "%d" $i
+}
+
+sdm_pr_cancel_status_str() {
+  local -r pcie_addr="$1"
+  local -i i=$(sdm_pr_cancel_status "${pcie_addr}")
+  local key=$(printf "0x%03x" $i)
+
+  if [ -z "${SDM_CANCEL_STATUS[$key]}" ]; then
+    oops "Invalid sdm PR cancelation status: $key"
+  fi
+
+  printf "%s" "${SDM_CANCEL_STATUS[$key]}"
+}
+
+print_sdm_pr_cancel_status() {
+  [ $# -lt 1 ] && oops 'Please provide PCIe address'
+
+  local -r pcie_addr="$1"
+
+  [ -e "/sys/bus/pci/devices/${pcie_addr}" ] || oops "${pcie_addr} is not a valid device."
+
+  printf "%s\n" "$(sdm_pr_cancel_status_str ${pcie_addr})"
 }
 
 declare -r FPGA_BOOT_PAGE_GLOB="/sys/bus/pci/devices/ssss:bb:dd.f/fpga_region/region*/dfl-fme.*/dfl_dev.*/*-sec*.*.auto/control/fpga_boot_image"
@@ -146,7 +289,10 @@ call_rsu() {
 }
 
 help() {
-  printf "Usage: vabtool {sr_key_provision, sr_status, pr_key_provision} ...\n"
+  printf "Usage: vabtool {sr_key_provision, sr_status,\n"
+  printf "		  pr_key_provision, pr_status,\n"
+  printf "		  sr_key_cancel, sr_cancel_status,\n"
+  printf "		  pr_key_cancel, pr_cancel_status} ...\n"
   printf "\n"
   printf "\tPerform Vendor Authorized Boot flows for Intel Acceleration Development Platform\n"
   printf "\n"
@@ -192,8 +338,8 @@ sr_key_provision() {
   for (( i = 0 ; i < ${RETRIES} ; ++i )); do
     call_fpgasupdate "${rkh_file}"  "${pcie_addr}" || oops 'fpgasupdate failed'
     call_fpgasupdate "${fpga_file}" "${pcie_addr}" || oops 'fpgasupdate failed'
-    call_rsu sdm "${pcie_addr}"
-    call_fpgasupdate "${pr_auth_file}"  "${pcie_addr}" || oops 'fpgasupdate failed'
+    call_rsu --wait 20 sdm --type=sr "${pcie_addr}"
+    call_fpgasupdate "${pr_auth_file}" "${pcie_addr}" || oops 'fpgasupdate failed'
 
     if [ ${DRY_RUN} -ne 0 ]; then
       local -r glob_pattern="${SDM_SR_PROVISION_STATUS_GLOB/ssss:bb:dd.f/${pcie_addr}}"
@@ -204,6 +350,11 @@ sr_key_provision() {
     else
       res=$(sdm_sr_provision_status "${pcie_addr}")
       [ ${res} -eq 0 ] && break
+      if [ ${res} -ge ${#SDM_SR_PROVISION_STATUS[@]} ]; then
+        printf "Error code: ${res}\n"
+      else
+        printf "%s\n" "${SDM_SR_PROVISION_STATUS[${res}]}"
+      fi
     fi
 
     printf "Error: retrying[%d]\n" $(( i + 1 ))
@@ -244,6 +395,12 @@ pr_key_provision() {
     res=$?
     [ ${res} -eq 0 ] && break    
 
+    if [ ${res} -ge ${#SDM_PR_PROVISION_STATUS[@]} ]; then
+      printf "Error code: ${res}\n"
+    else
+      printf "%s\n" "${SDM_PR_PROVISION_STATUS[${res}]}"
+    fi
+
     printf "Error: retrying[%d]\n" $(( i + 1 ))
 
     boot_page=$(fpga_boot_page "${pcie_addr}")
@@ -260,11 +417,123 @@ pr_key_provision_worker() {
   local -r pcie_addr="$1"
   local -r sr_auth_cert_file="$2"
   local -r pr_rkh_file="$3"
+  local -i res=0
 
   call_fpgasupdate "${sr_auth_cert_file}" "${pcie_addr}" || return 1
   call_fpgasupdate "${pr_rkh_file}"       "${pcie_addr}" || return 1
+  call_rsu --wait 20 sdm --type=pr "${pcie_addr}"
 
-  return 0
+  if [ ${DRY_RUN} -ne 0 ]; then
+    local -r glob_pattern="${SDM_PR_PROVISION_STATUS_GLOB/ssss:bb:dd.f/${pcie_addr}}"
+    local -a resolved=(${glob_pattern})
+    printf "dry run: cat %s\n" "${resolved[0]}"
+  else
+    res=$(sdm_pr_provision_status "${pcie_addr}")
+  fi
+
+  return ${res}
+}
+
+sr_key_cancel_help() {
+  printf "Usage: vabtool sr_key_cancel PCIE_ADDRESS SR_RKH_CANCEL_FILE\n"
+  printf "\n"
+  printf "\tStatic Region key cancellation\n"
+  printf "\n"
+  printf "\t\tPCIE_ADDRESS        the PCIe address of the ADP in ssss:bb:dd.f form\n"
+  printf "\t\tSR_RKH_CANCEL_FILE  the Static Region key cancellation file\n"
+  printf "\n"
+  exit 1
+}
+
+sr_key_cancel() {
+  [ $# -lt 2 ] && sr_key_cancel_help
+
+  local -r pcie_addr="$1"
+  local -r rkh_cancel_file="$2"
+  local -i res
+  local -i i
+  local key
+
+  [ -e "/sys/bus/pci/devices/${pcie_addr}" ] || oops "${pcie_addr} is not a valid device."
+  [ -e "${rkh_cancel_file}"  ] || oops "${rkh_cancel_file} does not exist."
+
+  for (( i = 0 ; i < ${RETRIES} ; ++i )); do
+    call_fpgasupdate "${rkh_cancel_file}" "${pcie_addr}" || oops 'fpgasupdate failed'
+    call_rsu --wait 20 sdm --type=sr_cancel "${pcie_addr}"
+
+    if [ ${DRY_RUN} -ne 0 ]; then
+      local -r glob_pattern="${SDM_SR_CANCEL_STATUS_GLOB/ssss:bb:dd.f/${pcie_addr}}"
+      local -a resolved=(${glob_pattern})
+      printf "dry run: cat %s\n" "${resolved[0]}"
+      res=0
+      break
+    else
+      res=$(sdm_sr_cancel_status "${pcie_addr}")
+      [ ${res} -eq 0 ] && break
+      key=$(printf "0x%03x" $res)
+
+      if [ -n "${SDM_CANCEL_STATUS[$key]}" ]; then
+        printf "%s\n" "${SDM_CANCEL_STATUS[$key]}"
+      else
+        printf "Error code: $key\n"
+      fi
+    fi
+
+    printf "Error: retrying[%d]\n" $(( i + 1 ))
+  done
+
+  [ ${res} -eq 0 ] || oops 'exhausted retries (SR key cancellation)'
+}
+
+pr_key_cancel_help() {
+  printf "Usage: vabtool pr_key_cancel PCIE_ADDRESS PR_RKH_CANCEL_FILE\n"
+  printf "\n"
+  printf "\tPartial Reconfiguration key cancellation\n"
+  printf "\n"
+  printf "\t\tPCIE_ADDRESS        the PCIe address of the ADP in ssss:bb:dd.f form\n"
+  printf "\t\tPR_RKH_CANCEL_FILE  the Partial Reconfiguration key cancellation file\n"
+  printf "\n"
+  exit 1
+}
+
+pr_key_cancel() {
+  [ $# -lt 2 ] && pr_key_cancel_help
+
+  local -r pcie_addr="$1"
+  local -r rkh_cancel_file="$2"
+  local -i res
+  local -i i
+  local key
+
+  [ -e "/sys/bus/pci/devices/${pcie_addr}" ] || oops "${pcie_addr} is not a valid device."
+  [ -e "${rkh_cancel_file}"  ] || oops "${rkh_cancel_file} does not exist."
+
+  for (( i = 0 ; i < ${RETRIES} ; ++i )); do
+    call_fpgasupdate "${rkh_cancel_file}" "${pcie_addr}" || oops 'fpgasupdate failed'
+    call_rsu --wait 20 sdm --type=pr_cancel "${pcie_addr}"
+
+    if [ ${DRY_RUN} -ne 0 ]; then
+      local -r glob_pattern="${SDM_PR_CANCEL_STATUS_GLOB/ssss:bb:dd.f/${pcie_addr}}"
+      local -a resolved=(${glob_pattern})
+      printf "dry run: cat %s\n" "${resolved[0]}"
+      res=0
+      break
+    else
+      res=$(sdm_pr_cancel_status "${pcie_addr}")
+      [ ${res} -eq 0 ] && break
+      key=$(printf "0x%03x" $res)
+
+      if [ -n "${SDM_CANCEL_STATUS[$key]}" ]; then
+        printf "%s\n" "${SDM_CANCEL_STATUS[$key]}"
+      else
+        printf "Error code: $key\n"
+      fi
+    fi
+
+    printf "Error: retrying[%d]\n" $(( i + 1 ))
+  done
+
+  [ ${res} -eq 0 ] || oops 'exhausted retries (PR key cancellation)'
 }
 
 declare -a ORIG_ARGS=($@)
@@ -306,7 +575,15 @@ for (( i = 0 ; i < ${#ORIG_ARGS[@]} ; ++i )); do
       OPERATION="${ORIG_ARGS[$i]}"
     ;;
 
-    sr_status)
+    sr_key_cancel|pr_key_cancel)
+      OPERATION="${ORIG_ARGS[$i]}"
+    ;;
+
+    sr_status|pr_status)
+      OPERATION="${ORIG_ARGS[$i]}"
+    ;;
+
+    sr_cancel_status|pr_cancel_status)
       OPERATION="${ORIG_ARGS[$i]}"
     ;;
 
@@ -327,6 +604,26 @@ case "${OPERATION}" in
 
   sr_status)
     print_sdm_sr_provision_status ${ARGS[@]}
+  ;;
+
+  pr_status)
+    print_sdm_pr_provision_status ${ARGS[@]}
+  ;;
+
+  sr_key_cancel)
+    sr_key_cancel ${ARGS[@]}
+  ;;
+
+  pr_key_cancel)
+    pr_key_cancel ${ARGS[@]}
+  ;;
+
+  sr_cancel_status)
+    print_sdm_sr_cancel_status ${ARGS[@]}
+  ;;
+
+  pr_cancel_status)
+    print_sdm_pr_cancel_status ${ARGS[@]}
   ;;
 
   *)

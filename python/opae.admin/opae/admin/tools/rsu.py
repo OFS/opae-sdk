@@ -167,19 +167,26 @@ def device_rsu(device, available_image, **kwargs):
 
 
 def device_rsu_bmc(device, args):
-    device_rsu(device, 'bmc_' + args.page, force=args.force)
+    device_rsu(device, 'bmc_' + args.page, force=args.force, wait=args.wait)
 
 
 def device_rsu_retimer(device, args):
-    device_rsu(device, 'retimer_fw', force=args.force)
+    device_rsu(device, 'retimer_fw', force=args.force, wait=args.wait)
 
 
 def device_rsu_fpga(device, args):
-    device_rsu(device, 'fpga_' + args.page, force=args.force)
+    device_rsu(device, 'fpga_' + args.page, force=args.force, wait=args.wait)
 
 
 def device_rsu_sdm(device, args):
-    device_rsu(device, 'sdm_' + args.type, force=args.force)
+    device_rsu(device, 'sdm_' + args.type, force=args.force, wait=args.wait)
+
+
+class WaitAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        if values < 5.0:
+            raise ValueError('wait time must be at least 5.0 seconds')
+        setattr(namespace, self.dest, values)
 
 
 def parse_args():
@@ -191,6 +198,8 @@ def parse_args():
     parser.add_argument('--force', action='store_true', default=False,
                         help='perform operation without disabling AER')
 
+    parser.add_argument('-w', '--wait', nargs='?', type=float, default=10.0, action=WaitAction,
+                             help='number of seconds to wait for update to complete')
     subparser = parser.add_subparsers(dest='which')
 
     bmcimg = subparser.add_parser('bmc', aliases=['bmcimg'],
@@ -222,7 +231,7 @@ def parse_args():
                      help=('PCIe address '
                            '(eg 04:00.0 or 0000:04:00.0)'))
     sdm.add_argument('-t', '--type',
-                     choices=['sr', 'pr'],
+                     choices=['sr', 'pr', 'sr_cancel', 'pr_cancel'],
                      default='sr', help='select SDM type')
     sdm.set_defaults(func=device_rsu_sdm)
 
