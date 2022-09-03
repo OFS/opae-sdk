@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2019, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -29,17 +29,6 @@
 
 #include "fpgad.h"
 
-typedef struct _fpgad_supported_device {
-	uint16_t vendor_id;
-	uint16_t device_id;
-	const char *library_path;
-	uint32_t flags;
-#define FPGAD_DEV_DETECTED 0x00000001
-#define FPGAD_DEV_LOADED   0x00000002
-	void *dl_handle;
-	const char *config;
-} fpgad_supported_device;
-
 typedef enum _fpgad_plugin_type {
 	FPGAD_PLUGIN_TYPE_CALLBACK = 1,
 	FPGAD_PLUGIN_TYPE_THREAD
@@ -64,7 +53,7 @@ typedef void (*fpgad_plugin_thread_stop_t)(void);
 
 typedef struct _fpgad_monitored_device {
 	struct fpgad_config *config;
-	fpgad_supported_device *supported;
+	fpgad_config_data *supported;
 	fpga_token token;
 	uint64_t object_id;
 	fpga_objtype object_type;

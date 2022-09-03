@@ -39,8 +39,6 @@ extern struct fpgad_config global_config;
 void sig_handler(int sig, siginfo_t *info, void *unused);
 
 int fpgad_main(int argc, char *argv[]);
-
-extern fpgad_supported_device default_supported_devices_table[];
 }
 
 #include <thread>
@@ -73,7 +71,7 @@ class fpgad_fpgad_c_p : public opae_base_p<> {
     global_config.poll_interval_usec = 100 * 1000;
     global_config.running = true;
     global_config.api_socket = "/tmp/fpga_event_socket";
-    global_config.supported_devices = default_supported_devices_table;
+    global_config.supported_devices = opae_parse_fpgad_config(NULL);
 
     optind = 0;
   }
@@ -150,8 +148,6 @@ TEST_P(fpgad_fpgad_c_p, main_params) {
   char eight[20];
   char nine[20];
   char ten[20];
-  char eleven[20];
-  char twelve[20];
   strcpy(zero, "fpgad");
   strcpy(one, "-d");
   strcpy(two, "-l");
@@ -162,20 +158,17 @@ TEST_P(fpgad_fpgad_c_p, main_params) {
   strcpy(seven, "sock");
   strcpy(eight, "-n");
   strcpy(nine, tmpnull_gbs_);
-  strcpy(ten, "-c");
-  strcpy(eleven, "config");
-  strcpy(twelve, "-h");
+  strcpy(ten, "-h");
 
   char *argv[] = { zero, one, two, three, four,
                    five, six, seven, eight, nine,
-                   ten, eleven, twelve };
+                   ten };
 
-  EXPECT_EQ(fpgad_main(13, argv), 0);
+  EXPECT_EQ(fpgad_main(11, argv), 0);
   EXPECT_TRUE(global_config.daemon);
   EXPECT_STREQ(global_config.logfile, "log");
   EXPECT_STREQ(global_config.pidfile, "pid");
   EXPECT_STREQ(global_config.api_socket, "sock");
-  EXPECT_STREQ(global_config.cfgfile, "config");
   // because main goes to out_destroy:
   EXPECT_EQ(global_config.num_null_gbs, 0);
 }
