@@ -50,5 +50,7 @@ int cfg_load_config(struct fpgad_config *c)
 	// Frees any non-NULL raw_cfg.
 	c->supported_devices = opae_parse_fpgad_config(raw_cfg);
 
+	opae_print_fpgad_config(c->supported_devices);
+
 	return 0;
 }

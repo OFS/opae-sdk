@@ -176,7 +176,6 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/opaevfiotest
 @CMAKE_INSTALL_PREFIX@/bin/opaeuiotest
 @CMAKE_INSTALL_PREFIX@/bin/host_exerciser
-@CPACK_RPM_RELOCATION_PATHS@/opae/fpgad.cfg
 @CPACK_RPM_RELOCATION_PATHS@/sysconfig/fpgad.conf
 @CPACK_RPM_RELOCATION_PATHS@/systemd/system/fpgad.service
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-api.so*

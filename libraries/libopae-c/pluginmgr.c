@@ -528,6 +528,9 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 	// this function will delete it.
 	platform_data_table = opae_parse_libopae_config(raw_config);
 
+	// Print the config table for debug builds.
+	opae_print_libopae_config(platform_data_table);
+
 	errors = opae_plugin_mgr_load_plugins(&platforms_detected);
 	if (errors) {
 		initialized = 0;

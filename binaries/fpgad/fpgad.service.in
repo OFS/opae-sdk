@@ -13,8 +13,7 @@ SendSIGHUP=yes
 KillSignal=SIGHUP
 ExecStart=@CMAKE_INSTALL_PREFIX@/bin/fpgad \
           -l $LOGFILE \
-          -p $PIDFILE \
-          -c $CFGFILE
+          -p $PIDFILE
 RestartPreventExitStatus=1
 
 [Install]

@@ -289,6 +289,9 @@ opae_parse_libopae_config(const char *json_input)
 
 void opae_print_libopae_config(libopae_config_data *cfg)
 {
+#ifndef LIBOPAE_DEBUG
+	UNUSED_PARAM(cfg);
+#else
 	const int l = OPAE_LOG_DEBUG;
 
 	opae_print(l, "libopae config:\n");
@@ -315,6 +318,7 @@ void opae_print_libopae_config(libopae_config_data *cfg)
 
 		++cfg;
 	}
+#endif // LIBOPAE_DEBUG
 }
 
 void opae_free_libopae_config(libopae_config_data *cfg)
@@ -404,6 +408,9 @@ opae_parse_fpgainfo_config(const char *json_input)
 
 void opae_print_fpgainfo_config(fpgainfo_config_data *cfg)
 {
+#ifndef LIBOPAE_DEBUG
+	UNUSED_PARAM(cfg);
+#else
 	const int l = OPAE_LOG_DEBUG;
 
 	opae_print(l, "fpgainfo config:\n");
@@ -435,6 +442,7 @@ void opae_print_fpgainfo_config(fpgainfo_config_data *cfg)
 
 		++cfg;
 	}
+#endif // LIBOPAE_DEBUG
 }
 
 void opae_free_fpgainfo_config(fpgainfo_config_data *cfg)
@@ -490,6 +498,9 @@ opae_parse_fpgad_config(const char *json_input)
 
 void opae_print_fpgad_config(fpgad_config_data *cfg)
 {
+#ifndef LIBOPAE_DEBUG
+	UNUSED_PARAM(cfg);
+#else
 	const int l = OPAE_LOG_DEBUG;
 
 	opae_print(l, "fpgad config:\n");
@@ -517,6 +528,7 @@ void opae_print_fpgad_config(fpgad_config_data *cfg)
 
 		++cfg;
 	}
+#endif // LIBOPAE_DEBUG
 }
 
 void opae_free_fpgad_config(fpgad_config_data *cfg)
