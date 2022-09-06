@@ -113,6 +113,13 @@ set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3 3.6 3.7 3.8 3.9)
 find_package(PythonInterp ${OPAE_PYTHON_VERSION})
 find_package(PythonLibs ${OPAE_PYTHON_VERSION})
 
+
+set(PYBIND11_VERSION "2.10.0" CACHE STRING "pybind11 version" FORCE)
+find_package(pybind11 ${PYBIND11_VERSION} QUIET)
+message(STATUS "pybind11_FOUND ${pybind11_FOUND}")
+message(STATUS "pybind11_VERSION ${pybind11_VERSION}")
+
+
 option(OPAE_BUILD_TESTS "Enable building of OPAE unit tests" OFF)
 mark_as_advanced(OPAE_BUILD_TESTS)
 
