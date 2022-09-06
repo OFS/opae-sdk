@@ -79,7 +79,7 @@ void *find_plugin(const char *libpath)
 	return NULL;
 }
 
-STATIC bool device_is_supported(fpgainfo_config_data *d,
+STATIC bool device_is_supported(const fpgainfo_config_data *d,
 				uint16_t vid,
 				uint16_t did,
 				uint16_t svid,
