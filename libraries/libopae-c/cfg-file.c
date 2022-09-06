@@ -32,6 +32,7 @@
 #include <pwd.h>
 #include <linux/limits.h>
 #include <opae/log.h>
+#include "opae_int.h"
 #include "cfg-file.h"
 #include "mock/opae_std.h"
 
