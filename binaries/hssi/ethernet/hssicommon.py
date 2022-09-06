@@ -1016,18 +1016,18 @@ class FpgaFinder(object):
         return paths
 
     def find_hssi_group(self, pci_address):
-        hssi_group = {}
+        hssi_group = []
         paths = glob.glob(os.path.join("/sys/bus/pci/devices/",
                                        pci_address,
                                        "fpga_region/region*/dfl-fme*/dfl_dev*"))
-        i = 0
         feature_id = 0
         uio_path = 0
         for path in paths:
             with open(os.path.join(path, 'feature_id'), 'r') as fd:
                 feature_id = fd.read().strip()
+                feature_id = int(feature_id, 16)
 
-            if int(feature_id, 16) != HSSI_FEATURE_ID:
+            if feature_id != HSSI_FEATURE_ID:
                 continue
 
             uio_path = glob.glob(os.path.join(path, "uio/uio*"))
@@ -1035,8 +1035,7 @@ class FpgaFinder(object):
                 continue
             m = re.search('dfl_dev(.*)', path)
             if m:
-                hssi_group[i] = [m.group(0), uio_path]
-                i = i + 1
+                hssi_group.append( (m.group(0), uio_path, pci_address, feature_id) )
         return hssi_group
 
 

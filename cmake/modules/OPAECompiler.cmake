@@ -340,9 +340,12 @@ function(opae_add_static_library)
 
     target_include_directories(${OPAE_ADD_STATIC_LIBRARY_TARGET} PUBLIC
         $<BUILD_INTERFACE:${OPAE_INCLUDE_PATH}>
+        $<BUILD_INTERFACE:${OPAE_LIB_SOURCE}>
         $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/include>
+        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
         PRIVATE ${opae-test_ROOT}/framework
-        PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+        PUBLIC ${libjson-c_INCLUDE_DIRS}
+        PUBLIC ${libuuid_INCLUDE_DIRS})
 
     set_property(TARGET ${OPAE_ADD_STATIC_LIBRARY_TARGET} PROPERTY C_STANDARD 99)
     set_property(TARGET ${OPAE_ADD_STATIC_LIBRARY_TARGET}

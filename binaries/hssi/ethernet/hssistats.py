@@ -25,16 +25,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import re
-import os
-import glob
 import argparse
 import sys
-import traceback
-import fcntl
-import stat
-import struct
-import mmap
 from ethernet.hssicommon import *
 
 # Sleep 50 milliseconds after clearing stats.
@@ -240,7 +232,7 @@ class FPGAHSSISTATS(HSSICOMMON):
 
 def main():
     """
-    parse input arguemnts pciaddress and mtu
+    parse input arguments pciaddress and mtu
     enum fpga pcie devices and find match
     read hssi statistics
     """
@@ -254,43 +246,37 @@ def main():
 
     parser.add_argument('--clear', '-C', action='store_true',
                         help='clears hssi statistics')
-    # exit if no commad line argument
-    args = parser.parse_args()
-    if len(sys.argv) == 1:
-        parser.print_help()
-        sys.exit(1)
 
-    args, left = parser.parse_known_args()
+    args = parser.parse_args()
 
     print(args)
-    if not verify_pcie_address(args.pcie_address.lower()):
+    if args.pcie_address and not verify_pcie_address(args.pcie_address.lower()):
         sys.exit(1)
 
-    f = FpgaFinder(args.pcie_address.lower())
+    args.hssi_grps = []
+    f = FpgaFinder(args.pcie_address.lower() if args.pcie_address else None)
     devs = f.enum()
-    for d in devs:
-        print('sbdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))
-        print('FPGA dev:', d)
-    if len(devs) > 1:
-        print('{} FPGAs are found\nplease choose '
-              'one FPGA'.format(len(devs)))
-        sys.exit(1)
     if not devs:
         print('no FPGA found')
         sys.exit(1)
 
-    args.hssi_grps = f.find_hssi_group(devs[0].get('pcie_address'))
+    for d in devs:
+        print('sbdf: {segment:04x}:{bus:02x}:{dev:02x}.{func:x}'.format(**d))
+        print('FPGA dev:', d)
+        args.hssi_grps += f.find_hssi_group(d['pcie_address'])
     print("args.hssi_grps{}".format(args.hssi_grps))
     if len(args.hssi_grps) == 0:
-        print("Failed to find HSSI feature{}".format(devs[0].get(
-                                                   'pcie_address')))
+        print("Failed to find HSSI feature")
+        sys.exit(1)
+    if len(args.hssi_grps) > 1:
+        print('{} FPGAs are found: {}\nPlease choose one FPGA'
+            .format(len(args.hssi_grps), [d[2] for d in args.hssi_grps]))
         sys.exit(1)
 
     print("fpga uio dev:{}".format(args.hssi_grps[0][0]))
     lp = FPGAHSSISTATS(args)
     if args.clear:
         lp.hssi_stats_clear()
-        sys.exit(0)
     else:
         lp.hssi_stats_start()
 
