@@ -56,7 +56,7 @@
 static pthread_mutex_t board_plugin_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 // Board plug-in table
-fpgainfo_config_data *platform_data_table = NULL;
+fpgainfo_config_data *platform_data_table;
 
 void *find_plugin(const char *libpath)
 {
