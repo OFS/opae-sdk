@@ -543,6 +543,79 @@ INSTANTIATE_TEST_SUITE_P(pluginmgr_home_cfg, pluginmgr_cfg_p,
                          ::testing::ValuesIn(_opae_home_configs));
 
 /**
+ * @test       find_env_cfg_0
+ * @brief      Test: opae_find_cfg_file
+ * @details    When environment variable LIBOPAE_CFGFILE is set,<br>
+ *             but its value is empty,<br>
+ *             then the search continues on with the hard-coded paths.
+ */
+TEST(cfg_file, find_env_cfg_0) {
+  char env[64];
+
+  snprintf(env, sizeof(env), "LIBOPAE_CFGFILE=");
+  putenv(env);
+
+  char *cfg_file = opae_find_cfg_file();
+  EXPECT_EQ((char *)NULL, cfg_file);
+
+  unsetenv("LIBOPAE_CFGFILE");
+}
+
+/**
+ * @test       find_env_cfg_1
+ * @brief      Test: opae_find_cfg_file
+ * @details    When environment variable LIBOPAE_CFGFILE is set,<br>
+ *             but its value names a non-existent file,<br>
+ *             then the search continues on with the hard-coded paths.
+ */
+TEST(cfg_file, find_env_cfg_1) {
+  char env[64];
+
+  snprintf(env, sizeof(env), "LIBOPAE_CFGFILE=/does/not/exist/opae.cfg");
+  putenv(env);
+
+  char *cfg_file = opae_find_cfg_file();
+  EXPECT_EQ((char *)NULL, cfg_file);
+
+  unsetenv("LIBOPAE_CFGFILE");
+}
+
+/**
+ * @test       find_env_cfg_2
+ * @brief      Test: opae_find_cfg_file
+ * @details    When environment variable LIBOPAE_CFGFILE is set,<br>
+ *             and its value names a valid file,<br>
+ *             then the search completes with that file.
+ */
+TEST(cfg_file, find_env_cfg_2) {
+  char tmpcfg[32];
+  char env[64];
+
+  strcpy(tmpcfg, "tmp-XXXXXX.cfg");
+  opae_close(mkstemps(tmpcfg, 4));
+
+  std::ofstream cfg_stream(tmpcfg);
+  cfg_stream.write(dummy_cfg, strlen(dummy_cfg));
+  cfg_stream.close();
+
+  snprintf(env, sizeof(env),
+	   "LIBOPAE_CFGFILE=%s", tmpcfg);
+  putenv(env);
+
+  char *cfg_file = opae_find_cfg_file();
+  EXPECT_NE((char *)NULL, cfg_file);
+
+  char *after_slash = strrchr(cfg_file, '/');
+  if (after_slash) {
+    EXPECT_STREQ(tmpcfg, after_slash + 1);
+  }
+
+  unlink(cfg_file);
+  opae_free(cfg_file);
+  unsetenv("LIBOPAE_CFGFILE");
+}
+
+/**
  * @test       read_cfg0
  * @brief      Test: opae_read_cfg_file
  * @details    When the input config_file_path parameter is NULL<br>
