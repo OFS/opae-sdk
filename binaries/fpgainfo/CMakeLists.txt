@@ -49,4 +49,5 @@ opae_add_executable(TARGET fpgainfo
 target_include_directories(fpgainfo
     PRIVATE
         ${OPAE_LIB_SOURCE}/argsfilter
+        ${OPAE_LIB_SOURCE}/libopae-c
 )

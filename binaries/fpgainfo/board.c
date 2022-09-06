@@ -1,4 +1,4 @@
-// Copyright(c) 2019-2021, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -56,59 +56,7 @@
 static pthread_mutex_t board_plugin_lock = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 // Board plug-in table
-static platform_data platform_data_table[] = {
-	{ 0x8086, 0x09c4, 0x8086, 0x0, -1, "libboard_a10gx.so", NULL,
-	"Intel Programmable Acceleration Card with Intel Arria 10 GX FPGA" },
-
-	{ 0x8086, 0x09c5, 0x8086, 0x0, -1, "libboard_a10gx.so", NULL,
-	"Intel Programmable Acceleration Card with Intel Arria 10 GX FPGA" },
-
-	{ 0x8086, 0x0b30, 0x8086, 0x0, -1, "libboard_n3000.so", NULL,
-	"Intel FPGA Programmable Acceleration Card N3000" },
-
-	{ 0x8086, 0x0b31, 0x8086, 0x0, -1, "libboard_n3000.so", NULL,
-	"Intel FPGA Programmable Acceleration Card N3000" },
-
-	{ 0x8086, 0x0b2b, 0x8086, 0x0, -1, "libboard_d5005.so", NULL,
-	"Intel FPGA Programmable Acceleration Card D5005" },
-
-	{ 0x8086, 0x0b2c, 0x8086, 0x0, -1, "libboard_d5005.so", NULL,
-	"Intel FPGA Programmable Acceleration Card D5005" },
-
-	// Max10 SPI feature id 0xe
-	{ 0x1c2c, 0x1000, 0x0, 0x0, 0xe, "libboard_n5010.so", NULL,
-	"Silicom FPGA SmartNIC N5010 Series" },
-
-	{ 0x1c2c, 0x1001, 0x0, 0x0, 0xe, "libboard_n5010.so", NULL,
-	"Silicom FPGA SmartNIC N5010 Series" },
-
-	{ 0x8086, 0xaf00, 0x8086, 0x0, 0xe, "libboard_d5005.so", NULL,
-	"Intel Open FPGA Stack Platform" },
-
-	{ 0x8086, 0xbcce, 0x8086, 0x0, 0xe, "libboard_d5005.so", NULL,
-	"Intel Open FPGA Stack Platform" },
-
-	{ 0x8086, 0xbcce, 0x8086, 0x138d, 0xe, "libboard_d5005.so", NULL,
-	"Intel Open FPGA Stack Platform" },
-
-	// Max10 PMCI feature id 0x12
-	{ 0x8086, 0xaf00, 0x8086, 0x0, 0x12, "libboard_n6000.so", NULL,
-	"Intel Open FPGA Stack Platform" },
-
-	{ 0x8086, 0xbcce, 0x8086, 0x0, 0x12, "libboard_n6000.so", NULL,
-	"Intel Acceleration Development Platform N6000" },
-
-	{ 0x8086, 0xbcce, 0x8086, 0x1770, 0x12, "libboard_n6000.so", NULL,
-	"Intel Acceleration Development Platform N6000" },
-
-	{ 0x8086, 0xbcce, 0x8086, 0x1771, 0x12, "libboard_n6000.so", NULL,
-	"Intel Acceleration Development Platform N6001" },
-
-	{ 0x8086, 0xbcce, 0x8086, 0x17d4, 0x12, "libboard_c6100.so", NULL,
-	"Intel Acceleration Development Platform C6100" },
-
-	{ 0,      0, 0, 0, -1,         NULL, NULL, "" },
-};
+fpgainfo_config_data *platform_data_table = NULL;
 
 void *find_plugin(const char *libpath)
 {
@@ -129,6 +77,27 @@ void *find_plugin(const char *libpath)
 	}
 
 	return NULL;
+}
+
+STATIC bool device_is_supported(fpgainfo_config_data *d,
+				uint16_t vid,
+				uint16_t did,
+				uint16_t svid,
+				uint16_t sdid)
+{
+	if ((d->vendor_id != vid) ||
+	    (d->device_id != did))
+		return false;
+
+	if ((d->subvendor_id != OPAE_VENDOR_ANY) &&
+	    (d->subvendor_id != svid))
+		return false;
+
+	if ((d->subdevice_id != OPAE_DEVICE_ANY) &&
+	    (d->subdevice_id != sdid))
+		return false;
+
+	return true;
 }
 
 fpga_result load_board_plugin(fpga_token token, void **dl_handle)
@@ -189,10 +158,11 @@ fpga_result load_board_plugin(fpga_token token, void **dl_handle)
 
 	for (i = 0; platform_data_table[i].board_plugin; ++i) {
 
-		if (platform_data_table[i].device_id == device_id &&
-			platform_data_table[i].vendor_id == vendor_id &&
-			platform_data_table[i].subvendor_id == subvendor_id &&
-			platform_data_table[i].subdevice_id == subdevice_id) {
+		if (device_is_supported(&platform_data_table[i],
+					vendor_id,
+					device_id,
+					subvendor_id,
+					subdevice_id)) {
 
 			// load plugin with matching featureid
 			if (platform_data_table[i].feature_id > 0) {
@@ -259,21 +229,23 @@ int unload_board_plugin(void)
 		return FPGA_EXCEPTION;
 	}
 
-	for (i = 0; platform_data_table[i].board_plugin; ++i) {
+	if (platform_data_table) {
+		for (i = 0; platform_data_table[i].board_plugin; ++i) {
 
-		if (platform_data_table[i].dl_handle) {
+			if (platform_data_table[i].dl_handle) {
 
-			res = dlclose(platform_data_table[i].dl_handle);
-			if (res) {
-				char *err = dlerror();
-				OPAE_ERR("dlclose failed with %d %s", res, err ? err : "");
-				resval = FPGA_EXCEPTION;
-			} else {
-				platform_data_table[i].dl_handle = NULL;
-			}
-		} //end if
+				res = dlclose(platform_data_table[i].dl_handle);
+				if (res) {
+					char *err = dlerror();
+					OPAE_ERR("dlclose failed with %d %s", res, err ? err : "");
+					resval = FPGA_EXCEPTION;
+				} else {
+					platform_data_table[i].dl_handle = NULL;
+				}
+			} //end if
 
-	} // end for
+		} // end for
+	}
 
 	if (pthread_mutex_unlock(&board_plugin_lock) != 0) {
 		OPAE_ERR("pthread mutex unlock failed \n");
@@ -868,11 +840,11 @@ fpga_result fpgainfo_product_name(fpga_token token)
 
 	for (i = 0; platform_data_table[i].board_plugin; ++i) {
 
-		if (platform_data_table[i].device_id == device_id &&
-			platform_data_table[i].vendor_id == vendor_id &&
-			platform_data_table[i].subvendor_id == subvendor_id &&
-			platform_data_table[i].subdevice_id == subdevice_id) {
-
+		if (device_is_supported(&platform_data_table[i],
+					vendor_id,
+					device_id,
+					subvendor_id,
+					subdevice_id)) {
 			printf("%s\n", platform_data_table[i].product_name);
 			goto unlock_destroy;
 		}
