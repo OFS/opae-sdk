@@ -46,26 +46,16 @@
 #define LOG(format, ...) \
 log_printf("monitored_device: " format, ##__VA_ARGS__)
 
-fpgad_supported_device default_supported_devices_table[] = {
-	{ 0x8086, 0xbcc0, "libfpgad-xfpga.so", 0, NULL, "" },
-	{ 0x8086, 0xbcc1, "libfpgad-xfpga.so", 0, NULL, "" },
-	{ 0x8086, 0x0b30,    "libfpgad-vc.so", 0, NULL, "" },
-	{ 0x8086, 0x0b31,    "libfpgad-vc.so", 0, NULL, "" },
-	{ 0x8086, 0xaf00,    "libfpgad-vc.so", 0, NULL, "" },
-	{ 0x8086, 0xbcce,    "libfpgad-vc.so", 0, NULL, "" },
-	{      0,      0,                NULL, 0, NULL, "" },
-};
-
-STATIC fpgad_supported_device *mon_is_loaded(struct fpgad_config *c,
-					     const char *library_path)
+STATIC fpgad_config_data *mon_is_loaded(struct fpgad_config *c,
+					     const char *module_library)
 {
 	unsigned i;
 	int res = 0;
 
-	for (i = 0 ; c->supported_devices[i].library_path ; ++i) {
-		fpgad_supported_device *d = &c->supported_devices[i];
+	for (i = 0 ; c->supported_devices[i].module_library ; ++i) {
+		fpgad_config_data *d = &c->supported_devices[i];
 
-		res = strcmp(library_path, d->library_path);
+		res = strcmp(module_library, d->module_library);
 
 		if (!res && (d->flags & FPGAD_DEV_LOADED))
 			return d;
@@ -75,7 +65,7 @@ STATIC fpgad_supported_device *mon_is_loaded(struct fpgad_config *c,
 
 STATIC fpgad_monitored_device *
 allocate_monitored_device(struct fpgad_config *config,
-			  fpgad_supported_device *supported,
+			  fpgad_config_data *supported,
 			  fpga_token token,
 			  uint64_t object_id,
 			  fpga_objtype object_type,
@@ -122,6 +112,27 @@ STATIC void *mon_find_plugin(const char *libpath)
 	return NULL;
 }
 
+STATIC bool mon_device_is_supported(fpgad_config_data *d,
+				    uint16_t vid,
+				    uint16_t did,
+				    uint16_t svid,
+				    uint16_t sdid)
+{
+	if ((d->vendor_id != vid) ||
+	    (d->device_id != did))
+		return false;
+
+	if ((d->subsystem_vendor_id != OPAE_VENDOR_ANY) &&
+	    (d->subsystem_vendor_id != svid))
+		return false;
+
+	if ((d->subsystem_device_id != OPAE_DEVICE_ANY) &&
+	    (d->subsystem_device_id != sdid))
+		return false;
+
+	return true;
+}
+
 STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 {
 	unsigned i;
@@ -131,6 +142,8 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 	fpga_result res;
 	uint16_t vendor_id;
 	uint16_t device_id;
+	uint16_t subsystem_vendor_id;
+	uint16_t subsystem_device_id;
 	uint64_t object_id;
 	fpga_objtype object_type;
 	opae_bitstream_info *bitstr = NULL;
@@ -155,6 +168,20 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 	res = fpgaPropertiesGetDeviceID(props, &device_id);
 	if (res != FPGA_OK) {
 		LOG("failed to get device ID\n");
+		goto err_out_destroy;
+	}
+
+	subsystem_vendor_id = 0;
+	res = fpgaPropertiesGetSubsystemVendorID(props, &subsystem_vendor_id);
+	if (res != FPGA_OK) {
+		LOG("failed to get subsystem vendor ID\n");
+		goto err_out_destroy;
+	}
+
+	subsystem_device_id = 0;
+	res = fpgaPropertiesGetSubsystemDeviceID(props, &subsystem_device_id);
+	if (res != FPGA_OK) {
+		LOG("failed to get subsystem device ID\n");
 		goto err_out_destroy;
 	}
 
@@ -228,13 +255,16 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 
 	fpgaDestroyProperties(&props);
 
-	for (i = 0 ; c->supported_devices[i].library_path ; ++i) {
-		fpgad_supported_device *d = &c->supported_devices[i];
+	for (i = 0 ; c->supported_devices[i].module_library ; ++i) {
+		fpgad_config_data *d = &c->supported_devices[i];
 
 		// Do we support this device?
-		if (d->vendor_id == vendor_id &&
-		    d->device_id == device_id) {
-			fpgad_supported_device *loaded_by;
+		if (mon_device_is_supported(d,
+					    vendor_id,
+					    device_id,
+					    subsystem_vendor_id,
+					    subsystem_device_id)) {
+			fpgad_config_data *loaded_by;
 			fpgad_monitored_device *monitored;
 			fpgad_plugin_configure_t cfg;
 			int res;
@@ -242,7 +272,7 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 			d->flags |= FPGAD_DEV_DETECTED;
 
 			// Is the fpgad plugin already loaded?
-			loaded_by = mon_is_loaded(c, d->library_path);
+			loaded_by = mon_is_loaded(c, d->module_library);
 
 			if (loaded_by) {
 				// The two table entries will share the
@@ -253,11 +283,11 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 				// Plugin hasn't been loaded.
 				// Load it now.
 				d->dl_handle =
-					mon_find_plugin(d->library_path);
+					mon_find_plugin(d->module_library);
 				if (!d->dl_handle) {
 					char *err = dlerror();
 					LOG("failed to load \"%s\" %s\n",
-							d->library_path,
+							d->module_library,
 							err ? err : "");
 					continue;
 				}
@@ -266,10 +296,12 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 			}
 
 			if (!bitstr) {
-				LOG("Warning: no NULL GBS for vid=0x%04x "
-					"did=0x%04x objid=0x%x (%s)\n",
+				LOG("Warning: no NULL GBS for 0x%04x:0x%04x "
+					"0x%04x:0x%04x objid=0x%x (%s)\n",
 				vendor_id,
 				device_id,
+				subsystem_vendor_id,
+				subsystem_device_id,
 				object_id,
 				object_type == FPGA_ACCELERATOR ?
 				"accelerator" : "device");
@@ -283,8 +315,12 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 							      object_type,
 							      bitstr);
 			if (!monitored) {
-				LOG("failed to add device 0x%04x:0x%04x\n",
-					vendor_id, device_id);
+				LOG("failed to add device 0x%04x:0x%04x "
+				    "0x%04x:0x%04x\n",
+					vendor_id,
+					device_id,
+					subsystem_vendor_id,
+					subsystem_device_id);
 				continue;
 			}
 
@@ -295,16 +331,16 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 			if (!cfg) {
 				LOG("failed to find %s in \"%s\"\n",
 					FPGAD_PLUGIN_CONFIGURE,
-					d->library_path);
+					d->module_library);
 				opae_free(monitored);
 				continue;
 			}
 
-			res = cfg(monitored, d->config);
+			res = cfg(monitored, d->config_json);
 			if (res) {
 				LOG("%s for \"%s\" returned %d.\n",
 				    FPGAD_PLUGIN_CONFIGURE,
-				    d->library_path,
+				    d->module_library,
 				    res);
 				opae_free(monitored);
 				continue;
@@ -320,14 +356,14 @@ STATIC bool mon_consider_device(struct fpgad_config *c, fpga_token token)
 							   monitored)) {
 						LOG("failed to create thread"
 						    " for \"%s\"\n",
-						    d->library_path);
+						    d->module_library);
 						opae_free(monitored);
 						continue;
 					}
 
 				} else {
 					LOG("Thread plugin \"%s\" has no "
-					    "thread_fn\n", d->library_path);
+					    "thread_fn\n", d->module_library);
 					opae_free(monitored);
 					continue;
 				}

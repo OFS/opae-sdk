@@ -121,7 +121,7 @@ class mock_port_fpgad_xfpga_c_p : public opae_p<> {
   }
 
   void init_monitored_device(fpgad_monitored_device *d,
-                             fpgad_supported_device *s)
+                             fpgad_config_data *s)
   {
     memset(d, 0, sizeof(fpgad_monitored_device));
     d->token = accel_token_;
@@ -131,7 +131,7 @@ class mock_port_fpgad_xfpga_c_p : public opae_p<> {
 
     s->vendor_id = 0x8086;
     s->device_id = 0x0b30;
-    s->library_path = "libfpgad-xfpga.so";
+    s->module_library = "libfpgad-xfpga.so";
     s->flags = FPGAD_DEV_DETECTED|FPGAD_DEV_LOADED;
     s->dl_handle = NULL;
   }
@@ -243,7 +243,7 @@ class mock_port_fpgad_xfpga_c_p : public opae_p<> {
  */
 TEST_P(mock_port_fpgad_xfpga_c_p, AP1) {
   fpgad_monitored_device d;
-  fpgad_supported_device s;
+  fpgad_config_data s;
   init_monitored_device(&d, &s);
 
   fpgad_xfpga_AP_context context;
@@ -272,7 +272,7 @@ TEST_P(mock_port_fpgad_xfpga_c_p, AP1) {
  */
 TEST_P(mock_port_fpgad_xfpga_c_p, AP2) {
   fpgad_monitored_device d;
-  fpgad_supported_device s;
+  fpgad_config_data s;
   init_monitored_device(&d, &s);
 
   fpgad_xfpga_AP_context context;
@@ -301,7 +301,7 @@ TEST_P(mock_port_fpgad_xfpga_c_p, AP2) {
  */
 TEST_P(mock_port_fpgad_xfpga_c_p, power_state) {
   fpgad_monitored_device d;
-  fpgad_supported_device s;
+  fpgad_config_data s;
   init_monitored_device(&d, &s);
 
   fpgad_xfpga_AP_context context;
@@ -359,7 +359,7 @@ TEST_P(mock_port_fpgad_xfpga_c_p, power_state) {
  */
 TEST_P(mock_port_fpgad_xfpga_c_p, AP6) {
   fpgad_monitored_device d;
-  fpgad_supported_device s;
+  fpgad_config_data s;
   init_monitored_device(&d, &s);
 
   opae_bitstream_info binfo;
@@ -402,7 +402,7 @@ TEST_P(mock_port_fpgad_xfpga_c_p, AP6) {
  */
 TEST_P(mock_port_fpgad_xfpga_c_p, configure) {
   fpgad_monitored_device d;
-  fpgad_supported_device s;
+  fpgad_config_data s;
   init_monitored_device(&d, &s);
 
   EXPECT_EQ(fpgad_plugin_configure(&d, NULL), 0);
@@ -436,7 +436,7 @@ class mock_fme_fpgad_xfpga_c_p : public opae_device_p<> {
   }
 
   void init_monitored_device(fpgad_monitored_device *d,
-                             fpgad_supported_device *s)
+                             fpgad_config_data *s)
   {
     memset(d, 0, sizeof(fpgad_monitored_device));
     d->token = device_token_;
@@ -446,7 +446,7 @@ class mock_fme_fpgad_xfpga_c_p : public opae_device_p<> {
 
     s->vendor_id = 0x8086;
     s->device_id = 0x0b30;
-    s->library_path = "libfpgad-xfpga.so";
+    s->module_library = "libfpgad-xfpga.so";
     s->flags = FPGAD_DEV_DETECTED|FPGAD_DEV_LOADED;
     s->dl_handle = NULL;
   }
@@ -510,7 +510,7 @@ class mock_fme_fpgad_xfpga_c_p : public opae_device_p<> {
  */
 TEST_P(mock_fme_fpgad_xfpga_c_p, AP6) {
   fpgad_monitored_device d;
-  fpgad_supported_device s;
+  fpgad_config_data s;
 
   init_monitored_device(&d, &s);
 
@@ -544,7 +544,7 @@ TEST_P(mock_fme_fpgad_xfpga_c_p, AP6) {
  */
 TEST_P(mock_fme_fpgad_xfpga_c_p, KtiLinkFatal) {
   fpgad_monitored_device d;
-  fpgad_supported_device s;
+  fpgad_config_data s;
   init_monitored_device(&d, &s);
 
   fpgad_xfpga_Error_context context;
@@ -577,7 +577,7 @@ TEST_P(mock_fme_fpgad_xfpga_c_p, KtiLinkFatal) {
  */
 TEST_P(mock_fme_fpgad_xfpga_c_p, configure) {
   fpgad_monitored_device d;
-  fpgad_supported_device s;
+  fpgad_config_data s;
   init_monitored_device(&d, &s);
 
   EXPECT_EQ(fpgad_plugin_configure(&d, NULL), 0);

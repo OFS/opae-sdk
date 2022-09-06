@@ -219,7 +219,7 @@ void mon_destroy(struct fpgad_config *c)
 			} else {
 				LOG("Thread plugin \"%s\" has"
 				    " no thread_stop_fn\n",
-				    trash->supported->library_path);
+				    trash->supported->module_library);
 				pthread_cancel(trash->thread);
 			}
 
@@ -234,7 +234,7 @@ void mon_destroy(struct fpgad_config *c)
 			destroy(trash);
 		} else {
 			LOG("warning - no destructor for \"%s\"\n",
-				trash->supported->library_path);
+				trash->supported->module_library);
 		}
 
 		if (trash->token)
@@ -245,9 +245,8 @@ void mon_destroy(struct fpgad_config *c)
 	monitored_device_list = NULL;
 
 	if (c->supported_devices) {
-
-		for (i = 0 ; c->supported_devices[i].library_path ; ++i) {
-			fpgad_supported_device *d = &c->supported_devices[i];
+		for (i = 0 ; c->supported_devices[i].module_library ; ++i) {
+			fpgad_config_data *d = &c->supported_devices[i];
 
 			if (d->flags & FPGAD_DEV_LOADED) {
 				dlclose(d->dl_handle);
@@ -256,7 +255,6 @@ void mon_destroy(struct fpgad_config *c)
 			d->flags = 0;
 			d->dl_handle = NULL;
 		}
-
 	}
 
 	fpgad_mutex_unlock(err, &mon_list_lock);

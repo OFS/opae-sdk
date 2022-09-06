@@ -33,6 +33,5 @@ usr/bin/rsu
 usr/bin/pci_device
 usr/lib/python3/dist-packages/opae.admin*
 usr/lib/python3/dist-packages/opae/admin*
-etc/opae/fpgad.cfg
 etc/sysconfig/fpgad.conf
 usr/lib/systemd/system/fpgad.service

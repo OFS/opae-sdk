@@ -32,6 +32,7 @@
 #include <pwd.h>
 #include <linux/limits.h>
 #include <opae/log.h>
+#include "opae_int.h"
 #include "cfg-file.h"
 #include "mock/opae_std.h"
 
@@ -289,6 +290,9 @@ opae_parse_libopae_config(const char *json_input)
 
 void opae_print_libopae_config(libopae_config_data *cfg)
 {
+#ifndef LIBOPAE_DEBUG
+	UNUSED_PARAM(cfg);
+#else
 	const int l = OPAE_LOG_DEBUG;
 
 	opae_print(l, "libopae config:\n");
@@ -315,6 +319,7 @@ void opae_print_libopae_config(libopae_config_data *cfg)
 
 		++cfg;
 	}
+#endif // LIBOPAE_DEBUG
 }
 
 void opae_free_libopae_config(libopae_config_data *cfg)
@@ -404,6 +409,9 @@ opae_parse_fpgainfo_config(const char *json_input)
 
 void opae_print_fpgainfo_config(fpgainfo_config_data *cfg)
 {
+#ifndef LIBOPAE_DEBUG
+	UNUSED_PARAM(cfg);
+#else
 	const int l = OPAE_LOG_DEBUG;
 
 	opae_print(l, "fpgainfo config:\n");
@@ -435,6 +443,7 @@ void opae_print_fpgainfo_config(fpgainfo_config_data *cfg)
 
 		++cfg;
 	}
+#endif // LIBOPAE_DEBUG
 }
 
 void opae_free_fpgainfo_config(fpgainfo_config_data *cfg)
@@ -455,6 +464,8 @@ void opae_free_fpgainfo_config(fpgainfo_config_data *cfg)
 
 
 STATIC fpgad_config_data default_fpgad_config_table[] = {
+	{ 0x8086, 0xbcc0, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libfpgad-xfpga.so", 0, NULL, "{}" },
+
 	{ 0x8086, 0x0b30, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libfpgad-vc.so", 0, NULL, "{ \"cool-down\": 30, \"get-aer\": [ \"setpci -s %s ECAP_AER+0x08.L\", \"setpci -s %s ECAP_AER+0x14.L\" ], \"disable-aer\": [ \"setpci -s %s ECAP_AER+0x08.L=0xffffffff\", \"setpci -s %s ECAP_AER+0x14.L=0xffffffff\" ], \"set-aer\": [ \"setpci -s %s ECAP_AER+0x08.L=0x%08x\", \"setpci -s %s ECAP_AER+0x14.L=0x%08x\" ], \"sensor-overrides\": [ { \"enabled\": true, \"name\": \"12V AUX Voltage\", \"low-warn\": 11.40, \"low-fatal\": 10.56 } ] }" },
 
 	{ 0x1c2c, 0x1000,          0x0000,          0x0000, "libfpgad-vc.so", 0, NULL, "{ \"cool-down\": 30, \"get-aer\": [ \"setpci -s %s ECAP_AER+0x08.L\", \"setpci -s %s ECAP_AER+0x14.L\" ], \"disable-aer\": [ \"setpci -s %s ECAP_AER+0x08.L=0xffffffff\", \"setpci -s %s ECAP_AER+0x14.L=0xffffffff\" ], \"set-aer\": [ \"setpci -s %s ECAP_AER+0x08.L=0x%08x\", \"setpci -s %s ECAP_AER+0x14.L=0x%08x\" ], \"sensor-overrides\": [] }" },
@@ -488,6 +499,9 @@ opae_parse_fpgad_config(const char *json_input)
 
 void opae_print_fpgad_config(fpgad_config_data *cfg)
 {
+#ifndef LIBOPAE_DEBUG
+	UNUSED_PARAM(cfg);
+#else
 	const int l = OPAE_LOG_DEBUG;
 
 	opae_print(l, "fpgad config:\n");
@@ -515,6 +529,7 @@ void opae_print_fpgad_config(fpgad_config_data *cfg)
 
 		++cfg;
 	}
+#endif // LIBOPAE_DEBUG
 }
 
 void opae_free_fpgad_config(fpgad_config_data *cfg)

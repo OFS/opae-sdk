@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2019, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -32,8 +32,7 @@
 #include <sys/types.h>
 #include <linux/limits.h>
 #include "bitstream.h"
-
-struct _fpgad_supported_device;
+#include "cfg-file.h"
 
 #define MAX_NULL_GBS 32
 
@@ -44,7 +43,7 @@ struct fpgad_config {
 	char directory[PATH_MAX];
 	char logfile[PATH_MAX];
 	char pidfile[PATH_MAX];
-	char cfgfile[PATH_MAX];
+	char *cfgfile;
 	mode_t filemode;
 
 	bool running;
@@ -59,7 +58,7 @@ struct fpgad_config {
 	pthread_t event_dispatcher_thr;
 	pthread_t events_api_thr;
 
-	struct _fpgad_supported_device *supported_devices;
+	fpgad_config_data *supported_devices;
 };
 
 extern struct fpgad_config global_config;
