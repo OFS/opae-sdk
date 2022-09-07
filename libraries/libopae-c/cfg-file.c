@@ -50,9 +50,10 @@ STATIC const char _opae_sys_cfg_files[SYS_CFG_PATHS][CFG_PATH_MAX] = {
 	{ "/etc/opae/opae.cfg" },
 };
 
-// Find the canonicalized configuration file. If null, the file was not found.
-// Otherwise, it's the first configuration file found from a list of possible
-// paths. Note: The char * returned is allocated here, caller must free.
+// Find the canonicalized configuration file. If NULL, the file was not found.
+// Otherwise, it's the first configuration file found by checking environment
+// variable "LIBOPAE_CFGFILE", then a list of possible hard-coded paths.
+// Note: The char * returned is allocated here, caller must free.
 char *opae_find_cfg_file(void)
 {
 	int i = 0;
@@ -60,9 +61,19 @@ char *opae_find_cfg_file(void)
 	char home_cfg[PATH_MAX] = { 0, };
 	char *home_cfg_ptr = NULL;
 	size_t len;
+	struct passwd *user_passwd;
+
+	file_name = getenv("LIBOPAE_CFGFILE");
+	if (file_name) {
+		file_name = opae_canonicalize_file_name(file_name);
+		if (file_name) {
+			OPAE_DBG("Found config file: %s", file_name);
+			return file_name;
+		}
+	}
 
 	// get the user's home directory
-	struct passwd *user_passwd = getpwuid(getuid());
+	user_passwd = getpwuid(getuid());
 
 	// first, look in possible paths in the user's home directory
 	for (i = 0 ; i < HOME_CFG_PATHS ; ++i) {
