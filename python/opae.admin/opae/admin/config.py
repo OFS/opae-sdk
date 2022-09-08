@@ -24,13 +24,8 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-#from __future__ import absolute_import
-#import errno
-#import fcntl
 import json
 import os
-#import struct
-#import time
 
 try:
     from pathlib import Path
@@ -222,6 +217,10 @@ def find_config_file():
 
 
 def parse_devices(devices):
+    """Parse the "devices" portion of the one config file for a given
+       config object. Returns a dictionary of the "name" keys mapped to
+       the integer VID, DID, SVID, SDID contained in a tuple.
+    """
     devs = {}
     for d in devices:
         if 'name' not in d:
@@ -261,7 +260,9 @@ def parse_devices(devices):
 
 
 def load_rsu_config(rsu_cfg, root, config, configurations):
-    """
+    """Parse section config of the one OPAE configuration file
+       into the desired internal rsu data structure (see
+       DEFAULT_RSU_CONFIG for the format).
     """
     if config not in configurations:
         print(f'Error parsing config: {config} not found.')
@@ -331,7 +332,10 @@ def load_rsu_config(rsu_cfg, root, config, configurations):
 
 
 def load_rsu_configuration(cfg):
-    """
+    """Walk through each "configs" section of the given parsed
+       JSON object cfg. If cfg is None or if an error is encountered
+       during parsing, then return None. Otherwise, return the parsed
+       rsu object.
     """
     if not cfg: # No parsed config from file.
         return None
@@ -356,6 +360,8 @@ def load_rsu_configuration(cfg):
 
 
 def print_rsu_configuration(cfg):
+    """Pretty print an rsu configuration data object.
+    """
     for key in cfg:
         print(f'0x{key[0]:04x}:0x{key[1]:04x} ', end='')
         if key[2] == OPAE_VENDOR_ANY:
@@ -373,7 +379,9 @@ def print_rsu_configuration(cfg):
 
 
 def load_fpgareg_config(fpgareg_cfg, root, config, configurations):
-    """
+    """Parse section config of the one OPAE configuration file
+       into the desired internal fpgareg data structure (see
+       DEFAULT_FPGAREG_CONFIG for the format).
     """
     if config not in configurations:
         print(f'Error parsing config: {config} not found.')
@@ -445,7 +453,10 @@ def load_fpgareg_config(fpgareg_cfg, root, config, configurations):
 
 
 def load_fpgareg_configuration(cfg):
-    """
+    """Walk through each "configs" section of the given parsed
+       JSON object cfg. If cfg is None or if an error is encountered
+       during parsing, then return None. Otherwise, return the parsed
+       fpgareg object.
     """
     if not cfg: # No parsed config from file.
         return None
@@ -470,6 +481,8 @@ def load_fpgareg_configuration(cfg):
 
 
 def print_fpgareg_configuration(cfg):
+    """Pretty print an fpgareg configuration data object.
+    """
     for key in cfg:
         print(f'0x{key[0]:04x}:0x{key[1]:04x} ', end='')
         if key[2] == OPAE_VENDOR_ANY:
@@ -487,7 +500,11 @@ def print_fpgareg_configuration(cfg):
 
 
 def load_configs():
-    """
+    """Find the one OPAE config file and parse it,
+       constructing internal representations of the rsu and
+       fpgareg configuration data. If the file cannot be
+       found or if an error is encountered during parsing,
+       then use a hard-coded default configuration.
     """
     cfg = None
     cfg_file = find_config_file()
@@ -510,7 +527,9 @@ def load_configs():
 
 
 def key_matches_id(key, vid, did, svid, sdid):
-    """
+    """Determine whether the given key (a 4-tuple of
+       integer PCIe ID components) is a match for the
+       given parameters.
     """
     if key[0] != vid:
         return False
@@ -524,6 +543,9 @@ def key_matches_id(key, vid, did, svid, sdid):
 
 
 class Config:
+    """The high-level user interface to the parsed rsu and
+       fpgareg configuration data.
+    """
     def rsu_is_supported(self, vid, did, svid, sdid):
         global RSU_CONFIG
         for key in RSU_CONFIG:
