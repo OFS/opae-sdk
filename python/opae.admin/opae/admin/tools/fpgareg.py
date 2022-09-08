@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-# Copyright(c) 2021, Intel Corporation
+# Copyright(c) 2021-2022, Intel Corporation
 #
 # Redistribution  and  use  in source  and  binary  forms,  with  or  without
 # modification, are permitted provided that the following conditions are met:
@@ -37,14 +37,10 @@ import stat
 import time
 from ctypes import c_uint64, Structure, Union, c_uint32
 
+from opae.admin.config import Config
 
 MAPSIZE = mmap.PAGESIZE
 MAPMASK = MAPSIZE-1
-
-fpga_devices = {(0x8086, 0xaf00): "Intel N6000 ADP",
-                (0x8086, 0xaf01): "Intel N6000 ADP VF",
-                (0x8086, 0xbcce): "Intel N6000 ADP",
-                (0x8086, 0xbccf): "Intel N6000 ADP VF"}
 
 PATTERN = (r'.*(?P<segment>\w{4}):(?P<bus>\w{2}):'
            r'(?P<dev>\w{2})\.(?P<func>\d).*')
@@ -86,12 +82,26 @@ def verify_fpga_device(pcie_address):
             vendor = fd.read().strip()
         with open(os.path.join(path, 'device'), 'r') as fd:
             device = fd.read().strip()
+        with open(os.path.join(path, 'subsystem_vendor'), 'r') as fd:
+            subsystem_vendor = fd.read().strip()
+        with open(os.path.join(path, 'subsystem_device'), 'r') as fd:
+            subsystem_device = fd.read().strip()
     except FileNotFoundError as err:
         print("Not found vendor or device id")
         return False
 
-    if (int(vendor, 16), int(device, 16)) in fpga_devices:
-        print("fpga vender:{} device:{}".format(vendor, device))
+    vendor = int(vendor, 16)
+    device = int(device, 16)
+    subsystem_vendor = int(subsystem_vendor, 16)
+    subsystem_device = int(subsystem_device, 16)
+
+    ID = (vendor, device, subsystem_vendor, subsystem_device)
+    c = Config()
+
+    if c.fpgareg_is_supported(*ID):
+        print(f"fpga 0x{vendor:04x}:0x{device:04x} "
+              f"0x{subsystem_vendor:04x}:0x{subsystem_device:04x}")
+        print(c.fpgareg_platform_for(*ID))
         return True
 
     return False
