@@ -266,38 +266,38 @@ def load_rsu_config(rsu_cfg, root, config, configurations):
     """
     if config not in configurations:
         print(f'Error parsing config: {config} not found.')
-        return (False, rsu_cfg)
+        return False
 
     c = configurations[config]
     key = 'enabled'
     if key not in c or not c[key]:
-        return (True, rsu_cfg) # continue parsing
+        return True # continue parsing
 
     key = 'devices'
     if key not in c:
         print(f'Error parsing config: no "devices" key in "{config}".')
-        return (False, rsu_cfg)
+        return False
     if type(c[key]) != list:
         print(f'Error parsing config: "devices" key not a list.')
-        return (False, rsu_cfg)
+        return False
 
     devs = parse_devices(c[key])
     if not devs:
         print(f'Error parsing config: "devices" is empty.')
-        return (False, rsu_cfg)
+        return False
 
     key = 'opae'
     if key not in c or type(c[key]) != dict:
         print(f'Error parsing config: "opae" key '
               f'missing or invalid in {config}.')
-        return (False, rsu_cfg)
+        return False
 
     opae = c[key]
     key = 'rsu'
     if key not in opae or type(opae[key]) != list:
         print(f'Warning parsing config: "rsu" key '
               f'missing or invalid in {config} "opae".')
-        return (True, rsu_cfg) # continue parsing
+        return True # continue parsing
 
     rsu = opae[key]
     for r in rsu:
@@ -324,11 +324,11 @@ def load_rsu_config(rsu_cfg, root, config, configurations):
             if d not in devs:
                 print(f'Error parsing config: {d} not found '
                       f'in "devices" for {config}.')
-                return (False, rsu_cfg)
+                return False
     
             rsu_cfg[devs[d]] = sequences
 
-    return (True, rsu_cfg)
+    return True
 
 
 def load_rsu_configuration(cfg):
@@ -349,10 +349,10 @@ def load_rsu_configuration(cfg):
 
     rsu_cfg = {}
     for c in cfg['configs']:
-        status, rsu_cfg = load_rsu_config(rsu_cfg,
-                                          cfg,
-                                          c,
-                                          cfg['configurations'])
+        status = load_rsu_config(rsu_cfg,
+                                 cfg,
+                                 c,
+                                 cfg['configurations'])
         if not status:
             return None
 
@@ -385,47 +385,47 @@ def load_fpgareg_config(fpgareg_cfg, root, config, configurations):
     """
     if config not in configurations:
         print(f'Error parsing config: {config} not found.')
-        return (False, fpgareg_cfg)
+        return False
 
     c = configurations[config]
     key = 'enabled'
     if key not in c or not c[key]:
-        return (True, fpgareg_cfg) # continue parsing
+        return True # continue parsing
 
     key = 'platform'
     if key not in c:
         print(f'Error parsing config: no "platform" key in "{config}".')
-        return (False, fpgareg_cfg)
+        return False
     if type(c[key]) != str:
         print(f'Error parsing config: "platform" key not a string.')
-        return (False, fpgareg_cfg)
+        return False
     platform = c[key]
 
     key = 'devices'
     if key not in c:
         print(f'Error parsing config: no "devices" key in "{config}".')
-        return (False, fpgareg_cfg)
+        return False
     if type(c[key]) != list:
         print(f'Error parsing config: "devices" key not a list.')
-        return (False, fpgareg_cfg)
+        return False
 
     devs = parse_devices(c[key])
     if not devs:
         print(f'Error parsing config: "devices" is empty.')
-        return (False, fpgareg_cfg)
+        return False
 
     key = 'opae'
     if key not in c or type(c[key]) != dict:
         print(f'Error parsing config: "opae" key '
               f'missing or invalid in {config}.')
-        return (False, fpgareg_cfg)
+        return False
 
     opae = c[key]
     key = 'fpgareg'
     if key not in opae or type(opae[key]) != list:
         print(f'Warning parsing config: "fpgareg" key '
               f'missing or invalid in {config} "opae".')
-        return (True, fpgareg_cfg) # continue parsing
+        return True # continue parsing
 
     value = { 'platform': platform }
 
@@ -445,11 +445,11 @@ def load_fpgareg_config(fpgareg_cfg, root, config, configurations):
             if d not in devs:
                 print(f'Error parsing config: {d} not found '
                       f'in "devices" for {config}.')
-                return (False, fpgareg_cfg)
+                return False
     
             fpgareg_cfg[devs[d]] = value
 
-    return (True, fpgareg_cfg)
+    return True
 
 
 def load_fpgareg_configuration(cfg):
@@ -470,10 +470,10 @@ def load_fpgareg_configuration(cfg):
 
     fpgareg_cfg = {}
     for c in cfg['configs']:
-        status, fpgareg_cfg = load_fpgareg_config(fpgareg_cfg,
-                                                  cfg,
-                                                  c,
-                                                  cfg['configurations'])
+        status = load_fpgareg_config(fpgareg_cfg,
+                                     cfg,
+                                     c,
+                                     cfg['configurations'])
         if not status:
             return None
 
