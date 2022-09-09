@@ -482,8 +482,7 @@ class fpga_base(sysfs_device):
 
         Returns: True if device supports RSU, false otherwise.
         """
-        c = Config()
-        return c.rsu_is_supported(*self.pci_node.pci_id)
+        return Config.rsu_is_supported(*self.pci_node.pci_id)
 
     @property
     def rsu_controls(self):

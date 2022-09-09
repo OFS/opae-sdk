@@ -96,12 +96,11 @@ def verify_fpga_device(pcie_address):
     subsystem_device = int(subsystem_device, 16)
 
     ID = (vendor, device, subsystem_vendor, subsystem_device)
-    c = Config()
 
-    if c.fpgareg_is_supported(*ID):
+    if Config.fpgareg_is_supported(*ID):
         print(f"fpga 0x{vendor:04x}:0x{device:04x} "
               f"0x{subsystem_vendor:04x}:0x{subsystem_device:04x}")
-        print(c.fpgareg_platform_for(*ID))
+        print(Config.fpgareg_platform_for(*ID))
         return True
 
     return False

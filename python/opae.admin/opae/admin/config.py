@@ -546,14 +546,16 @@ class Config:
     """The high-level user interface to the parsed rsu and
        fpgareg configuration data.
     """
-    def rsu_is_supported(self, vid, did, svid, sdid):
+    @staticmethod
+    def rsu_is_supported(vid, did, svid, sdid):
         global RSU_CONFIG
         for key in RSU_CONFIG:
             if key_matches_id(key, vid, did, svid, sdid):
                 return True
         return False
 
-    def rsu_fpga_defaults_for(self, vid, did, svid, sdid):
+    @staticmethod
+    def rsu_fpga_defaults_for(vid, did, svid, sdid):
         global RSU_CONFIG
         ID = (vid, did, svid, sdid)
         for key in RSU_CONFIG:
@@ -561,14 +563,16 @@ class Config:
                 s = RSU_CONFIG[key]
                 return s if s is None else s['fpga_default_sequences']
 
-    def fpgareg_is_supported(self, vid, did, svid, sdid):
+    @staticmethod
+    def fpgareg_is_supported(vid, did, svid, sdid):
         global FPGAREG_CONFIG
         for key in FPGAREG_CONFIG:
             if key_matches_id(key, vid, did, svid, sdid):
                 return True
         return False
 
-    def fpgareg_platform_for(self, vid, did, svid, sdid):
+    @staticmethod
+    def fpgareg_platform_for(vid, did, svid, sdid):
         global FPGAREG_CONFIG
         ID = (vid, did, svid, sdid)
         for key in FPGAREG_CONFIG:

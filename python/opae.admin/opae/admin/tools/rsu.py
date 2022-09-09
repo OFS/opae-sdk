@@ -77,8 +77,7 @@ Example usage:
 
 
 def fpga_defaults_valid(pci_id, value):
-    c = Config()
-    defaults = c.rsu_fpga_defaults_for(*pci_id)
+    defaults = Config.rsu_fpga_defaults_for(*pci_id)
     return False if defaults is None else value in defaults
 
 

@@ -366,17 +366,13 @@ class TestEnv(unittest.TestCase):
                 (0x8086, 0xbee0, 0, 0)
                 ]
 
-        c = Config()
-
         for n in not_supported:
-            assert not c.rsu_is_supported(*n), 'No {:04x}:{:04x} {:04x}:{:04x}'.format(*n)
+            assert not Config.rsu_is_supported(*n), 'No {:04x}:{:04x} {:04x}:{:04x}'.format(*n)
 
         for s in supported:
-            assert c.rsu_is_supported(*s), 'Yes {:04x}:{:04x} {:04x}:{:04x}'.format(*s)
+            assert Config.rsu_is_supported(*s), 'Yes {:04x}:{:04x} {:04x}:{:04x}'.format(*s)
 
     def test_rsu_fpga_defaults_for(self):
-        c = Config()
-
         not_supported = [
                 (0x8086, 0xbcbd, 0, 0),
                 (0x8086, 0xbcc0, 0, 0),
@@ -397,19 +393,19 @@ class TestEnv(unittest.TestCase):
                 ]
 
         for n in not_supported:
-            assert c.rsu_fpga_defaults_for(*n) is None
+            assert Config.rsu_fpga_defaults_for(*n) is None
 
-        assert c.rsu_fpga_defaults_for(0x8086, 0x0b2b, 0, 0) is None
-        assert c.rsu_fpga_defaults_for(0x8086, 0xbcce, 0x8086, 0x138d) is None
-        assert c.rsu_fpga_defaults_for(0x8086, 0x0b30, 0, 0) is None
-        assert c.rsu_fpga_defaults_for(0x1c2c, 0x1000, 0, 0) == COMMON_RSU_SEQUENCES
-        assert c.rsu_fpga_defaults_for(0x8086, 0xbcce, 0x8086, 0x1770) == COMMON_RSU_SEQUENCES
-        assert c.rsu_fpga_defaults_for(0x8086, 0xbcce, 0x8086, 0x1771) == COMMON_RSU_SEQUENCES
-        assert c.rsu_fpga_defaults_for(0x8086, 0xbcce, 0x8086, 0x17d4) == COMMON_RSU_SEQUENCES
-        assert c.rsu_fpga_defaults_for(0x8086, 0xaf00, 0x8086, 0) == COMMON_RSU_SEQUENCES
-        assert c.rsu_fpga_defaults_for(0x8086, 0xbcce, 0x8086, 0) == COMMON_RSU_SEQUENCES
-        assert c.rsu_fpga_defaults_for(0x8086, 0xbeef, 0, 0) == COMMON_RSU_SEQUENCES
-        assert c.rsu_fpga_defaults_for(0x8086, 0xbee0, 0, 0) == COMMON_RSU_SEQUENCES
+        assert Config.rsu_fpga_defaults_for(0x8086, 0x0b2b, 0, 0) is None
+        assert Config.rsu_fpga_defaults_for(0x8086, 0xbcce, 0x8086, 0x138d) is None
+        assert Config.rsu_fpga_defaults_for(0x8086, 0x0b30, 0, 0) is None
+        assert Config.rsu_fpga_defaults_for(0x1c2c, 0x1000, 0, 0) == COMMON_RSU_SEQUENCES
+        assert Config.rsu_fpga_defaults_for(0x8086, 0xbcce, 0x8086, 0x1770) == COMMON_RSU_SEQUENCES
+        assert Config.rsu_fpga_defaults_for(0x8086, 0xbcce, 0x8086, 0x1771) == COMMON_RSU_SEQUENCES
+        assert Config.rsu_fpga_defaults_for(0x8086, 0xbcce, 0x8086, 0x17d4) == COMMON_RSU_SEQUENCES
+        assert Config.rsu_fpga_defaults_for(0x8086, 0xaf00, 0x8086, 0) == COMMON_RSU_SEQUENCES
+        assert Config.rsu_fpga_defaults_for(0x8086, 0xbcce, 0x8086, 0) == COMMON_RSU_SEQUENCES
+        assert Config.rsu_fpga_defaults_for(0x8086, 0xbeef, 0, 0) == COMMON_RSU_SEQUENCES
+        assert Config.rsu_fpga_defaults_for(0x8086, 0xbee0, 0, 0) == COMMON_RSU_SEQUENCES
 
     def test_fpgareg_is_supported(self):
         not_supported = [
@@ -444,17 +440,13 @@ class TestEnv(unittest.TestCase):
                 (0x8086, 0xbee0, 0, 0)
                 ]
 
-        c = Config()
-
         for n in not_supported:
-            assert not c.fpgareg_is_supported(*n), 'No {:04x}:{:04x} {:04x}:{:04x}'.format(*n)
+            assert not Config.fpgareg_is_supported(*n), 'No {:04x}:{:04x} {:04x}:{:04x}'.format(*n)
 
         for s in supported:
-            assert c.fpgareg_is_supported(*s), 'Yes {:04x}:{:04x} {:04x}:{:04x}'.format(*s)
+            assert Config.fpgareg_is_supported(*s), 'Yes {:04x}:{:04x} {:04x}:{:04x}'.format(*s)
 
     def test_fpgareg_platform_for(self):
-        c = Config()
-
         not_supported = [
                 (0x8086, 0xbcbd, 0, 0),
                 (0x8086, 0xbcc0, 0, 0),
@@ -474,20 +466,20 @@ class TestEnv(unittest.TestCase):
                 ]
 
         for n in not_supported:
-            assert c.fpgareg_platform_for(*n) is None
+            assert Config.fpgareg_platform_for(*n) is None
 
-        assert c.fpgareg_platform_for(0x8086, 0xbcce, 0x8086, 0x1770) == 'Intel Acceleration Development Platform N6000'
-        assert c.fpgareg_platform_for(0x8086, 0xbccf, 0x8086, 0x1770) == 'Intel Acceleration Development Platform N6000'
-        assert c.fpgareg_platform_for(0x8086, 0xbcce, 0x8086, 0x1771) == 'Intel Acceleration Development Platform N6001'
-        assert c.fpgareg_platform_for(0x8086, 0xbccf, 0x8086, 0x1771) == 'Intel Acceleration Development Platform N6001'
-        assert c.fpgareg_platform_for(0x8086, 0xbcce, 0x8086, 0x17d4) == 'Intel Acceleration Development Platform C6100'
-        assert c.fpgareg_platform_for(0x8086, 0xbccf, 0x8086, 0x17d4) == 'Intel Acceleration Development Platform C6100'
-        assert c.fpgareg_platform_for(0x8086, 0xaf00, 0x8086, 0) == 'Intel Open FPGA Stack Platform'
-        assert c.fpgareg_platform_for(0x8086, 0xaf01, 0x8086, 0) == 'Intel Open FPGA Stack Platform'
-        assert c.fpgareg_platform_for(0x8086, 0xbcce, 0x8086, 0) == 'Intel Open FPGA Stack Platform'
-        assert c.fpgareg_platform_for(0x8086, 0xbccf, 0x8086, 0) == 'Intel Open FPGA Stack Platform'
-        assert c.fpgareg_platform_for(0x8086, 0xbeef, 0, 0) == 'Unit Test Platform'
-        assert c.fpgareg_platform_for(0x8086, 0xbee0, 0, 0) == 'Unit Test Platform'
+        assert Config.fpgareg_platform_for(0x8086, 0xbcce, 0x8086, 0x1770) == 'Intel Acceleration Development Platform N6000'
+        assert Config.fpgareg_platform_for(0x8086, 0xbccf, 0x8086, 0x1770) == 'Intel Acceleration Development Platform N6000'
+        assert Config.fpgareg_platform_for(0x8086, 0xbcce, 0x8086, 0x1771) == 'Intel Acceleration Development Platform N6001'
+        assert Config.fpgareg_platform_for(0x8086, 0xbccf, 0x8086, 0x1771) == 'Intel Acceleration Development Platform N6001'
+        assert Config.fpgareg_platform_for(0x8086, 0xbcce, 0x8086, 0x17d4) == 'Intel Acceleration Development Platform C6100'
+        assert Config.fpgareg_platform_for(0x8086, 0xbccf, 0x8086, 0x17d4) == 'Intel Acceleration Development Platform C6100'
+        assert Config.fpgareg_platform_for(0x8086, 0xaf00, 0x8086, 0) == 'Intel Open FPGA Stack Platform'
+        assert Config.fpgareg_platform_for(0x8086, 0xaf01, 0x8086, 0) == 'Intel Open FPGA Stack Platform'
+        assert Config.fpgareg_platform_for(0x8086, 0xbcce, 0x8086, 0) == 'Intel Open FPGA Stack Platform'
+        assert Config.fpgareg_platform_for(0x8086, 0xbccf, 0x8086, 0) == 'Intel Open FPGA Stack Platform'
+        assert Config.fpgareg_platform_for(0x8086, 0xbeef, 0, 0) == 'Unit Test Platform'
+        assert Config.fpgareg_platform_for(0x8086, 0xbee0, 0, 0) == 'Unit Test Platform'
 
 
 class TestFindHome0(unittest.TestCase):
