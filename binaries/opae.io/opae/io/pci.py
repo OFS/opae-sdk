@@ -72,7 +72,9 @@ def vid_did_for_address(pci_addr):
     path = Path('/sys/bus/pci/devices', pci_addr)
     vid = path.joinpath('vendor').read_text().strip()
     did = path.joinpath('device').read_text().strip()
-    return (vid, did)
+    svid = path.joinpath('subsystem_vendor').read_text().strip()
+    sdid = path.joinpath('subsystem_device').read_text().strip()
+    return (vid, did, svid, sdid)
 
 
 class sysfs_attr:
