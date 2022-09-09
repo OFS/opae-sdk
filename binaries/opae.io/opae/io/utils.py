@@ -426,29 +426,6 @@ def read_link(dirname, *attr):
         return fname.resolve()
 
 
-def get_conf():
-    conf_file = os.path.expanduser('~/.opae-io.conf')
-    if os.path.exists(conf_file):
-        with open(conf_file, 'r') as fp:
-            conf = json.load(fp)
-        if isinstance(conf, dict):
-            return conf
-        print('not a valid format')
-    return {}
-
-
-def get_conf_devices(data):
-    conf_ids = {}
-    for k, v in data.items():
-        try:
-            ids = k.split(':')
-        except:
-            print(f'error with vendor/device: {k}')
-        else:
-            conf_ids[pci.make_id(*[int(i, 16) for i in ids])] = v
-    return conf_ids
-
-
 def lsfpga(**kwargs):
     _all = kwargs.pop('all', False)
     use_class = kwargs.pop('system_class', False)
@@ -483,22 +460,22 @@ def lsfpga(**kwargs):
 def ls(**kwargs):
     """Enumerate FPGA devices"""
     for device in lsfpga(**kwargs):
-        print(f'[{device}] ({device.vendor}, {device.device}) {device.desc} (Driver: {device.driver})')
+        print(f'[{device}] ({device.vendor}:{device.device} '
+              f'{device.subsystem_vendor}:{device.subsystem_device}) '
+              f'{device.desc} (Driver: {device.driver})')
 
 
 def open_pciaddr(pci_addr):
     device = libvfio.device.open(pci_addr)
-    conf = get_conf()
     if device:
-        cmd = conf.get('set-pci-command', 0b10)
-        if cmd:
-            command_offset = pcicfg.command.value
-            value = device.config_read16(command_offset)
-            if value | cmd != value:
-                LOG.warn('setting 0x%x to command register', cmd)
-                device.config_write16(command_offset, value | cmd)
-            else:
-                LOG.debug('command register: 0x%x', value)
+        cmd = 0b10 # enable memory space access
+        command_offset = pcicfg.command.value
+        value = device.config_read16(command_offset)
+        if value | cmd != value:
+            LOG.warn('setting 0x%x to command register', cmd)
+            device.config_write16(command_offset, value | cmd)
+        else:
+            LOG.debug('command register: 0x%x', value)
     return device
 
 
