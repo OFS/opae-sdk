@@ -212,8 +212,43 @@ clean_python() {
   done
 }
 
+declare -a CONF_HOME_FILES_TO_CLEAN=(\
+'/.local/opae.cfg' \
+'/.local/opae/opae.cfg' \
+'/.config/opae/opae.cfg'\
+)
+
+declare -a CONF_SYS_FILES_TO_CLEAN=(\
+'/usr/local/etc/opae/opae.cfg' \
+'/etc/opae/opae.cfg'\
+)
+
+clean_configurations() {
+  shopt -o -u nounset
+
+  if ! [ -z ${LIBOPAE_CFGFILE} ]; then
+    if [ -f "${LIBOPAE_CFGFILE}" ]; then
+      clean "${LIBOPAE_CFGFILE}"
+    fi
+  fi
+
+  shopt -o -s nounset
+
+  for f in ${CONF_HOME_FILES_TO_CLEAN[@]} ; do
+    if [ -f "${HOME}$f" ]; then
+      clean "${HOME}$f"
+    fi
+  done
+
+  for f in ${CONF_SYS_FILES_TO_CLEAN[@]} ; do
+    if [ -f "$f" ]; then
+      clean "$f"
+    fi
+  done
+}
+
 show_help() {
-  printf "Usage: opae-clean [-b] [-l] [-p] [-h] [-c] [-B dir] [-L dir] [-P dir] [-X prefix]\n"
+  printf "Usage: opae-clean [-b] [-l] [-p] [-h] [-c] [-d] [-B dir] [-L dir] [-P dir] [-X prefix]\n"
   printf "\n"
   printf "  -b          : clean OPAE binaries\n"
   printf "  -B <dir>    : specify additional bin directory\n"
@@ -221,20 +256,25 @@ show_help() {
   printf "  -L <dir>    : specify additional lib directory\n"
   printf "  -p          : clean OPAE Python artifacts\n"
   printf "  -P <dir>    : specify additional python directory\n"
+  printf "  -c          : clean OPAE configuration files\n"
   printf "  -X <prefix> : specify a prefix to which /bin, /lib, and /lib64 will be added\n"
   printf "  -h          : display this help\n"
-  printf "  -c          : yes, really delete the files\n"
+  printf "  -d          : yes, really delete the files\n"
 }
 
 declare -a CMDS=(x)
 
-while getopts ":bclphB:L:P:X:" o; do
+while getopts ":bcdlphB:L:P:X:" o; do
   case "$o" in
     b)
       CMDS=(${CMDS[@]} b)
     ;;
 
     c)
+      CMDS=(${CMDS[@]} c)
+    ;;
+
+    d)
       DELETE=1
     ;;
 
@@ -277,6 +317,11 @@ for c in ${CMDS[@]} ; do
   case "$c" in
     b)
       clean_bins
+      DID_SOMETHING=1
+    ;;
+
+    c)
+      clean_configurations
       DID_SOMETHING=1
     ;;
 
