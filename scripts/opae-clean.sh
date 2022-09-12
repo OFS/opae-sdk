@@ -234,7 +234,7 @@ clean_configurations() {
 
   shopt -o -s nounset
 
-  for f in ${CONF_HOME_FILES_TO_CLEAN[@]} ; do
+  for f in "${CONF_HOME_FILES_TO_CLEAN[@]}"; do
     if [ -f "${HOME}$f" ]; then
       clean "${HOME}$f"
     fi
