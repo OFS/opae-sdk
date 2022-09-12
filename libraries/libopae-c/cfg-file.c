@@ -80,19 +80,19 @@ char *opae_find_cfg_file(void)
 			len = strnlen(home_dir, sizeof(home_cfg) - 1);
 			memcpy(home_cfg, home_dir, len);
 			home_cfg[len] = '\0';
-	
+
 			home_cfg_ptr = home_cfg + strlen(home_cfg);
-	
+
 			len = strnlen(_opae_home_cfg_files[i], CFG_PATH_MAX);
 			memcpy(home_cfg_ptr, _opae_home_cfg_files[i], len);
 			home_cfg_ptr[len] = '\0';
-	
+
 			file_name = opae_canonicalize_file_name(home_cfg);
 			if (file_name) {
 				OPAE_DBG("Found config file: %s", file_name);
 				return file_name;
 			}
-	
+
 			home_cfg[0] = '\0';
 		}
 	}
