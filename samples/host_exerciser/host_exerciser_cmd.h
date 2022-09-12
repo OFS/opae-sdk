@@ -402,7 +402,7 @@ public:
             if (host_exe_->he_interrupt_ < afu_props->num_interrupts) {
                 he_lpbk_cfg_.IntrTestMode = 1;
             } else {
-                std::cerr << "Invlaid Input interrupts vector number:" << host_exe_->he_interrupt_ << std::endl;
+                std::cerr << "Invalid Input interrupts vector number:" << host_exe_->he_interrupt_ << std::endl;
                 std::cout << "Please enter Interrupts vector range 0 to " << afu_props->num_interrupts -1 << std::endl;
                 return -1;
             }
