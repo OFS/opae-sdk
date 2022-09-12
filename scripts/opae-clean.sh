@@ -240,7 +240,7 @@ clean_configurations() {
     fi
   done
 
-  for f in ${CONF_SYS_FILES_TO_CLEAN[@]} ; do
+  for f in "${CONF_SYS_FILES_TO_CLEAN[@]}"; do
     if [ -f "$f" ]; then
       clean "$f"
     fi
