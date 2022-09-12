@@ -62,6 +62,7 @@ char *opae_find_cfg_file(void)
 	char *home_cfg_ptr = NULL;
 	size_t len;
 	struct passwd *user_passwd;
+	char *home_dir;
 
 	file_name = getenv("LIBOPAE_CFGFILE");
 	if (file_name) {
@@ -72,32 +73,39 @@ char *opae_find_cfg_file(void)
 		}
 	}
 
-	// get the user's home directory
-	user_passwd = getpwuid(getuid());
-
-	// first, look in possible paths in the user's home directory
-	for (i = 0 ; i < HOME_CFG_PATHS ; ++i) {
-		len = strnlen(user_passwd->pw_dir,
-			      sizeof(home_cfg) - 1);
-		memcpy(home_cfg, user_passwd->pw_dir, len);
-		home_cfg[len] = '\0';
-
-		home_cfg_ptr = home_cfg + strlen(home_cfg);
-
-		len = strnlen(_opae_home_cfg_files[i], CFG_PATH_MAX);
-		memcpy(home_cfg_ptr, _opae_home_cfg_files[i], len);
-		home_cfg_ptr[len] = '\0';
-
-		file_name = opae_canonicalize_file_name(home_cfg);
-		if (file_name) {
-			OPAE_DBG("Found config file: %s", file_name);
-			return file_name;
-		}
-
-		home_cfg[0] = '\0';
+	// Let the HOME env variable take precedence over the pw database.
+	home_dir = getenv("HOME");
+	if (!home_dir) {
+		// No HOME: get the user's home directory, according
+		// to the pw database.
+		user_passwd = getpwuid(getuid());
+		if (user_passwd)
+			home_dir = user_passwd->pw_dir;
 	}
 
-	// now, look in possible system paths
+	if (home_dir) {
+		for (i = 0 ; i < HOME_CFG_PATHS ; ++i) {
+			len = strnlen(home_dir, sizeof(home_cfg) - 1);
+			memcpy(home_cfg, home_dir, len);
+			home_cfg[len] = '\0';
+
+			home_cfg_ptr = home_cfg + strlen(home_cfg);
+
+			len = strnlen(_opae_home_cfg_files[i], CFG_PATH_MAX);
+			memcpy(home_cfg_ptr, _opae_home_cfg_files[i], len);
+			home_cfg_ptr[len] = '\0';
+
+			file_name = opae_canonicalize_file_name(home_cfg);
+			if (file_name) {
+				OPAE_DBG("Found config file: %s", file_name);
+				return file_name;
+			}
+
+			home_cfg[0] = '\0';
+		}
+	}
+
+	// Now, look in possible system paths.
 	for (i = 0 ; i < SYS_CFG_PATHS ; ++i) {
 		len = strnlen(_opae_sys_cfg_files[i], CFG_PATH_MAX);
 		memcpy(home_cfg, _opae_sys_cfg_files[i], len);
