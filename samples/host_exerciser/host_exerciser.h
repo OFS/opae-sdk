@@ -362,7 +362,7 @@ public:
   : test_afu("host_exerciser", nullptr, "warning")
   , count_(1)
   , he_interleave_(0)
-  , he_interrupt_(99)
+  , he_interrupt_(0xffff)
   {
     // Mode
     app_.add_option("-m,--mode", he_modes_, "host exerciser mode {lpbk,read, write, trput}")
@@ -392,7 +392,7 @@ public:
     // The Interrupt Vector Number for the device
     app_.add_option("--interrupt", he_interrupt_,
         "The Interrupt Vector Number for the device")
-        ->transform(CLI::Range(0, 3));
+        ->transform(CLI::Range(0, 4095));
 
      // Continuous mode time
     app_.add_option("--contmodetime", he_contmodetime_,
@@ -556,6 +556,12 @@ public:
     return handle_->get_token();
   }
 
+  bool option_passed(std::string option_str)
+  {
+      if (app_.count(option_str) == 0)
+            return false;
+      return true;
+  }
 };
 } // end of namespace host_exerciser
 

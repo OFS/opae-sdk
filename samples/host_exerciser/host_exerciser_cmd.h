@@ -33,6 +33,7 @@
 using test_afu = opae::afu_test::afu;
 using opae::fpga::types::shared_buffer;
 using opae::fpga::types::token;
+namespace fpga = opae::fpga::types;
 
 // HE exit global flag
 volatile bool g_he_exit = false;
@@ -396,8 +397,15 @@ public:
         }
 
         // Set Interrupt test mode
-        if (host_exe_->he_interrupt_ <= 3) {
-            he_lpbk_cfg_.IntrTestMode = 1;
+        auto afu_props = fpga::properties::get(token_);
+        if (host_exe_->option_passed("--interrupt")) {
+            if (host_exe_->he_interrupt_ < afu_props->num_interrupts) {
+                he_lpbk_cfg_.IntrTestMode = 1;
+            } else {
+                std::cerr << "Invlaid Input interrupts vector number:" << host_exe_->he_interrupt_ << std::endl;
+                std::cout << "Please enter Interrupts vector range 0 to " << afu_props->num_interrupts -1 << std::endl;
+                return -1;
+            }
         }
 
         // Atomic functions
