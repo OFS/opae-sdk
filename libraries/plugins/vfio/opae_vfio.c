@@ -49,6 +49,7 @@
 #include "props.h"
 #include "opae_vfio.h"
 #include "dfl.h"
+#include "cfg-file.h"
 
 #define BAR_MAX 6
 #define VFIO_TOKEN_MAGIC 0xEF1010FE
@@ -288,43 +289,53 @@ free:
 	return NULL;
 }
 
-STATIC struct {
-	uint16_t vendor;
-	uint16_t device;
-} supported_devices[] = {
-	{ 0x1c2c, 0x1000 },
-	{ 0x1c2c, 0x1001 },
-	{ 0x8086, 0xbcbd },
-	{ 0x8086, 0xbcc0 },
-	{ 0x8086, 0xbcc1 },
-	{ 0x8086, 0x09c4 },
-	{ 0x8086, 0x09c5 },
-	{ 0x8086, 0x0b2b },
-	{ 0x8086, 0x0b2c },
-	{ 0x8086, 0x0b30 },
-	{ 0x8086, 0x0b31 },
-	{ 0x8086, 0xaf00 },
-	{ 0x8086, 0xaf01 },
-	{ 0x8086, 0xbcce },
-	{ 0x8086, 0xbccf },
-	{      0,      0 },
-};
+libopae_config_data *opae_v_supported_devices;
+
+STATIC bool pci_device_matches(const libopae_config_data *c,
+			       uint16_t vid,
+			       uint16_t did,
+			       uint16_t svid,
+			       uint16_t sdid)
+{
+	if (strcmp(c->module_library, "libopae-v.so"))
+		return false;
+
+	if ((c->vendor_id != vid) ||
+	    (c->device_id != did))
+		return false;
+
+	if ((c->subsystem_vendor_id != OPAE_VENDOR_ANY) &&
+	    (c->subsystem_vendor_id != svid))
+		return false;
+
+	if ((c->subsystem_device_id != OPAE_DEVICE_ANY) &&
+	    (c->subsystem_device_id != sdid))
+		return false;
+
+	return true;
+}
 
 bool pci_device_supported(const char *pcie_addr)
 {
 	uint32_t vendor = 0;
 	uint32_t device = 0;
+	uint32_t subsystem_vendor = 0;
+	uint32_t subsystem_device = 0;
 	size_t i;
 
 	if (read_pci_attr_u32(pcie_addr, "vendor", &vendor) ||
-	    read_pci_attr_u32(pcie_addr, "device", &device)) {
-		OPAE_ERR("couldn't determine VID/DID for %s", pcie_addr);
+	    read_pci_attr_u32(pcie_addr, "device", &device) ||
+	    read_pci_attr_u32(pcie_addr, "subsystem_vendor", &subsystem_vendor) ||
+	    read_pci_attr_u32(pcie_addr, "subsystem_device", &subsystem_device)) {
+		OPAE_ERR("couldn't determine VID/DID SVID/SDID for %s", pcie_addr);
 		return false;
 	}
 
-	for (i = 0 ; supported_devices[i].vendor ; ++i) {
-		if (((uint16_t)vendor == supported_devices[i].vendor) &&
-		    ((uint16_t)device == supported_devices[i].device))
+	for (i = 0 ; opae_v_supported_devices[i].module_library ; ++i) {
+		if (pci_device_matches(&opae_v_supported_devices[i],
+				       (uint16_t)vendor, (uint16_t)device,
+				       (uint16_t)subsystem_vendor,
+				       (uint16_t)subsystem_device))
 			return true;
 	}
 
