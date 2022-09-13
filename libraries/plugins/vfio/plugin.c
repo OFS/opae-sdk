@@ -34,18 +34,35 @@
 
 #include "adapter.h"
 #include "opae_vfio.h"
+#include "cfg-file.h"
+#include "mock/opae_std.h"
 
 #ifndef __VFIO_API__
 #define __VFIO_API__
 #endif
 
+extern libopae_config_data *opae_v_supported_devices;
+
 int __VFIO_API__ vfio_plugin_initialize(void)
 {
-	int res = pci_discover();
+	int res;
+	char *raw_cfg = NULL;
+	char *cfg_file;
 
+	cfg_file = opae_find_cfg_file();
+	if (cfg_file) {
+		raw_cfg = opae_read_cfg_file(cfg_file);
+		opae_free(cfg_file);
+		cfg_file = NULL;
+	}
+
+	opae_v_supported_devices = opae_parse_libopae_config(raw_cfg);
+
+	res = pci_discover();
 	if (res) {
 		OPAE_ERR("error with pci_discover\n");
 	}
+
 	return res;
 }
 
@@ -53,6 +70,10 @@ int __VFIO_API__ vfio_plugin_finalize(void)
 {
 	free_buffer_list();
 	free_device_list();
+
+	opae_free_libopae_config(opae_v_supported_devices);
+	opae_v_supported_devices = NULL;
+
 	return 0;
 }
 
