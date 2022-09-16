@@ -41,6 +41,7 @@ import time
 from enum import Enum
 from ctypes import Union, LittleEndianStructure, c_uint64, c_uint32
 from logging import StreamHandler
+from opae.io.config import Config
 from . import pci
 
 if sys.version_info[0] == 3:
@@ -427,25 +428,6 @@ class feature(object):
                 csr.commit()
 
 
-fpga_devices = {
-    pci.make_id(0x8086, 0x09c4): "Intel PAC A10 GX",
-    pci.make_id(0x8086, 0x09c5): "Intel PAC A10 GX VF",
-    pci.make_id(0x8086, 0x0b2b): "Intel PAC D5005",
-    pci.make_id(0x8086, 0x0b2c): "Intel PAC D5005 VF",
-    pci.make_id(0x8086, 0x0b30): "Intel PAC N3000",
-    pci.make_id(0x8086, 0x0b31): "Intel PAC N3000 VF",
-    pci.make_id(0x8086, 0xbcce, 0x8086, 0x1770): "Intel N6000 ADP",
-    pci.make_id(0x8086, 0xbccf, 0x8086, 0x1770): "Intel N6000 ADP VF",
-    pci.make_id(0x8086, 0xbcce, 0x8086, 0x1771): "Intel N6001 ADP",
-    pci.make_id(0x8086, 0xbccf, 0x8086, 0x1771): "Intel N6001 ADP VF",
-    pci.make_id(0x8086, 0xbcce, 0x8086, 0x17d4): "Intel C6100 ADP",
-    pci.make_id(0x8086, 0xbccf, 0x8086, 0x17d4): "Intel C6100 ADP VF",
-    pci.make_id(0x8086, 0xbcce, 0x8086, 0x138d): "Intel D5005 ADP",
-    pci.make_id(0x8086, 0xbccf, 0x8086, 0x138d): "Intel D5005 ADP VF",
-    pci.make_id(0x1c2c, 0x1000): "Silicom SmartNIC N5010",
-    pci.make_id(0x1c2c, 0x1001): "Silicom SmartNIC N5011",
-}
-
 def read_attr(dirname, attr):
     fname = Path(dirname, attr)
     if fname.exists():
@@ -458,46 +440,12 @@ def read_link(dirname, *attr):
         return fname.resolve()
 
 
-def get_conf():
-    conf_file = os.path.expanduser('~/.opae-io.conf')
-    if os.path.exists(conf_file):
-        with open(conf_file, 'r') as fp:
-            conf = json.load(fp)
-        if isinstance(conf, dict):
-            return conf
-        print('not a valid format')
-    return {}
-
-
-def get_conf_devices(data):
-    conf_ids = {}
-    for k, v in data.items():
-        try:
-            ids = k.split(':')
-        except:
-            print(f'error with vendor/device: {k}')
-        else:
-            conf_ids[pci.make_id(*[int(i, 16) for i in ids])] = v
-    return conf_ids
-
-
-
 def lsfpga(**kwargs):
     _all = kwargs.pop('all', False)
-    device_ids = dict(fpga_devices)
     use_class = kwargs.pop('system_class', False)
-    conf = get_conf()
-    if conf:
-        conf_ids = get_conf_devices(conf.get('fpga_devices', {}))
-        if conf.get('override', False):
-            device_ids.update(conf_ids)
-        else:
-            for k, v in conf_ids.items():
-                if k not in device_ids:
-                    device_ids[k] = v
 
-    # create a filter function that uses attributes in kwargs to match devices
-    # as well "known" devices as those listed in 'fpga_devices'
+    # Create a filter function that uses attributes in kwargs to match devices
+    # as well "known" devices as those listed in the opae.io configuration data.
     def filter_fn(d: pci.device):
         for k,v in kwargs.items():
             try:
@@ -506,42 +454,42 @@ def lsfpga(**kwargs):
                 return False
             if attr_value != v:
                 return False
-        known = (d.pci_id in device_ids or d.pci_id.short() in device_ids)
+        known = Config.opae_io_is_supported(*d.pci_id)
         if not _all and not known:
             return False
         return True
 
     def describe(d: pci.device):
-        desc = device_ids.get(d.pci_id) or device_ids.get(d.pci_id.short())
+        desc = Config.opae_io_platform_for(*d.pci_id)
         if desc:
             d._desc = desc
         return d
+
     devices = pci.ls(filter=filter_fn)
     if use_class:
         return devices
     return map(describe, devices)
 
 
-
 def ls(**kwargs):
     """Enumerate FPGA devices"""
     for device in lsfpga(**kwargs):
-        print(f'[{device}] ({device.vendor}, {device.device}) {device.desc} (Driver: {device.driver})')
+        print(f'[{device}] ({device.vendor}:{device.device} '
+              f'{device.subsystem_vendor}:{device.subsystem_device}) '
+              f'{device.desc} (Driver: {device.driver})')
 
 
 def open_pciaddr(pci_addr):
     device = libvfio.device.open(pci_addr)
-    conf = get_conf()
     if device:
-        cmd = conf.get('set-pci-command', 0b10)
-        if cmd:
-            command_offset = pcicfg.command.value
-            value = device.config_read16(command_offset)
-            if value | cmd != value:
-                LOG.warn('setting 0x%x to command register', cmd)
-                device.config_write16(command_offset, value | cmd)
-            else:
-                LOG.debug('command register: 0x%x', value)
+        cmd = 0b10 # enable memory space access
+        command_offset = pcicfg.command.value
+        value = device.config_read16(command_offset)
+        if value | cmd != value:
+            LOG.warn('setting 0x%x to command register', cmd)
+            device.config_write16(command_offset, value | cmd)
+        else:
+            LOG.debug('command register: 0x%x', value)
     return device
 
 

@@ -31,10 +31,13 @@
 
 #define NO_OPAE_C
 #include "mock/opae_fixtures.h"
+#include "cfg-file.h"
 
 #define ARRAY_SIZE(a) (sizeof(a)/sizeof(*a))
 
 extern "C" {
+
+extern fpgainfo_config_data *platform_data_table;
 
 typedef fpga_result (*filter_fn)(fpga_properties *, int, char **);
 typedef fpga_result (*command_fn)(fpga_token *, int, int, char **);
@@ -128,7 +131,17 @@ class fpgainfo_c_p : public opae_base_p<> {
   virtual void SetUp() override
   {
     opae_base_p<>::SetUp();
+
+    platform_data_table = opae_parse_fpgainfo_config(NULL);
     optind = 0;
+  }
+
+  virtual void TearDown() override
+  {
+    opae_free_fpgainfo_config(platform_data_table);
+    platform_data_table = NULL;
+
+    opae_base_p<>::TearDown();
   }
 };
 

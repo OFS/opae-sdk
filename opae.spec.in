@@ -134,6 +134,7 @@ ldconfig
 %files libs
 %license @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_DOCDIR@/LICENSE
 %defattr(-,root,root,-)
+@CPACK_RPM_RELOCATION_PATHS@/opae/opae.cfg
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-c.so*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libopae-cxx*
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/opae/libxfpga.so*
@@ -175,7 +176,6 @@ ldconfig
 @CMAKE_INSTALL_PREFIX@/bin/opaevfiotest
 @CMAKE_INSTALL_PREFIX@/bin/opaeuiotest
 @CMAKE_INSTALL_PREFIX@/bin/host_exerciser
-@CPACK_RPM_RELOCATION_PATHS@/opae/fpgad.cfg
 @CPACK_RPM_RELOCATION_PATHS@/sysconfig/fpgad.conf
 @CPACK_RPM_RELOCATION_PATHS@/systemd/system/fpgad.service
 @CMAKE_INSTALL_PREFIX@/@OPAE_LIB_INSTALL_DIR@/libfpgad-api.so*
