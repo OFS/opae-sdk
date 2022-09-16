@@ -183,14 +183,28 @@ def initialize_vfio(addr, new_owner, enable_sriov):
         load_driver('vfio-pci')
 
     print('Binding {} to vfio-pci'.format(msg))
-    new_id = '/sys/bus/pci/drivers/vfio-pci/new_id'
-    try:
-        with open(new_id, 'w') as outf:
-            outf.write('{} {}'.format(vid_did[0], vid_did[1]))
-    except OSError as exc:
-        if exc.errno != errno.EEXIST:
-            print(exc)
-            return
+    # On Linux kernel >= 3.15, use driver_override to bind the
+    # vfio-pci driver, which ensures the driver binds only to the
+    # given physical function (PF). On older kernels, the driver
+    # will instead bind to all PFs of the corresponding device.
+    driver_override = '/sys/bus/pci/devices/{}/driver_override'.format(addr)
+    if os.path.exists(driver_override):
+        try:
+            with open(driver_override, 'w') as outf:
+                outf.write('vfio-pci')
+        except OSError as exc:
+            if exc.errno != errno.EEXIST:
+                print(exc)
+                return
+    else:
+        new_id = '/sys/bus/pci/drivers/vfio-pci/new_id'
+        try:
+            with open(new_id, 'w') as outf:
+                outf.write('{} {}'.format(vid_did[0], vid_did[1]))
+        except OSError as exc:
+            if exc.errno != errno.EEXIST:
+                print(exc)
+                return
 
     time.sleep(0.50)
 

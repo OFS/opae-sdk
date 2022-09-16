@@ -97,8 +97,8 @@ set(GTEST_VERSION "1.11.0" CACHE STRING "googletest version in use" FORCE)
 
 set(OPAE_VERSION_LOCAL   "" CACHE STRING "OPAE local version")
 set(OPAE_VERSION_MAJOR    2 CACHE STRING "OPAE major version" FORCE)
-set(OPAE_VERSION_MINOR    1 CACHE STRING "OPAE minor version" FORCE)
-set(OPAE_VERSION_REVISION 2${OPAE_VERSION_LOCAL} CACHE STRING "OPAE revision version" FORCE)
+set(OPAE_VERSION_MINOR    2 CACHE STRING "OPAE minor version" FORCE)
+set(OPAE_VERSION_REVISION 0${OPAE_VERSION_LOCAL} CACHE STRING "OPAE revision version" FORCE)
 set(OPAE_VERSION ${OPAE_VERSION_MAJOR}.${OPAE_VERSION_MINOR}.${OPAE_VERSION_REVISION}
     CACHE STRING "OPAE version" FORCE)
 
@@ -112,6 +112,13 @@ set(OPAE_PYTHON_VERSION 3 CACHE STRING "Python version to use for building/distr
 set_property(CACHE OPAE_PYTHON_VERSION PROPERTY STRINGS 2.7 3 3.6 3.7 3.8 3.9)
 find_package(PythonInterp ${OPAE_PYTHON_VERSION})
 find_package(PythonLibs ${OPAE_PYTHON_VERSION})
+
+
+set(PYBIND11_VERSION "2.10.0" CACHE STRING "pybind11 version" FORCE)
+find_package(pybind11 ${PYBIND11_VERSION} QUIET)
+message(STATUS "pybind11_FOUND ${pybind11_FOUND}")
+message(STATUS "pybind11_VERSION ${pybind11_VERSION}")
+
 
 option(OPAE_BUILD_TESTS "Enable building of OPAE unit tests" OFF)
 mark_as_advanced(OPAE_BUILD_TESTS)
