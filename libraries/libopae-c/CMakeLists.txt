@@ -29,6 +29,10 @@ set(SRC
     api-shell.c
     init.c
     props.c
+    cfg-file.c
+    fpgad-cfg.c
+    fpgainfo-cfg.c
+    opae-cfg.c
     ${opae-test_ROOT}/framework/mock/opae_std.c
 )
 

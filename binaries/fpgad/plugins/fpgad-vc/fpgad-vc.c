@@ -30,12 +30,12 @@
 
 #include <glob.h>
 #include <poll.h>
-#include <json-c/json.h>
 
 #include "fpgad/api/opae_events_api.h"
 #include "fpgad/api/device_monitoring.h"
 #include "fpgad/api/sysfs.h"
 #include "mock/opae_std.h"
+#include "cfg-file.h"
 
 #ifdef LOG
 #undef LOG
@@ -104,6 +104,7 @@ typedef struct _vc_device {
 	uint64_t tripped_count;
 	uint32_t num_config_sensors;
 	vc_config_sensor *config_sensors;
+	bool monitor_seu;
 	char get_aer[2][MAX_AER_CMD];
 	char disable_aer[2][MAX_AER_CMD];
 	char set_aer[2][MAX_AER_CMD];
@@ -754,6 +755,9 @@ STATIC void vc_handle_err_event(vc_device *vc)
 	struct fpga_error_info errinfo;
 	int i;
 
+	if (!vc->monitor_seu)
+		return;
+
 	if (fpgaGetProperties(d->token, &props) != FPGA_OK) {
 		LOG("failed to get FPGA properties.\n");
 		return;
@@ -799,6 +803,9 @@ STATIC void vc_register_err_event(vc_device *vc)
 
 	vc->poll_seu_event = false;
 
+	if (!vc->monitor_seu)
+		return;
+
 	ret = fpgaOpen(d->token, &vc->fpga_h, FPGA_OPEN_SHARED);
 	if (ret != FPGA_OK) {
 		LOG("failed to get FPGA handle from token.\n");
@@ -843,6 +850,8 @@ out_close:
 
 STATIC void vc_unregister_err_event(vc_device *vc)
 {
+	if (!vc->monitor_seu)
+		return;
 	fpgaUnregisterEvent(vc->fpga_h, FPGA_EVENT_ERROR, vc->event_h);
 	fpgaDestroyEventHandle(&vc->event_h);
 	fpgaClose(vc->fpga_h);
@@ -933,8 +942,8 @@ STATIC int vc_parse_config(vc_device *vc, const char *cfg)
 	json_object *j_set_aer = NULL;
 	json_object *j_set_aer_0 = NULL;
 	json_object *j_set_aer_1 = NULL;
-	json_object *j_config_sensors_enabled = NULL;
-	json_object *j_sensors = NULL;
+	json_object *j_monitor_seu = NULL;
+	json_object *j_sensor_overrides = NULL;
 	int res = 1;
 	int sensor_entries;
 	int i;
@@ -1100,43 +1109,30 @@ STATIC int vc_parse_config(vc_device *vc, const char *cfg)
 
 	res = 0;
 
-	if (!json_object_object_get_ex(root,
-				       "config-sensors-enabled",
-				       &j_config_sensors_enabled)) {
-		LOG("failed to find config-sensors-enabled key in config.\n"
-		    "Skipping user sensor config.\n");
-		goto out_put;
-	}
-
-	if (!json_object_is_type(j_config_sensors_enabled, json_type_boolean)) {
-		LOG("config-sensors-enabled key not Boolean.\n"
-		    "Skipping user sensor config.\n");
-		goto out_put;
-	}
-
-	if (!json_object_get_boolean(j_config_sensors_enabled)) {
-		LOG("config-sensors-enabled key set to false.\n"
-		    "Skipping user sensor config.\n");
-		goto out_put;
+	j_monitor_seu = parse_json_boolean(root,
+					   "monitor-seu",
+					   &vc->monitor_seu);
+	if (j_monitor_seu && vc->monitor_seu) {
+		LOG("monitoring for SEU events\n");
 	}
 
 	if (!json_object_object_get_ex(root,
-				       "sensors",
-				       &j_sensors)) {
-		LOG("failed to find sensors key in config.\n"
+				       "sensor-overrides",
+				       &j_sensor_overrides)) {
+		LOG("failed to find sensor-overrides key in config.\n"
 		    "Skipping user sensor config.\n");
 		goto out_put;
 	}
 
-	if (!json_object_is_type(j_sensors, json_type_array)) {
-		LOG("sensors key not array.\n"
+	if (!json_object_is_type(j_sensor_overrides, json_type_array)) {
+		LOG("sensor-overrides key not array.\n"
 		    "Skipping user sensor config.\n");
 		goto out_put;
 	}
 
-	sensor_entries = json_object_array_length(j_sensors);
+	sensor_entries = json_object_array_length(j_sensor_overrides);
 	if (!sensor_entries) {
-		LOG("sensors key is empty array.\n"
+		LOG("sensor-overrides key is empty array.\n"
 		    "Skipping user sensor config.\n");
 		goto out_put;
 	}
@@ -1150,12 +1146,26 @@ STATIC int vc_parse_config(vc_device *vc, const char *cfg)
 	vc->num_config_sensors = (uint32_t)sensor_entries;
 
 	for (i = 0 ; i < sensor_entries ; ++i) {
-		json_object *j_sensor_sub_i = json_object_array_get_idx(j_sensors, i);
-		json_object *j_name;
-		json_object *j_high_fatal;
-		json_object *j_high_warn;
-		json_object *j_low_fatal;
-		json_object *j_low_warn;
+		json_object *j_sensor_sub_i =
+			json_object_array_get_idx(j_sensor_overrides, i);
+		json_object *j_enabled = NULL;
+		json_object *j_name = NULL;
+		json_object *j_high_fatal = NULL;
+		json_object *j_high_warn = NULL;
+		json_object *j_low_fatal = NULL;
+		json_object *j_low_warn = NULL;
+		bool enabled = false;
+
+		j_enabled = parse_json_boolean(j_sensor_sub_i,
+					       "enabled",
+					       &enabled);
+		if (!j_enabled || !enabled) {
+			LOG("sensor-overrides[%d] \"enabled\" key is "
+			    "missing or false. Skipping\n", i);
+			vc->config_sensors[i].name[0] = '\0';
+			vc->config_sensors[i].flags = FPGAD_SENSOR_VC_IGNORE;
+			continue;
+		}
 
 		if (!json_object_object_get_ex(j_sensor_sub_i,
 					       "name",
@@ -1304,9 +1314,11 @@ int fpgad_plugin_configure(fpgad_monitored_device *d,
 		snprintf(vc->sbdf, sizeof(vc->sbdf), "%04x:%02x:%02x.%d",
 			 (int)seg, (int)bus, (int)dev, (int)fn);
 
-		LOG("monitoring vid=0x%04x did=0x%04x (%s)\n",
+		LOG("monitoring 0x%04x:0x%04x 0x%04x:0x%04x (%s)\n",
 			d->supported->vendor_id,
 			d->supported->device_id,
+			d->supported->subsystem_vendor_id,
+			d->supported->subsystem_device_id,
 			d->object_type == FPGA_ACCELERATOR ?
 			"accelerator" : "device");
 
@@ -1319,9 +1331,11 @@ out_exit:
 
 void fpgad_plugin_destroy(fpgad_monitored_device *d)
 {
-	LOG("stop monitoring vid=0x%04x did=0x%04x (%s)\n",
+	LOG("stop monitoring 0x%04x:0x%04x 0x%04x:0x%04x (%s)\n",
 			d->supported->vendor_id,
 			d->supported->device_id,
+			d->supported->subsystem_vendor_id,
+			d->supported->subsystem_device_id,
 			d->object_type == FPGA_ACCELERATOR ?
 			"accelerator" : "device");
 

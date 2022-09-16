@@ -1,4 +1,4 @@
-// Copyright(c) 2018, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -40,17 +40,5 @@ int opae_plugin_mgr_finalize_all(void);
 #define OPAE_ENUM_CONTINUE 0
 int opae_plugin_mgr_for_each_adapter(
 	int (*callback)(const opae_api_adapter_table *, void *), void *context);
-
-#define PLUGIN_SUPPORTED_DEVICES_MAX 256
-#define PLUGIN_NAME_MAX 64
-typedef struct _plugin_cfg {
-	char name[PLUGIN_NAME_MAX];
-	char plugin[PLUGIN_NAME_MAX];
-	bool enabled;
-	char *cfg;
-	size_t cfg_size;
-	uint32_t supported_devices[PLUGIN_SUPPORTED_DEVICES_MAX];
-	struct _plugin_cfg *next;
-} plugin_cfg;
 
 #endif /* __OPAE_PLUGINMGR_H__ */
