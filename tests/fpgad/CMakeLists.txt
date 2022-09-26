@@ -89,6 +89,7 @@ function(add_fpgad_test target source)
     opae_test_add(TARGET ${target}
         SOURCE ${source}
         LIBS
+            opae-c-static
             fpgad-static
             fpgad-api-static
     )

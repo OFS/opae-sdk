@@ -34,10 +34,12 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <pwd.h>
+
 #include "command_line.h"
 #include "config_file.h"
 #include "monitored_device.h"
 #include "mock/opae_std.h"
+#include "cfg-file.h"
 
 #ifdef LOG
 #undef LOG
@@ -45,9 +47,7 @@
 #define LOG(format, ...) \
 log_printf("args: " format, ##__VA_ARGS__)
 
-extern fpgad_supported_device default_supported_devices_table[];
-
-#define OPT_STR ":hdl:p:s:n:c:v"
+#define OPT_STR ":hdl:p:s:n:v"
 
 STATIC struct option longopts[] = {
 	{ "help",           no_argument,       NULL, 'h' },
@@ -56,7 +56,6 @@ STATIC struct option longopts[] = {
 	{ "pidfile",        required_argument, NULL, 'p' },
 	{ "socket",         required_argument, NULL, 's' },
 	{ "null-bitstream", required_argument, NULL, 'n' },
-	{ "config",         required_argument, NULL, 'c' },
 	{ "version",        no_argument,       NULL, 'v' },
 
 	{ 0, 0, 0, 0 }
@@ -66,7 +65,6 @@ STATIC struct option longopts[] = {
 #define DEFAULT_DIR_ROOT_SIZE 13
 #define DEFAULT_LOG           "fpgad.log"
 #define DEFAULT_PID           "fpgad.pid"
-#define DEFAULT_CFG           "fpgad.cfg"
 
 void cmd_show_help(FILE *fptr)
 {
@@ -78,7 +76,6 @@ void cmd_show_help(FILE *fptr)
 	fprintf(fptr, "\t-s,--socket <sock>          the unix domain socket [/tmp/fpga_event_socket].\n");
 	fprintf(fptr, "\t-n,--null-bitstream <file>  NULL bitstream (for AP6 handling, may be\n"
 		      "\t                            given multiple times).\n");
-	fprintf(fptr, "\t-c,--config <file>          the configuration file [%s].\n", DEFAULT_CFG);
 	fprintf(fptr, "\t-v,--version                display the version and exit.\n");
 }
 
@@ -189,17 +186,6 @@ int cmd_parse_args(struct fpgad_config *c, int argc, char *argv[])
 			}
 			break;
 
-		case 'c':
-			if (tmp_optarg) {
-				len = strnlen(tmp_optarg, PATH_MAX - 1);
-				memcpy(c->cfgfile, tmp_optarg, len);
-				c->cfgfile[len] = '\0';
-			} else {
-				LOG("missing cfgfile parameter.\n");
-				return 1;
-			}
-			break;
-
 		case 'v':
 			fprintf(stdout, "fpgad %s %s%s\n",
 					OPAE_VERSION,
@@ -232,7 +218,6 @@ int cmd_canonicalize_paths(struct fpgad_config *c)
 	bool def;
 	mode_t mode;
 	struct stat stat_buf;
-	bool search = true;
 	char buf[PATH_MAX];
 	char *canon_path;
 	uid_t uid;
@@ -376,56 +361,17 @@ int cmd_canonicalize_paths(struct fpgad_config *c)
 	}
 	LOG("daemon pid file is %s\n", c->pidfile);
 
-	// Verify cfgfile doesn't contain ".."
-	def = false;
-	sub = strstr(c->cfgfile, "..");
-	if (sub)
-		def = true;
+	// Find the OPAE config file.
+	c->cfgfile = opae_find_cfg_file();
 
-	if (def || (c->cfgfile[0] == '\0')) {
-		search = true;
+	cfg_load_config(c);
+
+	if (c->cfgfile) {
+		LOG("daemon cfg file is %s\n", c->cfgfile);
+		opae_free(c->cfgfile);
+		c->cfgfile = NULL;
 	} else {
-		canon_path = opae_canonicalize_file_name(c->cfgfile);
-		if (canon_path) {
-
-			if (!cmd_path_is_symlink(c->cfgfile)) {
-
-				len = strnlen(canon_path,
-					      sizeof(c->cfgfile) - 1);
-				memcpy(c->cfgfile,
-					  canon_path,
-					  len);
-				c->cfgfile[len] = '\0';
-
-				if (!cfg_load_config(c)) {
-					LOG("daemon cfg file is %s\n",
-					    c->cfgfile);
-					search = false; // found and loaded it
-				}
-
-			}
-
-			opae_free(canon_path);
-		}
-	}
-
-	if (search) {
-		c->cfgfile[0] = '\0';
-		if (cfg_find_config_file(c))
-			LOG("failed to find config file.\n");
-		else {
-			if (cfg_load_config(c))
-				LOG("failed to load config file %s\n",
-				    c->cfgfile);
-			else
-				LOG("daemon cfg file is %s\n", c->cfgfile);
-		}
-	}
-
-	if (!c->supported_devices) {
-		LOG("using default configuration.\n");
-		c->cfgfile[0] = '\0';
-		c->supported_devices = default_supported_devices_table;
+		LOG("using default daemon configuration\n");
 	}
 
 	return 0;
@@ -445,19 +391,7 @@ void cmd_destroy(struct fpgad_config *c)
 	}
 	c->num_null_gbs = 0;
 
-	if (c->supported_devices &&
-	    (c->supported_devices != default_supported_devices_table)) {
-
-		for (i = 0 ; c->supported_devices[i].library_path ; ++i) {
-			fpgad_supported_device *d = &c->supported_devices[i];
-			if (d->library_path)
-				opae_free((void *)d->library_path);
-			if (d->config)
-				opae_free((void *)d->config);
-		}
-
-		opae_free(c->supported_devices);
-	}
+	opae_free_fpgad_config(c->supported_devices);
 	c->supported_devices = NULL;
 }
 

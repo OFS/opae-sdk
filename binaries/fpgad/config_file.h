@@ -1,4 +1,4 @@
-// Copyright(c) 2018-2019, Intel Corporation
+// Copyright(c) 2018-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -28,9 +28,6 @@
 #define __FPGAD_CONFIG_FILE_H__
 
 #include "fpgad.h"
-
-// 0 on success
-int cfg_find_config_file(struct fpgad_config *c);
 
 // 0 on success
 int cfg_load_config(struct fpgad_config *c);

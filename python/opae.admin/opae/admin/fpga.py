@@ -33,6 +33,7 @@ import time
 
 from array import array
 from contextlib import contextmanager
+from opae.admin.config import Config
 from opae.admin.path import device_path, sysfs_path
 from opae.admin.sysfs import sysfs_device, sysfs_node
 from opae.admin.utils.log import loggable
@@ -408,26 +409,6 @@ class fpga_base(sysfs_device):
     FME_PATTERN = 'intel-fpga-fme.*'
     PORT_PATTERN = 'intel-fpga-port.*'
     PCI_DRIVER = 'intel-fpga-pci'
-    BOOT_PAGES = {
-        (0x8086, 0x0b30): {'bmcimg': {'user': 0,
-                                      'factory': 1},
-                           'retimer': {'user': 0,
-                                       'factory': 0}},
-        (0x8086, 0x0b2b): {'bmcimg': {'user': 1,
-                                      'factory': 0},
-                           'retimer': {'user': 0,
-                                       'factory': 0}},
-        (0x1c2c, 0x1000): {'bmcimg': {'user': 1,
-                                      'factory': 0},
-                           'retimer': {'user': 0,
-                                       'factory': 0}},
-        (0x1c2c, 0x1001): {'bmcimg': {'user': 1,
-                                      'factory': 0},
-                           'retimer': {'user': 0,
-                                       'factory': 0}},
-        (0x8086, 0xaf00): None,
-        (0x8086, 0xbcce): None
-    }
 
     def __init__(self, path):
         super(fpga_base, self).__init__(path)
@@ -501,7 +482,7 @@ class fpga_base(sysfs_device):
 
         Returns: True if device supports RSU, false otherwise.
         """
-        return self.pci_node.pci_id in self.BOOT_PAGES
+        return Config.rsu_is_supported(*self.pci_node.pci_id)
 
     @property
     def rsu_controls(self):
