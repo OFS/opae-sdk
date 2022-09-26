@@ -34,7 +34,7 @@ extern "C" {
 
 fpgad_monitored_device *
 allocate_monitored_device(struct fpgad_config *config,
-                          fpgad_supported_device *supported,
+                          fpgad_config_data *supported,
                           fpga_token token,
                           uint64_t object_id,
                           fpga_objtype object_type,

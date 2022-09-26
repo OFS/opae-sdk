@@ -29,8 +29,10 @@
 
 #define NO_OPAE_C
 #include "mock/opae_fixtures.h"
+#include "cfg-file.h"
 
 extern "C" {
+extern fpgainfo_config_data *platform_data_table;
 fpga_result load_board_plugin(fpga_token token, void** dl_handle);
 int unload_board_plugin(void);
 int parse_mac_args(int argc, char *argv[]);
@@ -52,7 +54,17 @@ class fpgainfo_board_c_p : public opae_base_p<> {
   virtual void SetUp() override 
   {
     opae_base_p<>::SetUp();
+
+    platform_data_table = opae_parse_fpgainfo_config(NULL);
     optind = 0;
+  }
+
+  virtual void TearDown() override
+  {
+    opae_free_fpgainfo_config(platform_data_table);
+    platform_data_table = NULL;
+
+    opae_base_p<>::TearDown();
   }
 };
 

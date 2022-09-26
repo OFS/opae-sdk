@@ -1,4 +1,4 @@
-// Copyright(c) 2019, Intel Corporation
+// Copyright(c) 2019-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -33,21 +33,13 @@
 #define _FPGA_BOARD_H
 
 #include <opae/fpga.h>
+#include "cfg-file.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct _platform_data {
-	uint16_t vendor_id;
-	uint16_t device_id;
-	uint16_t subvendor_id;
-	uint16_t subdevice_id;
-	int32_t feature_id;
-	char *board_plugin;
-	void *dl_handle;
-	char product_name[256];
-} platform_data;
+extern fpgainfo_config_data *platform_data_table;
 
 fpga_result load_board_plugin(fpga_token token, void **dl_handle);
 int unload_board_plugin(void);

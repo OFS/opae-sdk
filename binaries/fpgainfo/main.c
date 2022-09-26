@@ -221,6 +221,8 @@ int main(int argc, char *argv[])
 	uint32_t i = 0;
 	fpga_properties filter = NULL;
 	fpga_token *tokens = NULL;
+	char *cfg_file = NULL;
+	char *raw_cfg = NULL;
 
 	if (NULL == setlocale(LC_ALL, "")) {
 		OPAE_ERR("Could not set locale\n");
@@ -272,7 +274,20 @@ int main(int argc, char *argv[])
 		goto out_destroy_tokens;
 	}
 
+	cfg_file = opae_find_cfg_file();
+	if (cfg_file) {
+		raw_cfg = opae_read_cfg_file(cfg_file);
+		opae_free(cfg_file);
+	}
+
+	platform_data_table = opae_parse_fpgainfo_config(raw_cfg);
+
+	opae_print_fpgainfo_config(platform_data_table);
+
 	res = handler->run(tokens, matches, argc, argv);
+
+	opae_free_fpgainfo_config(platform_data_table);
+	platform_data_table = NULL;
 
 out_destroy_tokens:
 	for (i = 0; i < num_tokens; i++) {

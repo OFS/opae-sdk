@@ -233,8 +233,8 @@ class pci_node(sysfs_node):
             self._driver = os.readlink(self.node('driver').sysfs_path)
 
     def __str__(self):
-        return '[pci_address({}), pci_id(0x{:04x}, 0x{:04x})]'.format(
-            self.pci_address, *self.pci_id)
+        s = '[pci_address({}), pci_id(0x{:04x}, 0x{:04x}, 0x{:04x}, 0x{:04x})]'
+        return s.format(self.pci_address, *self.pci_id)
 
     def __repr__(self):
         return str(self)
@@ -443,15 +443,34 @@ class pci_node(sysfs_node):
         return int(self.node('device').value, 16)
 
     @property
+    def subsystem_vendor_id(self):
+        """subsystem_vendor_id Gets the subsystem vendor id of the PCIe device
+                     represented by this pci_node object.
+            Returns:
+                The subsystem vendor id of the device as an integer.
+        """
+        return int(self.node('subsystem_vendor').value, 16)
+
+    @property
+    def subsystem_device_id(self):
+        """subsystem_device_id Gets the subsystem device id of the PCIe device
+                     represented by this pci_node object.
+            Returns:
+                The subsystem device id of the device as an integer.
+        """
+        return int(self.node('subsystem_device').value, 16)
+
+    @property
     def pci_id(self):
-        """pci_id Gets the vendor and device id of the PCIe device
+        """pci_id Gets the 4-tuple ID of the PCIe device
                   represented by this pci_node object.
 
         Returns:
-            A two-element tuple made up of the vendor and device id,
-            as integers.
+            A four-element tuple made up of the vendor id, device id,
+            subsystem vendor id, and subsystem device id as integers.
         """
-        return (self.vendor_id, self.device_id)
+        return (self.vendor_id, self.device_id,
+                self.subsystem_vendor_id, self.subsystem_device_id)
 
     @property
     def pci_bus(self):
