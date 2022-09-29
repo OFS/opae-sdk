@@ -40,21 +40,8 @@ DEFAULT_RSU_CONFIG = {
   (0x8086, 0x0b2b, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY): None, # D5005
   (0x8086, 0xbcce,          0x8086,          0x138d): None, # D5005
   (0x8086, 0x0b30, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY): None, # N3000
-  (0x1c2c, 0x1000,               0,               0): {     # N5010
-    'fpga_default_sequences': [
-      "fpga_user1",
-      "fpga_user2",
-      "fpga_user1 fpga_user2",
-      "fpga_user2 fpga_user1",
-      "fpga_factory",
-      "fpga_factory fpga_user1",
-      "fpga_factory fpga_user2",
-      "fpga_factory fpga_user1 fpga_user2",
-      "fpga_factory fpga_user2 fpga_user1",
-      "fpga_user1 fpga_user2 fpga_factory",
-      "fpga_user2 fpga_user1 fpga_factory"
-    ]
-  },
+  (0x1c2c, 0x1000,               0,               0): None, # N5010
+  (0x1c2c, 0x1001,               0,               0): None, # N5011
   (0x8086, 0xbcce, 0x8086, 0x1770): {                       # N6000
     'fpga_default_sequences': [
       "fpga_user1",
