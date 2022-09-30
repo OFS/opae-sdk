@@ -271,13 +271,26 @@ STATIC void opae_plugin_mgr_detect_platform(opae_pci_device *dev)
 	}
 }
 
-STATIC int opae_plugin_mgr_detect_platforms(void)
+STATIC int opae_plugin_mgr_detect_platforms(bool with_ase)
 {
 	DIR *dir;
 	char base_dir[PATH_MAX];
 	char file_path[PATH_MAX];
 	struct dirent *dirent;
 	int errors = 0;
+
+	if (with_ase) {
+		opae_pci_device ase_pf = {
+			.name = "ase",
+			.vendor_id = 0x8086,
+			.device_id = 0x0a5e,
+			.subsystem_vendor_id = 0x8086,
+			.subsystem_device_id = 0x0a5e
+		};
+
+		opae_plugin_mgr_detect_platform(&ase_pf);
+		return 0;
+	}
 
 	// Iterate over the directories in /sys/bus/pci/devices.
 	// This directory contains symbolic links to device directories
@@ -430,7 +443,7 @@ STATIC int opae_plugin_mgr_load_plugins(int *platforms_detected)
 	opae_api_adapter_table *adapter = NULL;
 	int errors;
 
-	errors = opae_plugin_mgr_detect_platforms();
+	errors = opae_plugin_mgr_detect_platforms(getenv("WITH_ASE") != NULL);
 	if (errors)
 		return errors;
 
