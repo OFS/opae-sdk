@@ -798,7 +798,7 @@ TEST_P(enum_c_p, interface) {
  *             the function returns zero matches
  */
 TEST_P(enum_c_p, interface_neg) {
-  ASSERT_EQ(fpgaPropertiesSetInterface(filter_, FPGA_IFC_SIM), FPGA_OK);
+  ASSERT_EQ(fpgaPropertiesSetInterface(filter_, FPGA_IFC_SIM_DFL), FPGA_OK);
   EXPECT_EQ(xfpga_fpgaEnumerate(&filter_, 1,
                                 tokens_.data(), tokens_.size(),
                                 &matches_), FPGA_OK);
