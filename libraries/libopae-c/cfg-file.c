@@ -255,7 +255,7 @@ int opae_parse_device_id(json_object *j_id,
 
 STATIC libopae_config_data default_libopae_config_table[] = {
 	{ 0x1c2c, 0x1000, 0x0000,          0x0000,          "libxfpga.so",  "{}", 0 }, // N5010
-	{ 0x1c2c, 0x1001, 0x0000,          0x0000,          "libxfpga.so",  "{}", 0 }, // N5010
+	{ 0x1c2c, 0x1001, 0x0000,          0x0000,          "libxfpga.so",  "{}", 0 }, // N5011
 	{ 0x8086, 0xbcbd, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // MCP
 	{ 0x8086, 0xbcc0, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // MCP
 	{ 0x8086, 0xbcc1, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // MCP
@@ -488,6 +488,8 @@ STATIC fpgad_config_data default_fpgad_config_table[] = {
 	{ 0x8086, 0x0b30, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libfpgad-vc.so", 0, NULL, "{ \"cool-down\": 30, \"get-aer\": [ \"setpci -s %s ECAP_AER+0x08.L\", \"setpci -s %s ECAP_AER+0x14.L\" ], \"disable-aer\": [ \"setpci -s %s ECAP_AER+0x08.L=0xffffffff\", \"setpci -s %s ECAP_AER+0x14.L=0xffffffff\" ], \"set-aer\": [ \"setpci -s %s ECAP_AER+0x08.L=0x%08x\", \"setpci -s %s ECAP_AER+0x14.L=0x%08x\" ], \"sensor-overrides\": [ { \"enabled\": true, \"name\": \"12V AUX Voltage\", \"low-warn\": 11.40, \"low-fatal\": 10.56 } ] }" },
 
 	{ 0x1c2c, 0x1000,          0x0000,          0x0000, "libfpgad-vc.so", 0, NULL, "{ \"cool-down\": 30, \"get-aer\": [ \"setpci -s %s ECAP_AER+0x08.L\", \"setpci -s %s ECAP_AER+0x14.L\" ], \"disable-aer\": [ \"setpci -s %s ECAP_AER+0x08.L=0xffffffff\", \"setpci -s %s ECAP_AER+0x14.L=0xffffffff\" ], \"set-aer\": [ \"setpci -s %s ECAP_AER+0x08.L=0x%08x\", \"setpci -s %s ECAP_AER+0x14.L=0x%08x\" ], \"sensor-overrides\": [] }" },
+
+	{ 0x1c2c, 0x1001,          0x0000,          0x0000, "libfpgad-vc.so", 0, NULL, "{ \"cool-down\": 30, \"get-aer\": [ \"setpci -s %s ECAP_AER+0x08.L\", \"setpci -s %s ECAP_AER+0x14.L\" ], \"disable-aer\": [ \"setpci -s %s ECAP_AER+0x08.L=0xffffffff\", \"setpci -s %s ECAP_AER+0x14.L=0xffffffff\" ], \"set-aer\": [ \"setpci -s %s ECAP_AER+0x08.L=0x%08x\", \"setpci -s %s ECAP_AER+0x14.L=0x%08x\" ], \"sensor-overrides\": [] }" },
 
 	{ 0x8086, 0xbcce,          0x8086,          0x1770, "libfpgad-vc.so", 0, NULL, "{ \"cool-down\": 30, \"get-aer\": [ \"setpci -s %s ECAP_AER+0x08.L\", \"setpci -s %s ECAP_AER+0x14.L\" ], \"disable-aer\": [ \"setpci -s %s ECAP_AER+0x08.L=0xffffffff\", \"setpci -s %s ECAP_AER+0x14.L=0xffffffff\" ], \"set-aer\": [ \"setpci -s %s ECAP_AER+0x08.L=0x%08x\", \"setpci -s %s ECAP_AER+0x14.L=0x%08x\" ], \"sensor-overrides\": [] }" },
 
