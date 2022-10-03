@@ -281,14 +281,22 @@ STATIC int opae_plugin_mgr_detect_platforms(bool with_ase)
 
 	if (with_ase) {
 		opae_pci_device ase_pf = {
-			.name = "ase",
+			.name = "ase_pf",
 			.vendor_id = 0x8086,
 			.device_id = 0x0a5e,
 			.subsystem_vendor_id = 0x8086,
 			.subsystem_device_id = 0x0a5e
 		};
+		opae_pci_device ase_vf = {
+			.name = "ase_vf",
+			.vendor_id = 0x8086,
+			.device_id = 0x0a5f,
+			.subsystem_vendor_id = 0x8086,
+			.subsystem_device_id = 0x0a5e
+		};
 
 		opae_plugin_mgr_detect_platform(&ase_pf);
+		opae_plugin_mgr_detect_platform(&ase_vf);
 		return 0;
 	}
 
