@@ -106,21 +106,6 @@ TEST(pluginmgr, multi_finalize) {
   finalizing = 0;
 }
 
-/**
- * @test       free_adapter_err0
- * @brief      Test: opae_plugin_mgr_free_adapter
- * @details    When opae_plugin_mgr_free_adapter is called with an<br>
- *             adapter that has a closed dl_handle,<br>
- *             then the fn returns a non-zero value.<br>
- */
-TEST(pluginmgr, free_adapter_err0) {
-  opae_api_adapter_table *adapter =
-	  (opae_api_adapter_table *)opae_calloc(1, sizeof(opae_api_adapter_table));
-  adapter->plugin.dl_handle = opae_plugin_mgr_find_plugin("libxfpga.so");
-  dlclose(adapter->plugin.dl_handle);
-  EXPECT_NE(0, opae_plugin_mgr_free_adapter(adapter));
-}
-
 extern "C" {
 
 static int test_plugin_initialize_called;
