@@ -290,9 +290,9 @@ STATIC int opae_plugin_mgr_detect_platforms(bool with_ase)
 		opae_pci_device ase_vf = {
 			.name = "ase_vf",
 			.vendor_id = 0x8086,
-			.device_id = 0x0a5f,
+			.device_id = 0x0a5e,
 			.subsystem_vendor_id = 0x8086,
-			.subsystem_device_id = 0x0a5e
+			.subsystem_device_id = 0x0a5f
 		};
 
 		opae_plugin_mgr_detect_platform(&ase_pf);
