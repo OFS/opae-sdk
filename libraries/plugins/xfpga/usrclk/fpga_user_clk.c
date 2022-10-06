@@ -136,6 +136,23 @@
 
 #define USRCLK_FEATURE_ID             0x14
 
+ // DFHv0
+struct dfh {
+	union {
+		uint64_t csr;
+		struct {
+			uint64_t id : 12;
+			uint64_t feature_rev : 4;
+			uint64_t next : 24;
+			uint64_t eol : 1;
+			uint64_t reserved41 : 7;
+			uint64_t feature_minor_rev : 4;
+			uint64_t dfh_version : 8;
+			uint64_t type : 4;
+		};
+	};
+};
+
 static int using_iopll(char *sysfs_usrpath, const char *sysfs_path);
 
 fpga_result usrclk_reset(uint8_t *uio_ptr)
@@ -784,7 +801,24 @@ fpga_result get_userclk_revision(const char *sysfs_path,
 {
 	char path[SYSFS_PATH_MAX] = { 0 };
 	fpga_result result        = FPGA_OK;
+	uint8_t* uio_ptr          = NULL;
+	struct opae_uio uio;
+	struct dfh dfh_csr;
 
+	dfh_csr.csr = 0;
+	// get user clock dfh revision from UIO
+	result = get_usrclk_uio(sysfs_path,
+		USRCLK_FEATURE_ID,
+		&uio,
+		&uio_ptr);
+	if (result == FPGA_OK) {
+		dfh_csr.csr = *((volatile uint64_t*)(uio_ptr + 0x0));
+		*revision = dfh_csr.feature_rev;
+		opae_uio_close(&uio);
+		return result;
+	}
+
+	// get user clock dfh revision from sysfs
 	if (snprintf(path, SYSFS_PATH_MAX,
 		"%s/%s", sysfs_path, IOPLL_REVISION) < 0) {
 		OPAE_ERR("snprintf buffer overflow");
