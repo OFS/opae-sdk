@@ -161,7 +161,7 @@ class pluginmgr_c_p : public opae_base_p<> {
     faux_adapter0_->finalize = test_plugin_finalize;
     EXPECT_EQ(0, opae_plugin_mgr_register_adapter(faux_adapter0_));
 
-    faux_adapter1_ = opae_plugin_mgr_alloc_adapter("libxfpga.so");
+    faux_adapter1_ = opae_plugin_mgr_alloc_adapter("libopae-v.so");
     ASSERT_NE(nullptr, faux_adapter1_);
 
     faux_adapter1_->initialize = test_plugin_initialize;
@@ -225,6 +225,32 @@ TEST_P(pluginmgr_c_p, bad_final_all) {
   EXPECT_EQ(2, test_plugin_finalize_called);
 }
 
+/**
+ * @test       register_err01
+ * @brief      Test: opae_plugin_mgr_register_adapter
+ * @details    When called with an adapter whose library,<br>
+ *             has already been registered,<br>
+ *             the function prevents duplicate entries,<br>
+ *             and returns non-zero.
+ */
+TEST_P(pluginmgr_c_p, register_err01) {
+  opae_api_adapter_table *aptr;
+
+  aptr = opae_plugin_mgr_alloc_adapter("libxfpga.so");
+  ASSERT_NE(nullptr, aptr);
+  EXPECT_NE(0, opae_plugin_mgr_register_adapter(aptr));
+  EXPECT_EQ(0, opae_plugin_mgr_free_adapter(aptr));
+
+  aptr = opae_plugin_mgr_alloc_adapter("libopae-v.so");
+  ASSERT_NE(nullptr, aptr);
+  EXPECT_NE(0, opae_plugin_mgr_register_adapter(aptr));
+  EXPECT_EQ(0, opae_plugin_mgr_free_adapter(aptr));
+
+  EXPECT_EQ(0, opae_plugin_mgr_finalize_all());
+  EXPECT_EQ(nullptr, adapter_list);
+  EXPECT_EQ(2, test_plugin_finalize_called);
+}
+
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(pluginmgr_c_p);
 INSTANTIATE_TEST_SUITE_P(pluginmgr_c, pluginmgr_c_p,
                          ::testing::ValuesIn(test_platform::platforms({})));
@@ -246,7 +272,7 @@ TEST_P(pluginmgr_mock_c_p, alloc_adapter02) {
 
 /**
  * @test       alloc_adapter03
- * @brief      Test: opae_plugin_mgr_load_plugins
+ * @brief      Test: opae_plugin_mgr_initialize
  * @details    When calloc fails,<br>
  *             opae_plugin_mgr_alloc_adapter returns NULL.<br>
  */
@@ -254,6 +280,42 @@ TEST_P(pluginmgr_mock_c_p, alloc_adapter03) {
   opae_plugin_mgr_finalize_all();
   system_->invalidate_calloc(0, "opae_plugin_mgr_alloc_adapter");
   EXPECT_NE(0, opae_plugin_mgr_initialize(NULL));
+  opae_plugin_mgr_finalize_all();
+}
+
+/**
+ * @test       alloc_adapter04
+ * @brief      Test: opae_plugin_mgr_alloc_adapter
+ * @details    When strdup fails,<br>
+ *             opae_plugin_mgr_alloc_adapter returns NULL.<br>
+ */
+TEST_P(pluginmgr_mock_c_p, alloc_adapter04) {
+  system_->invalidate_strdup(0, "opae_plugin_mgr_alloc_adapter");
+  EXPECT_EQ(NULL, opae_plugin_mgr_alloc_adapter("libxfpga.so"));
+  opae_plugin_mgr_finalize_all();
+}
+
+/**
+ * @test       register_plugin01
+ * @brief      Test: opae_plugin_mgr_register_plugin
+ * @details    When calloc fails,<br>
+ *             opae_plugin_mgr_register_plugin returns non-zero.<br>
+ */
+TEST_P(pluginmgr_mock_c_p, register_plugin01) {
+  system_->invalidate_calloc(0, "opae_plugin_mgr_alloc_adapter");
+  EXPECT_NE(0, opae_plugin_mgr_register_plugin("libxfpga.so", NULL));
+  opae_plugin_mgr_finalize_all();
+}
+
+/**
+ * @test       register_plugin02
+ * @brief      Test: opae_plugin_mgr_register_plugin
+ * @details    When a duplicate plugin is detected,<br>
+ *             opae_plugin_mgr_register_plugin frees the duplicate adapter,<br>
+ *             and the function returns 0.
+ */
+TEST_P(pluginmgr_mock_c_p, register_plugin02) {
+  EXPECT_EQ(0, opae_plugin_mgr_register_plugin("libxfpga.so", NULL));
   opae_plugin_mgr_finalize_all();
 }
 
