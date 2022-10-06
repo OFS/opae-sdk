@@ -60,6 +60,7 @@ fpga_result opae_port_unmap(int fd, uint64_t io_addr);
 fpga_result intel_fpga_version(int fd);
 fpga_result intel_fme_port_pr(int fd, uint32_t flags, uint32_t port_id,
                           uint32_t sz, uint64_t addr, uint64_t *status);
+int opae_ioctl_initialize(void);
 }
 
 #include "mock/opae_fixtures.h"
@@ -127,6 +128,7 @@ TEST_P(sdl_c_p, test_opae_get_port_region_info_for_invalid_fd) {
 TEST_P(sdl_c_p, test_opae_get_fme_info_for_invalid_fd) {
   opae_fme_info info;
   int fd = -1;
+  EXPECT_EQ(opae_ioctl_initialize(), 0);
   EXPECT_EQ(opae_get_fme_info(fd,&info), FPGA_NOT_SUPPORTED);
 }
 
@@ -210,6 +212,7 @@ TEST_P(sdl_c_p, test_opae_dfl_port_err_user_irq_for_invalid_fd) {
  */
 TEST_P(sdl_c_p, test_opae_port_set_err_irq_for_invalid_fd) {
   int fd = -1;
+  EXPECT_EQ(opae_ioctl_initialize(), 0);
   EXPECT_EQ(opae_port_set_err_irq(fd, 0, 0), FPGA_NOT_SUPPORTED);
 }
 
@@ -221,6 +224,7 @@ TEST_P(sdl_c_p, test_opae_port_set_err_irq_for_invalid_fd) {
  */
 TEST_P(sdl_c_p, test_opae_port_set_user_irq_for_invalid_fd) {
   int fd = -1;
+  EXPECT_EQ(opae_ioctl_initialize(), 0);
   EXPECT_EQ(opae_port_set_user_irq(fd, 0, 0, 1, 0), FPGA_NOT_SUPPORTED);
 }
 
@@ -232,6 +236,7 @@ TEST_P(sdl_c_p, test_opae_port_set_user_irq_for_invalid_fd) {
  */
 TEST_P(sdl_c_p, test_opae_fme_set_err_irq_for_invalid_fd) {
   int fd = -1;
+  EXPECT_EQ(opae_ioctl_initialize(), 0);
   EXPECT_EQ(opae_fme_set_err_irq(fd, 0, 0), FPGA_NOT_SUPPORTED);
 }
 
