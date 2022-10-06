@@ -101,7 +101,14 @@ STATIC opae_api_adapter_table *opae_plugin_mgr_alloc_adapter(const char *lib_pat
 		return NULL;
 	}
 
-	adapter->plugin.path = (char *)lib_path;
+	adapter->plugin.path = opae_strdup(lib_path);
+	if (!adapter->plugin.path) {
+		dlclose(dl_handle);
+		opae_free(adapter);
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
 	adapter->plugin.dl_handle = dl_handle;
 
 	return adapter;
@@ -119,6 +126,7 @@ STATIC int opae_plugin_mgr_free_adapter(opae_api_adapter_table *adapter)
 		OPAE_ERR("dlclose failed with %d %s", res, err ? err : "");
 	}
 
+	opae_free(adapter->plugin.path);
 	opae_free(adapter);
 
 	return res;
@@ -226,9 +234,17 @@ STATIC int opae_plugin_mgr_register_adapter(opae_api_adapter_table *adapter)
 		return 0;
 	}
 
-	// new entries go to the end of the list.
-	for (aptr = adapter_list; aptr->next; aptr = aptr->next)
-		/* find the last entry */;
+	/*
+	 * Adapter entries are unique.
+	 * New entries go to the end of the list.
+	 */
+	for (aptr = adapter_list; aptr->next; aptr = aptr->next) {
+		if (!strcmp(aptr->plugin.path, adapter->plugin.path))
+			return 1; // Prevent duplicate entries.
+	}
+
+	if (!strcmp(aptr->plugin.path, adapter->plugin.path))
+		return 1; // Prevent duplicate entries.
 
 	aptr->next = adapter;
 
@@ -494,9 +510,8 @@ STATIC int opae_plugin_mgr_load_plugins(int *platforms_detected)
 
 		res = opae_plugin_mgr_register_adapter(adapter);
 		if (res) {
+			// Duplicate adapter detected. Free it and continue.
 			opae_plugin_mgr_free_adapter(adapter);
-			OPAE_ERR("Failed to register \"%s\"", plugin);
-			++errors;
 			continue; // Keep going.
 		}
 
@@ -599,4 +614,37 @@ out_unlock:
 	opae_mutex_unlock(res, &adapter_list_lock);
 
 	return cb_res;
+}
+
+int opae_plugin_mgr_register_plugin(const char *name, const char *cfg)
+{
+	int res;
+	int lock_res = 0;
+	opae_api_adapter_table *adapter;
+
+	adapter = opae_plugin_mgr_alloc_adapter(name);
+	if (!adapter) {
+		OPAE_ERR("malloc failed");
+		return 1;
+	}
+
+	res = opae_plugin_mgr_configure_plugin(adapter, cfg);
+	if (res) {
+		opae_plugin_mgr_free_adapter(adapter);
+		OPAE_ERR("failed to configure plugin \"%s\"", name);
+		return res;
+	}
+
+	if (opae_mutex_lock(lock_res, &adapter_list_lock))
+		return lock_res;
+	res = opae_plugin_mgr_register_adapter(adapter);
+	opae_mutex_unlock(lock_res, &adapter_list_lock);
+
+	if (res) {
+		// Duplicate adapter detected.
+		// Free the adapter and continue.
+		opae_plugin_mgr_free_adapter(adapter);
+	}
+
+	return 0;
 }
