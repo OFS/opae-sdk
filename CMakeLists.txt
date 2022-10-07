@@ -208,7 +208,7 @@ if (OPAE_BUILD_LIBOPAEVFIO)
         set(PLATFORM_SUPPORTS_VFIO FALSE CACHE BOOL "Platform supports vfio driver" FORCE)
         message(WARNING
             "Could not compile VFIO.
-            This most likely means that kernel( version >= 4.6) headers aren't installed.
+            This most likely means that kernel( version >= 5.4) headers aren't installed.
             See errors in platform_vfio_errors.txt")
         file(WRITE ${CMAKE_BINARY_DIR}/platform_vfio_errors.txt ${TRY_COMPILE_OUTPUT})
     endif(VFIO_CHECK)
