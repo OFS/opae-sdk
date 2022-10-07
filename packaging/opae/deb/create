@@ -41,7 +41,6 @@ for pkg in 'devscripts' \
            'pkg-config' \
            'uuid-dev' \
            'libjson-c-dev' \
-           'libtbb2' \
            'libtbb-dev' \
            'libhwloc-dev' \
            'python3-dev' \
