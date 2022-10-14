@@ -257,6 +257,7 @@ done
 %{_usr}/src/opae/samples/opae.io/opae/io/__init__.py
 %{_usr}/src/opae/samples/opae.io/opae/io/utils.py
 %{_usr}/src/opae/samples/opae.io/opae/io/pci.py
+%{_usr}/src/opae/samples/opae.io/opae/io/config.py
 %{_usr}/src/opae/samples/opae.io/scripts/args.py
 %{_usr}/src/opae/samples/opae.io/scripts/nlb0.py
 %{_usr}/src/opae/samples/opae.io/scripts/nlb_walk.py
