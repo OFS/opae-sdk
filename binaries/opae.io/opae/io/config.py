@@ -76,6 +76,12 @@ DEFAULT_OPAE_IO_CONFIG = {
   (0x1c2c, 0x1001, 0, 0) : {
     'platform': 'Silicom FPGA SmartNIC N5010 Series'
   },
+(0x1c2c, 0x1002, 0, 0) : {
+    'platform': 'Silicom FPGA SmartNIC N5013'
+  },
+  (0x1c2c, 0x1003, 0, 0) : {
+    'platform': 'Silicom FPGA SmartNIC N5014'
+  },
   (0x8086, 0xbcce, 0x8086, 0x1770) : {
     'platform': 'Intel Acceleration Development Platform N6000'
   },

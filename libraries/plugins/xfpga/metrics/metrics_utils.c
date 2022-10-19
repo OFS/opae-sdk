@@ -582,8 +582,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 		// DCP VC DC
 		case FPGA_HW_DCP_N3000:
 		case FPGA_HW_DCP_D5005:
-		case FPGA_HW_DCP_N5010:
-		case FPGA_HW_DCP_N5011: {
+		case FPGA_HW_DCP_N5010: {
 
 			// Max10 Power & Thermal
 			result = dfl_enum_max10_metrics_info(_handle,
@@ -834,8 +833,7 @@ fpga_result  get_fme_metric_value(fpga_handle handle,
 			// Read power theraml values from Max10
 			if (((_fpga_enum_metric->hw_type == FPGA_HW_DCP_N3000) ||
 				(_fpga_enum_metric->hw_type == FPGA_HW_DCP_D5005) ||
-				(_fpga_enum_metric->hw_type == FPGA_HW_DCP_N5010) ||
-				(_fpga_enum_metric->hw_type == FPGA_HW_DCP_N5011)) &&
+				(_fpga_enum_metric->hw_type == FPGA_HW_DCP_N5010)) &&
 				((_fpga_enum_metric->metric_type == FPGA_METRIC_TYPE_POWER) ||
 				(_fpga_enum_metric->metric_type == FPGA_METRIC_TYPE_THERMAL))) {
 
