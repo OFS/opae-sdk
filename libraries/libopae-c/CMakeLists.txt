@@ -33,6 +33,7 @@ set(SRC
     fpgad-cfg.c
     fpgainfo-cfg.c
     opae-cfg.c
+    hash_map.c
     ${opae-test_ROOT}/framework/mock/opae_std.c
 )
 

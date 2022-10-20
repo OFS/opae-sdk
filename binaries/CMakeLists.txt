@@ -72,3 +72,6 @@ endif()
 
 opae_add_subdirectory(vabtool)
 opae_add_subdirectory(fpgad)
+if (OPAE_BUILD_REMOTE)
+    opae_add_subdirectory(udsserv)
+endif (OPAE_BUILD_REMOTE)

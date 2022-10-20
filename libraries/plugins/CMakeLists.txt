@@ -1,4 +1,4 @@
-## Copyright(c) 2017-2020, Intel Corporation
+## Copyright(c) 2017-2022, Intel Corporation
 ##
 ## Redistribution  and  use  in source  and  binary  forms,  with  or  without
 ## modification, are permitted provided that the following conditions are met:
@@ -35,3 +35,7 @@ if (OPAE_BUILD_PLUGIN_VFIO AND PLATFORM_SUPPORTS_VFIO)
             "Must enable 'OPAE_BUILD_LIBOPAEVFIO' to build vfio plugin")
     endif()
 endif()
+
+if (OPAE_BUILD_REMOTE)
+    add_subdirectory(remote)
+endif (OPAE_BUILD_REMOTE)

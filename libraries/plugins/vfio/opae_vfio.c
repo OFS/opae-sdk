@@ -812,6 +812,10 @@ fpga_result vfio_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 	_prop->interface = FPGA_IFC_VFIO;
 	SET_FIELD_VALID(_prop, FPGA_PROPERTY_INTERFACE);
 
+	if (!opae_get_host_name_buf(_prop->hostname, HOST_NAME_MAX)) {
+		SET_FIELD_VALID(_prop, FPGA_PROPERTY_HOSTNAME);
+	}
+
 	if (t->hdr.objtype == FPGA_ACCELERATOR) {
 		vfio_pair_t *pair = NULL;
 		fpga_result res;
@@ -1126,6 +1130,9 @@ vfio_token *get_token(pci_device_t *p, uint32_t region, int type)
 	t->device = p;
 	t->region = region;
 	t->hdr.objtype = type;
+
+	opae_get_host_name_buf(t->hdr.hostname, HOST_NAME_MAX);
+
 	t->next = p->tokens;
 	p->tokens = t;
 	return t;
@@ -1222,6 +1229,12 @@ bool matches_filter(const fpga_properties *filter, vfio_token *t)
 	}
 	if (FIELD_VALID(_prop, FPGA_PROPERTY_INTERFACE))
 		if (_prop->interface != FPGA_IFC_VFIO)
+			return false;
+
+	if (FIELD_VALID(_prop, FPGA_PROPERTY_HOSTNAME))
+		if (strncmp(_prop->hostname,
+			    t->hdr.hostname,
+			    HOST_NAME_MAX))
 			return false;
 
 	return true;

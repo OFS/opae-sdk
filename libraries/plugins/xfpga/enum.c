@@ -200,6 +200,15 @@ STATIC bool matches_filter(const struct dev_list *attr, const fpga_properties fi
 		}
 	}
 
+	if (FIELD_VALID(_filter, FPGA_PROPERTY_HOSTNAME)) {
+		if (strncmp(_filter->hostname,
+			    attr->hdr.hostname,
+			    HOST_NAME_MAX)) {
+			res = false;
+			goto out_unlock;
+		}
+	}
+
 	if (FIELD_VALID(_filter, FPGA_PROPERTY_OBJTYPE)
 	    && (FPGA_DEVICE == _filter->objtype)) {
 
@@ -344,6 +353,8 @@ STATIC fpga_result enum_fme(const char *sysfspath, const char *name,
 	pdev->hdr.function = parent->hdr.function;
 	pdev->hdr.interface = FPGA_IFC_DFL;
 	pdev->hdr.objtype = FPGA_DEVICE;
+
+	opae_get_host_name_buf(pdev->hdr.hostname, HOST_NAME_MAX);
 
 	parent->fme = pdev->fme = pdev;
 
@@ -520,6 +531,8 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	pdev->hdr.function = parent->hdr.function;
 	pdev->hdr.interface = FPGA_IFC_DFL;
 	pdev->hdr.objtype = FPGA_ACCELERATOR;
+	
+	opae_get_host_name_buf(pdev->hdr.hostname, HOST_NAME_MAX);
 
 	pdev->fme = parent->fme;
 

@@ -35,6 +35,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
+#include <netdb.h>
 
 #include <opae/enum.h>
 
@@ -82,6 +84,64 @@ out_destroy_attr:
 out_free:
 	opae_free(props);
 	return NULL;
+}
+
+STATIC char opae_hostname[HOST_NAME_MAX + 1];
+STATIC bool opae_hostname_initialized = false;
+static pthread_mutex_t hostname_lock =
+        PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+
+int opae_get_host_name_buf(char *name, size_t len)
+{
+	int res;
+
+	opae_mutex_lock(res, &hostname_lock);
+
+	if (!opae_hostname_initialized) {
+		struct hostent *he;
+		char nm[HOST_NAME_MAX + 1];
+
+		memset(opae_hostname, 0, sizeof(opae_hostname));
+		memset(nm, 0, sizeof(nm));
+
+		errno = 0;
+		res = gethostname(nm, HOST_NAME_MAX);
+		if (res < 0) {
+			opae_mutex_unlock(res, &hostname_lock);
+			return errno;
+		}
+
+		h_errno = 0;
+		he = gethostbyname(nm);
+		if (!he) {
+			opae_mutex_unlock(res, &hostname_lock);
+			return h_errno;
+		}
+
+		memcpy(opae_hostname, he->h_name, HOST_NAME_MAX);
+		opae_hostname_initialized = true;
+	}
+
+	opae_mutex_unlock(res, &hostname_lock);
+
+	if (name)
+		memcpy(name, opae_hostname, len);
+
+	return 0;
+}
+
+const char *opae_get_host_name(void)
+{
+	int res;
+
+	opae_mutex_lock(res, &hostname_lock);
+
+	if (!opae_hostname_initialized)
+		opae_get_host_name_buf(NULL, 0);
+
+	opae_mutex_unlock(res, &hostname_lock);
+
+	return opae_hostname;
 }
 
 fpga_result __OPAE_API__ fpgaDestroyProperties(fpga_properties *prop)
@@ -1228,6 +1288,55 @@ fpga_result __OPAE_API__ fpgaPropertiesSetSubsystemDeviceID(
 
 	SET_FIELD_VALID(p, FPGA_PROPERTY_SUB_DEVICEID);
 	p->subsystem_device_id = subsystem_device_id;
+
+	opae_mutex_unlock(err, &p->lock);
+
+	return res;
+}
+
+fpga_result fpgaPropertiesGetHostname(const fpga_properties prop,
+				      char *name,
+				      size_t len)
+{
+	fpga_result res = FPGA_OK;
+	int err;
+	struct _fpga_properties *p;
+
+	ASSERT_NOT_NULL(name);
+
+	p = opae_validate_and_lock_properties(prop);
+
+	ASSERT_NOT_NULL(p);
+
+	if (FIELD_VALID(p, FPGA_PROPERTY_HOSTNAME)) {
+		if (len > HOST_NAME_MAX)
+			len = HOST_NAME_MAX;
+		memcpy(name, p->hostname, len);
+	} else {
+		OPAE_MSG("No hostname");
+		res = FPGA_NOT_FOUND;
+	}
+
+	opae_mutex_unlock(err, &p->lock);
+
+	return res;
+}
+
+fpga_result fpgaPropertiesSetHostname(fpga_properties prop,
+				      const char *name,
+				      size_t len)
+{
+	fpga_result res = FPGA_OK;
+	int err;
+	struct _fpga_properties *p = opae_validate_and_lock_properties(prop);
+
+	ASSERT_NOT_NULL(p);
+
+	SET_FIELD_VALID(p, FPGA_PROPERTY_HOSTNAME);
+	if (len > HOST_NAME_MAX)
+		len = HOST_NAME_MAX;
+	memcpy(p->hostname, name, len);
+	p->hostname[len] = '\0';
 
 	opae_mutex_unlock(err, &p->lock);
 

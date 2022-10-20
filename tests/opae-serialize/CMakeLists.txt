@@ -24,58 +24,48 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
-# extra
-# Top level OPAE_BUILD_EXTRA_TOOLS controls building all the extra tools
-# Each extra tool gets its own conditional building variable
-# format is OPAE_BUILD_<TOOL_NAME>
-option(OPAE_BUILD_EXTRA_TOOLS "Enable building extra tools" ON)
-mark_as_advanced(OPAE_BUILD_EXTRA_TOOLS)
+opae_test_add_static_lib(TARGET opae-serialize-static
+    SOURCE
+        ${OPAE_LIB_SOURCE}/libopae-serialize/action.c
+        ${OPAE_LIB_SOURCE}/libopae-serialize/request.c
+        ${OPAE_LIB_SOURCE}/libopae-serialize/response.c
+        ${OPAE_LIB_SOURCE}/libopae-serialize/serialize.c
+    LIBS
+        ${CMAKE_THREAD_LIBS_INIT}
+        ${libjson-c_LIBRARIES}
+	${libuuid_LIBRARIES}
+)
 
-option(OPAE_BUILD_CXXUTILS "Enable building extra tool c++utils" ON)
-mark_as_advanced(OPAE_BUILD_CXXUTILS)
+#opae_test_add(TARGET test_ser_action_c
+#    SOURCE test_action_c.cpp
+#    LIBS opae-serialize-static
+#)
 
-if(OPAE_BUILD_EXTRA_TOOLS)
-  if(OPAE_BUILD_CXXUTILS)
-    opae_add_subdirectory(c++utils)
-  endif()
-endif()
+opae_test_add(TARGET test_ser_request_c
+    SOURCE test_request_c.cpp
+    LIBS
+        opae-c-static
+        opae-serialize-static
+)
 
-opae_add_subdirectory(argsfilter)
-opae_add_subdirectory(afu-test)
-opae_add_subdirectory(libopaemem)
-opae_add_subdirectory(libopae-c)
-if (OPAE_BUILD_LIBOFS)
-    opae_add_subdirectory(libofs)
-endif (OPAE_BUILD_LIBOFS)
+target_include_directories(test_ser_request_c
+    PRIVATE
+        ${OPAE_LIB_SOURCE}/libopae-serialize
+)
 
-if (OPAE_BUILD_LIBOPAEUIO)
-    opae_add_subdirectory(libopaeuio)
-    opae_add_subdirectory(pyopaeuio)
-endif()
+#opae_test_add(TARGET test_ser_response_c
+#    SOURCE test_response_c.cpp
+#    LIBS opae-serialize-static
+#)
 
-if (OPAE_BUILD_LIBOPAEVFIO AND PLATFORM_SUPPORTS_VFIO)
-    opae_add_subdirectory(libopaevfio)
-endif()
+opae_test_add(TARGET test_ser_serialize_c
+    SOURCE test_serialize_c.cpp
+    LIBS
+        opae-c-static
+        opae-serialize-static
+)
 
-opae_add_subdirectory(libbitstream)
-opae_add_subdirectory(plugins)
-
-if(OPAE_BUILD_LIBOPAE_CXX)
-    opae_add_subdirectory(libopaecxx)
-endif()
-
-if(OPAE_WITH_PYBIND11 AND OPAE_BUILD_LIBOPAE_CXX)
-    opae_add_subdirectory(pyopae)
-endif()
-
-opae_add_subdirectory(libboard/board_common)
-opae_add_subdirectory(libboard/board_a10gx)
-opae_add_subdirectory(libboard/board_n3000)
-opae_add_subdirectory(libboard/board_d5005)
-opae_add_subdirectory(libboard/board_n6000)
-opae_add_subdirectory(libboard/board_n5010)
-opae_add_subdirectory(libboard/board_c6100)
-
-if(OPAE_BUILD_REMOTE)
-    opae_add_subdirectory(libopae-serialize)
-endif(OPAE_BUILD_REMOTE)
+target_include_directories(test_ser_serialize_c
+    PRIVATE
+        ${OPAE_LIB_SOURCE}/libopae-serialize
+)

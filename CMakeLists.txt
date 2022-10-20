@@ -78,6 +78,12 @@ if (OPAE_MINIMAL_BUILD)
 endif(OPAE_MINIMAL_BUILD)
 
 ############################################################################
+## Whether to build remote #################################################
+############################################################################
+option(OPAE_BUILD_REMOTE "Enable building of OPAE Remote Infrastructure" ON)
+mark_as_advanced(OPAE_BUILD_REMOTE)
+
+############################################################################
 ## Other setup and dependencies ############################################
 ############################################################################
 find_package(Doxygen)
@@ -259,6 +265,9 @@ opae_add_subdirectory(python)
 if (OPAE_BUILD_LIBOFS)
     opae_add_subdirectory(ofs)
 endif (OPAE_BUILD_LIBOFS)
+if (OPAE_BUILD_REMOTE)
+    opae_add_subdirectory(remote)
+endif (OPAE_BUILD_REMOTE)
 
 option(OPAE_BUILD_SAMPLES "Enable building of OPAE samples" ON)
 mark_as_advanced(OPAE_BUILD_SAMPLES)

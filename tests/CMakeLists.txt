@@ -79,3 +79,7 @@ if (OPAE_BUILD_LIBOFS)
     add_subdirectory(ofs_cpeng)
 endif (OPAE_BUILD_LIBOFS)
 add_subdirectory(fpgad)
+
+if (OPAE_BUILD_REMOTE)
+    add_subdirectory(opae-serialize)
+endif (OPAE_BUILD_REMOTE)

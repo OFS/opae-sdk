@@ -66,6 +66,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <limits.h>
 #include <opae/types_enum.h>
 
 /**
@@ -275,6 +276,8 @@ typedef struct _fpga_token_header {
 	fpga_guid guid;
 	uint16_t subsystem_vendor_id;
 	uint16_t subsystem_device_id;
+	char hostname[HOST_NAME_MAX + 1];
+	uint64_t remote_id;
 } fpga_token_header;
 
 /** Determine token parent/child relationship
