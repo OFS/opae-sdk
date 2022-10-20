@@ -149,4 +149,16 @@ fpga_result remote_fpgaGetMetricsThresholdInfo(fpga_handle handle,
 }
 #endif // __cplusplus
 
+struct _remote_token {
+	fpga_token_header header; //< Must appear at offset 0!
+
+
+};
+
+struct _remote_handle {
+
+	struct _remote_token *token;
+
+};
+
 #endif // __OPAE_REMOTE_PLUGIN_H__

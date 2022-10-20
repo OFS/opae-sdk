@@ -87,9 +87,9 @@ out_free:
 }
 
 STATIC char opae_hostname[HOST_NAME_MAX + 1];
-STATIC bool opae_hostname_initialized = false;
+STATIC bool opae_hostname_initialized;
 static pthread_mutex_t hostname_lock =
-        PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+	PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 int opae_get_host_name_buf(char *name, size_t len)
 {

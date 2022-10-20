@@ -80,7 +80,7 @@ endif(OPAE_MINIMAL_BUILD)
 ############################################################################
 ## Whether to build remote #################################################
 ############################################################################
-option(OPAE_BUILD_REMOTE "Enable building of OPAE Remote Infrastructure" ON)
+option(OPAE_BUILD_REMOTE "Enable building of OPAE Remote Infrastructure" OFF)
 mark_as_advanced(OPAE_BUILD_REMOTE)
 
 ############################################################################

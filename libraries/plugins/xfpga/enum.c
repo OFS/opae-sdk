@@ -531,7 +531,7 @@ STATIC fpga_result enum_afu(const char *sysfspath, const char *name,
 	pdev->hdr.function = parent->hdr.function;
 	pdev->hdr.interface = FPGA_IFC_DFL;
 	pdev->hdr.objtype = FPGA_ACCELERATOR;
-	
+
 	opae_get_host_name_buf(pdev->hdr.hostname, HOST_NAME_MAX);
 
 	pdev->fme = parent->fme;

@@ -32,8 +32,7 @@
 extern "C" {
 #endif // __cplusplus
 
-typedef struct _opae_hash_map_item
-{
+typedef struct _opae_hash_map_item {
 	void *key;
 	void *value;
 	struct _opae_hash_map_item *next;
@@ -41,8 +40,7 @@ typedef struct _opae_hash_map_item
 
 typedef int (*opae_hash_map_key_compare)(void *, void *);
 
-typedef struct _opae_hash_map
-{
+typedef struct _opae_hash_map {
 	uint32_t num_buckets;
 	uint32_t hash_seed;
 	opae_hash_map_item **buckets;

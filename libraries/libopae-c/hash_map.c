@@ -238,14 +238,14 @@ fpga_result opae_hash_map_destroy(opae_hash_map *hm)
 
 bool opae_hash_map_is_empty(opae_hash_map *hm)
 {
-        uint32_t i;
+	uint32_t i;
 
-        for (i = 0 ; i < hm->num_buckets ; ++i) {
-                if (hm->buckets[i])
-                        return false;
-        }
+	for (i = 0 ; i < hm->num_buckets ; ++i) {
+		if (hm->buckets[i])
+			return false;
+	}
 
-        return true;
+	return true;
 }
 
 // https://en.wikipedia.org/wiki/MurmurHash
