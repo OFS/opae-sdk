@@ -55,10 +55,6 @@ fpga_result __REMOTE_API__
 remote_fpgaGetProperties(fpga_token token, fpga_properties *prop)
 {
 	fpga_result result = FPGA_OK;
-(void) token;
-(void) prop;
-
-#if 0
 	struct _fpga_properties *_prop = NULL;
 
 	ASSERT_NOT_NULL(prop);
@@ -68,7 +64,7 @@ remote_fpgaGetProperties(fpga_token token, fpga_properties *prop)
 	ASSERT_RESULT(result);
 
 	if (token) {
-		result = xfpga_fpgaUpdateProperties(token, _prop);
+		result = remote_fpgaUpdateProperties(token, _prop);
 		if (result != FPGA_OK)
 			goto out_free;
 	}
@@ -78,7 +74,6 @@ remote_fpgaGetProperties(fpga_token token, fpga_properties *prop)
 
 out_free:
 	opae_free(_prop);
-#endif
 	return result;
 }
 

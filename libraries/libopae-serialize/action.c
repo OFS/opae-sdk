@@ -455,6 +455,13 @@ bool opae_handle_fpgaUpdateProperties_request_4(opae_remote_context *c,
 	resp.result = FPGA_INVALID_PARAM;
 	resp.properties = NULL;
 
+	if (fpgaGetProperties(NULL, &resp.properties) != FPGA_OK) {
+		*resp_json = opae_encode_fpgaUpdateProperties_response_4(
+				&resp,
+				c->json_to_string_flags);
+		goto out_destroy;
+	}
+
 	opae_token_header_to_hash_key(&req.token,
 				      hash_key,
 				      sizeof(hash_key));
@@ -470,7 +477,7 @@ bool opae_handle_fpgaUpdateProperties_request_4(opae_remote_context *c,
 		goto out_destroy;
 	}
 
-	resp.result = fpgaUpdateProperties(token, &resp.properties);
+	resp.result = fpgaUpdateProperties(token, resp.properties);
 
 	*resp_json = opae_encode_fpgaUpdateProperties_response_4(
 			&resp,
