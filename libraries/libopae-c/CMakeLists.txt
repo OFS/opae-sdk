@@ -37,6 +37,10 @@ set(SRC
     ${opae-test_ROOT}/framework/mock/opae_std.c
 )
 
+if (OPAE_BUILD_REMOTE)
+    list(APPEND SRC uds-ifc.c rmt-cfg.c)
+endif (OPAE_BUILD_REMOTE)
+
 opae_add_shared_library(TARGET opae-c
     EXPORT opae-targets
     SOURCE ${SRC}
@@ -50,6 +54,12 @@ opae_add_shared_library(TARGET opae-c
     COMPONENT opaeclib
 )
 
+if (OPAE_BUILD_REMOTE)
+    target_compile_definitions(opae-c
+        PRIVATE
+            OPAE_BUILD_REMOTE=1)
+endif (OPAE_BUILD_REMOTE)
+
 opae_add_static_library(TARGET opae-c-archive
     EXPORT opae-targets
     SOURCE ${SRC}
@@ -60,6 +70,12 @@ opae_add_static_library(TARGET opae-c-archive
         ${libuuid_LIBRARIES}
     COMPONENT opaeclib
 )
+
+if (OPAE_BUILD_REMOTE)
+    target_compile_definitions(opae-c-archive
+        PRIVATE
+            OPAE_BUILD_REMOTE=1)
+endif (OPAE_BUILD_REMOTE)
 
 install(FILES adapter.h props.h opae_int.h
     DESTINATION include/opae/plugin

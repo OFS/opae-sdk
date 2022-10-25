@@ -53,6 +53,12 @@ static libopae_config_data *platform_data_table;
 int initialized;
 STATIC int finalizing;
 
+#ifdef OPAE_BUILD_REMOTE
+opae_remote_client_ifc *remote_interfaces;
+static pthread_mutex_t remote_interfaces_lock =
+	PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+#endif // OPAE_BUILD_REMOTE
+
 STATIC opae_api_adapter_table *adapter_list = (void *)0;
 static pthread_mutex_t adapter_list_lock =
 	PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
@@ -551,6 +557,15 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 		raw_config = opae_read_cfg_file(cfg_file);
 	}
 
+#ifdef OPAE_BUILD_REMOTE
+	remote_interfaces = opae_parse_remote_config(raw_config);
+
+	if (remote_interfaces && remote_interfaces[0].open) {
+		errors += opae_plugin_mgr_register_plugin("libopae-r.so",
+							  NULL);
+	}
+#endif // OPAE_BUILD_REMOTE
+
 	// Parse the config file content, allocating and initializing
 	// our configuration table. If raw_config is non-NULL, then
 	// this function will delete it.
@@ -559,7 +574,7 @@ int opae_plugin_mgr_initialize(const char *cfg_file)
 	// Print the config table for debug builds.
 	opae_print_libopae_config(platform_data_table);
 
-	errors = opae_plugin_mgr_load_plugins(&platforms_detected);
+	errors += opae_plugin_mgr_load_plugins(&platforms_detected);
 	if (errors) {
 		initialized = 0;
 		goto out_unlock;
@@ -612,6 +627,31 @@ int opae_plugin_mgr_for_each_adapter
 
 out_unlock:
 	opae_mutex_unlock(res, &adapter_list_lock);
+
+	return cb_res;
+}
+
+int opae_plugin_mgr_for_each_remote
+	(int (*callback)(opae_remote_client_ifc *, void *), void *context)
+{
+	int res;
+	int cb_res = 0;
+	opae_remote_client_ifc *iptr;
+
+	if (!callback) {
+		OPAE_ERR("NULL callback passed to %s()", __func__);
+		return 1;
+	}
+
+	opae_mutex_lock(res, &remote_interfaces_lock);
+
+	for (iptr = remote_interfaces ; iptr->open ; ++iptr) {
+		cb_res = callback(iptr, context);
+		if (cb_res)
+			break;
+	}
+
+	opae_mutex_unlock(res, &remote_interfaces_lock);
 
 	return cb_res;
 }

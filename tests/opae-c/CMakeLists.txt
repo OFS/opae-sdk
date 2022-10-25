@@ -24,20 +24,36 @@
 ## ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 ## POSSIBILITY OF SUCH DAMAGE.
 
+set(SRC
+    ${OPAE_LIB_SOURCE}/libopae-c/api-shell.c
+    ${OPAE_LIB_SOURCE}/libopae-c/init.c
+    ${OPAE_LIB_SOURCE}/libopae-c/pluginmgr.c
+    ${OPAE_LIB_SOURCE}/libopae-c/props.c
+    ${OPAE_LIB_SOURCE}/libopae-c/cfg-file.c
+    ${OPAE_LIB_SOURCE}/libopae-c/fpgad-cfg.c
+    ${OPAE_LIB_SOURCE}/libopae-c/fpgainfo-cfg.c
+    ${OPAE_LIB_SOURCE}/libopae-c/opae-cfg.c
+    ${OPAE_LIB_SOURCE}/libopae-c/hash_map.c)
+
+if (OPAE_BUILD_REMOTE)
+    list(APPEND SRC
+	    ${OPAE_LIB_SOURCE}/libopae-c/uds-ifc.c
+	    ${OPAE_LIB_SOURCE}/libopae-c/rmt-cfg.c)
+endif (OPAE_BUILD_REMOTE)
+
 opae_test_add_static_lib(TARGET opae-c-static
     SOURCE
-        ${OPAE_LIB_SOURCE}/libopae-c/api-shell.c
-        ${OPAE_LIB_SOURCE}/libopae-c/init.c
-        ${OPAE_LIB_SOURCE}/libopae-c/pluginmgr.c
-        ${OPAE_LIB_SOURCE}/libopae-c/props.c
-        ${OPAE_LIB_SOURCE}/libopae-c/cfg-file.c
-        ${OPAE_LIB_SOURCE}/libopae-c/fpgad-cfg.c
-        ${OPAE_LIB_SOURCE}/libopae-c/fpgainfo-cfg.c
-        ${OPAE_LIB_SOURCE}/libopae-c/opae-cfg.c
+        ${SRC}
     LIBS
         ${CMAKE_THREAD_LIBS_INIT}
         ${libjson-c_LIBRARIES}
 )
+
+if (OPAE_BUILD_REMOTE)
+    target_compile_definitions(opae-c-static
+        PRIVATE
+            OPAE_BUILD_REMOTE=1)
+endif (OPAE_BUILD_REMOTE)
 
 opae_test_add(TARGET self_test
     SOURCE self_test.cpp

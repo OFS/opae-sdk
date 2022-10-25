@@ -403,7 +403,9 @@ void test_token_header_serialize(void)
 		.guid = { 0, },
 		.subsystem_vendor_id = 0x8087,
 		.subsystem_device_id = 0x1770,
-		.hostname = { "machine.company.net" },
+		.hostname = { 'm', 'a', 'c', 'h', 'i', 'n', 'e',
+                              '.', 'c', 'o', 'm', 'p', 'a', 'n', 'y',
+                              '.', 'n', 'e', 't', 0 },
 		.remote_id = 3
 	};
 	fpga_token_header after;

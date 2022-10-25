@@ -39,6 +39,8 @@
 //#include "error_int.h"
 //#include "opae_drv.h"
 
+#include "request.h"
+
 #include "mock/opae_std.h"
 
 
@@ -89,10 +91,71 @@ fpga_result __REMOTE_API__
 remote_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 {
 	fpga_result result = FPGA_OK;
-(void) token;
-(void) prop;
+	opae_fpgaUpdateProperties_request req;
+	struct _remote_token *tok;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
+	struct _fpga_properties *p;
+	int res;
+
+	if (!token) {
+		OPAE_MSG("Invalid token");
+		return FPGA_INVALID_PARAM;
+	}
+
+	if (!prop) {
+		OPAE_MSG("Invalid properties object");
+		return FPGA_INVALID_PARAM;
+	}
+
+	tok = (struct _remote_token *)token;
+
+	req.token = tok->header;
+
+	req_json = opae_encode_fpgaUpdateProperties_request_4(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+                              req_json,
+                              len + 1);
+        if (slen < 0) {
+                opae_free(req_json);
+                return FPGA_EXCEPTION;
+        }
+
+        opae_free(req_json);
+
+        slen = tok->ifc->receive(tok->ifc->connection,
+                                 recvbuf,
+                                 sizeof(recvbuf));
+        if (slen < 0)
+                return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+        if (!opae_decode_fpgaUpdateProperties_response_4(recvbuf, &resp))
+                return FPGA_EXCEPTION;
+
+	p = opae_validate_and_lock_properties(prop);
+	if (!p) {
+		fpgaDestroyProperties(&resp.properties);
+		return FPGA_INVALID_PARAM;
+	}
 
 
 
-	return result;
+
+
+
+
+	opae_mutex_unlock(res, &p->lock);
+
+	return resp.result;
 }

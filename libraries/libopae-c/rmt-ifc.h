@@ -23,51 +23,35 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#ifndef __OPAE_SERIALIZE_ACTION_H__
-#define __OPAE_SERIALIZE_ACTION_H__
-#include "request.h"
-#include "response.h"
-#include "hash_map.h"
+#ifndef __OPAE_RMT_IFC_H__
+#define __OPAE_RMT_IFC_H__
+#include <stdint.h>
+#include <sys/types.h>
+
+#define OPAE_SOCKET_NAME_MAX 108
 
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
 
-#define OPAE_MAX_TOKEN_HASH (HOST_NAME_MAX + 1 + 32)
+typedef int (*open_connection)(void *con);
+typedef int (*close_connection)(void *con);
+typedef int (*release_connection)(void *con);
 
-typedef struct _opae_remote_context {
-	int json_to_string_flags;
-	opae_hash_map remote_id_to_token_map;
+typedef ssize_t (*send_data)(void *con, const void *buf, size_t len);
+typedef ssize_t (*receive_data)(void *con, void *buf, size_t len);
 
-} opae_remote_context;
-
-fpga_result opae_init_remote_context(opae_remote_context *c);
-fpga_result opae_release_remote_context(opae_remote_context *c);
-
-bool opae_handle_fpgaEnumerate_request_0(opae_remote_context *c,
-					 const char *req_json,
-					 char **resp_json);
-
-bool opae_handle_fpgaDestroyToken_request_1(opae_remote_context *c,
-					    const char *req_json,
-					    char **resp_json);
-
-bool opae_handle_fpgaCloneToken_request_2(opae_remote_context *c,
-					  const char *req_json,
-					  char **resp_json);
-
-bool opae_handle_fpgaGetProperties_request_3(opae_remote_context *c,
-					     const char *req_json,
-					     char **resp_json);
-
-bool opae_handle_fpgaUpdateProperties_request_4(opae_remote_context *c,
-						const char *req_json,
-						char **resp_json);
-
-
+typedef struct _opae_remote_client_ifc {
+	open_connection open;
+	close_connection close;
+	release_connection release;
+	send_data send;
+	receive_data receive;
+	void *connection;
+} opae_remote_client_ifc;
 
 #ifdef __cplusplus
 }
 #endif // __cplusplus
 
-#endif // __OPAE_SERIALIZE_ACTION_H__
+#endif // __OPAE_RMT_IFC_H__

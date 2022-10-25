@@ -32,6 +32,8 @@
 #include <json-c/json.h>
 #include <uuid/uuid.h>
 
+#define OPAE_RECEIVE_BUF_MAX (32 * 1024)
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus

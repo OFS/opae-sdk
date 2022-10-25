@@ -84,6 +84,15 @@ char *opae_encode_fpgaGetProperties_request_3(opae_fpgaGetProperties_request *re
 bool opae_decode_fpgaGetProperties_request_3(const char *json,
 					     opae_fpgaGetProperties_request *req);
 
+typedef struct {
+	opae_request_header header;
+	fpga_token_header token;
+} opae_fpgaUpdateProperties_request;
+
+char *opae_encode_fpgaUpdateProperties_request_4(opae_fpgaUpdateProperties_request *req,
+						 int json_flags);
+bool opae_decode_fpgaUpdateProperties_request_4(const char *json,
+						opae_fpgaUpdateProperties_request *req);
 
 
 

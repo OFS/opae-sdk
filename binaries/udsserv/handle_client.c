@@ -45,7 +45,8 @@ STATIC srv_handler handlers[] = {
 	opae_handle_fpgaEnumerate_request_0,
 	opae_handle_fpgaDestroyToken_request_1,
 	opae_handle_fpgaCloneToken_request_2,
-	opae_handle_fpgaGetProperties_request_3
+	opae_handle_fpgaGetProperties_request_3,
+	opae_handle_fpgaUpdateProperties_request_4
 };
 
 int handle_client(uds_server_context *c, void *remote_ctx, int sock)

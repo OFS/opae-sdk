@@ -36,6 +36,10 @@
 #include "cfg-file.h"
 #include "mock/opae_std.h"
 
+#ifdef OPAE_BUILD_REMOTE
+#include "uds-ifc.h"
+#endif // OPAE_BUILD_REMOTE
+
 
 #define CFG_PATH_MAX 64
 #define HOME_CFG_PATHS 3
@@ -571,3 +575,32 @@ void opae_free_fpgad_config(fpgad_config_data *cfg)
 
 	opae_free(base);
 }
+
+#ifdef OPAE_BUILD_REMOTE
+
+STATIC opae_remote_client_ifc default_remote_ifcs[] = {
+	{
+		.open = NULL,
+		.close = NULL,
+		.release = NULL,
+		.send = NULL,
+		.receive = NULL,
+		.connection = NULL
+	}
+};
+
+opae_remote_client_ifc *
+opae_parse_remote_json(const char *json_input);
+
+opae_remote_client_ifc *
+opae_parse_remote_config(const char *json_input)
+{
+	opae_remote_client_ifc *r = NULL;
+
+	if (json_input)
+		r = opae_parse_remote_json(json_input);
+
+	return r ? r : default_remote_ifcs;
+}
+
+#endif // OPAE_BUILD_REMOTE

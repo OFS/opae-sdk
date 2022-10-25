@@ -123,8 +123,6 @@ fpga_result opae_init_remote_context(opae_remote_context *c)
 fpga_result opae_release_remote_context(opae_remote_context *c)
 {
 	opae_hash_map_destroy(&c->remote_id_to_token_map);
-
-
 	return FPGA_OK;
 }
 
@@ -424,6 +422,57 @@ bool opae_handle_fpgaGetProperties_request_3(opae_remote_context *c,
 	resp.result = fpgaGetProperties(token, &resp.properties);
 
 	*resp_json = opae_encode_fpgaGetProperties_response_3(
+			&resp,
+			c->json_to_string_flags);
+
+	res = true;
+
+out_destroy:
+	if (resp.properties)
+		fpgaDestroyProperties(&resp.properties);
+	return res;
+}
+
+bool opae_handle_fpgaUpdateProperties_request_4(opae_remote_context *c,
+						const char *req_json,
+						char **resp_json)
+{
+	bool res = false;
+	opae_fpgaUpdateProperties_request req;
+	opae_fpgaUpdateProperties_response resp;
+	char hash_key[OPAE_MAX_TOKEN_HASH];
+	fpga_token token = NULL;
+
+	if (!opae_decode_fpgaUpdateProperties_request_4(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaUpdateProperties request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaUpdateProperties_response_4");
+
+	resp.result = FPGA_INVALID_PARAM;
+	resp.properties = NULL;
+
+	opae_token_header_to_hash_key(&req.token,
+				      hash_key,
+				      sizeof(hash_key));
+
+	// Find the token in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_token_map,
+				hash_key,
+				&token) != FPGA_OK) {
+		OPAE_ERR("token lookup failed for %s", hash_key);
+		*resp_json = opae_encode_fpgaUpdateProperties_response_4(
+				&resp,
+				c->json_to_string_flags);
+		goto out_destroy;
+	}
+
+	resp.result = fpgaUpdateProperties(token, &resp.properties);
+
+	*resp_json = opae_encode_fpgaUpdateProperties_response_4(
 			&resp,
 			c->json_to_string_flags);
 

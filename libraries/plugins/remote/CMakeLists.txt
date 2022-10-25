@@ -50,6 +50,7 @@ opae_add_module_library(TARGET opae-r
         dl
         ${CMAKE_THREAD_LIBS_INIT}
         opae-c
+	opae-serialize
         ${libjson-c_LIBRARIES}
         ${libuuid_LIBRARIES}
     COMPONENT opaeclib
@@ -58,4 +59,5 @@ opae_add_module_library(TARGET opae-r
 target_include_directories(opae-r
     PRIVATE
         ${OPAE_LIB_SOURCE}/libopae-c
+        ${OPAE_LIB_SOURCE}/libopae-serialize
 )

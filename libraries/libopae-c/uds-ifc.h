@@ -23,51 +23,38 @@
 // CONTRACT,  STRICT LIABILITY,  OR TORT  (INCLUDING NEGLIGENCE  OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,  EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-#ifndef __OPAE_SERIALIZE_ACTION_H__
-#define __OPAE_SERIALIZE_ACTION_H__
-#include "request.h"
-#include "response.h"
-#include "hash_map.h"
+#ifndef __OPAE_UDS_IFC_H__
+#define __OPAE_UDS_IFC_H__
+#include "rmt-ifc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
 
-#define OPAE_MAX_TOKEN_HASH (HOST_NAME_MAX + 1 + 32)
+typedef struct _opae_uds_client_connection {
+        char socket_name[OPAE_SOCKET_NAME_MAX];
+        int client_socket;
+	int send_flags;
+	int receive_flags;
+} opae_uds_client_connection;
 
-typedef struct _opae_remote_context {
-	int json_to_string_flags;
-	opae_hash_map remote_id_to_token_map;
+int opae_uds_client_open(void *con);
 
-} opae_remote_context;
+int opae_uds_client_close(void *con);
 
-fpga_result opae_init_remote_context(opae_remote_context *c);
-fpga_result opae_release_remote_context(opae_remote_context *c);
+ssize_t opae_uds_client_send(void *con, const void *buf, size_t len);
 
-bool opae_handle_fpgaEnumerate_request_0(opae_remote_context *c,
-					 const char *req_json,
-					 char **resp_json);
+ssize_t opae_uds_client_receive(void *con, void *buf, size_t len);
 
-bool opae_handle_fpgaDestroyToken_request_1(opae_remote_context *c,
-					    const char *req_json,
-					    char **resp_json);
+int opae_uds_client_release(void *con);
 
-bool opae_handle_fpgaCloneToken_request_2(opae_remote_context *c,
-					  const char *req_json,
-					  char **resp_json);
-
-bool opae_handle_fpgaGetProperties_request_3(opae_remote_context *c,
-					     const char *req_json,
-					     char **resp_json);
-
-bool opae_handle_fpgaUpdateProperties_request_4(opae_remote_context *c,
-						const char *req_json,
-						char **resp_json);
-
-
+int opae_uds_ifc_init(opae_remote_client_ifc *i,
+		      const char *socket_name,
+		      int send_flags,
+		      int receive_flags);
 
 #ifdef __cplusplus
 }
 #endif // __cplusplus
 
-#endif // __OPAE_SERIALIZE_ACTION_H__
+#endif // __OPAE_UDS_IFC_H__
