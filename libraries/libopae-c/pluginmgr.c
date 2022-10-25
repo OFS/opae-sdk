@@ -631,6 +631,7 @@ out_unlock:
 	return cb_res;
 }
 
+#ifdef OPAE_BUILD_REMOTE
 int opae_plugin_mgr_for_each_remote
 	(int (*callback)(opae_remote_client_ifc *, void *), void *context)
 {
@@ -655,6 +656,7 @@ int opae_plugin_mgr_for_each_remote
 
 	return cb_res;
 }
+#endif // OPAE_BUILD_REMOTE
 
 int opae_plugin_mgr_register_plugin(const char *name, const char *cfg)
 {
