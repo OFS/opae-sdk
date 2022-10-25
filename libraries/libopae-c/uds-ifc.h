@@ -32,8 +32,8 @@ extern "C" {
 #endif // __cplusplus
 
 typedef struct _opae_uds_client_connection {
-        char socket_name[OPAE_SOCKET_NAME_MAX];
-        int client_socket;
+	char socket_name[OPAE_SOCKET_NAME_MAX];
+	int client_socket;
 	int send_flags;
 	int receive_flags;
 } opae_uds_client_connection;

@@ -45,23 +45,23 @@ int opae_uds_client_open(void *con)
 {
 	opae_uds_client_connection *c =
 		(opae_uds_client_connection *)con;
-        struct sockaddr_un addr;
-        size_t len;
+	struct sockaddr_un addr;
+	size_t len;
 
 	if (c->client_socket >= 0)
 		return 0; // already open
 
-        c->client_socket = socket(AF_UNIX, SOCK_STREAM, 0);
-        if (c->client_socket < 0) {
-                OPAE_ERR("socket() failed: %s", strerror(errno));
-                return 1;
-        }
+	c->client_socket = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (c->client_socket < 0) {
+		OPAE_ERR("socket() failed: %s", strerror(errno));
+		return 1;
+	}
 
 	len = strnlen(c->socket_name, OPAE_SOCKET_NAME_MAX);
 
-        addr.sun_family = AF_UNIX;
-        memcpy(addr.sun_path, c->socket_name, len);
-        addr.sun_path[len] = '\0';
+	addr.sun_family = AF_UNIX;
+	memcpy(addr.sun_path, c->socket_name, len);
+	addr.sun_path[len] = '\0';
 
 	if (connect(c->client_socket,
 		    (struct sockaddr *)&addr,

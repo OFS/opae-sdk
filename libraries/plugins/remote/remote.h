@@ -157,7 +157,7 @@ struct _remote_token {
 };
 
 struct _remote_token *
-opae_create_remote_token(fpga_token_header *hdr, 
+opae_create_remote_token(fpga_token_header *hdr,
 			 opae_remote_client_ifc *ifc,
 			 int json_to_string_flags);
 

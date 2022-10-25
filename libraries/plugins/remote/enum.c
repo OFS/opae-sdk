@@ -61,7 +61,7 @@ int opae_plugin_mgr_for_each_remote
 
 struct _remote_token *
 opae_create_remote_token(fpga_token_header *hdr,
-                         opae_remote_client_ifc *ifc,
+			 opae_remote_client_ifc *ifc,
 			 int json_to_string_flags)
 {
 	struct _remote_token *t =
@@ -164,7 +164,7 @@ printf("%s\n", recvbuf);
 	}
 
 	if (space_remaining > resp.num_matches)
-                space_remaining = resp.num_matches;
+		space_remaining = resp.num_matches;
 
 	for (i = 0 ; i < space_remaining ; ++i) {
 		struct _remote_token *token =
@@ -227,7 +227,7 @@ fpga_result __REMOTE_API__ remote_fpgaEnumerate(const fpga_properties *filters,
 	enum_context.max_tokens = max_tokens;
 	enum_context.num_matches = num_matches;
 	enum_context.num_tokens = 0;
-        enum_context.errors = 0;
+	enum_context.errors = 0;
 	enum_context.json_to_string_flags = JSON_C_TO_STRING_SPACED |
 					    JSON_C_TO_STRING_PRETTY;
 
