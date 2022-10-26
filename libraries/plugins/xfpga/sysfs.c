@@ -1731,11 +1731,11 @@ enum fpga_hw_type opae_id_to_hw_type(uint16_t vendor_id, uint16_t device_id)
 	} else if (vendor_id == 0x1c2c) { /* Silicom Denmark */
 
 		switch (device_id) {
-		case 0x1000: /* Lightning Creek */
+		case 0x1000: /* FALLTHROUGH */ /* Lightning Creek */
+		case 0x1001: /* FALLTHROUGH */ /* Lightning Creek featuring E810 Adapter */
+		case 0x1002: /* FALLTHROUGH */ /* Lightning Creek N5013 */
+		case 0x1003: /* FALLTHROUGH */ /* Lightning Creek N5014 featuring E810 Adapter */
 			hw_type = FPGA_HW_DCP_N5010;
-		break;
-		case 0x1001: /* Lightning Creek featuring E810 Adapter */
-			hw_type = FPGA_HW_DCP_N5011;
 		break;
 		default:
 			OPAE_ERR("unknown Silicom device id: 0x%04x", device_id);
