@@ -1,4 +1,4 @@
-// Copyright(c) 2017-2021, Intel Corporation
+// Copyright(c) 2017-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -126,9 +126,12 @@ typedef enum {
 	/** FPGA_IFC_VFIO indicates that the plugin interface is the
 	 * vfio-pci driver. */
 	FPGA_IFC_VFIO,
-	/** FPGA_IFC_SIM indicates that the plugin interface is the
-	 * AFU Simulation Environment. */
-	FPGA_IFC_SIM
+	/** FPGA_IFC_SIM_DFL indicates that the plugin interface is the
+	 * AFU Simulation Environment simulating DFL drivers. */
+	FPGA_IFC_SIM_DFL,
+	/** FPGA_IFC_SIM_VFIO indicates that the plugin interface is the
+	 * AFU Simulation Environment simulating vfio-pci. */
+	FPGA_IFC_SIM_VFIO
 } fpga_interface;
 
 /**

@@ -127,7 +127,8 @@ PYBIND11_MODULE(_opae, m) {
                             "OPAE interfaces")
       .value("IFC_DFL", FPGA_IFC_DFL)
       .value("IFC_VFIO", FPGA_IFC_VFIO)
-      .value("IFC_SIM", FPGA_IFC_SIM)
+      .value("IFC_SIM_DFL", FPGA_IFC_SIM_DFL)
+      .value("IFC_SIM_VFIO", FPGA_IFC_SIM_VFIO)
       .export_values();
 
   // version method
