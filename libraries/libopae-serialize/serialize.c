@@ -140,14 +140,15 @@ opae_str_to_objtype(const char *s)
 	return (fpga_objtype)-1;
 }
 
-#define NUM_FPGA_IFCS 3
+#define NUM_FPGA_IFCS 4
 STATIC struct {
 	fpga_interface ifc;
 	const char *str;
 } ifc_table[NUM_FPGA_IFCS] = {
-	{ FPGA_IFC_DFL,  "FPGA_IFC_DFL"  },
-	{ FPGA_IFC_VFIO, "FPGA_IFC_VFIO" },
-	{ FPGA_IFC_SIM,  "FPGA_IFC_SIM"  }
+	{ FPGA_IFC_DFL,      "FPGA_IFC_DFL"      },
+	{ FPGA_IFC_VFIO,     "FPGA_IFC_VFIO"     },
+	{ FPGA_IFC_SIM_DFL,  "FPGA_IFC_SIM_DFL"  },
+	{ FPGA_IFC_SIM_VFIO, "FPGA_IFC_SIM_VFIO" }
 };
 
 STATIC const char *
