@@ -141,6 +141,60 @@ fpga_result read_max10fw_version(fpga_token token, char *max10fw_ver, size_t len
 	return res;
 }
 
+// Read mac information
+fpga_result read_mac_addr(fpga_token token, struct ether_addr *mac_addr)
+{
+	fpga_result res = FPGA_OK;
+	char buf[MAC_BUF_LEN] = { 0 };
+	memset(mac_addr, 0, sizeof(struct ether_addr));
+
+	res = read_sysfs(token, DFL_SYSFS_MACADDR_PATH, (char *)buf, MAC_BUF_LEN - 1);
+	if (res != FPGA_OK) {
+		OPAE_ERR("Failed to read mac information");
+		return res;
+	}
+
+	ether_aton_r(buf, mac_addr);
+
+	if ((mac_addr->ether_addr_octet[0] == 0xff) &&
+		(mac_addr->ether_addr_octet[1] == 0xff) &&
+		(mac_addr->ether_addr_octet[2] == 0xff) &&
+		(mac_addr->ether_addr_octet[3] == 0xff) &&
+		(mac_addr->ether_addr_octet[4] == 0xff) &&
+		(mac_addr->ether_addr_octet[5] == 0xff)) {
+		OPAE_ERR("Invalid MAC address");
+		return FPGA_EXCEPTION;
+	}
+
+	return res;
+}
+
+// print BOM info
+fpga_result print_bom_info(const fpga_token token)
+{
+	fpga_result res = FPGA_OK;
+	struct ether_addr mac_addr;
+
+	res = read_mac_addr(token, &mac_addr);
+	if (res != FPGA_OK) {
+		return res;
+	}
+
+	// print card serial if Silicom Denmark MAC
+	if ((mac_addr.ether_addr_octet[0] == 0x00) &&
+		(mac_addr.ether_addr_octet[1] == 0x21) &&
+		(mac_addr.ether_addr_octet[2] == 0xb2) &&
+		((mac_addr.ether_addr_octet[3] == 0x2c) || (mac_addr.ether_addr_octet[3] == 0x2d))) {
+		char serial_name[] = "FB4CGG2@S10D21-D20";  //N5014
+		if (mac_addr.ether_addr_octet[3] == 0x2d)
+			serial_name[16] = '0';  //N5013
+		uint32_t number = (mac_addr.ether_addr_octet[4] << 4) + (mac_addr.ether_addr_octet[5] >> 4);
+		printf("%-32s : %s.%04u\n", "Board Serial", serial_name, number);
+	}
+
+	return res;
+}
+
 // print board information
 fpga_result print_board_info(fpga_token token)
 {
@@ -164,6 +218,8 @@ fpga_result print_board_info(fpga_token token)
 	printf("Board Management Controller, MAX10 NIOS FW version: %s \n", bmc_ver);
 	printf("Board Management Controller, MAX10 Build version: %s \n", max10_ver);
 
+	print_bom_info(token); // ignore errors
+
 	return resval;
 }
 
@@ -177,20 +233,15 @@ fpga_result print_sec_info(fpga_token token)
 fpga_result print_mac_info(fpga_token token)
 {
 	fpga_result res = FPGA_OK;
-	char buf[MAC_BUF_LEN] = { 0 };
 	char count[MAC_BUF_LEN] = { 0 };
 	int n = 0;
 	char *endptr = NULL;
 	struct ether_addr mac_addr ;
-	memset(&mac_addr, 0, sizeof(mac_addr));
 
-	res = read_sysfs(token, DFL_SYSFS_MACADDR_PATH, (char *)buf, MAC_BUF_LEN - 1);
+	res = read_mac_addr(token, &mac_addr);
 	if (res != FPGA_OK) {
-		OPAE_ERR("Failed to read mac information");
 		return res;
 	}
-
-	ether_aton_r(buf, &mac_addr);
 
 	res = read_sysfs(token, DFL_SYSFS_MACCNT_PATH, (char *)count, MAC_BUF_LEN - 1);
 	if (res != FPGA_OK) {
@@ -208,16 +259,6 @@ fpga_result print_mac_info(fpga_token token)
 
 	if (n < 0 || n > 0xFFFF) {
 		OPAE_ERR("Invalid mac count");
-		return FPGA_EXCEPTION;
-	}
-
-	if ((mac_addr.ether_addr_octet[0] == 0xff) &&
-		(mac_addr.ether_addr_octet[1] == 0xff) &&
-		(mac_addr.ether_addr_octet[2] == 0xff) &&
-		(mac_addr.ether_addr_octet[3] == 0xff) &&
-		(mac_addr.ether_addr_octet[4] == 0xff) &&
-		(mac_addr.ether_addr_octet[5] == 0xff)) {
-		OPAE_ERR("Invalid MAC address");
 		return FPGA_EXCEPTION;
 	}
 

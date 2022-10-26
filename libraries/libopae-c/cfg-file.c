@@ -260,6 +260,8 @@ int opae_parse_device_id(json_object *j_id,
 STATIC libopae_config_data default_libopae_config_table[] = {
 	{ 0x1c2c, 0x1000, 0x0000,          0x0000,          "libxfpga.so",  "{}", 0 }, // N5010
 	{ 0x1c2c, 0x1001, 0x0000,          0x0000,          "libxfpga.so",  "{}", 0 }, // N5011
+	{ 0x1c2c, 0x1002, 0x0000,          0x0000,          "libxfpga.so",  "{}", 0 }, // N5013
+	{ 0x1c2c, 0x1003, 0x0000,          0x0000,          "libxfpga.so",  "{}", 0 }, // N5014
 	{ 0x8086, 0xbcbd, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // MCP
 	{ 0x8086, 0xbcc0, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // MCP
 	{ 0x8086, 0xbcc1, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // MCP
@@ -390,6 +392,12 @@ STATIC fpgainfo_config_data default_fpgainfo_config_table[] = {
 
 	{ 0x1c2c, 0x1001, 0x0, 0x0, 0xe, "libboard_n5010.so", NULL,
 	"Silicom FPGA SmartNIC N5010 Series" },
+
+	{ 0x1c2c, 0x1002, 0x0, 0x0, 0xe, "libboard_n5010.so", NULL,
+	"Silicom FPGA SmartNIC N5013" },
+
+	{ 0x1c2c, 0x1003, 0x0, 0x0, 0xe, "libboard_n5010.so", NULL,
+	"Silicom FPGA SmartNIC N5014" },
 
 	{ 0x8086, 0xaf00, 0x8086, 0x0, 0xe, "libboard_d5005.so", NULL,
 	"Intel Open FPGA Stack Platform" },
