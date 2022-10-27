@@ -180,7 +180,7 @@ TEST_P(sysobject_mock_p, xfpga_fpgaObjectRead) {
 
 TEST_P(sysobject_mock_p, xfpga_fpgaObjectWrite64) {
   _fpga_handle *h = static_cast<_fpga_handle *>(device_);
-  _fpga_token *tok = static_cast<_fpga_token *>(h->token);
+  _fpga_token *tok = static_cast<_fpga_token *>(h->hdr.plugin_token);
   std::string syspath(tok->sysfspath);
   syspath += "/testdata";
   auto fp = system_->register_file(syspath);

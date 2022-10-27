@@ -129,10 +129,10 @@ TEST(common, prop_check_and_lock) {
  */
 TEST_P(common_c_p, handle_check_and_lock) {
   struct _fpga_handle *h = (struct _fpga_handle*)device_;
-  h->magic = 0x123;
+  h->hdr.magic = 0x123;
   auto res = handle_check_and_lock((struct _fpga_handle*)device_);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
-  h->magic = FPGA_HANDLE_MAGIC;
+  h->hdr.magic = FPGA_HANDLE_MAGIC;
   res = handle_check_and_lock((struct _fpga_handle*)device_);
   EXPECT_EQ(FPGA_OK, res);
 }

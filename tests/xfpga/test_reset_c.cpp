@@ -82,11 +82,11 @@ TEST_P(reset_c_p, test_port_drv_reset_02) {
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaReset(NULL));
 
   struct _fpga_handle* _handle = (struct _fpga_handle*)accel_;
-  _handle->magic = 0x123;
+  _handle->hdr.magic = 0x123;
 
   EXPECT_NE(FPGA_OK, xfpga_fpgaReset(accel_));
 
-  _handle->magic = FPGA_HANDLE_MAGIC;
+  _handle->hdr.magic = FPGA_HANDLE_MAGIC;
 }
 
 /**
