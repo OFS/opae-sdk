@@ -414,7 +414,7 @@ vfio_handle *handle_check(fpga_handle handle)
 	ASSERT_NOT_NULL_RESULT(handle, NULL);
 	vfio_handle *h = (vfio_handle *)handle;
 
-	if (h->magic != VFIO_HANDLE_MAGIC) {
+	if (h->hdr.magic != VFIO_HANDLE_MAGIC) {
 		OPAE_ERR("invalid handle magic");
 		return NULL;
 	}
@@ -668,8 +668,11 @@ fpga_result vfio_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 		goto out_attr_destroy;
 	}
 
-	_handle->magic = VFIO_HANDLE_MAGIC;
-	_handle->token = clone_token(_token);
+	_handle->hdr.magic = VFIO_HANDLE_MAGIC;
+	opae_get_host_name_buf(_handle->hdr.hostname, HOST_NAME_MAX);
+
+	_handle->hdr.plugin_token = clone_token(_token);
+
 	res = open_vfio_pair(_token->device->addr, &_handle->vfio_pair);
 	if (res) {
 		OPAE_DBG("error opening vfio device");
@@ -717,8 +720,8 @@ fpga_result vfio_fpgaClose(fpga_handle handle)
 
 	ASSERT_NOT_NULL(h);
 
-	if (token_check(h->token))
-		free(h->token);
+	if (token_check(h->hdr.plugin_token))
+		free(h->hdr.plugin_token);
 	else
 		OPAE_MSG("invalid token in handle");
 
@@ -740,7 +743,7 @@ fpga_result vfio_fpgaReset(fpga_handle handle)
 
 	fpga_result res = FPGA_NOT_SUPPORTED;
 
-	vfio_token *t = h->token;
+	vfio_token *t = (vfio_token *)h->hdr.plugin_token;
 
 	if (t->hdr.objtype == FPGA_ACCELERATOR && t->ops.reset) {
 		res = t->ops.reset(t->device, h->mmio_base);
@@ -895,7 +898,7 @@ fpga_result vfio_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties
 
 	ASSERT_NOT_NULL(h);
 
-	vfio_token *t = h->token;
+	vfio_token *t = (vfio_token *)h->hdr.plugin_token;
 
 	return vfio_fpgaGetProperties(t, prop);
 }
@@ -904,7 +907,8 @@ static inline volatile uint8_t *get_user_offset(vfio_handle *h,
 						uint32_t mmio_num,
 						uint32_t offset)
 {
-	uint32_t user_mmio = h->token->user_mmio[mmio_num];
+	vfio_token *t = (vfio_token *)h->hdr.plugin_token;
+	uint32_t user_mmio = t->user_mmio[mmio_num];
 
 	return h->mmio_base + user_mmio + offset;
 }
@@ -919,7 +923,7 @@ fpga_result vfio_fpgaWriteMMIO64(fpga_handle handle,
 
 	ASSERT_NOT_NULL(h);
 
-	vfio_token *t = h->token;
+	vfio_token *t = (vfio_token *)h->hdr.plugin_token;
 
 	if (t->hdr.objtype == FPGA_DEVICE)
 		return FPGA_NOT_SUPPORTED;
@@ -944,7 +948,7 @@ fpga_result vfio_fpgaReadMMIO64(fpga_handle handle,
 
 	ASSERT_NOT_NULL(h);
 
-	vfio_token *t = h->token;
+	vfio_token *t = (vfio_token *)h->hdr.plugin_token;
 
 	if (t->hdr.objtype == FPGA_DEVICE)
 		return FPGA_NOT_SUPPORTED;
@@ -969,7 +973,7 @@ fpga_result vfio_fpgaWriteMMIO32(fpga_handle handle,
 
 	ASSERT_NOT_NULL(h);
 
-	vfio_token *t = h->token;
+	vfio_token *t = (vfio_token *)h->hdr.plugin_token;
 
 	if (t->hdr.objtype == FPGA_DEVICE)
 		return FPGA_NOT_SUPPORTED;
@@ -994,7 +998,7 @@ fpga_result vfio_fpgaReadMMIO32(fpga_handle handle,
 
 	ASSERT_NOT_NULL(h);
 
-	vfio_token *t = h->token;
+	vfio_token *t = (vfio_token *)h->hdr.plugin_token;
 
 	if (t->hdr.objtype == FPGA_DEVICE)
 		return FPGA_NOT_SUPPORTED;
@@ -1036,7 +1040,7 @@ fpga_result vfio_fpgaWriteMMIO512(fpga_handle handle,
 
 	ASSERT_NOT_NULL(h);
 
-	vfio_token *t = h->token;
+	vfio_token *t = (vfio_token *)h->hdr.plugin_token;
 
 	if (offset % 64 != 0) {
 		OPAE_MSG("Misaligned MMIO access");
@@ -1069,7 +1073,7 @@ fpga_result vfio_fpgaMapMMIO(fpga_handle handle,
 
 	ASSERT_NOT_NULL(h);
 
-	vfio_token *t = h->token;
+	vfio_token *t = (vfio_token *)h->hdr.plugin_token;
 
 	if (mmio_num > t->user_mmio_count)
 		return FPGA_INVALID_PARAM;
@@ -1088,7 +1092,7 @@ fpga_result vfio_fpgaUnmapMMIO(fpga_handle handle,
 
 	ASSERT_NOT_NULL(h);
 
-	vfio_token *t = h->token;
+	vfio_token *t = (vfio_token *)h->hdr.plugin_token;
 
 	if (mmio_num > t->user_mmio_count)
 		return FPGA_INVALID_PARAM;

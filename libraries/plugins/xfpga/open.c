@@ -80,9 +80,9 @@ xfpga_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 	memset(_handle, 0, sizeof(*_handle));
 
 	// mark data structure as valid
-	_handle->magic = FPGA_HANDLE_MAGIC;
-
-	_handle->token = token;
+	_handle->hdr.magic = FPGA_HANDLE_MAGIC;
+	opae_get_host_name_buf(_handle->hdr.hostname, HOST_NAME_MAX);
+	_handle->hdr.plugin_token = token;
 
 	_handle->fdfpgad = -1;
 

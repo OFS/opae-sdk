@@ -67,7 +67,7 @@ opae_create_remote_token(fpga_token_header *hdr,
 	struct _remote_token *t =
 		(struct _remote_token *)opae_calloc(1, sizeof(*t));
 	if (t) {
-		t->header = *hdr;
+		t->hdr = *hdr;
 		t->ifc = ifc;
 		t->json_to_string_flags = json_to_string_flags;
 	}
@@ -257,7 +257,7 @@ fpga_result __REMOTE_API__ remote_fpgaCloneToken(fpga_token src, fpga_token *dst
 
 	tok = (struct _remote_token *)src;
 
-	req.src_token = tok->header;
+	req.src_token = tok->hdr;
 
 	req_json = opae_encode_fpgaCloneToken_request_2(
 		&req, tok->json_to_string_flags);
@@ -320,7 +320,7 @@ fpga_result __REMOTE_API__ remote_fpgaDestroyToken(fpga_token *token)
 
 	tok = (struct _remote_token *)*token;
 
-	req.token = tok->header;
+	req.token = tok->hdr;
 
 	req_json = opae_encode_fpgaDestroyToken_request_1(
 		&req, tok->json_to_string_flags);

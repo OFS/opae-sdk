@@ -77,7 +77,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaClose(fpga_handle handle)
 		opae_close(_handle->fdfpgad);
 
 	// invalidate magic (just in case)
-	_handle->magic = FPGA_INVALID_MAGIC;
+	_handle->hdr.magic = FPGA_INVALID_MAGIC;
 
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err) {

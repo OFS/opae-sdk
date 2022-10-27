@@ -295,4 +295,11 @@ typedef struct _fpga_token_header {
  ((__parent_hdr)->bus == (__child_hdr)->bus) && \
  ((__parent_hdr)->device == (__child_hdr)->device))
 
+typedef struct _fpga_handle_header {
+	uint64_t magic;
+	fpga_token plugin_token;
+	char hostname[HOST_NAME_MAX + 1];
+	uint64_t remote_id;
+} fpga_handle_header;
+
 #endif // __FPGA_TYPES_H__

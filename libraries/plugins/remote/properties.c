@@ -103,7 +103,7 @@ remote_fpgaUpdateProperties(fpga_token token, fpga_properties prop)
 
 	tok = (struct _remote_token *)token;
 
-	req.token = tok->header;
+	req.token = tok->hdr;
 
 	req_json = opae_encode_fpgaUpdateProperties_request_4(
 		&req, tok->json_to_string_flags);

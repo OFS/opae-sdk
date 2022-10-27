@@ -59,7 +59,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaSetUserClock(fpga_handle handle,
 		goto out_unlock;
 	}
 
-	_token = (struct _fpga_token *)_handle->token;
+	_token = (struct _fpga_token *)_handle->hdr.plugin_token;
 	if (_token == NULL) {
 		OPAE_ERR("Token not found");
 		result = FPGA_INVALID_PARAM;
@@ -114,7 +114,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaGetUserClock(fpga_handle handle,
 		goto out_unlock;
 	}
 
-	_token = (struct _fpga_token *)_handle->token;
+	_token = (struct _fpga_token *)_handle->hdr.plugin_token;
 	if (_token == NULL) {
 		OPAE_ERR("Token not found");
 		result = FPGA_INVALID_PARAM;

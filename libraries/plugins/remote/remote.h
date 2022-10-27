@@ -146,12 +146,8 @@ fpga_result remote_fpgaGetMetricsThresholdInfo(fpga_handle handle,
 			metric_threshold *metric_threshold,
 			uint32_t *num_thresholds);
 
-#ifdef __cplusplus
-}
-#endif // __cplusplus
-
 struct _remote_token {
-	fpga_token_header header; //< Must appear at offset 0!
+	fpga_token_header hdr; //< Must appear at offset 0!
 	opae_remote_client_ifc *ifc;
 	int json_to_string_flags;
 };
@@ -164,9 +160,13 @@ opae_create_remote_token(fpga_token_header *hdr,
 void opae_destroy_remote_token(struct _remote_token *t);
 
 struct _remote_handle {
-
+	fpga_handle_header hdr; //< Must appear at offset 0!
 	struct _remote_token *token;
 
 };
+
+#ifdef __cplusplus
+}
+#endif // __cplusplus
 
 #endif // __OPAE_REMOTE_PLUGIN_H__

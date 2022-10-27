@@ -117,7 +117,7 @@ STATIC fpga_result validate_bitstream(fpga_handle handle,
 }
 
 
-// open child accelerator exclusively - it not, it's busy!
+// open child accelerator exclusively - if not, it's busy!
 STATIC fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
 {
 	fpga_result result                = FPGA_OK;
@@ -132,7 +132,7 @@ STATIC fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
 		return FPGA_INVALID_PARAM;
 	}
 
-	if (_handle->token == NULL) {
+	if (_handle->hdr.plugin_token == NULL) {
 		OPAE_ERR("Invalid token within handle");
 		return FPGA_INVALID_PARAM;
 	}
@@ -141,7 +141,8 @@ STATIC fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
 	if (result != FPGA_OK)
 		return result;
 
-	result = fpgaPropertiesSetParent(props, _handle->token);
+	result = fpgaPropertiesSetParent(props,
+					 _handle->hdr.plugin_token);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Error setting parent in properties.");
 		goto free_props;

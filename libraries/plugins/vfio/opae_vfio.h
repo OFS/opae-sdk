@@ -1,4 +1,4 @@
-// Copyright(c) 2020-2021, Intel Corporation
+// Copyright(c) 2020-2022, Intel Corporation
 //
 // Redistribution  and  use  in source  and  binary  forms,  with  or  without
 // modification, are permitted provided that the following conditions are met:
@@ -126,10 +126,8 @@ typedef struct _vfio_pair {
 } vfio_pair_t;
 
 typedef struct _vfio_handle {
-	uint32_t magic;
-	struct _vfio_token *token;
+	fpga_handle_header hdr; //< Must appear at offset 0!
 	vfio_pair_t *vfio_pair;
-
 	volatile uint8_t *mmio_base;
 	size_t mmio_size;
 	pthread_mutex_t lock;

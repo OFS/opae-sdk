@@ -151,9 +151,8 @@ struct _fpga_bmc_metric {
 
 /** Process-wide unique FPGA handle */
 struct _fpga_handle {
+	fpga_handle_header hdr; //< Must appear at offset 0!
 	pthread_mutex_t lock;
-	uint64_t magic;
-	fpga_token token;
 
 	int fddev;                      // file descriptor for the device.
 	int fdfpgad;                    // file descriptor for the event daemon.
@@ -207,16 +206,6 @@ struct wsid_map {
 struct wsid_tracker {
 	uint64_t          n_hash_buckets;
 	struct wsid_map **table;
-};
-
-/*
- * Global list to store tokens received during enumeration
- * Since tokens as seen by the API are only void*, we need to keep the actual
- * structs somewhere.
- */
-struct token_map {
-	struct _fpga_token _token;
-	struct token_map *next;
 };
 
 typedef enum {
