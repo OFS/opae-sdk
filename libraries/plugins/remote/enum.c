@@ -241,17 +241,65 @@ fpga_result __REMOTE_API__ remote_fpgaEnumerate(const fpga_properties *filters,
 
 fpga_result __REMOTE_API__ remote_fpgaCloneToken(fpga_token src, fpga_token *dst)
 {
-	if (NULL == src || NULL == dst) {
-		OPAE_MSG("src or dst in NULL");
+	opae_fpgaCloneToken_request req;
+	opae_fpgaCloneToken_response resp;
+	struct _remote_token *tok;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
+	struct _remote_token *_dst;
+
+	if (!src || !dst) {
+		OPAE_ERR("src or dst token is NULL");
 		return FPGA_INVALID_PARAM;
 	}
 
+	tok = (struct _remote_token *)src;
 
+	req.src_token = tok->header;
 
+	req_json = opae_encode_fpgaCloneToken_request_2(
+		&req, tok->json_to_string_flags);
 
+	if (!req_json)
+		return FPGA_NO_MEMORY;
 
+	len = strlen(req_json);
 
-	return FPGA_OK;
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+	if (!opae_decode_fpgaCloneToken_response_2(recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	if (resp.result == FPGA_OK) {
+		_dst = opae_create_remote_token(&resp.dest_token,
+						tok->ifc,
+						tok->json_to_string_flags);
+
+		if (!_dst)
+			return FPGA_NO_MEMORY;
+
+		*dst = _dst;
+	}
+
+	return resp.result;
 }
 
 fpga_result __REMOTE_API__ remote_fpgaDestroyToken(fpga_token *token)

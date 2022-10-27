@@ -347,8 +347,8 @@ bool opae_handle_fpgaCloneToken_request_2(opae_remote_context *c,
 		char *dest_hash_key;
 		fpga_result result;
 
-		if (!hdr->remote_id)
-			hdr->remote_id = opae_next_remote_id();
+		// Don't reuse the source token's remote ID.
+		hdr->remote_id = opae_next_remote_id();
 
 		resp.dest_token = *hdr;
 
@@ -356,6 +356,7 @@ bool opae_handle_fpgaCloneToken_request_2(opae_remote_context *c,
 			opae_token_header_to_hash_key_alloc(&resp.dest_token);
 
 		if (!dest_hash_key) {
+			fpgaDestroyToken(&dest_token);
 			OPAE_ERR("strdup failed");
 			goto out;
 		}
@@ -365,6 +366,7 @@ bool opae_handle_fpgaCloneToken_request_2(opae_remote_context *c,
 				dest_hash_key,
 				dest_token);
 		if (result) {
+			fpgaDestroyToken(&dest_token);
 			opae_str_key_cleanup(dest_hash_key);
 			goto out;
 		}
