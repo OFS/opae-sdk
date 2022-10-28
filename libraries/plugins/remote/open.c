@@ -30,26 +30,94 @@
 
 #include <opae/types.h>
 
-//#include "common_int.h"
-//#include <opae/access.h>
-//#include <opae/utils.h>
-//#include "types_int.h"
-
 #include "mock/opae_std.h"
 
-//#include <string.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <ctype.h>
+#include "request.h"
+#include "response.h"
+#include "remote.h"
+
+struct _remote_handle *
+opae_create_remote_handle(struct _remote_token *token,
+                          fpga_handle_header *hdr)
+{
+        struct _remote_handle *h =
+                (struct _remote_handle *)opae_calloc(1, sizeof(*h));
+        if (h) {
+                h->hdr = *hdr;
+                h->token = token;
+        }
+        return h;
+}
+
+void opae_destroy_remote_handle(struct _remote_handle *h)
+{
+	opae_free(h);
+}
 
 fpga_result __REMOTE_API__
 remote_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 {
-	fpga_result result = FPGA_NOT_FOUND;
-(void) token;
-(void) handle;
-(void) flags;
+        opae_fpgaOpen_request req;
+        opae_fpgaOpen_response resp;
+	struct _remote_token *tok;
+	struct _remote_handle *h;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+        if (!token) {
+                OPAE_ERR("NULL token");
+                return FPGA_INVALID_PARAM;
+        }
+
+        if (!handle) {
+                OPAE_ERR("NULL handle pointer");
+                return FPGA_INVALID_PARAM;
+        }
+
+	tok = (struct _remote_token *)token;
+	req.token = tok->hdr;
+	req.flags = flags;
+
+        req_json = opae_encode_fpgaOpen_request_5(
+                &req, tok->json_to_string_flags);
+
+        if (!req_json)
+                return FPGA_NO_MEMORY;
+
+        len = strlen(req_json);
+
+        slen = tok->ifc->send(tok->ifc->connection,
+                              req_json,
+                              len + 1);
+        if (slen < 0) {
+                opae_free(req_json);
+                return FPGA_EXCEPTION;
+        }
+
+        opae_free(req_json);
+
+        slen = tok->ifc->receive(tok->ifc->connection,
+                                 recvbuf,
+                                 sizeof(recvbuf));
+        if (slen < 0)
+                return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+        if (!opae_decode_fpgaOpen_response_5(recvbuf, &resp))
+                return FPGA_EXCEPTION;
+
+	h = opae_create_remote_handle(tok, &resp.handle);
+	if (!h) {
+		OPAE_ERR("calloc failed");
+		return FPGA_NO_MEMORY;
+	}
+
+	*handle = h;
+
+	return resp.result;
 
 #if 0
 	_token = (struct _fpga_token *)token;
@@ -160,5 +228,4 @@ out_free1:
 	}
 #endif
 
-	return result;
 }

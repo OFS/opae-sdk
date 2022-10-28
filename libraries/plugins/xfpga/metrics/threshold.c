@@ -71,7 +71,7 @@ fpga_result xfpga_fpgaGetMetricsThresholdInfo(fpga_handle handle,
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
 
-	_token = (struct _fpga_token *)_handle->hdr.plugin_token;
+	_token = (struct _fpga_token *)_handle->token;
 	if (_token == NULL) {
 		OPAE_ERR("Invalid token within handle");
 		return FPGA_INVALID_PARAM;
@@ -345,7 +345,7 @@ fpga_result get_max10_threshold_info(fpga_handle handle,
 
 	struct _fpga_handle *_handle = (struct _fpga_handle *)handle;
 
-	_token = (struct _fpga_token *)_handle->hdr.plugin_token;
+	_token = (struct _fpga_token *)_handle->token;
 	if (_token == NULL) {
 		OPAE_ERR("Invalid token within handle");
 		return FPGA_INVALID_PARAM;

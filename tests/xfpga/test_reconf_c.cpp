@@ -198,14 +198,14 @@ TEST_P(reconf_c, open_accel_01) {
 
   // Invalid object type
   struct _fpga_handle *handle = (struct _fpga_handle *)device_;
-  struct _fpga_token *token = (struct _fpga_token *)handle->hdr.plugin_token;
+  struct _fpga_token *token = (struct _fpga_token *)handle->token;
 
-  handle->hdr.plugin_token = NULL;
+  handle->token = NULL;
 
   result = open_accel(device_, &accel);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
-  handle->hdr.plugin_token = token;
+  handle->token = token;
 }
 
 /**

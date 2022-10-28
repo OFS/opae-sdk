@@ -88,14 +88,15 @@ out_free:
 
 STATIC char opae_hostname[HOST_NAME_MAX + 1];
 STATIC bool opae_hostname_initialized;
-static pthread_mutex_t hostname_lock =
+STATIC uint64_t next_unique_id = 1;
+static pthread_mutex_t remote_id_lock =
 	PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 int opae_get_host_name_buf(char *name, size_t len)
 {
 	int res;
 
-	opae_mutex_lock(res, &hostname_lock);
+	opae_mutex_lock(res, &remote_id_lock);
 
 	if (!opae_hostname_initialized) {
 		struct hostent *he;
@@ -107,14 +108,14 @@ int opae_get_host_name_buf(char *name, size_t len)
 		errno = 0;
 		res = gethostname(nm, HOST_NAME_MAX);
 		if (res < 0) {
-			opae_mutex_unlock(res, &hostname_lock);
+			opae_mutex_unlock(res, &remote_id_lock);
 			return errno;
 		}
 
 		h_errno = 0;
 		he = gethostbyname(nm);
 		if (!he) {
-			opae_mutex_unlock(res, &hostname_lock);
+			opae_mutex_unlock(res, &remote_id_lock);
 			return h_errno;
 		}
 
@@ -122,7 +123,7 @@ int opae_get_host_name_buf(char *name, size_t len)
 		opae_hostname_initialized = true;
 	}
 
-	opae_mutex_unlock(res, &hostname_lock);
+	opae_mutex_unlock(res, &remote_id_lock);
 
 	if (name)
 		memcpy(name, opae_hostname, len);
@@ -134,14 +135,28 @@ const char *opae_get_host_name(void)
 {
 	int res;
 
-	opae_mutex_lock(res, &hostname_lock);
+	opae_mutex_lock(res, &remote_id_lock);
 
 	if (!opae_hostname_initialized)
 		opae_get_host_name_buf(NULL, 0);
 
-	opae_mutex_unlock(res, &hostname_lock);
+	opae_mutex_unlock(res, &remote_id_lock);
 
 	return opae_hostname;
+}
+
+void opae_get_remote_id(fpga_remote_id *rid)
+{
+	int res;
+
+	memset(rid, 0, sizeof(*rid));
+
+	opae_mutex_lock(res, &remote_id_lock);
+
+	opae_get_host_name_buf(rid->hostname, HOST_NAME_MAX);
+	rid->unique_id = next_unique_id++;
+
+	opae_mutex_unlock(res, &remote_id_lock);
 }
 
 fpga_result __OPAE_API__ fpgaDestroyProperties(fpga_properties *prop)

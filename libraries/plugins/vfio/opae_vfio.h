@@ -127,6 +127,7 @@ typedef struct _vfio_pair {
 
 typedef struct _vfio_handle {
 	fpga_handle_header hdr; //< Must appear at offset 0!
+	vfio_token *token;
 	vfio_pair_t *vfio_pair;
 	volatile uint8_t *mmio_base;
 	size_t mmio_size;

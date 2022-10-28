@@ -1623,7 +1623,7 @@ fpga_result get_port_sysfs(fpga_handle handle, char *sysfs_port)
 		return FPGA_INVALID_PARAM;
 	}
 
-	_token = (struct _fpga_token *)_handle->hdr.plugin_token;
+	_token = (struct _fpga_token *)_handle->token;
 	if (_token == NULL) {
 		OPAE_ERR("Token not found");
 		return FPGA_INVALID_PARAM;
@@ -1774,7 +1774,7 @@ fpga_result get_fpga_hw_type(fpga_handle handle, enum fpga_hw_type *hw_type)
 		return FPGA_EXCEPTION;
 	}
 
-	_token = (struct _fpga_token *)_handle->hdr.plugin_token;
+	_token = (struct _fpga_token *)_handle->token;
 	if (_token == NULL) {
 		OPAE_ERR("Token not found");
 		result = FPGA_INVALID_PARAM;
@@ -1986,7 +1986,7 @@ fpga_result cat_handle_sysfs_path(char *dest, fpga_handle handle,
 				  const char *path)
 {
 	struct _fpga_handle *_handle = (struct _fpga_handle *)(handle);
-	return cat_token_sysfs_path(dest, _handle->hdr.plugin_token, path);
+	return cat_token_sysfs_path(dest, _handle->token, path);
 }
 
 struct _fpga_object *alloc_fpga_object(const char *sysfspath, const char *name)

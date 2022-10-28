@@ -130,7 +130,7 @@ TEST_P(usrclk_c, set_user_clock_neg) {
   int fddev = _handle->fddev;
 
   // Token not found
-  _handle->hdr.plugin_token = NULL;
+  _handle->token = NULL;
   result = xfpga_fpgaSetUserClock(accel_, 312, 156, flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
 
@@ -163,14 +163,14 @@ TEST_P(usrclk_c, get_user_clock_neg) {
 
   // Valid object type
   struct _fpga_handle  *_handle = (struct _fpga_handle *)accel_;
-  fpga_token save_token = _handle->hdr.plugin_token;
+  fpga_token save_token = _handle->token;
   int fddev = _handle->fddev;
 
   // Token not found
-  _handle->hdr.plugin_token = NULL;
+  _handle->token = NULL;
   result = xfpga_fpgaGetUserClock(accel_, &high, &low, flags);
   EXPECT_EQ(result, FPGA_INVALID_PARAM);
-  _handle->hdr.plugin_token = save_token;
+  _handle->token = save_token;
 
   // Invalid file handle descriptor
   _handle->fddev = -1;

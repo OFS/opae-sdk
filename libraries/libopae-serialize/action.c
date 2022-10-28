@@ -36,22 +36,6 @@
 #include "props.h"
 #include "mock/opae_std.h"
 
-STATIC uint64_t next_remote_id = 1;
-static pthread_mutex_t next_remote_id_lock =
-        PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-
-STATIC uint64_t opae_next_remote_id(void)
-{
-        uint64_t next;
-        int res;
-
-        opae_mutex_lock(res, &next_remote_id_lock);
-        next = next_remote_id++;
-        opae_mutex_unlock(res, &next_remote_id_lock);
-
-        return next;
-}
-
 /*
 STATIC uint32_t
 opae_u64_key_hash(uint32_t num_buckets, uint32_t hash_seed, void *key)
@@ -76,21 +60,21 @@ STATIC void opae_str_key_cleanup(void *key)
 	opae_free(key);
 }
 
-STATIC int opae_token_header_to_hash_key(fpga_token_header *hdr,
-					 char *buf,
-					 size_t len)
+STATIC int opae_remote_id_to_hash_key(const fpga_remote_id *rid,
+				      char *buf,
+				      size_t len)
 {
 	return snprintf(buf, len,
 			"0x%016" PRIx64 "@%s",
-			hdr->remote_id,
-			hdr->hostname);
+			rid->unique_id,
+			rid->hostname);
 }
 
-STATIC char *opae_token_header_to_hash_key_alloc(fpga_token_header *hdr)
+STATIC char *opae_remote_id_to_hash_key_alloc(const fpga_remote_id *rid)
 {
 	char buf[OPAE_MAX_TOKEN_HASH];
 
-	if (opae_token_header_to_hash_key(hdr, buf, sizeof(buf)) >=
+	if (opae_remote_id_to_hash_key(rid, buf, sizeof(buf)) >=
 		OPAE_MAX_TOKEN_HASH) {
 		OPAE_ERR("snprintf buffer overflow");
 		return NULL;
@@ -116,6 +100,16 @@ fpga_result opae_init_remote_context(opae_remote_context *c)
 	if (res)
 		return res;
 
+	res = opae_hash_map_init(&c->remote_id_to_handle_map,
+				 1024, /* num_buckets   */
+                                 0,    /* hash_seed     */
+				 murmur3_32_string_hash,
+				 opae_str_key_compare,
+				 opae_str_key_cleanup,
+				 NULL  /* value_cleanup */);
+	if (res)
+		return res;
+
 
 	return FPGA_OK;
 }
@@ -123,6 +117,7 @@ fpga_result opae_init_remote_context(opae_remote_context *c)
 fpga_result opae_release_remote_context(opae_remote_context *c)
 {
 	opae_hash_map_destroy(&c->remote_id_to_token_map);
+	opae_hash_map_destroy(&c->remote_id_to_handle_map);
 	return FPGA_OK;
 }
 
@@ -194,12 +189,11 @@ bool opae_handle_fpgaEnumerate_request_0(opae_remote_context *c,
 			fpga_token_header *hdr =
 				(fpga_token_header *)wt->opae_token;
 
-			if (!hdr->remote_id)
-				hdr->remote_id = opae_next_remote_id();
-
 			// Place tokens[i] in a map structure keyed by
 			// remote_id@hostname from the token header.
-			hash_key = opae_token_header_to_hash_key_alloc(hdr);
+			hash_key =
+				opae_remote_id_to_hash_key_alloc(
+					&hdr->token_id);
 			if (!hash_key) {
 				OPAE_ERR("strdup failed");
 				goto out_cleanup;
@@ -270,9 +264,9 @@ bool opae_handle_fpgaDestroyToken_request_1(opae_remote_context *c,
 					  "fpgaDestroyToken_response_1");
 	resp.result = FPGA_INVALID_PARAM;
 
-	opae_token_header_to_hash_key(&req.token,
-				      hash_key,
-				      sizeof(hash_key));
+	opae_remote_id_to_hash_key(&req.token.token_id,
+				   hash_key,
+				   sizeof(hash_key));
 
 	// Find the token in our remote context.
 	if (opae_hash_map_find(&c->remote_id_to_token_map,
@@ -323,9 +317,9 @@ bool opae_handle_fpgaCloneToken_request_2(opae_remote_context *c,
 	resp.result = FPGA_INVALID_PARAM;
 	memset(&resp.dest_token, 0, sizeof(resp.dest_token));
 
-	opae_token_header_to_hash_key(&req.src_token,
-				      hash_key,
-				      sizeof(hash_key));
+	opae_remote_id_to_hash_key(&req.src_token.token_id,
+				   hash_key,
+				   sizeof(hash_key));
 
 	// Find the source token in our remote context.
 	if (opae_hash_map_find(&c->remote_id_to_token_map,
@@ -347,13 +341,11 @@ bool opae_handle_fpgaCloneToken_request_2(opae_remote_context *c,
 		char *dest_hash_key;
 		fpga_result result;
 
-		// Don't reuse the source token's remote ID.
-		hdr->remote_id = opae_next_remote_id();
-
 		resp.dest_token = *hdr;
 
 		dest_hash_key =
-			opae_token_header_to_hash_key_alloc(&resp.dest_token);
+			opae_remote_id_to_hash_key_alloc(
+				&resp.dest_token.token_id);
 
 		if (!dest_hash_key) {
 			fpgaDestroyToken(&dest_token);
@@ -406,9 +398,9 @@ bool opae_handle_fpgaGetProperties_request_3(opae_remote_context *c,
 	resp.result = FPGA_INVALID_PARAM;
 	resp.properties = NULL;
 
-	opae_token_header_to_hash_key(&req.token,
-				      hash_key,
-				      sizeof(hash_key));
+	opae_remote_id_to_hash_key(&req.token.token_id,
+				   hash_key,
+				   sizeof(hash_key));
 
 	// Find the token in our remote context.
 	if (opae_hash_map_find(&c->remote_id_to_token_map,
@@ -464,9 +456,9 @@ bool opae_handle_fpgaUpdateProperties_request_4(opae_remote_context *c,
 		goto out_destroy;
 	}
 
-	opae_token_header_to_hash_key(&req.token,
-				      hash_key,
-				      sizeof(hash_key));
+	opae_remote_id_to_hash_key(&req.token.token_id,
+				   hash_key,
+				   sizeof(hash_key));
 
 	// Find the token in our remote context.
 	if (opae_hash_map_find(&c->remote_id_to_token_map,
@@ -490,5 +482,90 @@ bool opae_handle_fpgaUpdateProperties_request_4(opae_remote_context *c,
 out_destroy:
 	if (resp.properties)
 		fpgaDestroyProperties(&resp.properties);
+	return res;
+}
+
+bool opae_handle_fpgaOpen_request_5(opae_remote_context *c,
+				    const char *req_json,
+				    char **resp_json)
+{
+	bool res = false;
+	opae_fpgaOpen_request req;
+	opae_fpgaOpen_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_token token = NULL;
+	fpga_handle handle = NULL;
+
+	if (!opae_decode_fpgaOpen_request_5(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaOpen request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaOpen_response_5");
+
+	resp.result = FPGA_NOT_FOUND;
+	memset(&resp.handle, 0, sizeof(fpga_handle_header));
+
+	opae_remote_id_to_hash_key(&req.token.token_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the token in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_token_map,
+				hash_key_buf,
+				&token) != FPGA_OK) {
+		OPAE_ERR("token lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaOpen(token, &handle, req.flags);
+
+	if (resp.result == FPGA_OK) {
+		opae_wrapped_handle *wh =
+			(opae_wrapped_handle *)handle;
+		fpga_handle_header *hdr =
+			(fpga_handle_header *)wh->opae_handle;
+		char *hash_key;
+		fpga_result result;
+
+		// Place handle in a map structure keyed by
+		// remote_id@hostname from the handle header.
+
+		hash_key =
+			opae_remote_id_to_hash_key_alloc(
+				&hdr->handle_id);
+		if (!hash_key) {
+			OPAE_ERR("strdup failed");
+			goto out_respond;
+		}
+
+		// If we don't have an entry already.
+		if (opae_hash_map_find(&c->remote_id_to_handle_map,
+				       hash_key,
+				       NULL)) {
+
+			result = opae_hash_map_add(
+					&c->remote_id_to_handle_map,
+					hash_key, 
+					handle);
+			if (result) {
+				opae_str_key_cleanup(hash_key);
+				goto out_respond;
+			}
+
+		} else { // handle is already mapped.
+			opae_str_key_cleanup(hash_key);
+		}
+
+		resp.handle = *hdr;
+		res = true;
+	}
+
+out_respond:
+	*resp_json = opae_encode_fpgaOpen_response_5(
+			&resp,
+			c->json_to_string_flags);
 	return res;
 }

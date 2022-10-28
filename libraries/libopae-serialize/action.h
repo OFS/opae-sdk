@@ -38,6 +38,7 @@ extern "C" {
 typedef struct _opae_remote_context {
 	int json_to_string_flags;
 	opae_hash_map remote_id_to_token_map;
+	opae_hash_map remote_id_to_handle_map;
 
 } opae_remote_context;
 
@@ -63,6 +64,10 @@ bool opae_handle_fpgaGetProperties_request_3(opae_remote_context *c,
 bool opae_handle_fpgaUpdateProperties_request_4(opae_remote_context *c,
 						const char *req_json,
 						char **resp_json);
+
+bool opae_handle_fpgaOpen_request_5(opae_remote_context *c,
+				    const char *req_json,
+				    char **resp_json);
 
 
 

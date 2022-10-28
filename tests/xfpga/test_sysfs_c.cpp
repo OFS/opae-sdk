@@ -373,7 +373,7 @@ TEST(sysfs_c, eintr_write_tests) {
 TEST_P(sysfs_c_p, sysfs_invalid_tests) {
   const std::string sysfs_fme = "/sys/class/fpga/intel-fpga-dev/intel-fpga-fme";
   auto h = (struct _fpga_handle *)device_;
-  auto t = (struct _fpga_token *)h->hdr.plugin_token;
+  auto t = (struct _fpga_token *)h->token;
 
   char spath[SYSFS_PATH_MAX];
   fpga_result res;
@@ -383,7 +383,7 @@ TEST_P(sysfs_c_p, sysfs_invalid_tests) {
   res = get_port_sysfs(device_, spath);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 
-  h->hdr.plugin_token = NULL;
+  h->token = NULL;
   res = get_port_sysfs(device_, spath);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 }
@@ -400,12 +400,12 @@ TEST_P(sysfs_c_p, hw_type_invalid_tests) {
   auto res = get_fpga_hw_type(device_, NULL);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 
-  tok = h->hdr.plugin_token;
-  h->hdr.plugin_token = NULL;
+  tok = h->token;
+  h->token = NULL;
   res = get_fpga_hw_type(device_, &hw_type);
   EXPECT_EQ(FPGA_INVALID_PARAM, res);
 
-  h->hdr.plugin_token = tok;
+  h->token = tok;
   res = get_fpga_hw_type(device_, &hw_type);
   EXPECT_EQ(FPGA_OK, res);
 }
@@ -486,7 +486,7 @@ TEST(sysfs_c, cat_handle_sysfs_path) {
   tok.sysfspath[single_sysfs_fme.size()] = '\0';
   std::copy(single_dev_fme.begin(), single_dev_fme.end(), &tok.devpath[0]);
   tok.devpath[single_dev_fme.size()] = '\0';
-  hnd.hdr.plugin_token = &tok;
+  hnd.token = &tok;
   std::vector<char> buffer(256);
   EXPECT_EQ(cat_handle_sysfs_path(buffer.data(), &hnd, "bitstream_id"),
             FPGA_OK);
@@ -1303,7 +1303,7 @@ TEST_P(sysfs_sockid_c_p, sysfs_path_is_valid) {
  */
 TEST_P(sysfs_sockid_c_p, get_port_sysfs) {
   _fpga_handle *h = static_cast<_fpga_handle *>(device_);
-  _fpga_token *tok = static_cast<_fpga_token *>(h->hdr.plugin_token);
+  _fpga_token *tok = static_cast<_fpga_token *>(h->token);
 
   EXPECT_EQ(get_port_sysfs(device_, tok->sysfspath), FPGA_OK);
 }

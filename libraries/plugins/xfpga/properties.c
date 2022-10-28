@@ -51,7 +51,7 @@ xfpga_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop)
 	if (result)
 		return result;
 
-	result = xfpga_fpgaGetProperties(_handle->hdr.plugin_token, prop);
+	result = xfpga_fpgaGetProperties(_handle->token, prop);
 
 	err = pthread_mutex_unlock(&_handle->lock);
 	if (err) {

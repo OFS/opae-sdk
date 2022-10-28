@@ -730,7 +730,7 @@ fpga_result __XFPGA_API__ xfpga_fpgaRegisterEvent(fpga_handle handle,
 	if (result)
 		goto out_unlock_handle;
 
-	_token = (struct _fpga_token *)_handle->hdr.plugin_token;
+	_token = (struct _fpga_token *)_handle->token;
 
 	if (_token->hdr.magic != FPGA_TOKEN_MAGIC) {
 		OPAE_MSG("Invalid token found in handle");
@@ -793,7 +793,7 @@ xfpga_fpgaUnregisterEvent(fpga_handle handle, fpga_event_type event_type,
 	if (result)
 		goto out_unlock_handle;
 
-	_token = (struct _fpga_token *)_handle->hdr.plugin_token;
+	_token = (struct _fpga_token *)_handle->token;
 
 	if (_token->hdr.magic != FPGA_TOKEN_MAGIC) {
 		OPAE_MSG("Invalid token found in handle");

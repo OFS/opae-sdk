@@ -46,7 +46,9 @@ STATIC srv_handler handlers[] = {
 	opae_handle_fpgaDestroyToken_request_1,
 	opae_handle_fpgaCloneToken_request_2,
 	opae_handle_fpgaGetProperties_request_3,
-	opae_handle_fpgaUpdateProperties_request_4
+	opae_handle_fpgaUpdateProperties_request_4,
+	opae_handle_fpgaOpen_request_5
+
 };
 
 int handle_client(uds_server_context *c, void *remote_ctx, int sock)
@@ -59,7 +61,7 @@ int handle_client(uds_server_context *c, void *remote_ctx, int sock)
         enum json_tokener_error j_err = json_tokener_success;
 	opae_request_header header;
 	char *response_json = NULL;
-	bool res;
+	//bool res;
 
 	n = recv(sock, buf, sizeof(buf), 0);
 	if (n < 0) {
@@ -97,8 +99,8 @@ int handle_client(uds_server_context *c, void *remote_ctx, int sock)
 		return 3;
 	}
 
-	res = handlers[header.request_id](remc, buf, &response_json);
-	if (res) {
+	handlers[header.request_id](remc, buf, &response_json);
+	if (response_json) {
 
 		send(sock, response_json, strlen(response_json) + 1, 0);
 		opae_free(response_json);

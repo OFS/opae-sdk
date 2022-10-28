@@ -176,7 +176,7 @@ fpga_result  dfl_enum_max10_metrics_info(struct _fpga_handle *_handle,
 		return FPGA_INVALID_PARAM;
 	}
 
-	_token = (struct _fpga_token *)_handle->hdr.plugin_token;
+	_token = (struct _fpga_token *)_handle->token;
 	if (_token == NULL) {
 		OPAE_ERR("Invalid token within handle");
 		return FPGA_INVALID_PARAM;

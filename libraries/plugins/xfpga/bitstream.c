@@ -125,7 +125,7 @@ fpga_result get_interface_id(fpga_handle handle, uint64_t *id_l, uint64_t *id_h)
 	fpga_result result = FPGA_OK;
 	fpga_guid guid;
 
-	_token = (struct _fpga_token *)_handle->hdr.plugin_token;
+	_token = (struct _fpga_token *)_handle->token;
 	if (!_token) {
 		OPAE_MSG("Token is NULL");
 		return FPGA_INVALID_PARAM;

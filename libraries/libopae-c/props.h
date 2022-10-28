@@ -156,5 +156,6 @@ struct _fpga_properties *opae_properties_create(void);
 
 int opae_get_host_name_buf(char *name, size_t len);
 const char *opae_get_host_name(void);
+void opae_get_remote_id(fpga_remote_id *rid);
 
 #endif // ___OPAE_PROPS_H__

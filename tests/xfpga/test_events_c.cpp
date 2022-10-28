@@ -73,7 +73,7 @@ static bool gEnableIRQ = false;
 
 static void get_path(const std::string object_type, fpga_handle handle){
   auto h = (struct _fpga_handle*)handle; 
-  auto tok = (struct _fpga_token*)h->hdr.plugin_token;
+  auto tok = (struct _fpga_token*)h->token;
   if (object_type.compare("fme") == 0)
   {
      sysfs_fme = tok->sysfspath;
@@ -327,7 +327,7 @@ TEST(events, event_03) {
   build_error_list(errpath.c_str(), &_t.errors);
 
   memset(&_h, 0, sizeof(_h));
-  _h.hdr.plugin_token = &_t;
+  _h.token = &_t;
   _h.hdr.magic = FPGA_INVALID_MAGIC;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaRegisterEvent(&_h, e, eh, 0));
 
@@ -389,7 +389,7 @@ TEST(events, event_04) {
   build_error_list(errpath.c_str(), &_t.errors);
 
   memset(&_h, 0, sizeof(_h));
-  _h.hdr.plugin_token = &_t;
+  _h.token = &_t;
   _h.hdr.magic = FPGA_INVALID_MAGIC;
   EXPECT_EQ(FPGA_INVALID_PARAM, xfpga_fpgaUnregisterEvent(&_h, e, eh));
 
@@ -1021,7 +1021,7 @@ TEST_P(events_mock_p, invalid_uafu_event_request_02){
 TEST_P(events_mock_p, fme_interrupts_check){
   fpga_objtype obj;
   auto h = (struct _fpga_handle*)device_;
-  auto t = (struct _fpga_token*)h->hdr.plugin_token;
+  auto t = (struct _fpga_token*)h->token;
 
   // no fme_info capability
   gEnableIRQ = false;
@@ -1055,7 +1055,7 @@ TEST_P(events_mock_p, fme_interrupts_check){
 TEST_P(events_mock_p, afu_interrupts_check){
   fpga_objtype obj;
   auto h = (struct _fpga_handle*)accel_;
-  auto t = (struct _fpga_token*)h->hdr.plugin_token;
+  auto t = (struct _fpga_token*)h->token;
 
   // no fme_info capability
   gEnableIRQ = false;

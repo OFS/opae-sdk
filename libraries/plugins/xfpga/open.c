@@ -81,9 +81,10 @@ xfpga_fpgaOpen(fpga_token token, fpga_handle *handle, int flags)
 
 	// mark data structure as valid
 	_handle->hdr.magic = FPGA_HANDLE_MAGIC;
-	opae_get_host_name_buf(_handle->hdr.hostname, HOST_NAME_MAX);
-	_handle->hdr.plugin_token = token;
+	_handle->hdr.token_id = ((fpga_token_header *)token)->token_id;
+	opae_get_remote_id(&_handle->hdr.handle_id);
 
+	_handle->token = token;
 	_handle->fdfpgad = -1;
 
 	// Init MMIO table

@@ -175,7 +175,7 @@ fpga_result xfpga_bmcLoadSDRs(struct _fpga_handle *_handle,
 
 		bmcLoadSDRs = dlsym(_handle->bmc_handle, "bmcLoadSDRs");
 		if (bmcLoadSDRs)
-			result = bmcLoadSDRs(_handle->hdr.plugin_token,
+			result = bmcLoadSDRs(_handle->token,
 					     records,
 					     num_sensors);
 		else
@@ -502,7 +502,7 @@ fpga_result enum_fpga_metrics(fpga_handle handle)
 	if (_handle->metric_enum_status)
 		return FPGA_OK;
 
-	_token = (struct _fpga_token *)_handle->hdr.plugin_token;
+	_token = (struct _fpga_token *)_handle->token;
 	if (_token == NULL) {
 		OPAE_ERR("Invalid token within handle");
 		return FPGA_INVALID_PARAM;

@@ -27,590 +27,655 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#include <opae/properties.h>
+
 #include "mock/opae_fixtures.h"
+#include "serialize.h"
+#include "mock/opae_std.h"
 
 using namespace opae::testing;
 
-
-TEST(serialize, test1)
-{
-
-}
-
-
-#include <stdio.h>
-#include <assert.h>
-#include "serialize.h"
-#include "mock/opae_std.h"
-#include <opae/properties.h>
-
 const char *TEST_GUID_STR = "ae2878a7-926f-4332-aba1-2b952ad6df8e";
 
-const uint16_t segment = 0x0b5a;
-const uint8_t bus = 0x5e;
-const uint8_t device = 0xe5;
-const uint8_t function = 1;
-const uint8_t socket_id = 3;
-
-const uint16_t vendor_id = 0x8086;
-const uint16_t device_id = 0xbcce;
-fpga_guid guid;
-
-const uint64_t object_id = 0xdeadbeefdecafbad;
-const uint32_t num_errors = 50;
-
-const fpga_interface ifc = FPGA_IFC_DFL;
-
-const uint16_t subsystem_vendor_id = 0x8087;
-const uint16_t subsystem_device_id = 0x1770;
-
-const uint32_t num_slots = 2;
-const uint64_t bbs_id = 0xabadbeefdeadc01a;
-const fpga_version bbs_version = { 0, 1, 0 };
-
-const fpga_accelerator_state accelerator_state = FPGA_ACCELERATOR_ASSIGNED;
-const uint32_t num_mmio = 2;
-const uint32_t num_interrupts = 4;
-
-const char *hostname = "machine.company.net";
-
-fpga_properties device_props(void)
+class serialize_base
 {
-	fpga_properties props = NULL;
-	fpgaGetProperties(NULL, &props);
+ protected:
+  serialize_base() :
+    jroot_(nullptr)
+  {}
 
-	fpgaPropertiesSetObjectType(props, FPGA_DEVICE);
-	fpgaPropertiesSetSegment(props, segment);
-	fpgaPropertiesSetBus(props, bus);
-	fpgaPropertiesSetDevice(props, device);
-	fpgaPropertiesSetFunction(props, function);
-	fpgaPropertiesSetSocketID(props, socket_id);
-	fpgaPropertiesSetVendorID(props, vendor_id);
-	fpgaPropertiesSetDeviceID(props, device_id);
+  json_object *start_encode()
+  {
+    return jroot_ = json_object_new_object();
+  }
 
-	uuid_parse(TEST_GUID_STR, guid);
-	fpgaPropertiesSetGUID(props, guid);
+  char *end_encode()
+  {
+    char *json = opae_strdup(json_object_to_json_string_ext(jroot_,
+				json_to_string_flags_));
 
-	fpgaPropertiesSetObjectID(props, object_id);
-	fpgaPropertiesSetNumErrors(props, num_errors);
-	fpgaPropertiesSetInterface(props, ifc);
-	fpgaPropertiesSetSubsystemVendorID(props, subsystem_vendor_id);
-	fpgaPropertiesSetSubsystemDeviceID(props, subsystem_device_id);
-	fpgaPropertiesSetHostname(props, hostname, strlen(hostname));
+    json_object_put(jroot_);
+    jroot_ = nullptr;
 
-	fpgaPropertiesSetNumSlots(props, num_slots);
-	fpgaPropertiesSetBBSID(props, bbs_id);
-	fpgaPropertiesSetBBSVersion(props, bbs_version);
+    return json;
+  }
 
-	return props;
+  json_object *start_decode(const char *json)
+  {
+    enum json_tokener_error j_err = json_tokener_success;
+    jroot_ = json_tokener_parse_verbose(json, &j_err);
+    EXPECT_NE(nullptr, jroot_);
+    return jroot_;
+  }
+
+  void end_decode()
+  {
+    json_object_put(jroot_);
+    jroot_ = nullptr;
+  }
+
+  json_object *jroot_;
+  const int json_to_string_flags_ = JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY;
+};
+
+class serialize_f : public serialize_base, public ::testing::Test
+{
+ protected:
+  virtual void SetUp() override
+  {
+    jroot_ = nullptr;
+  }
+
+  virtual void TearDown() override
+  {
+    if (jroot_) {
+      json_object_put(jroot_);
+      jroot_ = nullptr;
+    }
+  }
+};
+
+class serialize_props_f : public serialize_f
+{
+ protected:
+  serialize_props_f()
+  {
+    uuid_parse(TEST_GUID_STR, guid_);
+  }
+
+  fpga_properties device_props()
+  {
+    fpga_properties props = NULL;
+    fpgaGetProperties(NULL, &props);
+
+    fpgaPropertiesSetObjectType(props, FPGA_DEVICE);
+    fpgaPropertiesSetSegment(props, segment_);
+    fpgaPropertiesSetBus(props, bus_);
+    fpgaPropertiesSetDevice(props, device_);
+    fpgaPropertiesSetFunction(props, function_);
+    fpgaPropertiesSetSocketID(props, socket_id_);
+    fpgaPropertiesSetVendorID(props, vendor_id_);
+    fpgaPropertiesSetDeviceID(props, device_id_);
+
+    fpgaPropertiesSetGUID(props, guid_);
+
+    fpgaPropertiesSetObjectID(props, object_id_);
+    fpgaPropertiesSetNumErrors(props, num_errors_);
+    fpgaPropertiesSetInterface(props, ifc_);
+    fpgaPropertiesSetSubsystemVendorID(props, subsystem_vendor_id_);
+    fpgaPropertiesSetSubsystemDeviceID(props, subsystem_device_id_);
+    fpgaPropertiesSetHostname(props, hostname_, strlen(hostname_));
+
+    fpgaPropertiesSetNumSlots(props, num_slots_);
+    fpgaPropertiesSetBBSID(props, bbs_id_);
+    fpgaPropertiesSetBBSVersion(props, bbs_version_);
+
+    return props;
+  }
+
+  fpga_properties accelerator_props()
+  {
+    fpga_properties props = NULL;
+    fpgaGetProperties(NULL, &props);
+
+    fpgaPropertiesSetObjectType(props, FPGA_ACCELERATOR);
+    fpgaPropertiesSetSegment(props, segment_);
+    fpgaPropertiesSetBus(props, bus_);
+    fpgaPropertiesSetDevice(props, device_);
+    fpgaPropertiesSetFunction(props, function_);
+    fpgaPropertiesSetSocketID(props, socket_id_);
+    fpgaPropertiesSetVendorID(props, vendor_id_);
+    fpgaPropertiesSetDeviceID(props, device_id_);
+
+    fpgaPropertiesSetGUID(props, guid_);
+
+    fpgaPropertiesSetObjectID(props, object_id_);
+    fpgaPropertiesSetNumErrors(props, num_errors_);
+    fpgaPropertiesSetInterface(props, ifc_);
+    fpgaPropertiesSetSubsystemVendorID(props, subsystem_vendor_id_);
+    fpgaPropertiesSetSubsystemDeviceID(props, subsystem_device_id_);
+    fpgaPropertiesSetHostname(props, hostname_, strlen(hostname_));
+
+    fpgaPropertiesSetAcceleratorState(props, accelerator_state_);
+    fpgaPropertiesSetNumMMIO(props, num_mmio_);
+    fpgaPropertiesSetNumInterrupts(props, num_interrupts_);
+
+    return props;
+  }
+
+  void verify_props(fpga_properties props, fpga_objtype objtype)
+  {
+    fpga_objtype ot;
+    fpga_result res;
+    uint8_t u8;
+    uint16_t u16;
+    uint32_t u32;
+    uint64_t u64;
+    fpga_guid guid;
+    char buf[64];
+    fpga_interface interface;
+    fpga_version ver;
+    fpga_accelerator_state state;
+    uint32_t mmios;
+    uint32_t irqs;
+
+    ASSERT_NE((fpga_properties)NULL, props);
+
+    res = fpgaPropertiesGetObjectType(props, &ot);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(objtype, ot);
+
+    res = fpgaPropertiesGetSegment(props, &u16);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(segment_, u16);
+
+    res = fpgaPropertiesGetBus(props, &u8);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(bus_, u8);
+
+    res = fpgaPropertiesGetDevice(props, &u8);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(device_, u8);
+
+    res = fpgaPropertiesGetFunction(props, &u8);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(function_, u8);
+
+    res = fpgaPropertiesGetSocketID(props, &u8);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(socket_id_, u8);
+
+    res = fpgaPropertiesGetVendorID(props, &u16);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(vendor_id_, u16);
+
+    res = fpgaPropertiesGetDeviceID(props, &u16);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(device_id_, u16);
+
+    res = fpgaPropertiesGetGUID(props, &guid);
+    EXPECT_EQ(FPGA_OK, res);
+    uuid_unparse(guid, buf);
+    ASSERT_STREQ(TEST_GUID_STR, buf);
+
+    res = fpgaPropertiesGetObjectID(props, &u64);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(object_id_, u64);
+
+    res = fpgaPropertiesGetNumErrors(props, &u32);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(num_errors_, u32);
+
+    res = fpgaPropertiesGetInterface(props, &interface);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(interface, ifc_);
+
+    res = fpgaPropertiesGetSubsystemVendorID(props, &u16);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(subsystem_vendor_id_, u16);
+
+    res = fpgaPropertiesGetSubsystemDeviceID(props, &u16);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(subsystem_device_id_, u16);
+
+    res = fpgaPropertiesGetHostname(props, buf, sizeof(buf) - 1);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_STREQ(hostname_, buf);
+
+    if (FPGA_DEVICE == objtype) {
+      res = fpgaPropertiesGetNumSlots(props, &u32);
+      EXPECT_EQ(FPGA_OK, res);
+      EXPECT_EQ(num_slots_, u32);
+
+      res = fpgaPropertiesGetBBSID(props, &u64);
+      EXPECT_EQ(FPGA_OK, res);
+      EXPECT_EQ(bbs_id_, u64);
+
+      res = fpgaPropertiesGetBBSVersion(props, &ver);
+      EXPECT_EQ(FPGA_OK, res);
+      EXPECT_EQ(bbs_version_.major, ver.major);
+      EXPECT_EQ(bbs_version_.minor, ver.minor);
+      EXPECT_EQ(bbs_version_.patch, ver.patch);
+    } else {
+      res = fpgaPropertiesGetAcceleratorState(props, &state);
+      EXPECT_EQ(FPGA_OK, res);
+      EXPECT_EQ(accelerator_state_, state);
+
+      res = fpgaPropertiesGetNumMMIO(props, &mmios);
+      EXPECT_EQ(FPGA_OK, res);
+      EXPECT_EQ(num_mmio_, mmios);
+
+      res = fpgaPropertiesGetNumInterrupts(props, &irqs);
+      EXPECT_EQ(FPGA_OK, res);
+      EXPECT_EQ(num_interrupts_, irqs);
+    }
+  }
+
+  fpga_properties short_props()
+  {
+    fpga_properties props = NULL;
+    fpgaGetProperties(NULL, &props);
+
+    fpgaPropertiesSetObjectType(props, FPGA_DEVICE);
+
+    fpgaPropertiesSetSegment(props, segment_);
+    fpgaPropertiesSetBus(props, bus_);
+    fpgaPropertiesSetDevice(props, device_);
+    fpgaPropertiesSetFunction(props, function_);
+    fpgaPropertiesSetSocketID(props, socket_id_);
+    fpgaPropertiesSetVendorID(props, vendor_id_);
+    fpgaPropertiesSetDeviceID(props, device_id_);
+
+    fpgaPropertiesSetGUID(props, guid_);
+
+    fpgaPropertiesSetHostname(props, hostname_, strlen(hostname_));
+
+    return props;
+  }
+
+  void verify_short_props(fpga_properties props)
+  {
+    fpga_result res;
+    uint8_t u8;
+    uint16_t u16;
+    fpga_guid guid;
+    char buf[64];
+    fpga_objtype objtype;
+
+    ASSERT_NE((fpga_properties)NULL, props);
+
+    res = fpgaPropertiesGetObjectType(props, &objtype);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(FPGA_DEVICE, objtype);
+
+    res = fpgaPropertiesGetSegment(props, &u16);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(segment_, u16);
+
+    res = fpgaPropertiesGetBus(props, &u8);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(bus_, u8);
+
+    res = fpgaPropertiesGetDevice(props, &u8);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(device_, u8);
+
+    res = fpgaPropertiesGetFunction(props, &u8);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(function_, u8);
+
+    res = fpgaPropertiesGetSocketID(props, &u8);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(socket_id_, u8);
+
+    res = fpgaPropertiesGetVendorID(props, &u16);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(vendor_id_, u16);
+
+    res = fpgaPropertiesGetDeviceID(props, &u16);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_EQ(device_id_, u16);
+
+    res = fpgaPropertiesGetGUID(props, &guid);
+    EXPECT_EQ(FPGA_OK, res);
+    uuid_unparse(guid, buf);
+    EXPECT_STREQ(TEST_GUID_STR, buf);
+
+    res = fpgaPropertiesGetHostname(props, buf, sizeof(buf) - 1);
+    EXPECT_EQ(FPGA_OK, res);
+    EXPECT_STREQ(hostname_, buf);
+  }
+
+  fpga_guid guid_;
+
+  const uint16_t segment_ = 0x0b5a;
+  const uint8_t bus_ = 0x5e;
+  const uint8_t device_ = 0xe5;
+  const uint8_t function_ = 1;
+  const uint8_t socket_id_ = 3;
+  const uint16_t vendor_id_ = 0x8086;
+  const uint16_t device_id_ = 0xbcce;
+  const uint64_t object_id_ = 0xdeadbeefdecafbad;
+  const uint32_t num_errors_ = 50;
+  const fpga_interface ifc_ = FPGA_IFC_DFL;
+  const uint16_t subsystem_vendor_id_ = 0x8087;
+  const uint16_t subsystem_device_id_ = 0x1770;
+  const uint32_t num_slots_ = 2;
+  const uint64_t bbs_id_ = 0xabadbeefdeadc01a;
+  const fpga_version bbs_version_ = { 1, 2, 3 };
+  const fpga_accelerator_state accelerator_state_ = FPGA_ACCELERATOR_ASSIGNED;
+  const uint32_t num_mmio_ = 2;
+  const uint32_t num_interrupts_ = 4;
+  const char *hostname_ = "machine.company.net";
+};
+
+TEST_F(serialize_props_f, short_props_round_trip)
+{
+  fpga_properties props = short_props();
+  json_object *jroot = start_encode();
+
+  EXPECT_EQ(true, opae_ser_properties_to_json_obj(props, jroot));
+  EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&props));
+
+  char *json = end_encode();
+
+  jroot = start_decode(json);
+
+  EXPECT_EQ(nullptr, props);
+  EXPECT_EQ(true, opae_ser_json_to_properties_obj(jroot, &props));
+
+  end_decode();
+  opae_free(json);
+
+  verify_short_props(props);
+  EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&props));
 }
 
-fpga_properties short_props(void)
+TEST_F(serialize_props_f, device_props_round_trip)
 {
-	fpga_properties props = NULL;
-	fpgaGetProperties(NULL, &props);
+  fpga_properties props = device_props();
+  json_object *jroot = start_encode();
 
-	fpgaPropertiesSetObjectType(props, FPGA_DEVICE);
+  EXPECT_EQ(true, opae_ser_properties_to_json_obj(props, jroot));
+  EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&props));
 
-	fpgaPropertiesSetSegment(props, segment);
-	fpgaPropertiesSetBus(props, bus);
-	fpgaPropertiesSetDevice(props, device);
-	fpgaPropertiesSetFunction(props, function);
-	fpgaPropertiesSetSocketID(props, socket_id);
-	fpgaPropertiesSetVendorID(props, vendor_id);
-	fpgaPropertiesSetDeviceID(props, device_id);
+  char *json = end_encode();
 
-	uuid_parse(TEST_GUID_STR, guid);
-	fpgaPropertiesSetGUID(props, guid);
+  jroot = start_decode(json);
 
-	fpgaPropertiesSetHostname(props, hostname, strlen(hostname));
+  EXPECT_EQ(nullptr, props);
+  EXPECT_EQ(true, opae_ser_json_to_properties_obj(jroot, &props));
 
-	return props;
+  end_decode();
+  opae_free(json);
+
+  verify_props(props, FPGA_DEVICE);
+  EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&props));
 }
 
-void verify_short_props(fpga_properties props)
+TEST_F(serialize_props_f, accelerator_props_round_trip)
 {
-	fpga_result res;
-	uint8_t u8;
-	uint16_t u16;
-	fpga_guid guid;
-	char buf[64];
-	fpga_objtype objtype;
+  fpga_properties props = accelerator_props();
+  json_object *jroot = start_encode();
 
-	assert(props);
+  EXPECT_EQ(true, opae_ser_properties_to_json_obj(props, jroot));
+  EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&props));
 
-	res = fpgaPropertiesGetObjectType(props, &objtype);
-	assert(!res && (objtype == FPGA_DEVICE));
+  char *json = end_encode();
 
-	res = fpgaPropertiesGetSegment(props, &u16);
-	assert(!res && (u16 == segment));
+  jroot = start_decode(json);
 
-	res = fpgaPropertiesGetBus(props, &u8);
-	assert(!res && (u8 == bus));
+  EXPECT_EQ(nullptr, props);
+  EXPECT_EQ(true, opae_ser_json_to_properties_obj(jroot, &props));
 
-	res = fpgaPropertiesGetDevice(props, &u8);
-	assert(!res && (u8 == device));
+  end_decode();
+  opae_free(json);
 
-	res = fpgaPropertiesGetFunction(props, &u8);
-	assert(!res && (u8 == function));
-
-	res = fpgaPropertiesGetSocketID(props, &u8);
-	assert(!res && (u8 == socket_id));
-
-	res = fpgaPropertiesGetVendorID(props, &u16);
-	assert(!res && (u16 == vendor_id));
-
-	res = fpgaPropertiesGetDeviceID(props, &u16);
-	assert(!res && (u16 == device_id));
-
-	res = fpgaPropertiesGetGUID(props, &guid);
-	assert(!res);
-	uuid_unparse(guid, buf);
-	assert(!strcmp(buf, TEST_GUID_STR));
-
-	res = fpgaPropertiesGetHostname(props, buf, sizeof(buf) - 1);
-	assert(!res && !strcmp(buf, hostname));
+  verify_props(props, FPGA_ACCELERATOR);
+  EXPECT_EQ(FPGA_OK, fpgaDestroyProperties(&props));
 }
 
-void verify_device_props(fpga_properties props)
+class serialize_remote_id_f : public serialize_f
 {
-	fpga_objtype objtype;
-	fpga_result res;
-	uint8_t u8;
-	uint16_t u16;
-	uint32_t u32;
-	uint64_t u64;
-	fpga_guid guid;
-	char buf[64];
-	fpga_interface interface;
-	fpga_version ver;
+ protected:
+  serialize_remote_id_f() {}
 
-	assert(props);
+  virtual void SetUp() override
+  {
+    serialize_f::SetUp();
 
-	res = fpgaPropertiesGetObjectType(props, &objtype);
-	assert(!res && (objtype == FPGA_DEVICE));
+    strcpy(id_.hostname, "machine.co.net");
+    id_.unique_id = 3;
+  }
 
-	res = fpgaPropertiesGetSegment(props, &u16);
-	assert(!res && (u16 == segment));
+  fpga_remote_id id_;
+};
 
-	res = fpgaPropertiesGetBus(props, &u8);
-	assert(!res && (u8 == bus));
+TEST_F(serialize_remote_id_f, id)
+{
+  json_object *jroot = start_encode();
 
-	res = fpgaPropertiesGetDevice(props, &u8);
-	assert(!res && (u8 == device));
+  EXPECT_EQ(true, opae_ser_remote_id_to_json_obj(&id_, jroot));
 
-	res = fpgaPropertiesGetFunction(props, &u8);
-	assert(!res && (u8 == function));
+  char *json = end_encode();
 
-	res = fpgaPropertiesGetSocketID(props, &u8);
-	assert(!res && (u8 == socket_id));
+  jroot = start_decode(json);
 
-	res = fpgaPropertiesGetVendorID(props, &u16);
-	assert(!res && (u16 == vendor_id));
+  fpga_remote_id after = {
+    .hostname = { 0, },
+    .unique_id = 99
+  };
 
-	res = fpgaPropertiesGetDeviceID(props, &u16);
-	assert(!res && (u16 == device_id));
+  EXPECT_EQ(true, opae_ser_json_to_remote_id_obj(jroot, &after));
+  
+  end_decode();
+  opae_free(json);
 
-	res = fpgaPropertiesGetGUID(props, &guid);
-	assert(!res);
-	uuid_unparse(guid, buf);
-	assert(!strcmp(buf, TEST_GUID_STR));
-
-	res = fpgaPropertiesGetObjectID(props, &u64);
-	assert(!res && (u64 == object_id));
-
-	res = fpgaPropertiesGetNumErrors(props, &u32);
-	assert(!res && (u32 == num_errors));
-
-	res = fpgaPropertiesGetInterface(props, &interface);
-	assert(!res && (interface == ifc));
-
-	res = fpgaPropertiesGetSubsystemVendorID(props, &u16);
-	assert(!res && (u16 == subsystem_vendor_id));
-
-	res = fpgaPropertiesGetSubsystemDeviceID(props, &u16);
-	assert(!res && (u16 == subsystem_device_id));
-
-	res = fpgaPropertiesGetHostname(props, buf, sizeof(buf) - 1);
-	assert(!res && !strcmp(buf, hostname));
-
-	res = fpgaPropertiesGetNumSlots(props, &u32);
-	assert(!res && (u32 == num_slots));
-
-	res = fpgaPropertiesGetBBSID(props, &u64);
-	assert(!res && (u64 == bbs_id));
-
-	res = fpgaPropertiesGetBBSVersion(props, &ver);
-	assert(!res && (ver.major == bbs_version.major));
-	assert(!res && (ver.minor == bbs_version.minor));
-	assert(!res && (ver.patch == bbs_version.patch));
+  EXPECT_STREQ(id_.hostname, after.hostname);
+  EXPECT_EQ(id_.unique_id, after.unique_id);
 }
 
-fpga_properties accelerator_props(void)
+class serialize_token_header_f : public serialize_f
 {
-	fpga_properties props = NULL;
-	fpgaGetProperties(NULL, &props);
+ protected:
+  serialize_token_header_f() {}
 
-	fpgaPropertiesSetObjectType(props, FPGA_ACCELERATOR);
-	fpgaPropertiesSetSegment(props, segment);
-	fpgaPropertiesSetBus(props, bus);
-	fpgaPropertiesSetDevice(props, device);
-	fpgaPropertiesSetFunction(props, function);
-	fpgaPropertiesSetSocketID(props, socket_id);
-	fpgaPropertiesSetVendorID(props, vendor_id);
-	fpgaPropertiesSetDeviceID(props, device_id);
+  const fpga_token_header hdr_ = {
+    .magic = 0x46504741544f4b4e,
+    .vendor_id = 0x8086,
+    .device_id = 0xbcce,
+    .segment = 0x0001,
+    .bus = 0x5e,
+    .device = 0xe5,
+    .function = 7,
+    .interface = FPGA_IFC_DFL,
+    .objtype = FPGA_DEVICE,
+    .object_id = 0xa500000000ef0000,
+    .guid = { 0, },
+    .subsystem_vendor_id = 0x8087,
+    .subsystem_device_id = 0x1770,
+    .token_id = {
+      .hostname = { 'm', 'a', 'c', 'h', 'i', 'n', 'e',
+                    '.', 'c', 'o', 'm', 'p', 'a', 'n', 'y',
+                    '.', 'n', 'e', 't', 0 },
+      .unique_id = 3
+    }
+  };
+};
 
-	uuid_parse(TEST_GUID_STR, guid);
-	fpgaPropertiesSetGUID(props, guid);
+TEST_F(serialize_token_header_f, header)
+{
+  json_object *jroot = start_encode();
 
-	fpgaPropertiesSetObjectID(props, object_id);
-	fpgaPropertiesSetNumErrors(props, num_errors);
-	fpgaPropertiesSetInterface(props, ifc);
-	fpgaPropertiesSetSubsystemVendorID(props, subsystem_vendor_id);
-	fpgaPropertiesSetSubsystemDeviceID(props, subsystem_device_id);
-	fpgaPropertiesSetHostname(props, hostname, strlen(hostname));
+  EXPECT_EQ(true, opae_ser_token_header_to_json_obj(&hdr_, jroot));
 
-	fpgaPropertiesSetAcceleratorState(props, accelerator_state);
-	fpgaPropertiesSetNumMMIO(props, num_mmio);
-	fpgaPropertiesSetNumInterrupts(props, num_interrupts);
+  char *json = end_encode();
 
-	return props;
+  jroot = start_decode(json);
+
+  fpga_token_header after;
+  memset(&after, 0, sizeof(after));
+
+  EXPECT_EQ(true, opae_ser_json_to_token_header_obj(jroot, &after));
+
+  end_decode();
+  opae_free(json);
+
+  EXPECT_EQ(hdr_.magic, after.magic);
+  EXPECT_EQ(hdr_.vendor_id, after.vendor_id);
+  EXPECT_EQ(hdr_.device_id, after.device_id);
+  EXPECT_EQ(hdr_.segment, after.segment);
+  EXPECT_EQ(hdr_.bus, after.bus);
+  EXPECT_EQ(hdr_.device, after.device);
+  EXPECT_EQ(hdr_.function, after.function);
+  EXPECT_EQ(hdr_.interface, after.interface);
+  EXPECT_EQ(hdr_.objtype, after.objtype);
+  EXPECT_EQ(hdr_.object_id, after.object_id);
+  EXPECT_EQ(0, memcmp(hdr_.guid, after.guid, sizeof(fpga_guid)));
+  EXPECT_EQ(hdr_.subsystem_vendor_id, after.subsystem_vendor_id);
+  EXPECT_EQ(hdr_.subsystem_device_id, after.subsystem_device_id);
+  EXPECT_STREQ(hdr_.token_id.hostname, after.token_id.hostname);
+  EXPECT_EQ(hdr_.token_id.unique_id, after.token_id.unique_id);
 }
 
-void verify_accelerator_props(fpga_properties props)
+class serialize_result_p : public serialize_base, public ::testing::TestWithParam<fpga_result>
 {
-	fpga_objtype objtype;
-	fpga_result res;
-	uint8_t u8;
-	uint16_t u16;
-	uint32_t u32;
-	uint64_t u64;
-	fpga_guid guid;
-	char buf[64];
-	fpga_interface interface;
-	fpga_accelerator_state state;
-	uint32_t mmios;
-	uint32_t irqs;
+ protected:
+  virtual void SetUp() override
+  {
+    jroot_ = nullptr;
+  }
 
-	assert(props);
+  virtual void TearDown() override
+  {
+    if (jroot_) {
+      json_object_put(jroot_);
+      jroot_ = nullptr;
+    }
+  }
+};
 
-	res = fpgaPropertiesGetObjectType(props, &objtype);
-	assert(!res && (objtype == FPGA_ACCELERATOR));
+TEST_P(serialize_result_p, thetest)
+{
+  json_object *jroot = start_encode();
 
-	res = fpgaPropertiesGetSegment(props, &u16);
-	assert(!res && (u16 == segment));
+  EXPECT_EQ(true, opae_ser_fpga_result_to_json_obj(GetParam(), jroot));
 
-	res = fpgaPropertiesGetBus(props, &u8);
-	assert(!res && (u8 == bus));
+  char *json = end_encode();
 
-	res = fpgaPropertiesGetDevice(props, &u8);
-	assert(!res && (u8 == device));
+  jroot = start_decode(json);
 
-	res = fpgaPropertiesGetFunction(props, &u8);
-	assert(!res && (u8 == function));
+  fpga_result after = FPGA_OK;
 
-	res = fpgaPropertiesGetSocketID(props, &u8);
-	assert(!res && (u8 == socket_id));
+  EXPECT_EQ(true, opae_ser_json_to_fpga_result_obj(jroot, &after));
 
-	res = fpgaPropertiesGetVendorID(props, &u16);
-	assert(!res && (u16 == vendor_id));
+  end_decode();
+  opae_free(json);
 
-	res = fpgaPropertiesGetDeviceID(props, &u16);
-	assert(!res && (u16 == device_id));
-
-	res = fpgaPropertiesGetGUID(props, &guid);
-	assert(!res);
-	uuid_unparse(guid, buf);
-	assert(!strcmp(buf, TEST_GUID_STR));
-
-	res = fpgaPropertiesGetObjectID(props, &u64);
-	assert(!res && (u64 == object_id));
-
-	res = fpgaPropertiesGetNumErrors(props, &u32);
-	assert(!res && (u32 == num_errors));
-
-	res = fpgaPropertiesGetInterface(props, &interface);
-	assert(!res && (interface == ifc));
-
-	res = fpgaPropertiesGetSubsystemVendorID(props, &u16);
-	assert(!res && (u16 == subsystem_vendor_id));
-
-	res = fpgaPropertiesGetSubsystemDeviceID(props, &u16);
-	assert(!res && (u16 == subsystem_device_id));
-
-	res = fpgaPropertiesGetHostname(props, buf, sizeof(buf) - 1);
-	assert(!res && !strcmp(buf, hostname));
-
-	res = fpgaPropertiesGetAcceleratorState(props, &state);
-	assert(!res && (state == accelerator_state));
-
-	res = fpgaPropertiesGetNumMMIO(props, &mmios);
-	assert(!res && (mmios == num_mmio));
-
-	res = fpgaPropertiesGetNumInterrupts(props, &irqs);
-	assert(!res && (irqs == num_interrupts));
+  EXPECT_EQ(GetParam(), after);
 }
 
-void test_properties_serialize(void)
+INSTANTIATE_TEST_SUITE_P(result, serialize_result_p,
+                         ::testing::Values(
+  FPGA_OK,
+  FPGA_INVALID_PARAM,
+  FPGA_BUSY,
+  FPGA_EXCEPTION,
+  FPGA_NOT_FOUND,
+  FPGA_NO_MEMORY,
+  FPGA_NOT_SUPPORTED,
+  FPGA_NO_DRIVER,
+  FPGA_NO_DAEMON,
+  FPGA_NO_ACCESS,
+  FPGA_RECONF_ERROR
+));
+
+class serialize_open_flags_p : public serialize_base, public ::testing::TestWithParam<enum fpga_open_flags>
 {
-	char *json;
-	int json_flags = JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY;
-	fpga_properties props;
+ protected:
+  virtual void SetUp() override
+  {
+    jroot_ = nullptr;
+  }
 
-	props = device_props();
-	//props = short_props();
-	json = opae_ser_properties_to_json(props, json_flags);
-	fpgaDestroyProperties(&props);
+  virtual void TearDown() override
+  {
+    if (jroot_) {
+      json_object_put(jroot_);
+      jroot_ = nullptr;
+    }
+  }
+};
 
-	printf("%s\n", json);
+TEST_P(serialize_open_flags_p, thetest)
+{
+  json_object *jroot = start_encode();
 
-	opae_ser_json_to_properties(json, &props);
-	opae_free(json);
-	verify_device_props(props);
-	//verify_short_props(props);
-	fpgaDestroyProperties(&props);
+  EXPECT_EQ(true, opae_ser_fpga_open_flags_to_json_obj(GetParam(), jroot));
 
-	printf("\n");
-	props = accelerator_props();
-	json = opae_ser_properties_to_json(props, json_flags);
-	fpgaDestroyProperties(&props);
+  char *json = end_encode();
 
-	printf("%s\n", json);
+  jroot = start_decode(json);
 
-	opae_ser_json_to_properties(json, &props);
-	opae_free(json);
-	verify_accelerator_props(props);
-	fpgaDestroyProperties(&props);
+  enum fpga_open_flags flags = FPGA_OPEN_SHARED;
+
+  EXPECT_EQ(true, opae_ser_json_to_fpga_open_flags_obj(jroot, &flags));
+
+  end_decode();
+  opae_free(json);
+
+  EXPECT_EQ(GetParam(), flags);
 }
 
-void test_token_header_serialize(void)
+INSTANTIATE_TEST_SUITE_P(open_flags, serialize_open_flags_p,
+                         ::testing::Values(
+  (enum fpga_open_flags)0,
+  FPGA_OPEN_SHARED
+));
+
+class serialize_handle_header_f : public serialize_f
 {
-	char *json;
-	int json_flags = JSON_C_TO_STRING_SPACED | JSON_C_TO_STRING_PRETTY;
-	char buf[64];
+ protected:
+  serialize_handle_header_f() {}
 
-	fpga_token_header before = {
-		.magic = 0x46504741544f4b4e,
-		.vendor_id = 0x8086,
-		.device_id = 0xbcce,
-		.segment = 0x0001,
-		.bus = 0x5e,
-		.device = 0xe5,
-		.function = 7,
-		.interface = FPGA_IFC_DFL,
-		.objtype = FPGA_DEVICE,
-		.object_id = 0xa500000000ef0000,
-		.guid = { 0, },
-		.subsystem_vendor_id = 0x8087,
-		.subsystem_device_id = 0x1770,
-		.hostname = { 'm', 'a', 'c', 'h', 'i', 'n', 'e',
-                              '.', 'c', 'o', 'm', 'p', 'a', 'n', 'y',
-                              '.', 'n', 'e', 't', 0 },
-		.remote_id = 3
-	};
-	fpga_token_header after;
+  const fpga_handle_header hdr_ = {
+    .magic = 0x46504741544f4b4e,
+    .token_id = {
+      .hostname = { 'y', 'o', 'u', 'r', '.',
+		    'h', 'o', 's', 't', '.',
+		    'c', 'o', 'm', 0 },
+      .unique_id = 2
+    },
+    .handle_id = {
+      .hostname = { 'm', 'y', '.',
+		    'h', 'o', 's', 't', '.',
+		    'c', 'o', 'm', 0 },
+      .unique_id = 3
+    }
+  };
+};
 
-	uuid_parse(TEST_GUID_STR, before.guid);
-
-	json = opae_ser_token_header_to_json(&before, json_flags);
-	if (!opae_ser_json_to_token_header(json, &after))
-		printf("whoops!\n");
-
-	printf("%s\n", json);
-	opae_free(json);
-
-	assert(after.magic == 0x46504741544f4b4e);
-	assert(after.vendor_id == 0x8086);
-	assert(after.device_id == 0xbcce);
-	assert(after.segment == 0x0001);
-	assert(after.bus == 0x5e);
-	assert(after.device == 0xe5);
-	assert(after.function == 7);
-	assert(after.interface == FPGA_IFC_DFL);
-	assert(after.objtype == FPGA_DEVICE);
-	assert(after.object_id == 0xa500000000ef0000);
-	uuid_unparse(after.guid, buf);
-	assert(!strcmp(buf, TEST_GUID_STR));
-	assert(after.subsystem_vendor_id == 0x8087);
-	assert(!strcmp(after.hostname, "machine.company.net"));
-	assert(after.remote_id == 3);
-}
-
-struct json_object *root = NULL;
-enum json_tokener_error j_err = json_tokener_success;
-
-#define JSON_START_PARSE(__str)                           \
-do {                                                      \
-	root = json_tokener_parse_verbose(__str, &j_err); \
-	assert(root && (j_err == json_tokener_success));  \
-} while(0)
-
-#define JSON_END_PARSE(__str)  \
-do {                           \
-	json_object_put(root); \
-	opae_free(__str);      \
-} while(0)
-
-#define JSON_START_ENCODE()              \
-do {                                     \
-	root = json_object_new_object(); \
-	assert(root);                    \
-} while(0)
-
-#define JSON_END_ENCODE                                                                         \
-({                                                                                              \
-	char *json = opae_strdup(json_object_to_json_string_ext(root, JSON_C_TO_STRING_PLAIN)); \
-	json_object_put(root);                                                                  \
-	root = NULL;                                                                            \
-	j_err = json_tokener_success;                                                           \
-	json;                                                                                   \
-})
-
-void test_result_serialize(void)
+TEST_F(serialize_handle_header_f, header)
 {
-	char *json;
-	fpga_result res;
+  json_object *jroot = start_encode();
 
-	JSON_START_ENCODE();
-	assert(opae_ser_fpga_result_to_json_obj(FPGA_OK, root));
-	json = JSON_END_ENCODE;
-	printf("%s\n", json);
-	assert(!strcmp(json, "{\"fpga_result\":\"FPGA_OK\"}"));
+  EXPECT_EQ(true, opae_ser_handle_header_to_json_obj(&hdr_, jroot));
 
-	JSON_START_PARSE(json);
-	assert(opae_ser_json_to_fpga_result_obj(root, &res));
-	assert(res == FPGA_OK);
-	JSON_END_PARSE(json);
+  char *json = end_encode();
 
+  jroot = start_decode(json);
 
-	JSON_START_ENCODE();
-	assert(opae_ser_fpga_result_to_json_obj(FPGA_INVALID_PARAM, root));
-	json = JSON_END_ENCODE;
-	printf("%s\n", json);
-	assert(!strcmp(json, "{\"fpga_result\":\"FPGA_INVALID_PARAM\"}"));
+  fpga_handle_header after;
+  memset(&after, 0, sizeof(after));
 
-	JSON_START_PARSE(json);
-	assert(opae_ser_json_to_fpga_result_obj(root, &res));
-	assert(res == FPGA_INVALID_PARAM);
-	JSON_END_PARSE(json);
+  EXPECT_EQ(true, opae_ser_json_to_handle_header_obj(jroot, &after));
 
+  end_decode();
+  opae_free(json);
 
-	JSON_START_ENCODE();
-	assert(opae_ser_fpga_result_to_json_obj(FPGA_BUSY, root));
-	json = JSON_END_ENCODE;
-	printf("%s\n", json);
-	assert(!strcmp(json, "{\"fpga_result\":\"FPGA_BUSY\"}"));
-
-	JSON_START_PARSE(json);
-	assert(opae_ser_json_to_fpga_result_obj(root, &res));
-	assert(res == FPGA_BUSY);
-	JSON_END_PARSE(json);
-
-
-	JSON_START_ENCODE();
-	assert(opae_ser_fpga_result_to_json_obj(FPGA_EXCEPTION, root));
-	json = JSON_END_ENCODE;
-	printf("%s\n", json);
-	assert(!strcmp(json, "{\"fpga_result\":\"FPGA_EXCEPTION\"}"));
-
-	JSON_START_PARSE(json);
-	assert(opae_ser_json_to_fpga_result_obj(root, &res));
-	assert(res == FPGA_EXCEPTION);
-	JSON_END_PARSE(json);
-
-
-	JSON_START_ENCODE();
-	assert(opae_ser_fpga_result_to_json_obj(FPGA_NOT_FOUND, root));
-	json = JSON_END_ENCODE;
-	printf("%s\n", json);
-	assert(!strcmp(json, "{\"fpga_result\":\"FPGA_NOT_FOUND\"}"));
-
-	JSON_START_PARSE(json);
-	assert(opae_ser_json_to_fpga_result_obj(root, &res));
-	assert(res == FPGA_NOT_FOUND);
-	JSON_END_PARSE(json);
-
-
-	JSON_START_ENCODE();
-	assert(opae_ser_fpga_result_to_json_obj(FPGA_NO_MEMORY, root));
-	json = JSON_END_ENCODE;
-	printf("%s\n", json);
-	assert(!strcmp(json, "{\"fpga_result\":\"FPGA_NO_MEMORY\"}"));
-
-	JSON_START_PARSE(json);
-	assert(opae_ser_json_to_fpga_result_obj(root, &res));
-	assert(res == FPGA_NO_MEMORY);
-	JSON_END_PARSE(json);
-
-
-	JSON_START_ENCODE();
-	assert(opae_ser_fpga_result_to_json_obj(FPGA_NOT_SUPPORTED, root));
-	json = JSON_END_ENCODE;
-	printf("%s\n", json);
-	assert(!strcmp(json, "{\"fpga_result\":\"FPGA_NOT_SUPPORTED\"}"));
-
-	JSON_START_PARSE(json);
-	assert(opae_ser_json_to_fpga_result_obj(root, &res));
-	assert(res == FPGA_NOT_SUPPORTED);
-	JSON_END_PARSE(json);
-
-
-	JSON_START_ENCODE();
-	assert(opae_ser_fpga_result_to_json_obj(FPGA_NO_DRIVER, root));
-	json = JSON_END_ENCODE;
-	printf("%s\n", json);
-	assert(!strcmp(json, "{\"fpga_result\":\"FPGA_NO_DRIVER\"}"));
-
-	JSON_START_PARSE(json);
-	assert(opae_ser_json_to_fpga_result_obj(root, &res));
-	assert(res == FPGA_NO_DRIVER);
-	JSON_END_PARSE(json);
-
-
-	JSON_START_ENCODE();
-	assert(opae_ser_fpga_result_to_json_obj(FPGA_NO_DAEMON, root));
-	json = JSON_END_ENCODE;
-	printf("%s\n", json);
-	assert(!strcmp(json, "{\"fpga_result\":\"FPGA_NO_DAEMON\"}"));
-
-	JSON_START_PARSE(json);
-	assert(opae_ser_json_to_fpga_result_obj(root, &res));
-	assert(res == FPGA_NO_DAEMON);
-	JSON_END_PARSE(json);
-
-
-	JSON_START_ENCODE();
-	assert(opae_ser_fpga_result_to_json_obj(FPGA_NO_ACCESS, root));
-	json = JSON_END_ENCODE;
-	printf("%s\n", json);
-	assert(!strcmp(json, "{\"fpga_result\":\"FPGA_NO_ACCESS\"}"));
-
-	JSON_START_PARSE(json);
-	assert(opae_ser_json_to_fpga_result_obj(root, &res));
-	assert(res == FPGA_NO_ACCESS);
-	JSON_END_PARSE(json);
-
-
-	JSON_START_ENCODE();
-	assert(opae_ser_fpga_result_to_json_obj(FPGA_RECONF_ERROR, root));
-	json = JSON_END_ENCODE;
-	printf("%s\n", json);
-	assert(!strcmp(json, "{\"fpga_result\":\"FPGA_RECONF_ERROR\"}"));
-
-	JSON_START_PARSE(json);
-	assert(opae_ser_json_to_fpga_result_obj(root, &res));
-	assert(res == FPGA_RECONF_ERROR);
-	JSON_END_PARSE(json);
-}
-
-int main(int argc, char *argv[])
-{
-	(void) argc;
-	(void) argv;
-
-	test_properties_serialize();
-	test_token_header_serialize();
-	test_result_serialize();
-
-	return 0;
+  EXPECT_EQ(hdr_.magic, after.magic);
+  EXPECT_STREQ(hdr_.token_id.hostname, after.token_id.hostname);
+  EXPECT_EQ(hdr_.token_id.unique_id, after.token_id.unique_id);
+  EXPECT_STREQ(hdr_.handle_id.hostname, after.handle_id.hostname);
+  EXPECT_EQ(hdr_.handle_id.unique_id, after.handle_id.unique_id);
 }

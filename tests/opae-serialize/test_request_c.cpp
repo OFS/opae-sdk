@@ -237,15 +237,17 @@ void test_fpgaDestroyToken_request_1(void)
 		.guid = { 0, },
 		.subsystem_vendor_id = 0x8086,
 		.subsystem_device_id = 0x0000,
-		.hostname = { 0, },
-		.remote_id = 2
+		.token_id = {
+			.hostname = { 0, },
+			.unique_id = 2
+		}
 	};
 	opae_fpgaDestroyToken_request req;
 	opae_fpgaDestroyToken_response resp;
 	char buf[64];
 
 	uuid_parse(TEST_GUID_STR, hdr.guid);
-	opae_get_host_name_buf(hdr.hostname, HOST_NAME_MAX);
+	opae_get_host_name_buf(hdr.token_id.hostname, HOST_NAME_MAX);
 
 	req.token = hdr;
 
@@ -278,8 +280,8 @@ void test_fpgaDestroyToken_request_1(void)
 	assert(!strcmp(TEST_GUID_STR, buf));
 	assert(req.token.subsystem_vendor_id == hdr.subsystem_vendor_id);
 	assert(req.token.subsystem_device_id == hdr.subsystem_device_id);
-	assert(!strcmp(req.token.hostname, hdr.hostname));
-	assert(req.token.remote_id == 2);
+	assert(!strcmp(req.token.token_id.hostname, hdr.token_id.hostname));
+	assert(req.token.token_id.unique_id == 2);
 
 	opae_handle_fpgaDestroyToken_request_1(&remote_context, json, &response);
 
@@ -315,15 +317,17 @@ void test_fpgaCloneToken_request_2(void)
 		.guid = { 0, },
 		.subsystem_vendor_id = 0x8086,
 		.subsystem_device_id = 0x0000,
-		.hostname = { 0, },
-		.remote_id = 2
+		.token_id = {
+			.hostname = { 0, },
+			.unique_id = 2
+		}
 	};
 	opae_fpgaCloneToken_request req;
 	opae_fpgaCloneToken_response resp;
 	char buf[64];
 
 	uuid_parse(TEST_GUID_STR, hdr.guid);
-	opae_get_host_name_buf(hdr.hostname, HOST_NAME_MAX);
+	opae_get_host_name_buf(hdr.token_id.hostname, HOST_NAME_MAX);
 
 	req.src_token = hdr;
 
@@ -356,8 +360,8 @@ void test_fpgaCloneToken_request_2(void)
 	assert(!strcmp(TEST_GUID_STR, buf));
 	assert(req.src_token.subsystem_vendor_id == hdr.subsystem_vendor_id);
 	assert(req.src_token.subsystem_device_id == hdr.subsystem_device_id);
-	assert(!strcmp(req.src_token.hostname, hdr.hostname));
-	assert(req.src_token.remote_id == 2);
+	assert(!strcmp(req.src_token.token_id.hostname, hdr.token_id.hostname));
+	assert(req.src_token.token_id.unique_id == 2);
 
 	opae_handle_fpgaCloneToken_request_2(&remote_context, json, &response);
 
@@ -393,15 +397,17 @@ void test_fpgaGetProperties_request_3(void)
 		.guid = { 0, },
 		.subsystem_vendor_id = 0x8086,
 		.subsystem_device_id = 0x0000,
-		.hostname = { 0, },
-		.remote_id = 3
+		.token_id = {
+			.hostname = { 0, },
+			.unique_id = 3
+		}
 	};
 	opae_fpgaGetProperties_request req;
 	opae_fpgaGetProperties_response resp;
 	char buf[64];
 
 	uuid_parse(TEST_GUID_STR, hdr.guid);
-	opae_get_host_name_buf(hdr.hostname, HOST_NAME_MAX);
+	opae_get_host_name_buf(hdr.token_id.hostname, HOST_NAME_MAX);
 
 	req.token = hdr;
 
@@ -434,8 +440,8 @@ void test_fpgaGetProperties_request_3(void)
 	assert(!strcmp(TEST_GUID_STR, buf));
 	assert(req.token.subsystem_vendor_id == hdr.subsystem_vendor_id);
 	assert(req.token.subsystem_device_id == hdr.subsystem_device_id);
-	assert(!strcmp(req.token.hostname, hdr.hostname));
-	assert(req.token.remote_id == 3);
+	assert(!strcmp(req.token.token_id.hostname, hdr.token_id.hostname));
+	assert(req.token.token_id.unique_id == 3);
 
 	opae_handle_fpgaGetProperties_request_3(&remote_context, json, &response);
 
@@ -455,7 +461,6 @@ void test_fpgaGetProperties_request_3(void)
 	opae_free(response);
 }
 
-#if 0
 int main(int argc, char *argv[])
 {
 	(void) argc;
@@ -475,4 +480,3 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
-#endif

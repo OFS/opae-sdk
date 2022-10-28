@@ -349,13 +349,13 @@ TEST_P(metadata_c, get_interface_id_02) {
 
   struct _fpga_handle *handle = (struct _fpga_handle *)device_;
 
-  fpga_token save_token = handle->hdr.plugin_token;
-  handle->hdr.plugin_token = NULL;
+  fpga_token save_token = handle->token;
+  handle->token = NULL;
 
   auto res = get_interface_id(device_, &id_l, &id_h);
   EXPECT_EQ(res, FPGA_INVALID_PARAM);
 
-  handle->hdr.plugin_token = save_token;
+  handle->token = save_token;
 }
 
 /**

@@ -151,8 +151,9 @@ struct _fpga_bmc_metric {
 
 /** Process-wide unique FPGA handle */
 struct _fpga_handle {
-	fpga_handle_header hdr; //< Must appear at offset 0!
+	fpga_handle_header hdr;         //< Must appear at offset 0!
 	pthread_mutex_t lock;
+	fpga_token token;
 
 	int fddev;                      // file descriptor for the device.
 	int fdfpgad;                    // file descriptor for the event daemon.

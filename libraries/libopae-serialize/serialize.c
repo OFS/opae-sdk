@@ -459,27 +459,6 @@ bool opae_ser_properties_to_json_obj(fpga_properties prop,
 	return true;
 }
 
-char *opae_ser_properties_to_json(fpga_properties prop, int json_flags)
-{
-	struct json_object *root;
-	char *json = NULL;
-
-	root = json_object_new_object();
-	if (!root) {
-		OPAE_ERR("out of memory");
-		return NULL;
-	}
-
-	if (!opae_ser_properties_to_json_obj(prop, root))
-		goto out_err;
-
-	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
-
-out_err:
-	json_object_put(root);
-	return json;
-}
-
 bool opae_ser_json_to_properties_obj(struct json_object *jobj,
                                      fpga_properties *props)
 {
@@ -785,35 +764,59 @@ out_destroy:
 	return false;
 }
 
-bool opae_ser_json_to_properties(const char *json,
-				 fpga_properties *props)
+bool opae_ser_remote_id_to_json_obj(const fpga_remote_id *rid,
+                                    struct json_object *parent)
 {
-	json_object *root = NULL;
-	enum json_tokener_error j_err = json_tokener_success;
-	bool res = false;
+	json_object_object_add(parent, "serialized_type",
+			json_object_new_string("fpga_remote_id"));
 
-	root = json_tokener_parse_verbose(json, &j_err);
-	if (!root) {
-		OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-	}
+	json_object_object_add(parent,
+			       "hostname",
+			       json_object_new_string(rid->hostname));
 
-	if (!opae_ser_json_to_properties_obj(root, props))
-		goto out_put;
+	json_object_object_add(parent,
+			       "unique_id",
+			       json_object_new_int(rid->unique_id));
 
-	res = true;
-
-out_put:
-	json_object_put(root);
-	return res;
+	return true;
 }
 
-bool opae_ser_token_header_to_json_obj(fpga_token_header *hdr,
+bool opae_ser_json_to_remote_id_obj(struct json_object *jobj,
+                                    fpga_remote_id *rid)
+{
+	char *str;
+	struct json_object *obj;
+	size_t len;
+
+	str = NULL;
+	obj = parse_json_string(jobj, "serialized_type", &str);
+	if (!obj || strcmp(str, "fpga_remote_id")) {
+		OPAE_ERR("fpga_remote_id de-serialize failed");
+		return false;
+	}
+
+	str = NULL;
+	if (!parse_json_string(jobj, "hostname", &str))
+		return false;
+
+	len = strlen(str);
+	if (len > HOST_NAME_MAX)
+		len = HOST_NAME_MAX;
+	memcpy(rid->hostname, str, len);
+	rid->hostname[len] = '\0';
+
+	if (!parse_json_u64(jobj, "unique_id", &rid->unique_id))
+		return false;
+
+	return true;
+}
+
+bool opae_ser_token_header_to_json_obj(const fpga_token_header *hdr,
                                        struct json_object *parent)
 {
 	char buf[64];
 	const char *str;
+	struct json_object *jtoken_id = NULL;
 
 	json_object_object_add(parent, "serialized_type",
 			json_object_new_string("fpga_token_header"));
@@ -920,48 +923,39 @@ bool opae_ser_token_header_to_json_obj(fpga_token_header *hdr,
 			       "subsystem_device_id",
 			       json_object_new_string(buf));
 
-	json_object_object_add(parent,
-			       "hostname",
-			       json_object_new_string(hdr->hostname));
-
-	json_object_object_add(parent,
-			       "remote_id",
-			       json_object_new_int(hdr->remote_id));
-
-	return true;
-}
-
-char *opae_ser_token_header_to_json(fpga_token_header *hdr,
-                                    int json_flags)
-{
-	struct json_object *root = NULL;
-	char *json = NULL;
-
-	root = json_object_new_object();
-	if (!root) {
+	jtoken_id = json_object_new_object();
+	if (!jtoken_id) {
 		OPAE_ERR("out of memory");
-		return NULL;
+		return false;
 	}
 
-	if (!opae_ser_token_header_to_json_obj(hdr, root))
-		goto out_put;
+	if (!opae_ser_remote_id_to_json_obj(&hdr->token_id, jtoken_id))
+		return false;
 
-	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+	json_object_object_add(parent, "token_id", jtoken_id);
 
-out_put:
-	json_object_put(root);
-	return json;
+	return true;
 }
 
 bool opae_ser_json_to_token_header_obj(struct json_object *jobj,
                                        fpga_token_header *hdr)
 {
+	struct json_object *jtoken_id = NULL;
+	struct json_object *serialized_type;
 	char *str;
 	char *endptr;
 	uint8_t u8;
 	uint16_t u16;
 	uint64_t u64;
-	size_t len;
+
+	str = NULL;
+	serialized_type =
+		parse_json_string(jobj, "serialized_type", &str);
+
+	if (!serialized_type || strcmp(str, "fpga_token_header")) {
+		OPAE_ERR("fpga_token_header de-serialize failed");
+		return false;
+	}
 
 	str = endptr = NULL;
 	if (!parse_json_string(jobj, "magic", &str))
@@ -1101,44 +1095,17 @@ bool opae_ser_json_to_token_header_obj(struct json_object *jobj,
 	}
 	hdr->subsystem_device_id = u16;
 
-	str = NULL;
-	if (!parse_json_string(jobj, "hostname", &str))
-		return false;
+        if (!json_object_object_get_ex(jobj,
+				       "token_id",
+				       &jtoken_id)) {
+                OPAE_ERR("Error parsing JSON: missing 'token_id'");
+                return false;
+        }
 
-	len = strlen(str);
-	if (len > HOST_NAME_MAX)
-		len = HOST_NAME_MAX;
-	memcpy(hdr->hostname, str, len);
-	hdr->hostname[len] = '\0';
-
-	if (!parse_json_u64(jobj, "remote_id", &hdr->remote_id))
+	if (!opae_ser_json_to_remote_id_obj(jtoken_id, &hdr->token_id))
 		return false;
 
 	return true;
-}
-
-bool opae_ser_json_to_token_header(const char *json,
-				   fpga_token_header *hdr)
-{
-	json_object *root = NULL;
-	enum json_tokener_error j_err = json_tokener_success;
-	bool res = false;
-
-	root = json_tokener_parse_verbose(json, &j_err);
-	if (!root) {
-		OPAE_ERR("JSON parse failed: %s",
-                         json_tokener_error_desc(j_err));
-                return false;
-	}
-
-	if (!opae_ser_json_to_token_header_obj(root, hdr))
-		goto out_put;
-
-	res = true;
-
-out_put:
-	json_object_put(root);
-	return res;
 }
 
 #define NUM_FPGA_RESULTS 11
@@ -1185,7 +1152,7 @@ opae_str_to_fpga_result(const char *s)
 	return (fpga_result)-1;
 }
 
-bool opae_ser_fpga_result_to_json_obj(fpga_result res,
+bool opae_ser_fpga_result_to_json_obj(const fpga_result res,
                                       struct json_object *parent)
 {
 	const char *str;
@@ -1208,6 +1175,168 @@ bool opae_ser_json_to_fpga_result_obj(struct json_object *jobj,
 		return false;
 
 	*res = opae_str_to_fpga_result(str);
+
+	return true;
+}
+
+#define NUM_OPEN_FLAGS 2
+STATIC struct {
+	enum fpga_open_flags flag;
+	const char *str;
+} open_flags_table[NUM_OPEN_FLAGS] = {
+	{		 0, "NONE"             },
+	{ FPGA_OPEN_SHARED, "FPGA_OPEN_SHARED" }
+};
+
+STATIC const char *
+opae_open_flags_to_str(enum fpga_open_flags f)
+{
+	int i;
+
+	for (i = 0 ; i < NUM_OPEN_FLAGS ; ++i) {
+		if (f == open_flags_table[i].flag)
+			return open_flags_table[i].str;
+	}
+
+	return "<unknown>";
+}
+
+STATIC enum fpga_open_flags
+opae_str_to_open_flags(const char *s)
+{
+	int i;
+
+	for (i = 0 ; i < NUM_OPEN_FLAGS ; ++i) {
+		if (!strcmp(s, open_flags_table[i].str))
+			return open_flags_table[i].flag;
+	}
+
+	return (enum fpga_open_flags)-1;
+}
+
+bool opae_ser_fpga_open_flags_to_json_obj(const enum fpga_open_flags flags,
+					  struct json_object *parent)
+{
+	const char *str;
+
+	str = opae_open_flags_to_str(flags);
+	json_object_object_add(parent, "fpga_open_flags",
+		json_object_new_string(str));
+
+	return true;
+}
+
+bool opae_ser_json_to_fpga_open_flags_obj(struct json_object *jobj,
+					  enum fpga_open_flags *flags)
+{
+	char *str = NULL;
+	struct json_object *obj;
+
+	obj = parse_json_string(jobj, "fpga_open_flags", &str);
+	if (!obj)
+		return false;
+
+	*flags = opae_str_to_open_flags(str);
+
+	return true;
+}
+
+bool opae_ser_handle_header_to_json_obj(const fpga_handle_header *hdr,
+                                        struct json_object *parent)
+{
+	char buf[64];
+	struct json_object *jtoken_id;
+	struct json_object *jhandle_id;
+
+	json_object_object_add(parent, "serialized_type",
+			json_object_new_string("fpga_handle_header"));
+
+	if (snprintf(buf, sizeof(buf),
+		     "0x%016" PRIx64, hdr->magic) >=
+			(int)sizeof(buf)) {
+		OPAE_ERR("snprintf() buffer overflow");
+	}
+	json_object_object_add(parent,
+			       "magic",
+			       json_object_new_string(buf));
+
+        jtoken_id = json_object_new_object();
+        if (!jtoken_id) {
+                OPAE_ERR("out of memory");
+                return false;
+        }
+
+	if (!opae_ser_remote_id_to_json_obj(&hdr->token_id, jtoken_id))
+		return false;
+
+	json_object_object_add(parent, "token_id", jtoken_id);
+
+        jhandle_id = json_object_new_object();
+        if (!jhandle_id) {
+                OPAE_ERR("out of memory");
+                return false;
+        }
+
+	if (!opae_ser_remote_id_to_json_obj(&hdr->handle_id, jhandle_id))
+		return false;
+
+	json_object_object_add(parent, "handle_id", jhandle_id);
+
+	return true;
+}
+
+bool opae_ser_json_to_handle_header_obj(struct json_object *jobj,
+                                        fpga_handle_header *hdr)
+{
+	char *str;
+	char *endptr;
+	struct json_object *serialized_type;
+	struct json_object *jtoken_id = NULL;
+	struct json_object *jhandle_id = NULL;
+	uint64_t u64;
+
+	str = NULL;
+	serialized_type =
+		parse_json_string(jobj, "serialized_type", &str);
+
+	if (!serialized_type || strcmp(str, "fpga_handle_header")) {
+		OPAE_ERR("fpga_handle_header de-serialize failed");
+		return false;
+	}
+
+	str = endptr = NULL;
+	if (!parse_json_string(jobj, "magic", &str))
+		return false;
+
+	u64 = strtoul(str, &endptr, 0);
+	if (endptr != str + strlen(str)) {
+		OPAE_ERR("fpga_token_header de-serialize "
+			 "failed (magic)");
+		return false;
+	}
+	hdr->magic = u64;
+
+        if (!json_object_object_get_ex(jobj,
+				       "token_id",
+				       &jtoken_id)) {
+                OPAE_ERR("Error parsing JSON: missing 'token_id'");
+                return false;
+        }
+
+        if (!opae_ser_json_to_remote_id_obj(jtoken_id,
+					    &hdr->token_id))
+		return false;
+
+	if (!json_object_object_get_ex(jobj,
+				       "handle_id",
+				       &jhandle_id)) {
+		OPAE_ERR("Error parsing JSON: missing 'handle_id'");
+		return false;
+	}
+
+	if (!opae_ser_json_to_remote_id_obj(jhandle_id,
+					    &hdr->handle_id))
+		return false;
 
 	return true;
 }

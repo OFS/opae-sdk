@@ -96,6 +96,17 @@ char *opae_encode_fpgaUpdateProperties_response_4(opae_fpgaUpdateProperties_resp
 bool opae_decode_fpgaUpdateProperties_response_4(const char *json,
 						 opae_fpgaUpdateProperties_response *resp);
 
+typedef struct {
+	opae_response_header header;
+	fpga_handle_header handle;
+	fpga_result result;
+} opae_fpgaOpen_response;
+
+char *opae_encode_fpgaOpen_response_5(opae_fpgaOpen_response *resp,
+				      int json_flags);
+bool opae_decode_fpgaOpen_response_5(const char *json,
+				     opae_fpgaOpen_response *resp);
+
 
 #ifdef __cplusplus
 }

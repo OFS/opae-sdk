@@ -132,7 +132,7 @@ STATIC fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
 		return FPGA_INVALID_PARAM;
 	}
 
-	if (_handle->hdr.plugin_token == NULL) {
+	if (_handle->token == NULL) {
 		OPAE_ERR("Invalid token within handle");
 		return FPGA_INVALID_PARAM;
 	}
@@ -142,7 +142,7 @@ STATIC fpga_result open_accel(fpga_handle handle, fpga_handle *accel)
 		return result;
 
 	result = fpgaPropertiesSetParent(props,
-					 _handle->hdr.plugin_token);
+					 _handle->token);
 	if (result != FPGA_OK) {
 		OPAE_ERR("Error setting parent in properties.");
 		goto free_props;

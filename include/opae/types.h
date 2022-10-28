@@ -253,6 +253,11 @@ typedef struct metric_threshold {
 	threshold hysteresis;                          // Hysteresis
 } metric_threshold;
 
+typedef struct _fpga_remote_id {
+	char hostname[HOST_NAME_MAX + 1];
+	uint64_t unique_id;
+} fpga_remote_id;
+
 /** Internal token type header
  *
  * Each plugin (dfl: libxfpga.so, vfio: libopae-v.so) implements its own
@@ -276,8 +281,7 @@ typedef struct _fpga_token_header {
 	fpga_guid guid;
 	uint16_t subsystem_vendor_id;
 	uint16_t subsystem_device_id;
-	char hostname[HOST_NAME_MAX + 1];
-	uint64_t remote_id;
+	fpga_remote_id token_id;
 } fpga_token_header;
 
 /** Determine token parent/child relationship
@@ -297,9 +301,8 @@ typedef struct _fpga_token_header {
 
 typedef struct _fpga_handle_header {
 	uint64_t magic;
-	fpga_token plugin_token;
-	char hostname[HOST_NAME_MAX + 1];
-	uint64_t remote_id;
+	fpga_remote_id token_id;
+	fpga_remote_id handle_id;
 } fpga_handle_header;
 
 #endif // __FPGA_TYPES_H__

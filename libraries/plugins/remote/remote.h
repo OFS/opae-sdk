@@ -165,6 +165,12 @@ struct _remote_handle {
 
 };
 
+struct _remote_handle *
+opae_create_remote_handle(struct _remote_token *token,
+			  fpga_handle_header *hdr);
+
+void opae_destroy_remote_handle(struct _remote_handle *h);
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus
