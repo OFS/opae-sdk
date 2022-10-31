@@ -42,13 +42,63 @@
 fpga_result __REMOTE_API__
 remote_fpgaGetPropertiesFromHandle(fpga_handle handle, fpga_properties *prop)
 {
-	fpga_result result = FPGA_OK;
-(void) handle;
-(void) prop;
+	opae_fpgaGetPropertiesFromHandle_request req;
+	opae_fpgaGetPropertiesFromHandle_response resp;
+	struct _remote_handle *h;
+	struct _remote_token *tok;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+	if (!handle) {
+		OPAE_ERR("NULL handle");
+		return FPGA_INVALID_PARAM;
+	}
 
+	if (!prop) {
+		OPAE_ERR("NULL properties pointer");
+		return FPGA_INVALID_PARAM;
+	}
 
-	return result;
+	h = (struct _remote_handle *)handle;
+	tok = h->token;
+
+	req.handle = h->hdr;
+
+	req_json = opae_encode_fpgaGetPropertiesFromHandle_request_8(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+	if (!opae_decode_fpgaGetPropertiesFromHandle_response_8(
+		recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	*prop = resp.properties;
+
+	return resp.result;
 }
 
 fpga_result __REMOTE_API__
@@ -147,8 +197,6 @@ printf("%s\n", recvbuf);
 	p->lock = save_lock;
 
 	opae_mutex_unlock(res, &p->lock);
-
-	fpgaDestroyProperties(&resp.properties);
 
 	return resp.result;
 }

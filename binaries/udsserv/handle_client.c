@@ -47,7 +47,10 @@ STATIC srv_handler handlers[] = {
 	opae_handle_fpgaCloneToken_request_2,
 	opae_handle_fpgaGetProperties_request_3,
 	opae_handle_fpgaUpdateProperties_request_4,
-	opae_handle_fpgaOpen_request_5
+	opae_handle_fpgaOpen_request_5,
+	opae_handle_fpgaClose_request_6,
+	opae_handle_fpgaReset_request_7,
+	opae_handle_fpgaGetPropertiesFromHandle_request_8
 
 };
 

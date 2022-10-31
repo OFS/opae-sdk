@@ -591,3 +591,291 @@ out_put:
 	json_object_put(root);
 	return res;
 }
+
+char *opae_encode_fpgaClose_request_6(opae_fpgaClose_request *req,
+				      int json_flags)
+{
+	struct json_object *root;
+	char *json = NULL;
+	struct json_object *jhandle;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_request_header_obj(root,
+		6, "fpgaClose_request_6"))
+		goto out_err;
+
+	jhandle = json_object_new_object();
+	if (!jhandle) {
+		OPAE_ERR("out of memory");
+		goto out_err;
+	}
+
+	if (!opae_ser_handle_header_to_json_obj(&req->handle, jhandle))
+		goto out_err;
+
+	json_object_object_add(root, "handle", jhandle);
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaClose_request_6(const char *json,
+				     opae_fpgaClose_request *req)
+{
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
+	struct json_object *jhandle = NULL;
+
+	root = json_tokener_parse_verbose(json, &j_err);
+        if (!root) {
+                OPAE_ERR("JSON parse failed: %s",
+                         json_tokener_error_desc(j_err));
+                return false;
+        }
+
+	if (!opae_decode_request_header_obj(root, &req->header)) {
+		OPAE_ERR("request header decode failed");
+		goto out_put;
+	}
+
+        if (!json_object_object_get_ex(root, "handle", &jhandle)) {
+                OPAE_DBG("Error parsing JSON: missing 'handle'");
+                goto out_put;
+        }
+
+        if (!opae_ser_json_to_handle_header_obj(jhandle, &req->handle))
+                goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}
+
+char *opae_encode_fpgaReset_request_7(opae_fpgaReset_request *req,
+				      int json_flags)
+{
+	struct json_object *root;
+	char *json = NULL;
+	struct json_object *jhandle;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_request_header_obj(root,
+		7, "fpgaReset_request_7"))
+		goto out_err;
+
+	jhandle = json_object_new_object();
+	if (!jhandle) {
+		OPAE_ERR("out of memory");
+		goto out_err;
+	}
+
+	if (!opae_ser_handle_header_to_json_obj(&req->handle, jhandle))
+		goto out_err;
+
+	json_object_object_add(root, "handle", jhandle);
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaReset_request_7(const char *json,
+				     opae_fpgaReset_request *req)
+{
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
+	struct json_object *jhandle = NULL;
+
+	root = json_tokener_parse_verbose(json, &j_err);
+        if (!root) {
+                OPAE_ERR("JSON parse failed: %s",
+                         json_tokener_error_desc(j_err));
+                return false;
+        }
+
+	if (!opae_decode_request_header_obj(root, &req->header)) {
+		OPAE_ERR("request header decode failed");
+		goto out_put;
+	}
+
+        if (!json_object_object_get_ex(root, "handle", &jhandle)) {
+                OPAE_DBG("Error parsing JSON: missing 'handle'");
+                goto out_put;
+        }
+
+        if (!opae_ser_json_to_handle_header_obj(jhandle, &req->handle))
+                goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}
+
+char *opae_encode_fpgaGetPropertiesFromHandle_request_8(
+	opae_fpgaGetPropertiesFromHandle_request *req,
+	int json_flags)
+{
+	struct json_object *root;
+	char *json = NULL;
+	struct json_object *jhandle;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_request_header_obj(root,
+		8, "fpgaGetPropertiesFromHandle_request_8"))
+		goto out_err;
+
+	jhandle = json_object_new_object();
+	if (!jhandle) {
+		OPAE_ERR("out of memory");
+		goto out_err;
+	}
+
+	if (!opae_ser_handle_header_to_json_obj(&req->handle, jhandle))
+		goto out_err;
+
+	json_object_object_add(root, "handle", jhandle);
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaGetPropertiesFromHandle_request_8(
+	const char *json,
+	opae_fpgaGetPropertiesFromHandle_request *req)
+{
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
+	struct json_object *jhandle = NULL;
+
+	root = json_tokener_parse_verbose(json, &j_err);
+        if (!root) {
+                OPAE_ERR("JSON parse failed: %s",
+                         json_tokener_error_desc(j_err));
+                return false;
+        }
+
+	if (!opae_decode_request_header_obj(root, &req->header)) {
+		OPAE_ERR("request header decode failed");
+		goto out_put;
+	}
+
+        if (!json_object_object_get_ex(root, "handle", &jhandle)) {
+                OPAE_DBG("Error parsing JSON: missing 'handle'");
+                goto out_put;
+        }
+
+        if (!opae_ser_json_to_handle_header_obj(jhandle, &req->handle))
+                goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}
+
+char *opae_encode_fpgaMapMMIO_request_9(opae_fpgaMapMMIO_request *req,
+					int json_flags)
+{
+	struct json_object *root;
+	char *json = NULL;
+	struct json_object *jhandle;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_request_header_obj(root,
+		9, "fpgaMapMMIO_request_9"))
+		goto out_err;
+
+	jhandle = json_object_new_object();
+	if (!jhandle) {
+		OPAE_ERR("out of memory");
+		goto out_err;
+	}
+
+	if (!opae_ser_handle_header_to_json_obj(&req->handle, jhandle))
+		goto out_err;
+
+	json_object_object_add(root, "handle", jhandle);
+
+	json_object_object_add(root, "mmio_num",
+			json_object_new_int(req->mmio_num));
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaMapMMIO_request_9(const char *json,
+				       opae_fpgaMapMMIO_request *req)
+{
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
+	struct json_object *jhandle = NULL;
+
+	root = json_tokener_parse_verbose(json, &j_err);
+        if (!root) {
+                OPAE_ERR("JSON parse failed: %s",
+                         json_tokener_error_desc(j_err));
+                return false;
+        }
+
+	if (!opae_decode_request_header_obj(root, &req->header)) {
+		OPAE_ERR("request header decode failed");
+		goto out_put;
+	}
+
+        if (!json_object_object_get_ex(root, "handle", &jhandle)) {
+                OPAE_DBG("Error parsing JSON: missing 'handle'");
+                goto out_put;
+        }
+
+        if (!opae_ser_json_to_handle_header_obj(jhandle, &req->handle))
+                goto out_put;
+
+	if (!parse_json_u32(root, "mmio_num", &req->mmio_num))
+		goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}

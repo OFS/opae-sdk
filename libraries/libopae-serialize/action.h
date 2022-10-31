@@ -69,6 +69,19 @@ bool opae_handle_fpgaOpen_request_5(opae_remote_context *c,
 				    const char *req_json,
 				    char **resp_json);
 
+bool opae_handle_fpgaClose_request_6(opae_remote_context *c,
+				     const char *req_json,
+				     char **resp_json);
+
+bool opae_handle_fpgaReset_request_7(opae_remote_context *c,
+				     const char *req_json,
+				     char **resp_json);
+
+bool opae_handle_fpgaGetPropertiesFromHandle_request_8(opae_remote_context *c,
+				     const char *req_json,
+				     char **resp_json);
+
+
 
 
 #ifdef __cplusplus

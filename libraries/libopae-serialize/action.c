@@ -569,3 +569,141 @@ out_respond:
 			c->json_to_string_flags);
 	return res;
 }
+
+bool opae_handle_fpgaClose_request_6(opae_remote_context *c,
+				     const char *req_json,
+				     char **resp_json)
+{
+	bool res = false;
+	opae_fpgaClose_request req;
+	opae_fpgaClose_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_handle handle = NULL;
+
+	if (!opae_decode_fpgaClose_request_6(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaClose request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaClose_response_6");
+
+	resp.result = FPGA_EXCEPTION;
+
+	opae_remote_id_to_hash_key(&req.handle.handle_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_handle_map,
+				hash_key_buf,
+				&handle) != FPGA_OK) {
+		OPAE_ERR("handle lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaClose(handle);
+
+	// Remove the handle from our remote context object.
+	opae_hash_map_remove(&c->remote_id_to_handle_map, hash_key_buf);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaClose_response_6(
+			&resp,
+			c->json_to_string_flags);
+	return res;
+}
+
+bool opae_handle_fpgaReset_request_7(opae_remote_context *c,
+				     const char *req_json,
+				     char **resp_json)
+{
+	bool res = false;
+	opae_fpgaReset_request req;
+	opae_fpgaReset_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_handle handle = NULL;
+
+	if (!opae_decode_fpgaReset_request_7(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaReset request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaReset_response_7");
+
+	resp.result = FPGA_EXCEPTION;
+
+	opae_remote_id_to_hash_key(&req.handle.handle_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_handle_map,
+				hash_key_buf,
+				&handle) != FPGA_OK) {
+		OPAE_ERR("handle lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaReset(handle);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaReset_response_7(
+			&resp,
+			c->json_to_string_flags);
+	return res;
+}
+
+bool opae_handle_fpgaGetPropertiesFromHandle_request_8(opae_remote_context *c,
+				     const char *req_json,
+				     char **resp_json)
+{
+	bool res = false;
+	opae_fpgaGetPropertiesFromHandle_request req;
+	opae_fpgaGetPropertiesFromHandle_response resp;
+	char hash_key[OPAE_MAX_TOKEN_HASH];
+	fpga_handle handle = NULL;
+
+	if (!opae_decode_fpgaGetPropertiesFromHandle_request_8(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaGetPropertiesFromHandle request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaGetPropertiesFromHandle_response_8");
+
+	resp.result = FPGA_NOT_FOUND;
+	resp.properties = NULL;
+
+	opae_remote_id_to_hash_key(&req.handle.handle_id,
+				   hash_key,
+				   sizeof(hash_key));
+
+	// Find the handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_handle_map,
+				hash_key,
+				&handle) != FPGA_OK) {
+		OPAE_ERR("handle lookup failed for %s", hash_key);
+		goto out_respond;
+	}
+
+	resp.result = fpgaGetPropertiesFromHandle(handle, &resp.properties);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaGetPropertiesFromHandle_response_8(
+				&resp,
+				c->json_to_string_flags);
+	if (resp.properties)
+		fpgaDestroyProperties(&resp.properties);
+	return res;
+}

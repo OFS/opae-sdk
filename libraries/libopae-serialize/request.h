@@ -105,6 +105,49 @@ char *opae_encode_fpgaOpen_request_5(opae_fpgaOpen_request *req,
 bool opae_decode_fpgaOpen_request_5(const char *json,
 				    opae_fpgaOpen_request *req);
 
+typedef struct {
+	opae_request_header header;
+	fpga_handle_header handle;
+} opae_fpgaClose_request;
+
+char *opae_encode_fpgaClose_request_6(opae_fpgaClose_request *req,
+				      int json_flags);
+bool opae_decode_fpgaClose_request_6(const char *json,
+				     opae_fpgaClose_request *req);
+
+typedef struct {
+	opae_request_header header;
+	fpga_handle_header handle;
+} opae_fpgaReset_request;
+
+char *opae_encode_fpgaReset_request_7(opae_fpgaReset_request *req,
+				      int json_flags);
+bool opae_decode_fpgaReset_request_7(const char *json,
+				     opae_fpgaReset_request *req);
+
+typedef struct {
+	opae_request_header header;
+	fpga_handle_header handle;
+} opae_fpgaGetPropertiesFromHandle_request;
+
+char *opae_encode_fpgaGetPropertiesFromHandle_request_8(
+	opae_fpgaGetPropertiesFromHandle_request *req,
+	int json_flags);
+bool opae_decode_fpgaGetPropertiesFromHandle_request_8(
+	const char *json,
+	opae_fpgaGetPropertiesFromHandle_request *req);
+
+typedef struct {
+	opae_request_header header;
+	fpga_handle_header handle;
+	uint32_t mmio_num;
+} opae_fpgaMapMMIO_request;
+
+char *opae_encode_fpgaMapMMIO_request_9(opae_fpgaMapMMIO_request *req,
+					int json_flags);
+bool opae_decode_fpgaMapMMIO_request_9(const char *json,
+				       opae_fpgaMapMMIO_request *req);
+
 
 
 #ifdef __cplusplus

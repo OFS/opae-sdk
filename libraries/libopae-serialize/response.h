@@ -107,6 +107,41 @@ char *opae_encode_fpgaOpen_response_5(opae_fpgaOpen_response *resp,
 bool opae_decode_fpgaOpen_response_5(const char *json,
 				     opae_fpgaOpen_response *resp);
 
+typedef struct {
+	opae_response_header header;
+	fpga_result result;
+} opae_fpgaClose_response;
+
+char *opae_encode_fpgaClose_response_6(opae_fpgaClose_response *resp,
+				       int json_flags);
+bool opae_decode_fpgaClose_response_6(const char *json,
+				      opae_fpgaClose_response *resp);
+
+typedef struct {
+	opae_response_header header;
+	fpga_result result;
+} opae_fpgaReset_response;
+
+char *opae_encode_fpgaReset_response_7(opae_fpgaReset_response *resp,
+				       int json_flags);
+bool opae_decode_fpgaReset_response_7(const char *json,
+				      opae_fpgaReset_response *resp);
+
+typedef struct {
+	opae_response_header header;
+	fpga_properties properties;
+	fpga_result result;
+} opae_fpgaGetPropertiesFromHandle_response;
+
+char *opae_encode_fpgaGetPropertiesFromHandle_response_8(
+	opae_fpgaGetPropertiesFromHandle_response *resp,
+	int json_flags);
+bool opae_decode_fpgaGetPropertiesFromHandle_response_8(
+	const char *json,
+	opae_fpgaGetPropertiesFromHandle_response *resp);
+
+
+
 
 #ifdef __cplusplus
 }
