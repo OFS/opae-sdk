@@ -60,14 +60,14 @@ remote_fpgaReadMMIO32(fpga_handle handle,
 		      uint64_t offset,
 		      uint32_t *value)
 {
-        opae_fpgaReadMMIO32_request req;
-        opae_fpgaReadMMIO32_response resp;
-        struct _remote_handle *h;
+	opae_fpgaReadMMIO32_request req;
+	opae_fpgaReadMMIO32_response resp;
+	struct _remote_handle *h;
 	struct _remote_token *tok;
-        char *req_json;
-        size_t len;
-        ssize_t slen;
-        char recvbuf[OPAE_RECEIVE_BUF_MAX];
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
 	if (!handle) {
 		OPAE_ERR("NULL handle");
@@ -187,14 +187,14 @@ remote_fpgaMapMMIO(fpga_handle handle,
 		   uint32_t mmio_num,
 		   uint64_t **mmio_ptr)
 {
-        opae_fpgaMapMMIO_request req;
-        opae_fpgaMapMMIO_response resp;
-        struct _remote_handle *h;
+	opae_fpgaMapMMIO_request req;
+	opae_fpgaMapMMIO_response resp;
+	struct _remote_handle *h;
 	struct _remote_token *tok;
-        char *req_json;
-        size_t len;
-        ssize_t slen;
-        char recvbuf[OPAE_RECEIVE_BUF_MAX];
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 	fpga_remote_id *mmio_id;
 
 	if (!handle) {
@@ -268,14 +268,14 @@ printf("%s\n", recvbuf);
 fpga_result __REMOTE_API__
 remote_fpgaUnmapMMIO(fpga_handle handle, uint32_t mmio_num)
 {
-        opae_fpgaUnmapMMIO_request req;
-        opae_fpgaUnmapMMIO_response resp;
-        struct _remote_handle *h;
+	opae_fpgaUnmapMMIO_request req;
+	opae_fpgaUnmapMMIO_response resp;
+	struct _remote_handle *h;
 	struct _remote_token *tok;
-        char *req_json;
-        size_t len;
-        ssize_t slen;
-        char recvbuf[OPAE_RECEIVE_BUF_MAX];
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 	fpga_remote_id *mmio_id;
 
 	if (!handle) {
