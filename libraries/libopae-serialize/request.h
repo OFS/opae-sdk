@@ -148,6 +148,29 @@ char *opae_encode_fpgaMapMMIO_request_9(opae_fpgaMapMMIO_request *req,
 bool opae_decode_fpgaMapMMIO_request_9(const char *json,
 				       opae_fpgaMapMMIO_request *req);
 
+typedef struct {
+	opae_request_header header;
+	fpga_handle_header handle;
+	fpga_remote_id mmio_id;
+	uint32_t mmio_num;
+} opae_fpgaUnmapMMIO_request;
+
+char *opae_encode_fpgaUnmapMMIO_request_10(opae_fpgaUnmapMMIO_request *req,
+					   int json_flags);
+bool opae_decode_fpgaUnmapMMIO_request_10(const char *json,
+					  opae_fpgaUnmapMMIO_request *req);
+
+typedef struct {
+	opae_request_header header;
+	fpga_handle_header handle;
+	uint32_t mmio_num;
+	uint64_t offset;
+} opae_fpgaReadMMIO32_request;
+
+char *opae_encode_fpgaReadMMIO32_request_11(opae_fpgaReadMMIO32_request *req,
+					    int json_flags);
+bool opae_decode_fpgaReadMMIO32_request_11(const char *json,
+					   opae_fpgaReadMMIO32_request *req);
 
 
 #ifdef __cplusplus

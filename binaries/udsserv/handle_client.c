@@ -35,8 +35,6 @@
 #include "handle_client.h"
 #include "udsserv.h"
 
-#define RECEIVE_BUF_SIZE (8 * 1024)
-
 typedef bool (*srv_handler)(opae_remote_context *c,
 			    const char *req_json,
 			    char **resp_json);
@@ -50,13 +48,16 @@ STATIC srv_handler handlers[] = {
 	opae_handle_fpgaOpen_request_5,
 	opae_handle_fpgaClose_request_6,
 	opae_handle_fpgaReset_request_7,
-	opae_handle_fpgaGetPropertiesFromHandle_request_8
+	opae_handle_fpgaGetPropertiesFromHandle_request_8,
+	opae_handle_fpgaMapMMIO_request_9,
+	opae_handle_fpgaUnmapMMIO_request_10,
+	opae_handle_fpgaReadMMIO32_request_11,
 
 };
 
 int handle_client(uds_server_context *c, void *remote_ctx, int sock)
 {
-	char buf[RECEIVE_BUF_SIZE];
+	char buf[OPAE_RECEIVE_BUF_MAX];
 	ssize_t n;
 	opae_remote_context *remc = (opae_remote_context *)remote_ctx;
 

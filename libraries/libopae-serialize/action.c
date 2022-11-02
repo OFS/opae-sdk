@@ -110,6 +110,17 @@ fpga_result opae_init_remote_context(opae_remote_context *c)
 	if (res)
 		return res;
 
+	res = opae_hash_map_init(&c->remote_id_to_mmio_map,
+				 1024, /* num_buckets   */
+                                 0,    /* hash_seed     */
+				 murmur3_32_string_hash,
+				 opae_str_key_compare,
+				 opae_str_key_cleanup,
+				 NULL  /* value_cleanup */);
+	if (res)
+		return res;
+
+
 
 	return FPGA_OK;
 }
@@ -118,6 +129,7 @@ fpga_result opae_release_remote_context(opae_remote_context *c)
 {
 	opae_hash_map_destroy(&c->remote_id_to_token_map);
 	opae_hash_map_destroy(&c->remote_id_to_handle_map);
+	opae_hash_map_destroy(&c->remote_id_to_mmio_map);
 	return FPGA_OK;
 }
 
@@ -705,5 +717,175 @@ out_respond:
 				c->json_to_string_flags);
 	if (resp.properties)
 		fpgaDestroyProperties(&resp.properties);
+	return res;
+}
+
+bool opae_handle_fpgaMapMMIO_request_9(opae_remote_context *c,
+				       const char *req_json,
+				       char **resp_json)
+{
+	bool res = false;
+	opae_fpgaMapMMIO_request req;
+	opae_fpgaMapMMIO_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_handle handle = NULL;
+	uint64_t *mmio_ptr = NULL;
+	char *hash_key;
+	fpga_result result;
+
+	if (!opae_decode_fpgaMapMMIO_request_9(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaMapMMIO request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaMapMMIO_response_9");
+
+	resp.result = FPGA_EXCEPTION;
+
+	opae_remote_id_to_hash_key(&req.handle.handle_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_handle_map,
+				hash_key_buf,
+				&handle) != FPGA_OK) {
+		OPAE_ERR("handle lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaMapMMIO(handle, req.mmio_num, &mmio_ptr);
+
+	// Reserve a unique ID for this MMIO space.
+	opae_get_remote_id(&resp.mmio_id);
+
+	hash_key = opae_remote_id_to_hash_key_alloc(&resp.mmio_id);
+	if (!hash_key) {
+		OPAE_ERR("strdup failed");
+		resp.result = FPGA_NO_MEMORY;
+		memset(&resp.mmio_id, 0, sizeof(fpga_remote_id));
+		goto out_respond;
+	}
+
+	result = opae_hash_map_add(&c->remote_id_to_mmio_map,
+				   hash_key, 
+				   mmio_ptr);
+	if (result) {
+		resp.result = FPGA_EXCEPTION;
+		memset(&resp.mmio_id, 0, sizeof(fpga_remote_id));
+		opae_str_key_cleanup(hash_key);
+		goto out_respond;
+	}
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaMapMMIO_response_9(
+			&resp,
+			c->json_to_string_flags);
+	return res;
+}
+
+bool opae_handle_fpgaUnmapMMIO_request_10(opae_remote_context *c,
+					  const char *req_json,
+					  char **resp_json)
+{
+	bool res = false;
+	opae_fpgaUnmapMMIO_request req;
+	opae_fpgaUnmapMMIO_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_handle handle = NULL;
+
+	if (!opae_decode_fpgaUnmapMMIO_request_10(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaUnmapMMIO request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaUnmapMMIO_response_10");
+
+	resp.result = FPGA_EXCEPTION;
+
+	opae_remote_id_to_hash_key(&req.handle.handle_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_handle_map,
+				hash_key_buf,
+				&handle) != FPGA_OK) {
+		OPAE_ERR("handle lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaUnmapMMIO(handle, req.mmio_num);
+
+	if (resp.result == FPGA_OK) {
+		// Remove the mapping from our remote context.
+		opae_remote_id_to_hash_key(&req.mmio_id,
+					   hash_key_buf,
+					   sizeof(hash_key_buf));
+
+		opae_hash_map_remove(&c->remote_id_to_mmio_map,
+				     hash_key_buf);
+
+		res = true;
+	}
+
+out_respond:
+	*resp_json = opae_encode_fpgaUnmapMMIO_response_10(
+			&resp,
+			c->json_to_string_flags);
+	return res;
+}
+
+bool opae_handle_fpgaReadMMIO32_request_11(opae_remote_context *c,
+					   const char *req_json,
+					   char **resp_json)
+{
+	bool res = false;
+	opae_fpgaReadMMIO32_request req;
+	opae_fpgaReadMMIO32_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_handle handle = NULL;
+
+	if (!opae_decode_fpgaReadMMIO32_request_11(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaReadMMIO32 request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaReadMMIO32_response_11");
+
+	resp.result = FPGA_EXCEPTION;
+	resp.value = 0;
+
+	opae_remote_id_to_hash_key(&req.handle.handle_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_handle_map,
+				hash_key_buf,
+				&handle) != FPGA_OK) {
+		OPAE_ERR("handle lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaReadMMIO32(handle,
+				     req.mmio_num,
+				     req.offset,
+				     &resp.value);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaReadMMIO32_response_11(
+			&resp,
+			c->json_to_string_flags);
 	return res;
 }

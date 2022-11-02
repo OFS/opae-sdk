@@ -140,6 +140,37 @@ bool opae_decode_fpgaGetPropertiesFromHandle_response_8(
 	const char *json,
 	opae_fpgaGetPropertiesFromHandle_response *resp);
 
+typedef struct {
+	opae_response_header header;
+	fpga_remote_id mmio_id;
+	fpga_result result;
+} opae_fpgaMapMMIO_response;
+
+char *opae_encode_fpgaMapMMIO_response_9(opae_fpgaMapMMIO_response *resp,
+					 int json_flags);
+bool opae_decode_fpgaMapMMIO_response_9(const char *json,
+					opae_fpgaMapMMIO_response *resp);
+
+typedef struct {
+	opae_response_header header;
+	fpga_result result;
+} opae_fpgaUnmapMMIO_response;
+
+char *opae_encode_fpgaUnmapMMIO_response_10(opae_fpgaUnmapMMIO_response *resp,
+					    int json_flags);
+bool opae_decode_fpgaUnmapMMIO_response_10(const char *json,
+					   opae_fpgaUnmapMMIO_response *resp);
+
+typedef struct {
+	opae_response_header header;
+	uint32_t value;
+	fpga_result result;
+} opae_fpgaReadMMIO32_response;
+
+char *opae_encode_fpgaReadMMIO32_response_11(opae_fpgaReadMMIO32_response *resp,
+					     int json_flags);
+bool opae_decode_fpgaReadMMIO32_response_11(const char *json,
+					    opae_fpgaReadMMIO32_response *resp);
 
 
 

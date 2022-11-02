@@ -39,6 +39,7 @@ typedef struct _opae_remote_context {
 	int json_to_string_flags;
 	opae_hash_map remote_id_to_token_map;
 	opae_hash_map remote_id_to_handle_map;
+	opae_hash_map remote_id_to_mmio_map;
 
 } opae_remote_context;
 
@@ -81,7 +82,17 @@ bool opae_handle_fpgaGetPropertiesFromHandle_request_8(opae_remote_context *c,
 				     const char *req_json,
 				     char **resp_json);
 
+bool opae_handle_fpgaMapMMIO_request_9(opae_remote_context *c,
+				       const char *req_json,
+				       char **resp_json);
 
+bool opae_handle_fpgaUnmapMMIO_request_10(opae_remote_context *c,
+					  const char *req_json,
+					  char **resp_json);
+
+bool opae_handle_fpgaReadMMIO32_request_11(opae_remote_context *c,
+					   const char *req_json,
+					   char **resp_json);
 
 
 #ifdef __cplusplus
