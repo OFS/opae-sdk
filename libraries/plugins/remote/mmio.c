@@ -43,15 +43,69 @@ remote_fpgaWriteMMIO32(fpga_handle handle,
 		       uint64_t offset,
 		       uint32_t value)
 {
-	fpga_result result = FPGA_OK;
-(void) handle;
-(void) mmio_num;
-(void) offset;
-(void) value;
+	opae_fpgaWriteMMIO32_request req;
+	opae_fpgaWriteMMIO32_response resp;
+	struct _remote_handle *h;
+	struct _remote_token *tok;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+	if (!handle) {
+		OPAE_ERR("NULL handle");
+		return FPGA_INVALID_PARAM;
+	}
 
+	if (mmio_num >= OPAE_MMIO_REGIONS_MAX) {
+		OPAE_ERR("mmio_num out of range 0-%d",
+			OPAE_MMIO_REGIONS_MAX - 1);
+		return FPGA_INVALID_PARAM;
+	}
 
-	return result;
+	h = (struct _remote_handle *)handle;
+	tok = h->token;
+
+	if (!h->mmio_regions[mmio_num]) {
+		OPAE_ERR("MMIO %u is not mapped.", mmio_num);
+		return FPGA_INVALID_PARAM;
+	}
+
+	req.handle = h->hdr;
+	req.mmio_num = mmio_num;
+	req.offset = offset;
+	req.value = value;
+
+	req_json = opae_encode_fpgaWriteMMIO32_request_12(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+	if (!opae_decode_fpgaWriteMMIO32_response_12(recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	return resp.result;
 }
 
 fpga_result __REMOTE_API__
@@ -89,7 +143,7 @@ remote_fpgaReadMMIO32(fpga_handle handle,
 	tok = h->token;
 
 	if (!h->mmio_regions[mmio_num]) {
-		OPAE_ERR("MMIO %d is not mapped.", mmio_num);
+		OPAE_ERR("MMIO %u is not mapped.", mmio_num);
 		return FPGA_INVALID_PARAM;
 	}
 
@@ -138,14 +192,69 @@ remote_fpgaWriteMMIO64(fpga_handle handle,
 		       uint64_t offset,
 		       uint64_t value)
 {
-	fpga_result result = FPGA_OK;
-(void) handle;
-(void) mmio_num;
-(void) offset;
-(void) value;
+	opae_fpgaWriteMMIO64_request req;
+	opae_fpgaWriteMMIO64_response resp;
+	struct _remote_handle *h;
+	struct _remote_token *tok;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+	if (!handle) {
+		OPAE_ERR("NULL handle");
+		return FPGA_INVALID_PARAM;
+	}
 
-	return result;
+	if (mmio_num >= OPAE_MMIO_REGIONS_MAX) {
+		OPAE_ERR("mmio_num out of range 0-%d",
+			OPAE_MMIO_REGIONS_MAX - 1);
+		return FPGA_INVALID_PARAM;
+	}
+
+	h = (struct _remote_handle *)handle;
+	tok = h->token;
+
+	if (!h->mmio_regions[mmio_num]) {
+		OPAE_ERR("MMIO %u is not mapped.", mmio_num);
+		return FPGA_INVALID_PARAM;
+	}
+
+	req.handle = h->hdr;
+	req.mmio_num = mmio_num;
+	req.offset = offset;
+	req.value = value;
+
+	req_json = opae_encode_fpgaWriteMMIO64_request_14(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+	if (!opae_decode_fpgaWriteMMIO64_response_14(recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	return resp.result;
 }
 
 fpga_result __REMOTE_API__
@@ -154,15 +263,76 @@ remote_fpgaReadMMIO64(fpga_handle handle,
 		      uint64_t offset,
 		      uint64_t *value)
 {
-	fpga_result result = FPGA_OK;
-(void) handle;
-(void) mmio_num;
-(void) offset;
-(void) value;
+	opae_fpgaReadMMIO64_request req;
+	opae_fpgaReadMMIO64_response resp;
+	struct _remote_handle *h;
+	struct _remote_token *tok;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+	if (!handle) {
+		OPAE_ERR("NULL handle");
+		return FPGA_INVALID_PARAM;
+	}
 
+	if (mmio_num >= OPAE_MMIO_REGIONS_MAX) {
+		OPAE_ERR("mmio_num out of range 0-%d",
+			OPAE_MMIO_REGIONS_MAX - 1);
+		return FPGA_INVALID_PARAM;
+	}
 
-	return result;
+	if (!value) {
+		OPAE_ERR("NULL value pointer");
+		return FPGA_INVALID_PARAM;
+	}
+
+	h = (struct _remote_handle *)handle;
+	tok = h->token;
+
+	if (!h->mmio_regions[mmio_num]) {
+		OPAE_ERR("MMIO %u is not mapped.", mmio_num);
+		return FPGA_INVALID_PARAM;
+	}
+
+	req.handle = h->hdr;
+	req.mmio_num = mmio_num;
+	req.offset = offset;
+
+	req_json = opae_encode_fpgaReadMMIO64_request_13(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+	if (!opae_decode_fpgaReadMMIO64_response_13(recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	if (resp.result == FPGA_OK)
+		*value = resp.value;
+
+	return resp.result;
 }
 
 fpga_result __REMOTE_API__
@@ -171,15 +341,69 @@ remote_fpgaWriteMMIO512(fpga_handle handle,
 			uint64_t offset,
 			const void *value)
 {
-	fpga_result result = FPGA_OK;
-(void) handle;
-(void) mmio_num;
-(void) offset;
-(void) value;
+	opae_fpgaWriteMMIO512_request req;
+	opae_fpgaWriteMMIO512_response resp;
+	struct _remote_handle *h;
+	struct _remote_token *tok;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+	if (!handle) {
+		OPAE_ERR("NULL handle");
+		return FPGA_INVALID_PARAM;
+	}
 
+	if (mmio_num >= OPAE_MMIO_REGIONS_MAX) {
+		OPAE_ERR("mmio_num out of range 0-%d",
+			OPAE_MMIO_REGIONS_MAX - 1);
+		return FPGA_INVALID_PARAM;
+	}
 
-	return result;
+	h = (struct _remote_handle *)handle;
+	tok = h->token;
+
+	if (!h->mmio_regions[mmio_num]) {
+		OPAE_ERR("MMIO %u is not mapped.", mmio_num);
+		return FPGA_INVALID_PARAM;
+	}
+
+	req.handle = h->hdr;
+	req.mmio_num = mmio_num;
+	req.offset = offset;
+	memcpy(req.values, value, sizeof(req.values));
+
+	req_json = opae_encode_fpgaWriteMMIO512_request_15(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+	if (!opae_decode_fpgaWriteMMIO512_response_15(recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	return resp.result;
 }
 
 fpga_result __REMOTE_API__
@@ -212,7 +436,7 @@ remote_fpgaMapMMIO(fpga_handle handle,
 	tok = h->token;
 
 	if (h->mmio_regions[mmio_num]) {
-		OPAE_MSG("MMIO %d is already mapped. "
+		OPAE_MSG("MMIO %u is already mapped. "
 			 "Proceeding anyway..", mmio_num);
 		opae_free(h->mmio_regions[mmio_num]);
 		h->mmio_regions[mmio_num] = NULL;
@@ -293,7 +517,7 @@ remote_fpgaUnmapMMIO(fpga_handle handle, uint32_t mmio_num)
 	tok = h->token;
 
 	if (!h->mmio_regions[mmio_num]) {
-		OPAE_ERR("MMIO %d is not mapped.", mmio_num);
+		OPAE_ERR("MMIO %u is not mapped.", mmio_num);
 		return FPGA_INVALID_PARAM;
 	}
 

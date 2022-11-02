@@ -172,6 +172,58 @@ char *opae_encode_fpgaReadMMIO32_request_11(opae_fpgaReadMMIO32_request *req,
 bool opae_decode_fpgaReadMMIO32_request_11(const char *json,
 					   opae_fpgaReadMMIO32_request *req);
 
+typedef struct {
+	opae_request_header header;
+	fpga_handle_header handle;
+	uint32_t mmio_num;
+	uint64_t offset;
+	uint32_t value;
+} opae_fpgaWriteMMIO32_request;
+
+char *opae_encode_fpgaWriteMMIO32_request_12(opae_fpgaWriteMMIO32_request *req,
+					     int json_flags);
+bool opae_decode_fpgaWriteMMIO32_request_12(const char *json,
+					    opae_fpgaWriteMMIO32_request *req);
+
+typedef struct {
+	opae_request_header header;
+	fpga_handle_header handle;
+	uint32_t mmio_num;
+	uint64_t offset;
+} opae_fpgaReadMMIO64_request;
+
+char *opae_encode_fpgaReadMMIO64_request_13(opae_fpgaReadMMIO64_request *req,
+					    int json_flags);
+bool opae_decode_fpgaReadMMIO64_request_13(const char *json,
+					   opae_fpgaReadMMIO64_request *req);
+
+typedef struct {
+	opae_request_header header;
+	fpga_handle_header handle;
+	uint32_t mmio_num;
+	uint64_t offset;
+	uint64_t value;
+} opae_fpgaWriteMMIO64_request;
+
+char *opae_encode_fpgaWriteMMIO64_request_14(opae_fpgaWriteMMIO64_request *req,
+					     int json_flags);
+bool opae_decode_fpgaWriteMMIO64_request_14(const char *json,
+					    opae_fpgaWriteMMIO64_request *req);
+
+typedef struct {
+	opae_request_header header;
+	fpga_handle_header handle;
+	uint32_t mmio_num;
+	uint64_t offset;
+	uint64_t values[8];
+} opae_fpgaWriteMMIO512_request;
+
+char *opae_encode_fpgaWriteMMIO512_request_15(opae_fpgaWriteMMIO512_request *req,
+					      int json_flags);
+bool opae_decode_fpgaWriteMMIO512_request_15(const char *json,
+					     opae_fpgaWriteMMIO512_request *req);
+
+
 
 #ifdef __cplusplus
 }

@@ -94,6 +94,22 @@ bool opae_handle_fpgaReadMMIO32_request_11(opae_remote_context *c,
 					   const char *req_json,
 					   char **resp_json);
 
+bool opae_handle_fpgaWriteMMIO32_request_12(opae_remote_context *c,
+					    const char *req_json,
+					    char **resp_json);
+
+bool opae_handle_fpgaReadMMIO64_request_13(opae_remote_context *c,
+					   const char *req_json,
+					   char **resp_json);
+
+bool opae_handle_fpgaWriteMMIO64_request_14(opae_remote_context *c,
+					    const char *req_json,
+					    char **resp_json);
+
+bool opae_handle_fpgaWriteMMIO512_request_15(opae_remote_context *c,
+					     const char *req_json,
+					     char **resp_json);
+
 
 #ifdef __cplusplus
 }

@@ -52,6 +52,10 @@ STATIC srv_handler handlers[] = {
 	opae_handle_fpgaMapMMIO_request_9,
 	opae_handle_fpgaUnmapMMIO_request_10,
 	opae_handle_fpgaReadMMIO32_request_11,
+	opae_handle_fpgaWriteMMIO32_request_12,
+	opae_handle_fpgaReadMMIO64_request_13,
+	opae_handle_fpgaWriteMMIO64_request_14,
+	opae_handle_fpgaWriteMMIO512_request_15,
 
 };
 

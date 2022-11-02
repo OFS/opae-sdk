@@ -889,3 +889,192 @@ out_respond:
 			c->json_to_string_flags);
 	return res;
 }
+
+bool opae_handle_fpgaWriteMMIO32_request_12(opae_remote_context *c,
+					    const char *req_json,
+					    char **resp_json)
+{
+	bool res = false;
+	opae_fpgaWriteMMIO32_request req;
+	opae_fpgaWriteMMIO32_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_handle handle = NULL;
+
+	if (!opae_decode_fpgaWriteMMIO32_request_12(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaWriteMMIO32 request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaWriteMMIO32_response_12");
+
+	resp.result = FPGA_EXCEPTION;
+
+	opae_remote_id_to_hash_key(&req.handle.handle_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_handle_map,
+				hash_key_buf,
+				&handle) != FPGA_OK) {
+		OPAE_ERR("handle lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaWriteMMIO32(handle,
+				      req.mmio_num,
+				      req.offset,
+				      req.value);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaWriteMMIO32_response_12(
+			&resp,
+			c->json_to_string_flags);
+	return res;
+}
+
+bool opae_handle_fpgaReadMMIO64_request_13(opae_remote_context *c,
+					   const char *req_json,
+					   char **resp_json)
+{
+	bool res = false;
+	opae_fpgaReadMMIO64_request req;
+	opae_fpgaReadMMIO64_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_handle handle = NULL;
+
+	if (!opae_decode_fpgaReadMMIO64_request_13(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaReadMMIO64 request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaReadMMIO64_response_13");
+
+	resp.result = FPGA_EXCEPTION;
+	resp.value = 0;
+
+	opae_remote_id_to_hash_key(&req.handle.handle_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_handle_map,
+				hash_key_buf,
+				&handle) != FPGA_OK) {
+		OPAE_ERR("handle lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaReadMMIO64(handle,
+				     req.mmio_num,
+				     req.offset,
+				     &resp.value);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaReadMMIO64_response_13(
+			&resp,
+			c->json_to_string_flags);
+	return res;
+}
+
+bool opae_handle_fpgaWriteMMIO64_request_14(opae_remote_context *c,
+					    const char *req_json,
+					    char **resp_json)
+{
+	bool res = false;
+	opae_fpgaWriteMMIO64_request req;
+	opae_fpgaWriteMMIO64_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_handle handle = NULL;
+
+	if (!opae_decode_fpgaWriteMMIO64_request_14(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaWriteMMIO64 request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaWriteMMIO64_response_14");
+
+	resp.result = FPGA_EXCEPTION;
+
+	opae_remote_id_to_hash_key(&req.handle.handle_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_handle_map,
+				hash_key_buf,
+				&handle) != FPGA_OK) {
+		OPAE_ERR("handle lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaWriteMMIO64(handle,
+				      req.mmio_num,
+				      req.offset,
+				      req.value);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaWriteMMIO64_response_14(
+			&resp,
+			c->json_to_string_flags);
+	return res;
+}
+
+bool opae_handle_fpgaWriteMMIO512_request_15(opae_remote_context *c,
+					     const char *req_json,
+					     char **resp_json)
+{
+	bool res = false;
+	opae_fpgaWriteMMIO512_request req;
+	opae_fpgaWriteMMIO512_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_handle handle = NULL;
+
+	if (!opae_decode_fpgaWriteMMIO512_request_15(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaWriteMMIO512 request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaWriteMMIO512_response_15");
+
+	resp.result = FPGA_EXCEPTION;
+
+	opae_remote_id_to_hash_key(&req.handle.handle_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_handle_map,
+				hash_key_buf,
+				&handle) != FPGA_OK) {
+		OPAE_ERR("handle lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaWriteMMIO512(handle,
+				       req.mmio_num,
+				       req.offset,
+				       req.values);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaWriteMMIO512_response_15(
+			&resp,
+			c->json_to_string_flags);
+	return res;
+}
