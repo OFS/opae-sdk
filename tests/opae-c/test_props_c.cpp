@@ -3374,7 +3374,7 @@ TEST_P(properties_c_p, set_interface01) {
 
   struct _fpga_properties* _prop = (struct _fpga_properties*)prop;
 
-  fpga_interface ifc = FPGA_IFC_SIM;
+  fpga_interface ifc = FPGA_IFC_SIM_DFL;
   // make sure the FPGA_PROPERTY_INTERFACE bit is zero
   EXPECT_EQ((_prop->valid_fields >> FPGA_PROPERTY_INTERFACE) & 1, 0);
   // Call the API to set the interface on the property
@@ -3386,7 +3386,7 @@ TEST_P(properties_c_p, set_interface01) {
   EXPECT_EQ((_prop->valid_fields >> FPGA_PROPERTY_INTERFACE) & 1, 1);
 
   // Assert it is set to what we set it to above
-  EXPECT_EQ(FPGA_IFC_SIM, _prop->interface);
+  EXPECT_EQ(FPGA_IFC_SIM_DFL, _prop->interface);
 
   result = fpgaDestroyProperties(&prop);
   ASSERT_EQ(NULL, prop);
