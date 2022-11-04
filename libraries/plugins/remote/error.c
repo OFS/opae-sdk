@@ -28,67 +28,231 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-//#include <sys/stat.h>
-//#include <unistd.h>
-//#include <dirent.h>
-//#include <stdio.h>
-
 #include <opae/types.h>
-
-//#include "common_int.h"
-//#include "opae/error.h"
-
-//#include "error_int.h"
 
 #include "mock/opae_std.h"
 
-//#define INJECT_ERROR "inject_error"
+#include "remote.h"
+#include "request.h"
+#include "response.h"
 
 fpga_result __REMOTE_API__
 remote_fpgaReadError(fpga_token token, uint32_t error_num, uint64_t *value)
 {
-	fpga_result res = FPGA_OK;
-(void) token;
-(void) error_num;
-(void) value;
+	opae_fpgaReadError_request req;
+	opae_fpgaReadError_response resp;
+	struct _remote_token *tok;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+	if (!token) {
+		OPAE_ERR("NULL token");
+		return FPGA_INVALID_PARAM;
+	}
 
+	if (!value) {
+		OPAE_ERR("NULL value pointer");
+		return FPGA_INVALID_PARAM;
+	}
 
-	return res;
+	tok = (struct _remote_token *)token;
+	req.token = tok->hdr;
+	req.error_num = error_num;
+
+	req_json = opae_encode_fpgaReadError_request_19(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+	if (!opae_decode_fpgaReadError_response_19(recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	*value = resp.value;
+
+	return resp.result;
 }
 
 fpga_result __REMOTE_API__
 remote_fpgaClearError(fpga_token token, uint32_t error_num)
 {
-	fpga_result res = FPGA_OK;
-(void) token;
-(void) error_num;
+	opae_fpgaClearError_request req;
+	opae_fpgaClearError_response resp;
+	struct _remote_token *tok;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+	if (!token) {
+		OPAE_ERR("NULL token");
+		return FPGA_INVALID_PARAM;
+	}
 
+	tok = (struct _remote_token *)token;
+	req.token = tok->hdr;
+	req.error_num = error_num;
 
+	req_json = opae_encode_fpgaClearError_request_21(
+		&req, tok->json_to_string_flags);
 
-	return res;
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+	if (!opae_decode_fpgaClearError_response_21(recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	return resp.result;
 }
 
 fpga_result __REMOTE_API__ remote_fpgaClearAllErrors(fpga_token token)
 {
-	fpga_result res = FPGA_OK;
-(void) token;
+	opae_fpgaClearAllErrors_request req;
+	opae_fpgaClearAllErrors_response resp;
+	struct _remote_token *tok;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+	if (!token) {
+		OPAE_ERR("NULL token");
+		return FPGA_INVALID_PARAM;
+	}
 
+	tok = (struct _remote_token *)token;
+	req.token = tok->hdr;
 
-	return res;
+	req_json = opae_encode_fpgaClearAllErrors_request_22(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+	if (!opae_decode_fpgaClearAllErrors_response_22(recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	return resp.result;
 }
 
 fpga_result __REMOTE_API__ remote_fpgaGetErrorInfo(fpga_token token,
 			     uint32_t error_num,
 			     struct fpga_error_info *error_info)
 {
-(void) token;
-(void) error_num;
-(void) error_info;
+	opae_fpgaGetErrorInfo_request req;
+	opae_fpgaGetErrorInfo_response resp;
+	struct _remote_token *tok;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+	if (!token) {
+		OPAE_ERR("NULL token");
+		return FPGA_INVALID_PARAM;
+	}
 
+	if (!error_info) {
+		OPAE_ERR("NULL error_info pointer");
+		return FPGA_INVALID_PARAM;
+	}
 
-	return FPGA_OK;
+	tok = (struct _remote_token *)token;
+	req.token = tok->hdr;
+	req.error_num = error_num;
+
+	req_json = opae_encode_fpgaGetErrorInfo_request_20(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+	if (!opae_decode_fpgaGetErrorInfo_response_20(recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	*error_info = resp.error_info;
+
+	return resp.result;
 }

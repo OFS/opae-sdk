@@ -245,6 +245,50 @@ char *opae_encode_fpgaGetIOAddress_response_18(opae_fpgaGetIOAddress_response *r
 bool opae_decode_fpgaGetIOAddress_response_18(const char *json,
 					      opae_fpgaGetIOAddress_response *resp);
 
+typedef struct {
+	opae_response_header header;
+	uint64_t value;
+	fpga_result result;
+} opae_fpgaReadError_response;
+
+char *opae_encode_fpgaReadError_response_19(opae_fpgaReadError_response *resp,
+					    int json_flags);
+bool opae_decode_fpgaReadError_response_19(const char *json,
+					   opae_fpgaReadError_response *resp);
+
+typedef struct {
+	opae_response_header header;
+	struct fpga_error_info error_info;
+	fpga_result result;
+} opae_fpgaGetErrorInfo_response;
+
+char *opae_encode_fpgaGetErrorInfo_response_20(opae_fpgaGetErrorInfo_response *resp,
+					       int json_flags);
+bool opae_decode_fpgaGetErrorInfo_response_20(const char *json,
+					      opae_fpgaGetErrorInfo_response *resp);
+
+typedef struct {
+	opae_response_header header;
+	fpga_result result;
+} opae_fpgaClearError_response;
+
+char *opae_encode_fpgaClearError_response_21(opae_fpgaClearError_response *resp,
+					     int json_flags);
+bool opae_decode_fpgaClearError_response_21(const char *json,
+					    opae_fpgaClearError_response *resp);
+
+typedef struct {
+	opae_response_header header;
+	fpga_result result;
+} opae_fpgaClearAllErrors_response;
+
+char *opae_encode_fpgaClearAllErrors_response_22(
+	opae_fpgaClearAllErrors_response *resp,
+	int json_flags);
+bool opae_decode_fpgaClearAllErrors_response_22(
+	const char *json,
+	opae_fpgaClearAllErrors_response *resp);
+
 
 
 #ifdef __cplusplus

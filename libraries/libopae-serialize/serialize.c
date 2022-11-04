@@ -1278,3 +1278,50 @@ bool opae_ser_json_to_handle_header_obj(struct json_object *jobj,
 
 	return true;
 }
+
+bool opae_ser_error_info_to_json_obj(const struct fpga_error_info *err,
+				     struct json_object *parent)
+{
+	json_object_object_add(parent, "serialized_type",
+			json_object_new_string("fpga_error_info"));
+
+	json_object_object_add(parent,
+			       "name",
+			       json_object_new_string(err->name));
+
+	json_object_object_add(parent,
+			       "can_clear",
+			       json_object_new_boolean(err->can_clear));
+
+	return true;
+}
+
+bool opae_ser_json_to_error_info_obj(struct json_object *jobj,
+				     struct fpga_error_info *err)
+{
+	struct json_object *serialized_type;
+	char *str;
+	size_t len;
+
+	str = NULL;
+	serialized_type =
+		parse_json_string(jobj, "serialized_type", &str);
+
+	if (!serialized_type || strcmp(str, "fpga_error_info")) {
+		OPAE_ERR("fpga_error_info de-serialize failed");
+		return false;
+	}
+
+	str = NULL;
+	if (!parse_json_string(jobj, "name", &str))
+		return false;
+
+	memset(err->name, 0, sizeof(err->name));
+	len = strnlen(str, FPGA_ERROR_NAME_MAX - 1);
+	memcpy(err->name, str, len + 1);
+
+	if (!parse_json_boolean(jobj, "can_clear", &err->can_clear))
+		return false;
+
+	return true;
+}

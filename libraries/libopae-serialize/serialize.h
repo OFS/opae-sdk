@@ -68,6 +68,13 @@ bool opae_ser_json_to_handle_header_obj(struct json_object *jobj,
 					fpga_handle_header *hdr);
 
 
+bool opae_ser_error_info_to_json_obj(const struct fpga_error_info *err,
+				     struct json_object *parent);
+bool opae_ser_json_to_error_info_obj(struct json_object *jobj,
+				     struct fpga_error_info *err);
+
+
+
 static inline json_object *
 parse_json_int(json_object *parent, const char *name, int *value)
 {

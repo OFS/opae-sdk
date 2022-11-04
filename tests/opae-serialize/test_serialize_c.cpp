@@ -636,3 +636,36 @@ TEST_F(serialize_handle_header_f, header)
   EXPECT_STREQ(hdr_.handle_id.hostname, after.handle_id.hostname);
   EXPECT_EQ(hdr_.handle_id.unique_id, after.handle_id.unique_id);
 }
+
+class serialize_error_info_f : public serialize_f
+{
+ protected:
+  serialize_error_info_f() {}
+
+  const struct fpga_error_info err_ = {
+    .name = { 'm', 'y', 'e', 'r', 'r', 0 },
+    .can_clear = true
+  };
+};
+
+TEST_F(serialize_error_info_f, info)
+{
+  json_object *jroot = start_encode();
+
+  EXPECT_EQ(true, opae_ser_error_info_to_json_obj(&err_, jroot));
+
+  char *json = end_encode();
+
+  jroot = start_decode(json);
+
+  struct fpga_error_info after;
+  memset(&after, 0, sizeof(after));
+
+  EXPECT_EQ(true, opae_ser_json_to_error_info_obj(jroot, &after));
+
+  end_decode();
+  opae_free(json);
+
+  EXPECT_STREQ(err_.name, after.name);
+  EXPECT_EQ(err_.can_clear, after.can_clear);
+}

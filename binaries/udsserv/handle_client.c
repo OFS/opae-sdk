@@ -59,6 +59,10 @@ STATIC srv_handler handlers[] = {
 	opae_handle_fpgaPrepareBuffer_request_16,
 	opae_handle_fpgaReleaseBuffer_request_17,
 	opae_handle_fpgaGetIOAddress_request_18,
+	opae_handle_fpgaReadError_request_19,
+	opae_handle_fpgaGetErrorInfo_request_20,
+	opae_handle_fpgaClearError_request_21,
+	opae_handle_fpgaClearAllErrors_request_22,
 
 };
 

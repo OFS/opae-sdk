@@ -123,6 +123,22 @@ bool opae_handle_fpgaGetIOAddress_request_18(opae_remote_context *c,
 					     const char *req_json,
 					     char **resp_json);
 
+bool opae_handle_fpgaReadError_request_19(opae_remote_context *c,
+					  const char *req_json,
+					  char **resp_json);
+
+bool opae_handle_fpgaGetErrorInfo_request_20(opae_remote_context *c,
+					     const char *req_json,
+					     char **resp_json);
+
+bool opae_handle_fpgaClearError_request_21(opae_remote_context *c,
+					   const char *req_json,
+					   char **resp_json);
+
+bool opae_handle_fpgaClearAllErrors_request_22(opae_remote_context *c,
+					       const char *req_json,
+					       char **resp_json);
+
 
 
 #ifdef __cplusplus

@@ -1334,3 +1334,181 @@ out_respond:
 			c->json_to_string_flags);
 	return res;
 }
+
+bool opae_handle_fpgaReadError_request_19(opae_remote_context *c,
+					  const char *req_json,
+					  char **resp_json)
+{
+	bool res = false;
+	opae_fpgaReadError_request req;
+	opae_fpgaReadError_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_token token = NULL;
+
+	if (!opae_decode_fpgaReadError_request_19(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaReadError request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaReadError_response_19");
+
+	resp.result = FPGA_EXCEPTION;
+	resp.value = 0;
+
+	opae_remote_id_to_hash_key(&req.token.token_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the token in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_token_map,
+				hash_key_buf,
+				&token) != FPGA_OK) {
+		OPAE_ERR("token lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaReadError(token, req.error_num, &resp.value);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaReadError_response_19(
+			&resp,
+			c->json_to_string_flags);
+	return res;
+}
+
+bool opae_handle_fpgaGetErrorInfo_request_20(opae_remote_context *c,
+					     const char *req_json,
+					     char **resp_json)
+{
+	bool res = false;
+	opae_fpgaGetErrorInfo_request req;
+	opae_fpgaGetErrorInfo_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_token token = NULL;
+
+	if (!opae_decode_fpgaGetErrorInfo_request_20(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaGetErrorInfo request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaGetErrorInfo_response_20");
+
+	resp.result = FPGA_EXCEPTION;
+	memset(&resp.error_info, 0, sizeof(resp.error_info));
+
+	opae_remote_id_to_hash_key(&req.token.token_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the token in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_token_map,
+				hash_key_buf,
+				&token) != FPGA_OK) {
+		OPAE_ERR("token lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaGetErrorInfo(token, req.error_num, &resp.error_info);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaGetErrorInfo_response_20(
+			&resp,
+			c->json_to_string_flags);
+	return res;
+}
+
+bool opae_handle_fpgaClearError_request_21(opae_remote_context *c,
+					   const char *req_json,
+					   char **resp_json)
+{
+	bool res = false;
+	opae_fpgaClearError_request req;
+	opae_fpgaClearError_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_token token = NULL;
+
+	if (!opae_decode_fpgaClearError_request_21(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaClearError request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaClearError_response_21");
+
+	resp.result = FPGA_EXCEPTION;
+
+	opae_remote_id_to_hash_key(&req.token.token_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the token in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_token_map,
+				hash_key_buf,
+				&token) != FPGA_OK) {
+		OPAE_ERR("token lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaClearError(token, req.error_num);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaClearError_response_21(
+			&resp,
+			c->json_to_string_flags);
+	return res;
+}
+
+bool opae_handle_fpgaClearAllErrors_request_22(opae_remote_context *c,
+					   const char *req_json,
+					   char **resp_json)
+{
+	bool res = false;
+	opae_fpgaClearAllErrors_request req;
+	opae_fpgaClearAllErrors_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_token token = NULL;
+
+	if (!opae_decode_fpgaClearAllErrors_request_22(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaClearAllErrors request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaClearAllErrors_response_22");
+
+	resp.result = FPGA_EXCEPTION;
+
+	opae_remote_id_to_hash_key(&req.token.token_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the token in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_token_map,
+				hash_key_buf,
+				&token) != FPGA_OK) {
+		OPAE_ERR("token lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaClearAllErrors(token);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaClearAllErrors_response_22(
+			&resp,
+			c->json_to_string_flags);
+	return res;
+}

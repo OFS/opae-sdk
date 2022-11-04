@@ -1885,3 +1885,308 @@ out_put:
 	json_object_put(root);
 	return res;
 }
+
+char *opae_encode_fpgaReadError_request_19(opae_fpgaReadError_request *req,
+					   int json_flags)
+{
+	struct json_object *root;
+	char *json = NULL;
+	struct json_object *jtoken;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_request_header_obj(root,
+		19, "fpgaReadError_request_19"))
+		goto out_err;
+
+	jtoken = json_object_new_object();
+	if (!jtoken) {
+		OPAE_ERR("out of memory");
+		goto out_err;
+	}
+
+	if (!opae_ser_token_header_to_json_obj(&req->token, jtoken))
+		goto out_err;
+
+	json_object_object_add(root, "token", jtoken);
+
+	json_object_object_add(root,
+			       "error_num",
+			       json_object_new_int(req->error_num));
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaReadError_request_19(const char *json,
+					  opae_fpgaReadError_request *req)
+{
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
+	struct json_object *jtoken = NULL;
+
+	root = json_tokener_parse_verbose(json, &j_err);
+        if (!root) {
+                OPAE_ERR("JSON parse failed: %s",
+                         json_tokener_error_desc(j_err));
+                return false;
+        }
+
+	if (!opae_decode_request_header_obj(root, &req->header)) {
+		OPAE_ERR("request header decode failed");
+		goto out_put;
+	}
+
+        if (!json_object_object_get_ex(root, "token", &jtoken)) {
+                OPAE_DBG("Error parsing JSON: missing 'token'");
+                goto out_put;
+        }
+
+        if (!opae_ser_json_to_token_header_obj(jtoken, &req->token))
+                goto out_put;
+
+	if (!parse_json_u32(root, "error_num", &req->error_num))
+		goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}
+
+char *opae_encode_fpgaGetErrorInfo_request_20(
+	opae_fpgaGetErrorInfo_request *req,
+	int json_flags)
+{
+	struct json_object *root;
+	char *json = NULL;
+	struct json_object *jtoken;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_request_header_obj(root,
+		20, "fpgaGetErrorInfo_request_20"))
+		goto out_err;
+
+	jtoken = json_object_new_object();
+	if (!jtoken) {
+		OPAE_ERR("out of memory");
+		goto out_err;
+	}
+
+	if (!opae_ser_token_header_to_json_obj(&req->token, jtoken))
+		goto out_err;
+
+	json_object_object_add(root, "token", jtoken);
+
+	json_object_object_add(root,
+			       "error_num",
+			       json_object_new_int(req->error_num));
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaGetErrorInfo_request_20(
+	const char *json,
+	opae_fpgaGetErrorInfo_request *req)
+{
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
+	struct json_object *jtoken = NULL;
+
+	root = json_tokener_parse_verbose(json, &j_err);
+        if (!root) {
+                OPAE_ERR("JSON parse failed: %s",
+                         json_tokener_error_desc(j_err));
+                return false;
+        }
+
+	if (!opae_decode_request_header_obj(root, &req->header)) {
+		OPAE_ERR("request header decode failed");
+		goto out_put;
+	}
+
+        if (!json_object_object_get_ex(root, "token", &jtoken)) {
+                OPAE_DBG("Error parsing JSON: missing 'token'");
+                goto out_put;
+        }
+
+        if (!opae_ser_json_to_token_header_obj(jtoken, &req->token))
+                goto out_put;
+
+	if (!parse_json_u32(root, "error_num", &req->error_num))
+		goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}
+
+char *opae_encode_fpgaClearError_request_21(opae_fpgaClearError_request *req,
+					    int json_flags)
+{
+	struct json_object *root;
+	char *json = NULL;
+	struct json_object *jtoken;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_request_header_obj(root,
+		21, "fpgaClearError_request_21"))
+		goto out_err;
+
+	jtoken = json_object_new_object();
+	if (!jtoken) {
+		OPAE_ERR("out of memory");
+		goto out_err;
+	}
+
+	if (!opae_ser_token_header_to_json_obj(&req->token, jtoken))
+		goto out_err;
+
+	json_object_object_add(root, "token", jtoken);
+
+	json_object_object_add(root,
+			       "error_num",
+			       json_object_new_int(req->error_num));
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaClearError_request_21(const char *json,
+					   opae_fpgaClearError_request *req)
+{
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
+	struct json_object *jtoken = NULL;
+
+	root = json_tokener_parse_verbose(json, &j_err);
+        if (!root) {
+                OPAE_ERR("JSON parse failed: %s",
+                         json_tokener_error_desc(j_err));
+                return false;
+        }
+
+	if (!opae_decode_request_header_obj(root, &req->header)) {
+		OPAE_ERR("request header decode failed");
+		goto out_put;
+	}
+
+        if (!json_object_object_get_ex(root, "token", &jtoken)) {
+                OPAE_DBG("Error parsing JSON: missing 'token'");
+                goto out_put;
+        }
+
+        if (!opae_ser_json_to_token_header_obj(jtoken, &req->token))
+                goto out_put;
+
+	if (!parse_json_u32(root, "error_num", &req->error_num))
+		goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}
+
+char *opae_encode_fpgaClearAllErrors_request_22(
+	opae_fpgaClearAllErrors_request *req,
+	int json_flags)
+{
+	struct json_object *root;
+	char *json = NULL;
+	struct json_object *jtoken;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_request_header_obj(root,
+		22, "fpgaClearAllErrors_request_22"))
+		goto out_err;
+
+	jtoken = json_object_new_object();
+	if (!jtoken) {
+		OPAE_ERR("out of memory");
+		goto out_err;
+	}
+
+	if (!opae_ser_token_header_to_json_obj(&req->token, jtoken))
+		goto out_err;
+
+	json_object_object_add(root, "token", jtoken);
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaClearAllErrors_request_22(
+	const char *json,
+	opae_fpgaClearAllErrors_request *req)
+{
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
+	struct json_object *jtoken = NULL;
+
+	root = json_tokener_parse_verbose(json, &j_err);
+        if (!root) {
+                OPAE_ERR("JSON parse failed: %s",
+                         json_tokener_error_desc(j_err));
+                return false;
+        }
+
+	if (!opae_decode_request_header_obj(root, &req->header)) {
+		OPAE_ERR("request header decode failed");
+		goto out_put;
+	}
+
+        if (!json_object_object_get_ex(root, "token", &jtoken)) {
+                OPAE_DBG("Error parsing JSON: missing 'token'");
+                goto out_put;
+        }
+
+        if (!opae_ser_json_to_token_header_obj(jtoken, &req->token))
+                goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}
