@@ -62,12 +62,6 @@ bool opae_ser_json_to_fpga_result_obj(struct json_object *jobj,
 				      fpga_result *res);
 
 
-bool opae_ser_fpga_open_flags_to_json_obj(const enum fpga_open_flags flags,
-					  struct json_object *parent);
-bool opae_ser_json_to_fpga_open_flags_obj(struct json_object *jobj,
-					  enum fpga_open_flags *flags);
-
-
 bool opae_ser_handle_header_to_json_obj(const fpga_handle_header *hdr,
 					struct json_object *parent);
 bool opae_ser_json_to_handle_header_obj(struct json_object *jobj,

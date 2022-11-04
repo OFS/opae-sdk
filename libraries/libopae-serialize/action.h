@@ -40,6 +40,7 @@ typedef struct _opae_remote_context {
 	opae_hash_map remote_id_to_token_map;
 	opae_hash_map remote_id_to_handle_map;
 	opae_hash_map remote_id_to_mmio_map;
+	opae_hash_map remote_id_to_buf_info_map;
 
 } opae_remote_context;
 
@@ -109,6 +110,19 @@ bool opae_handle_fpgaWriteMMIO64_request_14(opae_remote_context *c,
 bool opae_handle_fpgaWriteMMIO512_request_15(opae_remote_context *c,
 					     const char *req_json,
 					     char **resp_json);
+
+bool opae_handle_fpgaPrepareBuffer_request_16(opae_remote_context *c,
+					      const char *req_json,
+					      char **resp_json);
+
+bool opae_handle_fpgaReleaseBuffer_request_17(opae_remote_context *c,
+					      const char *req_json,
+					      char **resp_json);
+
+bool opae_handle_fpgaGetIOAddress_request_18(opae_remote_context *c,
+					     const char *req_json,
+					     char **resp_json);
+
 
 
 #ifdef __cplusplus

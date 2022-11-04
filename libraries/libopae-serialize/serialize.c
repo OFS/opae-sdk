@@ -1179,68 +1179,6 @@ bool opae_ser_json_to_fpga_result_obj(struct json_object *jobj,
 	return true;
 }
 
-#define NUM_OPEN_FLAGS 2
-STATIC struct {
-	enum fpga_open_flags flag;
-	const char *str;
-} open_flags_table[NUM_OPEN_FLAGS] = {
-	{		 0, "NONE"             },
-	{ FPGA_OPEN_SHARED, "FPGA_OPEN_SHARED" }
-};
-
-STATIC const char *
-opae_open_flags_to_str(enum fpga_open_flags f)
-{
-	int i;
-
-	for (i = 0 ; i < NUM_OPEN_FLAGS ; ++i) {
-		if (f == open_flags_table[i].flag)
-			return open_flags_table[i].str;
-	}
-
-	return "<unknown>";
-}
-
-STATIC enum fpga_open_flags
-opae_str_to_open_flags(const char *s)
-{
-	int i;
-
-	for (i = 0 ; i < NUM_OPEN_FLAGS ; ++i) {
-		if (!strcmp(s, open_flags_table[i].str))
-			return open_flags_table[i].flag;
-	}
-
-	return (enum fpga_open_flags)-1;
-}
-
-bool opae_ser_fpga_open_flags_to_json_obj(const enum fpga_open_flags flags,
-					  struct json_object *parent)
-{
-	const char *str;
-
-	str = opae_open_flags_to_str(flags);
-	json_object_object_add(parent, "fpga_open_flags",
-		json_object_new_string(str));
-
-	return true;
-}
-
-bool opae_ser_json_to_fpga_open_flags_obj(struct json_object *jobj,
-					  enum fpga_open_flags *flags)
-{
-	char *str = NULL;
-	struct json_object *obj;
-
-	obj = parse_json_string(jobj, "fpga_open_flags", &str);
-	if (!obj)
-		return false;
-
-	*flags = opae_str_to_open_flags(str);
-
-	return true;
-}
-
 bool opae_ser_handle_header_to_json_obj(const fpga_handle_header *hdr,
                                         struct json_object *parent)
 {

@@ -795,7 +795,7 @@ char *opae_encode_fpgaMapMMIO_response_9(opae_fpgaMapMMIO_response *resp,
 {
 	struct json_object *root;
 	char *json = NULL;
-	struct json_object *mmio_id;
+	struct json_object *jmmio_id;
 
 	root = json_object_new_object();
 	if (!root) {
@@ -806,10 +806,10 @@ char *opae_encode_fpgaMapMMIO_response_9(opae_fpgaMapMMIO_response *resp,
 	if (!opae_add_response_header_obj(root, &resp->header))
 		goto out_err;
 
-	mmio_id = json_object_new_object();
-	json_object_object_add(root, "mmio_id", mmio_id);
+	jmmio_id = json_object_new_object();
+	json_object_object_add(root, "mmio_id", jmmio_id);
 
-	if (!opae_ser_remote_id_to_json_obj(&resp->mmio_id, mmio_id))
+	if (!opae_ser_remote_id_to_json_obj(&resp->mmio_id, jmmio_id))
 		goto out_err;
 
 	if (!opae_ser_fpga_result_to_json_obj(resp->result, root))
@@ -1219,6 +1219,209 @@ bool opae_decode_fpgaWriteMMIO512_response_15(const char *json,
 
 	if (!opae_decode_response_header_obj(root, &resp->header)) {
 		OPAE_ERR("response header decode failed");
+		goto out_put;
+	}
+
+	if (!opae_ser_json_to_fpga_result_obj(root, &resp->result))
+		goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}
+
+char *opae_encode_fpgaPrepareBuffer_response_16(opae_fpgaPrepareBuffer_response *resp,
+						int json_flags)
+{
+	struct json_object *root;
+	struct json_object *jbuf_id;
+	char *json = NULL;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_response_header_obj(root, &resp->header))
+		goto out_err;
+
+	jbuf_id = json_object_new_object();
+	json_object_object_add(root, "buf_id", jbuf_id);
+
+	if (!opae_ser_remote_id_to_json_obj(&resp->buf_id, jbuf_id))
+		goto out_err;
+	
+	if (!opae_ser_fpga_result_to_json_obj(resp->result, root))
+		goto out_err;
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaPrepareBuffer_response_16(const char *json,
+					       opae_fpgaPrepareBuffer_response *resp)
+{
+        struct json_object *root = NULL;
+	struct json_object *jbuf_id = NULL;
+        enum json_tokener_error j_err = json_tokener_success;
+        bool res = false;
+
+        root = json_tokener_parse_verbose(json, &j_err);
+        if (!root) {
+                OPAE_ERR("JSON parse failed: %s",
+                         json_tokener_error_desc(j_err));
+                return false;
+        }
+
+	if (!opae_decode_response_header_obj(root, &resp->header)) {
+		OPAE_ERR("response header decode failed");
+		goto out_put;
+	}
+
+	if (!json_object_object_get_ex(root, "buf_id", &jbuf_id)) {
+                OPAE_DBG("Error parsing JSON: missing 'buf_id'");
+		goto out_put;
+	}
+
+	if (!opae_ser_json_to_remote_id_obj(jbuf_id, &resp->buf_id))
+		goto out_put;
+
+	if (!opae_ser_json_to_fpga_result_obj(root, &resp->result))
+		goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}
+
+char *opae_encode_fpgaReleaseBuffer_response_17(opae_fpgaReleaseBuffer_response *resp,
+						int json_flags)
+{
+	struct json_object *root;
+	char *json = NULL;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_response_header_obj(root, &resp->header))
+		goto out_err;
+
+	if (!opae_ser_fpga_result_to_json_obj(resp->result, root))
+		goto out_err;
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaReleaseBuffer_response_17(const char *json,
+					       opae_fpgaReleaseBuffer_response *resp)
+{
+        struct json_object *root = NULL;
+        enum json_tokener_error j_err = json_tokener_success;
+        bool res = false;
+
+        root = json_tokener_parse_verbose(json, &j_err);
+        if (!root) {
+                OPAE_ERR("JSON parse failed: %s",
+                         json_tokener_error_desc(j_err));
+                return false;
+        }
+
+	if (!opae_decode_response_header_obj(root, &resp->header)) {
+		OPAE_ERR("response header decode failed");
+		goto out_put;
+	}
+
+	if (!opae_ser_json_to_fpga_result_obj(root, &resp->result))
+		goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}
+
+char *opae_encode_fpgaGetIOAddress_response_18(opae_fpgaGetIOAddress_response *resp,
+					       int json_flags)
+{
+	struct json_object *root;
+	char *json = NULL;
+	char buf[32];
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_response_header_obj(root, &resp->header))
+		goto out_err;
+
+	if (!opae_ser_fpga_result_to_json_obj(resp->result, root))
+		goto out_err;
+
+
+	if (snprintf(buf, sizeof(buf),
+		     "0x%016" PRIx64, resp->ioaddr) >=
+			(int)sizeof(buf)) {
+		OPAE_ERR("snprintf() buffer overflow");
+	}
+
+	json_object_object_add(root,
+			       "ioaddr",
+			       json_object_new_string(buf));
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaGetIOAddress_response_18(const char *json,
+					      opae_fpgaGetIOAddress_response *resp)
+{
+        struct json_object *root = NULL;
+        enum json_tokener_error j_err = json_tokener_success;
+        bool res = false;
+	char *str;
+	char *endptr;
+
+        root = json_tokener_parse_verbose(json, &j_err);
+        if (!root) {
+                OPAE_ERR("JSON parse failed: %s",
+                         json_tokener_error_desc(j_err));
+                return false;
+        }
+
+	if (!opae_decode_response_header_obj(root, &resp->header)) {
+		OPAE_ERR("response header decode failed");
+		goto out_put;
+	}
+
+	str = endptr = NULL;
+	if (!parse_json_string(root, "ioaddr", &str))
+		goto out_put;
+
+	resp->ioaddr = strtoul(str, &endptr, 0);
+	if (endptr != str + strlen(str)) {
+		OPAE_ERR("fpgaGetIOAddress_response decode "
+			 "failed (ioaddr)");
 		goto out_put;
 	}
 

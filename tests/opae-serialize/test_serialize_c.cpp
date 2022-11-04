@@ -590,49 +590,6 @@ INSTANTIATE_TEST_SUITE_P(result, serialize_result_p,
   FPGA_RECONF_ERROR
 ));
 
-class serialize_open_flags_p : public serialize_base, public ::testing::TestWithParam<enum fpga_open_flags>
-{
- protected:
-  virtual void SetUp() override
-  {
-    jroot_ = nullptr;
-  }
-
-  virtual void TearDown() override
-  {
-    if (jroot_) {
-      json_object_put(jroot_);
-      jroot_ = nullptr;
-    }
-  }
-};
-
-TEST_P(serialize_open_flags_p, thetest)
-{
-  json_object *jroot = start_encode();
-
-  EXPECT_EQ(true, opae_ser_fpga_open_flags_to_json_obj(GetParam(), jroot));
-
-  char *json = end_encode();
-
-  jroot = start_decode(json);
-
-  enum fpga_open_flags flags = FPGA_OPEN_SHARED;
-
-  EXPECT_EQ(true, opae_ser_json_to_fpga_open_flags_obj(jroot, &flags));
-
-  end_decode();
-  opae_free(json);
-
-  EXPECT_EQ(GetParam(), flags);
-}
-
-INSTANTIATE_TEST_SUITE_P(open_flags, serialize_open_flags_p,
-                         ::testing::Values(
-  (enum fpga_open_flags)0,
-  FPGA_OPEN_SHARED
-));
-
 class serialize_handle_header_f : public serialize_f
 {
  protected:

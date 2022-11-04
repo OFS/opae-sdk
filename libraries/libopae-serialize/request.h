@@ -223,6 +223,42 @@ char *opae_encode_fpgaWriteMMIO512_request_15(opae_fpgaWriteMMIO512_request *req
 bool opae_decode_fpgaWriteMMIO512_request_15(const char *json,
 					     opae_fpgaWriteMMIO512_request *req);
 
+typedef struct {
+	opae_request_header header;
+	fpga_handle_header handle;
+	uint64_t len;
+	bool have_buf_addr;
+	void *pre_allocated_addr;
+	int flags;
+} opae_fpgaPrepareBuffer_request;
+
+char *opae_encode_fpgaPrepareBuffer_request_16(opae_fpgaPrepareBuffer_request *req,
+					       int json_flags);
+bool opae_decode_fpgaPrepareBuffer_request_16(const char *json,
+					      opae_fpgaPrepareBuffer_request *req);
+
+typedef struct {
+	opae_request_header header;
+	fpga_handle_header handle;
+	fpga_remote_id buf_id;
+} opae_fpgaReleaseBuffer_request;
+
+char *opae_encode_fpgaReleaseBuffer_request_17(opae_fpgaReleaseBuffer_request *req,
+					       int json_flags);
+bool opae_decode_fpgaReleaseBuffer_request_17(const char *json,
+					      opae_fpgaReleaseBuffer_request *req);
+
+typedef struct {
+	opae_request_header header;
+	fpga_handle_header handle;
+	fpga_remote_id buf_id;
+} opae_fpgaGetIOAddress_request;
+
+char *opae_encode_fpgaGetIOAddress_request_18(opae_fpgaGetIOAddress_request *req,
+					      int json_flags);
+bool opae_decode_fpgaGetIOAddress_request_18(const char *json,
+					     opae_fpgaGetIOAddress_request *req);
+
 
 
 #ifdef __cplusplus

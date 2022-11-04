@@ -213,6 +213,38 @@ char *opae_encode_fpgaWriteMMIO512_response_15(opae_fpgaWriteMMIO512_response *r
 bool opae_decode_fpgaWriteMMIO512_response_15(const char *json,
 					      opae_fpgaWriteMMIO512_response *resp);
 
+typedef struct {
+	opae_response_header header;
+	fpga_remote_id buf_id;
+	fpga_result result;
+} opae_fpgaPrepareBuffer_response;
+
+char *opae_encode_fpgaPrepareBuffer_response_16(opae_fpgaPrepareBuffer_response *resp,
+						int json_flags);
+bool opae_decode_fpgaPrepareBuffer_response_16(const char *json,
+					       opae_fpgaPrepareBuffer_response *resp);
+
+typedef struct {
+	opae_response_header header;
+	fpga_result result;
+} opae_fpgaReleaseBuffer_response;
+
+char *opae_encode_fpgaReleaseBuffer_response_17(opae_fpgaReleaseBuffer_response *resp,
+						int json_flags);
+bool opae_decode_fpgaReleaseBuffer_response_17(const char *json,
+					       opae_fpgaReleaseBuffer_response *resp);
+
+typedef struct {
+	opae_response_header header;
+	uint64_t ioaddr;
+	fpga_result result;
+} opae_fpgaGetIOAddress_response;
+
+char *opae_encode_fpgaGetIOAddress_response_18(opae_fpgaGetIOAddress_response *resp,
+					       int json_flags);
+bool opae_decode_fpgaGetIOAddress_response_18(const char *json,
+					      opae_fpgaGetIOAddress_response *resp);
+
 
 
 #ifdef __cplusplus
