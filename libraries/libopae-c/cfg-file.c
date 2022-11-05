@@ -258,6 +258,7 @@ STATIC libopae_config_data default_libopae_config_table[] = {
 	{ 0x1c2c, 0x1001, 0x0000,          0x0000,          "libxfpga.so",  "{}", 0 }, // N5011
 	{ 0x1c2c, 0x1002, 0x0000,          0x0000,          "libxfpga.so",  "{}", 0 }, // N5013
 	{ 0x1c2c, 0x1003, 0x0000,          0x0000,          "libxfpga.so",  "{}", 0 }, // N5014
+	{ 0x1ded, 0x8103, 0x1ded,          0x4342,          "libxfpga.so",  "{}", 0 }, // F5
 	{ 0x8086, 0xbcbd, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // MCP
 	{ 0x8086, 0xbcc0, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // MCP
 	{ 0x8086, 0xbcc1, OPAE_VENDOR_ANY, OPAE_DEVICE_ANY, "libxfpga.so",  "{}", 0 }, // MCP
