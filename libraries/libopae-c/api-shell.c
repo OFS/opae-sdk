@@ -1540,6 +1540,21 @@ fpga_result __OPAE_API__ fpgaObjectGetType(fpga_object obj,
 		wrapped_object->opae_object, type);
 }
 
+fpga_result __OPAE_API__ fpgaObjectGetName(fpga_object obj,
+					   char *name,
+					   size_t max_len)
+{
+	opae_wrapped_object *wrapped_object = opae_validate_wrapped_object(obj);
+
+	ASSERT_NOT_NULL(wrapped_object);
+	ASSERT_NOT_NULL(name);
+	ASSERT_NOT_NULL_RESULT(wrapped_object->adapter_table->fpgaObjectGetName,
+			       FPGA_NOT_SUPPORTED);
+
+	return wrapped_object->adapter_table->fpgaObjectGetName(
+		wrapped_object->opae_object, name, max_len);
+}
+
 fpga_result __OPAE_API__ fpgaObjectRead64(fpga_object obj, uint64_t *value,
 					  int flags)
 {

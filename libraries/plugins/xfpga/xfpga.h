@@ -102,7 +102,7 @@ fpga_result xfpga_fpgaReconfigureSlot(fpga_handle fpga, uint32_t slot,
 				      size_t bitstream_len, int flags);
 fpga_result xfpga_fpgaTokenGetObject(fpga_token token, const char *name,
 				     fpga_object *object, int flags);
-fpga_result xfpga_fpgaHandleGetObject(fpga_token handle, const char *name,
+fpga_result xfpga_fpgaHandleGetObject(fpga_handle handle, const char *name,
 				      fpga_object *object, int flags);
 fpga_result xfpga_fpgaObjectGetObject(fpga_object parent, const char *name,
 				      fpga_object *object, int flags);

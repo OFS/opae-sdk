@@ -159,6 +159,8 @@ int __XFPGA_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectGetSize");
 	adapter->fpgaObjectGetType =
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectGetType");
+	adapter->fpgaObjectGetName =
+		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectGetName");
 	adapter->fpgaObjectWrite64 =
 		dlsym(adapter->plugin.dl_handle, "xfpga_fpgaObjectWrite64");
 	adapter->fpgaSetUserClock =

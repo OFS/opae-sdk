@@ -103,7 +103,7 @@ fpga_result remote_fpgaReconfigureSlot(fpga_handle fpga, uint32_t slot,
 				      size_t bitstream_len, int flags);
 fpga_result remote_fpgaTokenGetObject(fpga_token token, const char *name,
 				     fpga_object *object, int flags);
-fpga_result remote_fpgaHandleGetObject(fpga_token handle, const char *name,
+fpga_result remote_fpgaHandleGetObject(fpga_handle handle, const char *name,
 				      fpga_object *object, int flags);
 fpga_result remote_fpgaObjectGetObject(fpga_object parent, const char *name,
 				      fpga_object *object, int flags);
@@ -172,6 +172,18 @@ opae_create_remote_handle(struct _remote_token *token,
 			  fpga_handle_header *hdr);
 
 void opae_destroy_remote_handle(struct _remote_handle *h);
+
+struct _remote_sysobject {
+	fpga_remote_id object_id;
+	struct _remote_token *token;
+};
+
+struct _remote_sysobject *
+opae_create_remote_sysobject(struct _remote_token *token,
+			     fpga_remote_id *rid);
+
+void opae_destroy_remote_sysobject(struct _remote_sysobject *s);
+
 
 #ifdef __cplusplus
 }

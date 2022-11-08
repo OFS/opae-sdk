@@ -41,6 +41,7 @@ typedef struct _opae_remote_context {
 	opae_hash_map remote_id_to_handle_map;
 	opae_hash_map remote_id_to_mmio_map;
 	opae_hash_map remote_id_to_buf_info_map;
+	opae_hash_map remote_id_to_sysobject_map;
 
 } opae_remote_context;
 
@@ -138,6 +139,27 @@ bool opae_handle_fpgaClearError_request_21(opae_remote_context *c,
 bool opae_handle_fpgaClearAllErrors_request_22(opae_remote_context *c,
 					       const char *req_json,
 					       char **resp_json);
+
+bool opae_handle_fpgaTokenGetObject_request_23(opae_remote_context *c,
+					       const char *req_json,
+					       char **resp_json);
+
+bool opae_handle_fpgaDestroyObject_request_24(opae_remote_context *c,
+					      const char *req_json,
+					      char **resp_json);
+
+bool opae_handle_fpgaObjectGetType_request_25(opae_remote_context *c,
+					      const char *req_json,
+					      char **resp_json);
+
+bool opae_handle_fpgaObjectGetName_request_26(opae_remote_context *c,
+					      const char *req_json,
+					      char **resp_json);
+
+bool opae_handle_fpgaObjectGetSize_request_27(opae_remote_context *c,
+					      const char *req_json,
+					      char **resp_json);
+
 
 
 

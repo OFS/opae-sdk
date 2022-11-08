@@ -289,6 +289,74 @@ bool opae_decode_fpgaClearAllErrors_response_22(
 	const char *json,
 	opae_fpgaClearAllErrors_response *resp);
 
+typedef struct {
+	opae_response_header header;
+	fpga_remote_id object_id;
+	fpga_result result;
+} opae_fpgaTokenGetObject_response;
+
+char *opae_encode_fpgaTokenGetObject_response_23(
+	opae_fpgaTokenGetObject_response *resp,
+	int json_flags);
+bool opae_decode_fpgaTokenGetObject_response_23(
+	const char *json,
+	opae_fpgaTokenGetObject_response *resp);
+
+typedef struct {
+	opae_response_header header;
+	fpga_result result;
+} opae_fpgaDestroyObject_response;
+
+char *opae_encode_fpgaDestroyObject_response_24(
+	opae_fpgaDestroyObject_response *resp,
+	int json_flags);
+bool opae_decode_fpgaDestroyObject_response_24(
+	const char *json,
+	opae_fpgaDestroyObject_response *resp);
+
+typedef struct {
+	opae_response_header header;
+	enum fpga_sysobject_type type;
+	fpga_result result;
+} opae_fpgaObjectGetType_response;
+
+char *opae_encode_fpgaObjectGetType_response_25(
+	opae_fpgaObjectGetType_response *resp,
+	int json_flags);
+bool opae_decode_fpgaObjectGetType_response_25(
+	const char *json,
+	opae_fpgaObjectGetType_response *resp);
+
+#ifndef OPAE_SYSOBJECT_NAME_MAX 
+#define OPAE_SYSOBJECT_NAME_MAX 256
+#endif // OPAE_SYSOBJECT_NAME_MAX 
+typedef struct {
+	opae_response_header header;
+	char name[OPAE_SYSOBJECT_NAME_MAX];
+	fpga_result result;
+} opae_fpgaObjectGetName_response;
+
+char *opae_encode_fpgaObjectGetName_response_26(
+	opae_fpgaObjectGetName_response *resp,
+	int json_flags);
+bool opae_decode_fpgaObjectGetName_response_26(
+	const char *json,
+	opae_fpgaObjectGetName_response *resp);
+
+typedef struct {
+	opae_response_header header;
+	uint32_t value;
+	fpga_result result;
+} opae_fpgaObjectGetSize_response;
+
+char *opae_encode_fpgaObjectGetSize_response_27(
+	opae_fpgaObjectGetSize_response *resp,
+	int json_flags);
+bool opae_decode_fpgaObjectGetSize_response_27(
+	const char *json,
+	opae_fpgaObjectGetSize_response *resp);
+
+
 
 
 #ifdef __cplusplus

@@ -164,6 +164,16 @@ fpga_result opae_init_remote_context(opae_remote_context *c)
 	if (res)
 		return res;
 
+	res = opae_hash_map_init(&c->remote_id_to_sysobject_map,
+				 1024, /* num_buckets   */
+                                 0,    /* hash_seed     */
+				 murmur3_32_string_hash,
+				 opae_str_key_compare,
+				 opae_str_key_cleanup,
+				 NULL  /* value_cleanup */);
+	if (res)
+		return res;
+
 	return FPGA_OK;
 }
 
@@ -173,6 +183,7 @@ fpga_result opae_release_remote_context(opae_remote_context *c)
 	opae_hash_map_destroy(&c->remote_id_to_handle_map);
 	opae_hash_map_destroy(&c->remote_id_to_mmio_map);
 	opae_hash_map_destroy(&c->remote_id_to_buf_info_map);
+	opae_hash_map_destroy(&c->remote_id_to_sysobject_map);
 	return FPGA_OK;
 }
 
@@ -1508,6 +1519,263 @@ bool opae_handle_fpgaClearAllErrors_request_22(opae_remote_context *c,
 
 out_respond:
 	*resp_json = opae_encode_fpgaClearAllErrors_response_22(
+			&resp,
+			c->json_to_string_flags);
+	return res;
+}
+
+bool opae_handle_fpgaTokenGetObject_request_23(opae_remote_context *c,
+					       const char *req_json,
+					       char **resp_json)
+{
+	bool res = false;
+	opae_fpgaTokenGetObject_request req;
+	opae_fpgaTokenGetObject_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_token token = NULL;
+	fpga_object object = NULL;
+
+	if (!opae_decode_fpgaTokenGetObject_request_23(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaTokenGetObject request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaTokenGetObject_response_23");
+
+	resp.result = FPGA_EXCEPTION;
+
+	opae_remote_id_to_hash_key(&req.token.token_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the token in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_token_map,
+				hash_key_buf,
+				&token) != FPGA_OK) {
+		OPAE_ERR("token lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaTokenGetObject(token,
+					 req.name,
+					 &object,
+					 req.flags);
+
+	if (resp.result == FPGA_OK) {
+		char *hash_key;
+		fpga_result result;
+
+		// Allocate a new remote ID for the object.
+		opae_get_remote_id(&resp.object_id);
+
+		hash_key = opae_remote_id_to_hash_key_alloc(&resp.object_id);
+		if (!hash_key) {
+			OPAE_ERR("strdup failed");
+			resp.result = FPGA_NO_MEMORY;
+			goto out_respond;
+		}
+
+		// Store the new sysobject in our hash map.
+		result = opae_hash_map_add(&c->remote_id_to_sysobject_map,
+					   hash_key, 
+					   object);
+		if (result) {
+			resp.result = FPGA_EXCEPTION;
+			opae_str_key_cleanup(hash_key);
+			goto out_respond;
+		}
+	}
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaTokenGetObject_response_23(
+			&resp,
+			c->json_to_string_flags);
+	return res;
+}
+
+bool opae_handle_fpgaDestroyObject_request_24(opae_remote_context *c,
+					      const char *req_json,
+					      char **resp_json)
+{
+	bool res = false;
+	opae_fpgaDestroyObject_request req;
+	opae_fpgaDestroyObject_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_object object = NULL;
+
+	if (!opae_decode_fpgaDestroyObject_request_24(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaDestroyObject request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaDestroyObject_response_24");
+
+	resp.result = FPGA_EXCEPTION;
+
+	opae_remote_id_to_hash_key(&req.object_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the sysobject in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_sysobject_map,
+				hash_key_buf,
+				&object) != FPGA_OK) {
+		OPAE_ERR("sysobject lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaDestroyObject(&object);
+
+	if (resp.result == FPGA_OK) {
+		// Remove the sysobject from the hash map.
+		opae_hash_map_remove(&c->remote_id_to_sysobject_map,
+				     hash_key_buf);
+
+		res = true;
+	}
+
+out_respond:
+	*resp_json = opae_encode_fpgaDestroyObject_response_24(
+			&resp,
+			c->json_to_string_flags);
+	return res;
+}
+
+bool opae_handle_fpgaObjectGetType_request_25(opae_remote_context *c,
+					      const char *req_json,
+					      char **resp_json)
+{
+	bool res = false;
+	opae_fpgaObjectGetType_request req;
+	opae_fpgaObjectGetType_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_object object = NULL;
+
+	if (!opae_decode_fpgaObjectGetType_request_25(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaObjectGetType request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaObjectGetType_response_25");
+
+	resp.result = FPGA_EXCEPTION;
+
+	opae_remote_id_to_hash_key(&req.object_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the sysobject in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_sysobject_map,
+				hash_key_buf,
+				&object) != FPGA_OK) {
+		OPAE_ERR("sysobject lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaObjectGetType(object, &resp.type);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaObjectGetType_response_25(
+			&resp,
+			c->json_to_string_flags);
+	return res;
+}
+
+bool opae_handle_fpgaObjectGetName_request_26(opae_remote_context *c,
+					      const char *req_json,
+					      char **resp_json)
+{
+	bool res = false;
+	opae_fpgaObjectGetName_request req;
+	opae_fpgaObjectGetName_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_object object = NULL;
+
+	if (!opae_decode_fpgaObjectGetName_request_26(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaObjectGetName request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaObjectGetName_response_26");
+
+	resp.result = FPGA_EXCEPTION;
+	memset(resp.name, 0, sizeof(resp.name));
+
+	opae_remote_id_to_hash_key(&req.object_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the sysobject in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_sysobject_map,
+				hash_key_buf,
+				&object) != FPGA_OK) {
+		OPAE_ERR("sysobject lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaObjectGetName(object, resp.name, sizeof(resp.name));
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaObjectGetName_response_26(
+			&resp,
+			c->json_to_string_flags);
+	return res;
+}
+
+bool opae_handle_fpgaObjectGetSize_request_27(opae_remote_context *c,
+					      const char *req_json,
+					      char **resp_json)
+{
+	bool res = false;
+	opae_fpgaObjectGetSize_request req;
+	opae_fpgaObjectGetSize_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_object object = NULL;
+
+	if (!opae_decode_fpgaObjectGetSize_request_27(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaObjectGetSize request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaObjectGetSize_response_27");
+
+	resp.result = FPGA_EXCEPTION;
+	resp.value = 0;
+
+	opae_remote_id_to_hash_key(&req.object_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the sysobject in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_sysobject_map,
+				hash_key_buf,
+				&object) != FPGA_OK) {
+		OPAE_ERR("sysobject lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaObjectGetSize(object, &resp.value, req.flags);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaObjectGetSize_response_27(
 			&resp,
 			c->json_to_string_flags);
 	return res;

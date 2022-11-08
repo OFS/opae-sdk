@@ -1325,3 +1325,67 @@ bool opae_ser_json_to_error_info_obj(struct json_object *jobj,
 
 	return true;
 }
+
+#define NUM_SYSOBJECT_TYPES 2
+STATIC struct {
+	enum fpga_sysobject_type type;
+	const char *str;
+} sysobject_type_table[NUM_SYSOBJECT_TYPES] = {
+	{ FPGA_OBJECT_CONTAINER, "FPGA_OBJECT_CONTAINER" },
+	{ FPGA_OBJECT_ATTRIBUTE, "FPGA_OBJECT_ATTRIBUTE" }
+};
+
+STATIC const char *
+opae_sysobject_type_to_str(enum fpga_sysobject_type t)
+{
+	int i;
+
+	for (i = 0 ; i < NUM_SYSOBJECT_TYPES ; ++i) {
+		if (t == sysobject_type_table[i].type)
+			return sysobject_type_table[i].str;
+	}
+
+	return "<unknown>";
+}
+
+STATIC enum fpga_sysobject_type
+opae_str_to_sysobject_type(const char *s)
+{
+	int i;
+
+	for (i = 0 ; i < NUM_SYSOBJECT_TYPES ; ++i) {
+		if (!strcmp(s, sysobject_type_table[i].str))
+			return sysobject_type_table[i].type;
+	}
+
+	return (enum fpga_sysobject_type)-1;
+}
+
+bool opae_ser_fpga_sysobject_type_to_json_obj(
+	const enum fpga_sysobject_type type,
+	struct json_object *parent)
+{
+	const char *str;
+
+	str = opae_sysobject_type_to_str(type);
+	json_object_object_add(parent, "fpga_sysobject_type",
+		json_object_new_string(str));
+
+	return true;
+}
+
+bool opae_ser_json_to_fpga_sysobject_type_obj(
+	struct json_object *jobj,
+	enum fpga_sysobject_type *type)
+{
+	char *str = NULL;
+	struct json_object *obj;
+
+	obj = parse_json_string(jobj, "fpga_sysobject_type", &str);
+	if (!obj)
+		return false;
+
+	*type = opae_str_to_sysobject_type(str);
+
+	return true;
+}

@@ -74,6 +74,14 @@ bool opae_ser_json_to_error_info_obj(struct json_object *jobj,
 				     struct fpga_error_info *err);
 
 
+bool opae_ser_fpga_sysobject_type_to_json_obj(
+	const enum fpga_sysobject_type type,
+	struct json_object *parent);
+bool opae_ser_json_to_fpga_sysobject_type_obj(
+	struct json_object *jobj,
+	enum fpga_sysobject_type *type);
+
+
 
 static inline json_object *
 parse_json_int(json_object *parent, const char *name, int *value)

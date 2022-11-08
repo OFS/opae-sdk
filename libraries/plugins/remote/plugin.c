@@ -38,15 +38,11 @@
 
 int __REMOTE_API__ remote_plugin_initialize(void)
 {
-
-
 	return 0;
 }
 
 int __REMOTE_API__ remote_plugin_finalize(void)
 {
-
-
 	return 0;
 }
 
@@ -153,6 +149,8 @@ int __REMOTE_API__ opae_plugin_configure(opae_api_adapter_table *adapter,
 		dlsym(adapter->plugin.dl_handle, "remote_fpgaObjectGetSize");
 	adapter->fpgaObjectGetType =
 		dlsym(adapter->plugin.dl_handle, "remote_fpgaObjectGetType");
+	adapter->fpgaObjectGetName =
+		dlsym(adapter->plugin.dl_handle, "remote_fpgaObjectGetName");
 	adapter->fpgaObjectWrite64 =
 		dlsym(adapter->plugin.dl_handle, "remote_fpgaObjectWrite64");
 	adapter->fpgaSetUserClock =
