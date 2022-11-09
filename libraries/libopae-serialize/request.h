@@ -306,7 +306,12 @@ bool opae_decode_fpgaClearAllErrors_request_22(
 
 #ifndef OPAE_SYSOBJECT_NAME_MAX 
 #define OPAE_SYSOBJECT_NAME_MAX 256
-#endif // OPAE_SYSOBJECT_NAME_MAX 
+#endif // OPAE_SYSOBJECT_NAME_MAX
+
+#ifndef OPAE_SYSOBJECT_VALUE_MAX
+#define OPAE_SYSOBJECT_VALUE_MAX 4096
+#endif // OPAE_SYSOBJECT_VALUE_MAX
+
 typedef struct {
 	opae_request_header header;
 	fpga_token_header token;
@@ -369,6 +374,90 @@ char *opae_encode_fpgaObjectGetSize_request_27(
 bool opae_decode_fpgaObjectGetSize_request_27(
 	const char *json,
 	opae_fpgaObjectGetSize_request *req);
+
+typedef struct {
+	opae_request_header header;
+	fpga_remote_id object_id;
+	size_t offset;
+	size_t len;
+	int flags;
+} opae_fpgaObjectRead_request;
+
+char *opae_encode_fpgaObjectRead_request_28(
+	opae_fpgaObjectRead_request *req,
+	int json_flags);
+bool opae_decode_fpgaObjectRead_request_28(
+	const char *json,
+	opae_fpgaObjectRead_request *req);
+
+typedef struct {
+	opae_request_header header;
+	fpga_remote_id object_id;
+	int flags;
+} opae_fpgaObjectRead64_request;
+
+char *opae_encode_fpgaObjectRead64_request_29(
+	opae_fpgaObjectRead64_request *req,
+	int json_flags);
+bool opae_decode_fpgaObjectRead64_request_29(
+	const char *json,
+	opae_fpgaObjectRead64_request *req);
+
+typedef struct {
+	opae_request_header header;
+	fpga_remote_id object_id;
+	uint64_t value;
+	int flags;
+} opae_fpgaObjectWrite64_request;
+
+char *opae_encode_fpgaObjectWrite64_request_30(
+	opae_fpgaObjectWrite64_request *req,
+	int json_flags);
+bool opae_decode_fpgaObjectWrite64_request_30(
+	const char *json,
+	opae_fpgaObjectWrite64_request *req);
+
+typedef struct {
+	opae_request_header header;
+	fpga_handle_header handle;
+	char name[OPAE_SYSOBJECT_NAME_MAX];
+	int flags;
+} opae_fpgaHandleGetObject_request;
+
+char *opae_encode_fpgaHandleGetObject_request_31(
+	opae_fpgaHandleGetObject_request *req,
+	int json_flags);
+bool opae_decode_fpgaHandleGetObject_request_31(
+	const char *json,
+	opae_fpgaHandleGetObject_request *req);
+
+typedef struct {
+	opae_request_header header;
+	fpga_remote_id object_id;
+	char name[OPAE_SYSOBJECT_NAME_MAX];
+	int flags;
+} opae_fpgaObjectGetObject_request;
+
+char *opae_encode_fpgaObjectGetObject_request_32(
+	opae_fpgaObjectGetObject_request *req,
+	int json_flags);
+bool opae_decode_fpgaObjectGetObject_request_32(
+	const char *json,
+	opae_fpgaObjectGetObject_request *req);
+
+typedef struct {
+	opae_request_header header;
+	fpga_remote_id object_id;
+	size_t idx;
+} opae_fpgaObjectGetObjectAt_request;
+
+char *opae_encode_fpgaObjectGetObjectAt_request_33(
+	opae_fpgaObjectGetObjectAt_request *req,
+	int json_flags);
+bool opae_decode_fpgaObjectGetObjectAt_request_33(
+	const char *json,
+	opae_fpgaObjectGetObjectAt_request *req);
+
 
 
 

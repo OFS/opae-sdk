@@ -68,6 +68,12 @@ STATIC srv_handler handlers[] = {
 	opae_handle_fpgaObjectGetType_request_25,
 	opae_handle_fpgaObjectGetName_request_26,
 	opae_handle_fpgaObjectGetSize_request_27,
+	opae_handle_fpgaObjectRead_request_28,
+	opae_handle_fpgaObjectRead64_request_29,
+	opae_handle_fpgaObjectWrite64_request_30,
+	opae_handle_fpgaHandleGetObject_request_31,
+	opae_handle_fpgaObjectGetObject_request_32,
+	opae_handle_fpgaObjectGetObjectAt_request_33,
 
 };
 

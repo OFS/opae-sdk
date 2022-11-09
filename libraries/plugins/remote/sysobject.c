@@ -74,6 +74,11 @@ remote_fpgaTokenGetObject(fpga_token token,
 		return FPGA_INVALID_PARAM;
 	}
 
+	if (!name) {
+		OPAE_ERR("NULL name");
+		return FPGA_INVALID_PARAM;
+	}
+
 	if (!object) {
 		OPAE_ERR("NULL object pointer");
 		return FPGA_INVALID_PARAM;
@@ -139,15 +144,84 @@ remote_fpgaHandleGetObject(fpga_handle handle,
 			   fpga_object *object,
 			   int flags)
 {
-	fpga_result result = FPGA_OK;
-(void) handle;
-(void) name;
-(void) object;
-(void) flags;
+	opae_fpgaHandleGetObject_request req;
+	opae_fpgaHandleGetObject_response resp;
+	struct _remote_handle *h;
+	struct _remote_token *tok;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+	if (!handle) {
+		OPAE_ERR("NULL handle");
+		return FPGA_INVALID_PARAM;
+	}
 
+	if (!name) {
+		OPAE_ERR("NULL name");
+		return FPGA_INVALID_PARAM;
+	}
 
-	return result;
+	if (!object) {
+		OPAE_ERR("NULL object pointer");
+		return FPGA_INVALID_PARAM;
+	}
+
+	h = (struct _remote_handle *)handle;
+	tok = h->token;
+
+	req.handle = h->hdr;
+
+	memset(req.name, 0, sizeof(req.name));
+	len = strnlen(name, OPAE_SYSOBJECT_NAME_MAX);
+	memcpy(req.name, name, len + 1);
+
+	req.flags = flags;
+
+	req_json = opae_encode_fpgaHandleGetObject_request_31(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+	if (!opae_decode_fpgaHandleGetObject_response_31(recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	if (resp.result == FPGA_OK) {
+		struct _remote_sysobject *o =
+			opae_create_remote_sysobject(tok, &resp.object_id);
+
+		if (!o) {
+			OPAE_ERR("calloc failed");
+			*object = NULL;
+			return FPGA_NO_MEMORY;
+		}
+
+		*object = o;
+	}
+
+	return resp.result;
 }
 
 fpga_result __REMOTE_API__
@@ -156,15 +230,84 @@ remote_fpgaObjectGetObject(fpga_object parent,
 			   fpga_object *object,
 			   int flags)
 {
-	fpga_result result = FPGA_OK;
-(void) parent;
-(void) name;
-(void) object;
-(void) flags;
+	opae_fpgaObjectGetObject_request req;
+	opae_fpgaObjectGetObject_response resp;
+	struct _remote_sysobject *par;
+	struct _remote_token *tok;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+	if (!parent) {
+		OPAE_ERR("NULL parent");
+		return FPGA_INVALID_PARAM;
+	}
 
+	if (!name) {
+		OPAE_ERR("NULL name");
+		return FPGA_INVALID_PARAM;
+	}
 
-	return result;
+	if (!object) {
+		OPAE_ERR("NULL object pointer");
+		return FPGA_INVALID_PARAM;
+	}
+
+	par = (struct _remote_sysobject *)parent;
+	tok = par->token;
+
+	req.object_id = par->object_id;
+
+	memset(req.name, 0, sizeof(req.name));
+	len = strnlen(name, OPAE_SYSOBJECT_NAME_MAX);
+	memcpy(req.name, name, len + 1);
+
+	req.flags = flags;
+
+	req_json = opae_encode_fpgaObjectGetObject_request_32(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+	if (!opae_decode_fpgaObjectGetObject_response_32(recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	if (resp.result == FPGA_OK) {
+		struct _remote_sysobject *o =
+			opae_create_remote_sysobject(tok, &resp.object_id);
+
+		if (!o) {
+			OPAE_ERR("calloc failed");
+			*object = NULL;
+			return FPGA_NO_MEMORY;
+		}
+
+		*object = o;
+	}
+
+	return resp.result;
 }
 
 fpga_result __REMOTE_API__
@@ -184,16 +327,74 @@ remote_fpgaObjectGetObjectAt(fpga_object parent,
 			     size_t idx,
 			     fpga_object *object)
 {
-	fpga_result result = FPGA_OK;
-(void) parent;
-(void) idx;
-(void) object;
+	opae_fpgaObjectGetObjectAt_request req;
+	opae_fpgaObjectGetObjectAt_response resp;
+	struct _remote_sysobject *par;
+	struct _remote_token *tok;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+	if (!parent) {
+		OPAE_ERR("NULL parent");
+		return FPGA_INVALID_PARAM;
+	}
 
+	if (!object) {
+		OPAE_ERR("NULL object pointer");
+		return FPGA_INVALID_PARAM;
+	}
 
+	par = (struct _remote_sysobject *)parent;
+	tok = par->token;
 
+	req.object_id = par->object_id;
+	req.idx = idx;
 
-	return result;
+	req_json = opae_encode_fpgaObjectGetObjectAt_request_33(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+	if (!opae_decode_fpgaObjectGetObjectAt_response_33(recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	if (resp.result == FPGA_OK) {
+		struct _remote_sysobject *o =
+			opae_create_remote_sysobject(tok, &resp.object_id);
+
+		if (!o) {
+			OPAE_ERR("calloc failed");
+			*object = NULL;
+			return FPGA_NO_MEMORY;
+		}
+
+		*object = o;
+	}
+
+	return resp.result;
 }
 
 fpga_result __REMOTE_API__ remote_fpgaDestroyObject(fpga_object *obj)
@@ -322,34 +523,140 @@ remote_fpgaObjectRead64(fpga_object obj,
 			uint64_t *value,
 			int flags)
 {
-	fpga_result result = FPGA_OK;
-(void) obj;
-(void) value;
-(void) flags;
+	opae_fpgaObjectRead64_request req;
+	opae_fpgaObjectRead64_response resp;
+	struct _remote_sysobject *o;
+	struct _remote_token *tok;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+	if (!obj) {
+		OPAE_ERR("NULL obj");
+		return FPGA_INVALID_PARAM;
+	}
 
+	if (!value) {
+		OPAE_ERR("NULL value pointer");
+		return FPGA_INVALID_PARAM;
+	}
 
-	return result;
+	o = (struct _remote_sysobject *)obj;
+	tok = o->token;
+
+	req.object_id = o->object_id;
+	req.flags = flags;
+
+	req_json = opae_encode_fpgaObjectRead64_request_29(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+	if (!opae_decode_fpgaObjectRead64_response_29(recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	if (resp.result == FPGA_OK)
+		*value = resp.value;
+
+	return resp.result;
 }
 
 fpga_result __REMOTE_API__
 remote_fpgaObjectRead(fpga_object obj,
 		      uint8_t *buffer,
 		      size_t offset,
-		      size_t len,
+		      size_t blen,
 		      int flags)
 {
-	fpga_result result = FPGA_OK;
-(void) obj;
-(void) buffer;
-(void) offset;
-(void) len;
-(void) flags;
+	opae_fpgaObjectRead_request req;
+	opae_fpgaObjectRead_response resp;
+	struct _remote_sysobject *o;
+	struct _remote_token *tok;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+	if (!obj) {
+		OPAE_ERR("NULL obj");
+		return FPGA_INVALID_PARAM;
+	}
 
+	if (!buffer) {
+		OPAE_ERR("NULL buffer");
+		return FPGA_INVALID_PARAM;
+	}
 
+	if (!blen) {
+		OPAE_ERR("Invalid buffer length");
+		return FPGA_INVALID_PARAM;
+	}
 
-	return result;
+	o = (struct _remote_sysobject *)obj;
+	tok = o->token;
+
+	req.object_id = o->object_id;
+	req.offset = offset;
+	req.len = blen - 1;
+	req.flags = flags;
+
+	req_json = opae_encode_fpgaObjectRead_request_28(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+	if (!opae_decode_fpgaObjectRead_response_28(recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	if (resp.result == FPGA_OK) {
+		len = strnlen(resp.value, blen - 1);
+		memcpy(buffer, resp.value, len + 1);
+	}
+
+	return resp.result;
 }
 
 fpga_result __REMOTE_API__
@@ -357,14 +664,57 @@ remote_fpgaObjectWrite64(fpga_object obj,
 			 uint64_t value,
 			 int flags)
 {
-	fpga_result result = FPGA_OK;
-(void) obj;
-(void) value;
-(void) flags;
+	opae_fpgaObjectWrite64_request req;
+	opae_fpgaObjectWrite64_response resp;
+	struct _remote_sysobject *o;
+	struct _remote_token *tok;
+	char *req_json;
+	size_t len;
+	ssize_t slen;
+	char recvbuf[OPAE_RECEIVE_BUF_MAX];
 
+	if (!obj) {
+		OPAE_ERR("NULL obj");
+		return FPGA_INVALID_PARAM;
+	}
 
+	o = (struct _remote_sysobject *)obj;
+	tok = o->token;
 
-	return result;
+	req.object_id = o->object_id;
+	req.value = value;
+	req.flags = flags;
+
+	req_json = opae_encode_fpgaObjectWrite64_request_30(
+		&req, tok->json_to_string_flags);
+
+	if (!req_json)
+		return FPGA_NO_MEMORY;
+
+	len = strlen(req_json);
+
+	slen = tok->ifc->send(tok->ifc->connection,
+			      req_json,
+			      len + 1);
+	if (slen < 0) {
+		opae_free(req_json);
+		return FPGA_EXCEPTION;
+	}
+
+	opae_free(req_json);
+
+	slen = tok->ifc->receive(tok->ifc->connection,
+				 recvbuf,
+				 sizeof(recvbuf));
+	if (slen < 0)
+		return FPGA_EXCEPTION;
+
+printf("%s\n", recvbuf);
+
+	if (!opae_decode_fpgaObjectWrite64_response_30(recvbuf, &resp))
+		return FPGA_EXCEPTION;
+
+	return resp.result;
 }
 
 fpga_result __REMOTE_API__
