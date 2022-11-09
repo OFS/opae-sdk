@@ -209,7 +209,7 @@ static void bel_print_value(const char *label, uint32_t value)
 	printf("    " BEL_LABEL_FMT "0x%08x\n", 48, label, value);
 }
 
-static void bel_print_timeofday(const char* label, struct bel_timeof_day *time_of_day)
+static void bel_print_timeofday(const char *label, struct bel_timeof_day *time_of_day)
 {
 	char time_str[26] = { 0 };
 	time_t time_sec = 0;
@@ -269,7 +269,7 @@ static void reserved_bit(const char *label, uint32_t value, size_t offset)
 		printf("      " BEL_LABEL_FMT "*** RESERVED BIT [%lu] IS NOT ZERO: %d\n", 46, label, offset, bit);
 }
 
-static void bel_print_power_on_status(struct bel_power_on_status *status, struct bel_timeof_day* timeof_day, bool print_bits)
+static void bel_print_power_on_status(struct bel_power_on_status *status, struct bel_timeof_day *timeof_day, bool print_bits)
 {
 	if (status->header.magic != BEL_POWER_ON_STATUS)
 		return;
