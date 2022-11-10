@@ -438,6 +438,59 @@ bool opae_decode_fpgaObjectGetObjectAt_response_33(
 	const char *json,
 	opae_fpgaObjectGetObjectAt_response *resp);
 
+typedef struct {
+	opae_response_header header;
+	fpga_result result;
+} opae_fpgaSetUserClock_response;
+
+char *opae_encode_fpgaSetUserClock_response_34(
+	opae_fpgaSetUserClock_response *resp,
+	int json_flags);
+bool opae_decode_fpgaSetUserClock_response_34(
+	const char *json,
+	opae_fpgaSetUserClock_response *resp);
+
+typedef struct {
+	opae_response_header header;
+	uint64_t high_clk;
+	uint64_t low_clk;
+	fpga_result result;
+} opae_fpgaGetUserClock_response;
+
+char *opae_encode_fpgaGetUserClock_response_35(
+	opae_fpgaGetUserClock_response *resp,
+	int json_flags);
+bool opae_decode_fpgaGetUserClock_response_35(
+	const char *json,
+	opae_fpgaGetUserClock_response *resp);
+
+typedef struct {
+	opae_response_header header;
+	uint64_t num_metrics;
+	fpga_result result;
+} opae_fpgaGetNumMetrics_response;
+
+char *opae_encode_fpgaGetNumMetrics_response_36(
+	opae_fpgaGetNumMetrics_response *resp,
+	int json_flags);
+bool opae_decode_fpgaGetNumMetrics_response_36(
+	const char *json,
+	opae_fpgaGetNumMetrics_response *resp);
+
+typedef struct {
+	opae_response_header header;
+	fpga_metric_info *info;
+	uint64_t num_metrics;
+	fpga_result result;
+} opae_fpgaGetMetricsInfo_response;
+
+char *opae_encode_fpgaGetMetricsInfo_response_37(
+	opae_fpgaGetMetricsInfo_response *resp,
+	int json_flags);
+bool opae_decode_fpgaGetMetricsInfo_response_37(
+	const char *json,
+	opae_fpgaGetMetricsInfo_response *resp);
+
 
 
 

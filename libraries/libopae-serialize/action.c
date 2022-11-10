@@ -2139,3 +2139,210 @@ out_respond:
 			c->json_to_string_flags);
 	return res;
 }
+
+bool opae_handle_fpgaSetUserClock_request_34(opae_remote_context *c,
+					     const char *req_json,
+					     char **resp_json)
+{
+	bool res = false;
+	opae_fpgaSetUserClock_request req;
+	opae_fpgaSetUserClock_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_handle handle = NULL;
+
+	if (!opae_decode_fpgaSetUserClock_request_34(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaSetUserClock request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaSetUserClock_response_34");
+
+	resp.result = FPGA_EXCEPTION;
+
+	opae_remote_id_to_hash_key(&req.handle.handle_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_handle_map,
+				hash_key_buf,
+				&handle) != FPGA_OK) {
+		OPAE_ERR("handle lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaSetUserClock(handle,
+				       req.high_clk,
+				       req.low_clk,
+				       req.flags);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaSetUserClock_response_34(
+			&resp,
+			c->json_to_string_flags);
+	return res;
+}
+
+bool opae_handle_fpgaGetUserClock_request_35(opae_remote_context *c,
+					     const char *req_json,
+					     char **resp_json)
+{
+	bool res = false;
+	opae_fpgaGetUserClock_request req;
+	opae_fpgaGetUserClock_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_handle handle = NULL;
+
+	if (!opae_decode_fpgaGetUserClock_request_35(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaGetUserClock request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaGetUserClock_response_35");
+
+	resp.result = FPGA_EXCEPTION;
+	resp.high_clk = 0;
+	resp.low_clk = 0;
+
+	opae_remote_id_to_hash_key(&req.handle.handle_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_handle_map,
+				hash_key_buf,
+				&handle) != FPGA_OK) {
+		OPAE_ERR("handle lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaGetUserClock(handle,
+				       &resp.high_clk,
+				       &resp.low_clk,
+				       req.flags);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaGetUserClock_response_35(
+			&resp,
+			c->json_to_string_flags);
+	return res;
+}
+
+bool opae_handle_fpgaGetNumMetrics_request_36(opae_remote_context *c,
+					      const char *req_json,
+					      char **resp_json)
+{
+	bool res = false;
+	opae_fpgaGetNumMetrics_request req;
+	opae_fpgaGetNumMetrics_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_handle handle = NULL;
+
+	if (!opae_decode_fpgaGetNumMetrics_request_36(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaGetNumMetrics request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaGetNumMetrics_response_36");
+
+	resp.result = FPGA_EXCEPTION;
+	resp.num_metrics = 0;
+
+	opae_remote_id_to_hash_key(&req.handle.handle_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_handle_map,
+				hash_key_buf,
+				&handle) != FPGA_OK) {
+		OPAE_ERR("handle lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	resp.result = fpgaGetNumMetrics(handle, &resp.num_metrics);
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaGetNumMetrics_response_36(
+			&resp,
+			c->json_to_string_flags);
+	return res;
+}
+
+bool opae_handle_fpgaGetMetricsInfo_request_37(opae_remote_context *c,
+					       const char *req_json,
+					       char **resp_json)
+{
+	bool res = false;
+	opae_fpgaGetMetricsInfo_request req;
+	opae_fpgaGetMetricsInfo_response resp;
+	char hash_key_buf[OPAE_MAX_TOKEN_HASH];
+	fpga_handle handle = NULL;
+	uint64_t num_metrics;
+
+	if (!opae_decode_fpgaGetMetricsInfo_request_37(req_json, &req)) {
+		OPAE_ERR("failed to decode fpgaGetMetricsInfo request");
+		return false;
+	}
+
+	request_header_to_response_header(&req.header,
+					  &resp.header,
+					  "fpgaGetMetricsInfo_response_37");
+
+	resp.result = FPGA_EXCEPTION;
+	resp.info = NULL;
+	resp.num_metrics = 0;
+
+	if (req.num_metrics) {
+		resp.info = opae_calloc(req.num_metrics,
+				sizeof(fpga_metric_info));
+		if (!resp.info) {
+			OPAE_ERR("calloc failed");
+			goto out_respond;
+		}
+	}
+
+	opae_remote_id_to_hash_key(&req.handle.handle_id,
+				   hash_key_buf,
+				   sizeof(hash_key_buf));
+
+	// Find the handle in our remote context.
+	if (opae_hash_map_find(&c->remote_id_to_handle_map,
+				hash_key_buf,
+				&handle) != FPGA_OK) {
+		OPAE_ERR("handle lookup failed for %s", hash_key_buf);
+		goto out_respond;
+	}
+
+	num_metrics = req.num_metrics;
+	resp.result = fpgaGetMetricsInfo(handle,
+					 resp.info,
+					 &num_metrics);
+
+	if (resp.result == FPGA_OK)
+		resp.num_metrics = num_metrics;
+
+	res = true;
+
+out_respond:
+	*resp_json = opae_encode_fpgaGetMetricsInfo_response_37(
+			&resp,
+			c->json_to_string_flags);
+
+	if (resp.info)
+		opae_free(resp.info);
+
+	return res;
+}

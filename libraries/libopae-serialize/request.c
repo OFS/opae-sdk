@@ -3165,3 +3165,357 @@ out_put:
 	json_object_put(root);
 	return res;
 }
+
+char *opae_encode_fpgaSetUserClock_request_34(
+	opae_fpgaSetUserClock_request *req,
+	int json_flags)
+{
+	struct json_object *root;
+	char *json = NULL;
+	struct json_object *jhandle;
+	char buf[32];
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_request_header_obj(root,
+		34, "fpgaSetUserClock_request_34"))
+		goto out_err;
+
+        jhandle = json_object_new_object();
+        if (!jhandle) {
+                OPAE_ERR("out of memory");
+                goto out_err;
+        }
+
+        if (!opae_ser_handle_header_to_json_obj(&req->handle, jhandle))
+                goto out_err;
+
+        json_object_object_add(root, "handle", jhandle);
+
+	if (snprintf(buf, sizeof(buf),
+		     "0x%016" PRIx64, req->high_clk) >=
+			(int)sizeof(buf)) {
+		OPAE_ERR("snprintf() buffer overflow");
+	}
+
+        json_object_object_add(root,
+			       "high_clk",
+			       json_object_new_string(buf));
+
+	if (snprintf(buf, sizeof(buf),
+		     "0x%016" PRIx64, req->low_clk) >=
+			(int)sizeof(buf)) {
+		OPAE_ERR("snprintf() buffer overflow");
+	}
+
+        json_object_object_add(root,
+			       "low_clk",
+			       json_object_new_string(buf));
+
+	json_object_object_add(root,
+			       "flags",
+			       json_object_new_int(req->flags));
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaSetUserClock_request_34(
+	const char *json,
+	opae_fpgaSetUserClock_request *req)
+{
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
+	struct json_object *jhandle = NULL;
+	char *str;
+	char *endptr;
+
+	root = json_tokener_parse_verbose(json, &j_err);
+        if (!root) {
+                OPAE_ERR("JSON parse failed: %s",
+                         json_tokener_error_desc(j_err));
+                return false;
+        }
+
+	if (!opae_decode_request_header_obj(root, &req->header)) {
+		OPAE_ERR("request header decode failed");
+		goto out_put;
+	}
+
+        if (!json_object_object_get_ex(root, "handle", &jhandle)) {
+                OPAE_DBG("Error parsing JSON: missing 'handle'");
+                goto out_put;
+        }
+
+        if (!opae_ser_json_to_handle_header_obj(jhandle, &req->handle))
+                goto out_put;
+
+	str = endptr = NULL;
+	if (!parse_json_string(root, "high_clk", &str))
+		goto out_put;
+
+	req->high_clk = strtoul(str, &endptr, 0);
+	if (endptr != str + strlen(str)) {
+		OPAE_ERR("fpgaSetUserClock_request decode "
+			 "failed (high_clk)");
+		goto out_put;
+	}
+
+	str = endptr = NULL;
+	if (!parse_json_string(root, "low_clk", &str))
+		goto out_put;
+
+	req->low_clk = strtoul(str, &endptr, 0);
+	if (endptr != str + strlen(str)) {
+		OPAE_ERR("fpgaSetUserClock_request decode "
+			 "failed (low_clk)");
+		goto out_put;
+	}
+
+	if (!parse_json_int(root, "flags", &req->flags))
+		goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}
+
+char *opae_encode_fpgaGetUserClock_request_35(
+	opae_fpgaGetUserClock_request *req,
+	int json_flags)
+{
+	struct json_object *root;
+	char *json = NULL;
+	struct json_object *jhandle;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_request_header_obj(root,
+		35, "fpgaGetUserClock_request_35"))
+		goto out_err;
+
+        jhandle = json_object_new_object();
+        if (!jhandle) {
+                OPAE_ERR("out of memory");
+                goto out_err;
+        }
+
+        if (!opae_ser_handle_header_to_json_obj(&req->handle, jhandle))
+                goto out_err;
+
+        json_object_object_add(root, "handle", jhandle);
+
+	json_object_object_add(root,
+			       "flags",
+			       json_object_new_int(req->flags));
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaGetUserClock_request_35(
+	const char *json,
+	opae_fpgaGetUserClock_request *req)
+{
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
+	struct json_object *jhandle = NULL;
+
+	root = json_tokener_parse_verbose(json, &j_err);
+        if (!root) {
+                OPAE_ERR("JSON parse failed: %s",
+                         json_tokener_error_desc(j_err));
+                return false;
+        }
+
+	if (!opae_decode_request_header_obj(root, &req->header)) {
+		OPAE_ERR("request header decode failed");
+		goto out_put;
+	}
+
+        if (!json_object_object_get_ex(root, "handle", &jhandle)) {
+                OPAE_DBG("Error parsing JSON: missing 'handle'");
+                goto out_put;
+        }
+
+        if (!opae_ser_json_to_handle_header_obj(jhandle, &req->handle))
+                goto out_put;
+
+	if (!parse_json_int(root, "flags", &req->flags))
+		goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}
+
+char *opae_encode_fpgaGetNumMetrics_request_36(
+	opae_fpgaGetNumMetrics_request *req,
+	int json_flags)
+{
+	struct json_object *root;
+	char *json = NULL;
+	struct json_object *jhandle;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_request_header_obj(root,
+		36, "fpgaGetNumMetrics_request_36"))
+		goto out_err;
+
+        jhandle = json_object_new_object();
+        if (!jhandle) {
+                OPAE_ERR("out of memory");
+                goto out_err;
+        }
+
+        if (!opae_ser_handle_header_to_json_obj(&req->handle, jhandle))
+                goto out_err;
+
+        json_object_object_add(root, "handle", jhandle);
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaGetNumMetrics_request_36(
+	const char *json,
+	opae_fpgaGetNumMetrics_request *req)
+{
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
+	struct json_object *jhandle = NULL;
+
+	root = json_tokener_parse_verbose(json, &j_err);
+        if (!root) {
+                OPAE_ERR("JSON parse failed: %s",
+                         json_tokener_error_desc(j_err));
+                return false;
+        }
+
+	if (!opae_decode_request_header_obj(root, &req->header)) {
+		OPAE_ERR("request header decode failed");
+		goto out_put;
+	}
+
+        if (!json_object_object_get_ex(root, "handle", &jhandle)) {
+                OPAE_DBG("Error parsing JSON: missing 'handle'");
+                goto out_put;
+        }
+
+        if (!opae_ser_json_to_handle_header_obj(jhandle, &req->handle))
+                goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}
+
+char *opae_encode_fpgaGetMetricsInfo_request_37(
+	opae_fpgaGetMetricsInfo_request *req,
+	int json_flags)
+{
+	struct json_object *root;
+	char *json = NULL;
+	struct json_object *jhandle;
+
+	root = json_object_new_object();
+	if (!root) {
+		OPAE_ERR("out of memory");
+		return NULL;
+	}
+
+	if (!opae_add_request_header_obj(root,
+		37, "fpgaGetMetricsInfo_request_37"))
+		goto out_err;
+
+        jhandle = json_object_new_object();
+        if (!jhandle) {
+                OPAE_ERR("out of memory");
+                goto out_err;
+        }
+
+        if (!opae_ser_handle_header_to_json_obj(&req->handle, jhandle))
+                goto out_err;
+
+        json_object_object_add(root, "handle", jhandle);
+
+	json_object_object_add(root,
+			       "num_metrics",
+			       json_object_new_int(req->num_metrics));
+
+	json = opae_strdup(json_object_to_json_string_ext(root, json_flags));
+
+out_err:
+	json_object_put(root);
+	return json;
+}
+
+bool opae_decode_fpgaGetMetricsInfo_request_37(
+	const char *json,
+	opae_fpgaGetMetricsInfo_request *req)
+{
+	struct json_object *root = NULL;
+	enum json_tokener_error j_err = json_tokener_success;
+	bool res = false;
+	struct json_object *jhandle = NULL;
+
+	root = json_tokener_parse_verbose(json, &j_err);
+        if (!root) {
+                OPAE_ERR("JSON parse failed: %s",
+                         json_tokener_error_desc(j_err));
+                return false;
+        }
+
+	if (!opae_decode_request_header_obj(root, &req->header)) {
+		OPAE_ERR("request header decode failed");
+		goto out_put;
+	}
+
+        if (!json_object_object_get_ex(root, "handle", &jhandle)) {
+                OPAE_DBG("Error parsing JSON: missing 'handle'");
+                goto out_put;
+        }
+
+	if (!parse_json_u64(root, "num_metrics", &req->num_metrics))
+		goto out_put;
+
+        if (!opae_ser_json_to_handle_header_obj(jhandle, &req->handle))
+                goto out_put;
+
+	res = true;
+
+out_put:
+	json_object_put(root);
+	return res;
+}

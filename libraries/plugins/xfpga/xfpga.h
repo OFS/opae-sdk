@@ -119,10 +119,10 @@ fpga_result xfpga_fpgaObjectRead(fpga_object obj, uint8_t *buffer,
 				 size_t offset, size_t len, int flags);
 fpga_result xfpga_fpgaObjectRead64(fpga_object obj, uint64_t *value, int flags);
 fpga_result xfpga_fpgaObjectWrite64(fpga_object obj, uint64_t value, int flags);
-fpga_result xfpga_fpgaSetUserClock(fpga_handle handle, uint64_t low_clk,
-				   uint64_t high_clk, int flags);
-fpga_result xfpga_fpgaGetUserClock(fpga_handle handle, uint64_t *low_clk,
-				   uint64_t *high_clk, int flags);
+fpga_result xfpga_fpgaSetUserClock(fpga_handle handle, uint64_t high_clk,
+				   uint64_t low_clk, int flags);
+fpga_result xfpga_fpgaGetUserClock(fpga_handle handle, uint64_t *high_clk,
+				   uint64_t *low_clk, int flags);
 
 fpga_result xfpga_fpgaGetNumMetrics(fpga_handle handle,
 				   uint64_t *num_metrics);

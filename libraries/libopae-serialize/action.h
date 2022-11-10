@@ -184,6 +184,22 @@ bool opae_handle_fpgaObjectGetObjectAt_request_33(opae_remote_context *c,
 					          const char *req_json,
 					          char **resp_json);
 
+bool opae_handle_fpgaSetUserClock_request_34(opae_remote_context *c,
+					     const char *req_json,
+					     char **resp_json);
+
+bool opae_handle_fpgaGetUserClock_request_35(opae_remote_context *c,
+					     const char *req_json,
+					     char **resp_json);
+
+bool opae_handle_fpgaGetNumMetrics_request_36(opae_remote_context *c,
+					      const char *req_json,
+					      char **resp_json);
+
+bool opae_handle_fpgaGetMetricsInfo_request_37(opae_remote_context *c,
+					       const char *req_json,
+					       char **resp_json);
+
 
 
 #ifdef __cplusplus

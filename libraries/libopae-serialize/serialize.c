@@ -1389,3 +1389,199 @@ bool opae_ser_json_to_fpga_sysobject_type_obj(
 
 	return true;
 }
+
+#define NUM_METRIC_DATATYPES 5
+STATIC struct {
+	enum fpga_metric_datatype type;
+	const char *str;
+} metric_datatype_table[NUM_METRIC_DATATYPES] = {
+	{ FPGA_METRIC_DATATYPE_INT,     "FPGA_METRIC_DATATYPE_INT"     },
+	{ FPGA_METRIC_DATATYPE_FLOAT,   "FPGA_METRIC_DATATYPE_FLOAT"   },
+	{ FPGA_METRIC_DATATYPE_DOUBLE,  "FPGA_METRIC_DATATYPE_DOUBLE"  },
+	{ FPGA_METRIC_DATATYPE_BOOL,    "FPGA_METRIC_DATATYPE_BOOL"    },
+	{ FPGA_METRIC_DATATYPE_UNKNOWN, "FPGA_METRIC_DATATYPE_UNKNOWN" }
+};
+
+STATIC const char *
+opae_metric_datatype_to_str(enum fpga_metric_datatype t)
+{
+	int i;
+
+	for (i = 0 ; i < NUM_METRIC_DATATYPES ; ++i) {
+		if (t == metric_datatype_table[i].type)
+			return metric_datatype_table[i].str;
+	}
+
+	return "<unknown>";
+}
+
+STATIC enum fpga_metric_datatype
+opae_str_to_metric_datatype(const char *s)
+{
+	int i;
+
+	for (i = 0 ; i < NUM_METRIC_DATATYPES ; ++i) {
+		if (!strcmp(s, metric_datatype_table[i].str))
+			return metric_datatype_table[i].type;
+	}
+
+	return (enum fpga_metric_datatype)-1;
+}
+
+#define NUM_METRIC_TYPES 5
+STATIC struct {
+	enum fpga_metric_type type;
+	const char *str;
+} metric_type_table[NUM_METRIC_TYPES] = {
+	{ FPGA_METRIC_TYPE_POWER,           "FPGA_METRIC_TYPE_POWER"           },
+	{ FPGA_METRIC_TYPE_THERMAL,         "FPGA_METRIC_TYPE_THERMAL"         },
+	{ FPGA_METRIC_TYPE_PERFORMANCE_CTR, "FPGA_METRIC_TYPE_PERFORMANCE_CTR" },
+	{ FPGA_METRIC_TYPE_AFU,             "FPGA_METRIC_TYPE_AFU"             },
+	{ FPGA_METRIC_TYPE_UNKNOWN,         "FPGA_METRIC_TYPE_UNKNOWN"         }
+};
+
+STATIC const char *
+opae_metric_type_to_str(enum fpga_metric_type t)
+{
+	int i;
+
+	for (i = 0 ; i < NUM_METRIC_TYPES ; ++i) {
+		if (t == metric_type_table[i].type)
+			return metric_type_table[i].str;
+	}
+
+	return "<unknown>";
+}
+
+STATIC enum fpga_metric_type
+opae_str_to_metric_type(const char *s)
+{
+	int i;
+
+	for (i = 0 ; i < NUM_METRIC_TYPES ; ++i) {
+		if (!strcmp(s, metric_type_table[i].str))
+			return metric_type_table[i].type;
+	}
+
+	return (enum fpga_metric_type)-1;
+}
+
+bool opae_ser_metric_info_to_json_obj(const fpga_metric_info *mi,
+                                      struct json_object *parent)
+{
+	char buf[64];
+	const char *str;
+
+	json_object_object_add(parent, "serialized_type",
+			json_object_new_string("fpga_metric_info"));
+
+	json_object_object_add(parent,
+			       "metric_num",
+			       json_object_new_int(mi->metric_num));
+
+	uuid_unparse(mi->metric_guid, buf);
+	json_object_object_add(parent,
+			       "metric_guid",
+			       json_object_new_string(buf));
+
+	json_object_object_add(parent,
+			       "qualifier_name",
+			       json_object_new_string(mi->qualifier_name));
+
+	json_object_object_add(parent,
+			       "group_name",
+			       json_object_new_string(mi->group_name));
+
+	json_object_object_add(parent,
+			       "metric_name",
+			       json_object_new_string(mi->metric_name));
+
+	json_object_object_add(parent,
+			       "metric_units",
+			       json_object_new_string(mi->metric_units));
+
+	str = opae_metric_datatype_to_str(mi->metric_datatype);
+	json_object_object_add(parent,
+			       "metric_datatype",
+			       json_object_new_string(str));
+
+	str = opae_metric_type_to_str(mi->metric_type);
+	json_object_object_add(parent,
+			       "metric_type",
+			       json_object_new_string(str));
+
+	return true;
+}
+
+bool opae_ser_json_to_metric_info_obj(struct json_object *jobj,
+                                      fpga_metric_info *mi)
+{
+	struct json_object *serialized_type;
+	char *str;
+	size_t len;
+
+	str = NULL;
+	serialized_type =
+		parse_json_string(jobj, "serialized_type", &str);
+
+	if (!serialized_type || strcmp(str, "fpga_metric_info")) {
+		OPAE_ERR("fpga_metric_info de-serialize failed");
+		return false;
+	}
+
+	mi->metric_num = 0;
+	if (!parse_json_u64(jobj, "metric_num", &mi->metric_num))
+		return false;
+
+	str = NULL;
+	if (!parse_json_string(jobj, "metric_guid", &str))
+		return false;
+
+	uuid_parse(str, mi->metric_guid);
+
+	str = NULL;
+	if (!parse_json_string(jobj, "qualifier_name", &str))
+		return false;
+
+	memset(mi->qualifier_name, 0, sizeof(mi->qualifier_name));
+	len = strnlen(str, FPGA_METRIC_STR_SIZE - 1);
+	memcpy(mi->qualifier_name, str, len + 1);
+
+	str = NULL;
+	if (!parse_json_string(jobj, "group_name", &str))
+		return false;
+
+	memset(mi->group_name, 0, sizeof(mi->group_name));
+	len = strnlen(str, FPGA_METRIC_STR_SIZE - 1);
+	memcpy(mi->group_name, str, len + 1);
+
+	str = NULL;
+	if (!parse_json_string(jobj, "metric_name", &str))
+		return false;
+
+	memset(mi->metric_name, 0, sizeof(mi->metric_name));
+	len = strnlen(str, FPGA_METRIC_STR_SIZE - 1);
+	memcpy(mi->metric_name, str, len + 1);
+
+	str = NULL;
+	if (!parse_json_string(jobj, "metric_units", &str))
+		return false;
+
+	memset(mi->metric_units, 0, sizeof(mi->metric_units));
+	len = strnlen(str, FPGA_METRIC_STR_SIZE - 1);
+	memcpy(mi->metric_units, str, len + 1);
+
+	str = NULL;
+	if (!parse_json_string(jobj, "metric_datatype", &str))
+		return false;
+
+	mi->metric_datatype = opae_str_to_metric_datatype(str);
+
+	str = NULL;
+	if (!parse_json_string(jobj, "metric_type", &str))
+		return false;
+
+	mi->metric_type = opae_str_to_metric_type(str);
+
+	return true;
+}

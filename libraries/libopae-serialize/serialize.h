@@ -82,6 +82,13 @@ bool opae_ser_json_to_fpga_sysobject_type_obj(
 	enum fpga_sysobject_type *type);
 
 
+bool opae_ser_metric_info_to_json_obj(const fpga_metric_info *mi,
+				      struct json_object *parent);
+bool opae_ser_json_to_metric_info_obj(struct json_object *jobj,
+				      fpga_metric_info *mi);
+
+
+
 
 static inline json_object *
 parse_json_int(json_object *parent, const char *name, int *value)
