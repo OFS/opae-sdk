@@ -83,9 +83,11 @@ endif(OPAE_MINIMAL_BUILD)
 
 string(LENGTH ${CMAKE_INSTALL_PREFIX} INSTALL_PREFIX_LEN)
 if (${INSTALL_PREFIX_LEN} GREATER 127)
-    message(WARNING "The length of CMAKE_INSTALL_PREFIX (${INSTALL_PREFIX_LEN}) has exceeded"
-                    " a limit mandated by the Linux kernel. As a result, you may experience trouble"
-		    " with this build.")
+    message(FATAL_ERROR "The length of CMAKE_INSTALL_PREFIX (${INSTALL_PREFIX_LEN})"
+                        " has exceeded a limit mandated by the Linux kernel"
+                        " regarding the length of a script shebang. As a result,"
+                        " the build has been stopped. Please choose a more suitable"
+                        " CMAKE_INSTALL_PREFIX and try again.")
 endif ()
 
 ############################################################################
