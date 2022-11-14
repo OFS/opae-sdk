@@ -240,8 +240,6 @@ public:
       app_.require_subcommand();
     CLI11_PARSE(app_, argc, argv);
 
-    auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-
     command::ptr_t test(nullptr);
     CLI::App *app = nullptr;
     for (auto kv : commands_) {
@@ -256,11 +254,8 @@ public:
       return exit_codes::not_run;
     }
 
-    std::stringstream ss;
-    ss << name_ << "_" << test->name() << ".log";
-    auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(ss.str(), true);
-    file_sink->set_level(spdlog::level::trace);
-    logger_ = std::make_shared<spdlog::logger>(test->name(), spdlog::sinks_init_list ({console_sink, file_sink}));
+    auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+    logger_ = std::make_shared<spdlog::logger>(test->name(), console_sink);
     spdlog::register_logger(logger_);
     logger_->set_level(spdlog::level::from_str(log_level_));
 
